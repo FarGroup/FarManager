@@ -1101,7 +1101,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 	{
 		if (
 			!InternalProcessKey &&
-			(IsEmptyCmdline || (LocalKey != KEY_ENTER && LocalKey != KEY_NUMENTER && LocalKey != KEY_SHIFTENTER && LocalKey != KEY_SHIFTNUMENTER)) &&
+			(IsEmptyCmdline || none_of(LocalKey, KEY_ENTER, KEY_NUMENTER, KEY_SHIFTENTER, KEY_SHIFTNUMENTER)) &&
 			SendKeyToPlugin(LocalKey)
 		)
 			return true;
@@ -1211,9 +1211,9 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 	*/
 	if (m_Stripes == 1 && IsEmptyCmdline)
 	{
-		if (LocalKey == KEY_SHIFTLEFT || LocalKey == KEY_SHIFTNUMPAD4)
+		if (any_of(LocalKey, KEY_SHIFTLEFT, KEY_SHIFTNUMPAD4))
 			LocalKey=KEY_SHIFTPGUP;
-		else if (LocalKey == KEY_SHIFTRIGHT || LocalKey == KEY_SHIFTNUMPAD6)
+		else if (any_of(LocalKey, KEY_SHIFTRIGHT, KEY_SHIFTNUMPAD6))
 			LocalKey=KEY_SHIFTPGDN;
 	}
 
@@ -1310,17 +1310,27 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 		case KEY_ALTLEFT:     // Прокрутка длинных имен и описаний
 		case KEY_RALTLEFT:
+			if (LeftPos != std::numeric_limits<decltype(LeftPos)>::min())
+				--LeftPos;
+			Redraw();
+			return true;
+
 		case KEY_ALTHOME:     // Прокрутка длинных имен и описаний - в начало
 		case KEY_RALTHOME:
-			LeftPos=(LocalKey == KEY_ALTHOME || LocalKey == KEY_RALTHOME)?-0x7fff:LeftPos-1;
+			LeftPos = std::numeric_limits<decltype(LeftPos)>::min();
 			Redraw();
 			return true;
 
 		case KEY_ALTRIGHT:    // Прокрутка длинных имен и описаний
 		case KEY_RALTRIGHT:
+			if (LeftPos != std::numeric_limits<decltype(LeftPos)>::max())
+				++LeftPos;
+			Redraw();
+			return true;
+
 		case KEY_ALTEND:     // Прокрутка длинных имен и описаний - в конец
 		case KEY_RALTEND:
-			LeftPos=(LocalKey == KEY_ALTEND || LocalKey == KEY_RALTEND)?0x7fff:LeftPos+1;
+			LeftPos = std::numeric_limits<decltype(LeftPos)>::max();
 			Redraw();
 			return true;
 
@@ -1340,11 +1350,14 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			//if (FileCount>0 && SetCurPath()) // ?????
 			SetCurPath();
 			CopyNames(
-					LocalKey == KEY_CTRLALTINS || LocalKey == KEY_RCTRLRALTINS || LocalKey == KEY_CTRLRALTINS || LocalKey == KEY_RCTRLALTINS ||
-					LocalKey == KEY_ALTSHIFTINS || LocalKey == KEY_RALTSHIFTINS ||
-					LocalKey == KEY_CTRLALTNUMPAD0 || LocalKey == KEY_RCTRLRALTNUMPAD0 || LocalKey == KEY_CTRLRALTNUMPAD0 || LocalKey == KEY_RCTRLALTNUMPAD0 ||
-					LocalKey == KEY_ALTSHIFTNUMPAD0 || LocalKey == KEY_RALTSHIFTNUMPAD0,
-				(LocalKey&(KEY_CTRL|KEY_ALT))==(KEY_CTRL|KEY_ALT) || (LocalKey&(KEY_RCTRL|KEY_RALT))==(KEY_RCTRL|KEY_RALT)
+				any_of(LocalKey,
+					KEY_CTRLALTINS,   KEY_CTRLALTNUMPAD0,
+					KEY_RCTRLRALTINS, KEY_RCTRLRALTNUMPAD0,
+					KEY_CTRLRALTINS,  KEY_CTRLRALTNUMPAD0,
+					KEY_RCTRLALTINS,  KEY_RCTRLALTNUMPAD0,
+					KEY_ALTSHIFTINS,  KEY_ALTSHIFTNUMPAD0,
+					KEY_RALTSHIFTINS, KEY_RALTSHIFTNUMPAD0),
+				flags::check_any(LocalKey, KEY_CTRL | KEY_RCTRL) && flags::check_any(LocalKey, KEY_ALT | KEY_RALT)
 			);
 			return true;
 
@@ -1403,7 +1416,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			{
 				string strFileName;
 
-				if (LocalKey==KEY_CTRLSHIFTENTER || LocalKey==KEY_RCTRLSHIFTENTER || LocalKey==KEY_CTRLSHIFTNUMENTER || LocalKey==KEY_RCTRLSHIFTNUMENTER)
+				if (any_of(LocalKey, KEY_CTRLSHIFTENTER, KEY_RCTRLSHIFTENTER, KEY_CTRLSHIFTNUMENTER, KEY_RCTRLSHIFTNUMENTER))
 				{
 					if (MakePathForUI(LocalKey, strFileName))
 						strFileName += ' ';
@@ -1425,17 +1438,17 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 						add_slash = (LocalKey & 0xFFFF) != (KEY_CTRLF & 0xFFFF);
 
-						if (!(LocalKey==KEY_CTRLALTF || LocalKey==KEY_RCTRLRALTF || LocalKey==KEY_CTRLRALTF || LocalKey==KEY_RCTRLALTF))
+						if (none_of(LocalKey, KEY_CTRLALTF, KEY_RCTRLRALTF, KEY_CTRLRALTF, KEY_RCTRLALTF))
 							LocalKey = KEY_CTRLF;
 					}
 
-					if (LocalKey==KEY_CTRLF || LocalKey==KEY_RCTRLF || LocalKey==KEY_CTRLALTF || LocalKey==KEY_RCTRLRALTF || LocalKey==KEY_CTRLRALTF || LocalKey==KEY_RCTRLALTF)
+					if (any_of(LocalKey, KEY_CTRLF, KEY_RCTRLF, KEY_CTRLALTF, KEY_RCTRLRALTF, KEY_CTRLRALTF, KEY_RCTRLALTF))
 					{
 						if (m_PanelMode != panel_mode::PLUGIN_PANEL)
 							strFileName = CreateFullPathName(
 								strFileName,
 								(Current.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0,
-								LocalKey == KEY_CTRLALTF || LocalKey == KEY_RCTRLRALTF || LocalKey == KEY_CTRLRALTF || LocalKey == KEY_RCTRLALTF
+								any_of(LocalKey, KEY_CTRLALTF, KEY_RCTRLRALTF, KEY_CTRLRALTF, KEY_RCTRLALTF)
 							);
 						else
 						{
@@ -1469,7 +1482,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 						AddEndSlash(strFileName);
 
 					// добавим первый префикс!
-					if (m_PanelMode == panel_mode::PLUGIN_PANEL && Global->Opt->SubstPluginPrefix && !(LocalKey == KEY_CTRLENTER || LocalKey == KEY_RCTRLENTER || LocalKey == KEY_CTRLNUMENTER || LocalKey == KEY_RCTRLNUMENTER || LocalKey == KEY_CTRLJ || LocalKey == KEY_RCTRLJ))
+					if (m_PanelMode == panel_mode::PLUGIN_PANEL && Global->Opt->SubstPluginPrefix && none_of(LocalKey, KEY_CTRLENTER, KEY_RCTRLENTER, KEY_CTRLNUMENTER, KEY_RCTRLNUMENTER, KEY_CTRLJ, KEY_RCTRLJ))
 					{
 						strFileName.insert(0, GetPluginPrefix());
 					}
@@ -1730,7 +1743,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 				Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(),&m_CachedOpenPanelInfo);
 
-			if (LocalKey == KEY_NUMPAD5 || LocalKey == KEY_SHIFTNUMPAD5)
+			if (any_of(LocalKey, KEY_NUMPAD5, KEY_SHIFTNUMPAD5))
 				LocalKey=KEY_F3;
 
 			if ((LocalKey==KEY_SHIFTF4 || !m_ListData.empty()) && SetCurPath())
@@ -1747,7 +1760,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				}
 
 				uintptr_t codepage = CP_DEFAULT;
-				const auto Edit = (LocalKey == KEY_F4 || LocalKey == KEY_ALTF4 || LocalKey == KEY_RALTF4 || LocalKey == KEY_SHIFTF4 || LocalKey == KEY_CTRLSHIFTF4 || LocalKey == KEY_RCTRLSHIFTF4);
+				const auto Edit = any_of(LocalKey, KEY_F4, KEY_ALTF4, KEY_RALTF4, KEY_SHIFTF4, KEY_CTRLSHIFTF4, KEY_RCTRLSHIFTF4);
 				string strFileName;
 				string strShortFileName;
 
@@ -1890,21 +1903,18 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 					if (Edit)
 					{
-						const auto EnableExternal = (((LocalKey == KEY_F4 || LocalKey == KEY_SHIFTF4) && Global->Opt->EdOpt.UseExternalEditor) ||
-							((LocalKey == KEY_ALTF4 || LocalKey == KEY_RALTF4) && !Global->Opt->EdOpt.UseExternalEditor)) && !Global->Opt->strExternalEditor.empty();
+						const auto EnableExternal = ((any_of(LocalKey, KEY_F4, KEY_SHIFTF4) && Global->Opt->EdOpt.UseExternalEditor) ||
+							(any_of(LocalKey, KEY_ALTF4, KEY_RALTF4) && !Global->Opt->EdOpt.UseExternalEditor)) && !Global->Opt->strExternalEditor.empty();
 						auto Processed = false;
 
 						const auto SavedState = file_state::get(strFileName);
-						if (LocalKey == KEY_ALTF4 || LocalKey == KEY_RALTF4 || LocalKey == KEY_F4)
+						if (any_of(LocalKey, KEY_ALTF4, KEY_RALTF4, KEY_F4) && ProcessLocalFileTypes(strFileName, strShortFileName, LocalKey == KEY_F4? FILETYPE_EDIT:FILETYPE_ALTEDIT, PluginMode))
 						{
-							if (ProcessLocalFileTypes(strFileName, strShortFileName, (LocalKey == KEY_F4)?FILETYPE_EDIT:FILETYPE_ALTEDIT, PluginMode))
-							{
-								UploadFile = file_state::get(strFileName) != SavedState;
-								Processed = true;
-							}
+							UploadFile = file_state::get(strFileName) != SavedState;
+							Processed = true;
 						}
 
-						if (!Processed || LocalKey==KEY_CTRLSHIFTF4 || LocalKey==KEY_RCTRLSHIFTF4)
+						if (!Processed || any_of(LocalKey, KEY_CTRLSHIFTF4, KEY_RCTRLSHIFTF4))
 						{
 							if (EnableExternal)
 							{
@@ -1972,18 +1982,21 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					}
 					else
 					{
-						const auto EnableExternal = ((LocalKey == KEY_F3 && Global->Opt->ViOpt.UseExternalViewer) ||
-							((LocalKey == KEY_ALTF3 || LocalKey == KEY_RALTF3) && !Global->Opt->ViOpt.UseExternalViewer)) &&
-							!Global->Opt->strExternalViewer.empty();
+						const auto EnableExternal =
+						(
+							(LocalKey == KEY_F3 && Global->Opt->ViOpt.UseExternalViewer) ||
+							(any_of(LocalKey, KEY_ALTF3, KEY_RALTF3) && !Global->Opt->ViOpt.UseExternalViewer)
+						) &&
+						!Global->Opt->strExternalViewer.empty();
 						/* $ 02.08.2001 IS обработаем ассоциации для alt-f3 */
 						auto Processed = false;
 
-						if ((LocalKey == KEY_ALTF3 || LocalKey == KEY_RALTF3) && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_ALTVIEW, PluginMode))
+						if (any_of(LocalKey, KEY_ALTF3, KEY_RALTF3) && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_ALTVIEW, PluginMode))
 							Processed = true;
 						else if (LocalKey == KEY_F3 && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_VIEW, PluginMode))
 							Processed = true;
 
-						if (!Processed || LocalKey==KEY_CTRLSHIFTF3 || LocalKey==KEY_RCTRLSHIFTF3)
+						if (!Processed || any_of(LocalKey, KEY_CTRLSHIFTF3, KEY_RCTRLSHIFTF3))
 						{
 							if (EnableExternal)
 								ProcessExternal(Global->Opt->strExternalViewer,strFileName,strShortFileName,PluginMode);
@@ -2232,8 +2245,8 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				{
 					Delete(
 						shared_from_this(),
-						LocalKey == KEY_SHIFTDEL || LocalKey == KEY_SHIFTNUMDEL || LocalKey == KEY_SHIFTDECIMAL ? delete_type::remove :
-						LocalKey == KEY_ALTDEL || LocalKey == KEY_RALTDEL || LocalKey == KEY_ALTNUMDEL || LocalKey == KEY_RALTNUMDEL || LocalKey == KEY_ALTDECIMAL || LocalKey == KEY_RALTDECIMAL ? delete_type::erase :
+						any_of(LocalKey, KEY_SHIFTDEL, KEY_SHIFTNUMDEL, KEY_SHIFTDECIMAL)? delete_type::remove :
+						any_of(LocalKey, KEY_ALTDEL, KEY_RALTDEL, KEY_ALTNUMDEL, KEY_RALTNUMDEL, KEY_ALTDECIMAL, KEY_RALTDECIMAL)? delete_type::erase :
 						Global->Opt->DeleteToRecycleBin? delete_type::recycle : delete_type::remove);
 				}
 
@@ -2373,7 +2386,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			InternalProcessKey++;
 
 			while (N--)
-				MoveSelection(LocalKey == KEY_SHIFTPGUP || LocalKey == KEY_SHIFTNUMPAD9 ? up : down);
+				MoveSelection(any_of(LocalKey, KEY_SHIFTPGUP, KEY_SHIFTNUMPAD9)? up : down);
 
 			InternalProcessKey--;
 
@@ -2396,7 +2409,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				InternalProcessKey++;
 
 				while (N--)
-					MoveSelection(LocalKey == KEY_SHIFTLEFT || LocalKey == KEY_SHIFTNUMPAD4 ? up : down);
+					MoveSelection(any_of(LocalKey, KEY_SHIFTLEFT, KEY_SHIFTNUMPAD4)? up : down);
 
 				assert(m_CurFile < static_cast<int>(m_ListData.size()));
 				Select(m_ListData[m_CurFile], ShiftSelection != 0);
@@ -2418,7 +2431,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 		case KEY_SHIFTUP:      case KEY_SHIFTNUMPAD8:
 		case KEY_SHIFTDOWN:    case KEY_SHIFTNUMPAD2:
-			MoveSelection(LocalKey == KEY_SHIFTUP || LocalKey == KEY_SHIFTNUMPAD8 ? up : down);
+			MoveSelection(any_of(LocalKey, KEY_SHIFTUP, KEY_SHIFTNUMPAD8) ? up : down);
 			ShowFileList();
 			return true;
 
@@ -4737,7 +4750,7 @@ void FileList::SelectSortMode()
 				case L'-':
 				case KEY_SUBTRACT:
 					InvertPressed = false;
-					PlusPressed = Key == L'+' || Key == KEY_ADD;
+					PlusPressed = any_of(Key, L'+', KEY_ADD);
 					KeyProcessed = true;
 					break;
 
@@ -5182,14 +5195,14 @@ plugin_panel* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPE
 }
 
 
-void FileList::ProcessCopyKeys(int Key)
+void FileList::ProcessCopyKeys(unsigned const Key)
 {
 	if (m_ListData.empty() || !SetCurPath())
 		return;
 
-	const auto Drag = Key == KEY_DRAGCOPY || Key == KEY_DRAGMOVE;
+	const auto Drag = any_of(Key, KEY_DRAGCOPY, KEY_DRAGMOVE);
 	const auto Ask = !Drag || Global->Opt->Confirm.Drag;
-	const auto Move = Key == KEY_F6 || Key == KEY_DRAGMOVE;
+	const auto Move = any_of(Key, KEY_F6, KEY_DRAGMOVE);
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 	auto AnotherDir = false;
 
@@ -5206,7 +5219,7 @@ void FileList::ProcessCopyKeys(int Key)
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginManager::UseInternalCommand(GetPluginHandle(), PLUGIN_FARGETFILES, m_CachedOpenPanelInfo))
 	{
-		if (Key!=KEY_ALTF6 && Key!=KEY_RALTF6)
+		if (none_of(Key, KEY_ALTF6, KEY_RALTF6))
 		{
 			string strPluginDestPath;
 			int ToPlugin = 0;
@@ -5257,10 +5270,10 @@ void FileList::ProcessCopyKeys(int Key)
 	{
 		int ToPlugin =
 			AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL &&
-			AnotherPanel->IsVisible() && (Key!=KEY_ALTF6 && Key!=KEY_RALTF6) &&
+			AnotherPanel->IsVisible() && none_of(Key, KEY_ALTF6, KEY_RALTF6) &&
 			!PluginManager::UseInternalCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES, m_CachedOpenPanelInfo);
 
-		Copy(shared_from_this(), Move, Key == KEY_ALTF6 || Key == KEY_RALTF6, false, Ask, ToPlugin, nullptr, Drag && AnotherDir);
+		Copy(shared_from_this(), Move, any_of(Key, KEY_ALTF6, KEY_RALTF6), false, Ask, ToPlugin, nullptr, Drag && AnotherDir);
 
 		if (ToPlugin==1)
 			PluginPutFilesToAnother(Move,AnotherPanel);

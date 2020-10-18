@@ -835,7 +835,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			AttrDlg[i.TimeId].strMask = TimeMask;
 		}
 
-		bool FolderPresent=false,LinkPresent=false;
+		bool LinkPresent=false;
 		string strLinkName;
 
 		const auto EnableSubfolders = [&]
@@ -865,11 +865,10 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				}
 			}
 
-			if (!FolderPresent && os::fs::is_directory(SingleSelFindData.Attributes))
-			{
-				FolderPresent = true;
+			const auto FolderPresent = os::fs::is_directory(SingleSelFindData.Attributes);
+
+			if (FolderPresent)
 				EnableSubfolders();
-			}
 
 			if (SingleSelFindData.Attributes != INVALID_FILE_ATTRIBUTES)
 			{
@@ -1053,7 +1052,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 			// проверка - есть ли среди выделенных - каталоги?
 			// так же проверка на атрибуты
-			FolderPresent=false;
+			auto FolderPresent = false;
 
 			const auto strComputerName = ExtractComputerName(SrcPanel->GetCurDir());
 

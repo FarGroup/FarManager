@@ -58,7 +58,10 @@ public:
 	// сбросить набор флагов
 	const T& Clear(const T& FlagsToClear) { m_Flags &=~ FlagsToClear; return m_Flags; }
 	// проверить набор флагов
-	bool Check(const T& FlagsToCheck) const { return (m_Flags & FlagsToCheck) != 0; }
+	bool CheckAny(const T& FlagsToCheck) const { return (m_Flags & FlagsToCheck) != 0; }
+	bool CheckAll(const T& FlagsToCheck) const { return (m_Flags & FlagsToCheck) == FlagsToCheck; }
+	// BUGBUG remove this
+	bool Check(const T& FlagsToCheck) const { return CheckAny(FlagsToCheck); }
 	// изменить состояние набора флагов в заивисмости от Status
 	const T& Change(const T& FlagsToChange, bool set) { return set? Set(FlagsToChange) : Clear(FlagsToChange); }
 	// инвертировать состояние флагов

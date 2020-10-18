@@ -296,14 +296,14 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 	{
 		if ((LocalKey&KEY_SHIFT) && LocalKey!=KEY_NONE && ResetArea)
 			Reset();
-		else if (LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && !(LocalKey&KEY_SHIFT) && !IntKeyState.ShiftPressed() && !IntKeyState.AltPressed())
+		else if (none_of(LocalKey, KEY_IDLE, KEY_NONE) && !(LocalKey&KEY_SHIFT) && !IntKeyState.ShiftPressed() && !IntKeyState.AltPressed())
 			ResetArea = true;
 	}
 	else
 	{
-		if ((IntKeyState.ShiftPressed() || LocalKey!=KEY_SHIFT) && (LocalKey&KEY_SHIFT) && LocalKey!=KEY_NONE && LocalKey!=KEY_CTRLA && LocalKey!=KEY_RCTRLA && !IntKeyState.AltPressed() && ResetArea)
+		if ((IntKeyState.ShiftPressed() || LocalKey!=KEY_SHIFT) && (LocalKey&KEY_SHIFT) && none_of(LocalKey, KEY_NONE, KEY_CTRLA, KEY_RCTRLA) && !IntKeyState.AltPressed() && ResetArea)
 			Reset();
-		else if (LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && LocalKey!=KEY_SHIFT && LocalKey!=KEY_CTRLA && LocalKey!=KEY_RCTRLA && !IntKeyState.ShiftPressed() && !IntKeyState.AltPressed() && !(LocalKey&KEY_SHIFT) && LocalKey != KEY_F1 && LocalKey != KEY_SPACE)
+		else if (none_of(LocalKey, KEY_IDLE, KEY_NONE, KEY_SHIFT, KEY_CTRLA, KEY_RCTRLA, KEY_F1, KEY_SPACE) && !IntKeyState.ShiftPressed() && !IntKeyState.AltPressed() && !(LocalKey&KEY_SHIFT))
 			ResetArea = true;
 	}
 
@@ -382,7 +382,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLINS:  case KEY_RCTRLNUMPAD0:
 		case KEY_CTRLADD:
 		case KEY_RCTRLADD:
-			CopyGrabbedArea(LocalKey == KEY_CTRLADD || LocalKey == KEY_RCTRLADD,m_VerticalBlock);
+			CopyGrabbedArea(any_of(LocalKey, KEY_CTRLADD, KEY_RCTRLADD), m_VerticalBlock);
 			Close(1);
 			break;
 
@@ -435,7 +435,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:
 		case KEY_RCTRLSHIFTLEFT: case KEY_RCTRLSHIFTNUMPAD4:
 			MoveLeft(10);
-			if (LocalKey == KEY_CTRLSHIFTLEFT || LocalKey == KEY_RCTRLSHIFTLEFT || LocalKey == KEY_CTRLSHIFTNUMPAD4 || LocalKey == KEY_RCTRLSHIFTNUMPAD4)
+			if (any_of(LocalKey, KEY_CTRLSHIFTLEFT, KEY_RCTRLSHIFTLEFT, KEY_CTRLSHIFTNUMPAD4, KEY_RCTRLSHIFTNUMPAD4))
 			{
 				GArea.Begin = GArea.Current;
 			}
@@ -446,7 +446,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLSHIFTRIGHT:  case KEY_CTRLSHIFTNUMPAD6:
 		case KEY_RCTRLSHIFTRIGHT: case KEY_RCTRLSHIFTNUMPAD6:
 			MoveRight(10);
-			if (LocalKey == KEY_CTRLSHIFTRIGHT || LocalKey == KEY_RCTRLSHIFTRIGHT || LocalKey == KEY_CTRLSHIFTNUMPAD6 || LocalKey == KEY_RCTRLSHIFTNUMPAD6)
+			if (any_of(LocalKey, KEY_CTRLSHIFTRIGHT, KEY_RCTRLSHIFTRIGHT, KEY_CTRLSHIFTNUMPAD6, KEY_RCTRLSHIFTNUMPAD6))
 			{
 				GArea.Begin = GArea.Current;
 			}
@@ -457,7 +457,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLSHIFTUP:   case KEY_CTRLSHIFTNUMPAD8:
 		case KEY_RCTRLSHIFTUP:  case KEY_RCTRLSHIFTNUMPAD8:
 			GArea.Current.y = std::max(GArea.Current.y - 5, 0);
-			if (LocalKey == KEY_CTRLSHIFTUP || LocalKey == KEY_RCTRLSHIFTUP || LocalKey == KEY_CTRLSHIFTNUMPAD8 || LocalKey == KEY_RCTRLSHIFTNUMPAD8)
+			if (any_of(LocalKey, KEY_CTRLSHIFTUP, KEY_RCTRLSHIFTUP, KEY_CTRLSHIFTNUMPAD8, KEY_RCTRLSHIFTNUMPAD8))
 				GArea.Begin.y = GArea.Current.y;
 			break;
 
@@ -466,7 +466,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLSHIFTDOWN:  case KEY_CTRLSHIFTNUMPAD2:
 		case KEY_RCTRLSHIFTDOWN: case KEY_RCTRLSHIFTNUMPAD2:
 			GArea.Current.y = std::min(static_cast<int>(ScrY), GArea.Current.y + 5);
-			if (LocalKey == KEY_CTRLSHIFTDOWN || LocalKey == KEY_RCTRLSHIFTDOWN || LocalKey == KEY_CTRLSHIFTNUMPAD2 || LocalKey == KEY_RCTRLSHIFTNUMPAD2)
+			if (any_of(LocalKey, KEY_CTRLSHIFTDOWN, KEY_RCTRLSHIFTDOWN, KEY_CTRLSHIFTNUMPAD2, KEY_RCTRLSHIFTNUMPAD2))
 				GArea.Begin.y = GArea.Current.y;
 			break;
 

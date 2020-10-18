@@ -1300,7 +1300,7 @@ static oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di, HANDLE 
 
 static void ConvertUnicodePanelInfoToAnsi(const PanelInfo* PIW, oldfar::PanelInfo* PIA)
 {
-	PIA->PanelType = 0;
+	PIA->PanelType = oldfar::PTYPE_FILEPANEL;
 
 	switch (PIW->PanelType)
 	{

@@ -724,7 +724,9 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 			int DriveType;
 		};
-		std::list<DiskMenuItem> Items;
+
+		std::vector<DiskMenuItem> Items;
+		Items.reserve(AllDrives.size() * 2);
 
 		size_t TypeWidth = 0, LabelWidth = 0, FsWidth = 0, TotalSizeWidth = 0, FreeSizeWidth = 0, PathWidth = 0;
 

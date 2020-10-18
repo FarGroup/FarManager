@@ -41,6 +41,8 @@ namespace detail
 	{
 		using result_type = result;
 
+		static constexpr auto arity = sizeof...(args);
+
 		template<size_t i>
 		using arg = std::tuple_element_t<i, std::tuple<args...>>;
 	};

@@ -74,7 +74,7 @@ public:
 	void AssignHighlights(bool Reverse = false);
 	void clear();
 	int DeleteItem(int ID,int Count=1);
-	int AddItem(const MenuItemEx& NewItem,int PosAdd=0x7FFFFFFF);
+	int AddItem(const MenuItemEx& NewItem,int PosAdd = std::numeric_limits<int>::max());
 	int AddItem(const FarList *NewItem);
 	int AddItem(const string& NewStrItem);
 	int FindItem(int StartIndex, const string& Pattern, unsigned long long Flags = 0);
@@ -82,7 +82,7 @@ public:
 	bool empty() { return !size(); }
 	int GetSelectPos();
 	int SetSelectPos(int Pos, int Direct=0/*, bool stop_on_edge=false*/);
-	int GetCheck(int Position=-1);
+	wchar_t GetCheck(int Position=-1);
 	void SetCheck(int Position=-1);
 	void SetCustomCheck(wchar_t Char, int Position = -1);
 	void ClearCheck(int Position = -1);

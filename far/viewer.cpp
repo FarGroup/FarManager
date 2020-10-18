@@ -1386,9 +1386,13 @@ bool Viewer::process_key(const Manager::Key& Key)
 	}
 
 	if (!ViOpt.PersistentBlocks &&
-		LocalKey!=KEY_IDLE && LocalKey!=KEY_NONE && !(LocalKey==KEY_CTRLINS||LocalKey==KEY_RCTRLINS||LocalKey==KEY_CTRLNUMPAD0||LocalKey==KEY_RCTRLNUMPAD0) &&
-		LocalKey!=KEY_CTRLC && LocalKey!=KEY_RCTRLC &&
-		LocalKey!=KEY_SHIFTF7 && LocalKey!=KEY_SPACE && LocalKey!=KEY_ALTF7 && LocalKey!=KEY_RALTF7 )
+		none_of(LocalKey,
+			KEY_IDLE, KEY_NONE,
+			KEY_CTRLINS, KEY_RCTRLINS,
+			KEY_CTRLNUMPAD0, KEY_RCTRLNUMPAD0,
+			KEY_CTRLC, KEY_RCTRLC,
+			KEY_SHIFTF7, KEY_SPACE,
+			KEY_ALTF7, KEY_RALTF7))
 	{
 		redraw_selection = SelectSize >= 0;
 		SelectSize = -1;
@@ -1403,10 +1407,10 @@ bool Viewer::process_key(const Manager::Key& Key)
 		UndoData.emplace_back(FilePos, LeftPos);
 	}
 
-	if (LocalKey!=KEY_ALTBS && LocalKey!=KEY_RALTBS && LocalKey!=KEY_CTRLZ && LocalKey!=KEY_RCTRLZ && LocalKey!=KEY_NONE && LocalKey!=KEY_IDLE)
+	if (none_of(LocalKey, KEY_ALTBS, KEY_RALTBS, KEY_CTRLZ, KEY_RCTRLZ, KEY_NONE, KEY_IDLE))
 		LastKeyUndo=FALSE;
 
-	if (LocalKey>=KEY_CTRL0 && LocalKey<=KEY_CTRL9)
+	if (in_range(KEY_CTRL0, LocalKey, KEY_CTRL9))
 	{
 		const auto Pos = LocalKey - KEY_CTRL0;
 
@@ -1760,7 +1764,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 
 			FilePos = EndOfScreen(-1); // start of last screen line
 
-			if (LocalKey == KEY_CTRLDOWN || LocalKey == KEY_RCTRLDOWN)
+			if (any_of(LocalKey, KEY_CTRLDOWN, KEY_RCTRLDOWN))
 			{
 				vseek(vString.nFilePos = FilePos, FILE_BEGIN);
 				for (int i = m_Where.top; i <= m_Where.bottom; ++i)

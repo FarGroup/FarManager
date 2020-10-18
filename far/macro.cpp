@@ -635,7 +635,7 @@ static void LM_ProcessRecordedMacro(FARMACROAREA Area, const string& TextKey, co
 
 bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 {
-	if (m_InternalInput || Rec->IntKey==KEY_IDLE || Rec->IntKey==KEY_NONE || !Global->WindowManager->GetCurrentWindow()) //FIXME: избавиться от Rec->IntKey
+	if (m_InternalInput || any_of(Rec->IntKey, KEY_IDLE, KEY_NONE) || !Global->WindowManager->GetCurrentWindow()) //FIXME: избавиться от Rec->IntKey
 		return false;
 
 	const auto textKey = KeyToText(Rec->IntKey);
@@ -3299,13 +3299,10 @@ int FarMacroApi::menushowFunc()
 						if (Menu->at(i).Flags & MIF_HIDDEN)
 							continue;
 
-						const auto Check = (Key == KEY_CTRLADD || Key == KEY_RCTRLADD)?
-							true :
-							(Key==KEY_CTRLMULTIPLY || Key==KEY_RCTRLMULTIPLY)?
-								!Menu->GetCheck(static_cast<int>(i)) :
-								false;
-
-						Check? Menu->SetCheck(static_cast<int>(i)) : Menu->ClearCheck(static_cast<int>(i));
+						if (any_of(Key, KEY_CTRLADD, KEY_RCTRLADD) || (any_of(Key, KEY_CTRLMULTIPLY, KEY_RCTRLMULTIPLY) && !Menu->GetCheck(static_cast<int>(i))))
+							Menu->SetCheck(static_cast<int>(i));
+						else
+							Menu->ClearCheck(static_cast<int>(i));
 					}
 				}
 				break;
@@ -3390,7 +3387,7 @@ int FarMacroApi::menushowFunc()
 	{
 		if (bExitAfterNavigate)
 		{
-			if ((LastKey == KEY_ESC) || (LastKey == KEY_F10) || (LastKey == KEY_BREAK))
+			if (any_of(LastKey, KEY_ESC, KEY_F10, KEY_BREAK))
 				Result = -(SelectedPos + 1);
 			else
 				Result = SelectedPos + 1;
@@ -4930,10 +4927,10 @@ int FarMacroApi::testfolderFunc()
 // обработчик диалогового окна назначения клавиши
 intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
-	static int LastKey=0;
+	static unsigned LastKey = 0;
 	static DlgParam *KMParam=nullptr;
 	const INPUT_RECORD* record=nullptr;
-	int key=0;
+	unsigned key = 0;
 
 	if (Msg == DN_CONTROLINPUT)
 	{
@@ -5008,10 +5005,11 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		//_SVS(SysLog(L"Macro: Key=%s",_FARKEY_ToName(key)));
 		// <Обработка особых клавиш: F1 & Enter>
 		// Esc & (Enter и предыдущий Enter) - не обрабатываем
-		if (key == KEY_ESC ||
-		        ((key == KEY_ENTER||key == KEY_NUMENTER) && (LastKey == KEY_ENTER||LastKey == KEY_NUMENTER)) ||
-		        key == KEY_CTRLDOWN || key == KEY_RCTRLDOWN ||
-		        key == KEY_F1)
+		if (
+			key == KEY_ESC ||
+			(any_of(key, KEY_ENTER, KEY_NUMENTER) && any_of(LastKey, KEY_ENTER, KEY_NUMENTER)) ||
+			any_of(key, KEY_CTRLDOWN, KEY_RCTRLDOWN, KEY_F1)
+		)
 		{
 			return FALSE;
 		}
@@ -5029,7 +5027,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		// Было что-то уже нажато и Enter`ом подтверждаем
 		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),(LastKey?_FARKEY_ToName(LastKey):L"")));
 
-		if ((key == KEY_ENTER||key == KEY_NUMENTER) && LastKey && !(LastKey == KEY_ENTER||LastKey == KEY_NUMENTER))
+		if (any_of(key, KEY_ENTER, KEY_NUMENTER) && LastKey && none_of(LastKey, KEY_ENTER, KEY_NUMENTER))
 			return FALSE;
 
 		// </Обработка особых клавиш: F1 & Enter>

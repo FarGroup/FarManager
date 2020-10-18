@@ -295,7 +295,7 @@ bool QuickView::ProcessKey(const Manager::Key& Key)
 		return true;
 	}
 
-	if (LocalKey==KEY_F3 || LocalKey==KEY_NUMPAD5 || LocalKey == KEY_SHIFTNUMPAD5)
+	if (any_of(LocalKey, KEY_F3, KEY_NUMPAD5, KEY_SHIFTNUMPAD5))
 	{
 		const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
@@ -305,7 +305,7 @@ bool QuickView::ProcessKey(const Manager::Key& Key)
 		return true;
 	}
 
-	if (LocalKey==KEY_ADD || LocalKey==KEY_SUBTRACT)
+	if (any_of(LocalKey, KEY_ADD, KEY_SUBTRACT))
 	{
 		const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
@@ -319,15 +319,13 @@ bool QuickView::ProcessKey(const Manager::Key& Key)
 	{
 		const auto ret = QView->ProcessKey(Manager::Key(LocalKey));
 
-		if (LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2
-		 || LocalKey == KEY_F4 || LocalKey == KEY_SHIFTF4
-		 || LocalKey == KEY_F8 || LocalKey == KEY_SHIFTF8)
+		if (any_of(LocalKey, KEY_F2, KEY_SHIFTF2, KEY_F4, KEY_SHIFTF4, KEY_F8, KEY_SHIFTF8))
 		{
 			DynamicUpdateKeyBar();
 			Parent()->GetKeybar().Redraw();
 		}
 
-		if (LocalKey == KEY_F7 || LocalKey == KEY_SHIFTF7)
+		if (any_of(LocalKey, KEY_F7, KEY_SHIFTF7))
 		{
 			//long long Pos;
 			//int Length;

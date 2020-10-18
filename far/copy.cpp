@@ -412,9 +412,9 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				const auto key = InputRecordToKey(&record);
 				if (!Global->Opt->Tree.TurnOffCompletely)
 				{
-					if (key == KEY_ALTF10 || key == KEY_RALTF10 || key == KEY_F10 || key == KEY_SHIFTF10)
+					if (any_of(key, KEY_ALTF10, KEY_RALTF10, KEY_F10, KEY_SHIFTF10))
 					{
-						AltF10 = (key == KEY_ALTF10 || key == KEY_RALTF10) ? 1 : (key == KEY_SHIFTF10 ? 2 : 0);
+						AltF10 = any_of(key, KEY_ALTF10, KEY_RALTF10)? 1 : key == KEY_SHIFTF10? 2 : 0;
 						Dlg->SendMessage(DM_CALLTREE, AltF10, nullptr);
 						return TRUE;
 					}
@@ -424,11 +424,12 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				{
 					if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, nullptr) == CM_ASKRO)
 					{
-						if (key==KEY_ENTER || key==KEY_NUMENTER || key==KEY_INS || key==KEY_NUMPAD0 || key==KEY_SPACE)
+						if (any_of(key, KEY_ENTER, KEY_NUMENTER, KEY_INS, KEY_NUMPAD0, KEY_SPACE))
 						{
 							return Dlg->SendMessage(DM_SWITCHRO, 0, nullptr);
 						}
-						else if (key == KEY_TAB)
+
+						if (key == KEY_TAB)
 						{
 							Dlg->SendMessage(DM_SETDROPDOWNOPENED, 0, nullptr);
 							return TRUE;
@@ -2903,14 +2904,8 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		case DN_CONTROLINPUT:
 		{
 			const auto record = static_cast<const INPUT_RECORD*>(Param2);
-			if (record->EventType==KEY_EVENT)
-			{
-				const auto key = InputRecordToKey(record);
-				if ((Param1==WDLG_SRCFILEBTN || Param1==WDLG_DSTFILEBTN) && key==KEY_F3)
-				{
-					Dlg->SendMessage(DM_OPENVIEWER, Param1, nullptr);
-				}
-			}
+			if (record->EventType == KEY_EVENT && any_of(Param1, WDLG_SRCFILEBTN, WDLG_DSTFILEBTN) && InputRecordToKey(record) == KEY_F3)
+				Dlg->SendMessage(DM_OPENVIEWER, Param1, nullptr);
 		}
 		break;
 

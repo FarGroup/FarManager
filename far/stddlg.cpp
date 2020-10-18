@@ -564,7 +564,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 {
 	std::vector<string> Msg;
 	os::com::ptr<IFileIsInUse> FileIsInUse;
-	lng Reason = lng::MObjectLockedReasonOpened;
+	auto Reason = lng::MObjectLockedReasonOpened;
 	bool SwitchBtn = false, CloseBtn = false;
 	const auto Error = ErrorState.Win32Error;
 	if(Error == ERROR_ACCESS_DENIED ||

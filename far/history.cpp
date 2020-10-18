@@ -367,11 +367,14 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 
 					HistoryMenu.Close(Pos.SelectPos);
 					Done=true;
-					RetCode = (Key==KEY_CTRLALTENTER||Key==KEY_RCTRLRALTENTER||Key==KEY_CTRLRALTENTER||Key==KEY_RCTRLALTENTER||
-							Key==KEY_CTRLALTNUMENTER||Key==KEY_RCTRLRALTNUMENTER||Key==KEY_CTRLRALTNUMENTER||Key==KEY_RCTRLALTNUMENTER)? HRT_CTRLALTENTER
-							:((Key==KEY_CTRLSHIFTENTER||Key==KEY_RCTRLSHIFTENTER||Key==KEY_CTRLSHIFTNUMENTER||Key==KEY_RCTRLSHIFTNUMENTER)? HRT_CTRLSHIFTENTER
-							:((Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER)? HRT_SHIFTETNER
-							:HRT_CTRLENTER));
+					RetCode =
+						flags::check_any(Key, KEY_CTRL | KEY_RCTRL) && flags::check_any(Key, KEY_ALT | KEY_RALT)?
+							HRT_CTRLALTENTER :
+							flags::check_any(Key, KEY_CTRL | KEY_RCTRL) && flags::check_any(Key, KEY_SHIFT)?
+								HRT_CTRLSHIFTENTER :
+								flags::check_any(Key, KEY_SHIFT)?
+									HRT_SHIFTETNER :
+									HRT_CTRLENTER;
 					break;
 				}
 				case KEY_F3:

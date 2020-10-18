@@ -254,7 +254,7 @@ void FileFilter::FilterEdit()
 		if (Msg!=DN_INPUT)
 			return 0;
 
-		int Key=InputRecordToKey(static_cast<INPUT_RECORD*>(param));
+		auto Key = InputRecordToKey(static_cast<INPUT_RECORD*>(param));
 
 		if (Key==KEY_ADD)
 			Key=L'+';
@@ -439,10 +439,10 @@ void FileFilter::FilterEdit()
 				if (SelPos<0)
 					break;
 
-				if (static_cast<size_t>(SelPos) < FilterData().size() && !((Key == KEY_CTRLUP || Key == KEY_RCTRLUP) && !SelPos) &&
-					!((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && static_cast<size_t>(SelPos) == FilterData().size() - 1))
+				if (static_cast<size_t>(SelPos) < FilterData().size() && !(any_of(Key, KEY_CTRLUP, KEY_RCTRLUP) && !SelPos) &&
+					!(any_of(Key, KEY_CTRLDOWN, KEY_RCTRLDOWN) && static_cast<size_t>(SelPos) == FilterData().size() - 1))
 				{
-					const auto NewPos = SelPos + ((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) ? 1 : -1);
+					const auto NewPos = SelPos + (any_of(Key, KEY_CTRLDOWN, KEY_RCTRLDOWN)? 1 : -1);
 					using std::swap;
 					swap(FilterList->at(SelPos), FilterList->at(NewPos));
 					swap(FilterData()[NewPos], FilterData()[SelPos]);

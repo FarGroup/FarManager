@@ -298,10 +298,7 @@ bool KeyBar::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!m_Where.contains(MouseEvent->dwMousePosition))
 		return false;
 
-	int KeyWidth = (m_Where.width() - 2) / 12;
-
-	if (KeyWidth<8)
-		KeyWidth=8;
+	int const KeyWidth = std::min(9, (m_Where.width() - 2) / 12);
 
 	const auto X = MouseEvent->dwMousePosition.X - m_Where.left;
 

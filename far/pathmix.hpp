@@ -143,7 +143,7 @@ public:
 
 
 string KernelPath(string_view NtPath);
-string KernelPath(string&& NtPath);
+string KernelPath(string NtPath);
 
 inline constexpr bool IsSlash(wchar_t x) noexcept { return x==L'\\' || x==L'/'; }
 

@@ -393,20 +393,20 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 
 	const auto FormatSize = [&](string&& StrSize, size_t UnitIndex)
 	{
-		const auto FitToWidth = [&](string&& Str)
+		const auto FitToWidth = [&](string Str)
 		{
 			if (!Width)
-				return std::move(Str);
+				return Str;
 
 			if (Str.size() <= Width)
 			{
 				(LeftAlign? inplace::pad_right : inplace::pad_left)(Str, Width, L' ');
-				return std::move(Str);
+				return Str;
 			}
 
 			(LeftAlign? inplace::cut_right : inplace::cut_left)(Str, Width - 1);
 			Str.insert(LeftAlign? Str.end() : Str.begin(), L'\x2026');
-			return std::move(Str);
+			return Str;
 		};
 
 		if (!UnitIndex && !ShowUnit)

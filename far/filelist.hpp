@@ -291,7 +291,7 @@ private:
 	void PluginPutFilesToNew();
 	int PluginPutFilesToAnother(bool Move, panel_ptr AnotherPanel);
 	void PluginClearSelection(const std::vector<PluginPanelItem>& ItemList);
-	void ProcessCopyKeys(int Key);
+	void ProcessCopyKeys(unsigned Key);
 	void ReadSortGroups(bool UpdateFilterCurrentTime = true);
 	int ProcessOneHostFile(const FileListItem* Item);
 	void HighlightBorder(int Level, int ListPos) const;

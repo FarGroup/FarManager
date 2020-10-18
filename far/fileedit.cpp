@@ -880,7 +880,7 @@ bool FileEditor::ProcessKey(const Manager::Key& Key)
 bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 {
 	const auto LocalKey = Key();
-	if (LocalKey!=KEY_F4 && LocalKey!=KEY_IDLE)
+	if (none_of(LocalKey, KEY_F4, KEY_IDLE))
 		F4KeyOnly=false;
 
 	if (m_Flags.Check(FFILEEDIT_REDRAWTITLE) && ((LocalKey & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal(LocalKey & 0x00ffffff)))
@@ -892,7 +892,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 	   никак не соответствует обрабатываемой клавише, возникают разномастные
 	   глюки
 	*/
-	if ((LocalKey >= KEY_MACRO_BASE && LocalKey <= KEY_MACRO_ENDBASE) || (LocalKey>=KEY_OP_BASE && LocalKey <=KEY_OP_ENDBASE)) // исключаем MACRO
+	if (in_range(KEY_MACRO_BASE, LocalKey, KEY_MACRO_ENDBASE) || in_range(KEY_OP_BASE, LocalKey, KEY_OP_ENDBASE)) // исключаем MACRO
 	{
 		// ; //
 	}
@@ -1284,10 +1284,6 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 							default:
 								return false;
 							}
-						}
-						else
-						{
-							FirstSave = NeedQuestion = true;
 						}
 					}
 					else if (!m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)) //????

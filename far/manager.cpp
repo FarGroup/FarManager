@@ -637,11 +637,11 @@ void Manager::ProcessMainLoop()
 			return;
 
 		const auto BaseKey = Key & ~KEY_CTRLMASK;
-		if (rec.EventType==MOUSE_EVENT && !(BaseKey == KEY_MSWHEEL_UP || BaseKey == KEY_MSWHEEL_DOWN || BaseKey == KEY_MSWHEEL_RIGHT || BaseKey == KEY_MSWHEEL_LEFT))
+		if (rec.EventType==MOUSE_EVENT && none_of(BaseKey, KEY_MSWHEEL_UP, KEY_MSWHEEL_DOWN, KEY_MSWHEEL_RIGHT, KEY_MSWHEEL_LEFT))
 		{
-				// используем копию структуры, т.к. LastInputRecord может внезапно измениться во время выполнения ProcessMouse
-				MOUSE_EVENT_RECORD mer=rec.Event.MouseEvent;
-				ProcessMouse(&mer);
+			// используем копию структуры, т.к. LastInputRecord может внезапно измениться во время выполнения ProcessMouse
+			auto mer = rec.Event.MouseEvent;
+			ProcessMouse(&mer);
 		}
 		else
 			ProcessKey(Manager::Key(Key, rec));
@@ -805,7 +805,7 @@ bool Manager::ProcessKey(Key key)
 
 					if (GetCurrentWindow()->GetCanLoseFocus())
 					{
-						SwitchWindow((key()==KEY_CTRLTAB||key()==KEY_RCTRLTAB)? direction::next : direction::previous);
+						SwitchWindow(any_of(key(), KEY_CTRLTAB, KEY_RCTRLTAB)? direction::next : direction::previous);
 					}
 					else
 						break;

@@ -552,10 +552,10 @@ void EditFileTypes()
 				case KEY_CTRLDOWN:
 				case KEY_RCTRLDOWN:
 				{
-					if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !MenuPos) &&
-						!((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && MenuPos == static_cast<int>(TypesMenu->size() - 1)))
+					if (!(any_of(Key, KEY_CTRLUP, KEY_RCTRLUP) && !MenuPos) &&
+						!(any_of(Key, KEY_CTRLDOWN, KEY_RCTRLDOWN) && MenuPos == static_cast<int>(TypesMenu->size() - 1)))
 					{
-						const auto NewMenuPos = MenuPos + ((Key == KEY_CTRLUP || Key == KEY_RCTRLUP) ? -1 : +1);
+						const auto NewMenuPos = MenuPos + (any_of(Key, KEY_CTRLUP, KEY_RCTRLUP) ? -1 : 1);
 						if (const auto IdPtr = TypesMenu->GetComplexUserDataPtr<unsigned long long>(MenuPos))
 						{
 							if (const auto IdPtr2 = TypesMenu->GetComplexUserDataPtr<unsigned long long>(NewMenuPos))

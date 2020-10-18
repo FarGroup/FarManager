@@ -296,67 +296,44 @@ bool FileFilterParams::FileInFilter(const filter_file_object& Object, os::chrono
 	// Режим проверки размера файла включен?
 	if (FSize.Used)
 	{
-		if (!FSize.Above.Size.empty())
-		{
-			if (Object.Size < FSize.Above.SizeReal) // Размер файла меньше минимального разрешённого по фильтру?
-				return false;                          // Не пропускаем этот файл
-		}
+		// Размер файла меньше минимального разрешённого по фильтру?
+		if (!FSize.Above.Size.empty() && Object.Size < FSize.Above.SizeReal)
+			return false;
 
-		if (!FSize.Below.Size.empty())
-		{
-			if (Object.Size > FSize.Below.SizeReal) // Размер файла больше максимального разрешённого по фильтру?
-				return false;                          // Не пропускаем этот файл
-		}
+		// Размер файла больше максимального разрешённого по фильтру?
+		if (!FSize.Below.Size.empty() && Object.Size > FSize.Below.SizeReal)
+			return false;
 	}
 
 	// Режим проверки времени файла включен?
-	if (FDate.Used)
+	// Есть введённая пользователем начальная / конечная дата?
+	if (FDate.Used && FDate.Dates)
 	{
-		// Есть введённая пользователем начальная / конечная дата?
-		if (FDate.Dates)
+		const auto& ft = [&]() -> const auto&
 		{
-			const os::chrono::time_point* ft{};
-
 			switch (FDate.DateType)
 			{
-			case FDATE_CREATED:
-				ft = &Object.CreationTime;
-				break;
-
-			case FDATE_OPENED:
-				ft = &Object.AccessTime;
-				break;
-
-			case FDATE_CHANGED:
-				ft = &Object.ChangeTime;
-				break;
-
-			case FDATE_MODIFIED:
-				ft = &Object.ModificationTime;
-				break;
-
-			default:
-				// Validated in SetDate()
-				UNREACHABLE;
+			case FDATE_CREATED:  return Object.CreationTime;
+			case FDATE_OPENED:   return Object.AccessTime;
+			case FDATE_CHANGED:  return Object.ChangeTime;
+			case FDATE_MODIFIED: return Object.ModificationTime;
+			default: UNREACHABLE; // Validated in SetDate()
 			}
+		}();
 
-			// Дата файла меньше начальной / больше конечной даты по фильтру?
-			if (FDate.Dates.visit(overload
+		// Дата файла меньше начальной / больше конечной даты по фильтру?
+		if (FDate.Dates.visit(overload
+		{
+			[&](os::chrono::duration After, os::chrono::duration Before)
 			{
-				[&](os::chrono::duration After, os::chrono::duration Before)
-				{
-					return (After != 0s && *ft < CurrentTime - After) || (Before != 0s && *ft > CurrentTime - Before);
-				},
-				[&](os::chrono::time_point After, os::chrono::time_point Before)
-				{
-					return (After != os::chrono::time_point{} && *ft < After) || (Before != os::chrono::time_point{} && *ft > Before);
-				}
-			}))
+				return (After != 0s && ft < CurrentTime - After) || (Before != 0s && ft > CurrentTime - Before);
+			},
+			[&](os::chrono::time_point After, os::chrono::time_point Before)
 			{
-				// Не пропускаем этот файл
-				return false;
+				return (After != os::chrono::time_point{} && ft < After) || (Before != os::chrono::time_point{} && ft > Before);
 			}
-		}
+		}))
+			return false;
 	}
 
 	// Режим проверки маски файла включен?
@@ -376,16 +353,10 @@ bool FileFilterParams::FileInFilter(const filter_file_object& Object, os::chrono
 	if (FHardLinks.Used)
 	{
 		if (Object.Attributes & FILE_ATTRIBUTE_DIRECTORY)
-		{
 			return false;
-		}
 
-		const auto NumberOfLinks = HardlinkGetter? HardlinkGetter() : Object.NumberOfLinks;
-
-		if (NumberOfLinks < 2)
-		{
+		if (const auto NumberOfLinks = HardlinkGetter? HardlinkGetter() : Object.NumberOfLinks; NumberOfLinks < 2)
 			return false;
-		}
 	}
 
 	// Да! Файл выдержал все испытания и будет допущен к использованию

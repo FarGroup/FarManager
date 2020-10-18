@@ -132,6 +132,8 @@ bool WriteInput(int Key);
 int IsNavKey(DWORD Key);
 int IsShiftKey(DWORD Key);
 bool IsModifKey(DWORD Key);
+bool IsInternalKeyReal(unsigned int Key);
+bool IsCharKey(unsigned int Key);
 bool CheckForEsc();
 bool CheckForEscSilent();
 bool ConfirmAbortOp();

@@ -1294,18 +1294,4 @@ enum far_key_code: unsigned int
 	KEY_RALTSHIFT_BASE       =KEY_RALT|KEY_SHIFT,
 };
 
-inline bool IsInternalKeyReal(unsigned int Key)
-{
-	return Key==KEY_NUMDEL|| Key==KEY_NUMENTER||
-		Key==KEY_MSWHEEL_UP || Key==KEY_MSWHEEL_DOWN||
-		Key==KEY_MSWHEEL_LEFT || Key==KEY_MSWHEEL_RIGHT||
-		Key==KEY_MSLCLICK || Key==KEY_MSRCLICK ||
-		Key==KEY_MSM1CLICK || Key==KEY_MSM2CLICK || Key==KEY_MSM3CLICK;
-}
-
-inline bool IsCharKey(unsigned int Key)
-{
-	return Key < 0x1000 || (Key >= KEY_MULTIPLY && Key <= KEY_DIVIDE);
-}
-
 #endif // KEYS_HPP_C9983354_D8EA_4A70_9E16_722A332B503D

@@ -408,11 +408,14 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 {
 	const auto LocalKey = Key();
 
-	if ((LocalKey==KEY_CTRLLEFT || LocalKey==KEY_CTRLRIGHT || LocalKey==KEY_CTRLNUMPAD4 || LocalKey==KEY_CTRLNUMPAD6
-		|| LocalKey==KEY_RCTRLLEFT || LocalKey==KEY_RCTRLRIGHT || LocalKey==KEY_RCTRLNUMPAD4 || LocalKey==KEY_RCTRLNUMPAD6
-	        /* || LocalKey==KEY_CTRLUP   || LocalKey==KEY_CTRLDOWN || LocalKey==KEY_CTRLNUMPAD8 || LocalKey==KEY_CTRLNUMPAD2 */) &&
-	        (!CmdLine->GetString().empty() ||
-			(!LeftPanel()->IsVisible() && !RightPanel()->IsVisible())))
+	if (
+		any_of(LocalKey,
+			KEY_CTRLLEFT, KEY_CTRLRIGHT, KEY_CTRLNUMPAD4, KEY_CTRLNUMPAD6,
+			KEY_RCTRLLEFT, KEY_RCTRLRIGHT, KEY_RCTRLNUMPAD4, KEY_RCTRLNUMPAD6
+			/*KEY_CTRLUP, KEY_CTRLDOWN, KEY_CTRLNUMPAD8, KEY_CTRLNUMPAD2,
+			KEY_RCTRLUP, KEY_RCTRLDOWN, KEY_RCTRLNUMPAD8, KEY_RCTRLNUMPAD2*/
+		) &&
+		(!CmdLine->GetString().empty() || (!LeftPanel()->IsVisible() && !RightPanel()->IsVisible())))
 	{
 		CmdLine->ProcessKey(Key);
 		return true;
@@ -500,11 +503,11 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 			{
 				auto AnotherPanel = PassivePanel();
 				const auto NewType =
-					LocalKey == KEY_CTRLL || LocalKey == KEY_RCTRLL?
-					panel_type::INFO_PANEL :
-					LocalKey == KEY_CTRLQ || LocalKey == KEY_RCTRLQ?
-					panel_type::QVIEW_PANEL :
-					panel_type::TREE_PANEL;
+					any_of(LocalKey, KEY_CTRLL, KEY_RCTRLL)?
+						panel_type::INFO_PANEL :
+						any_of(LocalKey, KEY_CTRLQ, KEY_RCTRLQ)?
+							panel_type::QVIEW_PANEL :
+							panel_type::TREE_PANEL;
 
 				if (ActivePanel()->GetType() == NewType)
 					AnotherPanel = ActivePanel();

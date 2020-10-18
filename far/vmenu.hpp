@@ -221,7 +221,7 @@ public:
 	bool ProcessFilterKey(int Key);
 	void clear();
 	int DeleteItem(int ID, int Count = 1);
-	int AddItem(MenuItemEx&& NewItem, int PosAdd = 0x7FFFFFFF);
+	int AddItem(MenuItemEx&& NewItem, int PosAdd = std::numeric_limits<int>::max());
 	int AddItem(const FarList *List);
 	int AddItem(const wchar_t *NewStrItem);
 	int InsertItem(const FarListInsert *NewItem);
@@ -306,7 +306,7 @@ private:
 	bool ShiftItemShowPos(int Pos,int Direct);
 	void UpdateMaxLengthFromTitles();
 	void UpdateMaxLength(size_t Length);
-	bool ShouldSendKeyToFilter(int Key) const;
+	bool ShouldSendKeyToFilter(unsigned Key) const;
 	//корректировка текущей позиции и флагов SELECTED
 	void UpdateSelectPos();
 	void EnableFilter(bool Enable);

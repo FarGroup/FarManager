@@ -527,33 +527,33 @@ int VMenu2::SetSelectPos(int Pos, int Direct)
 	return ListBox().SetSelectPos(Pos, Direct);
 }
 
-int VMenu2::GetCheck(int Position)
+wchar_t VMenu2::GetCheck(int Position)
 {
 	const auto Flags = GetItemFlags(Position);
 
 	if ((Flags & LIF_SEPARATOR) || !(Flags & LIF_CHECKED))
 		return 0;
 
-	const auto Checked = Flags & 0xFFFF;
+	const auto Checked = Flags & std::numeric_limits<wchar_t>::max();
 
 	return Checked ? Checked : 1;
 }
 
 void VMenu2::SetCheck(int Position)
 {
-	const auto Flags = GetItemFlags(Position) & ~0xFFFF;
+	const auto Flags = GetItemFlags(Position) & ~std::numeric_limits<wchar_t>::max();
 	UpdateItemFlags(Position, Flags | LIF_CHECKED);
 }
 
 void VMenu2::SetCustomCheck(wchar_t Char, int Position)
 {
-	const auto Flags = GetItemFlags(Position) & ~0xFFFF;
+	const auto Flags = GetItemFlags(Position) & ~std::numeric_limits<wchar_t>::max();
 	UpdateItemFlags(Position, Flags | LIF_CHECKED | Char);
 }
 
 void VMenu2::ClearCheck(int Position)
 {
-	const auto Flags = GetItemFlags(Position) & ~0xFFFF;
+	const auto Flags = GetItemFlags(Position) & ~std::numeric_limits<wchar_t>::max();
 	UpdateItemFlags(Position, Flags & ~LIF_CHECKED);
 }
 

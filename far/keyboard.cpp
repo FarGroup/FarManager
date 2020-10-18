@@ -1351,7 +1351,7 @@ int KeyNameToKey(string_view Name)
 					Name.remove_prefix(1);
 			}
 			else if (
-				Name.size() == 5 && (Key == KEY_M_SPEC || Key == KEY_M_OEM) &&
+				Name.size() == 5 && any_of(Key, KEY_M_SPEC, KEY_M_OEM) &&
 				std::all_of(ALL_CONST_RANGE(Name), std::iswdigit)
 			) // Варианты (3) и (4)
 			{
@@ -1359,8 +1359,7 @@ int KeyNameToKey(string_view Name)
 
 				if (Key == KEY_M_SPEC) // Вариант (3)
 					Key = (Key & ~KEY_M_SPEC) | (K + KEY_VK_0xFF_BEGIN);
-
-				else if (Key == KEY_M_OEM) // Вариант (4)
+				else // Вариант (4)
 					Key = (Key & ~KEY_M_OEM) | (K + KEY_FKEY_BEGIN);
 
 				Name = {};
@@ -1860,9 +1859,24 @@ int IsShiftKey(DWORD Key)
 	return IsModifKey(Key) || contains(ShiftKeys, Key);
 }
 
-bool IsModifKey(DWORD Key)
+bool IsModifKey(DWORD const Key)
 {
-	return Key && (Key&(KEY_CTRL|KEY_ALT|KEY_SHIFT|KEY_RCTRL|KEY_RALT)) == Key;
+	return flags::check_any(Key, KEY_CTRL | KEY_ALT | KEY_SHIFT | KEY_RCTRL | KEY_RALT);
+}
+
+bool IsInternalKeyReal(unsigned int Key)
+{
+	return any_of(Key,
+		KEY_NUMDEL,
+		KEY_NUMENTER,
+		KEY_MSWHEEL_UP, KEY_MSWHEEL_DOWN,
+		KEY_MSWHEEL_LEFT, KEY_MSWHEEL_RIGHT,
+		KEY_MSLCLICK, KEY_MSRCLICK, KEY_MSM1CLICK, KEY_MSM2CLICK, KEY_MSM3CLICK);
+}
+
+bool IsCharKey(unsigned int Key)
+{
+	return Key < 0x1000 || in_range(KEY_MULTIPLY, Key, KEY_DIVIDE);
 }
 
 unsigned int ShieldCalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)

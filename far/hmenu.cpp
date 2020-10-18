@@ -434,9 +434,7 @@ bool HMenu::ProcessCurrentSubMenu()
 				}
 				else
 				{
-					if (Key == KEY_LEFT || Key == KEY_RIGHT || Key == KEY_TAB ||
-						Key == KEY_NUMPAD4 || Key == KEY_NUMPAD6 ||
-						Key == KEY_MSWHEEL_LEFT || Key == KEY_MSWHEEL_RIGHT)
+					if (any_of(Key, KEY_LEFT, KEY_RIGHT, KEY_TAB, KEY_NUMPAD4, KEY_NUMPAD6, KEY_MSWHEEL_LEFT, KEY_MSWHEEL_RIGHT))
 					{
 						SendKey = true;
 						MenuKey = Key;

@@ -334,7 +334,6 @@ void InfoList::DisplayObject()
 				case DRIVE_REMOTE:
 					{
 						DiskTypeId = lng::MInfoNetwork;
-						auto DeviceName = strDriveRoot;
 						UseAssocPath = DriveLocalToRemoteName(false, strDriveRoot, strAssocPath);
 					}
 					break;
@@ -772,15 +771,13 @@ bool InfoList::ProcessKey(const Manager::Key& Key)
 		{
 			const auto ret = DizView->ProcessKey(Key);
 
-			if (LocalKey == KEY_F2 || LocalKey == KEY_SHIFTF2
-			 || LocalKey == KEY_F4 || LocalKey == KEY_SHIFTF4
-			 || LocalKey == KEY_F8 || LocalKey == KEY_SHIFTF8)
+			if (any_of(LocalKey, KEY_F2, KEY_SHIFTF2, KEY_F4, KEY_SHIFTF4, KEY_F8, KEY_SHIFTF8))
 			{
 				DynamicUpdateKeyBar();
 				Parent()->GetKeybar().Redraw();
 			}
 
-			if (LocalKey == KEY_F7 || LocalKey == KEY_SHIFTF7)
+			if (any_of(LocalKey, KEY_F7, KEY_SHIFTF7))
 			{
 				long long Pos, Length;
 				DWORD Flags;

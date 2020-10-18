@@ -92,16 +92,13 @@ bool FastFind::ProcessKey(const Manager::Key& Key)
 	auto LocalKey = Key;
 
 	// для вставки воспользуемся макродвижком...
-	if (LocalKey() == KEY_CTRLV || LocalKey() == KEY_RCTRLV || LocalKey() == KEY_SHIFTINS || LocalKey() == KEY_SHIFTNUMPAD0)
+	if (any_of(LocalKey(), KEY_CTRLV, KEY_RCTRLV, KEY_SHIFTINS, KEY_SHIFTNUMPAD0))
 	{
 		string ClipText;
-		if (GetClipboardText(ClipText))
+		if (GetClipboardText(ClipText) && !ClipText.empty())
 		{
-			if (!ClipText.empty())
-			{
-				ProcessName(ClipText);
-				ShowBorder();
-			}
+			ProcessName(ClipText);
+			ShowBorder();
 		}
 
 		return true;
@@ -127,7 +124,7 @@ bool FastFind::ProcessKey(const Manager::Key& Key)
 	else
 		LocalKey = CorrectFastFindKbdLayout(Key.Event(), LocalKey());
 
-	if (LocalKey() == KEY_ESC || LocalKey() == KEY_F10)
+	if (any_of(LocalKey(), KEY_ESC, KEY_F10))
 	{
 		Close(-1);
 		return true;
@@ -176,11 +173,10 @@ bool FastFind::ProcessKey(const Manager::Key& Key)
 		break;
 
 	default:
-		if ((LocalKey() < 32 || LocalKey() >= 65536) && LocalKey() != KEY_BS && LocalKey() != KEY_CTRLY && LocalKey() != KEY_RCTRLY &&
-			LocalKey() != KEY_CTRLBS && LocalKey() != KEY_RCTRLBS && !IsModifKey(LocalKey()) &&
-			!(LocalKey() == KEY_CTRLINS || LocalKey() == KEY_CTRLNUMPAD0) && // KEY_RCTRLINS/NUMPAD0 passed to panels
-			!(LocalKey() == KEY_SHIFTINS || LocalKey() == KEY_SHIFTNUMPAD0) &&
-			!((LocalKey() == KEY_KILLFOCUS || LocalKey() == KEY_GOTFOCUS) && IsWindowsVistaOrGreater()) // Mantis #2903
+		if ((LocalKey() < 32 || LocalKey() >= 65536) &&
+			none_of(LocalKey(), KEY_BS, KEY_CTRLY, KEY_RCTRLY, KEY_CTRLBS, KEY_RCTRLBS, KEY_CTRLINS, KEY_CTRLNUMPAD0, KEY_SHIFTINS, KEY_SHIFTNUMPAD0) &&
+			!IsModifKey(LocalKey()) &&
+			!(any_of(LocalKey(), KEY_KILLFOCUS, KEY_GOTFOCUS) && IsWindowsVistaOrGreater()) // Mantis #2903
 			)
 		{
 			m_KeyToProcess = LocalKey;

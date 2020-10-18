@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common/2d/matrix.hpp"
 
-TEST_CASE("2d/matrix")
+TEST_CASE("2d.matrix")
 {
 	static const size_t Data[]
 	{
@@ -89,6 +89,106 @@ WARNING_POP()
 	}
 
 	REQUIRE(Counter == Width * Height);
+}
+
+//----------------------------------------------------------------------------
+
+#include "common/algorithm.hpp"
+
+TEST_CASE("algorithm.repeat")
+{
+	auto Value = 0;
+	auto const Count = 7;
+	auto Increment = [&]{ ++Value; };
+
+	repeat(Count, Increment);
+
+	REQUIRE(Value == Count);
+}
+
+TEST_CASE("algorithm.apply_permutation")
+{
+	{
+		std::vector<int> Data, Indices;
+		apply_permutation(ALL_RANGE(Data), Indices.begin());
+		REQUIRE(Data.empty());
+		REQUIRE(Indices.empty());
+	}
+
+	{
+		std::array Data{ 'E', 'L', 'V', 'I', 'S' };
+		std::array const Expected{ 'L', 'I', 'V', 'E', 'S' };
+		std::array Indices{ 1, 3, 2, 0, 4 };
+		static_assert(
+			std::size(Data) == std::size(Expected) &&
+			std::size(Data) == std::size(Indices)
+		);
+		apply_permutation(ALL_RANGE(Data), Indices.begin());
+		REQUIRE(Data == Expected);
+	}
+}
+
+TEST_CASE("algorithm.emplace")
+{
+	{
+		std::vector<int> Data;
+		emplace(Data, 42);
+		REQUIRE(Data.front() == 42);
+	}
+
+	{
+		std::set<int> Data;
+		emplace(Data, 42);
+		REQUIRE(*Data.begin() == 42);
+	}
+}
+
+TEST_CASE("algorithm.contains")
+{
+	{
+		constexpr std::array Data{ 1, 2, 3 };
+
+		// TODO: static_assert
+		// GCC stdlib isn't constexpr yet :(
+		REQUIRE(contains(Data, 1));
+		REQUIRE(contains(Data, 2));
+		REQUIRE(contains(Data, 3));
+		REQUIRE(!contains(Data, 4));
+	}
+
+	{
+		std::set Data{ 1, 2, 3 };
+
+		REQUIRE(contains(Data, 1));
+		REQUIRE(contains(Data, 2));
+		REQUIRE(contains(Data, 3));
+		REQUIRE(!contains(Data, 4));
+	}
+}
+
+TEST_CASE("algorithm.in_range")
+{
+	static_assert(in_range(0, 0, 0));
+	static_assert(in_range(0, 0, 1));
+	static_assert(in_range(0, 1, 1));
+	static_assert(in_range(1, 1, 1));
+	static_assert(in_range(1, 3, 5));
+
+	static_assert(!in_range(0, 1, 0));
+	static_assert(!in_range(1, 0, 0));
+	static_assert(!in_range(1, 1, 0));
+	static_assert(!in_range(1, 0, 1));
+	static_assert(!in_range(5, 3, 1));
+	SUCCEED();
+}
+
+TEST_CASE("algorithm.any_none_of")
+{
+	static_assert(any_of(1, 1));
+	static_assert(any_of(1, 1, 2, 3));
+	static_assert(none_of(1, 0));
+	static_assert(none_of(1, 2, 3));
+	SUCCEED();
 }
 
 //----------------------------------------------------------------------------
@@ -247,6 +347,23 @@ TEST_CASE("chrono")
 
 //----------------------------------------------------------------------------
 
+#include "common/enum_substrings.hpp"
+
+TEST_CASE("enum_substrings")
+{
+	const std::array Baseline = { L"abc"sv, L"def"sv, L"q"sv };
+	auto BaselineIterator = Baseline.begin();
+
+	for (const auto& i : enum_substrings(L"abc\0def\0q\0"sv.data()))
+	{
+		REQUIRE(i == *BaselineIterator++);
+	}
+
+	REQUIRE(BaselineIterator == Baseline.end());
+}
+
+//----------------------------------------------------------------------------
+
 #include "common/enum_tokens.hpp"
 
 TEST_CASE("enum_tokens")
@@ -336,23 +453,6 @@ TEST_CASE("enumerator")
 
 //----------------------------------------------------------------------------
 
-#include "common/enum_substrings.hpp"
-
-TEST_CASE("enum_substrings")
-{
-	const std::array Baseline = { L"abc"sv, L"def"sv, L"q"sv };
-	auto BaselineIterator = Baseline.begin();
-
-	for (const auto& i: enum_substrings(L"abc\0def\0q\0"sv.data()))
-	{
-		REQUIRE(i == *BaselineIterator++);
-	}
-
-	REQUIRE(BaselineIterator == Baseline.end());
-}
-
-//----------------------------------------------------------------------------
-
 #include "common/from_string.hpp"
 
 TEST_CASE("from_string")
@@ -383,19 +483,32 @@ TEST_CASE("from_string")
 
 //----------------------------------------------------------------------------
 
-#include "common/keep_alive.hpp"
+#include "common/function_traits.hpp"
 
-template<typename type>
-static void TestKeepAlive()
+TEST_CASE("function_traits")
 {
-	static_assert(std::is_same_v<decltype(keep_alive(std::declval<type>())), keep_alive<type>>);
-}
+	{
+		using t = function_traits<void()>;
+		static_assert(t::arity == 0);
+		static_assert(std::is_same_v<t::result_type, void>);
+	}
 
-TEST_CASE("keep_alive")
-{
-	TestKeepAlive<int>();
-	TestKeepAlive<int&>();
-	TestKeepAlive<const int&>();
+	{
+		using t = function_traits<char(short, int, long)>;
+		static_assert(t::arity == 3);
+		static_assert(std::is_same_v<t::arg<0>, short>);
+		static_assert(std::is_same_v<t::arg<1>, int>);
+		static_assert(std::is_same_v<t::arg<2>, long>);
+		static_assert(std::is_same_v<t::result_type, char>);
+	}
+
+	{
+		struct s { double f(bool) const { return 0; } };
+		using t = function_traits<decltype(&s::f)>;
+		static_assert(t::arity == 1);
+		static_assert(std::is_same_v<t::arg<0>, bool>);
+		static_assert(std::is_same_v<t::result_type, double>);
+	}
 
 	SUCCEED();
 }
@@ -413,6 +526,25 @@ TEST_CASE("io")
 	std::byte Buffer[Str.size()];
 	REQUIRE(io::read(Stream, Buffer) == Str.size());
 	REQUIRE(!io::read(Stream, Buffer));
+}
+
+//----------------------------------------------------------------------------
+
+#include "common/keep_alive.hpp"
+
+template<typename type>
+static void TestKeepAlive()
+{
+	static_assert(std::is_same_v<decltype(keep_alive(std::declval<type>())), keep_alive<type>>);
+}
+
+TEST_CASE("keep_alive")
+{
+	TestKeepAlive<int>();
+	TestKeepAlive<int&>();
+	TestKeepAlive<const int&>();
+
+	SUCCEED();
 }
 
 //----------------------------------------------------------------------------
@@ -638,7 +770,7 @@ TEST_CASE("scope_exit")
 
 #include "common/smart_ptr.hpp"
 
-TEST_CASE("array_ptr")
+TEST_CASE("smart_ptr")
 {
 	char_ptr_n<1> Ptr;
 	constexpr auto ActualStaticSize = sizeof(std::unique_ptr<char[]>) / sizeof(char);

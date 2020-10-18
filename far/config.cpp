@@ -496,19 +496,16 @@ void Options::MaskGroupsSettings()
 		MasksMenu->Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();
-			if(Filter)
+			if(Filter && any_of(Key, KEY_ESC, KEY_F10, KEY_ENTER, KEY_NUMENTER))
 			{
-				if(Key == KEY_ESC || Key == KEY_F10 || Key == KEY_ENTER || Key == KEY_NUMENTER)
+				Filter = false;
+				for (size_t i = 0, size = MasksMenu->size(); i != size;  ++i)
 				{
-					Filter = false;
-					for (size_t i = 0, size = MasksMenu->size(); i != size;  ++i)
-					{
-						MasksMenu->UpdateItemFlags(static_cast<int>(i), MasksMenu->at(i).Flags & ~MIF_HIDDEN);
-					}
-					MasksMenu->SetPosition({ -1, -1, -1, -1 });
-					MasksMenu->SetTitle(msg(lng::MMenuMaskGroups));
-					MasksMenu->SetBottomTitle(BottomTitle);
+					MasksMenu->UpdateItemFlags(static_cast<int>(i), MasksMenu->at(i).Flags & ~MIF_HIDDEN);
 				}
+				MasksMenu->SetPosition({ -1, -1, -1, -1 });
+				MasksMenu->SetTitle(msg(lng::MMenuMaskGroups));
+				MasksMenu->SetBottomTitle(BottomTitle);
 				return 1;
 			}
 			int ItemPos = MasksMenu->GetSelectPos();
@@ -2664,11 +2661,11 @@ void Options::ReadPanelModes()
 		}
 	};
 
-	for_each_cnt(m_ViewSettings.begin(), m_ViewSettings.begin() + predefined_panel_modes_count, [&](PanelViewSettings& i, size_t Index)
+	for (auto& [Item, Index]: enumerate(span(m_ViewSettings).subspan(0, predefined_panel_modes_count)))
 	{
 		if (const auto Key = cfg->FindByName(cfg->root_key, str(Index)))
-			ReadMode(Key, i);
-	});
+			ReadMode(Key, Item);
+	}
 
 	if (const auto CustomModesRoot = cfg->FindByName(cfg->root_key, CustomModesKeyName))
 	{

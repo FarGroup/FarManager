@@ -301,7 +301,7 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 	if (m_RedrawTitle && ((LocalKey & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal(LocalKey & 0x00ffffff)))
 		ShowConsoleTitle();
 
-	if (LocalKey!=KEY_F3 && LocalKey!=KEY_IDLE)
+	if (none_of(LocalKey, KEY_F3, KEY_IDLE))
 		m_F3KeyOnly=false;
 
 	switch (LocalKey)

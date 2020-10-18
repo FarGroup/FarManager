@@ -1424,6 +1424,7 @@ void Dialog::GetDialogObjectsData()
 // Функция формирования и запроса цветов.
 intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITEMTYPES Type, bool Focus, bool Default,FARDIALOGITEMFLAGS Flags)
 {
+	const auto IsWarning = DialogMode.Check(DMODE_WARNINGSTYLE);
 	const auto DisabledItem = (Flags&DIF_DISABLE) != 0;
 
 	switch (Type)
@@ -1432,24 +1433,24 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 		case DI_DOUBLEBOX:
 		{
 			// Title
-			Color[0] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOXTITLE) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOXTITLE));
+			Color[0] = colors::PaletteColorToFarColor(IsWarning? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOXTITLE) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOXTITLE));
 			// HiText
-			Color[1] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTBOXTITLE) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTBOXTITLE));
+			Color[1] = colors::PaletteColorToFarColor(IsWarning? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTBOXTITLE) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTBOXTITLE));
 			// Box
-			Color[2] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX));
+			Color[2] = colors::PaletteColorToFarColor(IsWarning? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX));
 			break;
 		}
 
 		case DI_VTEXT:
 		case DI_TEXT:
 		{
-			Color[0] = colors::PaletteColorToFarColor((Flags & DIF_BOXCOLOR)? (DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX)) : (DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT)));
+			Color[0] = colors::PaletteColorToFarColor((Flags & DIF_BOXCOLOR)? (IsWarning? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX)) : (IsWarning? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT)));
 			// HiText
-			Color[1] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT));
+			Color[1] = colors::PaletteColorToFarColor(IsWarning? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT));
 			if (Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))
 			{
 				// Box
-				Color[2] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX));
+				Color[2] = colors::PaletteColorToFarColor(IsWarning? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGBOX));
 			}
 			break;
 		}
@@ -1457,9 +1458,9 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 		case DI_CHECKBOX:
 		case DI_RADIOBUTTON:
 		{
-			Color[0] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT));
+			Color[0] = colors::PaletteColorToFarColor(IsWarning? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGTEXT));
 			// HiText
-			Color[1] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT));
+			Color[1] = colors::PaletteColorToFarColor(IsWarning? (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGHIGHLIGHTTEXT) : (DisabledItem?COL_DIALOGDISABLED:COL_DIALOGHIGHLIGHTTEXT));
 			break;
 		}
 
@@ -1469,18 +1470,18 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 			{
 				SetCursorType(false, 10);
 				// TEXT
-				Color[0] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGSELECTEDDEFAULTBUTTON:COL_WARNDIALOGSELECTEDBUTTON)) : (DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGSELECTEDDEFAULTBUTTON:COL_DIALOGSELECTEDBUTTON)));
+				Color[0] = colors::PaletteColorToFarColor(IsWarning? (DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGSELECTEDDEFAULTBUTTON:COL_WARNDIALOGSELECTEDBUTTON)) : (DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGSELECTEDDEFAULTBUTTON:COL_DIALOGSELECTEDBUTTON)));
 				// HiText
-				Color[1] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON:COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON)) : (DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON:COL_DIALOGHIGHLIGHTSELECTEDBUTTON)));
+				Color[1] = colors::PaletteColorToFarColor(IsWarning? (DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON:COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON)) : (DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON:COL_DIALOGHIGHLIGHTSELECTEDBUTTON)));
 			}
 			else
 			{
 				// TEXT
-				Color[0] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)?
+				Color[0] = colors::PaletteColorToFarColor(IsWarning?
 						(DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGDEFAULTBUTTON:COL_WARNDIALOGBUTTON)):
 						(DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGDEFAULTBUTTON:COL_DIALOGBUTTON)));
 				// HiText
-				Color[1] = colors::PaletteColorToFarColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGHIGHLIGHTDEFAULTBUTTON:COL_WARNDIALOGHIGHLIGHTBUTTON)) : (DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGHIGHLIGHTDEFAULTBUTTON:COL_DIALOGHIGHLIGHTBUTTON)));
+				Color[1] = colors::PaletteColorToFarColor(IsWarning? (DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGHIGHLIGHTDEFAULTBUTTON:COL_WARNDIALOGHIGHLIGHTBUTTON)) : (DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGHIGHLIGHTDEFAULTBUTTON:COL_DIALOGHIGHLIGHTBUTTON)));
 			}
 			break;
 		}
@@ -1493,7 +1494,7 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 		{
 			if (Type == DI_COMBOBOX && (Flags & DIF_DROPDOWNLIST))
 			{
-				if (DialogMode.Check(DMODE_WARNINGSTYLE))
+				if (IsWarning)
 				{
 					// Text
 					Color[0] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGEDITDISABLED: Focus? COL_WARNDIALOGEDITSELECTED : COL_WARNDIALOGEDIT);
@@ -1518,7 +1519,7 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 			}
 			else
 			{
-				if (DialogMode.Check(DMODE_WARNINGSTYLE))
+				if (IsWarning)
 				{
 					// Text
 					Color[0] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGEDITDISABLED : Flags & DIF_NOFOCUS? COL_WARNDIALOGEDITUNCHANGED : COL_WARNDIALOGEDIT);
@@ -2174,7 +2175,7 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_CTRLHOME:  case KEY_CTRLNUMPAD7:
 			case KEY_RCTRLHOME: case KEY_RCTRLNUMPAD7:
 			case KEY_HOME:      case KEY_NUMPAD7:
-				rr = (Key == KEY_CTRLLEFT || Key == KEY_RCTRLLEFT || Key == KEY_CTRLNUMPAD4 || Key == KEY_RCTRLNUMPAD4)? 10 : m_Where.left;
+				rr = any_of(Key, KEY_CTRLLEFT, KEY_RCTRLLEFT, KEY_CTRLNUMPAD4, KEY_RCTRLNUMPAD4)? 10 : m_Where.left;
 				[[fallthrough]];
 			case KEY_LEFT:      case KEY_NUMPAD4:
 				Hide();
@@ -2195,7 +2196,7 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_CTRLEND:    case KEY_CTRLNUMPAD1:
 			case KEY_RCTRLEND:   case KEY_RCTRLNUMPAD1:
 			case KEY_END:       case KEY_NUMPAD1:
-				rr = (Key == KEY_CTRLRIGHT || Key == KEY_RCTRLRIGHT || Key == KEY_CTRLNUMPAD6 || Key == KEY_RCTRLNUMPAD6) ? 10 : std::max(0, ScrX - m_Where.right);
+				rr = any_of(Key, KEY_CTRLRIGHT, KEY_RCTRLRIGHT, KEY_CTRLNUMPAD6, KEY_RCTRLNUMPAD6)? 10 : std::max(0, ScrX - m_Where.right);
 				[[fallthrough]];
 			case KEY_RIGHT:     case KEY_NUMPAD6:
 				Hide();
@@ -2216,7 +2217,7 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_RCTRLPGUP: case KEY_RCTRLNUMPAD9:
 			case KEY_CTRLUP:    case KEY_CTRLNUMPAD8:
 			case KEY_RCTRLUP:   case KEY_RCTRLNUMPAD8:
-				rr = (Key == KEY_CTRLUP || Key == KEY_RCTRLUP || Key == KEY_CTRLNUMPAD8 || Key == KEY_RCTRLNUMPAD8)? 5 : m_Where.top;
+				rr = any_of(Key, KEY_CTRLUP, KEY_RCTRLUP, KEY_CTRLNUMPAD8, KEY_RCTRLNUMPAD8)? 5 : m_Where.top;
 				[[fallthrough]];
 			case KEY_UP:        case KEY_NUMPAD8:
 				Hide();
@@ -2237,7 +2238,7 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_CTRLPGDN:  case KEY_CTRLNUMPAD3:
 			case KEY_RCTRLPGDN: case KEY_RCTRLNUMPAD3:
 			case KEY_PGDN:      case KEY_NUMPAD3:
-				rr = (Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN || Key == KEY_CTRLNUMPAD2 || Key == KEY_RCTRLNUMPAD2)? 5 : std::max(0, ScrY - m_Where.bottom);
+				rr = any_of(Key, KEY_CTRLDOWN, KEY_RCTRLDOWN, KEY_CTRLNUMPAD2, KEY_RCTRLNUMPAD2)? 5 : std::max(0, ScrY - m_Where.bottom);
 				[[fallthrough]];
 			case KEY_DOWN:      case KEY_NUMPAD2:
 				Hide();
@@ -2276,7 +2277,7 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 		return true;
 	}
 
-	if ((Key == KEY_CTRLF5 || Key == KEY_RCTRLF5) && DialogMode.Check(DMODE_ISCANMOVE) && !DialogMode.Check(DMODE_MOUSEDRAGGED))
+	if (any_of(Key, KEY_CTRLF5, KEY_RCTRLF5) && DialogMode.Check(DMODE_ISCANMOVE) && !DialogMode.Check(DMODE_MOUSEDRAGGED))
 	{
 		if (DlgProc(DN_DRAGGED, 0, nullptr)) // если разрешили перемещать!
 		{
@@ -2477,7 +2478,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 			return true;
 	}
 
-	if (LocalKey()==KEY_NONE || LocalKey()==KEY_IDLE)
+	if (any_of(LocalKey(), KEY_NONE, KEY_IDLE))
 	{
 		DlgProc(DN_ENTERIDLE, 0, nullptr); // $ 28.07.2000 SVS Передадим этот факт в обработчик :-)
 		return false;
@@ -2486,10 +2487,10 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 	if (ProcessMoveDialog(LocalKey()))
 		return true;
 
-	if (!((LocalKey()>=KEY_OP_BASE && LocalKey() <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
+	if (!in_range(KEY_OP_BASE, LocalKey(), KEY_OP_ENDBASE) && !DialogMode.Check(DMODE_KEY))
 	{
 		// wrap-stop mode for user lists
-		if ((LocalKey()==KEY_UP || LocalKey()==KEY_NUMPAD8 || LocalKey()==KEY_DOWN || LocalKey()==KEY_NUMPAD2) && IsRepeatedKey())
+		if (any_of(LocalKey(), KEY_UP, KEY_NUMPAD8, KEY_DOWN, KEY_NUMPAD2) && IsRepeatedKey())
 		{
 			int n = -1;
 
@@ -2505,7 +2506,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 				if (SendMessage(DN_GETVALUE,m_FocusPos,&fgv) && fgv.Value.Type==FMVT_INTEGER)
 					pos = static_cast<int>(fgv.Value.Integer);
 
-				bool up = (LocalKey()==KEY_UP || LocalKey()==KEY_NUMPAD8);
+				const auto up = any_of(LocalKey(), KEY_UP, KEY_NUMPAD8);
 
 				if ((pos==1 && up) || (pos==n && !up))
 					return true;
@@ -2587,7 +2588,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 						ShowDialog(m_FocusPos); // FocusPos
 				}
 
-				if (!(LocalKey() == KEY_ENTER || LocalKey() == KEY_NUMENTER) || (Items[m_FocusPos].Flags&DIF_LISTNOCLOSE))
+				if (none_of(LocalKey(), KEY_ENTER, KEY_NUMENTER) || Items[m_FocusPos].Flags & DIF_LISTNOCLOSE)
 					return true;
 		}
 	}
@@ -2795,7 +2796,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 					{
 						const auto Dist = i.X1-Items[m_FocusPos].X1;
 
-						if (((LocalKey()==KEY_LEFT||LocalKey()==KEY_SHIFTNUMPAD4) && Dist<0) || ((LocalKey()==KEY_RIGHT||LocalKey()==KEY_SHIFTNUMPAD6) && Dist>0))
+						if ((any_of(LocalKey(), KEY_LEFT, KEY_SHIFTNUMPAD4) && Dist < 0) || (any_of(LocalKey(), KEY_RIGHT, KEY_SHIFTNUMPAD6) && Dist > 0))
 						{
 							if (static_cast<size_t>(abs(Dist))<MinDist)
 							{
@@ -2831,7 +2832,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 			if (Items[m_FocusPos].Type == DI_USERCONTROL) // для user-типа вываливаем
 				return true;
 
-			return Do_ProcessNextCtrl(LocalKey()==KEY_LEFT || LocalKey()==KEY_UP || LocalKey() == KEY_NUMPAD4 || LocalKey() == KEY_NUMPAD8);
+			return Do_ProcessNextCtrl(any_of(LocalKey(), KEY_LEFT, KEY_UP, KEY_NUMPAD4, KEY_NUMPAD8));
 			// $ 27.04.2001 VVM - Обработка колеса мышки
 		case KEY_MSWHEEL_UP:
 		case KEY_MSWHEEL_DOWN:
@@ -2914,12 +2915,12 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 			{
 				const auto edt = static_cast<DlgEdit*>(Items[m_FocusPos].ObjPtr);
 
-				if (LocalKey() == KEY_CTRLL || LocalKey() == KEY_RCTRLL) // исключим смену режима RO для поля ввода с клавиатуры
+				if (any_of(LocalKey(), KEY_CTRLL, KEY_RCTRLL)) // исключим смену режима RO для поля ввода с клавиатуры
 				{
 					return true;
 				}
 
-				if (LocalKey() == KEY_CTRLU || LocalKey() == KEY_RCTRLU)
+				if (any_of(LocalKey(), KEY_CTRLU, KEY_RCTRLU))
 				{
 					edt->SetClearFlag(false);
 					edt->RemoveSelection();
@@ -3036,10 +3037,10 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 							size_t I = m_FocusPos;
 
 							while (IsEmulatedEditorLine(Items[I]))
-								I = ChangeFocus(I, (LocalKey() == KEY_PGUP || LocalKey() == KEY_NUMPAD9)? -1 : 1, false);
+								I = ChangeFocus(I, any_of(LocalKey(), KEY_PGUP, KEY_NUMPAD9)? -1 : 1, false);
 
 							if (!IsEmulatedEditorLine(Items[I]))
-								I = ChangeFocus(I, (LocalKey() == KEY_PGUP || LocalKey() == KEY_NUMPAD9)? 1 : -1, false);
+								I = ChangeFocus(I, any_of(LocalKey(), KEY_PGUP, KEY_NUMPAD9)? 1 : -1, false);
 
 							ChangeFocus2(I);
 							ShowDialog();
@@ -3064,7 +3065,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 
 				if (!(Items[m_FocusPos].Flags & DIF_READONLY) || IsNavKey(LocalKey()))
 				{
-					if(LocalKey() == KEY_CTRLSPACE || LocalKey() == KEY_RCTRLSPACE)
+					if (any_of(LocalKey(), KEY_CTRLSPACE, KEY_RCTRLSPACE))
 					{
 						SCOPED_ACTION(SetAutocomplete)(edt, true);
 						edt->AutoComplete(true,false);
@@ -3077,7 +3078,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 						if (Items[m_FocusPos].Flags & DIF_READONLY)
 							return true;
 
-						if ((LocalKey()==KEY_CTRLEND || LocalKey()==KEY_RCTRLEND || LocalKey()==KEY_CTRLNUMPAD1 || LocalKey()==KEY_RCTRLNUMPAD1) && edt->GetCurPos()==edt->GetLength())
+						if (any_of(LocalKey(), KEY_CTRLEND, KEY_RCTRLEND, KEY_CTRLNUMPAD1, KEY_RCTRLNUMPAD1) && edt->GetCurPos()==edt->GetLength())
 						{
 							if (edt->LastPartLength ==-1)
 								edt->strLastStr = edt->GetString();

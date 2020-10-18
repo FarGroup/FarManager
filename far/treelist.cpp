@@ -992,17 +992,19 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 	if (!IsVisible())
 		return false;
 
-	if (m_ListData.empty() && LocalKey!=KEY_CTRLR && LocalKey!=KEY_RCTRLR)
+	if (m_ListData.empty() && none_of(LocalKey, KEY_CTRLR, KEY_RCTRLR))
 		return false;
 
-	if ((LocalKey >= KEY_CTRLSHIFT0 && LocalKey <= KEY_CTRLSHIFT9) ||
-	    (LocalKey >= KEY_RCTRLSHIFT0 && LocalKey <= KEY_RCTRLSHIFT9))
+	if (
+		in_range(KEY_CTRLSHIFT0, LocalKey, KEY_CTRLSHIFT9) ||
+		in_range(KEY_RCTRLSHIFT0, LocalKey, KEY_RCTRLSHIFT9)
+	)
 	{
 		SaveShortcutFolder((LocalKey&(~(KEY_CTRL | KEY_RCTRL | KEY_SHIFT | KEY_RSHIFT))) - L'0');
 		return true;
 	}
 
-	if (LocalKey>=KEY_RCTRL0 && LocalKey<=KEY_RCTRL9)
+	if (in_range(KEY_RCTRL0, LocalKey, KEY_RCTRL9))
 	{
 		ExecShortcutFolder(LocalKey-KEY_RCTRL0);
 		return true;
@@ -1034,14 +1036,13 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 			string strQuotedName=m_ListData[m_CurFile].strName;
 			QuoteSpace(strQuotedName);
 
-			if (LocalKey==KEY_CTRLALTINS||LocalKey==KEY_RCTRLRALTINS||LocalKey==KEY_CTRLRALTINS||LocalKey==KEY_RCTRLALTINS||
-				LocalKey==KEY_CTRLALTNUMPAD0||LocalKey==KEY_RCTRLRALTNUMPAD0||LocalKey==KEY_CTRLRALTNUMPAD0||LocalKey==KEY_RCTRLALTNUMPAD0)
+			if (any_of(LocalKey, KEY_CTRLALTINS, KEY_RCTRLRALTINS, KEY_CTRLRALTINS, KEY_RCTRLALTINS, KEY_CTRLALTNUMPAD0, KEY_RCTRLRALTNUMPAD0, KEY_CTRLRALTNUMPAD0, KEY_RCTRLALTNUMPAD0))
 			{
 				SetClipboardText(strQuotedName);
 			}
 			else
 			{
-				if (LocalKey == KEY_SHIFTENTER||LocalKey == KEY_SHIFTNUMENTER)
+				if (any_of(LocalKey, KEY_SHIFTENTER, KEY_SHIFTNUMENTER))
 				{
 					OpenFolderInShell(strQuotedName);
 				}
@@ -1111,8 +1112,8 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 			if (!m_ListData.empty() && SetCurPath())
 			{
 				const auto AnotherPanel = Parent()->GetAnotherPanel(this);
-				const auto Ask = (LocalKey!=KEY_DRAGCOPY && LocalKey!=KEY_DRAGMOVE) || Global->Opt->Confirm.Drag;
-				const auto Move = (LocalKey==KEY_F6 || LocalKey==KEY_DRAGMOVE);
+				const auto Ask = none_of(LocalKey, KEY_DRAGCOPY, KEY_DRAGMOVE) || Global->Opt->Confirm.Drag;
+				const auto Move = any_of(LocalKey, KEY_F6, KEY_DRAGMOVE);
 
 				const auto UseInternalCommand = [&]
 				{
@@ -1123,9 +1124,10 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 				};
 
 				int ToPlugin = AnotherPanel->GetMode() == panel_mode::PLUGIN_PANEL && AnotherPanel->IsVisible() && !UseInternalCommand();
-				const auto Link = (LocalKey==KEY_ALTF6||LocalKey==KEY_RALTF6) && !ToPlugin;
+				const auto IsAltF6 = any_of(LocalKey, KEY_ALTF6, KEY_RALTF6);
+				const auto Link = IsAltF6 && !ToPlugin;
 
-				if ((LocalKey==KEY_ALTF6||LocalKey==KEY_RALTF6) && !Link) // молча отвалим :-)
+				if (IsAltF6 && !Link) // молча отвалим :-)
 					return true;
 
 				{
@@ -1186,8 +1188,8 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 			if (SetCurPath())
 			{
 				Delete(shared_from_this(),
-					LocalKey == KEY_SHIFTDEL || LocalKey == KEY_SHIFTNUMDEL || LocalKey == KEY_SHIFTDECIMAL? delete_type::remove :
-					LocalKey == KEY_ALTDEL || LocalKey == KEY_RALTDEL || LocalKey == KEY_ALTNUMDEL || LocalKey == KEY_RALTNUMDEL || LocalKey == KEY_ALTDECIMAL || LocalKey == KEY_RALTDECIMAL ? delete_type::erase :
+					any_of(LocalKey, KEY_SHIFTDEL, KEY_SHIFTNUMDEL, KEY_SHIFTDECIMAL)? delete_type::remove :
+					any_of(LocalKey, KEY_ALTDEL, KEY_RALTDEL, KEY_ALTNUMDEL, KEY_RALTNUMDEL, KEY_ALTDECIMAL, KEY_RALTDECIMAL)? delete_type::erase :
 					Global->Opt->DeleteToRecycleBin? delete_type::recycle : delete_type::remove);
 				// Надобно не забыть обновить противоположную панель...
 				const auto AnotherPanel = Parent()->GetAnotherPanel(this);
@@ -1238,7 +1240,7 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_HOME:        case KEY_NUMPAD7:
 		{
-			Up(0x7fffff);
+			ToBegin();
 
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 				ProcessKey(Manager::Key(KEY_ENTER));
@@ -1269,7 +1271,7 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_END:         case KEY_NUMPAD1:
 		{
-			Down(0x7fffff);
+			ToEnd();
 
 			if (Global->Opt->Tree.AutoChangeFolder && !m_ModalMode)
 				ProcessKey(Manager::Key(KEY_ENTER));
@@ -1382,6 +1384,18 @@ int TreeList::GetPrevNavPos() const
 	}
 
 	return PrevPos;
+}
+
+void TreeList::ToBegin()
+{
+	m_CurFile = 0;
+	DisplayTree(true);
+}
+
+void TreeList::ToEnd()
+{
+	m_CurFile = m_ListData.empty()? 0 : static_cast<int>(m_ListData.size() - 1);
+	DisplayTree(true);
 }
 
 void TreeList::Up(int Count)

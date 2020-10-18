@@ -85,13 +85,13 @@ string KernelPath(string_view const NtPath)
 	return KernelPath(string(NtPath));
 }
 
-string KernelPath(string&& NtPath)
+string KernelPath(string NtPath)
 {
 	if (HasPathPrefix(NtPath))
 	{
 		NtPath[1] = NtPath[2] = L'?';
 	}
-	return std::move(NtPath);
+	return NtPath;
 }
 
 

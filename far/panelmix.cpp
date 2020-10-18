@@ -299,7 +299,7 @@ bool MakePathForUI(DWORD Key, string &strPathName)
 				break;
 			}
 
-			const auto FilePath = Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER || Key == KEY_RCTRLSHIFTENTER || Key == KEY_SHIFTNUMENTER || Key == KEY_CTRLSHIFTNUMENTER || Key == KEY_RCTRLSHIFTNUMENTER;
+			const auto FilePath = any_of(Key, KEY_SHIFTENTER, KEY_CTRLSHIFTENTER, KEY_RCTRLSHIFTENTER, KEY_SHIFTNUMENTER, KEY_CTRLSHIFTNUMENTER, KEY_RCTRLSHIFTNUMENTER);
 			if (!SrcPanel || !MakePath(SrcPanel, FilePath, RealName, true, strPathName))
 				return false;
 

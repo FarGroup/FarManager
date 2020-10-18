@@ -134,6 +134,8 @@ private:
 	bool ReadTree();
 	void DisplayTree(bool Fast);
 	void DisplayTreeName(string_view Name, size_t Pos) const;
+	void ToBegin();
+	void ToEnd();
 	void Up(int Count);
 	void Down(int Count);
 	void Scroll(int Count);

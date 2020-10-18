@@ -244,7 +244,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key;
 
-	if ((LocalKey()==KEY_CTRLEND || LocalKey()==KEY_RCTRLEND || LocalKey()==KEY_CTRLNUMPAD1 || LocalKey()==KEY_RCTRLNUMPAD1) && (CmdStr.GetCurPos()==CmdStr.GetLength()))
+	if (any_of(LocalKey(), KEY_CTRLEND, KEY_RCTRLEND, KEY_CTRLNUMPAD1, KEY_RCTRLNUMPAD1) && CmdStr.GetCurPos() == CmdStr.GetLength())
 	{
 		if (LastCmdPartLength==-1)
 			strLastCmdStr = CmdStr.GetString();
@@ -269,14 +269,14 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 		return true;
 	}
 
-	if (LocalKey() == KEY_UP || LocalKey() == KEY_NUMPAD8)
+	if (any_of(LocalKey(), KEY_UP, KEY_NUMPAD8))
 	{
 		if (Global->CtrlObject->Cp()->LeftPanel()->IsVisible() || Global->CtrlObject->Cp()->RightPanel()->IsVisible())
 			return false;
 
 		LocalKey=KEY_CTRLE;
 	}
-	else if (LocalKey() == KEY_DOWN || LocalKey() == KEY_NUMPAD2)
+	else if (any_of(LocalKey(), KEY_DOWN, KEY_NUMPAD2))
 	{
 		if (Global->CtrlObject->Cp()->LeftPanel()->IsVisible() || Global->CtrlObject->Cp()->RightPanel()->IsVisible())
 			return false;
@@ -309,7 +309,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 				}
 
 				SCOPED_ACTION(SetAutocomplete)(&CmdStr);
-				const auto strStr = LocalKey() == KEY_CTRLE || LocalKey() == KEY_RCTRLE?
+				const auto strStr = any_of(LocalKey(), KEY_CTRLE, KEY_RCTRLE)?
 					Global->CtrlObject->CmdHistory->GetPrev() :
 					Global->CtrlObject->CmdHistory->GetNext();
 				SetString(Global->CtrlObject->CmdHistory->IsOnTop()? m_CurCmdStr : strStr, true);
@@ -556,10 +556,10 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 				}
 			}
 
-			if (LocalKey() == KEY_CTRLD || LocalKey() == KEY_RCTRLD)
+			if (any_of(LocalKey(), KEY_CTRLD, KEY_RCTRLD))
 				LocalKey=KEY_RIGHT;
 
-			if(LocalKey() == KEY_CTRLSPACE || LocalKey() == KEY_RCTRLSPACE)
+			if(any_of(LocalKey(), KEY_CTRLSPACE, KEY_RCTRLSPACE))
 			{
 				SCOPED_ACTION(SetAutocomplete)(&CmdStr, true);
 				CmdStr.AutoComplete(true,false);

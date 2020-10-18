@@ -604,7 +604,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_SHIFTF4:
 				case KEY_NUMPAD0:
 				{
-					const auto IsNew = Key == KEY_INS || Key == KEY_NUMPAD0;
+					const auto IsNew = any_of(Key, KEY_INS, KEY_NUMPAD0);
 					if (!IsNew && !CurrentMenuItem)
 						break;
 
@@ -618,30 +618,31 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 				case KEY_CTRLDOWN:
 				case KEY_RCTRLDOWN:
 				{
+					if (!CurrentMenuItem)
+						break;
 
-					if (CurrentMenuItem)
+					const auto Up = any_of(Key, KEY_CTRLUP, KEY_RCTRLUP);
+					const auto Pos = UserMenu->GetSelectPos();
+
+					if ((Up && !Pos) || (!Up && Pos == static_cast<int>(UserMenu->size() - 1)))
+						break;
+
+					m_MenuModified = true;
+					auto Other = *CurrentMenuItem;
+
+					if (Up)
 					{
-						const auto Pos = UserMenu->GetSelectPos();
-						if (!((Key == KEY_CTRLUP || Key == KEY_RCTRLUP) && !Pos) && !((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) && Pos == static_cast<int>(UserMenu->size() - 1)))
-						{
-							m_MenuModified = true;
-							auto Other = *CurrentMenuItem;
-
-							if (Key==KEY_CTRLUP || Key==KEY_RCTRLUP)
-							{
-								--Other;
-								--MenuPos;
-							}
-							else
-							{
-								++Other;
-								++MenuPos;
-							}
-							node_swap(Menu, *CurrentMenuItem, Other);
-
-							FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, Context);
-						}
+						--Other;
+						--MenuPos;
 					}
+					else
+					{
+						++Other;
+						++MenuPos;
+					}
+					node_swap(Menu, *CurrentMenuItem, Other);
+
+					FillUserMenu(*UserMenu, Menu, MenuPos, FuncPos, Context);
 				}
 				break;
 

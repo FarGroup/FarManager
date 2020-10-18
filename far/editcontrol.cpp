@@ -570,7 +570,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 					else if(MenuKey!=KEY_NONE)
 					{
 						// ввод
-						if((MenuKey>=L' ' && MenuKey<=static_cast<int>(WCHAR_MAX)) || MenuKey==KEY_BS || MenuKey==KEY_DEL || MenuKey==KEY_NUMDEL)
+						if(in_range(L' ', MenuKey, std::numeric_limits<wchar_t>::max()) || any_of(MenuKey, KEY_BS, KEY_DEL, KEY_NUMDEL))
 						{
 							DeleteBlock();
 							const auto strPrev = GetString();
@@ -587,7 +587,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 								if (ComplMenu->size() > 1 || (ComplMenu->size() == 1 && !equal_icase(CurrentInput, ComplMenu->at(0).Name)))
 								{
-									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Global->Opt->AutoComplete.AppendCompletion)
+									if(none_of(MenuKey, KEY_BS, KEY_DEL, KEY_NUMDEL) && Global->Opt->AutoComplete.AppendCompletion)
 									{
 										AppendCmd();
 									}
@@ -653,11 +653,11 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 							case KEY_CTRLRIGHT: case KEY_RCTRLRIGHT:
 							case KEY_CTRLHOME:  case KEY_RCTRLHOME:
 								{
-									if(MenuKey == KEY_LEFT || MenuKey == KEY_NUMPAD4)
+									if(any_of(MenuKey, KEY_LEFT, KEY_NUMPAD4))
 									{
 										MenuKey = KEY_CTRLS;
 									}
-									else if(MenuKey == KEY_RIGHT || MenuKey == KEY_NUMPAD6)
+									else if(any_of(MenuKey, KEY_RIGHT, KEY_NUMPAD6))
 									{
 										MenuKey = KEY_CTRLD;
 									}

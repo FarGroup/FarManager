@@ -291,12 +291,7 @@ namespace tests
 
 static bool ExceptionTestHook(Manager::Key const& key)
 {
-	if (
-		key() != KEY_CTRLALTAPPS &&
-		key() != KEY_RCTRLRALTAPPS &&
-		key() != KEY_CTRLRALTAPPS &&
-		key() != KEY_RCTRLALTAPPS
-		)
+	if (none_of(key(), KEY_CTRLALTAPPS, KEY_RCTRLRALTAPPS, KEY_CTRLRALTAPPS, KEY_RCTRLALTAPPS))
 		return false;
 
 	static const std::pair<void(*)(), string_view> Tests[]
