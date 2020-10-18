@@ -55,6 +55,8 @@ public:
 	string_view Name;
 	string_view ShortName;
 	string_view Path;
+
+	std::unordered_map<string, string> mutable Variables;
 };
 
 bool SubstFileName(

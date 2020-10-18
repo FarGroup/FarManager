@@ -127,6 +127,8 @@ struct subst_data
 	bool PreserveLFN{};
 	bool PassivePanel{};
 	bool EscapeAmpersands{};
+
+	std::unordered_map<string, string>* Variables;
 };
 
 
@@ -621,6 +623,25 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 	return CurStr;
 }
 
+static string_view ProcessVariable(string_view const CurStr, subst_data& SubstData, string& Out)
+{
+	const auto Str = CurStr.substr(1);
+
+	const auto Iterator = std::find_if(ALL_CONST_RANGE(*SubstData.Variables), [&](std::pair<string, string> const& i)
+	{
+		return starts_with_icase(Str, i.first);
+	});
+
+	if (Iterator == SubstData.Variables->cend())
+	{
+		Out += CurStr.front();
+		return Str;
+	}
+
+	Out += Iterator->second;
+	return Str.substr(Iterator->first.size());
+}
+
 static string ProcessMetasymbols(string_view Str, subst_data& Data)
 {
 	string Result;
@@ -631,6 +652,10 @@ static string ProcessMetasymbols(string_view Str, subst_data& Data)
 		if (Str.front() == L'!')
 		{
 			Str = ProcessMetasymbol(Str, Data, Result);
+		}
+		else if (Str.front() == L'%')
+		{
+			Str = ProcessVariable(Str, Data, Result);
 		}
 		else
 		{
@@ -829,8 +854,11 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 		const auto VariableName = format(FSTR(L"%{0}{1}"), HistoryAndVariablePrefix, (&i - DlgData.data() - 1) / 2 + 1);
 		replace_icase(strTmpStr, VariableName, i.strData);
 
-		if (!i.strHistory.empty() && i.strHistory != VariableName)
+		if (!i.strHistory.empty() && !equal_icase(i.strHistory, VariableName))
+		{
 			replace_icase(strTmpStr, L'%' + i.strHistory, i.strData);
+			SubstData.Variables->emplace(i.strHistory, i.strData);
+		}
 	}
 
 	strStr = os::env::expand(strTmpStr);
@@ -864,7 +892,7 @@ bool SubstFileName(
 	  нужно будет либо убрать эту проверку либо изменить условие (последнее
 	  предпочтительнее!)
 	*/
-	if (!contains(Str, L'!'))
+	if (Str.find_first_of(L"!%"sv) == Str.npos)
 		return true;
 
 	subst_data SubstData;
@@ -892,6 +920,8 @@ bool SubstFileName(
 	SubstData.PreserveLFN = false;
 	SubstData.PassivePanel = false; // первоначально речь идет про активную панель!
 	SubstData.EscapeAmpersands = EscapeAmpersands;
+
+	SubstData.Variables = &Context.Variables;
 
 	Str = ProcessMetasymbols(Str, SubstData);
 
