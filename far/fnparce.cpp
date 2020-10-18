@@ -676,6 +676,11 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 
 	constexpr auto HistoryAndVariablePrefix = L"UserVar"sv;
 
+	const auto GenerateHistoryName = [&](size_t const Index)
+	{
+		return format(FSTR(L"{0}{1}"), HistoryAndVariablePrefix, Index);
+	};
+
 	constexpr auto ExpectedTokensCount = 64;
 
 	std::vector<DialogItemEx> DlgData;
@@ -734,7 +739,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 			Item.X2 = DlgWidth - 6;
 			Item.Y1 = Item.Y2 = DlgData.size() + 1;
 			Item.Flags = DIF_HISTORY | DIF_USELASTHISTORY;
-			Item.strHistory = concat(HistoryAndVariablePrefix, str((DlgData.size() - 1) / 2));
+			Item.strHistory = GenerateHistoryName((DlgData.size() - 1) / 2);
 			DlgData.emplace_back(Item);
 		}
 
@@ -851,10 +856,11 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 		if (i.Type != DI_EDIT)
 			continue;
 
-		const auto VariableName = format(FSTR(L"%{0}{1}"), HistoryAndVariablePrefix, (&i - DlgData.data() - 1) / 2 + 1);
+		const auto Index = (&i - DlgData.data() - 1) / 2;
+		const auto VariableName = format(FSTR(L"%{0}{1}"), HistoryAndVariablePrefix, Index + 1);
 		replace_icase(strTmpStr, VariableName, i.strData);
 
-		if (!i.strHistory.empty() && !equal_icase(i.strHistory, VariableName))
+		if (!i.strHistory.empty() && i.strHistory != GenerateHistoryName(Index))
 		{
 			replace_icase(strTmpStr, L'%' + i.strHistory, i.strData);
 			SubstData.Variables->emplace(i.strHistory, i.strData);
