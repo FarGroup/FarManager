@@ -4833,7 +4833,7 @@ drkns 06.08.2016 14:56:47 +0200 - build 4751
 
 1. Correction of processing of incorrect hex strings in dialogs.
 
-2. Exception diagnostics was broken in one of previous builds.
+2. Exception diagnostics was broken in one of the previous builds.
 
 drkns 04.08.2016 22:16:44 +0200 - build 4750
 
@@ -7108,7 +7108,7 @@ drkns 05.03.2015 23:52:10 +0200 - build 4291
 
 1. Refactoring.
 
-2. CoInitializeEx was broken in one of previous builds.
+2. CoInitializeEx was broken in one of the previous builds.
 
 zg 05.03.2015 12:02:34 +0200 - build 4290
 
@@ -10652,7 +10652,7 @@ drkns 29.07.2013 14:50:21 +0200 - build 3581
 
 drkns 28.07.2013 22:22:24 +0200 - build 3580
 
-1. Correction of previous build, there were problems with copying.
+1. Correction of the previous build, there were problems with copying.
 
 drkns 28.07.2013 19:55:27 +0200 - build 3579
 
@@ -10732,7 +10732,7 @@ drkns 26.07.2013 21:05:55 +0200 - build 3562
 
 1. GetStringBuffer = 0;
 
-2. In one of previous builds, plugin settings import was broken.
+2. In one of the previous builds, plugin settings import was broken.
 
 3. "information under panels" was not kept on exit.
 
@@ -10800,7 +10800,7 @@ w17 24.07.2013 07:36:17 +0400 - build 3547
 
 drkns 23.07.2013 23:38:13 +0200 - build 3546
 
-1. mf.date() was broken in one of previous builds + a couple of issues.
+1. mf.date() was broken in one of the previous builds + a couple of issues.
 
 w17 24.07.2013 00:07:21 +0400 - build 3545
 
@@ -21326,7 +21326,7 @@ drkns 08.12.2010 19:07:03 +0200 - build 1749
 
 drkns 07.12.2010 18:09:12 +0200 - build 1748
 
-1. Handle leak in previous build.
+1. Handle leak in the previous build.
 
 drkns 07.12.2010 12:41:41 +0200 - build 1747
 
@@ -22192,7 +22192,7 @@ drkns 15.07.2010 13:47:00 +0200 - build 1620
    "OEM plugins support" - old plugins on/off global switching;
    "Scan symbolic links" - load or don't load plugins at symbolic links.
 
-2. Specification of 1616.1.
+2. Correction of 1616.1.
 
 drkns 15.07.2010 10:00:00 +0200 - build 1619
 
@@ -22204,7 +22204,7 @@ drkns 15.07.2010 10:00:00 +0200 - build 1618
 
 drkns 14.07.2010 18:04:04 +0200 - build 1617
 
-1. Specification of console block read/write algorithm.
+1. Correction of console block read/write algorithm.
 
 drkns 12.07.2010 19:38:29 +0200 - build 1616
 
@@ -22323,7 +22323,7 @@ svs 29.06.2010 15:01:56 +0300 - build 1598
 
 2. Macro: parsing error at functions with optional elements.
   "...spotted a msgbox(menu.value,gethotkey()) macro malfunction, menu.value returns nothing in such a combination..."
-  (perhaps a specification is needed)
+  (perhaps a correction is needed)
 
 t-rex 27.06.2010 13:43:59 +0200 - build 1597
 
@@ -22419,7 +22419,7 @@ yjh 07.06.2010 15:41:36 +0300 - build 1580
 
 drkns 06.06.2010 22:01:56 +0200 - build 1579
 
-1. Specification of ACTL_GETFARRECT function.
+1. Correction of ACTL_GETFARRECT function.
 
 2. CtrlX at empty line added garbage to clipboard.
 
@@ -22436,7 +22436,7 @@ drkns 29.05.2010 13:08:42 +0200 - build 1576
 
 1. Panels were not redrawn after ShiftEnter on a folder.
 
-2. Specifications of 256- and 16-color variants of far.ico.
+2. Corrections of 256- and 16-color variants of far.ico.
 
 drkns 29.05.2010 12:14:02 +0200 - build 1575
 
@@ -22446,7 +22446,7 @@ drkns 28.05.2010 23:47:51 +0200 - build 1574
 
 1. More on launcher and redraw.
 
-2. Specification of 1564.2 - take into account that functions called by legacy plugins can be nested.
+2. Correction of 1564.2 - take into account that functions called by legacy plugins can be nested.
 
 3. When resizing FAR window in "/w" mode, console content is not erased.
   This is an experimental feature, tiny artifacts are possible etc.
@@ -22488,7 +22488,7 @@ drkns 22.05.2010 22:45:48 +0200 - build 1566
 
 drkns 22.05.2010 22:16:38 +0200 - build 1565
 
-1. Specifications of previous build.
+1. Corrections of the previous build.
 
 drkns 22.05.2010 20:00:00 +0200 - build 1564
 
@@ -22533,11 +22533,11 @@ t-rex 19.05.2010 15:57:31 +0200 - build 1559
 
 drkns 19.05.2010 12:50:22 +0200 - build 1558
 
-1. Specification of environment refreshing.
+1. Correction of environment refreshing.
 
 drkns 17.05.2010 20:06:14 +0200 - build 1557
 
-1. Specification of WM_SETTINGCHANGE processing.
+1. Correction of WM_SETTINGCHANGE processing.
 
 drkns 15.05.2010 22:26:55 +0200 - build 1556
 
@@ -22578,7 +22578,7 @@ drkns 14.05.2010 00:07:38 +0200 - build 1550
 
 drkns 13.05.2010 17:33:18 +0200 - build 1549
 
-1. Specification of previous build.
+1. Correction of the previous build.
 
 drkns 13.05.2010 15:47:47 +0200 - build 1548
 
@@ -22601,7 +22601,7 @@ drkns 11.05.2010 22:53:26 +0200 - build 1545
 
 1. From Anton Sinitsin: "Ё" in FarRus.lng.
 
-2. Documentation and build specifications.
+2. Documentation and build corrections.
 
 drkns 11.05.2010 15:25:32 +0200 - build 1544
 
@@ -22609,7 +22609,7 @@ drkns 11.05.2010 15:25:32 +0200 - build 1544
 
 svs 11.05.2010 15:05:18 +0300 - build 1543
 
-1. Minor specifications on menu hotkeys...
+1. Minor corrections on menu hotkeys...
   In addition to Upper/Lower, keyboard layout analysis is added (KeyToKeyLayout() call)
 
 svs 11.05.2010 09:59:58 +0300 - build 1542
@@ -22636,7 +22636,7 @@ drkns 06.05.2010 22:21:32 +0200 - build 1540
 
 drkns 05.05.2010 23:16:12 +0200 - build 1539
 
-1. Specification of 1536: for example, when issuing "macro:post F7", indicator disappeared only after any key press.
+1. Correction of 1536: for example, when issuing "macro:post F7", indicator disappeared only after any key press.
 
 drkns 04.05.2010 23:42:49 +0200 - build 1538
 
@@ -22667,7 +22667,7 @@ drkns 02.05.2010 19:13:38 +0200 - build 1534
 
 drkns 30.04.2010 17:14:30 +0200 - build 1533
 
-1. Another couple of specifications in 1530.2.
+1. Another couple of corrections in 1530.2.
 
 svs 30.04.2010 13:20:57 +0300 - build 1532
 
@@ -22675,7 +22675,7 @@ svs 30.04.2010 13:20:57 +0300 - build 1532
 
 drkns 30.04.2010 11:09:22 +0200 - build 1531
 
-2. Specification of 1530.2: DIF_DEFAULT and DIF_FOCUS are used in initialization (DialogDataEx), and elements (DialogItemEx) still use DefaultButton and Focus.
+2. Correction of 1530.2: DIF_DEFAULT and DIF_FOCUS are used in initialization (DialogDataEx), and elements (DialogItemEx) still use DefaultButton and Focus.
 
 drkns 30.04.2010 01:01:01 +0200 - build 1530
 
@@ -22740,7 +22740,7 @@ chupakabra 27.04.2010 16:32:00 +0200
 
 drkns 27.04.2010 15:47:00 +0200 - build 1524
 
-1. Yet another specification of Message().
+1. Yet another correction of Message().
 
 2. Changes in DIZ files writing.
 
@@ -22748,7 +22748,7 @@ drkns 27.04.2010 15:47:00 +0200 - build 1524
 
 drkns 26.04.2010 15:47:00 +0200 - build 1523
 
-1. Specification of dialogs size for Message() function.
+1. Correction of dialogs size for Message() function.
 
 2. BOM codepage autodetection didn't work if the file contained nothing except BOM.
 
@@ -22763,7 +22763,7 @@ t-rex 25.04.2010 22:48:55 +0200 - build 1521
 
 drkns 25.04.2010 22:38:17 +0200 - build 1520
 
-1. Specification of previous build.
+1. Correction of the previous build.
 
 drkns 25.04.2010 19:55:48 +0200 - build 1519
 
@@ -22785,7 +22785,7 @@ drkns 25.04.2010 19:55:48 +0200 - build 1519
 
 drkns 22.04.2010 21:11:09 +0200 - build 1518
 
-1. Specification of 1517.5: conversion error warning was displayed even when there was no need in it.
+1. Correction of 1517.5: conversion error warning was displayed even when there was no need in it.
 
 2. Privilege elevation requests are separated logically into "read requests" and "modification requests" and can be switched on/off separately.
   There's no interface so far, the registry only.
@@ -22806,7 +22806,7 @@ drkns 21.04.2010 14:47:00 +0200 - build 1517
 
 svs 21.04.2010 10:18:10 +0300 - build 1516
 
-1. Specification of build 1515 - one char prefixes are ignored
+1. Correction of build 1515 - one char prefixes are ignored
 
 svs 21.04.2010 09:34:16 +0300 - build 1515
 
@@ -22823,7 +22823,7 @@ t-rex 20.04.2010 23:56:06 +0200 - build 1514
 
 drkns 20.04.2010 00:33:57 +0200 - build 1513
 
-1. Specification of previous build.
+1. Correction of the previous build.
 
 drkns 19.04.2010 16:39:34 +0200 - build 1512
 
@@ -22864,7 +22864,7 @@ drkns 15.04.2010 11:34:38 +0200 - build 1506
 
 drkns 15.04.2010 11:05:12 +0200 - build 1505
 
-1. Specification of previous build.
+1. Correction of the previous build.
 
 drkns 15.04.2010 10:55:21 +0200 - build 1504
 
@@ -22956,7 +22956,7 @@ drkns 08.04.2010 00:39:10 +0200 - build 1489
 
 drkns 07.04.2010 14:04:32 +0200 - build 1488
 
-1. Specification of 1483.
+1. Correction of 1483.
 
 svs 07.04.2010 13:10:41 +0300 - build 1487
 
@@ -22970,7 +22970,7 @@ drkns 07.04.2010 11:46:46 +0200 - build 1486
 
 drkns 06.04.2010 20:02:46 +0200 - build 1485
 
-1. Specification of 1483.
+1. Correction of 1483.
 
 svs 06.04.2010 13:41:39 +0300 - build 1484
 
@@ -22988,7 +22988,7 @@ drkns 06.04.2010 10:35:35 +0200 - build 1483
 
 svs 05.04.2010 18:18:38 +0300 - build 1482
 
-1. Specification of Mantis#0001323
+1. Correction of Mantis#0001323
 
 2. Macro: [A|P]Panel.path for plugin panel
 http://forum.farmanager.com/viewtopic.php?f=15&t=5254
@@ -23036,14 +23036,14 @@ drkns 01.04.2010 20:00:00 +0200 - build 1474
 
 drkns 01.04.2010 13:47:00 +0200 - build 1473
 
-1. Specification of 1472.2: distinguish symlink and junction;
+1. Correction of 1472.2: distinguish symlink and junction;
 
 2. The creation of hard links can be done with admin privileges.
 
 svs 01.04.2010 12:56:20 +0300 - build 1472
 
 1. Mantis#0001265: Buffer size and panel caption bug
-  Specification of #2 ("When the console width is odd, the header of right panel is displayed incorrectly (at the left panel)")
+   Correction of #2 ("When the console width is odd, the header of right panel is displayed incorrectly (at the left panel)")
 
 2. Mantis#0001327: Found links are displayed as folders in search window
 
@@ -23053,7 +23053,7 @@ zg 01.04.2010 03:12:18 +0200 - build 1471
 
 drkns 31.03.2010 21:52:05 +0200 - build 1470
 
-1. Specification of 1468 - GetLastError() results could be lost.
+1. Correction of 1468 - GetLastError() results could be lost.
 
 drkns 31.03.2010 16:29:11 +0200 - build 1469
 
@@ -23281,13 +23281,13 @@ t-rex 19.03.2010 12:27:10 +0200 - build 1442
 
 svs 19.03.2010 11:56:32 +0300 - build 1441
 
-1. VK_OEM_102. Specification... 1440
+1. VK_OEM_102. Correction... 1440
 
 svs 19.03.2010 11:38:51 +0300 - build 1440
 
 1. Processing of VK_OEM_102 is added under name "<>" or "\|" on RT 102-key kbd.
   Now it is '\'.
-  The specification for AltGr- (Ctrl-Alt-), is needed ...maybe something else.
+  A correction for AltGr- (Ctrl-Alt-) is needed ...maybe something else.
   T.S. Welcome!
 
 chupakabra 19.03.2010 04:41:00 +0200 - build 1439
@@ -23302,7 +23302,7 @@ Filters are not taken into account!
 
 svs 17.03.2010 16:42:40 +0300 - build 1437
 
-1. Macro: the specification of "Panel.Select()".
+1. Macro: correction of "Panel.Select()".
   Mode=2 and 3 are functional now. These modes can have  ';' ',' or '\r\n' as a divider.
   Example:
 Panel.Select(1,1,2,clip(0))
@@ -23421,7 +23421,7 @@ yjh 28.02.2010 04:42:01 +0300 - build 1427
 
 drkns 28.02.2010 01:43:09 +0200 - build 1426
 
-1. Fix in 2nd statement in previous build, to get it work also in ancient OSes.
+1. Fix in 2nd statement in the previous build, to get it work also in ancient OSes.
 
 drkns 27.02.2010 23:30:38 +0200 - build 1425
 
@@ -23462,11 +23462,11 @@ drkns 24.02.2010 15:48:25 +0200 - build 1420
 
 svs 22.02.2010 17:10:45 +0300 - build 1419
 
-1. Macro: specification of replace(). It enters an endless loop if Find is an empty string.
+1. Macro: correction of replace(). It enters an endless loop if Find is an empty string.
 
 drkns 22.02.2010 15:49:34 +0200 - build 1418
 
-1. The continuation of previous build. Now probably the wolves will be fed and the sheep would remain intact - “./..” items are shown but buggy drivers don't go insane from checking.
+1. The continuation of the previous build. Now probably the wolves will be fed and the sheep would remain intact - “./..” items are shown but buggy drivers don't go insane from checking.
 
 t-rex 22.02.2010 13:53:43 +0200 - build 1417
 
@@ -23528,7 +23528,7 @@ drkns 18.02.2010 23:03:00 +0200 - build 1410
 
 t-rex 18.02.2010 21:28:44 +0200 - build 1409
 
-1. Makeup in previous build.
+1. Cosmetic corrections of the previous build.
 
 svs 18.02.2010 20:02:35 +0300 - build 1408
 
@@ -23562,7 +23562,7 @@ N=Panel.SetPosIdx(panelType,Idx[,InSelection])
 
 3. Macro: boolean states [A|P]Panel.Filter are added: "the filter is switched on at active/passive panel"
 
-4. Macro: specification of 1401
+4. Macro: correction of 1401
 
 5. Added: virtual public Panel::FileInFilter(long idxItem) and Panel::IsSelected(long idxItem)
 
@@ -23587,7 +23587,7 @@ svs 17.02.2010 17:49:19 +0300 - build 1404
 
 drkns 16.02.2010 19:32:46 +0200 - build 1403
 
-1. Specification of FCTL_CLEARSELECTION functioning.
+1. Correction of FCTL_CLEARSELECTION functioning.
 
 drkns 16.02.2010 13:47:00 +0300 - build 1402
 
@@ -23630,7 +23630,7 @@ svs 12.02.2010 18:15:56 +0300 - build 1397
 
 drkns 11.02.2010 14:06:15 +0200 - build 1396
 
-1. Specification of BOM append logic when saving.
+1. Correction of BOM append logic when saving.
 
 drkns 11.02.2010 13:47:00 +0200 - build 1395
 
@@ -23643,15 +23643,15 @@ drkns 11.02.2010 13:47:00 +0200 - build 1395
 svs 12.02.2010 14:15:21 +0300 - build 1394
 
 1. Incorrect functioning of Info.FSF->FarNameToKey
-http://forum.farmanager.com/viewtopic.php?f=8&t=5058
+   http://forum.farmanager.com/viewtopic.php?f=8&t=5058
 
-  Function waits for a string matching the following specifications:
-  1. Keys which are defined in structure keyboard.cpp::FKeys1[]
-  2. Optional modifiers (Alt/RAlt/Ctrl/RCtrl/Shift) and one character, for example, AltD or CtrlC
-  3. "Alt" (or RAlt) and 5 decimal digits (with leading zeros)
-  4. "Spec" and 5 decimal digits (with leading zeros)
-  5. "Oem" and 5 decimal digits (with leading zeros)
-  6. Modifiers only (Alt/RAlt/Ctrl/RCtrl/Shift)
+   Function waits for a string matching the following specifications:
+     1. Keys which are defined in structure keyboard.cpp::FKeys1[]
+     2. Optional modifiers (Alt/RAlt/Ctrl/RCtrl/Shift) and one character, for example, AltD or CtrlC
+     3. "Alt" (or RAlt) and 5 decimal digits (with leading zeros)
+     4. "Spec" and 5 decimal digits (with leading zeros)
+     5. "Oem" and 5 decimal digits (with leading zeros)
+     6. Modifiers only (Alt/RAlt/Ctrl/RCtrl/Shift)
 
 drkns 11.02.2010 23:52:09 +0200 - build 1393
 
@@ -23718,7 +23718,7 @@ svs 09.02.2010 18:02:24 +0300 - build 1383
 
 drkns 09.02.2010 15:04:21 +0200 - build 1382
 
-1. Specifications of dialog elements coloring.
+1. Corrections of dialog elements coloring.
 
 2. Makeup in macro keys assignment dialog source code.
 
@@ -23743,7 +23743,7 @@ TODO: rewrite UserDefinedList to make it act as one-element array if needed.
 
 drkns 09.02.2010 10:51:57 +0200 - build 1380
 
-1. Specification of mouse processing in dialogs.
+1. Correction of mouse processing in dialogs.
 
 drkns 09.02.2010 09:39:19 +0200 - build 1379
 
@@ -23759,13 +23759,13 @@ svs 08.02.2010 17:26:40 +0300 - build 1377
 
 1. Macro: PANEL.ITEM alias is added for PANELITEM function (for uniformity in naming)
 
-2. Macro: parser specification.
+2. Macro: parser correction.
 
 3. ULF_NOTTRIM flag is added to UserDefinedList - to preserve space symbols.
 
 drkns 08.02.2010 16:03:25 +0200 - build 1376
 
-1. Specification of the trick introduced in 1205: window size is restored only if it had been decreased after getting the focus.
+1. Correction of the trick introduced in 1205: window size is restored only if it had been decreased after getting the focus.
 
 drkns 08.02.2010 11:18:56 +0200 - build 1375
 
@@ -23781,7 +23781,7 @@ drkns 06.02.2010 15:10:19 +0200 - build 1374
 
 drkns 05.02.2010 20:42:59 +0200 - build 1373
 
-1. Specification of plugin panel closing logic.
+1. Correction of plugin panel closing logic.
 
 2. Mantis#0001259: file panel is not redrawn after folder change.
 
@@ -23896,7 +23896,7 @@ svs 22.01.2010 17:15:01 +0300 - build 1352
 
 1. Mantis#0001201: In Far 2, go to URL does not work
 
-2. Specification in URL help (section "@PluginsReviews")
+2. Correction in URL help (section "@PluginsReviews")
 
 svs 22.01.2010 14:46:29 +0300 - build 1351
 
@@ -23998,7 +23998,7 @@ svs 12.01.2010 11:53:24 +0300 - build 1334
 
 1. Tree. Sorting function TreeCmp rollback to the previous revision (3917) (was in build #1295)
 
-2. Specifications in SysLog`s
+2. Corrections in SysLog`s
 
 drkns 11.01.2010 20:07:38 +0200 - build 1333
 
@@ -24010,7 +24010,7 @@ drkns 11.01.2010 20:07:38 +0200 - build 1333
 
 4. Some makeup.
 
-5. Help specifications.
+5. Corrections of Help.
 
 chupakabra 11.01.2010 02:28:00 +0200 - build 1332
 
@@ -24094,7 +24094,7 @@ svs 07.01.2010 17:12:00 +0300 - build 1316
 
 1. Some changes in InfoList. Using absolute Y coordinates instead of relative ones.
 
-2. Specification for subst-volumes - the info had been shown from parent root.
+2. Correction for subst-volumes - the info had been shown from parent root.
 Instead of strDriveRoot, gotten from GetPathRoot, we'll apply ExtractPathRoot(strCurDir), because GetPathRoot tries to unwind everything completely.
 
 3. InfoPanel settings are provided with "Computer name display format" option (which is described in help).
@@ -24125,7 +24125,7 @@ drkns 06.01.2010 18:54:47 +0200 - build 1311
 
 drkns 05.01.2010 20:52:04 +0200 - build 1310
 
-1. Forum: specification of "Already existing files" list behavior in copy dialog.
+1. Forum: correction of "Already existing files" list behavior in copy dialog.
 
 2. As a consequence of #1: opened combobox is now fed with DN_LISTHOTKEY event.
 
@@ -24143,7 +24143,7 @@ drkns 03.01.2010 21:37:53 +0200 - build 1308
 
 drkns 03.01.2010 18:36:49 +0200 - build 1307
 
-1. Changes/specifications on new autocompletion mode.
+1. Changes/corrections on new autocompletion mode.
 
 2. Rollback of 1306 - false alarm )
 
@@ -24188,7 +24188,7 @@ drkns 29.12.2009 00:44:26 +0200 - build 1302
 
 1. Placing DIF_EDITPATH in dialogs where it is needed.
 
-2. Specifications of new append mode.
+2. Corrections of new append mode.
 
 yole 29.12.2009 00:11:00 +0300 - build 1301
 
@@ -24217,7 +24217,7 @@ Another couple of settings dialogs is moved to the new system.
 
 drkns 26.12.2009 16:14:42 +0200 - build 1298
 
-1. Specification of 1295.2.
+1. Correction of 1295.2.
 
 yole 26.12.2009 16:20:00 +0300 - build 1297
 
@@ -24267,9 +24267,9 @@ drkns 24.12.2009 01:51:44 +0200 - build 1290
 
 drkns 23.12.2009 20:13:46 +0200 - build 1289
 
-1. Specifications of build 1287.
+1. Corrections of build 1287.
 
-2. Specifications in help.
+2. Corrections of Help.
 
 t-rex 22.12.2009 22:21:07 +0200 - build 1288
 
@@ -24314,7 +24314,7 @@ t-rex 13.12.2009 00:40:22 +0200 - build 1282
 
 drkns 12.12.2009 23:57:53 +0200 - build 1281
 
-1. Specification of the previous build.
+1. Corrections of the previous build.
 
 drkns 12.12.2009 23:44:12 +0200 - build 1280
 
@@ -24539,7 +24539,7 @@ drkns 29.11.2009 19:31:17 +0200 - build 1247
 And, what's interesting, long enough already.
 It is also the cause of Mantis#0001079: [x] Add signature (BOM) option is always on.
 
-2. A couple of specifications in UTF-8 hex view "blocker".
+2. A couple of corrections in UTF-8 hex view "blocker".
 
 3. #2 of build 1237 is rolled back. This dialog is annoying indeed.
 
@@ -24632,7 +24632,7 @@ drkns 22.11.2009 17:10:02 +0200 - build 1232
 
 drkns 22.11.2009 09:18:07 +0200 - build 1231
 
-1. The specification of previous build.
+1. Correction of the previous build.
 
 drkns 22.11.2009 00:37:00 +0200 - build 1230
 
@@ -24666,7 +24666,7 @@ t-rex 21.11.2009 14:06:52 +0200 - build 1226
 
 svs 21.11.2009 11:52:06 +0300 - build 1225
 
-1. Macro: Specification in Editor.Pos() regarding to negative values...
+1. Macro: Correction in Editor.Pos() regarding to negative values...
 
 2. some text formatting :-)
 
@@ -24735,7 +24735,7 @@ t-rex 17.11.2009 22:22:04 +0200 - build 1210
 
 drkns 17.11.2009 00:46:37 +0200 - build 1209
 
-1. 1207.1 specification.
+1. Correction of 1207.1.
 
 t-rex 17.11.2009 00:07:50 +0200 - build 1208
 
@@ -24931,7 +24931,7 @@ t-rex 24.10.2009 23:39:28 +0200 - build 1181
 
 drkns 24.10.2009 20:23:01 +0200 - build 1180
 
-1. As so called "current directory" doesn't always match the folder shown currently on panel, a specification is introduced:
+1. As so called "current directory" doesn't always match the folder shown currently on panel, a correction is introduced:
 - added FSF.GetCurrentDirectory that returns inner Far's "current directory";
 - FCTL_GETCURRENTDIRECTORY is renamed to FCTL_GETPANELDIR to match the facts.
 
@@ -25106,7 +25106,7 @@ chupakabra 05.10.2009 12:36:00 +0200 - build 1155
 
 drkns 30.09.2009 20:43:48 +0200 - build 1154
 
-1. 1153.1 specification for the case of empty disk root directory.
+1. 1153.1 correction for the case of empty disk root directory.
 
 drkns 29.09.2009 18:07:44 +0200 - build 1153
 
@@ -25123,7 +25123,7 @@ Also, Mantis#0001078: FCTL_SETPANELDIR succeeds for nonexisting path erroneously
 svs 29.09.2009 11:50:38 +0300 - build 1152
 
 1. Mantis#0001064: Error in string handling
-Next specification of operations:
+Next correction of operations:
 1. string + string = string
 2. string + num = string
 3. num + string = string
@@ -25308,8 +25308,8 @@ RECTL_BRACKETSCOUNT - hHandle - HANDLE returned by RECTL_CREATE.
 svs 22.09.2009 21:07:01 +0300 - build 1134
 
 1. Macro: Mantis#1064
-msgbox("01") displays "1" in header, instead of "01".
-The rest conforms the specification (see build 1127#6).
+   msgbox("01") displays "1" in header, instead of "01".
+   The rest conforms the specification (see build 1127#6).
 
 drkns 20.09.2009 23:50:53 +0200 - build 1133
 
@@ -25352,68 +25352,69 @@ svs 15.09.2009 20:37:40 +0300 - build 1127
 4. Macro: Menu.Value - contains current menu item text as it is displayed on screen (w/o &)
 
 5. Macro: added type double
-Was __int64 and wchar_t*, now double is added. Actually, there's nothing to say more, but:
-* fraction part divider is `.' (point);
-* there's no functions like sin, cos, tan, etc. - this is for Mantis#0000466 and Mantis#0000018;
-* the number occupies 8 bytes in memory;
-* registry constants (branch "KeyMacro\Const") with REG_SZ type (according to (2) Far translates them to double on launch) this is lame (maybe it would be smart to store them as REG_BINARY);
-* double-to-string translation follows the format "KeyMacro/CONVFMT:REG_SZ" (default is "%.6g")
+   Was __int64 and wchar_t*, now double is added. Actually, there's nothing to say more, but:
+    * fraction part divider is `.' (point);
+    * there's no functions like sin, cos, tan, etc. - this is for Mantis#0000466 and Mantis#0000018;
+    * the number occupies 8 bytes in memory;
+    * registry constants (branch "KeyMacro\Const") with REG_SZ type (according to (2) Far translates them to double on launch) this is lame (maybe it would be smart to store them as REG_BINARY);
+    * double-to-string translation follows the format "KeyMacro/CONVFMT:REG_SZ" (default is "%.6g")
 
-6. Macro: the specification of "operations".
-Starting from definitions::
-* Int - an integer number;
-* Dbl - a floatiog-point number;
-* StrInt - string, which can be fully translated to Int;
-* StrDbl - string, which can be fully translated to Dbl;
-* Str - any other string, actually, the set of chars.
-According to these definitions, string to number translation and calculation of result takes place where possible. Below are tables showing the results of those operations:
-+         |B.Int    B.Dbl  B.StrInt  B.StrDbl   B.Str
-----------+------+--------+---------+----------+------
-A.Int     |Int      Dbl    Int       Dbl        Str
-A.Dbl     |Dbl      Dbl    Dbl       Dbl        Str
-A.StrInt  |Int      Dbl    Int       Dbl        Str
-A.StrDbl  |Dbl      Dbl    Dbl       Dbl        Str
-A.Str     |Str      Str    Str       Str        Str
-Here Str means concatenation of two operands.
+6. Macro: correction of "operations".
+    Starting from definitions::
+        * Int - an integer number;
+        * Dbl - a floatiog-point number;
+        * StrInt - string, which can be fully translated to Int;
+        * StrDbl - string, which can be fully translated to Dbl;
+        * Str - any other string, actually, the set of chars.
+    According to these definitions, string to number translation and calculation of result takes place where possible. Below are tables showing the results of those operations:
 
-- * / %   |B.Int    B.Dbl  B.StrInt  B.StrDbl   B.Str
-----------+------+--------+---------+----------+------
-A.Int     |Int      Dbl    Int       Dbl        A.Str
-A.Dbl     |Dbl      Dbl    Dbl       Dbl        A.Str
-A.StrInt  |Int      Dbl    Int       Dbl        A.Str
-A.StrDbl  |Dbl      Dbl    Dbl       Dbl        A.Str
-A.Str     |A.Str    A.Str  A.Str     A.Str      A.Str
-Here A.Str means that the value of operand A is returned.
+              +     |B.Int    B.Dbl  B.StrInt  B.StrDbl   B.Str
+          ----------+------+--------+---------+----------+------
+          A.Int     |Int      Dbl    Int       Dbl        Str
+          A.Dbl     |Dbl      Dbl    Dbl       Dbl        Str
+          A.StrInt  |Int      Dbl    Int       Dbl        Str
+          A.StrDbl  |Dbl      Dbl    Dbl       Dbl        Str
+          A.Str     |Str      Str    Str       Str        Str
+         Here Str means concatenation of two operands.
 
-For binary operations, Dbl or StrDbl operands are translated to Int beforehand.
+           - * / %  |B.Int    B.Dbl  B.StrInt  B.StrDbl   B.Str
+          ----------+------+--------+---------+----------+------
+          A.Int     |Int      Dbl    Int       Dbl        A.Str
+          A.Dbl     |Dbl      Dbl    Dbl       Dbl        A.Str
+          A.StrInt  |Int      Dbl    Int       Dbl        A.Str
+          A.StrDbl  |Dbl      Dbl    Dbl       Dbl        A.Str
+          A.Str     |A.Str    A.Str  A.Str     A.Str      A.Str
+         Here A.Str means that the value of operand A is returned.
 
-Op        |B.Int    B.Dbl  B.StrInt  B.StrDbl   B.Str
-----------+------+--------+---------+----------+------
-A.Int     |Int      Int    Int       Int        A.Str
-A.Dbl     |Int      Int    Int       Int        A.Str
-A.StrInt  |Int      Int    Int       Int        A.Str
-A.StrDbl  |Int      Int    Int       Int        A.Str
-A.Str     |A.Str    A.Str  A.Str     A.Str      A.Str
-Here "Op" is | & ^ << >>
+         For binary operations, Dbl or StrDbl operands are translated to Int beforehand.
 
-In comparison operations (==, !=, <, <=, >, >=), the operands are translated (if possible) and compared.
-In logical OR and AND the operands are compared as is, strings are not translated to StrInt and StrDbl, instead they are checked on non-emptiness.
+           Op       |B.Int    B.Dbl  B.StrInt  B.StrDbl   B.Str
+          ----------+------+--------+---------+----------+------
+          A.Int     |Int      Int    Int       Int        A.Str
+          A.Dbl     |Int      Int    Int       Int        A.Str
+          A.StrInt  |Int      Int    Int       Int        A.Str
+          A.StrDbl  |Int      Int    Int       Int        A.Str
+          A.Str     |A.Str    A.Str  A.Str     A.Str      A.Str
+         Here "Op" is | & ^ << >>
+
+         In comparison operations (==, !=, <, <=, >, >=), the operands are translated (if possible) and compared.
+         In logical OR and AND the operands are compared as is, strings are not translated to StrInt and StrDbl, instead they are checked on non-emptiness.
 
 7. Macro: Editor.SelValue - the content, like Far puts block into clipboard (text block with crlf at line ends)
 
 8. Macro: function "Menu.Select" looks like "N=Menu.Select(S[,N[,Dir]])" - the 3rd parameter is added, the direction of search, Dir:
 
-* 0 - from the beginning to the end of list;
-* 1 - from the current position to the beginning;
-* 2 - from the current position to the end of menu items list.
+    * 0 - from the beginning to the end of list;
+    * 1 - from the current position to the beginning;
+    * 2 - from the current position to the end of menu items list.
 
 9. Help understands macros <!Macro:Vars!> and <!Macro:Consts!>, look for `"// for <!Macro:Vars">' in lng files - this is the output format
 
 10. If Far is given keys /e or /v, the macros from the following regions are not loaded: Shell, Search, Disks, MainMenu, InfoPanel, QviewPanel, TreePanel, FindFolder
 
 11. Mantis#0001057: Far Manager version 1.75 build 2605, x86 Crash when choosing Alt+F1/Alt+F2 -> Process List
-If plugin has nonsense in registry value StartPanelMode, then panel mode 0 is forced
-(this hack is for a while, until static array is removed)
+    If plugin has nonsense in registry value StartPanelMode, then panel mode 0 is forced
+    (this hack is for a while, until static array is removed)
 
 zg 15.09.2009 18:23:10 +0200 - build 1126
 
@@ -25581,7 +25582,7 @@ The funniest thing is that the "don't touch attributes/date/time if they weren't
 
 t-rex 29.08.2009 23:11:42 +0200 - build 1098
 
-1. The update of previous build.
+1. An update of the previous build.
 
 drkns 29.08.2009 21:53:31 +0200 - build 1097
 
@@ -25710,7 +25711,7 @@ drkns 16.08.2009 09:05:05 +0200 - build 1085
 
 drkns 15.08.2009 20:13:55 +0200 - build 1084
 
-1. Corrections in previous build.
+1. Corrections in the previous build.
    pointer_array is replaced with TPointerArray.
 
 drkns 14.08.2009 23:38:43 +0200 - build 1083
