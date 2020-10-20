@@ -1,9 +1,9 @@
-﻿#ifndef SDK_HPP_7C458548_5D23_4CD0_B49D_F5C7AB43C26C
-#define SDK_HPP_7C458548_5D23_4CD0_B49D_F5C7AB43C26C
+﻿#ifndef PLATFORM_SDK_HPP_7C458548_5D23_4CD0_B49D_F5C7AB43C26C
+#define PLATFORM_SDK_HPP_7C458548_5D23_4CD0_B49D_F5C7AB43C26C
 #pragma once
 
 /*
-sdk.hpp
+platform.sdk.hpp
 */
 /*
 Copyright © 2015 Far Group
@@ -32,14 +32,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "sdk/sdk_common.h"
+#include "platform.sdk/sdk_common.h"
 
 #ifdef _MSC_VER
-# include "sdk/sdk_vc.h"
+# include "platform.sdk/sdk_vc.h"
 #endif // _MSC_VER
 
 #ifdef __GNUC__
-# include "sdk/sdk_gcc.h"
+# include "platform.sdk/sdk_gcc.h"
 #endif // __GNUC__
 
-#endif // SDK_HPP_7C458548_5D23_4CD0_B49D_F5C7AB43C26C
+#endif // PLATFORM_SDK_HPP_7C458548_5D23_4CD0_B49D_F5C7AB43C26C

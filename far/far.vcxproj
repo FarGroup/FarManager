@@ -501,9 +501,13 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="platform.fs.hpp" />
     <ClInclude Include="platform.fwd.hpp" />
     <ClInclude Include="platform.hpp" />
+    <ClInclude Include="platform.headers.hpp" />
     <ClInclude Include="platform.memory.hpp" />
     <ClInclude Include="platform.reg.hpp" />
     <ClInclude Include="platform.security.hpp" />
+    <ClInclude Include="platform.sdk.hpp" />
+    <ClInclude Include="platform.sdk\sdk_common.h" />
+    <ClInclude Include="platform.sdk\sdk_vc.h" />
     <ClInclude Include="platform.version.hpp" />
     <ClInclude Include="plclass.hpp" />
     <ClInclude Include="plist.hpp" />
@@ -527,9 +531,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="scrbuf.hpp" />
     <ClInclude Include="scrobj.hpp" />
     <ClInclude Include="scrsaver.hpp" />
-    <ClInclude Include="sdk.hpp" />
-    <ClInclude Include="sdk\sdk_common.h" />
-    <ClInclude Include="sdk\sdk_vc.h" />
     <ClInclude Include="setattr.hpp" />
     <ClInclude Include="setcolor.hpp" />
     <ClInclude Include="shortcuts.hpp" />
