@@ -103,9 +103,23 @@ void InitKeysArray();
 bool KeyToKeyLayoutCompare(int Key, int CompareKey);
 int KeyToKeyLayout(int Key);
 
+class keyboard_repeat_emulation
+{
+public:
+	keyboard_repeat_emulation();
+	~keyboard_repeat_emulation();
+
+	void reset() const;
+	bool signaled() const;
+
+private:
+	class implementation;
+	std::unique_ptr<implementation> m_Impl;
+};
+
 // возвращает: 1 - LeftPressed, 2 - Right Pressed, 3 - Middle Pressed, 0 - none
 DWORD IsMouseButtonPressed();
-bool while_mouse_button_pressed(function_ref<bool()> Action);
+bool while_mouse_button_pressed(function_ref<bool(DWORD)> Action);
 int TranslateKeyToVK(int Key, INPUT_RECORD* Rec = nullptr);
 int KeyNameToKey(string_view Name);
 string InputRecordToText(const INPUT_RECORD *Rec);

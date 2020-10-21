@@ -470,41 +470,89 @@ DWORD IsMouseButtonPressed()
 	return IntKeyState.MouseButtonState;
 }
 
-bool while_mouse_button_pressed(function_ref<bool()> const Action)
+static std::chrono::milliseconds keyboard_delay()
+{
+	DWORD RepeatDelay;
+	if (!SystemParametersInfo(SPI_GETKEYBOARDDELAY, 0, &RepeatDelay, 0))
+		RepeatDelay = 1;
+
+	// 0...3: 250...1000 ms
+	return 250ms * (RepeatDelay + 1);
+}
+
+static std::chrono::steady_clock::duration keyboard_rate()
 {
 	DWORD RepeatSpeed;
 	if (!SystemParametersInfo(SPI_GETKEYBOARDSPEED, 0, &RepeatSpeed, 0))
 		RepeatSpeed = 15;
 
-	DWORD RepeatDelay;
-	if (!SystemParametersInfo(SPI_GETKEYBOARDDELAY, 0, &RepeatDelay, 0))
-		RepeatDelay = 1;
-
 	// 0...31: approximately 2.5...30 repetitions per second
-	const auto RepetitionsPerSecond =  2.5 + (30.0 - 2.5) * RepeatSpeed / 31;
-	const auto RepeatDuration = std::chrono::duration_cast<std::chrono::steady_clock::duration>(1s / RepetitionsPerSecond);
+	const auto RepetitionsPerSecond = 2.5 + (30.0 - 2.5) * RepeatSpeed / 31;
+	return std::chrono::duration_cast<std::chrono::steady_clock::duration>(1s / RepetitionsPerSecond);
+}
 
-
-	// 0...3: 250...1000 ms
-	const auto DelayDuration = 250ms * (RepeatDelay + 1);
-
-	const time_check RepeatCheck(time_check::mode::immediate, RepeatDuration);
-	const time_check DelayCheck(time_check::mode::delayed, DelayDuration);
-
-	bool IsRepeating = false;
-
-	while (IsMouseButtonPressed())
+class keyboard_repeat_emulation::implementation
+{
+public:
+	void reset() const
 	{
-		if (RepeatCheck)
-		{
-			if (IsRepeating && !DelayCheck.is_time())
-				continue;
+		m_DelayCheck.reset();
+		m_RepeatCheck.reset();
+		m_Repeating = {};
+	}
 
-			if (!Action())
-				return false;
+	bool signaled() const
+	{
+		if (!m_DelayCheck.is_time())
+			return false;
+
+		if (m_Repeating && !m_RepeatCheck)
+			return false;
+
+		m_Repeating = true;
+
+		return true;
+	}
+
+private:
+	time_check mutable
+		m_DelayCheck{ time_check::mode::delayed, keyboard_delay() },
+		m_RepeatCheck{ time_check::mode::immediate, keyboard_rate() };
+
+	bool mutable m_Repeating{};
+};
+
+keyboard_repeat_emulation::keyboard_repeat_emulation() :
+	m_Impl(std::make_unique<implementation>())
+{
+}
+
+keyboard_repeat_emulation::~keyboard_repeat_emulation() = default;
+
+void keyboard_repeat_emulation::reset() const
+{
+	return m_Impl->reset();
+}
+
+bool keyboard_repeat_emulation::signaled() const
+{
+	return m_Impl->signaled();
+}
+
+bool while_mouse_button_pressed(function_ref<bool(DWORD)> const Action)
+{
+	keyboard_repeat_emulation const Emulation;
+
+	while (const auto Button = IsMouseButtonPressed())
+	{
+		if (!Emulation.signaled())
+		{
+			std::this_thread::yield();
+			continue;
 		}
 
-		IsRepeating = true;
+		if (!Action(Button))
+			return false;
 	}
 
 	return true;

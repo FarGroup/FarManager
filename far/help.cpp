@@ -1750,8 +1750,11 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (IntKeyState.MousePos.y == ScrollY)
 		{
-			while_mouse_button_pressed([&]
+			while_mouse_button_pressed([&](DWORD const Button)
 			{
+				if (Button != FROM_LEFT_1ST_BUTTON_PRESSED)
+					return false;
+
 				ProcessKey(Manager::Key(KEY_UP));
 				return true;
 			});
@@ -1761,8 +1764,10 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (IntKeyState.MousePos.y == ScrollY + BodyHeight() - 1)
 		{
-			while_mouse_button_pressed([&]
+			while_mouse_button_pressed([&](DWORD const Button)
 			{
+				if (Button != FROM_LEFT_1ST_BUTTON_PRESSED)
+					return false;
 				ProcessKey(Manager::Key(KEY_DOWN));
 				return true;
 			});
@@ -1781,7 +1786,7 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (static_cast<int>(HelpList.size()) > BodyHeight())
 		{
-			while (IsMouseButtonPressed())
+			while (IsMouseButtonPressed() == FROM_LEFT_1ST_BUTTON_PRESSED)
 			{
 				if (IntKeyState.MousePos.y > ScrollY && IntKeyState.MousePos.y < ScrollY + BodyHeight() + 1)
 				{
@@ -1852,7 +1857,7 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	if (while_mouse_button_pressed([&]
+	if (while_mouse_button_pressed([&](DWORD)
 	{
 		if (MouseEvent->dwMousePosition.Y < m_Where.top + 1 + HeaderHeight())
 		{

@@ -3073,8 +3073,11 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (IntKeyState.MousePos.y == ScrollY)
 		{
 			// Press and hold the [▲] button
-			while_mouse_button_pressed([&]
+			while_mouse_button_pressed([&](DWORD const Button)
 			{
+				if (Button != FROM_LEFT_1ST_BUTTON_PRESSED)
+					return false;
+
 				ProcessKey(Manager::Key(KEY_UP));
 				return true;
 			});
@@ -3085,8 +3088,11 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		else if (IntKeyState.MousePos.y == ScrollY + m_Height - 1)
 		{
 			// Press and hold the [▼] button
-			while_mouse_button_pressed([&]
+			while_mouse_button_pressed([&](DWORD const Button)
 			{
+				if (Button != FROM_LEFT_1ST_BUTTON_PRESSED)
+					return false;
+
 				ProcessKey(Manager::Key(KEY_DOWN));
 				return true;
 			});
@@ -3097,7 +3103,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		else if (IntKeyState.MousePos.y > ScrollY && IntKeyState.MousePos.y < ScrollY + m_Height - 1 && m_Height > 2)
 		{
 			// Drag the thumb
-			while (IsMouseButtonPressed())
+			while (IsMouseButtonPressed() == FROM_LEFT_1ST_BUTTON_PRESSED)
 			{
 				m_CurFile = static_cast<int>((m_ListData.size() - 1)*(IntKeyState.MousePos.y - ScrollY) / (m_Height - 2));
 				ShowFileList();
@@ -3205,7 +3211,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (m_ListData.empty())
 			return true;
 
-		while_mouse_button_pressed([&]
+		while_mouse_button_pressed([&](DWORD)
 		{
 			if (IntKeyState.MousePos.y > m_Where.top + 1)
 				return false;
@@ -3234,7 +3240,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (m_ListData.empty())
 			return true;
 
-		while_mouse_button_pressed([&]
+		while_mouse_button_pressed([&](DWORD)
 		{
 			if (IntKeyState.MousePos.y < m_Where.bottom - 2)
 				return false;

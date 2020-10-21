@@ -1549,8 +1549,11 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if ((MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (MsX == m_Where.left + 2 || MsX == m_Where.right - 1 - (CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX) ? 0 : 2)))
 	{
 		// Click [«] or [»]
-		while_mouse_button_pressed([&]
+		while_mouse_button_pressed([&](DWORD const Button)
 		{
+			if (Button != FROM_LEFT_1ST_BUTTON_PRESSED)
+				return false;
+
 			ProcessKey(Manager::Key(MsX == m_Where.left + 2? KEY_ALTLEFT : KEY_ALTRIGHT));
 			return true;
 		});
@@ -1574,8 +1577,11 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (MsY==SbY1)
 		{
 			// Press and hold the [▲] button
-			while_mouse_button_pressed([&]
+			while_mouse_button_pressed([&](DWORD const Button)
 			{
+				if (Button != FROM_LEFT_1ST_BUTTON_PRESSED)
+					return false;
+
 				ProcessKey(Manager::Key(KEY_UP));
 				ShowMenu(true);
 				return true;
@@ -1587,8 +1593,11 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (MsY==SbY2)
 		{
 			// Press and hold the [▼] button
-			while_mouse_button_pressed([&]
+			while_mouse_button_pressed([&](DWORD const Button)
 			{
+				if (Button != FROM_LEFT_1ST_BUTTON_PRESSED)
+					return false;
+
 				ProcessKey(Manager::Key(KEY_DOWN));
 				ShowMenu(true);
 				return true;
@@ -1602,7 +1611,7 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			// Drag the thumb
 			int Delta=0;
 
-			while (IsMouseButtonPressed())
+			while (IsMouseButtonPressed() == FROM_LEFT_1ST_BUTTON_PRESSED)
 			{
 				const auto SbHeight = m_Where.height() - 3;
 				int MsPos = (GetShowItemCount() - 1) * (IntKeyState.MousePos.y - m_Where.top) / SbHeight;
@@ -1639,7 +1648,7 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (MsY == m_Where.top)
 		{
-			while_mouse_button_pressed([&]
+			while_mouse_button_pressed([&](DWORD)
 			{
 				if (MsY != m_Where.top || !GetVisualPos(SelectPos))
 					return false;
@@ -1653,7 +1662,7 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (MsY == m_Where.bottom)
 		{
-			while_mouse_button_pressed([&]
+			while_mouse_button_pressed([&](DWORD)
 			{
 				if (MsY != m_Where.bottom || GetVisualPos(SelectPos) == GetShowItemCount() - 1)
 					return false;
