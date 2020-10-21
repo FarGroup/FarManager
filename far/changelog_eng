@@ -1,3 +1,7 @@
+drkns 21.10.2020 17:46:37 +0100 - build 5684
+
+1. gh-274: Editor: Selection isn't cleared on Ctrl+Home/End.
+
 drkns 21.10.2020 01:35:56 +0100 - build 5683
 
 1. Mouse selection in input fields sometimes wasn't working as expected.

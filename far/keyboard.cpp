@@ -1909,7 +1909,7 @@ int IsShiftKey(DWORD Key)
 
 bool IsModifKey(DWORD const Key)
 {
-	return flags::check_any(Key, KEY_CTRL | KEY_ALT | KEY_SHIFT | KEY_RCTRL | KEY_RALT);
+	return any_of(Key, KEY_CTRL | KEY_ALT | KEY_SHIFT | KEY_RCTRL | KEY_RALT);
 }
 
 bool IsInternalKeyReal(unsigned int Key)
