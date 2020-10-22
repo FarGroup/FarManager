@@ -2837,6 +2837,8 @@ $ #Nézőke: vezérlőbillentyűk#
 #Ctrl+Right# keys shift the content within the window one byte at a time
 in the corresponding direction.
 
+ In #hex# view mode, #Alt+Left# and #Alt+Right# keys shrink or widen the view by 1 byte, respectively. With #Ctrl+Alt+Left# and #Ctrl+Alt+Right# the same adjustment is applied, but by 16 bytes instead.
+
  Viewer commands
 
  #F1#                 ^<wrap>Súgó
@@ -3054,7 +3056,13 @@ first byte on a row becomes the last on the previous row. The
 #Ctrl+Left# key combination shifts all bytes to the right moving the
 last byte of a row to the first positions of the next row. Unlike
 in #dump# mode, the content is shifted by a byte, not by a character.
-The #Right# and #Left# keys are ignored.
+ The #Alt+Right# key combination widens the amount of bytes displayed
+in the viewer by 1 byte. The viewer can be widened by 16 bytes
+by pressing #Ctrl+Alt+Right#.
+ The #Alt+Left# key combination shrinks the amount of bytes displayed
+in the viewer by 1 byte. The viewer can be shrunk by 16 bytes
+by pressing #Ctrl+Alt+Left#.
+ The #Right# and #Left# keys are ignored.
 
 
 @ViewerGotoPos

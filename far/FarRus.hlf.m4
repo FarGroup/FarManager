@@ -2810,6 +2810,8 @@ $ #Программа просмотра: клавиши управления#
 #Ctrl+Right# сдвигают текст в окне на один байт в соответствующем
 направлении.
 
+ In #hex# view mode, #Alt+Left# and #Alt+Right# keys shrink or widen the view by 1 byte, respectively. With #Ctrl+Alt+Left# and #Ctrl+Alt+Right# the same adjustment is applied, but by 16 bytes instead.
+
  Команды программы просмотра
 
  #F1#                 ^<wrap>Помощь
@@ -3027,8 +3029,14 @@ UTF-16(BE) за шестнадцатеричными значениями сле
 строки экрана становится последним в предыдущей строке. Комбинация
 клавиш #Ctrl+Left# сдвигает все байты вправо, делая последний байт
 строки экрана первым байтом в следующей строке. В отличие от режима
-#дамп# содержимое сдвигается по одному байту, а не по символу. Клавиши
-#Right# и #Left# игнорируются.
+#дамп# содержимое сдвигается по одному байту, а не по символу.
+ The #Alt+Right# key combination widens the amount of bytes displayed
+in the viewer by 1 byte. The viewer can be widened by 16 bytes
+by pressing #Ctrl+Alt+Right#.
+ The #Alt+Left# key combination shrinks the amount of bytes displayed
+in the viewer by 1 byte. The viewer can be shrunk by 16 bytes
+by pressing #Ctrl+Alt+Right#.
+ Клавиши #Right# и #Left# игнорируются.
 
 
 @ViewerGotoPos

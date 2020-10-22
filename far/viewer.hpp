@@ -105,6 +105,10 @@ public:
 	int GetId() const { return ViewerID; }
 	void OnDestroy();
 
+protected:
+	void ReadEvent();
+	void CloseEvent();
+
 private:
 	struct ViewerString;
 
@@ -126,7 +130,7 @@ private:
 	void DrawScrollbar();
 	void AdjustWidth();
 	void AdjustFilePos();
-   bool CheckChanged();
+	bool CheckChanged();
 	void ReadString(ViewerString *pString, int MaxSize, bool update_cache=true);
 	long long EndOfScreen(int line);
 	long long BegOfScreen();
@@ -163,12 +167,9 @@ private:
 	wchar_t ZeroChar() const;
 	size_t MaxViewLineSize() const { return ViOpt.MaxLineSize; }
 	size_t MaxViewLineBufferSize() const { return ViOpt.MaxLineSize + 15; }
+	int CalculateMaxBytesPerLineByScreenWidth() const;
+	void AdjustBytesPerLine(int Amount);
 
-protected:
-	void ReadEvent();
-	void CloseEvent();
-
-private:
 	friend class FileViewer;
 
 	Options::ViewerOptions ViOpt;
@@ -306,6 +307,8 @@ private:
 	std::vector<wchar_t> ReadBuffer;
 	F8CP f8cps{true};
 	std::optional<bool> m_GotoHex;
+	int m_PrevXX2{};
+	size_t m_BytesPerLine{ 16 };
 };
 
 class ViewerContainer

@@ -116,6 +116,8 @@ enum saved_modes
 
 static int ViewerID=0;
 
+static constexpr int s_BytesPerStripe = 8;
+
 static bool IsCodePageSupported(uintptr_t cp)
 {
 	return codepages::IsCodePageSupported(cp, 2);
@@ -187,6 +189,37 @@ Viewer::~Viewer()
 wchar_t Viewer::ZeroChar() const
 {
 	return ViOpt.Visible0x00 && ViOpt.ZeroChar > 0 ? static_cast<wchar_t>(ViOpt.ZeroChar) : L' ';
+}
+
+int Viewer::CalculateMaxBytesPerLineByScreenWidth() const
+{
+	const int OffsetWidth = 12; // includes offset plus colon and space
+	const int ByteWidth = 4; // two hex digits, one space, one character in dump
+	const int BytesGroupSeparatorWidth = 2;
+	const int MininumBytesCount = s_BytesPerStripe;
+
+	auto BytesCount = MininumBytesCount;
+	for (auto width = XX2 - (OffsetWidth + MininumBytesCount * ByteWidth + BytesGroupSeparatorWidth); width >= ByteWidth; width -= ByteWidth)
+	{
+		if (width >= ByteWidth)
+			++BytesCount;
+
+		if (!(BytesCount % s_BytesPerStripe))
+			width -= BytesGroupSeparatorWidth;
+	}
+
+	return BytesCount;
+}
+
+void Viewer::AdjustBytesPerLine(int const Amount)
+{
+	const size_t NewValue = std::clamp(static_cast<int>(m_BytesPerLine) + Amount, s_BytesPerStripe, CalculateMaxBytesPerLineByScreenWidth());
+
+	if (NewValue == m_BytesPerLine)
+		return;
+
+	m_BytesPerLine = NewValue;
+	Show();
 }
 
 struct Viewer::ViewerUndoData
@@ -681,7 +714,7 @@ int Viewer::GetModeDependentCharSize() const
 
 int Viewer::GetModeDependentLineSize() const
 {
-	return m_DisplayMode == VMT_HEX? 16 : Width * getChSize(m_Codepage);
+	return static_cast<int>(m_DisplayMode == VMT_HEX? m_BytesPerLine : Width * getChSize(m_Codepage));
 }
 
 int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& OutStr, wchar_t ZeroChar, int tail) const
@@ -820,6 +853,16 @@ void Viewer::ShowHex()
 
 	LastPage = false;
 
+	if (m_PrevXX2 != XX2)
+	{
+		m_PrevXX2 = XX2;
+		// TODO: Add an option
+		if constexpr (false)
+		{
+			m_BytesPerLine = std::min(static_cast<size_t>(CalculateMaxBytesPerLineByScreenWidth()), m_BytesPerLine);
+		}
+	}
+
 	for (auto Y = m_Where.top; Y <= m_Where.bottom; ++Y)
 	{
 		bool bSelStartFound = false;
@@ -850,12 +893,12 @@ void Viewer::ShowHex()
 		if ( SelectSize < 0 )
 			bSelStartFound = bSelEndFound = false;
 
-		char RawBuffer[16+3];
+		std::vector<char> RawBuffer(m_BytesPerLine + 3, 0);
 		size_t BytesRead = 0;
-		const auto BytesToRead = CP_UTF8 == m_Codepage ? 16 + 4 - 1 : (m_Codepage == MB.GetCP()? 16 + MB.GetSize() - 1 : 16);
-		Reader.Read(RawBuffer, BytesToRead, &BytesRead);
-		if (BytesRead > 16)
-			Reader.Unread(BytesRead-16);
+		const auto BytesToRead = CP_UTF8 == m_Codepage ? m_BytesPerLine + 4 - 1 : (m_Codepage == MB.GetCP() ? m_BytesPerLine + MB.GetSize() - 1 : m_BytesPerLine);
+		Reader.Read(RawBuffer.data(), BytesToRead, &BytesRead);
+		if (BytesRead > m_BytesPerLine)
+			Reader.Unread(BytesRead - m_BytesPerLine);
 		else
 			LastPage = EndFile = veof();
 
@@ -868,20 +911,20 @@ void Viewer::ShowHex()
 		{
 			if ( SelectSize >= 0 )
 			{
-				if (SelectPos >= fpos && SelectPos < fpos+16)
+				if (SelectPos >= fpos && SelectPos < fpos + static_cast<decltype(fpos)>(m_BytesPerLine))
 				{
 					const auto off = static_cast<int>(SelectPos - fpos);
 					bSelStartFound = true;
-					SelStart = static_cast<int>(OutStr.size() + 3 * off + (off < 8? 0 : BorderLine.size()));
+					SelStart = static_cast<int>(OutStr.size() + 3 * off + (off < s_BytesPerStripe? 0 : BorderLine.size()));
 					if (!SelectSize)
 						--SelStart;
 				}
 				const auto selectEnd = SelectPos + SelectSize - 1;
-				if (selectEnd >= fpos && selectEnd < fpos+16)
+				if (selectEnd >= fpos && selectEnd < fpos + static_cast<decltype(fpos)>(m_BytesPerLine))
 				{
 					const auto off = static_cast<int>(selectEnd - fpos);
 					bSelEndFound = true;
-					SelEnd = SelectSize? static_cast<int>(OutStr.size() + 3 * off + (off < 8? 0 : BorderLine.size()) + 1) : SelStart;
+					SelEnd = SelectSize ? static_cast<int>(OutStr.size() + 3 * off + (off < s_BytesPerStripe? 0 : BorderLine.size()) + 1) : SelStart;
 				}
 				else if ( SelectSize == 0 && SelectPos == fpos )
 				{
@@ -890,17 +933,17 @@ void Viewer::ShowHex()
 				}
 			}
 
-			for (size_t X = 0; X != 16; ++X)
+			for (size_t X = 0; X != m_BytesPerLine; ++X)
 			{
 				if (X < BytesRead)
 					format_to(OutStr, FSTR(L"{0:02X} "), int(RawBuffer[X]));
 				else
 					OutStr.append(3, L' ');
 
-				if (X == 7)
+				if (X + 1 != m_BytesPerLine && (X + 1) % s_BytesPerStripe == 0)
 					OutStr += BorderLine;
 			}
-			tail = txt_dump({ RawBuffer, BytesRead }, 16, TextStr, ZeroChar(), tail);
+			tail = txt_dump({ RawBuffer.data(), BytesRead }, m_BytesPerLine, TextStr, ZeroChar(), tail);
 		}
 
 		if ((SelEnd <= SelStart) && bSelStartFound && bSelEndFound && SelectSize > 0 )
@@ -1265,8 +1308,8 @@ long long Viewer::XYfilepos(int col, int row)
 		//0000000020: 31 00 2E 00 30 00 22 00 | 20 00 65 00 6E 00 63 00  1.0" enc         - 2-byte
 		if      (col < 11) col = 0;
 		else if (col < 35) col = (col-11)/3;
-		else if (col < 37) col = 8;
-		else if (col < 61) col = 8 + (col-37)/3;
+		else if (col < 37) col = s_BytesPerStripe;
+		else if (col < 61) col = s_BytesPerStripe + (col-37)/3;
 		else if (col < 63) col = 0;
 		else if (col < 63 + 16 / csz) col = (col-63) * csz;
 		else               col = 16;
@@ -1598,6 +1641,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 			}
 			return true;
 		}
+
 		case KEY_F7:
 		{
 			Search(0,nullptr);
@@ -1854,6 +1898,27 @@ bool Viewer::process_key(const Manager::Key& Key)
 
 			return true;
 		}
+
+		case KEY_ALTLEFT:
+		case KEY_RALTLEFT:
+			AdjustBytesPerLine(-1);
+			return true;
+
+		case KEY_CTRLALTLEFT: case KEY_RCTRLALTLEFT:
+		case KEY_CTRLRALTLEFT: case KEY_RCTRLRALTLEFT:
+			AdjustBytesPerLine(-16);
+			return true;
+
+		case KEY_ALTRIGHT:
+		case KEY_RALTRIGHT:
+			AdjustBytesPerLine(1);
+			return true;
+
+		case KEY_CTRLALTRIGHT: case KEY_RCTRLALTRIGHT:
+		case KEY_CTRLRALTRIGHT: case KEY_RCTRLRALTRIGHT:
+			AdjustBytesPerLine(16);
+			return true;
+
 		case KEY_CTRLSHIFTLEFT:    case KEY_CTRLSHIFTNUMPAD4:
 		case KEY_RCTRLSHIFTLEFT:   case KEY_RCTRLSHIFTNUMPAD4:
 		{
