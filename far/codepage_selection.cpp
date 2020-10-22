@@ -809,8 +809,8 @@ void codepages::DeleteFavorite(uintptr_t cp)
 //################################################################################################
 
 F8CP::F8CP(bool viewer):
-	m_AcpName(msg(Global->OnlyEditorViewerUsed? (viewer? lng::MSingleViewF8 : lng::MSingleEditF8) : (viewer? lng::MViewF8 : lng::MEditF8))),
-	m_OemName(msg(Global->OnlyEditorViewerUsed? (viewer? lng::MSingleViewF8DOS : lng::MSingleEditF8DOS) : (viewer? lng::MViewF8DOS : lng::MEditF8DOS))),
+	m_AcpName(msg(viewer? lng::MViewF8 : lng::MEditF8)),
+	m_OemName(msg(viewer? lng::MViewF8DOS : lng::MEditF8DOS)),
 	m_UtfName(L"UTF-8"sv)
 {
 	uintptr_t defcp = viewer? Global->Opt->ViOpt.DefaultCodePage : Global->Opt->EdOpt.DefaultCodePage;
