@@ -56,6 +56,18 @@ bool handle_std_exception(const std::exception& e, std::string_view Function, co
 bool handle_unknown_exception(std::string_view Function, const Plugin* Module = nullptr);
 bool use_terminate_handler();
 
+class seh_terminate_handler
+{
+public:
+	NONCOPYABLE(seh_terminate_handler);
+
+	seh_terminate_handler();
+	~seh_terminate_handler();
+
+private:
+	std::terminate_handler m_PreviousHandler;
+};
+
 class unhandled_exception_filter
 {
 public:
@@ -148,10 +160,10 @@ WARNING_POP()
 	}
 }
 
-std::exception_ptr wrap_currrent_exception(const char* Function, string_view File, int Line);
+std::exception_ptr wrap_current_exception(const char* Function, string_view File, int Line);
 
 #define SAVE_EXCEPTION_TO(ExceptionPtr) \
-	ExceptionPtr = wrap_currrent_exception(__FUNCTION__, WIDE_SV(__FILE__), __LINE__)
+	ExceptionPtr = wrap_current_exception(__FUNCTION__, WIDE_SV(__FILE__), __LINE__)
 
 void rethrow_if(std::exception_ptr& Ptr);
 

@@ -1,3 +1,10 @@
+drkns 23.10.2020 22:18:08 +0100 - build 5687
+
+1. Exception handling:
+   - intercept std::terminate
+   - alternative stack retrieval
+   - show registers.
+
 drkns 22.10.2020 22:17:27 +0100 - build 5686
 
 1. Removed lng lines for single viewer/editor functional keys.

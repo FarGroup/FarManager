@@ -911,7 +911,7 @@ void Viewer::ShowHex()
 		{
 			if ( SelectSize >= 0 )
 			{
-				if (SelectPos >= fpos && SelectPos < fpos + static_cast<decltype(fpos)>(m_BytesPerLine))
+				if (SelectPos >= fpos && SelectPos < fpos + static_cast<long long>(m_BytesPerLine))
 				{
 					const auto off = static_cast<int>(SelectPos - fpos);
 					bSelStartFound = true;
@@ -920,7 +920,7 @@ void Viewer::ShowHex()
 						--SelStart;
 				}
 				const auto selectEnd = SelectPos + SelectSize - 1;
-				if (selectEnd >= fpos && selectEnd < fpos + static_cast<decltype(fpos)>(m_BytesPerLine))
+				if (selectEnd >= fpos && selectEnd < fpos + static_cast<long long>(m_BytesPerLine))
 				{
 					const auto off = static_cast<int>(selectEnd - fpos);
 					bSelEndFound = true;

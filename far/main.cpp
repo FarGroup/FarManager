@@ -815,6 +815,7 @@ static int wmain_seh()
 	configure_exception_handling(Argc, Argv.get());
 
 	SCOPED_ACTION(unhandled_exception_filter);
+	SCOPED_ACTION(seh_terminate_handler);
 	SCOPED_ACTION(new_handler);
 
 	const auto CurrentFunctionName = __FUNCTION__;

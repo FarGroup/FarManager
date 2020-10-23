@@ -311,6 +311,14 @@ int WINAPI imports::stub_CompareStringOrdinal(LPCWCH String1, int Count1, LPCWCH
 	return 0;
 }
 
+WORD NTAPI imports::stub_RtlCaptureStackBackTrace(DWORD FramesToSkip, DWORD FramesToCapture, PVOID* BackTrace, PDWORD BackTraceHash)
+{
+	// TODO: log
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return 0;
+}
+
+
 // shell32
 HRESULT STDAPICALLTYPE imports::stub_SHCreateAssociationRegistration(REFIID riid, void ** ppv)
 {

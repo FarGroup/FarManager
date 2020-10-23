@@ -208,7 +208,7 @@ public:
 	}
 
 	template<typename container, REQUIRES(is_span_v<container>)>
-	constexpr span(container& Container) noexcept:
+	constexpr span(container&& Container) noexcept:
 		span(std::data(Container), std::size(Container))
 	{
 	}
@@ -228,7 +228,7 @@ public:
 };
 
 template<typename container>
-span(container& c) -> span<std::remove_pointer_t<decltype(std::data(c))>>;
+span(container&& c) -> span<std::remove_pointer_t<decltype(std::data(c))>>;
 
 template<typename value_type>
 span(const std::initializer_list<value_type>&) -> span<const value_type>;

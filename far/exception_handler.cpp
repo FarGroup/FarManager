@@ -73,10 +73,10 @@ class exception_context
 public:
 	NONCOPYABLE(exception_context);
 
-	exception_context(EXCEPTION_POINTERS const& Pointers, os::handle&& ThreadHandle, DWORD const ThreadId) noexcept:
+	explicit exception_context(EXCEPTION_POINTERS const& Pointers) noexcept:
 		m_Pointers(Pointers),
-		m_ThreadHandle(std::move(ThreadHandle)),
-		m_ThreadId(ThreadId)
+		m_ThreadHandle(os::OpenCurrentThread()),
+		m_ThreadId(GetCurrentThreadId())
 	{
 	}
 
@@ -121,7 +121,9 @@ void force_stderr_exception_ui(bool const Force)
 
 void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
-constexpr NTSTATUS EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363; // EH_EXCEPTION_NUMBER
+constexpr NTSTATUS
+	EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363, // EH_EXCEPTION_NUMBER
+	EXCEPTION_TERMINATE           = 0xE074726D; // 'trm'
 
 enum exception_dialog
 {
@@ -169,18 +171,48 @@ enum exception_dialog
 	ed_items_count
 };
 
+static std::vector<DWORD64> current_stack()
+{
+	std::vector<DWORD64> Stack;
+	Stack.reserve(128);
+
+	for (DWORD i = 0; ;)
+	{
+		void* Pointers[128];
+		const auto Size = imports.RtlCaptureStackBackTrace(i, static_cast<DWORD>(std::size(Pointers)), Pointers, {});
+		if (!Size)
+			break;
+
+		std::transform(Pointers, Pointers + Size, std::back_inserter(Stack), [](void* Ptr)
+		{
+			return reinterpret_cast<uintptr_t>(Ptr);
+		});
+
+		i += Size;
+	}
+
+	return Stack;
+}
+
 static void get_backtrace(string_view const Module, const std::vector<DWORD64>& Stack, const std::vector<DWORD64>* NestedStack, function_ref<void(string&&)> const Consumer)
 {
+	const auto Separator = [&](string&& Message)
+	{
+		Consumer(string(40, L'-'));
+		Consumer(std::move(Message));
+		Consumer(string(40, L'-'));
+	};
+
 	if (NestedStack)
 	{
 		tracer::get_symbols(Module, *NestedStack, Consumer);
-
-		Consumer(string(40, L'-'));
-		Consumer(L"Rethrow:"s);
-		Consumer(string(40, L'-'));
+		Separator(L"Rethrow:"s);
 	}
 
 	tracer::get_symbols(Module, Stack, Consumer);
+
+	Separator(L"Current stack:"s);
+	tracer::get_symbols(Module, current_stack(), Consumer);
 }
 
 static void show_backtrace(string_view const Module, const std::vector<DWORD64>& Stack, const std::vector<DWORD64>* NestedStack, bool const UseDialog)
@@ -312,9 +344,57 @@ struct dialog_data_type
 	string_view Module;
 };
 
+static void read_registers(string& To, CONTEXT const& Context, string_view const Eol)
+{
+	const auto r = [&](string_view const Name, auto const Value)
+	{
+		format_to(To, FSTR(L"{0:3} = {1:0{2}X}{3}"), Name, Value, sizeof(Value) * 2, Eol);
+	};
+
+#if defined _M_X64
+	r(L"RAX"sv, Context.Rax);
+	r(L"RBX"sv, Context.Rbx);
+	r(L"RCX"sv, Context.Rcx);
+	r(L"RDX"sv, Context.Rdx);
+	r(L"RSI"sv, Context.Rsi);
+	r(L"RDI"sv, Context.Rdi);
+	r(L"R8 "sv, Context.R8);
+	r(L"R9 "sv, Context.R9);
+	r(L"R10"sv, Context.R10);
+	r(L"R11"sv, Context.R11);
+	r(L"R12"sv, Context.R12);
+	r(L"R13"sv, Context.R13);
+	r(L"R14"sv, Context.R14);
+	r(L"R15"sv, Context.R15);
+	r(L"RIP"sv, Context.Rip);
+	r(L"RSP"sv, Context.Rsp);
+	r(L"RBP"sv, Context.Rbp);
+	r(L"EFL"sv, Context.EFlags);
+#elif defined _M_IX86
+	r(L"EAX"sv, Context.Eax);
+	r(L"EBX"sv, Context.Ebx);
+	r(L"ECX"sv, Context.Ecx);
+	r(L"EDX"sv, Context.Edx);
+	r(L"ESI"sv, Context.Esi);
+	r(L"EDI"sv, Context.Edi);
+	r(L"EIP"sv, Context.Eip);
+	r(L"ESP"sv, Context.Esp);
+	r(L"EBP"sv, Context.Ebp);
+	r(L"EFL"sv, Context.EFlags);
+#elif defined _M_ARM64
+	// TODO
+#elif defined _M_ARM
+	// TODO
+#else
+	// TODO
+#endif
+}
+
 static void copy_information(Dialog* const Dlg)
 {
 	string Strings;
+	Strings.reserve(1024);
+
 	const auto Eol = eol::system.str();
 	FarDialogItem di;
 	Dlg->SendMessage(DM_GETDLGITEMSHORT, 1, &di);
@@ -329,6 +409,9 @@ static void copy_information(Dialog* const Dlg)
 	append(Strings, Eol);
 
 	const auto& Data = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+
+	read_registers(Strings, *Data.Context->pointers().ContextRecord, Eol);
+	append(Strings, Eol);
 
 	get_backtrace(Data.Module, tracer::get(Data.Module, Data.Context->pointers(), Data.Context->thread_handle()), Data.NestedStack, [&](string_view const Line)
 	{
@@ -550,6 +633,12 @@ static bool ExcConsole(
 		std::wcerr << Label << L' ' << v << L'\n';
 	}
 
+	{
+		string Registers(L"\n"sv);
+		read_registers(Registers, *Context.pointers().ContextRecord, L"\n"sv);
+		std::wcerr << Registers;
+	}
+
 	show_backtrace(ModuleName, tracer::get(ModuleName, Context.pointers(), Context.thread_handle()), NestedStack, false);
 	std::wcerr << std::endl;
 
@@ -705,9 +794,14 @@ namespace detail
 	};
 }
 
-static bool IsCppException(const EXCEPTION_RECORD& Record)
+static bool is_cpp_exception(const EXCEPTION_RECORD& Record)
 {
-	return Record.ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS);
+	return Record.ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS) && Record.NumberParameters;
+}
+
+static bool is_fake_cpp_exception(const EXCEPTION_RECORD& Record)
+{
+	return Record.ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS) && !Record.NumberParameters;
 }
 
 class [[nodiscard]] enum_catchable_objects: public enumerator<enum_catchable_objects, char const*>
@@ -717,7 +811,7 @@ class [[nodiscard]] enum_catchable_objects: public enumerator<enum_catchable_obj
 public:
 	explicit enum_catchable_objects(EXCEPTION_RECORD const& Record)
 	{
-		if (!IsCppException(Record) || !Record.NumberParameters)
+		if (!is_cpp_exception(Record))
 			return;
 
 		m_BaseAddress = Record.NumberParameters == 4? Record.ExceptionInformation[3] : 0;
@@ -860,7 +954,8 @@ static bool handle_generic_exception(
 		{TEXTANDCODE(CONTROL_C_EXIT)},
 #undef TEXTANDCODE
 
-		{L"C++ exception"sv, EXCEPTION_MICROSOFT_CPLUSPLUS},
+		{L"C++ exception"sv,  EXCEPTION_MICROSOFT_CPLUSPLUS},
+		{L"std::terminate"sv, EXCEPTION_TERMINATE},
 	};
 
 	string strFileName;
@@ -935,6 +1030,7 @@ static bool handle_generic_exception(
 		break;
 
 	case EXCEPTION_MICROSOFT_CPLUSPLUS:
+	case EXCEPTION_TERMINATE:
 		Details = Message;
 		break;
 
@@ -980,29 +1076,40 @@ void restore_system_exception_handler()
 	os::unset_error_mode(SEM_NOGPFAULTERRORBOX);
 }
 
+static void** dummy_current_exception(NTSTATUS const Code)
+{
+	static EXCEPTION_RECORD DummyRecord{ static_cast<DWORD>(Code) };
+	static void* DummyRecordPtr = &DummyRecord;
+	return &DummyRecordPtr;
+}
+
+static void** dummy_current_exception_context()
+{
+	static CONTEXT DummyContext{};
+	static void* DummyContextPtr = &DummyContext;
+	return &DummyContextPtr;
+}
+
 #if IS_MICROSOFT_SDK()
 extern "C" void** __current_exception();
 extern "C" void** __current_exception_context();
 #else
 static void** __current_exception()
 {
-	constexpr DWORD EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363; // EH_EXCEPTION_NUMBER
-
-	static EXCEPTION_RECORD DummyRecord{ EXCEPTION_MICROSOFT_CPLUSPLUS };
-	static void* DummyRecordPtr = &DummyRecord;
-	return &DummyRecordPtr;
+	return dummy_current_exception(EXCEPTION_MICROSOFT_CPLUSPLUS);
 }
 
 static void** __current_exception_context()
 {
-	static CONTEXT DummyContext{};
-	static void* DummyContextPtr = &DummyContext;
-	return &DummyContextPtr;
+	return dummy_current_exception_context();
 }
 #endif
 
 static EXCEPTION_POINTERS exception_information()
 {
+	if (!std::current_exception())
+		return {};
+
 	return
 	{
 		static_cast<EXCEPTION_RECORD*>(*__current_exception()),
@@ -1027,7 +1134,7 @@ private:
 	std::vector<DWORD64> m_Stack;
 };
 
-std::exception_ptr wrap_currrent_exception(const char* const Function, string_view const File, int const Line)
+std::exception_ptr wrap_current_exception(const char* const Function, string_view const File, int const Line)
 {
 	try
 	{
@@ -1052,15 +1159,20 @@ static std::pair<string, string> extract_nested_exceptions(EXCEPTION_RECORD cons
 
 	ObjectType = ExtractObjectType(Record);
 
-	if (ObjectType.empty())
-		ObjectType = L"std::exception"sv;
-
 	// far_exception.what() returns additional information (function, file and line).
 	// We don't need it on top level because it's extracted separately
 	if (const auto FarException = Top? dynamic_cast<const detail::far_base_exception*>(&Exception) : nullptr)
+	{
 		What = FarException->message();
+		if (ObjectType.empty())
+			ObjectType = WSTRVIEW(detail::far_base_exception);
+	}
 	else
+	{
 		What = encoding::utf8::get_chars(Exception.what());
+		if (ObjectType.empty())
+			ObjectType = WSTRVIEW(std::exception);
+	}
 
 	try
 	{
@@ -1088,9 +1200,9 @@ static std::pair<string, string> extract_nested_exceptions(EXCEPTION_RECORD cons
 class seh_exception: public error_state_ex, public std::exception
 {
 public:
-	seh_exception(EXCEPTION_POINTERS& Pointers, os::handle&& ThreadHandle, DWORD const ThreadId):
+	explicit seh_exception(EXCEPTION_POINTERS& Pointers):
 		error_state_ex(fetch()),
-		m_Context(std::make_shared<seh_exception_context>(Pointers, std::move(ThreadHandle), ThreadId))
+		m_Context(std::make_shared<seh_exception_context>(Pointers))
 	{
 	}
 
@@ -1134,9 +1246,7 @@ static bool handle_std_exception(
 
 bool handle_std_exception(const std::exception& e, std::string_view const Function, const Plugin* const Module)
 {
-	exception_context const Context(exception_information(), os::OpenCurrentThread(), GetCurrentThreadId());
-
-	return handle_std_exception(Context, e, Function, Module);
+	return handle_std_exception(exception_context(exception_information()), e, Function, Module);
 }
 
 static bool handle_seh_exception(
@@ -1145,11 +1255,10 @@ static bool handle_seh_exception(
 	Plugin const* const PluginModule
 )
 {
-	enum_catchable_objects const CatchableTypesEnumerator(*Context.pointers().ExceptionRecord);
-	std::vector<char const*> const CatchableTypes(ALL_CONST_RANGE(CatchableTypesEnumerator));
-	if (std::find_if(ALL_CONST_RANGE(CatchableTypes), [](char const* Name) { return strstr(Name, "std::exception") != nullptr; }) != CatchableTypes.cend())
+	for (const auto& i : enum_catchable_objects(*Context.pointers().ExceptionRecord))
 	{
-		return handle_std_exception(Context, *reinterpret_cast<std::exception const*>(Context.pointers().ExceptionRecord->ExceptionInformation[1]), Function, PluginModule);
+		if (strstr(i, "std::exception"))
+			return handle_std_exception(Context, *reinterpret_cast<std::exception const*>(Context.pointers().ExceptionRecord->ExceptionInformation[1]), Function, PluginModule);
 	}
 
 	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {});
@@ -1157,8 +1266,7 @@ static bool handle_seh_exception(
 
 bool handle_unknown_exception(std::string_view const Function, const Plugin* const Module)
 {
-	const exception_context Context(exception_information(), os::OpenCurrentThread(), GetCurrentThreadId());
-	return handle_seh_exception(Context, Function, Module);
+	return handle_seh_exception(exception_context(exception_information()), Function, Module);
 }
 
 bool use_terminate_handler()
@@ -1166,14 +1274,80 @@ bool use_terminate_handler()
 	return UseTerminateHandler;
 }
 
+static void seh_terminate_handler_impl()
+{
+	if (!HandleCppExceptions)
+		std::abort();
+
+	static auto InsideTerminateHandler = false;
+	if (InsideTerminateHandler)
+		std::abort();
+
+	InsideTerminateHandler = true;
+
+	// If it's a SEH or a C++ exception implemented in terms of SEH (and not a fake for GCC) it's better to handle it as SEH
+	if (exception_context const Context(exception_information());
+		Context.pointers().ExceptionRecord &&
+		Context.pointers().ContextRecord &&
+		!is_fake_cpp_exception(*Context.pointers().ExceptionRecord)
+	)
+	{
+		if (handle_seh_exception(Context, __FUNCTION__, {}))
+			std::abort();
+	}
+
+	// It's a C++ exception, implemented in some other way (GCC)
+	if (const auto CurrentException = std::current_exception())
+	{
+		try
+		{
+			std::rethrow_exception(CurrentException);
+		}
+		catch(std::exception const& e)
+		{
+			if (handle_std_exception(e, __FUNCTION__, {}))
+				std::abort();
+		}
+		catch (...)
+		{
+			if (handle_unknown_exception(__FUNCTION__, {}))
+				std::abort();
+		}
+	}
+
+	// No exception in flight, must be a direct call
+	exception_context const Context
+	({
+		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(EXCEPTION_TERMINATE)),
+		static_cast<CONTEXT*>(*dummy_current_exception_context())
+	});
+
+	if (handle_generic_exception(Context, __FUNCTION__, {}, {}, {}, L"Abnormal termination"sv))
+		std::abort();
+
+	restore_system_exception_handler();
+}
+
+seh_terminate_handler::seh_terminate_handler():
+	m_PreviousHandler(std::set_terminate(seh_terminate_handler_impl))
+{
+}
+
+seh_terminate_handler::~seh_terminate_handler()
+{
+	std::set_terminate(m_PreviousHandler);
+}
+
 static LONG WINAPI unhandled_exception_filter_impl(EXCEPTION_POINTERS* const Pointers)
 {
 	if (!HandleSehExceptions)
+	{
+		restore_system_exception_handler();
 		return EXCEPTION_CONTINUE_SEARCH;
+	}
 
 	detail::set_fp_exceptions(false);
-	const exception_context Context(*Pointers, os::OpenCurrentThread(), GetCurrentThreadId());
-	if (handle_seh_exception(Context, __FUNCTION__, {}))
+	if (handle_seh_exception(exception_context(*Pointers), __FUNCTION__, {}))
 	{
 		std::_Exit(EXIT_FAILURE);
 	}
@@ -1268,7 +1442,7 @@ namespace detail
 	{
 		if (HandleSehExceptions)
 		{
-			const exception_context Context(*Info, os::OpenCurrentThread(), GetCurrentThreadId());
+			const exception_context Context(*Info);
 
 			if (static_cast<NTSTATUS>(Info->ExceptionRecord->ExceptionCode) == EXCEPTION_STACK_OVERFLOW)
 			{
@@ -1304,7 +1478,7 @@ namespace detail
 			return EXCEPTION_CONTINUE_SEARCH;
 		}
 
-		Ptr = std::make_exception_ptr(seh_exception(*Info, os::OpenCurrentThread(), GetCurrentThreadId()));
+		Ptr = std::make_exception_ptr(seh_exception(*Info));
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
 

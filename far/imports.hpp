@@ -142,6 +142,7 @@ public: const unique_function_pointer<name_##NAME, stub_##NAME> NAME{m_##MODULE}
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOLEAN, TryAcquireSRWLockShared, PSRWLOCK SRWLock);
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, GetSystemTimePreciseAsFileTime, LPFILETIME SystemTimeAsFileTime);
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, int, CompareStringOrdinal, LPCWCH String1, int Count1, LPCWCH String2, int Count2, BOOL IgnoreCase);
+	DECLARE_IMPORT_FUNCTION(kernel32, NTAPI,  WORD, RtlCaptureStackBackTrace, DWORD FramesToSkip, DWORD FramesToCapture, PVOID* BackTrace, PDWORD BackTraceHash);
 
 	DECLARE_IMPORT_FUNCTION(shell32, STDAPICALLTYPE, HRESULT, SHCreateAssociationRegistration, REFIID riid, void** ppv);
 
