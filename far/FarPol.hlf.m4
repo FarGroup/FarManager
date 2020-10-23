@@ -733,6 +733,7 @@ $ #Błąd: Nie mogę wykonać#
  Program próbuje wykonać wewnętrzne lub zewnetrzne polecenie,
 uruchomienie programu lub plik wsadowy.
 
+
 @Grabber
 $ #Zrzut ekranu#
  Zrzut ekranu                                               #Alt+Ins#
@@ -1258,7 +1259,7 @@ $ #Panele: szybki podgląd#
  Panel szybkiego podglądu jest używany do pokazania informacji o wybranej
 pozycji z ~panelu plików~@FilePanel@ lub ~panelu drzewa~@TreePanel@.
 
- Jeżeli wybrana pozyca jest plikiem - pokazana będzie jego zawartość.
+  Jeżeli wybrana pozycja jest plikiem - pokazana będzie jego zawartość.
 Do sterowania podglądem można użyć wielu poleceń z ~wewnętrznego podglądu~@Viewer@.
 Dla plików, które są zarejestrowane w Windows, widoczny jest także rodzaj pliku.
 
@@ -1282,133 +1283,135 @@ Bieżący tryb - far:config #Panel.ShowBytes# (domyślnie=fałsz).
 
 
 @DragAndDrop
-$ #Copying: drag and drop files#
- It is possible to perform #Copy# and #Move# file operations using #drag and
-drop#. Press left mouse button on the source file or folder, drag it to the
-another panel and release the mouse button.
+$ #Kopiowanie: przeciąganie plików#
+ Istnieje możliwość przeprowadzenia #Kopiowania# i #Przenoszenia# plików
+używając #przeciągania (drag and drop)#. Wystarczy nacisnąć lewy przycisk
+myszy na pliku źródłowym, przeciągnąć go do drugiego panelu i zwolnić przycisk.
 
- If you wish to process a group of files or folders, select them before
-dragging, click the left mouse button on the source panel and drag the files
-group to the other panel.
+ Jeżeli operacja ma być dokonana na grupie plików lub folderów, należy je
+zaznaczyć przed przeciągnięciem, kliknąć lewym przyciskiem myszy w panelu
+źródłowym i przeciągnąć do drugiego panelu.
 
- You can switch between copy and move operations by pressing the right mouse
-button while dragging. Also to move files you can hold the #Shift# key while
-pressing the left mouse button.
+ Można zamienić operacje kopiowania i przenoszenia wciskają prawy klawisz
+myszy podczas przeciągania. Można także nacisnąć i przytrzymać klawisz
+#Shift# przy wciśniętym lewym klawiszy myszy.
 
 
 @Menus
-$ #Menus #
- To choose an action from the menu you can press F9 or click on top of the
-screen.
+$ #Menu#
+ Aby wybrać operację z menu, należy wcisnąć F9 lub kliknąć na górną belkę
+okna programu.
 
- When the menu is activated by pressing #F9#, the menu for the active panel
-is selected automatically. When the menu is active, pressing #Tab# switches
-between the menus for the left and right panel. If the menus "Files",
-"Commands" or "Options" are active, pressing #Tab# switches to the menu of the
-passive panel.
+ Jeżeli menu jest aktywowanie przez naciśnięcie#F9#, automatycznie wybierane
+jest menu dla aktywnego panelu. Jeżeli menu jest aktywne, wciśnięcie #Tab#
+przełącza pomiędzy menu dla lewego i prawego panelu. Jeżeli menu "Pliki",
+"Polecenia" lub "Opcje" są aktywne, wciśnięcie #Tab# powoduje przejście
+do menu pasywnego panelu.
 
- Use the #Shift+F10# key combination to select the last used menu command.
+ Użycie klawiszy #Shift+F10# przywołuje ostatnio wybraną pozycję z menu.
 
- Read the following topics for information about a particular menu:
+ Więcej informacji o dostępnych funkcjach menu:
 
- ~Left and right menus~@LeftRightMenu@
- ~Files menu~@FilesMenu@
- ~Commands menu~@CmdMenu@
- ~Options menu~@OptMenu@
+ ~Lewe i prawe menu~@LeftRightMenu@
+ ~Menu Pliki~@FilesMenu@
+ ~Menu Polecenia~@CmdMenu@
+ ~Menu Opcje~@OptMenu@
 
- See also the list of ~macro keys~@KeyMacroMainMenuList@, available in the main menu.
+ Zobacz także listę ~klawiszy makro~@KeyMacroMainMenuList@, dostępną w głównym menu.
 
 
 @LeftRightMenu
-$ #Menus: left and right menus#
- The #Left# and #Right# menus allow to change left and right panel settings
-respectively. These menus include the following items:
+$ #Menu: lewe i prawe menu#
+ #Lewe# i #Prawe# menu pozwalają na zmianę odpowiednio lewego i prawego panelu.
+Menu zawiera następujące pozycje:
 
- #Brief#                Display files within three columns.
+ #Skrótowy#             Wyświetla nazwy plików w trzech kolumnach.
 
- #Medium#               Display files within two columns.
+ #Średni#               Wyświetla nazwy plików w dwóch kolumnach.
 
- #Full#                 Display file name, size, date and time.
+ #Pełny#                Wyświetla nazwy plików, wielkość, datę i czas.
 
- #Wide#                 Display file name and size.
+ #Szeroki#              Wyświetla nazwy i wielkość plików.
 
- #Detailed#             ^<wrap>Display file name, size, allocation size,
-last write, creation and access time, attributes. Fullscreen mode.
+ #Ze szczegółami#       ^<wrap>Wyświetla nazwy plików, wielkość, ilość zajętego miejsca,
+datę ostatniego zapisu, daty utworzenia i ostatniego użycia, atrybuty. Tryb pełnoekranowy.
 
- #Descriptions#         File name and ~file description~@FileDiz@.
+ #Opisy#                Nazwa pliku i ~opis pliku~@FileDiz@.
 
- #Long descriptions#    ^<wrap>File name, size and description. Fullscreen mode.
+ #Długie opisy#         ^<wrap>Nazwa pliku, wielkość i opis. Tryb pełnoekranowy.
 
- #File owners#          File name, size and owner.
+ #Właściciele#          Nazwa pliku, wielkość i właściciel.
 
- #File links#           ^<wrap>File name, size and number of hard links.
+ #Dowiązania#           ^<wrap>Nazwa pliku, wielkość i liczba twardych linków.
 
- #Alternative full#     ^<wrap>File name, formatted size and date.
+ #Alternatywny#         ^<wrap>Nazwa pliku, sformatowana wielkość i nazwa pliku.
 
- #Info panel#           Change panel type to ~info panel~@InfoPanel@.
+ #Panel informacyjny#   Zmienia typ panelu na ~panel informacyjny~@InfoPanel@.
 
- #Tree panel#           Change panel type to ~tree panel~@TreePanel@.
+ #Drzewko plików#       Zmienia typ panelu na ~drzewko plików~@TreePanel@.
 
- #Quick view#           Change panel type to ~quick view~@QViewPanel@.
+ #Szybki podgląd#       Zmienia typ panelu na ~szybki podgląd~@QViewPanel@.
 
- #Sort modes#           Show available sort modes.
+ #Tryby sortowania#     Pokazuje dostępne tryby sortowania.
 
- #Show long names#      Show long/short file names.
+ #Pokaż długie nazwy#   Pokazuje długie/krótkie nazwy plików.
 
- #Panel On/Off#         Show/hide panel.
+ #Włącz/Wyłącz panel#   Pokazuje/ukrywa panel.
 
- #Re-read#              Re-read panel.
+ #Odśwież#              Ponownie odczytuje panel.
 
- #Change drive#         Change current drive.
+ #Zmień napęd#          Zmienia bieżący dysk.
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @FilesMenu
-$ #Menus: files menu#
- #View#               ~View files~@Viewer@, count folder sizes.
+$ #Menu: Menu pliki#
+ #Podgląd#            ~Podgląd plików~@Viewer@, zliczanie wielkości folderów.
 
- #Edit#               ~Edit~@Editor@ files.
+ #Edytuj#             ~Edytuje~@Editor@ pliki.
 
- #Copy#               ~Copy~@CopyFiles@ files and folders.
+ #Kopiuj#             ~Kopiuje~@CopyFiles@ pliki lub foldery.
 
- #Rename or move#     ~Rename or move~@CopyFiles@ files and folders.
+ #Zmień nazwę lub#    ~Zmienia nazwę lub przenosi~@CopyFiles@ pliki ifoldery.
+ #przenieś#
 
- #Link#               Create ~file links~@HardSymLink@.
+ #Link#               Tworzy ~link do pliku~@HardSymLink@.
 
- #Make folder#        ~Create~@MakeFolder@ new folder.
+ #Utwórz folder#      ~Tworzy~@MakeFolder@ nowy folder.
 
- #Delete#             Delete files and folders.
+ #Usuń#               Usuwa pliki i foldery.
 
- #Wipe#               ^<wrap>Wipe files and folders. Before file deletion
-its data are overwritten with zeros, after which the file is truncated and renamed to
-a temporary name.
+ #Wymaż#              ^<wrap>Wymazuje pliki i foldery. Przed usunięciem pliku, jego
+dane zostają nadpisane wartością zero, po czym wielkość pliku jest obcinana i zmieniana
+na nazwę tymczasową
 
- #Add to archive#     Add selected files to an archive.
+ #Dodaj do archiwum#  Dodaje zaznaczone pliki do archiwum.
 
- #Extract files#      Extract selected files from an archive.
+ #Rozpakuj archiwum#  Rozpakowuje zaznaczone pliki z archiwum.
 
- #Archive commands#   Perform archive managing commands.
+ #Polecenie#          Wykonuje polecenia programu do archwizacji.
+ #archiwizera#
 
- #File attributes#    ~Change file attributes~@FileAttrDlg@ and time.
+ #Atrybuty pliku#     ~Zmienia atrybuty pliku~@FileAttrDlg@ oraz datę i czas.
 
- #Apply command#      ~Apply command~@ApplyCmd@ to selected files.
+ #Zastosuj polecenie# ~Wykonuje polecenia~@ApplyCmd@ do zaznaczonych plików.
 
- #Describe files#     Add ~descriptions~@FileDiz@ to the selected files.
+ #Opisz pliki#        Dodaje ~opis~@FileDiz@ do zaznaczonych plików.
 
- #Select group#       ~Select~@SelectFiles@ a group of files with a wildcard.
+ #Zaznacz grupę#      ~Zaznacza~@SelectFiles@ grupę plików za pomocą masek.
 
- #Deselect group#     ~Deselect~@SelectFiles@ a group of files with a wildcard.
+ #Odznacz grupę#      ~Odznacza~@SelectFiles@ grupę plików za pomocą masek.
 
- #Invert selection#   ~Invert~@SelectFiles@ current file selection.
+ #Odwróć zaznaczenie# ~Odwraca~@SelectFiles@ bieżące zaznaczenie plików.
 
- #Restore selection#  ^<wrap>~Restore~@SelectFiles@ previous file selection after file
-processing or group select operation.
+ #Przywróć#           ^<wrap>~Przywraca~@SelectFiles@ poprzednie zaznaczenie plików
+ #zaznaczenie#        po przetworzeniu lub operacji zaznaczania.
 
- Some commands from this menu are also described in the
-~File management and service commands~@FuncCmd@ topic.
+ Niektóre polecenia z tego menu są także opisanw w temacie
+~Zarządzanie plikami i polecenia serwisowe~@FuncCmd@.
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @CmdMenu
