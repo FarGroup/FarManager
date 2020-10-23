@@ -21107,7 +21107,7 @@ MExcKernelVersion
 upd:"Kernel:"
 upd:"Kernel:"
 upd:"Kernel:"
-upd:"Kernel:"
+"Jądro:"
 upd:"Kernel:"
 upd:"Kernel:"
 upd:"Kernel:"
