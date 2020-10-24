@@ -34,6 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef ENABLE_TESTS
 
+// BUGBUG
+#include "platform.headers.hpp"
+
 // Internal:
 #include "testing.hpp"
 
