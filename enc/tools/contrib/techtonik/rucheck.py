@@ -26,10 +26,18 @@ import sys
 
 #sys.stdout.write("ыва".decode("windows-1251"))
 
-if len(sys.argv) < 2:
+
+args = [arg for arg in sys.argv[1:] if not arg.startswith('-')]
+if not args:
   print(__doc__)
-  print("Usage: program <dir>")
+  print("""\
+usage: program [opts] <dir>
+
+opts:
+  --lines  - show lines with matched text
+""")
   sys.exit()
+
 
 # set encoding for console output
 #print sys.stdout.encoding
@@ -57,7 +65,7 @@ utf8rest = re.compile(r"(\xC2[\xAB\xBB]|"  # angle quotes
                       r"\xC2\xA6)+")       # unicode |
 
 skip_mark = "<!-- NLC -->"
-for root,dirs,files in os.walk(sys.argv[1]):
+for root,dirs,files in os.walk(args[0]):
 
   # exclude dirs by modifying dirs in place
   dirs[:] = [d for d in dirs if not d in dirs_exclude]
@@ -79,11 +87,11 @@ for root,dirs,files in os.walk(sys.argv[1]):
       noutf = utf8rest.sub('', noutf)  # remove other clashing utf-8 symbols
       rutext = "".join(cp1251.findall(noutf))
       rucount += len(rutext)
-      if rutext:
-          sys.stdout.write("line %3d: " % (i+1))
-          print(noutf.encode('hex'))
+      if rutext and ('--lines' in sys.argv):
+          sys.stdout.write("  line {}: ".format(i+1))
           sys.stdout.write(rutext.decode("windows-1251").encode('utf-8'))
           #print(rutext.decode("cp1251"))
+          #print("\n    ", noutf.encode('hex')
           sys.stdout.write("\n")
 
     if rucount:
