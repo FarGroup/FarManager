@@ -3,10 +3,17 @@
 
 """Find files with letters in russian windows-1251 encoding.
 
-If English encyclopedia files contain Russian letters they are considered
-untranslated unless <!-- NLC --> marker is present at the same line in
-HTML code.
+windows-1251 is a single byte encoding with a range 0xC0-0xFF
+and 0xA8,0xB8 for symbols И and Ј respectfully. Unfortunately,
+russian symbols in windows-1251 clash with russian symbols in
+utf-8, where they take two bytes in the ranges:
 
+ - 0xD081         Ј
+ - 0xD090-0xD0BF  Р-я
+ - 0xD180-0xD18F  я-џ
+ - 0xD191         И
+
+This code ignores lines with <!-- NLC --> marker.
 """
 # pythonized by techtonik // gmail.com
 
@@ -19,10 +26,18 @@ import sys
 
 #sys.stdout.write("ћтр".decode("windows-1251"))
 
-if len(sys.argv) < 2:
-  print __doc__
-  print "Usage: program <dir>"
+
+args = [arg for arg in sys.argv[1:] if not arg.startswith('-')]
+if not args:
+  print(__doc__)
+  print("""\
+usage: program [opts] <dir>
+
+opts:
+  --lines  - show lines with matched text
+""")
   sys.exit()
+
 
 # set encoding for console output
 #print sys.stdout.encoding
@@ -43,11 +58,14 @@ files_exclude = ['*.gif', '*.png', '*.jpg', '*.exe', '*.ico', '*.msi', '*.rar']
 
 # https://en.wikipedia.org/wiki/Windows-1251
 cp1251 = re.compile(r"[\xA8\xB8\xC0-\xFF]+")
-# by coincidence cp1251 codes match with lower
-# byte of utf-8
+# https://en.wikipedia.org/wiki/UTF-8#Encoding
+utf8ru = re.compile(r"(\xD0[\x81\x90-\xBF]|\xD1[\x91\x80-\x8F])+")
+utf8rest = re.compile(r"(\xC2[\xAB\xBB]|"  # angle quotes
+                      r"\xE2\x80\x94|"     # long dash
+                      r"\xC2\xA6)+")       # unicode |
 
 skip_mark = "<!-- NLC -->"
-for root,dirs,files in os.walk(sys.argv[1]):
+for root,dirs,files in os.walk(args[0]):
 
   # exclude dirs by modifying dirs in place
   dirs[:] = [d for d in dirs if not d in dirs_exclude]
@@ -62,13 +80,21 @@ for root,dirs,files in os.walk(sys.argv[1]):
       continue
 
     rucount = 0
-    for l in open(os.path.join(root, f), "r"):
+    for i,l in enumerate(open(os.path.join(root, f), "r")):
       if l.find(skip_mark) != -1:
         continue
-      rutext = "".join(cp1251.findall(l))
+      noutf = utf8ru.sub('', l)  # remove russian utf-8 to avoid false positives
+      noutf = utf8rest.sub('', noutf)  # remove other clashing utf-8 symbols
+      rutext = "".join(cp1251.findall(noutf))
       rucount += len(rutext)
-      #if rutext: print rutext #.decode("cp1251")
+      if rutext and ('--lines' in sys.argv):
+          sys.stdout.write("  line {}: ".format(i+1))
+          sys.stdout.write(rutext.decode("windows-1251").encode('utf-8'))
+          #print(rutext.decode("cp1251"))
+          #print("\n    ", noutf.encode('hex')
+          sys.stdout.write("\n")
+
     if rucount:
-      print "%s - %d russian (cp1251) symbols" % (os.path.join(root, f), rucount)
+      print("%s - %d russian (cp1251) symbols" % (os.path.join(root, f), rucount))
 
   #print root,dirs,files
