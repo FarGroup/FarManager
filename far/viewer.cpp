@@ -860,7 +860,7 @@ void Viewer::ShowHex()
 	{
 		m_PrevXX2 = XX2;
 		// TODO: Add an option
-		if constexpr (false)
+		if constexpr ((false))
 		{
 			m_BytesPerLine = std::min(static_cast<size_t>(CalculateMaxBytesPerLineByScreenWidth()), m_BytesPerLine);
 		}

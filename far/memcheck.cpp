@@ -371,6 +371,8 @@ static auto default_alignment()
 }
 
 // ReSharper disable CppParameterNamesMismatch
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wmissing-prototypes")
 
 void* operator new(size_t const Size)
 {
@@ -494,6 +496,7 @@ void operator delete[](void* const Block, std::align_val_t const Alignment, std:
 }
 
 // ReSharper restore CppParameterNamesMismatch
+WARNING_POP()
 
 NIFTY_DEFINE(memcheck::checker, Checker);
 

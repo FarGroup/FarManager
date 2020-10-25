@@ -5072,6 +5072,8 @@ private:
 		AnsiExecuteStruct<iSetStartupInfo> es;
 		if (has(es) && !Global->ProcessException)
 		{
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wused-but-marked-unused")
 			static const oldfar::FarStandardFunctions StandardFunctions =
 			{
 				sizeof(StandardFunctions),
@@ -5125,6 +5127,7 @@ private:
 				oldpluginapi::ConvertNameToRealA,
 				oldpluginapi::FarGetReparsePointInfoA,
 			};
+WARNING_POP()
 
 			// NOT constexpr, see VS bug #3103404
 			static const oldfar::PluginStartupInfo StartupInfo =

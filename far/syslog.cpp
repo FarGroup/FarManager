@@ -63,6 +63,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wused-but-marked-unused")
+
 #if !defined(SYSLOG)
 #if defined(SYSLOG_OT)             || \
      defined(SYSLOG_SVS)            || \
@@ -2051,3 +2054,5 @@ void PrintSysLogStat()
 	FarOutputDebugString(oss);
 #endif
 }
+
+WARNING_POP()

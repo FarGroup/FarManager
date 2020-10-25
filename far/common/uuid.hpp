@@ -123,7 +123,7 @@ namespace uuid
 		[[nodiscard]]
 		constexpr char int_to_hex(unsigned Value)
 		{
-			const auto i = (Value & 0xF << 4 * Digit) >> 4 * Digit;
+			const auto i = (Value & (0xFu << 4 * Digit)) >> 4 * Digit;
 			return i < 10? i + '0' : i - 10 + 'A';
 		}
 

@@ -770,13 +770,13 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	{
 		return MainProcess(strEditName, strViewName, DestNames[0], DestNames[1], StartLine, StartChar);
 	},
-	[&]
+	[&]() -> int
 	{
-		return handle_exception([&]{ return handle_unknown_exception(CurrentFunctionName); });
+		handle_exception([&]{ return handle_unknown_exception(CurrentFunctionName); });
 	},
-	[&](std::exception const& e)
+	[&](std::exception const& e) -> int
 	{
-		return handle_exception([&]{ return handle_std_exception(e, CurrentFunctionName); });
+		handle_exception([&]{ return handle_std_exception(e, CurrentFunctionName); });
 	});
 }
 
@@ -837,13 +837,13 @@ static int wmain_seh()
 			return EXIT_FAILURE;
 		}
 	},
-	[&]
+	[&]() -> int
 	{
-		return handle_exception_final([&]{ return handle_unknown_exception(CurrentFunctionName); });
+		handle_exception_final([&]{ return handle_unknown_exception(CurrentFunctionName); });
 	},
-	[&](std::exception const& e)
+	[&](std::exception const& e) -> int
 	{
-		return handle_exception_final([&]{ return handle_std_exception(e, CurrentFunctionName); });
+		handle_exception_final([&]{ return handle_std_exception(e, CurrentFunctionName); });
 	});
 }
 

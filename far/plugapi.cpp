@@ -188,7 +188,11 @@ int WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...) noexcept
 	va_list argptr;
 	va_start(argptr, Format);
 	SCOPE_EXIT noexcept { va_end(argptr); };
+
+WARNING_PUSH()
+WARNING_DISABLE_CLANG("-Wused-but-marked-unused")
 	return vswscanf(Src, Format, argptr);
+WARNING_POP()
 }
 
 wchar_t *WINAPI apiItoa(int value, wchar_t *Str, int radix) noexcept

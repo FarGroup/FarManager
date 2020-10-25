@@ -147,6 +147,7 @@ namespace tests
 		rethrow_if(Ptr);
 	}
 
+	[[noreturn]]
 	static void cpp_terminate()
 	{
 		std::terminate();

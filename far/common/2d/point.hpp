@@ -33,6 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "../preprocessor.hpp"
 #include "../rel_ops.hpp"
 
 //----------------------------------------------------------------------------
@@ -50,7 +51,7 @@ struct point: public rel_ops<point>
 	{
 	}
 
-	template<typename T>
+	template<typename T, REQUIRES(sizeof(T::X) && sizeof(T::Y))>
 	point(T const& Coord) noexcept:
 		point(Coord.X, Coord.Y)
 	{

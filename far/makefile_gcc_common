@@ -142,7 +142,7 @@ CLANG_TARGET = i686-pc-windows-gnu
 else
 CLANG_TARGET = x86_64-pc-windows-gnu
 endif
-CLANG_FLAGS=-target $(CLANG_TARGET) -fms-extensions -Wno-unknown-warning-option
+CLANG_FLAGS=-target $(CLANG_TARGET) -fms-extensions -Weverything -Wno-unknown-warning-option
 CFLAGS += $(CLANG_FLAGS)
 CFLAGS += -D __FLOAT_H # 8.1 incompatibility
 LNKFLAGS += $(CLANG_FLAGS) -fuse-ld=lld -lpthread

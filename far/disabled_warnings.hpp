@@ -94,6 +94,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 5052) // Keyword 'char8_t' was introduced in C++20 and requires use of the '/std:c++latest' command-line option
 #endif
 
+#endif
+
 #ifdef __clang__
 // https://clang.llvm.org/docs/DiagnosticsReference.html
 
@@ -117,6 +119,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma clang diagnostic ignored "-Wmissing-field-initializers"
 #pragma clang diagnostic ignored "-Wnested-anon-types"
 #pragma clang diagnostic ignored "-Wnonportable-system-include-path"
+#pragma clang diagnostic ignored "-Wpadded"
 #pragma clang diagnostic ignored "-Wreturn-std-move-in-c++11"
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
 #pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
@@ -127,6 +130,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma clang diagnostic ignored "-Wunknown-pragmas"
 #pragma clang diagnostic ignored "-Wunused-member-function"
 #pragma clang diagnostic ignored "-Wunused-parameter"
-#endif
-
+#pragma clang diagnostic ignored "-Wweak-vtables"
 #endif

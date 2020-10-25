@@ -336,6 +336,7 @@ CPPFLAGS =\
 	$(CPPFLAGS)\
 	-Qunused-arguments\
 	/clang:-fvisibility=hidden\
+	-Weverything\
 	-Werror=array-bounds\
 	-Werror=dangling\
 	-Werror=odr\
