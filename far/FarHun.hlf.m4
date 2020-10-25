@@ -21,7 +21,6 @@
 @Interface.CursorSize2=Interface.CursorSize
 @Interface.CursorSize3=Interface.CursorSize
 @Interface.CursorSize4=Interface.CursorSize
-@Interface.DelShowSelected=Interface.DelHighlightSelected
 @Interface.EditorTitleFormat=TitleFormat
 @Interface.ViewerTitleFormat=TitleFormat
 @InterfaceSettings=InterfSettings
@@ -39,9 +38,9 @@
 @System.MsWheelDeltaHelp=System.MsWheelDelta
 @System.MsWheelDeltaView=System.MsWheelDelta
 @Viewer.F8CPs=Editor.F8CPs
-@XLat.Rules1=XLat.Tables
-@XLat.Rules2=XLat.Tables
-@XLat.Rules3=XLat.Tables
+@XLat.Rules1=XLat.Rules
+@XLat.Rules2=XLat.Rules
+@XLat.Rules3=XLat.Rules
 @XLat.Table1=XLat.Tables
 @XLat.Table2=XLat.Tables
 
@@ -196,7 +195,8 @@ nyitja meg. A -e után megadható, hogy melyik sor hányadik karakterhelyére
 álljon a kurzor.
  Például: far -e70:2 readme.
 
- #-p[<path>]#  A "fő" plugineket a <path>-ben megadott elérési út
+ #-p[<path>]#
+ A "fő" plugineket a <path>-ben megadott elérési út
 mappáiban keresi. Több keresési útvonal is megadható, ";"-vel elválasztva.
 
  Példa: #far -p%USERPROFILE%\\Far\\Plugins#
@@ -226,8 +226,7 @@ mappákból töltődnek be.
  A Far induláskor nem tölti be a registryből a makróit.
 
  #-ma#
- A "Futtatás a Far indítása után" opciójú makrók nem
-indulnak el a Far-ral.
+ A "Futtatás a Far indítása után" opciójú makrók nem indulnak el a Far-ral.
 
  #-s <profilepath> [<localprofilepath>]#
  Custom location for Far configuration files (overrides the ini file).
@@ -1017,7 +1016,7 @@ bővítési lehetőséget biztosítanak a Far-nak.
  * Windows gyorsbillentyűk létrehozása, módosítása.
  * A FidoNetes fájlok és szövegek kényelmesebb kezelése.
  * Fájlok UU kódolása és dekódolása.
- * A WinAmp vezérlése, MP3 tag-ek szerkesztése.
+ * A Winamp vezérlése, MP3 tag-ek szerkesztése.
  * A Quake (nevű játékprogram) PAK fájljainak kezelése.
  * Nyomtatóvezérlés, helyi és hálózati egyaránt.
  * ODBC kompatibilis adatbázisok lekérdezéseihez kapcsolódás, hibakeresés.
@@ -1522,30 +1521,30 @@ részletezi a lehetőségeit.
 
 @OptMenu
 $ #Menük: Beállítások menü#
- #Rendszer#             Megjeleníti a ~rendszer beállítások~@SystemSettings@
- #beállítások#          párbeszédablakot.
+ #Rendszer#              Megjeleníti a ~rendszer beállítások~@SystemSettings@
+ #beállítások#           párbeszédablakot.
 
- #Panel beállítások#    A ~panel beállítások~@PanelSettings@ párbeszédablak.
+ #Panel beállítások#     A ~panel beállítások~@PanelSettings@ párbeszédablak.
 
- #Fastruktúra#          A ~fastruktúra beállítások~@TreeSettings@
- #beállítások#          párbeszédablakot jeleníti meg.
+ #Fastruktúra#           A ~fastruktúra beállítások~@TreeSettings@
+ #beállítások#           párbeszédablakot jeleníti meg.
 
- #Kezelőfelület#        A ~kezelőfelület beállítások~@InterfSettings@
- #beállítások#          párbeszédablakot jeleníti meg.
+ #Kezelőfelület#         A ~kezelőfelület beállítások~@InterfSettings@
+ #beállítások#           párbeszédablakot jeleníti meg.
 
- #Nyelvek#              A program és a súgó nyelve választható ki.
-                      ^<wrap>Használjuk a "Beállítások mentése" funkciót!
+ #Nyelvek#               A program és a súgó nyelve választható ki.
+                       ^<wrap>Használjuk a "Beállítások mentése" funkciót!
 
- #Plugin#               A ~pluginek~@Plugins@ működése állítható be, a pluginek
- #beállítások#          beállítási párbeszédablakaiban.
+ #Plugin#                A ~pluginek~@Plugins@ működése állítható be, a pluginek
+ #beállítások#           beállítási párbeszédablakaiban.
 
- #Plugin manager#       Shows ~Plugin manager settings~@PluginsManagerSettings@ dialog.
+ #Plugin manager#        Shows ~Plugin manager settings~@PluginsManagerSettings@ dialog.
  #settings#
 
- #Párbeszédablak#       A ~párbeszédablak beállítások~@DialogSettings@
- #beállítások#          párbeszédablakot jeleníti meg.
+ #Párbeszédablak#        A ~párbeszédablak beállítások~@DialogSettings@
+ #beállítások#           párbeszédablakot jeleníti meg.
 
- #Menu settings#        Shows ~Menu settings~@VMenuSettings@ dialog.
+ #Menu settings#         Shows ~Menu settings~@VMenuSettings@ dialog.
 
  #Command line settings# Shows ~Command line settings~@CmdlineSettings@ dialog.
 
@@ -1555,36 +1554,36 @@ $ #Menük: Beállítások menü#
 
  #Groups of file masks#  Shows ~Groups of file masks~@MaskGroupsSettings@ dialog.
 
- #Megerősítések#        ^<wrap>Egyes műveletek végrehajtására
+ #Megerősítések#         ^<wrap>Egyes műveletek végrehajtására
 ~megerősítés~@ConfirmDlg@ (rákérdezés) kapcsolható ki vagy be.
 
- #Fájlpanel módok#      ^<wrap>A ~fájlpanel nézet módok testreszabása~@PanelViewModes@ végezhető el a
+ #Fájlpanel módok#       ^<wrap>A ~fájlpanel nézet módok testreszabása~@PanelViewModes@ végezhető el a
 funkcióval.
 
- #Fájl megjegyzés-#     Megadható, hogy a ~fájlok megjegyzéseit~@FileDiz@
- #fájlok#               mely fájlokból olvassa ki a Far. Beállíthatók
-                      a megjelenítés és frissítés jellemzői is.
+ #Fájl megjegyzés-#      Megadható, hogy a ~fájlok megjegyzéseit~@FileDiz@
+ #fájlok#                mely fájlokból olvassa ki a Far. Beállíthatók
+                       a megjelenítés és frissítés jellemzői is.
 
- #Mappa megjegyzés-#    Megadható, hogy az ~info panel~@InfoPanel@ mely
- #fájlok#               fájlokat jelenítse meg mappa megjegyzésként
-                      (~joker~@FileMasks@ karakter is megengedett).
+ #Mappa megjegyzés-#     Megadható, hogy az ~info panel~@InfoPanel@ mely
+ #fájlok#                fájlokat jelenítse meg mappa megjegyzésként
+                       (~joker~@FileMasks@ karakter is megengedett).
 
- #Nézőke beállítások#   A külső és belső ~nézőke beállításai~@ViewerSettings@.
+ #Nézőke beállítások#    A külső és belső ~nézőke beállításai~@ViewerSettings@.
 
- #Szerkesztő#           A külső és belső ~szerkesztő beállításai~@EditorSettings@.
+ #Szerkesztő#            A külső és belső ~szerkesztő beállításai~@EditorSettings@.
  #beállítások#
 
- #Code pages#           Shows the ~Code pages~@CodePagesMenu@ menu.
+ #Code pages#            Shows the ~Code pages~@CodePagesMenu@ menu.
 
- #Színek#               ^<wrap>Kiválasztható minden egyes képernyőelem
+ #Színek#                ^<wrap>Kiválasztható minden egyes képernyőelem
 színe, a Far teljes palettája fekete-fehérre cserélhető vagy visszaállítható
 az eredeti színkombináció.
 
- #Fájlkiemelések,#      A ~fájlkiemelések, rendezési csoportok~@Highlight@
- #rendezési csoportok#  beállításai.
+ #Fájlkiemelések,#       A ~fájlkiemelések, rendezési csoportok~@Highlight@
+ #rendezési csoportok#   beállításai.
 
- #Beállítások#          Elmenti a jelenlegi beállításokat, színeket
- #mentése#              és a képernyő elrendezését.
+ #Beállítások#           Elmenti a jelenlegi beállításokat, színeket
+ #mentése#               és a képernyő elrendezését.
 
  See also: common ~menu~@MenuCmd@ keyboard commands.
 
@@ -1603,6 +1602,7 @@ kapcsolhatjuk ki vagy be:
  - ~hálózati meghajtók leválasztása~@DisconnectDrive@ a Meghajtók
 menüből;
  - virtuális (SUBST) meghajtók törlése a Meghajtók menüből;
+ - detach virtual disks from the Disks menu;
  - USB tárolóeszközök eltávolítása a Meghajtók menüből;
  - fájlok ~újratöltése~@EditorReload@ a szerkesztőbe;
  - a nézőke/szerkesztő, mappa és parancs előzménylisták törlése;
@@ -2079,6 +2079,7 @@ párbeszédablakban.
  1. ^<wrap>A lista frissítése (Ctrl+R) hosszú időt vehet igénybe, ha
 jelenleg nem elérhető távoli helyeket kell vizsgálnia.
  2. ^<wrap>A zárolt előzményelemek nem törlődnek az előzménylista módosulása vagy törlése esetén sem.
+
  See also: common ~menu~@MenuCmd@ keyboard commands.
 
 
@@ -2296,7 +2297,6 @@ végrehajtható parancsot lehet hozzárendelni:
 ~Rendszer beállítások~@SystemSettings@ menüben a #Windows regisztrált#
 #fájltípusainak használata# opció be van kapcsolva, a Far megpróbálja a
 Windowsban definiált társításokat alkalmazni.
-
  2. ^<wrap>Az operációs rendszer "IF EXIST" és "IF DEFINED"
 ~parancsaival~@OSCommands@ a társításoknak kifinomultabb feltételrendszert
 szabhatunk. Ha azonos fájltípushoz több különböző társítást adtunk meg, az
@@ -2403,7 +2403,7 @@ használjuk a #!.\# metaszimbólumot.
     ^<wrap>Például, ha egy RAR-ral tömörített fájlt
 szeretnénk a fájllal azonos nevű mappába kibontani, a parancs:
 
-    winrar x "!.!" "!.\"
+    #winrar x "!.!" "!"\#
 
 
 @SystemSettings
@@ -2817,21 +2817,21 @@ $ #Nézőke: vezérlőbillentyűk#
 
  The following keys work in all modes:
 
- #Fel#                ^<wrap>Egy sorral fel
- #Le#                 Egy sorral le
- #PgUp#               Egy oldallal fel
- #PgDn#               Egy oldallal le
- #Home, Ctrl+Home#    A fájl elejére ugrik
- #End, Ctrl+End#      A fájl végére ugrik
+ #Fel#                 ^<wrap>Egy sorral fel
+ #Le#                  Egy sorral le
+ #PgUp#                Egy oldallal fel
+ #PgDn#                Egy oldallal le
+ #Home, Ctrl+Home#     A fájl elejére ugrik
+ #End, Ctrl+End#       A fájl végére ugrik
 
  The following additional keys work in #text mode without line wrap#:
 
- #Bal#                ^<wrap>Egy karakterrel balra
- #Jobb#               Egy karakterrel jobbra
- #Ctrl+Bal#           20 karakterrel balra, hexa módban 1 hellyel balra
- #Ctrl+Jobb#          20 karakterrel jobbra, hexa módban 1 hellyel jobbra
- #Ctrl+Shift+Bal#     A sorok kezdő pozíciójára ugrik (ha a sortörés nincs bekapcsolva és a sorok túlnyúlnak a kép méretén)
- #Ctrl+Shift+Jobb#    A sorok végső pozíciójára ugrik (ha a sortörés nincs bekapcsolva és a sorok túlnyúlnak a kép méretén)
+ #Bal#               ^<wrap>Egy karakterrel balra
+ #Jobb#              Egy karakterrel jobbra
+ #Ctrl+Bal#          20 karakterrel balra, hexa módban 1 hellyel balra
+ #Ctrl+Jobb#         20 karakterrel jobbra, hexa módban 1 hellyel jobbra
+ #Ctrl+Shift+Bal#    A sorok kezdő pozíciójára ugrik (ha a sortörés nincs bekapcsolva és a sorok túlnyúlnak a kép méretén)
+ #Ctrl+Shift+Jobb#   A sorok végső pozíciójára ugrik (ha a sortörés nincs bekapcsolva és a sorok túlnyúlnak a kép méretén)
 
  In the #hex# and #dump# ~view modes~@ViewerMode@, #Ctrl+Left# and
 #Ctrl+Right# keys shift the content within the window one byte at a time
@@ -3247,7 +3247,7 @@ $ #Editor: search/replace#
 
  #Regular expressions#
  Treat input as Perl regular expression (~search~@RegExp@ and ~replace~@RegExpRepl@).
-Each line is processed individually, so multi-line expressions and line-break characters will not be found.
+Each line is processed individually, so multi-line expressions and line break characters will not be found.
 
  ~Preserve style~@PreserveStyle@
  Preserve style (case and delimiters in program source code) of the replaced text.
@@ -3983,7 +3983,7 @@ elhelyezett könyvjelzőinket.
 a belső szerkesztőben.
 
  #Show white space#        Make while space characters (spaces, tabulations,
-                         line endings) visible.
+                         line breaks) visible.
 
  #Select found#            Found text is selected
 

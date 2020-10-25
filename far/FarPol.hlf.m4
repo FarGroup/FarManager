@@ -21,7 +21,6 @@
 @Interface.CursorSize2=Interface.CursorSize
 @Interface.CursorSize3=Interface.CursorSize
 @Interface.CursorSize4=Interface.CursorSize
-@Interface.DelShowSelected=Interface.DelHighlightSelected
 @Interface.EditorTitleFormat=TitleFormat
 @Interface.ViewerTitleFormat=TitleFormat
 @InterfaceSettings=InterfSettings
@@ -39,9 +38,9 @@
 @System.MsWheelDeltaHelp=System.MsWheelDelta
 @System.MsWheelDeltaView=System.MsWheelDelta
 @Viewer.F8CPs=Editor.F8CPs
-@XLat.Rules1=XLat.Tables
-@XLat.Rules2=XLat.Tables
-@XLat.Rules3=XLat.Tables
+@XLat.Rules1=XLat.Rules
+@XLat.Rules2=XLat.Rules
+@XLat.Rules3=XLat.Rules
 @XLat.Table1=XLat.Tables
 @XLat.Table2=XLat.Tables
 
@@ -983,7 +982,7 @@ nieograniczone możliwości rozbudowy programu Far.
  * Tworzenie i modyfikacja skrótów Windows.
  * Operacja na plikach i tekstach dając komfort obsługi FidoNet.
  * Kodowanie i dekodowanie plików UUencode/UUdecode.
- * Kontrola programu WinAmp i modyfikacja tagów MP3.
+ * Kontrola programu Winamp i modyfikacja tagów MP3.
  * Przetwarzanie plików PAK z gry Quake.
  * Kontrola drukarek, zarówno lokalnych jak i sieciowych.
  * Połączenia i debugowanie zapytań do baz danych zgodnych z ODBC.
@@ -3160,7 +3159,7 @@ $ #Editor: search/replace#
 
  #Regular expressions#
  Treat input as Perl regular expression (~search~@RegExp@ and ~replace~@RegExpRepl@).
-Each line is processed individually, so multi-line expressions and line-break characters will not be found.
+Each line is processed individually, so multi-line expressions and line break characters will not be found.
 
  ~Preserve style~@PreserveStyle@
  Preserve style (case and delimiters in program source code) of the replaced text.
@@ -3889,7 +3888,7 @@ $ #Settings dialog: editor#
  #Show scrollbar#          Show scrollbar.
 
  #Show white space#        Make while space characters (spaces, tabulations,
-                         line endings) visible.
+                         line breaks) visible.
 
  #Select found#            Found text is selected
 
@@ -4456,7 +4455,7 @@ upon the plugin functionality.
 
  The #Access rights# parameter is valid only for the NTFS file system
 and controls how access rights of the created files and folders are set.
-The #Default# option leaves access rights processing to the file system.
+The #Default# option leaves access rights processing to the operating system.
 The #Copy# option applies the access rights of the original objects. The
 #Inherit# option applies the inheritable access rights of the
 destination’s parent folder.
@@ -6185,7 +6184,7 @@ as for windowed and fullscreen mode.
 
 @-
  ┌──────────╥───────────────────────┬───────────────────────┐
- │ Mode     ║ Windowed              │ Fullscreen            │           
+ │ Mode     ║ Windowed              │ Fullscreen            │
  ╞══════════╬═══════════════════════╪═══════════════════════╡
  │ Insert   ║ Interface.CursorSize1 │ Interface.CursorSize2 │
  ├──────────╫───────────────────────┼───────────────────────┤

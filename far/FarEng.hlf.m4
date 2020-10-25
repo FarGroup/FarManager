@@ -991,7 +991,7 @@ an almost limitless expansion of the features of Far.
  * Creating and modifying Windows shortcuts.
  * File and text operations making it more comfortable to use FidoNet.
  * Files UU-encode and UU-decode.
- * WinAmp control and MP3-tags modifying.
+ * Winamp control and MP3-tags modifying.
  * Quake PAK-files processing.
  * Printers control, both connected to PC and network.
  * Connection and debugging of queries to ODBC-compatible databases.
