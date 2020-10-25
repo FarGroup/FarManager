@@ -2755,11 +2755,14 @@ $ #Viewer: control keys#
  #Ctrl+Shift+Left#    Show the leftmost column
  #Ctrl+Shift+Right#   Show the rightmost column of all lines currently visible on the screen
 
- In #hex# and #dump# ~view modes~@ViewerMode@, #Ctrl+Left# and
+ In the #hex# and #dump# ~view modes~@ViewerMode@, #Ctrl+Left# and
 #Ctrl+Right# keys shift the content within the window one byte at a time
 in the corresponding direction.
 
- In #hex# view mode, #Alt+Left# and #Alt+Right# keys shrink or widen the view by 1 byte, respectively. With #Ctrl+Alt+Left# and #Ctrl+Alt+Right# the same adjustment is applied, but by 16 bytes instead.
+ In the #hex# ~view mode~@ViewerMode@, #Alt+Left# and #Alt+Right# key
+combinations decrease or increase the number of bytes displayed on each
+row by one byte, respectively. #Ctrl+Alt+Left# and #Ctrl+Alt+Right# key
+combinations adjust the number of displayed bytes by 16 at a time.
 
  Viewer commands
 
@@ -2979,12 +2982,14 @@ first byte on a row becomes the last on the previous row. The
 #Ctrl+Left# key combination shifts all bytes to the right moving the
 last byte of a row to the first positions of the next row. Unlike
 in #dump# mode, the content is shifted by a byte, not by a character.
- The #Alt+Right# key combination widens the amount of bytes displayed
-in the viewer by 1 byte. The viewer can be widened by 16 bytes
-by pressing #Ctrl+Alt+Right#.
- The #Alt+Left# key combination shrinks the amount of bytes displayed
-in the viewer by 1 byte. The viewer can be shrunk by 16 bytes
-by pressing #Ctrl+Alt+Left#.
+
+ The #Alt+Right# key combination increases the number of bytes displayed
+on each row by one byte. The #Ctrl+Alt+Right# key combination increases
+the number of bytes by 16 at a time. The #Alt+Left# key combination
+decreases the number of bytes displayed on each row by one byte. The
+#Ctrl+Alt+Left# key combination decreases the number of bytes by 16 at
+a time.
+
  The #Right# and #Left# keys are ignored.
 
 

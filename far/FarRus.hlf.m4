@@ -2810,7 +2810,10 @@ $ #Программа просмотра: клавиши управления#
 #Ctrl+Right# сдвигают текст в окне на один байт в соответствующем
 направлении.
 
- In #hex# view mode, #Alt+Left# and #Alt+Right# keys shrink or widen the view by 1 byte, respectively. With #Ctrl+Alt+Left# and #Ctrl+Alt+Right# the same adjustment is applied, but by 16 bytes instead.
+ В ~режиме~@ViewerMode@ #код# комбинации клавиш #Alt+Left# и #Alt+Right#
+соответственно уменьшают или увеличивают количество байт, показываемых
+на каждой строке, на один байт. Комбинации клавиш #Ctrl+Alt+Left#
+и #Ctrl+Alt+Right# изменяют количество показываемых байт на 16.
 
  Команды программы просмотра
 
@@ -3030,12 +3033,13 @@ UTF-16(BE) за шестнадцатеричными значениями сле
 клавиш #Ctrl+Left# сдвигает все байты вправо, делая последний байт
 строки экрана первым байтом в следующей строке. В отличие от режима
 #дамп# содержимое сдвигается по одному байту, а не по символу.
- The #Alt+Right# key combination widens the amount of bytes displayed
-in the viewer by 1 byte. The viewer can be widened by 16 bytes
-by pressing #Ctrl+Alt+Right#.
- The #Alt+Left# key combination shrinks the amount of bytes displayed
-in the viewer by 1 byte. The viewer can be shrunk by 16 bytes
-by pressing #Ctrl+Alt+Right#.
+
+ Комбинация клавиш #Alt+Right# увеличивает количество байт, показываемых
+на каждой строке, на один байт. Комбинация клавиш #Ctrl+Alt+Right#
+увеличивает количество байт на 16. Комбинация клавиш #Alt+Left#
+уменьшает количество байт, показываемых на каждой строке, на один байт.
+Комбинация клавиш #Ctrl+Alt+Left# уменьшает количество байт на 16.
+
  Клавиши #Right# и #Left# игнорируются.
 
 
