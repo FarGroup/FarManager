@@ -1,3 +1,7 @@
+drkns 25.10.2020 20:54:39 +0000 - build 5690
+
+1. 0003818: Infinite restart of .cmd batches via a double click and exiting using Ctrl-Break.
+
 drkns 25.10.2020 05:30:03 +0000 - build 5689
 
 1. Fix clang build & warnings.

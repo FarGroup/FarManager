@@ -1138,6 +1138,8 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 DWORD GetInputRecord(INPUT_RECORD *rec, bool ExcludeMacro, bool ProcessMouse, bool AllowSynchro)
 {
+	*rec = {};
+
 	DWORD Key = GetInputRecordImpl(rec, ExcludeMacro, ProcessMouse, AllowSynchro);
 
 	if (Key)
@@ -1164,6 +1166,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec, bool ExcludeMacro, bool ProcessMouse, bo
 
 DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 {
+	*rec = {};
+
 	DWORD Key;
 	Global->ScrBuf->Flush();
 
