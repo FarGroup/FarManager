@@ -1104,7 +1104,7 @@ bool ScrollBarEx(size_t X1, size_t Y1, size_t Length, unsigned long long Start, 
 
 	if (Size && Start < End)
 	{
-		const auto SliderSize = std::max(size_t{ 1 }, (End - Start) * FieldSize / Size);
+		const auto SliderSize = std::max(1ull, (End - Start) * FieldSize / Size);
 
 		if (SliderSize >= FieldSize)
 		{
