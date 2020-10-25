@@ -95,13 +95,7 @@ PerfThread::PerfThread(const wchar_t* hostname, const wchar_t* pUser, const wcha
 	{
 		m_HostName = hostname;
 
-		if (const auto rc = RegConnectRegistry(hostname, HKEY_LOCAL_MACHINE, &hHKLM); rc != ERROR_SUCCESS)
-		{
-			SetLastError(rc);
-			return;
-		}
-
-		if (const auto rc = RegConnectRegistry(hostname, HKEY_PERFORMANCE_DATA, &hPerf); rc != ERROR_SUCCESS)
+		if (const auto rc = RegConnectRegistry(hostname, HKEY_PERFORMANCE_TEXT, &hPerf); rc != ERROR_SUCCESS)
 		{
 			SetLastError(rc);
 			return;
@@ -109,21 +103,13 @@ PerfThread::PerfThread(const wchar_t* hostname, const wchar_t* pUser, const wcha
 	}
 	else
 	{
-		hHKLM = HKEY_LOCAL_MACHINE;
-		hPerf = HKEY_PERFORMANCE_DATA;
+		hPerf = HKEY_PERFORMANCE_TEXT;
 	}
-
-	const auto lid = MAKELANGID(LANG_ENGLISH, SUBLANG_NEUTRAL);
-	pf.SubKey = format(FSTR(L"Software\\Microsoft\\Windows NT\\CurrentVersion\\Perflib\\{0:03X}"), lid);
-	const RegKey hKeyNames(hHKLM, pf.SubKey.c_str(), KEY_READ);
-
-	if (!hKeyNames)
-		return;
 
 	// Get the buffer size for the counter names
 	DWORD dwType, dwSize;
 
-	if (const auto rc = RegQueryValueEx(hKeyNames, L"Counters", {}, &dwType, {}, &dwSize); rc != ERROR_SUCCESS)
+	if (const auto rc = RegQueryValueEx(hPerf, L"Counter", {}, &dwType, {}, &dwSize); rc != ERROR_SUCCESS)
 	{
 		SetLastError(rc);
 		return;
@@ -133,7 +119,7 @@ PerfThread::PerfThread(const wchar_t* hostname, const wchar_t* pUser, const wcha
 	std::vector<wchar_t> buf(dwSize);
 
 	// read the counter names from the registry
-	if (const auto rc = RegQueryValueEx(hKeyNames, L"Counters", {}, &dwType, reinterpret_cast<BYTE*>(buf.data()), &dwSize); rc != ERROR_SUCCESS)
+	if (const auto rc = RegQueryValueEx(hPerf, L"Counter", {}, &dwType, reinterpret_cast<BYTE*>(buf.data()), &dwSize); rc != ERROR_SUCCESS)
 	{
 		SetLastError(rc);
 		return;
