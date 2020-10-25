@@ -59,9 +59,15 @@ ULONGLONG GetFilePosition(HANDLE Handle)
   return ul.QuadPart;
 }
 
+static inline bool IsZIPFileMagic(const unsigned char *Data,int DataSize)
+{
+  return (DataSize>=4 && Data[0]=='P' && Data[1]=='K' &&
+    ( (Data[2]==3 && Data[3]==4) || (Data[2]==5 && Data[3]==6) ) );
+}
+
 BOOL WINAPI _export IsArchive(const char *Name,const unsigned char *Data,int DataSize)
 {
-  if (DataSize>=4 && Data[0]=='P' && Data[1]=='K' && Data[2]==5 && Data[3]==6)
+  if (IsZIPFileMagic(Data, DataSize))
   {
     SFXSize.QuadPart=0;
     return(TRUE);
@@ -107,19 +113,38 @@ BOOL WINAPI _export OpenArchive(const char *Name,int *Type)
   else
     SetFilePointer(ArcHandle,-((signed)(sizeof(ReadBuf)-18)),NULL,FILE_END);
 
+  BYTE EOCD_Magic2 = 0x05;
   for (Buf=0; Buf<64 && !bFound; Buf++)
   {
-    ReadFile(ArcHandle,ReadBuf,sizeof(ReadBuf),&ReadSize,NULL);
+    if (!ReadFile(ArcHandle,ReadBuf,sizeof(ReadBuf),&ReadSize,NULL))
+        break;
     for (int I=ReadSize-4; I>=0; I--)
     {
-      if (ReadBuf[I]==0x50 && ReadBuf[I+1]==0x4b && ReadBuf[I+2]==0x05 &&
+      if (ReadBuf[I]==0x50 && ReadBuf[I+1]==0x4b && ReadBuf[I+2]==EOCD_Magic2 &&
           ReadBuf[I+3]==0x06)
       {
-        SetFilePointer(ArcHandle,I+16-ReadSize,NULL,FILE_CURRENT);
-        ReadFile(ArcHandle,&NextPosition.u.LowPart,sizeof(NextPosition.u.LowPart),&ReadSize,NULL);
-        NextPosition.u.HighPart=0;
-        bFound=true;
-        break;
+        DWORD ReadSizeO = 0;
+        if (EOCD_Magic2 == 0x06)
+        {
+          SetFilePointer(ArcHandle,I+48-ReadSize,NULL,FILE_CURRENT);
+          ReadFile(ArcHandle,&NextPosition.QuadPart,sizeof(NextPosition.QuadPart),&ReadSizeO,NULL);
+          bFound=true;
+          break;
+        }
+        else
+        {
+          SetFilePointer(ArcHandle,I+16-ReadSize,NULL,FILE_CURRENT);
+          ReadFile(ArcHandle,&NextPosition.u.LowPart,sizeof(NextPosition.u.LowPart),&ReadSizeO,NULL);
+          if (NextPosition.u.LowPart != 0xffffffff)
+          {
+            NextPosition.u.HighPart=0;
+            bFound=true;
+            break;
+          }
+          SetFilePointer(ArcHandle,-(LONG)(ReadSizeO+I+16-ReadSize),NULL,FILE_CURRENT);
+          // continue searching, but for EOCD64
+          EOCD_Magic2 = 0x06;
+        }
       }
     }
     if (bFound || bLast)
@@ -201,6 +226,7 @@ PACK_CHECK(ZipHdr2, 1);
     ZipHeader.UnpVer=ZipHd1.UnpVer;
     ZipHeader.UnpOS=ZipHd1.UnpOS;
     ZipHeader.Flags=ZipHd1.Flags;
+    ZipHeader.Method=ZipHd1.Method;
     ZipHeader.ftime=ZipHd1.ftime;
     ZipHeader.PackSize=ZipHd1.PackSize;
     ZipHeader.UnpSize=ZipHd1.UnpSize;
@@ -211,7 +237,8 @@ PACK_CHECK(ZipHdr2, 1);
   {
     if (!ReadFile(ArcHandle,&ZipHeader,sizeof(ZipHeader),&ReadSize,NULL))
       return(GETARC_READERROR);
-    if (ZipHeader.Mark!=0x02014b50 && ZipHeader.Mark!=0x06054b50)
+    if (ZipHeader.Mark!=0x02014b50 && ZipHeader.Mark!=0x06054b50
+      && ZipHeader.Mark!=0x06064b50 && ZipHeader.Mark!=0x07064b50)
     {
       if (FirstRecord)
       {
@@ -243,6 +270,18 @@ PACK_CHECK(ZipHdr2, 1);
       ArcComment=TRUE;
     return(GETARC_EOF);
   }
+
+  if (ZipHeader.Mark==0x06064b50) // EOCD64
+  {
+    return(GETARC_EOF);
+  }
+
+  if (ZipHeader.Mark==0x07064b50) //EOCD64Locator
+  {
+    NextPosition.QuadPart+= 20;
+    return GetArcItem(Item,Info);
+  }
+
   DWORD SizeToRead=(ZipHeader.NameLen<NM-1) ? ZipHeader.NameLen : NM-1;
   if (!ReadFile(ArcHandle,Item->FindData.cFileName,SizeToRead,&ReadSize,NULL) ||
       ReadSize!=SizeToRead)
@@ -277,10 +316,25 @@ PACK_CHECK(ZipHdr2, 1);
   if (ZipHeader.PackOS<ARRAYSIZE(ZipOS))
     lstrcpy(Info->HostOS,ZipOS[ZipHeader.PackOS]);
 
-  if (ZipHeader.PackOS==11 && ZipHeader.PackVer>20 && ZipHeader.PackVer<25)
+// As long as MA is ANSI this doesn't make much sense.
+/*
+  if (ZipHeader.Flags&0x800) // Bit 11 - language encoding flag (EFS) - means filename&comment fields are UTF8
+  {
+    ;
+  }
+  else
+*/
+  if (ZipHeader.PackOS==11 && ZipHeader.PackVer>=20)
     CharToOem(Item->FindData.cFileName,Item->FindData.cFileName);
   Info->UnpVer=(ZipHeader.UnpVer/10)*256+(ZipHeader.UnpVer%10);
   Info->DictSize=32;
+
+  if ((ZipHeader.PackOS==3 || ZipHeader.PackOS==7) && (ZipHeader.Attr&0xffff0000)!=0)
+  {
+    // Unix attributes. TODO: convert to Win32
+  }
+
+  *Info->Description = 0;
 
   // Search for extra block
   ULARGE_INTEGER ExtraFieldEnd;
@@ -349,9 +403,6 @@ PACK_CHECK(TimesAttribute, 1);
           Item->FindData.ftLastWriteTime = Times.Modification;
           Item->FindData.ftLastAccessTime = Times.Access;
           Item->FindData.ftCreationTime = Times.Creation;
-
-          // Interrupt search
-          SetFilePointer(ArcHandle, ExtraFieldEnd.u.LowPart, (PLONG)&ExtraFieldEnd.u.HighPart, FILE_BEGIN);
         }
       }
     }
@@ -385,6 +436,35 @@ PACK_CHECK(ZIP64Descriptor, 1);
        Item->PackSize=ZIP64.CompressedSize.u.LowPart;
      }
     }
+    else if ((0x7075==BlockHead.Type || 0x6375==BlockHead.Type) // Unicode Path Extra Field || Unicode Comment Extra Field
+      && BlockHead.Length > sizeof(char) + sizeof(int)) // int32
+    {
+
+// As long as MA is ANSI this doesn't make much sense.
+/*
+      //uint8_t version = 0;
+      if (!ReadFile(ArcHandle, &version, sizeof(version), &ReadSize, NULL) || ReadSize != sizeof(version))
+        return(GETARC_READERROR);
+
+      //uint32_t strcrc = 0;
+      if (!ReadFile(ArcHandle, &strcrc, sizeof(strcrc), &ReadSize, NULL) || ReadSize != sizeof(strcrc))
+        return(GETARC_READERROR);
+
+      // strbuf size: BlockHead.Length - sizeof(uint32_t) - sizeof(uint8_t)
+      if (!ReadFile(ArcHandle, &strbuf[0], strbuf.size()-1, &ReadSize, NULL) || ReadSize != strbuf.size()-1)
+        return(GETARC_READERROR);
+
+      if (0x7075==BlockHead.Type)
+      {
+        // unicode name
+      }
+      else
+      {
+        // unicode description
+      }
+*/
+      SetFilePointer(ArcHandle, BlockHead.Length, NULL, FILE_CURRENT);
+    }
     else // Move to extra block end
       SetFilePointer(ArcHandle, BlockHead.Length, NULL, FILE_CURRENT);
   }
@@ -395,12 +475,14 @@ PACK_CHECK(ZIP64Descriptor, 1);
 // Read the in-archive file comment if any
   if (ZipHeader.CommLen>0)
   {
-    DWORD SizeToRead= (ZipHeader.CommLen>255) ? 255 : ZipHeader.CommLen;
+    if (!Info->Description[0]) //we could already get UTF-8 description
+    {
+      DWORD SizeToRead= (ZipHeader.CommLen>255) ? 255 : ZipHeader.CommLen;
 
-    if (!ReadFile(ArcHandle, Info->Description, SizeToRead, &ReadSize, NULL)
-            || ReadSize!=SizeToRead )
-      return(GETARC_READERROR);
-
+      if (!ReadFile(ArcHandle, Info->Description, SizeToRead, &ReadSize, NULL)
+              || ReadSize!=SizeToRead )
+        return(GETARC_READERROR);
+    }
     // Skip comment tail
     SetFilePointer(ArcHandle, ZipHeader.CommLen-ReadSize,NULL,FILE_CURRENT);
   }

@@ -3,7 +3,7 @@
 #include "multiarcversion.hpp"
 
 #define PLUGIN_MAJOR 1
-#define PLUGIN_MINOR 32
+#define PLUGIN_MINOR 33
 #define PLUGIN_NAME "zip"
 #define PLUGIN_FILENAME "zip.fmt"
 
