@@ -139,17 +139,17 @@ static FarColor CurColor;
 
 static CONSOLE_CURSOR_INFO InitialCursorInfo;
 
-static SMALL_RECT windowholder_rect;
+static rectangle windowholder_rect;
 
-WCHAR BoxSymbols[BS_COUNT];
+wchar_t BoxSymbols[BS_COUNT];
 
-COORD InitSize={};
-COORD CurSize={};
-SHORT ScrX=0,ScrY=0;
-SHORT PrevScrX=-1,PrevScrY=-1;
+point InitSize{};
+point CurSize{};
+int ScrX=0, ScrY=0;
+int PrevScrX=-1, PrevScrY=-1;
 std::optional<console_mode> InitialConsoleMode;
-static SMALL_RECT InitWindowRect;
-static COORD InitialSize;
+static rectangle InitWindowRect;
+static point InitialSize;
 
 static os::event& CancelIoInProgress()
 {
@@ -321,7 +321,7 @@ void InitConsole()
 
 	if (FirstInit)
 	{
-		SMALL_RECT WindowRect;
+		rectangle WindowRect;
 		console.GetWindowRect(WindowRect);
 		console.GetSize(InitSize);
 
@@ -332,12 +332,9 @@ void InitConsole()
 		}
 		else
 		{
-			if (WindowRect.Left || WindowRect.Top || WindowRect.Right != InitSize.X - 1 || WindowRect.Bottom != InitSize.Y - 1)
+			if (WindowRect.left || WindowRect.top || WindowRect.right != InitSize.x - 1 || WindowRect.bottom != InitSize.y - 1)
 			{
-				COORD newSize;
-				newSize.X = WindowRect.Right - WindowRect.Left + 1;
-				newSize.Y = WindowRect.Bottom - WindowRect.Top + 1;
-				console.SetSize(newSize);
+				console.SetSize({ WindowRect.width(), WindowRect.height() });
 				console.GetSize(InitSize);
 			}
 		}
@@ -347,7 +344,7 @@ void InitConsole()
 		}
 		else
 		{
-			COORD CurrentSize;
+			point CurrentSize;
 			if (console.GetSize(CurrentSize))
 			{
 				SaveNonMaximisedBufferSize(CurrentSize);
@@ -382,23 +379,24 @@ void CloseConsole()
 	console.SetTitle(Global->strInitTitle);
 	console.SetSize(InitialSize);
 
-	COORD CursorPos = {};
+	point CursorPos = {};
 	console.GetCursorPosition(CursorPos);
-	const auto Height = InitWindowRect.Bottom-InitWindowRect.Top;
-	const auto Width = InitWindowRect.Right-InitWindowRect.Left;
-	if (CursorPos.Y > InitWindowRect.Bottom || CursorPos.Y < InitWindowRect.Top)
-		InitWindowRect.Top = std::max(0, CursorPos.Y-Height);
-	if (CursorPos.X > InitWindowRect.Right || CursorPos.X < InitWindowRect.Left)
-		InitWindowRect.Left = std::max(0, CursorPos.X-Width);
-	InitWindowRect.Bottom = InitWindowRect.Top + Height;
-	InitWindowRect.Right = InitWindowRect.Left + Width;
 
-	SMALL_RECT CurrentRect{};
+	const auto Height = InitWindowRect.bottom - InitWindowRect.top;
+	const auto Width = InitWindowRect.right - InitWindowRect.left;
+
+	if (!in_closed_range(InitWindowRect.top, CursorPos.y, InitWindowRect.bottom))
+		InitWindowRect.top = std::max(0, CursorPos.y - Height);
+
+	if (!in_closed_range(InitWindowRect.left, CursorPos.x, InitWindowRect.right))
+		InitWindowRect.left = std::max(0, CursorPos.x - Width);
+
+	InitWindowRect.bottom = InitWindowRect.top + Height;
+	InitWindowRect.right = InitWindowRect.left + Width;
+
+	rectangle CurrentRect{};
 	console.GetWindowRect(CurrentRect);
-	if (CurrentRect.Left != InitWindowRect.Left ||
-		CurrentRect.Top != InitWindowRect.Top ||
-		CurrentRect.Right != InitWindowRect.Right ||
-		CurrentRect.Bottom != InitWindowRect.Bottom)
+	if (CurrentRect != InitWindowRect)
 	{
 		console.SetWindowRect(InitWindowRect);
 		console.SetSize(InitialSize);
@@ -479,10 +477,9 @@ void SaveConsoleWindowRect()
 
 void RestoreConsoleWindowRect()
 {
-	SMALL_RECT WindowRect;
+	rectangle WindowRect;
 	console.GetWindowRect(WindowRect);
-	if(WindowRect.Right-WindowRect.Left<windowholder_rect.Right-windowholder_rect.Left ||
-		WindowRect.Bottom-WindowRect.Top<windowholder_rect.Bottom-windowholder_rect.Top)
+	if (WindowRect.width() < windowholder_rect.width() || WindowRect.height() < windowholder_rect.height())
 	{
 		console.SetWindowRect(windowholder_rect);
 	}
@@ -513,20 +510,20 @@ void SetVideoMode()
 
 void ChangeVideoMode(bool Maximize)
 {
-	COORD coordScreen;
+	point coordScreen;
 
 	if (Maximize)
 	{
 		SendMessage(console.GetWindow(),WM_SYSCOMMAND,SC_MAXIMIZE,0);
 		coordScreen = console.GetLargestWindowSize();
-		coordScreen.X+=Global->Opt->ScrSize.DeltaX;
-		coordScreen.Y+=Global->Opt->ScrSize.DeltaY;
+		coordScreen.x += Global->Opt->ScrSize.DeltaX;
+		coordScreen.y += Global->Opt->ScrSize.DeltaY;
 	}
 	else
 	{
 		SendMessage(console.GetWindow(),WM_SYSCOMMAND,SC_RESTORE,0);
 		auto LastSize = GetNonMaximisedBufferSize();
-		if (!LastSize.X && !LastSize.Y)
+		if (!LastSize.x && !LastSize.y)
 		{
 			// Not initialised yet - could happen if initial window state was maximiseds
 			console.GetSize(LastSize);
@@ -534,37 +531,37 @@ void ChangeVideoMode(bool Maximize)
 		coordScreen = LastSize;
 	}
 
-	ChangeVideoMode(coordScreen.Y,coordScreen.X);
+	ChangeVideoMode(coordScreen.y,coordScreen.x);
 }
 
 void ChangeVideoMode(int NumLines,int NumColumns)
 {
 	const short xSize = NumColumns, ySize = NumLines;
 
-	COORD Size;
+	point Size;
 	console.GetSize(Size);
 
-	SMALL_RECT srWindowRect;
-	srWindowRect.Right = xSize-1;
-	srWindowRect.Bottom = ySize-1;
-	srWindowRect.Left = srWindowRect.Top = 0;
+	rectangle srWindowRect;
+	srWindowRect.right = xSize - 1;
+	srWindowRect.bottom = ySize - 1;
+	srWindowRect.left = srWindowRect.top = 0;
 
-	const COORD coordScreen = {xSize, ySize};
+	point const coordScreen = { xSize, ySize };
 
-	if (xSize>Size.X || ySize > Size.Y)
+	if (xSize > Size.x || ySize > Size.y)
 	{
-		if (Size.X < xSize-1)
+		if (Size.x < xSize - 1)
 		{
-			srWindowRect.Right = Size.X - 1;
+			srWindowRect.right = Size.x - 1;
 			console.SetWindowRect(srWindowRect);
-			srWindowRect.Right = xSize-1;
+			srWindowRect.right = xSize - 1;
 		}
 
-		if (Size.Y < ySize-1)
+		if (Size.y < ySize - 1)
 		{
-			srWindowRect.Bottom=Size.Y - 1;
+			srWindowRect.bottom = Size.y - 1;
 			console.SetWindowRect(srWindowRect);
-			srWindowRect.Bottom = ySize-1;
+			srWindowRect.bottom = ySize - 1;
 		}
 
 		console.SetSize(coordScreen);
@@ -586,10 +583,10 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 
 bool IsConsoleSizeChanged()
 {
-	COORD ConSize;
+	point ConSize;
 	console.GetSize(ConSize);
 	// GetSize returns virtual size, so this covers WindowMode=true too
-	return ConSize.Y != ScrY + 1 || ConSize.X != ScrX + 1;
+	return ConSize.y != ScrY + 1 || ConSize.x != ScrX + 1;
 }
 
 void GenerateWINDOW_BUFFER_SIZE_EVENT()
@@ -601,7 +598,7 @@ void GenerateWINDOW_BUFFER_SIZE_EVENT()
 
 void UpdateScreenSize()
 {
-	COORD NewSize;
+	point NewSize;
 	if (!console.GetSize(NewSize))
 		return;
 
@@ -609,8 +606,8 @@ void UpdateScreenSize()
 	SaveConsoleWindowRect();
 
 	CurSize = NewSize;
-	ScrX = NewSize.X - 1;
-	ScrY = NewSize.Y - 1;
+	ScrX = NewSize.x - 1;
+	ScrY = NewSize.y - 1;
 
 	if (PrevScrX == -1)
 		PrevScrX = ScrX;
@@ -618,7 +615,7 @@ void UpdateScreenSize()
 	if (PrevScrY == -1)
 		PrevScrY = ScrY;
 
-	Global->ScrBuf->AllocBuf(NewSize.Y, NewSize.X);
+	Global->ScrBuf->AllocBuf(NewSize.y, NewSize.x);
 }
 
 void ShowTime()
@@ -676,9 +673,9 @@ point GetCursorPos()
 	return Global->ScrBuf->GetCursorPos();
 }
 
-void SetCursorType(bool Visible, DWORD Size)
+void SetCursorType(bool const Visible, size_t Size)
 {
-	if (Size == static_cast<DWORD>(-1) || !Visible)
+	if (Size == static_cast<size_t>(-1) || !Visible)
 	{
 		const size_t index = IsConsoleFullscreen()? 1 : 0;
 		Size = Global->Opt->CursorSize[index]? static_cast<int>(Global->Opt->CursorSize[index]) : InitialCursorInfo.dwSize;
@@ -692,7 +689,7 @@ void SetInitialCursorType()
 }
 
 
-void GetCursorType(bool& Visible, DWORD& Size)
+void GetCursorType(bool& Visible, size_t& Size)
 {
 	Global->ScrBuf->GetCursorType(Visible,Size);
 }
@@ -700,16 +697,7 @@ void GetCursorType(bool& Visible, DWORD& Size)
 
 void MoveRealCursor(int X,int Y)
 {
-	console.SetCursorPosition({ static_cast<SHORT>(X),static_cast<SHORT>(Y) });
-}
-
-
-void GetRealCursorPos(SHORT& X,SHORT& Y)
-{
-	COORD CursorPosition;
-	console.GetCursorPosition(CursorPosition);
-	X=CursorPosition.X;
-	Y=CursorPosition.Y;
+	console.SetCursorPosition({ X, Y });
 }
 
 void Text(point Where, const FarColor& Color, string_view const Str)
@@ -1018,11 +1006,11 @@ bool DoWeReallyHaveToScroll(short Rows)
 	This function reads the specified number of the last lines from the screen buffer and checks if there's anything else in them but spaces.
 	*/
 
-	const SMALL_RECT Region = { 0, static_cast<short>(ScrY - Rows + 1), ScrX, ScrY };
+	rectangle const Region{ 0, ScrY - Rows + 1, ScrX, ScrY };
 
 	// TODO: matrix_view to avoid copying
 	matrix<FAR_CHAR_INFO> BufferBlock(Rows, ScrX + 1);
-	Global->ScrBuf->Read({ Region.Left, Region.Top, Region.Right, Region.Bottom }, BufferBlock);
+	Global->ScrBuf->Read(Region, BufferBlock);
 
 	return !std::all_of(ALL_CONST_RANGE(BufferBlock.vector()), [](const FAR_CHAR_INFO& i) { return i.Char == L' '; });
 }
@@ -1087,17 +1075,17 @@ void Box(rectangle Where, const FarColor& Color, int Type)
 	Text(Buffer);
 }
 
-bool ScrollBarRequired(UINT Length, unsigned long long ItemsCount)
+bool ScrollBarRequired(size_t Length, unsigned long long ItemsCount)
 {
 	return Length >= 2 && ItemsCount && Length<ItemsCount;
 }
 
-bool ScrollBarEx(UINT X1, UINT Y1, UINT Length, unsigned long long TopItem, unsigned long long ItemsCount)
+bool ScrollBar(size_t X1, size_t Y1, size_t Length, unsigned long long TopItem, unsigned long long ItemsCount)
 {
-	return ScrollBarRequired(Length, ItemsCount) && ScrollBarEx3(X1, Y1, Length, TopItem,TopItem+Length,ItemsCount);
+	return ScrollBarRequired(Length, ItemsCount) && ScrollBarEx(X1, Y1, Length, TopItem, TopItem + Length, ItemsCount);
 }
 
-bool ScrollBarEx3(UINT X1, UINT Y1, UINT Length, unsigned long long Start, unsigned long long End, unsigned long long Size)
+bool ScrollBarEx(size_t X1, size_t Y1, size_t Length, unsigned long long Start, unsigned long long End, unsigned long long Size)
 {
 	if ( Length < 2)
 		return false;
@@ -1116,7 +1104,7 @@ bool ScrollBarEx3(UINT X1, UINT Y1, UINT Length, unsigned long long Start, unsig
 
 	if (Size && Start < End)
 	{
-		const auto SliderSize = std::max(1u, static_cast<UINT>(((End - Start) * FieldSize) / Size));
+		const auto SliderSize = std::max(size_t{ 1 }, (End - Start) * FieldSize / Size);
 
 		if (SliderSize >= FieldSize)
 		{
@@ -1130,14 +1118,14 @@ bool ScrollBarEx3(UINT X1, UINT Y1, UINT Length, unsigned long long Start, unsig
 		}
 		else
 		{
-			SliderBegin = std::min(FieldBegin + static_cast<UINT>((Start*FieldSize) / Size), FieldEnd);
+			SliderBegin = std::min(FieldBegin + Start * FieldSize / Size, FieldEnd);
 			SliderEnd = std::min(SliderBegin + SliderSize, FieldEnd);
 		}
 	}
 
 	std::fill(SliderBegin, SliderEnd, BoxSymbols[BS_X_DB]);
 
-	GotoXY(X1, Y1);
+	GotoXY(static_cast<int>(X1), static_cast<int>(Y1));
 	VText(Buffer);
 
 	return true;
@@ -1277,7 +1265,7 @@ void AdjustConsoleScreenBufferSize()
 	if (!Global->Opt->WindowMode)
 		return;
 
-	COORD Size;
+	point Size;
 	if (!console.GetSize(Size))
 		return;
 
@@ -1290,11 +1278,11 @@ void AdjustConsoleScreenBufferSize()
 		{
 			if (!Global->Opt->WindowModeStickyX)
 			{
-				Size.X = csbi.dwSize.X;
+				Size.x = csbi.dwSize.X;
 			}
 			if (!Global->Opt->WindowModeStickyY)
 			{
-				Size.Y = csbi.dwSize.Y;
+				Size.y = csbi.dwSize.Y;
 			}
 		}
 	}
@@ -1302,13 +1290,13 @@ void AdjustConsoleScreenBufferSize()
 	console.SetScreenBufferSize(Size);
 }
 
-static COORD& NonMaximisedBufferSize()
+static point& NonMaximisedBufferSize()
 {
-	static COORD s_Size;
+	static point s_Size;
 	return s_Size;
 }
 
-void SaveNonMaximisedBufferSize(const COORD& Size)
+void SaveNonMaximisedBufferSize(point const& Size)
 {
 	// We can't trust the size that windows sets automatically after restoring the window -
 	// it could be less than previous because of horizontal scrollbar
@@ -1318,7 +1306,7 @@ void SaveNonMaximisedBufferSize(const COORD& Size)
 	NonMaximisedBufferSize() = Size;
 }
 
-COORD GetNonMaximisedBufferSize()
+point GetNonMaximisedBufferSize()
 {
 	return NonMaximisedBufferSize();
 }

@@ -1494,10 +1494,10 @@ private:
 		ExecuteStatement(stmtSetDescription, id, Description);
 	}
 
-	bool EnumPlugins(DWORD index, string &CacheName) const override
+	bool EnumPlugins(size_t const Index, string &CacheName) const override
 	{
 		auto Stmt = AutoStatement(stmtEnumCache);
-		if (index == 0)
+		if (Index == 0)
 			Stmt->Reset();
 
 		if (!Stmt->Step())

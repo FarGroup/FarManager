@@ -157,7 +157,7 @@ public:
 	bool GetPrevSortOrder() const override;
 	int GetPrevViewMode() const override;
 	bool GetPrevDirectoriesFirst() const override;
-	bool GetFileName(string &strName, int Pos, DWORD &FileAttr) const override;
+	bool GetFileName(string &strName, int Pos, os::fs::attributes& FileAttr) const override;
 	const std::unordered_set<string>* GetFilteredExtensions() const override;
 	int GetCurrentPos() const override;
 	bool FindPartName(string_view Name, int Next, int Direct = 1) override;
@@ -257,7 +257,7 @@ private:
 	FarColor GetShowColor(int Position, bool FileColor = true) const;
 	void ShowSelectedSize();
 	void ShowTotalSize(const OpenPanelInfo &Info);
-	bool ConvertName(string_view SrcName, string &strDest, int MaxLength, unsigned long long RightAlign, int ShowStatus, DWORD FileAttr) const;
+	bool ConvertName(string_view SrcName, string &strDest, int MaxLength, unsigned long long RightAlign, int ShowStatus, os::fs::attributes FileAttr) const;
 	void Select(FileListItem& SelItem, bool Selection);
 	long SelectFiles(int Mode, string_view Mask = {});
 	void ProcessEnter(bool EnableExec, bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);
@@ -278,7 +278,7 @@ private:
 	void DescribeFiles();
 
 	plugin_item_list CreatePluginItemList();
-	std::unique_ptr<plugin_panel> OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type, bool* StopProcessing = nullptr);
+	std::unique_ptr<plugin_panel> OpenPluginForFile(const string& FileName, os::fs::attributes FileAttr, OPENFILEPLUGINTYPE Type, bool* StopProcessing = nullptr);
 	void PreparePanelView();
 	void PrepareColumnWidths(std::vector<column>& Columns, bool FullScreen) const;
 	void PrepareStripes(const std::vector<column>& Columns);

@@ -151,7 +151,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig& cfg)
 	static const struct
 	{
 		string_view Mask;
-		DWORD IncludeAttr;
+		os::fs::attributes IncludeAttr;
 		FarColor NormalColor;
 		FarColor CursorColor;
 	}

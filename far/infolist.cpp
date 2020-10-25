@@ -101,7 +101,7 @@ enum InfoListSectionStateIndex
 struct InfoList::InfoListSectionState
 {
 	bool Show;   // раскрыть/свернуть?
-	SHORT Y;     // Где?
+	int Y;     // Где?
 };
 
 info_panel_ptr InfoList::create(window_ptr Owner)

@@ -4447,7 +4447,7 @@ void FileList::RestoreSelection()
 
 
 
-bool FileList::GetFileName(string &strName, int Pos, DWORD &FileAttr) const
+bool FileList::GetFileName(string& strName, int Pos, os::fs::attributes& FileAttr) const
 {
 	if (Pos >= static_cast<int>(m_ListData.size()))
 		return false;
@@ -4616,7 +4616,7 @@ static void edit_sort_layers(int MenuPos)
 			if (Pos > 0)
 			{
 				const auto OtherPos = Pos + ((Key & KEY_UP) == KEY_UP? -1 : 1);
-				if (in_range(1, OtherPos, static_cast<int>(SortLayers.size() - 1)))
+				if (in_closed_range(1, OtherPos, static_cast<int>(SortLayers.size() - 1)))
 				{
 					using std::swap;
 					swap(SortLayersMenu->at(Pos), SortLayersMenu->at(OtherPos));
@@ -5695,7 +5695,7 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 }
 
 
-std::unique_ptr<plugin_panel> FileList::OpenPluginForFile(const string& FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type, bool* StopProcessing)
+std::unique_ptr<plugin_panel> FileList::OpenPluginForFile(const string& FileName, os::fs::attributes const FileAttr, OPENFILEPLUGINTYPE const Type, bool* const StopProcessing)
 {
 	if (FileName.empty() || FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 		return nullptr;
@@ -7677,7 +7677,7 @@ void FileList::ShowFileList(bool Fast)
 	if (Global->Opt->ShowPanelScrollbar)
 	{
 		SetColor(COL_PANELSCROLLBAR);
-		ScrollBarEx(m_Where.right, m_Where.top + 1 + Global->Opt->ShowColumnTitles, m_Height, Round(m_CurTopFile, m_Stripes), Round(static_cast<int>(m_ListData.size()), m_Stripes));
+		ScrollBar(m_Where.right, m_Where.top + 1 + Global->Opt->ShowColumnTitles, m_Height, Round(m_CurTopFile, m_Stripes), Round(static_cast<int>(m_ListData.size()), m_Stripes));
 	}
 
 	ShowScreensCount();
@@ -7866,7 +7866,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	Text(L' ');
 }
 
-bool FileList::ConvertName(const string_view SrcName, string& strDest, const int MaxLength, const unsigned long long RightAlign, const int ShowStatus, const DWORD FileAttr) const
+bool FileList::ConvertName(const string_view SrcName, string& strDest, const int MaxLength, const unsigned long long RightAlign, const int ShowStatus, os::fs::attributes const FileAttr) const
 {
 	strDest.reserve(MaxLength);
 

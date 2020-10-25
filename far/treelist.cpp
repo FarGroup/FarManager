@@ -162,7 +162,7 @@ static string CreateTreeFileName(string_view const Path)
 		}
 	}
 
-	UINT DriveType = os::fs::drive::get_type(strRootDir);
+	const auto DriveType = os::fs::drive::get_type(strRootDir);
 	const auto PathType = ParsePath(strRootDir);
 	/*
 	root_type::unknown,
@@ -515,7 +515,7 @@ void TreeList::DisplayTree(bool Fast)
 	if (Global->Opt->ShowPanelScrollbar)
 	{
 		SetColor(COL_PANELSCROLLBAR);
-		ScrollBarEx(m_Where.right, m_Where.top + 1, m_Where.height() - 4, m_CurTopFile, m_ListData.size());
+		ScrollBar(m_Where.right, m_Where.top + 1, m_Where.height() - 4, m_CurTopFile, m_ListData.size());
 	}
 
 	SetColor(COL_PANELTEXT);
@@ -726,7 +726,7 @@ template<class string_type, class container_type, class opener_type>
 static void WriteTree(string_type& Name, const container_type& Container, const opener_type& Opener, size_t offset)
 {
 	// получим и сразу сбросим атрибуты (если получится)
-	DWORD SavedAttributes = os::fs::get_file_attributes(Name);
+	const auto SavedAttributes = os::fs::get_file_attributes(Name);
 
 	if (SavedAttributes != INVALID_FILE_ATTRIBUTES)
 		(void)os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL); //BUGBUG
@@ -999,15 +999,15 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 		return false;
 
 	if (
-		in_range(KEY_CTRLSHIFT0, LocalKey, KEY_CTRLSHIFT9) ||
-		in_range(KEY_RCTRLSHIFT0, LocalKey, KEY_RCTRLSHIFT9)
+		in_closed_range(KEY_CTRLSHIFT0, LocalKey, KEY_CTRLSHIFT9) ||
+		in_closed_range(KEY_RCTRLSHIFT0, LocalKey, KEY_RCTRLSHIFT9)
 	)
 	{
 		SaveShortcutFolder((LocalKey&(~(KEY_CTRL | KEY_RCTRL | KEY_SHIFT | KEY_RSHIFT))) - L'0');
 		return true;
 	}
 
-	if (in_range(KEY_RCTRL0, LocalKey, KEY_RCTRL9))
+	if (in_closed_range(KEY_RCTRL0, LocalKey, KEY_RCTRL9))
 	{
 		ExecShortcutFolder(LocalKey-KEY_RCTRL0);
 		return true;
@@ -1977,7 +1977,7 @@ long TreeList::FindNext(int StartPos, string_view const Name)
 	return -1;
 }
 
-bool TreeList::GetFileName(string &strName, int Pos, DWORD &FileAttr) const
+bool TreeList::GetFileName(string &strName, int const Pos, os::fs::attributes& FileAttr) const
 {
 	if (Pos < 0 || static_cast<size_t>(Pos) >= m_ListData.size())
 		return false;

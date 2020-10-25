@@ -141,7 +141,7 @@ bool IsRepeatedKey();
 unsigned int ShieldCalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros = nullptr);
 unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros = nullptr);
 DWORD WaitKey(DWORD KeyWait = static_cast<DWORD>(-1), DWORD delayMS = 0, bool ExcludeMacro = true);
-int SetFLockState(UINT vkKey, int State);
+int SetFLockState(unsigned vkKey, int State);
 bool WriteInput(int Key);
 int IsNavKey(DWORD Key);
 int IsShiftKey(DWORD Key);

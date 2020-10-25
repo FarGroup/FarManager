@@ -68,7 +68,14 @@ enum
 // #define DIRECT_SCREEN_OUT
 //#endif
 
-static bool is_visible(rectangle const Where)
+static bool is_visible(point const& Where)
+{
+	return
+		in_closed_range(0, Where.x, ScrX) &&
+		in_closed_range(0, Where.y, ScrY);
+}
+
+static bool is_visible(rectangle const& Where)
 {
 	return Where.left <= ScrX && Where.top <= ScrY && Where.right >= 0 && Where.bottom >= 0;
 }
@@ -112,10 +119,10 @@ void ScreenBuf::FillBuf()
 {
 	SCOPED_ACTION(std::lock_guard)(CS);
 
-	const SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(Buf.width() - 1), static_cast<SHORT>(Buf.height() - 1)};
+	rectangle const ReadRegion{ 0, 0, static_cast<int>(Buf.width() - 1), static_cast<int>(Buf.height() - 1) };
 	console.ReadOutput(Buf, ReadRegion);
 	Shadow = Buf;
-	COORD CursorPosition;
+	point CursorPosition;
 	console.GetCursorPosition(CursorPosition);
 	m_CurPos = CursorPosition;
 }
@@ -332,31 +339,31 @@ void ScreenBuf::Flush(flush_type FlushType)
 				ShowTime();
 			}
 
-			std::vector<SMALL_RECT>WriteList;
+			std::vector<rectangle> WriteList;
 			bool Changes=false;
 
 			if (m_ClearTypeFix == BSTATE_CHECKED)
 			{
 				//Для полного избавления от артефактов ClearType будем перерисовывать на всю ширину.
 				//Чревато тормозами/миганием в зависимости от конфигурации системы.
-				SMALL_RECT WriteRegion={0, 0, static_cast<SHORT>(Buf.width() - 1), 0};
+				rectangle WriteRegion{ 0, 0, static_cast<int>(Buf.width() - 1), 0 };
 
 				for (size_t I = 0, Height = Buf.height(); I < Height; ++I)
 				{
 					auto BufRow = Buf[I], ShadowRow = Shadow[I];
 
-					WriteRegion.Top = static_cast<SHORT>(I);
-					WriteRegion.Bottom = static_cast<SHORT>(I - 1);
+					WriteRegion.top = static_cast<int>(I);
+					WriteRegion.bottom = static_cast<int>(I - 1);
 
 					while (I < Height && BufRow != ShadowRow)
 					{
 						I++;
 						BufRow = Buf[I];
 						ShadowRow = Shadow[I];
-						WriteRegion.Bottom++;
+						WriteRegion.bottom++;
 					}
 
-					if (WriteRegion.Bottom >= WriteRegion.Top)
+					if (WriteRegion.bottom >= WriteRegion.top)
 					{
 						WriteList.emplace_back(WriteRegion);
 						Changes=true;
@@ -366,7 +373,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 			else
 			{
 				bool Started=false;
-				SMALL_RECT WriteRegion = { static_cast<SHORT>(Buf.width() - 1), static_cast<SHORT>(Buf.height() - 1), 0, 0 };
+				rectangle WriteRegion = { static_cast<int>(Buf.width() - 1), static_cast<int>(Buf.height() - 1), 0, 0 };
 
 				auto PtrBuf = Buf.data(), PtrShadow = Shadow.data();
 				for (size_t I = 0, Height = Buf.height(); I < Height; ++I)
@@ -375,14 +382,14 @@ void ScreenBuf::Flush(flush_type FlushType)
 					{
 						if (*PtrBuf != *PtrShadow)
 						{
-							WriteRegion.Left = std::min(WriteRegion.Left, static_cast<SHORT>(J));
-							WriteRegion.Top = std::min(WriteRegion.Top, static_cast<SHORT>(I));
-							WriteRegion.Right = std::max(WriteRegion.Right, static_cast<SHORT>(J));
-							WriteRegion.Bottom = std::max(WriteRegion.Bottom, static_cast<SHORT>(I));
+							WriteRegion.left = std::min(WriteRegion.left, static_cast<int>(J));
+							WriteRegion.top = std::min(WriteRegion.top, static_cast<int>(I));
+							WriteRegion.right = std::max(WriteRegion.right, static_cast<int>(J));
+							WriteRegion.bottom = std::max(WriteRegion.bottom, static_cast<int>(I));
 							Changes=true;
 							Started=true;
 						}
-						else if (Started && static_cast<SHORT>(I) > WriteRegion.Bottom && static_cast<SHORT>(J) >= WriteRegion.Left)
+						else if (Started && static_cast<int>(I) > WriteRegion.bottom && static_cast<int>(J) >= WriteRegion.left)
 						{
 							if (m_ClearTypeFix == BSTATE_3STATE)
 							{
@@ -390,20 +397,20 @@ void ScreenBuf::Flush(flush_type FlushType)
 								// кстати, и при выключенном тоже (но реже).
 								// баг, конечно, не наш, но что делать.
 								// расширяем область прорисовки влево-вправо на 1 символ:
-								WriteRegion.Left=std::max(static_cast<SHORT>(0),static_cast<SHORT>(WriteRegion.Left-1));
-								WriteRegion.Right = std::min(static_cast<SHORT>(WriteRegion.Right + 1), static_cast<SHORT>(Buf.width() - 1));
+								WriteRegion.left = std::max(static_cast<int>(0), static_cast<int>(WriteRegion.left - 1));
+								WriteRegion.right = std::min(static_cast<int>(WriteRegion.right + 1), static_cast<int>(Buf.width() - 1));
 							}
 
 							bool Merge=false;
 							if (!WriteList.empty())
 							{
-								SMALL_RECT& Last=WriteList.back();
+								auto& Last = WriteList.back();
 								const int MAX_DELTA = 5;
-								if (WriteRegion.Top-1==Last.Bottom && ((WriteRegion.Left>=Last.Left && WriteRegion.Left-Last.Left<MAX_DELTA) || (Last.Right>=WriteRegion.Right && Last.Right-WriteRegion.Right<MAX_DELTA)))
+								if (WriteRegion.top - 1 == Last.bottom && ((WriteRegion.left >= Last.left && WriteRegion.left - Last.left < MAX_DELTA) || (Last.right >= WriteRegion.right && Last.right - WriteRegion.right < MAX_DELTA)))
 								{
-									Last.Bottom=WriteRegion.Bottom;
-									Last.Left=std::min(Last.Left,WriteRegion.Left);
-									Last.Right=std::max(Last.Right,WriteRegion.Right);
+									Last.bottom = WriteRegion.bottom;
+									Last.left = std::min(Last.left, WriteRegion.left);
+									Last.right = std::max(Last.right, WriteRegion.right);
 									Merge=true;
 								}
 							}
@@ -411,10 +418,10 @@ void ScreenBuf::Flush(flush_type FlushType)
 							if (!Merge)
 								WriteList.emplace_back(WriteRegion);
 
-							WriteRegion.Left = static_cast<SHORT>(Buf.width() - 1);
-							WriteRegion.Top = static_cast<SHORT>(Buf.height() - 1);
-							WriteRegion.Right=0;
-							WriteRegion.Bottom=0;
+							WriteRegion.left = static_cast<int>(Buf.width() - 1);
+							WriteRegion.top = static_cast<int>(Buf.height() - 1);
+							WriteRegion.right=0;
+							WriteRegion.bottom=0;
 							Started=false;
 						}
 					}
@@ -440,7 +447,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 			{
 				for (const auto& i: WriteList)
 				{
-					console.WriteOutput(Buf, { i.Left, i.Top }, i);
+					console.WriteOutput(Buf, { i.left, i.top }, i);
 				}
 
 				console.Commit();
@@ -463,19 +470,19 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 	if (FlushType & flush_type::cursor)
 	{
-		// Example: a dialog with and edit control, dragged beyond the screen
-		const auto IsCursorInBufffer = is_visible({ m_CurPos.x, m_CurPos.y, m_CurPos.x, m_CurPos.x });
+		// Example: a dialog with an edit control, dragged beyond the screen
+		const auto IsCursorInBuffer = is_visible(m_CurPos);
 
 		// Skip setting cursor position if it's not in the viewport to prevent Windows from repositioning the console window
-		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS) && IsCursorInBufffer && console.IsPositionVisible(m_CurPos))
+		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS) && IsCursorInBuffer && console.IsPositionVisible(m_CurPos))
 		{
-			console.SetCursorPosition({ static_cast<SHORT>(m_CurPos.x), static_cast<SHORT>(m_CurPos.y) });
+			console.SetCursorPosition(m_CurPos);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
 		}
 
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE))
 		{
-			console.SetCursorInfo({ CurSize, CurVisible && IsCursorInBufffer });
+			console.SetCursorInfo({ static_cast<DWORD>(CurSize), CurVisible && IsCursorInBuffer });
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 	}
@@ -501,7 +508,7 @@ void ScreenBuf::MoveCursor(point const Point)
 {
 	SCOPED_ACTION(std::lock_guard)(CS);
 
-	if (!is_visible({ m_CurPos.x, m_CurPos.y, m_CurPos.x, m_CurPos.x }))
+	if (!is_visible(m_CurPos))
 	{
 		CurVisible = false;
 	}
@@ -518,7 +525,7 @@ point ScreenBuf::GetCursorPos() const
 	return m_CurPos;
 }
 
-void ScreenBuf::SetCursorType(bool Visible, DWORD Size)
+void ScreenBuf::SetCursorType(bool Visible, size_t Size)
 {
 	/* $ 09.01.2001 SVS
 	   По наводке ER - в SetCursorType не дергать раньше
@@ -533,7 +540,7 @@ void ScreenBuf::SetCursorType(bool Visible, DWORD Size)
 	}
 }
 
-void ScreenBuf::GetCursorType(bool& Visible, DWORD& Size) const
+void ScreenBuf::GetCursorType(bool& Visible, size_t& Size) const
 {
 	Visible=CurVisible;
 	Size=CurSize;
@@ -566,9 +573,11 @@ void ScreenBuf::RestoreElevationChar()
 	}
 }
 
-//  проскроллировать буфер на одну строку вверх.
+//  проскроллировать буфер вверх.
 void ScreenBuf::Scroll(size_t Count)
 {
+	assert(Count);
+
 	SCOPED_ACTION(std::lock_guard)(CS);
 
 	const FAR_CHAR_INFO Fill{ L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
@@ -577,16 +586,16 @@ void ScreenBuf::Scroll(size_t Count)
 	{
 		if (console.IsScrollbackPresent())
 		{
-			SMALL_RECT Region = { 0, 0, ScrX, static_cast<SHORT>(Count - 1) };
+			rectangle Region = { 0, 0, ScrX, static_cast<int>(Count - 1) };
 
 			// TODO: matrix_view to avoid copying
 			matrix<FAR_CHAR_INFO> BufferBlock(Count, ScrX + 1);
-			Read({ Region.Left, Region.Top, Region.Right, Region.Bottom }, BufferBlock);
+			Read(Region, BufferBlock);
 
 			console.ScrollNonClientArea(Count, Fill);
 
-			Region.Top = static_cast<SHORT>(-static_cast<SHORT>(Count));
-			Region.Bottom = -1;
+			Region.top = -static_cast<int>(Count);
+			Region.bottom = -1;
 			console.WriteOutput(BufferBlock, Region);
 		}
 		else

@@ -49,6 +49,8 @@ namespace os
 	{
 		class file;
 		struct find_data;
+
+		using attributes = DWORD;
 	}
 }
 

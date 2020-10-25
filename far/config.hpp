@@ -765,7 +765,7 @@ public:
 		StringOption strKeyMacroCtrlDot, strKeyMacroRCtrlDot; // аля KEY_CTRLDOT/KEY_RCTRLDOT
 		StringOption strKeyMacroCtrlShiftDot, strKeyMacroRCtrlShiftDot; // аля KEY_CTRLSHIFTDOT/KEY_RCTRLSHIFTDOT
 		// internal
-		DWORD
+		unsigned
 			KeyMacroCtrlDot{},
 			KeyMacroRCtrlDot{},
 			KeyMacroCtrlShiftDot{},

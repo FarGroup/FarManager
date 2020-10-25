@@ -1013,7 +1013,7 @@ static bool CheckPanel(panel_mode PanelMode, MACROFLAGS_MFLAGS CurFlags, bool Is
 static bool CheckFileFolder(panel_ptr CheckPanel, MACROFLAGS_MFLAGS CurFlags, bool IsPassivePanel)
 {
 	string strFileName;
-	DWORD FileAttr;
+	os::fs::attributes FileAttr;
 	if (!CheckPanel->GetFileName(strFileName, CheckPanel->GetCurrentPos(), FileAttr))
 		return true;
 
@@ -1352,20 +1352,20 @@ bool KeyMacro::ExecuteString(MacroExecuteString *Data)
 	return false;
 }
 
-DWORD KeyMacro::GetMacroParseError(COORD* ErrPos, string& ErrSrc)
+DWORD KeyMacro::GetMacroParseError(point& ErrPos, string& ErrSrc)
 {
 	MacroPluginReturn Ret;
 	if (MacroPluginOp(OP_GETLASTERROR, false, &Ret))
 	{
 		ErrSrc = Ret.Values[0].String;
-		ErrPos->Y = static_cast<SHORT>(Ret.Values[1].Double);
-		ErrPos->X = static_cast<SHORT>(Ret.Values[2].Double);
+		ErrPos.y = static_cast<int>(Ret.Values[1].Double);
+		ErrPos.x = static_cast<int>(Ret.Values[2].Double);
 		return ErrSrc.empty() ? MPEC_SUCCESS : MPEC_ERROR;
 	}
 	else
 	{
 		ErrSrc = L"No response from macro plugin"sv;
-		ErrPos->Y = ErrPos->X = 0;
+		ErrPos = {};
 		return MPEC_ERROR;
 	}
 }
@@ -1545,7 +1545,7 @@ private:
 intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 {
 	intptr_t ret=0;
-	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
+	os::fs::attributes FileAttr = INVALID_FILE_ATTRIBUTES;
 	FarMacroApi api(Data);
 
 	// проверка на область
@@ -2264,7 +2264,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				{
 					const auto SortMode = panel_sort{ static_cast<int>(Data->Values[1].Double) };
 					const auto InvertByDefault = Data->Values[2].Boolean != 0;
-					const auto Order = Data->Count < 4 || Data->Values[3].Type != FMVT_DOUBLE || !in_range(static_cast<int>(sort_order::first), static_cast<int>(Data->Values[3].Double), static_cast<int>(sort_order::last))?
+					const auto Order = Data->Count < 4 || Data->Values[3].Type != FMVT_DOUBLE || !in_closed_range(static_cast<int>(sort_order::first), static_cast<int>(Data->Values[3].Double), static_cast<int>(sort_order::last))?
 						sort_order::flip_or_default :
 						sort_order{ static_cast<int>(Data->Values[3].Double) };
 
@@ -2907,36 +2907,7 @@ int FarMacroApi::xlatFunc()
 int FarMacroApi::beepFunc()
 {
 	auto Params = parseParams(1, mData);
-	/*
-		MB_ICONASTERISK = 0x00000040
-			Звук Звездочка
-		MB_ICONEXCLAMATION = 0x00000030
-		    Звук Восклицание
-		MB_ICONHAND = 0x00000010
-		    Звук Критическая ошибка
-		MB_ICONQUESTION = 0x00000020
-		    Звук Вопрос
-		MB_OK = 0x0
-		    Стандартный звук
-		SIMPLE_BEEP = 0xffffffff
-		    Встроенный динамик
-	*/
-	const auto Ret = MessageBeep(static_cast<UINT>(Params[0].asInteger())) != FALSE;
-
-	/*
-		http://msdn.microsoft.com/en-us/library/dd743680%28VS.85%29.aspx
-		BOOL PlaySound(
-	    	LPCTSTR pszSound,
-	    	HMODULE hmod,
-	    	DWORD fdwSound
-		);
-
-		http://msdn.microsoft.com/en-us/library/dd798676%28VS.85%29.aspx
-		BOOL sndPlaySound(
-	    	LPCTSTR lpszSound,
-	    	UINT fuSound
-		);
-	*/
+	const auto Ret = MessageBeep(static_cast<unsigned>(Params[0].asInteger())) != FALSE;
 
 	PassBoolean(Ret);
 	return Ret;
@@ -3480,7 +3451,7 @@ int FarMacroApi::panelselectFunc()
 int FarMacroApi::fattrFuncImpl(int Type)
 {
 	int Ret=0;
-	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
+	os::fs::attributes FileAttr = INVALID_FILE_ATTRIBUTES;
 	long Pos=-1;
 
 	if (!Type || Type == 2) // не панели: fattr(0) & fexist(2)
@@ -3570,7 +3541,7 @@ int FarMacroApi::flockFunc()
 	auto Params = parseParams(2, mData);
 	int Ret = -1;
 	const auto stateFLock = static_cast<int>(Params[1].asInteger());
-	auto vkKey = static_cast<UINT>(Params[0].asInteger());
+	auto vkKey = static_cast<unsigned>(Params[0].asInteger());
 
 	switch (vkKey)
 	{

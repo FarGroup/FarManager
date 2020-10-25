@@ -213,7 +213,7 @@ struct Help::StackHelpData
 	int CurX{}, CurY{};           // координаты (???)
 };
 
-static bool GetOptionsParam(const os::fs::file& LangFile, string_view const KeyName, string& Value, UINT CodePage)
+static bool GetOptionsParam(const os::fs::file& LangFile, string_view const KeyName, string& Value, unsigned CodePage)
 {
 	return GetLangParam(LangFile, L"Options "sv + KeyName, Value, nullptr, CodePage);
 }
@@ -363,7 +363,7 @@ bool Help::ReadHelp(string_view const Mask)
 		unsigned UserTabSize;
 		if (from_string(strReadStr, UserTabSize))
 		{
-			if (in_range(0u, UserTabSize, 16u))
+			if (in_closed_range(0u, UserTabSize, 16u))
 			{
 				CtrlTabSize = UserTabSize;
 			}
@@ -936,7 +936,7 @@ void Help::FastShow()
 	}
 
 	SetColor(COL_HELPSCROLLBAR);
-	ScrollBarEx(m_Where.right, m_Where.top + HeaderHeight() + 1, BodyHeight(), StackData->TopStr, HelpList.size() - FixCount);
+	ScrollBar(m_Where.right, m_Where.top + HeaderHeight() + 1, BodyHeight(), StackData->TopStr, HelpList.size() - FixCount);
 }
 
 void Help::DrawWindowFrame() const

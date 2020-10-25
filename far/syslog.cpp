@@ -202,7 +202,7 @@ void OpenSysLog()
 	if (!LogStream)
 	{
 		auto strLogFileName = path::join(Global->g_strFarPath, L"$Log");
-		DWORD Attr=os::fs::get_file_attributes(strLogFileName);
+		const auto Attr = os::fs::get_file_attributes(strLogFileName);
 
 		if (Attr == INVALID_FILE_ATTRIBUTES)
 		{

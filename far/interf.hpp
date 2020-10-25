@@ -52,10 +52,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct FAR_CHAR_INFO;
 struct FarColor;
 enum class lng : int;
-extern WCHAR BoxSymbols[];
-extern COORD InitSize, CurSize;
-extern SHORT ScrX,ScrY;
-extern SHORT PrevScrX,PrevScrY;
+extern wchar_t BoxSymbols[];
+extern point InitSize, CurSize;
+extern int ScrX, ScrY;
+extern int PrevScrX,PrevScrY;
 
 struct console_mode
 {
@@ -151,11 +151,10 @@ int WhereX();
 int WhereY();
 void MoveCursor(point Point);
 point GetCursorPos();
-void SetCursorType(bool Visible, DWORD Size);
+void SetCursorType(bool Visible, size_t Size);
 void SetInitialCursorType();
-void GetCursorType(bool& Visible, DWORD& Size);
+void GetCursorType(bool& Visible, size_t& Size);
 void MoveRealCursor(int X,int Y);
-void GetRealCursorPos(SHORT& X,SHORT& Y);
 void ScrollScreen(int Count);
 bool DoWeReallyHaveToScroll(short Rows);
 
@@ -186,9 +185,9 @@ void ClearScreen(const FarColor& Color);
 const FarColor& GetColor();
 
 void Box(rectangle Where, const FarColor& Color,int Type);
-bool ScrollBarRequired(UINT Length, unsigned long long ItemsCount);
-bool ScrollBarEx(UINT X1, UINT Y1, UINT Length, unsigned long long TopItem, unsigned long long ItemsCount);
-bool ScrollBarEx3(UINT X1, UINT Y1, UINT Length, unsigned long long Start, unsigned long long End, unsigned long long Size);
+bool ScrollBarRequired(size_t Length, unsigned long long ItemsCount);
+bool ScrollBar(size_t X1, size_t Y1, size_t Length, unsigned long long TopItem, unsigned long long ItemsCount);
+bool ScrollBarEx(size_t X1, size_t Y1, size_t Length, unsigned long long Start, unsigned long long End, unsigned long long Size);
 
 enum class line_type
 {
@@ -238,8 +237,8 @@ string escape_ampersands(string_view Str);
 bool IsConsoleFullscreen();
 bool IsConsoleSizeChanged();
 
-void SaveNonMaximisedBufferSize(const COORD& Size);
-COORD GetNonMaximisedBufferSize();
+void SaveNonMaximisedBufferSize(point const& Size);
+point GetNonMaximisedBufferSize();
 
 void AdjustConsoleScreenBufferSize();
 

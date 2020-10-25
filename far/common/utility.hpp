@@ -212,12 +212,12 @@ namespace flags
 }
 
 [[nodiscard]]
-constexpr size_t aligned_size(size_t Size, size_t Alignment = MEMORY_ALLOCATION_ALIGNMENT)
+constexpr size_t aligned_size(size_t Size, size_t Alignment = alignof(std::max_align_t))
 {
 	return (Size + (Alignment - 1)) & ~(Alignment - 1);
 }
 
-template<typename T, int Alignment = MEMORY_ALLOCATION_ALIGNMENT>
+template<typename T, size_t Alignment = alignof(std::max_align_t)>
 [[nodiscard]]
 constexpr auto aligned_sizeof()
 {

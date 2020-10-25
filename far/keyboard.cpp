@@ -359,7 +359,7 @@ void InitKeysArray()
 		//***********
 		//Имея мапирование юникод -> VK строим обратное мапирование
 		//VK -> символы с кодом меньше 0x80, т.е. только US-ASCII символы
-		for (WCHAR i=1; i < 0x80; i++)
+		for (wchar_t i = 1; i < 0x80; i++)
 		{
 			const auto x = KeyToVKey[i];
 
@@ -397,7 +397,7 @@ int KeyToKeyLayout(int Key)
   State:
     -1 get state, 0 off, 1 on, 2 flip
 */
-int SetFLockState(UINT vkKey, int State)
+int SetFLockState(unsigned const vkKey, int const State)
 {
 	const auto ExKey = (vkKey == VK_CAPITAL? 0 : KEYEVENTF_EXTENDEDKEY);
 
@@ -663,8 +663,8 @@ static bool ProcessMacros(INPUT_RECORD* rec, DWORD& Result)
 			return false;
 
 		rec->EventType =
-			in_range(KEY_MACRO_BASE, static_cast<far_key_code>(MacroKey), KEY_MACRO_ENDBASE) ||
-			in_range(KEY_OP_BASE, static_cast<far_key_code>(MacroKey), KEY_OP_ENDBASE) ||
+			in_closed_range(KEY_MACRO_BASE, static_cast<far_key_code>(MacroKey), KEY_MACRO_ENDBASE) ||
+			in_closed_range(KEY_OP_BASE, static_cast<far_key_code>(MacroKey), KEY_OP_ENDBASE) ||
 			(MacroKey&~0xFF000000) >= KEY_END_FKEY?
 			0 : KEY_EVENT;
 
@@ -720,7 +720,7 @@ static DWORD ProcessFocusEvent(bool Got)
 	return CalcKey;
 }
 
-static DWORD ProcessBufferSizeEvent(COORD Size)
+static DWORD ProcessBufferSizeEvent(point const Size)
 {
 	if (WindowState.is_restored())
 	{
@@ -1073,7 +1073,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	)
 	{
 		// Do not use rec->Event.WindowBufferSizeEvent.dwSize here - we need a 'virtual' size
-		COORD Size;
+		point Size;
 		return console.GetSize(Size)? ProcessBufferSizeEvent(Size) : static_cast<DWORD>(KEY_CONSOLE_BUFFER_RESIZE);
 	}
 
@@ -1574,12 +1574,12 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 			VirtKey=FKey-KEY_FKEY_BEGIN;
 		else if (FKey && FKey < WCHAR_MAX)
 		{
-			short Vk = VkKeyScan(static_cast<WCHAR>(FKey));
+			short Vk = VkKeyScan(static_cast<wchar_t>(FKey));
 			if (Vk == -1)
 			{
 				for (const auto& i: Layout())
 				{
-					if ((Vk = VkKeyScanEx(static_cast<WCHAR>(FKey), i)) != -1)
+					if ((Vk = VkKeyScanEx(static_cast<wchar_t>(FKey), i)) != -1)
 						break;
 				}
 			}
@@ -1927,7 +1927,7 @@ bool IsInternalKeyReal(unsigned int Key)
 
 bool IsCharKey(unsigned int Key)
 {
-	return Key < 0x1000 || in_range(KEY_MULTIPLY, Key, KEY_DIVIDE);
+	return Key < 0x1000 || in_closed_range(KEY_MULTIPLY, Key, KEY_DIVIDE);
 }
 
 unsigned int ShieldCalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
@@ -2107,10 +2107,10 @@ unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 {
 	_SVS(CleverSysLog Clev(L"CalcKeyCode"));
 	_SVS(SysLog(L"CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
-	const UINT CtrlState=(rec->EventType==MOUSE_EVENT)?rec->Event.MouseEvent.dwControlKeyState:rec->Event.KeyEvent.dwControlKeyState;
-	const UINT ScanCode=rec->Event.KeyEvent.wVirtualScanCode;
-	const UINT KeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
-	const WCHAR Char=rec->Event.KeyEvent.uChar.UnicodeChar;
+	const auto CtrlState = rec->EventType==MOUSE_EVENT? rec->Event.MouseEvent.dwControlKeyState : rec->Event.KeyEvent.dwControlKeyState;
+	const auto ScanCode = rec->Event.KeyEvent.wVirtualScanCode;
+	const auto KeyCode = rec->Event.KeyEvent.wVirtualKeyCode;
+	const auto Char = rec->Event.KeyEvent.uChar.UnicodeChar;
 
 	if (NotMacros)
 		*NotMacros = (CtrlState&0x80000000) != 0;
@@ -2275,7 +2275,7 @@ unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 	if (KeyCode==VK_MENU)
 		AltValue=0;
 
-	if (in_range(unsigned(VK_F1), KeyCode, unsigned(VK_F24)))
+	if (in_closed_range(unsigned(VK_F1), KeyCode, unsigned(VK_F24)))
 		return Modif + KEY_F1 + (KeyCode - VK_F1);
 
 	if (IntKeyState.OnlyAltPressed())
@@ -2356,7 +2356,7 @@ unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 		return Char;
 	}
 
-	if (in_range(L'0',  KeyCode, L'9') || in_range(L'A', KeyCode, L'Z'))
+	if (in_closed_range(L'0',  KeyCode, L'9') || in_closed_range(L'A', KeyCode, L'Z'))
 		return Modif | KeyCode;
 
 	if (const auto OemKey = GetMappedCharacter(KeyCode))

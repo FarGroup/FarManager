@@ -146,8 +146,8 @@ public:
 
 	void Xlat(bool All=false);
 
-	void SetCursorType(bool Visible, DWORD Size);
-	void GetCursorType(bool& Visible, DWORD& Size) const;
+	void SetCursorType(bool Visible, size_t Size);
+	void GetCursorType(bool& Visible, size_t& Size) const;
 
 	bool GetReadOnly() const;
 	void SetReadOnly(bool NewReadOnly);

@@ -368,7 +368,7 @@ public:
 	virtual void SetAuthor(unsigned long long id, string_view Author) = 0;
 	virtual void SetDescription(unsigned long long id, string_view Description) = 0;
 	[[nodiscard]]
-	virtual bool EnumPlugins(DWORD index, string &CacheName) const = 0;
+	virtual bool EnumPlugins(size_t Index, string &CacheName) const = 0;
 	virtual void DiscardCache() = 0;
 	[[nodiscard]]
 	virtual bool IsCacheEmpty() const = 0;

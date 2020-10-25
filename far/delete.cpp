@@ -104,7 +104,7 @@ public:
 	};
 
 private:
-	bool ConfirmDeleteReadOnlyFile(string_view Name, DWORD Attr);
+	bool ConfirmDeleteReadOnlyFile(string_view Name, os::fs::attributes Attr);
 	bool ShellRemoveFile(string_view Name, progress Files);
 	bool ERemoveDirectory(string_view Name, delete_type Type, bool& RetryRecycleAsRemove);
 	bool RemoveToRecycleBin(string_view Name, bool dir, bool& RetryRecycleAsRemove, bool& Skip);
@@ -779,7 +779,7 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, delete_type const Type):
 	}
 }
 
-bool ShellDelete::ConfirmDeleteReadOnlyFile(string_view const Name, DWORD Attr)
+bool ShellDelete::ConfirmDeleteReadOnlyFile(string_view const Name, os::fs::attributes Attr)
 {
 	if (!(Attr & FILE_ATTRIBUTE_READONLY))
 		return true;

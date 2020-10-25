@@ -54,7 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-void save_file_with_replace(string_view const FileName, DWORD const FileAttributes, DWORD const ExtraAttributes, bool const CreateBackup, function_ref<void(std::ostream& Sream)> const Handler)
+void save_file_with_replace(string_view const FileName, os::fs::attributes const FileAttributes, os::fs::attributes const ExtraAttributes, bool const CreateBackup, function_ref<void(std::ostream& Sream)> const Handler)
 {
 	const auto IsFileExists = FileAttributes != INVALID_FILE_ATTRIBUTES;
 

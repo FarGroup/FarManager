@@ -34,12 +34,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "../algorithm.hpp"
+#include "../rel_ops.hpp"
 #include "point.hpp"
 
 //----------------------------------------------------------------------------
 
 template<typename T>
-struct rectangle_t
+struct rectangle_t: public rel_ops<rectangle_t<T>>
 {
 	T left;
 	T top;
@@ -64,6 +65,21 @@ struct rectangle_t
 	{
 	}
 
+	template<typename Y>
+	rectangle_t(Y const& Rectangle) noexcept:
+		rectangle_t(Rectangle.Left, Rectangle.Top, Rectangle.Right, Rectangle.Bottom)
+	{
+	}
+
+	bool operator==(rectangle_t const& rhs) const
+	{
+		return
+			left == rhs.left &&
+			top == rhs.top &&
+			right == rhs.right &&
+			bottom == rhs.bottom;
+	}
+
 	[[nodiscard]]
 	auto width() const noexcept { assert(left <= right); return right - left + 1; }
 
@@ -71,9 +87,9 @@ struct rectangle_t
 	auto height() const noexcept { assert(top <= bottom); return bottom - top + 1; }
 
 	[[nodiscard]]
-	bool contains(point Point) const noexcept
+	bool contains(point const& Point) const noexcept
 	{
-		return in_range(left, Point.x, right) && in_range(top, Point.y, bottom);
+		return in_closed_range(left, Point.x, right) && in_closed_range(top, Point.y, bottom);
 	}
 };
 

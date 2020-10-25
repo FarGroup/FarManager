@@ -117,16 +117,16 @@ private:
 	void CopyFileTree(const string& Dest);
 	COPY_CODES ShellCopyOneFile(const string& Src, const os::fs::find_data& SrcData, string& strDest, int KeepPathPos, int Rename);
 	void CheckStreams(const string& Src, const string& DestPath);
-	int ShellCopyFile(const string& SrcName, const os::fs::find_data& SrcData, string& strDestName, DWORD& DestAttr, int Append, std::optional<error_state_ex>& ErrorState);
+	int ShellCopyFile(const string& SrcName, const os::fs::find_data& SrcData, string& strDestName, os::fs::attributes& DestAttr, int Append, std::optional<error_state_ex>& ErrorState);
 	int ShellSystemCopy(const string& SrcName, const string& DestName, const os::fs::find_data& SrcData);
-	int DeleteAfterMove(const string& Name, DWORD Attr);
-	bool AskOverwrite(const os::fs::find_data& SrcData, const string& SrcName, const string& DestName, DWORD DestAttr, int SameName, int Rename, int AskAppend, int& Append, string& strNewName, COPY_CODES& RetCode);
+	int DeleteAfterMove(const string& Name, os::fs::attributes Attr);
+	bool AskOverwrite(const os::fs::find_data& SrcData, const string& SrcName, const string& DestName, os::fs::attributes DestAttr, int SameName, int Rename, int AskAppend, int& Append, string& strNewName, COPY_CODES& RetCode);
 	os::security::descriptor GetSecurity(const string& FileName);
 	void SetSecurity(const string& FileName, const os::security::descriptor& sd);
 	void ResetSecurity(const string& FileName);
 	void ResetSecurityRecursively(const string& FileName);
 	void CalcTotalSize() const;
-	void ShellSetAttr(const string& Dest, DWORD Attr);
+	void ShellSetAttr(const string& Dest, os::fs::attributes Attr);
 	void SetDestDizPath(const string& DestPath);
 	static intptr_t WarnDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	intptr_t CopyDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
@@ -586,7 +586,7 @@ ShellCopy::ShellCopy(
 		return;
 
 	string SingleSelName;
-	DWORD SingleSelAttributes = 0;
+	os::fs::attributes SingleSelAttributes = 0;
 	unsigned long long SingleSelectedFileSize = 0;
 
 	if (SelCount==1)
@@ -1310,7 +1310,7 @@ ShellCopy::ShellCopy(
 void ShellCopy::CopyFileTree(const string& Dest)
 {
 	//SaveScreen SaveScr;
-	DWORD DestAttr = INVALID_FILE_ATTRIBUTES;
+	os::fs::attributes DestAttr = INVALID_FILE_ATTRIBUTES;
 
 	if (Dest.empty() || IsCurrentDirectory(Dest))
 		return;
@@ -1750,7 +1750,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	string strDestPath = strDest;
 
-	DWORD DestAttr=INVALID_FILE_ATTRIBUTES;
+	os::fs::attributes DestAttr = INVALID_FILE_ATTRIBUTES;
 
 	os::fs::find_data DestData;
 	if (!(Flags&FCOPY_COPYTONUL))
@@ -1859,7 +1859,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			{
 				if ((DestAttr & FILE_ATTRIBUTE_DIRECTORY) && !SameName)
 				{
-					DWORD SetAttr=SrcData.Attributes;
+					auto SetAttr = SrcData.Attributes;
 
 					if (SrcDriveType == DRIVE_CDROM && (SetAttr & FILE_ATTRIBUTE_READONLY))
 						SetAttr&=~FILE_ATTRIBUTE_READONLY;
@@ -1979,7 +1979,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				if (Global->Opt->CMOpt.PreserveTimestamps)
 					m_CreatedFolders.emplace_back(strDestPath, SrcData);
 
-				DWORD SetAttr=SrcData.Attributes;
+				auto SetAttr = SrcData.Attributes;
 
 				if (SrcDriveType == DRIVE_CDROM && (SetAttr & FILE_ATTRIBUTE_READONLY))
 					SetAttr&=~FILE_ATTRIBUTE_READONLY;
@@ -2124,7 +2124,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					int CopyCode;
 					do
 					{
-						DWORD Attr=INVALID_FILE_ATTRIBUTES;
+						os::fs::attributes Attr = INVALID_FILE_ATTRIBUTES;
 						CopyCode = ShellCopyFile(Src, SrcData, strDestPath, Attr, Append, ErrorState);
 					}
 					while (CopyCode==COPY_RETRY);
@@ -2350,7 +2350,7 @@ void ShellCopy::CheckStreams(const string& Src, const string& DestPath)
 	}
 }
 
-int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
+int ShellCopy::DeleteAfterMove(const string& Name, os::fs::attributes Attr)
 {
 	const auto FullName = ConvertNameToFull(Name);
 	if (Attr & FILE_ATTRIBUTE_READONLY)
@@ -2433,8 +2433,14 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 
 
 
-int ShellCopy::ShellCopyFile(const string& SrcName,const os::fs::find_data &SrcData,
-                             string &strDestName,DWORD &DestAttr,int Append, std::optional<error_state_ex>& ErrorState)
+int ShellCopy::ShellCopyFile(
+	string const& SrcName,
+	os::fs::find_data const& SrcData,
+	string& strDestName,
+	os::fs::attributes& DestAttr,
+	int Append,
+	std::optional<error_state_ex>& ErrorState
+)
 {
 	if ((Flags&FCOPY_LINK))
 	{
@@ -2923,7 +2929,7 @@ bool ShellCopy::AskOverwrite(
 	const os::fs::find_data &SrcData,
 	const string& SrcName,
 	const string& DestName,
-	DWORD DestAttr,
+	os::fs::attributes DestAttr,
 	int SameName,
 	int Rename,
 	int AskAppend,
@@ -3462,7 +3468,7 @@ void ShellCopy::CalcTotalSize() const
   Оболочка вокруг SetFileAttributes() для
   корректного выставления атрибутов
 */
-void ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
+void ShellCopy::ShellSetAttr(const string& Dest, os::fs::attributes Attr)
 {
 	DWORD FileSystemFlagsDst=0;
 	if ((Attr & (FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_ENCRYPTED)) && os::fs::GetVolumeInformation(GetPathRoot(Dest), nullptr, nullptr, nullptr, &FileSystemFlagsDst, nullptr))

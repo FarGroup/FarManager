@@ -2081,7 +2081,7 @@ void Dialog::ShowDialog(size_t ID)
 
 					// Курсор запоминаем...
 					bool CursorVisible=false;
-					DWORD CursorSize=0;
+					size_t CursorSize = 0;
 					GetCursorType(CursorVisible,CursorSize);
 					Item.ListPtr->Show();
 
@@ -2490,7 +2490,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 	if (ProcessMoveDialog(LocalKey()))
 		return true;
 
-	if (!in_range(KEY_OP_BASE, LocalKey(), KEY_OP_ENDBASE) && !DialogMode.Check(DMODE_KEY))
+	if (!in_closed_range(KEY_OP_BASE, LocalKey(), KEY_OP_ENDBASE) && !DialogMode.Check(DMODE_KEY))
 	{
 		// wrap-stop mode for user lists
 		if (any_of(LocalKey(), KEY_UP, KEY_NUMPAD8, KEY_DOWN, KEY_NUMPAD2) && IsRepeatedKey())
@@ -4348,7 +4348,7 @@ void Dialog::ResizeConsole()
 		Hide();
 	}
 
-	COORD c = {static_cast<SHORT>(ScrX+1), static_cast<SHORT>(ScrY+1)};
+	COORD c = {static_cast<short>(ScrX+1), static_cast<short>(ScrY+1)};
 	SendMessage(DN_RESIZECONSOLE, 0, &c);
 
 	const auto Rect = GetPosition();
@@ -5303,8 +5303,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			if (IsEdit(Type) && CurItem->ObjPtr)
 			{
-				bool Visible;
-				DWORD Size;
+				bool Visible{};
+				size_t Size{};
 				static_cast<DlgEdit*>(CurItem->ObjPtr)->GetCursorType(Visible,Size);
 				return MAKELONG(Visible,Size);
 			}
@@ -5320,8 +5320,8 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		//   Return MAKELONG(OldVisible,OldSize)
 		case DM_SETCURSORSIZE:
 		{
-			bool Visible = false;
-			DWORD Size=0;
+			bool Visible{};
+			size_t Size{};
 
 			if (IsEdit(Type) && CurItem->ObjPtr)
 			{

@@ -509,7 +509,7 @@ static os::com::ptr<IFileIsInUse> CreateIFileIsInUse(const string& File)
 static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, function_ref<bool(string&&)> const Handler)
 {
 	DWORD Session;
-	WCHAR SessionKey[CCH_RM_SESSION_KEY + 1] = {};
+	wchar_t SessionKey[CCH_RM_SESSION_KEY + 1] = {};
 	if (imports.RmStartSession(&Session, 0, SessionKey) != ERROR_SUCCESS)
 		return 0;
 
@@ -519,8 +519,7 @@ static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, fun
 		return 0;
 
 	DWORD RmGetListResult;
-	UINT ProceccInfoSizeNeeded = 0;
-	UINT ProcessInfoSize = 1;
+	unsigned ProceccInfoSizeNeeded = 0, ProcessInfoSize = 1;
 	std::vector<RM_PROCESS_INFO> ProcessInfos(ProcessInfoSize);
 	while ((RmGetListResult = imports.RmGetList(Session, &ProceccInfoSizeNeeded, &ProcessInfoSize, ProcessInfos.data(), &Reasons)) == ERROR_MORE_DATA)
 	{

@@ -165,7 +165,7 @@ enum DIALOGMODE
 static const struct
 {
 	int Id;
-	DWORD Attribute;
+	os::fs::attributes Attribute;
 	lng LngId;
 }
 AttributeMap[]
@@ -668,7 +668,7 @@ static bool process_single_file(
 
 	ESetFileSparse(Name, (New.FindData.Attributes & FILE_ATTRIBUTE_SPARSE_FILE) != 0, Current.FindData.Attributes, SkipErrors);
 
-	const auto IsChanged = [&](DWORD const Attributes)
+	const auto IsChanged = [&](os::fs::attributes const Attributes)
 	{
 		return (New.FindData.Attributes & Attributes) != (Current.FindData.Attributes & Attributes);
 	};
@@ -1218,7 +1218,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				if (SingleSelFindData.Attributes == INVALID_FILE_ATTRIBUTES)
 					return true;
 
-				DWORD SetAttr = 0, ClearAttr = 0;
+				os::fs::attributes SetAttr = 0, ClearAttr = 0;
 
 				for (const auto& [i, Attr]: zip(DlgParam.Attributes, AttributeMap))
 				{

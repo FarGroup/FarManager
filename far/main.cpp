@@ -431,7 +431,7 @@ static std::optional<int> ProcessServiceModes(span<const wchar_t* const> const A
 		return ElevationMain(Args[1], std::wcstoul(Args[2], nullptr, 10), *Args[3] == L'1');
 	}
 
-	if (in_range(2u, Args.size(), 5u) && (isArg(Args[0], L"export"sv) || isArg(Args[0], L"import"sv)))
+	if (in_closed_range(2u, Args.size(), 5u) && (isArg(Args[0], L"export"sv) || isArg(Args[0], L"import"sv)))
 	{
 		const auto Export = isArg(Args[0], L"export"sv);
 		string strProfilePath(Args.size() > 2? Args[2] : L""sv), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
@@ -442,7 +442,7 @@ static std::optional<int> ProcessServiceModes(span<const wchar_t* const> const A
 		return EXIT_SUCCESS;
 	}
 
-	if (in_range(1u, Args.size(), 3u) && isArg(Args[0], L"clearcache"sv))
+	if (in_closed_range(1u, Args.size(), 3u) && isArg(Args[0], L"clearcache"sv))
 	{
 		string strProfilePath(Args.size() > 1? Args[1] : L""sv);
 		string strLocalProfilePath(Args.size() > 2? Args[2] : L""sv);

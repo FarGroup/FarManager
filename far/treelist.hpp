@@ -121,7 +121,7 @@ private:
 	long FindFirst(string_view Name) override;
 	long FindNext(int StartPos, string_view Name) override;
 	size_t GetFileCount() const override { return m_ListData.size(); }
-	bool GetFileName(string &strName, int Pos, DWORD &FileAttr) const override;
+	bool GetFileName(string &strName, int Pos, os::fs::attributes& FileAttr) const override;
 	void RefreshTitle() override;
 	string GetTitle() const override;
 	void OnFocusChange(bool Get) override;

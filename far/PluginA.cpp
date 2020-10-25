@@ -1402,10 +1402,10 @@ static uintptr_t GetEditorCodePageA()
 {
 	EditorInfo info = { sizeof(EditorInfo) };
 	pluginapi::apiEditorControl(-1, ECTL_GETINFO, 0, &info);
-	uintptr_t CodePage = info.CodePage;
+	auto CodePage = info.CodePage;
 	CPINFO cpi;
 
-	if (!GetCPInfo(static_cast<UINT>(CodePage), &cpi) || cpi.MaxCharSize > 1)
+	if (!GetCPInfo(static_cast<unsigned>(CodePage), &cpi) || cpi.MaxCharSize > 1)
 		CodePage = encoding::codepage::ansi();
 
 	return CodePage;
@@ -1441,11 +1441,11 @@ static int GetEditorCodePageFavA()
 	return result;
 }
 
-static void MultiByteRecode(UINT nCPin, UINT nCPout, span<char> const Buffer)
+static void MultiByteRecode(uintptr_t const CPin, uintptr_t const CPout, span<char> const Buffer)
 {
 	if (!Buffer.empty())
 	{
-		(void)encoding::get_bytes(nCPout, encoding::get_chars(nCPin, { Buffer.data(), Buffer.size() }), Buffer);
+		(void)encoding::get_bytes(CPout, encoding::get_chars(CPin, { Buffer.data(), Buffer.size() }), Buffer);
 	}
 }
 
@@ -3141,7 +3141,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			{
 				intptr_t Size = pluginapi::apiSendDlgMessage(hDlg, DM_LISTGETDATASIZE, Param1, Param2);
 				intptr_t Data = pluginapi::apiSendDlgMessage(hDlg, DM_LISTGETDATA, Param1, Param2);
-				if(Size<=4) Data=Data?*reinterpret_cast<UINT*>(Data):0;
+				if(Size<=4) Data=Data?*reinterpret_cast<unsigned*>(Data):0;
 				return Data;
 			}
 			case oldfar::DM_LISTSETDATA:
@@ -4836,8 +4836,8 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 			inplace::upper({ us.get(), std::size(TableSet->DecodeTable) });
 			(void)encoding::get_bytes(nCP, { us.get(), std::size(TableSet->DecodeTable) }, { reinterpret_cast<char*>(TableSet->UpperTable), std::size(TableSet->DecodeTable) });
 
-			MultiByteRecode(static_cast<UINT>(nCP), CP_OEMCP, { reinterpret_cast<char*>(TableSet->DecodeTable), std::size(TableSet->DecodeTable) });
-			MultiByteRecode(CP_OEMCP, static_cast<UINT>(nCP), { reinterpret_cast<char*>(TableSet->EncodeTable), std::size(TableSet->EncodeTable) });
+			MultiByteRecode(nCP, CP_OEMCP, { reinterpret_cast<char*>(TableSet->DecodeTable), std::size(TableSet->DecodeTable) });
+			MultiByteRecode(CP_OEMCP, nCP, { reinterpret_cast<char*>(TableSet->EncodeTable), std::size(TableSet->EncodeTable) });
 			return Command;
 		}
 		return -1;

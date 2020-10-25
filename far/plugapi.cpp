@@ -731,50 +731,61 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 		case ACTL_GETFARRECT:
 			{
-				BOOL Result=FALSE;
-				if(Param2)
+				if (!Param2)
+					return false;
+
+				auto& Rect = *static_cast<SMALL_RECT*>(Param2);
+
+				if(Global->Opt->WindowMode)
 				{
-					auto& Rect = *static_cast<PSMALL_RECT>(Param2);
-					if(Global->Opt->WindowMode)
-					{
-						Result=console.GetWorkingRect(Rect);
-					}
-					else
-					{
-						COORD Size;
-						if(console.GetSize(Size))
-						{
-							Rect.Left=0;
-							Rect.Top=0;
-							Rect.Right=Size.X-1;
-							Rect.Bottom=Size.Y-1;
-							Result=TRUE;
-						}
-					}
+					rectangle FarRect;
+					if (!console.GetWorkingRect(FarRect))
+						return false;
+
+					Rect.Left = FarRect.left;
+					Rect.Top = FarRect.top;
+					Rect.Right = FarRect.right;
+					Rect.Bottom = FarRect.bottom;
+
+					return true;
 				}
-				return Result;
+				else
+				{
+					point Size;
+					if (!console.GetSize(Size))
+						return false;
+
+					Rect.Left = 0;
+					Rect.Top = 0;
+					Rect.Right = Size.x - 1;
+					Rect.Bottom = Size.y - 1;
+
+					return true;
+				}
 			}
 
 		case ACTL_GETCURSORPOS:
 			{
-				BOOL Result=FALSE;
-				if(Param2)
-				{
-					auto& Pos = *static_cast<PCOORD>(Param2);
-					Result=console.GetCursorPosition(Pos);
-				}
-				return Result;
+				if (!Param2)
+					return false;
+
+				point CursorPosition;
+				if (!console.GetCursorPosition(CursorPosition))
+					return false;
+
+				auto& Pos = *static_cast<PCOORD>(Param2);
+				Pos.X = CursorPosition.x;
+				Pos.Y = CursorPosition.y;
+
+				return true;
 			}
 
 		case ACTL_SETCURSORPOS:
 			{
-				BOOL Result=FALSE;
-				if(Param2)
-				{
-					auto& Pos = *static_cast<PCOORD>(Param2);
-					Result=console.SetCursorPosition(Pos);
-				}
-				return Result;
+				if (!Param2)
+					return false;
+
+				return console.SetCursorPosition(*static_cast<COORD const*>(Param2));
 			}
 
 		case ACTL_PROGRESSNOTIFY:
@@ -2587,10 +2598,10 @@ intptr_t WINAPI apiMacroControl(const UUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 		//Param1=size of buffer, Param2 - MacroParseResult*
 		case MCTL_GETLASTERROR:
 			{
-				COORD ErrPos = {};
+				point ErrPos;
 				string ErrSrc;
 
-				const auto ErrCode = Macro.GetMacroParseError(&ErrPos, ErrSrc);
+				const auto ErrCode = Macro.GetMacroParseError(ErrPos, ErrSrc);
 
 				auto Size = static_cast<int>(aligned_sizeof<MacroParseResult>());
 				const size_t stringOffset = Size;
@@ -2602,7 +2613,7 @@ intptr_t WINAPI apiMacroControl(const UUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 				{
 					Result->StructSize = sizeof(MacroParseResult);
 					Result->ErrCode = ErrCode;
-					Result->ErrPos = ErrPos;
+					Result->ErrPos = { static_cast<short>(ErrPos.x), static_cast<short>(ErrPos.y) };
 					Result->ErrSrc = reinterpret_cast<const wchar_t*>(static_cast<char*>(Param2) + stringOffset);
 					*copy_string(ErrSrc, const_cast<wchar_t*>(Result->ErrSrc)) = {};
 				}

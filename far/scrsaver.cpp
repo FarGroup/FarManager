@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrsaver.hpp"
 
 // Internal:
-#include "farcolor.hpp"
+#include "palette.hpp"
 #include "savescr.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
@@ -154,7 +154,7 @@ namespace
 				i.Z = std::max(0.0, i.Z - m_Speed);
 				std::tie(X, Y) = screen_position();
 
-				if (!i.Z || !in_range(0, X, ScrX) || !in_range(0, Y, ScrY))
+				if (!i.Z || !in_closed_range(0, X, ScrX) || !in_closed_range(0, Y, ScrY))
 				{
 					i = create_star();
 					std::tie(X, Y) = screen_position();

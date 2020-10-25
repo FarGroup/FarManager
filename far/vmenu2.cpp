@@ -199,7 +199,7 @@ int VMenu2::Call(int Msg, void *param)
 	const auto r = mfn(Msg, param);
 
 	bool Visible;
-	DWORD Size;
+	size_t Size;
 
 	GetCursorType(Visible, Size);
 	const auto CursorPos = GetCursorPos();
@@ -741,7 +741,7 @@ intptr_t VMenu2::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 	{
 		case DM_RESIZEDIALOG:
 		{
-			const auto fixSize = [](SHORT& size, SHORT min) { size = (size < min) ? min : size; };
+			const auto fixSize = [](short& Size, short const Min) { Size = std::max(Min, Size); };
 			const auto MarginsX = (m_BoxType == box_type::none? 0 : m_BoxType == box_type::thin? 1 : 3) * 2;
 			const auto MarginsY = (m_BoxType == box_type::none? 0 : m_BoxType == box_type::thin? 1 : 2) * 2;
 			fixSize(static_cast<COORD*>(Param2)->X, MarginsX + 1);

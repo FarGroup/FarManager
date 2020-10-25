@@ -63,7 +63,7 @@ namespace os::memory
 
 		using ptr = std::unique_ptr<std::remove_pointer_t<HGLOBAL>, detail::deleter>;
 
-		ptr alloc(UINT Flags, size_t size);
+		ptr alloc(unsigned Flags, size_t Size);
 
 		template<class T>
 		using lock_t = std::unique_ptr<std::remove_pointer_t<T>, detail::unlocker>;
@@ -127,9 +127,9 @@ namespace os::memory
 
 		template<class T>
 		[[nodiscard]]
-		auto alloc(UINT Flags, size_t size)
+		auto alloc(unsigned const Flags, size_t const Size)
 		{
-			return ptr<T>(static_cast<T*>(LocalAlloc(Flags, size)));
+			return ptr<T>(static_cast<T*>(LocalAlloc(Flags, Size)));
 		}
 
 		template<class T>

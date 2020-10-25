@@ -177,10 +177,10 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 	// achtung, experimental
 	if (SyncWithConsole)
 	{
-		std::pair<SMALL_RECT, bool> WindowRect;
+		std::pair<rectangle, bool> WindowRect;
 		WindowRect.second = console.GetWindowRect(WindowRect.first);
-		const auto IsExtraTop = WindowRect.second && !(WindowRect.first.Top == 0 && WindowRect.first.Bottom == OriginalHeight);
-		const auto IsExtraRight = WindowRect.second && !(WindowRect.first.Left == 0 && WindowRect.first.Right == OriginalWidth);
+		const auto IsExtraTop = WindowRect.second && !(WindowRect.first.top == 0 && WindowRect.first.bottom == OriginalHeight);
+		const auto IsExtraRight = WindowRect.second && !(WindowRect.first.left == 0 && WindowRect.first.right == OriginalWidth);
 
 		if (DesiredHeight != OriginalHeight)
 		{
@@ -189,7 +189,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 			{
 				if (IsExtraTop)
 				{
-					const SMALL_RECT ReadRegion = { 0, 0, static_cast<SHORT>(DesiredWidth - 1), static_cast<SHORT>(DesiredHeight - OriginalHeight - 1) };
+					rectangle const ReadRegion{ 0, 0, DesiredWidth - 1, DesiredHeight - OriginalHeight - 1 };
 					if (console.ReadOutput(Tmp, ReadRegion))
 					{
 						for (size_t i = 0; i != Tmp.height(); ++i)
@@ -201,7 +201,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 			}
 			else
 			{
-				const SMALL_RECT WriteRegion{ 0, static_cast<SHORT>(DesiredHeight - OriginalHeight), static_cast<SHORT>(DesiredWidth - 1), -1 };
+				rectangle const WriteRegion{ 0, DesiredHeight - OriginalHeight, DesiredWidth - 1, -1 };
 				for (size_t i = 0; i != Tmp.height(); ++i)
 				{
 					std::copy_n(ScreenBuf[i].data(), Tmp.width(), Tmp[i].data());
@@ -218,7 +218,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 			{
 				if (IsExtraRight)
 				{
-					const SMALL_RECT ReadRegion = { static_cast<SHORT>(OriginalWidth), 0, static_cast<SHORT>(DesiredWidth - 1), static_cast<SHORT>(DesiredHeight - 1) };
+					rectangle const ReadRegion{ OriginalWidth, 0, DesiredWidth - 1, DesiredHeight - 1 };
 					console.ReadOutput(Tmp, ReadRegion);
 					for (size_t i = 0; i != NewBuf.height(); ++i)
 					{
@@ -228,7 +228,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 			}
 			else
 			{
-				const SMALL_RECT WriteRegion{ static_cast<SHORT>(DesiredWidth), static_cast<SHORT>(DesiredHeight - OriginalHeight), static_cast<SHORT>(OriginalWidth - 1), static_cast<SHORT>(DesiredHeight - 1) };
+				rectangle const WriteRegion{ DesiredWidth, DesiredHeight - OriginalHeight, OriginalWidth - 1, DesiredHeight - 1 };
 				for (size_t i = 0; i != Tmp.height(); ++i)
 				{
 					if (static_cast<int>(i) < OriginalHeight)

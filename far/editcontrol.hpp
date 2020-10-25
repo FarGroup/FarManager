@@ -104,7 +104,7 @@ private:
 	int GetPrevCurPos() const override { return PrevCurPos; }
 	void SetPrevCurPos(int Pos) override { PrevCurPos = Pos; }
 	int GetCursorSize() const override { return CursorSize; }
-	void SetCursorSize(int Size) override { CursorSize = Size; }
+	void SetCursorSize(size_t Size) override { CursorSize = static_cast<int>(Size); }
 	int GetMacroSelectionStart() const override {return MacroSelectionStart;}
 	void SetMacroSelectionStart(int Value) override {MacroSelectionStart = Value;}
 	int GetLineCursorPos() const override {return CursorPos;}

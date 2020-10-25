@@ -64,7 +64,7 @@ enum class cd_type
 	hddvdram,
 };
 
-bool DriveCanBeVirtual(UINT DriveType);
+bool DriveCanBeVirtual(unsigned DriveType);
 cd_type get_cdrom_type(string_view RootDir);
 bool is_removable_usb(string_view RootDir);
 

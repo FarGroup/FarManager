@@ -80,7 +80,7 @@ void Grabber::init()
 	SetMacroMode(MACROAREA_GRABBER);
 	SaveScr = std::make_unique<SaveScreen>();
 	bool Visible=false;
-	DWORD Size=0;
+	size_t Size = 0;
 	GetCursorType(Visible,Size);
 
 	if (Visible)

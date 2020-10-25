@@ -477,7 +477,7 @@ void PluginManager::LoadPluginsFromCache()
 {
 	string strModuleName;
 
-	for (DWORD i=0; ConfigProvider().PlCacheCfg()->EnumPlugins(i, strModuleName); i++)
+	for (size_t i = 0; ConfigProvider().PlCacheCfg()->EnumPlugins(i, strModuleName); ++i)
 	{
 		ReplaceSlashToBackslash(strModuleName);
 

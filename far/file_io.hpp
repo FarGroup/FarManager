@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 
 // Platform:
+#include "platform.fwd.hpp"
 
 // Common:
 #include "common/function_ref.hpp"
@@ -44,6 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-void save_file_with_replace(string_view FileName, DWORD FileAttributes, DWORD ExtraAttributes, bool CreateBackup, function_ref<void(std::ostream& Stream)> Handler);
+void save_file_with_replace(string_view FileName, os::fs::attributes FileAttributes, os::fs::attributes ExtraAttributes, bool CreateBackup, function_ref<void(std::ostream& Stream)> Handler);
 
 #endif // FILE_IO_HPP_7EE3BD41_F689_48BE_8484_7AEC93EC9B65

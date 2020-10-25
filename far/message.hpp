@@ -67,7 +67,7 @@ class Message: noncopyable
 {
 public:
 	Message(
-		DWORD Flags,
+		unsigned Flags,
 		string_view Title,
 		std::vector<string> Strings,
 		span<lng const> Buttons,
@@ -76,7 +76,7 @@ public:
 	);
 
 	Message(
-		DWORD Flags,
+		unsigned Flags,
 		const error_state_ex& ErrorState,
 		string_view Title,
 		std::vector<string> Strings,
@@ -87,7 +87,7 @@ public:
 	);
 
 	Message(
-		DWORD Flags,
+		unsigned Flags,
 		const error_state_ex* ErrorState,
 		string_view Title,
 		std::vector<string> Strings,
@@ -112,7 +112,7 @@ public:
 
 private:
 	void Init(
-		DWORD Flags,
+		unsigned Flags,
 		string_view Title,
 		std::vector<string>&& Strings,
 		std::vector<string>&& Buttons,

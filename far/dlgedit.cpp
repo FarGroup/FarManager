@@ -610,7 +610,7 @@ int  DlgEdit::GetStrSize(int Row) const
 		return lineEdit->m_Str.size();
 }
 
-void DlgEdit::SetCursorType(bool Visible, DWORD Size)
+void DlgEdit::SetCursorType(bool const Visible, size_t const Size)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -621,7 +621,7 @@ void DlgEdit::SetCursorType(bool Visible, DWORD Size)
 		lineEdit->SetCursorType(Visible,Size);
 }
 
-void DlgEdit::GetCursorType(bool& Visible, DWORD& Size) const
+void DlgEdit::GetCursorType(bool& Visible, size_t& Size) const
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 

@@ -432,7 +432,7 @@ static auto get_cd_type(cdrom_device_capabilities const caps)
 	return ItemIterator == std::cend(DeviceCaps)? cd_type::cdrom : ItemIterator->first;
 }
 
-bool DriveCanBeVirtual(UINT DriveType)
+bool DriveCanBeVirtual(unsigned DriveType)
 {
 	return (DriveType == DRIVE_FIXED && IsWindows7OrGreater()) || (DriveType == DRIVE_CDROM && IsWindows8OrGreater());
 }

@@ -548,7 +548,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				int PrevPos=0;
 
 				bool Visible;
-				DWORD Size;
+				size_t Size;
 				::GetCursorType(Visible, Size);
 				ComplMenu->Key(KEY_NONE);
 				bool IsChanged = false;
@@ -573,7 +573,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 					else if(MenuKey!=KEY_NONE)
 					{
 						// ввод
-						if(in_range(L' ', MenuKey, std::numeric_limits<wchar_t>::max()) || any_of(MenuKey, KEY_BS, KEY_DEL, KEY_NUMDEL))
+						if(in_closed_range(L' ', MenuKey, std::numeric_limits<wchar_t>::max()) || any_of(MenuKey, KEY_BS, KEY_DEL, KEY_NUMDEL))
 						{
 							DeleteBlock();
 							const auto strPrev = GetString();

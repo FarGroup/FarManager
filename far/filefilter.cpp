@@ -153,7 +153,7 @@ FileFilter::FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType):
 	UpdateCurrentTime();
 }
 
-static void ParseAndAddMasks(std::map<string, int, string_sort::less_t>& Extensions, string_view const FileName, DWORD const FileAttr, int const Check)
+static void ParseAndAddMasks(std::map<string, int, string_sort::less_t>& Extensions, string_view const FileName, os::fs::attributes const FileAttr, int const Check)
 {
 	if ((FileAttr & FILE_ATTRIBUTE_DIRECTORY) || IsParentDirectory(FileName))
 		return;
@@ -224,7 +224,7 @@ void FileFilter::FilterEdit()
 
 		{
 			string strFileName;
-			DWORD FileAttr;
+			os::fs::attributes FileAttr;
 
 			for (int i = 0; m_HostPanel->GetFileName(strFileName, i, FileAttr); i++)
 				ParseAndAddMasks(Extensions, strFileName, FileAttr, 0);
@@ -615,7 +615,7 @@ bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* const
 			{
 				IsAnyIncludeFound = true;
 
-				DWORD AttrClear;
+				os::fs::attributes AttrClear;
 				if (CurFilterData.GetAttr(nullptr, &AttrClear))
 					IsAnyFolderIncludeFound = IsAnyFolderIncludeFound || !(AttrClear & FILE_ATTRIBUTE_DIRECTORY);
 			}
@@ -851,7 +851,7 @@ FileFilterParams FileFilter::LoadFilter(/*const*/ HierarchicalConfig& cfg, unsig
 		}
 	}
 
-	Item.SetAttr(UseAttr != 0, static_cast<DWORD>(AttrSet), static_cast<DWORD>(AttrClear));
+	Item.SetAttr(UseAttr != 0, static_cast<os::fs::attributes>(AttrSet), static_cast<os::fs::attributes>(AttrClear));
 
 	return Item;
 }
@@ -1020,7 +1020,7 @@ void FileFilter::SaveFilter(HierarchicalConfig& cfg, unsigned long long KeyId, c
 	cfg.SetValue(Key, names::HardLinksAbove, HardLinksAbove);
 	cfg.SetValue(Key, names::HardLinksBelow, HardLinksBelow);
 
-	DWORD AttrSet, AttrClear;
+	os::fs::attributes AttrSet, AttrClear;
 	cfg.SetValue(Key, names::UseAttr, Item.GetAttr(&AttrSet, &AttrClear));
 	cfg.SetValue(Key, names::AttrSet, AttrSet);
 	cfg.SetValue(Key, names::AttrClear, AttrClear);

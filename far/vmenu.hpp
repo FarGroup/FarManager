@@ -322,7 +322,7 @@ private:
 	int m_BoxType;
 	window_ptr CurrentWindow;
 	bool PrevCursorVisible;
-	DWORD PrevCursorSize;
+	size_t PrevCursorSize;
 	// переменная, отвечающая за отображение scrollbar в DI_LISTBOX & DI_COMBOBOX
 	BitFlags VMFlags;
 	// Для LisBox - родитель в виде диалога

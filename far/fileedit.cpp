@@ -904,7 +904,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 	   никак не соответствует обрабатываемой клавише, возникают разномастные
 	   глюки
 	*/
-	if (in_range(KEY_MACRO_BASE, LocalKey, KEY_MACRO_ENDBASE) || in_range(KEY_OP_BASE, LocalKey, KEY_OP_ENDBASE)) // исключаем MACRO
+	if (in_closed_range(KEY_MACRO_BASE, LocalKey, KEY_MACRO_ENDBASE) || in_closed_range(KEY_OP_BASE, LocalKey, KEY_OP_ENDBASE)) // исключаем MACRO
 	{
 		// ; //
 	}
@@ -916,7 +916,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 			if (m_Flags.Check(FFILEEDIT_ENABLEF6))
 			{
 				int FirstSave=1;
-				UINT cp=m_codepage;
+				auto cp = m_codepage;
 
 				// проверка на "а может это говно удалили уже?"
 				// возможно здесь она и не нужна!
@@ -2316,7 +2316,7 @@ void FileEditor::ShowStatus() const
      Узнаем атрибуты файла и заодно сформируем готовую строку атрибутов для
      статуса.
 */
-DWORD FileEditor::EditorGetFileAttributes(string_view const Name)
+os::fs::attributes FileEditor::EditorGetFileAttributes(string_view const Name)
 {
 	m_FileAttributes = os::fs::get_file_attributes(Name);
 	int ind=0;

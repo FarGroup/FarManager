@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.concurrency.hpp"
+#include "platform.fwd.hpp"
 #include "platform.security.hpp"
 
 // Common:
@@ -73,8 +74,8 @@ public:
 	bool copy_file(const string& From, const string& To, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD Flags);
 	bool move_file(const string& From, const string& To, DWORD Flags);
 	bool replace_file(const string& To, const string& From, const string& Backup, DWORD Flags);
-	DWORD get_file_attributes(const string& Object);
-	bool set_file_attributes(const string& Object, DWORD FileAttributes);
+	os::fs::attributes get_file_attributes(const string& Object);
+	bool set_file_attributes(const string& Object, os::fs::attributes FileAttributes);
 	bool create_hard_link(const string& Object, const string& Target, SECURITY_ATTRIBUTES* SecurityAttributes);
 
 	bool fCreateSymbolicLink(string_view Object, string_view Target, DWORD Flags);

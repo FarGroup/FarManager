@@ -600,14 +600,14 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 	return Result;
 }
 
-string FormatStr_Attribute(DWORD FileAttributes, size_t Width)
+string FormatStr_Attribute(os::fs::attributes FileAttributes, size_t const Width)
 {
 	string OutStr;
 
 	if (!FileAttributes)
 		FileAttributes = FILE_ATTRIBUTE_NORMAL;
 
-	enum_attributes([&](DWORD Attribute, wchar_t Character)
+	enum_attributes([&](os::fs::attributes const Attribute, wchar_t const Character)
 	{
 		if (FileAttributes & Attribute)
 		{
@@ -690,7 +690,7 @@ string FormatStr_DateTime(os::chrono::time_point FileTime, column_type const Col
 string FormatStr_Size(
 	long long const Size,
 	string_view const strName,
-	DWORD const FileAttributes,
+	os::fs::attributes const FileAttributes,
 	DWORD const ShowFolderSize,
 	DWORD const ReparseTag,
 	column_type const ColumnType,

@@ -828,8 +828,8 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 	const auto CurVisPos = GetLineCurPos();
 	const auto isk = IsShiftKey(LocalKey());
 	const auto ick = any_of(LocalKey(), KEY_CTRLC, KEY_RCTRLC, KEY_CTRLINS, KEY_CTRLNUMPAD0, KEY_RCTRLINS, KEY_RCTRLNUMPAD0);
-	const auto imk = in_range(KEY_MACRO_BASE, LocalKey(), KEY_MACRO_ENDBASE);
-	const auto ipk = in_range(KEY_OP_BASE, LocalKey(), KEY_OP_ENDBASE);
+	const auto imk = in_closed_range(KEY_MACRO_BASE, LocalKey(), KEY_MACRO_ENDBASE);
+	const auto ipk = in_closed_range(KEY_OP_BASE, LocalKey(), KEY_OP_ENDBASE);
 
 	_SVS(SysLog(L"[%d] isk=%d",__LINE__,isk));
 
@@ -2826,12 +2826,15 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
 	{
 		static std::chrono::steady_clock::time_point EditorPrevDoubleClick;
-		static COORD EditorPrevPosition={};
+		static point EditorPrevPosition;
 
 		const auto CurrentTime = std::chrono::steady_clock::now();
 
-		if (CurrentTime - EditorPrevDoubleClick <= std::chrono::milliseconds(GetDoubleClickTime()) && MouseEvent->dwEventFlags != MOUSE_MOVED &&
-		        EditorPrevPosition.X == MouseEvent->dwMousePosition.X && EditorPrevPosition.Y == MouseEvent->dwMousePosition.Y)
+		if (
+			CurrentTime - EditorPrevDoubleClick <= std::chrono::milliseconds(GetDoubleClickTime()) &&
+			MouseEvent->dwEventFlags != MOUSE_MOVED &&
+			EditorPrevPosition == MouseEvent->dwMousePosition
+		)
 		{
 			m_it_CurLine->Select(0, m_it_CurLine->m_Str.size());
 
@@ -2841,8 +2844,7 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			}
 
 			EditorPrevDoubleClick = {};
-			EditorPrevPosition.X=0;
-			EditorPrevPosition.Y=0;
+			EditorPrevPosition = {};
 			Show();
 			return true;
 		}
@@ -2863,8 +2865,7 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		else
 		{
 			EditorPrevDoubleClick = {};
-			EditorPrevPosition.X=0;
-			EditorPrevPosition.Y=0;
+			EditorPrevPosition = {};
 		}
 
 		Show();
@@ -3484,7 +3485,7 @@ bool Editor::Search(bool Next)
 	string QuotedStr;
 
 	const auto FindAllList = VMenu2::create({}, {});
-	UINT AllRefLines = 0;
+	size_t AllRefLines{};
 	{
 		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<EditorPreRedrawItem>());
 		SetCursorType(false, -1);
@@ -7080,7 +7081,7 @@ void Editor::DrawScrollbar()
 	if (EdOpt.ShowScrollBar)
 	{
 		SetColor(COL_EDITORSCROLLBAR);
-		XX2 = m_Where.right - (ScrollBarEx(m_Where.right, m_Where.top, ObjHeight(), m_it_CurLine.Number() - CalcDistance(m_it_TopScreen, m_it_CurLine), Lines.size())? 1 : 0);
+		XX2 = m_Where.right - (ScrollBar(m_Where.right, m_Where.top, ObjHeight(), m_it_CurLine.Number() - CalcDistance(m_it_TopScreen, m_it_CurLine), Lines.size())? 1 : 0);
 	}
 }
 

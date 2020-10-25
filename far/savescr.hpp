@@ -74,7 +74,7 @@ private:
 	matrix<FAR_CHAR_INFO> ScreenBuf;
 	point m_Cursor;
 	bool CurVisible;
-	DWORD CurSize;
+	size_t CurSize;
 	rectangle m_Where;
 };
 

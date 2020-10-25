@@ -86,8 +86,8 @@ public:
 	void ResetLockCount() {LockCount=0;}
 	void MoveCursor(point Point);
 	point GetCursorPos() const;
-	void SetCursorType(bool Visible, DWORD Size);
-	void GetCursorType(bool& Visible, DWORD& Size) const;
+	void SetCursorType(bool Visible, size_t Size);
+	void GetCursorType(bool& Visible, size_t& Size) const;
 	const string& GetTitle() const { return m_Title; }
 	void SetTitle(string_view Title);
 
@@ -119,7 +119,7 @@ private:
 	BitFlags SBFlags;
 	int LockCount{};
 	int m_ClearTypeFix{};
-	DWORD CurSize{};
+	size_t CurSize{};
 	point m_CurPos{};
 	bool MacroCharUsed{};
 	bool ElevationCharUsed{};

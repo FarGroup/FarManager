@@ -343,7 +343,7 @@ private:
 	void ReleaseInFileSearch();
 
 	bool LookForString(string_view FileName);
-	bool IsFileIncluded(PluginPanelItem* FileItem, string_view FullName, DWORD FileAttr, string_view DisplayName);
+	bool IsFileIncluded(PluginPanelItem* FileItem, string_view FullName, os::fs::attributes FileAttr, string_view DisplayName);
 	void DoPrepareFileList();
 	void DoPreparePluginListImpl();
 	void DoPreparePluginList();
@@ -405,17 +405,14 @@ private:
 struct background_searcher::CodePageInfo
 {
 	explicit CodePageInfo(uintptr_t CodePage):
-		CodePage(CodePage),
-		MaxCharSize(0),
-		LastSymbol(0),
-		WordFound(false)
+		CodePage(CodePage)
 	{
 	}
 
 	uintptr_t CodePage;
-	UINT MaxCharSize;
-	wchar_t LastSymbol;
-	bool WordFound;
+	size_t MaxCharSize{};
+	wchar_t LastSymbol{};
+	bool WordFound{};
 
 	void initialize()
 	{
@@ -986,12 +983,12 @@ bool background_searcher::LookForString(string_view const FileName)
 		FileSize=std::min(SearchInFirst,FileSize);
 	}
 
-	UINT LastPercents=0;
+	unsigned LastPercents{};
 
 	// Основной цикл чтения из файла
 	while (!Stopped() && File.Read(readBufferA.data(), (!SearchInFirst || alreadyRead + readBufferA.size() <= SearchInFirst)? readBufferA.size() : SearchInFirst - alreadyRead, readBlockSize))
 	{
-		const auto Percents = static_cast<UINT>(FileSize? alreadyRead * 100 / FileSize : 0);
+		const auto Percents = ToPercent(alreadyRead, FileSize);
 
 		if (Percents!=LastPercents)
 		{
@@ -1217,7 +1214,7 @@ bool background_searcher::LookForString(string_view const FileName)
 	return false;
 }
 
-bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view const FullName, DWORD FileAttr, string_view const DisplayName)
+bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view const FullName, os::fs::attributes FileAttr, string_view const DisplayName)
 {
 	if (!m_Owner->GetFileMask()->check(PointToName(FullName)))
 		return false;
@@ -1726,19 +1723,19 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		{
 			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-			const auto pCoord = static_cast<PCOORD>(Param2);
+			auto& Coord = *static_cast<COORD*>(Param2);
 			SMALL_RECT DlgRect;
 			Dlg->SendMessage( DM_GETDLGRECT, 0, &DlgRect);
 			int DlgWidth=DlgRect.Right-DlgRect.Left+1;
 			int DlgHeight=DlgRect.Bottom-DlgRect.Top+1;
-			int IncX = pCoord->X - DlgWidth - 2;
-			int IncY = pCoord->Y - DlgHeight - 2;
+			const auto IncX = Coord.X - DlgWidth - 2;
+			const auto IncY = Coord.Y - DlgHeight - 2;
 
 			if ((IncX > 0) || (IncY > 0))
 			{
-				pCoord->X = DlgWidth + (IncX > 0 ? IncX : 0);
-				pCoord->Y = DlgHeight + (IncY > 0 ? IncY : 0);
-				Dlg->SendMessage( DM_RESIZEDIALOG, 0, pCoord);
+				Coord.X = DlgWidth + (IncX > 0? IncX : 0);
+				Coord.Y = DlgHeight + (IncY > 0? IncY : 0);
+				Dlg->SendMessage( DM_RESIZEDIALOG, 0, &Coord);
 			}
 
 			DlgWidth += IncX;
@@ -1780,9 +1777,9 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			if ((IncX <= 0) || (IncY <= 0))
 			{
-				pCoord->X = DlgWidth;
-				pCoord->Y = DlgHeight;
-				Dlg->SendMessage( DM_RESIZEDIALOG, 0, pCoord);
+				Coord.X = DlgWidth;
+				Coord.Y = DlgHeight;
+				Dlg->SendMessage( DM_RESIZEDIALOG, 0, &Coord);
 			}
 
 			return TRUE;

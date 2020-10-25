@@ -135,14 +135,14 @@ bool FastFind::ProcessKey(const Manager::Key& Key)
 
 	// // _SVS(if (!FirstKey) SysLog(L"Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
 	if (LocalKey() >= KEY_ALT_BASE + 0x01 && LocalKey() <= KEY_ALT_BASE + 65535)
-		LocalKey = lower(static_cast<WCHAR>(LocalKey() - KEY_ALT_BASE));
+		LocalKey = lower(static_cast<wchar_t>(LocalKey() - KEY_ALT_BASE));
 	else if (LocalKey() >= KEY_RALT_BASE + 0x01 && LocalKey() <= KEY_RALT_BASE + 65535)
-		LocalKey = lower(static_cast<WCHAR>(LocalKey() - KEY_RALT_BASE));
+		LocalKey = lower(static_cast<wchar_t>(LocalKey() - KEY_RALT_BASE));
 
 	if (LocalKey() >= KEY_ALTSHIFT_BASE + 0x01 && LocalKey() <= KEY_ALTSHIFT_BASE + 65535)
-		LocalKey = lower(static_cast<WCHAR>(LocalKey() - KEY_ALTSHIFT_BASE));
+		LocalKey = lower(static_cast<wchar_t>(LocalKey() - KEY_ALTSHIFT_BASE));
 	else if (LocalKey() >= KEY_RALTSHIFT_BASE + 0x01 && LocalKey() <= KEY_RALTSHIFT_BASE + 65535)
-		LocalKey = lower(static_cast<WCHAR>(LocalKey() - KEY_RALTSHIFT_BASE));
+		LocalKey = lower(static_cast<wchar_t>(LocalKey() - KEY_RALTSHIFT_BASE));
 
 	if (LocalKey() == KEY_MULTIPLY)
 		LocalKey = L'*';

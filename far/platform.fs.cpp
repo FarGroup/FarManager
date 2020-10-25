@@ -186,7 +186,7 @@ namespace os::fs
 	{
 		bool is_standard_letter(wchar_t Letter)
 		{
-			return in_range(L'A', upper(Letter), L'Z');
+			return in_closed_range(L'A', upper(Letter), L'Z');
 		}
 
 		size_t get_number(wchar_t Letter)
@@ -881,7 +881,7 @@ namespace os::fs
 		if (!FileName.empty())
 		{
 			NameString.Buffer = const_cast<wchar_t*>(FileName.data());
-			NameString.Length = static_cast<USHORT>(FileName.size() * sizeof(WCHAR));
+			NameString.Length = static_cast<USHORT>(FileName.size() * sizeof(wchar_t));
 			NameString.MaximumLength = NameString.Length;
 			pNameString = &NameString;
 		}
@@ -933,7 +933,7 @@ namespace os::fs
 		if (Result != STATUS_SUCCESS)
 			return false;
 
-		ObjectName.assign(oni->Name.Buffer, oni->Name.Length / sizeof(WCHAR));
+		ObjectName.assign(oni->Name.Buffer, oni->Name.Length / sizeof(wchar_t));
 		return true;
 	}
 
@@ -1386,7 +1386,7 @@ namespace os::fs
 		return is_file(file_status(Object));
 	}
 
-	bool is_file(DWORD const Attributes)
+	bool is_file(attributes const Attributes)
 	{
 		return Attributes != INVALID_FILE_ATTRIBUTES && !flags::check_any(Attributes, FILE_ATTRIBUTE_DIRECTORY);
 	}
@@ -1401,7 +1401,7 @@ namespace os::fs
 		return is_directory(file_status(Object));
 	}
 
-	bool is_directory(DWORD const Attributes)
+	bool is_directory(attributes const Attributes)
 	{
 		return Attributes != INVALID_FILE_ATTRIBUTES && flags::check_any(Attributes, FILE_ATTRIBUTE_DIRECTORY);
 	}
@@ -1462,12 +1462,12 @@ namespace os::fs
 			return ::DeleteFile(FileName) != FALSE;
 		}
 
-		DWORD get_file_attributes(const wchar_t* FileName)
+		attributes get_file_attributes(const wchar_t* const FileName)
 		{
 			return ::GetFileAttributes(FileName);
 		}
 
-		bool set_file_attributes(const wchar_t* FileName, DWORD Attributes)
+		bool set_file_attributes(const wchar_t* const FileName, attributes const Attributes)
 		{
 			return ::SetFileAttributes(FileName, Attributes) != FALSE;
 		}
@@ -1893,7 +1893,7 @@ namespace os::fs
 	}
 
 
-	DWORD get_file_attributes(const string_view FileName)
+	attributes get_file_attributes(const string_view FileName)
 	{
 		const NTPath NtName(FileName);
 
@@ -1907,7 +1907,7 @@ namespace os::fs
 		return INVALID_FILE_ATTRIBUTES;
 	}
 
-	bool set_file_attributes(const string_view FileName, const DWORD Attributes)
+	bool set_file_attributes(string_view const FileName, attributes const Attributes)
 	{
 		const NTPath NtName(FileName);
 
@@ -1963,7 +1963,7 @@ namespace os::fs
 
 	bool GetVolumeNameForVolumeMountPoint(string_view const VolumeMountPoint, string& VolumeName)
 	{
-		WCHAR VolumeNameBuffer[50];
+		wchar_t VolumeNameBuffer[50];
 		NTPath strVolumeMountPoint(VolumeMountPoint);
 		AddEndSlash(strVolumeMountPoint);
 		if (!::GetVolumeNameForVolumeMountPoint(strVolumeMountPoint.c_str(), VolumeNameBuffer, static_cast<DWORD>(std::size(VolumeNameBuffer))))
@@ -2227,7 +2227,7 @@ namespace os::fs
 		return false;
 	}
 
-	bool is_directory_reparse_point(DWORD const Attributes)
+	bool is_directory_reparse_point(attributes const Attributes)
 	{
 		return Attributes != INVALID_FILE_ATTRIBUTES && flags::check_all(Attributes, FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT);
 	}

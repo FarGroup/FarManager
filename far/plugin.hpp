@@ -570,7 +570,7 @@ struct FarDialogItemColors
 
 struct FAR_CHAR_INFO
 {
-	WCHAR Char;
+	wchar_t Char;
 	struct FarColor Attributes;
 
 #ifdef __cplusplus

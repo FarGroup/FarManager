@@ -169,19 +169,19 @@ TEST_CASE("algorithm.contains")
 	}
 }
 
-TEST_CASE("algorithm.in_range")
+TEST_CASE("algorithm.in_closed_range")
 {
-	static_assert(in_range(0, 0, 0));
-	static_assert(in_range(0, 0, 1));
-	static_assert(in_range(0, 1, 1));
-	static_assert(in_range(1, 1, 1));
-	static_assert(in_range(1, 3, 5));
+	static_assert(in_closed_range(0, 0, 0));
+	static_assert(in_closed_range(0, 0, 1));
+	static_assert(in_closed_range(0, 1, 1));
+	static_assert(in_closed_range(1, 1, 1));
+	static_assert(in_closed_range(1, 3, 5));
 
-	static_assert(!in_range(0, 1, 0));
-	static_assert(!in_range(1, 0, 0));
-	static_assert(!in_range(1, 1, 0));
-	static_assert(!in_range(1, 0, 1));
-	static_assert(!in_range(5, 3, 1));
+	static_assert(!in_closed_range(0, 1, 0));
+	static_assert(!in_closed_range(1, 0, 0));
+	static_assert(!in_closed_range(1, 1, 0));
+	static_assert(!in_closed_range(1, 0, 1));
+	static_assert(!in_closed_range(5, 3, 1));
 	SUCCEED();
 }
 
@@ -1109,9 +1109,11 @@ TEST_CASE("utility.hash_range")
 
 TEST_CASE("utility.aligned_size")
 {
-	for (size_t i = 0; i <= MEMORY_ALLOCATION_ALIGNMENT * 8; ++i)
+	constexpr auto Alignment = alignof(std::max_align_t);
+
+	for (size_t i = 0; i <= Alignment * 8; ++i)
 	{
-		const size_t Expected = std::ceil(static_cast<double>(i) / MEMORY_ALLOCATION_ALIGNMENT) * MEMORY_ALLOCATION_ALIGNMENT;
+		const size_t Expected = std::ceil(static_cast<double>(i) / Alignment) * Alignment;
 		REQUIRE(aligned_size(i) == Expected);
 	}
 }

@@ -756,7 +756,7 @@ static bool GetProtocolType(string_view const Str, image_type& ImageType)
 	return false;
 }
 
-static void wait_for_process_or_detach(os::handle const& Process, int const ConsoleDetachKey, COORD const ConsoleSize, SMALL_RECT const ConsoleWindowRect)
+static void wait_for_process_or_detach(os::handle const& Process, int const ConsoleDetachKey, point const& ConsoleSize, rectangle const& ConsoleWindowRect)
 {
 	const auto
 		hInput = console.GetInputHandle(),
@@ -1030,8 +1030,8 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 
 	bool Visible=false;
 	DWORD CursorSize=0;
-	SMALL_RECT ConsoleWindowRect{};
-	COORD ConsoleSize={};
+	rectangle ConsoleWindowRect;
+	point ConsoleSize;
 	int ConsoleCP = CP_OEMCP;
 	int ConsoleOutputCP = CP_OEMCP;
 
@@ -1206,10 +1206,10 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 	console.SetCursorInfo(cci);
 
 	{
-		COORD ConSize;
-		if (console.GetSize(ConSize) && (ConSize.X != ScrX + 1 || ConSize.Y != ScrY + 1))
+		point ConSize;
+		if (console.GetSize(ConSize) && (ConSize.x != ScrX + 1 || ConSize.y != ScrY + 1))
 		{
-			ChangeVideoMode(ConSize.Y, ConSize.X);
+			ChangeVideoMode(ConSize.y, ConSize.x);
 		}
 	}
 

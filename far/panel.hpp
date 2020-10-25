@@ -175,7 +175,7 @@ public:
 	virtual void ClearLastGetSelection() {}
 	virtual bool GetCurName(string &strName, string &strShortName) const;
 	virtual bool GetCurBaseName(string &strName, string &strShortName) const;
-	virtual bool GetFileName(string &strName, int Pos, DWORD &FileAttr) const { return false; }
+	virtual bool GetFileName(string& strName, int Pos, os::fs::attributes& FileAttr) const { return false; }
 	virtual const std::unordered_set<string>* GetFilteredExtensions() const { return {}; }
 	virtual int GetCurrentPos() const {return 0;}
 	virtual bool IsFocused() const;

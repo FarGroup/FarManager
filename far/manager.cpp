@@ -133,7 +133,7 @@ static bool CASHook(const Manager::Key& key)
 		return false;
 	}
 
-	const auto AnyPressed = [](DWORD const State)
+	const auto AnyPressed = [](unsigned const State)
 	{
 		return
 			flags::check_any(State, LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED) &&
@@ -141,12 +141,12 @@ static bool CASHook(const Manager::Key& key)
 			flags::check_any(State, SHIFT_PRESSED);
 	};
 
-	const auto LeftPressed = [](DWORD const State)
+	const auto LeftPressed = [](unsigned const State)
 	{
 		return flags::check_all(State, LEFT_CTRL_PRESSED | LEFT_ALT_PRESSED | SHIFT_PRESSED);
 	};
 
-	const auto RightPressed = [](DWORD const State)
+	const auto RightPressed = [](unsigned const State)
 	{
 		return flags::check_all(State, RIGHT_CTRL_PRESSED | RIGHT_ALT_PRESSED | SHIFT_PRESSED);
 	};
@@ -772,7 +772,7 @@ bool Manager::ProcessKey(Key key)
 						os::chrono::sleep_for(1ms);
 						UpdateScreenSize();
 
-						if (PScrX+1 == CurSize.X && PScrY+1 == CurSize.Y)
+						if (PScrX + 1 == CurSize.x && PScrY + 1 == CurSize.y)
 						{
 							//_MANAGER(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_NONE"));
 							return true;

@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.chrono.hpp"
+#include "platform.fwd.hpp"
 
 // Common:
 #include "common/function_ref.hpp"
@@ -47,15 +48,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-void ESetFileAttributes(string_view Name, DWORD Attributes, bool& SkipErrors);
-void ESetFileCompression(string_view Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
-void ESetFileEncryption(string_view Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
-void ESetFileSparse(string_view Name, bool State, DWORD CurrentAttributes, bool& SkipErrors);
-void ESetFileTime(string_view Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, DWORD CurrentAttributes, bool& SkipErrors);
+void ESetFileAttributes(string_view Name, os::fs::attributes Attributes, bool& SkipErrors);
+void ESetFileCompression(string_view Name, bool State, os::fs::attributes CurrentAttributes, bool& SkipErrors);
+void ESetFileEncryption(string_view Name, bool State, os::fs::attributes CurrentAttributes, bool& SkipErrors);
+void ESetFileSparse(string_view Name, bool State, os::fs::attributes CurrentAttributes, bool& SkipErrors);
+void ESetFileTime(string_view Name, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* ChangeTime, os::fs::attributes CurrentAttributes, bool& SkipErrors);
 void ESetFileOwner(string_view Name, const string& Owner, bool& SkipErrors);
-void EDeleteReparsePoint(string_view Name, DWORD CurrentAttributes, bool& SkipErrors);
+void EDeleteReparsePoint(string_view Name, os::fs::attributes CurrentAttributes, bool& SkipErrors);
 
-void enum_attributes(function_ref<bool(DWORD, wchar_t)> Pred);
+void enum_attributes(function_ref<bool(os::fs::attributes, wchar_t)> Pred);
 
 
 #endif // FILEATTR_HPP_1920BF1F_BD95_4A22_B3D9_33F2544760D1

@@ -154,8 +154,8 @@ void Panel::OnFocusChange(bool Get)
 bool Panel::IsMouseInClientArea(const MOUSE_EVENT_RECORD* MouseEvent) const
 {
 	return IsVisible() &&
-		in_range(m_Where.left, MouseEvent->dwMousePosition.X, m_Where.right) &&
-		in_range(m_Where.top, MouseEvent->dwMousePosition.Y, m_Where.bottom);
+		in_closed_range(m_Where.left, MouseEvent->dwMousePosition.X, m_Where.right) &&
+		in_closed_range(m_Where.top, MouseEvent->dwMousePosition.Y, m_Where.bottom);
 }
 
 bool Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)

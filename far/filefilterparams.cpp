@@ -155,7 +155,7 @@ void FileFilterParams::SetHardLinks(bool const Used, DWORD const HardLinksAbove,
 	FHardLinks.CountBelow=HardLinksBelow;
 }
 
-void FileFilterParams::SetAttr(bool const Used, DWORD const AttrSet, DWORD const AttrClear)
+void FileFilterParams::SetAttr(bool const Used, os::fs::attributes const AttrSet, os::fs::attributes const AttrClear)
 {
 	FAttr.Used=Used;
 	FAttr.AttrSet=AttrSet;
@@ -193,7 +193,7 @@ bool FileFilterParams::GetHardLinks(DWORD *HardLinksAbove, DWORD *HardLinksBelow
 }
 
 
-bool FileFilterParams::GetAttr(DWORD *AttrSet, DWORD *AttrClear) const
+bool FileFilterParams::GetAttr(os::fs::attributes* AttrSet, os::fs::attributes* AttrClear) const
 {
 	if (AttrSet)
 		*AttrSet=FAttr.AttrSet;
@@ -222,7 +222,7 @@ struct filter_file_object
 	os::chrono::time_point ModificationTime;
 	os::chrono::time_point AccessTime;
 	os::chrono::time_point ChangeTime;
-	DWORD Attributes;
+	os::fs::attributes Attributes;
 	int NumberOfLinks;
 };
 
@@ -275,7 +275,7 @@ bool FileFilterParams::FileInFilter(const PluginPanelItem& Object, os::chrono::t
 		os::chrono::nt_clock::from_filetime(Object.LastWriteTime),
 		os::chrono::nt_clock::from_filetime(Object.LastAccessTime),
 		os::chrono::nt_clock::from_filetime(Object.ChangeTime),
-		static_cast<DWORD>(Object.FileAttributes),
+		static_cast<os::fs::attributes>(Object.FileAttributes),
 		static_cast<int>(Object.NumberOfLinks),
 	};
 
@@ -371,7 +371,7 @@ static string AttributesString(DWORD Include, DWORD Exclude)
 {
 	string IncludeStr, ExcludeStr;
 
-	enum_attributes([&](DWORD Attribute, wchar_t Character)
+	enum_attributes([&](os::fs::attributes const Attribute, wchar_t const Character)
 	{
 		if (Include & Attribute)
 		{
@@ -414,7 +414,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 	string_view Name;
 	auto Mask = L""sv;
 	auto MarkChar = L"' '"s;
-	DWORD IncludeAttr, ExcludeAttr;
+	os::fs::attributes IncludeAttr, ExcludeAttr;
 	bool UseSize, UseHardLinks, UseDate, RelativeDate;
 
 	if (bPanelType)
@@ -583,7 +583,7 @@ enum enumFileFilterConfig
 
 struct attribute_map
 {
-	DWORD Attribute;
+	os::fs::attributes Attribute;
 	lng Name;
 	int State;
 };
@@ -1100,7 +1100,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		{ FILE_ATTRIBUTE_STRICTLY_SEQUENTIAL,          lng::MFileFilterAttrStrictlySequential, },
 	};
 
-	DWORD AttrSet, AttrClear;
+	os::fs::attributes AttrSet, AttrClear;
 	FilterDlg[ID_FF_CHECKBOX_ATTRIBUTES].Selected = FF->GetAttr(&AttrSet,&AttrClear)? BSTATE_CHECKED : BSTATE_UNCHECKED;
 
 	for (auto& i: AttributeMapping)

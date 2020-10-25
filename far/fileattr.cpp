@@ -78,7 +78,7 @@ static void retrievable_ui_operation(function_ref<bool()> const Action, string_v
 	}
 }
 
-static auto without_ro(string_view const Name, DWORD const Attributes, function_ref<bool()> const Action)
+static auto without_ro(string_view const Name, os::fs::attributes const Attributes, function_ref<bool()> const Action)
 {
 	// FILE_ATTRIBUTE_SYSTEM prevents encryption
 	const auto Mask = FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM;
@@ -100,7 +100,7 @@ static auto without_ro(string_view const Name, DWORD const Attributes, function_
 	};
 }
 
-void ESetFileAttributes(string_view const Name, DWORD Attributes, bool& SkipErrors)
+void ESetFileAttributes(string_view const Name, os::fs::attributes Attributes, bool& SkipErrors)
 {
 	if ((Attributes & FILE_ATTRIBUTE_DIRECTORY) && (Attributes & FILE_ATTRIBUTE_TEMPORARY))
 		Attributes &= ~FILE_ATTRIBUTE_TEMPORARY;
@@ -118,7 +118,7 @@ static bool set_file_compression(string_view const Name, bool const State)
 	return File.IoControl(FSCTL_SET_COMPRESSION, &NewState, sizeof(NewState), nullptr, 0);
 }
 
-void ESetFileCompression(string_view const Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
+void ESetFileCompression(string_view const Name, bool const State, os::fs::attributes const CurrentAttributes, bool& SkipErrors)
 {
 	if (!!(CurrentAttributes & FILE_ATTRIBUTE_COMPRESSED) == State)
 		return;
@@ -136,7 +136,7 @@ void ESetFileCompression(string_view const Name, bool const State, DWORD const C
 		Name, lng::MSetAttrCompressedCannotFor, SkipErrors);
 }
 
-void ESetFileEncryption(string_view const Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
+void ESetFileEncryption(string_view const Name, bool const State, os::fs::attributes const CurrentAttributes, bool& SkipErrors)
 {
 	if (!!(CurrentAttributes & FILE_ATTRIBUTE_ENCRYPTED) == State)
 		return;
@@ -158,7 +158,7 @@ void ESetFileTime(
 	os::chrono::time_point const* const CreationTime,
 	os::chrono::time_point const* const LastAccessTime,
 	os::chrono::time_point const* const ChangeTime,
-	DWORD const CurrentAttributes,
+	os::fs::attributes const CurrentAttributes,
 	bool& SkipErrors)
 {
 	if (!LastWriteTime && !CreationTime && !LastAccessTime && !ChangeTime)
@@ -188,7 +188,7 @@ static bool set_file_sparse(string_view const Name, bool const State)
 	return File.IoControl(FSCTL_SET_SPARSE, &Buffer, sizeof(Buffer), nullptr, 0);
 }
 
-void ESetFileSparse(string_view const Name, bool const State, DWORD const CurrentAttributes, bool& SkipErrors)
+void ESetFileSparse(string_view const Name, bool const State, os::fs::attributes const CurrentAttributes, bool& SkipErrors)
 {
 	if ((CurrentAttributes & FILE_ATTRIBUTE_DIRECTORY) || !!(CurrentAttributes & FILE_ATTRIBUTE_SPARSE_FILE) == State)
 		return;
@@ -208,7 +208,7 @@ void ESetFileOwner(string_view const Name, const string& Owner, bool& SkipErrors
 	retrievable_ui_operation([&]{ return SetFileOwner(Name, Owner); }, Name, lng::MSetAttrOwnerCannotFor, SkipErrors);
 }
 
-void EDeleteReparsePoint(string_view const Name, DWORD const CurrentAttributes, bool& SkipErrors)
+void EDeleteReparsePoint(string_view const Name, os::fs::attributes const CurrentAttributes, bool& SkipErrors)
 {
 	if (!(CurrentAttributes & FILE_ATTRIBUTE_REPARSE_POINT))
 		return;
@@ -216,10 +216,10 @@ void EDeleteReparsePoint(string_view const Name, DWORD const CurrentAttributes, 
 	retrievable_ui_operation([&]{ return DeleteReparsePoint(Name); }, Name, lng::MSetAttrReparsePointCannotFor, SkipErrors);
 }
 
-void enum_attributes(function_ref<bool(DWORD, wchar_t)> const Pred)
+void enum_attributes(function_ref<bool(os::fs::attributes, wchar_t)> const Pred)
 {
 	// The order and the symbols are (mostly) the same as in Windows UI
-	static const std::pair<wchar_t, DWORD> AttrMap[]
+	static const std::pair<wchar_t, os::fs::attributes> AttrMap[]
 	{
 		{ L'N', FILE_ATTRIBUTE_NORMAL },
 		{ L'R', FILE_ATTRIBUTE_READONLY },

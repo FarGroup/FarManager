@@ -715,7 +715,7 @@ bool elevation::replace_file(const string& To, const string& From, const string&
 }
 
 
-DWORD elevation::get_file_attributes(const string& Object)
+os::fs::attributes elevation::get_file_attributes(const string& Object)
 {
 	return execute(lng::MElevationRequiredGetAttributes, Object,
 		INVALID_FILE_ATTRIBUTES,
@@ -726,11 +726,11 @@ DWORD elevation::get_file_attributes(const string& Object)
 		[&]
 		{
 			Write(C_FUNCTION_GETFILEATTRIBUTES, Object);
-			return RetrieveLastErrorAndResult<DWORD>();
+			return RetrieveLastErrorAndResult<os::fs::attributes>();
 		});
 }
 
-bool elevation::set_file_attributes(const string& Object, DWORD FileAttributes)
+bool elevation::set_file_attributes(const string& Object, os::fs::attributes FileAttributes)
 {
 	return execute(lng::MElevationRequiredSetAttributes, Object,
 		false,

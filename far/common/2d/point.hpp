@@ -50,7 +50,8 @@ struct point: public rel_ops<point>
 	{
 	}
 
-	point(COORD const Coord) noexcept:
+	template<typename T>
+	point(T const& Coord) noexcept:
 		point(Coord.X, Coord.Y)
 	{
 	}

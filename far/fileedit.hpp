@@ -149,7 +149,7 @@ private:
 	void SetTitle(const string* Title);
 	bool SetFileName(string_view NewFileName);
 	int ProcessEditorInput(const INPUT_RECORD& Rec);
-	DWORD EditorGetFileAttributes(string_view Name);
+	os::fs::attributes EditorGetFileAttributes(string_view Name);
 	void SetPluginData(const string* PluginData);
 	const string& GetPluginData() const { return strPluginData; }
 	bool LoadFromCache(EditorPosCache &pc) const;
@@ -171,7 +171,7 @@ private:
 	string strPluginData;
 	os::fs::find_data FileInfo;
 	wchar_t AttrStr[4]{};            // 13.02.2001 IS - Сюда запомним буквы атрибутов, чтобы не вычислять их много раз
-	DWORD m_FileAttributes{};          // 12.02.2001 IS - сюда запомним атрибуты файла при открытии, пригодятся где-нибудь...
+	os::fs::attributes m_FileAttributes{};          // 12.02.2001 IS - сюда запомним атрибуты файла при открытии, пригодятся где-нибудь...
 	bool m_bClosing{};               // 28.04.2005 AY: true когда редактор закрываеться (т.е. в деструкторе)
 	bool bEE_READ_Sent{};
 	bool bLoaded{};

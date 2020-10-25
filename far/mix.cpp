@@ -92,7 +92,7 @@ unsigned long long FromPercent(unsigned int const Percent, unsigned long long co
 
 string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const UserTempPath)
 {
-	static UINT s_shift = 0;
+	static unsigned s_shift = 0;
 
 	Prefix = Prefix.empty()? L"FAR"sv : Prefix.substr(0, 3);
 

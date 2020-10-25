@@ -125,7 +125,7 @@ public:
 	void SetDate(bool Used, enumFDateType DateType, const filter_dates& Dates);
 	void SetSize(bool Used, string_view SizeAbove, string_view SizeBelow);
 	void SetHardLinks(bool Used, DWORD HardLinksAbove, DWORD HardLinksBelow);
-	void SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear);
+	void SetAttr(bool Used, os::fs::attributes AttrSet, os::fs::attributes AttrClear);
 	void SetColors(const highlight::element& Colors);
 	void SetSortGroup(int SortGroup) { FHighlight.SortGroup = SortGroup; }
 	void SetContinueProcessing(bool bContinueProcessing) { FHighlight.bContinueProcessing = bContinueProcessing; }
@@ -140,7 +140,7 @@ public:
 	const string& GetSizeAbove() const {return FSize.Above.Size;}
 	const string& GetSizeBelow() const {return FSize.Below.Size;}
 	bool  GetHardLinks(DWORD *HardLinksAbove, DWORD *HardLinksBelow) const;
-	bool  GetAttr(DWORD *AttrSet, DWORD *AttrClear) const;
+	bool  GetAttr(os::fs::attributes* AttrSet, os::fs::attributes* AttrClear) const;
 	highlight::element GetColors() const;
 	wchar_t GetMarkChar() const;
 	int   GetSortGroup() const { return FHighlight.SortGroup; }
@@ -197,8 +197,8 @@ private:
 	struct
 	{
 		bool Used{};
-		DWORD AttrSet{};
-		DWORD AttrClear{};
+		os::fs::attributes AttrSet{};
+		os::fs::attributes AttrClear{};
 	} FAttr;
 
 	struct

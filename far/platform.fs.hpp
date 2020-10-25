@@ -93,6 +93,8 @@ namespace os::fs
 
 	using security_descriptor = block_ptr<SECURITY_DESCRIPTOR, default_buffer_size>;
 
+	using attributes = DWORD;
+
 	struct find_data
 	{
 	public:
@@ -107,7 +109,7 @@ namespace os::fs
 		unsigned long long FileSize{};
 		unsigned long long AllocationSize{};
 		unsigned long long FileId{};
-		DWORD Attributes{};
+		attributes Attributes{};
 		DWORD ReparseTag{};
 
 		[[nodiscard]]
@@ -245,7 +247,7 @@ namespace os::fs
 		// TODO: half of these should be free functions
 
 		[[nodiscard]]
-		bool Open(string_view Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes = 0, const file* TemplateFile = nullptr, bool ForceElevation = false);
+		bool Open(string_view Object, DWORD DesiredAccess, DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, DWORD CreationDistribution, attributes FlagsAndAttributes = {}, const file* TemplateFile = nullptr, bool ForceElevation = false);
 		// TODO: async overloads when needed
 
 		[[nodiscard]]
@@ -394,7 +396,7 @@ namespace os::fs
 	bool is_file(string_view Object);
 
 	[[nodiscard]]
-	bool is_file(DWORD Attributes);
+	bool is_file(attributes Attributes);
 
 	[[nodiscard]]
 	bool is_directory(file_status Status);
@@ -403,7 +405,7 @@ namespace os::fs
 	bool is_directory(string_view Object);
 
 	[[nodiscard]]
-	bool is_directory(DWORD Attributes);
+	bool is_directory(attributes Attributes);
 
 	[[nodiscard]]
 	bool is_not_empty_directory(string_view Object);
@@ -449,10 +451,10 @@ namespace os::fs
 		bool delete_file(const wchar_t* FileName);
 
 		[[nodiscard]]
-		DWORD get_file_attributes(const wchar_t* FileName);
+		attributes get_file_attributes(const wchar_t* FileName);
 
 		[[nodiscard]]
-		bool set_file_attributes(const wchar_t* FileName, DWORD Attributes);
+		bool set_file_attributes(const wchar_t* FileName, attributes Attributes);
 
 		[[nodiscard]]
 		bool create_hard_link(const wchar_t* FileName, const wchar_t* ExistingFileName, SECURITY_ATTRIBUTES* SecurityAttributes);
@@ -525,10 +527,10 @@ namespace os::fs
 	bool replace_file(string_view ReplacedFileName, string_view ReplacementFileName, string_view BackupFileName, DWORD Flags = 0);
 
 	[[nodiscard]]
-	DWORD get_file_attributes(string_view FileName);
+	attributes get_file_attributes(string_view FileName);
 
 	[[nodiscard]]
-	bool set_file_attributes(string_view FileName, DWORD Attributes);
+	bool set_file_attributes(string_view FileName, attributes Attributes);
 
 	[[nodiscard]]
 	bool GetLongPathName(string_view ShortPath, string& LongPath);
@@ -597,7 +599,7 @@ namespace os::fs
 	bool detach_virtual_disk(string_view Object, VIRTUAL_STORAGE_TYPE& VirtualStorageType);
 
 	[[nodiscard]]
-	bool is_directory_reparse_point(DWORD Attributes);
+	bool is_directory_reparse_point(attributes Attributes);
 
 	[[nodiscard]]
 	bool is_directory_symbolic_link(const find_data& Data);

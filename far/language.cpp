@@ -77,19 +77,19 @@ std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(string_view const Path,
 		auto& [CurrentFile, CurrentLngName, CurrentCodepage] = CurrentFileData;
 
 		CurrentFile = os::fs::file(CurrentFileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
-		if (CurrentFile)
+		if (!CurrentFile)
+			continue;
+
+		CurrentCodepage = GetFileCodepage(CurrentFile, encoding::codepage::oem(), nullptr, false);
+
+		if (GetLangParam(CurrentFile, L"Language"sv, CurrentLngName, nullptr, CurrentCodepage) && equal_icase(CurrentLngName, Language))
 		{
-			CurrentCodepage = GetFileCodepage(CurrentFile, encoding::codepage::oem(), nullptr, false);
+			return CurrentFileData;
+		}
 
-			if (GetLangParam(CurrentFile, L"Language"sv, CurrentLngName, nullptr, CurrentCodepage) && equal_icase(CurrentLngName, Language))
-			{
-				return CurrentFileData;
-			}
-
-			if (equal_icase(CurrentLngName, L"English"sv))
-			{
-				EnglishFileData = std::move(CurrentFileData);
-			}
+		if (equal_icase(CurrentLngName, L"English"sv))
+		{
+			EnglishFileData = std::move(CurrentFileData);
 		}
 	}
 
@@ -115,31 +115,27 @@ bool GetLangParam(const os::fs::file& LangFile, string_view const ParamName, str
 		if (starts_with_icase(i.Str, strFullParamName))
 		{
 			const auto EqPos = i.Str.find(L'=');
+			if (EqPos == string::npos)
+				continue;
 
-			if (EqPos != string::npos)
+			strParam1 = i.Str.substr(EqPos + 1);
+
+			if (strParam2)
+				strParam2->clear();
+
+			if (const auto pos = strParam1.find(L','); pos != string::npos)
 			{
-				strParam1 = i.Str.substr(EqPos + 1);
-
 				if (strParam2)
-					strParam2->clear();
+					*strParam2 = trim_right(strParam1.substr(pos + 1));
 
-				const auto pos = strParam1.find(L',');
-
-				if (pos != string::npos)
-				{
-					if (strParam2)
-					{
-						*strParam2 = trim_right(strParam1.substr(pos + 1));
-					}
-
-					strParam1.resize(pos);
-				}
-
-				inplace::trim_right(strParam1);
-				return true;
+				strParam1.resize(pos);
 			}
+
+			inplace::trim_right(strParam1);
+			return true;
 		}
-		else if (starts_with(i.Str, L'"'))
+
+		if (starts_with(i.Str, L'"'))
 		{
 			// '"' indicates some meaningful string.
 			// Parameters can be only in the header, no point to go deeper
@@ -180,29 +176,26 @@ static bool SelectLanguage(bool HelpLanguage, string& Dest)
 
 		string strLangName, strLangDescr;
 
-		if (GetLangParam(LangFile, L"Language"sv, strLangName, &strLangDescr, Codepage))
-		{
-			string strEntryName;
+		if (!GetLangParam(LangFile, L"Language"sv, strLangName, &strLangDescr, Codepage))
+			continue;
 
-			if (!HelpLanguage || (
-				!GetLangParam(LangFile, L"PluginContents"sv, strEntryName, nullptr, Codepage) &&
-				!GetLangParam(LangFile, L"DocumentContents"sv, strEntryName, nullptr, Codepage)))
-			{
-				MenuItemEx LangMenuItem(!strLangDescr.empty()? strLangDescr : strLangName);
+		string strEntryName;
 
-				/* $ 01.08.2001 SVS
-				   Не допускаем дубликатов!
-				   Если в каталог с ФАРом положить еще один HLF с одноименным
-				   языком, то... фигня получается при выборе языка.
-				*/
-				if (LangMenu->FindItem(0,LangMenuItem.Name,LIFIND_EXACTMATCH) == -1)
-				{
-					LangMenuItem.SetSelect(equal_icase(Dest, strLangName));
-					LangMenuItem.ComplexUserData = strLangName;
-					LangMenu->AddItem(LangMenuItem);
-				}
-			}
-		}
+		if (HelpLanguage && (
+			GetLangParam(LangFile, L"PluginContents"sv, strEntryName, nullptr, Codepage) ||
+			GetLangParam(LangFile, L"DocumentContents"sv, strEntryName, nullptr, Codepage)
+		))
+			continue;
+
+		MenuItemEx LangMenuItem(!strLangDescr.empty()? strLangDescr : strLangName);
+
+		// No duplicate languages
+		if (LangMenu->FindItem(0, LangMenuItem.Name, LIFIND_EXACTMATCH) != -1)
+			continue;
+
+		LangMenuItem.SetSelect(equal_icase(Dest, strLangName));
+		LangMenuItem.ComplexUserData = strLangName;
+		LangMenu->AddItem(LangMenuItem);
 	}
 
 	LangMenu->AssignHighlights();
@@ -317,19 +310,17 @@ static lng_line_type parse_lng_line(const string_view str, bool ParseLabels, str
 	}
 
 	//-- MLabel="Text"
-	if (ParseLabels && !str.empty() && str.back() == L'"')
+	if (ParseLabels && !str.empty() && str.back() == L'"' && std::iswalpha(str.front()))
 	{
-		const auto eq_pos = str.find(L'=');
-		if (eq_pos != str.npos && std::iswalpha(str[0]))
-		{
-			const auto Value = trim(str.substr(eq_pos + 1));
+		auto [Name, Value] = split(str);
+		inplace::trim(Name);
+		inplace::trim(Value);
 
-			if (starts_with(Value, L'"'))
-			{
-				Label = trim(str.substr(0, eq_pos));
-				Data = Value.substr(1, Value.size() - 2);
-				return lng_line_type::both;
-			}
+		if (!Name.empty() && Value.size() > 1 && starts_with(Value, L'"'))
+		{
+			Label = Name;
+			Data = Value.substr(1, Value.size() - 2);
+			return lng_line_type::both;
 		}
 	}
 
@@ -538,15 +529,16 @@ TEST_CASE("language.parser")
 	}
 	Tests[]
 	{
-		{ L"\"Text\""sv,    {},          L"Text"sv,  lng_line_type::text,  },
-		{ L"\"Text"sv,      {},          L"Text"sv,  lng_line_type::text,  },
-		{ L"//[Label]"sv,   L"Label"sv,  {},         lng_line_type::label, },
-		{ L"//[Lab"sv,      {},          {},         lng_line_type::none,  },
-		{ L"foo=\"bar\""sv, L"foo"sv,    L"bar"sv,   lng_line_type::both,  },
-		{ L"foo=\"bar"sv,   {},          {},         lng_line_type::none,  },
-		{ L"foo=bar"sv,     {},          {},         lng_line_type::none,  },
-		{ L"foo="sv,        {},          {},         lng_line_type::none,  },
-		{ L"foo"sv,         {},          {},         lng_line_type::none,  },
+		{ L"\"Text\""sv,      {},          L"Text"sv,  lng_line_type::text,  },
+		{ L"\"Text"sv,        {},          L"Text"sv,  lng_line_type::text,  },
+		{ L"//[Label]"sv,     L"Label"sv,  {},         lng_line_type::label, },
+		{ L"//[Lab"sv,        {},          {},         lng_line_type::none,  },
+		{ L"foo = \"bar\""sv, L"foo"sv,    L"bar"sv,   lng_line_type::both,  },
+		{ L"foo=\"bar"sv,     {},          {},         lng_line_type::none,  },
+		{ L"foo=bar\""sv,     {},          {},         lng_line_type::none,  },
+		{ L"foo=bar"sv,       {},          {},         lng_line_type::none,  },
+		{ L"foo="sv,          {},          {},         lng_line_type::none,  },
+		{ L"foo"sv,           {},          {},         lng_line_type::none,  },
 	};
 
 	for (const auto& i: Tests)

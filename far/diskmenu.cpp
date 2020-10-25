@@ -164,7 +164,7 @@ static void AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSelec
 
 		for (int PluginItem = 0;; ++PluginItem)
 		{
-			WCHAR HotKey = 0;
+			wchar_t HotKey = 0;
 			UUID Uuid;
 			string strPluginText;
 

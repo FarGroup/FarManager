@@ -1840,7 +1840,7 @@ void VMenu::Show()
 
 			if (m_Where.left == -1)
 			{
-				m_Where.left = static_cast<SHORT>(ScrX - m_MaxLength - 4 - (HasSubMenus? 1 : 0)) / 2;
+				m_Where.left = static_cast<short>(ScrX - m_MaxLength - 4 - (HasSubMenus? 1 : 0)) / 2;
 				AutoCenter = true;
 			}
 
@@ -1848,7 +1848,7 @@ void VMenu::Show()
 				m_Where.left = 2;
 
 			if (m_Where.right <= 0)
-				m_Where.right = static_cast<SHORT>(m_Where.left + m_MaxLength + 4 + (HasSubMenus? 1 : 0));
+				m_Where.right = static_cast<short>(m_Where.left + m_MaxLength + 4 + (HasSubMenus? 1 : 0));
 
 			if (!AutoCenter && m_Where.right > ScrX-4+2*(m_BoxType==SHORT_DOUBLE_BOX || m_BoxType==SHORT_SINGLE_BOX))
 			{
@@ -2400,9 +2400,9 @@ void VMenu::ShowMenu(bool IsParent)
 		SetColor(Colors[VMenuColorScrollBar]);
 
 		if (m_BoxType!=NO_BOX)
-			ScrollBarEx(m_Where.right, m_Where.top + 1, m_Where.height() - 2, VisualTopPos, GetShowItemCount());
+			ScrollBar(m_Where.right, m_Where.top + 1, m_Where.height() - 2, VisualTopPos, GetShowItemCount());
 		else
-			ScrollBarEx(m_Where.right, m_Where.top, m_Where.height(), VisualTopPos, GetShowItemCount());
+			ScrollBar(m_Where.right, m_Where.top, m_Where.height(), VisualTopPos, GetShowItemCount());
 	}
 }
 

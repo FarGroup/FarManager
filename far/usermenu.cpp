@@ -847,7 +847,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 
 			if (Param1==EM_BUTTON_OK)
 			{
-				BOOL Result=TRUE;
+				bool Result = true;
 				const string_view HotKey = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_HOTKEY_EDIT, nullptr));
 				const string_view Label = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_LABEL_EDIT, nullptr));
 				int FocusPos=-1;
@@ -864,7 +864,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 
 						if (upper(HotKey.front()) == L'F')
 						{
-							if (in_range(1, from_string<int>(HotKey.substr(1)), 24))
+							if (in_closed_range(1, from_string<int>(HotKey.substr(1)), 24))
 								FocusPos=-1;
 						}
 					}
@@ -879,7 +879,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 						},
 						{ lng::MOk });
 					Dlg->SendMessage(DM_SETFOCUS, FocusPos, nullptr);
-					Result=FALSE;
+					Result = false;
 				}
 
 				return Result;
@@ -898,10 +898,10 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 					break;
 
 				case Message::second_button:
-					return TRUE;
+					return true;
 
 				default:
-					return FALSE;
+					return false;
 				}
 			}
 

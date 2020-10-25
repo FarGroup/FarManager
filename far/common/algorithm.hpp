@@ -124,7 +124,7 @@ constexpr bool contains(const container& Container, const element& Element)
 }
 
 template<typename min_type, typename value_type, typename max_type>
-constexpr bool in_range(min_type const& Min, value_type const& Value, max_type const& Max)
+constexpr bool in_closed_range(min_type const& Min, value_type const& Value, max_type const& Max)
 {
 	return Min <= Value && Value <= Max;
 }

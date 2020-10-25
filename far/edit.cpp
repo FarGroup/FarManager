@@ -140,14 +140,14 @@ void Edit::DisplayObject()
 	MoveCursor({ m_Where.left + GetLineCursorPos() - LeftPos, m_Where.top });
 }
 
-void Edit::SetCursorType(bool Visible, DWORD Size)
+void Edit::SetCursorType(bool const Visible, size_t const Size)
 {
 	m_Flags.Change(FEDITLINE_CURSORVISIBLE,Visible);
 	SetCursorSize(Size);
 	::SetCursorType(Visible,Size);
 }
 
-void Edit::GetCursorType(bool& Visible, DWORD& Size) const
+void Edit::GetCursorType(bool& Visible, size_t& Size) const
 {
 	Visible=m_Flags.Check(FEDITLINE_CURSORVISIBLE);
 	Size = GetCursorSize();
@@ -1728,17 +1728,19 @@ bool Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
 	{
 		static std::chrono::steady_clock::time_point PrevDoubleClick;
-		static COORD PrevPosition={};
+		static point PrevPosition;
 
 		const auto CurrentTime = std::chrono::steady_clock::now();
 
-		if (CurrentTime - PrevDoubleClick <= std::chrono::milliseconds(GetDoubleClickTime()) && MouseEvent->dwEventFlags != MOUSE_MOVED &&
-		        PrevPosition.X == MouseEvent->dwMousePosition.X && PrevPosition.Y == MouseEvent->dwMousePosition.Y)
+		if (
+			CurrentTime - PrevDoubleClick <= std::chrono::milliseconds(GetDoubleClickTime()) &&
+			MouseEvent->dwEventFlags != MOUSE_MOVED &&
+			PrevPosition == MouseEvent->dwMousePosition
+		)
 		{
 			Select(0, m_Str.size());
 			PrevDoubleClick = {};
-			PrevPosition.X=0;
-			PrevPosition.Y=0;
+			PrevPosition = {};
 		}
 
 		if (MouseEvent->dwEventFlags==DOUBLE_CLICK)
@@ -1750,8 +1752,7 @@ bool Edit::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		else
 		{
 			PrevDoubleClick = {};
-			PrevPosition.X=0;
-			PrevPosition.Y=0;
+			PrevPosition = {};
 		}
 	}
 

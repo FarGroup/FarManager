@@ -1644,7 +1644,7 @@ Options::Options():
 {
 	const auto& TabSizeValidator = option::validator([](long long TabSize)
 	{
-		return in_range(1, TabSize, 512)? TabSize : DefaultTabSize;
+		return in_closed_range(1, TabSize, 512)? TabSize : DefaultTabSize;
 	});
 
 	EdOpt.TabSize.SetCallback(TabSizeValidator);
@@ -1668,7 +1668,7 @@ Options::Options():
 
 	HelpTabSize.SetCallback(option::validator([](long long Value) { return DefaultTabSize; })); // пока жестко пропишем...
 
-	const auto MacroKeyValidator = [](const string& Value, DWORD& Key, string_view const DefaultValue, DWORD DefaultKey)
+	const auto MacroKeyValidator = [](const string& Value, unsigned& Key, string_view const DefaultValue, unsigned DefaultKey)
 	{
 		Key = KeyNameToKey(Value);
 		if (!Key)
@@ -2167,12 +2167,12 @@ static std::optional<std::pair<panel_sort, sort_order>> deserialise_sort_layer(s
 		switch (Str.front())
 		{
 		case L'S':
-			if (!from_string(Str.substr(1), Sort) || !in_range(0, Sort, static_cast<int>(panel_sort::COUNT)))
+			if (!from_string(Str.substr(1), Sort) || !in_closed_range(0, Sort, static_cast<int>(panel_sort::COUNT)))
 				return {};
 			break;
 
 		case L'O':
-			if (!from_string(Str.substr(1), Order) || !in_range(static_cast<int>(sort_order::first), Order, static_cast<int>(sort_order::last)))
+			if (!from_string(Str.substr(1), Order) || !in_closed_range(static_cast<int>(sort_order::first), Order, static_cast<int>(sort_order::last)))
 				return {};
 			break;
 		}
@@ -2481,9 +2481,9 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 		{
 			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-			COORD Size{ static_cast<SHORT>(std::max(ScrX - 4, 60)), static_cast<SHORT>(std::max(ScrY - 2, 20)) };
+			COORD Size{ static_cast<short>(std::max(ScrX - 4, 60)), static_cast<short>(std::max(ScrY - 2, 20)) };
 			Dlg->SendMessage(DM_RESIZEDIALOG, 0, &Size);
-			SMALL_RECT ListPos{ 3, 1, static_cast<SHORT>(Size.X - 4), static_cast<SHORT>(Size.Y - 2) };
+			SMALL_RECT ListPos{ 3, 1, static_cast<short>(Size.X - 4), static_cast<short>(Size.Y - 2) };
 			Dlg->SendMessage(DM_SETITEMPOSITION, ac_item_listbox, &ListPos);
 		}
 		break;

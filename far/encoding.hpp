@@ -245,6 +245,6 @@ struct cp_info
 
 using cp_map = std::unordered_map<unsigned, cp_info>;
 [[nodiscard]] const cp_map& InstalledCodepages();
-[[nodiscard]] cp_info const* GetCodePageInfo(unsigned cp);
+[[nodiscard]] cp_info const* GetCodePageInfo(uintptr_t cp);
 
 #endif // ENCODING_HPP_44AE7032_AF79_4A6F_A2ED_529BC1A38758

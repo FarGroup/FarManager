@@ -67,6 +67,7 @@ enum MACRODISABLEONLOAD
 };
 
 class TVar;
+struct point;
 
 struct MacroPanelSelect
 {
@@ -100,7 +101,7 @@ public:
 	bool CheckWaitKeyFunc() const;
 	int  GetState() const;
 	int  GetKey();
-	static DWORD GetMacroParseError(COORD* ErrPos, string& ErrSrc);
+	static DWORD GetMacroParseError(point& ErrPos, string& ErrSrc);
 	FARMACROAREA GetArea() const { return m_Area; }
 	string_view GetStringToPrint() const { return m_StringToPrint; }
 	bool IsRecording() const { return m_Recording != MACROSTATE_NOMACRO; }

@@ -181,8 +181,8 @@ public:
 	bool GetColor(ColorItem& col, size_t Item) const;
 	void Xlat(bool All=false);
 	void SetDialogParent(DWORD Sets);
-	void SetCursorType(bool Visible, DWORD Size);
-	void GetCursorType(bool& Visible, DWORD& Size) const;
+	void SetCursorType(bool Visible, size_t Size);
+	void GetCursorType(bool& Visible, size_t& Size) const;
 	bool GetReadOnly() const {return m_Flags.Check(FEDITLINE_READONLY);}
 	void SetReadOnly(bool NewReadOnly) {m_Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
 	void SetHorizontalPosition(int X1, int X2) { SetPosition({ X1, m_Where.top, X2, m_Where.bottom }); }
@@ -213,7 +213,7 @@ private:
 	virtual int GetPrevCurPos() const { return 0; }
 	virtual void SetPrevCurPos(int Pos) {}
 	virtual int GetCursorSize() const;
-	virtual void SetCursorSize(int Size) {}
+	virtual void SetCursorSize(size_t Size) {}
 	virtual int GetMacroSelectionStart() const;
 	virtual void SetMacroSelectionStart(int Value);
 	virtual int GetLineCursorPos() const;

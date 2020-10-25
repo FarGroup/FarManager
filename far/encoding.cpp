@@ -85,7 +85,7 @@ private:
 		return cpp_try(
 		[&]
 		{
-			const auto cp = static_cast<UINT>(std::wcstoul(cpNum, nullptr, 10));
+			const auto cp = static_cast<unsigned>(std::wcstoul(cpNum, nullptr, 10));
 
 			CPINFOEX cpix;
 			if (!GetCPInfoEx(cp, 0, &cpix))
@@ -133,12 +133,12 @@ const cp_map& InstalledCodepages()
 	return s_Icp.get();
 }
 
-cp_info const* GetCodePageInfo(unsigned cp)
+cp_info const* GetCodePageInfo(uintptr_t cp)
 {
 	// Standard unicode CPs (1200, 1201, 65001) are NOT in the list.
 	const auto& InstalledCp = InstalledCodepages();
 
-	if (const auto found = InstalledCp.find(cp); found != InstalledCp.cend())
+	if (const auto found = InstalledCp.find(static_cast<unsigned>(cp)); found != InstalledCp.cend())
 		return &found->second;
 
 	return {};
@@ -310,7 +310,7 @@ static size_t multibyte_to_widechar_with_validation(uintptr_t const Codepage, st
 	return Result;
 }
 
-static bool IsValid(UINT cp)
+static bool IsValid(unsigned cp)
 {
 	if (cp==CP_ACP || cp==CP_OEMCP || cp==CP_MACCP || cp==CP_THREAD_ACP || cp==CP_SYMBOL)
 		return false;
@@ -1073,7 +1073,7 @@ size_t Utf8::get_char(std::string_view::const_iterator& StrIterator, std::string
 				}
 				else
 				{
-					if (in_range(utf8::surrogate_first, First, utf8::surrogate_last))
+					if (in_closed_range(utf8::surrogate_first, First, utf8::surrogate_last))
 					{
 						// invalid: surrogate area code
 						First = InvalidChar(c1);
@@ -1185,20 +1185,20 @@ static size_t utf8_get_bytes(string_view const Str, span<char> const Buffer)
 		{
 			BytesNumber = 2;
 		}
-		else if (!in_range(utf8::surrogate_first, Char, utf8::surrogate_last))
+		else if (!in_closed_range(utf8::surrogate_first, Char, utf8::surrogate_last))
 		{
 			// not surrogates
 			BytesNumber = 3;
 		}
-		else if (utf8::support_embedded_raw_bytes && in_range(utf8::invalid_first, Char, utf8::invalid_last))
+		else if (utf8::support_embedded_raw_bytes && in_closed_range(utf8::invalid_first, Char, utf8::invalid_last))
 		{
 			// embedded raw byte
 			BytesNumber = 1;
 			Char &= 0b11111111;
 		}
 		else if (StrIterator != StrEnd &&
-			in_range(utf8::surrogate_high_first, Char, utf8::surrogate_high_last) &&
-			in_range(utf8::surrogate_low_first, *StrIterator, utf8::surrogate_low_last))
+			in_closed_range(utf8::surrogate_high_first, Char, utf8::surrogate_high_last) &&
+			in_closed_range(utf8::surrogate_low_first, *StrIterator, utf8::surrogate_low_last))
 		{
 			// valid surrogate pair
 			BytesNumber = 4;
@@ -1503,8 +1503,8 @@ TEST_CASE("encoding.ucs2-utf8.round-trip")
 		else
 		{
 			const auto
-				IsSurrogate = in_range(utf8::surrogate_first, Char, utf8::surrogate_last),
-				IsInvalid = in_range(utf8::invalid_first, Char, utf8::invalid_last);
+				IsSurrogate = in_closed_range(utf8::surrogate_first, Char, utf8::surrogate_last),
+				IsInvalid = in_closed_range(utf8::invalid_first, Char, utf8::invalid_last);
 
 			return Result == (!IsSurrogate || (utf8::support_embedded_raw_bytes && IsInvalid)? Char : encoding::replace_char);
 		}
