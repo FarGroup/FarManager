@@ -230,6 +230,14 @@ namespace os::fs
 
 		unsigned get_type(string_view const Path)
 		{
+			bool IsRoot = false;
+			if (const auto PathType = ParsePath(Path, {}, &IsRoot); IsRoot && (PathType == root_type::drive_letter || PathType == root_type::win32nt_drive_letter))
+			{
+				// It seems that Windows caches this information for drive letters, but not for other paths.
+				// We want to utilise it, if possible, to avoid delays with network drives.
+				return GetDriveType(get_root_directory(PathType == root_type::drive_letter? Path[0] : Path[4]).c_str());
+			}
+
 			NTPath NtPath(Path.empty()? os::fs::GetCurrentDirectory() : Path);
 			AddEndSlash(NtPath);
 
