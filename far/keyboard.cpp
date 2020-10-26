@@ -506,10 +506,10 @@ public:
 
 	bool signaled() const
 	{
-		if (!m_DelayCheck.is_time())
+		if (!m_RepeatCheck)
 			return false;
 
-		if (m_Repeating && !m_RepeatCheck)
+		if (m_Repeating && !m_DelayCheck.is_time())
 			return false;
 
 		m_Repeating = true;

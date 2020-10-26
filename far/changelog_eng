@@ -1,3 +1,7 @@
+drkns 26.10.2020 02:03:19 +0000 - build 5691
+
+1. Correction of 5683.
+
 drkns 25.10.2020 20:54:39 +0000 - build 5690
 
 1. 0003818: Infinite restart of .cmd batches via a double click and exiting using Ctrl-Break.
