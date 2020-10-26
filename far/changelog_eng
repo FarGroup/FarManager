@@ -1,3 +1,7 @@
+drkns 26.10.2020 20:48:46 +0000 - build 5693
+
+1. New versions of fmt, tinyxml2, Catch2.
+
 drkns 26.10.2020 18:02:12 +0000 - build 5692
 
 1. Forum: 5688 freezes in disks menu if a network drive is not available.
