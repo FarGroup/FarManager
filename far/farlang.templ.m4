@@ -14179,6 +14179,19 @@ upd:"Sho&w directories first"
 "&Каталоги вперед"
 "&Каталогі першапачаткова"
 
+MMaskGroupTitle
+"Группы масок файлов"
+"Groups of file masks"
+"Skupiny masek souborů"
+"Gruppe der Datenmasken"
+upd:"Groups of file masks"
+"Grupy masek plików"
+"Grupos de máscara de archivos"
+"Skupiny masiek súborov"
+"Maschere Filtri"
+"Групи масок файлів"
+"Суполкі масак файлаў"
+
 MMaskGroupName
 "&Имя:"
 "&Name:"

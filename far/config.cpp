@@ -485,7 +485,7 @@ static void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 
 void Options::MaskGroupsSettings()
 {
-	const auto MasksMenu = VMenu2::create(msg(lng::MMenuMaskGroups), {}, 0, VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
+	const auto MasksMenu = VMenu2::create(msg(lng::MMaskGroupTitle), {}, 0, VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 	const auto BottomTitle = KeysToLocalizedText(KEY_INS, KEY_DEL, KEY_F4, KEY_F7, KEY_CTRLR);
 	MasksMenu->SetBottomTitle(BottomTitle);
 	MasksMenu->SetHelp(L"MaskGroupsSettings"sv);
@@ -507,7 +507,6 @@ void Options::MaskGroupsSettings()
 					MasksMenu->UpdateItemFlags(static_cast<int>(i), MasksMenu->at(i).Flags & ~MIF_HIDDEN);
 				}
 				MasksMenu->SetPosition({ -1, -1, -1, -1 });
-				MasksMenu->SetTitle(msg(lng::MMenuMaskGroups));
 				MasksMenu->SetBottomTitle(BottomTitle);
 				return 1;
 			}
@@ -520,7 +519,7 @@ void Options::MaskGroupsSettings()
 			case KEY_NUMDEL:
 			case KEY_DEL:
 				if(Item && Message(0,
-					msg(lng::MMenuMaskGroups),
+					msg(lng::MMaskGroupTitle),
 					{
 						msg(lng::MMaskGroupAskDelete),
 						*Item
@@ -549,7 +548,7 @@ void Options::MaskGroupsSettings()
 							Name = *Item;
 							Value = ConfigProvider().GeneralCfg()->GetValue<string>(L"Masks"sv, Name);
 						}
-						DialogBuilder Builder(lng::MMenuMaskGroups, L"MaskGroupsSettings"sv);
+						DialogBuilder Builder(lng::MMaskGroupTitle, L"MaskGroupsSettings"sv);
 						Builder.AddText(lng::MMaskGroupName);
 						Builder.AddEditField(Name, 60);
 						Builder.AddText(lng::MMaskGroupMasks);
@@ -572,7 +571,7 @@ void Options::MaskGroupsSettings()
 			case KEY_RCTRLR:
 				{
 					if (Message(MSG_WARNING,
-						msg(lng::MMenuMaskGroups),
+						msg(lng::MMaskGroupTitle),
 						{
 							msg(lng::MMaskGroupRestore),
 						},
