@@ -182,7 +182,7 @@ TEST_CASE("algorithm.in_closed_range")
 	static_assert(!in_closed_range(1, 1, 0));
 	static_assert(!in_closed_range(1, 0, 1));
 	static_assert(!in_closed_range(5, 3, 1));
-	SUCCEED();
+	REQUIRE(true);
 }
 
 TEST_CASE("algorithm.any_none_of")
@@ -191,7 +191,7 @@ TEST_CASE("algorithm.any_none_of")
 	static_assert(any_of(1, 1, 2, 3));
 	static_assert(none_of(1, 0));
 	static_assert(none_of(1, 2, 3));
-	SUCCEED();
+	REQUIRE(true);
 }
 
 //----------------------------------------------------------------------------
@@ -513,7 +513,7 @@ TEST_CASE("function_traits")
 		static_assert(std::is_same_v<t::result_type, double>);
 	}
 
-	SUCCEED();
+	REQUIRE(true);
 }
 
 //----------------------------------------------------------------------------
@@ -547,7 +547,7 @@ TEST_CASE("keep_alive")
 	TestKeepAlive<int&>();
 	TestKeepAlive<const int&>();
 
-	SUCCEED();
+	REQUIRE(true);
 }
 
 //----------------------------------------------------------------------------
@@ -689,7 +689,7 @@ TEST_CASE("range.static")
 		static_assert(std::is_same_v<decltype(*Span.begin()), int&>);
 		static_assert(std::is_same_v<decltype(*Span.cbegin()), const int&>);
 	}
-	SUCCEED();
+	REQUIRE(true);
 }
 
 TEST_CASE("range.dynamic")

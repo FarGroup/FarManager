@@ -291,6 +291,6 @@ TEST_CASE("platform.thread.forwarding")
 	{
 		os::thread Thread(os::thread::mode::join, [Ptr = std::make_unique<int>(33)](auto&&){}, std::make_unique<int>(42));
 	}
-	SUCCEED();
+	REQUIRE(true);
 }
 #endif

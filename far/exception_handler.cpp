@@ -1509,6 +1509,6 @@ TEST_CASE("fourcc")
 	static_assert(fourcc("CPLG"sv) == 0x474C5043);
 	static_assert(fourcc("avc1"sv) == 0x31637661);
 
-	SUCCEED();
+	REQUIRE(true);
 }
 #endif

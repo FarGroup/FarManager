@@ -363,9 +363,9 @@ static void debug_deallocator(void* const Block, std::align_val_t Alignment, all
 	_aligned_free(Info);
 }
 
-static auto default_alignment()
+static constexpr auto default_alignment()
 {
-	return std::align_val_t{ MEMORY_ALLOCATION_ALIGNMENT };
+	return std::align_val_t{ __STDCPP_DEFAULT_NEW_ALIGNMENT__ };
 }
 
 }
