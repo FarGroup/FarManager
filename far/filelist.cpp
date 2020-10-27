@@ -5553,18 +5553,24 @@ bool FileList::FileNameToPluginItem(string_view const Name, PluginPanelItemHolde
 
 static void FileListItemToPluginPanelItemBasic(const FileListItem& From, PluginPanelItem& To)
 {
-	To.FileSize = From.FileSize;
-	To.AllocationSize = From.AllocationSize;
-	To.FileAttributes = From.Attributes;
-	To.LastWriteTime = os::chrono::nt_clock::to_filetime(From.LastWriteTime);
 	To.CreationTime = os::chrono::nt_clock::to_filetime(From.CreationTime);
 	To.LastAccessTime = os::chrono::nt_clock::to_filetime(From.LastAccessTime);
+	To.LastWriteTime = os::chrono::nt_clock::to_filetime(From.LastWriteTime);
 	To.ChangeTime = os::chrono::nt_clock::to_filetime(From.ChangeTime);
-	To.Flags = From.UserFlags | (From.Selected? PPIF_SELECTED : 0);
+	To.FileSize = From.FileSize;
+	To.AllocationSize = From.AllocationSize;
+	To.FileName = {};
+	To.AlternateFileName = {};
+	To.Description = {};
+	To.Owner = {};
+	To.CustomColumnData = {};
 	To.CustomColumnNumber = From.CustomColumnNumber;
-	To.CRC32 = From.CRC32;
+	To.Flags = From.UserFlags | (From.Selected ? PPIF_SELECTED : 0);
 	To.UserData = From.UserData;
-	To.Reserved[0] = To.Reserved[1] = 0;
+	To.FileAttributes = From.Attributes;
+	To.NumberOfLinks = {};
+	To.CRC32 = From.CRC32;
+	std::fill(ALL_RANGE(To.Reserved), 0);
 }
 
 void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolder& Holder) const
@@ -5595,44 +5601,106 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 		return (Str.size() + 1) * sizeof(wchar_t);
 	};
 
-	const auto size =
-		aligned_sizeof<PluginPanelItem>() +
-		StringSizeInBytes(fi.FileName) +
-		StringSizeInBytes(fi.AlternateFileName()) +
-		fi.CustomColumnNumber * sizeof(wchar_t*) +
-		std::accumulate(fi.CustomColumnData, fi.CustomColumnData + fi.CustomColumnNumber, size_t(0), [&](size_t s, const wchar_t* i) { return s + (i? StringSizeInBytes(i) : 0); }) +
-		(fi.DizText? StringSizeInBytes(fi.DizText) : 0) +
-		((fi.IsOwnerRead() && !fi.Owner(this).empty())? StringSizeInBytes(fi.Owner(this)) : 0);
+	const auto
+		StaticSize      = aligned_sizeof<PluginPanelItem, sizeof(wchar_t)>(),
+		FilenameSize    = aligned_size(StringSizeInBytes(fi.FileName), alignof(wchar_t)),
+		AltNameSize     = aligned_size(StringSizeInBytes(fi.AlternateFileName()), alignof(wchar_t*)),
+		ColumnsSize     = aligned_size(fi.CustomColumnNumber * sizeof(wchar_t*), alignof(wchar_t)),
+		ColumnsDataSize = aligned_size(std::accumulate(fi.CustomColumnData, fi.CustomColumnData + fi.CustomColumnNumber, size_t(0), [&](size_t s, const wchar_t* i) { return s + (i? StringSizeInBytes(i) : 0); }), alignof(wchar_t)),
+		DescriptionSize = aligned_size(fi.DizText? StringSizeInBytes(fi.DizText) : 0, alignof(wchar_t)),
+		OwnerSize       = aligned_size(fi.IsOwnerRead() && !fi.Owner(this).empty()? StringSizeInBytes(fi.Owner(this)) : 0, alignof(wchar_t));
 
-	if (!gpi || !gpi->Item || gpi->Size < size)
+	const auto size =
+		StaticSize +
+		FilenameSize +
+		AltNameSize +
+		ColumnsSize +
+		ColumnsDataSize +
+		DescriptionSize +
+		OwnerSize;
+
+	if (!gpi || !gpi->Item || gpi->Size < sizeof(*gpi->Item))
 		return size;
 
 	FileListItemToPluginPanelItemBasic(fi, *gpi->Item);
 	gpi->Item->NumberOfLinks = fi.IsNumberOfLinksRead()? fi.NumberOfLinks(this) : 0;
 
-	auto data = reinterpret_cast<char*>(gpi->Item) + aligned_sizeof<PluginPanelItem>();
+	auto data = reinterpret_cast<char*>(gpi->Item);
+	const auto end = data + gpi->Size;
+
+	data += StaticSize;
 
 	const auto CopyToBuffer = [&](string_view const Str)
 	{
 		const auto Result = reinterpret_cast<const wchar_t*>(data);
 		*copy_string(Str, reinterpret_cast<wchar_t*>(data)) = {};
-		data += StringSizeInBytes(Str);
 		return Result;
 	};
 
-	gpi->Item->FileName = CopyToBuffer(fi.FileName);
-	gpi->Item->AlternateFileName = CopyToBuffer(fi.AlternateFileName());
-
-	gpi->Item->CustomColumnData = reinterpret_cast<const wchar_t* const*>(data);
-	data += fi.CustomColumnNumber * sizeof(wchar_t*);
-
-	for (size_t i = 0; i != fi.CustomColumnNumber; ++i)
+	const auto not_enough_for = [&](size_t const Size)
 	{
-		const_cast<const wchar_t**>(gpi->Item->CustomColumnData)[i] = fi.CustomColumnData[i]? CopyToBuffer(fi.CustomColumnData[i]) : nullptr;
+		return data == end || data + Size > end;
+	};
+
+	if (not_enough_for(FilenameSize))
+		return size;
+	gpi->Item->FileName = CopyToBuffer(fi.FileName);
+	data += FilenameSize;
+
+	if (not_enough_for(AltNameSize))
+		return size;
+	gpi->Item->AlternateFileName = CopyToBuffer(fi.AlternateFileName());
+	data += AltNameSize;
+
+
+	if (ColumnsSize)
+	{
+		if (not_enough_for(ColumnsSize))
+			return size;
+		gpi->Item->CustomColumnData = reinterpret_cast<const wchar_t* const*>(data);
+		data += ColumnsSize;
 	}
 
-	gpi->Item->Description = fi.DizText? CopyToBuffer(fi.DizText) : nullptr;
-	gpi->Item->Owner = (fi.IsOwnerRead() && !fi.Owner(this).empty())? CopyToBuffer(fi.Owner(this)) : nullptr;
+	if (ColumnsDataSize)
+	{
+		const auto dataBegin = data;
+
+		if (not_enough_for(ColumnsDataSize))
+		{
+			gpi->Item->CustomColumnData = {};
+			return size;
+		}
+		const auto ColumnData = const_cast<const wchar_t**>(gpi->Item->CustomColumnData);
+		for (size_t i = 0; i != fi.CustomColumnNumber; ++i)
+		{
+			if (!fi.CustomColumnData[i])
+			{
+				ColumnData[i] = {};
+				continue;
+			}
+
+			ColumnData[i] = CopyToBuffer(fi.CustomColumnData[i]);
+			data += StringSizeInBytes(fi.CustomColumnData[i]);
+		}
+
+		data = dataBegin + ColumnsDataSize;
+	}
+
+	if (DescriptionSize)
+	{
+		if (not_enough_for(DescriptionSize))
+			return size;
+		gpi->Item->Description = CopyToBuffer(fi.DizText);
+		data += DescriptionSize;
+	}
+
+	if (OwnerSize)
+	{
+		if (not_enough_for(OwnerSize))
+			return size;
+		gpi->Item->Owner = CopyToBuffer(fi.Owner(this));
+		data += OwnerSize;
+	}
 
 	return size;
 }

@@ -1,3 +1,7 @@
+drkns 27.10.2020 20:48:41 +0000 - build 5695
+
+1. С форума: если FarGetPluginPanelItem::Size меньше требуемого размера, то FCTL_GETPANELITEM заполнит столько, сколько возможно.
+
 drkns 27.10.2020 00:25:27 +0000 - build 5694
 
 1. 0003821 / gh-279: Redundant ampersand in the "Group of file masks" dialog title.
