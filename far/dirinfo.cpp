@@ -453,9 +453,8 @@ void FreePluginDirList(HANDLE hPlugin, std::vector<PluginPanelItem>& Items)
 {
 	for (const auto& i: Items)
 	{
-		FreePluginPanelItemNames(i);
+		FreePluginPanelItemData(i);
 		FreePluginPanelItemUserData(hPlugin, i.UserData);
-		FreePluginPanelItemDescriptionOwnerAndColumns(i);
 	}
 
 	Items.clear();

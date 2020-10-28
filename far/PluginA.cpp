@@ -778,11 +778,7 @@ static oldfar::PluginPanelItem* ConvertPanelItemsArrayToAnsi(const PluginPanelIt
 
 static void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
-	for (const auto& i: span(PanelItem, ItemsNumber))
-	{
-		FreePluginPanelItemNames(i);
-		FreePluginPanelItemDescriptionOwnerAndColumns(i);
-	}
+	FreePluginPanelItemsData(span(PanelItem, ItemsNumber));
 
 	delete[] PanelItem;
 }

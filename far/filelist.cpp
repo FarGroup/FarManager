@@ -5578,7 +5578,7 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 	auto& pi = Holder.Item;
 
 	FileListItemToPluginPanelItemBasic(fi, pi);
-	pi.NumberOfLinks = fi.IsNumberOfLinksRead()? fi.NumberOfLinks(this) : 0;
+	pi.NumberOfLinks = fi.IsNumberOfLinksRead() ? fi.NumberOfLinks(this) : 0;
 
 	const auto MakeCopy = [](string_view const Str)
 	{
@@ -5589,9 +5589,22 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 
 	pi.FileName = MakeCopy(fi.FileName);
 	pi.AlternateFileName = MakeCopy(fi.AlternateFileName());
-	pi.CustomColumnData=fi.CustomColumnData;
-	pi.Description=fi.DizText; //BUGBUG???
-	pi.Owner = fi.IsOwnerRead()? EmptyToNull(fi.Owner(this)) : nullptr;
+
+	auto ColumnData = std::make_unique<const wchar_t*[]>(fi.CustomColumnNumber);
+	for (size_t i = 0; i != fi.CustomColumnNumber; ++i)
+	{
+		ColumnData[i] = fi.CustomColumnData[i]? MakeCopy(fi.CustomColumnData[i]) : nullptr;
+	}
+	pi.CustomColumnData = ColumnData.release();
+
+	if (fi.DizText)
+		pi.Description = MakeCopy(fi.DizText);
+
+	if (fi.IsOwnerRead())
+	{
+		if (const auto& Owner = fi.Owner(this); !Owner.empty())
+			pi.Owner = MakeCopy(Owner);
+	}
 }
 
 size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* gpi) const

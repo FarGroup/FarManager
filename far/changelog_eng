@@ -1,3 +1,7 @@
+drkns 28.10.2020 00:18:12 +0000 - build 5696
+
+1. Is some cases pointers to internal data were exposed to plugins.
+
 drkns 27.10.2020 20:48:41 +0000 - build 5695
 
 1. Forum: if FarGetPluginPanelItem::Size is less than the required size, FCTL_GETPANELITEM will fill as much as possible.

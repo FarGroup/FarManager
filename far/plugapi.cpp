@@ -1626,7 +1626,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 				{
 					if (CheckForEsc())
 					{
-						FreePluginPanelItemsNames(*Items);
+						FreePluginPanelItemsData(*Items);
 						return FALSE;
 					}
 
@@ -1695,7 +1695,7 @@ void WINAPI apiFreeDirList(PluginPanelItem *PanelItems, size_t ItemsNumber) noex
 	[&]
 	{
 		const auto Items = magic::CastRawDataToVector(span{ PanelItems, ItemsNumber });
-		FreePluginPanelItemsNames(*Items);
+		FreePluginPanelItemsData(*Items);
 	},
 	[]
 	{
