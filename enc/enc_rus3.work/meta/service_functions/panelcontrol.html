@@ -52,7 +52,7 @@ intptr_t WINAPI PanelControl(
     <td class="cont" width="60%">Проверяет, является ли панель активной.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
-    Функция возвращает <code>FALSE</code>, если панель не активна.</td></tr>
+    Функция возвращает <code>FALSE</code>, если панель неактивна.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_CLOSEPANEL">FCTL_CLOSEPANEL</a></td>
     <td class="cont" width="60%">Закрыть текущую панель плагина.<br>
@@ -68,7 +68,7 @@ intptr_t WINAPI PanelControl(
     Far Manager содержит защиту от бесконечной рекурсии: в случае, когда плагин из обработчика <code>GetOpenPanelInfoW()</code> тоже вызывает
     <code>Info.PanelControl(...,FCTL_GETPANELINFO)</code>, повторного вложенного вызова <code>GetOpenPanelInfoW()</code> не произойдёт.
     <p>В некоторых случаях (пример: поиск в архивах по <kbd>Alt</kbd>+<kbd>F7</kbd>) физически панель плагина не создаётся, поэтому необходимо
-    обязательно проверять код возврата у <code>PanelControl</code>, чтобы не упасть в самый не подходящий момент, выполнив работу для панели, которой нет.</td></tr>
+    обязательно проверять код возврата у <code>PanelControl</code>, чтобы не упасть в самый неподходящий момент, выполнив работу для панели, которой нет.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCOLUMNTYPES">FCTL_GETCOLUMNTYPES</a></td>
     <td class="cont" width="60%">Получить строку, описывающую <a href="../other/dict.html#panelcolumntype">типы колонок</a>.<br>
@@ -106,13 +106,16 @@ intptr_t WINAPI PanelControl(
     <td class="cont" width="60%"> Получить файловый элемент панели.<br>
     <code>Param1</code> порядковый номер элемента на панели (подмножество <a href="../structures/panelinfo.html">PanelInfo::ItemsNumber</a>).<br>
     <code>Param2</code> указывает на структуру типа <a href="../structures/fargetpluginpanelitem.html">FarGetPluginPanelItem</a>.<br>
-    Функция возвращает размер запрашиваемого элемента панели <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>, если <code>Param2 = NULL</code>.<br>
+    <p>Функция возвращает размер запрашиваемого элемента панели <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>,
+    если <code>Param2 = NULL</code> или указывает на корректно заполненную структуру.</p>
+    <p><em>Примечание:</em> если установить значение <code>FarGetPluginPanelItem::Size</code> меньше необходимого размера
+    (но при этом не меньше размера <code>PluginPanelItem</code>), то будет записано столько полей, сколько поместится целиком,
+    а остальным будет присвоено значение <code>NULL</code>. В частности, если установить <code>FarGetPluginPanelItem::Size</code> в
+    <code>sizeof(PluginPanelItem)</code> то можно за один вызов и без динамического выделения памяти получить все поля, не являющиеся указателями.</p>
     <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_GETPANELITEM" width="10" height="10"> Внимание! Tак делать нельзя:<br></p><br>
-    <pre class=code>
-PluginPanelItem PPI;
-Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,J,&PPI);
-   </pre>
-    <p>Пример правильного использования:
+    <pre class=code>PluginPanelItem PPI;
+Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,J,&PPI);</pre>
+    <p>Пример корректного использования:
     <pre class=code>
 for(int J=0; J < PInfo.ItemsNumber; J++)
 {
@@ -126,7 +129,11 @@ for(int J=0; J < PInfo.ItemsNumber; J++)
     free(PPI);
   }
 }</pre>
-</td></tr>
+    Более эффективным при переборе большого количества элементов панели будет иметь на стеке буфер размером,
+    скажем, 16 КиБ и использовать его, когда этот размер достаточен. В тех же редких случаях, когда это не так,
+    можно выделять буфер требуемого размера в динамической памяти (и можно также его не освобождать сразу, а
+    перевыделять по мере необходимости, например, каждый раз не менее чем удваивая размер.)</p>
+    </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELPREFIX">FCTL_GETPANELPREFIX</a></td>
     <td class="cont" width="60%"> Получить префикс плагиновой панели.<br>
@@ -159,7 +166,7 @@ for(int J=0; J < PInfo.ItemsNumber; J++)
     <td class="cont" width="60%">Сделать панель активной.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
-    Функция возвращает <code>FALSE</code>, если <code>hPanel</code> отлична от <code>PANEL_ACTIVE</code> или <code>PANEL_PASSIVE</code> и не принадлежит плагину, или панель в данный момент не видима.<br>
+    Функция возвращает <code>FALSE</code>, если <code>hPanel</code> отлична от <code>PANEL_ACTIVE</code> или <code>PANEL_PASSIVE</code> и не принадлежит плагину, или панель в данный момент невидима.<br>
     Для <code>hPanel = PANEL_ACTIVE</code> никаких действий не происходит, функция вернет <code>TRUE</code>.
     <p>Например, установить на пассивной панели каталог TempDirectory и сделать эту панель активной:
     <pre class=code>FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),TempDirectory,nullptr,{0},nullptr};
@@ -288,14 +295,14 @@ Info.Control(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,NULL);
     </table>
     </div>
   <div class=dfn>Param1</div>
-    <div class=dfndescr>Указывает на параметры1 команды. Смотрите описание <code>Command</code>.</div>
+    <div class=dfndescr>Указывает на Параметр 1 команды - смотрите описание параметра <code>Command</code> выше.</div>
   <div class=dfn>Param2</div>
-    <div class=dfndescr>Указывает на параметры2 команды. Смотрите описание <code>Command</code>.</div>
+    <div class=dfndescr>Указывает на Параметр 2 команды - смотрите описание параметра <code>Command</code> выше.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-В случае успеха возвращается <code>TRUE</code>, иначе <code>FALSE</code>.
+Если иное не оговорено в описании Команды выше, в случае успеха возвращается <code>TRUE</code>, иначе <code>FALSE</code>.
 </div>
 
 <h3>Замечания</h3>
