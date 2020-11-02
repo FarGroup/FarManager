@@ -31,11 +31,12 @@ struct FarGetPluginPanelItem
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarGetPluginPanelItem</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarGetPluginPanelItem</code>. Перед использованием структуры плагин должен заполнить это поле.</div>
   <div class=dfn>Size</div>
-    <div class=dfndescr>Размер поля <code>Item</code> в байтах.</div>
+    <div class=dfndescr>Размер буфера, на который указывает поле <code>Item</code>, в байтах.</div>
   <div class=dfn>Item</div>
-    <div class=dfndescr>Буфер, выделенный плагином для размещения запрашиваемого элемента панели <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>.</div>
+    <div class=dfndescr>Буфер, выделенный плагином для размещения запрашиваемого элемента панели <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>.
+                        Вслед за собственно структурой в буфер будут помещены значения переменной длины, на которые указывают поля структуры.</div>
 </div>
 
 <h3>Замечания</h3>
