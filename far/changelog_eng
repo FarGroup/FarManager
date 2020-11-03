@@ -1,3 +1,9 @@
+drkns 03.11.2020 15:55:05 +0000 - build 5697
+
+1. In some cases some data coundn't be read from registry.
+
+2. Executor logic correction.
+
 drkns 28.10.2020 00:18:12 +0000 - build 5696
 
 1. Is some cases pointers to internal data were exposed to plugins.

@@ -199,12 +199,18 @@ static bool IsProperProgID(string_view const ProgID)
 hExtKey - корневой ключ для поиска (ключ расширения)
 strType - сюда запишется результат, если будет найден
 */
-static string SearchExtHandlerFromList(const os::reg::key& ExtKey)
+static string SearchExtHandlerFromList(const os::reg::key& ExtKey, bool const CheckUserChoice)
 {
-	const auto Enumerator = os::reg::enum_value(ExtKey, L"OpenWithProgIds"sv, KEY_ENUMERATE_SUB_KEYS);
-	const auto Iterator = std::find_if(ALL_CONST_RANGE(Enumerator), [](const os::reg::value& i)
+	string UserChoice;
+	if (CheckUserChoice)
 	{
-			return i.type() == REG_SZ && IsProperProgID(i.name());
+		(void)ExtKey.get(L"UserChoice"sv, L"ProgId"sv, UserChoice);
+	}
+
+	os::reg::enum_value const Enumerator(ExtKey, L"OpenWithProgIds"sv, KEY_ENUMERATE_SUB_KEYS);
+	const auto Iterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const os::reg::value& i)
+	{
+		return IsProperProgID(i.name()) && (UserChoice.empty() || equal_icase(UserChoice, i.name()));
 	});
 
 	return Iterator != Enumerator.cend()? Iterator->name() : L""s;
@@ -660,10 +666,10 @@ bool GetShellType(const string_view Ext, string& strType, const ASSOCIATIONTYPE 
 		}
 
 		if (strType.empty() && UserKey)
-			strType = SearchExtHandlerFromList(UserKey);
+			strType = SearchExtHandlerFromList(UserKey, true);
 
 		if (strType.empty() && CRKey)
-			strType = SearchExtHandlerFromList(CRKey);
+			strType = SearchExtHandlerFromList(CRKey, false);
 	}
 
 	return !strType.empty();

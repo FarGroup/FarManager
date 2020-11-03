@@ -151,7 +151,7 @@ namespace os::reg
 		bool get(bool Reset, value_type& Value) const;
 
 		key m_Key;
-		const key& m_KeyRef;
+		const key* m_KeyRef{};
 		mutable size_t m_Index{};
 	};
 
@@ -168,7 +168,7 @@ namespace os::reg
 		bool get(bool Reset, value_type& Value) const;
 
 		key m_Key;
-		const key& m_KeyRef;
+		const key* m_KeyRef{};
 		mutable size_t m_Index{};
 	};
 }

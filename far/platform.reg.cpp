@@ -240,15 +240,14 @@ namespace os::reg
 	//-------------------------------------------------------------------------
 
 	enum_key::enum_key(const key& Key):
-		m_KeyRef(Key)
+		m_KeyRef(&Key)
 	{
 	}
 
 	enum_key::enum_key(const key& Key, const string_view SubKey, const REGSAM Sam):
-		m_KeyRef(m_Key)
-	{
 		// BUGBUG check result
-		(void)m_Key.open(Key, SubKey, KEY_ENUMERATE_SUB_KEYS | Sam);
+		m_Key(key::open(Key, SubKey, KEY_ENUMERATE_SUB_KEYS | Sam))
+	{
 	}
 
 	bool enum_key::get(bool Reset, value_type& Value) const
@@ -256,21 +255,22 @@ namespace os::reg
 		if (Reset)
 			m_Index = 0;
 
-		return m_KeyRef && m_KeyRef.enum_keys(m_Index++, Value);
+		const auto& Key = m_KeyRef? *m_KeyRef : m_Key;
+
+		return Key && Key.enum_keys(m_Index++, Value);
 	}
 
 	//-------------------------------------------------------------------------
 
 	enum_value::enum_value(const key& Key):
-		m_KeyRef(Key)
+		m_KeyRef(&Key)
 	{
 	}
 
 	enum_value::enum_value(const key& Key, const string_view SubKey, const REGSAM Sam):
-		m_KeyRef(m_Key)
-	{
 		// BUGBUG check result
-		(void)m_Key.open(Key, SubKey, KEY_QUERY_VALUE | Sam);
+		m_Key(key::open(Key, SubKey, KEY_QUERY_VALUE | Sam))
+	{
 	}
 
 	bool enum_value::get(bool Reset, value_type& Value) const
@@ -278,6 +278,43 @@ namespace os::reg
 		if (Reset)
 			m_Index = 0;
 
-		return m_KeyRef && m_KeyRef.enum_values(m_Index++, Value);
+		const auto& Key = m_KeyRef? *m_KeyRef : m_Key;
+
+		return Key && Key.enum_values(m_Index++, Value);
 	}
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("platform.reg")
+{
+	{
+		os::reg::enum_key const Keys(os::reg::key::current_user);
+		REQUIRE(!Keys.empty());
+	}
+
+	{
+		os::reg::enum_key const Keys(os::reg::key::current_user, L"SOFTWARE"sv);
+		REQUIRE(!Keys.empty());
+	}
+
+	{
+		const auto Key = os::reg::key::open(os::reg::key::current_user, L"SOFTWARE"sv, KEY_ENUMERATE_SUB_KEYS);
+		os::reg::enum_key const Keys(Key);
+		REQUIRE(!Keys.empty());
+	}
+
+	{
+		os::reg::enum_value const Values(os::reg::key::local_machine, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon"sv);
+		REQUIRE(!Values.empty());
+	}
+
+	{
+		const auto Key = os::reg::key::open(os::reg::key::current_user, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon"sv, KEY_QUERY_VALUE);
+		os::reg::enum_value const Values(Key);
+		REQUIRE(!Values.empty());
+	}
+}
+#endif
