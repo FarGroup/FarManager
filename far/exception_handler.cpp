@@ -236,8 +236,6 @@ static void show_backtrace(string_view const Module, const std::vector<DWORD64>&
 	}
 	else
 	{
-		std::wcerr << L'\n';
-
 		get_backtrace(Module, Stack, NestedStack, [&](string_view const Line)
 		{
 			std::wcerr << Line << L'\n';
@@ -258,6 +256,39 @@ static bool write_minidump(const exception_context& Context, string_view const P
 	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.thread_id(), &PointersCopy };
 
 	return imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
+}
+
+static void read_modules(span<HMODULE const> const Modules, string& To, string_view const Eol)
+{
+	string Name;
+	for (const auto& i: Modules)
+	{
+		const auto Result = os::fs::GetModuleFileName(nullptr, i, Name);
+		append(To, Result? Name : str(static_cast<void const*>(i)), Eol);
+	}
+}
+
+static void read_modules(string& To, string_view const Eol)
+{
+	HMODULE ModulesStatic[1024];
+	std::vector<HMODULE> ModulesDynamic;
+
+	auto Data = ModulesStatic;
+	DWORD Size = sizeof(ModulesStatic);
+	DWORD Needed = 0;
+
+	for (;;)
+	{
+		if (!EnumProcessModules(GetCurrentProcess(), Data, Size, &Needed))
+			return;
+
+		if (Needed <= Size)
+			return read_modules({ Data, Needed / sizeof(HMODULE) }, To, Eol);
+
+		ModulesDynamic.resize(Needed / sizeof(HMODULE));
+		Data = ModulesDynamic.data();
+		Size = Needed;
+	}
 }
 
 static string self_version()
@@ -420,6 +451,9 @@ static void copy_information(Dialog* const Dlg)
 	{
 		append(Strings, Line, Eol);
 	});
+	append(Strings, Eol);
+
+	read_modules(Strings, Eol);
 
 	SetClipboardText(Strings);
 }
@@ -628,22 +662,31 @@ static bool ExcConsole(
 	std::vector<DWORD64> const* const NestedStack
 )
 {
-	std::wcerr << L'\n';
+	const auto Eol = eol::std.str();
+
+	std::wcerr << Eol;
 
 	for (const auto& [m, v]: zip(Labels, Values))
 	{
 		const auto Label = fit_to_left(string(m), max_item_size(Labels));
-		std::wcerr << Label << L' ' << v << L'\n';
+		std::wcerr << Label << L' ' << v << Eol;
 	}
+	std::wcerr << Eol;
 
 	{
-		string Registers(L"\n"sv);
-		read_registers(Registers, *Context.pointers().ContextRecord, L"\n"sv);
-		std::wcerr << Registers;
+		string Registers;
+		read_registers(Registers, *Context.pointers().ContextRecord, Eol);
+		std::wcerr << Registers << Eol;
 	}
 
 	show_backtrace(ModuleName, tracer::get(ModuleName, Context.pointers(), Context.thread_handle()), NestedStack, false);
-	std::wcerr << std::endl;
+	std::wcerr << Eol;
+
+	{
+		string Modules;
+		read_modules(Modules, Eol);
+		std::wcerr << Modules; // << Eol;
+	}
 
 	if (!ConsoleYesNo(L"Terminate the process"sv, true))
 		return false;

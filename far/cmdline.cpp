@@ -489,7 +489,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 				execute_info Info;
 				Info.DisplayCommand = strStr;
 				Info.Command = strStr;
-				Info.NewWindow = IsNewWindow;
+				Info.WaitMode = IsNewWindow? execute_info::wait_mode::no_wait : execute_info::wait_mode::if_needed;
 				Info.RunAs = IsRunAs;
 
 				SetString({}, false);
@@ -881,7 +881,7 @@ void CommandLine::ShowViewEditHistory()
 					execute_info Info;
 					Info.DisplayCommand = strStr;
 					Info.Command = strStr;
-					Info.WaitMode = Type == HR_EXTERNAL_WAIT? execute_info::wait_mode::wait_finish : execute_info::wait_mode::no_wait;
+					Info.WaitMode = Type == HR_EXTERNAL_WAIT? execute_info::wait_mode::wait_finish : execute_info::wait_mode::if_needed;
 
 					ExecString(Info);
 					break;
@@ -1014,7 +1014,7 @@ void CommandLine::ExecString(execute_info& Info)
 		if (Global->Opt->Clock)
 			ShowTime();
 
-		if (!Info.Silent)
+		if (Info.WaitMode != execute_info::wait_mode::no_wait)
 		{
 			Global->ScrBuf->Flush();
 		}
@@ -1070,9 +1070,8 @@ void CommandLine::ExecString(execute_info& Info)
 			return;
 		}
 
-		if (!Info.NewWindow && !Info.RunAs)
+		if (Info.WaitMode != execute_info::wait_mode::no_wait && !Info.RunAs)
 		{
-
 			if (ProcessFarCommands(Info.Command, Activator))
 				return;
 

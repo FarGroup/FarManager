@@ -176,7 +176,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 		execute_info Info;
 		Info.DisplayCommand = strCommand;
 		Info.Command = strCommand;
-		Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
+		Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::if_needed;
 		Info.RunAs = RunAs;
 		// We've already processed them!
 		Info.UseAssociations = false;
@@ -280,7 +280,7 @@ void ProcessExternal(string_view const Command, string_view const Name, string_v
 	execute_info Info;
 	Info.DisplayCommand = strExecStr;
 	Info.Command = strExecStr;
-	Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
+	Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::if_needed;
 
 	Global->CtrlObject->CmdLine()->ExecString(Info);
 }

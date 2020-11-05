@@ -55,6 +55,7 @@ public:
 		unix,     // <LF>          \n
 		mac,      // <CR>          \r
 		bad_win,  // <CR><CR><LF>  \r\r\n
+		std,      // unix
 		system;   // win
 
 	static eol parse(string_view Value);

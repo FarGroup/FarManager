@@ -680,10 +680,9 @@ void OpenFolderInShell(string_view const Folder)
 	execute_info Info;
 	Info.DisplayCommand = Folder;
 	Info.Command = Folder;
-	Info.NewWindow = true;
+	Info.WaitMode = execute_info::wait_mode::no_wait;
 	Info.ExecMode = execute_info::exec_mode::direct;
 	Info.SourceMode = execute_info::source_mode::known;
-	Info.Silent = true;
 
 	Execute(Info, true);
 }
@@ -877,7 +876,7 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 	string strNewCmdPar;
 
 	// Info.NewWindow may be changed later
-	const auto IgnoreInternalAssociations = Info.NewWindow || !Info.UseAssociations;
+	const auto IgnoreInternalAssociations = Info.WaitMode == execute_info::wait_mode::no_wait || !Info.UseAssociations;
 
 	const auto TryProtocolOrFallToComspec = [&]
 	{
@@ -886,10 +885,9 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 		{
 			Info.ExecMode = execute_info::exec_mode::direct;
 
-			if (ImageType == image_type::graphical)
+			if (ImageType == image_type::graphical && Info.WaitMode == execute_info::wait_mode::if_needed)
 			{
-				Info.Silent = true;
-				Info.NewWindow = true;
+				Info.WaitMode = execute_info::wait_mode::no_wait;
 			}
 		}
 		else
@@ -911,20 +909,13 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 
 	bool IsDirectory = false;
 
-	if(Info.RunAs)
+	if(Info.RunAs || FolderRun)
 	{
-		Info.NewWindow = true;
+		Info.WaitMode = execute_info::wait_mode::no_wait;
 	}
 
-	if(FolderRun)
+	if (Info.WaitMode == execute_info::wait_mode::no_wait)
 	{
-		Info.Silent = true;
-	}
-
-	if (Info.NewWindow)
-	{
-		Info.Silent = true;
-
 		const auto Unquoted = unquote(strNewCmdStr);
 		IsDirectory = os::fs::is_directory(Unquoted);
 
@@ -1013,10 +1004,9 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 					strNewCmdStr = FoundModuleName;
 					strNewCmdPar = os::env::expand(strNewCmdPar);
 
-					if (ImageType == image_type::graphical)
+					if (ImageType == image_type::graphical && Info.WaitMode == execute_info::wait_mode::if_needed)
 					{
-						Info.Silent = true;
-						Info.NewWindow = true;
+						Info.WaitMode = execute_info::wait_mode::no_wait;
 					}
 				}
 			}
@@ -1026,12 +1016,6 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 			// Found nothing: fallback to comspec as is
 			TryProtocolOrFallToComspec();
 		}
-	}
-
-	if (Info.WaitMode == execute_info::wait_mode::wait_finish)
-	{
-		// It's better to show console rather than non-responding panels
-		Info.Silent = false;
 	}
 
 	bool Visible=false;
@@ -1051,10 +1035,10 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 
 	if (ConsoleActivator)
 	{
-		ConsoleActivator(!Info.Silent);
+		ConsoleActivator(Info.WaitMode != execute_info::wait_mode::no_wait);
 	}
 
-	if(!Info.Silent)
+	if(Info.WaitMode != execute_info::wait_mode::no_wait)
 	{
 		ConsoleCP = console.GetInputCodepage();
 		ConsoleOutputCP = console.GetOutputCodepage();
@@ -1080,7 +1064,7 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 
 	// ShellExecuteEx Win8.1+ wrongly opens symlinks in a separate console window
 	// Workaround: execute through %comspec%
-	if (Info.ExecMode == execute_info::exec_mode::direct && !Info.NewWindow && IsWindows8Point1OrGreater())
+	if (Info.ExecMode == execute_info::exec_mode::direct && Info.WaitMode != execute_info::wait_mode::no_wait && IsWindows8Point1OrGreater())
 	{
 		os::fs::file_status fstatus(strNewCmdStr);
 		if (os::fs::is_file(fstatus) && fstatus.check(FILE_ATTRIBUTE_REPARSE_POINT))
@@ -1146,7 +1130,7 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 		seInfo.lpVerb = L"runas";
 	}
 
-	seInfo.fMask = SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS | (Info.NewWindow? 0 : SEE_MASK_NO_CONSOLE);
+	seInfo.fMask = SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS | (Info.WaitMode == execute_info::wait_mode::no_wait? 0 : SEE_MASK_NO_CONSOLE);
 
 	os::handle Process;
 	error_state ErrorState;
@@ -1175,7 +1159,7 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 	{
 		if (Process)
 		{
-			if (Info.WaitMode == execute_info::wait_mode::wait_finish || !Info.NewWindow)
+			if (any_of(Info.WaitMode, execute_info::wait_mode::if_needed, execute_info::wait_mode::wait_finish))
 			{
 				if (const auto ConsoleDetachKey = KeyNameToKey(Global->Opt->ConsoleDetachKey))
 				{

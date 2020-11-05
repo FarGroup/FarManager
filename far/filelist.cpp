@@ -2728,8 +2728,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				{
 					execute_info Info;
 					Info.DisplayCommand = strFileName;
-					Info.WaitMode = PluginMode? execute_info::wait_mode::wait_finish : execute_info::wait_mode::no_wait;
-					Info.NewWindow = SeparateWindow;
+					Info.WaitMode = PluginMode? execute_info::wait_mode::wait_finish : SeparateWindow? execute_info::wait_mode::no_wait : execute_info::wait_mode::if_needed;
 					Info.SourceMode = execute_info::source_mode::known;
 					Info.RunAs = RunAs;
 
@@ -4995,7 +4994,7 @@ bool FileList::ApplyCommand()
 				execute_info Info;
 				Info.DisplayCommand = strConvertedCommand;
 				Info.Command = strConvertedCommand;
-				Info.WaitMode = ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::no_wait;
+				Info.WaitMode = ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::if_needed;
 
 				Parent()->GetCmdLine()->ExecString(Info);
 

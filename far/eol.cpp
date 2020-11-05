@@ -64,6 +64,7 @@ const eol eol::win(eol_type::win);
 const eol eol::unix(eol_type::unix);
 const eol eol::mac(eol_type::mac);
 const eol eol::bad_win(eol_type::bad_win);
+const eol eol::std = unix;
 const eol eol::system = win;
 
 eol::eol():
