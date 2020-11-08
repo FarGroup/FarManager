@@ -1,3 +1,7 @@
+drkns 08.11.2020 19:45:32 +0000 - build 5699
+
+1. Correction of 5698.1.
+
 drkns 05.11.2020 19:04:14 +0000 - build 5698
 
 1. Experimental: reduce the number of executor parameters.

@@ -1004,9 +1004,15 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 					strNewCmdStr = FoundModuleName;
 					strNewCmdPar = os::env::expand(strNewCmdPar);
 
-					if (ImageType == image_type::graphical && Info.WaitMode == execute_info::wait_mode::if_needed)
+					if (ImageType == image_type::graphical)
 					{
-						Info.WaitMode = execute_info::wait_mode::no_wait;
+						if (Info.WaitMode == execute_info::wait_mode::if_needed)
+							Info.WaitMode = execute_info::wait_mode::no_wait;
+					}
+					else if (ImageType == image_type::console)
+					{
+						if (any_of(Info.WaitMode, execute_info::wait_mode::if_needed, execute_info::wait_mode::wait_idle))
+							Info.WaitMode = execute_info::wait_mode::wait_finish;
 					}
 				}
 			}
