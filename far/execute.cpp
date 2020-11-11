@@ -878,17 +878,13 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 	// Info.NewWindow may be changed later
 	const auto IgnoreInternalAssociations = Info.WaitMode == execute_info::wait_mode::no_wait || !Info.UseAssociations;
 
+	auto ImageType = image_type::unknown;
+
 	const auto TryProtocolOrFallToComspec = [&]
 	{
-		auto ImageType = image_type::unknown;
 		if (GetProtocolType(Info.Command, ImageType))
 		{
 			Info.ExecMode = execute_info::exec_mode::direct;
-
-			if (ImageType == image_type::graphical && Info.WaitMode == execute_info::wait_mode::if_needed)
-			{
-				Info.WaitMode = execute_info::wait_mode::no_wait;
-			}
 		}
 		else
 		{
@@ -958,8 +954,6 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 
 		bool Internal = false;
 
-		auto ImageType = image_type::unknown;
-
 		if (Info.SourceMode == execute_info::source_mode::known || FindObject(ModuleName, FoundModuleName, &Internal))
 		{
 			if (Internal)
@@ -1003,17 +997,6 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 					Info.ExecMode = execute_info::exec_mode::direct;
 					strNewCmdStr = FoundModuleName;
 					strNewCmdPar = os::env::expand(strNewCmdPar);
-
-					if (ImageType == image_type::graphical)
-					{
-						if (Info.WaitMode == execute_info::wait_mode::if_needed)
-							Info.WaitMode = execute_info::wait_mode::no_wait;
-					}
-					else if (ImageType == image_type::console)
-					{
-						if (any_of(Info.WaitMode, execute_info::wait_mode::if_needed, execute_info::wait_mode::wait_idle))
-							Info.WaitMode = execute_info::wait_mode::wait_finish;
-					}
 				}
 			}
 		}
@@ -1022,6 +1005,16 @@ void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const 
 			// Found nothing: fallback to comspec as is
 			TryProtocolOrFallToComspec();
 		}
+	}
+
+	if (ImageType == image_type::graphical)
+	{
+		if (Info.WaitMode == execute_info::wait_mode::if_needed)
+			Info.WaitMode = execute_info::wait_mode::no_wait;
+	}
+	else if (any_of(Info.WaitMode, execute_info::wait_mode::if_needed, execute_info::wait_mode::wait_idle))
+	{
+		Info.WaitMode = execute_info::wait_mode::wait_finish;
 	}
 
 	bool Visible=false;
