@@ -8790,7 +8790,7 @@ drkns 09.06.2014 22:12:24 +0200 - build 3949
 
 shmuel 08.06.2014 22:47:12 +0200 - build 3948
 
-1. Refactoring.
+1. Minor refactoring.
 
 svs 07.06.2014 11:16:01 +0400 - build 3947
 
@@ -8798,7 +8798,7 @@ svs 07.06.2014 11:16:01 +0400 - build 3947
 
 shmuel 06.06.2014 21:35:19 +0200 - build 3946
 
-1. Refactoring.
+1. Minor refactoring.
 
 drkns 06.06.2014 19:00:44 +0200 - build 3945
 
@@ -10503,7 +10503,7 @@ shmuel 03.09.2013 14:58:38 +0200 - build 3631
 1. If a plugin running from a macro called MCTL_EXECSTRING then after MCTL_EXECSTRING execution
    screen redrawing could be disabled, so the plugin was unable to display a menu.
 
-2. Slightly refactoring.
+2. Slight refactoring.
 
 shmuel 02.09.2013 11:19:10 +0200 - build 3630
 
@@ -12018,11 +12018,11 @@ drkns 07.04.2013 20:11:40 +0200 - build 3306
 
 drkns 07.04.2013 14:17:22 +0200 - build 3305
 
-1. Correction of 3301.
+1. Continuation of 3301.
 
 drkns 07.04.2013 11:36:42 +0200 - build 3304
 
-1. Correction of 3301.
+1. Continuation of 3301.
 
 drkns 07.04.2013 10:30:14 +0200 - build 3303
 
@@ -12098,7 +12098,7 @@ shmuel 01.04.2013 15:55:51 +0200 - build 3290
 
 drkns 30.03.2013 13:20:21 +0200 - build 3289
 
-1. Continuation of 3283.2.
+1. Correction of 3283.2.
 
 2. Refactoring.
 
@@ -14126,7 +14126,7 @@ drkns 02.11.2012 02:18:10 +0200 - build 2921
 
 drkns 02.11.2012 02:05:17 +0200 - build 2920
 
-1. Slightly refactoring of configdb.
+1. Slight refactoring of configdb.
 
 zg 01.11.2012 23:05:49 +0200 - build 2919
 
@@ -14991,7 +14991,7 @@ w17 05.07.2012 17:33:42 +0400 - build 2758
 
 w17 05.07.2012 11:43:50 +0400 - build 2757
 
-1.M#2129: After FAR startup, ".." in the root of a network share is missing.
+1. M#2129: After FAR startup, ".." in the root of a network share is missing.
 
 w17 04.07.2012 12:16:35 +0400 - build 2756
 
@@ -18760,7 +18760,7 @@ svs 09.08.2011 23:18:26 +0300 - build 2140
 
 drkns 08.08.2011 11:37:13 +0200 - build 2139
 
-1.Mantis#0001589: Displaying of file extension in panel column or "Align file extensions"
+1. Mantis#0001589: Displaying of file extension in panel column or "Align file extensions"
 
 drkns 08.08.2011 10:51:58 +0200 - build 2138
 
@@ -24241,14 +24241,14 @@ svs 29.12.2009 15:10:25 +0300 - build 1304
 
 1. I was wrong about language-dependent %FARADMINMODE% :-)
 
-Next iteration...
+   Next iteration...
 
-Now
-%FARADMINMODE% is a number and equals to 1, if we are admin
+   Now
+     %FARADMINMODE% is a number and equals to 1, if we are admin
 
-cmdprompt has new '$@xx' (see MConfigCmdlinePromptFormatAdmin)
-Here, 'xx' contains two symbols surrounding the word "Administrator"
-For example, "$@{}$s$p$g" is displayed as "{Administrator} C:\>"
+   cmdprompt has new '$@xx' (see MConfigCmdlinePromptFormatAdmin)
+   Here, 'xx' contains two symbols surrounding the word "Administrator"
+   For example, "$@{}$s$p$g" is displayed as "{Administrator} C:\>"
 
 svs 29.12.2009 13:33:22 +0300 - build 1303
 
