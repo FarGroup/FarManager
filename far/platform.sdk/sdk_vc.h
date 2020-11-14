@@ -35,6 +35,78 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// winbase.h
+#ifndef SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE
+#define SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE 2
+#endif
+
+// wdm.h
+typedef struct _FILE_BASIC_INFORMATION
+{
+	LARGE_INTEGER CreationTime;
+	LARGE_INTEGER LastAccessTime;
+	LARGE_INTEGER LastWriteTime;
+	LARGE_INTEGER ChangeTime;
+	ULONG FileAttributes;
+}
+FILE_BASIC_INFORMATION, *PFILE_BASIC_INFORMATION;
+
+typedef struct _FILE_BOTH_DIR_INFORMATION
+{
+	ULONG NextEntryOffset;
+	ULONG FileIndex;
+	LARGE_INTEGER CreationTime;
+	LARGE_INTEGER LastAccessTime;
+	LARGE_INTEGER LastWriteTime;
+	LARGE_INTEGER ChangeTime;
+	LARGE_INTEGER EndOfFile;
+	LARGE_INTEGER AllocationSize;
+	ULONG FileAttributes;
+	ULONG FileNameLength;
+	ULONG EaSize;
+	CCHAR ShortNameLength;
+	WCHAR ShortName[12];
+	WCHAR FileName[1];
+}
+FILE_BOTH_DIR_INFORMATION, *PFILE_BOTH_DIR_INFORMATION;
+
+typedef struct _FILE_ID_BOTH_DIR_INFORMATION
+{
+	ULONG NextEntryOffset;
+	ULONG FileIndex;
+	LARGE_INTEGER CreationTime;
+	LARGE_INTEGER LastAccessTime;
+	LARGE_INTEGER LastWriteTime;
+	LARGE_INTEGER ChangeTime;
+	LARGE_INTEGER EndOfFile;
+	LARGE_INTEGER AllocationSize;
+	ULONG FileAttributes;
+	ULONG FileNameLength;
+	ULONG EaSize;
+	CCHAR ShortNameLength;
+	WCHAR ShortName[12];
+	LARGE_INTEGER FileId;
+	WCHAR FileName[1];
+}
+FILE_ID_BOTH_DIR_INFORMATION, *PFILE_ID_BOTH_DIR_INFORMATION;
+
+typedef struct _FILE_STREAM_INFORMATION
+{
+	ULONG NextEntryOffset;
+	ULONG StreamNameLength;
+	LARGE_INTEGER StreamSize;
+	LARGE_INTEGER StreamAllocationSize;
+	WCHAR StreamName[1];
+}
+FILE_STREAM_INFORMATION, *PFILE_STREAM_INFORMATION;
+
+typedef struct _OBJECT_NAME_INFORMATION
+{
+	UNICODE_STRING Name;
+}
+OBJECT_NAME_INFORMATION, *POBJECT_NAME_INFORMATION;
+
+// ntifs.h
 #ifndef REPARSE_DATA_BUFFER_HEADER_SIZE
 typedef struct _REPARSE_DATA_BUFFER
 {
@@ -74,15 +146,11 @@ REPARSE_DATA_BUFFER,*PREPARSE_DATA_BUFFER;
 #define REPARSE_DATA_BUFFER_HEADER_SIZE FIELD_OFFSET(REPARSE_DATA_BUFFER,GenericReparseBuffer)
 #endif
 
-// ntifs.h
-#ifndef IO_REPARSE_TAG_VALID_VALUES
-#define IO_REPARSE_TAG_VALID_VALUES 0xF000FFFF
+#ifndef SYMLINK_FLAG_RELATIVE
+#define SYMLINK_FLAG_RELATIVE 1
 #endif
 
-#ifndef IsReparseTagValid
-#define IsReparseTagValid(_tag) (!((_tag)&~IO_REPARSE_TAG_VALID_VALUES)&&((_tag)>IO_REPARSE_TAG_RESERVED_RANGE))
-#endif
-
+// winternl.h
 inline constexpr auto ObjectNameInformation               = static_cast<OBJECT_INFORMATION_CLASS>(1);
 
 inline constexpr auto FileBothDirectoryInformation        = static_cast<FILE_INFORMATION_CLASS>(3);

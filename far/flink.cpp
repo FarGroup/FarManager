@@ -152,9 +152,6 @@ static auto GetDesiredAccessForReparsePointChange()
 
 static bool SetREPARSE_DATA_BUFFER(const string_view Object, REPARSE_DATA_BUFFER& rdb)
 {
-	if (!IsReparseTagValid(rdb.ReparseTag))
-		return false;
-
 	SCOPED_ACTION(os::security::privilege){ SE_CREATE_SYMBOLIC_LINK_NAME };
 
 	const auto Attributes = os::fs::get_file_attributes(Object);
@@ -294,7 +291,7 @@ static bool GetREPARSE_DATA_BUFFER(string_view const Object, REPARSE_DATA_BUFFER
 	if (!fObject)
 		return false;
 
-	return fObject.IoControl(FSCTL_GET_REPARSE_POINT, nullptr, 0, &rdb, MAXIMUM_REPARSE_DATA_BUFFER_SIZE) && IsReparseTagValid(rdb.ReparseTag);
+	return fObject.IoControl(FSCTL_GET_REPARSE_POINT, nullptr, 0, &rdb, MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
 }
 
 bool DeleteReparsePoint(string_view const Object)

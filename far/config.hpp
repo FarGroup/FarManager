@@ -794,8 +794,6 @@ public:
 	struct ExecuteOptions
 	{
 		BoolOption RestoreCPAfterExecute;
-		BoolOption ExecuteUseAppPath;
-		BoolOption ExecuteFullTitle;
 		StringOption strExecuteBatchType;
 		StringOption strExcludeCmds;
 		StringOption Comspec;
@@ -809,6 +807,7 @@ public:
 		StringOption ComspecCondition;
 		BoolOption   UseHomeDir; // cd ~
 		StringOption strHomeDir; // cd ~
+		BoolOption UseAssociations;
 	};
 
 	SortingOptions Sort;

@@ -262,7 +262,11 @@ namespace os
 	bool GetWindowText(HWND Hwnd, string& Text);
 
 	[[nodiscard]]
+#ifdef _WIN64
+	constexpr bool IsWow64Process() { return false; }
+#else
 	bool IsWow64Process();
+#endif
 
 	[[nodiscard]]
 	DWORD GetAppPathsRedirectionFlag();

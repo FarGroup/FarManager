@@ -166,6 +166,9 @@ namespace uuid
 	[[nodiscard]]
 	std::optional<UUID> try_parse(string_type const& Str)
 	{
+		if (Str.empty())
+			return {};
+
 		try
 		{
 			return parse(Str.data(), Str.size());

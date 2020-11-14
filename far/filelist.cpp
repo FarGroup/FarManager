@@ -2614,6 +2614,16 @@ void FileList::Select(FileListItem& SelItem, bool Selection)
 	}
 }
 
+static bool IsExecutable(string_view const Filename)
+{
+	const auto Extension = name_ext(Filename).second;
+
+	static const std::array Executables{ L".exe"sv, L".cmd"sv, L".com"sv, L".bat"sv };
+	return std::any_of(ALL_CONST_RANGE(Executables), [&](const string_view i)
+	{
+		return equal_icase(Extension, i);
+	});
+}
 
 void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type)
 {
@@ -2733,7 +2743,6 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 					Info.RunAs = RunAs;
 
 					Info.Command = ConvertNameToFull(strFileName);
-					QuoteSpace(Info.Command);
 
 					Parent()->GetCmdLine()->ExecString(Info);
 

@@ -1,15 +1,13 @@
-﻿#ifndef EXECUTE_HPP_B0216961_CCAB_46EA_87F4_789AA3A18A43
-#define EXECUTE_HPP_B0216961_CCAB_46EA_87F4_789AA3A18A43
+﻿#ifndef PLATFORM_PROCESS_HPP_234140CB_C857_40CF_901D_A10C5EBEA85B
+#define PLATFORM_PROCESS_HPP_234140CB_C857_40CF_901D_A10C5EBEA85B
 #pragma once
 
 /*
-execute.hpp
+platform.process.hpp
 
-"Запускатель" программ.
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2020 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -40,18 +38,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/function_ref.hpp"
 
 // External:
 
 //----------------------------------------------------------------------------
 
-void OpenFolderInShell(string_view Folder);
+namespace os::process
+{
+	enum class image_type
+	{
+		unknown,
+		console,
+		graphical,
+	};
 
-void Execute(struct execute_info& Info, function_ref<void(bool)> ConsoleActivator = [](bool){});
+	image_type get_process_subsystem(HANDLE Process);
+}
 
-bool ExpandOSAliases(string& strStr);
-
-bool ExtractIfExistCommand(string& strCommandText);
-
-#endif // EXECUTE_HPP_B0216961_CCAB_46EA_87F4_789AA3A18A43
+#endif // PLATFORM_PLATFORM_PROCESS_HPP_234140CB_C857_40CF_901D_A10C5EBEA85B

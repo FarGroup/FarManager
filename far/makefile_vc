@@ -208,6 +208,7 @@ LINK_OBJS = \
 	"$(INTDIR)\platform.env.obj" \
 	"$(INTDIR)\platform.fs.obj" \
 	"$(INTDIR)\platform.memory.obj" \
+	"$(INTDIR)\platform.process.obj" \
 	"$(INTDIR)\platform.reg.obj" \
 	"$(INTDIR)\platform.security.obj" \
 	"$(INTDIR)\platform.version.obj" \

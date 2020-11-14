@@ -115,6 +115,11 @@ public: const unique_function_pointer<name_##NAME, stub_##NAME> NAME{m_##MODULE}
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, void, RtlInitializeResource, PRTL_RESOURCE Res);
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, void, RtlReleaseResource, PRTL_RESOURCE Res);
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, void, RtlDeleteResource, PRTL_RESOURCE Res);
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQueryInformationProcess, HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength);
+#ifndef _WIN64
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtWow64QueryInformationProcess64, HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength);
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtWow64ReadVirtualMemory64, HANDLE Process, ULONG64 BaseAddress, LPVOID Buffer, ULONG64 Size, PULONG64 NumberOfBytesRead);
+#endif
 
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, GetConsoleKeyboardLayoutNameW, LPWSTR Buffer);
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOLEAN, CreateSymbolicLinkW, LPCWSTR SymlinkFileName, LPCWSTR TargetFileName, DWORD Flags);
@@ -126,7 +131,9 @@ public: const unique_function_pointer<name_##NAME, stub_##NAME> NAME{m_##MODULE}
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, GetVolumePathNamesForVolumeNameW, LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength);
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, GetPhysicallyInstalledSystemMemory, PULONGLONG TotalMemoryInKilobytes);
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, HeapSetInformation, HANDLE HeapHandle, HEAP_INFORMATION_CLASS HeapInformationClass, PVOID HeapInformation, SIZE_T HeapInformationLength);
+#ifndef _WIN64
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, IsWow64Process, HANDLE Process, PBOOL Wow64Process);
+#endif
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, GetNamedPipeServerProcessId, HANDLE Pipe, PULONG ServerProcessId);
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, CancelSynchronousIo, HANDLE Thread);
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, SetConsoleKeyShortcuts, BOOL Set, BYTE ReserveKeys, LPVOID AppKeys, DWORD NumAppKeys);

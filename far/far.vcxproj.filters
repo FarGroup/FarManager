@@ -338,6 +338,9 @@
     <ClCompile Include="platform.memory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="platform.process.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="platform.reg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -944,6 +947,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platform.memory.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="platform.process.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platform.reg.hpp">

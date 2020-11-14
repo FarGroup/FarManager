@@ -49,7 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "manager.hpp"
 #include "pipe.hpp"
-#include "console.hpp"
+#include "interf.hpp"
 #include "string_utils.hpp"
 #include "global.hpp"
 #include "exception.hpp"
@@ -540,7 +540,7 @@ static void ElevationApproveDlgSync(const EAData& Data)
 	const auto Lock = Global->ScrBuf->GetLockCount();
 	Global->ScrBuf->SetLockCount(0);
 
-	console.FlushInputBuffer();
+	FlushInputBuffer();
 
 	Dlg->Process();
 

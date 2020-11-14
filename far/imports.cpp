@@ -137,6 +137,26 @@ void NTAPI imports::stub_RtlDeleteResource(PRTL_RESOURCE Res)
 	// TODO: log
 }
 
+NTSTATUS NTAPI imports::stub_NtQueryInformationProcess(HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength)
+{
+	// TODO: log
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+#ifndef _WIN64
+NTSTATUS NTAPI imports::stub_NtWow64QueryInformationProcess64(HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength)
+{
+	// TODO: log
+	return STATUS_NOT_IMPLEMENTED;
+}
+
+NTSTATUS NTAPI imports::stub_NtWow64ReadVirtualMemory64(HANDLE Process, ULONG64 BaseAddress, LPVOID Buffer, ULONG64 Size, PULONG64 NumberOfBytesRead)
+{
+	// TODO: log
+	return STATUS_NOT_IMPLEMENTED;
+}
+#endif
+
 // kernel32
 BOOL WINAPI imports::stub_GetConsoleKeyboardLayoutNameW(LPWSTR Buffer)
 {
@@ -208,12 +228,14 @@ BOOL WINAPI imports::stub_HeapSetInformation(HANDLE HeapHandle, HEAP_INFORMATION
 	return FALSE;
 }
 
+#ifndef _WIN64
 BOOL WINAPI imports::stub_IsWow64Process(HANDLE Process, PBOOL Wow64Process)
 {
 	// TODO: log
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return FALSE;
 }
+#endif
 
 BOOL WINAPI imports::stub_GetNamedPipeServerProcessId(HANDLE Pipe, PULONG ServerProcessId)
 {

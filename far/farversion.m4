@@ -1,7 +1,7 @@
 m4_divert(`-1')
 
 # Uncomment to create a special version
-#m4_define(`SPECIAL_VERSION', epic feature)
+m4_define(`SPECIAL_VERSION', experimental_launcher)
 
 m4_define(VERSION_MAJOR, 3)
 m4_define(VERSION_MINOR, 0)

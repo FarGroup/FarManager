@@ -292,6 +292,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="platform.env.cpp" />
     <ClCompile Include="platform.fs.cpp" />
     <ClCompile Include="platform.memory.cpp" />
+    <ClCompile Include="platform.process.cpp" />
     <ClCompile Include="platform.reg.cpp" />
     <ClCompile Include="platform.security.cpp" />
     <ClCompile Include="platform.version.cpp" />
@@ -503,6 +504,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="platform.hpp" />
     <ClInclude Include="platform.headers.hpp" />
     <ClInclude Include="platform.memory.hpp" />
+    <ClInclude Include="platform.process.hpp" />
     <ClInclude Include="platform.reg.hpp" />
     <ClInclude Include="platform.security.hpp" />
     <ClInclude Include="platform.sdk.hpp" />

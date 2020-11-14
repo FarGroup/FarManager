@@ -789,7 +789,7 @@ za wyjątkiem linii poleceń, włączając okna dialogowe i ~wewnętrzny edytor~
  Wciśnięcie #Ctrl+Enter# w oknie dialogowym uruchamia domyślne działanie
 (wciśnięcie domyślnego przycisku lub podobne polecenie).
 
- W oknach dialogowych, gdy bieżącym polem jest pole wyboru: 
+ W oknach dialogowych, gdy bieżącym polem jest pole wyboru:
 
  - włącz (#[x]#)                                              #Szary +#
  - wyłącz (#[ ]#)                                             #Szary -#
@@ -939,7 +939,7 @@ $ #Konfiguracja wtyczek#
 #"Konfiguracja wtyczek"# z menu ~Opcje~@OptMenu@ lub wciskając klawisze
 #Alt+Shift+F9# w menu ~Zmień dysk~@DriveDlg@ lub menu wtyczek wtyczek.
 
- Aby uzyskać pomoc aktualnie wybranej wtyczki, wciśnij klawisze #Shift+F1# - 
+ Aby uzyskać pomoc aktualnie wybranej wtyczki, wciśnij klawisze #Shift+F1# -
 wyświetlona zostanie pomoc kontekstowa dotycząca tej wtyczki. Jeżeli wtyczka
 nie zawiera plików pomocy, pomoc kontekstowa nie zostanie wyświetlona.
 
@@ -994,7 +994,7 @@ nieograniczone możliwości rozbudowy programu Far.
 
  Jako źródło informacji, gdzie można znaleźć wtyczki możemy zarekomendować:
 
- - Oficjalna strona 
+ - Oficjalna strona
    ~https://www.farmanager.com~@https://www.farmanager.com@
  - Forum programu
    ~https://forum.farmanager.com~@https://forum.farmanager.com@
@@ -1496,7 +1496,7 @@ $ #Menus: menu opcje#
  #poleceń#
 
  #Ustawienia#            Pokazuje okno ~Ustawień AutoUzupełniania~@AutoCompleteSettings@.
- #AutoUzupełniania# 
+ #AutoUzupełniania#
 
  #Ustawienia panelu#     Pokazuje okno ~Ustawień Panelu informacyjnego~@InfoPanelSettings@.
  #informacyjnego#
@@ -1523,7 +1523,7 @@ $ #Menus: menu opcje#
                        cały wygląd programu Far na czarno/biały lub ustawić domyślne kolory.
 
  #Wyróżnienia plików#    Pokazuje okno ~Wyróżniania plików~@Highlight@ i sortowania grup plików.
- #i sortowanie grup#     
+ #i sortowanie grup#
 
  #Zapisz ustawienia#     Zapisuje bieżącą konfigurację, kolory i wygląd ekranu.
 
@@ -1605,7 +1605,7 @@ plik może przetworzyć kilka wtyczek.
 
 @MakeFolder
 $ #Utwórz folder#
- Funkcja pozwala tworzyć foldery. W linii edycji można użyć zmiennych 
+ Funkcja pozwala tworzyć foldery. W linii edycji można użyć zmiennych
 środowiskowych, które zostaną rozwinięte w pełną ścieżkę przed utworzeniem
 folderu. Można utworzyć całą ścieżkę w jednym czasie: wystarczy użyć znaku ukośnika
 wstecznego (backslash). Na przykład:
@@ -1649,7 +1649,7 @@ i #Szukaj folderów# zostaną wyłączone i ich wcześniejsze zaznaczenie nie ma
 tekst lub kod.
 
  Rozwijana lista #Użyj strony kodowej# pozwala wybrać stroną kodową znaków
-jaka będzie używana podczas szukania. Jeżeli z rozwijanej listy zostanie 
+jaka będzie używana podczas szukania. Jeżeli z rozwijanej listy zostanie
 wybrana pozycja #Wszystkie zainstalowane#, Far użyje wszystkich standardowych
 stron kodowych (ANSI, OEM, UTF-8, UTF-16, UTF-16 BE), podobnie jak wybranie
 #Ulubionych# stron kodowych (ich listę można utworzyć w menu ~Strony kodowe~@CodepagesMenu@
@@ -5687,37 +5687,6 @@ it before exiting. Use this parameter to compensate for this behavior.
  This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
-@System.Executor.UseAppPath
-$ #far:config System.Executor.UseAppPath#
- This Boolean parameter controls whether Far will look up #App Paths#
-Windows registry key when it searches for an executable module.
-
- When Far executes a command entered on the command line, it searches
-executable module in the following places in this order (using file
-name extensions defined by the #PATHEXT# environment variable):
-
- 1. ^<wrap>Current directory;
- 2. Directories listed on the #PATH# environment variable;
- 3. Windows 95: Windows system directory (SYSTEM);
-    Windows NT: 32-bit Windows system directory (SYSTEM32);
- 4. Windows NT: 16-bit Windows system directory (SYSTEM);
- 5. The Windows directory.
-
- If this parameter is True, Far will also look up subkeys of the
-following Windows registry keys:
-
- 6. #HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths#;
- 7. #HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths#.
-
- Default value: True (look up Windows registry).
-
- Note: If the command line is executed with #Shift+Enter# key
-combination, Far launches Windows Explorer to execute the command.
-Windows Explorer always looks up #App Paths# registry key.
-
- This parameter can be changed via ~far:config~@FarConfig@ only.
-
-
 @System.Executor.ExcludeCmds
 $ #far:config System.Executor.ExcludeCmds#
  This string parameter defines commands which will be directly passed
@@ -5765,19 +5734,6 @@ This parameter is handy with non-standard command processors requiring
 unusual command line options or quoting.
 
  Default value: #/S /C "{0}"# (compatible with CMD.EXE).
-
- This parameter can be changed via ~far:config~@FarConfig@ only.
-
-
-@System.Executor.FullTitle
-$ #far:config System.Executor.FullTitle#
- This Boolean parameter specifies the format of the console window title
-while an external command is being executed.
-
- False - ^<wrap>Console title contains the text entered on the command line;
- True  - Console title contains full path to the executable file.
-
- Default value: False (the entered text).
 
  This parameter can be changed via ~far:config~@FarConfig@ only.
 

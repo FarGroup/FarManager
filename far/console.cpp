@@ -987,13 +987,34 @@ namespace console_detail
 		return Result;
 	}
 
-	bool console::GetAlias(string_view const Source, wchar_t* TargetBuffer, size_t TargetBufferLength, string_view const ExeName) const
+	bool console::GetAlias(string_view const Name, string& Value, string_view const ExeName) const
 	{
-		return GetConsoleAlias(
-			const_cast<wchar_t*>(null_terminated(Source).c_str()),
-			TargetBuffer,
-			static_cast<DWORD>(TargetBufferLength),
-			const_cast<wchar_t*>(null_terminated(ExeName).c_str())) != 0;
+		os::last_error_guard Guard;
+
+		null_terminated const C_Name(Name), C_ExeName(ExeName);
+
+		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](span<wchar_t> Buffer)
+		{
+			// This API design is mental:
+			// - If everything is ok, it return the string size, including the terminating \0
+			// - If the buffer size is too small, it returns the input buffer size and sets last error to ERROR_INSUFFICIENT_BUFFER
+			// - It can also return 0 in case of other errors
+			// This means that if the string size is exactly (BufferSize - 1), the only way to understand whether it succeeded or not
+			// is to look at the error code. And it doesn't reset it on success, so have to do it ourselves to be sure. *facepalm*
+			SetLastError(ERROR_SUCCESS);
+			const auto BufferSizeInBytes = Buffer.size() * sizeof(wchar_t);
+			const size_t ReturnedSizeInBytes = GetConsoleAlias(
+				const_cast<wchar_t*>(C_Name.c_str()),
+				Buffer.data(),
+				static_cast<DWORD>(BufferSizeInBytes),
+				const_cast<wchar_t*>(C_ExeName.c_str())
+			);
+
+			if (!ReturnedSizeInBytes || (ReturnedSizeInBytes == BufferSizeInBytes && GetLastError() == ERROR_INSUFFICIENT_BUFFER))
+				return size_t{};
+
+			return ReturnedSizeInBytes / sizeof(wchar_t) - 1;
+		});
 	}
 
 	std::unordered_map<string, std::unordered_map<string, string>> console::GetAllAliases() const

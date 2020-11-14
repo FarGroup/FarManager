@@ -1,3 +1,16 @@
+drkns 14.11.2020 22:00:22 +0000 - build 5702
+
+1. Experimental: reimplemented and simplifiled the executor (based on https://forum.farmanager.com/viewtopic.php?t=12275):
+   - Removed searching for the executable - the OS knows better.
+   - Removed System.Executor.UseAppPath and System.Executor.FullTitle.
+   - Associations processing is disabled by default. Set System.Executor.UseAssociations to true to enable.
+
+2. Refactoring.
+
+yjh 14.11.2020 21:21:30 +0300 - build 5701
+
+1. Add.msi to <arc> mask.
+
 drkns 11.11.2020 19:38:14 +0000 - build 5700
 
 1. Correction of 5698.1 again.

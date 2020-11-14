@@ -1,3 +1,12 @@
+drkns 14.11.2020 22:00:22 +0000 - build 5702
+
+1. Экспериментально: переделан и упрощен запускатель (по мотивам https://forum.farmanager.com/viewtopic.php?t=12275):
+   - Поиск запускаемого не производится - ОС видней.
+   - System.Executor.UseAppPath и System.Executor.FullTitle больше нет.
+   - Обработка ассоциаций отключена по умолчанию. Включается по System.Executor.UseAssociations = true.
+
+2. Рефакторинг.
+
 yjh 14.11.2020 21:21:30 +0300 - build 5701
 
 1. Добавляем .msi к маске <arc>

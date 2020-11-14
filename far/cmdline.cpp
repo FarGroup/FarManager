@@ -1044,7 +1044,7 @@ void CommandLine::ExecString(execute_info& Info)
 
 	FarChDir(m_CurDir);
 
-	if (Info.ExecMode != execute_info::exec_mode::direct && Info.SourceMode != execute_info::source_mode::known)
+	if (Info.SourceMode != execute_info::source_mode::known)
 	{
 		ProcessEcho(Info);
 		if (starts_with(Info.Command, L'@'))
@@ -1083,7 +1083,7 @@ void CommandLine::ExecString(execute_info& Info)
 		}
 	}
 
-	Execute(Info, false, Activator);
+	Execute(Info, Activator);
 
 	// BUGBUG do we really need to update panels at all?
 	IsUpdateNeeded = true;

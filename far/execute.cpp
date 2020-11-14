@@ -42,13 +42,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "cmdline.hpp"
 #include "encoding.hpp"
-#include "imports.hpp"
 #include "interf.hpp"
 #include "message.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"
-#include "constitle.hpp"
 #include "console.hpp"
 #include "lang.hpp"
 #include "filetype.hpp"
@@ -62,11 +60,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
-#include "platform.reg.hpp"
+#include "platform.process.hpp"
 
 // Common:
+#include "common.hpp"
 #include "common/enum_tokens.hpp"
-#include "common/io.hpp"
 #include "common/scope_exit.hpp"
 
 // External:
@@ -74,149 +72,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-enum class image_type
-{
-	unknown,
-	console,
-	graphical,
-};
-
 static string short_name_if_too_long(const string& LongName)
 {
 	return LongName.size() >= MAX_PATH - 1? ConvertNameToShort(LongName) : LongName;
 }
 
-static bool GetImageType(std::istream& Stream, image_type& ImageType)
-{
-	IMAGE_DOS_HEADER DOSHeader;
-	if (io::read(Stream, edit_bytes(DOSHeader)) != sizeof(DOSHeader))
-		return false;
-
-	if (DOSHeader.e_magic != IMAGE_DOS_SIGNATURE)
-		return false;
-
-	Stream.seekg(DOSHeader.e_lfanew);
-
-	union
-	{
-		struct
-		{
-			DWORD Signature;
-			IMAGE_FILE_HEADER FileHeader;
-			union
-			{
-				IMAGE_OPTIONAL_HEADER32 OptionalHeader32;
-				IMAGE_OPTIONAL_HEADER64 OptionalHeader64;
-			};
-		}
-		PeHeader;
-
-		IMAGE_OS2_HEADER Os2Header;
-	}
-	ImageHeader;
-
-	if (io::read(Stream, edit_bytes(ImageHeader)) != sizeof(ImageHeader))
-		return false;
-
-	auto Result = image_type::console;
-
-	if (ImageHeader.PeHeader.Signature == IMAGE_NT_SIGNATURE)
-	{
-		const auto& PeHeader = ImageHeader.PeHeader;
-
-		if (PeHeader.FileHeader.Characteristics & IMAGE_FILE_DLL)
-			return false;
-
-		auto ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
-
-		switch (PeHeader.OptionalHeader32.Magic)
-		{
-		case IMAGE_NT_OPTIONAL_HDR32_MAGIC:
-			ImageSubsystem = PeHeader.OptionalHeader32.Subsystem;
-			break;
-
-		case IMAGE_NT_OPTIONAL_HDR64_MAGIC:
-			ImageSubsystem = PeHeader.OptionalHeader64.Subsystem;
-			break;
-		}
-
-		if (ImageSubsystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
-		{
-			Result = image_type::graphical;
-		}
-	}
-	else if (ImageHeader.Os2Header.ne_magic == IMAGE_OS2_SIGNATURE)
-	{
-		const auto& Os2Header = ImageHeader.Os2Header;
-
-		enum { DllOrDriverFlag = 7_bit };
-		if (HIBYTE(Os2Header.ne_flags) & DllOrDriverFlag)
-			return false;
-
-		enum
-		{
-			NE_WINDOWS = 1_bit,
-			NE_WIN386  = 2_bit,
-		};
-
-		if (Os2Header.ne_exetyp == NE_WINDOWS || Os2Header.ne_exetyp == NE_WIN386)
-		{
-			Result = image_type::graphical;
-		}
-	}
-
-	ImageType = Result;
-	return true;
-}
-
-static bool GetImageType(string_view const FileName, image_type& ImageType)
-{
-	const os::fs::file ModuleFile(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
-	if (!ModuleFile)
-		return false;
-
-	try
-	{
-		os::fs::filebuf StreamBuffer(ModuleFile, std::ios::in);
-		std::istream Stream(&StreamBuffer);
-		Stream.exceptions(Stream.badbit | Stream.failbit);
-		return GetImageType(Stream, ImageType);
-
-	}
-	catch (const std::exception&)
-	{
-		return false;
-	}
-}
-
-static bool IsProperProgID(string_view const ProgID)
-{
-	return !ProgID.empty() && os::reg::key::open(os::reg::key::classes_root, ProgID, KEY_QUERY_VALUE);
-}
-
-/*
-Ищем валидный ProgID для файлового расширения по списку возможных
-hExtKey - корневой ключ для поиска (ключ расширения)
-strType - сюда запишется результат, если будет найден
-*/
-static string SearchExtHandlerFromList(const os::reg::key& ExtKey, bool const CheckUserChoice)
-{
-	string UserChoice;
-	if (CheckUserChoice)
-	{
-		(void)ExtKey.get(L"UserChoice"sv, L"ProgId"sv, UserChoice);
-	}
-
-	os::reg::enum_value const Enumerator(ExtKey, L"OpenWithProgIds"sv, KEY_ENUMERATE_SUB_KEYS);
-	const auto Iterator = std::find_if(ALL_CONST_RANGE(Enumerator), [&](const os::reg::value& i)
-	{
-		return IsProperProgID(i.name()) && (UserChoice.empty() || equal_icase(UserChoice, i.name()));
-	});
-
-	return Iterator != Enumerator.cend()? Iterator->name() : L""s;
-}
-
-static bool FindObject(string_view const Module, string& strDest, bool* Internal)
+static bool FindObject(string_view const Module, string& strDest)
 {
 	if (Module.empty())
 		return false;
@@ -228,15 +89,15 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 	{
 		if (!ModuleExt.empty())
 		{
-			// Extension has been specified, we don't have to do anything here.
-			return Predicate(Name);
+			const auto Result = Predicate(Name);
+			if (Result.first)
+				return Result;
 		}
 
 		// Try all the %PATHEXT%:
 		for (const auto& Ext: PathExtList)
 		{
-			const auto NameWithExt = Name + Ext;
-			const auto Result = Predicate(NameWithExt);
+			const auto Result = Predicate(Name + Ext);
 			if (Result.first)
 				return Result;
 		}
@@ -267,113 +128,18 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
 		}
 	}
 
-	if (Internal && ModuleExt.empty())
-	{
-		// Neither path nor extension has been specified, it could be some internal %COMSPEC% command:
-		const auto ExcludeCmdsList = enum_tokens(os::env::expand(Global->Opt->Exec.strExcludeCmds), L";"sv);
-
-		if (std::any_of(CONST_RANGE(ExcludeCmdsList, i) { return equal_icase(i, Module); }))
-		{
-			*Internal = true;
-			return true;
-		}
-	}
-
-	{
-		// Look in the current directory:
-		const auto FullName = ConvertNameToFull(Module);
-		const auto[Found, FoundName] = TryWithExtOrPathExt(FullName, [](string_view const NameWithExt)
-		{
-			return std::pair(os::fs::is_file(NameWithExt), string(NameWithExt));
-		});
-
-		if (Found)
-		{
-			strDest = FoundName;
-			return true;
-		}
-	}
-
-	{
-		// Look in the %PATH%:
-		const auto PathEnv = os::env::get(L"PATH"sv);
-		if (!PathEnv.empty())
-		{
-			for (const auto& Path : enum_tokens_with_quotes(PathEnv, L";"sv))
-			{
-				if (Path.empty())
-					continue;
-
-				const auto[Found, FoundName] = TryWithExtOrPathExt(path::join(Path, Module), [](string_view const NameWithExt)
-				{
-					return std::pair(os::fs::is_file(NameWithExt), string(NameWithExt));
-				});
-
-				if (Found)
-				{
-					strDest = FoundName;
-					return true;
-				}
-			}
-		}
-	}
-
 	{
 		// Use SearchPath:
-		const auto[Found, FoundName] = TryWithExtOrPathExt(Module, [](string_view const NameWithExt)
+		const auto [Found, FoundName] = TryWithExtOrPathExt(Module, [](string_view const NameWithExt)
 		{
 			string Str;
-			return std::pair(os::fs::SearchPath(nullptr, NameWithExt, nullptr, Str) && !os::fs::is_directory(Str), Str);
+			return std::pair(os::fs::SearchPath(nullptr, NameWithExt, nullptr, Str) && os::fs::is_file(Str), Str);
 		});
 
 		if (Found)
 		{
 			strDest = FoundName;
 			return true;
-		}
-	}
-
-	{
-		// Look in the App Paths registry keys:
-		if (Global->Opt->Exec.ExecuteUseAppPath && !contains(Module, L'\\'))
-		{
-			static const os::reg::key* RootFindKey[] = { &os::reg::key::current_user, &os::reg::key::local_machine, &os::reg::key::local_machine };
-			const auto FullName = concat(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\"sv, Module);
-
-			DWORD samDesired = KEY_QUERY_VALUE;
-
-			for (size_t i = 0; i != std::size(RootFindKey); i++)
-			{
-				if (i == std::size(RootFindKey) - 1)
-				{
-					if (const auto RedirectionFlag = os::GetAppPathsRedirectionFlag())
-					{
-						samDesired |= RedirectionFlag;
-					}
-					else
-					{
-						break;
-					}
-				}
-
-				const auto[Found, FoundName] = TryWithExtOrPathExt(FullName, [&](string_view const NameWithExt)
-				{
-					string RealName;
-					if (RootFindKey[i]->get(NameWithExt, {}, RealName, samDesired))
-					{
-						RealName = unquote(os::env::expand(RealName));
-						return std::pair(os::fs::is_file(RealName), RealName);
-					}
-
-					return std::pair(false, L""s);
-				});
-
-				if (Found)
-				{
-					strDest = FoundName;
-					return true;
-				}
-			}
 		}
 	}
 
@@ -384,7 +150,7 @@ static bool FindObject(string_view const Module, string& strDest, bool* Internal
  true: ok, found command & arguments.
  false: it's too complex, let comspec deal with it.
 */
-static bool PartCmdLine(string_view const CmdStr, string& strNewCmdStr, string& strNewCmdPar)
+static bool PartCmdLine(string_view const FullCommand, string& Command, string& Parameters)
 {
 	auto UseDefaultCondition = true;
 
@@ -412,7 +178,7 @@ static bool PartCmdLine(string_view const CmdStr, string& strNewCmdStr, string& 
 
 		if (Re.Re)
 		{
-			if (Re.Re->Search(CmdStr))
+			if (Re.Re->Search(FullCommand))
 				return false;
 
 			if (Re.Re->LastError() == errNone)
@@ -422,8 +188,8 @@ static bool PartCmdLine(string_view const CmdStr, string& strNewCmdStr, string& 
 		}
 	}
 
-	const auto Begin = std::find_if(ALL_CONST_RANGE(CmdStr), [](wchar_t i){ return i != L' '; });
-	const auto End = CmdStr.cend();
+	const auto Begin = std::find_if(ALL_CONST_RANGE(FullCommand), [](wchar_t i){ return i != L' '; });
+	const auto End = FullCommand.cend();
 	auto CmdEnd = End;
 	auto ParamsBegin = End;
 	auto InQuotes = false;
@@ -458,307 +224,28 @@ static bool PartCmdLine(string_view const CmdStr, string& strNewCmdStr, string& 
 		}
 	}
 
-	strNewCmdStr.assign(Begin, CmdEnd);
-	strNewCmdPar.assign(ParamsBegin, End);
+	const auto Cmd = make_string_view(Begin, CmdEnd);
+	const auto ExcludeCmds = enum_tokens(os::env::expand(Global->Opt->Exec.strExcludeCmds), L";"sv);
+	if (std::any_of(ALL_CONST_RANGE(ExcludeCmds), [&](string_view const i){ return equal_icase(i, Cmd); }))
+		return false;
+
+	Command.assign(Begin, CmdEnd);
+	Parameters.assign(ParamsBegin, End);
 	return true;
-}
-
-static bool RunAsSupported(const wchar_t* Name)
-{
-	const auto Extension = name_ext(Name).second;
-	string Type;
-	return !Extension.empty() &&
-		GetShellType(Extension, Type) &&
-		os::reg::key::open(os::reg::key::classes_root, concat(Type, L"\\shell\\runas\\command"sv), KEY_QUERY_VALUE);
-}
-
-const auto CommandName = L"command"sv;
-
-static bool IsShortcutType(string_view const Type)
-{
-	const auto Key = os::reg::key::open(os::reg::key::classes_root, Type, KEY_QUERY_VALUE);
-	if (!Key)
-		return false;
-
-	return Key.get(L"IsShortcut"sv);
-}
-
-static string GetShellActionForType(string_view const TypeName, string& KeyName)
-{
-	if (TypeName.empty())
-		return {};
-
-	KeyName = concat(TypeName, L"\\shell"sv);
-
-	const auto Key = os::reg::key::open(os::reg::key::classes_root, KeyName, KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS);
-	if (!Key)
-		return {};
-
-	const auto TryAction = [&](string_view const Action)
-	{
-		if (!os::reg::key::open(os::reg::key::classes_root, concat(KeyName, L'\\', Action, L'\\', CommandName), KEY_QUERY_VALUE))
-			return false;
-
-		append(KeyName, L'\\', Action);
-		return true;
-	};
-
-	string Action;
-	if (Key.get({}, Action) && !Action.empty())
-	{
-		// Need to clarify if we need to support quotes here
-		for (const auto& i: enum_tokens_with_quotes(Action, L","sv))
-		{
-			if (!i.empty() && TryAction(i))
-				return string(i);
-		}
-
-		if (TryAction(Action))
-			return Action;
-	}
-	else
-	{
-		// Сначала проверим "open"...
-		const auto OpenAction = L"open"sv;
-		if (TryAction(OpenAction))
-			return string(OpenAction);
-
-		// ... а теперь все остальное, если "open" нету
-		for (const auto& i: os::reg::enum_key(Key))
-		{
-			if (TryAction(i))
-				return string(i);
-		}
-	}
-
-	return {};
-}
-
-static string GetShellTypeFromExtension(string_view const FileName)
-{
-	auto Ext = name_ext(FileName).second;
-	if (Ext.empty())
-	{
-		// Yes, no matter how mad it looks - it is possible to specify actions for empty extension too
-		Ext = L"."sv;
-	}
-
-	string Type;
-	if (!GetShellType(Ext, Type))
-	{
-		// Type is absent, however, verbs could be specified right in the extension key
-		Type = Ext;
-	}
-
-	return Type;
-}
-
-static string GetAssociatedApplicationFromType(string_view const TypeName, string& Action)
-{
-	string KeyName;
-	Action = GetShellActionForType(TypeName, KeyName);
-	if (Action.empty())
-		return {};
-
-	string Application;
-	if (!os::reg::key::classes_root.get(concat(KeyName, L'\\', CommandName), {}, Application) || Application.empty())
-		return {};
-
-	Application = os::env::expand(Application);
-
-	// Выделяем имя модуля
-	if (Application.front() == L'"')
-	{
-		const auto QuotePos = Application.find(L'"', 1);
-
-		if (QuotePos != string::npos)
-		{
-			Application.resize(QuotePos);
-			Application.erase(0, 1);
-		}
-	}
-	else
-	{
-		const auto pos = Application.find_first_of(L" \t/"sv);
-		if (pos != string::npos)
-			Application.resize(pos);
-	}
-
-	return Application;
-}
-
-static bool ResolveShortcut(string_view const ShortcutPath, string& FilePath, bool& IsDirectory)
-{
-	os::com::ptr<IShellLinkW> ShellLink;
-	if (FAILED(CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_IShellLinkW, IID_PPV_ARGS_Helper(&ptr_setter(ShellLink)))))
-		return false;
-
-	os::com::ptr<IPersistFile> PersistFile;
-	if (FAILED(ShellLink->QueryInterface(IID_IPersistFile, IID_PPV_ARGS_Helper(&ptr_setter(PersistFile)))))
-		return false;
-
-	if (FAILED(PersistFile->Load(null_terminated(ShortcutPath).c_str(), STGM_READ)))
-		return false;
-
-	if (FAILED(ShellLink->Resolve(nullptr, SLR_UPDATE)))
-		return false;
-
-	wchar_t Path[MAX_PATH];
-	WIN32_FIND_DATA Data;
-	if (FAILED(ShellLink->GetPath(Path, MAX_PATH, &Data, SLGP_RAWPATH)))
-		return false;
-
-	FilePath = os::env::expand(Path);
-	IsDirectory = (Data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-	return true;
-}
-
-bool GetShellType(const string_view Ext, string& strType, const ASSOCIATIONTYPE aType)
-{
-	bool bVistaType = false;
-	strType.clear();
-
-	if (IsWindowsVistaOrGreater())
-	{
-		os::com::ptr<IApplicationAssociationRegistration> AAR;
-		if (SUCCEEDED(imports.SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR)))))
-		{
-			os::com::memory<wchar_t*> Association;
-			if (SUCCEEDED(AAR->QueryCurrentDefault(null_terminated(Ext).c_str(), aType, AL_EFFECTIVE, &ptr_setter(Association))))
-			{
-				bVistaType = true;
-				strType = Association.get();
-			}
-		}
-	}
-
-	if (!bVistaType)
-	{
-		if (aType == AT_URLPROTOCOL)
-		{
-			strType = Ext;
-			return true;
-		}
-
-		os::reg::key UserKey;
-		string strFoundValue;
-
-		if (aType == AT_FILEEXTENSION)
-		{
-			// Смотрим дефолтный обработчик расширения в HKEY_CURRENT_USER
-			if ((UserKey = os::reg::key::open(os::reg::key::current_user, concat(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\"sv, Ext), KEY_QUERY_VALUE)))
-			{
-				if (UserKey.get(L"ProgID"sv, strFoundValue) && IsProperProgID(strFoundValue))
-				{
-					strType = strFoundValue;
-				}
-			}
-		}
-
-		os::reg::key CRKey;
-		// Смотрим дефолтный обработчик расширения в HKEY_CLASSES_ROOT
-		if (strType.empty() && ((CRKey = os::reg::key::open(os::reg::key::classes_root, Ext, KEY_QUERY_VALUE))))
-		{
-			if (CRKey.get({}, strFoundValue) && IsProperProgID(strFoundValue))
-			{
-				strType = strFoundValue;
-			}
-		}
-
-		if (strType.empty() && UserKey)
-			strType = SearchExtHandlerFromList(UserKey, true);
-
-		if (strType.empty() && CRKey)
-			strType = SearchExtHandlerFromList(CRKey, false);
-	}
-
-	return !strType.empty();
 }
 
 void OpenFolderInShell(string_view const Folder)
 {
 	execute_info Info;
+	auto FullFolderName = ConvertNameToFull(Folder);
+	// To avoid collisions with bat/cmd/etc.
+	AddEndSlash(FullFolderName);
 	Info.DisplayCommand = Folder;
 	Info.Command = Folder;
 	Info.WaitMode = execute_info::wait_mode::no_wait;
-	Info.ExecMode = execute_info::exec_mode::direct;
 	Info.SourceMode = execute_info::source_mode::known;
 
-	Execute(Info, true);
-}
-
-static bool GetAssociatedImageTypeForBatCmd(string_view const Str, image_type& ImageType)
-{
-	if (!IsExecutable(Str))
-		return false;
-
-	ImageType = image_type::console;
-	return true;
-}
-
-static bool FindAndGetApplicationType(string_view const Application, image_type& ImageType)
-{
-	if (Application.empty())
-		return false;
-
-	string FoundApplication;
-	if (!FindObject(Application, FoundApplication, nullptr))
-		return false;
-
-	return GetImageType(FoundApplication, ImageType) || GetAssociatedImageTypeForBatCmd(FoundApplication, ImageType);
-}
-
-static bool GetAssociatedImageType(string_view const FileName, image_type& ImageType, string& Action)
-{
-	if (GetAssociatedImageTypeForBatCmd(FileName, ImageType))
-		return true;
-
-	const auto Type = GetShellTypeFromExtension(FileName);
-	if (IsShortcutType(Type))
-	{
-		string ShortcutPath;
-		bool IsDirectory = false;
-		if (ResolveShortcut(FileName, ShortcutPath, IsDirectory))
-		{
-			// Or shall we try to go there? :)
-			if (IsDirectory)
-			{
-				ImageType = image_type::graphical;
-				return true;
-			}
-
-			return GetImageType(ShortcutPath, ImageType) || GetAssociatedImageType(ShortcutPath, ImageType, Action);
-		}
-	}
-
-	return FindAndGetApplicationType(GetAssociatedApplicationFromType(Type, Action), ImageType);
-}
-
-static bool GetProtocolType(string_view const Str, image_type& ImageType)
-{
-	const auto Unquoted = unquote(Str);
-	const auto SemicolonPos = Unquoted.find(L':');
-	if (!SemicolonPos || SemicolonPos == 1 || SemicolonPos == Str.npos)
-		return false;
-
-	const auto Protocol = string_view(Unquoted).substr(0, SemicolonPos);
-
-	string Type;
-	if (!GetShellType(Protocol, Type, AT_URLPROTOCOL))
-		return false;
-
-	string Action;
-	if (FindAndGetApplicationType(GetAssociatedApplicationFromType(Type, Action), ImageType))
-		return true;
-
-	if (equal_icase(Type, L"file"sv))
-	{
-		// file protocol is handled by IE but cannot be detected using conventional approach
-		ImageType = image_type::graphical;
-		return true;
-	}
-
-	return false;
+	Execute(Info);
 }
 
 static void wait_for_process_or_detach(os::handle const& Process, int const ConsoleDetachKey, point const& ConsoleSize, rectangle const& ConsoleWindowRect)
@@ -837,7 +324,7 @@ static void wait_for_process_or_detach(os::handle const& Process, int const Cons
 
 		consoleicons::instance().restore_icon();
 
-		console.FlushInputBuffer();
+		FlushInputBuffer();
 		ClearKeyQueue();
 
 		/*
@@ -869,361 +356,320 @@ static void wait_for_process_or_detach(os::handle const& Process, int const Cons
 	}
 }
 
-void Execute(execute_info& Info, bool FolderRun, function_ref<void(bool)> const ConsoleActivator)
+
+static void after_process_creation(os::handle Process, execute_info::wait_mode const WaitMode, HANDLE Thread, point const& ConsoleSize, rectangle const& ConsoleWindowRect, function_ref<void(bool)> const ConsoleActivator)
 {
-	bool Result = false;
-	string strNewCmdStr;
-	string strNewCmdPar;
-
-	// Info.NewWindow may be changed later
-	const auto IgnoreInternalAssociations = Info.WaitMode == execute_info::wait_mode::no_wait || !Info.UseAssociations;
-
-	auto ImageType = image_type::unknown;
-
-	const auto TryProtocolOrFallToComspec = [&]
+	switch (WaitMode)
 	{
-		if (GetProtocolType(Info.Command, ImageType))
+	case execute_info::wait_mode::no_wait:
+		ConsoleActivator(false);
+		if (Thread)
+			ResumeThread(Thread);
+		return;
+
+	case execute_info::wait_mode::wait_idle:
+	case execute_info::wait_mode::if_needed:
+	case execute_info::wait_mode::wait_finish:
 		{
-			Info.ExecMode = execute_info::exec_mode::direct;
-		}
-		else
-		{
-			Info.ExecMode = execute_info::exec_mode::external;
-		}
-		strNewCmdStr = Info.Command;
-	};
+			const auto Type = os::process::get_process_subsystem(Process.get());
+			ConsoleActivator(Type != os::process::image_type::graphical);
+			if (Thread)
+				ResumeThread(Thread);
 
-	if (Info.SourceMode == execute_info::source_mode::known)
-	{
-		strNewCmdStr = Info.Command;
-	}
-	else if (!PartCmdLine(Info.Command, strNewCmdStr, strNewCmdPar))
-	{
-		// Complex expression (pipe or redirection): fallback to comspec as is
-		TryProtocolOrFallToComspec();
-	}
-
-	bool IsDirectory = false;
-
-	if(Info.RunAs || FolderRun)
-	{
-		Info.WaitMode = execute_info::wait_mode::no_wait;
-	}
-
-	if (Info.WaitMode == execute_info::wait_mode::no_wait)
-	{
-		const auto Unquoted = unquote(strNewCmdStr);
-		IsDirectory = os::fs::is_directory(Unquoted);
-
-		if (strNewCmdPar.empty() && IsDirectory)
-		{
-			strNewCmdStr = ConvertNameToFull(Unquoted);
-			Info.ExecMode = execute_info::exec_mode::direct;
-			Info.SourceMode = execute_info::source_mode::known;
-			FolderRun=true;
-		}
-	}
-
-	string Verb;
-
-	if (FolderRun && Info.ExecMode == execute_info::exec_mode::direct)
-	{
-		AddEndSlash(strNewCmdStr); // НАДА, иначе ShellExecuteEx "возьмет" BAT/CMD/пр.ересь, но не каталог
-	}
-	else if (Info.ExecMode == execute_info::exec_mode::detect)
-	{
-		const auto GetImageTypeFallback = [](image_type& ImageType)
-		{
-			// Object is found, but its type is unknown.
-			// Decision is controversial:
-
-			// - we can say it's console to be ready for some output
-			// ImageType = image_type::console;
-			// return true;
-
-			// - we can say it's graphical and launch it in a neat silent way
-			ImageType = image_type::graphical;
-			return true;
-
-			// - we can give up and let comspec take it
-			// return false;
-		};
-
-		const auto ModuleName = unquote(os::env::expand(strNewCmdStr));
-		auto FoundModuleName = ModuleName;
-
-		bool Internal = false;
-
-		if (Info.SourceMode == execute_info::source_mode::known || FindObject(ModuleName, FoundModuleName, &Internal))
-		{
-			if (Internal)
+			if (Type == os::process::image_type::graphical)
 			{
-				// Internal comspec command (one of ExcludeCmds): fallback to comspec as is
-				Info.ExecMode = execute_info::exec_mode::external;
-				strNewCmdStr = Info.Command;
+				if (WaitMode == execute_info::wait_mode::wait_idle)
+					WaitForInputIdle(Process.native_handle(), INFINITE);
 			}
 			else
 			{
-				static unsigned ProcessingAsssociation = 0;
-
-				if (!IgnoreInternalAssociations && !ProcessingAsssociation)
-				{
-					++ProcessingAsssociation;
-					SCOPE_EXIT{ --ProcessingAsssociation; };
-
-					const auto FoundModuleNameShort = ConvertNameToShort(FoundModuleName);
-					const auto LastX = WhereX(), LastY = WhereY();
-					if (ProcessLocalFileTypes(FoundModuleName, FoundModuleNameShort, FILETYPE_EXEC, Info.WaitMode == execute_info::wait_mode::wait_finish, false, Info.RunAs, [&](execute_info& AssocInfo)
-					{
-						GotoXY(LastX, LastY);
-
-						if (!strNewCmdPar.empty())
-						{
-							append(AssocInfo.Command, L' ', strNewCmdPar);
-						}
-
-						Global->CtrlObject->CmdLine()->ExecString(AssocInfo);
-						//Execute(AssocInfo, FolderRun, Silent, ConsoleActivator);
-					}))
-					{
-						return;
-					}
-					GotoXY(LastX, LastY);
-				}
-
-				if (GetImageType(FoundModuleName, ImageType) || GetProtocolType(FoundModuleName, ImageType) || GetAssociatedImageType(FoundModuleName, ImageType, Verb) || GetImageTypeFallback(ImageType))
-				{
-					// We can run it directly
-					Info.ExecMode = execute_info::exec_mode::direct;
-					strNewCmdStr = FoundModuleName;
-					strNewCmdPar = os::env::expand(strNewCmdPar);
-				}
+				if (const auto ConsoleDetachKey = KeyNameToKey(Global->Opt->ConsoleDetachKey))
+					wait_for_process_or_detach(Process, ConsoleDetachKey, ConsoleSize, ConsoleWindowRect);
+				else
+					Process.wait();
 			}
 		}
-		else
+		return;
+	}
+}
+
+static bool UseComspec(string& FullCommand, string& Command, string& Parameters)
+{
+	Command = os::env::expand(Global->Opt->Exec.Comspec);
+	if (Command.empty())
+	{
+		Command = os::env::get(L"COMSPEC"sv);
+		if (Command.empty())
 		{
-			// Found nothing: fallback to comspec as is
-			TryProtocolOrFallToComspec();
+			Message(MSG_WARNING,
+				msg(lng::MError),
+				{
+					msg(lng::MComspecNotFound)
+				},
+				{ lng::MOk });
+			return false;
 		}
 	}
 
-	if (ImageType == image_type::graphical)
+	try
 	{
-		if (Info.WaitMode == execute_info::wait_mode::if_needed)
-			Info.WaitMode = execute_info::wait_mode::no_wait;
+		Parameters = format(os::env::expand(Global->Opt->Exec.ComspecArguments), FullCommand);
 	}
-	else if (any_of(Info.WaitMode, execute_info::wait_mode::if_needed, execute_info::wait_mode::wait_idle))
+	catch (fmt::format_error const& e)
 	{
-		Info.WaitMode = execute_info::wait_mode::wait_finish;
-	}
-
-	bool Visible=false;
-	DWORD CursorSize=0;
-	rectangle ConsoleWindowRect;
-	point ConsoleSize;
-	int ConsoleCP = CP_OEMCP;
-	int ConsoleOutputCP = CP_OEMCP;
-
-
-	SHELLEXECUTEINFO seInfo={sizeof(seInfo)};
-
-	const auto strCurDir = short_name_if_too_long(os::fs::GetCurrentDirectory());
-
-	seInfo.lpDirectory = strCurDir.c_str();
-	seInfo.nShow = SW_SHOWNORMAL;
-
-	if (ConsoleActivator)
-	{
-		ConsoleActivator(Info.WaitMode != execute_info::wait_mode::no_wait);
+		// The user entered something weird
+		// TODO: use the default?
+		Message(MSG_WARNING,
+			msg(lng::MError),
+			{
+				concat(L"System.Executor.ComspecArguments: \""sv, Global->Opt->Exec.ComspecArguments, L'"'),
+				encoding::utf8::get_chars(e.what())
+			},
+			{ lng::MOk });
+		return false;
 	}
 
-	if(Info.WaitMode != execute_info::wait_mode::no_wait)
+	FullCommand = concat(Command, L' ', Parameters);
+	return true;
+}
+
+static bool execute_createprocess(string const& Object, string const& Directory, bool const RunAs, bool const Wait, PROCESS_INFORMATION& pi)
+{
+	if (RunAs)
+		return false;
+
+	STARTUPINFO si{ sizeof(si) };
+
+	return CreateProcess(
+		Object.c_str(),
+		{},
+		{},
+		{},
+		false,
+		CREATE_DEFAULT_ERROR_MODE | CREATE_BREAKAWAY_FROM_JOB | CREATE_SUSPENDED | (Wait? 0 : CREATE_NEW_CONSOLE),
+		{},
+		Directory.c_str(),
+		&si,
+		&pi
+	);
+}
+
+static bool execute_shell(string const& Command, string const& Parameters, string const& Directory, bool const RunAs, bool const Wait, HANDLE& Process)
+{
+	SHELLEXECUTEINFO Info = { sizeof(Info) };
+	Info.lpFile = Command.c_str();
+	Info.lpParameters = EmptyToNull(Parameters);
+	Info.lpDirectory = Directory.c_str();
+	Info.nShow = SW_SHOWNORMAL;
+	Info.fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS | (Wait? SEE_MASK_NO_CONSOLE : 0);
+	Info.lpVerb = RunAs? L"runas" : nullptr;
+
+	if (!ShellExecuteEx(&Info))
+		return false;
+
+	Process = Info.hProcess;
+
+	return true;
+}
+
+class external_execution_context
+{
+public:
+	NONCOPYABLE(external_execution_context);
+
+	external_execution_context()
 	{
-		ConsoleCP = console.GetInputCodepage();
-		ConsoleOutputCP = console.GetOutputCodepage();
 		FlushInputBuffer();
 
 		ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode->Input);
 		ChangeConsoleMode(console.GetOutputHandle(), InitialConsoleMode->Output);
 		ChangeConsoleMode(console.GetErrorHandle(), InitialConsoleMode->Error);
 
-		console.GetWindowRect(ConsoleWindowRect);
-		console.GetSize(ConsoleSize);
-
-		if (Global->Opt->Exec.ExecuteFullTitle)
-		{
-			auto strFarTitle = strNewCmdStr;
-			if (!strNewCmdPar.empty())
-			{
-				append(strFarTitle, L' ', strNewCmdPar);
-			}
-			ConsoleTitle::SetFarTitle(strFarTitle, true);
-		}
+		GetCursorType(CursorVisible, CursorSize);
 	}
 
-	// ShellExecuteEx Win8.1+ wrongly opens symlinks in a separate console window
-	// Workaround: execute through %comspec%
-	if (Info.ExecMode == execute_info::exec_mode::direct && Info.WaitMode != execute_info::wait_mode::no_wait && IsWindows8Point1OrGreater())
+	~external_execution_context()
 	{
-		os::fs::file_status fstatus(strNewCmdStr);
-		if (os::fs::is_file(fstatus) && fstatus.check(FILE_ATTRIBUTE_REPARSE_POINT))
-		{
-			Info.ExecMode = execute_info::exec_mode::external;
-		}
-	}
+		FlushInputBuffer();
 
-	string strComspec, ComSpecParams;
+		SetFarConsoleMode(true);
 
-	if (Info.ExecMode == execute_info::exec_mode::direct)
-	{
-		strNewCmdStr = short_name_if_too_long(strNewCmdStr);
-		seInfo.lpFile = strNewCmdStr.c_str();
+		SetCursorType(CursorVisible, CursorSize);
 
-		if(!strNewCmdPar.empty())
-		{
-			seInfo.lpParameters = strNewCmdPar.c_str();
-		}
-	}
-	else
-	{
-		strComspec = os::env::expand(Global->Opt->Exec.Comspec);
-		if (strComspec.empty())
-		{
-			strComspec = os::env::get(L"COMSPEC"sv);
-			if (strComspec.empty())
-			{
-				Message(MSG_WARNING,
-					msg(lng::MError),
-					{
-						msg(lng::MComspecNotFound)
-					},
-					{ lng::MOk });
-				return;
-			}
-		}
-
-		try
-		{
-			ComSpecParams = format(os::env::expand(Global->Opt->Exec.ComspecArguments), Info.Command);
-		}
-		catch (fmt::format_error const& e)
-		{
-			// The user entered something weird
-			// TODO: use the default?
-			Message(MSG_WARNING,
-				msg(lng::MError),
-				{
-					concat(L"System.Executor.ComspecArguments: \""sv, Global->Opt->Exec.ComspecArguments, L'"'),
-					encoding::utf8::get_chars(e.what())
-				},
-				{ lng::MOk });
-			return;
-		}
-
-		seInfo.lpFile = strComspec.c_str();
-		seInfo.lpParameters = ComSpecParams.c_str();
-	}
-
-	if (Info.RunAs && RunAsSupported(seInfo.lpFile))
-	{
-		seInfo.lpVerb = L"runas";
-	}
-
-	seInfo.fMask = SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS | (Info.WaitMode == execute_info::wait_mode::no_wait? 0 : SEE_MASK_NO_CONSOLE);
-
-	os::handle Process;
-	error_state ErrorState;
-
-	{
-		// ShellExecuteEx fails if IE10 is installed and if current directory is symlink/junction
-		std::optional<os::fs::process_current_directory_guard> Guard;
-		if (os::fs::file_status(strCurDir).check(FILE_ATTRIBUTE_REPARSE_POINT))
-		{
-			Guard.emplace(short_name_if_too_long(ConvertNameToReal(strCurDir)));
-		}
-
-		Result = ShellExecuteEx(&seInfo) != FALSE;
-
-		if (Result)
-		{
-			Process.reset(seInfo.hProcess);
-		}
-		else
-		{
-			ErrorState = error_state::fetch();
-		}
-	}
-
-	if (Result)
-	{
-		if (Process)
-		{
-			if (any_of(Info.WaitMode, execute_info::wait_mode::if_needed, execute_info::wait_mode::wait_finish))
-			{
-				if (const auto ConsoleDetachKey = KeyNameToKey(Global->Opt->ConsoleDetachKey))
-				{
-					wait_for_process_or_detach(Process, ConsoleDetachKey, ConsoleSize, ConsoleWindowRect);
-				}
-				else
-				{
-					Process.wait();
-				}
-			}
-			if(Info.WaitMode == execute_info::wait_mode::wait_idle)
-			{
-				WaitForInputIdle(Process.native_handle(), INFINITE);
-			}
-			Process.close();
-		}
-	}
-
-	SetFarConsoleMode(true);
-	/* Принудительная установка курсора, т.к. SetCursorType иногда не спасает
-	    вследствие своей оптимизации, которая в данном случае выходит боком.
-	*/
-	SetCursorType(Visible, CursorSize);
-
-	{
-		// Could be changed by external program
-		const auto CurrentTitle = Global->ScrBuf->GetTitle();
-		// Invalidate cache:
-		Global->ScrBuf->SetTitle({});
-		Global->ScrBuf->SetTitle(CurrentTitle);
-	}
-
-	CONSOLE_CURSOR_INFO cci = { CursorSize, Visible };
-	console.SetCursorInfo(cci);
-
-	{
 		point ConSize;
 		if (console.GetSize(ConSize) && (ConSize.x != ScrX + 1 || ConSize.y != ScrY + 1))
 		{
 			ChangeVideoMode(ConSize.y, ConSize.x);
 		}
+
+		if (Global->Opt->Exec.RestoreCPAfterExecute)
+		{
+			console.SetInputCodepage(ConsoleCP);
+			console.SetOutputCodepage(ConsoleOutputCP);
+		}
+
+		// The title could be changed by the external program
+		Global->ScrBuf->Flush(flush_type::cursor | flush_type::title);
 	}
 
-	if (Global->Opt->Exec.RestoreCPAfterExecute)
+private:
+	int ConsoleCP = console.GetInputCodepage();
+	int ConsoleOutputCP = console.GetOutputCodepage();
+	bool CursorVisible{};
+	size_t CursorSize{};
+};
+
+static bool execute_impl(
+	execute_info& Info,
+	function_ref<void(bool)> const ConsoleActivator,
+	string& FullCommand,
+	string& Command,
+	string& Parameters,
+	bool& UsingComspec
+)
+{
+	rectangle ConsoleWindowRect;
+	point ConsoleSize;
+	std::optional<external_execution_context> Context;
+
+	const auto ExtendedActivator = [&](bool const Consolise)
 	{
-		console.SetInputCodepage(ConsoleCP);
-		console.SetOutputCodepage(ConsoleOutputCP);
-	}
+		if (Consolise)
+		{
+			console.GetWindowRect(ConsoleWindowRect);
+			console.GetSize(ConsoleSize);
+			Context.emplace();
+		}
 
-	if (!Result && ErrorState.Win32Error != ERROR_CANCELLED)
+		ConsoleActivator(Consolise);
+	};
+
+	const auto strCurDir = short_name_if_too_long(os::fs::GetCurrentDirectory());
+
+	if (Info.SourceMode == execute_info::source_mode::known)
 	{
-		std::vector<string> Strings;
-		if (Info.ExecMode == execute_info::exec_mode::direct)
-			Strings = { msg(lng::MCannotExecute), strNewCmdStr };
-		else
-			Strings = { msg(lng::MCannotInvokeComspec), strComspec, msg(lng::MCheckComspecVar) };
+		PROCESS_INFORMATION pi{};
+		if (execute_createprocess(FullCommand, strCurDir, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, pi))
+		{
+			after_process_creation(os::handle(pi.hProcess), Info.WaitMode, pi.hThread, ConsoleSize, ConsoleWindowRect, ExtendedActivator);
+			return true;
+		}
 
-		Message(MSG_WARNING, ErrorState,
-			msg(lng::MError),
-			std::move(Strings),
-			{ lng::MOk },
-			L"ErrCannotExecute"sv,
-			nullptr,
-			{ Info.ExecMode == execute_info::exec_mode::direct? strNewCmdStr : strComspec });
+		if(error_state::fetch().Win32Error == ERROR_EXE_MACHINE_TYPE_MISMATCH)
+			return false;
 	}
+
+	ExtendedActivator(Info.WaitMode != execute_info::wait_mode::no_wait);
+
+	const auto execute_shell = [&]
+	{
+		HANDLE Process;
+		if (!::execute_shell(Command, Parameters, strCurDir, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, Process))
+			return false;
+
+		if (Process)
+			after_process_creation(os::handle(Process), Info.WaitMode, {}, ConsoleSize, ConsoleWindowRect, [](bool) {});
+		return true;
+	};
+
+	if (execute_shell())
+		return true;
+
+	if (error_state::fetch().Win32Error != ERROR_FILE_NOT_FOUND || UsingComspec || !UseComspec(FullCommand, Command, Parameters))
+		return false;
+
+	UsingComspec = true;
+	return execute_shell();
+}
+
+void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator)
+{
+	string FullCommand, Command, Parameters;
+
+	bool UsingComspec = false;
+
+	if (Info.RunAs)
+	{
+		Info.WaitMode = execute_info::wait_mode::no_wait;
+	}
+
+	if (Info.SourceMode == execute_info::source_mode::known)
+	{
+		FullCommand = Info.Command;
+		Command = short_name_if_too_long(Info.Command);
+	}
+	else
+	{
+		FullCommand = os::env::expand(Info.Command);
+
+		if (!PartCmdLine(FullCommand, Command, Parameters))
+		{
+			// Complex expression (pipe or redirection): fallback to comspec as is
+			if (!UseComspec(FullCommand, Command, Parameters))
+				return;
+			UsingComspec = true;
+		}
+	}
+
+	const auto IgnoreInternalAssociations =
+		!Info.UseAssociations ||
+		Info.SourceMode == execute_info::source_mode::known ||
+		Info.WaitMode == execute_info::wait_mode::no_wait ||
+		UsingComspec ||
+		!Global->Opt->Exec.UseAssociations;
+
+	static unsigned ProcessingAsssociation = 0;
+
+	if (!IgnoreInternalAssociations && !ProcessingAsssociation)
+	{
+		++ProcessingAsssociation;
+		SCOPE_EXIT{ --ProcessingAsssociation; };
+
+		string ObjectName;
+		if (FindObject(unquote(Command), ObjectName))
+		{
+			const auto ObjectNameShort = ConvertNameToShort(ObjectName);
+			const auto LastX = WhereX(), LastY = WhereY();
+			if (ProcessLocalFileTypes(ObjectName, ObjectNameShort, FILETYPE_EXEC, Info.WaitMode == execute_info::wait_mode::wait_finish, false, Info.RunAs, [&](execute_info& AssocInfo)
+			{
+				GotoXY(LastX, LastY);
+
+				if (!Parameters.empty())
+				{
+					append(AssocInfo.Command, L' ', Parameters);
+				}
+
+				Global->CtrlObject->CmdLine()->ExecString(AssocInfo);
+			}))
+			{
+				return;
+			}
+			GotoXY(LastX, LastY);
+		}
+	}
+
+
+	if (execute_impl(Info, ConsoleActivator, FullCommand, Command, Parameters, UsingComspec))
+		return;
+
+	const auto ErrorState = error_state::fetch();
+
+	if (ErrorState.Win32Error == ERROR_CANCELLED)
+		return;
+
+	std::vector<string> Strings;
+	if (UsingComspec)
+		Strings = { msg(lng::MCannotInvokeComspec), Command, msg(lng::MCheckComspecVar) };
+	else
+		Strings = { msg(lng::MCannotExecute), Command };
+
+	Message(MSG_WARNING, ErrorState,
+		msg(lng::MError),
+		std::move(Strings),
+		{ lng::MOk },
+		L"ErrCannotExecute"sv,
+		nullptr,
+		{ Command });
 }
 
 static bool exist_predicate(string_view const Str)
@@ -1354,22 +800,6 @@ bool ExtractIfExistCommand(string& strCommandText)
 	return true;
 }
 
-bool IsExecutable(string_view const Filename)
-{
-	const auto Ext = name_ext(Filename).second;
-	if (Ext.empty())
-		return false;
-
-	// these guys have specific association in Windows Registry: "%1" %*
-	// That means we can't find the associated program etc., so they shall be hard-coded.
-	static const string_view Executables[] = { L"exe"sv, L"cmd"sv, L"com"sv, L"bat"sv };
-	const auto ExtWithoutDot = Ext.substr(1);
-	return std::any_of(ALL_CONST_RANGE(Executables), [&](const string_view Extension)
-	{
-		return equal_icase(Extension, ExtWithoutDot);
-	});
-}
-
 bool ExpandOSAliases(string& strStr)
 {
 	string strNewCmdStr;
@@ -1378,24 +808,12 @@ bool ExpandOSAliases(string& strStr)
 	if (!PartCmdLine(strStr, strNewCmdStr, strNewCmdPar))
 		return false;
 
-	auto ExeName = PointToName(Global->g_strFarModuleName);
-	const wchar_t_ptr Buffer(4096);
-	int ret = console.GetAlias(strNewCmdStr, Buffer.data(), Buffer.size() * sizeof(wchar_t), ExeName);
-
-	if (!ret)
+	if (!console.GetAlias(strNewCmdStr, strNewCmdStr, PointToName(Global->g_strFarModuleName)))
 	{
 		const auto strComspec(os::env::get(L"COMSPEC"sv));
-		if (!strComspec.empty())
-		{
-			ExeName=PointToName(strComspec);
-			ret = console.GetAlias(strNewCmdStr, Buffer.data(), Buffer.size() * sizeof(wchar_t), ExeName);
-		}
+		if (strComspec.empty() || !console.GetAlias(strNewCmdStr, strNewCmdStr, PointToName(strComspec)))
+			return false;
 	}
-
-	if (!ret)
-		return false;
-
-	strNewCmdStr.assign(Buffer.data());
 
 	if (!ReplaceStrings(strNewCmdStr, L"$*"sv, strNewCmdPar) && !strNewCmdPar.empty())
 		append(strNewCmdStr, L' ', strNewCmdPar);

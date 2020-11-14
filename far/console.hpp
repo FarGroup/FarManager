@@ -133,7 +133,7 @@ namespace console_detail
 
 		bool GetNumberOfInputEvents(size_t& NumberOfEvents) const;
 
-		bool GetAlias(string_view Source, wchar_t* TargetBuffer, size_t TargetBufferLength, string_view ExeName) const;
+		bool GetAlias(string_view Name, string& Value, string_view ExeName) const;
 
 		std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() const;
 

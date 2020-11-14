@@ -263,15 +263,13 @@ bool GetWindowText(HWND Hwnd, string& Text)
 	return false;
 }
 
+#ifndef _WIN64
 bool IsWow64Process()
 {
-#ifdef _WIN64
-	return false;
-#else
 	static const auto Wow64Process = []{ BOOL Value = FALSE; return imports.IsWow64Process(GetCurrentProcess(), &Value) && Value; }();
 	return Wow64Process;
-#endif
 }
+#endif
 
 DWORD GetAppPathsRedirectionFlag()
 {

@@ -38,14 +38,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 #ifdef __GNUC__
-#undef _W32API_OLD
 #include <w32api.h>
 #define _W32API_VER (100*(__W32API_MAJOR_VERSION) + (__W32API_MINOR_VERSION))
 #if _W32API_VER < 314
 #error w32api-3.14 (or higher) required
-#endif
-#if _W32API_VER < 317
-#define _W32API_OLD 1
 #endif
 #undef WINVER
 #undef _WIN32_WINNT
@@ -78,44 +74,30 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PSAPI_VERSION 1
 #include <psapi.h>
 #include <shlobj.h>
+#include <shobjidl.h>
 #include <shellapi.h>
 #include <userenv.h>
 #include <dbghelp.h>
 #include <dwmapi.h>
 #include <restartmanager.h>
 #include <commdlg.h>
+#include <winternl.h>
+#include <versionhelpers.h>
+#include <virtdisk.h>
+#include <ntstatus.h>
+#include <cfgmgr32.h>
+#include <ntddmmc.h>
+#include <ntddscsi.h>
+#include <lmdfs.h>
 
 #define _NTSCSI_USER_MODE_
 
 #ifdef _MSC_VER
-#include <ntstatus.h>
-#include <shobjidl.h>
-#include <winternl.h>
-#include <cfgmgr32.h>
-#include <ntddmmc.h>
-#include <ntddscsi.h>
-#include <virtdisk.h>
-#include <lmdfs.h>
 #include <scsi.h>
 #endif // _MSC_VER
 
 #ifdef __GNUC__
-# define __NTDDK_H
-struct _ADAPTER_OBJECT;
-typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
-#ifdef _W32API_OLD
-#include <ntstatus.h>
-#include <cfgmgr32.h>
-#include <ntddmmc.h>
-#include <ntddscsi.h>
-#else
-#include <ddk/ntstatus.h>
-#include <ddk/cfgmgr32.h>
-#include <ddk/ntddmmc.h>
-#include <ddk/ntddscsi.h>
 #include <ntdef.h>
-#endif
-
 // Workaround for MinGW, see a66e40
 // Their loony headers are unversioned,
 // so the only way to make it compatible
