@@ -1,4 +1,4 @@
-﻿.Language=Polish,Polish (Polski)
+.Language=Polish,Polish (Polski)
 .PluginContents=Zaawansowane porównywanie
 
 @Contents
@@ -8,46 +8,39 @@ ale dodatkowo można ustawić dodatkowe opcje porównywania:
 
 #Przetwarzaj:#
 
-  #podfoldery#               Compare files in subfolders.
-                           Cannot be used for plugin panels.
+  #Podfoldery#               Porównuje pliki w podfolderach. Nie może być użyte dla paneli wtyczek.
 
-  #maximum folder depth#     Don't compare folders of bigger depth
-                           than specified.
+  #Maks. głębokość ścieżki#  Nie porównuje folderów o głębszych poziomach ścieżek niż podano.
 
-  #selected items only#      Compare selected files/folders only.
-                           This option is ignored for panels with
-                           no selected items (the whole panel
-                           contents will be compared in that case).
+  #Tylko zaznaczone pozycje# Porównuje tylko zaznaczone pliki/foldery.
+                           Ta opcja jest ignorowane dla paneli, jeżeli nic nie zaznaczono
+                           (w tym przypadku porównana będzie cała zawartość paneli).
 
 #Porównaj:#
 
-  #czas#                     Compare file modification time.
-                           Unlike the internal FAR command, this
-                           option will mark files on both panels,
-                           not the newer files only.
+  #Czas#                     Porównuje czas modyfikacji pliku. Inaczej niż wewnętrzne polecenie FAR,
+                           ta opcje tylko zaznaczy pliku w obu panelach, nie tylko nowsze pliki.
 
-  #różnica dwóch sekund#     Compare with two seconds precision.
-                           Otherwise complete file time, including
-                           milliseconds, will be compared.
+  #Precyzja dwóch sekund#    Porównanie plików z precyzją dwóch sekund (czas zapisu).
+                           W innym przypadku czas plików będzie porównany z dokładnością do milisekund.
 
-  #ignore possible time#     Ignore file time difference that is an
-  #zone differences#         exact multiple of 15 minutes (i.e. half
-                           an hour, 2 hours and 15 minutes, 12 hours).
-                           Maximum ignored difference is 26 hours.
+  #Ignoruj różnice#          Ignoruje różnice czasu, które są dokładnie wielokrotnością
+  #stref czasowych#          15 minut (np. pół godziny, godzina, 2 godziny 15 minut, 12 godzin)
+                           wynikających ze zmian czasu (np. letni/zimowy). Maksymalnie ignorowana
+                           różnica to 26 godzin.
 
-  #wielkość#                 Porównuje wielkość pliku.
+  #Wielkość#                 Porównuje wielkość pliku.
 
-  #zawartość#                Porównuje wielkość pliku.
-                           Nie może być uzyte dla porównania paneli.
+  #Zawartość#                Porównuje wielkość pliku.
+                           Nie może być użyte dla porównania paneli.
 
-  #ignore differences in#    Ignore differences in new line
-  #new line characters#      characters (i.e. when comparing Unix and
-                           Windows files).
+  #Ignoruj różnice#          Ignoruje różnice w znakach oznaczających
+  #w oznaczeniu#             przejście do nowej linii (np. przy porównywaniu
+  #nowej linii#              plików pochodzących z Windows i Linux).
 
-  #ignore whitespace#        Ignore whitespace when comparing file
-                           contents (ignores spaces, tabs and new line
-                           characters).
+  #Białe znaki#              Ignoruje puste (białe) znaki podczas porównywania zawartości plików
+                           (spacje, tabulatory, znaki nowej linii.
 
 
-  #Display a message if no#  Display a message if all compared
-  #differences were found#   items seem to be identical.
+  #Pokaż informację, jeśli#  Wyświetla komunikat, jeżeli wszystkie porównywane pliki
+  #nie będzie różnic#        będą identyczne.
