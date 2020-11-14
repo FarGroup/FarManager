@@ -1,4 +1,4 @@
-﻿.Language=Polish,Polish (Polski)
+.Language=Polish,Polish (Polski)
 
 "OK"
 "Anuluj"
@@ -8,19 +8,19 @@
 "Zaawansowane porównywanie"
 
 "Zaawansowane porównanie"
-"Proces:"
-"pod&foldery"
-"&maks. głębokość ścieżki:"
-"&tylko zaznaczone pozycje"
+"Przetwarzaj:"
+"Pod&foldery"
+"&Maks. głębokość ścieżki:"
+"&Tylko zaznaczone pozycje"
 "Porównaj:"
-"&czas"
-"&prezycja dwóch sekund"
-"&Ignruj różnice stref czasowych"
-"&wielkość"
-"&zawartość"
-"i&gnoruj:"
-"różnice w oznaczeniu nowej &linii"
-"&białe znaki"
+"&Czas"
+"&Precyzja dwóch sekund"
+"&Ignoruj różnice stref czasowych"
+"&Wielkość"
+"&Zawartość"
+"I&gnoruj:"
+"Różnice w oznaczeniu nowej &linii"
+"&Białe znaki"
 "Pokaż informację, jeśli &nie będzie różnic"
 
 "Do porównania wymagane są dwa panele plików"
