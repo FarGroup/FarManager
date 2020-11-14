@@ -483,9 +483,10 @@ void retry_or_ignore_error(const Error& error, bool& ignore, bool& ignore_errors
     }
     st << extract_file_name(widen(error.file)) << L':' << error.line << L'\n';
     unsigned button_cnt = 0;
-    unsigned ignore_id=0, ignore_all_id=0;
+    unsigned retry_id=0, ignore_id=0, ignore_all_id=0;
     if (can_retry) {
       st << Far::get_msg(MSG_BUTTON_RETRY) << L'\n';
+      retry_id = button_cnt;
       button_cnt++;
     }
     if (can_ignore) {
@@ -500,6 +501,8 @@ void retry_or_ignore_error(const Error& error, bool& ignore, bool& ignore_errors
     button_cnt++;
     ProgressSuspend ps(progress);
     auto id = Far::message(c_retry_ignore_dialog_guid, st.str(), button_cnt, FMSG_WARNING);
+    if (can_retry && (unsigned)id == retry_id)
+      return;
     if (can_ignore && (unsigned)id == ignore_id) {
       ignore = true;
     }
