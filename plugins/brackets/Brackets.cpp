@@ -57,7 +57,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 
 int Config()
 {
-	PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MTitle, nullptr);
+	PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MTitle, L"Config");
 	Builder.StartSingleBox(MRules, true);
 	Builder.AddCheckbox(MIgnoreQuotation, &Opt.IgnoreQuotes);
 	Builder.AddCheckbox(MIgnoreAfter, &Opt.IgnoreAfter);
