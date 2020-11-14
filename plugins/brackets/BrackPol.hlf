@@ -4,7 +4,7 @@
 
 @Contents
 $ #Dopasowanie nawiasów#
-  Ta wtycznka pozwala na:
+  Ta wtyczka pozwala na:
 
   - znalezienie pasującego nawiasu;
   - zaznaczenie tekstu zapisanego w nawiasach.
@@ -13,7 +13,7 @@ $ #Dopasowanie nawiasów#
 
   #1. Wewnątrz '()', '{}', '[]', '<>', '«»' i znaki cudzysłowów#
      To jest prosty przypadek - gdy kursor jest wewnątrz nawiasów,
-     to jest pozycjonowany na pasujący nawias. Dla znaku cudzysłowa
+     to jest pozycjonowany na pasujący nawias. Dla znaku cudzysłowu
      jest jeszcze niezbędne określenie kierunku - naprzód czy wstecz.
 
   #2. Uncommon '()', '{}', '[]', '<>' i '«»'#
@@ -23,7 +23,7 @@ $ #Dopasowanie nawiasów#
      configuration dialog.
 
   #3. Podwójne nawiasy#
-     Ten przypadek pozwa obsłużyć (na przykład) blok komentarzy
+     Ten przypadek pozwala obsłużyć (na przykład) blok komentarzy
      w języku C/C++: '/*' i '*/'. Kursor będzie umieszczony na znaku
      pasującym do wskazanego nawiasu.
 
@@ -73,7 +73,7 @@ $ #Dopasowanie nawiasów - Konfiguracja#
    #Ignoruj nawiasy#         Jeżeli opcja jest włączona, wtyczka nie
    #w cudzysłowach#          szuka znaków nawiasów, które są umieszczone
                            w cudzysłowach: #'#{#'#.
-                           Znak cudzysłowia jest także konfigurowalny.
+                           Znak cudzysłowu jest także konfigurowalny.
 
    #Nie przeskakuj,#         Jeżeli opcja jest wyłączona, wtyczka
    #jeżeli poza#             szuka pasującego nawiasu także, gdy kursor
@@ -96,37 +96,33 @@ $ #Dopasowanie nawiasów - Konfiguracja#
 
 
   #>Definicje#
-  Ta sekcja pozwala zmienić niektóre podstawowaThis section allows to change some basic constants of the plugin:
+  Ta sekcja pozwala zmienić niektóre ustawienia wtyczki:
 
-   #Single brackets#      Definition of single brackets.
-                        Contains a sequence of two-character pairs.
-                        The first character is the opening bracket,
-                        the second - the closing bracket. There
-                        can be at most 10 pairs. The first and second
-                        characters can be the same (for example,
-                        #""# or #''#).
+   #Znaki cytowania#      Znaki cytowania tekstu dla zasady "Ignoruj
+                        nawiasy w cudzysłowach". Zawiera sekwencję par
+                        dwu-znakowych. Pierwszy znak jest początkiem
+                        cytatu, drugi - końcem. Można wprowadzić maksymalnie
+                        10 par znaków. Uwaga: znaki cytowania nie są
+                        brane pod uwagę bezpośrednio przy wyszukiwaniu
+                        nawiasów.
 
-   #Double brackets#      Definition of double brackets.
-                        Contains a sequence of four-character groups.
-                        The first two characters are the opening
-                        bracket, the second - the closing bracket.
-                        There can be at most 10 groups.
+   #Pojedyncze nawiasy#   Definicja pojedynczych nawiasów. Zawiera sekwencję
+                        par dwu-znakowych. Pierwszy jest początkiem nawiasu,
+                        drugi - końcem. Można wprowadzić maksymalnie 10 par
+                        znaków. Pierwszy i drugi znak z pary mogą być takie
+                        same (np. #""# lub #''#).
 
-   #Quotation marks#      Quotation mark characters for the rule
-                        "Ignore brackets in quotation marks".
-                        Contains a sequence of two-character pairs.
-                        The first character is the opening quotation
-                        mark, the second - the closing mark. There
-                        can be at most 10 pairs. Note: the quotation
-                        marks are not used directly for bracket
-                        matching.
+   #Podwójne nawiasy#     Definicja podwójnych nawiasów. Zawiera sekwencję
+                        cztero-znakową. Dwa pierwsze znaki są początkiem
+                        nawiasu, kolejne dwa - końcem. Można wprowadzić
+                        maksymalnie 10 takich par.
 
 
   ~Zawartość~@Contents@
 
 @MacroCallPlugin
 $ #Używanie wtyczki w makrach#
-    ^<wrap>Плагин можно вызывать из макросов, используя макрофункцию Plugin.Call.
+    ^<wrap>Wtyczkę można wywołać w makrach, używając polecenia Plugin.Call.
     ^<wrap>Format wywołania:
 
        #Plugin.Call("B66C436D-E657-419C-86D3-6834B9ACF3D2",<Parametr>)#
@@ -136,20 +132,20 @@ $ #Używanie wtyczki w makrach#
           identyfikator wtyczki
 
        #<Parametr>#
-          ^<wrap>строковое или числовое значение, обозначающее действие:
+          ^<wrap>ciąg lub wartość liczbowa, wskazująca czynność:
 
-          SearchFwd  0 - искать парную скобку вперед
-          SearchBack 1 - искать парную скобку назад
-          SelectFwd  2 - выделить блок между парными скобками вперед
-          SelectBack 3 - выделить блок между парными скобками назад
-          Config     4 - показать диалог конфигурации
+          SearchFwd  0 - wyszukaj pasujący nawias naprzód
+          SearchBack 1 - wyszukaj pasujący nawias wstecz
+          SelectFwd  2 - zaznacz blok pomiędzy pasującymi nawiasami naprzód
+          SelectBack 3 - zaznacz blok pomiędzy pasującymi nawiasami wstecz
+          Config     4 - pokaż okno dialogowe konfiguracji
 
-          ^<wrap>Jeśli <Parametr> вне указанного выше диапазона - плагин завершает свою работу.
-          ^<wrap>Jeśli <Parametr> не указан, то будет выведено меню действий.
+          ^<wrap>Jeśli <Parametr> będzie spoza podanego zakresu - wtyczka zakończy działanie.
+          ^<wrap>Jeśli <Parametr> nie został określony - zostanie wyświetlone menu wtyczki.
 
-          ^<wrap>Различие между "вперед" и "назад" актуально только для кавычек.
+          ^<wrap>Różnica między "naprzód" i "wstecz" dotyczą tylko cudzysłowów.
 
-    ^<wrap>Przykład: искать парную скобку назад:
+    ^<wrap>Przykład: wyszukaj pasujący nawias wstecz (początek nawiasu):
 
        Plugin.Call("B66C436D-E657-419C-86D3-6834B9ACF3D2",1)
 
