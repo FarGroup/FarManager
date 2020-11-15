@@ -357,26 +357,18 @@ static void wait_for_process_or_detach(os::handle const& Process, int const Cons
 }
 
 
-static void after_process_creation(os::handle Process, execute_info::wait_mode const WaitMode, HANDLE Thread, point const& ConsoleSize, rectangle const& ConsoleWindowRect, function_ref<void(bool)> const ConsoleActivator)
+static void after_process_creation(os::handle Process, execute_info::wait_mode const WaitMode, point const& ConsoleSize, rectangle const& ConsoleWindowRect)
 {
 	switch (WaitMode)
 	{
 	case execute_info::wait_mode::no_wait:
-		ConsoleActivator(false);
-		if (Thread)
-			ResumeThread(Thread);
 		return;
 
 	case execute_info::wait_mode::wait_idle:
 	case execute_info::wait_mode::if_needed:
 	case execute_info::wait_mode::wait_finish:
 		{
-			const auto Type = os::process::get_process_subsystem(Process.get());
-			ConsoleActivator(Type != os::process::image_type::graphical);
-			if (Thread)
-				ResumeThread(Thread);
-
-			if (Type == os::process::image_type::graphical)
+			if (os::process::get_process_subsystem(Process.get()) == os::process::image_type::graphical)
 			{
 				if (WaitMode == execute_info::wait_mode::wait_idle)
 					WaitForInputIdle(Process.native_handle(), INFINITE);
@@ -532,34 +524,16 @@ static bool execute_impl(
 	point ConsoleSize;
 	std::optional<external_execution_context> Context;
 
-	const auto ExtendedActivator = [&](bool const Consolise)
-	{
-		if (Consolise)
-		{
-			console.GetWindowRect(ConsoleWindowRect);
-			console.GetSize(ConsoleSize);
-			Context.emplace();
-		}
-
-		ConsoleActivator(Consolise);
-	};
-
 	const auto strCurDir = short_name_if_too_long(os::fs::GetCurrentDirectory());
 
-	if (Info.SourceMode == execute_info::source_mode::known)
+	if (Info.WaitMode != execute_info::wait_mode::no_wait)
 	{
-		PROCESS_INFORMATION pi{};
-		if (execute_createprocess(FullCommand, strCurDir, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, pi))
-		{
-			after_process_creation(os::handle(pi.hProcess), Info.WaitMode, pi.hThread, ConsoleSize, ConsoleWindowRect, ExtendedActivator);
-			return true;
-		}
-
-		if(error_state::fetch().Win32Error == ERROR_EXE_MACHINE_TYPE_MISMATCH)
-			return false;
+		console.GetWindowRect(ConsoleWindowRect);
+		console.GetSize(ConsoleSize);
+		Context.emplace();
 	}
 
-	ExtendedActivator(Info.WaitMode != execute_info::wait_mode::no_wait);
+	ConsoleActivator(Info.WaitMode != execute_info::wait_mode::no_wait);
 
 	const auto execute_shell = [&]
 	{
@@ -568,7 +542,7 @@ static bool execute_impl(
 			return false;
 
 		if (Process)
-			after_process_creation(os::handle(Process), Info.WaitMode, {}, ConsoleSize, ConsoleWindowRect, [](bool) {});
+			after_process_creation(os::handle(Process), Info.WaitMode, ConsoleSize, ConsoleWindowRect);
 		return true;
 	};
 

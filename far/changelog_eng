@@ -1,3 +1,7 @@
+drkns 15.11.2020 10:16:18 +0000 - build 5703
+
+2. Executor logic correction.
+
 drkns 14.11.2020 22:00:22 +0000 - build 5702
 
 1. Experimental: reimplemented and simplifiled the executor (based on https://forum.farmanager.com/viewtopic.php?t=12275):
