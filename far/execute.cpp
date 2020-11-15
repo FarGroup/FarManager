@@ -425,27 +425,6 @@ static bool UseComspec(string& FullCommand, string& Command, string& Parameters)
 	return true;
 }
 
-static bool execute_createprocess(string const& Object, string const& Directory, bool const RunAs, bool const Wait, PROCESS_INFORMATION& pi)
-{
-	if (RunAs)
-		return false;
-
-	STARTUPINFO si{ sizeof(si) };
-
-	return CreateProcess(
-		Object.c_str(),
-		{},
-		{},
-		{},
-		false,
-		CREATE_DEFAULT_ERROR_MODE | CREATE_BREAKAWAY_FROM_JOB | CREATE_SUSPENDED | (Wait? 0 : CREATE_NEW_CONSOLE),
-		{},
-		Directory.c_str(),
-		&si,
-		&pi
-	);
-}
-
 static bool execute_shell(string const& Command, string const& Parameters, string const& Directory, bool const RunAs, bool const Wait, HANDLE& Process)
 {
 	SHELLEXECUTEINFO Info = { sizeof(Info) };
