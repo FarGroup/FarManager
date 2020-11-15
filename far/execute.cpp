@@ -364,24 +364,17 @@ static void after_process_creation(os::handle Process, execute_info::wait_mode c
 	case execute_info::wait_mode::no_wait:
 		return;
 
-	case execute_info::wait_mode::wait_idle:
 	case execute_info::wait_mode::if_needed:
+		if (os::process::get_process_subsystem(Process.get()) == os::process::image_type::graphical)
+			return;
+
+		if (const auto ConsoleDetachKey = KeyNameToKey(Global->Opt->ConsoleDetachKey))
+			return wait_for_process_or_detach(Process, ConsoleDetachKey, ConsoleSize, ConsoleWindowRect);
+
+		[[fallthrough]];
+
 	case execute_info::wait_mode::wait_finish:
-		{
-			if (os::process::get_process_subsystem(Process.get()) == os::process::image_type::graphical)
-			{
-				if (WaitMode == execute_info::wait_mode::wait_idle)
-					WaitForInputIdle(Process.native_handle(), INFINITE);
-			}
-			else
-			{
-				if (const auto ConsoleDetachKey = KeyNameToKey(Global->Opt->ConsoleDetachKey))
-					wait_for_process_or_detach(Process, ConsoleDetachKey, ConsoleSize, ConsoleWindowRect);
-				else
-					Process.wait();
-			}
-		}
-		return;
+		return Process.wait();
 	}
 }
 

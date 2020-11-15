@@ -4993,17 +4993,15 @@ bool FileList::ApplyCommand()
 				break;
 
 			string strConvertedCommand = strCommand;
-			delayed_deleter ListNames(false);
 			bool PreserveLFN = false;
 
-			if (SubstFileName(strConvertedCommand, subst_context(i.FileName, i.AlternateFileName()), &ListNames, &PreserveLFN) && !strConvertedCommand.empty())
+			if (SubstFileName(strConvertedCommand, subst_context(i.FileName, i.AlternateFileName()), &PreserveLFN) && !strConvertedCommand.empty())
 			{
 				SCOPED_ACTION(PreserveLongName)(i.FileName, PreserveLFN);
 
 				execute_info Info;
 				Info.DisplayCommand = strConvertedCommand;
 				Info.Command = strConvertedCommand;
-				Info.WaitMode = ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::if_needed;
 
 				Parent()->GetCmdLine()->ExecString(Info);
 

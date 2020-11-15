@@ -56,6 +56,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "eol.hpp"
 #include "interf.hpp"
+#include "datetime.hpp"
+#include "delete.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -874,6 +876,21 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 	return true;
 }
 
+static auto get_delayed_deleter()
+{
+	static std::optional<delayed_deleter> s_DelayedDeleter(std::in_place, false);
+
+	// Housekeeping
+	static time_check TimeCheck(time_check::mode::delayed, 5min);
+	if (TimeCheck)
+	{
+		s_DelayedDeleter.reset();
+		s_DelayedDeleter.emplace(false);
+	}
+
+	return &*s_DelayedDeleter;
+}
+
 /*
   SubstFileName()
   Преобразование метасимволов ассоциации файлов в реальные значения
@@ -882,9 +899,8 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 bool SubstFileName(
 	string &Str,                  // результирующая строка
 	const subst_context& Context,
-	delayed_deleter* ListNames,
 	bool* PreserveLongName,
-	bool IgnoreInput,                // true - не исполнять "!?<title>?<init>!"
+	bool IgnoreInputAndLists,                // true - не исполнять "!?<title>?<init>!"
 	string_view const DlgTitle,
 	bool const EscapeAmpersands
 )
@@ -908,7 +924,9 @@ bool SubstFileName(
 	SubstData.This.Normal.Name = Name;
 	SubstData.This.Short.Name = ShortName;
 
-	SubstData.ListNames = ListNames;
+	if (!IgnoreInputAndLists)
+		SubstData.ListNames = get_delayed_deleter();
+
 	SubstData.CmdDir = CmdLineDir.empty()? Global->CtrlObject->CmdLine()->GetCurDir() : CmdLineDir;
 
 	// Предварительно получим некоторые "константы" :-)
@@ -934,7 +952,7 @@ bool SubstFileName(
 
 	Str = ProcessMetasymbols(Str, SubstData);
 
-	const auto Result = IgnoreInput || InputVariablesDialog(Str, SubstData, DlgTitle.empty()? DlgTitle : os::env::expand(DlgTitle));
+	const auto Result = IgnoreInputAndLists || InputVariablesDialog(Str, SubstData, DlgTitle.empty()? DlgTitle : os::env::expand(DlgTitle));
 
 	if (PreserveLongName)
 		*PreserveLongName = SubstData.PreserveLFN;

@@ -60,7 +60,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "uuids.far.dialogs.hpp"
 #include "global.hpp"
-#include "delete.hpp"
 #include "file_io.hpp"
 #include "keyboard.hpp"
 
@@ -491,7 +490,7 @@ static void FillUserMenu(VMenu2& FarUserMenu, UserMenu::menu_container& Menu, in
 		else
 		{
 			string strLabel = MenuItem->strLabel;
-			SubstFileName(strLabel, SubstContext, nullptr, nullptr, true, {}, true);
+			SubstFileName(strLabel, SubstContext, {}, true, {}, true);
 			strLabel = os::env::expand(strLabel);
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
@@ -709,7 +708,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
  		const auto CurrentMenuItem = UserMenu->GetComplexUserDataPtr<ITERATOR(Menu)>(UserMenu->GetSelectPos());
 
 		auto CurrentLabel = (*CurrentMenuItem)->strLabel;
-		SubstFileName(CurrentLabel, Context, nullptr, nullptr, true, {}, true);
+		SubstFileName(CurrentLabel, Context, {}, true, {}, true);
 		CurrentLabel = os::env::expand(CurrentLabel);
 
 		if ((*CurrentMenuItem)->Submenu)
@@ -761,16 +760,14 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					}
 					*/
 
-					delayed_deleter ListNames(false);
 					bool PreserveLFN = false;
-					if (SubstFileName(strCommand, Context, &ListNames, &PreserveLFN, false, CurrentLabel) && !strCommand.empty())
+					if (SubstFileName(strCommand, Context, &PreserveLFN, false, CurrentLabel) && !strCommand.empty())
 					{
 						SCOPED_ACTION(PreserveLongName)(strName, PreserveLFN);
 
 						execute_info Info;
 						Info.DisplayCommand = strCommand;
 						Info.Command = strCommand;
-						Info.WaitMode = ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::if_needed;
 
 						Global->CtrlObject->CmdLine()->ExecString(Info);
 					}

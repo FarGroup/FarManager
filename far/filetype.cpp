@@ -56,7 +56,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "uuids.far.dialogs.hpp"
 #include "global.hpp"
-#include "delete.hpp"
 #include "keyboard.hpp"
 
 // Platform:
@@ -121,7 +120,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 
 			string strCommandText = strCommand;
 			if (
-				!SubstFileName(strCommandText, Context, nullptr, nullptr, true) ||
+				!SubstFileName(strCommandText, Context, {}, true) ||
 				// все "подставлено", теперь проверим условия "if exist"
 				!ExtractIfExistCommand(strCommandText)
 			)
@@ -130,7 +129,7 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 			ActualCmdCount++;
 
 			if (!strDescription.empty())
-				SubstFileName(strDescription, Context, nullptr, nullptr, true, {}, true);
+				SubstFileName(strDescription, Context, {}, true, {}, true);
 			else
 				strDescription = strCommandText;
 
@@ -167,16 +166,15 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 		strCommand = *TypesMenu->GetComplexUserDataPtr<string>(ExitCode);
 	}
 
-	delayed_deleter ListNames(false);
 	bool PreserveLFN = false;
-	if (SubstFileName(strCommand, Context, &ListNames, &PreserveLFN) && !strCommand.empty())
+	if (SubstFileName(strCommand, Context, &PreserveLFN) && !strCommand.empty())
 	{
 		SCOPED_ACTION(PreserveLongName)(Name, PreserveLFN);
 
 		execute_info Info;
 		Info.DisplayCommand = strCommand;
 		Info.Command = strCommand;
-		Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::if_needed;
+		Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : execute_info::wait_mode::if_needed;
 		Info.RunAs = RunAs;
 		// We've already processed them!
 		Info.UseAssociations = false;
@@ -267,9 +265,8 @@ bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceI
 void ProcessExternal(string_view const Command, string_view const Name, string_view const ShortName, bool const AlwaysWaitFinish)
 {
 	string strExecStr(Command);
-	delayed_deleter ListNames(false);
 	bool PreserveLFN = false;
-	if (!SubstFileName(strExecStr, subst_context(Name, ShortName), &ListNames, &PreserveLFN) || strExecStr.empty())
+	if (!SubstFileName(strExecStr, subst_context(Name, ShortName), &PreserveLFN) || strExecStr.empty())
 		return;
 
 	// If you want your history to be usable - use full paths yourself. We cannot reliably substitute them.
@@ -280,7 +277,7 @@ void ProcessExternal(string_view const Command, string_view const Name, string_v
 	execute_info Info;
 	Info.DisplayCommand = strExecStr;
 	Info.Command = strExecStr;
-	Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : ListNames.any()? execute_info::wait_mode::wait_idle : execute_info::wait_mode::if_needed;
+	Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : execute_info::wait_mode::if_needed;
 
 	Global->CtrlObject->CmdLine()->ExecString(Info);
 }

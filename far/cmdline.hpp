@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct execute_info
 {
-	enum class wait_mode { no_wait, if_needed, wait_idle, wait_finish };
+	enum class wait_mode { no_wait, if_needed, wait_finish };
 	enum class source_mode { unknown, known };
 	enum class echo { disabled, enabled, ignored };
 
