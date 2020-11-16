@@ -1,3 +1,7 @@
+drkns 16.11.2020 22:47:34 +0000 - build 5706
+
+1. Продолжение gh-290: частично возвращен поиск запускаемого. Без этого никак, увы.
+
 drkns 16.11.2020 18:52:48 +0000 - build 5705
 
 1. gh-290: New executor gives priority to folders over programs with the same name in PATH.

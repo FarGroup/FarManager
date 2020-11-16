@@ -77,8 +77,10 @@ static string short_name_if_too_long(const string& LongName)
 	return LongName.size() >= MAX_PATH - 1? ConvertNameToShort(LongName) : LongName;
 }
 
-static bool FindObject(string_view const Module, string& strDest)
+static bool FindObject(string_view const Command, string& strDest)
 {
+	const auto Module = unquote(Command);
+
 	if (Module.empty())
 		return false;
 
@@ -89,7 +91,7 @@ static bool FindObject(string_view const Module, string& strDest)
 	{
 		if (!ModuleExt.empty())
 		{
-			const auto Result = Predicate(Name);
+			const auto Result = Predicate(Name, true);
 			if (Result.first)
 				return Result;
 		}
@@ -97,7 +99,7 @@ static bool FindObject(string_view const Module, string& strDest)
 		// Try all the %PATHEXT%:
 		for (const auto& Ext: PathExtList)
 		{
-			const auto Result = Predicate(Name + Ext);
+			const auto Result = Predicate(Name + Ext, !Ext.empty());
 			if (Result.first)
 				return Result;
 		}
@@ -114,9 +116,9 @@ static bool FindObject(string_view const Module, string& strDest)
 
 	if (IsAbsolutePath(Module))
 	{
-		// If absolute path has been specified it makes no sense to walk through the %PATH%, App Paths etc.
+		// If absolute path has been specified it makes no sense to walk through the %PATH%.
 		// Just try all the extensions and we are done here:
-		const auto [Found, FoundName] = TryWithExtOrPathExt(Module, [](string_view const NameWithExt)
+		const auto [Found, FoundName] = TryWithExtOrPathExt(Module, [](string_view const NameWithExt, bool)
 		{
 			return std::pair(os::fs::is_file(NameWithExt), string(NameWithExt));
 		});
@@ -129,11 +131,50 @@ static bool FindObject(string_view const Module, string& strDest)
 	}
 
 	{
+		// Look in the current directory:
+		const auto FullName = ConvertNameToFull(Module);
+		const auto [Found, FoundName] = TryWithExtOrPathExt(FullName, [](string_view const NameWithExt, bool)
+		{
+			return std::pair(os::fs::is_file(NameWithExt), string(NameWithExt));
+		});
+
+		if (Found)
+		{
+			strDest = FoundName;
+			return true;
+		}
+	}
+
+	{
+		// Look in the %PATH%:
+		const auto PathEnv = os::env::get(L"PATH"sv);
+		if (!PathEnv.empty())
+		{
+			for (const auto& Path: enum_tokens_with_quotes(PathEnv, L";"sv))
+			{
+				if (Path.empty())
+					continue;
+
+				const auto[Found, FoundName] = TryWithExtOrPathExt(path::join(Path, Module), [](string_view const NameWithExt, bool)
+				{
+					return std::pair(os::fs::is_file(NameWithExt), string(NameWithExt));
+				});
+
+				if (Found)
+				{
+					strDest = FoundName;
+					return true;
+				}
+			}
+		}
+	}
+
+	{
 		// Use SearchPath:
-		const auto [Found, FoundName] = TryWithExtOrPathExt(Module, [](string_view const NameWithExt)
+		const auto [Found, FoundName] = TryWithExtOrPathExt(Module, [](string_view const NameWithExt, bool const HasExt)
 		{
 			string Str;
-			return std::pair(os::fs::SearchPath(nullptr, NameWithExt, nullptr, Str) && os::fs::is_file(Str), Str);
+			return std::pair(os::fs::SearchPath(nullptr, NameWithExt, HasExt? nullptr : L".", Str) && os::fs::is_file(Str), Str);
 		});
 
 		if (Found)
@@ -433,17 +474,12 @@ static bool UseComspec(string& FullCommand, string& Command, string& Parameters)
 	return true;
 }
 
-// ShellExecuteEx gives priority to directories over executables in PATH,
-// so CreateProcess is the only way to fix that madness without searching for the executable ourselves.
 static bool execute_createprocess(string const& Command, string const& Parameters, string const& Directory, bool const RunAs, bool const Wait, PROCESS_INFORMATION& pi)
 {
 	if (RunAs)
 		return false;
 
 	STARTUPINFO si{ sizeof(si) };
-
-	// CreateProcess retardedly doesn't take into account CurrentDirectory when searching for the executable.
-	os::fs::process_current_directory_guard const Guard(Directory);
 
 	return CreateProcess(
 		// We can't pass ApplicationName - if it's a bat file with a funny name (e.g. containing '&')
@@ -533,6 +569,7 @@ static bool execute_impl(
 	string& FullCommand,
 	string& Command,
 	string& Parameters,
+	string const& CurrentDirectory,
 	bool& UsingComspec
 )
 {
@@ -552,11 +589,9 @@ static bool execute_impl(
 		ConsoleActivator(Consolise);
 	};
 
-	const auto strCurDir = short_name_if_too_long(os::fs::GetCurrentDirectory());
-
 	{
 		PROCESS_INFORMATION pi{};
-		if (execute_createprocess(Command, Parameters, strCurDir, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, pi))
+		if (execute_createprocess(Command, Parameters, CurrentDirectory, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, pi))
 		{
 			after_process_creation(os::handle(pi.hProcess), Info.WaitMode, pi.hThread, ConsoleSize, ConsoleWindowRect, ExtendedActivator);
 			return true;
@@ -571,7 +606,7 @@ static bool execute_impl(
 	const auto execute_shell = [&]
 	{
 		HANDLE Process;
-		if (!::execute_shell(Command, Parameters, strCurDir, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, Process))
+		if (!::execute_shell(Command, Parameters, CurrentDirectory, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, Process))
 			return false;
 
 		if (Process)
@@ -591,6 +626,12 @@ static bool execute_impl(
 
 void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator)
 {
+	// CreateProcess retardedly doesn't take into account CurrentDirectory when searching for the executable.
+	// SearchPath looks there as well and if it's set to something else we could get unexpected results.
+	const auto CurrentDirectory = short_name_if_too_long(os::fs::GetCurrentDirectory());
+	os::fs::process_current_directory_guard const Guard(CurrentDirectory);
+
+
 	string FullCommand, Command, Parameters;
 
 	bool UsingComspec = false;
@@ -609,7 +650,16 @@ void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator
 	{
 		FullCommand = os::env::expand(Info.Command);
 
-		if (!PartCmdLine(FullCommand, Command, Parameters))
+		if (PartCmdLine(FullCommand, Command, Parameters))
+		{
+			string FullName;
+			// Unfortunately it's not possible to avoid the manual search, see gh-290.
+			if (FindObject(Command, FullName))
+			{
+				Command = FullName;
+			}
+		}
+		else
 		{
 			// Complex expression (pipe or redirection): fallback to comspec as is
 			if (!UseComspec(FullCommand, Command, Parameters))
@@ -632,31 +682,26 @@ void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator
 		++ProcessingAsssociation;
 		SCOPE_EXIT{ --ProcessingAsssociation; };
 
-		string ObjectName;
-		if (FindObject(unquote(Command), ObjectName))
+		const auto ObjectNameShort = ConvertNameToShort(Command);
+		const auto LastX = WhereX(), LastY = WhereY();
+		if (ProcessLocalFileTypes(Command, ObjectNameShort, FILETYPE_EXEC, Info.WaitMode == execute_info::wait_mode::wait_finish, false, Info.RunAs, [&](execute_info& AssocInfo)
 		{
-			const auto ObjectNameShort = ConvertNameToShort(ObjectName);
-			const auto LastX = WhereX(), LastY = WhereY();
-			if (ProcessLocalFileTypes(ObjectName, ObjectNameShort, FILETYPE_EXEC, Info.WaitMode == execute_info::wait_mode::wait_finish, false, Info.RunAs, [&](execute_info& AssocInfo)
-			{
-				GotoXY(LastX, LastY);
-
-				if (!Parameters.empty())
-				{
-					append(AssocInfo.Command, L' ', Parameters);
-				}
-
-				Global->CtrlObject->CmdLine()->ExecString(AssocInfo);
-			}))
-			{
-				return;
-			}
 			GotoXY(LastX, LastY);
+
+			if (!Parameters.empty())
+			{
+				append(AssocInfo.Command, L' ', Parameters);
+			}
+
+			Global->CtrlObject->CmdLine()->ExecString(AssocInfo);
+		}))
+		{
+			return;
 		}
+		GotoXY(LastX, LastY);
 	}
 
-
-	if (execute_impl(Info, ConsoleActivator, FullCommand, Command, Parameters, UsingComspec))
+	if (execute_impl(Info, ConsoleActivator, FullCommand, Command, Parameters, CurrentDirectory, UsingComspec))
 		return;
 
 	const auto ErrorState = error_state::fetch();
