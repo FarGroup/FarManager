@@ -1,3 +1,7 @@
+drkns 16.11.2020 18:52:48 +0000 - build 5705
+
+1. gh-290: New executor gives priority to folders over programs with the same name in PATH.
+
 drkns 15.11.2020 22:37:26 +0000 - build 5704
 
 1. Увеличена задержка удаления временных файлов, создаваемых по !@!.

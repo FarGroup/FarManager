@@ -357,24 +357,39 @@ static void wait_for_process_or_detach(os::handle const& Process, int const Cons
 }
 
 
-static void after_process_creation(os::handle Process, execute_info::wait_mode const WaitMode, point const& ConsoleSize, rectangle const& ConsoleWindowRect)
+static void after_process_creation(os::handle Process, execute_info::wait_mode const WaitMode, HANDLE Thread, point const& ConsoleSize, rectangle const& ConsoleWindowRect, function_ref<void(bool)> const ConsoleActivator)
 {
 	switch (WaitMode)
 	{
 	case execute_info::wait_mode::no_wait:
+		ConsoleActivator(false);
+		if (Thread)
+			ResumeThread(Thread);
 		return;
 
 	case execute_info::wait_mode::if_needed:
-		if (os::process::get_process_subsystem(Process.get()) == os::process::image_type::graphical)
-			return;
+		{
+			const auto NeedWaiting = os::process::get_process_subsystem(Process.get()) != os::process::image_type::graphical;
+			ConsoleActivator(NeedWaiting);
+			if (Thread)
+				ResumeThread(Thread);
 
-		if (const auto ConsoleDetachKey = KeyNameToKey(Global->Opt->ConsoleDetachKey))
-			return wait_for_process_or_detach(Process, ConsoleDetachKey, ConsoleSize, ConsoleWindowRect);
+			if (!NeedWaiting)
+				return;
 
-		[[fallthrough]];
+			if (const auto ConsoleDetachKey = KeyNameToKey(Global->Opt->ConsoleDetachKey))
+				wait_for_process_or_detach(Process, ConsoleDetachKey, ConsoleSize, ConsoleWindowRect);
+			else
+				Process.wait();
+		}
+		return;
 
 	case execute_info::wait_mode::wait_finish:
-		return Process.wait();
+		ConsoleActivator(true);
+		if (Thread)
+			ResumeThread(Thread);
+		Process.wait();
+		return;
 	}
 }
 
@@ -416,6 +431,35 @@ static bool UseComspec(string& FullCommand, string& Command, string& Parameters)
 
 	FullCommand = concat(Command, L' ', Parameters);
 	return true;
+}
+
+// ShellExecuteEx gives priority to directories over executables in PATH,
+// so CreateProcess is the only way to fix that madness without searching for the executable ourselves.
+static bool execute_createprocess(string const& Command, string const& Parameters, string const& Directory, bool const RunAs, bool const Wait, PROCESS_INFORMATION& pi)
+{
+	if (RunAs)
+		return false;
+
+	STARTUPINFO si{ sizeof(si) };
+
+	// CreateProcess retardedly doesn't take into account CurrentDirectory when searching for the executable.
+	os::fs::process_current_directory_guard const Guard(Directory);
+
+	return CreateProcess(
+		// We can't pass ApplicationName - if it's a bat file with a funny name (e.g. containing '&')
+		// it will fail because CreateProcess doesn't quote it properly when spawning comspec,
+		// and we can't quote it ourselves because it's not supported.
+		{},
+		concat(quote(Command), L' ', Parameters).data(),
+		{},
+		{},
+		false,
+		CREATE_DEFAULT_ERROR_MODE | CREATE_SUSPENDED | (Wait? 0 : CREATE_NEW_CONSOLE),
+		{},
+		Directory.c_str(),
+		&si,
+		&pi
+	);
 }
 
 static bool execute_shell(string const& Command, string const& Parameters, string const& Directory, bool const RunAs, bool const Wait, HANDLE& Process)
@@ -496,16 +540,33 @@ static bool execute_impl(
 	point ConsoleSize;
 	std::optional<external_execution_context> Context;
 
+	const auto ExtendedActivator = [&](bool const Consolise)
+	{
+		if (Consolise)
+		{
+			console.GetWindowRect(ConsoleWindowRect);
+			console.GetSize(ConsoleSize);
+			Context.emplace();
+		}
+
+		ConsoleActivator(Consolise);
+	};
+
 	const auto strCurDir = short_name_if_too_long(os::fs::GetCurrentDirectory());
 
-	if (Info.WaitMode != execute_info::wait_mode::no_wait)
 	{
-		console.GetWindowRect(ConsoleWindowRect);
-		console.GetSize(ConsoleSize);
-		Context.emplace();
+		PROCESS_INFORMATION pi{};
+		if (execute_createprocess(Command, Parameters, strCurDir, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, pi))
+		{
+			after_process_creation(os::handle(pi.hProcess), Info.WaitMode, pi.hThread, ConsoleSize, ConsoleWindowRect, ExtendedActivator);
+			return true;
+		}
+
+		if(error_state::fetch().Win32Error == ERROR_EXE_MACHINE_TYPE_MISMATCH)
+			return false;
 	}
 
-	ConsoleActivator(Info.WaitMode != execute_info::wait_mode::no_wait);
+	ExtendedActivator(Info.WaitMode != execute_info::wait_mode::no_wait);
 
 	const auto execute_shell = [&]
 	{
@@ -514,7 +575,7 @@ static bool execute_impl(
 			return false;
 
 		if (Process)
-			after_process_creation(os::handle(Process), Info.WaitMode, ConsoleSize, ConsoleWindowRect);
+			after_process_creation(os::handle(Process), Info.WaitMode, {}, ConsoleSize, ConsoleWindowRect, [](bool){});
 		return true;
 	};
 
