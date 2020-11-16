@@ -908,7 +908,7 @@ skrótu będzie wyświetlany po lewej stronie listy. Znak #A# w kolumnie po lewe
 oznacza, że wtyczka została napisana dla Far 1.7x i nie obsługuje w pełni możliwości
 zawartych w Far 3 (np. znaki Unicode w nazwach plików i edytorze).
 
- Klawisze sktótu #listy wtyczek#:
+ Skróty klawiszowe na #liście wtyczek#:
 
  #Shift+F1#
  Pomoc dotycząca używania danej wtyczki. Zawartość pomocy jest odczytywana
@@ -1103,10 +1103,10 @@ tego samego poziomu.
 $ #Panele: panel informacyjny#
  Panel informacyjny zawiera następujące dane:
 
- 1. ^<wrap>#sieciowa# nazwa komputera i bieżący użytkownik (zobacz ~Ustawienia panelu informacyjnego~@InfoPanelSettings@);
+ 1. ^<wrap>#Sieciowa# nazwa komputera i bieżący użytkownik (zobacz ~Ustawienia panelu informacyjnego~@InfoPanelSettings@).
 
- 2. ^<wrap>nazwa i typ #bieżącego dysku#, typ systemu plików, nazwa sieciowa,
-całkowita i wolna ilość wolnego miejsca, etykieta dysku i jego numer seryjny;
+ 2. ^<wrap>Nazwa i typ #bieżącego dysku#, typ systemu plików, nazwa sieciowa,
+całkowita i wolna ilość wolnego miejsca, etykieta dysku i jego numer seryjny.
 
     ^<wrap>Far spróbuje wykryć typ każdego napędy CD dostępnego w systemie.
 Znane typy to: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW i DVD-RAM. Funkcja ta jest dostępna
@@ -1122,21 +1122,21 @@ Zmieniany jest także tryb wyświetlania pamięci. Dotyczy to zarówno ~Panelu s
 i linii statusu.
 Bieżący tryb - far:config #Panel.ShowBytes# (domyślnie=fałsz).
 
- 3. ^<wrap>Informacje o pamięci
+ 3. ^<wrap>Informacje o pamięci.
     ^<wrap>procentowa zajętość #pamięci# (100% oznacza, że cała dostępna pamięć jest zajęta),
 wielkość fizycznie zainstalowanej pamięci (Windows Vista i nowsze), całkowita i wolna wielkość
-fizycznej pamięci (dostępnej dla Windows), pamięć wirtualna i plik stronicowania;
+fizycznej pamięci (dostępnej dla Windows), pamięć wirtualna i plik stronicowania.
 
- 4. ^<wrap>plik #opisu folderu#
+ 4. ^<wrap>plik #opisu folderu#.
     ^<wrap>Można podejrzeć zawartość pliku opisu foldera na pełnym ekranie wciskając klawisz
 #F3# lub klikając #lewym przyciskiem myszy#. Do edycji lub utworzenia pliku opisu należy
-wcisnąć klawisz #F4# lub kliknąć #prawym klawiszem myszy#. Można także wielu poleceń
-~podglądu~@Viewer@ (wyszukiwanie, wybór strony kodowej, itd.) do obejrzenia pliku opisu
+wcisnąć klawisz #F4# lub kliknąć #prawym klawiszem myszy#. Można także użyć wielu poleceń
+~podglądu~@Viewer@ (wyszukiwanie, wybór strony kodowej, itd.) w trakcie podglądu pliku opisu
 folderu.
     ^<wrap>Lista możliwych plików opisu folderu może być zdefiniowana używając
 polecenia "Pliki opisów folderów" w menu ~Opcje~@OptMenu@.
 
- 5. Panel wtyczek
+ 5. Panel wtyczek.
     ^<wrap>W drugim oknie panelu pokazuje informacje o wtyczce, jeżeli są dostarczane przez wtyczkę.
 
  6. Status zasilania.
@@ -1257,7 +1257,7 @@ $ #Panele: szybki podgląd#
  Panel szybkiego podglądu jest używany do pokazania informacji o wybranej
 pozycji z ~panelu plików~@FilePanel@ lub ~panelu drzewa~@TreePanel@.
 
-  Jeżeli wybrana pozycja jest plikiem - pokazana będzie jego zawartość.
+ Jeżeli wybrana pozycja jest plikiem - pokazana będzie jego zawartość.
 Do sterowania podglądem można użyć wielu poleceń z ~wewnętrznego podglądu~@Viewer@.
 Dla plików, które są zarejestrowane w Windows, widoczny jest także rodzaj pliku.
 
@@ -1693,166 +1693,176 @@ gdzie można rozszerzyć zakres szukania i prezentacji wyników wyszukiwania.
 
 
 @FindFileAdvanced
-$ #Find file advanced options#
- #Search only in the first# - The string entered in the #Containing text#
-(or #Containing hex#) field can be searched for not only in the whole
-file, but also within the specified range at the beginning of the file.
-If the specified value is less than the file size, the rest of the file
-is ignored even if the searched for sequence exists there.
+$ #Znajdź plik - zaawansowane opcje#
+ #Szukaj wyłącznie w pierwszych# - dane wpisane w pole #Zawierający tekst#
+(lub #Zawierająca wartość szesnastkową#) mogą być wyszukiwane nie tylko
+w całym pliku, ale także w podanym zakresie od początku pliku.
+Jeżeli podana wartość jest mniejsza niż wielkość pliku, pozostała zawartość
+pliku będzie zignorowana nawet jeżeli poszukiwana sekwencja będzie się tam
+znajdować.
 
- The following file size suffixes can be used:
- - #B# for bytes (no suffix also means bytes);
- - #K# for kilobytes;
- - #M# for megabytes;
- - #G# for gigabytes;
- - #T# for terabytes;
- - #P# for petabytes;
- - #E# for exabytes.
+ Można użyć następujących przyrostków określających wielkość pliku:
+ - #B# dla bajtów (wartość domyślna - można jej nie podawać);
+ - #K# dla kilobajtów;
+ - #M# dla megabajtów;
+ - #G# dla gigabajtów;
+ - #T# dla terabajtów;
+ - #P# dla petabajtów;
+ - #E# dla eksabajtów.
 
- #Column types# - Allows to specify search results output format.
-Column types are encoded with one or more characters delimited with commas.
-The following column types are supported:
+ #Typy kolumn# - pozwala na sformatowanie wyników wyszukiwania.
+Typy kolumn są kodowane jednym lub więcej znakami rozdzielanymi przecinkami.
+Obsługiwane są następujące typy kolumn:
 
- S[C,T,F,E] - ^<wrap>file size
- P[C,T,F,E] - allocation file size
- G[C,T,F,E] - size of alternate file streams, where:
-              C - ^<wrap>format file size;
-              T - use 1000 instead of 1024 as the divisor;
-              F - show size as a decimal fraction using the most appropriate unit, e.g. 0.97 K, 1.44 M, 3.5 G;
-              E - compact mode, no space before the file size suffix (e.g 0.97K).
+ S[C,T,F,E] - ^<wrap>wielkość pliku
+ P[C,T,F,E] - wielkość pliku na dysku
+ G[C,T,F,E] - wielkość alternatywnego strumienia pliku, gdzie:
+              C - ^<wrap>formatuj wielkość pliku;
+              T - użyj 1000 zamiast 1024 jako dzielnika;
+              F - pokazuj wielkość w dziesiętnych wielokrotnościach z jednostką, np. 0.97 K, 1.44 M, 3.5 G;
+              E - krótka forma, bez spacji po przyrostku wielkości (np. 0.97K).
 
- D          - file last write date
- T          - file last write time
+ S[C,T,F,E] - ^<wrap>wielkość pliku
+ P[C,T,F,E] - zajętość pliku na dysku
+ G[C,T,F,E] - wielkość alternatywnego strumienia pliku, gdzie:
+              C - ^<wrap>formatuj wielkość pliku;
+              T - użyj 1000 zamiast 1024 jako dzielnika;
+              F - pokazuj wielkość w dziesiętnych wielokrotnościach z jednostką, np. 0.97 K, 1.44 M, 3.5 G;
+              E - krótka forma, bez spacji po przyrostku wielkości (np. 0.97K).
 
- DM[B,M]    - file last write date and time
- DC[B,M]    - file creation date and time
- DA[B,M]    - file last access date and time
- DE[B,M]    - file change date and time, where:
-              B - brief (Unix style) file time format;
-              M - use text month names.
+ D          - data ostatniego zapisu pliku
+ T          - czas ostatniego zapisu pliku
 
- A          - file attributes
- Z          - file description
+ DM[B,M]    - data i czas ostatniego zapisu pliku
+ DC[B,M]    - data i czas utworzenia pliku
+ DA[B,M]    - data i czas ostatniego dostępu do pliku
+ DE[B,M]    - data i czas zmiany pliku, gdzie:
+              B - czas pliku w krótkiej formie (styl Unix);
+              M - nazwa miesiąca w formie słownej.
 
- O[L]       - file owner, where:
-              L - show domain name.
+ A          - atrybuty pliku
+ Z          - opis pliku
 
- LN         - number of hard links
+ O[L]       - właściciel pliku, gdzie:
+              L - nazwa domeny.
 
- F          - number of alternate streams
+ LN         - liczba linków do pliku
+
+ F          - liczba alternatywnych strumieni
 
 
- File attributes are denoted as follows:
+ Atrybuty plików są oznaczone jak poniżej:
 
- #N# - Attributes not set
- #R# - Read only
- #H# - Hidden
- #S# - System
- #D# - Directory
- #A# - Archive
- #T# - Temporary
- #$# - Sparse
- #L# - Reparse point
- #C# - Compressed
+ #N# - Atrybuty nie są ustawione
+ #R# - Tylko do odczytu
+ #H# - Ukryty
+ #S# - Systemowy
+ #D# - Folder
+ #A# - Archiwalny
+ #T# - Tymczasowy
+ #$# - Rzadki (sparse)
+ #L# - Punkt dowiązania
+ #C# - Skompresowany
  #O# - Offline
- #I# - Not content indexed
- #E# - Encrypted
- #V# - Integrity stream
- #?# - Virtual
- #X# - No scrub data
- #P# - Pinned
- #U# - Unpinned
+ #I# - Nie zindeksowano zawartości
+ #E# - Zaszyfrowany
+ #V# - Integralny strumień
+ #?# - Wirtualny
+ #X# - Brak danych kontrolnych
+ #P# - Przypięty
+ #U# - Odpięty
 
- #Column widths# - allows to change column widths in the search results
-output. If the width equals 0, the default value is used.
+ #Szerokości kolumn# - pozwala na zmianę szerokości kolumn
+w wynikach wyszukiwania. Jeżeli szerokość jest równa 0 (zero),
+używana jest domyślna wartość.
 
- To use 12-hour time format, add one to the standard width of
-the file time column or file date and time column. Increase the width
-of these columns even more to show seconds and milliseconds.
+ Aby użyć 12-godzinnego formatu czasu, należy dodać jeden znak
+do standardowej szerokości kolumny z czasem lub datą pliku.
+Kolejne powiększenie szerokości kolumn pozwoli pokazać sekundy i milisekundy.
 
- To display the year in 4-digit format, add two to the width of
-the file date column.
+ Aby wyświetlić rok w formacie 4-cyfrowym, należy dodać dwa znaki
+do szerokości pola z datą.
 
- Unlike the panel modes, the search results can have only one column.
-File name is always displayed and added automatically as the last column.
+ Inaczej niż w trybie paneli, okno wyników szukania ma tylko jedną kolumnę.
+Nazwa pliku jest zawsze wyświetlana i dodana automatycznie jako ostatnia kolumna.
 
- Adding columns for the links and alternate streams information
-(G, LN, and F) increases search time.
+ Dodanie kolumn dla linków i alternatywnych strumieni (G, LN i F) wydłuża
+czas szukania.
 
- To display only file names without additional attributes in the search
-results, leave the “Column types” field empty.
+ Aby wyświetlić tylko nazwy plików, bez dodatkowych atrybutów w wynikach
+wyszukiwania - należy zostawić puste pole "Typy kolumn".
 
- Default field values are:
- “Column types”  - D,S,A
- “Column widths” - 14,13,0
+ Domyślne wartości pól to:
+ "Typy kolumn"  - D,S,A
+ "Szerokości kolumn" - 14,13,0
 
 
 @FindFileResult
-$ #Find file: control keys#
- While ~search~@FindFile@ is in progress or when it is finished, you can use
-the cursor keys to scroll the files list and the buttons to perform required
-actions.
+$ #Znajdź plik - klawisze kontrolne#
+ W trakcie ~wyszukiwania~@FindFile@ lub po jego zakończeniu, można użyć
+klawiszy strzałek, aby przewijać listę plików oraz przycisków do wykonania
+czynności.
 
- During or after search the following buttons are available:
+ W trakcie lub po zakończeniu wyszukiwania dostępne są następujące przyciski:
 
- #New search#      Start new search session.
+ #Od nowa#         Rozpoczyna nowe wyszukiwanie.
 
- #Go to#           Breaks current search, changes panel folder
-                 and moves cursor to the selected file.
+ #Idź do#          Przerywa aktualne wyszukiwanie, zmienia folder panelu
+                 i przenosi kursor na zaznaczony plik.
 
- #View#            View selected file. If search is not completed,
-                 it will continue in the background while the file
-                 is viewed.
+ #Podgląd#         Włącza podgląd pliku. Jeżeli wyszukiwanie nie jest zakończone,
+                 będzie dalej kontynuowane w tle podczas oglądania pliku.
 
- #Panel#           Create a temporary panel and fill it with the
-                 results of the last file search.
+ #Do panelu#       Tworzy panel tymczasowy i uzupełnia go wynikami z ostatniego
+                 wyszukiwania.
 
- #Stop#            Break current search. Available while search
-                 is in progress.
+ #Stop#            Przerywa bieżące wyszukiwanie. Przycisk dostępny w trakcie
+                 wyszukiwania.
 
- #Cancel#          Close the search dialog.
+ #Anuluj#          Zamyka okno wyszukiwania.
 
- During or after search you can view or edit found files.
+ W trakcie lub po zakończeniu wyszukiwania można podejrzeć lub edytować znalezione pliki.
 
- View                          #F3, Alt+F3, Numpad5, Ctrl+Shift+F3#
+ Podgląd                       #F3, Alt+F3, Numpad5, Ctrl+Shift+F3#
 
- #F3#, #Alt+F3# or #Numpad5# invokes ~internal~@Viewer@, external or ~associated ~@FileAssoc@ viewer,
-depending on file type and ~Viewer settings~@ViewerSettings@.
-#Ctrl+Shift+F3# always invokes internal viewer regardless of file associations.
+ #F3#, #Alt+F3# lub #Numpad5# wywołują ~wewnętrzną~internal~@Viewer@, zewnętrzną
+lub ~powiązaną~@FileAssoc@  przeglądarkę plików, zależnie od typu pliku
+i ~ustawień podglądu~@ViewerSettings@.
+#Ctrl+Shift+F3# zawsze wywołuje wewnętrzną przeglądarkę, niezależnie od powiązań plików.
 
- Edit                                    #F4, Alt+F4, Ctrl+Shift+F4#
+ Edycja                                  #F4, Alt+F4, Ctrl+Shift+F4#
 
- #F4# or #Alt+F4# invokes ~internal~@Editor@, external or ~associated~@FileAssoc@ editor,
-depending on file type and ~Editor settings~@EditorSettings@.
-#Ctrl+Shift+F4# always invokes internal editor regardless of file associations.
+ #F4# lub #Alt+F4# wywołują ~wewnętrzny~@Editor@, zewnętrzny lub ~powiązany~@FileAssoc@ edytor,
+zależnie od ustawień typu pliku oraz ~ustawień edytora~@EditorSettings@.
+#Ctrl+Shift+F4# zawsze wywołuje wewnętrzny edytor, niezależnie od powiązań plików.
 
- Viewing and editing is supported for plugin emulated file systems. Note, that saving editor
-changes by #F2# key in emulated file system will perform #SaveAs# operation,
-instead of common #Save#.
+ Podgląd i edycja są wspierane dla wtyczek emulujących systemy plików. Ważne: w emulowanym
+systemie plików przy zapisywaniu zmian przez naciśnięcie klawisza #F2# zostanie wywołana
+funkcja #ZapiszJako# zamiast domyślnej #Zapisz#.
 
 
 @FindFolder
-$ #Find folder#
- This command allows a quick look for the required folder in the folders tree.
+$ #Znajdź folder#
+ Polecenie pozwala na szybkie przejście do żądanego folderu w drzewie folderów.
 
- To select a folder you can use the cursor keys or type first characters of
-the folder.
+ Aby wybrać folder można użyć klawiszy kursora (strzałek) lub wprowadzić pierwsze
+znaki nazwy folderu.
 
- Press #Enter# to switch to the selected folder.
+ Wciśnij #Enter#, aby przejść do zaznaczonego folderu.
 
- #Ctrl+R# and #F2# force the rescan of the folders tree.
+ #Ctrl+R# i #F2# wymuszają odświeżenie drzewa folderów.
 
- #Gray +# and #Gray -# should move up and down the tree to the next branch
-on the same level.
+ #Szary +# i #Szary -# umożliwia przejście w górę i w dół do następnej gałęzi
+tego samego poziomu.
 
- #F5# allows to maximize the window, pressing #F5# again will restore the
-window to the previous size.
+ #F5# pozwala zmaksymalizować okno, ponowne wciśnięcie #F5# przywróci okno
+do poprzedniej wielkości.
 
- By pressing #Ctrl+Enter#, you can cycle through the folders matching the
-part of the filename that you have already entered. #Ctrl+Shift+Enter# allows
-to cycle backwards.
+ Wciśnięcie #Ctrl+Enter# pozwala na przejście do następnego folderu z wprowadzoną
+wcześniej nazwą. #Ctrl+Shift+Enter# przechodzi do poprzedniego folderu.
 
- See also the list of ~macro keys~@KeyMacroFindFolderList@, available in the find folder dialog.
+ Zobacz także listę ~klawiszy makro~@KeyMacroFindFolderList@, dostępnych w oknie
+dialogowym szukania.
 
 
 @Filter
