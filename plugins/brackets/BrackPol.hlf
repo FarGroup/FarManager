@@ -115,7 +115,7 @@ $ #Dopasowanie nawiasów - Konfiguracja#
    #Podwójne nawiasy#     Definicja podwójnych nawiasów. Zawiera sekwencję
                         cztero-znakową. Dwa pierwsze znaki są początkiem
                         nawiasu, kolejne dwa - końcem. Można wprowadzić
-                        maksymalnie 10 takich par.
+                        maksymalnie 10 takich sekwencji.
 
 
   ~Zawartość~@Contents@
