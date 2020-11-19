@@ -16,11 +16,10 @@ $ #Dopasowanie nawiasów#
      to jest pozycjonowany na pasujący nawias. Dla znaku cudzysłowu
      jest jeszcze niezbędne określenie kierunku - naprzód czy wstecz.
 
-  #2. Uncommon '()', '{}', '[]', '<>' i '«»'#
-     This case is when the cursor stands on the next character after
-     the bracket. The plugin also positions the cursor to the
-     matching bracket. Handling of this case can be disabled in the
-     configuration dialog.
+  #2. Następne po '()', '{}', '[]', '<>' i '«»'#
+     Ten przypadek występuje, jeżeli kursor znajduje się na następnym
+     znaku po nawiasie. Wtyczka podświetla pasujący nawias. Obsługa
+     tej funkcji może być wyłączona w opcjach konfiguracji.
 
   #3. Podwójne nawiasy#
      Ten przypadek pozwala obsłużyć (na przykład) blok komentarzy
@@ -29,19 +28,19 @@ $ #Dopasowanie nawiasów#
 
 
   ~Konfiguracja~@Config@
-  ~Szukaj/zaznacz~@Find@
+  ~Szukaj/wybierz~@Find@
   ~Szukaj cudzysłowów~@Direct@
   ~Używanie wtyczki w makrach~@MacroCallPlugin@
 
 
 @Find
-$ #Dopasowanie nawiasów - Szukaj/zaznacz#
+$ #Dopasowanie nawiasów - Szukaj/Wybierz#
 
-  #Szukaj#     - jeżeli pasujący nawias zostanie znaleziony, to
-               kursor będzie umieszczony na tym nawiasie.
+  #Szukaj#     - jeżeli pasujący nawias zostanie znaleziony,
+               to kursor będzie umieszczony na tym nawiasie.
 
-  #Zaznacz#     - jeżeli pasujący nawias zostanie znaleziony, to
-               kursor będzie umieszczony na tym nawiasie, a tekst
+  #Wybierz#    - jeżeli pasujący nawias zostanie znaleziony,
+               to kursor będzie umieszczony na tym nawiasie, a tekst
                pomiędzy nawiasami (także znaki nawiasów) zostanie
                zaznaczony.
 
@@ -102,9 +101,8 @@ $ #Dopasowanie nawiasów - Konfiguracja#
                         nawiasy w cudzysłowach". Zawiera sekwencję par
                         dwu-znakowych. Pierwszy znak jest początkiem
                         cytatu, drugi - końcem. Można wprowadzić maksymalnie
-                        10 par znaków. Uwaga: znaki cytowania nie są
-                        brane pod uwagę bezpośrednio przy wyszukiwaniu
-                        nawiasów.
+                        10 par znaków. Uwaga: znaki cytowania nie są brane
+                        pod uwagę bezpośrednio przy wyszukiwaniu nawiasów.
 
    #Pojedyncze nawiasy#   Definicja pojedynczych nawiasów. Zawiera sekwencję
                         par dwu-znakowych. Pierwszy jest początkiem nawiasu,
