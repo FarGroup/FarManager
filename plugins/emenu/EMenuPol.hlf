@@ -79,7 +79,7 @@ Aby zobaczyć menu jak w Eksploratorze, można włączyć menu graficzne.
 ^#Wyczyść zaznaczenie po uruchomieniu polecenia#
 
     Po włączeniu tej opcji zaznaczenie plików/folderów w wybranym panelu jest czyszczone
-po wykoaniu pozycji z menu.
+po wykonaniu pozycji z menu.
 
     Domyślna wartość: #włączone#.
 
@@ -91,8 +91,8 @@ po wykoaniu pozycji z menu.
 
 ^#Dodatkowe informacje w menu tekstowym#
 
-    This group controls an additional menu item information that can be
-displayed in the text menu in brackets next to item.
+    Ta grupa kontroluje dodatkowe informacje o pozycjach menu,
+które mogą być wyświetlane w nawiasach zaraz za pozycją menu.
 
  #( ) Brak#                     Nie pokazuje żadnej dodatkowej informacji.
  #( ) Pokaż pomoc#              Wyświetlana jest pomoc. Wyświetlany jest opis
@@ -101,8 +101,8 @@ displayed in the text menu in brackets next to item.
  #( ) Pokaż polecenie#          Wyświetlane są polecenia. Użyteczne, jeżeli chcesz
                               wiedzieć jakie polecenie chcesz wpisać w wierszu
                               poleceń po przedrostku "rclk_cmd:" lub w makrach.
- #[ ] Ukryj jeżeli takie same#  Hide additional information if it is the
-                              same as menu item.
+ #[ ] Ukryj jeżeli takie same#  Ukryj dodatkowe informacje, jeżeli zawierają te same
+                              informacje co pozycja menu.
 
 ^#Pozycja menu GUI#
 
@@ -113,46 +113,47 @@ displayed in the text menu in brackets next to item.
 
 @Main
 $ #Główne menu EMenu#
-    In the main menu you can choose whether to show the context menu for
-the items on the panel or select an item from "My computer" for which you
-want to show the context menu.
+    W głównym menu możesz wybrać, czy ma być wyświetlane menu kontekstowe
+elementów panelu czy menu dla elementu "Mój komputer".
 
-    #Menu kontekstowe# Show the context menu for the items on the panel.
+    #Menu kontekstowe# Pokazuje menu kontekstowe dla aktywnych pozycji w panelu.
 
-    #Mój Komputer# Select for which item in "My computer" explorer branch you
-want to show the context menu.
+    #Mój Komputer# Wybierz, dla którego z elementów poziomu "Mój komputer" ma być
+wyświetlone menu kontekstowe.
 
 @ChooseMenuType
 $ #Wybór typu menu#
-    Choose between text context menu and GUI context menu. This behaviour
-can be changed in the ~oknie konfiguracyjnym~@Config@.
+    Wybór pomiędzy menu wyświetlanym w trybie tekstowym lub graficznym.
+Wybór można zmienić w ~oknie konfiguracyjnym~@Config@.
 
 @MyComp
 $ #Mój Komputer#
-    Select an item for which you want to get the context menu.
+    Wybierz element, dla którego chcesz uzyskać menu kontekstowe.
 
 @ContextMenu
 $ #Menu kontekstowe#
-    This is a context menu shown by the ~EMenu~@Contents@ plugin.
+    Jest to menu kontekstowe wyświetlane przez wtyczkę ~EMenu~@Contents@.
 
 @Error0
 $ #Nie mogę pokazać menu, ponieważ pliki pochodzą z różnych folderów.#
-    This message appears when selected files are placed in different
-folders.
+    Komunikat ten jest wyświetlany, gdy zaznaczone pliki są umieszczone
+w różnych folderach.
 
 @Error1
 $ #Nie mogę pokazać menu.#
-    This message appears when EMenu is unable to show the context menu.
+    Komunikat ten jest wyświetlany, gdy EMenu nie potrafi wyświetlić menu
+kontekstowego.
 
 @Error2
 $ #Nie mogę przetworzyć polecenia menu.#
-    This message appears when error occurred during invoking of menu command.
+    Komunikat ten jest wyświetlany, gdy wystąpi błąd podczas wywoływania
+polecenia menu.
 
 @Close
 $ #Wciśnij "OK", aby kontynuować...#
-    There are some cases when you have to wait until the execution of the menu
-command finishes, and only after that continue working with Far. One of
-such commands is "paste" in Windows 9x for files with paths containing
-national letters.
+    W niektórych przypadkach należy poczekać na zakończenie wykonywania poleceń
+z menu, i dopiero wtedy można kontynuować pracę z Far. Przykładowym poleceniem
+jest "wklejanie" w Windows 9x dla plików ze ścieżkami zawierającymi znaki
+narodowe (np. polskie "ogonki").
 
     Komunikat ten może być wyłączony w ~oknie konfiguracyjnym~@Config@.
