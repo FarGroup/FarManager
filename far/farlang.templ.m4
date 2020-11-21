@@ -26925,7 +26925,7 @@ MFileFilterCurrent
 "Aktuá&lní"
 "Akt&uell"
 "&Jelenlegi"
-"&Bieżący"
+"&Bieżąca"
 "Act&ual"
 "Aktuá&lny"
 "C&orrente"
