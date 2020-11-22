@@ -704,6 +704,7 @@ void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator
 			if (!Parameters.empty())
 			{
 				AssocInfo.Command = full_command(AssocInfo.Command, Parameters);
+				AssocInfo.DisplayCommand = Info.DisplayCommand;
 			}
 
 			Global->CtrlObject->CmdLine()->ExecString(AssocInfo);
