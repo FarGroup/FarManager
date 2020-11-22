@@ -265,6 +265,7 @@ private:
 	icon m_Small{false};
 };
 
+size_t ConsoleChoice(string_view Message, string_view Choices, size_t Default);
 bool ConsoleYesNo(string_view Message, bool Default);
 
 #endif // INTERF_HPP_A91E1A99_C78E_41EC_B0F8_5C35A6C99116

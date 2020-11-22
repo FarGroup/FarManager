@@ -1311,7 +1311,7 @@ point GetNonMaximisedBufferSize()
 	return NonMaximisedBufferSize();
 }
 
-bool ConsoleYesNo(string_view const Message, bool const Default)
+size_t ConsoleChoice(string_view const Message, string_view const Choices, size_t const Default)
 {
 	{
 		// The output can be redirected
@@ -1327,26 +1327,24 @@ bool ConsoleYesNo(string_view const Message, bool const Default)
 		ChangeConsoleMode(console.GetErrorHandle(), InitialConsoleMode->Error);
 	}
 
+	console.SetCursorInfo(InitialCursorInfo);
+
 	for (;;)
 	{
-		std::wcout << L'\n' << Message << L" (Y/N)? "sv << std::flush;
+		std::wcout << format(FSTR(L"\n{0} ({1})? "), Message, join(Choices, L"/"sv)) << std::flush;
 
 		wchar_t Input;
 		std::wcin.clear();
 		std::wcin.get(Input).ignore(std::numeric_limits<std::streamsize>::max(), L'\n');
 
-		switch (upper(Input))
-		{
-		case L'Y':
-			return true;
-
-		case L'N':
-			return false;
-
-		default:
-			break;
-		}
+		if (const auto Index = Choices.find(upper(Input)); Index != Choices.npos)
+			return Index;
 	}
+}
+
+bool ConsoleYesNo(string_view const Message, bool const Default)
+{
+	return ConsoleChoice(Message, L"YN"sv, Default? 0 : 1) == 0;
 }
 
 #ifdef ENABLE_TESTS

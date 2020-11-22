@@ -569,7 +569,7 @@ void join(std::wstring& Str, const container& Container, std::wstring_view const
 {
 	const auto Size = std::accumulate(ALL_CONST_RANGE(Container), size_t{}, [Separator](size_t const Value, const auto& Element)
 	{
-		return Value + Separator.size() + Element.size();
+		return Value + Separator.size() + string_utils::detail::append_arg(Element).size();
 	});
 
 	reserve_exp_noshrink(Str, Size? Size - Separator.size() : Size);

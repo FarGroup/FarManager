@@ -197,7 +197,7 @@ static std::vector<DWORD64> current_stack()
 	return Stack;
 }
 
-static void get_backtrace(string_view const Module, const std::vector<DWORD64>& Stack, const std::vector<DWORD64>* NestedStack, function_ref<void(string&&)> const Consumer)
+static void get_backtrace(string_view const Module, span<DWORD64 const> const Stack, span<DWORD64 const> const NestedStack, function_ref<void(string&&)> const Consumer)
 {
 	const auto Separator = [&](string&& Message)
 	{
@@ -206,9 +206,9 @@ static void get_backtrace(string_view const Module, const std::vector<DWORD64>& 
 		Consumer(string(40, L'-'));
 	};
 
-	if (NestedStack)
+	if (!NestedStack.empty())
 	{
-		tracer::get_symbols(Module, *NestedStack, Consumer);
+		tracer::get_symbols(Module, NestedStack, Consumer);
 		Separator(L"Rethrow:"s);
 	}
 
@@ -218,12 +218,12 @@ static void get_backtrace(string_view const Module, const std::vector<DWORD64>& 
 	tracer::get_symbols(Module, current_stack(), Consumer);
 }
 
-static void show_backtrace(string_view const Module, const std::vector<DWORD64>& Stack, const std::vector<DWORD64>* NestedStack, bool const UseDialog)
+static void show_backtrace(string_view const Module, span<DWORD64 const> const Stack, span<DWORD64 const> const NestedStack, bool const UseDialog)
 {
 	if (UseDialog)
 	{
 		std::vector<string> Symbols;
-		Symbols.reserve(Stack.size() + (NestedStack ? NestedStack->size() + 3 : 0));
+		Symbols.reserve(Stack.size() + (NestedStack.empty()? 0 : NestedStack.size() + 3));
 		get_backtrace(Module, Stack, NestedStack, [&](string&& Line)
 		{
 			Symbols.emplace_back(std::move(Line));
@@ -238,9 +238,15 @@ static void show_backtrace(string_view const Module, const std::vector<DWORD64>&
 	{
 		get_backtrace(Module, Stack, NestedStack, [&](string_view const Line)
 		{
-			std::wcerr << Line << L'\n';
+			std::wcout << Line << L'\n';
 		});
 	}
+}
+
+static auto minidump_path()
+{
+	// TODO: subdirectory && timestamp
+	return path::join(Global->Opt->LocalProfilePath, L"Far.mdmp"sv);
 }
 
 static bool write_minidump(const exception_context& Context, string_view const Path)
@@ -374,8 +380,10 @@ static string kernel_version()
 struct dialog_data_type
 {
 	const exception_context* Context;
-	const std::vector<DWORD64>* NestedStack;
+	span<DWORD64 const> NestedStack;
 	string_view Module;
+	span<string_view const> Labels, Values;
+	size_t LabelsWidth;
 };
 
 static void read_registers(string& To, CONTEXT const& Context, string_view const Eol)
@@ -424,30 +432,31 @@ static void read_registers(string& To, CONTEXT const& Context, string_view const
 #endif
 }
 
-static void copy_information(Dialog* const Dlg)
+static void copy_information(
+	exception_context const& Context,
+	span<DWORD64 const> NestedStack,
+	string_view const Module,
+	span<string_view const> const Labels,
+	span<string_view const> const Values,
+	size_t const LabelsWidth
+)
 {
 	string Strings;
 	Strings.reserve(1024);
 
 	const auto Eol = eol::system.str();
-	FarDialogItem di;
-	Dlg->SendMessage(DM_GETDLGITEMSHORT, 1, &di);
-	const auto Width = di.X2 - di.X1 + 1;
 
-	for (size_t i = ed_text_exception; i != ed_separator_1; ++i)
+	for (const auto& [Label, Value]: zip(Labels, Values))
 	{
-		const auto Str = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, i, nullptr));
-		append(Strings, format(FSTR(L"{0:{1}}{2}"), Str, i & 1 ? Width : 0, i & 1 ? L" "sv : Eol));
+		append(Strings, format(FSTR(L"{0:{1}} {2}{3}"), Label, LabelsWidth, Value, Eol));
 	}
 
 	append(Strings, Eol);
 
-	const auto& Data = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-
-	read_registers(Strings, *Data.Context->pointers().ContextRecord, Eol);
+	read_registers(Strings, *Context.pointers().ContextRecord, Eol);
 	append(Strings, Eol);
 
-	get_backtrace(Data.Module, tracer::get(Data.Module, Data.Context->pointers(), Data.Context->thread_handle()), Data.NestedStack, [&](string_view const Line)
+	get_backtrace(Module, tracer::get(Module, Context.pointers(), Context.thread_handle()), NestedStack, [&](string_view const Line)
 	{
 		append(Strings, Line, Eol);
 	});
@@ -460,6 +469,12 @@ static void copy_information(Dialog* const Dlg)
 
 static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
+	const auto copy_information = [&]
+	{
+		const auto& Data = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+		::copy_information(*Data.Context, Data.NestedStack, Data.Module, Data.Labels, Data.Values, Data.LabelsWidth);
+	};
+
 	switch (Msg)
 	{
 		case DN_CTLCOLORDLGITEM:
@@ -510,7 +525,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 				case KEY_RCTRLINS:
 				case KEY_CTRLNUMPAD0:
 				case KEY_RCTRLNUMPAD0:
-					copy_information(Dlg);
+					copy_information();
 					break;
 				}
 			}
@@ -524,7 +539,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 			switch (Param1)
 			{
 			case ed_button_copy:
-				copy_information(Dlg);
+				copy_information();
 				return FALSE;
 
 			case ed_button_stack:
@@ -533,9 +548,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 
 			case ed_button_minidump:
 				{
-					// TODO: subdirectory && timestamp
-					auto Path = path::join(Global->Opt->LocalProfilePath, L"Far.mdmp"sv);
-
+					auto Path = minidump_path();
 					if (write_minidump(*Data.Context, Path))
 					{
 						Message(0,
@@ -579,12 +592,13 @@ static size_t max_item_size(span<string_view const> const Items)
 }
 
 static bool ExcDialog(
+	exception_context const& Context,
+	span<DWORD64 const> const NestedStack,
+	string_view const ModuleName,
 	span<string_view const> const Labels,
 	span<string_view const> const Values,
-	exception_context const& Context,
-	string_view const ModuleName,
-	Plugin const* const PluginModule,
-	std::vector<DWORD64> const* const NestedStack
+	size_t const LabelsWidth,
+	Plugin const* const PluginModule
 )
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
@@ -592,7 +606,7 @@ static bool ExcDialog(
 
 	const auto SysArea = 5;
 	const auto C1X = 5;
-	const auto C1W = static_cast<int>(max_item_size(Labels));
+	const auto C1W = static_cast<int>(LabelsWidth);
 	const auto C2X = C1X + C1W + 1;
 	const auto DlgW = std::max(80, std::min(ScrX + 1, static_cast<int>(C2X + max_item_size(Values) + SysArea + 1)));
 	const auto C2W = DlgW - C2X - SysArea - 1;
@@ -633,7 +647,7 @@ static bool ExcDialog(
 		{ DI_BUTTON,    {{0, DY-3}, {0,     DY-3}}, DIF_CENTERGROUP, msg(lng::MIgnore), },
 	});
 
-	dialog_data_type DlgData{ &Context, NestedStack, ModuleName };
+	dialog_data_type DlgData{ &Context, NestedStack, ModuleName, Labels, Values };
 	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, &DlgData);
 	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
 	Dlg->SetFlags(FSCROBJ_SPECIAL);
@@ -654,12 +668,13 @@ static bool ExcDialog(
 }
 
 static bool ExcConsole(
+	exception_context const& Context,
+	span<DWORD64 const> const NestedStack,
+	string_view const ModuleName,
 	span<string_view const> const Labels,
 	span<string_view const> const Values,
-	exception_context const& Context,
-	string_view const ModuleName,
-	Plugin const* const PluginModule,
-	std::vector<DWORD64> const* const NestedStack
+	size_t const LabelsWidth,
+	Plugin const* const PluginModule
 )
 {
 	const auto Eol = eol::std.str();
@@ -671,28 +686,61 @@ static bool ExcConsole(
 		const auto Label = fit_to_left(string(m), max_item_size(Labels));
 		std::wcerr << Label << L' ' << v << Eol;
 	}
-	std::wcerr << Eol;
 
+	enum class action
 	{
-		string Registers;
-		read_registers(Registers, *Context.pointers().ContextRecord, Eol);
-		std::wcerr << Registers << Eol;
-	}
+		copy,
+		stack,
+		minidump,
+		terminate,
+		ignore,
 
-	show_backtrace(ModuleName, tracer::get(ModuleName, Context.pointers(), Context.thread_handle()), NestedStack, false);
-	std::wcerr << Eol;
+		count
+	};
 
+	constexpr auto Keys = L"CSDTI"sv;
+	static_assert(Keys.size() == static_cast<size_t>(action::count));
+
+	for (;;)
 	{
-		string Modules;
-		read_modules(Modules, Eol);
-		std::wcerr << Modules; // << Eol;
+		switch (static_cast<action>(ConsoleChoice(
+			L"C - Copy to the clipboard\n"
+			L"S - Show the call stack\n"
+			L"D - Create a minidump\n"
+			L"T - Terminate the process\n"
+			L"I - Igonore\n"
+			L"Action"sv, Keys, static_cast<size_t>(action::terminate))
+		))
+		{
+		case action::copy:
+			copy_information(Context, NestedStack, ModuleName, Labels, Values, LabelsWidth);
+			break;
+
+		case action::stack:
+			show_backtrace(ModuleName, tracer::get(ModuleName, Context.pointers(), Context.thread_handle()), NestedStack, false);
+			break;
+
+		case action::minidump:
+			{
+				auto Path = minidump_path();
+				if (write_minidump(Context, Path))
+					std::wcout << Eol << Path << std::endl;
+				else
+					std::wcerr << Eol << error_state::fetch().Win32ErrorStr() << std::endl;
+			}
+			break;
+
+		case action::terminate:
+			UseTerminateHandler = PluginModule != nullptr;
+			return true;
+
+		case action::ignore:
+			return false;
+
+		default:
+			UNREACHABLE;
+		}
 	}
-
-	if (!ConsoleYesNo(L"Terminate the process"sv, true))
-		return false;
-
-	UseTerminateHandler = true;
-	return true;
 }
 
 static bool ShowExceptionUI(
@@ -706,7 +754,7 @@ static bool ShowExceptionUI(
 	string_view const ModuleName,
 	string_view const PluginInformation,
 	Plugin const* const PluginModule,
-	std::vector<DWORD64> const* const NestedStack
+	span<DWORD64 const> const NestedStack
 )
 {
 	SCOPED_ACTION(tracer::with_symbols)(PluginModule? ModuleName : L""sv);
@@ -782,7 +830,15 @@ static bool ShowExceptionUI(
 	static_assert(std::size(Labels) == std::size(Values));
 	static_assert(std::size(Labels) == (ed_last_line - ed_first_line) / 2 + 1);
 
-	return (UseDialog? ExcDialog : ExcConsole)(Labels, span(Values), Context, ModuleName, PluginModule, NestedStack); // This goofy explicit span() is a workaround for GCC
+	return (UseDialog? ExcDialog : ExcConsole)(
+		Context,
+		NestedStack,
+		ModuleName,
+		Labels,
+		span(Values), // This goofy explicit span() is a workaround for GCC
+		max_item_size(Labels),
+		PluginModule
+	);
 }
 
 
@@ -952,7 +1008,7 @@ static bool handle_generic_exception(
 	string_view const Type,
 	string_view const Message,
 	error_state const& ErrorState = error_state::fetch(),
-	std::vector<DWORD64> const* const NestedStack = nullptr
+	span<DWORD64 const> const NestedStack = {}
 )
 {
 	static bool ExceptionHandlingIgnored = false;
@@ -1173,7 +1229,7 @@ public:
 	{
 	}
 
-	const auto& get_stack() const noexcept { return m_Stack; }
+	span<DWORD64 const> get_stack() const noexcept { return m_Stack; }
 
 private:
 	std::shared_ptr<os::handle> m_ThreadHandle;
@@ -1270,8 +1326,16 @@ static bool handle_std_exception(
 {
 	if (const auto SehException = dynamic_cast<const seh_exception*>(&e))
 	{
-		auto NestedStack = tracer::get({}, SehException->context().pointers(), SehException->context().thread_handle());
-		return handle_generic_exception(Context, Function, {}, Module, {}, {}, *SehException, &NestedStack);
+		return handle_generic_exception(
+			Context,
+			Function,
+			{},
+			Module,
+			{},
+			{},
+			*SehException,
+			tracer::get({}, SehException->context().pointers(), SehException->context().thread_handle())
+		);
 	}
 
 	const auto& [Type, What] = extract_nested_exceptions(*Context.pointers().ExceptionRecord, e);
@@ -1281,7 +1345,7 @@ static bool handle_std_exception(
 		const auto NestedStack = [&]
 		{
 			const auto Wrapper = dynamic_cast<const far_wrapper_exception*>(&e);
-			return Wrapper ? &Wrapper->get_stack() : nullptr;
+			return Wrapper? Wrapper->get_stack() : span<DWORD64 const>{};
 		}();
 
 		return handle_generic_exception(Context, FarException->function(), FarException->location(), Module, Type, What, *FarException, NestedStack);

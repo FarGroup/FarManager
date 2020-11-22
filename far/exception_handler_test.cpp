@@ -242,8 +242,7 @@ namespace tests
 
 	static void seh_int_overflow()
 	{
-		// Deliberately non-const to prevent compilers from detecting the owerflow at compile time
-		auto Denominator = -1;
+		volatile const auto Denominator = -1;
 		[[maybe_unused]]
 		volatile const auto Result = std::numeric_limits<int>::min() / Denominator;
 	}
