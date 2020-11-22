@@ -275,6 +275,11 @@ static bool PartCmdLine(string_view const FullCommand, string& Command, string& 
 	return true;
 }
 
+static auto full_command(string_view const Command, string_view const Parameters)
+{
+	return Parameters.empty()? string(Command) : concat(Command, L' ', Parameters);
+}
+
 void OpenFolderInShell(string_view const Folder)
 {
 	execute_info Info;
@@ -470,7 +475,7 @@ static bool UseComspec(string& FullCommand, string& Command, string& Parameters)
 		return false;
 	}
 
-	FullCommand = concat(Command, L' ', Parameters);
+	FullCommand = full_command(Command, Parameters);
 	return true;
 }
 
@@ -486,7 +491,7 @@ static bool execute_createprocess(string const& Command, string const& Parameter
 		// it will fail because CreateProcess doesn't quote it properly when spawning comspec,
 		// and we can't quote it ourselves because it's not supported.
 		{},
-		concat(quote(Command), L' ', Parameters).data(),
+		full_command(quote(Command), Parameters).data(),
 		{},
 		{},
 		false,
@@ -579,6 +584,9 @@ static bool execute_impl(
 
 	const auto ExtendedActivator = [&](bool const Consolise)
 	{
+		if (Context)
+			return;
+
 		if (Consolise)
 		{
 			console.GetWindowRect(ConsoleWindowRect);
@@ -589,17 +597,22 @@ static bool execute_impl(
 		ConsoleActivator(Consolise);
 	};
 
+	const auto execute_process = [&]
 	{
 		PROCESS_INFORMATION pi{};
-		if (execute_createprocess(Command, Parameters, CurrentDirectory, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, pi))
-		{
-			after_process_creation(os::handle(pi.hProcess), Info.WaitMode, pi.hThread, ConsoleSize, ConsoleWindowRect, ExtendedActivator);
-			return true;
-		}
-
-		if(error_state::fetch().Win32Error == ERROR_EXE_MACHINE_TYPE_MISMATCH)
+		if (!execute_createprocess(Command, Parameters, CurrentDirectory, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, pi))
 			return false;
-	}
+
+		after_process_creation(os::handle(pi.hProcess), Info.WaitMode, pi.hThread, ConsoleSize, ConsoleWindowRect, ExtendedActivator);
+		return true;
+
+	};
+
+	if (execute_process())
+		return true;
+
+	if (error_state::fetch().Win32Error == ERROR_EXE_MACHINE_TYPE_MISMATCH)
+		return false;
 
 	ExtendedActivator(Info.WaitMode != execute_info::wait_mode::no_wait);
 
@@ -621,7 +634,7 @@ static bool execute_impl(
 		return false;
 
 	UsingComspec = true;
-	return execute_shell();
+	return execute_process() || execute_shell();
 }
 
 void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator)
@@ -690,7 +703,7 @@ void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator
 
 			if (!Parameters.empty())
 			{
-				append(AssocInfo.Command, L' ', Parameters);
+				AssocInfo.Command = full_command(AssocInfo.Command, Parameters);
 			}
 
 			Global->CtrlObject->CmdLine()->ExecString(AssocInfo);
@@ -852,25 +865,23 @@ bool ExtractIfExistCommand(string& strCommandText)
 	return true;
 }
 
-bool ExpandOSAliases(string& strStr)
+bool ExpandOSAliases(string& FullCommand)
 {
-	string strNewCmdStr;
-	string strNewCmdPar;
+	string Command, Parameters;
 
-	if (!PartCmdLine(strStr, strNewCmdStr, strNewCmdPar))
+	if (!PartCmdLine(FullCommand, Command, Parameters))
 		return false;
 
-	if (!console.GetAlias(strNewCmdStr, strNewCmdStr, PointToName(Global->g_strFarModuleName)))
+	if (!console.GetAlias(Command, Command, PointToName(Global->g_strFarModuleName)))
 	{
-		const auto strComspec(os::env::get(L"COMSPEC"sv));
-		if (strComspec.empty() || !console.GetAlias(strNewCmdStr, strNewCmdStr, PointToName(strComspec)))
+		const auto Comspec = os::env::get(L"COMSPEC"sv);
+		if (Comspec.empty() || !console.GetAlias(Command, Command, PointToName(Comspec)))
 			return false;
 	}
 
-	if (!ReplaceStrings(strNewCmdStr, L"$*"sv, strNewCmdPar) && !strNewCmdPar.empty())
-		append(strNewCmdStr, L' ', strNewCmdPar);
-
-	strStr=strNewCmdStr;
+	FullCommand = ReplaceStrings(Command, L"$*"sv, Parameters)?
+		Command :
+		full_command(Command, Parameters);
 
 	return true;
 }

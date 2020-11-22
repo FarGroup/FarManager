@@ -50,7 +50,7 @@ void OpenFolderInShell(string_view Folder);
 
 void Execute(struct execute_info& Info, function_ref<void(bool)> ConsoleActivator = [](bool){});
 
-bool ExpandOSAliases(string& strStr);
+bool ExpandOSAliases(string& FullCommand);
 
 bool ExtractIfExistCommand(string& strCommandText);
 
