@@ -1,15 +1,28 @@
 NAME = Proclist
-SRCS = Proclist.cpp \
-fileio.cpp \
-format.cpp \
-handles.cpp \
-Pcfg.cpp \
-Pclass.cpp \
-perfthread.cpp \
-Plist.cpp \
-Pmix.cpp \
-wmi.cpp
-DOCS = ProcEng.hlf ProcRus.hlf ProcPol.hlf ProcEng.lng ProcRus.lng ProcIta.lng ProcBel.lng ProcPol.lng changelog
+
+SRCS = \
+	Proclist.cpp \
+	fileio.cpp \
+	format.cpp \
+	handles.cpp \
+	Pcfg.cpp \
+	Pclass.cpp \
+	perfthread.cpp \
+	Plist.cpp \
+	Pmix.cpp \
+	wmi.cpp
+DOCS = \
+	ProcEng.hlf \
+	ProcRus.hlf \
+	ProcPol.hlf \
+	ProcGer.hlf \
+	ProcEng.lng \
+	ProcRus.lng \
+	ProcIta.lng \
+	ProcBel.lng \
+	ProcPol.lng \
+	ProcGer.lng \
+	changelog
 
 ifndef FARDIR
 FAR_DIRECTORY=../../far

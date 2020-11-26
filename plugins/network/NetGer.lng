@@ -1,0 +1,76 @@
+﻿.Language=German,German (Deutsch)
+
+"Ok"
+"Abbrechen"
+"Fehler"
+"&Ja"
+
+"Netzwerk Browser"
+
+"Netzwerk"
+
+"Map"
+"MapTo"
+"TMap"
+"TMapTo"
+"Unmap"
+"Remove"
+"ManCon"
+
+"Please wait"
+"Scanning the network..."
+
+"Fehler beim Browsen des Netzwerks"
+"Kann \"%.40s\" nicht mit %s verbinden"
+"Der Laufwerksname besitzt eine gespeicherte Verbindung"
+
+"Werden die geöffneten Dateien nicht geschlossen, kann Datenverlust eintreten"
+"Wollen Sie die Verbindung trotzdem trennen?"
+"Fehler beim Trennen der Verbindung von %s"
+
+"Keine freien Laufwerksbuchstaben verfügbar"
+
+"Benutzername"
+"Benutzerpasswort"
+
+"Permanent connection to"
+"Temporary connection to"
+"F6 - temporary"
+"F6 - permanent"
+
+"Netzwerk"
+"Netzwerkname"
+"*:"
+"Kommentar"
+
+"Netzwerk Browser"
+"&Zum Laufwerksmenü hinzufügen"
+"Add to &Plugins menu"
+"Laufwerksmenü &Hotkey ('1'-'9'). Frei lassen für autom. Zuweisung"
+"Show &local network"
+"Shares"
+"Show share &full name"
+"Hidden Shares"
+"&Never show"
+"&Show as hidden"
+"&Always show"
+"Show p&rinters"
+"Show \"&..\" in the providers"
+"&Browse up to favorites if possible"
+"Check resource &reachability"
+
+"Disconnect network drive"
+"Do you want to disconnect from the drive %s?"
+"The drive %s is mapped to"
+"&Reconnect at Logon"
+
+"Disconnect network drive\nThe drive %s is mapped to multiple drive letters\nWhich one do you want to disconnect?\n"
+
+"Favorites"
+"Favorites Folder"
+
+"&Remember password"
+
+"Remove from Favorites"
+"Remove \"%s\" from Favorites"
+"Remove %d items from Favorites"

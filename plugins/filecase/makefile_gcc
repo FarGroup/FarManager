@@ -1,6 +1,25 @@
 NAME = FileCase
-SRCS = FileCase.cpp filecvt.cpp FileMix.cpp ProcessName.cpp
-DOCS = CaseEng.hlf CaseRus.hlf CasePol.hlf CaseEng.lng CaseRus.lng CaseSky.lng CaseSpa.lng CaseIta.lng CasePol.lng CaseBel.lng changelog
+
+SRCS = \
+	FileCase.cpp \
+	filecvt.cpp \
+	FileMix.cpp \
+	ProcessName.cpp
+
+DOCS = \
+	CaseEng.hlf \
+	CaseRus.hlf \
+	CasePol.hlf \
+	CaseGer.hlf \
+	CaseEng.lng \
+	CaseRus.lng \
+	CaseSky.lng \
+	CaseSpa.lng \
+	CaseIta.lng \
+	CasePol.lng \
+	CaseBel.lng \
+	CaseGer.lng \
+	changelog
 
 include ../../far/makefile_gcc_common
 

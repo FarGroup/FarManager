@@ -1,14 +1,17 @@
 !include ../makefile_vc_base
 
 NAME = TmpPanel
+
 LINK_OBJS = $(OBJDIR)\TmpPanel.obj \
-$(OBJDIR)\TmpCfg.obj \
-$(OBJDIR)\TmpClass.obj \
-$(OBJDIR)\TmpMix.obj
+	$(OBJDIR)\TmpCfg.obj \
+	$(OBJDIR)\TmpClass.obj \
+	$(OBJDIR)\TmpMix.obj
+
 DOCS = \
 	TmpEng.hlf \
 	TmpRus.hlf \
 	TmpPol.hlf \
+	TmpGer.hlf \
 	TmpEng.lng \
 	TmpRus.lng \
 	TmpSky.lng \
@@ -16,6 +19,7 @@ DOCS = \
 	TmpIta.lng \
 	TmpPol.lng \
 	TmpBel.lng \
+	TmpGer.lng \
 	shortcuts.eng.lua \
 	shortcuts.rus.lua \
 	shortcuts.pol.lua \

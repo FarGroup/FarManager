@@ -1,0 +1,50 @@
+﻿.Language=German,German (Deutsch)
+
+"Ok"
+"Abbrechen"
+"Fehler"
+"Warnung"
+
+"Temporäres Fenster"
+" %sTemporäres Fenster [%d] "
+
+"Temporär"
+
+"Entfernen"
+"Switch"
+"SavLst"
+"Goto"
+
+"Aktualisiere Inhalt des temporären Fensters"
+"Sende Dateien zum temporären Fenster"
+
+"Total files:"
+"Available temporary panels"
+
+"Temporäres Fenster"
+"&Zum Laufwerksmenü hinzufügen"
+"Add to &Plugins menu"
+
+"&Gemeinsames Fenster benutzen"
+"&Safe panel mode"
+"&Any elements in panel"
+
+"&Replace files with file list"
+"&Menu from file list"
+"Copy folder c&ontents"
+
+"F&ull screen mode"
+
+"Column &types"
+"Column &widths"
+"Status line column t&ypes"
+"Status l&ine column widths"
+
+"File masks for the file &lists:"
+"Command line pre&fix:"
+
+"Die neuen Einstellungen werden erst nach einem Neustart von FAR aktiv"
+"Ne&w panel for search results"
+"Save file list as"
+
+"Copy folder contents?"

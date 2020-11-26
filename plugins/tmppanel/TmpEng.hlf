@@ -64,11 +64,6 @@ $ #Temporary panel: configuration#
  #Add to disks menu#
    Enables adding the "Temporary" item to the disks menu.
 
- #Disks menu hotkey#
-   Hotkey for the temporary panel item in the disks menu.
-You can enter a value from 1 to 9 or leave this field empty if
-you prefer the hotkey to be assigned automatically.
-
  #Add to plugins menu#
    Enables adding the "Temporary" item to the plugins menu.
 

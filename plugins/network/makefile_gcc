@@ -1,11 +1,27 @@
 NAME = Network
-SRCS = Network.cpp \
-NetCfg.cpp \
-NetClass.cpp \
-NetCommon.cpp \
-NetFavorites.cpp \
-NetMix.cpp
-DOCS = NetEng.hlf NetRus.hlf NetPol.hlf NetEng.lng NetRus.lng NetSky.lng NetSpa.lng NetIta.lng NetBel.lng NetPol.lng changelog
+
+SRCS = \
+	Network.cpp \
+	NetCfg.cpp \
+	NetClass.cpp \
+	NetCommon.cpp \
+	NetFavorites.cpp \
+	NetMix.cpp
+
+DOCS = \
+	NetEng.hlf \
+	NetRus.hlf \
+	NetPol.hlf \
+	NetGer.hlf \
+	NetEng.lng \
+	NetRus.lng \
+	NetSky.lng \
+	NetSpa.lng \
+	NetIta.lng \
+	NetBel.lng \
+	NetPol.lng \
+	NetGer.lng \
+	changelog
 
 NEEDDEFLIB=1
 USERLIBS = -lmpr -lnetapi32

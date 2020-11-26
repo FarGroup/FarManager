@@ -1,0 +1,56 @@
+﻿.Language=German,German (Deutsch)
+.PluginContents=Erweiterter Vergleich
+
+@Contents
+$ #Erweiterter Vergleich#
+    Dieser Befehl ähnelt dem internen FAR "Verzeichnisse
+vergleichen"-Befehl, er stellt jedoch auch einige zusätzliche
+Vergleichsoptionen zur Verfügung:
+
+#einschließen:#
+
+  #Unterverzeichnisse#       Vergleicht Dateien in Unter-
+                           verzeichnissen. Kann nicht für
+                           Plugin-Fenster benutzt werden.
+
+  #maximum folder depth#     Don't compare folders of bigger depth
+                           than specified.
+
+  #selected items only#      Compare selected files/folders only.
+                           This option is ignored for panels with
+                           no selected items (the whole panel
+                           contents will be compared in that case).
+
+#Vergleiche:#
+
+  #Zeit#                     Dateizeit vergleichen.
+                           Unlike the internal FAR command, this
+                           option will mark files on both panels,
+                           not the newer files only.
+
+  #Zwei Sekunden Präzision#  Benutzt das FAT Zeitformat zum
+                            Vergleich. Ansonsten wird die kom-
+                            plette Zeit einschließlich Milli-
+                            sekunden verglichen.
+
+  #ignore possible time#     Ignore file time difference that is an
+  #zone differences#         exact multiple of 15 minutes (i.e. half
+                           an hour, 2 hours and 15 minutes, 12 hours).
+                           Maximum ignored difference is 26 hours.
+
+  #Größe#                    Dateigröße vergleichen.
+
+  #Inhalte#                  Dateiinhalte vergleichen. Kann nicht
+                           für Plugin-Fenster benutzt werden.
+
+  #ignore differences in#    Ignore differences in new line
+  #new line characters#      characters (i.e. when comparing Unix and
+                           Windows files).
+
+  #ignore whitespace#        Ignore whitespace when comparing file
+                           contents (ignores spaces, tabs and new line
+                           characters).
+
+
+  #Display a message if no#  Display a message if all compared
+  #differences were found#   items seem to be identical.

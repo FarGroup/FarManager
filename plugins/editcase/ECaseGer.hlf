@@ -1,0 +1,38 @@
+﻿.Language=German,German (Deutsch)
+.PluginContents=Textblockkonvertierung
+.Options CtrlStartPosChar=^<wrap>
+
+@Contents
+$ #Textblockkonvertierung#
+    Mit diesem Befehl kann die Schreibweise eines ausgewählten
+Textblockes in eines der verschiedenen verfügbaren Formate konvertiert
+werden.
+
+    См. так же "~Использование плагина в макросах~@MacroCallPlugin@"
+
+@MacroCallPlugin
+$ #Использование плагина в макросах#
+    ^<wrap>Плагин можно вызывать из макросов, используя макрофункцию Plugin.Call.
+    ^<wrap>Формат вызова:
+
+       #Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE",<Параметр>)#
+
+    ^<wrap>здесь:
+       #0E92FC81-4888-4297-A85D-31C79E0E0CEE#
+          идентификатор плагина
+
+       #<Параметр>#
+          ^<wrap>строковое или числовое значение, обозначающее действие:
+
+          Lower  0 - lower case
+          Title  1 - Title Case
+          Upper  2 - UPPER CASE
+          Toggle 3 - tOGGLE cASE
+          Cyclic 4 - Cyclic change
+
+          ^<wrap>Если <Параметр> вне указанного выше диапазона - плагин завершает свою работу.
+          ^<wrap>Если <Параметр> не указан, то будет выведено меню действий.
+
+    ^<wrap>Например, преобразовать текст в редакторе к виду "Title Case":
+
+       Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE",1)

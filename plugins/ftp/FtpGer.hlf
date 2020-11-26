@@ -1,0 +1,182 @@
+﻿.Language=German,German (Deutsch)
+.PluginContents=FTP-Client
+@Contents
+$ #FTP-Client#
+   ~Mit FTP-Server verbinden~@FTPConnect@
+
+   ~Servernamen verwalten~@FTPNames@
+
+   ~FTP-Client-Befehle~@FTPCmd@
+
+   ~FTP-Client-Konfiguration~@FTPCfg@
+
+   ~FTP-Client Fenstermodi~@FTPPanel
+
+@FTPConnect
+$ #Mit FTP-Server verbinden#
+    Eine Verbindung zu einem Server kann entweder per FAR Kommandozeile
+oder per ~Server Fenster~@FTPNames@ hergestellt werden.
+
+    FAR unterstützt das folgende Servernamenformat:
+
+    #ftp://Benutzer:Passwort@@Servername:Port/Verzeichnis#
+
+    wobei "Servername" immer erforderlich ist, das "ftp://" Präfix ist
+erforderlich bei Verbindungen von der Kommandozeile aus und optional bei
+Verbindungen über das Server-Fenster. Alle anderen Namen sind optional.
+Fehlt der Benutzername, wird anstelle dessen "anonymous" benutzt, bei
+fehlendem Passwort wird das unter ~FTP-Client-Konfiguration~@FTPCfg@
+definierte Standard-Passwort zum Server gesendet.
+
+    Für einen Verbindungsaufbau von der Kommandozeile geben Sie,
+beginnend mit dem "ftp://" Präfix, den Servernamen auf der FAR
+Kommandozeile ein.
+
+    Für einen Verbindungsaufbau über das Server-Fenster aktivieren Sie
+das FTP Plugin, wählen den gewünschten Server und rücken Enter.
+
+    Um Server-Parameter direkt vor dem Verbindungsaufbau zu bearbeiten,
+drücken Sie F4 auf dem Servernamen, führen alle erforderlichen Änderungen
+durch und drücken den "Verbinden"-Button.
+
+@FTPNames
+$ #Servernamen verwalten#
+    Servernamen sind in Form eines Dateifensters organisiert. Mittels
+Umsch-F4 kann ein neuer Server-Eintrag angelegt werden. Jeder Eintrag
+besteht aus einem Servernamen, einem Benutzer-Passwort-Feld, einer
+optionalen Beschreibung und den Optionen "Benutzerpasswort direkt beim
+Anmelden erfragen", "Ascii Modus" and "Passiver Modus".
+
+    FAR unterstützt das folgende Servernamenformat:
+
+    #ftp://Benutzer:Passwort@@Servername:Port/Verzeichnis#
+
+    Alle Komponenten außer "Servername" sind optional.
+
+    Das Benutzerpasswort kann entweder im Servernamen oder in dem
+separaten Passwortfeld angegeben werden. Im zweiten Fall erscheint es
+nicht im Fenster. Sie können auch ganz auf das Passwort verzichten, um
+dann das unter ~FTP-Client-Konfiguration~@FTPCfg@ definierte Standard-
+Passwort zu benutzen.
+
+    Zusätzlich können Sie die Option "Benutzerpasswort direkt beim
+Anmelden erfragen" einschalten, um das Passwort (falls erforderlich,
+zusammen mit dem Benutzernamen) direkt vor dem Anmelden am Server von
+Hand einzugeben.
+
+    Die "Ascii Modus"-Option erlaubt standardmäßig ASCII-
+Dateitransfers.
+
+    Die "Passiver Modus"- und "Firewall benutzen"-Option kann bei
+einigen Typen von Firewalls erforderlich sein. Diese Option haben
+Vorrang vor den gleichlautenden unter ~FTP-Client-Konfiguration~@FTPCfg@.
+
+
+    Die Benutzung von "Tabelle auswählen" hebt die Standard-
+Zeichensatztabelle für diesen Server auf.
+
+    Um die Parameter eines existierenden Servers zu bearbeiten, drücken
+Sie F4 während sich der Auswahlbalken auf dem Servernamen befindet.
+
+    Mit F7 ist es möglich, Verzeichnisse für Servernamen anzulegen.
+
+    Sie können Server-Einträge von und nach Verzeichnisse(n) und
+lokale(n) Laufwerke(n) mittels der Funktionstasten F5 und F6 kopieren
+und verschieben.
+
+    F8 löscht Informationen über ausgewählte Server.
+
+    Drücken von Alt-F6 sichert Informationen über einen gerade
+verbundenen Host.
+
+@FTPCmd
+$ #FTP-Client-Befehle#
+
+    Der FTP-Client erlaubt Operationen mit FTP-Server-Dateien so,
+als ob sich die Dateien auf einem lokalen Laufwerk befänden. Er unter-
+stützt das Kopieren, Verschieben und Löschen von Dateien und
+Verzeichnissen, das Anlegen von Verzeichnissen sowie das Anschauen
+und Bearbeiten von Dateien. Es ist außerdem möglich, mittels des
+"Fortsetzen"-Buttons im "Datei überschreiben"-Dialog abgebrochene
+Übertragungen wieder aufzunehmen, sofern der FTP-Server dies unter-
+stützt. Sie können den "Datei suchen"-Befehl verwenden, um den
+FTP-Server nach Dateien zu durchsuchen. Strg-A ändert den Datei-
+zugriffsmodus, falls diese Operation vom Server unterstützt wird.
+
+    Drücken Sie #Umsch-F7#, um die Zeichensatztabelle für Dateinamen
+und Beschreibungen zu ändern. Außerdem können Sie Zeichensatztabellen
+in den Server-Parametern unabhängig für jeden Server festlegen.
+
+    Einige FTP-Operationen können durch Esc unterbrochen werden. Wenn
+Esc nicht hilft, könnte Strg-Untbr funktionieren, welches aber,
+anders als bei Esc, die aktuelle Verbindung unterbricht.
+
+@FTPCfg
+$ #FTP-Client-Konfiguration#
+    In diesem Dialog können Sie folgende Optionen einstellen:
+
+ #Zum Laufwerksmenü#   Erlaubt das Hinzufügen von "Netzwerk"-Einträgen
+ #hinzufügen#          in das Laufwerksmenü.
+
+ #Laufwerksmenü#       Hotkey für den Netzwerk Browser-Eintrag im
+ #Hotkey#              Laufwerksmenü. Sie können die Werte 1-9
+                     benutzen oder den Eintrag frei lassen für eine
+                     automatische Zuweisung.
+
+ #Beschreibungs-#      Namen der Dateien mit FTP-Dateibeschreibungen.
+ #listennamen,#
+ #getrennt durch#
+ #Kommata#
+
+ #Beschreibungen#      Liest Beschreibung von FTP-Dateien beim Öffnen
+ #lesen#               eines FTP-Verzeichnisses. Dies schaltet die
+                     Ansicht von Dateibeschreibungen ein, verlangsamt
+                     aber das Einlesen von Verzeichnissen.
+
+ #Beschreibungen#      Aktualisiert die Beschreibung von FTP-Dateien
+ #aktualisieren#       nach dem Hochladen oder Löschen.
+
+ #Bei Upload groß-#    Enthält der Name der hochzuladenden Datei
+ #buchstabige Datei-#  bei eingeshalteter Option nur Großbuchstaben,
+ #namen in kleinbuch-# werden diese zum Server in Kleinbuchstaben
+ #stabige wandeln#     übertragen.
+
+ #Dialog mit Upload-#  Wenn Sie beim Upload keine manuellen Änderungen
+ #Optionen anzeigen#   an Zielpfad und ASCII/Binär-Modus vornehmen
+                     müssen, können Sie diese Option ausschalten, um
+                     den zweiten Upload-Dialog zu übergehen.
+
+ #Standardpasswort#    Passwort, welches als Standard beim Eingeben
+                     neuer Server-Parameter benutzt wird. Es wird
+                     auch beim Anmelden benutzt, wenn kein Passwort
+                     angegeben wurde und der Benutzername leer oder
+                     "anonymous" ist.
+
+ #Firewall#            Name des Firewall-Servers. Lassen Sie diesen
+                     Eintrag frei, wenn Sie keinen Firewall benut-
+                     zen. Es wird nur ein Firewall-Typ unterstützt:
+                     Beim Anmelden bei remote_host wird als Benut-
+                     zername remote_userid@@remote_host zu einem
+                     Firewall gesendet.
+
+ #Passiver Modus#      Dieser Modus kann bei einigen Typen von
+                     Firewalls erforderlich sein. Weil jeder
+                     Server-Eintrag seine eigene "Passiver Modus"-
+                     Option hat, ist die hier genannte Option gültig,
+                     wenn ein neuer Server eingegeben wird oder beim
+                     Anmelden von der Kommandozeile aus.
+
+
+@FTPPanel
+$ #FTP-Client Fenstermodi#
+    Der FTP-Client benutzt die Fenstermodi 8 und 9, um einige zusätzliche
+Informationen über FTP-Dateien anzuzeigen.
+
+    Modus 8 (Eigentümer) beinhaltet Dateieigentümer- und Gruppeninformationen.
+
+    Modus 9 (Links) beinhaltet Informationen über den Dateizugriffsmodus im
+Unix-Format.
+
+    Diese Informationen können jedoch nur dann korrekt angezeigt werden,
+wenn sie vom FTP-Server im Standard-Unix-Format zur Verfügung gesetllt
+werden.

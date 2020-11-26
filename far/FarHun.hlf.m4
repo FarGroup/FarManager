@@ -2256,11 +2256,6 @@ társításokat menüből választhatjuk ki.
 
  #Ctrl+Down#  - move association down
 
- Ha egy fájltípushoz nincs definiált társítás és a
-~Rendszer beállítások~@SystemSettings@ menüben a #Windows regisztrált#
-#fájltípusainak használata# opció be van kapcsolva, a Far megpróbálja a
-Windows társításait alkalmazni.
-
  See also: common ~menu~@MenuCmd@ keyboard commands.
 
 
@@ -4570,8 +4565,7 @@ olvasható" attribútumú fájllal találkozik, a
 felülírás előtt újabb megerősítést kér.
 
  A ~Rendszer beállítások~@SystemSettings@ menü "Másoláshoz a rendszerrutin
-használata" opciójával a Far a Windows operációs rendszer CopyFileEx nevű
-(vagy CopyFile, ha a CopyFileEx nem áll rendelkezésre) másolórutinját fogja
+használata" opciójával a Far a Windows operációs rendszer CopyFileEx nevű másolórutinját fogja
 használni a saját másolórutinja helyett. Ez előnyökkel járhat NTFS
 fájlrendszernél, mert a CopyFileEx ésszerűbb lemezfoglalási metódust használ
 és a fájlokat bővített attribútumkészletükkel együtt másolja át. A rendszer

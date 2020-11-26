@@ -2,18 +2,31 @@
 
 ANSI = 1
 NAME = MultiArc
-LINK_OBJS = $(OBJDIR)\MultiArc.obj \
-$(OBJDIR)\ArcCfg.obj \
-$(OBJDIR)\ArcCmd.obj \
-$(OBJDIR)\ArcGet.obj \
-$(OBJDIR)\ArcMix.obj \
-$(OBJDIR)\ArcPlg.obj \
-$(OBJDIR)\ArcProc.obj \
-$(OBJDIR)\ArcPut.obj \
-$(OBJDIR)\ArcRead.obj \
-$(OBJDIR)\ArcReg.obj \
-$(OBJDIR)\global.obj
-DOCS = arceng.hlf arcrus.hlf arceng.lng arcrus.lng MultiArc.TryIfNoOther.reg arcspa.lng arcita.lng arcbel.lng changelog
+LINK_OBJS = \
+	$(OBJDIR)\MultiArc.obj \
+	$(OBJDIR)\ArcCfg.obj \
+	$(OBJDIR)\ArcCmd.obj \
+	$(OBJDIR)\ArcGet.obj \
+	$(OBJDIR)\ArcMix.obj \
+	$(OBJDIR)\ArcPlg.obj \
+	$(OBJDIR)\ArcProc.obj \
+	$(OBJDIR)\ArcPut.obj \
+	$(OBJDIR)\ArcRead.obj \
+	$(OBJDIR)\ArcReg.obj \
+	$(OBJDIR)\global.obj
+
+DOCS = \
+	arceng.hlf \
+	arcrus.hlf \
+	arcger.hlf \
+	arceng.lng \
+	arcrus.lng \
+	arcspa.lng \
+	arcita.lng \
+	arcbel.lng \
+	arcger.lng \
+	MultiArc.TryIfNoOther.reg \
+	changelog
 
 USERCPP=/wd4996
 

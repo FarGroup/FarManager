@@ -1,17 +1,30 @@
 !include ../makefile_vc_base
 
 NAME = ProcList
+
 LINK_OBJS = $(OBJDIR)\fileio.obj \
-$(OBJDIR)\format.obj \
-$(OBJDIR)\handles.obj \
-$(OBJDIR)\Pcfg.obj \
-$(OBJDIR)\Pclass.obj \
-$(OBJDIR)\perfthread.obj \
-$(OBJDIR)\Plist.obj \
-$(OBJDIR)\Pmix.obj \
-$(OBJDIR)\WMI.obj \
-$(OBJDIR)\Proclist.obj
-DOCS = ProcEng.hlf ProcRus.hlf ProcPol.hlf ProcEng.lng ProcRus.lng ProcIta.lng ProcBel.lng ProcPol.lng changelog
+	$(OBJDIR)\format.obj \
+	$(OBJDIR)\handles.obj \
+	$(OBJDIR)\Pcfg.obj \
+	$(OBJDIR)\Pclass.obj \
+	$(OBJDIR)\perfthread.obj \
+	$(OBJDIR)\Plist.obj \
+	$(OBJDIR)\Pmix.obj \
+	$(OBJDIR)\WMI.obj \
+	$(OBJDIR)\Proclist.obj
+
+DOCS = \
+	ProcEng.hlf \
+	ProcRus.hlf \
+	ProcPol.hlf \
+	ProcGer.hlf \
+	ProcEng.lng \
+	ProcRus.lng \
+	ProcIta.lng \
+	ProcBel.lng \
+	ProcPol.lng \
+	ProcGer.lng \
+	changelog
 
 
 !ifndef FARDIR

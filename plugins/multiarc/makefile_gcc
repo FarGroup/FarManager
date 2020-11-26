@@ -1,17 +1,31 @@
 ANSI = 1
 NAME = MultiArc
-SRCS = MultiArc.cpp \
-arccfg.cpp \
-arccmd.cpp \
-arcget.cpp \
-ArcMix.cpp \
-ArcPlg.cpp \
-ArcProc.cpp \
-arcput.cpp \
-arcread.cpp \
-arcreg.cpp \
-global.cpp
-DOCS = arceng.hlf arcrus.hlf arceng.lng arcrus.lng MultiArc.TryIfNoOther.reg arcspa.lng arcita.lng arcbel.lng changelog
+
+SRCS = \
+	MultiArc.cpp \
+	arccfg.cpp \
+	arccmd.cpp \
+	arcget.cpp \
+	ArcMix.cpp \
+	ArcPlg.cpp \
+	ArcProc.cpp \
+	arcput.cpp \
+	arcread.cpp \
+	arcreg.cpp \
+	global.cpp
+
+DOCS = \
+	arceng.hlf \
+	arcrus.hlf \
+	arcger.hlf \
+	arceng.lng \
+	arcrus.lng \
+	arcspa.lng \
+	arcita.lng \
+	arcbel.lng \
+	arcger.lng \
+	MultiArc.TryIfNoOther.reg \
+	changelog
 
 include ../../far/makefile_gcc_common
 

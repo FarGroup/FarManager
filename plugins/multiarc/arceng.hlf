@@ -21,8 +21,6 @@ archiver calls.
 
    ~Storage of plugin settings~@ArcSettings3@
 
-   E-mail all bugs and suggestions to ~multiarc@@farmanager.com~@mailto:multiarc@@farmanager.com@
-
 @AddToArc
 $ #Adding files to archive#
     In this dialog you may choose the archiver, add or change
@@ -115,7 +113,7 @@ archive modifications.
 
     1. To execute an archive management command you need to have
 the corresponding archiver tool. Archiver options may be changed
-in the ~Archiver settings~@ArcSettings2@ dialog.
+in the ~Archiver command lines~@ArcSettings2@ dialog.
 
     For quick access to archiver options, you can press the key
 F4 in the "Archive commands" menu.

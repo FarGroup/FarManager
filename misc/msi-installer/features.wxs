@@ -160,6 +160,7 @@
           <ComponentRef Id="FarCze.lng" />
         </Feature>
         <Feature Id="German" Level="1" Title="!(loc.Feature.Title.German)" AllowAdvertise="no">
+          <ComponentRef Id="FarGer.hlf" />
           <ComponentRef Id="FarGer.lng" />
         </Feature>
         <Feature Id="Hungarian" Level="1" Title="!(loc.Feature.Title.Hungarian)" AllowAdvertise="no">
@@ -239,6 +240,9 @@
             <Feature Id="Align.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="AlignBel.lng" />
             </Feature>
+            <Feature Id="Align.German" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="AlignGer.lng" />
+            </Feature>
             <Feature Id="Align.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="AlignRus.lng" />
             </Feature>
@@ -268,6 +272,9 @@
             </Feature>
             <Feature Id="AutoWrap.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="WrapBel.lng" />
+            </Feature>
+            <Feature Id="AutoWrap.German" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="WrapGer.lng" />
             </Feature>
             <Feature Id="AutoWrap.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="WrapRus.lng" />
@@ -300,6 +307,9 @@
             </Feature>
             <Feature Id="Brackets.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="BrackBel.lng" />
+            </Feature>
+            <Feature Id="Brackets.German" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="BrackGer.lng" />
             </Feature>
             <Feature Id="Brackets.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="BrackRus.hlf" />
@@ -335,6 +345,9 @@
             <Feature Id="DrawLine.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="DrawBel.lng" />
             </Feature>
+            <Feature Id="DrawLine.German" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="DrawGer.lng" />
+            </Feature>
             <Feature Id="DrawLine.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="DrawRus.hlf" />
               <ComponentRef Id="DrawRus.lng" />
@@ -367,6 +380,10 @@
             </Feature>
             <Feature Id="EditCase.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="ECaseBel.lng" />
+            </Feature>
+            <Feature Id="EditCase.German" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="ECaseGer.hlf" />
+              <ComponentRef Id="ECaseGer.lng" />
             </Feature>
             <Feature Id="EditCase.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="ECaseRus.hlf" />
@@ -452,6 +469,10 @@
           </Feature>
           <Feature Id="Compare.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CompBel.lng" />
+          </Feature>
+          <Feature Id="Compare.German" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CmpGer.hlf" />
+            <ComponentRef Id="CompGer.lng" />
           </Feature>
           <Feature Id="Compare.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CmpRus.hlf" />
@@ -701,6 +722,10 @@
           <Feature Id="FileCase.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CaseBel.lng" />
           </Feature>
+          <Feature Id="FileCase.German" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CaseGer.hlf" />
+            <ComponentRef Id="CaseGer.lng" />
+          </Feature>
           <Feature Id="FileCase.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CaseRus.hlf" />
             <ComponentRef Id="CaseRus.lng" />
@@ -835,6 +860,10 @@
             <ComponentRef Id="NetPol.hlf" />
             <ComponentRef Id="NetPol.lng" />
           </Feature>
+          <Feature Id="Network.German" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="NetGer.hlf" />
+            <ComponentRef Id="NetGer.lng" />
+          </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="Network.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="Network.map" />
@@ -861,6 +890,10 @@
           <Feature Id="Proclist.Polish" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="ProcPol.hlf" />
             <ComponentRef Id="ProcPol.lng" />
+          </Feature>
+          <Feature Id="Proclist.German" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="ProcGer.hlf" />
+            <ComponentRef Id="ProcGer.lng" />
           </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="Proclist.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -899,6 +932,10 @@
             <ComponentRef Id="shortcuts.bel.lua" />
             <ComponentRef Id="shortcuts.bel.temp" />
             <ComponentRef Id="TmpBel.lng" />
+          </Feature>
+          <Feature Id="TmpPanel.German" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="TmpGer.hlf" />
+            <ComponentRef Id="TmpGer.lng" />
           </Feature>
           <Feature Id="TmpPanel.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="disks.rus.temp" />

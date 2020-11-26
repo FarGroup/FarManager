@@ -225,6 +225,7 @@ docs: \
 	$(EXEDIR)FarRus.hlf \
 	$(EXEDIR)FarHun.hlf \
 	$(EXEDIR)FarPol.hlf \
+	$(EXEDIR)FarGer.hlf \
 	$(EXEDIR)File_id.diz \
 	$(EXEDIR)Far.exe.example.ini
 
@@ -309,6 +310,10 @@ $(EXEDIR)FarHun.hlf: FarHun.hlf.m4 farversion.m4 tools.m4 vbuild.m4
 $(EXEDIR)FarPol.hlf: FarPol.hlf.m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(GAWK) -f scripts/mkhlf.awk FarPol.hlf.m4 | $(M4) > $@
+
+$(EXEDIR)FarGer.hlf: FarGer.hlf.m4 farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	$(GAWK) -f scripts/mkhlf.awk FarGer.hlf.m4 | $(M4) > $@
 
 $(EXEDIR)File_id.diz: File_id.diz.m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)

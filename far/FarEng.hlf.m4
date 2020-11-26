@@ -1025,7 +1025,7 @@ one can recommend:
 
 
 @Panels
-$ #Panels #
+$ #Panels#
  Normally Far shows two panels (left and right windows), with different
 information. If you want to change the type of information displayed in the
 panel, use the ~panel menu~@LeftRightMenu@ or corresponding ~keyboard commands~@KeyRef@.
@@ -1309,7 +1309,7 @@ pressing the left mouse button.
 
 
 @Menus
-$ #Menus #
+$ #Menus#
  To choose an action from the menu you can press F9 or click on top of the
 screen.
 
@@ -1468,9 +1468,9 @@ $ #Menus: commands menu#
                       See ~filters menu~@FiltersMenu@ for the detailed
                       description.
 
- #Plugin commands#      Show ~plugin commands~@Plugins@ list
+ #Plugin commands#      Show ~plugin commands~@Plugins@ list.
 
- #Screens list#         Show open ~screens list~@ScrSwitch@
+ #Screens list#         Show open ~screens list~@ScrSwitch@.
 
  #Task list#            Shows ~active tasks list~@TaskList@.
 
@@ -1947,7 +1947,7 @@ checkboxes. The #Reset# button will clear all of the filter conditions.
 
 
 @History
-$ #History #
+$ #History#
  The commands history shows the list of previously executed commands.
 Besides the cursor control keys, the following keyboard shortcuts are
 available:
@@ -2161,7 +2161,7 @@ If global user menu file exists it will override the user specific menu.
 
 
 @FileAssoc
-$ #File associations #
+$ #File associations#
  Far Manager supports file associations, that allow to associate various
 actions to running, viewing and editing files with a specified
 ~mask~@FileMasks@.
@@ -2183,10 +2183,6 @@ desired association from the menu.
  #Ctrl+Up#    - move association up
 
  #Ctrl+Down#  - move association down
-
- If no execute command is associated with the file and
-#Use Windows registered types# option in ~System settings~@SystemSettings@
-dialog is on, Far tries to use Windows association to execute this file type;
 
  See also: common ~menu~@MenuCmd@ keyboard commands.
 
@@ -2216,14 +2212,13 @@ as a ~mask~@FileMasks@:
 
  The association can be described in the #Description of the association# field.
 
- The following ~special symbols~@MetaSymbols@ can be used in the associated
-command.
+ ~Special symbols~@MetaSymbols@ can be used in the associated command.
 
  Notes:
 
  1. ^<wrap>If no execute command is associated with file and
 #Use Windows registered types# option in ~System settings~@SystemSettings@
-dialog is on, Far tries to use Windows association to execute this file type;
+dialog is on, Far tries to use Windows association to execute this file type.
  2. ^<wrap>Operating system ~commands~@OSCommands@ "IF EXIST" and "IF DEFINED"
 allow to configure "smarter" associations - if you have specified several
 associations for a file type, the menu will show only the associations
@@ -4001,7 +3996,6 @@ month or only minutes. All the other date and time components will remain
 unchanged.
 
  The #Current# button fills the file time fields with the current time.
-
  The #Original# button fills the file time fields with their original
 values. Available only when the dialog is invoked for a single file object.
 
@@ -4253,7 +4247,6 @@ to the display of seconds and milliseconds.
  Enabling links, streams and owner columns (G, LN, F and O) can significantly
 slow down the directory reading.
 
-
  #Status line column types# and #Status line column widths# -
 similar to "Column types" and "Column widths", but for panel status line.
 
@@ -4485,8 +4478,7 @@ will be copied;
 dialog should be displayed for the read-only files.
 
  The “#Use system copy routine#” option of the ~System settings~@SystemSettings@
-dialog enables the use of Windows operating system function CopyFileEx
-(or CopyFile if CopyFileEx is not available). This may be useful
+dialog enables the use of Windows operating system function CopyFileEx. This may be useful
 on NTFS, because CopyFileEx optimizes disk space allocation and copies
 extended file attributes. If this option is off, the internal
 implementation of the file copy routine is used. The internal

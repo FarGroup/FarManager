@@ -1,0 +1,284 @@
+﻿.Language=German,German (Deutsch)
+.PluginContents=Archivsupport-Plugin
+
+@Contents
+$^#Archivsupport-Plugin#
+    Dieses FAR-Modul führt transparente #Archiv#-Bearbeitungen durch.
+Dateien eines Archivs werden in der gleichen Weise behandelt als ob
+sie sich in einem Verzeichnis befänden: wenn Sie mit einem Archiv
+arbeiten, wandelt FAR Ihre Kommandos in die entsprechenden externen
+Packerbefehle um.
+
+   ~Dateien archivieren~@AddToArc@
+
+   ~Dateien entpacken~@ExtrFromArc@
+
+   ~Archivbefehle~@ArcCmd@
+
+   ~Archivsupport-Konfiguration~@ArcSettings1@
+
+   ~Packer-Kommandozeilenoptionen~@ArcSettings2@
+
+   ~Storage of plugin settings~@ArcSettings3@
+
+@AddToArc
+$ #Dateien archivieren#
+    In diesem Dialog können Sie den Packer auswählen, Kommando-
+zeilenschalter hinzufügen oder ändern (Standardschalter können über
+das Menü Optionen/Plugin-Konfiguration im Dialog ~Packer-Kommandozeilenoptionen~@ArcSettings2@
+definiert werden) und ein Passwort eingeben zum Verschlüsseln
+der Dateien während der Archivierung.
+
+    Die Option #Dateien nach Archivieren löschen# weist den Packer
+an, die Dateien zu verschieben anstatt zu kopieren. This option is turned
+on automatically if the key #F6# is used to add files to an archive.
+
+    The option #Exact archive filename# allows to create archives with
+nonstandard extensions (if this is supported by the archiver). If the
+option is turned off, the extension defined in the
+~Archiver command lines~@ArcSettings2@ dialog is appended to the name
+entered in the dialog.
+
+    The option #Background# starts the archiving process in a separate window.
+
+    The #Priority of process# option allows to change the execution
+~priority~@ArcPrior@ of the archiving process.
+
+    Die Auswahl #Einst. sichern# speichert den aktuellen Packer und
+seine Schalter für die zukünftige Benutzung.
+
+    Pressing the keys #Shift-F1# has the same effect as pushing the
+"Select archiver" button and allows to select the archiver type to use.
+
+    When a new archive is created, the cursor is automatically
+positioned to the new archive once the archiving operation is
+complete. (This is not done when the archiver is started in a
+separate window.)
+
+@ArcPrior
+$ #Priority of process#
+    MultiArc allows to control the execution priority
+of the archiving process. The following priorities are available:
+
+    #low#
+    Background priority, foreknown to be lower than the priority of any
+other process in the system. Archiving will be very slow if any other
+process is active.
+
+    #below normal#
+    Priority above #low#, but below #normal#. Sets the priority of the
+archiving process above the background tasks, but lower than the
+execution priority of normal tasks (only in Windows 2000 or newer).
+
+    #normal#
+    Archiving is executed along with other tasks on the computer.
+
+    #above normal#
+    Priority above "normal", but below "high". Archiving is given higher
+priority than all other normal processes, and can substantially slow
+down their execution (only in Windows 2000 or newer).
+
+    #high#
+    Specify this priority for time-critical archiving that must be
+executed without delay. ATTENTION: Use extreme care when using the high
+priority, because a high priority application can use nearly all
+available CPU time, while the gain from using this priority can only be
+achieved when other active processes are running in the system.
+
+    The "normal" priority is selected by default.
+
+@ExtrFromArc
+$ #Dateien entpacken#
+    In diesem Dialog können Sie den Pfad zum Entpacken von Dateien
+und das Passwort zum Entschlüsseln archivierter Dateien angeben.
+
+    Die Option #Ohne Pfadnamen entpacken# erzwingt das Entpacken aller
+Dateien in das gleiche Verzeichnis.
+
+
+    If the option #Delete from archive after extracting# is turned on,
+the files will be deleted from the archive after they are extracted.
+This option is turned on automatically if the key #F6# is used to extract
+files from an archive.
+
+    Um ausgewählte archivierte Dateien sofort in das aktuelle
+Verzeichnis zu entpacken, können Sie auch #Alt-F6# benutzen.
+
+@ArcCmd
+$ #Archiv-Befehle#
+    In diesem Menü können Sie Archive testen, einen Archiv-Kommentar
+hinzufügen, ein Archiv in ein selbstentpackendes (SFX) konvertieren,
+versuchen, ein zerstörtes Archiv wiederherzustellen, ein Archiv
+gegen Beschädigung schützen oder Archivänderungen verhindern.
+
+    Hinweise:
+
+    1. Um einen Archiv-Management-Befehl ausführen zu können,
+benötigen Sie den zugehörigen Packer. Packer-Optionen können
+über den im Menü Optionen/Befehl Plugin-Konfiguration erreichbaren
+~Archivsupport: Kommandozeilen~@ArcSettings2@-Dialog
+geändert werden.
+
+    For quick access to archiver options, you can press the key
+F4 in the "Archive commands" menu.
+
+    2. Der komplette Umfang an Archiv-Management-Befehlen kann nur
+mit RAR-Archiven verwendet werden. Andere Packer unterstützen nur
+einen Teil dieser Befehle.
+
+@Config
+$ #Plugin configuration#
+
+    ~Archive support configuration~@ArcSettings1@
+
+    ~Archiver command lines~@ArcSettings2@
+
+    ~Storage of plugin settings~@ArcSettings3@
+
+@ArcSettings1
+$ #Archivsupport-Konfiguration#
+    In diesem Dialog können die folgenden Parameter geändert werden:
+
+ #Die Art und Weise#      Packerausgaben nicht, nur beim Betrachten
+ #von Packerausgaben#     oder immer unterdrücken
+
+ #Umsch-F1-Befehl#        Mit Umsch-F1 werden Dateien zu Archiven
+ #ausführen#              hinzugefügt. Sie können diese Option
+                        abschalten, wenn Sie ein anderes Archiv-
+                        support-Plugin installiert haben, welches
+                        selbst das Umsch-F1-Kommando ausführt.
+
+ #Change folder when#     If a new archive is created not in the
+ #setting the cursor#     current folder, change the folder and
+ #on new archive#         position the cursor on the archive.
+                        If the option is off, the cursor will be
+                        positioned on the archive only if it is
+                        created in the current folder.
+
+ #Use last command#       When adding files to archives, the last
+ #from history#           used value of the archiver command line
+                        switches will be placed in the "Switches"
+                        edit line.
+
+ #Automatically reset#    The option "Exact archive filename"
+ #"Exact archive#         will be turned off every time the dialog
+ #filename"#              "Add to archive" is invoked
+
+ #Liste der Beschrei-#    Namen der Beschreibungsdateien archivierter
+ #bungsdateinamen,#       Dateien.
+ #getrennt durch#
+ #Kommata#
+
+ #Archivbeschreibungen#   Lese Beschreibungen archivierter Dateien
+ #lesen#                  beim Öffnen eines Archivs. Dies schaltet
+                        die Anzeige von Beschreibungen ein, aber
+                        verlangsamt dafür das Einlesen des Archivs.
+
+ #Archivbeschreibungen#   Aktualisiert Beschreibungen archivierter
+ #aktualisieren#          Dateien nach Hinzufügen zu oder Entfernen
+                        aus einem Archiv.
+
+@ArcSettings2
+$ #Packer-Kommandozeilenoptionen#
+    In diesem Dialog können Sie externe Packer-Kommandozeilenoptionen
+für unterschiedliche Archivierungsoperationen sowie Masken zur
+Dateiselektion für alle Dateien ändern.
+
+    Die folgenden Variablen stehen zur Verfügung:
+
+ #%%A# - Archivname.
+
+ #%%a# - Kurzer Archivname.
+
+ #%%W# - Temporäres Verzeichnis inklusive des abschließenden
+       Schrägstrichs.
+
+ #%%P# - Passwort.
+
+ #%%R# - Aktuelles Archiv-Verzeichnis.
+
+ #%%L# - Name der Dateiliste. Dateiliste ist eine Datei, welche die
+       Namen der Dateien enthält, die vom Packer bearbeitet werden
+       sollen.
+
+ #%%l# - Dateiliste mit kurzen Dateinamen.
+
+ #%%F# - Die Namen von ein oder mehreren zu verarbeitenden Dateien.
+       Falls nicht alle Namen in einen einzelnen String passen,
+       wird der Packer mehrmals aufgerufen bis alle Dateinamen
+       abgearbeitet wurden. Standardmäßig beträgt die maximale
+       Gesamtlänge des Strings 127 Zeichen, sie kann jedoch
+       direkt hinter %%F neu festgelegt werden, z.B. %%F512.
+       Die Variable %%F sollte nur benutzt werden, wenn der
+       verwendete Packer keine Dateilisten unterstützt.
+
+ #%%f# - Der Name einer einzelnen zu verarbeitenden Datei. Der
+       Packer wird mehrfach aufgerufen, bis alle einzelnen
+       Dateien abgearbeitet wurden.
+       Diese Variable sollte nur benutzt werden, wenn der
+       verwendete Packer keine Dateilisten oder Mehrfachdatei-
+       namen auf der Kommandozeile unterstützt.
+
+ #%%E#<errorlevel> - maximal akzeptierbare Fehlerstufe eines Befehls.
+       %%E2 bedeutet z.B., daß die Fehlerstufen 0, 1 and 2
+       akzeptiert werden. Diese Variable kann an beliebiger Stelle
+       im Befehl angegeben werden. Falls sie nicht vorhanden
+       ist, wird nur Fehlerstufe 0 als erfolgreich gewertet.
+
+ #%%S# - Diese Variable erlaubt das Einfügen zusätzlicher Schalter,
+       die in der 2. Zeichenkette des "Hinzufügen"-Dialogs angegeben
+       werden. Fehlt diese Variable, werden Schalter immer am Ende
+       der Kommandozeile angehangen.
+
+    Die Variablenbezeichner Q, q, S, M, N, *, W, P können verwendet
+werden, um Details im Dateinamenformat zu ändern:
+
+    'Q' - Namen mit Leerzeichen in Anführungszeichen setzen;
+    'q' - Alle Namen in Anführungszeichen setzen;
+    'S' - '/' anstelle von '\' in Pfadnamen benutzen;
+    'M' - Verzeichnisnamen als 'Verzeichnisname\*.*' an Packer
+          übergeben;
+    'N' - Verzeichnisnamen als 'Verzeichnisname' an Packer
+          übergeben;
+    '*' - '*'-Maske zur Auswahl aller Dateien zu benutzen.
+          Dieser Bezeichner hat Vorrang vor der "Alle Dateien"
+          Maske für einzelne Packer-Befehle.
+    'W' - nur Dateinamen benutzen, ohne Pfad;
+    'P' - nur Pfad benutzen, ohne Dateinamen;
+    'A' - ANSI-Codierung benutzen.
+
+    Diese Bezeichner können direkt nach %%F, %%f, %%L oder %%l-
+Bezeichnern ohne Leerzeichen benutzt werden. 'P' und 'A' können
+auch mit %%A und %%a benutzt werden. Es sind mehrere Bezeichner
+erlaubt, gültig sind z.B. %%LMN oder %%F*QSN128. Wenn weder
+'M' noch 'N' angegeben wurde, wird 'N' angenommen. Wenn 'M'
+und 'N' angegeben wurden, wird sowohl 'Verzeichnisname' als
+auch 'Verzeichnisname\*.*' an den Packer übergeben.
+
+    Wenn ein Teil eines externen Packer-Befehlsstrings in geschweifte
+Klammern { } eingeschlossen wird, wird dieser zum endgültigen String
+nur dann hinzugefügt, wenn er mindestens eine der oben genannten
+Variablen enthält, die nicht leer ist/sind.
+
+    Falls ein externer Packer den ein oder anderen Befehl nicht
+unterstützt, lassen Sie den zugehörigen Eintrag dazu leer.
+
+@ArcSettings3
+$ #Storage of plugin settings#
+    The plugin uses the following rules to load/save the settings of
+supported format modules:
+
+  1. #[HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]#
+     contains the settings common for all users. These settings can
+     only be changed by editing the registry manually, for example,
+     using *.reg files.
+
+  2. Any changes to the archiver command line settings are stored to
+     #[HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]#.
+
+  3. The plugin reads the archiver command line settings in the
+     following sequence:
+
+     a) [HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]
+     b) [HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]
+     c) settings provided by the FMT module.

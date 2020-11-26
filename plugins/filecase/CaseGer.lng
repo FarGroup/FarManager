@@ -1,0 +1,28 @@
+﻿.Language=German,German (Deutsch)
+
+"Zeichenkonvertierung"
+"Ok"
+"Abbrechen"
+"&Reset"
+
+"Name"
+"Extension"
+
+"&1. lower case"
+"&2. UPPER CASE"
+"&3. First capital"
+"&4. Title Case"
+"&5. None"
+"&6. lower case"
+"&7. UPPER CASE"
+"&8. First capital"
+"&9. Title Case"
+"&0. None"
+
+"Konvertiere keine Dateien mit ge&mischter Schreibweise"
+"Process &subfolders"
+"Process &folder names"
+"&Word delimiters:"
+
+"Konvertiere Dateinamenzeichen"
+"C&urrent run only"
