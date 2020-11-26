@@ -8,6 +8,7 @@ DOCS = \
 	ECaseEng.hlf \
 	ECaseRus.hlf \
 	ECasePol.hlf \
+	ECaseGer.hlf \
 	ECaseEng.lng \
 	ECaseRus.lng \
 	ECaseSky.lng \
@@ -15,6 +16,7 @@ DOCS = \
 	ECaseIta.lng \
 	ECasePol.lng \
 	ECaseBel.lng \
+	ECaseGer.lng \
 	changelog
 
 !include ..\makefile_vc_def_inc
