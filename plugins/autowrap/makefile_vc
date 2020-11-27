@@ -13,6 +13,7 @@ DOCS = \
 	WrapPol.lng \
 	WrapBel.lng \
 	WrapGer.lng \
+	WrapUkr.lng \
 	changelog
 
 !include ..\makefile_vc_def_inc

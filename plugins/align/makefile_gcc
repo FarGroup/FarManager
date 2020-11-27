@@ -11,6 +11,7 @@ DOCS = \
 	AlignPol.lng \
 	AlignBel.lng \
 	AlignGer.lng \
+	AlignUkr.lng \
 	changelog
 
 include ../../far/makefile_gcc_common

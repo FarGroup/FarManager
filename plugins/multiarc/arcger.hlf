@@ -2,7 +2,7 @@
 .PluginContents=Archivsupport-Plugin
 
 @Contents
-$^#Archivsupport-Plugin#
+$ #Archivsupport-Plugin#
     Dieses FAR-Modul führt transparente #Archiv#-Bearbeitungen durch.
 Dateien eines Archivs werden in der gleichen Weise behandelt als ob
 sie sich in einem Verzeichnis befänden: wenn Sie mit einem Archiv

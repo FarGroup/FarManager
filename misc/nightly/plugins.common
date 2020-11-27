@@ -10,7 +10,8 @@ function bplugin2 {
 PLUGIN=$1
 BIT=$2
 WIDE=$3
-FILES=$4
+MASKS=$4
+FILES=$5
 
 if [ $WIDE -eq 1 ]; then
   FINAL=final.${BIT}W.vc
@@ -36,6 +37,9 @@ if [ "$PLUGIN" == "FExcept" ]; then
   mkdir -p ../../outfinalnew${BIT}/FExcept/
   cp -f changelog ../../outfinalnew${BIT}/FExcept/
   cd $FINAL || return 1
+  if [ $MASKS -eq 1 ]; then
+    FILES=`ls $FILES 2>/dev/null`
+  fi
   cp -f $FILES ../../../outfinalnew${BIT}/FExcept/ || return 1
   u2d_list "$FILES" ../../../outfinalnew${BIT}/FExcept/
   cd ..
@@ -46,6 +50,9 @@ elif [ $ADD -eq 1 ]; then
   cp -f changelog ../../outfinalnew${BIT}/Plugins/$PLUGIN/  
 
   cd $FINAL || return 1
+  if [ $MASKS -eq 1 ]; then
+    FILES=`ls $FILES 2>/dev/null`
+  fi
   cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/ || return 1
   u2d_list "$FILES" ../../../outfinalnew${BIT}/Plugins/$PLUGIN/
   cd ..
@@ -60,6 +67,9 @@ else
   cp -f changelog ../../outfinalnew${BIT}/Plugins/$PLUGIN/  
 
   cd $FINAL || return 1
+  if [ $MASKS -eq 1 ]; then
+    FILES=`ls $FILES 2>/dev/null`
+  fi
   cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/ || return 1
   u2d_list "$FILES" ../../../outfinalnew${BIT}/Plugins/$PLUGIN/
   cd ..
@@ -75,8 +85,8 @@ pushd $PLUGIN || return 1
 unix2dos changelog
 
 ( \
-	bplugin2 "$PLDIR" 32 1 "$3" && \
-	bplugin2 "$PLDIR" 64 1 "$3" \
+	bplugin2 "$PLDIR" 32 1 1 "$3" && \
+	bplugin2 "$PLDIR" 64 1 1 "$3" \
 ) || return 1
 
 popd

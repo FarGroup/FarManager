@@ -19,12 +19,14 @@ DOCS = \
 	arceng.hlf \
 	arcrus.hlf \
 	arcger.hlf \
+	arcukr.hlf \
 	arceng.lng \
 	arcrus.lng \
 	arcspa.lng \
 	arcita.lng \
 	arcbel.lng \
 	arcger.lng \
+	arcukr.lng \
 	MultiArc.TryIfNoOther.reg \
 	changelog
 

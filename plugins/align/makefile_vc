@@ -13,6 +13,7 @@ DOCS = \
 	AlignPol.lng \
 	AlignBel.lng \
 	AlignGer.lng \
+	AlignUkr.lng \
 	changelog
 
 !include ..\makefile_vc_def_inc

@@ -12,6 +12,7 @@ HLF files or just want to view some HLF files.
    ~Использование плагина в макросах~@MacroCallPlugin@
    ~Settings~@Config@
 
+
 @cmd
 $ #HlfViewer: command line syntax
 
@@ -37,14 +38,13 @@ $ #HlfViewer: command line syntax
               ^<wrap>Для вызова справки самого Far Manager допустимо указывать
 только топик (без имени файла).
 
-
    ~Contents~@Contents@
+
 
 @editor
 $ #HlfViewer: work in editor#
    Вызов команды из меню плагинов в редакторе покажет #текущий редактируемый# топик,
 если файл в редакторе является файлом помощи для Far.
-
 
    Примечание 1:
 
@@ -56,7 +56,6 @@ $ #HlfViewer: work in editor#
      ^<wrap>Кроме того, в ~настройках~@Config@ можно ограничить перечень обрабатываемых
 файлов задав маску.
 
-
    Примечание 2:
 
      ^<wrap>Плагин можно настроить так, чтобы топик показывался не командой меню,
@@ -65,8 +64,8 @@ $ #HlfViewer: work in editor#
 
      ^<wrap>В этом случае пункт вызова #HlfViewer# в меню плагинов не добавляется.
 
-
    ~Contents~@Contents@
+
 
 @Config
 $ #HlfViewer: Settings#
@@ -96,6 +95,7 @@ used. It can have one of the following values:
    #modified file#     will be saved
 
    ~Contents~@Contents@
+
 
 @MacroCallPlugin
 $ #Использование плагина в макросах#

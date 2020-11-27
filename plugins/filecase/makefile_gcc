@@ -11,6 +11,7 @@ DOCS = \
 	CaseRus.hlf \
 	CasePol.hlf \
 	CaseGer.hlf \
+	CaseUkr.hlf \
 	CaseEng.lng \
 	CaseRus.lng \
 	CaseSky.lng \
@@ -19,6 +20,7 @@ DOCS = \
 	CasePol.lng \
 	CaseBel.lng \
 	CaseGer.lng \
+	CaseUkr.lng \
 	changelog
 
 include ../../far/makefile_gcc_common

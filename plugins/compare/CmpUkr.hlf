@@ -1,0 +1,43 @@
+﻿.Language=Ukrainian,Ukrainian (Українська)
+.PluginContents=Розширене порівняння
+
+@Contents
+$ #Розширене порівняння#
+ Ця команда аналогічна вбудованій команді Far "Порівняння папок", але вона також дозволяє вказати додаткові параметри порівняння.
+
+ #Обробляти:#
+
+ #вкладені папки#
+ Порівнювати файли у вкладених папках. Не може бути використана для панелей зовнішніх модулів.
+
+ #maximum folder depth#
+ Don't compare folders of bigger depth than specified.
+
+ #тільки позначені файли/папки#
+ Порівнювати тільки позначені файли і папки. Ця опція ігнорується для панелей, на яких нічого не позначено (у цьому випадку буде порівняно весь уміст панелі).
+
+ #Порівнювати:#
+
+ #час#
+ Порівнювати час зміни файлів. На відміну від вбудованої команди Far, будуть позначені файли на обох панелях, а не тільки більш свіжі.
+
+ #двосекундна точність#
+ Використовувати для порівняння часу формат FAT. Інакше буде використаний повний час файла, включаючи мілісекунди.
+
+ #ignore possible time zone differences#
+ Ignore file time difference that is an exact multiple of 15 minutes (i.e. half an hour, 2 hours and 15 minutes, 12 hours). Maximum ignored difference is 26 hours.
+
+ #розмір#
+ Порівнювати розмір файлів.
+
+ #вміст#
+ Порівнювати вміст файлів. Не може бути використана для панелей зовнішніх модулів.
+
+ #ignore differences in new line characters#
+ Ignore differences in new line characters (i.e. when comparing Unix and Windows files).
+
+ #ignore whitespace#
+ Ignore whitespace when comparing file contents (ignores spaces, tabs and new line characters).
+
+ #Видавати повідомлення коли розходження не знайдені#
+ Показувати повідомлення, якщо в результаті порівняння розходження не були виявлені.

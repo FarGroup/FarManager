@@ -13,6 +13,7 @@ DOCS = \
 	NetRus.hlf \
 	NetPol.hlf \
 	NetGer.hlf \
+	NetUkr.hlf \
 	NetEng.lng \
 	NetRus.lng \
 	NetSky.lng \
@@ -21,6 +22,7 @@ DOCS = \
 	NetBel.lng \
 	NetPol.lng \
 	NetGer.lng \
+	NetUkr.lng \
 	changelog
 
 NEEDDEFLIB=1

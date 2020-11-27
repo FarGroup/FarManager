@@ -47,6 +47,7 @@ $ #Dopasowanie nawiasów - Szukaj/Wybierz#
   ~Zawartość~@Contents@
   ~Konfiguruj~@Config@
 
+
 @Direct
 $ #Dopasowanie nawiasów - Szukaj cudzysłowów#
   Jeżeli pasujące nawiasy lub znaki cudzysłowów mają te same znaki,
@@ -58,9 +59,9 @@ wtyczka musi wiedzieć w jakim kierunku pliku ma ich szukać:
   #Wstecz#     - szuka pasującego znaku od bieżącej pozycji kursora
                do początku tekstu.
 
-
   ~Zawartość~@Contents@
   ~Konfiguruj~@Config@
+
 
 @Config
 $ #Dopasowanie nawiasów - Konfiguracja#
@@ -115,8 +116,8 @@ $ #Dopasowanie nawiasów - Konfiguracja#
                         nawiasu, kolejne dwa - końcem. Można wprowadzić
                         maksymalnie 10 takich sekwencji.
 
-
   ~Zawartość~@Contents@
+
 
 @MacroCallPlugin
 $ #Używanie wtyczki w makrach#

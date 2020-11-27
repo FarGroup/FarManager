@@ -3,7 +3,7 @@
 .Options CtrlStartPosChar=^<wrap>
 
 @Contents
-$^#Polecenia FAR#
+$ #Polecenia FAR#
    Wtyczka Polecenia FAR (FARCmds) provides a number of additional commands available
 in command line via prefixes.
 
@@ -33,8 +33,8 @@ w ~powiązaniach plików~@:FileAssoc@, oraz w oknie dialogowym ~Zastosuj polecen
              #ścieżka#     - ^<wrap>file or directory path to jump to.
              #<polecenie# - ^<wrap>~intercept output~@Direction@ of operation system command. Symbol #<# is obligatory.
 
-
    Zobacz także: ~Konfiguracja poleceń FAR~@Config@ | ~Uwagi~@Remark@
+
 
 @Load
 $ #Polecenie Load#
@@ -48,8 +48,8 @@ $ #Polecenie Load#
 
       #load: <filename#
 
-
    Zobacz także: ~unload~@Unload@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
+
 
 @Unload
 $ #Polecenie Unload#
@@ -65,11 +65,11 @@ $ #Polecenie Unload#
 
    Plugin GUID can also be used instead of DLL path.
 
-
    Zobacz także ~load~@Load@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
 
+
 @Clip
-$^#Polecenie Clip#
+$ #Polecenie Clip#
    The #clip# command puts data into the Windows clipboard.
 The data can be the contents of a file or the output of a program.
 The clipboard will contain all the data up to the character with the
@@ -83,6 +83,7 @@ code #0x00#.
 
    Zobacz także: ~Przekierowanie wyjścia~@Direction@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
 
+
 @Run
 $ #Polecenie Run#
    The #run# command executes an operating system #command# redirecting
@@ -91,22 +92,21 @@ on the screen or hidden from the user using ~Output Redirection~@Direction@ modi
 
    #run:filename<command#
 
-
    Zobacz także: ~Przekierowanie wyjścia~@Direction@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
 
 
 @View
-$^#Polecenie View#
+$ #Polecenie View#
    The #view# command opens the file "#filename#" in the FAR
 built-in ~viewer~@:Viewer@:
 
    #view:filename#
 
-
    See also: ~edit~@Edit@ | ~Output Redirection~@Direction@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
+
 @Edit
-$^#Polecenie Edit#
+$ #Polecenie Edit#
    The #edit# command opens the file "#filename#" for editing
 in the FAR built-in ~editor~@:Editor@.
 
@@ -139,11 +139,11 @@ the correct opening of the file in the editor you must provide at least one deli
    edit: [1].txt
    edit:"[1].txt"
 
-
    Zobacz także: ~view~@View@ | ~Output Redirection~@Direction@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
+
 @Goto
-$^#Polecenie Goto#
+$ #Polecenie Goto#
    The #goto# command jumps to a file or a folder. The path can be
    specified in two ways:
 
@@ -170,12 +170,12 @@ only the switching to the required folder occurs.
 
    Zobacz także: ~whereis~@WhereIs@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
+
 @Link
 $ #Polecenie Link#
 
    The #link# command creates ~links~@:HardSymLink@ to files and folders.
 It also allows to mount local disks on file system.
-
 
    #link:#[#/msg#] [#/n#] [#/s#] #source destination#
 
@@ -203,8 +203,8 @@ that allows to display specified disks as folders. Example:
 
     After this command the folder C:\cdrom will display the contents of drive E:
 
-
    Zobacz także: ~Remarks~@Remark@ | ~Zawartość~@Contents@
+
 
 @WhereIs
 $ #Polecenie WhereIs#
@@ -237,8 +237,8 @@ successful.
    When panels are turned off, the cursor is not positioned on the requested object,
 only the switching to the required folder occurs.
 
-
    See also: ~goto~@Goto@ | ~Notes~@Remark@ | ~Contents~@Contents@
+
 
 @Direction
 $ #Przekierowanie wyjścia#
@@ -276,7 +276,6 @@ current one. To do this specify the path (enclosed in pipes '#|#')
      or can be placed into clipboard:      #~clip~@Clip@:<command#
      or saved to a user-defined file:      #~run~@Run@:filename<command#
 
-
   #Notes:#
 
    1. ^<wrap>The entire string after the symbol '#<#' and optional modifiers
@@ -297,7 +296,6 @@ command text must be separated from it by some symbol.
    5. ^<wrap>Если #command# указан без пути, то плагин пытается найти исполняемй
 модуль, как это делает команда ~whereis~@WhereIs@.
 
-
   #Examples:#
 
    Execute the command "#command#" and redirect its output to the editor:
@@ -309,11 +307,11 @@ command text must be separated from it by some symbol.
      #edit:<1+command#
      #edit:<1|%TEMP%|command#
 
-
    See also: ~Notes~@Remark@ | ~Contents~@Contents@
 
+
 @Remark
-$^#Notes#
+$ #Notes#
 
    1. ^<wrap>It is possible to enclose parameters #filename#, #path# and #command# in quotes.
 
@@ -323,11 +321,11 @@ $^#Notes#
 
    4. ^<wrap>You can use console aliases as #command# (Console aliases - macros defined by command DOSKEY)
 
-
    See also: ~Contents~@Contents@
 
+
 @Config
-$^#Configuring FAR Commands#
+$ #Configuring FAR Commands#
 
  #External commands screen output# Control program screen ~output~@Direction@:
 
@@ -346,7 +344,6 @@ $^#Configuring FAR Commands#
                                output.
                                Same as using #<+# instead of #<#.
 
-
  #Intercepting output#           Controlling of program ~output~@Direction@
                                interception:
 
@@ -355,13 +352,11 @@ $^#Configuring FAR Commands#
                                #stderr# as one stream.
                                Same as using #<*# instead of #<#.
 
-
    #Intercept stdout only#       ^<wrap>Intercept only #stdout# (standard output stream).
                                Same as using #<1# instead of #<#.
 
    #Intercept stderr only#       ^<wrap>Intercept only #stderr# (standard errors stream).
                                Same as using #<2# instead of #<#.
-
 
    #Intercept stdout and #       Intercept stdout and #stderr#
    #stderr separately#           separately. It has sense only in

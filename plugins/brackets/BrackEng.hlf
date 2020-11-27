@@ -49,6 +49,7 @@ $ #Brackets matching - Search/select#
   ~Contents~@Contents@
   ~Configure~@Config@
 
+
 @Direct
 $ #Brackets matching - Search for quotation marks#
   If the matching brackets or quotation marks are the same characters,
@@ -60,14 +61,13 @@ the plugin needs to know the direction of file scanning:
   #Backward#   - search for the matching symbol from the current
                cursor position to the beginning of the text.
 
-
   ~Contents~@Contents@
   ~Configure~@Config@
 
+
 @Config
 $ #Brackets matching - Configure#
-  If you don't like the default settings of the plugin, you can configure
-it.
+  If you don't like the default settings of the plugin, you can configure it.
 
   #>Rules#
   The rules control the behavior of the plugin in specific situations:
@@ -104,6 +104,15 @@ it.
   #>Definitions#
   This section allows to change some basic constants of the plugin:
 
+   #Quotation marks#      Quotation mark characters for the rule
+                        "Ignore brackets in quotation marks".
+                        Contains a sequence of two-character pairs.
+                        The first character is the opening quotation
+                        mark, the second - the closing mark. There
+                        can be at most 10 pairs. Note: the quotation
+                        marks are not used directly for bracket
+                        matching.
+
    #Single brackets#      Definition of single brackets.
                         Contains a sequence of two-character pairs.
                         The first character is the opening bracket,
@@ -118,17 +127,8 @@ it.
                         bracket, the second - the closing bracket.
                         There can be at most 10 groups.
 
-   #Quotation marks#      Quotation mark characters for the rule
-                        "Ignore brackets in quotation marks".
-                        Contains a sequence of two-character pairs.
-                        The first character is the opening quotation
-                        mark, the second - the closing mark. There
-                        can be at most 10 pairs. Note: the quotation
-                        marks are not used directly for bracket
-                        matching.
-
-
   ~Contents~@Contents@
+
 
 @MacroCallPlugin
 $ #Использование плагина в макросах#
@@ -159,4 +159,4 @@ $ #Использование плагина в макросах#
 
        Plugin.Call("B66C436D-E657-419C-86D3-6834B9ACF3D2",1)
 
-  ~Содержание~@Contents@
+  ~Contents~@Contents@

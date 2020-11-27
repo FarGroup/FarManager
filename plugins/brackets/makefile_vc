@@ -8,6 +8,7 @@ DOCS = \
 	BrackEng.hlf \
 	BrackRus.hlf \
 	BrackPol.hlf \
+	BrackUkr.hlf \
 	BrackEng.lng \
 	BrackRus.lng \
 	BrackSky.lng \
@@ -16,6 +17,7 @@ DOCS = \
 	BrackPol.lng \
 	BrackBel.lng \
 	BrackGer.lng \
+	BrackUkr.lng \
 	Brackets.lua \
 	changelog
 

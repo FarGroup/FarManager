@@ -221,7 +221,7 @@ given above - #tmp:#) can be set in the configuration dialog.
  ~Contents~@Contents@
 
 @CMD
-$^#Temporary panel: Command line#
+$ #Temporary panel: Command line#
  Command line syntax:
    #<prefix>:[<options>] [<filelist>]# , where:
 

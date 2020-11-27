@@ -2,7 +2,7 @@
 .PluginContents=Archive support plugin
 
 @Contents
-$^#Archive support plugin#
+$ #Archive support plugin#
     This FAR module performs transparent #archive# processing.
 Files in the archive are handled in the same manner as if they
 were in a folder: when you operate with the archive, FAR

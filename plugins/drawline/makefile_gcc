@@ -6,6 +6,7 @@ DOCS = \
 	DrawEng.hlf \
 	DrawRus.hlf \
 	DrawPol.hlf \
+	DrawUkr.hlf \
 	DrawEng.lng \
 	DrawRus.lng \
 	DrawSky.lng \
@@ -14,6 +15,7 @@ DOCS = \
 	DrawPol.lng \
 	DrawBel.lng \
 	DrawGer.lng \
+	DrawUkr.lng \
 	changelog
 
 include ../../far/makefile_gcc_common

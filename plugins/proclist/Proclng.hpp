@@ -93,7 +93,6 @@ enum
 
 	MConfigTitle,
 	MConfigAddToDisksMenu,
-	MConfigDisksMenuDigit,
 	MConfigAddToPluginMenu,
 
 	MIncludeAdditionalInfo,

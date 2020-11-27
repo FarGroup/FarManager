@@ -3,32 +3,22 @@
 
 @Contents
 $ #File names case conversion#
-    This command allows to change the case of selected file
-names to any of several available formats.
+ This command allows to change the case of selected file names to any of several available formats.
 
-   Choose the needed case conversion for the #Name# and the #Extension#
-correspondingly. If the #None# option is selected, the plugin will not process
-the corresponding file name part.
+ Choose the needed case conversion for the #Name# and the #Extension# correspondingly.
+If the #None# option is selected, the plugin will not process the corresponding file name part.
 
- #Do not process#             The plugin will not process files and
- #mixed case files#           folders with mixed case names.
+ #Do not process mixed case files#
+ The plugin will not process files and folders with mixed case names.
 
- #Process subfolders#         If the selected file objects include
-                            folders, the plugin will also process
-                            the files and subfolders in the selected
-                            directories.
+ #Process subfolders#
+ If the selected file objects include folders, the plugin will also process the files and subfolders in the selected folders.
 
- #Process folder names#       If the cursor is positioned on a folder
-                            and the option "#Process subfolders#" is
-                            turned on, the plugin will also process
-                            the name of that folder and all
-                            subfolders.
+ #Process folder names#
+ If the cursor is positioned on a folder and the option "#Process subfolders#" is turned on, the plugin will also process the name of that folder and all subfolders.
 
- #Current run only#           Use the options specified in the dialog
-                            only for the current conversion session.
+ #Current run only#
+ Use the options specified in the dialog only for the current conversion session.
 
- #Word delimiters#            Characters used to delimit words for the
-                            title case conversion.
-                            The "#Reset#" button will reset the word
-                            delimiters to the default value: "# _#"
-                            (Space and underscore).
+ #Word delimiters#
+ Characters used to delimit words for the title case conversion. The "#Reset#" button will reset the word delimiters to the default value: "# _#" (Space and underscore).

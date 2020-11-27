@@ -1,0 +1,31 @@
+﻿.Language=Ukrainian,Ukrainian (Українська)
+.PluginContents=Такий само каталог
+.Options CtrlStartPosChar=^<wrap>
+
+@Contents
+$ #Такий само каталог#
+   The plugin adds item "Same Folder" to the #plugins menu# and the #drives menu#.
+
+   - ^<wrap>If called from the ~plugins menu~@:PluginCommands@ then it sets
+the passive panel to the same folder as in the active one.
+
+   - ^<wrap>If called from the ~drives menu~@:DriveDlg@ then it sets
+the choosen panel to the same folder as in the opposite one.
+
+   By default the item is added only to the #plugins menu#.
+
+   Див. також: ~Настроювання~@Config@
+
+
+@Config
+$ #Конфігурування#
+
+ #"Додати "Такий само каталог"#  Додає до ~меню плагінів~@:Plugins@ команду
+ #до меню плагінів"#             ~встановлення~@TheSameCatalogue@ на пасивній панелі
+                               такого ж каталогу, як і на активній.
+
+ #"Додати "Такий само каталог"#  Додає до ~меню дисків~@:DriveDlg@ команду
+ #до меню дисків"#               ~встановлення~@TheSameCatalogue@ на пасивній панелі
+                               такого ж каталогу, як і на активній.
+
+  Див. також: ~Зміст~@Contents@

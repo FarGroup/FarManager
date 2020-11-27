@@ -54,7 +54,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
  ~Indeks pomocy~@Index@
  ~Jak używać pomocy~@Help@
 
- ~O programie FAR~@About@
+ ~O programie Far~@About@
  ~Licencja (po angielsku)~@License@
 
  ~Przełączniki linii poleceń~@CmdLine@
@@ -711,7 +711,6 @@ W innym przypadku usunięte będą tylko podświetlone pliki lub foldery.
  #Alt+Del#
  Wymazuje pliki i foldery.
 
-
  Uwagi:
 
  1. ^<wrap>Zależnie od ~Ustawień systemowych~@SystemSettings@ klawisze #F8#
@@ -990,7 +989,7 @@ nieograniczone możliwości rozbudowy programu Far.
  * Kalkulatory z wieloma różnymi możliwościami.
  * Kilka gier :-)
  * Funkcja sprawdzanie pisowni podczas edycji plików tekstowych w edytorze Far.
- * Przygotowanie katalogu dysków wymiennych i wiele więcej...
+ * Przygotowanie katalogu dysków wymiennych i wiele więcej…
 
  Jako źródło informacji, gdzie można znaleźć wtyczki możemy zarekomendować:
 
@@ -1216,6 +1215,7 @@ Obsługiwane typy: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW i DVD-RAM.
  Format wyjściowy zależy od struktury domeny, polityk grup i ustawień DNS.
 
  #Format nazwy użytkownika#
+
  Do wyboru z listy:
 
  - #Nazwa logowania#
@@ -1297,7 +1297,7 @@ myszy podczas przeciągania. Można także nacisnąć i przytrzymać klawisz
 
 @Menus
 $ #Menu#
- Aby wybrać operację z menu, należy wcisnąć F9 lub kliknąć na górną belkę
+ Aby wybrać operację z menu, należy wcisnąć #F9# lub kliknąć na górną belkę
 okna programu.
 
  Jeżeli menu jest aktywowanie przez naciśnięcie#F9#, automatycznie wybierane
@@ -1430,7 +1430,6 @@ $ #Menu: menu polecenia#
  #plików#
 
  #Historia folderów#    Wyświetla historię ~zmiany folderów~@HistoryFolders@.
-
                       Pozycje w "Historii folderów" i "Historii podglądu plików"
                       po wykorzystaniu są przenoszone na koniec listy.
                       Użyj #Shift+Enter#, aby użyć je bez zmiany pozycji.
@@ -1451,6 +1450,8 @@ $ #Menu: menu polecenia#
                       i #F4# aby edytować powiązanie.
 
  #Skróty folderów#      Wyświetla ustawione ~skróty do folderów~@FolderShortcuts@.
+
+ #Edit sort groups#     Allows to edit user defined ~sort groups~@SortGroups@.
 
  #Filtr panelu plików#  Pozwana na kontrolę zawartości panelu plików.
                       Więcej informacji: ~menu filtrów~@FiltersMenu@.
@@ -1620,7 +1621,6 @@ lub "#link symboliczny"#). Jeżeli zostaną one wybrane, pole "#Cel#" powinno za
 założyć wiele folderów. W takim przypadku nazwy folderów powinny być rozdzielone
 znakami średnika ("#;#") lub przecinka ("#,#"). Jeżeli zakładane foldery zawierają
 te znaki, to nazwy folderów muszą być ujęte w cudzysłowy.
-
  Np. jeżeli użytkownik wprowadzi tekst #C:\\Test1;"E:\\Test,2;";D:\\Test3#,
 to zostaną utworzone foldery o nazwach "#C:\\Test1#", "#E:\\Test,2;#" i "#D:\\Test3#".
 
@@ -1713,14 +1713,6 @@ znajdować.
  #Typy kolumn# - pozwala na sformatowanie wyników wyszukiwania.
 Typy kolumn są kodowane jednym lub więcej znakami rozdzielanymi przecinkami.
 Obsługiwane są następujące typy kolumn:
-
- S[C,T,F,E] - ^<wrap>wielkość pliku
- P[C,T,F,E] - wielkość pliku na dysku
- G[C,T,F,E] - wielkość alternatywnego strumienia pliku, gdzie:
-              C - ^<wrap>formatuj wielkość pliku;
-              T - użyj 1000 zamiast 1024 jako dzielnika;
-              F - pokazuj wielkość w dziesiętnych wielokrotnościach z jednostką, np. 0.97 K, 1.44 M, 3.5 G;
-              E - krótka forma, bez spacji po przyrostku wielkości (np. 0.97K).
 
  S[C,T,F,E] - ^<wrap>wielkość pliku
  P[C,T,F,E] - zajętość pliku na dysku
@@ -1933,7 +1925,7 @@ attributes and none of the exclusion attributes:
  #[?]# - ^<wrap>ignore this attribute.
 
  The #Compressed#, #Encrypted#, #Not indexed#, #Sparse#, #Temporary# and #Offline# attributes
-are used only on disks with the NTFS file system. #Virtual# attribute is not used in Windows 2000/XP/2003.
+are used only on disks with the NTFS file system.
 The #Integrity stream# and #No scrub data# attributes are supported only on ReFS volumes starting from Windows Server 2012.
 
 
@@ -2212,8 +2204,7 @@ as a ~mask~@FileMasks@:
 
  The association can be described in the #Description of the association# field.
 
- ~Special symbols~@MetaSymbols@ can be used in the associated
-command.
+ ~Special symbols~@MetaSymbols@ can be used in the associated command.
 
  Notes:
 
@@ -3393,11 +3384,11 @@ helps applications to identify the code page of this file.
 
  #Dos/Windows format (CR LF)#
  Line breaks will be represented as a two-character sequence -
-Carriage Return and Line Feed (CR LF), as used in DOS/Windows.
+Carriage Return and Line Feed (CR LF), as used in Dos/Windows.
 
  #Unix format (LF)#
  Line breaks will be represented as a single character - Line
-Feed (LF), as used in UNIX.
+Feed (LF), as used in Unix.
 
  #Mac format (CR)#
  Line breaks will be represented as a single character - Carriage
@@ -3969,9 +3960,8 @@ folders, all checkboxes will always be 3-state.
 corresponding checkboxes was changed from the initial state.
 
  The #Compressed#, #Encrypted#, #Not indexed#, #Sparse#, #Temporary#,
-#Offline#, #Reparse point# and #Virtual# attributes are available only on NTFS drives. The
-#Virtual# attribute is not used in Windows 2000/XP/2003. The #Compressed#
-and #Encrypted# attributes are mutually exclusive, that is, you can set only
+#Offline#, #Reparse point# and #Virtual# attributes are available only on NTFS drives.
+The #Compressed# and #Encrypted# attributes are mutually exclusive, that is, you can set only
 one of them. You cannot clear the #Sparse# attribute in Windows 2000/XP/2003. The
 #Integrity stream# and #No scrub data# attributes are supported only on ReFS volumes starting from
 Windows Server 2012.
@@ -3997,7 +3987,6 @@ month or only minutes. All the other date and time components will remain
 unchanged.
 
  The #Current# button fills the file time fields with the current time.
-
  The #Original# button fills the file time fields with their original
 values. Available only when the dialog is invoked for a single file object.
 
@@ -4139,7 +4128,6 @@ the list. In this list "Brief mode" item corresponds to brief panel mode
 on. The last item, "Alternative full", corresponds to view mode called with
 #LeftCtrl+0#. After selecting the mode, you can change the following settings:
 
-
  #Column types# - a comma-separated list. Each column type starts with
 a file property character, such as name, size, etc. Some file properties
 may be followed by modifiers. Supported column types (properties and
@@ -4248,7 +4236,6 @@ to the display of seconds and milliseconds.
 
  Enabling links, streams and owner columns (G, LN, F and O) can significantly
 slow down the directory reading.
-
 
  #Status line column types# and #Status line column widths# -
 similar to "Column types" and "Column widths", but for panel status line.
@@ -4446,8 +4433,8 @@ append backslash to its name.
 
  If ~Panel.Tree.TurnOffCompletely~@Panel.Tree.TurnOffCompletely@
 parameter in ~far:config~@FarConfig@ is set to “false,” you can use
-~Find folder~@FindFolder@ dialog to select the target path. The
-following shortcuts open the dialog with different pre-selected folders:
+~Find folder~@FindFolder@ dialog to select the target path.
+ The following shortcuts open the dialog with different pre-selected folders:
  - ^<wrap>#F10# selects the folder from the active panel.
  - ^<wrap>#Alt+F10# selects the folder from the passive panel.
  - ^<wrap>#Shift+F10# selects the specified target folder. If several
@@ -4578,7 +4565,6 @@ $ #Hard and Symbolic link#
  On NTFS volumes you can create #hard links# for files, #directory junctions# for
 folders and #symbolic links# for files and folders using the #Alt+F6# command.
 
-
  #Hard links#
 
  A #hard link# is an additional directory entry for the given file. When a
@@ -4600,7 +4586,6 @@ and sort the files by hard link number.
 
  Hard links can only be created on the same partition as the source file.
 
-
  #Directory junctions#
 
  Directory junctions allows to access to any local folders as to any other
@@ -4613,7 +4598,6 @@ C:\\WINNT\\SYSTEM32\\DRIVERS.
  Under Windows 2000 it is not allowed to create directory junctions directly to
 CD-ROM folders, but this restriction can be overcome by mounting a CD-ROM
 as a folder on the NTFS partition.
-
 
  #Symbolic links#
 
@@ -4774,10 +4758,8 @@ behavior is restored by the “TITLE” command with no parameters.
  Notes:
 
  1. ^<wrap>If the command syntax does not match one of the listed
-above, Far Manager will invoke the operating system command processor
-to execute the command.
- 2. ^<wrap>Far Manager executes the commands listed above in the
-following contexts:
+above, Far Manager will invoke the operating system command processor to execute the command.
+ 2. ^<wrap>Far Manager executes the commands listed above in the following contexts:
  - ~Command line~@CmdLineCmd@
  - ~Apply command~@ApplyCmd@
  - ~User menu~@UserMenu@
@@ -4860,7 +4842,6 @@ zero-size expression.
  #(?{name}pattern)# - group with a name. The name can be empty (in such case you
 cannot refer to this group) or must contain only word characters (#\w#) and spaces (#\s#).
 
-
  #Quantifiers#
 
  Any character, group or class can be followed by a quantifier:
@@ -4878,7 +4859,6 @@ cannot refer to this group) or must contain only word characters (#\w#) and spac
  #{n,m}?# - ^<wrap>Match at least n but not more than m times, not greedily.
  #{,m}#   - ^<wrap>equals to {0,m}
  #{,m}?#  - ^<wrap>equals to {0,m}?
-
 
  #"Greedy" and "not greedy" quantifiers#
 
@@ -5174,7 +5154,6 @@ command playback is finished.
  #Execute after Far start#
  Allows to execute the macro command immediately after the Far Manager is started.
 
-
  The following execution conditions can be applied for the active and passive panels:
 
  #Plugin panel#
@@ -5204,11 +5183,11 @@ command playback is finished.
  [ ] - execute only if there is no selection present
  [?] - ignore selection state
 
-
  Notes:
 
  1. ^<wrap>Before executing a macro command, all of the above conditions are checked.
- 2. Some key combinations (including #Enter#, #Esc#, #F1# and #Ctrl+F5#,
+
+ 2. ^<wrap>Some key combinations (including #Enter#, #Esc#, #F1# and #Ctrl+F5#,
 #MsWheelUp#, #MsWheelDown# and other mouse keys combined with #Ctrl#, #Shift#, #Alt#) cannot be entered
 directly because they have special functions in the dialog. To assign a macro
 to one of those key combinations, select it from the drop-down list.

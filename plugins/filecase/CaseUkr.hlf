@@ -1,0 +1,24 @@
+﻿.Language=Ukrainian,Ukrainian (Українська)
+.PluginContents=Перетворення регістру імен файлів
+
+@Contents
+$ #Перетворення регістру імен файлів#
+ Ця команда дозволяє змінити регістр позначених імен файлів відповідно до будь-якого з декількох доступних форматів.
+
+ Choose the needed case conversion for the #Name# and the #Extension# correspondingly.
+If the #None# option is selected, the plugin will not process the corresponding file name part.
+
+ #Не обробляти файли зі змішаним регістром#
+ Плагін не буде обробляти файли або папки, імена яких мають змішаний регістр.
+
+ #Обробляти вкладені папки#
+ Якщо серед позначених файлових об'єктів є папки, то плагін також буде обробляти файли/папки у них.
+
+ #Обробляти імена папок#
+ Якщо курсор стоїть на папці і увімкнена опція# Обробляти вкладені папки#, то плагін обробить так само ім'я цієї папки.
+  
+ #Тільки для поточного перетворення#
+ Застосовувати виставлені опції тільки для поточного сеансу перетворення.
+
+ #Word delimiters#
+ Characters used to delimit words for the title case conversion. The "#Reset#" button will reset the word delimiters to the default value: "# _#" (Space and underscore).

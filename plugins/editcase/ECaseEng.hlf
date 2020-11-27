@@ -1,37 +1,33 @@
 ﻿.Language=English,English
 .PluginContents=Text case conversion
-.Options CtrlStartPosChar=^<wrap>
 
 @Contents
 $ #Text case conversion#
-    This command allows to change the case of selected text or current
-word in the internal editor.
+ This command allows to change the case of selected text or current word in the internal editor.
 
-    См. так же "~Использование плагина в макросах~@MacroCallPlugin@"
+ См. также "~Использование плагина в макросах~@MacroCallPlugin@"
 
 @MacroCallPlugin
 $ #Использование плагина в макросах#
-    ^<wrap>Плагин можно вызывать из макросов, используя макрофункцию Plugin.Call.
-    ^<wrap>Формат вызова:
+ Плагин можно вызывать из макросов, используя макрофункцию Plugin.Call.
 
-       #Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE",<Параметр>)#
+ Формат вызова:
 
-    ^<wrap>здесь:
-       #0E92FC81-4888-4297-A85D-31C79E0E0CEE#
-          идентификатор плагина
+ #Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE",<Параметр>)#, где:
 
-       #<Параметр>#
-          ^<wrap>строковое или числовое значение, обозначающее действие:
+ #0E92FC81-4888-4297-A85D-31C79E0E0CEE# - идентификатор плагина
 
-          Lower  0 - lower case
-          Title  1 - Title Case
-          Upper  2 - UPPER CASE
-          Toggle 3 - tOGGLE cASE
-          Cyclic 4 - Cyclic change
+ #<Параметр># - строковое или числовое значение, обозначающее действие:
 
-          ^<wrap>Если <Параметр> вне указанного выше диапазона - плагин завершает свою работу.
-          ^<wrap>Если <Параметр> не указан, то будет выведено меню действий.
+ Lower  / 0 - lower case
+ Title  / 1 - Title Case
+ Upper  / 2 - UPPER CASE
+ Toggle / 3 - tOGGLE cASE
+ Cyclic / 4 - Cyclic change
 
-    ^<wrap>Например, преобразовать текст в редакторе к виду "Title Case":
+ Если <Параметр> вне указанного выше диапазона, то плагин завершает свою работу.
+ Если <Параметр> не указан, то будет выведено меню действий.
 
-       Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE",1)
+ Например, преобразовать текст в редакторе к виду "Title Case":
+
+ Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE", 1)

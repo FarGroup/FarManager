@@ -1,16 +1,32 @@
 NAME = EMenu
+
 SRCS = \
-auto_sz.cpp \
-EMenu.cpp \
-FarMenu.cpp \
-MenuDlg.cpp \
-OleThread.cpp \
-Pidl.cpp \
-Plugin.cpp
+	auto_sz.cpp \
+	EMenu.cpp \
+	FarMenu.cpp \
+	MenuDlg.cpp \
+	OleThread.cpp \
+	Pidl.cpp \
+	Plugin.cpp
+
+DOCS = \
+	EMenuEng.hlf \
+	EMenuRus.hlf \
+	EMenuPol.hlf \
+	EMenuEng.lng \
+	EMenuRus.lng \
+	EMenuSky.lng \
+	EMenuSpa.lng \
+	EMenuIta.lng \
+	EMenuPol.lng \
+	EMenuBel.lng \
+	Hotkey.lua \
+	HotkeyClipboard.lua \
+	HotkeyProperties.lua \
+	Hotkey.farconfig \
+	changelog
 
 USERLIBS= -luuid
-
-DOCS = EMenuEng.hlf EMenuRus.hlf EMenuPol.hlf EMenuEng.lng EMenuRus.lng EMenuSky.lng EMenuSpa.lng EMenuIta.lng EMenuPol.lng EMenuBel.lng Hotkey.lua HotkeyClipboard.lua HotkeyProperties.lua changelog
 
 include ../../far/makefile_gcc_common
 

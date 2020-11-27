@@ -1,9 +1,9 @@
-﻿.Language=English,English (English)
+﻿.Language=English,English
 .PluginContents=Same Folder
 .Options CtrlStartPosChar=^<wrap>
 
 @Contents
-$^#Same Folder#
+$ #Same Folder#
    The plugin adds item "Same Folder" to the #plugins menu# and the #drives menu#.
 
    - ^<wrap>If called from the ~plugins menu~@:PluginCommands@ then it sets
@@ -12,20 +12,18 @@ the passive panel to the same folder as in the active one.
    - ^<wrap>If called from the ~drives menu~@:DriveDlg@ then it sets
 the choosen panel to the same folder as in the opposite one.
 
-
    By default the item is added only to the #plugins menu#.
 
    See also: ~Configuring~@Config@ the plugin
 
 
 @Config
-$^#Configuring Same Folder#
+$ #Configuring Same Folder#
 
  #Add "Same Folder"#        Adds the command to the ~Plugins menu~@:PluginCommands@.
  #to the Plugins menu#      ^<wrap>(sets the passive panel's folder to the active's one)
 
  #Add "Same Folder"#        Adds the command to the ~Disks menu~@:DriveDlg@
  #to the Disks menu#        ^<wrap>(sets the choosen panel's folder to the opposite's one)
-
 
    See also: ~Contents~@Contents@

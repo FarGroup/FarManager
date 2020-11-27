@@ -436,13 +436,17 @@ include: \
 	"$(FARINCLUDE)\vc_crt_fix.asm" \
 	"$(FARINCLUDE)\vc_crt_fix_ulink.cpp"
 
+HLFS = \
+	"$(OUTDIR)\FarEng.hlf" \
+	"$(OUTDIR)\FarRus.hlf" \
+	"$(OUTDIR)\FarHun.hlf" \
+	"$(OUTDIR)\FarPol.hlf" \
+	"$(OUTDIR)\FarGer.hlf" \
+	"$(OUTDIR)\FarUkr.hlf" \
+
 .PHONY: docs
 docs: \
-	"$(OUTDIR)\FarEng.hlf"\
-	"$(OUTDIR)\FarRus.hlf"\
-	"$(OUTDIR)\FarHun.hlf"\
-	"$(OUTDIR)\FarPol.hlf"\
-	"$(OUTDIR)\FarGer.hlf"\
+	$(HLFS) \
 	"$(OUTDIR)\File_id.diz"\
 	"$(OUTDIR)\Far.exe.example.ini"
 
@@ -535,35 +539,33 @@ $(INTDIR)\api_test_c++.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.
 
 MSG=@echo Generating $@
 
+VERSION_DEPS=farversion.m4 tools.m4 vbuild.m4
+
 $(BOOTSTRAPDIR)Far.exe.manifest \
 $(BOOTSTRAPDIR)copyright.inc \
 $(BOOTSTRAPDIR)farversion.inc \
 $(BOOTSTRAPDIR)farlang.templ \
 $(BOOTSTRAPDIR)far.rc.inc \
-$(OUTDIR)\File_id.diz: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
+$(OUTDIR)\File_id.diz: $(@F).m4 $(VERSION_DEPS)
 	$(MSG)
 	$(M4) $(@F).m4 > $@
 
-$(FARINCLUDE)\vc_crt_fix_impl.cpp \
-$(FARINCLUDE)\plugin.hpp \
-$(FARINCLUDE)\farcolor.hpp: $(@F) farversion.m4 tools.m4 vbuild.m4
-	$(MSG)
-	$(M4) -DINPUT=$(@F) headers.m4 > $@
+$(HLFS): $(VERSION_DEPS)
 
-$(OUTDIR)\FarEng.hlf \
-$(OUTDIR)\FarRus.hlf \
-$(OUTDIR)\FarHun.hlf \
-$(OUTDIR)\FarPol.hlf \
-$(OUTDIR)\FarGer.hlf: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
+.SUFFIXES: .hlf.m4
+.hlf.m4{$(OUTDIR)}.hlf:
 	$(MSG)
-	$(GAWK) -f scripts\mkhlf.awk $(@F).m4 | $(M4) > $@
+	$(GAWK) -f scripts\mkhlf.awk $< | $(M4) > $@
 
 $(OUTDIR)\Far.exe.example.ini: $(@F)
 	$(MSG)
 	copy /Y $(@F) $@ > nul
 
+$(FARINCLUDE)\vc_crt_fix_impl.cpp \
+$(FARINCLUDE)\plugin.hpp \
+$(FARINCLUDE)\farcolor.hpp \
 $(FARINCLUDE)\PluginW.pas \
-$(FARINCLUDE)\FarColorW.pas: $(@F) farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)\FarColorW.pas: $(@F) $(VERSION_DEPS)
 	$(MSG)
 	$(M4) -DINPUT=$(@F) headers.m4 > $@
 

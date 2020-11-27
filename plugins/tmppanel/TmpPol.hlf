@@ -224,7 +224,7 @@ given above - #tmp:#) can be set in the configuration dialog.
  ~Zawartość~@Contents@
 
 @CMD
-$^#Panel tymczasowy: Linia poleceń#
+$ #Panel tymczasowy: Linia poleceń#
  Składnia linii poleceń:
    #<przedrostek>:[<opcje>] [<lista_plików>]# , where:
 

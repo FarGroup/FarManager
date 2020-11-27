@@ -1,6 +1,22 @@
 NAME = SameFolder
+
 SRCS = SameFolder.cpp
-DOCS = SameFolderEng.hlf SameFolderRus.hlf SameFolderPol.hlf SameFolderEng.lng SameFolderRus.lng SameFolderSky.lng SameFolderSpa.lng SameFolderIta.lng SameFolderBel.lng SameFolderPol.lng changelog
+
+DOCS = \
+	SameFolderEng.hlf \
+	SameFolderRus.hlf \
+	SameFolderPol.hlf \
+	SameFolderUkr.hlf \
+	SameFolderEng.lng \
+	SameFolderRus.lng \
+	SameFolderSky.lng \
+	SameFolderSpa.lng \
+	SameFolderIta.lng \
+	SameFolderBel.lng \
+	SameFolderPol.lng \
+	SameFolderUkr.lng \
+	changelog
+
 USERLIBS = -lole32 -luuid
 
 include ../../far/makefile_gcc_common

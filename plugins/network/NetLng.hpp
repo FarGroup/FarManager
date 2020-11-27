@@ -46,7 +46,6 @@
 	MConfigTitle,
 	MConfigAddToDisksMenu,
 	MConfigAddToPluginMenu,
-	MConfigDisksMenuDigit,
 	MConfigLocalNetwork,
 	MConfigShares,
 	MConfigSharesFullPath,

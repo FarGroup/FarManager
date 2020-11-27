@@ -12,6 +12,7 @@ $ #HlfViewer - podgląd plików pomocy#
    ~Używanie wtyczki w makrach~@MacroCallPlugin@
    ~Ustawienia~@Config@
 
+
 @cmd
 $ #HlfViewer: składnia linii poleceń
 
@@ -36,14 +37,13 @@ $ #HlfViewer: składnia linii poleceń
                  ^<wrap>Для вызова справки самого Far Manager допустимо указывать
 только топик (без имени файла).
 
-
    ~Zawartość~@Contents@
+
 
 @editor
 $ #HlfViewer: praca w edytorze#
    Вызов команды из меню плагинов в редакторе покажет #текущий редактируемый# топик,
 если файл в редакторе является файлом помощи для Far.
-
 
    Примечание 1:
 
@@ -55,7 +55,6 @@ $ #HlfViewer: praca w edytorze#
      ^<wrap>Кроме того, в ~Ustawieniach~@Config@ можно ограничить перечень обрабатываемых
 файлов задав маску.
 
-
    Примечание 2:
 
      ^<wrap>Плагин можно настроить так, чтобы топик показывался не командой меню,
@@ -64,8 +63,8 @@ $ #HlfViewer: praca w edytorze#
 
      ^<wrap>В этом случае пункт вызова #HlfViewer# в меню плагинов не добавляется.
 
-
    ~Zawartość~@Contents@
+
 
 @Config
 $ #HlfViewer: Ustawienia#
@@ -95,6 +94,7 @@ used. It can have one of the following values:
    #modified file#     will be saved
 
    ~Zawartość~@Contents@
+
 
 @MacroCallPlugin
 $ #Wywoływanie wtyczki w makrach#

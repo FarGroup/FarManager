@@ -18,12 +18,14 @@ DOCS = \
 	ProcRus.hlf \
 	ProcPol.hlf \
 	ProcGer.hlf \
+	ProcUkr.hlf \
 	ProcEng.lng \
 	ProcRus.lng \
 	ProcIta.lng \
 	ProcBel.lng \
 	ProcPol.lng \
 	ProcGer.lng \
+	ProcUkr.lng \
 	changelog
 
 

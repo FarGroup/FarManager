@@ -1,15 +1,33 @@
 !include ../makefile_vc_base
 
 NAME = EMenu
-LINK_OBJS = $(OBJDIR)\EMenu.obj \
-$(OBJDIR)\auto_sz.obj \
-$(OBJDIR)\FarMenu.obj \
-$(OBJDIR)\MenuDlg.obj \
-$(OBJDIR)\OleThread.obj \
-$(OBJDIR)\Pidl.obj \
-$(OBJDIR)\Plugin.obj
 
-DOCS = EMenuEng.hlf EMenuRus.hlf EMenuPol.hlf EMenuEng.lng EMenuRus.lng EMenuSky.lng EMenuSpa.lng EMenuIta.lng EMenuPol.lng EMenuBel.lng Hotkey.farconfig Hotkey.lua HotkeyClipboard.lua HotkeyProperties.lua changelog
+LINK_OBJS = $(OBJDIR)\EMenu.obj \
+	$(OBJDIR)\auto_sz.obj \
+	$(OBJDIR)\FarMenu.obj \
+	$(OBJDIR)\MenuDlg.obj \
+	$(OBJDIR)\OleThread.obj \
+	$(OBJDIR)\Pidl.obj \
+	$(OBJDIR)\Plugin.obj
+
+DOCS = \
+	EMenuEng.hlf \
+	EMenuRus.hlf \
+	EMenuPol.hlf \
+	EMenuUkr.hlf \
+	EMenuEng.lng \
+	EMenuRus.lng \
+	EMenuSky.lng \
+	EMenuSpa.lng \
+	EMenuIta.lng \
+	EMenuPol.lng \
+	EMenuBel.lng \
+	EMenuUkr.lng \
+	Hotkey.lua \
+	HotkeyClipboard.lua \
+	HotkeyProperties.lua \
+	Hotkey.farconfig \
+	changelog
 
 !include ..\makefile_vc_def_inc
 

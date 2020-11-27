@@ -86,6 +86,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
  ~File associations~@FileAssoc@
  ~Operating system commands~@OSCommands@
  ~Folder shortcuts~@FolderShortcuts@
+ ~Sort groups~@SortGroups@
  ~Filters menu~@FiltersMenu@
  ~Screens switching~@ScrSwitch@
  ~Task list~@TaskList@
@@ -354,8 +355,7 @@ $ #Panel control commands#
  Invert selection including folders                   #Ctrl+<Gray *>#
  (ignore command line state)
  Select files with the same name as the current file   #Alt+<Gray +>#
- Deselect files with the same name as the current      #Alt+<Gray ->#
- file
+ Deselect files with the same name as the current file #Alt+<Gray ->#
  Select all files                                    #Shift+<Gray +>#
  Deselect all files                                  #Shift+<Gray ->#
  Restore previous selection                                  #Ctrl+M#
@@ -411,7 +411,6 @@ active, but on the passive panel.
 
  #Ctrl+Alt+Ins#
  Copy real names of selected files to clipboard.
-
 
  #Ctrl+Shift+C#
  Copy the selected files to clipboard.
@@ -715,7 +714,6 @@ the object currently under cursor will be deleted.
  #Alt+Del#
  Wipe out files and folders.
 
-
  Remarks:
 
  1. ^<wrap>In accordance to ~System settings~@SystemSettings@ the hotkeys #F8# and
@@ -726,6 +724,7 @@ the object currently under cursor will be deleted.
 (a different value can be specified in
 ~System.WipeSymbol~@System.WipeSymbol@), then truncating to zero
 length, following by renaming to a temporary name, and finally deleting.
+
 
 @ErrCannotExecute
 $ #Error: Cannot execute#
@@ -1310,7 +1309,7 @@ pressing the left mouse button.
 
 @Menus
 $ #Menus#
- To choose an action from the menu you can press F9 or click on top of the
+ To choose an action from the menu you can press #F9# or click on top of the
 screen.
 
  When the menu is activated by pressing #F9#, the menu for the active panel
@@ -1440,7 +1439,6 @@ $ #Menus: commands menu#
  #File view history#    Display ~file view and edit history~@HistoryViews@.
 
  #Folders history#      Display folders ~changing history~@HistoryFolders@.
-
                       Items in "Folders history" and "File view
                       history" are moved to the end of list after
                       selection. Use #Shift+Enter# to select item
@@ -1463,6 +1461,8 @@ $ #Menus: commands menu#
                       and #F4# to edit file associations.
 
  #Folder shortcuts#     Displays current ~folder shortcuts~@FolderShortcuts@.
+
+ #Edit sort groups#     Allows to edit user defined ~sort groups~@SortGroups@.
 
  #File panel filter#    Allows to control file panel contents.
                       See ~filters menu~@FiltersMenu@ for the detailed
@@ -1933,7 +1933,7 @@ attributes and none of the exclusion attributes:
  #[?]# - ^<wrap>ignore this attribute.
 
  The #Compressed#, #Encrypted#, #Not indexed#, #Sparse#, #Temporary# and #Offline# attributes
-are used only on disks with the NTFS file system. #Virtual# attribute is not used in Windows 2000/XP/2003.
+are used only on disks with the NTFS file system.
 The #Integrity stream# and #No scrub data# attributes are supported only on ReFS volumes starting from Windows Server 2012.
 
 
@@ -3392,11 +3392,11 @@ helps applications to identify the code page of this file.
 
  #Dos/Windows format (CR LF)#
  Line breaks will be represented as a two-character sequence -
-Carriage Return and Line Feed (CR LF), as used in DOS/Windows.
+Carriage Return and Line Feed (CR LF), as used in Dos/Windows.
 
  #Unix format (LF)#
  Line breaks will be represented as a single character - Line
-Feed (LF), as used in UNIX.
+Feed (LF), as used in Unix.
 
  #Mac format (CR)#
  Line breaks will be represented as a single character - Carriage
@@ -3968,9 +3968,8 @@ folders, all checkboxes will always be 3-state.
 corresponding checkboxes was changed from the initial state.
 
  The #Compressed#, #Encrypted#, #Not indexed#, #Sparse#, #Temporary#,
-#Offline#, #Reparse point# and #Virtual# attributes are available only on NTFS drives. The
-#Virtual# attribute is not used in Windows 2000/XP/2003. The #Compressed#
-and #Encrypted# attributes are mutually exclusive, that is, you can set only
+#Offline#, #Reparse point# attributes are available only on NTFS drives.
+The #Compressed# and #Encrypted# attributes are mutually exclusive, that is, you can set only
 one of them. You cannot clear the #Sparse# attribute in Windows 2000/XP/2003. The
 #Integrity stream# and #No scrub data# attributes are supported only on ReFS volumes starting from
 Windows Server 2012.
@@ -4136,7 +4135,6 @@ the list. In this list "Brief mode" item corresponds to brief panel mode
 (#LeftCtrl+1#), "Medium" corresponds to medium panel mode (#LeftCtrl+2#) and so
 on. The last item, "Alternative full", corresponds to view mode called with
 #LeftCtrl+0#. After selecting the mode, you can change the following settings:
-
 
  #Column types# - a comma-separated list. Each column type starts with
 a file property character, such as name, size, etc. Some file properties
@@ -4443,8 +4441,8 @@ append backslash to its name.
 
  If ~Panel.Tree.TurnOffCompletely~@Panel.Tree.TurnOffCompletely@
 parameter in ~far:config~@FarConfig@ is set to “false,” you can use
-~Find folder~@FindFolder@ dialog to select the target path. The
-following shortcuts open the dialog with different pre-selected folders:
+~Find folder~@FindFolder@ dialog to select the target path.
+ The following shortcuts open the dialog with different pre-selected folders:
  - ^<wrap>#F10# selects the folder from the active panel.
  - ^<wrap>#Alt+F10# selects the folder from the passive panel.
  - ^<wrap>#Shift+F10# selects the specified target folder. If several
@@ -4575,7 +4573,6 @@ $ #Hard and Symbolic link#
  On NTFS volumes you can create #hard links# for files, #directory junctions# for
 folders and #symbolic links# for files and folders using the #Alt+F6# command.
 
-
  #Hard links#
 
  A #hard link# is an additional directory entry for the given file. When a
@@ -4597,7 +4594,6 @@ and sort the files by hard link number.
 
  Hard links can only be created on the same partition as the source file.
 
-
  #Directory junctions#
 
  Directory junctions allows to access to any local folders as to any other
@@ -4610,7 +4606,6 @@ C:\\WINNT\\SYSTEM32\\DRIVERS.
  Under Windows 2000 it is not allowed to create directory junctions directly to
 CD-ROM folders, but this restriction can be overcome by mounting a CD-ROM
 as a folder on the NTFS partition.
-
 
  #Symbolic links#
 
@@ -4771,10 +4766,8 @@ behavior is restored by the “TITLE” command with no parameters.
  Notes:
 
  1. ^<wrap>If the command syntax does not match one of the listed
-above, Far Manager will invoke the operating system command processor
-to execute the command.
- 2. ^<wrap>Far Manager executes the commands listed above in the
-following contexts:
+above, Far Manager will invoke the operating system command processor to execute the command.
+ 2. ^<wrap>Far Manager executes the commands listed above in the following contexts:
  - ~Command line~@CmdLineCmd@
  - ~Apply command~@ApplyCmd@
  - ~User menu~@UserMenu@
@@ -4857,7 +4850,6 @@ zero-size expression.
  #(?{name}pattern)# - group with a name. The name can be empty (in such case you
 cannot refer to this group) or must contain only word characters (#\w#) and spaces (#\s#).
 
-
  #Quantifiers#
 
  Any character, group or class can be followed by a quantifier:
@@ -4875,7 +4867,6 @@ cannot refer to this group) or must contain only word characters (#\w#) and spac
  #{n,m}?# - ^<wrap>Match at least n but not more than m times, not greedily.
  #{,m}#   - ^<wrap>equals to {0,m}
  #{,m}?#  - ^<wrap>equals to {0,m}?
-
 
  #"Greedy" and "not greedy" quantifiers#
 
@@ -5171,7 +5162,6 @@ command playback is finished.
  #Execute after Far start#
  Allows to execute the macro command immediately after the Far Manager is started.
 
-
  The following execution conditions can be applied for the active and passive panels:
 
  #Plugin panel#
@@ -5201,11 +5191,11 @@ command playback is finished.
  [ ] - execute only if there is no selection present
  [?] - ignore selection state
 
-
  Notes:
 
  1. ^<wrap>Before executing a macro command, all of the above conditions are checked.
- 2. Some key combinations (including #Enter#, #Esc#, #F1# and #Ctrl+F5#,
+
+ 2. ^<wrap>Some key combinations (including #Enter#, #Esc#, #F1# and #Ctrl+F5#,
 #MsWheelUp#, #MsWheelDown# and other mouse keys combined with #Ctrl#, #Shift#, #Alt#) cannot be entered
 directly because they have special functions in the dialog. To assign a macro
 to one of those key combinations, select it from the drop-down list.

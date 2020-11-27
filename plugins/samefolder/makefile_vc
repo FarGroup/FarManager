@@ -1,8 +1,23 @@
 !include ../makefile_vc_base
 
 NAME = SameFolder
+
 LINK_OBJS = $(OBJDIR)\SameFolder.obj
-DOCS = SameFolderEng.hlf SameFolderRus.hlf SameFolderPol.hlf SameFolderEng.lng SameFolderRus.lng SameFolderSky.lng SameFolderSpa.lng SameFolderIta.lng SameFolderBel.lng SameFolderPol.lng changelog
+
+DOCS = \
+	SameFolderEng.hlf \
+	SameFolderRus.hlf \
+	SameFolderPol.hlf \
+	SameFolderUkr.hlf \
+	SameFolderEng.lng \
+	SameFolderRus.lng \
+	SameFolderSky.lng \
+	SameFolderSpa.lng \
+	SameFolderIta.lng \
+	SameFolderBel.lng \
+	SameFolderPol.lng \
+	SameFolderUkr.lng \
+	changelog
 
 !include ..\makefile_vc_def_inc
 

@@ -1,36 +1,33 @@
 ﻿.Language=Polish,Polish (Polski)
 .PluginContents=Zmiana wielkości znaków
-.Options CtrlStartPosChar=^<wrap>
 
 @Contents
 $ #Zmiana wielkości znaków#
-    Wtyczka pozwala na zmianę wielkości znaków w zaznaczonym tekście lub w bieżącym słowie, w wewnętrznym edytorze FAR.
+ Wtyczka pozwala na zmianę wielkości znaków w zaznaczonym tekście lub w bieżącym słowie, w wewnętrznym edytorze Far.
 
-    Zobacz także "~Wywoływanie wtyczki w makrach~@MacroCallPlugin@"
+ Zobacz także "~Wywoływanie wtyczki w makrach~@MacroCallPlugin@"
 
 @MacroCallPlugin
 $ #Wywoływanie wtyczki w makrach#
-    ^<wrap>Wtyczkę można wywołać w makrach, używając polecenia Plugin.Call.
-    ^<wrap>Format wywołania:
+ Wtyczkę można wywołać w makrach, używając polecenia Plugin.Call.
 
-       #Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE",<Parametr>)#
+ Format wywołania:
 
-    ^<wrap>gdzie:
-       #0E92FC81-4888-4297-A85D-31C79E0E0CEE#
-          identyfikator wtyczki
+ #Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE",<Parametr>)#, gdzie:
 
-       #<Parametr>#
-          ^<wrap>ciąg znaków lub wartość liczbowa wskazująca na tryb konwersji:
+ #0E92FC81-4888-4297-A85D-31C79E0E0CEE# - identyfikator wtyczki
 
-          Lower   0 - małe litery
-          Title   1 - Pierwsza Wielka
-          Upper   2 - WIELKIE LITERY
-          Toggle  3 - zMIANA tRYBU
-          Cyclic  4 - Zmiana cykliczna
+ #<Parametr># - ciąg znaków lub wartość liczbowa wskazująca na tryb konwersji:
 
-          ^<wrap>Jeśli <Parametr> będzie mieć wartości spoza podanego zakresu, to wtyczka zakończy działanie.
-          ^<wrap>Jeśli <Parametr> nie zostanie podany, zostanie wyświetlone okno wyboru parametru.
+ Lower  / 0 - małe litery
+ Title  / 1 - Pierwsza Wielka
+ Upper  / 2 - WIELKIE LITERY
+ Toggle / 3 - zMIANA tRYBU
+ Cyclic / 4 - Zmiana cykliczna
 
-    ^<wrap>Przykład: zmiana tekstu w edytorze na "Pierwsza Wielka" należy wpisać:
+ Jeśli <Parametr> będzie mieć wartości spoza podanego zakresu, to wtyczka zakończy działanie.
+ Jeśli <Parametr> nie zostanie podany, zostanie wyświetlone okno wyboru parametru.
 
-       Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE",1)
+ Przykład: zmiana tekstu w edytorze na "Pierwsza Wielka" należy wpisać:
+
+ Plugin.Call("0E92FC81-4888-4297-A85D-31C79E0E0CEE", 1)

@@ -15,7 +15,6 @@ Użyj klawisza #F8#, aby ~odłączyć mapowany dysk~@DisconnectDrive@.
 
  Możesz otworzyć przeglądarkę sieci z menu dysków,
 wtyczkę można też uruchomić z linii poleceń:
-
  #net:#
  #net:nazwa_serwera#
  #net:\\nazwa_serwera#

@@ -53,7 +53,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
  ~Help file index~@Index@
  ~Hilfe über Hilfe~@Help@
 
- ~Über FAR~@About@
+ ~Über Far~@About@
  ~License~@License@
 
  ~Kommandozeilenschalter~@CmdLine@
@@ -86,6 +86,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
  ~Dateiverknüpfungen~@FileAssoc@
  ~Operating system commands~@OSCommands@
  ~Verzeichnis-Kürzel~@FolderShortcuts@
+ ~Sort groups~@SortGroups@
  ~Dateifensterfilter~@FiltersMenu@
  ~Bildschirme umschalten~@ScrSwitch@
  ~Taskliste~@TaskList@
@@ -111,6 +112,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
 
  ~Dateimasken~@FileMasks@
  ~Tastaturmakros~@KeyMacro@
+
 
 @Help
 $ #Hilfe über Hilfe#
@@ -141,6 +143,7 @@ will be displayed as links to relevant topics.
 
  #Help# is shown by default in a reduced windows.
 #F5# schaltet zwischen Fenster- und Vollbildschirm hin und her.
+
 
 @About
 $ #Über Far#
@@ -350,13 +353,18 @@ $ #Befehl zur Fenstersteuerung#
  Gruppenauswahl aufheben                                     #Grau -#
  Auswahl umkehren                                            #Grau *#
  Dateien mit aktueller Erweiterung auswählen          #Strg+<Grau +>#
+
  Dateiauswahl mit aktueller Erweiterung aufheben      #Strg+<Grau ->#
+
  Auswahl inkl. Verzeichnissen aufheben                #Strg+<Grau *>#
+
  Dateien mit aktuellem Namen auswählen                 #Alt+<Grau +>#
  Dateiauswahl mit aktuellem Namen aufheben             #Alt+<Grau ->#
+
  Alle Dateien auswählen                              #Umsch+<Grau +>#
  Auswahl aller Dateien aufheben                      #Umsch+<Grau ->#
  Vorherige Auswahl wiederherstellen                          #Strg+M#
+
  Lange Namen und Beschreibungen rollen         #Alt+Links,Alt+Rechts#
                                                    #Alt+Home,Alt+End#
 
@@ -408,7 +416,6 @@ active, but on the passive panel.
 
  #Ctrl+Alt+Ins#
  Copy real names of selected files to clipboard.
-
 
  #Ctrl+Shift+C#
  Copy the selected files to clipboard.
@@ -566,14 +573,12 @@ $ #Dateimanagement- und Service-Befehle#
  ~Benutzermenü~@UserMenu@ anzeigen                                           #F2#
 
  Anzeigen                               #Strg+Umsch+F3, Numpad 5, F3#
-
  Auf eine Datei angewandt, #Numpad5# und #F3# wird der ~interne~@Viewer@, externe oder
 ~speziell zugewiesene~@FileAssoc@ Betrachter aufgerufen, abhängig
 vom jeweiligen Dateityp und den ~externen Einstellungen~@ViewerSettings@
 des Betrachters.
 #Strg+Umsch+F3# ignoriert die Dateizuweisungen und ruft immer den
 internen Betrachter auf.
-
  Auf ein Verzeichnis angewandt, wird die Größe der ausgewählten
 Verzeichnisse berechnet und angezeigt.
 
@@ -581,7 +586,6 @@ Verzeichnisse berechnet und angezeigt.
  #F4# wird der ~interne~@Editor@, externe oder ~speziell zugewiesene~@FileAssoc@
 Editor aufgerufen, abhängig vom jeweiligen Dateityp und den
 ~externen Editor-Einstellungen~@EditorSettings@.
-
 #Strg+Umsch+F4# ignoriert die Dateizuweisungen und ruft immer den internen Editor auf.
 #F4# and #Ctrl+Shift+F4# for directories invoke the change file
 ~attributes~@FileAttrDlg@ dialog.
@@ -600,17 +604,7 @@ Sie den Namen mit einem umgekehrten Schrägstrich ab.
 
  ~Löschen~@DeleteFile@                                   #Umsch+Entf, Umsch+F8, F8#
 
- Löscht Dateien und Verzeichnisse. F8 und Umsch+Entf löscht alle
-ausgewählten Dateien, Umsch+F8 nur die Datei unter dem Cursor.
-Umsch+Entf löscht die Dateien sofort und verschiebt sie nicht - wie
-bei F8 und Umsch+F8 (falls entsprechend konfiguriert) - in den
-Papierkorb.
-
  ~Unwiderruflich löschen~@DeleteFile@                                    #Alt+Entf#
-
- Löscht Dateien und Verzeichnisse unwiderruflich. Vor dem Löschen
-von Dateien werden diese mit Nullen überschrieben, danach wird die Datei
-gekürzt und in einen temporär erzeugten Namen umbenannt.
 
  ~Menüzeile~@Menus@ anzeigen                                              #F9#
 
@@ -734,7 +728,6 @@ the object currently under cursor will be deleted.
  #Alt+Del#
  Wipe out files and folders.
 
-
  Remarks:
 
  1. ^<wrap>In accordance to ~System settings~@SystemSettings@ the hotkeys #F8# and
@@ -746,6 +739,7 @@ the object currently under cursor will be deleted.
 ~System.WipeSymbol~@System.WipeSymbol@), then truncating to zero
 length, following by renaming to a temporary name, and finally deleting.
 
+
 @ErrCannotExecute
 $ #Error: Cannot execute#
  The program you tries to execute is not recognized as an internal or
@@ -754,9 +748,9 @@ external command, operable program or batch file.
 
 @Grabber
 $ #Verschiedenes#
-  'Screen Grabber'                                         #Alt+Einfg#
+ Screen Grabber                                           #Alt+Einfg#
 
-  Der 'Screen Grabber' ermöglicht das Markieren und Kopieren eines
+ Der Screen Grabber ermöglicht das Markieren und Kopieren eines
 beliebigen Fensterausschnittes in die Zwischenablage. Benutzen Sie die
 Cursortasten oder drücken Sie kurz die linke Maustaste, um den Cursor
 zu bewegen. Zum Markieren des gewünschten Fensterbereiches benutzen Sie
@@ -870,7 +864,7 @@ editor and viewer (see ~System.MsWheelDelta~@System.MsWheelDelta@).
 
 @Plugins
 $ #Plugin-Support#
- Sie können externe DLL-Module (Plugins) benutzen, um neue FAR-
+ Sie können externe DLL-Module (Plugins) benutzen, um neue Far-
 Befehle zu implementieren und Dateisysteme zu emulieren. Zum
 Beispiel emulieren der Archiv-Support, der FTP-Client, das temporäre
 Fenster und der Netzwerk-Browser Dateisystem-Plugins.
@@ -887,7 +881,6 @@ benötigen, können Sie diese löschen, um Plattenplatz zu sparen.
  Plugins können entweder über das ~Laufwerk wechseln~@DriveDlg@-
 oder das #Plugin-Kommandos#-Menü, aktiviert durch #F11# oder den
 entsprechenden Eintrag im ~Befehle~@Cmdmenu@-Menü, aufgerufen werden.
-
  Mit F4 im Menü ~"Plugin-Kommandos"~@PluginCommands@ können Hotkeys für Menü-Einträge
 zugewiesen werden (das ist einfacher als über ~Tastaturmakros~@KeyMacro@).
 Dieses Menü ist erreichbar über das Dateifenster und (nur über F11)
@@ -1052,7 +1045,7 @@ one can recommend:
 
 @Panels
 $ #Fenster#
- Normalerweise zeigt FAR zwei Fenster (linkes und rechtes Fenster)
+ Normalerweise zeigt Far zwei Fenster (linkes und rechtes Fenster)
 mit unterschiedlichen Informationen. Wenn Sie die Art der Informationen
 eines Fensters ändern möchten, benutzen Sie das ~Fenstermenü~@LeftRightMenu@
 oder die entsprechenden ~Tastenbefehle~@KeyRef@.
@@ -1350,9 +1343,10 @@ schieben umschalten, indem Sie die rechte Maustaste drücken. Um
 Dateien zu verschieben, können Sie auch die #Umsch#-Taste drücken
 und festhalten während Sie die linke Maustaste drücken.
 
+
 @Menus
 $ #Menüs#
- Um einen Menüeintrag zu aktivieren, drücken Sie F9 oder klicken in die
+ Um einen Menüeintrag zu aktivieren, drücken Sie #F9# oder klicken in die
 oberste Bildschirmzeile.
 
  When the menu is activated by pressing #F9#, the menu for the active panel
@@ -1428,11 +1422,17 @@ $ #Menü Dateien#
 
  #Umbenennen/Bewegen# ^<wrap>Benennt Dateien/Verzeichnisse um oder verschiebt sie.
 
+ #Link#               Create ~file links~@HardSymLink@.
+
  #Neues Verzeichnis#  Legt neues Verzeichnis an.
 
  #Löschen#            Löscht Verzeichnisse oder Dateien.
 
- #Komprimieren#       ^<wrap>Fügt ausgewählte Dateien zu einem Archiv hinzu.
+ #Wipe#               ^<wrap>Wipe files and folders. Before file deletion
+its data are overwritten with zeros, after which the file is truncated and renamed to
+a temporary name.
+
+ #Komprimieren#       Fügt ausgewählte Dateien zu einem Archiv hinzu. 
 
  #Entpacken#          Entpackt ausgewählte Dateien aus einem Archiv.
 
@@ -1571,7 +1571,6 @@ $ #Menü Optionen#
  #Datei-#                Liste der ~Dateibeschreibungsdateien~@FileDiz@
  #beschreibungen#      und Update-Modus.
 
-
  #Verzeichnis-#          Definiert Dateinamen (~Wildcards~@FileMasks@ sind
  #beschreibungs-#      erlaubt) für Dateien, deren Inhalt im
  #dateien#               ~Statusfenster~@InfoPanel@ als Verzeichnisbeschreibung
@@ -1597,6 +1596,7 @@ $ #Menü Optionen#
  #sichern#             Farben und das Bildschirmlayout.
 
  See also: common ~menu~@MenuCmd@ keyboard commands.
+
 
 @ConfirmDlg
 $ #Bestätigungen#
@@ -1731,7 +1731,6 @@ Benutzen Sie "Suche in Archiven", um in Archiven, deren Format Far
 bekannt ist, zu suchen, aber beachten Sie dabei bitte, daß diese
 Option die Performance der Operation signifikant herabsetzt. Far
 kann nicht in verschachtelten Archiven suchen.
-
 
  The #Search for folders# option includes in search list those folders, that
 match the wildcards. Also the counter of found files takes account of found
@@ -1913,7 +1912,21 @@ oder geben die ersten Zeichen des Verzeichnisnamens an.
     Drücken Sie #Enter#, um in das ausgewählte Verzeichnis zu
 wechseln.
 
-    #Ctrl-R# bzw. #F2# liest den Verzeichnisbaum erneut ein.
+    #Strg+R# bzw. #F2# liest den Verzeichnisbaum erneut ein.
+
+ #Gray +# and #Gray -# should move up and down the tree to the next branch
+on the same level.
+
+ #F5# allows to maximize the window, pressing #F5# again will restore the
+window to the previous size.
+
+ By pressing #Ctrl+Enter#, you can cycle through the folders matching the
+part of the filename that you have already entered. #Ctrl+Shift+Enter# allows
+to cycle backwards.
+
+ See also the list of ~macro keys~@KeyMacroFindFolderList@, available in the find folder dialog.
+
+
 @Filter
 $ #Filter#
  Operations filter is used to process certain file groups according to
@@ -1982,7 +1995,7 @@ attributes and none of the exclusion attributes:
  #[?]# - ^<wrap>ignore this attribute.
 
  The #Compressed#, #Encrypted#, #Not indexed#, #Sparse#, #Temporary# and #Offline# attributes
-are used only on disks with the NTFS file system. #Virtual# attribute is not used in Windows 2000/XP/2003.
+are used only on disks with the NTFS file system.
 The #Integrity stream# and #No scrub data# attributes are supported only on ReFS volumes starting from Windows Server 2012.
 
 
@@ -2164,6 +2177,7 @@ von Verzeichnissen bezieht sich nur auf den Namen, die Größe
 und Datum/Zeit von darin enthaltenen Dateien, nicht auf deren
 Dateiinhalte.
 
+
 @UserMenu
 $ #Benutzermenü#
  Das Benutzermenü dient zur leichteren Aufruf öfters benutzter
@@ -2191,26 +2205,20 @@ must switch to file mode with #Alt+F4# key.
 
  User menu items can be moved with #Ctrl+Up# or #Ctrl+Down# key combinations.
 
- Zum Ausführen eines Befehls aus einem Benutzermenü wählen
-Sie ihn per Cursortasen aus und drücken #Enter# oder drücken Sie
-den zum Menüeintrag zugehörigen Hotkey.
+ Zum Ausführen eines Befehls aus einem Benutzermenü wählen Sie ihn per Cursortasen aus und drücken #Enter#
+ oder drücken Sie den zum Menüeintrag zugehörigen Hotkey.
 
- Menüpunkte oder Untermenüs können durch die Taste Entf
-gelöscht werden. Durch Einfg können neue Menüpunkte oder
-Untermenüs angelegt werden. Durch #F4# können existierende
-Menüpunkte und Untermenüs bearbeitet werden. Mit Alt+F4 kann
-ein Menü in Form einer Textdatei bearbeitet werden.
+ Menüpunkte oder Untermenüs können durch die Taste Entf gelöscht werden. Durch Einfg können neue Menüpunkte
+oder Untermenüs angelegt werden. Durch #F4# können existierende Menüpunkte und Untermenüs bearbeitet werden.
+Mit Alt+F4 kann ein Menü in Form einer Textdatei bearbeitet werden.
 
- Es ist möglich, Zahlen, Buchstaben und Funktionstasten
-(#F1#…#F24#) als Hotkeys in Benutzermenüs einzusetzen. Bei
-Benutzung von #F1# oder #F4# wird deren originale Funktion im
-Benutzermenü übergangen. #Umsch+F4# können Sie trotzdem
-weiterhin als Bearbeitungsfunktion nutzen.
+ Es ist möglich, Zahlen, Buchstaben und Funktionstasten (#F1#…#F24#) als Hotkeys in Benutzermenüs einzusetzen.
+Bei Benutzung von #F1# oder #F4# wird deren originale Funktion im Benutzermenü übergangen.
+#Umsch+F4# können Sie trotzdem weiterhin als Bearbeitungsfunktion nutzen.
 
- Wenn Sie einen Menüpunkt anlegen oder bearbeiten, geben
-Sie einen Hotkey für einen schnellen Zugriff an, einen Titel,
-welcher im Menü angezeigt wird sowie eine Befehlssequenz, die
-ausgeführt wird, wenn der Menüeintrag ausgewählt wird.
+ Wenn Sie einen Menüpunkt anlegen oder bearbeiten, geben Sie einen Hotkey für einen
+schnellen Zugriff an, einen Titel, welcher im Menü angezeigt wird sowie eine Befehlssequenz,
+die ausgeführt wird, wenn der Menüeintrag ausgewählt wird.
 
  Beim Bearbeiten oder Anlegen ein Untermenüs geben Sie nur
 einen Hotkey und einen Titel an.
@@ -2285,11 +2293,9 @@ Dateityp, der über ~Wildcard-Masken~@FileMasks@ definiert wird, zu verknüpfen:
 
   Hinweise:
 
- 1. ^<wrap>Ist kein Ausführungsbefehl mit der Datei verknüpft und
-die #In Windows registrierte Typen benutzen#-Option in den
-~Systemeinstellungen~@SystemSettings@ ist markiert, versucht
-Far, den über Windows verknüpften Befehl für diesen Dateityp
-auszuführen.
+ 1. ^<wrap>Ist kein Ausführungsbefehl mit der Datei verknüpft und die #In Windows registrierte
+Typen benutzen#-Option in den ~Systemeinstellungen~@SystemSettings@ ist markiert, versucht
+Far, den über Windows verknüpften Befehl für diesen Dateityp auszuführen.
  2. ^<wrap>Operating system ~commands~@OSCommands@ "IF EXIST" and "IF DEFINED"
 allow to configure "smarter" associations - if you have specified several
 associations for a file type, the menu will show only the associations
@@ -2433,7 +2439,7 @@ Die Verzeichnis-History-Liste kann mit #Alt+F12# angezeigt werden.
 
  #Ansicht- und Edit-History sichern#
  Aktiviert das Sichern der History angezeigter und editierter Dateien beim Beenden und Wiederherstellen dieser beim
-erneuten Start von FAR. Diese History-Liste kann mit Alt+F11 angezeigt werden.
+erneuten Start von Far. Diese History-Liste kann mit Alt+F11 angezeigt werden.
 
  #In Windows registrierte Typen benutzen#
 Wird bei eingeschalteter Option die Enter-Taste auf einer Datei gedrückt und es existiert eine Verknüpfung in Windows und
@@ -2487,6 +2493,7 @@ Use with caution.
  #Automatische Sicherung der Einstellungen#
  Falls markiert, sichert Far die Konfigurationseinstellungen automatisch.
 Die beiden aktuellen Verzeichnisebenen werden ebenfalls gesichert.
+
 
 @PanelSettings
 $ #Fenstereinstellungen#
@@ -2628,7 +2635,7 @@ Can contain any text, including environment variables (e.g. "%USERDOMAIN%\%USERN
 
 @DialogSettings
 $ #Settings dialog: dialogs#
- #History in Dialog-#      Behält eine Historyliste einiger FAR
+ #History in Dialog-#      Behält eine Historyliste einiger Far
  #kontrollfelder#          Dialoge. Die vorherigen Werte in der
                          Liste können durch die Maus oder durch
                          #Strg+↑# and #Strg+↓#. Wenn Sie, z.B. aus
@@ -3463,11 +3470,11 @@ helps applications to identify the code page of this file.
 
  #Dos/Windows format (CR LF)#
  Line breaks will be represented as a two-character sequence -
-Carriage Return and Line Feed (CR LF), as used in DOS/Windows.
+Carriage Return and Line Feed (CR LF), as used in Dos/Windows.
 
  #Unix format (LF)#
  Line breaks will be represented as a single character - Line
-Feed (LF), as used in UNIX.
+Feed (LF), as used in Unix.
 
  #Mac format (CR)#
  Line breaks will be represented as a single character - Carriage
@@ -3815,7 +3822,6 @@ die Farbkombination "Schwarz auf Schwarz";
  - optionales Zeichen, um Dateien der Gruppe zu markieren. Es
 kann mit oder anstelle farblicher Hervorhebung benutzt werden.
 
-
  If the option "A file mask or several file masks" is turned off, file masks
 will not be analyzed, and only file attributes will be taken into account.
 
@@ -4051,9 +4057,8 @@ folders, all checkboxes will always be 3-state.
 corresponding checkboxes was changed from the initial state.
 
  Die Attribute #Komprimiert#, #Encrypted#, #Not indexed#, #Sparse#, #Temporary#,
-#Offline#, #Reparse point# and #Virtual# kann nur auf NTFS-Laufwerken geändert werden. The
-#Virtual# attribute is not used in Windows 2000/XP/2003. The #Compressed#
-and #Encrypted# attributes are mutually exclusive, that is, you can set only
+#Offline#, #Reparse point# kann nur auf NTFS-Laufwerken geändert werden.
+The #Compressed# and #Encrypted# attributes are mutually exclusive, that is, you can set only
 one of them. You cannot clear the #Sparse# attribute in Windows 2000/XP/2003. The
 #Integrity stream# and #No scrub data# attributes are supported only on ReFS volumes starting from
 Windows Server 2012.
@@ -4192,7 +4197,7 @@ Aktualisierung von Beschreibungsdateien gesetzt werden. Die Aktualisierung
 kann abgeschaltet sein, nur dann aktiv sein, wenn der aktuelle Anzeigemodus
 des Fensters Beschreibungen anzeigt, oder immer aktiviert sein.
 
- Standardmäßig setzt FAR bei angelegten Dateibeschreibungslisten immer
+ Standardmäßig setzt Far bei angelegten Dateibeschreibungslisten immer
 das "Versteckt"-Attribut, Sie können dies jedoch durch Ausschalten der
 Option "Setze "Versteckt"-Attribut für neue Beschreibungslisten" in
 diesem Dialog verhindern. Außerdem können Sie hier die Position zur
@@ -4380,9 +4385,10 @@ Benutzung von Entf, Einfg und F4. Die Gruppen oberhalb der Trennlinie
 wirken sich auf den Beginn des Dateifensters aus. Eingeschlossene Dateien
 werden höher im Fenster plaziert als jene, die keiner Gruppe angehören.
 
+
 @FileMasks
 $ #Dateimasken#
- Dateimasken werden in FAR oft benutzt, um einzelne Dateien und
+ Dateimasken werden in Far oft benutzt, um einzelne Dateien und
 Verzeichnisse oder Gruppen davon auszuwählen. Masken können allgemein
 gültige Dateinamensymbole, Wildcards (‘*’ und ‘?’) und spezielle Ausdrücke enthalten:
 
@@ -4668,7 +4674,6 @@ $ #Hard and Symbolic link#
  On NTFS volumes you can create #hard links# for files, #directory junctions# for
 folders and #symbolic links# for files and folders using the #Alt+F6# command.
 
-
  #Hard links#
 
  A #hard link# is an additional directory entry for the given file. When a
@@ -4690,7 +4695,6 @@ and sort the files by hard link number.
 
  Hard links can only be created on the same partition as the source file.
 
-
  #Directory junctions#
 
  Directory junctions allows to access to any local folders as to any other
@@ -4703,7 +4707,6 @@ C:\\WINNT\\SYSTEM32\\DRIVERS.
  Under Windows 2000 it is not allowed to create directory junctions directly to
 CD-ROM folders, but this restriction can be overcome by mounting a CD-ROM
 as a folder on the NTFS partition.
-
 
  #Symbolic links#
 
@@ -4865,10 +4868,8 @@ behavior is restored by the “TITLE” command with no parameters.
  Notes:
 
  1. ^<wrap>If the command syntax does not match one of the listed
-above, Far Manager will invoke the operating system command processor
-to execute the command.
- 2. ^<wrap>Far Manager executes the commands listed above in the
-following contexts:
+above, Far Manager will invoke the operating system command processor to execute the command.
+ 2. ^<wrap>Far Manager executes the commands listed above in the following contexts:
  - ~Command line~@CmdLineCmd@
  - ~Apply command~@ApplyCmd@
  - ~User menu~@UserMenu@
@@ -4951,7 +4952,6 @@ zero-size expression.
  #(?{name}pattern)# - group with a name. The name can be empty (in such case you
 cannot refer to this group) or must contain only word characters (#\w#) and spaces (#\s#).
 
-
  #Quantifiers#
 
  Any character, group or class can be followed by a quantifier:
@@ -4969,7 +4969,6 @@ cannot refer to this group) or must contain only word characters (#\w#) and spac
  #{n,m}?# - ^<wrap>Match at least n but not more than m times, not greedily.
  #{,m}#   - ^<wrap>equals to {0,m}
  #{,m}?#  - ^<wrap>equals to {0,m}?
-
 
  #"Greedy" and "not greedy" quantifiers#
 
@@ -5265,7 +5264,6 @@ command playback is finished.
  #Execute after Far start#
  Allows to execute the macro command immediately after the Far Manager is started.
 
-
  The following execution conditions can be applied for the active and passive panels:
 
  #Plugin panel#
@@ -5295,11 +5293,11 @@ command playback is finished.
  [ ] - execute only if there is no selection present
  [?] - ignore selection state
 
-
  Notes:
 
  1. ^<wrap>Before executing a macro command, all of the above conditions are checked.
- 2. Some key combinations (including #Enter#, #Esc#, #F1# and #Ctrl+F5#,
+
+ 2. ^<wrap>Some key combinations (including #Enter#, #Esc#, #F1# and #Ctrl+F5#,
 #MsWheelUp#, #MsWheelDown# and other mouse keys combined with #Ctrl#, #Shift#, #Alt#) cannot be entered
 directly because they have special functions in the dialog. To assign a macro
 to one of those key combinations, select it from the drop-down list.

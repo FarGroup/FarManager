@@ -1,6 +1,22 @@
 NAME = HlfViewer
+
 SRCS = HlfViewer.cpp
-DOCS = HlfViewerEng.hlf HlfViewerRus.hlf HlfViewerPol.hlf HlfViewerEng.lng HlfViewerRus.lng HlfViewerSky.lng HlfViewerSpa.lng HlfViewerIta.lng HlfViewerPol.lng HlfViewerBel.lng changelog
+
+DOCS = \
+	HlfViewerEng.hlf \
+	HlfViewerRus.hlf \
+	HlfViewerPol.hlf \
+	HlfViewerUkr.hlf \
+	HlfViewerEng.lng \
+	HlfViewerRus.lng \
+	HlfViewerSky.lng \
+	HlfViewerSpa.lng \
+	HlfViewerIta.lng \
+	HlfViewerPol.lng \
+	HlfViewerBel.lng \
+	HlfViewerUkr.lng \
+	changelog
+
 USERLIBS = -lrpcrt4
 
 include ../../far/makefile_gcc_common

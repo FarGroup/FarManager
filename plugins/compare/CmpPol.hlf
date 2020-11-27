@@ -3,44 +3,41 @@
 
 @Contents
 $ #Zaawansowane porównywanie#
-    Wtyczka jest podobna do polecenia FAR "Porównaj foldery",
-ale dodatkowo można ustawić dodatkowe opcje porównywania:
+ Wtyczka jest podobna do polecenia Far "Porównaj foldery", ale dodatkowo można ustawić dodatkowe opcje porównywania:
 
-#Przetwarzaj:#
+ #Przetwarzaj:#
 
-  #Podfoldery#               Porównuje pliki w podfolderach. Nie może być użyte dla paneli wtyczek.
+ #Podfoldery#
+ Porównuje pliki w podfolderach. Nie może być użyte dla paneli wtyczek.
 
-  #Maks. głębokość ścieżki#  Nie porównuje folderów o głębszych poziomach ścieżek niż podano.
+ #Maks. głębokość ścieżki#
+ Nie porównuje folderów o głębszych poziomach ścieżek niż podano.
 
-  #Tylko zaznaczone pozycje# Porównuje tylko zaznaczone pliki/foldery.
-                           Ta opcja jest ignorowane dla paneli, jeżeli nic nie zaznaczono
-                           (w tym przypadku porównana będzie cała zawartość paneli).
+ #Tylko zaznaczone pozycje#
+ Porównuje tylko zaznaczone pliki/foldery. Ta opcja jest ignorowane dla paneli, jeżeli nic nie zaznaczono (w tym przypadku porównana będzie cała zawartość paneli).
 
-#Porównaj:#
+ #Porównaj:#
 
-  #Czas#                     Porównuje czas modyfikacji pliku. Inaczej niż wewnętrzne polecenie FAR,
-                           ta opcje tylko zaznaczy pliku w obu panelach, nie tylko nowsze pliki.
+ #Czas#
+ Porównuje czas modyfikacji pliku. Inaczej niż wewnętrzne polecenie Far, ta opcje tylko zaznaczy pliku w obu panelach, nie tylko nowsze pliki.
 
-  #Precyzja dwóch sekund#    Porównanie plików z precyzją dwóch sekund (czas zapisu).
-                           W innym przypadku czas plików będzie porównany z dokładnością do milisekund.
+ #Precyzja dwóch sekund#
+ Porównanie plików z precyzją dwóch sekund (czas zapisu). W innym przypadku czas plików będzie porównany z dokładnością do milisekund.
 
-  #Ignoruj różnice#          Ignoruje różnice czasu, które są dokładnie wielokrotnością
-  #stref czasowych#          15 minut (np. pół godziny, godzina, 2 godziny 15 minut, 12 godzin)
-                           wynikających ze zmian czasu (np. letni/zimowy). Maksymalnie ignorowana
-                           różnica to 26 godzin.
+ #Ignoruj różnice stref czasowych#
+ Ignoruje różnice czasu, które są dokładnie wielokrotnością 15 minut (np. pół godziny, godzina, 2 godziny 15 minut, 12 godzin) wynikających ze zmian czasu (np. letni/zimowy). Maksymalnie ignorowana różnica to 26 godzin.
 
-  #Wielkość#                 Porównuje wielkość pliku.
+ #Wielkość#
+ Porównuje wielkość pliku.
 
-  #Zawartość#                Porównuje wielkość pliku.
-                           Nie może być użyte dla porównania paneli.
+ #Zawartość#
+ Porównuje wielkość pliku. Nie może być użyte dla porównania paneli.
 
-  #Ignoruj różnice#          Ignoruje różnice w znakach oznaczających
-  #w oznaczeniu#             przejście do nowej linii (np. przy porównywaniu
-  #nowej linii#              plików pochodzących z Windows i Linux).
+ #Ignoruj różnice w oznaczeniu nowej linii#
+ Ignoruje różnice w znakach oznaczających przejście do nowej linii (np. przy porównywaniu plików pochodzących z Windows i Linux).
 
-  #Białe znaki#              Ignoruje puste (białe) znaki podczas porównywania zawartości plików
-                           (spacje, tabulatory, znaki nowej linii.
+ #Białe znaki#
+ Ignoruje puste (białe) znaki podczas porównywania zawartości plików (spacje, tabulatory, znaki nowej linii.
 
-
-  #Pokaż informację, jeśli#  Wyświetla komunikat, jeżeli wszystkie porównywane pliki
-  #nie będzie różnic#        będą identyczne.
+ #Pokaż informację, jeśli nie będzie różnic#
+ Wyświetla komunikat, jeżeli wszystkie porównywane pliki będą identyczne.
