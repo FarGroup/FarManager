@@ -313,7 +313,7 @@ $ #Skróty klawiszowe#
 $ #Polecenia kontroli menu#
  #Ułatwienia w standardowym menu i listach rozwijanych#
 
- Menu filtra lub pozycje listy                      #Ctrl+Alt+F,RAlt#
+ Menu filtru lub pozycje listy                      #Ctrl+Alt+F,RAlt#
  Zablokuj filtr                                          #Ctrl+Alt+L#
 
  Zobacz także listę ~klawiszy makro~@KeyMacroMenuList@, dostępnych w menu.
@@ -1462,7 +1462,7 @@ $ #Menu: menu polecenia#
 
  #Lista zadań#          Pokazuje ~listę aktywnych zadań~@TaskList@.
 
- #Lista urządz. Hotplug#Pokazuje listę ~urządzeń hotplug (możliwość odłączania)~@HotPlugList@.  yyyyyy
+ #Lista urządz. Hotplug#Pokazuje listę ~urządzeń hotplug (możliwość odłączania)~@HotPlugList@.
 
  Zobacz także: polecenia ~menu~@MenuCmd@.
 
@@ -1858,198 +1858,198 @@ dialogowym szukania.
 
 
 @Filter
-$ #Filter#
- Operations filter is used to process certain file groups according to
-rules specified by the user, if those rules are met by some file it
-will be processed by a corresponding operation. A filter can have several
-rule sets.
+$ #Filtr#
+ Filtr operacji jest używany do przetworzenia określonych grup plików zgodnie
+z regułami określonymi przez użytkownika, jeżeli reguły te zostaną spełnione
+przez pliki przetwarzane w odpowiedniej operacji. Filtr może zawierać
+kilka zestawów reguł.
 
- The filter dialog consists of the following elements:
+ Okno dialogowe filtru zawiera następujące elementy:
 
- #Filter name#
- A title that will be shown in the filters menu. This field can be empty.
+ #Nazwa#
+ Tytuł filtru, który będzie pokazany w menu filtrów. Pole to może być puste.
 
- #Mask#
- One or several ~file masks~@FileMasks@.
- Filter conditions are met if file mask analysis is on and its name matches any of the given file
-masks. If mask analysis is off, file name is ignored.
+ #Maska#
+ Jedna lub więcej ~masek plików~@FileMasks@.
+ Warunki filtru zostaną spełnione, jeżeli włączona jest analiza masek plików i nazwy plików spełniają
+podane warunki. Jeżeli analiza jest wyłączona, nazwa pliku jest ignorowana.
 
- #Size#
- Minimum and maximum files size. The following file size suffixes can be used:
- - #B# for bytes (no suffix also means bytes);
- - #K# for kilobytes;
- - #M# for megabytes;
- - #G# for gigabytes;
- - #T# for terabytes;
- - #P# for petabytes;
- - #E# for exabytes.
+ #Wielkość#
+ Minimalna i maksymalna wielkość plików. Można użyć następują przyrostków:
+ - #B# dla bajtów (domyślna wielkość - można opuścić);
+ - #K# dla kilobajtów;
+ - #M# dla megabajtów;
+ - #G# dla gigabajtów;
+ - #T# dla terabajtów;
+ - #P# dla petabajtów;
+ - #E# dla eksabajtów.
 
- Filter conditions are met if file size analysis is on, and it is inside the given range.
-If nothing is specified (empty line) for one or both range boundaries then file size for that
-boundary is not limited.
+ Warunki filtru zostaną spełnione, jeżeli analiza wielkości pliku jest włączona i znajduje się
+w podanym zakresie. Jeżeli nic nie podano (pusta linia) w jednej lub obu granicach zakresu
+to rozmiar pliku dla tej granicy nie jest ograniczony.
 
- Example:
- >= 1K - select files greater than or equal to 1 kilobyte
- <= 1M - to less than or equal to 1 megabyte
+ Przykład:
+ >= 1K - wybiera pliki równe lub większe od jednego kilobajta
+ <= 1M - wybiera pliki równe lub mniejsze od jednego megabajta.
 
- #Date/time#
- Starting and ending file date/time.
-You can specify the date/time of last file #write#, file #creation#, last #access# and #change#.
- #Current# allows to fill the date/time fields with the current date/time after which you
-can change only the needed part of the date/time fields, for example only the month or minutes.
- #Blank# will clear the date/time fields.
- Filter conditions are met if file date/time analysis is on and its date/time is in the
-given range and corresponds to the given type. If one or both of the date/time limit
-fields are empty then the date/time for that type is not limited.
+ #Data/czas#
+ Rozpoczęcie i zakończenie daty/czas pliku.
+Można podać datę/czas ostatniego #zapisu#, #utworzenia# pliku, ostatniego #dostępu# i #zmiany#.
+ #Bieżąca# wypełnia pola daty/czasu aktualną datą/czasem, w których można zmienić potrzebne
+części pól daty/czasu, np. miesiąc lub minuty.
+ #Wyczyść# czyści pola daty/czasu.
+ Warunki filtru zostaną spełnione jeżeli analiza daty/czasu jest włączona, a data/czas,
+a data/godzina znajduje się w zakresie i odpowiada danemu typowi. Jeżeli jedno lub oba
+pola daty/czasu są puste to data/czas dla tego pola nie jest ograniczona.
 
- Example:
- <= 31.01.2010 - select files up to 31 numbers
- >= 01.01.2010 - but after Jan. 1, 2010
+ Przykład:
+ <= 2010-01-31 - wybiera pliki młodsze lub równe 31
+ >= 2010-01-01 - ale utworzone 1 stycznia 2010 lub później
+ czyli utworzone w styczniu 2010 roku.
 
- Option #Relative# allows you to switch to work with the date in relative time.
-The logic at work this option is similar to arithmetic with negative numbers.
+ Opcja #Relatywny# pozwala przełączyć się na pracę z datą w czasie względnym.
+Logika jest podobna do arytmetyki z liczbami ujemnymi.
 
- Example:
- <= 0  - select files in the period from the "Today"
- >= 30 - and 30-days ago, including
+ Przykład:
+ <= 0  - wybiera pliki z okresu od "Dzisiaj"
+ >= 30 - i 30 dni temu włącznie.
 
+ #Atrybuty#
+ Włączenie i wyłączenie atrybutów.
 
- #Attributes#
- Inclusion and exclusion attributes.
+ Warunki filtru zostaną spełnione jeżeli analiza atrybutów jest włączona
+i zawiera wszystkie uwzględnienia oraz żadnego z atrybutów wykluczenia:
 
- Filter conditions are met if file attributes
-analysis is on and it has all of the inclusion
-attributes and none of the exclusion attributes:
- #[x]# - ^<wrap>inclusion attribute - the file must have this attribute.
- #[ ]# - ^<wrap>exclusion attribute - the file must not have this attribute.
- #[?]# - ^<wrap>ignore this attribute.
+ #[x]# - ^<wrap>włączenie atrybutu - pliki musi posiadać ten atrybut.
+ #[ ]# - ^<wrap>wyłączenia atrybutu - plik nie może posiadać tego atrybutu.
+ #[?]# - ^<wrap>atrybut jest ignorowany.
 
- The #Compressed#, #Encrypted#, #Not indexed#, #Sparse#, #Temporary# and #Offline# attributes
-are used only on disks with the NTFS file system.
-The #Integrity stream# and #No scrub data# attributes are supported only on ReFS volumes starting from Windows Server 2012.
+ Atrybuty #Skompresowany#, #Zaszyfrowany#, #Sparse#, #Tymczasowy# i #Offline# używane
+są tylko na dyskach z systemem NTFS. Atrybut #Wirtualny# nie jest używany w Windows 2000/XP/2003.
+Atrybuty #Strumień integralności# i #Brak danych kontrolnych# są obsługiwane tylko
+na wolumenach ReFS począwszy od Windows Server 2012.
 
+ #Ma więcej niż jeden twardy link#
+ Używany tylko na dyskach z systemem NTFS. Warunek jest prawdziwy, jeśli dane
+na które wskazuje bieżący plik jest również wskazany przez co najmniej jeden inny plik.
+ #Uwaga#: Włączenie tej opcji może spowodować znaczne spowolnienie wyszukiwania.
 
- #Has more than one hardlink#
- Used only on disks with NTFS file system. Condition evaluates to true,
-if piece of data, which current file is pointing, is also pointed at least by one another file.
- #Warning#: Enabling of this option can cause a significant slowdown.
-
- To quickly disable one or several conditions, uncheck the corresponding
-checkboxes. The #Reset# button will clear all of the filter conditions.
+ Aby szybko wyłączyć jeden lub więcej warunków, usuń zaznaczenie odpowiedniego pola wyboru.
+Naciśnięcie przycisku #Wyczyść# wyczyści wszystkie warunki filtru.
 
 
 @History
-$ #History#
- The commands history shows the list of previously executed commands.
-Besides the cursor control keys, the following keyboard shortcuts are
-available:
+$ #Historia#
+ Historia poleceń pokazuje listę wcześniej wykonanych komend.
+Po liście można poruszać się za pomocą klawiszy kursorów, dodatkowo
+dostępne są poniższe skróty klawiszowe:
 
- Re-execute a command                                          #Enter#
+ Wykonaj ponownie polecenie                                    #Enter#
 
- Re-execute a command in a new window                    #Shift+Enter#
+ Wykonaj ponownie polecenie w nowym oknie                #Shift+Enter#
 
- Re-execute a command as administrator                #Ctrl+Alt+Enter#
+ Wykonaj polecenie jako administrator                 #Ctrl+Alt+Enter#
 
- Copy a command to the command line                       #Ctrl+Enter#
+ Kopiuj nazwę pliku do linii poleceń                      #Ctrl+Enter#
 
- Clear the commands history                                      #Del#
+ Wyczyść całą historię poleceń                                   #Del#
 
- Lock/unlock the current history item                            #Ins#
+ Zablokuj/odblokuj pozycję na liście                             #Ins#
 
- Delete the current history item                           #Shift+Del#
+ Usuń bieżącą pozycję z historii                           #Shift+Del#
 
- Copy the text of the current command to the clipboard        #Ctrl+C#
- without closing the list                                or #Ctrl+Ins#
+ Skopiuj tekst bieżącego polecenia do schowka                 #Ctrl+C#
+ bez zamykania listy                                    lub #Ctrl+Ins#
 
- Show additional information                                      #F3#
+ Pokaż dodatkowe informacje                                       #F3#
 
- To go to the previous or next command directly from the command line, you
-can press #Ctrl+E# or #Ctrl+X# respectively.
+ Aby przejść do poprzedniego lub następnego polecenia bezpośrednio
+z linii polecenie należy wcisnąć odpowiednio #Ctrl+E# lub #Ctrl+X#.
 
- If you want to save the commands history after exiting Far, use the
-respective option in the ~System settings~@SystemSettings@ dialog.
+ Jeżeli historia ma zostać zapisana po wyjściu z Far, należy włączyć
+odpowiednią opcję w ~Ustawieniach systemowych~@SystemSettings@ programu.
 
- Locked items will not be deleted when clearing the history.
+ Zablokowane pozycje nie zostaną usunięte podczas czyszczenia historii.
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @HistoryViews
-$ #History: file view and edit#
- The file view history shows the list of files that have been recently
-viewed or edited. Besides the cursor control keys, the following keyboard
-shortcuts are available:
+$ #Historia: podgląd i edycja plików#
+ Plik historii zawiera listy plików, które zostały ostatnio otwarte
+do podglądu lub edycji. Po liście można poruszać się za pomocą klawiszy
+kursorów, dodatkowo dostępne są poniższe skróty klawiszowe:
 
- Reopen a file for viewing or editing                          #Enter#
+ Ponownie otwórz plik do podglądu lub edycji                   #Enter#
 
- Copy the file name to the command line                   #Ctrl+Enter#
+ Kopiuj nazwę pliku do linii poleceń                      #Ctrl+Enter#
 
- Clear the history list                                          #Del#
+ Wyczyść całą historię poleceń                                   #Del#
 
- Delete the current history item                           #Shift+Del#
+ Usuń bieżącą pozycję z historii                           #Shift+Del#
 
- Lock/unlock the current history item                            #Ins#
+ Zablokuj/odblokuj pozycję na liście                             #Ins#
 
- Refresh list and remove non-existing entries                 #Ctrl+R#
+ Odśwież listę i usuń nieistniejące pozycje                   #Ctrl+R#
 
- Copy the text of the current history item to the             #Ctrl+C#
- clipboard without closing the list                      or #Ctrl+Ins#
+ Skopiuj tekst bieżącego polecenia do schowka                 #Ctrl+C#
+ bez zamykania listy                                    lub #Ctrl+Ins#
 
- Open a file in the ~editor~@Editor@                                        #F4#
+ Otwórz plik w ~edytorze~@Editor@                                           #F4#
 
- Open a file in the ~viewer~@Viewer@                             #F3# or #Numpad5#
+ Otwórz plik do ~podglądu~@Viewer@                              #F3# lub #Numpad5#
 
  Items of the view and edit history are moved to the end of the list after
 they are selected. You can use #Shift+Enter# to select an item without changing
 its position.
 
- If you want to save the view and edit history after exiting Far, use the
-respective option in the ~System settings~@SystemSettings@ dialog.
+ Jeżeli historia ma zostać zapisana po wyjściu z Far, należy włączyć
+odpowiednią opcję w ~Ustawieniach systemowych~@SystemSettings@ programu.
 
- Remarks:
+ Uwagi:
 
- 1. ^<wrap>List refresh operation (Ctrl+R) can take a considerable amount
-of time if a file was located on a currently unavailable remote resource.
- 2. ^<wrap>Locked items will not be deleted when clearing or refreshing the history.
+ 1. ^<wrap>Operacja odświeżenia listy (Ctrl+R) może zająć dużo czasu jeżeli plik
+jest zablokowany lub nie jest dostępny zasób zewnętrzny.
+ 2. ^<wrap>Zablokowane pozycje nie będą usuwane przy czyszczeniu lub odświeżaniu historii.
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @HistoryFolders
-$ #History: folders#
- The folders history shows the list of folders that have been recently
-visited. Besides the cursor control keys, the following keyboard shortcuts are available:
+$ #Historia: foldery#
+ Historia folderów pokazuje listę folderów, które zostały odwiedzone. Po liście można
+poruszać się za pomocą klawiszy kursorów, dodatkowo dostępne są poniższe skróty klawiszowe:
 
- Go to the current folder in the list                          #Enter#
+ Przejdź do bieżącego folderu listy                            #Enter#
 
- Open the selected folder in the passive panel      #Ctrl+Shift+Enter#
+ Otwórz wybrany folder w panelu pasywnym            #Ctrl+Shift+Enter#
 
- Copy the folder name to the command line                 #Ctrl+Enter#
+ Skopiuj nazwę folderu do linii poleceń                   #Ctrl+Enter#
 
- Clear the history list                                          #Del#
+ Wyczyść całą historię poleceń                                   #Del#
 
- Delete the current history item                           #Shift+Del#
+ Usuń bieżącą pozycję z historii                           #Shift+Del#
 
- Lock/unlock the current history item                            #Ins#
+ Zablokuj/odblokuj pozycję na liście                             #Ins#
 
- Refresh list and remove non-existing entries                 #Ctrl+R#
+ Odśwież listę i usuń nieistniejące pozycje                   #Ctrl+R#
 
- Copy the text of the current history item to the             #Ctrl+C#
- clipboard without closing the list                      or #Ctrl+Ins#
+ Skopiuj tekst bieżącej pozycji listy do schowka              #Ctrl+C#
+ bez zamykania listy                                    lub #Ctrl+Ins#
 
- Items of the folders history are moved to the end of the list after they
-are selected. You can use #Shift+Enter# to select an item without changing its position.
+ Po użyciu danej pozycji z historii jest ona przenoszona na koniec listy.
+Wciśnięcie #Shift+Enter# wybiera dany folder, bez zmiany pozycji na liście.
 
- If you want to save the folders history after exiting Far, use the
-respective option in the ~System settings~@SystemSettings@ dialog.
+ Jeżeli historia ma zostać zapisana po wyjściu z Far, należy włączyć
+odpowiednią opcję w ~Ustawieniach systemowych~@SystemSettings@ programu.
 
- Remarks:
+ Uwagi:
 
- 1. ^<wrap>List refresh operation (Ctrl+R) can take a considerable amount
-of time if a folder was located on a currently unavailable remote resource.
- 2. ^<wrap>Locked items will not be deleted when clearing or refreshing the history.
+ 1. ^<wrap>Operacja odświeżenia listy (Ctrl+R) może zająć dużo czasu jeżeli plik
+jest zablokowany lub nie jest dostępny zasób zewnętrzny.
+ 2. ^<wrap>Zablokowane pozycje nie będą usuwane przy czyszczeniu lub odświeżaniu historii.
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @TaskList
