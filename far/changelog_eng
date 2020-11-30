@@ -9535,7 +9535,7 @@ svs 19.03.2014 16:17:34 +0400 - build 3837
 
 svs 18.03.2014 15:20:34 +0400 - build 3836
 
-1. GUID for the login and password duery dialog.
+1. GUID for the login and password query dialog.
 
     GetNameAndPasswordId  = {CD2AC546-9E4F-4445-A258-AB5F7A7800E0}  --> Dlg.Id
 
@@ -22135,7 +22135,7 @@ drkns 19.08.2010 19:36:20 +0200 - build 1646
 1. Virtual hard drives (VHD) are recognized in drive change menu. Optional is VHD container name displaying.
    Windows 7/Windows Server 2008 R2 and higher is needed.
 
-2. A few useless "IsProcessAssignMacroKey" and more triffles.
+2. A few useless "IsProcessAssignMacroKey" and more trifles.
 
 svs 19.08.2010 14:56:31 +0300 - build 1645
 
@@ -22851,7 +22851,7 @@ drkns 28.04.2010 00:42:17 +0200 - build 1527
 
 drkns 27.04.2010 19:51:09 +0200 - build 1526
 
-1. Another couple of triffles.
+1. Another couple of trifles.
 
 drkns 27.04.2010 16:47:00 +0200 - build 1525
 
@@ -22904,7 +22904,7 @@ drkns 25.04.2010 19:55:48 +0200 - build 1519
 
 7. Mantis#0001217: !@! metacharacter doesn't work.
 
-8. Some triffles in privileges elevation system.
+8. Some trifles in privileges elevation system.
 
 drkns 22.04.2010 21:11:09 +0200 - build 1518
 
@@ -27556,7 +27556,7 @@ t-rex 28.10.2007 17:31:13 +0200 - build 311
 
 from Alexandr Zamaraev (Tonal):
 
-1. Builds with 4.2.1
+1. Builds with GCC 4.2.1
 
 t-rex 28.10.2007 16:37:51 +0200 - build 310
 
