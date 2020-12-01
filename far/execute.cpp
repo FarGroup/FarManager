@@ -539,8 +539,6 @@ public:
 
 	~external_execution_context()
 	{
-		FlushInputBuffer();
-
 		SetFarConsoleMode(true);
 
 		SetCursorType(CursorVisible, CursorSize);
