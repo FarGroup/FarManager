@@ -123,7 +123,9 @@ void ControlObject::CreateDummyFilePanels()
 	FPanels = FilePanels::create(false, 0);
 }
 
-ControlObject::~ControlObject()
+ControlObject::~ControlObject() = default;
+
+void ControlObject::close() const
 {
 	if (Global->CriticalInternalError)
 	{
@@ -149,6 +151,8 @@ ControlObject::~ControlObject()
 	FileFilter::CloseFilter();
 	History::CompactHistory();
 	FilePositionCache::CompactHistory();
+
+	Plugins->UnloadPlugins();
 }
 
 

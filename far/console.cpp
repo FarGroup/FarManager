@@ -596,15 +596,23 @@ namespace console_detail
 		return true;
 	}
 
-	// NT is RGB, VT is BGR
-	static int rgb_to_bgr(int const RGB)
+	static constexpr wchar_t vt_color_index(int const Index)
 	{
-		return (RGB & 0b100) >> 2 | (RGB & 0b010) | (RGB & 0b001) << 2;
-	}
+		// NT is RGB, VT is BGR
+		constexpr int Table[]
+		{
+			//BGR     RGB
+			0b000, // 000
+			0b100, // 001
+			0b010, // 010
+			0b110, // 011
+			0b001, // 100
+			0b101, // 101
+			0b011, // 110
+			0b111, // 111
+		};
 
-	static wchar_t vt_color_index(COLORREF Color)
-	{
-		return L'0' + rgb_to_bgr(Color);
+		return L'0' + Table[Index & 0b111];
 	}
 
 	static const struct
@@ -752,7 +760,7 @@ namespace console_detail
 			return WriteConsoleOutput(::console.GetOutputHandle(), Buffer, make_coord(BufferSize), {}, &SysWriteRegion) != FALSE;
 		}
 
-		static bool WriteOutputNTImplDebug(CHAR_INFO* const Buffer, point const BufferSize, rectangle& WriteRegion)
+		static bool WriteOutputNTImplDebug(CHAR_INFO* const Buffer, point const BufferSize, rectangle const& WriteRegion)
 		{
 			if constexpr ((false))
 			{
@@ -794,18 +802,27 @@ namespace console_detail
 
 				for (size_t i = 0, Height = WriteRegion.height(); i < Height; i += HeightStep)
 				{
-					auto PartialWriteRegion = WriteRegion;
-					PartialWriteRegion.top += static_cast<int>(i);
-					PartialWriteRegion.bottom = std::min(WriteRegion.bottom, static_cast<int>(PartialWriteRegion.top + HeightStep - 1));
-					point const PartialBufferSize{ BufferSize.x, static_cast<int>(PartialWriteRegion.height()) };
+					rectangle const PartialWriteRegion
+					{
+						WriteRegion.left,
+						WriteRegion.top + static_cast<int>(i),
+						WriteRegion.right,
+						std::min(WriteRegion.bottom, static_cast<int>(WriteRegion.top + static_cast<int>(i) + HeightStep - 1))
+					};
+
+					point const PartialBufferSize
+					{
+						BufferSize.x,
+						static_cast<int>(PartialWriteRegion.height())
+					};
+
 					if (!WriteOutputNTImplDebug(ConsoleBuffer.data() + i * PartialBufferSize.x, PartialBufferSize, PartialWriteRegion))
 						return false;
 				}
 			}
 			else
 			{
-				auto WriteRegionCopy = WriteRegion;
-				if (!WriteOutputNTImplDebug(ConsoleBuffer.data(), BufferSize, WriteRegionCopy))
+				if (!WriteOutputNTImplDebug(ConsoleBuffer.data(), BufferSize, WriteRegion))
 					return false;
 			}
 

@@ -437,7 +437,7 @@ static std::optional<int> ProcessServiceModes(span<const wchar_t* const> const A
 		string strProfilePath(Args.size() > 2? Args[2] : L""sv), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
 		InitTemplateProfile(strTemplatePath);
 		InitProfile(strProfilePath, strLocalProfilePath);
-		Global->m_ConfigProvider = new config_provider(Export? config_provider::mode::m_export : config_provider::mode::m_import);
+		Global->m_ConfigProvider = std::make_unique<config_provider>(Export? config_provider::mode::m_export : config_provider::mode::m_import);
 		ConfigProvider().ServiceMode(Args[1]);
 		return EXIT_SUCCESS;
 	}
@@ -719,7 +719,7 @@ static int mainImpl(span<const wchar_t* const> const Args)
 
 	InitTemplateProfile(strTemplatePath);
 	InitProfile(strProfilePath, strLocalProfilePath);
-	Global->m_ConfigProvider = new config_provider;
+	Global->m_ConfigProvider = std::make_unique<config_provider>();
 
 	Global->Opt->Load(std::move(Overrides));
 
@@ -737,18 +737,14 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	}
 
 	InitConsole();
-	if (CustomTitle.has_value())
-		ConsoleTitle::SetUserTitle(CustomTitle->empty() ? Global->strInitTitle : *CustomTitle);
 
 	SCOPE_EXIT
 	{
-		// BUGBUG, reorder to delete only in ~global()
-		delete Global->CtrlObject;
-		Global->CtrlObject = nullptr;
-
-		ClearInternalClipboard();
 		CloseConsole();
 	};
+
+	if (CustomTitle.has_value())
+		ConsoleTitle::SetUserTitle(CustomTitle->empty() ? Global->strInitTitle : *CustomTitle);
 
 	far_language::instance().load(Global->g_strFarPath, Global->Opt->strLanguage, static_cast<int>(lng::MNewFileName + 1));
 
@@ -759,7 +755,14 @@ static int mainImpl(span<const wchar_t* const> const Args)
 
 	UpdateErrorMode();
 
-	Global->CtrlObject = new ControlObject;
+	ControlObject CtrlObj;
+	Global->CtrlObject = &CtrlObj;
+
+	SCOPE_EXIT
+	{
+		CtrlObj.close();
+		Global->CtrlObject = {};
+	};
 
 	NoElevationDuringBoot.reset();
 

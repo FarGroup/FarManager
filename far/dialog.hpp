@@ -94,15 +94,15 @@ struct DialogItemEx: public FarDialogItem
 	// Структура, описывающая автоматизацию для DIF_AUTOMATION
 	struct DialogItemAutomation;
 
-	int ListPos;
+	int ListPos{};
 	string strHistory;
 	string strMask;
 	string strData;
 	BitFlags IFlags;
 	std::vector<DialogItemAutomation> Auto;
-	void *ObjPtr;
+	void* ObjPtr{};
 	vmenu_ptr ListPtr;
-	struct DlgUserControl *UCData;
+	struct DlgUserControl* UCData{};
 
 	DialogItemEx();
 	~DialogItemEx();

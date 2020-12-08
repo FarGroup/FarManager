@@ -1,3 +1,9 @@
+drkns 08.12.2020 23:31:46 +0000 - build 5711
+
+1. gh-311: Wrong counter of copied bytes
+
+2. Refactoring.
+
 yjh 01.12.2020 21:15:24 +0300 - build 5710
 
 1. Ещё одно уточнение в запускателе.

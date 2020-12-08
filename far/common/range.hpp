@@ -133,7 +133,8 @@ public:
 	}
 
 	[[nodiscard]]
-	constexpr auto data() const noexcept
+	// No auto here - VS2019 preview 2 bug
+	constexpr pointer data() const noexcept
 	{
 		if constexpr (std::is_pointer_v<iterator>)
 			return m_Begin;

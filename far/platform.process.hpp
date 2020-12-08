@@ -55,4 +55,4 @@ namespace os::process
 	image_type get_process_subsystem(HANDLE Process);
 }
 
-#endif // PLATFORM_PLATFORM_PROCESS_HPP_234140CB_C857_40CF_901D_A10C5EBEA85B
+#endif // PLATFORM_PROCESS_HPP_234140CB_C857_40CF_901D_A10C5EBEA85B

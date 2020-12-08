@@ -145,6 +145,9 @@ def check(filename):
 		LineNumber += 1
 
 		if CheckSelfInclude and extension in [".cpp"]:
+			if content[LineNumber] == "// BUGBUG" and content[LineNumber + 1] == "#include \"platform.headers.hpp\"" and content[LineNumber + 2] == "":
+				LineNumber += 3
+
 			if content[LineNumber] != "// Self:":
 				Raise("No self comment")
 			LineNumber += 1
@@ -172,7 +175,7 @@ def get_list(dir):
 
 if __name__ == "__main__":
 	extensions = ('.cpp', '.hpp', '.c', '.h')
-	files = get_list(".") + get_list("common") + get_list("common/2d") + get_list("sdk")
+	files = get_list(".") + get_list("common") + get_list("common/2d") + get_list("platform.sdk")
 	for file in files:
 		ext = os.path.splitext(file)[-1].lower()
 		if ext in extensions:

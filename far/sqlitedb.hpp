@@ -77,10 +77,7 @@ public:
 		blob,
 	};
 
-	static auto memory_db_name()
-	{
-		return L":memory:"sv;
-	}
+	static constexpr auto memory_db_name = L":memory:"sv;
 
 protected:
 	class db_initialiser;

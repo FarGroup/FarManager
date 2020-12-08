@@ -127,10 +127,12 @@ private:
 
 public:
 	// TODO: review the order and make private
-	class config_provider* m_ConfigProvider{};
+	std::unique_ptr<class config_provider> m_ConfigProvider;
 	std::unique_ptr<class Options> Opt;
 	std::unique_ptr<class ScreenBuf> ScrBuf;
 	std::unique_ptr<class Manager> WindowManager;
+
+	// Non-owning
 	class ControlObject* CtrlObject{};
 };
 

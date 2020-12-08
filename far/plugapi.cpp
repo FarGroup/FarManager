@@ -2722,146 +2722,121 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 	return cpp_try(
 	[&]() -> intptr_t
 	{
-		FileFilter *Filter = nullptr;
-
-		if (Command != FFCTL_CREATEFILEFILTER)
-		{
-			if (!hHandle || hHandle == INVALID_HANDLE_VALUE)
-				return FALSE;
-
-			Filter = static_cast<FileFilter*>(hHandle);
-		}
+		if (Command != FFCTL_CREATEFILEFILTER && !hHandle)
+			return false;
 
 		switch (Command)
 		{
 		case FFCTL_CREATEFILEFILTER:
 		{
+			if (none_of(hHandle,
+				nullptr,
+				PANEL_ACTIVE,
+				PANEL_PASSIVE,
+				PANEL_NONE
+			))
+				return false;
+
+			if (none_of(
+				Param1,
+				FFT_PANEL,
+				FFT_FINDFILE,
+				FFT_COPY,
+				FFT_SELECT,
+				FFT_CUSTOM
+			))
+				return false;
+
 			if (!Param2)
-				break;
+				return false;
 
-			*static_cast<HANDLE*>(Param2) = INVALID_HANDLE_VALUE;
-
-			if (hHandle != nullptr && hHandle != PANEL_ACTIVE && hHandle != PANEL_PASSIVE && hHandle != PANEL_NONE)
-				break;
-
-			switch (Param1)
-			{
-			case FFT_PANEL:
-			case FFT_FINDFILE:
-			case FFT_COPY:
-			case FFT_SELECT:
-			case FFT_CUSTOM:
-				break;
-
-			default:
-				return FALSE;
-			}
-
-			Filter = new FileFilter(GetHostPanel(hHandle), static_cast<FAR_FILE_FILTER_TYPE>(Param1));
-			*static_cast<FileFilter**>(Param2) = Filter;
-			return TRUE;
+			*static_cast<FileFilter**>(Param2) = std::make_unique<FileFilter>(GetHostPanel(hHandle), static_cast<FAR_FILE_FILTER_TYPE>(Param1)).release();
+			return true;
 		}
 
 		case FFCTL_FREEFILEFILTER:
-			delete Filter;
-			return TRUE;
+			delete static_cast<FileFilter*>(hHandle);
+			return true;
 
 		case FFCTL_OPENFILTERSMENU:
-			Filter->FilterEdit();
-			return TRUE;
+			static_cast<FileFilter*>(hHandle)->FilterEdit();
+			return true;
 
 		case FFCTL_STARTINGTOFILTER:
-			Filter->UpdateCurrentTime();
-			return TRUE;
+			static_cast<FileFilter*>(hHandle)->UpdateCurrentTime();
+			return true;
 
 		case FFCTL_ISFILEINFILTER:
 			if (!Param2)
 				break;
-			return Filter->FileInFilter(*static_cast<const PluginPanelItem*>(Param2));
+			return static_cast<FileFilter*>(hHandle)->FileInFilter(*static_cast<const PluginPanelItem*>(Param2));
 		}
-		return FALSE;
+		return false;
 	},
 	[]
 	{
 		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return FALSE;
+		return false;
 	});
 }
 
 intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
 {
 	return cpp_try(
-	[&]
+	[&]() -> intptr_t
 	{
-		RegExp* re = nullptr;
-
-		if (Command != RECTL_CREATE)
-		{
-			if (!hHandle || hHandle == INVALID_HANDLE_VALUE)
-				return FALSE;
-
-			re = static_cast<RegExp*>(hHandle);
-		}
+		if (Command != RECTL_CREATE && !hHandle)
+			return false;
 
 		switch (Command)
 		{
 		case RECTL_CREATE:
-			*static_cast<HANDLE*>(Param2) = INVALID_HANDLE_VALUE;
-			re = new RegExp;
-
-			*static_cast<HANDLE*>(Param2) = static_cast<HANDLE>(re);
-			return TRUE;
+			*static_cast<RegExp**>(Param2) = std::make_unique<RegExp>().release();
+			return true;
 
 		case RECTL_FREE:
-			delete re;
-			return TRUE;
+			delete static_cast<RegExp const*>(hHandle);
+			return true;
 
 		case RECTL_COMPILE:
-			return re->Compile(static_cast<const wchar_t*>(Param2), OP_PERLSTYLE);
+			return static_cast<RegExp*>(hHandle)->Compile(static_cast<const wchar_t*>(Param2), OP_PERLSTYLE);
 
 		case RECTL_OPTIMIZE:
-			return re->Optimize();
+			return static_cast<RegExp *>(hHandle)->Optimize();
 
 		case RECTL_MATCHEX:
 		{
 			const auto data = static_cast<RegExpSearch*>(Param2);
-			return re->MatchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, data->Match, data->Count);
+			return static_cast<RegExp const*>(hHandle)->MatchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, data->Match, data->Count);
 		}
 
 		case RECTL_SEARCHEX:
 		{
 			const auto data = static_cast<RegExpSearch*>(Param2);
-			return re->SearchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, data->Match, data->Count);
+			return static_cast<RegExp const*>(hHandle)->SearchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, data->Match, data->Count);
 		}
 
 		case RECTL_BRACKETSCOUNT:
-			return re->GetBracketsCount();
+			return static_cast<RegExp const*>(hHandle)->GetBracketsCount();
 
 		default:
-			return FALSE;
+			return false;
 		}
 	},
 	[]
 	{
 		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return FALSE;
+		return false;
 	});
 }
 
 intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept
 {
 	return cpp_try(
-	[&]
+	[&]() -> intptr_t
 	{
-		AbstractSettings* settings = nullptr;
-
-		if (Command != SCTL_CREATE)
-		{
-			if (!hHandle || hHandle == INVALID_HANDLE_VALUE)
-				return FALSE;
-
-			settings = static_cast<AbstractSettings*>(hHandle);
-		}
+		if (Command != SCTL_CREATE && !hHandle)
+			return false;
 
 		switch (Command)
 		{
@@ -2869,51 +2844,66 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 		{
 			const auto data = static_cast<FarSettingsCreate*>(Param2);
 			if (!CheckStructSize(data))
-				return FALSE;
+				return false;
 
 			if (data->Guid == FarUuid)
 			{
 				data->Handle = AbstractSettings::CreateFarSettings().release();
-				return TRUE;
+				return true;
 			}
 
 			if (!Global->CtrlObject->Plugins->FindPlugin(data->Guid))
-				return FALSE;
+				return false;
 
 			auto Settings = AbstractSettings::CreatePluginSettings(data->Guid, Param1 == PSL_LOCAL);
 			if (!Settings)
-				return FALSE;
+				return false;
 
 			data->Handle = Settings.release();
-			return TRUE;
+			return true;
 		}
 
 		case SCTL_FREE:
-			delete settings;
-			return TRUE;
+			delete static_cast<AbstractSettings const*>(hHandle);
+			return true;
 
 		case SCTL_SET:
-			return CheckStructSize(static_cast<const FarSettingsItem*>(Param2))? settings->Set(*static_cast<const FarSettingsItem*>(Param2)) : FALSE;
+			{
+				const auto Item = static_cast<FarSettingsItem const*>(Param2);
+				return CheckStructSize(Item) && static_cast<AbstractSettings*>(hHandle)->Set(*Item);
+			}
 
 		case SCTL_GET:
-			return CheckStructSize(static_cast<const FarSettingsItem*>(Param2))? settings->Get(*static_cast<FarSettingsItem*>(Param2)) : FALSE;
+			{
+				const auto Item = static_cast<FarSettingsItem*>(Param2);
+				return CheckStructSize(Item) && static_cast<AbstractSettings*>(hHandle)->Get(*Item);
+			}
 
 		case SCTL_ENUM:
-			return CheckStructSize(static_cast<FarSettingsEnum*>(Param2))? settings->Enum(*static_cast<FarSettingsEnum*>(Param2)) : FALSE;
+			{
+				const auto Enum = static_cast<FarSettingsEnum*>(Param2);
+				return CheckStructSize(Enum) && static_cast<AbstractSettings*>(hHandle)->Enum(*Enum);
+			}
 
 		case SCTL_DELETE:
-			return CheckStructSize(static_cast<const FarSettingsValue*>(Param2))? settings->Delete(*static_cast<const FarSettingsValue*>(Param2)) : FALSE;
+			{
+				const auto Value = static_cast<FarSettingsValue const*>(Param2);
+				return CheckStructSize(Value) && static_cast<AbstractSettings*>(hHandle)->Delete(*Value);
+			}
 
 		case SCTL_CREATESUBKEY:
 		case SCTL_OPENSUBKEY:
-			return CheckStructSize(static_cast<const FarSettingsValue*>(Param2))? settings->SubKey(*static_cast<const FarSettingsValue*>(Param2), Command == SCTL_CREATESUBKEY) : 0;
+			{
+				const auto Value = static_cast<FarSettingsValue const*>(Param2);
+				return CheckStructSize(Value)? static_cast<AbstractSettings*>(hHandle)->SubKey(*Value, Command == SCTL_CREATESUBKEY) : 0;
+			}
 		}
-		return FALSE;
+		return false;
 	},
 	[]
 	{
 		SAVE_EXCEPTION_TO(GlobalExceptionPtr());
-		return FALSE;
+		return false;
 	});
 }
 
@@ -3034,7 +3024,6 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 
 		const PROCESSNAME_FLAGS Flags = flags&0xFFFFFFFFFF000000;
 		const PROCESSNAME_FLAGS Mode = flags&0xFF0000;
-		const int Length = flags&0xFFFF;
 
 		switch(Mode)
 		{
@@ -3069,7 +3058,14 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 
 		case PN_GENERATENAME:
 		{
-			const auto strResult = ConvertWildcards(NullToEmpty(param1), NullToEmpty(param2), Length);
+			string_view const SrcName = NullToEmpty(param1);
+			const size_t Size = flags & 0xFFFF;
+			auto const SrcNamePart = Size? SrcName.substr(0, Size) : SrcName;
+
+			auto strResult = ConvertWildcards(SrcNamePart, NullToEmpty(param2));
+			if (Size)
+				strResult += SrcName.substr(Size);
+
 			xwcsncpy(param2, strResult.c_str(), size);
 			return strResult.size() + 1;
 		}

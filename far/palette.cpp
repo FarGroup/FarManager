@@ -260,15 +260,17 @@ static string CustomLabel(size_t Index)
 
 void palette::Load()
 {
+	const auto& ColorsCfg = *ConfigProvider().ColorsCfg();
+
 	for (const auto& [i, index]: enumerate(CurrentPalette))
 	{
-		ConfigProvider().ColorsCfg()->GetValue(Init[index].Name, i);
+		ColorsCfg.GetValue(Init[index].Name, i);
 	}
 
-	for (size_t i = 0; i != std::size(CustomColors); ++i)
+	for (const auto& [i, index]: enumerate(CustomColors))
 	{
 		FarColor Color;
-		CustomColors[i] = ConfigProvider().ColorsCfg()->GetValue(CustomLabel(i), Color)?
+		i = ColorsCfg.GetValue(CustomLabel(index), Color)?
 			Color.BackgroundColor :
 			RGB(255,255,255);
 	}
@@ -295,11 +297,11 @@ void palette::Save(bool always)
 
 	if (CustomColorsChanged)
 	{
-		for (size_t i = 0; i != std::size(CustomColors); ++i)
+		for (const auto& [i, index] : enumerate(CustomColors))
 		{
 			FarColor Color{};
-			Color.BackgroundColor = CustomColors[i];
-			ConfigProvider().ColorsCfg()->SetValue(CustomLabel(i), Color);
+			Color.BackgroundColor = i;
+			ConfigProvider().ColorsCfg()->SetValue(CustomLabel(index), Color);
 		}
 		CustomColorsChanged = false;
 	}

@@ -66,10 +66,6 @@ global::global():
 
 global::~global()
 {
-	delete CtrlObject;
-	CtrlObject = nullptr;
-	delete m_ConfigProvider;
-	m_ConfigProvider = nullptr;
 	Global = nullptr;
 }
 

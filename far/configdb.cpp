@@ -111,8 +111,8 @@ static auto& CreateChild(tinyxml::XMLElement& Parent, const char* Name)
 template<typename T>
 static void SetAttribute(tinyxml::XMLElement& Element, const char* Name, T const& Value)
 {
-	if constexpr (std::is_same_v<T, std::string>)
-		Element.SetAttribute(Name, Value.c_str());
+	if constexpr (std::is_convertible_v<T, std::string_view>)
+		Element.SetAttribute(Name, null_terminated_t<char>(Value).c_str());
 	else
 		Element.SetAttribute(Name, Value);
 }
@@ -217,19 +217,19 @@ private:
 
 static void serialise_integer(tinyxml::XMLElement& e, long long const Value)
 {
-	SetAttribute(e, "type", "qword"s);
+	SetAttribute(e, "type", "qword"sv);
 	SetAttribute(e, "value", encoding::utf8::get_bytes(to_hex_wstring(Value)));
 }
 
 static void serialise_string(tinyxml::XMLElement& e, std::string const& Value)
 {
-	SetAttribute(e, "type", "text"s);
+	SetAttribute(e, "type", "text"sv);
 	SetAttribute(e, "value", Value);
 }
 
 static void serialise_blob(tinyxml::XMLElement& e, bytes_view const Value)
 {
-	SetAttribute(e, "type", "base64"s);
+	SetAttribute(e, "type", "base64"sv);
 	SetAttribute(e, "value", base64::encode(Value));
 }
 
@@ -315,7 +315,7 @@ private:
 
 		Db.Exec(Schema);
 
-		static const stmt_init<statement_id> Statements[] =
+		static const stmt_init<statement_id> Statements[]
 		{
 			{ stmtSetValue,              "REPLACE INTO general_config VALUES (?1,?2,?3);"sv },
 			{ stmtGetValue,              "SELECT value FROM general_config WHERE key=?1 AND name=?2;"sv },
@@ -543,7 +543,7 @@ private:
 
 		Db.Exec(Schema);
 
-		static const stmt_init<statement_id> Statements[] =
+		static const stmt_init<statement_id> Statements[]
 		{
 			{ stmtCreateKey,             "INSERT OR IGNORE INTO table_keys VALUES (NULL,?1,?2,NULL);"sv },
 			{ stmtFindKey,               "SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;"sv },
@@ -853,20 +853,24 @@ public:
 private:
 	void SerializeBlob(std::string_view const Name, bytes_view const Blob, tinyxml::XMLElement& e) const override
 	{
-		static const std::string_view ColorKeys[] =
+		static const std::string_view ColorKeys[]
 		{
-			"NormalColor"sv, "SelectedColor"sv,
-			"CursorColor"sv, "SelectedCursorColor"sv,
-			"MarkCharNormalColor"sv, "MarkCharSelectedColor"sv,
-			"MarkCharCursorColor"sv, "MarkCharSelectedCursorColor"sv,
+			"NormalColor"sv,
+			"SelectedColor"sv,
+			"CursorColor"sv,
+			"SelectedCursorColor"sv,
+			"MarkCharNormalColor"sv,
+			"MarkCharSelectedColor"sv,
+			"MarkCharCursorColor"sv,
+			"MarkCharSelectedCursorColor"sv,
 		};
 
-		if (std::find(ALL_CONST_RANGE(ColorKeys), Name) != std::cend(ColorKeys))
+		if (contains(ColorKeys, Name))
 		{
 			FarColor Color;
 			if (deserialise(Blob, Color))
 			{
-				SetAttribute(e, "type", "color"s);
+				SetAttribute(e, "type", "color"sv);
 				SetAttribute(e, "background", encoding::utf8::get_bytes(to_hex_wstring(Color.BackgroundColor)));
 				SetAttribute(e, "foreground", encoding::utf8::get_bytes(to_hex_wstring(Color.ForegroundColor)));
 				SetAttribute(e, "flags", encoding::utf8::get_bytes(FlagsToString(Color.Flags, ColorFlagNames)));
@@ -915,7 +919,7 @@ private:
 
 		Db.Exec(Schema);
 
-		static const stmt_init<statement_id> Statements[] =
+		static const stmt_init<statement_id> Statements[]
 		{
 			{ stmtSetValue,              "REPLACE INTO colors VALUES (?1,?2);"sv },
 			{ stmtGetValue,              "SELECT value FROM colors WHERE name=?1;"sv },
@@ -1020,7 +1024,7 @@ private:
 
 		Db.Exec(Schema);
 
-		static const stmt_init<statement_id> Statements[] =
+		static const stmt_init<statement_id> Statements[]
 		{
 			{ stmtReorder,               "UPDATE filetypes SET weight=weight+1 WHERE weight>(CASE ?1 WHEN 0 THEN 0 ELSE (SELECT weight FROM filetypes WHERE id=?1) END);"sv },
 			{ stmtAddType,               "INSERT INTO filetypes VALUES (NULL,(CASE ?1 WHEN 0 THEN 1 ELSE (SELECT weight FROM filetypes WHERE id=?1)+1 END),?2,?3);"sv },
@@ -1292,7 +1296,7 @@ private:
 
 		Db.Exec(Schema);
 
-		static const stmt_init<statement_id> Statements[] =
+		static const stmt_init<statement_id> Statements[]
 		{
 			{ stmtCreateCache,           "INSERT INTO cachename VALUES (NULL,?1);"sv },
 			{ stmtFindCacheName,         "SELECT id FROM cachename WHERE name=?1;"sv },
@@ -1611,7 +1615,7 @@ private:
 
 		Db.Exec(Schema);
 
-		static const stmt_init<statement_id> Statements[] =
+		static const stmt_init<statement_id> Statements[]
 		{
 			{ stmtGetHotkey,             "SELECT hotkey FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;"sv },
 			{ stmtSetHotkey,             "REPLACE INTO pluginhotkeys VALUES (?1,?2,?3,?4);"sv },
@@ -1896,7 +1900,7 @@ private:
 
 		Db.Exec(Schema);
 
-		static const stmt_init<statement_id> Statements[] =
+		static const stmt_init<statement_id> Statements[]
 		{
 			{ stmtEnum,                  "SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY time;"sv },
 			{ stmtEnumDesc,              "SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;"sv },
@@ -2320,7 +2324,7 @@ void config_provider::ImportDatabase(T& Database, const char* ImportNodeName, bo
 
 static string GetDatabasePath(string_view const FileName, bool const Local)
 {
-	return FileName == SQLiteDb::memory_db_name()?
+	return FileName == SQLiteDb::memory_db_name?
 		string(FileName) :
 		path::join(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, FileName);
 }
@@ -2347,7 +2351,7 @@ std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
 		if (Global->Opt->ReadOnlyConfig || !os::fs::move_file(Name, Name + L".bad"sv, MOVEFILE_REPLACE_EXISTING))
 		{
 			Report(L"  - database is opened in memory"sv);
-			return std::make_unique<T>(SQLiteDb::memory_db_name());
+			return std::make_unique<T>(SQLiteDb::memory_db_name);
 		}
 
 		try
@@ -2360,7 +2364,7 @@ std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
 		{
 			Report(concat(L"  "sv, e2.message()));
 			Report(L"  - database is opened in memory"sv);
-			return std::make_unique<T>(SQLiteDb::memory_db_name());
+			return std::make_unique<T>(SQLiteDb::memory_db_name);
 		}
 	}
 }
@@ -2454,7 +2458,7 @@ config_provider::config_provider(mode Mode):
 	m_PlCacheCfg(CreateDatabase<PluginsCacheConfigDb>(pluginscache_db_name(), true)),
 	m_PlHotkeyCfg(CreateDatabase<PluginsHotkeysConfigDb>(L"pluginhotkeys.db"sv, false)),
 	m_HistoryCfg(CreateDatabase<HistoryConfigDb>(L"history.db"sv, true)),
-	m_HistoryCfgMem(CreateDatabase<HistoryConfigMemory>(SQLiteDb::memory_db_name(), true))
+	m_HistoryCfgMem(CreateDatabase<HistoryConfigMemory>(SQLiteDb::memory_db_name, true))
 {
 }
 

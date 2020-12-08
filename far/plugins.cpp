@@ -150,7 +150,7 @@ PluginManager::PluginManager():
 {
 }
 
-PluginManager::~PluginManager()
+void PluginManager::UnloadPlugins()
 {
 	Plugin *Luamacro=nullptr; // обеспечить выгрузку данного плагина последним.
 

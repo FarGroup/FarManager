@@ -92,8 +92,8 @@ public:
 
 	mutable const highlight::element* Colors{};
 
-	wchar_t** CustomColumnData{};
-	size_t CustomColumnNumber{};
+	std::vector<const wchar_t*> CustomColumns;
+
 	size_t Position{};
 
 	int SortGroup{};

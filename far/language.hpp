@@ -78,7 +78,6 @@ protected:
 	// Throws on failure, strong exception safety guarantee
 	void load(string_view Path, string_view Language, int CountNeed = -1);
 
-protected:
 	std::unique_ptr<i_language_data> m_Data;
 };
 

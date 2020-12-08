@@ -211,68 +211,54 @@ static bool SelectLanguage(bool HelpLanguage, string& Dest)
 bool SelectInterfaceLanguage(string& Dest) {return SelectLanguage(false, Dest);}
 bool SelectHelpLanguage(string& Dest) {return SelectLanguage(true, Dest);}
 
+static wchar_t extract(string_view::const_iterator& Iterator, string_view::const_iterator const End)
+{
+	switch (*Iterator)
+	{
+	case L'\\':
+		if (++Iterator == End)
+			return L'\\';
+
+		switch (*Iterator)
+		{
+		case L'\\': return L'\\';
+		case L'"':  return L'"';
+		case L'n':  return L'\n';
+		case L'r':  return L'\r';
+		case L'b':  return L'\b';
+		case L't':  return L'\t';
+
+		default:
+			--Iterator;
+			return L'\\';
+		}
+
+	case L'"':
+		if (++Iterator != End && *Iterator != L'"')
+			--Iterator;
+		return L'"';
+
+	default:
+		return *Iterator;
+	}
+}
+
 static string ConvertString(const string_view Src)
 {
+	const auto SpecialPos = Src.find_first_of(L"\\\""sv);
+	if (SpecialPos == Src.npos)
+		return string(Src);
+
 	string Result;
 	Result.reserve(Src.size());
 
-	for (auto i = Src.begin(); i != Src.end(); ++i)
+	Result.assign(Src.substr(0, SpecialPos));
+
+	for (auto i = Src.begin() + SpecialPos, End = Src.end(); i != End; ++i)
 	{
-		switch (*i)
-		{
-		case L'\\':
-			if (++i == Src.end())
-			{
-				Result.push_back(L'\\');
-				return Result;
-			}
-
-			switch (*i)
-			{
-			case L'\\':
-				Result.push_back(L'\\');
-				break;
-
-			case L'"':
-				Result.push_back(L'"');
-				break;
-
-			case L'n':
-				Result.push_back(L'\n');
-				break;
-
-			case L'r':
-				Result.push_back(L'\r');
-				break;
-
-			case L'b':
-				Result.push_back(L'\b');
-				break;
-
-			case L't':
-				Result.push_back('\t');
-				break;
-
-			default:
-				Result.push_back(L'\\');
-				--i;
-				break;
-			}
+		Result.push_back(extract(i, End));
+		if (i == End)
 			break;
-
-		case L'"':
-			Result.push_back(L'"');
-			if (++i == Src.end())
-				return Result;
-
-			if (*i != L'"')
-				--i;
-			break;
-
-		default:
-			Result.push_back(*i);
-			break;
-		}
 	}
 
 	return Result;
@@ -310,7 +296,7 @@ static lng_line_type parse_lng_line(const string_view str, bool ParseLabels, str
 	}
 
 	//-- MLabel="Text"
-	if (ParseLabels && !str.empty() && str.back() == L'"' && std::iswalpha(str.front()))
+	if (ParseLabels && ends_with(str, L'"') && std::iswalpha(str.front()))
 	{
 		auto [Name, Value] = split(str);
 		inplace::trim(Name);

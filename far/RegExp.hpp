@@ -79,7 +79,9 @@ enum REError
 	//! Reference to undefined named bracket
 	errReferenceToUndefinedNamedBracket,
 	//! Only fixed length look behind assertions are supported
-	errVariableLengthLookBehind
+	errVariableLengthLookBehind,
+
+	errCancelled
 };
 
 enum
@@ -130,36 +132,36 @@ private:
 		std::unique_ptr<UniSet> firstptr;
 		UniSet& first;
 
-		int havefirst;
-		int havelookahead;
+		int havefirst{};
+		int havelookahead{};
 
-		int minlength;
+		int minlength{};
 
 		// error info
 		mutable int errorcode;
-		mutable int errorpos;
-		int srcstart;
+		mutable int errorpos{};
+		int srcstart{};
 
 		// options
-		int ignorecase;
+		int ignorecase{};
 
-		int bracketscount;
-		int maxbackref;
-		int havenamedbrackets;
+		int bracketscount{};
+		int maxbackref{};
+		int havenamedbrackets{};
 #ifdef RE_DEBUG
 		std::wstring resrc;
 #endif
 
 		int CalcLength(string_view src);
-		int InnerCompile(const wchar_t* start, const wchar_t* src, int srclength, int options);
+		bool InnerCompile(const wchar_t* start, const wchar_t* src, int srclength, int options);
 
-		int InnerMatch(const wchar_t* start, const wchar_t* str, const wchar_t* strend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch, std::vector<StateStackItem>& stack) const;
+		bool InnerMatch(const wchar_t* start, const wchar_t* str, const wchar_t* strend, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch, std::vector<StateStackItem>& stack) const;
 
 		void TrimTail(const wchar_t* start, const wchar_t*& strend) const;
 
 		// BUGBUG not thread safe!
 		// TODO: split to compile errors (stateful) and match errors (stateless)
-		int SetError(int _code, int pos) const { errorcode = _code; errorpos = pos; return 0; }
+		bool SetError(int _code, int pos) const { errorcode = _code; errorpos = pos; return false; }
 
 		int StrCmp(const wchar_t*& str,const wchar_t* start,const wchar_t* end) const;
 
@@ -176,7 +178,6 @@ private:
 
 		    \param src - source of expression
 		    \param options - compile options
-		    \return 1 on success, 0 otherwise
 
 		    If compilation fails error code can be obtained with LastError function,
 		    position of error in a expression can be obtained with ErrorPosition function.
@@ -186,13 +187,12 @@ private:
 		    \sa ErrorPosition
 		    \sa options
 		*/
-		int Compile(string_view src, int options=OP_PERLSTYLE|OP_OPTIMIZE);
+		bool Compile(string_view src, int options=OP_PERLSTYLE|OP_OPTIMIZE);
 
 		/*! Try to optimize regular expression
 		    Significally speedup Search mode in some cases.
-		    \return 1 on success, 0 if optimization failed.
 		*/
-		int Optimize();
+		bool Optimize();
 
 		/*! Try to match string with regular expression
 		    \param text - string to match
@@ -200,23 +200,22 @@ private:
 		    \param matchcount - in/out parameter that indicate number of items in
 		    match array on input, and number of brackets on output.
 		    \param hmatch - storage of named brackets.
-		    \return 1 on success, 0 if match failed.
 		    \sa SMatch
 		*/
-		int Match(string_view text, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
+		bool Match(string_view text, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
 		/*! Advanced version of match. Can be used for multiple matches
 		    on one string (to imitate /g modifier of perl regexp
 		*/
-		int MatchEx(string_view text, size_t From, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
+		bool MatchEx(string_view text, size_t From, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
 		/*! Try to find substring that will match regexp.
 		    Parameters and return value are the same as for Match.
 		    It is highly recommended to call Optimize before Search.
 		*/
-		int Search(string_view text, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
+		bool Search(string_view text, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
 		/*! Advanced version of search. Can be used for multiple searches
 		    on one string (to imitate /g modifier of perl regexp
 		*/
-		int SearchEx(string_view text, size_t From, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
+		bool SearchEx(string_view text, size_t From, RegExpMatch* match, intptr_t& matchcount, MatchHash* hmatch = nullptr) const;
 
 		bool Search(string_view Str) const;
 
@@ -244,8 +243,8 @@ private:
 			brhdata=data;
 		}
 	protected:
-		BracketHandler brhandler;
-		void* brhdata;
+		BracketHandler brhandler{};
+		void* brhdata{};
 };
 
 #endif // REGEXP_HPP_18B41BD7_69F8_461A_8A81_069B447D5554

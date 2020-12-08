@@ -204,8 +204,7 @@ int Viewer::CalculateMaxBytesPerLineByScreenWidth() const
 	auto BytesCount = MininumBytesCount;
 	for (auto width = XX2 - (OffsetWidth + MininumBytesCount * ByteWidth + BytesGroupSeparatorWidth); width >= ByteWidth; width -= ByteWidth)
 	{
-		if (width >= ByteWidth)
-			++BytesCount;
+		++BytesCount;
 
 		if (!(BytesCount % s_BytesPerStripe))
 			width -= BytesGroupSeparatorWidth;

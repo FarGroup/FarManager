@@ -105,7 +105,7 @@ namespace
 			return string(PointToName(DbName));
 
 		const auto NamePtr = sqlite::sqlite3_db_filename(Db, "main");
-		const string Name(NamePtr? *NamePtr? encoding::utf8::get_chars(NamePtr) : SQLiteDb::memory_db_name() : L"unknown"sv);
+		const string Name(NamePtr? *NamePtr? encoding::utf8::get_chars(NamePtr) : SQLiteDb::memory_db_name : L"unknown"sv);
 		return string(PointToName(Name));
 	}
 
@@ -381,7 +381,7 @@ public:
 
 	static database_ptr copy_db_to_memory(string_view const Path, const std::pair<busy_handler, void*>& BusyHandler, bool WAL)
 	{
-		auto Destination = open(memory_db_name(), {});
+		auto Destination = open(memory_db_name, {});
 
 		database_ptr SourceDb;
 		delayed_deleter Deleter(true);
@@ -431,14 +431,14 @@ public:
 		}
 		catch (const far_sqlite_exception&)
 		{
-			return open(memory_db_name(), {});
+			return open(memory_db_name, {});
 		}
 	}
 };
 
 SQLiteDb::database_ptr SQLiteDb::Open(string_view const Path, busy_handler BusyHandler, bool const WAL)
 {
-	const auto MemDb = Path == memory_db_name();
+	const auto MemDb = Path == memory_db_name;
 	m_DbExists = !MemDb && os::fs::is_file(Path);
 
 	if (!Global->Opt->ReadOnlyConfig || MemDb)
@@ -447,10 +447,10 @@ SQLiteDb::database_ptr SQLiteDb::Open(string_view const Path, busy_handler BusyH
 		return implementation::open(Path, { BusyHandler, this });
 	}
 
-	m_Path = memory_db_name();
+	m_Path = memory_db_name;
 	return m_DbExists?
 		implementation::try_copy_db_to_memory(Path, { BusyHandler, this }, WAL) :
-		implementation::open(memory_db_name(), {});
+		implementation::open(memory_db_name, {});
 }
 
 void SQLiteDb::Exec(span<std::string_view const> const Commands) const

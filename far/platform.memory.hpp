@@ -126,13 +126,6 @@ namespace os::memory
 		ptr(T*) -> ptr<T>;
 
 		template<class T>
-		[[nodiscard]]
-		auto alloc(unsigned const Flags, size_t const Size)
-		{
-			return ptr<T>(static_cast<T*>(LocalAlloc(Flags, Size)));
-		}
-
-		template<class T>
 		ptr<T> to_ptr(T* Ptr)
 		{
 			return ptr<T>{ Ptr };

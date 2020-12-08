@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Работа с ассоциациями файлов
 enum FILETYPE_MODE
 {
-	FILETYPE_ANY = -1,
 	FILETYPE_EXEC,       // Enter
 	FILETYPE_ALTEXEC,    // Ctrl-PgDn
 	FILETYPE_VIEW,       // F3

@@ -316,51 +316,53 @@ static auto capatibilities_from_scsi_mode_sense(const os::fs::file& Device)
 
 static auto product_id_to_capatibilities(const char* const ProductId)
 {
-	std::string ProductIdFiltered;
+	string ProductIdFiltered;
 	const auto Iterator = null_iterator(ProductId);
 	std::copy_if(Iterator, Iterator.end(), std::back_inserter(ProductIdFiltered), isalpha);
 
 	static const struct
 	{
-		std::string_view Pattern;
-		std::initializer_list<std::string_view> AntipatternsBefore, AntipatternsAfter;
+		string_view Pattern;
+		std::initializer_list<string_view> AntipatternsBefore, AntipatternsAfter;
 		cdrom_device_capabilities Capabilities;
 	}
 	Capabilities[]
 	{
-		{ "CDROM"sv,     {},       {},                       CAPABILITIES_CDROM     },
-		{ "CDR"sv,       {},       {"OM"sv, "W"sv},          CAPABILITIES_CDR       },
-		{ "CDRW"sv,      {},       {},                       CAPABILITIES_CDRW      },
-		{ "DVDROM"sv,    {"HD"sv}, {},                       CAPABILITIES_DVDROM    },
-		{ "DVDR"sv,      {"HD"sv}, {"OM"sv, "W"sv, "AM"sv},  CAPABILITIES_DVDR      },
-		{ "DVDRW"sv,     {"HD"sv}, {},                       CAPABILITIES_DVDRW     },
-		{ "DVDRAM"sv,    {"HD"sv}, {},                       CAPABILITIES_DVDRAM    },
-		{ "BDROM"sv,     {},       {},                       CAPABILITIES_BDROM     },
-		{ "BDR"sv,       {},       {"OM"sv, "W"sv},          CAPABILITIES_BDR       },
-		{ "BDRW"sv,      {},       {},                       CAPABILITIES_BDRW      },
-		{ "HDDVDROM"sv,  {},       {},                       CAPABILITIES_HDDVDROM  },
-		{ "HDDVDR"sv,    {},       {"OM"sv, "W"sv, "AM"sv},  CAPABILITIES_HDDVDR    },
-		{ "HDDVDRW"sv,   {},       {},                       CAPABILITIES_HDDVDRW   },
-		{ "HDDVDRAM"sv,  {},       {},                       CAPABILITIES_HDDVDRAM  },
+		{ L"CDROM"sv,     {},        {},                            CAPABILITIES_CDROM    },
+		{ L"CDR"sv,       {},        { L"OM"sv, L"W"sv },           CAPABILITIES_CDR      },
+		{ L"CDRW"sv,      {},        {},                            CAPABILITIES_CDRW     },
+		{ L"DVDROM"sv,    {L"HD"sv}, {},                            CAPABILITIES_DVDROM   },
+		{ L"DVDR"sv,      {L"HD"sv}, { L"OM"sv, L"W"sv, L"AM"sv },  CAPABILITIES_DVDR     },
+		{ L"DVDRW"sv,     {L"HD"sv}, {},                            CAPABILITIES_DVDRW    },
+		{ L"DVDRAM"sv,    {L"HD"sv}, {},                            CAPABILITIES_DVDRAM   },
+		{ L"BDROM"sv,     {},        {},                            CAPABILITIES_BDROM    },
+		{ L"BDR"sv,       {},        { L"OM"sv, L"W"sv },           CAPABILITIES_BDR      },
+		{ L"BDRW"sv,      {},        {},                            CAPABILITIES_BDRW     },
+		{ L"HDDVDROM"sv,  {},        {},                            CAPABILITIES_HDDVDROM },
+		{ L"HDDVDR"sv,    {},        { L"OM"sv, L"W"sv, L"AM"sv },  CAPABILITIES_HDDVDR   },
+		{ L"HDDVDRW"sv,   {},        {},                            CAPABILITIES_HDDVDRW  },
+		{ L"HDDVDRAM"sv,  {},        {},                            CAPABILITIES_HDDVDRAM },
 	};
 
-	return std::accumulate(ALL_CONST_RANGE(Capabilities), CAPABILITIES_NONE, [&ProductIdFiltered](auto const Value, auto const& i)
+	return std::accumulate(ALL_CONST_RANGE(Capabilities), CAPABILITIES_NONE, [Id = string_view(ProductIdFiltered)](auto const Value, auto const& i)
 	{
-		const auto Pos = ProductIdFiltered.find(i.Pattern);
+		const auto Pos = Id.find(i.Pattern);
 		if (Pos == i.Pattern.npos)
 			return Value;
 
-		for (const auto& Ap: i.AntipatternsBefore)
-		{
-			if (const auto Apos = ProductIdFiltered.find(Ap); Apos != ProductIdFiltered.npos && Apos + Ap.size() == Pos)
-				return Value;
-		}
+		if (
+			const auto Prefix = Id.substr(0, Pos);
+			std::any_of(ALL_CONST_RANGE(i.AntipatternsBefore),
+				[&](string_view const Str){ return ends_with(Prefix, Str); })
+		)
+			return Value;
 
-		for (const auto& Ap: i.AntipatternsAfter)
-		{
-			if (ProductIdFiltered.find(Ap, Pos) != Ap.npos)
-				return Value;
-		}
+		if (
+			const auto Suffix = Id.substr(Pos + i.Pattern.size());
+			std::any_of(ALL_CONST_RANGE(i.AntipatternsAfter),
+				[&](string_view const Str){ return starts_with(Suffix, Str); })
+		)
+			return Value;
 
 		return Value | i.Capabilities;
 	});

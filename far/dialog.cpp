@@ -329,10 +329,7 @@ struct DialogItemEx::DialogItemAutomation
 };
 
 DialogItemEx::DialogItemEx():
-	FarDialogItem(),
-	ListPos(),
-	ObjPtr(),
-	UCData()
+	FarDialogItem()
 {}
 
 DialogItemEx::~DialogItemEx() = default;

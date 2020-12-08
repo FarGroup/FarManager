@@ -136,7 +136,6 @@ class PluginManager: noncopyable
 
 public:
 	PluginManager();
-	~PluginManager();
 
 	// API functions
 	std::unique_ptr<plugin_panel> Open(Plugin* pPlugin, int OpenFrom, const UUID& Uuid, intptr_t Item) const;
@@ -171,6 +170,7 @@ public:
 	bool UnloadPluginExternal(Plugin* pPlugin);
 	bool IsPluginUnloaded(const Plugin* pPlugin) const;
 	void LoadPlugins();
+	void UnloadPlugins();
 
 private:
 	using plugins_set = std::multiset<Plugin*, plugin_less>;

@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 // обработать имя файла: сравнить с маской, масками, сгенерировать по маске
-string ConvertWildcards(string_view SrcName, string_view Mask, int SelectedFolderNameLength);
+string ConvertWildcards(string_view SrcName, string_view Mask);
 bool CmpName(string_view pattern, string_view str, bool skippath = true, bool CmpNameLegacyMode = true);
 string exclude_sets(string_view Str);
 

@@ -154,3 +154,15 @@ namespace os::memory
 		}
 	}
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("os.memory.is_pointer")
+{
+	REQUIRE(!os::memory::is_pointer(nullptr));
+	REQUIRE(!os::memory::is_pointer(reinterpret_cast<void*>(42)));
+	REQUIRE(os::memory::is_pointer("42"));
+}
+#endif

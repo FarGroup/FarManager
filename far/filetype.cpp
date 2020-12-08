@@ -446,18 +446,20 @@ static bool EditTypeRecord(unsigned long long EditPos,bool NewRec)
 
 	if (Dlg->GetExitCode()==ETR_BUTTON_OK)
 	{
+		auto& Cfg = *ConfigProvider().AssocConfig();
+
 		if (NewRec)
 		{
-			EditPos = ConfigProvider().AssocConfig()->AddType(EditPos,EditDlg[ETR_EDIT_MASKS].strData,EditDlg[ETR_EDIT_DESCR].strData);
+			EditPos = Cfg.AddType(EditPos, EditDlg[ETR_EDIT_MASKS].strData, EditDlg[ETR_EDIT_DESCR].strData);
 		}
 		else
 		{
-			ConfigProvider().AssocConfig()->UpdateType(EditPos,EditDlg[ETR_EDIT_MASKS].strData,EditDlg[ETR_EDIT_DESCR].strData);
+			Cfg.UpdateType(EditPos, EditDlg[ETR_EDIT_MASKS].strData, EditDlg[ETR_EDIT_DESCR].strData);
 		}
 
 		for (int i=FILETYPE_EXEC,Item=ETR_EDIT_EXEC; i<=FILETYPE_ALTEDIT; i++,Item+=2)
 		{
-			ConfigProvider().AssocConfig()->SetCommand(EditPos,i,EditDlg[Item].strData,EditDlg[Item-1].Selected==BSTATE_CHECKED);
+			Cfg.SetCommand(EditPos, i, EditDlg[Item].strData, EditDlg[Item - 1].Selected == BSTATE_CHECKED);
 		}
 
 		return true;
