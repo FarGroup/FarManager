@@ -247,7 +247,7 @@ struct RegExp::UniSet
 			{
 				if (types&t)
 				{
-					if (isType(t,chr))
+					if (isType(chr, t))
 						return !negative;
 				}
 
@@ -263,7 +263,7 @@ struct RegExp::UniSet
 			{
 				if (nottypes&t)
 				{
-					if (!isType(t,chr))
+					if (!isType(chr, t))
 						return !negative;
 				}
 
@@ -3863,14 +3863,29 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 
 TEST_CASE("regex")
 {
-	RegExp re;
-	REQUIRE(re.Compile(L"/a*?ca/"sv));
+	{
+		RegExp re;
+		REQUIRE(re.Compile(L"/a*?ca/"sv));
 
-	RegExpMatch m = { -1, -1 };
-	intptr_t n = 1;
-	REQUIRE(re.Search(L"abca", &m, n));
-	REQUIRE(n == 1);
-	REQUIRE(m.start == 2);
-	REQUIRE(m.end == 4);
+		RegExpMatch m = { -1, -1 };
+		intptr_t n = 1;
+		REQUIRE(re.Search(L"abca", &m, n));
+		REQUIRE(n == 1);
+		REQUIRE(m.start == 2);
+		REQUIRE(m.end == 4);
+	}
+
+	{
+		RegExp re;
+		REQUIRE(re.Compile(L"/^\\[([\\w.]+)\\]:\\s*\\[(.*)\\]$/"sv, OP_PERLSTYLE));
+
+		RegExpMatch m = { -1, -1 };
+		intptr_t n = 1;
+		REQUIRE(re.Search(L"[init.svc.imsdatadaemon]: [running]", &m, n));
+		REQUIRE(n == 1);
+		REQUIRE(m.start == 0);
+		REQUIRE(m.end == 35);
+	}
+
 }
 #endif

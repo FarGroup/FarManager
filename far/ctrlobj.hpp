@@ -68,7 +68,7 @@ public:
 	~ControlObject();
 
 	void Init(int DirCount);
-	void close() const;
+	void close();
 	FilePanels *Cp() const;
 	window_ptr Panels() const;
 	void CreateDummyFilePanels();
