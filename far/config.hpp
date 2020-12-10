@@ -159,6 +159,8 @@ enum disk_menu_mode
 class Option
 {
 public:
+	using variant = std::variant<long long, string, bool>;
+
 	virtual ~Option() = default;
 
 	[[nodiscard]]
@@ -170,8 +172,8 @@ public:
 	[[nodiscard]]
 	virtual string_view GetType() const = 0;
 	[[nodiscard]]
-	virtual bool IsDefault(const std::any& Default) const = 0;
-	virtual void SetDefault(const std::any& Default) = 0;
+	virtual bool IsDefault(const variant& Default) const = 0;
+	virtual void SetDefault(const variant& Default) = 0;
 	[[nodiscard]]
 	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) = 0;
 	virtual void Export(FarSettingsItem& To) const = 0;
@@ -188,7 +190,7 @@ protected:
 
 	template<class T>
 	[[nodiscard]]
-	const T& GetT() const { return std::any_cast<const T&>(m_Value.value().value); }
+	const T& GetT() const { return std::get<T>(m_Value.value()); }
 
 	template<class T>
 	void SetT(const T& NewValue) { if (GetT<T>() != NewValue) m_Value = NewValue; }
@@ -197,30 +199,11 @@ private:
 	friend class Options;
 
 	virtual void StoreValue(GeneralConfig* Storage, string_view KeyName, string_view ValueName, bool always) const = 0;
-	virtual bool ReceiveValue(const GeneralConfig* Storage, string_view KeyName, string_view ValueName, const std::any& Default) = 0;
+	virtual bool ReceiveValue(const GeneralConfig* Storage, string_view KeyName, string_view ValueName, const variant& Default) = 0;
 
 	void MakeUnchanged() { m_Value.forget(); }
 
-	// Workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91630
-	struct any
-	{
-		std::any value;
-
-		template<typename T>
-		any(T&& Value):
-			value(FWD(Value))
-		{
-		}
-
-
-		template<typename T>
-		auto& operator=(T&& Value)
-		{
-			value = FWD(Value);
-		}
-	};
-
-	monitored<any> m_Value;
+	monitored<variant> m_Value;
 };
 
 namespace option
@@ -288,11 +271,11 @@ namespace detail
 		string ExInfo() const override { return {}; }
 
 		[[nodiscard]]
-		bool IsDefault(const std::any& Default) const override { return Get() == std::any_cast<base_type>(Default); }
-		void SetDefault(const std::any& Default) override { Set(std::any_cast<base_type>(Default)); }
+		bool IsDefault(const variant& Default) const override { return Get() == std::get<base_type>(Default); }
+		void SetDefault(const variant& Default) override { Set(std::get<base_type>(Default)); }
 
 		[[nodiscard]]
-		bool ReceiveValue(const GeneralConfig* Storage, string_view KeyName, string_view ValueName, const std::any& Default) override;
+		bool ReceiveValue(const GeneralConfig* Storage, string_view KeyName, string_view ValueName, const variant& Default) override;
 		void StoreValue(GeneralConfig* Storage, string_view KeyName, string_view ValueName, bool always) const override;
 
 		//operator const base_type&() const { return Get(); }

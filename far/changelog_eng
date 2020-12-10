@@ -1,3 +1,9 @@
+drkns 10.12.2020 02:30:20 +0000 - build 5713
+
+1. Another attempt to workaround Windows 10 bugs (0003827 etc.).
+
+2. Refactoring.
+
 drkns 09.12.2020 08:34:58 +0000 - build 5712
 
 1. Corrections of 5711.

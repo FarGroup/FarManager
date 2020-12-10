@@ -101,15 +101,15 @@ enum COPY_CODES
 
 enum class overwrite
 {
-	no            = -1,
-	yes           = 0,
-	yes_all       = 1,
-	skip          = 2,
-	skip_all      = 3,
-	rename        = 4,
-	rename_all    = 5,
-	append        = 6,
-	append_all    = 7,
+	no,
+	yes,
+	yes_all,
+	skip,
+	skip_all,
+	rename,
+	rename_all,
+	append,
+	append_all,
 };
 
 class ShellCopy : noncopyable
@@ -3213,8 +3213,7 @@ os::security::descriptor ShellCopy::GetSecurity(const string& FileName)
 
 	for (;;)
 	{
-		auto sd = os::fs::get_file_security(FileName, DACL_SECURITY_INFORMATION);
-		if (sd)
+		if (auto sd = os::fs::get_file_security(FileName, DACL_SECURITY_INFORMATION))
 			return sd;
 
 		if (SkipSecurityErrors)

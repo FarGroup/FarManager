@@ -1408,7 +1408,7 @@ struct FARConfigItem
 	string_view KeyName;
 	string_view ValName;
 	Option* Value;   // адрес переменной, куда помещаем данные
-	std::any Default;
+	std::variant<long long, string, bool> Default;
 
 	FarListItem MakeListItem(string& ListItemString) const
 	{
@@ -1487,11 +1487,11 @@ static bool ParseIntValue(string_view const sValue, long long& iValue)
 
 
 template<class base_type, class derived>
-bool detail::OptionImpl<base_type, derived>::ReceiveValue(const GeneralConfig* Storage, string_view const KeyName, string_view const ValueName, const std::any& Default)
+bool detail::OptionImpl<base_type, derived>::ReceiveValue(const GeneralConfig* Storage, string_view const KeyName, string_view const ValueName, const std::variant<long long, string, bool>& Default)
 {
 	base_type CfgValue;
 	const auto Result = Storage->GetValue(KeyName, ValueName, CfgValue);
-	Set(Result? CfgValue : std::any_cast<base_type>(Default));
+	Set(Result? CfgValue : std::get<base_type>(Default));
 	return Result;
 }
 
