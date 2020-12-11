@@ -868,7 +868,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
       else if (param == L"s0" || param == L"s-") {
         *it = param = L"s=off";
       }
-      else if (param == L"qs1" || param == L"qs+" || param == L"qs=on") {
+      else if (param == L"qs" || param == L"qs1" || param == L"qs+" || param == L"qs=on") {
         *it = param = L"qs=on"; adv_have_qs = true;
       }
       else if (param == L"qs0" || param == L"qs-" || param == L"qs=off") {

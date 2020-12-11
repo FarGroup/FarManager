@@ -672,6 +672,8 @@ public:
     if (ArcAPI::formats().count(options.arc_type) == 0)
       FAIL_MSG(Far::get_msg(MSG_ERROR_NO_FORMAT));
     if (new_arc) {
+      if (!options.encrypt)
+        options.password.clear();
       if (File::exists(options.arc_path)) {
         if (Far::message(c_overwrite_archive_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME) + L"\n" + Far::get_msg(MSG_UPDATE_DLG_CONFIRM_OVERWRITE), 0, FMSG_MB_YESNO) != 0)
           FAIL(E_ABORT);
