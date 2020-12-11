@@ -276,36 +276,52 @@ namespace console_detail
 		const auto Out = GetOutputHandle();
 
 		// This abominable workaround is for another Windows 10 bug, see https://github.com/microsoft/terminal/issues/2366
-		CONSOLE_SCREEN_BUFFER_INFO Info;
-		if (GetConsoleScreenBufferInfo(Out, &Info))
+		// TODO: check the OS version once they fix it
+		if (IsVtSupported())
 		{
-			// Make sure the cursor is within the new buffer
-			if (!(Info.dwCursorPosition.X < Size.x && Info.dwCursorPosition.Y < Size.y))
+			CONSOLE_SCREEN_BUFFER_INFO Info;
+			if (GetConsoleScreenBufferInfo(Out, &Info))
 			{
-				SetConsoleCursorPosition(
-					Out,
-					{
-						std::min(Info.dwCursorPosition.X, static_cast<SHORT>(Size.x - 1)),
-						std::min(Info.dwCursorPosition.Y, static_cast<SHORT>(Size.y - 1))
-					}
-				);
-			}
+				// Make sure the cursor is within the new buffer
+				if (!(Info.dwCursorPosition.X < Size.x && Info.dwCursorPosition.Y < Size.y))
+				{
+					SetConsoleCursorPosition(
+						Out,
+						{
+							std::min(Info.dwCursorPosition.X, static_cast<SHORT>(Size.x - 1)),
+							std::min(Info.dwCursorPosition.Y, static_cast<SHORT>(Size.y - 1))
+						}
+					);
+				}
 
-			// Make sure the window is within the new buffer:
-			rectangle Rect(Info.srWindow);
-			if (Size.x < Rect.right + 1 || Size.y < Rect.bottom + 1)
-			{
-				const auto Width = Rect.width(), Height = Rect.height();
-				Rect.bottom = std::min(Rect.bottom, Size.y - 1);
-				Rect.right = std::min(Rect.right, Size.x - 1);
-				Rect.top = std::max(0, Rect.bottom - Height);
-				Rect.left = std::max(0, Rect.right - Width);
+				// Make sure the window is within the new buffer:
+				rectangle Rect(Info.srWindow);
+				if (Size.x < Rect.right + 1 || Size.y < Rect.bottom + 1)
+				{
+					const auto Width = Rect.width(), Height = Rect.height();
+					Rect.bottom = std::min(Rect.bottom, Size.y - 1);
+					Rect.right = std::min(Rect.right, Size.x - 1);
+					Rect.top = std::max(0, Rect.bottom - Height);
+					Rect.left = std::max(0, Rect.right - Width);
 
-				SetWindowRect(Rect);
+					SetWindowRect(Rect);
+				}
 			}
 		}
 
-		return SetConsoleScreenBufferSize(Out, make_coord(Size)) != FALSE;
+		const auto Result = SetConsoleScreenBufferSize(Out, make_coord(Size)) != FALSE;
+
+		// After changing the buffer size the window size is not always correct
+		if (IsVtSupported())
+		{
+			CONSOLE_SCREEN_BUFFER_INFO Info;
+			if (GetConsoleScreenBufferInfo(Out, &Info))
+			{
+				SetWindowRect(Info.srWindow);
+			}
+		}
+
+		return Result;
 	}
 
 	bool console::GetWindowRect(rectangle& ConsoleWindow) const
