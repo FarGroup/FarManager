@@ -642,7 +642,7 @@ m1:
 					LastStartPos = 0;
 				}
 
-				if (starts_with(strReadStr, L'&') && NearTopicFound && any_of(PrevSymbol, L'$', L'@'))
+				if (starts_with(strReadStr, L'$') && NearTopicFound && any_of(PrevSymbol, L'$', L'@'))
 				{
 					AddLine(string_view(strReadStr).substr(1));
 					FixCount++;
