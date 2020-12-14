@@ -283,11 +283,10 @@ static auto full_command(string_view const Command, string_view const Parameters
 void OpenFolderInShell(string_view const Folder)
 {
 	execute_info Info;
-	auto FullFolderName = ConvertNameToFull(Folder);
-	// To avoid collisions with bat/cmd/etc.
-	AddEndSlash(FullFolderName);
 	Info.DisplayCommand = Folder;
 	Info.Command = Folder;
+	// To avoid collisions with bat/cmd/etc.
+	AddEndSlash(Info.Command);
 	Info.WaitMode = execute_info::wait_mode::no_wait;
 	Info.SourceMode = execute_info::source_mode::known;
 
