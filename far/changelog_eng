@@ -1,3 +1,9 @@
+drkns 18.12.2020 12:17:39 +0000 - build 5718
+
+1. Another executor correction.
+
+2. System.QuotedName was ignored in Tree Panel.
+
 drkns 14.12.2020 22:31:28 +0000 - build 5717
 
 1. Another executor correction.

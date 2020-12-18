@@ -1497,7 +1497,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 					}
 
 					if (!strFileName.empty() && (Global->Opt->QuotedName&QUOTEDNAME_INSERT) != 0)
-						QuoteSpace(strFileName);
+						inplace::QuoteSpace(strFileName);
 
 					strFileName += L' ';
 				}
@@ -2670,7 +2670,6 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				strFullPath = CurItem.FileName;
 			}
 
-			QuoteSpace(strFullPath);
 			OpenFolderInShell(strFullPath);
 		}
 		else
@@ -2755,9 +2754,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 					const auto ExclusionFlag = IsItExecutable? EXCLUDECMDHISTORY_NOTPANEL : EXCLUDECMDHISTORY_NOTWINASS;
 					if (!(Global->Opt->ExcludeCmdHistory & ExclusionFlag) && !PluginMode)
 					{
-						string QuotedName = strFileName;
-						QuoteSpace(QuotedName);
-						Global->CtrlObject->CmdHistory->AddToHistory(QuotedName, HR_DEFAULT, nullptr, {}, m_CurDir);
+						Global->CtrlObject->CmdHistory->AddToHistory(QuoteSpace(strFileName), HR_DEFAULT, nullptr, {}, m_CurDir);
 					}
 				}
 			}
@@ -4395,7 +4392,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 		}
 
 		if (Global->Opt->QuotedName&QUOTEDNAME_CLIPBOARD)
-			QuoteSpace(strQuotedName);
+			inplace::QuoteSpace(strQuotedName);
 
 		CopyData += strQuotedName;
 	}

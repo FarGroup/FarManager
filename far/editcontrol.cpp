@@ -239,7 +239,7 @@ static bool EnumWithQuoutes(VMenu2& Menu, const string_view strStart, const stri
 		const auto BuildQuotedString = [&](string Str)
 		{
 			if (!StartQuote)
-				QuoteSpace(Str);
+				inplace::QuoteSpace(Str);
 
 			auto Result = concat(strStart, Str);
 			if (StartQuote)

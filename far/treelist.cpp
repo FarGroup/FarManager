@@ -1036,23 +1036,26 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLRALTNUMPAD0:
 		case KEY_RCTRLALTNUMPAD0:
 		{
-			string strQuotedName=m_ListData[m_CurFile].strName;
-			QuoteSpace(strQuotedName);
-
 			if (any_of(LocalKey, KEY_CTRLALTINS, KEY_RCTRLRALTINS, KEY_CTRLRALTINS, KEY_RCTRLALTINS, KEY_CTRLALTNUMPAD0, KEY_RCTRLRALTNUMPAD0, KEY_CTRLRALTNUMPAD0, KEY_RCTRLALTNUMPAD0))
 			{
-				SetClipboardText(strQuotedName);
+				SetClipboardText(Global->Opt->QuotedName & QUOTEDNAME_CLIPBOARD?
+					QuoteSpace(m_ListData[m_CurFile].strName) :
+					m_ListData[m_CurFile].strName
+				);
 			}
 			else
 			{
 				if (any_of(LocalKey, KEY_SHIFTENTER, KEY_SHIFTNUMENTER))
 				{
-					OpenFolderInShell(strQuotedName);
+					OpenFolderInShell(m_ListData[m_CurFile].strName);
 				}
 				else
 				{
-					strQuotedName += L' ';
-					Parent()->GetCmdLine()->InsertString(strQuotedName);
+					Parent()->GetCmdLine()->InsertString((
+						Global->Opt->QuotedName & QUOTEDNAME_INSERT?
+							QuoteSpace(m_ListData[m_CurFile].strName) :
+							m_ListData[m_CurFile].strName
+					) + L' ');
 				}
 			}
 

@@ -60,18 +60,26 @@ namespace legacy
 	wchar_t* QuoteSpaceOnly(wchar_t* Str);
 }
 
-string &QuoteSpace(string &strStr);
-
 [[nodiscard]]
 string InsertRegexpQuote(string strStr);
 
 namespace inplace
 {
-	void QuoteOuterSpace(string &strStr);
+	void QuoteSpace(string& Str);
+	void QuoteOuterSpace(string& Str);
 }
 
 [[nodiscard]]
-inline string QuoteOuterSpace(string strStr) { inplace::QuoteOuterSpace(strStr); return strStr; }
+inline string QuoteSpace(string Str) { inplace::QuoteOuterSpace(Str); return Str; }
+
+[[nodiscard]]
+inline string QuoteSpace(string_view const Str) { return QuoteSpace(string(Str)); }
+
+[[nodiscard]]
+inline string QuoteOuterSpace(string Str) { inplace::QuoteOuterSpace(Str); return Str; }
+
+[[nodiscard]]
+inline string QuoteOuterSpace(string_view const Str) { return QuoteOuterSpace(string(Str)); }
 
 bool ReplaceStrings(string& strStr, string_view FindStr, string_view ReplStr, bool IgnoreCase = false, size_t Count = string::npos);
 

@@ -137,14 +137,6 @@ string InsertRegexpQuote(string strStr)
 	return strStr;
 }
 
-string &QuoteSpace(string &strStr)
-{
-	if (strStr.find_first_of(Global->Opt->strQuotedSymbols.Get()) != string::npos)
-		inplace::quote(strStr);
-
-	return strStr;
-}
-
 wchar_t* legacy::QuoteSpaceOnly(wchar_t* Str)
 {
 	if (contains(Str, L' '))
@@ -153,10 +145,16 @@ wchar_t* legacy::QuoteSpaceOnly(wchar_t* Str)
 	return Str;
 }
 
-void inplace::QuoteOuterSpace(string &strStr)
+void inplace::QuoteSpace(string& Str)
 {
-	if (!strStr.empty() && (strStr.front() == L' ' || strStr.back() == L' '))
-		inplace::quote(strStr);
+	if (Str.find_first_of(Global->Opt->strQuotedSymbols.Get()) != string::npos)
+		inplace::quote(Str);
+}
+
+void inplace::QuoteOuterSpace(string& Str)
+{
+	if (!Str.empty() && (Str.front() == L' ' || Str.back() == L' '))
+		inplace::quote(Str);
 }
 
 // TODO: "…" is displayed as "." in raster fonts. Make it lng-customisable?

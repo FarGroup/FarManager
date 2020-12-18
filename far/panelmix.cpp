@@ -307,7 +307,7 @@ bool MakePathForUI(DWORD Key, string &strPathName)
 				return false;
 
 			if (Global->Opt->QuotedName & QUOTEDNAME_INSERT)
-				QuoteSpace(strPathName);
+				inplace::QuoteSpace(strPathName);
 
 			return true;
 		}
