@@ -8328,7 +8328,7 @@ drkns 24.08.2014 18:51:17 +0200 - build 4066
 
 drkns 23.08.2014 22:57:24 +0200 - build 4065
 
-1. Mistype in 3542 which lead to invisibility of directories ".?" under some circumstances.
+1. Typo in 3542 which lead to invisibility of directories ".?" under some circumstances.
 
 2. clang warning.
 
@@ -17705,7 +17705,7 @@ zg 25.12.2011 13:43:10 +0200 - build 2326
 
 drkns 24.12.2011 23:50:51 +0200 - build 2325
 
-1. Mistype in 2324.
+1. Typo in 2324.
 
 drkns 24.12.2011 21:39:08 +0200 - build 2324
 
@@ -17781,7 +17781,7 @@ t-rex 22.12.2011 18:20:50 +0200 - build 2310
 
 w17 22.12.2011 16:50:49 +0400 - build 2309
 
-1. mistype in string constructor
+1. Typo in string constructor
 
 svs 22.12.2011 16:29:40 +0400 - build 2308
 
@@ -18645,7 +18645,7 @@ svs 25.08.2011 16:01:01 +0300 - build 2171
 
 drkns 25.08.2011 11:48:38 +0200 - build 2170
 
-1. Mistype in 2169.
+1. Typo in 2169.
 
 drkns 25.08.2011 11:36:00 +0200 - build 2169
 
@@ -18729,7 +18729,7 @@ drkns 23.08.2011 15:46:49 +0200 - build 2158
 
 drkns 23.08.2011 10:41:13 +0200 - build 2157
 
-1. Mistype in 2155.
+1. Typo in 2155.
 
 2. Correction of 2105 - Menu() second parameter was mandatory.
 
@@ -19171,7 +19171,7 @@ drkns 23.06.2011 16:46:50 +0200 - build 2076
 
 1. Mantis#0001801: process full PluginPanelItem.FileName content in filter
 
-2. Mantis#0001805: Mistypes in English help file
+2. Mantis#0001805: Typos in English help file
 
 3. Mantis#0001806: Vertical blocks cannot be selected with CursorBeyondEOL switched off
 
@@ -20916,7 +20916,7 @@ zg 08.02.2011 00:40:42 +0200 - build 1833
 
 drkns 07.02.2011 23:12:53 +0200 - build 1832
 
-1. Mistype in 1831.
+1. Typo in 1831.
 
 drkns 07.02.2011 21:12:08 +0200 - build 1831
 
@@ -21617,7 +21617,7 @@ drkns 22.11.2010 14:27:37 +0200 - build 1724
 
 drkns 17.11.2010 00:12:50 +0200 - build 1723
 
-1. Mistype in 1722.
+1. Typo in 1722.
 
 drkns 16.11.2010 19:14:24 +0200 - build 1722
 
@@ -24422,7 +24422,7 @@ drkns 24.12.2009 21:33:21 +0200 - build 1292
 
 drkns 24.12.2009 17:53:01 +0200 - build 1291
 
-1. Mistype in 1290.
+1. Typo in 1290.
 
 drkns 24.12.2009 01:51:44 +0200 - build 1290
 
