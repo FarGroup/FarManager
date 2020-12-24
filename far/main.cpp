@@ -219,11 +219,15 @@ static int MainProcess(
 			// воспользуемся тем, что ControlObject::Init() создает панели
 			// юзая Global->Opt->*
 
+			const auto
+				IsFileA = !apanel.empty() && os::fs::is_file(apanel),
+				IsFileP = !ppanel.empty() && os::fs::is_file(ppanel);
+
 			const auto SetupPanel = [&](bool active)
 			{
 				++DirCount;
 				string strPath = active? apanel : ppanel;
-				if (os::fs::is_file(strPath))
+				if (active? IsFileA : IsFileP)
 				{
 					CutToParent(strPath);
 				}
@@ -275,7 +279,7 @@ static int MainProcess(
 						Global->CtrlObject->CmdLine()->ExecString(Info);
 						ActivePanel->Parent()->SetActivePanel(ActivePanel);
 					}
-					else
+					else if (IsFileP)
 					{
 						const auto strPath = PointToName(ppanel);
 
@@ -297,7 +301,7 @@ static int MainProcess(
 
 					Global->CtrlObject->CmdLine()->ExecString(Info);
 				}
-				else
+				else if (IsFileA)
 				{
 					const auto strPath = PointToName(apanel);
 
