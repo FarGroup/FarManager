@@ -7,7 +7,7 @@ include ../makefile_gcc_def_inc
 
 DLLNAME = libPCRE.a
 DLLFULLNAME = $(OBJDIR)/$(DLLNAME)
-SRCS = get.c pcre.c study.c
+SRCS = pcre_chartables.c pcre_compile.c pcre_exec.c pcre_fullinfo.c pcre_get.c pcre_globals.c pcre_study.c pcre_tables.c pcre_try_flipped.c pcre_version.c
 
 OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS)))
 DEPS = $(patsubst %.c,$(OBJDIR)/%.d,$(filter %.c,$(SRCS)))

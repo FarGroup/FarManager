@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -23,12 +23,14 @@
     <ProjectGuid>{50FCE411-DA6E-432A-8224-265D52D09058}</ProjectGuid>
     <RootNamespace>pcre</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
   <PropertyGroup Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '10.0'">v100</PlatformToolset>
@@ -107,14 +109,22 @@
   </ItemDefinitionGroup>
 
   <ItemGroup>
-    <ClCompile Include="get.c" />
-    <ClCompile Include="pcre.c" />
-    <ClCompile Include="study.c" />
+    <ClCompile Include="pcre_chartables.c" />
+    <ClCompile Include="pcre_fullinfo.c" />
+    <ClCompile Include="pcre_get.c" />
+    <ClCompile Include="pcre_globals.c" />
+    <ClCompile Include="pcre_compile.c" />
+    <ClCompile Include="pcre_exec.c" />
+    <ClCompile Include="pcre_study.c" />
+    <ClCompile Include="pcre_tables.c" />
+    <ClCompile Include="pcre_try_flipped.c" />
+    <ClCompile Include="pcre_version.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h" />
     <ClInclude Include="pcre++.h" />
     <ClInclude Include="pcre.h" />
+    <ClInclude Include="pcre_internal.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="readme.txt" />

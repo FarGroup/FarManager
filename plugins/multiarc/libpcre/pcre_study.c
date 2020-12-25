@@ -2,42 +2,47 @@
 *      Perl-Compatible Regular Expressions       *
 *************************************************/
 
-/*
-This is a library of functions to support regular expressions whose syntax
-and semantics are as close as possible to those of the Perl 5 language. See
-the file Tech.Notes for some information on the internals.
+/* PCRE is a library of functions to support regular expressions whose syntax
+and semantics are as close as possible to those of the Perl 5 language.
 
-Written by: Philip Hazel <ph10@cam.ac.uk>
-
-           Copyright (c) 1997-2003 University of Cambridge
+                       Written by Philip Hazel
+           Copyright (c) 1997-2006 University of Cambridge
 
 -----------------------------------------------------------------------------
-Permission is granted to anyone to use this software for any purpose on any
-computer system, and to redistribute it freely, subject to the following
-restrictions:
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-1. This software is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    * Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
 
-2. The origin of this software must not be misrepresented, either by
-   explicit claim or by omission.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
 
-3. Altered versions must be plainly marked as such, and must not be
-   misrepresented as being the original software.
+    * Neither the name of the University of Cambridge nor the names of its
+      contributors may be used to endorse or promote products derived from
+      this software without specific prior written permission.
 
-4. If PCRE is embedded in any software that is released under the GNU
-   General Purpose Licence (GPL), then the terms of that licence shall
-   supersede any condition above with which it is incompatible.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 -----------------------------------------------------------------------------
 */
 
 
-/* Include the internals header, which itself includes Standard C headers plus
-the external pcre header. */
+/* This module contains the external function pcre_study(), along with local
+supporting functions. */
 
-#include "internal.h"
 
+#include "pcre_internal.h"
 
 
 /*************************************************
@@ -57,7 +62,7 @@ Returns:        nothing
 */
 
 static void
-set_bit(uschar *start_bits, int c, BOOL caseless, compile_data *cd)
+set_bit(uschar *start_bits, unsigned int c, BOOL caseless, compile_data *cd)
 {
 start_bits[c/8] |= (1 << (c&7));
 if (caseless && (cd->ctypes[c] & ctype_letter) != 0)
@@ -90,13 +95,22 @@ set_start_bits(const uschar *code, uschar *start_bits, BOOL caseless,
 {
 register int c;
 
+#if 0
+/* ========================================================================= */
+/* The following comment and code was inserted in January 1999. In May 2006,
+when it was observed to cause compiler warnings about unused values, I took it
+out again. If anybody is still using OS/2, they will have to put it back
+manually. */
+
 /* This next statement and the later reference to dummy are here in order to
 trick the optimizer of the IBM C compiler for OS/2 into generating correct
 code. Apparently IBM isn't going to fix the problem, and we would rather not
 disable optimization (in this module it actually makes a big difference, and
 the pcre module can use all the optimization it can get). */
 
-volatile int dummy = 0; (void)dummy;
+volatile int dummy;
+/* ========================================================================= */
+#endif
 
 do
   {
@@ -123,7 +137,7 @@ do
       /* Skip over callout */
 
       case OP_CALLOUT:
-      tcode += 2;
+      tcode += 2 + 2*LINK_SIZE;
       break;
 
       /* Skip over extended extraction bracket number */
@@ -154,7 +168,11 @@ do
       case OP_BRAMINZERO:
       if (!set_start_bits(++tcode, start_bits, caseless, utf8, cd))
         return FALSE;
+/* =========================================================================
+      See the comment at the head of this function concerning the next line,
+      which was an old fudge for the benefit of OS/2.
       dummy = 1;
+  ========================================================================= */
       do tcode += GET(tcode,1); while (*tcode == OP_ALT);
       tcode += 1+LINK_SIZE;
       break;
@@ -186,11 +204,10 @@ do
       /* At least one single char sets the bit and stops */
 
       case OP_EXACT:       /* Fall through */
-      tcode++;
+      tcode += 2;
 
-      case OP_CHARS:       /* Fall through */
-      tcode++;
-
+      case OP_CHAR:
+      case OP_CHARNC:
       case OP_PLUS:
       case OP_MINPLUS:
       set_bit(start_bits, tcode[1], caseless, cd);
@@ -211,15 +228,29 @@ do
       try_next = FALSE;
       break;
 
+      /* The cbit_space table has vertical tab as whitespace; we have to
+      discard it. */
+
       case OP_NOT_WHITESPACE:
       for (c = 0; c < 32; c++)
-        start_bits[c] |= ~cd->cbits[c+cbit_space];
+        {
+        int d = cd->cbits[c+cbit_space];
+        if (c == 1) d &= ~0x08;
+        start_bits[c] |= ~d;
+        }
       try_next = FALSE;
       break;
 
+      /* The cbit_space table has vertical tab as whitespace; we have to
+      discard it. */
+
       case OP_WHITESPACE:
       for (c = 0; c < 32; c++)
-        start_bits[c] |= cd->cbits[c+cbit_space];
+        {
+        int d = cd->cbits[c+cbit_space];
+        if (c == 1) d &= ~0x08;
+        start_bits[c] |= d;
+        }
       try_next = FALSE;
       break;
 
@@ -260,6 +291,9 @@ do
       case OP_TYPEMINQUERY:
       switch(tcode[1])
         {
+        case OP_ANY:
+        return FALSE;
+
         case OP_NOT_DIGIT:
         for (c = 0; c < 32; c++)
           start_bits[c] |= ~cd->cbits[c+cbit_digit];
@@ -270,14 +304,28 @@ do
           start_bits[c] |= cd->cbits[c+cbit_digit];
         break;
 
+        /* The cbit_space table has vertical tab as whitespace; we have to
+        discard it. */
+
         case OP_NOT_WHITESPACE:
         for (c = 0; c < 32; c++)
-          start_bits[c] |= ~cd->cbits[c+cbit_space];
+          {
+          int d = cd->cbits[c+cbit_space];
+          if (c == 1) d &= ~0x08;
+          start_bits[c] |= ~d;
+          }
         break;
+
+        /* The cbit_space table has vertical tab as whitespace; we have to
+        discard it. */
 
         case OP_WHITESPACE:
         for (c = 0; c < 32; c++)
-          start_bits[c] |= cd->cbits[c+cbit_space];
+          {
+          int d = cd->cbits[c+cbit_space];
+          if (c == 1) d &= ~0x08;
+          start_bits[c] |= d;
+          }
         break;
 
         case OP_NOT_WORDCHAR:
@@ -323,7 +371,7 @@ do
           for (c = 0; c < 16; c++) start_bits[c] |= tcode[c];
           for (c = 128; c < 256; c++)
             {
-            if ((tcode[c/8] & (1 << (c&7))) != 0)
+            if ((tcode[c/8] && (1 << (c&7))) != 0)
               {
               int d = (c >> 6) | 0xc0;            /* Set bit for this starter */
               start_bits[d/8] |= (1 << (d&7));    /* and then skip on to the */
@@ -394,16 +442,16 @@ Returns:    pointer to a pcre_extra block, with study_data filled in and the
             NULL on error or if no optimization possible
 */
 
-pcre_extra *
+PCRE_DATA_SCOPE pcre_extra *
 pcre_study(const pcre *external_re, int options, const char **errorptr)
 {
 uschar start_bits[32];
 pcre_extra *extra;
 pcre_study_data *study;
-const real_pcre *re = (const real_pcre *)external_re;
-uschar *code = (uschar *)re + sizeof(real_pcre) +
-  (re->name_count * re->name_entry_size);
+const uschar *tables;
+uschar *code;
 compile_data compile_block;
+const real_pcre *re = (const real_pcre *)external_re;
 
 *errorptr = NULL;
 
@@ -419,6 +467,9 @@ if ((options & ~PUBLIC_STUDY_OPTIONS) != 0)
   return NULL;
   }
 
+code = (uschar *)re + re->name_table_offset +
+  (re->name_count * re->name_entry_size);
+
 /* For an anchored pattern, or an unanchored pattern that has a first char, or
 a multiline pattern that matches only at "line starts", no further processing
 at present. */
@@ -426,12 +477,17 @@ at present. */
 if ((re->options & (PCRE_ANCHORED|PCRE_FIRSTSET|PCRE_STARTLINE)) != 0)
   return NULL;
 
-/* Set the character tables in the block which is passed around */
+/* Set the character tables in the block that is passed around */
 
-compile_block.lcc = re->tables + lcc_offset;
-compile_block.fcc = re->tables + fcc_offset;
-compile_block.cbits = re->tables + cbits_offset;
-compile_block.ctypes = re->tables + ctypes_offset;
+tables = re->tables;
+if (tables == NULL)
+  (void)pcre_fullinfo(external_re, NULL, PCRE_INFO_DEFAULT_TABLES,
+  (void *)(&tables));
+
+compile_block.lcc = tables + lcc_offset;
+compile_block.fcc = tables + fcc_offset;
+compile_block.cbits = tables + cbits_offset;
+compile_block.ctypes = tables + ctypes_offset;
 
 /* See if we can find a fixed set of initial characters for the pattern. */
 
@@ -466,4 +522,4 @@ memcpy(study->start_bits, start_bits, sizeof(start_bits));
 return extra;
 }
 
-/* End of study.c */
+/* End of pcre_study.c */
