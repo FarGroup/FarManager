@@ -1,3 +1,9 @@
+zolllo 25.12.2020 17:43:17 +0000
+
+1. custom.fmt 1.24:
+   - Update PCRE to 6.7
+   - 0000591: Bug in PCRE-regexes processing in 'FormatX'.
+
 drkns 25.10.2020 18:28:12 +0000
 
 1. zip.fmt: zip64 support (from https://forum.farmanager.com/viewtopic.php?p=162746#p162746).
