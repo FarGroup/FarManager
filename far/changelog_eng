@@ -1506,7 +1506,7 @@ drkns 22.07.2019 23:46:59 +0100 - build 5431
 
 1. Correction of 5429.
 
-2. Minor improvemnts in the leak detector.
+2. Minor improvements in the leak detector.
 
 3. After creating a minidump show where exactly the file is saved (or not saved).
 
@@ -17213,7 +17213,7 @@ drkns 26.01.2012 16:11:41 +0200 - build 2414
 
 drkns 26.01.2012 09:46:46 +0200 - build 2413
 
-1. Getting EMenu be callable to from disk menu.
+1. Making EMenu callable from disk menu.
 
 2. Warnings.
 
