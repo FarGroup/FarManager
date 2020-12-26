@@ -362,11 +362,10 @@ $ #Panelvezérlő parancsok#
  A kijelölést leveszi az aktuális fájl              #Ctrl+<Szürke ->#
  kiterjesztésével megegyező fájlokról
  A kijelölést megfordítja a mappákon is             #Ctrl+<Szürke *>#
- (a parancssor állapotától és a mappák
- kijelölhetőségi opciójától függetlenül)
  Kijelöli az aktuális fájllal azonos nevű fájlokat   #Alt+<Szürke +>#
  A kijelölést leveszi az aktuális fájllal            #Alt+<Szürke ->#
  megegyező nevű fájlokról
+ Invert selection excluding folders                  #Alt+<Szürke *>#
  Minden fájl kijelölése                            #Shift+<Szürke +>#
  Minden fájlról leveszi a kijelölést               #Shift+<Szürke ->#
  Visszaállítja az előző kijelölést                           #Ctrl+M#
@@ -4476,6 +4475,9 @@ nevével megegyező fájlokat, illetve leveszi a kijelölést.
 kijelölést levesz.
 
  A #Ctrl+<Szürke *># megfordítja a kijelöléseket a mappákon is.
+
+ #Alt+<<Szürke *># inverts the current selection on files only,
+folders are deselected.
 
  A #Jelölést visszatesz# parancs (#Ctrl+M#) visszaállítja az előző kijelölést.
 

@@ -196,6 +196,7 @@ enum SELECT_MODES
 {
 	SELECT_INVERT,
 	SELECT_INVERTALL,
+	SELECT_INVERTFILES,
 	SELECT_ADD,
 	SELECT_REMOVE,
 	SELECT_ADDEXT,
@@ -1315,6 +1316,11 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLMULTIPLY:
 		case KEY_RCTRLMULTIPLY:
 			SelectFiles(SELECT_INVERTALL);
+			return true;
+
+		case KEY_ALTMULTIPLY:
+		case KEY_RALTMULTIPLY:
+			SelectFiles(SELECT_INVERTFILES);
 			return true;
 
 		case KEY_ALTLEFT:     // Прокрутка длинных имен и описаний
@@ -4085,6 +4091,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 			if (
 				Mode != SELECT_INVERT &&
 				Mode != SELECT_INVERTALL &&
+				Mode != SELECT_INVERTFILES &&
 				!(bUseFilter? Filter.FileInFilter(&i) : FileMask.check(i.AlternateOrNormal(m_ShowShortNames)))
 			)
 				continue;
@@ -4105,6 +4112,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 
 				case SELECT_INVERT:
 				case SELECT_INVERTALL:
+				case SELECT_INVERTFILES:
 				case SELECT_INVERTMASK:
 					Selection=!i.Selected;
 					break;
@@ -4113,7 +4121,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 			if (
 				bUseFilter ||
 				!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY) ||
-				Global->Opt->SelectFolders ||
+				(Global->Opt->SelectFolders && Mode != SELECT_INVERTFILES) ||
 				!Selection ||
 				RawSelection ||
 				Mode == SELECT_INVERTALL ||

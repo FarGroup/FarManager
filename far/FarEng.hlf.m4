@@ -353,9 +353,9 @@ $ #Panel control commands#
  Deselect files with the same extension as the        #Ctrl+<Gray ->#
  current file
  Invert selection including folders                   #Ctrl+<Gray *>#
- (ignore command line state)
  Select files with the same name as the current file   #Alt+<Gray +>#
  Deselect files with the same name as the current file #Alt+<Gray ->#
+ Invert selection excluding folders                    #Alt+<Gray *>#
  Select all files                                    #Shift+<Gray +>#
  Deselect all files                                  #Shift+<Gray ->#
  Restore previous selection                                  #Ctrl+M#
@@ -4382,6 +4382,9 @@ the same #name# as that of the item under cursor. #†#
 
  #Ctrl+<Gray *># inverts the current selection on all items,
 including folders.
+
+ #Alt+<Gray *># inverts the current selection on files only,
+folders are deselected.
 
  #Ctrl+M# restores the last selection.
 
