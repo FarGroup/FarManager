@@ -356,10 +356,11 @@ $ #Befehl zur Fenstersteuerung#
 
  Dateiauswahl mit aktueller Erweiterung aufheben      #Strg+<Grau ->#
 
- Auswahl inkl. Verzeichnissen aufheben                #Strg+<Grau *>#
+ Auswahl inkl. Verzeichnissen umkehren                #Strg+<Grau *>#
 
  Dateien mit aktuellem Namen auswählen                 #Alt+<Grau +>#
  Dateiauswahl mit aktuellem Namen aufheben             #Alt+<Grau ->#
+ Auswahl ohne Verzeichnissen umkehren                  #Alt+<Grau *>#
 
  Alle Dateien auswählen                              #Umsch+<Grau +>#
  Auswahl aller Dateien aufheben                      #Umsch+<Grau ->#
@@ -4480,6 +4481,9 @@ auf der der Cursor/Auswahlbalken steht. #†#
 
  #Strg+<Grau *># kehrt die aktuelle Auswahl einschließlich
 Verzeichnisse um.
+
+ #Alt+<Grau *># inverts the current selection on files only,
+folders are deselected.
 
  #Strg+M# stellte eine vorherige Auswahl wieder her.
 

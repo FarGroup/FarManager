@@ -357,9 +357,9 @@ $ #Polecenia kontroli panelu#
  Odznacz pliki o tym samym rozszerzeniu              #Ctrl+<Szary ->#
  jak bieżący plik
  Odwróć selekcję włączając foldery                   #Ctrl+<Szary *>#
- (ignoruj stan linii poleceń)
  Zaznacz pliki o tej samej nazwie jak bieżący plik    #Alt+<Szary +>#
  Odznacz pliki o tej samej nazwie jak bieżący plik    #Alt+<Szary ->#
+ Odwróć selekcję z wyłączeniem folderów               #Alt+<Szary *>#
  Zaznacz wszystkie pliki                            #Shift+<Szary +>#
  Odznacz wszystkie pliki                            #Shift+<Szary ->#
  Przywróć poprzednie zaznaczenie                             #Ctrl+M#
@@ -4374,6 +4374,9 @@ the same #name# as that of the item under cursor. #†#
 
  #Ctrl+<Gray *># inverts the current selection on all items,
 including folders.
+
+ #Alt+<Gray *># inverts the current selection on files only,
+folders are deselected.
 
  #Ctrl+M# restores the last selection.
 
