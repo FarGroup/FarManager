@@ -6,7 +6,7 @@ USERCPP = /D WIN32 /D PCRE_STATIC /D _WIN32
 !include ..\makefile_vc_def_inc
 
 OUTPUTS = $(OBJDIR)\pcre.lib
-OBJS = $(OBJDIR)\get.obj $(OBJDIR)\pcre.obj $(OBJDIR)\study.obj
+OBJS = $(OBJDIR)\pcre_chartables.obj $(OBJDIR)\pcre_compile.obj $(OBJDIR)\pcre_exec.obj $(OBJDIR)\pcre_fullinfo.obj $(OBJDIR)\pcre_get.obj $(OBJDIR)\pcre_globals.obj $(OBJDIR)\pcre_study.obj $(OBJDIR)\pcre_tables.obj $(OBJDIR)\pcre_try_flipped.obj $(OBJDIR)\pcre_version.obj
 
 all: $(OUTPUTS)
 
@@ -19,6 +19,6 @@ all: $(OUTPUTS)
 {libpcre}.c{$(OBJDIR)}.obj:
 	$(CC) $(CPPFLAGS) { $< }
 !endif
-	
+
 $(OUTPUTS): $(OBJS)
 	@$(LIBR) /nologo /OUT:$(OUTPUTS) $(OBJS)

@@ -8,7 +8,9 @@ namespace PCRE
 
   class Match
   {
-    int ovector[30];
+    enum { matched_field_names_count = 12 };
+
+    int ovector[(matched_field_names_count + 1) * 3];
     int matchCount;
     const pcre *re;
     const char *str;
