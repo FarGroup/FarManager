@@ -367,6 +367,7 @@
 <?define Guid.fmx.hrd = "7E43ED4A-6F2B-1014-BD60-D91FF6BB1BD1" ?>
 <?define Guid.htmlcss.hrd = "7E43EEFD-6F2B-1014-A5E5-95E263C63E32" ?>
 <?define Guid.tags.hrd = "7E43EFD5-6F2B-1014-BFD7-AE1AA86F5E25" ?>
+<?define Guid.navy_mirror.hrd = "09812BEA-0E41-4BED-B7A4-5BAECAE1B808" ?>
 
 <?define Guid.changelog_9 = "727F8168-D248-480F-93A5-1FC57C42F82E" ?>
 <?define Guid.FARCmds.dll = "A67216D0-DCC8-4CAA-B645-57CFB17E5D61" ?>
