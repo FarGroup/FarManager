@@ -641,6 +641,7 @@
                   <ComponentRef Id="bred3.hrd" />
                   <ComponentRef Id="fmx.hrd" />
                   <ComponentRef Id="visual_rgb.hrd" />
+                  <ComponentRef Id="navy_mirror.hrd" />
                 </Feature>
               </Feature>
               <Feature Id="FarColorer.Ignore.base_hrd_text" Level="1" Display="hidden" AllowAdvertise="no">

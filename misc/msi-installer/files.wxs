@@ -1138,6 +1138,9 @@
                   <Component Id="visual_rgb.hrd" Guid="$(var.Guid.visual_rgb.hrd)" Win64="$(var.Win64)">
                     <File Id="visual_rgb.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\rgb\contrib\visual-rgb.hrd" />
                   </Component>
+                  <Component Id="navy_mirror.hrd" Guid="$(var.Guid.navy_mirror.hrd)" Win64="$(var.Win64)">
+                    <File Id="navy_mirror.hrd" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\hrd\rgb\contrib\navy-mirror.hrd" />
+                  </Component>
                 </Directory>
               </Directory>
               <Directory Id="FarColorer.base.hrd.text" Name="text">
