@@ -607,7 +607,7 @@ zostanie przeglądarka wewnętrzna.
 
  Wewnętrzny/zewnętrzny edytor                                #Alt+F4#
  Jeżeli domyślnie używany jest wewnętrzny edytor, można zamiast niego wywołać edytor zewnętrzny
-podany w ~Ustawieniach edytora~@EditorSettings@ lub ~powiązany edytor~~@FileAssoc@
+podany w ~Ustawieniach edytora~@EditorSettings@ lub ~powiązany edytor~@FileAssoc@
 dla danego typu pliku. Jeżeli zewnętrzny edytor jest używany jako domyślny, wywołany zostanie
 edytor wewnętrzny.
 
@@ -1593,7 +1593,7 @@ Aby ~podświetlić~@Highlight@ wszystkie archiwa za wyjątkiem "*.rar" - należy
 
  #F7#          - ^<wrap>znajduje wszystkie grupy zawierające szukaną maskę
 
- Zobacz także: ~menu Opcje~@OptMenu@ i ~Poleceniach kontroli menu~@MenuCmd@.
+  Zobacz także: ~menu Opcje~@OptMenu@ i ~Polecenia kontroli menu~@MenuCmd@.
 
 
 @ChoosePluginMenu
@@ -1935,7 +1935,7 @@ na które wskazuje bieżący plik jest również wskazany przez co najmniej jede
  #Uwaga#: Włączenie tej opcji może spowodować znaczne spowolnienie wyszukiwania.
 
  Aby szybko wyłączyć jeden lub więcej warunków, usuń zaznaczenie odpowiedniego pola wyboru.
-Naciśnięcie przycisku #Wyczyść# wyczyści wszystkie warunki filtru.
+Naciśnięcie przycisku #Wyczyść# usuwa wszystkie warunki filtru.
 
 
 @History
@@ -1999,11 +1999,10 @@ kursorów, dodatkowo dostępne są poniższe skróty klawiszowe:
 
  Otwórz plik do ~podglądu~@Viewer@                              #F3# lub #Numpad5#
 
- Items of the view and edit history are moved to the end of the list after
-they are selected. You can use #Shift+Enter# to select an item without changing
-its position.
+ Po użyciu danej pozycji z historii jest ona przenoszona na koniec listy.
+Wciśnięcie #Shift+Enter# wybiera dany plik, bez zmiany pozycji na liście.
 
- Jeżeli historia ma zostać zapisana po wyjściu z Far, należy włączyć
+Jeżeli historia ma zostać zapisana po wyjściu z Far, należy włączyć
 odpowiednią opcję w ~Ustawieniach systemowych~@SystemSettings@ programu.
 
  Uwagi:
@@ -2053,154 +2052,156 @@ jest zablokowany lub nie jest dostępny zasób zewnętrzny.
 
 
 @TaskList
-$ #Task list#
- The task list displays active tasks. Every line contains PID and window
-caption or path to executable.
+$ #Lista zadań#
+  Lista zadań wyświetla aktywne aplikacje. Każda linia zawiera identyfikator
+procesu (PID), tytuł okna lub ścieżkę do pliku wykonywalnego.
 
- From the task list you can switch to the task window, or kill the task with
-the #Del# key. Be careful when killing a task. It stops the task immediately,
-and any unsaved information will be lost, so it should be used only when really
-necessary, for example to interrupt a program which does not respond.
+ Z listy zadań można przejść do okna danej aplikacji, lub zabić proces wciskając
+klawisz #Del#. Przy zabijaniu procesu należy zachować ostrożność. Proce jest
+zamykany natychmiast i zostaną utracone wszystkie nie zapisane informacje, więc
+z opcji tej należy korzystać ostrożnie i tylko gdy jest ona rzeczywiści niezbędna,
+np. aby przerwać program, który nie odpowiada.
 
- The task list can be called either from ~Commands menu~@CmdMenu@ or using
-#Ctrl+W#. The keyboard shortcut #Ctrl+W# can also be used in the viewer or the
-editor.
+ Lista zadań może być wywołana z menu ~Polecenia~@CmdMenu@ lub używając skrótu
+#Ctrl+W#. Skrót #Ctrl+W# można użyć także w oknie podglądu lub edycji pliku.
 
- #Ctrl+R# allows to refresh the task list.
+ #Ctrl+R# Pozwala na odświeżenie listy zadań.
 
- #F2# Switch between displaying of window caption and path to executable.
+ #F2# Przełącza wyświetlanie nagłówka okna zadania lub ścieżkę do pliku wykonywalnego (exe).
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @HotPlugList
-$ #Hotplug devices list#
- Hotplug devices list displays PC Card boards and other analogue devices
-which are installed and work in the computer.
+$ #Lista urządzeń Hotplug#
+ Lista urządzeń Hotplug wyświetla karty PC, dyski zewnętrzne i inne urządzenia analogowe,
+które są zainstalowane i pracują w komputerze.
 
- To remove a device you need to select it in the list and press the #Del#
-key. After that Windows will prepare the device for safe removal and a
-notification will be displayed when it is safe to remove the device.
+ Aby usunąć (odłączyć) urządzenie, należy wybrać je z listy i wcisnąć klawisz #Del#.
+Następnie system Windows przygotuje urządzenie do bezpiecznego usunięcia
+i zostanie wyświetlona informacja o możliwość odłączenia od komputera.
 
- #Ctrl+R# allows to refresh the list of connected devices.
+ #Ctrl+R# Pozwala na odświeżenie listy podłączonych urządzeń.
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @CompFolders
-$ #Compare folders#
- The compare folders command is applicable only when two ~file panels~@FilePanel@
-are displayed. It compares the contents of folders displayed in the two panels.
-Files existing in one panel only, or those which have a date more recent than
-files with the same name in the other panel, become marked.
+$ #Porównaj foldery#
+ Polecenie porównania folderów jest dostępny tylko gdy wyświetlane są dwa ~panele plików~@FilePanel@.
+Porównywana jest zawartość wyświetlana w obu panelach. Pliki istniejące tylko
+w jednym panelu lub te, których data jest nowsza niż plików o tej samej nazwie w drugim
+panelu zostaną zaznaczone.
 
- Subfolders are not compared. Files are compared only by name, size and
-time, and file contents have no effect on the operation.
+ Podfoldery nie są porównywane. Pliki są porównywane tylko po nazwie. Wielkość, czas
+oraz zawartość nie mają wpływu na operację.
 
 
 @UserMenu
-$ #User menu#
- The user menu exists to facilitate calls of frequently used operations. It
-contains a number of user defined commands and command sequences, executed
-when invoking the user menu. The menu can contain submenus.
-~Special symbols~@MetaSymbols@ are supported both in the commands and in the command
-titles. Note that !?<title>?<init>! symbol can be used to enter additional
-parameters directly before executing commands.
+$ #Menu użytkownika#
+ Menu użytkownika ma na celu ułatwienie wywoływania często używanych operacji.
+Zawiera szereg zdefiniowanych poleceń i sekwencji, wykownywanych podczas wywoływania
+menu użytkownika. Menu mogą zawierać podmenu.
+Obsługiwane są ~symbole specjalne~@MetaSymbols@ zarówno w poleceniach jak i nazwach
+poleceń. Należy zwrócić uwagę na symbole #!?<tytuł>?<wejście>!#, które służą
+do wprowadzenia dodatkowych parametrów przed wykonaniem poleceń.
 
- With the #Edit user menu# command from the ~Commands menu~@CmdMenu@, you
-can edit or create main or local user menu. There can only be one main user
-menu. The main user menu is called if no local menu for the current folder is
-available. The local menu can be placed in any folder. You can switch between
-the main menu and the user menu by pressing #Shift+F2#. Also you can call the
-user menu of the parent folder by pressing #BS#.
+ Za pomocą polecenia #Edytuj menu użytkownika# z ~Menu Polecenia~@CmdMenu@ można
+edytować lub tworzyć menu główne lub użytkownika. Można utworzyć tylko jedno
+główne menu. Menu to jest wywoływane, jeżeli nie ma menu lokalnego dla bieżącego
+folderu. Menu lokalne może być umieszczone w dowolnym folderze. Można przełączać się
+między menu głównym a lokalnym za pomocą skrótu #Shift+F2#. Można wywołać także
+menu użytkownika folderu nadrzędnego wciskając klawisz #Backspace#.
 
- You can add command separators to the user menu. To do this, you should add
-a new menu command and define "#--#" as "hot key". To delete a menu separator,you
-must switch to file mode with #Alt+F4# key.
+ Można dodać separator do poleceń menu. Należy dodać nowe polecenie menu i zdefiniować
+"#--#" jako "klawisz skrótu". Jeżeli zostanie wartość pola Etykieta, to będzie ona
+wyświetlana w separatorze. Aby usunąć separator menu, należy przejść do edycji pliku
+menu za pomocą klawiszy #Alt+F4#.
 
- User menu items can be moved with #Ctrl+Up# or #Ctrl+Down# key combinations.
+ Polecenia w menu można przenosić za pomocą kombinacji klawiszy #Ctrl+Up# lub #Ctrl+Down#.
 
- To execute a user menu command, select it with cursor keys and press #Enter#.
-You can also press the hot key assigned to the required menu item.
+ Aby wykonać polecenie użytkownika, należy je wybrać za pomocą klawiszy kursora
+i nacisnąć klawisz #Enter#. Można wybrać też klawisz skrótu przypisany do danej pozycji
+menu.
 
- You can delete a submenu or menu item with the #Del# key, insert new
-submenu or menu item with the #Ins# key or edit an existing submenu or menu
-item with the #F4# key. Press #Alt+F4# to edit the menu in text file form.
+ Można usunąć podmenu lub pozycję menu używając klawisza #Del#, wstawić nowe
+podmenu lub pozycję menu za pomocą klawisza #Ins# lub edytować istniejące
+podmenu lub pozycję menu za pomocą klawisza #F4#. Należy wcisnąć klawisze #Alt+F4#,
+aby edytować menu w formie pliku tekstowego.
 
- It is possible to use digits, letters and function keys (#F1#…#F24#) as
-hot keys in user menu. If #F1# or #F4# is used, its original function in user
-menu is overridden. However, you still can use #Shift+F4# to edit the menu.
+ Do klawiszy skrótu można użyć cyfr, liter i klawiszy funkcyjnych (#F1#…#F24#).
+Jeżeli użyto klawiszy #F1# lub #F4# - to zamieniona zostanie oryginalna funkcja
+tych klawiszy. Mimo to, skrót #Shift+F4# nadal może być użyty do edycji menu.
 
- When you edit or create a menu item, you should enter the hot key for fast
-item access, the item title which will be displayed in the menu and the command
-sequence to execute when this item will be selected.
+ Podczas edycji lub tworzenia nowej pozycji menu, można (a nawet powinno) dodać
+klawisz skrótu dla szybszego dostępu, tytuł który będzie wyświetlany w menu
+oraz sekwencję poleceń do wykonania, gdy ta pozycja zostanie wybrana.
 
- When you edit or create a submenu, you should enter the hot key and the
-item title only.
+ Podczas edycji lub tworzenia podmenu, powinno się wprowadzać tylko klawisz
+skrótu i nazwę pozycji.
 
- User menus are stored in text files named #FarMenu.Ini#:
- - ^<wrap>Global user menu, by default, is located in the Far Manager folder.
-If global user menu file exists it will override the user specific menu.
- - User specific user menu is located in the user profile.
- - Local user menu is located in the current folder.
+ Menu użytkownika są przechowywane w plikach tekstowych o nazwie #FarMenu.Ini#:
+ - ^<wrap>Globalne menu użytkownika, domyślne, umieszczone w folderze Far Manager.
+Jeżeli istnieje plik globalny zastępuje on menu specyficzne dla użytkownika.
+ - Menu dla użytkownika jest umieszczone w profilu użytkownika.
+ - Lokalne menu użytkownika znajduje się w bieżącym folderze.
 
- To close the menu even if submenus are open use #Shift+F10#.
+ Aby zamknąć menu nawet gdy otwarte jest podmenu, należy nacisnąć klawisze #Shift+F10#.
 
- See also:
+ Zobacz także:
 
- The list of ~macro keys~@KeyMacroUserMenuList@, available in the user menu.
- Common ~menu~@MenuCmd@ keyboard commands.
+ Lista ~klawiszy makro~@KeyMacroUserMenuList@, dostępne w menu użytkownika.
+ Wspólne ~polecenia menu~@MenuCmd@.
 
 
 @FileAssoc
-$ #File associations#
- Far Manager supports file associations, that allow to associate various
-actions to running, viewing and editing files with a specified
-~mask~@FileMasks@.
+$ #Przypisania plików#
+ Far Manager obsługuje powiązania plików, które pozwalają na podłączenie
+różnych poleceń do uruchamiania, podglądu i edycji plików z podaną ~maską~@FileMasks@.
 
- You can add new associations with the #Edit associations# command in the
-~Commands menu~@CmdMenu@.
+ Można dodać nowe powiązanie za pomocą funkcji #Przypisania plików# w menu
+~Poleceń~@CmdMenu@.
 
- You can define several associations for one file type and select the
-desired association from the menu.
+ Można zdefiniować różne powiązania dla jednego typu pliku i wybierać
+żądane powiązane z menu.
 
- The following actions are available in the associations list:
+ Następujące akcje są dostępne na liście powiązań:
 
- #Ins#        - ~add~@FileAssocModify@ a new association
+ #Ins#        - ~dodaj~@FileAssocModify@ nowe przypisanie
 
- #F4#         - ~edit~@FileAssocModify@ the current association
+ #F4#         - ~edytuj~@FileAssocModify@ bieżące przypisanie
 
- #Del#        - delete the current association
+ #Del#        - usuń bieżące przypisanie
 
- #Ctrl+Up#    - move association up
+ #Ctrl+Up#    - przenieś przypisanie wyżej (na liście)
 
- #Ctrl+Down#  - move association down
+ #Ctrl+Down#  - przenieś przypisanie niżej (na liście)
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @FileAssocModify
-$ #File associations: editing#
- Far allows to specify six commands associated with each file type specified
-as a ~mask~@FileMasks@:
+$ #Powiązania plików: edycja#
+ Far pozwala określić sześć poleceń powiązanych z każdym typem plików
+określonym za pomocą ~maski~@FileMasks@:
 
- #Execute command#               Performed if #Enter# is pressed
- #(used for Enter)#
+ #Wykonaj polecenie#             Wykonywane po wciśnięciu klawisza #Enter#
+ #(używane dla Enter)#
 
- #Execute command#               Performed if #Ctrl+PgDn# is pressed
- #(used for Ctrl+PgDn)#
+ #Wykonaj polecenie#             Wykonywane po wciśnięciu klawiszy #Ctrl+PgDn#
+ #(używane dla Ctrl+PgDn)#
 
- #View command#                  Performed if #F3# is pressed
- #(used for F3)#
+ #Podgląd pliku#                 Wykonywane po wciśnięciu klawisza #F3#
+ #(używane dla F3)#
 
- #View command#                  Performed if #Alt+F3# is pressed
- #(used for Alt+F3)#
+ #Podgląd pliku#                 Wykonywane po wciśnięciu klawiszy #Alt+F3#
+ #(używane dla Alt+F3)#
 
- #Edit command#                  Performed if #F4# is pressed
- #(used for F4)#
+ #Edycja pliku#                  Wykonywane po wciśnięciu klawisza #F4#
+ #(używane dla F4)#
 
- #Edit command#                  Performed if #Alt+F4# is pressed
- #(used for Alt+F4)#
+ #Edycja pliku#                  Wykonywane po wciśnięciu klawiszy #Alt+F4#
+ #(używane dla Alt+F4)#
 
  The association can be described in the #Description of the association# field.
 
