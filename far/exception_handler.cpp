@@ -264,13 +264,37 @@ static bool write_minidump(const exception_context& Context, string_view const P
 	return imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
 }
 
+static string file_version(string_view const Name)
+{
+	os::version::file_version Version;
+	if (!Version.read(Name))
+		return L"Unknown"s;
+
+	if (const auto Str = Version.get_string(L"FileVersion"sv))
+		return Str;
+
+	const auto FixedInfo = Version.get_fixed_info();
+	if (!FixedInfo)
+		return L"Unknown"s;
+
+	return format(FSTR(L"{0}.{1}.{2}.{3}"),
+		HIWORD(FixedInfo->dwFileVersionMS),
+		LOWORD(FixedInfo->dwFileVersionMS),
+		HIWORD(FixedInfo->dwFileVersionLS),
+		LOWORD(FixedInfo->dwFileVersionLS)
+	);
+}
+
 static void read_modules(span<HMODULE const> const Modules, string& To, string_view const Eol)
 {
 	string Name;
 	for (const auto& i: Modules)
 	{
-		const auto Result = os::fs::GetModuleFileName(nullptr, i, Name);
-		append(To, Result? Name : str(static_cast<void const*>(i)), Eol);
+
+		if (const auto Result = os::fs::GetModuleFileName(nullptr, i, Name))
+			append(To, Name, L' ', file_version(Name), Eol);
+		else
+			append(To, str(static_cast<void const*>(i)), Eol);
 	}
 }
 
@@ -358,23 +382,7 @@ static string os_version()
 
 static string kernel_version()
 {
-	os::version::file_version Version;
-	if (!Version.read(L"ntoskrnl.exe"sv))
-		return L"Unknown"s;
-
-	if (const auto Str = Version.get_string(L"FileVersion"sv))
-		return Str;
-
-	const auto FixedInfo = Version.get_fixed_info();
-	if (!FixedInfo)
-		return L"Unknown"s;
-
-	return format(FSTR(L"{0}.{1}.{2}.{3}"),
-		HIWORD(FixedInfo->dwFileVersionMS),
-		LOWORD(FixedInfo->dwFileVersionMS),
-		HIWORD(FixedInfo->dwFileVersionLS),
-		LOWORD(FixedInfo->dwFileVersionLS)
-	);
+	return file_version(L"ntoskrnl.exe"sv);
 }
 
 struct dialog_data_type
@@ -708,7 +716,7 @@ static bool ExcConsole(
 			L"S - Show the call stack\n"
 			L"D - Create a minidump\n"
 			L"T - Terminate the process\n"
-			L"I - Igonore\n"
+			L"I - Ignore\n"
 			L"Action"sv, Keys, static_cast<size_t>(action::terminate))
 		))
 		{

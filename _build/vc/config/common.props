@@ -30,6 +30,7 @@
     <OutputsRoot>$(MSBuildThisFileDirectory)..\_output\</OutputsRoot>
   </PropertyGroup>
   <PropertyGroup>
+    <ReadOnlyProject>true</ReadOnlyProject>
     <RootNamespace>$(ProjectName)</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <CharacterSet>Unicode</CharacterSet>

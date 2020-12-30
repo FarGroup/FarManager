@@ -1,3 +1,7 @@
+drkns 30.12.2020 08:24:39 +0000 - build 5721
+
+1. Modules versions in exception information.
+
 MZK 26.12.2020 16:10:32 -0800 - build 5720
 
 1. `Alt+<Gray *>` inverts selection on files only, excluding folders.
