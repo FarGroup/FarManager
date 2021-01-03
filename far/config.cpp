@@ -1449,6 +1449,12 @@ struct FARConfigItem
 		}
 		return false;
 	}
+
+	void reset() const
+	{
+		if (!Value->IsDefault(Default))
+			Value->SetDefault(Default);
+	}
 };
 
 static bool ParseIntValue(string_view const sValue, long long& iValue)
@@ -2436,7 +2442,14 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 			reinterpret_cast<const FARConfigItem*>(Dlg->GetListItemSimpleUserData(0, Index));
 	};
 
-	const auto EditItem = [&](bool Hex = false)
+	enum class edit_mode
+	{
+		normal,
+		hex,
+		reset
+	};
+
+	const auto EditItem = [&](edit_mode const EditMode)
 	{
 		FarListInfo ListInfo{ sizeof(ListInfo) };
 		Dlg->SendMessage(DM_LISTINFO, ac_item_listbox, &ListInfo);
@@ -2445,8 +2458,21 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 		if (!CurrentItem)
 			return;
 
-		if (!CurrentItem->Edit(Hex))
+		switch (EditMode)
+		{
+		case edit_mode::normal:
+		case edit_mode::hex:
+			if (!CurrentItem->Edit(EditMode == edit_mode::hex))
+				return;
+			break;
+
+		case edit_mode::reset:
+			CurrentItem->reset();
+			break;
+
+		default:
 			return;
+		}
 
 		SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
@@ -2466,7 +2492,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 			FarListTitles Titles{ sizeof(Titles) };
 
-			const auto BottomTitle = KeysToLocalizedText(KEY_SHIFTF1, KEY_F4, KEY_SHIFTF4, KEY_CTRLH);
+			const auto BottomTitle = KeysToLocalizedText(KEY_SHIFTF1, KEY_F4, KEY_SHIFTF4, KEY_DEL, KEY_CTRLH);
 			Titles.Title = msg(lng::MConfigEditor).c_str();
 			Titles.Bottom = BottomTitle.c_str();
 			Dlg->SendMessage(DM_LISTSETTITLES, ac_item_listbox, &Titles);
@@ -2509,11 +2535,16 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 					break;
 
 				case KEY_F4:
-					EditItem();
+					EditItem(edit_mode::normal);
 					break;
 
 				case KEY_SHIFTF4:
-					EditItem(true);
+					EditItem(edit_mode::hex);
+					break;
+
+				case KEY_DEL:
+				case KEY_NUMDEL:
+					EditItem(edit_mode::reset);
 					break;
 
 				case KEY_CTRLH:
@@ -2567,7 +2598,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 	case DN_CLOSE:
 		if (Param1 == ac_item_listbox)
 		{
-			EditItem(false);
+			EditItem(edit_mode::normal);
 			return FALSE;
 		}
 		break;
