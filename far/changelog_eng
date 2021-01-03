@@ -709,7 +709,7 @@ drkns 12.04.2020 14:01:23 +0300 - build 5582
 
 drkns 11.04.2020 15:21:20 +0300 - build 5581
 
-1. Extend the "Interface / console icon" оption - now it's possible to choose which one to use.
+1. Extend the "Interface / console icon" option - now it's possible to choose which one to use.
 
 2. Refactoring.
 
@@ -1182,7 +1182,7 @@ drkns 17.10.2019 20:02:51 +0100 - build 5488
 drkns 11.10.2019 13:47:00 +0100 - build 5486
 
 1. Revert of 5472, 4523, 4521 - Ctrl+Enter, Ctrl+[ and friends add a backslash to paths again.
-   In case of quotes the backslash will be put inside, e.g. "С:\some path\", same as before.
+   In case of quotes the backslash will be put inside, e.g. "C:\some path\", same as before.
 
 drkns 07.10.2019 22:24:49 +0100 - build 5485
 
@@ -1405,7 +1405,7 @@ MZK 12.08.2019 22:51:26 -0700
 drkns 11.08.2019 19:02:00 +0100 - build 5450
 
 1. Compare folders:
-   - Optimisation of time comparison oт FAT systems.
+   - Optimisation of time comparison on FAT systems.
    - Time comparison for some reason worked with reduced precision not only on FAT.
 
 2. Updated some commented code and replaced "#if 0" with "if constexpr (false)" where possible.
@@ -1469,6 +1469,10 @@ drkns 02.08.2019 20:14:49 +0100 - build 5442
 drkns 02.08.2019 01:32:31 +0100 - build 5441
 
 1. It should be possible to pass access rights through elevation.
+
+zg 31.07.2019 14:28:50 +0300 - build 5440
+
+1. Forum: Cosmetic defects of positioning in filtered list.
 
 drkns 31.07.2019 01:27:30 +0100 - build 5439
 
@@ -2018,7 +2022,7 @@ svs 10.12.2018 09:01:02 +0300 - build 5339
 
 zg 07.12.2018 10:52:37 +0200 - build 5338
 
-1. Сontinuation of 5337:
+1. Continuation of 5337:
    - memory usage optimization.
    - "ChangeTime" is not restored.
 
@@ -22799,6 +22803,10 @@ Help.Topic, Help.SelTopic, Viewer.FileName
 
   forced cast to "string", which lets to avoid the situation when 0 is returned for empty content.
 
+drkns 09.05.2010 23:50:50 +0200
+
+1. From Anton Sinitsin: help "Ё-fication".
+
 svs 07.05.2010 16:24:45 +0300 - build 1541
 
 1. Help. From "Alexey Samlyukov"
@@ -24734,6 +24742,19 @@ drkns 28.11.2009 21:55:50 +0200
 
 1. Projects sync with makefile.
 
+t-rex 28.11.2009 20:39:31 +0200 - build 1246
+
+1. In Win7 x64, Far would not launch under Application Verifier because of the glitch in the latter.
+   Let's use GetStdHandle() instead of CreateFile(CON*$).
+   If everything is ok, in the future after some rework, plugins will be able to painlessly detach Far window.
+   Please test with different telnets, etc., etc.
+
+2. pdb in release.
+
+3. DIF_EDITEXPAND did not work at large; as the result, Mantis#1185: Name substitution does not work when creating a new folder.
+
+4. Mantis#1184: Farmenu.ini does not work from "incorrect" path.
+
 t-rex 28.11.2009 15:11:26 +0200 - build 1245
 
 1. Some tiny optimizations in strmix.cpp concerning UnicodeString.
@@ -24889,6 +24910,10 @@ t-rex 20.11.2009 12:42:59 +0200 - build 1217
 t-rex 20.11.2009 03:37:16 +0200 - build 1216
 
 1. Some more refactoring, fixed a few new bugs and a couple of old ones.
+
+t-rex 20.11.2009 02:18:29 +0200 - build 1215
+
+1. Refactoring of the descriptions class; fixed lots of various bugs.
 
 drkns 19.11.2009 22:44:27 +0200 - build 1214
 
