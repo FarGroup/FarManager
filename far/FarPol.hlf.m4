@@ -359,7 +359,7 @@ $ #Polecenia kontroli panelu#
  Odwróć selekcję włączając foldery                   #Ctrl+<Szary *>#
  Zaznacz pliki o tej samej nazwie jak bieżący plik    #Alt+<Szary +>#
  Odznacz pliki o tej samej nazwie jak bieżący plik    #Alt+<Szary ->#
- Odwróć selekcję z wyłączeniem folderów               #Alt+<Szary *>#
+ Invert selection on files, deselect folders          #Alt+<Szary *>#
  Zaznacz wszystkie pliki                            #Shift+<Szary +>#
  Odznacz wszystkie pliki                            #Shift+<Szary ->#
  Przywróć poprzednie zaznaczenie                             #Ctrl+M#

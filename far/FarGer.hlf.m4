@@ -360,7 +360,7 @@ $ #Befehl zur Fenstersteuerung#
 
  Dateien mit aktuellem Namen auswählen                 #Alt+<Grau +>#
  Dateiauswahl mit aktuellem Namen aufheben             #Alt+<Grau ->#
- Auswahl ohne Verzeichnisse umkehren                   #Alt+<Grau *>#
+ Invert selection on files, deselect folders           #Alt+<Grau *>#
 
  Alle Dateien auswählen                              #Umsch+<Grau +>#
  Auswahl aller Dateien aufheben                      #Umsch+<Grau ->#
