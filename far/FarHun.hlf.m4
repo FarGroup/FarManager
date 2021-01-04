@@ -365,7 +365,7 @@ $ #Panelvezérlő parancsok#
  Kijelöli az aktuális fájllal azonos nevű fájlokat   #Alt+<Szürke +>#
  A kijelölést leveszi az aktuális fájllal            #Alt+<Szürke ->#
  megegyező nevű fájlokról
- Invert selection excluding folders                  #Alt+<Szürke *>#
+ Invert selection on files, deselect folders         #Alt+<Szürke *>#
  Minden fájl kijelölése                            #Shift+<Szürke +>#
  Minden fájlról leveszi a kijelölést               #Shift+<Szürke ->#
  Visszaállítja az előző kijelölést                           #Ctrl+M#
