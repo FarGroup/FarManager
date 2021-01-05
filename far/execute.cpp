@@ -538,6 +538,8 @@ public:
 
 	~external_execution_context()
 	{
+		SCOPED_ACTION(os::last_error_guard);
+
 		SetFarConsoleMode(true);
 
 		SetCursorType(CursorVisible, CursorSize);
