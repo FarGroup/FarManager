@@ -1,3 +1,7 @@
+drkns 06.01.2021 18:54:47 +0000 - build 5724
+
+1. Correction of 5604 to avoid conflicts with AltGr.
+
 drkns 05.01.2021 20:10:45 +0000 - build 5723
 
 1. Another executor correction.

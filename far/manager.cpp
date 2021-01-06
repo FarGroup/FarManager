@@ -170,6 +170,13 @@ static bool CASHook(const Manager::Key& key)
 
 	const auto state = KeyRecord.dwControlKeyState;
 
+	// AltGr is a legit way to enter certain characters (é, ó, ú etc.).
+	// AltGr + Shift is a legit way to enter the same characters in upper case (É, Ú, Ó etc.).
+	// AltGr is implemented as LeftCtrl + RightAlt and we don't want to trigger this witchcraft on AltGr+Shift.
+	// The second check is to allow RCtrl+AltGr+Shift (i.e. RCtrl+LCtrl+RAlt+Shift) to still be used for this.
+	if (flags::check_all(state, LEFT_CTRL_PRESSED | RIGHT_ALT_PRESSED) && !flags::check_all(state, RIGHT_CTRL_PRESSED))
+		return false;
+
 	const auto
 		CaseAny   = flags::check_all(Global->Opt->CASRule, 0b11) && AnyPressed(state),
 		CaseLeft  = flags::check_all(Global->Opt->CASRule, 0b01) && LeftPressed(state),
