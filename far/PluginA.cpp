@@ -2563,7 +2563,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 
 			if (BreakKeysCount)
 			{
-				NewBreakKeys.resize(BreakKeysCount);
+				NewBreakKeys.resize(BreakKeysCount+1);
 				std::transform(BreakKeys, BreakKeys + BreakKeysCount, NewBreakKeys.begin(), [](int i)
 				{
 					FarKey NewItem;
