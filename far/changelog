@@ -1,3 +1,9 @@
+drkns 07.01.2021 17:33:44 +0000 - build 5725
+
+1. gh-335: Исправление BreakKeys для ansi плагинов.
+
+2. Вернем ClearType-friendly redraw для Windows 10.
+
 drkns 06.01.2021 18:54:47 +0000 - build 5724
 
 1. Уточнение 5604 для избежания конфликтов с AltGr.

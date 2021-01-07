@@ -2563,8 +2563,8 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 
 			if (BreakKeysCount)
 			{
-				NewBreakKeys.resize(BreakKeysCount+1);
-				std::transform(BreakKeys, BreakKeys + BreakKeysCount, NewBreakKeys.begin(), [](int i)
+				NewBreakKeys.reserve(BreakKeysCount + 1);
+				std::transform(BreakKeys, BreakKeys + BreakKeysCount, std::back_inserter(NewBreakKeys), [](int i)
 				{
 					FarKey NewItem;
 					NewItem.VirtualKeyCode = i & 0xffff;
@@ -2575,6 +2575,9 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 					if (ItemFlags & oldfar::PKF_SHIFT) NewItem.ControlKeyState |= SHIFT_PRESSED;
 					return NewItem;
 				});
+
+				// Terminator
+				NewBreakKeys.emplace_back();
 			}
 		}
 
