@@ -1,3 +1,7 @@
+drkns 10.01.2021 22:39:41 +0000 - build 5726
+
+1. AppExecLink reparse point support.
+
 drkns 07.01.2021 17:33:44 +0000 - build 5725
 
 1. gh-335: BreakKeys fix for ansi plugins.

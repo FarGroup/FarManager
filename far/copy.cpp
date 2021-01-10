@@ -1878,7 +1878,12 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				cpc = true; // ???
 			else
 			{
-				cpc = !(SrcData.ReparseTag == IO_REPARSE_TAG_SYMLINK || SrcData.ReparseTag == IO_REPARSE_TAG_MOUNT_POINT);
+				cpc = none_of(
+					SrcData.ReparseTag,
+					IO_REPARSE_TAG_SYMLINK,
+					IO_REPARSE_TAG_MOUNT_POINT,
+					IO_REPARSE_TAG_APPEXECLINK
+				);
 			}
 			if (cpc)
 				Flags |= FCOPY_COPYSYMLINKCONTENTS;

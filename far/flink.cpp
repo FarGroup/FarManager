@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.security.hpp"
 
 // Common:
+#include "common/enum_substrings.hpp"
 #include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
 
@@ -346,6 +347,36 @@ bool GetReparsePointInfo(string_view const Object, string& DestBuffer, LPDWORD R
 
 	case IO_REPARSE_TAG_MOUNT_POINT:
 		return Extract(rdb->MountPointReparseBuffer);
+
+	case IO_REPARSE_TAG_APPEXECLINK:
+		{
+			// Third string in the the list is the target filename
+			constexpr size_t FilenameIndex = 2;
+
+			struct APPEXECLINK_REPARSE_DATA_BUFFER
+			{
+				ULONG StringCount;
+				WCHAR StringList[1];
+			};
+
+			const auto& AppExecLinkReparseBuffer = *static_cast<APPEXECLINK_REPARSE_DATA_BUFFER const*>(static_cast<void const*>(&rdb->GenericReparseBuffer));
+			if (AppExecLinkReparseBuffer.StringCount <= FilenameIndex)
+				return false;
+
+			size_t Index = 0;
+			for (const auto& i: enum_substrings(AppExecLinkReparseBuffer.StringList))
+			{
+				if (Index < FilenameIndex)
+				{
+					++Index;
+					continue;
+				}
+
+				DestBuffer.assign(i);
+				return true;
+			}
+			return false;
+		}
 
 	default:
 		return false;
