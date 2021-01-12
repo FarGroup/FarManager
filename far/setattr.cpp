@@ -86,9 +86,9 @@ enum SETATTRDLG
 	SA_TEXT_LABEL,
 	SA_TEXT_NAME,
 	SA_COMBO_HARDLINK,
-	SA_TEXT_SYMLINK,
-	SA_EDIT_SYMLINK,
-	SA_COMBO_SYMLINK,
+	SA_TEXT_REPARSE_POINT,
+	SA_EDIT_REPARSE_POINT,
+	SA_COMBO_REPARSE_POINT,
 	SA_SEPARATOR1,
 	SA_ATTR_FIRST,
 	SA_CHECKBOX_READONLY = SA_ATTR_FIRST,
@@ -473,7 +473,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 			switch (Param1)
 			{
 			case SA_COMBO_HARDLINK:
-			case SA_COMBO_SYMLINK:
+			case SA_COMBO_REPARSE_POINT:
 				{
 					SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
@@ -947,10 +947,10 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 									NameList.Items = ListItems.data();
 									NameList.ItemsNumber = DfsInfo->NumberOfStorages;
 
-									AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_HIDDEN;
-									AttrDlg[SA_COMBO_SYMLINK].Flags &= ~DIF_HIDDEN;
-									AttrDlg[SA_COMBO_SYMLINK].ListItems = &NameList;
-									AttrDlg[SA_COMBO_SYMLINK].strData = concat(msg(lng::MSetAttrDfsTargets), L" ("sv, str(NameList.ItemsNumber), L')');
+									AttrDlg[SA_EDIT_REPARSE_POINT].Flags |= DIF_HIDDEN;
+									AttrDlg[SA_COMBO_REPARSE_POINT].Flags &= ~DIF_HIDDEN;
+									AttrDlg[SA_COMBO_REPARSE_POINT].ListItems = &NameList;
+									AttrDlg[SA_COMBO_REPARSE_POINT].strData = concat(msg(lng::MSetAttrDfsTargets), L" ("sv, str(NameList.ItemsNumber), L')');
 								}
 							}
 						}
@@ -958,7 +958,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				}
 				AttrDlg[SA_DOUBLEBOX].Y2++;
 
-				for (size_t i=SA_TEXT_SYMLINK; i != AttrDlg.size(); i++)
+				for (size_t i = SA_TEXT_REPARSE_POINT; i != AttrDlg.size(); ++i)
 				{
 					AttrDlg[i].Y1++;
 
@@ -983,20 +983,25 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 						ID_Msg = lng::MSetAttrJunction;
 					}
 				}
+				else if (ReparseTag == IO_REPARSE_TAG_APPEXECLINK)
+				{
+					ID_Msg = lng::MSetAttrAppExecLink;
+				}
 
 				if (!KnownReparsePoint)
 					strLinkName=msg(lng::MSetAttrUnknownReparsePoint);
 
-				AttrDlg[SA_TEXT_SYMLINK].Flags &= ~DIF_HIDDEN;
-				AttrDlg[SA_TEXT_SYMLINK].strData = msg(ID_Msg);
+				AttrDlg[SA_TEXT_REPARSE_POINT].Flags &= ~DIF_HIDDEN;
+				AttrDlg[SA_TEXT_REPARSE_POINT].strData = msg(ID_Msg);
 
 				if (ReparseTag != IO_REPARSE_TAG_DFS)
-					AttrDlg[SA_EDIT_SYMLINK].Flags &= ~DIF_HIDDEN;
+				{
+					AttrDlg[SA_EDIT_REPARSE_POINT].Flags &= ~DIF_HIDDEN;
+					AttrDlg[SA_EDIT_REPARSE_POINT].strData = strLinkName;
+				}
 
-				AttrDlg[SA_EDIT_SYMLINK].strData = strLinkName;
-
-				if (IsMountPoint || ReparseTag == IO_REPARSE_TAG_DEDUP)
-					AttrDlg[SA_EDIT_SYMLINK].Flags |= DIF_READONLY;
+				if (IsMountPoint || none_of(ReparseTag, IO_REPARSE_TAG_MOUNT_POINT, IO_REPARSE_TAG_SYMLINK))
+					AttrDlg[SA_EDIT_REPARSE_POINT].Flags |= DIF_READONLY;
 			}
 
 			// обработка случая "несколько хардлинков"
@@ -1190,11 +1195,11 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 		case SA_BUTTON_SET:
 			{
 				//reparse point editor, can be used even if the attributes are invalid (e.g. a CD drive)
-				if (!equal_icase(AttrDlg[SA_EDIT_SYMLINK].strData, strLinkName))
+				if (!equal_icase(AttrDlg[SA_EDIT_REPARSE_POINT].strData, strLinkName))
 				{
 					for (;;)
 					{
-						if (ModifyReparsePoint(SingleSelFileName, unquote(AttrDlg[SA_EDIT_SYMLINK].strData)))
+						if (ModifyReparsePoint(SingleSelFileName, unquote(AttrDlg[SA_EDIT_REPARSE_POINT].strData)))
 							break;
 
 						const auto ErrorState = error_state::fetch();

@@ -15490,6 +15490,19 @@ upd:"DFS Targets:"
 "DFS цілі:"
 "DFS мэты:"
 
+MSetAttrAppExecLink
+upd:"App Alias:"
+"App Alias:"
+upd:"App Alias:"
+upd:"App Alias:"
+upd:"App Alias:"
+upd:"App Alias:"
+upd:"App Alias:"
+upd:"App Alias:"
+upd:"App Alias:"
+upd:"App Alias:"
+upd:"App Alias:"
+
 MSetAttrUnknownReparsePoint
 "(нет данных)"
 "(data not available)"
