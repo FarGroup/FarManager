@@ -533,7 +533,9 @@ public:
 		ChangeConsoleMode(console.GetOutputHandle(), InitialConsoleMode->Output);
 		ChangeConsoleMode(console.GetErrorHandle(), InitialConsoleMode->Error);
 
-		GetCursorType(CursorVisible, CursorSize);
+		CONSOLE_CURSOR_INFO Info;
+		if (console.GetCursorInfo(Info))
+			m_Info = Info;
 	}
 
 	~external_execution_context()
@@ -542,7 +544,8 @@ public:
 
 		SetFarConsoleMode(true);
 
-		SetCursorType(CursorVisible, CursorSize);
+		if (m_Info)
+			console.SetCursorInfo(*m_Info);
 
 		point ConSize;
 		if (console.GetSize(ConSize) && (ConSize.x != ScrX + 1 || ConSize.y != ScrY + 1))
@@ -557,14 +560,13 @@ public:
 		}
 
 		// The title could be changed by the external program
-		Global->ScrBuf->Flush(flush_type::cursor | flush_type::title);
+		Global->ScrBuf->Flush(flush_type::title);
 	}
 
 private:
 	int ConsoleCP = console.GetInputCodepage();
 	int ConsoleOutputCP = console.GetOutputCodepage();
-	bool CursorVisible{};
-	size_t CursorSize{};
+	std::optional<CONSOLE_CURSOR_INFO> m_Info;
 };
 
 static bool execute_impl(
