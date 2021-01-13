@@ -4277,7 +4277,7 @@ void Editor::DeleteBlock()
 				const auto& NextStr = NextLine->GetString();
 				if (NextStr.size() > static_cast<size_t>(NextEndSel))
 				{
-					TmpStr.append(NextStr.cbegin() + NextEndSel, NextStr.cend());
+					TmpStr.append(string_view(NextStr).substr(NextEndSel));
 				}
 			}
 
@@ -5046,7 +5046,7 @@ void Editor::DeleteVBlock()
 
 		if (CurStr.size() > TBlockX + TBlockSizeX)
 		{
-			TmpStr.append(CurStr.cbegin() + TBlockX + TBlockSizeX, CurStr.cend());
+			TmpStr.append(string_view(CurStr).substr(TBlockX + TBlockSizeX));
 		}
 
 		append(TmpStr, CurPtr->GetEOL().str());

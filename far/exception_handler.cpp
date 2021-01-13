@@ -456,7 +456,7 @@ static void copy_information(
 
 	for (const auto& [Label, Value]: zip(Labels, Values))
 	{
-		append(Strings, format(FSTR(L"{0:{1}} {2}{3}"), Label, LabelsWidth, Value, Eol));
+		format_to(Strings, FSTR(L"{0:{1}} {2}{3}"), Label, LabelsWidth, Value, Eol);
 	}
 
 	append(Strings, Eol);

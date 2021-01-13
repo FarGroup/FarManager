@@ -372,7 +372,7 @@ bool GetReparsePointInfo(string_view const Object, string& DestBuffer, LPDWORD R
 					continue;
 				}
 
-				DestBuffer.assign(i);
+				DestBuffer = i;
 				return true;
 			}
 			return false;

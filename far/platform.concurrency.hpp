@@ -215,12 +215,6 @@ namespace os::concurrency
 			return m_Queue.empty();
 		}
 
-		void push(const T& item)
-		{
-			SCOPED_ACTION(guard_t)(m_QueueCS);
-			m_Queue.push(item);
-		}
-
 		template<typename... args>
 		void emplace(args&&... Args)
 		{

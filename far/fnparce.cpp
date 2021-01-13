@@ -615,7 +615,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 		if (!SkipSize)
 			SkipSize = 1;
 
-		Out.append(CurStr.data(), SkipSize);
+		Out += CurStr.substr(0, SkipSize);
 		return CurStr.substr(SkipSize);
 	}
 
@@ -759,7 +759,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 
 				if (HistoryEnd != string_view::npos)
 				{
-					DlgData.back().strHistory.assign(Strings.Title.All.data(), HistoryBegin, HistoryEnd - HistoryBegin);
+					DlgData.back().strHistory = Strings.Title.All.substr(HistoryBegin, HistoryEnd - HistoryBegin);
 					const auto HistorySize = HistoryEnd - HistoryBegin + 2;
 					Strings.Title.All.remove_prefix(HistorySize);
 				}

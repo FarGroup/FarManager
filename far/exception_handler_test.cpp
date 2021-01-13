@@ -254,6 +254,7 @@ namespace tests
 	static void seh_stack_overflow()
 	{
 		volatile char Buffer[10240];
+		Buffer[0] = 1;
 
 		seh_stack_overflow();
 

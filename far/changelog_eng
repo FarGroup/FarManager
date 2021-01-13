@@ -1,3 +1,9 @@
+drkns 13.01.2021 20:41:29 +0000 - build 5729
+
+1. Correction of 5728.
+
+2. A few minor changes.
+
 drkns 12.01.2021 19:05:57 +0000 - build 5728
 
 1. Restore cursor state after launching programs.

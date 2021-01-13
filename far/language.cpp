@@ -252,7 +252,7 @@ static string ConvertString(const string_view Src)
 	string Result;
 	Result.reserve(Src.size());
 
-	Result.assign(Src.substr(0, SpecialPos));
+	Result = Src.substr(0, SpecialPos);
 
 	for (auto i = Src.begin() + SpecialPos, End = Src.end(); i != End; ++i)
 	{
