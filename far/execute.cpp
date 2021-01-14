@@ -532,22 +532,11 @@ public:
 		ChangeConsoleMode(console.GetInputHandle(), InitialConsoleMode->Input);
 		ChangeConsoleMode(console.GetOutputHandle(), InitialConsoleMode->Output);
 		ChangeConsoleMode(console.GetErrorHandle(), InitialConsoleMode->Error);
-
-		GetCursorType(CursorVisible, CursorSize);
-
-		CONSOLE_CURSOR_INFO Info;
-		if (console.GetCursorInfo(Info))
-			m_Info = Info;
 	}
 
 	~external_execution_context()
 	{
 		SCOPED_ACTION(os::last_error_guard);
-
-		if (m_Info)
-			console.SetCursorInfo(*m_Info);
-
-		SetCursorType(CursorVisible, CursorSize);
 
 		SetFarConsoleMode(true);
 
@@ -563,16 +552,13 @@ public:
 			console.SetOutputCodepage(ConsoleOutputCP);
 		}
 
-		// The title could be changed by the external program
-		Global->ScrBuf->Flush(flush_type::cursor | flush_type::title);
+		// Could be changed by the external program
+		Global->ScrBuf->Invalidate();
 	}
 
 private:
 	int ConsoleCP = console.GetInputCodepage();
 	int ConsoleOutputCP = console.GetOutputCodepage();
-	bool CursorVisible{};
-	size_t CursorSize{};
-	std::optional<CONSOLE_CURSOR_INFO> m_Info;
 };
 
 static bool execute_impl(
