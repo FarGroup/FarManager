@@ -681,9 +681,9 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 
 	constexpr auto HistoryAndVariablePrefix = L"UserVar"sv;
 
-	const auto GenerateHistoryName = [&](size_t const Index)
+	const auto GenerateHistoryName = [&](size_t const Index, const string_view customPrefix = {})
 	{
-		return format(FSTR(L"{0}{1}"), HistoryAndVariablePrefix, Index);
+		return format(FSTR(L"{0}{1}"), customPrefix.empty() ? HistoryAndVariablePrefix : customPrefix, Index);
 	};
 
 	constexpr auto ExpectedTokensCount = 64;
@@ -744,7 +744,13 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 			Item.X2 = DlgWidth - 6;
 			Item.Y1 = Item.Y2 = DlgData.size() + 1;
 			Item.Flags = DIF_HISTORY | DIF_USELASTHISTORY;
-			Item.strHistory = GenerateHistoryName((DlgData.size() - 1) / 2);
+			if(Strings.Title.All.back() != L'|')
+				Item.strHistory = GenerateHistoryName((DlgData.size() - 1) / 2);
+			else
+			{
+				Strings.Title.All.remove_suffix(1);
+				Item.strHistory = GenerateHistoryName((DlgData.size() - 1) / 2, Strings.Title.All);
+			}
 			DlgData.emplace_back(Item);
 		}
 

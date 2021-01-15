@@ -2309,6 +2309,9 @@ $ #Метасимволы#
 
  Для отключения истории оставьте имя пустым.
 
+ If the title field ends with a #|# the title itself is used internally as the history key for the input text (instead of #UserVarN#)
+allowing different entries in the menu to have different input text histories.
+
  The entered string can also be accessed later as #%<history># (or as #%UserVarN#, where N is the index of the corresponding input).
 
  В <title> и <init> допускается использование прочих метасимволов, заключив их в круглые операторные скобки, например

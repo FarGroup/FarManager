@@ -2339,6 +2339,9 @@ Ebben az esetben a parancssor formátuma: #!?$<előzmény>$<név>?<alapérték>!
 
  Leave the name empty to disable history.
 
+ If the title field ends with a #|# the title itself is used internally as the history key for the input text (instead of #UserVarN#)
+allowing different entries in the menu to have different input text histories.
+
  The entered string can also be accessed later as #%<history># (or as #%UserVarN#, where N is the index of the corresponding input).
 
 A <név> és az <alapérték> beírásánál más különleges szimbólumot is használhatunk, zárójelek között. Példa:
