@@ -119,7 +119,6 @@
       </Feature>
       <Feature Id="Changelogs" Level="1" Title="!(loc.Feature.Title.Changelogs)" AllowAdvertise="no" Description="!(loc.Feature.Description.Changelogs)">
         <ComponentRef Id="changelog" />
-        <ComponentRef Id="changelog_eng" />
       </Feature>
       <Feature Id="Docs" Level="1" Title="!(loc.Feature.Title.Docs)" AllowAdvertise="no" Description="!(loc.Feature.Description.Docs)">
         <ComponentRef Id="Bug.Report.txt" />

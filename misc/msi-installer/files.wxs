@@ -7,9 +7,6 @@
       <Component Id="changelog" Guid="$(var.Guid.changelog)" Win64="$(var.Win64)">
         <File Id="changelog" KeyPath="yes" Source="$(var.SourceDir)\changelog" />
       </Component>
-      <Component Id="changelog_eng" Guid="$(var.Guid.changelog_eng)" Win64="$(var.Win64)">
-        <File Id="changelog_eng" KeyPath="yes" Source="$(var.SourceDir)\changelog_eng" />
-      </Component>
       <Component Id="Far.exe" Guid="$(var.Guid.Far.exe)" Win64="$(var.Win64)">
         <File Id="Far.exe" KeyPath="yes" Source="$(var.SourceDir)\Far.exe" />
       </Component>

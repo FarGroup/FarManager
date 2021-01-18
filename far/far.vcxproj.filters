@@ -1216,7 +1216,6 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="changelog" />
-    <CopyFileToFolders Include="changelog_eng" />
     <CopyFileToFolders Include="Far.exe.example.ini" />
   </ItemGroup>
 </Project>
