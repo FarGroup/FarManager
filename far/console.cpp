@@ -71,6 +71,7 @@ static wchar_t ReplaceControlCharacter(wchar_t const Char)
 {
 	switch (Char)
 	{
+	case 0x00: return L'\x0020'; //   Space
 	case 0x01: return L'\x263a'; // ☺ white smiling face
 	case 0x02: return L'\x263b'; // ☻ black smiling face
 	case 0x03: return L'\x2665'; // ♥ black heart suit
