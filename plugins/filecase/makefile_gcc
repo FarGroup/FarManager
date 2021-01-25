@@ -10,6 +10,7 @@ DOCS = \
 	CaseEng.hlf \
 	CaseRus.hlf \
 	CasePol.hlf \
+	CaseBel.hlf \
 	CaseGer.hlf \
 	CaseUkr.hlf \
 	CaseCze.hlf \
