@@ -8,8 +8,10 @@ DOCS = \
 	ECaseEng.hlf \
 	ECaseRus.hlf \
 	ECasePol.hlf \
+	ECaseBel.hlf \
 	ECaseGer.hlf \
 	ECaseUkr.hlf \
+	ECaseCze.hlf \
 	ECaseEng.lng \
 	ECaseRus.lng \
 	ECaseSky.lng \
@@ -19,6 +21,7 @@ DOCS = \
 	ECaseBel.lng \
 	ECaseGer.lng \
 	ECaseUkr.lng \
+	ECaseCze.lng \
 	EditCase.lua \
 	changelog
 

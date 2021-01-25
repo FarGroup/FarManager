@@ -1984,13 +1984,13 @@ The logic at work this option is similar to arithmetic with negative numbers.
  <= 0  - select files in the period from the "Today"
  >= 30 - and 30-days ago, including
 
-
  #Attributes#
  Inclusion and exclusion attributes.
 
  Filter conditions are met if file attributes
 analysis is on and it has all of the inclusion
 attributes and none of the exclusion attributes:
+
  #[x]# - ^<wrap>inclusion attribute - the file must have this attribute.
  #[ ]# - ^<wrap>exclusion attribute - the file must not have this attribute.
  #[?]# - ^<wrap>ignore this attribute.
@@ -1998,7 +1998,6 @@ attributes and none of the exclusion attributes:
  The #Compressed#, #Encrypted#, #Not indexed#, #Sparse#, #Temporary# and #Offline# attributes
 are used only on disks with the NTFS file system.
 The #Integrity stream# and #No scrub data# attributes are supported only on ReFS volumes starting from Windows Server 2012.
-
 
  #Has more than one hardlink#
  Used only on disks with NTFS file system. Condition evaluates to true,
@@ -4319,7 +4318,6 @@ wird das Dateifenster in Mehrspaltenform dargestellt.
  By default the size of the attributes column is 6 characters. To display
 the additional attributes it is necessary to manually increase the size of the column.
 
-
 #Spaltenbreite# - zum Ändern der Breite der Fensterspalten.
 Wenn die Breite den Wert 0 besitzt, wird der Standardwert benutzt.
 Wenn die Breite der Spalte von Namen, Beschreibung oder Eigentümer
@@ -4486,7 +4484,6 @@ Verzeichnisse um.
 folders are deselected.
 
  #Strg+M# stellte eine vorherige Auswahl wieder her.
-
 
  #Mouse Selection#
 

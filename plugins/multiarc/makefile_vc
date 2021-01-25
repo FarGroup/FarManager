@@ -18,8 +18,10 @@ LINK_OBJS = \
 DOCS = \
 	arceng.hlf \
 	arcrus.hlf \
+	arcbel.hlf \
 	arcger.hlf \
 	arcukr.hlf \
+	arccze.hlf \
 	arceng.lng \
 	arcrus.lng \
 	arcspa.lng \
@@ -27,6 +29,7 @@ DOCS = \
 	arcbel.lng \
 	arcger.lng \
 	arcukr.lng \
+	arccze.lng \
 	MultiArc.TryIfNoOther.reg \
 	changelog
 

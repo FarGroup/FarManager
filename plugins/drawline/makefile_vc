@@ -8,7 +8,9 @@ DOCS = \
 	DrawEng.hlf \
 	DrawRus.hlf \
 	DrawPol.hlf \
+	DrawBel.hlf \
 	DrawUkr.hlf \
+	DrawCze.hlf \
 	DrawEng.lng \
 	DrawRus.lng \
 	DrawSky.lng \
@@ -18,6 +20,7 @@ DOCS = \
 	DrawBel.lng \
 	DrawGer.lng \
 	DrawUkr.lng \
+	DrawCze.lng \
 	changelog
 
 !include ..\makefile_vc_def_inc

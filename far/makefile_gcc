@@ -227,6 +227,7 @@ docs: \
 	$(EXEDIR)FarPol.hlf \
 	$(EXEDIR)FarGer.hlf \
 	$(EXEDIR)FarUkr.hlf \
+	$(EXEDIR)FarCze.hlf \
 	$(EXEDIR)File_id.diz \
 	$(EXEDIR)Far.exe.example.ini
 

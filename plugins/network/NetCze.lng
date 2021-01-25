@@ -1,0 +1,75 @@
+﻿.Language=Czech,Czech (Čeština)
+
+"Ok"
+"Storno"
+"Chyba"
+"Ano"
+
+"Síťový prohlížeč"
+
+"síť"
+
+"Map"
+"MapDo"
+"TMap"
+"TMapDo"
+"Odmap"
+"Remove"
+"ManKon"
+
+"Prosím čekejte"
+"Skanuji síť..."
+
+"Nemohu procházet síť"
+"Nemohu připojit \"%.40s\" do %s"
+"Jméno disku je již používano při spojení"
+
+"Pokud neuzavřete otevřené soubory, můžete přijít o data."
+"Opravdu si přesto přejete zařízení odpojit?"
+"Nelze se odpojit od %s"
+
+"Není k dispozici žádné volné písmeno disku"
+
+"Jméno uživatele"
+"Heslo uživatele"
+
+"Stálé připojení do"
+"Dočasné připojení do"
+"F6 - dočasné"
+"F6 - stálé"
+
+"Síť"
+"Název sítě"
+"*:"
+"Komentář"
+
+"Síťový prohlížeč"
+"Přidat do menu &disků"
+"Přidat do menu &pluginů"
+"Zobrazovat &lokální síť"
+"Sdílení"
+"Show share &full name"
+"Skrytá sdílení"
+"&Never show"
+"&Show as hidden"
+"&Always show"
+"Show p&rinters"
+"Show \"&..\" in the providers"
+"&Browse up to favorites if possible"
+"Check resource &reachability"
+
+"Odpojit síťovou jednotku"
+"Opravdu si přejete odpojit jednotku %s?"
+"Jednotka %s je namapována do"
+"&Znovu připojit při přihlášení"
+
+"Odpojit síťovou jednotku\nJednotka %s je namapovaná na písmeno používané jinou jednotkou\nKterou chcete odpojit?\n"
+
+"Favorites"
+"Favorites Folder"
+
+"&Remember password"
+
+"Remove from Favorites"
+"Remove \"%s\" from Favorites"
+"Remove %d items from Favorites"

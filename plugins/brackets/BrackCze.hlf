@@ -1,0 +1,155 @@
+﻿.Language=Czech,Czech (Čeština)
+.PluginContents=Brackets matching
+.Options CtrlStartPosChar=^<wrap>
+
+@Contents
+$ #Porovnávání závorek#
+  Tento plugin umožňuje:
+
+  - nalézt shodné závorky;
+  - vybrat text mezi závorkami.
+
+  Plugin může pracovat ve třech módech:
+
+  #1. Obecný '()', '{}', '[]', '<>', '«»' a úvozovky#
+     To je jednoducý mód - když je kurzor na závorce, bude přesunut
+     na shodnou závorku. U úvozovek je to nezbytné pro určení
+     směru skenování - dopředu, nebo zpět.
+
+  #2. Nezvyklý '()', '{}', '[]', '<>' a '«»'#
+     Tento mód je, když kurzor stojí na dalším zunaku za závorkou.
+     Plugin umisťuje kurzor na shodnou závorku. Používání tohoto 
+     módu může být zakázáno v konfiguračním dialogu.
+
+  #3. Dvojité závorky#
+     Tento mód umožňuje manimulovat například s blokem komentářů
+     jazyka C/C++ : '/*' a '*/'. Kurzor bude umístěn na příslušný 
+     znak shodné závorky.
+
+
+  ~Nastavení~@Config@
+  ~Hledat/vybrat~@Find@
+  ~Hledat úvozovky~@Direct@
+  ~Использование плагина в макросах~@MacroCallPlugin@
+
+
+@Find
+$ #Porovnávání závorek - Hledat/vybrat#
+
+  #Hledat#     - pokud je hledání shodných závorek úspěšné, bude
+               kurzor přemístěn na závorku.
+
+  #Vybrat#     - pokud je hledání shodných závorek úspěšné, bude
+               kurzor přemístěn na závorku a text mezi závorkami
+               (včetně samotných závorek) bude označen (vybrán).
+
+  ~Obsah~@Contents@
+  ~Nastavení~@Config@
+
+
+@Direct
+$ #Porovnávání závorek - Hledat úvozovky#
+  Pokud jsou shodné závorky, nebo úvozovky stejné znaky, musí
+plugin vědět, kterým směrem má skenovat:
+
+  #Dopředu#    - hledání shodných znaků od aktuální pozice kurzoru,
+               do konce textu.
+
+  #Zpět#       - hledání shodných znaků od aktuální pozice kurzoru,
+               na začátek textu.
+
+  ~Obsah~@Contents@
+  ~Nastavení~@Config@
+
+
+@Config
+$ #Porovnávání závorek - Nastavení#
+  Pokud se vám nelíbí implicitní nastavení pluginu, můžete si ho
+přenastavit.
+
+  #>Pravidla#
+  Pravidla chování pluginu ve specifických situacích:
+
+   #Ignorovat závorky#    Pokud je toto nastavení zapnuto, plugin 
+   #v úvozovkách#         nevyhledává závorky, které jsou obklopeny
+                        úvozovkami: #'#{#'#.
+                        Znak úvozovek je konfigurovatelný.
+
+   #Nepřeskakovat za#     Pokud je toto nastavení vypnuto, vyhledává 
+   #závorkou#             plugin shodné závorky, až když je kurzor na 
+                        dalším znaku za závorkou. Pokud je nastavení
+                        zapnuto, provede plugin vyhledávání, jen když
+                        je kurzor na závorce.
+
+   #Priorita jedné#       Pokud je toto nastavení zapnuto, použije
+   #závorky#              plugin nejdříve pravidla pro jednoduché
+                        závorky (například, pokud je kurzor na
+                        prvním zanku z '#<%#', pokusí se plugin
+                        najít jako shodnou závorku '#>#').
+                        Pokud je nastavení vypnuto, pokusí se
+                        plugin v této situaci nalézt '#%>#'.
+
+   #Jít na vybranou#      Když je označen blok mezi závorkami,
+   #závorku#              nastaví kurzor na nalezenou závorku.
+
+   #Pípnout, pokud#       Pípne po úspěšném vyhledávání.
+   #souhlasí#
+
+
+  #>Definice#
+  Tato sekce umožňuje změnit několik základních konstant pluginu:
+
+   #Jednoduché závorky#   Definice jednoduché závorky.
+                        Obsahuje sekvence dvojic znaků. První znak
+                        je otevírající závorka, druhý - uzavírající
+                        závorka. Může zde být až 10 dvojic. První 
+                        a druhý znak mohou být shodné (například
+                        #""# nebo #''#).
+
+   #Dvojité závorky#      Definice dvojité závorky.
+                        Obsahuje sekvence čtyřznakových skupin.
+                        První dva znaky jsou otevírající závorka,
+                        druhá dvojice - uzavírající závorka. Může
+                        zde být až 10 skupin.
+
+   #Typ úvozovek#         Znaky úvozovek pro pravidlo "Ignorovat 
+                        závorky v úvozovkách".
+                        Obsahuje sekvence dvojic znaků. První znak
+                        je otevírající úvozovka, druhý - uzavírjící
+                        úvozovka. Může zde být až 10 dvojic. 
+                        Poznámka: úvozovky nemohou být přímo použity 
+                        pro porovnávání závorek.
+
+  ~Obsah~@Contents@
+
+
+@MacroCallPlugin
+$ #Использование плагина в макросах#
+    ^<wrap>Плагин можно вызывать из макросов, используя макрофункцию Plugin.Call.
+    ^<wrap>Формат вызова:
+
+       #Plugin.Call("B66C436D-E657-419C-86D3-6834B9ACF3D2",<Параметр>)#
+
+    ^<wrap>здесь:
+       #B66C436D-E657-419C-86D3-6834B9ACF3D2#
+          идентификатор плагина
+
+       #<Параметр>#
+          ^<wrap>строковое или числовое значение, обозначающее действие:
+
+          SearchFwd  0 - искать парную скобку вперед
+          SearchBack 1 - искать парную скобку назад
+          SelectFwd  2 - выделить блок между парными скобками вперед
+          SelectBack 3 - выделить блок между парными скобками назад
+          Config     4 - показать диалог конфигурации
+
+          ^<wrap>Если <Параметр> вне указанного выше диапазона - плагин завершает свою работу.
+          ^<wrap>Если <Параметр> не указан, то будет выведено меню действий.
+
+          ^<wrap>Различие между "вперед" и "назад" актуально только для кавычек.
+
+    ^<wrap>Например, искать парную скобку назад:
+
+       Plugin.Call("B66C436D-E657-419C-86D3-6834B9ACF3D2",1)
+
+  ~Contents~@Contents@

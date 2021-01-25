@@ -118,6 +118,10 @@
 * Gerardo Garcia
 * Bernd Giesen
 * Juri Petrashko
+* Valentіn Kolesnіkov
+* Вя Лi
+* Michal Breškovec
+* Miroslav Pták
  
 > And special thanks to all of our community members!  
 > You are not less important than the people mentioned here.

@@ -14,9 +14,11 @@ SRCS = \
 DOCS = \
 	ProcEng.hlf \
 	ProcRus.hlf \
+	ProcBel.hlf \
 	ProcPol.hlf \
 	ProcGer.hlf \
 	ProcUkr.hlf \
+	ProcCze.hlf \
 	ProcEng.lng \
 	ProcRus.lng \
 	ProcIta.lng \
@@ -24,6 +26,7 @@ DOCS = \
 	ProcPol.lng \
 	ProcGer.lng \
 	ProcUkr.lng \
+	ProcCze.lng \
 	changelog
 
 ifndef FARDIR

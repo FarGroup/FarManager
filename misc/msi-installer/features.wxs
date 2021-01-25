@@ -156,6 +156,7 @@
           <ComponentRef Id="FarBel.lng" />
         </Feature>
         <Feature Id="Czech" Level="1" Title="!(loc.Feature.Title.Czech)" AllowAdvertise="no">
+          <ComponentRef Id="FarCze.hlf" />
           <ComponentRef Id="FarCze.lng" />
         </Feature>
         <Feature Id="German" Level="1" Title="!(loc.Feature.Title.German)" AllowAdvertise="no">
@@ -249,6 +250,9 @@
             <Feature Id="Align.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="AlignRus.lng" />
             </Feature>
+            <Feature Id="Align.Czech" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="AlignCze.lng" />
+            </Feature>
 <?if $(var.Platform) = x86 ?>
             <Feature Id="Align.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Align.map" />
@@ -285,6 +289,9 @@
             <Feature Id="AutoWrap.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="WrapRus.lng" />
             </Feature>
+            <Feature Id="AutoWrap.Czech" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="WrapCze.lng" />
+            </Feature>
 <?if $(var.Platform) = x86 ?>
             <Feature Id="AutoWrap.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="AutoWrap.map" />
@@ -312,6 +319,7 @@
               <ComponentRef Id="BrackPol.lng" />
             </Feature>
             <Feature Id="Brackets.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="BrackBel.hlf" />
               <ComponentRef Id="BrackBel.lng" />
             </Feature>
             <Feature Id="Brackets.German" Level="1" Display="hidden" AllowAdvertise="no">
@@ -324,6 +332,10 @@
             <Feature Id="Brackets.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="BrackRus.hlf" />
               <ComponentRef Id="BrackRus.lng" />
+            </Feature>
+            <Feature Id="Brackets.Czech" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="BrackCze.hlf" />
+              <ComponentRef Id="BrackCze.lng" />
             </Feature>
 <?if $(var.Platform) = x86 ?>
             <Feature Id="Brackets.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -353,6 +365,7 @@
               <ComponentRef Id="DrawPol.lng" />
             </Feature>
             <Feature Id="DrawLine.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="DrawBel.hlf" />
               <ComponentRef Id="DrawBel.lng" />
             </Feature>
             <Feature Id="DrawLine.German" Level="1" Display="hidden" AllowAdvertise="no">
@@ -365,6 +378,10 @@
             <Feature Id="DrawLine.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="DrawRus.hlf" />
               <ComponentRef Id="DrawRus.lng" />
+            </Feature>
+            <Feature Id="DrawLine.Czech" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="DrawCze.hlf" />
+              <ComponentRef Id="DrawCze.lng" />
             </Feature>
 <?if $(var.Platform) = x86 ?>
             <Feature Id="DrawLine.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -393,6 +410,7 @@
               <ComponentRef Id="ECasePol.lng" />
             </Feature>
             <Feature Id="EditCase.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="ECaseBel.hlf" />
               <ComponentRef Id="ECaseBel.lng" />
             </Feature>
             <Feature Id="EditCase.German" Level="1" Display="hidden" AllowAdvertise="no">
@@ -406,6 +424,10 @@
             <Feature Id="EditCase.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="ECaseRus.hlf" />
               <ComponentRef Id="ECaseRus.lng" />
+            </Feature>
+            <Feature Id="EditCase.Czech" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="ECaseCze.hlf" />
+              <ComponentRef Id="ECaseCze.lng" />
             </Feature>
 <?if $(var.Platform) = x86 ?>
             <Feature Id="EditCase.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -486,6 +508,7 @@
             <ComponentRef Id="CompPol.lng" />
           </Feature>
           <Feature Id="Compare.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CmpBel.hlf" />
             <ComponentRef Id="CompBel.lng" />
           </Feature>
           <Feature Id="Compare.German" Level="1" Display="hidden" AllowAdvertise="no">
@@ -499,6 +522,10 @@
           <Feature Id="Compare.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CmpRus.hlf" />
             <ComponentRef Id="CompRus.lng" />
+          </Feature>
+          <Feature Id="Compare.Czech" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CmpCze.hlf" />
+            <ComponentRef Id="CompCze.lng" />
           </Feature>
           <ComponentRef Id="AdvCompare.CompareBufferSize.farconfig" />
 <?if $(var.Platform) = x86 ?>
@@ -528,6 +555,7 @@
             <ComponentRef Id="EMenuPol.lng" />
           </Feature>
           <Feature Id="EMenu.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="EMenuBel.hlf" />
             <ComponentRef Id="EMenuBel.lng" />
           </Feature>
           <Feature Id="EMenu.Ukrainian" Level="1" Display="hidden" AllowAdvertise="no">
@@ -537,6 +565,10 @@
           <Feature Id="EMenu.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="EMenuRus.hlf" />
             <ComponentRef Id="EMenuRus.lng" />
+          </Feature>
+          <Feature Id="EMenu.Czech" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="EMenuCze.hlf" />
+            <ComponentRef Id="EMenuCze.lng" />
           </Feature>
           <ComponentRef Id="Hotkey.lua" />
           <ComponentRef Id="Hotkey.farconfig" />
@@ -677,6 +709,7 @@
             <ComponentRef Id="FARCmdsIta.lng" />
           </Feature>
           <Feature Id="FARCmds.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="FARCmdsBel.hlf" />
             <ComponentRef Id="FARCmdsBel.lng" />
           </Feature>
           <Feature Id="FARCmds.Russian" Level="1" Display="hidden" AllowAdvertise="no">
@@ -690,6 +723,10 @@
           <Feature Id="FARCmds.Ukrainian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="FARCmdsUkr.hlf" />
             <ComponentRef Id="FARCmdsUkr.lng" />
+          </Feature>
+          <Feature Id="FARCmds.Czech" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="FARCmdsCze.hlf" />
+            <ComponentRef Id="FARCmdsCze.lng" />
           </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="FARCmds.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -714,6 +751,7 @@
             <ComponentRef Id="SameFolderIta.lng" />
           </Feature>
           <Feature Id="SameFolder.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="SameFolderBel.hlf" />
             <ComponentRef Id="SameFolderBel.lng" />
           </Feature>
           <Feature Id="SameFolder.Polish" Level="1" Display="hidden" AllowAdvertise="no">
@@ -727,6 +765,10 @@
           <Feature Id="SameFolder.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="SameFolderRus.hlf" />
             <ComponentRef Id="SameFolderRus.lng" />
+          </Feature>
+          <Feature Id="SameFolder.Czech" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="SameFolderCze.hlf" />
+            <ComponentRef Id="SameFolderCze.lng" />
           </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="SameFolder.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -755,6 +797,7 @@
             <ComponentRef Id="CasePol.lng" />
           </Feature>
           <Feature Id="FileCase.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CaseBel.hlf" />
             <ComponentRef Id="CaseBel.lng" />
           </Feature>
           <Feature Id="FileCase.German" Level="1" Display="hidden" AllowAdvertise="no">
@@ -768,6 +811,10 @@
           <Feature Id="FileCase.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CaseRus.hlf" />
             <ComponentRef Id="CaseRus.lng" />
+          </Feature>
+          <Feature Id="FileCase.Czech" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CaseCze.hlf" />
+            <ComponentRef Id="CaseCze.lng" />
           </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="FileCase.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -809,6 +856,7 @@
             <ComponentRef Id="HlfViewerPol.lng" />
           </Feature>
           <Feature Id="HlfViewer.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="HlfViewerBel.hlf" />
             <ComponentRef Id="HlfViewerBel.lng" />
           </Feature>
           <Feature Id="HlfViewer.Ukrainian" Level="1" Display="hidden" AllowAdvertise="no">
@@ -818,6 +866,10 @@
           <Feature Id="HlfViewer.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="HlfViewerRus.hlf" />
             <ComponentRef Id="HlfViewerRus.lng" />
+          </Feature>
+          <Feature Id="HlfViewer.Czech" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="HlfViewerCze.hlf" />
+            <ComponentRef Id="HlfViewerCze.lng" />
           </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="HlfViewer.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -893,6 +945,7 @@
             <ComponentRef Id="NetIta.lng" />
           </Feature>
           <Feature Id="Network.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="NetBel.hlf" />
             <ComponentRef Id="NetBel.lng" />
           </Feature>
           <Feature Id="Network.Russian" Level="1" Display="hidden" AllowAdvertise="no">
@@ -911,6 +964,10 @@
             <ComponentRef Id="NetUkr.hlf" />
             <ComponentRef Id="NetUkr.lng" />
           </Feature>
+          <Feature Id="Network.Czech" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="NetCze.hlf" />
+            <ComponentRef Id="NetCze.lng" />
+          </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="Network.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="Network.map" />
@@ -928,6 +985,7 @@
             <ComponentRef Id="ProcIta.lng" />
           </Feature>
           <Feature Id="Proclist.Belarusian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="ProcBel.hlf" />
             <ComponentRef Id="ProcBel.lng" />
           </Feature>
           <Feature Id="Proclist.Russian" Level="1" Display="hidden" AllowAdvertise="no">
@@ -945,6 +1003,10 @@
           <Feature Id="Proclist.Ukrainian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="ProcUkr.hlf" />
             <ComponentRef Id="ProcUkr.lng" />
+          </Feature>
+          <Feature Id="Proclist.Czech" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="ProcCze.hlf" />
+            <ComponentRef Id="ProcCze.lng" />
           </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="Proclist.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -982,6 +1044,7 @@
             <ComponentRef Id="disks.bel.temp" />
             <ComponentRef Id="shortcuts.bel.lua" />
             <ComponentRef Id="shortcuts.bel.temp" />
+            <ComponentRef Id="TmpBel.hlf" />
             <ComponentRef Id="TmpBel.lng" />
           </Feature>
           <Feature Id="TmpPanel.German" Level="1" Display="hidden" AllowAdvertise="no">
@@ -998,6 +1061,10 @@
             <ComponentRef Id="shortcuts.rus.temp" />
             <ComponentRef Id="TmpRus.hlf" />
             <ComponentRef Id="TmpRus.lng" />
+          </Feature>
+          <Feature Id="TmpPanel.Czech" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="TmpCze.hlf" />
+            <ComponentRef Id="TmpCze.lng" />
           </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="TmpPanel.FExcept" Level="1" Display="hidden" AllowAdvertise="no">

@@ -5,8 +5,10 @@ SRCS = SameFolder.cpp
 DOCS = \
 	SameFolderEng.hlf \
 	SameFolderRus.hlf \
+	SameFolderBel.hlf \
 	SameFolderPol.hlf \
 	SameFolderUkr.hlf \
+	SameFolderCze.hlf \
 	SameFolderEng.lng \
 	SameFolderRus.lng \
 	SameFolderSky.lng \
@@ -15,6 +17,7 @@ DOCS = \
 	SameFolderBel.lng \
 	SameFolderPol.lng \
 	SameFolderUkr.lng \
+	SameFolderCze.lng \
 	changelog
 
 USERLIBS = -lole32 -luuid

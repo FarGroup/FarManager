@@ -14,6 +14,7 @@ DOCS = \
 	EMenuEng.hlf \
 	EMenuRus.hlf \
 	EMenuPol.hlf \
+	EMenuBel.hlf \
 	EMenuUkr.hlf \
 	EMenuEng.lng \
 	EMenuRus.lng \

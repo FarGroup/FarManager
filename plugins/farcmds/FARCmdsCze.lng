@@ -1,0 +1,24 @@
+﻿.Language=Czech,Czech (Čeština)
+
+"Příkazy FARu"
+
+"Oddě&lovač příkaz/objekt"
+
+"&Hide external command output"
+"Po&nechat externí výstup příkazů"
+"D&uplicate Intercepted output to screen"
+
+"Intercept &both stdout and stderr"
+"Intercept std&out only"
+"Intercept std&err only"
+"Intercept stdout &and stderr separately"
+"View/edit e&mpty files"
+
+"Edit &new files"
+
+"The &size of read data"
+"<stdout>:"
+"<stderr>:"
+
+"&OK"
+"Storno"

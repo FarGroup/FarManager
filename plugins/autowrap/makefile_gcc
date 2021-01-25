@@ -12,6 +12,7 @@ DOCS = \
 	WrapBel.lng \
 	WrapGer.lng \
 	WrapUkr.lng \
+	WrapCze.lng \
 	changelog
 
 include ../../far/makefile_gcc_common

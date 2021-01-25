@@ -1925,7 +1925,7 @@ i zawiera wszystkie uwzględnienia oraz żadnego z atrybutów wykluczenia:
  #[?]# - ^<wrap>atrybut jest ignorowany.
 
  Atrybuty #Skompresowany#, #Zaszyfrowany#, #Sparse#, #Tymczasowy# i #Offline# używane
-są tylko na dyskach z systemem NTFS. Atrybut #Wirtualny# nie jest używany w Windows 2000/XP/2003.
+są tylko na dyskach z systemem NTFS.
 Atrybuty #Strumień integralności# i #Brak danych kontrolnych# są obsługiwane tylko
 na wolumenach ReFS począwszy od Windows Server 2012.
 
@@ -2322,7 +2322,7 @@ backslash, use quotes, e.g. #"!"\#.
 @SystemSettings
 $ #Settings dialog: system#
  #Delete to Recycle Bin#
- Enables file deletion via the Recycle Bin.The operation of deleting to the Recycle
+ Enables file deletion via the Recycle Bin. The operation of deleting to the Recycle
 Bin can be performed only for local hard disks.
 
  #Use system copy routine#
@@ -4218,7 +4218,6 @@ the file panel will be displayed in multicolumn form.
  By default the size of the attributes column is 6 characters. To display
 the additional attributes it is necessary to manually increase the size of the column.
 
-
  #Column widths# - used to change width of panel columns.
 If the width is equal to 0, the default value will be used. If the width of
 the Name, Description or Owner column is 0, it will be calculated
@@ -4380,7 +4379,6 @@ including folders.
 folders are deselected.
 
  #Ctrl+M# restores the last selection.
-
 
  #Mouse Selection#
 

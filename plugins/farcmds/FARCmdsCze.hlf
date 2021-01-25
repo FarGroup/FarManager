@@ -1,0 +1,382 @@
+﻿.Language=Czech,Czech (Čeština)
+.PluginContents=FAR Commands
+.Options CtrlStartPosChar=^<wrap>
+
+@Contents
+$ #Příkazy FARu#
+   Plugin příkazy FARu zajišťuje další funkci, která může být
+použita v menu uživatele, závislostech souborů, nebo příkazové řádce.
+
+   In addition, the commands can be used in ~User Menu~@:UserMenu@,
+in ~file associations~@:FileAssoc@, and in dialog ~Apply Command~@:ApplyCmd@ (#Ctrl-G#)
+
+
+   #Syntaxe na příkazové řádce#
+
+   #příkaz:#[#nastavení#] #objekt#
+
+   #příkaz#  - jeden z následujících:
+             ~view~@View@     - prohlížeč
+             ~edit~@Edit@     - editor
+             ~goto~@Goto@     - přechod na zadaný soubor, nebo adresář
+             ~clip~@Clip@     - vložit data do schránky
+             ~whereis~@WhereIs@  - lokalizovat a přeskočit na zadaný objekt
+             ~link~@Link@     - vytvořit link
+             ~run~@Run@      - execute commands
+             ~load~@Load@     - load plugin
+             ~unload~@Unload@   - unload plugin
+
+   #nastavení# - ^<wrap>optional parameters, see corresponding commands descriptions.
+
+   #objekt#    - ^<wrap>jeden z následujících:
+               #název souboru# - ^<wrap>název souboru pro zobrazení, upravení, nebo přeskočení na něj.
+               #cesta#         - ^<wrap>cesta k soubou, nebo adresáři, pro přeskočení na něj.
+               #<příkaz#       - ^<wrap>~intercept output~@Direction@ of příkaz operačního systému. Znak #<# je povinný.
+
+   Podívejte se také na: ~Nastavení příkazů FARu~@Config@ | ~Poznámky~@Remark@
+
+
+@Load
+$ #The Load command#
+   The #load# command allows to load plugins manually.
+
+   - Plugin path can be provided as a command argument:
+
+      #load:DLL_module_name#
+
+   - or picked from provided "#filename#":
+
+      #load: <filename#
+
+   See also: ~unload~@Unload@ | ~Notes~@Remark@ | ~Contents~@Contents@
+
+
+@Unload
+$ #The Unload command#
+   The #unload# command allows to unload plugins manually.
+
+   - Plugin path can be provided as a command argument:
+
+      #unload:DLL_module_name#
+
+   - or picked from provided "#filename#":
+
+      #unload: <filename#
+
+   Plugin GUID can also be used instead of DLL path.
+
+   See also: ~load~@Load@ | ~Notes~@Remark@ | ~Contents~@Contents@
+
+
+@Clip
+$ #Příkaz Clip#
+   Příkaz #clip# umožňuje vložit data do schránky Windows. Daty je myšlen
+obsah zadaného souboru, nebo výstup programu. Schránka bude obsahovat
+všechna data až po znak s kódem #0x00#.
+Размер помещаемых данных можно задавать в диалоге конфигурации плагина. По
+умолчанию - 1 MB.
+
+   #clip:název_souboru#
+
+   Передаваемые команде данные нулевого размера очищают буфер обмена.
+
+   Podívejte se také na: ~Přesměrování výstupu~@Direction@ | ~Poznámky~@Remark@ | ~Obsah~@Contents@
+
+
+@Run
+$ #The Run command#
+   The #run# command executes an operating system #command# redirecting
+its output to the specified file #"filename"#. Output can also be displayed
+on the screen or hidden from the user using ~Output Redirection~@Direction@ modifiers.
+
+   #run:filename<command#
+
+   See also: ~Output Redirection~@Direction@ | ~Remarks~@Remark@ | ~Contents~@Contents@
+
+
+@View
+$ #Příkaz View#
+   Příkaz #view# otevře zadaný soubor v interním ~prohlížeči~@:Viewer@ FARu:
+
+   #view:název_soubru#
+
+   Podívejte se také na: ~edit~@Edit@ | ~~Přesměrování výstupu~@Direction@ | ~Poznámky~@Remark@ | ~Obsah~@Contents@
+
+
+@Edit
+$ #Příkaz Edit#
+   Příkaz #edit# otevře zadaný soubor v interním ~editoru~@:Editor@ FARu.
+
+      #edit:název_souboru#
+
+   Pokud soubor "#název_souboru#" neexistuje, bude vytvořen. Pokud nebude
+soubor po vytvoření a opuštění editoru změněn, bude smazán
+(chování napodobuje #Shift-F4#).
+
+   При открытии файла можно сразу перейти в заданную позицию. Для этого в квадратных скобках
+надо указать нужную строку и колонку (любую компоненту можно не указывать, по умолчнию одна будет равна 1).
+Квадратные скобки обязательны!
+
+      #edit:[<řádek>] název_souboru#
+
+      #edit:[<řádek>,<sloupec>] název_souboru#
+
+      #edit:[,<sloupec>] název_souboru#
+
+   В качестве строки и колонки допускается указывать переменные среды, содержащие числа.
+Например, переменная среды Line равна 10. В этом случае произойдёт позиционирование курсора
+на 10 строку (позиция в строке 1) в файле "File.txt":
+
+   edit:[%Line%,] File.txt
+
+   Pokud název souboru obsahuje hranaté závorky, například, "[1].txt",
+pro jeho otevření k úpravě musíte přidat buď oddělovač (například mezeru) 
+před názvem souboru, nebo uzavřít název souboru mezi úvozovky:
+
+   edit: [1].txt
+   edit:"[1].txt"
+
+   Podívejte se také na: ~view~@View@ | ~Přesměrování výstupu~@Direction@ | ~Poznámky~@Remark@ | ~Obsah~@Contents@
+
+
+@Goto
+$ #Příkaz Goto#
+   Příkaz #goto# umožňuje přeskočit na zadaný soubor, nebo adresář. Příkaz
+může být zadán dvěma způsoby:
+
+   1. Cesta k souboru, nebo adresáři je určena přímo v příkazu
+
+      #goto: cesta#
+
+   2. Cesta k souboru, nebo adresáři je přečtena ze zadaného souboru 
+      "#název_souboru#"
+
+      #goto: <název_souboru#
+
+   Pokud parametr "#cesta#" určuje adresář a je zakončen zpětným lomítkem
+('#\#'), přeskočí plugin do zadaného adresáře. Pokud cesta do adresáře
+není zakončena zpětným lomítkem, je kurzor v panelu nastaven na určený
+adresář.
+
+   Soubor "#název_souboru#", ve kterém je určena cesta k adresáří, nebo
+souboru, může mít kapacitu maximálně 1299 bytů.
+
+   Když jsou panely vypnuty, nezůstává kurzor umístěn na specifikovaném
+objektu. FAR skočí jen do požadovaného adresáře.
+
+   Плагин осуществляет переход как указано, не пытаясь найти файловый объект.
+
+   Podívejte se také na: ~whereis~@WhereIs@ | ~Poznámky~@Remark@ | ~Obsah~@Contents@
+
+
+@Link
+$ #Příkaz Link#
+
+   Příkaz #ln# umožňuje vytvořit ~linky~@:HardSymLink@ pro soubory a adresáře.
+To jde také použít pro namountování lokálních disků do souborového systému.
+
+   #link:#[#/msg#] [#/n#] [#/s#] #zdroj cíl#
+
+   Pokud zdroj je:
+
+     #Soubor#           - je vytvořen pevný link
+     #Adresář#          - je vytvořen symbolický link
+     #Písmeno jednotky# - ^<wrap>pokud je zdrojem sled "#písmeno jednotky:\#"
+(například "#C:\#"), je jednotka namountována.
+
+   Klíč #/msg# zapíná zobrazování chybových zpráv.
+
+   Switch #/n# disables automatic update of panels after creation of link
+
+   Switch #/s# allows to make symbolic links (#symlinks#).
+   It's possible to create a file symlink (instead of a hardlink)
+or a folder symlink (instead of folder junction).
+   The switch is relevant to Windows Vista or higher.
+Ignored when mounting drives.
+
+   Volume mount points jsou vlastnost, která umožňuje mapovat
+jednotky do adresářů. Například:
+
+   #link: E:\ C:\cdrom#
+
+    After this command the folder C:\cdrom will display the contents of drive E:
+
+   Podívejte se také na: ~Poznámky~@Remark@ | ~Obsah~@Contents@
+
+
+@WhereIs
+$ #Příkaz WhereIs#
+   Příkaz #whereis# lokalizuje zadaný objekt a pokud je vyhledávání
+úspěšné, tak na něj přeskočí.
+
+   #whereis:název_souboru#
+
+   Второй способ - имя объекта поиска берётся из заданного файла "#имяфайла#"
+
+      #whereis: <имяфайла#
+
+   Vyhledávání je dokončeno pokud je hledaný adresář:
+
+   1. Aktuální adresář
+   2. The directory pointed to by the environment variable %FARHOME%
+   3. Windows 95/98/Me: Systémový adresář Windows.
+      Windows NT/2000 nebo pozdější: Systémový adresář 32-bit Windows.
+   4. Windows NT/2000 nebo pozdější: Systémový adresář 16-bit Windows.
+   5. Adresář Windows.
+   6. Adresář vypsaný v systémové proměnné #PATH#
+   7. Obsah větve registrů:
+      #HKCU\Software\Microsoft\Windows\CurrentVersion\App Paths#
+   8. Obsah větve registrů:
+      #HKLM\Software\Microsoft\Windows\CurrentVersion\App Paths#
+
+   Плагин пытается найти файловый объект сначала как указано, а затем производит
+поиск объекта с расширениями из списка переменной среды PATHEXT.
+
+   Když jsou panely vypnuty, nezůstává kurzor umístěn na specifikovaném
+objektu. FAR skočí jen do požadovaného adresáře.
+
+   Podívejte se také na: ~goto~@Goto@ | ~Poznámky~@Remark@ | ~Obsah~@Contents@
+
+
+@Direction
+$ #Přesměrování výstupu#
+   Plugin může přesměrovat výstup zadaného #"<příkazu"# nebo #"<<příkazu"#.
+
+    #command# - #[#stream#][#mode#][#|path|#]#command#.
+
+    #stream# - controls which output stream(s) to redirect.
+             #1# - redirect only standard output stream #stdout#.
+             #2# - redirect only standard output stream #stderr#.
+             #*# - redirect #stderr# and #stdout# as one stream.
+             #?# - redirect #stderr# and #stdout# as different streams.
+                 ^<wrap>For commands ~view~@View@ and ~edit~@Edit@ the streams will be opened
+in separate windows. For other commands same behavior as #*#.
+
+             ^<wrap>Default value of this parameter can be defined in ~config~@Config@.
+
+    #mode#   - ^<wrap>controls direct console output (not via standard streams)
+             #># - ^<wrap>ignore the console output of the program
+and display only message about its execution.
+             #<# - ^<wrap>save console output and make it available
+for viewing with #Ctrl-O#.
+             #+# - ^<wrap>same as #<#, but displays on the screen redirected output
+of the program along with console output.
+
+             ^<wrap>Default value of this parameter can be defined in ~config~@Config@.
+             ^<wrap>Параметр #mode# можно указывать только после #stream#.
+
+    #|path|# - ^<wrap>command can be executed in the folder different from the
+current one. To do this specify the path (enclosed in pipes '#|#')
+             For example: #edit:<|%TEMP%|dir#
+
+   Program output can be opened in viewer: #~view~@View@:<command#
+     or in editor:                         #~edit~@Edit@:<command#
+     or can be placed into clipboard:      #~clip~@Clip@:<command#
+     or saved to a user-defined file:      #~run~@Run@:filename<command#
+
+   #Poznámka:#
+
+   1. ^<wrap>Všechno za znakem '#<#' je předáno příkazovému procesoru 
+      (%COMSPEC%).
+
+   2. ^<wrap>Když ho již FAR nepotřebuje, je dočasný soubor automaticky 
+      smazán.
+
+   3. ^<wrap>Některé programy, které mohou být zachycovány pluginem, místo 
+      zapisování textu na standardní výstup, vypisují text přímo na
+      konzolu. Pro uložení výstupu konzoly pro zobrazení skrz
+      #Ctrl-O#, použijte znak '#<#' and '#+#'. To ignore it - use '#>#'
+      ^<wrap>Toto může být implicitně nastaveno v menu ~konfigurace pluginů~@Config@.
+
+   4. ^<wrap>If the #stream# parameter equals #1# or #2# then the start of the
+command text must be separated from it by some symbol.
+
+   5. ^<wrap>Если #command# указан без пути, то плагин пытается найти исполняемй
+модуль, как это делает команда ~whereis~@WhereIs@.
+
+  #Examples:#
+
+   Execute the command "#command#" and redirect its output to the editor:
+     #edit:<command#
+
+   Possible cases with the parameter #stream#=#1#:
+     #edit:<1 command#
+     #edit:<1"command"#
+     #edit:<1+command#
+     #edit:<1|%TEMP%|command#
+
+   Podívejte se také na: ~Poznámky~@Remark@ | ~Obsah~@Contents@
+
+
+@Remark
+$ #Poznámky#
+
+   1. ^<wrap>Je možné vkládat parametry #název_souboru#, #cesta# a #příkaz# v úvozovkách.
+
+   2. Je možné použít proměnné postředí.
+
+   3. Pokud uděláte chybu v syntaxi, bude zobrazena nápověda.
+
+   4. ^<wrap>You can use console aliases as #command# (Console aliases - macros defined by command DOSKEY)
+
+   Podívejte se také na: ~Obsah~@Contents@
+
+
+@Config
+$ #Nastavení příkazů FARu#
+
+ #External commands screen output# Control program screen ~output~@Direction@:
+
+   #Hide external command#       Hides program output. Only a message
+   #output#                      with the size of intercepted output
+                               will be displayed. Same as using #<>#
+                               instead of #<#.
+
+ #Ponechat externí výstup příkazů#
+   Ukládá text z výstupu programů přímo do konzole (vynechá standardní 
+výstup) a udělá ho přístupný pro prohlížení skrz #Ctrl-O#.   
+   Zapnutí tohoto nastavení má ten sám efekt, jako použití znaku #<<#,
+místo #<#.
+
+   #Duplicate intercepted#       Saves for viewing by #Ctrl-O# both the
+   #output to screen#            direct console output and intercepted
+                               output.
+                               Same as using #<+# instead of #<#.
+
+ #Intercepting output#           Controlling of program ~output~@Direction@
+                               interception:
+
+   #Intercept both#              Intercept standard output stream
+   #stdout and stderr#           #stdout# and standard error stream
+                               #stderr# as one stream.
+                               Same as using #<*# instead of #<#.
+
+   #Intercept stdout only#       ^<wrap>Intercept only #stdout# (standard output stream).
+                               Same as using #<1# instead of #<#.
+
+   #Intercept stderr only#       ^<wrap>Intercept only #stderr# (standard errors stream).
+                               Same as using #<2# instead of #<#.
+
+   #Intercept stdout and #       Intercept stdout and #stderr#
+   #stderr separately#           separately. It has sense only in
+                               commands #view:<# and #edit:<#.
+                               In other cases same as #<*#.
+                               Can't be used with #<+#.
+                               Same as using  #<?# instead of #<#.
+
+   #View/edit empty files#       With this options off, zero sized
+                               files will not be opened for viewing
+                               or editing.
+
+ #Other#
+
+   #Edit new files#              Allows to open the editor with non
+                               existing files.
+
+   #The size of read data#       ^<wrap>Позволяет задавать максимальный размер
+считываемых из файла данных в командах ~clip~@clip@, ~goto~@goto@ и ~whereis~@whereis@.
+                               По умолчанию - 1048576 (1 MB).
+                               Максимальное значение - 4294967295 (4 GB-1).
+                               Пустое значение или 0 заменяется на 1048576 (1 MB).
+
+   Podívejte se také na: ~Obsah~@Contents@

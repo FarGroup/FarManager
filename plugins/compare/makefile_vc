@@ -8,8 +8,10 @@ DOCS = \
 	CmpEng.hlf \
 	CmpRus.hlf \
 	CmpPol.hlf \
+	CmpBel.hlf \
 	CmpGer.hlf \
 	CmpUkr.hlf \
+	CmpCze.hlf \
 	CompEng.lng \
 	CompRus.lng \
 	CompSky.lng \
@@ -19,6 +21,7 @@ DOCS = \
 	CompBel.lng \
 	CompGer.lng \
 	CompUkr.lng \
+	CompCze.lng \
 	AdvCompare.CompareBufferSize.farconfig \
 	changelog
 

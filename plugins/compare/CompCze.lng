@@ -1,0 +1,40 @@
+﻿.Language=Czech,Czech (Čeština)
+
+"Ok"
+"Storno"
+"Yes"
+"No"
+
+"Rozšířené porovnávání"
+
+"Rozšířené porovnávání"
+"Zpracovávat..."
+"&podadresáře"
+"&maximum folder depth:"
+"&jen vybrané položky"
+"Porovnávat:"
+"č&as"
+"př&esnost na dvě sekundy"
+"&ignore possible time zone differences"
+"&kapacitu"
+"&obsah"
+"i&gnore:"
+"differences in new &line characters"
+"&whitespace"
+"Zobrazovat zprávu pok&ud není nalezen rozdíl"
+
+"Pro provedení porovnávání jsou nutné dva souborové panely"
+
+"Porovnávám soubory..."
+
+"Žádný rozdíl"
+"Porovnávané soubory se zdají být identické"
+
+"Nedostatek paměti"
+"Nedostatek paměti pro spuštění pluginu"
+
+"Operation was interrupted"
+"Do you really want to cancel it?"
+
+"Error"
+"Some files couldn't been opened"

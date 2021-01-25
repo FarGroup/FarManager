@@ -196,7 +196,7 @@ or a folder symlink (instead of folder junction).
    The switch is relevant to Windows Vista or higher.
 Ignored when mounting drives.
 
-   Mounted drives (or volume mount points) is a Windows 2000/XP feature,
+   Mounted drives (or volume mount points) is a feature
 that allows to display specified disks as folders. Example:
 
    #link: E:\ C:\cdrom#

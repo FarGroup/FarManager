@@ -1,0 +1,272 @@
+﻿.Language=Czech,Czech (Čeština)
+.PluginContents=Archive support plugin
+
+@Contents
+$ #Plugin podpory archívů#
+    Tento modul FARu provádí otevřené operace s #archívy#.
+Se soubory v archívu je zacházeno obdobně, jako se soubory
+v adresáři: když pracujete s archívem, FAR transformuje
+vaše příkazy do příslušných externích volání archivátorů.
+
+   ~Přidávání souborů do archívu~@AddToArc@
+
+   ~Rozbalování souborů z archívu~@ExtrFromArc@
+
+   ~Příkazy archívu~@ArcCmd@
+
+   ~Konfigurace podpory archívu~@ArcSettings1@
+
+   ~Příkazová řádka archivátoru~@ArcSettings2@
+
+   ~Storage of plugin settings~@ArcSettings3@
+
+@AddToArc
+$ #Přidávání souborů do archívu#
+    V tomto dialogu můžete změnit archivátor, přidat, nebo 
+změnit přepínače příkazové řádky (implicitní přepínače mohou být
+definovány použitím dialogu ~Nastavení archivátoru~@ArcSettings2@) 
+a zadat heslo pro zakódování souborů běhen archivace.
+
+    Nastavení #Po archivaci smazat soubory# nutí archivátor fungovat
+přesněji, než zkopíruje soubory do archívu. Toto nastavení se automaticky
+zapne, pokud je pro přidání do souboru použita klávesa #F6#.
+
+    Nastavení #Požadovat název archívu# umožňuje vytvořit archívy s
+nestandardními příponami (pokud je to archivátorem podporováno). Pokud
+je tato volba vypnuta, přípona definovaná v dialogu ~Příkazová řádka archívu~@ArcSettings2@ 
+je přidána do názvu vloženém v dialogu.
+
+    Nastavení #Pozadí# zahajuje archivační proces v odděleném okně.
+
+    The #Priority of process# option allows to change the execution
+~priority~@ArcPrior@ of the archiving process.
+
+    Stisknutím tlačítka #Uložit nastavení# uložíte aktuální archivátor 
+a přepínače pro budoucí použití.
+
+    Stisknutí kláves #Shift-F1# má stejný efekt jako stisknutí tlačítka
+"Vybrat archivátor" a umožňuje vybrat typ archivátoru pro použití.
+
+    When a new archive is created, the cursor is automatically
+positioned to the new archive once the archiving operation is
+complete. (This is not done when the archiver is started in a
+separate window.)
+
+@ArcPrior
+$ #Priority of process#
+    MultiArc allows to control the execution priority
+of the archiving process. The following priorities are available:
+
+    #low#
+    Background priority, foreknown to be lower than the priority of any
+other process in the system. Archiving will be very slow if any other
+process is active.
+
+    #below normal#
+    Priority above #low#, but below #normal#. Sets the priority of the
+archiving process above the background tasks, but lower than the
+execution priority of normal tasks (only in Windows 2000 or newer).
+
+    #normal#
+    Archiving is executed along with other tasks on the computer.
+
+    #above normal#
+    Priority above "normal", but below "high". Archiving is given higher
+priority than all other normal processes, and can substantially slow
+down their execution (only in Windows 2000 or newer).
+
+    #high#
+    Specify this priority for time-critical archiving that must be
+executed without delay. ATTENTION: Use extreme care when using the high
+priority, because a high priority application can use nearly all
+available CPU time, while the gain from using this priority can only be
+achieved when other active processes are running in the system.
+
+    The "normal" priority is selected by default.
+
+@ExtrFromArc
+$ #Rozbalování souborů z archívu#
+    V tomto dialogu můžete zadat cestu pro rozbalení souborů a nastavit
+heslo pro odkódování archivovaných souborů.
+
+    Nastavení #Rozbalit bez cest# vede k rozbalení všech souborů do
+stejného adresáře.
+
+    Pokud je nastavení #Po rozbalení smazat z archívu# vypnuto, budou
+soubory z archívu po rozbalení smazány. Toto nastavení je automaticky
+zapnuto, pokud je pro rozbalení souborů z archívu použita klávesa #F6#.
+
+    Pro okamžité rozbalení vybraných archivovaných souborů do aktuálního
+adresáře můžete použít #Alt-F6#.
+
+@ArcCmd
+$ #Příkazy archívu#
+    Z tohoto menu můžte archív testovat, přidávat komentář archívu,
+konvertovat archív na samorozbalovací (SelF-eXtracting (SFX)), pokusit
+se opravit poškozený archív, ochránit archív před poškozením, nebo
+zrušit úpravy archívu.
+
+    Poznámka:
+
+    1. Pro provádění příkazů správy archívu musíte mít odpovídající
+archivační nástroje. Nastavení archivátoru může být změněno v
+dialogu ~Nastavení archivátoru~@ArcSettings2@.
+
+    Pro rychlý přístup do nastavení archivátoru, můžete v menu 
+"Příkazy Archívu" stisknout klávesu F4.
+
+    2. Všechna nastavení příkazů správy archívů mohou být použity
+jen s archivátory RAR a ACE. Ostatní archivátory podporují pouze některé
+z těchto příkazů.
+
+@Config
+$ #Nastavení pluginu#
+
+    ~Konfigurace podpory archívů~@ArcSettings1@
+
+    ~Příkazová řádka archivátoru~@ArcSettings2@
+
+    ~Storage of plugin settings~@ArcSettings3@
+
+@ArcSettings1
+$ #Konfigurace podpory archívu#
+    V tomto dialogu můžete změnit následující parametry:
+
+ #Způsob zobrazování#     Neskrývat výstup archivátoru,
+ #výstupu archivátorů#    skrýt pro operaci zobraz, nebo skrýt vždy.
+
+ #Provézt příkaz#         Přidat soubory do archívů pomocí Shift-F1.
+ #Shift-F1#               Pokud máte nainstalovánu podporu jiného
+                        archivačního pluginu používající příkaz 
+                        Shift-F1, můžete toto nastavení zakázat.
+
+ #Change folder when#     If a new archive is created not in the
+ #setting the cursor#     current folder, change the folder and
+ #on new archive#         position the cursor on the archive.
+                        If the option is off, the cursor will be
+                        positioned on the archive only if it is
+                        created in the current folder.
+
+ #Použít poslední#        Když přidáváte soubory do archívu, poslední
+ #příkaz z historie#      použitá hodnota přepínače příkazové řádky 
+                        archivátoru bude umístěna v editační řádce 
+                        "Přepínače".
+
+ #Automaticky resetovat#  Volba "Požadovat název archívu" bude vypnuta
+ #"Požadovat název#       vždy, kdy je vyvolán dialog "Přidat do 
+ #archívu"#               archívu".
+
+ #Popis seznamu jmen#     Názvy souborů s ~popisy~@:FileDiz@ archivovaných souborů.
+ #ohaničen čárkami#       
+
+ #Číst popis archívů#     Číst popis archivovaných souborů při vstupu 
+                        do archívu. Toto nastavení aktivuje 
+                        zobrazování popisů, ale zpomaluje čtení 
+                        archívu.
+
+ #Updatovat popisy#       Updatovat popis archivovaných souborů po 
+ #archívu#                přídání nebo smazání do/z archívu.
+
+
+@ArcSettings2
+$ #Příkazová řádka archivátoru#
+    V tomto dialogu můžete změnit příkazové řádky externích archivátorů pro
+různé archivační operace. Pro výběr všech souborů a přípony archívu (nesmí 
+začínat tečkou) mohou být použity ~Masky~@:FileMasks@ .
+
+    Pro resetování všech nastavení archivátoru na implicitní hodnoty, stiskněte
+tlačítko Reset.
+
+    Mohou být použity následující proměnné:
+
+ #%%A# - Název archívu.
+
+ #%%a# - Krátký název archívu.
+
+ #%%W# - Dočasný adresář vloží přerušující znak.
+
+ #%%P# - Heslo.
+
+ #%%R# - Aktuální archivní adresář.
+
+ #%%L# - Název seznamu souborů. Seznam souborů je soubor obsahující
+       názvy souborů pro zpracování externím archivátorem.
+
+ #%%l# - Seznam souborů s krátkými názvy souborů.
+
+ #%%F# - Názvy jednoho, nebo více souboru pro zpracování. Pokud nejsou
+       všechny názvy uloženy v jednom řetězci, archivátor se spustí
+       tolikrát, dokud nebudou vyčerpány všechny názvy souborů.
+       Implicitně je maximum celkové délky příkazu 127, ale můžete
+       jej specifikovat přímo po %%F, například %%F512.
+       Proměnná %%F může být použita pokud cílový archivátor 
+       nepodporuje seznam souborů.
+
+ #%%f# - Název jednoho souboru pro zpracování. Archivátor se spustí
+       tolikrát, dokud nebudou všechný názvy souborů vyčerpány.
+       Tato proměnná může být použita pouze tehdy, pokud cílový
+       archivátor nepodporuje seznamy souborů, nebo několikanásobné
+       názvy souborů na příkazové řádce.
+
+ #%%E#<stupeň chyb> - maximum akceptovatelného stupně chyb příkazů.
+       Například %%E2 znamená, že stupeň chyb 0, 1 a 2 je přijatelný.
+       Tato proměnná může být specifikovaná na kterémkoliv místě 
+       příkazu. Pokud chybí je považován za korektní pouze stupeň 
+       chyb 0.
+
+ #%%S# - Umístěte do příkazové řádky pro přidání dodatečných přepínačů
+       specifikovaných v dalším řetězci dialogu "Přidat". Pokud tato
+       proměnná chybí, jsou přepínače přidány na konec příkazové 
+       řádky.
+
+    Modifikátory proměnných Q, q, S, M, N, *, W, P mohou být použity pro 
+změnu detailů formátu názvů souborů:
+
+    'Q' - oddělit názvy mezerami;
+    'q' - oddělit všechny názvy;
+    'S' - použít v cestách '/' místo '\';
+    'M' - převézt názvy adresářů do archivátoru jako 
+          'název_adresáře\*.*';
+    'N' - převézt názvy adresářů do archivátoru jako 
+          'název_adresáře';
+    '*' - použít masku '*' pro výběr všech souborů. Tento modifikátor
+          potlačí parametry "všech souborových masek" pro jeden
+          příkaz archivátoru;
+    'W' - použít pouze název, bez cesty;
+    'P' - použít pouze cestu, bez názvu;
+    'A' - použít ANSI kódování.
+
+    Tyto modifikátory mohou být určeny ihned po proměnných %%F, %%f, %%L,
+nebo %%l, bez mezer. 'P' a 'A' mohou být použity s %%A a %%a. Je povoleno
+několik modifikátorů, například %%LMN, nebo %%F*QSN128 jsou korektní.
+Pokud není specifikován 'M' ani 'N', je předpokládán 'N'. Pokud jsou
+určeny oba, 'M' i 'N', bude převedeno do archívu 'název_adresáře'
+i 'název_adresáře\*.*'.
+
+    Pokud je část příkazu externího archivátoru uzavřena v
+{  } závorkách, bude přidán pouze do výsledného řetězce,
+pokud tato část obsahuje alespoň jednu neprázdnou proměnnou,
+z toho popsaného před ním.
+
+    Pokud některý externí archivátor nepodporuje příslušný příkaz,
+nechte odpovídající řetězec prázdný.
+
+@ArcSettings3
+$ #Storage of plugin settings#
+    The plugin uses the following rules to load/save the settings of
+supported format modules:
+
+  1. #[HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]#
+     contains the settings common for all users. These settings can
+     only be changed by editing the registry manually, for example,
+     using *.reg files.
+
+  2. Any changes to the archiver command line settings are stored to
+     #[HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]#.
+
+  3. The plugin reads the archiver command line settings in the
+     following sequence:
+
+     a) [HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]
+     b) [HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]
+     c) settings provided by the FMT module.

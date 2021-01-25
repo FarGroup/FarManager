@@ -10,8 +10,10 @@ LINK_OBJS = \
 DOCS = \
 	FARCmdsEng.hlf \
 	FARCmdsRus.hlf \
+	FARCmdsBel.hlf \
 	FARCmdsPol.hlf \
 	FARCmdsUkr.hlf \
+	FARCmdsCze.hlf \
 	FARCmdsEng.lng \
 	FARCmdsRus.lng \
 	FARCmdsSky.lng \
@@ -20,6 +22,7 @@ DOCS = \
 	FARCmdsBel.lng \
 	FARCmdsPol.lng \
 	FARCmdsUkr.lng \
+	FARCmdsCze.lng \
 	changelog
 
 USERLIBS = rpcrt4.lib

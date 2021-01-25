@@ -199,7 +199,7 @@ or a folder symlink (instead of folder junction).
    The switch is relevant to Windows Vista or higher.
 Ignored when mounting drives.
 
-   Монтовані диски (volume mount points) - особливість Windows 2000/XP,
+   Монтовані диски (volume mount points) - особливість,
 що дозволяє відображати окремі диски на каталоги. Наприклад, після
 викоання команди
 

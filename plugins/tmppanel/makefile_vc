@@ -11,8 +11,10 @@ DOCS = \
 	TmpEng.hlf \
 	TmpRus.hlf \
 	TmpPol.hlf \
+	TmpBel.hlf \
 	TmpGer.hlf \
 	TmpUkr.hlf \
+	TmpCze.hlf \
 	TmpEng.lng \
 	TmpRus.lng \
 	TmpSky.lng \
@@ -22,6 +24,7 @@ DOCS = \
 	TmpBel.lng \
 	TmpGer.lng \
 	TmpUkr.lng \
+	TmpCze.lng \
 	shortcuts.eng.lua \
 	shortcuts.rus.lua \
 	shortcuts.pol.lua \

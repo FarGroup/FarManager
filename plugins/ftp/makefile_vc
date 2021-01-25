@@ -6,14 +6,19 @@ NAME = FarFtp
 DOCS = \
 	FtpEng.hlf \
 	FtpRus.hlf \
+	FtpBel.hlf \
 	FtpPol.hlf \
 	FtpGer.hlf \
+	FtpUkr.hlf \
+	FtpCze.hlf \
 	FtpEng.lng \
 	FtpRus.lng \
 	FtpIta.lng \
 	FtpBel.lng \
 	FtpPol.lng \
 	FtpGer.lng \
+	FtpUkr.lng \
+	FtpCze.lng \
 	TechInfo.reg \
 	TechInfo_rus.reg \
 	FtpCmds.txt \

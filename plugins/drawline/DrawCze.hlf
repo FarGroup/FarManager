@@ -1,0 +1,15 @@
+﻿.Language=Czech,Czech (Čeština)
+.PluginContents=Kreslit čáry
+
+@Contents
+$ #Kreslení čar#
+ Tento plugin umožňuje v interním editoru FARu krelit pomocí pseudo-grafických znaků jednoduché a dvojité čáry.
+Plugin zachází s protínáním čar korektně.
+
+ Pro kreslení čar se používají kombinace kláves #Shift-Doleva#, #Shift-Nahoru#, #Shift-Doprava# a #Shift-Dolů#.
+
+ Pro změnu stylu čáry (jednoduchá, nebo dvojitá), stiskněte klávesu #F2#.
+
+ Klávesa #F10# ukončuje plugin a vrací do normálního editovacího módu.
+
+ Klávesa #F1# zobrazuje toto okno.

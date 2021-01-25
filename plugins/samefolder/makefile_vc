@@ -7,8 +7,10 @@ LINK_OBJS = $(OBJDIR)\SameFolder.obj
 DOCS = \
 	SameFolderEng.hlf \
 	SameFolderRus.hlf \
+	SameFolderBel.hlf \
 	SameFolderPol.hlf \
 	SameFolderUkr.hlf \
+	SameFolderCze.hlf \
 	SameFolderEng.lng \
 	SameFolderRus.lng \
 	SameFolderSky.lng \
@@ -17,6 +19,7 @@ DOCS = \
 	SameFolderBel.lng \
 	SameFolderPol.lng \
 	SameFolderUkr.lng \
+	SameFolderCze.lng \
 	changelog
 
 !include ..\makefile_vc_def_inc

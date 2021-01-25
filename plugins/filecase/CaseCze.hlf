@@ -1,0 +1,24 @@
+﻿.Language=Czech,Czech (Čeština)
+.PluginContents=File names case conversion
+
+@Contents
+$ #Konverze znaků v názvech souborů#
+ Tento příkaz umožňuje změnit formát názvů souborů na několik různých formátů.
+
+ Choose the needed case conversion for the #Name# and the #Extension# correspondingly.
+If the #None# option is selected, the plugin will not process the corresponding file name part.
+
+ #Nezracovávat soubory s kombinovanými znaky#
+ Plugin nezpracovává soubory a adresáře s malými i velkými znaky v názvu.
+
+ #Zpracovávat podadresáře#
+ Pokud vybrané souborové objekty zahrnují adresáře, plugin vždy zpracovává ve vybraném adresáři soubory i podadresáře.
+
+ #Zpracovávat názvy adresářů#
+ Pokud je kurzor umístěn na adresáři a nastavení #Zpracovávat podadresáře# je zapnuto, plugin zpracovává název tohoto adresáře.
+
+ #Jen aktuální akce#
+ Použije nastavení specifikované v dialogu jen pro aktuální konverzní akci.
+
+ #Word delimiters#
+ Characters used to delimit words for the title case conversion. The "#Reset#" button will reset the word delimiters to the default value: "# _#" (Space and underscore).

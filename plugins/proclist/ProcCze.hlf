@@ -1,0 +1,361 @@
+﻿.Language=Czech,Czech (Čeština)
+.PluginContents=Process list
+
+@Contents
+$ #Seznam procesů#
+    Tento plugin zobrazuje seznam aktivních procesů. Pro ukončení vybraných
+procesů můžete použít klávesu F8, pro přepnutí na okno procesu klávesu Enter
+a pro další informace o procesu klávesu F3.
+
+    Při ukončování procesů buďte opatrní. Při okamžitém zastavení procesu
+budou veškeré neuložené informace ztraceny, proto tuto funkci používejte 
+pouze tehdy, kdy je to zcela nezbytné.
+
+Speciální klávesy použité tímto pluginem:
+
+ #F6#            Zobrazuje procesy na vzdáleném počítači přes síť
+
+ #Shift-F6#      Návrat na lokální počítač
+
+ #Shift-F1#      Snížení třídy priority aktuálního procesu
+                 (jen lokální)
+ #Shift-F2#      Zvýšení třídy priority aktuálního procesu
+                 (jen lokální)
+ #Shift-F3#      View process info with default options overridden
+
+ #Alt-Shift-F9#  Volá ~Konfiurační~@Config@ dialog.
+
+ Podívejte se také na: nápovědu k ~NT výkonová počítadla~@PerfCounters@
+                       nápovědu k ~Speciální typy sloupců~@Columns@
+
+@PerfCounters
+$ #Výkonová data počítadla#
+
+   Následující popisy byly vzaty z hodnost systémového registru NT
+   #HKLM\Software\Microsoft\Windows NT\CurrentVersion\Perflib\009\Help#
+
+
+   #Process#
+
+   Objekt výkonu #procesu# obsahuje počítadla, která monitorují spuštěnou
+aplikaci a systemémové procesy. Všechna vlákna v procesech
+sdílejí stejný adresný prostor a mají přístup ke stejným datům.
+
+   #Počet vláken#
+
+   Je počet aktivních vláken v daném procesu.  Instrukce
+je základní jednotka vykonávající se v procesoru a vlákno je objekt,
+který vykonává instrukce.  Každý běžící proces má aspoň jedno vlákno.
+
+   #Úroveň priority#
+
+   Je aktuální úroveň priority daného procesu.  Vlákna bez procesu mohou
+zvyšovat a snižovat svou úroveň priority, úměrně k úrovni priority
+procesu.
+
+   #Uplynulý čas#
+
+   Je celkový uplynulý čas, který je proces spuštěn.
+
+   #ID procesu#
+
+   Je jedinečný identifikátor daného procesu.  ID čísla procesu jsou znovu používána,
+tzn., že identifikují proces jen po čas jeho "života".
+
+   #ID rodičovského procesu#
+
+   Je ID procesu, který stvořil proces.  Všimněte si, že proces vytvoření můlže
+být přerušen ještě dříve, než byl proces vytvořen a tím pádem tato hodnota
+už nadále neidentifikuje běžící proces.
+
+   #% Čas procesoru#
+
+   Je procentuální vyjádření času, který procesor vykonává činná vlákna.
+Toto počítadlo bylo navrženo jako primární indikátor aktivity procesoru.
+Je vypočítávána měřením času, který procesor stráví vykonáváním vláken
+Nečinných procesů v každém vzorkovém intervalu a odečítá tuto hodnotu
+od 100%. (Každý procesor má Nečinná vláka, která konzumují cykly, když nejsou
+ke spuštění připravena jiná vlákna). Mohou být zobrazeny jako procenta
+vzorkového intervalu dělajících užitečnou práci. Toto počítadlo zobrazuje
+průměrnou procentuální hodnotu času zatížení, pozorovaného během vzorkového
+intervalu. To je vypočítáváno monitorováním času, kdy je služba neaktivní
+a potom odečtením této hodnoty od 100%.
+
+   #Chyby stránky/sec#
+
+   Jsou celkovým počtem špatných stránek ovládaných procesorem.  Je to
+změřeno počtem špatných stránek za sekundu. Chyba stránky znamená, když
+procesor vyžaduje kód, nebo data, která nejsou v jeho pracovní sadě (to je
+místo ve fyzické paměti). Toto počítadlo zahrnuje jak hardwarové chby
+(ty vyžadují diskový přístup), tak softwarové (kde se špatná stránka nachází
+jinde ve fyzické paměti). Většina procesorů může bez následků ovládat velký
+počet softwarových chyb.  Nicméně, hardwarové chyby mohou zapříčinit závažné
+prodlevy. Toto počítadlo zobrazuje rozdíly mezi hodnotami pozorovanými v
+posledních dvou příkladech, dělených délkou intervalu vzorku. 
+
+   #Svazek Paged Bytů#
+
+   Je počet bytů v paged svazku, oblast systémové paměti (fyzická
+paměť použitá operačním systémem) pro objekty, které mohou být,
+když nejsou používány, zapsány na disk.  Paměť: Svazek Paged Bytů je
+vypočten jinak, než proces: Svazek Paged Bytů není roven procesu:
+Svazek Paged Bytů: _Celkem. Toto počítadlo zobrazuje jen naposledy
+ sledovanou hodnotu; není to průměr.  
+
+   #Svazek Nonpaged Bytů#
+
+   Je počet bytů v nonpaged svazku, oblast systémové paměti
+(fyzická paměť použitá operačním systémem) pro objekty, které nemohou být
+zapsány na disk, ale musí být obsaženy ve fyzické paměti tak dlouho,
+dokud jsou alokovány.  Paměť: Svazek Nonpaged Bytů je vypočten jinak,
+než proces: Svazek Nonpaged Bytů, není roven procesu: Svazek Nonpaged Bytů:
+_Celkem.  Toto počítadlo zobrazuje jen naposledy sledovanou hodnotu;
+není to průměr.  
+
+   #% Uživatelský čas#
+
+   Je procentualní vyjádření času procesoru stráveného činností v
+uživatelském módu.  (Uživatelský mód je omezený mód, navržený pro aplikace,
+systémové subsystémy a integrální subsystémy.  Alternativní, vyhrazený mód,
+je navržen pro komponenty operačního systému a umožňuje přímý přístup k
+hardwaru a celé paměti.  Operační systém přepíná aplikační svazky do
+vyhrazeného módu pro přístup ke službám operačního systému). Toto počítadlo
+zobrazuje průměrný čas vytížení, jako procentuální hodnotu času vzorku. 
+
+   #% Vyhrazený čas#
+
+   Je procentuální vyjádření času procesoru stráveného ve vyhrazeném
+módu. (Vyhrazený mód je navržen pro komponenty operačního systému a
+hardwarově-ovládané jednotky. To umožňuje přímý přístup k hardwaru
+a celé paměti. Alternativní, uživatelský mód, je omezený mód, navržený
+pro aplikace, systémové subsystemy a integrální subsystémy. Operační
+systém přepíná aplikační svazky do vyhrazeného módu pro přístup ke
+službám operačního systému). % Vyhrazený čas zahrnuje časová servisní
+přerušení a DPC. Vysoká úroveň vyhrazeného času může být odpovídající
+vysokému počtu přerušení, generovaných zařízením, které selhalo.
+Toto počítadlo zopbrazuje průměrný čas vytížení, jako procentuální
+hodnotu času vzorku. 
+
+   #Virtuální Byty#
+
+   Jsou aktuální velikost virtuálního adresného prostoru v bytech,
+používaným procesem. Použití virtuálního adresného prostoru nemusí
+nutně předpokládat korektní použití, buď disku, nebo hlavních stránek
+paměti. Virtuální prostor je omezený a proces může, přílišným používáním,
+omezit svou schopnost nahrávat knihovny.
+
+   #Virtuální Byty vrchol#
+
+   Jsou maximální počet bytů virtuálního adresného prostoru, který proces
+používá v dané chvíli. Použití virtuálního adresného prostoru nemusí nutně
+předpokládat korektní použití, buď disku, nebo hlavních stránek paměti.
+Virtuální prostor je omezený a proces může, přílišným používáním, omezit
+svou schopnost nahrávat knihovny.
+
+   #Pracovní sada#
+
+   Je aktuální počet bytů v pracovní sadě daného procesu.
+Pracovní sada je soubor stránek paměti, použitých nedávno
+svazkem v procesu. Pokud je v počítači volné paměti nad práh,
+jsou stránky nechány v pracovních sadách procesu, i když nejsou
+používány. Když volná paměť spadné pod práh, jsou stránky odříznuty
+z pracovních sad. Pokud je to nutné, jsou softwarově-vadné, před
+opuštěním hlavní paměti, vráceny do pracovních.
+
+   #Pracovní sada  vrchol#
+
+   Je maximální počet bytů v pracovní sadě daného procesu,
+v kterýkoliv časový bod. Pracovní sada je soubor stránek paměti,
+použitých nedávno svazkem v procesu. Pokud je v počítači volné
+paměti nad práh, jsou stránky nechány v pracovních sadách procesu,
+i když nejsou používány. Když volná paměť spadné pod práh, jsou
+stránky odříznuty z pracovních sad. Pokud je to nutné, jsou
+softwarově-vadné, před opuštěním hlavní paměti, vráceny do pracovních.
+
+   #Page File Byty#
+
+   Jsou aktuální počet bytů, které daný proces používá v paging file.
+Paging files jsou použity pro uložení stránek paměti používaných
+procesem, který není obsažen jiném souboru. Paging files jsou sdíleny
+všemi procesy a nedostatek místa v paging files může bránit ostatním
+procesům z alokované paměti.
+
+   #Page File Byty vrchol#
+
+   Jsou maimální počet bytů, které daný proces používá v paging file.
+Paging files jsou použity pro uložení stránek paměti používaných
+procesem, který není obsažen jiném souboru.  Paging files jsou sdíleny
+všemi procesy a nedostatek místa v paging files může bránit ostatním
+procesům z alokované paměti.
+
+   #Privátní Byty#
+
+   Jsou aktuální počet bytů daného alokovaného procesu,
+které nemohou být sdíleny s ostatními procesy.
+
+   #Počet Handlů#
+
+   Je celkový počet aktuálně otevřených handlů, daným procesem.
+Toto číslo je součet aktuálně otevřených handlů každým svazkem daného procesu.
+
+   #IO čtecích operací/sec#
+
+   Rychlost vykonávání procesu I/O operace čtení. Toto počítadlo
+počítá všechny I/O aktivity generované procesem, včetně souboru,
+sítě a I/O zařízení.
+
+   #IO zápisových operací/sec#
+
+   Rychlost vykonávání procesu I/O operace zápis. Toto počítadlo
+počítá všechny I/O aktivity generované procesem, včetně souboru,
+sítě a I/O zařízení.
+
+   #IO datových operací/sec#
+
+   Rychlost vykonávání procesu I/O operací čtení a zápis. Toto počítadlo
+počítá všechny I/O aktivity generované procesem, včetně souboru,
+sítě a I/O zařízení.
+
+   #IO ostatních operací/sec#
+
+   Rychlost vykonávání procesu I/O operací, které nejsou ani čtecí, ani
+zápisovou operací. Příklad tohoto typu operace může být kontrolní funkce.
+Toto počítadlo počítá všechny I/O aktivity generované procesem, včetně
+souboru, sítě a I/O zařízení.
+
+   #IO čtené Byty/sec#
+
+   Rychlost procesu čtení bytů z I/O operací. Toto počítadlo
+počítá všechny I/O aktivity generované procesem, včetně souboru,
+sítě a I/O zařízení.
+
+   #IO zapsané Byty/sec#
+
+   Rychlost procesu zápisu bytů do I/O operací. Toto počítadlo
+počítá všechny I/O aktivity generované procesem, včetně souboru,
+sítě a I/O zařízení.
+
+   #IO datové Byty/sec#
+
+   Rychlost procesu čtení a zápisu bytů v I/O operacích.
+Toto počítadlo počítá všechny I/O aktivity generované procesem,
+včetně souboru, sítě a I/O zařízení.
+
+   #IO ostatní Byty/sec#
+
+   Rychlost procesu vydávání bytů do I/O operací, které
+nezahrnují data, jako kontrolní operace. Toto počítadlo
+počítá všechny I/O aktivity generované procesem, včetně
+souboru, sítě a I/O zařízení.
+
+@Columns
+$ #Speciální typy sloupců#
+   Několik #standardních# typů sloupců má v seznamu procesů speciální
+význam:
+
+   #S (Velikost)#
+
+   Zobrazuje součet Pracovních sad a Page File počítadel.
+
+   #D/T (Datum/Čas)#
+
+   Zobrazuje datum/čas startu procesu. Datum/čas úpravy, vytvoření
+a posledního přístupu jsou stejné.
+
+   Kromě standardních typů sloupců FARu, mohou být v tomto pluginu použity 
+tyto #speciální# typy sloupců:
+
+   #Numerické sloupce:#
+
+   #XP# - Priorita
+   #XI# - ID procesu
+   #XC# - Vytvoření ID (rodičovského) procesu
+   #XT# - Počet vláken
+   #XG# - GDI objekty (jen lokální)
+   #XU# - USER objekty (jen lokální)
+   #XB# - Bitness (32/64)
+   #X0...X21[S][T]# - výkonová počítadla (viz níže). 
+
+   #Popisové sloupce:#
+
+   #ZP# - Celá cesta
+   #ZW# - Nadpis okna
+   #ZD# - Popis souboru
+   #ZC# - Příkazový řádek (jen lokální)
+
+   #VAROVÁNÍ:# V každém módu panelu může být jen jeden popisový sloupec ('Zx').
+Pro zobrazení rozdílných druhů popisů musíte přepínat mezi módy.
+
+   Čísla sloupců ~výkonových počítadel~@PerfCounters@ jsou popsána níže.
+
+   Pro X0..X2 můžete přidat #S# pro zobrazení procentuální hodnoty.
+
+   Pro X11 a X14..X21 můžete přidat #S# pro zobrazení hodnoty za vteřinu.
+
+   Pro jakékoliv počítadlo, pokud je sloupec příliš úzký pro zobrazení 
+celého čísla, je vypočítána v K (1024), nebo M (1024*1024). Do typu
+sloupce můžete přidat #T# pro pužití 1000 místo 1024 jako dělitele.
+
+   #X0 # Čas procesoru
+   #X1 # Vyhrazený čas
+   #X2 # Uživatelský čas
+   #X3 # Počet handlů
+   #X4 # Page File Bytů
+   #X5 # Page File Bytů vrchol
+   #X6 # Pracovní sada
+   #X7 # Pracovní sada vrchol
+   #X8 # Svazek Nonpaged Bytů
+   #X9 # Svazek Paged Bytů
+   #X10# Privátní Byty
+   #X11# Chyby Stránky
+   #X12# Virtuální Byty
+   #X13# Virtuální Byty vrchol
+   #X14# IO data Bytů
+   #X15# IO čtené Byty
+   #X16# IO zapsané Byty
+   #X17# IO ostatní Byty
+   #X18# IO Data operace
+   #X19# IO čtené operace
+   #X20# IO zapsané operace
+   #X21# IO ostatní operace
+
+@Config
+$ #Nastavení#
+
+ #Přidat do menu disků#
+ Zapíná přidávání položky "seznamu procesů" do menu disků.
+
+ #Přidat do menu pluginů#
+ Zapíná přidávání položky "seznam procesů" do menu pluginů.
+
+ #Zahrnout v dalších informacích#
+ Tyto checkboxy ovládájí množství informací exportovaných do souboru s
+detaily o procesech, když stisknete F3, F5, vyhledávání pomocí Alt-F7, atd.
+Některé detaily tvoří výstupní soubor příliš komplikovaný, některé jsou 
+extrahovány příliš pomalu, takže je budete chtít vypnout.
+
+ #Prostředí# 
+ Zahrnuje bloky prostředí procesů. Použito jen pro lokální.
+
+ #Info o modulech#
+ Zahrnuje seznam modulů, nahraných daným procesem.
+
+ #Verze a popisy modulů#
+ Se seznamem modulů, extrahuje popis a verzi každého souboru
+modulu. Toto je pomalá operace, protože každý soubor modulu je
+otevřen pro zjištění informací o jeho verzi.
+
+ #Výkonová data#
+ Výsledek všech počítadel výkonových dat pro daný proces.
+
+ #Handly#
+ Seznam všech handlů otevřených procesem. 
+ Varování: toto používá nezdokumentované funkce a nemusí funovat správně.
+
+ V této verzi, nejsou v tomto dialogu nasatavovány #módy panelů#.
+Když stisknete v dialogu "OK", bude konfigurace uložena s aktuálními
+(implicitními) módy. Jakmile je nastavení uloženo, je pro změnu implicitního
+nastavení upraven klíč registru HKCU\Software\Far\Plugins\Plist\ModeX\. 
+Když otevřete plugin znovu, budou změny načteny.
+
+ Podívejte se také na: nápovědu k ~Typům sloupců~@Columns@.

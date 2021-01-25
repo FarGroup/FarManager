@@ -443,6 +443,7 @@ HLFS = \
 	"$(OUTDIR)\FarPol.hlf" \
 	"$(OUTDIR)\FarGer.hlf" \
 	"$(OUTDIR)\FarUkr.hlf" \
+	"$(OUTDIR)\FarCze.hlf" \
 
 .PHONY: docs
 docs: \

@@ -13,9 +13,11 @@ LINK_OBJS = \
 DOCS = \
 	NetEng.hlf \
 	NetRus.hlf \
+	NetBel.hlf \
 	NetPol.hlf \
 	NetGer.hlf \
 	NetUkr.hlf \
+	NetCze.hlf \
 	NetEng.lng \
 	NetRus.lng \
 	NetSky.lng \
@@ -25,6 +27,7 @@ DOCS = \
 	NetPol.lng \
 	NetGer.lng \
 	NetUkr.lng \
+	NetCze.lng \
 	changelog
 
 !if defined(DEBUG) && !defined(NO_LOG)

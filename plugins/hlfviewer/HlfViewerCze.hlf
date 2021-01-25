@@ -1,0 +1,108 @@
+﻿.Language=Czech,Czech (Čeština)
+.PluginContents=HlfViewer
+.Options CtrlStartPosChar=^<wrap>
+
+@Contents
+$ #Hlf prohlížeč#
+   Plugin Hlf prohlížeč byl vytvořen na pomoc těm, kdo vytvářejí, nebo
+upravují HLF soubory, nebo chtějí nějaké HLF sobory prohlížet.
+
+   ~Použití Hlf prohlížeče v editoru~@editor@
+   ~Vyvolání Hlf prohlížeče z příkazové řádky~@cmd@
+   ~Использование плагина в макросах~@MacroCallPlugin@
+   ~Nastavení~@Config@
+
+
+@cmd
+$ #Hlf prohlížeč: syntaxe příkazového řádku
+
+   #hlf:GUID# [#topic#]
+   #hlf:název_souboru [téma]#
+   #hlf:topic#
+
+   #GUID#     - ^<wrap>GUID плагина в текущей сессии Far Manager, тему справки которого
+необходимо показать.
+              ^<wrap>Чтобы показать тему из собственной справки Far, можно указать GUID
+#00000000-0000-0000-0000-000000000000#
+
+   #název_souboru# - ^<wrap>název HLF souboru (musí mít příponu .HLF).
+              ^<wrap>Pokud název souboru obsahuje mezery, musí být uzavřen v úvozovkách.
+              ^<wrap>Если имя файла указано без пути, то порядок поиска следущий:
+              - Текущий каталог
+              - %FARHOME%
+              - пути плагинов "в этой сессии" Far Manager
+
+   #téma#          - ^<wrap>zobrazuje téma "téma". Pokud tento parametr není
+                   zadán, bude zobrazeno téma "Obsah".
+              ^<wrap>Имя топика может предваряться символом "@@".
+              ^<wrap>Для вызова справки самого Far Manager допустимо указывать
+только топик (без имени файла).
+
+   ~Obsah~@Contents@
+
+
+@editor
+$ #Hlf prohlížeč: práce v editoru#
+   Pokud je soubor upravován jako soubor nápovědy FARu, vyvoláním
+tohoto příkazu zobrazíte téma nápovědy, které je upravováno. Pro zobrazení
+tématu nápovědy v ~dialogu nastavení~@Config@ je možné specifikovat horkou klávesu.
+
+   Примечание 1:
+
+     ^<wrap>Файл проверяется на наличие ключевых компонентов hlf-формата:
+     - ^<wrap>в начале файла ищется строка, начинающаяся с ".Language="
+     - ^<wrap>производится поиск на наличие любого вхождения последовательности
+"@@буква-цифры", не содержащее символ "=".
+
+     ^<wrap>Кроме того, в ~настройках~@Config@ можно ограничить перечень обрабатываемых
+файлов задав маску.
+
+   Примечание 2:
+
+     ^<wrap>Плагин можно настроить так, чтобы топик показывался не командой меню,
+а при нажатии #F1# (или другой комбинации клавиш, заданной в
+~настройках~@Config@).
+
+     ^<wrap>В этом случае пункт вызова #HlfViewer# в меню плагинов не добавляется.
+
+   ~Obsah~@Contents@
+
+
+@Config
+$ #Hlf prohlížeč: Nastavení#
+   Pokud zapnete nastavení "#Aktivační horká klávesa editoru#", pak
+stisknutím přiřazené kombinace kláves v editoru zobrazíte aktuální téma
+HLF souboru, který je upravován. Horké klávesy pracují jen pokud je HLF 
+soubor upravován. Implicitní horká klávesa je #F1#.
+   Také pokud je tato volba zapnuta, položka Hlf prohlížeče není přidána
+do plugin menu (F11), protože to nadále není nutné.
+
+   Опция #Check by file mask# предназначена для ограничения работы
+плагина с файлами отличными от перечисленных. По умолчанию опция включена.
+
+   Pro řízení, jestli má být soubor nápovědy uložen před zobrazením tématu
+nápovědy, může být použita volba "#Zobraz soubor nápovědy otevřený v editoru:#".
+Může mít jednu z následujících hodnot:
+
+   #Zobraz naposledy# - bude zobrazena poslední uložená verze tématu
+   #uložený soubor#     (jako v předešlé verzi Hlf prohlížeče)
+
+   #Zobraz upravený#  - všechny neuložené změny v aktuálním tématu
+   #soubor#             budou zobrazeny (HLF soubor bude uložen do
+                      dočasného adresáře)
+
+   #Ulož a zobraz#    - před zobrazením HLF souboru, budou všechny
+   #upravený soubor#    změny uloženy
+
+   ~Obsah~@Contents@
+
+
+@MacroCallPlugin
+$ #Использование плагина в макросах#
+   Находясь в редакторе плагин можно вызывать из макросов, используя макрофункцию Plugin.Call:
+
+      #Plugin.Call("1AF0754D-5020-49CB-9474-1F82691C84C1")#
+
+   Действие равнозначно ~вызову плагина из меню~@editor@.
+
+   ~Obsah~@Contents@

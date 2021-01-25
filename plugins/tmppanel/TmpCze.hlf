@@ -1,0 +1,251 @@
+﻿.Language=Czech,Czech (Čeština)
+.PluginContents=Temporary panel
+
+@Contents
+$ #Dočasný panel#
+    Dočasný panel pracuje podobně jako souborový panel a je navržen
+k pomoci při seskupování souborů z různých adresářů a jejich
+zpracování, jako jedné skupiny.
+
+   ~Práce s dočasným panelem~@TempPanel@
+   ~Konfigurace dočasného panelu~@Config@
+   ~Práce se souborovými seznami~@List@
+   ~Syntaxe příkazové řádky~@CMD@
+
+@TempPanel
+$ #Práce s dočasným panelem#
+   Pro umístění souborů do dočasného panelu mužete použít jednu z
+násldujících cest:
+
+  - kopírování souborů, nebo adresářů ze souborového panelu, nebo 
+    panelu stromu do dočasného panelu;
+
+  - otevření ~seznamu souborů~@List@ stisknutím klávesy Enter, nebo 
+    Ctrl-PgDn, nebo zadáním jeho názvu v ~příkazovém řádku~@CMD@;
+
+  - odesláním seznamu souborů nalezených příkazem ~Hledat soubor~@:FindFile@
+    do dočasného panelu. Toto nařídíte kliknutím na tlačítko "#Panel#" 
+    v dialogu se seznamem nalezených souborů.
+
+   Soubory umístěné do dočasného panelu nejsou fyzicky zkopírovány,
+je na ně pouze vytvořen odkaz. Všechny operace, které v dočasném
+panelu provedete, budou aplikovány na pravé soubory v jejich aktuálním
+umístění. Například, pokud v dočasném panelu smažete soubor, bude
+tento soubor smazán také z disku.
+
+   Pro odstranění vybraných souborů z dočasného panelu, bez jejich
+fyzického smazání použijte klávesu #F7#.
+
+    Pro uzavření dočasného panelu a přechod na soubor pod kurzorem stiskněte
+#Ctrl-PgUp#.
+
+   #Alt-Shift-F3# on an element:
+
+   - if folder - shows its contents in the passive panel.
+   - if file - positions the cursor on this file in the
+     passive panel.
+
+   Pokud je v dialogu ~nastavení~@Config@ pluginu zapnuta volba #"Použít společný panel"#, 
+vytvoří plugin 10 instancí dočasného panelu a každá bude obsahovat oddělený
+seznam souborů. Pro přepínání mezi panely můžete použít menu
+(#Alt-Shift-F12#), nebo zkratkové klávesy pro okamžité přepnutí
+(#Alt-Shift-0# až #Alt-Shift-9#).
+
+   Pro uložení aktuálního obsahu panelu do seznamu souborů můžete 
+použít #Alt-Shift-F2#.
+
+
+ ~Obsah~@Contents@
+
+@Config
+$ #Dočasný panel: konfigurace#
+   V tomto dialogu můžete změnit následující volby:
+
+ #Přidat do menu disků#
+   Zapne automatické přidávání položky "dočasný" do menu seznamu disků.
+
+ #Přidat do menu pluginů#
+   Zapíná přidávání položky "dočasný" do menu pluginů.
+
+ #Použít společný panel#
+   Pokud je tato položka zapnuta, je vytvořen jeden dočasný panel, jehož
+obsah je po uzavření panelu uložen. Pokud tato volba zapnutá není, je
+každý nový dočasný panel vytvořen prázdný.
+   Pokud je zapnuta volba #"Použít společný panel"#, je vytvořeno 10 
+instancí dočasného panelu. Můžete mezi nimi přepínat stisknutím
+#Alt-Shift-F12# (pro zobrazení menu), nebo zkratkovými klávesami 
+#Alt-Shift-0# až #Alt-Shift-9# (pro přímé přepnutí do panelu).
+
+ #Bezpečný mód panelu# : ~+safe~@CMD@
+   V bezpečném módu panelu, jsou všechny operace na elementech panelu (kopírování,
+přesouvání, mazání, atd.) vypnuty. Jediné povolené informace jsou:
+
+   - změna do adresáře;
+   - kopírování elementů, které nejsou reálnými soubory/cesta do příkazového
+     řádku (pokud je zapnuta volba #"Kterýkoliv element v panelu"#).
+
+   Bezpečný mód je v nadpisu panelu označen znakem (R).
+
+ #Kterýkoliv element v panelu# : ~+any~@CMD@
+   Pokud je tato volba zapnuta, plugin nekontroluje před 
+umístěním elementu do panelu správnost cesty.
+   Tím se stává možné použití elementů panelu jako:
+   #ftp:#
+   #ftp:mé_oblíbené_ftp#
+   #reg:HKEY_CURRENT_USER\Software#
+   #copy d:\work\tmppanel d:\work\tmppanel\backup /y#
+   #format a:#
+   atd.
+
+   Například, je možné použít toto nastavení pro setřídění řádek
+v textovém souboru:
+   #tmp:+any +full <typ název_souboru.ext#
+   Potom v panelu stisknete #Ctrl-F3# pro setřídění řádek, a potom
+#Ctrl-Num* Ctrl-Ins# pro zkopírování řádek do schránky Windows, nebo
+#Alt-Shift-F2# pro uložení řádek do souboru.
+
+   Když na elementu, který není reálným názvem souboru stisknete 
+#Enter#, bude jeho text zkopírován do příkazové řádky FARu.
+
+ #Kopírovat obsah adresářů#
+   Když do dočasného panelu kopírujete adresář, ovládáte nastavení
+zda do panelu kopírovat i soubory. Pokud ho nastavíte do nedefinovaného
+stavu (#[?]#), je před kopírováním souborů do panelu zobrazena výzva.
+
+ #Nahradit soubory seznamem souborů# : ~+replace~+@CMD@
+   Pokud je zatrhnuta tato volba, pak, když provádíte operace se
+seznamem souborů, jsou názvy v seznamu souborů nahrazeny názvy souborů
+již v panelu. Jinak budou názvy souborů přidány do existujícho.
+
+ #Menu ze seznamu souborů# : ~+menu~@CMD@
+   Když je otevřen seznam souborů, není jeho obsah umístěn do panelu,
+ale míto toho zobrazen v menu. Stisknutím klávesy #Enter# na položce 
+menu, buď přeskočíte do odpovídajícího adresáře (pokud existuje), nebo 
+zkopíruje text položky do příkazové řádky FARu. Nadpis menu je stejný
+jako seznamu souborů bez přípony.
+   Každý řádek v seznamu souborů může začít #|<řetězcem>|#. V tomto
+případě bude část řádky mezi prvním a druhým oddělovačem (#|#)
+zobrazena v menu a část po druhém oddělovači bude po výběru položky
+spuštěna.
+
+   #|-|# je oddělovač a bude v menu zobrazen, jako horizontální 
+řádka.
+
+   Příklad seznamu souborů: #Drive.temp#
+   #|&A: removable|A:#
+   #|&C: fixed|C:#
+   #|&D: fixed|D:#
+   #|-|#
+   #|&M: Music|D:\Music#
+   #|&M: Tools|D:\Tools#
+   #|&M: Desktop|%HOMEDRIVE%%HOMEPATH%\Desktop#
+   #|-|#
+   #|&1: Temporary|tmp:#
+   #|&2: Far Navigator|ftp:#
+   #|&3: Network|net:#
+   #|&8: Registry|reg:#
+
+ #Nový panel pro výsledky hledání#
+   Tato volba pracuje, pokud je zapnuta volba #"Použít společný panel"# 
+a umožňuje vložit výsledek vyhledávání (Alt-F7 -> Panel) do volného 
+dočasného panelu. Toto umožňuje uložit výsledky několika vyhledávacích 
+operací a pracuje s nimi najednou.
+
+ #Typy sloupců#    #Typy sloupců stavové řádky#
+ #Šířka sloupců#   #Šířka sloupců stavové řádky#
+ #[ ] Celoobrazovkový mód# : ~+full~@CMD@
+   Tyto nastavení umožňují změnit mód zobrazovaných elementů v
+panelu.
+   Pro detaily se podívejte na ~nápovědu FARu~@:PanelViewModes@.
+
+ #Souborové masky pro seznamy souborů#
+   ~Masky~@:FileMasks@ souborů, které by měly být interpretovány jako
+~seznam souborů~@List@.
+
+ #Předpona příkazové řádky#
+   Specifikovaná předpona pro otevření dočasného souboru z příkazové
+řádky a pro ~operace se seznamy souborů~@List@.
+
+
+ ~Obsah~@Contents@
+
+@List
+$ #Dočasný panel: seznamy souborů#
+   Dočasný panel umí načíst seznam názvů souborů ze souborového seznamu.
+
+   Každá řádka v seznamu souborů musí obsahovat:
+     - buď existující soubor, nebo adresář (C:\Windows)
+     - nebo písmeno disku (C:)
+     - nebo název zdroje sítě (\\Server\Music)
+
+   Pokud je volba #"Kterýkoliv element v panelu#" v dialogu
+~nastavení~@Config@ vypnuta, řádky nevyhovující žádné podmínce zmíněné
+výše, nejsou do panelu přidány. Pokud je volba zapnuta, může
+seznam souborů obsahovat libovolné řádky - všechny budou
+zobrazovány v panelu.
+
+   Názvy souborů a adresářů v seznamu souborů mohou obsahovat
+systémové proměnné (%WINDIR%\System).
+
+   Příklady seznamu souborů:
+     #c:#
+     #d:#
+     #d:\Games\Quake3#
+     #\\server\c$#
+     #\\server\music#
+     #%ProgramFiles%#
+     #%HOMEDRIVE%%HOMEPATH%\Desktop#
+   Pokud je zapnuta volba "Kterýkoliv element v panelu", seznam souborů
+může obsahovat i podobné řádky:
+     #ftp:#
+     #ftp:ftp.cdrom.com#
+     #reg:HKEY_CURRENT_USER\Software#
+     #dir#
+
+   Pro zpracování seznamu souborů jsou dvě cesty:
+
+   a) Když je kurzor na takovém souboru stiskněte #Enter# nebo #Ctrl-PgDn#.
+      Soubor musí souhlasit s alespoň jednou souborovou maskou s určeným 
+seznamem souborů v konfiguračním dialogu a musí být v OEM znakové sadě.
+
+   b) Vložte #tmp:"název seznamu souborů"# do ~příkazové řádky~@CMD@.
+      Pokud název seznamu souborů neobsahuje cestu, pokusí se jí
+plugin najít v následujících adresářích a v následujících sekvencích:
+      1. Aktuální adresář
+      2. In the plugin directory.
+      3. In #%FARHOME%#.
+      4. Adresář, který je uveden v PATH systémové proměnné.
+
+    Předpona příkazového řádku používaná pro operace se souborovým seznamem
+(v příkladech použitá - #tmp:#) může být nastavena v konfiguračním dialogu.
+
+
+ ~Obsah~@Contents@
+
+@CMD
+$ #Dočasný panel: Příkazový řádek#
+ Syntaxe příkazového řádku:
+   #<předpona>:[<volby>] [<seznam_souborů>]# , úĄą:
+
+   #<předpona># - předpona pluginu, nastavitelná v
+                ~konfiuračním dialogu~@Config@  (implicitní je #tmp#)
+
+   #<volby>#    - nula, nebo více voleb popsaných níže, oddělených
+                nejméně jednou mezerou (volby nerozlišují velikost
+                písma)
+
+   #+0..+9#        - Přepnout do panelu s určeným indexem
+   #+ansi#         - seznam souborů je v ANSI znakové sadě
+   #+full# / #-full# - celá obrazovka/normální mód panelu
+   #+safe# / #-safe# - bezpečný/normální mód panelu
+   #+any#  / #-any#  - element/existující cesty v seznamu souborů
+   #+menu# / #-menu# - menu/panel ze seznamu souborů
+   #+replace# / #-replace# - nahradit/přidat položku panelu
+
+   #<seznam_souborů># - ~seznam souborů~@List@ z kterých dočasný panel
+přečte svůj seznam elementů
+
+   See ~Temporary panel: configuration~@Config@ for a more in depth
+explanation of command line switches.
+
+ ~Obsah~@Contents@

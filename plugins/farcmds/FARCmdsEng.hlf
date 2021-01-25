@@ -174,8 +174,9 @@ only the switching to the required folder occurs.
 @Link
 $ #The Link command#
 
-   The #link# command creates ~links~@:HardSymLink@ to files and folders.
-It also allows to mount local disks on file system.
+   The #link# command creates ~links~@:HardSymLink@ to
+files and folders. It also allows to mount local disks
+on file system.
 
    #link:#[#/msg#] [#/n#] [#/s#] #source destination#
 
@@ -196,7 +197,7 @@ or a folder symlink (instead of folder junction).
    The switch is relevant to Windows Vista or higher.
 Ignored when mounting drives.
 
-   Mounted drives (or volume mount points) is a Windows 2000/XP feature,
+   Mounted drives (or volume mount points) is a feature
 that allows to display specified disks as folders. Example:
 
    #link: E:\ C:\cdrom#
@@ -309,20 +310,15 @@ command text must be separated from it by some symbol.
 
    See also: ~Notes~@Remark@ | ~Contents~@Contents@
 
-
 @Remark
 $ #Notes#
 
    1. ^<wrap>It is possible to enclose parameters #filename#, #path# and #command# in quotes.
-
    2. You can use environment variables.
-
    3. If you make a syntax error, the help will pop up.
-
    4. ^<wrap>You can use console aliases as #command# (Console aliases - macros defined by command DOSKEY)
 
    See also: ~Contents~@Contents@
-
 
 @Config
 $ #Configuring FAR Commands#

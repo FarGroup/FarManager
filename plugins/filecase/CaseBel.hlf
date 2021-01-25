@@ -1,0 +1,24 @@
+﻿.Language=Belarusian,Belarusian (Беларуская)
+.PluginContents=Ператварэнне рэгістра імёнаў файлаў
+
+@Contents
+$ #Ператварэнне рэгістра імёнаў файлаў#
+ Гэтая каманда дазваляе змяніць рэгістр адзначаных імёнаў файлаў у адпаведнасці з любым з некалькіх даступных фарматаў.
+
+ Choose the needed case conversion for the #Name# and the #Extension# correspondingly.
+If the #None# option is selected, the plugin will not process the corresponding file name part.
+
+ #Не апрацоўваць файлы са змяшаным рэгістрам#
+ Плагін не будзе апрацоўваць файлы або папкі, імёны якіх маюць змяшаны рэгістр.
+
+ #Апрацоўваць укладзеныя папкі#
+ Калі сярод адзначаных файлавых аб'ектаў маюцца папкі, то плагін таксама будзе апрацоўваць файлы/папкі ў іх.
+
+ #Апрацоўваць самую дырэкторыю#
+ Калі курсор знаходзіцца на папцы і ўключаная опцыя #Апрацоўваць укладзеныя папкі#, то плагін апрацуе гэтак жа імя гэтай папкі.
+
+ #Толькі для бягучага ператварэння#
+ Ужываць выстаўленыя опцыі толькі для бягучага сеансу ператварэння.
+
+ #Word delimiters#
+ Characters used to delimit words for the title case conversion. The "#Reset#" button will reset the word delimiters to the default value: "# _#" (Space and underscore).

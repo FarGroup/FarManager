@@ -1962,13 +1962,13 @@ The logic at work this option is similar to arithmetic with negative numbers.
  <= 0  - select files in the period from the "Today"
  >= 30 - and 30-days ago, including
 
-
  #Attributes#
  Inclusion and exclusion attributes.
 
  Filter conditions are met if file attributes
 analysis is on and it has all of the inclusion
 attributes and none of the exclusion attributes:
+
  #[x]# - ^<wrap>inclusion attribute - the file must have this attribute.
  #[ ]# - ^<wrap>exclusion attribute - the file must not have this attribute.
  #[?]# - ^<wrap>ignore this attribute.
@@ -1976,7 +1976,6 @@ attributes and none of the exclusion attributes:
  The #Compressed#, #Encrypted#, #Not indexed#, #Sparse#, #Temporary# and #Offline# attributes
 are used only on disks with the NTFS file system.
 The #Integrity stream# and #No scrub data# attributes are supported only on ReFS volumes starting from Windows Server 2012.
-
 
  #Has more than one hardlink#
  Used only on disks with NTFS file system. Condition evaluates to true,
@@ -4308,7 +4307,6 @@ size and the unit character, e.g. #1.00k#;
  By default the size of the attributes column is 6 characters. To display
 the additional attributes it is necessary to manually increase the size of the column.
 
-
  #Ширина стовпчиків# - дозволяє змінити ширину стовпчиків панелі.
 Якщо ширина дорівнює 0, то використовується значення за замовчуванням.
 Якщо ширина стовпчика з ім'ям, описом або власником дорівнює 0,
@@ -4476,7 +4474,6 @@ combination.
 folders are deselected.
 
  #Ctrl+M# відновлює обрану до цього групу.
-
 
  #Mouse Selection#
 

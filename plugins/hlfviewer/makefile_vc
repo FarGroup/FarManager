@@ -8,7 +8,9 @@ DOCS = \
 	HlfViewerEng.hlf \
 	HlfViewerRus.hlf \
 	HlfViewerPol.hlf \
+	HlfViewerBel.hlf \
 	HlfViewerUkr.hlf \
+	HlfViewerCze.hlf \
 	HlfViewerEng.lng \
 	HlfViewerRus.lng \
 	HlfViewerSky.lng \
@@ -17,6 +19,7 @@ DOCS = \
 	HlfViewerPol.lng \
 	HlfViewerBel.lng \
 	HlfViewerUkr.lng \
+	HlfViewerCze.lng \
 	changelog
 
 USERLIBS = rpcrt4.lib

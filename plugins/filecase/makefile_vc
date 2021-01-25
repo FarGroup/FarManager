@@ -14,6 +14,7 @@ DOCS = \
 	CasePol.hlf \
 	CaseGer.hlf \
 	CaseUkr.hlf \
+	CaseCze.hlf \
 	CaseEng.lng \
 	CaseRus.lng \
 	CaseSky.lng \
@@ -23,6 +24,7 @@ DOCS = \
 	CaseBel.lng \
 	CaseGer.lng \
 	CaseUkr.lng \
+	CaseCze.lng \
 	changelog
 
 !include ..\makefile_vc_def_inc

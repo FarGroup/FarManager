@@ -1976,13 +1976,13 @@ The logic at work this option is similar to arithmetic with negative numbers.
  <= 0  - select files in the period from the "Today"
  >= 30 - and 30-days ago, including
 
-
  #Attribútumok#
  Befoglaló és kizáró attribútumok.
 
  A szűrőfeltételek akkor teljesülnek, ha az
 attribútumelemzés be van kapcsolva és a fájl minden megadott befoglaló
 attribútummal rendelkezik, de nincs egyetlen kizáró attribútuma sem:
+
  #[x]# - ^<wrap>befoglaló attribútum - a fájlnak rendelkeznie kell az attribútummal;
  #[ ]# - ^<wrap>kizáró attribútum - a fájlnak nem lehet ilyen attribútuma;
  #[?]# - ^<wrap>az attribútum értéke nem számít.
@@ -1990,7 +1990,6 @@ attribútummal rendelkezik, de nincs egyetlen kizáró attribútuma sem:
 A #Tömörített#, #Titkosított#, #Nem indexelt#, #Ritkított#, #Átmeneti# és #Offline# attribútum csak NTFS fájlrendszerű
 lemezeken létezik. A #Virtuális# attribútumot csak a Windows Vista/2008 operációs rendszerek használják.
 The #Integrity stream# and #No scrub data# attributes are supported only on ReFS volumes starting from Windows Server 2012.
-
 
  #Has more than one hardlink#
  Used only on disks with NTFS file system. Condition evaluates to true,
@@ -4321,7 +4320,6 @@ Az attribútumok oszlopa alapértelmezés szerint 6 karakter széles.
 A többi attribútum megjelenítéséhez (T, I, O és V) kézzel kell 10
 karakteresre állítani az oszlopszélességet.
 
-
  #Oszlopszélességek# - a panelek oszlopszélességét állíthatjuk be vele.
 A "0" szélesség az alapértelmezett szélességet jelenti. Ha a Név, a
 Megjegyzés vagy a Tulajdonos oszlop értéke "0", a Far automatikusan állítja be
@@ -4480,7 +4478,6 @@ kijelölést levesz.
 folders are deselected.
 
  A #Jelölést visszatesz# parancs (#Ctrl+M#) visszaállítja az előző kijelölést.
-
 
  #Mouse Selection#
 
