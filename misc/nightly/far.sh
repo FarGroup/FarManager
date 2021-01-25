@@ -47,6 +47,7 @@ gawk -f ./scripts/mkhlf.awk FarHun.hlf.m4 | $M4CMDP | unix2dos -m > $OUTDIR/FarH
 gawk -f ./scripts/mkhlf.awk FarPol.hlf.m4 | $M4CMDP | unix2dos -m > $OUTDIR/FarPol.hlf
 gawk -f ./scripts/mkhlf.awk FarGer.hlf.m4 | $M4CMDP | unix2dos -m > $OUTDIR/FarGer.hlf
 gawk -f ./scripts/mkhlf.awk FarUkr.hlf.m4 | $M4CMDP | unix2dos -m > $OUTDIR/FarUkr.hlf
+gawk -f ./scripts/mkhlf.awk FarCze.hlf.m4 | $M4CMDP | unix2dos -m > $OUTDIR/FarCze.hlf
 
 wine tools/lng.generator.exe -nc -oh ${BOOTSTRAPDIR} -ol $OUTDIR ${BOOTSTRAPDIR}farlang.templ
 
