@@ -117,4 +117,4 @@ DEPS = $(strip $(C_DEPS) $(CPP_DEPS))
 endif
 MAP = $(patsubst %.$(EXT),%.map,$(DLLFULLNAME))
 
-DOCS := nul *.hlf *.lng *.lua *.farconfig changelog $(DOCS)
+DOCS := $(shell $(LS) *.hlf *.lng *.lua *.farconfig changelog $(DOCS) 2>$(DEVNULL))
