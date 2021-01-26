@@ -4387,13 +4387,9 @@ int Viewer::ProcessTypeWrapMode(int newMode, bool isRedraw)
 
 uintptr_t Viewer::GetDefaultCodePage()
 {
-	intptr_t cp = Global->Opt->ViOpt.DefaultCodePage;
-	if (cp == CP_ACP)
-		cp = encoding::codepage::ansi();
-	else if (cp == CP_OEMCP)
-		cp = encoding::codepage::oem();
+	auto cp = encoding::codepage::normalise(Global->Opt->ViOpt.DefaultCodePage);
 
-	if (cp < 0 || !IsCodePageSupported(cp))
+	if (cp == CP_DEFAULT || !IsCodePageSupported(cp))
 		cp = encoding::codepage::ansi();
 
 	return cp;

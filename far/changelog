@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 26.01.2021 11:53:23 +0000 - build 5732
+
+1. gh-240: Temp file with list of selected file names has missing entries
+
+--------------------------------------------------------------------------------
 drkns 23.01.2021 21:25:01 +0000 - build 5731
 
 1. Workaround for https://github.com/microsoft/terminal/issues/8866

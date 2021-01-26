@@ -5,8 +5,6 @@ LUAVER=51
 LUA_PROXY=lua5.1.dll
 LUA=$(WINE_CMD)$(strip $(call os_name, luasdk/32/lua.exe))
 
-DOCS = luasdk/$(DIRBIT)/lua$(LUAVER).dll luasdk/$(DIRBIT)/$(LUA_PROXY) \
-       luasdk/$(DIRBIT)/lpeg.dll
 SRCS = \
 luafar/bit64.c \
 luafar/exported.c \
@@ -37,6 +35,11 @@ RC_NAME = luafar/$(NAME)
 DEF_NAME = -
 
 include ../makefile_gcc_def_inc
+
+DOCS = \
+	luasdk/$(DIRBIT)/lua$(LUAVER).dll \
+	luasdk/$(DIRBIT)/$(LUA_PROXY) \
+	luasdk/$(DIRBIT)/lpeg.dll \
 
 SKIPCLEAN = 1
 include ../makefile_gcc_target_inc

@@ -9,15 +9,17 @@ LUA=luasdk\32\lua.exe
 FARDIR=..\..\far
 !endif
 
-DOCS=luasdk\$(DIRBIT)\lua$(LUA_VER).dll luasdk\$(DIRBIT)\$(LUA_PROXY) \
-     luasdk\$(DIRBIT)\lpeg.dll
-
 GEN_IMPLIB=1
 
 RC_NAME=luafar\$(NAME)
 DEF_NAME=
 
 !include ..\makefile_vc_def_inc
+
+DOCS = \
+	luasdk\$(DIRBIT)\lua$(LUA_VER).dll \
+	luasdk\$(DIRBIT)\$(LUA_PROXY) \
+	luasdk\$(DIRBIT)\lpeg.dll \
 
 LINK_OBJS = \
 $(OBJDIR)\bit64.obj \

@@ -197,7 +197,7 @@ static size_t widechar_to_multibyte_with_validation(uintptr_t const Codepage, st
 	};
 
 	auto Result = convert(Buffer);
-	if (Buffer.size() <= Str.size() && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+	if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 	{
 		// If BufferSize is less than DataSize, this function writes the number of bytes specified by BufferSize to the buffer indicated by Buffer.
 		// If the function succeeds and BufferSize is 0, the return value is the required size, in bytes, for the buffer indicated by Buffer.
@@ -450,6 +450,16 @@ uintptr_t encoding::codepage::ansi()
 uintptr_t encoding::codepage::oem()
 {
 	return GetOEMCP();
+}
+
+uintptr_t encoding::codepage::normalise(uintptr_t const Codepage)
+{
+	switch (Codepage)
+	{
+	case CP_OEMCP: return encoding::codepage::oem();
+	case CP_ACP:   return encoding::codepage::ansi();
+	default:       return Codepage;
+	}
 }
 
 size_t encoding::get_bytes(uintptr_t const Codepage, string_view const Str, span<char> const Buffer, error_position* const ErrorPosition)

@@ -297,7 +297,7 @@ static size_t SkipInputToken(string_view const Str, subst_strings* const Strings
 
 static bool MakeListFile(panel_ptr const& Panel, string& ListFileName, bool const ShortNames, string_view const Modifers)
 {
-	uintptr_t CodePage = CP_OEMCP;
+	auto CodePage = encoding::codepage::oem();
 	bool UseFullPaths{}, QuotePaths{}, UseForwardSlash{};
 
 	for (const auto& i: Modifers)
@@ -305,7 +305,7 @@ static bool MakeListFile(panel_ptr const& Panel, string& ListFileName, bool cons
 		switch (i)
 		{
 		case L'A':
-			CodePage = CP_ACP;
+			CodePage = encoding::codepage::ansi();
 			break;
 
 		case L'U':

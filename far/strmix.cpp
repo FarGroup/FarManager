@@ -1061,7 +1061,7 @@ string ExtractHexString(string_view const HexString)
 
 string ConvertHexString(string_view const From, uintptr_t Codepage, bool FromHex)
 {
-	const auto CompatibleCp = IsVirtualCodePage(Codepage)? CP_ACP : Codepage;
+	const auto CompatibleCp = IsVirtualCodePage(Codepage)? encoding::codepage::ansi() : Codepage;
 	if (FromHex)
 	{
 		const auto Blob = HexStringToBlob(ExtractHexString(From), 0);

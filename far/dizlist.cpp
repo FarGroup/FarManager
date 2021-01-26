@@ -340,7 +340,7 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 
 		save_file_with_replace(m_DizFileName, FileAttr, Global->Opt->Diz.SetHidden? FILE_ATTRIBUTE_HIDDEN : 0, false, [&](std::ostream& Stream)
 		{
-			encoding::writer Writer(Stream, Global->Opt->Diz.SaveInUTF? CP_UTF8 : Global->Opt->Diz.AnsiByDefault? CP_ACP : CP_OEMCP);
+			encoding::writer Writer(Stream, Global->Opt->Diz.SaveInUTF? CP_UTF8 : Global->Opt->Diz.AnsiByDefault? encoding::codepage::ansi() : encoding::codepage::oem());
 
 			const auto Eol = eol::win.str();
 
