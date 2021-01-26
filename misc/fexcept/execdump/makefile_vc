@@ -45,6 +45,8 @@ LIB_OBJS = \
            $(OBJLIB)\hdb_mem.obj $(OBJLIB)\hdb_rd.obj $(OBJLIB)\hdb_wr.obj \
            $(OBJLIB)\hdbase.obj $(OBJLIB)\fio.obj
 
+DOCS = nul
+
 USERCPP=/I.\xxlib /D__NOVCL__=1 /D_CONSOLE=1 /D__DLL__=1
 !ifdef DEBUG
 USERCPP=$(USERCPP) /D__FILELOG__=1

@@ -248,4 +248,4 @@ RC=$(_RC_PATH)rc.exe
 .path.def=.
 !endif
 
-DOCS = *.hlf *.lng *.lua *.farconfig changelog $(DOCS)
+DOCS = nul *.hlf *.lng *.lua *.farconfig changelog $(DOCS)
