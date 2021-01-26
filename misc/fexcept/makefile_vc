@@ -2,7 +2,7 @@ ROOT_PATH=../../
 !include ../../plugins/makefile_vc_base
 
 NAME = FExcept
-DOCS = changelog SetFarExceptionHandler.farconfig demangle$(DIRBIT).dll
+DOCS = demangle$(DIRBIT).dll
 LINK_OBJS = $(OBJDIR)\FExcept.obj
 
 COMMON = ..\..\plugins\common
