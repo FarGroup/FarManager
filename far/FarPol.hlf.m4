@@ -2328,7 +2328,7 @@ Bin can be performed only for local hard disks.
  #Use system copy routine#
  Use the file copy functions provided by the operating system instead of internal
 file copy implementation. It can be useful on NTFS, because the system function
-(CopyFileEx) copies file extended attributes. On the other hand, when using the system
+(CopyFileEx) copies extended file attributes. On the other hand, when using the system
 function, the possibility of "smart" ~copying~@CopyFiles@ of sparse files is not available.
 
  #Copy files opened for writing#
@@ -3961,7 +3961,7 @@ folders, all checkboxes will always be 3-state.
 corresponding checkboxes was changed from the initial state.
 
  The #Compressed#, #Encrypted#, #Not indexed#, #Sparse#, #Temporary#,
-#Offline#, #Reparse point# and #Virtual# attributes are available only on NTFS drives.
+#Offline#, #Reparse point# attributes are available only on NTFS drives.
 The #Compressed# and #Encrypted# attributes are mutually exclusive, that is, you can set only
 one of them. You cannot clear the #Sparse# attribute in Windows 2000/XP/2003. The
 #Integrity stream# and #No scrub data# attributes are supported only on ReFS volumes starting from
@@ -4471,8 +4471,7 @@ dialog should be displayed for the read-only files.
 
  The “#Use system copy routine#” option of the ~System settings~@SystemSettings@
 dialog enables the use of Windows operating system function CopyFileEx. This may be useful
-on NTFS, because CopyFileEx optimizes disk space allocation and copies
-extended file attributes. If this option is off, the internal
+on NTFS, because CopyFileEx copies extended file attributes. If this option is off, the internal
 implementation of the file copy routine is used. The internal
 function is also used if the source file is encrypted and is being
 copied to a different volume.

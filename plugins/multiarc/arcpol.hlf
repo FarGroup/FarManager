@@ -1,0 +1,284 @@
+﻿.Language=Polish,Polish (Polski)
+.PluginContents=Obsługa archiwów
+
+@Contents
+$^#Obsługa archiwów#
+    Ten moduł FAR'a wykonuje operacje na archiwach. Pliki w archiwum są
+obsługiwane w ten sam sposób jakby znajdowały się w zwykłym katalogu na dysku.
+Podczas operacji na plikach w archiwum FAR przetwarza polecenia użytkownika w
+odpowiadające im operacje wykonywane przez program archiwizujący.
+
+   ~Dodawanie plików do archiwum~@AddToArc
+
+   ~Wypakowywanie plików z archiwum~@ExtrFromArc
+
+   ~Archive commands~@ArcCmd@
+
+   ~Konfiguracja~@ArcSettings1
+
+   ~Linie poleceń archiwizerów~@ArcSettings2@
+
+   ~Storage of plugin settings~@ArcSettings3@
+
+@AddToArc
+$ #Dodawanie plików do archiwum#
+    To okno dialogowe pozwala na wybranie archiwizera, dodanie lub zmianę
+parametrów polecenia archiwizatora (domyślne parametry definiuje się w oknie
+dialogowym ~linie poleceń archiwizatorów~@ArcSettings@), wprowadzenie hasła
+zabezpieczającego pliki.
+
+    Opcja #Usuń pliki po archiwizacji# wymusza na programie archiwizującym
+usunięcie plików po pomyślnej archiwizacji. This option is turned
+on automatically if the key #F6# is used to add files to an archive.
+
+    The option #Exact archive filename# allows to create archives with
+nonstandard extensions (if this is supported by the archiver). If the
+option is turned off, the extension defined in the
+~Archiver command lines~@ArcSettings2@ dialog is appended to the name
+entered in the dialog.
+
+    The option #Background# starts the archiving process in a separate window.
+
+    The #Priority of process# option allows to change the execution
+~priority~@ArcPrior@ of the archiving process.
+
+    Przycisk #Zapisz ustawienia# zapisuje bieżące ustawienia w celu
+późniejszego wykorzystania jako wartości domyślnych tego okna.
+
+    Pressing the keys #Shift-F1# has the same effect as pushing the
+"Select archiver" button and allows to select the archiver type to use.
+
+    When a new archive is created, the cursor is automatically
+positioned to the new archive once the archiving operation is
+complete. (This is not done when the archiver is started in a
+separate window.)
+
+@ArcPrior
+$ #Priority of process#
+    MultiArc allows to control the execution priority
+of the archiving process. The following priorities are available:
+
+    #low#
+    Background priority, foreknown to be lower than the priority of any
+other process in the system. Archiving will be very slow if any other
+process is active.
+
+    #below normal#
+    Priority above #low#, but below #normal#. Sets the priority of the
+archiving process above the background tasks, but lower than the
+execution priority of normal tasks (only in Windows 2000 or newer).
+
+    #normal#
+    Archiving is executed along with other tasks on the computer.
+
+    #above normal#
+    Priority above "normal", but below "high". Archiving is given higher
+priority than all other normal processes, and can substantially slow
+down their execution (only in Windows 2000 or newer).
+
+    #high#
+    Specify this priority for time-critical archiving that must be
+executed without delay. ATTENTION: Use extreme care when using the high
+priority, because a high priority application can use nearly all
+available CPU time, while the gain from using this priority can only be
+achieved when other active processes are running in the system.
+
+    The "normal" priority is selected by default.
+
+@ExtrFromArc
+$ #Wypakowywanie plików z archiwum#
+    Tu można wprowadzić ścieżkę, w której zostaną umieszczone wypakowane pliki
+oraz wpisać hasło umożliwiające wypakowanie plików.
+
+    Opcja #Wypakuj bez ścieżek# wymusza wypakowanie wszystkich plików do
+jednego katalogu.
+
+    If the option #Delete from archive after extracting# is turned on,
+the files will be deleted from the archive after they are extracted.
+This option is turned on automatically if the key #F6# is used to extract
+files from an archive.
+
+    Aby wypakować zaznaczone pliki do bieżącego katalogu można użyć kombinacji
+klawiszy #Alt-F6#.
+
+@ArcCmd
+$ #Polecenia#
+    Z tego menu można wybrać testowanie archiwum, dodanie opisu archiwum, opcję
+konwersji archiwum na Samorozpakowujące-Się (ang. #S#el#F#-e#X#tracting - stąd
+skrót SFX), można spróbować naprawić uszkodzone archiwum, zabezpieczyć archiwum
+przed uszkodzeniami (poprzez dodanie małych pakietów danych) lub zablokować
+możliwość modyfikowania archiwum.
+
+    Uwagi:
+
+    1. Aby wykonać polecenie trzeba posiadać odpowiedni archiwizer, który
+obsługuje dane polecenie. Opcje archiwizerów można ustawić w oknie dialogowym
+~Linie poleceń archiwizatorów~@ArcSettings2@.
+
+    For quick access to archiver options, you can press the key
+F4 in the "Archive commands" menu.
+
+    2. Pełny zestaw poleceń obsługiwany jest tylko dla archiwów RAR i ACE. Inne
+archiwizery obsługują tylko niektóre z tych poleceń.
+
+@Config
+$ #Plugin configuration#
+
+    ~Archive support configuration~@ArcSettings1@
+
+    ~Archiver command lines~@ArcSettings2@
+
+    ~Storage of plugin settings~@ArcSettings3@
+
+@ArcSettings1
+$ #Konfiguracja obsługi archiwów#
+    To okno dialogowe pozwala zmienić następujące parametry:
+
+ #Sposób wyświetlania#      Włączenie ukrywania komunikatów
+ #komunikatów archiwizera#  archiwizera powoduje, że na ekranie
+                          nie będzie wyświetlane to, co generuje
+                          archiwizer podczas wykonywania operacji
+                          na archiwum
+
+ #Przetwarzaj polecenie#    Włączenie tej opcji powoduje, że
+ #Shift-F1#                 naciśnięciem kombinacji Shift-F1 można
+                          dodawać pliki do archiwum.
+                            Wyłączenie tej opcji może się okazać
+                          przydatne w przypadku, gdy zainstalowany
+                          jest inny plugin obsługujący archiwa,
+                          który obsługuje kombinację Shift-F1.
+
+ #Change folder when#     If a new archive is created not in the
+ #setting the cursor#     current folder, change the folder and
+ #on new archive#         position the cursor on the archive.
+                        If the option is off, the cursor will be
+                        positioned on the archive only if it is
+                        created in the current folder.
+
+ #Use last command#       When adding files to archives, the last
+ #from history#           used value of the archiver command line
+                        switches will be placed in the "Switches"
+                        edit line.
+
+ #Automatically reset#    The option "Exact archive filename"
+ #"Exact archive#         will be turned off every time the dialog
+ #filename"#              "Add to archive" is invoked
+
+ #Nazwy plików#             Nazwy ~plików opisów~@:FileDiz@ opisujących pliki
+ #z opisami#                znajdujące się w archiwum.
+ #oddzielone przecinkami#
+
+ #Czytaj opisy archiwów#    Powoduje, że FAR odczytuje opisy plików
+                          znajdujących się w archiwum podczas
+                          wchodzenia do archiwum. Opcja ta umożliwia
+                          wyświetlanie opisów plików, lecz spowalnia
+                          odczyt archiwum.
+
+ #Aktualizuj opisy#         Aktualizuje opisy plików znajdujących się
+ #archiwów#                 w archiwum po dodaniu lub usunięciu plików.
+
+
+@ArcSettings2
+$ #Linie poleceń archiwizatorów#
+    W tym miejscu można zmienić linie poleceń archiwizerów
+for different archive processing operations, the ~mask~@:FileMasks@ that will
+be used to select all files and the archive extension (it must not begin
+with a dot).
+
+    To reset all the settings of an archiver to the default values,
+press the Reset button.
+
+    Następujące zmienne mogą być użyte:
+
+ #%%A# - nazwa archiwum
+
+ #%%a# - krótka nazwa archiwum
+
+ #%%W# - katalog tymczasowy zmienna powinna zawierać na końcu znak \
+
+ #%%P# - hasło
+
+ #%%R# - bieżący katalog archiwum
+
+ #%%L# - nazwa ~listy plików~@:ListFile
+
+ #%%l# - lista plików z krótkimi nazwami plików
+
+ #%%F# - nazwa jednego lub kilku plików do przetworzenia. Jeśli
+       wszystkie nazwy nie mogą być na raz umieszczone w jednym
+       poleceniu, archiwizer będzie wywoływany tyle razy, aż
+       zostaną przetworzone wszystkie wyspecyfikowane pliki.
+       Domyślnie maksymalną wielkością polecenia (łącznie z nazwą
+       archiwizera) jest 127 znaków, lecz można to zmienić
+       bezpośrednio za zmienną %%F, np. %%F512.
+        Zmienna %%F powinna być używana tylko w przypadku, gdy
+       archiwizer nie obsługuje ~listy plików~@:ListFile@
+
+ #%%f# - nazwa pojedynczego pliku do przetworzenia. Archiwizer będzie
+       wywoływany tyle razy aż skończą się nazwy plików.
+        Ta zmienna powinna być używana tylko w przypadku gdy
+       archiwzer nie obsługuje ~listy plików~@:ListFile@ lub wielu nazw plików
+       w linii poleceń.
+
+ #%%E#<errorlevel> - maksymalna wartość zmiennej errorlevel, która
+       nie jest traktowana jako błąd archiwizera. Na przykład %%E2
+       informuje, że wartości zmiennej ERRORLEVEL 0, 1 oraz 2 nie
+       są wynikiem błędu. Ta zmienna może zostać umieszczona w
+       dowolnym miejscu polecenia. Jeśli jej nie będzie, wszystkie
+       wartości zmiennej ERRORLEVEL większe od #0# będą traktowane
+       jako błąd zwrócony przez archiwizer.
+
+ #%%S# - miejsce (w linii poleceń archiwizera), gdzie będą umieszczane
+       opcje podane w polu "Opcje" dialogu "Dodaj do archiwum". Jeśli
+       zmienna ta nie zostanie podana, opcje są umieszczane na końcu
+       linii poleceń.
+
+    Modyfikatory zmiennych Q, q, S, M, N, *, W, P mogą być
+użyte w celu modyfikacji formatu nazw plików:
+
+   'Q' - nazwy plików zawierające spacje umieść pomiędzy znakami " "
+   'q' - umieść wszystkie nazwy pomiędzy znakami " "
+   'S' - użyj '/' zamiast '\' w ścieżkach
+   'M' - przekaż nazwy katalogów do archiwizera jako 'nazwa_katalogu\*.*'
+   'N' - przekaż nazwy katalogów do archiwizera jako 'nazwa_katalogu'
+   '*' - użyj maski '*' do zaznaczenia wszystkich plików.
+         Ten modyfikator ma priorytet nad paremetrem
+         "Maska "Wszystkie pliki"" dla pojedynczego polecenia archiwizera
+   'W' - tylko nazwa pliku, bez ścieżki
+   'P' - tylko ścieżka, bez nazwy pliku
+   'A' - format ANSI
+
+    Modyfikatory mogą być umieszczone bezpośrednio za zmiennymi %%F, %%f, %%L
+lub %%l (bez oddzielających spacji). 'P' i 'A' można też użyć razem ze zmiennymi
+%%A i %%a. Można umieścić kilka modyfikatorów, np. prawidłowe są następujące
+parametry: %%LMN lub %%F*QSN128. Jeśli żaden z modyfikatorów 'M' lub 'N' nie
+zostanie użyty, domyślnie użyty zostanie modyfikator 'N'. Jeśli użyte zostaną
+oba, do archiwizera zostaną przekazane zarówno 'nazwa_katalogu' jak i
+'nazwa_katalogu\*.*'
+
+    Jeśli część polecenia archiwizera zostanie ujęta w nawiasy {  }, zostanie
+dołączona do polecenia tylko wtedy, gdy będzie zawierać co najmniej jedną
+niepustą zmienną z opisanych powyżej.
+
+    Jeśli archiwizer nie obsługuje danego polecenia, odpowiadający mu ciąg
+znaków należy pozostawić pusty.
+
+@ArcSettings3
+$ #Storage of plugin settings#
+    The plugin uses the following rules to load/save the settings of
+supported format modules:
+
+  1. #[HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]#
+     contains the settings common for all users. These settings can
+     only be changed by editing the registry manually, for example,
+     using *.reg files.
+
+  2. Any changes to the archiver command line settings are stored to
+     #[HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]#.
+
+  3. The plugin reads the archiver command line settings in the
+     following sequence:
+
+     a) [HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]
+     b) [HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]
+     c) settings provided by the FMT module.

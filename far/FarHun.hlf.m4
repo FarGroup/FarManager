@@ -4573,8 +4573,7 @@ felülírás előtt újabb megerősítést kér.
  A ~Rendszer beállítások~@SystemSettings@ menü "Másoláshoz a rendszerrutin
 használata" opciójával a Far a Windows operációs rendszer CopyFileEx nevű másolórutinját fogja
 használni a saját másolórutinja helyett. Ez előnyökkel járhat NTFS
-fájlrendszernél, mert a CopyFileEx ésszerűbb lemezfoglalási metódust használ
-és a fájlokat bővített attribútumkészletükkel együtt másolja át. A rendszer
+fájlrendszernél, mert a CopyFileEx a fájlokat bővített attribútumkészletükkel együtt másolja át. A rendszer
 másolórutinja nem használható akkor, ha a fájl titkosított és nem az
 aktuális meghajtóra másolunk fájlt.
 

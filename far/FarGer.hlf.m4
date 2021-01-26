@@ -2411,8 +2411,7 @@ Bin can be performed only for local hard disks.
 
  #Systemkopierroutine benutzen#
  Benutzt die Windowsfunktion CopyFileEx anstelle der internen Implementation zum Kopieren von Dateien.
-Dies ist nützlich bei NTFS, weil CopyFileEx eine rationellere Speicherplatzausnutzung
-bietet und erweiterte Dateiattribute kopiert. On the other hand, when using the system
+Dies ist nützlich bei NTFS, weil CopyFileEx erweiterte Dateiattribute kopiert. On the other hand, when using the system
 function, the possibility of "smart" ~copying~@CopyFiles@ of sparse files is not available.
 
  #Zum Schreiben geöffnete Dateien kopieren#
@@ -4579,8 +4578,7 @@ dialog should be displayed for the read-only files.
  Die Option “#Systemkopierroutine benutzen#” im Dialog ~Systemeinstellungen~@SystemSettings@
 erzwingt die Benutzung der Windowsfunktion CopyFileEx anstelle der internen Implementation
 zum Kopieren von Dateien. Dies ist nützlich bei NTFS, weil CopyFileEx
-eine rationellere Speicherplatzausnutzung bietet und erweiterte
-Dateiattribute mitkopiert. If this option is off, the internal
+erweiterte Dateiattribute mitkopiert. If this option is off, the internal
 implementation of the file copy routine is used. The internal
 function is also used if the source file is encrypted and is being
 copied to a different volume.

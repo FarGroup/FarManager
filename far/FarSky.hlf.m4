@@ -2328,8 +2328,7 @@ Bin can be performed only for local hard disks.
 
  #Použiť kopírovanie cez systém#
  Nastaví používanie funkcie CopyFileEx z Windows namiesto vnútornej implementácie
-kopírovania súborov. Môže to byť výhodné u NTFS, lebo táto funkcia racionálnejšie
-alokuje miesto na disku a kopíruje rozšírené atribúty. On the other hand, when using the system
+kopírovania súborov. Môže to byť výhodné u NTFS, lebo táto funkcia kopíruje rozšírené atribúty. On the other hand, when using the system
 function, the possibility of "smart" ~copying~@CopyFiles@ of sparse files is not available.
 
  #Kopírovať aj súbory otvorené na zápis#
@@ -4472,8 +4471,7 @@ dialog should be displayed for the read-only files.
 
  Možnosť "#Použiť kopírovanie cez systém#" z ~nastavení systému~@SystemSettings@ prikáže
 používanie funkcie CopyFileEx z Windows namiesto internej implementácie kopírovania.
-Toto môže byť užitočné na NTFS, lebo CopyFileEx vykonáva racionálnejšiu
-alokáciu miesta na disku a kopíruje aj rozšírené atribúty súboru. If this option is off, the internal
+Toto môže byť užitočné na NTFS, lebo CopyFileEx kopíruje aj rozšírené atribúty súboru. If this option is off, the internal
 implementation of the file copy routine is used. The internal
 function is also used if the source file is encrypted and is being
 copied to a different volume.

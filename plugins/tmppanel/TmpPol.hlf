@@ -27,17 +27,17 @@ operacji:
     to the temporary panel. In order to do this, you should click
     the "#Panel#" button in the dialog with the list of found files.
 
-   Files being put to the temporary panel are not copied physically,
-only references to them are created. All operations that you perform
-on the temporary panel are applied to the real files at their actual
-locations. For example, if you delete a file on the temporary panel,
-the file is actually deleted from the disk.
+   Pliki kopiowane do panelu tymczasowego nie są tam kopiowane fizycznie,
+a jedynie umieszczane są tam odwołania do nich. Podczas wykonywania operacji na
+plikach w panelu tymczasowym zmieniane są pliki w ich fizycznej lokacji. Na
+przykład usunięcie pliku z panelu tymczasowego powoduje fizyczne usunięcie
+pliku z dysku.
 
-   To remove selected file names from the temporary
-panel without deleting actual files, you can press #F7#.
+   Aby usunąć plik tylko z panelu tymczasowego należy użyć klawisza
+#F7#. Wtedy właściwy plik pozostanie nienaruszony.
 
-   Press #Ctrl-PgUp# to close the temporary panel and go to the file
-under the cursor.
+   Aby znaleźć się w katalogu, w którym znajduje się plik pod kursorem należy
+nacisnąć #Ctrl-PgUp#.
 
    #Alt-Shift-F3# on an element:
 
@@ -59,18 +59,18 @@ can use the hotkey #Alt-Shift-F2#.
 
 @Config
 $ #Panel tymczasowy: Konfiguracja#
-   In this dialog you may change the following options:
+   W tym oknie dialogowym można zmienić następujące parametry:
 
  #Add to disks menu#
-   Enables adding the "Temporary" item to the disks menu.
+   Pozwala na włączenie elementu "Tymczasowy" do menu napędów.
 
  #Add to plugins menu#
    Enables adding the "Temporary" item to the plugins menu.
 
- #Use common panel#
-   When enabled, a common temporary panel is created and its contents is
-stored even after closing the panel. When this option is not enabled,
-each new temporary panel will be created empty.
+ #Użyj wspólnego panelu#
+   Jeśli opcja jest włączona, obsługiwany jest jeden panel tymczasowy
+a jego zawartość jest przechowywana nawet po jego zamknięciu. Bez
+tej opcji każdy panel tymczasowy po utworzeniu jest pusty.
    If the option #"Use common panel"# is enabled, 10 instances of
 the temporary panel are created. You can switch between them by pressing
 #Alt-Shift-F12# (to show a menu) or hotkeys from #Alt-Shift-0# to

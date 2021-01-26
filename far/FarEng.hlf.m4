@@ -2334,7 +2334,7 @@ Bin can be performed only for local hard disks.
  #Use system copy routine#
  Use the file copy functions provided by the operating system instead of internal
 file copy implementation. It can be useful on NTFS, because the system function
-(CopyFileEx) copies file extended attributes. On the other hand, when using the system
+(CopyFileEx) copies extended file attributes. On the other hand, when using the system
 function, the possibility of "smart" ~copying~@CopyFiles@ of sparse files is not available.
 
  #Copy files opened for writing#
@@ -4477,8 +4477,7 @@ dialog should be displayed for the read-only files.
 
  The “#Use system copy routine#” option of the ~System settings~@SystemSettings@
 dialog enables the use of Windows operating system function CopyFileEx. This may be useful
-on NTFS, because CopyFileEx optimizes disk space allocation and copies
-extended file attributes. If this option is off, the internal
+on NTFS, because CopyFileEx copies extended file attributes. If this option is off, the internal
 implementation of the file copy routine is used. The internal
 function is also used if the source file is encrypted and is being
 copied to a different volume.

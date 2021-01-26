@@ -2372,8 +2372,9 @@ jen pro lokální pevné disky.
 
  #Používat kopírovací rutiny systému#
  Používání funkce Windows CopyFileEx místo interní implementace Faru.
-Může to být užitečné na NTFS, protože CopyFileEx provádí inteligentnější 
-rozdělení místa na disku a kopíruje rozšířené atributy souborů.
+Může to být užitečné na NTFS, protože CopyFileEx kopíruje
+rozšířené atributy souborů. On the other hand, when using the system
+function, the possibility of "smart" ~copying~@CopyFiles@ of sparse files is not available.
 
  #Kopírovat soubory otevřené pro zápis#
  Umožňuje kopírovat soubory, které jsou již otevřeny jiným programem pro zápis.
@@ -4510,8 +4511,7 @@ dialog should be displayed for the read-only files.
 
  Nastavení "Používat kopírovací rutiny systému" z dialogu ~Nastavení Systému~@SystemSettings@,
 zajistí používání kopírovací funkce Windows CopyFileEx, místo interních funkcí pro kopírování souborů, 
-implementovaných ve Faru. To může být užitečné na NTFS, protože CopyFileEx 
-provádí inteligentnější alokaci diskového prostoru a kopíruje rozšířené
+implementovaných ve Faru. To může být užitečné na NTFS, protože CopyFileEx kopíruje rozšířené
 atributy souborů. If this option is off, the internal
 implementation of the file copy routine is used. The internal
 function is also used if the source file is encrypted and is being
