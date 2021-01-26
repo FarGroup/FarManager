@@ -41,6 +41,8 @@ dos2unix FarHun.hlf.m4
 dos2unix FarPol.hlf.m4
 dos2unix FarGer.hlf.m4
 dos2unix FarUkr.hlf.m4
+dos2unix FarCze.hlf.m4
+dos2unix FarSky.hlf.m4
 gawk -f ./scripts/mkhlf.awk FarEng.hlf.m4 | $M4CMDP | unix2dos -m > $OUTDIR/FarEng.hlf
 gawk -f ./scripts/mkhlf.awk FarRus.hlf.m4 | $M4CMDP | unix2dos -m > $OUTDIR/FarRus.hlf
 gawk -f ./scripts/mkhlf.awk FarHun.hlf.m4 | $M4CMDP | unix2dos -m > $OUTDIR/FarHun.hlf
