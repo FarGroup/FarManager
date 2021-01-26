@@ -4,26 +4,6 @@ NAME = Brackets
 
 LINK_OBJS = $(OBJDIR)\Brackets.obj
 
-DOCS = \
-	BrackEng.hlf \
-	BrackRus.hlf \
-	BrackPol.hlf \
-	BrackBel.hlf \
-	BrackUkr.hlf \
-	BrackCze.hlf \
-	BrackEng.lng \
-	BrackRus.lng \
-	BrackSky.lng \
-	BrackSpa.lng \
-	BrackIta.lng \
-	BrackPol.lng \
-	BrackBel.lng \
-	BrackGer.lng \
-	BrackUkr.lng \
-	BrackCze.lng \
-	Brackets.lua \
-	changelog
-
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc

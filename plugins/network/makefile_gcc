@@ -8,26 +8,6 @@ SRCS = \
 	NetFavorites.cpp \
 	NetMix.cpp
 
-DOCS = \
-	NetEng.hlf \
-	NetRus.hlf \
-	NetBel.hlf \
-	NetPol.hlf \
-	NetGer.hlf \
-	NetUkr.hlf \
-	NetCze.hlf \
-	NetEng.lng \
-	NetRus.lng \
-	NetSky.lng \
-	NetSpa.lng \
-	NetIta.lng \
-	NetBel.lng \
-	NetPol.lng \
-	NetGer.lng \
-	NetUkr.lng \
-	NetCze.lng \
-	changelog
-
 NEEDDEFLIB=1
 USERLIBS = -lmpr -lnetapi32
 

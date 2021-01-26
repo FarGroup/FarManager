@@ -2,19 +2,6 @@ NAME = AutoWrap
 
 SRCS = AutoWrap.cpp
 
-DOCS = \
-	WrapEng.lng \
-	WrapRus.lng \
-	WrapSky.lng \
-	WrapSpa.lng \
-	WrapIta.lng \
-	WrapPol.lng \
-	WrapBel.lng \
-	WrapGer.lng \
-	WrapUkr.lng \
-	WrapCze.lng \
-	changelog
-
 include ../../far/makefile_gcc_common
 
 include ../makefile_gcc_def_inc

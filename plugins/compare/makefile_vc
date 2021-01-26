@@ -4,27 +4,6 @@ NAME = Compare
 
 LINK_OBJS = $(OBJDIR)\Compare.obj
 
-DOCS = \
-	CmpEng.hlf \
-	CmpRus.hlf \
-	CmpPol.hlf \
-	CmpBel.hlf \
-	CmpGer.hlf \
-	CmpUkr.hlf \
-	CmpCze.hlf \
-	CompEng.lng \
-	CompRus.lng \
-	CompSky.lng \
-	CompSpa.lng \
-	CompIta.lng \
-	CompPol.lng \
-	CompBel.lng \
-	CompGer.lng \
-	CompUkr.lng \
-	CompCze.lng \
-	AdvCompare.CompareBufferSize.farconfig \
-	changelog
-
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc

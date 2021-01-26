@@ -179,6 +179,7 @@
           <ComponentRef Id="FarRus.lng" />
         </Feature>
         <Feature Id="Slovak" Level="1" Title="!(loc.Feature.Title.Slovak)" AllowAdvertise="no">
+          <ComponentRef Id="FarSky.hlf" />
           <ComponentRef Id="FarSky.lng" />
         </Feature>
         <Feature Id="Spanish" Level="1" Title="!(loc.Feature.Title.Spanish)" AllowAdvertise="no">
@@ -397,6 +398,7 @@
             <ComponentRef Id="ECaseEng.hlf" />
             <ComponentRef Id="ECaseEng.lng" />
             <Feature Id="EditCase.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="ECaseSky.hlf" />
               <ComponentRef Id="ECaseSky.lng" />
             </Feature>
             <Feature Id="EditCase.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
@@ -495,6 +497,7 @@
           <ComponentRef Id="CmpEng.hlf" />
           <ComponentRef Id="CompEng.lng" />
             <Feature Id="Compare.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+          <ComponentRef Id="CmpSky.hlf" />
           <ComponentRef Id="CompSky.lng" />
           </Feature>
           <Feature Id="Compare.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
@@ -784,6 +787,7 @@
           <ComponentRef Id="CaseEng.hlf" />
           <ComponentRef Id="CaseEng.lng" />
           <Feature Id="FileCase.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CaseSky.hlf" />
             <ComponentRef Id="CaseSky.lng" />
           </Feature>
           <Feature Id="FileCase.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
@@ -936,6 +940,7 @@
           <ComponentRef Id="NetEng.hlf" />
           <ComponentRef Id="NetEng.lng" />
           <Feature Id="Network.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="NetSky.hlf" />
             <ComponentRef Id="NetSky.lng" />
           </Feature>
           <Feature Id="Network.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
@@ -1008,6 +1013,10 @@
             <ComponentRef Id="ProcCze.hlf" />
             <ComponentRef Id="ProcCze.lng" />
           </Feature>
+          <Feature Id="Proclist.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="ProcSky.hlf" />
+            <ComponentRef Id="ProcSky.lng" />
+          </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="Proclist.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="ProcList.map" />
@@ -1026,6 +1035,7 @@
           <ComponentRef Id="TmpEng.hlf" />
           <ComponentRef Id="TmpEng.lng" />
           <Feature Id="TmpPanel.Slovak" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="TmpSky.hlf" />
             <ComponentRef Id="TmpSky.lng" />
           </Feature>
           <Feature Id="TmpPanel.Spanish" Level="1" Display="hidden" AllowAdvertise="no">

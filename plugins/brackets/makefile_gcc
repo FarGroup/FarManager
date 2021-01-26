@@ -2,26 +2,6 @@ NAME = Brackets
 
 SRCS = Brackets.cpp
 
-DOCS = \
-	BrackEng.hlf \
-	BrackRus.hlf \
-	BrackPol.hlf \
-	BrackBel.hlf \
-	BrackUkr.hlf \
-	BrackCze.hlf \
-	BrackEng.lng \
-	BrackRus.lng \
-	BrackSky.lng \
-	BrackSpa.lng \
-	BrackIta.lng \
-	BrackPol.lng \
-	BrackBel.lng \
-	BrackGer.lng \
-	BrackUkr.lng \
-	BrackCze.lng \
-	Brackets.lua \
-	changelog
-
 include ../../far/makefile_gcc_common
 
 include ../makefile_gcc_def_inc

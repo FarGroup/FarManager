@@ -4,27 +4,6 @@ NAME = EditCase
 
 LINK_OBJS = $(OBJDIR)\EditCase.obj
 
-DOCS = \
-	ECaseEng.hlf \
-	ECaseRus.hlf \
-	ECasePol.hlf \
-	ECaseBel.hlf \
-	ECaseGer.hlf \
-	ECaseUkr.hlf \
-	ECaseCze.hlf \
-	ECaseEng.lng \
-	ECaseRus.lng \
-	ECaseSky.lng \
-	ECaseSpa.lng \
-	ECaseIta.lng \
-	ECasePol.lng \
-	ECaseBel.lng \
-	ECaseGer.lng \
-	ECaseUkr.lng \
-	ECaseCze.lng \
-	EditCase.lua \
-	changelog
-
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc

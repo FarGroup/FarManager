@@ -116,3 +116,5 @@ CPP_DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
 DEPS = $(strip $(C_DEPS) $(CPP_DEPS))
 endif
 MAP = $(patsubst %.$(EXT),%.map,$(DLLFULLNAME))
+
+DOCS := *.hlf *.lng *.lua *.farconfig changelog $(DOCS)

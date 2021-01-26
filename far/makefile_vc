@@ -444,6 +444,7 @@ HLFS = \
 	"$(OUTDIR)\FarGer.hlf" \
 	"$(OUTDIR)\FarUkr.hlf" \
 	"$(OUTDIR)\FarCze.hlf" \
+	"$(OUTDIR)\FarSky.hlf" \
 
 .PHONY: docs
 docs: \

@@ -1,0 +1,43 @@
+﻿.Language=Slovak,Slovak (Slovenčina)
+.PluginContents=Rozšírené porovnávanie
+
+@Contents
+$ #Rozšírené porovnávanie#
+ Tento príkaz je podobný internému príkazu FARu "Porovnaj adresáre", ale dovoľuje niekoľko dodatočných porovnávacích kritérií:
+
+ #Prejdi:#
+
+ #podadresáre#
+ Porovná súbory v podadresároch. Nemožno použiť pre panely prídavných modulov.
+
+ #maximum folder depth#
+ Don't compare folders of bigger depth than specified.
+
+ #selected items only#
+ Compare selected files/folders only. This option is ignored for panels with no selected items (the whole panel contents will be compared in that case).
+
+ #Porovnaj:#
+
+ #čas#
+ Porovná čas súboru. Unlike the internal Far command, this option will mark files on both panels, not the newer files only.
+
+ #s presnosťou na dve sekundy#
+ Použije pre porovnávanie formát FAT. Ináč sa bude porovnávať kompletný čas vrátane milisekúnd.
+
+ #ignore possible time zone differences#
+ Ignore file time difference that is an exact multiple of 15 minutes (i.e. half an hour, 2 hours and 15 minutes, 12 hours). Maximum ignored difference is 26 hours.
+
+ #Porovnaj dĺžku#
+ Porovná dĺžku súboru.
+
+ #Porovnaj obsah#
+ Porovná obsah súboru. Nemožno použiť pre panely prídavných modulov.
+
+ #ignore differences in new line characters#
+ Ignore differences in new line characters (i.e. when comparing Unix and Windows files).
+
+ #ignore whitespace#
+ Ignore whitespace when comparing file contents (ignores spaces, tabs and new line characters).
+
+ #Display a message if no differences were found#
+ Display a message if all compared items seem to be identical.

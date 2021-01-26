@@ -228,6 +228,7 @@ docs: \
 	$(EXEDIR)FarGer.hlf \
 	$(EXEDIR)FarUkr.hlf \
 	$(EXEDIR)FarCze.hlf \
+	$(EXEDIR)FarSky.hlf \
 	$(EXEDIR)File_id.diz \
 	$(EXEDIR)Far.exe.example.ini
 

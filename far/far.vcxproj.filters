@@ -1196,6 +1196,9 @@
     <CustomBuild Include="FarCze.hlf.m4">
       <Filter>Dependencies</Filter>
     </CustomBuild>
+    <CustomBuild Include="FarSky.hlf.m4">
+      <Filter>Dependencies</Filter>
+    </CustomBuild>
     <CustomBuild Include="farversion.inc.m4">
       <Filter>Dependencies</Filter>
     </CustomBuild>

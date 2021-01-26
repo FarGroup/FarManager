@@ -1,0 +1,81 @@
+﻿.Language=Slovak,Slovak (Slovenčina)
+.PluginContents=Prehliadač siete
+
+@Contents
+$ #Prehliadač siete#
+ Pomocou prehliadača siete sa môžete pohybovať po sieti,
+pripojených a odpojených sieťových jednotkách, pripájať a odpájať
+ich. Stlačením #F5# možno pripojiť označenú jednotku k najbližšiemu
+voľnému písmenu alebo pomocou #F6# k manuálne zvolenému písmenu. #Shift-F5# and #Shift-F6#
+work the same as #F5# and #F6#, but create temporary connections.
+It is possible to toggle the connection type in the drive letter
+selection menu shown when #F6# or #Shift-F6# is pressed.
+Použitím #F8# sa ~zruší existujúce pripojenie~@DisconnectDrive@ zvoleného disku.
+
+ You can open the network browser from the disks menu,
+the plugins menu or by entering a command in the command line:
+ #net:#
+ #net:server_name#
+ #net:\\server_name#
+
+ If you specify the name of the server when opening the plugin
+from the command line, the list of shares of that server will be shown.
+This feature works only for Microsoft Windows networks.
+
+ Within the plugin, you can move between servers by entering a
+command in the command line:
+
+ #cd \\server_name#
+
+ This feature also works only for Microsoft Windows networks.
+
+ You can use different credentials to open remote shares. To open resource
+specifying login information explicitly use F4 key.
+
+ ~Konfigurácia prehliadača~@NetCfg@
+
+@Config
+$ #Konfigurácia prehliadača#
+ V tomto okne možno zmeniť nasledovné položky:
+
+ #Pridať do menu jendotiek#
+ Umiestni položku "sieť" to menu jednotiek.
+
+ #Add to plugins menu#
+ Enables adding "Network" item to the plugins menu.
+
+ #Выводить ".." в списке провайдеров#
+ Показывать ".." на панели в списке провайдеров.
+
+ #Show local network#
+ If this option is enabled, then, when the Network Browser is first opened, it will show
+the network neighborhood of the current computer (computers in the same domain or
+workgroup). The option works only for Microsoft Windows networks.
+
+ #Показывать принтеры#
+ Показывать предоставляемые хостом общие принтеры.
+
+ #Показывать полные пути к общим ресурсам#
+ ...
+
+ #Show hidden shares#
+ If this option is enabled, hidden (administrative) shares are shown in the plugin.
+
+ #Показывать скрытые ресурсы атрибутом Hidden#
+ Если включена эта опция, плагин для скрытых административных ресурсов ставит атрибут Hidden.
+
+ #Возврат в Избранное, если ресурс в избранном#
+ ...
+
+@DisconnectDrive
+$ #Disconnect network drive#
+ You can disconnect a network drive by pressing #Del# or #F8# in the
+list of shares of a computer.
+
+ If the option #[x] Disconnect network drive# is enabled in the
+~Confirmations dialog~@:ConfirmDlg@ of the Far configuration, a dialog
+will appear allowing you to confirm the disconnection and to choose
+whether you want to disconnect permanently or temporarily.
+
+ The option #[x] Reconnect at logon# is enabled only for permanently
+connected network drives.

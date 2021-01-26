@@ -6,26 +6,6 @@ SRCS = \
 	FileMix.cpp \
 	ProcessName.cpp
 
-DOCS = \
-	CaseEng.hlf \
-	CaseRus.hlf \
-	CasePol.hlf \
-	CaseBel.hlf \
-	CaseGer.hlf \
-	CaseUkr.hlf \
-	CaseCze.hlf \
-	CaseEng.lng \
-	CaseRus.lng \
-	CaseSky.lng \
-	CaseSpa.lng \
-	CaseIta.lng \
-	CasePol.lng \
-	CaseBel.lng \
-	CaseGer.lng \
-	CaseUkr.lng \
-	CaseCze.lng \
-	changelog
-
 include ../../far/makefile_gcc_common
 
 include ../makefile_gcc_def_inc

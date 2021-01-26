@@ -247,3 +247,5 @@ RC=$(_RC_PATH)rc.exe
 .path.rc=.
 .path.def=.
 !endif
+
+DOCS = *.hlf *.lng *.lua *.farconfig changelog $(DOCS)

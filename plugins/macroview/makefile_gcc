@@ -1,6 +1,5 @@
 NAME = MacroView
 SRCS = MacroView.cpp
-DOCS = MacroEng.hlf MacroRus.hlf MacroEng.lng MacroRus.lng MacroBel.lng changelog
 
 include ../../far/makefile_gcc_common
 

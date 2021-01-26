@@ -75,6 +75,9 @@
       <Component Id="FarSpa.lng" Guid="$(var.Guid.FarSpa.lng)" Win64="$(var.Win64)">
         <File Id="FarSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\FarSpa.lng" />
       </Component>
+      <Component Id="FarSky.hlf" Guid="$(var.Guid.FarSky.hlf)" Win64="$(var.Win64)">
+        <File Id="FarSky.hlf" KeyPath="yes" Source="$(var.SourceDir)\FarSky.hlf" />
+      </Component>
       <Component Id="FarSky.lng" Guid="$(var.Guid.FarSky.lng)" Win64="$(var.Win64)">
         <File Id="FarSky.lng" KeyPath="yes" Source="$(var.SourceDir)\FarSky.lng" />
       </Component>
@@ -687,6 +690,9 @@
           <Component Id="CmpRus.hlf" Guid="$(var.Guid.CmpRus.hlf)" Win64="$(var.Win64)">
             <File Id="CmpRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CmpRus.hlf" />
           </Component>
+          <Component Id="CmpSky.hlf" Guid="$(var.Guid.CmpSky.hlf)" Win64="$(var.Win64)">
+            <File Id="CmpSky.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CmpSky.hlf" />
+          </Component>
           <Component Id="CmpPol.hlf" Guid="$(var.Guid.CmpPol.hlf)" Win64="$(var.Win64)">
             <File Id="CmpPol.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CmpPol.hlf" />
           </Component>
@@ -820,6 +826,9 @@
           </Component>
           <Component Id="ECaseRus.lng" Guid="$(var.Guid.ECaseRus.lng)" Win64="$(var.Win64)">
             <File Id="ECaseRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\ECaseRus.lng" />
+          </Component>
+          <Component Id="ECaseSky.hlf" Guid="$(var.Guid.ECaseSky.hlf)" Win64="$(var.Win64)">
+            <File Id="ECaseSky.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\ECaseSky.hlf" />
           </Component>
           <Component Id="ECaseSky.lng" Guid="$(var.Guid.ECaseSky.lng)" Win64="$(var.Win64)">
             <File Id="ECaseSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\ECaseSky.lng" />
@@ -1334,6 +1343,9 @@
           <Component Id="CaseRus.lng" Guid="$(var.Guid.CaseRus.lng)" Win64="$(var.Win64)">
             <File Id="CaseRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CaseRus.lng" />
           </Component>
+          <Component Id="CaseSky.hlf" Guid="$(var.Guid.CaseSky.hlf)" Win64="$(var.Win64)">
+            <File Id="CaseSky.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CaseSky.hlf" />
+          </Component>
           <Component Id="CaseSky.lng" Guid="$(var.Guid.CaseSky.lng)" Win64="$(var.Win64)">
             <File Id="CaseSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FileCase\CaseSky.lng" />
           </Component>
@@ -1555,6 +1567,9 @@
           <Component Id="NetRus.lng" Guid="$(var.Guid.NetRus.lng)" Win64="$(var.Win64)">
             <File Id="NetRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\NetRus.lng" />
           </Component>
+          <Component Id="NetSky.hlf" Guid="$(var.Guid.NetSky.hlf)" Win64="$(var.Win64)">
+            <File Id="NetSky.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\NetSky.hlf" />
+          </Component>
           <Component Id="NetSky.lng" Guid="$(var.Guid.NetSky.lng)" Win64="$(var.Win64)">
             <File Id="NetSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\NetSky.lng" />
           </Component>
@@ -1660,6 +1675,12 @@
           <Component Id="ProcCze.lng" Guid="$(var.Guid.ProcCze.lng)" Win64="$(var.Win64)">
             <File Id="ProcCze.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcCze.lng" />
           </Component>
+          <Component Id="ProcSky.hlf" Guid="$(var.Guid.ProcSky.hlf)" Win64="$(var.Win64)">
+            <File Id="ProcSky.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcSky.hlf" />
+          </Component>
+          <Component Id="ProcSky.lng" Guid="$(var.Guid.ProcSky.lng)" Win64="$(var.Win64)">
+            <File Id="ProcSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcSky.lng" />
+          </Component>
         </Directory>
         <Directory Id="TmpPanel" Name="TmpPanel">
           <Component Id="changelog_17" Guid="$(var.Guid.changelog_17)" Win64="$(var.Win64)">
@@ -1706,6 +1727,9 @@
           </Component>
           <Component Id="TmpEng.lng" Guid="$(var.Guid.TmpEng.lng)" Win64="$(var.Win64)">
             <File Id="TmpEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpEng.lng" />
+          </Component>
+          <Component Id="TmpSky.hlf" Guid="$(var.Guid.TmpSky.hlf)" Win64="$(var.Win64)">
+            <File Id="TmpSky.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpSky.hlf" />
           </Component>
           <Component Id="TmpSky.lng" Guid="$(var.Guid.TmpSky.lng)" Win64="$(var.Win64)">
             <File Id="TmpSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\TmpSky.lng" />

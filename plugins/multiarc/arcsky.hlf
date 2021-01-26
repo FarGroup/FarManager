@@ -1,0 +1,272 @@
+﻿.Language=Slovak,Slovak (Slovenčina)
+.PluginContents=Podpora archívov (Archive support)
+
+@Contents
+$ #Podpora archívov#
+    Tento modul FARu umožňuje transparentnú prácu s #archívmi#.
+So súbormi v archíve sa pracuje podobne ako s adresárom: keď
+pracujete s archívom, FAR transformuje vaše príkazy na zodpovedajúce
+volania externých archiverov.
+
+   ~Pridávanie súborov do archívu~@AddToArc@
+
+   ~Rozbaľovanie súborov z archívu~@ExtrFromArc@
+
+   ~Príkazy archívov~@ArcCmd@
+
+   ~Konfigurácia podpory archívov~@ArcCfg@
+
+   ~Príkazové riadky archiverov~@ArcSettings@
+
+   ~Storage of plugin settings~@ArcSettings3@
+
+@AddToArc
+$ #Pridávanie súborov do archívu#
+    V tomto okne si môžete zvoliť archiver, pridať alebo zmeniť
+prepínače príkazového riadku (štandardné prepínače možno definovať
+použitím okna ~Nastavenie archiverov (Archiver settings)~@ArcSettings@)
+a zadať heslo na zakryptovanie súborov pri archivácii.
+
+    Prepínač #Vymaž súbory po archivovaní (Delete files after archiving)#
+spôsobí operáciu presunutia do archívu. This option is turned
+on automatically if the key #F6# is used to add files to an archive.
+
+    The option #Exact archive filename# allows to create archives with
+nonstandard extensions (if this is supported by the archiver). If the
+option is turned off, the extension defined in the
+~Archiver command lines~@ArcSettings2@ dialog is appended to the name
+entered in the dialog.
+
+    The option #Background# starts the archiving process in a separate window.
+
+    The #Priority of process# option allows to change the execution
+~priority~@ArcPrior@ of the archiving process.
+
+    Možnosť #Ulož nastavenia (Save settings)# uloží aktuálny archiver a
+jeho prepínače pre neskoršie použitie.
+
+    Pressing the keys #Shift-F1# has the same effect as pushing the
+"Select archiver" button and allows to select the archiver type to use.
+
+    When a new archive is created, the cursor is automatically
+positioned to the new archive once the archiving operation is
+complete. (This is not done when the archiver is started in a
+separate window.)
+
+@ArcPrior
+$ #Priority of process#
+    MultiArc allows to control the execution priority
+of the archiving process. The following priorities are available:
+
+    #low#
+    Background priority, foreknown to be lower than the priority of any
+other process in the system. Archiving will be very slow if any other
+process is active.
+
+    #below normal#
+    Priority above #low#, but below #normal#. Sets the priority of the
+archiving process above the background tasks, but lower than the
+execution priority of normal tasks (only in Windows 2000 or newer).
+
+    #normal#
+    Archiving is executed along with other tasks on the computer.
+
+    #above normal#
+    Priority above "normal", but below "high". Archiving is given higher
+priority than all other normal processes, and can substantially slow
+down their execution (only in Windows 2000 or newer).
+
+    #high#
+    Specify this priority for time-critical archiving that must be
+executed without delay. ATTENTION: Use extreme care when using the high
+priority, because a high priority application can use nearly all
+available CPU time, while the gain from using this priority can only be
+achieved when other active processes are running in the system.
+
+    The "normal" priority is selected by default.
+
+@ExtrFromArc
+$ #Rozbaľovanie súborov z archívu#
+    V tomto okne môžete zadať cestu, do ktorej chcete súbory rozbaliť,
+ako i heslo na dekryptovanie archivovaných súborov.
+
+    Prepínač #Rozbaliť bez ciest (Extract without pathnames)# spôsobí
+rozbalenie všetkých súborov do jedného adresára.
+
+    If the option #Delete from archive after extracting# is turned on,
+the files will be deleted from the archive after they are extracted.
+This option is turned on automatically if the key #F6# is used to extract
+files from an archive.
+
+    Na okamžité rozbalenie označených archivovaných súborov do aktuálnehoä
+adresára možno použiť aj #Alt-F6#.
+
+@ArcCmd
+$ #Príkazy archívov#
+    Z tohoto menu môžete archív otestovať, pridať mu komentár, skonvertovať
+ho na samozorbaľovací (SelF-eXtracting - SFX), pokúsiť sa obnoviť chybný
+archív, ochrániť archív pred poškodením a zabrániť zmenám archívu.
+
+    Poznámky:
+
+    1. Na vykonanie príslušných príkazov na prácu s archívmi potrebujete
+mať príslušný archivovací program. Parametre archiverov možno zmeniť
+a okne ~Nastavenie archiverov (Archiver settings)~@ArcSettings@.
+
+    For quick access to archiver options, you can press the key
+F4 in the "Archive commands" menu.
+
+    2. Kompletnú ponuku príkazov na prácu s archívmi možno použiť len
+pre archívy typu RAR. Ostatné archívy niektoré príkazy nepodporujú.
+
+@Config
+$ #Plugin configuration#
+
+    ~Archive support configuration~@ArcSettings1@
+
+    ~Archiver command lines~@ArcSettings2@
+
+    ~Storage of plugin settings~@ArcSettings3@
+
+@ArcSettings1
+$ #Konfigurácia podpory archívov#
+    V tomto okne môžete meniť nasledovné parametre:
+
+ #Spôsob zobrazovania#    Nepotláčať výstup archiverov, potlačiť
+ #výstupu archiverov#     len pre operáciu prezerania alebo vždy.
+
+ #Používať skratku#       Pridávanie súborov do archívu cez Sh-F1.
+ #Shift-F1#               Túto možnosť asi budete chcieť zakázať
+                        ak máte nainštalovaný iný modul podpory
+                        archívov, ktorý používa túto skratku.
+
+ #Change folder when#     If a new archive is created not in the
+ #setting the cursor#     current folder, change the folder and
+ #on new archive#         position the cursor on the archive.
+                        If the option is off, the cursor will be
+                        positioned on the archive only if it is
+                        created in the current folder.
+
+ #Use last command#       When adding files to archives, the last
+ #from history#           used value of the archiver command line
+                        switches will be placed in the "Switches"
+                        edit line.
+
+ #Automatically reset#    The option "Exact archive filename"
+ #"Exact archive#         will be turned off every time the dialog
+ #filename"#              "Add to archive" is invoked
+
+ #Zoznam súborov#         Mená súborov obsahujúcich ~popisy~@:FileDiz@
+ #s popismi#              archivovaných súborov oddelené čiarkami.
+
+
+ #Načítavať popisy#       Nastavuje, či sa majú načítavať popisy
+ #archívov#               archivovaných súborov pri vstupe do
+                        archívu. Toto umožňuje si tieto popisy
+                        pozrieť, ale spomaľuje načítavanie
+                        archívu.
+
+ #Aktualizovať popisy#    Ak je zvolené, budú sa popisy súborov
+ #archívov#               v archívoch aktualizovať po každom
+                        pridaní do alebo vymazaní z archívu.
+
+
+@ArcSettings2
+$ #Príkazové riadky archiverov#
+    V tomto okne môžete zmeniť príkazové riadky externých archiverov
+pre rôzny operácie s archívmi a masku, ktorá bude používaná na označenie
+všetkých súborov.
+
+    To reset all the settings of an archiver to the default values,
+press the Reset button.
+
+    Možno použiť nasledovné premenné:
+
+ #%%A# - Názov archívu.
+
+ #%%a# - Krátky názov archívu.
+
+ #%%W# - Adresár na ukladanie dočasných dát vrátane lomítka
+
+ #%%P# - Heslo.
+
+ #%%R# - Aktuálny adresár archívu.
+
+ #%%L# - Meno zoznamu súborov. Zoznam súborov je súbor, ktorý
+       obsahuje mená súborov, ktoré majú byť spracované
+       externým archiverom.
+
+ #%%l# - Meno zoznamu súborov s krátkymi menami súborov.
+
+ #%%F# - Mená jedného alebo viacerých súborov, ktoré majú byť
+       spracované. Ak nemožno všetky mená vložiť ako jeden reťazec,
+       archiver bude spustený niekoľkokrát, kým sa nespracujú
+       všetky súbory. Štandardne je maximálna celková dĺžka príkazu
+       127, ale môžete ju určiť priamo za %%F, napríklad %%F512.
+       Premenná %%F by sa mala používať len ak archiver nepodporuje
+       zoznamy súborov (filelists).
+
+ #%%f# - Meno jedného súboru na spracovanie. Archiver bude spustený
+       niekoľkokrát, kým sa nespracujú všetky súbory. Táto premenná
+       by sa mala používať len ak archiver nepodporuje ani zoznamy
+       súborov ani viac mien súborov v príkazovom riadku.
+
+ #%%E#<errorlevel> - maximálny akceptovateľný errorlevel príkazu.
+       Napríklad %%E2 znamená, že errorlevely 0, 1 a 2 sú
+       akceptovateľné. Táto premenná môže byť uvedená na ľubovoľnom
+       mieste príkazu. Ak chýba, len errorlevel 0 sa považuje za
+       úspešný.
+
+ #%%S# - Určuje miesto, kam sa v príkazovom riadku pridajú dodatočné
+       prepínače, zadané v dialógovom okne "Pridať". Ak
+       táto premenná nie je použitá, prepínače sa pridajú na koniec
+       príkazového riadku.
+
+    Zmenu formátu mien súborov možno dosianuť ak pridáte za názov
+premennej modifikátory Q, q, S, M, N, *, W, P:
+
+    'Q' - uzavri mená obsahujúce medzery do úvodzoviek;
+    'q' - uzavri do úvodzoviek všetky mená;
+    'S' - v cestách (path) použi '/' namiesto '\';
+    'M' - mená adresárov odovzdaj archiveru ako 'menoadresára\*.*';
+    'N' - mená adresárov odovzdaj archiveru ako 'menoadresára';
+    '*' - použi na označenie všetkých súborov masku '*'. Tento
+          modifikátor má prednosť pred nastavením "Masky pre všetky
+          súbory (All files mask)" pre ten konkrétny príkaz;
+    'W' - použi len mená, bez cesty;
+    'P' - použi len adresár, bez mien;
+    'A' - použi ANSI kódovanie.
+
+    Tieto modifikátory možno použiť hneď za premennými %%F, %%f, %%L
+alebo %%l bez medzier. 'P' a 'A' možno použiť aj s %%A and %%a. Nie
+je zakázané ani použitie niekoľkých súčasne, napríklad %%LMN alebo
+%%F*QSN128 sú správne. Ak sa nepoužije 'M' ani 'N', použije sa 'N'.
+Ak sa použijú oba - 'M' aj 'N' - archiveru sa pošle tak
+'menoadresára\*.*' ako aj 'menoadresára'.
+
+    Ak je časť príkazového reťazca pre archiver uzavretá v zátvorkách
+{  }, bude pridaná do výsledného reťazca len ak táto časť obsahuje
+aspoň jednu neprázdnu premennú z hore popísaných.
+
+    Ak externý archiver nepodporuje niektorý príkaz, nechajte príslušný
+reťazec prázdny.
+
+@ArcSettings3
+$ #Storage of plugin settings#
+    The plugin uses the following rules to load/save the settings of
+supported format modules:
+
+  1. #[HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]#
+     contains the settings common for all users. These settings can
+     only be changed by editing the registry manually, for example,
+     using *.reg files.
+
+  2. Any changes to the archiver command line settings are stored to
+     #[HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]#.
+
+  3. The plugin reads the archiver command line settings in the
+     following sequence:
+
+     a) [HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]
+     b) [HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]
+     c) settings provided by the FMT module.
