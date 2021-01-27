@@ -117,7 +117,7 @@ namespace
 	[[noreturn]]
 	void throw_exception(string_view const DatabaseName, int const ErrorCode, string_view const ErrorString = {}, int const SystemErrorCode = 0)
 	{
-		throw MAKE_EXCEPTION(far_sqlite_exception, format(FSTR(L"[{0}] - SQLite error {1}: {2}{3}"),
+		throw MAKE_EXCEPTION(far_sqlite_exception, true, format(FSTR(L"[{0}] - SQLite error {1}: {2}{3}"),
 			DatabaseName,
 			ErrorCode,
 			ErrorString.empty()? GetErrorString(ErrorCode) : ErrorString,

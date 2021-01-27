@@ -1931,15 +1931,16 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 				const int Result = Message(MSG_WARNING,
 					msg(lng::MWarning),
 					{
-						msg(lng::MEditorSaveCPWarn1),
-						msg(lng::MEditorSaveCPWarn2),
+						codepages::UnsupportedCharacterMessage(SaveStr[*ErrorPosition]),
+						codepages::FormatName(Codepage),
 						msg(lng::MEditorSaveNotRecommended)
 					},
-					{ lng::MCancel, lng::MEditorSaveCPWarnShow, lng::MEditorSave });
-				if (Result == Message::third_button)
+					{ lng::MEditorSaveCPWarnShow, lng::MEditorSave, lng::MCancel });
+
+				if (Result == Message::second_button)
 					break;
 
-				if(Result == Message::second_button)
+				if(Result == Message::first_button)
 				{
 					m_editor->GoToLine(LineNumber);
 					if(!ValidStr)
@@ -1975,7 +1976,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 
 			const time_check TimeCheck;
 
-			encoding::writer Writer(Stream, Codepage, AddSignature);
+			// We've already validated the codepage above
+			encoding::writer Writer(Stream, Codepage, AddSignature, true);
 
 			size_t LineNumber = -1;
 
@@ -2746,16 +2748,14 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 
 	uintptr_t ErrorCodepage;
 	size_t ErrorLine, ErrorPos;
-	if (!m_editor->TryCodePage(codepage, ErrorCodepage, ErrorLine, ErrorPos))
+	wchar_t ErrorChar;
+	if (!m_editor->TryCodePage(codepage, ErrorCodepage, ErrorLine, ErrorPos, ErrorChar))
 	{
-		const auto Info = codepages::GetInfo(ErrorCodepage);
-
 		const int Result = Message(MSG_WARNING,
 			msg(lng::MWarning),
 			{
-				msg(lng::MEditorSwitchCPWarn1),
-				msg(lng::MEditorSwitchCPWarn2),
-				format(FSTR(L"{0} - {1}"), codepage, Info? Info->Name : str(codepage)),
+				codepages::UnsupportedCharacterMessage(ErrorChar),
+				codepages::FormatName(ErrorCodepage),
 				msg(lng::MEditorSwitchCPConfirm)
 			},
 			{ lng::MCancel, lng::MEditorSaveCPWarnShow, lng::MOk });

@@ -3783,7 +3783,7 @@ a externého ~prezerača~@Viewer@.
                          the character '\0'. The character to display can be
                          set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
 
- #Show scrollbar#          Show scrollbar in the internal viewer. This
+ #Show a scrollbar#        Show a scrollbar in the internal viewer. This
                          option can also be switched by pressing
                          #Ctrl+S# in the internal viewer.
 @=
@@ -3884,7 +3884,7 @@ interného editora.
 
  #Veľkosť tabulátora#      Počet medzier reprezentujúcich znak tabulátora.
 
- #Show scrollbar#          Show scrollbar.
+ #Show a scrollbar#        Show a scrollbar.
 
  #Show white space#        Make while space characters (spaces, tabulations,
                          line breaks) visible.

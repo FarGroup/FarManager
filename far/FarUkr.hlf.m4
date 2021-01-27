@@ -3960,7 +3960,7 @@ $ #Конфігурація редактора#
  #Розмір табуляції#        Кількість пробілів при показі символа
                          табуляції.
 
- #Show scrollbar#          Show scrollbar.
+ #Show a scrollbar#        Show a scrollbar.
 
  #Show white space#        Make while space characters (spaces, tabulations,
                          line breaks) visible.

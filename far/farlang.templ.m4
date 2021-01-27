@@ -1728,7 +1728,7 @@ upd:"Fájl előzmények"
 
 MViewHistoryIsCreate
 "Создать файл?"
-"Create file?"
+"Create the file?"
 "Vytvořit soubor?"
 "Datei erstellen?"
 "Fájl létrehozása?"
@@ -2447,7 +2447,7 @@ MConfigShowFree
 
 MConfigShowScrollbar
 "Показывать по&лосу прокрутки"
-"Show scroll&bar"
+"Show a scroll&bar"
 "Zobrazovat &posuvník"
 "Scroll&balken anzeigen"
 "Gördítősá&v mutatva"
@@ -8487,59 +8487,6 @@ upd:"All unsaved changes will be lost."
 "Tutte Le Modifiche Non Salvate Verranno Perse"
 "Усі незбережені зміни буде втрачено."
 "Усі незахаваныя змены будуць згубленыя."
-
-
-MEditorSaveCPWarn1
-"Редактор содержит символы, которые невозможно"
-"Editor contains characters that cannot be"
-"Editor obsahuje znaky, které se nedají"
-"Editor enthält Symbole, die korrekt"
-upd:"Editor contains characters that cannot be"
-"Edytor zawiera znaki, które nie mogą być"
-"El editor contiene caracteres que no pueden ser"
-"Editor obsahuje znaky, ktoré sa nedajú"
-"L'Editor Contiene Caratteri, Che Non Possono Essere"
-"Редактор містить символи, які неможливо"
-"Змена ўтрымоўвае сімвалы, якія немагчыма"
-
-MEditorSaveCPWarn2
-"корректно сохранить, используя выбранную кодовую страницу."
-"correctly saved using the selected code page."
-"správně uložit se zvolenou kódovou stránkou."
-"mit ausgewählte Codepage nicht gespeichert werden können."
-upd:"correctly saved using the selected code page."
-"poprawnie zapisane w wybranej stronie kodowej."
-"correctamente guardados con página de códigos (codepage) seleccionada."
-"správne uložiť so zvolenou tabuľkou znakov."
-"Salvati Correttamente Usando La Tabella Selezionata"
-"коректно зберегти з використанням обраної кодової сторінки."
-"правільна захаваць, калі ужыць абраную кадыроўку."
-
-MEditorSwitchCPWarn1
-"Редактор содержит символы, которые невозможно"
-"Editor contains characters that cannot be"
-"Editor obsahuje znaky, které se nedají"
-"Editor enthält Symbole, die korrekt"
-upd:"Editor contains characters that cannot be"
-"Edytor zawiera znaki, które nie mogą być"
-"El editor contiene caracteres que no pueden ser correctamente traducidos"
-"Editor obsahuje znaky, ktoré sa nedajú"
-"L'Editor Contiene Caratteri, Che Non Possono Essere"
-"Редактор містить символи, які неможливо"
-"Змена ўтрымоўвае сімвалы, якія немагчыма"
-
-MEditorSwitchCPWarn2
-"корректно преобразовать, используя выбранную кодовую страницу:"
-"correctly translated using the selected code page:"
-"správně přeložit se zvolenou kódovou stránkou:"
-"mit ausgewählte Codepage nicht gewandelt werden können:"
-upd:"correctly translated using the selected code page:"
-"poprawnie przetłumaczone w bieżącej stronie kodowej:"
-"con la página de códigos (codepage) seleccionada:"
-"správne preložiť so zvolenou tabuľkou znakov:"
-"Correttamente Tradotti Usando La Tabella Selezionata:"
-"коректно перетворити з використанням обраної кодової сторінки:"
-"правільна пераўтварыць, калі ўжыць абраную кадыроўку:"
 
 MEditorSwitchCPConfirm
 "Продолжить?"
@@ -15096,31 +15043,18 @@ l:
 "Пошук"
 "Пошук"
 
-MCannotCreateListFile
-"Ошибка создания списка файлов"
-"Cannot create list file"
-"Nelze vytvořit soubor se seznamem"
-"Dateiliste konnte nicht erstellt werden"
-"A listafájl nem hozható létre"
-"Nie można utworzyć listy plików"
-"No se puede crear archivo de lista"
-"Nemôžem vytvoriť súbor so zoznamom"
-"Non Posso Creare La Lista Dei Files"
-"Помилка створення списку файлів"
-"Немагчыма стварыць спіс файлаў"
-
 MCannotCreateListTemp
-"(невозможно создать временный файл для списка)"
-"(cannot create temporary file for list)"
-"(nelze vytvořit dočasný soubor pro seznam)"
-"(Fehler beim Anlegen einer temporären Datei für Liste)"
-"(a lista átmeneti fájl nem hozható létre)"
-"(nie można utworzyć pliku tymczasowego dla listy)"
-"(no se puede crear archivo temporal para lista)"
-"(nemôžem vytvoriť dočasný súbor pre zoznam)"
-"(Non Posso Creare Il File Temporaneo Per La Lista)"
-"(Неможливо створити тимчасовий файл для списку)"
-"(немагчыма стварыць часовы файл для спісу)"
+"Невозможно создать временный файл для списка файлов"
+"Cannot create a temporary file for the list of files"
+"Nelze vytvořit dočasný soubor pro seznam souborů"
+"Fehler beim Anlegen einer temporären Datei für die Liste der Dateien"
+"Nem sikerült ideiglenes fájlt létrehozni a fájllistához"
+"Nie można utworzyć pliku tymczasowego dla listy plików"
+"No se puede crear archivo temporal para la lista de archivos"
+"Nemôžem vytvoriť dočasný súbor pre zoznam súborov"
+"Non Posso Creare Il File Temporaneo Per La Lista Dei Files"
+"Неможливо створити тимчасовий файл для списку файлів"
+"Немагчыма стварыць часовы файл для спісу файлаў"
 
 MDragFiles
 l:
@@ -27790,6 +27724,19 @@ upd:"String {0} not found"
 "Stringa {0} Non Trovata"
 "Рядок {0} не знайдено"
 "Радок {0} не знойдзены"
+
+MCharacterIsNotSupportedByTheCodepage
+"Символ "{0}" не поддерживается выбранной кодовой страницей"
+"The "{0}" character is not supported by the selected code page"
+"Vybraná znaková stránka znak "{0}" nepodporuje"
+"Das Zeichen "{0}" wird von der ausgewählten Codepage nicht unterstützt"
+"Az "{0}" karaktert a kiválasztott kódlap nem támogatja"
+"Znak "{0}" nie jest obsługiwany przez wybraną stronę kodową"
+"El carácter "{0}" no es compatible con la página de códigos seleccionada"
+"Vybraná kódová stránka znak "{0}" nepodporuje"
+"Il carattere "{0}" non è supportato dalla tabella codici selezionata"
+"Вибрана кодова сторінка не підтримує символ "{0}""
+"Выбраная кодавая старонка не падтрымлівае сімвал "{0}""
 
 MKeyLaunchMediaSelect
 l:// keys

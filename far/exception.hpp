@@ -51,6 +51,11 @@ struct error_state
 	DWORD Win32Error = ERROR_SUCCESS;
 	NTSTATUS NtError = STATUS_SUCCESS;
 
+	bool any() const
+	{
+		return Errno || Win32Error != ERROR_SUCCESS || NtError != STATUS_SUCCESS;
+	}
+
 	string ErrnoStr() const;
 	string Win32ErrorStr() const;
 	string NtErrorStr() const;
@@ -84,7 +89,7 @@ namespace detail
 		[[nodiscard]] const auto& location() const noexcept { return m_Location; }
 
 	protected:
-		far_base_exception(string_view Message, const char* Function, string_view File, int Line);
+		far_base_exception(bool CaptureErrors, string_view Message, const char* Function, string_view File, int Line);
 
 	private:
 		std::string m_Function;
@@ -143,8 +148,8 @@ class far_known_exception: public far_exception
 };
 
 #define MAKE_EXCEPTION(ExceptionType, ...) ExceptionType(__VA_ARGS__, __FUNCTION__, WIDE_SV(__FILE__), __LINE__)
-#define MAKE_FAR_FATAL_EXCEPTION(...) MAKE_EXCEPTION(far_fatal_exception, __VA_ARGS__)
-#define MAKE_FAR_EXCEPTION(...) MAKE_EXCEPTION(far_exception, __VA_ARGS__)
-#define MAKE_FAR_KNOWN_EXCEPTION(...) MAKE_EXCEPTION(far_known_exception, __VA_ARGS__)
+#define MAKE_FAR_FATAL_EXCEPTION(...) MAKE_EXCEPTION(far_fatal_exception, true, __VA_ARGS__)
+#define MAKE_FAR_EXCEPTION(...) MAKE_EXCEPTION(far_exception, true, __VA_ARGS__)
+#define MAKE_FAR_KNOWN_EXCEPTION(...) MAKE_EXCEPTION(far_known_exception, false, __VA_ARGS__)
 
 #endif // EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF

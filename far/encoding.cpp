@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "exception_handler.hpp"
 #include "plugin.hpp"
+#include "codepage_selection.hpp"
 
 // Platform:
 
@@ -456,8 +457,8 @@ uintptr_t encoding::codepage::normalise(uintptr_t const Codepage)
 {
 	switch (Codepage)
 	{
-	case CP_OEMCP: return encoding::codepage::oem();
-	case CP_ACP:   return encoding::codepage::ansi();
+	case CP_OEMCP: return oem();
+	case CP_ACP:   return ansi();
 	default:       return Codepage;
 	}
 }
@@ -605,10 +606,11 @@ std::string_view encoding::get_signature_bytes(uintptr_t Cp)
 	}
 }
 
-encoding::writer::writer(std::ostream& Stream, uintptr_t Codepage, bool AddSignature):
+encoding::writer::writer(std::ostream& Stream, uintptr_t Codepage, bool AddSignature, bool IgnoreEncodingErrors):
 	m_Stream(&Stream),
 	m_Codepage(Codepage),
-	m_AddSignature(AddSignature)
+	m_AddSignature(AddSignature),
+	m_IgnoreEncodingErrors(IgnoreEncodingErrors)
 {
 }
 
@@ -633,7 +635,20 @@ void encoding::writer::write(const string_view Str)
 
 	for (auto Overflow = true; Overflow;)
 	{
-		const auto Size = get_bytes(m_Codepage, Str, m_Buffer);
+		error_position ErrorPosition;
+		const auto Size = get_bytes(m_Codepage, Str, m_Buffer, m_IgnoreEncodingErrors? nullptr : &ErrorPosition);
+
+		if (ErrorPosition)
+		{
+			throw MAKE_FAR_KNOWN_EXCEPTION(
+				concat(
+					codepages::UnsupportedCharacterMessage(Str[*ErrorPosition]),
+					L"\n"sv,
+					codepages::FormatName(m_Codepage)
+				)
+			);
+		}
+
 		Overflow = Size > m_Buffer.size();
 		m_Buffer.resize(Size);
 	}

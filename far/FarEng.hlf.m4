@@ -2466,7 +2466,7 @@ This option significanty slows down displaying directories on slow network conne
  #Show free size#
  Enables displaying the current disk free space.
 
- #Show scrollbar#
+ #Show a scrollbar#
  Enables displaying file and ~tree panel~@TreePanel@ scrollbars.
 
  #Show background screens number#
@@ -3789,8 +3789,8 @@ and external ~viewer~@Viewer@.
                          the character '\0'. The character to display can be
                          set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
 
- #Show scrollbar#          Show scrollbar in the internal viewer. This
-                         option can also be switched by pressing
+ #Show a scrollbar#        Show a scrollbar in the internal viewer. This
+                         option can also be toggled by pressing
                          #Ctrl+S# in the internal viewer.
 @=
  #Save file position#      Save and restore positions in the recently
@@ -3889,7 +3889,7 @@ $ #Settings dialog: editor#
 
  #Tab size#                Number of spaces in a tab character.
 
- #Show scrollbar#          Show scrollbar.
+ #Show a scrollbar#        Show a scrollbar.
 
  #Show white space#        Make while space characters (spaces, tabulations,
                          line breaks) visible.

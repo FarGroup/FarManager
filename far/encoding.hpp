@@ -141,7 +141,7 @@ namespace encoding
 	{
 	public:
 		NONCOPYABLE(writer);
-		writer(std::ostream& Stream, uintptr_t Codepage, bool AddSignature = true);
+		writer(std::ostream& Stream, uintptr_t Codepage, bool AddSignature = true, bool IgnoreEncodingErrors = false);
 		void write(string_view Str);
 
 	private:
@@ -149,6 +149,7 @@ namespace encoding
 		std::ostream* m_Stream;
 		uintptr_t m_Codepage;
 		bool m_AddSignature;
+		bool m_IgnoreEncodingErrors;
 	};
 
 	bool is_valid_utf8(std::string_view Str, bool PartialContent, bool& PureAscii);

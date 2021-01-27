@@ -1231,7 +1231,7 @@ class far_wrapper_exception: public far_exception
 {
 public:
 	far_wrapper_exception(const char* const Function, string_view const File, int const Line):
-		far_exception(L"exception_ptr"sv, Function, File, Line),
+		far_exception(true, L"exception_ptr"sv, Function, File, Line),
 		m_ThreadHandle(std::make_shared<os::handle>(os::OpenCurrentThread())),
 		m_Stack(tracer::get({}, exception_information(), m_ThreadHandle->native_handle()))
 	{

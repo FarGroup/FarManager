@@ -793,6 +793,19 @@ std::optional<cp_info> codepages::GetInfo(uintptr_t CodePage)
 	return Copy;
 }
 
+string codepages::FormatName(uintptr_t const CodePage)
+{
+	const auto Info = GetCodePageInfo(CodePage);
+	auto Name = Info? Info->Name : L"Unknown"s;
+	GetCodePageCustomName(CodePage, Name);
+	return format(FSTR(L"{0}: {1}"), CodePage, Name);
+}
+
+string codepages::UnsupportedCharacterMessage(wchar_t const Char)
+{
+	return format(msg(lng::MCharacterIsNotSupportedByTheCodepage), Char);
+}
+
 long long codepages::GetFavorite(uintptr_t cp)
 {
 	return ConfigProvider().GeneralCfg()->GetValue<long long>(FavoriteCodePagesKey(), str(cp));

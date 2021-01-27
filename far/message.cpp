@@ -271,14 +271,13 @@ void Message::Init(
 				LenErrStr = MAX_MESSAGE_WIDTH;
 		}
 
-		MaxLength = std::max(MaxLength, LenErrStr);
-
 		if (!Strings.empty())
 			Strings.emplace_back(L"\x1"sv);
 
 		for (const auto& i: wrapped_text(strErrStr, LenErrStr))
 		{
 			Strings.emplace_back(i);
+			MaxLength = std::max(MaxLength, i.size());
 		}
 	}
 
