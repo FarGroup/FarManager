@@ -1,0 +1,40 @@
+﻿.Language=Hungarian,Hungarian (Magyar)
+
+"Ok"
+"Mégsem"
+"Yes"
+"No"
+
+"Fejlettebb összehasonlítás"
+
+"Fejlettebb összehasonlítás"
+"Process:"
+"&Alkönyvtárakon is"
+"&maximum folder depth:"
+"s&elected items only"
+"&Idő"
+"Két másodperces &pontosság"
+"Összehasonlítás:"
+"&ignore possible time zone differences"
+"&Méret"
+"&Tartalom"
+"i&gnore:"
+"differences in new &line characters"
+"&whitespace"
+"Display a message if &no differences were found"
+
+"Két szokásos file-panel szükséges a művelet végrehajtásához!"
+
+"File-ok összehasonlítása..."
+
+"No difference"
+"The compared files seem to be identical"
+
+"Not enough memory"
+"Not enough memory to initialize plugin"
+
+"Operation was interrupted"
+"Do you really want to cancel it?"
+
+"Error"
+"Some files couldn't been opened"

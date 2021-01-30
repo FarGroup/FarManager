@@ -1,0 +1,367 @@
+﻿.Language=Hungarian,Hungarian (Magyar)
+.PluginContents=Futó programok
+
+@Contents
+$ #Futó programok#
+    Ez a plugin mutatja az éppen futó programok (feladatok) listáját.
+Az F8 gombbal megszakíthatjuk (leállíthatjuk) futását, az Enter-rel
+átválthatunk az adott programra, és az F3-mal további információkat
+kaphatunk róla.
+
+    A programok megszakításával, leállításával bánjunk óvatosan! A
+feladatot (programot) azonnal megállítja, és a nem mentett információk
+elvesznek. Tényleg csak szükség esetén használjuk.
+
+   Special keys used by this plugin:
+
+ #F6#            View processes on a remote machine over the network
+
+ #Shift-F6#      Return to the local machine
+
+ #Shift-F1#      Lower the priority class of the current process
+               (local only)
+ #Shift-F2#      Raise the priority class of the current process
+               (local only)
+ #Shift-F3#      View process info with default options overridden
+
+ #Alt-Shift-F9#  Call the ~Configuration~@Config@ dialog.
+
+ See also: ~Performance Counters~@PerfCounters@ help
+           ~Special Column Types~@Columns@ help
+
+@PerfCounters
+$ #Performance Data Counters#
+
+   The following descriptions were taken from the system registry value
+   #HKLM\Software\Microsoft\Windows NT\CurrentVersion\Perflib\009\Help#
+
+
+   #Process#
+
+   The performance object consists of counters that monitor running
+application program and system processes. All the threads in a process
+share the same address space and have access to the same data.
+
+   #Thread Count#
+
+   The number of threads currently active in this process. An instruction
+is the basic unit of execution in a processor, and a thread is the object
+that executes instructions. Every running process has at least one thread.
+
+   #Priority Base#
+
+   The current base priority of this process. Threads within a process can
+raise and lower their own base priority relative to the process' base
+priority.
+
+   #Elapsed Time#
+
+   The total elapsed time this process has been running.
+
+   #Process ID#
+
+   The unique identifier of this process. ID Process numbers are reused, so
+they only identify a process for the lifetime of that process.
+
+   #Parent Process ID#
+
+   The Process ID of the process that created the process. Note that the
+creating process may have terminated since this process was created and so
+this value may no longer identify a running process.
+
+   #% Processor Time#
+
+   The percentage of time that the processor is executing a non-Idle
+thread. This counter was designed as a primary indicator of processor
+activity. It is calculated by measuring the time that the processor spends
+executing the thread of the Idle process in each sample interval, and
+subtracting that value from 100%. (Each processor has an Idle thread which
+consumes cycles when no other threads are ready to run). It can be viewed
+as the percentage of the sample interval spent doing useful work. This
+counter displays the average percentage of busy time observed during the
+sample interval. It is calculated by monitoring the time the service was
+inactive, and then subtracting that value from 100%.
+
+   #Page Faults/sec#
+
+   The overall rate faulted pages are handled by the processor. It is
+measured in numbers of pages faulted per second. A page fault occurs when a
+process requires code or data that is not in its working set (its space in
+physical memory). This counter includes both hard faults (those that
+require disk access) and soft faults (where the faulted page is found
+elsewhere in physical memory). Most processors can handle large numbers of
+soft faults without consequence. However, hard faults can cause significant
+delays. This counter displays the difference between the values observed in
+the last two samples, divided by the duration of the sample interval.
+
+   #Pool Paged Bytes#
+
+   The number of bytes in the paged pool, an area of system memory
+(physical memory used by the operating system) for objects that can be
+written to disk when they are not being used. Memory: Pool Paged Bytes is
+calculated differently than Process: Pool Paged Bytes, so it might not
+equal Process: Pool Paged Bytes: _Total. This counter displays the last
+observed value only; it is not an average.
+
+   #Pool Nonpaged Bytes#
+
+   The number of bytes in the nonpaged pool, an area of system memory
+(physical memory used by the operating system) for objects that cannot be
+written to disk, but must remain in physical memory as long as they are
+allocated. Memory: Pool Nonpaged Bytes is calculated differently than
+Process: Pool Nonpaged Bytes, so it might not equal Process: Pool Nonpaged
+Bytes: _Total. This counter displays the last observed value only; it is
+not an average.
+
+   #% User Time#
+
+   The percentage of non-idle processor time spent in user mode. (User mode
+is a restricted processing mode designed for applications, environment
+subsystems, and integral subsystems. The alternative, privileged mode, is
+designed for operating system components and allows direct access to
+hardware and all memory. The operating system switches application threads
+to privileged mode to access operating system services). This counter
+displays the average busy time as a percentage of the sample time.
+
+   #% Privileged Time#
+
+   The percentage of non-idle processor time spent in privileged mode.
+(Privileged mode is a processing mode designed for operating system
+components and hardware-manipulating drivers. It allows direct access to
+hardware and all memory. The alternative, user mode, is a restricted
+processing mode designed for applications, environment subsystems, and
+integral subsystems. The operating system switches application threads to
+privileged mode to access operating system services). % Privileged Time
+includes time servicing interrupts and DPCs. A high rate of privileged time
+might be attributable to a large number of interrupts generated by a
+failing device. This counter displays the average busy time as a percentage
+of the sample time.
+
+   #Virtual Bytes#
+
+   The current size in bytes of the virtual address space the process is
+using. Use of virtual address space does not necessarily imply
+corresponding use of either disk or main memory pages. Virtual space is
+finite, and by using too much, the process can limit its ability to load
+libraries.
+
+   #Virtual Bytes Peak#
+
+   The maximum number of bytes of virtual address space the process has
+used at any one time. Use of virtual address space does not necessarily
+imply corresponding use of either disk or main memory pages. Virtual space
+is however finite, and by using too much, the process might limit its
+ability to load libraries.
+
+   #Working Set#
+
+   The current number of bytes in the Working Set of this process. The
+Working Set is the set of memory pages touched recently by the threads in
+the process. If free memory in the computer is above a threshold, pages are
+left in the Working Set of a process even if they are not in use. When free
+memory falls below a threshold, pages are trimmed from Working Sets. If
+they are needed they will then be soft-faulted back into the Working Set
+before they leave main memory.
+
+   #Working Set Peak#
+
+   The maximum number of bytes in the Working Set of this process at any
+point in time. The Working Set is the set of memory pages touched recently
+by the threads in the process. If free memory in the computer is above a
+threshold, pages are left in the Working Set of a process even if they are
+not in use. When free memory falls below a threshold, pages are trimmed
+from Working Sets. If they are needed they will then be soft-faulted back
+into the Working Set before they leave main memory.
+
+   #Page File Bytes#
+
+   The current number of bytes this process has used in the paging file(s).
+Paging files are used to store pages of memory used by the process that are
+not contained in other files. Paging files are shared by all processes, and
+lack of space in paging files can prevent other processes from allocating
+memory.
+
+   #Page File Bytes Peak#
+
+   The maximum number of bytes this process has used in the paging file(s).
+Paging files are used to store pages of memory used by the process that are
+not contained in other files. Paging files are shared by all processes, and
+lack of space in paging files can prevent other processes from allocating
+memory.
+
+   #Private Bytes#
+
+   The current number of bytes this process has allocated that cannot be
+shared with other processes.
+
+   #Handle Count#
+
+   The total number of handles currently open by this process. This number
+is the sum of the handles currently open by each thread in this process.
+
+   #IO Read Operations/sec#
+
+   The rate the process is issuing read I/O operations. This counter counts
+all I/O activity generated by the process to include file, network and
+device I/O's.
+
+   #IO Write Operations/sec#
+
+   The rate the process is issuing write I/O operations. This counter
+counts all I/O activity generated by the process to include file, network
+and device I/O's.
+
+   #IO Data Operations/sec#
+
+   The rate the process is issuing read and write I/O operations. This
+counter counts all I/O activity generated by the process to include file,
+network and device I/O's.
+
+   #IO Other Operations/sec#
+
+   The rate the process is issuing I/O operations that are neither a read
+or a write operation. An example of this type of operation would be a
+control function. This counter counts all I/O activity generated by the
+process to include file, network and device I/O's.
+
+   #IO Read Bytes/sec#
+
+   The rate the process is reading bytes from I/O operations. This counter
+counts all I/O activity generated by the process to include file, network
+and device I/O's.
+
+   #IO Write Bytes/sec#
+
+   The rate the process is writing bytes to I/O operations. This counter
+counts all I/O activity generated by the process to include file, network
+and device I/O's.
+
+   #IO Data Bytes/sec#
+
+   The rate the process is reading and writing bytes in I/O operations.
+This counter counts all I/O activity generated by the process to include
+file, network and device I/O's.
+
+   #IO Other Bytes/sec#
+
+   The rate the process is issuing bytes to I/O operations that don't
+involve data such as control operations. This counter counts all I/O
+activity generated by the process to include file, network and device
+I/O's.
+
+@Columns
+$ #Special Column Types#
+   Several #standard# column types have a special meaning in the Process
+List:
+
+   #S (Size)#
+
+   Displays the sum of Working Set and Page File counters.
+
+   #D/T (Date/Time)#
+
+   Displays the process start date/time. The modification, creation
+and last access date/time are the same.
+
+   In addition to the standard FAR column types, these #special# column
+types can be used in this plugin:
+
+   #Numeric columns:#
+
+   #XP# - Priority
+   #XI# - Process ID
+   #XC# - Creating (parent) process ID
+   #XT# - Number of threads
+   #XG# - GDI Objects (local only)
+   #XU# - USER Objects (local only)
+   #XB# - Bitness (32/64)
+   #X0...X21[S][T]# - performance counters (see below).
+
+   #Description columns:#
+
+   #ZP# - Full pathname
+   #ZW# - Window title
+   #ZD# - File Description
+   #ZC# - Command line (local only)
+
+   #WARNING:# In each panel mode there may be only one description
+            column ('Zx'). To view different kinds of descriptions,
+            you have to switch between modes.
+
+   The ~Performance Counters~@PerfCounters@ column numbers are described
+below.
+
+   For X0..X2 you can append #S# to show percent value.
+
+   For X11 and X14..X21 you can append #S# to show per second value.
+
+   For any counter, if the column is too narrow to show the full number or
+if #F# modifier is specified, the value is calculated in K's (1024), M's (1024*1024) etc.
+You can append #T# to the column type to use 1000 instead of 1024 as a divider.
+
+   #X0 # Processor Time
+   #X1 # Privileged Time
+   #X2 # User Time
+   #X3 # Handle Count
+   #X4 # Page File Bytes
+   #X5 # Page File Bytes Peak
+   #X6 # Working Set
+   #X7 # Working Set Peak
+   #X8 # Pool Nonpaged Bytes
+   #X9 # Pool Paged Bytes
+   #X10# Private Bytes
+   #X11# Page Faults
+   #X12# Virtual Bytes
+   #X13# Virtual Bytes Peak
+   #X14# IO Data Bytes
+   #X15# IO Read Bytes
+   #X16# IO Write Bytes
+   #X17# IO Other Bytes
+   #X18# IO Data Operations
+   #X19# IO Read Operations
+   #X20# IO Write Operations
+   #X21# IO Other Operations
+
+@Config
+$ #Configuration#
+
+ #Add to disks menu#      Enables adding the "process list" item to
+                        the disks menu.
+
+ #Add to plugins menu#    Enables adding the "Process list" item to
+                        the plugins menu.
+
+ #Include in the#         These checkboxes control the amount of
+ #additional information# information exported to the file
+                        with process details when you press F3,
+                        F5, search by Alt-F7, etc. Some details
+                        make the output file too messy, some are
+                        extracted too slowly, so you may want
+                        to disable them.
+
+ #Environment#            Include the process's environment block.
+                        Used for local only.
+
+ #Module info#            Include the list of modules loaded by
+                        this process.
+
+ #Module versions#        Along with the list of modules, extract
+ #and descriptions#       description and version of each module's
+                        file. This is a slow operation, since each
+                        module's file is opened to look up its
+                        version information.
+
+ #Performance data#       Output all performance data counters for
+                        this process.
+
+ #Handles#                List all handles opened by the process.
+                        Warning: this uses undocumented features
+                        and may not work properly. Used for local only.
+
+   In this version, #panel modes# are not configured in this dialog. When
+you press "OK" in the dialog, the configuration is saved with the current
+(default) modes. Once it's saved, edit the registry keys
+#HKCU\Software\Far\Plugins\Plist\ModeX\# to change the defaults. When you
+open the plugin again, the changes will be taken.
+
+   See also: ~Column types~@Columns@ help.

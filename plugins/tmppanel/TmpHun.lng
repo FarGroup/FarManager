@@ -1,0 +1,50 @@
+﻿.Language=Hungarian,Hungarian (Magyar)
+
+"Ok"
+"Mégsem"
+"Hiba"
+"Warning"
+
+"Ideiglenes panel"
+" %sTemporary panel [%d] "
+
+"Ideiglenes"
+
+"Kivesz"
+"Switch"
+"SavLst"
+"Goto"
+
+"Ideiglenes panel frissítése"
+"File-ok küldése az ideiglenes panelba"
+
+"Total files:"
+"Available temporary panels"
+
+"Ideiglenes Panel"
+"Hozzáadás a &lemez menühöz"
+"Add to &Plugins menu"
+
+"Általános panel használata"
+"&Safe panel mode"
+"&Any elements in panel"
+
+"&Replace files with file list"
+"&Menu from file list"
+"Copy folder c&ontents"
+
+"F&ull screen mode"
+
+"Column &types"
+"Column &widths"
+"Status line column t&ypes"
+"Status l&ine column widths"
+
+"File masks for the file &lists:"
+"Command line pre&fix:"
+
+"Az új beállítások a FAR legközelebbi indításakor aktivizálódnak"
+"Ne&w panel for search results"
+"Save file list as"
+
+"Copy folder contents?"

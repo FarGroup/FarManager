@@ -165,6 +165,7 @@
 <?define Guid.AlignGer.lng = "5B2F1D16-FACA-4C94-B623-109CAD139B45" ?>
 <?define Guid.AlignUkr.lng = "99E088B7-D756-49BC-98C8-1E495E0CC81C" ?>
 <?define Guid.AlignCze.lng = "D6D83984-56F4-4447-A327-D7DE31E8E111" ?>
+<?define Guid.AlignHun.lng = "6B7F7A96-747A-43C5-BACB-A6CBCAA87E4B" ?>
 <?define Guid.changelog_2 = "F832977E-7134-4AE9-B757-6902C4ED3D76" ?>
 
 <?define Guid._7z.dll = "FEDEBA79-915A-47EC-9207-8185DE829FF5" ?>
@@ -200,6 +201,7 @@
 <?define Guid.WrapGer.lng = "0E7213AB-7398-4111-BA09-62248D942494" ?>
 <?define Guid.WrapUkr.lng = "36F4E1D7-3C13-4460-A032-BCC61D3C8522" ?>
 <?define Guid.WrapCze.lng = "9CD6C0B2-366B-4674-9037-2492A08A4964" ?>
+<?define Guid.WrapHun.lng = "17F35536-4431-48C3-8B02-FBB4DFA1EE8C" ?>
 
 <?define Guid.BrackEng.hlf = "7A3125FB-07B7-466E-A5B8-31E8A31F2916" ?>
 <?define Guid.BrackEng.lng = "C2D8BAA4-666D-4FEA-A1C5-6E2594FD1297" ?>
@@ -220,6 +222,7 @@
 <?define Guid.BrackUkr.lng = "B1F5F3D7-05C6-4135-AC21-A941D5C0B548" ?>
 <?define Guid.BrackCze.hlf = "EDF88444-40E3-46EF-AA26-230DDEA4BC9F" ?>
 <?define Guid.BrackCze.lng = "89F45023-B942-4AAC-BFB2-0DD64E6ED7C6" ?>
+<?define Guid.BrackHun.lng = "7CD74DE5-C458-4B49-B063-3A80F8C2090E" ?>
 <?define Guid.changelog_4 = "E829040E-8768-46A0-B6DA-83AEF39BC780" ?>
 
 <?define Guid.changelog_5 = "9E626F77-E819-4775-8512-4F20EF3A43B1" ?>
@@ -231,6 +234,7 @@
 <?define Guid.CmpGer.hlf = "37EAFF15-02A5-4A00-BF89-D3294FCA5F0E" ?>
 <?define Guid.CmpUkr.hlf = "57EA0560-D928-452D-B7F7-79CD1F33803E" ?>
 <?define Guid.CmpCze.hlf = "329563CF-77F9-4A80-8561-7C95826FDBC2" ?>
+<?define Guid.CmpHun.hlf = "9B525225-5065-47B4-960E-2B16278AFA3A" ?>
 <?define Guid.Compare.dll = "5A2D1224-5189-48EA-9903-C07B6B661029" ?>
 <?define Guid.Compare.map = "364E6DCE-14AD-4651-A7CE-97334F42CE49" ?>
 <?define Guid.CompEng.lng = "95C7FBFD-2ACE-4B0F-AA23-925BD6799A6A" ?>
@@ -243,6 +247,7 @@
 <?define Guid.CompGer.lng = "1E5A07E6-7205-4F69-92E7-8013B2B2701A" ?>
 <?define Guid.CompUkr.lng = "FB4E86D5-613C-4780-A3CD-7A08FDCA675D" ?>
 <?define Guid.CompCze.lng = "7D34E42C-7807-4DF7-903C-FF11A56F6AB0" ?>
+<?define Guid.CompHun.lng = "16BBD03F-CCF8-4C36-A1C4-C89D385706FA" ?>
 <?define Guid.AdvCompare.CompareBufferSize.farconfig = "5D079DA9-B4B9-4F33-B652-92BA2184B3DB" ?>
 
 <?define Guid.changelog_6 = "689902DA-A719-4F87-B5FC-8AEBB2B298AB" ?>
@@ -264,6 +269,7 @@
 <?define Guid.DrawUkr.lng = "F954335E-B9DE-4D10-BADB-6CA4DFB06369" ?>
 <?define Guid.DrawCze.hlf = "4328F106-B94D-405E-A17C-81A95AA73FE5" ?>
 <?define Guid.DrawCze.lng = "BED91841-0540-4BFF-96C1-FB786D97A357" ?>
+<?define Guid.DrawHun.lng = "884F4C10-FBCE-4B68-BF77-CB6354275C26" ?>
 
 <?define Guid.changelog_7 = "E3E12393-FE49-420F-8527-546C3F96F9F5" ?>
 <?define Guid.ECaseEng.hlf = "A775F093-B7B7-476C-BC57-BCE3BD4DCEE0" ?>
@@ -284,6 +290,8 @@
 <?define Guid.ECaseUkr.lng = "1E9CB1F3-5FB1-4132-88B3-90064939242B" ?>
 <?define Guid.ECaseCze.hlf = "AA2AA934-C0AB-4C89-BEA4-637221DBBF40" ?>
 <?define Guid.ECaseCze.lng = "32341F7B-2719-45C2-8F2A-7D58B2011BE8" ?>
+<?define Guid.ECaseHun.hlf = "AD49BEDC-9438-48EF-9C30-29CEAAC87DD1" ?>
+<?define Guid.ECaseHun.lng = "794D29F3-A6E3-4324-AC58-06CD48B1BEC7" ?>
 <?define Guid.EditCase.dll = "31016FCB-31D3-4272-9EC3-C1A3F40D333A" ?>
 <?define Guid.EditCase.map = "CC2086FA-663A-4CAE-8760-148EED994E09" ?>
 
@@ -445,6 +453,8 @@
 <?define Guid.CaseUkr.lng = "7BF0FA18-7516-48CF-96F3-F1CF35E1DEEB" ?>
 <?define Guid.CaseCze.hlf = "6201FA3D-CDE2-45AC-81D1-EBCF3681C813" ?>
 <?define Guid.CaseCze.lng = "362C2C5E-1AFB-4BD7-9D58-2F6EF4FF0A4F" ?>
+<?define Guid.CaseHun.hlf = "AC9CE091-6244-48E0-8ACE-E890FBA00CF8" ?>
+<?define Guid.CaseHun.lng = "74C8EA00-3F79-4F2C-8AD4-70BF737AD965" ?>
 <?define Guid.changelog_10 = "FFA0B613-6300-4C60-83E4-EE8B66CF6F41" ?>
 <?define Guid.FileCase.dll = "B41975F9-6C55-4C78-9502-F252563D72B2" ?>
 <?define Guid.FileCase.map = "AB5B4017-094E-4F7F-926F-4A7BBA0E3466" ?>
@@ -495,6 +505,8 @@
 <?define Guid.NetUkr.lng = "DE500FDB-52A3-42D6-BBF8-B82462641F6E" ?>
 <?define Guid.NetCze.hlf = "DC2D667D-C1EA-4239-AE49-5DED594EB94A" ?>
 <?define Guid.NetCze.lng = "C2928640-DCE1-44A1-B90B-6D8FDDEDDA35" ?>
+<?define Guid.NetHun.hlf = "78BE07B9-06E0-42C9-906F-532CDA4499F8" ?>
+<?define Guid.NetHun.lng = "2DFBBB0E-2E56-41B8-A879-9681960C3B66" ?>
 <?define Guid.Network.dll = "DEF3C53C-3482-411B-B69B-3987944BDF70" ?>
 <?define Guid.Network.map = "51E0269A-286D-4AD9-8577-1EFAB6FCFB34" ?>
 
@@ -518,6 +530,8 @@
 <?define Guid.ProcCze.lng = "8AF279BA-C566-4E73-87A8-9D4BC76E83AA" ?>
 <?define Guid.ProcSky.hlf = "50B20DFC-403B-4AAB-9A5D-2B7DB46A9640" ?>
 <?define Guid.ProcSky.lng = "2BF4E763-7285-439E-9664-4658F60EFC9F" ?>
+<?define Guid.ProcHun.hlf = "CB13FDFB-1143-4807-9421-C3186B814454" ?>
+<?define Guid.ProcHun.lng = "9DDB7C59-CA62-4BAB-AFED-3924C5F0ECF6" ?>
 
 <?define Guid.changelog_17 = "8EBB6772-D15C-4AA5-9751-753CE29CFFC8" ?>
 <?define Guid.disks.eng.temp = "683AAADB-84A7-4945-9616-BEB82E9ECB3F" ?>
@@ -550,6 +564,8 @@
 <?define Guid.TmpUkr.lng = "F429777C-F929-478C-8D9F-235D9C837B72" ?>
 <?define Guid.TmpCze.hlf = "69934EF6-ABF7-47BC-8619-B6FEDBD532A4" ?>
 <?define Guid.TmpCze.lng = "E2DA9644-CA8A-4B93-BBF9-7F1767834A97" ?>
+<?define Guid.TmpHun.hlf = "58BF4C11-6BE8-482C-BF9E-3BCFB63E4C13" ?>
+<?define Guid.TmpHun.lng = "F42FB37A-C366-4FDC-94B6-660993B93D70" ?>
 <?define Guid.TmpPanel.dll = "AA130A2E-B418-4007-929C-0D66110BCAE0" ?>
 <?define Guid.TmpPanel.map = "D0ECEE5E-0A79-45BB-B8B5-2C8B47216868" ?>
 

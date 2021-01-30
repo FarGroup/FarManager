@@ -1,0 +1,75 @@
+﻿.Language=Hungarian,Hungarian (Magyar)
+
+"Ok"
+"Mégsem"
+"Hiba"
+"&Yes"
+
+"Hálózati tallózó"
+
+"Hálózat"
+
+"Csatl."
+"Csatl+"
+"TMap"
+"TMapTo"
+"Levál."
+"Remove"
+"ManCon"
+
+"Please wait"
+"Scanning the network..."
+
+"Hálózat nem elérhető"
+" \"%.40s\" nem kapcsolható %s -hoz"
+"A lemez nevének van már egy jegyzett kapcsolata"
+
+"Ha a nyitott file-okat nem zárod be, az adatok elveszhetnek!"
+"Biztosan le akarsz válni az eszközről?"
+"%s -t nem lehet leválasztani!"
+
+"Nincs szabad lemez betűjel!"
+
+"Felhasználónév"
+"Jelszó"
+
+"Permanent connection to"
+"Temporary connection to"
+"F6 - temporary"
+"F6 - permanent"
+
+"Hálózat"
+"Hálózat neve"
+"*:"
+"Megjegyzés"
+
+"Hálózati tallózó"
+"&Hozzáadás a lemezmenühöz"
+"Add to &Plugins menu"
+"Show &local network"
+"Shares"
+"Show share &full name"
+"Hidden Shares"
+"&Never show"
+"&Show as hidden"
+"&Always show"
+"Show p&rinters"
+"Show \"&..\" in the providers"
+"&Browse up to favorites if possible"
+"Check resource &reachability"
+
+"Disconnect network drive"
+"Do you want to disconnect from the drive %s?"
+"The drive %s is mapped to"
+"&Reconnect at Logon"
+
+"Disconnect network drive\nThe drive %s is mapped to multiple drive letters\nWhich one do you want to disconnect?\n"
+
+"Favorites"
+"Favorites Folder"
+
+"&Remember password"
+
+"Remove from Favorites"
+"Remove \"%s\" from Favorites"
+"Remove %d items from Favorites"

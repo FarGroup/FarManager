@@ -1,0 +1,271 @@
+﻿.Language=Hungarian,Hungarian (Magyar)
+.PluginContents=Arhív támogatás plugin
+
+@Contents
+$ #Arhív támogatás plugin#
+    Ez a FAR modul könnyű #arhív# műveleteket tesz lehetővé.
+Az arhívban (tömörített file-ban) lévő file-okat úgy kezeli, mint egy
+normál mappában lévőket: a file-műveleteket a FAR külső tömörítő parancsokká
+alakítja.
+
+   ~File-ok hozzáadása arhívhoz (tömörítés)~@AddToArc@
+
+   ~File-ok kicsomagolása arhívból~@ExtrFromArc@
+
+   ~Arhív parancsok~@ArcCmd@
+
+   ~Arhív támogatás beállításai~@ArcSettings1@
+
+   ~Arhiváló parancsok beállítása~@ArcSettings2@
+
+   ~Storage of plugin settings~@ArcSettings3@
+
+@AddToArc
+$ #File-ok hozáadása arhívhoz (tömörítés)#
+    Itt választhatunk arhiválót (tömörítő programot), parancssori
+kapcsolókat adhatunk hozzá, változtathatunk meg, jelszóval titkosíthatjuk
+a tömörítés folyamán a file-okat. (Az alapértelmezett kapcsolókat az
+~Arhiváló parancsok beállítása~@ArcSettings2@ párbeszédpanelen lehet
+megadni).
+
+    A #Tömörítés után a file törlése# kapcsoló beállításakor a file-t
+a tömörített file-ba #mozgatja# a FAR (azaz tömörítés után törli). This option is turned
+on automatically if the key #F6# is used to add files to an archive.
+
+    The option #Exact archive filename# allows to create archives with
+nonstandard extensions (if this is supported by the archiver). If the
+option is turned off, the extension defined in the
+~Archiver command lines~@ArcSettings2@ dialog is appended to the name
+entered in the dialog.
+
+    The option #Background# starts the archiving process in a separate window.
+
+    The #Priority of process# option allows to change the execution
+~priority~@ArcPrior@ of the archiving process.
+
+    A #Beállítások mentése# gomb elmenti a jelenlegi tömörítési beállításokat,
+kapcsolókat későbbi felhasználás végett.
+
+    Pressing the keys #Shift-F1# has the same effect as pushing the
+"Select archiver" button and allows to select the archiver type to use.
+
+    When a new archive is created, the cursor is automatically
+positioned to the new archive once the archiving operation is
+complete. (This is not done when the archiver is started in a
+separate window.)
+
+@ArcPrior
+$ #Priority of process#
+    MultiArc allows to control the execution priority
+of the archiving process. The following priorities are available:
+
+    #low#
+    Background priority, foreknown to be lower than the priority of any
+other process in the system. Archiving will be very slow if any other
+process is active.
+
+    #below normal#
+    Priority above #low#, but below #normal#. Sets the priority of the
+archiving process above the background tasks, but lower than the
+execution priority of normal tasks (only in Windows 2000 or newer).
+
+    #normal#
+    Archiving is executed along with other tasks on the computer.
+
+    #above normal#
+    Priority above "normal", but below "high". Archiving is given higher
+priority than all other normal processes, and can substantially slow
+down their execution (only in Windows 2000 or newer).
+
+    #high#
+    Specify this priority for time-critical archiving that must be
+executed without delay. ATTENTION: Use extreme care when using the high
+priority, because a high priority application can use nearly all
+available CPU time, while the gain from using this priority can only be
+achieved when other active processes are running in the system.
+
+    The "normal" priority is selected by default.
+
+@ExtrFromArc
+$ #File-ok kicsomagolása arhívból#
+    Itt adhatjuk meg a kicsomagolás cél-útvonalát, és az esetleges dekódolási
+jelszót.
+
+    A #Kicsomagolás útvonal nélkül# opció minden file-t ugyanabba a mappába
+tömörít ki.
+
+    If the option #Delete from archive after extracting# is turned on,
+the files will be deleted from the archive after they are extracted.
+This option is turned on automatically if the key #F6# is used to extract
+files from an archive.
+
+    A kijelölt tömörített file-ok azonnali kicsomagolásához az #Alt-F6#
+szintén használható.
+
+@ArcCmd
+$ #Arhív parancsok#
+    Ebből a menüből lehetséges az arhívok tesztelése, arhív-megjegyzés
+hozzáadása, SFX-é (önkicsomagoló exe) konvertálása, sérült arhív
+helyreállítása, arhív védelme a sérülésektől, arhív változtatásának
+tiltása.
+
+    Megjegyzések:
+
+    1. Arhívkezelő parancs végrehajtásához az illetékes tömörítő
+eszköznek meg kell lennie a gépen. Az arhiváló program beállításai az
+~Arhiváló parancsok beállítása~@ArcSettings2@ pontban változtathatóak meg.
+
+    For quick access to archiver options, you can press the key
+F4 in the "Archive commands" menu.
+
+    2. Az arhívkezelő parancsok csak a RAR és ACE tömörítővel alkalmazhatóak
+teljeskörűen. Más tömörítők nem támogatnak némely parancsot.
+
+@Config
+$ #Plugin configuration#
+
+    ~Archive support configuration~@ArcSettings1@
+
+    ~Archiver command lines~@ArcSettings2@
+
+    ~Storage of plugin settings~@ArcSettings3@
+
+@ArcSettings1
+$ #Arhív támogatás beállításai#
+    Itt a következő paraméterek változtathatóak meg:
+
+ #Tömörítő kimenetének#   Ne rejtse, megnéző műveletek kimenetének
+ #megjelenítése#          rejtése vagy mindig rejti.
+
+ #Shift-F1 parancs#       Shift-F1 lenyomására a file-t hozzáadja az
+ #végrehajtása#           arhívhoz. Kapcsoljuk ki ezt a parancsot, ha
+                        másik arhív támogató plugin van installáva,
+                        amelyik a Shift-F1 -re aktivizálódik.
+
+ #Change folder when#     If a new archive is created not in the
+ #setting the cursor#     current folder, change the folder and
+ #on new archive#         position the cursor on the archive.
+                        If the option is off, the cursor will be
+                        positioned on the archive only if it is
+                        created in the current folder.
+
+ #Use last command#       When adding files to archives, the last
+ #from history#           used value of the archiver command line
+                        switches will be placed in the "Switches"
+                        edit line.
+
+ #Automatically reset#    The option "Exact archive filename"
+ #"Exact archive#         will be turned off every time the dialog
+ #filename"#              "Add to archive" is invoked
+
+ #Leíró listanevek#       Az arhívált (tömörített) file-okat leíró
+ #vesszővel elválasztva#  file-nevek listája.
+
+ #Arhív leírás#           Beállítja, hogy olvassa-e a leíró file-t,
+ #beolvasása#             amikor belépünk egy arhívba. Így láthatjuk
+                        a leírásokat, de lassítja az arhív olvasását.
+
+ #Arhív leírás#           Az arhívokban lévő leíró file frissítése
+ #frissítése#             amikor hozzáadunk, vagy törlünk az arhívban.
+
+
+@ArcSettings2
+$ #Arhiváló parancsok beállítása#
+    Itt változtathatóak meg a külső arhiváló programot hívó parancsok
+a különböző tömörítési eljárásokhoz, és a ~maszk~@:FileMasks@, ami minden file kijelölésénél
+használandó (it must not begin
+with a dot).
+
+    To reset all the settings of an archiver to the default values,
+press the Reset button.
+
+    A következő változók használhatóak:                   
+
+ #%%A# - Arhív név.
+
+ #%%a# - Arhív rövid neve.
+
+ #%%W# - A végrehajtás ideiglenes mappája.
+
+ #%%P# - Jelszó.
+
+ #%%R# - Aktuális arhív mappa.
+
+ #%%L# - File-lista nevek. A file-lista az a file, amely tartalmazza
+       azon file-ok neveit, amelyeken a külső tömörítőnek műveletet
+       kell végeznie.
+
+ #%%l# - File-lista a rövid file-nevekkel.
+
+ #%%F# - A műveletekbe bevonandó file, vagy file-ok nevei. Ha az összes
+       név nem tehető egyetlen karakterláncba, a tömörítő program
+       többször lesz meghívva, amíg az összes file sorra nem kerül.
+       Alapértelmezésben a parancs hossza 127 karakter lehet, de ezt
+       a %%F után közvetlenül megváltoztathatjuk, például: %%F512.
+       A %%F paraméter csak akkor használható, ha a tömörítő nem
+       támogatja a file-listákat.
+
+ #%%f# - Egyetlen file neve, amin műveletet kell végezni. A tömörítő
+       annyiszor lesz végrehajtva, amíg az összes file-on végre nem
+       hajtódik a művelet. E változó csak akkor használható, ha a
+       használt tömörítő nem támogatja a file-listákat vagy a több
+       file-nevet a parancssorban.
+
+ #%%E#<hibakód> - A maximálisan elfogadható hibakód száma.
+       A %%E2 például azt jelenti, hogy a 0, 1 és 2 hibakódok
+       még elfogadhatóak a művelet során. Ez a változó megadható
+       bárhol a parancsban. Ha nincs jelen ez a változó, akkor
+       csak a 0 hibakód minősül sikeresnek.
+
+ #%%S# - Beilleszthetjük ezt a parancssorba, hogy ezzel újabb kap-
+       csolókat definiálhassunk, a "hozzáadás" dialógusablak
+       második mezőjében. Ha ez a változó nincs megadva, akkor
+       a kapcsolókat a parancs végére helyezi a program.
+
+    A következő változó módosítók Q, q, S, M, N, *, W P használatával
+a meghívott file-nevek formája változtatható meg:
+
+    'Q' - A nevet idézi, szóközökkel együtt;
+    'q' - Minden nevet idéz;
+    'S' - '/' jelet használ a '\' helyett az útvonalban;
+    'M' - A tömörítőnek a mappaneveket 'mappanév\*.*'-ként adja át;
+    'N' - A tömörítőnek a mappaneveket 'mappanév' formában küldi el;
+    '*' - A '*' maszk jelöl ki minden file-t. Ez a módosító kapcsoló
+          felülértelmezi a "Minden file maszk" beállítást egy parancs
+          idejére;
+    'W' - Csak a nevet használja, az útvonalat nem.
+    'P' - Csak az útvonalat használja, a nevet nem.
+    'A' - ANSI kódolás használata.
+
+    Ezen módosító kapcsolók rögtön a %%F, %%f, %%L vagy %%l után adhatók
+meg, szóközök nélkül. Több módosító is alkalmazható, például %%LMN vagy
+%%F*QSN128 mind érvényes. Ha sem az 'M', sem az 'N' módosító nincs megadva,
+akkor az 'N' a feltételezett. Ha mindkettő ('M' és 'N') meg van adva,
+akkor a 'mappanév' és a 'mappanév\*.*' forma is átadódik a tömörítőnek.
+
+    Ha a külső tömörítő parancs karakterláncának egy része { kapcsos zárójelek }
+közé van szorítva, akkor ez hozzáadódik a végeredmény-stringhez, ha
+a fenttebbi, nem üres változók közül valamelyiket tartalmazza.
+
+    Ha a külső tömörítő nem támogat bizonyos arhív-parancsot, a vonatkozó
+mezőt hagyjuk üresen.
+
+@ArcSettings3
+$ #Storage of plugin settings#
+    The plugin uses the following rules to load/save the settings of
+supported format modules:
+
+  1. #[HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]#
+     contains the settings common for all users. These settings can
+     only be changed by editing the registry manually, for example,
+     using *.reg files.
+
+  2. Any changes to the archiver command line settings are stored to
+     #[HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]#.
+
+  3. The plugin reads the archiver command line settings in the
+     following sequence:
+
+     a) [HKEY_CURRENT_USER\SOFTWARE\Far\Plugins\MultiArc\Type]
+     b) [HKEY_LOCAL_MACHINE\SOFTWARE\Far\Plugins\MultiArc\Type]
+     c) settings provided by the FMT module.

@@ -1,0 +1,171 @@
+﻿.Language=Hungarian,Hungarian (Magyar)
+.PluginContents=FTP kliens
+@Contents
+$ #FTP kliens#
+   ~FTP host-ra csatlakozás~@FTPConnect@
+
+   ~Host nevek kezelése~@FTPNames@
+
+   ~FTP kliens parancsok~@FTPCmd@
+
+   ~FTP kliens beállítások~@FTPCfg@
+
+   ~FTP kliens panel módok~@FTPPanel@
+
+@FTPConnect
+$ #FTP host-ra csatlakozás#
+    Csatlakozni mind parancssorból, mind a ~Host panelből~@FTPNames@ lehet.
+
+    A FAR a következő Host-név formátumot támogatja:
+
+    #ftp://felh.név:jelszó@@Hostnév:port/mappa#
+
+    A "Hostnév" szükséges paraméter, míg az "ftp://" előtagot csak
+parancssorból indított csatlakozáskor kell megadni (panelben nem kell).
+A többi tagot nem kötelező megadni. Ha a felhasználónév hiányzik,
+automatikusan "anonymous" kerül küldésre. Ha jelszó nincs megadva,
+akkor az ~FTP kliens konfigurációban~@FTPCfg@ megadott, alapértelmezett
+jelszót küldi el a szervernek a FAR.
+
+    A parancssori csatlakozáshoz csak be kell gépelni a Host nevét,
+persze a megfelelő "ftp://" előtaggal együtt...
+
+    Panelből kapcsolódáshoz először aktivizálni kell az FTP plugint,
+majd kiválasztani a kívánt Szervert, és Entert nyomni.
+
+    Egy szerver paramétereit csatlakozás előtt megváltoztathatjuk az
+F4 billentyűvel (ha rajta állunk a szerver során), elvégezzük a kívánt
+változtatásokat, és a "Kapcsolódás" gombbal indul a folyamat.
+
+@FTPNames
+$ #Host nevek kezelése#
+    A Host-ok nevei egy file-panel formájában vannak elrendezve. Új
+sort vihetünk be a Shift-F4 segítségével. Minden egyes Host-nál meg
+lehet adni a Host nevét, felhasználói jelszót, egy nem kötelező leírást,
+és bejelölhető a "Jelszó bekérése közvetlenül a kapcsolódás előtt"
+opció.
+
+    A FAR a következő Host-név formátumot támogatja:
+
+    #ftp://felh.név:jelszó@@Hostnév:port/mappa#
+
+    A "Hostnév" kivételével minden más komponens elhagyható.
+
+    A felhasználói jelszó bevihető a hostnévvel együtt, vagy egy külön
+Jelszó-mezőben. E második esetben nem látszik a képernyőn. De üresen
+is hagyhatjuk, s ekkor az ~FTP kliens konfigurációban~@FTPCfg@ megadott,
+alapértelmezett jelszó kerül elküldésre.
+
+    Ezeken túl lehetséges még a "Jelszó bekérése közvetlenül a
+kapcsolódás előtt" bekapcsolásával a jelszó (és a felhasználónév, ha
+szükséges) beírása közvetlenül a szerverre kapcsolódás előtt.
+
+    "Ascii mód" opcióval az alapértelmezett file átvitel Ascii lesz.
+
+    "Passzív mód" szükséges lehet bizonyos típusú tűzfalak
+esetén. E beállítás felülírja az FTP kliens ~konfigurációban~@FTPCfg@ lévő
+hasonló opciót.
+
+    Használjuk a "Kódtábla választása" gombot, ha az alapértelmezett
+karaktertáblát ezen szerver esetén meg akarjuk változtatni.
+
+    Egy már meglévő Host adatainak megváltoztatása a neve fölötti F4
+megnyomásával lehetséges.
+
+    F7 lenyomására mappákat készíthetünk egymáshoz tartozó Hostok
+összefogására.
+
+    Az egyes Hostok adatait másolhatjuk, mozgathatjuk a mappák, és a
+helyi lemezek között az F5 és F6 billentyűkkel.
+
+    F8 a kijelölt Host információit törli.
+
+    Az Alt-F6 lenyomására az éppen élő kapcsolat adatait menthetjük el.
+
+
+@FTPCmd
+$ #FTP kliens parancsok#
+    Az FTP kliens lehetővé teszi, hogy egy FTP szerver file-jaival úgy
+bánjunk, mint a helyi lemezeken lévőkkel. Lehetővé teszi a file-ok
+és mappák másolását, mozgatását, törlését, mappa készítését, file
+megnézését és szerkesztését. Ezen túl még lehetséges megszakadt
+átvitel folytatása a törésponttól, a "Visszaállít" gomb segítségével,
+amikor a felülírásra kérdez rá a FAR, de ehhez ezt a műveletet az FTP
+szervernek is támogatnia kell. A "File keresés" használható az FTP
+szervereken is.
+
+    A #Shift-F7# billentyűkombinációval megváltoztathatjuk a használt
+karaktertáblát, amelyeket a file-nevekhez és leírásokhoz használunk.
+Minden egyes szerverhez külön-külön beállíthatunk karaktertáblát.
+
+    Némely FTP művelet az #Esc# billentyűvel megszakítható. Ha az
+Escape nem szakítja meg, a #Ctrl-Break# kombináció használható, de
+ez az Escape-pel ellentétben megszakítja az aktuális kapcsolatot.
+
+
+@FTPCfg
+$ #FTP kliens beállítások#
+    Itt a következő beállítások változtathatóak meg:
+
+ #Hozzáad a lemez menühöz# Az "FTP" elem hozzáadása a lemez menühöz.
+
+ #Lemez menü billentyű-#   Egy billentyűparancsot is hozzáad a
+ #parancs#                 lemez menühöz. Ezt a számot 1-től 9-ig
+                         választhatjuk meg, vagy üresen hagyva, az
+                         automatikusan hozzárendelődik.
+
+ #Leírő listanevek#        Az FTP file-leíró file-ok nevei. (vesszővel
+                         elválasztva)
+
+ #Leírások olvasása#       Az FTP file-ok leírásának beolvasása, amikor
+                         egy FTP mappába lépünk. Ez lehetővé teszi a
+                         leírások megnézését, de lassítja a mappák
+                         olvasását.
+
+ #Leírások frissítése#     Frissíti az FTP file-ok leírásait feltöltés
+                         vagy törlés után.
+
+ #NAGYBETŰS file-ok#       Ezzel a beállítással a csupa NAGYBETŰS
+ #feltöltése kisbetűsen#   file-ok kisbetűsként lesznek feltöltve.
+
+ #Feltöltési opciók#       Ha nem akarjuk a cél-útvonalat és az
+ #mutatása#                ASCII/bináris státuszt kézzel állítani
+                         feltöltéskor, törölhetjük ezt a beállítást,
+                         így átugorjuk egy második, feltöltési párbe-
+                         szédablak megjelenését.
+
+ #Alapértelmezett jelszó#  Az alapértelmezett jelszó új szerverek
+                         adatainak bevitelekor használatos. Szintén
+                         ez kerül be a jelszó mezőbe, amikor
+                         anonimuszként jelentkezünk be egy szerverre,
+                         és nincs jelszó megadva.
+
+ #Tűzfal#                  A tűzfal szerver neve. Hagyjuk üresen, ha
+                         nem használunk tűzfalat. Csak egy típusú
+                         tűzfalat támogat jelenleg a FAR:
+                         Felhasználónévként remote_userid@remote_host
+                         lesz elküldve a tűzfal-szervernek, amikor a
+                         FAR a remote_host -ra kapcsolódik.
+
+ #Passzív mód#             Ez a mód a tűzfalak egy bizonyos fajtájával
+                         való működéshez kell. Mivel minden egyes
+                         Host-nak megvan a saját "Passzív mód"
+                         beállítása, amit új Host adatainak megadása-
+                         kor használ a FAR, vagy mikor parancssorból
+                         csatlakozunk.
+
+
+@FTPPanel
+$ #FTP kliens panel módok#
+    Az FTP kliens a 8 és 9 panel módokat használja az FTP file-ok
+bizonyos információinak megjelentítésére.
+
+    A 8 mód (file tulajdonos) tartalmazza a file tulajdonosának és
+csoportjának információit.
+
+    A 9 mód (file kapcsolatok) a file-ok hozzáférési információit
+tartalmazza Unix formátumban.
+
+    Ezen információk csak akkor jelennek meg rendesen, ha az FTP
+szerver sztenderd Unix formában szolgáltatja az adatokat.
+                                                                       
