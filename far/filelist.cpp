@@ -180,15 +180,29 @@ static auto compare_time(os::chrono::time_point First, os::chrono::time_point Se
 	return compare_numbers(First, Second);
 }
 
-// FAT Last Write time is rounded up to the even number of seconds
+// FAT Last Write time is rounded up to the even number of seconds, e.g. 2s 1ms -> 4s
 static auto to_fat_write_time(os::chrono::time_point Point)
 {
 	return (Point.time_since_epoch() + 2s - 1ns) / 2s;
 }
 
+// However, people also use this function with FTP, which rounds down to whole seconds
+static auto to_whole_seconds(os::chrono::time_point Point)
+{
+	return Point.time_since_epoch() / 1s;
+}
+
+// The ultimate question here is "can these times be considered 'equal'",
+// so we take an oppotrunistic approach and try both methods:
 static auto compare_fat_write_time(os::chrono::time_point First, os::chrono::time_point Second)
 {
-	return compare_numbers(to_fat_write_time(First), to_fat_write_time(Second));
+	if (!compare_numbers(to_fat_write_time(First), to_fat_write_time(Second)))
+		return 0;
+
+	if (!compare_numbers(to_whole_seconds(First), to_whole_seconds(Second)))
+		return 0;
+
+	return compare_time(First, Second);
 }
 
 
@@ -8853,18 +8867,27 @@ TEST_CASE("fat_time")
 	Tests[]
 	{
 		{ 0s,          0s,    0, },
+		{ 0s + 1ms,    0s,    0, },
 		{ 0s + 1ms,    2s,    0, },
+		{ 1s - 1ms,    0s,    0, },
 		{ 1s - 1ms,    2s,    0, },
 		{ 1s,          2s,    0, },
+		{ 1s + 1ms,    1s,    0, },
 		{ 1s + 1ms,    2s,    0, },
+		{ 2s - 1ms,    1s,    0, },
 		{ 2s - 1ms,    2s,    0, },
 		{ 2s,          2s,    0, },
+		{ 2s + 1ms,    2s,    0, },
 		{ 2s + 1ms,    4s,    0, },
+		{ 3s - 1ms,    3s,    0, },
 		{ 3s - 1ms,    4s,    0, },
 		{ 3s,          4s,    0, },
+		{ 3s + 1ms,    3s,    0, },
 		{ 3s + 1ms,    4s,    0, },
+		{ 4s - 1ms,    3s,    0, },
 		{ 4s - 1ms,    4s,    0, },
 		{ 4s,          4s,    0, },
+		{ 4s + 1ms,    4s,    0, },
 		{ 4s + 1ms,    6s,    0, },
 		{ 0s,          2s,   -1, },
 		{ 2s,          4s,   -1, },
