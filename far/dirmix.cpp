@@ -257,23 +257,29 @@ bool CheckShortcutFolder(string& TestPath, bool TryClosest, bool Silent)
 	return false;
 }
 
-void CreatePath(string_view const InputPath, bool Simple)
+bool CreatePath(string_view const InputPath, bool const AddToTreeCache)
 {
 	const auto Path = ConvertNameToFull(InputPath);
+
 	size_t DirOffset = 0;
 	ParsePath(Path, &DirOffset);
-	string Part;
-	Part.reserve(Path.size());
+
 	for (size_t i = DirOffset; i <= Path.size(); ++i)
 	{
-		if (i == Path.size() || IsSlash(Path[i]))
-		{
-			Part.assign(Path, 0, i);
-			if (!os::fs::exists(Part))
-			{
-				if(os::fs::create_directory(Part) && !Simple)
-					TreeList::AddTreeName(Part);
-			}
-		}
+		if (i != Path.size() && !path::is_separator(Path[i]))
+			continue;
+
+		const auto Part = string_view(Path).substr(0, i);
+
+		if (os::fs::is_directory(Part))
+			continue;
+
+		if (!os::fs::create_directory(Part))
+			return false;
+
+		if (AddToTreeCache)
+			TreeList::AddTreeName(Part);
 	}
+
+	return true;
 }

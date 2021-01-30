@@ -1842,7 +1842,7 @@ static char* WINAPI TruncPathStrA(char *Str, int MaxLength) noexcept
 		{
 			char *Start = nullptr;
 
-			if (*Str && Str[1] == ':' && IsSlash(Str[2]))
+			if (*Str && Str[1] == ':' && path::is_separator(Str[2]))
 				Start = Str + 3;
 			else
 			{

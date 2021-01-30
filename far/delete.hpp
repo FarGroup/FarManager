@@ -52,8 +52,6 @@ enum class delete_type
 	recycle,
 	remove,
 	erase,
-
-	delete_type_count
 };
 
 void Delete(const panel_ptr& SrcPanel, delete_type Type);

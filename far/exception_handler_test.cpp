@@ -66,6 +66,19 @@ namespace tests
 	}
 
 	[[noreturn]]
+	static void cpp_far_rethrow()
+	{
+		try
+		{
+			cpp_far();
+		}
+		catch (...)
+		{
+			throw;
+		}
+	}
+
+	[[noreturn]]
 	static void cpp_far_fatal()
 	{
 		throw MAKE_FAR_FATAL_EXCEPTION(L"Test far fatal error"sv);
@@ -327,6 +340,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 	static const std::pair<void(*)(), string_view> Tests[]
 	{
 		{ tests::cpp_far,                      L"C++ far_exception"sv },
+		{ tests::cpp_far_rethrow,              L"C++ far_exception (rethrow)"sv },
 		{ tests::cpp_far_fatal,                L"C++ far_fatal_exception"sv },
 		{ tests::cpp_std,                      L"C++ std::exception"sv },
 		{ tests::cpp_std_lib,                  L"C++ std::exception from stdlib"sv },

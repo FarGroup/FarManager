@@ -68,7 +68,7 @@ static void MixToFullPath(string& strPath)
 	for (size_t Pos = DirOffset; Pos < strPath.size();)
 	{
 		//fragment "."
-		if (strPath[Pos] != L'.' || (Pos && !IsSlash(strPath[Pos - 1])))
+		if (strPath[Pos] != L'.' || (Pos && !path::is_separator(strPath[Pos - 1])))
 		{
 			++Pos;
 			continue;
@@ -97,7 +97,7 @@ static void MixToFullPath(string& strPath)
 
 			//fragment "..\" or "../" or ".." at the end
 		case L'.':
-			if (Pos + 2 == strPath.size() || IsSlash(strPath[Pos + 2]))
+			if (Pos + 2 == strPath.size() || path::is_separator(strPath[Pos + 2]))
 			{
 				//Calculate subdir name offset
 				size_t n = strPath.find_last_of(L"\\/"sv, Pos-2);
@@ -140,7 +140,7 @@ static void MixToFullPath(const string_view stPath, string& Dest, const string_v
 		{
 			blIgnore = true;
 		}
-		else if (!stPath.empty() && IsSlash(stPath.front())) //"\" or "\abc"
+		else if (!stPath.empty() && path::is_separator(stPath.front())) //"\" or "\abc"
 		{
 			++PathOffset;
 			if (!stCurrentDir.empty())
@@ -159,7 +159,7 @@ static void MixToFullPath(const string_view stPath, string& Dest, const string_v
 		break;
 
 	case root_type::drive_letter: //"C:" or "C:abc"
-		if(stPath.size() > 2 && IsSlash(stPath[2]))
+		if(stPath.size() > 2 && path::is_separator(stPath[2]))
 		{
 			PathOffset = 0;
 		}
@@ -414,7 +414,7 @@ string ConvertNameToUNC(string_view const Object)
 // CheckFullPath используется в FCTL_SET[ANOTHER]PANELDIR
 void PrepareDiskPath(string &strPath, bool CheckFullPath)
 {
-	if (strPath.size() <= 1 || (strPath[1] != L':' && (!IsSlash(strPath[0]) || !IsSlash(strPath[1]))))
+	if (strPath.size() <= 1 || (strPath[1] != L':' && (!path::is_separator(strPath[0]) || !path::is_separator(strPath[1]))))
 		return;
 
 	// elevation not required during cosmetic operation
@@ -455,11 +455,11 @@ void PrepareDiskPath(string &strPath, bool CheckFullPath)
 		string TmpStr;
 		TmpStr.reserve(strPath.size());
 		size_t LastPos = StartPos;
-		const auto EndsWithSlash = IsSlash(strPath.back());
+		const auto EndsWithSlash = path::is_separator(strPath.back());
 
 		for (size_t i = StartPos; i <= strPath.size(); ++i)
 		{
-			if (!((i < strPath.size() && IsSlash(strPath[i])) || (i == strPath.size() && !EndsWithSlash)))
+			if (!((i < strPath.size() && path::is_separator(strPath[i])) || (i == strPath.size() && !EndsWithSlash)))
 				continue;
 
 			os::fs::find_data fd;

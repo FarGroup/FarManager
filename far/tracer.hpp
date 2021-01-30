@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class tracer: noncopyable
 {
 public:
-	static std::vector<DWORD64> get(string_view Module, const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle);
+	static std::vector<DWORD64> get(string_view Module, CONTEXT const& ContextRecord, HANDLE ThreadHandle);
 	static void get_symbols(string_view Module, span<DWORD64 const> Trace, function_ref<void(string&& Line)> Consumer);
 	static void get_symbol(string_view Module, const void* Ptr, string& Address, string& Name, string& Source);
 

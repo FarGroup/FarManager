@@ -390,7 +390,7 @@ void language::load(string_view const Path, string_view const Language, int Coun
 	std::unordered_map<string, string> CustomStrings;
 
 	const auto CustomLngInSameDir = Data->m_FileName + L".custom"sv;
-	const auto CustomLngInProfileDir = concat(Global->Opt->ProfilePath, L'\\', ExtractFileName(CustomLngInSameDir));
+	const auto CustomLngInProfileDir = path::join(Global->Opt->ProfilePath, ExtractFileName(CustomLngInSameDir));
 
 	// LoadCustomStrings uses map.emplace (does not overwrite existing entires) so the high priority location should come first.
 	// If for whatever reason it will use insert_or_assign one day - change the order here.

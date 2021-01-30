@@ -576,7 +576,7 @@ bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePoin
 
 	const auto symlink = LinkType == RP_SYMLINK || LinkType == RP_SYMLINKFILE || LinkType == RP_SYMLINKDIR;
 
-	if (Target[1] == L':' && (!Target[2] || (IsSlash(Target[2]) && !Target[3]))) // C: или C:/
+	if (Target[1] == L':' && (!Target[2] || (path::is_separator(Target[2]) && !Target[3]))) // C: или C:/
 	{
 		// if(Flags&FCOPY_VOLMOUNT)
 		{
@@ -595,7 +595,7 @@ bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePoin
 
 	auto strFullLink = ConvertNameToFull(LinkName);
 
-	if (IsSlash(strFullLink.back()))
+	if (path::is_separator(strFullLink.back()))
 	{
 		if (LinkType != RP_VOLMOUNT)
 		{

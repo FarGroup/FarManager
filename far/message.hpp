@@ -55,6 +55,7 @@ enum
 	MSG_WARNING        = 0_bit,
 	MSG_KEEPBACKGROUND = 2_bit,
 	MSG_LEFTALIGN      = 3_bit,
+
 	MSG_KILLSAVESCREEN = 28_bit,
 	MSG_NOPLUGINS      = 29_bit,
 	MSG_NOFLUSH        = 30_bit,
@@ -97,7 +98,7 @@ public:
 		Plugin* PluginNumber
 	);
 
-	enum
+	enum result
 	{
 		first_button,
 		second_button,
@@ -106,9 +107,9 @@ public:
 		fifth_button,
 	};
 
-	int GetExitCode() const {return m_ExitCode;}
+	result GetExitCode() const {return static_cast<result>(m_ExitCode);}
 	rectangle GetPosition() const;
-	operator int() const { return GetExitCode(); }
+	operator result() const { return GetExitCode(); }
 
 private:
 	void Init(

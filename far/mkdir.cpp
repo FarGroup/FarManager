@@ -103,7 +103,17 @@ static intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Para
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-void ShellMakeDir(Panel *SrcPanel)
+static bool create_directory(string_view const Directory, bool& SkipErrors)
+{
+	return retryable_ui_operation([&]{ return os::fs::create_directory(Directory); }, Directory, lng::MCannotCreateFolder, SkipErrors);
+}
+
+static bool add_reparse_point(string_view const Directory, string_view const Target, ReparsePointTypes const Type, bool& SkipErrors)
+{
+	return retryable_ui_operation([&]{ return CreateReparsePoint(Target, Directory, Type); }, Directory, lng::MCopyCannotCreateLink, SkipErrors);
+}
+
+static void ShellMakeDirImpl(Panel *SrcPanel)
 {
 	FarList ComboList={sizeof(FarList)};
 	FarListItem LinkTypeItems[3]={};
@@ -141,146 +151,118 @@ void ShellMakeDir(Panel *SrcPanel)
 	Dlg->SetId(MakeFolderId);
 	Dlg->Process();
 
-	if (Dlg->GetExitCode()==MKDIR_OK)
+	if (Dlg->GetExitCode() != MKDIR_OK)
+		return;
+
+
+	string strDirName=MkDirDlg[MKDIR_EDIT].strData;
+	Global->Opt->MultiMakeDir = MkDirDlg[MKDIR_CHECKBOX].Selected == BSTATE_CHECKED;
+
+	// это по поводу создания одиночного каталога, который
+	// начинается с пробела! Чтобы ручками не заключать
+	// такой каталог в кавычки
+	if (Global->Opt->MultiMakeDir && strDirName.find_first_of(L";,\""sv) == string::npos)
 	{
-		string strDirName=MkDirDlg[MKDIR_EDIT].strData;
-		Global->Opt->MultiMakeDir = MkDirDlg[MKDIR_CHECKBOX].Selected == BSTATE_CHECKED;
+		inplace::quote_space(strDirName);
+	}
 
-		// это по поводу создания одиночного каталога, который
-		// начинается с пробела! Чтобы ручками не заключать
-		// такой каталог в кавычки
-		if (Global->Opt->MultiMakeDir && strDirName.find_first_of(L";,\""sv) == string::npos)
-		{
-			inplace::quote_space(strDirName);
-		}
+	// нужно создать только ОДИН каталог
+	if (!Global->Opt->MultiMakeDir)
+	{
+		// уберем все лишние кавычки
+		// возьмем в кавычки, т.к. могут быть разделители
+		inplace::quote_normalise(strDirName);
+	}
 
-		// нужно создать только ОДИН каталог
-		if (!Global->Opt->MultiMakeDir)
-		{
-			// уберем все лишние кавычки
-			// возьмем в кавычки, т.к. могут быть разделители
-			inplace::quote_normalise(strDirName);
-		}
+	string LastCreatedPath;
+	bool SkipAll = false;
+	auto EmptyList = true;
 
-		string strOriginalDirName;
-		bool SkipAll = false;
-		auto EmptyList = true;
-		for (const auto& i: enum_tokens_with_quotes_t<with_trim>(std::move(strDirName), L",;"sv))
+	for (const auto& Path: enum_tokens_with_quotes_t<with_trim>(std::move(strDirName), L",;"sv))
+	{
+		if (Path.empty())
+			continue;
+
+		EmptyList = false;
+		// TODO: almost the same code in dirmix::CreatePath()
+
+		LastCreatedPath = Path;
+
+		strDirName = ConvertNameToFull(Path);
+		DeleteEndSlash(strDirName);
+		bool Created = false;
+
+		size_t DirOffset = 0;
+		ParsePath(strDirName, &DirOffset);
+
+		for (size_t i = DirOffset; i <= strDirName.size(); ++i)
 		{
-			if (i.empty())
+			if (i != strDirName.size() && !path::is_separator(strDirName[i]))
 				continue;
 
-			EmptyList = false;
-			// TODO: almost the same code in dirmix::CreatePath()
+			const auto Part = string_view(strDirName).substr(0, i);
 
-			strOriginalDirName = i;
-			strDirName = ConvertNameToFull(i);
-			DeleteEndSlash(strDirName);
-			bool bSuccess = false;
+			if (os::fs::is_directory(Part) && i != strDirName.size()) // skip all intermediate dirs, but not last.
+				continue;
 
-			size_t DirOffset = 0;
-			ParsePath(strDirName, &DirOffset);
+			Created = create_directory(Part, SkipAll);
 
-			for (size_t j = DirOffset; j <= strDirName.size(); ++j)
+			if(Created)
+				TreeList::AddTreeName(Part);
+		}
+
+		if (!Created)
+			continue;
+
+		if (!MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListPos)
+			continue;
+
+		const auto strTarget = unquote(MkDirDlg[MKDIR_EDIT_LINKPATH].strData);
+
+		add_reparse_point(strDirName, strTarget, MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListPos == 1? RP_JUNCTION : RP_SYMLINKDIR, SkipAll);
+	}
+
+	if (EmptyList)
+	{
+		Message(MSG_WARNING,
+			msg(lng::MWarning),
 			{
-				if (j == strDirName.size() || IsSlash(strDirName[j]))
-				{
-					const auto Part = string_view(strDirName).substr(0, j);
-					if (!os::fs::exists(Part) || j == strDirName.size()) // skip all intermediate dirs, but not last.
-					{
-						while((bSuccess = os::fs::create_directory(Part)) == false && !SkipAll)
-						{
-							const auto ErrorState = error_state::fetch();
+				msg(lng::MIncorrectDirList)
+			},
+			{ lng::MOk });
+		return;
+	}
 
-							const auto Result = OperationFailed(ErrorState, strOriginalDirName, lng::MError, msg(lng::MCannotCreateFolder));
-							if (Result == operation::retry)
-							{
-								continue;
-							}
-							else if(Result == operation::skip)
-							{
-								break;
-							}
-							else if(Result == operation::skip_all)
-							{
-								SkipAll = true;
-								break;
-							}
-							else if (Result == operation::cancel)
-							{
-								return;
-							}
-						}
-						if(bSuccess)
-						{
-							TreeList::AddTreeName(Part);
-						}
-					}
-				}
-			}
+	SrcPanel->Update(UPDATE_KEEP_SELECTION);
 
-			if (bSuccess)
-			{
-				if(MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListPos)
-				{
-					const auto strTarget = unquote(MkDirDlg[MKDIR_EDIT_LINKPATH].strData);
-					while(!CreateReparsePoint(strTarget, strDirName, MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListPos==1?RP_JUNCTION:RP_SYMLINKDIR) && !SkipAll)
-					{
-						const auto ErrorState = error_state::fetch();
-
-						const auto Result = OperationFailed(ErrorState, strDirName, lng::MError, msg(lng::MCopyCannotCreateLink));
-						if (Result == operation::retry)
-						{
-							continue;
-						}
-						else if (Result == operation::skip)
-						{
-							break;
-						}
-						else if(Result == operation::skip_all)
-						{
-							SkipAll = true;
-							break;
-						}
-						else if (Result == operation::cancel)
-						{
-							return;
-						}
-					}
-				}
-			}
-		}
-
-		if (EmptyList)
+	if (!LastCreatedPath.empty())
+	{
+		const auto pos = FindSlash(LastCreatedPath);
+		if (pos != string::npos)
 		{
-			Message(MSG_WARNING,
-				msg(lng::MWarning),
-				{
-					msg(lng::MIncorrectDirList)
-				},
-				{ lng::MOk });
-			return;
+			LastCreatedPath.resize(pos);
 		}
 
-		SrcPanel->Update(UPDATE_KEEP_SELECTION);
+		SrcPanel->GoToFile(LastCreatedPath);
+	}
 
-		if (!strOriginalDirName.empty())
-		{
-			const auto pos = FindSlash(strOriginalDirName);
-			if (pos != string::npos)
-			{
-				strOriginalDirName.resize(pos);
-			}
+	SrcPanel->Redraw();
+	const auto AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
+	if (AnotherPanel->NeedUpdatePanel(SrcPanel) || AnotherPanel->GetType() == panel_type::QVIEW_PANEL)
+	{
+		AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+		AnotherPanel->Redraw();
+	}
+}
 
-			SrcPanel->GoToFile(strOriginalDirName);
-		}
-
-		SrcPanel->Redraw();
-		const auto AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
-		if (AnotherPanel->NeedUpdatePanel(SrcPanel) || AnotherPanel->GetType() == panel_type::QVIEW_PANEL)
-		{
-			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
-			AnotherPanel->Redraw();
-		}
+void ShellMakeDir(Panel* SrcPanel)
+{
+	try
+	{
+		ShellMakeDirImpl(SrcPanel);
+	}
+	catch (const operation_cancelled&)
+	{
+		// Nop
 	}
 }

@@ -77,19 +77,22 @@ public:
 	NONCOPYABLE(exception_context);
 
 	explicit exception_context(EXCEPTION_POINTERS const& Pointers) noexcept:
-		m_Pointers(Pointers),
+		m_ExceptionRecord(*Pointers.ExceptionRecord),
+		m_ContextRecord(*Pointers.ContextRecord),
 		m_ThreadHandle(os::OpenCurrentThread()),
 		m_ThreadId(GetCurrentThreadId())
 	{
 	}
 
-	auto code() const noexcept { return m_Pointers.ExceptionRecord->ExceptionCode; }
-	auto& pointers() const noexcept { return m_Pointers; }
+	auto code() const noexcept { return m_ExceptionRecord.ExceptionCode; }
+	auto& exception_record() const noexcept { return m_ExceptionRecord; }
+	auto& context_record() const noexcept { return m_ContextRecord; }
 	auto thread_handle() const noexcept { return m_ThreadHandle.native_handle(); }
 	auto thread_id() const noexcept { return m_ThreadId; }
 
 private:
-	EXCEPTION_POINTERS m_Pointers;
+	EXCEPTION_RECORD m_ExceptionRecord;
+	CONTEXT m_ContextRecord;
 	os::handle m_ThreadHandle;
 	DWORD m_ThreadId;
 };
@@ -127,52 +130,6 @@ void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 constexpr NTSTATUS
 	EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363, // EH_EXCEPTION_NUMBER
 	EXCEPTION_TERMINATE           = 0xE074726D; // 'trm'
-
-enum exception_dialog
-{
-	ed_doublebox,
-	ed_first_line,
-	ed_text_exception = ed_first_line,
-	ed_edit_exception,
-	ed_text_details,
-	ed_edit_details,
-	ed_text_errno,
-	ed_edit_errno,
-	ed_text_lasterror,
-	ed_edit_lasterror,
-	ed_text_ntstatus,
-	ed_edit_ntstatus,
-	ed_text_address,
-	ed_edit_address,
-	ed_text_function,
-	ed_edit_function,
-	ed_text_source,
-	ed_edit_source,
-	ed_text_module,
-	ed_edit_module,
-	ed_text_plugin_information,
-	ed_edit_plugin_information,
-	ed_text_far_version,
-	ed_edit_far_version,
-	ed_text_os_version,
-	ed_edit_os_version,
-	ed_text_kernel_version,
-	ed_edit_kernel_version,
-	ed_last_line = ed_edit_kernel_version,
-	ed_separator_1,
-	ed_button_copy,
-	ed_button_stack,
-	ed_button_minidump,
-	ed_separator_2,
-	ed_button_terminate,
-	ed_button_unload,
-	ed_button_ignore,
-
-	ed_first_button = ed_button_copy,
-	ed_last_button = ed_button_ignore,
-
-	ed_items_count
-};
 
 static std::vector<DWORD64> current_stack()
 {
@@ -258,8 +215,10 @@ static bool write_minidump(const exception_context& Context, string_view const P
 	if (!DumpFile)
 		return false;
 
-	auto PointersCopy = Context.pointers();
-	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.thread_id(), &PointersCopy };
+	auto ExceptionRecord = Context.exception_record();
+	auto ContextRecord = Context.context_record();
+	EXCEPTION_POINTERS Pointers{ &ExceptionRecord, &ContextRecord };
+	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.thread_id(), &Pointers };
 
 	return imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
 }
@@ -461,10 +420,10 @@ static void copy_information(
 
 	append(Strings, Eol);
 
-	read_registers(Strings, *Context.pointers().ContextRecord, Eol);
+	read_registers(Strings, Context.context_record(), Eol);
 	append(Strings, Eol);
 
-	get_backtrace(Module, tracer::get(Module, Context.pointers(), Context.thread_handle()), NestedStack, [&](string_view const Line)
+	get_backtrace(Module, tracer::get(Module, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
 	{
 		append(Strings, Line, Eol);
 	});
@@ -474,6 +433,52 @@ static void copy_information(
 
 	SetClipboardText(Strings);
 }
+
+enum exception_dialog
+{
+	ed_doublebox,
+	ed_first_line,
+	ed_text_exception = ed_first_line,
+	ed_edit_exception,
+	ed_text_details,
+	ed_edit_details,
+	ed_text_errno,
+	ed_edit_errno,
+	ed_text_lasterror,
+	ed_edit_lasterror,
+	ed_text_ntstatus,
+	ed_edit_ntstatus,
+	ed_text_address,
+	ed_edit_address,
+	ed_text_function,
+	ed_edit_function,
+	ed_text_source,
+	ed_edit_source,
+	ed_text_module,
+	ed_edit_module,
+	ed_text_plugin_information,
+	ed_edit_plugin_information,
+	ed_text_far_version,
+	ed_edit_far_version,
+	ed_text_os_version,
+	ed_edit_os_version,
+	ed_text_kernel_version,
+	ed_edit_kernel_version,
+	ed_last_line = ed_edit_kernel_version,
+	ed_separator_1,
+	ed_button_copy,
+	ed_button_stack,
+	ed_button_minidump,
+	ed_separator_2,
+	ed_button_terminate,
+	ed_button_unload,
+	ed_button_ignore,
+
+	ed_first_button = ed_button_copy,
+	ed_last_button = ed_button_ignore,
+
+	ed_items_count
+};
 
 static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
@@ -490,22 +495,22 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 			FarDialogItem di;
 			Dlg->SendMessage(DM_GETDLGITEMSHORT,Param1,&di);
 
-			if (di.Type==DI_EDIT)
-			{
-				const auto& Color = colors::PaletteColorToFarColor(COL_WARNDIALOGTEXT);
-				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
-				Colors->Colors[0] = Color;
-				Colors->Colors[2] = Color;
-			}
+			if (di.Type != DI_EDIT)
+				break;
+
+			const auto& Color = colors::PaletteColorToFarColor(COL_WARNDIALOGTEXT);
+			auto& Colors = *static_cast<FarDialogItemColors*>(Param2);
+			Colors.Colors[0] = Color;
+			Colors.Colors[2] = Color;
 		}
 		break;
 
 		case DN_CONTROLINPUT:
 		{
-			const auto record = static_cast<const INPUT_RECORD *>(Param2);
-			if (record->EventType == KEY_EVENT)
+			const auto& record = *static_cast<const INPUT_RECORD *>(Param2);
+			if (record.EventType == KEY_EVENT)
 			{
-				switch (InputRecordToKey(record))
+				switch (InputRecordToKey(&record))
 				{
 				case KEY_LEFT:
 				case KEY_NUMPAD4:
@@ -551,7 +556,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 				return FALSE;
 
 			case ed_button_stack:
-				show_backtrace(Data.Module, tracer::get(Data.Module, Data.Context->pointers(), Data.Context->thread_handle()), Data.NestedStack, true);
+				show_backtrace(Data.Module, tracer::get(Data.Module, Data.Context->context_record(), Data.Context->thread_handle()), Data.NestedStack, true);
 				return FALSE;
 
 			case ed_button_minidump:
@@ -725,7 +730,7 @@ static bool ExcConsole(
 			break;
 
 		case action::stack:
-			show_backtrace(ModuleName, tracer::get(ModuleName, Context.pointers(), Context.thread_handle()), NestedStack, false);
+			show_backtrace(ModuleName, tracer::get(ModuleName, Context.context_record(), Context.thread_handle()), NestedStack, false);
 			break;
 
 		case action::minidump:
@@ -768,7 +773,7 @@ static bool ShowExceptionUI(
 	SCOPED_ACTION(tracer::with_symbols)(PluginModule? ModuleName : L""sv);
 
 	string Address, Name, Source;
-	tracer::get_symbol(ModuleName, Context.pointers().ExceptionRecord->ExceptionAddress, Address, Name, Source);
+	tracer::get_symbol(ModuleName, Context.exception_record().ExceptionAddress, Address, Name, Source);
 
 	if (!Name.empty())
 		append(Address, L" - "sv, Name);
@@ -1008,33 +1013,8 @@ static bool ProcessExternally(EXCEPTION_POINTERS const& Pointers, Plugin const* 
 	return Function(&PointersCopy, PluginModule ? &PlugRec : nullptr, &LocalStartupInfo, &dummy) != FALSE;
 }
 
-static bool handle_generic_exception(
-	exception_context const& Context,
-	std::string_view const Function,
-	string_view const Location,
-	Plugin const* const PluginModule,
-	string_view const Type,
-	string_view const Message,
-	error_state const& ErrorState = error_state::fetch(),
-	span<DWORD64 const> const NestedStack = {}
-)
+static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_view const Type)
 {
-	static bool ExceptionHandlingIgnored = false;
-	if (ExceptionHandlingIgnored)
-		return false;
-
-
-	if (Global)
-		Global->ProcessException = true;
-
-	if (ProcessExternally(Context.pointers(), PluginModule))
-	{
-		if (!PluginModule && Global)
-			Global->CriticalInternalError = true;
-
-		return true;
-	}
-
 	static const std::pair<string_view, NTSTATUS> KnownExceptions[]
 	{
 #define TEXTANDCODE(x) L###x##sv, x
@@ -1068,9 +1048,96 @@ static bool handle_generic_exception(
 		{L"std::terminate"sv, EXCEPTION_TERMINATE},
 	};
 
-	string strFileName;
+	const auto AppendType = [](string& Str, string_view const ExceptionType)
+	{
+		append(Str, L" ("sv, ExceptionType, ')');
+	};
 
-	const auto xr = Context.pointers().ExceptionRecord;
+	const auto WithType = [&](string&& Str)
+	{
+		if (!Type.empty())
+		{
+			AppendType(Str, Type);
+			return std::move(Str);
+		}
+
+		if (const auto TypeStr = ExtractObjectType(ExceptionRecord); !TypeStr.empty())
+		{
+			AppendType(Str, TypeStr);
+		}
+		return std::move(Str);
+	};
+
+	const auto ItemIterator = std::find_if(CONST_RANGE(KnownExceptions, i) { return static_cast<DWORD>(i.second) == ExceptionRecord.ExceptionCode; });
+	const auto Name = ItemIterator != std::cend(KnownExceptions) ? ItemIterator->first : L"Unknown exception"sv;
+	return WithType(format(FSTR(L"0x{0:0>8X} - {1}"), ExceptionRecord.ExceptionCode, Name));
+}
+
+static string exception_details(EXCEPTION_RECORD const& ExceptionRecord, string_view const Message)
+{
+	switch (static_cast<NTSTATUS>(ExceptionRecord.ExceptionCode))
+	{
+	case EXCEPTION_ACCESS_VIOLATION:
+	case EXCEPTION_IN_PAGE_ERROR:
+	{
+		const auto AccessedAddress = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
+		const auto Mode = [](ULONG_PTR Code)
+		{
+			switch (Code)
+			{
+			default:
+			case EXCEPTION_READ_FAULT:    return L"read"sv;
+			case EXCEPTION_WRITE_FAULT:   return L"written"sv;
+			case EXCEPTION_EXECUTE_FAULT: return L"executed"sv;
+			}
+		}(ExceptionRecord.ExceptionInformation[0]);
+
+		return format(FSTR(L"Memory at {0} could not be {1}"), AccessedAddress, Mode);
+	}
+
+	case EXCEPTION_MICROSOFT_CPLUSPLUS:
+	case EXCEPTION_TERMINATE:
+		return string(Message);
+
+	default:
+		return os::GetErrorString(true, ExceptionRecord.ExceptionCode);
+	}
+}
+
+static bool handle_generic_exception(
+	exception_context const& Context,
+	std::string_view const Function,
+	string_view const Location,
+	Plugin const* const PluginModule,
+	string_view const Type,
+	string_view const Message,
+	error_state const& ErrorState = error_state::fetch(),
+	span<DWORD64 const> const NestedStack = {}
+)
+{
+	static bool ExceptionHandlingIgnored = false;
+	if (ExceptionHandlingIgnored)
+		return false;
+
+
+	if (Global)
+		Global->ProcessException = true;
+
+	{
+		auto ExceptionRecord = Context.exception_record();
+		auto ContextRecord = Context.context_record();
+		EXCEPTION_POINTERS const Pointers{ &ExceptionRecord, &ContextRecord };
+
+		if (ProcessExternally(Pointers, PluginModule))
+		{
+			if (!PluginModule && Global)
+				Global->CriticalInternalError = true;
+
+			return true;
+		}
+	}
+
+	string strFileName;
 
 	if (!PluginModule)
 	{
@@ -1089,65 +1156,8 @@ static bool handle_generic_exception(
 		strFileName = PluginModule->ModuleName();
 	}
 
-	const auto AppendType = [](string& Str, string_view const ExceptionType)
-	{
-		append(Str, L" ("sv, ExceptionType, ')');
-	};
-
-	const auto WithType = [&](string&& Str)
-	{
-		if (!Type.empty())
-		{
-			AppendType(Str, Type);
-			return std::move(Str);
-		}
-
-		if (const auto TypeStr = ExtractObjectType(*xr); !TypeStr.empty())
-		{
-			AppendType(Str, TypeStr);
-		}
-		return std::move(Str);
-	};
-
-	const auto Exception = [&](NTSTATUS Code)
-	{
-		const auto ItemIterator = std::find_if(CONST_RANGE(KnownExceptions, i) { return i.second == Code; });
-		const auto Name = ItemIterator != std::cend(KnownExceptions)? ItemIterator->first : L"Unknown exception"sv;
-		return WithType(format(FSTR(L"0x{0:0>8X} - {1}"), static_cast<DWORD>(Code), Name));
-	}(Context.code());
-
-	string Details;
-
-	switch(static_cast<NTSTATUS>(Context.code()))
-	{
-	case EXCEPTION_ACCESS_VIOLATION:
-	case EXCEPTION_IN_PAGE_ERROR:
-		{
-			const auto AccessedAddress = to_hex_wstring(xr->ExceptionInformation[1]);
-			const auto Mode = [](ULONG_PTR Code)
-			{
-				switch (Code)
-				{
-				default:
-				case EXCEPTION_READ_FAULT:    return L"read"sv;
-				case EXCEPTION_WRITE_FAULT:   return L"written"sv;
-				case EXCEPTION_EXECUTE_FAULT: return L"executed"sv;
-				}
-			}(xr->ExceptionInformation[0]);
-
-			Details = format(FSTR(L"Memory at {0} could not be {1}"), AccessedAddress, Mode);
-		}
-		break;
-
-	case EXCEPTION_MICROSOFT_CPLUSPLUS:
-	case EXCEPTION_TERMINATE:
-		Details = Message;
-		break;
-
-	default:
-		Details = os::GetErrorString(true, Context.code());
-		break;
-	}
+	const auto Exception = exception_name(Context.exception_record(), Type);
+	const auto Details = exception_details(Context.exception_record(), Message);
 
 	const auto PluginInformation = PluginModule? format(FSTR(L"{0} {1} ({2}, {3})"),
 		PluginModule->Title(),
@@ -1233,7 +1243,7 @@ public:
 	far_wrapper_exception(const char* const Function, string_view const File, int const Line):
 		far_exception(true, L"exception_ptr"sv, Function, File, Line),
 		m_ThreadHandle(std::make_shared<os::handle>(os::OpenCurrentThread())),
-		m_Stack(tracer::get({}, exception_information(), m_ThreadHandle->native_handle()))
+		m_Stack(tracer::get({}, *exception_information().ContextRecord, m_ThreadHandle->native_handle()))
 	{
 	}
 
@@ -1307,14 +1317,14 @@ static std::pair<string, string> extract_nested_exceptions(EXCEPTION_RECORD cons
 	return Result;
 }
 
-class seh_exception: public error_state_ex, public std::exception
+class seh_exception: public far_exception
 {
 public:
-	explicit seh_exception(EXCEPTION_POINTERS& Pointers):
-		error_state_ex(fetch()),
+	template<typename... args>
+	seh_exception(EXCEPTION_POINTERS& Pointers, args&&... Args):
+		far_exception(FWD(Args)...),
 		m_Context(std::make_shared<seh_exception_context>(Pointers))
-	{
-	}
+	{}
 
 	const auto& context() const noexcept { return *m_Context; }
 
@@ -1337,16 +1347,16 @@ static bool handle_std_exception(
 		return handle_generic_exception(
 			Context,
 			Function,
-			{},
+			SehException->location(),
 			Module,
 			{},
-			{},
+			SehException->message(),
 			*SehException,
-			tracer::get({}, SehException->context().pointers(), SehException->context().thread_handle())
+			tracer::get({}, SehException->context().context_record(), SehException->context().thread_handle())
 		);
 	}
 
-	const auto& [Type, What] = extract_nested_exceptions(*Context.pointers().ExceptionRecord, e);
+	const auto& [Type, What] = extract_nested_exceptions(Context.exception_record(), e);
 
 	if (const auto FarException = dynamic_cast<const detail::far_base_exception*>(&e))
 	{
@@ -1373,10 +1383,10 @@ static bool handle_seh_exception(
 	Plugin const* const PluginModule
 )
 {
-	for (const auto& i : enum_catchable_objects(*Context.pointers().ExceptionRecord))
+	for (const auto& i : enum_catchable_objects(Context.exception_record()))
 	{
 		if (strstr(i, "std::exception"))
-			return handle_std_exception(Context, *reinterpret_cast<std::exception const*>(Context.pointers().ExceptionRecord->ExceptionInformation[1]), Function, PluginModule);
+			return handle_std_exception(Context, *reinterpret_cast<std::exception const*>(Context.exception_record().ExceptionInformation[1]), Function, PluginModule);
 	}
 
 	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {});
@@ -1405,9 +1415,7 @@ static void seh_terminate_handler_impl()
 
 	// If it's a SEH or a C++ exception implemented in terms of SEH (and not a fake for GCC) it's better to handle it as SEH
 	if (exception_context const Context(exception_information());
-		Context.pointers().ExceptionRecord &&
-		Context.pointers().ContextRecord &&
-		!is_fake_cpp_exception(*Context.pointers().ExceptionRecord)
+		!is_fake_cpp_exception(Context.exception_record())
 	)
 	{
 		if (handle_seh_exception(Context, __FUNCTION__, {}))
@@ -1596,7 +1604,7 @@ namespace detail
 			return EXCEPTION_CONTINUE_SEARCH;
 		}
 
-		Ptr = std::make_exception_ptr(seh_exception(*Info));
+		Ptr = std::make_exception_ptr(MAKE_EXCEPTION(seh_exception, *Info, true, concat(exception_name(*Info->ExceptionRecord, {}), L" - "sv, exception_details(*Info->ExceptionRecord, {}))));
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
 

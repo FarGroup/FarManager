@@ -937,7 +937,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 									for (const auto& [Link, Item, Storage]: zip(Links, ListItems, DfsStorages))
 									{
-										Link = concat(L"\\\\"sv, Storage.ServerName, L'\\', Storage.ShareName);
+										Link = concat(L"\\\\"sv, Storage.ServerName, path::separator, Storage.ShareName);
 										Item.Text = Link.c_str();
 										Item.Flags =
 											((Storage.State & DFS_STORAGE_STATE_ACTIVE)? (LIF_CHECKED | LIF_SELECTED) : LIF_NONE) |
@@ -1197,27 +1197,8 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				//reparse point editor, can be used even if the attributes are invalid (e.g. a CD drive)
 				if (!equal_icase(AttrDlg[SA_EDIT_REPARSE_POINT].strData, strLinkName))
 				{
-					for (;;)
-					{
-						if (ModifyReparsePoint(SingleSelFileName, unquote(AttrDlg[SA_EDIT_REPARSE_POINT].strData)))
-							break;
-
-						const auto ErrorState = error_state::fetch();
-						const auto OperationResult = OperationFailed(ErrorState, SingleSelFileName, lng::MError, msg(lng::MCopyCannotCreateLink), false);
-
-						if (OperationResult == operation::retry)
-						{
-							continue;
-						}
-						if (OperationResult == operation::skip)
-						{
-							break;
-						}
-						else if (OperationResult == operation::cancel)
-						{
-							cancel_operation();
-						}
-					}
+					bool Dummy = false;
+					retryable_ui_operation([&]{ return ModifyReparsePoint(SingleSelFileName, unquote(AttrDlg[SA_EDIT_REPARSE_POINT].strData)); }, SingleSelFileName, lng::MCopyCannotCreateLink, Dummy);
 				}
 
 				if (SingleSelFindData.Attributes == INVALID_FILE_ATTRIBUTES)

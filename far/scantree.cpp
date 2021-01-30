@@ -230,7 +230,7 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 			if (!ScanItems.back().ActiveDirectories.count(RealPath))
 			{
 				CutToSlash(strFindPath);
-				append(strFindPath, fdata.FileName, L'\\', strFindMask);
+				path::append(strFindPath, fdata.FileName, strFindMask);
 
 				CutToSlash(strFindPathOriginal);
 				strFindPathOriginal += fdata.FileName;

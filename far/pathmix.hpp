@@ -54,7 +54,9 @@ struct PluginPanelItem;
 
 namespace path
 {
+	inline constexpr wchar_t separator = L'\\';
 	inline constexpr auto separators = L"\\/"sv;
+	inline constexpr bool is_separator(wchar_t x) noexcept { return contains(separators, x); }
 
 	namespace detail
 	{
@@ -145,8 +147,6 @@ public:
 string KernelPath(string_view NtPath);
 string KernelPath(string NtPath);
 
-inline constexpr bool IsSlash(wchar_t x) noexcept { return x==L'\\' || x==L'/'; }
-
 enum class root_type
 {
 	unknown,
@@ -161,7 +161,7 @@ enum class root_type
 
 root_type ParsePath(string_view Path, size_t* RootSize = {}, bool* RootOnly = {});
 
-inline bool IsRelativeRoot(string_view Path) { return Path.size() == 1 && IsSlash(Path.front()); }
+inline bool IsRelativeRoot(string_view Path) { return Path.size() == 1 && path::is_separator(Path.front()); }
 bool IsAbsolutePath(string_view Path);
 bool IsRootPath(string_view Path);
 bool HasPathPrefix(string_view Path);

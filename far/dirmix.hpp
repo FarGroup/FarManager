@@ -65,6 +65,6 @@ bool FarChDir(string_view NewDir);
 int TestFolder(string_view Path);
 bool CheckShortcutFolder(string& TestPath, bool TryClosest, bool Silent);
 
-void CreatePath(string_view InputPath, bool Simple = false);
+bool CreatePath(string_view InputPath, bool AddToTreeCache = true);
 
 #endif // DIRMIX_HPP_7386031B_A22B_4851_8BC6_24E90C9798D5

@@ -305,7 +305,7 @@ static bool GetCacheTreeName(string_view const Root, string& strName, bool const
 			AddEndSlash(strRemoteName);
 	}
 
-	std::replace(ALL_RANGE(strRemoteName), L'\\', L'_');
+	std::replace(ALL_RANGE(strRemoteName), path::separator, L'_');
 	strName = format(FSTR(L"{0}\\{1}.{2:X}.{3}.{4}"), strFolderName, strVolumeName, dwVolumeSerialNumber, strFileSystemName, strRemoteName);
 	return true;
 }
@@ -332,7 +332,7 @@ public:
 	{
 		std::erase_if(m_Names, [&](const auto& i)
 		{
-			return starts_with_icase(i, Name) && (i.size() == Name.size() || (i.size() > Name.size() && IsSlash(i[Name.size()])));
+			return starts_with_icase(i, Name) && (i.size() == Name.size() || (i.size() > Name.size() && path::is_separator(i[Name.size()])));
 		});
 	}
 
@@ -715,7 +715,7 @@ static void ReadLines(const os::fs::file& TreeFile, function_ref<void(string_vie
 
 	for (const auto& i: enum_lines(Stream, CP_UNICODE))
 	{
-		if (i.Str.empty() || !IsSlash(i.Str.front()))
+		if (i.Str.empty() || !path::is_separator(i.Str.front()))
 			continue;
 
 		Inserter(i.Str);
@@ -923,14 +923,14 @@ bool TreeList::FillLastData()
 {
 	const auto CountSlash = [](const string& Str, size_t Offset)
 	{
-		return static_cast<size_t>(std::count_if(Str.cbegin() + Offset, Str.cend(), IsSlash));
+		return static_cast<size_t>(std::count_if(Str.cbegin() + Offset, Str.cend(), path::is_separator));
 	};
 
 	const auto RootLength = m_Root.empty()? 0 : m_Root.size()-1;
 	const range Range(m_ListData.begin() + 1, m_ListData.end());
 	FOR_RANGE(Range, i)
 	{
-		const auto Pos = i->strName.rfind(L'\\');
+		const auto Pos = i->strName.rfind(path::separator);
 		const auto PathLength = Pos != string::npos? static_cast<int>(Pos) + 1 : 0;
 		const auto Depth = i->Depth = CountSlash(i->strName, RootLength);
 

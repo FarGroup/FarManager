@@ -185,11 +185,11 @@ static void GetSymbols(string_view const ModuleName, span<DWORD64 const> const B
 	}
 }
 
-std::vector<DWORD64> tracer::get(string_view const Module, const EXCEPTION_POINTERS& Pointers, HANDLE ThreadHandle)
+std::vector<DWORD64> tracer::get(string_view const Module, CONTEXT const& ContextRecord, HANDLE ThreadHandle)
 {
 	SCOPED_ACTION(tracer::with_symbols)(Module);
 
-	return GetBackTrace(*Pointers.ContextRecord, ThreadHandle);
+	return GetBackTrace(ContextRecord, ThreadHandle);
 }
 
 void tracer::get_symbols(string_view const Module, span<DWORD64 const> const Trace, function_ref<void(string&& Line)> const Consumer)

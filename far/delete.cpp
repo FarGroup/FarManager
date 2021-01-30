@@ -832,22 +832,52 @@ bool ShellDelete::ConfirmDeleteReadOnlyFile(string_view const Name, os::fs::attr
 	}
 }
 
-static int confirm_erase_file_with_hardlinks(string_view const File)
+static bool confirm_erase_file_with_hardlinks(string_view const File, int& WipeMode)
 {
-	const auto Hardlinks = GetNumberOfLinks(File);
-	if (!Hardlinks || *Hardlinks < 2)
-		return Message::first_button;
+	switch (WipeMode != -1? WipeMode : [&]
+	{
+		const auto Hardlinks = GetNumberOfLinks(File);
+		return !Hardlinks || *Hardlinks < 2?
+			Message::first_button :
+			Message(MSG_WARNING,
+				msg(lng::MError),
+				{
+					string(File),
+					msg(lng::MDeleteHardLink1),
+					msg(lng::MDeleteHardLink2),
+					msg(lng::MDeleteHardLink3)
+				},
+				{ lng::MDeleteFileWipe, lng::MDeleteFileAll, lng::MDeleteFileSkip, lng::MDeleteFileSkipAll, lng::MDeleteCancel },
+				{}, &WipeHardLinkId);
+	}())
+	{
+	case Message::second_button:
+		WipeMode = Message::first_button;
+		[[fallthrough]];
+	case Message::first_button:
+		return true;
 
-	return Message(MSG_WARNING,
-		msg(lng::MError),
-		{
-			string(File),
-			msg(lng::MDeleteHardLink1),
-			msg(lng::MDeleteHardLink2),
-			msg(lng::MDeleteHardLink3)
-		},
-		{ lng::MDeleteFileWipe, lng::MDeleteFileAll, lng::MDeleteFileSkip, lng::MDeleteFileSkipAll, lng::MDeleteCancel },
-		{}, &WipeHardLinkId);
+	case Message::fourth_button:
+		WipeMode = Message::third_button;
+		[[fallthrough]];
+	case Message::third_button:
+		return false;
+
+	default:
+		cancel_operation();
+	}
+}
+
+static bool erase_file_with_retry(string_view const Name, int& WipeMode, ShellDelete::progress Files, bool& SkipErrors)
+{
+	return
+		confirm_erase_file_with_hardlinks(Name, WipeMode) &&
+		retryable_ui_operation([&]{ return EraseFile(Name, Files); }, Name, lng::MCannotDeleteFile, SkipErrors);
+}
+
+static bool delete_file_with_retry(string_view const Name, bool& SkipErrors)
+{
+	return retryable_ui_operation([&]{ return os::fs::delete_file(Name); }, Name, lng::MCannotDeleteFile, SkipErrors);
 }
 
 bool ShellDelete::ShellRemoveFile(string_view const Name, progress Files)
@@ -855,84 +885,30 @@ bool ShellDelete::ShellRemoveFile(string_view const Name, progress Files)
 	ProcessedItems++;
 	const auto strFullName = ConvertNameToFull(Name);
 
-	for (;;)
+	switch (m_DeleteType)
 	{
-		bool recycle_bin = false;
-		if (m_DeleteType == delete_type::erase)
-		{
-			int MsgCode;
+	case delete_type::erase:
+		return erase_file_with_retry(strFullName, SkipWipeMode, Files, m_SkipFileErrors);
 
-			if (SkipWipeMode != -1)
-			{
-				MsgCode = SkipWipeMode;
-			}
-			else
-			{
-				MsgCode = confirm_erase_file_with_hardlinks(strFullName);
-			}
+	case delete_type::remove:
+		return delete_file_with_retry(strFullName, m_SkipFileErrors);
 
-			switch (MsgCode)
-			{
-			case Message::second_button:
-				SkipWipeMode = Message::first_button;
-				[[fallthrough]];
-			case Message::first_button:
-				if (EraseFile(strFullName, Files))
-					return true;
-				break;
-			case Message::fourth_button:
-				SkipWipeMode = Message::third_button;
-				[[fallthrough]];
-			case Message::third_button:
-				return false;
+	case delete_type::recycle:
+		{
+			auto RetryRecycleAsRemove = false, Skip = false;
 
-			default:
-				cancel_operation();
-			}
-		}
-		else if (m_DeleteType == delete_type::remove)
-		{
-			if (os::fs::delete_file(strFullName))
-				return true;
-		}
-		else
-		{
-			recycle_bin = true;
-			bool RetryRecycleAsRemove = false;
-			bool Skip = false;
-			if (RemoveToRecycleBin(strFullName, false, RetryRecycleAsRemove, Skip))
+			const auto Result = retryable_ui_operation([&]{ return RemoveToRecycleBin(strFullName, false, RetryRecycleAsRemove, Skip) || RetryRecycleAsRemove || Skip; }, strFullName, lng::MCannotRecycleFile, m_SkipFileErrors);
+			if (Result && !RetryRecycleAsRemove && !Skip)
 				return true;
 
 			if (RetryRecycleAsRemove)
-			{
-				recycle_bin = false;
-				if (os::fs::delete_file(strFullName))
-					return true;
-			}
+				return delete_file_with_retry(strFullName, m_SkipFileErrors);
 
-			if (Skip)
-				return false;
+			return false;
 		}
 
-		if (m_SkipFileErrors)
-			return false;
-
-		const auto ErrorState = error_state::fetch();
-
-		switch (OperationFailed(ErrorState, strFullName, lng::MError, msg(recycle_bin? lng::MCannotRecycleFile : lng::MCannotDeleteFile)))
-		{
-		case operation::retry:
-			continue;
-
-		case operation::skip_all:
-			m_SkipFileErrors = true;
-			[[fallthrough]];
-		case operation::skip:
-			return false;
-
-		case operation::cancel:
-			cancel_operation();
-		}
+	default:
+		UNREACHABLE;
 	}
 }
 
@@ -940,67 +916,22 @@ bool ShellDelete::ERemoveDirectory(string_view const Name, delete_type const Typ
 {
 	ProcessedItems++;
 
-	for (;;)
+	switch (Type)
 	{
-		bool recycle_bin = false;
-		switch(Type)
+	case delete_type::remove:
+	case delete_type::erase:
+		return retryable_ui_operation([&]{ return (Type == delete_type::erase? EraseDirectory : os::fs::remove_directory)(Name); }, Name, lng::MCannotDeleteFolder, m_SkipFolderErrors);
+
+	case delete_type::recycle:
 		{
-		case delete_type::remove:
-			if (os::fs::remove_directory(Name))
-				return true;
-			break;
-
-		case delete_type::erase:
-			if (EraseDirectory(Name))
-				return true;
-			break;
-
-		case delete_type::recycle:
-			{
-				recycle_bin = true;
-				bool Skip = false;
-				if (RemoveToRecycleBin(Name, true, RetryRecycleAsRemove, Skip))
-					return true;
-
-				if (RetryRecycleAsRemove)
-					return false;
-
-				if (Skip)
-					return false;
-			}
-			break;
-
-		default:
-			UNREACHABLE;
+			auto Skip = false;
+			return
+				retryable_ui_operation([&]{ return RemoveToRecycleBin(Name, true, RetryRecycleAsRemove, Skip) || RetryRecycleAsRemove || Skip; }, Name, lng::MCannotRecycleFolder, m_SkipFolderErrors) &&
+				!Skip &&
+				!RetryRecycleAsRemove;
 		}
-
-		operation MsgCode;
-
-		if (!m_SkipFolderErrors)
-		{
-			const auto ErrorState = error_state::fetch();
-
-			MsgCode = OperationFailed(ErrorState, Name, lng::MError, msg(recycle_bin? lng::MCannotRecycleFolder : lng::MCannotDeleteFolder));
-		}
-		else
-		{
-			MsgCode = operation::skip;
-		}
-
-		switch (MsgCode)
-		{
-		case operation::retry:
-			break;
-
-		case operation::skip_all:
-			m_SkipFolderErrors = true;
-			[[fallthrough]];
-		case operation::skip:
-			return false;
-
-		case operation::cancel:
-			cancel_operation();
-		}
+	default:
+		UNREACHABLE;
 	}
 }
 
@@ -1092,8 +1023,8 @@ bool ShellDelete::RemoveToRecycleBin(string_view const Name, bool dir, bool& Ret
 void DeleteDirTree(string_view const Dir)
 {
 	if (Dir.empty() ||
-	        (Dir.size() == 1 && IsSlash(Dir[0])) ||
-	        (Dir.size() == 3 && Dir[1]==L':' && IsSlash(Dir[2])))
+	        (Dir.size() == 1 && path::is_separator(Dir[0])) ||
+	        (Dir.size() == 3 && Dir[1]==L':' && path::is_separator(Dir[2])))
 		return;
 
 	string strFullName;

@@ -352,7 +352,7 @@ static bool CheckNulOrCon(string_view Src)
 	if (HasPathPrefix(Src))
 		Src.remove_prefix(4);
 
-	return (starts_with_icase(Src, L"nul"sv) || starts_with_icase(Src, L"con"sv)) && (Src.size() == 3 || (Src.size() > 3 && IsSlash(Src[3])));
+	return (starts_with_icase(Src, L"nul"sv) || starts_with_icase(Src, L"con"sv)) && (Src.size() == 3 || (Src.size() > 3 && path::is_separator(Src[3])));
 }
 
 static string GenerateName(string_view const Name, string_view const Path)
@@ -1382,7 +1382,7 @@ void ShellCopy::CopyFileTree(const string& Dest)
 		bool src_abspath = IsAbsolutePath(i.FileName);
 
 		bool dst_abspath = copy_to_null || IsAbsolutePath(strDest);
-		if (!dst_abspath && ((strDest.size() > 2 && strDest[1] == L':') || IsSlash(strDest[0])))
+		if (!dst_abspath && ((strDest.size() > 2 && strDest[1] == L':') || path::is_separator(strDest[0])))
 		{
 			strDest = ConvertNameToFull(strDest);
 			dst_abspath = true;
@@ -1434,7 +1434,7 @@ void ShellCopy::CopyFileTree(const string& Dest)
 
 		if (first && !copy_to_null && (dst_abspath || !src_abspath) && !UseWildCards
 		 && SrcPanel->GetSelCount() > 1
-		 && !IsSlash(strDest.back())
+		 && !path::is_separator(strDest.back())
 		 && !os::fs::exists(strDest))
 		{
 			switch (Message(MSG_WARNING,
@@ -1640,7 +1640,7 @@ void ShellCopy::CopyFileTree(const string& Dest)
 			int SubCopyCode;
 			string strFullName;
 			ScanTree ScTree(true, true, Flags & FCOPY_COPYSYMLINKCONTENTS);
-			auto strSubName = i.FileName + L'\\';
+			auto strSubName = i.FileName + path::separator;
 
 			if (DestAttr==INVALID_FILE_ATTRIBUTES)
 				KeepPathPos = static_cast<int>(strSubName.size());
@@ -1836,15 +1836,15 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 		{
 			const auto Length = strDestPath.size();
 
-			if (!IsSlash(strDestPath[Length-1]) && strDestPath[Length-1]!=L':')
-				strDestPath += L'\\';
+			if (!path::is_separator(strDestPath[Length-1]) && strDestPath[Length-1]!=L':')
+				strDestPath += path::separator;
 
 			auto Path = string_view(Src).substr(KeepPathPos);
 
 			if (Path.size() > 1 && !KeepPathPos && Path[1] == L':')
 				Path.remove_prefix(2);
 
-			if (IsSlash(Path.front()))
+			if (path::is_separator(Path.front()))
 				Path.remove_prefix(1);
 
 			append(strDestPath, Path);
@@ -2427,45 +2427,25 @@ int ShellCopy::DeleteAfterMove(const string& Name, os::fs::attributes Attr)
 		(void)os::fs::set_file_attributes(FullName,FILE_ATTRIBUTE_NORMAL); //BUGBUG
 	}
 
-	while ((Attr&FILE_ATTRIBUTE_DIRECTORY)?!os::fs::remove_directory(FullName):!os::fs::delete_file(FullName))
+	auto SkipDueToFilter = false;
+	const auto DeleteAction = [&]
 	{
-		operation MsgCode;
+		if (((Attr & FILE_ATTRIBUTE_DIRECTORY)? os::fs::remove_directory : os::fs::delete_file)(FullName))
+			return true;
 
-		if (SkipDeleteErrors)
+		if (m_UseFilter && (Attr & FILE_ATTRIBUTE_DIRECTORY) && error_state::fetch().Win32Error == ERROR_DIR_NOT_EMPTY)
 		{
-			MsgCode = operation::skip;
-		}
-		else
-		{
-			const auto ErrorState = error_state::fetch();
-
-			if (m_UseFilter && (Attr & FILE_ATTRIBUTE_DIRECTORY) && ErrorState.Win32Error == ERROR_DIR_NOT_EMPTY)
-				MsgCode = operation::skip;
-			else
-				MsgCode = OperationFailed(ErrorState, FullName, lng::MError, msg(lng::MCannotDeleteFile));
+			SkipDueToFilter = true;
+			return true;
 		}
 
-		switch (MsgCode)
-		{
-		case operation::retry:
-			break;
+		return false;
+	};
 
-		case operation::skip:
-			return COPY_SKIPPED;
-
-		case operation::skip_all:
-			SkipDeleteErrors = true;
-			return COPY_SKIPPED;
-
-		case operation::cancel:
-			cancel_operation();
-		}
-	}
-
-	return COPY_SUCCESS;
+	return retryable_ui_operation(DeleteAction, FullName, lng::MCannotDeleteFile, SkipDeleteErrors) && !SkipDueToFilter?
+		COPY_SUCCESS :
+		COPY_SKIPPED;
 }
-
-
 
 int ShellCopy::ShellCopyFile(
 	string const& SrcName,

@@ -347,7 +347,7 @@ namespace os::fs
 
 	static find_file_handle FindFirstFileInternal(string_view const Name, find_data& FindData)
 	{
-		if (Name.empty() || IsSlash(Name.back()))
+		if (Name.empty() || path::is_separator(Name.back()))
 			return nullptr;
 
 		auto Handle = std::make_unique<far_find_file_handle_impl>();
@@ -1825,7 +1825,7 @@ namespace os::fs
 		const NTPath strFrom(ExistingFileName);
 		NTPath strTo(NewFileName);
 
-		if (IsSlash(strTo.back()))
+		if (path::is_separator(strTo.back()))
 		{
 			append(strTo, PointToName(strFrom));
 		}
@@ -1856,7 +1856,7 @@ namespace os::fs
 		const NTPath strFrom(ExistingFileName);
 		NTPath strTo(NewFileName);
 
-		if (IsSlash(strTo.back()))
+		if (path::is_separator(strTo.back()))
 		{
 			append(strTo, PointToName(strFrom));
 		}

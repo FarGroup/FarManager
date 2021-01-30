@@ -1336,7 +1336,7 @@ bool CommandLine::IntChDir(string_view const CmdLine, bool const ClosePanel, boo
 
 	auto strExpandedDir = unquote(os::env::expand(CmdLine));
 
-	if (SetPanel->GetMode() != panel_mode::PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((strExpandedDir.size() == 1 && !os::fs::exists(strExpandedDir)) || IsSlash(strExpandedDir[1])))
+	if (SetPanel->GetMode() != panel_mode::PLUGIN_PANEL && strExpandedDir[0] == L'~' && ((strExpandedDir.size() == 1 && !os::fs::exists(strExpandedDir)) || path::is_separator(strExpandedDir[1])))
 	{
 		if (Global->Opt->Exec.UseHomeDir && !Global->Opt->Exec.strHomeDir.empty())
 		{

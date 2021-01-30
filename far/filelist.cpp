@@ -2990,7 +2990,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 	/*
 		// вот и зачем это? мы уже и так здесь, в Options.Folder
 		// + дальше по тексту strSetDir уже содержит полный путь
-		if ( strSetDir.empty() || strSetDir[1] != L':' || !IsSlash(strSetDir[2]))
+		if ( strSetDir.empty() || strSetDir[1] != L':' || !path::is_separator(strSetDir[2]))
 			FarChDir(Options.Folder);
 	*/
 	/* $ 26.04.2001 DJ
@@ -3567,7 +3567,7 @@ bool FileList::FindPartName(string_view const Name,int Next,int Direct)
 	int DirFind = 0;
 	string_view NameView = Name;
 
-	if (!Name.empty() && IsSlash(Name.back()))
+	if (!Name.empty() && path::is_separator(Name.back()))
 	{
 		DirFind = 1;
 		NameView.remove_suffix(1);
@@ -3615,7 +3615,7 @@ bool FileList::FindPartName(string_view const Name,int Next,int Direct)
 	int DirFind = 0;
 	string strMask = upper(Name);
 
-	if (!Name.empty() && IsSlash(Name.back()))
+	if (!Name.empty() && path::is_separator(Name.back()))
 	{
 		DirFind = 1;
 		strMask.pop_back();
@@ -5918,7 +5918,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 		return;
 
 	const auto strSaveDir = os::fs::GetCurrentDirectory();
-	auto strDizName = concat(strTempDir, L'\\', DestPanel->strPluginDizName);
+	const auto strDizName = path::join(strTempDir, DestPanel->strPluginDizName);
 	DestPanel->Diz.Flush({}, &strDizName);
 
 	if (Move)
@@ -8660,7 +8660,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 									Offset = SlashPos + 1;
 								}
 							}
-							else if(!Owner.empty() && IsSlash(Owner.front()))
+							else if(!Owner.empty() && path::is_separator(Owner.front()))
 							{
 								Offset = 1;
 							}

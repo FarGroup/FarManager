@@ -406,12 +406,12 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	if (!Global->Opt->ReadOnlyConfig)
 	{
-		CreatePath(path::join(Global->Opt->ProfilePath, L"PluginsData"sv), true);
+		CreatePath(path::join(Global->Opt->ProfilePath, L"PluginsData"sv), false);
 
 		const auto SingleProfile = equal_icase(Global->Opt->ProfilePath, Global->Opt->LocalProfilePath);
 
 		if (!SingleProfile)
-			CreatePath(path::join(Global->Opt->LocalProfilePath, L"PluginsData"sv), true);
+			CreatePath(path::join(Global->Opt->LocalProfilePath, L"PluginsData"sv), false);
 
 		const auto RandomName = uuid::str(os::uuid::generate());
 

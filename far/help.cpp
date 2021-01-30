@@ -1568,7 +1568,7 @@ bool Help::JumpTopic()
 		if (pos != string::npos)
 		{
 			const auto Path = string_view(StackData->strSelTopic).substr(1, pos - 1);
-			const auto EndSlash = IsSlash(Path.back());
+			const auto EndSlash = path::is_separator(Path.back());
 			const auto FullPath = path::join(StackData->strHelpPath, Path);
 			auto Topic = string_view(StackData->strSelTopic).substr(StackData->strSelTopic.find(HelpEndLink, 2) + 1);
 
@@ -1617,13 +1617,13 @@ bool Help::JumpTopic()
 
 	if (EndPos != string::npos)
 	{
-		if (!IsSlash(strNewTopic[EndPos - 1]))
+		if (!path::is_separator(strNewTopic[EndPos - 1]))
 		{
 			const auto Pos2 = EndPos;
 
 			while (EndPos != string::npos)
 			{
-				if (IsSlash(strNewTopic[EndPos]))
+				if (path::is_separator(strNewTopic[EndPos]))
 				{
 					StackData->Flags|=FHELP_CUSTOMFILE;
 					StackData->strHelpMask = strNewTopic.substr(EndPos + 1);
@@ -2273,7 +2273,7 @@ namespace help
 
 		auto SlashPos = EndPos - 1;
 
-		if (!IsSlash(Topic[SlashPos])) // Это имя модуля?
+		if (!path::is_separator(Topic[SlashPos])) // Это имя модуля?
 		{
 			// значит удалим это чертово имя :-)
 			const auto Pos = FindLastSlash(Topic);

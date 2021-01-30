@@ -178,7 +178,7 @@ bool contains(const std::basic_string<traits...>& Str, const find_type& What) no
 
 template<typename find_type, typename... traits>
 [[nodiscard]]
-bool contains(const std::basic_string_view<traits...> Str, const find_type& What) noexcept
+constexpr bool contains(const std::basic_string_view<traits...> Str, const find_type& What) noexcept
 {
 	return Str.find(What) != Str.npos;
 }

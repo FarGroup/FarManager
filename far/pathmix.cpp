@@ -69,7 +69,7 @@ void NTPath::Transform()
 			{
 				ReplaceSlashToBackslash(Data);
 				const auto Prefix = ParsePath(Data) == root_type::drive_letter? L"\\\\?\\"sv : L"\\\\?\\UNC"sv;
-				remove_duplicates(Data, L'\\');
+				remove_duplicates(Data, path::separator);
 				Data.insert(0, Prefix);
 			}
 		}
@@ -166,7 +166,7 @@ root_type ParsePath(const string_view Path, size_t* const RootSize, bool* const 
 		*RootSize = MatchLength;
 
 	if (RootOnly)
-		*RootOnly = Path.size() == MatchLength || (Path.size() == MatchLength + 1 && IsSlash(Path[MatchLength]));
+		*RootOnly = Path.size() == MatchLength || (Path.size() == MatchLength + 1 && path::is_separator(Path[MatchLength]));
 
 	return ItemIterator->Type;
 }
@@ -177,7 +177,7 @@ bool IsAbsolutePath(const string_view Path)
 
 	return
 		(Type != root_type::unknown && Type != root_type::drive_letter) ||
-		(Type == root_type::drive_letter && (Path.size() > 2 && IsSlash(Path[2])));
+		(Type == root_type::drive_letter && (Path.size() > 2 && path::is_separator(Path[2])));
 }
 
 bool HasPathPrefix(const string_view Path)
@@ -203,7 +203,7 @@ bool PathCanHoldRegularFile(string_view const Path)
 
 bool IsPluginPrefixPath(string_view const Path) //Max:
 {
-	if (Path.empty() || Path[0] == L'\\')
+	if (Path.empty() || path::is_separator(Path[0]))
 		return false;
 
 	const auto pos = Path.find(L':');
@@ -254,12 +254,12 @@ bool IsParentDirectory(const PluginPanelItem& Data)
 
 bool IsCurrentDirectory(string_view const Str)
 {
-	return starts_with(Str, L"."sv) && (Str.size() == 1 || (Str.size() == 2 && IsSlash(Str[1])));
+	return starts_with(Str, L"."sv) && (Str.size() == 1 || (Str.size() == 2 && path::is_separator(Str[1])));
 }
 
 string_view PointToName(string_view const Path)
 {
-	const auto NameStart = std::find_if(ALL_CONST_REVERSE_RANGE(Path), IsSlash);
+	const auto NameStart = std::find_if(ALL_CONST_REVERSE_RANGE(Path), path::is_separator);
 	return Path.substr(Path.crend() - NameStart);
 }
 
@@ -268,7 +268,7 @@ string_view PointToName(string_view const Path)
 //   строку
 string_view PointToFolderNameIfFolder(string_view Path)
 {
-	while(!Path.empty() && IsSlash(Path.back()))
+	while(!Path.empty() && path::is_separator(Path.back()))
 		Path.remove_suffix(1);
 
 	return PointToName(Path);
@@ -276,7 +276,7 @@ string_view PointToFolderNameIfFolder(string_view Path)
 
 std::pair<string_view, string_view> name_ext(string_view const Path)
 {
-	auto ExtensionStart = std::find_if(ALL_CONST_REVERSE_RANGE(Path), [](wchar_t const Char){ return Char == L'.' || IsSlash(Char); });
+	auto ExtensionStart = std::find_if(ALL_CONST_REVERSE_RANGE(Path), [](wchar_t const Char){ return Char == L'.' || path::is_separator(Char); });
 	if (ExtensionStart != Path.crend() && *ExtensionStart != L'.')
 		ExtensionStart = Path.crend();
 
@@ -311,9 +311,9 @@ bool AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
 	if (!Path)
 		return false;
 
-	auto len = IsSlash(TypeSlash)? wcslen(Path) : SlashType(Path, nullptr, TypeSlash);
+	auto len = path::is_separator(TypeSlash)? wcslen(Path) : SlashType(Path, nullptr, TypeSlash);
 
-	if (len && IsSlash(Path[len-1]))
+	if (len && path::is_separator(Path[len-1]))
 		--len;
 
 	Path[len++] = TypeSlash;
@@ -335,12 +335,12 @@ string AddEndSlash(string_view const Path)
 
 void AddEndSlash(string &strPath, wchar_t TypeSlash)
 {
-	if (!IsSlash(TypeSlash))
+	if (!path::is_separator(TypeSlash))
 		SlashType(strPath.data(), strPath.data() + strPath.size(), TypeSlash);
 
 	wchar_t LastSlash{};
 
-	if (!strPath.empty() && IsSlash(strPath.back()))
+	if (!strPath.empty() && path::is_separator(strPath.back()))
 		LastSlash = strPath.back();
 
 	if (TypeSlash != LastSlash)
@@ -360,17 +360,17 @@ void AddEndSlash(string &strPath)
 void DeleteEndSlash(wchar_t *Path)
 {
 	const auto REnd = std::make_reverse_iterator(Path);
-	Path[REnd - std::find_if_not(REnd - wcslen(Path), REnd, IsSlash)] = 0;
+	Path[REnd - std::find_if_not(REnd - wcslen(Path), REnd, path::is_separator)] = 0;
 }
 
 void DeleteEndSlash(string &Path)
 {
-	Path.resize(Path.rend() - std::find_if_not(Path.rbegin(), Path.rend(), IsSlash));
+	Path.resize(Path.rend() - std::find_if_not(Path.rbegin(), Path.rend(), path::is_separator));
 }
 
 string_view DeleteEndSlash(string_view Path)
 {
-	Path.remove_suffix(std::find_if_not(Path.rbegin(), Path.rend(), IsSlash) - Path.rbegin());
+	Path.remove_suffix(std::find_if_not(Path.rbegin(), Path.rend(), path::is_separator) - Path.rbegin());
 	return Path;
 }
 
@@ -410,9 +410,9 @@ bool CutToParent(string_view& Str)
 		return false;
 
 	const auto REnd = Str.crend() - RootLength;
-	const auto LastNotSlash = std::find_if_not(Str.crbegin(), REnd, IsSlash);
-	const auto PrevSlash = std::find_if(LastNotSlash, REnd, IsSlash);
-	const auto PrevNotSlash = std::find_if_not(PrevSlash, REnd, IsSlash);
+	const auto LastNotSlash = std::find_if_not(Str.crbegin(), REnd, path::is_separator);
+	const auto PrevSlash = std::find_if(LastNotSlash, REnd, path::is_separator);
+	const auto PrevNotSlash = std::find_if_not(PrevSlash, REnd, path::is_separator);
 
 	const auto NewSize = RootLength + REnd - PrevNotSlash;
 	if (!NewSize)
@@ -439,13 +439,13 @@ bool ContainsSlash(const string_view Str)
 
 size_t FindSlash(const string_view Str)
 {
-	const auto SlashPos = std::find_if(ALL_CONST_RANGE(Str), IsSlash);
+	const auto SlashPos = std::find_if(ALL_CONST_RANGE(Str), path::is_separator);
 	return SlashPos == Str.cend()? string::npos : SlashPos - Str.cbegin();
 }
 
 size_t FindLastSlash(const string_view Str)
 {
-	const auto SlashPos = std::find_if(ALL_CONST_REVERSE_RANGE(Str), IsSlash);
+	const auto SlashPos = std::find_if(ALL_CONST_REVERSE_RANGE(Str), path::is_separator);
 	return SlashPos == Str.crend()? string::npos : Str.crend() - SlashPos - 1;
 }
 
@@ -462,7 +462,7 @@ string_view extract_root_device(string_view const Path)
 	if (!RootSize)
 		return{};
 
-	return Path.substr(0, RootSize - (IsSlash(Path[RootSize - 1])? 1 : 0));
+	return Path.substr(0, RootSize - (path::is_separator(Path[RootSize - 1])? 1 : 0));
 }
 
 string extract_root_directory(string_view const Path)
@@ -471,7 +471,7 @@ string extract_root_directory(string_view const Path)
 	if (!RootSize)
 		return{};
 
-	if (IsSlash(Path[RootSize - 1]))
+	if (path::is_separator(Path[RootSize - 1]))
 		return string{ Path.substr(0, RootSize) };
 
 	// A fancy way to add a trailing slash
@@ -512,7 +512,7 @@ bool IsRootPath(const string_view Path)
 bool PathStartsWith(const string_view Path, const string_view Start)
 {
 	const auto PathPart = DeleteEndSlash(Start);
-	return starts_with(Path, PathPart) && (Path.size() == PathPart.size() || IsSlash(Path[PathPart.size()]));
+	return starts_with(Path, PathPart) && (Path.size() == PathPart.size() || path::is_separator(Path[PathPart.size()]));
 }
 
 #ifdef ENABLE_TESTS

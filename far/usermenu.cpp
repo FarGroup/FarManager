@@ -913,10 +913,9 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 
 bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator* MenuItem, bool Create)
 {
-	bool Result = false;
-	bool SubMenu = false;
-	bool Continue = true;
 	m_ItemChanged = false;
+
+	bool SubMenu;
 
 	if (Create)
 	{
@@ -928,12 +927,16 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 			{ lng::MMenuInsertCommand, lng::MMenuInsertMenu },
 			{}, &AskInsertMenuOrCommandId))
 		{
-			case -1:
-			case -2:
-				Continue = false;
-				[[fallthrough]];
-			case Message::second_button:
-				SubMenu = true;
+		case Message::first_button:
+			SubMenu = false;
+			break;
+
+		case Message::second_button:
+			SubMenu = true;
+			break;
+
+		default:
+			return false;
 		}
 	}
 	else
@@ -941,124 +944,122 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 		SubMenu = (*MenuItem)->Submenu;
 	}
 
-	if (Continue)
-	{
-		const int DLG_X=76, DLG_Y=SubMenu?10:22;
-		const auto State = SubMenu? DIF_HIDDEN | DIF_DISABLE : DIF_NONE;
+	const int DLG_X=76, DLG_Y=SubMenu?10:22;
+	const auto State = SubMenu? DIF_HIDDEN | DIF_DISABLE : DIF_NONE;
 
-		auto EditDlg = MakeDialogItems<EM_COUNT>(
-		{
-			{ DI_DOUBLEBOX, {{3,  1      }, {DLG_X-4, DLG_Y-2}}, DIF_NONE, msg(SubMenu? lng::MEditSubmenuTitle : lng::MEditMenuTitle), },
-			{ DI_TEXT,      {{5,  2      }, {0,       2      }}, DIF_NONE, msg(lng::MEditMenuHotKey), },
-			{ DI_FIXEDIT,   {{5,  3      }, {7,       3      }}, DIF_FOCUS, },
-			{ DI_TEXT,      {{5,  4      }, {0,       4      }}, DIF_NONE, msg(lng::MEditMenuLabel), },
-			{ DI_EDIT,      {{5,  5      }, {DLG_X-6, 5      }}, DIF_NONE, },
-			{ DI_TEXT,      {{-1, 6      }, {0,       6      }}, DIF_SEPARATOR | State, },
-			{ DI_TEXT,      {{5,  7      }, {0,       7      }}, State, msg(lng::MEditMenuCommands), },
+	auto EditDlg = MakeDialogItems<EM_COUNT>(
+	{
+		{ DI_DOUBLEBOX, {{3,  1      }, {DLG_X-4, DLG_Y-2}}, DIF_NONE, msg(SubMenu? lng::MEditSubmenuTitle : lng::MEditMenuTitle), },
+		{ DI_TEXT,      {{5,  2      }, {0,       2      }}, DIF_NONE, msg(lng::MEditMenuHotKey), },
+		{ DI_FIXEDIT,   {{5,  3      }, {7,       3      }}, DIF_FOCUS, },
+		{ DI_TEXT,      {{5,  4      }, {0,       4      }}, DIF_NONE, msg(lng::MEditMenuLabel), },
+		{ DI_EDIT,      {{5,  5      }, {DLG_X-6, 5      }}, DIF_NONE, },
+		{ DI_TEXT,      {{-1, 6      }, {0,       6      }}, DIF_SEPARATOR | State, },
+		{ DI_TEXT,      {{5,  7      }, {0,       7      }}, State, msg(lng::MEditMenuCommands), },
 #ifdef PROJECT_DI_MEMOEDIT
-			{ DI_MEMOEDIT,  {{5,  8      }, {DLG_X-6, 17     }}, DIF_EDITPATH, },
+		{ DI_MEMOEDIT,  {{5,  8      }, {DLG_X-6, 17     }}, DIF_EDITPATH, },
 #else
-			{ DI_EDIT,      {{5,  8      }, {DLG_X-6, 8      }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
-			{ DI_EDIT,      {{5,  9      }, {DLG_X-6, 9      }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
-			{ DI_EDIT,      {{5,  10     }, {DLG_X-6, 10     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
-			{ DI_EDIT,      {{5,  11     }, {DLG_X-6, 11     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
-			{ DI_EDIT,      {{5,  12     }, {DLG_X-6, 12     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
-			{ DI_EDIT,      {{5,  13     }, {DLG_X-6, 13     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
-			{ DI_EDIT,      {{5,  14     }, {DLG_X-6, 14     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
-			{ DI_EDIT,      {{5,  15     }, {DLG_X-6, 15     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
-			{ DI_EDIT,      {{5,  16     }, {DLG_X-6, 16     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
-			{ DI_EDIT,      {{5,  17     }, {DLG_X-6, 17     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+		{ DI_EDIT,      {{5,  8      }, {DLG_X-6, 8      }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+		{ DI_EDIT,      {{5,  9      }, {DLG_X-6, 9      }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+		{ DI_EDIT,      {{5,  10     }, {DLG_X-6, 10     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+		{ DI_EDIT,      {{5,  11     }, {DLG_X-6, 11     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+		{ DI_EDIT,      {{5,  12     }, {DLG_X-6, 12     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+		{ DI_EDIT,      {{5,  13     }, {DLG_X-6, 13     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+		{ DI_EDIT,      {{5,  14     }, {DLG_X-6, 14     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+		{ DI_EDIT,      {{5,  15     }, {DLG_X-6, 15     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+		{ DI_EDIT,      {{5,  16     }, {DLG_X-6, 16     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
+		{ DI_EDIT,      {{5,  17     }, {DLG_X-6, 17     }}, DIF_EDITPATH | DIF_EDITPATHEXEC | DIF_EDITOR | State, },
 #endif
-			{ DI_TEXT,      {{-1, DLG_Y-4}, {0,       DLG_Y-4}}, DIF_SEPARATOR, },
-			{ DI_BUTTON,    {{0,  DLG_Y-3}, {0,       DLG_Y-3}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
-			{ DI_BUTTON,    {{0,  DLG_Y-3}, {0,       DLG_Y-3}}, DIF_CENTERGROUP, msg(lng::MCancel), },
-		});
+		{ DI_TEXT,      {{-1, DLG_Y-4}, {0,       DLG_Y-4}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0,  DLG_Y-3}, {0,       DLG_Y-3}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
+		{ DI_BUTTON,    {{0,  DLG_Y-3}, {0,       DLG_Y-3}}, DIF_CENTERGROUP, msg(lng::MCancel), },
+	});
 
 #ifndef PROJECT_DI_MEMOEDIT
-		enum {DI_EDIT_COUNT=EM_SEPARATOR2-EM_COMMANDS_TEXT-1};
+	enum {DI_EDIT_COUNT=EM_SEPARATOR2-EM_COMMANDS_TEXT-1};
 #endif
 
-		if (!Create)
-		{
-			EditDlg[EM_HOTKEY_EDIT].strData = (*MenuItem)->strHotKey;
-			EditDlg[EM_LABEL_EDIT].strData = (*MenuItem)->strLabel;
+	if (!Create)
+	{
+		EditDlg[EM_HOTKEY_EDIT].strData = (*MenuItem)->strHotKey;
+		EditDlg[EM_LABEL_EDIT].strData = (*MenuItem)->strLabel;
 #if defined(PROJECT_DI_MEMOEDIT)
-			/*
-				...
-				здесь добавка строк из "Command%d" в EMR_MEMOEDIT
-				...
-			*/
-			string strBuffer;
-			for (string *str=MenuItem->Commands.First(); str && CommandNumber < DI_EDIT_COUNT; str=MenuItem->Commands.Next(str))
-			{
-				strBuffer+=*str;
-				strBuffer+=L'\n';    //??? "\n\r"
-			}
-
-			EditDlg[EM_MEMOEDIT].strData = strBuffer; //???
-#else
-			int CommandNumber=0;
-			for (const auto& i: (*MenuItem)->Commands)
-			{
-				EditDlg[EM_EDITLINE_0+CommandNumber].strData = i;
-				if (++CommandNumber == DI_EDIT_COUNT)
-					break;
-			}
-#endif
+		/*
+			...
+			здесь добавка строк из "Command%d" в EMR_MEMOEDIT
+			...
+		*/
+		string strBuffer;
+		for (string *str=MenuItem->Commands.First(); str && CommandNumber < DI_EDIT_COUNT; str=MenuItem->Commands.Next(str))
+		{
+			strBuffer+=*str;
+			strBuffer+=L'\n';    //??? "\n\r"
 		}
 
-		const auto Dlg = Dialog::create(EditDlg, &UserMenu::EditMenuDlgProc, this);
-		Dlg->SetHelp(L"UserMenu"sv);
-		Dlg->SetId(EditUserMenuId);
-		Dlg->SetPosition({ -1, -1, DLG_X, DLG_Y });
-		Dlg->Process();
-
-		if (Dlg->GetExitCode()==EM_BUTTON_OK)
-		{
-			m_MenuModified=true;
-			auto NewItemIterator = Menu.end();
-
-			if (Create)
-			{
-				NewItemIterator = Menu.emplace(MenuItem? *MenuItem : Menu.begin(), UserMenuItem());
-				MenuItem = &NewItemIterator;
-			}
-
-			(*MenuItem)->strHotKey = EditDlg[EM_HOTKEY_EDIT].strData;
-			(*MenuItem)->strLabel = EditDlg[EM_LABEL_EDIT].strData;
-			(*MenuItem)->Submenu = SubMenu;
-
-			if (!SubMenu)
-			{
-#if defined(PROJECT_DI_MEMOEDIT)
-				/*
-				...
-				здесь преобразование содержимого элемента EMR_MEMOEDIT в "Command%d"
-				...
-				*/
+		EditDlg[EM_MEMOEDIT].strData = strBuffer; //???
 #else
-				int CommandNumber=0;
-
-				for (int i=0 ; i < DI_EDIT_COUNT ; i++)
-					if (!EditDlg[i+EM_EDITLINE_0].strData.empty())
-						CommandNumber=i+1;
-
-				(*MenuItem)->Commands.clear();
-				for (int i=0 ; i < DI_EDIT_COUNT ; i++)
-				{
-					if (i>=CommandNumber)
-						break;
-					else
-						(*MenuItem)->Commands.emplace_back(EditDlg[i+EM_EDITLINE_0].strData);
-				}
-#endif
-			}
-
-			Result=true;
+		int CommandNumber=0;
+		for (const auto& i: (*MenuItem)->Commands)
+		{
+			EditDlg[EM_EDITLINE_0+CommandNumber].strData = i;
+			if (++CommandNumber == DI_EDIT_COUNT)
+				break;
 		}
+#endif
 	}
 
-	return Result;
+	const auto Dlg = Dialog::create(EditDlg, &UserMenu::EditMenuDlgProc, this);
+	Dlg->SetHelp(L"UserMenu"sv);
+	Dlg->SetId(EditUserMenuId);
+	Dlg->SetPosition({ -1, -1, DLG_X, DLG_Y });
+	Dlg->Process();
+
+	if (Dlg->GetExitCode() != EM_BUTTON_OK)
+		return false;
+
+	m_MenuModified = true;
+	auto NewItemIterator = Menu.end();
+
+	if (Create)
+	{
+		NewItemIterator = Menu.emplace(MenuItem? *MenuItem : Menu.begin(), UserMenuItem());
+		MenuItem = &NewItemIterator;
+	}
+
+	(*MenuItem)->strHotKey = EditDlg[EM_HOTKEY_EDIT].strData;
+	(*MenuItem)->strLabel = EditDlg[EM_LABEL_EDIT].strData;
+	(*MenuItem)->Submenu = SubMenu;
+
+	if (!SubMenu)
+	{
+#if defined(PROJECT_DI_MEMOEDIT)
+		/*
+		...
+		здесь преобразование содержимого элемента EMR_MEMOEDIT в "Command%d"
+		...
+		*/
+#else
+		int CommandNumber = 0;
+
+		for (int i = 0; i < DI_EDIT_COUNT; i++)
+		{
+			if (!EditDlg[i + EM_EDITLINE_0].strData.empty())
+				CommandNumber = i + 1;
+		}
+
+		(*MenuItem)->Commands.clear();
+
+		for (int i = 0; i < DI_EDIT_COUNT; i++)
+		{
+			if (i >= CommandNumber)
+				break;
+
+			(*MenuItem)->Commands.emplace_back(EditDlg[i + EM_EDITLINE_0].strData);
+		}
+#endif
+	}
+
+	return true;
 }
 
 bool UserMenu::DeleteMenuRecord(std::list<UserMenuItem>& Menu, const std::list<UserMenuItem>::iterator& MenuItem) const

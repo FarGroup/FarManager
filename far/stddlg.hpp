@@ -170,6 +170,11 @@ inline void cancel_operation()
 	throw operation_cancelled{};
 }
 
+// true: success
+// false: skip
+// operation_cancelled exception: cancelled
+bool retryable_ui_operation(function_ref<bool()> Action, string_view Name, lng ErrorDescription, bool& SkipErrors);
+
 void ReCompileErrorMessage(const RegExp& re, string_view str);
 void ReMatchErrorMessage(const RegExp& re);
 
