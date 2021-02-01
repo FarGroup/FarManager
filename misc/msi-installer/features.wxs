@@ -189,6 +189,9 @@
           <ComponentRef Id="FarUkr.hlf" />
           <ComponentRef Id="FarUkr.lng" />
         </Feature>
+        <Feature Id="Lithuanian" Level="1" Title="!(loc.Feature.Title.Polish)" AllowAdvertise="no">
+          <ComponentRef Id="FarLit.lng" />
+        </Feature>
       </Feature>
       <Feature Id="FarShortcuts" Level="1" Title="!(loc.Feature.Title.FarShortcuts)" AllowAdvertise="no">
         <Feature Id="FarProgramsShortcut" Level="1" Title="!(loc.Feature.Title.FarProgramsShortcut)" AllowAdvertise="no">
@@ -257,6 +260,9 @@
             <Feature Id="Align.Hungarian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="AlignHun.lng" />
             </Feature>
+            <Feature Id="Align.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="AlignLit.lng" />
+            </Feature>
 <?if $(var.Platform) = x86 ?>
             <Feature Id="Align.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Align.map" />
@@ -298,6 +304,9 @@
             </Feature>
             <Feature Id="AutoWrap.Hungarian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="WrapHun.lng" />
+            </Feature>
+            <Feature Id="AutoWrap.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="WrapLit.lng" />
             </Feature>
 <?if $(var.Platform) = x86 ?>
             <Feature Id="AutoWrap.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -347,6 +356,9 @@
             <Feature Id="Brackets.Hungarian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="BrackHun.lng" />
             </Feature>
+            <Feature Id="Brackets.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="BrackLit.lng" />
+            </Feature>
 <?if $(var.Platform) = x86 ?>
             <Feature Id="Brackets.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Brackets.map" />
@@ -395,6 +407,9 @@
             </Feature>
             <Feature Id="DrawLine.Hungarian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="DrawHun.lng" />
+            </Feature>
+            <Feature Id="DrawLine.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="DrawLit.lng" />
             </Feature>
 <?if $(var.Platform) = x86 ?>
             <Feature Id="DrawLine.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -446,6 +461,9 @@
             <Feature Id="EditCase.Hungarian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="ECaseHun.hlf" />
               <ComponentRef Id="ECaseHun.lng" />
+            </Feature>
+            <Feature Id="EditCase.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
+              <ComponentRef Id="ECaseLit.lng" />
             </Feature>
 <?if $(var.Platform) = x86 ?>
             <Feature Id="EditCase.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -549,6 +567,9 @@
           <Feature Id="Compare.Hungarian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CmpHun.hlf" />
             <ComponentRef Id="CompHun.lng" />
+          </Feature>
+          <Feature Id="Compare.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CompLit.lng" />
           </Feature>
           <ComponentRef Id="AdvCompare.CompareBufferSize.farconfig" />
 <?if $(var.Platform) = x86 ?>
@@ -844,6 +865,9 @@
             <ComponentRef Id="CaseHun.hlf" />
             <ComponentRef Id="CaseHun.lng" />
           </Feature>
+          <Feature Id="FileCase.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="CaseLit.lng" />
+          </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="FileCase.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="FileCase.map" />
@@ -1001,6 +1025,9 @@
             <ComponentRef Id="NetHun.hlf" />
             <ComponentRef Id="NetHun.lng" />
           </Feature>
+          <Feature Id="Network.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="NetLit.lng" />
+          </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="Network.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="Network.map" />
@@ -1048,6 +1075,9 @@
           <Feature Id="Proclist.Hungarian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="ProcHun.hlf" />
             <ComponentRef Id="ProcHun.lng" />
+          </Feature>
+          <Feature Id="Proclist.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="ProcLit.lng" />
           </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="Proclist.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -1111,6 +1141,9 @@
           <Feature Id="TmpPanel.Hungarian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="TmpHun.hlf" />
             <ComponentRef Id="TmpHun.lng" />
+          </Feature>
+          <Feature Id="TmpPanel.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="TmpLit.lng" />
           </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="TmpPanel.FExcept" Level="1" Display="hidden" AllowAdvertise="no">

@@ -9,9 +9,9 @@
 
 "Kicsomagolás"
 "&Kicsomagolás mappába"
-"Archive &password"
-"Kicsomagolás útvonal &nélkül"
 "Arhív &jelszó"
+"Kicsomagolás útvonal &nélkül"
+"&Delete from archive after extracting"
 "Ki&csomagol"
 "&Mégsem"
 
@@ -32,8 +32,8 @@
 "&Törlés"
 "&Mégsem"
 
-"Nem tudom a file-okat az arhív almappájába rakni!"
-"Tegyem az arhív gyökerébe ?"
+"Nem tudom a file-okat az arhív almappájába rakni"
+"Tegyem az arhív gyökerébe?"
 
 "Hozzáadás %s-hoz"
 "Hozzáadás az arhívhoz"

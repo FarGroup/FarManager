@@ -1,0 +1,50 @@
+﻿.Language=Lithuanian,Lithuanian (Lietuvių)
+
+"Gerai"
+"Atšaukti"
+"Klaida"
+"Warning"
+
+"Laikinas langas"
+" %sTemporary panel [%d] "
+
+"laikinas"
+
+"Pašalinti"
+"Switch"
+"SavLst"
+"Goto"
+
+"Atnaujinu laikino lango turinį"
+"Siunčiu failus į laikiną langą"
+
+"Total files:"
+"Available temporary panels"
+
+"Laikinas langas"
+"Pri&dėti prie Diskų meniu"
+"Add to &Plugins menu"
+
+"Naudoti &bendrą langą"
+"&Safe panel mode"
+"&Any elements in panel"
+
+"&Replace files with file list"
+"&Menu from file list"
+"Copy folder c&ontents"
+
+"F&ull screen mode"
+
+"Column &types"
+"Column &widths"
+"Status line column t&ypes"
+"Status l&ine column widths"
+
+"File masks for the file &lists:"
+"Command line pre&fix:"
+
+"Nauji nuostatai pradės veikti perkrovus FAR"
+"Ne&w panel for search results"
+"Save file list as"
+
+"Copy folder contents?"

@@ -1,0 +1,75 @@
+﻿.Language=Lithuanian,Lithuanian (Lietuvių)
+
+"Gerai"
+"Atšaukti"
+"Klaida"
+"&Yes"
+
+"Tinklo naršyklė"
+
+"tinklas"
+
+"Map"
+"MapTo"
+"TMap"
+"TMapTo"
+"Unmap"
+"Remove"
+"ManCon"
+
+"Please wait"
+"Scanning the network..."
+
+"Negaliu naršyti po tinklą"
+"Negaliu sujungti \"%.40s\" su %s"
+"The disk name has a remembered connection"
+
+"Jei neuždarysite atvirų failų, galite prarasti duomenis."
+"Ar norite atjungti prietaisą bet kuriuo atveju ?"
+"Negaliu atsijungti nuo %s"
+
+"Nebėra laisvų disko raidžių"
+
+"User name"
+"User password"
+
+"Permanent connection to"
+"Temporary connection to"
+"F6 - temporary"
+"F6 - permanent"
+
+"Tinklas"
+"Tinklo vardas"
+"*:"
+"Komentaras"
+
+"Tinklo naršyklė"
+"Pri&dėti prie Diskų meniu"
+"Add to &Plugins menu"
+"Show &local network"
+"Shares"
+"Show share &full name"
+"Hidden Shares"
+"&Never show"
+"&Show as hidden"
+"&Always show"
+"Show p&rinters"
+"Show \"&..\" in the providers"
+"&Browse up to favorites if possible"
+"Check resource &reachability"
+
+"Disconnect network drive"
+"Do you want to disconnect from the drive %s?"
+"The drive %s is mapped to"
+"&Reconnect at Logon"
+
+"Disconnect network drive\nThe drive %s is mapped to multiple drive letters\nWhich one do you want to disconnect?\n"
+
+"Favorites"
+"Favorites Folder"
+
+"&Remember password"
+
+"Remove from Favorites"
+"Remove \"%s\" from Favorites"
+"Remove %d items from Favorites"
