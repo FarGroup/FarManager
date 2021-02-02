@@ -1005,9 +1005,9 @@ PACK_PUSH(2)
 	};
 
 	typedef intptr_t(WINAPI *FARAPIADVCONTROL)(
-	    intptr_t ModuleNumber,
-	    oldfar::ADVANCED_CONTROL_COMMANDS Command,
-	    void   *Param
+		intptr_t ModuleNumber,
+		ADVANCED_CONTROL_COMMANDS Command,
+		void* Param
 	);
 
 

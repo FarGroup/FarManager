@@ -47,7 +47,7 @@ namespace uuid
 		}
 
 		[[nodiscard]]
-		constexpr inline auto hex_to_int(wchar_t const c)
+		constexpr auto hex_to_int(wchar_t const c)
 		{
 			if (L'0' <= c && c <= L'9')
 				return c - '0';
@@ -219,7 +219,7 @@ namespace uuid
 	namespace literals
 	{
 		[[nodiscard]]
-		constexpr inline auto operator ""_uuid(const char* const Str, size_t const Size)
+		constexpr auto operator ""_uuid(const char* const Str, size_t const Size)
 		{
 			return parse(Str, Size);
 		}

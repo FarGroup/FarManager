@@ -185,13 +185,13 @@ plugin_factory::plugin_module_ptr native_plugin_factory::Create(const string& fi
 	return Module;
 }
 
-bool native_plugin_factory::Destroy(plugin_factory::plugin_module_ptr& instance)
+bool native_plugin_factory::Destroy(plugin_module_ptr& instance)
 {
 	instance.reset();
 	return true;
 }
 
-plugin_factory::function_address native_plugin_factory::Function(const plugin_factory::plugin_module_ptr& Instance, const plugin_factory::export_name& Name)
+plugin_factory::function_address native_plugin_factory::Function(const plugin_module_ptr& Instance, const export_name& Name)
 {
 	return !Name.AName.empty()? static_cast<native_plugin_module*>(Instance.get())->GetProcAddress<function_address>(null_terminated_t<char>(Name.AName).c_str()) : nullptr;
 }

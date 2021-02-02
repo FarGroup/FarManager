@@ -1430,7 +1430,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 						start--;
 
 					start++;
-					::Xlat(span(strFilter).subspan(start), Global->Opt->XLat.Flags);
+					Xlat(span(strFilter).subspan(start), Global->Opt->XLat.Flags);
 					FilterStringUpdated();
 					DisplayObject();
 				}
@@ -2230,9 +2230,9 @@ void VMenu::ShowMenu(bool IsParent)
 
 				FarColor CurColor;
 				if ((Items[I].Flags&LIF_SELECTED))
-					CurColor = VMenu::Colors[Items[I].Flags&LIF_GRAYED?VMenuColorSelGrayed:VMenuColorSelected];
+					CurColor = Colors[Items[I].Flags & LIF_GRAYED? VMenuColorSelGrayed : VMenuColorSelected];
 				else
-					CurColor = VMenu::Colors[Items[I].Flags&LIF_DISABLE?VMenuColorDisabled:(Items[I].Flags&LIF_GRAYED?VMenuColorGrayed:VMenuColorText)];
+					CurColor = Colors[Items[I].Flags & LIF_DISABLE? VMenuColorDisabled : (Items[I].Flags & LIF_GRAYED? VMenuColorGrayed : VMenuColorText)];
 
 				SetColor(CurColor);
 

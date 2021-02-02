@@ -2052,7 +2052,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 				if (CmpCode==1) // TODO: error check
 				{
-					SameName=1;
+					SameName = true;
 
 					if (Rename)
 					{

@@ -146,7 +146,7 @@ public:
 	void StartFSWatcher(bool got_focus = false, bool check_time = true) override;
 	void StopFSWatcher() override;
 	void SortFileList(bool KeepPosition) override;
-	void SetViewMode(int ViewMode) override;
+	void SetViewMode(int Mode) override;
 	void SetSortMode(panel_sort Mode, bool KeepOrder = false) override;
 	void SetCustomSortMode(panel_sort Mode, sort_order Order, bool InvertByDefault) override;
 	void ChangeSortOrder(bool Reverse) override;
@@ -220,7 +220,7 @@ public:
 	void ResetLastUpdateTime();
 	string GetPluginPrefix() const;
 
-	size_t FileListToPluginItem2(const FileListItem& fi, FarGetPluginPanelItem* pi) const;
+	size_t FileListToPluginItem2(const FileListItem& fi, FarGetPluginPanelItem* gpi) const;
 	static bool FileNameToPluginItem(string_view Name, class PluginPanelItemHolder& pi);
 	void FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolder& Holder) const;
 	static bool IsModeFullScreen(int Mode);

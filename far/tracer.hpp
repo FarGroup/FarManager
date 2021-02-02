@@ -57,7 +57,7 @@ public:
 	public:
 		NONCOPYABLE(with_symbols);
 
-		with_symbols(string_view const Module)
+		explicit with_symbols(string_view const Module)
 		{
 			sym_initialise(Module);
 		}

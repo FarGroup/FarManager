@@ -61,7 +61,7 @@ bool DeleteFileWithFolder(string_view FileName);
 class delayed_deleter: noncopyable
 {
 public:
-	delayed_deleter(bool WithFolder);
+	explicit delayed_deleter(bool WithFolder);
 	~delayed_deleter();
 
 	void add(string File);

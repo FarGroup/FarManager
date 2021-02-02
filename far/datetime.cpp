@@ -611,8 +611,8 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 	else
 	{
 		int p1, p2, p3;
-		int w1 = 2, w2 = 2, w3 = 2;
-		wchar_t f1 = L'0', f2 = L'0', f3 = FullYear == 2? L' ' : L'0';
+		int w1 = 2, w3 = 2;
+		wchar_t f1 = L'0', f3 = FullYear == 2? L' ' : L'0';
 
 		switch (CurDateFormat)
 		{
@@ -640,11 +640,10 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 		}
 
 		// Library doesn't support dynamic fill currently. TODO: fix it?
-		wchar_t Format[] = L"{0: >{1}}{6}{2: >{3}}{6}{4: >{5}}";
+		wchar_t Format[] = L"{0: >{1}}{6}{2:0>{3}}{6}{4: >{5}}";
 		Format[3] = f1;
-		Format[15] = f2;
 		Format[27] = f3;
-		strDateText = format(Format, p1, w1, p2, w2, p3, w3, DateSeparator);
+		strDateText = format(Format, p1, w1, p2, 2, p3, w3, DateSeparator);
 	}
 
 	if (Brief)

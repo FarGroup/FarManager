@@ -840,7 +840,7 @@ namespace os::fs
 
 		IO_STATUS_BLOCK IoStatusBlock;
 		const auto Status = imports.NtSetInformationFile(m_Handle.native_handle(), &IoStatusBlock, &fbi, sizeof fbi, FileBasicInformation);
-		::SetLastError(imports.RtlNtStatusToDosError(Status));
+		SetLastError(imports.RtlNtStatusToDosError(Status));
 
 		return Status == STATUS_SUCCESS;
 	}
@@ -849,7 +849,7 @@ namespace os::fs
 	{
 		GET_LENGTH_INFORMATION gli;
 
-		if (!::GetFileSizeEx(m_Handle.native_handle(), &gli.Length) && !IoControl(IOCTL_DISK_GET_LENGTH_INFO, nullptr, 0, &gli, sizeof(gli)))
+		if (!GetFileSizeEx(m_Handle.native_handle(), &gli.Length) && !IoControl(IOCTL_DISK_GET_LENGTH_INFO, nullptr, 0, &gli, sizeof(gli)))
 			return false;
 
 		Size = gli.Length.QuadPart;
@@ -871,7 +871,7 @@ namespace os::fs
 		DWORD BytesReturnedFallback = 0;
 		if (!BytesReturned)
 			BytesReturned = &BytesReturnedFallback;
-		return ::DeviceIoControl(m_Handle.native_handle(), IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
+		return DeviceIoControl(m_Handle.native_handle(), IoControlCode, InBuffer, InBufferSize, OutBuffer, OutBufferSize, BytesReturned, Overlapped) != FALSE;
 	}
 
 	bool file::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed) const
@@ -1363,7 +1363,7 @@ namespace os::fs
 	}
 
 	file_status::file_status(const string_view Object):
-		m_Data(fs::get_file_attributes(Object))
+		m_Data(get_file_attributes(Object))
 	{
 	}
 
@@ -1680,7 +1680,7 @@ namespace os::fs
 			find_data fd;
 			if (!get_find_data(path::join(PathName, L'*'), fd))
 			{
-				const auto LastError = ::GetLastError();
+				const auto LastError = GetLastError();
 				if (!(LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_NO_MORE_FILES))
 					return false;
 			}
@@ -1835,13 +1835,13 @@ namespace os::fs
 
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
 		{
-			::SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 			return false;
 		}
 
 		if (STATUS_FILE_IS_A_DIRECTORY == GetLastNtStatus())
 		{
-			::SetLastError(ERROR_FILE_EXISTS);
+			SetLastError(ERROR_FILE_EXISTS);
 			return false;
 		}
 
@@ -1866,7 +1866,7 @@ namespace os::fs
 
 		if (STATUS_STOPPED_ON_SYMLINK == GetLastNtStatus() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
 		{
-			::SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 			return false;
 		}
 
@@ -1877,7 +1877,7 @@ namespace os::fs
 			const file_status SrcStatus(strFrom), DstStatus(strTo);
 			if (is_directory(DstStatus) && is_file(SrcStatus))
 			{
-				::SetLastError(ERROR_FILE_EXISTS); // existing directory name == moved file name
+				SetLastError(ERROR_FILE_EXISTS); // existing directory name == moved file name
 				gle.dismiss();
 				return false;
 			}
@@ -2088,7 +2088,7 @@ namespace os::fs
 
 	bool move_to_recycle_bin(string_view const Object)
 	{
-		if (os::fs::low::move_to_recycle_bin(Object))
+		if (low::move_to_recycle_bin(Object))
 			return true;
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST, false)) // ShellAPI doesn't set LastNtStatus
@@ -2266,7 +2266,7 @@ namespace os::fs
 		static const auto AllowedDrivesMask = []
 		{
 			// Declared separately due to a VS19 bug
-			const auto Where = { &os::reg::key::local_machine, &os::reg::key::current_user };
+			const auto Where = { &reg::key::local_machine, &reg::key::current_user };
 			for (const auto& i: Where)
 			{
 				unsigned NoDrives;

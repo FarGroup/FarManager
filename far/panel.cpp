@@ -95,10 +95,10 @@ Panel::~Panel()
 }
 
 
-void Panel::SetViewMode(int ViewMode)
+void Panel::SetViewMode(int Mode)
 {
-	m_PrevViewMode=ViewMode;
-	m_ViewMode=ViewMode;
+	m_PrevViewMode = Mode;
+	m_ViewMode = Mode;
 }
 
 

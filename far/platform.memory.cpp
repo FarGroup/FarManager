@@ -140,7 +140,7 @@ namespace os::memory
 		std::vector<HANDLE> Heaps(10);
 		for (;;)
 		{
-			const auto NumberOfHeaps = ::GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
+			const auto NumberOfHeaps = GetProcessHeaps(static_cast<DWORD>(Heaps.size()), Heaps.data());
 			const auto Received = NumberOfHeaps <= Heaps.size();
 			Heaps.resize(NumberOfHeaps);
 			if (Received)

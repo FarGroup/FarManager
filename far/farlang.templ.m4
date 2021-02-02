@@ -11625,20 +11625,6 @@ upd:"Zeichenta&belle verwenden:"
 "Ужыць кадыро&ўку:"
 upd:"Using code pa&ge:"
 
-MFindFileCodePageBottom
-"Space, Ins"
-"Space, Ins"
-"Mezera, Ins"
-"Leertaste, Ins"
-"Space, Ins"
-"Spacja, Ins"
-"Espacio,Ins"
-"Medzera, Ins"
-"Spazio, Inserimento"
-"Space, Ins"
-"Space, Ins"
-upd:"Space, Ins"
-
 MFindFileCase
 "&Учитывать регистр"
 "&Case sensitive"

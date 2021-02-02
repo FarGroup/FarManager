@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 [[nodiscard]]
-inline constexpr bool IsEol(wchar_t x) noexcept { return x == L'\r' || x == L'\n'; }
+constexpr bool IsEol(wchar_t x) noexcept { return x == L'\r' || x == L'\n'; }
 
 [[nodiscard]]
 inline bool IsBlankOrEos(wchar_t x) noexcept { return std::iswblank(x) || !x; }

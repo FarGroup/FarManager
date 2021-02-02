@@ -265,7 +265,7 @@ bool Manager::ExitAll()
 			ActivateWindow(CurrentWindow);
 			Commit();
 			const auto PrevWindoowCount = m_windows.size();
-			CurrentWindow->ProcessKey(Manager::Key(KEY_ESC));
+			CurrentWindow->ProcessKey(Key(KEY_ESC));
 			Commit();
 
 			if (PrevWindoowCount == m_windows.size())
@@ -635,7 +635,7 @@ void Manager::ProcessMainLoop()
 {
 	if ( GetCurrentWindow() && !GetCurrentWindow()->ProcessEvents() )
 	{
-		ProcessKey(Manager::Key(KEY_IDLE));
+		ProcessKey(Key(KEY_IDLE));
 	}
 	else
 	{

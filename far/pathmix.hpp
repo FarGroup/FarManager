@@ -56,7 +56,7 @@ namespace path
 {
 	inline constexpr wchar_t separator = L'\\';
 	inline constexpr auto separators = L"\\/"sv;
-	inline constexpr bool is_separator(wchar_t x) noexcept { return contains(separators, x); }
+	constexpr bool is_separator(wchar_t x) noexcept { return contains(separators, x); }
 
 	namespace detail
 	{

@@ -3585,7 +3585,7 @@ bool Viewer::GetWrapMode() const
 
 void Viewer::SetWrapMode(bool Wrap)
 {
-	Viewer::m_Wrap=Wrap;
+	m_Wrap = Wrap;
 }
 
 void Viewer::EnableHideCursor(int HideCursor)
@@ -3600,7 +3600,7 @@ bool Viewer::GetWrapType() const
 
 void Viewer::SetWrapType(bool TypeWrap)
 {
-	Viewer::m_WordWrap=TypeWrap;
+	m_WordWrap = TypeWrap;
 }
 
 void Viewer::SetTempViewName(string_view const Name, bool DeleteFolder)

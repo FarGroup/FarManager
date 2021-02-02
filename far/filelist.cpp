@@ -193,7 +193,7 @@ static auto to_whole_seconds(os::chrono::time_point Point)
 }
 
 // The ultimate question here is "can these times be considered 'equal'",
-// so we take an oppotrunistic approach and try both methods:
+// so we take an opportunistic approach and try both methods:
 static auto compare_fat_write_time(os::chrono::time_point First, os::chrono::time_point Second)
 {
 	if (!compare_numbers(to_fat_write_time(First), to_fat_write_time(Second)))

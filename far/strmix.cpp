@@ -148,13 +148,13 @@ wchar_t* legacy::QuoteSpaceOnly(wchar_t* Str)
 void inplace::QuoteSpace(string& Str)
 {
 	if (Str.find_first_of(Global->Opt->strQuotedSymbols.Get()) != string::npos)
-		inplace::quote(Str);
+		quote(Str);
 }
 
 void inplace::QuoteOuterSpace(string& Str)
 {
 	if (!Str.empty() && (Str.front() == L' ' || Str.back() == L' '))
-		inplace::quote(Str);
+		quote(Str);
 }
 
 // TODO: "…" is displayed as "." in raster fonts. Make it lng-customisable?
@@ -942,9 +942,9 @@ bool SearchAndReplaceString(
 				if (PreserveStyle && !ReplaceStr.empty() && is_alpha(ReplaceStr.front()) && is_alpha(Haystack[HaystackIndex]))
 				{
 					if (is_upper(Haystack[HaystackIndex]))
-						ReplaceStr.front() = ::upper(ReplaceStr.front());
+						ReplaceStr.front() = upper(ReplaceStr.front());
 					else if (is_lower(Haystack[HaystackIndex]))
-						ReplaceStr.front() = ::lower(ReplaceStr.front());
+						ReplaceStr.front() = lower(ReplaceStr.front());
 				}
 
 				return true;

@@ -6437,7 +6437,7 @@ Editor::numbered_iterator Editor::GetStringByNumber(int DestLine)
 
 void Editor::SetReplaceMode(bool Mode)
 {
-	::ReplaceMode=Mode;
+	ReplaceMode = Mode;
 }
 
 int Editor::GetLineCurPos() const

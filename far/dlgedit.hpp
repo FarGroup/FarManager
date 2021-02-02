@@ -127,7 +127,7 @@ public:
 
 	void  SetPersistentBlocks(bool Mode);
 	int   GetPersistentBlocks() const;
-	void  SetDelRemovesBlocks(bool NewMode);
+	void  SetDelRemovesBlocks(bool Mode);
 	int   GetDelRemovesBlocks() const;
 
 	void  SetObjectColor(PaletteColors Color,PaletteColors SelColor=COL_COMMANDLINESELECTED,PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);

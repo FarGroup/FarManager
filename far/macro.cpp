@@ -2721,7 +2721,7 @@ int FarMacroApi::keyFunc()
 	else
 	{
 		// Проверим...
-		if (const auto Key = KeyNameToKey(Params[0].asString()))
+		if (KeyNameToKey(Params[0].asString()))
 			strKeyText=Params[0].asString();
 	}
 

@@ -775,7 +775,7 @@ void Options::SetDizConfig()
 	Builder.ShowDialog();
 }
 
-void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
+void Options::ViewerConfig(ViewerOptions &ViOptRef, bool Local)
 {
 	intptr_t save_pos = 0, save_cp = 0, id = 0;
 	bool prev_save_cp_value = ViOpt.SaveCodepage, inside = false;
@@ -853,7 +853,7 @@ void Options::ViewerConfig(Options::ViewerOptions &ViOptRef, bool Local)
 	Builder.ShowDialog();
 }
 
-void Options::EditorConfig(Options::EditorOptions &EdOptRef, bool Local)
+void Options::EditorConfig(EditorOptions &EdOptRef, bool Local)
 {
 	DialogBuilder Builder(lng::MEditConfigTitle, L"EditorSettings"sv);
 

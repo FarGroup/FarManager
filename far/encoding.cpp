@@ -341,7 +341,7 @@ bool MultibyteCodepageDecoder::SetCP(uintptr_t Codepage)
 		char b1;
 		wchar_t b2;
 	}
-	u;
+	u{};
 
 	int CharsProcessed = 0;
 	size_t Size = 0;

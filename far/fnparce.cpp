@@ -594,7 +594,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 	}
 
 	// !?<title>?<init>!
-	if (const auto Tail = tokens::skip(CurStr, tokens::input))
+	if (tokens::skip(CurStr, tokens::input))
 	{
 		auto SkipSize = SkipInputToken(CurStr);
 		// if bad format string skip 1 char

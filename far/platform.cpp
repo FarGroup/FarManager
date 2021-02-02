@@ -351,7 +351,7 @@ bool GetUserNameEx(EXTENDED_NAME_FORMAT NameFormat, string& Name)
 handle OpenCurrentThread()
 {
 	HANDLE Handle;
-	return os::handle(DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &Handle, 0, FALSE, DUPLICATE_SAME_ACCESS) ? Handle : nullptr);
+	return handle(DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &Handle, 0, FALSE, DUPLICATE_SAME_ACCESS)? Handle : nullptr);
 }
 
 handle OpenConsoleInputBuffer()

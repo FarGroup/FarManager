@@ -71,8 +71,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-using namespace os::security;
-
 static const int CallbackMagic = 0xCA11BAC6;
 
 enum ELEVATION_COMMAND: int
@@ -103,7 +101,7 @@ enum ELEVATION_COMMAND: int
 
 static const auto ElevationArgument = L"/service:elevation"sv;
 
-static privilege CreateBackupRestorePrivilege()
+static os::security::privilege CreateBackupRestorePrivilege()
 {
 	return { SE_BACKUP_NAME, SE_RESTORE_NAME };
 }
@@ -292,7 +290,7 @@ auto elevation::execute(lng Why, string_view const Object, T Fallback, const F1&
 	if (!ElevationApproveDlg(Why, Object))
 		return Fallback;
 
-	if (is_admin())
+	if (os::security::is_admin())
 	{
 		SCOPED_ACTION(auto)(CreateBackupRestorePrivilege());
 		return PrivilegedHander();
@@ -520,7 +518,7 @@ static void ElevationApproveDlgSync(const EAData& Data)
 	auto ElevationApproveDlg = MakeDialogItems<AAD_COUNT>(
 	{
 		{ DI_DOUBLEBOX, {{3,  1     }, {DlgX-4, DlgY-2}}, DIF_NONE, msg(lng::MAccessDenied), },
-		{ DI_TEXT,      {{5,  2     }, {0,      2     }}, DIF_NONE, msg(is_admin()? lng::MElevationRequiredPrivileges : lng::MElevationRequired), },
+		{ DI_TEXT,      {{5,  2     }, {0,      2     }}, DIF_NONE, msg(os::security::is_admin()? lng::MElevationRequiredPrivileges : lng::MElevationRequired), },
 		{ DI_TEXT,      {{5,  3     }, {0,      3     }}, DIF_NONE, msg(Data.Why), },
 		{ DI_EDIT,      {{5,  4     }, {DlgX-6, 4     }}, DIF_READONLY, Data.Object, },
 		{ DI_CHECKBOX,  {{5,  6     }, {0,      6     }}, DIF_NONE, msg(lng::MElevationDoForAll), },
@@ -560,14 +558,14 @@ bool elevation::ElevationApproveDlg(lng const Why, string_view const Object)
 	{
 		SCOPED_ACTION(os::last_error_guard);
 
-		if (m_AskApprove && is_admin() && privilege::check(SE_BACKUP_NAME, SE_RESTORE_NAME))
+		if (m_AskApprove && os::security::is_admin() && os::security::privilege::check(SE_BACKUP_NAME, SE_RESTORE_NAME))
 		{
 			m_AskApprove = false;
 			return true;
 		}
 	}
 
-	if(!(is_admin() && !(Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
+	if(!(os::security::is_admin() && !(Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
 		m_AskApprove && !m_DontAskAgain && !m_Recurse &&
  		Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
@@ -972,7 +970,7 @@ public:
 			Privileges.emplace_back(SE_RESTORE_NAME);
 		}
 
-		SCOPED_ACTION(privilege)(Privileges);
+		SCOPED_ACTION(os::security::privilege)(Privileges);
 
 		const auto PipeName = concat(L"\\\\.\\pipe\\"sv, Uuid);
 		WaitNamedPipe(PipeName.c_str(), NMPWAIT_WAIT_FOREVER);

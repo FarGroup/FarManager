@@ -196,7 +196,7 @@ public:
 	virtual long FindNext(int StartPos, string_view Name) {return -1;}
 	virtual void SetSelectedFirstMode(bool) {}
 	virtual bool GetSelectedFirstMode() const { return false; }
-	virtual void SetViewMode(int ViewMode);
+	virtual void SetViewMode(int Mode);
 	virtual int GetPrevViewMode() const {return m_PrevViewMode;}
 	virtual panel_sort GetPrevSortMode() const { return m_SortMode; }
 	virtual bool GetPrevSortOrder() const { return m_ReverseSortOrder; }

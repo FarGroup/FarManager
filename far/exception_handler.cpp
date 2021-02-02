@@ -1321,7 +1321,7 @@ class seh_exception: public far_exception
 {
 public:
 	template<typename... args>
-	seh_exception(EXCEPTION_POINTERS& Pointers, args&&... Args):
+	explicit seh_exception(EXCEPTION_POINTERS& Pointers, args&&... Args):
 		far_exception(FWD(Args)...),
 		m_Context(std::make_shared<seh_exception_context>(Pointers))
 	{}

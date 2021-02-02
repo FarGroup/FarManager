@@ -122,7 +122,7 @@ namespace pluginapi
 	intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2) noexcept;
 	size_t   WINAPI apiGetCurrentDirectory(size_t Size, wchar_t* Buffer) noexcept;
 	size_t   WINAPI apiFormatFileSize(unsigned long long Size, intptr_t Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize) noexcept;
-	void     WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSUSERFUNC Func, unsigned long long flags, void *param) noexcept;
+	void     WINAPI apiRecursiveSearch(const wchar_t* InitDir, const wchar_t* Mask, FRSUSERFUNC Func, unsigned long long Flags, void* Param) noexcept;
 	size_t   WINAPI apiMkTemp(wchar_t *Dest, size_t DestSize, const wchar_t *Prefix) noexcept;
 	size_t   WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size, PROCESSNAME_FLAGS flags) noexcept;
 	BOOL     WINAPI apiColorDialog(const UUID* PluginId, COLORDIALOGFLAGS Flags, FarColor* Color) noexcept;
