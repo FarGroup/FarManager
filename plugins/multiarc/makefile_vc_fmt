@@ -10,15 +10,18 @@ NAME = $(FMT)
 EXT = fmt
 ADDOUTDIR = \Formats
 LINK_OBJS = $(OBJDIR)\$(NAME).obj
-!if "$(FMT)" == "Custom"
-DOCS = Custom.ini
-!endif
 
 USERCPP = /I".\libpcre"
 
 !include ..\makefile_vc_def_inc
 
 LIBS = $(OBJDIR)\pcre.lib $(LIBS)
+
+!if "$(FMT)" == "custom"
+DOCS = custom.ini
+!else
+DOCS =
+!endif
 
 !include ..\makefile_vc_target_inc
 

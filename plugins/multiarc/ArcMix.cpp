@@ -486,7 +486,7 @@ char *SeekDefExtPoint(char *Name, char *DefExt/*=NULL*/, char **Ext/*=NULL*/)
 
 BOOL AddExt(char *Name, char *Ext)
 {
-  char *ExtPnt;
+  char *ExtPnt = {};
   FSF.Unquote(Name); //$ AA 15.04.2003 для правильной обработки имен в кавычках
   if(Name && *Name && !SeekDefExtPoint(Name, Ext, &ExtPnt))
   {

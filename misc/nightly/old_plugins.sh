@@ -37,7 +37,7 @@ pushd $PLUGIN || return 1
 unix2dos changelog
 
 FILES="MultiArc.dll arceng.hlf arcrus.hlf arcger.hlf arceng.lng arcrus.lng arcspa.lng arcita.lng arcbel.lng arcger.lng MultiArc.map"
-ADDFILES="Ace.fmt Arc.fmt Arj.fmt Cab.fmt Custom.fmt Ha.fmt Lzh.fmt Rar.fmt TarGz.fmt Zip.fmt custom.ini Ace.map Arc.map Arj.map Cab.map Custom.map Ha.map Lzh.map Rar.map TarGz.map Zip.map"
+ADDFILES="ace.fmt arc.fmt arj.fmt cab.fmt custom.fmt ha.fmt lzh.fmt rar.fmt targz.fmt zip.fmt custom.ini ace.map arc.map arj.map cab.map custom.map ha.map lzh.map rar.map targz.map zip.map"
 ADDBUILDDIRS="Formats"
 ADDOUTDIR="Formats"
 

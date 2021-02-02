@@ -136,8 +136,8 @@ namespace PCRE
 
       if(Match m = r.match(pattern))
       {
-        char options[8] = "";
-        strncpy(options, m[2], sizeof(options));
+        char options[8] = {};
+        strncpy(options, m[2], sizeof(options) - 1);
         return compile(m[1], options);
       }
       return false;

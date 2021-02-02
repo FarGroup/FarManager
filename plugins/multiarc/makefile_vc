@@ -27,7 +27,7 @@ USERCPP=/wd4996
 ALL: dirs libpcre fmtdir fmts
 	@copy /Y Custom.ini $(OUTDIR)\Formats\*.* 1>nul
 
-FMTLIST=Custom Ace Arc Arj Cab Ha Lzh Rar TarGz Zip
+FMTLIST=custom ace arc arj cab ha lzh rar targz zip
 
 $(RES): multiarcversion.hpp
 

@@ -7,9 +7,6 @@ NAME = $(FMT)
 EXT = fmt
 ADDOUTDIR = /Formats
 SRCS = $(NAME).cpp
-ifeq ($(FMT),Custom)
-DOCS = Custom.ini
-endif
 
 USERCPP = -I ./libpcre
 USERLIBSFIRST = -L $(OBJDIR) -lPCRE
@@ -19,5 +16,11 @@ include ../../far/makefile_gcc_common
 include ../makefile_gcc_def_inc
 
 include ../makefile_gcc_target_inc
+
+ifeq ($(FMT),custom)
+DOCS = custom.ini
+else
+DOCS = $(DEVNULL)
+endif
 
 $(RES): multiarcversion.hpp
