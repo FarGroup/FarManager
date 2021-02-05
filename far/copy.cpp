@@ -362,11 +362,15 @@ static string GenerateName(string_view const Name, string_view const Path)
 	const auto BaseSize = Result.size() - Name.size();
 	const auto NameExt = name_ext(Name);
 
+	auto GenNameFormat = Global->Opt->CMOpt.GenNameFormat.toString();
+	if (!contains(GenNameFormat, L"{0}"s))
+		GenNameFormat = Global->GenNameFormat;
+
 	// file (2).ext, file (3).ext and so on
 	for (int i = 2; os::fs::exists(Result); ++i)
 	{
 		Result.resize(BaseSize);
-		append(Result, format(Global->Opt->CMOpt.GenNameFormat.toString(), NameExt.first, NameExt.second, i));
+		append(Result, format(GenNameFormat, i, NameExt.first, NameExt.second));
 	}
 
 	return Result;

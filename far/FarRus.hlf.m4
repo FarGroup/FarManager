@@ -6336,6 +6336,18 @@ $ #far:config Editor.FileSizeLimit#
  Изменить этот параметр можно только через ~far:config~@FarConfig@.
 
 
+@System.GenNameFormat
+$ #far:config System.GenNameFormat#
+ Задаёт формат маски файла при копировании/перемещении, когда в папке
+назначения файл с таким именем уже существует.
+ Используются следующие элементы формата:
+ #{0}# - счётчик
+ #{1}# - имя файла
+ #{2}# - расширение файла с точкой
+
+ Изменить этот параметр можно только через ~far:config~@FarConfig@.
+
+
 @System.MsWheelDelta
 $ #far:config System.MsWheelDelta* & System.MsHWheelDelta*#
  Эти числовые параметры определяют скорость прокрутки при вращении или

@@ -1978,7 +1978,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeySystem,                 L"FindSymLinks"sv,                  FindOpt.FindSymLinks, true},
 		{FSSF_PRIVATE,           NKeySystem,                 L"FlagPosixSemantics"sv,            FlagPosixSemantics, true},
 		{FSSF_PRIVATE,           NKeySystem,                 L"FolderInfo"sv,                    InfoPanel.strFolderInfoFiles, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"sv},
-		{FSSF_PRIVATE,           NKeySystem,                 L"GenNameFormat"sv,                 CMOpt.GenNameFormat, L"{0} ({2}){1}"sv},
+		{FSSF_PRIVATE,           NKeySystem,                 L"GenNameFormat"sv,                 CMOpt.GenNameFormat, Global->GenNameFormat},
 		{FSSF_PRIVATE,           NKeySystem,                 L"MsWheelDelta"sv,                  MsWheelDelta, 1},
 		{FSSF_PRIVATE,           NKeySystem,                 L"MsWheelDeltaEdit"sv,              MsWheelDeltaEdit, 1},
 		{FSSF_PRIVATE,           NKeySystem,                 L"MsWheelDeltaHelp"sv,              MsWheelDeltaHelp, 1},
