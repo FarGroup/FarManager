@@ -366,7 +366,7 @@ static string GenerateName(string_view const Name, string_view const Path)
 	for (int i = 2; os::fs::exists(Result); ++i)
 	{
 		Result.resize(BaseSize);
-		append(Result, NameExt.first, L" ("sv, str(i), L')', NameExt.second);
+		append(Result, format(Global->Opt->CMOpt.GenNameFormat.toString(), NameExt.first, NameExt.second, i));
 	}
 
 	return Result;

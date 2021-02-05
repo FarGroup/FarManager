@@ -731,6 +731,7 @@ public:
 		IntOption CopySecurityOptions; // для операции Move - что делать с опцией "Copy access rights"
 		IntOption CopyTimeRule;          // $ 30.01.2001 VVM  Показывает время копирования,оставшееся время и среднюю скорость
 		IntOption BufferSize;
+		StringOption GenNameFormat;       // формат генерации имени, когда файл уже существует
 	};
 
 	struct DeleteOptions
