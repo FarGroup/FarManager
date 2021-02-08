@@ -1,13 +1,11 @@
-![Logo](https://raw.githubusercontent.com/FarGroup/FarManager/master/far/Far.ico)
+[![Header][logo]](https://www.farmanager.com)
 
 ### Far Manager
-https://www.farmanager.com
-
 | | AppVeyor | Travis | Azure |
 |-|-|-|-|
-| VS | [![AppVeyor](https://ci.appveyor.com/api/projects/status/6pca73evwo3oxvr9?svg=true)](https://ci.appveyor.com/project/FarGroup/farmanager/history) | [![Travis CI](https://img.shields.io/travis/FarGroup/FarManager.svg?logo=travis)](https://travis-ci.com/FarGroup/FarManager/builds) | [![Azure Pipelines](https://img.shields.io/azure-devops/build/FarGroup/66d0ddcf-a098-4b98-9470-1c90632c4ba3/1.svg?logo=azuredevops)](https://dev.azure.com/FarGroup/FarManager/_build?definitionId=1) |
-| GCC | [![AppVeyor](https://ci.appveyor.com/api/projects/status/k7ln3edp8nt5aoay?svg=true)](https://ci.appveyor.com/project/FarGroup/farmanager-5lhsj/history) | [![Travis CI](https://img.shields.io/travis/FarGroup/FarManager.svg?logo=travis)](https://travis-ci.com/FarGroup/FarManager/builds) | TBD |
-| Clang | [![AppVeyor](https://ci.appveyor.com/api/projects/status/pvwnc6gc5tjlpmti?svg=true)](https://ci.appveyor.com/project/FarGroup/farmanager-tgu1s/history) | [![Travis CI](https://img.shields.io/travis/FarGroup/FarManager.svg?logo=travis)](https://travis-ci.com/FarGroup/FarManager/builds) | TBD |
+| VS | [![AppVeyor][VS-AppVeyor]](https://ci.appveyor.com/project/FarGroup/farmanager/history) | [![Travis CI][VS-Travis]](https://travis-ci.com/FarGroup/FarManager/builds) | [![Azure Pipelines][VS-Azure]](https://dev.azure.com/FarGroup/FarManager/_build?definitionId=1) |
+| GCC | [![AppVeyor][GCC-AppVeyor]](https://ci.appveyor.com/project/FarGroup/farmanager-5lhsj/history) | [![Travis CI][GCC-Travis]](https://travis-ci.com/FarGroup/FarManager/builds) | TBD |
+| Clang | [![AppVeyor][Clang-AppVeyor]](https://ci.appveyor.com/project/FarGroup/farmanager-tgu1s/history) | [![Travis CI][Clang-Travis]](https://travis-ci.com/FarGroup/FarManager/builds) | TBD |
 
 
 ### Far Manager — what is it?
@@ -44,3 +42,12 @@ https://groups.google.com/group/farcommits
 
 #### Source code
 https://github.com/FarGroup/FarManager
+
+[logo]: https://raw.githubusercontent.com/FarGroup/FarManager/master/far/Far.ico
+[VS-AppVeyor]: https://ci.appveyor.com/api/projects/status/6pca73evwo3oxvr9?svg=true
+[GCC-AppVeyor]: https://ci.appveyor.com/api/projects/status/k7ln3edp8nt5aoay?svg=true
+[Clang-AppVeyor]: https://ci.appveyor.com/api/projects/status/pvwnc6gc5tjlpmti?svg=true
+[VS-Travis]: https://img.shields.io/travis/FarGroup/FarManager.svg?logo=travis
+[GCC-Travis]: https://img.shields.io/travis/FarGroup/FarManager.svg?logo=travis
+[Clang-Travis]: https://img.shields.io/travis/FarGroup/FarManager.svg?logo=travis
+[VS-Azure]: https://img.shields.io/azure-devops/build/FarGroup/66d0ddcf-a098-4b98-9470-1c90632c4ba3/1.svg?logo=azuredevops
