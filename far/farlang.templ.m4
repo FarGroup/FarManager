@@ -4620,19 +4620,19 @@ MLinkTypeSymlinkDirectory
 "сімвалічны с&пасылак (каталог)"
 upd:"symbolic link (fol&der)"
 
-MCopyPreserveTimestamps
-"Сохранять метки времени"
-"Preserve timestamps"
-upd:"Preserve timestamps"
-upd:"Preserve timestamps"
-upd:"Preserve timestamps"
+MCopyPreserveAllTimestamps
+"Сохранять все метки времени"
+"Preserve all timestamps"
+upd:"Preserve all timestamps"
+upd:"Preserve all timestamps"
+upd:"Preserve all timestamps"
 "Zachowaj oryginalny czas"
-upd:"Preserve timestamps"
-upd:"Preserve timestamps"
-upd:"Preserve timestamps"
-"Зберігати позначки часу"
-"Захаваць меткі часу"
-upd:"Preserve timestamps"
+upd:"Preserve all timestamps"
+upd:"Preserve all timestamps"
+upd:"Preserve all timestamps"
+"Зберігати всі позначки часу"
+"Захаваць усе меткі часу"
+upd:"Preserve all timestamps"
 
 MCopySymLinkContents
 "Копировать содерж&имое символических ссылок"

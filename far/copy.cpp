@@ -245,9 +245,19 @@ enum COPY_FLAGS
 };
 
 template<typename times_type>
-static bool set_file_time(const os::fs::file& File, const times_type& Times)
+static bool set_file_time(const os::fs::file& File, const times_type& Times, bool const All)
 {
-	return File.SetTime(&Times.CreationTime, &Times.LastAccessTime, &Times.LastWriteTime, &Times.ChangeTime);
+	const auto opt_time = [&](const os::chrono::time_point& Time)
+	{
+		return All? &Time : nullptr;
+	};
+
+	return File.SetTime(
+		opt_time(Times.CreationTime),
+		opt_time(Times.LastAccessTime),
+		&Times.LastWriteTime,
+		opt_time(Times.ChangeTime)
+	);
 }
 
 static const struct
@@ -657,7 +667,7 @@ ShellCopy::ShellCopy(
 		{ DI_TEXT,         {{-1, 6 }, {0,  6 }}, DIF_SEPARATOR, },
 		{ DI_TEXT,         {{5,  7 }, {0,  7 }}, DIF_NONE, msg(lng::MCopyIfFileExist), },
 		{ DI_COMBOBOX,     {{29, 7 }, {70, 7 }}, DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND | DIF_LISTWRAPMODE, },
-		{ DI_CHECKBOX,     {{5,  8 }, {0,  8 }}, DIF_NONE, msg(lng::MCopyPreserveTimestamps), },
+		{ DI_CHECKBOX,     {{5,  8 }, {0,  8 }}, DIF_NONE, msg(lng::MCopyPreserveAllTimestamps), },
 		{ DI_CHECKBOX,     {{5,  9 }, {0,  9 }}, DIF_NONE, msg(lng::MCopySymLinkContents), },
 		{ DI_CHECKBOX,     {{5,  10}, {0,  10}}, DIF_NONE, msg(lng::MCopyMultiActions), },
 		{ DI_TEXT,         {{-1, 11}, {0,  11}}, DIF_SEPARATOR, },
@@ -1199,7 +1209,7 @@ ShellCopy::ShellCopy(
 			{
 				if (const auto File = os::fs::file(CreatedFolder.FullName, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 				{
-					set_file_time(File, CreatedFolder);
+					set_file_time(File, CreatedFolder, true);
 				}
 				// TODO: else log
 			}
@@ -2735,9 +2745,6 @@ int ShellCopy::ShellCopyFile(
 
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
-		if (Global->Opt->CMOpt.PreserveTimestamps)
-			set_file_time(DestFile, SrcData);
-
 		if (CopySparse)
 		{
 			auto Pos = SrcData.FileSize;
@@ -2749,6 +2756,8 @@ int ShellCopy::ShellCopyFile(
 			DestFile.SetEnd();
 		}
 
+		set_file_time(DestFile, SrcData, Global->Opt->CMOpt.PreserveTimestamps);
+
 		DestFile.Close();
 		// TODO: ЗДЕСЯ СТАВИТЬ Compressed???
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
@@ -2759,11 +2768,11 @@ int ShellCopy::ShellCopyFile(
 			{
 				if (DestFile.Open(strDestName, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 				{
-					if (Global->Opt->CMOpt.PreserveTimestamps)
-						set_file_time(DestFile, SrcData);
+					set_file_time(DestFile, SrcData, Global->Opt->CMOpt.PreserveTimestamps);
 
 					DestFile.Close();
 				}
+				// TODO: else log
 			}
 		}
 	}
@@ -3389,8 +3398,9 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 	{
 		if (const auto DestFile = os::fs::file(DestName, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 		{
-			set_file_time(DestFile, SrcData);
+			set_file_time(DestFile, SrcData, true);
 		}
+		// TODO: else log
 	}
 
 	return COPY_SUCCESS;
