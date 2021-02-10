@@ -359,7 +359,7 @@ $ #Polecenia kontroli panelu#
  Odwróć selekcję włączając foldery                   #Ctrl+<Szary *>#
  Zaznacz pliki o tej samej nazwie jak bieżący plik    #Alt+<Szary +>#
  Odznacz pliki o tej samej nazwie jak bieżący plik    #Alt+<Szary ->#
- Invert selection on files, deselect folders          #Alt+<Szary *>#
+ Odwróć selekcję plików, odznacz foldery              #Alt+<Szary *>#
  Zaznacz wszystkie pliki                            #Shift+<Szary +>#
  Odznacz wszystkie pliki                            #Shift+<Szary ->#
  Przywróć poprzednie zaznaczenie                             #Ctrl+M#
@@ -2100,7 +2100,7 @@ oraz zawartość nie mają wpływu na operację.
 @UserMenu
 $ #Menu użytkownika#
  Menu użytkownika ma na celu ułatwienie wywoływania często używanych operacji.
-Zawiera szereg zdefiniowanych poleceń i sekwencji, wykownywanych podczas wywoływania
+Zawiera szereg zdefiniowanych poleceń i sekwencji, wykonywanych podczas wywoływania
 menu użytkownika. Menu mogą zawierać podmenu.
 Obsługiwane są ~symbole specjalne~@MetaSymbols@ zarówno w poleceniach jak i nazwach
 poleceń. Należy zwrócić uwagę na symbole #!?<tytuł>?<wejście>!#, które służą
@@ -2203,207 +2203,208 @@ określonym za pomocą ~maski~@FileMasks@:
  #Edycja pliku#                  Wykonywane po wciśnięciu klawiszy #Alt+F4#
  #(używane dla Alt+F4)#
 
- The association can be described in the #Description of the association# field.
+ Powiązanie można opisać w polu #Opis przypisania#.
 
- ~Special symbols~@MetaSymbols@ can be used in the associated command.
+ Można także użyć ~symboli specjalnych~@MetaSymbols@ w poleceniach powiązania
+plików.
 
- Notes:
+ Uwagi:
 
- 1. ^<wrap>If no execute command is associated with file and
-#Use Windows registered types# option in ~System settings~@SystemSettings@
-dialog is on, Far tries to use Windows association to execute this file type.
- 2. ^<wrap>Operating system ~commands~@OSCommands@ "IF EXIST" and "IF DEFINED"
-allow to configure "smarter" associations - if you have specified several
-associations for a file type, the menu will show only the associations
-for which the conditions are true.
+ 1. ^<wrap>Jeżeli w powiązaniach nie będzie polecenia uruchomienia pliku oraz
+opcja #Użyj zarejestrowanych typów Windows# w ~Ustawieniach systemowych~@SystemSettings@
+będzie włączona, Far spróbuje do uruchomienia użyć przypisania z systemu Windows;
+ 2. ^<wrap>~Polecenia~@OSCommands@ systemu operacyjnego "IF EXIST" (jeżeli istnieje)
+oraz "IF DEFINED" (jeżeli zdefiniowano) pozwalają na skonfigurowanie "inteligentniejszych"
+powiązań - jeżeli ustawiono kilka powiązań do danego typu pliku, menu zostanie
+wyświetlone tylko dla powiązań, których warunki zostaną spełnione (wartość TRUE).
 
 
 @MetaSymbols
-$ #Special symbols#
- The following special symbols can be used in ~associated commands~@FileAssoc@,
-~user menu~@UserMenu@ and the command ~"Apply command"~@ApplyCmd@:
+$ #Symbole specjalne#
+ Następujące symbole specjalne mogą być używane w ~poleceniach przypisania~@FileAssoc@,
+~menu użytkownika~@UserMenu@ oraz w funkcji ~Zastosuj polecenie~@ApplyCmd@:
 
- #!!#       ^<wrap>The ‘!’ character
- #!#        Long file name without extension
- #!~~#       Short file name without extension
- #!`#       Long extension without file name (ext)
- #!`~~#      Short extension without file name (ext)
- #!.!#      Long file name with extension
- #!-!#      Short file name with extension
- #!+!#      Similar to !-! but if a long file name was lost after performing the command, Far will restore it
- #!@@!#      Name of a file with a list of selected file names
- #!$!#      Name of a file with a list of selected short file names
- #!&#       List of selected files
- #!&~~#      List of selected short file names
- #!:#       Current drive in the format "C:". For remote folders - "\\\\server\\share"
- #!\\#       Current path
- #!/#       Short name of the current path
- #!=\\#      Current path considering ~symbolic links~@HardSymLink@.
- #!=/#      Short name of the current path considering ~symbolic links~@HardSymLink@.
- #!?!#      Description of the current file
+ #!!#       ^<wrap>Znak wykrzyknika ‘!’
+ #!#        Długa nazwa pliku bez rozszerzenia
+ #!~~#       Krótka nazwa pliku bez rozszerzenia
+ #!`#       Długie rozszerzenie pliku bez jego nazwy
+ #!`~~#      Krótkie rozszerzenie pliku bez jego nazwy
+ #!.!#      Długa nazwa pliku z rozszerzeniem
+ #!-!#      Krótka nazwa pliku z rozszerzeniem
+ #!+!#      Podobnie do !-!, ale jeżeli długa nazwa zostanie utracona po wykonaniu polecenia, Far ją przywróci
+ #!@@!#      Nazwa pliku z listą zaznaczonych nazwa plików
+ #!$!#      Nazwa pliku z listą zaznaczonych krótkich nazw plików
+ #!&#       Lista zaznaczonych plików
+ #!&~~#      Lista zaznaczony plików z krótką nazwą
+ #!:#       Bieżący dysk w formacie "C:". Dla zdalnych folderów - "\\\\serwer\\udział"
+ #!\\#       Bieżąca ścieżka
+ #!/#       Krótka nazwa bieżącej ścieżki
+ #!=\\#      Bieżąca ścieżka uwzględniająca ~linki symboliczne~@HardSymLink@.
+ #!=/#      Krótka nazwa bieżącej ścieżki uwzględniająca ~linki symboliczne~@HardSymLink@.
+ #!?!#      Opis bieżącego pliku
 
- #!?<title>?<init>!#
- This symbol is replaced by user input, when
-executing command. <title> and <init> - title and initial text of edit control.
- Several such symbols are allowed in the same line, for example:
- grep !?Search for:?! !?In:?*.*!|c:\\far\\Far.exe -v -
+ #!?<tytuł>?<wejście>!#
+ Ten łańcuch jest zamieniany przez dane wprowadzone przez użytkownika,
+gdy wykonywane jest polecenie.
+ <tytuł> i <wejście> - tytuł danego pola i inicjalny tekst pola edycji.
+ Można wprowadzić kilka takich łańcuchów w tej samej linii, np.:
+ grep !?Szukaj tekstu:?! !?W plikach:?*.*!|c:\\far\\Far.exe -v -
 
- A history name for the <init> string can be supplied in the <title>. In such case the command has the following format:
-#!?$<history>$<title>?<init>!#, for example:
- grep !?#$GrepHist$#Search for:?! !?In:?*.*!|Far.exe -v -
+ Poprzednia wartość pola <wejście> (z historii) może być użyta w polu <tytuł>. W takim
+przypadku polecenie ma następujący format: #!?$<historia>$<tytuł>?<wejście>!#, np.:
+ grep !?$GrepHist$Szukaj tekstu:?! !?W plikach:?*.*!|Far.exe -v -
 
- Leave the name empty to disable history.
+ Aby wyłączyć historię, należy pole pozostawić puste.
 
- The entered string can also be accessed later as #%<history># (or as #%UserVarN#, where N is the index of the corresponding input).
+ Podane teksty mogą być później dostępne jako zmienna #%<history># (lub jako #%UserVarN#, gdzie N jest indeksem odpowiadającemu polu wprowadzania).
 
- In <title> and <init> the usage of other meta-symbols is allowed by enclosing them in brackets, e.g.
-grep !?Find in (!.!):?! |Far.exe -v -.
+ W polach <tytuł> i <wejście> można używać innych symboli specjalnych umieszczonych w nawiasach, np.:
+grep !?Szukaj w (!.!):?! |Far.exe -v -.
 
  #!###
- "!##" prefix forces all subsequent special symbols
-to refer to the passive panel (see note 4).
-For example, !##!.! denotes the name of the current
-file on the passive panel.
+ Przedrostek "!##" wymusza na wszystkich symbolach specjalnych
+operacje na panelu pasywnym (zobacz uwagę nr 4).
+Np. !##!.! oznacza nazwę bieżącego pliku w panelu pasywnym.
 
  #!^#
- "!^" prefix forces all subsequent special symbols
-to refer to the active panel (see note 4).
-For example, !^!.! denotes a current file name on
-the active panel, !##!\\!^!.! - a file on the passive
-panel with the same name as the name of the current
-file on the active panel.
+ Przedrostek "!^" wymusza na wszystkich symbolach specjalnych
+operacje na panelu aktywnym (zobacz uwagę nr 4).
+Np. !^!.! oznacza nazwę bieżącego pliku w panelu aktywnym,
+!##!\\!^!.! - plik w panelu pasywnym z taką samą nazwą jak
+bieżący plik w aktywnym panelu.
 
- Notes:
+ Uwagi:
 
- 1. ^<wrap>When handling special characters, Far substitutes only the string
-corresponding to the special character. No additional characters (for example,
-quotes) are added, and you should add them yourself if it is needed. For
-example, if a program used in the associations requires a file name to be
-enclosed in quotes, you should specify #program.exe "!.!"# and not
-#program.exe !.!#.
+ 1. ^<wrap>Podczas obsługi znaków specjalnych, Far podstawia tylko
+ciąg znaków odpowiadający znakom specjalnym. Nie są dodawane żadne
+dodatkowe znaki (np. znaki cudzysłowu), i w razie potrzeby należy
+je dodać samodzielnie. Np. jeżeli program używany w powiązaniu plików
+wymaga nazwy pliku ujętego w cudzysłowie, proszę wpisać wartość
+#program.exe "!.!"#, a nie #program.exe !.!#.
 
- 2. ^<wrap>The following modifiers can be used with the special symbols #!@@!# and #!$!#:
-    #Q# - enclose names in quotes;
-    #S# - use ‘/’ instead of ‘\\’ in pathnames;
-    #F# - use full pathnames;
-    #A# - use ANSI code page;
-    #U# - use UTF-8 code page;
-    #W# - use UTF-16 (Little endian) code page.
+ 2. ^<wrap>Następujące modyfikatory można użyć ze znakami specjalnymi #!@@!# i #!$!#:
+    #Q# - ujęcie nazwy w cudzysłowie;
+    #S# - użyj ‘/’ zamiast ‘\\’ w ścieżkach plików;
+    #F# - użyj pełnej ścieżki;
+    #A# - użyj strony kodowej ANSI;
+    #U# - użyj strony kodowej UTF-8;
+    #W# - użyj strony kodowej UTF-16 (Little endian).
 
-    ^<wrap>For example, #!@@AFQ!# denotes "name of file containing the list of
-selected file names, in ANSI encoding, with full pathnames, each enclosed in quotes".
+    ^<wrap>Np. #!@@AFQ!# oznacza "nazwę pliku zawierającego listę nazw zaznaczonych
+plików, w kodowaniu ANSI, z pełnymi ścieżkami, każdy ujęty w cudzysłów".
 
-    ^<wrap>The following modifiers can be used with the special symbols #!&# and #!&~~#:
-    #Q# - enclose each name in quotes. This is the default, if no modifier is specified.
-    #q# - do not enclose names in quotes (as it was before build 5466).
+    ^<wrap>Następujące modyfikatory można użyć z symbolami #!&# i #!&~~#:
+    #Q# - ujmuje każdą nazwę w cudzysłów. Jest to domyślna opcja, jeżeli nie dodano modyfikatora.
+    #q# - nie ujmuje nazw w cudzysłowie (tak jak było to do kompilacji 5466).
 
-    ^<wrap>For example, #!&Q# denotes the list of selected file names, each enclosed in quotes.
+    ^<wrap>Np. #!&Q# oznacza listę nazw zaznaczonych plików, każdą ujętą w cudzysłów.
 
- 3. ^<wrap>When there are multiple associations specified, the meta-characters !@@!
-and !$! are shown in the menu as is. Those characters are translated when the command is executed.
+ 3. ^<wrap>Jeżeli określono wiele skojarzeń, meta-znaki !@@! oraz !$! są pokazywane w menu bez zmian.
+Znaki te są tłumaczone podczas wykonywania poleceń.
 
- 4. ^<wrap>The prefixes "!##" and "!^" work as toggles. The effect
-of these prefixes continues up to the next similar prefix. For example:
+ 4. ^<wrap>Przedrostki "!##" oraz "!^" działają jako przełączniki. Efekt ich działania trwa
+aż do następnego podobnego przedrostka. Np.
 
     if exist !##!\\!^!.! diff -c -p !##!\\!^!.! !\\!.!
 
-    ^<wrap>"If the same file exists on the passive panel as the file under
-the cursor on the active panel, show the differences between
-the file on the passive panel and the file on the active panel,
-regardless of the name of the current file on the passive panel"
+    ^<wrap>"Jeżeli w panelu pasywnym istnieje plik o nazwie podświetlonego
+pliku w panelu aktywnym, pokaż różnice między tymi plikami, niezależnie od nazwy
+podświetlonego pliku w panelu pasywnym"
 
- 5. ^<wrap>If it is needed to pass to a program a name with an ending
-backslash, use quotes, e.g. #"!"\#.
-    ^<wrap>For example, to extract a rar archive to a folder with the same name:
+ 5. ^<wrap>Jeżeli wymagane jest do przekazania do programu znaku odwrotnego ukośnika (#\#)
+należy go ująć w cudzysłów, np. #"!"\#
+    ^<wrap>Np. aby rozpakować archiwum rar do folderu o tej samej nazwie:
 
     #winrar x "!.!" "!"\#
 
 
 @SystemSettings
-$ #Settings dialog: system#
- #Delete to Recycle Bin#
- Enables file deletion via the Recycle Bin. The operation of deleting to the Recycle
-Bin can be performed only for local hard disks.
+$ #Okno ustawień: system#
+ #Usuwaj do kosza#
+ Włącza usuwanie pliku do Kosza Windows. Operacja usuwania do kosza może być przeprowadzona
+tylko na lokalnych dyskach twardych.
 
- #Use system copy routine#
- Use the file copy functions provided by the operating system instead of internal
-file copy implementation. It can be useful on NTFS, because the system function
-(CopyFileEx) copies extended file attributes. On the other hand, when using the system
-function, the possibility of "smart" ~copying~@CopyFiles@ of sparse files is not available.
+ #Używaj systemowej procedury kopiowania#
+ Użyj funkcji kopiowanie plików dostarczonych przez system operacyjny zamiast wewnętrznej
+implementacji kopiowania plików. Może być ona przydatna w systemie NTFS, ponieważ
+funkcja systemowa (CopyFileEx) kopiuje rozszerzone atrybuty plików. Z drugiej strony podczas
+korzystanie z funkcji systemowej, niedostępna jest możliwość "inteligentnego" ~kopiowania~@CopyFiles@
+plików z atrybutem "rzadki".
 
- #Copy files opened for writing#
- Allows to copy files that are opened by other programs for writing. This mode
-is handy to copy a file opened for a long time, but it could be dangerous, if a file
-is being modified at the same time as copying.
+ #Kopiuj pliki otwarte do zapisu#
+ Pozwala kopiować pliki otwarte do zapisu przez inne programu. Tryb ten przydaje się
+gdy plik jest otwarty przez dłuższy czas, ale może być niebezpieczne, jeżeli plik jest
+modyfikowany w tym samym czasie co kopiowanie.
 
- #Scan symbolic links#
- Scan ~symbolic links~@HardSymLink@ along with normal sub-folders when building the folder tree,
-determining the total file size in the sub-folders.
+ #Skanuj linki symboliczne#
+ Skanuje ~linki symboliczne~@HardSymLink@ łącznie z podfolderami podczas tworzenia drzewa folderów,
+określania całkowitej wielkości plików w podfolderach.
 
- #Update panels only when Far is active#
- If enabled, file panels will be monitored only when Far is active, i.e. panels will not be updated until Far window is focused.
-This allows to avoid blocking the directories opened on panels.
-However, sometimes the update is not triggered after receiving focus,
-so this option is disabled by default and directories are always monitored.
+ #Aktualizuj panele tylko gdy Far jest aktywny#
+ Jeżeli opcja jest włączona, to panele plików będą monitorowały zmiany tylko gdy okno Far jest aktywne, panele nie będą
+aktualizowane gdy okno Far będzie przysłonięte.
+Pozwala to uniknąć blokowania folderów otwartych w panelach.
+Jednak, czasami aktualizacja paneli nie jest poprawnie wykonywana po uzyskaniu fokusu okna Far, więc ta opcja jest domyślnie
+wyłączona, a foldery są zawsze monitorowane.
 
- #Save commands history#
- Forces saving ~commands history~@History@ before exit and restoring after starting Far.
+ #Zapisz historię poleceń#
+ Wymusza zapisywanie ~historii poleceń~@History@ przed zamknięciem i jest przywracana po uruchomieniu Far.
 
- #Save folders history#
- Forces saving ~folders history~@HistoryFolders@ before exit and restoring after starting Far.
-Folders history list can be activated by #Alt+F12#.
+ #Zapisz historię folderów#
+ Wymusza zapisywanie ~historii folderów~@HistoryFolders@ przed zamknięciem i jest przywracana po uruchomieniu Far.
+Lista historii folderów jest wywoływana skrótem #Alt+F12#.
 
- #Save view and edit history#
- Forces saving ~file view and edit history~@HistoryViews@ before exit and restoring it after
-starting Far. View and edit history list can be activated by #Alt+F11#.
+ #Zapisz historię podglądu i edycji#
+ Wymusza zapisywanie ~historii podglądu i edycji plików~@HistoryViews@ przed zamknięciem i jest przywracana
+po uruchomieniu Far. Lista historii edycji i podglądu plików jest wywoływana skrótem #Alt+F11#.
 
- #Use Windows registered types#
- When this option is on and #Enter# is pressed on a file, the type of which is known to
-Windows and absent in the list of Far ~file associations~@FileAssoc@, the Windows program
-registered to process this file type will be executed.
+ #Użyj zarejestrowanych typów Windows#
+ Po włączeniu tej opcji i wciśnięciu #Enter# na pliku, którego typ (rodzaj) jest znany przez Windows
+i jest nieobecny na liście ~powiązanych plików~@FileAssoc@ Far, zostanie wykonany (uruchomiony)
+program przypisany do tego typu pliku.
 
- #Automatic update of environment variables#
- Automatically update the environment variables if they have been changed globally.
+ #Automatyczna aktualizacja zmiennych systemowych#
+ Automatyczna aktualizacja zmiennych systemowych, jeżeli zostaną one zmienione globalnie.
 
- #Request administrator rights#
- The current user might not always has the required rights to work with certain file system objects.
-Far allows to retry the operation using the privileged account.
- Available options:
- - ^<wrap>#for modification#: allow requesting rights for operations that change the state of the file system (e.g. file or directory creation/modification/deletion)
- - ^<wrap>#for read#: allow requesting rights for operations that do not change the state of the file system (e.g. reading files or listing directories).
- - ^<wrap>#use additional privileges#: attempt accessing all files bypassing Access Control Lists.
-Use with caution.
+ #Wymagane uprawnienia administratora#
+ Zalogowany użytkownik może nie mieć zawsze wymaganych uprawnień do pracy z różnymi obiektami systemu plików.
+Far pozwala na ponowienie operacji przy użyciu uprzywilejowanego konta.
+ Dostępne opcje:
+ - ^<wrap>#do modyfikacji#: zezwalaj na żądanie uprawnień do operacji, które zmieniają stan systemu plików (np. tworzenie/modyfikacja/usuwanie pliku lub folderu);
+ - ^<wrap>#do odczytu#: zezwalaj na żądanie uprawnień do operacji, które nie zmieniają stanu systemu plików (np. czytanie plików lub wyświetlanie katalogów);
+ - ^<wrap>#użyj dodatkowych uprawnień#: spróbuj uzyskać dostęp do wszystkich plików z pominięciem list kontroli dostępów (ACL).
+Opcji tej należy używać z uwagą i ostrożnością.
 
- #Sorting collation#
- Allows to choose and configure the sorting collation.
- - ^<wrap>#ordinal#: based on the ordinal value of the characters in the string
- - ^<wrap>#invariant#: invariant collation
- - ^<wrap>#linguistic#: based on the culture-specific sorting conventions
+ #Sposoby sortowania#
+ Pozwala wybrać i skonfigurować porządek sortowania.
+ - ^<wrap>#porządkowo#: na podstawie wartości porządkowej znaków w ciągu tekstowym
+ - ^<wrap>#bez zmian#: niezmienne sortowanie
+ - ^<wrap>#językowo#: w oparciu o konwencje sortowania specyficzne dla danego języka
 
- #Treat digits as numbers#
- When enabled, sequential groups of digits are treated as numbers. The following example shows how the files are sorted:
- ┌──────────┬──────────┐
- │ Disabled │ Enabled  │
- ├──────────┼──────────┤
- │ Ie4_01   │ Ie4_01   │
- │ Ie4_128  │ Ie4_128  │
- │ Ie401sp2 │ Ie5      │
- │ Ie5      │ Ie6      │
- │ Ie501sp2 │ Ie401sp2 │
- │ Ie6      │ Ie501sp2 │
- │ 11.txt   │ 5.txt    │
- │ 5.txt    │ 11.txt   │
- │ 88.txt   │ 88.txt   │
- └──────────┴──────────┘
- Note: treating digits as numbers in linguistic collation is possible in Windows 7 and above. In older systems invariant collation will be used automatically.
+ #Traktuj cyfry jak liczby#
+ Po włączeniu, sekwencyjne grupy cyfr zostaną potraktowane jako liczny. Poniższy przykład pokazuje jak będą sortowane pliki:
+ ┌───────────┬──────────┐
+ │ Wyłączona │ Włączona │
+ ├───────────┼──────────┤
+ │ Ie4_01    │ Ie4_01   │
+ │ Ie4_128   │ Ie4_128  │
+ │ Ie401sp2  │ Ie5      │
+ │ Ie5       │ Ie6      │
+ │ Ie501sp2  │ Ie401sp2 │
+ │ Ie6       │ Ie501sp2 │
+ │ 11.txt    │ 5.txt    │
+ │ 5.txt     │ 11.txt   │
+ │ 88.txt    │ 88.txt   │
+ └───────────┴──────────┘
+ Uwaga: traktowanie cyfr jako liczby w sortowaniu językowym jest możliwe tylko w Windows 7 i nowszych. Starsze systemy będą używały automatycznie sortowania "bez zmian".
 
- #Case sensitive#
+ #Uwzględnij wielkość liter#
  Take into account the case of the characters in the string.
 
  Note: how exactly the case of the characters in the string will be taken into account depends on the sorting collation.
 
- #Auto save setup#
- If checked, Far will save setup automatically. The current folders for both panels will be also saved.
+ #Automatycznie zapisuj ustawienia#
+ Jeżeli opcja jest zaznaczona, Far automatycznie zapisze ustawienia. Zostaną także zapamiętane bieżące foldery dla obu paneli.
 
 
 @PanelSettings
@@ -3779,7 +3780,7 @@ and external ~viewer~@Viewer@.
                          set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
 
  #Show a scrollbar#        Show a scrollbar in the internal viewer. This
-                         option can also be switched by pressing
+                         option can also be toggled by pressing
                          #Ctrl+S# in the internal viewer.
 @=
  #Save file position#      Save and restore positions in the recently
