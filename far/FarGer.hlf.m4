@@ -2444,11 +2444,6 @@ erneuten Start von Far. Diese History-Liste kann mit Alt+F11 angezeigt werden.
 Wird bei eingeschalteter Option die Enter-Taste auf einer Datei gedrückt und es existiert eine Verknüpfung in Windows und
 keine unter Far's ~Dateiverknüpfungen~@FileAssoc@, wird das in Windows verknüpfte Programm für diesen Dateityp ausgeführt.
 
- #CD drive auto mount#
- When a CD-ROM drive is selected from the ~Change drive menu~@DriveDlg@, Far will close the open
-tray of a CD drive. Turn off this option if automatic CD-ROM mounting does not work
-correctly (this can happen because of bugs in the drivers of some CD-ROM drives).
-
  #Automatic update of environment variables#
  Automatically update the environment variables if they have been changed globally.
 

@@ -2407,11 +2407,6 @@ Faru. Seznam historie zobrazení a úpravy může být aktivován i pomocí #Alt
 v seznamu ~závislosti souborů~@FileAssoc@ Faru, Windows spustí program, který je 
 registrován pro práci s tímto souborem.
 
- #CD drive auto mount#
- When a CD-ROM drive is selected from the ~Change drive menu~@DriveDlg@, Far will close the open
-tray of a CD drive. Turn off this option if automatic CD-ROM mounting does not work
-correctly (this can happen because of bugs in the drivers of some CD-ROM drives).
-
  #Automatic update of environment variables#
  Automatically update the environment variables if they have been changed globally.
 

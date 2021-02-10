@@ -2448,11 +2448,6 @@ Windows ismer és a típus nem szerepel a Far
 ~fájltársítások~@FileAssoc@ listáján, a Windows a saját társítású programjával
 próbálja megnyitni.
 
- #CD tálca automatikus behúzása#
- Ha CD-ROM típusú meghajtót választottunk a ~Meghajtók menüben~@DriveDlg@, a Far megpróbálja
-behúzni a meghajtó nyitott tálcáját. Kapcsoljuk ki az opciót, ha nem működik
-megfelelően (néhány CD-ROM meghajtó hibás drivere miatt ez előfordulhat).
-
  #Automatic update of environment variables#
  Automatically update the environment variables if they have been changed globally.
 

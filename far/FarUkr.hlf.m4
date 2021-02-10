@@ -2424,11 +2424,6 @@ so this option is disabled by default and directories are always monitored.
 Windows і відсутній в ~асоціаціях файлів~@FileAssoc@ Far, буде запущена програма Windows,
 призначена для обробки цього типу файлів.
 
- #Автоматично монтувати CD-ROM#
- При виборі CD-ROM із меню ~вибору дисків~@DriveDlg@ Far затягне відкритий лоток CD-приводу.
-Відключіть цю опцію, якщо автоматичне монтування CD-приводів працює некоректно
-(це може відбуватися через помилки у драйверах деяких CD-приводів)
-
  #Automatic update of environment variables#
  Automatically update the environment variables if they have been changed globally.
 
