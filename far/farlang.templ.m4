@@ -442,7 +442,7 @@ l:// Panels: functional keys
 "Pagalb"
 
 MF2
-"Меню пользователя"
+"ПользМ"
 "UserMn"
 "Menu"
 "BenuMn"
