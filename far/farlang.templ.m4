@@ -412,7 +412,7 @@ l:
 "Išeiti"
 
 MAskQuit
-"Вы хотите завершить работу в Far?"
+"Хотите выйти из Far?"
 "Do you want to quit Far?"
 "Chcete ukončit Far?"
 "Wollen Sie Far beenden?"
@@ -442,7 +442,7 @@ l:// Panels: functional keys
 "Pagalb"
 
 MF2
-"ПользМ"
+"Меню пользователя"
 "UserMn"
 "Menu"
 "BenuMn"
@@ -456,7 +456,7 @@ MF2
 "Meniu"
 
 MF3
-"Просм"
+"Просмотр"
 "View"
 "Zobraz"
 "Betr."
@@ -470,7 +470,7 @@ MF3
 "Žiūrėt"
 
 MF4
-"Редакт"
+"Редактировать"
 "Edit"
 "Uprav"
 "Bearb"
@@ -484,7 +484,7 @@ MF4
 "Redag"
 
 MF5
-"Копир"
+"Копировать"
 "Copy"
 "Kopír."
 "Kopier"
@@ -498,7 +498,7 @@ MF5
 "Kopij"
 
 MF6
-"Перен"
+"Переименовать"
 "RenMov"
 "PřjPřs"
 "Versch"
@@ -526,7 +526,7 @@ MF7
 "Katal"
 
 MF8
-"Удален"
+"Удалить"
 "Delete"
 "Smazat"
 "Lösch."
@@ -568,7 +568,7 @@ MF10
 "Išeiti"
 
 MF11
-"Плагины"
+"Плагин"
 "Plugin"
 "Moduly"
 "Plugin"
@@ -597,7 +597,7 @@ MF12
 
 MShiftF1
 l:
-"Добавл"
+"Добавить"
 "Add"
 "Přidat"
 "Hinzu"
@@ -611,7 +611,7 @@ l:
 "Supak"
 
 MShiftF2
-"Распак"
+"Распаковать"
 "Extrct"
 "Rozbal"
 "Extrah"
@@ -639,7 +639,7 @@ MShiftF3
 "ArcKmd"
 
 MShiftF4
-"Редак…"
+"Редактировать…"
 "Edit…"
 "Úpravy…"
 "Erst…"
@@ -653,7 +653,7 @@ MShiftF4
 "Reda…"
 
 MShiftF5
-"Копир"
+"Копировать"
 "Copy"
 "Kopír."
 "Kopier"
@@ -667,7 +667,7 @@ MShiftF5
 "Kopij"
 
 MShiftF6
-"Переим"
+"Переименовать"
 "Rename"
 "Přejme"
 "Umbene"
@@ -695,7 +695,7 @@ MShiftF7
 ""
 
 MShiftF8
-"Удален"
+"Удалить"
 "Delete"
 "Smazat"
 "Lösch."
@@ -709,7 +709,7 @@ MShiftF8
 "Trinti"
 
 MShiftF9
-"Сохран"
+"Сохранить"
 "Save"
 "Uložit"
 "Speich"
@@ -723,7 +723,7 @@ MShiftF9
 "Išsaug"
 
 MShiftF10
-"Послдн"
+"Последний"
 "Last"
 "Posled"
 "Letzte"
@@ -794,7 +794,7 @@ MAltF2
 "Dešinė"
 
 MAltF3
-"Смотр…"
+"Смотреть…"
 "View…"
 "Zobr…"
 "Betr…"
@@ -808,7 +808,7 @@ MAltF3
 "Žiūr"
 
 MAltF4
-"Редак…"
+"Редактировать…"
 "Edit…"
 "Uprav…"
 "Bear…"
@@ -864,7 +864,7 @@ MAltF7
 "Rasti"
 
 MAltF8
-"Истор"
+"История"
 "Histry"
 "Histor"
 "Histor"
@@ -1019,7 +1019,7 @@ MCtrlF6
 "Dydį"
 
 MCtrlF7
-"Несорт"
+"Несортировать"
 "Unsort"
 "Neřadi"
 "Unsort"
@@ -1061,7 +1061,7 @@ MCtrlF9
 "Naudoj"
 
 MCtrlF10
-"Описан"
+"Описание"
 "Descr"
 "Popis"
 "Beschr"
@@ -1075,7 +1075,7 @@ MCtrlF10
 "Aprašy"
 
 MCtrlF11
-"Владел"
+"Владелец"
 "Owner"
 "Vlastn"
 "Besitz"
@@ -1089,7 +1089,7 @@ MCtrlF11
 "Savin"
 
 MCtrlF12
-"Сорт"
+"Сортировать"
 "Sort"
 "Třídit"
 "Sort."
