@@ -1433,7 +1433,7 @@ $ #Menü Dateien#
 its data are overwritten with zeros, after which the file is truncated and renamed to
 a temporary name.
 
- #Komprimieren#       Fügt ausgewählte Dateien zu einem Archiv hinzu. 
+ #Komprimieren#       Fügt ausgewählte Dateien zu einem Archiv hinzu.
 
  #Entpacken#          Entpackt ausgewählte Dateien aus einem Archiv.
 

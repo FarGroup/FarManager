@@ -1080,7 +1080,7 @@ Po zmene módu alebo zmene jednotky sa panel automaticky nastaví na zobrazenie 
 ak bol predtým nastavený iný typ panelu.
 
  ~Rýchle vyhľadávanie~@FastFind@ možno použiť na nastavenie sa na
-požadovaný súbor použitím prvých písmen jeho mena. 
+požadovaný súbor použitím prvých písmen jeho mena.
 
  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 
@@ -2649,7 +2649,7 @@ additional information in the command prompt.
  $c - znak (
  $d - current date (depends on system settings)
  $f - znak )
- $g - znak > 
+ $g - znak >
  $h - delete the previous character
  $l - znak <
  $m - full network path of the current drive or empty, if the current drive is not a network drive

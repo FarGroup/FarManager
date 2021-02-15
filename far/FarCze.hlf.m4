@@ -129,7 +129,7 @@ vedoucí na obrazovku o dané položce.
  Pokud se text nevešel na jednu stránku, zobrazí se posuvník.
 V tom případě můžete použít #kurzorové šipky# pro skrolování textem.
 
- Pro návrat na předchozí stránku nápovědy můžete stisknout #Alt+F1# 
+ Pro návrat na předchozí stránku nápovědy můžete stisknout #Alt+F1#
 nebo #BackSpace# a #Shift+F1# pro zobrazení obsahu nápovědy.
 
  Stiskněte #Shift+F2# pro ~pluginy~@Plugins@ help.
@@ -151,8 +151,8 @@ názvy souborů# a zajišťuje širokou sadu souborových a adresářových oper
 revised BSD ~license~@License@.
 
  #Far# umožňuje #transparentní zpracování archívů#. Se soubory v archívu
-je možno pracovat stejně snadno, jako v adresáři: pokud pracujete 
-s archívem, Far transforuje vaše příkazy do odpovídajících externích 
+je možno pracovat stejně snadno, jako v adresáři: pokud pracujete
+s archívem, Far transforuje vaše příkazy do odpovídajících externích
 volání archivačních programů.
 
  #Far# také nabízí mnoho dalších služeb.
@@ -197,14 +197,14 @@ specifikovat počáteční řádku a pozici řádky pro úpravu.
  Například: far /e70:2 readme.
 
  #-p[<cesta>]#
- Vyhledávání pluginů v adresáři, specifikovaném <cestou>. 
+ Vyhledávání pluginů v adresáři, specifikovaném <cestou>.
  Several search paths can be specified, separated by ‘;’.
 
  Například: #far -p%USERPROFILE%\\Far\\Plugins#
 
  #-co#
  Přinutí Far nahrávat pluginy pouze z cache. V tomto módu se Far nahrává rychleji,
-ale nové, nebo updatované pluginy nejsou rozpoznány. Použití tohoto parametru má 
+ale nové, nebo updatované pluginy nejsou rozpoznány. Použití tohoto parametru má
 význam #jen# tehdy, pokud je seznam instalovaných pluginů neměnný. Po updatování pluginu
 je nutné spustit Far bez tohoto parametru. Pokud není plugin cache, nebudou žádné pluginy nhrány.
 
@@ -425,9 +425,9 @@ active, but on the passive panel.
 
  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 
- Poznámka: 
+ Poznámka:
 
- 1. ^<wrap>Pokud je zapnuto nastavení "Dovolit změnit mód třídění" v 
+ 1. ^<wrap>Pokud je zapnuto nastavení "Dovolit změnit mód třídění" v
 ~Nastavení Panelů~@PanelSettings@, stisknutím stejné kombinace
 kláves pro třídění se změní orientace ze vzrůstající na klesající a obráceně;
 
@@ -441,7 +441,7 @@ je stisknut Alt slouží klávesy na Numpadu pro psaní číslic.
  - ^<wrap>pro lokální disky - lokální název souboru berouc v úvahu
 ~symbolické linky~@HardSymLink@.
 
- 4. ^<wrap>Pokud je stisknuto #Alt+Shift+Ins# nebo #Ctrl+Alt+Ins# když je 
+ 4. ^<wrap>Pokud je stisknuto #Alt+Shift+Ins# nebo #Ctrl+Alt+Ins# když je
 kurzor na souboru "#..#", zkopíruje se název aktuálního adresáře.
 
 
@@ -542,14 +542,14 @@ file mask entered in the fast find box.
 
  Poznámka:
 
- 1. ^<wrap>Pokud je příkazová řádka prázdná, #Ctrl+Ins# kopíruje vybrané 
+ 1. ^<wrap>Pokud je příkazová řádka prázdná, #Ctrl+Ins# kopíruje vybrané
 jména souborů z panelu do schránky stejně jako #Ctrl+Shift+Ins#
 (podívejte se na ~příkazy Ovládání panelů~@PanelCmd@);
 
  2. ^<wrap>Stlačení #Ctrl+End# na konci příkazové řádky, nahradí současný
 obsah příkazové řádky příkazem z ~historie~@History@
 začínajícím znakem který je obsažen v příkazové řádce, pokud
-takový existuje. Po dalším stisknutí Ctrl+End se zobrazí 
+takový existuje. Po dalším stisknutí Ctrl+End se zobrazí
 následující podobný příkaz.
 
  3. ^<wrap>Většina výše popsaných příkazů funguje i pro editování řetězců
@@ -635,7 +635,7 @@ na stejná data.
  Zobrazuje ~historii příkazů~@History@                                  #Alt+F8#
 
  Vybírá velikost konzolového okna Faru                       #Alt+F9#
- V okením módu přepíná mezi nynější velikostí a maximální možnou 
+ V okením módu přepíná mezi nynější velikostí a maximální možnou
 velikostí konzolového okna. V celoobrazovkovém režimu přepíná #Alt+F9#
 výšku obrazu mezi 25 a 50 řádky. Pro více informací se podívejte na
 ~Interface.AltF9~@Interface.AltF9@.
@@ -681,7 +681,7 @@ newly created #d:\folder2\#.
  Stisknutí kombinace #Shift+Enter# na adresáři vyvolá Průzkumníka
 Windows a ukáže v něm vybraný adresář.
 Pokud chcete v Průzkumníkovi zobrazit kořenový adresář, stiskněte
-#Shift+Enter# na požadované jednotce v ~menu pro změnu disku~@DriveDlg@. 
+#Shift+Enter# na požadované jednotce v ~menu pro změnu disku~@DriveDlg@.
 Ztisknutím #Shift+Enter# na "#..#" otevřete v Průzkumníkovi aktuální
 adresář.
 
@@ -696,7 +696,7 @@ vykonán ~přiřazený příkaz~@FileAssoc@, nebo je otevřen archív.
 command configuration.
 
  Změní na rodičovský adresář                              #Ctrl+PgUp#
- Pokud je volba "~Použít Ctrl+PgUp pro změnu disku~@InterfSettings@" 
+ Pokud je volba "~Použít Ctrl+PgUp pro změnu disku~@InterfSettings@"
 zapnuta, stisknutím Ctrl+PgUp v kořenovém adresáři přepnete do
 síťového pluginu, nebo se zobrazí ~menu pro výběr disku~@DriveDlg@.
 
@@ -786,7 +786,7 @@ text.
  Historie v editačních dialozích                 #Ctrl+Up, Ctrl+Down#
 
  V historii editačních dialogů můžete použít #Enter# pro zkopírování aktuální
-položky do editačního dialogu a #Ins# pro označení nebo odznačení některé položky. 
+položky do editačního dialogu a #Ins# pro označení nebo odznačení některé položky.
 Označené položky nejsou z historie odstraněny novými a díky tomu můžete mít v
 historii vždy ty nejpoužívanější řetězce.
 
@@ -859,7 +859,7 @@ klávesy #Enter#. Je možné zvolit položky bez posuvu kurzoru.
 
  #Dialogy#
  Pokud použijete kolečko v dialozích na editačním řádku se
-seznamem historie, nebo combo boxem, otevře se drop-down 
+seznamem historie, nebo combo boxem, otevře se drop-down
 seznam. Skrolování v tomto seznamu probíhá stejně jako v menu.
 
  Počet najednou skrolovaných řádků v panelech, editoru a prohlížeči
@@ -869,7 +869,7 @@ lze nastavit (pro bližší informace se podívejte do ~System.MsWheelDelta~@Sys
 @Plugins
 $ #Podpora pluginů#
  Externí DLL moduly (pluginy) mohou být použity pro implementaci nových
-příkazů do Faru a emulaci souborových systémů. Například, podpora archívů, 
+příkazů do Faru a emulaci souborových systémů. Například, podpora archívů,
 FTP klient, dočasný panel a síťový prohlížeč jsou pluginy, které emulují
 souborové systémy.
 
@@ -882,7 +882,7 @@ některé pluginy nepotřebujete, můžete je pro ušetření místa na disku sm
 
  Pluginy mohou být volány buď z ~menu změny jednotky~@DriveDlg@, nebo
 z menu #Příkazy pluginů#, spouštěném klávesou #F11#, nebo odpovídající
-položkou z ~Příkazového menu~@CmdMenu@. #F4# v menu "Příkazy pluginů" 
+položkou z ~Příkazového menu~@CmdMenu@. #F4# v menu "Příkazy pluginů"
 umožňuje přiřadit položce horkou klávesu (to dělá snadnější volání pluginů
 pomocí ~klávesových maker~@KeyMacro@). Toto menu je přístupné ze souborových
 panelů a z interního prohlížeče a editoru (jen pomocí #F11#). Při volání menu
@@ -891,14 +891,14 @@ z prohlížeče a editoru budou zobrazeny pouze s peciálně navržené pluginy.
  Parametry pluginů můžete nastavit pomocí menu ~Nastavení pluginů~@PluginsConfig@
 z menu ~Nastavení~@OptMenu@.
 
- Souborové operace, jako kopírování, přesouvání, mazaní, úpravy, nebo 
-~Hledání souboru~@FindFile@ pracují s pluginy, které emulují souborové 
+ Souborové operace, jako kopírování, přesouvání, mazaní, úpravy, nebo
+~Hledání souboru~@FindFile@ pracují s pluginy, které emulují souborové
 systémy tehdy, pokud tyto pluginy zajistí nezbytnou funkčnost. Hledání z
 aktuálního adresáře v "Hledat soubor" vyžaduje menší funkčnost, než hledání
-z kořenového adresáře, takže ho použijte, pokud hledání z kořenového 
+z kořenového adresáře, takže ho použijte, pokud hledání z kořenového
 adresáře nefunguje korektně.
 
- Moduly mají své vlastní soubory zpráv a nápovědy. Obsah nápovědy o 
+ Moduly mají své vlastní soubory zpráv a nápovědy. Obsah nápovědy o
 modulech můžete získat pokud stisknete
 
  #Shift+F2# - kdekoliv v systému nápovědy Faru
@@ -911,7 +911,7 @@ nezobrazí.
  Když panel zobrazí pluginem emulovaný souborový systém, pak může být
 příkaz "CD" z příkazové řádky použit pro změnu adresáře souborového systému
 pluginu. Narozdíl od normálních souborových systémů, kde příkazy "CD", "CHDIR"
-vždy zpracovávají zadané parametry jako opravdové názvy adresářů, bez ohledu 
+vždy zpracovávají zadané parametry jako opravdové názvy adresářů, bez ohledu
 na typ souborového panelu.
 
  Use #Alt+Shift+F9# to ~configure plugins~@PluginsConfig@.
@@ -973,7 +973,7 @@ příkazu #"Nastavení pluginů"# z menu ~Nastavení~@OptMenu@.
 soubor nápovědy, nebude kontextově-závislá nápověda zobrazena.
 
  Pokud je vyvolána kontextově-závislá nápověda, pokusí se Far zobrazit
-téma #Config#. Pokud téma v souboru nápovědy pluginu neexistuje, 
+téma #Config#. Pokud téma v souboru nápovědy pluginu neexistuje,
 bude zobrazeno hlavní téma nápovědy pluinu.
 
  Stisknutí klávesy #F4# v menu #"Nastavení pluginů"# umožní přiřadit položkám v tomto menu zkratkové klávesy,
@@ -1022,7 +1022,7 @@ Pluginy představují téměř neomezenou možnost rozšíření schopností Far
  * Kontrola pravopisu při úpravě textu v editoru Faru.
  * Úprava seznamu výměnných jednotek a mnoho dalších…
 
- Jako zdroje informací, které mohou být použity pro vyhledání 
+ Jako zdroje informací, které mohou být použity pro vyhledání
 specifických pluginů mohu doporučit:
 
  - Far Manager official site
@@ -1031,7 +1031,7 @@ specifických pluginů mohu doporučit:
    ~https://forum.farmanager.com~@https://forum.farmanager.com@
  - Registration and handling of problems
    ~https://bugs.farmanager.com~@https://bugs.farmanager.com@
- - Stránku PlugRinG 
+ - Stránku PlugRinG
    ~http://plugring.farmanager.com~@http://plugring.farmanager.com@
  - Bezplatné skupinové email služby
    ~https://groups.google.com/group/fardeven/~@https://groups.google.com/group/fardeven@
@@ -1077,7 +1077,7 @@ a archivní operace. Číst ~Klávesové odkazy~@KeyRef@ pro seznam příkazů.
 
  #Široký#        Zobrazuje názvy souborů a velikost.
 
- #Detailní#      ^<wrap>Zobrazuje názvy souborů, velikost, komprimovanou 
+ #Detailní#      ^<wrap>Zobrazuje názvy souborů, velikost, komprimovanou
 velikost, datup poslední modifikace, vytvoření, přístupu a atributy. Celoobrazovkový mód.
 
  #Popisový#      Zobrazuje názvy souborů a ~popisy souborů~@FileDiz@
@@ -1089,7 +1089,7 @@ velikost, datup poslední modifikace, vytvoření, přístupu a atributy. Celoob
 
  #Linkový#       Zobrazuje názvy souborů, velikost a čísla pevných linků.
 
- #Alternativní#  Zobrazuje názvy souborů, velikost (formátovanou čárkami) 
+ #Alternativní#  Zobrazuje názvy souborů, velikost (formátovanou čárkami)
  #plný#          a datum vytvoření souborů.
 
  ~Zobrazení souborových panelů můžete nastavovat~@PanelViewModes@.
@@ -1159,7 +1159,7 @@ status line also affected.
 Current mode - far:config #Panel.ShowBytes# (default=false).
 
  3. ^<wrap>Memory information
-    ^<wrap>procentuální zatížení #paměti# (100% znamená, že všechna dostupná paměť 
+    ^<wrap>procentuální zatížení #paměti# (100% znamená, že všechna dostupná paměť
 se využívá), celkové a volné místo fyzické paměti
 (available for Windows), virtual memory and paging file;
 
@@ -1167,7 +1167,7 @@ se využívá), celkové a volné místo fyzické paměti
     ^<wrap>Popis adresáře můžete zobrazit v celoobrazovkovém režimu stisknutím
 klávesy #F3#, nebo kliknutím levého tlačítka myši. Pro úpravu, nebo
 vytvoření popisového souboru, stiskněte #F4#, nebo klikněte pravým tlačítkem
-myši. Pro zobrazení popisového souboru adresáře můžete rovněž použít mnoho 
+myši. Pro zobrazení popisového souboru adresáře můžete rovněž použít mnoho
 ~příkazů prohlížeče~@Viewer@ (hledání, výběr znakové sady atd.).
     ^<wrap>Seznam souborů používaných jako popisy můžete definovat a upravit
 v "Soubory popisů adresářu" v ~menu Nastavení~@OptMenu@.
@@ -1316,7 +1316,7 @@ Current mode - far:config #Panel.ShowBytes# (default=false).
 @DragAndDrop
 $ #Drag and drop soubory#
  Je možné provádět #Kopírování# a #Přesouvání# souborů pomocí
-#drag and drop# (uchopení souboru myší a přetáhnutím na cílové místo). 
+#drag and drop# (uchopení souboru myší a přetáhnutím na cílové místo).
 Stiskněte levé tlačítko myši na souboru nebo adresáři, který chcete
 zkopírovat/přesunout, přetáhněte ho do druhého panelu a pusťte tlačítko.
 
@@ -1332,11 +1332,11 @@ klávesu #Shift#, spolu s levým tlačítkem myši.
 @Menus
 $ #Menu#
  Akci z menu můžete zvolit stisknutím klávesy F9, nebo kliknutím na horní
-část obrazovky. 
+část obrazovky.
 
- Pokud je menu aktivováno stiskem klávesy #F9#, vybere se automaticky 
+ Pokud je menu aktivováno stiskem klávesy #F9#, vybere se automaticky
 menu pro aktivní panel. Když je menu aktivní, stiskem klávesy #Tab#,
-přepínáte mezi menu pro levý a pravý panel. Pokud je aktivní něteré z menu 
+přepínáte mezi menu pro levý a pravý panel. Pokud je aktivní něteré z menu
 "Soubory", "Příkazy" nebo "Nastavení", stiskem klávesy #Tab# přepínáte do
 menu pro pasivní panel.
 
@@ -1365,7 +1365,7 @@ a pravého panelu souborů. Tyto menu obsahují následující položky:
 
  #Široký#               Zobrazuje názvy souborů a velikost.
 
- #Detailní#             ^<wrap>Zobrazuje názvy souborů, velikost, 
+ #Detailní#             ^<wrap>Zobrazuje názvy souborů, velikost,
 komprimovanou velikost, datup poslední modifikace, vytvoření, přístupu a atributy.
 Celoobrazovkový mód.
 
@@ -1373,12 +1373,12 @@ Celoobrazovkový mód.
 
  #Dlouhý popisový#      ^<wrap>Zobrazuje názvy souborů, velikost a popisy. Celoobrazovkový mód.
 
- #Vlastník soub#        Zobrazuje názvy souborů, velikost a vlastníka 
+ #Vlastník soub#        Zobrazuje názvy souborů, velikost a vlastníka
                         souborů.
 
  #Linkový#              ^<wrap>Zobrazuje názvy souborů, velikost a čísla pevných linků.
 
- #Alternativní plný#    ^<wrap>Zobrazuje názvy souborů a formátovanou velikost. 
+ #Alternativní plný#    ^<wrap>Zobrazuje názvy souborů a formátovanou velikost.
 
  #Panel Info#           Změna panelu na ~info panel~@InfoPanel@.
 
@@ -1455,13 +1455,13 @@ $ #Menu Příkazy#
                       Pro více informací se podívejte na
                       ~Hledat soubor~@FindFile@.
 
- #Historie#             Zobrazuje předešlé příkazy. Pro více 
+ #Historie#             Zobrazuje předešlé příkazy. Pro více
                       informací se podívejte na ~Historii~@History@.
 
  #Video mód#            Přepíná mezi 25 a 50 řádky obrazovky.
 
- #Hledat adresář#       Vyhledávání adresářů v adresářovém stromu. 
-                      Pro více informací se podívejte na 
+ #Hledat adresář#       Vyhledávání adresářů v adresářovém stromu.
+                      Pro více informací se podívejte na
                       ~Hledat adresář~@FindFolder@.
 
  #Hist. zobr. souborů#  Zobrazí ~historii prohlížení a úprav~@HistoryViews@ souborů.
@@ -1477,25 +1477,25 @@ $ #Menu Příkazy#
  #Panely Zap/Vyp#       Ukáže/skryje oba panely.
 
  #Porovnat adresáře#    Porovnává obsahy adresářů.
-                      Pro více informací se podívejte na  
+                      Pro více informací se podívejte na
                       ~Porovnat adresáře~@CompFolders@.
 
- #Upr. menu uživatele#  Umožňuje upravit hlavní nebo lokání 
+ #Upr. menu uživatele#  Umožňuje upravit hlavní nebo lokání
                       ~uživatelské menu~@UserMenu@.
-                      Můžete stisknout Ins pro vložení, Del pro 
+                      Můžete stisknout Ins pro vložení, Del pro
                       smazání a F4 pro úpravu záznamu.
 
  #Závislosti souborů#   Zobrazí seznam ~závislosti souborů~@FileAssoc@.
-                      Můžete stisknout Ins pro vložení, Del pro 
+                      Můžete stisknout Ins pro vložení, Del pro
                       smazání a F4 pro úpravu závislostí.
 
  #Adresářové zkratky#   Zobrazí ~adresářové zkratky~@FolderShortcuts@.
 
- #Upr. třídění skupin#  Umožňuje upravit uživatelem definované 
+ #Upr. třídění skupin#  Umožňuje upravit uživatelem definované
                       ~třídění skupin~@SortGroups@.
 
  #Filtr panelu souborů# Umožňuje ovládat obsah souborových panelů.
-                      Pro detailní popis se podívejte na 
+                      Pro detailní popis se podívejte na
                       ~Filtr panelu souborů~@Filter@.
 
  #Příkazy pluginů#      Zobrazí seznam ~příkazů pluginů~@Plugins@.
@@ -1522,7 +1522,7 @@ $ #Menu Nastavení#
  #Nastavení Rozhraní#   Zobrazuje dialog ~nastavení rozhraní~@InterfSettings@.
 
  #Nastavení Jazyka#     Výběr hlavního jazyka a jazyka nápovědy.
-                      Pro uložení zvolených jazyku použijte 
+                      Pro uložení zvolených jazyku použijte
                       "Uložit nastavení".
 
  #Konfigurace Pluginů#  Konfigurace ~plugin~@Plugins@ modulů.
@@ -1561,12 +1561,12 @@ $ #Menu Nastavení#
 
  #Barvy#                Umožňuje nastavit barvy různých položek
                       rozhraní, změnit barevnou paletu Faru na
-                      černobílou, nebo nastavit barvy na 
+                      černobílou, nebo nastavit barvy na
                       implicitní.
 
  #Zvýraznění souborů#   Změny nastavení ~zvýraznění souborů~@Highlight@.
 
- #Uložit nastavení#     Uloží aktuální nastavení barev a rozvržení 
+ #Uložit nastavení#     Uloží aktuální nastavení barev a rozvržení
                       obrazovky.
 
  See also: common ~menu~@MenuCmd@ keyboard commands.
@@ -1662,7 +1662,7 @@ should contain a target directory path.
  Pokud je povoleno nastavení "#Zpracovat více názvů#" je možné vytvořit
 několik adresářů jednou operací. V tomto případě musí být názvy adresářů
 odděleny znakem "#;#" nebo "#,#". Pokud je nastavení zapnuto a jméno
-adresáře obsahuje znak "#;#" (nebo "#,#"), musí být celá cesta a název 
+adresáře obsahuje znak "#;#" (nebo "#,#"), musí být celá cesta a název
 adresáře uzavřeny v úvozovkách. Například, pokud uživatel vloží
 #C:\\Foo1;"E:\\foo,2;";D:\\foo3#, budou vytvořeny adresáře s názvy "#C:\\Foo1#", "#E:\\foo,2;#"
  a "#D:\\foo3#".
@@ -1672,7 +1672,7 @@ adresáře uzavřeny v úvozovkách. Například, pokud uživatel vloží
 $ #Hledat soubor#
  Tento příkaz umožňuje najít v adresářovém stromu jeden, nebo více
 souborů a adresářů, odpovídajících jednomu, nebo více ~značkám~@FileMasks@ (oddělených
-čárkami). To může být použito i se souborovými systémy emulovanými 
+čárkami). To může být použito i se souborovými systémy emulovanými
 ~pluginy~@Plugins@.
 
  Můžete zadat nepovinný textový řetězec, pro nalezení jen souborů obsahujících
@@ -1684,7 +1684,7 @@ od ostatního textu mezerami, tabulátory, zalomeními, nebo
 standardními oddělovači, které jsou: #!%^&*()+|{}:"<>?`-=\\[];',./#.
 
  Seznam #"Použít znakovou sadu"# umožňuje zvolit konkrétní znakovou sadu
-pro vyhledávání textu, nebo lze pro vyhledávání textu v souborech různými 
+pro vyhledávání textu, nebo lze pro vyhledávání textu v souborech různými
 znakovými sadami použít nastavení #Všechny znakové sady#, kdy jsou použity
 všechny instalované znakové sady přístupné Faru.
 
@@ -1704,8 +1704,8 @@ i v archívech známých formátů. Nicméně, použití tohoto nastavní podsta
 snižuje výkon vyhledávání. Far nemůže vyhledávat v archívech, které jsou
 znovu zabaleny.
 
- Volba #"Hledat adresáře"# zahrnuje ve vyhledávacím seznamu ty adresáře, 
-které odpovídají souborovým značkám (wildcards). Počítadlo nalezených souborů 
+ Volba #"Hledat adresáře"# zahrnuje ve vyhledávacím seznamu ty adresáře,
+které odpovídají souborovým značkám (wildcards). Počítadlo nalezených souborů
 zobrazuje i počet nalezených adresářů.
 
  The #Search in symbolic links# option allows searching files in
@@ -1830,7 +1830,7 @@ results, leave the “Column types” field empty.
 
 @FindFileResult
 $ #Find file: control keys#
- Když je ~vyhledávání~@FindFile@ v běhu, nebo bylo dokončeno, můžete použít  
+ Když je ~vyhledávání~@FindFile@ v běhu, nebo bylo dokončeno, můžete použít
 kurzorové šipky pro skrolování seznamem nalezených souborů a tlačítky,
 pro vykonání požadované akce.
 
@@ -2144,8 +2144,8 @@ $ #Menu uživatele#
 operací. Obsahuje množství uživatelem definovaných příkazů a příkazových
 sekvencí, které mohou být po vyvolání menu spuštěny. Menu může obsahovat
 podmenu. ~Speciální symboly~@MetaSymbols@ jsou podporovány jak v
-příkazech, tak i v názvech příkazů. Poznámka, tento symbol 
-!?<název>?<řetězec>! může být použit pro zadání dodatečných parametrů 
+příkazech, tak i v názvech příkazů. Poznámka, tento symbol
+!?<název>?<řetězec>! může být použit pro zadání dodatečných parametrů
 přímo před vykonáním příkazu.
 
  Vytvořit, nebo upravit hlavní, nebo lokální uživatelské menu je možné
@@ -2170,12 +2170,12 @@ podmenu, nebo položku v menu můžete klávesou Ins. Upravit existující
 podmenu, nebo položku v menu můžete klávesou F4. Pokud chcete menu upravovat
 v podobě textového souboru stiskněte  Alt+F4.
 
- V uživatelském menu je možné použít jako zkratkové klávesy číslice, 
+ V uživatelském menu je možné použít jako zkratkové klávesy číslice,
 písmena a funkční klávezy (#F1#…#F24#). Pokud jsou použity  #F1# nebo #F4#, je
 jejich původní funkce v menu potlačena. Nicméně, můžete pro úpravu menu
 použít #Shift+F4#.
 
- Když tvoříte, nebo upravujet položku v menu, měli byste zadat horkou 
+ Když tvoříte, nebo upravujet položku v menu, měli byste zadat horkou
 klávesu, pro rychlý přístup k položce, popis položky, který bude v menu
 zobrazen a sekvenci příkazů, která má být vykonána.
 
@@ -2225,7 +2225,7 @@ asociaci vybrat z menu.
 
 @FileAssocModify
 $ #Úprava závislosti souborů#
- Far umožňuje nastavit šest příkazů asociovaných s každým typem 
+ Far umožňuje nastavit šest příkazů asociovaných s každým typem
 souboru, specifikovaných jako ~maska~@FileMasks@:
 
  #Vykonat příkaz#                Použito po stisknutí Enteru
@@ -2251,7 +2251,7 @@ souboru, specifikovaných jako ~maska~@FileMasks@:
  Pokud si nepřejete, aby se před provedením přiřazeného programu
 vyply panely, začněte příkazovou řádku znakem '#@@#'.
 
- V asociovaných příkazech mohou být použity následující 
+ V asociovaných příkazech mohou být použity následující
 ~speciální symboly~@MetaSymbols@.
 
  Poznámka:
@@ -2259,8 +2259,8 @@ vyply panely, začněte příkazovou řádku znakem '#@@#'.
  1. ^<wrap>Pokud není se souborem asociovaný žádný vykonatelný příkaz a
 volba #Používat registrované typy Windows# v ~Nastavení Systému~@SystemSettings@
 je zapnuta, pokusí se Far pro vykonání tohoto typu souboru použít asociaci Windows;
- 2. ^<wrap>~Příkazy~@OSCommands@ operačního systému "IF EXIST" (jestliže existuje) 
-a "IF DEFINED" (jestliže je definován) umožňují nastavit "chytřejší" asociace 
+ 2. ^<wrap>~Příkazy~@OSCommands@ operačního systému "IF EXIST" (jestliže existuje)
+a "IF DEFINED" (jestliže je definován) umožňují nastavit "chytřejší" asociace
 - pokud máte pro jeden typ souboru specifikováno několik asociací, menu
 zobrazí jen ty asociace, pro které jsou podmínky pravdivé.
 
@@ -2312,7 +2312,7 @@ souboru ji odkazuje do pasivního panelu (see note 4).
 Například !##!.! označí název daného souboru v pasivním panelu.
 
  #!^#
- Modifikátor "!^" zadaný před symbolem závislosti 
+ Modifikátor "!^" zadaný před symbolem závislosti
 souboru ji odkazuje do aktivního panelu (see note 4).
 Například !^!.! označí název daného souboru v
 aktivním panelu, !##!\\!^!.! - soubor v pasivním
@@ -2378,7 +2378,7 @@ function, the possibility of "smart" ~copying~@CopyFiles@ of sparse files is not
 
  #Kopírovat soubory otevřené pro zápis#
  Umožňuje kopírovat soubory, které jsou již otevřeny jiným programem pro zápis.
-Tento mód je vhodný pro kopírování dlouho otevřených souborů, ale může to být 
+Tento mód je vhodný pro kopírování dlouho otevřených souborů, ale může to být
 nebezpečné, pokud je soubor upravován ve stejnou dobu, kdy je kopírován.
 
  #Scan symbolic links#
@@ -2403,8 +2403,8 @@ historie adresářů muže být aktivován i pomocí #Alt+F12#.
 Faru. Seznam historie zobrazení a úpravy může být aktivován i pomocí #Alt+F11#.
 
  #Používat registrované typy Windows#
- Při této zapnuté volbě, pokud stisknete Enter na souboru, který zná Windows a chybí 
-v seznamu ~závislosti souborů~@FileAssoc@ Faru, Windows spustí program, který je 
+ Při této zapnuté volbě, pokud stisknete Enter na souboru, který zná Windows a chybí
+v seznamu ~závislosti souborů~@FileAssoc@ Faru, Windows spustí program, který je
 registrován pro práci s tímto souborem.
 
  #Automatic update of environment variables#
@@ -2595,12 +2595,12 @@ $ #Settings dialog: dialogs#
                          Faru. Předchozí řetězec v seznamu historie
                          může být aktivován myší, nebo pomocí
                          Ctrl+Up a Ctrl+Down. Pokud si nepřejete
-                         historii ukládat, například kvůli 
-                         bezpečnostním důvodům, odznačte toto 
+                         historii ukládat, například kvůli
+                         bezpečnostním důvodům, odznačte toto
                          nastavení.
 
- #Trvaké bloky v#          Po přesunutí kurzoru v dialogu úpravy 
- #editačních dialozích#    ovládání, přákazové řádce a adresářové 
+ #Trvaké bloky v#          Po přesunutí kurzoru v dialogu úpravy
+ #editačních dialozích#    ovládání, přákazové řádce a adresářové
                          historii, nedojde ke zrušení výběru blokem.
 
  #Del removes blocks#      If a block is selected, pressing Del will
@@ -2609,10 +2609,10 @@ $ #Settings dialog: dialogs#
 
  #AutoDokončování#         Umožňuje používat AutoDokončování v
  #v editačních dialozích#  editačních dialozích, které mají seznam
-                         historie, nebo combo boxy. Když je toto 
-                         nastavení vypnuto, můžete pro 
-                         autodokončování použít klávesy #Ctrl+End#. 
-                         Při nahrávání, nebo provádění makra bývá 
+                         historie, nebo combo boxy. Když je toto
+                         nastavení vypnuto, můžete pro
+                         autodokončování použít klávesy #Ctrl+End#.
+                         Při nahrávání, nebo provádění makra bývá
                          funkce autodokončování vypnutá.
 
  #Backspace deletes#       If the option is on, pressing #BackSpace#
@@ -2839,7 +2839,7 @@ beginning in the text.
 
  Poznámka:
 
- 1. ^<wrap>Do vyvolaného ~vyhledávacího~@ViewerSearch@ dialogu můžete začít psát text, 
+ 1. ^<wrap>Do vyvolaného ~vyhledávacího~@ViewerSearch@ dialogu můžete začít psát text,
 který hledáte.
 
  2. ^<wrap>The viewer opens files with the permission to be deleted.
@@ -3447,18 +3447,18 @@ $ #Jdi na určený řádek a sloupec#
  For decimal either add #m# after the value or uncheck the #Hex value#.
  For hexadecimal either add #0x# or #$# before the value, #h# after the value, or check the #Hex value#.
 
- První číslo bude považováno za číslo řádku, druhé, za číslo sloupce. 
+ První číslo bude považováno za číslo řádku, druhé, za číslo sloupce.
 Čísla musí být odděleny jedním z následujících znaků: #,.;:#.
 If a value is omitted the corresponding parameter will not be changed.
 
 
 @EditorReload
 $ #Znovunačtení souboru v editoru#
- Manažer Far sleduje všechny pokusy o opakované otevření k editaci 
+ Manažer Far sleduje všechny pokusy o opakované otevření k editaci
 již upravovaného souboru. Pravidla pro znovunačtení souborů jsou následující:
 
  1. ^<wrap>Pokud soubor nebyl změněn a volba "Znovu nahrát upravovaný soubor"
-v dialogu ~Potvrzení~@ConfirmDlg@ není zapnutá, přepne Far automaticky 
+v dialogu ~Potvrzení~@ConfirmDlg@ není zapnutá, přepne Far automaticky
 do otevřené instance editoru.
 
  2. ^<wrap>Pokud byl soubor změněn, nebo volba "Znovu nahrát upravovaný soubor"
@@ -3558,7 +3558,7 @@ name. Another way to reset the name is to leave it empty and press #OK#.
 $ #Změna jednotky#
  Toto menu umožňuje změnit v panelu aktuální jednotku, odpojit se od síťové jednotky, nebo otevřít nový panel ~pluginu~@Plugins@.
 
- Vyberte písmeno odpovídající jednotce pro její změnu, nebo položku 
+ Vyberte písmeno odpovídající jednotce pro její změnu, nebo položku
 s názvem pluginu pro vytvoření nového panelu pluginu. Pokud není
 typ panelu ~souborový panel~@FilePanel@, bude na něj změněn.
 
@@ -3602,8 +3602,8 @@ display modes, press twice to see);
  #F9# shows the ~dialog~@ChangeDriveMode@ to control displaying
 of this information.
 
- Pokud je zapnuto nastavení "~Použít Ctrl+PgUp pro změnu disku"~@InterfSettings@", 
-stisk #Ctrl+PgUp# funguje stejně jako stisknutí #Esc# - ukončí výběr 
+ Pokud je zapnuto nastavení "~Použít Ctrl+PgUp pro změnu disku"~@InterfSettings@",
+stisk #Ctrl+PgUp# funguje stejně jako stisknutí #Esc# - ukončí výběr
 disku a zavře menu.
 
  Stisknutí #Shift+Enter# vyvolá  Průzkumníka Windows a zobrazí v něm
@@ -3705,7 +3705,7 @@ on the #Show size# option.
 
 @DisconnectDrive
 $ #Odpojit síťovou jednotku#
- Odpojit siťovou jednotku můžete stisknutím klávesy #Del# v menu 
+ Odpojit siťovou jednotku můžete stisknutím klávesy #Del# v menu
 ~Změnit jednotku~@DriveDlg@.
 
  Nastavení #[x] Připojit po přihlášení# je zapnuto pouze pro stále
@@ -3731,7 +3731,7 @@ skrze menu "~Nastavení~@OptMenu@" (položka "Zvýraznění souborů").
 @HighlightList
 $ #Seznam zvýrazněných skupin#
  Menu ~Zvýraznění souborů~@Highlight@ vám umožňuje provádět
-různé operace se seznamem skupin. Jsou k dispozice následující 
+různé operace se seznamem skupin. Jsou k dispozice následující
 kombinace kláves:
 
  #Ins#           - ^<wrap>Přidá novou zvýrazněnou skupinu
@@ -3773,7 +3773,7 @@ Pokud si přejete používat implicitní barvu, nastavte "černou na černé";
  - volitelný znak pro označení souborů skupiny.
    Te může být použit spolu z barevným zvýrazněním, nebo místo něho.
 
- Pokud je volba "Souborová maska, nebo několik souborových masek" vypnuta, 
+ Pokud je volba "Souborová maska, nebo několik souborových masek" vypnuta,
 souborové masky nebudou analyzovány a v úvahu bude brán pouze atribut souboru.
 
  Soubory patří do zvýrazněné skupiny, pokud:
@@ -3823,11 +3823,11 @@ prohlížeče.
                          the character '\0'. The character to display can be
                          set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
 
- #Zobrazovat posuvník#     Zobrazovat posuvník v interním prohlížeči. 
+ #Zobrazovat posuvník#     Zobrazovat posuvník v interním prohlížeči.
                          Toto nastavení může být kdykoliv přepnuto
                          stisknutím #Ctrl+S# v interním prohlížeči.
 @=
- #Ukládat pozici#          Uloží a potom obnoví pozici v nedávno 
+ #Ukládat pozici#          Uloží a potom obnoví pozici v nedávno
  #v souboru#               prohlížených souborech. Toto nastavení také
                          obnoví znakovou sadu, pokud byla uživatelem
                          manuálně zadána a ~mód~@ViewerMode@ prohlížení.
@@ -3901,21 +3901,21 @@ editoru.
 
  #Trvalé bloky#            Nerušit výběr bloku po přesunutí kurzoru.
 
- #Del maže bloky#          Pokud je blok označen, stisk kávesy Del 
+ #Del maže bloky#          Pokud je blok označen, stisk kávesy Del
                          nesmaže znak pod kurzorem, ale smaže celý
                          tento blok.
 
- #Ukládat pozici#          Uloží a potom obnoví pozici v nedávno 
+ #Ukládat pozici#          Uloží a potom obnoví pozici v nedávno
  #v souboru#               upravených souborech. Toto nastavení také
                          obnoví znakovou sadu, pokud byla uživatelem
-                         manuálně zadána. 
+                         manuálně zadána.
 
  #Ukládat záložky#         Uloží a potom obnoví záložky (aktuální
                          pozici) v nedávno upravených souborech
                          (vytvořené #PravýCtrl+0…9# or
                          #Ctrl+Shift+0…9#)
 
- #Auto Odsazování#         Zapíná auto odsazovací mód při vkládání 
+ #Auto Odsazování#         Zapíná auto odsazovací mód při vkládání
                          textu.
 
  #Kurzor za koncem řádky#  Umožňuje přesunout kurzor za konec řádky.
@@ -4021,7 +4021,7 @@ If this information is not available, then the "#(data not available)#" message 
 vždy rovna nule.
 
  Pokud si nepřejete měnit čas, nechte příslušná pole prázdná. Pro
-vymazání všech polí a individuální změnu časů a datumů můžete použít 
+vymazání všech polí a individuální změnu časů a datumů můžete použít
 tlačítko #Prázdný#, například, jen měsíc, nebo jen minuty. Všechny
 ostatní datumy a časy zůstanou nezměněny.
 
@@ -4037,7 +4037,7 @@ selected objects.
 $ #Adresářové zkratky#
  Adresářové zkratky jsou navrženy pro zajištění rychlého přístupu do
 často používaných adresářů. Pro vytvoření zkratky do aktuálního adresáře
-stiskněte Ctrl+Shift+0…9. Pro vstup do požadovaného 
+stiskněte Ctrl+Shift+0…9. Pro vstup do požadovaného
 adresáře stiskněte PravýCtrl+0…9. Pokud je PravýCtrl+0…9 stisknut v
 editačním dialogu, bude do něj vložena cesta k danému adresáři.
 
@@ -4098,7 +4098,7 @@ masks) the following commands are available:
 
  Vlastní výběr filtrů je uložen v konfiguraci Faru.
 
- Pokud je v panelu použit filtr je panel označen za písmenem módu třídění 
+ Pokud je v panelu použit filtr je panel označen za písmenem módu třídění
 v levém horním rohu znakem '*'.
 
  Filters menu is used in the following areas:
@@ -4117,8 +4117,8 @@ in the ~Info panel~@InfoPanel@ as folder descriptions.
 
 @FileDiz
 $ #Popisy souboru#
- Popisy souboru mohou být použity pro sloučení textové informace se 
-souborem. Popisy souborů v daném adresáři jsou v něm uloženy v souboru 
+ Popisy souboru mohou být použity pro sloučení textové informace se
+souborem. Popisy souborů v daném adresáři jsou v něm uloženy v souboru
 se seznamem popisů. Formát popisového souboru je název souboru následovaný
 mezerami a popisem.
 
@@ -4133,11 +4133,11 @@ z ~menu Nastavení~@OptMenu@. V tomto dialogu také můžete nastavit
 lokální updatový mód popisů. Updatování může být vyputo, zapnuto jen
 tehdy pokud je nastavený mód schopen zobrazovat popisy, nebo vždy
 zapnuto. Implicitně Far nastavuje souborům s popisy atribut "Skrytý",
-ale toto nastavení můžete změnit vypnutím volby v tomto dialogu "Pro 
-nové soubory s popisy nastavit atribut "Skrytý"". Také zde můžete 
+ale toto nastavení můžete změnit vypnutím volby v tomto dialogu "Pro
+nové soubory s popisy nastavit atribut "Skrytý"". Také zde můžete
 nastavit pozici zarovnání nových popisů souborů v seznamu popisů.
 
- Pokud má soubor s popisem nastavený atribut "jen pro čtení", 
+ Pokud má soubor s popisem nastavený atribut "jen pro čtení",
 nepokusí se Far popis updatovat a po přesunutí, nebo smazání souborového
 objektu bude zobrazena chybová hláška. Pokud je zapnutá volba
 "#Updatovat popisové soubory s atributem Jen pro čtení#", pokusí se Far
@@ -4155,7 +4155,7 @@ v podadresářích, popisy v podadresářích nebudou updatovány.
 @PanelViewModes
 $ #Úprava módů pohledu souborového panelu#
  ~Souborový panel~@FilePanel@ může zobrazovat informace s použitím 10
-předdefinovaných módů: stručný, střední, plný, široký, detailní, popisový, 
+předdefinovaných módů: stručný, střední, plný, široký, detailní, popisový,
 dlouhý popisový, vlastníka souborů, linkový a alternativní plný. Obvykle
 je to dostatečné, ale pokud chcete, můžete každému upravit parametry, nebo
 je dokonce nahradit zcela novými módy.
@@ -4163,8 +4163,8 @@ je dokonce nahradit zcela novými módy.
  Příkaz #Módy souborových panelů# z ~menu Nastavení~@OptMenu@ umožňuje
 změnit nastavení módů zobrazení panelů. Předně nabízí výběr požadovaného
 módu ze seznamu. Položka "Stručný mód" v tomto seznamu odpovídá stručnému
-módu souborového panelu (#LeftCtrl+1#), "Střední" odpovídá střednímu módu 
-souborového panelu (#LeftCtrl+2#), atd. Poslední položka, "Alternativní plný", 
+módu souborového panelu (#LeftCtrl+1#), "Střední" odpovídá střednímu módu
+souborového panelu (#LeftCtrl+2#), atd. Poslední položka, "Alternativní plný",
 odpovídá módu nastavovanému pomocí #LeftCtrl+0#. Po výběru módu můžete změnit
 následující nastavení:
 
@@ -4259,8 +4259,8 @@ the additional attributes it is necessary to manually increase the size of the c
 
  #Šířka sloupců# - pro nastavení šírky sloupců panelu.
 Pokud je šířka rovna 0, bude použita implicitní hodnota. Pokud je šířka
-sloupce Název, Popis nebo Vlastník rovna 0, bude vypočtena automaticky, 
-v závislosti na šířce panelu. Je důrazně doporučeno, pro správné operace s 
+sloupce Název, Popis nebo Vlastník rovna 0, bude vypočtena automaticky,
+v závislosti na šířce panelu. Je důrazně doporučeno, pro správné operace s
 rozdílnými šířkami obrazu, nechat alespoň u jednoho sloupce nechat
 počítat šířku automaticky. Width can be also set as a percentage of
 remaining free space after the fixed width columns by adding the "%" character
@@ -4291,10 +4291,10 @@ velkými písmeny, bez ohledu na původní velikost písmen.
  #Zobrazit soubory malými písmeny# - zobrazení všech názvů souborů
 malými písmeny, bez ohledu na původní velikost písmen.
 
- #Zobrazit velké znaky ve jménech souborů jako malá písmena# - 
+ #Zobrazit velké znaky ve jménech souborů jako malá písmena# -
 zobrazovat všechna velká písmena v návzech souborů jako malá. Implicitně
 je toto nastavení zapnuto, ale pokud si přejete vidět skutečné názvy souborů,
-vypněte nastavení "Zobrazit adresáře velkými písmeny" a "Zobrazit soubory malými 
+vypněte nastavení "Zobrazit adresáře velkými písmeny" a "Zobrazit soubory malými
 písmeny". Všechny tyto metody pouze mění způsob zobrazování souborů, při práci
 se soubory Far vždy používá skutečné názvy.
 
@@ -4310,12 +4310,12 @@ doplňujících již používaná.
 
  Každé třídění skupin obsahuje jednu, nebo více ~souborových masek~@FileMasks@,
 ohraničených čárkami. Pokud je pozice jednoho třídění skupin v seznamu skupin
-výše, než jiné a je provedeno vzestupné třídění, všechny soubory náležející 
+výše, než jiné a je provedeno vzestupné třídění, všechny soubory náležející
 do této skupiny souborů budou výše než ty, náležející do skupin následujích.
 
  Příkaz #Upravit třídění skupin# v ~menu Příkazy~@CmdMenu@ je určen pro
 mazání, vytváření a ůpravu třídění skupin, pomocí Del, Ins a F4. Skupiny
-nad předělem menu jsou určeny na začátek souborového panelu a v nich zahrnuté 
+nad předělem menu jsou určeny na začátek souborového panelu a v nich zahrnuté
 soubory budou umístěny výše než ty, které nejsou zahrnuty v žádné skupině.
 Skupiny pod předělem menu jsou určeny na konec souborového panelu a v nich
 zahrnuté soubory budou umístěny níže než ty, které nejsou zahrnuty v žádné skupině.
@@ -4324,7 +4324,7 @@ zahrnuté soubory budou umístěny níže než ty, které nejsou zahrnuty v žá
 @FileMasks
 $ #Masky souborů#
  Masky souborů jsou v příkazech Faru často použity pro výběr jednotlivých
-souborů a adresářů, nebo jejich skupin. Masky mohou obsahovat společné znaky 
+souborů a adresářů, nebo jejich skupin. Masky mohou obsahovat společné znaky
 názvu souboru, značky ('*' a '?') a speciální výrazy:
 
  #*#           jakékoliv číslo, nebo znak;
@@ -4343,7 +4343,7 @@ vybere config.txt, demo.txt, faq.txt a tips.txt.
 v příkazu "Označit" zadat #*.doc,*.txt,*.wri#.
 
  Každou masku můžete uzavřít (ale ne celý seznam) mezi úvozovky.
-Tohle provedete například tehdy, když maska obsahuje nějaký oddělovací 
+Tohle provedete například tehdy, když maska obsahuje nějaký oddělovací
 znak (čárku nebo sředník), tím nebude maska zaměněna za seznam.
 
  File mask surrounded with slashes #/# is treated as ~Perl regular expression~@RegExp@.
@@ -4505,7 +4505,7 @@ novější, než datum úpravy cílového souboru;
 dialog should be displayed for the read-only files.
 
  Nastavení "Používat kopírovací rutiny systému" z dialogu ~Nastavení Systému~@SystemSettings@,
-zajistí používání kopírovací funkce Windows CopyFileEx, místo interních funkcí pro kopírování souborů, 
+zajistí používání kopírovací funkce Windows CopyFileEx, místo interních funkcí pro kopírování souborů,
 implementovaných ve Faru. To může být užitečné na NTFS, protože CopyFileEx kopíruje rozšířené
 atributy souborů. If this option is off, the internal
 implementation of the file copy routine is used. The internal
@@ -4517,7 +4517,7 @@ copied to a different volume.
 
  Při přesouvání souborů, pro určení, zda má být operace provedena
 jako kopírování s následujícím vymazáním, nebo jako přímé přesunutí
-(na jednom fyzickém disku), bere Far v úvahu ~symbolické linky~@HardSymLink@ 
+(na jednom fyzickém disku), bere Far v úvahu ~symbolické linky~@HardSymLink@
 Windows 2000/XP.
 
  Far zachází s kopírováním do #con# stejně, jako s kopírováním do #nul#
@@ -4600,13 +4600,13 @@ destination and the contents of the source symbolic link will be copied to it
 
 @HardSymLink
 $ #Pevné a Symbolické linky#
- Pomocí #Alt+F6# můžete na NTFS partition vytvářet #pevné linky# a 
+ Pomocí #Alt+F6# můžete na NTFS partition vytvářet #pevné linky# a
 #symbolické linky#.
 
  #Pevné linky#
 
  #Pevný link# je dodatečný adresářový údaj pro daný soubor. Pokud
-je pevný link vytvořen, není kopírován soubor, ale vrací další název, 
+je pevný link vytvořen, není kopírován soubor, ale vrací další název,
 nebo lokaci, dokud jeho předchozí název a lokace zůstává neporušena.
 Protože je čas vytvoření pevného linku a čas vytvoření originálního souboru
 stejný, nelze je od sebe rozeznat. Jediný rozdíl je v tom, že pro pevné
@@ -4614,12 +4614,12 @@ linky nelze vytvořit krátký název a proto není vidět pro programy pod DOSe
 
  Pokud se změní velikost, nebo datum souboru, všechny odpovídající
 adresářové údaje budou automaticky updatovány. Pokud bude soubor smazán,
-nebude smazán fyzicky, dokud nebudou smazány všechny pevné linky. Pořadí 
+nebude smazán fyzicky, dokud nebudou smazány všechny pevné linky. Pořadí
 mazání nemá vliv. Když je pevný link smazán do Koše, číslo linků souboru
 nebude změněno.
 
  Far může pevné linky vytvářet, může zobrazovat čísla pevných linků
-souborů v oddělených sloupcích (implicitně je to poslední sloupec v 
+souborů v oddělených sloupcích (implicitně je to poslední sloupec v
 devátém módu panelu) a třídit doubory podle čísel pevných linků.
 
  Pevné linky mohou být vytvořeny jen na stejném disku, na kterém se nachází zdrojový soubor.
@@ -4628,7 +4628,7 @@ devátém módu panelu) a třídit doubory podle čísel pevných linků.
 
  Directory junctions je technologie, umožňující namapovat kterýkoliv lokální adresář
 do kteréhokoliv jiného lokálního adresáře. Například, pokud adresář D:\\JUNCTION má jako
-svůj cíl C:\\WINNT\\SYSTEM32, program přistupující k D:\\JUNCTION\\DRIVERS vlastně přistupuje k 
+svůj cíl C:\\WINNT\\SYSTEM32, program přistupující k D:\\JUNCTION\\DRIVERS vlastně přistupuje k
 C:\\WINNT\\SYSTEM32\\DRIVERS.
 
  Directory junctions can not point to network folders.
@@ -4700,8 +4700,8 @@ $ #Error: plugin not loaded#
 
 @ScrSwitch
 $ #Přepínání obrazovek#
- Far umožňuje otevřít najednou několik instancí interního prohlížeče 
-a editoru. Pro přepínání mezi panely a těmito obrazovkami můžete použít 
+ Far umožňuje otevřít najednou několik instancí interního prohlížeče
+a editoru. Pro přepínání mezi panely a těmito obrazovkami můžete použít
 #Ctrl+Tab#, #Ctrl+Shift+Tab#, nebo #F12#. #Ctrl+Tab# přepíná na další obrazovku,
 #Ctrl+Shift+Tab# na předchozí a #F12# zobrazuje seznam všech dostupných
 obrazovek.
@@ -4716,10 +4716,10 @@ levého panelu. Může být vypnuto v dialogu ~Nastavení Panelů~@PanelSettings
 $ #Aplikovat příkaz#
  S položkou #Aplikovat příkaz# z ~menu Soubory~@FilesMenu@ je možné
 aplikovat příkaz pro každý vybraný soubor. Pro označení názvu souboru
-mohou být použity stejné ~speciální symboly~@MetaSymbols@ jako v dialogu 
+mohou být použity stejné ~speciální symboly~@MetaSymbols@ jako v dialogu
 ~Závislosti souborů~@FileAssoc@.
 
- Například 'type !.!' vytiskne na obrazovku, jeden po druhém, všechny 
+ Například 'type !.!' vytiskne na obrazovku, jeden po druhém, všechny
 vybrané soubory a příkaz 'rar32 m !.!.rar !.!' přesune všechny vybrané
 soubory do archívů RAR, se stejnými názvy. Příkaz 'explorer /select,!.!'
 spustí Průzkumníka Windows a nastaví kurzor na aktuální soubor, nebo
@@ -4742,9 +4742,9 @@ $ #Příkazy operačního systému#
  Pro změnu aktuální cesty v aktivním panelu na zadanou cestu.
 Pokud je určeno písmeno diskové jednotky, je aktuální disk změněn.
 Pokud panel zobrazuje souborové systémy emulované ~pluginy~@Plugins@,
-může být příkaz "CD" na příkazovém řádku použit pro změnu adresáře v 
+může být příkaz "CD" na příkazovém řádku použit pro změnu adresáře v
 souborovém systému pluginu. Narozdíl od "CD", příkaz "CHDIR" vždy zachází
-se specifikovaným parametrem, jako s opravdovým názvem adresáře, nedbajíce 
+se specifikovaným parametrem, jako s opravdovým názvem adresáře, nedbajíce
 na typ souborového panelu.
  The #CD ~~# command changes to the home directory (if there is no
 real “~~” file or directory in the current directory). The home
@@ -4758,12 +4758,12 @@ specifies the code page number to set. “CHCP” without a parameter
 displays the active code page number.
 
  #SET proměnná=[řetězec]#
- Nastaví systémovou proměnnou "proměnná" na hodnotu "řetězec". Pokud není 
+ Nastaví systémovou proměnnou "proměnná" na hodnotu "řetězec". Pokud není
 "řetězec" specifikován, bude systémová proměnná "proměnná" odstraněna.
 Při startu manažer Far nastaví několik ~systémových proměnných~@FarEnv@ sám.
 
  #IF [NOT] EXIST název_souboru příkaz#
- Provede příkaz "příkaz" pokud soubor "název_souboru" existuje. Prefix "NOT" - 
+ Provede příkaz "příkaz" pokud soubor "název_souboru" existuje. Prefix "NOT" -
 provede příkaz pouze tehdy, pokud je podmínka nepravdivá.
 
  #IF [NOT] DEFINED proměnná příkaz#
