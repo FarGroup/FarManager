@@ -288,7 +288,6 @@ Single letter prefixes A-Z or conflicted with disk letter will be ignored.
 
 @KeyRef
 $ #Popis funkčních kláves#
-
  ~Ovládání panelů~@PanelCmd@
 
  ~Příkazová řádka~@CmdLineCmd@
@@ -1186,7 +1185,6 @@ battery life time and battery life percent. Without smart battery subsystems, th
     ^<wrap>In Windows Vista and above charge status is update automatically.
     ^<wrap>Power status section can be turned on and off in ~settings~@InfoPanelSettings@.
 
-
  All sections (except computer and user names) can be hidden or shown (see ~InfoPanel display modes~@InfoPanelShowMode@).
 
  Also see the list of ~macro keys~@KeyMacroInfoList@, available in the info panel.
@@ -1781,7 +1779,6 @@ The following column types are supported:
  LN         - number of hard links
 
  F          - number of alternate streams
-
 
  File attributes are denoted as follows:
 
@@ -3525,7 +3522,6 @@ $ #Code pages menu#
  #Other#
  The rest of code pages installed in the system.
 
-
  The following key combinations are available in this menu:
 
  #Ctrl+H#
@@ -4962,7 +4958,6 @@ have a number (in the order of appearance).
         "(['"])hello\1" matches to "hello" or 'hello'.
 
  #\p{name}# - ^<wrap>inner regexp reference to it's parsed bracket with specified #name#.
-
 
  #Examples:#
 

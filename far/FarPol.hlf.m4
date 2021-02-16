@@ -291,7 +291,6 @@ Pojedyncze litery przedrostów A-Z lub błędy liter dysków będą ignorowane.
 
 @KeyRef
 $ #Skróty klawiszowe#
-
  ~Polecenia kontroli panelu~@PanelCmd@
 
  ~Linia poleceń~@CmdLineCmd@
@@ -1151,7 +1150,6 @@ wartość ta może być zbyt niedokładna do rzeczywistości).
     ^<wrap>W Windows Vista i nowszych stan ładowania baterii jest automatycznie aktualizowany.
     ^<wrap>Sekcja statusu zasilania może być włączana lub wyłączana w ~ustawieniach panelu~@InfoPanelSettings@.
 
-
  Wszystkie sekcje (za wyjątkiem nazwy komputera i użytkownika) mogą być widoczne lub ukryte (zobacz
 ~Tryby wyświetlania panelu informacyjnego~@InfoPanelShowMode@).
 
@@ -1741,7 +1739,6 @@ Obsługiwane są następujące typy kolumn:
  LN         - liczba linków do pliku
 
  F          - liczba alternatywnych strumieni
-
 
  Atrybuty plików są oznaczone jak poniżej:
 
@@ -3481,7 +3478,6 @@ $ #Code pages menu#
  #Other#
  The rest of code pages installed in the system.
 
-
  The following key combinations are available in this menu:
 
  #Ctrl+H#
@@ -4919,7 +4915,6 @@ have a number (in the order of appearance).
         "(['"])hello\1" matches to "hello" or 'hello'.
 
  #\p{name}# - ^<wrap>inner regexp reference to it's parsed bracket with specified #name#.
-
 
  #Examples:#
 
