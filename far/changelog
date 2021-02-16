@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 16.02.2021 19:46:10 +0000 - build 5742
+
+1. Potential null pointer dereference in custom sort.
+
+--------------------------------------------------------------------------------
 drkns 09.02.2021 17:37:00 +0000 - build 5741
 
 1. Always preserve Last Write Time when copying files.

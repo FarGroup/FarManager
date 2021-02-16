@@ -4725,7 +4725,7 @@ void FileList::SelectSortMode()
 	{
 		SetCheckAndSelect(SortModes[static_cast<size_t>(m_SortMode)].MenuPosition);
 	}
-	else if (m_SortMode >= panel_sort::BY_USER)
+	else if (m_SortMode >= panel_sort::BY_USER && mpr)
 	{
 		for (size_t i=0; i < mpr->Count; i += 3)
 		{
