@@ -2244,9 +2244,6 @@ souboru, specifikovaných jako ~maska~@FileMasks@:
 
  Závislost může být popsána v poli #Popis závislosti#.
 
- Pokud si nepřejete, aby se před provedením přiřazeného programu
-vyply panely, začněte příkazovou řádku znakem '#@@#'.
-
  V asociovaných příkazech mohou být použity následující
 ~speciální symboly~@MetaSymbols@.
 

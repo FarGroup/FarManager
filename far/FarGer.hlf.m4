@@ -352,15 +352,11 @@ $ #Befehl zur Fenstersteuerung#
  Gruppenauswahl aufheben                                     #Grau -#
  Auswahl umkehren                                            #Grau *#
  Dateien mit aktueller Erweiterung auswählen          #Strg+<Grau +>#
-
  Dateiauswahl mit aktueller Erweiterung aufheben      #Strg+<Grau ->#
-
  Auswahl inkl. Verzeichnissen umkehren                #Strg+<Grau *>#
-
  Dateien mit aktuellem Namen auswählen                 #Alt+<Grau +>#
  Dateiauswahl mit aktuellem Namen aufheben             #Alt+<Grau ->#
  Invert selection on files, deselect folders           #Alt+<Grau *>#
-
  Alle Dateien auswählen                              #Umsch+<Grau +>#
  Auswahl aller Dateien aufheben                      #Umsch+<Grau ->#
  Vorherige Auswahl wiederherstellen                          #Strg+M#
@@ -751,8 +747,9 @@ $ #Verschiedenes#
  Screen Grabber                                           #Alt+Einfg#
 
  Der Screen Grabber ermöglicht das Markieren und Kopieren eines
-beliebigen Fensterausschnittes in die Zwischenablage. Benutzen Sie die
-Cursortasten oder drücken Sie kurz die linke Maustaste, um den Cursor
+beliebigen Fensterausschnittes in die Zwischenablage.
+
+ Benutzen Sie die Cursortasten oder drücken Sie kurz die linke Maustaste, um den Cursor
 zu bewegen. Zum Markieren des gewünschten Fensterbereiches benutzen Sie
 die #Umsch+Cursor-Tasten# oder bewegen die Maus mit gedrückter linker
 Maustaste. Ein Druck auf die #Enter#, #Strg+Einfg# oder rechte Maus-Taste
@@ -3829,7 +3826,7 @@ Windows Server 2012.
 
 @ViewerSettings
 $ #Betrachter-Einstellungen#
-    Dieser Dialog ermöglicht das Ändern der Standardeinstellungen
+ Dieser Dialog ermöglicht das Ändern der Standardeinstellungen
 für den internen und externen ~Betrachter~@Viewer@.
 
 @=
@@ -3843,6 +3840,7 @@ für den internen und externen ~Betrachter~@Viewer@.
  #des Betrachters#         Betrachters. Benutzen Sie die
                          ~Spezialsymbole~@MetaSymbols@ um den Namen der
                          anzuzeigenden Datei zu spezifizieren.
+
 @=
 ^#Interner Betrachter#
 @=
@@ -3852,8 +3850,7 @@ für den internen und externen ~Betrachter~@Viewer@.
  #Search dialog#           Always returns focus to the search text field in
  #auto-focus#              the ~Viewer~@Viewer@ search dialog.
 
- #Tabulatorgröße#          Tab zeigt die entsprechende Anzahl
-                         Leerzeichen an.
+ #Tabulatorgröße#          Tab zeigt die entsprechende Anzahl Leerzeichen an.
 
  #Show scrolling arrows#   Show scrolling arrows at the edges of the viewer
                          window if the text does not fit horizontally.
@@ -4543,6 +4540,7 @@ selected in the tree is appended to the input line.
 
  Whether copying, moving or renaming files works for a plugin depends
 upon the plugin functionality.
+
  Die Option "Zugriffsrechte kopieren" ist nur gültig für das
 NTFS-Dateisystem und erlaubt das Kopieren von Informationen über
 Dateizugriffsrechte.
