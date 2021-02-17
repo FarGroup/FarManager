@@ -1407,11 +1407,9 @@ $ #Menu Soubory#
 
  #Přejmenuj / Přesuň# ~Přejmen. nebo přesouvání~@CopyFiles@ souborů a adresářů.
 
- #Vytvořit adresář#   ~Vytvoření~@MakeFolder@ nového adresáře.
-
  #Link#               Create ~file links~@HardSymLink@.
 
- #Make folder#        ~Create~@MakeFolder@ new folder.
+ #Vytvořit adresář#   ~Vytvoření~@MakeFolder@ nového adresáře.
 
  #Smazat#             Smazání souborů a adresářů.
 
@@ -1465,6 +1463,7 @@ $ #Menu Příkazy#
  #Hist. zobr. souborů#  Zobrazí ~historii prohlížení a úprav~@HistoryViews@ souborů.
 
  #Historie adresářů#    Zobrazí ~historii změn~@HistoryFolders@ adresářů.
+
                       Položky v "Historii adresářů" a "Historii
                       zobrazení souborů" jsou po vybrání přesunuty
                       na konec seznamu. Shift+Enter vybere položku

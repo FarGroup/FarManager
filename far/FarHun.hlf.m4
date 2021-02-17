@@ -1474,6 +1474,7 @@ információk a ~mappakeresés~@FindFolder@ témakörben.
 ~megnézett vagy szerkesztett~@HistoryViews@ fájlok listáját mutatja meg.
 
  #Mappa előzmények#     ^<wrap>A bejárt ~mappák előzményeit~@HistoryFolders@
+
 jeleníti meg. A "Mappa előzmények" és a "Fájl előzmények" listák elemei
 kiválasztás után a lista aljára kerülnek. Ezt elkerülhetjük, ha Enter helyett
 #Shift+Enterrel# választunk közülük.
@@ -1497,6 +1498,8 @@ pedig szerkeszthetjük a fájlok társításait.
 
  #Mappa#                A ~mappa gyorsbillentyűk~@FolderShortcuts@ aktuális
  #gyorsbillentyűk#      összerendeléseit jeleníti meg.
+
+ #Edit sort groups#     Allows to edit user defined ~sort groups~@SortGroups@.
 
  #Fájlpanel szűrő#      A fájlpanelek tartalmát szűrhetjük.
                       ^<wrap>A ~Szűrők menü~@FiltersMenu@ témakör
@@ -5277,6 +5280,7 @@ jelenik meg a képernyőn.
  Megjegyzések:
 
  1. ^<wrap>A makró végrehajtása előtt a Far minden fenti feltételt ellenőriz.
+
  2. ^<wrap>Egyes billentyűkombinációkat, például az #Enter#, #Esc#, #F1# és
 a #Ctrl+F5#; az #MsWheelUp# (EgérGörgőFel). az #MsWheelDown# (EgérGörgőLe),
 valamint más egérgomb műveleteket a #Ctrl#, #Shift# és #Alt# módosítóval
