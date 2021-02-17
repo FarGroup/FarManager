@@ -1437,6 +1437,7 @@ $ #Menus: commands menu#
  #File view history#    Display ~file view and edit history~@HistoryViews@.
 
  #Folders history#      Display folders ~changing history~@HistoryFolders@.
+
                       Items in "Folders history" and "File view
                       history" are moved to the end of list after
                       selection. Use #Shift+Enter# to select item

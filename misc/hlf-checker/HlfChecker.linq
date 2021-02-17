@@ -102,6 +102,10 @@ Comparing {EngHlf.HlfName} and {LngHlf.HlfName}"
 			&& CompareLists(EngHlf.Topics, LngHlf.Topics,
 							topic => topic.Headers.Count,
 							topic => $"[\"{topic.Title}\"].Headers.Count",
+							EngHlf.HlfName, LngHlf.HlfName, "Topics")
+			&& CompareLists(EngHlf.Topics, LngHlf.Topics,
+							topic => topic.Paragraphs.Count,
+							topic => $"[\"{topic.Title}\"].Paragraphs.Count",
 							EngHlf.HlfName, LngHlf.HlfName, "Topics");
 	}
 

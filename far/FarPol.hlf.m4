@@ -1428,6 +1428,7 @@ $ #Menu: menu polecenia#
  #plików#
 
  #Historia folderów#    Wyświetla historię ~zmiany folderów~@HistoryFolders@.
+
                       Pozycje w "Historii folderów" i "Historii podglądu plików"
                       po wykorzystaniu są przenoszone na koniec listy.
                       Użyj #Shift+Enter#, aby użyć je bez zmiany pozycji.

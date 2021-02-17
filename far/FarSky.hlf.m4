@@ -1435,6 +1435,7 @@ $ #Commands menu#
  #Hist.zobr.súborov#    Zobrazí ~históriu prezeraných a editovaných súborov~@HistoryViews@.
 
  #História adresárov# Zobrazí ~históriu aktuálnych adresárov~@HistoryFolders@.
+
                       Items in "Folders history" and "File view
                       history" are moved to the end of list after
                       selection. Use #Shift+Enter# to select item
