@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scantree.hpp"
 #include "filefilter.hpp"
 #include "fileview.hpp"
-#include "syslog.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "colormix.hpp"
@@ -1211,7 +1210,7 @@ ShellCopy::ShellCopy(
 				{
 					set_file_time(File, CreatedFolder, true);
 				}
-				// TODO: else log
+				// TODO: else retry message
 			}
 		}
 
@@ -2510,14 +2509,12 @@ int ShellCopy::ShellCopyFile(
 		switch (MsgCode)
 		{
 			case  0:
-				_LOGCOPYR(SysLog(L"return COPY_NEXT -> %d",__LINE__));
 				Flags|=FCOPY_DECRYPTED_DESTINATION;
 				break;//return COPY_NEXT;
 
 			case  1:
 				SkipEncMode=1;
 				Flags|=FCOPY_DECRYPTED_DESTINATION;
-				_LOGCOPYR(SysLog(L"return COPY_NEXT -> %d",__LINE__));
 				break;//return COPY_NEXT;
 
 			default:
@@ -2533,7 +2530,6 @@ int ShellCopy::ShellCopyFile(
 			{
 				if (!os::fs::file(SrcName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
-					_LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d if (SrcHandle==INVALID_HANDLE_VALUE)",__LINE__));
 					return COPY_FAILURE;
 				}
 			}
@@ -2589,9 +2585,7 @@ int ShellCopy::ShellCopyFile(
 			Append? OPEN_EXISTING : CREATE_ALWAYS,
 			(attrs & ~(IsSystemEncrypted? FILE_ATTRIBUTE_SYSTEM : 0)) | FILE_FLAG_SEQUENTIAL_SCAN))
 		{
-			_LOGCOPYR(DWORD LastError=GetLastError();)
 			SrcFile.Close();
-			_LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d CreateFile=-1, LastError=%d (0x%08X)",__LINE__,LastError,LastError));
 			return COPY_FAILURE;
 		}
 
@@ -2772,7 +2766,7 @@ int ShellCopy::ShellCopyFile(
 
 					DestFile.Close();
 				}
-				// TODO: else log
+				// TODO: else retry message
 			}
 		}
 	}
@@ -3400,7 +3394,7 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 		{
 			set_file_time(DestFile, SrcData, true);
 		}
-		// TODO: else log
+		// TODO: else retry message
 	}
 
 	return COPY_SUCCESS;
@@ -3408,8 +3402,6 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 
 DWORD ShellCopy::CopyProgressRoutine(unsigned long long TotalFileSize, unsigned long long TotalBytesTransferred, unsigned long long StreamSize, unsigned long long StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE hSourceFile, HANDLE hDestinationFile)
 {
-	// // _LOGCOPYR(CleverSysLog clv(L"CopyProgressRoutine"));
-	// // _LOGCOPYR(SysLog(L"dwStreamNumber=%d",dwStreamNumber));
 	bool Abort = false;
 	if (CP->IsCancelled())
 	{

@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "plugapi.hpp"
 #include "exception_handler.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -5714,9 +5715,9 @@ WARNING_POP()
 			PluginLang = std::make_unique<ansi_plugin_language>(Path, Language);
 			return true;
 		}
-		catch (const std::exception&)
+		catch (const std::exception& e)
 		{
-			// TODO: log
+			LOGERROR(L"{0}", e);
 			return false;
 		}
 	}

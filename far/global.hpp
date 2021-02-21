@@ -101,9 +101,6 @@ public:
 	size_t LastShownTimeSize{};
 	string_view HelpFileMask{L"*.hlf"sv};
 	bool OnlyEditorViewerUsed{}; // -e or -v
-#if defined(SYSLOG)
-	bool StartSysLog{};
-#endif
 #ifdef DIRECT_RT
 	bool DirectRT{};
 #endif

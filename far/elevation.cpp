@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "exception.hpp"
 #include "exception_handler.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -232,9 +233,9 @@ elevation::~elevation()
 		{
 			Write(C_SERVICE_EXIT);
 		}
-		catch (const far_exception&)
+		catch (const far_exception& e)
 		{
-			// TODO: log
+			LOGERROR(L"{0}", e);
 		}
 	}
 
@@ -307,14 +308,14 @@ auto elevation::execute(lng Why, string_view const Object, T Fallback, const F1&
 	{
 		return ElevatedHandler();
 	}
-	catch (const far_exception&)
+	catch (const far_exception& e)
 	{
 		// Something went really bad, it's better to stop any further attempts
 		TerminateChildProcess();
 		m_Process.close();
 		m_Pipe.close();
 
-		// TODO: log
+		LOGERROR(L"{0}", e);
 		return Fallback;
 	}
 }
@@ -356,12 +357,18 @@ static os::handle create_job()
 {
 	os::handle Job(CreateJobObject(nullptr, nullptr));
 	if (!Job)
+	{
+		LOGERROR(L"CreateJobObject: {0}", error_state::fetch());
 		return nullptr;
+	}
 
 	JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli{};
 	jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
 	if (!SetInformationJobObject(Job.native_handle(), JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
+	{
+		LOGERROR(L"SetInformationJobObject: {0}", error_state::fetch());
 		return nullptr;
+	}
 
 	return Job;
 }
@@ -440,7 +447,6 @@ bool elevation::Initialize()
 
 	if (m_Job)
 		AssignProcessToJobObject(m_Job.native_handle(), m_Process.native_handle());
-	//TODO: else log
 
 	if (!connect_pipe_to_process(m_Process, m_Pipe))
 	{
@@ -1339,7 +1345,7 @@ private:
 		}
 		catch (...)
 		{
-			// TODO: log
+			LOGERROR(L"Unknown exception");
 			return false;
 		}
 	}

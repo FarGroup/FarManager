@@ -55,6 +55,12 @@ namespace pipe
 			std::negation<std::is_pointer<T>>,
 			std::is_trivially_copyable<T>
 		>;
+
+		template<typename... args>
+		inline constexpr bool are_supported_types = sizeof...(args) > 1 && std::conjunction_v<
+			std::negation<std::is_pointer<args>>...
+		>;
+
 	}
 
 	void read(const os::handle& Pipe, void* Data, size_t DataSize);
@@ -67,6 +73,12 @@ namespace pipe
 
 	void read(const os::handle& Pipe, string& Data);
 
+	template<typename... args, REQUIRES(detail::are_supported_types<args...>)>
+	void read(const os::handle& Pipe, args&... Args)
+	{
+		(..., read(Pipe, Args));
+	}
+
 	void write(const os::handle& Pipe, const void* Data, size_t DataSize);
 
 	template<typename T, REQUIRES(detail::is_supported_type<T>)>
@@ -76,6 +88,13 @@ namespace pipe
 	}
 
 	void write(const os::handle& Pipe, string_view Data);
+
+	template<typename... args, REQUIRES(detail::are_supported_types<args...>)>
+	void write(const os::handle& Pipe, args const&... Args)
+	{
+		(..., write(Pipe, Args));
+	}
+
 }
 
 #endif // PIPE_HPP_C460EC90_9861_4D55_B47D_D1E8F6EEBC78

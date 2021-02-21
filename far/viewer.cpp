@@ -51,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "TPreRedrawFunc.hpp"
-#include "syslog.hpp"
 #include "taskbar.hpp"
 #include "cddrv.hpp"
 #include "drivemix.hpp"
@@ -168,7 +167,6 @@ Viewer::~Viewer()
 		SavePosition();
 	}
 
-	_tran(SysLog(L"[%p] Viewer::~Viewer, TempViewName=[%s]",this,TempViewName));
 	/* $ 11.10.2001 IS
 	   Удаляем файл только, если нет открытых окон с таким именем.
 	*/

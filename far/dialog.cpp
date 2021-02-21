@@ -51,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "constitle.hpp"
 #include "TPreRedrawFunc.hpp"
-#include "syslog.hpp"
 #include "taskbar.hpp"
 #include "interf.hpp"
 #include "strmix.hpp"
@@ -361,7 +360,6 @@ bool DialogItemEx::AddAutomation(DialogItemEx* DlgItem,
 
 void Dialog::Construct(span<DialogItemEx> const SrcItems)
 {
-	_DIALOG(CleverSysLog CL(L"Dialog::Construct() 1"));
 	SavedItems = SrcItems.data();
 
 	Items.resize(SrcItems.size());
@@ -386,7 +384,6 @@ void Dialog::Construct(span<DialogItemEx> const SrcItems)
 
 void Dialog::Construct(span<const FarDialogItem> const SrcItems)
 {
-	_DIALOG(CleverSysLog CL(L"Dialog::Construct() 2"));
 	SavedItems = nullptr;
 
 	Items.resize(SrcItems.size());
@@ -398,7 +395,6 @@ void Dialog::Construct(span<const FarDialogItem> const SrcItems)
 void Dialog::Init()
 {
 	m_ConsoleTitle = ConsoleTitle::GetTitle();
-	_DIALOG(CleverSysLog CL(L"Dialog::Init()"));
 	AddToList();
 	SetMacroMode(MACROAREA_DIALOG);
 	m_CanLoseFocus = false;
@@ -429,8 +425,6 @@ void Dialog::Init()
 */
 Dialog::~Dialog()
 {
-	_DIALOG(CleverSysLog CL(L"Dialog::~Dialog()"));
-	_DIALOG(SysLog(L"[%p] Dialog::~Dialog()",this));
 	DeleteDialogObjects();
 
 	Dialog::Hide();
@@ -446,7 +440,6 @@ Dialog::~Dialog()
 //	INPUT_RECORD rec;
 //	PeekInputRecord(&rec);
 	RemoveFromList();
-	_DIALOG(SysLog(L"Destroy Dialog"));
 }
 
 void Dialog::CheckDialogCoord()
@@ -471,8 +464,6 @@ void Dialog::CheckDialogCoord()
 
 void Dialog::InitDialog()
 {
-	_DIALOG(CleverSysLog CL(L"Dialog::InitDialog()"));
-
 	if(Global->CloseFAR)
 	{
 		SetDialogMode(DMODE_NOPLUGINS);
@@ -507,9 +498,6 @@ void Dialog::InitDialog()
 */
 void Dialog::Show()
 {
-	_DIALOG(CleverSysLog CL(L"Dialog::Show()"));
-	_DIALOG(SysLog(L"[%p] Dialog::Show()",this));
-
 	if (!DialogMode.Check(DMODE_OBJECTS_INITED) || !DialogMode.Check(DMODE_VISIBLE))
 		return;
 
@@ -530,9 +518,6 @@ void Dialog::Show()
 //  Цель перехвата данной функции - управление видимостью...
 void Dialog::Hide()
 {
-	_DIALOG(CleverSysLog CL(L"Dialog::Hide()"));
-	_DIALOG(SysLog(L"[%p] Dialog::Hide()",this));
-
 	if (!DialogMode.Check(DMODE_OBJECTS_INITED))
 		return;
 
@@ -546,8 +531,6 @@ void Dialog::Hide()
 */
 void Dialog::DisplayObject()
 {
-	_DIALOG(CleverSysLog CL(L"Dialog::DisplayObject()"));
-
 	if (DialogMode.Check(DMODE_SHOW))
 	{
 		ShowDialog();          // "нарисуем" диалог.
@@ -654,7 +637,6 @@ std::any* Dialog::GetListItemComplexUserData(size_t ListId, size_t ItemId)
 void Dialog::InitDialogObjects(size_t ID)
 {
 	size_t InitItemCount;
-	_DIALOG(CleverSysLog CL(L"Dialog::InitDialogObjects()"));
 	bool AllElements = false;
 
 	if (ID+1 > Items.size())
@@ -1233,8 +1215,6 @@ bool Dialog::ItemHasDropDownArrow(const DialogItemEx *Item)
 */
 void Dialog::DeleteDialogObjects()
 {
-	_DIALOG(CleverSysLog CL(L"Dialog::DeleteDialogObjects()"));
-
 	for (auto& i: Items)
 	{
 		switch (i.Type)
@@ -1567,9 +1547,6 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 */
 void Dialog::ShowDialog(size_t ID)
 {
-	_DIALOG(CleverSysLog CL(L"Dialog::ShowDialog()"));
-	_DIALOG(SysLog(L"Locked()=%d, DMODE_SHOW=%d DMODE_DRAWING=%d",Locked(),DialogMode.Check(DMODE_SHOW),DialogMode.Check(DMODE_DRAWING)));
-
 	string strStr;
 	int X,Y;
 	size_t DrawItemCount;
@@ -1584,7 +1561,6 @@ void Dialog::ShowDialog(size_t ID)
 	        !DialogMode.Check(DMODE_OBJECTS_INITED))
 		return;
 
-	_DIALOG(SysLog(L"[%d] DialogMode.Set(DMODE_DRAWING)",__LINE__));
 	DialogMode.Set(DMODE_DRAWING);  // диалог рисуется!!!
 
 	if (DialogMode.Check(DMODE_NEEDUPDATE))
@@ -1600,7 +1576,6 @@ void Dialog::ShowDialog(size_t ID)
 		//   Перед прорисовкой диалога посылаем сообщение в обработчик
 		if (!DlgProc(DN_DRAWDIALOG, 0, nullptr))
 		{
-			_DIALOG(SysLog(L"[%d] DialogMode.Clear(DMODE_DRAWING)",__LINE__));
 			DialogMode.Clear(DMODE_DRAWING);  // конец отрисовки диалога!!!
 			return;
 		}
@@ -2140,7 +2115,6 @@ void Dialog::ShowDialog(size_t ID)
 	if (DrawFullDialog)
 		DlgProc(DN_DRAWDIALOGDONE, 0, nullptr);
 
-	_DIALOG(SysLog(L"[%d] DialogMode.Clear(DMODE_DRAWING)",__LINE__));
 	DialogMode.Clear(DMODE_DRAWING);  // конец отрисовки диалога!!!
 }
 
@@ -2295,7 +2269,6 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 
 long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 {
-	_DIALOG(CleverSysLog CL(L"Dialog::VMProcess()"));
 	switch (OpCode)
 	{
 		case MCODE_F_MENU_CHECKHOTKEY:
@@ -2467,8 +2440,6 @@ long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 bool Dialog::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key;
-	_DIALOG(CleverSysLog CL(L"Dialog::ProcessKey"));
-	_DIALOG(SysLog(L"Param: Key=%s",_FARKEY_ToName(LocalKey())));
 
 	assert(Key.IsEvent());
 	if (DialogMode.Check(DMODE_INPUTEVENT) && Key.IsReal())
@@ -3868,8 +3839,6 @@ void Dialog::SelectOnEntry(size_t Pos, bool Selected)
 				edt->Select(0,edt->GetLength());
 			else
 				edt->RemoveSelection();
-
-			//_SVS(SysLog(L"Selected=%d edt->GetLength()=%d",Selected,edt->GetLength()));
 		}
 	}
 }
@@ -3900,7 +3869,6 @@ int Dialog::SelectFromComboBox(
     DialogItemEx *CurItem,
     DlgEdit *EditLine)                   // строка редактирования
 {
-		_DIALOG(CleverSysLog CL(L"Dialog::SelectFromComboBox()"));
 		const auto ComboBox = CurItem->ListPtr;
 
 		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
@@ -3970,8 +3938,6 @@ int Dialog::SelectFromComboBox(
 */
 bool Dialog::SelectFromEditHistory(DialogItemEx const* const CurItem, DlgEdit* const EditLine, string_view const HistoryName)
 {
-	_DIALOG(CleverSysLog CL(L"Dialog::SelectFromEditHistory()"));
-
 	if (!EditLine)
 		return false;
 
@@ -4212,7 +4178,6 @@ std::chrono::steady_clock::duration WaitUserTime;
 */
 void Dialog::Process()
 {
-	_DIALOG(CleverSysLog CL(L"Dialog::Process()"));
 //  if(DialogMode.Check(DMODE_SMALLDIALOG))
 	SetRestoreScreenMode(true);
 	PrevMouseRecord = {};
@@ -4260,7 +4225,6 @@ void Dialog::Process()
 
 intptr_t Dialog::CloseDialog()
 {
-	_DIALOG(CleverSysLog CL(L"Dialog::CloseDialog()"));
 	GetDialogObjectsData();
 
 	const auto result = DlgProc(DN_CLOSE, m_ExitCode, nullptr);
@@ -4276,8 +4240,6 @@ intptr_t Dialog::CloseDialog()
 			Global->WindowManager->DeleteWindow(shared_from_this());
 			Global->WindowManager->PluginCommit();
 		}
-
-		_DIALOG(CleverSysLog CL(L"Close Dialog"));
 	}
 	return result;
 }
@@ -4302,7 +4264,6 @@ void Dialog::ShowHelp() const
 
 void Dialog::ClearDone()
 {
-	_DIALOG(CleverSysLog CL(L"Dialog::ClearDone()"));
 	m_ExitCode=-1;
 	DialogMode.Clear(DMODE_ENDLOOP);
 }
@@ -4362,11 +4323,8 @@ void Dialog::ResizeConsole()
 
 intptr_t Dialog::DlgProc(intptr_t Msg,intptr_t Param1,void* Param2)
 {
-	_DIALOG(CleverSysLog CL(L"Dialog.DlgProc()"));
 	if (DialogMode.Check(DMODE_ENDLOOP))
 		return 0;
-	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",this,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
-
 
 	FarDialogEvent de={sizeof(FarDialogEvent),this,Msg,Param1,Param2,0};
 
@@ -4395,9 +4353,6 @@ intptr_t Dialog::DlgProc(intptr_t Msg,intptr_t Param1,void* Param2)
 */
 intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	_DIALOG(CleverSysLog CL(L"Dialog.DefDlgProc()"));
-	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",this,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
-
 	FarDialogEvent de={sizeof(FarDialogEvent),this,Msg,Param1,Param2,0};
 
 	if(!CheckDialogMode(DMODE_NOPLUGINS))
@@ -4506,9 +4461,6 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 */
 intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 {
-	_DIALOG(CleverSysLog CL(L"Dialog.SendDlgMessage()"));
-	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",this,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
-
 	const auto redraw = [this](bool Flush)
 	{
 		if (DialogMode.Check(DMODE_OBJECTS_INITED) && !DialogMode.Check(DMODE_DRAWING) && IsRedrawEnabled())
@@ -4560,7 +4512,6 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 				if (W1<OldW1 || H1<OldH1)
 				{
-					_DIALOG(SysLog(L"[%d] DialogMode.Set(DMODE_DRAWING)",__LINE__));
 					DialogMode.Set(DMODE_DRAWING);
 
 					for (auto& i: Items)
@@ -4588,7 +4539,6 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 						}
 					}
 
-					_DIALOG(SysLog(L"[%d] DialogMode.Clear(DMODE_DRAWING)",__LINE__));
 					DialogMode.Clear(DMODE_DRAWING);
 				}
 			}

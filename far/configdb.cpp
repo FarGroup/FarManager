@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "regex_helpers.hpp"
 #include "global.hpp"
 #include "stddlg.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -1668,16 +1669,13 @@ private:
 			while (stmtEnumAllHotkeysPerKey.Step())
 			{
 				const char *type = nullptr;
-				switch (static_cast<hotkey_type>(stmtEnumAllHotkeysPerKey.GetColInt(1)))
+				switch (const auto TypeValue = stmtEnumAllHotkeysPerKey.GetColInt(1); static_cast<hotkey_type>(TypeValue))
 				{
 				case hotkey_type::drive_menu: type = "drive"; break;
 				case hotkey_type::config_menu: type = "config"; break;
 				case hotkey_type::plugins_menu: type = "plugins"; break;
-				}
-
-				if (!type)
-				{
-					// TODO: log
+				default:
+					LOGWARNING(L"Unknown hotkey_type: {0}", TypeValue);
 					continue;
 				}
 
@@ -2249,10 +2247,16 @@ public:
 	}
 
 private:
-	// TODO: log
 	// TODO: implementation
-	void Import(const representation_source&) override {}
-	void Export(representation_destination&) const override {}
+	void Import(const representation_source&) override
+	{
+		LOGNOTICE(L"History import not implemented");
+	}
+
+	void Export(representation_destination&) const override
+	{
+		LOGNOTICE(L"History export not implemented");
+	}
 };
 
 class HistoryConfigMemory: public HistoryConfigCustom
@@ -2485,6 +2489,7 @@ void config_provider::Export(string_view const File)
 	ColorsCfg()->Export(Representation);
 	AssocConfig()->Export(Representation);
 	PlHotkeyCfg()->Export(Representation);
+	HistoryCfg()->Export(Representation);
 	Representation.SetRoot(CreateChild(root, "filters"));
 	CreateFiltersConfig()->Export(Representation);
 	Representation.SetRoot(CreateChild(root, "highlight"));
@@ -2535,6 +2540,7 @@ void config_provider::Import(string_view const File)
 	ColorsCfg()->Import(Representation);
 	AssocConfig()->Import(Representation);
 	PlHotkeyCfg()->Import(Representation);
+	HistoryCfg()->Import(Representation);
 	Representation.SetRoot(root.FirstChildElement("filters"));
 	CreateFiltersConfig()->Import(Representation);
 	Representation.SetRoot(root.FirstChildElement("highlight"));

@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "keybar.hpp"
 #include "manager.hpp"
-#include "syslog.hpp"
 #include "savescr.hpp"
 #include "global.hpp"
 
@@ -58,12 +57,10 @@ window::window():
 	ScreenObjectWithShadow(nullptr),
 	m_ID(windowID++)
 {
-	_OT(SysLog(L"[%p] window::window()", this));
 }
 
 window::~window()
 {
-	_OT(SysLog(L"[%p] window::~window()", this));
 }
 
 void window::UpdateKeyBar() const

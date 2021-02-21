@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
-#include "syslog.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "grabber.hpp"
@@ -252,8 +251,6 @@ Manager::Manager():
 */
 bool Manager::ExitAll()
 {
-	_MANAGER(CleverSysLog clv(L"Manager::ExitAll()"));
-
 	// BUGBUG don't use iterators here, may be invalidated by DeleteCommit()
 	for(size_t i = m_windows.size(); i; --i)
 	{
@@ -285,7 +282,6 @@ void Manager::RefreshAll()
 
 void Manager::CloseAll()
 {
-	_MANAGER(CleverSysLog clv(L"Manager::CloseAll()"));
 	while(!m_windows.empty())
 	{
 		DeleteWindow(m_windows.back());
@@ -326,17 +322,11 @@ void Manager::InitDesktop()
 
 void Manager::InsertWindow(const window_ptr& Inserted)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::InsertWindow(window *Inserted, int Index)"));
-	_MANAGER(SysLog(L"Inserted=%p, Index=%i",Inserted, Index));
-
 	CheckAndPushWindow(Inserted,&Manager::InsertCommit);
 }
 
 void Manager::DeleteWindow(const window_ptr& Deleted)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::DeleteWindow(window *Deleted)"));
-	_MANAGER(SysLog(L"Deleted=%p",Deleted));
-
 	const auto& Window=Deleted?Deleted:GetCurrentWindow();
 	assert(Window);
 	CheckAndPushWindow(Window,&Manager::DeleteCommit);
@@ -351,7 +341,6 @@ void Manager::RedeleteWindow(const window_ptr& Deleted)
 
 void Manager::ExecuteNonModal(const window_ptr& NonModal)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::ExecuteNonModal ()"));
 	if (!NonModal) return;
 	for (;;)
 	{
@@ -368,9 +357,6 @@ void Manager::ExecuteNonModal(const window_ptr& NonModal)
 
 void Manager::ExecuteModal(const window_ptr& Executed)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::ExecuteModal (window *Executed)"));
-	_MANAGER(SysLog(L"Executed=%p",Executed));
-
 	bool stop=false;
 	auto& stop_ref=m_Executed[Executed];
 	if (stop_ref) return;
@@ -524,9 +510,6 @@ bool Manager::ShowBackground() const
 
 void Manager::ActivateWindow(const window_ptr& Activated)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::ActivateWindow(window *Activated)"));
-	_MANAGER(SysLog(L"Activated=%i",Activated));
-
 	if (Activated) CheckAndPushWindow(Activated,&Manager::ActivateCommit);
 }
 
@@ -556,16 +539,11 @@ void Manager::SwitchWindow(direction Direction)
 
 void Manager::RefreshWindow(const window_ptr& Refreshed)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::RefreshWindow(window *Refreshed)"));
-	_MANAGER(SysLog(L"Refreshed=%p",Refreshed));
-
 	CheckAndPushWindow(Refreshed?Refreshed:GetCurrentWindow(),&Manager::RefreshCommit);
 }
 
 void Manager::ExecuteWindow(const window_ptr& Executed)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::ExecuteWindow(window *Executed)"));
-	_MANAGER(SysLog(L"Executed=%p",Executed));
 	CheckAndPushWindow(Executed,&Manager::ExecuteCommit);
 }
 
@@ -587,7 +565,6 @@ void Manager::UnModalDesktopWindow()
 
 void Manager::SwitchToPanels()
 {
-	_MANAGER(CleverSysLog clv(L"Manager::SwitchToPanels()"));
 	if (!Global->OnlyEditorViewerUsed)
 	{
 		const auto PanelsWindow = std::find_if(ALL_CONST_RANGE(m_windows), [](const auto& item) { return std::dynamic_pointer_cast<FilePanels>(item) != nullptr; });
@@ -755,13 +732,11 @@ bool Manager::ProcessKey(Key key)
 
 					PluginsMenu();
 					Global->WindowManager->RefreshWindow();
-					//_MANAGER(SysLog(-1));
 					return true;
 				}
 				case KEY_ALTF9:
 				case KEY_RALTF9:
 				{
-					//_MANAGER(SysLog(1,"Manager::ProcessKey, KEY_ALTF9 pressed..."));
 					os::chrono::sleep_for(1ms);
 					SetVideoMode();
 					os::chrono::sleep_for(1ms);
@@ -781,20 +756,17 @@ bool Manager::ProcessKey(Key key)
 
 						if (PScrX + 1 == CurSize.x && PScrY + 1 == CurSize.y)
 						{
-							//_MANAGER(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_NONE"));
 							return true;
 						}
 						else
 						{
 							PrevScrX=PScrX;
 							PrevScrY=PScrY;
-							//_MANAGER(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_CONSOLE_BUFFER_RESIZE"));
 							Global->WindowManager->ResizeAllWindows();
 							return true;
 						}
 					}
 
-					//_MANAGER(SysLog(-1));
 					return true;
 				}
 				case KEY_F12:
@@ -802,7 +774,6 @@ bool Manager::ProcessKey(Key key)
 					if (!std::dynamic_pointer_cast<Modal>(Global->WindowManager->GetCurrentWindow()) || Global->WindowManager->GetCurrentWindow()->GetCanLoseFocus())
 					{
 						WindowMenu();
-						//_MANAGER(SysLog(-1));
 						return true;
 					}
 
@@ -820,7 +791,6 @@ bool Manager::ProcessKey(Key key)
 					else
 						break;
 
-					_MANAGER(SysLog(-1));
 					return true;
 			}
 		}
@@ -829,7 +799,6 @@ bool Manager::ProcessKey(Key key)
 		GetCurrentWindow()->ProcessKey(key);
 	}
 
-	_MANAGER(SysLog(-1));
 	return false;
 }
 
@@ -849,13 +818,11 @@ bool Manager::ProcessMouse(const MOUSE_EVENT_RECORD* MouseEvent) const
 	if (GetCurrentWindow())
 		ret=GetCurrentWindow()->ProcessMouse(MouseEvent);
 
-	_MANAGER(SysLog(-1));
 	return ret;
 }
 
 void Manager::PluginsMenu() const
 {
-	_MANAGER(SysLog(1));
 	int curType = GetCurrentWindow()->GetType();
 
 	if (curType == windowtype_panels || curType == windowtype_editor || curType == windowtype_viewer || curType == windowtype_dialog || curType == windowtype_menu)
@@ -889,8 +856,6 @@ void Manager::PluginsMenu() const
 		                     curType==windowtype_dialog?L"Dialog":nullptr;
 		Global->CtrlObject->Plugins->CommandsMenu(curType,0,Topic);
 	}
-
-	_MANAGER(SysLog(-1));
 }
 
 bool Manager::IsPanelsActive(bool and_not_qview, bool or_autocomplete) const
@@ -924,8 +889,6 @@ int Manager::IndexOf(const window_ptr& Window) const
 
 void Manager::Commit()
 {
-	_MANAGER(CleverSysLog clv(L"Manager::Commit()"));
-	_MANAGER(ManagerClass_Dump(L"ManagerClass"));
 	while (!m_Queue.empty())
 	{
 		const auto Handler = std::move(m_Queue.front());
@@ -938,8 +901,6 @@ void Manager::Commit()
 
 void Manager::InsertCommit(const window_ptr& Param)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::InsertCommit()"));
-	_MANAGER(SysLog(L"InsertedWindow=%p",Param));
 	if (Param && AddWindow(Param))
 	{
 		const auto CurrentWindow = GetCurrentWindow();
@@ -959,9 +920,6 @@ void Manager::InsertCommit(const window_ptr& Param)
 
 void Manager::DeleteCommit(const window_ptr& Param)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::DeleteCommit()"));
-	_MANAGER(SysLog(L"DeletedWindow=%p",Param));
-
 	if (!Param)
 		return;
 
@@ -1022,9 +980,6 @@ void Manager::DeleteCommit(const window_ptr& Param)
 
 void Manager::ActivateCommit(const window_ptr& Param)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::ActivateCommit()"));
-	_MANAGER(SysLog(L"ActivatedWindow=%p",Param));
-
 	if (GetCurrentWindow()==Param)
 	{
 		RefreshCommit(Param);
@@ -1058,9 +1013,6 @@ void Manager::DoActivation(const window_ptr& Old, const window_ptr& New)
 
 void Manager::RefreshCommit(const window_ptr& Param)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::RefreshCommit()"));
-	_MANAGER(SysLog(L"RefreshedWindow=%p",Param));
-
 	if (!Param)
 		return;
 
@@ -1101,8 +1053,6 @@ void Manager::RefreshCommit(const window_ptr& Param)
 
 void Manager::DeactivateCommit(const window_ptr& Param)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::DeactivateCommit()"));
-	_MANAGER(SysLog(L"DeactivatedWindow=%p",Param));
 	if (Param)
 	{
 		Param->OnChangeFocus(false);
@@ -1111,9 +1061,6 @@ void Manager::DeactivateCommit(const window_ptr& Param)
 
 void Manager::ExecuteCommit(const window_ptr& Param)
 {
-	_MANAGER(CleverSysLog clv(L"Manager::ExecuteCommit()"));
-	_MANAGER(SysLog(L"ExecutedWindow=%p",Param));
-
 	if (Param && AddWindow(Param))
 	{
 		const auto CurrentWindow = GetCurrentWindow();
@@ -1132,10 +1079,6 @@ void Manager::ReplaceCommit(const window_ptr& Old, const window_ptr& New)
 		New->SetID(Old->ID());
 		DeleteCommit(Old);
 		InsertCommit(New);
-	}
-	else
-	{
-		_MANAGER(SysLog(L"ERROR! DeletedWindow not found"));
 	}
 }
 

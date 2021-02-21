@@ -45,6 +45,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+// This is sick, but apparently the only way now, see fmt #2130
+namespace std
+{
+	std::wostream& operator<<(std::wostream& Stream, std::exception const& e);
+}
+
 WARNING_PUSH(3)
 
 WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
@@ -52,7 +58,10 @@ WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
 WARNING_DISABLE_CLANG("-Weverything")
 
 #include "thirdparty/fmt/fmt/format.h"
+
+#define FMT_STATIC_THOUSANDS_SEPARATOR
 #include "thirdparty/fmt/fmt/ostream.h"
+#undef FMT_STATIC_THOUSANDS_SEPARATOR
 
 WARNING_POP()
 

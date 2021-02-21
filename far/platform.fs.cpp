@@ -1043,7 +1043,7 @@ namespace os::fs
 			{
 				return imports.GetFinalPathNameByHandle(File, Buffer, Size, Flags);
 			},
-			[]
+			[](DWORD)
 			{
 				SetLastError(ERROR_UNHANDLED_EXCEPTION);
 				return 0ul;

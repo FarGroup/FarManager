@@ -118,14 +118,6 @@ static auto& edit_as(void* const Buffer)
 	return *static_cast<T*>(Buffer);
 }
 
-template<typename T>
-static auto view_as_if(span<unsigned char const> const Buffer)
-{
-	static_assert(std::is_trivially_copyable_v<T>);
-
-	return Buffer.size() >= sizeof(T)? view_as<T const*>(Buffer.data()) : nullptr;
-}
-
 struct SCSI_PASS_THROUGH_WITH_BUFFERS: SCSI_PASS_THROUGH
 {
 	UCHAR SenseBuf[32];
@@ -203,7 +195,6 @@ WARNING_POP()
 
 static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 {
-
 	SCSI_PASS_THROUGH_WITH_BUFFERS Spt;
 	InitSCSIPassThrough(Spt);
 
@@ -241,15 +232,13 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 	if (!Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &Spt, sizeof(SCSI_PASS_THROUGH), &Spt, sizeof(Spt)) || Spt.ScsiStatus != SCSISTAT_GOOD)
 		return CAPABILITIES_NONE;
 
-	span Buffer(Spt.DataBuf, Spt.DataTransferLength);
+	span const Buffer(Spt.DataBuf, Spt.DataTransferLength);
 
 	const auto ConfigurationHeader = view_as_if<GET_CONFIGURATION_HEADER>(Buffer);
 	if (!ConfigurationHeader || Buffer.size() < sizeof(ConfigurationHeader->DataLength) + read_value_from_big_endian<size_t>(ConfigurationHeader->DataLength))
 		return CAPABILITIES_NONE;
 
-	Buffer.pop_front(sizeof(*ConfigurationHeader));
-
-	const auto FeatureList = view_as_if<FEATURE_DATA_PROFILE_LIST>(Buffer);
+	const auto FeatureList = view_as_if<FEATURE_DATA_PROFILE_LIST>(Buffer, sizeof(*ConfigurationHeader));
 	if (!FeatureList)
 		return CAPABILITIES_NONE;
 

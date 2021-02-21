@@ -156,10 +156,6 @@ private:
 	using sorted_windows = std::set<window_ptr, window_comparer>;
 	sorted_windows GetSortedWindows() const;
 
-#if defined(SYSLOG)
-	friend void ManagerClass_Dump(const wchar_t *Title, FILE *fp);
-#endif
-
 	window_ptr WindowMenu(); //    вместо void SelectWindow(); // show window menu (F12)
 	bool HaveAnyWindow() const;
 	bool OnlyDesktop() const;

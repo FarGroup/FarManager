@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "imports.hpp"
 #include "encoding.hpp"
+#include "log.hpp"
 
 // Platform:
 
@@ -83,6 +84,12 @@ std::array<string, 3> error_state::format_errors() const
 	};
 }
 
+string error_state::to_string() const
+{
+	const auto Errors = format_errors();
+	return format(FSTR(L"Errno: {0}, Win32 error: {1}, NT error: {2}"), Errors[0], Errors[1], Errors[2]);
+}
+
 namespace detail
 {
 	far_base_exception::far_base_exception(bool const CaptureErrors, string_view const Message, const char* const Function, string_view const File, int const Line):
@@ -91,6 +98,7 @@ namespace detail
 		m_Location(format(FSTR(L"{0}:{1}"), File, Line)),
 		m_FullMessage(format(FSTR(L"{0} (at {1}, {2})"), Message, encoding::utf8::get_chars(m_Function), m_Location))
 	{
+		LOGTRACE(L"far_base_exception: {0}", *this);
 	}
 
 	std::string far_std_exception::convert_message() const
@@ -119,4 +127,22 @@ string error_state_ex::format_error() const
 	return Str + os::format_system_error(
 		UseNtMessages? NtError : Win32Error,
 		UseNtMessages? NtErrorStr() : Win32ErrorStr());
+}
+
+std::wostream& operator<<(std::wostream& Stream, error_state const& e)
+{
+	Stream << e.to_string();
+	return Stream;
+}
+
+std::wostream& operator<<(std::wostream& Stream, error_state_ex const& e)
+{
+	Stream << format(FSTR(L"Message: {0}, {1}"), e.What, e.to_string());
+	return Stream;
+}
+
+std::wostream& operator<<(std::wostream& Stream, far_exception const& e)
+{
+	Stream << format(FSTR(L"far_exception: {0}"), e.full_message());
+	return Stream;
 }

@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "notification.hpp"
 #include "global.hpp"
-#include "exception.hpp"
 #include "exception_handler.hpp"
 
 // Platform:

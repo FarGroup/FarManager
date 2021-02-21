@@ -64,10 +64,6 @@ enum
 	SBFLAGS_FLUSHEDTITLE    = 3_bit,
 };
 
-//#if defined(SYSLOG_OT)
-// #define DIRECT_SCREEN_OUT
-//#endif
-
 static bool is_visible(point const& Where)
 {
 	return

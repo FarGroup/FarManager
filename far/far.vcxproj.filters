@@ -263,6 +263,9 @@
     <ClCompile Include="lockscrn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="log.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="macro.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -435,9 +438,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="strmix.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="syslog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="taskbar.cpp">
@@ -862,6 +862,9 @@
     <ClInclude Include="lockscrn.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="log.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="macro.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1064,9 +1067,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="strmix.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="syslog.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="taskbar.hpp">

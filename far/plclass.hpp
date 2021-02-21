@@ -197,7 +197,7 @@ public:
 private:
 	// This shouldn't be here, just an optimization for OEM plugins
 	virtual bool FindExport(std::string_view ExportName) const;
-	bool IsPlugin(const void* Data) const;
+	bool IsPlugin(string_view FileName, span<unsigned char const> Buffer) const;
 };
 
 template<export_index id, bool native>

@@ -46,11 +46,22 @@ public:
 		static_assert(std::is_base_of_v<singleton, type>);
 
 		static type Instance;
+
+		assert(!Instance.Destroyed);
+
 		return Instance;
+	}
+
+	~singleton()
+	{
+		Destroyed = true;
 	}
 
 protected:
 	using singleton_type = singleton<type>;
+
+private:
+	bool Destroyed{};
 };
 
 #define IMPLEMENTS_SINGLETON friend singleton_type

@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "lockscrn.hpp"
 #include "TPreRedrawFunc.hpp"
-#include "syslog.hpp"
 #include "interf.hpp"
 #include "message.hpp"
 #include "config.hpp"
@@ -59,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "string_utils.hpp"
 #include "global.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.reg.hpp"
@@ -260,24 +260,6 @@ static const TFKey ModifKeyName[]
 	{ KEY_M_OEM,    lng(-1),         L"Oem"sv, },
 };
 
-#if defined(SYSLOG)
-static const TFKey SpecKeyName[]
-{
-	{ KEY_IDLE,                       lng(-1), L"Idle"sv,                     },
-	{ KEY_NONE,                       lng(-1), L"None"sv,                     },
-	{ KEY_OP_XLAT,                    lng(-1), L"OP_Xlat"sv,                  },
-	{ KEY_OP_PLAINTEXT,               lng(-1), L"OP_Text"sv,                  },
-	{ KEY_DRAGMOVE,                   lng(-1), L"DragMove"sv,                 },
-	{ KEY_DRAGCOPY,                   lng(-1), L"DragCopy"sv,                 },
-	{ KEY_GOTFOCUS,                   lng(-1), L"GotFocus"sv,                 },
-	{ KEY_KILLFOCUS,                  lng(-1), L"KillFocus"sv,                },
-	{ KEY_OP_SELWORD,                 lng(-1), L"OP_SelWord"sv,               },
-	{ KEY_CONSOLE_BUFFER_RESIZE,      lng(-1), L"ConsoleBufferResize"sv,      },
-};
-#endif
-
-/* ----------------------------------------------------------------- */
-
 static auto& Layout()
 {
 	static std::vector<HKL> s_Layout;
@@ -315,7 +297,7 @@ void InitKeysArray()
 					}
 					else
 					{
-						// TODO: log
+						LOGWARNING(L"Unsupported layout: {0}", Value);
 					}
 				}
 			}
@@ -372,8 +354,6 @@ void InitKeysArray()
 //Сравнивает если Key и CompareKey это одна и та же клавиша в разных раскладках
 bool KeyToKeyLayoutCompare(int Key, int CompareKey)
 {
-	_KEYMACRO(CleverSysLog Clev(L"KeyToKeyLayoutCompare()"));
-	_KEYMACRO(SysLog(L"Param: Key=%08X",Key));
 	Key = KeyToVKey[Key&0xFFFF]&0xFF;
 	CompareKey = KeyToVKey[CompareKey&0xFFFF]&0xFF;
 
@@ -383,8 +363,6 @@ bool KeyToKeyLayoutCompare(int Key, int CompareKey)
 //Должно вернуть клавишный Eng эквивалент Key
 int KeyToKeyLayout(int Key)
 {
-	_KEYMACRO(CleverSysLog Clev(L"KeyToKeyLayout()"));
-	_KEYMACRO(SysLog(L"Param: Key=%08X",Key));
 	const auto VK = KeyToVKey[Key&0xFFFF];
 
 	if (VK && VKeyToASCII[VK])
@@ -748,7 +726,7 @@ static DWORD ProcessBufferSizeEvent(point const Size)
 
 		Global->WindowManager->ResizeAllWindows();
 		Global->WindowManager->GetCurrentWindow()->Show();
-		// _SVS(SysLog(L"PreRedrawFunc = %p",PreRedrawFunc));
+
 		TPreRedrawFunc::instance()([](const PreRedrawItem& Item)
 		{
 			Item();
@@ -832,8 +810,6 @@ static bool ProcessMouseEvent(const MOUSE_EVENT_RECORD& MouseEvent, bool Exclude
 
 static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro)
 {
-	_KEYMACRO(CleverSysLog Clev(L"GetInputRecord()"));
-
 	if (AllowSynchro)
 		message_manager::instance().dispatch();
 
@@ -853,8 +829,6 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	{
 		if (NotMacros || ExcludeMacro)
 			return CalcKey;
-
-		_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)", __LINE__, _FARKEY_ToName(CalcKey)));
 
 		FAR_INPUT_RECORD irec = { CalcKey, *rec };
 		if (!Global->CtrlObject || !Global->CtrlObject->Macro.ProcessEvent(&irec))
@@ -1461,36 +1435,24 @@ static string KeyToTextImpl(unsigned int const Key0, tfkey_to_text ToText, add_s
 		}
 		else
 		{
-#if defined(SYSLOG)
-			// Этот кусок кода нужен только для того, что "спецклавиши" логировались нормально
-			const auto SpecKeyIterator = std::find(ALL_CONST_RANGE(SpecKeyName), FKey);
-			if (SpecKeyIterator != std::cend(SpecKeyName))
-			{
-				AddSeparator(strKeyText);
-				append(strKeyText, ToText(*SpecKeyIterator));
-			}
-			else
-#endif
-			{
-				FKey=upper(static_cast<wchar_t>(Key & 0xFFFF));
+			FKey=upper(static_cast<wchar_t>(Key & 0xFFFF));
 
-				wchar_t KeyText;
+			wchar_t KeyText;
 
-				if (FKey >= L'A' && FKey <= L'Z')
-				{
-					if (Key&(KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALT)) // ??? а если есть другие модификаторы ???
-						KeyText = static_cast<wchar_t>(FKey); // для клавиш с модификаторами подставляем "латиницу" в верхнем регистре
-					else
-						KeyText = static_cast<wchar_t>(Key & 0xFFFF);
-				}
+			if (FKey >= L'A' && FKey <= L'Z')
+			{
+				if (Key&(KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALT)) // ??? а если есть другие модификаторы ???
+					KeyText = static_cast<wchar_t>(FKey); // для клавиш с модификаторами подставляем "латиницу" в верхнем регистре
 				else
 					KeyText = static_cast<wchar_t>(Key & 0xFFFF);
+			}
+			else
+				KeyText = static_cast<wchar_t>(Key & 0xFFFF);
 
-				if (KeyText)
-				{
-					AddSeparator(strKeyText);
-					strKeyText += KeyText;
-				}
+			if (KeyText)
+			{
+				AddSeparator(strKeyText);
+				strKeyText += KeyText;
 			}
 		}
 	}
@@ -1534,9 +1496,6 @@ string KeysListToLocalizedText(span<unsigned int const> const Keys)
 
 int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 {
-	_KEYMACRO(CleverSysLog Clev(L"TranslateKeyToVK()"));
-	_KEYMACRO(SysLog(L"Param: Key=%08X",Key));
-
 	WORD EventType=KEY_EVENT;
 
 	DWORD FKey  =Key&KEY_END_SKEY;
@@ -1796,8 +1755,6 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 		}
 	}
 
-	_SVS(SysLog(L"%s or %s ==> %s",_FARKEY_ToName(Key),_MCODE_ToName(Key),_INPUT_RECORD_Dump(Rec)));
-	_SVS(SysLog(L"return VirtKey=%x",VirtKey));
 	return VirtKey;
 }
 
@@ -2109,8 +2066,6 @@ static int GetMouseKey(const MOUSE_EVENT_RECORD& MouseEvent)
 
 unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 {
-	_SVS(CleverSysLog Clev(L"CalcKeyCode"));
-	_SVS(SysLog(L"CalcKeyCode -> %s| RealKey=%d  *NotMacros=%d",_INPUT_RECORD_Dump(rec),RealKey,(NotMacros?*NotMacros:0)));
 	const auto CtrlState = rec->EventType==MOUSE_EVENT? rec->Event.MouseEvent.dwControlKeyState : rec->Event.KeyEvent.dwControlKeyState;
 	const auto ScanCode = rec->Event.KeyEvent.wVirtualScanCode;
 	const auto KeyCode = rec->Event.KeyEvent.wVirtualKeyCode;

@@ -201,7 +201,7 @@ string_view DizList::Get(const string& Name, const string& ShortName, const long
 		return {};
 	}
 
-	auto Begin = Description.begin();
+	auto Begin = std::find_if_not(ALL_CONST_RANGE(Description), std::iswblank);
 
 	if (std::iswdigit(*Begin))
 	{

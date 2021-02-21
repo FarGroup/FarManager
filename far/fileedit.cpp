@@ -58,7 +58,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "filestr.hpp"
 #include "TPreRedrawFunc.hpp"
-#include "syslog.hpp"
 #include "taskbar.hpp"
 #include "interf.hpp"
 #include "message.hpp"
@@ -1003,9 +1002,6 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 
 	bool ProcessedNext = true;
 
-	_SVS(if (LocalKey=='n' || LocalKey=='m'))
-		_SVS(SysLog(L"%d Key='%c'",__LINE__,LocalKey));
-
 	const auto MacroState = Global->CtrlObject->Macro.GetState();
 	if (!CalledFromControl && (MacroState == MACROSTATE_RECORDING_COMMON || MacroState == MACROSTATE_EXECUTING_COMMON || MacroState == MACROSTATE_NOMACRO))
 	{
@@ -1907,7 +1903,6 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 		Если было произведено сохранение с любым результатом, то не удалять файл
 	*/
 	m_Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
-	//_D(SysLog(L"%08d EE_SAVE",__LINE__));
 
 	if (!IsUnicodeOrUtfCodePage(Codepage))
 	{
@@ -2081,8 +2076,6 @@ void FileEditor::SetScreenPosition()
 
 void FileEditor::OnDestroy()
 {
-	_OT(SysLog(L"[%p] FileEditor::OnDestroy()",this));
-
 	if (Global->CtrlObject && !m_Flags.Check(FFILEEDIT_DISABLEHISTORY) && !equal_icase(strFileName, msg(lng::MNewFileName)))
 		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE) ? HR_EDITOR_RO : HR_EDITOR);
 
@@ -2402,19 +2395,6 @@ void FileEditor::OnChangeFocus(bool focus)
 
 intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 {
-#if defined(SYSLOG_KEYMACRO)
-	_KEYMACRO(CleverSysLog SL(L"FileEditor::EditorControl()"));
-
-	if (Command == ECTL_READINPUT || Command == ECTL_PROCESSINPUT)
-	{
-		_KEYMACRO(SysLog(L"(Command=%s, Param2=[%d/0x%08X]) Macro.IsExecuting()=%d",_ECTL_ToName(Command),(int)((intptr_t)Param2),(int)((intptr_t)Param2),Global->CtrlObject->Macro.IsExecuting()));
-	}
-
-#else
-	_ECTLLOG(CleverSysLog SL(L"FileEditor::EditorControl()"));
-	_ECTLLOG(SysLog(L"(Command=%s, Param2=[%d/0x%08X])",_ECTL_ToName(Command),(int)Param2,Param2));
-#endif
-
 	if(m_editor->EditorControlLocked()) return FALSE;
 	if (m_bClosing && (Command != ECTL_GETINFO) && (Command != ECTL_GETBOOKMARKS) && (Command!=ECTL_GETFILENAME))
 		return FALSE;
@@ -2623,18 +2603,6 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						break;
 				}
 
-#if defined(SYSLOG_KEYMACRO)
-
-				if (rec->EventType == KEY_EVENT)
-				{
-					SysLog(L"ECTL_READINPUT={KEY_EVENT,{%d,%d,Vk=0x%04X,0x%08X}}",
-					       rec->Event.KeyEvent.bKeyDown,
-					       rec->Event.KeyEvent.wRepeatCount,
-					       rec->Event.KeyEvent.wVirtualKeyCode,
-					       rec->Event.KeyEvent.dwControlKeyState);
-				}
-
-#endif
 				return TRUE;
 			}
 
@@ -2653,19 +2621,6 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					ProcessMouse(&rec.Event.MouseEvent);
 				else
 				{
-#if defined(SYSLOG_KEYMACRO)
-
-					if (!rec.EventType || rec.EventType == KEY_EVENT)
-					{
-						SysLog(L"ECTL_PROCESSINPUT={%s,{%d,%d,Vk=0x%04X,0x%08X}}",
-						       (rec.EventType == KEY_EVENT?L"KEY_EVENT":L"(internal, macro)_KEY_EVENT"),
-						       rec.Event.KeyEvent.bKeyDown,
-						       rec.Event.KeyEvent.wRepeatCount,
-						       rec.Event.KeyEvent.wVirtualKeyCode,
-						       rec.Event.KeyEvent.dwControlKeyState);
-					}
-
-#endif
 					const auto Key = ShieldCalcKeyCode(&rec, false);
 					ReProcessKey(Manager::Key(Key, rec));
 				}

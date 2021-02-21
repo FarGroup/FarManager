@@ -152,7 +152,7 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
       <Optimization>Disabled</Optimization>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <PreprocessorDefinitions>_DEBUG;ENABLE_TESTS;SYSLOG;SYSLOG_FARSYSLOG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;ENABLE_TESTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SupportJustMyCode>true</SupportJustMyCode>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
@@ -267,6 +267,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="language.cpp" />
     <ClCompile Include="locale.cpp" />
     <ClCompile Include="lockscrn.cpp" />
+    <ClCompile Include="log.cpp" />
     <ClCompile Include="macro.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manager.cpp" />
@@ -331,7 +332,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="string_sort.cpp" />
     <ClCompile Include="string_utils.cpp" />
     <ClCompile Include="strmix.cpp" />
-    <ClCompile Include="syslog.cpp" />
     <ClCompile Include="taskbar.cpp" />
     <ClCompile Include="testing.cpp" />
     <ClCompile Include="tinyxml.cpp" />
@@ -475,6 +475,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="language.hpp" />
     <ClInclude Include="locale.hpp" />
     <ClInclude Include="lockscrn.hpp" />
+    <ClInclude Include="log.hpp" />
     <ClInclude Include="macro.hpp" />
     <ClInclude Include="macroopcode.hpp" />
     <ClInclude Include="manager.hpp" />
@@ -543,7 +544,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="string_sort.hpp" />
     <ClInclude Include="string_utils.hpp" />
     <ClInclude Include="strmix.hpp" />
-    <ClInclude Include="syslog.hpp" />
     <ClInclude Include="taskbar.hpp" />
     <ClInclude Include="testing.hpp" />
     <ClInclude Include="tinyxml.hpp" />

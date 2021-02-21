@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "mix.hpp"
 #include "pathmix.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -136,6 +137,9 @@ void save_file_with_replace(string_view const FileName, os::fs::attributes const
 			throw MAKE_FAR_EXCEPTION(L"Can't replace the file"sv);
 	}
 
-	// No error checking - non-critical (TODO: log)
-	(void)os::fs::set_file_attributes(FileName, NewAttributes); //BUGBUG
+	// No error checking - non-critical
+	if (!os::fs::set_file_attributes(FileName, NewAttributes))
+	{
+		LOGWARNING(L"set_file_attributes({0}): {1}", FileName, error_state::fetch());
+	}
 }

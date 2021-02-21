@@ -14,7 +14,6 @@ STATICDEPFILE = static.dep
 DEFINES += -D FAR_ALPHA_VERSION
 
 ifdef DEBUG
-DEFINES += -D SYSLOG -D SYSLOG_FARSYSLOG
 ENABLE_TESTS = 1
 endif
 
@@ -100,6 +99,7 @@ SRCS = \
 	language.cpp \
 	locale.cpp \
 	lockscrn.cpp \
+	log.cpp \
 	macro.cpp \
 	main.cpp \
 	manager.cpp \
@@ -156,7 +156,6 @@ SRCS = \
 	string_sort.cpp \
 	string_utils.cpp \
 	strmix.cpp \
-	syslog.cpp \
 	tinyxml.cpp \
 	taskbar.cpp \
 	testing.cpp \

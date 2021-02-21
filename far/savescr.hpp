@@ -63,7 +63,6 @@ public:
 	void Discard();
 	void AppendArea(const SaveScreen *NewArea);
 	void Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsole);
-	void DumpBuffer(const wchar_t *Title);
 
 private:
 	friend class Grabber;

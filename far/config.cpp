@@ -85,6 +85,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "locale.hpp"
 #include "console.hpp"
 #include "scrbuf.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -1487,7 +1488,7 @@ static bool ParseIntValue(string_view const sValue, long long& iValue)
 		return true;
 	}
 
-	// TODO: log
+	LOGWARNING(L"Unsupported integer value: {0}", sValue);
 	return false;
 }
 

@@ -143,7 +143,9 @@ namespace console_detail
 
 		point GetLargestWindowSize() const;
 
-		bool SetActiveScreenBuffer(HANDLE ConsoleOutput) const;
+		bool SetActiveScreenBuffer(HANDLE ConsoleOutput);
+
+		HANDLE GetActiveScreenBuffer() const;
 
 		bool ClearExtraRegions(const FarColor& Color, int Mode) const;
 
@@ -182,6 +184,7 @@ namespace console_detail
 		bool SetCursorRealPosition(point Position) const;
 
 		HANDLE m_OriginalInputHandle;
+		HANDLE m_ActiveConsoleScreenBuffer{};
 		mutable string m_Title;
 		mutable int m_FileHandle{ -1 };
 

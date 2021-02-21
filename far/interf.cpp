@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "taskbar.hpp"
 #include "global.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -204,7 +205,7 @@ static BOOL WINAPI CtrlHandler(DWORD CtrlType)
 	return FALSE;
 }
 
-static bool ConsoleScrollHook(const Manager::Key& key)
+static bool ConsoleGlobalKeysHook(const Manager::Key& key)
 {
 	// Удалить после появления макрофункции Scroll
 	if (Global->Opt->WindowMode && Global->WindowManager->IsPanelsActive())
@@ -278,6 +279,14 @@ static bool ConsoleScrollHook(const Manager::Key& key)
 			return true;
 		}
 	}
+
+	switch (key())
+	{
+	case KEY_CTRLSHIFTL:
+		logging::show();
+		return true;
+	}
+
 	return false;
 }
 
@@ -303,7 +312,7 @@ void InitConsole()
 			SetStdHandle(STD_ERROR_HANDLE, ConOut.native_handle());
 		}
 
-		Global->WindowManager->AddGlobalKeyHandler(ConsoleScrollHook);
+		Global->WindowManager->AddGlobalKeyHandler(ConsoleGlobalKeysHook);
 	}
 
 	console.SetControlHandler(CtrlHandler, true);
@@ -434,12 +443,16 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 		InputMode &= ~ENABLE_MOUSE_INPUT;
 	}
 
-	// Feature: if window rect is in unusual position (shifted up or right) - enable mouse selection
+	// Feature: if window rect is in unusual position (shifted up or right), of if an alternative buffer is active - enable mouse selection
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		if (Global->Opt->WindowMode
-			&& GetConsoleScreenBufferInfo(console.GetOutputHandle(), &csbi)
-			&& (csbi.srWindow.Bottom != csbi.dwSize.Y - 1 || csbi.srWindow.Left))
+		if (const auto Buffer = console.GetActiveScreenBuffer(); (Buffer && Buffer != console.GetOutputHandle()) ||
+			(
+				Global->Opt->WindowMode &&
+				GetConsoleScreenBufferInfo(console.GetOutputHandle(), &csbi) &&
+				(csbi.srWindow.Bottom != csbi.dwSize.Y - 1 || csbi.srWindow.Left)
+			)
+		)
 		{
 			InputMode &= ~ENABLE_MOUSE_INPUT;
 			InputMode |= ENABLE_EXTENDED_FLAGS | ENABLE_QUICK_EDIT_MODE;

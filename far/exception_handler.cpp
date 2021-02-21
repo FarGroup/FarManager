@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farversion.hpp"
 #include "clipboard.hpp"
 #include "eol.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -116,8 +117,13 @@ static std::atomic_bool UseTerminateHandler = false;
 
 void disable_exception_handling()
 {
+	if (!HandleCppExceptions && !HandleSehExceptions)
+		return;
+
 	HandleCppExceptions = false;
 	HandleSehExceptions = false;
+
+	LOGWARNING(L"Exception handling disabled");
 }
 
 void force_stderr_exception_ui(bool const Force)
@@ -131,30 +137,7 @@ constexpr NTSTATUS
 	EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363, // EH_EXCEPTION_NUMBER
 	EXCEPTION_TERMINATE           = 0xE074726D; // 'trm'
 
-static std::vector<DWORD64> current_stack()
-{
-	std::vector<DWORD64> Stack;
-	Stack.reserve(128);
-
-	for (DWORD i = 0; ;)
-	{
-		void* Pointers[128];
-		const auto Size = imports.RtlCaptureStackBackTrace(i, static_cast<DWORD>(std::size(Pointers)), Pointers, {});
-		if (!Size)
-			break;
-
-		std::transform(Pointers, Pointers + Size, std::back_inserter(Stack), [](void* Ptr)
-		{
-			return reinterpret_cast<uintptr_t>(Ptr);
-		});
-
-		i += Size;
-	}
-
-	return Stack;
-}
-
-static void get_backtrace(string_view const Module, span<DWORD64 const> const Stack, span<DWORD64 const> const NestedStack, function_ref<void(string&&)> const Consumer)
+static void get_backtrace(string_view const Module, span<uintptr_t const> const Stack, span<uintptr_t const> const NestedStack, function_ref<void(string&&)> const Consumer)
 {
 	const auto Separator = [&](string&& Message)
 	{
@@ -172,10 +155,10 @@ static void get_backtrace(string_view const Module, span<DWORD64 const> const St
 	tracer::get_symbols(Module, Stack, Consumer);
 
 	Separator(L"Current stack:"s);
-	tracer::get_symbols(Module, current_stack(), Consumer);
+	tracer::get_symbols(Module, os::debug::current_stack(), Consumer);
 }
 
-static void show_backtrace(string_view const Module, span<DWORD64 const> const Stack, span<DWORD64 const> const NestedStack, bool const UseDialog)
+static void show_backtrace(string_view const Module, span<uintptr_t const> const Stack, span<uintptr_t const> const NestedStack, bool const UseDialog)
 {
 	if (UseDialog)
 	{
@@ -347,7 +330,7 @@ static string kernel_version()
 struct dialog_data_type
 {
 	const exception_context* Context;
-	span<DWORD64 const> NestedStack;
+	span<uintptr_t const> NestedStack;
 	string_view Module;
 	span<string_view const> Labels, Values;
 	size_t LabelsWidth;
@@ -401,7 +384,7 @@ static void read_registers(string& To, CONTEXT const& Context, string_view const
 
 static void copy_information(
 	exception_context const& Context,
-	span<DWORD64 const> NestedStack,
+	span<uintptr_t const> NestedStack,
 	string_view const Module,
 	span<string_view const> const Labels,
 	span<string_view const> const Values,
@@ -606,7 +589,7 @@ static size_t max_item_size(span<string_view const> const Items)
 
 static bool ExcDialog(
 	exception_context const& Context,
-	span<DWORD64 const> const NestedStack,
+	span<uintptr_t const> const NestedStack,
 	string_view const ModuleName,
 	span<string_view const> const Labels,
 	span<string_view const> const Values,
@@ -682,7 +665,7 @@ static bool ExcDialog(
 
 static bool ExcConsole(
 	exception_context const& Context,
-	span<DWORD64 const> const NestedStack,
+	span<uintptr_t const> const NestedStack,
 	string_view const ModuleName,
 	span<string_view const> const Labels,
 	span<string_view const> const Values,
@@ -767,7 +750,7 @@ static bool ShowExceptionUI(
 	string_view const ModuleName,
 	string_view const PluginInformation,
 	Plugin const* const PluginModule,
-	span<DWORD64 const> const NestedStack
+	span<uintptr_t const> const NestedStack
 )
 {
 	SCOPED_ACTION(tracer::with_symbols)(PluginModule? ModuleName : L""sv);
@@ -842,6 +825,25 @@ static bool ShowExceptionUI(
 
 	static_assert(std::size(Labels) == std::size(Values));
 	static_assert(std::size(Labels) == (ed_last_line - ed_first_line) / 2 + 1);
+
+	const auto log_message = [&]
+	{
+		auto Message = join(select(zip(Labels, Values), [](auto const& Pair)
+		{
+			return format(FSTR(L"{0} {1}"), std::get<0>(Pair), std::get<1>(Pair));
+		}), L"\n"sv);
+
+		Message += L"\n\n"sv;
+
+		get_backtrace(ModuleName, tracer::get(ModuleName, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
+		{
+			append(Message, Line, L'\n');
+		});
+
+		return Message;
+	};
+
+	LOG(PluginModule? logging::level::error : logging::level::fatal, L"\n{0}\n", log_message());
 
 	return (UseDialog? ExcDialog : ExcConsole)(
 		Context,
@@ -1112,7 +1114,7 @@ static bool handle_generic_exception(
 	string_view const Type,
 	string_view const Message,
 	error_state const& ErrorState = error_state::fetch(),
-	span<DWORD64 const> const NestedStack = {}
+	span<uintptr_t const> const NestedStack = {}
 )
 {
 	static bool ExceptionHandlingIgnored = false;
@@ -1247,11 +1249,11 @@ public:
 	{
 	}
 
-	span<DWORD64 const> get_stack() const noexcept { return m_Stack; }
+	span<uintptr_t const> get_stack() const noexcept { return m_Stack; }
 
 private:
 	std::shared_ptr<os::handle> m_ThreadHandle;
-	std::vector<DWORD64> m_Stack;
+	std::vector<uintptr_t> m_Stack;
 };
 
 std::exception_ptr wrap_current_exception(const char* const Function, string_view const File, int const Line)
@@ -1363,7 +1365,7 @@ static bool handle_std_exception(
 		const auto NestedStack = [&]
 		{
 			const auto Wrapper = dynamic_cast<const far_wrapper_exception*>(&e);
-			return Wrapper? Wrapper->get_stack() : span<DWORD64 const>{};
+			return Wrapper? Wrapper->get_stack() : span<uintptr_t const>{};
 		}();
 
 		return handle_generic_exception(Context, FarException->function(), FarException->location(), Module, Type, What, *FarException, NestedStack);
@@ -1528,7 +1530,7 @@ namespace detail
 
 	static thread_local bool StackOverflowHappened;
 
-	void seh_try(function_ref<void()> const Callable, function_ref<DWORD(EXCEPTION_POINTERS*)> const Filter, function_ref<void()> const Handler)
+	void seh_try(function_ref<void()> const Callable, function_ref<DWORD(EXCEPTION_POINTERS*)> const Filter, function_ref<void(DWORD)> const Handler)
 	{
 #if COMPILER(GCC) || (COMPILER(CLANG) && !defined _WIN64 && defined __GNUC__)
 		// GCC doesn't support these currently
@@ -1555,7 +1557,7 @@ namespace detail
 				StackOverflowHappened = false;
 			}
 
-			Handler();
+			Handler(GetExceptionCode());
 		}
 
 #if COMPILER(CLANG)
@@ -1608,7 +1610,7 @@ namespace detail
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
 
-	void seh_thread_handler()
+	void seh_thread_handler(DWORD)
 	{
 		// The thread is about to quit, but we still need it to get a stack trace / write a minidump.
 		// It will be released once the corresponding exception context is destroyed.

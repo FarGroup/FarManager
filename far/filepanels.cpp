@@ -50,7 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "findfile.hpp"
 #include "savescr.hpp"
 #include "manager.hpp"
-#include "syslog.hpp"
 #include "pathmix.hpp"
 #include "dirmix.hpp"
 #include "interf.hpp"
@@ -301,7 +300,6 @@ void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen) co
 
 void FilePanels::SetScreenPosition()
 {
-	_OT(SysLog(L"[%p] FilePanels::SetScreenPosition() {%d, %d - %d, %d}", this,m_X1,m_Y1,m_X2,m_Y2));
 	CmdLine->SetPosition({ 0, ScrY - Global->Opt->ShowKeyBar, ScrX - 1, ScrY - Global->Opt->ShowKeyBar });
 	TopMenuBar->SetPosition({ 0, 0, ScrX, 0 });
 	m_windowKeyBar->SetPosition({ 0, ScrY, ScrX, ScrY });
@@ -1070,7 +1068,6 @@ void FilePanels::DisplayObject()
 {
 //  if ( !Focus )
 //      return;
-	_OT(SysLog(L"[%p] FilePanels::Redraw() {%d, %d - %d, %d}", this,m_X1,m_Y1,m_X2,m_Y2));
 	Global->WindowManager->ShowBackground();
 
 	if (Global->Opt->ShowMenuBar)
@@ -1199,7 +1196,6 @@ void FilePanels::ResizeConsole()
 	m_windowKeyBar->ResizeConsole();
 	TopMenuBar->ResizeConsole();
 	SetScreenPosition();
-	_OT(SysLog(L"[%p] FilePanels::ResizeConsole() {%d, %d - %d, %d}", this,m_X1,m_Y1,m_X2,m_Y2));
 }
 
 bool FilePanels::CanFastHide() const

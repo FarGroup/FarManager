@@ -1296,7 +1296,6 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 			[[fallthrough]];
 		default:
 		{
-//      _D(SysLog(L"Key=0x%08X",LocalKey));
 			if (any_of(LocalKey, KEY_NONE, KEY_IDLE, KEY_ENTER, KEY_NUMENTER) || LocalKey >= 65536)
 				break;
 
@@ -1673,7 +1672,6 @@ void Edit::InsertString(string_view Str)
 		}
 
 		RefreshStrByMask();
-		//_SVS(SysLog(L"InsertString ==> Str='%s'", Str));
 	}
 	else
 	{

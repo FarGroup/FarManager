@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "encoding.hpp"
 #include "exception_handler.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -202,12 +203,6 @@ bool native_plugin_factory::FindExport(const std::string_view ExportName) const
 	return ExportName == m_ExportsNames[iGetGlobalInfo].AName;
 }
 
-template<typename T>
-static decltype(auto) view_as(void const* const BaseAddress, IMAGE_SECTION_HEADER const& Section, size_t const VirtualAddress)
-{
-	return view_as<T>(BaseAddress, Section.PointerToRawData + (VirtualAddress - Section.VirtualAddress));
-}
-
 bool native_plugin_factory::IsPlugin(const string& FileName) const
 {
 	if (!ends_with_icase(FileName, L".dll"sv))
@@ -215,6 +210,10 @@ bool native_plugin_factory::IsPlugin(const string& FileName) const
 
 	const os::fs::file ModuleFile(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 	if (!ModuleFile)
+		return false;
+
+	unsigned long long FileSize;
+	if (!ModuleFile.GetSize(FileSize))
 		return false;
 
 	const os::handle ModuleMapping(CreateFileMapping(ModuleFile.get().native_handle(), nullptr, PAGE_READONLY, 0, 0, nullptr));
@@ -227,28 +226,52 @@ bool native_plugin_factory::IsPlugin(const string& FileName) const
 
 	return seh_try_no_ui([&]
 	{
-		return IsPlugin(Data.get());
+		// Cast to size_t is ok here: if it's over 4G we won't even map it
+		return IsPlugin(FileName, { static_cast<unsigned char const*>(Data.get()), static_cast<size_t>(FileSize) });
 	},
-	[]
+	[](DWORD const ExceptionCode)
 	{
-		// TODO: log
+		LOGERROR(L"SEH exception {0}", ExceptionCode);
 		return false;
 	});
 }
 
-bool native_plugin_factory::IsPlugin(const void* Data) const
+bool native_plugin_factory::IsPlugin(string_view const FileName, span<unsigned char const> const Buffer) const
 {
-	const auto& DosHeader = view_as<IMAGE_DOS_HEADER>(Data, 0);
+	const auto DosHeaderPtr = view_as_if<IMAGE_DOS_HEADER>(Buffer);
+	if (!DosHeaderPtr)
+	{
+		LOGDEBUG(L"Not a plugin: not enough data in {0}", FileName);
+		return false;
+	}
+
+	const auto& DosHeader = *DosHeaderPtr;
+
 	if (DosHeader.e_magic != IMAGE_DOS_SIGNATURE)
+	{
+		LOGDEBUG(L"Not a plugin: wrong DOS signature 0x{0:04X} in {1}", DosHeader.e_magic, FileName);
 		return false;
+	}
 
-	const auto& NtHeaders = view_as<IMAGE_NT_HEADERS>(Data, DosHeader.e_lfanew);
+	const auto NtHeadersPtr = view_as_if<IMAGE_NT_HEADERS>(Buffer, DosHeader.e_lfanew);
+	if (!NtHeadersPtr)
+	{
+		LOGDEBUG(L"Not a plugin: not enough data in {0}", FileName);
+		return false;
+	}
 
+	const auto& NtHeaders = *NtHeadersPtr;
 	if (NtHeaders.Signature != IMAGE_NT_SIGNATURE)
+	{
+		LOGDEBUG(L"Not a plugin: wrong NT signature 0x{0:08X} in {1}", NtHeaders.Signature, FileName);
 		return false;
+	}
 
 	if (!(NtHeaders.FileHeader.Characteristics & IMAGE_FILE_DLL))
+	{
+		LOGDEBUG(L"Not a plugin: not a DLL 0x{0:04X} in {1}", NtHeaders.FileHeader.Characteristics, FileName);
 		return false;
+	}
 
 	static const auto FarMachineType = []
 	{
@@ -259,14 +282,32 @@ bool native_plugin_factory::IsPlugin(const void* Data) const
 	}();
 
 	if (NtHeaders.FileHeader.Machine != FarMachineType)
+	{
+		LOGDEBUG(L"Not a plugin: machine type is {0:04X}, expected {1:04X} in {2}", NtHeaders.FileHeader.Machine, FarMachineType, FileName);
 		return false;
+	}
 
 	const auto ExportDirectoryAddress = NtHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
 	if (!ExportDirectoryAddress)
+	{
+		LOGDEBUG(L"Not a plugin: no exports in {0}", FileName);
 		return false;
+	}
 
-	const auto FirstSection = view_as<IMAGE_SECTION_HEADER const*>(&NtHeaders, offsetof(IMAGE_NT_HEADERS, OptionalHeader) + NtHeaders.FileHeader.SizeOfOptionalHeader);
-	const span Sections(FirstSection, NtHeaders.FileHeader.NumberOfSections);
+	const auto FirstSectionPtr = view_as_if<IMAGE_SECTION_HEADER>(Buffer, DosHeader.e_lfanew + offsetof(IMAGE_NT_HEADERS, OptionalHeader) + NtHeaders.FileHeader.SizeOfOptionalHeader);
+	if (!FirstSectionPtr)
+	{
+		LOGDEBUG(L"Not a plugin: not enough data in {0}", FileName);
+		return false;
+	}
+
+	if (static_cast<unsigned char const*>(static_cast<void const*>(FirstSectionPtr + NtHeaders.FileHeader.NumberOfSections)) > Buffer.data() + Buffer.size())
+	{
+		LOGDEBUG(L"Not a plugin: not enough data in {0}", FileName);
+		return false;
+	}
+
+	const span Sections(FirstSectionPtr, NtHeaders.FileHeader.NumberOfSections);
 	const auto SectionIterator = std::find_if(ALL_CONST_RANGE(Sections), [&](IMAGE_SECTION_HEADER const& Section)
 	{
 		return
@@ -275,14 +316,55 @@ bool native_plugin_factory::IsPlugin(const void* Data) const
 	});
 
 	if (SectionIterator == Sections.cend())
+	{
+		LOGDEBUG(L"Not a plugin: exports section not found in {0}", FileName);
 		return false;
+	}
 
-	const auto& ExportDirectory = view_as<IMAGE_EXPORT_DIRECTORY>(Data, *SectionIterator, ExportDirectoryAddress);
-	const span Names(view_as<DWORD const*>(Data, *SectionIterator, ExportDirectory.AddressOfNames), ExportDirectory.NumberOfNames);
+	const auto section_address_to_real = [](size_t const VirtualAddress, IMAGE_SECTION_HEADER const& Section)
+	{
+		return VirtualAddress - Section.VirtualAddress + Section.PointerToRawData;
+	};
+
+	const auto ExportDirectoryPtr = view_as_if<IMAGE_EXPORT_DIRECTORY>(Buffer, section_address_to_real(ExportDirectoryAddress, *SectionIterator));
+	if (!ExportDirectoryPtr)
+	{
+		LOGDEBUG(L"Not a plugin: not enough data in {0}", FileName);
+		return false;
+	}
+
+	const auto& ExportDirectory = *ExportDirectoryPtr;
+
+	const auto FirstNamePtr = view_as_if<DWORD>(Buffer, section_address_to_real(ExportDirectory.AddressOfNames, *SectionIterator));
+	if (!FirstNamePtr)
+	{
+		LOGDEBUG(L"Not a plugin: not enough data in {0}", FileName);
+		return false;
+	}
+
+	if (static_cast<unsigned char const*>(static_cast<void const*>(FirstNamePtr + ExportDirectory.NumberOfNames)) > Buffer.data() + Buffer.size())
+	{
+		LOGDEBUG(L"Not a plugin: not enough data in {0}", FileName);
+		return false;
+	}
+
+	const span Names(FirstNamePtr, ExportDirectory.NumberOfNames);
 
 	return std::any_of(ALL_CONST_RANGE(Names), [&](DWORD const NameAddress)
 	{
-		return FindExport(view_as<char const*>(Data, *SectionIterator, NameAddress));
+		const auto StringPtr = view_as_if<char const>(Buffer, section_address_to_real(NameAddress, *SectionIterator));
+		if (!StringPtr)
+		{
+			LOGDEBUG(L"Not a plugin: not enough data in {0}", FileName);
+			return false;
+		}
+
+		const auto StringEnd = std::find_if(StringPtr, static_cast<char const*>(static_cast<void const*>(Buffer.data() + Buffer.size())), [](char const Char)
+		{
+			return !Char;
+		});
+
+		return FindExport({ StringPtr, static_cast<size_t>(StringEnd - StringPtr) });
 	});
 }
 
@@ -358,7 +440,12 @@ static void ShowMessageAboutIllegalPluginVersion(const string& plg, const Versio
 
 static auto MakeSignature(const os::fs::find_data& Data)
 {
-	return concat(to_hex_wstring(Data.FileSize), to_hex_wstring(os::chrono::nt_clock::to_filetime(Data.CreationTime).dwLowDateTime), to_hex_wstring(os::chrono::nt_clock::to_filetime(Data.LastWriteTime).dwLowDateTime));
+	return concat
+	(
+		to_hex_wstring(Data.FileSize),
+		to_hex_wstring(Data.CreationTime.time_since_epoch().count()),
+		to_hex_wstring(Data.LastWriteTime.time_since_epoch().count())
+	);
 }
 
 bool Plugin::SaveToCache()
@@ -429,7 +516,6 @@ Plugin::Plugin(plugin_factory* Factory, const string& ModuleName):
 	m_strModuleName(ModuleName),
 	m_strCacheName(ModuleName)
 {
-	ReplaceBackslashToSlash(m_strCacheName);
 	SetUuid(FarUuid);
 }
 
@@ -741,9 +827,9 @@ bool Plugin::InitLang(string_view const Path, string_view const Language)
 		PluginLang = std::make_unique<plugin_language>(Path, Language);
 		return true;
 	}
-	catch (const std::exception&)
+	catch (const std::exception& e)
 	{
-		// TODO: log
+		LOGERROR(L"{0}", e);
 		return false;
 	}
 }
@@ -1139,7 +1225,7 @@ void Plugin::ExecuteFunctionImpl(export_index const ExportId, function_ref<void(
 			HandleException(handle_std_exception, e);
 		});
 	},
-	[&]
+	[&](DWORD)
 	{
 		HandleFailure();
 	},

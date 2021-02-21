@@ -284,7 +284,7 @@ private:
 				L"\nWide: "sv, printable_wide_string(UserAddress, std::min(BlockSize, Width * sizeof(wchar_t))),
 				L"\nStack:\n"sv);
 
-			DWORD64 Stack[ARRAYSIZE(MEMINFO::Stack)];
+			uintptr_t Stack[ARRAYSIZE(MEMINFO::Stack)];
 			size_t StackSize;
 
 			for (StackSize = 0; StackSize != std::size(Stack) && i->Stack[StackSize]; ++StackSize)

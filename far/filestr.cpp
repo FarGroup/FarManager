@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "codepage_selection.hpp"
 #include "global.hpp"
+#include "log.hpp"
 
 // Platform:
 
@@ -85,9 +86,9 @@ enum_lines::~enum_lines()
 	{
 		m_Stream.exceptions(m_StreamExceptions);
 	}
-	catch (const std::exception&)
+	catch (const std::exception& e)
 	{
-		// TODO: log
+		LOGERROR(L"{0}", e);
 	}
 }
 
