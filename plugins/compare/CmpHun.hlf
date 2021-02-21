@@ -1,6 +1,7 @@
 ﻿.Language=Hungarian,Hungarian (Magyar)
 .PluginContents=Fejlettebb összehasonlítás
 
+
 @Contents
 $ #Fejlettebb összehasonlítás#
  Ez a parancs hasonlít a FAR belső "Mappák összehasonlítása" parancsára, de jónéhány hasznos opcióval kiegészítve:

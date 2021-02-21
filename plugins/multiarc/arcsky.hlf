@@ -1,6 +1,7 @@
 ﻿.Language=Slovak,Slovak (Slovenčina)
 .PluginContents=Podpora archívov (Archive support)
 
+
 @Contents
 $ #Podpora archívov#
     Tento modul FARu umožňuje transparentnú prácu s #archívmi#.
@@ -19,6 +20,7 @@ volania externých archiverov.
    ~Príkazové riadky archiverov~@ArcSettings@
 
    ~Storage of plugin settings~@ArcSettings3@
+
 
 @AddToArc
 $ #Pridávanie súborov do archívu#
@@ -53,6 +55,7 @@ positioned to the new archive once the archiving operation is
 complete. (This is not done when the archiver is started in a
 separate window.)
 
+
 @ArcPrior
 $ #Priority of process#
     MultiArc allows to control the execution priority
@@ -85,6 +88,7 @@ achieved when other active processes are running in the system.
 
     The "normal" priority is selected by default.
 
+
 @ExtrFromArc
 $ #Rozbaľovanie súborov z archívu#
     V tomto okne môžete zadať cestu, do ktorej chcete súbory rozbaliť,
@@ -100,6 +104,7 @@ files from an archive.
 
     Na okamžité rozbalenie označených archivovaných súborov do aktuálnehoä
 adresára možno použiť aj #Alt-F6#.
+
 
 @ArcCmd
 $ #Príkazy archívov#
@@ -119,14 +124,15 @@ F4 in the "Archive commands" menu.
     2. Kompletnú ponuku príkazov na prácu s archívmi možno použiť len
 pre archívy typu RAR. Ostatné archívy niektoré príkazy nepodporujú.
 
+
 @Config
 $ #Plugin configuration#
-
     ~Archive support configuration~@ArcSettings1@
 
     ~Archiver command lines~@ArcSettings2@
 
     ~Storage of plugin settings~@ArcSettings3@
+
 
 @ArcSettings1
 $ #Konfigurácia podpory archívov#
@@ -158,7 +164,6 @@ $ #Konfigurácia podpory archívov#
 
  #Zoznam súborov#         Mená súborov obsahujúcich ~popisy~@:FileDiz@
  #s popismi#              archivovaných súborov oddelené čiarkami.
-
 
  #Načítavať popisy#       Nastavuje, či sa majú načítavať popisy
  #archívov#               archivovaných súborov pri vstupe do
@@ -250,6 +255,7 @@ aspoň jednu neprázdnu premennú z hore popísaných.
 
     Ak externý archiver nepodporuje niektorý príkaz, nechajte príslušný
 reťazec prázdny.
+
 
 @ArcSettings3
 $ #Storage of plugin settings#

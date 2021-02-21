@@ -2,6 +2,7 @@
 .PluginContents=FAR Commands
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ #Příkazy FARu#
    Plugin příkazy FARu zajišťuje další funkci, která může být
@@ -9,7 +10,6 @@ použita v menu uživatele, závislostech souborů, nebo příkazové řádce.
 
    In addition, the commands can be used in ~User Menu~@:UserMenu@,
 in ~file associations~@:FileAssoc@, and in dialog ~Apply Command~@:ApplyCmd@ (#Ctrl-G#)
-
 
    #Syntaxe na příkazové řádce#
 
@@ -130,7 +130,7 @@ soubor po vytvoření a opuštění editoru změněn, bude smazán
    edit:[%Line%,] File.txt
 
    Pokud název souboru obsahuje hranaté závorky, například, "[1].txt",
-pro jeho otevření k úpravě musíte přidat buď oddělovač (například mezeru) 
+pro jeho otevření k úpravě musíte přidat buď oddělovač (například mezeru)
 před názvem souboru, nebo uzavřít název souboru mezi úvozovky:
 
    edit: [1].txt
@@ -148,7 +148,7 @@ může být zadán dvěma způsoby:
 
       #goto: cesta#
 
-   2. Cesta k souboru, nebo adresáři je přečtena ze zadaného souboru 
+   2. Cesta k souboru, nebo adresáři je přečtena ze zadaného souboru
       "#název_souboru#"
 
       #goto: <název_souboru#
@@ -171,7 +171,6 @@ objektu. FAR skočí jen do požadovaného adresáře.
 
 @Link
 $ #Příkaz Link#
-
    Příkaz #ln# umožňuje vytvořit ~linky~@:HardSymLink@ pro soubory a adresáře.
 To jde také použít pro namountování lokálních disků do souborového systému.
 
@@ -276,13 +275,13 @@ current one. To do this specify the path (enclosed in pipes '#|#')
 
    #Poznámka:#
 
-   1. ^<wrap>Všechno za znakem '#<#' je předáno příkazovému procesoru 
+   1. ^<wrap>Všechno za znakem '#<#' je předáno příkazovému procesoru
       (%COMSPEC%).
 
-   2. ^<wrap>Když ho již FAR nepotřebuje, je dočasný soubor automaticky 
+   2. ^<wrap>Když ho již FAR nepotřebuje, je dočasný soubor automaticky
       smazán.
 
-   3. ^<wrap>Některé programy, které mohou být zachycovány pluginem, místo 
+   3. ^<wrap>Některé programy, které mohou být zachycovány pluginem, místo
       zapisování textu na standardní výstup, vypisují text přímo na
       konzolu. Pro uložení výstupu konzoly pro zobrazení skrz
       #Ctrl-O#, použijte znak '#<#' and '#+#'. To ignore it - use '#>#'
@@ -310,7 +309,6 @@ command text must be separated from it by some symbol.
 
 @Remark
 $ #Poznámky#
-
    1. ^<wrap>Je možné vkládat parametry #název_souboru#, #cesta# a #příkaz# v úvozovkách.
 
    2. Je možné použít proměnné postředí.
@@ -324,7 +322,6 @@ $ #Poznámky#
 
 @Config
 $ #Nastavení příkazů FARu#
-
  #External commands screen output# Control program screen ~output~@Direction@:
 
    #Hide external command#       Hides program output. Only a message
@@ -333,8 +330,8 @@ $ #Nastavení příkazů FARu#
                                instead of #<#.
 
  #Ponechat externí výstup příkazů#
-   Ukládá text z výstupu programů přímo do konzole (vynechá standardní 
-výstup) a udělá ho přístupný pro prohlížení skrz #Ctrl-O#.   
+   Ukládá text z výstupu programů přímo do konzole (vynechá standardní
+výstup) a udělá ho přístupný pro prohlížení skrz #Ctrl-O#.
    Zapnutí tohoto nastavení má ten sám efekt, jako použití znaku #<<#,
 místo #<#.
 

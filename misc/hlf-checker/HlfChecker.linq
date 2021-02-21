@@ -3,24 +3,49 @@
   <Namespace>System.Runtime.CompilerServices</Namespace>
 </Query>
 
-private static readonly DirectoryInfo FarFolder = new DirectoryInfo(Path.Combine(Util.CurrentQuery.Location, "..", "..", "far"));
+private static readonly DirectoryInfo FarDirectory = new DirectoryInfo(Path.Combine(Util.CurrentQuery.Location, "..", "..", "far"));
+private static readonly DirectoryInfo PluginsDirectory = new DirectoryInfo(Path.Combine(Util.CurrentQuery.Location, "..", "..", "plugins"));
 
-public void Main()
+public void Main(string[] directories)
 {
-	var engHlfFileInfo = FarFolder.EnumerateFiles(@"FarEng.hlf.m4").Single();
-	var engHlf = ParseAndPrint(engHlfFileInfo.FullName);
-	if (engHlf == default)
+	ValidateDirectories(
+		directories?.Length > 0
+		? directories.Select(directory => new DirectoryInfo(directory))
+		: PluginsDirectory.EnumerateDirectories().Prepend(FarDirectory));
+}
+
+private static void ValidateDirectories(IEnumerable<DirectoryInfo> directories)
+{
+	foreach (var directory in directories)
 	{
-		$"Errors parsing {engHlfFileInfo.Name}. Exiting.".Dump();
+		ValidateDirectory(directory);
+	}
+}
+
+private static void ValidateDirectory(DirectoryInfo directory)
+{
+	var engHlfFile = directory.EnumerateFiles(@"*Eng.hlf.*").SingleOrDefault();
+	if (engHlfFile == default)
+	{
+		$"Could not find Eng.hlf file in {directory.Name}. Skippng.".Trace(printSeparator: true);
 		return;
 	}
 
-	foreach (var lngHlfFileInfo in FarFolder.EnumerateFiles(@"*.hlf.m4").Where(fi => fi.Name != engHlf.HlfName))
+	$"Validating diretory {directory.Name}...".Trace(printSeparator: true);
+
+	var engHlf = ParseAndPrintHlf(engHlfFile.FullName);
+	if (engHlf == default)
 	{
-		var lngHlf = ParseAndPrint(lngHlfFileInfo.FullName);
+		$"Errors parsing {engHlfFile.Name}. Exiting.".Trace();
+		return;
+	}
+
+	foreach (var lngHlfFile in directory.EnumerateFiles(@"*.hlf.*").Where(fi => fi.Name != engHlf.HlfName))
+	{
+		var lngHlf = ParseAndPrintHlf(lngHlfFile.FullName);
 		if (lngHlf == default)
 		{
-			$"Errors parsing {lngHlfFileInfo.Name}. Skipping validation.".Dump();
+			$"Errors parsing {lngHlfFile.Name}. Skipping validation.".Trace();
 			continue;
 		}
 
@@ -28,7 +53,7 @@ public void Main()
 	}
 }
 
-private Hlf ParseAndPrint(string hlfPath)
+private static Hlf ParseAndPrintHlf(string hlfPath)
 {
 	var parser = new HlfParser(hlfPath);
 
@@ -37,14 +62,21 @@ private Hlf ParseAndPrint(string hlfPath)
 		diagnostic.Dump();
 	}
 
+	var hlf = parser.Hlf;
+
 	if (!parser.Success)
 	{
+		$"*** Errors in {hlf.HlfName}".Trace();
 		return default;
 	}
 
-	var hlf = parser.Hlf;
+	if (parser.Warnings)
+	{
+		$"*** Warnings in {hlf.HlfName}".Trace();
+	}
 
 	// Use "git diff" to make sure the file was parsed correcly
+	$"Writing back {hlf.HlfName}...".Trace();
 	File.WriteAllLines(hlfPath, hlf.Print(), Encoding.UTF8);
 	return hlf;
 }
@@ -62,9 +94,7 @@ public class HlfComparer
 
 	public bool Compare()
 	{
-		$@"
-Comparing {EngHlf.HlfName} and {LngHlf.HlfName}"
-			.Dump();
+		$"Comparing {EngHlf.HlfName} and {LngHlf.HlfName}...".Trace();
 
 		var result = true;
 
@@ -72,15 +102,18 @@ Comparing {EngHlf.HlfName} and {LngHlf.HlfName}"
 		if (!CompareAliases()) result = false;
 		if (!CompareTopics()) result = false;
 
+		if (!result) $"*** Issues in {LngHlf.HlfName}".Trace();
+
 		return result;
 	}
 
-	private static readonly Regex PrologueLanguage = new Regex(@"\.Language=\w+,\w+(\s\(\w+\))?", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+	private static readonly Regex PrologueLanguage = new Regex(@"^\.Language=\w+,\w+(\s\(\w+\))?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+	private static readonly Regex ProloguePluginContents = new Regex(@"^\.PluginContents=.+$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
 	private bool ComparePrologue()
 	{
 		return CompareLists(EngHlf.Prologue, LngHlf.Prologue,
-							prologue => PrologueLanguage.Replace(prologue, ".Language="),
+							prologue => ProloguePluginContents.Replace(PrologueLanguage.Replace(prologue, ".Language="), ".PluginContents="),
 							prologue => "line",
 							EngHlf.HlfName, LngHlf.HlfName, "Prologue");
 	}
@@ -117,11 +150,9 @@ Comparing {EngHlf.HlfName} and {LngHlf.HlfName}"
 	{
 		if (eng.Count != lng.Count)
 		{
-			$@"
-Mismatch:
+			$@"Mismatch:
     {engHlfName}: {entityName}.Count: {eng.Count}
-    {lngHlfName}: {entityName}.Count: {lng.Count}"
-				.Dump();
+    {lngHlfName}: {entityName}.Count: {lng.Count}".Trace();
 			return false;
 		}
 
@@ -131,11 +162,9 @@ Mismatch:
 			.Select((c, i) => (i: i, eng: (ent: c.eng, elem: Element(c.eng)), lng: (ent: c.lng, elem: Element(c.lng))))
 			.Where(c => !c.eng.elem.Equals(c.lng.elem)))
 		{
-			$@"
-Mismatch: {entityName}[{comp.i}]:
+			$@"Mismatch: {entityName}[{comp.i}]:
     {engHlfName}: {entityName}{Context(comp.eng.ent)}: {comp.eng.elem}
-    {lngHlfName}: {entityName}{Context(comp.lng.ent)}: {comp.lng.elem}"
-				.Dump();
+    {lngHlfName}: {entityName}{Context(comp.lng.ent)}: {comp.lng.elem}".Trace();
 				
 			result = false;
 		}
@@ -151,9 +180,7 @@ public class HlfParser
 	public HlfParser(string hlfPath)
 	{
 		Hlf = new Hlf{ HlfName = Path.GetFileName(hlfPath) };
-		$@"
-Parsing {Hlf.HlfName}"
-			.Dump();
+		$"Parsing {Hlf.HlfName}...".Trace();
 
 		Parser parser = Start;
 		Token token = new Token();
@@ -161,7 +188,7 @@ Parsing {Hlf.HlfName}"
 		foreach (var line in File.ReadLines(hlfPath))
 		{
 			token = new Token(line, token);
-			ValidateToken(token);
+			token = ValidateToken(token);
 			parser = parser(token);
 		}
 
@@ -183,34 +210,36 @@ Parsing {Hlf.HlfName}"
 	{
 		switch (token.kind)
 		{
-			case Token.Kind.Empty: return BeforeAliases;
+			case Token.Kind.Empty: return AfterPrologues;
 			case Token.Kind.Normal: Hlf.Prologue.Add(token.line); return Prologue;
 		}
 
 		AddUnexpected(token, new[]{ Token.Kind.Empty, Token.Kind.Normal });
-		return SkipToAliases;
+		return SkipToAliasesOrTopic;
 	}
 
-	private Parser SkipToAliases(Token token)
+	private Parser SkipToAliasesOrTopic(Token token)
 	{
 		switch (token.kind)
 		{
 			case Token.Kind.Alias: StartAliases(token); return Aliases;
+			case Token.Kind.Title: StartTopic(token); return Header;
 		}
 
-		return SkipToAliases;
+		return SkipToAliasesOrTopic;
 	}
 
-	private Parser BeforeAliases(Token token)
+	private Parser AfterPrologues(Token token)
 	{
 		switch (token.kind)
 		{
-			case Token.Kind.Empty: return BeforeAliases;
+			case Token.Kind.Empty: return AfterPrologues;
 			case Token.Kind.Alias: StartAliases(token); return Aliases;
+			case Token.Kind.Title: StartTopic(token); return Header;
 		}
 
 		AddUnexpected(token, new[]{ Token.Kind.Empty, Token.Kind.Alias });
-		return SkipToAliases;
+		return SkipToAliasesOrTopic;
 	}
 
 	private void StartAliases(Token token)
@@ -266,6 +295,7 @@ Parsing {Hlf.HlfName}"
 			case Token.Kind.Empty: return AfterHeader;
 			case Token.Kind.Header: Hlf.Topics.Last().Headers.Add(token.line); return Header;
 			case Token.Kind.Normal: StartParagraph(token, 0); return Paragraph;
+			case Token.Kind.Eof: AddEmptyTopic(token); return Eof;
 		}
 
 		AddUnexpected(token, new[]{ Token.Kind.Header, Token.Kind.Normal });
@@ -277,7 +307,9 @@ Parsing {Hlf.HlfName}"
 		switch (token.kind)
 		{
 			case Token.Kind.Empty: return AfterHeader;
+			case Token.Kind.Title: AddEmptyTopic(token); StartTopic(token); return Header;
 			case Token.Kind.Normal: StartParagraph(token, 0); return Paragraph;
+			case Token.Kind.Eof: AddEmptyTopic(token); return Eof;
 		}
 
 		AddUnexpected(token, new[] { Token.Kind.Empty, Token.Kind.Title, Token.Kind.Normal });
@@ -287,7 +319,11 @@ Parsing {Hlf.HlfName}"
 	private void StartParagraph(Token token, int expectedBlankLinesBefore)
 	{
 		CheckBlankLinesBefore(token, expectedBlankLinesBefore, "Paragraph");
-		Hlf.Topics.Last().Paragraphs.Add(new Paragraph { Lines = new List<string> { token.line }, BlankLinesBefore = token.blankLinesBefore });
+		Hlf.Topics.Last().Paragraphs.Add(new Paragraph
+		{
+			Lines = new List<string> { token.line },
+			ExpectedBlankLinesBefore = expectedBlankLinesBefore
+		});
 	}
 
 	private Parser Paragraph(Token token)
@@ -326,11 +362,11 @@ Parsing {Hlf.HlfName}"
 	{
 		if (token.blankLinesBefore != expected)
 		{
-			AddWarning(token, $"Expected {expected} empty line(s) before {entity}; actual {token.blankLinesBefore}");
+			AddWarning(token, $"Expected {expected} empty line(s) before {entity}; actual {token.blankLinesBefore}. Corrected");
 		}
 	}
 
-	private void ValidateToken(Token token)
+	private Token ValidateToken(Token token)
 	{
 		switch (token.kind)
 		{
@@ -340,10 +376,19 @@ Parsing {Hlf.HlfName}"
 			case Token.Kind.Normal:
 				if (token.line[token.line.Length - 1] == ' ')
 				{
-					AddWarning(token, "Trailing space");
+					AddWarning(token, "Trailing space(s) removed");
+					return new Token
+					{
+						line = token.line.TrimEnd(),
+						kind = token.kind,
+						lineNumber = token.lineNumber,
+						blankLinesBefore = token.blankLinesBefore
+					};
 				}
 				break;
 		}
+
+		return token;
 	}
 
 	private static Token.Kind ClassifyLine(string line)
@@ -426,6 +471,11 @@ Parsing {Hlf.HlfName}"
 		AddDiagnostics(Diagnostics.Severity.Error, token, message);
 	}
 
+	private void AddEmptyTopic(Token token)
+	{
+		AddWarning(token, $"Empty Topic {Hlf.Topics.Last().Title}");
+	}
+
 	private void AddUnexpected(Token token, Token.Kind[] expected, [CallerMemberName] string parser = default)
 	{
 		AddError(token, $"Unexpected token kind '{token.kind}' while parsing '{parser}'. Expected: {string.Join(", ", expected)}");
@@ -438,6 +488,7 @@ Parsing {Hlf.HlfName}"
 	}
 
 	public bool Success => diagnostics.All(diagnostic => diagnostic.severity < Diagnostics.Severity.Error);
+	public bool Warnings => diagnostics.Any(diagnostic => diagnostic.severity == Diagnostics.Severity.Warning);
 
 	private delegate Parser Parser(Token token);
 	private List<Diagnostics> diagnostics = new List<Diagnostics>();
@@ -461,16 +512,19 @@ public class Topic
 public class Paragraph
 {
 	public List<string> Lines;
-	public int BlankLinesBefore;
+	public int ExpectedBlankLinesBefore;
 }
 
 public static class Extensions
 {
 	private static readonly string[] TwoEmpty = new[] { string.Empty, string.Empty };
+	private static readonly string Separator = new string('-', 80);
 
 	public static IEnumerable<string> Print(this Hlf hlf)
 	{
-		return hlf.Prologue.Concat(TwoEmpty).Concat(hlf.Aliases).Concat(hlf.Topics.Print());
+		return hlf.Prologue
+			.Concat(hlf.Aliases.Count > 0 ? TwoEmpty.Concat(hlf.Aliases) : Enumerable.Empty<string>())
+			.Concat(hlf.Topics.Print());
 	}
 
 	public static IEnumerable<string> Print(this IList<Topic> topics)
@@ -482,6 +536,15 @@ public static class Extensions
 	public static IEnumerable<string> Print(this IList<Paragraph> paragraphs)
 	{
 		return paragraphs.SelectMany(
-			paragraph => Enumerable.Range(0, paragraph.BlankLinesBefore).Select(i => string.Empty).Concat(paragraph.Lines));
+			paragraph => Enumerable.Range(0, paragraph.ExpectedBlankLinesBefore)
+				.Select(i => string.Empty)
+				.Concat(paragraph.Lines));
+	}
+
+	public static void Trace(this string line, bool printSeparator = false)
+	{
+		string.Empty.Dump();
+		if (printSeparator) Separator.Dump();
+		line.Dump();
 	}
 }

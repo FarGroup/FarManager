@@ -2,6 +2,7 @@
 .PluginContents=Same Folder
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ #Same Folder#
  Плагин добавляет пункт "#Такая же папка#" ("Same Folder") в #меню плагинов# и #меню дисков#.
@@ -19,7 +20,6 @@ $ #Same Folder#
 
 @Config
 $ #Настройка Same Folder#
-
  #Добавить "Такая же папка" в меню плагинов#
  Добавляет в ~меню плагинов~@:PluginCommands@ команду установки на пассивной панели такой же папки, как и на активной.
 

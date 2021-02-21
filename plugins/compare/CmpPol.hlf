@@ -1,6 +1,7 @@
 ﻿.Language=Polish,Polish (Polski)
 .PluginContents=Zaawansowane porównywanie
 
+
 @Contents
 $ #Zaawansowane porównywanie#
  Wtyczka jest podobna do polecenia Far "Porównaj foldery", ale dodatkowo można ustawić dodatkowe opcje porównywania:

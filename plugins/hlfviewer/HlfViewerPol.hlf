@@ -2,6 +2,7 @@
 .PluginContents=HlfViewer - podgląd plików pomocy
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ #HlfViewer - podgląd plików pomocy#
    Wtyczka HlfViewer została utworzeona aby pomóc osobom, które tworzą lub edytują pliki pomocy
@@ -15,7 +16,6 @@ $ #HlfViewer - podgląd plików pomocy#
 
 @cmd
 $ #HlfViewer: składnia linii poleceń
-
    #hlf:GUID# [#temat#]
    #hlf:nazwa_pliku# [#temat#]
    #hlf:temat#

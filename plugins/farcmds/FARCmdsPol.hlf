@@ -2,6 +2,7 @@
 .PluginContents=Polecenia FAR
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ #Polecenia FAR#
    Wtyczka Polecenia FAR (FARCmds) provides a number of additional commands available
@@ -9,7 +10,6 @@ in command line via prefixes.
 
    Dodatkowo, polecenia mogą być używane w ~Menu użytkownia~@:UserMenu@,
 w ~powiązaniach plików~@:FileAssoc@, oraz w oknie dialogowym ~Zastosuj polecenie~@:ApplyCmd@ (#Ctrl-G#)
-
 
   #Command Line Syntax#
 
@@ -173,7 +173,6 @@ only the switching to the required folder occurs.
 
 @Link
 $ #Polecenie Link#
-
    The #link# command creates ~links~@:HardSymLink@ to files and folders.
 It also allows to mount local disks on file system.
 
@@ -312,7 +311,6 @@ command text must be separated from it by some symbol.
 
 @Remark
 $ #Notes#
-
    1. ^<wrap>It is possible to enclose parameters #filename#, #path# and #command# in quotes.
 
    2. You can use environment variables.
@@ -326,7 +324,6 @@ $ #Notes#
 
 @Config
 $ #Configuring FAR Commands#
-
  #External commands screen output# Control program screen ~output~@Direction@:
 
    #Hide external command#       Hides program output. Only a message

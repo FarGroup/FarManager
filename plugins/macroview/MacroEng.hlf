@@ -1,9 +1,9 @@
 ﻿.Language=English,English
 .PluginContents=FAR Macro browser
 
+
 @Contents
 $ #FAR Macro browser#
-
     This module provides a viewing, editing, copying and moving macros
 to other areas, copying and moving of macros to other user's FAR
 configurations, export to the file, inserting in the editor, creation,
@@ -27,6 +27,7 @@ deleting and deactivating the macros used in FAR.
 
    ~Macro browser configuration~@Config@
 
+
 @MacroView
 $ #Macro list#
     The macros, that exist in FAR, are displayed as the list in
@@ -37,7 +38,6 @@ one of two possible formats:
  #[-] Area of action: "Command of execution" │ Macro description#
 
  The format of displaying depends on ~macro browser configuration~@Config@.
-
 
  Display format description:
  ---------------------------
@@ -59,7 +59,6 @@ recording #Ctrl-.# in the macro parameters window.
 
  #Macro description# - user-defined macro description, which can be assigned
 when editing or creating the new macro.
-
 
  Keyboard commands:
  ------------------
@@ -87,15 +86,15 @@ key can be used to save all macros in the file.
 key. Using the same key it is possible to make active of temporarily
 deactivated macro.
 
+
 @MacroAreas
 $ #Macro areas#
-
    ~Short area names~@MacroAreasShort@
    ~Long area names~@MacroAreasLong@
 
+
 @MacroAreasShort
 $ #Macro areas. Short names#
-
  #Dialog#     command works in dialog windows.
 
  #Disks#      command works in the disk menu.
@@ -124,9 +123,9 @@ $ #Macro areas. Short names#
 
  #Common#     common command, which works everywhere in FAR.
 
+
 @MacroAreasLong
 $ #Macro areas. Long names#
-
  #Dialog windows#     command works in dialog windows.
 
  #Disks menu#         command works in the disk menu.
@@ -156,6 +155,7 @@ $ #Macro areas. Long names#
 
  #Common macros#      common command, which works everywhere in FAR.
 
+
 @MacroSpecial
 $ #Special macros#
     FAR supports the set of special macros, that cannot be entered
@@ -180,9 +180,12 @@ The following escape sequences are allowed inside the 'string' argument:
         \NNN --//--//--//--
         \xNN Hex code of characters in the OEM code page
 
-   The '$Text' macro is helpful when manually writing a macro
-sequence containing lengths of arbitrary text and will also lower memory
+    The '$Text' macro is helpful when manually writing a macro
+sequence which inserts long strings. It will also reduce memory
 usage in such macro sequences.
+
+    The word "$Text" is optional, i.e., macro engine interprets arbitrary
+string in double quotes as $Text.
 
  #$Exit#
    Special macro '$Exit' stops the playback of a macro sequence.
@@ -208,6 +211,7 @@ independently of the keys, assigned in TechInfo##10.
  #%var=value;#
  #%%var=value;#
      Use of ~variables~@MacroVariables@.
+
 
 @MacroParams
 $ #Macro parameters#
@@ -267,8 +271,6 @@ forbidden until the macro playback is finished.
     [ ] - execute only if there is no selection present
     [?] - ignore selection state
 
-
-
  The following execution conditions can be applied for the active and passive panels:
 
  #Plugin/file panel#
@@ -291,8 +293,6 @@ forbidden until the macro playback is finished.
           on the panel.
     [?] - ignore the file selection state.
 
-
-
  #Send macro to plugins#
 
     If this option is turned off, then all keys in macro sequence
@@ -302,12 +302,14 @@ will not be sent to plugins, while playing macro.
 
     When this option is set on, the saved macro becomes inactive.
 
+
 @MacroDelEmpty
 $ #Deleting an empty macro#
     If editing the macro to delete the macro sequence, it is supposed,
 that you want to delete the macro, as will be made if you confirm a deleting.
 Also you can temporarily deactivate it, having saved all changes you have
 made. You can simply cancel deleting and save the macro empty.
+
 
 @MacroDel
 $ #Deleting or deactivating the macro#
@@ -318,6 +320,7 @@ deactivate it. It is reached also by pressing the #Del# key, whereupon to
 choose #Deactivate#. The deactivated macro is marked in the list at the left
 by the #-# symbol. To activate the macro, you need to do the same operation,
 but when prompted, choose #Activate#.
+
 
 @MacroCopy
 $ #Copying or moving macro#
@@ -343,9 +346,9 @@ to the macro that is copied or moved. By default this field contains value,
 as in the macro for which the operation is made. You can change the
 command of execution to any necessary value, except the empty one.
 
-
     If in destination there is a macro with the same name as in copied
 or moved, then the warning will be issued with confirmation of overwriting.
+
 
 @Config
 $ #Macro browser configuration#
@@ -417,6 +420,7 @@ built-in viewer shows only its own macros.
     By setting this option on, the list of macros in the
 built-in editor shows only its own macros.
 
+
 @MacroExport
 $ #Export of the macro to the file#
     If you need to save the macro in the file, then use #F2# key in the
@@ -437,6 +441,7 @@ for example:
 type in the UNC path, for example:
 
  #\\Server\Resource\Dir1\Dir2\Dir3\macroname.reg#
+
 
 @MacroExportAll
 $ #Export of all macros to the file#
@@ -459,6 +464,7 @@ type in the UNC path, for example:
 
  #\\Server\Resource\Dir1\Dir2\Dir3\KeyMacros.reg#
 
+
 @MacroExportExist
 $ #Export file already exists#
     If there is a situation where a file with the name you enter exists,
@@ -466,6 +472,7 @@ you will be prompted with message window for making choice from one of
 the following: #Overwrite# - overwrites the existing file, #Rename# -
 returns you to dialog to enter new name of exporting file and #Cancel# -
 cancels exporting and returns you to the list of macros.
+
 
 @MacroVariables
 $ #Variables#
@@ -482,7 +489,6 @@ $ #Variables#
     Целочисленные константы: NNN - 10-ричная константа, 0NNN - 8-ричная константа,
 0xNNN - 16-ричная константа.
     Присвоение значения переменной должно заканчиваться символом ';'
-
 
     Над переменными можно производить следующие операции:
     Операция     Описание

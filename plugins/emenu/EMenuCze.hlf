@@ -1,32 +1,32 @@
 ﻿.Language=Czech,Czech (Čeština)
 .PluginContents=EMenu
 
+
 @Contents
 $ #EMenu#
 ^#Popis#
 
     Tento plugin zobrazuje kontextové menu Průzkumníka pro aktuální, nebo
-vybrané soubory a/nebo adresáře. Plugin může pracovat v panelu souborů,  
+vybrané soubory a/nebo adresáře. Plugin může pracovat v panelu souborů,
 panelu stromu, dočasném panelu, nebo panelu síťového prohlížeče.
 
-    Plugin může zobrazit textové, nebo GUI kontextové menu, v závislosti 
+    Plugin může zobrazit textové, nebo GUI kontextové menu, v závislosti
 na nastavení v ~konfiguračním dialogu~@Config@.
-
 
 ^#Jak použít EMenu#
 
     EMenu může být spuštěno dvěmi cestami:
 
-    #Z menu Příkazy Pluginů# 
+    #Z menu Příkazy Pluginů#
 
-    V panelu označte soubor, adresář, nebo řádek .. , stiskněte F11 a 
+    V panelu označte soubor, adresář, nebo řádek .. , stiskněte F11 a
 vyberte položku EMenu. Můžete vybrat několik souborů, nebo adresářů a dostat
-menu pro všechny, stejně jako v Průzkumníku. Kontextové menu pro řádek .. je 
+menu pro všechny, stejně jako v Průzkumníku. Kontextové menu pro řádek .. je
 menu pro aktuální adresář.
     Pro vaše pohodlí je plugin pro zobrazení vybaven třemi klávesovými makry:
 
  #Apps#       Zobrazí textové menu
- #Shift-Apps# Zobrazí GUI menu 
+ #Shift-Apps# Zobrazí GUI menu
  #Ctrl-Apps#  Zobrazí menu pro výběr mezi textovým a GUI menu
 
     Pro instalaci maker spusťte Hotkey.reg a restartujte FAR.
@@ -39,12 +39,13 @@ menu pro aktuální adresář.
  #rclk_cmd:  <příkaz> [soubory]#  Vyvolá specifikovaný příkaz menu.
  #rclk_item: <položka> [soubory]# Vyvolá specifikovanou položku menu.
 
-    Soubory jsou odděleny mezerou. Soubory mohou obsahovat plnou cestu, nebo 
-názvy souborů (předpokládá se aktuální adresář). Pokud soubory vynechají 
-aktuální panel je použit výběr. 
+    Soubory jsou odděleny mezerou. Soubory mohou obsahovat plnou cestu, nebo
+názvy souborů (předpokládá se aktuální adresář). Pokud soubory vynechají
+aktuální panel je použit výběr.
     Pokud některá část příkazové řádky obsahuje mezery dejte je do úvozovek.
     Command line can contain environment variables put between %. Variables
 will be expanded into their values.
+
 
 @Config
 $ #Konfigurační dialog EMenu#
@@ -74,7 +75,7 @@ použít GUI menu.
 
 ^#Smazat FARem#
 
-    Když je tato volba zapnuta, příkaz v menu "odstranit" bude proveden jako 
+    Když je tato volba zapnuta, příkaz v menu "odstranit" bude proveden jako
 klávesou F8 ve FARu.
 
     Implicitní hodnota: #vypnuto#.
@@ -98,14 +99,14 @@ po provedení některého příkazu zrušen.
 informace, umístěné v závorkách vedle položky.
 
  #( ) Nic#                     Nejsou zobrazeny žádné další informace.
- #( ) Zobrazovat helptext#     Je zobrazen pomocný text. Pomocný text  
-                             je text, který Průzkumník zobrazuje v 
-                             status baru na aktuálně vybraném příkazu 
+ #( ) Zobrazovat helptext#     Je zobrazen pomocný text. Pomocný text
+                             je text, který Průzkumník zobrazuje v
+                             status baru na aktuálně vybraném příkazu
                              kontextového menu.
- #( ) Zobrazovat příkazy#      Jsou zobrazeny příkazy. Užitečné, pokud 
-                             chcete znát příkazy k zápisu "rclk_cmd:" 
+ #( ) Zobrazovat příkazy#      Jsou zobrazeny příkazy. Užitečné, pokud
+                             chcete znát příkazy k zápisu "rclk_cmd:"
                              předpony příkazovému řádku.
- #[ ] Skrýt pokud je to totéž# Skryje další informace, pokud jsou 
+ #[ ] Skrýt pokud je to totéž# Skryje další informace, pokud jsou
                              stejné, jako položka v menu.
 
 ^#Pozice GUI menu#
@@ -115,47 +116,55 @@ informace, umístěné v závorkách vedle položky.
  #( ) Na pozici kurzoru#
  #( ) V centru okna FARu#
 
+
 @Main
 $ #Hlavní menu EMenu#
     V hlavním menu můžete vybrat zda chcete zobrazit kontextové menu pro
-položky v panelech, nebo vybrat položku z menu "Tento počítač", pro které 
+položky v panelech, nebo vybrat položku z menu "Tento počítač", pro které
 můžete zobrazit kontextové menu.
 
     #Kontextové menu# Zobrazuje kontextové menu pro položky v panelu.
 
-    #Tento počítač#   Výběr pro kterou položku v menu "Tento počítač" chcete 
+    #Tento počítač#   Výběr pro kterou položku v menu "Tento počítač" chcete
 zobrazit kontextové menu.
+
 
 @ChooseMenuType
 $ #Výběr typu menu#
     Výběr mezi textovým kontextovým menu a GUI kontextovým menu. Toto chování
 může být změněno v ~konfiuračním dialogu~@Config@.
 
+
 @MyComp
 $ #Tento počítač#
     Vyberte položku, pro kterou chcete otevřít kontextové menu.
+
 
 @ContextMenu
 $ #Kontextové menu#
     Toto je kontextové menu zobrazené pluginem ~EMenu~@Contents@.
 
+
 @Error0
 $ #Nemohu zobrazit menu, protože soubory pocházejí z rozdílných adresářů.#
-    Tato zpráva se objeví, když jsou vybrané soubory umístěny v rozdílných 
+    Tato zpráva se objeví, když jsou vybrané soubory umístěny v rozdílných
 adresářích.
+
 
 @Error1
 $ #Nemohu zobrazit menu.#
     Tato zpráva se objeví, když EMenu nemůže zobrazit kontextové menu.
 
+
 @Error2
 $ #Nemohu vyvolat příkaz menu.#
     Tato zpráva de objeví, když během vyvolávání příkazu menu vznikne chyba.
 
+
 @Close
 $ #Stiskněte "OK" pro pokračování...#
-    Jsou některé případy, kdy čekáte, než se ukončí provádění příkazu 
-menu a teprve potom pokračuje práce s FARem. Jedním takovým příkazem 
+    Jsou některé případy, kdy čekáte, než se ukončí provádění příkazu
+menu a teprve potom pokračuje práce s FARem. Jedním takovým příkazem
 je "vložit" ve Windows 9x, pro soubory s cestami, obsahujícími národní
 znaky. Pod Windows NT/2000/XP tuto zprávu můžete vypnout.
 

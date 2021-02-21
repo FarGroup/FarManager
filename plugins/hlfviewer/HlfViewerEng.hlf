@@ -2,6 +2,7 @@
 .PluginContents=HlfViewer
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ #HlfViewer#
    The HlfViewer plugin was created to help those who create or edit
@@ -15,7 +16,6 @@ HLF files or just want to view some HLF files.
 
 @cmd
 $ #HlfViewer: command line syntax
-
    #hlf:GUID# [#topic#]
    #hlf:filename# [#topic#]
    #hlf:topic#

@@ -1,6 +1,7 @@
 ﻿.Language=German,German (Deutsch)
 .PluginContents=Zeichenkonvertierung in Dateinamen
 
+
 @Contents
 $ #Zeichenkonvertierung in Dateinamen#
  Mit diesem Befehl können die Buchstaben von Dateinamen in eines der verfügbaren Formate konvertiert werden.

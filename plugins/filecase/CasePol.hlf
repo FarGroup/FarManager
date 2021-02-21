@@ -1,6 +1,7 @@
 ﻿.Language=Polish,Polish (Polski)
 .PluginContents=Konwersja wielkości znaków w nazwach plików
 
+
 @Contents
 $ #Konwersja wielkości znaków w nazwach plików#
     This command allows to change the case of selected file

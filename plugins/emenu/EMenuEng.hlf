@@ -1,6 +1,7 @@
 ﻿.Language=English,English
 .PluginContents=EMenu
 
+
 @Contents
 $ #EMenu#
 ^#Description#
@@ -11,7 +12,6 @@ temporary panel or network browser panel.
 
     The plugin can show a text or GUI context menu, depending on its
 settings in the ~configuration dialog~@Config@.
-
 
 ^#How to use EMenu#
 
@@ -46,6 +46,7 @@ selection is used.
     If any part of command line contains spaces put it in quotes.
     Command line can contain environment variables put between %. Variables
 will be expanded into their values.
+
 
 @Config
 $ #EMenu configuration dialog#
@@ -115,6 +116,7 @@ displayed in the text menu in brackets next to item.
  #( ) At the mouse cursor#
  #( ) In the center of Far window#
 
+
 @Main
 $ #Main EMenu menu#
     In the main menu you can choose whether to show the context menu for
@@ -126,31 +128,38 @@ want to show the context menu.
     #My Computer# Select for which item in "My computer" explorer branch you
 want to show the context menu.
 
+
 @ChooseMenuType
 $ #Choosing menu type#
     Choose between text context menu and GUI context menu. This behaviour
 can be changed in the ~configuration dialog~@Config@.
 
+
 @MyComp
 $ #My Computer#
     Select an item for which you want to get the context menu.
 
+
 @ContextMenu
 $ #Context Menu#
     This is a context menu shown by the ~EMenu~@Contents@ plugin.
+
 
 @Error0
 $ #Can't show the menu if files are from different folders.#
     This message appears when selected files are placed in different
 folders.
 
+
 @Error1
 $ #Can't show the menu.#
     This message appears when EMenu is unable to show the context menu.
 
+
 @Error2
 $ #Can't invoke menu command.#
     This message appears when error occurred during invoking of menu command.
+
 
 @Close
 $ #Press "OK" to continue...#

@@ -1,11 +1,13 @@
 ﻿.Language=Polish,Polish (Polski)
 .PluginContents=Zmiana wielkości znaków
 
+
 @Contents
 $ #Zmiana wielkości znaków#
  Wtyczka pozwala na zmianę wielkości znaków w zaznaczonym tekście lub w bieżącym słowie, w wewnętrznym edytorze Far.
 
  Zobacz także "~Wywoływanie wtyczki w makrach~@MacroCallPlugin@"
+
 
 @MacroCallPlugin
 $ #Wywoływanie wtyczki w makrach#

@@ -1,6 +1,7 @@
 ﻿.Language=Czech,Czech (Čeština)
 .PluginContents=Network browser plugin
 
+
 @Contents
 $ #Plugin síťový prohlížeč. Verze 1.70 beta 4#
  Použitím síťového prohlížeče můžete procházet sítí, dostat se
@@ -9,8 +10,8 @@ Pro přiřazení vybraného disku dalšímu volnému písmenu stiskněte kláves
 #F5#, nebo pro manuální výběr písmena disku #F6#. #Shift-F5# a #Shift-F6#
 pracují stejně jako #F5# a #F6#, ale vytvoří pouze dočasné připojení.
 Po stisku klávesy #F6# nebo #Shift-F6# se zobrazí menu pro výběr písmena
-síťového disku, kde můžete přepínat mezi typem připojení. Pro 
-~zrušení existujících namapování~@DisconnectDrive@ pro disky stiskněte 
+síťového disku, kde můžete přepínat mezi typem připojení. Pro
+~zrušení existujících namapování~@DisconnectDrive@ pro disky stiskněte
 klávesu #F8#.
 
  Síťový prohlížeč můžete otevřít buď z menu disků, menu pluginů,
@@ -35,21 +36,22 @@ specifying login information explicitly use F4 key.
 
  ~Konfigurace síťového prohlížeče~@Config@
 
+
 @Config
 $ #Konfigurace síťového prohlížeče#
  V tomto dialogu můžete měnit následující nastavení:
 
  #Přidat do menu disků#
- Zapíná přidání položky "síť" do menu disků.               
+ Zapíná přidání položky "síť" do menu disků.
 
  #Přidat do menu pluginů#
- Zapíná přidání položky "síť" do menu pluginů.           
+ Zapíná přidání položky "síť" do menu pluginů.
 
  #Выводить ".." в списке провайдеров#
  Показывать ".." на панели в списке провайдеров.
 
  #Zobrazovat lokáln síťí#
- Pokud je toto nastavení aktivováno, síťový prohlížeč při prvním spuštěná zobrazí 
+ Pokud je toto nastavení aktivováno, síťový prohlížeč při prvním spuštěná zobrazí
 síťové sousedy aktuálního počítače (počítače ve stejné doméně, nebo pracovní skupině).
 Toto nastavení pracuje pouze na sítích Microsoft Windows.
 
@@ -68,13 +70,14 @@ Toto nastavení pracuje pouze na sítích Microsoft Windows.
  #Возврат в Избранное, если ресурс в избранном#
  ...
 
+
 @DisconnectDrive
 $ #Odpojení síťového disku#
-  Síťový disk může být odpojen stisknutím #Del# nebo #F8#, v seznamu 
-sdílení počítače. 
+  Síťový disk může být odpojen stisknutím #Del# nebo #F8#, v seznamu
+sdílení počítače.
 
-  Zapnutím nastavení #[x] Odpojení síťové jednotky# v dialogu 
-~Potvrzení~@:ConfirmDlg@ konfigurace FARu, můžete potvrzovat 
+  Zapnutím nastavení #[x] Odpojení síťové jednotky# v dialogu
+~Potvrzení~@:ConfirmDlg@ konfigurace FARu, můžete potvrzovat
 zda chcete, nebo nechcete odpojit síťovou jednotku a vybrat zda
 ji odpojit permanentně, nebo dočasně.
 

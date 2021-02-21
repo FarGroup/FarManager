@@ -1,6 +1,7 @@
 ﻿.Language=German,German (Deutsch)
 .PluginContents=Archivsupport-Plugin
 
+
 @Contents
 $ #Archivsupport-Plugin#
     Dieses FAR-Modul führt transparente #Archiv#-Bearbeitungen durch.
@@ -20,6 +21,7 @@ Packerbefehle um.
    ~Packer-Kommandozeilenoptionen~@ArcSettings2@
 
    ~Storage of plugin settings~@ArcSettings3@
+
 
 @AddToArc
 $ #Dateien archivieren#
@@ -55,6 +57,7 @@ positioned to the new archive once the archiving operation is
 complete. (This is not done when the archiver is started in a
 separate window.)
 
+
 @ArcPrior
 $ #Priority of process#
     MultiArc allows to control the execution priority
@@ -87,6 +90,7 @@ achieved when other active processes are running in the system.
 
     The "normal" priority is selected by default.
 
+
 @ExtrFromArc
 $ #Dateien entpacken#
     In diesem Dialog können Sie den Pfad zum Entpacken von Dateien
@@ -95,7 +99,6 @@ und das Passwort zum Entschlüsseln archivierter Dateien angeben.
     Die Option #Ohne Pfadnamen entpacken# erzwingt das Entpacken aller
 Dateien in das gleiche Verzeichnis.
 
-
     If the option #Delete from archive after extracting# is turned on,
 the files will be deleted from the archive after they are extracted.
 This option is turned on automatically if the key #F6# is used to extract
@@ -103,6 +106,7 @@ files from an archive.
 
     Um ausgewählte archivierte Dateien sofort in das aktuelle
 Verzeichnis zu entpacken, können Sie auch #Alt-F6# benutzen.
+
 
 @ArcCmd
 $ #Archiv-Befehle#
@@ -126,14 +130,15 @@ F4 in the "Archive commands" menu.
 mit RAR-Archiven verwendet werden. Andere Packer unterstützen nur
 einen Teil dieser Befehle.
 
+
 @Config
 $ #Plugin configuration#
-
     ~Archive support configuration~@ArcSettings1@
 
     ~Archiver command lines~@ArcSettings2@
 
     ~Storage of plugin settings~@ArcSettings3@
+
 
 @ArcSettings1
 $ #Archivsupport-Konfiguration#
@@ -178,11 +183,15 @@ $ #Archivsupport-Konfiguration#
  #aktualisieren#          Dateien nach Hinzufügen zu oder Entfernen
                         aus einem Archiv.
 
+
 @ArcSettings2
 $ #Packer-Kommandozeilenoptionen#
     In diesem Dialog können Sie externe Packer-Kommandozeilenoptionen
 für unterschiedliche Archivierungsoperationen sowie Masken zur
 Dateiselektion für alle Dateien ändern.
+
+    To reset all the settings of an archiver to the default values,
+press the Reset button.
 
     Die folgenden Variablen stehen zur Verfügung:
 
@@ -262,6 +271,7 @@ Variablen enthält, die nicht leer ist/sind.
 
     Falls ein externer Packer den ein oder anderen Befehl nicht
 unterstützt, lassen Sie den zugehörigen Eintrag dazu leer.
+
 
 @ArcSettings3
 $ #Storage of plugin settings#

@@ -1,6 +1,7 @@
 ﻿.Language=Polish,Polish (Polski)
 .PluginContents=Rysuj linie
 
+
 @Contents
 $ #Rysuj linie#
  Wtyczka pozwala rysować pojedyncze i podwójne linie w wewnętrznym edytorze Far za pomocą preudograficznych znaków.

@@ -2,6 +2,7 @@
 .PluginContents=Stejný adresář
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ #Stejný adresář#
  The plugin adds item "Same Folder" to the #plugins menu# and the #drives menu#.
@@ -19,8 +20,7 @@ the choosen panel to the same folder as in the opposite one.
 
 @Config
 $ #Configuring Same Folder#
-
- #Přidat "stejný adresář do menu pluginů"# 
+ #Přidat "stejný adresář do menu pluginů"#
  Zapíná přidávání příkazu stejný adresář do ~menu pluginů~@:PluginCommands@ (sets the passive panel's folder to the active's one).
 
  #Přidat "stejný adresář" do menu disků#

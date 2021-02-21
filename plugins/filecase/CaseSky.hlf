@@ -1,6 +1,7 @@
 ﻿.Language=Slovak,Slovak (Slovenčina)
 .PluginContents=Zmena veľkosti písmen v názvoch súborov
 
+
 @Contents
 $ #Zmena veľkosti písmen v názvoch súborov#
  Tento príkaz dovoľuje zmeniť veľkosť písmen v názvoch označených súborov výberom z niekoľkých formátov.

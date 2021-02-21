@@ -2,6 +2,7 @@
 .PluginContents=FAR Commands
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ #FAR Commands#
    Плагін FAR Commands (або FARCmds) прадстаўляе дадатковыя магчымасці,
@@ -9,7 +10,6 @@ $ #FAR Commands#
 
    In addition, the commands can be used in ~User Menu~@:UserMenu@,
 in ~file associations~@:FileAssoc@, and in dialog ~Apply Command~@:ApplyCmd@ (#Ctrl-G#)
-
 
   #Сінтаксіс#
 
@@ -173,7 +173,6 @@ $ #Каманда Goto#
 
 @Link
 $ #Каманда Link#
-
    Каманда #ln# дазваляе ствараць і выдаляць ~сувязі~@:HardSymLink@ для
 файлаў і каталогаў. З дапамогай каманды "ln" таксама можна мантыраваць лакальныя
 дыскі на файлавую сістэму.
@@ -310,19 +309,22 @@ command text must be separated from it by some symbol.
 
    Гл. таксама: ~Заўвагі~@Remark@ | ~Змест~@Contents@
 
+
 @Remark
 $ #Заўвагі#
-
    1. ^<wrap>Для прэфікса #far# імёны камандаў можна скарачаць да першай літары.
+
    2. Дапушчаецца заключаць у двукоссі параметры #имяфайла#, #шлях# і #каманда#.
+
    3. Дапушчаецца выкарыстанне пераменных асяроддзя.
+
    4. Калі Вы памыліцеся ў наборы, то з'явіцца падказка.
 
    Гл. таксама: ~Змест~@Contents@
 
+
 @Config
 $ #Наладка FAR Commands#
-
  #Экранны вывад знешніх камандаў# Кіраванне ~вывадам~@Direction@ праграм на экран:
 
    #Хаваць экранны вывад#         Дазваляе схаваць вывад праграмы.

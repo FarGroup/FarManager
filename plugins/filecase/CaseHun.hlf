@@ -1,6 +1,7 @@
 ﻿.Language=Hungarian,Hungarian (Magyar)
 .PluginContents=File nevek kisbetű/nagybetű konverziója
 
+
 @Contents
 $ #File nevek kisbetű/nagybetű konverziója#
  Ezen parancs teszi lehetővé a kijelölt file-ok kisbetű/nagybetű státuszának megváltoztatását bármilyen #elérhető# formában.

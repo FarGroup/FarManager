@@ -2,6 +2,7 @@
 .PluginContents=HlfViewer
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ HlfViewer#
    Плагін HlfViewer створаны для дапамогі тым людзям, якія ствараюць або рэдагуюць
@@ -15,7 +16,6 @@ HLF-файлы, а таксама проста хочуць праглядзец
 
 @cmd
 $ #HlfViewer: сінтаксіс каманднага радка
-
    #hlf:GUID# [#topic#]
    #hlf:filename# [#topic#]
    #hlf:topic#

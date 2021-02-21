@@ -2,8 +2,8 @@
 .PluginContents=Klient FTP
 .Options CtrlColorChar=\
 
-@Contents
 
+@Contents
   The FAR FTP client plugin implements operations with FTP servers and files on them just as if they were located on
 local disks. The plugin supports copying, moving, deleting files and folders; creating folders; viewing and editing
 files.
@@ -32,6 +32,7 @@ TechInfo.reg and FtpCmds.txt files in the plugin folder (Far\\Plugins\\FTP).
   Besides that, the layout of the ~copy progress dialog~@CopyDialog@ can be fully customized through the registry. The
 copy progress dialog layout configuration is described ~here~@CopyDialogFMT@.
 
+
 @FTPCmd
 $#Okno pobierania lub wysyłania#
 @-
@@ -52,6 +53,7 @@ $#Okno pobierania lub wysyłania#
 ^ \70║                   [ \79<Potwierdź>\70 ]  [ \79Anuluj\70 ]                   ║\-
 ^ \70╚═════════════════════════════════════════════════════════════════╝\-
 @+
+
  #<operacja>#
    Dialog title.
    Describes copy files direction.
@@ -89,6 +91,7 @@ In this case the selected action will be applied to all files.
 
  #Cancel#
    Press this button to cancel all changes and cancel the operation.
+
 
 @FTPFilesList
 $ #FTP select file menu#
@@ -142,6 +145,7 @@ The full list of possible keys is:
 @CopyDialog
 $ #FTP copy progress dialog#
   Copy progress dialog is being drawn on the screen to indicate upload or download progress.
+
   You can fully ~customize~@CopyDialogFMT@ copy dialog.
 
 The plugin default style of copy progress dialog is:
@@ -248,9 +252,9 @@ on FTP server.
   #skip progress#
   The gauge indicating number of skipped files.
 
+
 @CopyDialogFMT
 $ #Customization of FTP copy progress dialog#
-
   FTP plugin allows you to fully customize ~copy progress dialog~@CopyDialog@ indicating progress of manual files upload
 and download.
 
@@ -292,9 +296,9 @@ the dialog data to:
     #HKCU\\Software\\Far\\Users\\MyUser\\Plugins\\FTP\\CopyDialog\\English#
   registry subkey.
 
+
 @CopyDialogVALS
 $ #Format of values used in copy progress dialog#
-
   Registry key containing copy progress dialog data must contain a value named "#Count#" indicating the number of
 lines you use in the progress dialog, and one value for each line of the dialog named "#Line<number>#", where #<number>#
 is the number of line from #0# to #Count-1#.
@@ -448,7 +452,6 @@ say nothing in case of slow connection.
 
   Unlike "Pc" and "FPc", values "IPc" and "IFPc" use a "99%" format to draw percent values.
 
-
   #Dialog sample#
   Plugin uses the following lines (without quote characters) to create the default copy progress dialog:
 
@@ -465,9 +468,9 @@ say nothing in case of slow connection.
  "%5FPercent%-[%55FProgress%]-"
  "%5CurPc%-[%26CurPg%]-[%26SkipPg%]-"
 
+
 @FTPURL
 $ #Server URL syntax recognized by the FTP plugin#
-
    The FTP plugin recognizes the following URL syntax:
 
     #[ftp://][user[:password]@@]hostname[:port][/folder]#
@@ -533,9 +536,9 @@ separately.
           │Anonymous    │Gregory@@AOL.com  │ftp.aol.com    │/
  ═════════╧═════════════╧═════════════════╧═══════════════╧════════
 
+
 @FTPCmdline
 $ #Using the FTP plugin command line#
-
   You can call the FTP plugin from the FAR command line using the prefix "#ftp:#".
 
   To call the plugin and connect to a server, simply type the ~URL~@FTPURL@ of the server and prefix it with #ftp://#.
@@ -551,6 +554,7 @@ cannot be extracted from the URL address.
 
   The plugin prefix only allows you to connect to servers. There is no way to open the ~hosts panel~@FTPNames@ from the
 command line.
+
 
 @FTPUtils
 $ #FTP utilities menu#
@@ -644,6 +648,7 @@ you need to restore the connection.
    Any of these methods guarantee that a new plugin instance will not be loaded, and the task
    list will remain unchanged.
 
+
 @FTPConnected
 $ #Working with the plugin in connected state#
   After you have selected a server to connect to and the plugin has established the connection successfully, you can
@@ -729,9 +734,9 @@ The plugin will try to determine the best character table for the file names in 
   Additional information can be correctly displayed only if it is provided by the FTP server in the standard Unix
 format.
 
+
 @FTPNames
 $ #Managing host names#
-
   Host records are organized in the form of a file panel.
   You can create virtual folders to group host records.
 
@@ -764,10 +769,8 @@ other panel.
   Select desired hosts and folders, press #F5#, check and confirm the destination.
 
   Note that when you copy a virtual folder to the hard disk, it is created as a regular folder. Thus, the descriptions
-of virtual folders are not copied.
-
-  It means that if you copy a virtual folder to the disk, and would like to copy it back to the FTP plugin panel, the
-description which was assigned to the source folder will be lost.
+of virtual folders are not copied. It means that if you copy a virtual folder to the disk, and would like to copy it back
+to the FTP plugin panel, the description which was assigned to the source folder will be lost.
 
   #F8#
   Delete selected hosts and folders.
@@ -793,6 +796,7 @@ description which was assigned to the source folder will be lost.
   #3# Compatible mode.
   Hosts area displayed in two columns: host name and description.
   This mode is fully compatible with the mode used by the FTP client before FAR 1.7x version.
+
 
 @FTPConnect
 $ #Host configuration dialog#
@@ -862,7 +866,6 @@ as 1,000.
   If a multiplier is used, you can also specify fractional digits in the value.
   For example, #1.4K# will be interpreted as #1.4*1000#, and the I/O buffer size will be set to #1400# bytes.
   Additional information on configuring the buffer size is given in the file #Notes.txt# in the plugin directory.
-
 
 ▒▒▒▒▒▒ Options ▒▒▒▒▒▒
  #Ask password every time#
@@ -943,9 +946,9 @@ be found in the "Addons\\Tables" subdirectory of the FAR installation folder.
  #Cancel#
   Cancels any changes and closes the edit dialog.
 
+
 @Config
 $ #FTP client configuration#
-
   In this dialog you may change global public configuration options.
 
   This is a set of frequently used options, and it contains options for newly created host entries, global plugin
@@ -1145,9 +1148,9 @@ useless for developer.
  #Cancel#
    Cancels any changes and closes a dialog.
 
+
 @FTPSaveList
 $ #Files list creation dialog#
-
   In this dialog you may set parameters of files list generation.
   Dialog looks like:
 @-
@@ -1209,12 +1212,14 @@ not contains size field.
  #Cancel#
    Cancels any changes and closes a dialog.
 
+
 @CloseQueryReject
 $ #FTP plugin close warning#
   Some tasks from the task queue were not completed.
   If you close the plugin, all incomplete tasks will be lost.
   Because of certain limitations imposed by FAR internal architecture, you can not return to the plugin instance once it it closed.
   The only way to save the queue is to move the plugin to the background connections.
+
 
 @FTPQueue
 $ #FTP queue menu#
@@ -1258,6 +1263,7 @@ hosts mode, global plugin configuration parameters will be used.
   It is not currently possible to skip tasks or execute a part of a specific task only.
   If you do not want to execute certain tasks, remove them from the queue before it is executed.
 
+
 @FTPQueueItemEdit
 $ #FTP queue item editor#
 @-
@@ -1294,11 +1300,8 @@ with the confirmation. The plugin will extract all URL parts and fill out all ne
   Specifies the directory to place the file to.
   If you leave this field blank, the plugin will use the path from the opposite panel (the path will be taken
 at the time the task runs).
-  Note: if you leave this field blank, the task can be sucessfully completed only if the following conditions
-are met at the time the task runs:
-
-  1. the opposite panel is available
-  2. the opposite panel displays real physical disk and not one of the panel plugins
+  Note: if you leave this field blank, the task can be sucessfully completed only if the opposite panel is available and
+displays a real physical disk, not one of the panel plugins.
 
   #File name#
   Name of the file to be copied from the source directory to the target directory.
@@ -1324,6 +1327,7 @@ are met at the time the task runs:
   #Error#
   Displays an error occured while processing a task.
   This button is available only if the task was not completed successfully due to some error (or was cancelled)
+
 
 @FTPProcessQueue
 $ #Process queue options#
@@ -1364,9 +1368,9 @@ $ #Process queue options#
   #Cancel#
   Closes dialog and cancels task queue.
 
+
 @FTPCommandLineHelp
 $ #FTP plugin command line commands#
-
  Plugin may execute commands you type in command line.
  Commands may be interpreted differently depending on the current plugin state.
  #Notes#:
@@ -1471,6 +1475,7 @@ a dialog with queue processing parameters.
   Command: #<text>#
  Synopsis: Any text which is not a command and does not start with the plugin prefix will be sent to the currently connected server.
 
+
 @WarnOldFmt
 $ #Old host format warning#
   The plugin has detected that you are trying to save a record in an obsolete format.
@@ -1487,9 +1492,9 @@ $ #Old host format warning#
 
   #Note:# Plugin can save data only in the format which is native to the current plugin version.
 
+
 @FTPExtGlobal
 $ #Extended global options#
-
  #Dup FF in commands#
    Default: OFF
    If value is set duplicate all FF characters sent to server.
@@ -1527,9 +1532,9 @@ $ #Extended global options#
    Default: TRUE
    If set plugin closes server connection and back to hosts mode if you go up at the topmost directory level (f.i. by selecting ".." panel entry).
 
+
 @FTPCommands
 $ #Hi-level ftp commands available in plugin#
-
  Hi-level FTP commands can be entered in connected state using #CMD# command line command (See command ~line commands~@FTPCommandLineHelp@).
  Each command in the list contains command name (case insensitive) and optional parameter (or several parameters) delimited with one or more spaces.
 
@@ -1651,8 +1656,10 @@ $ #Hi-level ftp commands available in plugin#
   #idle <time>#
     Nieznane
 
-@FTPQ  ueueAddItem
+
+@FTPQueueAddItem
 $ #Dodawanie elementów do kolejki ftp#
+
 
 @FTPExtHost
 $ #Rozszerzone opcje hosta#

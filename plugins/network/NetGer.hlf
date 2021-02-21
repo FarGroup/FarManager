@@ -1,6 +1,7 @@
 ﻿.Language=German,German (Deutsch)
 .PluginContents=Netzwerk Browser Plugin
 
+
 @Contents
 $ #Netzwerk Browser Plugin#
  Mit dem Netzwerk Browser können Sie durch das Netzwerk navigieren,
@@ -30,6 +31,7 @@ command in the command line:
 specifying login information explicitly use F4 key.
 
    ~Netzwerk Browser Konfiguration~@Config@
+
 
 @Config
 $ #Netzwerk Browser Konfiguration#
@@ -63,6 +65,7 @@ workgroup). The option works only for Microsoft Windows networks.
 
  #Возврат в Избранное, если ресурс в избранном#
  ...
+
 
 @DisconnectDrive
 $ #Disconnect network drive#
