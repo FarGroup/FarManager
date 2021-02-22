@@ -3273,7 +3273,7 @@ l:
 "&Připojit první nalezenou položku"
 "Erste passende Variante ein&setzen"
 upd:"&Append the first matched item"
-"&Dołącz piewrszy pasujący element"
+"&Dołącz pierwszy pasujący element"
 "&Anexar primer ítem coincidente"
 "&Pripojiť prvú nájdenú položku"
 "&Accoda Primo Oggetto Corrispondente"
