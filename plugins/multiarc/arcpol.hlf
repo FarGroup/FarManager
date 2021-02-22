@@ -1,6 +1,7 @@
 ﻿.Language=Polish,Polish (Polski)
 .PluginContents=Obsługa archiwów
 
+
 @Contents
 $^#Obsługa archiwów#
     Ten moduł FAR'a wykonuje operacje na archiwach. Pliki w archiwum są
@@ -19,6 +20,7 @@ odpowiadające im operacje wykonywane przez program archiwizujący.
    ~Linie poleceń archiwizerów~@ArcSettings2@
 
    ~Storage of plugin settings~@ArcSettings3@
+
 
 @AddToArc
 $ #Dodawanie plików do archiwum#
@@ -53,6 +55,7 @@ positioned to the new archive once the archiving operation is
 complete. (This is not done when the archiver is started in a
 separate window.)
 
+
 @ArcPrior
 $ #Priority of process#
     MultiArc allows to control the execution priority
@@ -85,6 +88,7 @@ achieved when other active processes are running in the system.
 
     The "normal" priority is selected by default.
 
+
 @ExtrFromArc
 $ #Wypakowywanie plików z archiwum#
     Tu można wprowadzić ścieżkę, w której zostaną umieszczone wypakowane pliki
@@ -100,6 +104,7 @@ files from an archive.
 
     Aby wypakować zaznaczone pliki do bieżącego katalogu można użyć kombinacji
 klawiszy #Alt-F6#.
+
 
 @ArcCmd
 $ #Polecenia#
@@ -121,14 +126,15 @@ F4 in the "Archive commands" menu.
     2. Pełny zestaw poleceń obsługiwany jest tylko dla archiwów RAR i ACE. Inne
 archiwizery obsługują tylko niektóre z tych poleceń.
 
+
 @Config
 $ #Plugin configuration#
-
     ~Archive support configuration~@ArcSettings1@
 
     ~Archiver command lines~@ArcSettings2@
 
     ~Storage of plugin settings~@ArcSettings3@
+
 
 @ArcSettings1
 $ #Konfiguracja obsługi archiwów#
@@ -262,6 +268,7 @@ niepustą zmienną z opisanych powyżej.
 
     Jeśli archiwizer nie obsługuje danego polecenia, odpowiadający mu ciąg
 znaków należy pozostawić pusty.
+
 
 @ArcSettings3
 $ #Storage of plugin settings#

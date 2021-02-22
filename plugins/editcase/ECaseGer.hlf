@@ -1,11 +1,13 @@
 ﻿.Language=German,German (Deutsch)
 .PluginContents=Textblockkonvertierung
 
+
 @Contents
 $ #Textblockkonvertierung#
  Mit diesem Befehl kann die Schreibweise eines ausgewählten Textblockes in eines der verschiedenen verfügbaren Formate konvertiert werden.
 
  См. также "~Использование плагина в макросах~@MacroCallPlugin@"
+
 
 @MacroCallPlugin
 $ #Использование плагина в макросах#

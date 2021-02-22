@@ -2,6 +2,7 @@
 .PluginContents=Brackets matching
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ #Porovnávání závorek#
   Tento plugin umožňuje:
@@ -18,14 +19,13 @@ $ #Porovnávání závorek#
 
   #2. Nezvyklý '()', '{}', '[]', '<>' a '«»'#
      Tento mód je, když kurzor stojí na dalším zunaku za závorkou.
-     Plugin umisťuje kurzor na shodnou závorku. Používání tohoto 
+     Plugin umisťuje kurzor na shodnou závorku. Používání tohoto
      módu může být zakázáno v konfiguračním dialogu.
 
   #3. Dvojité závorky#
      Tento mód umožňuje manimulovat například s blokem komentářů
-     jazyka C/C++ : '/*' a '*/'. Kurzor bude umístěn na příslušný 
+     jazyka C/C++ : '/*' a '*/'. Kurzor bude umístěn na příslušný
      znak shodné závorky.
-
 
   ~Nastavení~@Config@
   ~Hledat/vybrat~@Find@
@@ -35,7 +35,6 @@ $ #Porovnávání závorek#
 
 @Find
 $ #Porovnávání závorek - Hledat/vybrat#
-
   #Hledat#     - pokud je hledání shodných závorek úspěšné, bude
                kurzor přemístěn na závorku.
 
@@ -70,13 +69,13 @@ přenastavit.
   #>Pravidla#
   Pravidla chování pluginu ve specifických situacích:
 
-   #Ignorovat závorky#    Pokud je toto nastavení zapnuto, plugin 
+   #Ignorovat závorky#    Pokud je toto nastavení zapnuto, plugin
    #v úvozovkách#         nevyhledává závorky, které jsou obklopeny
                         úvozovkami: #'#{#'#.
                         Znak úvozovek je konfigurovatelný.
 
-   #Nepřeskakovat za#     Pokud je toto nastavení vypnuto, vyhledává 
-   #závorkou#             plugin shodné závorky, až když je kurzor na 
+   #Nepřeskakovat za#     Pokud je toto nastavení vypnuto, vyhledává
+   #závorkou#             plugin shodné závorky, až když je kurzor na
                         dalším znaku za závorkou. Pokud je nastavení
                         zapnuto, provede plugin vyhledávání, jen když
                         je kurzor na závorce.
@@ -95,14 +94,13 @@ přenastavit.
    #Pípnout, pokud#       Pípne po úspěšném vyhledávání.
    #souhlasí#
 
-
   #>Definice#
   Tato sekce umožňuje změnit několik základních konstant pluginu:
 
    #Jednoduché závorky#   Definice jednoduché závorky.
                         Obsahuje sekvence dvojic znaků. První znak
                         je otevírající závorka, druhý - uzavírající
-                        závorka. Může zde být až 10 dvojic. První 
+                        závorka. Může zde být až 10 dvojic. První
                         a druhý znak mohou být shodné (například
                         #""# nebo #''#).
 
@@ -112,12 +110,12 @@ přenastavit.
                         druhá dvojice - uzavírající závorka. Může
                         zde být až 10 skupin.
 
-   #Typ úvozovek#         Znaky úvozovek pro pravidlo "Ignorovat 
+   #Typ úvozovek#         Znaky úvozovek pro pravidlo "Ignorovat
                         závorky v úvozovkách".
                         Obsahuje sekvence dvojic znaků. První znak
                         je otevírající úvozovka, druhý - uzavírjící
-                        úvozovka. Může zde být až 10 dvojic. 
-                        Poznámka: úvozovky nemohou být přímo použity 
+                        úvozovka. Může zde být až 10 dvojic.
+                        Poznámka: úvozovky nemohou být přímo použity
                         pro porovnávání závorek.
 
   ~Obsah~@Contents@

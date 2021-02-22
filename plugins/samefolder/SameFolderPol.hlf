@@ -2,6 +2,7 @@
 .PluginContents=Ten sam folder
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ #Ten sam folder#
  Wtyczka dodaję pozycję "Ten sam folder" do #menu wtyczek# i #menu dysków#.
@@ -19,7 +20,6 @@ panel w takim samym folderze jak w drugim panelu.
 
 @Config
 $ #Konfiguracja wtyczki Ten sam folder#
-
  #Dodaj "Ten sam folder" do menu Wtyczek#
  Dodaje polecenie do ~menu Wtyczek~@:PluginCommands@ (ustawia w pasywnym panelu ten sam folder jak w aktywnym).
 

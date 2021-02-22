@@ -1,6 +1,7 @@
 ﻿.Language=Polish,Polish (Polski)
 .PluginContents=Przeglądarka sieci
 
+
 @Contents
 $ #Wtyczka - przeglądarka sieci#
  Używając wtyczki "Przeglądarka sieci" można poruszać się w zasobach
@@ -35,6 +36,7 @@ specifying login information explicitly use F4 key.
 
  ~Konfiguracja przeglądarki sieci~@Config@
 
+
 @Config
 $ #Konfiguracja przeglądarki sieci#
  W tym dialogu można zmieniać następujące opcje:
@@ -67,6 +69,7 @@ workgroup). The option works only for Microsoft Windows networks.
 
  #Возврат в Избранное, если ресурс в избранном#
  ...
+
 
 @DisconnectDrive
 $ #Odłącz dysk sieciowy#

@@ -1,6 +1,7 @@
 ﻿.Language=Czech,Czech (Čeština)
 .PluginContents=Temporary panel
 
+
 @Contents
 $ #Dočasný panel#
     Dočasný panel pracuje podobně jako souborový panel a je navržen
@@ -12,19 +13,20 @@ zpracování, jako jedné skupiny.
    ~Práce se souborovými seznami~@List@
    ~Syntaxe příkazové řádky~@CMD@
 
+
 @TempPanel
 $ #Práce s dočasným panelem#
    Pro umístění souborů do dočasného panelu mužete použít jednu z
 násldujících cest:
 
-  - kopírování souborů, nebo adresářů ze souborového panelu, nebo 
+  - kopírování souborů, nebo adresářů ze souborového panelu, nebo
     panelu stromu do dočasného panelu;
 
-  - otevření ~seznamu souborů~@List@ stisknutím klávesy Enter, nebo 
+  - otevření ~seznamu souborů~@List@ stisknutím klávesy Enter, nebo
     Ctrl-PgDn, nebo zadáním jeho názvu v ~příkazovém řádku~@CMD@;
 
   - odesláním seznamu souborů nalezených příkazem ~Hledat soubor~@:FindFile@
-    do dočasného panelu. Toto nařídíte kliknutím na tlačítko "#Panel#" 
+    do dočasného panelu. Toto nařídíte kliknutím na tlačítko "#Panel#"
     v dialogu se seznamem nalezených souborů.
 
    Soubory umístěné do dočasného panelu nejsou fyzicky zkopírovány,
@@ -45,17 +47,17 @@ fyzického smazání použijte klávesu #F7#.
    - if file - positions the cursor on this file in the
      passive panel.
 
-   Pokud je v dialogu ~nastavení~@Config@ pluginu zapnuta volba #"Použít společný panel"#, 
+   Pokud je v dialogu ~nastavení~@Config@ pluginu zapnuta volba #"Použít společný panel"#,
 vytvoří plugin 10 instancí dočasného panelu a každá bude obsahovat oddělený
 seznam souborů. Pro přepínání mezi panely můžete použít menu
 (#Alt-Shift-F12#), nebo zkratkové klávesy pro okamžité přepnutí
 (#Alt-Shift-0# až #Alt-Shift-9#).
 
-   Pro uložení aktuálního obsahu panelu do seznamu souborů můžete 
+   Pro uložení aktuálního obsahu panelu do seznamu souborů můžete
 použít #Alt-Shift-F2#.
 
-
  ~Obsah~@Contents@
+
 
 @Config
 $ #Dočasný panel: konfigurace#
@@ -71,9 +73,9 @@ $ #Dočasný panel: konfigurace#
    Pokud je tato položka zapnuta, je vytvořen jeden dočasný panel, jehož
 obsah je po uzavření panelu uložen. Pokud tato volba zapnutá není, je
 každý nový dočasný panel vytvořen prázdný.
-   Pokud je zapnuta volba #"Použít společný panel"#, je vytvořeno 10 
+   Pokud je zapnuta volba #"Použít společný panel"#, je vytvořeno 10
 instancí dočasného panelu. Můžete mezi nimi přepínat stisknutím
-#Alt-Shift-F12# (pro zobrazení menu), nebo zkratkovými klávesami 
+#Alt-Shift-F12# (pro zobrazení menu), nebo zkratkovými klávesami
 #Alt-Shift-0# až #Alt-Shift-9# (pro přímé přepnutí do panelu).
 
  #Bezpečný mód panelu# : ~+safe~@CMD@
@@ -87,7 +89,7 @@ přesouvání, mazání, atd.) vypnuty. Jediné povolené informace jsou:
    Bezpečný mód je v nadpisu panelu označen znakem (R).
 
  #Kterýkoliv element v panelu# : ~+any~@CMD@
-   Pokud je tato volba zapnuta, plugin nekontroluje před 
+   Pokud je tato volba zapnuta, plugin nekontroluje před
 umístěním elementu do panelu správnost cesty.
    Tím se stává možné použití elementů panelu jako:
    #ftp:#
@@ -104,7 +106,7 @@ v textovém souboru:
 #Ctrl-Num* Ctrl-Ins# pro zkopírování řádek do schránky Windows, nebo
 #Alt-Shift-F2# pro uložení řádek do souboru.
 
-   Když na elementu, který není reálným názvem souboru stisknete 
+   Když na elementu, který není reálným názvem souboru stisknete
 #Enter#, bude jeho text zkopírován do příkazové řádky FARu.
 
  #Kopírovat obsah adresářů#
@@ -119,8 +121,8 @@ již v panelu. Jinak budou názvy souborů přidány do existujícho.
 
  #Menu ze seznamu souborů# : ~+menu~@CMD@
    Když je otevřen seznam souborů, není jeho obsah umístěn do panelu,
-ale míto toho zobrazen v menu. Stisknutím klávesy #Enter# na položce 
-menu, buď přeskočíte do odpovídajícího adresáře (pokud existuje), nebo 
+ale míto toho zobrazen v menu. Stisknutím klávesy #Enter# na položce
+menu, buď přeskočíte do odpovídajícího adresáře (pokud existuje), nebo
 zkopíruje text položky do příkazové řádky FARu. Nadpis menu je stejný
 jako seznamu souborů bez přípony.
    Každý řádek v seznamu souborů může začít #|<řetězcem>|#. V tomto
@@ -128,7 +130,7 @@ případě bude část řádky mezi prvním a druhým oddělovačem (#|#)
 zobrazena v menu a část po druhém oddělovači bude po výběru položky
 spuštěna.
 
-   #|-|# je oddělovač a bude v menu zobrazen, jako horizontální 
+   #|-|# je oddělovač a bude v menu zobrazen, jako horizontální
 řádka.
 
    Příklad seznamu souborů: #Drive.temp#
@@ -146,9 +148,9 @@ spuštěna.
    #|&8: Registry|reg:#
 
  #Nový panel pro výsledky hledání#
-   Tato volba pracuje, pokud je zapnuta volba #"Použít společný panel"# 
-a umožňuje vložit výsledek vyhledávání (Alt-F7 -> Panel) do volného 
-dočasného panelu. Toto umožňuje uložit výsledky několika vyhledávacích 
+   Tato volba pracuje, pokud je zapnuta volba #"Použít společný panel"#
+a umožňuje vložit výsledek vyhledávání (Alt-F7 -> Panel) do volného
+dočasného panelu. Toto umožňuje uložit výsledky několika vyhledávacích
 operací a pracuje s nimi najednou.
 
  #Typy sloupců#    #Typy sloupců stavové řádky#
@@ -166,8 +168,8 @@ panelu.
    Specifikovaná předpona pro otevření dočasného souboru z příkazové
 řádky a pro ~operace se seznamy souborů~@List@.
 
-
  ~Obsah~@Contents@
+
 
 @List
 $ #Dočasný panel: seznamy souborů#
@@ -205,7 +207,7 @@ může obsahovat i podobné řádky:
    Pro zpracování seznamu souborů jsou dvě cesty:
 
    a) Když je kurzor na takovém souboru stiskněte #Enter# nebo #Ctrl-PgDn#.
-      Soubor musí souhlasit s alespoň jednou souborovou maskou s určeným 
+      Soubor musí souhlasit s alespoň jednou souborovou maskou s určeným
 seznamem souborů v konfiguračním dialogu a musí být v OEM znakové sadě.
 
    b) Vložte #tmp:"název seznamu souborů"# do ~příkazové řádky~@CMD@.
@@ -219,8 +221,8 @@ plugin najít v následujících adresářích a v následujících sekvencích:
     Předpona příkazového řádku používaná pro operace se souborovým seznamem
 (v příkladech použitá - #tmp:#) může být nastavena v konfiguračním dialogu.
 
-
  ~Obsah~@Contents@
+
 
 @CMD
 $ #Dočasný panel: Příkazový řádek#

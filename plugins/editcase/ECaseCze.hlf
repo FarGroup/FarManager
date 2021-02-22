@@ -1,11 +1,13 @@
 ﻿.Language=Czech,Czech (Čeština)
 .PluginContents=Text case conversion
 
+
 @Contents
 $ #Konverze velikosti písmen textu#
  Tento příkaz umožňuje měnit velikot vybraného textu, nebo aktuálního slova v interním editoru.
 
  См. также "~Использование плагина в макросах~@MacroCallPlugin@"
+
 
 @MacroCallPlugin
 $ #Использование плагина в макросах#

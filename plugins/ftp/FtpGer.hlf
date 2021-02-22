@@ -1,5 +1,7 @@
 ﻿.Language=German,German (Deutsch)
 .PluginContents=FTP-Client
+
+
 @Contents
 $ #FTP-Client#
    ~Mit FTP-Server verbinden~@FTPConnect@
@@ -11,6 +13,7 @@ $ #FTP-Client#
    ~FTP-Client-Konfiguration~@FTPCfg@
 
    ~FTP-Client Fenstermodi~@FTPPanel
+
 
 @FTPConnect
 $ #Mit FTP-Server verbinden#
@@ -38,6 +41,7 @@ das FTP Plugin, wählen den gewünschten Server und rücken Enter.
     Um Server-Parameter direkt vor dem Verbindungsaufbau zu bearbeiten,
 drücken Sie F4 auf dem Servernamen, führen alle erforderlichen Änderungen
 durch und drücken den "Verbinden"-Button.
+
 
 @FTPNames
 $ #Servernamen verwalten#
@@ -71,7 +75,6 @@ Dateitransfers.
 einigen Typen von Firewalls erforderlich sein. Diese Option haben
 Vorrang vor den gleichlautenden unter ~FTP-Client-Konfiguration~@FTPCfg@.
 
-
     Die Benutzung von "Tabelle auswählen" hebt die Standard-
 Zeichensatztabelle für diesen Server auf.
 
@@ -89,9 +92,9 @@ und verschieben.
     Drücken von Alt-F6 sichert Informationen über einen gerade
 verbundenen Host.
 
+
 @FTPCmd
 $ #FTP-Client-Befehle#
-
     Der FTP-Client erlaubt Operationen mit FTP-Server-Dateien so,
 als ob sich die Dateien auf einem lokalen Laufwerk befänden. Er unter-
 stützt das Kopieren, Verschieben und Löschen von Dateien und
@@ -110,6 +113,7 @@ in den Server-Parametern unabhängig für jeden Server festlegen.
     Einige FTP-Operationen können durch Esc unterbrochen werden. Wenn
 Esc nicht hilft, könnte Strg-Untbr funktionieren, welches aber,
 anders als bei Esc, die aktuelle Verbindung unterbricht.
+
 
 @FTPCfg
 $ #FTP-Client-Konfiguration#

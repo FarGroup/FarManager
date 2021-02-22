@@ -1,6 +1,7 @@
 ﻿.Language=English,English
 .PluginContents=ArcLite
 
+
 @Contents
 $ #Arclite#
 	Archive management based on 7z.dll from ~7-Zip~@http://7-zip.org@ project.
@@ -13,9 +14,9 @@ $ #Arclite#
 	~Self-extracting archive options~@SfxOptions@
 	~Command line parameters~@Prefix@
 
+
 @Extract
 $ #Extract archive#
-
 	Extract single archive by selecting it and pressing #Shift-F2#.
 	Extract individual files by opening archive using Ctrl+PgDn key,
 selecting files and pressing #F5#.
@@ -34,7 +35,7 @@ Error log will be shown after extraction process is complete.
 ask user, overwrite, skip file, automatically rename or append to existing file.
 
 	#Delete files after extraction# - Delete files from archive after successful extraction.
- 
+
 	#Password# - Specify password for encrypted files.
 If left blank password will be requested automatically when required.
 
@@ -45,9 +46,9 @@ unpacking entire archive and archive's root directory contains more than one ele
 	#Delete archive after extraction# - Delete archive file (including all volumes) from disk
 after successful extraction.
 
+
 @Update
 $ #Create and update archive#
-
 	In order to create an archive select files and press #Shift-F1# or select #Create archive#
 from plugin menu (#F11#).
 	In order to add files to existing archive open it using #Ctrl-PgDn#,
@@ -115,9 +116,9 @@ ask user, overwrite or skip file.
 	#Use filter# - Archive files matching file filter. See ~filters menu~@:FiltersMenu@ for more details.
 Empty directories are not archived when filter is active.
 
+
 @Config
 $ #Plugin settings#
-
 	Press #Alt-Shift-F9# to open Settings dialog.
 
 	The following settings are available:
@@ -159,9 +160,9 @@ with Ctrl-PgDn.
 
    #7z library info# - Shows 7z.dll location and version information.
 
+
 @Prefix
 $ #Prefix command line format#
-
 	#Open archive#
 	arc:[-d] [-t:<arc_type>] [-p:<password>] <archive>
 	-t = archive type (7z, zip, etc.)
@@ -218,9 +219,9 @@ $ #Prefix command line format#
 	arc:t <archive> ...
 	<archive> ... = list of archives
 
+
 @SfxOptions
 $ #Self-extracting archive options#
-
 	#Module name# - Select one of the available SFX modules:
 
 		#Standard GUI (7z.sfx)# - Standard GUI SFX module. It supports 7z archives created with the

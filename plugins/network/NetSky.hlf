@@ -1,6 +1,7 @@
 ﻿.Language=Slovak,Slovak (Slovenčina)
 .PluginContents=Prehliadač siete
 
+
 @Contents
 $ #Prehliadač siete#
  Pomocou prehliadača siete sa môžete pohybovať po sieti,
@@ -34,6 +35,7 @@ specifying login information explicitly use F4 key.
 
  ~Konfigurácia prehliadača~@NetCfg@
 
+
 @Config
 $ #Konfigurácia prehliadača#
  V tomto okne možno zmeniť nasledovné položky:
@@ -66,6 +68,7 @@ workgroup). The option works only for Microsoft Windows networks.
 
  #Возврат в Избранное, если ресурс в избранном#
  ...
+
 
 @DisconnectDrive
 $ #Disconnect network drive#

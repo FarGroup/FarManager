@@ -1,6 +1,7 @@
 ﻿.Language=Polish,Polish (Polski)
 .PluginContents=ArcLite
 
+
 @Contents
 $ #Arclite#
 	Zarządzanie archiwami, bazujące na 7z.dll z projektu ~7-Zip~@http://7-zip.org@.
@@ -13,9 +14,9 @@ $ #Arclite#
 	~Opcje archiwów samorozpakowujących się (SFX)~@SfxOptions@
 	~Parametry linii poleceń~@Prefix@
 
+
 @Extract
 $ #Rozpakowanie archiwów#
-
 	Rozpakowanie pojedynczego archiwum przez zaznaczenie i wciśnięcie #Shift-F2#.
 	Rozpakowanie pojedynczych plików przez otwarcie archiwum używając klawiszy Ctrl+PgDn,
 zaznaczenie plików i wciśnięcie #F5#.
@@ -34,7 +35,7 @@ Dziennik błędów zostanie pokazany na ekranie po zakończeniu rozpakowania arc
 zapytaj użytkownika, zastąp, omiń, automatycznie zmień nazwę lub dołącz do istniejącego pliku.
 
 	#Usuń pliki z archiwum po rozpakowaniu# - Usuwa pliki z archiwum po pomyślnym rozpakowaniu.
- 
+
 	#Hasło# - Podaj hasło dla zaszyfrowanych plików.
 Jeżeli pole zostanie puste, program automatycznie zapyta o hasło w razie potrzeby.
 
@@ -45,9 +46,9 @@ unpacking entire archive and archive's root directory contains more than one ele
 	#Usuń archiwum po rozpakowaniu# - Usuwa plik archiwum (także wszystkie woluminy) z dysku po poprawnie
 zakończonym rozpakowaniu.
 
+
 @Update
 $ #Tworzenie i aktualizacja archiwów#
-
 	In order to create an archive select files and press #Shift-F1# or select #Create archive#
 from plugin menu (#F11#).
 	In order to add files to existing archive open it using #Ctrl-PgDn#,
@@ -115,9 +116,9 @@ ask user, overwrite or skip file.
 	#Use filter# - Archive files matching file filter. See ~filters menu~@:FiltersMenu@ for more details.
 Empty directories are not archived when filter is active.
 
+
 @Config
 $ #Ustawienia wtyczki#
-
 	Press #Alt-Shift-F9# to open Settings dialog.
 
 	The following settings are available:
@@ -159,9 +160,9 @@ with Ctrl-PgDn.
 
    #7z library info# - Shows 7z.dll location and version information.
 
+
 @Prefix
 $ #Format przedrostków w linii poleceń#
-
 	#Otwórz archiwum#
 	arc:[-d] [-t:<typ_arch>] [-p:<hasło>] <archiwum>
 	-t = typ archiwum (7z, zip, itp.)
@@ -218,9 +219,9 @@ $ #Format przedrostków w linii poleceń#
 	arc:t <archive> ...
 	<archive> ... = list of archives
 
+
 @SfxOptions
 $ #Opcje archiwów samorozpakowujących się (SFX)#
-
 	#Nazwa modułu# - Wybierz jeden z dostępnych modułów SFX:
 
 		#Standard GUI (7z.sfx)# - Standard GUI SFX module. It supports 7z archives created with the

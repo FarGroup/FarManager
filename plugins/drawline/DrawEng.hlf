@@ -1,6 +1,7 @@
 ﻿.Language=English,English
 .PluginContents=Draw lines
 
+
 @Contents
 $ #Draw lines#
  This plugin allows to draw single and double lines in the Far internal editor using pseudographic characters.

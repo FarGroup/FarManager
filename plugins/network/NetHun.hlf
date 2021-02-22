@@ -1,13 +1,14 @@
 ﻿.Language=Hungarian,Hungarian (Magyar)
 .PluginContents=Hálózati tallózó plugin
 
+
 @Contents
 $ #Hálózati tallózó plugin#
     A hálózati tallózóval könnyedén navigálhatunk a hálózaton, csatolt
 vagy nem csatolt hálózati meghajtókon barangolhatunk, csatlakoztathatjuk
 és leválaszthatjuk a őket. Az #F5#-tel a kiválasztott hálózati lemezt
 csatlakoztathatjuk (map) a következő elérhető betűjelre, #F6#-tal
-magunk választhatjuk meg a csatolandó meghajtó betűjelét. 
+magunk választhatjuk meg a csatolandó meghajtó betűjelét.
 It is possible to toggle the connection type in the drive letter
 selection menu shown when #F6# or #Shift-F6# is pressed.
 Az #F8# ~leválasztja kiválasztott meghajtót~@DisconnectDrive@.
@@ -33,6 +34,7 @@ command in the command line:
 specifying login information explicitly use F4 key.
 
    ~Hálózati tallózó beállítása~@Config@
+
 
 @Config
 $ #Hállózati tallózó beállítása#
@@ -66,6 +68,7 @@ workgroup). The option works only for Microsoft Windows networks.
 
  #Возврат в Избранное, если ресурс в избранном#
  ...
+
 
 @DisconnectDrive
 $ #Disconnect network drive#

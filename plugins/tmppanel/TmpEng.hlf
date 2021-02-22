@@ -1,6 +1,7 @@
 ﻿.Language=English,English
 .PluginContents=Temporary panel
 
+
 @Contents
 $ #Temporary panel#
     The temporary panel operates in a similar manner to a file panel
@@ -11,6 +12,7 @@ and processing them as a single group.
    ~Temporary panel configuration~@Config@
    ~Working with file lists~@List@
    ~Command line syntax~@CMD@
+
 
 @TempPanel
 $ #Working with temporary panel#
@@ -54,8 +56,8 @@ you can use a menu (#Alt-Shift-F12#) or hotkeys for immediate switching
    To save the current contents of the panel to a list file, you
 can use the hotkey #Alt-Shift-F2#.
 
-
  ~Contents~@Contents@
+
 
 @Config
 $ #Temporary panel: configuration#
@@ -166,8 +168,8 @@ panel.
    Specifies the prefix for opening the temporary panel from the command
 line and for ~file list operations~@List@.
 
-
  ~Contents~@Contents@
+
 
 @List
 $ #Temporary panel: list files#
@@ -220,8 +222,8 @@ sequence:
    The command line prefix used for file list operations (in the examples
 given above - #tmp:#) can be set in the configuration dialog.
 
-
  ~Contents~@Contents@
+
 
 @CMD
 $ #Temporary panel: Command line#

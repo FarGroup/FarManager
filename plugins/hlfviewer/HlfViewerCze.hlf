@@ -2,6 +2,7 @@
 .PluginContents=HlfViewer
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ #Hlf prohlížeč#
    Plugin Hlf prohlížeč byl vytvořen na pomoc těm, kdo vytvářejí, nebo
@@ -15,7 +16,6 @@ upravují HLF soubory, nebo chtějí nějaké HLF sobory prohlížet.
 
 @cmd
 $ #Hlf prohlížeč: syntaxe příkazového řádku
-
    #hlf:GUID# [#topic#]
    #hlf:název_souboru [téma]#
    #hlf:topic#
@@ -72,7 +72,7 @@ tématu nápovědy v ~dialogu nastavení~@Config@ je možné specifikovat horkou
 $ #Hlf prohlížeč: Nastavení#
    Pokud zapnete nastavení "#Aktivační horká klávesa editoru#", pak
 stisknutím přiřazené kombinace kláves v editoru zobrazíte aktuální téma
-HLF souboru, který je upravován. Horké klávesy pracují jen pokud je HLF 
+HLF souboru, který je upravován. Horké klávesy pracují jen pokud je HLF
 soubor upravován. Implicitní horká klávesa je #F1#.
    Také pokud je tato volba zapnuta, položka Hlf prohlížeče není přidána
 do plugin menu (F11), protože to nadále není nutné.

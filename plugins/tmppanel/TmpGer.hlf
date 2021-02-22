@@ -1,6 +1,7 @@
 ﻿.Language=German,German (Deutsch)
 .PluginContents=Temporäres Fenster
 
+
 @Contents
 $ #Temporäres Fenster#
     Das temporäre Fenster arbeitet ähnlich wie ein Dateifenster,
@@ -11,6 +12,7 @@ Verzeichnissen und behandelt sie als einzelne Gruppe.
    ~Konfiguration des temporären Fensters~@TempCfg@
    ~Working with file lists~@List@
    ~Command line syntax~@CMD@
+
 
 @TempPanel
 $ #Arbeiten mit dem temporären Fenster#
@@ -24,7 +26,7 @@ $ #Arbeiten mit dem temporären Fenster#
   - im ~Datei suchen~@:FindFile@-Dialog gefundene Dateien dorthin senden, indem
     Sie das Kommando #Fenster# in diesem Dialog benutzen.
 
-    Dateien, die in das temporäre Fenster kopiert werden,
+   Dateien, die in das temporäre Fenster kopiert werden,
 werden nicht physikalisch kopiert, sondern es werden nur Referenzen
 dafür angelegt. Wenn Sie in einem temporären Fenster Dateibefehle
 ausführen, wirkt sich das auf die echten Dateien an ihrer aktuellen
@@ -33,7 +35,10 @@ Fenster zu einer Löschung der echten Datei von der Disk. Benutzen Sie
 den Befehl "F7-Entfer" um ausgewählte Dateien aus dem temporären Fenster
 zu entfernen, ohne daß die echten Dateien gelöscht werden.
 
-    Drücken Sie #Ctrl-PgUp#, um das temporäre Fenster zu schließen und
+   To remove selected file names from the temporary
+panel without deleting actual files, you can press #F7#.
+
+   Drücken Sie #Ctrl-PgUp#, um das temporäre Fenster zu schließen und
 zu der Datei unter dem Cursor zu wechseln.
 
    #Alt-Shift-F3# on an element:
@@ -51,8 +56,8 @@ you can use a menu (#Alt-Shift-F12#) or hotkeys for immediate switching
    To save the current contents of the panel to a list file, you
 can use the hotkey #Alt-Shift-F2#.
 
-
  ~Contents~@Contents@
+
 
 @Config
 $ #Konfiguration des temporären Fensters#
@@ -163,8 +168,8 @@ panel.
    Specifies the prefix for opening the temporary panel from the command
 line and for ~file list operations~@List@.
 
-
  ~Contents~@Contents@
+
 
 @List
 $ #Temporary panel: list files#
@@ -217,8 +222,8 @@ sequence:
    The command line prefix used for file list operations (in the examples
 given above - #tmp:#) can be set in the configuration dialog.
 
-
  ~Contents~@Contents@
+
 
 @CMD
 $ #Temporary panel: Command line#

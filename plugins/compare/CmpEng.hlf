@@ -1,6 +1,7 @@
 ﻿.Language=English,English
 .PluginContents=Advanced compare
 
+
 @Contents
 $ #Advanced compare#
  This plugin is similar to the internal Far "Compare folders" command, but it also provides additional compare options:

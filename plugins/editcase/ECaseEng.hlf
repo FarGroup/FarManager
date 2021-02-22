@@ -1,11 +1,13 @@
 ﻿.Language=English,English
 .PluginContents=Text case conversion
 
+
 @Contents
 $ #Text case conversion#
  This command allows to change the case of selected text or current word in the internal editor.
 
  См. также "~Использование плагина в макросах~@MacroCallPlugin@"
+
 
 @MacroCallPlugin
 $ #Использование плагина в макросах#

@@ -1,11 +1,13 @@
 ﻿.Language=Slovak,Slovak (Slovenčina)
 .PluginContents=Zmena veľkosti písmen
 
+
 @Contents
 $ #Zmena veľkosti písmen#
  Tento príkaz umožňuje zmenu všetkých písmen v označenom bloku textu na malé alebo veľké v internom editore.
 
  См. также "~Использование плагина в макросах~@MacroCallPlugin@"
+
 
 @MacroCallPlugin
 $ #Использование плагина в макросах#

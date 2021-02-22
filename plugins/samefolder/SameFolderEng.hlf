@@ -2,6 +2,7 @@
 .PluginContents=Same Folder
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ #Same Folder#
  The plugin adds item "Same Folder" to the #plugins menu# and the #drives menu#.
@@ -19,7 +20,6 @@ the choosen panel to the same folder as in the opposite one.
 
 @Config
 $ #Configuring Same Folder#
-
  #Add "Same Folder" to the Plugins menu#
  Adds the command to the ~Plugins menu~@:PluginCommands@ (sets the passive panel's folder to the active's one).
 

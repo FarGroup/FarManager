@@ -1,11 +1,13 @@
 ﻿.Language=Hungarian,Hungarian (Magyar)
 .PluginContents=Szerkesztőben kisbetű/nagybetű konvertálása
 
+
 @Contents
 $ #Szerkesztőben kisbetű/nagybetű konvertálása#
  Ez a parancs lehetővé teszi, hogy a kijelölt részt a kisbetűssé vagy nagybetűssé konvertáljuk.
 
  См. также "~Использование плагина в макросах~@MacroCallPlugin@"
+
 
 @MacroCallPlugin
 $ #Использование плагина в макросах#
