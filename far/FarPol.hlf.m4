@@ -1019,7 +1019,7 @@ lub użyć ~skrótów klawiszowych~@KeyRef@.
  Zobacz także następujące tematy, aby uzyskać więcej informacji:
 
  ~Panel plików~@FilePanel@
- ~Drzewko plików~@TreePanel@
+ ~Drzewo plików~@TreePanel@
  ~Panel informacyjny~@InfoPanel@
  ~Szybki podgląd~@QViewPanel@
 
@@ -1075,26 +1075,26 @@ plików po pierwszej literze jego nazwy.
 
 
 @TreePanel
-$ #Panele: drzewko plików#
- Panel drzewka wyświetla strukturę folderu bieżącego dysku jako drzewko.
-Wewnątrz drzewka można szybko zmieniać foldery lub przeprowadzać operacje na folderach.
+$ #Panele: drzewo plików#
+ Panel drzewa wyświetla strukturę folderu bieżącego dysku jako drzewo.
+Wewnątrz drzewa można szybko zmieniać foldery lub przeprowadzać operacje na folderach.
 
- Far zapisuje informacje o drzewku w pliku o nazwie #tree3.far# w głównym folderze
+ Far zapisuje informacje o drzewie w pliku o nazwie #tree3.far# w głównym folderze
 każdego dysku. Na dyskach tylko do odczytu, informacja jest zapisywana w ukrytym
 folderze Tree.Cache w folderze programu Far. Plik tree3.far nie jest automatycznie zakładany.
-Jest on zakładany przy pierwszym użyciu #Panelu drzewka# lub poleceniu #Znajdź folder#.
+Jest on zakładany przy pierwszym użyciu #Panelu drzewa# lub poleceniu #Znajdź folder#.
 Jeżeli plik już istnieje, Far uaktualnia go, jeżeli zmieniła się struktura.
 Jeżeli jakieś zmiany powstały poza programem Far, i plik tree3.far nie odświeżył się,
 można wymusić odświeżenie struktury wciskając klawisze #Ctrl+R#.
 
- Można szybko odszukać folder za pomocą operacji #szybkiego szukanie#. Należy przytrzymać
+ Można szybko odszukać folder za pomocą operacji #szybkiego szukania#. Należy przytrzymać
 klawisz Alt i rozpocząć wpisywanie nazwy folderu, dopóki nie odnajdziemy właściwego folderu.
 Wciśnięcie #Ctrl+Enter# przeniesie do następnego folderu o takim samym początku nazwy.
 
  Klawisze #Szary +# i #Szary -# przesuwają przesuwają w górę i w dół do następnej gałęzi
 tego samego poziomu.
 
- Zobacz także listę ~klawiszy makro~@KeyMacroTreeList@, dostępną dla panelu drzewka.
+ Zobacz także listę ~klawiszy makro~@KeyMacroTreeList@, dostępną dla panelu drzewa.
 
 
 @InfoPanel
@@ -1344,7 +1344,7 @@ datę ostatniego zapisu, daty utworzenia i ostatniego użycia, atrybuty. Tryb pe
 
  #Panel informacyjny#   Zmienia typ panelu na ~panel informacyjny~@InfoPanel@.
 
- #Drzewko plików#       Zmienia typ panelu na ~drzewko plików~@TreePanel@.
+ #Drzewo plików#        Zmienia typ panelu na ~drzewko plików~@TreePanel@.
 
  #Szybki podgląd#       Zmienia typ panelu na ~szybki podgląd~@QViewPanel@.
 
@@ -2397,9 +2397,9 @@ Opcji tej należy używać z uwagą i ostrożnością.
  Uwaga: traktowanie cyfr jako liczby w sortowaniu językowym jest możliwe tylko w Windows 7 i nowszych. Starsze systemy będą używały automatycznie sortowania "bez zmian".
 
  #Uwzględnij wielkość liter#
- Take into account the case of the characters in the string.
+ Uwzględnia wielkość znaków (małe/WIELKE) w łańcuchach.
 
- Note: how exactly the case of the characters in the string will be taken into account depends on the sorting collation.
+ Uwaga: sposób uwzględniania wielkości znaków w łańcuchu jest zależny od sposobu sortowania.
 
  #Automatycznie zapisuj ustawienia#
  Jeżeli opcja jest zaznaczona, Far automatycznie zapisze ustawienia. Zostaną także zapamiętane bieżące foldery dla obu paneli.
@@ -2407,140 +2407,143 @@ Opcji tej należy używać z uwagą i ostrożnością.
 
 @PanelSettings
 $ #Settings dialog: panel#
- #Show hidden and system files#
- Enables displaying files with Hidden or System attributes. This option can also be switched by #Ctrl+H#.
+ #Pokazuj pliki ukryte i systemowe#
+ Włącza wyświetlanie plików z atrybutem Ukryty lub Systemowy. Opcję można także przełączyć naciskając #Ctrl+H#.
 
- #Highlight files#
- Enables ~files highlighting~@Highlight@.
+ #Wyróżniaj pliki#
+ Włącza ~podświetlanie plików~@Highlight@.
 
- #Select folders#
- Enables folder selection with #Gray +# and #Gray *#. If this option is off, these keys select only files.
+ #Zaznaczaj foldery#
+ Włącza zaznaczanie folderów po naciśnięciu #Szary +# i #Szara *#. Jeżeli opcja jest wyłączona, to zaznaczane
+będą wyłącznie pliki.
 
- #Right click selects files#
- If this option is on, #right mouse click# selects files. Otherwise, it opens Windows  Explorer Context menu.
+ #Prawy klik zaznacza pliki#
+ Po włączeniu tej opcji, #kliknięcie prawym klawiszem myszy# zaznacza pliki. Po wyłączeniu otwiera się menu
+kontekstowe Eksploratora Windows.
 
- #Sort folder names by extension#
- Applies sort by extension not only to files, but also to folders. When this option is turned on, sorting
-by extension works the same as it did in Far 1.65. If the option is turned off, in the extension sort mode the
-folders will be sorted by name, as they are in the name sort mode.
+ #Sortuj nazwy folderów wg rozszerzeń#
+ Stosuje sortowanie wg rozszerzenie nie tylko do plików, ale także do folderów. Jeżeli opcja ta jest włączona,
+sortowanie przez rozszerzenie działa tak samo jak w Far 1.65. Jeżeli opcja jest wyłączona, w rozszerzonym
+trybie sortowania foldery będą sortowane wg nazw, tak samo jak w trybie sortowania wg nazw.
 
- #Allow reverse sort modes#
- If this option is on and the current file panel sort mode is reselected, reverse sort mode will be set.
+ #Włącz możliwość odwrotnego sortowania#
+ Jeżeli opcja jest włączona i ponownie wybrany będzie tryb sortowania, to sortowanie zostanie wykonane w trybie odwróconym.
 
- #Disable automatic panel update#
- If this option is on and the number of file objects exceeds the specified value,
-the automatic panel update when the file system state changes is disabled.
- Auto-update works only for FAT/FAT32/NTFS file systems.
-The value of 0 means "update always".
-To force an update of the panels press #Ctrl+R#.
+ #Wyłącz automatyczną aktualizację paneli#
+ Jeżeli ta opcja jest włączona, a liczba obiektów plików przekracza podaną wartość,
+to automatyczna aktualizacja panelu po zmianie stanu systemu plików zostanie wyłączona.
+ Automatyczna aktualizacja jest możliwa tylko dla systemów plików FAT/FAT32/NTFS.
+Wartość 0 (zero) oznacza "zawsze aktualizuj".
+Aby wymusić aktualizację paneli należy nacisnąć klawisze #Ctrl+R#.
 
- #Network drives autorefresh#
- This option enables panel autorefresh when the file system state of a network drive is changed.
-It may be helpful to disable this option on slow network connections.
+ #Auto odświeżanie dysków sieciowych#
+ Opcja włącza automatyczne odświeżanie panelu, w przypadku zmiany stanu dysku sieciowego.
+W przypadku wolnych połączeń sieciowych pomocne może być wyłączenie tej opcji.
 
- #Show column titles#
- Enables displaying ~file panel~@FilePanel@ column titles.
+ #Wyświetl tytuły kolumn#
+ Włącza pokazywanie tytułów kolumn w ~panelu plików~@FilePanel@.
 
- #Show status line#
- Enables displaying file panel status line.
+ #Wyświetl linię statusu#
+ Włącza pokazywanie linii statusu w panelu plików.
 
- #Detect volume mount points#
- Distiguishes between normal directory links (Junctions) and volume mount points.
-This option significanty slows down displaying directories on slow network connections.
+ #Wykrywaj punkty montowania wolumenów#
+ Rozróżnia zwykłe łącza folderów i punkty montowania woluminów.
+Opcja ta znacznie spowalnia wyświetlanie folderów przy wolnych połączeniach sieciowych.
 
- #Show files total information#
- Enables displaying the file totals at the bottom line of the file panel.
+ #Wyświetl całkowitą informację o plikach#
+ Po włączeniu w dolnej linii panelu plików wyświetlania jest informacja o całkowitej liczbie plików.
 
- #Show free size#
- Enables displaying the current disk free space.
+ #Wyświetl ilość wolnego miejsca#
+ Włącza wyświetlanie wolnego miejsca na bieżącym dysku.
 
- #Show a scrollbar#
- Enables displaying file and ~tree panel~@TreePanel@ scrollbars.
+ #Wyświetl suwak#
+ Włącza wyświetlanie paska przewijania w panelu plików i ~drzewie~@TreePanel@.
 
- #Show background screens number#
- Enables displaying the number of ~background screens~@ScrSwitch@.
+ #Wyświetl ilość ekranów w tle#
+ Włącza pokazywanie liczby ~ekranów w tle~@ScrSwitch@.
 
- #Show sort mode letter#
- Displays current sort mode in the upper left-hand corner of the panel.
+ #Wyświetl literę trybu sortowania#
+ Włącza pokazywanie w lewym górnym narożniku panelu informacji o bieżącym trybie sortowania. 
 
- #Show ".." in root folders#
- Enables displaying of ".." item in root folders.
-Pressing #Enter# on this item opens ~Change drive menu~@DriveDlg@.
+ #Pokaż ".." w głównych folderach#
+ Włącza pokazywanie pozycji ".." w głównych folderach dysków.
+Wciśnięcie #Enter# na tych pozycjach wywołuje funkcję ~Zmień dysk~@DriveDlg@.
 
 
 @TreeSettings
-$ #Tree settings#
- #Auto change folder#
- If turned on, moving cursor on the ~tree panel~@TreePanel@ will synchronously change the folder on the other panel.
-If turned off, to change the folder from the tree panel, you need to press #Enter#.
+$ #Ustawienia drzewa#
+ #Automatycznie zmieniaj folder#
+ Jeżeli opcja jest włączona, przesuwanie kursora w ~panelu drzewa~@TreePanel@ automatycznie zmieni folder w drugim panelu.
+Jeżeli jest wyłączona, to aby zmienić folder w drugim panelu należy nacisnąć #Enter#.
 
- #Minimum number of folders#
- The minimal number of folders on the disk for which folder tree cache file #tree3.far# will be created.
+ #Minimalna liczba folderów#
+ Minimalna liczba folderów na dysku, dla których zostanie utworzony plik cache drzewa #tree3.far#.
 
 
 @InterfSettings
-$ #Settings dialog: interface#
- #Clock in panels#
- Show clock at the right top corner of the screen.
+ #Zegar#
+ Pokazuje zegar w prawym górnym rogu okna.
 
- #Clock in viewer and editor#
- Show clock in viewer and editor.
+ #Zegar w podglądzie i edytorze#
+ Pokazuje zegar w podglądzie i edytorze.
 
- #Mouse#
- Use the mouse.
+ #Mysz#
+ Pozwala na używanie myszki w programie.
 
- #Show key bar#
- Show the functional key bar at the bottom line.
-This option can also be switched by #Ctrl+B#.
+ #Wyświetl pasek klawiszy#
+ Pokazuje pasek funkcjonalny w dolnej linii.
+Opcję można też przełączyć skrótem #Ctrl+B#.
 
- #Always show menu bar#
- Show top screen menu bar even when it is inactive.
+ #Zawsze pokazuj pasek menu#
+ Pokazuje górny pasek menu, nawet gdy jest nieaktywny.
 
- #Screen saver#
- Run screen saver after the inactivity interval in minutes. When this option
-is enabled, screen saver will also activate when mouse pointer is brought
-to the upper right corner of Far window.
+ #Wygaszacz ekranu#
+ Uruchom wygaszacz ekranu po upływie czasu bezczynności w minutach. Gdy opcja
+jest włączona, wygaszacz ekranu uaktywnia się również po przesunięciu kursora
+myszki w prawy górny róg okna Far.
 
- #Show total copy indicator#
- Show total progress bar, when performing a file copy operation.
-This could require some additional time before starting copying
-to calculate the total files size.
+ #Pokaż całkowity postęp kopiowania#
+ Pokazuje całkowity pasek postępu podczas wykonywania operacji kopiowania.
+Może to wymagać dodatkowego czasu przed rozpoczęciem kopiowania, aby obliczyć
+całkowity rozmiar plików.
 
- #Show copying time information#
- Show information about average copying speed, copying time and
-estimated remaining time in the copy dialog.
- Since this function requires some time to gather statistics, it is likely
-that you won't see any information if you're copying many small files
-and the option "Show total copy progress indicator" is disabled.
+ #Pokaż informację o czasie kopiowania#
+ Pokazuje w oknie dialogowym kopiowania informację o średniej prędkości kopiowania,
+czasie kopiowania i przewidywanym pozostałym czasie.
+ Istnieje możliwość, że nie zostaną pokazane żadne informacje o kopiowaniu wielu
+małych plików, ponieważ funkcja potrzebuje trochę czasu na zebranie statystyk,
+a funkcja "Pokaż całkowity postęp kopiowania" jest wyłączona.
 
- #Show total delete indicator#
- Show total progress bar, when performing a file delete operation.
-This could require some additional time before starting deleting
-to calculate the total files count.
+ #Pokaż całkowity postęp usuwania#
+ Pokazuje całkowity pasek postępu podczas wykonywania operacji usuwania.
+Opcja ta wymaga dodatkowego czasu przed rozpoczęciem usuwania, aby obliczyć
+całkowitą liczbę plików.
 
- #Use Ctrl+PgUp to change drive#
- Pressing #Ctrl+PgUp# in the root directory shows the drive selection menu.
- If Network plugin is installed, for network folders (and network drives, if switch
-is in the third state) a list of server shared resources  will be shown.
+ #Użyj Ctrl+PgUp do zmiany napędu#
+ Wciśnięcie #Ctrl+PgUp# w głównym folderze pokazuje menu wyboru dysków.
+ Jeżeli zainstalowana jest wtyczka "Przeglądarka sieci" to dla folderów sieciowych
+(i dysków sieciowych - jeżeli przełącznik znajduje się w trzecim stanie) zostanie
+wyświetlona lista współdzielonych zasobów serwera.
 
- #ClearType friendly redraw#
- Redraw the window in such a way that ClearType related artifacts do not appear.
- #Attention!#: Enabling this option can considerably slow down the redraw speed.
+ #Rysowanie zgodne z ClearType#
+ Przerysowuje okno w taki sposób, aby nie pojawiały się artefakty związane
+z technologią ClearType.
+ #Uwaga!#: Włączenie tej opcji może znacznie obniżyć szybkość odświeżania okien.
 
- #Console icon#
- If this option is activated, Far will set the selected embedded icon as the icon of the console window.
-Otherwise you can choose any desired icon in the Far shourtcut properties.
+ #Ikona konsoli#
+ Jeżeli opcja jest aktywna, Far ustawi wybraną załączoną ikonę jako ikonę okna konsoli.
+ W innym przypadku, zostanie użyta ikona ustawiona we właściwościach skrótu Far.
 
- #Alternate for Administrator#
- If this option is activated, Far will use the red icon when running with administrator privileges.
+ #Inna dla Administratora#
+ Jeżeli opcja jest aktywna, Far użyje czerwonej ikony, jeżeli zostanie uruchomiony z prawami administratora.
 
- #Far window title addons#
- Additional information, displayed in the window title.
-Can contain any text, including environment variables (e.g. "%USERDOMAIN%\%USERNAME%") and the following special variables:
- - #%Ver# - Far version;
- - #%Platform# - Far platform;
- - #%Admin# - ^<wrap>"Administrator" if running as administrator, otherwise an empty string.
- - #%PID# - Far process ID;
+ #Okno tytułowe Far#
+ Dodatkowe informacje, wyświetlane w tytule okna.
+Może zawierać dowolny tekst, w tym zmienne środowiskowe (np. "%USERDOMAIN%\%USERNAME%") i następujące specjalne zmienne:
+ - #%Ver# - Wersja Far;
+ - #%Platform# - platforma Far;
+ - #%Admin# - ^<wrap>"Administrator" jeżeli program działa w trybie administratora, w innym przypadku łańcuch jest pusty.
+ - #%PID# - ID procesu Far.
 
 
 @DialogSettings
