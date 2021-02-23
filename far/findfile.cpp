@@ -53,7 +53,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "filemasks.hpp"
 #include "filefilter.hpp"
-#include "syslog.hpp"
 #include "encoding.hpp"
 #include "taskbar.hpp"
 #include "interf.hpp"
@@ -914,7 +913,6 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 bool FindFiles::GetPluginFile(ArcListItem const* const ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, const UserDataItem* const UserData)
 {
 	SCOPED_ACTION(std::lock_guard)(PluginCS);
-	_ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
 	OpenPanelInfo Info;
 
 	Global->CtrlObject->Plugins->GetOpenPanelInfo(ArcItem->hPlugin,&Info);
@@ -2106,8 +2104,6 @@ void background_searcher::AddMenuRecord(string_view const FullName, PluginPanelI
 
 void background_searcher::ArchiveSearch(string_view const ArcName)
 {
-	_ALGO(CleverSysLog clv(L"FindFiles::ArchiveSearch()"));
-
 	std::unique_ptr<plugin_panel> hArc;
 
 	{
@@ -2515,7 +2511,6 @@ void background_searcher::Search()
 
 bool FindFiles::FindFilesProcess()
 {
-	_ALGO(CleverSysLog clv(L"FindFiles::FindFilesProcess()"));
 	// Если используется фильтр операций, то во время поиска сообщаем об этом
 	string strTitle=msg(lng::MFindFileTitle);
 
@@ -2835,8 +2830,6 @@ FindFiles::FindFiles():
 	m_TimeCheck(time_check::mode::immediate, GetRedrawTimeout()),
 	m_MessageEvent(os::event::type::manual, os::event::state::signaled)
 {
-	_ALGO(CleverSysLog clv(L"FindFiles::FindFiles()"));
-
 	static string strLastFindMask = L"*.*"s, strLastFindStr;
 
 	static string strSearchFromRoot;

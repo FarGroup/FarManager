@@ -66,11 +66,8 @@ namespace
 	{
 		if ((Key&(KEY_ALT | KEY_RALT)))// && Key!=(KEY_ALT|0x3C))
 		{
-			// // _SVS(SysLog(L"_CorrectFastFindKbdLayout>>> %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
 			if (rec.Event.KeyEvent.uChar.UnicodeChar && (Key&KEY_MASKF) != rec.Event.KeyEvent.uChar.UnicodeChar) //???
 				Key = (Key & 0xFFF10000) | rec.Event.KeyEvent.uChar.UnicodeChar;   //???
-
-			// // _SVS(SysLog(L"_CorrectFastFindKbdLayout<<< %s | %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(rec)));
 		}
 
 		return Key;
@@ -133,7 +130,6 @@ bool FastFind::ProcessKey(const Manager::Key& Key)
 		return true;
 	}
 
-	// // _SVS(if (!FirstKey) SysLog(L"Panel::FastFind  Key=%s  %s",_FARKEY_ToName(Key),_INPUT_RECORD_Dump(&rec)));
 	if (LocalKey() >= KEY_ALT_BASE + 0x01 && LocalKey() <= KEY_ALT_BASE + 65535)
 		LocalKey = lower(static_cast<wchar_t>(LocalKey() - KEY_ALT_BASE));
 	else if (LocalKey() >= KEY_RALT_BASE + 0x01 && LocalKey() <= KEY_RALT_BASE + 65535)

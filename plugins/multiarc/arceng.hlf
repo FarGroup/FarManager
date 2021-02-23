@@ -1,5 +1,6 @@
-.Language=English,English
+﻿.Language=English,English
 .PluginContents=Archive support plugin
+
 
 @Contents
 $ #Archive support plugin#
@@ -20,6 +21,7 @@ archiver calls.
    ~Archiver command lines~@ArcSettings2@
 
    ~Storage of plugin settings~@ArcSettings3@
+
 
 @AddToArc
 $ #Adding files to archive#
@@ -54,6 +56,7 @@ positioned to the new archive once the archiving operation is
 complete. (This is not done when the archiver is started in a
 separate window.)
 
+
 @ArcPrior
 $ #Priority of process#
     MultiArc allows to control the execution priority
@@ -86,6 +89,7 @@ achieved when other active processes are running in the system.
 
     The "normal" priority is selected by default.
 
+
 @ExtrFromArc
 $ #Extracting files from archive#
     In this dialog you may enter the path to extract files and set the
@@ -101,6 +105,7 @@ files from an archive.
 
     To immediately extract selected archived files to the current folder
 you may also use #Alt-F6#.
+
 
 @ArcCmd
 $ #Archive commands#
@@ -122,14 +127,15 @@ F4 in the "Archive commands" menu.
 used with RAR and ACE archives. Other archivers will support only
 a sub-set of these commands.
 
+
 @Config
 $ #Plugin configuration#
-
     ~Archive support configuration~@ArcSettings1@
 
     ~Archiver command lines~@ArcSettings2@
 
     ~Storage of plugin settings~@ArcSettings3@
+
 
 @ArcSettings1
 $ #Archive support configuration#
@@ -253,6 +259,7 @@ from those described above.
 
     If an external archiver does not support a particular command,
 leave the corresponding string blank.
+
 
 @ArcSettings3
 $ #Storage of plugin settings#

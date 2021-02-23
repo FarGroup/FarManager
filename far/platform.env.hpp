@@ -48,33 +48,30 @@ namespace os::env
 {
 	namespace provider
 	{
-		namespace detail
-		{
-			class provider: noncopyable
-			{
-			public:
-				[[nodiscard]]
-				const wchar_t* data() const;
-
-			protected:
-				provider() = default;
-
-				wchar_t* m_Data;
-			};
-		}
-
-		class strings: public detail::provider
+		class strings
 		{
 		public:
 			strings();
 			~strings();
+
+			[[nodiscard]]
+			const wchar_t* data() const;
+
+		private:
+			wchar_t* m_Data{};
 		};
 
-		class block: public detail::provider
+		class block
 		{
 		public:
 			block();
 			~block();
+
+			[[nodiscard]]
+			const wchar_t* data() const;
+
+		private:
+			wchar_t* m_Data{};
 		};
 	}
 

@@ -102,9 +102,6 @@ public:
 	string_view HelpFileMask{L"*.hlf"sv};
 	string_view GenNameFormat{L"{1} ({0}){2}"sv};
 	bool OnlyEditorViewerUsed{}; // -e or -v
-#if defined(SYSLOG)
-	bool StartSysLog{};
-#endif
 #ifdef DIRECT_RT
 	bool DirectRT{};
 #endif

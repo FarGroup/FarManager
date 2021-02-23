@@ -84,7 +84,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4686) //'user-defined type' : possible change in behavior, change in UDT return calling convention
 #pragma warning(disable: 4814) // in C++14 'constexpr' will not imply 'const'; consider explicitly specifying 'const'
 #pragma warning(disable: 4820) // 'bytes' bytes padding added after construct 'member_name'
-#pragma warning(disable: 4868) // file(line_number)' compiler may not enforce left-to-right evaluation order in braced initializer list
+#pragma warning(disable: 4866) // compiler may not enforce left-to-right evaluation order for call to operator_name
+#pragma warning(disable: 4868) // compiler may not enforce left-to-right evaluation order in braced initializer list
 #pragma warning(disable: 5025) // 'class': move assignment operator was implicitly defined as deleted
 #pragma warning(disable: 5026) // 'class': move constructor was implicitly defined as deleted because a base class move constructor is inaccessible or deleted
 #pragma warning(disable: 5027) // 'class': move assignment operator was implicitly defined as deleted because a base class move assignment operator is inaccessible or deleted

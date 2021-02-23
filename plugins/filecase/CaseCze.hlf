@@ -1,6 +1,7 @@
 ﻿.Language=Czech,Czech (Čeština)
 .PluginContents=File names case conversion
 
+
 @Contents
 $ #Konverze znaků v názvech souborů#
  Tento příkaz umožňuje změnit formát názvů souborů na několik různých formátů.

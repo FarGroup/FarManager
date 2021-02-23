@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filefilterparams.hpp"
 #include "panel.hpp"
 #include "filepanels.hpp"
-#include "syslog.hpp"
 #include "interf.hpp"
 #include "config.hpp"
 #include "dirmix.hpp"
@@ -67,8 +66,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ControlObject::ControlObject()
 {
-	_OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
-
 	SetColor(COL_COMMANDLINEUSERSCREEN);
 	GotoXY(0, ScrY - 3);
 	ShowVersion(false);
@@ -132,8 +129,6 @@ void ControlObject::close()
 		Global->WindowManager->CloseAll();
 		return;
 	}
-
-	_OT(SysLog(L"[%p] ControlObject::~ControlObject()", this));
 
 	// dummy_panel indicates /v or /e mode
 	if (FPanels && FPanels->ActivePanel() && !std::dynamic_pointer_cast<dummy_panel>(FPanels->ActivePanel()))

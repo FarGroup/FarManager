@@ -79,28 +79,29 @@
 		<DisplayString>{get()}</DisplayString>
 	</Type>
 
-	<Type Name="array_ptr&lt;*,*&gt;">
-		<Intrinsic Name="dynamic" Expression="m_Size &gt; $T2"/>
-		<Intrinsic Name="empty" Expression="!m_Size"/>
-		<Intrinsic Name="ptr" Expression="empty()? nullptr : dynamic()? ($T1*)m_DynamicBuffer._Mypair._Myval2 : ($T1*)&amp;m_StaticBuffer"/>
+	<Type Name="array_ptr&lt;*,*,*&gt;">
+		<Intrinsic Name="dynamic" Expression="m_End - m_Begin &gt; StaticSize"/>
+		<Intrinsic Name="empty" Expression="m_Begin == m_End"/>
+		<Intrinsic Name="ptr" Expression="empty()? nullptr : m_Begin"/>
+		<Intrinsic Name="size" Expression="m_End - m_Begin"/>
 		<DisplayString Condition="empty()">empty</DisplayString>
-		<DisplayString Condition="!empty()">size={m_Size}, dynamic={dynamic()}</DisplayString>
+		<DisplayString Condition="!empty()">size={size()}, dynamic={dynamic()}</DisplayString>
 		<Expand>
-			<Item Name="[size]">m_Size</Item>
+			<Item Name="[size]">size()</Item>
 			<Item Name="[dynamic]">dynamic()</Item>
 			<ArrayItems Condition="!empty()">
-				<Size>m_Size</Size>
+				<Size>m_End - m_Begin</Size>
 				<ValuePointer>ptr()</ValuePointer>
 			</ArrayItems>
 		</Expand>
 	</Type>
 
-	<Type Name="block_ptr&lt;*,*&gt;">
+	<Type Name="block_ptr&lt;*,*,*&gt;">
 		<Expand>
 			<Synthetic Name="[Buffer]">
-				<DisplayString>{(array_ptr&lt;char,$T2&gt;&amp;)*this}</DisplayString>
+				<DisplayString>{(array_ptr&lt;char,$T2,$T3&gt;&amp;)*this}</DisplayString>
 				<Expand>
-					<ExpandedItem>(array_ptr&lt;char,$T2&gt;&amp;)*this</ExpandedItem>
+					<ExpandedItem>(array_ptr&lt;char,$T2,$T3&gt;&amp;)*this</ExpandedItem>
 				</Expand>
 			</Synthetic>
 			<ExpandedItem Condition="!empty()">($T1*)ptr()</ExpandedItem>

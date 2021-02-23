@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "farcolor.hpp"
-#include "syslog.hpp"
 #include "interf.hpp"
 #include "console.hpp"
 #include "colormix.hpp"
@@ -61,21 +60,18 @@ static void CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize)
 
 SaveScreen::SaveScreen()
 {
-	_OT(SysLog(L"[%p] SaveScreen::SaveScreen()", this));
 	SaveArea({ 0, 0, ScrX, ScrY });
 }
 
 SaveScreen::SaveScreen(rectangle Where)
 {
 	fix_coordinates(Where);
-	_OT(SysLog(L"[%p] SaveScreen::SaveScreen(X1=%i,Y1=%i,X2=%i,Y2=%i)",this,X1,Y1,X2,Y2));
 	SaveArea(Where);
 }
 
 
 SaveScreen::~SaveScreen()
 {
-	_OT(SysLog(L"[%p] SaveScreen::~SaveScreen()", this));
 	RestoreArea();
 }
 
@@ -245,9 +241,4 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 	using std::swap;
 	swap(ScreenBuf, NewBuf);
 	m_Where = NewWhere;
-}
-
-void SaveScreen::DumpBuffer(const wchar_t *Title)
-{
-	SaveScreenDumpBuffer(Title, ScreenBuf.data(), m_Where.left, m_Where.top, m_Where.right, m_Where.bottom, nullptr);
 }

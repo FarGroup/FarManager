@@ -50,7 +50,6 @@ $^#Fájl- és archívumkezelő program#
 `$^#'FULLVERSION`#'
 $^#Copyright © 1996-2000 Eugene Roshal#
 `$^#Copyright © 2000-'COPYRIGHTYEAR` Far Group#'
-$^(help file last translated for build 882)
  ~A súgó betűrendes tartalomjegyzéke~@Index@
  ~A súgó használata~@Help@
 
@@ -296,7 +295,6 @@ Single letter prefixes A-Z or conflicted with disk letter will be ignored.
 
 @KeyRef
 $ #Billentyűparancsok#
-
  ~Panelvezérlő parancsok~@PanelCmd@
 
  ~Parancssor~@CmdLineCmd@
@@ -1195,7 +1193,6 @@ battery life time and battery life percent. Without smart battery subsystems, th
     ^<wrap>In Windows Vista and above charge status is update automatically.
     ^<wrap>Power status section can be turned on and off in ~settings~@InfoPanelSettings@.
 
-
  All sections (except computer and user names) can be hidden or shown (see ~InfoPanel display modes~@InfoPanelShowMode@).
 
  Also see the list of ~macro keys~@KeyMacroInfoList@, available in the info panel.
@@ -1477,6 +1474,7 @@ információk a ~mappakeresés~@FindFolder@ témakörben.
 ~megnézett vagy szerkesztett~@HistoryViews@ fájlok listáját mutatja meg.
 
  #Mappa előzmények#     ^<wrap>A bejárt ~mappák előzményeit~@HistoryFolders@
+
 jeleníti meg. A "Mappa előzmények" és a "Fájl előzmények" listák elemei
 kiválasztás után a lista aljára kerülnek. Ezt elkerülhetjük, ha Enter helyett
 #Shift+Enterrel# választunk közülük.
@@ -1500,6 +1498,8 @@ pedig szerkeszthetjük a fájlok társításait.
 
  #Mappa#                A ~mappa gyorsbillentyűk~@FolderShortcuts@ aktuális
  #gyorsbillentyűk#      összerendeléseit jeleníti meg.
+
+ #Edit sort groups#     Allows to edit user defined ~sort groups~@SortGroups@.
 
  #Fájlpanel szűrő#      A fájlpanelek tartalmát szűrhetjük.
                       ^<wrap>A ~Szűrők menü~@FiltersMenu@ témakör
@@ -1802,7 +1802,6 @@ The following column types are supported:
  LN         - number of hard links
 
  F          - number of alternate streams
-
 
  File attributes are denoted as follows:
 
@@ -2447,11 +2446,6 @@ A mappa előzmények listája az #Alt+F12#-vel is megjeleníthető.
 Windows ismer és a típus nem szerepel a Far
 ~fájltársítások~@FileAssoc@ listáján, a Windows a saját társítású programjával
 próbálja megnyitni.
-
- #CD tálca automatikus behúzása#
- Ha CD-ROM típusú meghajtót választottunk a ~Meghajtók menüben~@DriveDlg@, a Far megpróbálja
-behúzni a meghajtó nyitott tálcáját. Kapcsoljuk ki az opciót, ha nem működik
-megfelelően (néhány CD-ROM meghajtó hibás drivere miatt ez előfordulhat).
 
  #Automatic update of environment variables#
  Automatically update the environment variables if they have been changed globally.
@@ -3576,7 +3570,6 @@ $ #Code pages menu#
 
  #Other#
  The rest of code pages installed in the system.
-
 
  The following key combinations are available in this menu:
 
@@ -5030,7 +5023,6 @@ have a number (in the order of appearance).
 
  #\p{name}# - ^<wrap>inner regexp reference to it's parsed bracket with specified #name#.
 
-
  #Examples:#
 
  #/foobar/# matches to "foobar", but not to "FOOBAR"
@@ -5285,10 +5277,10 @@ jelenik meg a képernyőn.
  [ ] - csak ha nincs kijelölt blokk
  [?] - a kijelöléstől függetlenül
 
-
  Megjegyzések:
 
  1. ^<wrap>A makró végrehajtása előtt a Far minden fenti feltételt ellenőriz.
+
  2. ^<wrap>Egyes billentyűkombinációkat, például az #Enter#, #Esc#, #F1# és
 a #Ctrl+F5#; az #MsWheelUp# (EgérGörgőFel). az #MsWheelDown# (EgérGörgőLe),
 valamint más egérgomb műveleteket a #Ctrl#, #Shift# és #Alt# módosítóval

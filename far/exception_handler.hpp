@@ -90,10 +90,10 @@ namespace detail
 	};
 
 	void cpp_try(function_ref<void()> Callable, function_ref<void()> UnknownHandler, function_ref<void(std::exception const&)> StdHandler);
-	void seh_try(function_ref<void()> Callable, function_ref<DWORD(EXCEPTION_POINTERS*)> Filter, function_ref<void()> Handler);
+	void seh_try(function_ref<void()> Callable, function_ref<DWORD(EXCEPTION_POINTERS*)> Filter, function_ref<void(DWORD)> Handler);
 	int seh_filter(EXCEPTION_POINTERS const* Info, std::string_view Function, Plugin const* Module);
 	int seh_thread_filter(std::exception_ptr& Ptr, EXCEPTION_POINTERS* Info);
-	void seh_thread_handler();
+	void seh_thread_handler(DWORD ExceptionCode);
 	void set_fp_exceptions(bool Enable);
 
 	// A workaround for 2017
@@ -181,7 +181,7 @@ auto seh_try(function const& Callable, filter const& Filter, handler const& Hand
 		result_type Result;
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4702) // unreachable code
-		::detail::seh_try([&]{ Result = Callable(); }, Filter, [&]{ Result = Handler(); });
+		::detail::seh_try([&]{ Result = Callable(); }, Filter, [&](DWORD const ExceptionCode){ Result = Handler(ExceptionCode); });
 WARNING_POP()
 		return Result;
 	}

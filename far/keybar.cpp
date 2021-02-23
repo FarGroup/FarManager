@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "manager.hpp"
-#include "syslog.hpp"
 #include "lang.hpp"
 #include "interf.hpp"
 #include "config.hpp"
@@ -81,8 +80,6 @@ KeyBar::KeyBar(window_ptr Owner):
 	{
 		i.resize(KEY_COUNT);
 	}
-
-	_OT(SysLog(L"[%p] KeyBar::KeyBar()", this));
 }
 
 void KeyBar::DisplayObject()

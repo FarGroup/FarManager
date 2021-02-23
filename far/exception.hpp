@@ -61,6 +61,8 @@ struct error_state
 	string NtErrorStr() const;
 
 	std::array<string, 3> format_errors() const;
+
+	string to_string() const;
 };
 
 struct error_state_ex: public error_state
@@ -151,5 +153,9 @@ class far_known_exception: public far_exception
 #define MAKE_FAR_FATAL_EXCEPTION(...) MAKE_EXCEPTION(far_fatal_exception, true, __VA_ARGS__)
 #define MAKE_FAR_EXCEPTION(...) MAKE_EXCEPTION(far_exception, true, __VA_ARGS__)
 #define MAKE_FAR_KNOWN_EXCEPTION(...) MAKE_EXCEPTION(far_known_exception, false, __VA_ARGS__)
+
+std::wostream& operator<<(std::wostream& Stream, error_state const& e);
+std::wostream& operator<<(std::wostream& Stream, error_state_ex const& e);
+std::wostream& operator<<(std::wostream& Stream, far_exception const& e);
 
 #endif // EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF

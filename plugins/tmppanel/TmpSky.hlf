@@ -1,6 +1,7 @@
 ﻿.Language=Slovak,Slovak (Slovenčina)
 .PluginContents=Pomocný panel
 
+
 @Contents
 $ #Pomocný panel#
     Pomocný panel, s ktorým sa pracuje podobne ako so súborovým
@@ -12,10 +13,10 @@ pracovať s nimi ako s jednou skupinou.
    ~Working with file lists~@List@
    ~Command line syntax~@CMD@
 
+
 @TempPanel
 $ #Práca s pomocným panelom#
    Nastavenie obsahu pomocného panelu možno vykonať buď:
-
 
   - skopírovaním súborov doň zo súborového alebo stromového panel;
 
@@ -53,6 +54,7 @@ you can use a menu (#Alt-Shift-F12#) or hotkeys for immediate switching
 can use the hotkey #Alt-Shift-F2#.
 
 ~Contents~@Contents@
+
 
 @Config
 $ #Konfigurácia pomocného panelu#
@@ -163,8 +165,8 @@ panel.
    Specifies the prefix for opening the temporary panel from the command
 line and for ~file list operations~@List@.
 
-
  ~Contents~@Contents@
+
 
 @List
 $ #Temporary panel: list files#
@@ -217,8 +219,8 @@ sequence:
    The command line prefix used for file list operations (in the examples
 given above - #tmp:#) can be set in the configuration dialog.
 
-
  ~Contents~@Contents@
+
 
 @CMD
 $ #Temporary panel: Command line#

@@ -1,18 +1,21 @@
 ﻿.Language=Czech,Czech (Čeština)
 .PluginContents=FTP client
+
+
 @Contents
 $ #FTP klient#
    ~Připojení k FTP hostiteli~@FTPConnectX@
 
    ~Správa názvů hostitelů~@FTPNames@
 
-   ~Konfigurační dialog hostitele~@FTPConnect@ 
+   ~Konfigurační dialog hostitele~@FTPConnect@
 
    ~Příkazy FTP klienta~@FTPCmd@
 
    ~Nastavení FTP klienta~@Config@
 
    ~Módy panelu FTP klienta~@FTPPanel@
+
 
 @FTPConnectX
 $ #Připojení k FTP hostiteli#
@@ -25,9 +28,9 @@ z ~panelu hostitelů~@FTPNames@.
 
     kde "nazev_hostitele" je vždy vyžadován. Předpona "ftp://" je
 vyžadována pro připojení z příkazové řádky a při připojení z panelu
-hostitelů je nepovinná. Všechny ostatní jmenované části jsou nepovinné. 
+hostitelů je nepovinná. Všechny ostatní jmenované části jsou nepovinné.
 Pokud chybí název uživatele, bude použit "anonymous" (anonymní). Pokud je
-vynecháno heslo, bude serveru odesláno implicitní, které je definováno v 
+vynecháno heslo, bude serveru odesláno implicitní, které je definováno v
 ~nastavení FTP klineta~@Config@.
 
     Pro připojení z příkazové řádky zadejte název hostitele, začínající za
@@ -40,9 +43,10 @@ server a stiskněte Enter.
 na názvu serveru, proveďte všechny nezbytné změny v
 ~konfiguračním dialogu hostitele~@FTPConnect@ a stiskněte tlačítko "Připojit".
 
+
 @FTPNames
 $ #Správa názvů hostitelů#
-    Názvy hostitelů jsou organizovány ve formě souborového panelu. 
+    Názvy hostitelů jsou organizovány ve formě souborového panelu.
 Pro vložení nového hostitele stiskněte #Shift-F4# a vložte parametry v
 ~konfiguračním dialogu hostitele~@FTPConnect@.
 
@@ -60,11 +64,12 @@ lokálních disků, použitím příkazů F5 a F6.
 
     Stiskem Alt-F6 uložíte informace o aktuálně připojeném hostiteli.
 
+
 @FTPConnect
 $ #Konfigurační dialog hostitele#
     Každý hostitelský záznam sestává z pole názvu hostitele, nepovinných
 polí pro zadání názvu uživatele, hesla a popisu hostitele a voleb
-"Vyžadovat heslo těsně před připojením", "ASCII mód","Pasivní mód" a 
+"Vyžadovat heslo těsně před připojením", "ASCII mód","Pasivní mód" a
 "Použít firewall"
 
     FAR podporuje následující formát názvu hostitele:
@@ -86,12 +91,11 @@ před připojením k serveru.
 přednost před jménem uživatele a heslem specifikovaným v řetězci
 názvu hostitele. Když je záznam hostitele uložen, pokud je název
 uživatele a heslo specifikované v řetězci názvu hostitele, ale ne
-v oddělených polích, jsou zkopírovány do oddělených polí. Nicméně, 
+v oddělených polích, jsou zkopírovány do oddělených polí. Nicméně,
 pokud změníte název uživatele, nebo heslo v řetězci názvu hostitele
 a oddělená pole nejsou prázdné, změny nejsou rozšířeny do oddělených
 polí. Tudíž je doporučeno nechat uživatelovo jméno a heslo v oddělených
 polích a ne v řetězci názvu hostitele.
-
 
     Nastavení "ASCII mód" umožňuje použít implicitně pro přenos souborů
 ASCII mód.
@@ -103,6 +107,7 @@ z ~nastavení FTP klienta~@Config@.
     Tlačítko "Zvolit znakovou sadu" můžete použít pro potlačení implicitní
 znakové sadu pro daný server.
 
+
 @FTPCmd
 $ #Příkazy FTP klienta#
     FTP klient umožňuje provádět operace se soubory na FTP serverech
@@ -113,10 +118,11 @@ v zobrazeném dialogu, ale musí být tato funkce podporována FTP serverem.
 Pro vyhledání souborů na FTP serveru můžete použít funkci "Hledat soubor".
 Pokud to server podporuje mění Ctrl-A mód přístupu k souborům.
 
-    Pro změnu znakové sady použité pro názvy souborů a popisy, stiskněte 
+    Pro změnu znakové sady použité pro názvy souborů a popisy, stiskněte
 #Shift-F7#. Znakovou sadu můžete nastavit zvlášť pro každý server.
 
     Kterákoliv operace FTP serveru může být přerušena stiskem Esc.
+
 
 @Config
 $ #Nastavení FTP klienta#
@@ -136,14 +142,14 @@ $ #Nastavení FTP klienta#
  #ohraničených čárkami#
 
  #Číst popisy#          Číst popisy souborů na FTP při vstupu do
-                      některého adresáře na FTP. Toto nastavení 
-                      zapíná prohlížení popisů souborů, ale 
+                      některého adresáře na FTP. Toto nastavení
+                      zapíná prohlížení popisů souborů, ale
                       zpomaluje čtení adresářů.
 
  #Updatovat popisy#     Aktualizovat popisy souborů z FTP, po
                       uploadování, nebo smazání.
 
- #Konvertovat při#      Pokud je toto nastavní zapnuto a názvy 
+ #Konvertovat při#      Pokud je toto nastavní zapnuto a názvy
  #uploadu soubory#      souborů jsou pouze velkými písmeny,
  #s názvy velkými#      budou všechny transformovány na názvy
  #na malá písmena#      složené pouze z malých písmen.
@@ -159,17 +165,17 @@ $ #Nastavení FTP klienta#
                       a název uživatele je prázdný, nebo "anonymous".
 
  #Firewall#             Název firewall serveru. Pokud nepoužíváte
-                      firewall, nechte toto pole prázdné. Je 
+                      firewall, nechte toto pole prázdné. Je
                       podporován pouze jeden typ firewallu:
-                      vzdaleny_uzivatelid@@vzdaleny_hostitel je 
+                      vzdaleny_uzivatelid@@vzdaleny_hostitel je
                       zaslán firewallu, jako jméno uživatele při
                       připojení k vzdaleny_hostitel.
 
  #Pasivní mód#          Tento mód může být vyžadován pro práci
                       s některými typy firewallů. Protože každý
-                      záznam hostitele má své vlastní nastavení 
-                      "Pasivní mód", hodnota konfiguračního nastavení 
-                      je požíta při vstupu na nového hostitele, nebo 
+                      záznam hostitele má své vlastní nastavení
+                      "Pasivní mód", hodnota konfiguračního nastavení
+                      je požíta při vstupu na nového hostitele, nebo
                       při připojení z příkazové řádky.
 
 
@@ -180,7 +186,7 @@ FTP souborech módy panelu 8 a 9.
 
     Mód 8 (vlastník souborů) obsahuje vlastníka souboru a informace o skupině.
 
-    Mód 9 (linky souborů) obsahuje mód přístupu k souboru a informace v 
+    Mód 9 (linky souborů) obsahuje mód přístupu k souboru a informace v
 Unixovém formátu.
 
     Tyto informace mohou být správně zobrazeny, jen pokud jsou provedeny

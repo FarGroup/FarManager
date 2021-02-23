@@ -287,7 +287,6 @@ Single letter prefixes A-Z or conflicted with disk letter will be ignored.
 
 @KeyRef
 $ #Keyboard reference#
-
  ~Panel control~@PanelCmd@
 
  ~Command line~@CmdLineCmd@
@@ -1164,7 +1163,6 @@ battery life time and battery life percent. Without smart battery subsystems, th
     ^<wrap>In Windows Vista and above charge status is update automatically.
     ^<wrap>Power status section can be turned on and off in ~settings~@InfoPanelSettings@.
 
-
  All sections (except computer and user names) can be hidden or shown (see ~InfoPanel display modes~@InfoPanelShowMode@).
 
  Also see the list of ~macro keys~@KeyMacroInfoList@, available in the info panel.
@@ -1439,6 +1437,7 @@ $ #Menus: commands menu#
  #File view history#    Display ~file view and edit history~@HistoryViews@.
 
  #Folders history#      Display folders ~changing history~@HistoryFolders@.
+
                       Items in "Folders history" and "File view
                       history" are moved to the end of list after
                       selection. Use #Shift+Enter# to select item
@@ -1750,7 +1749,6 @@ The following column types are supported:
  LN         - number of hard links
 
  F          - number of alternate streams
-
 
  File attributes are denoted as follows:
 
@@ -2367,11 +2365,6 @@ starting Far. View and edit history list can be activated by #Alt+F11#.
  When this option is on and #Enter# is pressed on a file, the type of which is known to
 Windows and absent in the list of Far ~file associations~@FileAssoc@, the Windows program
 registered to process this file type will be executed.
-
- #CD drive auto mount#
- When a CD-ROM drive is selected from the ~Change drive menu~@DriveDlg@, Far will close the open
-tray of a CD drive. Turn off this option if automatic CD-ROM mounting does not work
-correctly (this can happen because of bugs in the drivers of some CD-ROM drives).
 
  #Automatic update of environment variables#
  Automatically update the environment variables if they have been changed globally.
@@ -3490,7 +3483,6 @@ $ #Code pages menu#
 
  #Other#
  The rest of code pages installed in the system.
-
 
  The following key combinations are available in this menu:
 
@@ -4929,7 +4921,6 @@ have a number (in the order of appearance).
         "(['"])hello\1" matches to "hello" or 'hello'.
 
  #\p{name}# - ^<wrap>inner regexp reference to it's parsed bracket with specified #name#.
-
 
  #Examples:#
 

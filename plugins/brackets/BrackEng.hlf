@@ -2,6 +2,7 @@
 .PluginContents=Brackets matching
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ #Brackets matching#
   This plugin allows you to:
@@ -28,7 +29,6 @@ $ #Brackets matching#
      the C/C++ language: '/*' and '*/'. The cursor will be positioned
      to the respective character of the matching bracket.
 
-
   ~Configure~@Config@
   ~Search/select~@Find@
   ~Search for quotation marks~@Direct@
@@ -37,7 +37,6 @@ $ #Brackets matching#
 
 @Find
 $ #Brackets matching - Search/select#
-
   #Search#     - if the matching bracket is found successfully, the
                cursor will be positioned to the bracket.
 
@@ -99,7 +98,6 @@ $ #Brackets matching - Configure#
    #when selecting#       set cursor to the found bracket.
 
    #Beep if matched#      Beep after successful search.
-
 
   #>Definitions#
   This section allows to change some basic constants of the plugin:

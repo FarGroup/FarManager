@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "configdb.hpp"
 #include "global.hpp"
+#include "log.hpp"
 
 // Platform:
 
@@ -67,7 +68,7 @@ void xlat_initialize()
 		unsigned long res;
 		if (!from_string(i, res, nullptr, 16))
 		{
-			// TODO: log
+			LOGWARNING(L"Unsupported layout: {0}", i);
 			continue;
 		}
 

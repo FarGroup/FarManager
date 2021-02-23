@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "format.hpp"
 
 // Internal:
+#include "encoding.hpp"
 #include "components.hpp"
 #include "locale.hpp"
 
@@ -44,6 +45,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // External:
 
 //----------------------------------------------------------------------------
+
+std::wostream& std::operator<<(std::wostream& Stream, std::exception const& e)
+{
+	Stream << format(FSTR(L"std::exception: {0}"), encoding::utf8::get_chars(e.what()));
+	return Stream;
+}
 
 WARNING_PUSH(3)
 

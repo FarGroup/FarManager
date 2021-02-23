@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "exception.hpp"
 #include "global.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -343,6 +344,8 @@ static void LoadCustomStrings(string_view const FileName, std::unordered_map<str
 	std::istream Stream(&StreamBuffer);
 	Stream.exceptions(Stream.badbit | Stream.failbit);
 
+	const auto LastSize = Strings.size();
+
 	for (const auto& i: enum_lines(Stream, CustomFileCodepage))
 	{
 		string_view Label, Text;
@@ -365,6 +368,8 @@ static void LoadCustomStrings(string_view const FileName, std::unordered_map<str
 			break;
 		}
 	}
+
+	LOGINFO(L"Loaded {0} strings from {1}", Strings.size() - LastSize, FileName);
 }
 
 void language::load(string_view const Path, string_view const Language, int CountNeed)

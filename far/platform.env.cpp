@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.hpp"
+#include "platform.security.hpp"
 
 // Common:
 #include "common/range.hpp"
@@ -50,16 +51,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os::env
 {
-	const wchar_t* provider::detail::provider::data() const
+	provider::strings::strings():
+		m_Data(GetEnvironmentStrings())
 	{
-		return m_Data;
-	}
-
-	//-------------------------------------------------------------------------
-
-	provider::strings::strings()
-	{
-		m_Data = GetEnvironmentStrings();
 	}
 
 	provider::strings::~strings()
@@ -70,13 +64,16 @@ namespace os::env
 		}
 	}
 
+	const wchar_t* provider::strings::data() const
+	{
+		return m_Data;
+	}
+
 	//-------------------------------------------------------------------------
 
 	provider::block::block()
 	{
-		m_Data = nullptr;
-		handle TokenHandle;
-		if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &ptr_setter(TokenHandle)))
+		if (const auto TokenHandle = security::open_current_process_token(TOKEN_QUERY))
 		{
 			CreateEnvironmentBlock(reinterpret_cast<void**>(&m_Data), TokenHandle.native_handle(), TRUE);
 		}
@@ -88,6 +85,11 @@ namespace os::env
 		{
 			DestroyEnvironmentBlock(m_Data);
 		}
+	}
+
+	const wchar_t* provider::block::data() const
+	{
+		return m_Data;
 	}
 
 	//-------------------------------------------------------------------------

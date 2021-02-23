@@ -1148,9 +1148,18 @@ namespace console_detail
 		return Result;
 	}
 
-	bool console::SetActiveScreenBuffer(HANDLE ConsoleOutput) const
+	bool console::SetActiveScreenBuffer(HANDLE ConsoleOutput)
 	{
-		return SetConsoleActiveScreenBuffer(ConsoleOutput) != FALSE;
+		if (!SetConsoleActiveScreenBuffer(ConsoleOutput))
+			return false;
+
+		m_ActiveConsoleScreenBuffer = ConsoleOutput;
+		return true;
+	}
+
+	HANDLE console::GetActiveScreenBuffer() const
+	{
+		return m_ActiveConsoleScreenBuffer;
 	}
 
 	bool console::ClearExtraRegions(const FarColor& Color, int Mode) const

@@ -289,4 +289,12 @@ decltype(auto) view_as(unsigned long long const Address)
 	return view_as<T>(reinterpret_cast<void const*>(Address));
 }
 
+template<typename T, typename container>
+auto view_as_if(container const& Buffer, size_t const Offset = 0)
+{
+	static_assert(std::is_trivially_copyable_v<T>);
+
+	return Buffer.size() >= Offset + sizeof(T)? view_as<T const*>(Buffer.data() + Offset) : nullptr;
+}
+
 #endif // UTILITY_HPP_D8E934C7_BF30_4CEB_B80C_6E508DF7A1BC

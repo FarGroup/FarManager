@@ -401,9 +401,13 @@ handle OpenConsoleActiveScreenBuffer()
 				{
 					m_module.reset(LoadLibraryEx(m_name.c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH));
 				}
-				// TODO: log if nullptr
 			}
 			return m_module.get();
+		}
+
+		FARPROC module::get_proc_address(HMODULE Module, const char* Name) const
+		{
+			return Module? ::GetProcAddress(Module, Name) : nullptr;
 		}
 	}
 
@@ -438,6 +442,43 @@ handle OpenConsoleActiveScreenBuffer()
 		void print(string const& Str)
 		{
 			print(Str.c_str());
+		}
+
+		std::vector<uintptr_t> current_stack(size_t const FramesToSkip, size_t const FramesToCapture)
+		{
+			std::vector<uintptr_t> Stack;
+			Stack.reserve(128);
+
+			// http://web.archive.org/web/20140815000000*/http://msdn.microsoft.com/en-us/library/windows/hardware/ff552119(v=vs.85).aspx
+			// In Windows XP and Windows Server 2003, the sum of the FramesToSkip and FramesToCapture parameters must be less than 63.
+			static const auto Limit = IsWindowsVistaOrGreater()? std::numeric_limits<size_t>::max() : 62;
+
+			const auto Skip = FramesToSkip + 1; // 1 for this frame
+			const auto Capture = std::min(FramesToCapture, Limit - Skip);
+
+			for (size_t i = 0; i != FramesToCapture;)
+			{
+				void* Pointers[128];
+
+				const auto Size = imports.RtlCaptureStackBackTrace(
+					static_cast<DWORD>(Skip + i),
+					static_cast<DWORD>(std::min(std::size(Pointers), Capture - i)),
+					Pointers,
+					{}
+				);
+
+				if (!Size)
+					break;
+
+				std::transform(Pointers, Pointers + Size, std::back_inserter(Stack), [](void* Ptr)
+				{
+					return reinterpret_cast<uintptr_t>(Ptr);
+				});
+
+				i += Size;
+			}
+
+			return Stack;
 		}
 	}
 }

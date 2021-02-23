@@ -291,7 +291,6 @@ Single letter prefixes A-Z or conflicted with disk letter will be ignored.
 
 @KeyRef
 $ #Tastaturreferenz#
-
  ~Fenstersteuerung~@PanelCmd@
 
  ~Kommandozeilensteuerung~@CmdLineCmd@
@@ -353,15 +352,11 @@ $ #Befehl zur Fenstersteuerung#
  Gruppenauswahl aufheben                                     #Grau -#
  Auswahl umkehren                                            #Grau *#
  Dateien mit aktueller Erweiterung auswählen          #Strg+<Grau +>#
-
  Dateiauswahl mit aktueller Erweiterung aufheben      #Strg+<Grau ->#
-
  Auswahl inkl. Verzeichnissen umkehren                #Strg+<Grau *>#
-
  Dateien mit aktuellem Namen auswählen                 #Alt+<Grau +>#
  Dateiauswahl mit aktuellem Namen aufheben             #Alt+<Grau ->#
  Invert selection on files, deselect folders           #Alt+<Grau *>#
-
  Alle Dateien auswählen                              #Umsch+<Grau +>#
  Auswahl aller Dateien aufheben                      #Umsch+<Grau ->#
  Vorherige Auswahl wiederherstellen                          #Strg+M#
@@ -752,8 +747,9 @@ $ #Verschiedenes#
  Screen Grabber                                           #Alt+Einfg#
 
  Der Screen Grabber ermöglicht das Markieren und Kopieren eines
-beliebigen Fensterausschnittes in die Zwischenablage. Benutzen Sie die
-Cursortasten oder drücken Sie kurz die linke Maustaste, um den Cursor
+beliebigen Fensterausschnittes in die Zwischenablage.
+
+ Benutzen Sie die Cursortasten oder drücken Sie kurz die linke Maustaste, um den Cursor
 zu bewegen. Zum Markieren des gewünschten Fensterbereiches benutzen Sie
 die #Umsch+Cursor-Tasten# oder bewegen die Maus mit gedrückter linker
 Maustaste. Ein Druck auf die #Enter#, #Strg+Einfg# oder rechte Maus-Taste
@@ -1197,7 +1193,6 @@ battery life time and battery life percent. Without smart battery subsystems, th
     ^<wrap>In Windows Vista and above charge status is update automatically.
     ^<wrap>Power status section can be turned on and off in ~settings~@InfoPanelSettings@.
 
-
  All sections (except computer and user names) can be hidden or shown (see ~InfoPanel display modes~@InfoPanelShowMode@).
 
  Also see the list of ~macro keys~@KeyMacroInfoList@, available in the info panel.
@@ -1433,7 +1428,7 @@ $ #Menü Dateien#
 its data are overwritten with zeros, after which the file is truncated and renamed to
 a temporary name.
 
- #Komprimieren#       Fügt ausgewählte Dateien zu einem Archiv hinzu. 
+ #Komprimieren#       Fügt ausgewählte Dateien zu einem Archiv hinzu.
 
  #Entpacken#          Entpackt ausgewählte Dateien aus einem Archiv.
 
@@ -1810,7 +1805,6 @@ The following column types are supported:
  LN         - number of hard links
 
  F          - number of alternate streams
-
 
  File attributes are denoted as follows:
 
@@ -2443,11 +2437,6 @@ erneuten Start von Far. Diese History-Liste kann mit Alt+F11 angezeigt werden.
  #In Windows registrierte Typen benutzen#
 Wird bei eingeschalteter Option die Enter-Taste auf einer Datei gedrückt und es existiert eine Verknüpfung in Windows und
 keine unter Far's ~Dateiverknüpfungen~@FileAssoc@, wird das in Windows verknüpfte Programm für diesen Dateityp ausgeführt.
-
- #CD drive auto mount#
- When a CD-ROM drive is selected from the ~Change drive menu~@DriveDlg@, Far will close the open
-tray of a CD drive. Turn off this option if automatic CD-ROM mounting does not work
-correctly (this can happen because of bugs in the drivers of some CD-ROM drives).
 
  #Automatic update of environment variables#
  Automatically update the environment variables if they have been changed globally.
@@ -3569,7 +3558,6 @@ $ #Code pages menu#
  #Other#
  The rest of code pages installed in the system.
 
-
  The following key combinations are available in this menu:
 
  #Ctrl+H#
@@ -3838,7 +3826,7 @@ Windows Server 2012.
 
 @ViewerSettings
 $ #Betrachter-Einstellungen#
-    Dieser Dialog ermöglicht das Ändern der Standardeinstellungen
+ Dieser Dialog ermöglicht das Ändern der Standardeinstellungen
 für den internen und externen ~Betrachter~@Viewer@.
 
 @=
@@ -3852,6 +3840,7 @@ für den internen und externen ~Betrachter~@Viewer@.
  #des Betrachters#         Betrachters. Benutzen Sie die
                          ~Spezialsymbole~@MetaSymbols@ um den Namen der
                          anzuzeigenden Datei zu spezifizieren.
+
 @=
 ^#Interner Betrachter#
 @=
@@ -3861,8 +3850,7 @@ für den internen und externen ~Betrachter~@Viewer@.
  #Search dialog#           Always returns focus to the search text field in
  #auto-focus#              the ~Viewer~@Viewer@ search dialog.
 
- #Tabulatorgröße#          Tab zeigt die entsprechende Anzahl
-                         Leerzeichen an.
+ #Tabulatorgröße#          Tab zeigt die entsprechende Anzahl Leerzeichen an.
 
  #Show scrolling arrows#   Show scrolling arrows at the edges of the viewer
                          window if the text does not fit horizontally.
@@ -4227,7 +4215,6 @@ Modus auswählen. In dieser Liste entspricht "Kurz" der Kurzansicht (#LinksStrg+
 The last item, "Alternative full", corresponds to view mode called with
 #LeftCtrl+0#. After selecting the mode, you can change the following settings:
 
-
  #Column types# - a comma-separated list. Each column type starts with
 a file property character, such as name, size, etc. Some file properties
 may be followed by modifiers. Supported column types (properties and
@@ -4553,6 +4540,7 @@ selected in the tree is appended to the input line.
 
  Whether copying, moving or renaming files works for a plugin depends
 upon the plugin functionality.
+
  Die Option "Zugriffsrechte kopieren" ist nur gültig für das
 NTFS-Dateisystem und erlaubt das Kopieren von Informationen über
 Dateizugriffsrechte.
@@ -5031,7 +5019,6 @@ have a number (in the order of appearance).
         "(['"])hello\1" matches to "hello" or 'hello'.
 
  #\p{name}# - ^<wrap>inner regexp reference to it's parsed bracket with specified #name#.
-
 
  #Examples:#
 

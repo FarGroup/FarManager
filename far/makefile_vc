@@ -13,8 +13,6 @@
 #(we try to autodetect if not set)
 #
 #
-#FARSYSLOG - for syslog
-#
 #USE_ANALYZE - for /analyze
 #
 #DISABLE_WOW64_HOOK - set to disable the wow64 hook
@@ -183,6 +181,7 @@ LINK_OBJS = \
 	"$(INTDIR)\language.obj" \
 	"$(INTDIR)\locale.obj" \
 	"$(INTDIR)\lockscrn.obj" \
+	"$(INTDIR)\log.obj" \
 	"$(INTDIR)\macro.obj" \
 	"$(INTDIR)\main.obj" \
 	"$(INTDIR)\manager.obj" \
@@ -239,7 +238,6 @@ LINK_OBJS = \
 	"$(INTDIR)\string_sort.obj" \
 	"$(INTDIR)\string_utils.obj" \
 	"$(INTDIR)\strmix.obj" \
-	"$(INTDIR)\syslog.obj" \
 	"$(INTDIR)\tinyxml.obj" \
 	"$(INTDIR)\taskbar.obj" \
 	"$(INTDIR)\testing.obj" \
@@ -277,10 +275,6 @@ DEFINES=\
 !ifdef ENABLE_TESTS
 	/D "ENABLE_TESTS"\
 !endif
-!ifdef DEBUG
-	/D "SYSLOG"\
-	/D "SYSLOG_FARSYSLOG"\
-!endif
 	/D "_ENABLE_EXTENDED_ALIGNED_STORAGE"\
 	/D "_HAS_AUTO_PTR_ETC=0"\
 	/D "_CRT_SECURE_NO_WARNINGS"
@@ -309,7 +303,6 @@ CPPFLAGS=\
 	$(ADDINCLUDE)\
 	$(DISABLED_WARNINGS)\
 	$(DEFUSERFLAGS)\
-	$(FARSYSLOG)\
 	$(DEFINES)\
 
 

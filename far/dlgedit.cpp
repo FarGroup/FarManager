@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "history.hpp"
 #include "editcontrol.hpp"
 #include "config.hpp"
-#include "syslog.hpp"
 #include "global.hpp"
 
 // Platform:
@@ -732,16 +731,12 @@ long long DlgEdit::VMProcess(int OpCode, void* vParam, long long iParam)
 
 void DlgEdit::EditChange(void* aParam)
 {
-	_DIALOG(CleverSysLog CL(L"DlgEdit::EditChange()"));
-	_DIALOG(SysLog(L"aParam=%p, GetClearFlag=%d",aParam, static_cast<DlgEdit*>(aParam)->GetClearFlag()));
 	static_cast<DlgEdit*>(aParam)->DoEditChange();
 }
 
 void DlgEdit::DoEditChange() const
 {
 	const auto dialog = GetDialog();
-	_DIALOG(CleverSysLog CL(L"DlgEdit::DoEditChange()"));
-	_DIALOG(SysLog(L"m_Owner=%p, m_Owner->IsInited()=%d, m_Index=%d",dialog,dialog->IsInited(),m_Index));
 	if (dialog->IsInited())
 	{
 		dialog->SendMessage(DN_EDITCHANGE, m_Index, nullptr);

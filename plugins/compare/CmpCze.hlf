@@ -1,6 +1,7 @@
 ﻿.Language=Czech,Czech (Čeština)
 .PluginContents=Advanced compare
 
+
 @Contents
 $ #Rozšířené porovnávání#
  Tento příkaz je podobný interní funkci FARu "Porovnat adresáře", ale je rozšířen o další nastavení:

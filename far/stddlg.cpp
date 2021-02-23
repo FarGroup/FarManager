@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 #include "global.hpp"
 #include "language.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -923,9 +924,9 @@ bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view const H
 		GetRowCol(strData, Hex, Row, Col);
 		return true;
 	}
-	catch (const std::exception&)
+	catch (const std::exception& e)
 	{
-		// TODO: log
+		LOGWARNING(L"{0}", e);
 		// maybe we need to display a message in case of an incorrect input
 		return false;
 	}

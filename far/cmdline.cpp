@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileedit.hpp"
 #include "scrbuf.hpp"
 #include "interf.hpp"
-#include "syslog.hpp"
 #include "config.hpp"
 #include "usermenu.hpp"
 #include "datetime.hpp"
@@ -74,6 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "farversion.hpp"
 #include "global.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -192,8 +192,6 @@ size_t CommandLine::DrawPrompt()
 
 void CommandLine::DisplayObject()
 {
-	_OT(SysLog(L"[%p] CommandLine::DisplayObject()",this));
-
 	const auto CurLength = DrawPrompt();
 
 	CmdStr.SetObjectColor(COL_COMMANDLINE,COL_COMMANDLINESELECTED);
@@ -974,6 +972,16 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool)> con
 		std::wcout << std::flush;
 
 		return true;
+	}
+
+	if (const auto LogCommand = L"far:log"sv; starts_with_icase(Command, LogCommand))
+	{
+		if (const auto LogParameters = Command.substr(LogCommand.size()); starts_with(LogParameters, L' ') || LogParameters.empty())
+		{
+			ConsoleActivatior(false);
+			logging::configure(trim(LogParameters));
+			return true;
+		}
 	}
 
 	return false;

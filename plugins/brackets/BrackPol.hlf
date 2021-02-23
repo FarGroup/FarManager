@@ -2,6 +2,7 @@
 .PluginContents=Dopasowanie nawiasów
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ #Dopasowanie nawiasów#
   Ta wtyczka pozwala na:
@@ -26,7 +27,6 @@ $ #Dopasowanie nawiasów#
      w języku C/C++: '/*' i '*/'. Kursor będzie umieszczony na znaku
      pasującym do wskazanego nawiasu.
 
-
   ~Konfiguracja~@Config@
   ~Szukaj/wybierz~@Find@
   ~Szukaj cudzysłowów~@Direct@
@@ -35,7 +35,6 @@ $ #Dopasowanie nawiasów#
 
 @Find
 $ #Dopasowanie nawiasów - Szukaj/Wybierz#
-
   #Szukaj#     - jeżeli pasujący nawias zostanie znaleziony,
                to kursor będzie umieszczony na tym nawiasie.
 
@@ -93,7 +92,6 @@ $ #Dopasowanie nawiasów - Konfiguracja#
    #przy zaznaczaniu#        kursor na znalezionym nawiasie.
 
    #Dźwięk po znalezieniu#   Wywołuje sygnał dźwiękowy po znalezieniu nawiasu.
-
 
   #>Definicje#
   Ta sekcja pozwala zmienić niektóre ustawienia wtyczki:

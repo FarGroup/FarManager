@@ -1,6 +1,7 @@
 ﻿.Language=Czech,Czech (Čeština)
 .PluginContents=Process list
 
+
 @Contents
 $ #Seznam procesů#
     Tento plugin zobrazuje seznam aktivních procesů. Pro ukončení vybraných
@@ -8,7 +9,7 @@ procesů můžete použít klávesu F8, pro přepnutí na okno procesu klávesu 
 a pro další informace o procesu klávesu F3.
 
     Při ukončování procesů buďte opatrní. Při okamžitém zastavení procesu
-budou veškeré neuložené informace ztraceny, proto tuto funkci používejte 
+budou veškeré neuložené informace ztraceny, proto tuto funkci používejte
 pouze tehdy, kdy je to zcela nezbytné.
 
 Speciální klávesy použité tímto pluginem:
@@ -28,12 +29,11 @@ Speciální klávesy použité tímto pluginem:
  Podívejte se také na: nápovědu k ~NT výkonová počítadla~@PerfCounters@
                        nápovědu k ~Speciální typy sloupců~@Columns@
 
+
 @PerfCounters
 $ #Výkonová data počítadla#
-
    Následující popisy byly vzaty z hodnost systémového registru NT
    #HKLM\Software\Microsoft\Windows NT\CurrentVersion\Perflib\009\Help#
-
 
    #Process#
 
@@ -91,7 +91,7 @@ místo ve fyzické paměti). Toto počítadlo zahrnuje jak hardwarové chby
 jinde ve fyzické paměti). Většina procesorů může bez následků ovládat velký
 počet softwarových chyb.  Nicméně, hardwarové chyby mohou zapříčinit závažné
 prodlevy. Toto počítadlo zobrazuje rozdíly mezi hodnotami pozorovanými v
-posledních dvou příkladech, dělených délkou intervalu vzorku. 
+posledních dvou příkladech, dělených délkou intervalu vzorku.
 
    #Svazek Paged Bytů#
 
@@ -100,7 +100,7 @@ paměť použitá operačním systémem) pro objekty, které mohou být,
 když nejsou používány, zapsány na disk.  Paměť: Svazek Paged Bytů je
 vypočten jinak, než proces: Svazek Paged Bytů není roven procesu:
 Svazek Paged Bytů: _Celkem. Toto počítadlo zobrazuje jen naposledy
- sledovanou hodnotu; není to průměr.  
+ sledovanou hodnotu; není to průměr.
 
    #Svazek Nonpaged Bytů#
 
@@ -110,7 +110,7 @@ zapsány na disk, ale musí být obsaženy ve fyzické paměti tak dlouho,
 dokud jsou alokovány.  Paměť: Svazek Nonpaged Bytů je vypočten jinak,
 než proces: Svazek Nonpaged Bytů, není roven procesu: Svazek Nonpaged Bytů:
 _Celkem.  Toto počítadlo zobrazuje jen naposledy sledovanou hodnotu;
-není to průměr.  
+není to průměr.
 
    #% Uživatelský čas#
 
@@ -120,7 +120,7 @@ systémové subsystémy a integrální subsystémy.  Alternativní, vyhrazený m
 je navržen pro komponenty operačního systému a umožňuje přímý přístup k
 hardwaru a celé paměti.  Operační systém přepíná aplikační svazky do
 vyhrazeného módu pro přístup ke službám operačního systému). Toto počítadlo
-zobrazuje průměrný čas vytížení, jako procentuální hodnotu času vzorku. 
+zobrazuje průměrný čas vytížení, jako procentuální hodnotu času vzorku.
 
    #% Vyhrazený čas#
 
@@ -134,7 +134,7 @@ službám operačního systému). % Vyhrazený čas zahrnuje časová servisní
 přerušení a DPC. Vysoká úroveň vyhrazeného času může být odpovídající
 vysokému počtu přerušení, generovaných zařízením, které selhalo.
 Toto počítadlo zopbrazuje průměrný čas vytížení, jako procentuální
-hodnotu času vzorku. 
+hodnotu času vzorku.
 
    #Virtuální Byty#
 
@@ -248,6 +248,7 @@ nezahrnují data, jako kontrolní operace. Toto počítadlo
 počítá všechny I/O aktivity generované procesem, včetně
 souboru, sítě a I/O zařízení.
 
+
 @Columns
 $ #Speciální typy sloupců#
    Několik #standardních# typů sloupců má v seznamu procesů speciální
@@ -262,7 +263,7 @@ význam:
    Zobrazuje datum/čas startu procesu. Datum/čas úpravy, vytvoření
 a posledního přístupu jsou stejné.
 
-   Kromě standardních typů sloupců FARu, mohou být v tomto pluginu použity 
+   Kromě standardních typů sloupců FARu, mohou být v tomto pluginu použity
 tyto #speciální# typy sloupců:
 
    #Numerické sloupce:#
@@ -274,7 +275,7 @@ tyto #speciální# typy sloupců:
    #XG# - GDI objekty (jen lokální)
    #XU# - USER objekty (jen lokální)
    #XB# - Bitness (32/64)
-   #X0...X21[S][T]# - výkonová počítadla (viz níže). 
+   #X0...X21[S][T]# - výkonová počítadla (viz níže).
 
    #Popisové sloupce:#
 
@@ -292,7 +293,7 @@ Pro zobrazení rozdílných druhů popisů musíte přepínat mezi módy.
 
    Pro X11 a X14..X21 můžete přidat #S# pro zobrazení hodnoty za vteřinu.
 
-   Pro jakékoliv počítadlo, pokud je sloupec příliš úzký pro zobrazení 
+   Pro jakékoliv počítadlo, pokud je sloupec příliš úzký pro zobrazení
 celého čísla, je vypočítána v K (1024), nebo M (1024*1024). Do typu
 sloupce můžete přidat #T# pro pužití 1000 místo 1024 jako dělitele.
 
@@ -319,9 +320,9 @@ sloupce můžete přidat #T# pro pužití 1000 místo 1024 jako dělitele.
    #X20# IO zapsané operace
    #X21# IO ostatní operace
 
+
 @Config
 $ #Nastavení#
-
  #Přidat do menu disků#
  Zapíná přidávání položky "seznamu procesů" do menu disků.
 
@@ -331,10 +332,10 @@ $ #Nastavení#
  #Zahrnout v dalších informacích#
  Tyto checkboxy ovládájí množství informací exportovaných do souboru s
 detaily o procesech, když stisknete F3, F5, vyhledávání pomocí Alt-F7, atd.
-Některé detaily tvoří výstupní soubor příliš komplikovaný, některé jsou 
+Některé detaily tvoří výstupní soubor příliš komplikovaný, některé jsou
 extrahovány příliš pomalu, takže je budete chtít vypnout.
 
- #Prostředí# 
+ #Prostředí#
  Zahrnuje bloky prostředí procesů. Použito jen pro lokální.
 
  #Info o modulech#
@@ -349,13 +350,13 @@ otevřen pro zjištění informací o jeho verzi.
  Výsledek všech počítadel výkonových dat pro daný proces.
 
  #Handly#
- Seznam všech handlů otevřených procesem. 
+ Seznam všech handlů otevřených procesem.
  Varování: toto používá nezdokumentované funkce a nemusí funovat správně.
 
  V této verzi, nejsou v tomto dialogu nasatavovány #módy panelů#.
 Když stisknete v dialogu "OK", bude konfigurace uložena s aktuálními
 (implicitními) módy. Jakmile je nastavení uloženo, je pro změnu implicitního
-nastavení upraven klíč registru HKCU\Software\Far\Plugins\Plist\ModeX\. 
+nastavení upraven klíč registru HKCU\Software\Far\Plugins\Plist\ModeX\.
 Když otevřete plugin znovu, budou změny načteny.
 
  Podívejte se také na: nápovědu k ~Typům sloupců~@Columns@.

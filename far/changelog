@@ -1,4 +1,47 @@
 --------------------------------------------------------------------------------
+drkns 23.02.2021 01:55:05 +0000 - build 5744
+
+1. Fix a few issues in the previous build.
+
+--------------------------------------------------------------------------------
+drkns 21.02.2021 21:47:47 +0000 - build 5743
+
+1. A new logging engine. Currently it can be configured via environment variables:
+
+   - FAR.LOG.LEVEL:
+     The log level. Can be one of the following values: "off", "fatal", "error", "warning", "notice", "info", "debug", "trace", "all".
+     Default value: off
+
+   - FAR.LOG.SINK:
+     Log sink(s). Can contain one or more comma- or semicolon-separated values:
+      - "debug": the system debugger.
+      - "console": a new buffer in the same console window, available via the Ctrl+Shift+L hotkey or the "far:log" command.
+      - "file": a text file with a unique name. The path to the file can be specified via FAR.LOG.SINK.FILE.PATH.
+      - "pipe": similar to "console", but in a new window.
+
+2. syslog.* and everything related to it removed.
+
+3. Plugins cache:
+   - Removed replacing of '\' with '/' (remnants of the Windows Registry days).
+   - Only lower 32 bits of timestamps were checked (with potential collisions every ~7 minutes).
+
+4. Skipping the file size in descriptions didn't work.
+
+5. Added logging in quite a few places where it should be, more to come.
+
+6. Minor refactoring related to #1.
+
+--------------------------------------------------------------------------------
+drkns 16.02.2021 19:46:10 +0000 - build 5742
+
+1. Potential null pointer dereference in custom sort.
+
+--------------------------------------------------------------------------------
+drkns 09.02.2021 17:37:00 +0000 - build 5741
+
+1. Always preserve Last Write Time when copying files.
+
+--------------------------------------------------------------------------------
 drkns 04.02.2021 19:06:02 +0000 - build 5740
 
 1. Don't add Unicode BOM to file lists created with !@!.

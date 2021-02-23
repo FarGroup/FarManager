@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 
 // Platform:
+#include "platform.hpp"
 
 // Common:
 #include "common/range.hpp"
@@ -63,6 +64,9 @@ namespace os::security
 
 	[[nodiscard]]
 	bool is_admin();
+
+	[[nodiscard]]
+	handle open_current_process_token(DWORD DesiredAccess);
 
 	class privilege
 	{

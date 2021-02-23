@@ -319,14 +319,28 @@ namespace os
 
 			template<typename T>
 			[[nodiscard]]
-			T GetProcAddress(const char* name) const { return reinterpret_cast<T>(reinterpret_cast<void*>(::GetProcAddress(get_module(), name))); }
+			T GetProcAddress(const char* name) const
+			{
+				return reinterpret_cast<T>(reinterpret_cast<void*>(get_proc_address(get_module(), name)));
+			}
 
 			[[nodiscard]]
-			explicit operator bool() const noexcept { return get_module() != nullptr; }
+			explicit operator bool() const noexcept
+			{
+				return get_module() != nullptr;
+			}
+
+			[[nodiscard]]
+			const string& name() const
+			{
+				return m_name;
+			}
 
 		private:
 			[[nodiscard]]
 			HMODULE get_module() const noexcept;
+
+			FARPROC get_proc_address(HMODULE Module, const char* Name) const;
 
 			struct module_deleter { void operator()(HMODULE Module) const; };
 			using module_ptr = std::unique_ptr<std::remove_pointer_t<HMODULE>, module_deleter>;
@@ -441,6 +455,7 @@ namespace os
 		void breakpoint(bool Always = true);
 		void print(const wchar_t* Str);
 		void print(string const& Str);
+		std::vector<uintptr_t> current_stack(size_t FramesToSkip = 0, size_t FramesToCapture = std::numeric_limits<size_t>::max());
 	}
 }
 

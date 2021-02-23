@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scantree.hpp"
 
 // Internal:
-#include "syslog.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "cvtname.hpp"
@@ -205,7 +204,6 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 
 			CutToSlash(strFindPath);
 			strFindPath += strFindMask;
-			_SVS(SysLog(L"1. FullName='%s'",strFullName.c_str()));
 
 			if (Flags.Check(TREE_RETUPDIR))
 			{

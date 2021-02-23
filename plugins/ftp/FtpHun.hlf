@@ -1,5 +1,7 @@
 ﻿.Language=Hungarian,Hungarian (Magyar)
 .PluginContents=FTP kliens
+
+
 @Contents
 $ #FTP kliens#
    ~FTP host-ra csatlakozás~@FTPConnect@
@@ -11,6 +13,7 @@ $ #FTP kliens#
    ~FTP kliens beállítások~@FTPCfg@
 
    ~FTP kliens panel módok~@FTPPanel@
+
 
 @FTPConnect
 $ #FTP host-ra csatlakozás#
@@ -36,6 +39,7 @@ majd kiválasztani a kívánt Szervert, és Entert nyomni.
     Egy szerver paramétereit csatlakozás előtt megváltoztathatjuk az
 F4 billentyűvel (ha rajta állunk a szerver során), elvégezzük a kívánt
 változtatásokat, és a "Kapcsolódás" gombbal indul a folyamat.
+
 
 @FTPNames
 $ #Host nevek kezelése#
@@ -168,4 +172,3 @@ tartalmazza Unix formátumban.
 
     Ezen információk csak akkor jelennek meg rendesen, ha az FTP
 szerver sztenderd Unix formában szolgáltatja az adatokat.
-                                                                       

@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileedit.hpp"
 #include "scrbuf.hpp"
 #include "TPreRedrawFunc.hpp"
-#include "syslog.hpp"
 #include "taskbar.hpp"
 #include "interf.hpp"
 #include "message.hpp"
@@ -135,9 +134,6 @@ Editor::Editor(window_ptr Owner, uintptr_t Codepage, bool DialogUsed):
 	Color(colors::PaletteColorToFarColor(COL_EDITORTEXT)),
 	SelColor(colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT))
 {
-	_KEYMACRO(SysLog(L"Editor::Editor()"));
-	_KEYMACRO(SysLog(1));
-
 	if (DialogUsed)
 		m_Flags.Set(FEDITOR_DIALOGMEMOEDIT);
 
@@ -157,12 +153,9 @@ Editor::Editor(window_ptr Owner, uintptr_t Codepage, bool DialogUsed):
 
 Editor::~Editor()
 {
-	//_SVS(SysLog(L"[%p] Editor::~Editor()",this));
 	FreeAllocatedData();
 	if (!fake_editor)
 		KeepInitParameters();
-	_KEYMACRO(SysLog(-1));
-	_KEYMACRO(SysLog(L"Editor::~Editor()"));
 }
 
 void Editor::FreeAllocatedData()
@@ -304,12 +297,10 @@ void Editor::ShowEditor()
 	//---
 	if (!Pasting)
 	{
-		_SYS_EE_REDRAW(CleverSysLog Clev(L"Editor::ShowEditor()"));
 		if (!Global->ScrBuf->GetLockCount())
 		{
 			if (!m_Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 			{
-				_SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW)"));
 				++m_InEERedraw;
 				SCOPE_EXIT{ --m_InEERedraw; };
 				Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW, EEREDRAW_ALL, this);
@@ -379,8 +370,6 @@ void Editor::ShowEditor()
 	}
 
 	if (HostFileEditor) HostFileEditor->ShowStatus();
-
-//_SVS(SysLog(L"Exit from ShowEditor"));
 }
 
 
@@ -731,7 +720,6 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 		{
 			if (m_Flags.Check(FEDITOR_LOCKMODE))
 			{
-				_ECTLLOG(SysLog(L"FEDITOR_LOCKMODE!"));
 				return 0;
 			}
 
@@ -744,7 +732,6 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 
 			if (EditPtr == Lines.end())
 			{
-				_ECTLLOG(SysLog(L"VMProcess(MCODE_F_EDITOR_*,...) => GetStringByNumber(%d) return nullptr",DestLine));
 				return 0;
 			}
 
@@ -822,8 +809,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_RCTRLRALTBACKBRACKET: case KEY_CTRLRALTBACKBRACKET: case KEY_RCTRLALTBACKBRACKET: LocalKey = KEY_CTRLALTBACKBRACKET; break;
 	}
 
-	_KEYMACRO(CleverSysLog SL(L"Editor::ProcessKeyInternal()"));
-	_KEYMACRO(SysLog(L"Key=%s",_FARKEY_ToName(LocalKey())));
 	auto CurPos = m_it_CurLine->GetCurPos();
 	const auto CurVisPos = GetLineCurPos();
 	const auto isk = IsShiftKey(LocalKey());
@@ -831,13 +816,9 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 	const auto imk = in_closed_range(KEY_MACRO_BASE, LocalKey(), KEY_MACRO_ENDBASE);
 	const auto ipk = in_closed_range(KEY_OP_BASE, LocalKey(), KEY_OP_ENDBASE);
 
-	_SVS(SysLog(L"[%d] isk=%d",__LINE__,isk));
-
 	//if ((!isk || Global->CtrlObject->Macro.IsExecuting()) && !isk && !Pasting)
 	if (!isk && !Pasting && !ick && !imk && !ipk )
 	{
-		_SVS(SysLog(L"[%d] BlockStart=(%d,%d)",__LINE__,m_it_BlockStart,m_it_VBlockStart));
-
 		if (IsAnySelection())
 		{
 			TurnOffMarkingBlock();
@@ -884,7 +865,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 //        Edit *BStart=!BlockStart?VBlockStart:BlockStart;
 //        BStart->GetRealSelection(StartSel,EndSel);
 				m_it_AnyBlockStart->GetRealSelection(StartSel,EndSel);
-				_SVS(SysLog(L"[%d] PersistentBlocks! StartSel=%d, EndSel=%d",__LINE__,StartSel,EndSel));
 
 				if (StartSel==-1 || StartSel==EndSel)
 					UnmarkBlock();
@@ -926,8 +906,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:
 		case KEY_RCTRLSHIFTLEFT: case KEY_RCTRLSHIFTNUMPAD4:
 		{
-			_KEYMACRO(CleverSysLog SL(L"Editor::ProcessKeyInternal(KEY_SHIFT*)"));
-			_SVS(SysLog(L"[%d] SelStart=%d, SelEnd=%d",__LINE__,SelStart,SelEnd));
 			UnmarkEmptyBlock();
 			_bg.SetNeedCheckUnmark(true);
 			m_it_CurLine->GetRealSelection(SelStart,SelEnd);
@@ -955,8 +933,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				m_Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
 			}
 
-			_SVS(SysLog(L"[%d] SelStart=%d, SelEnd=%d",__LINE__,SelStart,SelEnd));
-
 			if (!m_Flags.Check(FEDITOR_MARKINGBLOCK))
 			{
 				UnmarkBlock();
@@ -973,8 +949,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 					SelStart=SelEnd=CurPos;
 				}
 			}
-
-			_SVS(SysLog(L"[%d] SelStart=%d, SelEnd=%d",__LINE__,SelStart,SelEnd));
 		}
 	}
 
@@ -1095,8 +1069,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		}
 		case KEY_SHIFTLEFT:  case KEY_SHIFTNUMPAD4:
 		{
-			_SVS(CleverSysLog SL(L"case KEY_SHIFTLEFT"));
-
 			if (!CurPos && m_it_CurLine == Lines.begin())
 				return true;
 
@@ -1136,8 +1108,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		}
 		case KEY_SHIFTRIGHT:  case KEY_SHIFTNUMPAD6:
 		{
-			_SVS(CleverSysLog SL(L"case KEY_SHIFTRIGHT"));
-
 			if (IsLastLine(m_it_CurLine) && CurPos == m_it_CurLine->GetLength() && !EdOpt.CursorBeyondEOL)
 			{
 				return true;
@@ -1176,8 +1146,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:
 		case KEY_RCTRLSHIFTLEFT: case KEY_RCTRLSHIFTNUMPAD4:
 		{
-			_SVS(CleverSysLog SL(L"case KEY_CTRLSHIFTLEFT"));
-			_SVS(SysLog(L"[%d] Pasting=%d, SelEnd=%d",__LINE__,Pasting,SelEnd));
 			{
 				int SkipSpace=TRUE;
 				Pasting++;
@@ -1231,8 +1199,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_CTRLSHIFTRIGHT:  case KEY_CTRLSHIFTNUMPAD6:
 		case KEY_RCTRLSHIFTRIGHT: case KEY_RCTRLSHIFTNUMPAD6:
 		{
-			_SVS(CleverSysLog SL(L"case KEY_CTRLSHIFTRIGHT"));
-			_SVS(SysLog(L"[%d] Pasting=%d, SelEnd=%d",__LINE__,Pasting,SelEnd));
 			{
 				int SkipSpace=TRUE;
 				Pasting++;
@@ -2107,8 +2073,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			}
 			Pasting--;
 			Refresh = true;
-			//_D(SysLog(L"VBlockX=%i, VBlockSizeX=%i, GetLineCurPos=%i",VBlockX,VBlockSizeX,GetLineCurPos()));
-			//_D(SysLog(L"~~~~~~~~~~~~~~~~ KEY_ALTLEFT END, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 			return true;
 		}
 
@@ -2126,7 +2090,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			ProcessVBlockMarking();
 
-			//_D(SysLog(L"---------------- KEY_ALTRIGHT, getLineCurPos=%i",GetLineCurPos()));
 			Pasting++;
 			{
 				/* $ 18.07.2000 tran
@@ -2136,10 +2099,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				*/
 				int VisPos=m_it_CurLine->RealPosToTab(CurPos),
 				           NextVisPos=m_it_CurLine->RealPosToTab(CurPos+1);
-				//_D(SysLog(L"CurPos=%i, VisPos=%i, NextVisPos=%i",
-				//    CurPos,VisPos, NextVisPos); //,CurLine->GetTabCurPos()));
 				const auto Delta=NextVisPos-VisPos;
-				//_D(SysLog(L"Delta=%i",Delta));
 
 				if (m_it_CurLine->GetTabCurPos()>=VBlockX+VBlockSizeX)
 					VBlockSizeX+=Delta;
@@ -2158,11 +2118,9 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				}
 
 				ProcessKeyInternal(Manager::Key(KEY_RIGHT), Refresh);
-				//_D(SysLog(L"VBlockX=%i, VBlockSizeX=%i, GetLineCurPos=%i",VBlockX,VBlockSizeX,GetLineCurPos()));
 			}
 			Pasting--;
 			Refresh = true;
-			//_D(SysLog(L"~~~~~~~~~~~~~~~~ KEY_ALTRIGHT END, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 			return true;
 		}
 
@@ -2301,7 +2259,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			AdjustVBlock(CurVisPos);
 			Pasting--;
 			Refresh = true;
-			//_D(SysLog(L"~~~~ Key_AltDOWN: VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 			return true;
 		}
 
@@ -2497,7 +2454,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			if (!m_Flags.Check(FEDITOR_LOCKMODE))
 			{
 				Pasting++;
-				//_SVS(SysLogDump(Fmt,0,TStr,strlen(TStr),nullptr));
 				TextChanged(true);
 
 				if (!EdOpt.PersistentBlocks && IsAnySelection())
@@ -4324,7 +4280,6 @@ void Editor::UnmarkBlock()
 	if (!IsAnySelection())
 		return;
 
-	_SVS(SysLog(L"[%d] Editor::UnmarkBlock()",__LINE__));
 	TurnOffMarkingBlock();
 
 	while (m_it_AnyBlockStart != Lines.end())
@@ -4366,8 +4321,6 @@ void Editor::UnmarkBlock()
 */
 void Editor::UnmarkEmptyBlock()
 {
-	_SVS(SysLog(L"[%d] Editor::UnmarkEmptyBlock()",__LINE__));
-
 	if (IsAnySelection()) // присутствует выделение
 	{
 		int nLines=0;
@@ -5284,9 +5237,6 @@ void Editor::VBlockShift(int Left)
 
 int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 {
-	_ECTLLOG(CleverSysLog SL(L"Editor::EditorControl()"));
-	_ECTLLOG(SysLog(L"Command=%s Param2=[%d/0x%08X]",_ECTL_ToName(Command),Param2,Param2));
-
 	if(EditorControlLocked()) return FALSE;
 	switch (Command)
 	{
@@ -5300,7 +5250,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (CurPtr == Lines.end())
 				{
-					_ECTLLOG(SysLog(L"EditorGetString => GetStringByNumber(%d) return nullptr",GetString->StringNumber));
 					return FALSE;
 				}
 
@@ -5327,14 +5276,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					                  CurPtr->TabPosToReal(VBlockX);
 				}
 
-				_ECTLLOG(SysLog(L"EditorGetString{"));
-				_ECTLLOG(SysLog(L"  StringNumber    =%d",GetString->StringNumber));
-				_ECTLLOG(SysLog(L"  StringText      ='%s'",GetString->StringText));
-				_ECTLLOG(SysLog(L"  StringEOL       ='%s'",GetString->StringEOL?_SysLog_LinearDump((LPBYTE)GetString->StringEOL, static_cast<int>(wcslen(GetString->StringEOL))):L"(null)"));
-				_ECTLLOG(SysLog(L"  StringLength    =%d",GetString->StringLength));
-				_ECTLLOG(SysLog(L"  SelStart        =%d",GetString->SelStart));
-				_ECTLLOG(SysLog(L"  SelEnd          =%d",GetString->SelEnd));
-				_ECTLLOG(SysLog(L"}"));
 				return TRUE;
 			}
 
@@ -5344,7 +5285,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (m_Flags.Check(FEDITOR_LOCKMODE))
 			{
-				_ECTLLOG(SysLog(L"FEDITOR_LOCKMODE!"));
 				return FALSE;
 			}
 			else
@@ -5369,11 +5309,8 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			if (!Param2)
 				return FALSE;
 
-			_ECTLLOG(SysLog(L"(const wchar_t *)Param2='%s'",(const wchar_t *)Param2));
-
 			if (m_Flags.Check(FEDITOR_LOCKMODE))
 			{
-				_ECTLLOG(SysLog(L"FEDITOR_LOCKMODE!"));
 				return FALSE;
 			}
 			else
@@ -5408,16 +5345,8 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			if (!CheckStructSize(SetString))
 				break;
 
-			_ECTLLOG(SysLog(L"EditorSetString{"));
-			_ECTLLOG(SysLog(L"  StringNumber    =%d",SetString->StringNumber));
-			_ECTLLOG(SysLog(L"  StringText      ='%s'",SetString->StringText));
-			_ECTLLOG(SysLog(L"  StringEOL       ='%s'",SetString->StringEOL?_SysLog_LinearDump((LPBYTE)SetString->StringEOL, static_cast<int>(wcslen(SetString->StringEOL))):L"(null)"));
-			_ECTLLOG(SysLog(L"  StringLength    =%d",SetString->StringLength));
-			_ECTLLOG(SysLog(L"}"));
-
 			if (m_Flags.Check(FEDITOR_LOCKMODE))
 			{
-				_ECTLLOG(SysLog(L"FEDITOR_LOCKMODE!"));
 				break;
 			}
 			else
@@ -5425,7 +5354,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				const auto CurPtr = GetStringByNumber(SetString->StringNumber);
 				if (CurPtr == Lines.end())
 				{
-					_ECTLLOG(SysLog(L"GetStringByNumber(%d) return nullptr",SetString->StringNumber));
 					return FALSE;
 				}
 
@@ -5453,7 +5381,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (m_Flags.Check(FEDITOR_LOCKMODE))
 			{
-				_ECTLLOG(SysLog(L"FEDITOR_LOCKMODE!"));
 				return FALSE;
 			}
 
@@ -5466,7 +5393,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (m_Flags.Check(FEDITOR_LOCKMODE))
 			{
-				_ECTLLOG(SysLog(L"FEDITOR_LOCKMODE!"));
 				return FALSE;
 			}
 
@@ -5541,7 +5467,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				return TRUE;
 			}
 
-			_ECTLLOG(SysLog(L"Error: !Param2"));
 			return FALSE;
 		}
 		case ECTL_SETPOSITION:
@@ -5549,15 +5474,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			const auto Pos = static_cast<const EditorSetPosition*>(Param2);
 			if (CheckStructSize(Pos))
 			{
-				_ECTLLOG(SysLog(L"EditorSetPosition{"));
-				_ECTLLOG(SysLog(L"  CurLine       = %d",Pos->CurLine));
-				_ECTLLOG(SysLog(L"  CurPos        = %d",Pos->CurPos));
-				_ECTLLOG(SysLog(L"  CurTabPos     = %d",Pos->CurTabPos));
-				_ECTLLOG(SysLog(L"  TopScreenLine = %d",Pos->TopScreenLine));
-				_ECTLLOG(SysLog(L"  LeftPos       = %d",Pos->LeftPos));
-				_ECTLLOG(SysLog(L"  Overtype      = %d",Pos->Overtype));
-				_ECTLLOG(SysLog(L"}"));
-
 				// выставим флаг об изменении поз
 				m_Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
 
@@ -5604,7 +5520,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				return TRUE;
 			}
 
-			_ECTLLOG(SysLog(L"Error: !Param2"));
 			break;
 		}
 		case ECTL_SELECT:
@@ -5612,14 +5527,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			const auto Sel = static_cast<const EditorSelect*>(Param2);
 			if (CheckStructSize(Sel))
 			{
-				_ECTLLOG(SysLog(L"EditorSelect{"));
-				_ECTLLOG(SysLog(L"  BlockType     =%s (%d)",(Sel->BlockType==BTYPE_NONE?L"BTYPE_NONE":(Sel->BlockType==BTYPE_STREAM?L"":(Sel->BlockType==BTYPE_COLUMN?L"BTYPE_COLUMN":L"BTYPE_?????"))),Sel->BlockType));
-				_ECTLLOG(SysLog(L"  BlockStartLine=%d",Sel->BlockStartLine));
-				_ECTLLOG(SysLog(L"  BlockStartPos =%d",Sel->BlockStartPos));
-				_ECTLLOG(SysLog(L"  BlockWidth    =%d",Sel->BlockWidth));
-				_ECTLLOG(SysLog(L"  BlockHeight   =%d",Sel->BlockHeight));
-				_ECTLLOG(SysLog(L"}"));
-
 				if (Sel->BlockType==BTYPE_NONE || Sel->BlockStartPos==-1)
 				{
 					UnmarkBlock();
@@ -5628,7 +5535,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (Sel->BlockHeight < 1)
 				{
-					_ECTLLOG(SysLog(L"Error: EditorSelect::BlockHeight < 1"));
 					return FALSE;
 				}
 
@@ -5636,7 +5542,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (CurPtr == Lines.end())
 				{
-					_ECTLLOG(SysLog(L"Error: start line BlockStartLine=%d not found, GetStringByNumber(%d) return nullptr",Sel->BlockStartLine,Sel->BlockStartLine));
 					return FALSE;
 				}
 
@@ -5681,7 +5586,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				return TRUE;
 			}
 
-			_ECTLLOG(SysLog(L"Error: !Param2"));
 			break;
 		}
 		case ECTL_REDRAW:
@@ -5699,16 +5603,10 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (CurPtr == Lines.end())
 				{
-					_ECTLLOG(SysLog(L"GetStringByNumber(%d) return nullptr",ecp->StringNumber));
 					return FALSE;
 				}
 
 				ecp->DestPos=CurPtr->TabPosToReal(ecp->SrcPos);
-				_ECTLLOG(SysLog(L"EditorConvertPos{"));
-				_ECTLLOG(SysLog(L"  StringNumber =%d",ecp->StringNumber));
-				_ECTLLOG(SysLog(L"  SrcPos       =%d",ecp->SrcPos));
-				_ECTLLOG(SysLog(L"  DestPos      =%d",ecp->DestPos));
-				_ECTLLOG(SysLog(L"}"));
 				return TRUE;
 			}
 
@@ -5723,16 +5621,10 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (CurPtr == Lines.end())
 				{
-					_ECTLLOG(SysLog(L"GetStringByNumber(%d) return nullptr",ecp->StringNumber));
 					return FALSE;
 				}
 
 				ecp->DestPos=CurPtr->RealPosToTab(ecp->SrcPos);
-				_ECTLLOG(SysLog(L"EditorConvertPos{"));
-				_ECTLLOG(SysLog(L"  StringNumber =%d",ecp->StringNumber));
-				_ECTLLOG(SysLog(L"  SrcPos       =%d",ecp->SrcPos));
-				_ECTLLOG(SysLog(L"  DestPos      =%d",ecp->DestPos));
-				_ECTLLOG(SysLog(L"}"));
 				return TRUE;
 			}
 
@@ -5742,7 +5634,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (m_Flags.Check(FEDITOR_LOCKMODE))
 			{
-				_ECTLLOG(SysLog(L"FEDITOR_LOCKMODE!"));
 				return FALSE;
 			}
 			else
@@ -5752,7 +5643,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (CurPtr == Lines.end())
 				{
-					_ECTLLOG(SysLog(L"GetStringByNumber(%d) return nullptr",StringNumber));
 					return FALSE;
 				}
 
@@ -5768,13 +5658,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			const auto col = static_cast<const EditorColor*>(Param2);
 			if (CheckStructSize(col))
 			{
-				_ECTLLOG(SysLog(L"EditorColor{"));
-				_ECTLLOG(SysLog(L"  StringNumber=%d",col->StringNumber));
-				_ECTLLOG(SysLog(L"  ColorItem   =%d (0x%08X)",col->ColorItem,col->ColorItem));
-				_ECTLLOG(SysLog(L"  StartPos    =%d",col->StartPos));
-				_ECTLLOG(SysLog(L"  EndPos      =%d",col->EndPos));
-				_ECTLLOG(SysLog(L"  Color       =%d/%d (0x%08X/0x%08X)",col->Color.ForegroundColor,col->Color.BackgroundColor,col->Color.ForegroundColor,col->Color.BackgroundColor));
-				_ECTLLOG(SysLog(L"}"));
 				ColorItem newcol;
 				newcol.StartPos=col->StartPos;
 				newcol.EndPos=col->EndPos;
@@ -5786,7 +5669,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (CurPtr == Lines.end())
 				{
-					_ECTLLOG(SysLog(L"GetStringByNumber(%d) return nullptr",col->StringNumber));
 					return FALSE;
 				}
 
@@ -5807,7 +5689,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (CurPtr == Lines.end())
 				{
-					_ECTLLOG(SysLog(L"GetStringByNumber(%d) return nullptr",col->StringNumber));
 					return FALSE;
 				}
 
@@ -5815,7 +5696,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (!CurPtr->GetColor(curcol,col->ColorItem))
 				{
-					_ECTLLOG(SysLog(L"GetColor() return false"));
 					return FALSE;
 				}
 
@@ -5825,13 +5705,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				col->Flags=curcol.Flags;
 				col->Owner=curcol.GetOwner();
 				col->Priority=curcol.Priority;
-				_ECTLLOG(SysLog(L"EditorColor{"));
-				_ECTLLOG(SysLog(L"  StringNumber=%d",col->StringNumber));
-				_ECTLLOG(SysLog(L"  ColorItem   =%d (0x%08X)",col->ColorItem,col->ColorItem));
-				_ECTLLOG(SysLog(L"  StartPos    =%d",col->StartPos));
-				_ECTLLOG(SysLog(L"  EndPos      =%d",col->EndPos));
-				_ECTLLOG(SysLog(L"  Color       =%d/%d (0x%08X/0x%08X)",col->Color.ForegroundColor,col->Color.BackgroundColor,col->Color.ForegroundColor,col->Color.BackgroundColor));
-				_ECTLLOG(SysLog(L"}"));
 				return TRUE;
 			}
 
@@ -5846,7 +5719,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 				if (CurPtr == Lines.end())
 				{
-					_ECTLLOG(SysLog(L"GetStringByNumber(%d) return nullptr",col->StringNumber));
 					return FALSE;
 				}
 				CurPtr->DeleteColor([&](const ColorItem& Item) { return (col->StartPos == -1 || col->StartPos == Item.StartPos) && col->Owner == Item.GetOwner();});
@@ -5865,41 +5737,31 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			if (CheckStructSize(espar))
 			{
 				int rc=TRUE;
-				_ECTLLOG(SysLog(L"EditorSetParameter{"));
-				_ECTLLOG(SysLog(L"  Type        =%s",_ESPT_ToName(espar->Type)));
 
 				switch (espar->Type)
 				{
 					case ESPT_GETWORDDIV:
-						_ECTLLOG(SysLog(L"  wszParam    =(%p)",espar->wszParam));
-
 						if (espar->wszParam && espar->Size)
 							xwcsncpy(espar->wszParam,EdOpt.strWordDiv.c_str(), espar->Size);
 
 						rc = static_cast<int>(EdOpt.strWordDiv.Get().size()) + 1;
 						break;
 					case ESPT_SETWORDDIV:
-						_ECTLLOG(SysLog(L"  wszParam    =[%s]",espar->wszParam));
 						SetWordDiv((!espar->wszParam || !*espar->wszParam)? Global->Opt->EdOpt.strWordDiv.c_str() : espar->wszParam);
 						break;
 					case ESPT_TABSIZE:
-						_ECTLLOG(SysLog(L"  iParam      =%d",espar->iParam));
 						SetTabSize(espar->iParam);
 						break;
 					case ESPT_EXPANDTABS:
-						_ECTLLOG(SysLog(L"  iParam      =%s",espar->iParam?L"On":L"Off"));
 						SetConvertTabs(espar->iParam);
 						break;
 					case ESPT_AUTOINDENT:
-						_ECTLLOG(SysLog(L"  iParam      =%s",espar->iParam?L"On":L"Off"));
 						SetAutoIndent(espar->iParam != 0);
 						break;
 					case ESPT_CURSORBEYONDEOL:
-						_ECTLLOG(SysLog(L"  iParam      =%s",espar->iParam?L"On":L"Off"));
 						SetCursorBeyondEOL(espar->iParam != 0);
 						break;
 					case ESPT_CHARCODEBASE:
-						_ECTLLOG(SysLog(L"  iParam      =%s",(!espar->iParam?L"0 (Oct)":(espar->iParam==1?L"1 (Dec)":(espar->iParam==2?L"2 (Hex)":L"?????")))));
 						SetCharCodeBase(espar->iParam);
 						break;
 					case ESPT_CODEPAGE:
@@ -5918,23 +5780,19 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					}break;
 					/* $ 29.10.2001 IS изменение настройки "Сохранять позицию файла" */
 					case ESPT_SAVEFILEPOSITION:
-						_ECTLLOG(SysLog(L"  iParam      =%s",espar->iParam?L"On":L"Off"));
 						SetSavePosMode(espar->iParam, -1);
 						break;
 						/* $ 23.03.2002 IS запретить/отменить изменение файла */
 					case ESPT_LOCKMODE:
-						_ECTLLOG(SysLog(L"  iParam      =%s",espar->iParam?L"On":L"Off"));
 						m_Flags.Change(FEDITOR_LOCKMODE, espar->iParam!=0);
 						break;
 					case ESPT_SHOWWHITESPACE:
 						SetShowWhiteSpace(espar->iParam);
 						break;
 					default:
-						_ECTLLOG(SysLog(L"}"));
 						return FALSE;
 				}
 
-				_ECTLLOG(SysLog(L"}"));
 				return rc;
 			}
 
@@ -5944,11 +5802,6 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (m_Flags.Check(FEDITOR_LOCKMODE) || !IsAnySelection())
 			{
-
-				_ECTLLOG(if (m_Flags.Check(FEDITOR_LOCKMODE))SysLog(L"FEDITOR_LOCKMODE!"));
-
-				_ECTLLOG(if (!(m_it_VBlockStart || m_it_BlockStart))SysLog(L"Not selected block!"));
-
 				return FALSE;
 			}
 
@@ -6491,7 +6344,6 @@ void Editor::AdjustVBlock(int PrevX)
 	if (x>VBlockX)    // курсор убежал внутрь блока
 	{
 		VBlockSizeX=x-VBlockX;
-		//_D(SysLog(L"x>VBlockX");
 	}
 	else if (x<VBlockX)   // курсор убежал за начало блока
 	{
@@ -6507,19 +6359,15 @@ void Editor::AdjustVBlock(int PrevX)
 			VBlockX=x;
 			VBlockSizeX+=c2-x;  // расширяем блок
 		}
-
-		//_D(SysLog(L"x<VBlockX"));
 	}
 	else if (x==VBlockX && x!=PrevX)
 	{
 		VBlockSizeX=0;  // ширина в 0, потому прыгнули прям на табуляцию
-		//_D(SysLog(L"x==VBlockX && x!=PrevX"));
 	}
 
 	// примечание
 	//   случай x>VBLockX+VBlockSizeX не может быть
 	//   потому что курсор прыгает назад на табуляцию, но не вперед
-	//_D(SysLog(L"AdjustVBlock, changed vblock  VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 }
 
 

@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception_handler.hpp"
 #include "pathmix.hpp"
 #include "exception.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -68,7 +69,7 @@ FileSystemWatcher::~FileSystemWatcher()
 	}
 	catch (...)
 	{
-		// TODO: log
+		LOGERROR(L"Unknown exception");
 	}
 }
 

@@ -70,6 +70,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "delete.hpp"
 #include "global.hpp"
 #include "keyboard.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -456,7 +457,11 @@ void PluginManager::LoadPlugins()
 				strFullName.insert(0, Global->g_strFarPath);
 			}
 
-			ScTree.SetFindPath(ConvertNameToLong(ConvertNameToFull(strFullName)), L"*"sv);
+			const auto PluginsDirectory = ConvertNameToLong(ConvertNameToFull(strFullName));
+
+			LOGINFO(L"Loading plugins from {0}", PluginsDirectory);
+
+			ScTree.SetFindPath(PluginsDirectory, L"*"sv);
 
 			while (ScTree.GetNextName(FindData,strFullName))
 			{

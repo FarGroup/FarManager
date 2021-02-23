@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "global.hpp"
 #include "modal.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -369,12 +370,12 @@ bool Help::ReadHelp(string_view const Mask)
 			}
 			else
 			{
-				// TODO: log tabsize out of range
+				LOGWARNING(L"CtrlTabSize value {0} is out of range", UserTabSize);
 			}
 		}
 		else
 		{
-			// TODO: log error reading tabsize
+			LOGWARNING(L"CtrlTabSize value {0} is invalid", strReadStr);
 		}
 	}
 
@@ -1581,7 +1582,6 @@ bool Help::JumpTopic()
 		}
 	}
 
-	//_SVS(SysLog(L"JumpTopic() = SelTopic=%s",StackData->SelTopic));
 	// URL активатор - это ведь так просто :-)))
 	// наверное подразумевается URL
 	{
@@ -1593,7 +1593,6 @@ bool Help::JumpTopic()
 	}
 	// а вот теперь попробуем...
 
-	//_SVS(SysLog(L"JumpTopic() = SelTopic=%s, StackData->HelpPath=%s",StackData->SelTopic,StackData->HelpPath));
 	string strNewTopic;
 	if (!StackData->strHelpPath.empty() && StackData->strSelTopic.front() !=HelpBeginLink && StackData->strSelTopic != HelpOnHelpTopic)
 	{
@@ -1648,7 +1647,6 @@ bool Help::JumpTopic()
 		}
 	}
 
-	//_SVS(SysLog(L"HelpMask=%s NewTopic=%s",StackData->HelpMask,NewTopic));
 	if (StackData->strSelTopic.front() != L':' &&
 	        (!equal_icase(StackData->strSelTopic, PluginContents) || !equal_icase(StackData->strSelTopic, FoundContents))
 	   )

@@ -170,6 +170,9 @@
         <Feature Id="Italian" Level="1" Title="!(loc.Feature.Title.Italian)" AllowAdvertise="no">
           <ComponentRef Id="FarIta.lng" />
         </Feature>
+        <Feature Id="Lithuanian" Level="1" Title="!(loc.Feature.Title.Lithuanian)" AllowAdvertise="no">
+          <ComponentRef Id="FarLit.lng" />
+        </Feature>
         <Feature Id="Polish" Level="1" Title="!(loc.Feature.Title.Polish)" AllowAdvertise="no">
           <ComponentRef Id="FarPol.hlf" />
           <ComponentRef Id="FarPol.lng" />
@@ -188,9 +191,6 @@
         <Feature Id="Ukrainian" Level="1" Title="!(loc.Feature.Title.Ukrainian)" AllowAdvertise="no">
           <ComponentRef Id="FarUkr.hlf" />
           <ComponentRef Id="FarUkr.lng" />
-        </Feature>
-        <Feature Id="Lithuanian" Level="1" Title="!(loc.Feature.Title.Polish)" AllowAdvertise="no">
-          <ComponentRef Id="FarLit.lng" />
         </Feature>
       </Feature>
       <Feature Id="FarShortcuts" Level="1" Title="!(loc.Feature.Title.FarShortcuts)" AllowAdvertise="no">

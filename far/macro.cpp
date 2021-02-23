@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "panel.hpp"
 #include "scrbuf.hpp"
-#include "syslog.hpp"
 #include "macroopcode.hpp"
 #include "console.hpp"
 #include "pathmix.hpp"
@@ -414,7 +413,6 @@ enum {
 static bool ToDouble(long long v, double& d)
 {
 	if (constexpr long long Limit = bit(std::numeric_limits<double>::digits); v <= -Limit || v >= Limit)
-		// TODO: log?
 		return false;
 
 	d = static_cast<double>(v);
@@ -3043,8 +3041,6 @@ int FarMacroApi::msgBoxFunc()
 	if (!HIWORD(Flags) || HIWORD(Flags) > HIWORD(FMSG_MB_RETRYCANCEL))
 		Flags|=FMSG_MB_OK;
 
-	//_KEYMACRO(SysLog(L"title='%s'",title));
-	//_KEYMACRO(SysLog(L"text='%s'",text));
 	const auto TempBuf = concat(title, L'\n', text);
 	const auto Result = pluginapi::apiMessageFn(&FarUuid, &FarUuid, Flags, nullptr, reinterpret_cast<const wchar_t* const*>(TempBuf.c_str()), 0, 0) + 1;
 	PassNumber(Result);
@@ -4917,7 +4913,6 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		}
 	}
 
-	//_SVS(SysLog(L"LastKey=%d Msg=%s",LastKey,_DLGMSG_ToName(Msg)));
 	if (Msg == DN_INITDIALOG)
 	{
 		KMParam = static_cast<DlgParam*>(Param2);
@@ -4964,7 +4959,6 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 	else if (Param1 == 2 && Msg == DN_EDITCHANGE)
 	{
 		LastKey=0;
-		_SVS(SysLog(L"[%d] ((FarDialogItem*)Param2)->PtrData='%s'",__LINE__,((FarDialogItem*)Param2)->Data));
 		key = KeyNameToKey(static_cast<FarDialogItem*>(Param2)->Data);
 
 		if (key && !KMParam->Recurse)
@@ -4976,7 +4970,6 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		//if((key&0x00FFFFFF) >= 'A' && (key&0x00FFFFFF) <= 'Z' && ShiftPressed)
 		//key|=KEY_SHIFT;
 
-		//_SVS(SysLog(L"Macro: Key=%s",_FARKEY_ToName(key)));
 		// <Обработка особых клавиш: F1 & Enter>
 		// Esc & (Enter и предыдущий Enter) - не обрабатываем
 		if (
@@ -4999,15 +4992,11 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		}
 		*/
 		// Было что-то уже нажато и Enter`ом подтверждаем
-		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),(LastKey?_FARKEY_ToName(LastKey):L"")));
-
 		if (any_of(key, KEY_ENTER, KEY_NUMENTER) && LastKey && none_of(LastKey, KEY_ENTER, KEY_NUMENTER))
 			return FALSE;
 
 		// </Обработка особых клавиш: F1 & Enter>
 M1:
-		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),LastKey?_FARKEY_ToName(LastKey):L""));
-
 		if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
 			key=KeyToKeyLayout(key&0x0000FFFF)|(key&~0x0000FFFF);
 
@@ -5016,7 +5005,6 @@ M1:
 			key=upper(static_cast<wchar_t>(key));
 		}
 
-		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),LastKey?_FARKEY_ToName(LastKey):L""));
 		KMParam->Key = static_cast<DWORD>(key);
 		auto strKeyText = KeyToText(key);
 
@@ -5128,7 +5116,6 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, unsigned long long& Flags)
 	});
 
 	DlgParam Param={Flags, 0, m_StartMode, 0, false};
-	//_SVS(SysLog(L"StartMode=%d",m_StartMode));
 	Global->IsProcessAssignMacroKey++;
 	const auto Dlg = Dialog::create(MacroAssignDlg, &KeyMacro::AssignMacroDlgProc, this, &Param);
 	Dlg->SetPosition({ -1, -1, 34, 6 });

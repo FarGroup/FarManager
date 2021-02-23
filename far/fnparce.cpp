@@ -57,7 +57,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "eol.hpp"
 #include "interf.hpp"
 #include "datetime.hpp"
-#include "delete.hpp"
 
 // Platform:
 #include "platform.env.hpp"

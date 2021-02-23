@@ -48,10 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "language.hpp"
 #include "imports.hpp"
-#include "syslog.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
-#include "clipboard.hpp"
 #include "pathmix.hpp"
 #include "dirmix.hpp"
 #include "elevation.hpp"
@@ -73,6 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "locale.hpp"
 #include "farversion.hpp"
 #include "exception.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -180,7 +179,6 @@ static int MainProcess(
 		{
 			Global->OnlyEditorViewerUsed = true;
 
-			_tran(SysLog(L"create dummy panels"));
 			Global->CtrlObject->CreateDummyFilePanels();
 			Global->WindowManager->PluginCommit();
 
@@ -190,7 +188,6 @@ static int MainProcess(
 			if (!ename.empty())
 			{
 				const auto ShellEditor = FileEditor::create(ename, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6, StartLine, StartChar);
-				_tran(SysLog(L"make shelleditor %p",ShellEditor));
 
 				if (!ShellEditor->GetExitCode())  // ????????????
 				{
@@ -206,8 +203,6 @@ static int MainProcess(
 				{
 					Global->WindowManager->ExitMainLoop(0);
 				}
-
-				_tran(SysLog(L"make shellviewer, %p",ShellViewer));
 			}
 
 			Global->WindowManager->EnterMainLoop();
@@ -455,6 +450,11 @@ static std::optional<int> ProcessServiceModes(span<const wchar_t* const> const A
 		return EXIT_SUCCESS;
 	}
 
+	if (Args.size() == 2 && logging::is_log_argument(Args[0]))
+	{
+		return logging::main(Args[1]);
+	}
+
 	return {};
 }
 
@@ -474,7 +474,10 @@ static void UpdateErrorMode()
 static int handle_exception(function_ref<bool()> const Handler)
 {
 	if (Handler())
+	{
+		LOGFATAL(L"Abnormal exit");
 		std::_Exit(EXIT_FAILURE);
+	}
 
 	throw;
 }
@@ -526,8 +529,6 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	SCOPED_ACTION(listener)(update_environment, &ReloadEnvironment);
 	SCOPED_ACTION(listener)(update_intl, [] { locale.invalidate(); });
 	SCOPED_ACTION(listener)(update_devices, &UpdateSavedDrives);
-
-	_OT(SysLog(L"[[[[[[[[New Session of FAR]]]]]]]]]"));
 
 	string strEditName;
 	string strViewName;
@@ -803,7 +804,10 @@ static void configure_exception_handling(int Argc, const wchar_t* const Argv[])
 static int handle_exception_final(function_ref<bool()> const Handler)
 {
 	if (Handler())
+	{
+		LOGFATAL(L"Abnormal exit");
 		std::_Exit(EXIT_FAILURE);
+	}
 
 	restore_system_exception_handler();
 	throw;
@@ -861,9 +865,10 @@ int main()
 	{
 		return wmain_seh();
 	},
-	[]() -> int
+	[](DWORD const ExceptionCode) -> int
 	{
-		std::_Exit(EXIT_FAILURE);
+		LOGFATAL(L"Abnormal exit due to SEH exception {0}", ExceptionCode);
+		std::_Exit(ExceptionCode? ExceptionCode : EXIT_FAILURE);
 	},
 	__FUNCTION__);
 }

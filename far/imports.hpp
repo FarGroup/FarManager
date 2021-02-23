@@ -70,6 +70,8 @@ private:
 
 #undef DECLARE_MODULE
 
+	static void log_missing_import(const os::rtdl::module& Module, std::string_view Name);
+
 	template<typename text_type, auto StubFunction>
 	class unique_function_pointer
 	{
@@ -86,9 +88,24 @@ private:
 	private:
 		auto get_pointer() const
 		{
-			static const auto DynamicPointer = m_module->GetProcAddress<function_type>(text_type::name);
-			// TODO: log if nullptr
-			static const auto Pointer = DynamicPointer? DynamicPointer : StubFunction;
+			static const auto Pointer = [&]
+			{
+				if (const auto DynamicPointer = m_module->GetProcAddress<function_type>(text_type::name))
+					return DynamicPointer;
+
+				return StubFunction;
+			}();
+
+			// Logged separately to avoid a deadlock in recursive static initialisation
+			if (static auto Logged = false; !Logged)
+			{
+				if (Pointer == StubFunction)
+					log_missing_import(*m_module, text_type::name);
+
+				Logged = true;
+			}
+
+
 			return Pointer;
 		}
 

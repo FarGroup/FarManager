@@ -1,6 +1,7 @@
 ﻿.Language=Slovak,Slovak (Slovenčina)
 .PluginContents=Rozšírené porovnávanie
 
+
 @Contents
 $ #Rozšírené porovnávanie#
  Tento príkaz je podobný internému príkazu FARu "Porovnaj adresáre", ale dovoľuje niekoľko dodatočných porovnávacích kritérií:

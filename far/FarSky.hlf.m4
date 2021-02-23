@@ -286,7 +286,6 @@ Single letter prefixes A-Z or conflicted with disk letter will be ignored.
 
 @KeyRef
 $ #Klávesové skratky#
-
  ~Príkazy na ovládanie panelov~@PanelCmd@
 
  ~Príkazy pre príkazový riadok~@CmdLineCmd@
@@ -1080,7 +1079,7 @@ Po zmene módu alebo zmene jednotky sa panel automaticky nastaví na zobrazenie 
 ak bol predtým nastavený iný typ panelu.
 
  ~Rýchle vyhľadávanie~@FastFind@ možno použiť na nastavenie sa na
-požadovaný súbor použitím prvých písmen jeho mena. 
+požadovaný súbor použitím prvých písmen jeho mena.
 
  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
 
@@ -1161,7 +1160,6 @@ battery life time and battery life percent. Without smart battery subsystems, th
     ^<wrap>AC power status is updated automatically.
     ^<wrap>In Windows Vista and above charge status is update automatically.
     ^<wrap>Power status section can be turned on and off in ~settings~@InfoPanelSettings@.
-
 
  All sections (except computer and user names) can be hidden or shown (see ~InfoPanel display modes~@InfoPanelShowMode@).
 
@@ -1437,6 +1435,7 @@ $ #Commands menu#
  #Hist.zobr.súborov#    Zobrazí ~históriu prezeraných a editovaných súborov~@HistoryViews@.
 
  #História adresárov# Zobrazí ~históriu aktuálnych adresárov~@HistoryFolders@.
+
                       Items in "Folders history" and "File view
                       history" are moved to the end of list after
                       selection. Use #Shift+Enter# to select item
@@ -1746,7 +1745,6 @@ The following column types are supported:
  LN         - number of hard links
 
  F          - number of alternate streams
-
 
  File attributes are denoted as follows:
 
@@ -2362,11 +2360,6 @@ Históriu prezeraných a editovaných súborov možno vyvolať stlačením #Alt+
 Windows a nenachádza sa vo Fare nastavených ~typoch súborv~@FileAssoc@, spustí sa program,
 ktorý je vo Windows nastavený pre tento typ súboru.
 
- #CD drive auto mount#
- When a CD-ROM drive is selected from the ~Change drive menu~@DriveDlg@, Far will close the open
-tray of a CD drive. Turn off this option if automatic CD-ROM mounting does not work
-correctly (this can happen because of bugs in the drivers of some CD-ROM drives).
-
  #Automatic update of environment variables#
  Automatically update the environment variables if they have been changed globally.
 
@@ -2654,7 +2647,7 @@ additional information in the command prompt.
  $c - znak (
  $d - current date (depends on system settings)
  $f - znak )
- $g - znak > 
+ $g - znak >
  $h - delete the previous character
  $l - znak <
  $m - full network path of the current drive or empty, if the current drive is not a network drive
@@ -3485,7 +3478,6 @@ $ #Code pages menu#
 
  #Other#
  The rest of code pages installed in the system.
-
 
  The following key combinations are available in this menu:
 
@@ -4923,7 +4915,6 @@ have a number (in the order of appearance).
         "(['"])hello\1" matches to "hello" or 'hello'.
 
  #\p{name}# - ^<wrap>inner regexp reference to it's parsed bracket with specified #name#.
-
 
  #Examples:#
 

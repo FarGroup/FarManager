@@ -1,6 +1,7 @@
 ﻿.Language=Polish,Polish (Polski)
 .PluginContents=EMenu
 
+
 @Contents
 $ #EMenu - menu kontekstowe#
 ^#Opis#
@@ -11,7 +12,6 @@ plików, panelu drzewa, folderze tymczasowym lub w przeglądarce sieciowej.
 
     Wtyczka pozwala pokazywać menu w wersji tekstowej lub graficznej (GUI),
 zależnie od ustawień w ~oknie konfiguracji~@Config@.
-
 
 ^#Jak używać EMenu#
 
@@ -46,6 +46,7 @@ z bieżącego panelu.
     Jeżeli dowolna część z linii poleceń zawiera spacje - należy użyć cudzysłowów.
     Linia poleceń może zawierać zmienne systemowe ujęte w %. Zmienne zostaną rozwinięte
 w ich pełne wartości.
+
 
 @Config
 $ #EMenu - okno konfiguracji#
@@ -111,6 +112,7 @@ które mogą być wyświetlane w nawiasach zaraz za pozycją menu.
  #( ) W miejscu kursora myszy#
  #( ) Na środku okna FAR#
 
+
 @Main
 $ #Główne menu EMenu#
     W głównym menu możesz wybrać, czy ma być wyświetlane menu kontekstowe
@@ -121,33 +123,40 @@ elementów panelu czy menu dla elementu "Mój komputer".
     #Mój Komputer# Wybierz, dla którego z elementów poziomu "Mój komputer" ma być
 wyświetlone menu kontekstowe.
 
+
 @ChooseMenuType
 $ #Wybór typu menu#
     Wybór pomiędzy menu wyświetlanym w trybie tekstowym lub graficznym.
 Wybór można zmienić w ~oknie konfiguracyjnym~@Config@.
 
+
 @MyComp
 $ #Mój Komputer#
     Wybierz element, dla którego chcesz uzyskać menu kontekstowe.
 
+
 @ContextMenu
 $ #Menu kontekstowe#
     Jest to menu kontekstowe wyświetlane przez wtyczkę ~EMenu~@Contents@.
+
 
 @Error0
 $ #Nie mogę pokazać menu, ponieważ pliki pochodzą z różnych folderów.#
     Komunikat ten jest wyświetlany, gdy zaznaczone pliki są umieszczone
 w różnych folderach.
 
+
 @Error1
 $ #Nie mogę pokazać menu.#
     Komunikat ten jest wyświetlany, gdy EMenu nie potrafi wyświetlić menu
 kontekstowego.
 
+
 @Error2
 $ #Nie mogę przetworzyć polecenia menu.#
     Komunikat ten jest wyświetlany, gdy wystąpi błąd podczas wywoływania
 polecenia menu.
+
 
 @Close
 $ #Wciśnij "OK", aby kontynuować...#

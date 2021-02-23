@@ -2,6 +2,7 @@
 .PluginContents=HlfViewer
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ #HlfViewer#
    Плагін HlfViewer створений для допомоги людям, які створюють або
@@ -15,7 +16,6 @@ $ #HlfViewer#
 
 @cmd
 $ #HlfViewer: синтаксис командного рядка#
-
    #hlf:GUID# [#topic#]
    #hlf:ім'я_файла# [#тема#]
    #hlf:тема#

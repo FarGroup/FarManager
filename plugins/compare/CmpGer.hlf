@@ -1,6 +1,7 @@
 ﻿.Language=German,German (Deutsch)
 .PluginContents=Erweiterter Vergleich
 
+
 @Contents
 $ #Erweiterter Vergleich#
  Dieser Befehl ähnelt dem internen Far "Verzeichnisse vergleichen"-Befehl, er stellt jedoch auch einige zusätzliche Vergleichsoptionen zur Verfügung:

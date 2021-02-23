@@ -2,14 +2,15 @@
 .PluginContents=Ten sam folder
 .Options CtrlStartPosChar=^<wrap>
 
+
 @Contents
 $ #Ten sam folder#
  Wtyczka dodaję pozycję "Ten sam folder" do #menu wtyczek# i #menu dysków#.
 
- - ^<wrap>Jeżeli jest wywołana z ~menu wtyczek~@:PluginCommands@, ustawia w
-panelu pasywnym ten sam folder jaki jest wybrany w panelu aktywnym.
+ - ^<wrap>Jeżeli jest wywołana z ~menu wtyczek~@:PluginCommands@, ustawia
+w panelu pasywnym ten sam folder jaki jest wybrany w panelu aktywnym.
 
- - ^<wrap>Jeżeli jest wywołana z ~menu dysków~@:DriveDlg@ , ustawia wybrany
+ - ^<wrap>Jeżeli jest wywołana z ~menu dysków~@:DriveDlg@, ustawia wybrany
 panel w takim samym folderze jak w drugim panelu.
 
  Domyślnie opcje jest włączona tylko w #menu wtyczek#.
@@ -19,11 +20,10 @@ panel w takim samym folderze jak w drugim panelu.
 
 @Config
 $ #Konfiguracja wtyczki Ten sam folder#
-
  #Dodaj "Ten sam folder" do menu Wtyczek#
- Dodaje poleceni do ~menu Wtyczek~@:PluginCommands@ (ustawia w pasywnym panelu ten sam folder jak w aktywnym).
+ Dodaje polecenie do ~menu Wtyczek~@:PluginCommands@ (ustawia w pasywnym panelu ten sam folder jak w aktywnym).
 
  #Dodaj "Ten sam folder" do menu Dysków#
- Adds the command to the ~Disks menu~@:DriveDlg@ (ustawia wybrany folder jak w drugim panelu).
+ Dodaje polecenie do ~menu Dysków~@:DriveDlg@ (ustawia wybrany folder jak w drugim panelu).
 
  Zobacz także: ~Zawartość~@Contents@

@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.security.hpp"
 
 // Internal:
+#include "exception.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -49,12 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace
 {
-	static os::handle OpenCurrentProcessToken(DWORD DesiredAccess)
-	{
-		HANDLE Handle;
-		return os::handle(OpenProcessToken(GetCurrentProcess(), DesiredAccess, &Handle)? Handle : nullptr);
-	}
-
 	static const auto& lookup_privilege_value(const wchar_t* Name)
 	{
 		static std::unordered_map<string, std::optional<LUID>> s_Cache;
@@ -71,6 +67,8 @@ namespace
 			LUID Luid;
 			if (LookupPrivilegeValue(nullptr, MapKey.c_str(), &Luid))
 				MapValue = Luid;
+			else
+				LOGWARNING(L"LookupPrivilegeValue({0}): {1}", MapKey, error_state::fetch());
 		}
 
 		return MapValue;
@@ -111,6 +109,15 @@ namespace os::security
 		return Result;
 	}
 
+	handle open_current_process_token(DWORD const DesiredAccess)
+	{
+		HANDLE Handle;
+		if (!OpenProcessToken(GetCurrentProcess(), DesiredAccess, &Handle))
+			return {};
+
+		return handle(Handle);
+	}
+
 	privilege::privilege(span<const wchar_t* const> const Names)
 	{
 		if (Names.empty())
@@ -121,23 +128,26 @@ namespace os::security
 
 		for (const auto& i: Names)
 		{
-			if (const auto& Luid = lookup_privilege_value(i))
-			{
-				NewState->Privileges[NewState->PrivilegeCount++] = { *Luid, SE_PRIVILEGE_ENABLED };
-			}
-			// TODO: log if failed
+			const auto& Luid = lookup_privilege_value(i);
+			if (!Luid)
+				continue;
+
+			NewState->Privileges[NewState->PrivilegeCount++] = { *Luid, SE_PRIVILEGE_ENABLED };
 		}
 
-		m_SavedState.reset(NewState.size());
-
-		const auto Token = OpenCurrentProcessToken(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
+		const auto Token = open_current_process_token(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
 		if (!Token)
-			// TODO: log
+		{
+			LOGWARNING(L"open_current_process_token: {0}", error_state::fetch());
 			return;
+		}
 
 		DWORD ReturnLength;
+		m_SavedState.reset(NewState.size());
 		m_Changed = AdjustTokenPrivileges(Token.native_handle(), FALSE, NewState.data(), static_cast<DWORD>(m_SavedState.size()), m_SavedState.data(), &ReturnLength) && m_SavedState->PrivilegeCount;
-		// TODO: log if failed
+
+		if (m_SavedState->PrivilegeCount != NewState->PrivilegeCount)
+			LOGWARNING(L"AdjustTokenPrivileges(): {0}", error_state::fetch());
 	}
 
 	privilege::~privilege()
@@ -145,15 +155,17 @@ namespace os::security
 		if (!m_Changed)
 			return;
 
-		const auto Token = OpenCurrentProcessToken(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
+		const auto Token = open_current_process_token(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
 		if (!Token)
-			// TODO: log
+		{
+			LOGWARNING(L"open_current_process_token: {0}", error_state::fetch());
 			return;
+		}
 
 		SCOPED_ACTION(os::last_error_guard);
 
-		AdjustTokenPrivileges(Token.native_handle(), FALSE, m_SavedState.data(), 0, nullptr, nullptr);
-		// TODO: log if failed
+		if (!AdjustTokenPrivileges(Token.native_handle(), FALSE, m_SavedState.data(), 0, nullptr, nullptr))
+			LOGWARNING(L"AdjustTokenPrivileges(): {0}", error_state::fetch());
 	}
 
 	static auto get_token_privileges(HANDLE TokenHandle)
@@ -184,13 +196,19 @@ namespace os::security
 
 	bool privilege::check(span<const wchar_t* const> const Names)
 	{
-		const auto Token = OpenCurrentProcessToken(TOKEN_QUERY);
+		const auto Token = open_current_process_token(TOKEN_QUERY);
 		if (!Token)
+		{
+			LOGWARNING(L"open_current_process_token: {0}", error_state::fetch());
 			return false;
+		}
 
 		const auto TokenPrivileges = get_token_privileges(Token.native_handle());
 		if (!TokenPrivileges)
+		{
+			LOGWARNING(L"get_token_privileges: {0}", error_state::fetch());
 			return false;
+		}
 
 		const span Privileges(TokenPrivileges->Privileges, TokenPrivileges->PrivilegeCount);
 
