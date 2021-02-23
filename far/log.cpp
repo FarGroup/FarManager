@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/from_string.hpp"
+#include "common/scope_exit.hpp"
 
 // External:
 
@@ -612,22 +613,30 @@ namespace logging
 
 		void log(string_view const Str, level const Level, string_view const Function, string_view const Location)
 		{
+			SCOPED_ACTION(std::lock_guard)(m_CS);
+
+			// Log can potentially log itself, directly or through other parts of the code.
+			// Allow one level of recursion for diagnostics
+			if (m_RecursionGuard > 1)
+				return;
+
+			++m_RecursionGuard;
+			SCOPE_EXIT{ --m_RecursionGuard; };
+
+			if (m_Status == engine_status::in_progress)
 			{
-				SCOPED_ACTION(std::lock_guard)(m_CS);
+				message Message(Str, Level, Function, Location);
+				m_QueuedMessages.emplace(std::move(Message));
+				return;
+			}
 
-				if (m_Status == engine_status::in_progress)
-				{
-					m_QueuedMessages.emplace(Str, Level, Function, Location);
-					return;
-				}
+			while (!m_QueuedMessages.empty())
+			{
+				auto Message = std::move(m_QueuedMessages.front());
+				m_QueuedMessages.pop();
 
-				while (!m_QueuedMessages.empty())
-				{
-					if (m_Level >= m_QueuedMessages.front().m_Level)
-						submit(m_QueuedMessages.front());
-
-					m_QueuedMessages.pop();
-				}
+				if (m_Level >= Message.m_Level)
+					submit(Message);
 			}
 
 			if (!filter(Level))
@@ -728,6 +737,7 @@ namespace logging
 				i->handle(Message);
 		}
 
+		size_t m_RecursionGuard{};
 		os::event m_Finish{ os::event::type::manual, os::event::state::nonsignaled };
 		os::concurrency::critical_section m_CS;
 		std::list<std::unique_ptr<sink>> m_Sinks;

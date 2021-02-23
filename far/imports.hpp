@@ -93,9 +93,18 @@ private:
 				if (const auto DynamicPointer = m_module->GetProcAddress<function_type>(text_type::name))
 					return DynamicPointer;
 
-				log_missing_import(*m_module, text_type::name);
 				return StubFunction;
 			}();
+
+			// Logged separately to avoid a deadlock in recursive static initialisation
+			if (static auto Logged = false; !Logged)
+			{
+				if (Pointer == StubFunction)
+					log_missing_import(*m_module, text_type::name);
+
+				Logged = true;
+			}
+
 
 			return Pointer;
 		}

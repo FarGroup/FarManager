@@ -449,14 +449,20 @@ handle OpenConsoleActiveScreenBuffer()
 			std::vector<uintptr_t> Stack;
 			Stack.reserve(128);
 
-			const auto ThisFrame = 1;
+			// http://web.archive.org/web/20140815000000*/http://msdn.microsoft.com/en-us/library/windows/hardware/ff552119(v=vs.85).aspx
+			// In Windows XP and Windows Server 2003, the sum of the FramesToSkip and FramesToCapture parameters must be less than 63.
+			static const auto Limit = IsWindowsVistaOrGreater()? std::numeric_limits<size_t>::max() : 62;
+
+			const auto Skip = FramesToSkip + 1; // 1 for this frame
+			const auto Capture = std::min(FramesToCapture, Limit - Skip);
 
 			for (size_t i = 0; i != FramesToCapture;)
 			{
 				void* Pointers[128];
+
 				const auto Size = imports.RtlCaptureStackBackTrace(
-					static_cast<DWORD>(FramesToSkip + ThisFrame + i),
-					static_cast<DWORD>(std::min(FramesToCapture, std::size(Pointers))),
+					static_cast<DWORD>(Skip + i),
+					static_cast<DWORD>(std::min(std::size(Pointers), Capture - i)),
 					Pointers,
 					{}
 				);

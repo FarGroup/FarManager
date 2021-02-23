@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 23.02.2021 01:55:05 +0000 - build 5744
+
+1. Fix a few issues in the previous build.
+
+--------------------------------------------------------------------------------
 drkns 21.02.2021 21:47:47 +0000 - build 5743
 
 1. A new logging engine. Currently it can be configured via environment variables:
