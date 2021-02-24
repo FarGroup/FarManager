@@ -1925,8 +1925,6 @@ i zawiera wszystkie uwzględnienia oraz żadnego z atrybutów wykluczenia:
 
  Atrybuty #Skompresowany#, #Zaszyfrowany#, #Nie zaindeksowany#, #Rzadki#, #Tymczasowy#, #Offline#
 i #Punkt dowiązania# są dostępne tylko na dyskach z systemem NTFS.
-Atrybuty #Skompresowany# i #Zaszyfrowany# wykluczają się wzajemnie, można użyć tylko jednego z nich.
-Nie można wyczyścić atrybutu #Rzadki# w Windows 2000/XP/2003.
 Atrybuty #Strumień integralności# i #Brak danych kontrolnych# są obsługiwane tylko na wolumenach ReFS
 począwszy od Windows Server 2012.
 
