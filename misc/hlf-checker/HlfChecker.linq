@@ -5,29 +5,77 @@
 
 private static readonly DirectoryInfo FarDirectory = new DirectoryInfo(Path.Combine(Util.CurrentQuery.Location, "..", "..", "far"));
 private static readonly DirectoryInfo PluginsDirectory = new DirectoryInfo(Path.Combine(Util.CurrentQuery.Location, "..", "..", "plugins"));
+private static readonly string MainLanguage = "Eng";
+private static readonly HashSet<string> IgnoredPlugins = new HashSet<string>{ "common", "ftp" };
 
-public void Main(string[] directories)
+public void Main(string[] parameters)
 {
-	ValidateDirectories(
-		directories?.Length > 0
-		? directories.Select(directory => new DirectoryInfo(directory))
-		: PluginsDirectory.EnumerateDirectories().Prepend(FarDirectory));
+	var languageFilter = GetLanguageFilter(parameters);
+	if (languageFilter == default) return;
+
+	ValidateDirectories(GetDirectories(parameters), MainLanguage, languageFilter);
 }
 
-private static void ValidateDirectories(IEnumerable<DirectoryInfo> directories)
+private IList<DirectoryInfo> GetDirectories(string[] parameters)
+{
+	var directories = (parameters ?? Enumerable.Empty<string>())
+		.Where(param => !string.IsNullOrEmpty(param) && param[0] != '+' && param[0] != '-')
+		.Select(directory => new DirectoryInfo(directory))
+		.ToList();
+
+	return directories.Count > 0
+		? directories
+		: PluginsDirectory.EnumerateDirectories().Where(pd => !IgnoredPlugins.Contains(pd.Name)).Prepend(FarDirectory).ToList();
+}
+
+private static readonly Regex ValidLanguageFilter = new Regex(@"^[+-]\p{L}{3}$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+private static Regex GetLanguageFilter(string[] parameters)
+{
+	var requested = parameters?.Where(param => param?.StartsWith("+") == true).ToList();
+	var excluded = parameters?.Where(param => param?.StartsWith("-") == true).ToList();
+
+	if ((requested?.Count ?? 0) == 0 && (excluded?.Count ?? 0) == 0)
+	{
+		return new Regex(@"\p{L}{3}\.hlf", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+	}
+
+	if (requested.Count > 0 && excluded.Count > 0)
+	{
+		$"Cannot apply requested ({string.Join(", ", requested)}) and exculded ({string.Join(", ", excluded)}) language filters together. Exiting.".Trace();
+		return default;
+	}
+
+	var filters = requested.Count > 0 ? requested : excluded;
+
+	var invalid = filters.Where(lng => !ValidLanguageFilter.Match(lng).Success).ToList();
+	if (invalid.Count != 0)
+	{
+		$"Invalid language filter(s) specified: ({string.Join(", ", invalid)}). Exiting.".Trace();
+		return default;
+	}
+
+	$"Language filters applied: ({string.Join(", ", filters)}).".Trace();
+
+	return new Regex(
+		(requested.Count > 0 ? "(" : @"\p{L}{3}(?<!") + string.Join("|", filters.Select(f => f.Substring(1))) + @")\.hlf",
+		RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+}
+
+private static void ValidateDirectories(IEnumerable<DirectoryInfo> directories, string mainLanguage, Regex languageFilter)
 {
 	foreach (var directory in directories)
 	{
-		ValidateDirectory(directory);
+		ValidateDirectory(directory, mainLanguage, languageFilter);
 	}
 }
 
-private static void ValidateDirectory(DirectoryInfo directory)
+private static void ValidateDirectory(DirectoryInfo directory, string mainLanguage, Regex languageFilter)
 {
-	var engHlfFile = directory.EnumerateFiles(@"*Eng.hlf.*").SingleOrDefault();
+	var engHlfFile = directory.EnumerateFiles($@"*{mainLanguage}.hlf.*").SingleOrDefault();
 	if (engHlfFile == default)
 	{
-		$"Could not find Eng.hlf file in {directory.Name}. Skippng.".Trace(printSeparator: true);
+		$"Could not find {mainLanguage}.hlf file in {directory.Name}. Skippng.".Trace(printSeparator: true);
 		return;
 	}
 
@@ -40,7 +88,8 @@ private static void ValidateDirectory(DirectoryInfo directory)
 		return;
 	}
 
-	foreach (var lngHlfFile in directory.EnumerateFiles(@"*.hlf.*").Where(fi => fi.Name != engHlf.HlfName))
+	foreach (var lngHlfFile
+			in directory.EnumerateFiles(@"*.hlf.*").Where(fi => fi.Name != engHlf.HlfName && languageFilter.Match(fi.Name).Success))
 	{
 		var lngHlf = ParseAndPrintHlf(lngHlfFile.FullName);
 		if (lngHlf == default)
@@ -107,7 +156,7 @@ public class HlfComparer
 		return result;
 	}
 
-	private static readonly Regex PrologueLanguage = new Regex(@"^\.Language=\w+,\w+(\s\(\w+\))?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+	private static readonly Regex PrologueLanguage = new Regex(@"^\.Language=\p{L}+,\p{L}+(\s\(\p{L}+\))?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 	private static readonly Regex ProloguePluginContents = new Regex(@"^\.PluginContents=.+$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
 	private bool ComparePrologue()
