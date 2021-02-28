@@ -632,7 +632,7 @@ void ShowHotplugDevices()
 					else if (!Cancelled)
 					{
 						SetLastError(ERROR_DRIVE_LOCKED); // ... "The disk is in use or locked by another process."
-						const auto ErrorState = error_state::fetch();
+						const auto ErrorState = last_error();
 
 						Message(MSG_WARNING, ErrorState,
 							msg(lng::MError),

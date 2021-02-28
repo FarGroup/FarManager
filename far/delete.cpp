@@ -53,7 +53,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "mix.hpp"
 #include "dirinfo.hpp"
-#include "elevation.hpp"
 #include "wakeful.hpp"
 #include "stddlg.hpp"
 #include "lang.hpp"
@@ -64,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileattr.hpp"
 #include "copy_progress.hpp"
 #include "global.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -621,8 +621,10 @@ void ShellDelete::process_item(
 			{
 				if (os::fs::is_directory_symbolic_link(FindData))
 				{
-					if (FindData.Attributes & FILE_ATTRIBUTE_READONLY)
-						(void)os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL); //BUGBUG
+					if (FindData.Attributes & FILE_ATTRIBUTE_READONLY && !os::fs::set_file_attributes(strFullName, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
+					{
+						LOGWARNING(L"set_file_attributes({0}): {1}", strFullName, last_error());
+					}
 
 					bool Dummy = false;
 					if (!ERemoveDirectory(strFullName, m_DeleteType, Dummy))
@@ -671,8 +673,10 @@ void ShellDelete::process_item(
 
 				if (ScTree.IsDirSearchDone())
 				{
-					if (FindData.Attributes & FILE_ATTRIBUTE_READONLY)
-						(void)os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL); //BUGBUG
+					if (FindData.Attributes & FILE_ATTRIBUTE_READONLY && !os::fs::set_file_attributes(strFullName, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
+					{
+						LOGWARNING(L"set_file_attributes({0}): {1}", strFullName, last_error());
+					}
 
 					bool Dummy = false;
 					if (!ERemoveDirectory(strFullName, m_DeleteType, Dummy))
@@ -695,8 +699,10 @@ void ShellDelete::process_item(
 		}
 	}
 
-	if (SelFindData.Attributes & FILE_ATTRIBUTE_READONLY)
-		(void)os::fs::set_file_attributes(strSelName,FILE_ATTRIBUTE_NORMAL); //BUGBUG
+	if (SelFindData.Attributes & FILE_ATTRIBUTE_READONLY && !os::fs::set_file_attributes(strSelName, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
+	{
+		LOGWARNING(L"set_file_attributes({0}): {1}", strSelName, last_error());
+	}
 
 	bool RetryRecycleAsRemove = false;
 	const auto Removed = ERemoveDirectory(
@@ -818,7 +824,11 @@ bool ShellDelete::ConfirmDeleteReadOnlyFile(string_view const Name, os::fs::attr
 		ReadOnlyDeleteMode = Message::first_button;
 		[[fallthrough]];
 	case Message::first_button:
-		(void)os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL); //BUGBUG
+		if (!os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
+		{
+			LOGWARNING(L"set_file_attributes({0}): {1}", Name, last_error());
+		}
+
 		return true;
 
 	case Message::fourth_button:
@@ -990,7 +1000,7 @@ bool ShellDelete::RemoveToRecycleBin(string_view const Name, bool dir, bool& Ret
 	if (dir? m_SkipFolderErrors : m_SkipFileErrors)
 		return false;
 
-	const auto ErrorState = error_state::fetch();
+	const auto ErrorState = last_error();
 
 	const int MsgCode = Message(MSG_WARNING, ErrorState,
 		msg(lng::MError),
@@ -1034,29 +1044,50 @@ void DeleteDirTree(string_view const Dir)
 
 	while (ScTree.GetNextName(FindData, strFullName))
 	{
-		(void)os::fs::set_file_attributes(strFullName,FILE_ATTRIBUTE_NORMAL); //BUGBUG
+		if (!os::fs::set_file_attributes(strFullName, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
+		{
+			LOGWARNING(L"set_file_attributes({0}): {1}", strFullName, last_error());
+		}
 
 		if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
-			if (ScTree.IsDirSearchDone())
-				// BUGBUG check result
-				(void)os::fs::remove_directory(strFullName);
+			// BUGBUG check result
+			if (ScTree.IsDirSearchDone() && !os::fs::remove_directory(strFullName))
+			{
+				LOGWARNING(L"remove_directory({0}): {1}", strFullName, last_error());
+			}
 		}
 		else
+		{
 			// BUGBUG check result
-			(void)os::fs::delete_file(strFullName);
+			if (!os::fs::delete_file(strFullName))
+			{
+				LOGWARNING(L"delete_file({0}): {1}", strFullName, last_error());
+			}
+		}
 	}
 
 	// BUGBUG check result
-	(void)os::fs::set_file_attributes(Dir,FILE_ATTRIBUTE_NORMAL);
+	if (!os::fs::set_file_attributes(Dir, FILE_ATTRIBUTE_NORMAL))
+	{
+		LOGWARNING(L"set_file_attributes({0}): {1}", Dir, last_error());
+	}
+
 	// BUGBUG check result
-	(void)os::fs::remove_directory(Dir);
+	if (!os::fs::remove_directory(Dir))
+	{
+		LOGWARNING(L"remove_directory({0}): {1}", Dir, last_error());
+	}
+
 }
 
 bool DeleteFileWithFolder(string_view const FileName)
 {
 	auto strFileOrFolderName = unquote(FileName);
-	(void)os::fs::set_file_attributes(strFileOrFolderName, FILE_ATTRIBUTE_NORMAL); //BUGBUG
+	if (!os::fs::set_file_attributes(strFileOrFolderName, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
+	{
+		LOGWARNING(L"set_file_attributes({0}): {1}", strFileOrFolderName, last_error());
+	}
 
 	if (!os::fs::delete_file(strFileOrFolderName))
 		return false;
@@ -1077,7 +1108,14 @@ delayed_deleter::~delayed_deleter()
 		{
 			auto Folder = i;
 			if (CutToParent(Folder))
-				(void)os::fs::remove_directory(Folder);
+			{
+				if (!os::fs::remove_directory(Folder))
+					LOGWARNING(L"remove_directory({0}): {1}", i, last_error());
+			}
+		}
+		else
+		{
+			LOGWARNING(L"delete_file({0}): {1}", i, last_error());
 		}
 	}
 }

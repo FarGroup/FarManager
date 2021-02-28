@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileowner.hpp"
 #include "exception.hpp"
 #include "stddlg.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -69,8 +70,10 @@ static auto without_ro(string_view const Name, os::fs::attributes const Attribut
 		{
 			SCOPED_ACTION(os::last_error_guard);
 
-			if (Attributes & Mask)
-				(void)os::fs::set_file_attributes(Name, Attributes); //BUGBUG
+			if (Attributes & Mask && !os::fs::set_file_attributes(Name, Attributes)) //BUGBUG
+			{
+				LOGWARNING(L"set_file_attributes({0}): {1}", Name, last_error());
+			}
 		};
 
 		return Action();

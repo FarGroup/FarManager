@@ -78,6 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "global.hpp"
 #include "uuids.far.dialogs.hpp"
+#include "log.hpp"
 
 // Platform:
 
@@ -181,8 +182,15 @@ Viewer::~Viewer()
 			DeleteFileWithFolder(strTempViewName);
 		else
 		{
-			(void)os::fs::set_file_attributes(strTempViewName,FILE_ATTRIBUTE_NORMAL); // BUGBUG
-			(void)os::fs::delete_file(strTempViewName); //BUGBUG
+			if (!os::fs::set_file_attributes(strTempViewName, FILE_ATTRIBUTE_NORMAL)) // BUGBUG
+			{
+				LOGWARNING(L"set_file_attributes({0}): {1}", strTempViewName, last_error());
+			}
+
+			if (!os::fs::delete_file(strTempViewName)) //BUGBUG
+			{
+				LOGWARNING(L"delete_file({0}): {1}", strTempViewName, last_error());
+			}
 		}
 	}
 }
@@ -293,7 +301,10 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 		while (ReadFile(console.GetOriginalInputHandle(), vread_buffer.data(), static_cast<DWORD>(vread_buffer.size()), &ReadSize, nullptr) && ReadSize)
 		{
 			// BUGBUG check result
-			(void)ViewFile.Write(vread_buffer.data(), ReadSize);
+			if (!ViewFile.Write(vread_buffer.data(), ReadSize))
+			{
+				LOGWARNING(L"Write({0}): {1}", ViewFile.GetName(), last_error());
+			}
 		}
 		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
 
@@ -313,7 +324,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 				 so don't show red message box */
 			if (Warn)
 			{
-				const auto ErrorState = error_state::fetch();
+				const auto ErrorState = last_error();
 
 				if (OperationFailed(ErrorState, strFileName, lng::MViewerTitle, msg(lng::MViewerCannotOpenFile), false) == operation::retry)
 					continue;
@@ -328,7 +339,11 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 
 	strFullFileName = ConvertNameToFull(strFileName);
 	// BUGBUG check result
-	(void)os::fs::get_find_data(strFileName, ViewFindData);
+	if (!os::fs::get_find_data(strFileName, ViewFindData))
+	{
+		LOGWARNING(L"get_find_data({0}): {1}", strFileName, last_error());
+	}
+
 	uintptr_t CachedCodePage=0;
 
 	if ((vo.SavePos || vo.SaveShortPos || vo.SaveCodepage || vo.SaveViewMode || vo.SaveWrapMode) && !ReadStdin)
@@ -3855,7 +3870,10 @@ bool Viewer::vgetc(wchar_t* pCh)
 		{
 			const auto Ch = VgetcCache.pop();
 			// BUGBUG, error checking
-			(void)encoding::get_chars(m_Codepage, { &Ch, 1 }, { pCh, 1 });
+			if (!encoding::get_chars(m_Codepage, { &Ch, 1 }, { pCh, 1 }))
+			{
+				LOGWARNING(L"get_chars({0:02X})", static_cast<int>(Ch));
+			}
 		}
 
 		break;
@@ -3922,7 +3940,10 @@ wchar_t Viewer::vgetc_prev()
 			if (CharSize == 1)
 			{
 				// BUGBUG, error checking
-				(void)encoding::get_chars(m_Codepage, { RawBuffer, 1 }, { &Result, 1 });
+				if (!encoding::get_chars(m_Codepage, { RawBuffer, 1 }, { &Result, 1 }))
+				{
+					LOGWARNING(L"get_chars({0:02X})", static_cast<int>(RawBuffer[0]));
+				}
 			}
 			else
 			{
@@ -4045,7 +4066,11 @@ void Viewer::SetFileSize()
 
 	unsigned long long uFileSize = 0; // BUGBUG, sign
 	// BUGBUG check result
-	(void)ViewFile.GetSize(uFileSize);
+	if (!ViewFile.GetSize(uFileSize))
+	{
+		LOGWARNING(L"GetSize({0}): {1}", ViewFile.GetName(), last_error());
+	}
+
 	FileSize=uFileSize;
 }
 

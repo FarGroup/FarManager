@@ -245,7 +245,7 @@ Plugin* PluginManager::LoadPlugin(const string& FileName, const os::fs::find_dat
 {
 	std::unique_ptr<Plugin> pPlugin;
 
-	if (!std::any_of(CONST_RANGE(PluginFactories, i) { return (pPlugin = i->CreatePlugin(FileName)) != nullptr; }))
+	if (!std::any_of(CONST_RANGE(PluginFactories, i) { return (pPlugin = i->CreatePlugin(FileName, FindData.FileSize)) != nullptr; }))
 		return nullptr;
 
 	auto Result = LoadToMem? false : pPlugin->LoadFromCache(FindData);
@@ -601,7 +601,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 			{
 				if(ShowWarning)
 				{
-					const auto ErrorState = error_state::fetch();
+					const auto ErrorState = last_error();
 
 					Message(MSG_WARNING, ErrorState,
 						{},
@@ -1037,8 +1037,15 @@ bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 		}
 		else
 		{
-			(void)os::fs::set_file_attributes(Result,FILE_ATTRIBUTE_NORMAL); // BUGBUG
-			(void)os::fs::delete_file(Result); //BUGBUG
+			if (!os::fs::set_file_attributes(Result, FILE_ATTRIBUTE_NORMAL)) // BUGBUG
+			{
+				LOGWARNING(L"set_file_attributes({0}): {1}", Result, last_error());
+			}
+
+			if (!os::fs::delete_file(Result)) //BUGBUG
+			{
+				LOGWARNING(L"delete_file({0}): {1}", Result, last_error());
+			}
 		}
 	}
 

@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "global.hpp"
 #include "file_io.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -325,7 +326,10 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 				{ lng::MYes, lng::MNo }) != Message::first_button)
 			return false;
 
-		(void)os::fs::set_file_attributes(m_DizFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY); //BUGBUG
+		if (!os::fs::set_file_attributes(m_DizFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY)) //BUGBUG
+		{
+			LOGWARNING(L"set_file_attributes({0}): {1}", m_DizFileName, last_error());
+		}
 	}
 
 	try

@@ -79,6 +79,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "global.hpp"
 #include "file_io.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -418,8 +419,15 @@ FileEditor::~FileEditor()
 				DeleteFileWithFolder(strFullFileName);
 			else
 			{
-				(void)os::fs::set_file_attributes(strFullFileName,FILE_ATTRIBUTE_NORMAL); // BUGBUG
-				(void)os::fs::delete_file(strFullFileName); //BUGBUG
+				if (!os::fs::set_file_attributes(strFullFileName, FILE_ATTRIBUTE_NORMAL)) // BUGBUG
+				{
+					LOGWARNING(L"set_file_attributes({0}): {1}", strFullFileName, last_error());
+				}
+
+				if (!os::fs::delete_file(strFullFileName)) //BUGBUG
+				{
+					LOGWARNING(L"delete_file({0}): {1}", strFullFileName, last_error());
+				}
 			}
 		}
 	}
@@ -1480,7 +1488,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 	os::fs::file EditFile(Name, FILE_READ_DATA, FILE_SHARE_READ | (Global->Opt->EdOpt.EditOpenedForWrite? (FILE_SHARE_WRITE | FILE_SHARE_DELETE) : 0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	if(!EditFile)
 	{
-		ErrorState = error_state::fetch();
+		ErrorState = last_error();
 		if ((ErrorState.Win32Error != ERROR_FILE_NOT_FOUND) && (ErrorState.Win32Error != ERROR_PATH_NOT_FOUND))
 		{
 			UserBreak = -1;
@@ -1511,7 +1519,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 				{
 					EditFile.Close();
 					SetLastError(ERROR_OPEN_FAILED); //????
-					ErrorState = error_state::fetch();
+					ErrorState = last_error();
 					UserBreak=1;
 					m_Flags.Set(FFILEEDIT_OPENFAILED);
 					return false;
@@ -1531,7 +1539,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 			{
 				EditFile.Close();
 				SetLastError(ERROR_OPEN_FAILED); //????
-				ErrorState = error_state::fetch();
+				ErrorState = last_error();
 				UserBreak=1;
 				m_Flags.Set(FFILEEDIT_OPENFAILED);
 				return false;
@@ -1581,7 +1589,11 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 
 		unsigned long long FileSize = 0;
 		// BUGBUG check result
-		(void)EditFile.GetSize(FileSize);
+		if (!EditFile.GetSize(FileSize))
+		{
+			LOGWARNING(L"GetSize({0}): {1}", EditFile.GetName(), last_error());
+		}
+
 		const time_check TimeCheck;
 
 		os::fs::filebuf StreamBuffer(EditFile, std::ios::in);
@@ -1615,14 +1627,18 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 
 				SetCursorType(false, 0);
 				const auto CurPos = EditFile.GetPointer();
-				auto Percent = CurPos * 100 / FileSize;
+				auto Percent = FileSize? CurPos * 100 / FileSize : 0;
 				// В случае если во время загрузки файл увеличивается размере, то количество
 				// процентов может быть больше 100. Обрабатываем эту ситуацию.
 				if (Percent > 100)
 				{
 					// BUGBUG check result
-					(void)EditFile.GetSize(FileSize);
-					Percent = std::min(CurPos * 100 / FileSize, 100ull);
+					if (!EditFile.GetSize(FileSize))
+					{
+						LOGWARNING(L"GetSize({0}): {1}", EditFile.GetName(), last_error());
+					}
+
+					Percent = FileSize? std::min(CurPos * 100 / FileSize, 100ull) : 100;
 				}
 				Editor::EditorShowMsg(msg(lng::MEditTitle), msg(lng::MEditReading), Name, Percent);
 			}
@@ -1644,7 +1660,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 			{
 				EditFile.Close();
 				SetLastError(ERROR_OPEN_FAILED); //????
-				ErrorState = error_state::fetch();
+				ErrorState = last_error();
 				UserBreak=1;
 				m_Flags.Set(FFILEEDIT_OPENFAILED);
 				return false;
@@ -1668,9 +1684,13 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 
 	EditFile.Close();
 	m_editor->SetCacheParams(pc, m_bAddSignature);
-	ErrorState = error_state::fetch();
+	ErrorState = last_error();
 	// BUGBUG check result
-	(void)os::fs::get_find_data(Name, FileInfo);
+	if (!os::fs::get_find_data(Name, FileInfo))
+	{
+		LOGWARNING(L"get_find_data({0}): {1}", Name, last_error());
+	}
+
 	EditorGetFileAttributes(Name);
 	return true;
 
@@ -1681,7 +1701,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 		m_editor->FreeAllocatedData();
 		m_Flags.Set(FFILEEDIT_OPENFAILED);
 		SetLastError(ERROR_NOT_ENOUGH_MEMORY);
-		ErrorState = error_state::fetch();
+		ErrorState = last_error();
 		return false;
 	}
 	catch (const std::exception&)
@@ -1691,7 +1711,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 		// TODO: better diagnostics
 		m_editor->FreeAllocatedData();
 		m_Flags.Set(FFILEEDIT_OPENFAILED);
-		ErrorState = error_state::fetch();
+		ErrorState = last_error();
 		return false;
 	}
 }
@@ -1846,7 +1866,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 				{}, &EditorSavedROId) != Message::first_button)
 				return SAVEFILE_CANCEL;
 
-			(void)os::fs::set_file_attributes(Name, FileAttr & ~FILE_ATTRIBUTE_READONLY); //BUGBUG
+			if (!os::fs::set_file_attributes(Name, FileAttr & ~FILE_ATTRIBUTE_READONLY)) //BUGBUG
+			{
+				LOGWARNING(L"set_file_attributes({0}): {1}", Name, last_error());
+			}
 		}
 	}
 	else
@@ -1862,7 +1885,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 				CreatePath(strCreatedPath);
 				if (!os::fs::exists(strCreatedPath))
 				{
-					ErrorState = error_state::fetch();
+					ErrorState = last_error();
 					return SAVEFILE_ERROR;
 				}
 			}
@@ -2006,7 +2029,11 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 	}
 
 	// BUGBUG check result
-	(void)os::fs::get_find_data(Name, FileInfo);
+	if (!os::fs::get_find_data(Name, FileInfo))
+	{
+		LOGWARNING(L"get_find_data({0}): {1}", Name, last_error());
+	}
+
 	EditorGetFileAttributes(Name);
 
 	if (m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED) || NewFile)

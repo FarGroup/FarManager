@@ -1,4 +1,15 @@
 --------------------------------------------------------------------------------
+drkns 28.02.2021 13:18:47 +0000 - build 5745
+
+1. Added mode logging.
+
+2. Log parameters can be changed after the start: update the environment variables as needed and run "far:log reconfigure".
+
+3. Minor refactoring related to #1.
+
+4. A workaround for 0003849: Exception during re-reading folder tree.
+
+--------------------------------------------------------------------------------
 drkns 23.02.2021 01:55:05 +0000 - build 5744
 
 1. Fix a few issues in the previous build.

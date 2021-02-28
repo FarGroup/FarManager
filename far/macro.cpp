@@ -3454,10 +3454,13 @@ int FarMacroApi::fattrFuncImpl(int Type)
 	{
 		auto Params = parseParams(1, mData);
 		auto& Str(Params[0]);
-		os::fs::find_data FindData;
-		// BUGBUG check result
-		(void)os::fs::get_find_data(Str.toString(), FindData);
-		FileAttr=FindData.Attributes;
+
+		// get_find_data to support wildcards
+		if (os::fs::find_data FindData; os::fs::get_find_data(Str.toString(), FindData))
+			FileAttr = FindData.Attributes;
+		else
+			FileAttr = os::fs::get_file_attributes(Str.toString());
+
 		Ret=1;
 	}
 	else // panel.fattr(1) & panel.fexist(3)

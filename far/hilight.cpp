@@ -79,7 +79,7 @@ namespace names
 {
 #define STR_INIT(x) x = WSTRVIEW(x)
 
-	static const string_view
+	static const auto
 		STR_INIT(NormalColor),
 		STR_INIT(SelectedColor),
 		STR_INIT(CursorColor),

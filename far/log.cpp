@@ -86,16 +86,19 @@ namespace
 
 		using level = logging::level;
 
-		static std::unordered_map<string_view, level> LevelMap
+		static std::unordered_map<string_view, level, hash_icase_t, equal_icase_t> LevelMap
 		{
-			{ L"fatal"sv,     level::fatal     },
-			{ L"error"sv,     level::error     },
-			{ L"warning"sv,   level::warning   },
-			{ L"notice"sv,    level::notice    },
-			{ L"info"sv,      level::info      },
-			{ L"debug"sv,     level::debug     },
-			{ L"trace"sv,     level::trace     },
-			{ L"all"sv,       level::all       },
+#define STRLEVEL(x) { WSTRVIEW(x), level::x }
+			STRLEVEL(off),
+			STRLEVEL(fatal),
+			STRLEVEL(error),
+			STRLEVEL(warning),
+			STRLEVEL(notice),
+			STRLEVEL(info),
+			STRLEVEL(debug),
+			STRLEVEL(trace),
+			STRLEVEL(all),
+#undef STRLEVEL
 		};
 
 		const auto ItemIterator = LevelMap.find(Str);
@@ -108,16 +111,19 @@ namespace
 
 		switch (Level)
 		{
-		case level::off:             return L"off";
-		case level::fatal:           return L"fatal"sv;
-		case level::error:           return L"error"sv;
-		case level::warning:         return L"warning"sv;
-		case level::notice:          return L"notice"sv;
-		case level::info:            return L"info"sv;
-		case level::debug:           return L"debug"sv;
-		case level::trace:           return L"trace"sv;
-		case level::all:             return L"all"sv;
-		default:                     return L"???"sv;
+#define LEVELTOSTR(x) case level::x: return WSTRVIEW(x)
+		LEVELTOSTR(off);
+		LEVELTOSTR(fatal);
+		LEVELTOSTR(error);
+		LEVELTOSTR(warning);
+		LEVELTOSTR(notice);
+		LEVELTOSTR(info);
+		LEVELTOSTR(debug);
+		LEVELTOSTR(trace);
+		LEVELTOSTR(all);
+#undef LEVELTOSTR
+		default:
+			return L"???"sv;
 		}
 	}
 
@@ -138,10 +144,8 @@ namespace
 
 	static std::pair<string, string> get_time()
 	{
-		const auto Time = os::chrono::nt_clock::to_filetime(os::chrono::nt_clock::now());
-		SYSTEMTIME SystemTime;
-		if (!FileTimeToSystemTime(&Time, &SystemTime))
-			return {};
+		SYSTEMTIME SystemTime{};
+		GetSystemTime(&SystemTime);
 
 		return
 		{
@@ -163,7 +167,7 @@ namespace
 
 	static string get_location(string_view const Function, string_view const Location)
 	{
-		return format(FSTR(L"{0}, {1}"), Function, Location);
+		return concat(Function, L", "sv, Location);
 	}
 
 	static string get_thread_id()
@@ -173,7 +177,7 @@ namespace
 
 	struct message
 	{
-		message(string_view const Str, logging::level const Level, string_view const Function, string_view const Location):
+		message(string_view const Str, logging::level const Level, string_view const Function, string_view const Location, size_t const TraceDepth):
 			m_ThreadId(get_thread_id()),
 			m_LevelString(level_to_string(Level)),
 			m_Data(Str),
@@ -181,6 +185,17 @@ namespace
 			m_Level(Level)
 		{
 			std::tie(m_Date, m_Time) = get_time();
+
+			if (TraceDepth)
+			{
+				m_Data += L"\nLog stack:\n"sv;
+
+				const auto FramesToSkip = 4; // log -> engine.log -> submit -> this ctor
+				tracer::get_symbols({}, os::debug::current_stack(FramesToSkip, TraceDepth), [&](string_view const TraceLine)
+				{
+					append(m_Data, TraceLine, L'\n');
+				});
+			}
 		}
 
 		message() = default;
@@ -200,12 +215,20 @@ namespace
 		NONCOPYABLE(sink);
 
 		sink() = default;
-
 		virtual ~sink() = default;
-
 		virtual void configure(string_view const Parameters) {}
-
 		virtual void handle(message Message) = 0;
+		virtual string_view get_name() = 0;
+	};
+
+	template<typename sink_type>
+	class named_sink: public sink
+	{
+	public:
+		string_view get_name() override
+		{
+			return sink_type::name;
+		}
 	};
 
 	template<bool Value>
@@ -214,11 +237,19 @@ namespace
 		static constexpr auto is_discardable = Value;
 	};
 
-	class sink_debug: public discardable<false>, public sink
+	class sink_null: public discardable<true>, public named_sink<sink_null>
 	{
 	public:
-		using sink::sink;
+		void handle(message Message) override
+		{
+		}
 
+		static constexpr string_view name = L"null"sv;
+	};
+
+	class sink_debug: public discardable<false>, public named_sink<sink_debug>
+	{
+	public:
 		void handle(message Message) override
 		{
 			os::debug::print(concat(
@@ -234,7 +265,7 @@ namespace
 		static constexpr string_view name = L"debug"sv;
 	};
 
-	class sink_console: public discardable<true>, public sink
+	class sink_console: public discardable<true>, public named_sink<sink_console>
 	{
 	public:
 		sink_console():
@@ -264,11 +295,12 @@ namespace
 
 				~console_color()
 				{
-					SetConsoleTextAttribute(m_Buffer, m_SavedAttributes);
+					if (m_SavedAttributes)
+						SetConsoleTextAttribute(m_Buffer, *m_SavedAttributes);
 				}
 
 			private:
-				WORD m_SavedAttributes;
+				std::optional<WORD> m_SavedAttributes;
 				HANDLE m_Buffer;
 			};
 
@@ -329,7 +361,7 @@ namespace
 		os::handle m_Buffer;
 	};
 
-	class sink_file: public discardable<false>, public sink
+	class sink_file: public discardable<false>, public named_sink<sink_file>
 	{
 	public:
 		explicit sink_file():
@@ -401,12 +433,15 @@ namespace
 		string_view m_Eol{ eol::win.str() };
 	};
 
-	class sink_pipe: public discardable<true>, public sink
+	class sink_pipe: public discardable<true>, public named_sink<sink_pipe>
 	{
 	public:
 		explicit sink_pipe()
 		{
-			(void)os::fs::GetModuleFileName(nullptr, nullptr, m_ThisModule);
+			if (!os::fs::GetModuleFileName(nullptr, nullptr, m_ThisModule))
+			{
+				LOGWARNING(L"GetModuleFileName(): {0}", last_error());
+			}
 		}
 
 		void connect()
@@ -422,7 +457,7 @@ namespace
 
 			if (!CreateProcess(m_ThisModule.c_str(), UNSAFE_CSTR(format(FSTR(L"\"{0}\" {1} {2}"), m_ThisModule, log_argument, m_PipeName)), {}, {}, false, CREATE_NEW_CONSOLE, {}, {}, &si, &pi))
 			{
-				LOGERROR(L"{0}", error_state::fetch());
+				LOGERROR(L"{0}", last_error());
 				return;
 			}
 
@@ -431,7 +466,7 @@ namespace
 
 			while (!ConnectNamedPipe(m_Pipe.native_handle(), {}) && GetLastError() != ERROR_PIPE_CONNECTED)
 			{
-				LOGWARNING(L"ConnectNamedPipe({0}): {1}", m_PipeName, error_state::fetch());
+				LOGWARNING(L"ConnectNamedPipe({0}): {1}", m_PipeName, last_error());
 			}
 
 			m_Connected = true;
@@ -486,17 +521,25 @@ namespace
 	{
 	protected:
 		template<typename... args>
-		async_impl(os::event& FinishEvent, bool const IsDiscardable):
-			m_FinishEvent(FinishEvent),
+		explicit async_impl(bool const IsDiscardable):
 			m_IsDiscardable(IsDiscardable)
 		{
 			m_Thread = os::thread(os::thread::mode::join, &async_impl::poll, this);
 		}
 
-		virtual ~async_impl() = default;
+		virtual ~async_impl()
+		{
+			m_FinishEvent.set();
+		}
 
 		void in(message Message)
 		{
+			if (m_Messages.size() > 10000)
+			{
+				m_Messages.clear();
+				LOGWARNING(L"Queue overflow");
+			}
+
 			m_Messages.push(std::move(Message));
 			m_MessageEvent.set();
 		}
@@ -516,6 +559,7 @@ namespace
 						if (os::handle::wait_any({ m_MessageEvent.native_handle(), m_FinishEvent.native_handle() }) != 0)
 							return;
 
+						SCOPED_ACTION(auto)(m_Messages.scoped_lock());
 						while (m_Messages.try_pop(Message))
 						{
 							if (m_IsDiscardable && m_FinishEvent.is_signaled())
@@ -533,7 +577,8 @@ namespace
 
 		os::synced_queue<message> m_Messages;
 		os::event m_MessageEvent { os::event::type::automatic, os::event::state::nonsignaled };
-		const os::event& m_FinishEvent;
+		os::event m_FinishEvent { os::event::type::manual, os::event::state::nonsignaled };
+
 		bool m_IsDiscardable;
 		os::thread m_Thread;
 	};
@@ -542,8 +587,8 @@ namespace
 	class async final: public sink_type, private async_impl
 	{
 	public:
-		async(os::event& FinishEvent, bool const IsDiscardable):
-			async_impl(FinishEvent, IsDiscardable)
+		explicit async(bool const IsDiscardable):
+			async_impl(IsDiscardable)
 		{
 		}
 
@@ -558,6 +603,21 @@ namespace
 		{
 			return sink_type::handle(std::move(Message));
 		}
+	};
+
+	template<typename sink_type>
+	class sync final: public sink_type
+	{
+	public:
+		// sink
+		void handle(message Message) override
+		{
+			SCOPED_ACTION(std::lock_guard)(m_CS);
+			sink_type::handle(std::move(Message));
+		}
+
+	private:
+		os::critical_section m_CS;
 	};
 }
 
@@ -577,17 +637,15 @@ namespace logging
 
 		engine() = default;
 
-		~engine()
-		{
-			m_Finish.set();
-		}
-
 		void configure(string_view const Parameters)
 		{
 			{
 				SCOPED_ACTION(std::lock_guard)(m_CS);
 				initialise();
 			}
+
+			if (equal_icase(Parameters, L"reconfigure"))
+				configure_env();
 
 			for (auto& i: m_Sinks)
 			{
@@ -598,73 +656,61 @@ namespace logging
 		[[nodiscard]]
 		bool filter(level const Level)
 		{
-			SCOPED_ACTION(std::lock_guard)(m_CS);
-
-			if (m_Status == engine_status::in_progress)
+			switch (m_Status)
 			{
+			case engine_status::incomplete:
+				{
+					SCOPED_ACTION(std::lock_guard)(m_CS);
+					initialise();
+				}
+				[[fallthrough]];
+			case engine_status::complete:
+				return m_Level >= Level;
+
+			case engine_status::in_progress:
 				// We don't know yet, so let it pass and be queued
 				return true;
+
+			default:
+				UNREACHABLE;
 			}
-
-			initialise();
-
-			return m_Level >= Level;
 		}
 
 		void log(string_view const Str, level const Level, string_view const Function, string_view const Location)
 		{
-			SCOPED_ACTION(std::lock_guard)(m_CS);
-
-			// Log can potentially log itself, directly or through other parts of the code.
-			// Allow one level of recursion for diagnostics
-			if (m_RecursionGuard > 1)
-				return;
-
-			++m_RecursionGuard;
-			SCOPE_EXIT{ --m_RecursionGuard; };
-
 			if (m_Status == engine_status::in_progress)
 			{
-				message Message(Str, Level, Function, Location);
+				message Message(Str, Level, Function, Location, Level <= m_TraceLevel? m_TraceDepth : 0);
 				m_QueuedMessages.emplace(std::move(Message));
+				++m_QueuedMessagesCount;
 				return;
 			}
 
-			while (!m_QueuedMessages.empty())
+			if (m_QueuedMessagesCount)
 			{
-				auto Message = std::move(m_QueuedMessages.front());
-				m_QueuedMessages.pop();
-
-				if (m_Level >= Message.m_Level)
-					submit(Message);
+				message Message;
+				SCOPED_ACTION(auto)(m_QueuedMessages.scoped_lock());
+				while (m_QueuedMessages.try_pop(Message))
+				{
+					if (m_Level >= Message.m_Level)
+						submit(Message);
+				}
+				m_QueuedMessagesCount = 0;
 			}
 
 			if (!filter(Level))
 				return;
 
-			submit({ Str, Level, Function, Location });
+			submit({ Str, Level, Function, Location, Level <= m_TraceLevel? m_TraceDepth : 0 });
 		}
 
 	private:
-		void initialise()
+		void configure_env()
 		{
-			if (m_Status == engine_status::complete)
-				return;
+			const auto Level = parse_level(get_parameter(L"level"sv), m_Level);
+			m_Level = level::off;
 
-			m_Status = engine_status::in_progress;
-
-			// No recursion if it's the helper process
-			if (contains(string_view{ GetCommandLine() }, log_argument))
-				return;
-
-			m_Level = parse_level(lower(get_parameter(L"level"sv)), m_Level);
-
-			if (m_Level == level::off)
-				return;
-
-			LOGINFO(L"{0}", build::version_string());
-
-			m_TraceLevel = parse_level(lower(get_parameter(L"trace.level"sv)), m_TraceLevel);
+			m_TraceLevel = parse_level(get_parameter(L"trace.level"sv), m_TraceLevel);
 
 			if (size_t Depth; from_string(get_parameter(L"trace.depth"sv), Depth))
 				m_TraceDepth = Depth;
@@ -673,26 +719,60 @@ namespace logging
 			std::unordered_set<string_view> SinkNames;
 			std::copy(ALL_CONST_RANGE(Enumerator), std::inserter(SinkNames, SinkNames.end()));
 
-			add_sinks
-			<
+			add_sinks<
 				sink_console,
 				sink_pipe,
 				sink_debug,
-				sink_file
+				sink_file,
+				sink_null
 			>(SinkNames);
 
-			if (m_Sinks.empty())
-				m_Level = level::off;
+			if (!m_Sinks.empty())
+				m_Level = Level;
 
 			LOGINFO(L"Logging level: {0}", level_to_string(m_Level));
+		}
 
-			m_Status = engine_status::complete;
+		void initialise()
+		{
+			if (m_Status != engine_status::incomplete)
+				return;
+
+			m_Status = engine_status::in_progress;
+			SCOPE_EXIT{ m_Status = engine_status::complete; };
+
+			// No recursion if it's the helper process
+			if (contains(string_view{ GetCommandLine() }, log_argument))
+				return;
+
+			LOGINFO(L"{0}", build::version_string());
+
+			configure_env();
 		}
 
 		template<typename T>
-		void add_sink(std::unordered_set<string_view> const& Handlers)
+		void add_sink(std::unordered_set<string_view> const& SinkNames)
 		{
-			if (!contains(Handlers, T::name))
+			const auto same_sink = [](const auto& Sink)
+			{
+				return Sink->get_name().data() == T::name.data();
+			};
+
+			if (!contains(SinkNames, T::name))
+			{
+				for (auto i = m_Sinks.cbegin(); i != m_Sinks.cend(); ++i)
+				{
+					if (same_sink(*i))
+					{
+						m_Sinks.erase(i);
+						return;
+					}
+				}
+
+				return;
+			}
+
+			if (std::any_of(ALL_CONST_RANGE(m_Sinks), same_sink))
 				return;
 
 			try
@@ -702,11 +782,9 @@ namespace logging
 				int SyncValue;
 				const auto Sync = from_string(get_sink_parameter<T>(L"sync"sv), SyncValue) && SyncValue == 1;
 
-				m_Sinks.emplace_back(
-					Sync?
-						std::make_unique<T>() :
-						std::make_unique<async<T>>(m_Finish, T::is_discardable)
-				);
+				Sync?
+					m_Sinks.emplace_back(std::make_unique<sync<T>>()) :
+					m_Sinks.emplace_back(std::make_unique<async<T>>(T::is_discardable));
 			}
 			catch (const far_exception& e)
 			{
@@ -715,37 +793,25 @@ namespace logging
 		}
 
 		template<typename... args>
-		void add_sinks(std::unordered_set<string_view> const& Handlers)
+		void add_sinks(std::unordered_set<string_view> const& SinkNames)
 		{
-			(..., add_sink<args>(Handlers));
+			(..., add_sink<args>(SinkNames));
 		}
 
-		void submit(message Message)
+		void submit(message const& Message)
 		{
-			if (Message.m_Level <= m_TraceLevel)
-			{
-				Message.m_Data += L"\nLog stack:\n"sv;
-
-				const auto FramesToSkip = 3; // log -> engine.log -> submit
-				tracer::get_symbols({}, os::debug::current_stack(FramesToSkip, m_TraceDepth), [&](string_view const TraceLine)
-				{
-					append(Message.m_Data, TraceLine, L'\n');
-				});
-			}
-
 			for (const auto& i: m_Sinks)
 				i->handle(Message);
 		}
 
-		size_t m_RecursionGuard{};
-		os::event m_Finish{ os::event::type::manual, os::event::state::nonsignaled };
 		os::concurrency::critical_section m_CS;
 		std::list<std::unique_ptr<sink>> m_Sinks;
-		std::queue<message> m_QueuedMessages;
-		level m_Level{ level::off };
+		os::concurrency::synced_queue<message> m_QueuedMessages;
+		std::atomic_size_t m_QueuedMessagesCount;
+		std::atomic<level> m_Level{ level::off };
 		level m_TraceLevel{ level::error };
 		size_t m_TraceDepth{ std::numeric_limits<size_t>::max() };
-		engine_status m_Status{ engine_status::incomplete };
+		std::atomic<engine_status> m_Status{ engine_status::incomplete };
 	};
 
 	string detail::wide(std::string_view const Str)
@@ -758,8 +824,18 @@ namespace logging
 		return log_engine.filter(Level);
 	}
 
+	static thread_local size_t RecursionGuard{};
+
 	void log(string_view const Str, level const Level, string_view const Function, string_view const Location)
 	{
+		// Log can potentially log itself, directly or through other parts of the code.
+		// Allow one level of recursion for diagnostics
+		if (RecursionGuard > 1)
+			return;
+
+		++RecursionGuard;
+		SCOPE_EXIT{ --RecursionGuard; };
+
 		log_engine.log(Str, Level, Function, Location);
 	}
 
@@ -787,7 +863,7 @@ namespace logging
 
 		while (!PipeFile.Open(PipeName, GENERIC_READ, 0, {}, OPEN_EXISTING))
 		{
-			const auto ErrorState = error_state::fetch();
+			const auto ErrorState = last_error();
 			std::wcerr << format(FSTR(L"Can't open pipe {0}: {1}"), PipeName, ErrorState.Win32ErrorStr()) << std::endl;
 
 			if (!ConsoleYesNo(L"Retry"sv, false))

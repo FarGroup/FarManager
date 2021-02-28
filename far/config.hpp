@@ -253,15 +253,27 @@ namespace detail
 		}
 
 		[[nodiscard]]
-		const auto& Get() const { return GetT<base_type>(); }
-		void Set(const base_type& Value) { SetT(Validate(Value)); Notify(); }
+		const auto& Get() const
+		{
+			return GetT<base_type>();
+		}
+
+		void Set(const base_type& Value)
+		{
+			const auto Validated = Validate(Value);
+			if (Validated == Get())
+				return;
+
+			SetT(Validated);
+			Notify();
+		}
+
 		[[nodiscard]]
 		bool TrySet(const base_type& Value)
 		{
 			if (Validate(Value) != Value)
-			{
 				return false;
-			}
+
 			SetT(Value);
 			Notify();
 			return true;

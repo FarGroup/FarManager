@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "strmix.hpp"
 #include "global.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -68,15 +69,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static void AddToPrintersMenu(VMenu2 *PrinterList, span<PRINTER_INFO_4W const> const Printers)
 {
-	// Получаем принтер по умолчанию
 	string strDefaultPrinter;
 	// BUGBUG check result
-	(void)os::GetDefaultPrinter(strDefaultPrinter);
+	if (!os::GetDefaultPrinter(strDefaultPrinter))
+	{
+		LOGWARNING(L"GetDefaultPrinter(): {0}", last_error());
+	}
 
-	// Признак наличия принтера по умолчанию
 	bool bDefaultPrinterFound = false;
 
-	// Заполняем список принтеров
 	for (const auto& printer: Printers)
 	{
 		MenuItemEx Item(printer.pPrinterName);
@@ -225,7 +226,11 @@ void PrintFiles(FileList* SrcPanel)
 				if (!Global->CtrlObject->Plugins->GetFile(hPlugin, &PanelItem.Item, strTempDir, FileName, OPM_SILENT))
 				{
 					// BUGBUG check result
-					(void)os::fs::remove_directory(strTempDir);
+					if (!os::fs::remove_directory(strTempDir))
+					{
+						LOGWARNING(L"remove_directory({0}): {1}", strTempDir, last_error());
+					}
+
 					throw MAKE_FAR_EXCEPTION(L"GetFile error"sv);
 				}
 

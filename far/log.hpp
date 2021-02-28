@@ -56,7 +56,7 @@ namespace logging
 		string wide(std::string_view Str);
 	}
 
-	enum class [[nodiscard]] level: unsigned
+	enum class level: unsigned
 	{
 		off     = detail::step * 0,
 		fatal   = detail::step * 1,

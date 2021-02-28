@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "config.hpp"
 #include "global.hpp"
+#include "exception.hpp"
+#include "log.hpp"
 
 // Platform:
 
@@ -51,6 +53,188 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 NIFTY_DEFINE(detail::locale, locale);
+
+static auto get_date_format()
+{
+	int DateFormat;
+	if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_IDATE, DateFormat))
+	{
+		LOGWARNING(L"get_locale_value(LOCALE_IDATE): {0}", last_error());
+		DateFormat = 2;
+	}
+
+	switch (DateFormat)
+	{
+	case 0:  return date_type::mdy;
+	case 1:  return date_type::dmy;
+	default: return date_type::ymd;
+	}
+}
+
+static auto get_digits_grouping()
+{
+	string Grouping;
+	if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SGROUPING, Grouping))
+	{
+		LOGWARNING(L"get_locale_value(LOCALE_SGROUPING): {0}", last_error());
+		return 3;
+	}
+
+	int DigitsGrouping = 0;
+	for (const auto i: Grouping)
+	{
+		if (in_closed_range(L'1', i, L'9'))
+			DigitsGrouping = DigitsGrouping * 10 + i - L'0';
+	}
+
+	if (!ends_with(Grouping, L";0"sv))
+		DigitsGrouping *= 10;
+
+	return DigitsGrouping;
+}
+
+static auto get_date_separator()
+{
+	const auto KnownSeparators = L"/-."sv;
+
+	string Value;
+	if (os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SSHORTDATE, Value))
+	{
+		size_t pos = 0;
+		const auto Weekday = L"ddd"sv;
+		const auto dMyg = L"dMyg"sv;
+
+		// Skip day of week, if any
+		if (starts_with(Value, Weekday))
+		{
+			pos = Value.find_first_not_of(L'd', Weekday.size());
+			// skip separators
+			pos = Value.find_first_of(dMyg, pos);
+		}
+
+		// Find a preferable separator
+		pos = Value.find_first_of(KnownSeparators);
+		if (pos != Value.npos)
+			return Value[pos];
+
+		// Find any other separator
+		pos = Value.find_first_not_of(dMyg, pos);
+		if (pos != Value.npos)
+			return Value[pos];
+	}
+	else
+	{
+		LOGDEBUG(L"get_locale_value(LOCALE_SSHORTDATE): {0}", last_error());
+	}
+
+	if (os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SDATE, Value))
+	{
+		return Value.empty()? KnownSeparators.front() : Value.front();
+	}
+	else
+	{
+		LOGWARNING(L"get_locale_value(LOCALE_SDATE): {0}", last_error());
+	}
+
+	return KnownSeparators.front();
+}
+
+static auto get_time_separator()
+{
+	string Value;
+	if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_STIME, Value))
+	{
+		LOGWARNING(L"get_locale_value(LOCALE_STIME): {0}", last_error());
+	}
+
+	return Value.empty()? L':' : Value.front();
+}
+
+static auto get_decimal_separator()
+{
+	if (Global && Global->Opt && Global->Opt->FormatNumberSeparators.size() > 1)
+	{
+		return Global->Opt->FormatNumberSeparators[1];
+	}
+
+	string Value;
+	if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, Value))
+	{
+		LOGWARNING(L"get_locale_value(LOCALE_SDECIMAL): {0}", last_error());
+	}
+
+	return Value.empty()? L'.' : Value.front();
+}
+
+static auto get_thousand_separator()
+{
+	if (Global && Global->Opt && !Global->Opt->FormatNumberSeparators.empty())
+	{
+		return Global->Opt->FormatNumberSeparators[0];
+	}
+
+	string Value;
+	if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, Value))
+	{
+		LOGWARNING(L"get_locale_value(LOCALE_STHOUSAND): {0}", last_error());
+	}
+
+	return Value.empty()? L',' : Value.front();
+}
+
+static auto get_months_names(int Language, locale_names& Names)
+{
+	const LCID CurLCID = MAKELCID(MAKELANGID(Language, SUBLANG_DEFAULT), SORT_DEFAULT);
+
+	for (const auto& [i, index]: enumerate(Names.Months))
+	{
+		if (!os::get_locale_value(CurLCID, LCTYPE(LOCALE_SMONTHNAME1 + index), i.Full))
+		{
+			LOGWARNING(L"get_locale_value(LOCALE_SMONTHNAME{0}): {1}", 1 + index, last_error());
+		}
+
+		if (!os::get_locale_value(CurLCID, LCTYPE(LOCALE_SABBREVMONTHNAME1 + index), i.Short))
+		{
+			LOGWARNING(L"get_locale_value(LOCALE_SABBREVMONTHNAME{0}): {1}", 1 + index, last_error());
+		}
+	}
+
+	// LOCALE_S[ABBREV]DAYNAME<1-7> indexes start from Monday, remap to Sunday to make them compatible with tm::tm_wday
+	static const LCTYPE DayIndexes[]
+	{
+		LOCALE_SDAYNAME7,
+		LOCALE_SDAYNAME1,
+		LOCALE_SDAYNAME2,
+		LOCALE_SDAYNAME3,
+		LOCALE_SDAYNAME4,
+		LOCALE_SDAYNAME5,
+		LOCALE_SDAYNAME6
+	};
+
+	static const LCTYPE ShortDayIndexes[]
+	{
+		LOCALE_SABBREVDAYNAME7,
+		LOCALE_SABBREVDAYNAME1,
+		LOCALE_SABBREVDAYNAME2,
+		LOCALE_SABBREVDAYNAME3,
+		LOCALE_SABBREVDAYNAME4,
+		LOCALE_SABBREVDAYNAME5,
+		LOCALE_SABBREVDAYNAME6
+	};
+
+	for (const auto& [i, index]: enumerate(Names.Weekdays))
+	{
+		if (!os::get_locale_value(CurLCID, DayIndexes[index], i.Full))
+		{
+			LOGWARNING(L"get_locale_value(DayIndexes[{0}]): {1}", index, last_error());
+		}
+
+		if (!os::get_locale_value(CurLCID, ShortDayIndexes[index], i.Short))
+		{
+			LOGWARNING(L"get_locale_value(ShortDayIndexes[{0}]): {1}", index, last_error());
+		}
+	}
+}
 
 namespace detail
 {
@@ -111,6 +295,7 @@ namespace detail
 	void locale::invalidate()
 	{
 		m_Valid = false;
+		LOGINFO(L"Locale cache invalidated");
 	}
 
 	void locale::refresh() const
@@ -118,131 +303,15 @@ namespace detail
 		if (m_Valid)
 			return;
 
-		{
-			int DateFormat;
-			if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_IDATE, DateFormat))
-				DateFormat = 2;
+		m_DateFormat = get_date_format();
+		m_DigitsGrouping = get_digits_grouping();
+		m_DateSeparator = get_date_separator();
+		m_TimeSeparator = get_time_separator();
+		m_DecimalSeparator = get_decimal_separator();
+		m_ThousandSeparator = get_thousand_separator();
 
-			switch (DateFormat)
-			{
-			case 0:
-				m_DateFormat = date_type::mdy;
-				break;
-
-			case 1:
-				m_DateFormat = date_type::dmy;
-				break;
-
-			case 2:
-			default:
-				m_DateFormat = date_type::ymd;
-				break;
-			}
-		}
-
-		{
-			string Grouping;
-			if (os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SGROUPING, Grouping))
-			{
-				m_DigitsGrouping = 0;
-				for (const auto i: Grouping)
-				{
-					if (in_closed_range(L'1', i, L'9'))
-						m_DigitsGrouping = m_DigitsGrouping * 10 + i - L'0';
-				}
-
-				if (!ends_with(Grouping, L";0"sv))
-					m_DigitsGrouping *= 10;
-			}
-			else
-			{
-				m_DigitsGrouping = 3;
-			}
-		}
-
-		{
-			string Value;
-			if (os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SSHORTDATE, Value))
-			{
-				size_t pos = 0;
-				const auto Weekday = L"ddd"sv;
-				const auto dMyg = L"dMyg"sv;
-				if (starts_with(Value, Weekday))
-				{
-					pos = Value.find_first_not_of(L'd', Weekday.size());
-					// skip separators
-					pos = Value.find_first_of(dMyg, pos);
-				}
-
-				// find separator
-				pos = Value.find_first_not_of(dMyg, pos);
-				if (pos != Value.npos)
-					m_DateSeparator = Value[pos];
-			}
-			else
-			{
-				m_DateSeparator = os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SDATE, Value) && !Value.empty()? Value.front() : L'/';
-			}
-		}
-
-		{
-			string Value;
-			m_TimeSeparator = os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_STIME, Value) && !Value.empty()? Value.front() : L':';
-		}
-
-		{
-			if (Global && Global->Opt && Global->Opt->FormatNumberSeparators.size() > 1)
-			{
-				m_DecimalSeparator = Global->Opt->FormatNumberSeparators[1];
-			}
-			else
-			{
-				string Value;
-				m_DecimalSeparator = os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, Value) && !Value.empty()? Value.front() : L'.';
-			}
-		}
-
-		{
-			if (Global && Global->Opt && !Global->Opt->FormatNumberSeparators.empty())
-			{
-				m_ThousandSeparator = Global->Opt->FormatNumberSeparators[0];
-			}
-			else
-			{
-				string Value;
-				m_ThousandSeparator = os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, Value) && !Value.empty()? Value.front() : L',';
-			}
-		}
-
-		{
-			const auto InitNames = [](int Language, locale_names& Names)
-			{
-				// LOCALE_S[ABBREV]DAYNAME<1-7> indexes start from Monday, remap to Sunday to make them compatible with tm::tm_wday
-				static const LCTYPE DayIndexes[] = { LOCALE_SDAYNAME7, LOCALE_SDAYNAME1, LOCALE_SDAYNAME2, LOCALE_SDAYNAME3, LOCALE_SDAYNAME4, LOCALE_SDAYNAME5, LOCALE_SDAYNAME6 };
-				static const LCTYPE ShortDayIndexes[] = { LOCALE_SABBREVDAYNAME7, LOCALE_SABBREVDAYNAME1, LOCALE_SABBREVDAYNAME2, LOCALE_SABBREVDAYNAME3, LOCALE_SABBREVDAYNAME4, LOCALE_SABBREVDAYNAME5, LOCALE_SABBREVDAYNAME6 };
-
-				const LCID CurLCID = MAKELCID(MAKELANGID(Language, SUBLANG_DEFAULT), SORT_DEFAULT);
-
-				for (const auto& [i, index]: enumerate(Names.Months))
-				{
-					// BUGBUG check result
-					(void)os::get_locale_value(CurLCID, LCTYPE(LOCALE_SMONTHNAME1 + index), i.Full);
-					// BUGBUG check result
-					(void)os::get_locale_value(CurLCID, LCTYPE(LOCALE_SABBREVMONTHNAME1 + index), i.Short);
-				}
-
-				for (const auto& [i, index]: enumerate(Names.Weekdays))
-				{
-					// BUGBUG check result
-					(void)os::get_locale_value(CurLCID, DayIndexes[index], i.Full);
-					// BUGBUG check result
-					(void)os::get_locale_value(CurLCID, ShortDayIndexes[index], i.Short);
-				}
-			};
-
-			InitNames(LANG_NEUTRAL, m_LocalNames);
-			InitNames(LANG_ENGLISH, m_EnglishNames);
-		}
+		get_months_names(LANG_NEUTRAL, m_LocalNames);
+		get_months_names(LANG_ENGLISH, m_EnglishNames);
 
 		m_Valid = true;
 	}

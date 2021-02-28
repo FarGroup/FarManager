@@ -1882,7 +1882,10 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 						if (!Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), &PanelItem.Item, TemporaryDirectory, strFileName, OPM_SILENT | (Edit? OPM_EDIT : OPM_VIEW)))
 						{
 							// BUGBUG check result
-							(void)os::fs::remove_directory(TemporaryDirectory);
+							if (!os::fs::remove_directory(TemporaryDirectory))
+							{
+								LOGWARNING(L"remove_directory({0}): {1}", TemporaryDirectory, last_error());
+							}
 							return true;
 						}
 					}
@@ -2683,14 +2686,22 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		{
 			const auto strTempDir = MakeTemp();
 			// BUGBUG check result
-			(void)os::fs::create_directory(strTempDir);
+			if (!os::fs::create_directory(strTempDir))
+			{
+				LOGWARNING(L"create_directory({0}): {1}", strTempDir, last_error());
+			}
+
 			PluginPanelItemHolder PanelItem;
 			FileListToPluginItem(CurItem, PanelItem);
 
 			if (!Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | OPM_EDIT))
 			{
 				// BUGBUG check result
-				(void)os::fs::remove_directory(strTempDir);
+				if (!os::fs::remove_directory(strTempDir))
+				{
+					LOGWARNING(L"remove_directory({0}): {1}", strTempDir, last_error());
+				}
+
 				return;
 			}
 			FileNameToDelete = strFileName;
@@ -2982,7 +2993,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		if (!Silent && Global->WindowManager->ManagerStarted())
 		{
 			/* $ 03.11.2001 IS Укажем имя неудачного каталога */
-			Message(MSG_WARNING, error_state::fetch(),
+			Message(MSG_WARNING, last_error(),
 				msg(lng::MError),
 				{
 					IsParent? L".."s : strSetDir
@@ -4136,7 +4147,11 @@ void FileList::UpdateViewPanel()
 	{
 		const auto strTempDir = MakeTemp();
 		// BUGBUG check result
-		(void)os::fs::create_directory(strTempDir);
+		if (!os::fs::create_directory(strTempDir))
+		{
+			LOGWARNING(L"create_directory({0}): {1}", strTempDir, last_error());
+		}
+
 		PluginPanelItemHolder PanelItem;
 		FileListToPluginItem(Current, PanelItem);
 		string strFileName;
@@ -4145,7 +4160,11 @@ void FileList::UpdateViewPanel()
 		{
 			ViewPanel->ShowFile({}, nullptr, false, nullptr);
 			// BUGBUG check result
-			(void)os::fs::remove_directory(strTempDir);
+			if (!os::fs::remove_directory(strTempDir))
+			{
+				LOGWARNING(L"remove_directory({0}): {1}", strTempDir, last_error());
+			}
+
 			return;
 		}
 
@@ -5983,7 +6002,10 @@ void FileList::PluginToPluginFiles(bool Move)
 	auto strTempDir = MakeTemp();
 	const auto OriginalTempDir = strTempDir;
 	// BUGBUG check result
-	(void)os::fs::create_directory(strTempDir);
+	if (!os::fs::create_directory(strTempDir))
+	{
+		LOGWARNING(L"create_directory({0}): {1}", strTempDir, last_error());
+	}
 
 	{
 		auto ItemList = CreatePluginItemList();
@@ -6022,7 +6044,10 @@ void FileList::PluginToPluginFiles(bool Move)
 
 		DeleteDirTree(strTempDir);
 		// BUGBUG check result
-		(void)os::fs::remove_directory(OriginalTempDir);
+		if (!os::fs::remove_directory(OriginalTempDir))
+		{
+			LOGWARNING(L"remove_directory({0}): {1}", OriginalTempDir, last_error());
+		}
 	}
 
 	Update(UPDATE_KEEP_SELECTION);
@@ -6659,7 +6684,10 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	if (Global->Opt->ShowPanelFree)
 	{
 		// BUGBUG check result
-		(void)os::fs::get_disk_size(m_CurDir, nullptr, nullptr, &FreeDiskSize);
+		if (!os::fs::get_disk_size(m_CurDir, nullptr, nullptr, &FreeDiskSize))
+		{
+			LOGWARNING(L"get_disk_size({0}): {1}", m_CurDir, last_error());
+		}
 	}
 
 	if (!m_ListData.empty())
@@ -6687,7 +6715,10 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	DWORD FileSystemFlags = 0;
 	string FileSystemName;
 	// BUGBUG check result
-	(void)os::fs::GetVolumeInformation(GetPathRoot(m_CurDir), nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName);
+	if (const auto Root = GetPathRoot(m_CurDir); !os::fs::GetVolumeInformation(Root, nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName))
+	{
+		LOGWARNING(L"GetVolumeInformation({0}): {1}", Root, last_error());
+	}
 
 	m_HardlinksSupported = true;
 	m_StreamsSupported = true;
@@ -6768,7 +6799,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 	for (const auto& fdata: Find)
 	{
-		ErrorState = error_state::fetch();
+		ErrorState = last_error();
 
 		if (fdata.Attributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM) && !Global->Opt->ShowHidden)
 			continue;
@@ -6842,7 +6873,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	}
 
 	if (!ErrorState)
-		ErrorState = error_state::fetch();
+		ErrorState = last_error();
 
 	if (!(ErrorState->Win32Error == ERROR_SUCCESS || ErrorState->Win32Error == ERROR_NO_MORE_FILES || ErrorState->Win32Error == ERROR_FILE_NOT_FOUND))
 	{
@@ -6869,7 +6900,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		}
 		else
 		{
-			LOGWARNING(L"GetFileTimeSimple({0}): {1}", m_CurDir, error_state::fetch());
+			LOGWARNING(L"GetFileTimeSimple({0}): {1}", m_CurDir, last_error());
 		}
 
 		NewItem.Position = m_ListData.size();
@@ -7121,7 +7152,10 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 		if (m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES)
 		{
 			// BUGBUG check result
-			(void)os::fs::get_disk_size(m_CurDir, nullptr, nullptr, &FreeDiskSize);
+			if (!os::fs::get_disk_size(m_CurDir, nullptr, nullptr, &FreeDiskSize))
+			{
+				LOGWARNING(L"get_disk_size({0}): {1}", m_CurDir, last_error());
+			}
 		}
 		else if (m_CachedOpenPanelInfo.Flags & OPIF_USEFREESIZE)
 			FreeDiskSize = m_CachedOpenPanelInfo.FreeSize;
@@ -7365,7 +7399,10 @@ void FileList::ReadDiz(span<PluginPanelItem> const Items)
 							}
 
 							// BUGBUG check result
-							(void)os::fs::remove_directory(strTempDir);
+							if (!os::fs::remove_directory(strTempDir))
+							{
+								LOGWARNING(L"remove_directory({0}): {1}", strTempDir, last_error());
+							}
 							//ViewPanel->ShowFile(nullptr,FALSE,nullptr);
 						}
 					}

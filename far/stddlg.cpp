@@ -734,7 +734,7 @@ bool retryable_ui_operation(function_ref<bool()> const Action, string_view const
 {
 	while (!Action())
 	{
-		switch (const auto ErrorState = error_state::fetch(); SkipErrors? operation::skip_all : OperationFailed(ErrorState, Name, lng::MError, msg(ErrorDescription)))
+		switch (const auto ErrorState = last_error(); SkipErrors? operation::skip_all : OperationFailed(ErrorState, Name, lng::MError, msg(ErrorDescription)))
 		{
 		case operation::retry:
 			continue;

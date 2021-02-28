@@ -45,8 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct error_state
 {
-	static error_state fetch();
-
 	int Errno = 0;
 	DWORD Win32Error = ERROR_SUCCESS;
 	NTSTATUS NtError = STATUS_SUCCESS;
@@ -79,6 +77,8 @@ struct error_state_ex: public error_state
 
 	string What;
 };
+
+error_state last_error();
 
 namespace detail
 {

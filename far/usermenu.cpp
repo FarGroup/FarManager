@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "file_io.hpp"
 #include "keyboard.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -285,7 +286,10 @@ void UserMenu::SaveMenu(string_view const MenuFileName) const
 			{ lng::MYes, lng::MNo }) != Message::first_button)
 			return;
 
-		(void)os::fs::set_file_attributes(MenuFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY); //BUGBUG
+		if (!os::fs::set_file_attributes(MenuFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY)) //BUGBUG
+		{
+			LOGWARNING(L"set_file_attributes({0}): {1}", MenuFileName, last_error());
+		}
 	}
 
 	try

@@ -94,6 +94,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // External:
 #include "format.hpp"
+#include "log.hpp"
 
 //----------------------------------------------------------------------------
 
@@ -287,9 +288,16 @@ static bool GetCacheTreeName(string_view const Root, string& strName, bool const
 	if (CreateDir)
 	{
 		// BUGBUG check result
-		(void)os::fs::create_directory(strFolderName);
+		if (!os::fs::create_directory(strFolderName))
+		{
+			LOGWARNING(L"create_directory({0}): {1}", strFolderName, last_error());
+		}
+
 		// BUGBUG check result
-		(void)os::fs::set_file_attributes(strFolderName, Global->Opt->Tree.TreeFileAttr);
+		if (!os::fs::set_file_attributes(strFolderName, Global->Opt->Tree.TreeFileAttr))
+		{
+			LOGWARNING(L"set_file_attributes({0}): {1}", strFolderName, last_error());
+		}
 	}
 
 	string strRemoteName;
@@ -728,8 +736,10 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 	// получим и сразу сбросим атрибуты (если получится)
 	const auto SavedAttributes = os::fs::get_file_attributes(Name);
 
-	if (SavedAttributes != INVALID_FILE_ATTRIBUTES)
-		(void)os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL); //BUGBUG
+	if (SavedAttributes != INVALID_FILE_ATTRIBUTES && !os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
+	{
+		LOGWARNING(L"set_file_attributes({0}): {1}", Name, last_error());
+	}
 
 	std::optional<error_state_ex> ErrorState;
 
@@ -751,8 +761,10 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 
 			Stream.flush();
 
-			if (SavedAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
-				(void)os::fs::set_file_attributes(Name, SavedAttributes); //BUGBUG
+			if (SavedAttributes != INVALID_FILE_ATTRIBUTES && !os::fs::set_file_attributes(Name, SavedAttributes)) //BUGBUG
+			{
+				LOGWARNING(L"set_file_attributes({0}): {1}", Name, last_error());
+			}
 		}
 		catch (const far_exception& e)
 		{
@@ -764,12 +776,16 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 	}
 	else
 	{
-		ErrorState = error_state::fetch();
+		ErrorState = last_error();
 	}
 
 	if (ErrorState)
 	{
-		(void)os::fs::delete_file(TreeCache().GetTreeName()); // BUGBUG
+		if (const auto CacheName = TreeCache().GetTreeName(); !os::fs::delete_file(CacheName)) // BUGBUG
+		{
+			LOGWARNING(L"delete_file({0}): {1}", CacheName, last_error());
+		}
+
 		if (!Global->WindowManager->ManagerIsDown())
 			Message(MSG_WARNING, *ErrorState,
 				msg(lng::MError),

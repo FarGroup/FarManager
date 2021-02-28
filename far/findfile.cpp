@@ -80,6 +80,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "global.hpp"
 #include "cvtname.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -975,7 +976,10 @@ bool background_searcher::LookForString(string_view const FileName)
 
 	unsigned long long FileSize = 0;
 	// BUGBUG check result
-	(void)File.GetSize(FileSize);
+	if (!File.GetSize(FileSize))
+	{
+		LOGWARNING(L"GetSize({0}): {1}", File.GetName(), last_error());
+	}
 
 	if (SearchInFirst)
 	{
@@ -1271,7 +1275,11 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view 
 			if (!GetFile())
 			{
 				// BUGBUG check result
-				(void)os::fs::remove_directory(strTempDir);
+				if (!os::fs::remove_directory(strTempDir))
+				{
+					LOGWARNING(L"remove_directory({0}): {1}", strTempDir, last_error());
+				}
+
 				return false;
 			}
 
@@ -1616,7 +1624,11 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							if (!bGet)
 							{
 								// BUGBUG check result
-								(void)os::fs::remove_directory(strTempDir);
+								if (!os::fs::remove_directory(strTempDir))
+								{
+									LOGWARNING(L"remove_directory({0}): {1}", strTempDir, last_error());
+								}
+
 								return FALSE;
 							}
 

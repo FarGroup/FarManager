@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "pathmix.hpp"
 #include "flink.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -101,11 +102,20 @@ void EjectVolume(string_view const Path)
 	if (!File.IoControl(FSCTL_LOCK_VOLUME, nullptr, 0, nullptr, 0))
 		throw MAKE_FAR_EXCEPTION(L"FSCTL_LOCK_VOLUME"sv);
 
-	SCOPE_EXIT{ (void)File.IoControl(FSCTL_UNLOCK_VOLUME, nullptr, 0, nullptr, 0); };
+	SCOPE_EXIT
+	{
+		if (!File.IoControl(FSCTL_UNLOCK_VOLUME, nullptr, 0, nullptr, 0))
+		{
+			LOGWARNING(L"IoControl(FSCTL_UNLOCK_VOLUME, {0}): {1}", File.GetName(), last_error());
+		}
+	};
 
 	if (!ReadOnly)
 	{
-		(void)File.FlushBuffers();
+		if (!File.FlushBuffers())
+		{
+			LOGWARNING(L"FlushBuffers({0}): {1}", File.GetName(), last_error());
+		}
 	}
 
 	if constexpr ((false))

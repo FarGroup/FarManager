@@ -1188,7 +1188,7 @@ intptr_t WINAPI apiMessageFn(const UUID* PluginId, const UUID* Id, unsigned long
 	return cpp_try(
 	[&]() -> intptr_t
 	{
-		const error_state_ex ErrorState = Flags & FMSG_ERRORTYPE? error_state::fetch() : error_state();
+		const error_state_ex ErrorState = Flags & FMSG_ERRORTYPE? last_error() : error_state();
 
 		if (Global->WindowManager->ManagerIsDown())
 			return -1;
