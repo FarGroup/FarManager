@@ -1,7 +1,12 @@
 --------------------------------------------------------------------------------
+drkns 28.02.2021 20:41:25 +0000 - build 5746
+
+1. More logging.
+
+--------------------------------------------------------------------------------
 drkns 28.02.2021 13:18:47 +0000 - build 5745
 
-1. Added mode logging.
+1. Added more logging.
 
 2. Log parameters can be changed after the start: update the environment variables as needed and run "far:log reconfigure".
 

@@ -482,6 +482,22 @@ static int handle_exception(function_ref<bool()> const Handler)
 	throw;
 }
 
+#ifndef _WIN64
+std::pair<string_view, DWORD> get_hook_wow64_error();
+
+static void log_hook_wow64_status()
+{
+	const auto [Msg, Error] = get_hook_wow64_error();
+	LOG
+	(
+		Error == ERROR_SUCCESS? logging::level::debug : logging::level::warning,
+		L"hook_wow64: {0}",
+		Msg,
+		os::format_system_error(Error, os::GetErrorString(false, Error))
+	);
+}
+#endif
+
 static int mainImpl(span<const wchar_t* const> const Args)
 {
 	setlocale(LC_ALL, "");
@@ -498,6 +514,10 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	RegisterTestExceptionsHook();
 
 	os::memory::enable_low_fragmentation_heap();
+
+#ifndef _WIN64
+	log_hook_wow64_status();
+#endif
 
 	if(!console.IsFullscreenSupported())
 	{
