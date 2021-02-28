@@ -1,6 +1,7 @@
 ﻿.Language=English,English (English)
 .PluginContents=Hello, World!
 
+
 @Contents
 $ #Hello, World!#
   This plugin for FAR Manager is intended for those programmers,
@@ -18,6 +19,5 @@ from program "Hello, World! That is this plugin does.
    Would be better in C. Whether I want too much? Well, I don't know
    C++ and do not want to learn it. And, as far as I have understood,
    plugins.hpp can be used with the C compiler..."
-
 
   Here is such history :-)

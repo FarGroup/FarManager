@@ -2464,7 +2464,7 @@ Opcja ta znacznie spowalnia wyświetlanie folderów przy wolnych połączeniach 
  Włącza pokazywanie liczby ~ekranów w tle~@ScrSwitch@.
 
  #Wyświetl literę trybu sortowania#
- Włącza pokazywanie w lewym górnym narożniku panelu informacji o bieżącym trybie sortowania. 
+ Włącza pokazywanie w lewym górnym narożniku panelu informacji o bieżącym trybie sortowania.
 
  #Pokaż ".." w głównych folderach#
  Włącza pokazywanie pozycji ".." w głównych folderach dysków.
