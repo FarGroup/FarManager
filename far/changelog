@@ -27,7 +27,7 @@ drkns 21.02.2021 21:47:47 +0000 - build 5743
      Log sink(s). Can contain one or more comma- or semicolon-separated values:
       - "debug": the system debugger.
       - "console": a new buffer in the same console window, available via the Ctrl+Shift+L hotkey or the "far:log" command.
-      - "file": a text file with a unique name. The path to the file can be specified via FAR.LOG.SINK.FILE.PATH.
+      - "file": a text file with a unique name. The file's directory can be specified via FAR.LOG.SINK.FILE.PATH.
       - "pipe": similar to "console", but in a new window.
 
 2. syslog.* and everything related to it removed.
