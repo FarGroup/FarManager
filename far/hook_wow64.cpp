@@ -73,7 +73,7 @@ std::pair<string_view, DWORD> get_hook_wow64_error()
 {
 	static const string_view Messages[]
 	{
-		L"Hook installed sucessfuly"sv,
+		L"Hook installed successfully"sv,
 		L"kernel32 not found"sv,
 		L"IsWow64Process not found"sv,
 		L"IsWow64Process error"sv,
