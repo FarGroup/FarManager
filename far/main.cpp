@@ -72,6 +72,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farversion.hpp"
 #include "exception.hpp"
 #include "log.hpp"
+#include "strmix.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -495,6 +496,18 @@ static void log_hook_wow64_status()
 		Msg,
 		os::format_system_error(Error, os::GetErrorString(false, Error))
 	);
+
+	if (Error == ERROR_INVALID_DATA)
+	{
+		if (const auto NtDll = GetModuleHandle(L"ntdll"))
+		{
+			if (const auto LdrLoadDll = GetProcAddress(NtDll, "LdrLoadDll"))
+			{
+				const auto FunctionData = reinterpret_cast<std::byte const*>(LdrLoadDll);
+				LOGWARNING(L"LdrLoadDll: {0}", BlobToHexString({ FunctionData, 32 }));
+			}
+		}
+	}
 }
 #endif
 
