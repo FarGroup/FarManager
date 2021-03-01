@@ -422,7 +422,7 @@ static bool ProcessDelDisk(panel_ptr Owner, string_view const Path, int DriveTyp
 				return true;
 			}
 
-			const auto ErrorState = error_state::fetch();
+			const auto ErrorState = last_error();
 
 			const auto LastError = ErrorState.Win32Error;
 			const auto strMsgText = format(msg(lng::MChangeDriveCannotDelSubst), DosDriveName);
@@ -482,7 +482,7 @@ static bool ProcessDelDisk(panel_ptr Owner, string_view const Path, int DriveTyp
 			if (WNetCancelConnection2(C_DosDriveName.c_str(), UpdateProfile, FALSE) == NO_ERROR)
 				return true;
 
-			const auto ErrorState = error_state::fetch();
+			const auto ErrorState = last_error();
 
 			const auto strMsgText = format(msg(lng::MChangeDriveCannotDisconnect), DosDriveName);
 			const auto LastError = ErrorState.Win32Error;
@@ -543,7 +543,7 @@ static bool ProcessDelDisk(panel_ptr Owner, string_view const Path, int DriveTyp
 			if (auto Dummy = false; detach_vhd(Path, Dummy))
 				return true;
 
-			const auto ErrorState = error_state::fetch();
+			const auto ErrorState = last_error();
 
 			Message(MSG_WARNING, ErrorState,
 				msg(lng::MError),
@@ -636,7 +636,7 @@ static void RemoveHotplugDevice(panel_ptr Owner, const disk_item& item, VMenu2 &
 		if (RemoveHotplugDrive(item.Path, false, Cancelled) || Cancelled)
 			return;
 
-		const auto ErrorState = error_state::fetch();
+		const auto ErrorState = last_error();
 
 		// восстановим пути - это избавит нас от левых данных в панели.
 		if (AMode != panel_mode::PLUGIN_PANEL)
@@ -1350,7 +1350,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			if (FarChDir(dos_drive_name(item.Path)) || (IsDisk && FarChDir(dos_drive_root_directory(item.Path))))
 				break;
 
-			error_state_ex const ErrorState = error_state::fetch();
+			error_state_ex const ErrorState = last_error();
 
 			DialogBuilder Builder(lng::MError);
 

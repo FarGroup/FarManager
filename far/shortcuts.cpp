@@ -321,7 +321,7 @@ static bool EditItemImpl(Shortcuts::shortcut& Item, bool raw)
 		{
 			if (!os::fs::exists(os::env::expand(NewItem.Folder)))
 			{
-				const auto ErrorState = error_state::fetch();
+				const auto ErrorState = last_error();
 
 				if (Message(MSG_WARNING, ErrorState,
 					msg(lng::MError),

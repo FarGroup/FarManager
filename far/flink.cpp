@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "stddlg.hpp"
 #include "string_utils.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -159,15 +160,18 @@ static bool SetREPARSE_DATA_BUFFER(const string_view Object, REPARSE_DATA_BUFFER
 	if (Attributes == INVALID_FILE_ATTRIBUTES)
 		return false;
 
-	if(Attributes&FILE_ATTRIBUTE_READONLY)
+	if (Attributes & FILE_ATTRIBUTE_READONLY && !os::fs::set_file_attributes(Object, Attributes & ~FILE_ATTRIBUTE_READONLY)) //BUGBUG
 	{
-		(void)os::fs::set_file_attributes(Object, Attributes&~FILE_ATTRIBUTE_READONLY); //BUGBUG
+		LOGWARNING(L"set_file_attributes({0}): {1}", Object, last_error());
 	}
 
 	SCOPE_EXIT
 	{
-		if (Attributes&FILE_ATTRIBUTE_READONLY)
-		(void)os::fs::set_file_attributes(Object, Attributes); //BUGBUG
+		if (Attributes & FILE_ATTRIBUTE_READONLY && !os::fs::set_file_attributes(Object, Attributes)) //BUGBUG
+		{
+			LOGWARNING(L"set_file_attributes({0}): {1}", Object, last_error());
+		}
+
 	};
 
 	if (Attributes & FILE_ATTRIBUTE_REPARSE_POINT)
@@ -406,7 +410,7 @@ bool MkHardLink(string_view const ExistingName, string_view const NewName, bool 
 		if (Silent)
 			return false;
 
-		const auto ErrorState = error_state::fetch();
+		const auto ErrorState = last_error();
 
 		if (OperationFailed(ErrorState, NewName, lng::MError, msg(lng::MCopyCannotCreateLink), false) != operation::retry)
 			break;
@@ -661,7 +665,7 @@ bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePoin
 		{
 			if (!Silent)
 			{
-				const auto ErrorState = error_state::fetch();
+				const auto ErrorState = last_error();
 
 				Message(MSG_WARNING, ErrorState,
 					msg(lng::MError),
@@ -683,7 +687,7 @@ bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePoin
 
 		if (!Silent)
 		{
-			const auto ErrorState = error_state::fetch();
+			const auto ErrorState = last_error();
 
 			Message(MSG_WARNING, ErrorState,
 				msg(lng::MError),
@@ -703,7 +707,7 @@ bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePoin
 
 		if (!Silent)
 		{
-			const auto ErrorState = error_state::fetch();
+			const auto ErrorState = last_error();
 
 			Message(MSG_WARNING, ErrorState,
 				msg(lng::MError),

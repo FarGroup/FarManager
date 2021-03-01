@@ -187,7 +187,7 @@ public:
 		auto Module = std::make_unique<oem_plugin_module>(filename);
 		if (!*Module)
 		{
-			const auto ErrorState = error_state::fetch();
+			const auto ErrorState = last_error();
 
 			Message(MSG_WARNING | MSG_NOPLUGINS, ErrorState,
 				msg(lng::MError),
@@ -203,7 +203,7 @@ public:
 		return Module;
 	}
 
-	std::unique_ptr<Plugin> CreatePlugin(const string& filename) override;
+	std::unique_ptr<Plugin> CreatePlugin(const string& FileName, size_t FileSize) override;
 
 	const std::string& PluginsRootKey()
 	{
@@ -5993,9 +5993,9 @@ static const char* GetPluginMsg(const Plugin* PluginInstance, int MsgId)
 	return static_cast<const PluginA*>(PluginInstance)->GetMsgA(MsgId);
 }
 
-std::unique_ptr<Plugin> oem_plugin_factory::CreatePlugin(const string& filename)
+std::unique_ptr<Plugin> oem_plugin_factory::CreatePlugin(const string& FileName, size_t FileSize)
 {
-	return IsPlugin(filename)? std::make_unique<PluginA>(this, filename) : nullptr;
+	return IsPlugin(FileName, FileSize)? std::make_unique<PluginA>(this, FileName) : nullptr;
 }
 
 #undef OLDFAR_TO_FAR_MAP

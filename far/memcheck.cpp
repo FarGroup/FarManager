@@ -330,7 +330,8 @@ static void* debug_allocator(size_t const size, std::align_val_t Alignment, allo
 
 			const auto FramesToSkip = 2; // This function and the operator
 			// RtlCaptureStackBackTrace is invoked directly since we don't need to make debug builds Win2k compatible
-			Info->Stack[RtlCaptureStackBackTrace(FramesToSkip, static_cast<DWORD>(std::size(Info->Stack)), Info->Stack, {})] = {};
+			if (const auto Captured = RtlCaptureStackBackTrace(FramesToSkip, static_cast<DWORD>(std::size(Info->Stack)), Info->Stack, {}); Captured < std::size(Info->Stack))
+				Info->Stack[Captured] = {};
 
 			Info->end_marker() = EndMarker;
 			Checker.register_block(Info);

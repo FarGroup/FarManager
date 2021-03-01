@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "eol.hpp"
 #include "interf.hpp"
 #include "datetime.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -351,7 +352,13 @@ static void MakeListFile(panel_ptr const& Panel, string& ListFileName, bool cons
 	if (!ListFile)
 		throw MAKE_FAR_EXCEPTION(msg(lng::MCannotCreateListTemp));
 
-	SCOPE_FAIL { (void)os::fs::delete_file(ListFileName); }; // BUGBUG
+	SCOPE_FAIL
+	{
+		if (!os::fs::delete_file(ListFileName)) // BUGBUG
+		{
+			LOGWARNING(L"delete_file({0}): {1}", ListFileName, last_error());
+		}
+	};
 
 	os::fs::filebuf StreamBuffer(ListFile, std::ios::out);
 	std::ostream Stream(&StreamBuffer);

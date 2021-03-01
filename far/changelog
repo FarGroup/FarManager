@@ -1,4 +1,20 @@
 --------------------------------------------------------------------------------
+drkns 28.02.2021 20:41:25 +0000 - build 5746
+
+1. More logging.
+
+--------------------------------------------------------------------------------
+drkns 28.02.2021 13:18:47 +0000 - build 5745
+
+1. Added more logging.
+
+2. Log parameters can be changed after the start: update the environment variables as needed and run "far:log reconfigure".
+
+3. Minor refactoring related to #1.
+
+4. A workaround for 0003849: Exception during re-reading folder tree.
+
+--------------------------------------------------------------------------------
 drkns 23.02.2021 01:55:05 +0000 - build 5744
 
 1. Fix a few issues in the previous build.
@@ -16,7 +32,7 @@ drkns 21.02.2021 21:47:47 +0000 - build 5743
      Log sink(s). Can contain one or more comma- or semicolon-separated values:
       - "debug": the system debugger.
       - "console": a new buffer in the same console window, available via the Ctrl+Shift+L hotkey or the "far:log" command.
-      - "file": a text file with a unique name. The path to the file can be specified via FAR.LOG.SINK.FILE.PATH.
+      - "file": a text file with a unique name. The file's directory can be specified via FAR.LOG.SINK.FILE.PATH.
       - "pipe": similar to "console", but in a new window.
 
 2. syslog.* and everything related to it removed.

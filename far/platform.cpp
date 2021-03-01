@@ -203,11 +203,28 @@ bool WNetGetConnection(const string_view LocalName, string &RemoteName)
 
 bool get_locale_value(LCID const LcId, LCTYPE const Id, string& Value)
 {
-	return detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](span<wchar_t> Buffer)
+	last_error_guard ErrorGuard;
+	SetLastError(ERROR_SUCCESS);
+
+	if (detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](span<wchar_t> Buffer)
 	{
 		const auto ReturnedSize = GetLocaleInfo(LcId, Id, Buffer.data(), static_cast<int>(Buffer.size()));
 		return ReturnedSize? ReturnedSize - 1 : 0;
-	});
+	}))
+	{
+		return true;
+	}
+
+	// An empty string returned
+	if (GetLastError() == ERROR_SUCCESS)
+	{
+		Value.clear();
+		return true;
+	}
+
+	// Something went wrong, it's better to leave the last error as is
+	ErrorGuard.dismiss();
+	return false;
 }
 
 bool get_locale_value(LCID const LcId, LCTYPE const Id, int& Value)
@@ -218,14 +235,12 @@ bool get_locale_value(LCID const LcId, LCTYPE const Id, int& Value)
 string GetPrivateProfileString(string_view const AppName, string_view const KeyName, string_view const Default, string_view const FileName)
 {
 	string Value;
-
-	(void)detail::ApiDynamicStringReceiver(Value, [&](span<wchar_t> const Buffer)
+	return detail::ApiDynamicStringReceiver(Value, [&](span<wchar_t> const Buffer)
 	{
 		const auto Size = ::GetPrivateProfileString(null_terminated(AppName).c_str(), null_terminated(KeyName).c_str(), null_terminated(Default).c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()), null_terminated(FileName).c_str());
 		return Size == Buffer.size() - 1? Buffer.size() * 2 : Size;
-	});
-
-	return Value;
+	})?
+		Value : string(Default);
 }
 
 bool GetWindowText(HWND Hwnd, string& Text)

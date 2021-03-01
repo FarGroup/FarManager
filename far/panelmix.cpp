@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "global.hpp"
 #include "exception.hpp"
+#include "log.hpp"
 
 // Platform:
 
@@ -330,8 +331,6 @@ std::vector<column> DeserialiseViewSettings(string_view const ColumnTitles, stri
 
 		column NewColumn{};
 
-		const auto TypeOrig = upper(Type);
-
 		if (Type.front() == L'N')
 		{
 			NewColumn.type = column_type::name;
@@ -418,17 +417,18 @@ std::vector<column> DeserialiseViewSettings(string_view const ColumnTitles, stri
 			else if (Type.size() >= 2 && Type.size() <= 3 && Type.front() == L'C')
 			{
 				size_t Index;
-				if (from_string(string_view(TypeOrig).substr(1), Index))
+				if (from_string(Type.substr(1), Index))
 					NewColumn.type = static_cast<column_type>(static_cast<size_t>(column_type::custom_0) + Index);
 				else
 				{
-					// TODO: diagnostics
+					LOGWARNING(L"Incorrect custom column {0}", Type);
+					// TODO: error message?
 				}
 			}
 			else
 			{
-				// Unknown column type
-				// TODO: error message
+				LOGWARNING(L"Unknown column type {0}", Type);
+				// TODO: error message?
 				continue;
 			}
 		}
@@ -451,15 +451,9 @@ std::vector<column> DeserialiseViewSettings(string_view const ColumnTitles, stri
 
 		// "column types" is a determinant here (see the loop header) so we can't break or continue here -
 		// if "column sizes" ends earlier or if user entered two commas we just use default size.
-		if (Width.empty())
+		if (!Width.empty() && !from_string(Width, i.width))
 		{
-			Width = L"0"sv;
-		}
-
-		if (!from_string(Width, i.width))
-		{
-			// TODO: diagnostics
-			i.width = 0;
+			LOGWARNING(L"Incorrect column width {0}", Width);
 		}
 
 		i.width_type = col_width::fixed;

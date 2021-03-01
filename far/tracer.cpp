@@ -38,9 +38,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "encoding.hpp"
 #include "pathmix.hpp"
+#include "exception.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
+#include "platform.concurrency.hpp"
 
 // Common:
 #include "common.hpp"
@@ -230,9 +233,12 @@ void tracer::get_symbol(string_view const Module, const void* Ptr, string& Addre
 }
 
 static int s_SymInitialised = 0;
+static os::concurrency::critical_section s_CS;
 
 void tracer::sym_initialise(string_view Module)
 {
+	SCOPED_ACTION(std::lock_guard)(s_CS);
+
 	if (s_SymInitialised)
 	{
 		++s_SymInitialised;
@@ -240,7 +246,11 @@ void tracer::sym_initialise(string_view Module)
 	}
 
 	string Path;
-	(void)os::fs::GetModuleFileName(nullptr, nullptr, Path);
+	if (!os::fs::GetModuleFileName(nullptr, nullptr, Path))
+	{
+		LOGWARNING(L"GetModuleFileName(): {0}", last_error());
+	}
+
 	CutToParent(Path);
 
 	if (!Module.empty())
@@ -258,6 +268,8 @@ void tracer::sym_initialise(string_view Module)
 
 void tracer::sym_cleanup()
 {
+	SCOPED_ACTION(std::lock_guard)(s_CS);
+
 	if (s_SymInitialised)
 		--s_SymInitialised;
 

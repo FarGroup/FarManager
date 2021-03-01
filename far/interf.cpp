@@ -283,6 +283,7 @@ static bool ConsoleGlobalKeysHook(const Manager::Key& key)
 	switch (key())
 	{
 	case KEY_CTRLSHIFTL:
+	case KEY_RCTRLSHIFTL:
 		logging::show();
 		return true;
 	}

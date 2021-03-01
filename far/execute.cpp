@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "global.hpp"
 #include "keys.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -483,14 +484,15 @@ static bool execute_createprocess(string const& Command, string const& Parameter
 	if (RunAs)
 		return false;
 
+	auto FullCommand = full_command(quote(Command), Parameters);
 	STARTUPINFO si{ sizeof(si) };
 
-	return CreateProcess(
+	if (!CreateProcess(
 		// We can't pass ApplicationName - if it's a bat file with a funny name (e.g. containing '&')
 		// it will fail because CreateProcess doesn't quote it properly when spawning comspec,
 		// and we can't quote it ourselves because it's not supported.
 		{},
-		full_command(quote(Command), Parameters).data(),
+		FullCommand.data(),
 		{},
 		{},
 		false,
@@ -499,7 +501,13 @@ static bool execute_createprocess(string const& Command, string const& Parameter
 		Directory.c_str(),
 		&si,
 		&pi
-	);
+	))
+	{
+		LOGINFO(L"CreateProcess({0}): {1}", FullCommand, last_error());
+		return false;
+	}
+
+	return true;
 }
 
 static bool execute_shell(string const& Command, string const& Parameters, string const& Directory, bool const RunAs, bool const Wait, HANDLE& Process)
@@ -513,7 +521,10 @@ static bool execute_shell(string const& Command, string const& Parameters, strin
 	Info.lpVerb = RunAs? L"runas" : nullptr;
 
 	if (!ShellExecuteEx(&Info))
+	{
+		LOGINFO(L"ShellExecuteEx({0}): {1}", Command, last_error());
 		return false;
+	}
 
 	Process = Info.hProcess;
 
@@ -604,7 +615,7 @@ static bool execute_impl(
 	if (execute_process())
 		return true;
 
-	if (error_state::fetch().Win32Error == ERROR_EXE_MACHINE_TYPE_MISMATCH)
+	if (last_error().Win32Error == ERROR_EXE_MACHINE_TYPE_MISMATCH)
 		return false;
 
 	ExtendedActivator(Info.WaitMode != execute_info::wait_mode::no_wait);
@@ -623,7 +634,7 @@ static bool execute_impl(
 	if (execute_shell())
 		return true;
 
-	if (error_state::fetch().Win32Error != ERROR_FILE_NOT_FOUND || UsingComspec || !UseComspec(FullCommand, Command, Parameters))
+	if (last_error().Win32Error != ERROR_FILE_NOT_FOUND || UsingComspec || !UseComspec(FullCommand, Command, Parameters))
 		return false;
 
 	UsingComspec = true;
@@ -711,7 +722,7 @@ void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator
 	if (execute_impl(Info, ConsoleActivator, FullCommand, Command, Parameters, CurrentDirectory, UsingComspec))
 		return;
 
-	const auto ErrorState = error_state::fetch();
+	const auto ErrorState = last_error();
 
 	if (ErrorState.Win32Error == ERROR_CANCELLED)
 		return;

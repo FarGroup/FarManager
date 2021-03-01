@@ -503,7 +503,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 				&& RetCode != HRT_CTRLENTER && ((m_TypeHistory == HISTORYTYPE_FOLDER && SelectedRecord.uuid.empty()) || m_TypeHistory == HISTORYTYPE_VIEW) && !os::fs::exists(SelectedRecord.name))
 			{
 				SetLastError(ERROR_FILE_NOT_FOUND);
-				const auto ErrorState = error_state::fetch();
+				const auto ErrorState = last_error();
 
 				if (SelectedRecord.type == HR_EDITOR && m_TypeHistory == HISTORYTYPE_VIEW) // Edit? тогда спросим и если надо создадим
 				{

@@ -68,6 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "FarDlgBuilder.hpp"
 #include "cvtname.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -795,7 +796,12 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 		}
 		else
 		{
-			(void)os::fs::get_find_data(*Object, SingleSelFindData);
+			// BUGBUG
+			if (!os::fs::get_find_data(*Object, SingleSelFindData))
+			{
+				LOGWARNING(L"get_find_data({0}): {1}", *Object, last_error());
+			}
+
 			SingleSelFileName = *Object;
 		}
 

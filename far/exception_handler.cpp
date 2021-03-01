@@ -557,7 +557,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 					}
 					else
 					{
-						const auto ErrorState = error_state::fetch();
+						const auto ErrorState = last_error();
 						Message(MSG_WARNING, ErrorState,
 							msg(lng::MError),
 							{
@@ -722,7 +722,7 @@ static bool ExcConsole(
 				if (write_minidump(Context, Path))
 					std::wcout << Eol << Path << std::endl;
 				else
-					std::wcerr << Eol << error_state::fetch().Win32ErrorStr() << std::endl;
+					std::wcerr << Eol << last_error().Win32ErrorStr() << std::endl;
 			}
 			break;
 
@@ -1113,7 +1113,7 @@ static bool handle_generic_exception(
 	Plugin const* const PluginModule,
 	string_view const Type,
 	string_view const Message,
-	error_state const& ErrorState = error_state::fetch(),
+	error_state const& ErrorState = last_error(),
 	span<uintptr_t const> const NestedStack = {}
 )
 {
@@ -1150,7 +1150,10 @@ static bool handle_generic_exception(
 		else
 		{
 			// BUGBUG check result
-			(void)os::fs::GetModuleFileName(nullptr, nullptr, strFileName);
+			if (!os::fs::GetModuleFileName(nullptr, nullptr, strFileName))
+			{
+				LOGWARNING(L"GetModuleFileName(): {0}", last_error());
+			}
 		}
 	}
 	else

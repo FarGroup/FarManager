@@ -113,9 +113,9 @@ DECLARE_PLUGIN_FUNCTION(iFreeContentData,     void     (WINAPI*)(const GetConten
 
 #undef DECLARE_PLUGIN_FUNCTION
 
-std::unique_ptr<Plugin> plugin_factory::CreatePlugin(const string& filename)
+std::unique_ptr<Plugin> plugin_factory::CreatePlugin(const string& FileName, size_t const FileSize)
 {
-	return IsPlugin(filename)? std::make_unique<Plugin>(this, filename) : nullptr;
+	return IsPlugin(FileName, FileSize)? std::make_unique<Plugin>(this, FileName) : nullptr;
 }
 
 plugin_factory::plugin_factory(PluginManager* owner):
@@ -169,7 +169,7 @@ plugin_factory::plugin_module_ptr native_plugin_factory::Create(const string& fi
 	auto Module = std::make_unique<native_plugin_module>(filename);
 	if (!*Module)
 	{
-		const auto ErrorState = error_state::fetch();
+		const auto ErrorState = last_error();
 
 		Module.reset();
 
@@ -203,35 +203,39 @@ bool native_plugin_factory::FindExport(const std::string_view ExportName) const
 	return ExportName == m_ExportsNames[iGetGlobalInfo].AName;
 }
 
-bool native_plugin_factory::IsPlugin(const string& FileName) const
+bool native_plugin_factory::IsPlugin(const string& FileName, size_t const FileSize) const
 {
 	if (!ends_with_icase(FileName, L".dll"sv))
 		return false;
 
 	const os::fs::file ModuleFile(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 	if (!ModuleFile)
+	{
+		LOGDEBUG(L"create_file({0}) {1}", FileName, last_error());
 		return false;
-
-	unsigned long long FileSize;
-	if (!ModuleFile.GetSize(FileSize))
-		return false;
+	}
 
 	const os::handle ModuleMapping(CreateFileMapping(ModuleFile.get().native_handle(), nullptr, PAGE_READONLY, 0, 0, nullptr));
 	if (!ModuleMapping)
+	{
+		LOGDEBUG(L"CreateFileMapping({0}), {1}", FileName, last_error());
 		return false;
+	}
 
 	const os::fs::file_view Data(MapViewOfFile(ModuleMapping.native_handle(), FILE_MAP_READ, 0, 0, 0));
 	if (!Data)
+	{
+		LOGDEBUG(L"MapViewOfFile({0}): {1}", FileName, last_error());
 		return false;
+	}
 
 	return seh_try_no_ui([&]
 	{
-		// Cast to size_t is ok here: if it's over 4G we won't even map it
-		return IsPlugin(FileName, { static_cast<unsigned char const*>(Data.get()), static_cast<size_t>(FileSize) });
+		return IsPlugin(FileName, { static_cast<unsigned char const*>(Data.get()), FileSize });
 	},
-	[](DWORD const ExceptionCode)
+	[&](DWORD const ExceptionCode)
 	{
-		LOGERROR(L"SEH exception {0}", ExceptionCode);
+		LOGERROR(L"IsPlugin({0}): SEH exception {1}", FileName, ExceptionCode);
 		return false;
 	});
 }
@@ -469,8 +473,9 @@ bool Plugin::SaveToCache()
 	}
 
 	os::fs::find_data fdata;
-	// BUGBUG check result
-	(void)os::fs::get_find_data(m_strModuleName, fdata);
+	if (!os::fs::get_find_data(m_strModuleName, fdata))
+		return false;
+
 	PlCache->SetSignature(id, MakeSignature(fdata));
 
 	const auto SaveItems = [&PlCache, &id](const auto& Setter, const PluginMenuItem& Item)
@@ -1284,9 +1289,9 @@ public:
 
 	bool Success() const { return m_Success; }
 
-	bool IsPlugin(const string& Filename) const override
+	bool IsPlugin(const string& FileName, size_t const) const override
 	{
-		const auto Result = m_Imports.pIsPlugin(Filename.c_str()) != FALSE;
+		const auto Result = m_Imports.pIsPlugin(FileName.c_str()) != FALSE;
 		ProcessError(m_Imports.pIsPlugin.name());
 		return Result;
 	}

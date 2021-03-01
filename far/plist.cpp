@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception_handler.hpp"
 #include "console.hpp"
 #include "keyboard.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -140,9 +141,14 @@ static void AddMenuItem(HWND const Window, DWORD const Pid, size_t const PidWidt
 
 	if (ShowImage)
 	{
-		if (const auto Process = os::handle(OpenProcess(imports.QueryFullProcessImageNameW? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, Pid)))
+		if (const auto Process = os::handle(OpenProcess(imports.QueryFullProcessImageNameW ? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, Pid)))
+		{
 			// BUGBUG check result
-			(void)os::fs::GetModuleFileName(Process.native_handle(), nullptr, MenuItem);
+			if (!os::fs::GetModuleFileName(Process.native_handle(), nullptr, MenuItem))
+			{
+				LOGWARNING(L"GetModuleFileName({0}): {1}", Pid, last_error());
+			}
+		}
 
 		if (MenuItem.empty())
 			MenuItem = L"???"sv;
@@ -238,7 +244,7 @@ void ShowProcessList()
 						const os::handle Process(OpenProcess(PROCESS_TERMINATE, FALSE, MenuData->Pid));
 						if (!Process || !TerminateProcess(Process.native_handle(), ERROR_PROCESS_ABORTED))
 						{
-							const auto ErrorState = error_state::fetch();
+							const auto ErrorState = last_error();
 
 							Message(MSG_WARNING, ErrorState,
 								msg(lng::MKillProcessTitle),

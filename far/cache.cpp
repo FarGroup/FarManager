@@ -35,6 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Self:
 #include "cache.hpp"
+#include "exception.hpp"
+#include "log.hpp"
 
 // Internal:
 #include "platform.fs.hpp"
@@ -74,7 +76,15 @@ void CachedRead::AdjustAlignment()
 			m_Alignment = static_cast<int>(Saad.BytesPerPhysicalSector);
 			BufferSize = 16 * Saad.BytesPerPhysicalSector;
 		}
-		(void)m_File.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, nullptr, 0, nullptr, 0);
+
+		if (!m_File.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, nullptr, 0, nullptr, 0))
+		{
+			LOGWARNING(L"IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, {0}): {1}", m_File.GetName(), last_error());
+		}
+	}
+	else
+	{
+		LOGDEBUG(L"IoControl(IOCTL_STORAGE_QUERY_PROPERTY, {0}): {1}", m_File.GetName(), last_error());
 	}
 
 	if (BufferSize > m_Buffer.size())

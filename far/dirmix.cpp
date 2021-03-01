@@ -165,7 +165,7 @@ int TestFolder(string_view const Path)
 	if (os::fs::is_not_empty_directory(Path))
 		return TSTFLD_NOTEMPTY;
 
-	const auto ErrorState = error_state::fetch();
+	const auto ErrorState = last_error();
 	const auto LastError = ErrorState.Win32Error;
 	if (LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_NO_MORE_FILES)
 		return TSTFLD_EMPTY;
@@ -213,7 +213,7 @@ bool CheckShortcutFolder(string& TestPath, bool TryClosest, bool Silent)
 		return true;
 
 	SetLastError(ERROR_PATH_NOT_FOUND);
-	const auto ErrorState = error_state::fetch();
+	const auto ErrorState = last_error();
 
 	const auto Target = truncate_path(TestPath, ScrX - 16);
 

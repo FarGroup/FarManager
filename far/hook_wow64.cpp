@@ -43,6 +43,56 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+enum class hook_error
+{
+	success,
+	kernel_handle,
+	is_wow_function,
+	is_wow,
+	not_wow,
+	disable_redirection_function,
+	revert_redirection_function,
+	ntdll_handle,
+	ldr_load_dll_function,
+	ldr_load_dll_data_unknown,
+	remove_protection_push_offset,
+	remove_protection_function_data,
+	remove_protection_wow,
+
+	count
+};
+
+static struct
+{
+	hook_error Hook;
+	DWORD Win32;
+}
+Error;
+
+std::pair<string_view, DWORD> get_hook_wow64_error()
+{
+	static const string_view Messages[]
+	{
+		L"Hook installed successfully"sv,
+		L"kernel32 not found"sv,
+		L"IsWow64Process not found"sv,
+		L"IsWow64Process error"sv,
+		L"Not a WOW64 process"sv,
+		L"Wow64DisableWow64FsRedirection not found"sv,
+		L"Wow64RevertWow64FsRedirection not found"sv,
+		L"ntdll not found"sv,
+		L"LdrLoadDll not found"sv,
+		L"LdrLoadDll data is unknown"sv,
+		L"Cannot remove protection from push offset"sv,
+		L"Cannot remove protection from function data"sv,
+		L"Cannot remove protection from wow"sv,
+	};
+
+	static_assert(std::size(Messages) == static_cast<size_t>(hook_error::count));
+
+	return { Messages[static_cast<size_t>(Error.Hook)], Error.Win32 };
+}
+
 static thread_local void* SavedState;
 
 static const volatile struct wow
@@ -170,28 +220,59 @@ static void init_hook() noexcept
 {
 	const auto Kernel32 = GetModuleHandle(L"kernel32");
 	if (!Kernel32)
+	{
+		Error = { hook_error::kernel_handle, GetLastError() };
 		return;
+	}
 
 	BOOL IsWowValue;
 	const auto IsWow = GETPROCADDRESS(Kernel32, IsWow64Process);
-	if (!IsWow || !IsWow(GetCurrentProcess(), &IsWowValue) || !IsWowValue)
+	if (!IsWow)
+	{
+		Error = { hook_error::is_wow_function, GetLastError() };
 		return;
+	}
+
+	if (!IsWow(GetCurrentProcess(), &IsWowValue))
+	{
+		Error = { hook_error::is_wow, GetLastError() };
+		return;
+	}
+
+	if (!IsWowValue)
+	{
+		Error = { hook_error::not_wow, ERROR_SUCCESS };
+		return;
+	}
+
 
 	const auto Disable = GETPROCADDRESS(Kernel32, Wow64DisableWow64FsRedirection);
 	if (!Disable)
+	{
+		Error = { hook_error::disable_redirection_function, GetLastError() };
 		return;
+	}
 
 	const auto Revert = GETPROCADDRESS(Kernel32, Wow64RevertWow64FsRedirection);
 	if (!Revert)
+	{
+		Error = { hook_error::revert_redirection_function, GetLastError() };
 		return;
+	}
 
 	const auto Ntdll = GetModuleHandle(L"ntdll");
 	if (!Ntdll)
+	{
+		Error = { hook_error::ntdll_handle, GetLastError() };
 		return;
+	}
 
 	const auto LdrLoadDll = GetProcAddress(Ntdll, "LdrLoadDll");
 	if (!LdrLoadDll)
+	{
+		Error = { hook_error::ldr_load_dll_function, GetLastError() };
 		return;
+	}
 
 	const auto FunctionData = reinterpret_cast<BYTE*>(LdrLoadDll);
 
@@ -209,7 +290,10 @@ static void init_hook() noexcept
 			FunctionData[4] == 0xEC
 		))
 	)
+	{
+		Error = { hook_error::ldr_load_dll_data_unknown, ERROR_INVALID_DATA };
 		return;
+	}
 
 	auto loff = *reinterpret_cast<DWORD const*>(FunctionData + 1);
 	const auto p_loff = reinterpret_cast<BYTE*>(&hook_ldr) + HookPushOffset;
@@ -227,7 +311,10 @@ static void init_hook() noexcept
 			*reinterpret_cast<DWORD*>(p_loff) = loff;
 		}
 		else
+		{
+			Error = { hook_error::remove_protection_push_offset, GetLastError() };
 			return;
+		}
 	}
 
 	PACK_PUSH(1)
@@ -248,7 +335,10 @@ static void init_hook() noexcept
 		std::memcpy(FunctionData, &Data, sizeof(Data));
 	}
 	else
+	{
+		Error = { hook_error::remove_protection_function_data, GetLastError() };
 		return;
+	}
 
 	if (SCOPED_ACTION(remove_protection){ const_cast<wow*>(&Wow), sizeof(Wow) })
 	{
@@ -256,6 +346,13 @@ static void init_hook() noexcept
 		MutableWow.disable = Disable;
 		MutableWow.revert = Revert;
 	}
+	else
+	{
+		Error = { hook_error::remove_protection_wow, GetLastError() };
+		return;
+	}
+
+	Error = { hook_error::success, ERROR_SUCCESS };
 }
 
 

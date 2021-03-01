@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "strmix.hpp"
 #include "config.hpp"
+#include "log.hpp"
 
 // Platform:
 
@@ -112,8 +113,7 @@ public:
 			}
 		}
 
-		// not changed
-		// TODO: diagnostics
+		LOGWARNING(L"Invalid integer value {0}", Item->strData);
 	}
 
 	const wchar_t* GetMask() const

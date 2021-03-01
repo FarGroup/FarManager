@@ -76,7 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace names
 {
-	static const string_view
+	static const auto
 		STR_INIT(Filters),
 		STR_INIT(FoldersFilter),
 		STR_INIT(Filter),
@@ -104,7 +104,7 @@ namespace names
 // TODO 2020 Q4: remove
 namespace legacy_names
 {
-	static const string_view
+	static const auto
 		STR_INIT(FFlags),
 		STR_INIT(FoldersFilterFFlags),
 		STR_INIT(IgnoreMask),

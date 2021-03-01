@@ -49,7 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-error_state error_state::fetch()
+error_state last_error()
 {
 	return
 	{
@@ -93,7 +93,7 @@ string error_state::to_string() const
 namespace detail
 {
 	far_base_exception::far_base_exception(bool const CaptureErrors, string_view const Message, const char* const Function, string_view const File, int const Line):
-		error_state_ex(CaptureErrors? fetch() : error_state{}, Message),
+		error_state_ex(CaptureErrors? last_error(): error_state{}, Message),
 		m_Function(Function),
 		m_Location(format(FSTR(L"{0}:{1}"), File, Line)),
 		m_FullMessage(format(FSTR(L"{0} (at {1}, {2})"), Message, encoding::utf8::get_chars(m_Function), m_Location))

@@ -57,7 +57,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
  ~O programie Far~@About@
  ~Licencja (po angielsku)~@License@
 
- ~Przełączniki linii poleceń~@CmdLine@
+ ~Przełączniki wiersza poleceń~@CmdLine@
  ~Skróty klawiszowe~@KeyRef@
  ~Obsługa wtyczek~@Plugins@
  ~Przegląd możliwości wtyczek~@PluginsReviews@
@@ -98,7 +98,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
  ~Ustawienia interfejsu~@InterfSettings@
  ~Ustawienia okien dialogowych~@DialogSettings@
  ~Ustawienia menu~@VMenuSettings@
- ~Ustawienia linii poleceń~@CmdlineSettings@
+ ~Ustawienia wiersza poleceń~@CmdlineSettings@
 
  ~Podświetlanie plików i sortowanie grup~@Highlight@
  ~Opisy plików~@FileDiz@
@@ -188,8 +188,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 @CmdLine
-$ #Far: przełączniki linii poleceń#
- W linii poleceń mogą być użyte następujące przełączniki:
+$ #Far: przełączniki wiersza poleceń#
+ W wierszu poleceń mogą być użyte następujące przełączniki:
 
  #-e[<linia>[:<poz>]] <nazwa_pliku>#
  Edytuj wskazany plik. Po -e można opcjonalnie podać numer linii i pozycję w linii
@@ -278,7 +278,7 @@ zastąpione standardowym tekstem okna Far, zależnym od kontekstu programu.
 zalecany do normalnej pracy programu.
 
  Istnieje możliwość podania maksymalnie dwóch ścieżek (do folderów, plików lub archiwów)
-lub dwóch poleceń z przedrostkami wtyczek w linii poleceń. Pierwsza ścieżka dotyczy
+lub dwóch poleceń z przedrostkami wtyczek w wierszu poleceń. Pierwsza ścieżka dotyczy
 panelu aktywnego, druga - panelu pasywnego:
  - ^<wrap>jeżeli podano folder lub archiwum, Far pokaże jego zawartość;
  - ^<wrap>jeżeli podano plik, Far przejdzie do foldera gdzie plik jest umieszczony,
@@ -293,7 +293,7 @@ Pojedyncze litery przedrostów A-Z lub błędy liter dysków będą ignorowane.
 $ #Skróty klawiszowe#
  ~Polecenia kontroli panelu~@PanelCmd@
 
- ~Linia poleceń~@CmdLineCmd@
+ ~Wiersz poleceń~@CmdLineCmd@
 
  ~Zarządzanie plikami i polecenia serwisowe~@FuncCmd@
 
@@ -337,7 +337,7 @@ $ #Polecenia kontroli panelu#
  Zmień wysokość panelu                           #Ctrl+Góra,Ctrl+Dół#
  Zmień wysokość bieżącego panelu     #Ctrl+Shift+Góra,Ctrl+Shift+Dół#
  Zmień szerokość panelu                        #Ctrl+Lewo,Ctrl+Prawo#
- (tylko gdy linia poleceń jest pusta)
+ (tylko gdy wiersz poleceń jest pusty)
  Przywróć domyślną szerokość paneli                    #Ctrl+Numpad5#
  Przywróć domyślną wysokość paneli                 #Ctrl+Alt+Numpad5#
  Pokaż/Ukryj pasek skrótów w dolnej linii                    #Ctrl+B#
@@ -404,7 +404,7 @@ lub w ~panelu informacyjnym~@InfoPanel@, foldery będą zmieniane nie w aktywnym
 lecz w pasywnym oknie panelu.
 
  #Ctrl+Ins#
- Kopiuj nazwę zaznaczonych plików do schowka (jeżeli linia poleceń jest pusta).
+ Kopiuj nazwę zaznaczonych plików do schowka (jeżeli wiersz poleceń jest pusty).
 
  #Ctrl+Shift+Ins#
  Kopiuje nazwy zaznaczonych plików do schowka.
@@ -491,8 +491,8 @@ klawisz skrótu dla transliteracji.
 
 
 @CmdLineCmd
-$ #Ułatwienia w linii poleceń#
- #Standardowe skróty w linii poleceń#
+$ #Ułatwienia w wierszu poleceń#
+ #Standardowe skróty w wierszu poleceń#
 
  Przejdź o znak w lewo                                  #Lewo,Ctrl+S#
  Przejdź o znak w prawo                                #Prawo,Ctrl+D#
@@ -509,7 +509,7 @@ $ #Ułatwienia w linii poleceń#
  Wklej ze schowka                                         #Shift+Ins#
  Poprzednie polecenie                                        #Ctrl+E#
  Następne polecenie                                          #Ctrl+X#
- Wyczyść linię poleceń                                       #Ctrl+Y#
+ Wyczyść wiersz poleceń                                      #Ctrl+Y#
 
  #Polecenia wstawiania#
 
@@ -536,11 +536,11 @@ ale przeskakuje do następnego pliku o nazwie pasującej do wprowadzonego tekstu
 
  Uwaga:
 
- 1. ^<wrap>Jeżeli linia poleceń jest pusta, #Ctrl+Ins# kopiuje nazwy zaznaczony plików
+ 1. ^<wrap>Jeżeli wiersz poleceń jest pusty, #Ctrl+Ins# kopiuje nazwy zaznaczony plików
 z panelu do schowka jak #Ctrl+Shift+Ins# (zobacz ~Polecenia kontroli panelu~@PanelCmd@);
 
- 2. ^<wrap>#Ctrl+End# wciśnięte na końcu linii poleceń, zamienia jego aktualną zawartość
-poleceniem z ~historii~@History@ rozpoczynając od znaków wprowadzonych do linii poleceń,
+ 2. ^<wrap>#Ctrl+End# wciśnięte na końcu wiersza poleceń, zamienia jego aktualną zawartość
+poleceniem z ~historii~@History@ rozpoczynając od znaków wprowadzonych do wiersza poleceń,
 jeżeli takie polecenie było wprowadzone. Kolejne wciśnięcie #Ctrl+End# przejdzie do kolejnego
 takiego polecenia.
 
@@ -548,7 +548,7 @@ takiego polecenia.
 włączając pola edycji w oknach dialogowych i wewnętrznym edytorze.
 
  4. ^<wrap>#Alt+Shift+Lewo#, #Alt+Shift+Prawo#, #Alt+Shift+Home# i #Alt+Shift+End# zaznaczają
-blok w linii poleceń także gdy panele są włączone.
+blok w wierszu poleceń także gdy panele są włączone.
 
  5. ^<wrap>Dla lokalnych dysków, polecenie wstawienia nazwy sieciowej pliku (UNC) wstawiania
 lokalną nazwę pliku z rozwiniętym ~linkiem symbolicznym~@HardSymLink@.
@@ -778,7 +778,7 @@ ponieważ będą zapisane w historii.
  Przeskocz na domyślny element okna dialogowego                #PgDn#
 
  Poniższe kombinacje klawiszy są dostępne dla wszystkich pól edycji
-za wyjątkiem linii poleceń, włączając okna dialogowe i ~wewnętrzny edytor~@Editor@.
+za wyjątkiem wiersza poleceń, włączając okna dialogowe i ~wewnętrzny edytor~@Editor@.
 
  Wstaw podświetloną nazwę pliku/folderu                 #Shift+Enter#
 
@@ -804,8 +804,8 @@ za wyjątkiem linii poleceń, włączając okna dialogowe i ~wewnętrzny edytor~
 
  Kliknięcie #środkowym klawiszem myszy# w ~panelu~@PanelCmd@ daje ten sam efekt
 jak wciśnięcie klawisza #Enter#. Także z klawiszami modyfikującymi polecenie
-(#Ctrl#, #Alt#, #Shift#). Jeżeli ~linia poleceń~@CmdLineCmd@ nie jest pusta,
-jej zawartość zostanie wykonana.
+(#Ctrl#, #Alt#, #Shift#). Jeżeli ~wiersz poleceń~@CmdLineCmd@ nie jest pusty,
+jego zawartość zostanie wykonana.
 
  Far Manager wspiera także obsługę ~rolki myszy~@MsWheel@.
 
@@ -881,7 +881,7 @@ jeżeli wyszukiwanie z głównego foldera będzie nieskuteczne.
  Jeżeli wtyczka nie zawiera pliku pomocy, pomoc kontekstowa nie zostanie wyświetlona.
 
  Jeżeli aktywny panel pokazuje wtyczkę emulującą system plików, polecenie "CD"
-w linii poleceń może być użyte do zmiany folderu wtyczki. Inaczej niż polecenia "CD", "CHDIR"
+w wierszu poleceń może być użyte do zmiany folderu wtyczki. Inaczej niż polecenia "CD", "CHDIR"
 podany parametr zawsze jest traktowany jak rzeczywisty folder bez względu na typ panelu plików.
 
  Użyj klawiszy #Alt+Shift+F9# aby ~skonfigurować wtyczki~@PluginsConfig@.
@@ -987,7 +987,7 @@ nieograniczone możliwości rozbudowy programu Far.
  * Wyświetlanie plików pomocy Windows (.hlp i .chm).
  * Kalkulatory z wieloma różnymi możliwościami.
  * Kilka gier :-)
- * Funkcja sprawdzanie pisowni podczas edycji plików tekstowych w edytorze Far.
+ * Funkcja sprawdzania pisowni podczas edycji plików tekstowych w edytorze Far.
  * Przygotowanie katalogu dysków wymiennych i wiele więcej…
 
  Jako źródło informacji, gdzie można znaleźć wtyczki możemy zarekomendować:
@@ -1125,7 +1125,7 @@ Bieżący tryb - far:config #Panel.ShowBytes# (domyślnie=fałsz).
 wielkość fizycznie zainstalowanej pamięci (Windows Vista i nowsze), całkowita i wolna wielkość
 fizycznej pamięci (dostępnej dla Windows), pamięć wirtualna i plik stronicowania.
 
- 4. ^<wrap>plik #opisu folderu#.
+ 4. ^<wrap>Plik #opisu folderu#.
     ^<wrap>Można podejrzeć zawartość pliku opisu foldera na pełnym ekranie wciskając klawisz
 #F3# lub klikając #lewym przyciskiem myszy#. Do edycji lub utworzenia pliku opisu należy
 wcisnąć klawisz #F4# lub kliknąć #prawym klawiszem myszy#. Można także użyć wielu poleceń
@@ -1298,7 +1298,7 @@ $ #Menu#
  Aby wybrać operację z menu, należy wcisnąć #F9# lub kliknąć na górną belkę
 okna programu.
 
- Jeżeli menu jest aktywowanie przez naciśnięcie#F9#, automatycznie wybierane
+ Jeżeli menu jest aktywowanie przez naciśnięcie #F9#, automatycznie wybierane
 jest menu dla aktywnego panelu. Jeżeli menu jest aktywne, wciśnięcie #Tab#
 przełącza pomiędzy menu dla lewego i prawego panelu. Jeżeli menu "Pliki",
 "Polecenia" lub "Opcje" są aktywne, wciśnięcie #Tab# powoduje przejście
@@ -1344,7 +1344,7 @@ datę ostatniego zapisu, daty utworzenia i ostatniego użycia, atrybuty. Tryb pe
 
  #Panel informacyjny#   Zmienia typ panelu na ~panel informacyjny~@InfoPanel@.
 
- #Drzewo plików#        Zmienia typ panelu na ~drzewko plików~@TreePanel@.
+ #Drzewo plików#        Zmienia typ panelu na ~drzewo plików~@TreePanel@.
 
  #Szybki podgląd#       Zmienia typ panelu na ~szybki podgląd~@QViewPanel@.
 
@@ -1450,7 +1450,8 @@ $ #Menu: menu polecenia#
 
  #Skróty folderów#      Wyświetla ustawione ~skróty do folderów~@FolderShortcuts@.
 
- #Edit sort groups#     Allows to edit user defined ~sort groups~@SortGroups@.
+ #Edytuj grupy#         Pozwala na edycję zdefiniowanych przez użytkownika ~grup sortowania~@SortGroups@.
+ #sortowania#
 
  #Filtr panelu plików#  Pozwana na kontrolę zawartości panelu plików.
                       Więcej informacji: ~menu filtrów~@FiltersMenu@.
@@ -1492,7 +1493,7 @@ $ #Menus: menu opcje#
 
  #Ustawienia menu#       Pokazuje okno ~Ustawień menu~@VMenuSettings@.
 
- #Ustawienia linii#      Pokazuje okno ~Ustawień linii poleceń~@CmdlineSettings@.
+ #Ustawienia wiersza#    Pokazuje okno ~Ustawień wiersza poleceń~@CmdlineSettings@.
  #poleceń#
 
  #Ustawienia#            Pokazuje okno ~Ustawień AutoUzupełniania~@AutoCompleteSettings@.
@@ -1592,7 +1593,7 @@ Aby ~podświetlić~@Highlight@ wszystkie archiwa za wyjątkiem "*.rar" - należy
 
  #F7#          - ^<wrap>znajduje wszystkie grupy zawierające szukaną maskę
 
-  Zobacz także: ~menu Opcje~@OptMenu@ i ~Polecenia kontroli menu~@MenuCmd@.
+ Zobacz także: ~menu Opcje~@OptMenu@ i ~Polecenia kontroli menu~@MenuCmd@.
 
 
 @ChoosePluginMenu
@@ -1922,10 +1923,10 @@ i zawiera wszystkie uwzględnienia oraz żadnego z atrybutów wykluczenia:
  #[ ]# - ^<wrap>wyłączenia atrybutu - plik nie może posiadać tego atrybutu.
  #[?]# - ^<wrap>atrybut jest ignorowany.
 
- Atrybuty #Skompresowany#, #Zaszyfrowany#, #Sparse#, #Tymczasowy# i #Offline# używane
-są tylko na dyskach z systemem NTFS.
-Atrybuty #Strumień integralności# i #Brak danych kontrolnych# są obsługiwane tylko
-na wolumenach ReFS począwszy od Windows Server 2012.
+ Atrybuty #Skompresowany#, #Zaszyfrowany#, #Nie zaindeksowany#, #Rzadki#, #Tymczasowy#, #Offline#
+i #Punkt dowiązania# są dostępne tylko na dyskach z systemem NTFS.
+Atrybuty #Strumień integralności# i #Brak danych kontrolnych# są obsługiwane tylko na wolumenach ReFS
+począwszy od Windows Server 2012.
 
  #Ma więcej niż jeden twardy link#
  Używany tylko na dyskach z systemem NTFS. Warunek jest prawdziwy, jeśli dane
@@ -1948,7 +1949,7 @@ dostępne są poniższe skróty klawiszowe:
 
  Wykonaj polecenie jako administrator                 #Ctrl+Alt+Enter#
 
- Kopiuj nazwę pliku do linii poleceń                      #Ctrl+Enter#
+ Kopiuj nazwę pliku do wiersza poleceń                    #Ctrl+Enter#
 
  Wyczyść całą historię poleceń                                   #Del#
 
@@ -1962,7 +1963,7 @@ dostępne są poniższe skróty klawiszowe:
  Pokaż dodatkowe informacje                                       #F3#
 
  Aby przejść do poprzedniego lub następnego polecenia bezpośrednio
-z linii polecenie należy wcisnąć odpowiednio #Ctrl+E# lub #Ctrl+X#.
+z wiersza poleceń należy wcisnąć odpowiednio #Ctrl+E# lub #Ctrl+X#.
 
  Jeżeli historia ma zostać zapisana po wyjściu z Far, należy włączyć
 odpowiednią opcję w ~Ustawieniach systemowych~@SystemSettings@ programu.
@@ -1980,7 +1981,7 @@ kursorów, dodatkowo dostępne są poniższe skróty klawiszowe:
 
  Ponownie otwórz plik do podglądu lub edycji                   #Enter#
 
- Kopiuj nazwę pliku do linii poleceń                      #Ctrl+Enter#
+ Kopiuj nazwę pliku do wiersza poleceń                    #Ctrl+Enter#
 
  Wyczyść całą historię poleceń                                   #Del#
 
@@ -2021,7 +2022,7 @@ poruszać się za pomocą klawiszy kursorów, dodatkowo dostępne są poniższe 
 
  Otwórz wybrany folder w panelu pasywnym            #Ctrl+Shift+Enter#
 
- Skopiuj nazwę folderu do linii poleceń                   #Ctrl+Enter#
+ Skopiuj nazwę folderu do wiersza poleceń                 #Ctrl+Enter#
 
  Wyczyść całą historię poleceń                                   #Del#
 
@@ -2051,7 +2052,7 @@ jest zablokowany lub nie jest dostępny zasób zewnętrzny.
 
 @TaskList
 $ #Lista zadań#
-  Lista zadań wyświetla aktywne aplikacje. Każda linia zawiera identyfikator
+ Lista zadań wyświetla aktywne aplikacje. Każda linia zawiera identyfikator
 procesu (PID), tytuł okna lub ścieżkę do pliku wykonywalnego.
 
  Z listy zadań można przejść do okna danej aplikacji, lub zabić proces wciskając
@@ -2463,7 +2464,7 @@ Opcja ta znacznie spowalnia wyświetlanie folderów przy wolnych połączeniach 
  Włącza pokazywanie liczby ~ekranów w tle~@ScrSwitch@.
 
  #Wyświetl literę trybu sortowania#
- Włącza pokazywanie w lewym górnym narożniku panelu informacji o bieżącym trybie sortowania. 
+ Włącza pokazywanie w lewym górnym narożniku panelu informacji o bieżącym trybie sortowania.
 
  #Pokaż ".." w głównych folderach#
  Włącza pokazywanie pozycji ".." w głównych folderach dysków.

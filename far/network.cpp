@@ -148,7 +148,7 @@ bool ConnectToNetworkResource(string_view const NewDir)
 			return true;
 		else if (Result != ERROR_ACCESS_DENIED && Result != ERROR_INVALID_PASSWORD && Result != ERROR_LOGON_FAILURE)
 		{
-			Message(MSG_WARNING, error_state::fetch(),
+			Message(MSG_WARNING, last_error(),
 				msg(lng::MError),
 				{
 					string(NewDir)

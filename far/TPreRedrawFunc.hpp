@@ -88,8 +88,16 @@ public:
 	template<typename callable>
 	void operator()(const callable& Callable)
 	{
-		if (!m_Items.empty())
-			Callable(dynamic_cast<typename function_traits<callable>::template arg<0>>(*m_Items.top()));
+		if (m_Items.empty())
+			return;
+
+		// M#3849 - apparently sometimes the top handler isn't the one we're looking for.
+		// TODO: investigate further.
+		const auto Handler = dynamic_cast<std::remove_reference_t<typename function_traits<callable>::template arg<0>>*>(m_Items.top().get());
+		if (!Handler)
+			return;
+
+		Callable(*Handler);
 	}
 
 private:
