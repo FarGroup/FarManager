@@ -491,7 +491,7 @@ static void log_hook_wow64_status()
 	LOG
 	(
 		Error == ERROR_SUCCESS? logging::level::debug : logging::level::warning,
-		L"hook_wow64: {0}",
+		L"hook_wow64: {0} {1}",
 		Msg,
 		os::format_system_error(Error, os::GetErrorString(false, Error))
 	);

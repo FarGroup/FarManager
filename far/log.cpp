@@ -411,7 +411,18 @@ namespace
 	private:
 		static string make_filename()
 		{
-			return path::join(get_sink_parameter<sink_file>(L"path"sv), MkStrFTime(L"Far.%Y.%m0.%d_%H.%M.%S.txt"sv));
+			SYSTEMTIME SystemTime{};
+			GetSystemTime(&SystemTime);
+
+			auto [Date, Time] = get_time();
+			std::replace(ALL_RANGE(Date), L'/', L'.');
+			std::replace(ALL_RANGE(Time), L':', L'.');
+
+			return path::join
+			(
+				get_sink_parameter<sink_file>(L"path"sv),
+				format(L"Far.{0}_{1}_{2}.txt"sv, Date, Time, GetCurrentProcessId())
+			);
 		}
 
 		static os::fs::file open_file()
@@ -715,20 +726,25 @@ namespace logging
 			if (size_t Depth; from_string(get_parameter(L"trace.depth"sv), Depth))
 				m_TraceDepth = Depth;
 
+			if (Level == level::off && m_Sinks.empty())
+				return;
+
 			const auto Enumerator = enum_tokens(get_parameter(L"sink"sv), L",;"sv);
 			std::unordered_set<string_view> SinkNames;
 			std::copy(ALL_CONST_RANGE(Enumerator), std::inserter(SinkNames, SinkNames.end()));
 
-			add_sinks<
+			configure_sinks<
 				sink_console,
 				sink_pipe,
 				sink_debug,
 				sink_file,
 				sink_null
-			>(SinkNames);
+			>(SinkNames, Level != level::off);
 
-			if (!m_Sinks.empty())
-				m_Level = Level;
+			if (m_Sinks.empty())
+				return;
+
+			m_Level = Level;
 
 			LOGINFO(L"Logging level: {0}", level_to_string(m_Level));
 		}
@@ -751,7 +767,7 @@ namespace logging
 		}
 
 		template<typename T>
-		void add_sink(std::unordered_set<string_view> const& SinkNames)
+		void configure_sink(std::unordered_set<string_view> const& SinkNames, bool const AllowAdd)
 		{
 			const auto same_sink = [](const auto& Sink)
 			{
@@ -772,7 +788,7 @@ namespace logging
 				return;
 			}
 
-			if (std::any_of(ALL_CONST_RANGE(m_Sinks), same_sink))
+			if (!AllowAdd || std::any_of(ALL_CONST_RANGE(m_Sinks), same_sink))
 				return;
 
 			try
@@ -793,9 +809,9 @@ namespace logging
 		}
 
 		template<typename... args>
-		void add_sinks(std::unordered_set<string_view> const& SinkNames)
+		void configure_sinks(std::unordered_set<string_view> const& SinkNames, bool const AllowAdd)
 		{
-			(..., add_sink<args>(SinkNames));
+			(..., configure_sink<args>(SinkNames, AllowAdd));
 		}
 
 		void submit(message const& Message)
@@ -805,7 +821,7 @@ namespace logging
 		}
 
 		os::concurrency::critical_section m_CS;
-		std::list<std::unique_ptr<sink>> m_Sinks;
+		std::vector<std::unique_ptr<sink>> m_Sinks;
 		os::concurrency::synced_queue<message> m_QueuedMessages;
 		std::atomic_size_t m_QueuedMessagesCount;
 		std::atomic<level> m_Level{ level::off };
