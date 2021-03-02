@@ -140,6 +140,6 @@ void save_file_with_replace(string_view const FileName, os::fs::attributes const
 	// No error checking - non-critical
 	if (!os::fs::set_file_attributes(FileName, NewAttributes))
 	{
-		LOGWARNING(L"set_file_attributes({0}): {1}", FileName, last_error());
+		LOGWARNING(L"set_file_attributes({}): {}", FileName, last_error());
 	}
 }

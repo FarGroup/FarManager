@@ -459,7 +459,7 @@ void PluginManager::LoadPlugins()
 
 			const auto PluginsDirectory = ConvertNameToLong(ConvertNameToFull(strFullName));
 
-			LOGINFO(L"Loading plugins from {0}", PluginsDirectory);
+			LOGINFO(L"Loading plugins from {}", PluginsDirectory);
 
 			ScTree.SetFindPath(PluginsDirectory, L"*"sv);
 
@@ -1039,12 +1039,12 @@ bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 		{
 			if (!os::fs::set_file_attributes(Result, FILE_ATTRIBUTE_NORMAL)) // BUGBUG
 			{
-				LOGWARNING(L"set_file_attributes({0}): {1}", Result, last_error());
+				LOGWARNING(L"set_file_attributes({}): {}", Result, last_error());
 			}
 
 			if (!os::fs::delete_file(Result)) //BUGBUG
 			{
-				LOGWARNING(L"delete_file({0}): {1}", Result, last_error());
+				LOGWARNING(L"delete_file({}): {}", Result, last_error());
 			}
 		}
 	}

@@ -151,13 +151,13 @@ namespace
 		return
 		{
 			format(
-				FSTR(L"{0:04}/{1:02}/{2:02}"),
+				FSTR(L"{:04}/{:02}/{:02}"),
 				SystemTime.wYear,
 				SystemTime.wMonth,
 				SystemTime.wDay
 			),
 			format(
-				FSTR(L"{0:02}:{1:02}:{2:02}.{3:03}"),
+				FSTR(L"{:02}:{:02}:{:02}.{:03}"),
 				SystemTime.wHour,
 				SystemTime.wMinute,
 				SystemTime.wSecond,
@@ -403,7 +403,7 @@ namespace
 			{
 				m_File.Close();
 
-				LOGERROR(L"{0}", e);
+				LOGERROR(L"{}", e);
 			}
 		}
 
@@ -422,7 +422,7 @@ namespace
 			return path::join
 			(
 				get_sink_parameter<sink_file>(L"path"sv),
-				format(L"Far.{0}_{1}_{2}.txt"sv, Date, Time, GetCurrentProcessId())
+				format(L"Far.{}_{}_{}.txt"sv, Date, Time, GetCurrentProcessId())
 			);
 		}
 
@@ -432,7 +432,7 @@ namespace
 			if (!File)
 				throw MAKE_FAR_EXCEPTION(L"Can't create a log file"sv);
 
-			LOGINFO(L"Logging to {0}", File.GetName());
+			LOGINFO(L"Logging to {}", File.GetName());
 
 			File.SetPointer(0, {}, FILE_END);
 			return File;
@@ -452,7 +452,7 @@ namespace
 		{
 			if (!os::fs::GetModuleFileName(nullptr, nullptr, m_ThisModule))
 			{
-				LOGWARNING(L"GetModuleFileName(): {0}", last_error());
+				LOGWARNING(L"GetModuleFileName(): {}", last_error());
 			}
 		}
 
@@ -467,9 +467,9 @@ namespace
 			STARTUPINFO si{ sizeof(si) };
 			PROCESS_INFORMATION pi{};
 
-			if (!CreateProcess(m_ThisModule.c_str(), UNSAFE_CSTR(format(FSTR(L"\"{0}\" {1} {2}"), m_ThisModule, log_argument, m_PipeName)), {}, {}, false, CREATE_NEW_CONSOLE, {}, {}, &si, &pi))
+			if (!CreateProcess(m_ThisModule.c_str(), UNSAFE_CSTR(format(FSTR(L"\"{}\" {} {}"), m_ThisModule, log_argument, m_PipeName)), {}, {}, false, CREATE_NEW_CONSOLE, {}, {}, &si, &pi))
 			{
-				LOGERROR(L"{0}", last_error());
+				LOGERROR(L"{}", last_error());
 				return;
 			}
 
@@ -478,7 +478,7 @@ namespace
 
 			while (!ConnectNamedPipe(m_Pipe.native_handle(), {}) && GetLastError() != ERROR_PIPE_CONNECTED)
 			{
-				LOGWARNING(L"ConnectNamedPipe({0}): {1}", m_PipeName, last_error());
+				LOGWARNING(L"ConnectNamedPipe({}): {}", m_PipeName, last_error());
 			}
 
 			m_Connected = true;
@@ -516,14 +516,14 @@ namespace
 			{
 				disconnect();
 
-				LOGERROR(L"{0}", e);
+				LOGERROR(L"{}", e);
 			}
 		}
 
 		static constexpr string_view name = L"pipe"sv;
 
 	private:
-		string m_PipeName{ format(FSTR(L"\\\\.\\pipe\\far_{0}.log"), GetCurrentProcessId()) };
+		string m_PipeName{ format(FSTR(L"\\\\.\\pipe\\far_{}.log"), GetCurrentProcessId()) };
 		os::handle m_Pipe{ CreateNamedPipe(m_PipeName.c_str(), PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, {}) };
 		string m_ThisModule;
 		bool m_Connected{};
@@ -593,7 +593,7 @@ namespace
 				},
 				[](DWORD const ExceptionCode)
 				{
-					LOGERROR(L"SEH Exception {0}", ExceptionCode);
+					LOGERROR(L"SEH Exception {}", ExceptionCode);
 				});
 		}
 
@@ -790,7 +790,7 @@ namespace logging
 			if (m_Sinks.empty())
 				m_Level = level::off;
 			else
-				LOGINFO(L"Logging level: {0}", level_to_string(m_Level));
+				LOGINFO(L"Logging level: {}", level_to_string(m_Level));
 		}
 
 		void initialise()
@@ -805,7 +805,7 @@ namespace logging
 			if (contains(string_view{ GetCommandLine() }, log_argument))
 				return;
 
-			LOGINFO(L"{0}", build::version_string());
+			LOGINFO(L"{}", build::version_string());
 
 			configure_env();
 		}
@@ -854,7 +854,7 @@ namespace logging
 			}
 			catch (const far_exception& e)
 			{
-				LOGERROR(L"{0}", e);
+				LOGERROR(L"{}", e);
 			}
 		}
 
@@ -930,7 +930,7 @@ namespace logging
 		while (!PipeFile.Open(PipeName, GENERIC_READ, 0, {}, OPEN_EXISTING))
 		{
 			const auto ErrorState = last_error();
-			std::wcerr << format(FSTR(L"Can't open pipe {0}: {1}"), PipeName, ErrorState.Win32ErrorStr()) << std::endl;
+			std::wcerr << format(FSTR(L"Can't open pipe {}: {}"), PipeName, ErrorState.Win32ErrorStr()) << std::endl;
 
 			if (!ConsoleYesNo(L"Retry"sv, false))
 				return EXIT_FAILURE;
@@ -957,7 +957,7 @@ namespace logging
 				if (e.Win32Error == ERROR_BROKEN_PIPE)
 					return EXIT_SUCCESS;
 
-				std::wcerr << format(FSTR(L"Error reading pipe {0}: {1}"), PipeName, e.format_error()) << std::endl;
+				std::wcerr << format(FSTR(L"Error reading pipe {}: {}"), PipeName, e.format_error()) << std::endl;
 				return EXIT_FAILURE;
 			}
 

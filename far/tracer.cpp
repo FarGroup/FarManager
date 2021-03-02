@@ -153,7 +153,7 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 #endif
 			;
 
-		return format(FSTR(L"0x{0:0{1}X}"), Value, Width);
+		return format(FSTR(L"0x{:0{}X}"), Value, Width);
 	};
 
 	const auto GetName = [&](uintptr_t const Address)
@@ -171,7 +171,7 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 	{
 		const auto Location = [](string_view const File, unsigned const Line)
 		{
-			return format(FSTR(L"{0}:{1}"), File, Line);
+			return format(FSTR(L"{}:{}"), File, Line);
 		};
 
 		DWORD Displacement;
@@ -248,7 +248,7 @@ void tracer::sym_initialise(string_view Module)
 	string Path;
 	if (!os::fs::GetModuleFileName(nullptr, nullptr, Path))
 	{
-		LOGWARNING(L"GetModuleFileName(): {0}", last_error());
+		LOGWARNING(L"GetModuleFileName(): {}", last_error());
 	}
 
 	CutToParent(Path);

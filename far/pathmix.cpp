@@ -838,19 +838,19 @@ TEST_CASE("path.CutToParent")
 	TestCases[]
 	{
 		// root directory, shall fail
-		{ L"{0}"sv,                  L"{0}"sv,        false, false},
+		{ L"{}"sv,                  L"{}"sv,        false, false},
 
 		// one level, shall return root directory
-		{ L"{0}dir1"sv,              L"{0}"sv,        true,  true },
+		{ L"{}dir1"sv,              L"{}"sv,        true,  true },
 
 		// one level without root, shall fail
-		{ L"dir1"sv,                 L"dir1"sv,       false, false },
+		{ L"dir1"sv,                L"dir1"sv,      false, false },
 
 		// two levels, shall return first level
-		{ L"{0}dir1\\dir2"sv,        L"{0}dir1"sv,    false, true },
+		{ L"{}dir1\\dir2"sv,        L"{}dir1"sv,    false, true },
 
 		// two levels with trailing slash, shall return first level
-		{ L"{0}dir1\\dir2\\"sv,      L"{0}dir1"sv,    false, true },
+		{ L"{}dir1\\dir2\\"sv,      L"{}dir1"sv,    false, true },
 	};
 
 	for (const auto& Root: TestRoots)

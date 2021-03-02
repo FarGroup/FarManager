@@ -623,7 +623,7 @@ void ShellDelete::process_item(
 				{
 					if (FindData.Attributes & FILE_ATTRIBUTE_READONLY && !os::fs::set_file_attributes(strFullName, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
 					{
-						LOGWARNING(L"set_file_attributes({0}): {1}", strFullName, last_error());
+						LOGWARNING(L"set_file_attributes({}): {}", strFullName, last_error());
 					}
 
 					bool Dummy = false;
@@ -675,7 +675,7 @@ void ShellDelete::process_item(
 				{
 					if (FindData.Attributes & FILE_ATTRIBUTE_READONLY && !os::fs::set_file_attributes(strFullName, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
 					{
-						LOGWARNING(L"set_file_attributes({0}): {1}", strFullName, last_error());
+						LOGWARNING(L"set_file_attributes({}): {}", strFullName, last_error());
 					}
 
 					bool Dummy = false;
@@ -701,7 +701,7 @@ void ShellDelete::process_item(
 
 	if (SelFindData.Attributes & FILE_ATTRIBUTE_READONLY && !os::fs::set_file_attributes(strSelName, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
 	{
-		LOGWARNING(L"set_file_attributes({0}): {1}", strSelName, last_error());
+		LOGWARNING(L"set_file_attributes({}): {}", strSelName, last_error());
 	}
 
 	bool RetryRecycleAsRemove = false;
@@ -826,7 +826,7 @@ bool ShellDelete::ConfirmDeleteReadOnlyFile(string_view const Name, os::fs::attr
 	case Message::first_button:
 		if (!os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
 		{
-			LOGWARNING(L"set_file_attributes({0}): {1}", Name, last_error());
+			LOGWARNING(L"set_file_attributes({}): {}", Name, last_error());
 		}
 
 		return true;
@@ -1046,7 +1046,7 @@ void DeleteDirTree(string_view const Dir)
 	{
 		if (!os::fs::set_file_attributes(strFullName, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
 		{
-			LOGWARNING(L"set_file_attributes({0}): {1}", strFullName, last_error());
+			LOGWARNING(L"set_file_attributes({}): {}", strFullName, last_error());
 		}
 
 		if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -1054,7 +1054,7 @@ void DeleteDirTree(string_view const Dir)
 			// BUGBUG check result
 			if (ScTree.IsDirSearchDone() && !os::fs::remove_directory(strFullName))
 			{
-				LOGWARNING(L"remove_directory({0}): {1}", strFullName, last_error());
+				LOGWARNING(L"remove_directory({}): {}", strFullName, last_error());
 			}
 		}
 		else
@@ -1062,7 +1062,7 @@ void DeleteDirTree(string_view const Dir)
 			// BUGBUG check result
 			if (!os::fs::delete_file(strFullName))
 			{
-				LOGWARNING(L"delete_file({0}): {1}", strFullName, last_error());
+				LOGWARNING(L"delete_file({}): {}", strFullName, last_error());
 			}
 		}
 	}
@@ -1070,13 +1070,13 @@ void DeleteDirTree(string_view const Dir)
 	// BUGBUG check result
 	if (!os::fs::set_file_attributes(Dir, FILE_ATTRIBUTE_NORMAL))
 	{
-		LOGWARNING(L"set_file_attributes({0}): {1}", Dir, last_error());
+		LOGWARNING(L"set_file_attributes({}): {}", Dir, last_error());
 	}
 
 	// BUGBUG check result
 	if (!os::fs::remove_directory(Dir))
 	{
-		LOGWARNING(L"remove_directory({0}): {1}", Dir, last_error());
+		LOGWARNING(L"remove_directory({}): {}", Dir, last_error());
 	}
 
 }
@@ -1086,7 +1086,7 @@ bool DeleteFileWithFolder(string_view const FileName)
 	auto strFileOrFolderName = unquote(FileName);
 	if (!os::fs::set_file_attributes(strFileOrFolderName, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
 	{
-		LOGWARNING(L"set_file_attributes({0}): {1}", strFileOrFolderName, last_error());
+		LOGWARNING(L"set_file_attributes({}): {}", strFileOrFolderName, last_error());
 	}
 
 	if (!os::fs::delete_file(strFileOrFolderName))
@@ -1110,12 +1110,12 @@ delayed_deleter::~delayed_deleter()
 			if (CutToParent(Folder))
 			{
 				if (!os::fs::remove_directory(Folder))
-					LOGWARNING(L"remove_directory({0}): {1}", i, last_error());
+					LOGWARNING(L"remove_directory({}): {}", i, last_error());
 			}
 		}
 		else
 		{
-			LOGWARNING(L"delete_file({0}): {1}", i, last_error());
+			LOGWARNING(L"delete_file({}): {}", i, last_error());
 		}
 	}
 }

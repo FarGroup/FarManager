@@ -113,7 +113,7 @@ public:
 			}
 		}
 
-		LOGWARNING(L"Invalid integer value {0}", Item->strData);
+		LOGWARNING(L"Invalid integer value {}", Item->strData);
 	}
 
 	const wchar_t* GetMask() const
@@ -415,7 +415,7 @@ DialogItemEx* DialogBuilder::AddIntEditField(IntOption& Value, int Width)
 DialogItemEx* DialogBuilder::AddHexEditField(IntOption& Value, int Width)
 {
 	const auto Item = AddDialogItem(DI_FIXEDIT, L"");
-	Item->strData = format(FSTR(L"{0:016X}"), as_unsigned(Value.Get()));
+	Item->strData = format(FSTR(L"{:016X}"), as_unsigned(Value.Get()));
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width - 1;
 

@@ -492,7 +492,7 @@ static void log_hook_wow64_status()
 	LOG
 	(
 		Error == ERROR_SUCCESS? logging::level::debug : logging::level::warning,
-		L"hook_wow64: {0} {1}",
+		L"hook_wow64: {} {}",
 		Msg,
 		os::format_system_error(Error, os::GetErrorString(false, Error))
 	);
@@ -504,7 +504,7 @@ static void log_hook_wow64_status()
 			if (const auto LdrLoadDll = GetProcAddress(NtDll, "LdrLoadDll"))
 			{
 				const auto FunctionData = reinterpret_cast<std::byte const*>(LdrLoadDll);
-				LOGWARNING(L"LdrLoadDll: {0}", BlobToHexString({ FunctionData, 32 }));
+				LOGWARNING(L"LdrLoadDll: {}", BlobToHexString({ FunctionData, 32 }));
 			}
 		}
 	}
@@ -900,7 +900,7 @@ int main()
 	},
 	[](DWORD const ExceptionCode) -> int
 	{
-		LOGFATAL(L"Abnormal exit due to SEH exception {0}", ExceptionCode);
+		LOGFATAL(L"Abnormal exit due to SEH exception {}", ExceptionCode);
 		std::_Exit(ExceptionCode? ExceptionCode : EXIT_FAILURE);
 	},
 	__FUNCTION__);

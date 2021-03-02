@@ -146,7 +146,7 @@ static void AddMenuItem(HWND const Window, DWORD const Pid, size_t const PidWidt
 			// BUGBUG check result
 			if (!os::fs::GetModuleFileName(Process.native_handle(), nullptr, MenuItem))
 			{
-				LOGWARNING(L"GetModuleFileName({0}): {1}", Pid, last_error());
+				LOGWARNING(L"GetModuleFileName({}): {}", Pid, last_error());
 			}
 		}
 
@@ -160,7 +160,7 @@ static void AddMenuItem(HWND const Window, DWORD const Pid, size_t const PidWidt
 
 	const auto Self = Pid == GetCurrentProcessId() || Window == console.GetWindow();
 
-	MenuItemEx NewItem(format(FSTR(L"{0:{1}} {2} {3}"), Pid, PidWidth, BoxSymbols[BS_V1], MenuItem), Self? MIF_CHECKED : MIF_NONE);
+	MenuItemEx NewItem(format(FSTR(L"{:{}} {} {}"), Pid, PidWidth, BoxSymbols[BS_V1], MenuItem), Self? MIF_CHECKED : MIF_NONE);
 	// for sorting
 	NewItem.ComplexUserData = menu_data{ WindowTitle, Pid, Window };
 	Menu->AddItem(NewItem);

@@ -74,7 +74,7 @@ namespace os::version
 		if (!Translation)
 			return false;
 
-		m_BlockPath = format(FSTR(L"\\StringFileInfo\\{0:04X}{1:04X}\\"), LOWORD(*Translation), HIWORD(*Translation));
+		m_BlockPath = format(FSTR(L"\\StringFileInfo\\{:04X}{:04X}\\"), LOWORD(*Translation), HIWORD(*Translation));
 		return true;
 	}
 

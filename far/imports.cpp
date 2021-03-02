@@ -54,9 +54,9 @@ namespace imports_detail
 	void imports::log_missing_import(const os::rtdl::module& Module, std::string_view const Name)
 	{
 		if (Module)
-			LOGWARNING(L"[{0}:{1}]: function not found", Module.name(), encoding::utf8::get_chars(Name));
+			LOGWARNING(L"[{}:{}]: function not found", Module.name(), encoding::utf8::get_chars(Name));
 		else
-			LOGWARNING(L"[{0}:{1}]: module not loaded", Module.name(), encoding::utf8::get_chars(Name));
+			LOGWARNING(L"[{}:{}]: module not loaded", Module.name(), encoding::utf8::get_chars(Name));
 	}
 
 // ntdll

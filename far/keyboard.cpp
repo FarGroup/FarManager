@@ -297,7 +297,7 @@ void InitKeysArray()
 					}
 					else
 					{
-						LOGWARNING(L"Unsupported layout: {0}", Value);
+						LOGWARNING(L"Unsupported layout: {}", Value);
 					}
 				}
 			}
@@ -1426,12 +1426,12 @@ static string KeyToTextImpl(unsigned int const Key0, tfkey_to_text ToText, add_s
 		if (FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
 		{
 			AddSeparator(strKeyText);
-			format_to(strKeyText, FSTR(L"Spec{0:0>5}"), FKey - KEY_VK_0xFF_BEGIN);
+			format_to(strKeyText, FSTR(L"Spec{:0>5}"), FKey - KEY_VK_0xFF_BEGIN);
 		}
 		else if (FKey > KEY_VK_0xFF_END && FKey <= KEY_END_FKEY)
 		{
 			AddSeparator(strKeyText);
-			format_to(strKeyText, FSTR(L"Oem{0:0>5}"), FKey - KEY_FKEY_BEGIN);
+			format_to(strKeyText, FSTR(L"Oem{:0>5}"), FKey - KEY_FKEY_BEGIN);
 		}
 		else
 		{

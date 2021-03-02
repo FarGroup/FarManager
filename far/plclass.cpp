@@ -211,21 +211,21 @@ bool native_plugin_factory::IsPlugin(const string& FileName, size_t const FileSi
 	const os::fs::file ModuleFile(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 	if (!ModuleFile)
 	{
-		LOGDEBUG(L"create_file({0}) {1}", FileName, last_error());
+		LOGDEBUG(L"create_file({}) {}", FileName, last_error());
 		return false;
 	}
 
 	const os::handle ModuleMapping(CreateFileMapping(ModuleFile.get().native_handle(), nullptr, PAGE_READONLY, 0, 0, nullptr));
 	if (!ModuleMapping)
 	{
-		LOGDEBUG(L"CreateFileMapping({0}), {1}", FileName, last_error());
+		LOGDEBUG(L"CreateFileMapping({}), {}", FileName, last_error());
 		return false;
 	}
 
 	const os::fs::file_view Data(MapViewOfFile(ModuleMapping.native_handle(), FILE_MAP_READ, 0, 0, 0));
 	if (!Data)
 	{
-		LOGDEBUG(L"MapViewOfFile({0}): {1}", FileName, last_error());
+		LOGDEBUG(L"MapViewOfFile({}): {}", FileName, last_error());
 		return false;
 	}
 
@@ -235,7 +235,7 @@ bool native_plugin_factory::IsPlugin(const string& FileName, size_t const FileSi
 	},
 	[&](DWORD const ExceptionCode)
 	{
-		LOGERROR(L"IsPlugin({0}): SEH exception {1}", FileName, ExceptionCode);
+		LOGERROR(L"IsPlugin({}): SEH exception {}", FileName, ExceptionCode);
 		return false;
 	});
 }
@@ -840,7 +840,7 @@ bool Plugin::InitLang(string_view const Path, string_view const Language)
 	}
 	catch (const std::exception& e)
 	{
-		LOGERROR(L"{0}", e);
+		LOGERROR(L"{}", e);
 		return false;
 	}
 }

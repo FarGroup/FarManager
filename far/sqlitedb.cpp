@@ -118,11 +118,11 @@ namespace
 	[[noreturn]]
 	void throw_exception(string_view const DatabaseName, int const ErrorCode, string_view const ErrorString = {}, int const SystemErrorCode = 0)
 	{
-		throw MAKE_EXCEPTION(far_sqlite_exception, true, format(FSTR(L"[{0}] - SQLite error {1}: {2}{3}"),
+		throw MAKE_EXCEPTION(far_sqlite_exception, true, format(FSTR(L"[{}] - SQLite error {}: {}{}"),
 			DatabaseName,
 			ErrorCode,
 			ErrorString.empty()? GetErrorString(ErrorCode) : ErrorString,
-			SystemErrorCode? format(FSTR(L" ({0})"), os::format_system_error(SystemErrorCode, os::GetErrorString(false, SystemErrorCode))) : L""s
+			SystemErrorCode? format(FSTR(L" ({})"), os::format_system_error(SystemErrorCode, os::GetErrorString(false, SystemErrorCode))) : L""s
 		));
 	}
 
@@ -156,13 +156,13 @@ void SQLiteDb::library_load()
 	if (const auto Result = sqlite::sqlite3_initialize(); Result != SQLITE_OK)
 	{
 		assert(false);
-		LOGERROR(L"sqlite3_initialize(): {0}", GetErrorString(Result));
+		LOGERROR(L"sqlite3_initialize(): {}", GetErrorString(Result));
 	}
 
 	if (const auto Result = sqlite_unicode::sqlite3_unicode_load(); Result != SQLITE_OK)
 	{
 		assert(false);
-		LOGERROR(L"sqlite3_unicode_load(): {0}", GetErrorString(Result));
+		LOGERROR(L"sqlite3_unicode_load(): {}", GetErrorString(Result));
 	}
 }
 
@@ -173,7 +173,7 @@ void SQLiteDb::library_free()
 	if (const auto Result = sqlite::sqlite3_shutdown(); Result != SQLITE_OK)
 	{
 		assert(false);
-		LOGERROR(L"sqlite3_shutdown(): {0}", GetErrorString(Result));
+		LOGERROR(L"sqlite3_shutdown(): {}", GetErrorString(Result));
 	}
 }
 
@@ -192,7 +192,7 @@ void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* Object
 		if (const auto Result = sqlite::sqlite3_finalize(Object); Result != SQLITE_OK)
 		{
 			assert(false);
-			LOGERROR(L"sqlite3_finalize(): {0}", GetErrorString(Result));
+			LOGERROR(L"sqlite3_finalize(): {}", GetErrorString(Result));
 		}
 		return true;
 	});
@@ -215,7 +215,7 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Reset()
 		if (const auto Result = sqlite::sqlite3_reset(m_Stmt.get()); Result != SQLITE_OK)
 		{
 			assert(false);
-			LOGERROR(L"sqlite3_reset(): {0}", GetErrorString(Result));
+			LOGERROR(L"sqlite3_reset(): {}", GetErrorString(Result));
 		}
 		return true;
 	});
@@ -362,7 +362,7 @@ void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const noexcept
 	if (const auto Result = sqlite::sqlite3_close(Object); Result != SQLITE_OK)
 	{
 		assert(false);
-		LOGERROR(L"sqlite3_close(): {0}", GetLastErrorString(Object));
+		LOGERROR(L"sqlite3_close(): {}", GetLastErrorString(Object));
 	}
 }
 
@@ -413,7 +413,7 @@ public:
 
 			if (!os::fs::set_file_attributes(TmpDbPath, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
 			{
-				LOGWARNING(L"set_file_attributes({0}): {1}", TmpDbPath, last_error());
+				LOGWARNING(L"set_file_attributes({}): {}", TmpDbPath, last_error());
 			}
 
 			SourceDb = open(TmpDbPath, BusyHandler);
@@ -430,7 +430,7 @@ public:
 				if (const auto Result = sqlite::sqlite3_backup_finish(Backup); Result != SQLITE_OK)
 				{
 					assert(false);
-					LOGERROR(L"sqlite3_backup_finish(): {0}", GetErrorString(Result));
+					LOGERROR(L"sqlite3_backup_finish(): {}", GetErrorString(Result));
 				}
 			}
 		};

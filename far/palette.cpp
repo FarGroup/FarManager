@@ -255,7 +255,7 @@ static palette::custom_colors CustomColors;
 
 static string CustomLabel(size_t Index)
 {
-	return format(FSTR(L"CustomColor{0}"), Index);
+	return format(FSTR(L"CustomColor{}"), Index);
 }
 
 void palette::Load()

@@ -73,7 +73,7 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, span<PRINTER_INFO_4W const> c
 	// BUGBUG check result
 	if (!os::GetDefaultPrinter(strDefaultPrinter))
 	{
-		LOGWARNING(L"GetDefaultPrinter(): {0}", last_error());
+		LOGWARNING(L"GetDefaultPrinter(): {}", last_error());
 	}
 
 	bool bDefaultPrinterFound = false;
@@ -228,7 +228,7 @@ void PrintFiles(FileList* SrcPanel)
 					// BUGBUG check result
 					if (!os::fs::remove_directory(strTempDir))
 					{
-						LOGWARNING(L"remove_directory({0}): {1}", strTempDir, last_error());
+						LOGWARNING(L"remove_directory({}): {}", strTempDir, last_error());
 					}
 
 					throw MAKE_FAR_EXCEPTION(L"GetFile error"sv);

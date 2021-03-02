@@ -288,7 +288,7 @@ void UserMenu::SaveMenu(string_view const MenuFileName) const
 
 		if (!os::fs::set_file_attributes(MenuFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY)) //BUGBUG
 		{
-			LOGWARNING(L"set_file_attributes({0}): {1}", MenuFileName, last_error());
+			LOGWARNING(L"set_file_attributes({}): {}", MenuFileName, last_error());
 		}
 	}
 
