@@ -552,6 +552,26 @@ TEST_CASE("keep_alive")
 
 //----------------------------------------------------------------------------
 
+#include "common/lazy.hpp"
+
+TEST_CASE("lazy")
+{
+	int CallCount = 0;
+	int Magic1 = 42, Magic2 = 69;
+	lazy<int> Value([&]{ ++CallCount; return Magic1; });
+
+	REQUIRE(CallCount == 0);
+	REQUIRE(Value == Magic1);
+	REQUIRE(Value == Magic1);
+	REQUIRE(CallCount == 1);
+
+	Value.get() = Magic2;
+	REQUIRE(Value == Magic2);
+	REQUIRE(CallCount == 1);
+}
+
+//----------------------------------------------------------------------------
+
 #include "common/monitored.hpp"
 
 TEST_CASE("monitored")

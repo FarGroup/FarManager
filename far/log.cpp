@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/from_string.hpp"
+#include "common/lazy.hpp"
 #include "common/scope_exit.hpp"
 
 // External:
@@ -222,7 +223,7 @@ namespace
 	};
 
 	template<typename sink_type>
-	class named_sink: public sink
+	class sink_boilerplate: public sink
 	{
 	public:
 		string_view get_name() override
@@ -237,7 +238,7 @@ namespace
 		static constexpr auto is_discardable = Value;
 	};
 
-	class sink_null: public discardable<true>, public named_sink<sink_null>
+	class sink_null: public discardable<true>, public sink_boilerplate<sink_null>
 	{
 	public:
 		void handle(message Message) override
@@ -247,7 +248,7 @@ namespace
 		static constexpr string_view name = L"null"sv;
 	};
 
-	class sink_debug: public discardable<false>, public named_sink<sink_debug>
+	class sink_debug: public discardable<false>, public sink_boilerplate<sink_debug>
 	{
 	public:
 		void handle(message Message) override
@@ -265,7 +266,7 @@ namespace
 		static constexpr string_view name = L"debug"sv;
 	};
 
-	class sink_console: public discardable<true>, public named_sink<sink_console>
+	class sink_console: public discardable<true>, public sink_boilerplate<sink_console>
 	{
 	public:
 		sink_console():
@@ -361,7 +362,7 @@ namespace
 		os::handle m_Buffer;
 	};
 
-	class sink_file: public discardable<false>, public named_sink<sink_file>
+	class sink_file: public discardable<false>, public sink_boilerplate<sink_file>
 	{
 	public:
 		explicit sink_file():
@@ -444,7 +445,7 @@ namespace
 		string_view m_Eol{ eol::win.str() };
 	};
 
-	class sink_pipe: public discardable<true>, public named_sink<sink_pipe>
+	class sink_pipe: public discardable<true>, public sink_boilerplate<sink_pipe>
 	{
 	public:
 		explicit sink_pipe()
@@ -545,7 +546,9 @@ namespace
 
 		void in(message Message)
 		{
-			if (m_Messages.size() > 10000)
+			// The receiver will block new messages once the limit is reached.
+			// However, should it fail to do so, this will prevent us from eating all the RAM:
+			if (m_Messages.size() > QueueBufferSize * 2)
 			{
 				m_Messages.clear();
 				LOGWARNING(L"Queue overflow");
@@ -556,6 +559,8 @@ namespace
 		}
 
 	private:
+		const size_t QueueBufferSize = 8192;
+
 		virtual void out(message&& Message) = 0;
 
 		void poll()
@@ -570,13 +575,19 @@ namespace
 						if (os::handle::wait_any({ m_MessageEvent.native_handle(), m_FinishEvent.native_handle() }) != 0)
 							return;
 
-						SCOPED_ACTION(auto)(m_Messages.scoped_lock());
+						std::optional<decltype(m_Messages.scoped_lock())> Lock;
+
 						while (m_Messages.try_pop(Message))
 						{
 							if (m_IsDiscardable && m_FinishEvent.is_signaled())
 								return;
 
 							out(std::move(Message));
+
+							if (!Lock && m_Messages.size() > QueueBufferSize)
+							{
+								Lock.emplace(m_Messages.scoped_lock());
+							}
 						}
 					}
 				},
@@ -594,10 +605,34 @@ namespace
 		os::thread m_Thread;
 	};
 
-	template<typename sink_type>
-	class async final: public sink_type, private async_impl
+	class sink_mode
 	{
 	public:
+		enum class mode
+		{
+			sync,
+			async,
+		};
+
+		virtual ~sink_mode() = default;
+		virtual mode get_mode() const = 0;
+	};
+
+	template<typename sink_mode_type>
+	class sink_mode_boilerplate: public sink_mode
+	{
+		mode get_mode() const override
+		{
+			return sink_mode_type::mode;
+		}
+	};
+
+	template<typename sink_type>
+	class async final: public sink_type, public sink_mode_boilerplate<async<sink_type>>, private async_impl
+	{
+	public:
+		static constexpr auto mode = sink_mode::mode::async;
+
 		explicit async(bool const IsDiscardable):
 			async_impl(IsDiscardable)
 		{
@@ -617,9 +652,11 @@ namespace
 	};
 
 	template<typename sink_type>
-	class sync final: public sink_type
+	class sync final: public sink_type, public sink_mode_boilerplate<sync<sink_type>>
 	{
 	public:
+		static constexpr auto mode = sink_mode::mode::sync;
+
 		// sink
 		void handle(message Message) override
 		{
@@ -656,7 +693,12 @@ namespace logging
 			}
 
 			if (equal_icase(Parameters, L"reconfigure"))
+			{
+				const auto Status = m_Status.exchange(engine_status::in_progress);
+				SCOPE_EXIT{ m_Status = Status; flush_queue(); };
+
 				configure_env();
+			}
 
 			for (auto& i: m_Sinks)
 			{
@@ -687,6 +729,23 @@ namespace logging
 			}
 		}
 
+		void flush_queue()
+		{
+			if (m_Status != engine_status::complete || !m_QueuedMessagesCount)
+				return;
+
+			message Message;
+
+			SCOPED_ACTION(auto)(m_QueuedMessages.scoped_lock());
+			while (m_QueuedMessages.try_pop(Message))
+			{
+				if (m_Level >= Message.m_Level)
+					submit(Message);
+			}
+
+			m_QueuedMessagesCount = 0;
+		}
+
 		void log(string_view const Str, level const Level, string_view const Function, string_view const Location)
 		{
 			if (m_Status == engine_status::in_progress)
@@ -695,18 +754,6 @@ namespace logging
 				m_QueuedMessages.emplace(std::move(Message));
 				++m_QueuedMessagesCount;
 				return;
-			}
-
-			if (m_QueuedMessagesCount)
-			{
-				message Message;
-				SCOPED_ACTION(auto)(m_QueuedMessages.scoped_lock());
-				while (m_QueuedMessages.try_pop(Message))
-				{
-					if (m_Level >= Message.m_Level)
-						submit(Message);
-				}
-				m_QueuedMessagesCount = 0;
 			}
 
 			if (!filter(Level))
@@ -718,15 +765,14 @@ namespace logging
 	private:
 		void configure_env()
 		{
-			const auto Level = parse_level(get_parameter(L"level"sv), m_Level);
-			m_Level = level::off;
+			m_Level = parse_level(get_parameter(L"level"sv), m_Level);
 
 			m_TraceLevel = parse_level(get_parameter(L"trace.level"sv), m_TraceLevel);
 
 			if (size_t Depth; from_string(get_parameter(L"trace.depth"sv), Depth))
 				m_TraceDepth = Depth;
 
-			if (Level == level::off && m_Sinks.empty())
+			if (m_Level == level::off && m_Sinks.empty())
 				return;
 
 			const auto Enumerator = enum_tokens(get_parameter(L"sink"sv), L",;"sv);
@@ -739,14 +785,12 @@ namespace logging
 				sink_debug,
 				sink_file,
 				sink_null
-			>(SinkNames, Level != level::off);
+			>(SinkNames, m_Level != level::off);
 
 			if (m_Sinks.empty())
-				return;
-
-			m_Level = Level;
-
-			LOGINFO(L"Logging level: {0}", level_to_string(m_Level));
+				m_Level = level::off;
+			else
+				LOGINFO(L"Logging level: {0}", level_to_string(m_Level));
 		}
 
 		void initialise()
@@ -755,7 +799,7 @@ namespace logging
 				return;
 
 			m_Status = engine_status::in_progress;
-			SCOPE_EXIT{ m_Status = engine_status::complete; };
+			SCOPE_EXIT{ m_Status = engine_status::complete; flush_queue(); };
 
 			// No recursion if it's the helper process
 			if (contains(string_view{ GetCommandLine() }, log_argument))
@@ -769,36 +813,42 @@ namespace logging
 		template<typename T>
 		void configure_sink(std::unordered_set<string_view> const& SinkNames, bool const AllowAdd)
 		{
+			const auto Needed = contains(SinkNames, T::name);
+
+			lazy<sink_mode::mode> const NewSinkMode([]
+			{
+				return get_sink_parameter<T>(L"mode"sv) == L"sync"sv? sink_mode::mode::sync : sink_mode::mode::async;
+			});
+
 			const auto same_sink = [](const auto& Sink)
 			{
 				return Sink->get_name().data() == T::name.data();
 			};
 
-			if (!contains(SinkNames, T::name))
+			if (const auto SinkIterator = std::find_if(ALL_CONST_RANGE(m_Sinks), same_sink); SinkIterator != m_Sinks.cend())
 			{
-				for (auto i = m_Sinks.cbegin(); i != m_Sinks.cend(); ++i)
-				{
-					if (same_sink(*i))
-					{
-						m_Sinks.erase(i);
-						return;
-					}
-				}
+				if (Needed && dynamic_cast<sink_mode const&>(**SinkIterator).get_mode() == NewSinkMode)
+					return;
 
-				return;
+				m_Sinks.erase(SinkIterator);
+
+				if (!Needed)
+					return;
+			}
+			else
+			{
+				if (!Needed)
+					return;
 			}
 
-			if (!AllowAdd || std::any_of(ALL_CONST_RANGE(m_Sinks), same_sink))
+			if (!AllowAdd)
 				return;
 
 			try
 			{
-				LOGINFO(L"Sink: {0}", T::name);
+				LOGINFO(L"Sink: {} ({})", T::name, NewSinkMode == sink_mode::mode::sync? L"sync"sv : L"async"sv);
 
-				int SyncValue;
-				const auto Sync = from_string(get_sink_parameter<T>(L"sync"sv), SyncValue) && SyncValue == 1;
-
-				Sync?
+				NewSinkMode == sink_mode::mode::sync?
 					m_Sinks.emplace_back(std::make_unique<sync<T>>()) :
 					m_Sinks.emplace_back(std::make_unique<async<T>>(T::is_discardable));
 			}

@@ -574,6 +574,9 @@
     <ClInclude Include="common\keep_alive.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="common\lazy.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
     <ClInclude Include="common\monitored.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
