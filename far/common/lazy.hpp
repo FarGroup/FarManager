@@ -1,10 +1,12 @@
-﻿/*
-pipe.cpp
+﻿#ifndef LAZY_HPP_37F8CBE9_FC5C_491B_B3CD_8024E5B7CB5D
+#define LAZY_HPP_37F8CBE9_FC5C_491B_B3CD_8024E5B7CB5D
+#pragma once
 
-Pipe-based IPC
+/*
+lazy.hpp
 */
 /*
-Copyright © 2014 Far Group
+Copyright © 2021 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,62 +32,43 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// BUGBUG
-#include "platform.headers.hpp"
-
-// Self:
-#include "pipe.hpp"
-
-// Internal:
-#include "exception.hpp"
-
-// Platform:
-
-// Common:
-
-// External:
-#include "format.hpp"
-
 //----------------------------------------------------------------------------
 
-namespace pipe
+template<typename T>
+class lazy
 {
-	void read(const os::handle& Pipe, void* Data, size_t DataSize)
-	{
-		DWORD BytesRead;
-		if (!ReadFile(Pipe.native_handle(), Data, static_cast<DWORD>(DataSize), &BytesRead, nullptr))
-			throw MAKE_FAR_EXCEPTION(L"Pipe read error"sv);
 
-		if (BytesRead != DataSize)
-			throw MAKE_FAR_EXCEPTION(format(FSTR(L"Pipe read error: {} bytes requested, but {} bytes read"), DataSize, BytesRead));
+public:
+	explicit lazy(std::function<T()> Initialiser):
+		m_Initialiser(std::move(Initialiser))
+	{
 	}
 
-	void read(const os::handle& Pipe, string& Data)
+	T& get()
 	{
-		size_t StringSize;
-		read(Pipe, &StringSize, sizeof(StringSize));
-
-		Data.resize(StringSize);
-
-		if (StringSize)
-			read(Pipe, Data.data(), StringSize * sizeof(string::value_type));
+		return m_Data?
+			*m_Data :
+			*(m_Data = m_Initialiser());
 	}
 
-	void write(const os::handle& Pipe, const void* Data, size_t DataSize)
+	T const& get() const
 	{
-		DWORD BytesWritten;
-		if (!WriteFile(Pipe.native_handle(), Data, static_cast<DWORD>(DataSize), &BytesWritten, nullptr))
-			throw MAKE_FAR_EXCEPTION(L"Pipe write error"sv);
-
-		if (BytesWritten != DataSize)
-			throw MAKE_FAR_EXCEPTION(format(FSTR(L"Pipe write error: {} bytes sent, but {} bytes written"), DataSize, BytesWritten));
+		return const_cast<lazy&>(*this).get();
 	}
 
-	void write(const os::handle& Pipe, string_view const Data)
+	operator T const& () const
 	{
-		write(Pipe, Data.size());
-
-		if (Data.size())
-			write(Pipe, Data.data(), Data.size() * sizeof(string_view::value_type));
+		return get();
 	}
-}
+
+	operator T&()
+	{
+		return get();
+	}
+
+private:
+	std::function<T()> m_Initialiser;
+	std::optional<T> mutable m_Data;
+};
+
+#endif // LAZY_HPP_37F8CBE9_FC5C_491B_B3CD_8024E5B7CB5D

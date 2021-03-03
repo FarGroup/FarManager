@@ -103,7 +103,7 @@ auto str(const T& Value)
 
 inline auto str(const void* Value)
 {
-	return format(FSTR(L"0x{0:0{1}X}"), reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
+	return format(FSTR(L"0x{:0{}X}"), reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
 }
 
 inline auto str(void* Value)

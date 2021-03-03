@@ -59,7 +59,7 @@ static auto get_date_format()
 	int DateFormat;
 	if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_IDATE, DateFormat))
 	{
-		LOGWARNING(L"get_locale_value(LOCALE_IDATE): {0}", last_error());
+		LOGWARNING(L"get_locale_value(LOCALE_IDATE): {}", last_error());
 		DateFormat = 2;
 	}
 
@@ -76,7 +76,7 @@ static auto get_digits_grouping()
 	string Grouping;
 	if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SGROUPING, Grouping))
 	{
-		LOGWARNING(L"get_locale_value(LOCALE_SGROUPING): {0}", last_error());
+		LOGWARNING(L"get_locale_value(LOCALE_SGROUPING): {}", last_error());
 		return 3;
 	}
 
@@ -124,7 +124,7 @@ static auto get_date_separator()
 	}
 	else
 	{
-		LOGDEBUG(L"get_locale_value(LOCALE_SSHORTDATE): {0}", last_error());
+		LOGDEBUG(L"get_locale_value(LOCALE_SSHORTDATE): {}", last_error());
 	}
 
 	if (os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SDATE, Value))
@@ -133,7 +133,7 @@ static auto get_date_separator()
 	}
 	else
 	{
-		LOGWARNING(L"get_locale_value(LOCALE_SDATE): {0}", last_error());
+		LOGWARNING(L"get_locale_value(LOCALE_SDATE): {}", last_error());
 	}
 
 	return KnownSeparators.front();
@@ -144,7 +144,7 @@ static auto get_time_separator()
 	string Value;
 	if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_STIME, Value))
 	{
-		LOGWARNING(L"get_locale_value(LOCALE_STIME): {0}", last_error());
+		LOGWARNING(L"get_locale_value(LOCALE_STIME): {}", last_error());
 	}
 
 	return Value.empty()? L':' : Value.front();
@@ -160,7 +160,7 @@ static auto get_decimal_separator()
 	string Value;
 	if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, Value))
 	{
-		LOGWARNING(L"get_locale_value(LOCALE_SDECIMAL): {0}", last_error());
+		LOGWARNING(L"get_locale_value(LOCALE_SDECIMAL): {}", last_error());
 	}
 
 	return Value.empty()? L'.' : Value.front();
@@ -176,7 +176,7 @@ static auto get_thousand_separator()
 	string Value;
 	if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, Value))
 	{
-		LOGWARNING(L"get_locale_value(LOCALE_STHOUSAND): {0}", last_error());
+		LOGWARNING(L"get_locale_value(LOCALE_STHOUSAND): {}", last_error());
 	}
 
 	return Value.empty()? L',' : Value.front();
@@ -190,12 +190,12 @@ static auto get_months_names(int Language, locale_names& Names)
 	{
 		if (!os::get_locale_value(CurLCID, LCTYPE(LOCALE_SMONTHNAME1 + index), i.Full))
 		{
-			LOGWARNING(L"get_locale_value(LOCALE_SMONTHNAME{0}): {1}", 1 + index, last_error());
+			LOGWARNING(L"get_locale_value(LOCALE_SMONTHNAME{}): {}", 1 + index, last_error());
 		}
 
 		if (!os::get_locale_value(CurLCID, LCTYPE(LOCALE_SABBREVMONTHNAME1 + index), i.Short))
 		{
-			LOGWARNING(L"get_locale_value(LOCALE_SABBREVMONTHNAME{0}): {1}", 1 + index, last_error());
+			LOGWARNING(L"get_locale_value(LOCALE_SABBREVMONTHNAME{}): {}", 1 + index, last_error());
 		}
 	}
 
@@ -226,12 +226,12 @@ static auto get_months_names(int Language, locale_names& Names)
 	{
 		if (!os::get_locale_value(CurLCID, DayIndexes[index], i.Full))
 		{
-			LOGWARNING(L"get_locale_value(DayIndexes[{0}]): {1}", index, last_error());
+			LOGWARNING(L"get_locale_value(DayIndexes[{}]): {}", index, last_error());
 		}
 
 		if (!os::get_locale_value(CurLCID, ShortDayIndexes[index], i.Short))
 		{
-			LOGWARNING(L"get_locale_value(ShortDayIndexes[{0}]): {1}", index, last_error());
+			LOGWARNING(L"get_locale_value(ShortDayIndexes[{}]): {}", index, last_error());
 		}
 	}
 }

@@ -78,10 +78,10 @@ public:
 	{
 		const file_ptr XmlFile(_wfsopen(NTPath(File).c_str(), L"rb", _SH_DENYWR));
 		if (!XmlFile)
-			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error opening file \"{0}\": {1}"), File, _wcserror(errno)));
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error opening file \"{}\": {}"), File, _wcserror(errno)));
 
 		if (const auto LoadResult = m_Document.LoadFile(XmlFile.get()); LoadResult != tinyxml::XML_SUCCESS)
-			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error loading document from \"{0}\": {1}"), File, encoding::utf8::get_chars(m_Document.ErrorIDToName(LoadResult))));
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error loading document from \"{}\": {}"), File, encoding::utf8::get_chars(m_Document.ErrorIDToName(LoadResult))));
 
 		const auto root = m_Document.FirstChildElement(XmlDocumentRootName);
 		SetRoot(root);
@@ -138,10 +138,10 @@ public:
 	{
 		const file_ptr XmlFile(_wfsopen(NTPath(File).c_str(), L"w", _SH_DENYWR));
 		if (!XmlFile)
-			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error opening file \"{0}\": {1}"), File, _wcserror(errno)));
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error opening file \"{}\": {}"), File, _wcserror(errno)));
 
 		if (const auto SaveResult = m_Document.SaveFile(XmlFile.get()); SaveResult != tinyxml::XML_SUCCESS)
-			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error saving document to \"{0}\": {1}"), File, encoding::utf8::get_chars(m_Document.ErrorIDToName(SaveResult))));
+			throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error saving document to \"{}\": {}"), File, encoding::utf8::get_chars(m_Document.ErrorIDToName(SaveResult))));
 	}
 
 private:
@@ -1675,7 +1675,7 @@ private:
 				case hotkey_type::config_menu: type = "config"; break;
 				case hotkey_type::plugins_menu: type = "plugins"; break;
 				default:
-					LOGWARNING(L"Unknown hotkey_type: {0}", TypeValue);
+					LOGWARNING(L"Unknown hotkey_type: {}", TypeValue);
 					continue;
 				}
 
@@ -2449,7 +2449,7 @@ config_provider::implementation::~implementation()
 
 static auto pluginscache_db_name()
 {
-	return format(FSTR(L"plugincache.{0}.db"), build::platform());
+	return format(FSTR(L"plugincache.{}.db"), build::platform());
 }
 
 
@@ -2482,7 +2482,7 @@ void config_provider::Export(string_view const File)
 	representation_destination Representation;
 	auto& root = Representation.Root();
 	const auto Version = build::version();
-	SetAttribute(root, "version", format(FSTR("{0}.{1}.{2}"), Version.Major, Version.Minor, Version.Build));
+	SetAttribute(root, "version", format(FSTR("{}.{}.{}"), Version.Major, Version.Minor, Version.Build));
 
 	GeneralCfg()->Export(Representation);
 	LocalGeneralCfg()->Export(Representation);

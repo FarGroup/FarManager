@@ -289,7 +289,15 @@ namespace os::concurrency
 TEST_CASE("platform.thread.forwarding")
 {
 	{
-		os::thread Thread(os::thread::mode::join, [Ptr = std::make_unique<int>(33)](auto&&){}, std::make_unique<int>(42));
+		const auto Magic = 42;
+		os::thread Thread(
+			os::thread::mode::join,
+			[Ptr = std::make_unique<int>(Magic)](auto&& Param)
+			{
+				REQUIRE(*Ptr * 2 == *Param);
+			},
+			std::make_unique<int>(Magic * 2)
+		);
 	}
 	REQUIRE(true);
 }

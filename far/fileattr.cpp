@@ -72,7 +72,7 @@ static auto without_ro(string_view const Name, os::fs::attributes const Attribut
 
 			if (Attributes & Mask && !os::fs::set_file_attributes(Name, Attributes)) //BUGBUG
 			{
-				LOGWARNING(L"set_file_attributes({0}): {1}", Name, last_error());
+				LOGWARNING(L"set_file_attributes({}): {}", Name, last_error());
 			}
 		};
 

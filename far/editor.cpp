@@ -3542,8 +3542,8 @@ bool Editor::Search(bool Next)
 					int NextPos = CurPos + (SearchLength? SearchLength : 1);
 
 					const int service_len = 12;
-					const auto Location = format(FSTR(L"{0}:{1}"), CurPtr.Number() + 1, CurPos + 1);
-					MenuItemEx Item(format(FSTR(L"{0:{1}}{2}{3}"), Location, service_len, BoxSymbols[BS_V1], CurPtr->GetString()));
+					const auto Location = format(FSTR(L"{}:{}"), CurPtr.Number() + 1, CurPos + 1);
+					MenuItemEx Item(format(FSTR(L"{:{}}{}{}"), Location, service_len, BoxSymbols[BS_V1], CurPtr->GetString()));
 					Item.Annotations.emplace_back(CurPos + service_len + 1, NextPos - CurPos);
 					Item.ComplexUserData = FindCoord{ CurPtr.Number(), CurPos, SearchLength };
 					FindAllList->AddItem(Item);

@@ -203,7 +203,7 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 				// BUGBUG check result
 				if (!os::fs::get_find_data(strFindPath, fdata))
 				{
-					LOGWARNING(L"get_find_data({0}): {1}", strFindPath, last_error());
+					LOGWARNING(L"get_find_data({}): {}", strFindPath, last_error());
 				}
 
 			}

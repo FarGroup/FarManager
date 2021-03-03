@@ -799,7 +799,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			// BUGBUG
 			if (!os::fs::get_find_data(*Object, SingleSelFindData))
 			{
-				LOGWARNING(L"get_find_data({0}): {1}", *Object, last_error());
+				LOGWARNING(L"get_find_data({}): {}", *Object, last_error());
 			}
 
 			SingleSelFileName = *Object;

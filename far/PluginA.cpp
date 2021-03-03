@@ -226,6 +226,8 @@ private:
 		return contains(select(m_ExportsNames, [](const export_name& Item) { return Item.AName; }), ExportName);
 	}
 
+	string_view kind() const override { return L"legacy"sv; }
+
 	std::string m_userName;
 };
 
@@ -5717,7 +5719,7 @@ WARNING_POP()
 		}
 		catch (const std::exception& e)
 		{
-			LOGERROR(L"{0}", e);
+			LOGERROR(L"{}", e);
 			return false;
 		}
 	}

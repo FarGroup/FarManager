@@ -978,7 +978,7 @@ bool background_searcher::LookForString(string_view const FileName)
 	// BUGBUG check result
 	if (!File.GetSize(FileSize))
 	{
-		LOGWARNING(L"GetSize({0}): {1}", File.GetName(), last_error());
+		LOGWARNING(L"GetSize({}): {}", File.GetName(), last_error());
 	}
 
 	if (SearchInFirst)
@@ -1277,7 +1277,7 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view 
 				// BUGBUG check result
 				if (!os::fs::remove_directory(strTempDir))
 				{
-					LOGWARNING(L"remove_directory({0}): {1}", strTempDir, last_error());
+					LOGWARNING(L"remove_directory({}): {}", strTempDir, last_error());
 				}
 
 				return false;
@@ -1398,7 +1398,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strSearchStr + strFM));
 			if (!strFindStr.empty())
 			{
-				Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(format(FSTR(L"{0:3}%"), itd->GetPercent())));
+				Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(format(FSTR(L"{:3}%"), itd->GetPercent())));
 			}
 
 			if (m_LastFoundNumber)
@@ -1626,7 +1626,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								// BUGBUG check result
 								if (!os::fs::remove_directory(strTempDir))
 								{
-									LOGWARNING(L"remove_directory({0}): {1}", strTempDir, last_error());
+									LOGWARNING(L"remove_directory({}): {}", strTempDir, last_error());
 								}
 
 								return FALSE;

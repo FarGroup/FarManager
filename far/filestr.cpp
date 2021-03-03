@@ -88,7 +88,7 @@ enum_lines::~enum_lines()
 	}
 	catch (const std::exception& e)
 	{
-		LOGERROR(L"{0}", e);
+		LOGERROR(L"{}", e);
 	}
 }
 

@@ -184,12 +184,12 @@ Viewer::~Viewer()
 		{
 			if (!os::fs::set_file_attributes(strTempViewName, FILE_ATTRIBUTE_NORMAL)) // BUGBUG
 			{
-				LOGWARNING(L"set_file_attributes({0}): {1}", strTempViewName, last_error());
+				LOGWARNING(L"set_file_attributes({}): {}", strTempViewName, last_error());
 			}
 
 			if (!os::fs::delete_file(strTempViewName)) //BUGBUG
 			{
-				LOGWARNING(L"delete_file({0}): {1}", strTempViewName, last_error());
+				LOGWARNING(L"delete_file({}): {}", strTempViewName, last_error());
 			}
 		}
 	}
@@ -303,7 +303,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 			// BUGBUG check result
 			if (!ViewFile.Write(vread_buffer.data(), ReadSize))
 			{
-				LOGWARNING(L"Write({0}): {1}", ViewFile.GetName(), last_error());
+				LOGWARNING(L"Write({}): {}", ViewFile.GetName(), last_error());
 			}
 		}
 		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
@@ -341,7 +341,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 	// BUGBUG check result
 	if (!os::fs::get_find_data(strFileName, ViewFindData))
 	{
-		LOGWARNING(L"get_find_data({0}): {1}", strFileName, last_error());
+		LOGWARNING(L"get_find_data({}): {}", strFileName, last_error());
 	}
 
 	uintptr_t CachedCodePage=0;
@@ -895,7 +895,7 @@ void Viewer::ShowHex()
 		if (Y == m_Where.top + 1 && !veof())
 			SecondPos=vtell();
 
-		auto OutStr = format(FSTR(L"{0:010X}: "), vtell());
+		auto OutStr = format(FSTR(L"{:010X}: "), vtell());
 		int SelStart = static_cast<int>(OutStr.size()), SelEnd = SelStart;
 		const auto fpos = vtell();
 
@@ -951,7 +951,7 @@ void Viewer::ShowHex()
 			for (size_t X = 0; X != m_BytesPerLine; ++X)
 			{
 				if (X < BytesRead)
-					format_to(OutStr, FSTR(L"{0:02X} "), int(RawBuffer[X]));
+					format_to(OutStr, FSTR(L"{:02X} "), static_cast<int>(RawBuffer[X]));
 				else
 					OutStr.append(3, L' ');
 
@@ -3872,7 +3872,7 @@ bool Viewer::vgetc(wchar_t* pCh)
 			// BUGBUG, error checking
 			if (!encoding::get_chars(m_Codepage, { &Ch, 1 }, { pCh, 1 }))
 			{
-				LOGWARNING(L"get_chars({0:02X})", static_cast<int>(Ch));
+				LOGWARNING(L"get_chars({:02X})", static_cast<int>(Ch));
 			}
 		}
 
@@ -3942,7 +3942,7 @@ wchar_t Viewer::vgetc_prev()
 				// BUGBUG, error checking
 				if (!encoding::get_chars(m_Codepage, { RawBuffer, 1 }, { &Result, 1 }))
 				{
-					LOGWARNING(L"get_chars({0:02X})", static_cast<int>(RawBuffer[0]));
+					LOGWARNING(L"get_chars({:02X})", static_cast<int>(RawBuffer[0]));
 				}
 			}
 			else
@@ -4068,7 +4068,7 @@ void Viewer::SetFileSize()
 	// BUGBUG check result
 	if (!ViewFile.GetSize(uFileSize))
 	{
-		LOGWARNING(L"GetSize({0}): {1}", ViewFile.GetName(), last_error());
+		LOGWARNING(L"GetSize({}): {}", ViewFile.GetName(), last_error());
 	}
 
 	FileSize=uFileSize;

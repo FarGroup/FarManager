@@ -82,6 +82,6 @@ PreserveLongName::~PreserveLongName()
 	// BUGBUG check result
 	if (!os::fs::move_file(m_SaveShortName, m_SaveLongName))
 	{
-		LOGWARNING(L"move_file({0}, {1}): {2}", m_SaveShortName, m_SaveLongName, last_error());
+		LOGWARNING(L"move_file({}, {}): {}", m_SaveShortName, m_SaveLongName, last_error());
 	}
 }

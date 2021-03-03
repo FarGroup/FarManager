@@ -1488,7 +1488,7 @@ static bool ParseIntValue(string_view const sValue, long long& iValue)
 		return true;
 	}
 
-	LOGWARNING(L"Unsupported integer value: {0}", sValue);
+	LOGWARNING(L"Unsupported integer value: {}", sValue);
 	return false;
 }
 
@@ -1589,7 +1589,7 @@ void IntOption::Export(FarSettingsItem& To) const
 
 string IntOption::ExInfo() const
 {
-	return format(FSTR(L" = 0x{0:X}"), as_unsigned(Get()));
+	return format(FSTR(L" = 0x{:X}"), as_unsigned(Get()));
 }
 
 
@@ -2205,7 +2205,7 @@ static auto deserialise_sort_layers(string_view const LayersStr)
 
 static auto serialise_sort_layer(std::pair<panel_sort, sort_order> const& Layer)
 {
-	return format(FSTR(L"S{0}:O{1}"), Layer.first, Layer.second);
+	return format(FSTR(L"S{}:O{}"), Layer.first, Layer.second);
 }
 
 static auto serialise_sort_layers(span<std::pair<panel_sort, sort_order> const> const Layers)

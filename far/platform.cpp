@@ -78,7 +78,7 @@ namespace os
 
 			default:
 				// Abandoned or error
-				throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"WaitForSingleobject returned {0}"), Result));
+				throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"WaitForSingleobject returned {}"), Result));
 			}
 		}
 
@@ -100,7 +100,7 @@ namespace os
 			else
 			{
 				// Abandoned or error
-				throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"WaitForMultipleObjects returned {0}"), Result));
+				throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"WaitForMultipleObjects returned {}"), Result));
 			}
 		}
 
@@ -145,7 +145,7 @@ string GetErrorString(bool Nt, DWORD Code)
 
 string format_system_error(unsigned int const ErrorCode, string_view const ErrorMessage)
 {
-	return format(FSTR(L"0x{0:0>8X} - {1}"), ErrorCode, ErrorMessage);
+	return format(FSTR(L"0x{:0>8X} - {}"), ErrorCode, ErrorMessage);
 }
 
 

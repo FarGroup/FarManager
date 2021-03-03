@@ -63,7 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static auto make_curdir_name(wchar_t Drive)
 {
-	return format(FSTR(L"={0}:"), upper(Drive));
+	return format(FSTR(L"={}:"), upper(Drive));
 }
 
 static auto env_get_current_dir(wchar_t Drive)

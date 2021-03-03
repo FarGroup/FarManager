@@ -106,7 +106,7 @@ void EjectVolume(string_view const Path)
 	{
 		if (!File.IoControl(FSCTL_UNLOCK_VOLUME, nullptr, 0, nullptr, 0))
 		{
-			LOGWARNING(L"IoControl(FSCTL_UNLOCK_VOLUME, {0}): {1}", File.GetName(), last_error());
+			LOGWARNING(L"IoControl(FSCTL_UNLOCK_VOLUME, {}): {}", File.GetName(), last_error());
 		}
 	};
 
@@ -114,7 +114,7 @@ void EjectVolume(string_view const Path)
 	{
 		if (!File.FlushBuffers())
 		{
-			LOGWARNING(L"FlushBuffers({0}): {1}", File.GetName(), last_error());
+			LOGWARNING(L"FlushBuffers({}): {}", File.GetName(), last_error());
 		}
 	}
 

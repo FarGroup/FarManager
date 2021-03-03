@@ -1364,7 +1364,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			}
 			else
 			{
-				Builder.AddText(format(FSTR(L"{0} {1}"), msg(lng::MChangeDriveCannotReadDisk), item.Path));
+				Builder.AddText(format(FSTR(L"{} {}"), msg(lng::MChangeDriveCannotReadDisk), item.Path));
 			}
 
 			Builder.AddSeparator();

@@ -235,7 +235,7 @@ elevation::~elevation()
 		}
 		catch (const far_exception& e)
 		{
-			LOGERROR(L"{0}", e);
+			LOGERROR(L"{}", e);
 		}
 	}
 
@@ -315,7 +315,7 @@ auto elevation::execute(lng Why, string_view const Object, T Fallback, const F1&
 		m_Process.close();
 		m_Pipe.close();
 
-		LOGERROR(L"{0}", e);
+		LOGERROR(L"{}", e);
 		return Fallback;
 	}
 }
@@ -358,7 +358,7 @@ static os::handle create_job()
 	os::handle Job(CreateJobObject(nullptr, nullptr));
 	if (!Job)
 	{
-		LOGERROR(L"CreateJobObject: {0}", last_error());
+		LOGERROR(L"CreateJobObject: {}", last_error());
 		return nullptr;
 	}
 
@@ -366,7 +366,7 @@ static os::handle create_job()
 	jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
 	if (!SetInformationJobObject(Job.native_handle(), JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
 	{
-		LOGERROR(L"SetInformationJobObject: {0}", last_error());
+		LOGERROR(L"SetInformationJobObject: {}", last_error());
 		return nullptr;
 	}
 

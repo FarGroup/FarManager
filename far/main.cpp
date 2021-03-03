@@ -72,6 +72,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farversion.hpp"
 #include "exception.hpp"
 #include "log.hpp"
+#include "strmix.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -491,10 +492,22 @@ static void log_hook_wow64_status()
 	LOG
 	(
 		Error == ERROR_SUCCESS? logging::level::debug : logging::level::warning,
-		L"hook_wow64: {0} {1}",
+		L"hook_wow64: {} {}",
 		Msg,
 		os::format_system_error(Error, os::GetErrorString(false, Error))
 	);
+
+	if (Error == ERROR_INVALID_DATA)
+	{
+		if (const auto NtDll = GetModuleHandle(L"ntdll"))
+		{
+			if (const auto LdrLoadDll = GetProcAddress(NtDll, "LdrLoadDll"))
+			{
+				const auto FunctionData = reinterpret_cast<std::byte const*>(LdrLoadDll);
+				LOGWARNING(L"LdrLoadDll: {}", BlobToHexString({ FunctionData, 32 }));
+			}
+		}
+	}
 }
 #endif
 
@@ -887,7 +900,7 @@ int main()
 	},
 	[](DWORD const ExceptionCode) -> int
 	{
-		LOGFATAL(L"Abnormal exit due to SEH exception {0}", ExceptionCode);
+		LOGFATAL(L"Abnormal exit due to SEH exception {}", ExceptionCode);
 		std::_Exit(ExceptionCode? ExceptionCode : EXIT_FAILURE);
 	},
 	__FUNCTION__);
