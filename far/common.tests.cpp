@@ -556,18 +556,33 @@ TEST_CASE("keep_alive")
 
 TEST_CASE("lazy")
 {
-	int CallCount = 0;
 	int Magic1 = 42, Magic2 = 69;
-	lazy<int> Value([&]{ ++CallCount; return Magic1; });
+	int CallCount;
+	lazy<int> const LazyValue([&]{ ++CallCount; return Magic1; });
 
-	REQUIRE(CallCount == 0);
-	REQUIRE(Value == Magic1);
-	REQUIRE(Value == Magic1);
-	REQUIRE(CallCount == 1);
+	{
+		CallCount = 0;
+		auto Value = LazyValue;
 
-	Value.get() = Magic2;
-	REQUIRE(Value == Magic2);
-	REQUIRE(CallCount == 1);
+		REQUIRE(CallCount == 0);
+		REQUIRE(*Value == Magic1);
+		REQUIRE(*Value == Magic1);
+		REQUIRE(CallCount == 1);
+
+		Value = Magic2;
+		REQUIRE(*Value == Magic2);
+		REQUIRE(CallCount == 1);
+	}
+
+	{
+		CallCount = 0;
+		auto Value = LazyValue;
+
+		Value = Magic2;
+		REQUIRE(*Value == Magic2);
+		REQUIRE(CallCount == 0);
+	}
+
 }
 
 //----------------------------------------------------------------------------

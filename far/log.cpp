@@ -827,7 +827,7 @@ namespace logging
 
 			if (const auto SinkIterator = std::find_if(ALL_CONST_RANGE(m_Sinks), same_sink); SinkIterator != m_Sinks.cend())
 			{
-				if (Needed && dynamic_cast<sink_mode const&>(**SinkIterator).get_mode() == NewSinkMode)
+				if (Needed && dynamic_cast<sink_mode const&>(**SinkIterator).get_mode() == *NewSinkMode)
 					return;
 
 				m_Sinks.erase(SinkIterator);
@@ -846,9 +846,9 @@ namespace logging
 
 			try
 			{
-				LOGINFO(L"Sink: {} ({})", T::name, NewSinkMode == sink_mode::mode::sync? L"sync"sv : L"async"sv);
+				LOGINFO(L"Sink: {} ({})", T::name, *NewSinkMode == sink_mode::mode::sync? L"sync"sv : L"async"sv);
 
-				NewSinkMode == sink_mode::mode::sync?
+				*NewSinkMode == sink_mode::mode::sync?
 					m_Sinks.emplace_back(std::make_unique<sync<T>>()) :
 					m_Sinks.emplace_back(std::make_unique<async<T>>(T::is_discardable));
 			}

@@ -44,26 +44,39 @@ public:
 	{
 	}
 
-	T& get()
+	T& operator*()
 	{
 		return m_Data?
 			*m_Data :
 			*(m_Data = m_Initialiser());
 	}
 
-	T const& get() const
+	T const& operator*() const
 	{
-		return const_cast<lazy&>(*this).get();
+		return *const_cast<lazy&>(*this);
 	}
 
-	operator T const& () const
+	T const* operator->() const
 	{
-		return get();
+		return &*this;
 	}
 
-	operator T&()
+	T* operator->()
 	{
-		return get();
+		return &*this;
+	}
+
+	auto& operator=(const T& rhs)
+	{
+		m_Data = rhs;
+		return *this;
+	}
+
+	template<class U = T>
+	auto& operator=(U&& rhs)
+	{
+		m_Data = FWD(rhs);
+		return *this;
 	}
 
 private:
