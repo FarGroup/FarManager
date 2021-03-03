@@ -41,10 +41,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "config.hpp"
 #include "configdb.hpp"
-#include "ctrlobj.hpp"
 #include "manager.hpp"
 
 // Platform:
+#include "platform.fs.hpp"
 
 // Common:
 
@@ -52,7 +52,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-global::global():
+global::global() :
+	g_strFarModuleName(os::fs::get_current_process_file_name()),
 	ErrorMode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX),
 	m_MainThreadId(GetCurrentThreadId()),
 	m_MainThreadHandle(os::OpenCurrentThread()),

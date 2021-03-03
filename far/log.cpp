@@ -448,14 +448,6 @@ namespace
 	class sink_pipe: public discardable<true>, public sink_boilerplate<sink_pipe>
 	{
 	public:
-		explicit sink_pipe()
-		{
-			if (!os::fs::GetModuleFileName(nullptr, nullptr, m_ThisModule))
-			{
-				LOGWARNING(L"GetModuleFileName(): {}", last_error());
-			}
-		}
-
 		void connect()
 		{
 			if (!PeekNamedPipe(m_Pipe.native_handle(), {}, 0, {}, {}, {}))
@@ -525,7 +517,7 @@ namespace
 	private:
 		string m_PipeName{ format(FSTR(L"\\\\.\\pipe\\far_{}.log"), GetCurrentProcessId()) };
 		os::handle m_Pipe{ CreateNamedPipe(m_PipeName.c_str(), PIPE_ACCESS_DUPLEX, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, {}) };
-		string m_ThisModule;
+		string m_ThisModule{ os::fs::get_current_process_file_name() };
 		bool m_Connected{};
 	};
 

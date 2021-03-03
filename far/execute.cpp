@@ -503,7 +503,7 @@ static bool execute_createprocess(string const& Command, string const& Parameter
 		&pi
 	))
 	{
-		LOGINFO(L"CreateProcess({}): {}", FullCommand, last_error());
+		LOGDEBUG(L"CreateProcess({}): {}", FullCommand, last_error());
 		return false;
 	}
 
@@ -522,7 +522,7 @@ static bool execute_shell(string const& Command, string const& Parameters, strin
 
 	if (!ShellExecuteEx(&Info))
 	{
-		LOGINFO(L"ShellExecuteEx({}): {}", Command, last_error());
+		LOGDEBUG(L"ShellExecuteEx({}): {}", Command, last_error());
 		return false;
 	}
 

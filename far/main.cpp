@@ -540,10 +540,7 @@ static int mainImpl(span<const wchar_t* const> const Args)
 
 	os::fs::InitCurrentDirectory();
 
-	if (os::fs::GetModuleFileName(nullptr, nullptr, Global->g_strFarModuleName))
-	{
-		PrepareDiskPath(Global->g_strFarModuleName);
-	}
+	PrepareDiskPath(Global->g_strFarModuleName);
 
 	Global->g_strFarINI = concat(Global->g_strFarModuleName, L".ini"sv);
 	Global->g_strFarPath = Global->g_strFarModuleName;

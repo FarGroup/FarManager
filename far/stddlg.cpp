@@ -547,7 +547,7 @@ static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, fun
 				os::chrono::nt_clock::from_filetime(Info.Process.ProcessStartTime) == CreationTime)
 			{
 				string Name;
-				if (os::fs::GetModuleFileName(Process.native_handle(), nullptr, Name))
+				if (os::fs::get_module_file_name(Process.native_handle(), {}, Name))
 				{
 					append(Str, L", "sv, Name);
 				}

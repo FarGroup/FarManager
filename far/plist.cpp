@@ -144,7 +144,7 @@ static void AddMenuItem(HWND const Window, DWORD const Pid, size_t const PidWidt
 		if (const auto Process = os::handle(OpenProcess(imports.QueryFullProcessImageNameW ? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, Pid)))
 		{
 			// BUGBUG check result
-			if (!os::fs::GetModuleFileName(Process.native_handle(), nullptr, MenuItem))
+			if (!os::fs::get_module_file_name(Process.native_handle(), {}, MenuItem))
 			{
 				LOGWARNING(L"GetModuleFileName({}): {}", Pid, last_error());
 			}

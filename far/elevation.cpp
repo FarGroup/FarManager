@@ -995,12 +995,10 @@ public:
 				return GetLastError();
 
 			string ParentProcessFileName;
-			if (!os::fs::GetModuleFileName(ParentProcess.native_handle(), nullptr, ParentProcessFileName))
+			if (!os::fs::get_module_file_name(ParentProcess.native_handle(), {}, ParentProcessFileName))
 				return GetLastError();
 
-			string CurrentProcessFileName;
-			if (!os::fs::GetModuleFileName(GetCurrentProcess(), nullptr, CurrentProcessFileName))
-				return GetLastError();
+			const auto CurrentProcessFileName = os::fs::get_current_process_file_name();
 
 			if (!equal_icase(CurrentProcessFileName, ParentProcessFileName))
 				return ERROR_INVALID_NAME;

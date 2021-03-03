@@ -233,7 +233,7 @@ static void read_modules(span<HMODULE const> const Modules, string& To, string_v
 	for (const auto& i: Modules)
 	{
 
-		if (os::fs::GetModuleFileName(nullptr, i, Name))
+		if (os::fs::get_module_file_name({}, i, Name))
 			append(To, Name, L' ', file_version(Name), Eol);
 		else
 			append(To, str(static_cast<void const*>(i)), Eol);
@@ -1143,18 +1143,9 @@ static bool handle_generic_exception(
 
 	if (!PluginModule)
 	{
-		if (Global)
-		{
-			strFileName=Global->g_strFarModuleName;
-		}
-		else
-		{
-			// BUGBUG check result
-			if (!os::fs::GetModuleFileName(nullptr, nullptr, strFileName))
-			{
-				LOGWARNING(L"GetModuleFileName(): {}", last_error());
-			}
-		}
+		strFileName = Global?
+			Global->g_strFarModuleName :
+			os::fs::get_current_process_file_name();
 	}
 	else
 	{

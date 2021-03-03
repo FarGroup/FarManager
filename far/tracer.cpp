@@ -245,12 +245,7 @@ void tracer::sym_initialise(string_view Module)
 		return;
 	}
 
-	string Path;
-	if (!os::fs::GetModuleFileName(nullptr, nullptr, Path))
-	{
-		LOGWARNING(L"GetModuleFileName(): {}", last_error());
-	}
-
+	auto Path = os::fs::get_current_process_file_name();
 	CutToParent(Path);
 
 	if (!Module.empty())
