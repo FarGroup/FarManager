@@ -244,7 +244,7 @@ void QuickView::DisplayObject()
 			PrintRow(5, lng::MQuickViewFiles, str(Data.FileCount));
 			PrintRow(6, lng::MQuickViewBytes, size2str(Data.FileSize));
 
-			const auto Format = FSTR(L"{} ({}%)");
+			const auto Format = FSTR(L"{} ({}%)"sv);
 			PrintRow(7, lng::MQuickViewAllocated, format(Format, size2str(Data.AllocationSize), ToPercent(Data.AllocationSize, Data.FileSize)));
 
 			if (m_DirectoryScanStatus == scan_status::real_ok)
@@ -461,7 +461,7 @@ void QuickView::ShowFile(string_view const FileName, const UserDataItem* const U
 			// BUGBUG check result
 			if (!os::reg::key::classes_root.get(strValue, {}, strCurFileType))
 			{
-				LOGWARNING(L"classes_root.get({}): {}", strValue, last_error());
+				LOGWARNING(L"classes_root.get({}): {}"sv, strValue, last_error());
 			}
 		}
 	}
@@ -562,12 +562,12 @@ void QuickView::QViewDelTempName()
 
 		if (!os::fs::set_file_attributes(strCurFileName, FILE_ATTRIBUTE_NORMAL)) // BUGBUG
 		{
-			LOGWARNING(L"set_file_attributes({}): {}", strCurFileName, last_error());
+			LOGWARNING(L"set_file_attributes({}): {}"sv, strCurFileName, last_error());
 		}
 
 		if (!os::fs::delete_file(strCurFileName))  //BUGBUG
 		{
-			LOGWARNING(L"delete_file({}): {}", strCurFileName, last_error());
+			LOGWARNING(L"delete_file({}): {}"sv, strCurFileName, last_error());
 		}
 
 		string_view TempDirectoryName = strCurFileName;
@@ -575,7 +575,7 @@ void QuickView::QViewDelTempName()
 		// BUGBUG check result
 		if (!os::fs::remove_directory(TempDirectoryName))
 		{
-			LOGWARNING(L"remove_directory({}): {}", TempDirectoryName, last_error());
+			LOGWARNING(L"remove_directory({}): {}"sv, TempDirectoryName, last_error());
 		}
 
 		m_TemporaryFile = false;

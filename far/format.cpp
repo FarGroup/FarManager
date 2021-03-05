@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 std::wostream& std::operator<<(std::wostream& Stream, std::exception const& e)
 {
-	Stream << format(FSTR(L"std::exception: {}"), encoding::utf8::get_chars(e.what()));
+	Stream << format(FSTR(L"std::exception: {}"sv), encoding::utf8::get_chars(e.what()));
 	return Stream;
 }
 
@@ -68,6 +68,6 @@ namespace
 {
 	SCOPED_ACTION(components::component)([]
 	{
-		return components::info{ L"fmt"sv, format(FSTR(L"{}.{}.{}"), FMT_VERSION / 10000, FMT_VERSION % 10000 / 100, FMT_VERSION % 100) };
+		return components::info{ L"fmt"sv, format(FSTR(L"{}.{}.{}"sv), FMT_VERSION / 10000, FMT_VERSION % 10000 / 100, FMT_VERSION % 100) };
 	});
 }

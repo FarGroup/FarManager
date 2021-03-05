@@ -79,12 +79,12 @@ void CachedRead::AdjustAlignment()
 
 		if (!m_File.IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, nullptr, 0, nullptr, 0))
 		{
-			LOGWARNING(L"IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, {}): {}", m_File.GetName(), last_error());
+			LOGWARNING(L"IoControl(FSCTL_ALLOW_EXTENDED_DASD_IO, {}): {}"sv, m_File.GetName(), last_error());
 		}
 	}
 	else
 	{
-		LOGDEBUG(L"IoControl(IOCTL_STORAGE_QUERY_PROPERTY, {}): {}", m_File.GetName(), last_error());
+		LOGDEBUG(L"IoControl(IOCTL_STORAGE_QUERY_PROPERTY, {}): {}"sv, m_File.GetName(), last_error());
 	}
 
 	if (BufferSize > m_Buffer.size())

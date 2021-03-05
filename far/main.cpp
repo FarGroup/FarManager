@@ -63,7 +63,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception_handler.hpp"
 #include "exception_handler_test.hpp"
 #include "constitle.hpp"
-#include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "drivemix.hpp"
 #include "new_handler.hpp"
@@ -328,6 +327,11 @@ static int MainProcess(
 		return EXIT_SUCCESS;
 }
 
+static auto full_path_expanded(string_view const Str)
+{
+	return ConvertNameToFull(unquote(os::env::expand(Str)));
+}
+
 static void InitTemplateProfile(string &strTemplatePath)
 {
 	if (strTemplatePath.empty())
@@ -337,7 +341,7 @@ static void InitTemplateProfile(string &strTemplatePath)
 
 	if (!strTemplatePath.empty())
 	{
-		strTemplatePath = ConvertNameToFull(unquote(os::env::expand(strTemplatePath)));
+		strTemplatePath = full_path_expanded(strTemplatePath);
 		DeleteEndSlash(strTemplatePath);
 
 		if (os::fs::is_directory(strTemplatePath))
@@ -354,17 +358,16 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	if (!strProfilePath.empty())
 	{
-		strProfilePath = ConvertNameToFull(unquote(os::env::expand(strProfilePath)));
+		strProfilePath = full_path_expanded(strProfilePath);
 	}
 	if (!strLocalProfilePath.empty())
 	{
-		strLocalProfilePath = ConvertNameToFull(unquote(os::env::expand(strLocalProfilePath)));
+		strLocalProfilePath = full_path_expanded(strLocalProfilePath);
 	}
 
 	if (strProfilePath.empty())
 	{
-		const auto UseSystemProfiles = GetFarIniInt(L"General"sv, L"UseSystemProfiles"sv, 1);
-		if (UseSystemProfiles)
+		if (const auto UseSystemProfiles = GetFarIniInt(L"General"sv, L"UseSystemProfiles"sv, 1))
 		{
 			const auto GetShellProfilePath = [](int Idl)
 			{
@@ -385,8 +388,9 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		{
 			const auto strUserProfileDir = GetFarIniString(L"General"sv, L"UserProfileDir"sv, path::join(L"%FARHOME%"sv, L"Profile"sv));
 			const auto strUserLocalProfileDir = GetFarIniString(L"General"sv, L"UserLocalProfileDir"sv, strUserProfileDir);
-			Global->Opt->ProfilePath = ConvertNameToFull(unquote(os::env::expand(strUserProfileDir)));
-			Global->Opt->LocalProfilePath = ConvertNameToFull(unquote(os::env::expand(strUserLocalProfileDir)));
+
+			Global->Opt->ProfilePath = full_path_expanded(strUserProfileDir);
+			Global->Opt->LocalProfilePath = full_path_expanded(strUserLocalProfileDir);
 		}
 	}
 	else
@@ -476,7 +480,7 @@ static int handle_exception(function_ref<bool()> const Handler)
 {
 	if (Handler())
 	{
-		LOGFATAL(L"Abnormal exit");
+		LOGFATAL(L"Abnormal exit"sv);
 		std::_Exit(EXIT_FAILURE);
 	}
 
@@ -489,10 +493,9 @@ std::pair<string_view, DWORD> get_hook_wow64_error();
 static void log_hook_wow64_status()
 {
 	const auto [Msg, Error] = get_hook_wow64_error();
-	LOG
-	(
+	LOG(
 		Error == ERROR_SUCCESS? logging::level::debug : logging::level::warning,
-		L"hook_wow64: {} {}",
+		L"hook_wow64: {} {}"sv,
 		Msg,
 		os::format_system_error(Error, os::GetErrorString(false, Error))
 	);
@@ -504,7 +507,7 @@ static void log_hook_wow64_status()
 			if (const auto LdrLoadDll = GetProcAddress(NtDll, "LdrLoadDll"))
 			{
 				const auto FunctionData = reinterpret_cast<std::byte const*>(LdrLoadDll);
-				LOGWARNING(L"LdrLoadDll: {}", BlobToHexString({ FunctionData, 32 }));
+				LOGWARNING(L"LdrLoadDll: {}"sv, BlobToHexString({ FunctionData, 32 }));
 			}
 		}
 	}
@@ -742,7 +745,7 @@ static int mainImpl(span<const wchar_t* const> const Args)
 				}
 				else
 				{
-					auto ArgvI = ConvertNameToFull(unquote(os::env::expand(Arg)));
+					auto ArgvI = full_path_expanded(Arg);
 					if (os::fs::exists(ArgvI))
 					{
 						DestNames[CntDestName++] = ArgvI;
@@ -786,7 +789,7 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	os::env::set(L"FARLANG"sv, Global->Opt->strLanguage);
 
 	if (!Global->Opt->LoadPlug.strCustomPluginsPath.empty())
-		Global->Opt->LoadPlug.strCustomPluginsPath = ConvertNameToFull(unquote(os::env::expand(Global->Opt->LoadPlug.strCustomPluginsPath)));
+		Global->Opt->LoadPlug.strCustomPluginsPath = full_path_expanded(Global->Opt->LoadPlug.strCustomPluginsPath);
 
 	UpdateErrorMode();
 
@@ -835,7 +838,7 @@ static int handle_exception_final(function_ref<bool()> const Handler)
 {
 	if (Handler())
 	{
-		LOGFATAL(L"Abnormal exit");
+		LOGFATAL(L"Abnormal exit"sv);
 		std::_Exit(EXIT_FAILURE);
 	}
 
@@ -897,7 +900,7 @@ int main()
 	},
 	[](DWORD const ExceptionCode) -> int
 	{
-		LOGFATAL(L"Abnormal exit due to SEH exception {}", ExceptionCode);
+		LOGFATAL(L"Abnormal exit due to SEH exception {}"sv, ExceptionCode);
 		std::_Exit(ExceptionCode? ExceptionCode : EXIT_FAILURE);
 	},
 	__FUNCTION__);

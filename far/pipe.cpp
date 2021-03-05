@@ -57,7 +57,7 @@ namespace pipe
 			throw MAKE_FAR_EXCEPTION(L"Pipe read error"sv);
 
 		if (BytesRead != DataSize)
-			throw MAKE_FAR_EXCEPTION(format(FSTR(L"Pipe read error: {} bytes requested, but {} bytes read"), DataSize, BytesRead));
+			throw MAKE_FAR_EXCEPTION(format(FSTR(L"Pipe read error: {} bytes requested, but {} bytes read"sv), DataSize, BytesRead));
 	}
 
 	void read(const os::handle& Pipe, string& Data)
@@ -78,7 +78,7 @@ namespace pipe
 			throw MAKE_FAR_EXCEPTION(L"Pipe write error"sv);
 
 		if (BytesWritten != DataSize)
-			throw MAKE_FAR_EXCEPTION(format(FSTR(L"Pipe write error: {} bytes sent, but {} bytes written"), DataSize, BytesWritten));
+			throw MAKE_FAR_EXCEPTION(format(FSTR(L"Pipe write error: {} bytes sent, but {} bytes written"sv), DataSize, BytesWritten));
 	}
 
 	void write(const os::handle& Pipe, string_view const Data)

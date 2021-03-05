@@ -68,7 +68,7 @@ namespace
 			if (LookupPrivilegeValue(nullptr, MapKey.c_str(), &Luid))
 				MapValue = Luid;
 			else
-				LOGWARNING(L"LookupPrivilegeValue({}): {}", MapKey, last_error());
+				LOGWARNING(L"LookupPrivilegeValue({}): {}"sv, MapKey, last_error());
 		}
 
 		return MapValue;
@@ -138,7 +138,7 @@ namespace os::security
 		const auto Token = open_current_process_token(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
 		if (!Token)
 		{
-			LOGWARNING(L"open_current_process_token: {}", last_error());
+			LOGWARNING(L"open_current_process_token: {}"sv, last_error());
 			return;
 		}
 
@@ -147,7 +147,7 @@ namespace os::security
 		m_Changed = AdjustTokenPrivileges(Token.native_handle(), FALSE, NewState.data(), static_cast<DWORD>(m_SavedState.size()), m_SavedState.data(), &ReturnLength) && m_SavedState->PrivilegeCount;
 
 		if (m_SavedState->PrivilegeCount != NewState->PrivilegeCount)
-			LOGWARNING(L"AdjustTokenPrivileges(): {}", last_error());
+			LOGWARNING(L"AdjustTokenPrivileges(): {}"sv, last_error());
 	}
 
 	privilege::~privilege()
@@ -158,14 +158,14 @@ namespace os::security
 		const auto Token = open_current_process_token(TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY);
 		if (!Token)
 		{
-			LOGWARNING(L"open_current_process_token: {}", last_error());
+			LOGWARNING(L"open_current_process_token: {}"sv, last_error());
 			return;
 		}
 
 		SCOPED_ACTION(os::last_error_guard);
 
 		if (!AdjustTokenPrivileges(Token.native_handle(), FALSE, m_SavedState.data(), 0, nullptr, nullptr))
-			LOGWARNING(L"AdjustTokenPrivileges(): {}", last_error());
+			LOGWARNING(L"AdjustTokenPrivileges(): {}"sv, last_error());
 	}
 
 	static auto get_token_privileges(HANDLE TokenHandle)
@@ -199,14 +199,14 @@ namespace os::security
 		const auto Token = open_current_process_token(TOKEN_QUERY);
 		if (!Token)
 		{
-			LOGWARNING(L"open_current_process_token: {}", last_error());
+			LOGWARNING(L"open_current_process_token: {}"sv, last_error());
 			return false;
 		}
 
 		const auto TokenPrivileges = get_token_privileges(Token.native_handle());
 		if (!TokenPrivileges)
 		{
-			LOGWARNING(L"get_token_privileges: {}", last_error());
+			LOGWARNING(L"get_token_privileges: {}"sv, last_error());
 			return false;
 		}
 

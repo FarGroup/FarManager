@@ -88,7 +88,7 @@ enum_lines::~enum_lines()
 	}
 	catch (const std::exception& e)
 	{
-		LOGERROR(L"{}", e);
+		LOGERROR(L"{}"sv, e);
 	}
 }
 
@@ -364,13 +364,19 @@ static bool GetCpUsingUniversalDetectorWithExceptions(std::string_view const Str
 		{
 			const auto CodepageType = codepages::GetFavorite(Codepage);
 			if (!(CodepageType & CPST_FAVORITE))
+			{
+				LOGINFO(L"NoAutoDetectCP: codepage {} is not whitelisted"sv, Codepage);
 				return false;
+			}
 		}
 	}
 	else
 	{
 		if (contains(enum_tokens(Global->Opt->strNoAutoDetectCP.Get(), L",;"sv), str(Codepage)))
+		{
+			LOGINFO(L"NoAutoDetectCP: codepage {} is blacklisted"sv, Codepage);
 			return false;
+		}
 	}
 
 	return true;
@@ -400,7 +406,10 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 		return false;
 
 	if (GetUnicodeCpUsingWindows(Buffer.data(), ReadSize, Codepage))
+	{
+		LOGINFO(L"IsTextUnicode heuristic: codepage {}"sv, Codepage);
 		return true;
+	}
 
 	NotUTF16 = true;
 
@@ -417,6 +426,7 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 		else
 			Codepage = encoding::codepage::ansi();
 
+		LOGINFO(L"UTF-8 heuristic: ascii: {}, codepage {}"sv, PureAscii, Codepage);
 		return true;
 	}
 

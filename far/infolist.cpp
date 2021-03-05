@@ -377,7 +377,7 @@ void InfoList::DisplayObject()
 			if (UseAssocPath)
 				append(SectionTitle, L' ', strAssocPath);
 
-			strDiskNumber = format(FSTR(L"{:04X}-{:04X}"), HIWORD(VolumeNumber), LOWORD(VolumeNumber));
+			strDiskNumber = format(FSTR(L"{:04X}-{:04X}"sv), HIWORD(VolumeNumber), LOWORD(VolumeNumber));
 		}
 		else // Error!
 			SectionTitle = strDriveRoot;

@@ -688,7 +688,7 @@ namespace console_detail
 			else
 			{
 				const union { COLORREF Color; rgba RGBA; } Value { ColorPart };
-				format_to(Str, FSTR(L"{};2;{};{};{}"), i.TrueColour, Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
+				format_to(Str, FSTR(L"{};2;{};{};{}"sv), i.TrueColour, Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
 			}
 
 			Str += L';';
@@ -790,7 +790,7 @@ namespace console_detail
 			for (short i = SubRect.top; i <= SubRect.bottom; ++i)
 			{
 				if (i != SubRect.top)
-					format_to(Str, FSTR(L"\x9b""{};{}H"), CursorPosition.y + 1 + (i - SubRect.top), CursorPosition.x + 1);
+					format_to(Str, FSTR(L"\x9b""{};{}H"sv), CursorPosition.y + 1 + (i - SubRect.top), CursorPosition.x + 1);
 
 				make_vt_sequence(Buffer[i].subspan(SubRect.left, SubRect.width()), Str, LastColor);
 			}

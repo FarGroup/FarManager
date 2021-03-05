@@ -123,7 +123,7 @@ void disable_exception_handling()
 	HandleCppExceptions = false;
 	HandleSehExceptions = false;
 
-	LOGWARNING(L"Exception handling disabled");
+	LOGWARNING(L"Exception handling disabled"sv);
 }
 
 void force_stderr_exception_ui(bool const Force)
@@ -219,7 +219,7 @@ static string file_version(string_view const Name)
 	if (!FixedInfo)
 		return L"Unknown"s;
 
-	return format(FSTR(L"{}.{}.{}.{}"),
+	return format(FSTR(L"{}.{}.{}.{}"sv),
 		HIWORD(FixedInfo->dwFileVersionMS),
 		LOWORD(FixedInfo->dwFileVersionMS),
 		HIWORD(FixedInfo->dwFileVersionLS),
@@ -265,9 +265,9 @@ static void read_modules(string& To, string_view const Eol)
 
 static string self_version()
 {
-	const auto Version = format(FSTR(L"{} {}"), version_to_string(build::version()), build::platform());
+	const auto Version = format(FSTR(L"{} {}"sv), version_to_string(build::version()), build::platform());
 	const auto ScmRevision = build::scm_revision();
-	return ScmRevision.empty()? Version : Version + format(FSTR(L" ({:.7})"), ScmRevision);
+	return ScmRevision.empty()? Version : Version + format(FSTR(L" ({:.7})"sv), ScmRevision);
 }
 
 static bool get_os_version(OSVERSIONINFOEX& Info)
@@ -290,7 +290,7 @@ static string os_version_from_api()
 	if (!get_os_version(Info))
 		return L"Unknown"s;
 
-	return format(FSTR(L"{}.{}.{}.{}.{}.{}.{}.{}"),
+	return format(FSTR(L"{}.{}.{}.{}.{}.{}.{}.{}"sv),
 		Info.dwMajorVersion,
 		Info.dwMinorVersion,
 		Info.dwBuildNumber,
@@ -314,7 +314,7 @@ static string os_version_from_registry()
 	if (!Key.get(L"ReleaseId"sv, ReleaseId) || !Key.get(L"CurrentBuild"sv, CurrentBuild) || !Key.get(L"UBR"sv, UBR))
 		return {};
 
-	return format(FSTR(L" (version {}, OS build {}.{})"), ReleaseId, CurrentBuild, UBR);
+	return format(FSTR(L" (version {}, OS build {}.{})"sv), ReleaseId, CurrentBuild, UBR);
 }
 
 static string os_version()
@@ -340,7 +340,7 @@ static void read_registers(string& To, CONTEXT const& Context, string_view const
 {
 	const auto r = [&](string_view const Name, auto const Value)
 	{
-		format_to(To, FSTR(L"{:3} = {:0{}X}{}"), Name, Value, sizeof(Value) * 2, Eol);
+		format_to(To, FSTR(L"{:3} = {:0{}X}{}"sv), Name, Value, sizeof(Value) * 2, Eol);
 	};
 
 #if defined _M_X64
@@ -398,7 +398,7 @@ static void copy_information(
 
 	for (const auto& [Label, Value]: zip(Labels, Values))
 	{
-		format_to(Strings, FSTR(L"{:{}} {}{}"), Label, LabelsWidth, Value, Eol);
+		format_to(Strings, FSTR(L"{:{}} {}{}"sv), Label, LabelsWidth, Value, Eol);
 	}
 
 	append(Strings, Eol);
@@ -830,7 +830,7 @@ static bool ShowExceptionUI(
 	{
 		auto Message = join(select(zip(Labels, Values), [](auto const& Pair)
 		{
-			return format(FSTR(L"{} {}"), std::get<0>(Pair), std::get<1>(Pair));
+			return format(FSTR(L"{} {}"sv), std::get<0>(Pair), std::get<1>(Pair));
 		}), L"\n"sv);
 
 		Message += L"\n\n"sv;
@@ -843,7 +843,7 @@ static bool ShowExceptionUI(
 		return Message;
 	};
 
-	LOG(PluginModule? logging::level::error : logging::level::fatal, L"\n{}\n", log_message());
+	LOG(PluginModule? logging::level::error : logging::level::fatal, L"\n{}\n"sv, log_message());
 
 	return (UseDialog? ExcDialog : ExcConsole)(
 		Context,
@@ -1072,7 +1072,7 @@ static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_vie
 
 	const auto ItemIterator = std::find_if(CONST_RANGE(KnownExceptions, i) { return static_cast<DWORD>(i.second) == ExceptionRecord.ExceptionCode; });
 	const auto Name = ItemIterator != std::cend(KnownExceptions) ? ItemIterator->first : L"Unknown exception"sv;
-	return WithType(format(FSTR(L"0x{:0>8X} - {}"), ExceptionRecord.ExceptionCode, Name));
+	return WithType(format(FSTR(L"0x{:0>8X} - {}"sv), ExceptionRecord.ExceptionCode, Name));
 }
 
 static string exception_details(EXCEPTION_RECORD const& ExceptionRecord, string_view const Message)
@@ -1094,7 +1094,7 @@ static string exception_details(EXCEPTION_RECORD const& ExceptionRecord, string_
 			}
 		}(ExceptionRecord.ExceptionInformation[0]);
 
-		return format(FSTR(L"Memory at {} could not be {}"), AccessedAddress, Mode);
+		return format(FSTR(L"Memory at {} could not be {}"sv), AccessedAddress, Mode);
 	}
 
 	case EXCEPTION_MICROSOFT_CPLUSPLUS:
@@ -1155,7 +1155,7 @@ static bool handle_generic_exception(
 	const auto Exception = exception_name(Context.exception_record(), Type);
 	const auto Details = exception_details(Context.exception_record(), Message);
 
-	const auto PluginInformation = PluginModule? format(FSTR(L"{} {} ({}, {})"),
+	const auto PluginInformation = PluginModule? format(FSTR(L"{} {} ({}, {})"sv),
 		PluginModule->Title(),
 		version_to_string(PluginModule->version()),
 		PluginModule->Description(),

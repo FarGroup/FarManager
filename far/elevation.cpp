@@ -235,7 +235,7 @@ elevation::~elevation()
 		}
 		catch (const far_exception& e)
 		{
-			LOGERROR(L"{}", e);
+			LOGERROR(L"{}"sv, e);
 		}
 	}
 
@@ -315,7 +315,7 @@ auto elevation::execute(lng Why, string_view const Object, T Fallback, const F1&
 		m_Process.close();
 		m_Pipe.close();
 
-		LOGERROR(L"{}", e);
+		LOGERROR(L"{}"sv, e);
 		return Fallback;
 	}
 }
@@ -358,7 +358,7 @@ static os::handle create_job()
 	os::handle Job(CreateJobObject(nullptr, nullptr));
 	if (!Job)
 	{
-		LOGERROR(L"CreateJobObject: {}", last_error());
+		LOGERROR(L"CreateJobObject: {}"sv, last_error());
 		return nullptr;
 	}
 
@@ -366,7 +366,7 @@ static os::handle create_job()
 	jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
 	if (!SetInformationJobObject(Job.native_handle(), JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
 	{
-		LOGERROR(L"SetInformationJobObject: {}", last_error());
+		LOGERROR(L"SetInformationJobObject: {}"sv, last_error());
 		return nullptr;
 	}
 
@@ -1343,7 +1343,7 @@ private:
 		}
 		catch (...)
 		{
-			LOGERROR(L"Unknown exception");
+			LOGERROR(L"Unknown exception"sv);
 			return false;
 		}
 	}

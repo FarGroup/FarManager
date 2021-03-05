@@ -838,7 +838,7 @@ void FileList::SortFileList(bool KeepPosition)
 	}
 	else
 	{
-		LOGWARNING(L"Unknown sort mode {}", m_SortMode);
+		LOGWARNING(L"Unknown sort mode {}"sv, m_SortMode);
 	}
 
 	if (KeepPosition)
@@ -1884,7 +1884,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 							// BUGBUG check result
 							if (!os::fs::remove_directory(TemporaryDirectory))
 							{
-								LOGWARNING(L"remove_directory({}): {}", TemporaryDirectory, last_error());
+								LOGWARNING(L"remove_directory({}): {}"sv, TemporaryDirectory, last_error());
 							}
 							return true;
 						}
@@ -2688,7 +2688,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			// BUGBUG check result
 			if (!os::fs::create_directory(strTempDir))
 			{
-				LOGWARNING(L"create_directory({}): {}", strTempDir, last_error());
+				LOGWARNING(L"create_directory({}): {}"sv, strTempDir, last_error());
 			}
 
 			PluginPanelItemHolder PanelItem;
@@ -2699,7 +2699,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				// BUGBUG check result
 				if (!os::fs::remove_directory(strTempDir))
 				{
-					LOGWARNING(L"remove_directory({}): {}", strTempDir, last_error());
+					LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, last_error());
 				}
 
 				return;
@@ -4149,7 +4149,7 @@ void FileList::UpdateViewPanel()
 		// BUGBUG check result
 		if (!os::fs::create_directory(strTempDir))
 		{
-			LOGWARNING(L"create_directory({}): {}", strTempDir, last_error());
+			LOGWARNING(L"create_directory({}): {}"sv, strTempDir, last_error());
 		}
 
 		PluginPanelItemHolder PanelItem;
@@ -4162,7 +4162,7 @@ void FileList::UpdateViewPanel()
 			// BUGBUG check result
 			if (!os::fs::remove_directory(strTempDir))
 			{
-				LOGWARNING(L"remove_directory({}): {}", strTempDir, last_error());
+				LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, last_error());
 			}
 
 			return;
@@ -4715,7 +4715,7 @@ void FileList::SelectSortMode()
 	}
 	else
 	{
-		LOGWARNING(L"Unknown sort mode {}", m_SortMode);
+		LOGWARNING(L"Unknown sort mode {}"sv, m_SortMode);
 	}
 
 	enum SortOptions
@@ -6004,7 +6004,7 @@ void FileList::PluginToPluginFiles(bool Move)
 	// BUGBUG check result
 	if (!os::fs::create_directory(strTempDir))
 	{
-		LOGWARNING(L"create_directory({}): {}", strTempDir, last_error());
+		LOGWARNING(L"create_directory({}): {}"sv, strTempDir, last_error());
 	}
 
 	{
@@ -6046,7 +6046,7 @@ void FileList::PluginToPluginFiles(bool Move)
 		// BUGBUG check result
 		if (!os::fs::remove_directory(OriginalTempDir))
 		{
-			LOGWARNING(L"remove_directory({}): {}", OriginalTempDir, last_error());
+			LOGWARNING(L"remove_directory({}): {}"sv, OriginalTempDir, last_error());
 		}
 	}
 
@@ -6686,7 +6686,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		// BUGBUG check result
 		if (!os::fs::get_disk_size(m_CurDir, nullptr, nullptr, &FreeDiskSize))
 		{
-			LOGWARNING(L"get_disk_size({}): {}", m_CurDir, last_error());
+			LOGWARNING(L"get_disk_size({}): {}"sv, m_CurDir, last_error());
 		}
 	}
 
@@ -6717,7 +6717,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	// BUGBUG check result
 	if (const auto Root = GetPathRoot(m_CurDir); !os::fs::GetVolumeInformation(Root, nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName))
 	{
-		LOGWARNING(L"GetVolumeInformation({}): {}", Root, last_error());
+		LOGWARNING(L"GetVolumeInformation({}): {}"sv, Root, last_error());
 	}
 
 	m_HardlinksSupported = true;
@@ -6900,7 +6900,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		}
 		else
 		{
-			LOGWARNING(L"GetFileTimeSimple({}): {}", m_CurDir, last_error());
+			LOGWARNING(L"GetFileTimeSimple({}): {}"sv, m_CurDir, last_error());
 		}
 
 		NewItem.Position = m_ListData.size();
@@ -7154,7 +7154,7 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 			// BUGBUG check result
 			if (!os::fs::get_disk_size(m_CurDir, nullptr, nullptr, &FreeDiskSize))
 			{
-				LOGWARNING(L"get_disk_size({}): {}", m_CurDir, last_error());
+				LOGWARNING(L"get_disk_size({}): {}"sv, m_CurDir, last_error());
 			}
 		}
 		else if (m_CachedOpenPanelInfo.Flags & OPIF_USEFREESIZE)
@@ -7401,7 +7401,7 @@ void FileList::ReadDiz(span<PluginPanelItem> const Items)
 							// BUGBUG check result
 							if (!os::fs::remove_directory(strTempDir))
 							{
-								LOGWARNING(L"remove_directory({}): {}", strTempDir, last_error());
+								LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, last_error());
 							}
 							//ViewPanel->ShowFile(nullptr,FALSE,nullptr);
 						}
@@ -7612,7 +7612,7 @@ void FileList::ShowFileList(bool Fast)
 		}
 		else
 		{
-			LOGWARNING(L"Unknown sort mode {}", m_SortMode);
+			LOGWARNING(L"Unknown sort mode {}"sv, m_SortMode);
 		}
 
 		if (Indicator)

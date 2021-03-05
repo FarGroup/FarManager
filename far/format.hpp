@@ -93,7 +93,7 @@ auto format_to(I&&, const char_type(&Format)[N], args&&...) = delete;
 template<typename char_type, size_t N, typename... args>
 auto format_to(string&, const char_type(&Format)[N], args&&...) = delete;
 
-#define FSTR(str) FMT_STRING(str ## sv)
+#define FSTR(str) FMT_STRING(str)
 
 template<typename T>
 auto str(const T& Value)
@@ -103,7 +103,7 @@ auto str(const T& Value)
 
 inline auto str(const void* Value)
 {
-	return format(FSTR(L"0x{:0{}X}"), reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
+	return format(FSTR(L"0x{:0{}X}"sv), reinterpret_cast<uintptr_t>(Value), sizeof(Value) * 2);
 }
 
 inline auto str(void* Value)

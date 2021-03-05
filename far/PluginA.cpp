@@ -5719,7 +5719,7 @@ WARNING_POP()
 		}
 		catch (const std::exception& e)
 		{
-			LOGERROR(L"{}", e);
+			LOGERROR(L"{}"sv, e);
 			return false;
 		}
 	}

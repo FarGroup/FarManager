@@ -139,7 +139,7 @@ string ConvertTemplateTreeName(string_view const strTemplate, string_view const 
 	string Str(strTemplate);
 
 	replace(Str, L"%D"sv, D);
-	replace(Str, L"%SN"sv, format(FSTR(L"{:04X}-{:04X}"), HIWORD(SN), LOWORD(SN)));
+	replace(Str, L"%SN"sv, format(FSTR(L"{:04X}-{:04X}"sv), HIWORD(SN), LOWORD(SN)));
 	replace(Str, L"%L"sv, L);
 	replace(Str, L"%SR"sv, SR);
 	replace(Str, L"%SH"sv, SH);
@@ -290,13 +290,13 @@ static bool GetCacheTreeName(string_view const Root, string& strName, bool const
 		// BUGBUG check result
 		if (!os::fs::create_directory(strFolderName))
 		{
-			LOGWARNING(L"create_directory({}): {}", strFolderName, last_error());
+			LOGWARNING(L"create_directory({}): {}"sv, strFolderName, last_error());
 		}
 
 		// BUGBUG check result
 		if (!os::fs::set_file_attributes(strFolderName, Global->Opt->Tree.TreeFileAttr))
 		{
-			LOGWARNING(L"set_file_attributes({}): {}", strFolderName, last_error());
+			LOGWARNING(L"set_file_attributes({}): {}"sv, strFolderName, last_error());
 		}
 	}
 
@@ -314,7 +314,7 @@ static bool GetCacheTreeName(string_view const Root, string& strName, bool const
 	}
 
 	std::replace(ALL_RANGE(strRemoteName), path::separator, L'_');
-	strName = format(FSTR(L"{}\\{}.{:X}.{}.{}"), strFolderName, strVolumeName, dwVolumeSerialNumber, strFileSystemName, strRemoteName);
+	strName = format(FSTR(L"{}\\{}.{:X}.{}.{}"sv), strFolderName, strVolumeName, dwVolumeSerialNumber, strFileSystemName, strRemoteName);
 	return true;
 }
 
@@ -738,7 +738,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 
 	if (SavedAttributes != INVALID_FILE_ATTRIBUTES && !os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
 	{
-		LOGWARNING(L"set_file_attributes({}): {}", Name, last_error());
+		LOGWARNING(L"set_file_attributes({}): {}"sv, Name, last_error());
 	}
 
 	std::optional<error_state_ex> ErrorState;
@@ -763,7 +763,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 
 			if (SavedAttributes != INVALID_FILE_ATTRIBUTES && !os::fs::set_file_attributes(Name, SavedAttributes)) //BUGBUG
 			{
-				LOGWARNING(L"set_file_attributes({}): {}", Name, last_error());
+				LOGWARNING(L"set_file_attributes({}): {}"sv, Name, last_error());
 			}
 		}
 		catch (const far_exception& e)
@@ -783,7 +783,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 	{
 		if (const auto CacheName = TreeCache().GetTreeName(); !os::fs::delete_file(CacheName)) // BUGBUG
 		{
-			LOGWARNING(L"delete_file({}): {}", CacheName, last_error());
+			LOGWARNING(L"delete_file({}): {}"sv, CacheName, last_error());
 		}
 
 		if (!Global->WindowManager->ManagerIsDown())

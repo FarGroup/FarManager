@@ -198,7 +198,7 @@ static BOOL WINAPI CtrlHandler(DWORD CtrlType)
 		Global->CloseFAR = true;
 		Global->AllowCancelExit = false;
 
-		LOGNOTICE(L"CTRL_CLOSE_EVENT: exiting the thread");
+		LOGNOTICE(L"CTRL_CLOSE_EVENT: exiting the thread"sv);
 
 		// trick to let wmain() finish correctly
 		ExitThread(1);
@@ -1221,7 +1221,7 @@ string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool Prop
 	string StrPercent;
 	if (ShowPercent)
 	{
-		StrPercent = format(FSTR(L" {:3}%"), Percent);
+		StrPercent = format(FSTR(L" {:3}%"sv), Percent);
 		Size = Size > StrPercent.size()? Size - StrPercent.size(): 0;
 	}
 	string Str(Size, BoxSymbols[BS_X_B0]);
@@ -1347,7 +1347,7 @@ size_t ConsoleChoice(string_view const Message, string_view const Choices, size_
 
 	for (;;)
 	{
-		std::wcout << format(FSTR(L"\n{} ({})? "), Message, join(Choices, L"/"sv)) << std::flush;
+		std::wcout << format(FSTR(L"\n{} ({})? "sv), Message, join(Choices, L"/"sv)) << std::flush;
 
 		wchar_t Input;
 		std::wcin.clear();

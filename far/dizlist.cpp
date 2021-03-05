@@ -328,7 +328,7 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 
 		if (!os::fs::set_file_attributes(m_DizFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY)) //BUGBUG
 		{
-			LOGWARNING(L"set_file_attributes({}): {}", m_DizFileName, last_error());
+			LOGWARNING(L"set_file_attributes({}): {}"sv, m_DizFileName, last_error());
 		}
 	}
 

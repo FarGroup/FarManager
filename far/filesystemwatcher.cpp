@@ -69,7 +69,7 @@ FileSystemWatcher::~FileSystemWatcher()
 	}
 	catch (...)
 	{
-		LOGERROR(L"Unknown exception");
+		LOGERROR(L"Unknown exception"sv);
 	}
 }
 

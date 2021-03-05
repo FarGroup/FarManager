@@ -79,7 +79,7 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 						const auto& BroadcastHeader = *reinterpret_cast<const DEV_BROADCAST_HDR*>(lParam);
 						if (BroadcastHeader.dbch_devicetype == DBT_DEVTYP_VOLUME)
 						{
-							LOGINFO(L"WM_DEVICECHANGE(DBT_DEVTYP_VOLUME)");
+							LOGINFO(L"WM_DEVICECHANGE(DBT_DEVTYP_VOLUME)"sv);
 							const auto& BroadcastVolume = *reinterpret_cast<const DEV_BROADCAST_VOLUME*>(&BroadcastHeader);
 							message_manager::instance().notify(update_devices, update_devices_message
 							{
@@ -103,13 +103,13 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 				{
 					if (Global->Opt->UpdateEnvironment)
 					{
-						LOGINFO(L"WM_SETTINGCHANGE(Environment)");
+						LOGINFO(L"WM_SETTINGCHANGE(Environment)"sv);
 						message_manager::instance().notify(update_environment);
 					}
 				}
 				else if (Area == L"intl"sv)
 				{
-					LOGINFO(L"WM_SETTINGCHANGE(intl)");
+					LOGINFO(L"WM_SETTINGCHANGE(intl)"sv);
 					message_manager::instance().notify(update_intl);
 				}
 			}
@@ -120,7 +120,7 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 			{
 			case PBT_APMPOWERSTATUSCHANGE: // change status
 			case PBT_POWERSETTINGCHANGE:   // change percent
-				LOGINFO(L"WM_POWERBROADCAST");
+				LOGINFO(L"WM_POWERBROADCAST"sv);
 				message_manager::instance().notify(update_power);
 				break;
 
