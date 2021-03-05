@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 05.03.2021 21:02:33 +0000 - build 5755
+
+1. gh-367: Reproducible exception related to regular expressions.
+
+--------------------------------------------------------------------------------
 drkns 05.03.2021 00:31:26 +0000 - build 5754
 
 1. UCD can detect CJK charsets if the locale is CJK.
