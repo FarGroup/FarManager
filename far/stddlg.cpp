@@ -547,7 +547,7 @@ static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, fun
 				os::chrono::nt_clock::from_filetime(Info.Process.ProcessStartTime) == CreationTime)
 			{
 				string Name;
-				if (os::fs::GetModuleFileName(Process.native_handle(), nullptr, Name))
+				if (os::fs::get_module_file_name(Process.native_handle(), {}, Name))
 				{
 					append(Str, L", "sv, Name);
 				}
@@ -926,7 +926,7 @@ bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view const H
 	}
 	catch (const std::exception& e)
 	{
-		LOGWARNING(L"{}", e);
+		LOGWARNING(L"{}"sv, e);
 		// maybe we need to display a message in case of an incorrect input
 		return false;
 	}

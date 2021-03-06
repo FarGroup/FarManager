@@ -213,7 +213,7 @@ namespace
 	static auto get_process_subsystem_from_module(HANDLE const Process)
 	{
 		string ProcessFileName;
-		if (!os::fs::GetModuleFileName(Process, {}, ProcessFileName))
+		if (!os::fs::get_module_file_name(Process, {}, ProcessFileName))
 			return os::process::image_type::unknown;
 
 		const os::fs::file ModuleFile(ProcessFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);

@@ -421,13 +421,13 @@ std::vector<column> DeserialiseViewSettings(string_view const ColumnTitles, stri
 					NewColumn.type = static_cast<column_type>(static_cast<size_t>(column_type::custom_0) + Index);
 				else
 				{
-					LOGWARNING(L"Incorrect custom column {}", Type);
+					LOGWARNING(L"Incorrect custom column {}"sv, Type);
 					// TODO: error message?
 				}
 			}
 			else
 			{
-				LOGWARNING(L"Unknown column type {}", Type);
+				LOGWARNING(L"Unknown column type {}"sv, Type);
 				// TODO: error message?
 				continue;
 			}
@@ -453,7 +453,7 @@ std::vector<column> DeserialiseViewSettings(string_view const ColumnTitles, stri
 		// if "column sizes" ends earlier or if user entered two commas we just use default size.
 		if (!Width.empty() && !from_string(Width, i.width))
 		{
-			LOGWARNING(L"Incorrect column width {}", Width);
+			LOGWARNING(L"Incorrect column width {}"sv, Width);
 		}
 
 		i.width_type = col_width::fixed;
@@ -501,7 +501,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 		case COLFLAGS_RIGHTALIGNFORCE: return L'F';
 		case COLFLAGS_MARK_DYNAMIC:    return L'D';
 		default:
-			throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"Unexpected mode {}"), as_underlying_type(Mode)));
+			throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"Unexpected mode {}"sv), as_underlying_type(Mode)));
 		}
 	};
 

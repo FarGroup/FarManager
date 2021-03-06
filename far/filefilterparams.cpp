@@ -487,7 +487,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 
 		const auto AmpFix = Name.size() - HiStrlen(Name);
 
-		return format(FSTR(L"{1:3} {0} {2:{3}.{3}} {0} {4} {5} {0} {6}"),
+		return format(FSTR(L"{1:3} {0} {2:{3}.{3}} {0} {4} {5} {0} {6}"sv),
 			BoxSymbols[BS_V1],
 			MarkChar,
 			Name,
@@ -498,10 +498,10 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 		);
 	}
 
-	const auto HotkeyStr = Hotkey? format(FSTR(L"&{}. "), Hotkey) : bPanelType? L"   "s : L""s;
+	const auto HotkeyStr = Hotkey? format(FSTR(L"&{}. "sv), Hotkey) : bPanelType? L"   "s : L""s;
 	const auto AmpFix = Hotkey? 1 : Name.size() - HiStrlen(Name);
 
-	return format(FSTR(L"{1}{2:{3}.{3}} {0} {4} {5} {0} {6}"),
+	return format(FSTR(L"{1}{2:{3}.{3}} {0} {4} {5} {0} {6}"sv),
 			BoxSymbols[BS_V1],
 			HotkeyStr,
 			Name,
@@ -875,18 +875,18 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	default:
 	case date_type::ymd:
 		// Маска даты для формата YYYYY.MM.DD
-		strDateMask = format(FSTR(L"N9999{0}99{0}99"), DateSeparator);
+		strDateMask = format(FSTR(L"N9999{0}99{0}99"sv), DateSeparator);
 		break;
 
 	case date_type::mdy:
 	case date_type::dmy:
 		// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
-		strDateMask = format(FSTR(L"99{0}99{0}9999N"), DateSeparator);
+		strDateMask = format(FSTR(L"99{0}99{0}9999N"sv), DateSeparator);
 		break;
 	}
 
 	// Маска времени
-	const auto strTimeMask = format(FSTR(L"99{0}99{0}99{1}9999999"), TimeSeparator, DecimalSeparator);
+	const auto strTimeMask = format(FSTR(L"99{0}99{0}99{1}9999999"sv), TimeSeparator, DecimalSeparator);
 	const wchar_t VerticalLine[] = {BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
 
 	std::pair<lng, string> NameLabels[] =

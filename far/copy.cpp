@@ -2130,7 +2130,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				{
 					if (!os::fs::delete_file(strDestPath)) // BUGBUG
 					{
-						LOGWARNING(L"delete_file({}): {}", strDestPath, last_error());
+						LOGWARNING(L"delete_file({}): {}"sv, strDestPath, last_error());
 					}
 				}
 
@@ -2142,7 +2142,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					if (NWFS_Attr && !os::fs::set_file_attributes(strSrcFullName,SrcData.Attributes&(~FILE_ATTRIBUTE_READONLY))) // BUGBUG
 					{
-						LOGWARNING(L"set_file_attributes({}): {}", strDestPath, last_error());
+						LOGWARNING(L"set_file_attributes({}): {}"sv, strDestPath, last_error());
 					}
 
 					if (strDestFSName == L"NWFS"sv)
@@ -2153,11 +2153,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					if (!FileMoved)
 					{
 						ErrorState = last_error();
-						LOGWARNING(L"move_file({}, {}): {}", strSrcFullName, strDestPath, last_error());
+						LOGWARNING(L"move_file({}, {}): {}"sv, strSrcFullName, strDestPath, last_error());
 
 						if (NWFS_Attr && !os::fs::set_file_attributes(strSrcFullName, SrcData.Attributes)) // BUGBUG
 						{
-							LOGWARNING(L"set_file_attributes({}): {}", strDestPath, last_error());
+							LOGWARNING(L"set_file_attributes({}): {}"sv, strDestPath, last_error());
 						}
 
 						if (ErrorState->Win32Error == ERROR_NOT_SAME_DEVICE)
@@ -2171,7 +2171,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					if (NWFS_Attr && !os::fs::set_file_attributes(strDestPath, SrcData.Attributes)) // BUGBUG
 					{
-						LOGWARNING(L"set_file_attributes({}): {}", strDestPath, last_error());
+						LOGWARNING(L"set_file_attributes({}): {}"sv, strDestPath, last_error());
 					}
 
 					AskDelete=0;
@@ -2229,7 +2229,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				{
 					if (DestAttr != INVALID_FILE_ATTRIBUTES && Append && !os::fs::set_file_attributes(strDestPath, DestAttr)) // BUGBUG
 					{
-						LOGWARNING(L"set_file_attributes({}): {}", strDestPath, last_error());
+						LOGWARNING(L"set_file_attributes({}): {}"sv, strDestPath, last_error());
 					}
 				};
 
@@ -2256,7 +2256,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							strCopiedName != DestData.FileName &&
 							!os::fs::move_file(strDestPath, strDestPath)) // BUGBUG
 						{
-							LOGWARNING(L"move_file({}, {}): {}", strDestPath, strDestPath, last_error());
+							LOGWARNING(L"move_file({}, {}): {}"sv, strDestPath, strDestPath, last_error());
 						}
 				}
 
@@ -2458,7 +2458,7 @@ int ShellCopy::DeleteAfterMove(const string& Name, os::fs::attributes Attr)
 
 		if (!os::fs::set_file_attributes(FullName, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
 		{
-			LOGWARNING(L"set_file_attributes({}): {}", FullName, last_error());
+			LOGWARNING(L"set_file_attributes({}): {}"sv, FullName, last_error());
 		}
 	}
 
@@ -2497,7 +2497,7 @@ int ShellCopy::ShellCopyFile(
 		{
 			if (!os::fs::delete_file(strDestName)) //BUGBUG
 			{
-				LOGWARNING(L"delete_file({}): {}", strDestName, last_error());
+				LOGWARNING(L"delete_file({}): {}"sv, strDestName, last_error());
 			}
 
 			return MkHardLink(SrcName,strDestName)? COPY_SUCCESS : COPY_FAILURE;
@@ -2621,7 +2621,7 @@ int ShellCopy::ShellCopyFile(
 
 		if (IsSystemEncrypted && !os::fs::set_file_attributes(strDestName, attrs)) //BUGBUG
 		{
-			LOGWARNING(L"set_file_attributes({}): {}", strDestName, last_error());
+			LOGWARNING(L"set_file_attributes({}): {}"sv, strDestName, last_error());
 		}
 
 		const auto strDriveRoot = GetPathRoot(strDestName);
@@ -2680,12 +2680,12 @@ int ShellCopy::ShellCopyFile(
 		{
 			if (!os::fs::set_file_attributes(strDestName, FILE_ATTRIBUTE_NORMAL)) // BUGBUG
 			{
-				LOGWARNING(L"set_file_attributes({}): {}", strDestName, last_error());
+				LOGWARNING(L"set_file_attributes({}): {}"sv, strDestName, last_error());
 			}
 
 			if (!os::fs::delete_file(strDestName)) //BUGBUG
 			{
-				LOGWARNING(L"delete_file({}): {}", strDestName, last_error());
+				LOGWARNING(L"delete_file({}): {}"sv, strDestName, last_error());
 			}
 		}
 	};
@@ -3027,7 +3027,7 @@ bool ShellCopy::AskOverwrite(
 	if (DestAttr & FILE_ATTRIBUTE_DIRECTORY)
 		return true;
 
-	const auto Format = FSTR(L"{:26} {:20} {} {}");
+	const auto Format = FSTR(L"{:26} {:20} {} {}"sv);
 
 	string strDestName = DestName;
 
@@ -3046,7 +3046,7 @@ bool ShellCopy::AskOverwrite(
 				DestDataFilled = os::fs::get_find_data(DestName, DestData);
 				if (!DestDataFilled)
 				{
-					LOGWARNING(L"get_find_data({}): {}", DestName, last_error());
+					LOGWARNING(L"get_find_data({}): {}"sv, DestName, last_error());
 				}
 
 				if ((Flags&FCOPY_ONLYNEWERFILES))
@@ -3166,7 +3166,7 @@ bool ShellCopy::AskOverwrite(
 						DestDataFilled = os::fs::get_find_data(DestName, DestData);
 						if (!DestDataFilled)
 						{
-							LOGWARNING(L"get_find_data({}): {}", DestName, last_error());
+							LOGWARNING(L"get_find_data({}): {}"sv, DestName, last_error());
 						}
 					}
 
@@ -3231,7 +3231,7 @@ bool ShellCopy::AskOverwrite(
 
 		if (!SameName && (DestAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)) && !os::fs::set_file_attributes(DestName, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
 		{
-			LOGWARNING(L"set_file_attributes({}): {}", DestName, last_error());
+			LOGWARNING(L"set_file_attributes({}): {}"sv, DestName, last_error());
 		}
 	}
 

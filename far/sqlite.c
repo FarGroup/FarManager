@@ -49,6 +49,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 WARNING_PUSH(3)
 
+WARNING_DISABLE_MSC(5105) // macro expansion producing 'defined' has undefined behavior
+
 WARNING_DISABLE_GCC("-Wcast-function-type")
 WARNING_DISABLE_GCC("-Wcast-qual")
 WARNING_DISABLE_GCC("-Wimplicit-fallthrough")

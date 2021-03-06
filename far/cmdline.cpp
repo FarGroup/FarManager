@@ -804,7 +804,7 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 									if (from_string(string_view(strExpandedDestStr).substr(it + 1 - strExpandedDestStr.cbegin()), NewPromptSize, &pos))
 										it += pos;
 									else
-										LOGWARNING(L"Incorrect prompt width in {}", strExpandedDestStr);
+										LOGWARNING(L"Incorrect prompt width in {}"sv, strExpandedDestStr);
 								}
 							}
 						}
@@ -931,7 +931,7 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool)> con
 #endif
 			L""sv;
 
-		std::wcout << L"\nCompiler:\n"sv << format(FSTR(L"{}, version {}.{}.{}{}"), COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH, CompilerInfo) << L'\n';
+		std::wcout << L"\nCompiler:\n"sv << format(FSTR(L"{}, version {}.{}.{}{}"sv), COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH, CompilerInfo) << L'\n';
 
 		if (const auto& ComponentsInfo = components::GetComponentsInfo(); !ComponentsInfo.empty())
 		{

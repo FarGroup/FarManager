@@ -557,7 +557,10 @@ namespace os::fs
 	bool GetTempPath(string& strBuffer);
 
 	[[nodiscard]]
-	bool GetModuleFileName(HANDLE hProcess, HMODULE hModule, string& strFileName);
+	bool get_module_file_name(HANDLE hProcess, HMODULE hModule, string& strFileName);
+
+	[[nodiscard]]
+	string get_current_process_file_name();
 
 	[[nodiscard]]
 	security::descriptor get_file_security(string_view Object, SECURITY_INFORMATION RequestedInformation);

@@ -122,8 +122,8 @@ public:
 
 static bool OpenURL(string_view URLPath);
 
-static const auto HelpFormatLink = FSTR(L"<{}\\>{}");
-static const auto HelpFormatLinkModule = FSTR(L"<{}>{}");
+static const auto HelpFormatLink = FSTR(L"<{}\\>{}"sv);
+static const auto HelpFormatLinkModule = FSTR(L"<{}>{}"sv);
 
 class Help :public Modal
 {
@@ -370,12 +370,12 @@ bool Help::ReadHelp(string_view const Mask)
 			}
 			else
 			{
-				LOGWARNING(L"CtrlTabSize value {} is out of range", UserTabSize);
+				LOGWARNING(L"CtrlTabSize value {} is out of range"sv, UserTabSize);
 			}
 		}
 		else
 		{
-			LOGWARNING(L"CtrlTabSize value {} is invalid", strReadStr);
+			LOGWARNING(L"CtrlTabSize value {} is invalid"sv, strReadStr);
 		}
 	}
 

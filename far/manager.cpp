@@ -449,7 +449,7 @@ window_ptr Manager::WindowMenu()
 			inplace::escape_ampersands(Name);
 			/*  добавляется "*" если файл изменен */
 			MenuItemEx ModalMenuItem(format(
-				FSTR(L"{}{}  {:<{}} {} {}"),
+				FSTR(L"{}{}  {:<{}} {} {}"sv),
 				Hotkey == L' '? L""sv : L"&"sv,
 				Hotkey,
 				Type,

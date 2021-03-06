@@ -480,7 +480,7 @@ enum color_dialog_items
 
 static string color_code(COLORREF Color)
 {
-	return format(FSTR(L"{:06X}"), colors::color_value(colors::ARGB2ABGR(Color)));
+	return format(FSTR(L"{:06X}"sv), colors::color_value(colors::ARGB2ABGR(Color)));
 }
 
 // BUGBUG

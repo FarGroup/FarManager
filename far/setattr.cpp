@@ -799,7 +799,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			// BUGBUG
 			if (!os::fs::get_find_data(*Object, SingleSelFindData))
 			{
-				LOGWARNING(L"get_find_data({}): {}", *Object, last_error());
+				LOGWARNING(L"get_find_data({}): {}"sv, *Object, last_error());
 			}
 
 			SingleSelFileName = *Object;
@@ -818,22 +818,22 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 		{
 		default:
 		case date_type::ymd:
-			DateMask = format(FSTR(L"N9999{0}99{0}99"), DateSeparator);
+			DateMask = format(FSTR(L"N9999{0}99{0}99"sv), DateSeparator);
 			DateFormat = format(msg(lng::MSetAttrDateTitleYMD), DateSeparator);
 			break;
 
 		case date_type::dmy:
-			DateMask = format(FSTR(L"99{0}99{0}9999N"), DateSeparator);
+			DateMask = format(FSTR(L"99{0}99{0}9999N"sv), DateSeparator);
 			DateFormat = format(msg(lng::MSetAttrDateTitleDMY), DateSeparator);
 			break;
 
 		case date_type::mdy:
-			DateMask = format(FSTR(L"99{0}99{0}9999N"), DateSeparator);
+			DateMask = format(FSTR(L"99{0}99{0}9999N"sv), DateSeparator);
 			DateFormat = format(msg(lng::MSetAttrDateTitleMDY), DateSeparator);
 			break;
 		}
 
-		const auto TimeMask = format(FSTR(L"99{0}99{0}99{1}9999999"), TimeSeparator, DecimalSeparator);
+		const auto TimeMask = format(FSTR(L"99{0}99{0}99{1}9999999"sv), TimeSeparator, DecimalSeparator);
 
 		AttrDlg[SA_TEXT_TITLEDATE].strData = DateFormat;
 		AttrDlg[SA_TEXT_TITLETIME].strData = format(msg(lng::MSetAttrTimeTitle), TimeSeparator);

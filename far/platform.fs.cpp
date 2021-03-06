@@ -2020,7 +2020,7 @@ namespace os::fs
 		});
 	}
 
-	bool GetModuleFileName(HANDLE hProcess, HMODULE hModule, string &strFileName)
+	bool get_module_file_name(HANDLE hProcess, HMODULE hModule, string &strFileName)
 	{
 		return os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, strFileName, [&](span<wchar_t> Buffer)
 		{
@@ -2046,6 +2046,19 @@ namespace os::fs
 				return ::GetModuleFileNameEx(hProcess, hModule, Buffer.data(), static_cast<DWORD>(Buffer.size()));
 			}
 		});
+	}
+
+	string get_current_process_file_name()
+	{
+		string FileName;
+
+		// - This shouldn't fail
+		// - It's tiresome to check every time
+		// - There's not much we can do without it anyways
+		if (!get_module_file_name({}, {}, FileName))
+			throw MAKE_FAR_FATAL_EXCEPTION(L"get_current_process_file_name");
+
+		return FileName;
 	}
 
 	security::descriptor get_file_security(const string_view Object, const SECURITY_INFORMATION RequestedInformation)

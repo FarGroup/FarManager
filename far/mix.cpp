@@ -105,7 +105,7 @@ string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const U
 		// BUGBUG check result
 		if (!os::fs::GetTempPath(strPath))
 		{
-			LOGWARNING(L"GetTempPath(): {}", last_error());
+			LOGWARNING(L"GetTempPath(): {}"sv, last_error());
 		}
 	}
 	else if(!UserTempPath.empty())
@@ -363,7 +363,7 @@ string version_to_string(const VersionInfo& Version)
 
 	static_assert(std::size(Stage) == VS_PRIVATE + 1);
 
-	auto VersionStr = format(FSTR(L"{}.{}.{}.{}"), Version.Major, Version.Minor, Version.Build, Version.Revision);
+	auto VersionStr = format(FSTR(L"{}.{}.{}.{}"sv), Version.Major, Version.Minor, Version.Build, Version.Revision);
 	if (Version.Stage != VS_RELEASE && static_cast<size_t>(Version.Stage) < std::size(Stage))
 	{
 		append(VersionStr, L" ("sv, Stage[Version.Stage], L')');

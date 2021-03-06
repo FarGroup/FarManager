@@ -68,7 +68,7 @@ void xlat_initialize()
 		unsigned long res;
 		if (!from_string(i, res, nullptr, 16))
 		{
-			LOGWARNING(L"Unsupported layout: {}", i);
+			LOGWARNING(L"Unsupported layout: {}"sv, i);
 			continue;
 		}
 

@@ -162,14 +162,14 @@ static bool SetREPARSE_DATA_BUFFER(const string_view Object, REPARSE_DATA_BUFFER
 
 	if (Attributes & FILE_ATTRIBUTE_READONLY && !os::fs::set_file_attributes(Object, Attributes & ~FILE_ATTRIBUTE_READONLY)) //BUGBUG
 	{
-		LOGWARNING(L"set_file_attributes({}): {}", Object, last_error());
+		LOGWARNING(L"set_file_attributes({}): {}"sv, Object, last_error());
 	}
 
 	SCOPE_EXIT
 	{
 		if (Attributes & FILE_ATTRIBUTE_READONLY && !os::fs::set_file_attributes(Object, Attributes)) //BUGBUG
 		{
-			LOGWARNING(L"set_file_attributes({}): {}", Object, last_error());
+			LOGWARNING(L"set_file_attributes({}): {}"sv, Object, last_error());
 		}
 
 	};
@@ -786,7 +786,7 @@ bool reparse_tag_to_string(DWORD ReparseTag, string& Str)
 	if (!Str.empty())
 		return true;
 
-	Str = format(FSTR(L":{:0>8X}"), ReparseTag);
+	Str = format(FSTR(L":{:0>8X}"sv), ReparseTag);
 	return false;
 }
 

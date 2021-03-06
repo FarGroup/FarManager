@@ -421,12 +421,12 @@ FileEditor::~FileEditor()
 			{
 				if (!os::fs::set_file_attributes(strFullFileName, FILE_ATTRIBUTE_NORMAL)) // BUGBUG
 				{
-					LOGWARNING(L"set_file_attributes({}): {}", strFullFileName, last_error());
+					LOGWARNING(L"set_file_attributes({}): {}"sv, strFullFileName, last_error());
 				}
 
 				if (!os::fs::delete_file(strFullFileName)) //BUGBUG
 				{
-					LOGWARNING(L"delete_file({}): {}", strFullFileName, last_error());
+					LOGWARNING(L"delete_file({}): {}"sv, strFullFileName, last_error());
 				}
 			}
 		}
@@ -1591,7 +1591,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 		// BUGBUG check result
 		if (!EditFile.GetSize(FileSize))
 		{
-			LOGWARNING(L"GetSize({}): {}", EditFile.GetName(), last_error());
+			LOGWARNING(L"GetSize({}): {}"sv, EditFile.GetName(), last_error());
 		}
 
 		const time_check TimeCheck;
@@ -1635,7 +1635,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 					// BUGBUG check result
 					if (!EditFile.GetSize(FileSize))
 					{
-						LOGWARNING(L"GetSize({}): {}", EditFile.GetName(), last_error());
+						LOGWARNING(L"GetSize({}): {}"sv, EditFile.GetName(), last_error());
 					}
 
 					Percent = FileSize? std::min(CurPos * 100 / FileSize, 100ull) : 100;
@@ -1688,7 +1688,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 	// BUGBUG check result
 	if (!os::fs::get_find_data(Name, FileInfo))
 	{
-		LOGWARNING(L"get_find_data({}): {}", Name, last_error());
+		LOGWARNING(L"get_find_data({}): {}"sv, Name, last_error());
 	}
 
 	EditorGetFileAttributes(Name);
@@ -1868,7 +1868,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 
 			if (!os::fs::set_file_attributes(Name, FileAttr & ~FILE_ATTRIBUTE_READONLY)) //BUGBUG
 			{
-				LOGWARNING(L"set_file_attributes({}): {}", Name, last_error());
+				LOGWARNING(L"set_file_attributes({}): {}"sv, Name, last_error());
 			}
 		}
 	}
@@ -2031,7 +2031,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 	// BUGBUG check result
 	if (!os::fs::get_find_data(Name, FileInfo))
 	{
-		LOGWARNING(L"get_find_data({}): {}", Name, last_error());
+		LOGWARNING(L"get_find_data({}): {}"sv, Name, last_error());
 	}
 
 	EditorGetFileAttributes(Name);
@@ -2215,14 +2215,14 @@ static std::pair<string, size_t> char_code(std::optional<wchar_t> const& Char, i
 	switch (Codebase)
 	{
 	case 0:
-		return process(FSTR(L"0{:o}"), L"0177777"sv);
+		return process(FSTR(L"0{:o}"sv), L"0177777"sv);
 
 	case 2:
-		return process(FSTR(L"{:X}h"), L"FFFFh"sv);
+		return process(FSTR(L"{:X}h"sv), L"FFFFh"sv);
 
 	case 1:
 	default:
-		return process(FSTR(L"{}"), L"65535"sv);
+		return process(FSTR(L"{}"sv), L"65535"sv);
 	}
 }
 
@@ -2249,14 +2249,14 @@ static std::pair<string, size_t> ansi_char_code(std::optional<wchar_t> const& Ch
 	switch (Codebase)
 	{
 	case 0:
-		return process(FSTR(L"0{:<3o}"), L"0377"sv);
+		return process(FSTR(L"0{:<3o}"sv), L"0377"sv);
 
 	case 2:
-		return process(FSTR(L"{:02X}h"), L"FFh"sv);
+		return process(FSTR(L"{:02X}h"sv), L"FFh"sv);
 
 	case 1:
 	default:
-		return process(FSTR(L"{:<3}"), L"255"sv);
+		return process(FSTR(L"{:<3}"sv), L"255"sv);
 	}
 }
 
@@ -2300,11 +2300,11 @@ void FileEditor::ShowStatus() const
 	}
 
 	//предварительный расчет
-	const auto LinesFormat = FSTR(L"{}/{}");
+	const auto LinesFormat = FSTR(L"{}/{}"sv);
 	const auto SizeLineStr = format(LinesFormat, m_editor->Lines.size(), m_editor->Lines.size()).size();
 	const auto strLineStr = format(LinesFormat, m_editor->m_it_CurLine.Number() + 1, m_editor->Lines.size());
 	const auto strAttr = *AttrStr? L"│"s + AttrStr : L""s;
-	auto StatusLine = format(FSTR(L"│{}{}│{:5.5}│{:.3} {:>{}}│{:.3} {:<3}│{:.3} {:<3}{}│{}"),
+	auto StatusLine = format(FSTR(L"│{}{}│{:5.5}│{:.3} {:>{}}│{:.3} {:<3}│{:.3} {:<3}{}│{}"sv),
 		m_editor->m_Flags.Check(Editor::FEDITOR_MODIFIED)?L'*':L' ',
 		m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? L'-' : m_editor->m_Flags.Check(Editor::FEDITOR_PROCESSCTRLQ)? L'"' : L' ',
 		ShortReadableCodepageName(m_codepage),

@@ -39,11 +39,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "components.hpp"
+#include "encoding.hpp"
 #include "plugin.hpp"
+#include "log.hpp"
 
 // Platform:
 
 // Common:
+#include "common/algorithm.hpp"
 #include "common/preprocessor.hpp"
 
 // External:
@@ -108,53 +111,61 @@ namespace
 
 static const auto& CpMap()
 {
-	static const std::unordered_map<std::string_view, uintptr_t> sCpMap =
+	static const std::unordered_map<std::string_view, uintptr_t> Map
 	{
-		{ "UTF16-LE"sv, CP_UNICODE },
-		{ "UTF16-BE"sv, CP_REVERSEBOM },
-		//{ "UTF-8"sv, CP_UTF8 }, // unreliable
-		{ "windows-1250"sv, 1250 },
-		{ "windows-1251"sv, 1251 },
-		{ "windows-1252"sv, 1252 },
-		{ "windows-1253"sv, 1253 },
-		{ "windows-1255"sv, 1255 },
-		{ "IBM855"sv, 855 },
-		{ "IBM866"sv, 866 },
-		{ "KOI8-R"sv, 20866 },
-		{ "x-mac-hebrew"sv, 10005 },
+		{ "UTF-8"sv,          CP_UTF8 },
+		{ "UTF-16LE"sv,       CP_UNICODE },
+		{ "UTF-16BE"sv,       CP_REVERSEBOM },
+		{ "IBM855"sv,         855 },
+		{ "IBM866"sv,         866 },
+		{ "windows-1250"sv,   1250 },
+		{ "windows-1251"sv,   1251 },
 		{ "x-mac-cyrillic"sv, /*10007*/ 1251 }, //Оно слишком похоже на 1251 и детектор, бывает, путает
-		{ "ISO-8859-2"sv, 28592 },
-		{ "ISO-8859-5"sv, 28595 },
-		{ "ISO-8859-7"sv, 28597 },
-		{ "ISO-8859-8"sv, 28598 },
-		{ "ISO-8859-8-I"sv, 38598 },
-
-		/*
-		and the rest:
-
-		"Shift_JIS"
-		"gb18030"
-		"x-euc-tw"
-		"EUC-KR"
-		"EUC-JP"
-		"Big5"
-		"X-ISO-10646-UCS-4-3412" - UCS-4, unusual octet order BOM (3412)
-		"X-ISO-10646-UCS-4-2143" - UCS-4, unusual octet order BOM (2143)
-		"UTF-32BE"
-		"UTF-32LE"
-		"ISO-2022-CN"
-		"ISO-2022-JP"
-		"ISO-2022-KR"
-		"TIS-620"
-		*/
+		{ "windows-1252"sv,   1252 },
+		{ "windows-1253"sv,   1253 },
+		{ "windows-1255"sv,   1255 },
+		{ "KOI8-R"sv,         20866 },
+		{ "ISO-8859-2"sv,     28592 },
+		{ "ISO-8859-5"sv,     28595 },
+		{ "ISO-8859-7"sv,     28597 },
+		{ "ISO-8859-8"sv,     28598 },
 	};
-	return sCpMap;
+
+	return Map;
 }
 
-class nsUniversalDetectorEx : public ucd::nsUniversalDetector
+static const auto& CJKCpMap()
+{
+	static const std::unordered_map<std::string_view, uintptr_t> Map
+	{
+		{ "windows-874"sv,    874 },
+		{ "Shift_JIS"sv,      932 },
+		{ "Big5"sv,           950 },
+		{ "x-euc-tw"sv,       20000 },
+		{ "EUC-JP"sv,         20932 },
+		{ "ISO-2022-CN"sv,    50227 }, // or 50229?
+		{ "ISO-2022-KR"sv,    50225 },
+		{ "ISO-2022-JP"sv,    50220 }, // or 50221 / 50222?
+		{ "EUC-KR"sv,         51949 },
+		{ "gb18030"sv,        54936 },
+	};
+
+	return Map;
+}
+
+static bool is_cjk_locale()
+{
+	return any_of(LOBYTE(GetUserDefaultLCID()), LANG_CHINESE, LANG_JAPANESE, LANG_KOREAN);
+}
+
+class nsUniversalDetectorEx: public ucd::nsUniversalDetector
 {
 public:
-	nsUniversalDetectorEx(): nsUniversalDetector(NS_FILTER_NON_CJK), m_codepage(-1) {}
+	nsUniversalDetectorEx():
+		nsUniversalDetector(is_cjk_locale()? NS_FILTER_ALL : NS_FILTER_NON_CJK)
+	{
+	}
+
 	bool GetCodePage(uintptr_t& Codepage) const
 	{
 		if (m_codepage == -1)
@@ -167,11 +178,29 @@ public:
 private:
 	void Report(const char* aCharset) override
 	{
-		const auto i = CpMap().find(aCharset);
-		m_codepage = i != CpMap().end()? i->second : -1;
+		if (const auto i = CpMap().find(aCharset); i != CpMap().end())
+		{
+			m_codepage = i->second;
+			LOGINFO(L"UCD heuristic: charset {}, codepage {}"sv, encoding::utf8::get_chars(aCharset), m_codepage);
+			return;
+		}
+
+		if (mLanguageFilter & NS_FILTER_CJK)
+		{
+			if (const auto i = CJKCpMap().find(aCharset); i != CJKCpMap().end())
+			{
+				m_codepage = i->second;
+				LOGINFO(L"UCD heuristic: charset {}, codepage {}"sv, encoding::utf8::get_chars(aCharset), m_codepage);
+				return;
+			}
+		}
+
+		LOGWARNING(L"UCD: unexpected charset {}"sv, encoding::utf8::get_chars(aCharset));
+
+		m_codepage = -1;
 	}
 
-	int m_codepage;
+	int m_codepage{-1};
 };
 
 bool GetCpUsingUniversalDetector(std::string_view const Str, uintptr_t& Codepage)

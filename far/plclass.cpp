@@ -211,21 +211,21 @@ bool native_plugin_factory::IsPlugin(const string& FileName, size_t const FileSi
 	const os::fs::file ModuleFile(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 	if (!ModuleFile)
 	{
-		LOGDEBUG(L"create_file({}) {}", FileName, last_error());
+		LOGDEBUG(L"create_file({}) {}"sv, FileName, last_error());
 		return false;
 	}
 
 	const os::handle ModuleMapping(CreateFileMapping(ModuleFile.get().native_handle(), nullptr, PAGE_READONLY, 0, 0, nullptr));
 	if (!ModuleMapping)
 	{
-		LOGDEBUG(L"CreateFileMapping({}), {}", FileName, last_error());
+		LOGDEBUG(L"CreateFileMapping({}), {}"sv, FileName, last_error());
 		return false;
 	}
 
 	const os::fs::file_view Data(MapViewOfFile(ModuleMapping.native_handle(), FILE_MAP_READ, 0, 0, 0));
 	if (!Data)
 	{
-		LOGDEBUG(L"MapViewOfFile({}): {}", FileName, last_error());
+		LOGDEBUG(L"MapViewOfFile({}): {}"sv, FileName, last_error());
 		return false;
 	}
 
@@ -235,7 +235,7 @@ bool native_plugin_factory::IsPlugin(const string& FileName, size_t const FileSi
 	},
 	[&](DWORD const ExceptionCode)
 	{
-		LOGERROR(L"IsPlugin({}): SEH exception {}", FileName, ExceptionCode);
+		LOGERROR(L"IsPlugin({}): SEH exception {}"sv, FileName, ExceptionCode);
 		return false;
 	});
 }
@@ -245,7 +245,7 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, span<unsigned c
 	const auto DosHeaderPtr = view_as_if<IMAGE_DOS_HEADER>(Buffer);
 	if (!DosHeaderPtr)
 	{
-		LOGDEBUG(L"Not a {} plugin: not enough data in {}", kind(), FileName);
+		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 		return false;
 	}
 
@@ -253,27 +253,27 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, span<unsigned c
 
 	if (DosHeader.e_magic != IMAGE_DOS_SIGNATURE)
 	{
-		LOGDEBUG(L"Not a {} plugin: wrong DOS signature 0x{:04X} in {}", kind(), DosHeader.e_magic, FileName);
+		LOGDEBUG(L"Not a {} plugin: wrong DOS signature 0x{:04X} in {}"sv, kind(), DosHeader.e_magic, FileName);
 		return false;
 	}
 
 	const auto NtHeadersPtr = view_as_if<IMAGE_NT_HEADERS>(Buffer, DosHeader.e_lfanew);
 	if (!NtHeadersPtr)
 	{
-		LOGDEBUG(L"Not a {} plugin: not enough data in {}", kind(), FileName);
+		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 		return false;
 	}
 
 	const auto& NtHeaders = *NtHeadersPtr;
 	if (NtHeaders.Signature != IMAGE_NT_SIGNATURE)
 	{
-		LOGDEBUG(L"Not a {} plugin: wrong NT signature 0x{:08X} in {}", kind(), NtHeaders.Signature, FileName);
+		LOGDEBUG(L"Not a {} plugin: wrong NT signature 0x{:08X} in {}"sv, kind(), NtHeaders.Signature, FileName);
 		return false;
 	}
 
 	if (!(NtHeaders.FileHeader.Characteristics & IMAGE_FILE_DLL))
 	{
-		LOGDEBUG(L"Not a {} plugin: not a DLL 0x{:04X} in {}", kind(), NtHeaders.FileHeader.Characteristics, FileName);
+		LOGDEBUG(L"Not a {} plugin: not a DLL 0x{:04X} in {}"sv, kind(), NtHeaders.FileHeader.Characteristics, FileName);
 		return false;
 	}
 
@@ -287,27 +287,27 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, span<unsigned c
 
 	if (NtHeaders.FileHeader.Machine != FarMachineType)
 	{
-		LOGDEBUG(L"Not a {} plugin: machine type is {:04X}, expected {:04X} in {}", kind(), NtHeaders.FileHeader.Machine, FarMachineType, FileName);
+		LOGDEBUG(L"Not a {} plugin: machine type is {:04X}, expected {:04X} in {}"sv, kind(), NtHeaders.FileHeader.Machine, FarMachineType, FileName);
 		return false;
 	}
 
 	const auto ExportDirectoryAddress = NtHeaders.OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress;
 	if (!ExportDirectoryAddress)
 	{
-		LOGDEBUG(L"Not a {} plugin: no exports in {}", kind(), FileName);
+		LOGDEBUG(L"Not a {} plugin: no exports in {}"sv, kind(), FileName);
 		return false;
 	}
 
 	const auto FirstSectionPtr = view_as_if<IMAGE_SECTION_HEADER>(Buffer, DosHeader.e_lfanew + offsetof(IMAGE_NT_HEADERS, OptionalHeader) + NtHeaders.FileHeader.SizeOfOptionalHeader);
 	if (!FirstSectionPtr)
 	{
-		LOGDEBUG(L"Not a {} plugin: not enough data in {}", kind(), FileName);
+		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 		return false;
 	}
 
 	if (static_cast<unsigned char const*>(static_cast<void const*>(FirstSectionPtr + NtHeaders.FileHeader.NumberOfSections)) > Buffer.data() + Buffer.size())
 	{
-		LOGDEBUG(L"Not a {} plugin: not enough data in {}", kind(), FileName);
+		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 		return false;
 	}
 
@@ -321,7 +321,7 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, span<unsigned c
 
 	if (SectionIterator == Sections.cend())
 	{
-		LOGDEBUG(L"Not a {} plugin: exports section not found in {}", kind(), FileName);
+		LOGDEBUG(L"Not a {} plugin: exports section not found in {}"sv, kind(), FileName);
 		return false;
 	}
 
@@ -333,7 +333,7 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, span<unsigned c
 	const auto ExportDirectoryPtr = view_as_if<IMAGE_EXPORT_DIRECTORY>(Buffer, section_address_to_real(ExportDirectoryAddress, *SectionIterator));
 	if (!ExportDirectoryPtr)
 	{
-		LOGDEBUG(L"Not a {} plugin: not enough data in {}", kind(), FileName);
+		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 		return false;
 	}
 
@@ -342,13 +342,13 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, span<unsigned c
 	const auto FirstNamePtr = view_as_if<DWORD>(Buffer, section_address_to_real(ExportDirectory.AddressOfNames, *SectionIterator));
 	if (!FirstNamePtr)
 	{
-		LOGDEBUG(L"Not a {} plugin: not enough data in {}", kind(), FileName);
+		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 		return false;
 	}
 
 	if (static_cast<unsigned char const*>(static_cast<void const*>(FirstNamePtr + ExportDirectory.NumberOfNames)) > Buffer.data() + Buffer.size())
 	{
-		LOGDEBUG(L"Not a {} plugin: not enough data in {}", kind(), FileName);
+		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 		return false;
 	}
 
@@ -359,7 +359,7 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, span<unsigned c
 		const auto StringPtr = view_as_if<char const>(Buffer, section_address_to_real(NameAddress, *SectionIterator));
 		if (!StringPtr)
 		{
-			LOGDEBUG(L"Not a {} plugin: not enough data in {}", kind(), FileName);
+			LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 			return false;
 		}
 
@@ -371,7 +371,7 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, span<unsigned c
 		return FindExport({ StringPtr, static_cast<size_t>(StringEnd - StringPtr) });
 	}))
 	{
-		LOGDEBUG(L"Not a {} plugin: no known exports found in {}", kind(), FileName);
+		LOGDEBUG(L"Not a {} plugin: no known exports found in {}"sv, kind(), FileName);
 		return false;
 	}
 
@@ -840,7 +840,7 @@ bool Plugin::InitLang(string_view const Path, string_view const Language)
 	}
 	catch (const std::exception& e)
 	{
-		LOGERROR(L"{}", e);
+		LOGERROR(L"{}"sv, e);
 		return false;
 	}
 }
