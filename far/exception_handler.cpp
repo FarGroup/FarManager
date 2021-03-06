@@ -1236,7 +1236,7 @@ static EXCEPTION_POINTERS exception_information()
 class far_wrapper_exception: public far_exception
 {
 public:
-	far_wrapper_exception(const char* const Function, string_view const File, int const Line):
+	far_wrapper_exception(std::string_view const Function, std::string_view const File, int const Line):
 		far_exception(true, L"exception_ptr"sv, Function, File, Line),
 		m_ThreadHandle(std::make_shared<os::handle>(os::OpenCurrentThread())),
 		m_Stack(tracer::get({}, *exception_information().ContextRecord, m_ThreadHandle->native_handle()))
@@ -1250,7 +1250,7 @@ private:
 	std::vector<uintptr_t> m_Stack;
 };
 
-std::exception_ptr wrap_current_exception(const char* const Function, string_view const File, int const Line)
+std::exception_ptr wrap_current_exception(std::string_view const Function, std::string_view const File, int const Line)
 {
 	try
 	{
@@ -1414,7 +1414,7 @@ static void seh_terminate_handler_impl()
 		!is_fake_cpp_exception(Context.exception_record())
 	)
 	{
-		if (handle_seh_exception(Context, __FUNCTION__, {}))
+		if (handle_seh_exception(Context, CURRENT_FUNCTION_NAME, {}))
 			std::abort();
 	}
 
@@ -1427,12 +1427,12 @@ static void seh_terminate_handler_impl()
 		}
 		catch(std::exception const& e)
 		{
-			if (handle_std_exception(e, __FUNCTION__, {}))
+			if (handle_std_exception(e, CURRENT_FUNCTION_NAME, {}))
 				std::abort();
 		}
 		catch (...)
 		{
-			if (handle_unknown_exception(__FUNCTION__, {}))
+			if (handle_unknown_exception(CURRENT_FUNCTION_NAME, {}))
 				std::abort();
 		}
 	}
@@ -1444,7 +1444,7 @@ static void seh_terminate_handler_impl()
 		static_cast<CONTEXT*>(*dummy_current_exception_context())
 	});
 
-	if (handle_generic_exception(Context, __FUNCTION__, {}, {}, {}, L"Abnormal termination"sv))
+	if (handle_generic_exception(Context, CURRENT_FUNCTION_NAME, {}, {}, {}, L"Abnormal termination"sv))
 		std::abort();
 
 	restore_system_exception_handler();
@@ -1469,7 +1469,7 @@ static LONG WINAPI unhandled_exception_filter_impl(EXCEPTION_POINTERS* const Poi
 	}
 
 	detail::set_fp_exceptions(false);
-	if (handle_seh_exception(exception_context(*Pointers), __FUNCTION__, {}))
+	if (handle_seh_exception(exception_context(*Pointers), CURRENT_FUNCTION_NAME, {}))
 	{
 		std::_Exit(EXIT_FAILURE);
 	}

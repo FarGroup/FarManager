@@ -147,6 +147,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SCOPED_ACTION(RAII_type) \
 const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 
+#define DETAIL_CHAR_IMPL(x, ...) x##__VA_ARGS__
+#define CHAR_S(x) DETAIL_CHAR_IMPL(x, s)
+#define CHAR_SV(x) DETAIL_CHAR_IMPL(x, sv)
+
 #define DETAIL_WIDE_IMPL(x, ...) L##x##__VA_ARGS__
 #define WIDE(x) DETAIL_WIDE_IMPL(x)
 #define WIDE_S(x) DETAIL_WIDE_IMPL(x, s)
@@ -156,15 +160,15 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 #define WSTR(x) WIDE(STR(x))
 #define WSTRVIEW(x) WIDE_SV(STR(x))
 
+#define CURRENT_FUNCTION_NAME std::string_view{ __func__, std::size(__func__) - 1 }
+#define CURRENT_FILE_NAME CHAR_SV(__FILE__)
+
 #define REQUIRES(...) std::enable_if_t<__VA_ARGS__>* = nullptr
 
 #define FWD(...) std::forward<decltype(__VA_ARGS__)>(__VA_ARGS__)
 
-#if COMPILER(CL) // && _MSC_FULL_VER < 192030324
+#if COMPILER(CL) && _MSC_FULL_VER < 192428316
 // See MSVC bug #540185
-// Note: even though they fixed the initial issue, the fix requires /experimental:newLambdaProcessor,
-// which currently breaks more than it solves (see #578912, #578858, #578868).
-// It seems that for VS this will remain disabled in the foreseeable future.
 #define NOEXCEPT_NOEXCEPT(...)
 #else
 #define NOEXCEPT_NOEXCEPT(...) noexcept(noexcept(__VA_ARGS__))

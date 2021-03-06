@@ -365,7 +365,6 @@ static bool GetCpUsingUniversalDetectorWithExceptions(std::string_view const Str
 			const auto CodepageType = codepages::GetFavorite(Codepage);
 			if (!(CodepageType & CPST_FAVORITE))
 			{
-				LOGINFO(L"NoAutoDetectCP: codepage {} is not whitelisted"sv, Codepage);
 				return false;
 			}
 		}
@@ -374,7 +373,6 @@ static bool GetCpUsingUniversalDetectorWithExceptions(std::string_view const Str
 	{
 		if (contains(enum_tokens(Global->Opt->strNoAutoDetectCP.Get(), L",;"sv), str(Codepage)))
 		{
-			LOGINFO(L"NoAutoDetectCP: codepage {} is blacklisted"sv, Codepage);
 			return false;
 		}
 	}
@@ -407,7 +405,6 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 
 	if (GetUnicodeCpUsingWindows(Buffer.data(), ReadSize, Codepage))
 	{
-		LOGINFO(L"IsTextUnicode heuristic: codepage {}"sv, Codepage);
 		return true;
 	}
 
@@ -426,7 +423,6 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 		else
 			Codepage = encoding::codepage::ansi();
 
-		LOGINFO(L"UTF-8 heuristic: ascii: {}, codepage {}"sv, PureAscii, Codepage);
 		return true;
 	}
 

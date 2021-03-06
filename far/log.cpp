@@ -166,9 +166,9 @@ namespace
 		};
 	}
 
-	static string get_location(string_view const Function, string_view const Location)
+	static string get_location(std::string_view const Function, std::string_view const File, int const Line)
 	{
-		return concat(Function, L", "sv, Location);
+		return format(FSTR(L"{}, {}({})"sv), encoding::utf8::get_chars(Function), encoding::utf8::get_chars(File), Line);
 	}
 
 	static string get_thread_id()
@@ -178,11 +178,11 @@ namespace
 
 	struct message
 	{
-		message(string_view const Str, logging::level const Level, string_view const Function, string_view const Location, size_t const TraceDepth):
+		message(string_view const Str, logging::level const Level, std::string_view const Function, std::string_view const File, int const Line, size_t const TraceDepth):
 			m_ThreadId(get_thread_id()),
 			m_LevelString(level_to_string(Level)),
 			m_Data(Str),
-			m_Location(get_location(Function, Location)),
+			m_Location(get_location(Function, File, Line)),
 			m_Level(Level)
 		{
 			std::tie(m_Date, m_Time) = get_time();
@@ -738,11 +738,11 @@ namespace logging
 			m_QueuedMessagesCount = 0;
 		}
 
-		void log(string_view const Str, level const Level, string_view const Function, string_view const Location)
+		void log(string_view const Str, level const Level, std::string_view const Function, std::string_view const File, int const Line)
 		{
 			if (m_Status == engine_status::in_progress)
 			{
-				message Message(Str, Level, Function, Location, Level <= m_TraceLevel? m_TraceDepth : 0);
+				message Message(Str, Level, Function, File, Line, Level <= m_TraceLevel? m_TraceDepth : 0);
 				m_QueuedMessages.emplace(std::move(Message));
 				++m_QueuedMessagesCount;
 				return;
@@ -751,7 +751,7 @@ namespace logging
 			if (!filter(Level))
 				return;
 
-			submit({ Str, Level, Function, Location, Level <= m_TraceLevel? m_TraceDepth : 0 });
+			submit({ Str, Level, Function, File, Line, Level <= m_TraceLevel? m_TraceDepth : 0 });
 		}
 
 	private:
@@ -872,11 +872,6 @@ namespace logging
 		std::atomic<engine_status> m_Status{ engine_status::incomplete };
 	};
 
-	string detail::wide(std::string_view const Str)
-	{
-		return encoding::ansi::get_chars(Str);
-	}
-
 	bool filter(level const Level)
 	{
 		return log_engine.filter(Level);
@@ -884,7 +879,7 @@ namespace logging
 
 	static thread_local size_t RecursionGuard{};
 
-	void log(string_view const Str, level const Level, string_view const Function, string_view const Location)
+	void log(string_view const Str, level const Level, std::string_view const Function, std::string_view const File, int const Line)
 	{
 		// Log can potentially log itself, directly or through other parts of the code.
 		// Allow one level of recursion for diagnostics
@@ -894,7 +889,7 @@ namespace logging
 		++RecursionGuard;
 		SCOPE_EXIT{ --RecursionGuard; };
 
-		log_engine.log(Str, Level, Function, Location);
+		log_engine.log(Str, Level, Function, File, Line);
 	}
 
 	void show()

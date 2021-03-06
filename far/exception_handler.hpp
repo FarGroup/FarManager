@@ -160,10 +160,10 @@ WARNING_POP()
 	}
 }
 
-std::exception_ptr wrap_current_exception(const char* Function, string_view File, int Line);
+std::exception_ptr wrap_current_exception(std::string_view Function, std::string_view File, int Line);
 
 #define SAVE_EXCEPTION_TO(ExceptionPtr) \
-	ExceptionPtr = wrap_current_exception(__FUNCTION__, WIDE_SV(__FILE__), __LINE__)
+	ExceptionPtr = wrap_current_exception(CURRENT_FUNCTION_NAME, CURRENT_FILE_NAME, __LINE__)
 
 void rethrow_if(std::exception_ptr& Ptr);
 

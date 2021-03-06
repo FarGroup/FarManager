@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "encoding.hpp"
 #include "pathmix.hpp"
-#include "exception.hpp"
 #include "log.hpp"
 
 // Platform:
@@ -131,7 +130,14 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 	const auto MaxNameLen = MAX_SYM_NAME;
 	const auto BufferSize = sizeof(SYMBOL_INFO) + MaxNameLen + 1;
 
-	imports.SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_INCLUDE_32BIT_MODULES);
+	imports.SymSetOptions(
+		SYMOPT_UNDNAME |
+		SYMOPT_DEFERRED_LOADS |
+		SYMOPT_LOAD_LINES |
+		SYMOPT_FAIL_CRITICAL_ERRORS |
+		SYMOPT_INCLUDE_32BIT_MODULES |
+		SYMOPT_NO_PROMPTS
+	);
 
 	block_ptr<SYMBOL_INFOW, BufferSize> SymbolW(BufferSize);
 	SymbolW->SizeOfStruct = sizeof(SYMBOL_INFOW);
@@ -140,6 +146,8 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 	block_ptr<SYMBOL_INFO, BufferSize> Symbol(BufferSize);
 	Symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 	Symbol->MaxNameLen = MaxNameLen;
+
+	string NameBuffer;
 
 	const auto FormatAddress = [](uintptr_t const Value)
 	{
@@ -156,22 +164,25 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 		return format(FSTR(L"0x{:0{}X}"sv), Value, Width);
 	};
 
-	const auto GetName = [&](uintptr_t const Address)
+	const auto GetName = [&](uintptr_t const Address) -> string_view
 	{
 		if (imports.SymFromAddrW && imports.SymFromAddrW(Process, Address, nullptr, SymbolW.data()))
-			return string(SymbolW->Name);
+			return { SymbolW->Name, SymbolW->NameLen };
 
 		if (imports.SymFromAddr && imports.SymFromAddr(Process, Address, nullptr, Symbol.data()))
-			return encoding::ansi::get_chars(Symbol->Name);
+		{
+			NameBuffer = encoding::ansi::get_chars({ Symbol->Name, Symbol->NameLen });
+			return NameBuffer;
+		}
 
-		return L"<unknown> (get the pdb)"s;
+		return L"<unknown> (get the pdb)"sv;
 	};
 
 	const auto GetLocation = [&](uintptr_t const Address)
 	{
 		const auto Location = [](string_view const File, unsigned const Line)
 		{
-			return format(FSTR(L"{}:{}"sv), File, Line);
+			return format(FSTR(L"{}({})"sv), File, Line);
 		};
 
 		DWORD Displacement;

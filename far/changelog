@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 06.03.2021 22:30:25 +0000 - build 5756
+
+1. Reduce log binary footprint.
+
+2. Remove excessive logging.
+
+--------------------------------------------------------------------------------
 drkns 05.03.2021 21:02:33 +0000 - build 5755
 
 1. gh-367: Reproducible exception related to regular expressions.
