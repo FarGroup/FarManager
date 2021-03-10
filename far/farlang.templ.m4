@@ -2884,7 +2884,7 @@ upd:"Cl&earType-friendly redraw (can be slow)"
 
 MConfigSetConsoleIcon
 "Иконка консоли:"
-"Сonsole &icon:"
+"Console &icon:"
 "Ikona okna konzole:"
 "Konsole symbol:"
 upd:"Console icon:"
@@ -2894,7 +2894,7 @@ upd:"Console icon:"
 "Icona di console:"
 "Іконка консолі:"
 "Гузік кансолі:"
-upd:"Сonsole &icon:"
+upd:"Console &icon:"
 
 MConfigSetAdminConsoleIcon
 "Альтернативная для администратора"
@@ -7031,7 +7031,7 @@ MEditSearchReverse
 "Ricerca In&versa"
 "Зворотний пошу&к"
 "Зваротн&ы пошук"
-"At&virkščia paieška" 
+"At&virkščia paieška"
 
 MEditSearchRegexp
 "&Регулярные выражения"
@@ -28647,21 +28647,6 @@ l:
 "Змінну оточення %COMSPEC% не визначено"
 "Зменная асяроддзя %COMSPEC% не вызначана"
 upd:"Environment variable %COMSPEC% not defined"
-
-MOpenPluginCannotOpenFile
-l:
-"Ошибка открытия файла"
-"Cannot open the file"
-"Nelze otevřít soubor"
-"Kann Datei nicht öffnen"
-"A fájl nem nyitható meg"
-"Nie można otworzyć pliku"
-"No se puede abrir el archivo"
-"Nemôžem otvoriť súbor"
-"Non Posso Aprire Il File"
-"Помилка відкриття файлу"
-"Немагчыма адчыніць файл"
-upd:"Cannot open the file"
 
 MFileFilterTitle
 l:

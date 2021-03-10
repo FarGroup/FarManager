@@ -1703,7 +1703,19 @@ bool TreeList::ReadTreeFile()
 
 	m_ListData.clear();
 
-	ReadLines(TreeFile, [&](const string_view Name) { m_ListData.emplace_back(string_view(m_Root).substr(0, RootLength) + Name); });
+	try
+	{
+		ReadLines(TreeFile, [&](const string_view Name)
+		{
+			m_ListData.emplace_back(string_view(m_Root).substr(0, RootLength) + Name);
+		});
+	}
+	catch (std::exception const& e)
+	{
+		m_ListData.clear();
+
+		LOGWARNING(L"{}"sv, e);
+	}
 
 	TreeFile.Close();
 
@@ -1919,7 +1931,19 @@ void TreeList::ReadCache(string_view const TreeRoot)
 
 	TreeCache().SetTreeName(TreeFile.GetName());
 
-	ReadLines(TreeFile, [](const string_view Name){ TreeCache().add(Name); });
+	try
+	{
+		ReadLines(TreeFile, [](const string_view Name)
+		{
+			TreeCache().add(Name);
+		});
+	}
+	catch (std::exception const& e)
+	{
+		ClearCache();
+		LOGWARNING(L"{}"sv, e);
+		return;
+	}
 }
 
 void TreeList::FlushCache()

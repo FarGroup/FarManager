@@ -44,6 +44,20 @@
           <ComponentRef Id="nc5pal2.farconfig_1" />
           <ComponentRef Id="Rodion_Doroshkevich.farconfig_1" />
           <ComponentRef Id="VaxColors.farconfig_1" />
+          <ComponentRef Id="black_from_Fonarev.farconfig_2" />
+          <ComponentRef Id="black_from_july.farconfig_2" />
+          <ComponentRef Id="black_from_Myodov.farconfig_2" />
+          <ComponentRef Id="Colors_from_admin_essp_ru.farconfig_2" />
+          <ComponentRef Id="Colors_from_Gernichenko.farconfig_2" />
+          <ComponentRef Id="Colors_from_Sadovoj.farconfig_2" />
+          <ComponentRef Id="Descript.ion_52" />
+          <ComponentRef Id="dn_like.farconfig_2" />
+          <ComponentRef Id="FARColors242.farconfig_2" />
+          <ComponentRef Id="GreenMile.farconfig_2" />
+          <ComponentRef Id="hell.farconfig_2" />
+          <ComponentRef Id="nc5pal2.farconfig_2" />
+          <ComponentRef Id="Rodion_Doroshkevich.farconfig_2" />
+          <ComponentRef Id="VaxColors.farconfig_2" />
         </Feature>
         <Feature Id="Macros" Level="1" Title="!(loc.Feature.Title.Macros)" AllowAdvertise="no" Description="!(loc.Feature.Description.Macros)">
           <ComponentRef Id="AltMenu.lua" />

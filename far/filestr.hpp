@@ -61,7 +61,6 @@ class [[nodiscard]] enum_lines: public enumerator<enum_lines, file_line>
 
 public:
 	enum_lines(std::istream& Stream, uintptr_t CodePage);
-	~enum_lines();
 
 	bool conversion_error() const { return !!m_ErrorPosition; }
 
@@ -77,7 +76,6 @@ private:
 	bool GetTString(std::basic_string<T>& To, eol& Eol, bool BigEndian = false) const;
 
 	std::istream& m_Stream;
-	std::ios_base::iostate m_StreamExceptions;
 	size_t m_BeginPos;
 	uintptr_t m_CodePage;
 	raw_eol m_Eol;
