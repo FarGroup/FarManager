@@ -421,10 +421,9 @@ bool Edit::ProcessInsPath(unsigned int Key,int PrevSelStart,int PrevSelEnd)
 			return false;
 		Data.Folder = os::env::expand(Data.Folder);
 	}
-	else
+	else if (!MakePathForUI(Key, Data.Folder))
 	{
-		if (!MakePathForUI(Key, Data.Folder))
-			return false;
+		return false;
 	}
 
 	if (PrevSelStart != -1)
