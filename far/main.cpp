@@ -535,7 +535,7 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	log_hook_wow64_status();
 #endif
 
-	if(!console.IsFullscreenSupported())
+	if(!console.IsFullscreenSupported() && imports.SetConsoleKeyShortcuts)
 	{
 		const BYTE ReserveAltEnter = 0x8;
 		imports.SetConsoleKeyShortcuts(TRUE, ReserveAltEnter, nullptr, 0);

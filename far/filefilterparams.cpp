@@ -410,7 +410,6 @@ static string AttributesString(DWORD Include, DWORD Exclude)
 //Централизованная функция для создания строк меню различных фильтров.
 string MenuString(const FileFilterParams* const FF, bool const bHighlightType, wchar_t const Hotkey, bool const bPanelType, string_view const FMask, string_view const Title)
 {
-	const wchar_t DownArrow = L'\x2193';
 	string_view Name;
 	auto Mask = L""sv;
 	auto MarkChar = L"' '"s;
@@ -483,7 +482,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 
 	if (bHighlightType)
 	{
-		SetFlag(FF->GetContinueProcessing(), DownArrow);
+		SetFlag(FF->GetContinueProcessing(), L'↓');
 
 		const auto AmpFix = Name.size() - HiStrlen(Name);
 

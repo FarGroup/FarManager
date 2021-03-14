@@ -55,7 +55,7 @@ error_state last_error()
 	{
 		errno,
 		GetLastError(),
-		imports.RtlGetLastNtStatus(),
+		os::get_last_nt_status(),
 	};
 }
 

@@ -99,7 +99,7 @@ static bool is_alttab_window(HWND const Window)
 	if (GetWindowLongPtr(Window, GWL_EXSTYLE) & WS_EX_TOOLWINDOW)
 		return false;
 
-	if (IsWindows8OrGreater())
+	if (imports.DwmGetWindowAttribute)
 	{
 		int Cloaked = 0;
 		if (SUCCEEDED(imports.DwmGetWindowAttribute(Window, DWMWA_CLOAKED, &Cloaked, sizeof(Cloaked))) && Cloaked)

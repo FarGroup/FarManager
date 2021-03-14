@@ -95,6 +95,9 @@ static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 {
 	std::vector<uintptr_t> Result;
 
+	if (!imports.StackWalk64)
+		return Result;
+
 	const auto Data = platform_specific_data(ContextRecord);
 
 	if (Data.MachineType == IMAGE_FILE_MACHINE_UNKNOWN || (!Data.PC && !Data.Frame && !Data.Stack))
@@ -120,8 +123,7 @@ static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 
 	return Result;
 }
-template<typename>
-class DT;
+
 static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const BackTrace, function_ref<void(string&&, string&&, string&&)> const Consumer)
 {
 	SCOPED_ACTION(tracer::with_symbols)(ModuleName);
@@ -130,14 +132,17 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 	const auto MaxNameLen = MAX_SYM_NAME;
 	const auto BufferSize = sizeof(SYMBOL_INFO) + MaxNameLen + 1;
 
-	imports.SymSetOptions(
-		SYMOPT_UNDNAME |
-		SYMOPT_DEFERRED_LOADS |
-		SYMOPT_LOAD_LINES |
-		SYMOPT_FAIL_CRITICAL_ERRORS |
-		SYMOPT_INCLUDE_32BIT_MODULES |
-		SYMOPT_NO_PROMPTS
-	);
+	if (imports.SymSetOptions)
+	{
+		imports.SymSetOptions(
+			SYMOPT_UNDNAME |
+			SYMOPT_DEFERRED_LOADS |
+			SYMOPT_LOAD_LINES |
+			SYMOPT_FAIL_CRITICAL_ERRORS |
+			SYMOPT_INCLUDE_32BIT_MODULES |
+			SYMOPT_NO_PROMPTS
+		);
+	}
 
 	block_ptr<SYMBOL_INFOW, BufferSize> SymbolW(BufferSize);
 	SymbolW->SizeOfStruct = sizeof(SYMBOL_INFOW);
@@ -201,7 +206,7 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 	for (const auto Address: BackTrace)
 	{
 		IMAGEHLP_MODULEW64 Module{ static_cast<DWORD>(aligned_size(offsetof(IMAGEHLP_MODULEW64, LoadedImageName), 8)) }; // use the pre-07-Jun-2002 struct size, aligned to 8
-		const auto HasModuleInfo = imports.SymGetModuleInfoW64(Process, Address, &Module);
+		const auto HasModuleInfo = imports.SymGetModuleInfoW64 && imports.SymGetModuleInfoW64(Process, Address, &Module);
 
 		Consumer(
 			FormatAddress(Address - Module.BaseOfImage),
@@ -280,5 +285,8 @@ void tracer::sym_cleanup()
 		--s_SymInitialised;
 
 	if (!s_SymInitialised)
-		imports.SymCleanup(GetCurrentProcess());
+	{
+		if (imports.SymCleanup)
+			imports.SymCleanup(GetCurrentProcess());
+	}
 }

@@ -274,14 +274,14 @@ void Edit::FastShow(const ShowInfo* Info)
 			{
 				if (*i==L' ') // *p==L'\xA0' ==> NO-BREAK SPACE
 				{
-					*i=L'\xB7';
+					*i = L'·';
 				}
 			}
 
 			if (*i == L'\t')
 			{
 				const size_t S = GetTabSize() - ((FocusedLeftPos + OutStr.size()) % GetTabSize());
-				OutStr.push_back((((m_Flags.Check(FEDITLINE_SHOWWHITESPACE) && m_Flags.Check(FEDITLINE_EDITORMODE)) || i >= TrailingSpaces) && (!OutStr.empty() || S==GetTabSize()))?L'\x2192':L' ');
+				OutStr.push_back((((m_Flags.Check(FEDITLINE_SHOWWHITESPACE) && m_Flags.Check(FEDITLINE_EDITORMODE)) || i >= TrailingSpaces) && (!OutStr.empty() || S==GetTabSize()))? L'→' : L' ');
 				const auto PaddedSize = std::min(OutStr.size() + S - 1, EditLength);
 				OutStr.resize(PaddedSize, L' ');
 			}
@@ -301,31 +301,33 @@ void Edit::FastShow(const ShowInfo* Info)
 
 		if (m_Flags.Check(FEDITLINE_SHOWLINEBREAK) && m_Flags.Check(FEDITLINE_EDITORMODE) && (m_Str.size() >= RealLeftPos) && (OutStr.size() < EditLength))
 		{
+			const auto Cr = L'♪', Lf = L'◙';
+
 			if (m_Eol == eol::mac)
 			{
-				OutStr.push_back(L'\x266A');
+				OutStr.push_back(Cr);
 			}
 			else if (m_Eol == eol::unix)
 			{
-				OutStr.push_back(L'\x25D9');
+				OutStr.push_back(Lf);
 			}
 			else if (m_Eol == eol::win)
 			{
-				OutStr.push_back(L'\x266A');
+				OutStr.push_back(Cr);
 				if(OutStr.size() < EditLength)
 				{
-					OutStr.push_back(L'\x25D9');
+					OutStr.push_back(Lf);
 				}
 			}
 			else if (m_Eol == eol::bad_win)
 			{
-				OutStr.push_back(L'\x266A');
+				OutStr.push_back(Cr);
 				if(OutStr.size() < EditLength)
 				{
-					OutStr.push_back(L'\x266A');
+					OutStr.push_back(Cr);
 					if(OutStr.size() < EditLength)
 					{
-						OutStr.push_back(L'\x25D9');
+						OutStr.push_back(Lf);
 					}
 				}
 			}
@@ -333,7 +335,7 @@ void Edit::FastShow(const ShowInfo* Info)
 
 		if (m_Flags.Check(FEDITLINE_SHOWWHITESPACE) && m_Flags.Check(FEDITLINE_EDITORMODE) && (m_Str.size() >= RealLeftPos) && (OutStr.size() < EditLength) && GetEditor()->IsLastLine(this))
 		{
-			OutStr.push_back(L'\x25a1');
+			OutStr.push_back(L'□');
 		}
 	}
 

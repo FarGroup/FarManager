@@ -8371,7 +8371,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							if ((ViewFlags & COLFLAGS_MARK) && Width>2)
 							{
-								const auto Mark = m_ListData[ListPos].Selected? L"\x221A "sv : ViewFlags & COLFLAGS_MARK_DYNAMIC ? L""sv : L"  "sv;
+								const auto Mark = m_ListData[ListPos].Selected? L"√ "sv : ViewFlags & COLFLAGS_MARK_DYNAMIC ? L""sv : L"  "sv;
 								Text(Mark);
 								Width -= static_cast<int>(Mark.size());
 							}

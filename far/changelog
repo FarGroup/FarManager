@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 14.03.2021 16:53:28 +0000 - build 5759
+
+1. VS2019 & 2k/XP compatibility.
+
+2. Reduce log spamming about absent imports for old OSes.
+
+3. Replace \xNNNN character codes in sources with actual characters - we use UTF-8 now so nothing should get lost.
+
+--------------------------------------------------------------------------------
 drkns 14.03.2021 15:36:26 +0000 - build 5758
 
 1. gh-371: fails to obtain administrator privileges

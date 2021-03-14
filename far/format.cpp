@@ -46,10 +46,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-std::wostream& std::operator<<(std::wostream& Stream, std::exception const& e)
+string fmt::formatter<std::exception, wchar_t, void>::to_string(std::exception const& Value)
 {
-	Stream << format(FSTR(L"std::exception: {}"sv), encoding::utf8::get_chars(e.what()));
-	return Stream;
+	return ::format(FSTR(L"std::exception: {}"sv), encoding::utf8::get_chars(Value.what()));
 }
 
 WARNING_PUSH(3)

@@ -509,14 +509,28 @@ static os::com::ptr<IFileIsInUse> CreateIFileIsInUse(const string& File)
 
 static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, function_ref<bool(string&&)> const Handler)
 {
+	if (!imports.RmStartSession)
+		return 0;
+
 	DWORD Session;
 	wchar_t SessionKey[CCH_RM_SESSION_KEY + 1] = {};
 	if (imports.RmStartSession(&Session, 0, SessionKey) != ERROR_SUCCESS)
 		return 0;
 
-	SCOPE_EXIT{ imports.RmEndSession(Session); };
+	SCOPE_EXIT
+	{
+		if (imports.RmEndSession)
+			imports.RmEndSession(Session);
+	};
+
+	if (!imports.RmRegisterResources)
+		return 0;
+
 	auto FilenamePtr = Filename.c_str();
 	if (imports.RmRegisterResources(Session, 1, &FilenamePtr, 0, nullptr, 0, nullptr) != ERROR_SUCCESS)
+		return 0;
+
+	if (!imports.RmGetList)
 		return 0;
 
 	DWORD RmGetListResult;

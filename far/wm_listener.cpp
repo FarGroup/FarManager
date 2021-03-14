@@ -186,7 +186,10 @@ void wm_listener::WindowThreadRoutine(const os::event* ReadyEvent)
 		return;
 
 	// for PBT_POWERSETTINGCHANGE
-	const auto hpn = imports.RegisterPowerSettingNotification(m_Hwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
+	const auto hpn = imports.RegisterPowerSettingNotification?
+		imports.RegisterPowerSettingNotification(m_Hwnd, &GUID_BATTERY_PERCENTAGE_REMAINING, DEVICE_NOTIFY_WINDOW_HANDLE) :
+		nullptr;
+
 	SCOPE_EXIT{ if (hpn) imports.UnregisterPowerSettingNotification(hpn); };
 
 	MSG Msg;

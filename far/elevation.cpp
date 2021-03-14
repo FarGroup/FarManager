@@ -274,7 +274,7 @@ void elevation::RetrieveLastError() const
 {
 	const auto ErrorState = Read<error_state>();
 	SetLastError(ErrorState.Win32Error);
-	imports.RtlNtStatusToDosError(ErrorState.NtError);
+	os::set_last_error_from_ntstatus(ErrorState.NtError);
 }
 
 template<typename T>
@@ -953,7 +953,7 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 
 	if(UseNtStatus && imports.RtlGetLastNtStatus)
 	{
-		const auto LastNtStatus = os::GetLastNtStatus();
+		const auto LastNtStatus = os::get_last_nt_status();
 		return LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD || LastNtStatus == STATUS_INVALID_OWNER;
 	}
 
