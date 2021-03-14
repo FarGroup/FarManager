@@ -998,7 +998,12 @@ public:
 			if (!os::fs::get_module_file_name(ParentProcess.native_handle(), {}, ParentProcessFileName))
 				return GetLastError();
 
-			const auto CurrentProcessFileName = os::fs::get_current_process_file_name();
+			// Do not use get_current_process_file_name here: even though it's implemented in terms of get_module_file_name,
+			// get_module_file_name uses a different path for the current process case and the results can be different
+			// if the path contains symlinks. See gh-371 for example.
+			string CurrentProcessFileName;
+			if (!os::fs::get_module_file_name(GetCurrentProcess(), {}, CurrentProcessFileName))
+				return GetLastError();
 
 			if (!equal_icase(CurrentProcessFileName, ParentProcessFileName))
 				return ERROR_INVALID_NAME;
