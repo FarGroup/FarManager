@@ -448,7 +448,7 @@ extern "C" int WINAPI CompareStringExWrapper(LPCWSTR LocaleName, DWORD CmpFlags,
 	{
 		static int WINAPI CompareStringEx(LPCWSTR LocaleName, DWORD CmpFlags, LPCWCH String1, int Count1, LPCWCH String2, int Count2, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM Param)
 		{
-			return CompareString(LOCALE_USER_DEFAULT, CmpFlags, String1, Count1, String2, Count2);
+			return CompareStringW(LOCALE_USER_DEFAULT, CmpFlags, String1, Count1, String2, Count2);
 		}
 	};
 
@@ -463,7 +463,7 @@ extern "C" int WINAPI LCMapStringExWrapper(LPCWSTR LocaleName, DWORD MapFlags, L
 	{
 		static int WINAPI CompareStringEx(LPCWSTR LocaleName, DWORD MapFlags, LPCWSTR SrcStr, int SrcCount, LPWSTR DestStr, int DestCount, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM SortHandle)
 		{
-			return LCMapString(LOCALE_USER_DEFAULT, MapFlags, SrcStr, SrcCount, DestStr, DestCount);
+			return LCMapStringW(LOCALE_USER_DEFAULT, MapFlags, SrcStr, SrcCount, DestStr, DestCount);
 		}
 	};
 
