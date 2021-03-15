@@ -500,11 +500,12 @@ handle OpenConsoleActiveScreenBuffer()
 			{
 				void* Pointers[128];
 
+				DWORD DummyHash;
 				const auto Size = imports.RtlCaptureStackBackTrace(
 					static_cast<DWORD>(Skip + i),
 					static_cast<DWORD>(std::min(std::size(Pointers), Capture - i)),
 					Pointers,
-					{}
+					&DummyHash // MSDN says it's optional, but it's not true on Win2k
 				);
 
 				if (!Size)
