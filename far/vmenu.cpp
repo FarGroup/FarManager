@@ -2355,7 +2355,7 @@ void VMenu::ShowMenu(bool IsParent)
 				if (Items[I].Flags & MIF_SUBMENU)
 				{
 					GotoXY(static_cast<int>(m_Where.right - 1), Y);
-					BoxText(L'▻');
+					BoxText(L'►');
 				}
 
 				SetColor(Colors[(Items[I].Flags&LIF_DISABLE)?VMenuColorArrowsDisabled:(Items[I].Flags&LIF_SELECTED?VMenuColorArrowsSelect:VMenuColorArrows)]);
