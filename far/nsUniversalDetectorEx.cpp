@@ -118,6 +118,7 @@ static const auto& CpMap()
 		{ "UTF-16BE"sv,       CP_REVERSEBOM },
 		{ "IBM855"sv,         855 },
 		{ "IBM866"sv,         866 },
+		{ "windows-874"sv,    874 },
 		{ "windows-1250"sv,   1250 },
 		{ "windows-1251"sv,   1251 },
 		{ "x-mac-cyrillic"sv, /*10007*/ 1251 }, //Оно слишком похоже на 1251 и детектор, бывает, путает
@@ -138,7 +139,6 @@ static const auto& CJKCpMap()
 {
 	static const std::unordered_map<std::string_view, uintptr_t> Map
 	{
-		{ "windows-874"sv,    874 },
 		{ "Shift_JIS"sv,      932 },
 		{ "Big5"sv,           950 },
 		{ "x-euc-tw"sv,       20000 },
@@ -181,7 +181,6 @@ private:
 		if (const auto i = CpMap().find(aCharset); i != CpMap().end())
 		{
 			m_codepage = i->second;
-			LOGINFO(L"UCD heuristic: charset {}, codepage {}"sv, encoding::utf8::get_chars(aCharset), m_codepage);
 			return;
 		}
 
@@ -190,7 +189,6 @@ private:
 			if (const auto i = CJKCpMap().find(aCharset); i != CJKCpMap().end())
 			{
 				m_codepage = i->second;
-				LOGINFO(L"UCD heuristic: charset {}, codepage {}"sv, encoding::utf8::get_chars(aCharset), m_codepage);
 				return;
 			}
 		}

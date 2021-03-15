@@ -406,7 +406,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 			}
 
 			(LeftAlign? inplace::cut_right : inplace::cut_left)(Str, Width - 1);
-			Str.insert(LeftAlign? Str.end() : Str.begin(), L'\x2026');
+			Str.insert(LeftAlign? Str.end() : Str.begin(), L'…');
 			return Str;
 		};
 

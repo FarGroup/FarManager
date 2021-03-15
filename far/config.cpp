@@ -1740,14 +1740,7 @@ Options::~Options() = default;
 
 void Options::InitConfigsData()
 {
-	static constexpr auto DefaultBoxSymbols =
-		L"\x2591" L"\x2592" L"\x2593" L"\x2502" L"\x2524" L"\x2561" L"\x2562" L"\x2556"
-		L"\x2555" L"\x2563" L"\x2551" L"\x2557" L"\x255D" L"\x255C" L"\x255B" L"\x2510"
-		L"\x2514" L"\x2534" L"\x252C" L"\x251C" L"\x2500" L"\x253C" L"\x255E" L"\x255F"
-		L"\x255A" L"\x2554" L"\x2569" L"\x2566" L"\x2560" L"\x2550" L"\x256C" L"\x2567"
-		L"\x2568" L"\x2564" L"\x2565" L"\x2559" L"\x2558" L"\x2552" L"\x2553" L"\x256B"
-		L"\x256A" L"\x2518" L"\x250C" L"\x2588" L"\x2584" L"\x258C" L"\x2590" L"\x2580"
-		L" "sv;
+	static constexpr auto DefaultBoxSymbols = L"░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀ "sv;
 
 	static_assert(DefaultBoxSymbols.size() == BS_COUNT);
 
@@ -2061,7 +2054,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyViewer,                 L"UseExternalViewer"sv,             ViOpt.UseExternalViewer, false},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"Visible0x00"sv,                   ViOpt.Visible0x00, false},
 		{FSSF_PRIVATE,           NKeyViewer,                 L"Wrap"sv,                          ViOpt.ViewerWrap, false},
-		{FSSF_PRIVATE,           NKeyViewer,                 L"ZeroChar"sv,                      ViOpt.ZeroChar, L'\xB7'}, // middle dot
+		{FSSF_PRIVATE,           NKeyViewer,                 L"ZeroChar"sv,                      ViOpt.ZeroChar, L'·'},
 		{FSSF_PRIVATE,           NKeyVMenu,                  L"LBtnClick"sv,                     VMenu.LBtnClick, VMENUCLICK_CANCEL},
 		{FSSF_PRIVATE,           NKeyVMenu,                  L"MBtnClick"sv,                     VMenu.MBtnClick, VMENUCLICK_APPLY},
 		{FSSF_PRIVATE,           NKeyVMenu,                  L"RBtnClick"sv,                     VMenu.RBtnClick, VMENUCLICK_CANCEL},

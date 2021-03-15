@@ -2355,7 +2355,7 @@ void VMenu::ShowMenu(bool IsParent)
 				if (Items[I].Flags & MIF_SUBMENU)
 				{
 					GotoXY(static_cast<int>(m_Where.right - 1), Y);
-					BoxText(L'\x25BA'); // sub menu arrow
+					BoxText(L'▻');
 				}
 
 				SetColor(Colors[(Items[I].Flags&LIF_DISABLE)?VMenuColorArrowsDisabled:(Items[I].Flags&LIF_SELECTED?VMenuColorArrowsSelect:VMenuColorArrows)]);
@@ -2363,13 +2363,13 @@ void VMenu::ShowMenu(bool IsParent)
 				if (Items[I].ShowPos)
 				{
 					GotoXY(m_Where.left + (m_BoxType == NO_BOX? 0 : 1) + 1, Y);
-					BoxText(L'\xab'); // '<<'
+					BoxText(L'«');
 				}
 
 				if (ShowRightScroller)
 				{
 					GotoXY(static_cast<int>(m_Where.left + (m_BoxType == NO_BOX? 0 : 1) + 2 + MaxLineWidth), Y);
-					BoxText(L'\xbb'); // '>>'
+					BoxText(L'»');
 				}
 			}
 		}

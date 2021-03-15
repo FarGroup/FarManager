@@ -51,9 +51,6 @@ namespace logging
 	namespace detail
 	{
 		constexpr auto step = 0x2000'0000u;
-
-		[[nodiscard]]
-		string wide(std::string_view Str);
 	}
 
 	enum class level: unsigned
@@ -73,7 +70,7 @@ namespace logging
 	[[nodiscard]]
 	bool filter(level Level);
 
-	void log(string_view Str, level Level, string_view Function, string_view Location);
+	void log(string_view Str, level Level, std::string_view Function, std::string_view File, int Line);
 
 	void show();
 
@@ -86,15 +83,6 @@ namespace logging
 	int main(const wchar_t* PipeName);
 }
 
-#ifdef _MSC_VER
-#define LOG_DETAIL_FUNCW string_view(TEXT(__FUNCTION__), sizeof(TEXT(__FUNCTION__)) / sizeof(wchar_t) - 1)
-#else
-#define LOG_DETAIL_FUNCW logging::detail::wide(__func__)
-#endif
-
-#define LOG_DETAIL_LOCATION_IMPL(file, line) TEXT(file) L"(" TEXT(STR(line)) L")"sv
-#define LOG_DETAIL_LOCATION(file, line) LOG_DETAIL_LOCATION_IMPL(file, line)
-
 #define LOG(log_level, Format, ...) \
 	do \
 	{ \
@@ -103,8 +91,9 @@ namespace logging
 			logging::log( \
 				format(FSTR(Format), ##__VA_ARGS__), \
 				log_level, \
-				LOG_DETAIL_FUNCW, \
-				LOG_DETAIL_LOCATION(__FILE__, __LINE__) \
+				CURRENT_FUNCTION_NAME, \
+				CURRENT_FILE_NAME, \
+				__LINE__ \
 			); \
 		} \
 	} \

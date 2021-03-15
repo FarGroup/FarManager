@@ -68,15 +68,18 @@ namespace io
 	[[nodiscard]]
 	inline size_t read(std::istream& Stream, span<std::byte> const Buffer)
 	{
+		try
 		{
-			const auto Exceptions = Stream.exceptions();
-			Stream.exceptions(Exceptions & ~(Stream.failbit | Stream.eofbit));
-			SCOPE_SUCCESS{ Stream.exceptions(Exceptions); };
-
 			Stream.read(static_cast<char*>(static_cast<void*>(Buffer.data())), Buffer.size());
-			if (!Stream.bad() && Stream.eof())
-				Stream.clear(Stream.eofbit);
 		}
+		catch (std::ios::failure const&)
+		{
+			if (Stream.bad())
+				throw;
+		}
+
+		if (Stream.eof())
+			Stream.clear(Stream.eofbit);
 
 		return Stream.gcount();
 	}

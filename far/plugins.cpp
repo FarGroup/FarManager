@@ -570,15 +570,15 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 	}
 
 	const auto ShowMenu = Global->Opt->PluginConfirm.OpenFilePlugin==BSTATE_3STATE? !(Type == OFP_NORMAL || Type == OFP_SEARCH) : Global->Opt->PluginConfirm.OpenFilePlugin != 0;
-	const auto ShowWarning = OpMode == OPM_NONE;
+
 	 //у анси плагинов OpMode нет.
 	if(Type==OFP_ALTERNATIVE) OpMode|=OPM_PGDN;
 	if(Type==OFP_COMMANDS) OpMode|=OPM_COMMANDS;
 
 	AnalyseInfo Info{ sizeof(Info), Name? Name->c_str() : nullptr, nullptr, 0, OpMode };
 	std::vector<BYTE> Buffer(Global->Opt->PluginMaxReadData);
-
 	bool DataRead = false;
+
 	for (const auto& i: SortedPlugins)
 	{
 		if (!(i->has(iAnalyse) && i->has(iOpen)) && !i->has(iOpenFilePlugin))
@@ -588,36 +588,23 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 		{
 			LOGDEBUG(L"Reading {} bytes from {}"sv, Buffer.size(), *Name);
 
-			if (const auto File = os::fs::file(*Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
+			os::fs::file const File(*Name, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
+			if (!File)
 			{
-				size_t DataSize = 0;
-				if (File.Read(Buffer.data(), Buffer.size(), DataSize))
-				{
-					Info.Buffer = Buffer.data();
-					Info.BufferSize = DataSize;
-					DataRead = true;
-				}
+				LOGWARNING(L"create_file({}): {}"sv, *Name, last_error());
+				return nullptr;
 			}
 
-			if(!DataRead)
+			size_t DataSize = 0;
+			if (!File.Read(Buffer.data(), Buffer.size(), DataSize))
 			{
-				const auto ErrorState = last_error();
-
-				LOGWARNING(L"Read error: {}"sv, ErrorState);
-
-				if(ShowWarning)
-				{
-
-					Message(MSG_WARNING, ErrorState,
-						{},
-						{
-							msg(lng::MOpenPluginCannotOpenFile),
-							*Name
-						},
-						{ lng::MOk });
-				}
-				break;
+				LOGWARNING(L"read_file({}): {}"sv, *Name, last_error());
+				return nullptr;
 			}
+
+			Info.Buffer = Buffer.data();
+			Info.BufferSize = DataSize;
+			DataRead = true;
 		}
 
 		if (i->has(iAnalyse))

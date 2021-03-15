@@ -154,9 +154,9 @@ namespace encoding
 
 	bool is_valid_utf8(std::string_view Str, bool PartialContent, bool& PureAscii);
 
-	inline constexpr wchar_t bom_char      = L'\xFEFF'; // Zero Length Space
-	inline constexpr wchar_t replace_char  = L'\xFFFD'; // Replacement
-	inline constexpr wchar_t continue_char = L'\x203A'; // Single Right-Pointing Angle Quotation Mark
+	inline constexpr wchar_t bom_char      = L'﻿'; // Zero Length Space
+	inline constexpr wchar_t replace_char  = L'�'; // Replacement
+	inline constexpr wchar_t continue_char = L'›'; // Single Right-Pointing Angle Quotation Mark
 }
 
 void swap_bytes(const void* Src, void* Dst, size_t SizeInBytes);

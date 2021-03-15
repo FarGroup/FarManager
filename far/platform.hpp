@@ -230,7 +230,10 @@ namespace os
 	void unset_error_mode(unsigned Mask);
 
 	[[nodiscard]]
-	NTSTATUS GetLastNtStatus();
+	NTSTATUS get_last_nt_status();
+
+	void set_last_nt_status(NTSTATUS Status);
+	void set_last_error_from_ntstatus(NTSTATUS Status);
 
 	[[nodiscard]]
 	string GetErrorString(bool Nt, DWORD Code);

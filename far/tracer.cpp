@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "encoding.hpp"
 #include "pathmix.hpp"
-#include "exception.hpp"
 #include "log.hpp"
 
 // Platform:
@@ -96,6 +95,9 @@ static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 {
 	std::vector<uintptr_t> Result;
 
+	if (!imports.StackWalk64)
+		return Result;
+
 	const auto Data = platform_specific_data(ContextRecord);
 
 	if (Data.MachineType == IMAGE_FILE_MACHINE_UNKNOWN || (!Data.PC && !Data.Frame && !Data.Stack))
@@ -121,8 +123,7 @@ static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 
 	return Result;
 }
-template<typename>
-class DT;
+
 static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const BackTrace, function_ref<void(string&&, string&&, string&&)> const Consumer)
 {
 	SCOPED_ACTION(tracer::with_symbols)(ModuleName);
@@ -131,7 +132,17 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 	const auto MaxNameLen = MAX_SYM_NAME;
 	const auto BufferSize = sizeof(SYMBOL_INFO) + MaxNameLen + 1;
 
-	imports.SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_INCLUDE_32BIT_MODULES);
+	if (imports.SymSetOptions)
+	{
+		imports.SymSetOptions(
+			SYMOPT_UNDNAME |
+			SYMOPT_DEFERRED_LOADS |
+			SYMOPT_LOAD_LINES |
+			SYMOPT_FAIL_CRITICAL_ERRORS |
+			SYMOPT_INCLUDE_32BIT_MODULES |
+			SYMOPT_NO_PROMPTS
+		);
+	}
 
 	block_ptr<SYMBOL_INFOW, BufferSize> SymbolW(BufferSize);
 	SymbolW->SizeOfStruct = sizeof(SYMBOL_INFOW);
@@ -140,6 +151,8 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 	block_ptr<SYMBOL_INFO, BufferSize> Symbol(BufferSize);
 	Symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 	Symbol->MaxNameLen = MaxNameLen;
+
+	string NameBuffer;
 
 	const auto FormatAddress = [](uintptr_t const Value)
 	{
@@ -156,22 +169,25 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 		return format(FSTR(L"0x{:0{}X}"sv), Value, Width);
 	};
 
-	const auto GetName = [&](uintptr_t const Address)
+	const auto GetName = [&](uintptr_t const Address) -> string_view
 	{
 		if (imports.SymFromAddrW && imports.SymFromAddrW(Process, Address, nullptr, SymbolW.data()))
-			return string(SymbolW->Name);
+			return { SymbolW->Name, SymbolW->NameLen };
 
 		if (imports.SymFromAddr && imports.SymFromAddr(Process, Address, nullptr, Symbol.data()))
-			return encoding::ansi::get_chars(Symbol->Name);
+		{
+			NameBuffer = encoding::ansi::get_chars({ Symbol->Name, Symbol->NameLen });
+			return NameBuffer;
+		}
 
-		return L"<unknown> (get the pdb)"s;
+		return L"<unknown> (get the pdb)"sv;
 	};
 
 	const auto GetLocation = [&](uintptr_t const Address)
 	{
 		const auto Location = [](string_view const File, unsigned const Line)
 		{
-			return format(FSTR(L"{}:{}"sv), File, Line);
+			return format(FSTR(L"{}({})"sv), File, Line);
 		};
 
 		DWORD Displacement;
@@ -190,7 +206,7 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 	for (const auto Address: BackTrace)
 	{
 		IMAGEHLP_MODULEW64 Module{ static_cast<DWORD>(aligned_size(offsetof(IMAGEHLP_MODULEW64, LoadedImageName), 8)) }; // use the pre-07-Jun-2002 struct size, aligned to 8
-		const auto HasModuleInfo = imports.SymGetModuleInfoW64(Process, Address, &Module);
+		const auto HasModuleInfo = imports.SymGetModuleInfoW64 && imports.SymGetModuleInfoW64(Process, Address, &Module);
 
 		Consumer(
 			FormatAddress(Address - Module.BaseOfImage),
@@ -269,5 +285,8 @@ void tracer::sym_cleanup()
 		--s_SymInitialised;
 
 	if (!s_SymInitialised)
-		imports.SymCleanup(GetCurrentProcess());
+	{
+		if (imports.SymCleanup)
+			imports.SymCleanup(GetCurrentProcess());
+	}
 }

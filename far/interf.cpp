@@ -158,12 +158,14 @@ static os::event& CancelIoInProgress()
 	return s_CancelIoInProgress;
 }
 
-static unsigned int CancelSynchronousIoWrapper(void* Thread)
+static void CancelSynchronousIoWrapper(void* Thread)
 {
+	if (!imports.CancelSynchronousIo)
+		return;
+
 	// TODO: SEH guard, try/catch, exception_ptr
 	const auto Result = imports.CancelSynchronousIo(Thread);
 	CancelIoInProgress().reset();
-	return Result;
 }
 
 static BOOL WINAPI CtrlHandler(DWORD CtrlType)
@@ -1107,8 +1109,8 @@ bool ScrollBarEx(size_t X1, size_t Y1, size_t Length, unsigned long long Start, 
 		return false;
 
 	string Buffer(Length, BoxSymbols[BS_X_B0]);
-	Buffer.front() = L'\x25B2';
-	Buffer.back() = L'\x25BC';
+	Buffer.front() = L'▲';
+	Buffer.back() = L'▼';
 
 	const auto FieldBegin = Buffer.begin() + 1;
 	const auto FieldEnd = Buffer.end() - 1;

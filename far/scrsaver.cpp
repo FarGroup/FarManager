@@ -84,10 +84,10 @@ namespace
 
 		static const inline wchar_t StarSprites[]
 		{
-			L'\x00B7', // ·
-			L'\x2219', // ∙
-			L'\x2022', // •
-			L'\x25CF', // ●
+			L'·',
+			L'∙',
+			L'•',
+			L'●',
 		};
 
 	public:

@@ -128,9 +128,21 @@ namespace os
 		SetErrorMode(SetErrorMode(0) & ~Mask);
 	}
 
-NTSTATUS GetLastNtStatus()
+NTSTATUS get_last_nt_status()
 {
 	return imports.RtlGetLastNtStatus? imports.RtlGetLastNtStatus() : STATUS_SUCCESS;
+}
+
+void set_last_nt_status(NTSTATUS const Status)
+{
+	if (imports.RtlNtStatusToDosError)
+		imports.RtlNtStatusToDosError(Status);
+}
+
+void set_last_error_from_ntstatus(NTSTATUS const Status)
+{
+	if (imports.RtlNtStatusToDosError)
+		SetLastError(imports.RtlNtStatusToDosError(Status));
 }
 
 string GetErrorString(bool Nt, DWORD Code)
@@ -151,7 +163,7 @@ string format_system_error(unsigned int const ErrorCode, string_view const Error
 
 last_error_guard::last_error_guard():
 	m_LastError(GetLastError()),
-	m_LastStatus(imports.RtlGetLastNtStatus()),
+	m_LastStatus(get_last_nt_status()),
 	m_Active(true)
 {
 }
@@ -162,7 +174,7 @@ last_error_guard::~last_error_guard()
 		return;
 
 	SetLastError(m_LastError);
-	imports.RtlNtStatusToDosError(m_LastStatus);
+	set_last_nt_status(m_LastStatus);
 }
 
 void last_error_guard::dismiss()
@@ -281,7 +293,17 @@ bool GetWindowText(HWND Hwnd, string& Text)
 #ifndef _WIN64
 bool IsWow64Process()
 {
-	static const auto Wow64Process = []{ BOOL Value = FALSE; return imports.IsWow64Process(GetCurrentProcess(), &Value) && Value; }();
+	static const auto Wow64Process = []
+	{
+		if (!imports.IsWow64Process)
+			return false;
+
+		BOOL Value = FALSE;
+		if (!imports.IsWow64Process(GetCurrentProcess(), &Value))
+			return false;
+
+		return Value != FALSE;
+	}();
 	return Wow64Process;
 }
 #endif
@@ -461,6 +483,9 @@ handle OpenConsoleActiveScreenBuffer()
 
 		std::vector<uintptr_t> current_stack(size_t const FramesToSkip, size_t const FramesToCapture)
 		{
+			if (!imports.RtlCaptureStackBackTrace)
+				return {};
+
 			std::vector<uintptr_t> Stack;
 			Stack.reserve(128);
 

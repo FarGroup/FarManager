@@ -1,11 +1,11 @@
 [![Header][logo-img]][logo-url]
 
 ### Far Manager
-| | AppVeyor | Travis | Azure |
-|-|-|-|-|
-| VS | [![AppVeyor][VS-AppVeyor-img]][VS-AppVeyor-url] | [![Travis CI][VS-Travis-img]][VS-Travis-url] | [![Azure Pipelines][VS-Azure-img]][VS-Azure-url] |
-| GCC | [![AppVeyor][GCC-AppVeyor-img]][GCC-AppVeyor-url] | [![Travis CI][GCC-Travis-img]][GCC-Travis-url] | TBD |
-| Clang | [![AppVeyor][Clang-AppVeyor-img]][Clang-AppVeyor-url] | [![Travis CI][Clang-Travis-img]][Clang-Travis-url] | TBD |
+| | AppVeyor | Azure |
+|-|-|-|
+| VS | [![AppVeyor][VS-AppVeyor-img]][VS-AppVeyor-url] | [![Azure Pipelines][VS-Azure-img]][VS-Azure-url] |
+| GCC | [![AppVeyor][GCC-AppVeyor-img]][GCC-AppVeyor-url] | TBD |
+| Clang | [![AppVeyor][Clang-AppVeyor-img]][Clang-AppVeyor-url] | TBD |
 
 
 ### Far Manager — what is it?
@@ -51,11 +51,5 @@ https://github.com/FarGroup/FarManager
 [GCC-AppVeyor-url]: https://ci.appveyor.com/project/FarGroup/farmanager-5lhsj/history
 [Clang-AppVeyor-img]: https://ci.appveyor.com/api/projects/status/pvwnc6gc5tjlpmti?svg=true
 [Clang-AppVeyor-url]: https://ci.appveyor.com/project/FarGroup/farmanager-tgu1s/history
-[VS-Travis-img]: https://img.shields.io/travis/FarGroup/FarManager.svg?logo=travis
-[VS-Travis-url]: https://travis-ci.com/FarGroup/FarManager/builds
-[GCC-Travis-img]: https://img.shields.io/travis/FarGroup/FarManager.svg?logo=travis
-[GCC-Travis-url]: https://travis-ci.com/FarGroup/FarManager/builds
-[Clang-Travis-img]: https://img.shields.io/travis/FarGroup/FarManager.svg?logo=travis
-[Clang-Travis-url]: https://travis-ci.com/FarGroup/FarManager/builds
 [VS-Azure-img]: https://img.shields.io/azure-devops/build/FarGroup/66d0ddcf-a098-4b98-9470-1c90632c4ba3/1.svg?logo=azuredevops
 [VS-Azure-url]: https://dev.azure.com/FarGroup/FarManager/_build?definitionId=1

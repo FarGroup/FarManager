@@ -665,7 +665,7 @@ void Dialog::InitDialogObjects(size_t ID)
 
 		if (Item.Type==DI_BUTTON && Item.Flags&DIF_SETSHIELD)
 		{
-			static const auto Shield = L"\x2580\x2584 "sv;
+			static const auto Shield = L"▀▄ "sv;
 			Item.strData.insert(0, Shield);
 		}
 
@@ -1934,7 +1934,7 @@ void Dialog::ShowDialog(size_t ID)
 				}
 				else
 				{
-					const auto Dot = Item.Selected? L'\x2022' : L' ';
+					const auto Dot = Item.Selected? L'•' : L' ';
 
 					if (Item.Flags&DIF_MOVESELECT)
 					{
@@ -2024,8 +2024,7 @@ void Dialog::ShowDialog(size_t ID)
 				if (ItemHasDropDownArrow(&Item))
 				{
 					const auto EditPos = EditPtr->GetPosition();
-					//Text((CurItem->Type == DI_COMBOBOX?"\x1F":"\x19"));
-					Text({ EditPos.right + 1, EditPos.top }, ItemColor[3], L"\x2193"sv);
+					Text({ EditPos.right + 1, EditPos.top }, ItemColor[3], L"↓"sv);
 				}
 
 				if (Item.Type == DI_COMBOBOX && GetDropDownOpened() && Item.ListPtr->IsVisible()) // need redraw VMenu?

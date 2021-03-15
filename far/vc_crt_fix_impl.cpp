@@ -435,6 +435,53 @@ extern "C" BOOL WINAPI SetThreadStackGuaranteeWrapper(PULONG StackSizeInBytes)
 	return Function(StackSizeInBytes);
 }
 
+// InitializeCriticalSectionEx (VC2019)
+extern "C" BOOL WINAPI InitializeCriticalSectionExWrapper(LPCRITICAL_SECTION CriticalSection, DWORD SpinCount, DWORD Flags)
+{
+	struct implementation
+	{
+		static int WINAPI InitializeCriticalSectionEx(LPCRITICAL_SECTION CriticalSection, DWORD SpinCount, DWORD Flags)
+		{
+			InitializeCriticalSection(CriticalSection);
+			CriticalSection->SpinCount = Flags | SpinCount;
+			return TRUE;
+		}
+	};
+
+	CREATE_FUNCTION_POINTER(modules::kernel32, InitializeCriticalSectionEx);
+	return Function(CriticalSection, SpinCount, Flags);
+}
+
+// CompareStringEx (VC2019)
+extern "C" int WINAPI CompareStringExWrapper(LPCWSTR LocaleName, DWORD CmpFlags, LPCWCH String1, int Count1, LPCWCH String2, int Count2, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM Param)
+{
+	struct implementation
+	{
+		static int WINAPI CompareStringEx(LPCWSTR LocaleName, DWORD CmpFlags, LPCWCH String1, int Count1, LPCWCH String2, int Count2, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM Param)
+		{
+			return CompareStringW(LOCALE_USER_DEFAULT, CmpFlags, String1, Count1, String2, Count2);
+		}
+	};
+
+	CREATE_FUNCTION_POINTER(modules::kernel32, CompareStringEx);
+	return Function(LocaleName, CmpFlags, String1, Count1, String2, Count2, VersionInformation, Reserved, Param);
+}
+
+// LCMapStringEx (VC2019)
+extern "C" int WINAPI LCMapStringExWrapper(LPCWSTR LocaleName, DWORD MapFlags, LPCWSTR SrcStr, int SrcCount, LPWSTR DestStr, int DestCount, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM SortHandle)
+{
+	struct implementation
+	{
+		static int WINAPI CompareStringEx(LPCWSTR LocaleName, DWORD MapFlags, LPCWSTR SrcStr, int SrcCount, LPWSTR DestStr, int DestCount, LPNLSVERSIONINFO VersionInformation, LPVOID Reserved, LPARAM SortHandle)
+		{
+			return LCMapStringW(LOCALE_USER_DEFAULT, MapFlags, SrcStr, SrcCount, DestStr, DestCount);
+		}
+	};
+
+	CREATE_FUNCTION_POINTER(modules::kernel32, CompareStringEx);
+	return Function(LocaleName, MapFlags, SrcStr, SrcCount, DestStr, DestCount, VersionInformation, Reserved, SortHandle);
+}
+
 
 // disable VS2015 telemetry
 extern "C"

@@ -201,6 +201,50 @@
               <File Id="VaxColors.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\VaxColors.farconfig" />
             </Component>
           </Directory>
+          <Directory Id="No_Highlighting" Name="Interface">
+            <Component Id="black_from_Fonarev.farconfig_2" Guid="$(var.Guid.black_from_Fonarev.farconfig_2)" Win64="$(var.Win64)">
+              <File Id="black_from_Fonarev.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\black_from_Fonarev.farconfig" />
+            </Component>
+            <Component Id="black_from_july.farconfig_2" Guid="$(var.Guid.black_from_july.farconfig_2)" Win64="$(var.Win64)">
+              <File Id="black_from_july.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\black_from_july.farconfig" />
+            </Component>
+            <Component Id="black_from_Myodov.farconfig_2" Guid="$(var.Guid.black_from_Myodov.farconfig_2)" Win64="$(var.Win64)">
+              <File Id="black_from_Myodov.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\black_from_Myodov.farconfig" />
+            </Component>
+            <Component Id="Colors_from_admin_essp_ru.farconfig_2" Guid="$(var.Guid.Colors_from_admin_essp_ru.farconfig_2)" Win64="$(var.Win64)">
+              <File Id="Colors_from_admin_essp_ru.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\Colors_from_admin_essp_ru.farconfig" />
+            </Component>
+            <Component Id="Colors_from_Gernichenko.farconfig_2" Guid="$(var.Guid.Colors_from_Gernichenko.farconfig_2)" Win64="$(var.Win64)">
+              <File Id="Colors_from_Gernichenko.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\Colors_from_Gernichenko.farconfig" />
+            </Component>
+            <Component Id="Colors_from_Sadovoj.farconfig_2" Guid="$(var.Guid.Colors_from_Sadovoj.farconfig_2)" Win64="$(var.Win64)">
+              <File Id="Colors_from_Sadovoj.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\Colors_from_Sadovoj.farconfig" />
+            </Component>
+            <Component Id="Descript.ion_52" Guid="$(var.Guid.Descript.ion_52)" Win64="$(var.Win64)">
+              <File Id="Descript.ion_52" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\Descript.ion" />
+            </Component>
+            <Component Id="dn_like.farconfig_2" Guid="$(var.Guid.dn_like.farconfig_2)" Win64="$(var.Win64)">
+              <File Id="dn_like.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\dn_like.farconfig" />
+            </Component>
+            <Component Id="FARColors242.farconfig_2" Guid="$(var.Guid.FARColors242.farconfig_2)" Win64="$(var.Win64)">
+              <File Id="FARColors242.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\FARColors242.farconfig" />
+            </Component>
+            <Component Id="GreenMile.farconfig_2" Guid="$(var.Guid.GreenMile.farconfig_2)" Win64="$(var.Win64)">
+              <File Id="GreenMile.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\GreenMile.farconfig" />
+            </Component>
+            <Component Id="hell.farconfig_2" Guid="$(var.Guid.hell.farconfig_2)" Win64="$(var.Win64)">
+              <File Id="hell.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\hell.farconfig" />
+            </Component>
+            <Component Id="nc5pal2.farconfig_2" Guid="$(var.Guid.nc5pal2.farconfig_2)" Win64="$(var.Win64)">
+              <File Id="nc5pal2.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\nc5pal2.farconfig" />
+            </Component>
+            <Component Id="Rodion_Doroshkevich.farconfig_2" Guid="$(var.Guid.Rodion_Doroshkevich.farconfig_2)" Win64="$(var.Win64)">
+              <File Id="Rodion_Doroshkevich.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\Rodion_Doroshkevich.farconfig" />
+            </Component>
+            <Component Id="VaxColors.farconfig_2" Guid="$(var.Guid.VaxColors.farconfig_2)" Win64="$(var.Win64)">
+              <File Id="VaxColors.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\VaxColors.farconfig" />
+            </Component>
+          </Directory>
         </Directory>
         <Directory Id="Macros" Name="Macros">
           <Component Id="AltMenu.lua" Guid="$(var.Guid.AltMenu.lua)" Win64="$(var.Win64)">

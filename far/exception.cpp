@@ -55,7 +55,7 @@ error_state last_error()
 	{
 		errno,
 		GetLastError(),
-		imports.RtlGetLastNtStatus(),
+		os::get_last_nt_status(),
 	};
 }
 
@@ -92,11 +92,11 @@ string error_state::to_string() const
 
 namespace detail
 {
-	far_base_exception::far_base_exception(bool const CaptureErrors, string_view const Message, const char* const Function, string_view const File, int const Line):
+	far_base_exception::far_base_exception(bool const CaptureErrors, string_view const Message, std::string_view const Function, std::string_view const File, int const Line):
 		error_state_ex(CaptureErrors? last_error(): error_state{}, Message),
 		m_Function(Function),
-		m_Location(format(FSTR(L"{}:{}"sv), File, Line)),
-		m_FullMessage(format(FSTR(L"{} (at {}, {})"sv), Message, encoding::utf8::get_chars(m_Function), m_Location))
+		m_Location(format(FSTR(L"{}({})"sv), encoding::utf8::get_chars(File), Line)),
+		m_FullMessage(format(FSTR(L"{} ({}, {})"sv), Message, encoding::utf8::get_chars(m_Function), m_Location))
 	{
 		LOGTRACE(L"far_base_exception: {}"sv, *this);
 	}
@@ -138,6 +138,12 @@ std::wostream& operator<<(std::wostream& Stream, error_state const& e)
 std::wostream& operator<<(std::wostream& Stream, error_state_ex const& e)
 {
 	Stream << format(FSTR(L"Message: {}, {}"sv), e.What, e.to_string());
+	return Stream;
+}
+
+std::wostream& operator<<(std::wostream& Stream, detail::far_base_exception const& e)
+{
+	Stream << format(FSTR(L"far_base_exception: {}"sv), e.full_message());
 	return Stream;
 }
 

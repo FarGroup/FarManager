@@ -173,15 +173,33 @@ void DizList::Read(string_view const Path, const string* DizName)
 		return true;
 	};
 
+	const auto try_read_diz_file = [&](const string_view Name)
+	{
+		try
+		{
+			return ReadDizFile(Name);
+		}
+		catch(std::exception const& e)
+		{
+			m_DizData.clear();
+			m_DizFileName.clear();
+			m_Modified = false;
+
+			LOGWARNING(L"{}"sv, e);
+
+			return false;
+		}
+	};
+
 	if (DizName)
 	{
-		ReadDizFile(*DizName);
+		try_read_diz_file(*DizName);
 	}
 	else if (PathCanHoldRegularFile(Path))
 	{
 		for (const auto& i: enum_tokens_with_quotes(Global->Opt->Diz.strListNames.Get(), L",;"sv))
 		{
-			if (ReadDizFile(path::join(Path, i)))
+			if (try_read_diz_file(path::join(Path, i)))
 				break;
 		}
 	}

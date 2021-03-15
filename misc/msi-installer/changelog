@@ -1,3 +1,8 @@
+drkns 10.03.2021 19:22:54 +0000
+
+1. Split color schemes with highlighting to "only color schemes" and "only highlighting".
+   This should make it easier to try various schemes without breaking your highlighting.
+
 drkns 07.06.2019 09:29:03 +0100
 
 1. Simplify the custom actions: instead of doing some black magic to figure out the maximum console window size

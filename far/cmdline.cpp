@@ -200,7 +200,7 @@ void CommandLine::DisplayObject()
 
 	GotoXY(m_Where.right + 1, m_Where.top);
 	SetColor(COL_COMMANDLINEPREFIX);
-	Text(L'\x2191'); // up arrow
+	Text(L'↑');
 }
 
 void CommandLine::DrawFakeCommand(string_view const FakeCommand)

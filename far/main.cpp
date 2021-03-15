@@ -535,7 +535,7 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	log_hook_wow64_status();
 #endif
 
-	if(!console.IsFullscreenSupported())
+	if(!console.IsFullscreenSupported() && imports.SetConsoleKeyShortcuts)
 	{
 		const BYTE ReserveAltEnter = 0x8;
 		imports.SetConsoleKeyShortcuts(TRUE, ReserveAltEnter, nullptr, 0);
@@ -804,7 +804,7 @@ static int mainImpl(span<const wchar_t* const> const Args)
 
 	NoElevationDuringBoot.reset();
 
-	const auto CurrentFunctionName = __FUNCTION__;
+	const auto CurrentFunctionName = CURRENT_FUNCTION_NAME;
 
 	return cpp_try(
 	[&]
@@ -865,7 +865,7 @@ static int wmain_seh()
 	SCOPED_ACTION(seh_terminate_handler);
 	SCOPED_ACTION(new_handler);
 
-	const auto CurrentFunctionName = __FUNCTION__;
+	const auto CurrentFunctionName = CURRENT_FUNCTION_NAME;
 
 	return cpp_try(
 	[&]
@@ -903,5 +903,5 @@ int main()
 		LOGFATAL(L"Abnormal exit due to SEH exception {}"sv, ExceptionCode);
 		std::_Exit(ExceptionCode? ExceptionCode : EXIT_FAILURE);
 	},
-	__FUNCTION__);
+	CURRENT_FUNCTION_NAME);
 }

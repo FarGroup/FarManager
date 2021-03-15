@@ -45,12 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-// This is sick, but apparently the only way now, see fmt #2130
-namespace std
-{
-	std::wostream& operator<<(std::wostream& Stream, std::exception const& e);
-}
-
 WARNING_PUSH(3)
 
 WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
@@ -117,5 +111,38 @@ string str(std::string) = delete;
 string str(string) = delete;
 string str(std::string_view) = delete;
 string str(string_view) = delete;
+
+namespace format_helpers
+{
+	struct parse_no_spec
+	{
+		template<typename ParseContext>
+		constexpr auto parse(ParseContext& ctx)
+		{
+			return ctx.begin();
+		}
+	};
+
+	template<typename object_type>
+	struct format_no_spec
+	{
+		template <typename FormatContext>
+		auto format(object_type const& Value, FormatContext& ctx)
+		{
+			return fmt::format_to(ctx.out(), FSTR(L"{}"sv), fmt::formatter<object_type, wchar_t>::to_string(Value));
+		}
+	};
+
+	template<typename object_type>
+	struct no_spec: parse_no_spec, format_no_spec<object_type>
+	{
+	};
+}
+
+template<>
+struct fmt::formatter<std::exception, wchar_t>: format_helpers::no_spec<std::exception>
+{
+	static string to_string(std::exception const& Value);
+};
 
 #endif // FORMAT_HPP_27C3F464_170B_432E_9D44_3884DDBB95AC
