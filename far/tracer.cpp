@@ -141,17 +141,6 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 
 	const auto Process = GetCurrentProcess();
 
-	package<SYMBOL_INFOW> SymbolW{ sizeof(SymbolW.info) };
-	SymbolW.info.MaxNameLen = MAX_SYM_NAME;
-
-	package<SYMBOL_INFO> Symbol{ sizeof(Symbol.info) };
-	Symbol.info.MaxNameLen = MAX_SYM_NAME;
-
-	package<IMAGEHLP_SYMBOL64> SymbolLegacy{ sizeof(SymbolLegacy.info) };
-	SymbolLegacy.info.MaxNameLength = MAX_SYM_NAME;
-
-	string NameBuffer;
-
 	const auto FormatAddress = [](uintptr_t const Value)
 	{
 		// It is unlikely that RVAs will be above 4 GiB,
@@ -167,11 +156,27 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 		return format(FSTR(L"0x{:0{}X}"sv), Value, Width);
 	};
 
+	std::variant
+	<
+		package<SYMBOL_INFOW>,
+		package<SYMBOL_INFO>,
+		package<IMAGEHLP_SYMBOL64>
+	>
+	SymbolData;
+
+	string NameBuffer;
+
 	const auto GetName = [&](uintptr_t const Address) -> string_view
 	{
 		const auto Get = [&](auto const& Getter, auto& Buffer, auto& To)
 		{
-			if (!Getter || !Getter(Process, Address, {}, &Buffer.info))
+			if (!Getter)
+				return false;
+
+			Buffer.info.SizeOfStruct = sizeof(Buffer.info);
+			Buffer.info.MaxNameLen = MAX_SYM_NAME;
+
+			if (!Getter(Process, Address, {}, &Buffer.info))
 				return false;
 
 			// Old dbghelp versions (e.g. XP) not always populate NameLen
@@ -179,23 +184,26 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 			return true;
 		};
 
-		if (string_view Name; Get(imports.SymFromAddrW, SymbolW, Name))
+		if (string_view Name; Get(imports.SymFromAddrW, SymbolData.emplace<0>(), Name))
 			return Name;
 
-		if (std::string_view Name; Get(imports.SymFromAddr, Symbol, Name))
-		{
-			NameBuffer = encoding::ansi::get_chars(Name);
-			return NameBuffer;
-		}
+		if (std::string_view Name; Get(imports.SymFromAddr, SymbolData.emplace<1>(), Name))
+			return NameBuffer = encoding::ansi::get_chars(Name);
 
 		// This one is for Win2k, which doesn't have SymFromAddr.
 		// However, I couldn't make it work with the out-of-the-box version.
 		// Get a newer dbghelp.dll if you need traces there:
 		// http://download.microsoft.com/download/A/6/A/A6AC035D-DA3F-4F0C-ADA4-37C8E5D34E3D/setup/WinSDKDebuggingTools/dbg_x86.msi
-		if (DWORD64 Displacement; imports.SymGetSymFromAddr64(Process, Address, &Displacement, &SymbolLegacy.info))
 		{
-			NameBuffer = encoding::ansi::get_chars(SymbolLegacy.info.Name);
-			return NameBuffer;
+			auto& Symbol = SymbolData.emplace<2>();
+			Symbol.info.SizeOfStruct = sizeof(Symbol.info);
+			Symbol.info.MaxNameLength = MAX_SYM_NAME;
+
+			if (DWORD64 Displacement; imports.SymGetSymFromAddr64(Process, Address, &Displacement, &Symbol.info))
+			{
+				NameBuffer = encoding::ansi::get_chars(Symbol.info.Name);
+				return NameBuffer;
+			}
 		}
 
 		return L"<unknown> (get the pdb)"sv;
@@ -205,6 +213,7 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 	{
 		const auto Get = [&](auto const& Getter, auto& Buffer)
 		{
+			Buffer.SizeOfStruct = sizeof(Buffer);
 			DWORD Displacement;
 			return Getter && Getter(Process, Address, &Displacement, &Buffer);
 		};
@@ -214,10 +223,10 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 			return format(FSTR(L"{}({})"sv), File, Line);
 		};
 
-		if (IMAGEHLP_LINEW64 Line{ sizeof(Line) }; Get(imports.SymGetLineFromAddrW64, Line))
+		if (IMAGEHLP_LINEW64 Line; Get(imports.SymGetLineFromAddrW64, Line))
 			return Location(Line.FileName, Line.LineNumber);
 
-		if (IMAGEHLP_LINE64 Line{ sizeof(Line) }; Get(imports.SymGetLineFromAddr64, Line))
+		if (IMAGEHLP_LINE64 Line; Get(imports.SymGetLineFromAddr64, Line))
 			return Location(encoding::ansi::get_chars(Line.FileName), Line.LineNumber);
 
 		return L""s;
