@@ -1,0 +1,119 @@
+name: Far build checks
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [ MSVC_PROJ_x64_Debug,MSVC_PROJ_x64_Release,MSVC_PROJ_x86_Debug,MSVC_PROJ_x86_Release,
+                 MSVC_NMAKE_x64_Debug, MSVC_NMAKE_x64_Release,MSVC_NMAKE_x86_Debug,MSVC_NMAKE_x86_Release,
+                 CLANG_NMAKE_x64_Debug,CLANG_NMAKE_x64_Release,
+                 GCC_MAKE_x64_Debug,GCC_MAKE_x64_Release,
+                 CLANG_MAKE_x64_Debug,CLANG_MAKE_x64_Release ]
+        include:
+          - { build: MSVC_PROJ_x64_Debug, compiler: MSVC_PROJ, arch: x64, build_config: Debug }
+          - { build: MSVC_PROJ_x64_Release, compiler: MSVC_PROJ, arch: x64, build_config: Release }
+          - { build: MSVC_PROJ_x86_Debug, compiler: MSVC_PROJ, arch: Win32, build_config: Debug }
+          - { build: MSVC_PROJ_x86_Release, compiler: MSVC_PROJ, arch: Win32, build_config: Release }
+          - { build: MSVC_NMAKE_x64_Debug, compiler: MSVC_NMAKE, arch: x64, build_config: Debug }
+          - { build: MSVC_NMAKE_x64_Release, compiler: MSVC_NMAKE, arch: x64, build_config: Release }
+          - { build: MSVC_NMAKE_x86_Debug, compiler: MSVC_NMAKE, arch: Win32, build_config: Debug }
+          - { build: MSVC_NMAKE_x86_Release, compiler: MSVC_NMAKE, arch: Win32, build_config: Release }
+          - { build: CLANG_NMAKE_x64_Debug, compiler: CLANG_NMAKE, arch: x64, build_config: Debug }
+          - { build: CLANG_NMAKE_x64_Release, compiler: CLANG_NMAKE, arch: x64, build_config: Release }
+          - { build: GCC_MAKE_x64_Debug, compiler: GCC_MAKE, arch: x64, build_config: Debug }
+          - { build: GCC_MAKE_x64_Release, compiler: GCC_MAKE, arch: x64, build_config: Release }
+          - { build: CLANG_MAKE_x64_Debug, compiler: CLANG_MAKE, arch: x64, build_config: Debug }
+          - { build: CLANG_MAKE_x64_Release, compiler: CLANG_MAKE, arch: x64, build_config: Release }
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Set MSVC envrioment
+        if: matrix.compiler == 'MSVC_PROJ' || matrix.compiler == 'MSVC_NMAKE' || matrix.compiler == 'CLANG_NMAKE'
+        uses: ilammy/msvc-dev-cmd@v1.6.0
+        with:
+          arch: ${{ matrix.arch }}
+
+      - name: Set envirement for debug build
+        if: matrix.build_config  == 'Debug'
+        run: set DEBUG=1
+
+      - name: Build MsBuild
+        if: matrix.compiler == 'MSVC_PROJ'
+        working-directory: ${{runner.workspace}}/FarManager/far
+        run: MSBuild.exe /property:Configuration=${{ matrix.build_config }} /property:Platform=${{ matrix.arch }} far.vcxproj
+
+      - name: Build NMake Far
+        if: matrix.compiler  == 'MSVC_NMAKE'
+        working-directory: ${{runner.workspace}}/FarManager/far
+        run: |
+          cl.exe
+          nmake /f makefile_vc
+
+      - name: Build NMake Plugins
+        if: matrix.compiler  == 'MSVC_NMAKE'
+        working-directory: ${{runner.workspace}}/FarManager/plugins
+        run: nmake /f makefile_all_vc
+
+      - name: Build Clang NMake Far
+        if: matrix.compiler  == 'CLANG_NMAKE'
+        working-directory: ${{runner.workspace}}/FarManager/far
+        run: |
+          clang --version
+          nmake /f makefile_vc CLANG=1
+
+      - name: Install Mingw GCC x64
+        if: matrix.compiler  == 'GCC_MAKE'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: make gcc mingw-w64-x86_64-crt
+
+      - name: Build Mingw GCC Far
+        if: matrix.compiler  == 'GCC_MAKE'
+        working-directory: ${{runner.workspace}}/FarManager/far
+        shell: msys2 {0}
+        run: |
+          gcc --version
+          make -j4 -f makefile_gcc
+
+      - name: Build Mingw GCC Plugins
+        if: matrix.compiler  == 'GCC_MAKE'
+        working-directory: ${{runner.workspace}}/FarManager/plugins
+        shell: msys2 {0}
+        run: |
+          gcc --version
+          make -j4 -f makefile_all_gcc
+
+      - name: Install Mingw Clang x64
+        if: matrix.compiler  == 'CLANG_MAKE'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: make mingw-w64-x86_64-clang mingw-w64-x86_64-crt
+
+      - name: Build Mingw Clang Far
+        if: matrix.compiler  == 'CLANG_MAKE'
+        working-directory: ${{runner.workspace}}/FarManager/far
+        shell: msys2 {0}
+        run: |
+          clang --version
+          make -j4 CLANG=1 -f makefile_gcc
+
+      - name: Build Mingw Clang Plugins
+        if: matrix.compiler  == 'CLANG_MAKE'
+        working-directory: ${{runner.workspace}}/FarManager/plugins
+        shell: msys2 {0}
+        run: |
+          clang --version
+          make -j4 CLANG=1 -f makefile_all_gcc
