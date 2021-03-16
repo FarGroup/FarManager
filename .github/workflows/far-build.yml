@@ -58,7 +58,7 @@ jobs:
         working-directory: ${{runner.workspace}}/FarManager/far
         run: |
           cl.exe
-          nmake /f makefile_vc ${{ matrix.add_make }}
+          nmake /f makefile_vc
 
       - name: Build NMake Plugins
         if: matrix.compiler  == 'MSVC_NMAKE'
@@ -85,7 +85,7 @@ jobs:
         shell: msys2 {0}
         run: |
           gcc --version
-          make -j4 -f makefile_gcc ${{ matrix.add_make }}
+          make -j4 -f makefile_gcc
 
       - name: Build Mingw GCC Plugins
         if: matrix.compiler  == 'GCC_MAKE'
