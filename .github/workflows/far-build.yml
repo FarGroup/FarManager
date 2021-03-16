@@ -1,0 +1,50 @@
+name: Far build checks
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [ MSVC_PROJ, MSVC_NMAKE ]
+        arch: [ x64, Win32 ]
+        build_config: [ Debug, Release ]
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Set MSVC envrioment
+        uses: ilammy/msvc-dev-cmd@v1.6.0
+        with:
+          arch: ${{ matrix.arch }}
+
+      - name: Build MsBuild
+        if: ${{ matrix.compiler }} == 'MSVC_PROJ'
+        working-directory: ${{runner.workspace}}/far
+        run: MSBuild.exe /property:Configuration=${{ matrix.build_config }} /property:Platform=${{ matrix.arch }} far.vcxproj
+
+      - name: Build NMake Far
+        if: ${{ matrix.compiler }} == 'MSVC_NMAKE'
+        working-directory: ${{runner.workspace}}/far
+        run: |
+          if ${{ matrix.build_config }}==Debug set DEBUG=1
+          nmake /f makefile_vc
+
+      - name: Build NMake Plugins
+        if: ${{ matrix.compiler }} == 'MSVC_NMAKE'
+        working-directory: ${{runner.workspace}}/plugins
+        run: |
+          if ${{ matrix.build_config }}==Debug set DEBUG=1
+          nmake /f makefile_vc
+
+
+      
+    
