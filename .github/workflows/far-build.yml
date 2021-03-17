@@ -77,7 +77,7 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
-          install: make gcc mingw-w64-x86_64-crt
+          install: make gcc mingw-w64-x86_64-toolchain
 
       - name: Build Mingw GCC Far
         if: matrix.compiler  == 'GCC_MAKE'
@@ -100,7 +100,7 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
-          install: make mingw-w64-x86_64-clang mingw-w64-x86_64-crt
+          install: make mingw-w64-x86_64-clang mingw-w64-x86_64-lld mingw-w64-x86_64-toolchain
 
       - name: Build Mingw Clang Far
         if: matrix.compiler  == 'CLANG_MAKE'
