@@ -124,35 +124,22 @@ static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 	return Result;
 }
 
+// SYMBOL_INFO_PACKAGEW not defined in GCC headers :(
+namespace
+{
+	template<typename header>
+	struct package
+	{
+		header info;
+		std::remove_all_extents_t<decltype(header::Name)> name[MAX_SYM_NAME + 1];
+	};
+}
+
 static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const BackTrace, function_ref<void(string&&, string&&, string&&)> const Consumer)
 {
 	SCOPED_ACTION(tracer::with_symbols)(ModuleName);
 
 	const auto Process = GetCurrentProcess();
-	const auto MaxNameLen = MAX_SYM_NAME;
-	const auto BufferSize = sizeof(SYMBOL_INFO) + MaxNameLen + 1;
-
-	if (imports.SymSetOptions)
-	{
-		imports.SymSetOptions(
-			SYMOPT_UNDNAME |
-			SYMOPT_DEFERRED_LOADS |
-			SYMOPT_LOAD_LINES |
-			SYMOPT_FAIL_CRITICAL_ERRORS |
-			SYMOPT_INCLUDE_32BIT_MODULES |
-			SYMOPT_NO_PROMPTS
-		);
-	}
-
-	block_ptr<SYMBOL_INFOW, BufferSize> SymbolW(BufferSize);
-	SymbolW->SizeOfStruct = sizeof(SYMBOL_INFOW);
-	SymbolW->MaxNameLen = MaxNameLen;
-
-	block_ptr<SYMBOL_INFO, BufferSize> Symbol(BufferSize);
-	Symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-	Symbol->MaxNameLen = MaxNameLen;
-
-	string NameBuffer;
 
 	const auto FormatAddress = [](uintptr_t const Value)
 	{
@@ -169,15 +156,54 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 		return format(FSTR(L"0x{:0{}X}"sv), Value, Width);
 	};
 
+	std::variant
+	<
+		package<SYMBOL_INFOW>,
+		package<SYMBOL_INFO>,
+		package<IMAGEHLP_SYMBOL64>
+	>
+	SymbolData;
+
+	string NameBuffer;
+
 	const auto GetName = [&](uintptr_t const Address) -> string_view
 	{
-		if (imports.SymFromAddrW && imports.SymFromAddrW(Process, Address, nullptr, SymbolW.data()))
-			return { SymbolW->Name, SymbolW->NameLen };
-
-		if (imports.SymFromAddr && imports.SymFromAddr(Process, Address, nullptr, Symbol.data()))
+		const auto Get = [&](auto const& Getter, auto& Buffer, auto& To)
 		{
-			NameBuffer = encoding::ansi::get_chars({ Symbol->Name, Symbol->NameLen });
-			return NameBuffer;
+			if (!Getter)
+				return false;
+
+			Buffer.info.SizeOfStruct = sizeof(Buffer.info);
+			Buffer.info.MaxNameLen = MAX_SYM_NAME;
+
+			if (!Getter(Process, Address, {}, &Buffer.info))
+				return false;
+
+			// Old dbghelp versions (e.g. XP) not always populate NameLen
+			To = { Buffer.info.Name, Buffer.info.NameLen? Buffer.info.NameLen : std::char_traits<VALUE_TYPE(To)>::length(Buffer.info.Name) };
+			return true;
+		};
+
+		if (string_view Name; Get(imports.SymFromAddrW, SymbolData.emplace<0>(), Name))
+			return Name;
+
+		if (std::string_view Name; Get(imports.SymFromAddr, SymbolData.emplace<1>(), Name))
+			return NameBuffer = encoding::ansi::get_chars(Name);
+
+		// This one is for Win2k, which doesn't have SymFromAddr.
+		// However, I couldn't make it work with the out-of-the-box version.
+		// Get a newer dbghelp.dll if you need traces there:
+		// http://download.microsoft.com/download/A/6/A/A6AC035D-DA3F-4F0C-ADA4-37C8E5D34E3D/setup/WinSDKDebuggingTools/dbg_x86.msi
+		{
+			auto& Symbol = SymbolData.emplace<2>();
+			Symbol.info.SizeOfStruct = sizeof(Symbol.info);
+			Symbol.info.MaxNameLength = MAX_SYM_NAME;
+
+			if (DWORD64 Displacement; imports.SymGetSymFromAddr64(Process, Address, &Displacement, &Symbol.info))
+			{
+				NameBuffer = encoding::ansi::get_chars(Symbol.info.Name);
+				return NameBuffer;
+			}
 		}
 
 		return L"<unknown> (get the pdb)"sv;
@@ -185,19 +211,22 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 
 	const auto GetLocation = [&](uintptr_t const Address)
 	{
+		const auto Get = [&](auto const& Getter, auto& Buffer)
+		{
+			Buffer.SizeOfStruct = sizeof(Buffer);
+			DWORD Displacement;
+			return Getter && Getter(Process, Address, &Displacement, &Buffer);
+		};
+
 		const auto Location = [](string_view const File, unsigned const Line)
 		{
 			return format(FSTR(L"{}({})"sv), File, Line);
 		};
 
-		DWORD Displacement;
+		if (IMAGEHLP_LINEW64 Line; Get(imports.SymGetLineFromAddrW64, Line))
+			return Location(Line.FileName, Line.LineNumber);
 
-		IMAGEHLP_LINEW64 LineW{ sizeof(LineW) };
-		if (imports.SymGetLineFromAddrW64 && imports.SymGetLineFromAddrW64(Process, Address, &Displacement, &LineW))
-			return Location(LineW.FileName, LineW.LineNumber);
-
-		IMAGEHLP_LINE64 Line{ sizeof(Line) };
-		if (imports.SymGetLineFromAddr64 && imports.SymGetLineFromAddr64(Process, Address, &Displacement, &Line))
+		if (IMAGEHLP_LINE64 Line; Get(imports.SymGetLineFromAddr64, Line))
 			return Location(encoding::ansi::get_chars(Line.FileName), Line.LineNumber);
 
 		return L""s;
@@ -268,6 +297,18 @@ void tracer::sym_initialise(string_view Module)
 	{
 		CutToParent(Module);
 		append(Path, L';', Module);
+	}
+
+	if (imports.SymSetOptions)
+	{
+		imports.SymSetOptions(
+			SYMOPT_UNDNAME |
+			SYMOPT_DEFERRED_LOADS |
+			SYMOPT_LOAD_LINES |
+			SYMOPT_FAIL_CRITICAL_ERRORS |
+			SYMOPT_INCLUDE_32BIT_MODULES |
+			SYMOPT_NO_PROMPTS
+		);
 	}
 
 	if (

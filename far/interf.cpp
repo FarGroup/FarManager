@@ -164,7 +164,7 @@ static void CancelSynchronousIoWrapper(void* Thread)
 		return;
 
 	// TODO: SEH guard, try/catch, exception_ptr
-	const auto Result = imports.CancelSynchronousIo(Thread);
+	imports.CancelSynchronousIo(Thread);
 	CancelIoInProgress().reset();
 }
 

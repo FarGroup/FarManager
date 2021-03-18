@@ -153,6 +153,12 @@ NTSTATUS NTAPI imports::stub_NtQueryInformationProcess(HANDLE ProcessHandle, PRO
 	return STATUS_NOT_IMPLEMENTED;
 }
 
+WORD NTAPI imports::stub_RtlCaptureStackBackTrace(DWORD FramesToSkip, DWORD FramesToCapture, PVOID* BackTrace, PDWORD BackTraceHash)
+{
+	LOGWARNING(L"Stub call"sv);
+	return 0;
+}
+
 #ifndef _WIN64
 NTSTATUS NTAPI imports::stub_NtWow64QueryInformationProcess64(HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength)
 {
@@ -346,14 +352,6 @@ int WINAPI imports::stub_CompareStringOrdinal(LPCWCH String1, int Count1, LPCWCH
 	return 0;
 }
 
-WORD NTAPI imports::stub_RtlCaptureStackBackTrace(DWORD FramesToSkip, DWORD FramesToCapture, PVOID* BackTrace, PDWORD BackTraceHash)
-{
-	LOGWARNING(L"Stub call"sv);
-	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-	return 0;
-}
-
-
 // shell32
 HRESULT STDAPICALLTYPE imports::stub_SHCreateAssociationRegistration(REFIID riid, void ** ppv)
 {
@@ -489,6 +487,13 @@ DWORD WINAPI imports::stub_SymSetOptions(DWORD SymOptions)
 	LOGWARNING(L"Stub call"sv);
 	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 	return 0;
+}
+
+BOOL WINAPI imports::stub_SymGetSymFromAddr64(HANDLE Process, DWORD64 Addr, PDWORD64 Displacement, PIMAGEHLP_SYMBOL64 Symbol)
+{
+	LOGWARNING(L"Stub call"sv);
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return FALSE;
 }
 
 BOOL WINAPI imports::stub_SymGetLineFromAddr64(HANDLE Process, DWORD64 Addr, PDWORD Displacement, PIMAGEHLP_LINE64 Line)

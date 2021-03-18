@@ -654,7 +654,9 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 
 	if (items.empty())
 	{
-		LOGDEBUG(L"No plugins accepted this file"sv);
+		if (DataRead)
+			LOGDEBUG(L"No plugins accepted this file"sv);
+
 		return nullptr;
 	}
 
