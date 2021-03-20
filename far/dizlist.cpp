@@ -237,7 +237,7 @@ string_view DizList::Get(const string& Name, const string& ShortName, const long
 			}
 		}
 
-		if (SkipSize && std::iswblank(*DescrIterator))
+		if (SkipSize && DescrIterator != Description.cend() && std::iswblank(*DescrIterator))
 		{
 			Begin = DescrIterator;
 		}

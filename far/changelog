@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 20.03.2021 23:22:21 +0000 - build 5764
+
+1. Move COM MTA initialisation into a separate thread to allow plugins to have STA in the main thread.
+
+2. A few minor fixes.
+
+--------------------------------------------------------------------------------
 svs 17.03.2021 16:39:34 +0300 - build 5763
 
 1. SQLite 3.35.1

@@ -667,7 +667,7 @@ static bool GetShellName(string_view const RootDirectory, string& Name)
 	if (!is_disk(RootDirectory))
 		return false;
 
-	const auto Path = dos_drive_name(RootDirectory);
+	const auto Path = dos_drive_root_directory(RootDirectory);
 
 	os::com::ptr<IShellFolder> ShellFolder;
 	if (FAILED(SHGetDesktopFolder(&ptr_setter(ShellFolder))))
