@@ -47,32 +47,37 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-taskbar::taskbar()
+static std::atomic<TBPFLAG> LastState;
+
+static auto create()
 {
-	CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, IID_PPV_ARGS_Helper(&ptr_setter(m_TaskbarList)));
+	os::com::ptr<ITaskbarList3> TaskbarList;
+	CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, IID_PPV_ARGS_Helper(&ptr_setter(TaskbarList)));
+	return TaskbarList;
 }
 
 void taskbar::set_state(TBPFLAG const State)
 {
-	if (!m_TaskbarList)
+	SCOPED_ACTION(os::com::initialize);
+
+	const auto TaskbarList = create();
+	if (!TaskbarList)
 		return;
 
-	m_State = State;
-	m_TaskbarList->SetProgressState(console.GetWindow(), m_State);
+	LastState = State;
+	TaskbarList->SetProgressState(console.GetWindow(), State);
 }
 
 void taskbar::set_value(unsigned long long const Completed, unsigned long long const Total)
 {
-	if (!m_TaskbarList)
+	SCOPED_ACTION(os::com::initialize);
+
+	const auto TaskbarList = create();
+	if (!TaskbarList)
 		return;
 
-	m_State = TBPF_NORMAL;
-	m_TaskbarList->SetProgressValue(console.GetWindow(), Completed, Total);
-}
-
-TBPFLAG taskbar::last_state() const
-{
-	return m_State;
+	LastState = TBPF_NORMAL;
+	TaskbarList->SetProgressValue(console.GetWindow(), Completed, Total);
 }
 
 void taskbar::flash()
@@ -94,47 +99,41 @@ void taskbar::flash()
 taskbar::indeterminate::indeterminate(bool const EndFlash):
 	m_EndFlash(EndFlash)
 {
-	auto& Taskbar = instance();
-
-	if (Taskbar.last_state() != TBPF_INDETERMINATE)
+	if (LastState != TBPF_INDETERMINATE)
 	{
-		Taskbar.set_state(TBPF_INDETERMINATE);
+		set_state(TBPF_INDETERMINATE);
 	}
 }
 
 taskbar::indeterminate::~indeterminate()
 {
-	auto& Taskbar = instance();
-
-	if (Taskbar.last_state() != TBPF_NOPROGRESS)
+	if (LastState != TBPF_NOPROGRESS)
 	{
-		Taskbar.set_state(TBPF_NOPROGRESS);
+		set_state(TBPF_NOPROGRESS);
 	}
 
 	if(m_EndFlash)
 	{
-		Taskbar.flash();
+		flash();
 	}
 }
 
 taskbar::state::state(TBPFLAG const State):
-	m_PreviousState(instance().last_state())
+	m_PreviousState(LastState)
 {
 	if (m_PreviousState == State)
 		return;
 
-	auto& Taskbar = instance();
-
 	if (m_PreviousState == TBPF_INDETERMINATE || m_PreviousState == TBPF_NOPROGRESS)
 	{
-		Taskbar.set_value(1, 1);
+		set_value(1, 1);
 	}
 
-	Taskbar.set_state(State);
-	Taskbar.flash();
+	set_state(State);
+	flash();
 }
 
 taskbar::state::~state()
 {
-	instance().set_state(m_PreviousState);
+	set_state(m_PreviousState);
 }

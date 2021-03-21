@@ -3523,7 +3523,7 @@ bool Editor::Search(bool Next)
 				const auto Total = FindAllReferences? Lines.size() : ReverseSearch? StartLine : Lines.size() - StartLine;
 				const auto Current = abs(CurPtr.Number() - StartLine);
 				EditorShowMsg(msg(lng::MEditSearchTitle), msg(lng::MEditSearchingFor), QuotedStr, Total > 0? Current * 100 / Total : 100);
-				taskbar::instance().set_value(Current,Total);
+				taskbar::set_value(Current,Total);
 			}
 
 			auto strReplaceStrCurrent = ReplaceMode? strReplaceStr : L""s;

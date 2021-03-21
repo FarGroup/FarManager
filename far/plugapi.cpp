@@ -712,7 +712,7 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		}
 
 		case ACTL_SETPROGRESSSTATE:
-			taskbar::instance().set_state(static_cast<TBPFLAG>(Param1));
+			taskbar::set_state(static_cast<TBPFLAG>(Param1));
 			return TRUE;
 
 		case ACTL_SETPROGRESSVALUE:
@@ -721,7 +721,7 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			const auto PV = static_cast<const ProgressValue*>(Param2);
 			if(CheckStructSize(PV))
 			{
-				taskbar::instance().set_value(PV->Completed,PV->Total);
+				taskbar::set_value(PV->Completed,PV->Total);
 				Result=TRUE;
 			}
 			return Result;
@@ -793,7 +793,7 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 		case ACTL_PROGRESSNOTIFY:
 		{
-			taskbar::instance().flash();
+			taskbar::flash();
 			return TRUE;
 		}
 
