@@ -136,6 +136,85 @@ namespace colors
 		return Result;
 	}
 
+	static auto console_palette()
+	{
+		std::array<COLORREF, 16> Palette;
+		if (!console.GetPalette(Palette))
+		{
+			Palette =
+			{
+				RGB(  0,   0,   0), // black
+				RGB(  0,   0, 128), // blue
+				RGB(  0, 128,   0), // green
+				RGB(  0, 128, 128), // cyan
+				RGB(128,   0,   0), // red
+				RGB(128,   0, 128), // magenta
+				RGB(128, 128,   0), // yellow
+				RGB(192, 192, 192), // white
+
+				RGB(128, 128, 128), // bright black
+				RGB(  0,   0, 255), // bright blue
+				RGB(  0, 255,   0), // bright green
+				RGB(  0, 255, 255), // bright cyan
+				RGB(255,   0,   0), // bright red
+				RGB(255,   0, 255), // bright magenta
+				RGB(255, 255,   0), // bright yellow
+				RGB(255, 255, 255)  // bright white
+			};
+		}
+
+		return Palette;
+	}
+
+	static WORD get_closest_palette_index(COLORREF const Color)
+	{
+		static const auto Palette = console_palette();
+
+		static std::unordered_map<COLORREF, WORD> Map;
+
+		if (const auto Iterator = Map.find(Color); Iterator != Map.cend())
+			return Iterator->second;
+
+		union color_point
+		{
+			const COLORREF Color;
+			const rgba RGBA;
+		};
+
+		color_point const Point{ Color };
+
+		const auto distance = [&](COLORREF const PaletteColor)
+		{
+			color_point const PalettePoint{ PaletteColor };
+
+			const auto distance_part = [&](auto const& Getter)
+			{
+				return std::abs(
+					int{ std::invoke(Getter, Point.RGBA) } -
+					int{ std::invoke(Getter, PalettePoint.RGBA) }
+				);
+			};
+
+			return std::sqrt(
+				std::pow(distance_part(&rgba::r), 2) +
+				std::pow(distance_part(&rgba::g), 2) +
+				std::pow(distance_part(&rgba::b), 2)
+			);
+		};
+
+		const auto ClosestPointIterator = std::min_element(ALL_CONST_RANGE(Palette), [&](COLORREF const Item1, COLORREF const Item2)
+		{
+			return distance(Item1) < distance(Item2);
+		});
+
+		const auto ClosestIndex = ClosestPointIterator - Palette.cbegin();
+
+		Map.emplace(Color, ClosestIndex);
+
+		return ClosestIndex;
+	}
+
+
 WORD FarColorToConsoleColor(const FarColor& Color)
 {
 	static FarColor LastColor{};
@@ -186,50 +265,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 			continue;
 		}
 
-		int R = i.RGBA.r;
-		int G = i.RGBA.g;
-		int B = i.RGBA.b;
-
-		// special case, silver color:
-		if (in_closed_range(160, R, 223) && in_closed_range(160, G, 223) && in_closed_range(160, B, 223))
-		{
-			*i.IndexColor = RedMask | GreenMask | BlueMask;
-			continue;
-		}
-
-		int* p[] = { &R, &G, &B };
-		size_t IntenseCount = 0;
-		for (auto& component : p)
-		{
-			if(in_closed_range(0, *component, 63))
-			{
-				*component = 0;
-			}
-			else if(in_closed_range(64, *component, 191))
-			{
-				*component = 128;
-			}
-			else if(in_closed_range(192, *component, 255))
-			{
-				*component = 255;
-				++IntenseCount;
-			}
-		}
-
-		// eliminate mixed intensity
-		if(IntenseCount > 0 && IntenseCount < 3)
-		{
-			for(auto& component: p)
-			{
-				if(*component == 128)
-				{
-					*component = IntenseCount == 1? 0 : 255;
-				}
-			}
-		}
-
-		const auto ToMask = [](size_t component, console_mask mask) { return component? mask : 0; };
-		*i.IndexColor = ToMask(R, RedMask) | ToMask(G, GreenMask) | ToMask(B, BlueMask) | ToMask(IntenseCount, IntensityMask);
+		*i.IndexColor = get_closest_palette_index(color_value(i.Color));
 	}
 
 	auto FinalIndexColors = IndexColors;
@@ -237,8 +273,10 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 	if (color_value(data[0].Color) != color_value(data[1].Color) && FinalIndexColors[0] == FinalIndexColors[1])
 	{
 		// oops, unreadable
-		// since background is more pronounced we try to adjust the foreground first
-		FinalIndexColors[1] & IntensityMask? FinalIndexColors[1] &= ~IntensityMask : FinalIndexColors[0] |= IntensityMask;
+		// since background is more pronounced we adjust the foreground only
+		FinalIndexColors[1] & IntensityMask?
+			FinalIndexColors[1] &= ~IntensityMask :
+			FinalIndexColors[1] |= IntensityMask;
 	}
 
 	Result = (FinalIndexColors[0] << ConsoleBgShift) | (FinalIndexColors[1] << ConsoleFgShift) | (Color.Flags & FCF_RAWATTR_MASK);
@@ -253,36 +291,6 @@ FarColor ConsoleColorToFarColor(WORD Color)
 	NewColor.ForegroundColor = opaque((Color >> ConsoleFgShift) & ConsoleMask);
 	NewColor.BackgroundColor = opaque((Color >> ConsoleBgShift) & ConsoleMask);
 	return NewColor;
-}
-
-static auto console_palette()
-{
-	std::array<COLORREF, 16> Palette;
-	if (!console.GetPalette(Palette))
-	{
-		Palette =
-		{
-			RGB(  0,   0,   0), // black
-			RGB(  0,   0, 128), // blue
-			RGB(  0, 128,   0), // green
-			RGB(  0, 128, 128), // cyan
-			RGB(128,   0,   0), // red
-			RGB(128,   0, 128), // magenta
-			RGB(128, 128,   0), // yellow
-			RGB(192, 192, 192), // white
-
-			RGB(128, 128, 128), // bright black
-			RGB(  0,   0, 255), // bright blue
-			RGB(  0, 255,   0), // bright green
-			RGB(  0, 255, 255), // bright cyan
-			RGB(255,   0,   0), // bright red
-			RGB(255,   0, 255), // bright magenta
-			RGB(255, 255,   0), // bright yellow
-			RGB(255, 255, 255)  // bright white
-		};
-	}
-
-	return Palette;
 }
 
 COLORREF ConsoleIndexToTrueColor(size_t Index)

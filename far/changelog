@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 21.03.2021 03:40:44 +0000 - build 5765
+
+1. 0003852: an alternative (and, hopefully, better) way to approximate truecolor to console index.
+
+--------------------------------------------------------------------------------
 drkns 20.03.2021 23:22:21 +0000 - build 5764
 
 1. Move COM MTA initialisation into a separate thread to allow plugins to have STA in the main thread.
