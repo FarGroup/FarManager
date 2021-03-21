@@ -514,51 +514,12 @@ static void log_hook_wow64_status()
 }
 #endif
 
-void initialise_com_mta()
-{
-	// https://docs.microsoft.com/en-us/troubleshoot/windows/win32/descriptions-workings-ole-threading-models
-	// Current implementations of COM allow a thread that does not explicitly initialize COM to be a part of the MTA.
-	// A thread that does not initialize COM is part of the MTA only if it starts using COM after at least
-	// one other thread in the process has previously called CoInitializeEx(NULL, COINIT_MULTITHREADED).
-
-	// Far itself is apartment-agnostic, so we initialise MTA in a separate thread and do nothing in the main thread
-	// to allow badly written plugins or plugins that depend on Ole* APIs to initialise STA in the main thread
-	// without failing or causing havoc (hopefully).
-
-	static class initialiser
-	{
-	public:
-		initialiser()
-		{
-			m_DoneEvent.wait();
-		}
-
-		~initialiser()
-		{
-			m_ExitEvent.set();
-		}
-
-	private:
-		void run() const
-		{
-			os::com::initialize Init;
-			m_DoneEvent.set();
-			m_ExitEvent.wait();
-		}
-
-		os::concurrency::event
-			m_DoneEvent{ os::concurrency::event::type::manual, os::concurrency::event::state::nonsignaled },
-			m_ExitEvent{ os::concurrency::event::type::manual, os::concurrency::event::state::nonsignaled };
-		os::concurrency::thread m_Thread{ os::thread::mode::join, &initialiser::run, this };
-	}
-	Initialiser;
-}
-
 static int mainImpl(span<const wchar_t* const> const Args)
 {
 	setlocale(LC_ALL, "");
 
-	initialise_com_mta();
+	// Must be static - dependent static objects exist
+	static SCOPED_ACTION(os::com::initialize);
 
 	SCOPED_ACTION(global);
 
