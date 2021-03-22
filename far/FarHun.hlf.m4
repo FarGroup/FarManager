@@ -86,6 +86,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
  ~Fájltársítások~@FileAssoc@
  ~Operációs rendszer parancsok~@OSCommands@
  ~Mappa gyorsbillentyűk~@FolderShortcuts@
+ ~Sort groups~@SortGroups@
  ~Szűrők menü~@FiltersMenu@
  ~Képernyők váltása~@ScrSwitch@
  ~Futó programok~@TaskList@

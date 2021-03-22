@@ -87,6 +87,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
  ~Powiązania plików~@FileAssoc@
  ~Polecenia systemu operacyjnego~@OSCommands@
  ~Skróty do folderów~@FolderShortcuts@
+ ~Grupy sortowania~@SortGroups@
  ~Menu filtry~@FiltersMenu@
  ~Przełączanie ekranów~@ScrSwitch@
  ~Lista zadań~@TaskList@

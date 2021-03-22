@@ -3,7 +3,7 @@
 rem Runs HlfChecker.linq script to check specified help files in specified languages.
 rem
 rem Synopsys:
-rem     HlfChecker.cmd [<directory> ...] { [+<lng> ...] | [-<lng> ...] }
+rem     HlfChecker.cmd [<directory> ...] { [+<lng> ...] | [-<lng> ...] } [StrictRefs]
 rem
 rem Examples:
 rem   Check help files of Far and all plugins in all languages:
@@ -17,6 +17,11 @@ rem     HlfChecker.cmd +pol
 rem
 rem   Check help files of FAR Commands plugins in all languages except Russian:
 rem     HlfChecker.cmd ..\..\plugins\farcmds -rus
+rem
+rem While comparing paragrpahs, HlfChecker extracts all references (e.g., "@About@") from corresponding paragrpahs
+rem and compares the collections of references. By default, if "StrictRefs" parameter is NOT specified, the collections
+rem are sorted and repeated references are removed before comparing. If "StrictRefs" parameter is specified,
+rem the collections are compared exactly as extracted.
 rem
 rem If a help file was parsed successfully, the script will overwrite it with the parsed contents.
 rem If there were errors, the file will not be overwritten. All errors and warnings will be printed.
