@@ -580,7 +580,10 @@ static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, fun
 operation OperationFailed(const error_state_ex& ErrorState, string_view const Object, lng Title, string Description, bool AllowSkip, bool AllowSkipAll)
 {
 	std::vector<string> Msg;
+
+	std::optional<os::com::initialize> ComInitialiser;
 	os::com::ptr<IFileIsInUse> FileIsInUse;
+
 	auto Reason = lng::MObjectLockedReasonOpened;
 	bool SwitchBtn = false, CloseBtn = false;
 	const auto Error = ErrorState.Win32Error;
@@ -590,6 +593,8 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 		Error == ERROR_DRIVE_LOCKED)
 	{
 		const auto FullName = ConvertNameToFull(Object);
+
+		ComInitialiser.emplace();
 		FileIsInUse = CreateIFileIsInUse(FullName);
 		if (FileIsInUse)
 		{

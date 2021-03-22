@@ -1,4 +1,26 @@
 --------------------------------------------------------------------------------
+drkns 21.03.2021 19:15:26 +0000 - build 5767
+
+1. Another attempt to keep the main thread COM-free (most of the time).
+
+--------------------------------------------------------------------------------
+drkns 21.03.2021 15:03:52 +0000 - build 5766
+
+1. Revert 5764.1 - the experiment wasn't successful.
+
+--------------------------------------------------------------------------------
+drkns 21.03.2021 03:40:44 +0000 - build 5765
+
+1. 0003852: an alternative (and, hopefully, better) way to approximate truecolor to console index.
+
+--------------------------------------------------------------------------------
+drkns 20.03.2021 23:22:21 +0000 - build 5764
+
+1. Move COM MTA initialisation into a separate thread to allow plugins to have STA in the main thread.
+
+2. A few minor fixes.
+
+--------------------------------------------------------------------------------
 svs 17.03.2021 16:39:34 +0300 - build 5763
 
 1. SQLite 3.35.1

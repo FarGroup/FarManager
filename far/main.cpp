@@ -518,9 +518,6 @@ static int mainImpl(span<const wchar_t* const> const Args)
 {
 	setlocale(LC_ALL, "");
 
-	// Must be static - dependent static objects exist
-	static SCOPED_ACTION(os::com::initialize);
-
 	SCOPED_ACTION(global);
 
 	std::optional<elevation::suppress> NoElevationDuringBoot(std::in_place);

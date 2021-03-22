@@ -40,55 +40,40 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.hpp"
 
 // Common:
-#include "common/singleton.hpp"
 
 // External:
 
 //----------------------------------------------------------------------------
 
-class taskbar: public singleton<taskbar>
+namespace taskbar
 {
-	IMPLEMENTS_SINGLETON;
-
-public:
-	[[nodiscard]]
-	TBPFLAG last_state() const;
 	void set_state(TBPFLAG State);
 	void set_value(unsigned long long Completed, unsigned long long Total);
-	static void flash();
+	void flash();
 
-	class indeterminate;
-	class state;
+	class indeterminate
+	{
+	public:
+		NONCOPYABLE(indeterminate);
 
-private:
-	taskbar();
+		explicit indeterminate(bool EndFlash = true);
+		~indeterminate();
 
-	os::com::ptr<ITaskbarList3> m_TaskbarList;
-	TBPFLAG m_State{ TBPF_NOPROGRESS };
-};
+	private:
+		bool m_EndFlash;
+	};
 
-class taskbar::indeterminate
-{
-public:
-	NONCOPYABLE(indeterminate);
+	class state
+	{
+	public:
+		NONCOPYABLE(state);
 
-	explicit indeterminate(bool EndFlash = true);
-	~indeterminate();
+		explicit state(TBPFLAG State);
+		~state();
 
-private:
-	bool m_EndFlash;
-};
-
-class taskbar::state
-{
-public:
-	NONCOPYABLE(state);
-
-	explicit state(TBPFLAG State);
-	~state();
-
-private:
-	TBPFLAG m_PreviousState;
-};
+	private:
+		TBPFLAG m_PreviousState;
+	};
+}
 
 #endif // TASKBAR_HPP_2522B9DF_D677_4AA9_8777_B5A1F588D4C1

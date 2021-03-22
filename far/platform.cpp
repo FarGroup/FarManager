@@ -404,7 +404,7 @@ handle OpenConsoleActiveScreenBuffer()
 	namespace com
 	{
 		initialize::initialize():
-			m_Initialised(SUCCEEDED(CoInitializeEx(nullptr, COINIT_MULTITHREADED)))
+			m_Initialised(SUCCEEDED(CoInitializeEx(nullptr, COINIT_DISABLE_OLE1DDE | COINIT_MULTITHREADED)))
 		{
 		}
 

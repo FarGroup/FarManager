@@ -546,6 +546,7 @@ bool AbortMessage()
 		return true;
 	}
 
+	// BUGBUG MSG_WARNING overrides TBPF_PAUSED with TBPF_ERROR
 	SCOPED_ACTION(taskbar::state)(TBPF_PAUSED);
 	const auto Result = Message(MSG_WARNING | MSG_KILLSAVESCREEN,
 		msg(lng::MKeyESCWasPressed),
