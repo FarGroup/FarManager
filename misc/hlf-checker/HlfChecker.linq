@@ -145,7 +145,7 @@ private static void ValidateDirectory(
 		return;
 	}
 
-	//$"Validating directory {directory.Name}...".Trace(printSeparator: true);
+	$"Validating diretory {directory.Name}...".Trace(printSeparator: true);
 
 	var engHlf = ParseAndPrintHlf(engHlfFile.FullName);
 	if (engHlf == default)
@@ -191,7 +191,7 @@ private static Hlf ParseAndPrintHlf(string hlfPath)
 	}
 
 	// Use "git diff" to make sure the file was parsed correcly
-	//$"Writing back {hlf.HlfName}...".Trace();
+	$"Writing back {hlf.HlfName}...".Trace();
 	File.WriteAllLines(hlfPath, hlf.Print(), Encoding.UTF8);
 	return hlf;
 }
@@ -218,7 +218,7 @@ public class HlfComparer
 
 	public bool Compare()
 	{
-		//$"Comparing {EngHlf.HlfName} and {LngHlf.HlfName}...".Trace();
+		$"Comparing {EngHlf.HlfName} and {LngHlf.HlfName}...".Trace();
 
 		var result = true;
 
@@ -353,7 +353,7 @@ public class HlfParser
 	public HlfParser(string hlfPath)
 	{
 		Hlf = new Hlf{ HlfName = Path.GetFileName(hlfPath) };
-		//$"Parsing {Hlf.HlfName}...".Trace();
+		$"Parsing {Hlf.HlfName}...".Trace();
 
 		Parser parser = Start;
 		Token token = new Token();
