@@ -272,7 +272,7 @@ zastąpione standardowym tekstem okna Far, zależnym od kontekstu programu.
  Tryb tylko-do-odczytu lub normalny tryb pracy (nadpisuje ustawienia z pliku ini).
 
  #-set:<parametr>=<wartość>#
- Nadpisuje parametr konfiguracyjny, zobacz szczegóły w ~far:config~@Konfiguracji FAR@.
+ Nadpisuje parametr konfiguracyjny, zobacz szczegóły w ~far:config~@FarConfig@.
 
  #-x#
  Wyłącza obsługę wyjątków. Ten parametr jest przeznaczony dla programistów i nie jest
@@ -1265,7 +1265,7 @@ przydzielonego miejsca, liczbę plików i podfolderów w tym folderze, bieżąc�
 klastra na dysku, rzeczywistą wielkość pliku z ilością utraconej pojemności
 (suma nieużywanych części klastra).
 
- Przy podglądzie punktów dowiązania, pokazywana jest także ścieżka do folderu źródłowego.
+ Przy podglądzie ~punktów dowiązania~@HardSymLink@, pokazywana jest także ścieżka do folderu źródłowego.
 
  Dla folderów, wartość całkowitej wielkości może nie być dokładnie obliczana:
  - ^<wrap>Jeżeli folder lub podfoldery zawierają linki symboliczne, a opcja
@@ -1483,7 +1483,7 @@ $ #Menus: menu opcje#
  #Język programu#        Wybór języka programu i pomocy. Użyj opcji "Zapisz ustawienia",
                        aby zapamiętać wybrany język
 
- #Konfiguracja#          Okno konfiguracji ~wtyczek~@Plugins@.
+ #Konfiguracja#          Okno konfiguracji ~wtyczek~@PluginsConfig@.
  #wtyczek#
 
  #Ustawienia managera#   Pokazuje okno ~Ustawień managera wtyczek~@PluginsManagerSettings@.
@@ -1512,8 +1512,7 @@ $ #Menus: menu opcje#
 
  #Opisy plików#          ~Pliki opisów~@FileDiz@ dla list plików i uaktualnienia tych list.
 
- #Pliki opisu folderów#  Lista nazw (dopuszczalne ~maski~@FileMasks@) plików wyświetlanych
-                       w ~Panelu informacyjnym~@InfoPanel@ jako opisy folderów i plików.
+ #Pliki opisu folderów#  Pokazuje okno ~Pliki opisu folderów~@FolderDiz@.
 
  #Ustawienia podglądu#   Ustawienia zewnętrznego i wewnętrznego ~Podglądu~@ViewerSettings@.
 
@@ -3716,7 +3715,7 @@ that a file belongs to a group, no further groups are checked.
 @HighlightEdit
 $ #Files highlighting and sort groups: editing#
  The #Files highlighting# dialog in the ~Options menu~@OptMenu@ allows to
-define file highlighting groups. Each group definition ~includes~@Filter@:
+specify file highlighting groups. Each group definition ~includes~@Filter@:
 
  - one or more ~file masks~@FileMasks@;
 
@@ -3771,7 +3770,7 @@ and external ~viewer~@Viewer@.
                          moving the cursor.
 
  #Search dialog#           Always returns focus to the search text field in
- #auto-focus#              the ~Viewer~@Viewer@ search dialog.
+ #auto-focus#              the Viewer ~Search~@ViewerSearch@ dialog.
 
  #Tab size#                Number of spaces per single tab position.
 
@@ -4145,7 +4144,7 @@ files will be listed on a single stripe.
  N[M[D],O,R[F],N] - file name, where:
                     M - ^<wrap>show selection marks where:
                         D - dynamic selection marks;
-                    O - ^<wrap>show names without paths (intended mainly for plugins);
+                    O - ^<wrap>show names without paths (intended mostly for ~plugins~@Plugins@);
                     R - ^<wrap>right align names that do not fit in column, where:
                         F - right align all names;
                     N - ^<wrap>do not show extensions in name column;
@@ -5188,7 +5187,7 @@ command playback is finished.
 
  2. ^<wrap>Some key combinations (including #Enter#, #Esc#, #F1# and #Ctrl+F5#,
 #MsWheelUp#, #MsWheelDown# and other mouse keys combined with #Ctrl#, #Shift#, #Alt#) cannot be entered
-directly because they have special functions in the dialog. To assign a macro
+directly because they have special functions in the dialog. To ~assign a macro~@KeyMacroAssign@
 to one of those key combinations, select it from the drop-down list.
 
 

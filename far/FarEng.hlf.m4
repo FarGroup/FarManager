@@ -1276,7 +1276,7 @@ as well.
 size, number of files and subfolders in the folder, current disk cluster size,
 real files size, including files slack (sum of the unused cluster parts).
 
- When viewing reparse points, the path to the source folder is also displayed.
+ When viewing ~reparse points~@HardSymLink@, the path to the source folder is also displayed.
 
  For folders, the total size value may not match the actual value:
  - ^<wrap>If the folder or its subfolders contain symbolic links and the option
@@ -1375,7 +1375,7 @@ last write, creation and access time, attributes. Fullscreen mode.
 
 @FilesMenu
 $ #Menus: files menu#
- #View#               ~View files~@Viewer@, count folder sizes.
+ #View#               ~View~@Viewer@ files, count folder sizes.
 
  #Edit#               ~Edit~@Editor@ files.
 
@@ -1518,9 +1518,8 @@ $ #Menus: options menu#
 
  #File descriptions#     ~File descriptions~@FileDiz@ list names and update mode.
 
- #Folder description#    Specify names (~wildcards~@FileMasks@ are allowed) of
- #files#                 files displayed in the ~Info panel~@InfoPanel@ as folder
-                       descriptions.
+ #Folder description#    Shows ~Folder description files~@FolderDiz@ dialog.
+ #files#
 
  #Viewer settings#       External and internal ~Viewer~@ViewerSettings@ setting.
 

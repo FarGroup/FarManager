@@ -321,8 +321,8 @@ $ #Príkazy na ovládanie panelov#
  Vymeň panely                                                #Ctrl+U#
  Aktualizuj panel (znovu načítaj)                            #Ctrl+R#
  Zap./vyp. informačný panel                                  #Ctrl+L#
- Zap./vyp. panel rýchleho prezerania                         #Ctrl+Q#
- Zap./vyp. stromový panel                                    #Ctrl+T#
+ Zap./vyp. ~panel rýchleho prezerania~@QViewPanel@                         #Ctrl+Q#
+ Zap./vyp. ~stromový panel~@TreePanel@                                    #Ctrl+T#
  Schovaj/zobraz oba panely                                   #Ctrl+O#
  Temporarily hide both panels                        #Ctrl+Alt+Shift#
  (as long as these keys are held down)
@@ -638,7 +638,7 @@ screen height between 25 and 50 lines. See ~Interface.AltF9~@Interface.AltF9@ fo
  Rozbalenie súborov z archívu                              #Shift+F2#
  Vykonanie príkazov pracujúcich z archívmi                 #Shift+F3#
 
- Editovanie nového súboru                                  #Shift+F4#
+ Editovanie ~nového súboru~@FileOpenCreate@                                  #Shift+F4#
  When a new file is opened, the same code page is used as in the last opened
 editor. If the editor is opened for the first time in the current Far session,
 the default code page is used.
@@ -654,7 +654,7 @@ moved into #d:\folder2\folder1\#;
  - ^<wrap>otherwise contents of #c:\folder1\# is moved into the
 newly created #d:\folder2\#.
 
- Vymazanie súboru pod kurzorom                             #Shift+F8#
+ ~Vymazanie súboru~@DeleteFile@ pod kurzorom                             #Shift+F8#
 
  Uloženie konfigurácie                                     #Shift+F9#
 
@@ -686,7 +686,7 @@ command configuration.
 
  Použitie skratky k adresáru                          #RightCtrl+0…9#
 
- Nastav atribúty súboru                                      #Ctrl+A#
+ Nastav ~atribúty súboru~@FileAttrDlg@                                      #Ctrl+A#
 
  ~Použi príkaz~@ApplyCmd@ na označené súbory                             #Ctrl+G#
 
@@ -860,14 +860,14 @@ nevyžadujú nijakú dodatočnú pamäť. Ale ak ste si istý, že niektoré
 moduly sú pre vás zbytočné, môžete ich vymazať a ušetriť miesto na disku.
 
  Moduly môžu byť vyvolané buď cez ~menu zmeny jednotky~@DriveDlg@
-alebo z menu #Príkazy prídavných modulov#, aktivovanom stlačením #F11# alebo príslušnou položkou
+alebo z menu ~Príkazy prídavných modulov~@PluginCommands@, aktivovanom stlačením #F11# alebo príslušnou položkou
 z menu ~Príkazy~@CmdMenu@. #F4# v tomto menu dovoľuje priradiť klávesovú skratku jednotlivým položkám
 (toto umožňuje ich potom ľahšie vyvolať pomocou ~klávesových makier~@KeyMacro@).
 Toto menu je prístupné zo súborových panelov a (len cez #F11#) z interného
 prezerača a editora. Keď sa zavolá z prezerača alebo editora, zobrazia
 sa len špeciálne preň vytvorené moduly.
 
- Parametre modulov môžete nastaviť pomocou #Nastavenie prídavných modulov#
+ Parametre modulov môžete nastaviť pomocou ~Nastavenie prídavných modulov~@PluginsConfig@
 z menu ~Nastavenia~@OptMenu@.
 
  Súbory, s ktorými sa pracuje operáciami ako kopírovanie, presúvanie,
@@ -1274,7 +1274,7 @@ aj tento typ.
 dĺžku, počet súborov a podadresárov v adresári, veľkosť clustera aktuálneho disku,
 reálnu dĺžku súborov, vrátane "straty" (súčet nepoužitých častí clusterov).
 
- When viewing reparse points, the path to the source folder is also displayed.
+ When viewing ~reparse points~@HardSymLink@, the path to the source folder is also displayed.
 
  For folders, the total size value may not match the actual value:
  - ^<wrap>If the folder or its subfolders contain symbolic links and the option
@@ -1383,7 +1383,7 @@ $ #Menu Súbory#
 
  #Link#               Create ~file links~@HardSymLink@.
 
- #Vytvor adresár#     Vytvorí nový adresár.
+ #Vytvor adresár#     ~Vytvorí~@MakeFolder@ nový adresár.
 
  #Odstrániť#          Odstráni súbory a adresáre.
 
@@ -1462,7 +1462,7 @@ $ #Commands menu#
  #triedenia/#         ~skupín triedenia~@SortGroups@.
 
  #Filter zobr.súborov#  Umožní nastavenie obsahu súborového
-                      panelu. Viď ~Filter zobrazených súborov~@Filter@.
+                      panelu. Viď ~Filter zobrazených súborov~@FiltersMenu@.
 
  #Plugin commands#      Show ~plugin commands~@Plugins@ list.
 
@@ -1490,7 +1490,7 @@ $ #Menu Nastavenia#
  #Voľba jazyka#          Nastaví jazyk prostredia a nápovedy.
                        Toto nastavenie možno uložiť pomocou "Uložiť nastavenie".
 
- #Nast. prídavných#      Umožní konfiguráciu ~prídavných modulov~@Plugins@.
+ #Nast. prídavných#      Umožní konfiguráciu ~prídavných modulov~@PluginsConfig@.
  #modulov#
 
  #Plugin manager#        Shows ~Plugin manager settings~@PluginsManagerSettings@ dialog.
@@ -1515,9 +1515,8 @@ $ #Menu Nastavenia#
 
  #Popisy súborov#        Názvy zoznamov s ~popismi súborov~@FileDiz@ a spôsob ich aktualizácie.
 
- #Súbory s popismi#      Umožní nastaviť mená (aj ~masky~@FileMasks@ sú povolené)
- #adresárov#           súborov, ktorých obsah bude v ~informačnom paneli~@InfoPanel@
-                       uvedený ako popis adresára.
+ #Súbory s popismi#      Shows ~Folder description files~@FolderDiz@ dialog.
+ #adresárov#
 
  #Nastavenie prezerača#  Nastevenie externého ~prezerača~@ViewerSettings@.
 
@@ -1637,7 +1636,7 @@ and "#D:\\foo3#" will be created.
 @FindFile
 $ #Nájdi súbor#
  Tento príkaz je určený na vyhľadanie jedného alebo viacerých súborov a adresárov v
-adresárovom strome, podľa jednej alebo viacerých masiek (wildcards), oddelených čiarkami.
+adresárovom strome, podľa jednej alebo viacerých masiek (~wildcards~@FileMasks@), oddelených čiarkami.
 Taktiež môže byť použitá pri súborových systémoch emulovaných ~prídavnými modulmi~@Plugins@.
 
  Zadaním voliteľného textového reťazca sa vyhľadajú iba súbory obsahujúce tento text.
@@ -1793,7 +1792,7 @@ results, leave the “Column types” field empty.
 
 @FindFileResult
 $ #Find file: control keys#
- Počas vyhľadávania alebo po jeho skončení môžete použiť kurzorové
+ Počas ~vyhľadávania~@FindFile@ alebo po jeho skončení môžete použiť kurzorové
 klávesy pre skrolovanie zoznamu súborov a tlačítka na spustenie
 želaných operácií.
 
@@ -2103,7 +2102,7 @@ $ #Užívateľské menu#
  Úlohou užívateľského menu je uľahčiť volanie často používaných
 operácií. Obsahuje užívateľom definované príkazy a skupiny príkazov,
 ktoré môžu byť spustené z užívateľského menu. Menu môže obsahovať aj podmenu.
-~Špeciálne symboly~@FileAssoc@ sú podporované tak v príkazoch samotných
+~Špeciálne symboly~@MetaSymbols@ sú podporované tak v príkazoch samotných
 ako i v ich názvoch. Samozrejme možno použiť aj symbol !?<title>?<init>!,
 pomocou ktorého môžete zadať dodatočné parametre priamo pred spustením programov.
 
@@ -2345,14 +2344,14 @@ However, sometimes the update is not triggered after receiving focus,
 so this option is disabled by default and directories are always monitored.
 
  #Ukladať históriu príkazov#
- Ak je táto možnosť zapnutá, história sa bude ukladať pri ukončení a opätovne načítavať pri spustení Faru.
+ Ak je táto možnosť zapnutá, ~história príkazov~@History@ sa bude ukladať pri ukončení a opätovne načítavať pri spustení Faru.
 
  #Ukladať históriu adresárov#
- Spôsobí uloženie histórie adresárov pred ukončením a jej načítanie pri spustení Faru.
+ Spôsobí uloženie ~histórie adresárov~@HistoryFolders@ pred ukončením a jej načítanie pri spustení Faru.
 Históriu adresárov možno vyvolať stlačením #Alt+F12#.
 
  #Ukladať históriuzobrazovania a editovania#
- Spôsobí uloženie histórie prezeraných a editovaných súborov pred ukončením a jej načítanie pri spustení Faru.
+ Spôsobí uloženie ~histórie prezeraných a editovaných súborov~@HistoryViews@ pred ukončením a jej načítanie pri spustení Faru.
 Históriu prezeraných a editovaných súborov možno vyvolať stlačením #Alt+F11#.
 
  #Použiť registrované typy Windows#
@@ -3092,16 +3091,16 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
 
  #F1#                      ^<wrap>Nápoveda
  #F2#                      Uloženie súboru
- #Shift+F2#                Uloženie súboru pod iným menom
+ #Shift+F2#                Uloženie súboru ~pod iným menom~@FileSaveAs@
  #Shift+F4#                Edit ~new file~@FileOpenCreate@
- #F6#                      Prepnutie do prezerača
- #F7#                      Hľadanie
- #Ctrl+F7#                 Nahradzovanie
+ #F6#                      Prepnutie do ~prezerača~@Viewer@
+ #F7#                      ~Hľadanie~@EditorSearch@
+ #Ctrl+F7#                 ~Nahradzovanie~@EditorSearch@
  #Shift+F7#                Pokračovanie v hľadaní
  #Alt+F7#                  Continue search/replace in "reverse" mode
  #F8#                      Prepínanie medzi DOS/Windows módom
  #Shift+F8#                Výber užívateľskej tabuľky znakov (pozri poznámky nižšie)
- #Alt+F8#                  Presun na zadaný riadok
+ #Alt+F8#                  ~Presun na~@EditorGotoPos@ zadaný riadok a stĺpec
  #Alt+F9#                  Maximize or restore the size of the Far console window; see also ~Interface.AltF9~@Interface.AltF9@
  #Alt+Shift+F9#            Call ~Editor settings~@EditorSettings@ dialog
  #F10, F4, Esc#            Koniec
@@ -3755,7 +3754,7 @@ a externého ~prezerača~@Viewer@.
 
  #Príkaz pre zobrazenie#   Príkaz, ktorý spustí externý viewer.
                          Na špecifikáciu mena súboru, ktorý sa má
-                         prezrieť použite ~špeciálne symboly~@FileAssoc@.
+                         prezrieť použite ~špeciálne symboly~@MetaSymbols@.
 
 @=
 ^#Interný prezerač#
@@ -3764,7 +3763,7 @@ a externého ~prezerača~@Viewer@.
                          moving the cursor.
 
  #Search dialog#           Always returns focus to the search text field in
- #auto-focus#              the ~Viewer~@Viewer@ search dialog.
+ #auto-focus#              the Viewer ~Search~@ViewerSearch@ dialog.
 
   #Veľkosť tabulátora#     Počet medzier reprezentujúcich znak tabulátora.
 
@@ -3825,7 +3824,7 @@ will affect only the current session.
 @EditorSettings
 $ #Nastavenie editora#
  Toto okno dovoľuje zmeniť základné nastavenie externého a
-interného editora.
+~interného editora~@Editor@.
 
  Externý editor
 
@@ -4139,7 +4138,7 @@ files will be listed on a single stripe.
  N[M[D],O,R[F],N] - meno súboru, kde
                     M - ^<wrap>zobrazuj zvýrazňujúce značky, kde
                         D - dynamic selection marks;
-                    O - ^<wrap>zobrazuj mená bez cesty (určené najmä pre moduly/plugins);
+                    O - ^<wrap>zobrazuj mená bez cesty (určené najmä pre ~moduly/plugins~@Plugins@);
                     R - ^<wrap>mená zarovnané doprava, kde
                         F - right align all names;
                     N - ^<wrap>do not show extensions in name column;
@@ -5181,7 +5180,7 @@ command playback is finished.
 
  2. ^<wrap>Some key combinations (including #Enter#, #Esc#, #F1# and #Ctrl+F5#,
 #MsWheelUp#, #MsWheelDown# and other mouse keys combined with #Ctrl#, #Shift#, #Alt#) cannot be entered
-directly because they have special functions in the dialog. To assign a macro
+directly because they have special functions in the dialog. To ~assign a macro~@KeyMacroAssign@
 to one of those key combinations, select it from the drop-down list.
 
 

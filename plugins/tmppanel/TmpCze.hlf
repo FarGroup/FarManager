@@ -116,7 +116,7 @@ stavu (#[?]#), je před kopírováním souborů do panelu zobrazena výzva.
 
  #Nahradit soubory seznamem souborů# : ~+replace~+@CMD@
    Pokud je zatrhnuta tato volba, pak, když provádíte operace se
-seznamem souborů, jsou názvy v seznamu souborů nahrazeny názvy souborů
+~seznamem souborů~@List@, jsou názvy v seznamu souborů nahrazeny názvy souborů
 již v panelu. Jinak budou názvy souborů přidány do existujícho.
 
  #Menu ze seznamu souborů# : ~+menu~@CMD@

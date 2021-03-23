@@ -9,7 +9,7 @@ panelom, umožňuje zoskupovanie súborov z rôznych adresárov a
 pracovať s nimi ako s jednou skupinou.
 
    ~Práca s pomocným panelom~@TempPanel@
-   ~Konfigurácia pomocného panelu~@TempCfg@
+   ~Konfigurácia pomocného panelu~@Config@
    ~Working with file lists~@List@
    ~Command line syntax~@CMD@
 
@@ -53,7 +53,7 @@ you can use a menu (#Alt-Shift-F12#) or hotkeys for immediate switching
    To save the current contents of the panel to a list file, you
 can use the hotkey #Alt-Shift-F2#.
 
-~Contents~@Contents@
+ ~Contents~@Contents@
 
 
 @Config
@@ -112,7 +112,7 @@ files are also copied to the panel. If set to the undefined state
 (#[?]#), a prompt is shown when folders are copied to the panel.
 
  #Replace files with file list# : ~+replace~@CMD@
-   If this option is checked, then, when doing a file list operation,
+   If this option is checked, then, when doing a ~file list~@List@ operation,
 the names in the file list will replace the file names already in the
 panel. Otherwise the filenames will be added to the existing ones.
 

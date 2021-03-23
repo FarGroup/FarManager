@@ -218,9 +218,9 @@ nem üres, a gyorsítótárból töltődnek be a pluginek;
  - ^<wrap>a -co kapcsolót a Far figyelmen kívül hagyja, ha -p is áll
 mellette;
  - ^<wrap>ha sem a -p, sem a -co kapcsoló nem szerepel a parancssorban,
-akkor a pluginek csak az alapértelmezett plugin mappából, valamint a
-~saját pluginek elérési útvonala~@SystemSettings@ által meghatározott
-mappákból töltődnek be.
+akkor a pluginek will be loaded from the 'Plugins'
+folder, which is in the same folder as Far.exe, and the 'Plugins' folder, which is in the
+user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
 
  #-m#
  A Far induláskor nem tölti be a registryből a makróit.
@@ -331,8 +331,8 @@ $ #Panelvezérlő parancsok#
  Panelek megcserélése                                        #Ctrl+U#
  Panel frissítése                                            #Ctrl+R#
  Info panel be/ki                                            #Ctrl+L#
- ~Gyorsnézet~@QViewPanel@ panel be/ki                                      #Ctrl+Q#
- Fastruktúra panel be/ki                                     #Ctrl+T#
+ ~Gyorsnézet panel~@QViewPanel@ be/ki                                      #Ctrl+Q#
+ ~Fastruktúra panel~@TreePanel@ be/ki                                     #Ctrl+T#
  Mindkét panelt elrejti/megmutatja                           #Ctrl+O#
  Átmenetileg elrejti mindkét panelt                  #Ctrl+Alt+Shift#
  (amíg a billentyűk le vannak nyomva)
@@ -351,7 +351,7 @@ $ #Panelvezérlő parancsok#
 
  #Fájlpanel parancsok#
 
- Fájlokat kijelöl/kijelölést levesz           #Ins, Shift+Kurzorbill#
+ ~Fájlokat kijelöl/kijelölést levesz~@SelectFiles@           #Ins, Shift+Kurzorbill#
                                                  #Right mouse button#
  Csoport kijelölése                                        #Szürke +#
  Csoportkijelölést levesz                                  #Szürke -#
@@ -701,9 +701,7 @@ kurzor fájlon áll, a fájl típusához ~társított parancsot~@FileAssoc@ hajt
 végre, vagy belép a tömörítettbe.
 
  Visszalépés a szülőmappába                               #Ctrl+PgUp#
- Ha a "Kezelőfelület beállítások" ~A Ctrl+PgUp meghajtót vált~@InterfSettings@
-opcióját engedélyeztük, a meghajtók gyökerében a #Ctrl+PgUp#
-lenyomása a hálózati plugint hívja meg, vagy a ~Meghajtók~@DriveDlg@ menüt.
+ The behavior in root folders depends on "Use Ctrl+PgUp to change drive~@InterfSettings@" option.
 
  Gyorsbillentyűt rendel az aktuális mappához         #Ctrl+Shift+0…9#
 
@@ -740,7 +738,7 @@ a #Shift+F8# a törölt fájlokat a Lomtárba teszi-e vagy sem. Ezzel szemben
 a #Shift+Del# mindig a Lomtár kihagyásával töröl.
 
  2. Kisöprésnél (#Alt+Del#) a Far a fájl adatait törlés előtt nullákkal
-írja felül (a TechInfo##29-ben elolvasható, hogyan lehet zéró helyett más
+írja felül (a ~System.WipeSymbol~@System.WipeSymbol@-ben elolvasható, hogyan lehet zéró helyett más
 felülíró karaktert megadni), ezután a fájl méretét nulla hosszúságúra
 állítja, átmeneti nevet ad neki, végül törli.
 
@@ -883,7 +881,7 @@ feleslegesen nem foglalnak memóriát. Ha biztosak vagyunk benne, hogy egyes
 plugineket soha nem használunk, törlésükkel lemezterületet takaríthatunk meg.
 
  A pluginek meghívhatók a ~Meghajtók~@DriveDlg@ menüből, a
-#Plugin parancsok# menüből az #F11# leütésével és a ~Parancsok~@CmdMenu@
+~Plugin parancsok~@PluginCommands@ menüből az #F11# leütésével és a ~Parancsok~@CmdMenu@
 menüből is. A "Plugin parancsok" menüben az #F4#-gyel
 gyorsbillentyűt rendelhetünk a menü elemeihez, ezáltal egyszerűbben,
 ~makrókból~@KeyMacro@ hívhatók meg. A pluginek meghívhatók a
@@ -1308,7 +1306,7 @@ valódi méretét, beleértve a meddő lemezterületet (a kihasználatlan
 klaszterrészek összegét) jeleníti meg. A tömörített méretnek csak NTFS
 meghajtókon van értelme.
 
- Reparse pontoknál a forrásmappa elérési útja is megjelenik.
+ ~Reparse pontoknál~@HardSymLink@ a forrásmappa elérési útja is megjelenik.
 
  Mappáknál a teljes méret értéke eltérhet a valóságostól, ha:
  - ^<wrap>A mappa vagy a mappa almappái szimbolikus linkeket tartalmaz(nak) és
@@ -1526,6 +1524,8 @@ $ #Menük: Beállítások menü#
 
  #Fastruktúra#           A ~fastruktúra beállítások~@TreeSettings@
  #beállítások#           párbeszédablakot jeleníti meg.
+                       Available only if ~Panel.Tree.TurnOffCompletely~@Panel.Tree.TurnOffCompletely@
+                       parameter in ~far:config~@FarConfig@ is set to “false.”
 
  #Kezelőfelület#         A ~kezelőfelület beállítások~@InterfSettings@
  #beállítások#           párbeszédablakot jeleníti meg.
@@ -1533,7 +1533,7 @@ $ #Menük: Beállítások menü#
  #Nyelvek#               A program és a súgó nyelve választható ki.
                        ^<wrap>Használjuk a "Beállítások mentése" funkciót!
 
- #Plugin#                A ~pluginek~@Plugins@ működése állítható be, a pluginek
+ #Plugin#                A ~pluginek~@PluginsConfig@ működése állítható be, a pluginek
  #beállítások#           beállítási párbeszédablakaiban.
 
  #Plugin manager#        Shows ~Plugin manager settings~@PluginsManagerSettings@ dialog.
@@ -1562,9 +1562,8 @@ funkcióval.
  #fájlok#                mely fájlokból olvassa ki a Far. Beállíthatók
                        a megjelenítés és frissítés jellemzői is.
 
- #Mappa megjegyzés-#     Megadható, hogy az ~info panel~@InfoPanel@ mely
- #fájlok#                fájlokat jelenítse meg mappa megjegyzésként
-                       (~joker~@FileMasks@ karakter is megengedett).
+ #Mappa megjegyzés-#     Shows ~Folder description files~@FolderDiz@ dialog.
+ #fájlok#
 
  #Nézőke beállítások#    A külső és belső ~nézőke beállításai~@ViewerSettings@.
 
@@ -1709,7 +1708,7 @@ figyelembe a keresés során.
 egy konkrét kódlapot, vagy megjelölhető a #Minden kódlappal# lehetőség is,
 utóbbi esetben a Far a szabványos és a #Kedvenc# kódlapok szerint keresi a
 szövegeket a fájlokban. A #Kedvenc# kódlapokat a nézőke vagy a szerkesztő
-kódlapválasztó párbeszédablakában (Shift+F8) jelölhetjük ki. Ha a
+~kódlapválasztó~@CodepagesMenu@ párbeszédablakában (Shift+F8) jelölhetjük ki. Ha a
 #Minden kódlappal# opciót választottuk, de a kódlapok kínálatát túlzóan
 bőségesnek találjuk, az #Ins# vagy a #Space# billentyűvel leszűkíthetjük
 a szabványos és #Kedvenc# kódlapok körét, így kizárólag a megjelölt
@@ -2029,16 +2028,14 @@ $ #Parancs előzmények#
 parancssorból szeretnénk meghívni, használjuk a #Ctrl+E# vagy
 a #Ctrl+X# billentyűket.
 
- Ha parancsot szeretnénk választani a listából, a kurzorvezérlőkön
-és az #Enteren# kívül használhatjuk közvetlenül a parancs kiemelt
-betűjelét is.
-
  Ha azt szeretnénk, hogy a Far kilépéskor elmentse a parancsok
 előzményét, jelöljük be a megfelelő opciót a ~Rendszer beállítások~@SystemSettings@
 párbeszédablakban.
 
  A zárolt előzményelemek nem törlődnek az előzménylista módosulása
 vagy törlése esetén sem.
+
+ See also: common ~menu~@MenuCmd@ keyboard commands.
 
 
 @HistoryViews
@@ -2723,7 +2720,7 @@ These parameters can be changed via ~far:config~@FarConfig@
 @CommandPrompt
 $ #A parancssori prompt formátuma#
  A Far-ban megváltoztatható a parancssori prompt formátuma.
-Ehhez a ~kezelőfelület beállítások~@InterfSettings@ párbeszédablak
+Ehhez a ~kezelőfelület beállítások~@CmdlineSettings@ párbeszédablak
 #Parancssori prompt formátuma# beviteli mezőjében be kell írni a változók és
 speciális kódszavak megfelelő sorrendjét, így a prompt további adatokat
 jeleníthet meg.
@@ -2846,7 +2843,7 @@ combinations adjust the number of displayed bytes by 16 at a time.
  #Shift+F7, Szóköz#   Tovább keres
  #Alt+F7#             Tovább keres, de visszafelé
  #F8#                 OEM/ANSI kódlap váltó
- #Shift+F8#           Kódlap kiválasztása
+ #Shift+F8#           ~Kódlap~@CodePagesMenu@ kiválasztása
  #Alt+F8#             ~Ugrás~@ViewerGotoPos@ a jelenlegi szövegpozícióból másik pozícióba
  #Alt+F9#             Átváltja a Far konzolablak méretét (video);
 see also ~Interface.AltF9~@Interface.AltF9@
@@ -2880,7 +2877,7 @@ beginning in the text.
 
  Megjegyzések:
 
- 1. ^<wrap>A keresőablak meghívásához a nézőkében az is elég, ha elkezdjük
+ 1. ^<wrap>A ~keresőablak~@ViewerSearch@ meghívásához a nézőkében az is elég, ha elkezdjük
 begépelni a keresett szöveget.
 
  2. ^<wrap>Az, hogy a nézőkében megnyitunk egy fájlt, nem zárja ki,
@@ -2888,11 +2885,11 @@ hogy közben egy másik folyamat ne törölhetné azt. Annak ellenére, hogy a f
 valójában csak a nézőke bezárásakor törlődik, a törölt fájlra irányuló további
 műveletek hibával fognak leállni - ez Windows sajátosság.
 
- 3. ^<wrap>A Far jelenlegi verziója korlátozza a belső nézőkében megnyitott
-fájlok oszlopainak egy sorban megjeleníthető maximális számát: értéke nem
-haladhatja meg a 2048-at. Ha valamelyik sor túllépi ezt, a Far akkor is
-több sorban jeleníti meg, ha a sortörés ki van kapcsolva. (Oszlopok száma =
-karakterek száma.)
+ 3. ^<wrap>The maximum number of columns displayed in the #text#
+~view mode~@ViewerMode@ can be configured in the
+~Viewer settings~@ViewerSettings@ dialog. The range is between 100 to 100,000,
+the default is 10,000. Ha valamelyik sor túllépi ezt, a Far akkor is
+több sorban jeleníti meg, ha a sortörés ki van kapcsolva.
 
  4. ^<wrap>A Far nézőke ~keresője~@ViewerSearch@ (#F7#) a fájl képernyőn
 megjelenő részének kezdetétől az első előfordulásig keresi a sztringet.
@@ -3191,7 +3188,7 @@ kódlapját kapja, de ez az opció a ~szerkesztő beállítások~@EditorSettings
  #F8#                      OEM/ANSI kódlap váltó
  #Shift+F8#                Kódlap kiválasztása
  #Alt+F8#                  ~Ugrás~@EditorGotoPos@ megadott sorra és oszlopra
- #Alt+F9#                  A Far konzolablak méretének átváltása
+ #Alt+F9#                  A Far konzolablak méretének átváltása; see also ~Interface.AltF9~@Interface.AltF9@
  #Alt+Shift+F9#            A ~szerkesztő beállítások~@EditorSettings@ párbeszédablakot jeleníti meg
  #F10, Esc#                Kilépés
  #Shift+F10#               Mentés és kilépés
@@ -3610,7 +3607,7 @@ nyithatunk meg.
 betűjelekkel és számokkal választhatunk. Ha a panel típusa eredetileg
 nem ~fájlpanel~@FilePanel@ volt, meghajtóváltás után az lesz.
 
- #Ctrl+A#, #F4# nyílt a meghajtó tulajdonságai párbeszédpanelen.
+ #Ctrl+A#, #F4# nyílt a ~meghajtó tulajdonságai~@FileAttrDlg@ párbeszédpanelen.
 
  #Ctrl+A#, #F4# hotkeys can be used to assign a hotkey to plugin item.
 
@@ -3627,7 +3624,7 @@ nem ~fájlpanel~@FilePanel@ volt, meghajtóváltás után az lesz.
 
  A #Shift+Del# billentyűkombinációval biztonságosan eltávolíthatjuk az USB
 portra csatlakoztatott tárolóeszközöket. Ha olyan kártyaolvasóba
-helyezett flash memóriakártyára adtuk ki a ~biztonságos eltávolítás~@HotPlugList@
+helyezett flash memóriakártyára adtuk ki a biztonságos eltávolítás
 parancsot, ahol a kártyalvasó több lemez kezelésére képes, a parancs a
 kártyaolvasót választja le.
 
@@ -3808,7 +3805,7 @@ hogy a fájl valamelyik csoport tagja, további hovatartozását nem vizsgálja.
 @HighlightEdit
 $ #Fájlkiemelések, rendezési csoportok: szerkesztés#
  A ~Beállítások menü~@OptMenu@ #Fájlkiemelések, rendezési csoportok#
-párbeszédablakában hozhatunk létre fájlkiemelési csoportokat. Minden csoportdefiníció tartalmazhat:
+párbeszédablakában hozhatunk létre fájlkiemelési csoportokat. Minden csoportdefiníció ~tartalmazhat~@Filter@:
 
  - egy vagy több ~fájlmaszkot~@FileMasks@;
 
@@ -3864,7 +3861,7 @@ megadásához alkalmazhatunk ~különleges szimbólumokat~@MetaSymbols@ is.
 ha megmozdítjuk a kurzort.
 
  #Search dialog#           Always returns focus to the search text field in
- #auto-focus#              the ~Viewer~@Viewer@ search dialog.
+ #auto-focus#              the Viewer ~Search~@ViewerSearch@ dialog.
 
  #Tabulátor mérete#        A tabulátor szóközökben mért hossza.
 
@@ -3880,7 +3877,7 @@ belső nézőkében. Ezt a lehetőséget a #Ctrl+S# leütésével is bekapcsolha
 @=
  #Fájlpozíció mentése#     ^<wrap>Elmenti és visszatölti a legutóbb
 megnézett fájlok szöveghelyzetét, vele a kódlapot is (ha "kézzel" választottuk
-ki), valamint a nézet módját (normál vagy hexadecimális).
+ki), valamint a ~nézet módját~@ViewerMode@.
 
  #Save file code page#     Save and restore the code page selected for a file.
                          This is automatically enabled if #Save file position#
@@ -4241,7 +4238,7 @@ files will be listed on a single stripe.
  N[M[D],O,R[F],N] - fájlnév, ahol:
                     M - ^<wrap>jelölő karakter mutatva, ahol:
                         D - dynamic selection marks;
-                    O - ^<wrap>nevek, elérési út nélkül (elsősorban pluginekhez);
+                    O - ^<wrap>nevek, elérési út nélkül (elsősorban ~pluginekhez~@Plugins@);
                     R - ^<wrap>jobbra igazított nevek, ahol:
                         F - right align all names;
                     N - ^<wrap>do not show extensions in name column;
@@ -4373,9 +4370,12 @@ alacsonyabb egy másikénál, a fájlcsoport tagjai a fájlpanelen szintén felj
 vagy lejjebb kerülnek, ugyanazt a hierarchiát követve, ahogyan helyzetük a
 rendezési menüben az alattuk és fölöttük lévő csoportokhoz viszonyul.
 
- A rendezési szabályokat szerkeszthetjük, rendezhetjük, törölhetjük vagy új
-szabályokat hozhatunk létre a ~Beállítások menü~@OptMenu@
-~Fájlkiemelések, rendezési csoportok~@Highlight@ almenüjében.
+ The command #Edit sort groups# from the ~Commands menu~@CmdMenu@ is used to
+delete, create and edit sort groups, using #Del#, #Ins# and #F4#. The groups
+above the menu separator are applicable to the file panel start, and included
+files will be placed higher than those not included to any group. The groups
+below the menu separator are applicable to the file panel end, and included
+files will be placed lower than those not included.
 
 
 @FileMasks
@@ -4811,6 +4811,11 @@ aktív panel ~pluginnel~@Plugins@ emulált fájlrendszert mutat, a "CD" paranccs
 plugin fájlrendszerének mappái között mozoghatunk. A "CD" parancstól eltérően
 a "CHDIR" mindig valódi mappaként kezeli az utána álló paramétert, a fájlpanel
 jellegétől függetlenül.
+ The #CD ~~# command changes to the home directory (if there is no
+real “~~” file or directory in the current directory). The home
+directory is specified in the #Use home dir# option of the
+~Command line settings~@CmdlineSettings@ dialog. By default, it is the
+string “%FARHOME%” denoting the Far Manager home directory.
 
  #CHCP [nnn]#
  Megjeleníti vagy beállítja az aktív kódlap számát (értéke "nnn"). A
@@ -5287,7 +5292,7 @@ a #Ctrl+F5#; az #MsWheelUp# (EgérGörgőFel). az #MsWheelDown# (EgérGörgőLe)
 valamint más egérgomb műveleteket a #Ctrl#, #Shift# és #Alt# módosítóval
 együtt nem vihetünk be közvetlenül gyorsbillentyűként, a párbeszédablakban
 betöltött speciális szerepük miatt. Ezeket a billentyűkombinációkat
-legördülő listából választhatjuk ki és rendelhetjük makrókhoz.
+legördülő listából választhatjuk ki és ~rendelhetjük makrókhoz~@KeyMacroAssign@.
 
 
 @KeyMacroList

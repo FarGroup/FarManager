@@ -44,8 +44,7 @@ $ #Hlf prohlížeč: syntaxe příkazového řádku
 @editor
 $ #Hlf prohlížeč: práce v editoru#
    Pokud je soubor upravován jako soubor nápovědy FARu, vyvoláním
-tohoto příkazu zobrazíte téma nápovědy, které je upravováno. Pro zobrazení
-tématu nápovědy v ~dialogu nastavení~@Config@ je možné specifikovat horkou klávesu.
+tohoto příkazu zobrazíte téma nápovědy, které je upravováno.
 
    Примечание 1:
 
@@ -61,7 +60,7 @@ tématu nápovědy v ~dialogu nastavení~@Config@ je možné specifikovat horkou
 
      ^<wrap>Плагин можно настроить так, чтобы топик показывался не командой меню,
 а при нажатии #F1# (или другой комбинации клавиш, заданной в
-~настройках~@Config@).
+~dialogu nastavení~@Config@).
 
      ^<wrap>В этом случае пункт вызова #HlfViewer# в меню плагинов не добавляется.
 

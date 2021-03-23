@@ -9,7 +9,7 @@ es vereinfacht das Gruppieren von Dateien aus verschiedenen
 Verzeichnissen und behandelt sie als einzelne Gruppe.
 
    ~Arbeiten mit dem temporären Fenster~@TempPanel@
-   ~Konfiguration des temporären Fensters~@TempCfg@
+   ~Konfiguration des temporären Fensters~@Config@
    ~Working with file lists~@List@
    ~Command line syntax~@CMD@
 
@@ -115,7 +115,7 @@ files are also copied to the panel. If set to the undefined state
 (#[?]#), a prompt is shown when folders are copied to the panel.
 
  #Replace files with file list# : ~+replace~@CMD@
-   If this option is checked, then, when doing a file list operation,
+   If this option is checked, then, when doing a ~file list~@List@ operation,
 the names in the file list will replace the file names already in the
 panel. Otherwise the filenames will be added to the existing ones.
 
