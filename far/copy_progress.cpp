@@ -61,9 +61,7 @@ extern std::chrono::steady_clock::duration WaitUserTime;
 
 copy_progress::copy_progress(bool Move, bool Total, bool Time):
 	m_CurrentBarSize(CanvasWidth()),
-	m_CurrentBar(make_progressbar(m_CurrentBarSize, 0, false, false)),
 	m_TotalBarSize(CanvasWidth()),
-	m_TotalBar(make_progressbar(m_TotalBarSize, 0, false, false)),
 	m_Move(Move),
 	m_Total(Total),
 	m_ShowTime(Time),
@@ -162,13 +160,6 @@ void copy_progress::Flush()
 	const auto Result = FormatCounter(lng::MCopyBytesTotalInfo, lng::MCopyFilesTotalInfo, m_BytesTotal.Copied, m_BytesTotal.Total, m_Total, CanvasWidth() - 5);
 	Text({ m_Rect.left + 5, m_Rect.top + 9 }, m_Color, Result);
 
-	Text({ m_Rect.left + 5, m_Rect.top + 6 }, m_Color, m_CurrentBar);
-
-	if (m_Total)
-	{
-		Text({ m_Rect.left + 5, m_Rect.top + 10 }, m_Color, m_TotalBar);
-	}
-
 	if (!m_Time.empty())
 	{
 		const size_t Width = m_Rect.width() - 10;
@@ -255,7 +246,7 @@ void copy_progress::CreateBackground()
 		{}, // source name
 		msg(lng::MCopyTo),
 		{}, // dest path
-		m_CurrentBar,
+		make_progressbar(m_CurrentBarSize, m_CurrentPercent, true, !m_Total),
 		L'\x1' + msg(lng::MCopyDlgTotal),
 		{}, // files [total] <processed>
 		{}  // bytes [total] <processed>
@@ -264,7 +255,7 @@ void copy_progress::CreateBackground()
 	// total progress bar
 	if (m_Total)
 	{
-		Items.emplace_back(m_TotalBar);
+		Items.emplace_back(make_progressbar(m_TotalBarSize, m_TotalPercent, true, true));
 	}
 
 	// time & speed
@@ -303,13 +294,11 @@ void copy_progress::SetNames(const string& Src, const string& Dst)
 void copy_progress::SetCurrentProgress(unsigned long long CompletedSize, unsigned long long TotalSize)
 {
 	m_CurrentPercent = ToPercent(std::min(CompletedSize, TotalSize), TotalSize);
-	m_CurrentBar = make_progressbar(m_CurrentBarSize, m_CurrentPercent, true, !m_Total);
 }
 
 void copy_progress::SetTotalProgress(unsigned long long CompletedSize, unsigned long long TotalSize)
 {
 	m_TotalPercent = ToPercent(std::min(CompletedSize, TotalSize), TotalSize);
-	m_TotalBar = make_progressbar(m_TotalBarSize, m_TotalPercent, true, true);
 }
 
 void copy_progress::UpdateTime(unsigned long long SizeDone, unsigned long long SizeToGo)
