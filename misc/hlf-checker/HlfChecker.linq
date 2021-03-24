@@ -5,37 +5,82 @@
 
 private static readonly DirectoryInfo FarDirectory = new DirectoryInfo(Path.Combine(Util.CurrentQuery.Location, "..", "..", "far"));
 private static readonly DirectoryInfo PluginsDirectory = new DirectoryInfo(Path.Combine(Util.CurrentQuery.Location, "..", "..", "plugins"));
-private static readonly string MainLanguage = "Eng";
+private static readonly string MasterLanguage = "Eng";
 private static readonly HashSet<string> IgnoredPlugins = new HashSet<string>{ "common", "ftp" };
 
 public void Main(string[] parameters)
 {
-	var languageFilter = GetLanguageFilter(parameters);
-	if (languageFilter == default) return;
+	if (!ParseParameters(
+		parameters,
+		out List<DirectoryInfo> directories,
+		out Regex languageFilter,
+		out HlfComparer.ComparisonOptions comparisonOpts))
+	{
+		return;
+	}
 
-	ValidateDirectories(GetDirectories(parameters), MainLanguage, languageFilter);
+	ValidateDirectories(directories, MasterLanguage, languageFilter, comparisonOpts);
 }
 
-private IList<DirectoryInfo> GetDirectories(string[] parameters)
-{
-	var directories = (parameters ?? Enumerable.Empty<string>())
-		.Where(param => !string.IsNullOrEmpty(param) && param[0] != '+' && param[0] != '-')
-		.Select(directory => new DirectoryInfo(directory))
-		.ToList();
+#region Parameters
 
-	return directories.Count > 0
-		? directories
-		: PluginsDirectory.EnumerateDirectories().Where(pd => !IgnoredPlugins.Contains(pd.Name)).Prepend(FarDirectory).ToList();
+private static bool ParseParameters(
+	string[] parameters,
+	out List<DirectoryInfo> directories,
+	out Regex languageFilter,
+	out HlfComparer.ComparisonOptions comparisonOpts)
+{
+	var paramList = parameters?.ToList() ?? new List<string>();
+
+	comparisonOpts = GetComparisonOptions(paramList);
+
+	directories = default;
+
+	languageFilter = GetLanguageFilter(paramList);
+	if (languageFilter == default) return false;
+
+	directories = GetDirectories(paramList);
+	return true;
+}
+
+private static List<string> OptionNames =
+	Enum.GetNames(typeof(HlfComparer.ComparisonOptions)).Where(n => n != HlfComparer.ComparisonOptions.None.ToString()).ToList();
+
+// Filters paramList
+private static HlfComparer.ComparisonOptions GetComparisonOptions(List<string> paramList)
+{
+	HlfComparer.ComparisonOptions comparisonOpts = default;
+	var outParamList = new List<string>(paramList.Count);
+
+	foreach (var parameter in paramList)
+	{
+		if (OptionNames.Contains(parameter, StringComparer.OrdinalIgnoreCase))
+		{
+			comparisonOpts |= (HlfComparer.ComparisonOptions)Enum.Parse(typeof(HlfComparer.ComparisonOptions), parameter);
+		}
+		else
+		{
+			outParamList.Add(parameter);
+		}
+	}
+
+	paramList.Clear();
+	paramList.AddRange(outParamList);
+
+	$"Using comparison options: ({comparisonOpts}).".Trace();
+
+	return comparisonOpts;
 }
 
 private static readonly Regex ValidLanguageFilter = new Regex(@"^[+-]\p{L}{3}$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-private static Regex GetLanguageFilter(string[] parameters)
+// Filters paramList
+private static Regex GetLanguageFilter(List<string> paramList)
 {
-	var requested = parameters?.Where(param => param?.StartsWith("+") == true).ToList();
-	var excluded = parameters?.Where(param => param?.StartsWith("-") == true).ToList();
+	var requested = paramList.Where(param => param?.StartsWith("+") == true).ToList();
+	var excluded = paramList.Where(param => param?.StartsWith("-") == true).ToList();
 
-	if ((requested?.Count ?? 0) == 0 && (excluded?.Count ?? 0) == 0)
+	if (requested.Count == 0 && excluded.Count == 0)
 	{
 		return new Regex(@"\p{L}{3}\.hlf", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 	}
@@ -48,7 +93,7 @@ private static Regex GetLanguageFilter(string[] parameters)
 
 	var filters = requested.Count > 0 ? requested : excluded;
 
-	var invalid = filters.Where(lng => !ValidLanguageFilter.Match(lng).Success).ToList();
+	var invalid = filters.Where(lng => !ValidLanguageFilter.IsMatch(lng)).ToList();
 	if (invalid.Count != 0)
 	{
 		$"Invalid language filter(s) specified: ({string.Join(", ", invalid)}). Exiting.".Trace();
@@ -57,25 +102,46 @@ private static Regex GetLanguageFilter(string[] parameters)
 
 	$"Language filters applied: ({string.Join(", ", filters)}).".Trace();
 
+	var outParamList = paramList.Except(filters).ToList();
+	paramList.Clear();
+	paramList.AddRange(outParamList);
+
 	return new Regex(
 		(requested.Count > 0 ? "(" : @"\p{L}{3}(?<!") + string.Join("|", filters.Select(f => f.Substring(1))) + @")\.hlf",
 		RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 }
 
-private static void ValidateDirectories(IEnumerable<DirectoryInfo> directories, string mainLanguage, Regex languageFilter)
+private static List<DirectoryInfo> GetDirectories(List<string> paramList)
+{
+	return paramList.Count > 0
+		? paramList.Select(directory => new DirectoryInfo(directory)).ToList()
+		: PluginsDirectory.EnumerateDirectories().Where(pd => !IgnoredPlugins.Contains(pd.Name)).Prepend(FarDirectory).ToList();
+}
+
+#endregion Parameters
+
+private static void ValidateDirectories(
+	IEnumerable<DirectoryInfo> directories,
+	string masterLanguage,
+	Regex languageFilter,
+	HlfComparer.ComparisonOptions comparisonOpts)
 {
 	foreach (var directory in directories)
 	{
-		ValidateDirectory(directory, mainLanguage, languageFilter);
+		ValidateDirectory(directory, masterLanguage, languageFilter, comparisonOpts);
 	}
 }
 
-private static void ValidateDirectory(DirectoryInfo directory, string mainLanguage, Regex languageFilter)
+private static void ValidateDirectory(
+	DirectoryInfo directory,
+	string masterLanguage,
+	Regex languageFilter,
+	HlfComparer.ComparisonOptions comparisonOpts)
 {
-	var engHlfFile = directory.EnumerateFiles($@"*{mainLanguage}.hlf.*").SingleOrDefault();
+	var engHlfFile = directory.EnumerateFiles($@"*{masterLanguage}.hlf.*").SingleOrDefault();
 	if (engHlfFile == default)
 	{
-		$"Could not find {mainLanguage}.hlf file in {directory.Name}. Skippng.".Trace(printSeparator: true);
+		$"Could not find {masterLanguage}.hlf file in {directory.Name}. Skippng.".Trace(printSeparator: true);
 		return;
 	}
 
@@ -98,7 +164,7 @@ private static void ValidateDirectory(DirectoryInfo directory, string mainLangua
 			continue;
 		}
 
-		new HlfComparer(engHlf, lngHlf).Compare();
+		new HlfComparer(engHlf, lngHlf, comparisonOpts).Compare();
 	}
 }
 
@@ -132,13 +198,22 @@ private static Hlf ParseAndPrintHlf(string hlfPath)
 
 public class HlfComparer
 {
+	[Flags]
+	public enum ComparisonOptions
+	{
+		None = 0,
+		StrictRefs = 1
+	}
+
 	private Hlf EngHlf;
 	private Hlf LngHlf;
+	private ComparisonOptions ComparisonOpts;
 
-	public HlfComparer(Hlf engHlf, Hlf lngHlf)
+	public HlfComparer(Hlf engHlf, Hlf lngHlf, ComparisonOptions comparisonOpts)
 	{
 		EngHlf = engHlf;
 		LngHlf = lngHlf;
+		ComparisonOpts = comparisonOpts;
 	}
 
 	public bool Compare()
@@ -150,6 +225,7 @@ public class HlfComparer
 		if (!ComparePrologue()) result = false;
 		if (!CompareAliases()) result = false;
 		if (!CompareTopics()) result = false;
+		if (!CompareParagraphs()) result = false;
 
 		if (!result) $"*** Issues in {LngHlf.HlfName}".Trace();
 
@@ -177,18 +253,66 @@ public class HlfComparer
 
 	private bool CompareTopics()
 	{
-		return CompareLists(EngHlf.Topics, LngHlf.Topics,
+		var result = true;
+
+		if (!CompareLists(EngHlf.Topics, LngHlf.Topics,
 							topic => topic.Title,
 							topic => ".Title",
-							EngHlf.HlfName, LngHlf.HlfName, "Topics")
-			&& CompareLists(EngHlf.Topics, LngHlf.Topics,
+							EngHlf.HlfName, LngHlf.HlfName, "Topics"))
+		{
+			result = false;
+		}
+
+		if (!CompareLists(EngHlf.Topics, LngHlf.Topics,
 							topic => topic.Headers.Count,
 							topic => $"[\"{topic.Title}\"].Headers.Count",
-							EngHlf.HlfName, LngHlf.HlfName, "Topics")
-			&& CompareLists(EngHlf.Topics, LngHlf.Topics,
-							topic => topic.Paragraphs.Count,
-							topic => $"[\"{topic.Title}\"].Paragraphs.Count",
-							EngHlf.HlfName, LngHlf.HlfName, "Topics");
+							EngHlf.HlfName, LngHlf.HlfName, "Topics"))
+		{
+			result = false;
+		}
+
+		// Paragraph Count is compared by CompareParagraphs()
+		//if (!CompareLists(EngHlf.Topics, LngHlf.Topics,
+		//					topic => topic.Paragraphs.Count,
+		//					topic => $"[\"{topic.Title}\"].Paragraphs.Count",
+		//					EngHlf.HlfName, LngHlf.HlfName, "Topics"))
+		//{
+		//	result = false;
+		//}
+
+		return result;
+	}
+
+	private static Regex Reference = new Regex(@"@[\w.]+@", RegexOptions.Compiled);
+
+	private string References(Paragraph paragraph)
+	{
+		var references = paragraph.Lines.SelectMany(line => Reference.Matches(line).Cast<Match>().Select(match => match.Value));
+
+		if (!ComparisonOpts.HasFlag(ComparisonOptions.StrictRefs))
+		{
+			references = references.Distinct().OrderBy(reference => reference);
+		}
+
+		return string.Join(", ", references);
+	}
+
+	private bool CompareParagraphs()
+	{
+		var result = true;
+
+		foreach (var topicPair in EngHlf.Topics.Zip(LngHlf.Topics, (e, l) => (eng: e, lng: l)))
+		{
+			if (!CompareLists(topicPair.eng.Paragraphs, topicPair.lng.Paragraphs,
+							  paragraph => References(paragraph),
+							  paragraph => $"[{paragraph.Lines[0].Substring(0, 16)}...].References",
+							  EngHlf.HlfName, LngHlf.HlfName, $"Topics[{topicPair.eng.Title}].Paragraphs"))
+			{
+				result = false;
+			}
+		}
+
+		return result;
 	}
 
 	private static bool CompareLists<Ent, Elem>(List<Ent> eng, List<Ent> lng,

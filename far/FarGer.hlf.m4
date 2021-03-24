@@ -596,7 +596,7 @@ umgekehrten Schrägstrich ab.
 ein Zielverzeichnis vor dem Bewegen anlegen wollen, schließen
 Sie den Namen mit einem umgekehrten Schrägstrich ab.
 
- ~Neues Verzeichnis anlegen~@CopyFiles@                                       #F7#
+ ~Neues Verzeichnis anlegen~@MakeFolder@                                       #F7#
 
  ~Löschen~@DeleteFile@                                   #Umsch+Entf, Umsch+F8, F8#
 
@@ -606,7 +606,7 @@ Sie den Namen mit einem umgekehrten Schrägstrich ab.
 
  Far beenden                                                    #F10#
 
- ~Plugin~@PlugIns@-Befehle anzeigen                                        #F11#
+ ~Plugin~@Plugins@-Befehle anzeigen                                        #F11#
 
  Laufwerk im linken Fenster wechseln                         #Alt+F1#
 
@@ -631,7 +631,7 @@ otherwise by using internal facilities.
  Die Benutzung von harten Links erlaubt mehrere unterschiedliche
 Dateinamen, die auf die gleichen Daten verweisen.
 
- ~Datei suchen~@FileFind@                                                #Alt+F7#
+ ~Datei suchen~@FindFile@                                                #Alt+F7#
 
  ~Befehlshistory~@History@ anzeigen                                     #Alt+F8#
 
@@ -700,7 +700,7 @@ command configuration.
 
  Verzeichniskürzel aufrufen                          #RechtsStrg+0…9#
 
- Dateiattribute setzen                                       #Strg+A#
+ ~Dateiattribute~@FileAttrDlg@ setzen                                       #Strg+A#
 
  Befehl auf ausgewählte Dateien ~anwenden~@ApplyCmd@                     #Strg+G#
 
@@ -877,7 +877,7 @@ benötigen, können Sie diese löschen, um Plattenplatz zu sparen.
 
  Plugins können entweder über das ~Laufwerk wechseln~@DriveDlg@-
 oder das #Plugin-Kommandos#-Menü, aktiviert durch #F11# oder den
-entsprechenden Eintrag im ~Befehle~@Cmdmenu@-Menü, aufgerufen werden.
+entsprechenden Eintrag im ~Befehle~@CmdMenu@-Menü, aufgerufen werden.
  Mit F4 im Menü ~"Plugin-Kommandos"~@PluginCommands@ können Hotkeys für Menü-Einträge
 zugewiesen werden (das ist einfacher als über ~Tastaturmakros~@KeyMacro@).
 Dieses Menü ist erreichbar über das Dateifenster und (nur über F11)
@@ -885,7 +885,7 @@ aus dem internen Betrachter und Editor. Wenn das Menü aus dem Editor
 oder Betrachter aufgerufen wird, werden nur spezielle dafür
 erstellte Plugins angezeigt.
 
- Plugin-Parameter können über den #Plugin-Konfiguration#-Aufruf im
+ Plugin-Parameter können über den ~Plugin-Konfiguration~@PluginsConfig@-Aufruf im
 ~Optionen~@OptMenu@ konfiguriert werden.
 
  Dateioperationen wie Kopieren, Verschieben, Löschen, Editieren
@@ -1103,7 +1103,7 @@ unterstützen kein Datum der Dateierzeugung oder des letzten Zugriffs.
 ändern. Nachdem die Ansicht oder das Laufwerk geändert wurden, wird
 automatisch die Starteinstellung des Fenstertyps benutzt.
 
- Die #Schnellsuche# kann benutzt werden, um durch die Anfangsbuch-
+ Die ~Schnellsuche~@FastFind@ kann benutzt werden, um durch die Anfangsbuch-
 staben eines Namens auf die Datei zu springen.
 
  See also the list of ~macro keys~@KeyMacroShellList@, available in the panels.
@@ -1298,8 +1298,9 @@ $ #Schnellansichtsfenster#
 über ausgewählte Einträge im ~Dateifenster~@FilePanel@ oder
 ~Baumfenster~@TreePanel@ anzuzeigen.
 
- Wenn der gewählte Eintrag eine Datei ist, wird der Inhalt
-dieser Datei angezeigt. Bei Dateien registrierter Windows-Typen
+ Wenn der gewählte Eintrag eine Datei ist, wird der Inhalt dieser Datei angezeigt.
+Many of the ~internal viewer~@Viewer@ commands can be used with the file
+displayed in the panel. Bei Dateien registrierter Windows-Typen
 wird dieser Typ ebenfalls angezeigt.
 
  Bei Verzeichnisssen zeigt die Schnellansicht die Gesamtgröße,
@@ -1307,7 +1308,7 @@ die gesamte komprimierte Größe, Anzahl der Dateien und Unter-
 verzeichnisse, aktuelle Clustergröße des Laufwerks, echte Dateigröße
 inkl. ungenutzer Bytes aufgrund der Clusterstückelung.
 
- When viewing reparse points, the path to the source folder is also displayed.
+ When viewing ~reparse points~@HardSymLink@, the path to the source folder is also displayed.
 
  For folders, the total size value may not match the actual value:
  - ^<wrap>If the folder or its subfolders contain symbolic links and the option
@@ -1410,17 +1411,17 @@ und letztes Zugriffsdatum sowie Dateiattribute werden im  Vollbildschirmmodus an
 
 @FilesMenu
 $ #Menü Dateien#
- #Anzeigen#           Zeigt Dateien an, berechnet Verzeichnisgrößen.
+ #Anzeigen#           ~Zeigt~@Viewer@ Dateien an, berechnet Verzeichnisgrößen.
 
- #Bearbeiten#         Editiert Dateien.
+ #Bearbeiten#         ~Editiert~@Editor@ Dateien.
 
- #Kopieren#           Kopiert Dateien und Verzeichnisse.
+ #Kopieren#           ~Kopiert~@CopyFiles@ Dateien und Verzeichnisse.
 
- #Umbenennen/Bewegen# ^<wrap>Benennt Dateien/Verzeichnisse um oder verschiebt sie.
+ #Umbenennen/Bewegen# ^<wrap>~Benennt Dateien/Verzeichnisse um oder verschiebt sie~@CopyFiles@.
 
  #Link#               Create ~file links~@HardSymLink@.
 
- #Neues Verzeichnis#  Legt neues Verzeichnis an.
+ #Neues Verzeichnis#  ~Legt~@MakeFolder@ neues Verzeichnis an.
 
  #Löschen#            Löscht Verzeichnisse oder Dateien.
 
@@ -1472,10 +1473,9 @@ $ #Menü Befehle#
                       baum. Weitere Informationen finden Sie
                       unter ~Verzeichnis suchen~@FindFolder@.
 
- #Anzeige-History#      Zeigt Dateibetrachter- und -editor-
-                      History an.
+ #Anzeige-History#      Zeigt ~Dateibetrachter- und -editor-History~@HistoryViews@ an.
 
- #Verzeichnis-History#  Zeigt Verzeichniswechselhistory an.
+ #Verzeichnis-History#  Zeigt ~Verzeichniswechselhistory@HistoryFolders@ an.
 
                       Einträge in der "Verzeichnishistory" und
                       "Dateibetrachterhistory" werden nach Auswahl
@@ -1509,7 +1509,7 @@ $ #Menü Befehle#
 
  #Dateifensterfilter#   Steuert die Anzeige der Dateifensterinhalte.
                         Detaillierte Informationen dazu finden Sie
-                      unter ~Dateifensterfilter~@Filter@.
+                      unter ~Dateifensterfilter~@FiltersMenu@.
 
  #Plugin commands#      Show ~plugin commands~@Plugins@ list.
 
@@ -1540,7 +1540,7 @@ $ #Menü Optionen#
                        sichern", um die gewählte Sprache dauerhaft
                        zu speichern.
 
- #Plugin-#               Konfiguriert die ~Plugin~@Plugins@-Module.
+ #Plugin-#               Konfiguriert die ~Plugin~@PluginsConfig@-Module.
  #konfiguration#
 
  #Plugin manager#        Shows ~Plugin manager settings~@PluginsManagerSettings@ dialog.
@@ -1567,10 +1567,9 @@ $ #Menü Optionen#
  #Datei-#                Liste der ~Dateibeschreibungsdateien~@FileDiz@
  #beschreibungen#      und Update-Modus.
 
- #Verzeichnis-#          Definiert Dateinamen (~Wildcards~@FileMasks@ sind
- #beschreibungs-#      erlaubt) für Dateien, deren Inhalt im
- #dateien#               ~Statusfenster~@InfoPanel@ als Verzeichnisbeschreibung
-                       angezeigt wird.
+ #Verzeichnis-#          Shows ~Folder description files~@FolderDiz@ dialog.
+ #beschreibungs-#
+ #dateien#
 
  #Betrachter-#           Einstellungen für externen ~Betrachter~@ViewerSettings@.
  #einstellungen#
@@ -1694,7 +1693,7 @@ and "#D:\\foo3#" will be created.
 $ #Datei suchen#
  Dieser Befehl dient zum Suchen von einer oder mehreren Datei(en)
 und Verzeichnissen. In den Dateimasken, die jeweils durch Kommata
-getrennt werden, sind ein oder mehrere Wildcards erlaubt. Die
+getrennt werden, sind ein oder mehrere ~Wildcards~@FileMasks@ erlaubt. Die
 Dateisuche kann auch mit durch ~Plugins~@Plugins@ emulierten
 Dateisystemen benutzt werden.
 
@@ -2178,7 +2177,7 @@ $ #Benutzermenü#
 Operationen. Es enthält eine Anzahl benutzerdefinierter Befehle
 und Befehlssequenzen, die über das Benutzermenü ausgeführt werden
 können. Das Menü kann auch Untermenüs enthalten. Spezielle
-Symbole, beschrieben in ~Dateiverknüpfungen~@FileAssoc@, werden
+Symbole, beschrieben in ~Dateiverknüpfungen~@MetaSymbols@, werden
 sowohl in den Befehlen als auch in den Befehlstiteln unterstützt.
 Beachten Sie, daß das Symbol !?<Titel>?<Init>! dazu benutzt werden
 kann, um zusätzliche Parameter unmittelbar vor der Ausführung von
@@ -2424,14 +2423,14 @@ However, sometimes the update is not triggered after receiving focus,
 so this option is disabled by default and directories are always monitored.
 
  #Befehls-History sichern#
- Aktiviert das Sichern der Befehls-History beim Beenden und Wiederherstellen dieser beim erneuten Start von Far.
+ Aktiviert das Sichern der ~Befehls-History~@History@ beim Beenden und Wiederherstellen dieser beim erneuten Start von Far.
 
  #Verzeichnis-History sichern#
- Aktiviert das Sichern der Verzeichnis-History beim Beenden und Wiederherstellen dieser beim erneuten Start von Far.
+ Aktiviert das Sichern der ~Verzeichnis-History~@HistoryFolders@ beim Beenden und Wiederherstellen dieser beim erneuten Start von Far.
 Die Verzeichnis-History-Liste kann mit #Alt+F12# angezeigt werden.
 
  #Ansicht- und Edit-History sichern#
- Aktiviert das Sichern der History angezeigter und editierter Dateien beim Beenden und Wiederherstellen dieser beim
+ Aktiviert das Sichern der ~History angezeigter und editierter Dateien~@HistoryViews@ beim Beenden und Wiederherstellen dieser beim
 erneuten Start von Far. Diese History-Liste kann mit Alt+F11 angezeigt werden.
 
  #In Windows registrierte Typen benutzen#
@@ -2837,8 +2836,8 @@ combinations adjust the number of displayed bytes by 16 at a time.
  #Umsch+F7, Space#    Weitersuchen
  #Alt+F7#             Continue search in reverse direction
  #F8#                 Zwischen OEM/ANSI Textansicht wechseln
- #Umsch+F8#           Benutzerdefinierte Zeichensatztabelle auswählen
- #Alt+F8#             Wechsle aktuelle Position
+ #Umsch+F8#           Benutzerdefinierte ~Code Pages~@CodePagesMenu@ menu auswählen
+ #Alt+F8#             ~Wechsle aktuelle Position~@ViewerGotoPos@
  #Alt+F9#             Maximize or restore the size of the Far console window;
 see also ~Interface.AltF9~@Interface.AltF9@
  #Alt+Shift+F9#       Open ~Viewer settings~@ViewerSettings@ dialog
@@ -3173,20 +3172,20 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
  #F2#                      Datei sichern
  #Umsch+F2#                ~Datei sichern als…~@FileSaveAs@
  #Shift+F4#                Edit ~new file~@FileOpenCreate@
- #F6#                      Zum Betrachter wechseln
- #F7#                      Suchen
- #Strg+F7#                 Ersetzen
+ #F6#                      Zum ~Betrachter~@Viewer@ wechseln
+ #F7#                      ~Suchen~@EditorSearch@
+ #Strg+F7#                 ~Ersetzen~@EditorSearch@
  #Umsch+F7#                Weitersuchen
  #Alt+F7#                  Continue search/replace in "reverse" mode
  #F8#                      Zwischen OEM/ANSI Textansicht wechseln
  #Strg+F8#                 Benutzerdefinierte Zeichensatztabelle auswählen
- #Alt+F8#                  Gehe nach Zeile
+ #Alt+F8#                  ~Gehe nach~@EditorGotoPos@ angegeben Zeile Und Spalte
  #Alt+F9#                  Maximize or restore the size of the Far console window; see also ~Interface.AltF9~@Interface.AltF9@
  #Alt+Shift+F9#            Call ~Editor settings~@EditorSettings@ dialog
  #F10, F4, Esc#            Beenden
  #Umsch+F10#               Sichern und Beenden
  #Ctrl+F10#                Position to the current file
- #F11#                     Menü "Plugin-Kommandos" aufrufen
+ #F11#                     Menü "~Plugin-Kommandos~@Plugins@" aufrufen
  #Alt+F11#                 Display ~file view and edit history~@HistoryViews@
  #Alt+BS, Strg+Z#          Operation rückgängig machen
  #Ctrl+Shift+Z#            Redo
@@ -3848,7 +3847,7 @@ für den internen und externen ~Betrachter~@Viewer@.
                          moving the cursor.
 
  #Search dialog#           Always returns focus to the search text field in
- #auto-focus#              the ~Viewer~@Viewer@ search dialog.
+ #auto-focus#              the Viewer ~Search~@ViewerSearch@ dialog.
 
  #Tabulatorgröße#          Tab zeigt die entsprechende Anzahl Leerzeichen an.
 
@@ -4232,7 +4231,7 @@ files will be listed on a single stripe.
  N[M[D],O,R[F],N] - Dateiname, mit:
                     M - ^<wrap>zeige Auswahlmarkierungen, mit:
                         D - dynamic selection marks;
-                    O - ^<wrap>zeige Namen ohne Pfad (hauptsächlich für Plugins);
+                    O - ^<wrap>zeige Namen ohne Pfad (hauptsächlich für ~Plugins~@Plugins@);
                     R - ^<wrap>rechtsbündige Namen, mit:
                         F - right align all names;
                     N - ^<wrap>do not show extensions in name column;
@@ -4775,7 +4774,7 @@ $ #Befehl anwenden#
  Mit dem Menüpunkt #Befehl anwenden# im Menü ~Dateien~@FilesMenu@
 kann ein Befehl auf jede ausgewählte Datei angewendet werden. In der
 gleichen Weise wie in ~Dateiverknüpfungen~@FileAssoc@ beschrieben muß man
-Symbole benutzen um den Dateinamen festzulegen.
+~Symbole~@MetaSymbols@ benutzen um den Dateinamen festzulegen.
 
  Z.B. 'type !.!' gibt zum Beispiel alle ausgewählten Dateien nacheinander
 auf dem Bildschirm aus, and the command 'rar32 m !.!.rar !.!' will move all selected files
@@ -5285,7 +5284,7 @@ command playback is finished.
 
  2. ^<wrap>Some key combinations (including #Enter#, #Esc#, #F1# and #Ctrl+F5#,
 #MsWheelUp#, #MsWheelDown# and other mouse keys combined with #Ctrl#, #Shift#, #Alt#) cannot be entered
-directly because they have special functions in the dialog. To assign a macro
+directly because they have special functions in the dialog. To ~assign a macro~@KeyMacroAssign@
 to one of those key combinations, select it from the drop-down list.
 
 

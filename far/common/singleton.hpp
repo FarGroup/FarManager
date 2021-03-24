@@ -52,13 +52,15 @@ public:
 		return Instance;
 	}
 
+protected:
+	using singleton_type = singleton<type>;
+
+	singleton() = default;
+
 	~singleton()
 	{
 		Destroyed = true;
 	}
-
-protected:
-	using singleton_type = singleton<type>;
 
 private:
 	bool Destroyed{};

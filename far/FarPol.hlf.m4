@@ -87,6 +87,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
  ~Powiązania plików~@FileAssoc@
  ~Polecenia systemu operacyjnego~@OSCommands@
  ~Skróty do folderów~@FolderShortcuts@
+ ~Grupy sortowania~@SortGroups@
  ~Menu filtry~@FiltersMenu@
  ~Przełączanie ekranów~@ScrSwitch@
  ~Lista zadań~@TaskList@
@@ -271,7 +272,7 @@ zastąpione standardowym tekstem okna Far, zależnym od kontekstu programu.
  Tryb tylko-do-odczytu lub normalny tryb pracy (nadpisuje ustawienia z pliku ini).
 
  #-set:<parametr>=<wartość>#
- Nadpisuje parametr konfiguracyjny, zobacz szczegóły w ~far:config~@Konfiguracji FAR@.
+ Nadpisuje parametr konfiguracyjny, zobacz szczegóły w ~edytorze konfiguracji~@FarConfig@.
 
  #-x#
  Wyłącza obsługę wyjątków. Ten parametr jest przeznaczony dla programistów i nie jest
@@ -856,7 +857,7 @@ Po wykryciu nowej wtyczki Far zapisuje informację o niej, a później wczytuje 
 gdy jest potrzebna - nie używane wtyczki nie zajmują dodatkowej pamięci.
 Ale jeżeli któraś wtyczka nie będzie już potrzebna, można ją usunąć oszczędzając miejsce na dysku.
 
- Wtyczki mogą być wywołane z menu ~Zmień dysk~@DriveDlg@ lub #Listy wtyczek# włączanej klawiszem
+ Wtyczki mogą być wywołane z menu ~Zmień dysk~@DriveDlg@ lub ~Listy wtyczek~@PluginCommands@ włączanej klawiszem
 #F11# lub odpowiadającemu menu ~Polecenia~@CmdMenu@. Wciśnięcie #F4# na ~"Liście wtyczek"~@PluginCommands@
 pozwala przypisać klawisz skrótu do menu (ułatwia to wywoływanie wtyczek w ~makrach klawiatury~@KeyMacro@).
 Menu to jest dostępne w panelu plików, oknach dialogowych oraz (tylko po wciśnięciu klawisza #F11#)
@@ -1264,7 +1265,7 @@ przydzielonego miejsca, liczbę plików i podfolderów w tym folderze, bieżąc�
 klastra na dysku, rzeczywistą wielkość pliku z ilością utraconej pojemności
 (suma nieużywanych części klastra).
 
- Przy podglądzie punktów dowiązania, pokazywana jest także ścieżka do folderu źródłowego.
+ Przy podglądzie ~punktów dowiązania~@HardSymLink@, pokazywana jest także ścieżka do folderu źródłowego.
 
  Dla folderów, wartość całkowitej wielkości może nie być dokładnie obliczana:
  - ^<wrap>Jeżeli folder lub podfoldery zawierają linki symboliczne, a opcja
@@ -1482,7 +1483,7 @@ $ #Menus: menu opcje#
  #Język programu#        Wybór języka programu i pomocy. Użyj opcji "Zapisz ustawienia",
                        aby zapamiętać wybrany język
 
- #Konfiguracja#          Okno konfiguracji ~wtyczek~@Plugins@.
+ #Konfiguracja#          Pokazuje okno ~konfiguracji wtyczek~@PluginsConfig@.
  #wtyczek#
 
  #Ustawienia managera#   Pokazuje okno ~Ustawień managera wtyczek~@PluginsManagerSettings@.
@@ -1511,8 +1512,7 @@ $ #Menus: menu opcje#
 
  #Opisy plików#          ~Pliki opisów~@FileDiz@ dla list plików i uaktualnienia tych list.
 
- #Pliki opisu folderów#  Lista nazw (dopuszczalne ~maski~@FileMasks@) plików wyświetlanych
-                       w ~Panelu informacyjnym~@InfoPanel@ jako opisy folderów i plików.
+ #Pliki opisu folderów#  Pokazuje okno ~Plików opisu folderów~@FolderDiz@.
 
  #Ustawienia podglądu#   Ustawienia zewnętrznego i wewnętrznego ~Podglądu~@ViewerSettings@.
 
@@ -2001,7 +2001,7 @@ kursorów, dodatkowo dostępne są poniższe skróty klawiszowe:
  Po użyciu danej pozycji z historii jest ona przenoszona na koniec listy.
 Wciśnięcie #Shift+Enter# wybiera dany plik, bez zmiany pozycji na liście.
 
-Jeżeli historia ma zostać zapisana po wyjściu z Far, należy włączyć
+ Jeżeli historia ma zostać zapisana po wyjściu z Far, należy włączyć
 odpowiednią opcję w ~Ustawieniach systemowych~@SystemSettings@ programu.
 
  Uwagi:
@@ -2407,7 +2407,7 @@ Opcji tej należy używać z uwagą i ostrożnością.
 
 
 @PanelSettings
-$ #Settings dialog: panel#
+$ #Okno ustawień: panel#
  #Pokazuj pliki ukryte i systemowe#
  Włącza wyświetlanie plików z atrybutem Ukryty lub Systemowy. Opcję można także przełączyć naciskając #Ctrl+H#.
 
@@ -2549,173 +2549,168 @@ Może zawierać dowolny tekst, w tym zmienne środowiskowe (np. "%USERDOMAIN%\%U
 
 
 @DialogSettings
-$ #Settings dialog: dialogs#
- #History in dialog#       Keep history in edit controls of some
- #edit controls#           Far dialogs. The previous strings history
-                         list can be activated with the mouse or using
-                         #Ctrl+Up# and #Ctrl+Down#. If you do not wish
-                         to track such history, for example due to
-                         security reasons, switch this option off.
+$ #Okno ustawień: okna#
+ #Historia w polach#       Zachowaj historię kontrolek edycji niektórych
+ #edycyjnych#              okien dialogowych Far. Listę historii poprzednich
+                         wpisów można aktywować za pomocą myszki lub skrótów
+                         #Ctrl+Góra# i #Ctrl+Dół#. Jeżeli nie chcesz śledzić
+                         takich historii, np. z powodów bezpieczeństwa, wyłącz
+                         tę opcję.
 
- #Persistent blocks#       Do not remove block selection after moving
- #in edit controls#        the cursor in dialog edit controls and
-                         command line.
+ #Trwałe bloki#            Nie usuwaj zaznaczenia bloków po przesunięciu kursora
+ #podczas edycji#          w oknie dialogowym i w wierszu poleceń.
 
- #Del removes blocks#      If a block is selected, pressing Del will
- #in edit controls#        not remove the character under cursor, but
-                         this block.
+ #DEL usuwa blok#          Jeżeli zaznaczony jest blok, wciśnięcie klawisza #Del#
+ #podczas edycji#          nie usunie znaku pod kursorem, ale zaznaczony blok.
 
- #AutoComplete#            Allows to use the AutoComplete function
- #in edit controls#        in edit controls that have a history list
-                         or in combo boxes. When the option is
-                         disabled, you can use the #Ctrl+End# key
-                         to autocomplete a line. The autocomplete
-                         feature is disabled while a macro is
-                         being recorded or executed.
+ #AutoUzupełnianie#        Pozwala na korzystanie z funkcji automatycznego
+ #podczas edycji#          uzupełniania w tych kontrolkach edycji, które mają
+                         listę historii lub polach kombi. Gdy opcja jest wyłączona,
+                         można użyć skrótu #Ctrl+End# aby uzupełnić linię.
+                         AutoUzupełnianie jest wyłączone, gdy nagrywane
+                         lub uruchamiane jest makro.
 
- #Backspace deletes#       If the option is on, pressing #BackSpace#
- #unchanged text#          in an unchanged edit string deletes
-                         the entire text, as if #Del# had been
-                         pressed.
+ #BACKSPACE usuwa#         Jeżeli opcja jest włączona, naciśnięcie #Backspace#
+ #nie zmieniony tekst#     na nie zmienionym tekście usuwa cały ciąg tekstu,
+                         tak samo jak naciśnięcie klawisza #Del#.
 
- #Mouse click outside#     #Right/left mouse click# outside a dialog
- #a dialog closes it#      closes the dialog (see ~Common~@MiscCmd@).
-                         This option allows to switch off this
-                         functionality.
+ #Kliknięcie myszy#        Kliknięcie #prawym/lewym klawiszem myszy# poza oknem
+ #poza oknem zamyka je#    dialogowym, zamyka to okno (zobacz ~Polecenia sterowania~@MiscCmd@).
+                         Opcja ta pozwala na wyłączenie tej funkcjonalności.
 
- See also the list of ~macro keys~@KeyMacroDialogList@, available in dialogs.
+ Zobacz także listę ~klawiszy makro~@KeyMacroDialogList@, dostępną w oknach dialogowych.
 
 
 @VMenuSettings
-$ #Menu settings#
- #Left/Right/Middle mouse click outside a menu#
- You can choose action for mouse buttons, when click occures outside a menu:
-#Cancel menu#, #Execute selected item# or #Do nothing#.
+$ #Ustawienia menu#
+ #Lewy/Prawy/Środkowy przycisk myszy kliknięty poza menu#
+ Możesz wybrać akcje dla przycisków myszki, po kliknięciu poza menu:
+#Anuluj menu#, #Uruchom wybraną opcję# or #Nic nie rób#.
 
 
 @CmdlineSettings
-$ #Settings dialog: command line#
- #Persistent blocks#
- Do not remove block selection after moving the cursor in command line.
+$ #Okno ustawień: wiersz poleceń#
+ #Trwałe bloki#
+ Nie usuwaj zaznaczenia bloku po przesunięciu kursora w wierszu poleceń.
 
- #Del removes blocks#
- If a block is selected, pressing Del will not remove the character under cursor, but this block.
+ #Usuwaj bloki klawiszem DEL#
+ Jeżeli zaznaczony jest blok, wciśnięcie #Del# nie usuwa znaku pod kursorem ale ten blok.
 
- #AutoComplete#
- Allows to use the AutoComplete function in command line. When the option is
-disabled, you can use the #Ctrl+Space# key to autocomplete a line. The autocomplete
-feature is disabled while a macro is being recorded or executed.
+ #AutoUzupełnianie#
+ Pozwala na użycie funkcji AutoUzupełniania w wierszu poleceń. Gdy opcja jest wyłączona,
+możesz użyć skrótu #Ctrl+Spacja# aby uzupełnić wiersz. AutoUzupełnianie jest wyłączona
+automatycznie podczas nagrywania lub wykonywania makro.
 
- #Set command line prompt format#
- This option allows to set the default Far command ~line prompt~@CommandPrompt@.
+ #Wygląd znaku zachęty wiersza poleceń#
+ Ta opcja pozwala ustawić domyślny ~format zachęty~@CommandPrompt@ wiersza poleceń Far.
 
- #Use home dir#
- This option specifies the target folder of ~CD ~~~@OSCommands@ command.
-If the string is empty, #CD ~~# will attempt to change the current path
-to real “~~” directory (and fail if this is impossible, e.g. because
-the directory does not exist). Default value is string “%FARHOME%” which
-denotes Far home directory.
+ #Użyj folderu domowego#
+ Opcja określa docelowy folder dla polecenia ~CD ~~~@OSCommands@.
+Jeżeli ciąg jest pusty, #CD ~~# spróbuje zmienić bieżącą ścieżkę
+na prawdziwy folder o nazwie "~~" (co będzie niemożliwe, ponieważ taki
+folder nie może istnieć). Domyślną wartością jest łańcuch "%FARHOME%",
+wskazujący folder w którym zainstalowany jest Far.
 
 
 @AutoCompleteSettings
-$ #Settings dialog: AutoComplete#
- #Show a list#
- Show completion suggestions as a list.
+$ #Okno ustawień: AutoUzupełnianie#
+ #Pokaż listę#
+ Pokaż sugestie uzupełnienia jako listę.
 
- #Modal mode#
- Make the list modal.
+ #Tryb modalny#
+ Ustaw listę jako modalną.
 
- #Append the first matched item#
- Append the first matched item to the command line text as you type.
+ #Dołącz pierwszy pasujący element#
+ Dołącz pierwszy pasujący element do tekstu wiersza poleceń podczas pisania.
 
- There are several additional options to control what data sources will be used to populate the completion list:
+ Istnieje kilka dodatkowych opcji kontrolowania, które źródła danych będą użyte do wypełnienia listy uzupełnień:
  - #Interface.Completion.UseFilesystem#
  - #Interface.Completion.UseHistory#
  - #Interface.Completion.UsePath#
  - #Interface.Completion.UseEnvironment#
- All parameters are 3-state - yes / no / only if called manually (using #Ctrl+Space#).
-These parameters can be changed via ~far:config~@FarConfig@
+ Wszystkie parametry są trój-stanowe - tak / nie / tylko przy ręcznym wywołaniu (za pomocą skrótu #Ctrl+Spacja#).
+Parametry te można zmieniać za pomocą ~far:config~@FarConfig@.
 
 
 @CommandPrompt
-$ #Command line prompt format#
- Far allows to change the command line prompt format.
-To change it you have to enter the needed sequence of variables and
-special code words in the #Set command line prompt format# input field
-of the ~Command line settings~@CmdlineSettings@ dialog, this will allow showing
-additional information in the command prompt.
+$ #Format zachęty wiersza poleceń#
+ Far pozwala na zmianę formatu znaków zachęty wiersza poleceń.
+Aby zmienić należy wprowadzić wymaganą sekwencję zmiennych i kodów
+specjalnych w pole #Format zachęty wiersza poleceń# w oknie dialogowym
+~Ustawienia wiersza poleceń~@CmdlineSettings@, pozwoli to na wyświetlenie
+dodatkowych informacji w wierszu poleceń.
 
- It is allowed to use environment variables and the following special code words:
+ Dozwolone jest używanie zmiennych środowiskowych i następujących kodów specjalnych:
 
- $a - ^<wrap>the & character
- $b - the | character
- $c - the ( character
- $d - current date (depends on system settings)
- $f - the ) character
- $g - the > character
- $h - delete the previous character
- $l - the < character
- $m - full network path of the current drive or empty, if the current drive is not a network drive
- $n - drive letter of the current drive
- $p - current drive and path
- $q - the = character
- $s - space
- $t - current time in HH:MM:SS format
- $w - current working directory (without the path)
- $$ - the $ character
- $+ - the depth of the folders stack
- $##nn - ^<wrap>max prompt width, given in percents relative to the width of the window
- $@@xx - ^<wrap>"Administrator", if Far Manager is running as administrator.
-xx is a placeholder for two characters that will surround the "Administrator" word.
-For example, #$@@{}$s$p$g# will be shown as "{Administrator} C:\>"
+ $a - ^<wrap>znak & (and)
+ $b - znak |
+ $c - znak (
+ $d - bieżąca data (zależnie od ustawień systemowych)
+ $f - znak )
+ $g - znak >
+ $h - usuwa poprzedni znak
+ $l - znak <
+ $m - pełna ścieżka sieciowa bieżącego dysku, lub pusta - jeżeli bieżący dysk nie jest dyskiem sieciowym
+ $n - litera bieżącego dysku
+ $p - bieżący dysk i ścieżka
+ $q - znak =
+ $s - spacja
+ $t - bieżący czas w formacie GG:MM:SS
+ $w - aktualny folder roboczy (bez ścieżki)
+ $$ - znak $
+ $+ - głębokość zagnieżdżenia folderu
+ $##nn - ^<wrap>maksymalna szerokość zachęty, wyrażana jako procentowa wartość szerokości okna
+ $@@xx - ^<wrap>"Administrator", jeżeli Far został uruchomiony jako administrator.
+xx jest symbolem zastępczym dla dwóch znaków otaczających słowo "Administrator".
+Dla przykładu: #$@@{}$s$p$g# zostanie wyświetlone jako #"{Administrator} C:\>"#.
 
- By default the #$p$g# sequence is used - current drive and path ("C:\>").
+ Domyślnie używana jest sekwencja #$p$g# - bieżący dysk i ścieżka oraz znak większości ("C:\>").
 
- Examples:
+ Przykłady:
 
- 1. ^<wrap>A prompt of the following format #[%COMPUTERNAME%]$S$P$G#
-will contain the computer name, current drive and path
-(the %COMPUTERNAME% environment variable must be defined)
+ 1. ^<wrap>Zachęta w formacie #[%COMPUTERNAME%]$S$P$G# będzie zawierała
+nazwę komputera, bieżący dysk i ścieżkę (zmienna %COMPUTERNAME% musi być
+wcześniej zdefiniowana).
 
- 2. ^<wrap>A prompt of the following format #[$T$H$H$H]$S$P$G# will
-display the current time in HH:MM format before the current drive and path
+ 2. ^<wrap>Zachęta w formacie #[$T$H$H$H]$S$P$G# wyświetli bieżący czas
+w formacie GG:MM przed bieżącym dyskiem i ścieżką.
 
- 3. ^<wrap>Code "$+" displays the number of pluses (+) needed according to
-current ~PUSHD~@OSCommands@ directory stack depth, one character per each
-saved path.
+ 3. ^<wrap>Kod "$+" wyświetla liczbę plusów (+) wymaganych do określenia
+aktualnej głębokości stosu folderów polecenia ~PUSHD~@OSCommands@, gdzie każdy
+znak opisuje jedną zapisaną ścieżkę.
 
- Prompt elements can be highlighted with #colors#.
+ Elementy zachęty mogą być wyróżniane za pomocą #kolorów#.
 
  Format:
- #([[T]FFFFFFFF][:[T]BBBBBBBB])#, where:
+ #([[T]FFFFFFFF][:[T]BBBBBBBB])#, gdzie:
 
   #FFFFFFFF#
-  Foreground color in aarrggbb format or index in the console palette.
+  Kolor tekstu w formacie aarrggbb lub indeks w palecie konsoli.
 
   #BBBBBBBB#
-  Background color in aarrggbb format or index in the console palette.
+  Kolor tła w formacie aarrggbb lub indeks w palecie konsoli.
 
   #T#
-  "TrueColor" flag. If absent, value is treated as the console palette index (0-F):
+  Flaga "TrueColor". Jeżeli nieobecna, wartość jest traktowana jako indeks palety konsoli (0-F):
 
   \00 \11 \22 \33 \44 \55 \66 \77 \88 \99 \AA \BB \CC \DD \EE \FF \-
   0123456789ABCDEF
 
- If foreground or background color is omitted, the corresponding default value will be used.
+ Jeżeli nie podano kolorów tekstu lub tła, zostanie użyta odpowiednia wartość domyślna.
 
- Examples:
+ Przykłady:
 
- #(E)#               \0e Bright yellow text on default background    \-
- #(:F)#              \f7 Default text on white background            \-
- #(B:C)#             \cb Bright blue text on bright red background   \-
- #()#                \07 Default text on default background          \-
+ #(E)#               \0e Jasnożółty kolor tekstu na domyślnym tle     \-
+ #(:F)#              \f7 Domyślny kolor tekstu na białym tle          \-
+ #(B:C)#             \cb Jasnoniebieski kolor tekstu na czerwonym tle \-
+ #()#                \07 Domyślny kolor tekstu na domyślnym tle       \-
  #(T00CCCC:TE34234)# \(T00CCCC:TE34234) Robin egg blue text on Vermilion background \-
 
  The specified color will be active till the end of the prompt or the next color entry.
 
- Example:
+ Przykład:
 
- #(a)%username%(f)@@(b)%computername%() $p$g# \0aadmin\0f@@\0bserver\07 C:\\>\-
+ #(a)%username%(f)@@(b)%computername%() $p$g# \0aadmin\0f@@\0bserwer\07 C:\\>\-
 
 
 @Viewer
@@ -3715,7 +3710,7 @@ that a file belongs to a group, no further groups are checked.
 @HighlightEdit
 $ #Files highlighting and sort groups: editing#
  The #Files highlighting# dialog in the ~Options menu~@OptMenu@ allows to
-define file highlighting groups. Each group definition ~includes~@Filter@:
+specify file highlighting groups. Each group definition ~includes~@Filter@:
 
  - one or more ~file masks~@FileMasks@;
 
@@ -3770,7 +3765,7 @@ and external ~viewer~@Viewer@.
                          moving the cursor.
 
  #Search dialog#           Always returns focus to the search text field in
- #auto-focus#              the ~Viewer~@Viewer@ search dialog.
+ #auto-focus#              the Viewer ~Search~@ViewerSearch@ dialog.
 
  #Tab size#                Number of spaces per single tab position.
 
@@ -4144,7 +4139,7 @@ files will be listed on a single stripe.
  N[M[D],O,R[F],N] - file name, where:
                     M - ^<wrap>show selection marks where:
                         D - dynamic selection marks;
-                    O - ^<wrap>show names without paths (intended mainly for plugins);
+                    O - ^<wrap>show names without paths (intended mostly for ~plugins~@Plugins@);
                     R - ^<wrap>right align names that do not fit in column, where:
                         F - right align all names;
                     N - ^<wrap>do not show extensions in name column;
@@ -5187,7 +5182,7 @@ command playback is finished.
 
  2. ^<wrap>Some key combinations (including #Enter#, #Esc#, #F1# and #Ctrl+F5#,
 #MsWheelUp#, #MsWheelDown# and other mouse keys combined with #Ctrl#, #Shift#, #Alt#) cannot be entered
-directly because they have special functions in the dialog. To assign a macro
+directly because they have special functions in the dialog. To ~assign a macro~@KeyMacroAssign@
 to one of those key combinations, select it from the drop-down list.
 
 

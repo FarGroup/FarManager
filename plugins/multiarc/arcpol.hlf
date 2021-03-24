@@ -9,13 +9,13 @@ obsługiwane w ten sam sposób jakby znajdowały się w zwykłym katalogu na dys
 Podczas operacji na plikach w archiwum FAR przetwarza polecenia użytkownika w
 odpowiadające im operacje wykonywane przez program archiwizujący.
 
-   ~Dodawanie plików do archiwum~@AddToArc
+   ~Dodawanie plików do archiwum~@AddToArc@
 
-   ~Wypakowywanie plików z archiwum~@ExtrFromArc
+   ~Wypakowywanie plików z archiwum~@ExtrFromArc@
 
    ~Archive commands~@ArcCmd@
 
-   ~Konfiguracja~@ArcSettings1
+   ~Konfiguracja~@ArcSettings1@
 
    ~Linie poleceń archiwizerów~@ArcSettings2@
 
@@ -26,7 +26,7 @@ odpowiadające im operacje wykonywane przez program archiwizujący.
 $ #Dodawanie plików do archiwum#
     To okno dialogowe pozwala na wybranie archiwizera, dodanie lub zmianę
 parametrów polecenia archiwizatora (domyślne parametry definiuje się w oknie
-dialogowym ~linie poleceń archiwizatorów~@ArcSettings@), wprowadzenie hasła
+dialogowym ~linie poleceń archiwizatorów~@ArcSettings2@), wprowadzenie hasła
 zabezpieczającego pliki.
 
     Opcja #Usuń pliki po archiwizacji# wymusza na programie archiwizującym

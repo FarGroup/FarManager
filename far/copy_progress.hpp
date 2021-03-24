@@ -92,11 +92,9 @@ private:
 
 	size_t m_CurrentBarSize;
 	int m_CurrentPercent{};
-	string m_CurrentBar;
 
 	size_t m_TotalBarSize;
 	int m_TotalPercent{};
-	string m_TotalBar;
 
 	bool m_Move;
 	bool m_Total;

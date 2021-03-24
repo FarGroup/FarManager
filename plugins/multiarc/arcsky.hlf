@@ -15,9 +15,9 @@ volania externých archiverov.
 
    ~Príkazy archívov~@ArcCmd@
 
-   ~Konfigurácia podpory archívov~@ArcCfg@
+   ~Konfigurácia podpory archívov~@ArcSettings1@
 
-   ~Príkazové riadky archiverov~@ArcSettings@
+   ~Príkazové riadky archiverov~@ArcSettings2@
 
    ~Storage of plugin settings~@ArcSettings3@
 
@@ -26,7 +26,7 @@ volania externých archiverov.
 $ #Pridávanie súborov do archívu#
     V tomto okne si môžete zvoliť archiver, pridať alebo zmeniť
 prepínače príkazového riadku (štandardné prepínače možno definovať
-použitím okna ~Nastavenie archiverov (Archiver settings)~@ArcSettings@)
+použitím okna ~Nastavenie archiverov (Archiver settings)~@ArcSettings2@)
 a zadať heslo na zakryptovanie súborov pri archivácii.
 
     Prepínač #Vymaž súbory po archivovaní (Delete files after archiving)#
@@ -116,7 +116,7 @@ archív, ochrániť archív pred poškodením a zabrániť zmenám archívu.
 
     1. Na vykonanie príslušných príkazov na prácu s archívmi potrebujete
 mať príslušný archivovací program. Parametre archiverov možno zmeniť
-a okne ~Nastavenie archiverov (Archiver settings)~@ArcSettings@.
+a okne ~Nastavenie archiverov (Archiver settings)~@ArcSettings2@.
 
     For quick access to archiver options, you can press the key
 F4 in the "Archive commands" menu.
