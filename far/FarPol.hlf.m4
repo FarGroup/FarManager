@@ -103,7 +103,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
 
  ~Podświetlanie plików i sortowanie grup~@Highlight@
  ~Opisy plików~@FileDiz@
- ~Ustawienia przeglądarki~@ViewerSettings@
+ ~Ustawienia podglądu~@ViewerSettings@
  ~Ustawienia edytora~@EditorSettings@
 
  ~Kopiowanie, przenoszenie, zmiana nazw i tworzenie linków~@CopyFiles@
@@ -825,7 +825,7 @@ $ #Myszka: obsługa rolki#
 
  #Edytor#
  Obracanie rolki przewija tekst bez zmiany pozycji kursora na ekranie
-(podobnie do #Ctrl+Up#/#Ctrl+Down#).
+(podobnie do #Ctrl+Góra#/#Ctrl+Dół#).
 
  #Podgląd#
  Obracanie rolki przewija tekst.
@@ -2117,7 +2117,7 @@ menu użytkownika folderu nadrzędnego wciskając klawisz #Backspace#.
 wyświetlana w separatorze. Aby usunąć separator menu, należy przejść do edycji pliku
 menu za pomocą klawiszy #Alt+F4#.
 
- Polecenia w menu można przenosić za pomocą kombinacji klawiszy #Ctrl+Up# lub #Ctrl+Down#.
+ Polecenia w menu można przenosić za pomocą kombinacji klawiszy #Ctrl+Góra# lub #Ctrl+Dół#.
 
  Aby wykonać polecenie użytkownika, należy je wybrać za pomocą klawiszy kursora
 i nacisnąć klawisz #Enter#. Można wybrać też klawisz skrótu przypisany do danej pozycji
@@ -2172,9 +2172,9 @@ różnych poleceń do uruchamiania, podglądu i edycji plików z podaną ~maską
 
  #Del#        - usuń bieżące przypisanie
 
- #Ctrl+Up#    - przenieś przypisanie wyżej (na liście)
+ #Ctrl+Góra#  - przenieś przypisanie wyżej (na liście)
 
- #Ctrl+Down#  - przenieś przypisanie niżej (na liście)
+ #Ctrl+Dół#   - przenieś przypisanie niżej (na liście)
 
  Zobacz także: polecenia ~menu~@MenuCmd@.
 
@@ -2629,7 +2629,7 @@ $ #Okno ustawień: AutoUzupełnianie#
  - #Interface.Completion.UsePath#
  - #Interface.Completion.UseEnvironment#
  Wszystkie parametry są trój-stanowe - tak / nie / tylko przy ręcznym wywołaniu (za pomocą skrótu #Ctrl+Spacja#).
-Parametry te można zmieniać za pomocą ~far:config~@FarConfig@.
+Parametry te można zmieniać za pomocą ~edytora konfiguracji~@FarConfig@.
 
 
 @CommandPrompt
@@ -2704,9 +2704,9 @@ znak opisuje jedną zapisaną ścieżkę.
  #(:F)#              \f7 Domyślny kolor tekstu na białym tle          \-
  #(B:C)#             \cb Jasnoniebieski kolor tekstu na czerwonym tle \-
  #()#                \07 Domyślny kolor tekstu na domyślnym tle       \-
- #(T00CCCC:TE34234)# \(T00CCCC:TE34234) Robin egg blue text on Vermilion background \-
+ #(T00CCCC:TE34234)# \(T00CCCC:TE34234) Tekst: Robin egg blue, tło: Vermilion        \-
 
- The specified color will be active till the end of the prompt or the next color entry.
+ Wybrany kolor będzie aktywny do końca znaku zachęty lub następnego określenia koloru.
 
  Przykład:
 
@@ -2714,141 +2714,140 @@ znak opisuje jedną zapisaną ścieżkę.
 
 
 @Viewer
-$ #Viewer: control keys#
- Navigation keys
+$ #Podgląd: klawisze kontroli#
+ Klawisze nawigacyjne
 
- The behavior of navigation keys depends on the ~view mode~@ViewerMode@.
+ Zachowanie klawiszy nawigacyjnych zależy od ~trybu podglądu~@ViewerMode@.
 
- The following keys work in all modes:
+ Następujące klawisze działają we wszystkich trybach:
 
- #Up#                 ^<wrap>Line up
- #Down#               Line down
- #PgUp#               Screenful up
- #PgDn#               Screenful down
- #Home, Ctrl+Home#    Beginning of the file
- #End, Ctrl+End#      End of the file
+ #Góra#               ^<wrap>Linia wyżej
+ #Dół#                Linia niżej
+ #PgUp#               Jeden ekran wyżej
+ #PgDn#               Jeden ekran niżej
+ #Home, Ctrl+Home#    Początek pliku
+ #End, Ctrl+End#      Koniec pliku
 
- The following additional keys work in #text mode without line wrap#:
+ Następujące dodatkowe klawisze działają w #trybie tekstowym bez łamania linii#:
 
- #Left#               ^<wrap>One column left
- #Right#              One column right
- #Ctrl+Left#          20 columns left
- #Ctrl+Right#         20 columns right
- #Ctrl+Shift+Left#    Show the leftmost column
- #Ctrl+Shift+Right#   Show the rightmost column of all lines currently visible on the screen
+ #Lewo#               ^<wrap>Jedna kolumna w lewo
+ #Prawo#              Jedna kolumna w prawo
+ #Ctrl+Lewo#          20 kolumn w lewo
+ #Ctrl+Prawo#         20 kolumn w prawo
+ #Ctrl+Shift+Lewo#    Pokazuje pierwszą kolumnę z lewej
+ #Ctrl+Shift+Prawo#   Pokazuje ostatnią kolumnę z prawej ze wszystkich linii widocznych na ekranie
 
- In the #hex# and #dump# ~view modes~@ViewerMode@, #Ctrl+Left# and
-#Ctrl+Right# keys shift the content within the window one byte at a time
-in the corresponding direction.
+ W ~trybach podglądu~@ViewerMode@ #hex# (szesnastkowo) i #źródło#, skróty #Ctrl+Lewo#
+oraz #Ctrl+Prawo# przesuwają zawartość okna o jeden bajt w odpowiednim
+kierunku.
 
- In the #hex# ~view mode~@ViewerMode@, #Alt+Left# and #Alt+Right# key
-combinations decrease or increase the number of bytes displayed on each
-row by one byte, respectively. #Ctrl+Alt+Left# and #Ctrl+Alt+Right# key
-combinations adjust the number of displayed bytes by 16 at a time.
+ W trybie #hex# ~podglądu~@ViewerMode@, skróty #Alt+Lewo# i #Alt+Prawo#
+odpowiednio zmniejszają lub zwiększają liczbę bajtów widocznych o jeden.
+Skróty #Ctrl+Alt+Lewo# i #Ctrl+Alt+Prawo# zmieniają liczbę wyświetlanych
+bajtów o 16.
 
- Viewer commands
+ Polecenia podglądu
 
- #F1#                 ^<wrap>Help
- #F2#                 Toggle line wrap/unwrap in #text# mode, or change ~view mode~@ViewerMode@
- #Shift+F2#           Toggle wrap type (characters or words) in #text# ~view mode~@ViewerMode@
- #F4#                 Toggle ~view mode~@ViewerMode@ to #hex# and back
- #Shift+F4#           Select ~view mode~@ViewerMode@: #text#, #hex#, or #dump#
- #F6#                 Switch to ~editor~@Editor@
- #F7#                 ~Search~@ViewerSearch@
- #Shift+F7, Space#    Continue search
- #Alt+F7#             Continue search in reverse direction
- #F8#                 Switch between OEM and ANSI code pages
- #Shift+F8#           Select code page using the ~Code pages~@CodePagesMenu@ menu
- #Alt+F8#             ~Change current position~@ViewerGotoPos@
- #Alt+F9#             Maximize or restore the size of the Far console window;
-see also ~Interface.AltF9~@Interface.AltF9@
- #Alt+Shift+F9#       Open ~Viewer settings~@ViewerSettings@ dialog
- #Numpad5,F3,F10,Esc# Quit viewer
- #Ctrl+F10#           Jump to the current file on the active file panel
- #F11#                Open ~Plugin commands~@Plugins@ menu
- #Alt+F11#            Display ~file view and edit history~@HistoryViews@
- #Gray +#             View the next file on the active file panel
- #Gray -#             View the previous file on the active file panel
- #Ctrl+O#             Show user screen
- #Ctrl+Alt+Shift#     Temporarily show user screen
-(while the key combination is held down)
- #Ctrl+B#             Toggle functional key bar at the bottom of the screen
- #Ctrl+Shift+B#       Toggle status line
- #Ctrl+S#             Toggle the scrollbar
- #Alt+BS, Ctrl+Z#     Undo position change
- #RightCtrl+0…9#      Set bookmark 0…9 at the current position
- #Ctrl+Shift+0…9#     Set bookmark 0…9 at the current position
- #LeftCtrl+0…9#       Go to bookmark 0…9
- #Ctrl+Ins, Ctrl+C#   Copy the selected text to the clipboard.
-The text can be selected manually or as the result of a ~search~@ViewerSearch@.
- #Ctrl+U#             Unselect the text
- #Shift+Mouse click#  Select text manually. The first mouse click indicates the
-beginning of the selected area; the second click indicates the end.
-Use navigation keys after the first click to bring the end position into
-the view. The end of the selected area may be set before or after the
-beginning in the text.
+ #F1#                 ^<wrap>Pomoc
+ #F2#                 Przełącza zawijanie wierszy w trybie #tekstowym# lub zmienia ~tryb podglądu~@ViewerMode@
+ #Shift+F2#           Przełącza typ zawijania (znaków lub słów) w ~podglądzie~@ViewerMode@ #tekstowym#
+ #F4#                 Przełącza ~tryb podglądu~@ViewerMode@ na #hex# i z powrotem
+ #Shift+F4#           Wybór ~trybu podglądu~@ViewerMode@: #tekstowy#, #hex# (szesnastkowy) lub #źródło#
+ #F6#                 Przełącza na ~edytor~@Editor@
+ #F7#                 ~Wyszukiwanie~@ViewerSearch@
+ #Shift+F7, Spacja#   Kontynuacja szukania
+ #Alt+F7#             Kontynuacja szukania w odwrotnym kierunku
+ #F8#                 Przełączenie pomiędzy stronami kodowymi OEM i ANSI
+ #Shift+F8#           Przełączenie strony kodowej za pomocą menu ~Strony kodowe~@CodePagesMenu@
+ #Alt+F8#             ~Zmienia bieżącą pozycję~@ViewerGotoPos@
+ #Alt+F9#             Maksymalizuje lub przywraca wielkość okna Far;
+zobacz także ~Interface.AltF9~@Interface.AltF9@
+ #Alt+Shift+F9#       Otwiera okno ~Ustawień podglądu~@ViewerSettings@
+ #Numpad5,F3,F10,Esc# Zamyka podgląd
+ #Ctrl+F10#           Przechodzi do bieżącego pliku w aktywnym panelu plików
+ #F11#                Otwiera menu ~Wtyczek~@Plugins@
+ #Alt+F11#            Wyświetla ~Historię podglądu i edycji plików~@HistoryViews@
+ #Szary +#            Włącza podgląd następnego pliku w aktywnym panelu plików
+ #Szary -#            Włącza podgląd poprzedniego pliku w aktywnym panelu plików
+ #Ctrl+O#             Pokazuje ekran użytkownika
+ #Ctrl+Alt+Shift#     Tymczasowo pokazuje ekran użytkownika
+(dopóki ta kombinacja klawiszy jest naciśnięta)
+ #Ctrl+B#             Przełącza wyświetlanie paska skrótów w dolnej linii ekranu
+ #Ctrl+Shift+B#       Przełącza górną linię statusu
+ #Ctrl+S#             Przełącza pasek przewijania
+ #Alt+BS, Ctrl+Z#     Cofa ostatnią zmianę pozycji
+ #PrawyCtrl+0…9#      Ustawia zakładkę nr 0…9 na bieżącej pozycji
+ #Ctrl+Shift+0…9#     Ustawia zakładkę nr 0…9 na bieżącej pozycji
+ #LeftCtrl+0…9#       Przechodzi do zakładki 0…9
+ #Ctrl+Ins, Ctrl+C#   Kopiuje zaznaczony tekst do schowka.
+Tekst może być zaznaczony ręcznie lub jako rezultat ~wyszukiwania~@ViewerSearch@.
+ #Ctrl+U#             Odznacza tekst
+ #Shift+Klik. myszy#  Ręczne zaznaczenie tekstu. Pierwsze kliknięcie oznacza
+początek zaznaczonego tekstu; drugie oznacza jego koniec.
+Użyj klawiszy nawigacyjnych po pierwszym kliknięciu, aby przesunąć pozycję
+końcową na ekran. Koniec zaznaczonego obszaru może być przed lub za tekstem
+początkowym.
 
- See also the list of ~macro keys~@KeyMacroViewerList@ available in the viewer.
+ Zobacz także listę ~klawiszy makro~@KeyMacroViewerList@ dostępnych w podglądzie.
 
- Notes:
+ Uwagi:
 
- 1. ^<wrap>Start typing the search pattern to open the
-~search~@ViewerSearch@ dialog.
+ 1. ^<wrap>Rozpoczęcie pisania otwiera okno ~wyszukiwania~@ViewerSearch@.
 
- 2. ^<wrap>The viewer opens files with the permission to be deleted.
-If another process attempts to delete the file while it is open in the
-viewer, the file will be deleted after the viewer is closed. Any
-operation on a file while its deletion is pending will fail. This is
-a feature of the Windows operating system.
+ 2. ^<wrap>Przeglądarka otwiera pliki z uprawnieniem do usunięcia.
+Jeżeli inny proces próbuje usunąć plik otwarty do poglądu, zostanie
+on usunięty po zamknięciu podglądu. Każda operacja na pliku oczekującym
+na usunięcie zakończy się niepowodzeniem. Jest to cecha systemu operacyjnego
+Windows.
 
- 3. ^<wrap>The maximum number of columns displayed in the #text#
-~view mode~@ViewerMode@ can be configured in the
-~Viewer settings~@ViewerSettings@ dialog. The range is between 100 to 100,000,
-the default is 10,000. Lines longer than the maximum will be split into
-several screen rows even if word wrap mode is turned off.
+ 3. ^<wrap>Maksymalna liczba kolumn wyświetlanych w ~podglądzie~@ViewerMode@ #tekstowym#
+można skonfigurować w oknie ~ustawieniach podglądu~@ViewerSettings@. Zakres
+zawiera się między 100 a 100.000, domyślnie ustawione jest 10.000. Linie
+dłuższe niż ustawiony zakres zostaną podzielone kilka wierszy, nawet jeżeli
+opcja zawijania wierszy jest wyłączona.
 
- 4. ^<wrap>Far starts ~searching~@ViewerSearch@ (#F7#) from the
-beginning of the currently visible area.
+ 4. ^<wrap>Far rozpoczyna ~wyszukiwanie~@ViewerSearch@ (#F7#) od początku
+aktualnie widocznego obszaru.
 
- 5. ^<wrap>To auto-scroll a file which is being appended by another
-process (conf. Linux “tail”), go to the end of the file (press the #End# key).
+ 5. ^<wrap>Aby automatycznie przewijać plik, który jest dołączany przez inny
+proces (podobnie jak polecenie Linux "tail"), należy przejść na koniec pliku
+(naciśnięcie klawisza #End#).
 
 
 @ViewerMode
-$ #Viewer: view modes#
- The viewer can render the content of the file in three modes:
-#text#, #hex#, and #dump#. Current mode is indicated with a character
-on the first (status) line of the window, to the left of the current
-code page number:
- - #t#: text,
- - #h#: hex,
- - #d#: dump.
+$ #Podgląd: tryby widoku#
+ Podgląd plików może działać w trzech trybach:
+#tekstowy#, #hex# (szesnastkowy) oraz #źródło# (ang. dump). Wybrany tryb
+jest wskazywany za pomocą znaku w górnej linii statusu, na lewo od informacji
+o bieżącej stronie kodowej:
+ - #t#: tekstowy,
+ - #h#: hex (szesnastkowy),
+ - #d#: źródło (ang. dump).
 
- When a file is opened, if #Save view mode# option in the
-~Viewer settings~@ViewerSettings@ dialog is on and the file exists
-in ~File view and edit history~@HistoryViews@, the last used view mode
-is selected. Otherwise, if #Detect dump view mode# option in the
-~Viewer settings~@ViewerSettings@ dialog is on and Far considers the
-file binary, the #dump# mode is selected. Otherwise, the #text# mode is selected.
+ Po otwarciu pliku, jeżeli opcja #Zapisz tryb podglądu# w oknie ~Ustawień podglądu~@ViewerSettings@
+jest włączona i plik istnieje w ~Historii podglądu i edycji plików~@HistoryViews@,
+to wybierany jest ostatnio używany tryb podglądu. W innym przypadku, jeżeli
+opcja #Wykryj sposób podglądu# w oknie ~Ustawień podglądu~@ViewerSettings@
+jest włączona, a Far wykryje plik binarny to wybierany jest tryb #źródło# (ang. dump).
+W innych przypadkach wybierany jest tryb #tekstowy#.
 
- The view mode can be changed manually with the following keys:
+ Tryb podglądu można zmieniać ręcznie za pomocą następujących klawiszy:
 
  #Shift+F4#
- Opens the #View mode# menu. If #text# or #dump#
-mode is selected, it becomes the #base# mode; selecting #hex# mode
-switches the current mode but does not change the base mode.
+ Otwiera menu #Tryb widoku#. Jeżeli wybrany jest tryb #tekstowy# lub #źródło#,
+to staje się on trybem #podstawowym#; wybranie trybu #hex# przełączy
+bieżący tryb ale nie zmieni trybu podstawowego.
 
  #F4#
- Switches #text# or #dump# mode to #hex#, and
-#hex# mode to the base (#text# or #dump#) mode most recently selected
-in the #View mode# menu.
+ Przełącza tryb #tekstowy# lub #źródło# na tryb #hex#, a tryb #hex#
+na tryb podstawowy (#tekstowy# lub #źródłowy#) ostatnio wybrany w menu
+#Tryb widoku#.
 
  #F2#
- In the #text# mode toggles line wrap/unwrap,
-switches #dump# mode to #text#, and switches #hex# mode to the opposite
-of the base mode (#dump# or #text#) most recently selected in the
-#View mode# menu. Note: #F4# and #F2# switch #hex# mode to different
-modes.
+ W trybie #tekstowym# przełącza zawijanie/rozwijanie linii,
+przełącza tryb #źródło# na #tekstowy#, i przełącza tryb #hex# na przeciwny
+do trybu podstawowego (#źródło# lub #tekst#) ostatnio wybranego w menu
+#Tryb widoku#. Uwaga: klawisze #F4# i #F2# przełączają tryb #hex# na inne tryby.
 
  #Text# mode
 
