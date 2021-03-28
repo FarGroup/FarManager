@@ -497,7 +497,7 @@ static void log_hook_wow64_status()
 		Error == ERROR_SUCCESS? logging::level::debug : logging::level::warning,
 		L"hook_wow64: {} {}"sv,
 		Msg,
-		os::format_system_error(Error, os::GetErrorString(false, Error))
+		os::format_error(Error)
 	);
 
 	if (Error == ERROR_INVALID_DATA)
@@ -860,6 +860,7 @@ static int wmain_seh()
 
 	SCOPED_ACTION(unhandled_exception_filter);
 	SCOPED_ACTION(seh_terminate_handler);
+	SCOPED_ACTION(purecall_handler);
 	SCOPED_ACTION(new_handler);
 
 	const auto CurrentFunctionName = CURRENT_FUNCTION_NAME;
