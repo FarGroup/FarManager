@@ -1808,66 +1808,65 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			DestAttr=DestData.Attributes;
 	}
 
-	bool SameName{}, Append{};
+	bool Append{};
 
-	if (!(Flags&FCOPY_COPYTONUL) && DestAttr!=INVALID_FILE_ATTRIBUTES && (DestAttr & FILE_ATTRIBUTE_DIRECTORY))
+	const auto SameName = [&]
 	{
-		if(SrcData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
+		if (Flags & FCOPY_COPYTONUL || DestAttr == INVALID_FILE_ATTRIBUTES)
+			return false;
+
+		// We only care if src and dst are either both files or both directories
+		if ((SrcData.Attributes & FILE_ATTRIBUTE_DIRECTORY) != (DestAttr & FILE_ATTRIBUTE_DIRECTORY))
+			return false;
+
+		// Directory symlink is as good as file when the deep copy is not enabled
+		if (!Rename && !(Flags & FCOPY_COPYSYMLINKCONTENTS) && os::fs::is_directory_symbolic_link(SrcData))
+			return false;
+
+		return CmpFullNames(Src, strDestPath);
+	}();
+
+	if (SameName && !Rename)
+	{
+		const lng FolderFileMsgIds[][2]
 		{
-			auto CmpCode = CmpFullNames(Src,strDestPath);
+			{ lng::MCannotCopyFolderToItself1, lng::MCannotCopyFolderToItself2 },
+			{ lng::MCannotCopyFileToItself1,   lng::MCannotCopyFileToItself2 },
+		};
 
-			if(CmpCode && SrcData.Attributes&FILE_ATTRIBUTE_REPARSE_POINT && RPT==RP_EXACTCOPY && !(Flags&FCOPY_COPYSYMLINKCONTENTS))
+		const auto& MsgIds = FolderFileMsgIds[DestAttr & FILE_ATTRIBUTE_DIRECTORY? 0 : 1];
+
+		Message(MSG_WARNING,
+			msg(lng::MError),
 			{
-				CmpCode = false;
-			}
+				msg(MsgIds[0]),
+				QuoteOuterSpace(Src),
+				msg(MsgIds[1]),
+			},
+			{ lng::MOk },
+			L"ErrCopyItSelf"sv);
 
-			if (CmpCode) // TODO: error check
-			{
-				SameName = true;
+		cancel_operation();
+	}
 
-				if (Rename)
-				{
-					CmpCode = PointToName(Src) == PointToName(strDestPath);
-				}
+	if (!(Flags & FCOPY_COPYTONUL) && !SameName && os::fs::is_directory(DestAttr))
+	{
+		if (!path::is_separator(strDestPath.back()) && strDestPath.back() != L':')
+			strDestPath += path::separator;
 
-				if (CmpCode)
-				{
-					Message(MSG_WARNING,
-						msg(lng::MError),
-						{
-							msg(lng::MCannotCopyFolderToItself1),
-							Src,
-							msg(lng::MCannotCopyFolderToItself2)
-						},
-						{ lng::MOk },
-						L"ErrCopyItSelf"sv);
-					cancel_operation();
-				}
-			}
-		}
+		auto Path = string_view(Src).substr(KeepPathPos);
 
-		if (!SameName)
-		{
-			const auto Length = strDestPath.size();
+		if (Path.size() > 1 && !KeepPathPos && Path[1] == L':')
+			Path.remove_prefix(2);
 
-			if (!path::is_separator(strDestPath[Length-1]) && strDestPath[Length-1]!=L':')
-				strDestPath += path::separator;
+		if (path::is_separator(Path.front()))
+			Path.remove_prefix(1);
 
-			auto Path = string_view(Src).substr(KeepPathPos);
+		append(strDestPath, Path);
 
-			if (Path.size() > 1 && !KeepPathPos && Path[1] == L':')
-				Path.remove_prefix(2);
-
-			if (path::is_separator(Path.front()))
-				Path.remove_prefix(1);
-
-			append(strDestPath, Path);
-
-			if (!os::fs::get_find_data(strDestPath, DestData))
-				DestAttr=INVALID_FILE_ATTRIBUTES;
-			else
-				DestAttr=DestData.Attributes;
-		}
+		DestAttr= os::fs::get_find_data(strDestPath, DestData)?
+			DestData.Attributes :
+			INVALID_FILE_ATTRIBUTES;
 	}
 
 	if (!(Flags&FCOPY_COPYTONUL) && !equal_icase(strDestPath, L"prn"sv))
@@ -2055,39 +2054,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 		if (DestAttr!=INVALID_FILE_ATTRIBUTES && !(DestAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
-			if (SrcData.FileSize==DestData.FileSize)
-			{
-				int CmpCode=CmpFullNames(Src,strDestPath);
-
-				if(CmpCode && SrcData.Attributes&FILE_ATTRIBUTE_REPARSE_POINT && RPT==RP_EXACTCOPY && !(Flags&FCOPY_COPYSYMLINKCONTENTS))
-				{
-					CmpCode = 0;
-				}
-
-				if (CmpCode==1) // TODO: error check
-				{
-					SameName = true;
-
-					if (Rename)
-					{
-						CmpCode = PointToName(Src) == PointToName(strDestPath);
-					}
-
-					if (CmpCode==1 && !Rename)
-					{
-						Message(MSG_WARNING,
-							msg(lng::MError),
-							{
-								msg(lng::MCannotCopyFileToItself1),
-								QuoteOuterSpace(Src),
-								msg(lng::MCannotCopyFileToItself2)
-							},
-							{ lng::MOk });
-						cancel_operation();
-					}
-				}
-			}
-
 			auto RetCode = COPY_FAILURE;
 			string strNewName;
 

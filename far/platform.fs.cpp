@@ -1739,12 +1739,21 @@ namespace os::fs
 			return false;
 		};
 
+		const auto Existed = exists(NtNewDirectory);
+
 		if (TemplateDirectory.empty())
 			return Create({});
 
-		return Create(NTPath(TemplateDirectory)) ||
-			// CreateDirectoryEx may fail on some FS, try to create anyway.
-			Create({});
+		if (Create(NTPath(TemplateDirectory)))
+			return true;
+
+		// CreateDirectoryEx not only can fail on some buggy FS (e.g. Samba),
+		// but can also leave rubbish (see gh-368). Shame on them.
+		// Try to restore the status quo and fall back to the simple method:
+		if (!Existed && exists(NtNewDirectory))
+			(void)remove_directory(NtNewDirectory);
+
+		return Create({});
 	}
 
 	bool remove_directory(const string_view DirName)
