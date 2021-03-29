@@ -79,6 +79,19 @@ private:
 	PTOP_LEVEL_EXCEPTION_FILTER m_PreviousFilter;
 };
 
+class purecall_handler
+{
+public:
+	NONCOPYABLE(purecall_handler);
+
+	purecall_handler();
+	~purecall_handler();
+
+private:
+	_purecall_handler m_PreviousHandler;
+};
+
+
 void restore_system_exception_handler();
 
 namespace detail

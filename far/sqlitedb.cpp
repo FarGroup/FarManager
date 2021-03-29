@@ -122,7 +122,7 @@ namespace
 			DatabaseName,
 			ErrorCode,
 			ErrorString.empty()? GetErrorString(ErrorCode) : ErrorString,
-			SystemErrorCode? format(FSTR(L" ({})"sv), os::format_system_error(SystemErrorCode, os::GetErrorString(false, SystemErrorCode))) : L""s
+			SystemErrorCode? format(FSTR(L" ({})"sv), os::format_error(SystemErrorCode)) : L""s
 		));
 	}
 

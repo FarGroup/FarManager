@@ -61,26 +61,26 @@ error_state last_error()
 
 string error_state::ErrnoStr() const
 {
-	return _wcserror(Errno);
+	return os::format_errno(Errno);
 }
 
 string error_state::Win32ErrorStr() const
 {
-	return os::GetErrorString(false, Win32Error);
+	return os::format_error(Win32Error);
 }
 
 string error_state::NtErrorStr() const
 {
-	return os::GetErrorString(true, NtError);
+	return os::format_ntstatus(NtError);
 }
 
 std::array<string, 3> error_state::format_errors() const
 {
 	return
 	{
-		os::format_system_error(Errno, ErrnoStr()),
-		os::format_system_error(Win32Error, Win32ErrorStr()),
-		os::format_system_error(NtError, NtErrorStr())
+		ErrnoStr(),
+		Win32ErrorStr(),
+		NtErrorStr()
 	};
 }
 
@@ -124,9 +124,7 @@ string error_state_ex::format_error() const
 
 	constexpr auto UseNtMessages = false;
 
-	return Str + os::format_system_error(
-		UseNtMessages? NtError : Win32Error,
-		UseNtMessages? NtErrorStr() : Win32ErrorStr());
+	return Str + (UseNtMessages? NtErrorStr() : Win32ErrorStr());
 }
 
 std::wostream& operator<<(std::wostream& Stream, error_state const& e)

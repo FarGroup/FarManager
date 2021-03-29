@@ -145,21 +145,39 @@ void set_last_error_from_ntstatus(NTSTATUS const Status)
 		SetLastError(imports.RtlNtStatusToDosError(Status));
 }
 
-string GetErrorString(bool Nt, DWORD Code)
+static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 {
 	memory::local::ptr<wchar_t> Buffer;
-	const size_t Size = FormatMessage((Nt? FORMAT_MESSAGE_FROM_HMODULE : FORMAT_MESSAGE_FROM_SYSTEM) | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS, (Nt? GetModuleHandle(L"ntdll.dll") : nullptr), Code, 0, reinterpret_cast<wchar_t*>(&ptr_setter(Buffer)), 0, nullptr);
+	const size_t Size = FormatMessage((Nt? FORMAT_MESSAGE_FROM_HMODULE : FORMAT_MESSAGE_FROM_SYSTEM) | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS, (Nt? GetModuleHandle(L"ntdll.dll") : nullptr), ErrorCode, 0, reinterpret_cast<wchar_t*>(&ptr_setter(Buffer)), 0, nullptr);
 	string Result(Buffer.get(), Size);
 	std::replace_if(ALL_RANGE(Result), IsEol, L' ');
 	inplace::trim_right(Result);
+
 	return Result;
 }
 
-string format_system_error(unsigned int const ErrorCode, string_view const ErrorMessage)
+static string postprocess_error_string(unsigned const ErrorCode, string&& Str)
 {
-	return format(FSTR(L"0x{:0>8X} - {}"sv), ErrorCode, ErrorMessage);
+	std::replace_if(ALL_RANGE(Str), IsEol, L' ');
+	inplace::trim_right(Str);
+	return format(FSTR(L"0x{:0>8X} - {}"sv), ErrorCode, Str.empty() ? L"Unknown error"sv : Str);
 }
 
+[[nodiscard]]
+string format_errno(int const ErrorCode)
+{
+	return postprocess_error_string(ErrorCode, _wcserror(ErrorCode));
+}
+
+string format_error(DWORD const ErrorCode)
+{
+	return postprocess_error_string(ErrorCode, format_error_impl(ErrorCode, false));
+}
+
+string format_ntstatus(NTSTATUS const Status)
+{
+	return postprocess_error_string(Status, format_error_impl(Status, true));
+}
 
 last_error_guard::last_error_guard():
 	m_LastError(GetLastError()),

@@ -1102,7 +1102,7 @@ static string exception_details(EXCEPTION_RECORD const& ExceptionRecord, string_
 		return string(Message);
 
 	default:
-		return os::GetErrorString(true, ExceptionRecord.ExceptionCode);
+		return os::format_ntstatus(ExceptionRecord.ExceptionCode);
 	}
 }
 
@@ -1410,11 +1410,9 @@ static void seh_terminate_handler_impl()
 	InsideTerminateHandler = true;
 
 	// If it's a SEH or a C++ exception implemented in terms of SEH (and not a fake for GCC) it's better to handle it as SEH
-	if (exception_context const Context(exception_information());
-		!is_fake_cpp_exception(Context.exception_record())
-	)
+	if (const auto Info = exception_information(); Info.ContextRecord && Info.ExceptionRecord && !is_fake_cpp_exception(*Info.ExceptionRecord))
 	{
-		if (handle_seh_exception(Context, CURRENT_FUNCTION_NAME, {}))
+		if (handle_seh_exception(exception_context(Info), CURRENT_FUNCTION_NAME, {}))
 			std::abort();
 	}
 
@@ -1485,6 +1483,35 @@ unhandled_exception_filter::unhandled_exception_filter():
 unhandled_exception_filter::~unhandled_exception_filter()
 {
 	SetUnhandledExceptionFilter(m_PreviousFilter);
+}
+
+static void purecall_handler_impl()
+{
+	// VC invokes abort if the user handler isn't set,
+	// so we call terminate here, which we already intercept.
+	// GCC just invokes terminate directly, no further actions needed.
+	std::terminate();
+}
+
+static _purecall_handler set_purecall_handler(_purecall_handler const Handler)
+{
+	return
+#if IS_MICROSOFT_SDK()
+		_set_purecall_handler(Handler)
+#else
+		nullptr
+#endif
+		;
+}
+
+purecall_handler::purecall_handler():
+	m_PreviousHandler(set_purecall_handler(purecall_handler_impl))
+{
+}
+
+purecall_handler::~purecall_handler()
+{
+	set_purecall_handler(m_PreviousHandler);
 }
 
 namespace detail
