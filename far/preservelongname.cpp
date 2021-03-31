@@ -36,10 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Self:
 #include "preservelongname.hpp"
-#include "exception.hpp"
-#include "log.hpp"
 
 // Internal:
+#include "exception.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"

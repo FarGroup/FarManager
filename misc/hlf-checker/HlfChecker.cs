@@ -1,14 +1,27 @@
-<Query Kind="Program">
-  <Reference>&lt;RuntimeDirectory&gt;\System.Windows.Forms.dll</Reference>
-  <Namespace>System.Runtime.CompilerServices</Namespace>
-</Query>
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.RegularExpressions;
 
-private static readonly DirectoryInfo FarDirectory = new DirectoryInfo(Path.Combine(Util.CurrentQuery.Location, "..", "..", "far"));
-private static readonly DirectoryInfo PluginsDirectory = new DirectoryInfo(Path.Combine(Util.CurrentQuery.Location, "..", "..", "plugins"));
+namespace HlfChecker
+{
+	class Checker
+	{
+#if LINQPAD
+private static readonly string SelfLocation = Util.CurrentQuery.Location;
+#else
+private static readonly string SelfLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..");
+#endif
+
+private static readonly DirectoryInfo FarDirectory = new DirectoryInfo(Path.Combine(SelfLocation, "..", "..", "far"));
+private static readonly DirectoryInfo PluginsDirectory = new DirectoryInfo(Path.Combine(SelfLocation, "..", "..", "plugins"));
 private static readonly string MasterLanguage = "Eng";
 private static readonly HashSet<string> IgnoredPlugins = new HashSet<string>{ "common", "ftp" };
 
-public void Main(string[] parameters)
+public static int Main(string[] parameters)
 {
 	if (!ParseParameters(
 		parameters,
@@ -16,10 +29,10 @@ public void Main(string[] parameters)
 		out Regex languageFilter,
 		out HlfComparer.ComparisonOptions comparisonOpts))
 	{
-		return;
+		return 1;
 	}
 
-	ValidateDirectories(directories, MasterLanguage, languageFilter, comparisonOpts);
+	return ValidateDirectories(directories, MasterLanguage, languageFilter, comparisonOpts)? 0 : 1;
 }
 
 #region Parameters
@@ -120,19 +133,24 @@ private static List<DirectoryInfo> GetDirectories(List<string> paramList)
 
 #endregion Parameters
 
-private static void ValidateDirectories(
+private static bool ValidateDirectories(
 	IEnumerable<DirectoryInfo> directories,
 	string masterLanguage,
 	Regex languageFilter,
 	HlfComparer.ComparisonOptions comparisonOpts)
 {
+	bool issuesFound = false;
+
 	foreach (var directory in directories)
 	{
-		ValidateDirectory(directory, masterLanguage, languageFilter, comparisonOpts);
+		if (!ValidateDirectory(directory, masterLanguage, languageFilter, comparisonOpts))
+			issuesFound = true;
 	}
+
+	return !issuesFound;
 }
 
-private static void ValidateDirectory(
+private static bool ValidateDirectory(
 	DirectoryInfo directory,
 	string masterLanguage,
 	Regex languageFilter,
@@ -142,17 +160,19 @@ private static void ValidateDirectory(
 	if (engHlfFile == default)
 	{
 		$"Could not find {masterLanguage}.hlf file in {directory.Name}. Skippng.".Trace(printSeparator: true);
-		return;
+		return true;
 	}
 
-	$"Validating diretory {directory.Name}...".Trace(printSeparator: true);
+	$"Validating directory {directory.Name}...".Trace(printSeparator: true);
 
 	var engHlf = ParseAndPrintHlf(engHlfFile.FullName);
 	if (engHlf == default)
 	{
 		$"Errors parsing {engHlfFile.Name}. Exiting.".Trace();
-		return;
+		return false;
 	}
+
+	bool issuesFound = false;
 
 	foreach (var lngHlfFile
 			in directory.EnumerateFiles(@"*.hlf.*").Where(fi => fi.Name != engHlf.HlfName && languageFilter.Match(fi.Name).Success))
@@ -164,8 +184,11 @@ private static void ValidateDirectory(
 			continue;
 		}
 
-		new HlfComparer(engHlf, lngHlf, comparisonOpts).Compare();
+		if (!new HlfComparer(engHlf, lngHlf, comparisonOpts).Compare())
+			issuesFound = true;
 	}
+
+	return !issuesFound;
 }
 
 private static Hlf ParseAndPrintHlf(string hlfPath)
@@ -174,7 +197,7 @@ private static Hlf ParseAndPrintHlf(string hlfPath)
 
 	foreach (var diagnostic in parser.EnumerateDiagnostics())
 	{
-		diagnostic.Dump();
+		Console.WriteLine(diagnostic);
 	}
 
 	var hlf = parser.Hlf;
@@ -191,8 +214,8 @@ private static Hlf ParseAndPrintHlf(string hlfPath)
 	}
 
 	// Use "git diff" to make sure the file was parsed correcly
-	$"Writing back {hlf.HlfName}...".Trace();
-	File.WriteAllLines(hlfPath, hlf.Print(), Encoding.UTF8);
+	//$"Writing back {hlf.HlfName}...".Trace();
+	//File.WriteAllLines(hlfPath, hlf.Print(), Encoding.UTF8);
 	return hlf;
 }
 
@@ -338,7 +361,7 @@ public class HlfComparer
 			$@"Mismatch: {entityName}[{comp.i}]:
     {engHlfName}: {entityName}{Context(comp.eng.ent)}: {comp.eng.elem}
     {lngHlfName}: {entityName}{Context(comp.lng.ent)}: {comp.lng.elem}".Trace();
-				
+
 			result = false;
 		}
 
@@ -667,6 +690,9 @@ public class HlfParser
 	private List<Diagnostics> diagnostics = new List<Diagnostics>();
 }
 
+	}
+}
+
 public class Hlf
 {
 	public string HlfName;
@@ -716,8 +742,8 @@ public static class Extensions
 
 	public static void Trace(this string line, bool printSeparator = false)
 	{
-		string.Empty.Dump();
-		if (printSeparator) Separator.Dump();
-		line.Dump();
+		Console.WriteLine("");
+		if (printSeparator) Console.WriteLine(Separator);
+		Console.WriteLine(line);
 	}
 }

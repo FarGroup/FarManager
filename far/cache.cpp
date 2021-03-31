@@ -35,13 +35,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Self:
 #include "cache.hpp"
+
+// Internal:
 #include "exception.hpp"
 #include "log.hpp"
 
-// Internal:
-#include "platform.fs.hpp"
-
 // Platform:
+#include "platform.fs.hpp"
 
 // Common:
 

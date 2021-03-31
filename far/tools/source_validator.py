@@ -4,6 +4,16 @@ import os.path
 import re
 import traceback
 
+class StyleException(Exception):
+	def __init__(self, file, line, content, message):
+		self.file = file
+		self.line = line
+		self.content = content
+		self.message = message
+
+	def __str__(self):
+		return f"{self.file}({self.line}): {self.message}: {self.content}"
+
 def check(filename):
 	#print(filename)
 	with open(filename, encoding="utf-8") as f:
@@ -33,7 +43,7 @@ def check(filename):
 
 		def Raise(Message, Line=-1):
 			RealLine = LineNumber if Line==-1 else Line
-			raise Exception(RealLine + 1, Message, content[RealLine])
+			raise StyleException(filename, RealLine + 1, content[RealLine], Message)
 
 		if CheckBom and not IsBom:
 			Raise("No BOM")
@@ -176,14 +186,14 @@ def get_list(dir):
 if __name__ == "__main__":
 	extensions = ('.cpp', '.hpp', '.c', '.h')
 	files = get_list(".") + get_list("common") + get_list("common/2d") + get_list("platform.sdk")
+	IssuesFound = False
 	for file in files:
 		ext = os.path.splitext(file)[-1].lower()
 		if ext in extensions:
 			try:
 				check(file)
-			except Exception as e:
-				print(file)
-				traceback.print_exc()
-				#print(e)
-				print()
+			except StyleException as e:
+				IssuesFound = True
+				print(e)
 
+	sys.exit(IssuesFound)
