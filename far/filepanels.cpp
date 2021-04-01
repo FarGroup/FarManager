@@ -658,7 +658,7 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTF7:
 		case KEY_RALTF7:
 		{
-			FindFiles();
+			find_files();
 			break;
 		}
 		case KEY_CTRLUP:  case KEY_CTRLNUMPAD8:

@@ -191,7 +191,7 @@ protected:
 	virtual void RefreshStrByMask(int InitMode=FALSE) {}
 
 	[[nodiscard]]
-	auto CallbackSuppressor() { return make_raii_wrapper(this, &Edit::SuppressCallback, &Edit::RevertCallback); }
+	auto CallbackSuppressor() { return make_raii_wrapper<&Edit::SuppressCallback, &Edit::RevertCallback>(this); }
 
 	void DeleteBlock();
 

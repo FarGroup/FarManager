@@ -77,13 +77,9 @@ ControlObject::ControlObject()
 	HiFiles = std::make_unique<highlight::configuration>();
 	Plugins = std::make_unique<PluginManager>();
 
-	CmdHistory = std::make_unique<History>(HISTORYTYPE_CMD, string{}, Global->Opt->SaveHistory);
-
-	FolderHistory = std::make_unique<History>(HISTORYTYPE_FOLDER, string{}, Global->Opt->SaveFoldersHistory);
-	FolderHistory->SetAddMode(true, 2, true);
-
-	ViewHistory = std::make_unique<History>(HISTORYTYPE_VIEW, string{}, Global->Opt->SaveViewHistory);
-	ViewHistory->SetAddMode(true,Global->Opt->FlagPosixSemantics?1:2,true);
+	CmdHistory = std::make_unique<History>(HISTORYTYPE_CMD, string_view{}, Global->Opt->SaveHistory, false, false);
+	FolderHistory = std::make_unique<History>(HISTORYTYPE_FOLDER, string_view{}, Global->Opt->SaveFoldersHistory, false, true);
+	ViewHistory = std::make_unique<History>(HISTORYTYPE_VIEW, string_view{}, Global->Opt->SaveViewHistory, Global->Opt->FlagPosixSemantics, true);
 
 	FileFilter::InitFilter();
 }
@@ -135,11 +131,6 @@ void ControlObject::close()
 	{
 		if (Global->Opt->AutoSaveSetup)
 			Global->Opt->Save(false);
-
-		if (FPanels->ActivePanel()->GetMode() != panel_mode::PLUGIN_PANEL)
-		{
-			FolderHistory->AddToHistory(FPanels->ActivePanel()->GetCurDir());
-		}
 	}
 
 	Global->WindowManager->CloseAll();

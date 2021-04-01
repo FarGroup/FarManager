@@ -90,6 +90,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "lockscrn.hpp"
 #include "exception_handler.hpp"
+#include "history.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -796,6 +797,30 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			taskbar::flash();
 			return TRUE;
 		}
+
+		case ACTL_SUPPRESSHISTORY:
+			{
+				const auto make_cookie = [](History& Hst)
+				{
+					return reinterpret_cast<intptr_t>(Hst.suppressor().release());
+				};
+
+				switch (static_cast<FAR_HISTORY_TYPE>(Param1))
+				{
+				case HISTORY_COMMANDS: return make_cookie(*Global->CtrlObject->CmdHistory);
+				case HISTORY_VIEWEDIT: return make_cookie(*Global->CtrlObject->ViewHistory);
+				case HISTORY_FOLDERS:  return make_cookie(*Global->CtrlObject->FolderHistory);
+				default:
+					return 0;
+				}
+			}
+
+		case ACTL_RESTOREHISTORY:
+			{
+				using suppressor_type = function_traits<decltype(&History::suppressor)>::result_type;
+				suppressor_type(static_cast<suppressor_type::pointer>(Param2));
+				return TRUE;
+			}
 
 		default:
 			break;

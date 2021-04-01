@@ -410,9 +410,9 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 			case HRT_SHIFTETNER:
 			case HRT_CTRLSHIFTENTER:
 				{
-
-					if (SelectType == HRT_SHIFTETNER)
-						Global->CtrlObject->FolderHistory->SetAddMode(false,2,true);
+					auto Suppressor = Global->CtrlObject->FolderHistory->suppressor();
+					if (SelectType != HRT_SHIFTETNER)
+						Suppressor.reset();
 
 					// пусть плагин сам прыгает... ;-)
 					auto Panel = Global->CtrlObject->Cp()->ActivePanel();
@@ -435,7 +435,6 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 						Panel = Global->CtrlObject->Cp()->ActivePanel();
 					}
 					Panel->Redraw();
-					Global->CtrlObject->FolderHistory->SetAddMode(true,2,true);
 				}
 				break;
 
@@ -847,10 +846,9 @@ void CommandLine::ShowViewEditHistory()
 	case HRT_ENTER:
 	case HRT_SHIFTETNER:
 		{
-			if (SelectType == HRT_ENTER)
-				Global->CtrlObject->ViewHistory->AddToHistory(strStr,Type);
-
-			Global->CtrlObject->ViewHistory->SetAddMode(false,Global->Opt->FlagPosixSemantics?1:2,true);
+			auto Suppressor = Global->CtrlObject->ViewHistory->suppressor();
+			if (SelectType != HRT_SHIFTETNER)
+				Suppressor.reset();
 
 			switch (Type)
 			{
@@ -884,8 +882,6 @@ void CommandLine::ShowViewEditHistory()
 					break;
 				}
 			}
-
-			Global->CtrlObject->ViewHistory->SetAddMode(true,Global->Opt->FlagPosixSemantics?1:2,true);
 		}
 		break;
 

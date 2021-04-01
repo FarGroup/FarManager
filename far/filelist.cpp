@@ -2825,6 +2825,25 @@ bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdat
 
 bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE OfpType, bool const Silent)
 {
+	SCOPE_EXIT
+	{
+		if (m_PanelMode == panel_mode::PLUGIN_PANEL)
+		{
+			Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
+			if (m_CachedOpenPanelInfo.Flags & OPIF_SHORTCUT)
+			{
+				const auto InfoCurDir = NullToEmpty(m_CachedOpenPanelInfo.CurDir);
+				const auto InfoHostFile = NullToEmpty(m_CachedOpenPanelInfo.HostFile);
+				const auto InfoData = NullToEmpty(m_CachedOpenPanelInfo.ShortcutData);
+				Global->CtrlObject->FolderHistory->AddToHistory(InfoCurDir, HR_DEFAULT, &PluginManager::GetUUID(GetPluginHandle()), InfoHostFile, InfoData);
+			}
+		}
+		else
+		{
+			Global->CtrlObject->FolderHistory->AddToHistory(GetCurDir());
+		}
+	};
+
 	if (m_PanelMode != panel_mode::PLUGIN_PANEL && !IsAbsolutePath(NewDir) && !equal_icase(os::fs::GetCurrentDirectory(), m_CurDir))
 		FarChDir(m_CurDir);
 
@@ -2876,13 +2895,8 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		/* $ 16.01.2002 VVM
 		  + Если у плагина нет OPIF_REALNAMES, то история папок не пишется в реестр */
 		string strInfoCurDir = NullToEmpty(m_CachedOpenPanelInfo.CurDir);
-		//string strInfoFormat=NullToEmpty(Info.Format);
 		string strInfoHostFile = NullToEmpty(m_CachedOpenPanelInfo.HostFile);
-		if (m_CachedOpenPanelInfo.Flags&OPIF_SHORTCUT)
-		{
-			const auto strInfoData = NullToEmpty(m_CachedOpenPanelInfo.ShortcutData);
-			Global->CtrlObject->FolderHistory->AddToHistory(strInfoCurDir, HR_DEFAULT, &PluginManager::GetUUID(GetPluginHandle()), strInfoHostFile, strInfoData);
-		}
+
 		/* $ 25.04.01 DJ
 		   при неудаче SetDirectory не сбрасываем выделение
 		*/
@@ -2936,9 +2950,6 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 	}
 	else
 	{
-		if (!equal_icase(ConvertNameToFull(strSetDir), m_CurDir))
-			Global->CtrlObject->FolderHistory->AddToHistory(m_CurDir);
-
 		if (IsParent)
 		{
 			if (RootPath)
@@ -5006,9 +5017,6 @@ bool FileList::ApplyCommand()
 				Info.Command = strConvertedCommand;
 
 				Parent()->GetCmdLine()->ExecString(Info);
-
-				//if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))
-				//	Global->CtrlObject->CmdHistory->AddToHistory(strConvertedCommand);
 			}
 
 			ClearLastGetSelection();
@@ -6336,11 +6344,6 @@ int FileList::ProcessOneHostFile(const FileListItem* Item)
 void FileList::SetPluginMode(std::unique_ptr<plugin_panel>&& PluginPanel, string_view const PluginFile, bool SendOnFocus)
 {
 	const auto ParentWindow = Parent();
-
-	if (m_PanelMode != panel_mode::PLUGIN_PANEL)
-	{
-		Global->CtrlObject->FolderHistory->AddToHistory(m_CurDir);
-	}
 
 	PushPlugin(std::move(PluginPanel), PluginFile);
 

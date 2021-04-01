@@ -228,6 +228,23 @@ private:
 	typename T::pointer m_RawPtr{};
 };
 
+template<auto acquire, auto release, typename owner>
+[[nodiscard]]
+auto make_raii_wrapper(owner* Owner)
+{
+	std::invoke(acquire, Owner);
+
+	struct releaser
+	{
+		void operator()(owner* const OwnerPtr) const
+		{
+			std::invoke(release, OwnerPtr);
+		}
+	};
+
+	return std::unique_ptr<owner, releaser>(Owner);
+}
+
 template<typename owner, typename acquire, typename release>
 [[nodiscard]]
 auto make_raii_wrapper(owner* Owner, const acquire& Acquire, const release& Release)

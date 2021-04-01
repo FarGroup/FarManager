@@ -255,7 +255,7 @@ namespace os::concurrency
 		}
 
 		[[nodiscard]]
-		auto scoped_lock() { return make_raii_wrapper(this, &synced_queue::lock, &synced_queue::unlock); }
+		auto scoped_lock() { return make_raii_wrapper<&synced_queue::lock, &synced_queue::unlock>(this); }
 
 	private:
 		// Q: Why not just use CTAD?

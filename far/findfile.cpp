@@ -97,6 +97,125 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+class InterThreadData;
+struct FindListItem;
+
+// BUGBUG Cleanup
+class FindFiles: noncopyable
+{
+public:
+	// Список архивов. Если файл найден в архиве, то FindList->ArcIndex указывает сюда.
+	struct ArcListItem
+	{
+		string strArcName;
+		plugin_panel* hPlugin; // Plugin handle
+		unsigned long long Flags; // OpenPanelInfo.Flags
+		string strRootPath; // Root path in plugin after opening.
+	};
+public:
+	FindFiles();
+	~FindFiles();
+
+	const std::unique_ptr<filemasks>& GetFileMask() const { return FileMaskForFindFile; }
+	const std::unique_ptr<FileFilter>& GetFilter() const { return Filter; }
+	static bool IsWordDiv(wchar_t symbol);
+	// BUGBUG
+	void AddMenuRecord(Dialog* Dlg, string_view FullName, const os::fs::find_data& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc);
+
+	enum type2
+	{
+		data,
+		push,
+		pop
+	};
+
+	struct AddMenuData
+	{
+		type2 m_Type{ data };
+		FindFiles* m_Owner{};
+		Dialog* m_Dlg{};
+		string m_FullName;
+		os::fs::find_data m_FindData;
+		void* m_Data{};
+		FARPANELITEMFREECALLBACK m_FreeData{};
+		ArcListItem* m_Arc{};
+
+		AddMenuData() = default;
+		explicit AddMenuData(type2 Type): m_Type(Type) {}
+		AddMenuData(string_view FullName, const os::fs::find_data& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData, ArcListItem* Arc):
+			m_FullName(FullName),
+			m_FindData(FindData),
+			m_Data(Data),
+			m_FreeData(FreeData),
+			m_Arc(Arc)
+		{
+		}
+	};
+
+	std::unique_ptr<InterThreadData> itd;
+	os::synced_queue<AddMenuData> m_Messages;
+
+	[[nodiscard]]
+	auto ScopedLock() { return make_raii_wrapper<&FindFiles::Lock, &FindFiles::Unlock>(this); }
+
+private:
+	// BUGBUG
+	void Lock() { PluginCS.lock(); }
+	void Unlock() { PluginCS.unlock(); }
+	string &PrepareDriveNameStr(string &strSearchFromRoot) const;
+	void AdvancedDialog() const;
+	intptr_t MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	intptr_t FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	void OpenFile(const string& strSearchFileName, int OpenKey, const FindListItem* FindItem, Dialog* Dlg) const;
+	bool FindFilesProcess();
+	void ProcessMessage(const AddMenuData& Data);
+	void SetPluginDirectory(string_view DirName, const plugin_panel* hPlugin, bool UpdatePanel, const UserDataItem *UserData);
+	bool GetPluginFile(struct ArcListItem const* ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, const UserDataItem* UserData);
+
+	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
+
+	// BUGBUG
+	bool AnySetFindList{};
+	bool CmpCase{};
+	bool WholeWords{};
+	bool SearchInArchives{};
+	bool SearchHex{};
+	bool NotContaining{};
+	bool UseFilter{};
+	bool FindFoldersChanged{};
+	bool SearchFromChanged{};
+	bool FindPositionChanged{};
+	bool Finalized{};
+	bool PluginMode{};
+	FINDAREA SearchMode{ FINDAREA_ALL };
+	int favoriteCodePages{};
+	uintptr_t CodePage{ CP_DEFAULT };
+	struct FindListItem* FindExitItem{};
+	string strFindMask;
+	string strFindStr;
+	std::unique_ptr<filemasks> FileMaskForFindFile;
+	std::unique_ptr<FileFilter> Filter;
+
+	std::unique_ptr<delayed_deleter> m_DelayedDeleter;
+
+	int m_FileCount{};
+	int m_DirCount{};
+	int m_LastFoundNumber{};
+
+	os::critical_section PluginCS;
+
+	time_check m_TimeCheck;
+	// BUGBUG
+	class background_searcher* m_Searcher{};
+	std::exception_ptr m_ExceptionPtr;
+	std::stack<string> m_LastDir;
+	string m_LastDirName;
+	Dialog* m_ResultsDialogPtr{};
+	bool m_EmptyArc{};
+	os::event m_MessageEvent;
+};
+
+
 // Список найденных файлов. Индекс из списка хранится в меню.
 struct FindListItem
 {
@@ -3079,4 +3198,9 @@ background_searcher::background_searcher(
 	PauseEvent(os::event::type::manual, os::event::state::signaled),
 	StopEvent(os::event::type::manual, os::event::state::nonsignaled)
 {
+}
+
+void find_files()
+{
+	FindFiles();
 }

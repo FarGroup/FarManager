@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/function_ref.hpp"
 #include "common/noncopyable.hpp"
+#include "common/smart_ptr.hpp"
 
 // External:
 
@@ -85,7 +86,7 @@ enum history_return_type
 class History: noncopyable
 {
 public:
-	History(history_type TypeHistory, string_view HistoryName, const BoolOption& EnableSave);
+	History(history_type TypeHistory, string_view HistoryName, const BoolOption& EnableSave, bool CaseSensitive, bool KeepSelectedPos);
 
 	void AddToHistory(string_view Str, history_record_type Type = HR_DEFAULT, const UUID* Uuid = nullptr, string_view File = {}, string_view Data = {});
 	history_return_type Select(string_view Title, string_view HelpTopic, string& strStr, history_record_type& Type, UUID* Uuid = nullptr, string* File = nullptr, string* Data = nullptr);
@@ -94,7 +95,6 @@ public:
 	string GetNext();
 	bool GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
 	void GetAllSimilar(string_view Str, function_ref<void(string_view Name, unsigned long long Id, bool IsLocked)> Callback) const;
-	void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
 	void ResetPosition() { m_CurrentItem = 0; }
 	bool DeleteIfUnlocked(unsigned long long id);
 	bool ReadLastItem(string_view HistoryName, string &strStr) const;
@@ -102,18 +102,24 @@ public:
 
 	static void CompactHistory();
 
+	[[nodiscard]]
+	auto suppressor() { return make_raii_wrapper<&History::suppress_add, &History::restore_add>(this); }
+
 private:
 	bool EqualType(history_record_type Type1, history_record_type Type2) const;
 	history_return_type ProcessMenu(string& strStr, UUID* Uuid, string* File, string* Data, string_view Title, VMenu2& HistoryMenu, int Height, history_record_type& Type, const Dialog* Dlg);
 	const std::unique_ptr<HistoryConfig>& HistoryCfgRef() const;
 
+	void suppress_add();
+	void restore_add();
+
 	history_type m_TypeHistory;
 	string m_HistoryName;
 	const BoolOption& m_EnableSave;
-	bool m_EnableAdd;
+	std::atomic_size_t m_SuppressAdd{};
 	bool m_KeepSelectedPos;
-	int m_RemoveDups;
-	unsigned long long m_CurrentItem;
+	bool m_CaseSensitive;
+	unsigned long long m_CurrentItem{};
 };
 
 #endif // HISTORY_HPP_B662E92D_BF1B_4B20_AD60_8959531FA6EE
