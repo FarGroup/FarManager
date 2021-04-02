@@ -16,10 +16,13 @@ final.*.gcc*
 
 # VS
 .vs
+bin
+obj
 ipch
 *.db
 *.opendb
 *.vcxproj.user
+*.csproj.user
 *.suo
 
 #InteliJ
