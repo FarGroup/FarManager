@@ -142,16 +142,16 @@ private:
 
 	box_type m_BoxType{ box_type::full };
 	int MaxHeight;
-	int cancel;
-	int m_X1;
-	int m_Y1;
-	int m_X2;
-	int m_Y2;
-	INPUT_RECORD DefRec;
-	int InsideCall;
-	bool NeedResize;
-	bool closing;
-	bool ForceClosing;
+	int cancel{};
+	int m_X1{-1};
+	int m_Y1{-1};
+	int m_X2{};
+	int m_Y2{};
+	INPUT_RECORD DefRec{};
+	int InsideCall{};
+	bool NeedResize{};
+	bool closing{};
+	bool ForceClosing{};
 	std::function<int(int Msg, void *param)> mfn;
 };
 

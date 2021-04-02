@@ -86,10 +86,10 @@ private:
 	UserDataItem CurUserData{};
 	string strCurFileType;
 	DirInfoData Data;
-	bool OldWrapMode;
-	bool OldWrapType;
-	bool m_TemporaryFile;
-	bool uncomplete_dirscan;
+	bool OldWrapMode{};
+	bool OldWrapType{};
+	bool m_TemporaryFile{};
+	bool uncomplete_dirscan{};
 
 	enum class scan_status
 	{

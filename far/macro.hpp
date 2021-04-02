@@ -125,8 +125,8 @@ private:
 	FARMACROSTATE m_Recording;
 	string m_RecCode;
 	string m_RecDescription;
-	int m_InternalInput;
-	int m_WaitKey;
+	int m_InternalInput{};
+	int m_WaitKey{};
 	string_view m_StringToPrint;
 };
 

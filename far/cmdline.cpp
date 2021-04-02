@@ -328,7 +328,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 
 		case KEY_F2:
 		{
-			UserMenu(false);
+			user_menu(false);
 			return true;
 		}
 		case KEY_ALTF8:

@@ -84,12 +84,7 @@ static const wchar_t EDMASK_ALPHA  = L'A'; // позволяет вводить 
 static const wchar_t EDMASK_HEX    = L'H'; // позволяет вводить в строку ввода шестнадцатиричные символы.
 
 Edit::Edit(window_ptr Owner):
-	SimpleScreenObject(std::move(Owner)),
-	m_CurPos(0),
-	m_SelStart(-1),
-	m_SelEnd(0),
-	LeftPos(0),
-	m_Eol(eol::none)
+	SimpleScreenObject(std::move(Owner))
 {
 	m_Flags.Set(FEDITLINE_EDITBEYONDEND);
 	const auto& EdOpt = Global->Opt->EdOpt;

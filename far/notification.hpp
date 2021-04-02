@@ -107,13 +107,9 @@ public:
 	bool dispatch();
 
 	[[nodiscard]]
-	auto suppress()
+	auto suppressor()
 	{
-		return make_raii_wrapper(
-			this,
-			[](message_manager* Owner){ ++Owner->m_suppressions; },
-			[](message_manager* Owner){ --Owner->m_suppressions; }
-		);
+		return make_raii_wrapper<&message_manager::suppress, &message_manager::restore>(this);
 	}
 
 private:
@@ -122,13 +118,16 @@ private:
 	message_manager();
 	~message_manager();
 
+	void suppress();
+	void restore();
+
 	// Note: non-std - std is incompatible with Win2k
 	using mutex_type = os::concurrency::shared_mutex;
 	mutex_type m_RWLock;
 	message_queue m_Messages;
 	handlers_map m_Handlers;
 	std::unique_ptr<wm_listener> m_Window;
-	std::atomic_ulong m_suppressions{};
+	std::atomic_size_t m_suppressions{};
 };
 
 class listener: noncopyable

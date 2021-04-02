@@ -156,10 +156,10 @@ private:
 	std::vector<TreeItem> m_SavedListData;
 	const string m_Empty; // bugbug
 	string m_Root;
-	size_t m_WorkDir;
-	size_t m_SavedWorkDir;
-	long m_GetSelPosition;
-	int m_ExitCode; // актуально только для дерева, вызванного из копира!
+	size_t m_WorkDir{};
+	size_t m_SavedWorkDir{};
+	long m_GetSelPosition{};
+	int m_ExitCode{1}; // актуально только для дерева, вызванного из копира!
 	bool m_ReadingTree{};
 };
 

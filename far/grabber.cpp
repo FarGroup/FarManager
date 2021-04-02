@@ -61,9 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-Grabber::Grabber(private_tag):
-	ResetArea(true),
-	m_VerticalBlock(false)
+Grabber::Grabber(private_tag)
 {
 	ScreenObject::SetPosition({ 0, 0, ScrX, ScrY });
 }

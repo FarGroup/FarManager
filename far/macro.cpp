@@ -517,9 +517,7 @@ static panel_ptr SelectPanel(long long const Which)
 KeyMacro::KeyMacro():
 	m_Area(MACROAREA_SHELL),
 	m_StartMode(MACROAREA_OTHER),
-	m_Recording(MACROSTATE_NOMACRO),
-	m_InternalInput(0),
-	m_WaitKey(0)
+	m_Recording(MACROSTATE_NOMACRO)
 {
 	//print_opcodes();
 }
@@ -748,11 +746,11 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 static void ShowUserMenu(size_t Count, const FarMacroValue *Values)
 {
 	if (Count==0)
-		UserMenu(false);
+		user_menu(false);
 	else if (Values[0].Type==FMVT_BOOLEAN)
-		UserMenu(Values[0].Boolean != 0);
+		user_menu(Values[0].Boolean != 0);
 	else if (Values[0].Type==FMVT_STRING)
-		UserMenu(string(Values[0].String));
+		user_menu(string_view(Values[0].String));
 }
 
 int KeyMacro::GetKey()

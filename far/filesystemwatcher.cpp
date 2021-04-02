@@ -54,13 +54,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-FileSystemWatcher::FileSystemWatcher():
-	m_WatchSubtree(false),
-	m_Cancelled(os::event::type::manual, os::event::state::nonsignaled)
-{
-}
-
-
 FileSystemWatcher::~FileSystemWatcher()
 {
 	try

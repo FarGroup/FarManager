@@ -233,12 +233,7 @@ static bool CASHook(const Manager::Key& key)
 	return true;
 }
 
-Manager::Manager():
-	m_NonModalSize(0),
-	EndLoop(false),
-	ModalExitCode(-1),
-	StartManager(false),
-	m_DesktopModalled(0)
+Manager::Manager()
 {
 	m_windows.reserve(1024);
 	AddGlobalKeyHandler(CASHook);

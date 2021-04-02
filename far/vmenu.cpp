@@ -90,24 +90,9 @@ static MenuItemEx FarList2MenuItem(const FarListItem& FItem)
 
 VMenu::VMenu(private_tag, string Title, int MaxHeight, dialog_ptr ParentDialog):
 	strTitle(std::move(Title)),
-	SelectPos(-1),
-	SelectPosResult(-1),
-	TopPos(0),
 	MaxHeight(MaxHeight),
-	WasAutoHeight(false),
-	m_MaxLength(0),
 	m_BoxType(DOUBLE_BOX),
-	PrevCursorVisible(),
-	PrevCursorSize(),
 	ParentDialog(ParentDialog),
-	DialogItemID(),
-	bFilterEnabled(false),
-	bFilterLocked(false),
-	ItemHiddenCount(0),
-	ItemSubMenusCount(0),
-	Colors(),
-	MaxLineWidth(),
-	bRightBtnPressed(),
 	MenuId(FarUuid)
 {
 }

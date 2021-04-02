@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 02.04.2021 01:25:54 +0100 - build 5774
+
+1. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 01.04.2021 23:08:23 +0100 - build 5773
 
 1. Experimental: view / edit history is now updated as soon as the file is opened instead of at exit.

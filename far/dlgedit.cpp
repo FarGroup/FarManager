@@ -55,14 +55,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 DlgEdit::DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type):
 	SimpleScreenObject(std::move(Owner)),
-	LastPartLength(-1),
 	m_Index(Index),
-	Type(Type),
-	iHistory(nullptr),
-#if defined(PROJECT_DI_MEMOEDIT)
-	multiEdit(nullptr),
-#endif
-	lineEdit(nullptr)
+	Type(Type)
 {
 	switch (Type)
 	{

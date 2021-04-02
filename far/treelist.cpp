@@ -394,11 +394,7 @@ tree_panel_ptr TreeList::create(window_ptr Owner, int ModalMode)
 }
 
 TreeList::TreeList(private_tag, window_ptr Owner, int ModalMode):
-	Panel(std::move(Owner)),
-	m_WorkDir(0),
-	m_SavedWorkDir(0),
-	m_GetSelPosition(0),
-	m_ExitCode(1)
+	Panel(std::move(Owner))
 {
 	m_Type = panel_type::TREE_PANEL;
 	m_CurFile=m_CurTopFile=0;

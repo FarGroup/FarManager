@@ -243,7 +243,7 @@ protected:
 	edit_string m_Str;
 
 	// KEEP ALIGNED!
-	int m_CurPos;
+	int m_CurPos{};
 private:
 	friend class DlgEdit;
 	friend class Editor;
@@ -251,10 +251,10 @@ private:
 
 	// KEEP ALIGNED!
 	std::multiset<ColorItem> ColorList;
-	int m_SelStart;
-	int m_SelEnd;
-	int LeftPos;
-	eol m_Eol;
+	int m_SelStart{-1};
+	int m_SelEnd{};
+	int LeftPos{};
+	eol m_Eol{eol::none};
 };
 
 #endif // EDIT_HPP_5A787FA0_4FFF_4A61_811F_F8BAEDEF241B

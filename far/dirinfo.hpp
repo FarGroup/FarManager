@@ -61,17 +61,17 @@ enum GETDIRINFOFLAGS
 
 struct BasicDirInfoData
 {
-	DWORD DirCount;
-	DWORD FileCount;
-	unsigned long long FileSize;
-	unsigned long long AllocationSize;
+	DWORD DirCount{};
+	DWORD FileCount{};
+	unsigned long long FileSize{};
+	unsigned long long AllocationSize{};
 };
 
 struct DirInfoData: public BasicDirInfoData
 {
-	unsigned long long FilesSlack;
-	unsigned long long MFTOverhead;
-	unsigned long long ClusterSize;
+	unsigned long long FilesSlack{};
+	unsigned long long MFTOverhead{};
+	unsigned long long ClusterSize{};
 };
 
 enum getdirinfo_message_delay

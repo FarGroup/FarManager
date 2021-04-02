@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class FileSystemWatcher: noncopyable
 {
 public:
-	FileSystemWatcher();
+	FileSystemWatcher() = default;
 	~FileSystemWatcher();
 	void Set(string_view Directory, bool WatchSubtree);
 	void Watch(bool got_focus=false, bool check_time=true);
@@ -64,10 +64,10 @@ private:
 	string m_Directory;
 	os::chrono::time_point m_PreviousLastWriteTime;
 	os::chrono::time_point m_CurrentLastWriteTime;
-	bool m_WatchSubtree;
+	bool m_WatchSubtree{};
 	mutable os::thread m_RegistrationThread;
 	os::fs::find_notification_handle m_Notification;
-	os::event m_Cancelled;
+	os::event m_Cancelled{ os::event::type::manual, os::event::state::nonsignaled };
 	std::optional<bool> m_IsFatFilesystem;
 	mutable std::exception_ptr m_ExceptionPtr;
 	bool m_IsRegularException{};
