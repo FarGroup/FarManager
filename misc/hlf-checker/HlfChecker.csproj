@@ -4,7 +4,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <ProjectGuid>{0E976D42-04C6-4DE7-AF97-7692A020525C}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <NoStandardLibraries>false</NoStandardLibraries>
     <AssemblyName>HlfChecker</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>

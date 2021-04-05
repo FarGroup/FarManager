@@ -3,12 +3,19 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace HlfChecker
 {
-	class Checker
+	[Flags]
+	public enum ProcessingOptions
+	{
+		None = 0,
+		Verbose = 1,
+		StrictRefs = 2
+	}
+
+	public class Checker
 	{
 #if LINQPAD
 private static readonly string SelfLocation = Util.CurrentQuery.Location;
@@ -27,12 +34,12 @@ public static int Main(string[] parameters)
 		parameters,
 		out List<DirectoryInfo> directories,
 		out Regex languageFilter,
-		out HlfComparer.ComparisonOptions comparisonOpts))
+		out ProcessingOptions options))
 	{
 		return 1;
 	}
 
-	return ValidateDirectories(directories, MasterLanguage, languageFilter, comparisonOpts)? 0 : 1;
+	return ValidateDirectories(directories, MasterLanguage, languageFilter, options) ? 0 : 1;
 }
 
 #region Parameters
@@ -41,11 +48,11 @@ private static bool ParseParameters(
 	string[] parameters,
 	out List<DirectoryInfo> directories,
 	out Regex languageFilter,
-	out HlfComparer.ComparisonOptions comparisonOpts)
+	out ProcessingOptions options)
 {
 	var paramList = parameters?.ToList() ?? new List<string>();
 
-	comparisonOpts = GetComparisonOptions(paramList);
+	options = GetComparisonOptions(paramList);
 
 	directories = default;
 
@@ -57,19 +64,21 @@ private static bool ParseParameters(
 }
 
 private static List<string> OptionNames =
-	Enum.GetNames(typeof(HlfComparer.ComparisonOptions)).Where(n => n != HlfComparer.ComparisonOptions.None.ToString()).ToList();
+	Enum.GetNames(typeof(ProcessingOptions)).Where(n => n != ProcessingOptions.None.ToString()).ToList();
 
 // Filters paramList
-private static HlfComparer.ComparisonOptions GetComparisonOptions(List<string> paramList)
+private static ProcessingOptions GetComparisonOptions(List<string> paramList)
 {
-	HlfComparer.ComparisonOptions comparisonOpts = default;
+	ProcessingOptions options = default;
 	var outParamList = new List<string>(paramList.Count);
 
 	foreach (var parameter in paramList)
 	{
-		if (OptionNames.Contains(parameter, StringComparer.OrdinalIgnoreCase))
+		var optionName = OptionNames.Find(opt => opt.Equals(parameter, StringComparison.OrdinalIgnoreCase));
+
+		if (optionName != default)
 		{
-			comparisonOpts |= (HlfComparer.ComparisonOptions)Enum.Parse(typeof(HlfComparer.ComparisonOptions), parameter);
+			options |= (ProcessingOptions)Enum.Parse(typeof(ProcessingOptions), optionName);
 		}
 		else
 		{
@@ -80,9 +89,9 @@ private static HlfComparer.ComparisonOptions GetComparisonOptions(List<string> p
 	paramList.Clear();
 	paramList.AddRange(outParamList);
 
-	$"Using comparison options: ({comparisonOpts}).".Trace();
+	$"Using comparison options: ({options}).".Trace();
 
-	return comparisonOpts;
+	return options;
 }
 
 private static readonly Regex ValidLanguageFilter = new Regex(@"^[+-]\p{L}{3}$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -137,24 +146,16 @@ private static bool ValidateDirectories(
 	IEnumerable<DirectoryInfo> directories,
 	string masterLanguage,
 	Regex languageFilter,
-	HlfComparer.ComparisonOptions comparisonOpts)
+	ProcessingOptions options)
 {
-	bool issuesFound = false;
-
-	foreach (var directory in directories)
-	{
-		if (!ValidateDirectory(directory, masterLanguage, languageFilter, comparisonOpts))
-			issuesFound = true;
-	}
-
-	return !issuesFound;
+	return directories.Aggregate(0, (issues, directory) => issues += ValidateDirectory(directory, masterLanguage, languageFilter, options) ? 0 : 1) == 0;
 }
 
 private static bool ValidateDirectory(
 	DirectoryInfo directory,
 	string masterLanguage,
 	Regex languageFilter,
-	HlfComparer.ComparisonOptions comparisonOpts)
+	ProcessingOptions options)
 {
 	var engHlfFile = directory.EnumerateFiles($@"*{masterLanguage}.hlf.*").SingleOrDefault();
 	if (engHlfFile == default)
@@ -163,37 +164,35 @@ private static bool ValidateDirectory(
 		return true;
 	}
 
-	$"Validating directory {directory.Name}...".Trace(printSeparator: true);
+	if (options.IsVerbose()) $"Validating directory {directory.Name}...".Trace(printSeparator: true);
 
-	var engHlf = ParseAndPrintHlf(engHlfFile.FullName);
+	var engHlf = ParseAndPrintHlf(engHlfFile.FullName, options);
 	if (engHlf == default)
 	{
 		$"Errors parsing {engHlfFile.Name}. Exiting.".Trace();
 		return false;
 	}
 
-	bool issuesFound = false;
-
-	foreach (var lngHlfFile
-			in directory.EnumerateFiles(@"*.hlf.*").Where(fi => fi.Name != engHlf.HlfName && languageFilter.Match(fi.Name).Success))
-	{
-		var lngHlf = ParseAndPrintHlf(lngHlfFile.FullName);
-		if (lngHlf == default)
-		{
-			$"Errors parsing {lngHlfFile.Name}. Skipping validation.".Trace();
-			continue;
-		}
-
-		if (!new HlfComparer(engHlf, lngHlf, comparisonOpts).Compare())
-			issuesFound = true;
-	}
-
-	return !issuesFound;
+	return directory
+		.EnumerateFiles(@"*.hlf.*").Where(fi => fi.Name != engHlf.HlfName && languageFilter.Match(fi.Name).Success)
+		.Aggregate(0, (issues, lngHlfFile) => issues += CompareHlf(engHlf, lngHlfFile, options) ? 0 : 1) == 0;
 }
 
-private static Hlf ParseAndPrintHlf(string hlfPath)
+private static bool CompareHlf(Hlf engHlf, FileInfo lngHlfFile, ProcessingOptions options)
 {
-	var parser = new HlfParser(hlfPath);
+	var lngHlf = ParseAndPrintHlf(lngHlfFile.FullName, options);
+	if (lngHlf == default)
+	{
+		$"Errors parsing {lngHlfFile.Name}. Skipping validation.".Trace();
+		return false;
+	}
+
+	return new HlfComparer(engHlf, lngHlf, options).Compare();
+}
+
+private static Hlf ParseAndPrintHlf(string hlfPath, ProcessingOptions options)
+{
+	var parser = new HlfParser(hlfPath, options);
 
 	foreach (var diagnostic in parser.EnumerateDiagnostics())
 	{
@@ -221,27 +220,20 @@ private static Hlf ParseAndPrintHlf(string hlfPath)
 
 public class HlfComparer
 {
-	[Flags]
-	public enum ComparisonOptions
-	{
-		None = 0,
-		StrictRefs = 1
-	}
-
 	private Hlf EngHlf;
 	private Hlf LngHlf;
-	private ComparisonOptions ComparisonOpts;
+	private ProcessingOptions Options;
 
-	public HlfComparer(Hlf engHlf, Hlf lngHlf, ComparisonOptions comparisonOpts)
+	public HlfComparer(Hlf engHlf, Hlf lngHlf, ProcessingOptions options)
 	{
 		EngHlf = engHlf;
 		LngHlf = lngHlf;
-		ComparisonOpts = comparisonOpts;
+		Options = options;
 	}
 
 	public bool Compare()
 	{
-		$"Comparing {EngHlf.HlfName} and {LngHlf.HlfName}...".Trace();
+		if (Options.IsVerbose()) $"Comparing {EngHlf.HlfName} and {LngHlf.HlfName}...".Trace();
 
 		var result = true;
 
@@ -312,7 +304,7 @@ public class HlfComparer
 	{
 		var references = paragraph.Lines.SelectMany(line => Reference.Matches(line).Cast<Match>().Select(match => match.Value));
 
-		if (!ComparisonOpts.HasFlag(ComparisonOptions.StrictRefs))
+		if (!Options.IsStrictRefs())
 		{
 			references = references.Distinct().OrderBy(reference => reference);
 		}
@@ -373,10 +365,10 @@ public class HlfParser
 {
 	public readonly Hlf Hlf;
 
-	public HlfParser(string hlfPath)
+	public HlfParser(string hlfPath, ProcessingOptions options)
 	{
 		Hlf = new Hlf{ HlfName = Path.GetFileName(hlfPath) };
-		$"Parsing {Hlf.HlfName}...".Trace();
+		if (options.IsVerbose()) $"Parsing {Hlf.HlfName}...".Trace();
 
 		Parser parser = Start;
 		Token token = new Token();
@@ -742,8 +734,18 @@ public static class Extensions
 
 	public static void Trace(this string line, bool printSeparator = false)
 	{
-		Console.WriteLine("");
+		Console.WriteLine(string.Empty);
 		if (printSeparator) Console.WriteLine(Separator);
 		Console.WriteLine(line);
+	}
+
+	public static bool IsStrictRefs(this HlfChecker.ProcessingOptions options)
+    {
+		return options.HasFlag(HlfChecker.ProcessingOptions.StrictRefs);
+	}
+
+	public static bool IsVerbose(this HlfChecker.ProcessingOptions options)
+	{
+		return options.HasFlag(HlfChecker.ProcessingOptions.Verbose);
 	}
 }
