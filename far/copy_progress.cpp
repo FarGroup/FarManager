@@ -67,8 +67,7 @@ copy_progress::copy_progress(bool Move, bool Total, bool Time):
 	m_ShowTime(Time),
 	m_Color(colors::PaletteColorToFarColor(COL_DIALOGTEXT)),
 	m_TimeCheck(time_check::mode::immediate, GetRedrawTimeout()),
-	m_SpeedUpdateCheck(time_check::mode::immediate, 3s),
-	m_SecurityTimeCheck(time_check::mode::immediate, GetRedrawTimeout())
+	m_SpeedUpdateCheck(time_check::mode::immediate, 3s)
 {
 }
 

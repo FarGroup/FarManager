@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+drkns 05.04.2021 12:44:10 +0100 - build 5776
+
+1. An attempt to fix 0003856: Wrong file count in copy dialog.
+   As usual, copying is a can of worms. Brace yourself.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 svs 04.04.2021 10:00:00 +0300 - build 5775
 
 1. SQLite 3.35.4

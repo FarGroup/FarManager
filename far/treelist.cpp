@@ -799,7 +799,7 @@ bool TreeList::ReadTree()
 	SCOPE_EXIT{ m_ReadingTree = false; };
 
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
-	ScanTree ScTree(false, true, -1, false);
+	ScanTree ScTree(false, true, -1);
 	os::fs::find_data fdata;
 	string strFullName;
 	FlushCache();
@@ -1869,7 +1869,7 @@ void TreeList::ReadSubTree(string_view const Path)
 		return;
 
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
-	ScanTree ScTree(false, true, -1, false);
+	ScanTree ScTree(false, true, -1);
 
 	const auto strDirName = ConvertNameToFull(Path);
 	AddTreeName(strDirName);
