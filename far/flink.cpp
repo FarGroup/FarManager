@@ -580,7 +580,7 @@ bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePoin
 
 	const auto symlink = LinkType == RP_SYMLINK || LinkType == RP_SYMLINKFILE || LinkType == RP_SYMLINKDIR;
 
-	if (ParsePath(Target) == root_type::drive_letter)
+	if (auto RootOnly = false; ParsePath(Target, {}, &RootOnly) == root_type::drive_letter && RootOnly)
 	{
 		// if(Flags&FCOPY_VOLMOUNT)
 		{
