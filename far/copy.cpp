@@ -1895,7 +1895,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			Flags |= FCOPY_COPYSYMLINKCONTENTS;
 	}
 
-	if ((Flags & FCOPY_COPYTONUL) && IsDirectory || (IsReparsePoint && !CopySymlinkContents))
+	if ((Flags & FCOPY_COPYTONUL) && (IsDirectory || (IsReparsePoint && !CopySymlinkContents)))
 		return COPY_SUCCESS;
 
 		if constexpr ((false))
