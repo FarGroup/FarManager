@@ -4,7 +4,6 @@ SRCS = \
 	auto_sz.cpp \
 	EMenu.cpp \
 	FarMenu.cpp \
-	MenuDlg.cpp \
 	OleThread.cpp \
 	Pidl.cpp \
 	Plugin.cpp
