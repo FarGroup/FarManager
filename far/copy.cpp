@@ -341,9 +341,9 @@ enum CopyMode
    dest=path\filename (раньше возвращала 2 - т.е. сигнал об ошибке).
 */
 
-static bool CmpFullNames(const string& Src,const string& Dest)
+static bool CmpFullNames(string_view const Src, string_view const Dest)
 {
-	const auto ToFull = [](const string& in)
+	const auto ToFull = [](string_view const in)
 	{
 		// получим полные пути с учетом символических связей
 		// (ConvertNameToReal eliminates short names too)
@@ -1795,20 +1795,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			return COPY_SKIPPED;
 	}
 
-	string strDestPath = strDest;
-
-	os::fs::attributes DestAttr = INVALID_FILE_ATTRIBUTES;
-
-	os::fs::find_data DestData;
-	if (!(Flags&FCOPY_COPYTONUL))
-	{
-		if (os::fs::get_find_data(strDestPath,DestData))
-			DestAttr=DestData.Attributes;
-	}
-
 	bool Append{};
 
-	const auto SameName = [&]
+	const auto IsSameName = [&](string_view const DestPath, os::fs::attributes const DestAttr)
 	{
 		if (Flags & FCOPY_COPYTONUL || DestAttr == INVALID_FILE_ATTRIBUTES)
 			return false;
@@ -1821,10 +1810,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 		if (!Rename && !(Flags & FCOPY_COPYSYMLINKCONTENTS) && os::fs::is_directory_symbolic_link(SrcData))
 			return false;
 
-		return CmpFullNames(Src, strDestPath);
-	}();
+		return CmpFullNames(Src, DestPath);
+	};
 
-	if (SameName && !Rename)
+	const auto AbortCopyToItself = [&](os::fs::attributes const DestAttr)
 	{
 		const lng FolderFileMsgIds[][2]
 		{
@@ -1845,26 +1834,32 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			L"ErrCopyItSelf"sv);
 
 		cancel_operation();
+	};
+
+	os::fs::find_data DestData;
+	if (!(Flags & FCOPY_COPYTONUL))
+	{
+		(void)os::fs::get_find_data(strDest, DestData);
 	}
+
+	auto strDestPath = strDest;
+	auto DestAttr = DestData.Attributes;
+
+	auto SameName = IsSameName(strDestPath, DestAttr);
+
+	if (SameName && !Rename)
+		AbortCopyToItself(DestAttr);
 
 	if (!(Flags & FCOPY_COPYTONUL) && !SameName && os::fs::is_directory(DestAttr))
 	{
-		if (!path::is_separator(strDestPath.back()) && strDestPath.back() != L':')
-			strDestPath += path::separator;
+		path::append(strDestPath, string_view(Src).substr(KeepPathPos));
+		(void)os::fs::get_find_data(strDestPath, DestData);
+		DestAttr = DestData.Attributes;
 
-		auto Path = string_view(Src).substr(KeepPathPos);
+		SameName = IsSameName(strDestPath, DestAttr);
 
-		if (Path.size() > 1 && !KeepPathPos && Path[1] == L':')
-			Path.remove_prefix(2);
-
-		if (path::is_separator(Path.front()))
-			Path.remove_prefix(1);
-
-		append(strDestPath, Path);
-
-		DestAttr= os::fs::get_find_data(strDestPath, DestData)?
-			DestData.Attributes :
-			INVALID_FILE_ATTRIBUTES;
+		if (SameName && !Rename)
+			AbortCopyToItself(DestAttr);
 	}
 
 	if (!(Flags&FCOPY_COPYTONUL) && !equal_icase(strDestPath, L"prn"sv))

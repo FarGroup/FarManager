@@ -109,7 +109,7 @@ namespace os::fs
 		unsigned long long FileSize{};
 		unsigned long long AllocationSize{};
 		unsigned long long FileId{};
-		attributes Attributes{};
+		attributes Attributes{ INVALID_FILE_ATTRIBUTES };
 		DWORD ReparseTag{};
 
 		[[nodiscard]]
