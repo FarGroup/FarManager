@@ -538,6 +538,16 @@ void Plugin::SetUuid(const UUID& Uuid)
 	m_strUuid = uuid::str(m_Uuid);
 }
 
+void Plugin::increase_activity()
+{
+	++m_Activity;
+}
+
+void Plugin::decrease_activity()
+{
+	--m_Activity;
+}
+
 bool Plugin::LoadData()
 {
 	if (WorkFlags.Check(PIWF_DONTLOADAGAIN))
@@ -1212,8 +1222,14 @@ void Plugin::ExecuteFunctionImpl(export_index const ExportId, function_ref<void(
 	seh_try_with_ui(
 	[&]
 	{
-		Prologue(); ++Activity;
-		SCOPE_EXIT{ --Activity; Epilogue(); };
+		Prologue();
+		increase_activity();
+
+		SCOPE_EXIT
+		{
+			decrease_activity();
+			Epilogue();
+		};
 
 		const auto HandleException = [&](const auto& Handler, auto&&... ProcArgs)
 		{

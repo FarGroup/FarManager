@@ -66,6 +66,16 @@ message_manager::message_manager():
 
 message_manager::~message_manager() = default;
 
+void message_manager::suppress()
+{
+	++m_suppressions;
+}
+
+void message_manager::restore()
+{
+	--m_suppressions;
+}
+
 message_manager::handlers_map::iterator message_manager::subscribe(event_id EventId, const detail::event_handler& EventHandler)
 {
 	SCOPED_ACTION(std::unique_lock)(m_RWLock);

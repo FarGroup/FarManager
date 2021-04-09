@@ -56,7 +56,7 @@ public:
 	class Key
 	{
 	public:
-		Key(): m_Event(), m_FarKey(0), m_EventFilled(false) {}
+		Key() = default;
 		explicit Key(int Key);
 		Key(unsigned int Key, const INPUT_RECORD& Event): m_Event(Event), m_FarKey(Key), m_EventFilled(true) {}
 		const INPUT_RECORD& Event() const {return m_Event;}
@@ -67,9 +67,9 @@ public:
 		unsigned int operator()() const {return m_FarKey;}
 
 	private:
-		INPUT_RECORD m_Event;
-		unsigned int m_FarKey;
-		bool m_EventFilled;
+		INPUT_RECORD m_Event{};
+		unsigned int m_FarKey{};
+		bool m_EventFilled{};
 		void Fill(unsigned int Key);
 	};
 
@@ -190,11 +190,11 @@ private:
 	void* GetCurrent(function_ref<void*(window_ptr const&)> Check) const;
 	windows::const_iterator SpecialWindow();
 	windows m_windows;
-	size_t m_NonModalSize;
-	bool EndLoop;            // Признак выхода из цикла
-	int ModalExitCode;
-	bool StartManager;
-	int m_DesktopModalled;
+	size_t m_NonModalSize{};
+	bool EndLoop{};            // Признак выхода из цикла
+	int ModalExitCode{-1};
+	bool StartManager{};
+	int m_DesktopModalled{};
 	static inline std::atomic_long CurrentWindowType{-1};
 	std::queue<std::function<void()>> m_Queue;
 	std::vector<std::function<bool(const Key&)>> m_GlobalKeyHandlers;

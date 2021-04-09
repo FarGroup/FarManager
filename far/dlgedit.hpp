@@ -72,7 +72,7 @@ class DlgEdit: public SimpleScreenObject
 public:
 	// for CtrlEnd
 	string strLastStr;
-	int LastPartLength;
+	int LastPartLength{-1};
 
 	BitFlags& Flags() const;
 
@@ -173,7 +173,7 @@ private:
 	std::unique_ptr<History> iHistory;
 	std::unique_ptr<EditControl> lineEdit;
 #if defined(PROJECT_DI_MEMOEDIT)
-	Editor *multiEdit;
+	Editor *multiEdit{};
 #endif
 };
 

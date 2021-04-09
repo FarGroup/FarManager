@@ -4979,13 +4979,7 @@ class PluginA: public Plugin
 public:
 	NONCOPYABLE(PluginA);
 	PluginA(plugin_factory* Factory, const string& ModuleName):
-		Plugin(Factory, ModuleName),
-		PI(),
-		OPI(),
-		pFDPanelItemA(nullptr),
-		pVFDPanelItemA(nullptr),
-		OEMApiCnt(0),
-		opif_shortcut(false)
+		Plugin(Factory, ModuleName)
 	{
 		LocalUpperInit();
 		RegisterSendKeyToPluginHook();
@@ -5979,15 +5973,15 @@ WARNING_POP()
 	template<export_index Export>
 	using AnsiExecuteStruct = ExecuteStruct<Export, false>;
 
-	PluginInfo PI;
-	OpenPanelInfo OPI;
+	PluginInfo PI{};
+	OpenPanelInfo OPI{};
 
-	oldfar::PluginPanelItem  *pFDPanelItemA;
-	oldfar::PluginPanelItem  *pVFDPanelItemA;
+	oldfar::PluginPanelItem* pFDPanelItemA{};
+	oldfar::PluginPanelItem* pVFDPanelItemA{};
 
-	std::atomic_ulong OEMApiCnt;
+	std::atomic_size_t OEMApiCnt{};
 
-	bool opif_shortcut;
+	bool opif_shortcut{};
 };
 
 static const char* GetPluginMsg(const Plugin* PluginInstance, int MsgId)

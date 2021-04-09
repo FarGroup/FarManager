@@ -1,0 +1,40 @@
+﻿name: Extra checks
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+
+jobs:
+  code-style-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Run checks
+        working-directory: far
+        run: python tools/source_validator.py
+
+
+  hlf-checks:
+    runs-on: windows-2019
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Set MSVC envrioment
+        uses: ilammy/msvc-dev-cmd@v1.6.0
+
+      - name: Build MsBuild
+        working-directory: misc/hlf-checker
+        run: MSBuild.exe HlfChecker.sln
+
+      - name: Run checks
+        working-directory: misc/hlf-checker
+        run: bin\Debug\HlfChecker.exe

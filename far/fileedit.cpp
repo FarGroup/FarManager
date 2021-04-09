@@ -729,6 +729,9 @@ void FileEditor::Init(
 	if (GetExitCode() == XC_LOADING_INTERRUPTED || GetExitCode() == XC_OPEN_ERROR)
 		return;
 
+	if (!m_Flags.Check(FFILEEDIT_DISABLEHISTORY) && strFileName != msg(lng::MNewFileName))
+		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? HR_EDITOR_RO : HR_EDITOR);
+
 	InitKeyBar();
 	// Note: bottom - bottom
 	m_windowKeyBar->SetPosition({ m_Where.left, m_Where.bottom, m_Where.right, m_Where.bottom });
@@ -1164,6 +1167,9 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 								//if(!Global->Opt->Confirm.Esc && UserBreak && GetExitCode()==XC_LOADING_INTERRUPTED && WindowManager)
 								//  WindowManager->RefreshWindow();
 							}
+
+							if (!m_Flags.Check(FFILEEDIT_DISABLEHISTORY))
+								Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? HR_EDITOR_RO : HR_EDITOR);
 
 							// перерисовывать надо как минимум когда изменилась кодировка или имя файла
 							ShowConsoleTitle();
@@ -2103,9 +2109,6 @@ void FileEditor::SetScreenPosition()
 
 void FileEditor::OnDestroy()
 {
-	if (Global->CtrlObject && !m_Flags.Check(FFILEEDIT_DISABLEHISTORY) && !equal_icase(strFileName, msg(lng::MNewFileName)))
-		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE) ? HR_EDITOR_RO : HR_EDITOR);
-
 	//AY: флаг оповещающий закрытие редактора.
 	m_bClosing = true;
 

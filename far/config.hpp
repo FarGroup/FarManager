@@ -109,7 +109,6 @@ enum ExcludeCmdHistoryType
 	EXCLUDECMDHISTORY_NOTFARASS    = 1_bit, // не помещать в историю команды выполнения ассоциаций файлов
 	EXCLUDECMDHISTORY_NOTPANEL     = 2_bit, // не помещать в историю команды выполнения с панели
 	EXCLUDECMDHISTORY_NOTCMDLINE   = 3_bit, // не помещать в историю команды выполнения с ком.строки
-	//EXCLUDECMDHISTORY_NOTAPPLYCMD   = 4_bit, // не помещать в историю команды выполнения из "Apply Command"
 };
 
 enum QUOTEDNAMETYPE

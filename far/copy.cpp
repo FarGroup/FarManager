@@ -92,7 +92,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 enum COPY_CODES
 {
 	COPY_SKIPPED,
-	COPY_NOFILTER,                              // не считать размеры, т.к. файл не прошел по фильтру
 	COPY_FAILURE,
 	COPY_SUCCESS,
 	COPY_SUCCESS_MOVE,
@@ -128,20 +127,20 @@ public:
 
 private:
 	// called by ShellCopy
-	void CopyFileTree(const string& Dest);
+	void copy_selected_items(const string& Dest);
 
-	// called by CopyFileTree 4 times
+	// called by copy_selected_items 4 times
 	COPY_CODES ShellCopyOneFile(const string& Src, const os::fs::find_data& SrcData, string& strDest, int KeepPathPos, bool Rename);
 
 	void CheckStreams(const string& Src, const string& DestPath);
 
 	// called by ShellCopyOneFile
-	int ShellCopyFile(const string& SrcName, const os::fs::find_data& SrcData, string& strDestName, os::fs::attributes& DestAttr, bool Append, std::optional<error_state_ex>& ErrorState);
+	bool ShellCopyFile(const string& SrcName, const os::fs::find_data& SrcData, string& strDestName, os::fs::attributes& DestAttr, bool Append, std::optional<error_state_ex>& ErrorState);
 
 	// called by ShellCopyFile
-	int ShellSystemCopy(const string& SrcName, const string& DestName, const os::fs::find_data& SrcData);
+	bool ShellSystemCopy(const string& SrcName, const string& DestName, const os::fs::find_data& SrcData);
 
-	int DeleteAfterMove(const string& Name, os::fs::attributes Attr);
+	bool DeleteAfterMove(const string& Name, os::fs::attributes Attr);
 
 	// called by ShellCopyOneFile
 	bool AskOverwrite(const os::fs::find_data& SrcData, const string& SrcName, const string& DestName, os::fs::attributes DestAttr, bool SameName, bool Rename, bool AskAppend, bool& Append, string& strNewName, COPY_CODES& RetCode);
@@ -149,9 +148,8 @@ private:
 	os::security::descriptor GetSecurity(const string& FileName);
 	void SetSecurity(const string& FileName, const os::security::descriptor& sd);
 	void ResetSecurity(const string& FileName);
-	void ResetSecurityRecursively(const string& FileName);
 
-	// called by CopyFileTree
+	// called by copy_selected_items
 	void CalcTotalSize() const;
 
 	void ShellSetAttr(const string& Dest, os::fs::attributes Attr);
@@ -1331,7 +1329,7 @@ ShellCopy::ShellCopy(
 
 		NeedDizUpdate = true;
 
-		CopyFileTree(strNameTmp);
+		copy_selected_items(strNameTmp);
 
 		if (OldCopySymlinkContents)
 			Flags|=FCOPY_COPYSYMLINKCONTENTS;
@@ -1355,7 +1353,7 @@ ShellCopy::ShellCopy(
 }
 
 
-void ShellCopy::CopyFileTree(const string& Dest)
+void ShellCopy::copy_selected_items(const string& Dest)
 {
 	//SaveScreen SaveScr;
 	os::fs::attributes DestAttr = INVALID_FILE_ATTRIBUTES;
@@ -1368,9 +1366,9 @@ void ShellCopy::CopyFileTree(const string& Dest)
 	DWORD Flags0 = Flags;
 
 	bool first = true;
-	bool UseWildCards = Dest.find_first_of(L"*?"sv) != string::npos;
-	bool copy_to_null = (0 != (Flags & FCOPY_COPYTONUL));
-	bool move_rename = (0 != (Flags & FCOPY_MOVE));
+	const auto UseWildCards = Dest.find_first_of(L"*?"sv) != string::npos;
+	const auto copy_to_null = (0 != (Flags & FCOPY_COPYTONUL));
+	const auto move_rename = (0 != (Flags & FCOPY_MOVE));
 	bool SameDisk = false;
 
 	if (!m_TotalSizeCalculated)
@@ -1536,9 +1534,6 @@ void ShellCopy::CopyFileTree(const string& Dest)
 		first = false;
 		string strDestPath = strDest;
 
-		os::fs::find_data SrcData;
-		int CopyCode = COPY_SUCCESS;
-
 		auto KeepPathPos = static_cast<int>(i.FileName.size() - PointToName(i.FileName).size());
 
 		if (RPT==RP_JUNCTION || RPT==RP_SYMLINK || RPT==RP_SYMLINKFILE || RPT==RP_SYMLINKDIR)
@@ -1552,32 +1547,12 @@ void ShellCopy::CopyFileTree(const string& Dest)
 
 			continue;
 		}
-		else
-		{
-			// проверка на вшивость ;-)
-			if (!os::fs::get_find_data(i.FileName, SrcData))
-			{
-				strDestPath = i.FileName;
-				CP->SetNames(i.FileName,strDestPath);
 
-				if (Message(MSG_WARNING,
-					msg(lng::MError),
-					{
-						msg(lng::MCopyCannotFind),
-						i.FileName
-					},
-					{ lng::MSkip, lng::MCancel }) != Message::first_button)
-				{
-					cancel_operation();
-				}
-
-				continue;
-			}
-		}
+		auto CopyCode = COPY_SUCCESS;
 
 		if (move_rename)
 		{
-			if ((m_UseFilter || !SameDisk) || (os::fs::is_directory_symbolic_link(SrcData) && (Flags&FCOPY_COPYSYMLINKCONTENTS)))
+			if ((m_UseFilter || !SameDisk) || (os::fs::is_directory_symbolic_link(i) && (Flags&FCOPY_COPYSYMLINKCONTENTS)))
 			{
 				CopyCode=COPY_FAILURE;
 			}
@@ -1585,7 +1560,8 @@ void ShellCopy::CopyFileTree(const string& Dest)
 			{
 				do
 				{
-					CopyCode = ShellCopyOneFile(i.FileName, SrcData, strDestPath, KeepPathPos, true);
+					// attempt to move
+					CopyCode = ShellCopyOneFile(i.FileName, i, strDestPath, KeepPathPos, true);
 				}
 				while (CopyCode==COPY_RETRY);
 
@@ -1608,13 +1584,17 @@ void ShellCopy::CopyFileTree(const string& Dest)
 						}
 					}
 
+					CP->next();
 					continue;
 				}
-
-				if (CopyCode==COPY_SKIPPED)
+				else if (CopyCode == COPY_SKIPPED)
 				{
 					CP->skip();
 					continue;
+				}
+				else if (CopyCode == COPY_SUCCESS)
+				{
+					CP->next();
 				}
 			}
 		}
@@ -1625,16 +1605,19 @@ void ShellCopy::CopyFileTree(const string& Dest)
 
 			do
 			{
-				CopyCode = ShellCopyOneFile(i.FileName, SrcData, strCopyDest, KeepPathPos, false);
+				// copy or fallback from move
+				// for directories this only creates the top directory, the content is copied later (see below)
+				CopyCode = ShellCopyOneFile(i.FileName, i, strCopyDest, KeepPathPos, false);
 			}
 			while (CopyCode==COPY_RETRY);
 
-			if (CopyCode!=COPY_SUCCESS)
+			if (CopyCode == COPY_SUCCESS)
 			{
-				if (CopyCode == COPY_SKIPPED)
-				{
-					CP->skip();
-				}
+				CP->next();
+			}
+			else
+			{
+				CP->skip();
 				continue;
 			}
 		}
@@ -1649,9 +1632,8 @@ void ShellCopy::CopyFileTree(const string& Dest)
 
 		// Mantis#44 - Потеря данных при копировании ссылок на папки
 		// если каталог (или нужно копировать симлинк) - придется рекурсивно спускаться...
-		if (RPT != RP_SYMLINKFILE && (SrcData.Attributes & FILE_ATTRIBUTE_DIRECTORY) && ((Flags & FCOPY_COPYSYMLINKCONTENTS) || !os::fs::is_directory_symbolic_link(SrcData)))
+		if (RPT != RP_SYMLINKFILE && (i.Attributes & FILE_ATTRIBUTE_DIRECTORY) && ((Flags & FCOPY_COPYSYMLINKCONTENTS) || !os::fs::is_directory_symbolic_link(i)))
 		{
-			int SubCopyCode;
 			string strFullName;
 			ScanTree ScTree(true, true, Flags & FCOPY_COPYSYMLINKCONTENTS);
 			auto strSubName = i.FileName + path::separator;
@@ -1659,26 +1641,35 @@ void ShellCopy::CopyFileTree(const string& Dest)
 			if (DestAttr==INVALID_FILE_ATTRIBUTES)
 				KeepPathPos = static_cast<int>(strSubName.size());
 
-			const auto NeedRename = !(os::fs::is_directory_symbolic_link(SrcData) && (Flags&FCOPY_COPYSYMLINKCONTENTS) && (Flags&FCOPY_MOVE));
+			const auto NeedRename = !(os::fs::is_directory_symbolic_link(i) && (Flags&FCOPY_COPYSYMLINKCONTENTS) && (Flags&FCOPY_MOVE));
 			ScTree.SetFindPath(strSubName, L"*"sv);
 
+			os::fs::find_data SrcData;
 			while (ScTree.GetNextName(SrcData,strFullName))
 			{
-				if (m_UseFilter && (SrcData.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+				const auto IsDirectory = os::fs::is_directory(SrcData.Attributes);
+
+				auto SubCopyCode = COPY_SUCCESS;
+
+				// If it's a directory and IsDirSearchDone() is true - it's the second time and we don't need to do anything with it,
+				// except removing, if it's move.
+				if (!IsDirectory || !ScTree.IsDirSearchDone())
 				{
-					// Просто пропустить каталог недостаточно - если каталог помечен в
-					// фильтре как некопируемый, то следует пропускать и его и всё его
-					// содержимое.
-					if (!m_Filter->FileInFilter(SrcData, {}, strFullName))
+					if (m_UseFilter && IsDirectory)
 					{
-						ScTree.SkipDir();
-						continue;
+						// Просто пропустить каталог недостаточно - если каталог помечен в
+						// фильтре как некопируемый, то следует пропускать и его и всё его
+						// содержимое.
+						if (!m_Filter->FileInFilter(SrcData, {}, strFullName))
+						{
+							ScTree.SkipDir();
+							continue;
+						}
 					}
-				}
-				{
+
 					int AttemptToMove=FALSE;
 
-					if ((Flags&FCOPY_MOVE) && SameDisk && !(SrcData.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+					if ((Flags&FCOPY_MOVE) && SameDisk && !IsDirectory)
 					{
 						AttemptToMove=TRUE;
 						int Ret;
@@ -1697,17 +1688,24 @@ void ShellCopy::CopyFileTree(const string& Dest)
 								CP->skip();
 								continue;
 							}
+
 							case COPY_SUCCESS_MOVE:
 							{
+								CP->next();
 								continue;
 							}
-							case COPY_SUCCESS:
 
+							case COPY_SUCCESS:
+							{
+								CP->next();
 								if (!NeedRename) // вариант при перемещении содержимого симлинка с опцией "копировать содержимое сим..."
 								{
-									CP->skip();
 									continue;     // ...  т.к. мы ЭТО не мувили, а скопировали, то все, на этом закончим бадаться с этим файлов
 								}
+							}
+
+							default:
+								CP->skip();
 						}
 					}
 
@@ -1726,23 +1724,27 @@ void ShellCopy::CopyFileTree(const string& Dest)
 
 					if (AttemptToMove)
 						OvrMode=SaveOvrMode;
-				}
 
-				if (SubCopyCode==COPY_SKIPPED)
-				{
-					CP->skip();
+					if (SubCopyCode == COPY_SUCCESS)
+					{
+						CP->next();
+					}
+					else
+					{
+						CP->skip();
+					}
 				}
 
 				// здесь нужны проверка на InsideReparsePoint, иначе
 				// при мувинге будет удаление файла, что крайне неправильно!
 				if (SubCopyCode == COPY_SUCCESS && Flags & FCOPY_MOVE && !ScTree.InsideReparsePoint())
 				{
-					if (SrcData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
+					if (IsDirectory)
 					{
 						if (ScTree.IsDirSearchDone() || (os::fs::is_directory_symbolic_link(SrcData) && !(Flags & FCOPY_COPYSYMLINKCONTENTS)))
 						{
-							DeleteAfterMove(strFullName, SrcData.Attributes);
-							TreeList::DelTreeName(strFullName);
+							if (DeleteAfterMove(strFullName, SrcData.Attributes))
+								TreeList::DelTreeName(strFullName);
 						}
 					}
 					else
@@ -1755,9 +1757,9 @@ void ShellCopy::CopyFileTree(const string& Dest)
 
 		if ((Flags & FCOPY_MOVE) && CopyCode == COPY_SUCCESS)
 		{
-			if (DeleteAfterMove(i.FileName, i.Attributes) == COPY_SUCCESS)
+			if (DeleteAfterMove(i.FileName, i.Attributes))
 			{
-				if ((SrcData.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+				if ((i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 					TreeList::DelTreeName(i.FileName);
 
 				if (!strDestDizPath.empty())
@@ -1780,8 +1782,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
     const string& Src,
     const os::fs::find_data &SrcData,
     string &strDest,
-    int KeepPathPos,
-	bool Rename
+	int const KeepPathPos,
+	bool const Rename
 )
 {
 	CP->reset_current();
@@ -1794,7 +1796,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	if (m_UseFilter)
 	{
 		if (!m_Filter->FileInFilter(SrcData, {}, Src))
-			return COPY_NOFILTER;
+			return COPY_SKIPPED;
 	}
 
 	string strDestPath = strDest;
@@ -1874,35 +1876,38 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	CP->SetNames(Src, strDestPath);
 
-	if (!(Flags&FCOPY_COPYTONUL))
+	const auto IsDirectory = (SrcData.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+	const auto IsReparsePoint = (SrcData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0;
+
+	bool CopySymlinkContents = (Flags & FCOPY_COPYSYMLINKCONTENTS) != 0;
+	if (!IsDirectory && IsReparsePoint && RPT == RP_EXACTCOPY && !CopySymlinkContents)
 	{
+		if (SrcData.Attributes & FILE_ATTRIBUTE_SPARSE_FILE)
+		{
+			CopySymlinkContents = true; // ???
+		}
+		else
+		{
+			CopySymlinkContents = none_of(
+				SrcData.ReparseTag,
+				IO_REPARSE_TAG_SYMLINK,
+				IO_REPARSE_TAG_MOUNT_POINT,
+				IO_REPARSE_TAG_APPEXECLINK
+			);
+		}
+		if (CopySymlinkContents)
+			Flags |= FCOPY_COPYSYMLINKCONTENTS;
+	}
+
+	if ((Flags & FCOPY_COPYTONUL) && (IsDirectory || (IsReparsePoint && !CopySymlinkContents)))
+		return COPY_SUCCESS;
+
 		if constexpr ((false))
 		{
 			CheckStreams(Src, strDestPath);
 		}
 
-		bool dir = (SrcData.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-		bool rpt = (SrcData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0;
-		bool cpc = (Flags & FCOPY_COPYSYMLINKCONTENTS) != 0;
-		if (!dir && rpt && RPT==RP_EXACTCOPY && !cpc)
-		{
-			bool spf = (SrcData.Attributes & FILE_ATTRIBUTE_SPARSE_FILE) != 0;
-			if (spf)
-				cpc = true; // ???
-			else
-			{
-				cpc = none_of(
-					SrcData.ReparseTag,
-					IO_REPARSE_TAG_SYMLINK,
-					IO_REPARSE_TAG_MOUNT_POINT,
-					IO_REPARSE_TAG_APPEXECLINK
-				);
-			}
-			if (cpc)
-				Flags |= FCOPY_COPYSYMLINKCONTENTS;
-		}
-
-		if (dir || (rpt && RPT==RP_EXACTCOPY && !cpc))
+		if (IsDirectory || (IsReparsePoint && RPT == RP_EXACTCOPY && !CopySymlinkContents))
 		{
 			if (!Rename)
 				strCopiedName = PointToName(strDestPath);
@@ -1981,7 +1986,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 
 				if (m_CopySecurity == security::inherit)
-					ResetSecurityRecursively(strDestPath);
+					ResetSecurity(strDestPath);
 
 				const auto NamePart = PointToName(strDestPath);
 				if (NamePart.size() == strDestPath.size())
@@ -2042,7 +2047,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			// [ ] Copy contents of symbolic links
 			// For file symbolic links only!!!
 			// Directory symbolic links and junction points are handled by CreateDirectoryEx.
-			if (!dir && rpt && !cpc && RPT==RP_EXACTCOPY)
+			if (!IsDirectory && IsReparsePoint && !CopySymlinkContents && RPT == RP_EXACTCOPY)
 			{
 				if (!MkSymLink(Src, strDestPath, RPT))
 					return COPY_FAILURE;
@@ -2072,18 +2077,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				return COPY_RETRY;
 			}
 		}
-	}
-	else
-	{
-		if (SrcData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
-		{
-			return COPY_SUCCESS;
-		}
-	}
 
 	const auto NWFS_Attr = Global->Opt->Nowell.MoveRO && strDestFSName == L"NWFS"sv;
 
-	{
 		for (;;)
 		{
 			std::optional<error_state_ex> ErrorState;
@@ -2144,26 +2140,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				}
 				else
 				{
-					int CopyCode;
-					do
-					{
-						os::fs::attributes Attr = INVALID_FILE_ATTRIBUTES;
-						CopyCode = ShellCopyFile(Src, SrcData, strDestPath, Attr, Append, ErrorState);
-					}
-					while (CopyCode==COPY_RETRY);
-
-					switch (CopyCode)
-					{
-						case COPY_SUCCESS:
-							FileMoved = true;
-							break;
-						case COPY_FAILURE:
-							FileMoved = false;
-							break;
-						case COPY_SKIPPED:
-							return COPY_SKIPPED;
-					}
-
+					os::fs::attributes Attr = INVALID_FILE_ATTRIBUTES;
+					FileMoved = ShellCopyFile(Src, SrcData, strDestPath, Attr, Append, ErrorState);
 					AskDelete=1;
 				}
 
@@ -2181,8 +2159,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					if (SrcDriveType == DRIVE_CDROM && (SrcData.Attributes & FILE_ATTRIBUTE_READONLY))
 						ShellSetAttr(strDestPath,SrcData.Attributes & (~FILE_ATTRIBUTE_READONLY));
 
-					CP->next();
-
 					if (AskDelete)
 						DeleteAfterMove(Src, SrcData.Attributes);
 
@@ -2199,14 +2175,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					}
 				};
 
-				int CopyCode;
-				do
-				{
-					CopyCode = ShellCopyFile(Src, SrcData, strDestPath, DestAttr, Append, ErrorState);
-				}
-				while (CopyCode==COPY_RETRY);
-
-				if (CopyCode==COPY_SUCCESS)
+				if (ShellCopyFile(Src, SrcData, strDestPath, DestAttr, Append, ErrorState))
 				{
 					strCopiedName = PointToName(strDestPath);
 
@@ -2224,14 +2193,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						{
 							LOGWARNING(L"move_file({}, {}): {}"sv, strDestPath, strDestPath, last_error());
 						}
-				}
+					}
 
-					CP->next();
 					return COPY_SUCCESS;
-				}
-				else if (CopyCode == COPY_SKIPPED)
-				{
-					return static_cast<COPY_CODES>(CopyCode);
 				}
 			}
 
@@ -2343,7 +2307,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				return COPY_RETRY;
 			}
 		}
-	}
 }
 
 // TODO: Copy them?
@@ -2382,7 +2345,7 @@ void ShellCopy::CheckStreams(const string& Src, const string& DestPath)
 	}
 }
 
-int ShellCopy::DeleteAfterMove(const string& Name, os::fs::attributes Attr)
+bool ShellCopy::DeleteAfterMove(const string& Name, os::fs::attributes Attr)
 {
 	const auto FullName = ConvertNameToFull(Name);
 	if (Attr & FILE_ATTRIBUTE_READONLY)
@@ -2443,12 +2406,10 @@ int ShellCopy::DeleteAfterMove(const string& Name, os::fs::attributes Attr)
 		return false;
 	};
 
-	return retryable_ui_operation(DeleteAction, FullName, lng::MCannotDeleteFile, SkipDeleteErrors) && !SkipDueToFilter?
-		COPY_SUCCESS :
-		COPY_SKIPPED;
+	return retryable_ui_operation(DeleteAction, FullName, lng::MCannotDeleteFile, SkipDeleteErrors) && !SkipDueToFilter;
 }
 
-int ShellCopy::ShellCopyFile(
+bool ShellCopy::ShellCopyFile(
 	string const& SrcName,
 	os::fs::find_data const& SrcData,
 	string& strDestName,
@@ -2466,11 +2427,11 @@ int ShellCopy::ShellCopyFile(
 				LOGWARNING(L"delete_file({}): {}"sv, strDestName, last_error());
 			}
 
-			return MkHardLink(SrcName,strDestName)? COPY_SUCCESS : COPY_FAILURE;
+			return MkHardLink(SrcName,strDestName);
 		}
 		else
 		{
-			return MkSymLink(SrcName, strDestName, RPT)? COPY_SUCCESS : COPY_FAILURE;
+			return MkSymLink(SrcName, strDestName, RPT);
 		}
 	}
 
@@ -2526,7 +2487,7 @@ int ShellCopy::ShellCopyFile(
 			{
 				if (!os::fs::file(SrcName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
-					return COPY_FAILURE;
+					return false;
 				}
 			}
 
@@ -2554,7 +2515,7 @@ int ShellCopy::ShellCopyFile(
 
 	if (!Opened)
 	{
-		return COPY_FAILURE;
+		return false;
 	}
 
 	os::fs::file DestFile;
@@ -2582,7 +2543,7 @@ int ShellCopy::ShellCopyFile(
 			(attrs & ~(IsSystemEncrypted? FILE_ATTRIBUTE_SYSTEM : 0)) | FILE_FLAG_SEQUENTIAL_SCAN))
 		{
 			SrcFile.Close();
-			return COPY_FAILURE;
+			return false;
 		}
 
 		if (IsSystemEncrypted && !os::fs::set_file_attributes(strDestName, attrs)) //BUGBUG
@@ -2611,7 +2572,7 @@ int ShellCopy::ShellCopyFile(
 				SrcFile.Close();
 				DestFile.SetEnd();
 				DestFile.Close();
-				return COPY_FAILURE;
+				return false;
 			}
 		}
 
@@ -2691,7 +2652,7 @@ int ShellCopy::ShellCopyFile(
 
 				if (MsgCode == Message::second_button)
 				{
-					return COPY_FAILURE;
+					return false;
 				}
 				else
 				{
@@ -2726,7 +2687,7 @@ int ShellCopy::ShellCopyFile(
 
 					if (MsgCode == Message::second_button)
 					{
-						return COPY_FAILURE;
+						return false;
 					}
 					else
 					{
@@ -2776,7 +2737,7 @@ int ShellCopy::ShellCopyFile(
 		}
 	}
 
-	return COPY_SUCCESS;
+	return true;
 }
 
 void ShellCopy::SetDestDizPath(const string& DestPath)
@@ -3270,40 +3231,6 @@ void ShellCopy::SetSecurity(const string& FileName, const os::security::descript
 	}
 }
 
-// BUGBUG move to copy_progress
-static void ShellCopySecuryMsg(const copy_progress* CP, const string& Name)
-{
-	if (!Name.empty() && !CP->m_SecurityTimeCheck)
-		return;
-
-	static int Width=30;
-	int WidthTemp;
-	if (!Name.empty())
-	{
-		WidthTemp=std::max(static_cast<int>(Name.size()),30);
-	}
-	else
-		Width=WidthTemp=30;
-
-	WidthTemp=std::min(WidthTemp, ScrX/2);
-	Width=std::max(Width,WidthTemp);
-
-	auto strOutFileName = truncate_right(Name, Width);
-	inplace::fit_to_center(strOutFileName, Width + 4);
-	Message(0,
-		msg(lng::MMoveDlgTitle),
-		{
-			msg(lng::MCopyPrepareSecury),
-			std::move(strOutFileName)
-		},
-		{});
-
-	if (CP->IsCancelled())
-	{
-		cancel_operation();
-	}
-}
-
 void ShellCopy::ResetSecurity(const string& FileName)
 {
 	for (;;)
@@ -3333,30 +3260,9 @@ void ShellCopy::ResetSecurity(const string& FileName)
 	}
 }
 
-void ShellCopy::ResetSecurityRecursively(const string& FileName)
-{
-	ResetSecurity(FileName);
-
-	if (!os::fs::is_directory(FileName))
-		return;
-
-	ScanTree ScTree(true, true, Flags & FCOPY_COPYSYMLINKCONTENTS);
-	ScTree.SetFindPath(FileName, L"*"sv);
-
-	string strFullName;
-	os::fs::find_data SrcData;
-	while (ScTree.GetNextName(SrcData,strFullName))
-	{
-		ShellCopySecuryMsg(CP.get(), strFullName);
-		ResetSecurity(strFullName);
-	}
-}
-
-int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,const os::fs::find_data &SrcData)
+bool ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,const os::fs::find_data &SrcData)
 {
 	const auto sd = GetSecurity(SrcName);
-
-	CP->SetNames(SrcName,DestName);
 
 	m_FileHandleForStreamSizeFix = nullptr;
 
@@ -3393,7 +3299,7 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 		if (GetLastError() == ERROR_REQUEST_ABORTED)
 			cancel_operation();
 
-		return COPY_FAILURE;
+		return false;
 	}
 
 	Flags&=~FCOPY_DECRYPTED_DESTINATION;
@@ -3409,7 +3315,7 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 		// TODO: else retry message
 	}
 
-	return COPY_SUCCESS;
+	return true;
 }
 
 DWORD ShellCopy::CopyProgressRoutine(unsigned long long TotalFileSize, unsigned long long TotalBytesTransferred, unsigned long long StreamSize, unsigned long long StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE hSourceFile, HANDLE hDestinationFile)
@@ -3457,7 +3363,7 @@ void ShellCopy::CalcTotalSize() const
 			if (GetDirInfo(i.FileName, Data, m_Filter.get(), DirInfoCallback, (Flags&FCOPY_COPYSYMLINKCONTENTS? GETDIRINFO_SCANSYMLINK : 0) | (m_UseFilter? GETDIRINFO_USEFILTER : 0)) <= 0)
 				cancel_operation();
 
-			if (Data.FileCount > 0) // Not everything filtered out
+			if (!m_UseFilter || Data.FileCount > 0) // Not everything filtered out
 			{
 				Files += Data.DirCount + Data.FileCount + 1;
 				Bytes += Data.FileSize;

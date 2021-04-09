@@ -601,7 +601,7 @@ void ShellDelete::process_item(
 
 	if (!DirSymLink && m_DeleteType != delete_type::recycle)
 	{
-		ScanTree ScTree(true, true, FALSE, false);
+		ScanTree ScTree(true, true, FALSE);
 
 		const auto strSelFullName = IsAbsolutePath(strSelName)?
 			strSelName :
@@ -953,7 +953,7 @@ static void break_links_for_old_os(string_view const Name)
 
 	string strFullName2;
 	os::fs::find_data FindData;
-	ScanTree ScTree(true, true, FALSE, false);
+	ScanTree ScTree(true, true, FALSE);
 	ScTree.SetFindPath(Name, L"*"sv);
 
 	bool MessageShown = false;
@@ -1039,7 +1039,7 @@ void DeleteDirTree(string_view const Dir)
 
 	string strFullName;
 	os::fs::find_data FindData;
-	ScanTree ScTree(true, true, FALSE, false);
+	ScanTree ScTree(true, true, FALSE);
 	ScTree.SetFindPath(Dir, L"*"sv);
 
 	while (ScTree.GetNextName(FindData, strFullName))

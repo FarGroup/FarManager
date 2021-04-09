@@ -131,18 +131,18 @@ private:
 	FarColor m_UnchangedColor;
 	parent_processkey_t m_ParentProcessKey;
 
-	int MaxLength;
-	int CursorSize;
-	int CursorPos;
-	int PrevCurPos; //Для определения направления передвижения курсора при наличии маски
-	int MacroSelectionStart;
-	int SelectionStart;
+	int MaxLength{-1};
+	int CursorSize{-1};
+	int CursorPos{};
+	int PrevCurPos{}; //Для определения направления передвижения курсора при наличии маски
+	int MacroSelectionStart{-1};
+	int SelectionStart{-1};
 	FARMACROAREA MacroAreaAC;
 	BitFlags ECFlags;
 	Callback m_Callback;
-	size_t m_CallbackSuppressionsCount;
-	bool Selection;
-	bool MenuUp;
+	std::atomic_size_t m_CallbackSuppressionsCount{};
+	bool Selection{};
+	bool MenuUp{};
 	bool ACState;
 };
 

@@ -5114,6 +5114,28 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 			return FALSE;
 		}
+
+		case DM_SUPPRESSHISTORY:
+			{
+				if ((Type != DI_EDIT && Type != DI_FIXEDIT) || !(CurItem->Flags & DIF_HISTORY) || !CurItem->ObjPtr)
+					return FALSE;
+
+				if (const auto& DlgHistory = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory())
+				{
+					return reinterpret_cast<intptr_t>(DlgHistory->suppressor().release());
+				}
+
+				return FALSE;
+			}
+
+		case DM_RESTOREHISTORY:
+			{
+				using suppressor_type = function_traits<decltype(&History::suppressor)>::result_type;
+				suppressor_type(static_cast<suppressor_type::pointer>(Param2));
+
+				return TRUE;
+			}
+
 		/*****************************************************************/
 		case DM_GETCURSORPOS:
 		{

@@ -394,11 +394,7 @@ tree_panel_ptr TreeList::create(window_ptr Owner, int ModalMode)
 }
 
 TreeList::TreeList(private_tag, window_ptr Owner, int ModalMode):
-	Panel(std::move(Owner)),
-	m_WorkDir(0),
-	m_SavedWorkDir(0),
-	m_GetSelPosition(0),
-	m_ExitCode(1)
+	Panel(std::move(Owner))
 {
 	m_Type = panel_type::TREE_PANEL;
 	m_CurFile=m_CurTopFile=0;
@@ -803,7 +799,7 @@ bool TreeList::ReadTree()
 	SCOPE_EXIT{ m_ReadingTree = false; };
 
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
-	ScanTree ScTree(false, true, -1, false);
+	ScanTree ScTree(false, true, -1);
 	os::fs::find_data fdata;
 	string strFullName;
 	FlushCache();
@@ -1873,7 +1869,7 @@ void TreeList::ReadSubTree(string_view const Path)
 		return;
 
 	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
-	ScanTree ScTree(false, true, -1, false);
+	ScanTree ScTree(false, true, -1);
 
 	const auto strDirName = ConvertNameToFull(Path);
 	AddTreeName(strDirName);

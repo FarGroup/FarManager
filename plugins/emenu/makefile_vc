@@ -5,7 +5,6 @@ NAME = EMenu
 LINK_OBJS = $(OBJDIR)\EMenu.obj \
 	$(OBJDIR)\auto_sz.obj \
 	$(OBJDIR)\FarMenu.obj \
-	$(OBJDIR)\MenuDlg.obj \
 	$(OBJDIR)\OleThread.obj \
 	$(OBJDIR)\Pidl.obj \
 	$(OBJDIR)\Plugin.obj
@@ -15,4 +14,4 @@ LINK_OBJS = $(OBJDIR)\EMenu.obj \
 !include ..\makefile_vc_target_inc
 
 $(RES): resource.h
-$(OBJDIR)\Plugin.obj: FarMenu.h HMenu.h MenuDlg.h OleThread.h Pidl.h Plugin.h resource.h guid.hpp version.hpp
+$(OBJDIR)\Plugin.obj: FarMenu.h HMenu.h OleThread.h Pidl.h Plugin.h resource.h guid.hpp version.hpp

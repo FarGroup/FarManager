@@ -3237,9 +3237,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 				Global->CtrlObject->Cp()->ActivePanel()->CompareDir();
 				break;
 			case MENU_COMMANDS_EDITUSERMENU: // Edit user menu
-				{
-					UserMenu(true);
-				}
+				user_menu(true);
 				break;
 			case MENU_COMMANDS_FILEASSOCIATIONS: // File associations
 				EditFileTypes();

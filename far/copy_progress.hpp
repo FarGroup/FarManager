@@ -111,10 +111,6 @@ private:
 	string m_FilesCopied;
 	std::chrono::steady_clock::duration m_CalcTime{};
 
-	// BUGBUG
-public:
-	time_check m_SecurityTimeCheck;
-
 private:
 	struct
 	{

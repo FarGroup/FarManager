@@ -228,16 +228,21 @@ private:
 	typename T::pointer m_RawPtr{};
 };
 
-template<typename owner, typename acquire, typename release>
+template<auto acquire, auto release, typename owner>
 [[nodiscard]]
-auto make_raii_wrapper(owner* Owner, const acquire& Acquire, const release& Release)
+auto make_raii_wrapper(owner* Owner)
 {
-	std::invoke(Acquire, Owner);
-	auto Releaser = [Release](owner* OwnerPtr)
+	std::invoke(acquire, Owner);
+
+	struct releaser
 	{
-		std::invoke(Release, OwnerPtr);
+		void operator()(owner* const OwnerPtr) const
+		{
+			std::invoke(release, OwnerPtr);
+		}
 	};
-	return std::unique_ptr<owner, std::remove_reference_t<decltype(Releaser)>>(Owner, std::move(Releaser));
+
+	return std::unique_ptr<owner, releaser>(Owner);
 }
 
 namespace detail

@@ -63,8 +63,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 FolderTree::FolderTree(private_tag, int ModalMode, int IsStandalone, bool IsFullScreen):
-	m_Tree(nullptr),
-	m_FindEdit(nullptr),
 	m_ModalMode(ModalMode),
 	m_IsFullScreen(IsFullScreen),
 	m_IsStandalone(IsStandalone)

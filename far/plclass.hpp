@@ -308,11 +308,14 @@ public:
 	bool LoadFromCache(const os::fs::find_data &FindData);
 	bool SaveToCache();
 	bool IsPanelPlugin();
-	bool Active() const {return Activity != 0;}
+	bool Active() const {return m_Activity != 0; }
 	void AddDialog(const window_ptr& Dlg);
 	bool RemoveDialog(const window_ptr& Dlg);
 	[[nodiscard]]
-	auto keep_activity() { return make_raii_wrapper(this, [](Plugin* p){ ++p->Activity; }, [](Plugin* p){ --p->Activity; });  }
+	auto keep_activity()
+	{
+		return make_raii_wrapper<&Plugin::increase_activity, &Plugin::decrease_activity>(this);
+	}
 
 protected:
 	template<export_index Export, bool Native = true>
@@ -353,7 +356,6 @@ protected:
 	plugin_factory* m_Factory;
 	plugin_factory::plugin_module_ptr m_Instance;
 	std::unique_ptr<language> PluginLang;
-	size_t Activity{};
 	bool bPendingRemove{};
 
 private:
@@ -362,6 +364,9 @@ private:
 	void InitExports();
 	void ClearExports();
 	void SetUuid(const UUID& Uuid);
+
+	void increase_activity();
+	void decrease_activity();
 
 	template<typename T>
 	void SetInstance(T* Object) const
@@ -385,6 +390,7 @@ private:
 
 	UUID m_Uuid;
 	string m_strUuid;
+	std::atomic_size_t m_Activity{};
 };
 
 plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string& Filename);

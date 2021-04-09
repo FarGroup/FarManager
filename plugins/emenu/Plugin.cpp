@@ -1,22 +1,20 @@
-﻿#ifdef __GNUC__
-#include <cwchar>
-#define swprintf_s(buffer, size, format, ...) swprintf(buffer, format, __VA_ARGS__)
-#endif
+﻿#include <cstdio>
+#include <cassert>
+
+#include <shlobj.h>
+#include <comdef.h>
+#include <shlguid.h>
+
+#include <PluginSettings.hpp>
+#include <DlgBuilder.hpp>
 
 #include "Plugin.h"
-#include <comdef.h>
-#include <stddef.h>
 #include "resource.h"
-#include "MenuDlg.h"
 #include "FarMenu.h"
 #include "Pidl.h"
-#include <shlguid.h>
 #include "OleThread.h"
 #include "HMenu.h"
-#include <PluginSettings.hpp>
 #include "guid.hpp"
-#include <DlgBuilder.hpp>
-#include <cassert>
 
 // new version of PSDK doesn't contain standard smart-pointer declaration
 _COM_SMARTPTR_TYPEDEF(IContextMenu, __uuidof(IContextMenu));
@@ -59,6 +57,34 @@ _COM_SMARTPTR_TYPEDEF(IDataObject, __uuidof(IDataObject));
  inline bool IsWindowsXPOrGreater()
  { return IsWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WINXP), LOBYTE(_WIN32_WINNT_WINXP), 0); }
 #endif
+
+class output_suppressor
+{
+public:
+	output_suppressor()
+	{
+		SetStdHandle(STD_OUTPUT_HANDLE, m_Null);
+		SetStdHandle(STD_ERROR_HANDLE, m_Null);
+	}
+
+	~output_suppressor()
+	{
+		SetStdHandle(STD_ERROR_HANDLE, m_StdErr);
+		SetStdHandle(STD_OUTPUT_HANDLE, m_StdOut);
+
+		if (m_Null != INVALID_HANDLE_VALUE)
+			CloseHandle(m_Null);
+	}
+
+	output_suppressor(output_suppressor const&) = delete;
+	output_suppressor& operator=(output_suppressor const&) = delete;
+
+private:
+	HANDLE
+		m_StdOut{ GetStdHandle(STD_OUTPUT_HANDLE) },
+		m_StdErr{ GetStdHandle(STD_ERROR_HANDLE) },
+		m_Null{ CreateFile(L"nul", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, {}, OPEN_EXISTING, 0, {}) };
+};
 
 CPlugin::~CPlugin(void)
 {
@@ -815,8 +841,11 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
 
   CHMenu oHMenu;
   if (!oHMenu) return DOMNU_ERR_SHOW;
-  enum {EMENU_CMF_EXTENDEDVERBS=0x00000100}; // rarely used verbs
-  if (!pPreferredMenu || FAILED(pPreferredMenu->QueryContextMenu(oHMenu, 0, MENUID_CMDOFFSET, 0x7FFF, CMF_CANRENAME|(GetKeyState(VK_SHIFT)&0xF000?EMENU_CMF_EXTENDEDVERBS:0))))
+
+  if (!pPreferredMenu)
+    return DOMNU_ERR_SHOW;
+
+  if (output_suppressor Suppressor; FAILED(pPreferredMenu->QueryContextMenu(oHMenu, 0, MENUID_CMDOFFSET, 0x7FFF, CMF_CANRENAME | (GetKeyState(VK_SHIFT) & 0xF000? CMF_EXTENDEDVERBS : 0))))
   {
     return DOMNU_ERR_SHOW;
   }
@@ -923,7 +952,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
   {
     int nId=nCmd-MENUID_CMDOFFSET;
     CHAR szVerb[100];
-    if (FAILED(pPreferredMenu->GetCommandString(nId, GCS_VERBA, NULL, szVerb, ARRAYSIZE(szVerb))))
+    if (output_suppressor Suppressor; FAILED(pPreferredMenu->GetCommandString(nId, GCS_VERBA, NULL, szVerb, ARRAYSIZE(szVerb))))
     {
       szVerb[0]='\0';
     }
@@ -959,7 +988,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
       cmici.nShow        = SW_SHOWNORMAL;
       cmici.dwHotKey     = 0;
       cmici.hIcon        = NULL;
-      if (FAILED(pPreferredMenu->InvokeCommand(&cmici)))
+      if (output_suppressor Suppressor; FAILED(pPreferredMenu->InvokeCommand(&cmici)))
       {
         // return DOMNU_ERR_INVOKE;
         // Иногда здесь возвращается ошибка даже в
@@ -985,6 +1014,55 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
     }
   }
   return DOMNU_OK;
+}
+
+struct SMenuDlgParam
+{
+  LPCONTEXTMENU pMenu1;
+  LPCONTEXTMENU2 pMenu2;
+  LPCONTEXTMENU3 pMenu3;
+};
+
+BOOL CALLBACK MenuDlgProc(HWND hDlg, UINT nMsg, WPARAM wParam, LPARAM lParam)
+{
+  SMenuDlgParam* pParam=(SMenuDlgParam*)::GetWindowLongPtr(hDlg, GWLP_USERDATA);
+  switch (nMsg)
+  {
+  case WM_INITDIALOG:
+    SetWindowLongPtr(hDlg, GWLP_USERDATA, lParam);
+    return TRUE;
+
+  case WM_DRAWITEM:
+  case WM_INITMENUPOPUP:
+  case WM_MEASUREITEM:
+    if (pParam->pMenu3)
+    {
+      if (output_suppressor Suppressor; NOERROR != pParam->pMenu3->HandleMenuMsg(nMsg, wParam, lParam))
+      {
+        //assert(0);
+      }
+    }
+    else if (pParam->pMenu2)
+    {
+      if (output_suppressor Suppressor; NOERROR != pParam->pMenu2->HandleMenuMsg(nMsg, wParam, lParam))
+      {
+        //assert(0);
+      }
+    }
+    return (nMsg == WM_INITMENUPOPUP ? FALSE : TRUE);
+  case WM_MENUCHAR:
+    if (pParam->pMenu3)
+    {
+      LRESULT res;
+      if (output_suppressor Suppressor; NOERROR != pParam->pMenu3->HandleMenuMsg2(nMsg, wParam, lParam, &res))
+      {
+        //assert(0);
+      }
+      if (res) return res != 0;
+    }
+    break;
+  }
+  return FALSE;
 }
 
 bool CPlugin::ShowGuiMenu(HMENU hMenu, LPCONTEXTMENU pMenu1, LPCONTEXTMENU2 pMenu2, LPCONTEXTMENU3 pMenu3, int* pnCmd)
@@ -1031,6 +1109,18 @@ bool CPlugin::ShowGuiMenu(HMENU hMenu, LPCONTEXTMENU pMenu1, LPCONTEXTMENU2 pMen
   return true;
 }
 
+static auto invoke_GetCommandString(IContextMenu* pContextMenu, UINT_PTR Id, UINT Type, CHAR* Name, UINT Max)
+{
+	SEH_TRY
+	{
+		return pContextMenu->GetCommandString(Id, Type, {}, Name, Max);
+	}
+	SEH_EXCEPT(EXCEPTION_EXECUTE_HANDLER)
+	{
+		return E_UNEXPECTED;
+	}
+}
+
 bool CPlugin::GetAdditionalString(IContextMenu* pContextMenu, UINT nID, EAdditionalStr enAdditionalString, auto_sz* pstr)
 {
   UINT nType;
@@ -1046,16 +1136,8 @@ bool CPlugin::GetAdditionalString(IContextMenu* pContextMenu, UINT nID, EAdditio
     return false;
   }
   WCHAR szwAddInfo[200]=L"\0";
-  HRESULT hr;
-  SEH_TRY
-  {
-    hr = pContextMenu->GetCommandString(nID, nType, NULL, reinterpret_cast<LPSTR>(szwAddInfo), ARRAYSIZE(szwAddInfo));
-  }
-  SEH_EXCEPT(EXCEPTION_EXECUTE_HANDLER)
-  {
-    hr = E_UNEXPECTED;
-  }
-  if (FAILED(hr))
+
+  if (output_suppressor Suppressor; FAILED(invoke_GetCommandString(pContextMenu, nID, nType, reinterpret_cast<LPSTR>(szwAddInfo), ARRAYSIZE(szwAddInfo))))
   {
     return false;
   }
@@ -1240,13 +1322,13 @@ bool CPlugin::ShowTextMenu(HMENU hMenu, LPCONTEXTMENU pPreferredMenu, LPCONTEXTM
         // generic submenu selected
         if (pMenu3)
         {
-          if (NOERROR!=pMenu3->HandleMenuMsg(WM_INITMENUPOPUP, (WPARAM)mii.hSubMenu, nItem))
+          if (output_suppressor Suppressor; NOERROR != pMenu3->HandleMenuMsg(WM_INITMENUPOPUP, (WPARAM)mii.hSubMenu, nItem))
           {
           }
         }
         else if (pMenu2)
         {
-          if (NOERROR!=pMenu2->HandleMenuMsg(WM_INITMENUPOPUP, (WPARAM)mii.hSubMenu, nItem))
+          if (output_suppressor Suppressor; NOERROR != pMenu2->HandleMenuMsg(WM_INITMENUPOPUP, (WPARAM)mii.hSubMenu, nItem))
           {
           }
         }

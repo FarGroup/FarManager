@@ -91,6 +91,34 @@ enum
 */
 #endif
 
+// BUGBUG Cleanup
+class UserMenu : noncopyable
+{
+	struct UserMenuItem;
+
+public:
+	explicit UserMenu(bool ChooseMenuType);
+	explicit UserMenu(string_view MenuFileName);
+	~UserMenu();
+
+	using menu_container = std::list<UserMenuItem>;
+
+private:
+	void ProcessUserMenu(bool ChooseMenuType, string_view MenuFileName);
+	bool DeleteMenuRecord(menu_container& Menu, const menu_container::iterator& MenuItem) const;
+	bool EditMenu(menu_container& Menu, menu_container::iterator* MenuItem, bool Create);
+	int ProcessSingleMenu(menu_container& Menu, int MenuPos, menu_container& MenuRoot, string_view MenuFileName, const string& Title);
+	void SaveMenu(string_view MenuFileName) const;
+	intptr_t EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
+
+	enum class menu_mode : int;
+
+	menu_mode m_MenuMode;
+	mutable bool m_MenuModified{};
+	bool m_ItemChanged{};
+	uintptr_t m_MenuCP;
+	menu_container m_Menu;
+};
 
 // Режимы показа меню (Menu mode)
 enum class UserMenu::menu_mode: int
@@ -245,8 +273,6 @@ static void DeserializeMenu(UserMenu::menu_container& Menu, const os::fs::file& 
 
 UserMenu::UserMenu(bool ChooseMenuType):
 	m_MenuMode(menu_mode::local),
-	m_MenuModified(false),
-	m_ItemChanged(false),
 	m_MenuCP(default_menu_file_codepage)
 {
 	ProcessUserMenu(ChooseMenuType, {});
@@ -254,8 +280,6 @@ UserMenu::UserMenu(bool ChooseMenuType):
 
 UserMenu::UserMenu(string_view const MenuFileName):
 	m_MenuMode(menu_mode::local),
-	m_MenuModified(false),
-	m_ItemChanged(false),
 	m_MenuCP(default_menu_file_codepage)
 {
 	ProcessUserMenu(false, MenuFileName);
@@ -1097,4 +1121,14 @@ bool UserMenu::DeleteMenuRecord(std::list<UserMenuItem>& Menu, const std::list<U
 	m_MenuModified=true;
 	Menu.erase(MenuItem);
 	return true;
+}
+
+void user_menu(bool const ChooseMenuType)
+{
+	UserMenu{ ChooseMenuType };
+}
+
+void user_menu(string_view const MenuFileName)
+{
+	UserMenu{ MenuFileName };
 }

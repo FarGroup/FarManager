@@ -103,7 +103,7 @@ public:
 	int ID() const {return m_ID;}
 
 	[[nodiscard]]
-	auto GetPinner() { return make_raii_wrapper(this, &window::Pin, &window::UnPin); }
+	auto GetPinner() { return make_raii_wrapper<&window::Pin, &window::UnPin>(this); }
 
 protected:
 	window();

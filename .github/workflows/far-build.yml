@@ -50,24 +50,24 @@ jobs:
 
       - name: Build MsBuild
         if: matrix.compiler == 'MSVC_PROJ'
-        working-directory: ${{runner.workspace}}/FarManager/far
+        working-directory: far
         run: MSBuild.exe /property:Configuration=${{ matrix.build_config }} /property:Platform=${{ matrix.arch }} far.vcxproj
 
       - name: Build NMake Far
         if: matrix.compiler  == 'MSVC_NMAKE'
-        working-directory: ${{runner.workspace}}/FarManager/far
+        working-directory: far
         run: |
           cl.exe
           nmake /f makefile_vc
 
       - name: Build NMake Plugins
         if: matrix.compiler  == 'MSVC_NMAKE'
-        working-directory: ${{runner.workspace}}/FarManager/plugins
+        working-directory: plugins
         run: nmake /f makefile_all_vc
 
       - name: Build Clang NMake Far
         if: matrix.compiler  == 'CLANG_NMAKE'
-        working-directory: ${{runner.workspace}}/FarManager/far
+        working-directory: far
         run: |
           clang --version
           nmake /f makefile_vc CLANG=1
@@ -81,7 +81,7 @@ jobs:
 
       - name: Build Mingw GCC Far
         if: matrix.compiler  == 'GCC_MAKE'
-        working-directory: ${{runner.workspace}}/FarManager/far
+        working-directory: far
         shell: msys2 {0}
         run: |
           gcc --version
@@ -89,7 +89,7 @@ jobs:
 
       - name: Build Mingw GCC Plugins
         if: matrix.compiler  == 'GCC_MAKE'
-        working-directory: ${{runner.workspace}}/FarManager/plugins
+        working-directory: plugins
         shell: msys2 {0}
         run: |
           gcc --version
@@ -104,7 +104,7 @@ jobs:
 
       - name: Build Mingw Clang Far
         if: matrix.compiler  == 'CLANG_MAKE'
-        working-directory: ${{runner.workspace}}/FarManager/far
+        working-directory: far
         shell: msys2 {0}
         run: |
           clang --version
@@ -112,7 +112,7 @@ jobs:
 
       - name: Build Mingw Clang Plugins
         if: matrix.compiler  == 'CLANG_MAKE'
-        working-directory: ${{runner.workspace}}/FarManager/plugins
+        working-directory: plugins
         shell: msys2 {0}
         run: |
           clang --version

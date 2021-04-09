@@ -69,14 +69,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-History::History(history_type TypeHistory, string_view const HistoryName, const BoolOption& EnableSave):
+History::History(history_type TypeHistory, string_view const HistoryName, const BoolOption& EnableSave, bool const CaseSensitive, bool const KeepSelectedPos):
 	m_TypeHistory(TypeHistory),
 	m_HistoryName(HistoryName),
 	m_EnableSave(EnableSave),
-	m_EnableAdd(true),
-	m_KeepSelectedPos(false),
-	m_RemoveDups(1),
-	m_CurrentItem(0)
+	m_KeepSelectedPos(KeepSelectedPos),
+	m_CaseSensitive(CaseSensitive)
 {
 }
 
@@ -97,7 +95,7 @@ void History::CompactHistory()
 
 void History::AddToHistory(string_view const Str, history_record_type const Type, const UUID* const Uuid, string_view const File, string_view const Data)
 {
-	if (!m_EnableAdd)
+	if (m_SuppressAdd)
 		return;
 
 	if (Global->CtrlObject->Macro.IsExecuting() && Global->CtrlObject->Macro.IsHistoryDisabled(static_cast<int>(m_TypeHistory)))
@@ -113,23 +111,20 @@ void History::AddToHistory(string_view const Str, history_record_type const Type
 
 	const bool ignore_data = m_TypeHistory == HISTORYTYPE_CMD;
 
-	if (m_RemoveDups) // удалять дубликаты?
-	{
-		const auto are_equal = m_RemoveDups == 2? equal_icase : equal;
+	const auto are_equal = m_CaseSensitive? equal : equal_icase;
 
-		for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName))
+	for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName))
+	{
+		if (EqualType(Type, i.Type))
 		{
-			if (EqualType(Type, i.Type))
+			if (are_equal(Str, i.Name) &&
+				are_equal(strUuid, i.Uuid) &&
+				are_equal(File, i.File) &&
+				(ignore_data || are_equal(Data, i.Data)))
 			{
-				if (are_equal(Str, i.Name) &&
-					are_equal(strUuid, i.Uuid) &&
-					are_equal(File, i.File) &&
-					(ignore_data || are_equal(Data, i.Data)))
-				{
-					Lock = Lock || i.Lock;
-					DeleteId = i.Id;
-					break;
-				}
+				Lock = Lock || i.Lock;
+				DeleteId = i.Id;
+				break;
 			}
 		}
 	}
@@ -665,13 +660,6 @@ bool History::DeleteIfUnlocked(unsigned long long id)
 	return true;
 }
 
-void History::SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos)
-{
-	m_EnableAdd=EnableAdd;
-	m_RemoveDups=RemoveDups;
-	m_KeepSelectedPos=KeepSelectedPos;
-}
-
 bool History::EqualType(history_record_type Type1, history_record_type Type2) const
 {
 	return Type1 == Type2 || (m_TypeHistory == HISTORYTYPE_VIEW && ((Type1 == HR_EDITOR_RO && Type2 == HR_EDITOR) || (Type1 == HR_EDITOR && Type2 == HR_EDITOR_RO)));
@@ -680,4 +668,14 @@ bool History::EqualType(history_record_type Type1, history_record_type Type2) co
 const std::unique_ptr<HistoryConfig>& History::HistoryCfgRef() const
 {
 	return m_EnableSave? ConfigProvider().HistoryCfg() : ConfigProvider().HistoryCfgMem();
+}
+
+void History::suppress_add()
+{
+	++m_SuppressAdd;
+}
+
+void History::restore_add()
+{
+	--m_SuppressAdd;
 }

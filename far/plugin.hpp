@@ -395,6 +395,9 @@ enum FARMESSAGE
 
 	DM_GETDIALOGTITLE               = 67,
 
+	DM_SUPPRESSHISTORY              = 68,
+	DM_RESTOREHISTORY               = 69,
+
 	DN_FIRST                        = 4096,
 	DN_BTNCLICK                     = 4097,
 	DN_CTLCOLORDIALOG               = 4098,
@@ -1128,6 +1131,15 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_SETCURSORPOS               = 26,
 	ACTL_PROGRESSNOTIFY             = 27,
 	ACTL_GETWINDOWTYPE              = 28,
+	ACTL_SUPPRESSHISTORY            = 29,
+	ACTL_RESTOREHISTORY             = 30,
+};
+
+enum FAR_HISTORY_TYPE
+{
+	HISTORY_COMMANDS,
+	HISTORY_VIEWEDIT,
+	HISTORY_FOLDERS,
 };
 
 enum FAR_MACRO_CONTROL_COMMANDS
@@ -2485,8 +2497,8 @@ static __inline BOOL CheckVersion(const struct VersionInfo* Current, const struc
 	return
 		(Current->Major > Required->Major) ||
 		(Current->Major == Required->Major && Current->Minor > Required->Minor) ||
-		(Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision > Required->Revision) ||
-		(Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision == Required->Revision && Current->Build >= Required->Build);
+		(Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Build > Required->Build) ||
+		(Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Build == Required->Build && Current->Revision >= Required->Revision);
 }
 
 static __inline struct VersionInfo MAKEFARVERSION(DWORD Major, DWORD Minor, DWORD Revision, DWORD Build, enum VERSION_STAGE Stage)

@@ -1485,6 +1485,7 @@ unhandled_exception_filter::~unhandled_exception_filter()
 	SetUnhandledExceptionFilter(m_PreviousFilter);
 }
 
+[[noreturn]]
 static void purecall_handler_impl()
 {
 	// VC invokes abort if the user handler isn't set,

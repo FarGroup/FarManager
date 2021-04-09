@@ -74,8 +74,8 @@ public:
 	bool GlobalSearchCase{};
 	bool GlobalSearchWholeWords{}; // значение "Whole words" для поиска
 	bool GlobalSearchReverse{};
-	std::atomic_ulong SuppressClock{};
-	std::atomic_ulong SuppressIndicators{};
+	std::atomic_size_t SuppressClock{};
+	std::atomic_size_t SuppressIndicators{};
 	bool CloseFAR{}, CloseFARMenu{}, AllowCancelExit{true};
 	bool DisablePluginsOutput{};
 	int IsProcessAssignMacroKey{};

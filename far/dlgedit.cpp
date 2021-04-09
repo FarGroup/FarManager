@@ -55,14 +55,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 DlgEdit::DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type):
 	SimpleScreenObject(std::move(Owner)),
-	LastPartLength(-1),
 	m_Index(Index),
-	Type(Type),
-	iHistory(nullptr),
-#if defined(PROJECT_DI_MEMOEDIT)
-	multiEdit(nullptr),
-#endif
-	lineEdit(nullptr)
+	Type(Type)
 {
 	switch (Type)
 	{
@@ -120,7 +114,7 @@ DlgEdit::~DlgEdit()
 
 void DlgEdit::SetHistory(string_view const Name)
 {
-	iHistory = std::make_unique<History>(HISTORYTYPE_DIALOG, Name, Global->Opt->Dialogs.EditHistory);
+	iHistory = std::make_unique<History>(HISTORYTYPE_DIALOG, Name, Global->Opt->Dialogs.EditHistory, false, false);
 }
 
 bool DlgEdit::ProcessKey(const Manager::Key& Key)

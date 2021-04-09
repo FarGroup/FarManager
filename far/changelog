@@ -1,4 +1,67 @@
 --------------------------------------------------------------------------------
+drkns 07.04.2021 17:30:06 +0100 - build 5778
+
+1. Correction of 5776.
+
+--------------------------------------------------------------------------------
+drkns 06.04.2021 17:18:03 +0100 - build 5777
+
+1. Correction of 5776.
+
+--------------------------------------------------------------------------------
+drkns 05.04.2021 12:44:10 +0100 - build 5776
+
+1. An attempt to fix 0003856: Wrong file count in copy dialog.
+   As usual, copying is a can of worms. Brace yourself.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
+svs 04.04.2021 10:00:00 +0300 - build 5775
+
+1. SQLite 3.35.4
+
+--------------------------------------------------------------------------------
+drkns 02.04.2021 01:25:54 +0100 - build 5774
+
+1. Refactoring.
+
+--------------------------------------------------------------------------------
+drkns 01.04.2021 23:08:23 +0100 - build 5773
+
+1. Experimental: view / edit history is now updated as soon as the file is opened instead of at exit.
+   Shift+Enter in the history menu should work as intended now.
+
+2. Experimental: folders history is now updated as soon as the folder is entered instead of at exit.
+   Shift+Enter in the history menu should work as intended now.
+
+3. Experimental: allow plugins to suppress updating histories:
+
+   ACTL_SUPPRESSHISTORY: suppress updating the specified history (commands / view/edit / folders).
+     Param1: FAR_HISTORY_TYPE enum.
+     Param2: nullptr.
+     Return value: the suppressor object handle or FALSE.
+
+   ACTL_RESTOREHISTORY: remove the suppression.
+     Param1: 0.
+     Param2: the suppressor object handle, received from ACTL_SUPPRESSHISTORY.
+     Return value: TRUE.
+
+   DM_SUPPRESSHISTORY: suppress updating the history in the specified dialog edit control.
+     Param1: element id.
+     Param2: nullptr.
+     Return value: the suppressor object handle or FALSE.
+
+   DM_RESTOREHISTORY: remove the suppression.
+     Param1: 0.
+     Param2: the suppressor object handle, received from DM_SUPPRESSHISTORY.
+     Return value: TRUE.
+
+   You must release every suppressor object handle eventually to avoid memory leaks.
+
+4. Minor refactoring.
+
+--------------------------------------------------------------------------------
 drkns 29.03.2021 00:00:09 +0100 - build 5772
 
 1. Error handling improvements.

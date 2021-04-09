@@ -1,3 +1,7 @@
+drkns 08.04.2021 19:42:42 +0100 - build 66
+
+1. Suppress stdout & stderr before calling IContextMenu methods.
+
 drkns 14.09.2016 09:51:12 +0200 - build 65
 
 1. Вернём хак для "-- owner drawn --", убранный в #62 вместе с хаком для "-- bitmap --" - он ещё нужен.

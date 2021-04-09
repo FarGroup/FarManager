@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class ScanTree: noncopyable
 {
 public:
-	explicit ScanTree(bool RetUpDir, bool Recurse=true, int ScanJunction=-1, bool FilesFirst = true);
+	explicit ScanTree(bool RetUpDir, bool Recurse=true, int ScanJunction=-1);
 	~ScanTree();
 
 	// 3-й параметр - флаги из старшего слова

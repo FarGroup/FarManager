@@ -84,12 +84,7 @@ qview_panel_ptr QuickView::create(window_ptr Owner)
 }
 
 QuickView::QuickView(private_tag, window_ptr Owner):
-	Panel(std::move(Owner)),
-	Data(),
-	OldWrapMode(false),
-	OldWrapType(false),
-	m_TemporaryFile(),
-	uncomplete_dirscan(false)
+	Panel(std::move(Owner))
 {
 	m_Type = panel_type::QVIEW_PANEL;
 	if (!LastMode)

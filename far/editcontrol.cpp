@@ -77,17 +77,8 @@ EditControl::EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_pr
 	pHistory(iHistory),
 	pList(iList),
 	m_ParentProcessKey(ParentProcessKey? std::move(ParentProcessKey) : [Parent](const Manager::Key& Key) {return Parent->ProcessKey(Key); }),
-	MaxLength(-1),
-	CursorSize(-1),
-	CursorPos(0),
-	PrevCurPos(0),
-	MacroSelectionStart(-1),
-	SelectionStart(-1),
 	MacroAreaAC(MACROAREA_DIALOGAUTOCOMPLETION),
 	ECFlags(iFlags),
-	m_CallbackSuppressionsCount(),
-	Selection(false),
-	MenuUp(false),
 	ACState(ECFlags.Check(EC_ENABLEAUTOCOMPLETE))
 {
 	SetObjectColor();

@@ -186,6 +186,11 @@ void FileViewer::Init(
 		return;
 	}
 
+	if (!m_DisableHistory && m_Name != L"-"sv)
+	{
+		Global->CtrlObject->ViewHistory->AddToHistory(m_View->GetFileName(), HR_VIEWER);
+	}
+
 	if (ViewStartPos != -1)
 		m_View->SetFilePos(ViewStartPos);
 
@@ -492,11 +497,6 @@ FileViewer::~FileViewer()
 void FileViewer::OnDestroy()
 {
 	m_bClosing = true;
-
-	if (!m_DisableHistory && (Global->CtrlObject->Cp()->ActivePanel() || m_Name != L"-"sv))
-	{
-		Global->CtrlObject->ViewHistory->AddToHistory(m_View->GetFileName(), HR_VIEWER);
-	}
 	m_View->OnDestroy();
 }
 

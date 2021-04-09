@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31025.218
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HlfChecker", "HlfChecker.csproj", "{0E976D42-04C6-4DE7-AF97-7692A020525C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0E976D42-04C6-4DE7-AF97-7692A020525C}.Debug|x64.ActiveCfg = Debug|x64
+		{0E976D42-04C6-4DE7-AF97-7692A020525C}.Debug|x64.Build.0 = Debug|x64
+		{0E976D42-04C6-4DE7-AF97-7692A020525C}.Release|x64.ActiveCfg = Release|x64
+		{0E976D42-04C6-4DE7-AF97-7692A020525C}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A8F2274D-A80C-4A3A-B307-4DFA77C0BCCA}
+	EndGlobalSection
+EndGlobal

@@ -357,17 +357,7 @@ static const FarDialogItem VMenu2DialogItems[]
 
 VMenu2::VMenu2(private_tag, int MaxHeight):
 	Dialog(Dialog::private_tag(), span(VMenu2DialogItems), [this](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) { return VMenu2DlgProc(Dlg, Msg, Param1, Param2); }, nullptr),
-	MaxHeight(MaxHeight),
-	cancel(0),
-	m_X1(-1),
-	m_Y1(-1),
-	m_X2(0),
-	m_Y2(0),
-	DefRec(),
-	InsideCall(0),
-	NeedResize(false),
-	closing(false),
-	ForceClosing(false)
+	MaxHeight(MaxHeight)
 {
 }
 

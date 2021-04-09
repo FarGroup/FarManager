@@ -313,30 +313,30 @@ private:
 
 	string strTitle;
 	string strBottomTitle;
-	int SelectPos;
-	int SelectPosResult;
-	int TopPos;
+	int SelectPos{-1};
+	int SelectPosResult{-1};
+	int TopPos{};
 	int MaxHeight;
-	bool WasAutoHeight;
-	size_t m_MaxLength;
+	bool WasAutoHeight{};
+	size_t m_MaxLength{};
 	int m_BoxType;
 	window_ptr CurrentWindow;
-	bool PrevCursorVisible;
-	size_t PrevCursorSize;
+	bool PrevCursorVisible{};
+	size_t PrevCursorSize{};
 	// переменная, отвечающая за отображение scrollbar в DI_LISTBOX & DI_COMBOBOX
 	BitFlags VMFlags;
 	// Для LisBox - родитель в виде диалога
 	std::weak_ptr<Dialog> ParentDialog;
-	size_t DialogItemID;
-	bool bFilterEnabled;
-	bool bFilterLocked;
+	size_t DialogItemID{};
+	bool bFilterEnabled{};
+	bool bFilterLocked{};
 	string strFilter;
 	std::vector<MenuItemEx> Items;
-	intptr_t ItemHiddenCount;
-	intptr_t ItemSubMenusCount;
-	FarColor Colors[VMENU_COLOR_COUNT];
-	size_t MaxLineWidth;
-	bool bRightBtnPressed;
+	intptr_t ItemHiddenCount{};
+	intptr_t ItemSubMenusCount{};
+	FarColor Colors[VMENU_COLOR_COUNT]{};
+	size_t MaxLineWidth{};
+	bool bRightBtnPressed{};
 	UUID MenuId;
 };
 
