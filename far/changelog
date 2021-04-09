@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 09.04.2021 17:28:29 +0100 - build 5779
+
+1. 0003859: Copying a file over itself leads to data loss.
+
+2. Remove the <ACTL|DM>_<SUPPRESS|RESTORE>HISTORY commands, introduced in 5773.
+
+--------------------------------------------------------------------------------
 drkns 07.04.2021 17:30:06 +0100 - build 5778
 
 1. Correction of 5776.
@@ -35,31 +42,7 @@ drkns 01.04.2021 23:08:23 +0100 - build 5773
 2. Experimental: folders history is now updated as soon as the folder is entered instead of at exit.
    Shift+Enter in the history menu should work as intended now.
 
-3. Experimental: allow plugins to suppress updating histories:
-
-   ACTL_SUPPRESSHISTORY: suppress updating the specified history (commands / view/edit / folders).
-     Param1: FAR_HISTORY_TYPE enum.
-     Param2: nullptr.
-     Return value: the suppressor object handle or FALSE.
-
-   ACTL_RESTOREHISTORY: remove the suppression.
-     Param1: 0.
-     Param2: the suppressor object handle, received from ACTL_SUPPRESSHISTORY.
-     Return value: TRUE.
-
-   DM_SUPPRESSHISTORY: suppress updating the history in the specified dialog edit control.
-     Param1: element id.
-     Param2: nullptr.
-     Return value: the suppressor object handle or FALSE.
-
-   DM_RESTOREHISTORY: remove the suppression.
-     Param1: 0.
-     Param2: the suppressor object handle, received from DM_SUPPRESSHISTORY.
-     Return value: TRUE.
-
-   You must release every suppressor object handle eventually to avoid memory leaks.
-
-4. Minor refactoring.
+3. Minor refactoring.
 
 --------------------------------------------------------------------------------
 drkns 29.03.2021 00:00:09 +0100 - build 5772

@@ -395,9 +395,6 @@ enum FARMESSAGE
 
 	DM_GETDIALOGTITLE               = 67,
 
-	DM_SUPPRESSHISTORY              = 68,
-	DM_RESTOREHISTORY               = 69,
-
 	DN_FIRST                        = 4096,
 	DN_BTNCLICK                     = 4097,
 	DN_CTLCOLORDIALOG               = 4098,
@@ -1131,8 +1128,6 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_SETCURSORPOS               = 26,
 	ACTL_PROGRESSNOTIFY             = 27,
 	ACTL_GETWINDOWTYPE              = 28,
-	ACTL_SUPPRESSHISTORY            = 29,
-	ACTL_RESTOREHISTORY             = 30,
 };
 
 enum FAR_HISTORY_TYPE
