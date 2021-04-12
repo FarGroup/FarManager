@@ -20,7 +20,8 @@ namespace HlfChecker
 #if LINQPAD
 private static readonly string SelfLocation = Util.CurrentQuery.Location;
 #else
-private static readonly string SelfLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..");
+		// bin\$(Platform)\$(Configuration)\net5.0
+private static readonly string SelfLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..");
 #endif
 
 private static readonly DirectoryInfo FarDirectory = new DirectoryInfo(Path.Combine(SelfLocation, "..", "..", "far"));
