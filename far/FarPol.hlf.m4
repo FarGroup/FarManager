@@ -738,7 +738,7 @@ $ #Zrzut ekranu#
  Aby przesunąć kursor użyj #strzałek# lub kliknij #lewym klawiszem myszy#.
  Aby zaznaczyć tekst użyj klawiszy #Shift+strzałka# lub przeciągnij kursor myszy trzymając
 wciśnięty #lewy klawisz myszy#.
- Aby rozszerzyć lub zmniejszyć zaznaczony obszar użyj klawiszy #Alt+Shitf+strzałka#.
+ Aby rozszerzyć lub zmniejszyć zaznaczony obszar użyj klawiszy #Alt+Shift+strzałka#.
  Aby przenieść zaznaczenie użyj klawiszy #Alt+strzałka#.
  #Enter#, #Ctrl+Ins#, #prawy klawisz myszy# lub #podwójne kliknięcie# kopiują
 zaznaczony tekst do schowka, #Ctrl+<Szary +># dołączają tekst do zawartości schowka.
@@ -861,7 +861,7 @@ Ale jeżeli któraś wtyczka nie będzie już potrzebna, można ją usunąć osz
 #F11# lub odpowiadającemu menu ~Polecenia~@CmdMenu@. Wciśnięcie #F4# na ~"Liście wtyczek"~@PluginCommands@
 pozwala przypisać klawisz skrótu do menu (ułatwia to wywoływanie wtyczek w ~makrach klawiatury~@KeyMacro@).
 Menu to jest dostępne w panelu plików, oknach dialogowych oraz (tylko po wciśnięciu klawisza #F11#)
-w oknie podglądu i edycji. Tylko specjalnie przygotowane wtyczki będą pokazywane w oknach dialogowych,
+w oknie podglądu i edycji. Tylko specjalnie przygotowane wtyczki będą wywoływane w oknach dialogowych,
 przeglądarce lub edytorze.
 
  Można ustawić parametry wtyczek używając polecenia ~Konfiguracja wtyczek~@PluginsConfig@
@@ -1160,7 +1160,7 @@ wartość ta może być zbyt niedokładna do rzeczywistości).
 @InfoPanelShowMode
 $ #Panel informacyjny - tryby wyświetlania#
  Tryby wyświetlania ~Panelu informacyjnego~@InfoPanel@ (InfoPanel) mogą być zmieniane po wciśnięciu klawiszy
-#Ctrl+F12#. Można włączać lub wyłączać następujące informacje::
+#Ctrl+F12#. Można włączać lub wyłączać następujące informacje:
 
  - informacja o dysku
  - informacja o pamięci
@@ -1214,7 +1214,6 @@ Obsługiwane typy: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW i DVD-RAM.
  Format wyjściowy zależy od struktury domeny, polityk grup i ustawień DNS.
 
  #Format nazwy użytkownika#
-
  Do wyboru z listy:
 
  - #Nazwa logowania#
@@ -2849,99 +2848,96 @@ przełącza tryb #źródło# na #tekstowy#, i przełącza tryb #hex# na przeciwn
 do trybu podstawowego (#źródło# lub #tekst#) ostatnio wybranego w menu
 #Tryb widoku#. Uwaga: klawisze #F4# i #F2# przełączają tryb #hex# na inne tryby.
 
- #Text# mode
+ Tryb #tekstowy#
 
- In the #text# mode, viewer renders file content interpreting byte
-sequences as character strings using the encoding defined by the current
-code page. (Note that some encodings can use more than one byte
-to represent a character.) Byte sequences invalid in the current
-encoding and characters for which there are no glyphs in the console
-window font are displayed as question marks, or empty rectangles,
-or small question marks in a rectangle, or blanks. The representation
-depends on the console window font.
+ W trybie #tekstowym#, przeglądarka renderuje zawartość pliku bajt po bajcie
+jako ciągi znaków przy użyciu kodowania ustawionego jako bieżąca strona kodowa.
+(Warto zauważyć, że niektóre kodowania mogą używać więcej niż jednego bajtu
+do przedstawienia znaku.) Nieprawidłowe sekwencje bajtów w bieżącym kodowaniu
+i znaki, które nie mają odpowiedników w czcionce ekranowej będą wyświetlane
+jako znaki zapytania lub puste prostokąty lub małe znaki zapytania w prostokącie
+lub jako puste pola. Pokazywany znak zależy od czcionki okna konsoli.
 
- Text lines are broken at any conventional line delimiter, U+000A
-U+000D (Dos/Windows format), U+000A (Unix format), or U+000D (Mac
-format).
+ Wiersze tekstu są łamane wg dowolnego separatora linii, U+000A
+U+000D (format Dos/Windows), U+000A (format Unix), lub U+000D (format
+Mac).
 
- Long text lines which do not fit into the window can be either
-truncated or wrapped over multiple screen rows. The #F2# key switches
-between #wrap# and #truncate# modes. In #wrap# mode, #Shift+F2# key
-combination controls whether the lines can be broken inside a word.
+ Długie linie tekstu, które nie mieszą się w oknie także mogą być obcięte
+lub zawinięte na wiele wierszy ekranu. Klawisz #F2# przełącza pomiędzy
+trybami #zawijaj# i #obetnij#. W trybie #Zawijaj#, kombinacja klawiszy
+#Shift+F2# kontroluje czy wiersze mogą być dzielone wewnątrz słowa.
 
- In #truncate# mode, the text can be scrolled horizontally within the
-window. The #Right# key scrolls the text one column to the left; the
-#Left# key scrolls one column to the right (think of moving the window
-over the file content). The #Ctrl+Right# and #Ctrl+Left# key
-combinations scroll 20 columns at a time. If #Show scrolling arrows#
-in the ~Viewer settings~@ViewerSettings@ dialog is on, the truncated
-lines are indicated with the #«# and #»# characters at the corresponding
-edge of the window. The characters are displayed in a different color.
+ W trybie #obcinania#, tekst może być przewijany poziomo w obrębie okna.
+Klawisz kursora #w prawo# przewija tekst o jedną kolumnę w lewo; klawisz
+#w lewo# przewija o kolumnę w prawo (obejmując także przenoszenie okna
+nad zawartością pliku). Klawisze #Ctrl+Prawo# i #Ctrl+Lewo# przesuwają okno
+od razu o 20 kolumn. Jeżeli opcja #Pokaż strzałki przewijania# w ~Ustawieniach
+podglądu~@ViewerSettings@ jest włączona, obcięte linie oznaczone są znakami
+#«# i #»# w odpowiednich krawędziach okna. Dla wyróżnienia znaki te
+są wyświetlane w innym kolorze.
 
- The maximum length of text lines is limited to the #Maximum line width#
-defined in the ~Viewer settings~@ViewerSettings@ dialog. Longer lines
-are split into several screen rows even in #truncate# mode.
+ Maksymalna długość linii tekstu jest ograniczona w definicji
+#Maksymalna szerokość linii# w ~Ustawieniach podglądu~@ViewerSettings@.
+Dłuższe linie są dzielone na kilka wierszy, nawet w trybie #obcinania#.
 
- #Dump# mode
+ Tryb #źródło# (ang. dump)
 
- In the #dump# mode, viewer renders file content character by character
-without regard of line breaks or control codes which are treated
-as ordinary characters. The characters are displayed on screen rows from
-left to right. After reaching the end of the row, the next character
-is displayed in the leftmost position of the next row.
+ W trybie #źródła#, przeglądarka renderuje zawartość pliku znak po znaku
+bez uwzględniania znaków końca wiersza lub kodów sterujących, które traktowane
+są jak zwykłe znaki. Znaki są wyświetlane na ekranie rzędami od lewej
+do prawej. Po osiągnięciu końca wiersza, następny znak jest wyświetlany
+na skrajnej lewej pozycji następnego wiersza.
 
- NOTE: Strictly speaking, text is rendered by code units, not by
-characters. The size of a code unit depends on the encoding defined
-by the current code page; it is one byte for single-byte encodings
-(e.g. all ANSI code pages) and UTF-8, and two bytes for UTF-16 and
-UTF-16BE encodings. For example:
+ UWAGA: Ściśle mówiąc, tekst jest renderowany przez jednostki kodu,
+a nie przez znaki. Wielkość jednostki kodu zależy od zdefiniowanego
+kodowania w bieżącej stronie kodowej; jest to jeden bajt w przypadku
+kodowania jednobajtowego (np. wszystkie strony kodowe ANSI) i UTF-8
+oraz dwa bajty dla kodowania UTF-16 i UTF-16B. Na przykład:
 
- Code page 1252 (ANSI - Latin I): each byte is displayed in its
-own screen position.
+ Strona kodowa 1250 (ANSI - Europa Środkowa): każdy jak jest wyświetlany w jego
+własnej pozycji ekranu.
 
- Code page 65001 (UTF-8): the character is displayed in the
-position corresponding to the leading byte of the UTF-8 sequence, and
-the positions of continuation bytes are filled with the #›# characters
-(code point U+203A).
+ Strona kodowa 65001 (UTF-8): znak jest wyświetlany na pozycji odpowiadającej
+wiodącej bajtowi sekwencji UTF-8, a pozycje kolejnych bajtów są wypełniane
+znakiem #›# (kod znaku U+203A).
 
- Code page 1200 (UTF-16): each screen position represents two
-consecutive bytes starting at an even offset in the file.
+ Strona kodowa 1200 (UTF-16): każda pozycja na ekranie odpowiada dwóm
+kolejnym bajtom rozpoczynając od równego przesunięcia w pliku.
 
- In the #dump# mode, there is no notion of a text line. Instead
-of horizontal scrolling (cf. #text# #truncate# mode), the text
-is shifted one character at a time. The #Ctrl+Right# key combination
-shifts all characters to the left; the first character on a row becomes
-the last on the previous row. The #Ctrl+Left# key combination shifts all
-characters to the right moving the last character of a row to the first
-positions of the next row. The text “flows” from row to row. The #Right#
-and #Left# keys are ignored.
+ W trybie #źródłowym# nie ma pojęcia linii tekstu. Zamiast przewijania
+w poziomie (tak jak w trybie #tekst# i #obcinanie#), tekst jest przesuwany
+o jeden znak. Klawisze #Ctrl+Prawo# przesuwają wszystkie znaki w lewo;
+pierwszy znak w rzędzie staje się ostatnim w poprzednim rzędzie.
+Klawisze #Ctrl+Lewo# przesuwają wszystkie znaki w prawo, przenosząc ostatni
+znak rzędu do pierwszej pozycji następnego rzędu. Tekst "przepływa" z wiersza
+do wiersza. Klawisze #Prawo# i #Lewo# są ignorowane.
 
- #Hex# mode (hexadecimal codes)
+ Tryb #hex# (kody szesnastkowe)
 
- In the #hex# mode, viewer renders file content 16 bytes per screen
-row, with the hexadecimal offset of the first byte of each row at the
-left, followed by the hexadecimal representation of the bytes, followed
-by the character representation.
+ W trybie #hex#, przeglądarka renderuje zawartość pliku w formacie
+16 bajtów na wiersz ekranu, z szesnastkowym przesunięciem pierwszego bajtu
+w każdym rzędzie w lewo, po którym następuje szesnastkowa reprezentacja
+każdego bajtu, a następnie reprezentację znaków.
 
- The rendition depends on the encoding defined by the current code
-page. For single-byte encodings (e.g. all ANSI code pages), the bytes
-on each row are represented by 16 double-digit hex values followed by 16
-characters. For UTF-8 encoding, the bytes are represented the same way,
-while the characters are displayed at the positions of the leading bytes
-of the UTF-8 sequences with the positions of continuation bytes being
-filled with the #›# characters (code point U+203A). For UTF-16(BE)
-encodings the hex values are followed by eight characters. For example:
+ Odwzorowanie zależy od kodowania zdefiniowanego przez bieżącą stronę kodową.
+Dla kodowań jednobajtowych (np. wszystkie strony kodowe ANSI), bajty w każdym
+wierszu są reprezentowane przez 16 dwucyfrowych wartości szesnastkowych
+po których następuje 16 znaków. Dla kodowania UTF-8, bajty są reprezentowane
+w ten sam sposób, gdy znaki są wyświetlanie w pozycjach bajtów wiodących
+sekwencji UTF-8, a bajty kontynuacji są wypełniane znakiem #›#
+(kod znaku U+203A). Dla kodowania UTF-16(BE) kodowanie wartości szesnastkowych
+przedstawia 8 znaków. Na przykład:
 
- Code page 1252 (ANSI - Latin I)
+ Strona kodowa 1250 (ANSI - Europa Środkowa)
 
 @-
- \1b0000000000: 54 68 65 20 71 75 69 63 │ 6B 20 62 72 6F 77 6E 20  The quick brown \-
- \1b0000000010: 66 6F 78 20 6A 75 6D 70 │ 73 20 6F 76 65 72 20 74  fox jumps over t\-
- \1b0000000020: 68 65 20 6C 61 7A 79 20 │ 64 6F 67 27 73 20 62 61  he lazy dog's ba\-
- \1b0000000030: 63 6B 2E 0D 0A          │                          ck.♪◙           \-
+ \1b0000000000: 44 6F 9C E6 20 62 B3 61 │ 7A 65 F1 73 74 77 2C 20  Dość błazeństw, \-
+ \1b0000000010: BF 72 B9 20 6D F3 6A 20 │ 70 EA 6B 20 6C 75 9F 6E  żrą mój pęk luźn\-
+ \1b0000000020: 79 63 68 20 66 69 67 0D │ 0A                       ych fig         \-
 @+
+Za: [L. Jakubowicz; "Wiadomości Literackie" (nr 1, 1936, str. 7)]
 
- Code page 65001 (UTF-8)
+ Strona kodowa 65001 (UTF-8)
 
 @-
  \1b0000000035: D0 92 20 D1 87 D0 B0 D1 │ 89 D0 B0 D1 85 20 D1 8E  В› ч›а›щ›а›х› ю›\-
@@ -2949,7 +2945,7 @@ encodings the hex values are followed by eight characters. For example:
  \1b0000000055: D0 BB 20 D1 86 D0 B8 D1 │ 82 D1 80 D1 83 D1 81 2C  л› ц›и›т›р›у›с›,\-
 @+
 
- Code page 1200 (UTF-16)
+ Strona kodowa 1200 (UTF-16)
 
 @-
  \1b00000000A2: 3D 04 3E 04 20 00 44 04 │ 30 04 3B 04 4C 04 48 04  но фальш\-
@@ -2958,63 +2954,64 @@ encodings the hex values are followed by eight characters. For example:
  \1b00000000D2: 34 04 30 04 2E 00 0D 00 │ 0A 00                    да.♪◙   \-
 @+
 
- The #Ctrl+Right# key combination shifts all bytes to the left; the
-first byte on a row becomes the last on the previous row. The
-#Ctrl+Left# key combination shifts all bytes to the right moving the
-last byte of a row to the first positions of the next row. Unlike
-in #dump# mode, the content is shifted by a byte, not by a character.
+ Kombinacja klawiszy #Ctrl+Prawo# przesuwa wszystkie bajty w lewo; pierwszy
+bajt w wierszu staje się ostatnim w poprzednim wierszu. Kombinacja #Ctrl+Lewo#
+przesuwa wszystkie bajty w praco, przesuwając ostatni bajt w rzędzie do pierwszej
+pozycji następnie wiersza. Inaczej niż w trybie #źródłowym# zawartość jest
+przesuwana o bajt, a nie o znak.
 
- The #Alt+Right# key combination increases the number of bytes displayed
-on each row by one byte. The #Ctrl+Alt+Right# key combination increases
-the number of bytes by 16 at a time. The #Alt+Left# key combination
-decreases the number of bytes displayed on each row by one byte. The
-#Ctrl+Alt+Left# key combination decreases the number of bytes by 16 at
-a time.
+ Kombinacja klawiszy #Alt+Prawo# zwiększa liczbę wyświetlanych bajtów w każdym
+rzędzie o jeden bajt. Kombinacja #Ctrl+Alt+Prawo# zwiększa liczbę bajtów
+o 16 jednocześnie. Kombinacja #Alt+Lewo# zmniejsza liczbę wyświetlanych bajtów
+w każdej linii o jeden bajt. Kombinacja #Ctrl+Alt+Lewo# zmniejsza liczbę bajtów
+o 16 jednocześnie.
 
- The #Right# and #Left# keys are ignored.
+ Klawisze #Prawy# i #Lewy# są ignorowane.
 
 
 @ViewerGotoPos
-$ #Viewer: go to specified position#
- This dialog allows to change the position in the internal viewer.
+$ #Podgląd: idź do wybranej pozycji#
+ To okno dialogowe umożliwia zmianę pozycji w wewnętrznej przeglądarce.
 
- You can enter an absolute or relative value or percentage, in decimal or hexadecimal.
- For relative add #+# or #-# before the value.
- For percentage add #%# after the value.
- For decimal either add #m# after the value or uncheck the #Hex value#.
- For hexadecimal either add #0x# or #$# before the value, #h# after the value, or check the #Hex value#.
+ Można wprowadzić wartość bezwzględną lub procentową w formacie dziesiętnym
+lub szesnastkowym.
+ Dla wartości względnych należy wpisać #+# lub #-# przed wartością.
+ Dla wartości procentowych należy dodać znak #%# po wartości.
+ Dla wartości dziesiętnych należy dodać znak #m# po wartości, lub odznaczyć pole #Szesnastkowo#.
+ Dla wartości szesnastkowych należy dodać znaki #0x# lub #$# przed wartością, znak #h# po wartości
+lub zaznaczyć pole #Szesnastkowo#.
 
- The value will be interpreted as an offset from the beginning of the file.
-If the current view mode is #unwrapped text# it is possible to enter an additional value
-which will be interpreted as a first visible column.
-Values must be delimited by space or one of the following characters: #,.;:#.
-If a value is omitted the corresponding parameter will not be changed.
+ Wartość zostanie zinterpretowana jako przesunięcie od początku pliku.
+Jeżeli bieżący tryb podglądu jest #tekstem nie zawijanym# istnieje możliwość
+podania dodatkowej wartości, która zostanie zinterpretowana jako pierwsza widoczna kolumna.
+Wartości należy oddzielić spacją lub jednym z następujących znaków: #,.;:#.
+Jeżeli wartość zostanie pominięta, to odpowiadający jej parametr nie zostanie zmieniony.
 
 
 @ViewerSearch
-$ #Viewer: search#
- For searching in the ~viewer~@Viewer@, the following modes and options are
-available:
+$ #Podgląd: wyszukiwanie#
+ Do wyszukiwania w ~Podglądzie~@Viewer@ dostępne są następujące tryby i opcje:
 
- #Search for text#
- Search for any text entered in the #Search for# edit line.
+ #Szukaj tekstu#
+ Szukaj dowolnego tekstu wprowadzonego w linii edycji #Znajdź#.
 
- #Search for hex#
- Search for a string corresponding to hexadecimal codes entered in the #Search for# string.
+ #Szukaj wartości szesnastkowych#
+ Szukaj ciągu odpowiadającemu kodom szesnastkowym wprowadzonym w polu #Znajdź#.
 
- #Case sensitive#
- The case of the characters entered will be taken into account
-while searching (so, for example, #Text# will not be found when searching for #text#).
+ #Uwzględnij wielkość znaków#
+ Uwzględniona zostanie wielkość wprowadzonych znaków w polu szukania
+(więc np, #Tekst# nie zostanie odnaleziony jeżeli szukamy łańcucha #tekst#).
 
- #Whole words#
- The given text will be found only if it occurs in the text as a whole word.
+ #Tylko całe słowa#
+ Wprowadzony tekst zostanie odnaleziony tylko wtedy, gdy wystąpi w tekście
+jako całe słowo.
 
- #Reverse search#
- Reverse the search direction - search from the end of file towards the beginning.
+ #Szukaj w odwrotnym kierunku#
+ Odwraca kierunek szukania - szuka od końca pliku do początku.
 
- #Regular expressions#
- Enable the use of ~regular expressions~@RegExp@ in the search string.
-The multiline search is not supported.
+ #Wyrażenie regularne#
+ Włącza użycie ~Wyrażeń regularnych~@RegExp@ w szukanym tekście.
+Wyszukiwanie wielowierszowe nie jest obsługiwane.
 
 
 @Editor
