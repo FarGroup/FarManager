@@ -1698,6 +1698,7 @@ void ShellCopy::copy_selected_items(const string& Dest)
 								{
 									continue;     // ...  т.к. мы ЭТО не мувили, а скопировали, то все, на этом закончим бадаться с этим файлов
 								}
+								break;
 							}
 
 							default:
@@ -1893,10 +1894,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	if ((Flags & FCOPY_COPYTONUL) && (IsDirectory || (IsReparsePoint && !CopySymlinkContents)))
 		return COPY_SUCCESS;
 
-		if constexpr ((false))
-		{
-			CheckStreams(Src, strDestPath);
-		}
+	if constexpr ((false))
+	{
+		CheckStreams(Src, strDestPath);
+	}
 
 		if (IsDirectory || (IsReparsePoint && RPT == RP_EXACTCOPY && !CopySymlinkContents))
 		{

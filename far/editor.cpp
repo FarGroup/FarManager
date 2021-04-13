@@ -6793,7 +6793,7 @@ bool Editor::SetLineCodePage(iterator const& Iterator, uintptr_t const Codepage,
 	encoding::error_position ErrorPosition;
 	const auto Bytes = GetLineBytes(Iterator->m_Str, decoded, m_codepage, Validate? &ErrorPosition : nullptr);
 	auto Result = !Bytes.empty() && !ErrorPosition;
-	Iterator->m_Str.assign(encoding::get_chars(Codepage, Bytes, &ErrorPosition));
+	encoding::get_chars(Codepage, Bytes, Iterator->m_Str, &ErrorPosition);
 	Result = Result && !Iterator->m_Str.empty() && !ErrorPosition;
 	Iterator->Changed();
 

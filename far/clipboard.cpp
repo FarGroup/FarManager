@@ -458,7 +458,7 @@ bool clipboard::GetVText(string& Data) const
 	if (!OemData)
 		return false;
 
-	Data = encoding::oem::get_chars(OemData.get());
+	encoding::oem::get_chars(OemData.get(), Data);
 	return true;
 }
 

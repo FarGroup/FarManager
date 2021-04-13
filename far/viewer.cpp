@@ -799,7 +799,7 @@ int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& Out
 	}
 	else
 	{
-		OutStr = encoding::get_chars(m_Codepage, Str);
+		encoding::get_chars(m_Codepage, Str, OutStr);
 	}
 
 	OutStr.resize(ClientWidth, L' ');

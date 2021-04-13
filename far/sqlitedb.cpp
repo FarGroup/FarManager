@@ -583,7 +583,7 @@ static void far_value16(void* const Val, void const*& Data, int& Size)
 	// We don't want to invalidate the Value's pointer.
 	if (const auto Str = static_cast<const char*>(static_cast<const void*>(sqlite::sqlite3_value_text(static_cast<sqlite::sqlite3_value*>(Val)))); Str != LastStr)
 	{
-		Value = encoding::utf8::get_chars(Str);
+		encoding::utf8::get_chars(Str, Value);
 		LastStr = Str;
 	}
 
