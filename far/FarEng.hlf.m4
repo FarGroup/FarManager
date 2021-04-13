@@ -1225,7 +1225,6 @@ Supported types: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW and DVD-RAM.
  The output format depends on the domain structure, group policies and DNS settings.
 
  #User name format#
-
  Can be one of:
 
  - #Logon Name#

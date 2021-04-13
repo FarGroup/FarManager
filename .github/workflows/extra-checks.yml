@@ -31,10 +31,10 @@ jobs:
       - name: Set MSVC envrioment
         uses: ilammy/msvc-dev-cmd@v1.6.0
 
-      - name: Build MsBuild
-        working-directory: misc/hlf-checker
-        run: MSBuild.exe HlfChecker.sln
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
 
-      - name: Run checks
+      - name: Build and run HlfChecker
         working-directory: misc/hlf-checker
-        run: bin\Debug\HlfChecker.exe
+        run: dotnet run --configuration Release

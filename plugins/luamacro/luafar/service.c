@@ -209,12 +209,10 @@ static HANDLE OptHandle(lua_State *L)
 			HANDLE hh = (HANDLE)whatPanel;
 			return (hh==PANEL_PASSIVE || hh==PANEL_ACTIVE) ? hh : whatPanel%2 ? PANEL_ACTIVE:PANEL_PASSIVE;
 		}
-		case LUA_TUSERDATA:
-			return *(HANDLE*)luaL_checkudata(L, 1, PluginHandleType);
 		case LUA_TLIGHTUSERDATA:
 			return lua_touserdata(L,1);
 		default:
-			luaL_typerror(L, 1, "integer or userdata");
+			luaL_typerror(L, 1, "integer or light userdata");
 	}
 	return NULL;
 }
@@ -2144,7 +2142,7 @@ static int panel_GetPanelInfo(lua_State *L)
 	lua_createtable(L, 0, 13);
 	//-------------------------------------------------------------------------
 	PutLStrToTable(L, "OwnerGuid", &pi.OwnerGuid, sizeof(GUID));
-	PushPluginHandle(L, pi.PluginHandle);
+	pi.PluginHandle ? lua_pushlightuserdata(L, pi.PluginHandle) : lua_pushnil(L);
 	lua_setfield(L, -2, "PluginHandle");
 	//-------------------------------------------------------------------------
 	if (0 == memcmp(&pi.OwnerGuid, pd->PluginId, sizeof(GUID)))
@@ -6174,7 +6172,7 @@ static int far_host_FreeUserData(lua_State *L)
 	struct FarPanelItemFreeInfo freeInfo;
 	size_t ItemsNumber, idx;
 
-	luaL_checktype(L, 1, LUA_TUSERDATA);
+	luaL_checktype(L, 1, LUA_TLIGHTUSERDATA);
 	freeInfo.hPlugin = lua_touserdata(L, 1);
 
 	luaL_checktype(L, 2, LUA_TTABLE);
