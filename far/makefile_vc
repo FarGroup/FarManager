@@ -279,7 +279,7 @@ DEFINES=\
 	/D "_HAS_AUTO_PTR_ETC=0"\
 	/D "_CRT_SECURE_NO_WARNINGS"
 
-DISABLED_WARNINGS=/FI disabled_warnings.hpp /wd5045
+DISABLED_WARNINGS=/FI disabled_warnings.hpp
 
 ADDINCLUDE=/I $(BOOTSTRAPDIR)..
 

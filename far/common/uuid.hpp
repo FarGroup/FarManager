@@ -85,7 +85,7 @@ namespace uuid
 			return Value;
 		}
 
-		constexpr class [[nodiscard]] separator_t{} Separator;
+		constexpr class separator_t{} Separator;
 
 		template<typename char_type>
 		[[nodiscard]]

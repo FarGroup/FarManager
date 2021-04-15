@@ -476,7 +476,7 @@ static void UpdateErrorMode()
 }
 
 [[noreturn]]
-static int handle_exception(function_ref<bool()> const Handler)
+static void handle_exception(function_ref<bool()> const Handler)
 {
 	if (Handler())
 	{
@@ -831,7 +831,7 @@ static void configure_exception_handling(int Argc, const wchar_t* const Argv[])
 }
 
 [[noreturn]]
-static int handle_exception_final(function_ref<bool()> const Handler)
+static void handle_exception_final(function_ref<bool()> const Handler)
 {
 	if (Handler())
 	{
