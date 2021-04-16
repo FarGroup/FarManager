@@ -406,12 +406,10 @@ public:
 	//command,view,edit,folder,dialog history
 	virtual void Delete(unsigned long long id) = 0;
 
-	virtual void DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, string_view HistoryName, string_view Name, int Type, bool Lock, string_view Uuid, string_view File, string_view Data) = 0;
+	virtual void DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, string_view HistoryName, string_view Name, int Type, bool Lock, os::chrono::time_point Time, string_view Uuid, string_view File, string_view Data) = 0;
 	virtual void DeleteOldUnlocked(unsigned int TypeHistory, string_view HistoryName, int DaysToKeep, int MinimumEntries) = 0;
 	[[nodiscard]]
-	virtual bool GetNewest(unsigned int TypeHistory, string_view HistoryName, string &strName) = 0;
-	[[nodiscard]]
-	virtual bool Get(unsigned long long id, string* Name = {}, history_record_type* Type = {}, string* Uuid = {}, string* File = {}, string* Data = {}) = 0;
+	virtual bool Get(unsigned long long id, string* Name, history_record_type* Type, os::chrono::time_point* Time, string* Uuid, string* File, string* Data) = 0;
 	[[nodiscard]]
 	virtual DWORD Count(unsigned int TypeHistory, string_view HistoryName) = 0;
 	virtual void FlipLock(unsigned long long id) = 0;
@@ -419,21 +417,21 @@ public:
 	virtual bool IsLocked(unsigned long long id) = 0;
 	virtual void DeleteAllUnlocked(unsigned int TypeHistory, string_view HistoryName) = 0;
 	[[nodiscard]]
-	virtual unsigned long long GetNext(unsigned int TypeHistory, string_view HistoryName, unsigned long long id, string &strName) = 0;
+	virtual unsigned long long GetNext(unsigned int TypeHistory, string_view HistoryName, unsigned long long id, string &strName, os::chrono::time_point& Time) = 0;
 	[[nodiscard]]
-	virtual unsigned long long GetPrev(unsigned int TypeHistory, string_view HistoryName, unsigned long long id, string &strName) = 0;
+	virtual unsigned long long GetPrev(unsigned int TypeHistory, string_view HistoryName, unsigned long long id, string &strName, os::chrono::time_point& Time) = 0;
 	[[nodiscard]]
-	virtual unsigned long long CyclicGetPrev(unsigned int TypeHistory, string_view HistoryName, unsigned long long id, string &strName) = 0;
+	virtual unsigned long long CyclicGetPrev(unsigned int TypeHistory, string_view HistoryName, unsigned long long id, string &strName, os::chrono::time_point& Time) = 0;
 
 	//view,edit file positions and bookmarks history
 	[[nodiscard]]
-	virtual unsigned long long SetEditorPos(string_view Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) = 0;
+	virtual unsigned long long SetEditorPos(string_view Name, os::chrono::time_point Time, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) = 0;
 	[[nodiscard]]
 	virtual unsigned long long GetEditorPos(string_view Name, int& Line, int& LinePos, int& ScreenLine, int& LeftPos, uintptr_t& CodePage) = 0;
 	virtual void SetEditorBookmark(unsigned long long id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) = 0;
 	virtual bool GetEditorBookmark(unsigned long long id, size_t i, int& Line, int& LinePos, int& ScreenLine, int& LeftPos) = 0;
 	[[nodiscard]]
-	virtual unsigned long long SetViewerPos(string_view Name, long long FilePos, long long LeftPos, int HexWrap, uintptr_t CodePage) = 0;
+	virtual unsigned long long SetViewerPos(string_view Name, os::chrono::time_point Time, long long FilePos, long long LeftPos, int HexWrap, uintptr_t CodePage) = 0;
 	[[nodiscard]]
 	virtual unsigned long long GetViewerPos(string_view Name, long long& FilePos, long long& LeftPos, int& HexWrap, uintptr_t& CodePage) = 0;
 	virtual void SetViewerBookmark(unsigned long long id, size_t i, long long FilePos, long long LeftPos) = 0;

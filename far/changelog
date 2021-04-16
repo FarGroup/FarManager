@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+drkns 16.04.2021 01:54:01 +0100 - build 5782
+
+1. By popular demand: history checkboxes in settings are now tri-state:
+   in the third state the history records, simultaneously created by other Far instances, will be ignored.
+
+--------------------------------------------------------------------------------
 drkns 14.04.2021 00:49:16 +0100 - build 5781
 
 1. Refactoring.

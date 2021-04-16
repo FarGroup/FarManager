@@ -63,19 +63,75 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
+#include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
 
 // External:
 
 //----------------------------------------------------------------------------
 
-History::History(history_type TypeHistory, string_view const HistoryName, const BoolOption& EnableSave, bool const CaseSensitive, bool const KeepSelectedPos):
+namespace
+{
+	struct [[nodiscard]] time_point_hash
+	{
+		[[nodiscard]]
+		size_t operator()(os::chrono::time_point const Time) const
+		{
+			return make_hash(Time.time_since_epoch().count());
+		}
+	};
+
+	using known_records = std::unordered_set<os::chrono::time_point, time_point_hash>;
+
+	class [[nodiscard]] history_white_list_t
+	{
+	public:
+		bool empty() const
+		{
+			return m_KnownRecords.empty();
+		}
+
+		bool check(os::chrono::time_point const Time) const
+		{
+			return Time < m_StartTime || contains(m_KnownRecords, Time);
+		}
+
+		void add(os::chrono::time_point const Time)
+		{
+			m_KnownRecords.emplace(Time);
+		}
+
+		void remove(os::chrono::time_point const Time)
+		{
+			m_KnownRecords.erase(Time);
+		}
+
+		void assign(known_records&& Records)
+		{
+			m_KnownRecords = std::move(Records);
+		}
+
+	private:
+		known_records m_KnownRecords;
+		os::chrono::time_point m_StartTime{ os::chrono::nt_clock::now() };
+	};
+
+	static auto& history_white_list()
+	{
+		static history_white_list_t Instance;
+		return Instance;
+	}
+}
+
+History::History(history_type TypeHistory, string_view const HistoryName, const Bool3Option& State, bool const CaseSensitive, bool const KeepSelectedPos):
 	m_TypeHistory(TypeHistory),
 	m_HistoryName(HistoryName),
-	m_EnableSave(EnableSave),
+	m_State(State),
 	m_KeepSelectedPos(KeepSelectedPos),
 	m_CaseSensitive(CaseSensitive)
 {
+	// Initialise with the current time
+	history_white_list();
 }
 
 void History::CompactHistory()
@@ -104,6 +160,7 @@ void History::AddToHistory(string_view const Str, history_record_type const Type
 	if (m_TypeHistory!=HISTORYTYPE_DIALOG && (m_TypeHistory!=HISTORYTYPE_FOLDER || !Uuid || *Uuid == FarUuid) && Str.empty())
 		return;
 
+	const auto Time = os::chrono::nt_clock::now();
 	bool Lock = false;
 	const auto strUuid = Uuid? uuid::str(*Uuid) : L""s;
 
@@ -124,20 +181,28 @@ void History::AddToHistory(string_view const Str, history_record_type const Type
 			{
 				Lock = Lock || i.Lock;
 				DeleteId = i.Id;
+
+				forget_record(i.Time);
+
 				break;
 			}
 		}
 	}
 
-	HistoryCfgRef()->DeleteAndAddAsync(DeleteId, m_TypeHistory, m_HistoryName, Str, Type, Lock, strUuid, File, Data);  //Async - should never be used in a transaction
+	HistoryCfgRef()->DeleteAndAddAsync(DeleteId, m_TypeHistory, m_HistoryName, Str, Type, Lock, Time, strUuid, File, Data);  //Async - should never be used in a transaction
+
+	introduce_record(Time);
 
 	ResetPosition();
 }
 
-bool History::ReadLastItem(string_view const HistoryName, string &strStr) const
+string History::LastItem()
 {
-	strStr.clear();
-	return HistoryCfgRef()->GetNewest(HISTORYTYPE_DIALOG, HistoryName, strStr);
+	const auto CurrentItem = m_CurrentItem;
+	ResetPosition();
+	SCOPE_EXIT{ m_CurrentItem = CurrentItem; };
+
+	return GetPrev();
 }
 
 history_return_type History::Select(string_view const Title, string_view const HelpTopic, string &strStr, history_record_type &Type, UUID* Uuid, string *File, string *Data)
@@ -209,6 +274,9 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 
 			for (auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName, m_TypeHistory == HISTORYTYPE_DIALOG))
 			{
+				if (!is_known_record(i.Time))
+					continue;
+
 				string strRecord;
 
 				if (m_TypeHistory == HISTORYTYPE_VIEW)
@@ -267,6 +335,9 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 
 		if (m_TypeHistory == HISTORYTYPE_DIALOG)
 		{
+			if (!HistoryMenu.size())
+				return HRT_CANCEL;
+
 			HistoryMenu.SetPosition(Dlg->CalcComboBoxPos(nullptr, HistoryMenu.size()));
 		}
 		else
@@ -279,9 +350,6 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 			HistoryMenu.SetSelectPos(&Pos);
 			SetUpMenuPos=false;
 		}
-
-		if (m_TypeHistory == HISTORYTYPE_DIALOG && !HistoryMenu.size())
-			return HRT_CANCEL;
 
 		MenuExitCode=HistoryMenu.Run([&](const Manager::Key& RawKey)
 		{
@@ -313,6 +381,9 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 							if (i.Lock) // залоченные не трогаем
 								continue;
 
+							if (!is_known_record(i.Time))
+								continue;
+
 							// убить запись из истории
 							bool kill=false;
 							if(const auto UuidOpt = uuid::try_parse(i.Uuid); UuidOpt && *UuidOpt != FarUuid)
@@ -326,6 +397,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 							if(kill)
 							{
 								HistoryCfgRef()->Delete(i.Id);
+								forget_record(i.Time);
 								ModifiedHistory=true;
 							}
 						}
@@ -391,7 +463,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 						{
 							string HistoryData;
 
-							if (HistoryCfgRef()->Get(CurrentRecord, {}, {}, {}, {}, &HistoryData))
+							if (HistoryCfgRef()->Get(CurrentRecord, {}, {}, {}, {}, {}, &HistoryData))
 							{
 								DialogBuilder Builder(lng::MHistoryInfoTitle);
 								Builder.AddText(lng::MHistoryInfoFolder);
@@ -416,7 +488,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 					if (CurrentRecord)
 					{
 						string Name;
-						if (HistoryCfgRef()->Get(CurrentRecord, &Name))
+						if (HistoryCfgRef()->Get(CurrentRecord, &Name, {}, {}, {}, {}, {}))
 							SetClipboardText(Name);
 					}
 
@@ -443,6 +515,10 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 					if (CurrentRecord && !HistoryCfgRef()->IsLocked(CurrentRecord))
 					{
 						HistoryCfgRef()->Delete(CurrentRecord);
+
+						if (os::chrono::time_point Time; HistoryCfgRef()->Get(CurrentRecord, {}, {}, &Time, {}, {}, {}))
+							forget_record(Time);
+
 						ResetPosition();
 						HistoryMenu.Close(Pos.SelectPos);
 						IsUpdate=true;
@@ -463,6 +539,8 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 							{ lng::MClear, lng::MCancel }) == Message::first_button))
 					{
 						HistoryCfgRef()->DeleteAllUnlocked(m_TypeHistory,m_HistoryName);
+
+						refresh_known_records();
 
 						ResetPosition();
 						HistoryMenu.Close(Pos.SelectPos);
@@ -491,7 +569,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 			if (!SelectedRecord.id)
 				return HRT_CANCEL;
 
-			if (!HistoryCfgRef()->Get(SelectedRecord.id, &SelectedRecord.name, &SelectedRecord.type, &SelectedRecord.uuid, &SelectedRecord.file, &SelectedRecord.data))
+			if (!HistoryCfgRef()->Get(SelectedRecord.id, &SelectedRecord.name, &SelectedRecord.type, {}, &SelectedRecord.uuid, &SelectedRecord.file, &SelectedRecord.data))
 				return HRT_CANCEL;
 
 			if (SelectedRecord.type != HR_EXTERNAL && SelectedRecord.type != HR_EXTERNAL_WAIT
@@ -584,7 +662,20 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 string History::GetPrev()
 {
 	string Result;
-	m_CurrentItem = HistoryCfgRef()->GetPrev(m_TypeHistory, m_HistoryName, m_CurrentItem, Result);
+	os::chrono::time_point Time;
+
+	for (;;)
+	{
+		const auto NewItem = HistoryCfgRef()->GetPrev(m_TypeHistory, m_HistoryName, m_CurrentItem, Result, Time);
+		if (NewItem == m_CurrentItem)
+			break;
+
+		m_CurrentItem = NewItem;
+
+		if (is_known_record(Time))
+			break;
+	}
+
 	return Result;
 }
 
@@ -592,7 +683,20 @@ string History::GetPrev()
 string History::GetNext()
 {
 	string Result;
-	m_CurrentItem = HistoryCfgRef()->GetNext(m_TypeHistory, m_HistoryName, m_CurrentItem, Result);
+	os::chrono::time_point Time;
+
+	for (;;)
+	{
+		const auto NewItem = HistoryCfgRef()->GetNext(m_TypeHistory, m_HistoryName, m_CurrentItem, Result, Time);
+		if (NewItem == m_CurrentItem)
+			break;
+
+		m_CurrentItem = NewItem;
+
+		if (is_known_record(Time))
+			break;
+	}
+
 	return Result;
 }
 
@@ -609,31 +713,42 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 		ResetPosition();
 	}
 
-	int i=0;
 	string strName;
-	unsigned long long HistoryItem=HistoryCfgRef()->CyclicGetPrev(m_TypeHistory, m_HistoryName, m_CurrentItem, strName);
-	while (HistoryItem != m_CurrentItem)
+	os::chrono::time_point Time;
+
+	auto CurrentItem = m_CurrentItem;
+	auto FirstPreviousItem = CurrentItem;
+
+	for (;;)
 	{
-		if (!HistoryItem)
-		{
-			if (++i > 1) //infinite loop
-				break;
-			HistoryItem = HistoryCfgRef()->CyclicGetPrev(m_TypeHistory, m_HistoryName, HistoryItem, strName);
+		const auto NewItem = HistoryCfgRef()->CyclicGetPrev(m_TypeHistory, m_HistoryName, CurrentItem, strName, Time);
+		// Empty history
+		if (NewItem == CurrentItem)
+			break;
+
+		// Full circle
+		if (NewItem == FirstPreviousItem)
+			break;
+
+		if (CurrentItem == m_CurrentItem)
+			FirstPreviousItem = NewItem;
+
+		CurrentItem = NewItem;
+
+		// Empty item
+		if (!NewItem)
 			continue;
-		}
 
-		if (starts_with_icase(strName, string_view(strStr).substr(0, Length)) && strStr != strName)
-		{
-			if (bAppend)
-				strStr.append(strName, Length, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later
-			else
-				strStr = strName;
+		if (!is_known_record(Time) || !starts_with_icase(strName, string_view(strStr).substr(0, Length)) || strStr == strName)
+			continue;
 
-			m_CurrentItem = HistoryItem;
-			return true;
-		}
+		if (bAppend)
+			strStr.append(strName, Length, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later
+		else
+			strStr = strName;
 
-		HistoryItem = HistoryCfgRef()->CyclicGetPrev(m_TypeHistory, m_HistoryName, HistoryItem, strName);
+		m_CurrentItem = CurrentItem;
+		return true;
 	}
 
 	return false;
@@ -643,7 +758,7 @@ void History::GetAllSimilar(string_view const Str, function_ref<void(string_view
 {
 	for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName, true))
 	{
-		if (starts_with_icase(i.Name, Str))
+		if (is_known_record(i.Time) && starts_with_icase(i.Name, Str))
 		{
 			Callback(i.Name, i.Id, i.Lock);
 		}
@@ -656,6 +771,10 @@ bool History::DeleteIfUnlocked(unsigned long long id)
 		return false;
 
 	HistoryCfgRef()->Delete(id);
+
+	if (os::chrono::time_point Time; HistoryCfgRef()->Get(id, {}, {}, &Time, {}, {}, {}))
+		forget_record(Time);
+
 	ResetPosition();
 	return true;
 }
@@ -667,7 +786,44 @@ bool History::EqualType(history_record_type Type1, history_record_type Type2) co
 
 const std::unique_ptr<HistoryConfig>& History::HistoryCfgRef() const
 {
-	return m_EnableSave? ConfigProvider().HistoryCfg() : ConfigProvider().HistoryCfgMem();
+	return m_State == BSTATE_UNCHECKED? ConfigProvider().HistoryCfgMem() : ConfigProvider().HistoryCfg();
+}
+
+void History::introduce_record(os::chrono::time_point Time) const
+{
+	if (m_State == BSTATE_3STATE)
+		history_white_list().add(Time);
+}
+
+void History::forget_record(os::chrono::time_point Time) const
+{
+	if (m_State == BSTATE_3STATE)
+		history_white_list().remove(Time);
+}
+
+bool History::is_known_record(os::chrono::time_point const Time) const
+{
+	return m_State != BSTATE_3STATE || history_white_list().check(Time);
+}
+
+void History::refresh_known_records() const
+{
+	if (m_State != BSTATE_3STATE)
+		return;
+
+	if (history_white_list().empty())
+		return;
+
+	known_records NewKnownRecords;
+	for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName))
+	{
+		if (is_known_record(i.Time))
+		{
+			NewKnownRecords.emplace(i.Time);
+		}
+	}
+
+	history_white_list().assign(std::move(NewKnownRecords));
 }
 
 void History::suppress_add()

@@ -68,6 +68,7 @@ bool FilePositionCache::AddPosition(string_view const Name, const EditorPosCache
 	if (!(Global->Opt->EdOpt.SavePos || Global->Opt->EdOpt.SaveShortPos))
 		return false;
 
+	const auto Time = os::chrono::nt_clock::now();
 	const auto strFullName = GetFullName(Name);
 
 	SCOPED_ACTION(auto)(ConfigProvider().HistoryCfg()->ScopedTransaction());
@@ -75,9 +76,9 @@ bool FilePositionCache::AddPosition(string_view const Name, const EditorPosCache
 	unsigned long long id;
 
 	if (Global->Opt->EdOpt.SavePos)
-		id=ConfigProvider().HistoryCfg()->SetEditorPos(strFullName, poscache.cur.Line, poscache.cur.LinePos, poscache.cur.ScreenLine, poscache.cur.LeftPos, poscache.CodePage);
+		id=ConfigProvider().HistoryCfg()->SetEditorPos(strFullName, Time, poscache.cur.Line, poscache.cur.LinePos, poscache.cur.ScreenLine, poscache.cur.LeftPos, poscache.CodePage);
 	else if (Global->Opt->EdOpt.SaveShortPos)
-		id=ConfigProvider().HistoryCfg()->SetEditorPos(strFullName, 0, 0, 0, 0, 0);
+		id=ConfigProvider().HistoryCfg()->SetEditorPos(strFullName, Time, 0, 0, 0, 0, 0);
 	else
 		return false;
 
@@ -130,6 +131,7 @@ bool FilePositionCache::AddPosition(string_view const Name, const ViewerPosCache
 	if (!(Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode || Global->Opt->ViOpt.SaveShortPos))
 		return false;
 
+	const auto Time = os::chrono::nt_clock::now();
 	const auto strFullName = GetFullName(Name);
 
 	SCOPED_ACTION(auto)(ConfigProvider().HistoryCfg()->ScopedTransaction());
@@ -139,9 +141,9 @@ bool FilePositionCache::AddPosition(string_view const Name, const ViewerPosCache
 	const auto& vo = Global->Opt->ViOpt;
 
 	if (vo.SavePos || vo.SaveCodepage || vo.SaveViewMode || vo.SaveWrapMode)
-		id=ConfigProvider().HistoryCfg()->SetViewerPos(strFullName, poscache.cur.FilePos, poscache.cur.LeftPos, poscache.ViewModeAndWrapState,	poscache.CodePage);
+		id=ConfigProvider().HistoryCfg()->SetViewerPos(strFullName, Time, poscache.cur.FilePos, poscache.cur.LeftPos, poscache.ViewModeAndWrapState,	poscache.CodePage);
 	else if (vo.SaveShortPos)
-		id=ConfigProvider().HistoryCfg()->SetViewerPos(strFullName, 0, 0, 0, 0);
+		id=ConfigProvider().HistoryCfg()->SetViewerPos(strFullName, Time, 0, 0, 0, 0);
 
 	if (id)
 	{
