@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>DM_GETTEXTPTR</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
@@ -10,55 +10,55 @@
 
 <h1>DM_GETTEXTPTR</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
+<a  href="index_dm.html">РЎРѕРѕР±С‰РµРЅРёСЏ</a> |
 <a href="../index.html">Dialog API</a><br>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETTEXTPTR</dfn> посылается Менеджеру диалогов для
-получения содержимого строк ввода или заголовков элементов диалога.
-В отличие от сообщения <a href="dm_gettext.html">DM_GETTEXT</a>, это сообщение
-работает с указателем на строку.
+РЎРѕРѕР±С‰РµРЅРёРµ <dfn>DM_GETTEXTPTR</dfn> РїРѕСЃС‹Р»Р°РµС‚СЃСЏ РњРµРЅРµРґР¶РµСЂСѓ РґРёР°Р»РѕРіРѕРІ РґР»СЏ
+РїРѕР»СѓС‡РµРЅРёСЏ СЃРѕРґРµСЂР¶РёРјРѕРіРѕ СЃС‚СЂРѕРє РІРІРѕРґР° РёР»Рё Р·Р°РіРѕР»РѕРІРєРѕРІ СЌР»РµРјРµРЅС‚РѕРІ РґРёР°Р»РѕРіР°.
+Р’ РѕС‚Р»РёС‡РёРµ РѕС‚ СЃРѕРѕР±С‰РµРЅРёСЏ <a href="dm_gettext.html">DM_GETTEXT</a>, СЌС‚Рѕ СЃРѕРѕР±С‰РµРЅРёРµ
+СЂР°Р±РѕС‚Р°РµС‚ СЃ СѓРєР°Р·Р°С‚РµР»РµРј РЅР° СЃС‚СЂРѕРєСѓ.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента
+ID С‚СЂРµР±СѓРµРјРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на строку приёмник.<br>
-Если <dfn>Param2</dfn> = NULL - это ещё один способ получить размер данных
-(см. <a href="dm_gettextlength.html">DM_GETTEXTLENGTH</a>)
+РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂРѕРєСѓ РїСЂРёС‘РјРЅРёРє.<br>
+Р•СЃР»Рё <dfn>Param2</dfn> = NULL - СЌС‚Рѕ РµС‰С‘ РѕРґРёРЅ СЃРїРѕСЃРѕР± РїРѕР»СѓС‡РёС‚СЊ СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С…
+(СЃРј. <a href="dm_gettextlength.html">DM_GETTEXTLENGTH</a>)
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Размер данных без завершающего символа конца строки '\0'.
+Р Р°Р·РјРµСЂ РґР°РЅРЅС‹С… Р±РµР· Р·Р°РІРµСЂС€Р°СЋС‰РµРіРѕ СЃРёРјРІРѕР»Р° РєРѕРЅС†Р° СЃС‚СЂРѕРєРё '\0'.
 </div>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Для строк ввода - содержимое строки, для прочих элементов - заголовки.
-Всё то, что содержится в FarDialogItem.PtrData.</td></tr>
+<tr class="cont"><th class="cont" width="40%">Р­Р»РµРјРµРЅС‚</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+<tr class="cont"><td class="cont" width="40%">Р’СЃРµ</td>
+<td class="cont" width="60%">Р”Р»СЏ СЃС‚СЂРѕРє РІРІРѕРґР° - СЃРѕРґРµСЂР¶РёРјРѕРµ СЃС‚СЂРѕРєРё, РґР»СЏ РїСЂРѕС‡РёС… СЌР»РµРјРµРЅС‚РѕРІ - Р·Р°РіРѕР»РѕРІРєРё.
+Р’СЃС‘ С‚Рѕ, С‡С‚Рѕ СЃРѕРґРµСЂР¶РёС‚СЃСЏ РІ FarDialogItem.PtrData.</td></tr>
 </table>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
 <a href="../dialoginit.html">DialogInit</a> |
 <a href="dm_gettext.html">DM_GETTEXT</a><br>
 </div>

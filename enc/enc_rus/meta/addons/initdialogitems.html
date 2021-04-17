@@ -1,33 +1,33 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 
 <head>
 <title>InitDialogItems</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
 <!-- History of modification:
  Mar 16 2000
    Valentin Skirdin <vskirdin@mail.ru>
-   Типа написал :-)))
+   РўРёРїР° РЅР°РїРёСЃР°Р» :-)))
 -->
 <body>
 
 <h1>InitDialogItems</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">дополнения</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">РґРѕРїРѕР»РЅРµРЅРёСЏ</a>
 </div>
 
 
 <div class=shortdescr>
-Функция <dfn>InitDialogItems</dfn> предназначена для преобразования
-массива структур <a href="structures/initdialogitem.html">InitDialogItem</a> в
+Р¤СѓРЅРєС†РёСЏ <dfn>InitDialogItems</dfn> РїСЂРµРґРЅР°Р·РЅР°С‡РµРЅР° РґР»СЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ
+РјР°СЃСЃРёРІР° СЃС‚СЂСѓРєС‚СѓСЂ <a href="structures/initdialogitem.html">InitDialogItem</a> РІ
 <a href="../dialogapi/structures/fardialogitem.html">FarDialogItem</a>.
 
-<p class=note><img src="../../images/caution.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-<UL class=note><LI>Функция <dfn>InitDialogItems</dfn> не входит в стандартное API.</LI></UL>
+<p class=note><img src="../../images/caution.gif" alt="Р’РЅРёРјР°РЅРёРµ!" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!</p>
+<UL class=note><LI>Р¤СѓРЅРєС†РёСЏ <dfn>InitDialogItems</dfn> РЅРµ РІС…РѕРґРёС‚ РІ СЃС‚Р°РЅРґР°СЂС‚РЅРѕРµ API.</LI></UL>
 
 </div>
 
@@ -59,42 +59,42 @@ void InitDialogItems(
   }
 }
 </pre>
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
 
     <div class=dfn>Init</div>
-    <div class=dfndescr>Указатель на массив структур <a href="structures/initdialogitem.html">InitDialogItem</a>.
-      Каждая структура описывает пункт диалога.</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РјР°СЃСЃРёРІ СЃС‚СЂСѓРєС‚СѓСЂ <a href="structures/initdialogitem.html">InitDialogItem</a>.
+      РљР°Р¶РґР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° РѕРїРёСЃС‹РІР°РµС‚ РїСѓРЅРєС‚ РґРёР°Р»РѕРіР°.</div>
     <div class=dfn>Item</div>
-    <div class=dfndescr>Указатель на массив структур <a href="../dialogapi/structures/fardialogitem.html">FarDialogItem</a>
-      для инициализации. Каждая структура будет описывать пункт диалога.</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РјР°СЃСЃРёРІ СЃС‚СЂСѓРєС‚СѓСЂ <a href="../dialogapi/structures/fardialogitem.html">FarDialogItem</a>
+      РґР»СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё. РљР°Р¶РґР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° Р±СѓРґРµС‚ РѕРїРёСЃС‹РІР°С‚СЊ РїСѓРЅРєС‚ РґРёР°Р»РѕРіР°.</div>
     <div class=dfn>ItemsNumber</div>
-    <div class=dfndescr>Количество элементов массива <i>Init</i>.</div>
+    <div class=dfndescr>РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РјР°СЃСЃРёРІР° <i>Init</i>.</div>
 
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-  <p>Нет.</p>
+  <p>РќРµС‚.</p>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-  <p>Введение функции InitDialogItems обусловлено следующим:<br>
-  Поскольку переменная <i>FarDialogItem.Data</i> имеет большой размер, прямая
-  инициализация массива <dfn>FarDialogItem</dfn>, может заметно увеличить
-  потребление памяти.</p>
+  <p>Р’РІРµРґРµРЅРёРµ С„СѓРЅРєС†РёРё InitDialogItems РѕР±СѓСЃР»РѕРІР»РµРЅРѕ СЃР»РµРґСѓСЋС‰РёРј:<br>
+  РџРѕСЃРєРѕР»СЊРєСѓ РїРµСЂРµРјРµРЅРЅР°СЏ <i>FarDialogItem.Data</i> РёРјРµРµС‚ Р±РѕР»СЊС€РѕР№ СЂР°Р·РјРµСЂ, РїСЂСЏРјР°СЏ
+  РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РјР°СЃСЃРёРІР° <dfn>FarDialogItem</dfn>, РјРѕР¶РµС‚ Р·Р°РјРµС‚РЅРѕ СѓРІРµР»РёС‡РёС‚СЊ
+  РїРѕС‚СЂРµР±Р»РµРЅРёРµ РїР°РјСЏС‚Рё.</p>
 
-  <p>В примере (см. ниже) показано как использовать функцию InitDialogItems и
-  структуру <a href="structures/initdialogitem.html">InitDialogItem</a> для
-  создания диалога.</p>
+  <p>Р’ РїСЂРёРјРµСЂРµ (СЃРј. РЅРёР¶Рµ) РїРѕРєР°Р·Р°РЅРѕ РєР°Рє РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С„СѓРЅРєС†РёСЋ InitDialogItems Рё
+  СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="structures/initdialogitem.html">InitDialogItem</a> РґР»СЏ
+  СЃРѕР·РґР°РЅРёСЏ РґРёР°Р»РѕРіР°.</p>
 </div>
 
 
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
-  <p>Пример вывода диалога конфигурирования плагина TempPanel:</p>
+  <p>РџСЂРёРјРµСЂ РІС‹РІРѕРґР° РґРёР°Р»РѕРіР° РєРѕРЅС„РёРіСѓСЂРёСЂРѕРІР°РЅРёСЏ РїР»Р°РіРёРЅР° TempPanel:</p>
 
 <pre class=code>int Config()
 {
@@ -121,7 +121,7 @@ void InitDialogItems(
 <br>&nbsp;
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
 <a href="../dialogapi/dialog.html">Dialog</a> |
 <a href="structures/initdialogitem.html">InitDialogItem</a> |
 <a href="../dialogapi/structures/fardialogitem.html">FarDialogItem</a>

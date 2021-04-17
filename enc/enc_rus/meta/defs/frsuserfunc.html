@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FRSUSERFUNC</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -13,15 +13,15 @@
 <body>
 <h1>FRSUSERFUNC</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">типы и определения</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">С‚РёРїС‹ Рё РѕРїСЂРµРґРµР»РµРЅРёСЏ</a>
 </div>
 
 
 <div class=shortdescr>
-Тип <dfn>FRSUSERFUNC</dfn> описывает CALLBACK-функцию, вызываемую
-из функции <a href="../fsf/farrecursivesearch.html">FSF.FarRecursiveSearch</a>
-для каждого найденного файла.</div>
+РўРёРї <dfn>FRSUSERFUNC</dfn> РѕРїРёСЃС‹РІР°РµС‚ CALLBACK-С„СѓРЅРєС†РёСЋ, РІС‹Р·С‹РІР°РµРјСѓСЋ
+РёР· С„СѓРЅРєС†РёРё <a href="../fsf/farrecursivesearch.html">FSF.FarRecursiveSearch</a>
+РґР»СЏ РєР°Р¶РґРѕРіРѕ РЅР°Р№РґРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р°.</div>
 
 <pre class=syntax>
 typedef int  (WINAPI *FRSUSERFUNC)(
@@ -31,40 +31,40 @@ typedef int  (WINAPI *FRSUSERFUNC)(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>FData</div>
-  <div class=dfndescr>Указатель на структуру
-    <a href="../winapi/win32_find_data.html">WIN32_FIND_DATA</a> для очередного
-    найденного файлового объекта.
+  <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ
+    <a href="../winapi/win32_find_data.html">WIN32_FIND_DATA</a> РґР»СЏ РѕС‡РµСЂРµРґРЅРѕРіРѕ
+    РЅР°Р№РґРµРЅРЅРѕРіРѕ С„Р°Р№Р»РѕРІРѕРіРѕ РѕР±СЉРµРєС‚Р°.
   </div>
 
   <div class=dfn>FullName</div>
-  <div class=dfndescr>Полный путь к найденному файловому объекту.
+  <div class=dfndescr>РџРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РЅР°Р№РґРµРЅРЅРѕРјСѓ С„Р°Р№Р»РѕРІРѕРјСѓ РѕР±СЉРµРєС‚Сѓ.
   </div>
 
   <div class=dfn>Param</div>
-  <div class=dfndescr>Указатель на данные пользователя (параметр
-    <var>Param</var> фунции <a href="../fsf/farrecursivesearch.html">FSF.FarRecursiveSearch</a>).
+  <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РґР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ (РїР°СЂР°РјРµС‚СЂ
+    <var>Param</var> С„СѓРЅС†РёРё <a href="../fsf/farrecursivesearch.html">FSF.FarRecursiveSearch</a>).
   </div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-Пользовательская функция должна вернуть <code>TRUE</code> для продолжения сканирования
-файловой системы, или <code>FALSE</code>, если необходимо прервать процесс сканирования.
+РџРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєР°СЏ С„СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° РІРµСЂРЅСѓС‚СЊ <code>TRUE</code> РґР»СЏ РїСЂРѕРґРѕР»Р¶РµРЅРёСЏ СЃРєР°РЅРёСЂРѕРІР°РЅРёСЏ
+С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹, РёР»Рё <code>FALSE</code>, РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРµСЂРІР°С‚СЊ РїСЂРѕС†РµСЃСЃ СЃРєР°РЅРёСЂРѕРІР°РЅРёСЏ.
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-<var>FData</var> и <var>FullName</var> определены только в контексте данной
-    функции, плагин не должен сохранять эти указатели. Для сохранения данных,
-    плагин должен скопировать эти значения в свои стуктуры.
-    <var>Param</var> - те данные, которые плагин передал функции
+<var>FData</var> Рё <var>FullName</var> РѕРїСЂРµРґРµР»РµРЅС‹ С‚РѕР»СЊРєРѕ РІ РєРѕРЅС‚РµРєСЃС‚Рµ РґР°РЅРЅРѕР№
+    С„СѓРЅРєС†РёРё, РїР»Р°РіРёРЅ РЅРµ РґРѕР»Р¶РµРЅ СЃРѕС…СЂР°РЅСЏС‚СЊ СЌС‚Рё СѓРєР°Р·Р°С‚РµР»Рё. Р”Р»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ РґР°РЅРЅС‹С…,
+    РїР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ СЃРєРѕРїРёСЂРѕРІР°С‚СЊ СЌС‚Рё Р·РЅР°С‡РµРЅРёСЏ РІ СЃРІРѕРё СЃС‚СѓРєС‚СѓСЂС‹.
+    <var>Param</var> - С‚Рµ РґР°РЅРЅС‹Рµ, РєРѕС‚РѕСЂС‹Рµ РїР»Р°РіРёРЅ РїРµСЂРµРґР°Р» С„СѓРЅРєС†РёРё
     <a href="../fsf/farrecursivesearch.html">FSF.FarRecursiveSearch</a>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
 <a href="../fsf/farrecursivesearch.html">FSF.FarRecursiveSearch</a>
 </div>
 

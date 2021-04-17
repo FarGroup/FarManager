@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>PanelControl</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -11,13 +11,13 @@
 
 <h1>PanelControl</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
 <div class=shortdescr>
-Функция <code>PanelControl</code> позволяет запрашивать различную информацию и выполнять управляющие действия над панелями и командной строкой.
+Р¤СѓРЅРєС†РёСЏ <code>PanelControl</code> РїРѕР·РІРѕР»СЏРµС‚ Р·Р°РїСЂР°С€РёРІР°С‚СЊ СЂР°Р·Р»РёС‡РЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рё РІС‹РїРѕР»РЅСЏС‚СЊ СѓРїСЂР°РІР»СЏСЋС‰РёРµ РґРµР№СЃС‚РІРёСЏ РЅР°Рґ РїР°РЅРµР»СЏРјРё Рё РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРѕР№.
 </div>
 
 <pre class=syntax>
@@ -29,93 +29,93 @@ intptr_t WINAPI PanelControl(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>hPanel</div>
-    <div class=dfndescr>Текущий описатель панели. При запросе информации относительно активной панели установите этот параметр равным <code>PANEL_ACTIVE</code>, для пассивной -  <code>PANEL_PASSIVE</code>. Это позволяет
-    использовать эту функцию в командах плагина без создания новой панели. Также <code>PANEL_ACTIVE(PANEL_PASSIVE)</code> можно использовать для неплагиновой панели.</div>
+    <div class=dfndescr>РўРµРєСѓС‰РёР№ РѕРїРёСЃР°С‚РµР»СЊ РїР°РЅРµР»Рё. РџСЂРё Р·Р°РїСЂРѕСЃРµ РёРЅС„РѕСЂРјР°С†РёРё РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё СѓСЃС‚Р°РЅРѕРІРёС‚Рµ СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СЂР°РІРЅС‹Рј <code>PANEL_ACTIVE</code>, РґР»СЏ РїР°СЃСЃРёРІРЅРѕР№ -  <code>PANEL_PASSIVE</code>. Р­С‚Рѕ РїРѕР·РІРѕР»СЏРµС‚
+    РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЌС‚Сѓ С„СѓРЅРєС†РёСЋ РІ РєРѕРјР°РЅРґР°С… РїР»Р°РіРёРЅР° Р±РµР· СЃРѕР·РґР°РЅРёСЏ РЅРѕРІРѕР№ РїР°РЅРµР»Рё. РўР°РєР¶Рµ <code>PANEL_ACTIVE(PANEL_PASSIVE)</code> РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґР»СЏ РЅРµРїР»Р°РіРёРЅРѕРІРѕР№ РїР°РЅРµР»Рё.</div>
   <div class=dfn>Command</div>
-    <div class=dfndescr>Тип команды. Может быть следующим <a name="FILE_CONTROL_COMMANDS">FILE_CONTROL_COMMANDS</a>):
+    <div class=dfndescr>РўРёРї РєРѕРјР°РЅРґС‹. РњРѕР¶РµС‚ Р±С‹С‚СЊ СЃР»РµРґСѓСЋС‰РёРј <a name="FILE_CONTROL_COMMANDS">FILE_CONTROL_COMMANDS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
-      <!-- панельные -->
-    <tr class="cont"><th class="cont" width="100%" colspan="2"><b>Панель</b></th></tr>
+    <tr class="cont"><th class="cont" width="40%">РљРѕРјР°РЅРґР°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+      <!-- РїР°РЅРµР»СЊРЅС‹Рµ -->
+    <tr class="cont"><th class="cont" width="100%" colspan="2"><b>РџР°РЅРµР»СЊ</b></th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_CHECKPANELSEXIST">FCTL_CHECKPANELSEXIST</a></td>
-    <td class="cont" width="60%">Проверить доступность панелей.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.<br>
-    Функция возвращает <code>FALSE</code>, если Far Manager запущен с ключами /e или /v (в качестве внешнего редактора или программы просмотра). В этом режиме панели не создаются.
-    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_CHECKPANELSEXIST" width="10" height="10"> Внимание!<br><br></p>
-    <UL class=note><LI>В режиме, когда Far Manager запущен с ключами /e или /v, функция обрабатывает только команды <code>FCTL_CHECKPANELSEXIST</code>, <code>FCTL_GETUSERSCREEN</code> и <code>FCTL_SETUSERSCREEN</code>.</LI></UL></td></tr>
+    <td class="cont" width="60%">РџСЂРѕРІРµСЂРёС‚СЊ РґРѕСЃС‚СѓРїРЅРѕСЃС‚СЊ РїР°РЅРµР»РµР№.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>FALSE</code>, РµСЃР»Рё Far Manager Р·Р°РїСѓС‰РµРЅ СЃ РєР»СЋС‡Р°РјРё /e РёР»Рё /v (РІ РєР°С‡РµСЃС‚РІРµ РІРЅРµС€РЅРµРіРѕ СЂРµРґР°РєС‚РѕСЂР° РёР»Рё РїСЂРѕРіСЂР°РјРјС‹ РїСЂРѕСЃРјРѕС‚СЂР°). Р’ СЌС‚РѕРј СЂРµР¶РёРјРµ РїР°РЅРµР»Рё РЅРµ СЃРѕР·РґР°СЋС‚СЃСЏ.
+    <p class=note><img src="../../images/note.gif" alt="Р—Р°РјРµС‡Р°РЅРёРµ РґР»СЏ FCTL_CHECKPANELSEXIST" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!<br><br></p>
+    <UL class=note><LI>Р’ СЂРµР¶РёРјРµ, РєРѕРіРґР° Far Manager Р·Р°РїСѓС‰РµРЅ СЃ РєР»СЋС‡Р°РјРё /e РёР»Рё /v, С„СѓРЅРєС†РёСЏ РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚ С‚РѕР»СЊРєРѕ РєРѕРјР°РЅРґС‹ <code>FCTL_CHECKPANELSEXIST</code>, <code>FCTL_GETUSERSCREEN</code> Рё <code>FCTL_SETUSERSCREEN</code>.</LI></UL></td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_ISACTIVEPANEL">FCTL_ISACTIVEPANEL</a></td>
-    <td class="cont" width="60%">Проверяет, является ли панель активной.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.<br>
-    Функция возвращает <code>FALSE</code>, если панель неактивна.</td></tr>
+    <td class="cont" width="60%">РџСЂРѕРІРµСЂСЏРµС‚, СЏРІР»СЏРµС‚СЃСЏ Р»Рё РїР°РЅРµР»СЊ Р°РєС‚РёРІРЅРѕР№.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>FALSE</code>, РµСЃР»Рё РїР°РЅРµР»СЊ РЅРµР°РєС‚РёРІРЅР°.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_CLOSEPANEL">FCTL_CLOSEPANEL</a></td>
-    <td class="cont" width="60%">Закрыть текущую панель плагина.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на имя каталога, который будет показан в панели после закрытия.</td></tr>
+    <td class="cont" width="60%">Р—Р°РєСЂС‹С‚СЊ С‚РµРєСѓС‰СѓСЋ РїР°РЅРµР»СЊ РїР»Р°РіРёРЅР°.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° РёРјСЏ РєР°С‚Р°Р»РѕРіР°, РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ РїРѕРєР°Р·Р°РЅ РІ РїР°РЅРµР»Рё РїРѕСЃР»Рµ Р·Р°РєСЂС‹С‚РёСЏ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELINFO">FCTL_GETPANELINFO</a></td>
-    <td class="cont" width="60%">Получить общую информацию о панели.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на структуру <a href="../structures/panelinfo.html">PanelInfo</a>, которая получит информацию о панели.<br>
-    <p>В процессе исполнения запроса <pre class=code>Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&amp;PInfo);</pre>
-    Far Manager вызывает экспортируемую функцию <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a> того плагина, которому принадлежит панель.
-    Far Manager содержит защиту от бесконечной рекурсии: в случае, когда плагин из обработчика <code>GetOpenPanelInfoW()</code> тоже вызывает
-    <code>Info.PanelControl(...,FCTL_GETPANELINFO)</code>, повторного вложенного вызова <code>GetOpenPanelInfoW()</code> не произойдёт.
-    <p>В некоторых случаях (пример: поиск в архивах по <kbd>Alt</kbd>+<kbd>F7</kbd>) физически панель плагина не создаётся, поэтому необходимо
-    обязательно проверять код возврата у <code>PanelControl</code>, чтобы не упасть в самый неподходящий момент, выполнив работу для панели, которой нет.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РѕР±С‰СѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїР°РЅРµР»Рё.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/panelinfo.html">PanelInfo</a>, РєРѕС‚РѕСЂР°СЏ РїРѕР»СѓС‡РёС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїР°РЅРµР»Рё.<br>
+    <p>Р’ РїСЂРѕС†РµСЃСЃРµ РёСЃРїРѕР»РЅРµРЅРёСЏ Р·Р°РїСЂРѕСЃР° <pre class=code>Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&amp;PInfo);</pre>
+    Far Manager РІС‹Р·С‹РІР°РµС‚ СЌРєСЃРїРѕСЂС‚РёСЂСѓРµРјСѓСЋ С„СѓРЅРєС†РёСЋ <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a> С‚РѕРіРѕ РїР»Р°РіРёРЅР°, РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРЅР°РґР»РµР¶РёС‚ РїР°РЅРµР»СЊ.
+    Far Manager СЃРѕРґРµСЂР¶РёС‚ Р·Р°С‰РёС‚Сѓ РѕС‚ Р±РµСЃРєРѕРЅРµС‡РЅРѕР№ СЂРµРєСѓСЂСЃРёРё: РІ СЃР»СѓС‡Р°Рµ, РєРѕРіРґР° РїР»Р°РіРёРЅ РёР· РѕР±СЂР°Р±РѕС‚С‡РёРєР° <code>GetOpenPanelInfoW()</code> С‚РѕР¶Рµ РІС‹Р·С‹РІР°РµС‚
+    <code>Info.PanelControl(...,FCTL_GETPANELINFO)</code>, РїРѕРІС‚РѕСЂРЅРѕРіРѕ РІР»РѕР¶РµРЅРЅРѕРіРѕ РІС‹Р·РѕРІР° <code>GetOpenPanelInfoW()</code> РЅРµ РїСЂРѕРёР·РѕР№РґС‘С‚.
+    <p>Р’ РЅРµРєРѕС‚РѕСЂС‹С… СЃР»СѓС‡Р°СЏС… (РїСЂРёРјРµСЂ: РїРѕРёСЃРє РІ Р°СЂС…РёРІР°С… РїРѕ <kbd>Alt</kbd>+<kbd>F7</kbd>) С„РёР·РёС‡РµСЃРєРё РїР°РЅРµР»СЊ РїР»Р°РіРёРЅР° РЅРµ СЃРѕР·РґР°С‘С‚СЃСЏ, РїРѕСЌС‚РѕРјСѓ РЅРµРѕР±С…РѕРґРёРјРѕ
+    РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РїСЂРѕРІРµСЂСЏС‚СЊ РєРѕРґ РІРѕР·РІСЂР°С‚Р° Сѓ <code>PanelControl</code>, С‡С‚РѕР±С‹ РЅРµ СѓРїР°СЃС‚СЊ РІ СЃР°РјС‹Р№ РЅРµРїРѕРґС…РѕРґСЏС‰РёР№ РјРѕРјРµРЅС‚, РІС‹РїРѕР»РЅРёРІ СЂР°Р±РѕС‚Сѓ РґР»СЏ РїР°РЅРµР»Рё, РєРѕС‚РѕСЂРѕР№ РЅРµС‚.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCOLUMNTYPES">FCTL_GETCOLUMNTYPES</a></td>
-    <td class="cont" width="60%">Получить строку, описывающую <a href="../other/dict.html#panelcolumntype">типы колонок</a>.<br>
-    <code>Param1</code> размер буфера. Указывает максимальное количество символов, которые могут быть записаны в <code>Param2</code>, включая завершающий <code>'\0'</code>.<br>
-    <code>Param2</code> указывает на буфер, выделяемый плагином, в который будет помещено описание типов колонок (например, такая строка <code>&quot;N,SC,D,T&quot;</code>).<br>
-    Функция возвращает необходимый размер буфера в символах, если <code>Param2 = NULL</code>.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ СЃС‚СЂРѕРєСѓ, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ <a href="../other/dict.html#panelcolumntype">С‚РёРїС‹ РєРѕР»РѕРЅРѕРє</a>.<br>
+    <code>Param1</code> СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°. РЈРєР°Р·С‹РІР°РµС‚ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ, РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ Р±С‹С‚СЊ Р·Р°РїРёСЃР°РЅС‹ РІ <code>Param2</code>, РІРєР»СЋС‡Р°СЏ Р·Р°РІРµСЂС€Р°СЋС‰РёР№ <code>'\0'</code>.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° Р±СѓС„РµСЂ, РІС‹РґРµР»СЏРµРјС‹Р№ РїР»Р°РіРёРЅРѕРј, РІ РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅРѕ РѕРїРёСЃР°РЅРёРµ С‚РёРїРѕРІ РєРѕР»РѕРЅРѕРє (РЅР°РїСЂРёРјРµСЂ, С‚Р°РєР°СЏ СЃС‚СЂРѕРєР° <code>&quot;N,SC,D,T&quot;</code>).<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С…, РµСЃР»Рё <code>Param2 = NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCOLUMNWIDTHS">FCTL_GETCOLUMNWIDTHS</a></td>
-    <td class="cont" width="60%">Получить строку, описывающую <a href="../other/dict.html#columnwidths">ширину колонок</a>.<br>
-    <code>Param1</code> размер буфера в символах. Указывает максимальное количество символов, которые могут быть записаны в <code>Param2</code>, включая завершающий <code>'\0'</code>.<br>
-    <code>Param2</code> указывает на буфер, выделяемый плагином, в который будет помещено описание ширины колонок (например, такая строка <code>&quot;0,8,0,5&quot;</code>).<br>
-    Функция возвращает необходимый размер буфера в символах, если <code>Param2 = NULL</code>.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ СЃС‚СЂРѕРєСѓ, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ <a href="../other/dict.html#columnwidths">С€РёСЂРёРЅСѓ РєРѕР»РѕРЅРѕРє</a>.<br>
+    <code>Param1</code> СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С…. РЈРєР°Р·С‹РІР°РµС‚ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ, РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ Р±С‹С‚СЊ Р·Р°РїРёСЃР°РЅС‹ РІ <code>Param2</code>, РІРєР»СЋС‡Р°СЏ Р·Р°РІРµСЂС€Р°СЋС‰РёР№ <code>'\0'</code>.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° Р±СѓС„РµСЂ, РІС‹РґРµР»СЏРµРјС‹Р№ РїР»Р°РіРёРЅРѕРј, РІ РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅРѕ РѕРїРёСЃР°РЅРёРµ С€РёСЂРёРЅС‹ РєРѕР»РѕРЅРѕРє (РЅР°РїСЂРёРјРµСЂ, С‚Р°РєР°СЏ СЃС‚СЂРѕРєР° <code>&quot;0,8,0,5&quot;</code>).<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С…, РµСЃР»Рё <code>Param2 = NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELDIRECTORY">FCTL_GETPANELDIRECTORY</a></td>
-    <td class="cont" width="60%">Получить текущий каталог панели.<br>
-    <code>Param1</code> размер буфера. Начало буфера - структура типа <a href="../structures/farpaneldirectory.html">FarPanelDirectory</a>, затем следуют компоненты структуры.<br>
-    <code>Param2</code> указывает на структуру типа <a href="../structures/farpaneldirectory.html">FarPanelDirectory</a>.<br>
-    Функция возвращает необходимый размер буфера, если <code>Param2 = NULL</code> или <code>Param1</code> меньше реального размера.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ С‚РµРєСѓС‰РёР№ РєР°С‚Р°Р»РѕРі РїР°РЅРµР»Рё.<br>
+    <code>Param1</code> СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°. РќР°С‡Р°Р»Рѕ Р±СѓС„РµСЂР° - СЃС‚СЂСѓРєС‚СѓСЂР° С‚РёРїР° <a href="../structures/farpaneldirectory.html">FarPanelDirectory</a>, Р·Р°С‚РµРј СЃР»РµРґСѓСЋС‚ РєРѕРјРїРѕРЅРµРЅС‚С‹ СЃС‚СЂСѓРєС‚СѓСЂС‹.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ С‚РёРїР° <a href="../structures/farpaneldirectory.html">FarPanelDirectory</a>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°, РµСЃР»Рё <code>Param2 = NULL</code> РёР»Рё <code>Param1</code> РјРµРЅСЊС€Рµ СЂРµР°Р»СЊРЅРѕРіРѕ СЂР°Р·РјРµСЂР°.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELFORMAT">FCTL_GETPANELFORMAT</a></td>
-    <td class="cont" width="60%">Получить формат панели (см. <a href="../structures/openpanelinfo.html">OpenPanelInfo::Format</a>).<br>
-    <code>Param1</code> размер буфера в символах. Указывает максимальное количество символов, которые могут быть записаны в <code>Param2</code>, включая завершающий <code>'\0'</code>.<br>
-    <code>Param2</code> указывает на буфер, выделяемый плагином, в который будет помещен формат панели.<br>
-    Если панель не принадлежит плагину, то функция вернет размер пустой строки.<br>
-    Функция возвращает необходимый размер буфера в символах, если <code>Param2 = NULL</code>.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ С„РѕСЂРјР°С‚ РїР°РЅРµР»Рё (СЃРј. <a href="../structures/openpanelinfo.html">OpenPanelInfo::Format</a>).<br>
+    <code>Param1</code> СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С…. РЈРєР°Р·С‹РІР°РµС‚ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ, РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ Р±С‹С‚СЊ Р·Р°РїРёСЃР°РЅС‹ РІ <code>Param2</code>, РІРєР»СЋС‡Р°СЏ Р·Р°РІРµСЂС€Р°СЋС‰РёР№ <code>'\0'</code>.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° Р±СѓС„РµСЂ, РІС‹РґРµР»СЏРµРјС‹Р№ РїР»Р°РіРёРЅРѕРј, РІ РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅ С„РѕСЂРјР°С‚ РїР°РЅРµР»Рё.<br>
+    Р•СЃР»Рё РїР°РЅРµР»СЊ РЅРµ РїСЂРёРЅР°РґР»РµР¶РёС‚ РїР»Р°РіРёРЅСѓ, С‚Рѕ С„СѓРЅРєС†РёСЏ РІРµСЂРЅРµС‚ СЂР°Р·РјРµСЂ РїСѓСЃС‚РѕР№ СЃС‚СЂРѕРєРё.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С…, РµСЃР»Рё <code>Param2 = NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELHOSTFILE">FCTL_GETPANELHOSTFILE</a></td>
-    <td class="cont" width="60%">Получить имя файла, на основе которого эмулирована файловая система на панели (см. <a href="../structures/openpanelinfo.html">OpenPanelInfo::HostFile</a>).<br>
-    <code>Param1</code> размер буфера в символах. Указывает максимальное количество символов, которые могут быть записаны в <code>Param2</code>, включая завершающий <code>'\0'</code>.<br>
-    <code>Param2</code> указывает на буфер, выделяемый плагином, в который будет помещено имя хост-файла.<br>
-    Если панель не принадлежит плагину, то функция вернет размер пустой строки.<br>
-    Функция возвращает необходимый размер буфера в символах, если <code>Param2 = NULL</code>.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРјСЏ С„Р°Р№Р»Р°, РЅР° РѕСЃРЅРѕРІРµ РєРѕС‚РѕСЂРѕРіРѕ СЌРјСѓР»РёСЂРѕРІР°РЅР° С„Р°Р№Р»РѕРІР°СЏ СЃРёСЃС‚РµРјР° РЅР° РїР°РЅРµР»Рё (СЃРј. <a href="../structures/openpanelinfo.html">OpenPanelInfo::HostFile</a>).<br>
+    <code>Param1</code> СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С…. РЈРєР°Р·С‹РІР°РµС‚ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ, РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ Р±С‹С‚СЊ Р·Р°РїРёСЃР°РЅС‹ РІ <code>Param2</code>, РІРєР»СЋС‡Р°СЏ Р·Р°РІРµСЂС€Р°СЋС‰РёР№ <code>'\0'</code>.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° Р±СѓС„РµСЂ, РІС‹РґРµР»СЏРµРјС‹Р№ РїР»Р°РіРёРЅРѕРј, РІ РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅРѕ РёРјСЏ С…РѕСЃС‚-С„Р°Р№Р»Р°.<br>
+    Р•СЃР»Рё РїР°РЅРµР»СЊ РЅРµ РїСЂРёРЅР°РґР»РµР¶РёС‚ РїР»Р°РіРёРЅСѓ, С‚Рѕ С„СѓРЅРєС†РёСЏ РІРµСЂРЅРµС‚ СЂР°Р·РјРµСЂ РїСѓСЃС‚РѕР№ СЃС‚СЂРѕРєРё.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С…, РµСЃР»Рё <code>Param2 = NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELITEM">FCTL_GETPANELITEM</a></td>
-    <td class="cont" width="60%"> Получить файловый элемент панели.<br>
-    <code>Param1</code> порядковый номер элемента на панели (подмножество <a href="../structures/panelinfo.html">PanelInfo::ItemsNumber</a>).<br>
-    <code>Param2</code> указывает на структуру типа <a href="../structures/fargetpluginpanelitem.html">FarGetPluginPanelItem</a>.<br>
-    <p>Функция возвращает размер запрашиваемого элемента панели <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>,
-    если <code>Param2 = NULL</code> или указывает на корректно заполненную структуру.</p>
-    <p><em>Примечание:</em> если установить значение <code>FarGetPluginPanelItem::Size</code> меньше необходимого размера
-    (но при этом не меньше размера <code>PluginPanelItem</code>), то будет записано столько полей, сколько поместится целиком,
-    а остальным будет присвоено значение <code>NULL</code>. В частности, если установить <code>FarGetPluginPanelItem::Size</code> в
-    <code>sizeof(PluginPanelItem)</code> то можно за один вызов и без динамического выделения памяти получить все поля, не являющиеся указателями.</p>
-    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_GETPANELITEM" width="10" height="10"> Внимание! Tак делать нельзя:<br></p><br>
+    <td class="cont" width="60%"> РџРѕР»СѓС‡РёС‚СЊ С„Р°Р№Р»РѕРІС‹Р№ СЌР»РµРјРµРЅС‚ РїР°РЅРµР»Рё.<br>
+    <code>Param1</code> РїРѕСЂСЏРґРєРѕРІС‹Р№ РЅРѕРјРµСЂ СЌР»РµРјРµРЅС‚Р° РЅР° РїР°РЅРµР»Рё (РїРѕРґРјРЅРѕР¶РµСЃС‚РІРѕ <a href="../structures/panelinfo.html">PanelInfo::ItemsNumber</a>).<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ С‚РёРїР° <a href="../structures/fargetpluginpanelitem.html">FarGetPluginPanelItem</a>.<br>
+    <p>Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ СЂР°Р·РјРµСЂ Р·Р°РїСЂР°С€РёРІР°РµРјРѕРіРѕ СЌР»РµРјРµРЅС‚Р° РїР°РЅРµР»Рё <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>,
+    РµСЃР»Рё <code>Param2 = NULL</code> РёР»Рё СѓРєР°Р·С‹РІР°РµС‚ РЅР° РєРѕСЂСЂРµРєС‚РЅРѕ Р·Р°РїРѕР»РЅРµРЅРЅСѓСЋ СЃС‚СЂСѓРєС‚СѓСЂСѓ.</p>
+    <p><em>РџСЂРёРјРµС‡Р°РЅРёРµ:</em> РµСЃР»Рё СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·РЅР°С‡РµРЅРёРµ <code>FarGetPluginPanelItem::Size</code> РјРµРЅСЊС€Рµ РЅРµРѕР±С…РѕРґРёРјРѕРіРѕ СЂР°Р·РјРµСЂР°
+    (РЅРѕ РїСЂРё СЌС‚РѕРј РЅРµ РјРµРЅСЊС€Рµ СЂР°Р·РјРµСЂР° <code>PluginPanelItem</code>), С‚Рѕ Р±СѓРґРµС‚ Р·Р°РїРёСЃР°РЅРѕ СЃС‚РѕР»СЊРєРѕ РїРѕР»РµР№, СЃРєРѕР»СЊРєРѕ РїРѕРјРµСЃС‚РёС‚СЃСЏ С†РµР»РёРєРѕРј,
+    Р° РѕСЃС‚Р°Р»СЊРЅС‹Рј Р±СѓРґРµС‚ РїСЂРёСЃРІРѕРµРЅРѕ Р·РЅР°С‡РµРЅРёРµ <code>NULL</code>. Р’ С‡Р°СЃС‚РЅРѕСЃС‚Рё, РµСЃР»Рё СѓСЃС‚Р°РЅРѕРІРёС‚СЊ <code>FarGetPluginPanelItem::Size</code> РІ
+    <code>sizeof(PluginPanelItem)</code> С‚Рѕ РјРѕР¶РЅРѕ Р·Р° РѕРґРёРЅ РІС‹Р·РѕРІ Рё Р±РµР· РґРёРЅР°РјРёС‡РµСЃРєРѕРіРѕ РІС‹РґРµР»РµРЅРёСЏ РїР°РјСЏС‚Рё РїРѕР»СѓС‡РёС‚СЊ РІСЃРµ РїРѕР»СЏ, РЅРµ СЏРІР»СЏСЋС‰РёРµСЃСЏ СѓРєР°Р·Р°С‚РµР»СЏРјРё.</p>
+    <p class=note><img src="../../images/note.gif" alt="Р—Р°РјРµС‡Р°РЅРёРµ РґР»СЏ FCTL_GETPANELITEM" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ! TР°Рє РґРµР»Р°С‚СЊ РЅРµР»СЊР·СЏ:<br></p><br>
     <pre class=code>PluginPanelItem PPI;
 Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,J,&PPI);</pre>
-    <p>Пример корректного использования:
+    <p>РџСЂРёРјРµСЂ РєРѕСЂСЂРµРєС‚РЅРѕРіРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ:
     <pre class=code>
 for(int J=0; J < PInfo.ItemsNumber; J++)
 {
@@ -129,189 +129,189 @@ for(int J=0; J < PInfo.ItemsNumber; J++)
     free(PPI);
   }
 }</pre>
-    Более эффективным при переборе большого количества элементов панели будет иметь на стеке буфер размером,
-    скажем, 16 КиБ и использовать его, когда этот размер достаточен. В тех же редких случаях, когда это не так,
-    можно выделять буфер требуемого размера в динамической памяти (и можно также его не освобождать сразу, а
-    перевыделять по мере необходимости, например, каждый раз не менее чем удваивая размер.)</p>
+    Р‘РѕР»РµРµ СЌС„С„РµРєС‚РёРІРЅС‹Рј РїСЂРё РїРµСЂРµР±РѕСЂРµ Р±РѕР»СЊС€РѕРіРѕ РєРѕР»РёС‡РµСЃС‚РІР° СЌР»РµРјРµРЅС‚РѕРІ РїР°РЅРµР»Рё Р±СѓРґРµС‚ РёРјРµС‚СЊ РЅР° СЃС‚РµРєРµ Р±СѓС„РµСЂ СЂР°Р·РјРµСЂРѕРј,
+    СЃРєР°Р¶РµРј, 16 РљРёР‘ Рё РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РµРіРѕ, РєРѕРіРґР° СЌС‚РѕС‚ СЂР°Р·РјРµСЂ РґРѕСЃС‚Р°С‚РѕС‡РµРЅ. Р’ С‚РµС… Р¶Рµ СЂРµРґРєРёС… СЃР»СѓС‡Р°СЏС…, РєРѕРіРґР° СЌС‚Рѕ РЅРµ С‚Р°Рє,
+    РјРѕР¶РЅРѕ РІС‹РґРµР»СЏС‚СЊ Р±СѓС„РµСЂ С‚СЂРµР±СѓРµРјРѕРіРѕ СЂР°Р·РјРµСЂР° РІ РґРёРЅР°РјРёС‡РµСЃРєРѕР№ РїР°РјСЏС‚Рё (Рё РјРѕР¶РЅРѕ С‚Р°РєР¶Рµ РµРіРѕ РЅРµ РѕСЃРІРѕР±РѕР¶РґР°С‚СЊ СЃСЂР°Р·Сѓ, Р°
+    РїРµСЂРµРІС‹РґРµР»СЏС‚СЊ РїРѕ РјРµСЂРµ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё, РЅР°РїСЂРёРјРµСЂ, РєР°Р¶РґС‹Р№ СЂР°Р· РЅРµ РјРµРЅРµРµ С‡РµРј СѓРґРІР°РёРІР°СЏ СЂР°Р·РјРµСЂ.)</p>
     </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELPREFIX">FCTL_GETPANELPREFIX</a></td>
-    <td class="cont" width="60%"> Получить префикс плагиновой панели.<br>
-    <code>Param1</code> размер буфера. Указывает максимальное количество символов, которые могут быть записаны в <code>Param2</code>, включая завершающий <code>'\0'</code>. <br>
-    <code>Param2</code> указывает на буфер, выделяемый плагином, в который будет помещено значение префикса плагиновой панели (см. <a href="../structures/plugininfo.html">PluginInfo::CommandPrefix</a>).<br>
-    Если панель не принадлежит плагину, то функция вернет размер пустой строки.<br>
-    Функция возвращает необходимый размер буфера в символах, если <code>Param2 = NULL</code>.</td></tr>
+    <td class="cont" width="60%"> РџРѕР»СѓС‡РёС‚СЊ РїСЂРµС„РёРєСЃ РїР»Р°РіРёРЅРѕРІРѕР№ РїР°РЅРµР»Рё.<br>
+    <code>Param1</code> СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°. РЈРєР°Р·С‹РІР°РµС‚ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ, РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ Р±С‹С‚СЊ Р·Р°РїРёСЃР°РЅС‹ РІ <code>Param2</code>, РІРєР»СЋС‡Р°СЏ Р·Р°РІРµСЂС€Р°СЋС‰РёР№ <code>'\0'</code>. <br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° Р±СѓС„РµСЂ, РІС‹РґРµР»СЏРµРјС‹Р№ РїР»Р°РіРёРЅРѕРј, РІ РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅРѕ Р·РЅР°С‡РµРЅРёРµ РїСЂРµС„РёРєСЃР° РїР»Р°РіРёРЅРѕРІРѕР№ РїР°РЅРµР»Рё (СЃРј. <a href="../structures/plugininfo.html">PluginInfo::CommandPrefix</a>).<br>
+    Р•СЃР»Рё РїР°РЅРµР»СЊ РЅРµ РїСЂРёРЅР°РґР»РµР¶РёС‚ РїР»Р°РіРёРЅСѓ, С‚Рѕ С„СѓРЅРєС†РёСЏ РІРµСЂРЅРµС‚ СЂР°Р·РјРµСЂ РїСѓСЃС‚РѕР№ СЃС‚СЂРѕРєРё.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С…, РµСЃР»Рё <code>Param2 = NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETSELECTEDPANELITEM">FCTL_GETSELECTEDPANELITEM</a></td>
-    <td class="cont" width="60%"> Получить выделенный файловый элемент панели.<br>
-    <code>Param1</code> порядковый номер элемента на панели (подмножество <a href="../structures/panelinfo.html">PanelInfo::SelectedItemsNumber</a>).<br>
-    <code>Param2</code> указывает на структуру типа <a href="../structures/fargetpluginpanelitem.html">FarGetPluginPanelItem</a>.<br>
-    Функция возвращает размер запрашиваемого элемента панели <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>, если <code>Param2 = NULL</code>.<br>
-    <p> PanelInfo.SelectedItemsNumber равно 1, если не выделено никаких элементов. В этом случае <a href="../structures/pluginpanelitem.html">PluginPanelItem</a> содержит данные для
-    элемента под курсором. Если вы хотите узнать, действительно ли выделен этот файл, то проверьте у него состояние флага <code>PPIF_SELECTED</code>.</td></tr>
+    <td class="cont" width="60%"> РџРѕР»СѓС‡РёС‚СЊ РІС‹РґРµР»РµРЅРЅС‹Р№ С„Р°Р№Р»РѕРІС‹Р№ СЌР»РµРјРµРЅС‚ РїР°РЅРµР»Рё.<br>
+    <code>Param1</code> РїРѕСЂСЏРґРєРѕРІС‹Р№ РЅРѕРјРµСЂ СЌР»РµРјРµРЅС‚Р° РЅР° РїР°РЅРµР»Рё (РїРѕРґРјРЅРѕР¶РµСЃС‚РІРѕ <a href="../structures/panelinfo.html">PanelInfo::SelectedItemsNumber</a>).<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ С‚РёРїР° <a href="../structures/fargetpluginpanelitem.html">FarGetPluginPanelItem</a>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ СЂР°Р·РјРµСЂ Р·Р°РїСЂР°С€РёРІР°РµРјРѕРіРѕ СЌР»РµРјРµРЅС‚Р° РїР°РЅРµР»Рё <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>, РµСЃР»Рё <code>Param2 = NULL</code>.<br>
+    <p> PanelInfo.SelectedItemsNumber СЂР°РІРЅРѕ 1, РµСЃР»Рё РЅРµ РІС‹РґРµР»РµРЅРѕ РЅРёРєР°РєРёС… СЌР»РµРјРµРЅС‚РѕРІ. Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ <a href="../structures/pluginpanelitem.html">PluginPanelItem</a> СЃРѕРґРµСЂР¶РёС‚ РґР°РЅРЅС‹Рµ РґР»СЏ
+    СЌР»РµРјРµРЅС‚Р° РїРѕРґ РєСѓСЂСЃРѕСЂРѕРј. Р•СЃР»Рё РІС‹ С…РѕС‚РёС‚Рµ СѓР·РЅР°С‚СЊ, РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ Р»Рё РІС‹РґРµР»РµРЅ СЌС‚РѕС‚ С„Р°Р№Р», С‚Рѕ РїСЂРѕРІРµСЂСЊС‚Рµ Сѓ РЅРµРіРѕ СЃРѕСЃС‚РѕСЏРЅРёРµ С„Р»Р°РіР° <code>PPIF_SELECTED</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCURRENTPANELITEM">FCTL_GETCURRENTPANELITEM</a></td>
-    <td class="cont" width="60%"> Получить текущий файловый элемент панели.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на структуру типа <a href="../structures/fargetpluginpanelitem.html">FarGetPluginPanelItem</a>.<br>
-    Функция возвращает размер запрашиваемого элемента панели <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>, если <code>Param2 = NULL</code>.<br>
+    <td class="cont" width="60%"> РџРѕР»СѓС‡РёС‚СЊ С‚РµРєСѓС‰РёР№ С„Р°Р№Р»РѕРІС‹Р№ СЌР»РµРјРµРЅС‚ РїР°РЅРµР»Рё.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ С‚РёРїР° <a href="../structures/fargetpluginpanelitem.html">FarGetPluginPanelItem</a>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ СЂР°Р·РјРµСЂ Р·Р°РїСЂР°С€РёРІР°РµРјРѕРіРѕ СЌР»РµРјРµРЅС‚Р° РїР°РЅРµР»Рё <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>, РµСЃР»Рё <code>Param2 = NULL</code>.<br>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_REDRAWPANEL">FCTL_REDRAWPANEL</a></td>
-    <td class="cont" width="60%">Перерисовать панель.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на структуру <a href="../structures/panelredrawinfo.html">PanelRedrawInfo</a>,  которой можно задать новые позиции курсора и верхнего элемента панели. Если <code>Param2 = NULL</code>, то позиции курсора и верхнего элемента панели при прорисовке не изменяются.<br>
-    Панель прорисуется только в случае, если в данный момент панель видна.</td></tr>
+    <td class="cont" width="60%">РџРµСЂРµСЂРёСЃРѕРІР°С‚СЊ РїР°РЅРµР»СЊ.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/panelredrawinfo.html">PanelRedrawInfo</a>,  РєРѕС‚РѕСЂРѕР№ РјРѕР¶РЅРѕ Р·Р°РґР°С‚СЊ РЅРѕРІС‹Рµ РїРѕР·РёС†РёРё РєСѓСЂСЃРѕСЂР° Рё РІРµСЂС…РЅРµРіРѕ СЌР»РµРјРµРЅС‚Р° РїР°РЅРµР»Рё. Р•СЃР»Рё <code>Param2 = NULL</code>, С‚Рѕ РїРѕР·РёС†РёРё РєСѓСЂСЃРѕСЂР° Рё РІРµСЂС…РЅРµРіРѕ СЌР»РµРјРµРЅС‚Р° РїР°РЅРµР»Рё РїСЂРё РїСЂРѕСЂРёСЃРѕРІРєРµ РЅРµ РёР·РјРµРЅСЏСЋС‚СЃСЏ.<br>
+    РџР°РЅРµР»СЊ РїСЂРѕСЂРёСЃСѓРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РІ РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РїР°РЅРµР»СЊ РІРёРґРЅР°.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETACTIVEPANEL">FCTL_SETACTIVEPANEL</a></td>
-    <td class="cont" width="60%">Сделать панель активной.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.<br>
-    Функция возвращает <code>FALSE</code>, если <code>hPanel</code> отлична от <code>PANEL_ACTIVE</code> или <code>PANEL_PASSIVE</code> и не принадлежит плагину, или панель в данный момент невидима.<br>
-    Для <code>hPanel = PANEL_ACTIVE</code> никаких действий не происходит, функция вернет <code>TRUE</code>.
-    <p>Например, установить на пассивной панели каталог TempDirectory и сделать эту панель активной:
+    <td class="cont" width="60%">РЎРґРµР»Р°С‚СЊ РїР°РЅРµР»СЊ Р°РєС‚РёРІРЅРѕР№.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>FALSE</code>, РµСЃР»Рё <code>hPanel</code> РѕС‚Р»РёС‡РЅР° РѕС‚ <code>PANEL_ACTIVE</code> РёР»Рё <code>PANEL_PASSIVE</code> Рё РЅРµ РїСЂРёРЅР°РґР»РµР¶РёС‚ РїР»Р°РіРёРЅСѓ, РёР»Рё РїР°РЅРµР»СЊ РІ РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РЅРµРІРёРґРёРјР°.<br>
+    Р”Р»СЏ <code>hPanel = PANEL_ACTIVE</code> РЅРёРєР°РєРёС… РґРµР№СЃС‚РІРёР№ РЅРµ РїСЂРѕРёСЃС…РѕРґРёС‚, С„СѓРЅРєС†РёСЏ РІРµСЂРЅРµС‚ <code>TRUE</code>.
+    <p>РќР°РїСЂРёРјРµСЂ, СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РЅР° РїР°СЃСЃРёРІРЅРѕР№ РїР°РЅРµР»Рё РєР°С‚Р°Р»РѕРі TempDirectory Рё СЃРґРµР»Р°С‚СЊ СЌС‚Сѓ РїР°РЅРµР»СЊ Р°РєС‚РёРІРЅРѕР№:
     <pre class=code>FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),TempDirectory,nullptr,{0},nullptr};
 Info.PanelControl(PANEL_PASSIVE,FCTL_SETPANELDIRECTORY,0,&dirInfo);
 Info.PanelControl(PANEL_PASSIVE,FCTL_SETACTIVEPANEL,0,0);</pre>
     </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETPANELDIRECTORY">FCTL_SETPANELDIRECTORY</a></td>
-    <td class="cont" width="60%">Установить текущий каталог в панели.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на структуру типа <a href="../structures/farpaneldirectory.html">FarPanelDirectory</a>.<br>
-    Если плагин поддерживает свою собственную панель, он будет закрыт после выполнения этой команды.
-    <p>После выполнения этой функции пропадёт выделение с элементов каталога и его будет невозможно восстановить (комбинация <kbd>Ctrl</kbd>+<kbd>M</kbd>) по желанию
-    пользователя, даже если новый каталог равен старому.</td></tr>
+    <td class="cont" width="60%">РЈСЃС‚Р°РЅРѕРІРёС‚СЊ С‚РµРєСѓС‰РёР№ РєР°С‚Р°Р»РѕРі РІ РїР°РЅРµР»Рё.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ С‚РёРїР° <a href="../structures/farpaneldirectory.html">FarPanelDirectory</a>.<br>
+    Р•СЃР»Рё РїР»Р°РіРёРЅ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ СЃРІРѕСЋ СЃРѕР±СЃС‚РІРµРЅРЅСѓСЋ РїР°РЅРµР»СЊ, РѕРЅ Р±СѓРґРµС‚ Р·Р°РєСЂС‹С‚ РїРѕСЃР»Рµ РІС‹РїРѕР»РЅРµРЅРёСЏ СЌС‚РѕР№ РєРѕРјР°РЅРґС‹.
+    <p>РџРѕСЃР»Рµ РІС‹РїРѕР»РЅРµРЅРёСЏ СЌС‚РѕР№ С„СѓРЅРєС†РёРё РїСЂРѕРїР°РґС‘С‚ РІС‹РґРµР»РµРЅРёРµ СЃ СЌР»РµРјРµРЅС‚РѕРІ РєР°С‚Р°Р»РѕРіР° Рё РµРіРѕ Р±СѓРґРµС‚ РЅРµРІРѕР·РјРѕР¶РЅРѕ РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ (РєРѕРјР±РёРЅР°С†РёСЏ <kbd>Ctrl</kbd>+<kbd>M</kbd>) РїРѕ Р¶РµР»Р°РЅРёСЋ
+    РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ, РґР°Р¶Рµ РµСЃР»Рё РЅРѕРІС‹Р№ РєР°С‚Р°Р»РѕРі СЂР°РІРµРЅ СЃС‚Р°СЂРѕРјСѓ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_BEGINSELECTION">FCTL_BEGINSELECTION</a>,<br><a name="FCTL_ENDSELECTION">FCTL_ENDSELECTION</a></td>
-    <td class="cont" width="60%">Начать/закончить операцию выделения в панели.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.<br>
-    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_BEGINSELECTION" width="10" height="10"> Внимание!<br><br></p>
-    <UL class=note><LI> Порядок использования смотрите в примере к <code>FCTL_SETSELECTION</code></LI></UL></td></tr>
+    <td class="cont" width="60%">РќР°С‡Р°С‚СЊ/Р·Р°РєРѕРЅС‡РёС‚СЊ РѕРїРµСЂР°С†РёСЋ РІС‹РґРµР»РµРЅРёСЏ РІ РїР°РЅРµР»Рё.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <p class=note><img src="../../images/note.gif" alt="Р—Р°РјРµС‡Р°РЅРёРµ РґР»СЏ FCTL_BEGINSELECTION" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!<br><br></p>
+    <UL class=note><LI> РџРѕСЂСЏРґРѕРє РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ СЃРјРѕС‚СЂРёС‚Рµ РІ РїСЂРёРјРµСЂРµ Рє <code>FCTL_SETSELECTION</code></LI></UL></td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETSELECTION">FCTL_SETSELECTION</a></td>
-    <td class="cont" width="60%">Установить выделение в панели.<br>
-    <code>Param1</code> порядковый номер элемента на панели (подмножество <a href="../structures/panelinfo.html">PanelInfo::ItemsNumber</a>).<br>
-    <code>Param2</code> указывает на переменную типа <code>BOOL</code> (<code>TRUE</code> - выделить элемент, <code>FALSE</code> - снять выделение).
-    <p>Нужно вызвать <code>FCTL_REDRAWPANEL</code> для показа изменений.
-    <p>Пример:
+    <td class="cont" width="60%">РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РІС‹РґРµР»РµРЅРёРµ РІ РїР°РЅРµР»Рё.<br>
+    <code>Param1</code> РїРѕСЂСЏРґРєРѕРІС‹Р№ РЅРѕРјРµСЂ СЌР»РµРјРµРЅС‚Р° РЅР° РїР°РЅРµР»Рё (РїРѕРґРјРЅРѕР¶РµСЃС‚РІРѕ <a href="../structures/panelinfo.html">PanelInfo::ItemsNumber</a>).<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ С‚РёРїР° <code>BOOL</code> (<code>TRUE</code> - РІС‹РґРµР»РёС‚СЊ СЌР»РµРјРµРЅС‚, <code>FALSE</code> - СЃРЅСЏС‚СЊ РІС‹РґРµР»РµРЅРёРµ).
+    <p>РќСѓР¶РЅРѕ РІС‹Р·РІР°С‚СЊ <code>FCTL_REDRAWPANEL</code> РґР»СЏ РїРѕРєР°Р·Р° РёР·РјРµРЅРµРЅРёР№.
+    <p>РџСЂРёРјРµСЂ:
     <pre class=code>
-// начинаем операцию по выделению файлов
+// РЅР°С‡РёРЅР°РµРј РѕРїРµСЂР°С†РёСЋ РїРѕ РІС‹РґРµР»РµРЅРёСЋ С„Р°Р№Р»РѕРІ
 Info.PanelControl(PANEL_ACTIVE,FCTL_BEGINSELECTION,0,NULL);
 
-// выделяем
+// РІС‹РґРµР»СЏРµРј
 for(int i=0; i < PInfo.ItemsNumber; i++)
 {
   Info.PanelControl(PANEL_ACTIVE,FCTL_SETSELECTION,i,(void*)TRUE);
 }
-// завершаем операцию и перерисовываем панель
+// Р·Р°РІРµСЂС€Р°РµРј РѕРїРµСЂР°С†РёСЋ Рё РїРµСЂРµСЂРёСЃРѕРІС‹РІР°РµРј РїР°РЅРµР»СЊ
 Info.Control(PANEL_ACTIVE,FCTL_ENDSELECTION,0,NULL);
 Info.Control(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,NULL);
 </pre> </td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_CLEARSELECTION">FCTL_CLEARSELECTION</a><br>
-    <td class="cont" width="60%">Снять выделение с выделенных элементов панели.<br>
-    <code>Param1</code> порядковый номер элемента на панели (подмножество <a href="../structures/panelinfo.html">PanelInfo::SelectedItemsNumber</a>).<br>
-    <code>Param2</code> не используется.<br>
-    <p>Нужно вызвать <code>FCTL_REDRAWPANEL</code> для показа изменений.
-    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_CLEARSELECTION" width="10" height="10"> Внимание!<br><br></p>
-    <UL class=note><LI> Порядок использования такой же, что и в примере к <code>FCTL_SETSELECTION</code></LI></UL></td></tr>
+    <td class="cont" width="60%">РЎРЅСЏС‚СЊ РІС‹РґРµР»РµРЅРёРµ СЃ РІС‹РґРµР»РµРЅРЅС‹С… СЌР»РµРјРµРЅС‚РѕРІ РїР°РЅРµР»Рё.<br>
+    <code>Param1</code> РїРѕСЂСЏРґРєРѕРІС‹Р№ РЅРѕРјРµСЂ СЌР»РµРјРµРЅС‚Р° РЅР° РїР°РЅРµР»Рё (РїРѕРґРјРЅРѕР¶РµСЃС‚РІРѕ <a href="../structures/panelinfo.html">PanelInfo::SelectedItemsNumber</a>).<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <p>РќСѓР¶РЅРѕ РІС‹Р·РІР°С‚СЊ <code>FCTL_REDRAWPANEL</code> РґР»СЏ РїРѕРєР°Р·Р° РёР·РјРµРЅРµРЅРёР№.
+    <p class=note><img src="../../images/note.gif" alt="Р—Р°РјРµС‡Р°РЅРёРµ РґР»СЏ FCTL_CLEARSELECTION" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!<br><br></p>
+    <UL class=note><LI> РџРѕСЂСЏРґРѕРє РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ С‚Р°РєРѕР№ Р¶Рµ, С‡С‚Рѕ Рё РІ РїСЂРёРјРµСЂРµ Рє <code>FCTL_SETSELECTION</code></LI></UL></td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETSORTMODE">FCTL_SETSORTMODE</a></td>
-    <td class="cont" width="60%">Установить режим сортировки для панели.<br>
-    <code>Param1</code> целое число, содержащее режим сортировки (см. "<a href="../defs/sortmetods.html">Режимы сортировки</a>").<br>
-    <code>Param2</code> не используется.</td></tr>
+    <td class="cont" width="60%">РЈСЃС‚Р°РЅРѕРІРёС‚СЊ СЂРµР¶РёРј СЃРѕСЂС‚РёСЂРѕРІРєРё РґР»СЏ РїР°РЅРµР»Рё.<br>
+    <code>Param1</code> С†РµР»РѕРµ С‡РёСЃР»Рѕ, СЃРѕРґРµСЂР¶Р°С‰РµРµ СЂРµР¶РёРј СЃРѕСЂС‚РёСЂРѕРІРєРё (СЃРј. "<a href="../defs/sortmetods.html">Р РµР¶РёРјС‹ СЃРѕСЂС‚РёСЂРѕРІРєРё</a>").<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETSORTORDER">FCTL_SETSORTORDER</a></td>
-    <td class="cont" width="60%">Задаёт порядок сортировки для панели.<br>
-    <code>Param1</code> целое число, содержащее порядок сортировки: <code>0</code> или <code>1</code> (обратная сортировка).<br>
-    <code>Param2</code> не используется.</td></tr>
+    <td class="cont" width="60%">Р—Р°РґР°С‘С‚ РїРѕСЂСЏРґРѕРє СЃРѕСЂС‚РёСЂРѕРІРєРё РґР»СЏ РїР°РЅРµР»Рё.<br>
+    <code>Param1</code> С†РµР»РѕРµ С‡РёСЃР»Рѕ, СЃРѕРґРµСЂР¶Р°С‰РµРµ РїРѕСЂСЏРґРѕРє СЃРѕСЂС‚РёСЂРѕРІРєРё: <code>0</code> РёР»Рё <code>1</code> (РѕР±СЂР°С‚РЅР°СЏ СЃРѕСЂС‚РёСЂРѕРІРєР°).<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETVIEWMODE">FCTL_SETVIEWMODE</a></td>
-    <td class="cont" width="60%">Установить режим просмотра панели.<br>
-    <code>Param1</code> целое число, которое содержит номер нового режима, от <code>0</code> до <code>9</code>.<br>
-    <code>Param2</code> не используется.</td></tr>
+    <td class="cont" width="60%">РЈСЃС‚Р°РЅРѕРІРёС‚СЊ СЂРµР¶РёРј РїСЂРѕСЃРјРѕС‚СЂР° РїР°РЅРµР»Рё.<br>
+    <code>Param1</code> С†РµР»РѕРµ С‡РёСЃР»Рѕ, РєРѕС‚РѕСЂРѕРµ СЃРѕРґРµСЂР¶РёС‚ РЅРѕРјРµСЂ РЅРѕРІРѕРіРѕ СЂРµР¶РёРјР°, РѕС‚ <code>0</code> РґРѕ <code>9</code>.<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_UPDATEPANEL">FCTL_UPDATEPANEL</a></td>
-    <td class="cont" width="60%">Обновить содержимое панели.<br>
-    Если <code>Param1 = 0</code>, текущее выделение файлов будет снято, иначе выделение не изменится.<br>
-    <code>Param2</code> не используется.</td></tr>
+    <td class="cont" width="60%">РћР±РЅРѕРІРёС‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ РїР°РЅРµР»Рё.<br>
+    Р•СЃР»Рё <code>Param1 = 0</code>, С‚РµРєСѓС‰РµРµ РІС‹РґРµР»РµРЅРёРµ С„Р°Р№Р»РѕРІ Р±СѓРґРµС‚ СЃРЅСЏС‚Рѕ, РёРЅР°С‡Рµ РІС‹РґРµР»РµРЅРёРµ РЅРµ РёР·РјРµРЅРёС‚СЃСЏ.<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETDIRECTORIESFIRST">FCTL_SETDIRECTORIESFIRST</a></td>
-    <td class="cont" width="60%">Задаёт режим отображения каталогов в начале списка файлов.<br>
-    <code>Param1</code> целое число, <code>1</code> - каталоги отображаются в начале списка, <code>0</code> - нет.<br>
-    <code>Param2</code> не используется.</td></tr>
+    <td class="cont" width="60%">Р—Р°РґР°С‘С‚ СЂРµР¶РёРј РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РєР°С‚Р°Р»РѕРіРѕРІ РІ РЅР°С‡Р°Р»Рµ СЃРїРёСЃРєР° С„Р°Р№Р»РѕРІ.<br>
+    <code>Param1</code> С†РµР»РѕРµ С‡РёСЃР»Рѕ, <code>1</code> - РєР°С‚Р°Р»РѕРіРё РѕС‚РѕР±СЂР°Р¶Р°СЋС‚СЃСЏ РІ РЅР°С‡Р°Р»Рµ СЃРїРёСЃРєР°, <code>0</code> - РЅРµС‚.<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.</td></tr>
 
-      <!-- ком.строка -->
-    <tr class="cont"><th class="cont" width="100%" colspan="2"><b>Командная строка</b></th></tr>
+      <!-- РєРѕРј.СЃС‚СЂРѕРєР° -->
+    <tr class="cont"><th class="cont" width="100%" colspan="2"><b>РљРѕРјР°РЅРґРЅР°СЏ СЃС‚СЂРѕРєР°</b></th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCMDLINE">FCTL_GETCMDLINE</a></td>
-    <td class="cont" width="60%">Получить содержимое командной строки.<br>
-    <code>Param1</code> размер буфера в символах. Указывает максимальное количество символов, которые могут быть записаны в <code>Param2</code>, включая <code>'\0'</code>.<br>
-    <code>Param2</code> указывает на буфер, выделяемый плагином, который получит данные.<br>
-    Функция возвращает необходимый размер буфера в символах, если <code>Param2 = NULL</code>.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё.<br>
+    <code>Param1</code> СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С…. РЈРєР°Р·С‹РІР°РµС‚ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ, РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ Р±С‹С‚СЊ Р·Р°РїРёСЃР°РЅС‹ РІ <code>Param2</code>, РІРєР»СЋС‡Р°СЏ <code>'\0'</code>.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° Р±СѓС„РµСЂ, РІС‹РґРµР»СЏРµРјС‹Р№ РїР»Р°РіРёРЅРѕРј, РєРѕС‚РѕСЂС‹Р№ РїРѕР»СѓС‡РёС‚ РґР°РЅРЅС‹Рµ.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С…, РµСЃР»Рё <code>Param2 = NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCMDLINEPOS">FCTL_GETCMDLINEPOS</a></td>
-    <td class="cont" width="60%">Получить позицию курсора в командной строке.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> содержит указатель на переменную типа <code>int</code>, в которую будет помещена позиция курсора.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РїРѕР·РёС†РёСЋ РєСѓСЂСЃРѕСЂР° РІ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРµ.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СЃРѕРґРµСЂР¶РёС‚ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ С‚РёРїР° <code>int</code>, РІ РєРѕС‚РѕСЂСѓСЋ Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅР° РїРѕР·РёС†РёСЏ РєСѓСЂСЃРѕСЂР°.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCMDLINESELECTION">FCTL_GETCMDLINESELECTION</a></td>
-    <td class="cont" width="60%">Получить параметры выделенного текста командной строки.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на структуру <a href="../structures/cmdlineselect.html">CmdLineSelect</a>.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РїР°СЂР°РјРµС‚СЂС‹ РІС‹РґРµР»РµРЅРЅРѕРіРѕ С‚РµРєСЃС‚Р° РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/cmdlineselect.html">CmdLineSelect</a>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_INSERTCMDLINE">FCTL_INSERTCMDLINE</a></td>
-    <td class="cont" width="60%">Вставить текст в командную строку, начиная с текущей позиции курсора.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на строку, оканчивающуюся нулём, которая будет вставлена в командную строку.</td></tr>
+    <td class="cont" width="60%">Р’СЃС‚Р°РІРёС‚СЊ С‚РµРєСЃС‚ РІ РєРѕРјР°РЅРґРЅСѓСЋ СЃС‚СЂРѕРєСѓ, РЅР°С‡РёРЅР°СЏ СЃ С‚РµРєСѓС‰РµР№ РїРѕР·РёС†РёРё РєСѓСЂСЃРѕСЂР°.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂРѕРєСѓ, РѕРєР°РЅС‡РёРІР°СЋС‰СѓСЋСЃСЏ РЅСѓР»С‘Рј, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РІСЃС‚Р°РІР»РµРЅР° РІ РєРѕРјР°РЅРґРЅСѓСЋ СЃС‚СЂРѕРєСѓ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETCMDLINE">FCTL_SETCMDLINE</a></td>
-    <td class="cont" width="60%">Установить содержимое командной строки.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на строку, оканчивающуюся нулём, которая будет помещена в командную строку.</td></tr>
+    <td class="cont" width="60%">РЈСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂРѕРєСѓ, РѕРєР°РЅС‡РёРІР°СЋС‰СѓСЋСЃСЏ РЅСѓР»С‘Рј, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅР° РІ РєРѕРјР°РЅРґРЅСѓСЋ СЃС‚СЂРѕРєСѓ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETCMDLINEPOS">FCTL_SETCMDLINEPOS</a></td>
-    <td class="cont" width="60%">Установить позицию курсора в командной строке.<br>
-    <code>Param1</code> содержит переменную с новой позицией курсора.<br>
-    <code>Param2</code> не используется.</td></tr>
+    <td class="cont" width="60%">РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РїРѕР·РёС†РёСЋ РєСѓСЂСЃРѕСЂР° РІ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРµ.<br>
+    <code>Param1</code> СЃРѕРґРµСЂР¶РёС‚ РїРµСЂРµРјРµРЅРЅСѓСЋ СЃ РЅРѕРІРѕР№ РїРѕР·РёС†РёРµР№ РєСѓСЂСЃРѕСЂР°.<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETCMDLINESELECTION">FCTL_SETCMDLINESELECTION</a></td>
-    <td class="cont" width="60%">Выделить текст командной строки.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на структуру <a href="../structures/cmdlineselect.html">CmdLineSelect</a>.</td></tr>
+    <td class="cont" width="60%">Р’С‹РґРµР»РёС‚СЊ С‚РµРєСЃС‚ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/cmdlineselect.html">CmdLineSelect</a>.</td></tr>
 
-    <!-- прочие -->
-    <tr class="cont"><th class="cont" width="100%" colspan="2"><b>Прочие</b></th></tr>
+    <!-- РїСЂРѕС‡РёРµ -->
+    <tr class="cont"><th class="cont" width="100%" colspan="2"><b>РџСЂРѕС‡РёРµ</b></th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETUSERSCREEN">FCTL_SETUSERSCREEN</a></td>
-    <td class="cont" width="60%">Установить обработанную плагином копию Пользовательского экрана под панели Far Manager.<br>
-    <code>Param1</code>: <code>0</code> - дополнительно добавить перевод строки (при повторном вызове), <code>1</code> - не добавлять.<br>
-    <code>Param2</code> должен быть <code>NULL</code>.</td></tr>
+    <td class="cont" width="60%">РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РѕР±СЂР°Р±РѕС‚Р°РЅРЅСѓСЋ РїР»Р°РіРёРЅРѕРј РєРѕРїРёСЋ РџРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРіРѕ СЌРєСЂР°РЅР° РїРѕРґ РїР°РЅРµР»Рё Far Manager.<br>
+    <code>Param1</code>: <code>0</code> - РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ РґРѕР±Р°РІРёС‚СЊ РїРµСЂРµРІРѕРґ СЃС‚СЂРѕРєРё (РїСЂРё РїРѕРІС‚РѕСЂРЅРѕРј РІС‹Р·РѕРІРµ), <code>1</code> - РЅРµ РґРѕР±Р°РІР»СЏС‚СЊ.<br>
+    <code>Param2</code> РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ <code>NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETUSERSCREEN">FCTL_GETUSERSCREEN</a></td>
-    <td class="cont" width="60%">Предоставить для нужд плагина копию Пользовательского экрана Far Manager (он показывается, когда панели убpаны).<br>
-    <code>Param1</code>: <code>0</code> - дополнительно добавить перевод строки, <code>1</code> - не добавлять.<br>
-    <code>Param2</code> должен быть <code>NULL</code>.</td></tr>
+    <td class="cont" width="60%">РџСЂРµРґРѕСЃС‚Р°РІРёС‚СЊ РґР»СЏ РЅСѓР¶Рґ РїР»Р°РіРёРЅР° РєРѕРїРёСЋ РџРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРіРѕ СЌРєСЂР°РЅР° Far Manager (РѕРЅ РїРѕРєР°Р·С‹РІР°РµС‚СЃСЏ, РєРѕРіРґР° РїР°РЅРµР»Рё СѓР±pР°РЅС‹).<br>
+    <code>Param1</code>: <code>0</code> - РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ РґРѕР±Р°РІРёС‚СЊ РїРµСЂРµРІРѕРґ СЃС‚СЂРѕРєРё, <code>1</code> - РЅРµ РґРѕР±Р°РІР»СЏС‚СЊ.<br>
+    <code>Param2</code> РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ <code>NULL</code>.</td></tr>
 
     </table>
     </div>
   <div class=dfn>Param1</div>
-    <div class=dfndescr>Указывает на Параметр 1 команды - смотрите описание параметра <code>Command</code> выше.</div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РџР°СЂР°РјРµС‚СЂ 1 РєРѕРјР°РЅРґС‹ - СЃРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ РїР°СЂР°РјРµС‚СЂР° <code>Command</code> РІС‹С€Рµ.</div>
   <div class=dfn>Param2</div>
-    <div class=dfndescr>Указывает на Параметр 2 команды - смотрите описание параметра <code>Command</code> выше.</div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РџР°СЂР°РјРµС‚СЂ 2 РєРѕРјР°РЅРґС‹ - СЃРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ РїР°СЂР°РјРµС‚СЂР° <code>Command</code> РІС‹С€Рµ.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-Если иное не оговорено в описании Команды выше, в случае успеха возвращается <code>TRUE</code>, иначе <code>FALSE</code>.
+Р•СЃР»Рё РёРЅРѕРµ РЅРµ РѕРіРѕРІРѕСЂРµРЅРѕ РІ РѕРїРёСЃР°РЅРёРё РљРѕРјР°РЅРґС‹ РІС‹С€Рµ, РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р° РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ <code>TRUE</code>, РёРЅР°С‡Рµ <code>FALSE</code>.
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-Обычно вы не должны обновлять или перерисовывать панель и директивно закрывать плагин. Far Manager делает это сам, при выполнении стандартных операций.
-Эти функции могут быть необходимыми для реализации некоторых нестандартных функциональных возможностей.
+РћР±С‹С‡РЅРѕ РІС‹ РЅРµ РґРѕР»Р¶РЅС‹ РѕР±РЅРѕРІР»СЏС‚СЊ РёР»Рё РїРµСЂРµСЂРёСЃРѕРІС‹РІР°С‚СЊ РїР°РЅРµР»СЊ Рё РґРёСЂРµРєС‚РёРІРЅРѕ Р·Р°РєСЂС‹РІР°С‚СЊ РїР»Р°РіРёРЅ. Far Manager РґРµР»Р°РµС‚ СЌС‚Рѕ СЃР°Рј, РїСЂРё РІС‹РїРѕР»РЅРµРЅРёРё СЃС‚Р°РЅРґР°СЂС‚РЅС‹С… РѕРїРµСЂР°С†РёР№.
+Р­С‚Рё С„СѓРЅРєС†РёРё РјРѕРіСѓС‚ Р±С‹С‚СЊ РЅРµРѕР±С…РѕРґРёРјС‹РјРё РґР»СЏ СЂРµР°Р»РёР·Р°С†РёРё РЅРµРєРѕС‚РѕСЂС‹С… РЅРµСЃС‚Р°РЅРґР°СЂС‚РЅС‹С… С„СѓРЅРєС†РёРѕРЅР°Р»СЊРЅС‹С… РІРѕР·РјРѕР¶РЅРѕСЃС‚РµР№.
 </div>
 
-<div class=see>Смотрите также:</div>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
 <div class=seecont>
 <a href="advcontrol.html">AdvControl</a>,
 <a href="editorcontrol.html">EditorControl</a>

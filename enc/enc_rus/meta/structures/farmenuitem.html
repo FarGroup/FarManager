@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FarMenuItem</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -11,13 +11,13 @@
 
 <h1>FarMenuItem</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a  href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a><br>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarMenuItem</dfn> описывает один пункт меню. Массив этих
-структур передается в функцию <a href="../service_functions/menu.html">Menu</a>.
+РЎС‚СЂСѓРєС‚СѓСЂР° <dfn>FarMenuItem</dfn> РѕРїРёСЃС‹РІР°РµС‚ РѕРґРёРЅ РїСѓРЅРєС‚ РјРµРЅСЋ. РњР°СЃСЃРёРІ СЌС‚РёС…
+СЃС‚СЂСѓРєС‚СѓСЂ РїРµСЂРµРґР°РµС‚СЃСЏ РІ С„СѓРЅРєС†РёСЋ <a href="../service_functions/menu.html">Menu</a>.
 </div>
 
 <pre class=syntax>
@@ -29,36 +29,36 @@ struct FarMenuItem
   int Separator;
 };
 </pre>
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
     <div class=dfn>Text</div>
-    <div class=dfndescr>Текст пункта меню.</div>
+    <div class=dfndescr>РўРµРєСЃС‚ РїСѓРЅРєС‚Р° РјРµРЅСЋ.</div>
 
     <div class=dfn>Selected</div>
-    <div class=dfndescr>Флаг активности пункта меню. Только один пункт может быть активным.</div>
+    <div class=dfndescr>Р¤Р»Р°Рі Р°РєС‚РёРІРЅРѕСЃС‚Рё РїСѓРЅРєС‚Р° РјРµРЅСЋ. РўРѕР»СЊРєРѕ РѕРґРёРЅ РїСѓРЅРєС‚ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р°РєС‚РёРІРЅС‹Рј.</div>
 
     <div class=dfn>Checked</div>
-    <div class=dfndescr>Если не равно нулю, перед текстом отображается метка выбора.
-     Если <i>Checked</i> равно 1, то отображается стандартная метка,
-     если больше 1 - значение <i>Checked</i> используется как символ метки.</div>
+    <div class=dfndescr>Р•СЃР»Рё РЅРµ СЂР°РІРЅРѕ РЅСѓР»СЋ, РїРµСЂРµРґ С‚РµРєСЃС‚РѕРј РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ РјРµС‚РєР° РІС‹Р±РѕСЂР°.
+     Р•СЃР»Рё <i>Checked</i> СЂР°РІРЅРѕ 1, С‚Рѕ РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ СЃС‚Р°РЅРґР°СЂС‚РЅР°СЏ РјРµС‚РєР°,
+     РµСЃР»Рё Р±РѕР»СЊС€Рµ 1 - Р·РЅР°С‡РµРЅРёРµ <i>Checked</i> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РєР°Рє СЃРёРјРІРѕР» РјРµС‚РєРё.</div>
 
     <div class=dfn>Separator</div>
-    <div class=dfndescr>Если не равно нулю, то пункт меню
-     отображается как разделитель. Остальные компоненты структуры (например, <var>Text</var>)
-     игнорируется.
+    <div class=dfndescr>Р•СЃР»Рё РЅРµ СЂР°РІРЅРѕ РЅСѓР»СЋ, С‚Рѕ РїСѓРЅРєС‚ РјРµРЅСЋ
+     РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ РєР°Рє СЂР°Р·РґРµР»РёС‚РµР»СЊ. РћСЃС‚Р°Р»СЊРЅС‹Рµ РєРѕРјРїРѕРЅРµРЅС‚С‹ СЃС‚СЂСѓРєС‚СѓСЂС‹ (РЅР°РїСЂРёРјРµСЂ, <var>Text</var>)
+     РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ.
     </div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-  <p>  Поскольку переменная <i>FarMenuItem.Text</i> имеет большой размер, прямая
-  инициализация массива <dfn>FarMenuItem</dfn>, может заметно увеличить
-  потребление памяти. Для сокращения потребления памяти можно воспользоваться
-  нестандартной структурой <a href="../addons/structures/initmenuitem.html">InitMenuItem</a>.</p>
+  <p>  РџРѕСЃРєРѕР»СЊРєСѓ РїРµСЂРµРјРµРЅРЅР°СЏ <i>FarMenuItem.Text</i> РёРјРµРµС‚ Р±РѕР»СЊС€РѕР№ СЂР°Р·РјРµСЂ, РїСЂСЏРјР°СЏ
+  РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РјР°СЃСЃРёРІР° <dfn>FarMenuItem</dfn>, РјРѕР¶РµС‚ Р·Р°РјРµС‚РЅРѕ СѓРІРµР»РёС‡РёС‚СЊ
+  РїРѕС‚СЂРµР±Р»РµРЅРёРµ РїР°РјСЏС‚Рё. Р”Р»СЏ СЃРѕРєСЂР°С‰РµРЅРёСЏ РїРѕС‚СЂРµР±Р»РµРЅРёСЏ РїР°РјСЏС‚Рё РјРѕР¶РЅРѕ РІРѕСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ
+  РЅРµСЃС‚Р°РЅРґР°СЂС‚РЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂРѕР№ <a href="../addons/structures/initmenuitem.html">InitMenuItem</a>.</p>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
 <a href="../addons/structures/initmenuitem.html">InitMenuItem</a> |
 <a href="../delphi/tfarmenuitem.html">TFarMenuItem</a> |
 <a href="farmenuitemex.html">FarMenuItemEx</a>

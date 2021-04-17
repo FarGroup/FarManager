@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>AdvControl</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
 
@@ -10,14 +10,14 @@
 
 <h1>AdvControl</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a><br>
 </div>
 
 <div class=shortdescr>
-  Функция <dfn>AdvControl</dfn> позволяет запрашивать различную информацию и
-  выполнять управляющие действия. Она работает везде: в
-  панелях/редакторе/вьюере.
+  Р¤СѓРЅРєС†РёСЏ <dfn>AdvControl</dfn> РїРѕР·РІРѕР»СЏРµС‚ Р·Р°РїСЂР°С€РёРІР°С‚СЊ СЂР°Р·Р»РёС‡РЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рё
+  РІС‹РїРѕР»РЅСЏС‚СЊ СѓРїСЂР°РІР»СЏСЋС‰РёРµ РґРµР№СЃС‚РІРёСЏ. РћРЅР° СЂР°Р±РѕС‚Р°РµС‚ РІРµР·РґРµ: РІ
+  РїР°РЅРµР»СЏС…/СЂРµРґР°РєС‚РѕСЂРµ/РІСЊСЋРµСЂРµ.
 </div>
 
 <pre class=syntax>
@@ -28,248 +28,248 @@ INT_PTR WINAPI AdvControl(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>ModuleNumber</div>
-  <div class=dfndescr>Номер плагина. Его вы получаете в
-  функции  <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>.</div>
+  <div class=dfndescr>РќРѕРјРµСЂ РїР»Р°РіРёРЅР°. Р•РіРѕ РІС‹ РїРѕР»СѓС‡Р°РµС‚Рµ РІ
+  С„СѓРЅРєС†РёРё  <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>.</div>
   <div class=dfn>Command</div>
-  <div class=dfndescr>Тип команды. Может быть следующим (перечисление <code><a name="ADVANCED_CONTROL_COMMANDS">ADVANCED_CONTROL_COMMANDS</a></code>):
-   <table class="cont"><tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+  <div class=dfndescr>РўРёРї РєРѕРјР°РЅРґС‹. РњРѕР¶РµС‚ Р±С‹С‚СЊ СЃР»РµРґСѓСЋС‰РёРј (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <code><a name="ADVANCED_CONTROL_COMMANDS">ADVANCED_CONTROL_COMMANDS</a></code>):
+   <table class="cont"><tr class="cont"><th class="cont" width="40%">РљРѕРјР°РЅРґР°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_COMMIT">ACTL_COMMIT</a></td>
-      <td class="cont" width="60%">"Фиксирует" действие последней операции с окнами
-       (например, после <dfn>ACTL_SETCURRENTWINDOW</dfn>).<br>
-       <var>Param</var> = 0 (не используется)<br>
-       Функция возвращает <code>TRUE</code> в случае успеха и <code>FALSE</code> при неудаче.
+      <td class="cont" width="60%">"Р¤РёРєСЃРёСЂСѓРµС‚" РґРµР№СЃС‚РІРёРµ РїРѕСЃР»РµРґРЅРµР№ РѕРїРµСЂР°С†РёРё СЃ РѕРєРЅР°РјРё
+       (РЅР°РїСЂРёРјРµСЂ, РїРѕСЃР»Рµ <dfn>ACTL_SETCURRENTWINDOW</dfn>).<br>
+       <var>Param</var> = 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)<br>
+       Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р° Рё <code>FALSE</code> РїСЂРё РЅРµСѓРґР°С‡Рµ.
       </td></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_CONSOLEMODE">ACTL_CONSOLEMODE</a></td>
-      <td class="cont" width="60%">Программное переключение "FullScreen &lt;-&gt; Windowed".<br>
-        <var>Param</var> может принимать одно из следующих значений:
-        <table class="cont"><tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
+      <td class="cont" width="60%">РџСЂРѕРіСЂР°РјРјРЅРѕРµ РїРµСЂРµРєР»СЋС‡РµРЅРёРµ "FullScreen &lt;-&gt; Windowed".<br>
+        <var>Param</var> РјРѕР¶РµС‚ РїСЂРёРЅРёРјР°С‚СЊ РѕРґРЅРѕ РёР· СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№:
+        <table class="cont"><tr class="cont"><th class="cont" width="40%">РљРѕРЅСЃС‚Р°РЅС‚Р°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
             <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_GET_MODE">FAR_CONSOLE_GET_MODE</a></td>
-            <td class="cont" width="60%">получить текущее состояние</td></tr>
+            <td class="cont" width="60%">РїРѕР»СѓС‡РёС‚СЊ С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ</td></tr>
             <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_SET_FULLSCREEN">FAR_CONSOLE_SET_FULLSCREEN</a></td>
-            <td class="cont" width="60%">полноэкранный режим</td></tr>
+            <td class="cont" width="60%">РїРѕР»РЅРѕСЌРєСЂР°РЅРЅС‹Р№ СЂРµР¶РёРј</td></tr>
             <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_SET_WINDOWED">FAR_CONSOLE_SET_WINDOWED</a></td>
-            <td class="cont" width="60%">оконный режим</td></tr>
+            <td class="cont" width="60%">РѕРєРѕРЅРЅС‹Р№ СЂРµР¶РёРј</td></tr>
             <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_TRIGGER">FAR_CONSOLE_TRIGGER</a></td>
-            <td class="cont" width="60%">переключить состояние</td></tr>
+            <td class="cont" width="60%">РїРµСЂРµРєР»СЋС‡РёС‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ</td></tr>
         </table>
-        Возвращается текущее значение режима - одна из констант:
-        <table class="cont"><tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
+        Р’РѕР·РІСЂР°С‰Р°РµС‚СЃСЏ С‚РµРєСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ СЂРµР¶РёРјР° - РѕРґРЅР° РёР· РєРѕРЅСЃС‚Р°РЅС‚:
+        <table class="cont"><tr class="cont"><th class="cont" width="40%">РљРѕРЅСЃС‚Р°РЅС‚Р°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
             <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_WINDOWED">FAR_CONSOLE_WINDOWED</a></td>
-            <td class="cont" width="60%">оконный режим</td></tr>
+            <td class="cont" width="60%">РѕРєРѕРЅРЅС‹Р№ СЂРµР¶РёРј</td></tr>
             <tr class="cont"><td class="cont" width="40%"><a name="FAR_CONSOLE_FULLSCREEN">FAR_CONSOLE_FULLSCREEN</a></td>
-            <td class="cont" width="60%">полноэкранный режим</td></tr>
+            <td class="cont" width="60%">РїРѕР»РЅРѕСЌРєСЂР°РЅРЅС‹Р№ СЂРµР¶РёРј</td></tr>
         </table>
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_EJECTMEDIA">ACTL_EJECTMEDIA</a></td>
-      <td class="cont" width="60%">Извлечь диск из съемного накопителя (CD-ROM/USB/SUBST).<br>
-       <var>Param</var> - указатель на структуру <a href="../structures/actlejectmedia.html">ActlEjectMedia</a><br>
-       Функция возвращает <code>TRUE</code> - успешное извлечение, <code>FALSE</code> - ошибка.
+      <td class="cont" width="60%">РР·РІР»РµС‡СЊ РґРёСЃРє РёР· СЃСЉРµРјРЅРѕРіРѕ РЅР°РєРѕРїРёС‚РµР»СЏ (CD-ROM/USB/SUBST).<br>
+       <var>Param</var> - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/actlejectmedia.html">ActlEjectMedia</a><br>
+       Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> - СѓСЃРїРµС€РЅРѕРµ РёР·РІР»РµС‡РµРЅРёРµ, <code>FALSE</code> - РѕС€РёР±РєР°.
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_KEYMACRO">ACTL_KEYMACRO</a></td>
-      <td class="cont" width="60%">Выполнить операции по работе с макрокомандами.<br>
-       <var>Param</var> - указатель на структуру <a href="../structures/actlkeymacro.html">ActlKeyMacro</a><br>
-       Функция возвращает <code>TRUE</code> - успешное выполнение, <code>FALSE</code> - ошибка
-       ("в данный момент идет запись макроса" или "нехватка памяти" или
-       "макрос выполняется").
+      <td class="cont" width="60%">Р’С‹РїРѕР»РЅРёС‚СЊ РѕРїРµСЂР°С†РёРё РїРѕ СЂР°Р±РѕС‚Рµ СЃ РјР°РєСЂРѕРєРѕРјР°РЅРґР°РјРё.<br>
+       <var>Param</var> - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/actlkeymacro.html">ActlKeyMacro</a><br>
+       Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> - СѓСЃРїРµС€РЅРѕРµ РІС‹РїРѕР»РЅРµРЅРёРµ, <code>FALSE</code> - РѕС€РёР±РєР°
+       ("РІ РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РёРґРµС‚ Р·Р°РїРёСЃСЊ РјР°РєСЂРѕСЃР°" РёР»Рё "РЅРµС…РІР°С‚РєР° РїР°РјСЏС‚Рё" РёР»Рё
+       "РјР°РєСЂРѕСЃ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ").
       </td></tr>
 
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETARRAYCOLOR">ACTL_GETARRAYCOLOR</a></td>
-      <td class="cont" width="60%">Получить все цвета FAR Manager.<br>
-        <var>Param</var> = указатель на байтовый массив, в который будут
-        скопированы текущие цветовые атрибуты. Один байт на один цветовой
-        атрибут. Старшие 4 бита - цвет фона, младшие 4 бита - цвет символа.<br>
-        <var>Param</var> = <code>NULL</code> позволяет узнать требуемый размер массива.<br>
-        Функция всегда возвращает необходимый размер массива в байтах.
+      <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ С†РІРµС‚Р° FAR Manager.<br>
+        <var>Param</var> = СѓРєР°Р·Р°С‚РµР»СЊ РЅР° Р±Р°Р№С‚РѕРІС‹Р№ РјР°СЃСЃРёРІ, РІ РєРѕС‚РѕСЂС‹Р№ Р±СѓРґСѓС‚
+        СЃРєРѕРїРёСЂРѕРІР°РЅС‹ С‚РµРєСѓС‰РёРµ С†РІРµС‚РѕРІС‹Рµ Р°С‚СЂРёР±СѓС‚С‹. РћРґРёРЅ Р±Р°Р№С‚ РЅР° РѕРґРёРЅ С†РІРµС‚РѕРІРѕР№
+        Р°С‚СЂРёР±СѓС‚. РЎС‚Р°СЂС€РёРµ 4 Р±РёС‚Р° - С†РІРµС‚ С„РѕРЅР°, РјР»Р°РґС€РёРµ 4 Р±РёС‚Р° - С†РІРµС‚ СЃРёРјРІРѕР»Р°.<br>
+        <var>Param</var> = <code>NULL</code> РїРѕР·РІРѕР»СЏРµС‚ СѓР·РЅР°С‚СЊ С‚СЂРµР±СѓРµРјС‹Р№ СЂР°Р·РјРµСЂ РјР°СЃСЃРёРІР°.<br>
+        Р¤СѓРЅРєС†РёСЏ РІСЃРµРіРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ РјР°СЃСЃРёРІР° РІ Р±Р°Р№С‚Р°С….
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETCOLOR">ACTL_GETCOLOR</a></td>
-      <td class="cont" width="60%">Получить цвет FAR Manager по индексу.<br>
-        <var>Param</var> = одна из констант <a href="../defs/farcolors.html">COL_*</a>,
-           описанных в <code>farcolor.hpp</code><br>
-        Функция возвращает атрибут, соответствующий переданному индексу или
-        -1, если индекс указан неверно.
+      <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ С†РІРµС‚ FAR Manager РїРѕ РёРЅРґРµРєСЃСѓ.<br>
+        <var>Param</var> = РѕРґРЅР° РёР· РєРѕРЅСЃС‚Р°РЅС‚ <a href="../defs/farcolors.html">COL_*</a>,
+           РѕРїРёСЃР°РЅРЅС‹С… РІ <code>farcolor.hpp</code><br>
+        Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ Р°С‚СЂРёР±СѓС‚, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РїРµСЂРµРґР°РЅРЅРѕРјСѓ РёРЅРґРµРєСЃСѓ РёР»Рё
+        -1, РµСЃР»Рё РёРЅРґРµРєСЃ СѓРєР°Р·Р°РЅ РЅРµРІРµСЂРЅРѕ.
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETFARVERSION">ACTL_GETFARVERSION</a></td>
-      <td class="cont" width="60%">Узнать версию FAR.<br>
-        <var>Param</var> указывает на переменную типа DWORD в которую будет
-        помещена информация о версии FAR Manager.<br>
-        Формат версии:<pre>
-HIWORD:         = номер билда   (FAR 1.70.387 = 0x0183)
+      <td class="cont" width="60%">РЈР·РЅР°С‚СЊ РІРµСЂСЃРёСЋ FAR.<br>
+        <var>Param</var> СѓРєР°Р·С‹РІР°РµС‚ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ С‚РёРїР° DWORD РІ РєРѕС‚РѕСЂСѓСЋ Р±СѓРґРµС‚
+        РїРѕРјРµС‰РµРЅР° РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РІРµСЂСЃРёРё FAR Manager.<br>
+        Р¤РѕСЂРјР°С‚ РІРµСЂСЃРёРё:<pre>
+HIWORD:         = РЅРѕРјРµСЂ Р±РёР»РґР°   (FAR 1.70.387 = 0x0183)
 LOWORD:  HIBYTE = major version (FAR 1.70.387 = 0x01)
          LOBYTE = minor version (FAR 1.70.387 = 0x46)</pre>
-        Параметр <var>Param</var> может быть равным <code>NULL</code>.<br>
-        Функция возвращает информацию о версии FAR Manager.
+        РџР°СЂР°РјРµС‚СЂ <var>Param</var> РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРЅС‹Рј <code>NULL</code>.<br>
+        Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РІРµСЂСЃРёРё FAR Manager.
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETFARHWND">ACTL_GETFARHWND</a></td>
-      <td class="cont" width="60%">Возвращает <code>HWND</code> текущего окна FAR Manager.<br>
-      <var>Param</var> = 0 (не используется)
+      <td class="cont" width="60%">Р’РѕР·РІСЂР°С‰Р°РµС‚ <code>HWND</code> С‚РµРєСѓС‰РµРіРѕ РѕРєРЅР° FAR Manager.<br>
+      <var>Param</var> = 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETCONFIRMATIONS">ACTL_GETCONFIRMATIONS</a></td>
-      <td class="cont" width="60%">Получить информацию о настройках подтверждений.
-      Возвращается <code>DWORD</code> с выставленными флагами <code><a href="../defs/farconfirmationssettings.html">FarConfirmationsSettings</a></code>
-      (соответствует настройкам диалога "Подтверждения").<br>
-      <var>Param</var> = 0 (не используется)
+      <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РЅР°СЃС‚СЂРѕР№РєР°С… РїРѕРґС‚РІРµСЂР¶РґРµРЅРёР№.
+      Р’РѕР·РІСЂР°С‰Р°РµС‚СЃСЏ <code>DWORD</code> СЃ РІС‹СЃС‚Р°РІР»РµРЅРЅС‹РјРё С„Р»Р°РіР°РјРё <code><a href="../defs/farconfirmationssettings.html">FarConfirmationsSettings</a></code>
+      (СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РЅР°СЃС‚СЂРѕР№РєР°Рј РґРёР°Р»РѕРіР° "РџРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ").<br>
+      <var>Param</var> = 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETDESCSETTINGS">ACTL_GETDESCSETTINGS</a></td>
-      <td class="cont" width="60%">Получить информацию о настройках описаний файлов.
-      Возвращается <code>DWORD</code> с выставленными флагами <code><a href="../defs/fardescriptionsettings.html">FarDescriptionSettings</a></code>
-      (соответствует настройкам диалога "Описания файлов").<br>
-      <var>Param</var> = 0 (не используется)
+      <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РЅР°СЃС‚СЂРѕР№РєР°С… РѕРїРёСЃР°РЅРёР№ С„Р°Р№Р»РѕРІ.
+      Р’РѕР·РІСЂР°С‰Р°РµС‚СЃСЏ <code>DWORD</code> СЃ РІС‹СЃС‚Р°РІР»РµРЅРЅС‹РјРё С„Р»Р°РіР°РјРё <code><a href="../defs/fardescriptionsettings.html">FarDescriptionSettings</a></code>
+      (СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РЅР°СЃС‚СЂРѕР№РєР°Рј РґРёР°Р»РѕРіР° "РћРїРёСЃР°РЅРёСЏ С„Р°Р№Р»РѕРІ").<br>
+      <var>Param</var> = 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETDIALOGSETTINGS">ACTL_GETDIALOGSETTINGS</a></td>
-      <td class="cont" width="60%">Получить информацию о настройках диалогов.
-      Возвращается <code>DWORD</code> с выставленными флагами <code><a href="../defs/fardialogsettings.html">FarDialogSettings</a></code>
-      (соответствует настройкам диалога "Настройки диалогов").<br>
-      <var>Param</var> = 0 (не используется)
+      <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РЅР°СЃС‚СЂРѕР№РєР°С… РґРёР°Р»РѕРіРѕРІ.
+      Р’РѕР·РІСЂР°С‰Р°РµС‚СЃСЏ <code>DWORD</code> СЃ РІС‹СЃС‚Р°РІР»РµРЅРЅС‹РјРё С„Р»Р°РіР°РјРё <code><a href="../defs/fardialogsettings.html">FarDialogSettings</a></code>
+      (СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РЅР°СЃС‚СЂРѕР№РєР°Рј РґРёР°Р»РѕРіР° "РќР°СЃС‚СЂРѕР№РєРё РґРёР°Р»РѕРіРѕРІ").<br>
+      <var>Param</var> = 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)
       </td></tr>
 
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETINTERFACESETTINGS">ACTL_GETINTERFACESETTINGS</a></td>
-      <td class="cont" width="60%">Получить информацию о настройках интерфейса.
-      Возвращается <code>DWORD</code> с выставленными флагами <code><a href="../defs/farinterfacesettings.html">FarInterfaceSettings</a></code>
-      (соответствует настройкам диалога "Настройки интерфейса").<br>
-      <var>Param</var> = 0 (не используется)
+      <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РЅР°СЃС‚СЂРѕР№РєР°С… РёРЅС‚РµСЂС„РµР№СЃР°.
+      Р’РѕР·РІСЂР°С‰Р°РµС‚СЃСЏ <code>DWORD</code> СЃ РІС‹СЃС‚Р°РІР»РµРЅРЅС‹РјРё С„Р»Р°РіР°РјРё <code><a href="../defs/farinterfacesettings.html">FarInterfaceSettings</a></code>
+      (СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РЅР°СЃС‚СЂРѕР№РєР°Рј РґРёР°Р»РѕРіР° "РќР°СЃС‚СЂРѕР№РєРё РёРЅС‚РµСЂС„РµР№СЃР°").<br>
+      <var>Param</var> = 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETPANELSETTINGS">ACTL_GETPANELSETTINGS</a></td>
-      <td class="cont" width="60%">Получить информацию о настройках панелей.
-      Возвращается <code>DWORD</code> с выставленными флагами <code><a href="../defs/farpanelsettings.html">FarPanelSettings</a></code>
-      (соответствует настройкам диалога "Настройки панели").<br>
-      <var>Param</var> = 0 (не используется)
+      <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РЅР°СЃС‚СЂРѕР№РєР°С… РїР°РЅРµР»РµР№.
+      Р’РѕР·РІСЂР°С‰Р°РµС‚СЃСЏ <code>DWORD</code> СЃ РІС‹СЃС‚Р°РІР»РµРЅРЅС‹РјРё С„Р»Р°РіР°РјРё <code><a href="../defs/farpanelsettings.html">FarPanelSettings</a></code>
+      (СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РЅР°СЃС‚СЂРѕР№РєР°Рј РґРёР°Р»РѕРіР° "РќР°СЃС‚СЂРѕР№РєРё РїР°РЅРµР»Рё").<br>
+      <var>Param</var> = 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETPLUGINMAXREADDATA">ACTL_GETPLUGINMAXREADDATA</a></td>
-      <td class="cont" width="60%">Возвращает максимальный размер данных (DWORD), который FAR
-        может считывать из файла перед передачей управления плагину в функцию
+      <td class="cont" width="60%">Р’РѕР·РІСЂР°С‰Р°РµС‚ РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С… (DWORD), РєРѕС‚РѕСЂС‹Р№ FAR
+        РјРѕР¶РµС‚ СЃС‡РёС‚С‹РІР°С‚СЊ РёР· С„Р°Р№Р»Р° РїРµСЂРµРґ РїРµСЂРµРґР°С‡РµР№ СѓРїСЂР°РІР»РµРЅРёСЏ РїР»Р°РіРёРЅСѓ РІ С„СѓРЅРєС†РёСЋ
         <a href="../exported_functions/openfileplugin.html">OpenFilePlugin</a>.
-       Это значение может быть любым в диапазоне от 4K до 512K.<br>
-      <var>Param</var> = 0 (не используется)
+       Р­С‚Рѕ Р·РЅР°С‡РµРЅРёРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р»СЋР±С‹Рј РІ РґРёР°РїР°Р·РѕРЅРµ РѕС‚ 4K РґРѕ 512K.<br>
+      <var>Param</var> = 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETSYSTEMSETTINGS">ACTL_GETSYSTEMSETTINGS</a></td>
-      <td class="cont" width="60%">Получить информацию о системных настройках.
-      Возвращается <code>DWORD</code> с выставленными флагами <code><a href="../defs/farsystemsettings.html">FarSystemSettings</a></code>
-      (соответствует настройкам диалога "Системные параметры").<br>
-      <var>Param</var> = 0 (не используется)
+      <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЃРёСЃС‚РµРјРЅС‹С… РЅР°СЃС‚СЂРѕР№РєР°С….
+      Р’РѕР·РІСЂР°С‰Р°РµС‚СЃСЏ <code>DWORD</code> СЃ РІС‹СЃС‚Р°РІР»РµРЅРЅС‹РјРё С„Р»Р°РіР°РјРё <code><a href="../defs/farsystemsettings.html">FarSystemSettings</a></code>
+      (СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РЅР°СЃС‚СЂРѕР№РєР°Рј РґРёР°Р»РѕРіР° "РЎРёСЃС‚РµРјРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹").<br>
+      <var>Param</var> = 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETSYSWORDDIV">ACTL_GETSYSWORDDIV</a></td>
-      <td class="cont" width="60%">Получить строку с символами-разделителями, делящими
-        текст на слова.<br>
-        <var>Param</var> = указатель на строку-приемник, куда будут скопированы
-         символы-разделители.<br>
-        <var>Param</var> = <code>NULL</code> - узнать длину строки (без символа конца
-         строки '\0')<br>
-        Функция возвращает длину переданной строки. Максимальная длина строки -
-        260 байт (с символом конца строки '\0').
+      <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ СЃС‚СЂРѕРєСѓ СЃ СЃРёРјРІРѕР»Р°РјРё-СЂР°Р·РґРµР»РёС‚РµР»СЏРјРё, РґРµР»СЏС‰РёРјРё
+        С‚РµРєСЃС‚ РЅР° СЃР»РѕРІР°.<br>
+        <var>Param</var> = СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂРѕРєСѓ-РїСЂРёРµРјРЅРёРє, РєСѓРґР° Р±СѓРґСѓС‚ СЃРєРѕРїРёСЂРѕРІР°РЅС‹
+         СЃРёРјРІРѕР»С‹-СЂР°Р·РґРµР»РёС‚РµР»Рё.<br>
+        <var>Param</var> = <code>NULL</code> - СѓР·РЅР°С‚СЊ РґР»РёРЅСѓ СЃС‚СЂРѕРєРё (Р±РµР· СЃРёРјРІРѕР»Р° РєРѕРЅС†Р°
+         СЃС‚СЂРѕРєРё '\0')<br>
+        Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РґР»РёРЅСѓ РїРµСЂРµРґР°РЅРЅРѕР№ СЃС‚СЂРѕРєРё. РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅР° СЃС‚СЂРѕРєРё -
+        260 Р±Р°Р№С‚ (СЃ СЃРёРјРІРѕР»РѕРј РєРѕРЅС†Р° СЃС‚СЂРѕРєРё '\0').
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETWCHARMODE">ACTL_GETWCHARMODE</a></td>
-      <td class="cont" width="60%">Возвращает режим работы консоли FAR manager.<br>
-       <var>Param</var> = 0 (не используется).<br>
-        Функция возвращает TRUE, если FAR работает с консолью в Unicode-режиме и
-        FALSE, если в 8-битном режиме.
+      <td class="cont" width="60%">Р’РѕР·РІСЂР°С‰Р°РµС‚ СЂРµР¶РёРј СЂР°Р±РѕС‚С‹ РєРѕРЅСЃРѕР»Рё FAR manager.<br>
+       <var>Param</var> = 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ).<br>
+        Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ TRUE, РµСЃР»Рё FAR СЂР°Р±РѕС‚Р°РµС‚ СЃ РєРѕРЅСЃРѕР»СЊСЋ РІ Unicode-СЂРµР¶РёРјРµ Рё
+        FALSE, РµСЃР»Рё РІ 8-Р±РёС‚РЅРѕРј СЂРµР¶РёРјРµ.
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETWINDOWCOUNT">ACTL_GETWINDOWCOUNT</a></td>
-      <td class="cont" width="60%">Возвращает число открытых окон в FAR Manager.<br>
-       <var>Param</var> = 0 (не используется).<br>
-       Минимальное число окон = 1 (при запуске FAR: в обычном режиме -
-       файловые панели; с ключами <code>-e</code> или  <var>-v</var> -
-       редактор или программа просмотра, соответственно).<br>
+      <td class="cont" width="60%">Р’РѕР·РІСЂР°С‰Р°РµС‚ С‡РёСЃР»Рѕ РѕС‚РєСЂС‹С‚С‹С… РѕРєРѕРЅ РІ FAR Manager.<br>
+       <var>Param</var> = 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ).<br>
+       РњРёРЅРёРјР°Р»СЊРЅРѕРµ С‡РёСЃР»Рѕ РѕРєРѕРЅ = 1 (РїСЂРё Р·Р°РїСѓСЃРєРµ FAR: РІ РѕР±С‹С‡РЅРѕРј СЂРµР¶РёРјРµ -
+       С„Р°Р№Р»РѕРІС‹Рµ РїР°РЅРµР»Рё; СЃ РєР»СЋС‡Р°РјРё <code>-e</code> РёР»Рё  <var>-v</var> -
+       СЂРµРґР°РєС‚РѕСЂ РёР»Рё РїСЂРѕРіСЂР°РјРјР° РїСЂРѕСЃРјРѕС‚СЂР°, СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ).<br>
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETWINDOWINFO">ACTL_GETWINDOWINFO</a></td>
-      <td class="cont" width="60%">Получить информацию о конкретном окне FAR Manager.<br>
-       <var>Param</var> - указатель на структуру <a href="../structures/windowinfo.html">WindowInfo</a>.<br>
-       Функция возвращает <code>TRUE</code>, если окно с номером <var>WindowInfo.Pos</var> существует
-       и <code>FALSE</code> - такого окна нет (поля структуры <a href="../structures/windowinfo.html">WindowInfo</a>
-       не заполняются). <var>WindowInfo.Pos</var> надо инициализировать
-       перед вызовом функции.
+      <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РєРѕРЅРєСЂРµС‚РЅРѕРј РѕРєРЅРµ FAR Manager.<br>
+       <var>Param</var> - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/windowinfo.html">WindowInfo</a>.<br>
+       Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>, РµСЃР»Рё РѕРєРЅРѕ СЃ РЅРѕРјРµСЂРѕРј <var>WindowInfo.Pos</var> СЃСѓС‰РµСЃС‚РІСѓРµС‚
+       Рё <code>FALSE</code> - С‚Р°РєРѕРіРѕ РѕРєРЅР° РЅРµС‚ (РїРѕР»СЏ СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="../structures/windowinfo.html">WindowInfo</a>
+       РЅРµ Р·Р°РїРѕР»РЅСЏСЋС‚СЃСЏ). <var>WindowInfo.Pos</var> РЅР°РґРѕ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ
+       РїРµСЂРµРґ РІС‹Р·РѕРІРѕРј С„СѓРЅРєС†РёРё.
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETSHORTWINDOWINFO">ACTL_GETSHORTWINDOWINFO</a></td>
-      <td class="cont" width="60%">Получить информацию о конкретном окне FAR Manager.<br>
-       <var>Param</var> - указатель на структуру <a href="../structures/windowinfo.html">WindowInfo</a>.<br>
-       Функция возвращает <code>TRUE</code>, если окно с номером <var>WindowInfo.Pos</var> существует
-       и <code>FALSE</code> - такого окна нет (поля структуры <a href="../structures/windowinfo.html">WindowInfo</a>
-       не заполняются). <var>WindowInfo.Pos</var> надо инициализировать
-       перед вызовом функции.<br>
-       В отличии от ACTL_GETWINDOWINFO поля <var>WindowInfo.TypeName</var> и <var>WindowInfo.Name</var>
-       не заполняются и поэтому эту команду можно вызывать из любых тредов.
+      <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РєРѕРЅРєСЂРµС‚РЅРѕРј РѕРєРЅРµ FAR Manager.<br>
+       <var>Param</var> - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/windowinfo.html">WindowInfo</a>.<br>
+       Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>, РµСЃР»Рё РѕРєРЅРѕ СЃ РЅРѕРјРµСЂРѕРј <var>WindowInfo.Pos</var> СЃСѓС‰РµСЃС‚РІСѓРµС‚
+       Рё <code>FALSE</code> - С‚Р°РєРѕРіРѕ РѕРєРЅР° РЅРµС‚ (РїРѕР»СЏ СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="../structures/windowinfo.html">WindowInfo</a>
+       РЅРµ Р·Р°РїРѕР»РЅСЏСЋС‚СЃСЏ). <var>WindowInfo.Pos</var> РЅР°РґРѕ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ
+       РїРµСЂРµРґ РІС‹Р·РѕРІРѕРј С„СѓРЅРєС†РёРё.<br>
+       Р’ РѕС‚Р»РёС‡РёРё РѕС‚ ACTL_GETWINDOWINFO РїРѕР»СЏ <var>WindowInfo.TypeName</var> Рё <var>WindowInfo.Name</var>
+       РЅРµ Р·Р°РїРѕР»РЅСЏСЋС‚СЃСЏ Рё РїРѕСЌС‚РѕРјСѓ СЌС‚Сѓ РєРѕРјР°РЅРґСѓ РјРѕР¶РЅРѕ РІС‹Р·С‹РІР°С‚СЊ РёР· Р»СЋР±С‹С… С‚СЂРµРґРѕРІ.
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_POSTKEYSEQUENCE">ACTL_POSTKEYSEQUENCE</a></td>
-      <td class="cont" width="60%">Передать в FAR последовательность <a href="../defs/farkeycodes.html">внутренних</a>
-       кодов клавиш.<br>
-       <var>Param</var> - указатель на структуру <a href="../structures/keysequence.html">KeySequence</a><br>
-       Функция возвращает <code>TRUE</code> - клавиши успешно помещены в очередь, <code>FALSE</code> - ошибка.<br>
-       Последовательность переданных клавиш начнет исполняться тогда, когда FAR
-       получит управление.<br>
+      <td class="cont" width="60%">РџРµСЂРµРґР°С‚СЊ РІ FAR РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ <a href="../defs/farkeycodes.html">РІРЅСѓС‚СЂРµРЅРЅРёС…</a>
+       РєРѕРґРѕРІ РєР»Р°РІРёС€.<br>
+       <var>Param</var> - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/keysequence.html">KeySequence</a><br>
+       Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> - РєР»Р°РІРёС€Рё СѓСЃРїРµС€РЅРѕ РїРѕРјРµС‰РµРЅС‹ РІ РѕС‡РµСЂРµРґСЊ, <code>FALSE</code> - РѕС€РёР±РєР°.<br>
+       РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ РїРµСЂРµРґР°РЅРЅС‹С… РєР»Р°РІРёС€ РЅР°С‡РЅРµС‚ РёСЃРїРѕР»РЅСЏС‚СЊСЃСЏ С‚РѕРіРґР°, РєРѕРіРґР° FAR
+       РїРѕР»СѓС‡РёС‚ СѓРїСЂР°РІР»РµРЅРёРµ.<br>
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_REDRAWALL">ACTL_REDRAWALL</a></td>
-      <td class="cont" width="60%">Перерисовка всех окон FAR.<br>
-      <var>Param</var> = 0 (не используется)
+      <td class="cont" width="60%">РџРµСЂРµСЂРёСЃРѕРІРєР° РІСЃРµС… РѕРєРѕРЅ FAR.<br>
+      <var>Param</var> = 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_SETARRAYCOLOR">ACTL_SETARRAYCOLOR</a></td>
-      <td class="cont" width="60%">Изменить заданный диапазон цветовой схемы FAR Manager.<br>
-        <var>Param</var> = указатель на структуру <a href="../structures/farsetcolors.html">FarSetColors</a>.
-        Функция возвращает <code>TRUE</code> при успешной замене заданного диапазона
-        цветовой схемы и <code>FALSE</code> для неверно заданных параметров в
-        структуре <a href="../structures/farsetcolors.html">FarSetColors</a>.
+      <td class="cont" width="60%">РР·РјРµРЅРёС‚СЊ Р·Р°РґР°РЅРЅС‹Р№ РґРёР°РїР°Р·РѕРЅ С†РІРµС‚РѕРІРѕР№ СЃС…РµРјС‹ FAR Manager.<br>
+        <var>Param</var> = СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/farsetcolors.html">FarSetColors</a>.
+        Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> РїСЂРё СѓСЃРїРµС€РЅРѕР№ Р·Р°РјРµРЅРµ Р·Р°РґР°РЅРЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР°
+        С†РІРµС‚РѕРІРѕР№ СЃС…РµРјС‹ Рё <code>FALSE</code> РґР»СЏ РЅРµРІРµСЂРЅРѕ Р·Р°РґР°РЅРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ РІ
+        СЃС‚СЂСѓРєС‚СѓСЂРµ <a href="../structures/farsetcolors.html">FarSetColors</a>.
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_SETCURRENTWINDOW">ACTL_SETCURRENTWINDOW</a></td>
-      <td class="cont" width="60%">Позволяет переключиться в конкретное окно FAR Manager
-       <var>Param</var> - целое число типа <em>int</em>, задающее номер
-       активного окна (нумерация начинается с 0).<br>
-       Функция возвращает <code>TRUE</code>, если переключение состоялось и
-       <code>FALSE</code> при неудаче (не существует требуемого окна).<br>
+      <td class="cont" width="60%">РџРѕР·РІРѕР»СЏРµС‚ РїРµСЂРµРєР»СЋС‡РёС‚СЊСЃСЏ РІ РєРѕРЅРєСЂРµС‚РЅРѕРµ РѕРєРЅРѕ FAR Manager
+       <var>Param</var> - С†РµР»РѕРµ С‡РёСЃР»Рѕ С‚РёРїР° <em>int</em>, Р·Р°РґР°СЋС‰РµРµ РЅРѕРјРµСЂ
+       Р°РєС‚РёРІРЅРѕРіРѕ РѕРєРЅР° (РЅСѓРјРµСЂР°С†РёСЏ РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ 0).<br>
+       Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>, РµСЃР»Рё РїРµСЂРµРєР»СЋС‡РµРЅРёРµ СЃРѕСЃС‚РѕСЏР»РѕСЃСЊ Рё
+       <code>FALSE</code> РїСЂРё РЅРµСѓРґР°С‡Рµ (РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ С‚СЂРµР±СѓРµРјРѕРіРѕ РѕРєРЅР°).<br>
 
-       <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_COMMIT" width="10" height="10"> Внимание!</p>
+       <p class=note><img src="../../images/note.gif" alt="Р—Р°РјРµС‡Р°РЅРёРµ РґР»СЏ ACTL_COMMIT" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!</p>
        <UL class=note><LI>
-       Переключение не произойдет до тех пор, пока не будет вызван
-       <dfn>ACTL_COMMIT</dfn> или пока FAR не получит управление.
+       РџРµСЂРµРєР»СЋС‡РµРЅРёРµ РЅРµ РїСЂРѕРёР·РѕР№РґРµС‚ РґРѕ С‚РµС… РїРѕСЂ, РїРѕРєР° РЅРµ Р±СѓРґРµС‚ РІС‹Р·РІР°РЅ
+       <dfn>ACTL_COMMIT</dfn> РёР»Рё РїРѕРєР° FAR РЅРµ РїРѕР»СѓС‡РёС‚ СѓРїСЂР°РІР»РµРЅРёРµ.
        </LI></UL>
 
       </td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="ACTL_WAITKEY">ACTL_WAITKEY</a></td>
-      <td class="cont" width="60%">Ожидать клавишу.<br>
-        <var>Param</var> = -1 или <code>NULL</code> - ждем любую клавишу<br>
-        <var>Param</var> = (внутренний код клавиши) - ждем конкретную клавишу.<br>
-        Функция всегда возвращает 0.
+      <td class="cont" width="60%">РћР¶РёРґР°С‚СЊ РєР»Р°РІРёС€Сѓ.<br>
+        <var>Param</var> = -1 РёР»Рё <code>NULL</code> - Р¶РґРµРј Р»СЋР±СѓСЋ РєР»Р°РІРёС€Сѓ<br>
+        <var>Param</var> = (РІРЅСѓС‚СЂРµРЅРЅРёР№ РєРѕРґ РєР»Р°РІРёС€Рё) - Р¶РґРµРј РєРѕРЅРєСЂРµС‚РЅСѓСЋ РєР»Р°РІРёС€Сѓ.<br>
+        Р¤СѓРЅРєС†РёСЏ РІСЃРµРіРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ 0.
       </td></tr>
 
      </table>
 
   </div>
   <div class=dfn>Param</div>
-  <div class=dfndescr>Указывает на параметры команды. Смотрите
-    описание <var>Command</var>
+  <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РїР°СЂР°РјРµС‚СЂС‹ РєРѕРјР°РЅРґС‹. РЎРјРѕС‚СЂРёС‚Рµ
+    РѕРїРёСЃР°РЅРёРµ <var>Command</var>
   </div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-  Смотрите описание <var>Command</var>
+  РЎРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ <var>Command</var>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
 <a href="control.html">Control</a>,
 <a href="editorcontrol.html">EditorControl</a>
 </div>

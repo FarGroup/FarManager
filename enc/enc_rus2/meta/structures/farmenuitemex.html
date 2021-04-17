@@ -1,26 +1,26 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FarMenuItemEx</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
 <body>
 
 <h1>FarMenuItemEx</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a  href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
 <a href="../service_functions/menu.html">Menu</a>
 <br>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarMenuItemEx</dfn> описывает один пункт меню. Массив этих
-структур передаётся в функцию <a href="../service_functions/menu.html">Menu</a>.
-Для использования структуры <dfn>FarMenuItemEx</dfn> необходимо установить
-флаг <a href="../service_functions/menu.html#FMENU_USEEXT">FMENU_USEEXT</a>
-при вызове функции <dfn>Menu</dfn>.
+РЎС‚СЂСѓРєС‚СѓСЂР° <dfn>FarMenuItemEx</dfn> РѕРїРёСЃС‹РІР°РµС‚ РѕРґРёРЅ РїСѓРЅРєС‚ РјРµРЅСЋ. РњР°СЃСЃРёРІ СЌС‚РёС…
+СЃС‚СЂСѓРєС‚СѓСЂ РїРµСЂРµРґР°С‘С‚СЃСЏ РІ С„СѓРЅРєС†РёСЋ <a href="../service_functions/menu.html">Menu</a>.
+Р”Р»СЏ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ СЃС‚СЂСѓРєС‚СѓСЂС‹ <dfn>FarMenuItemEx</dfn> РЅРµРѕР±С…РѕРґРёРјРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ
+С„Р»Р°Рі <a href="../service_functions/menu.html#FMENU_USEEXT">FMENU_USEEXT</a>
+РїСЂРё РІС‹Р·РѕРІРµ С„СѓРЅРєС†РёРё <dfn>Menu</dfn>.
 </div>
 
 <pre class=syntax>
@@ -33,77 +33,77 @@ struct FarMenuItemEx
   DWORD_PTR UserData;
 };
 </pre>
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
     <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация следующих значений (перечисление <a name="FARMENUFLAGS">FARMENUFLAGS</a>):
+    <div class=dfndescr>РљРѕРјР±РёРЅР°С†РёСЏ СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="FARMENUFLAGS">FARMENUFLAGS</a>):
     <table class="cont">
-      <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+      <tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="MIF_SELECTED">MIF_SELECTED</a></td>
-       <td class="cont" width="60%">Признак активности пункта меню. Только один
-        пункт может быть активным.</td></tr>
+       <td class="cont" width="60%">РџСЂРёР·РЅР°Рє Р°РєС‚РёРІРЅРѕСЃС‚Рё РїСѓРЅРєС‚Р° РјРµРЅСЋ. РўРѕР»СЊРєРѕ РѕРґРёРЅ
+        РїСѓРЅРєС‚ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р°РєС‚РёРІРЅС‹Рј.</td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="MIF_CHECKED">MIF_CHECKED</a></td>
-       <td class="cont" width="60%">Признак отмеченного пункта меню. Перед
-        текстом будет отображаться метка выбора.
+       <td class="cont" width="60%">РџСЂРёР·РЅР°Рє РѕС‚РјРµС‡РµРЅРЅРѕРіРѕ РїСѓРЅРєС‚Р° РјРµРЅСЋ. РџРµСЂРµРґ
+        С‚РµРєСЃС‚РѕРј Р±СѓРґРµС‚ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊСЃСЏ РјРµС‚РєР° РІС‹Р±РѕСЂР°.
         </td></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="MIF_SEPARATOR">MIF_SEPARATOR</a></td>
-       <td class="cont" width="60%">Пункт меню отображается как разделитель.
-        В отличие от стурктуры <a href="farmenuitem.html">FarMenuItem</a>
-        разделитель меню может содержать текст. Текст выравнивается по середине.</td></tr>
+       <td class="cont" width="60%">РџСѓРЅРєС‚ РјРµРЅСЋ РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ РєР°Рє СЂР°Р·РґРµР»РёС‚РµР»СЊ.
+        Р’ РѕС‚Р»РёС‡РёРµ РѕС‚ СЃС‚СѓСЂРєС‚СѓСЂС‹ <a href="farmenuitem.html">FarMenuItem</a>
+        СЂР°Р·РґРµР»РёС‚РµР»СЊ РјРµРЅСЋ РјРѕР¶РµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ С‚РµРєСЃС‚. РўРµРєСЃС‚ РІС‹СЂР°РІРЅРёРІР°РµС‚СЃСЏ РїРѕ СЃРµСЂРµРґРёРЅРµ.</td></tr>
 
       <tr class="cont"><td class="cont" width="40%"><a name="MIF_DISABLE">MIF_DISABLE</a></td>
-       <td class="cont" width="60%">Пункт меню недоступен.</td></tr>
+       <td class="cont" width="60%">РџСѓРЅРєС‚ РјРµРЅСЋ РЅРµРґРѕСЃС‚СѓРїРµРЅ.</td></tr>
 
      <tr class="cont"><td class="cont" width="40%"><a name="MIF_GRAYED">MIF_GRAYED</a></td>
-     <td class="cont" width="60%">Если флаг установлен, то пункт меню доступен в навигации, но не доступен для выбора.</td></tr>
+     <td class="cont" width="60%">Р•СЃР»Рё С„Р»Р°Рі СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РїСѓРЅРєС‚ РјРµРЅСЋ РґРѕСЃС‚СѓРїРµРЅ РІ РЅР°РІРёРіР°С†РёРё, РЅРѕ РЅРµ РґРѕСЃС‚СѓРїРµРЅ РґР»СЏ РІС‹Р±РѕСЂР°.</td></tr>
 
      <tr class="cont"><td class="cont" width="40%"><a name="MIF_HIDDEN">MIF_HIDDEN</a></td>
-     <td class="cont" width="60%">Если флаг установлен, то пункт меню не выводится на экран.</td></tr>
+     <td class="cont" width="60%">Р•СЃР»Рё С„Р»Р°Рі СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РїСѓРЅРєС‚ РјРµРЅСЋ РЅРµ РІС‹РІРѕРґРёС‚СЃСЏ РЅР° СЌРєСЂР°РЅ.</td></tr>
      </table>
     </div>
 
     <div class=dfn>Text</div>
-    <div class=dfndescr>Указатель на текст пункта меню.</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° С‚РµРєСЃС‚ РїСѓРЅРєС‚Р° РјРµРЅСЋ.</div>
 
     <div class=dfn>AccelKey</div>
-    <div class=dfndescr><a href="../defs/farkeycodes.html">Код клавиши</a>
-      FAR Manager для активизации пункта меню. Пример работы - в меню "Commands" нажатие
-      клавиши <kbd>Ctrl-O</kbd> аналогично выбору пункта "Panels On/Off".
-      В отличие от параметра <var>BreakKeys</var> функции
-      <a href="../service_functions/menu.html">Menu</a> компонента <var>AccelKey</var>
-      аналогична клавише быстрого доступа (HotKey).
+    <div class=dfndescr><a href="../defs/farkeycodes.html">РљРѕРґ РєР»Р°РІРёС€Рё</a>
+      FAR Manager РґР»СЏ Р°РєС‚РёРІРёР·Р°С†РёРё РїСѓРЅРєС‚Р° РјРµРЅСЋ. РџСЂРёРјРµСЂ СЂР°Р±РѕС‚С‹ - РІ РјРµРЅСЋ "Commands" РЅР°Р¶Р°С‚РёРµ
+      РєР»Р°РІРёС€Рё <kbd>Ctrl-O</kbd> Р°РЅР°Р»РѕРіРёС‡РЅРѕ РІС‹Р±РѕСЂСѓ РїСѓРЅРєС‚Р° "Panels On/Off".
+      Р’ РѕС‚Р»РёС‡РёРµ РѕС‚ РїР°СЂР°РјРµС‚СЂР° <var>BreakKeys</var> С„СѓРЅРєС†РёРё
+      <a href="../service_functions/menu.html">Menu</a> РєРѕРјРїРѕРЅРµРЅС‚Р° <var>AccelKey</var>
+      Р°РЅР°Р»РѕРіРёС‡РЅР° РєР»Р°РІРёС€Рµ Р±С‹СЃС‚СЂРѕРіРѕ РґРѕСЃС‚СѓРїР° (HotKey).
     </div>
 
     <div class=dfn>Reserved</div>
-    <div class=dfndescr>Зарезервировано и должно быть рано 0.</div>
+    <div class=dfndescr>Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ Рё РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЂР°РЅРѕ 0.</div>
 
     <div class=dfn>UserData</div>
-    <div class=dfndescr>Пользовательские данные, ассоциированные с пунктом
-    меню. FAR Manager не использует это поле.</div>
+    <div class=dfndescr>РџРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёРµ РґР°РЅРЅС‹Рµ, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅС‹Рµ СЃ РїСѓРЅРєС‚РѕРј
+    РјРµРЅСЋ. FAR Manager РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚ СЌС‚Рѕ РїРѕР»Рµ.</div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 <ol>
-<li>В младшем слове <var>Flags</var> можно указывать код символа, который
-    будет использоваться для отображения метки выбора. В этом случае
-    система самостоятельно выставит флаг <dfn>MIF_CHECKED</dfn> для
-    данного пункта меню.
-<li>Если младшее слово <var>Flags</var> равно 0 и выставлен флаг <dfn>MIF_CHECKED</dfn>,
-    или если младшее слово <var>Flags</var> равно 1,
-    то будет отображаться стандартная метка выбора - символ с кодом
+<li>Р’ РјР»Р°РґС€РµРј СЃР»РѕРІРµ <var>Flags</var> РјРѕР¶РЅРѕ СѓРєР°Р·С‹РІР°С‚СЊ РєРѕРґ СЃРёРјРІРѕР»Р°, РєРѕС‚РѕСЂС‹Р№
+    Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ РјРµС‚РєРё РІС‹Р±РѕСЂР°. Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ
+    СЃРёСЃС‚РµРјР° СЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅРѕ РІС‹СЃС‚Р°РІРёС‚ С„Р»Р°Рі <dfn>MIF_CHECKED</dfn> РґР»СЏ
+    РґР°РЅРЅРѕРіРѕ РїСѓРЅРєС‚Р° РјРµРЅСЋ.
+<li>Р•СЃР»Рё РјР»Р°РґС€РµРµ СЃР»РѕРІРѕ <var>Flags</var> СЂР°РІРЅРѕ 0 Рё РІС‹СЃС‚Р°РІР»РµРЅ С„Р»Р°Рі <dfn>MIF_CHECKED</dfn>,
+    РёР»Рё РµСЃР»Рё РјР»Р°РґС€РµРµ СЃР»РѕРІРѕ <var>Flags</var> СЂР°РІРЅРѕ 1,
+    С‚Рѕ Р±СѓРґРµС‚ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊСЃСЏ СЃС‚Р°РЅРґР°СЂС‚РЅР°СЏ РјРµС‚РєР° РІС‹Р±РѕСЂР° - СЃРёРјРІРѕР» СЃ РєРѕРґРѕРј
     0FBh (<code>&#8730;</code>)
-<li>При использовании флага <dfn>MIF_SEPARATOR</dfn> без текста компонента
-    <var>Text</var> должна быть проинициализирована в 0, например так:
+<li>РџСЂРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё С„Р»Р°РіР° <dfn>MIF_SEPARATOR</dfn> Р±РµР· С‚РµРєСЃС‚Р° РєРѕРјРїРѕРЅРµРЅС‚Р°
+    <var>Text</var> РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РїСЂРѕРёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅР° РІ 0, РЅР°РїСЂРёРјРµСЂ С‚Р°Рє:
    
     <pre class=code>struct FarMenuItemEx Item;
 Item.Flags=MIF_SEPARATOR;
 Item.Text=NULL;</pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
 <a href="farmenuitem.html">FarMenuItem</a> |
 </div>
 

@@ -1,21 +1,21 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FarListItem</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 </head>
 <body>
 
 <h1>FarListItem</h1>
 <div class=navbar>
-<a href="../../index.html">главная</a> |
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
 <a href="../index.html">Dialog API</a><br>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarListItem</dfn> описывает один элемент списка
-<a href="../controls/di_listbox.html">DI_LISTBOX</a> или
+РЎС‚СЂСѓРєС‚СѓСЂР° <dfn>FarListItem</dfn> РѕРїРёСЃС‹РІР°РµС‚ РѕРґРёРЅ СЌР»РµРјРµРЅС‚ СЃРїРёСЃРєР°
+<a href="../controls/di_listbox.html">DI_LISTBOX</a> РёР»Рё
 <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
@@ -27,62 +27,62 @@ struct FarListItem
   DWORD Reserved[3];
 };
 </pre>
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
   <div class=dfn>Flags</div>
-  <div class=dfndescr>Комбинация следующих значений (перечисление <a name="LISTITEMFLAGS">LISTITEMFLAGS</a>):
+  <div class=dfndescr>РљРѕРјР±РёРЅР°С†РёСЏ СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="LISTITEMFLAGS">LISTITEMFLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
      <tr class="cont"><td class="cont" width="40%"><a name="LIF_SELECTED">LIF_SELECTED</a></td>
-     <td class="cont" width="60%">Флаг активности пункта списка.
-        Только один пункт может быть активным.</td></tr>
+     <td class="cont" width="60%">Р¤Р»Р°Рі Р°РєС‚РёРІРЅРѕСЃС‚Рё РїСѓРЅРєС‚Р° СЃРїРёСЃРєР°.
+        РўРѕР»СЊРєРѕ РѕРґРёРЅ РїСѓРЅРєС‚ РјРѕР¶РµС‚ Р±С‹С‚СЊ Р°РєС‚РёРІРЅС‹Рј.</td></tr>
 
      <tr class="cont"><td class="cont" width="40%"><a name="LIF_CHECKED">LIF_CHECKED</a></td>
-     <td class="cont" width="60%">Если флаг установлен, то перед текстом пункта
-       отображается символ пометки (например, символ с кодом 0xFB).</td></tr>
+     <td class="cont" width="60%">Р•СЃР»Рё С„Р»Р°Рі СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РїРµСЂРµРґ С‚РµРєСЃС‚РѕРј РїСѓРЅРєС‚Р°
+       РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ СЃРёРјРІРѕР» РїРѕРјРµС‚РєРё (РЅР°РїСЂРёРјРµСЂ, СЃРёРјРІРѕР» СЃ РєРѕРґРѕРј 0xFB).</td></tr>
 
      <tr class="cont"><td class="cont" width="40%"><a name="LIF_SEPARATOR">LIF_SEPARATOR</a></td>
-     <td class="cont" width="60%">Если флаг установлен, то пункт отображается как разделитель.
-      Разделитель может иметь непустой текст, который будет отображаться поверх
-      разделительной линии.
+     <td class="cont" width="60%">Р•СЃР»Рё С„Р»Р°Рі СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РїСѓРЅРєС‚ РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ РєР°Рє СЂР°Р·РґРµР»РёС‚РµР»СЊ.
+      Р Р°Р·РґРµР»РёС‚РµР»СЊ РјРѕР¶РµС‚ РёРјРµС‚СЊ РЅРµРїСѓСЃС‚РѕР№ С‚РµРєСЃС‚, РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊСЃСЏ РїРѕРІРµСЂС…
+      СЂР°Р·РґРµР»РёС‚РµР»СЊРЅРѕР№ Р»РёРЅРёРё.
      </td></tr>
 
      <tr class="cont"><td class="cont" width="40%"><a name="LIF_DISABLE">LIF_DISABLE</a></td>
-     <td class="cont" width="60%">Если флаг установлен, то пункт недоступен.</td></tr>
+     <td class="cont" width="60%">Р•СЃР»Рё С„Р»Р°Рі СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РїСѓРЅРєС‚ РЅРµРґРѕСЃС‚СѓРїРµРЅ.</td></tr>
 
      <tr class="cont"><td class="cont" width="40%"><a name="LIF_GRAYED">LIF_GRAYED</a></td>
-     <td class="cont" width="60%">Если флаг установлен, то пункт доступен в навигации, но не доступен для выбора.</td></tr>
+     <td class="cont" width="60%">Р•СЃР»Рё С„Р»Р°Рі СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РїСѓРЅРєС‚ РґРѕСЃС‚СѓРїРµРЅ РІ РЅР°РІРёРіР°С†РёРё, РЅРѕ РЅРµ РґРѕСЃС‚СѓРїРµРЅ РґР»СЏ РІС‹Р±РѕСЂР°.</td></tr>
 
      <tr class="cont"><td class="cont" width="40%"><a name="LIF_HIDDEN">LIF_HIDDEN</a></td>
-     <td class="cont" width="60%">Если флаг установлен, то пункт не выводится на экран.</td></tr>
+     <td class="cont" width="60%">Р•СЃР»Рё С„Р»Р°Рі СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РїСѓРЅРєС‚ РЅРµ РІС‹РІРѕРґРёС‚СЃСЏ РЅР° СЌРєСЂР°РЅ.</td></tr>
 
      <tr class="cont"><td class="cont" width="40%"><a name="LIF_DELETEUSERDATA">LIF_DELETEUSERDATA</a></td>
-     <td class="cont" width="60%">Этот флаг устанавливается в параметре Item
-      соoбщения <a href="../dmsg/dm_listupdate.html">DM_LISTUPDATE</a>
-      если при обновлении элемента списка необходимо удалить связанные с
-      этим элементом данные.
+     <td class="cont" width="60%">Р­С‚РѕС‚ С„Р»Р°Рі СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РІ РїР°СЂР°РјРµС‚СЂРµ Item
+      СЃРѕoР±С‰РµРЅРёСЏ <a href="../dmsg/dm_listupdate.html">DM_LISTUPDATE</a>
+      РµСЃР»Рё РїСЂРё РѕР±РЅРѕРІР»РµРЅРёРё СЌР»РµРјРµРЅС‚Р° СЃРїРёСЃРєР° РЅРµРѕР±С…РѕРґРёРјРѕ СѓРґР°Р»РёС‚СЊ СЃРІСЏР·Р°РЅРЅС‹Рµ СЃ
+      СЌС‚РёРј СЌР»РµРјРµРЅС‚РѕРј РґР°РЅРЅС‹Рµ.
      </td></tr>
     </table>
     </div>
   <div class=dfn>Text</div>
-  <div class=dfndescr>Текст элемента списка.</div>
+  <div class=dfndescr>РўРµРєСЃС‚ СЌР»РµРјРµРЅС‚Р° СЃРїРёСЃРєР°.</div>
 
   <div class=dfn>Reserved</div>
-  <div class=dfndescr>Зарезервировано, Должно быть равно 0.
+  <div class=dfndescr>Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ, Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЂР°РІРЅРѕ 0.
   </div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
 <a  href="farlist.html">FarList</a>,
 <a href="../dmsg/dm_listgetitem.html">DM_LISTGETITEM</a>,
 <a  href="farlistinsert.html">FarListInsert</a>,
 <a  href="farlistupdate.html">FarListUpdate</a>,
 <a href="../../delphi/tfarlistitem.html">TFarListItem</a>,
-<a href="../../structures/index.html">структуры</a>
+<a href="../../structures/index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>
 </div>
 
 </body>

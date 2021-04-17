@@ -1,9 +1,9 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 
 <head>
 <title>Compare</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -16,13 +16,13 @@
 
 <h1>Compare</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">экспортируемые функции</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЌРєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Плагин может экспортировать функцию <dfn>Compare</dfn>,
-чтобы перекрыть используемый по умолчанию алгоритм сортировки файлов.
+РџР»Р°РіРёРЅ РјРѕР¶РµС‚ СЌРєСЃРїРѕСЂС‚РёСЂРѕРІР°С‚СЊ С„СѓРЅРєС†РёСЋ <dfn>Compare</dfn>,
+С‡С‚РѕР±С‹ РїРµСЂРµРєСЂС‹С‚СЊ РёСЃРїРѕР»СЊР·СѓРµРјС‹Р№ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ Р°Р»РіРѕСЂРёС‚Рј СЃРѕСЂС‚РёСЂРѕРІРєРё С„Р°Р№Р»РѕРІ.
 </div>
 
 <pre class=syntax>
@@ -34,41 +34,41 @@ int WINAPI Compare(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>hPlugin</div>
-  <div class=dfndescr>Описатель плагина, возвращаемый функциями <a href="openplugin.html">OpenPlugin</a>
-    или <a href="openfileplugin.html">OpenFilePlugin</a>.</div>
+  <div class=dfndescr>РћРїРёСЃР°С‚РµР»СЊ РїР»Р°РіРёРЅР°, РІРѕР·РІСЂР°С‰Р°РµРјС‹Р№ С„СѓРЅРєС†РёСЏРјРё <a href="openplugin.html">OpenPlugin</a>
+    РёР»Рё <a href="openfileplugin.html">OpenFilePlugin</a>.</div>
   <div class=dfn>Item1, Item2</div>
-  <div class=dfndescr>Указатели на структуру <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>
-    для сравнения.</div>
+  <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»Рё РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>
+    РґР»СЏ СЃСЂР°РІРЅРµРЅРёСЏ.</div>
   <div class=dfn>Mode</div>
-  <div class=dfndescr>См. <a href="../defs/sortmetods.html">Методы сортировки</a></div>
+  <div class=dfndescr>РЎРј. <a href="../defs/sortmetods.html">РњРµС‚РѕРґС‹ СЃРѕСЂС‚РёСЂРѕРІРєРё</a></div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-  Эта функция возвращает одно из следующих
-  значение типа <b>int</b>:
-  <p><code>-1</code> если <i>Item1 </i><code>&lt; </code><i>Item2<br>
-  </i><code>&nbsp;0</code> если <i>Item1</i> <code>==</code> <i>Item2<br>
-  </i><code>&nbsp;1</code> если <i>Item1</i><code> &gt;</code> <i>Item2<br>
-  </i><code>-2</code> если используется внутренняя функция <dfn>Compare</dfn>
-  для данного метода сортировки.
+  Р­С‚Р° С„СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РѕРґРЅРѕ РёР· СЃР»РµРґСѓСЋС‰РёС…
+  Р·РЅР°С‡РµРЅРёРµ С‚РёРїР° <b>int</b>:
+  <p><code>-1</code> РµСЃР»Рё <i>Item1 </i><code>&lt; </code><i>Item2<br>
+  </i><code>&nbsp;0</code> РµСЃР»Рё <i>Item1</i> <code>==</code> <i>Item2<br>
+  </i><code>&nbsp;1</code> РµСЃР»Рё <i>Item1</i><code> &gt;</code> <i>Item2<br>
+  </i><code>-2</code> РµСЃР»Рё РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІРЅСѓС‚СЂРµРЅРЅСЏСЏ С„СѓРЅРєС†РёСЏ <dfn>Compare</dfn>
+  РґР»СЏ РґР°РЅРЅРѕРіРѕ РјРµС‚РѕРґР° СЃРѕСЂС‚РёСЂРѕРІРєРё.
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-Для сортировки элементов FAR использует стандартную RTL-функцию <dfn>qsort</dfn>,
-которая реализует нестабильную сортировку. Иными словами, если элементы массива
-равны с точки зрения функции сравнения, на панели они будут отображаться в
-произвольном порядке, меняющемся при каждом перечитывании панели.
+Р”Р»СЏ СЃРѕСЂС‚РёСЂРѕРІРєРё СЌР»РµРјРµРЅС‚РѕРІ FAR РёСЃРїРѕР»СЊР·СѓРµС‚ СЃС‚Р°РЅРґР°СЂС‚РЅСѓСЋ RTL-С„СѓРЅРєС†РёСЋ <dfn>qsort</dfn>,
+РєРѕС‚РѕСЂР°СЏ СЂРµР°Р»РёР·СѓРµС‚ РЅРµСЃС‚Р°Р±РёР»СЊРЅСѓСЋ СЃРѕСЂС‚РёСЂРѕРІРєСѓ. РРЅС‹РјРё СЃР»РѕРІР°РјРё, РµСЃР»Рё СЌР»РµРјРµРЅС‚С‹ РјР°СЃСЃРёРІР°
+СЂР°РІРЅС‹ СЃ С‚РѕС‡РєРё Р·СЂРµРЅРёСЏ С„СѓРЅРєС†РёРё СЃСЂР°РІРЅРµРЅРёСЏ, РЅР° РїР°РЅРµР»Рё РѕРЅРё Р±СѓРґСѓС‚ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊСЃСЏ РІ
+РїСЂРѕРёР·РІРѕР»СЊРЅРѕРј РїРѕСЂСЏРґРєРµ, РјРµРЅСЏСЋС‰РµРјСЃСЏ РїСЂРё РєР°Р¶РґРѕРј РїРµСЂРµС‡РёС‚С‹РІР°РЅРёРё РїР°РЅРµР»Рё.
 </div>
 
 
-<!-- div class=idea>Кстати о методах сортировки. В Интернете по адресу
+<!-- div class=idea>РљСЃС‚Р°С‚Рё Рѕ РјРµС‚РѕРґР°С… СЃРѕСЂС‚РёСЂРѕРІРєРё. Р’ РРЅС‚РµСЂРЅРµС‚Рµ РїРѕ Р°РґСЂРµСЃСѓ
 <a target="_blank" href="http://epaperpress.com/sr_man.html">http://epaperpress.com/sr_man.html</a>
-имеется интересная книга по данному вопросу.
+РёРјРµРµС‚СЃСЏ РёРЅС‚РµСЂРµСЃРЅР°СЏ РєРЅРёРіР° РїРѕ РґР°РЅРЅРѕРјСѓ РІРѕРїСЂРѕСЃСѓ.
 </div -->
 
 

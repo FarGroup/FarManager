@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <HTML>
 <HEAD>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
@@ -20,32 +20,32 @@
                 <param name="ImageNumber" value="11">
                 </OBJECT>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="О проекте">
+                <param name="Name" value="Рћ РїСЂРѕРµРєС‚Рµ">
                 <param name="Local" value="html/other/aboutproject.html">
                 <param name="ImageNumber" value="11">
                 </OBJECT>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Что нового?">
+                <param name="Name" value="Р§С‚Рѕ РЅРѕРІРѕРіРѕ?">
                 <param name="Local" value="html/whatsnew.html">
                 <param name="ImageNumber" value="10">
                 </OBJECT>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Лицензия">
+                <param name="Name" value="Р›РёС†РµРЅР·РёСЏ">
                 <param name="Local" value="html/other/license.html">
                 <param name="ImageNumber" value="12">
                 </OBJECT>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Авторы">
+                <param name="Name" value="РђРІС‚РѕСЂС‹">
                 <param name="Local" value="html/other/authors.html">
                 <param name="ImageNumber" value="27">
                 </OBJECT>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Экспортируемые функции из плагинов">
+                <param name="Name" value="Р­РєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё РёР· РїР»Р°РіРёРЅРѕРІ">
                 <param name="Local" value="html/exported_functions/index.html">
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Функции общего назначения">
+                        <param name="Name" value="Р¤СѓРЅРєС†РёРё РѕР±С‰РµРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ">
                         <param name="Local" value="html/exported_functions/index_common.html">
                         </OBJECT>
                 <UL>
@@ -75,7 +75,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Специфические функции работы с панелью">
+                        <param name="Name" value="РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ С„СѓРЅРєС†РёРё СЂР°Р±РѕС‚С‹ СЃ РїР°РЅРµР»СЊСЋ">
                         <param name="Local" value="html/panelapi/index_exported_functions.html">
                         </OBJECT>
                 <UL>
@@ -153,7 +153,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Специфические функции редактора">
+                        <param name="Name" value="РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ С„СѓРЅРєС†РёРё СЂРµРґР°РєС‚РѕСЂР°">
                         <param name="Local" value="html/editorapi/index_exported_functions.html">
                         </OBJECT>
                 <UL>
@@ -167,7 +167,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Специфические функции программы просмотра">
+                        <param name="Name" value="РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ С„СѓРЅРєС†РёРё РїСЂРѕРіСЂР°РјРјС‹ РїСЂРѕСЃРјРѕС‚СЂР°">
                         <param name="Local" value="html/viewerapi/index_exported_functions.html">
                         </OBJECT>
                 <UL>
@@ -177,7 +177,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Специфические функции диалога">
+                        <param name="Name" value="РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ С„СѓРЅРєС†РёРё РґРёР°Р»РѕРіР°">
                         <param name="Local" value="html/dialogapi/index_exported_functions.html">
                         </OBJECT>
                 <UL>
@@ -188,12 +188,12 @@
                 </UL>
         </UL>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Сервисные функции предоставляемые FAR`ом">
+                <param name="Name" value="РЎРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё РїСЂРµРґРѕСЃС‚Р°РІР»СЏРµРјС‹Рµ FAR`РѕРј">
                 <param name="Local" value="html/service_functions/index.html">
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Функции общего назначения">
+                        <param name="Name" value="Р¤СѓРЅРєС†РёРё РѕР±С‰РµРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ">
                         <param name="Local" value="html/service_functions/index_common.html">
                         </OBJECT>
                 <UL>
@@ -263,7 +263,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Специфические функции редактора">
+                        <param name="Name" value="РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ С„СѓРЅРєС†РёРё СЂРµРґР°РєС‚РѕСЂР°">
                         <param name="Local" value="html/editorapi/index_service_functions.html">
                         </OBJECT>
                 <UL>
@@ -277,7 +277,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Специфические функции программы просмотра">
+                        <param name="Name" value="РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ С„СѓРЅРєС†РёРё РїСЂРѕРіСЂР°РјРјС‹ РїСЂРѕСЃРјРѕС‚СЂР°">
                         <param name="Local" value="html/viewerapi/index_service_functions.html">
                         </OBJECT>
                 <UL>
@@ -291,7 +291,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Специфические функции диалога">
+                        <param name="Name" value="РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ С„СѓРЅРєС†РёРё РґРёР°Р»РѕРіР°">
                         <param name="Local" value="html/dialogapi/index_service_functions.html">
                         </OBJECT>
                 <UL>
@@ -330,12 +330,12 @@
                 </UL>
         </UL>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Структуры">
+                <param name="Name" value="РЎС‚СЂСѓРєС‚СѓСЂС‹">
                 <param name="Local" value="html/structures/index.html">
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FarStandardFunctions - полезные функции из Far.exe">
+                        <param name="Name" value="FarStandardFunctions - РїРѕР»РµР·РЅС‹Рµ С„СѓРЅРєС†РёРё РёР· Far.exe">
                         <param name="Local" value="html/fsf/index.html">
                         </OBJECT>
                 <UL>
@@ -533,7 +533,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Структуры общего назначения">
+                        <param name="Name" value="РЎС‚СЂСѓРєС‚СѓСЂС‹ РѕР±С‰РµРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ">
                         <param name="Local" value="html/structures/index_common.html">
                         </OBJECT>
                 <UL>
@@ -599,7 +599,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Специфические структуры панели">
+                        <param name="Name" value="РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ РїР°РЅРµР»Рё">
                         <param name="Local" value="html/panelapi/index_structures.html">
                         </OBJECT>
                 <UL>
@@ -633,7 +633,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Специфические структуры редактора">
+                        <param name="Name" value="РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ СЂРµРґР°РєС‚РѕСЂР°">
                         <param name="Local" value="html/editorapi/index_structures.html">
                         </OBJECT>
                 <UL>
@@ -683,7 +683,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Специфические структуры программы просмотра">
+                        <param name="Name" value="РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ РїСЂРѕРіСЂР°РјРјС‹ РїСЂРѕСЃРјРѕС‚СЂР°">
                         <param name="Local" value="html/viewerapi/index_structures.html">
                         </OBJECT>
                 <UL>
@@ -709,7 +709,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Специфические структуры диалога">
+                        <param name="Name" value="РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ РґРёР°Р»РѕРіР°">
                         <param name="Local" value="html/dialogapi/index_structures.html">
                         </OBJECT>
                 <UL>
@@ -789,7 +789,7 @@
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Экспортируемые функции Panel API">
+                        <param name="Name" value="Р­РєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё Panel API">
                         <param name="Local" value="html/panelapi/index_exported_functions.html">
                         </OBJECT>
                 <UL>
@@ -867,7 +867,7 @@
                                 </OBJECT>
             </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Сервисные функции Panel API">
+                        <param name="Name" value="РЎРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё Panel API">
                         <param name="Local" value="html/panelapi/index_service_functions.html">
                         </OBJECT>
                 <UL>
@@ -897,7 +897,7 @@
                                 </OBJECT>
             </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Структуры Panel API">
+                        <param name="Name" value="РЎС‚СЂСѓРєС‚СѓСЂС‹ Panel API">
                         <param name="Local" value="html/panelapi/index_structures.html">
                         </OBJECT>
                 <UL>
@@ -937,7 +937,7 @@
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Экспортируемые функции Editor API">
+                        <param name="Name" value="Р­РєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё Editor API">
                         <param name="Local" value="html/editorapi/index_exported_functions.html">
                         </OBJECT>
                 <UL>
@@ -951,7 +951,7 @@
                                 </OBJECT>
             </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Сервисные функции Editor API">
+                        <param name="Name" value="РЎРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё Editor API">
                         <param name="Local" value="html/editorapi/index_service_functions.html">
                         </OBJECT>
                 <UL>
@@ -965,7 +965,7 @@
                                 </OBJECT>
             </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Структуры Editor API">
+                        <param name="Name" value="РЎС‚СЂСѓРєС‚СѓСЂС‹ Editor API">
                         <param name="Local" value="html/editorapi/index_structures.html">
                         </OBJECT>
                 <UL>
@@ -1021,7 +1021,7 @@
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Экспортируемые функции Viewer API">
+                        <param name="Name" value="Р­РєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё Viewer API">
                         <param name="Local" value="html/viewerapi/index_exported_functions.html">
                         </OBJECT>
                 <UL>
@@ -1031,7 +1031,7 @@
                                 </OBJECT>
             </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Сервисные функции Viewer API">
+                        <param name="Name" value="РЎРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё Viewer API">
                         <param name="Local" value="html/viewerapi/index_service_functions.html">
                         </OBJECT>
                 <UL>
@@ -1045,7 +1045,7 @@
                                 </OBJECT>
             </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Структуры Viewer API">
+                        <param name="Name" value="РЎС‚СЂСѓРєС‚СѓСЂС‹ Viewer API">
                         <param name="Local" value="html/viewerapi/index_structures.html">
                         </OBJECT>
                 <UL>
@@ -1077,7 +1077,7 @@
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Экспортируемые функции Dialog API">
+                        <param name="Name" value="Р­РєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё Dialog API">
                         <param name="Local" value="html/dialogapi/index_exported_functions.html">
                         </OBJECT>
                 <UL>
@@ -1087,7 +1087,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Сервисные функции Dialog API">
+                        <param name="Name" value="РЎРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё Dialog API">
                         <param name="Local" value="html/dialogapi/index_service_functions.html">
                         </OBJECT>
                 <UL>
@@ -1125,7 +1125,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Структуры Dialog API">
+                        <param name="Name" value="РЎС‚СЂСѓРєС‚СѓСЂС‹ Dialog API">
                         <param name="Local" value="html/dialogapi/index_structures.html">
                         </OBJECT>
                 <UL>
@@ -1199,7 +1199,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Элементы Dialog API">
+                        <param name="Name" value="Р­Р»РµРјРµРЅС‚С‹ Dialog API">
                         <param name="Local" value="html/dialogapi/controls/index.html">
                         </OBJECT>
                 <UL>
@@ -1257,7 +1257,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Флаги элементов диалога Dialog API">
+                        <param name="Name" value="Р¤Р»Р°РіРё СЌР»РµРјРµРЅС‚РѕРІ РґРёР°Р»РѕРіР° Dialog API">
                         <param name="Local" value="html/dialogapi/flags/index.html">
                         </OBJECT>
                 <UL>
@@ -1395,7 +1395,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Сообщения Dialog API">
+                        <param name="Name" value="РЎРѕРѕР±С‰РµРЅРёСЏ Dialog API">
                         <param name="Local" value="html/dialogapi/dmsg/index_dm.html">
                         </OBJECT>
                 <UL>
@@ -1677,7 +1677,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="События Dialog API">
+                        <param name="Name" value="РЎРѕР±С‹С‚РёСЏ Dialog API">
                         <param name="Local" value="html/dialogapi/dmsg/index_dn.html">
                         </OBJECT>
                 <UL>
@@ -1775,22 +1775,22 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Фокус ввода">
+                        <param name="Name" value="Р¤РѕРєСѓСЃ РІРІРѕРґР°">
                         <param name="Local" value="html/dialogapi/keybfocus.html">
                         <param name="ImageNumber" value="11">
                         </OBJECT>
         </UL>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Типы и определения">
+                <param name="Name" value="РўРёРїС‹ Рё РѕРїСЂРµРґРµР»РµРЅРёСЏ">
                 <param name="Local" value="html/defs/index.html">
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="COL_* - Индексы цветов в цветовой палитре">
+                        <param name="Name" value="COL_* - РРЅРґРµРєСЃС‹ С†РІРµС‚РѕРІ РІ С†РІРµС‚РѕРІРѕР№ РїР°Р»РёС‚СЂРµ">
                         <param name="Local" value="html/defs/farcolors.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="KEY_* - Коды клавиш FAR Manager">
+                        <param name="Name" value="KEY_* - РљРѕРґС‹ РєР»Р°РІРёС€ FAR Manager">
                         <param name="Local" value="html/defs/farkeycodes.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
@@ -1802,95 +1802,95 @@
                         <param name="Local" value="html/defs/operation_mode.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="SM_* - Метод сортировки">
+                        <param name="Name" value="SM_* - РњРµС‚РѕРґ СЃРѕСЂС‚РёСЂРѕРІРєРё">
                         <param name="Local" value="html/defs/sortmetods.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="PKF_* - Состояние Shift-клавиш">
+                        <param name="Name" value="PKF_* - РЎРѕСЃС‚РѕСЏРЅРёРµ Shift-РєР»Р°РІРёС€">
                         <param name="Local" value="html/defs/far_pkf_flags.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="ERROR_* - Типы ошибок">
+                        <param name="Name" value="ERROR_* - РўРёРїС‹ РѕС€РёР±РѕРє">
                         <param name="Local" value="html/defs/winerror.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="_FAR_NO_NAMELESS_UNIONS - Использование Pure C">
+                        <param name="Name" value="_FAR_NO_NAMELESS_UNIONS - РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ Pure C">
                         <param name="Local" value="html/defs/_far_no_nameless_unions.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FARMACRO_KEY_EVENT - Сообщение, приходит во время исполнения макрокоманды">
+                        <param name="Name" value="FARMACRO_KEY_EVENT - РЎРѕРѕР±С‰РµРЅРёРµ, РїСЂРёС…РѕРґРёС‚ РІРѕ РІСЂРµРјСЏ РёСЃРїРѕР»РЅРµРЅРёСЏ РјР°РєСЂРѕРєРѕРјР°РЅРґС‹">
                         <param name="Local" value="html/defs/farmacro_key_event.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FARMANAGERVERSION - Номер версии FAR Manager">
+                        <param name="Name" value="FARMANAGERVERSION - РќРѕРјРµСЂ РІРµСЂСЃРёРё FAR Manager">
                         <param name="Local" value="html/defs/farmanagerversion.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="MAKEFARVERSION - Генерация требуемой версии FAR Manager">
+                        <param name="Name" value="MAKEFARVERSION - Р“РµРЅРµСЂР°С†РёСЏ С‚СЂРµР±СѓРµРјРѕР№ РІРµСЂСЃРёРё FAR Manager">
                         <param name="Local" value="html/defs/makefarversion.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FarConfirmationsSettings - Информация о настройках подтверждений">
+                        <param name="Name" value="FarConfirmationsSettings - РРЅС„РѕСЂРјР°С†РёСЏ Рѕ РЅР°СЃС‚СЂРѕР№РєР°С… РїРѕРґС‚РІРµСЂР¶РґРµРЅРёР№">
                         <param name="Local" value="html/defs/farconfirmationssettings.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FarInterfaceSettings - Информация о настройках интерфейса">
+                        <param name="Name" value="FarInterfaceSettings - РРЅС„РѕСЂРјР°С†РёСЏ Рѕ РЅР°СЃС‚СЂРѕР№РєР°С… РёРЅС‚РµСЂС„РµР№СЃР°">
                         <param name="Local" value="html/defs/farinterfacesettings.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FarDialogSettings - Информация о настройках диалогов">
+                        <param name="Name" value="FarDialogSettings - РРЅС„РѕСЂРјР°С†РёСЏ Рѕ РЅР°СЃС‚СЂРѕР№РєР°С… РґРёР°Р»РѕРіРѕРІ">
                         <param name="Local" value="html/defs/fardialogsettings.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FarDescriptionSettings - Информация о настройках описаний файлов">
+                        <param name="Name" value="FarDescriptionSettings - РРЅС„РѕСЂРјР°С†РёСЏ Рѕ РЅР°СЃС‚СЂРѕР№РєР°С… РѕРїРёСЃР°РЅРёР№ С„Р°Р№Р»РѕРІ">
                         <param name="Local" value="html/defs/fardescriptionsettings.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FarSystemSettings - Информация о системных настройках">
+                        <param name="Name" value="FarSystemSettings - РРЅС„РѕСЂРјР°С†РёСЏ Рѕ СЃРёСЃС‚РµРјРЅС‹С… РЅР°СЃС‚СЂРѕР№РєР°С…">
                         <param name="Local" value="html/defs/farsystemsettings.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FarPanelSettings - Информация о настройках панелей">
+                        <param name="Name" value="FarPanelSettings - РРЅС„РѕСЂРјР°С†РёСЏ Рѕ РЅР°СЃС‚СЂРѕР№РєР°С… РїР°РЅРµР»РµР№">
                         <param name="Local" value="html/defs/farpanelsettings.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FARWINDOWPROC - Функция-обработчик диалогового окна">
+                        <param name="Name" value="FARWINDOWPROC - Р¤СѓРЅРєС†РёСЏ-РѕР±СЂР°Р±РѕС‚С‡РёРє РґРёР°Р»РѕРіРѕРІРѕРіРѕ РѕРєРЅР°">
                         <param name="Local" value="html/defs/farwindowproc.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="FRSUSERFUNC - CALLBACK-функция, вызываемая из FSF.FarRecursiveSearch">
+                        <param name="Name" value="FRSUSERFUNC - CALLBACK-С„СѓРЅРєС†РёСЏ, РІС‹Р·С‹РІР°РµРјР°СЏ РёР· FSF.FarRecursiveSearch">
                         <param name="Local" value="html/defs/frsuserfunc.html">
                         </OBJECT>
         </UL>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Языки и файлы помощи">
+                <param name="Name" value="РЇР·С‹РєРё Рё С„Р°Р№Р»С‹ РїРѕРјРѕС‰Рё">
                 <param name="Local" value="html/language/index.html">
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Управляющие элементы">
+                        <param name="Name" value="РЈРїСЂР°РІР»СЏСЋС‰РёРµ СЌР»РµРјРµРЅС‚С‹">
                         <param name="Local" value="html/language/control_statements.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Языковые файлы">
+                        <param name="Name" value="РЇР·С‹РєРѕРІС‹Рµ С„Р°Р№Р»С‹">
                         <param name="Local" value="html/language/language_files.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Файлы помощи">
+                        <param name="Name" value="Р¤Р°Р№Р»С‹ РїРѕРјРѕС‰Рё">
                         <param name="Local" value="html/language/help_files.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Синтаксис тем помощи">
+                        <param name="Name" value="РЎРёРЅС‚Р°РєСЃРёСЃ С‚РµРј РїРѕРјРѕС‰Рё">
                         <param name="Local" value="html/language/helptopic.html">
                         </OBJECT>
         </UL>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Windows API: структуры, функции, определения">
+                <param name="Name" value="Windows API: СЃС‚СЂСѓРєС‚СѓСЂС‹, С„СѓРЅРєС†РёРё, РѕРїСЂРµРґРµР»РµРЅРёСЏ">
                 <param name="Local" value="html/winapi/index.html">
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Windows API функции">
+                        <param name="Name" value="Windows API С„СѓРЅРєС†РёРё">
                         <param name="Local" value="html/winapi/index_func.html">
                         </OBJECT>
                 <UL>
@@ -1916,7 +1916,7 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Windows API структуры">
+                        <param name="Name" value="Windows API СЃС‚СЂСѓРєС‚СѓСЂС‹">
                         <param name="Local" value="html/winapi/index_struct.html">
                         </OBJECT>
                 <UL>
@@ -1978,12 +1978,12 @@
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Windows API константы">
+                        <param name="Name" value="Windows API РєРѕРЅСЃС‚Р°РЅС‚С‹">
                         <param name="Local" value="html/winapi/index_defs.html">
                         </OBJECT>
                 <UL>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="виртуальные коды клавиш">
+                                <param name="Name" value="РІРёСЂС‚СѓР°Р»СЊРЅС‹Рµ РєРѕРґС‹ РєР»Р°РІРёС€">
                                 <param name="Local" value="html/winapi/virtualkeycodes.html">
                                 </OBJECT>
                 </UL>
@@ -1994,12 +1994,12 @@
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Поддержка архивов">
+                        <param name="Name" value="РџРѕРґРґРµСЂР¶РєР° Р°СЂС…РёРІРѕРІ">
                         <param name="Local" value="html/customapi/archives/index.html">
                         </OBJECT>
                 <UL>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Экспортируемые функции">
+                                <param name="Name" value="Р­РєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё">
                                 <param name="Local" value="html/customapi/archives/index_export.html">
                                 </OBJECT>
                         <UL>
@@ -2041,7 +2041,7 @@
                                         </OBJECT>
                         </UL>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Структуры">
+                                <param name="Name" value="РЎС‚СЂСѓРєС‚СѓСЂС‹">
                                 <param name="Local" value="html/customapi/archives/index_struct.html">
                                 </OBJECT>
                         <UL>
@@ -2055,61 +2055,61 @@
                                         </OBJECT>
                         </UL>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Командные строки архиваторов">
+                                <param name="Name" value="РљРѕРјР°РЅРґРЅС‹Рµ СЃС‚СЂРѕРєРё Р°СЂС…РёРІР°С‚РѕСЂРѕРІ">
                                 <param name="Local" value="html/customapi/archives/arccommands.html">
                                 <param name="ImageNumber" value="11">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Формат файла custom.ini">
+                                <param name="Name" value="Р¤РѕСЂРјР°С‚ С„Р°Р№Р»Р° custom.ini">
                                 <param name="Local" value="html/customapi/archives/custom_ini.html">
                                 <param name="ImageNumber" value="11">
                                 </OBJECT>
                 </UL>
         </UL>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Макросы">
+                <param name="Name" value="РњР°РєСЂРѕСЃС‹">
                 <param name="Local" value="html/macro/index.html">
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Общие замечания">
+                        <param name="Name" value="РћР±С‰РёРµ Р·Р°РјРµС‡Р°РЅРёСЏ">
                         <param name="Local" value="html/macro/about/index.html">
                         </OBJECT>
                 <UL>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Области действия">
+                                <param name="Name" value="РћР±Р»Р°СЃС‚Рё РґРµР№СЃС‚РІРёСЏ">
                                 <param name="Local" value="html/macro/about/macroarea.html">
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Работа с макросами">
+                        <param name="Name" value="Р Р°Р±РѕС‚Р° СЃ РјР°РєСЂРѕСЃР°РјРё">
                         <param name="Local" value="html/macro/macrokey/index.html">
                         </OBJECT>
                 <UL>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Запись макросов">
+                                <param name="Name" value="Р—Р°РїРёСЃСЊ РјР°РєСЂРѕСЃРѕРІ">
                                 <param name="Local" value="html/macro/macrokey/record.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Удаление макросов">
+                                <param name="Name" value="РЈРґР°Р»РµРЅРёРµ РјР°РєСЂРѕСЃРѕРІ">
                                 <param name="Local" value="html/macro/macrokey/delete.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Кнопки назначения">
+                                <param name="Name" value="РљРЅРѕРїРєРё РЅР°Р·РЅР°С‡РµРЅРёСЏ">
                                 <param name="Local" value="html/macro/macrokey/assign.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Параметры запуска макроса">
+                                <param name="Name" value="РџР°СЂР°РјРµС‚СЂС‹ Р·Р°РїСѓСЃРєР° РјР°РєСЂРѕСЃР°">
                                 <param name="Local" value="html/macro/macrokey/setting.html">
                                 </OBJECT>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Макроязык">
+                        <param name="Name" value="РњР°РєСЂРѕСЏР·С‹Рє">
                         <param name="Local" value="html/macro/macrocmd/index.html">
                         </OBJECT>
                 <UL>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Макрокоманды">
+                                <param name="Name" value="РњР°РєСЂРѕРєРѕРјР°РЅРґС‹">
                                 <param name="Local" value="html/macro/macrocmd/cmds.html">
                                 </OBJECT>
                         <UL>
@@ -2151,137 +2151,137 @@
                                          </OBJECT>
                         </UL>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Условные операторы">
+                                <param name="Name" value="РЈСЃР»РѕРІРЅС‹Рµ РѕРїРµСЂР°С‚РѕСЂС‹">
                                 <param name="Local" value="html/macro/macrocmd/boolop.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Операции">
+                                <param name="Name" value="РћРїРµСЂР°С†РёРё">
                                 <param name="Local" value="html/macro/macrocmd/op.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Переменные">
+                                <param name="Name" value="РџРµСЂРµРјРµРЅРЅС‹Рµ">
                                 <param name="Local" value="html/macro/macrocmd/vars.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Константы">
+                                <param name="Name" value="РљРѕРЅСЃС‚Р°РЅС‚С‹">
                                 <param name="Local" value="html/macro/macrocmd/consts.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="Cвойства и функции: по областям">
+                                <param name="Name" value="CРІРѕР№СЃС‚РІР° Рё С„СѓРЅРєС†РёРё: РїРѕ РѕР±Р»Р°СЃС‚СЏРј">
                                 <param name="Local" value="html/macro/macrocmd/prop_func/index.html">
                                 </OBJECT>
                         <UL>
                                 <LI> <OBJECT type="text/sitemap">
-                                        <param name="Name" value="Общие">
+                                        <param name="Name" value="РћР±С‰РёРµ">
                                         <param name="Local" value="html/macro/macrocmd/prop_func/general.html">
                                         </OBJECT>
                                 <LI> <OBJECT type="text/sitemap">
-                                        <param name="Name" value="Зависящие от контекста исполнения">
+                                        <param name="Name" value="Р—Р°РІРёСЃСЏС‰РёРµ РѕС‚ РєРѕРЅС‚РµРєСЃС‚Р° РёСЃРїРѕР»РЅРµРЅРёСЏ">
                                         <param name="Local" value="html/macro/macrocmd/prop_func/context_dep.html">
                                         </OBJECT>
                                 <LI> <OBJECT type="text/sitemap">
-                                        <param name="Name" value="Для панелей">
+                                        <param name="Name" value="Р”Р»СЏ РїР°РЅРµР»РµР№">
                                         <param name="Local" value="html/macro/macrocmd/prop_func/panels.html">
                                         </OBJECT>
                                 <LI> <OBJECT type="text/sitemap">
-                                        <param name="Name" value="Для командной строки">
+                                        <param name="Name" value="Р”Р»СЏ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё">
                                         <param name="Local" value="html/macro/macrocmd/prop_func/cmdline.html">
                                         </OBJECT>
                                 <LI> <OBJECT type="text/sitemap">
-                                        <param name="Name" value="Для редактора">
+                                        <param name="Name" value="Р”Р»СЏ СЂРµРґР°РєС‚РѕСЂР°">
                                         <param name="Local" value="html/macro/macrocmd/prop_func/editor.html">
                                         </OBJECT>
                                 <LI> <OBJECT type="text/sitemap">
-                                        <param name="Name" value="Для внутренней программы просмотра">
+                                        <param name="Name" value="Р”Р»СЏ РІРЅСѓС‚СЂРµРЅРЅРµР№ РїСЂРѕРіСЂР°РјРјС‹ РїСЂРѕСЃРјРѕС‚СЂР°">
                                         <param name="Local" value="html/macro/macrocmd/prop_func/viewer.html">
                                         </OBJECT>
                                 <LI> <OBJECT type="text/sitemap">
-                                        <param name="Name" value="Для диалогов">
+                                        <param name="Name" value="Р”Р»СЏ РґРёР°Р»РѕРіРѕРІ">
                                         <param name="Local" value="html/macro/macrocmd/prop_func/dialog.html">
                                         </OBJECT>
                                 <LI> <OBJECT type="text/sitemap">
-                                        <param name="Name" value="Для меню и списков">
+                                        <param name="Name" value="Р”Р»СЏ РјРµРЅСЋ Рё СЃРїРёСЃРєРѕРІ">
                                         <param name="Local" value="html/macro/macrocmd/prop_func/menus.html">
                                         </OBJECT>
                                 <LI> <OBJECT type="text/sitemap">
-                                        <param name="Name" value="Для системы помощи">
+                                        <param name="Name" value="Р”Р»СЏ СЃРёСЃС‚РµРјС‹ РїРѕРјРѕС‰Рё">
                                         <param name="Local" value="html/macro/macrocmd/prop_func/help.html">
                                         </OBJECT>
                         </UL>
                 </UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Технические подробности">
+                        <param name="Name" value="РўРµС…РЅРёС‡РµСЃРєРёРµ РїРѕРґСЂРѕР±РЅРѕСЃС‚Рё">
                         <param name="Local" value="html/macro/techinfo.html">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Примеры">
+                        <param name="Name" value="РџСЂРёРјРµСЂС‹">
                         <param name="Local" value="html/macro/examples.html">
                         </OBJECT>
         </UL>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Статьи">
+                <param name="Name" value="РЎС‚Р°С‚СЊРё">
                 <param name="Local" value="html/articles/index.html">
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Упаковщики - ЗА и ПРОТИВ">
+                        <param name="Name" value="РЈРїР°РєРѕРІС‰РёРєРё - Р—Рђ Рё РџР РћРўРР’">
                         <param name="Local" value="html/articles/packers.html">
                         <param name="ImageNumber" value="11">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Как самому сделать plug-in...">
+                        <param name="Name" value="РљР°Рє СЃР°РјРѕРјСѓ СЃРґРµР»Р°С‚СЊ plug-in...">
                         <param name="Local" value="html/articles/far_plugin.html">
                         <param name="ImageNumber" value="11">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Локализация плагинов второго уровня">
+                        <param name="Name" value="Р›РѕРєР°Р»РёР·Р°С†РёСЏ РїР»Р°РіРёРЅРѕРІ РІС‚РѕСЂРѕРіРѕ СѓСЂРѕРІРЅСЏ">
                         <param name="Local" value="html/articles/localization.html">
                         <param name="ImageNumber" value="11">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Обработка нажатия ESC">
+                        <param name="Name" value="РћР±СЂР°Р±РѕС‚РєР° РЅР°Р¶Р°С‚РёСЏ ESC">
                         <param name="Local" value="html/articles/escape.html">
                         <param name="ImageNumber" value="11">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="ECTL_GETSTRING работает слишком медленно">
+                        <param name="Name" value="ECTL_GETSTRING СЂР°Р±РѕС‚Р°РµС‚ СЃР»РёС€РєРѕРј РјРµРґР»РµРЅРЅРѕ">
                         <param name="Local" value="html/articles/ectl_getstring.html">
                         <param name="ImageNumber" value="11">
                         </OBJECT>
         </UL>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Дополнительные разделы">
+                <param name="Name" value="Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ СЂР°Р·РґРµР»С‹">
                 <param name="Local" value="html/other/index.html">
                 </OBJECT>
         <UL>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Как установить этот файл">
+                        <param name="Name" value="РљР°Рє СѓСЃС‚Р°РЅРѕРІРёС‚СЊ СЌС‚РѕС‚ С„Р°Р№Р»">
                         <param name="Local" value="html/other/setuphelp.html">
                         <param name="ImageNumber" value="21">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="'Правила хорошего тона'">
+                        <param name="Name" value="'РџСЂР°РІРёР»Р° С…РѕСЂРѕС€РµРіРѕ С‚РѕРЅР°'">
                         <param name="Local" value="html/other/rules.html">
                         <param name="ImageNumber" value="17">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Примеры">
+                        <param name="Name" value="РџСЂРёРјРµСЂС‹">
                         <param name="Local" value="html/other/examples.html">
                         <param name="ImageNumber" value="41">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Словарь">
+                        <param name="Name" value="РЎР»РѕРІР°СЂСЊ">
                         <param name="Local" value="html/other/dict.html">
                         <param name="ImageNumber" value="21">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="ЧАВО">
+                        <param name="Name" value="Р§РђР’Рћ">
                         <param name="Local" value="html/other/faq.html">
                         <param name="ImageNumber" value="37">
                         </OBJECT>
         </UL>
         <LI> <OBJECT type="text/sitemap">
-                <param name="Name" value="Интернет">
+                <param name="Name" value="РРЅС‚РµСЂРЅРµС‚">
                 <param name="Local" value="html/other/internet.html">
                 </OBJECT>
         <UL>
@@ -2306,12 +2306,12 @@
                         <param name="ImageNumber" value="15">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="SVN репозитарий">
+                        <param name="Name" value="SVN СЂРµРїРѕР·РёС‚Р°СЂРёР№">
                         <param name="Local" value="http://farmanager.com/svn/">
                         <param name="ImageNumber" value="15">
                         </OBJECT>
                 <LI> <OBJECT type="text/sitemap">
-                        <param name="Name" value="Список рассылки Far Manager Development">
+                        <param name="Name" value="РЎРїРёСЃРѕРє СЂР°СЃСЃС‹Р»РєРё Far Manager Development">
                         <param name="Local" value="http://groups.google.com/group/fardev/">
                         <param name="ImageNumber" value="15">
                         </OBJECT>

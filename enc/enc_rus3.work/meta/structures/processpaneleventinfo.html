@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>ProcessPanelEventInfo</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,13 +10,13 @@
 
 <h1>ProcessPanelEventInfo</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">структуры</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
 <div class=shortdescr>
-Структура <code>ProcessPanelEventInfo</code> содержит информацию о событии, поступающем в функцию <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a>.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>ProcessPanelEventInfo</code> СЃРѕРґРµСЂР¶РёС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЃРѕР±С‹С‚РёРё, РїРѕСЃС‚СѓРїР°СЋС‰РµРј РІ С„СѓРЅРєС†РёСЋ <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a>.
 </div>
 
 <pre class=syntax>
@@ -29,66 +29,66 @@ struct ProcessPanelEventInfo
 };
 </pre>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <code>ProcessPanelEventInfo</code>.</div>
+    <div class=dfndescr>Р­С‚Рѕ РїРѕР»Рµ СЃРѕРґРµСЂР¶РёС‚ СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ <code>ProcessPanelEventInfo</code>.</div>
   <div class=dfn>Event</div>
-    <div class=dfndescr>Тип события. Одно из следующих значений (перечисление <a name="FAR_EVENTS">FAR_EVENTS</a>):
+    <div class=dfndescr>РўРёРї СЃРѕР±С‹С‚РёСЏ. РћРґРЅРѕ РёР· СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="FAR_EVENTS">FAR_EVENTS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><th class="cont" width="40%">РЎРѕР±С‹С‚РёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FE_CHANGEVIEWMODE">FE_CHANGEVIEWMODE</a></td>
-    <td class="cont" width="60%">Сменился режим просмотра панели.<br>
-    <code>Param</code> указывает на строку <a href="../other/dict.html#panelcolumntype">типов колонок</a>, оканчивающуюся нулём, например <code>L"N,S,D,T"</code>.<br>
-    Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть <code>FALSE</code>.</td></tr>
+    <td class="cont" width="60%">РЎРјРµРЅРёР»СЃСЏ СЂРµР¶РёРј РїСЂРѕСЃРјРѕС‚СЂР° РїР°РЅРµР»Рё.<br>
+    <code>Param</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂРѕРєСѓ <a href="../other/dict.html#panelcolumntype">С‚РёРїРѕРІ РєРѕР»РѕРЅРѕРє</a>, РѕРєР°РЅС‡РёРІР°СЋС‰СѓСЋСЃСЏ РЅСѓР»С‘Рј, РЅР°РїСЂРёРјРµСЂ <code>L"N,S,D,T"</code>.<br>
+    Р¤СѓРЅРєС†РёСЏ <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> РґРѕР»Р¶РЅР° РІРµСЂРЅСѓС‚СЊ <code>FALSE</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FE_REDRAW">FE_REDRAW</a></td>
-    <td class="cont" width="60%">Панель должна перерисоваться.<br>
-    <code>Param</code> равен <code>NULL</code>.<br>
-    Верните в <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> <code>FALSE</code>, чтобы использовать функцию перерисовки Far Manager'a, или <code>TRUE</code>, чтобы отключить её. В последнем случае плагин должен перерисовать панель сам.</td></tr>
+    <td class="cont" width="60%">РџР°РЅРµР»СЊ РґРѕР»Р¶РЅР° РїРµСЂРµСЂРёСЃРѕРІР°С‚СЊСЃСЏ.<br>
+    <code>Param</code> СЂР°РІРµРЅ <code>NULL</code>.<br>
+    Р’РµСЂРЅРёС‚Рµ РІ <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> <code>FALSE</code>, С‡С‚РѕР±С‹ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С„СѓРЅРєС†РёСЋ РїРµСЂРµСЂРёСЃРѕРІРєРё Far Manager'a, РёР»Рё <code>TRUE</code>, С‡С‚РѕР±С‹ РѕС‚РєР»СЋС‡РёС‚СЊ РµС‘. Р’ РїРѕСЃР»РµРґРЅРµРј СЃР»СѓС‡Р°Рµ РїР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ РїРµСЂРµСЂРёСЃРѕРІР°С‚СЊ РїР°РЅРµР»СЊ СЃР°Рј.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FE_IDLE">FE_IDLE</a></td>
-    <td class="cont" width="60%">Посылается с интервалом в несколько секунд. Плагин может использовать это событие, чтобы вызвать обновление панели и её перерисовку, если это необходимо.<br>
-    <code>Param</code> равен <code>NULL</code>.<br>
-    Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть <code>FALSE</code>.</td></tr>
+    <td class="cont" width="60%">РџРѕСЃС‹Р»Р°РµС‚СЃСЏ СЃ РёРЅС‚РµСЂРІР°Р»РѕРј РІ РЅРµСЃРєРѕР»СЊРєРѕ СЃРµРєСѓРЅРґ. РџР»Р°РіРёРЅ РјРѕР¶РµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЌС‚Рѕ СЃРѕР±С‹С‚РёРµ, С‡С‚РѕР±С‹ РІС‹Р·РІР°С‚СЊ РѕР±РЅРѕРІР»РµРЅРёРµ РїР°РЅРµР»Рё Рё РµС‘ РїРµСЂРµСЂРёСЃРѕРІРєСѓ, РµСЃР»Рё СЌС‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ.<br>
+    <code>Param</code> СЂР°РІРµРЅ <code>NULL</code>.<br>
+    Р¤СѓРЅРєС†РёСЏ <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> РґРѕР»Р¶РЅР° РІРµСЂРЅСѓС‚СЊ <code>FALSE</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FE_CLOSE">FE_CLOSE</a></td>
-    <td class="cont" width="60%">Панель закрывается.<br>
-    <code>Param</code> равен <code>NULL</code>.<br>
-    Верните в <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> <code>FALSE</code> для закрытия панели или <code>TRUE</code> для отмены этого.</td></tr>
+    <td class="cont" width="60%">РџР°РЅРµР»СЊ Р·Р°РєСЂС‹РІР°РµС‚СЃСЏ.<br>
+    <code>Param</code> СЂР°РІРµРЅ <code>NULL</code>.<br>
+    Р’РµСЂРЅРёС‚Рµ РІ <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> <code>FALSE</code> РґР»СЏ Р·Р°РєСЂС‹С‚РёСЏ РїР°РЅРµР»Рё РёР»Рё <code>TRUE</code> РґР»СЏ РѕС‚РјРµРЅС‹ СЌС‚РѕРіРѕ.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FE_BREAK">FE_BREAK</a></td>
-    <td class="cont" width="60%">Нажатие <kbd>Ctrl</kbd>+<kbd>Break</kbd>.<br>
-    <code>Param</code> может быть только <code>(int)CTRL_BREAK_EVENT</code><br>
-    Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть <code>FALSE</code>.<br>
-    Обработка этого события выполнена в отдельном потоке, поэтому плагин должен быть осторожным при выполнении операций ввода-вывода и не должен использовать сервисные функции Far Manager'a.</td></tr>
+    <td class="cont" width="60%">РќР°Р¶Р°С‚РёРµ <kbd>Ctrl</kbd>+<kbd>Break</kbd>.<br>
+    <code>Param</code> РјРѕР¶РµС‚ Р±С‹С‚СЊ С‚РѕР»СЊРєРѕ <code>(int)CTRL_BREAK_EVENT</code><br>
+    Р¤СѓРЅРєС†РёСЏ <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> РґРѕР»Р¶РЅР° РІРµСЂРЅСѓС‚СЊ <code>FALSE</code>.<br>
+    РћР±СЂР°Р±РѕС‚РєР° СЌС‚РѕРіРѕ СЃРѕР±С‹С‚РёСЏ РІС‹РїРѕР»РЅРµРЅР° РІ РѕС‚РґРµР»СЊРЅРѕРј РїРѕС‚РѕРєРµ, РїРѕСЌС‚РѕРјСѓ РїР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕСЃС‚РѕСЂРѕР¶РЅС‹Рј РїСЂРё РІС‹РїРѕР»РЅРµРЅРёРё РѕРїРµСЂР°С†РёР№ РІРІРѕРґР°-РІС‹РІРѕРґР° Рё РЅРµ РґРѕР»Р¶РµРЅ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё Far Manager'a.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FE_COMMAND">FE_COMMAND</a></td>
-    <td class="cont" width="60%">Перед запуском команды в командной строке Far Manager'a.<br>
-    <code>Param</code> указывает на текст команды.<br>
-    Для разрешения стандартной обработки команды плагин должен вернуть в <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> <code>FALSE</code>.<br>
-    Если плагин собирается обработать команду сам, то он должен вернуть <code>TRUE</code>.</td></tr>
+    <td class="cont" width="60%">РџРµСЂРµРґ Р·Р°РїСѓСЃРєРѕРј РєРѕРјР°РЅРґС‹ РІ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРµ Far Manager'a.<br>
+    <code>Param</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° С‚РµРєСЃС‚ РєРѕРјР°РЅРґС‹.<br>
+    Р”Р»СЏ СЂР°Р·СЂРµС€РµРЅРёСЏ СЃС‚Р°РЅРґР°СЂС‚РЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРё РєРѕРјР°РЅРґС‹ РїР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ РІРµСЂРЅСѓС‚СЊ РІ <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> <code>FALSE</code>.<br>
+    Р•СЃР»Рё РїР»Р°РіРёРЅ СЃРѕР±РёСЂР°РµС‚СЃСЏ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ РєРѕРјР°РЅРґСѓ СЃР°Рј, С‚Рѕ РѕРЅ РґРѕР»Р¶РµРЅ РІРµСЂРЅСѓС‚СЊ <code>TRUE</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FE_KILLFOCUS">FE_KILLFOCUS</a></td>
-    <td class="cont" width="60%">Панель потеряла фокус ввода.<br>
-    <code>Param</code> равен <code>NULL</code>.<br>
-    Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть <code>FALSE</code>.</td></tr>
+    <td class="cont" width="60%">РџР°РЅРµР»СЊ РїРѕС‚РµСЂСЏР»Р° С„РѕРєСѓСЃ РІРІРѕРґР°.<br>
+    <code>Param</code> СЂР°РІРµРЅ <code>NULL</code>.<br>
+    Р¤СѓРЅРєС†РёСЏ <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> РґРѕР»Р¶РЅР° РІРµСЂРЅСѓС‚СЊ <code>FALSE</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FE_GOTFOCUS">FE_GOTFOCUS</a></td>
-    <td class="cont" width="60%">Панель получила фокус ввода.<br>Активная панель получает событие <code>FE_GOTFOCUS</code> сразу после создания.<br>
-    <code>Param</code> равен <code>NULL</code>.<br>
-    Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть <code>FALSE</code>.</td></tr>
+    <td class="cont" width="60%">РџР°РЅРµР»СЊ РїРѕР»СѓС‡РёР»Р° С„РѕРєСѓСЃ РІРІРѕРґР°.<br>РђРєС‚РёРІРЅР°СЏ РїР°РЅРµР»СЊ РїРѕР»СѓС‡Р°РµС‚ СЃРѕР±С‹С‚РёРµ <code>FE_GOTFOCUS</code> СЃСЂР°Р·Сѓ РїРѕСЃР»Рµ СЃРѕР·РґР°РЅРёСЏ.<br>
+    <code>Param</code> СЂР°РІРµРЅ <code>NULL</code>.<br>
+    Р¤СѓРЅРєС†РёСЏ <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> РґРѕР»Р¶РЅР° РІРµСЂРЅСѓС‚СЊ <code>FALSE</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FE_CHANGESORTPARAMS">FE_CHANGESORTPARAMS</a></td>
-    <td class="cont" width="60%">Сменились параметры сортировки панели.<br>Панель плагина получает событие <code>FE_CHANGESORTPARAMS</code> после любого изменения в параметрах сортировки.<br>
-    <code>Param</code> равен <code>NULL</code>.<br>
-    Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть <code>FALSE</code>.</td></tr>
+    <td class="cont" width="60%">РЎРјРµРЅРёР»РёСЃСЊ РїР°СЂР°РјРµС‚СЂС‹ СЃРѕСЂС‚РёСЂРѕРІРєРё РїР°РЅРµР»Рё.<br>РџР°РЅРµР»СЊ РїР»Р°РіРёРЅР° РїРѕР»СѓС‡Р°РµС‚ СЃРѕР±С‹С‚РёРµ <code>FE_CHANGESORTPARAMS</code> РїРѕСЃР»Рµ Р»СЋР±РѕРіРѕ РёР·РјРµРЅРµРЅРёСЏ РІ РїР°СЂР°РјРµС‚СЂР°С… СЃРѕСЂС‚РёСЂРѕРІРєРё.<br>
+    <code>Param</code> СЂР°РІРµРЅ <code>NULL</code>.<br>
+    Р¤СѓРЅРєС†РёСЏ <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> РґРѕР»Р¶РЅР° РІРµСЂРЅСѓС‚СЊ <code>FALSE</code>.</td></tr>
     </table></div>
   <div class=dfn>Param</div>
-    <div class=dfndescr>Значение указателя зависит от типа события. Смотрите описание событий для уточнения информации.</div>
+    <div class=dfndescr>Р—РЅР°С‡РµРЅРёРµ СѓРєР°Р·Р°С‚РµР»СЏ Р·Р°РІРёСЃРёС‚ РѕС‚ С‚РёРїР° СЃРѕР±С‹С‚РёСЏ. РЎРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ СЃРѕР±С‹С‚РёР№ РґР»СЏ СѓС‚РѕС‡РЅРµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё.</div>
   <div class=dfn>hPanel</div>
-    <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
+    <div class=dfndescr>РћРїРёСЃР°С‚РµР»СЊ РїР°РЅРµР»Рё, РІРѕР·РІСЂР°С‰Р°РµРјС‹Р№ С„СѓРЅРєС†РёРµР№ <a href="../exported_functions/openw.html">OpenW</a>.</div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
 <div class=seecont>
-<a href="index.html">Структуры</a>,
+<a href="index.html">РЎС‚СЂСѓРєС‚СѓСЂС‹</a>,
 <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a>
 </div>
 

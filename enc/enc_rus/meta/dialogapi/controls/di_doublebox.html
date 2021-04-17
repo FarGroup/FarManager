@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>DI_DOUBLEBOX</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
@@ -12,13 +12,13 @@
 
 <h1>DI_DOUBLEBOX</h1>
 <div class=navbar>
-<a href="../../index.html">главная</a> |
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
 <a href="../index.html">Dialog API</a> |
-<a href="index.html">Элементы диалога</a><br>
+<a href="index.html">Р­Р»РµРјРµРЅС‚С‹ РґРёР°Р»РѕРіР°</a><br>
 </div>
 
 <div class=shortdescr>
-Элемент диалога <dfn>DI_DOUBLEBOX</dfn> описывает двойную рамку.<br>
+Р­Р»РµРјРµРЅС‚ РґРёР°Р»РѕРіР° <dfn>DI_DOUBLEBOX</dfn> РѕРїРёСЃС‹РІР°РµС‚ РґРІРѕР№РЅСѓСЋ СЂР°РјРєСѓ.<br>
 </div>
 
 <pre class=syntax>
@@ -33,81 +33,81 @@ struct FarDialogItem
   int Selected      = <b>0</b>
   DWORD Flags       = <b>Flags</b>
   int DefaultButton = <b>0</b>
-  char Data[512]    = <b>заголовок рамки</b>
+  char Data[512]    = <b>Р·Р°РіРѕР»РѕРІРѕРє СЂР°РјРєРё</b>
 };
 </pre>
-<p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
+<p class=note><img src="../../../images/note.gif" alt="Р’РЅРёРјР°РЅРёРµ!" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!</p>
+<UL class=note><LI>РџСЂРёРІРµРґРµРЅРѕ СЃС…РµРјР°С‚РёС‡РЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹; РїРѕР»РЅРѕРµ РѕРїРёСЃР°РЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="../structures/fardialogitem.html">СЃРј. Р·РґРµСЃСЊ</a>.</LI></UL>
 
-<h3>Флаги</h3>
+<h3>Р¤Р»Р°РіРё</h3>
 <div class=descr>
-Для элемента <dfn>DI_DOUBLEBOX</dfn> имеют значения следующие флаги:<br>
+Р”Р»СЏ СЌР»РµРјРµРЅС‚Р° <dfn>DI_DOUBLEBOX</dfn> РёРјРµСЋС‚ Р·РЅР°С‡РµРЅРёСЏ СЃР»РµРґСѓСЋС‰РёРµ С„Р»Р°РіРё:<br>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a></td>
  <td class="cont" width="60%">
- определить цвет элемента (младший байт параметра <dfn>Flags</dfn> должен
- содержать цветовой атрибут рамки)
+ РѕРїСЂРµРґРµР»РёС‚СЊ С†РІРµС‚ СЌР»РµРјРµРЅС‚Р° (РјР»Р°РґС€РёР№ Р±Р°Р№С‚ РїР°СЂР°РјРµС‚СЂР° <dfn>Flags</dfn> РґРѕР»Р¶РµРЅ
+ СЃРѕРґРµСЂР¶Р°С‚СЊ С†РІРµС‚РѕРІРѕР№ Р°С‚СЂРёР±СѓС‚ СЂР°РјРєРё)
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_lefttext.html">DIF_LEFTTEXT</a></td>
  <td class="cont" width="60%">
- Выравнивать заголовок рамки по левому краю.
+ Р’С‹СЂР°РІРЅРёРІР°С‚СЊ Р·Р°РіРѕР»РѕРІРѕРє СЂР°РјРєРё РїРѕ Р»РµРІРѕРјСѓ РєСЂР°СЋ.
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
  <td class="cont" width="60%">
- показывать в текстовой строке амперсанд не используя его для определения горячей клавиши
+ РїРѕРєР°Р·С‹РІР°С‚СЊ РІ С‚РµРєСЃС‚РѕРІРѕР№ СЃС‚СЂРѕРєРµ Р°РјРїРµСЂСЃР°РЅРґ РЅРµ РёСЃРїРѕР»СЊР·СѓСЏ РµРіРѕ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РіРѕСЂСЏС‡РµР№ РєР»Р°РІРёС€Рё
  </td></tr>
 </table>
 </div>
 
-<h3>События</h3>
+<h3>РЎРѕР±С‹С‚РёСЏ</h3>
 <div class=descr>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">РЎРѕР±С‹С‚РёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
 
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
- <td class="cont" width="60%">начало отрисовки рамки
+ <td class="cont" width="60%">РЅР°С‡Р°Р»Рѕ РѕС‚СЂРёСЃРѕРІРєРё СЂР°РјРєРё
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
- <td class="cont" width="60%">запрос цветовых атрибутов для отрисовки; Param2:
-<pre>LoWord LoByte - текст заголовка рамки
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGBOXTITLE">COL_WARNDIALOGBOXTITLE</a> или
+ <td class="cont" width="60%">Р·Р°РїСЂРѕСЃ С†РІРµС‚РѕРІС‹С… Р°С‚СЂРёР±СѓС‚РѕРІ РґР»СЏ РѕС‚СЂРёСЃРѕРІРєРё; Param2:
+<pre>LoWord LoByte - С‚РµРєСЃС‚ Р·Р°РіРѕР»РѕРІРєР° СЂР°РјРєРё
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGBOXTITLE">COL_WARNDIALOGBOXTITLE</a> РёР»Рё
                  <a href="../../defs/farcolors.html#COL_DIALOGBOXTITLE">COL_DIALOGBOXTITLE</a>)
-LoWord HiByte - выделенный текст заголовка рамки
+LoWord HiByte - РІС‹РґРµР»РµРЅРЅС‹Р№ С‚РµРєСЃС‚ Р·Р°РіРѕР»РѕРІРєР° СЂР°РјРєРё
                 (highlighting text)
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTBOXTITLE">COL_WARNDIALOGHIGHLIGHTBOXTITLE</a> или
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTBOXTITLE">COL_WARNDIALOGHIGHLIGHTBOXTITLE</a> РёР»Рё
                  <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTBOXTITLE">COL_DIALOGHIGHLIGHTBOXTITLE</a>)
-HiWord LoByte - рамка
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a> или <a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a>)
-HiWord HiByte - 0 (не используется)</pre>
+HiWord LoByte - СЂР°РјРєР°
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a> РёР»Рё <a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a>)
+HiWord HiByte - 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)</pre>
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
- <td class="cont" width="60%">горячая клавиша (Alt-Символ)
+ <td class="cont" width="60%">РіРѕСЂСЏС‡Р°СЏ РєР»Р°РІРёС€Р° (Alt-РЎРёРјРІРѕР»)
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
- <td class="cont" width="60%">"кликнули" клавишей мыши
+ <td class="cont" width="60%">"РєР»РёРєРЅСѓР»Рё" РєР»Р°РІРёС€РµР№ РјС‹С€Рё
  </td></tr>
 </table>
  <!--
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
- <td class="cont" width="60%">потеря фокуса (обычно после DN_HOTKEY или DN_MOUSECLICK)
+ <td class="cont" width="60%">РїРѕС‚РµСЂСЏ С„РѕРєСѓСЃР° (РѕР±С‹С‡РЅРѕ РїРѕСЃР»Рµ DN_HOTKEY РёР»Рё DN_MOUSECLICK)
  </td></tr>
  -->
 
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 <ol>
-<li>Если элемент в массиве управляющих элементов стоит первым, то консольное окно
-    FAR Manager будет содержать заголовок "<em>заголовок рамки</em>".</li>
-<li>Если координаты X1==X2 или Y1==Y2, то рисуется соответствующая линия
-    (вертикальная или горизонтальная)</li>
+<li>Р•СЃР»Рё СЌР»РµРјРµРЅС‚ РІ РјР°СЃСЃРёРІРµ СѓРїСЂР°РІР»СЏСЋС‰РёС… СЌР»РµРјРµРЅС‚РѕРІ СЃС‚РѕРёС‚ РїРµСЂРІС‹Рј, С‚Рѕ РєРѕРЅСЃРѕР»СЊРЅРѕРµ РѕРєРЅРѕ
+    FAR Manager Р±СѓРґРµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ Р·Р°РіРѕР»РѕРІРѕРє "<em>Р·Р°РіРѕР»РѕРІРѕРє СЂР°РјРєРё</em>".</li>
+<li>Р•СЃР»Рё РєРѕРѕСЂРґРёРЅР°С‚С‹ X1==X2 РёР»Рё Y1==Y2, С‚Рѕ СЂРёСЃСѓРµС‚СЃСЏ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰Р°СЏ Р»РёРЅРёСЏ
+    (РІРµСЂС‚РёРєР°Р»СЊРЅР°СЏ РёР»Рё РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅР°СЏ)</li>
 </ol>
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
 <a href="di_vtext.html">DI_SINGLEBOX</a>,
 <a href="../structures/fardialogitem.html">FarDialogItem</a>
 

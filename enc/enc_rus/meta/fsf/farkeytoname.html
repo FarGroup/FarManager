@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.FarKeyToName</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -15,13 +15,13 @@
 
 <h1>FarKeyToName</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
 <a href="index.html">FarStandardFunctions</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.FarKeyToName</dfn> конвертирует код клавиши, представленной во
-<a href="../defs/farkeycodes.html">внутреннем формате</a> FAR Manager, в строку.
+Р¤СѓРЅРєС†РёСЏ <dfn>FSF.FarKeyToName</dfn> РєРѕРЅРІРµСЂС‚РёСЂСѓРµС‚ РєРѕРґ РєР»Р°РІРёС€Рё, РїСЂРµРґСЃС‚Р°РІР»РµРЅРЅРѕР№ РІРѕ
+<a href="../defs/farkeycodes.html">РІРЅСѓС‚СЂРµРЅРЅРµРј С„РѕСЂРјР°С‚Рµ</a> FAR Manager, РІ СЃС‚СЂРѕРєСѓ.
 </div>
 
 <pre class=syntax>
@@ -32,31 +32,31 @@ BOOL WINAPI FarKeyToName(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Key</div>
-  <div class=dfndescr>Код клавиши во <a href="../defs/farkeycodes.html">внутреннем формате</a> FAR.
+  <div class=dfndescr>РљРѕРґ РєР»Р°РІРёС€Рё РІРѕ <a href="../defs/farkeycodes.html">РІРЅСѓС‚СЂРµРЅРЅРµРј С„РѕСЂРјР°С‚Рµ</a> FAR.
   </div>
 
   <div class=dfn>KeyText</div>
-  <div class=dfndescr>Указатель на строку, куда будет помещен результат преобразования.
+  <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂРѕРєСѓ, РєСѓРґР° Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅ СЂРµР·СѓР»СЊС‚Р°С‚ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ.
   </div>
 
   <div class=dfn>Size</div>
-  <div class=dfndescr>Максимальное количество символов, которое можно поместить
-  в <em>KeyText</em>, без заключительного нуля, или 0 для копирования всей получаемой
-  строки.
+  <div class=dfndescr>РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ, РєРѕС‚РѕСЂРѕРµ РјРѕР¶РЅРѕ РїРѕРјРµСЃС‚РёС‚СЊ
+  РІ <em>KeyText</em>, Р±РµР· Р·Р°РєР»СЋС‡РёС‚РµР»СЊРЅРѕРіРѕ РЅСѓР»СЏ, РёР»Рё 0 РґР»СЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ РІСЃРµР№ РїРѕР»СѓС‡Р°РµРјРѕР№
+  СЃС‚СЂРѕРєРё.
   </div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-В случае успеха возвращается TRUE. Если код клавиши (<em>Key</em>) не известен FAR Manager, то возвращается FALSE.
+Р’ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р° РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ TRUE. Р•СЃР»Рё РєРѕРґ РєР»Р°РІРёС€Рё (<em>Key</em>) РЅРµ РёР·РІРµСЃС‚РµРЅ FAR Manager, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ FALSE.
 </div>
 
-<h3>Примечание</h3>
+<h3>РџСЂРёРјРµС‡Р°РЅРёРµ</h3>
 <div class=descr>
-Если вы передали 0 в качестве <em>Size</em>, то размер <em>KeyText</em> должен быть не меньше 32 байтов.
+Р•СЃР»Рё РІС‹ РїРµСЂРµРґР°Р»Рё 0 РІ РєР°С‡РµСЃС‚РІРµ <em>Size</em>, С‚Рѕ СЂР°Р·РјРµСЂ <em>KeyText</em> РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РЅРµ РјРµРЅСЊС€Рµ 32 Р±Р°Р№С‚РѕРІ.
 </div>
 
 

@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>CharTable</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -19,13 +19,13 @@
 
 <h1>CharTable</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-  Функция <dfn>CharTable</dfn> позволяет получить информацию
-  об установленных таблицах символов.
+  Р¤СѓРЅРєС†РёСЏ <dfn>CharTable</dfn> РїРѕР·РІРѕР»СЏРµС‚ РїРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ
+  РѕР± СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹С… С‚Р°Р±Р»РёС†Р°С… СЃРёРјРІРѕР»РѕРІ.
 </div>
 
 <pre class=syntax>
@@ -36,51 +36,51 @@ int WINAPI CharTable(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Command</div>
   <div class=dfndescr>
-    Или номер требуемой символьной таблицы, или одна из следующих команд
-    (перечисление <a name="FARCHARTABLE_COMMAND">FARCHARTABLE_COMMAND</a>):
+    РР»Рё РЅРѕРјРµСЂ С‚СЂРµР±СѓРµРјРѕР№ СЃРёРјРІРѕР»СЊРЅРѕР№ С‚Р°Р±Р»РёС†С‹, РёР»Рё РѕРґРЅР° РёР· СЃР»РµРґСѓСЋС‰РёС… РєРѕРјР°РЅРґ
+    (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="FARCHARTABLE_COMMAND">FARCHARTABLE_COMMAND</a>):
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">РљРѕРјР°РЅРґР°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="FCT_DETECT">FCT_DETECT</a></td>
-       <td class="cont" width="60%">Автоматически определить таблицу символов для данного текста</td></tr>
+       <td class="cont" width="60%">РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРё РѕРїСЂРµРґРµР»РёС‚СЊ С‚Р°Р±Р»РёС†Сѓ СЃРёРјРІРѕР»РѕРІ РґР»СЏ РґР°РЅРЅРѕРіРѕ С‚РµРєСЃС‚Р°</td></tr>
 </table>
   </div>
   <div class=dfn>Buffer</div>
   <div class=dfndescr>
-    Для <em>Command</em> = <dfn>FCT_DETECT</dfn> - адрес буфера с текстовыми
-    данными. Иначе - адрес структуры
-    <a href="../structures/chartableset.html">CharTableSet</a>, которая
-    получает информацию о запрошенной таблице символов.
+    Р”Р»СЏ <em>Command</em> = <dfn>FCT_DETECT</dfn> - Р°РґСЂРµСЃ Р±СѓС„РµСЂР° СЃ С‚РµРєСЃС‚РѕРІС‹РјРё
+    РґР°РЅРЅС‹РјРё. РРЅР°С‡Рµ - Р°РґСЂРµСЃ СЃС‚СЂСѓРєС‚СѓСЂС‹
+    <a href="../structures/chartableset.html">CharTableSet</a>, РєРѕС‚РѕСЂР°СЏ
+    РїРѕР»СѓС‡Р°РµС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ Р·Р°РїСЂРѕС€РµРЅРЅРѕР№ С‚Р°Р±Р»РёС†Рµ СЃРёРјРІРѕР»РѕРІ.
   </div>
   <div class=dfn>BufferSize</div>
-  <div class=dfndescr>Если <em>Command</em> равна <dfn>FCT_DETECT</dfn>,то это
-    должен быть размер буфера с анализируемыми текстовыми данными.
-    Иначе - размер структуры
+  <div class=dfndescr>Р•СЃР»Рё <em>Command</em> СЂР°РІРЅР° <dfn>FCT_DETECT</dfn>,С‚Рѕ СЌС‚Рѕ
+    РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° СЃ Р°РЅР°Р»РёР·РёСЂСѓРµРјС‹РјРё С‚РµРєСЃС‚РѕРІС‹РјРё РґР°РЅРЅС‹РјРё.
+    РРЅР°С‡Рµ - СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹
     <a href="../structures/chartableset.html">CharTableSet</a>.
   </div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-  -1, если запрашиваемая таблица отсутствует или
-  не удалось автоопределение.
-  В случае успеха возвращает номер требуемой
-  таблицы и заполняет структуру, указанную <dfn>Buffer</dfn>.
-  В режиме FCT_DETECT возвращает номер определенной таблицы
-  и не изменяет данные <dfn>Buffer</dfn>.
+  -1, РµСЃР»Рё Р·Р°РїСЂР°С€РёРІР°РµРјР°СЏ С‚Р°Р±Р»РёС†Р° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚ РёР»Рё
+  РЅРµ СѓРґР°Р»РѕСЃСЊ Р°РІС‚РѕРѕРїСЂРµРґРµР»РµРЅРёРµ.
+  Р’ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р° РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРѕРјРµСЂ С‚СЂРµР±СѓРµРјРѕР№
+  С‚Р°Р±Р»РёС†С‹ Рё Р·Р°РїРѕР»РЅСЏРµС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ, СѓРєР°Р·Р°РЅРЅСѓСЋ <dfn>Buffer</dfn>.
+  Р’ СЂРµР¶РёРјРµ FCT_DETECT РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРѕРјРµСЂ РѕРїСЂРµРґРµР»РµРЅРЅРѕР№ С‚Р°Р±Р»РёС†С‹
+  Рё РЅРµ РёР·РјРµРЅСЏРµС‚ РґР°РЅРЅС‹Рµ <dfn>Buffer</dfn>.
 </div>
 
-<h3>Примечание</h3>
+<h3>РџСЂРёРјРµС‡Р°РЅРёРµ</h3>
 <div class=descr>
 <ol>
-<li>Чтобы перебрать все символьные таблицы, начните с <dfn>Command</dfn>
-   равной 0 и увеличивайте ее, пока возвращаемое значение не равно -1.
-<li>При неудачном считывании настроек для определенной символьной таблицы
-структура <a href="../structures/chartableset.html">CharTableSet</a>
-заполняется данными для OEM (для случая, когда Command не равно FCT_DETECT).
+<li>Р§С‚РѕР±С‹ РїРµСЂРµР±СЂР°С‚СЊ РІСЃРµ СЃРёРјРІРѕР»СЊРЅС‹Рµ С‚Р°Р±Р»РёС†С‹, РЅР°С‡РЅРёС‚Рµ СЃ <dfn>Command</dfn>
+   СЂР°РІРЅРѕР№ 0 Рё СѓРІРµР»РёС‡РёРІР°Р№С‚Рµ РµРµ, РїРѕРєР° РІРѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ РЅРµ СЂР°РІРЅРѕ -1.
+<li>РџСЂРё РЅРµСѓРґР°С‡РЅРѕРј СЃС‡РёС‚С‹РІР°РЅРёРё РЅР°СЃС‚СЂРѕРµРє РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРЅРѕР№ СЃРёРјРІРѕР»СЊРЅРѕР№ С‚Р°Р±Р»РёС†С‹
+СЃС‚СЂСѓРєС‚СѓСЂР° <a href="../structures/chartableset.html">CharTableSet</a>
+Р·Р°РїРѕР»РЅСЏРµС‚СЃСЏ РґР°РЅРЅС‹РјРё РґР»СЏ OEM (РґР»СЏ СЃР»СѓС‡Р°СЏ, РєРѕРіРґР° Command РЅРµ СЂР°РІРЅРѕ FCT_DETECT).
 </ol>
 </div>
 

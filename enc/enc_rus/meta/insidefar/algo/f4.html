@@ -1,35 +1,35 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 
 <head>
-<title>&quot;Редактор&quot; (Edit/F4)</title>
-<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<title>&quot;Р РµРґР°РєС‚РѕСЂ&quot; (Edit/F4)</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
 
 <body>
 
-<h1>&quot;Редактор&quot; (Edit/F4)</h1>
-<div class="navbar"><a href="index.html">содержание</a></div>
+<h1>&quot;Р РµРґР°РєС‚РѕСЂ&quot; (Edit/F4)</h1>
+<div class="navbar"><a href="index.html">СЃРѕРґРµСЂР¶Р°РЅРёРµ</a></div>
 
-<div class="shortdescr">Когда пользователь нажимает F4 на файле, то FAR выполняет следующие действия:</div>
+<div class="shortdescr">РљРѕРіРґР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶РёРјР°РµС‚ F4 РЅР° С„Р°Р№Р»Рµ, С‚Рѕ FAR РІС‹РїРѕР»РЅСЏРµС‚ СЃР»РµРґСѓСЋС‰РёРµ РґРµР№СЃС‚РІРёСЏ:</div>
 
-<h3>Панель плагина</h3>
+<h3>РџР°РЅРµР»СЊ РїР»Р°РіРёРЅР°</h3>
 <div class="descr">
-  Выполняется, если плагин при вызове <a href="../../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a>
-  заполнил поле <dfn>HostFile</dfn> структуры <a href="../../structures/openplugininfo.html">OpenPluginInfo</a>:
+  Р’С‹РїРѕР»РЅСЏРµС‚СЃСЏ, РµСЃР»Рё РїР»Р°РіРёРЅ РїСЂРё РІС‹Р·РѕРІРµ <a href="../../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a>
+  Р·Р°РїРѕР»РЅРёР» РїРѕР»Рµ <dfn>HostFile</dfn> СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="../../structures/openplugininfo.html">OpenPluginInfo</a>:
   <ul>
-    <li>FAR создает TEMP-каталог.
-    <li>Вызывается <a href="../../exported_functions/getfiles.html">GetFiles</a> с параметрами: один элемент PanelItem с требуемым файлом,
-    ItemsNumber=1, DestPath=путь к TEMP-каталогу (без заключительного '\'), OpMode=OPM_SILENT|OPM_EDIT;
-    плагин по указанному пути "выкладывает" требуемый файл и отдает управление FAR.
-    Плагин должен в указанный временный каталог "выложить" файл без подкаталогов.
-    <li>FAR открывает файл из TEMP-каталога в редакторе.
-    <li>После выхода из редактора, если файл был модифицирован, вызывается <a href="../../exported_functions/putfiles.html">PutFiles</a>
-    с параметрами: один элемент PanelItem с требуемым файлом,
-    ItemsNumber=1, Move=0, OpMode=OPM_EDIT. Плагин "забирает" файл из временного каталога на свою панель.
-    <li>FAR удаляет временный файл с временным каталогом и обновляет панели.
+    <li>FAR СЃРѕР·РґР°РµС‚ TEMP-РєР°С‚Р°Р»РѕРі.
+    <li>Р’С‹Р·С‹РІР°РµС‚СЃСЏ <a href="../../exported_functions/getfiles.html">GetFiles</a> СЃ РїР°СЂР°РјРµС‚СЂР°РјРё: РѕРґРёРЅ СЌР»РµРјРµРЅС‚ PanelItem СЃ С‚СЂРµР±СѓРµРјС‹Рј С„Р°Р№Р»РѕРј,
+    ItemsNumber=1, DestPath=РїСѓС‚СЊ Рє TEMP-РєР°С‚Р°Р»РѕРіСѓ (Р±РµР· Р·Р°РєР»СЋС‡РёС‚РµР»СЊРЅРѕРіРѕ '\'), OpMode=OPM_SILENT|OPM_EDIT;
+    РїР»Р°РіРёРЅ РїРѕ СѓРєР°Р·Р°РЅРЅРѕРјСѓ РїСѓС‚Рё "РІС‹РєР»Р°РґС‹РІР°РµС‚" С‚СЂРµР±СѓРµРјС‹Р№ С„Р°Р№Р» Рё РѕС‚РґР°РµС‚ СѓРїСЂР°РІР»РµРЅРёРµ FAR.
+    РџР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ РІ СѓРєР°Р·Р°РЅРЅС‹Р№ РІСЂРµРјРµРЅРЅС‹Р№ РєР°С‚Р°Р»РѕРі "РІС‹Р»РѕР¶РёС‚СЊ" С„Р°Р№Р» Р±РµР· РїРѕРґРєР°С‚Р°Р»РѕРіРѕРІ.
+    <li>FAR РѕС‚РєСЂС‹РІР°РµС‚ С„Р°Р№Р» РёР· TEMP-РєР°С‚Р°Р»РѕРіР° РІ СЂРµРґР°РєС‚РѕСЂРµ.
+    <li>РџРѕСЃР»Рµ РІС‹С…РѕРґР° РёР· СЂРµРґР°РєС‚РѕСЂР°, РµСЃР»Рё С„Р°Р№Р» Р±С‹Р» РјРѕРґРёС„РёС†РёСЂРѕРІР°РЅ, РІС‹Р·С‹РІР°РµС‚СЃСЏ <a href="../../exported_functions/putfiles.html">PutFiles</a>
+    СЃ РїР°СЂР°РјРµС‚СЂР°РјРё: РѕРґРёРЅ СЌР»РµРјРµРЅС‚ PanelItem СЃ С‚СЂРµР±СѓРµРјС‹Рј С„Р°Р№Р»РѕРј,
+    ItemsNumber=1, Move=0, OpMode=OPM_EDIT. РџР»Р°РіРёРЅ "Р·Р°Р±РёСЂР°РµС‚" С„Р°Р№Р» РёР· РІСЂРµРјРµРЅРЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР° РЅР° СЃРІРѕСЋ РїР°РЅРµР»СЊ.
+    <li>FAR СѓРґР°Р»СЏРµС‚ РІСЂРµРјРµРЅРЅС‹Р№ С„Р°Р№Р» СЃ РІСЂРµРјРµРЅРЅС‹Рј РєР°С‚Р°Р»РѕРіРѕРј Рё РѕР±РЅРѕРІР»СЏРµС‚ РїР°РЅРµР»Рё.
   </ul>
 </div>
 

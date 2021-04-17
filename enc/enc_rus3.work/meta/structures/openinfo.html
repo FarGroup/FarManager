@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>OpenInfo</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,13 +10,13 @@
 
 <h1>OpenInfo</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">структуры</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
 <a href="../basicapi/index.html">Basic API</a>
 </div>
 
 <div class=shortdescr>
-Структура <code>OpenInfo</code> используется для возвращения Far Manager'ом информации о плагине в функцию <a href="../exported_functions/openw.html">OpenW</a>.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>OpenInfo</code> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РІРѕР·РІСЂР°С‰РµРЅРёСЏ Far Manager'РѕРј РёРЅС„РѕСЂРјР°С†РёРё Рѕ РїР»Р°РіРёРЅРµ РІ С„СѓРЅРєС†РёСЋ <a href="../exported_functions/openw.html">OpenW</a>.
 </div>
 
 <pre class=syntax>
@@ -29,79 +29,79 @@ struct OpenInfo
 };
 </pre>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <code>OpenInfo</code>.</div>
+    <div class=dfndescr>Р­С‚Рѕ РїРѕР»Рµ СЃРѕРґРµСЂР¶РёС‚ СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ <code>OpenInfo</code>.</div>
   <div class=dfn>OpenFrom</div>
-    <div class=dfndescr>Идентификатор, определяющий, откуда был вызван плагин. Может принимать одно из следующих значений (перечисление <a name="OPENFROM">OPENFROM</a>):
+    <div class=dfndescr>РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ, РѕРїСЂРµРґРµР»СЏСЋС‰РёР№, РѕС‚РєСѓРґР° Р±С‹Р» РІС‹Р·РІР°РЅ РїР»Р°РіРёРЅ. РњРѕР¶РµС‚ РїСЂРёРЅРёРјР°С‚СЊ РѕРґРЅРѕ РёР· СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="OPENFROM">OPENFROM</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><th class="cont" width="40%">РљРѕРЅСЃС‚Р°РЅС‚Р°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_LEFTDISKMENU">OPEN_LEFTDISKMENU</a></td>
-    <td class="cont" width="60%">Открыт из левого меню "Сменить диск" (<kbd>Alt</kbd>+<kbd>F1</kbd>).</td></tr>
+    <td class="cont" width="60%">РћС‚РєСЂС‹С‚ РёР· Р»РµРІРѕРіРѕ РјРµРЅСЋ "РЎРјРµРЅРёС‚СЊ РґРёСЃРє" (<kbd>Alt</kbd>+<kbd>F1</kbd>).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_PLUGINSMENU">OPEN_PLUGINSMENU</a></td>
-    <td class="cont" width="60%">Открыт из меню "Команды внешних модулей" (<kbd>F11</kbd>).</td></tr>
+    <td class="cont" width="60%">РћС‚РєСЂС‹С‚ РёР· РјРµРЅСЋ "РљРѕРјР°РЅРґС‹ РІРЅРµС€РЅРёС… РјРѕРґСѓР»РµР№" (<kbd>F11</kbd>).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FINDLIST">OPEN_FINDLIST</a></td>
-    <td class="cont" width="60%">Открыт из диалога "Поиск файла". Этот идентификатор плагин получит только в том случае, если он экспортирует функцию <a href="../exported_functions/setfindlistw.html">SetFindListW</a>.
-    Последующий вызов функции <a href="../exported_functions/setfindlistw.html">SetFindListW</a> произойдёт только в том случае, если функция <code>OpenW</code> вернёт значение отличное от <code>NULL</code>.</td></tr>
+    <td class="cont" width="60%">РћС‚РєСЂС‹С‚ РёР· РґРёР°Р»РѕРіР° "РџРѕРёСЃРє С„Р°Р№Р»Р°". Р­С‚РѕС‚ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїР»Р°РіРёРЅ РїРѕР»СѓС‡РёС‚ С‚РѕР»СЊРєРѕ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё РѕРЅ СЌРєСЃРїРѕСЂС‚РёСЂСѓРµС‚ С„СѓРЅРєС†РёСЋ <a href="../exported_functions/setfindlistw.html">SetFindListW</a>.
+    РџРѕСЃР»РµРґСѓСЋС‰РёР№ РІС‹Р·РѕРІ С„СѓРЅРєС†РёРё <a href="../exported_functions/setfindlistw.html">SetFindListW</a> РїСЂРѕРёР·РѕР№РґС‘С‚ С‚РѕР»СЊРєРѕ РІ С‚РѕРј СЃР»СѓС‡Р°Рµ, РµСЃР»Рё С„СѓРЅРєС†РёСЏ <code>OpenW</code> РІРµСЂРЅС‘С‚ Р·РЅР°С‡РµРЅРёРµ РѕС‚Р»РёС‡РЅРѕРµ РѕС‚ <code>NULL</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_SHORTCUT">OPEN_SHORTCUT</a></td>
-    <td class="cont" width="60%">Открыт через ссылку на папку в меню "Команды" - "Ссылки на папки".</td></tr>
+    <td class="cont" width="60%">РћС‚РєСЂС‹С‚ С‡РµСЂРµР· СЃСЃС‹Р»РєСѓ РЅР° РїР°РїРєСѓ РІ РјРµРЅСЋ "РљРѕРјР°РЅРґС‹" - "РЎСЃС‹Р»РєРё РЅР° РїР°РїРєРё".</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_COMMANDLINE">OPEN_COMMANDLINE</a></td>
-    <td class="cont" width="60%">Был открыт из командной строки. Этот параметр может использоваться, только если плагин определил вызывающий префикс в функции
-    <a href="../exported_functions/getplugininfow.html">GetPluginInfoW</a> и этот префикс, с двоеточием после него, был указан в командной строке.</td></tr>
+    <td class="cont" width="60%">Р‘С‹Р» РѕС‚РєСЂС‹С‚ РёР· РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё. Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ РјРѕР¶РµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ, С‚РѕР»СЊРєРѕ РµСЃР»Рё РїР»Р°РіРёРЅ РѕРїСЂРµРґРµР»РёР» РІС‹Р·С‹РІР°СЋС‰РёР№ РїСЂРµС„РёРєСЃ РІ С„СѓРЅРєС†РёРё
+    <a href="../exported_functions/getplugininfow.html">GetPluginInfoW</a> Рё СЌС‚РѕС‚ РїСЂРµС„РёРєСЃ, СЃ РґРІРѕРµС‚РѕС‡РёРµРј РїРѕСЃР»Рµ РЅРµРіРѕ, Р±С‹Р» СѓРєР°Р·Р°РЅ РІ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРµ.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_EDITOR">OPEN_EDITOR</a></td>
-    <td class="cont" width="60%">Открыт из редактора.</td></tr>
+    <td class="cont" width="60%">РћС‚РєСЂС‹С‚ РёР· СЂРµРґР°РєС‚РѕСЂР°.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_VIEWER">OPEN_VIEWER</a></td>
-    <td class="cont" width="60%">Открыт из встроенной программы просмотра.</td></tr>
+    <td class="cont" width="60%">РћС‚РєСЂС‹С‚ РёР· РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїСЂРѕРіСЂР°РјРјС‹ РїСЂРѕСЃРјРѕС‚СЂР°.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FILEPANEL">OPEN_FILEPANEL</a></td>
-    <td class="cont" width="60%">Открыт из панелей.</td></tr>
+    <td class="cont" width="60%">РћС‚РєСЂС‹С‚ РёР· РїР°РЅРµР»РµР№.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_DIALOG">OPEN_DIALOG</a></td>
-    <td class="cont" width="60%">Открыт из диалога.</td></tr>
+    <td class="cont" width="60%">РћС‚РєСЂС‹С‚ РёР· РґРёР°Р»РѕРіР°.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_ANALYSE">OPEN_ANALYSE</a></td>
-    <td class="cont" width="60%">Открыт после анализа содержимого файла (например, архива)</td></tr>
+    <td class="cont" width="60%">РћС‚РєСЂС‹С‚ РїРѕСЃР»Рµ Р°РЅР°Р»РёР·Р° СЃРѕРґРµСЂР¶РёРјРѕРіРѕ С„Р°Р№Р»Р° (РЅР°РїСЂРёРјРµСЂ, Р°СЂС…РёРІР°)</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_RIGHTDISKMENU">OPEN_RIGHTDISKMENU</a></td>
-    <td class="cont" width="60%">Открыт из правого меню "Сменить диск" (<kbd>Alt</kbd>+<kbd>F2</kbd>).</td></tr>
+    <td class="cont" width="60%">РћС‚РєСЂС‹С‚ РёР· РїСЂР°РІРѕРіРѕ РјРµРЅСЋ "РЎРјРµРЅРёС‚СЊ РґРёСЃРє" (<kbd>Alt</kbd>+<kbd>F2</kbd>).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FROMMACRO">OPEN_FROMMACRO</a></td>
-    <td class="cont" width="60%">Открыт из макрокоманды макрофункцией <a href="../macro/macrocmd/prop_func/general.html#Plugin.Call">Plugin.Call</a>.</td></tr>
+    <td class="cont" width="60%">РћС‚РєСЂС‹С‚ РёР· РјР°РєСЂРѕРєРѕРјР°РЅРґС‹ РјР°РєСЂРѕС„СѓРЅРєС†РёРµР№ <a href="../macro/macrocmd/prop_func/general.html#Plugin.Call">Plugin.Call</a>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_LUAMACRO">OPEN_LUAMACRO</a></td>
-    <td class="cont" width="60%">Открыт для проверки или исполнения Lua-макроскрипта.</td></tr>
+    <td class="cont" width="60%">РћС‚РєСЂС‹С‚ РґР»СЏ РїСЂРѕРІРµСЂРєРё РёР»Рё РёСЃРїРѕР»РЅРµРЅРёСЏ Lua-РјР°РєСЂРѕСЃРєСЂРёРїС‚Р°.</td></tr>
     </table></div>
   <div class=dfn>Guid</div>
-    <div class=dfndescr>GUID выбранного элемента в списке пунктов, экспортированном данным плагином в меню "Диск", "Команды внешних модулей".</div>
+    <div class=dfndescr>GUID РІС‹Р±СЂР°РЅРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р° РІ СЃРїРёСЃРєРµ РїСѓРЅРєС‚РѕРІ, СЌРєСЃРїРѕСЂС‚РёСЂРѕРІР°РЅРЅРѕРј РґР°РЅРЅС‹Рј РїР»Р°РіРёРЅРѕРј РІ РјРµРЅСЋ "Р”РёСЃРє", "РљРѕРјР°РЅРґС‹ РІРЅРµС€РЅРёС… РјРѕРґСѓР»РµР№".</div>
   <div class=dfn>Data</div>
-    <div class=dfndescr>Интерпретация параметра зависит от <code>OpenFrom</code>:
+    <div class=dfndescr>РРЅС‚РµСЂРїСЂРµС‚Р°С†РёСЏ РїР°СЂР°РјРµС‚СЂР° Р·Р°РІРёСЃРёС‚ РѕС‚ <code>OpenFrom</code>:
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><th class="cont" width="40%">РљРѕРЅСЃС‚Р°РЅС‚Р°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_LEFTDISKMENU">OPEN_LEFTDISKMENU</a></td>
-    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
+    <td class="cont" width="60%">Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ РІСЃРµРіРґР° СЂР°РІРµРЅ <code>0</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_PLUGINSMENU">OPEN_PLUGINSMENU</a></td>
-    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
+    <td class="cont" width="60%">Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ РІСЃРµРіРґР° СЂР°РІРµРЅ <code>0</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FINDLIST">OPEN_FINDLIST</a></td>
-    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
+    <td class="cont" width="60%">Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ РІСЃРµРіРґР° СЂР°РІРµРЅ <code>0</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_SHORTCUT">OPEN_SHORTCUT</a></td>
-    <td class="cont" width="60%">Этот параметр равен адресу структуры <a href="../structures/openshortcutinfo.html">OpenShortcutInfo</a>, данные в момент сохранения горячей клавиши.</td></tr>
+    <td class="cont" width="60%">Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СЂР°РІРµРЅ Р°РґСЂРµСЃСѓ СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="../structures/openshortcutinfo.html">OpenShortcutInfo</a>, РґР°РЅРЅС‹Рµ РІ РјРѕРјРµРЅС‚ СЃРѕС…СЂР°РЅРµРЅРёСЏ РіРѕСЂСЏС‡РµР№ РєР»Р°РІРёС€Рё.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_COMMANDLINE">OPEN_COMMANDLINE</a></td>
-    <td class="cont" width="60%">Этот параметр равен адресу структуры <a href="../structures/opencommandlineinfo.html">OpenCommandLineInfo</a>, данные о командной строке.</td></tr>
+    <td class="cont" width="60%">Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СЂР°РІРµРЅ Р°РґСЂРµСЃСѓ СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="../structures/opencommandlineinfo.html">OpenCommandLineInfo</a>, РґР°РЅРЅС‹Рµ Рѕ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРµ.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_EDITOR">OPEN_EDITOR</a></td>
-    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
+    <td class="cont" width="60%">Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ РІСЃРµРіРґР° СЂР°РІРµРЅ <code>0</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_VIEWER">OPEN_VIEWER</a></td>
-    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
+    <td class="cont" width="60%">Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ РІСЃРµРіРґР° СЂР°РІРµРЅ <code>0</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FILEPANEL">OPEN_FILEPANEL</a></td>
-    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
+    <td class="cont" width="60%">Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ РІСЃРµРіРґР° СЂР°РІРµРЅ <code>0</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_DIALOG">OPEN_DIALOG</a></td>
-    <td class="cont" width="60%">Этот параметр равен адресу структуры <a href="../structures/opendlgplugindata.html">OpenDlgPluginData</a>, данные о диалоге.</td></tr>
+    <td class="cont" width="60%">Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СЂР°РІРµРЅ Р°РґСЂРµСЃСѓ СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="../structures/opendlgplugindata.html">OpenDlgPluginData</a>, РґР°РЅРЅС‹Рµ Рѕ РґРёР°Р»РѕРіРµ.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_ANALYSE">OPEN_ANALYSE</a></td>
-    <td class="cont" width="60%">Этот параметр равен адресу структуры <a href="../structures/openanalyseinfo.html">OpenAnalyseInfo</a>, данные о файле-контейнере. Вы должны освободить их так, как будто бы получили их в <a href="../exported_functions/closeanalysew.html">CloseAnalyseW</a></td></tr>
+    <td class="cont" width="60%">Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СЂР°РІРµРЅ Р°РґСЂРµСЃСѓ СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="../structures/openanalyseinfo.html">OpenAnalyseInfo</a>, РґР°РЅРЅС‹Рµ Рѕ С„Р°Р№Р»Рµ-РєРѕРЅС‚РµР№РЅРµСЂРµ. Р’С‹ РґРѕР»Р¶РЅС‹ РѕСЃРІРѕР±РѕРґРёС‚СЊ РёС… С‚Р°Рє, РєР°Рє Р±СѓРґС‚Рѕ Р±С‹ РїРѕР»СѓС‡РёР»Рё РёС… РІ <a href="../exported_functions/closeanalysew.html">CloseAnalyseW</a></td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_RIGHTDISKMENU">OPEN_RIGHTDISKMENU</a></td>
-    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
+    <td class="cont" width="60%">Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ РІСЃРµРіРґР° СЂР°РІРµРЅ <code>0</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FROMMACRO">OPEN_FROMMACRO</a></td>
-    <td class="cont" width="60%">Этот параметр равен адресу структуры <a href="openmacroinfo.html">OpenMacroInfo</a>.</td></tr>
+    <td class="cont" width="60%">Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СЂР°РІРµРЅ Р°РґСЂРµСЃСѓ СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="openmacroinfo.html">OpenMacroInfo</a>.</td></tr>
     </table></div>
 </div>
 
-<div class=see>Смотрите также:</div>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
 <div class=seecont>
-<a href="index.html">структуры</a>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>
 </div>
 
 </body>

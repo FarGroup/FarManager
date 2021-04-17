@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.GetCurrentDirectory</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,18 +10,18 @@
 
 <h1>GetCurrentDirectory</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">стандартные функции</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <code>FSF.GetCurrentDirectory</code> позволяет узнать внутренний "текущий каталог" Far Manager.
+Р¤СѓРЅРєС†РёСЏ <code>FSF.GetCurrentDirectory</code> РїРѕР·РІРѕР»СЏРµС‚ СѓР·РЅР°С‚СЊ РІРЅСѓС‚СЂРµРЅРЅРёР№ "С‚РµРєСѓС‰РёР№ РєР°С‚Р°Р»РѕРі" Far Manager.
 </div>
 
-<p class=note><img src="../../images/note.gif" alt="Замечание для GetCurrentDirectory" width="10" height="10"> Внимание!</p>
+<p class=note><img src="../../images/note.gif" alt="Р—Р°РјРµС‡Р°РЅРёРµ РґР»СЏ GetCurrentDirectory" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!</p>
 <ul class=note><li>
-Не используйте для этих целей функцию <code>GetCurrentDirectory</code> из Windows API.<br><br>
-Far устанавливает "текущий каталог" процесса исключительно в целях совместимости со старыми плагинами, и никто не гарантирует, что он всегда будет соответствовать каталогу, открытому в текущей панели.</li></ul>
+РќРµ РёСЃРїРѕР»СЊР·СѓР№С‚Рµ РґР»СЏ СЌС‚РёС… С†РµР»РµР№ С„СѓРЅРєС†РёСЋ <code>GetCurrentDirectory</code> РёР· Windows API.<br><br>
+Far СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ "С‚РµРєСѓС‰РёР№ РєР°С‚Р°Р»РѕРі" РїСЂРѕС†РµСЃСЃР° РёСЃРєР»СЋС‡РёС‚РµР»СЊРЅРѕ РІ С†РµР»СЏС… СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё СЃРѕ СЃС‚Р°СЂС‹РјРё РїР»Р°РіРёРЅР°РјРё, Рё РЅРёРєС‚Рѕ РЅРµ РіР°СЂР°РЅС‚РёСЂСѓРµС‚, С‡С‚Рѕ РѕРЅ РІСЃРµРіРґР° Р±СѓРґРµС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІРѕРІР°С‚СЊ РєР°С‚Р°Р»РѕРіСѓ, РѕС‚РєСЂС‹С‚РѕРјСѓ РІ С‚РµРєСѓС‰РµР№ РїР°РЅРµР»Рё.</li></ul>
 
 <pre class=syntax>
 size_t WINAPI GetCurrentDirectory(
@@ -30,21 +30,21 @@ size_t WINAPI GetCurrentDirectory(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Size</div>
-    <div class=dfndescr>Размер буфера. Указывает максимальное количество символов, которые могут быть записаны в <code>Buffer</code>, включая заключительный нулевой символ.</div>
+    <div class=dfndescr>Р Р°Р·РјРµСЂ Р±СѓС„РµСЂР°. РЈРєР°Р·С‹РІР°РµС‚ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ, РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ Р±С‹С‚СЊ Р·Р°РїРёСЃР°РЅС‹ РІ <code>Buffer</code>, РІРєР»СЋС‡Р°СЏ Р·Р°РєР»СЋС‡РёС‚РµР»СЊРЅС‹Р№ РЅСѓР»РµРІРѕР№ СЃРёРјРІРѕР».</div>
   <div class=dfn>Buffer</div>
-    <div class=dfndescr>Указатель на буфер, в который будет помещена строка с текущим каталогом Far Manager.
-    Установите <code>Buffer = NULL</code> для того, чтобы функция вернула необходимый размер буфера в символах. </div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° Р±СѓС„РµСЂ, РІ РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅР° СЃС‚СЂРѕРєР° СЃ С‚РµРєСѓС‰РёРј РєР°С‚Р°Р»РѕРіРѕРј Far Manager.
+    РЈСЃС‚Р°РЅРѕРІРёС‚Рµ <code>Buffer = NULL</code> РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ С„СѓРЅРєС†РёСЏ РІРµСЂРЅСѓР»Р° РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С…. </div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-Функция возвращает необходимый размер буфера в символах.
+Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С….
 </div>
 
-<h3>Примечание</h3>
+<h3>РџСЂРёРјРµС‡Р°РЅРёРµ</h3>
 <div class=descr>
 </div>
 

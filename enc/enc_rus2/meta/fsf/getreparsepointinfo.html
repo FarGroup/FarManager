@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.GetReparsePointInfo</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,14 +10,14 @@
 
 <h1>GetReparsePointInfo</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
 <a href="index.html">FarStandardFunctions</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.GetReparsePointInfo</dfn> позволяет для указанной
-символической ссылки или связи каталогов получить информацию об источнике -  путь к
-исходному файлу/каталогу.
+Р¤СѓРЅРєС†РёСЏ <dfn>FSF.GetReparsePointInfo</dfn> РїРѕР·РІРѕР»СЏРµС‚ РґР»СЏ СѓРєР°Р·Р°РЅРЅРѕР№
+СЃРёРјРІРѕР»РёС‡РµСЃРєРѕР№ СЃСЃС‹Р»РєРё РёР»Рё СЃРІСЏР·Рё РєР°С‚Р°Р»РѕРіРѕРІ РїРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РѕР± РёСЃС‚РѕС‡РЅРёРєРµ -  РїСѓС‚СЊ Рє
+РёСЃС…РѕРґРЅРѕРјСѓ С„Р°Р№Р»Сѓ/РєР°С‚Р°Р»РѕРіСѓ.
 </div>
 
 <pre class=syntax>
@@ -28,44 +28,44 @@ int WINAPI GetReparsePointInfo(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Src</div>
-  <div class=dfndescr>Источник данных. Строка должна содержать полное имя к символической ссылке и заканчиваться слешем (<code>'\'</code>).
+  <div class=dfndescr>РСЃС‚РѕС‡РЅРёРє РґР°РЅРЅС‹С…. РЎС‚СЂРѕРєР° РґРѕР»Р¶РЅР° СЃРѕРґРµСЂР¶Р°С‚СЊ РїРѕР»РЅРѕРµ РёРјСЏ Рє СЃРёРјРІРѕР»РёС‡РµСЃРєРѕР№ СЃСЃС‹Р»РєРµ Рё Р·Р°РєР°РЅС‡РёРІР°С‚СЊСЃСЏ СЃР»РµС€РµРј (<code>'\'</code>).
   </div>
 
   <div class=dfn>Dest</div>
-  <div class=dfndescr>Строка назначения. Может быть равна <code>NULL</code>.
+  <div class=dfndescr>РЎС‚СЂРѕРєР° РЅР°Р·РЅР°С‡РµРЅРёСЏ. РњРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРЅР° <code>NULL</code>.
   </div>
 
   <div class=dfn>DestSize</div>
-  <div class=dfndescr>Размер строки назначения <var>Dest</var>.
-    Если <var>Dest</var>=<code>NULL</code>, то параметр <var>DestSize</var> игнорируется.
+  <div class=dfndescr>Р Р°Р·РјРµСЂ СЃС‚СЂРѕРєРё РЅР°Р·РЅР°С‡РµРЅРёСЏ <var>Dest</var>.
+    Р•СЃР»Рё <var>Dest</var>=<code>NULL</code>, С‚Рѕ РїР°СЂР°РјРµС‚СЂ <var>DestSize</var> РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ.
   </div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-<p>Реальный размер строки, размещённой в <var>Dest</var> или требуемый размер
-строки для случая, когда <var>Dest</var>=<code>NULL</code>.
-<p>0 - в случае ошибки:
+<p>Р РµР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ СЃС‚СЂРѕРєРё, СЂР°Р·РјРµС‰С‘РЅРЅРѕР№ РІ <var>Dest</var> РёР»Рё С‚СЂРµР±СѓРµРјС‹Р№ СЂР°Р·РјРµСЂ
+СЃС‚СЂРѕРєРё РґР»СЏ СЃР»СѓС‡Р°СЏ, РєРѕРіРґР° <var>Dest</var>=<code>NULL</code>.
+<p>0 - РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё:
 <ul>
-<li>неверный путь (выставляется системный номер ошибки <code>ERROR_PATH_NOT_FOUND</code>)
+<li>РЅРµРІРµСЂРЅС‹Р№ РїСѓС‚СЊ (РІС‹СЃС‚Р°РІР»СЏРµС‚СЃСЏ СЃРёСЃС‚РµРјРЅС‹Р№ РЅРѕРјРµСЂ РѕС€РёР±РєРё <code>ERROR_PATH_NOT_FOUND</code>)
 </ul>
 
 </div>
 
-<h3>Примечание</h3>
+<h3>РџСЂРёРјРµС‡Р°РЅРёРµ</h3>
 <div class=descr>
 <ol>
-<li>Адреса Src и Dest могут совпадать.
-<li>Возвращаемое функцией значение не несёт никакой практической пользы для сетевых дисков.
-<li>В отличии от <a href="convertpath.html">ConvertPath</a>,
-    функция <dfn>FSF.GetReparsePointInfo</dfn> применима только для симлинков.
+<li>РђРґСЂРµСЃР° Src Рё Dest РјРѕРіСѓС‚ СЃРѕРІРїР°РґР°С‚СЊ.
+<li>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ С„СѓРЅРєС†РёРµР№ Р·РЅР°С‡РµРЅРёРµ РЅРµ РЅРµСЃС‘С‚ РЅРёРєР°РєРѕР№ РїСЂР°РєС‚РёС‡РµСЃРєРѕР№ РїРѕР»СЊР·С‹ РґР»СЏ СЃРµС‚РµРІС‹С… РґРёСЃРєРѕРІ.
+<li>Р’ РѕС‚Р»РёС‡РёРё РѕС‚ <a href="convertpath.html">ConvertPath</a>,
+    С„СѓРЅРєС†РёСЏ <dfn>FSF.GetReparsePointInfo</dfn> РїСЂРёРјРµРЅРёРјР° С‚РѕР»СЊРєРѕ РґР»СЏ СЃРёРјР»РёРЅРєРѕРІ.
 </ol>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 </div>
 

@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FarListTitles</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
@@ -10,13 +10,13 @@
 
 <h1>FarListTitles</h1>
 <div class=navbar>
-<a href="../../index.html">главная</a> |
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
 <a href="../index.html">Dialog API</a><br>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarListTitles</dfn> описывает заголовки (верхний и нижний) для
-элемента диалога <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
+РЎС‚СЂСѓРєС‚СѓСЂР° <dfn>FarListTitles</dfn> РѕРїРёСЃС‹РІР°РµС‚ Р·Р°РіРѕР»РѕРІРєРё (РІРµСЂС…РЅРёР№ Рё РЅРёР¶РЅРёР№) РґР»СЏ
+СЌР»РµРјРµРЅС‚Р° РґРёР°Р»РѕРіР° <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
 <pre class=syntax>
@@ -28,30 +28,30 @@ struct FarListTitles
   const wchar_t *Bottom;
 };
 </pre>
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
   <div class=dfn>TitleLen</div>
-  <div class=dfndescr>Длина строки верхнего заголовка</div>
+  <div class=dfndescr>Р”Р»РёРЅР° СЃС‚СЂРѕРєРё РІРµСЂС…РЅРµРіРѕ Р·Р°РіРѕР»РѕРІРєР°</div>
 
   <div class=dfn>Title</div>
-  <div class=dfndescr>Строка, содержащая текст для верхнего заголовка списка.
-  Может быть равна <code>NULL</code> (в этом случае верхний заголовок не выводится).</div>
+  <div class=dfndescr>РЎС‚СЂРѕРєР°, СЃРѕРґРµСЂР¶Р°С‰Р°СЏ С‚РµРєСЃС‚ РґР»СЏ РІРµСЂС…РЅРµРіРѕ Р·Р°РіРѕР»РѕРІРєР° СЃРїРёСЃРєР°.
+  РњРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРЅР° <code>NULL</code> (РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РІРµСЂС…РЅРёР№ Р·Р°РіРѕР»РѕРІРѕРє РЅРµ РІС‹РІРѕРґРёС‚СЃСЏ).</div>
 
   <div class=dfn>BottomLen</div>
-  <div class=dfndescr>Длина строки нижнего заголовка</div>
+  <div class=dfndescr>Р”Р»РёРЅР° СЃС‚СЂРѕРєРё РЅРёР¶РЅРµРіРѕ Р·Р°РіРѕР»РѕРІРєР°</div>
 
   <div class=dfn>Bottom</div>
-  <div class=dfndescr>Строка, содержащая текст для нижнего заголовка списка.
-  Может быть равна <code>NULL</code> (в этом случае нижний заголовок не выводится).</div>
+  <div class=dfndescr>РЎС‚СЂРѕРєР°, СЃРѕРґРµСЂР¶Р°С‰Р°СЏ С‚РµРєСЃС‚ РґР»СЏ РЅРёР¶РЅРµРіРѕ Р·Р°РіРѕР»РѕРІРєР° СЃРїРёСЃРєР°.
+  РњРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРЅР° <code>NULL</code> (РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РЅРёР¶РЅРёР№ Р·Р°РіРѕР»РѕРІРѕРє РЅРµ РІС‹РІРѕРґРёС‚СЃСЏ).</div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-Члены структуры <dfn>TitleLen</dfn> и <dfn>BottomLen</dfn> обязательны только при получении
-заголовков списка (см. <a href="../dmsg/dm_listgettitles.html">DM_LISTGETTITLES</a>)
+Р§Р»РµРЅС‹ СЃС‚СЂСѓРєС‚СѓСЂС‹ <dfn>TitleLen</dfn> Рё <dfn>BottomLen</dfn> РѕР±СЏР·Р°С‚РµР»СЊРЅС‹ С‚РѕР»СЊРєРѕ РїСЂРё РїРѕР»СѓС‡РµРЅРёРё
+Р·Р°РіРѕР»РѕРІРєРѕРІ СЃРїРёСЃРєР° (СЃРј. <a href="../dmsg/dm_listgettitles.html">DM_LISTGETTITLES</a>)
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
 <a href="../dmsg/dm_listgettitles.html">DM_LISTGETTITLES</a>,
 <a href="../dmsg/dm_listsettitles.html">DM_LISTSETTITLES</a>
 </div>

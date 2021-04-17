@@ -9,7 +9,7 @@ Make web suitable Encyclopedia
 # IMPORTANT: must be albe to run under python 2.4
 #
 
-execfile("config.inc.py")
+from config import *
 
 from os import makedirs, walk, listdir
 from os.path import isdir, join, commonprefix, normpath, exists
@@ -68,8 +68,8 @@ def make_inet_lang(lang):
       plen = len(commonprefix([ join(inet_html_dir, "msdn.html"), relpath ]))
       relpath = relpath[plen:].replace('\\','/')
       notfound = "../" * relpath.count('/') + "msdn.html"
-      infile  = open(join(root, f))
-      outfile = open(join(root.replace(inet_meta_dir, inet_html_dir), f), "w")
+      infile  = open(join(root, f), encoding="utf-8-sig")
+      outfile = open(join(root.replace(inet_meta_dir, inet_html_dir), f), "w", encoding="utf-8-sig")
       for line in infile:
         while link_match.search(line):
           line = link_match.sub(link_replace.substitute(notfound=notfound), line)
@@ -90,7 +90,7 @@ log("preparing INET build")
 log("-- cleaning build dir")
 if isdir(DEST): shutil.rmtree(DEST)
 makedirs(DEST)
-logfile = logging.FileHandler(BUILD_INET_LOG, "w")
+logfile = logging.FileHandler(BUILD_INET_LOG, "w", encoding="utf-8")
 logging.getLogger().addHandler(logfile)
 
 

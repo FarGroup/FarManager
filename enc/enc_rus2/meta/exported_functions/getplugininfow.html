@@ -1,21 +1,21 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 
 <head>
 <title>GetPluginInfoW</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
 <body>
 
 <h1>GetPluginInfoW</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">экспортируемые функции</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЌРєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>GetPluginInfoW</dfn> вызывается для получения основной информации о плагине.
+Р¤СѓРЅРєС†РёСЏ <dfn>GetPluginInfoW</dfn> РІС‹Р·С‹РІР°РµС‚СЃСЏ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РѕСЃРЅРѕРІРЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РїР»Р°РіРёРЅРµ.
 </div>
 
 <pre class=syntax>
@@ -23,44 +23,44 @@ void WINAPI GetPluginInfoW(
   struct PluginInfo *Info
 );
 </pre>
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
 
     <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру типа
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ С‚РёРїР°
       <a href="../structures/plugininfo.html">PluginInfo</a>.
-      Плагин должен заполнить эту структуру.</div>
+      РџР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ Р·Р°РїРѕР»РЅРёС‚СЊ СЌС‚Сѓ СЃС‚СЂСѓРєС‚СѓСЂСѓ.</div>
 
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-  Нет.
+  РќРµС‚.
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 <ol>
-<li>Функция вызывается для получения информации о плагине перед выполнением
-    следующих действий:
+<li>Р¤СѓРЅРєС†РёСЏ РІС‹Р·С‹РІР°РµС‚СЃСЏ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РїР»Р°РіРёРЅРµ РїРµСЂРµРґ РІС‹РїРѕР»РЅРµРЅРёРµРј
+    СЃР»РµРґСѓСЋС‰РёС… РґРµР№СЃС‚РІРёР№:
 <ul>
-<li>перед показом меню конфигурации (Options|Plugins configuration)
-    из функции <a href="configurew.html">ConfigureW</a></li>
-<li>перед показом меню плагинов (F11)</li>
-<li>перед показом меню выбора дисков (Alt-F1/Alt-F2)</li>
-<li>из командной строки по префиксу (например, <code>net:\\share</code>)</li>
+<li>РїРµСЂРµРґ РїРѕРєР°Р·РѕРј РјРµРЅСЋ РєРѕРЅС„РёРіСѓСЂР°С†РёРё (Options|Plugins configuration)
+    РёР· С„СѓРЅРєС†РёРё <a href="configurew.html">ConfigureW</a></li>
+<li>РїРµСЂРµРґ РїРѕРєР°Р·РѕРј РјРµРЅСЋ РїР»Р°РіРёРЅРѕРІ (F11)</li>
+<li>РїРµСЂРµРґ РїРѕРєР°Р·РѕРј РјРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєРѕРІ (Alt-F1/Alt-F2)</li>
+<li>РёР· РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё РїРѕ РїСЂРµС„РёРєСЃСѓ (РЅР°РїСЂРёРјРµСЂ, <code>net:\\share</code>)</li>
 </ul>
-<li>Т.к. функция вызывается достаточно часто, то не стоит выполнять в ней длительные
-    по времени операции.</li>
-<li>Структура <a href="../structures/plugininfo.html">PluginInfo</a>,
-    передаваемая функции <dfn>GetPluginInfoW</dfn>, уже заполнена 0.
-    Плагин обязательно должен заполнить поле PluginInfo.StructSize</li>
-<li>FAR вызывает функцию GetPluginInfoW достаточно часто, поэтому при проектировании
-плагина необходимо минимизировать "расчёты", производимые в этой функции.</li>
+<li>Рў.Рє. С„СѓРЅРєС†РёСЏ РІС‹Р·С‹РІР°РµС‚СЃСЏ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ С‡Р°СЃС‚Рѕ, С‚Рѕ РЅРµ СЃС‚РѕРёС‚ РІС‹РїРѕР»РЅСЏС‚СЊ РІ РЅРµР№ РґР»РёС‚РµР»СЊРЅС‹Рµ
+    РїРѕ РІСЂРµРјРµРЅРё РѕРїРµСЂР°С†РёРё.</li>
+<li>РЎС‚СЂСѓРєС‚СѓСЂР° <a href="../structures/plugininfo.html">PluginInfo</a>,
+    РїРµСЂРµРґР°РІР°РµРјР°СЏ С„СѓРЅРєС†РёРё <dfn>GetPluginInfoW</dfn>, СѓР¶Рµ Р·Р°РїРѕР»РЅРµРЅР° 0.
+    РџР»Р°РіРёРЅ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РґРѕР»Р¶РµРЅ Р·Р°РїРѕР»РЅРёС‚СЊ РїРѕР»Рµ PluginInfo.StructSize</li>
+<li>FAR РІС‹Р·С‹РІР°РµС‚ С„СѓРЅРєС†РёСЋ GetPluginInfoW РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ С‡Р°СЃС‚Рѕ, РїРѕСЌС‚РѕРјСѓ РїСЂРё РїСЂРѕРµРєС‚РёСЂРѕРІР°РЅРёРё
+РїР»Р°РіРёРЅР° РЅРµРѕР±С…РѕРґРёРјРѕ РјРёРЅРёРјРёР·РёСЂРѕРІР°С‚СЊ "СЂР°СЃС‡С‘С‚С‹", РїСЂРѕРёР·РІРѕРґРёРјС‹Рµ РІ СЌС‚РѕР№ С„СѓРЅРєС†РёРё.</li>
 </ol>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 <pre class=code><b>void</b> WINAPI <b>_export</b> GetPluginInfoW(<b>struct</b> PluginInfo *Info)
 {
@@ -77,7 +77,7 @@ void WINAPI GetPluginInfoW(
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
 <a href="../structures/plugininfo.html">PluginInfo</a>
 </div>
 

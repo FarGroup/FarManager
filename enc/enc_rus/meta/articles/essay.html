@@ -1,44 +1,44 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-<title>Как компилировать с помощью Borland C++ 5.5 без startup code</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<title>РљР°Рє РєРѕРјРїРёР»РёСЂРѕРІР°С‚СЊ СЃ РїРѕРјРѕС‰СЊСЋ Borland C++ 5.5 Р±РµР· startup code</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <link REV="made" href="mailto:trexinc@yandex.ru">
 <meta name="Author" content="Alex Yaroslavsky">
-<meta name="description" content="Как компилировать с помощью Borland C++ 5.5 без startup code">
+<meta name="description" content="РљР°Рє РєРѕРјРїРёР»РёСЂРѕРІР°С‚СЊ СЃ РїРѕРјРѕС‰СЊСЋ Borland C++ 5.5 Р±РµР· startup code">
 <script language="JavaScript" src='../links.js'></script>
 </head>
 <body>
 
 <a name="top"></a>
-<h1>Как компилировать с помощью Borland C++ 5.5 без startup code</h1>
+<h1>РљР°Рє РєРѕРјРїРёР»РёСЂРѕРІР°С‚СЊ СЃ РїРѕРјРѕС‰СЊСЋ Borland C++ 5.5 Р±РµР· startup code</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">статьи</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°С‚СЊРё</a>
 </div>
 
 <div align=right><code>
-Алексей Ярославский <a href="mailto:Alex Yaroslavsky <trexinc@yandex.ru>?subject=Articles">
+РђР»РµРєСЃРµР№ РЇСЂРѕСЃР»Р°РІСЃРєРёР№ <a href="mailto:Alex Yaroslavsky <trexinc@yandex.ru>?subject=Articles">
 <img src="../../images/email.gif" border="0" alt="[trexinc@yandex.ru]" width="16" height="16" align="middle">trexinc@yandex.ru
 </a>
 </code></div>
 <hr color="#003399">
 
-<p class=plain>Во время написания Position Saver я столкнулся с небольшой
-проблемой, размер DLL-а который выдавал мой BCC 5.5 был просто страшным, в
-районе 80KB. Я почитал статьи из энциклопедии и попытался компилировать без
-startup code (c0d32.obj). Размер файла уменьшился но плагин перестал
-загружаться в ФАРе. Оказалось что ilink32.exe при компилирование C++ файлов без
-startup code неправильно выставлял entry point что и приводило к
-неработоспособности плагина. Я начал искать на инете информацию о ручном
-выставление entry point с помощью BCC и нашел что такой возможности он не даёт.
-Я уже готов был сдаться но в последнюю минуту нашел то что искал.<p>
+<p class=plain>Р’Рѕ РІСЂРµРјСЏ РЅР°РїРёСЃР°РЅРёСЏ Position Saver СЏ СЃС‚РѕР»РєРЅСѓР»СЃСЏ СЃ РЅРµР±РѕР»СЊС€РѕР№
+РїСЂРѕР±Р»РµРјРѕР№, СЂР°Р·РјРµСЂ DLL-Р° РєРѕС‚РѕСЂС‹Р№ РІС‹РґР°РІР°Р» РјРѕР№ BCC 5.5 Р±С‹Р» РїСЂРѕСЃС‚Рѕ СЃС‚СЂР°С€РЅС‹Рј, РІ
+СЂР°Р№РѕРЅРµ 80KB. РЇ РїРѕС‡РёС‚Р°Р» СЃС‚Р°С‚СЊРё РёР· СЌРЅС†РёРєР»РѕРїРµРґРёРё Рё РїРѕРїС‹С‚Р°Р»СЃСЏ РєРѕРјРїРёР»РёСЂРѕРІР°С‚СЊ Р±РµР·
+startup code (c0d32.obj). Р Р°Р·РјРµСЂ С„Р°Р№Р»Р° СѓРјРµРЅСЊС€РёР»СЃСЏ РЅРѕ РїР»Р°РіРёРЅ РїРµСЂРµСЃС‚Р°Р»
+Р·Р°РіСЂСѓР¶Р°С‚СЊСЃСЏ РІ Р¤РђР Рµ. РћРєР°Р·Р°Р»РѕСЃСЊ С‡С‚Рѕ ilink32.exe РїСЂРё РєРѕРјРїРёР»РёСЂРѕРІР°РЅРёРµ C++ С„Р°Р№Р»РѕРІ Р±РµР·
+startup code РЅРµРїСЂР°РІРёР»СЊРЅРѕ РІС‹СЃС‚Р°РІР»СЏР» entry point С‡С‚Рѕ Рё РїСЂРёРІРѕРґРёР»Рѕ Рє
+РЅРµСЂР°Р±РѕС‚РѕСЃРїРѕСЃРѕР±РЅРѕСЃС‚Рё РїР»Р°РіРёРЅР°. РЇ РЅР°С‡Р°Р» РёСЃРєР°С‚СЊ РЅР° РёРЅРµС‚Рµ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЂСѓС‡РЅРѕРј
+РІС‹СЃС‚Р°РІР»РµРЅРёРµ entry point СЃ РїРѕРјРѕС‰СЊСЋ BCC Рё РЅР°С€РµР» С‡С‚Рѕ С‚Р°РєРѕР№ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё РѕРЅ РЅРµ РґР°С‘С‚.
+РЇ СѓР¶Рµ РіРѕС‚РѕРІ Р±С‹Р» СЃРґР°С‚СЊСЃСЏ РЅРѕ РІ РїРѕСЃР»РµРґРЅСЋСЋ РјРёРЅСѓС‚Сѓ РЅР°С€РµР» С‚Рѕ С‡С‚Рѕ РёСЃРєР°Р».<p>
 
-<p class=plain>Так как Борландские компиляторы не дают вручную задавать entry
-point то нужно линковать с программой, объект который будет содержать уже
-готовую "entry point". Такой объект можно создать из ниже приведенного ASM
-файла:</p>
+<p class=plain>РўР°Рє РєР°Рє Р‘РѕСЂР»Р°РЅРґСЃРєРёРµ РєРѕРјРїРёР»СЏС‚РѕСЂС‹ РЅРµ РґР°СЋС‚ РІСЂСѓС‡РЅСѓСЋ Р·Р°РґР°РІР°С‚СЊ entry
+point С‚Рѕ РЅСѓР¶РЅРѕ Р»РёРЅРєРѕРІР°С‚СЊ СЃ РїСЂРѕРіСЂР°РјРјРѕР№, РѕР±СЉРµРєС‚ РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ СѓР¶Рµ
+РіРѕС‚РѕРІСѓСЋ "entry point". РўР°РєРѕР№ РѕР±СЉРµРєС‚ РјРѕР¶РЅРѕ СЃРѕР·РґР°С‚СЊ РёР· РЅРёР¶Рµ РїСЂРёРІРµРґРµРЅРЅРѕРіРѕ ASM
+С„Р°Р№Р»Р°:</p>
 
 <pre class=code>
 .386p
@@ -73,19 +73,19 @@ _TEXT ENDS
 END EntryPoint
 </pre>
 
-<p class=plain><a href="http://plugring.farmanager.com/downld/files/devel/entry_point.zip">Объектный модуль</a> полученный после
-компиляции этого файла (с помощью Turbo Assembler-а) можно линковать вместе с программой для получения работающего
-DLL-а без startup code с помощью BCC 5.5.</p>
+<p class=plain><a href="http://plugring.farmanager.com/downld/files/devel/entry_point.zip">РћР±СЉРµРєС‚РЅС‹Р№ РјРѕРґСѓР»СЊ</a> РїРѕР»СѓС‡РµРЅРЅС‹Р№ РїРѕСЃР»Рµ
+РєРѕРјРїРёР»СЏС†РёРё СЌС‚РѕРіРѕ С„Р°Р№Р»Р° (СЃ РїРѕРјРѕС‰СЊСЋ Turbo Assembler-Р°) РјРѕР¶РЅРѕ Р»РёРЅРєРѕРІР°С‚СЊ РІРјРµСЃС‚Рµ СЃ РїСЂРѕРіСЂР°РјРјРѕР№ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СЂР°Р±РѕС‚Р°СЋС‰РµРіРѕ
+DLL-Р° Р±РµР· startup code СЃ РїРѕРјРѕС‰СЊСЋ BCC 5.5.</p>
 
 <p class=plain>
-Более подробную информацию можно найти здесь
+Р‘РѕР»РµРµ РїРѕРґСЂРѕР±РЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ РјРѕР¶РЅРѕ РЅР°Р№С‚Рё Р·РґРµСЃСЊ
 <a href="http://www.wd-mag.com/articles/1999/9901/9901e/9901e.htm?topic=articles" target="_blank">Windows Developer Magazine Online</a>.</p>
 
 <div align=right><code>
 <br>&nbsp;<br>
 02.06.2002<br>
 </code></div>
-<div class=seecont><a href="#top">наверх</a></div>
+<div class=seecont><a href="#top">РЅР°РІРµСЂС…</a></div>
 
 </body>
 </html>

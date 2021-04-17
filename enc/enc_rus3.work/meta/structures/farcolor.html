@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FarColor</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,13 +10,13 @@
 
 <h1>FarColor</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">структуры</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
 <a href="../miscapi/index.html">Miscellaneous API</a>
 </div>
 
 <div class=shortdescr>
-Структура <code>FarColor</code> описывает код цвета, используется, например, в функции <a href="../service_functions/text.html">Text</a>.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>FarColor</code> РѕРїРёСЃС‹РІР°РµС‚ РєРѕРґ С†РІРµС‚Р°, РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ, РЅР°РїСЂРёРјРµСЂ, РІ С„СѓРЅРєС†РёРё <a href="../service_functions/text.html">Text</a>.
 </div>
 
 <pre class=syntax>
@@ -29,46 +29,46 @@ struct FarColor
 };
 </pre>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть комбинацией следующих значений (тип <a name="FARCOLORFLAGS">FARCOLORFLAGS</a>):
+    <div class=dfndescr>РњРѕР¶РµС‚ Р±С‹С‚СЊ РєРѕРјР±РёРЅР°С†РёРµР№ СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (С‚РёРї <a name="FARCOLORFLAGS">FARCOLORFLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_4BIT">FCF_FG_4BIT</a></td>
-    <td class="cont" width="60%">цвет символа задан стандартным кодом в 4 бита</td></tr>
+    <td class="cont" width="60%">С†РІРµС‚ СЃРёРјРІРѕР»Р° Р·Р°РґР°РЅ СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рј РєРѕРґРѕРј РІ 4 Р±РёС‚Р°</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_BG_4BIT">FCF_BG_4BIT</a></td>
-    <td class="cont" width="60%">цвет фона символа задан стандартным кодом в 4 бита</td></tr>
+    <td class="cont" width="60%">С†РІРµС‚ С„РѕРЅР° СЃРёРјРІРѕР»Р° Р·Р°РґР°РЅ СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рј РєРѕРґРѕРј РІ 4 Р±РёС‚Р°</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_4BITMASK">FCF_4BITMASK</a></td>
-    <td class="cont" width="60%">стандартный четырехбитный цвет (FCF_FG_4BIT|FCF_BG_4BIT)</td></tr>
+    <td class="cont" width="60%">СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ С‡РµС‚С‹СЂРµС…Р±РёС‚РЅС‹Р№ С†РІРµС‚ (FCF_FG_4BIT|FCF_BG_4BIT)</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_EXTENDEDFLAGS">FCF_EXTENDEDFLAGS</a></td>
-    <td class="cont" width="60%">расширенные атрибуты (~FCF_4BITMASK)</td></tr>
+    <td class="cont" width="60%">СЂР°СЃС€РёСЂРµРЅРЅС‹Рµ Р°С‚СЂРёР±СѓС‚С‹ (~FCF_4BITMASK)</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_BOLD">FCF_FG_BOLD</a></td>
-    <td class="cont" width="60%">расширенные атрибуты, задан стиль: "жирный" символ</td></tr>
+    <td class="cont" width="60%">СЂР°СЃС€РёСЂРµРЅРЅС‹Рµ Р°С‚СЂРёР±СѓС‚С‹, Р·Р°РґР°РЅ СЃС‚РёР»СЊ: "Р¶РёСЂРЅС‹Р№" СЃРёРјРІРѕР»</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_ITALIC">FCF_FG_ITALIC</a></td>
-    <td class="cont" width="60%">расширенные атрибуты, задан стиль: "наклонный" символ</td></tr>
+    <td class="cont" width="60%">СЂР°СЃС€РёСЂРµРЅРЅС‹Рµ Р°С‚СЂРёР±СѓС‚С‹, Р·Р°РґР°РЅ СЃС‚РёР»СЊ: "РЅР°РєР»РѕРЅРЅС‹Р№" СЃРёРјРІРѕР»</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_UNDERLINE">FCF_FG_UNDERLINE</a></td>
-    <td class="cont" width="60%">расширенные атрибуты, задан стиль: "подчеркнутый" символ</td></tr>
+    <td class="cont" width="60%">СЂР°СЃС€РёСЂРµРЅРЅС‹Рµ Р°С‚СЂРёР±СѓС‚С‹, Р·Р°РґР°РЅ СЃС‚РёР»СЊ: "РїРѕРґС‡РµСЂРєРЅСѓС‚С‹Р№" СЃРёРјРІРѕР»</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_STYLEMASK">FCF_STYLEMASK</a></td>
-    <td class="cont" width="60%">расширенные атрибуты, используются стили (FCF_FG_BOLD|FCF_FG_ITALIC|FCF_FG_UNDERLINE)</td></tr>
+    <td class="cont" width="60%">СЂР°СЃС€РёСЂРµРЅРЅС‹Рµ Р°С‚СЂРёР±СѓС‚С‹, РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ СЃС‚РёР»Рё (FCF_FG_BOLD|FCF_FG_ITALIC|FCF_FG_UNDERLINE)</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_NONE">FCF_NONE</a></td>
-    <td class="cont" width="60%">нулевой флаг</td></tr>
+    <td class="cont" width="60%">РЅСѓР»РµРІРѕР№ С„Р»Р°Рі</td></tr>
     </table>
     </div>
   <div class=dfn>ForegroundColor</div>
-    <div class=dfndescr>Цвет символа, значение типа <code>COLORREF</code>.</div>
+    <div class=dfndescr>Р¦РІРµС‚ СЃРёРјРІРѕР»Р°, Р·РЅР°С‡РµРЅРёРµ С‚РёРїР° <code>COLORREF</code>.</div>
   <div class=dfn>BackgroundColor</div>
-    <div class=dfndescr>Цвет фона символа, значение типа <code>COLORREF</code>.</div>
+    <div class=dfndescr>Р¦РІРµС‚ С„РѕРЅР° СЃРёРјРІРѕР»Р°, Р·РЅР°С‡РµРЅРёРµ С‚РёРїР° <code>COLORREF</code>.</div>
   <div class=dfn>Reserved</div>
-    <div class=dfndescr>Не используется.</div>
+    <div class=dfndescr>РќРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.</div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-При формировании цвета для стандартной консоли Windows обязательно указывайте флаги <code>FCF_FG_4BIT</code> и <code>FCF_BG_4BIT</code>.
+РџСЂРё С„РѕСЂРјРёСЂРѕРІР°РЅРёРё С†РІРµС‚Р° РґР»СЏ СЃС‚Р°РЅРґР°СЂС‚РЅРѕР№ РєРѕРЅСЃРѕР»Рё Windows РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ СѓРєР°Р·С‹РІР°Р№С‚Рµ С„Р»Р°РіРё <code>FCF_FG_4BIT</code> Рё <code>FCF_BG_4BIT</code>.
 </div>
 
-<div class=see>Смотрите также:</div>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
 <div class=seecont>
 </div>
 

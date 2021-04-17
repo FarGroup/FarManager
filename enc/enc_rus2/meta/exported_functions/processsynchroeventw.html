@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>ProcessSynchroEventW</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
 
@@ -10,12 +10,12 @@
 
 <h1>ProcessSynchroEventW</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">экспортируемые функции</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЌРєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-<dfn>ProcessSynchroEventW</dfn> позволяет плагину выполнить код в контексте главного потока FAR Manager.</div>
+<dfn>ProcessSynchroEventW</dfn> РїРѕР·РІРѕР»СЏРµС‚ РїР»Р°РіРёРЅСѓ РІС‹РїРѕР»РЅРёС‚СЊ РєРѕРґ РІ РєРѕРЅС‚РµРєСЃС‚Рµ РіР»Р°РІРЅРѕРіРѕ РїРѕС‚РѕРєР° FAR Manager.</div>
 
 <pre class=syntax>
 int WINAPI ProcessSynchroEventW(
@@ -23,31 +23,31 @@ int WINAPI ProcessSynchroEventW(
   void *Param
 );
 </pre>
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
 
     <div class=dfn>Event</div>
-    <div class=dfndescr>Тип события. Одно из следующих значений (перечисление <a name="SYNCHRO_EVENTS">SYNCHRO_EVENTS</a>):
+    <div class=dfndescr>РўРёРї СЃРѕР±С‹С‚РёСЏ. РћРґРЅРѕ РёР· СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="SYNCHRO_EVENTS">SYNCHRO_EVENTS</a>):
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">РЎРѕР±С‹С‚РёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="SE_COMMONSYNCHRO" title="0">SE_COMMONSYNCHRO</a></td>
-        <td class="cont" width="60%">Событие приходит, если плагином вызывается функция 
+        <td class="cont" width="60%">РЎРѕР±С‹С‚РёРµ РїСЂРёС…РѕРґРёС‚, РµСЃР»Рё РїР»Р°РіРёРЅРѕРј РІС‹Р·С‹РІР°РµС‚СЃСЏ С„СѓРЅРєС†РёСЏ 
         <a href="../service_functions/advcontrol.html#ACTL_SYNCHRO">Info.AdvControl(...,ACTL_SYNCHRO,Param)</a>.<br>
-          <i>Param</i> указывает на переданные данные в параметре Info.AdvControl(...,Param).<br>
-          Возвращаемое значение должно быть 0.
+          <i>Param</i> СѓРєР°Р·С‹РІР°РµС‚ РЅР° РїРµСЂРµРґР°РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ РІ РїР°СЂР°РјРµС‚СЂРµ Info.AdvControl(...,Param).<br>
+          Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ 0.
         </td></tr>
  </table>
     </div>
 
     <div class=dfn>Param</div>
-    <div class=dfndescr>Значение указателя зависит от типа события. Смотрите описание событий для уточнения информации.</div>
+    <div class=dfndescr>Р—РЅР°С‡РµРЅРёРµ СѓРєР°Р·Р°С‚РµР»СЏ Р·Р°РІРёСЃРёС‚ РѕС‚ С‚РёРїР° СЃРѕР±С‹С‚РёСЏ. РЎРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ СЃРѕР±С‹С‚РёР№ РґР»СЏ СѓС‚РѕС‡РЅРµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё.</div>
 
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-  Возвращаемое значение зависит от типа события, cмотрите описание событий для уточнения информации.<br>
-  Для необрабатываемых плагином событий функция должна возвращать 0.  
+  Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ Р·Р°РІРёСЃРёС‚ РѕС‚ С‚РёРїР° СЃРѕР±С‹С‚РёСЏ, cРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ СЃРѕР±С‹С‚РёР№ РґР»СЏ СѓС‚РѕС‡РЅРµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё.<br>
+  Р”Р»СЏ РЅРµРѕР±СЂР°Р±Р°С‚С‹РІР°РµРјС‹С… РїР»Р°РіРёРЅРѕРј СЃРѕР±С‹С‚РёР№ С„СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° РІРѕР·РІСЂР°С‰Р°С‚СЊ 0.  
 </div>
 
 </body>

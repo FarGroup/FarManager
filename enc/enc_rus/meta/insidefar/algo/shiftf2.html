@@ -1,46 +1,46 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-<title>"Распаковать" (Extract files/Shift-F2)</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<title>"Р Р°СЃРїР°РєРѕРІР°С‚СЊ" (Extract files/Shift-F2)</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
 <body>
-<h1>"Распаковать" (Extract files/Shift-F2)</h1>
+<h1>"Р Р°СЃРїР°РєРѕРІР°С‚СЊ" (Extract files/Shift-F2)</h1>
 <div class=navbar>
-<a href="index.html">содержание</a>
+<a href="index.html">СЃРѕРґРµСЂР¶Р°РЅРёРµ</a>
 </div>
 
 <div class=shortdescr>
-<p>Когда пользователь нажимает Shift-F2 на файле (группе выделенных файлов), то FAR
-для каждого из выделенных файлов выполняет следующие действия.
+<p>РљРѕРіРґР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶РёРјР°РµС‚ Shift-F2 РЅР° С„Р°Р№Р»Рµ (РіСЂСѓРїРїРµ РІС‹РґРµР»РµРЅРЅС‹С… С„Р°Р№Р»РѕРІ), С‚Рѕ FAR
+РґР»СЏ РєР°Р¶РґРѕРіРѕ РёР· РІС‹РґРµР»РµРЅРЅС‹С… С„Р°Р№Р»РѕРІ РІС‹РїРѕР»РЅСЏРµС‚ СЃР»РµРґСѓСЋС‰РёРµ РґРµР№СЃС‚РІРёСЏ.
 </div>
 
-<h3>Обычная панель</h3>
+<h3>РћР±С‹С‡РЅР°СЏ РїР°РЅРµР»СЊ</h3>
 <div class=descr>
   <ul>
-   <li>открывает файл, пытается считать максимум 0x20000 байт данных, закрывает файл;
-   <li>проходит по списку плагинов, поочередно вызывая функцию
+   <li>РѕС‚РєСЂС‹РІР°РµС‚ С„Р°Р№Р», РїС‹С‚Р°РµС‚СЃСЏ СЃС‡РёС‚Р°С‚СЊ РјР°РєСЃРёРјСѓРј 0x20000 Р±Р°Р№С‚ РґР°РЅРЅС‹С…, Р·Р°РєСЂС‹РІР°РµС‚ С„Р°Р№Р»;
+   <li>РїСЂРѕС…РѕРґРёС‚ РїРѕ СЃРїРёСЃРєСѓ РїР»Р°РіРёРЅРѕРІ, РїРѕРѕС‡РµСЂРµРґРЅРѕ РІС‹Р·С‹РІР°СЏ С„СѓРЅРєС†РёСЋ
        <a href="../../exported_functions/openfileplugin.html">OpenFilePlugin</a>;
-   <li>вызывает <a href="../../exported_functions/getfinddata.html">GetFindData</a> для того плагина,
-       который первым сказал, что данные его (вернул из OpenFilePlugin значение,
-       отличное от <code>INVALID_HANDLE_VALUE</code> и -2; для значения -2 цикл опроса плагинов прекращается);
-   <li>вызывает <a href="../../exported_functions/getfiles.html">GetFiles</a> (для первого обрабатываемого файлы
-       OpMode=OPM_TOPLEVEL, для последующих обрабатываемых файлов добавляется флаг OPM_SILENT), в это время,
-       например, MultiArc показывает диалог "Extract";
-   <li>после успешной отработки функции GetFiles FAR сбрасывает выделения, вызывает функцию
-       <a href="../../exported_functions/freefinddata.html">FreeFindData</a> для
-       того, чтобы плагин освободил память, выделенную функцией GetFindData.
-   <li>закрывает плагин, вызывая функцию <a href="../../exported_functions/closeplugin.html">ClosePlugin</a>.
+   <li>РІС‹Р·С‹РІР°РµС‚ <a href="../../exported_functions/getfinddata.html">GetFindData</a> РґР»СЏ С‚РѕРіРѕ РїР»Р°РіРёРЅР°,
+       РєРѕС‚РѕСЂС‹Р№ РїРµСЂРІС‹Рј СЃРєР°Р·Р°Р», С‡С‚Рѕ РґР°РЅРЅС‹Рµ РµРіРѕ (РІРµСЂРЅСѓР» РёР· OpenFilePlugin Р·РЅР°С‡РµРЅРёРµ,
+       РѕС‚Р»РёС‡РЅРѕРµ РѕС‚ <code>INVALID_HANDLE_VALUE</code> Рё -2; РґР»СЏ Р·РЅР°С‡РµРЅРёСЏ -2 С†РёРєР» РѕРїСЂРѕСЃР° РїР»Р°РіРёРЅРѕРІ РїСЂРµРєСЂР°С‰Р°РµС‚СЃСЏ);
+   <li>РІС‹Р·С‹РІР°РµС‚ <a href="../../exported_functions/getfiles.html">GetFiles</a> (РґР»СЏ РїРµСЂРІРѕРіРѕ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјРѕРіРѕ С„Р°Р№Р»С‹
+       OpMode=OPM_TOPLEVEL, РґР»СЏ РїРѕСЃР»РµРґСѓСЋС‰РёС… РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјС‹С… С„Р°Р№Р»РѕРІ РґРѕР±Р°РІР»СЏРµС‚СЃСЏ С„Р»Р°Рі OPM_SILENT), РІ СЌС‚Рѕ РІСЂРµРјСЏ,
+       РЅР°РїСЂРёРјРµСЂ, MultiArc РїРѕРєР°Р·С‹РІР°РµС‚ РґРёР°Р»РѕРі "Extract";
+   <li>РїРѕСЃР»Рµ СѓСЃРїРµС€РЅРѕР№ РѕС‚СЂР°Р±РѕС‚РєРё С„СѓРЅРєС†РёРё GetFiles FAR СЃР±СЂР°СЃС‹РІР°РµС‚ РІС‹РґРµР»РµРЅРёСЏ, РІС‹Р·С‹РІР°РµС‚ С„СѓРЅРєС†РёСЋ
+       <a href="../../exported_functions/freefinddata.html">FreeFindData</a> РґР»СЏ
+       С‚РѕРіРѕ, С‡С‚РѕР±С‹ РїР»Р°РіРёРЅ РѕСЃРІРѕР±РѕРґРёР» РїР°РјСЏС‚СЊ, РІС‹РґРµР»РµРЅРЅСѓСЋ С„СѓРЅРєС†РёРµР№ GetFindData.
+   <li>Р·Р°РєСЂС‹РІР°РµС‚ РїР»Р°РіРёРЅ, РІС‹Р·С‹РІР°СЏ С„СѓРЅРєС†РёСЋ <a href="../../exported_functions/closeplugin.html">ClosePlugin</a>.
   </ul>
 </div>
 
-<h3>Панель плагина</h3>
+<h3>РџР°РЅРµР»СЊ РїР»Р°РіРёРЅР°</h3>
 <div class=descr>
-если плагин при вызове <a href="../../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a>
-заполнил поле <dfn>HostFile</dfn> структуры <a href="../../structures/openplugininfo.html">OpenPluginInfo</a>,
-то действия аналогичны действиям, когда пользователь нажимает F5.
+РµСЃР»Рё РїР»Р°РіРёРЅ РїСЂРё РІС‹Р·РѕРІРµ <a href="../../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a>
+Р·Р°РїРѕР»РЅРёР» РїРѕР»Рµ <dfn>HostFile</dfn> СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="../../structures/openplugininfo.html">OpenPluginInfo</a>,
+С‚Рѕ РґРµР№СЃС‚РІРёСЏ Р°РЅР°Р»РѕРіРёС‡РЅС‹ РґРµР№СЃС‚РІРёСЏРј, РєРѕРіРґР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶РёРјР°РµС‚ F5.
 </div>
 
 </div>

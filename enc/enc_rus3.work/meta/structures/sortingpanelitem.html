@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>SortingPanelItem</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,12 +10,12 @@
 
 <h1>SortingPanelItem</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">структуры</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>
 </div>
 
 <div class=shortdescr>
-Структура <code>SortingPanelItem</code> описывает элемент файловой системы. Она используется при пользовательской сортировке элементов панели.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>SortingPanelItem</code> РѕРїРёСЃС‹РІР°РµС‚ СЌР»РµРјРµРЅС‚ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹. РћРЅР° РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РїСЂРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕР№ СЃРѕСЂС‚РёСЂРѕРІРєРµ СЌР»РµРјРµРЅС‚РѕРІ РїР°РЅРµР»Рё.
 </div>
 
 <pre class=syntax>
@@ -49,31 +49,31 @@ struct SortingPanelItem
 };
 </pre>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
-  <div class=dfn>Элементы, общие со структурой PluginPanelItem</div>
-    <div class=dfndescr>Первые 17 элементов структуры (по <code>CRC32</code>
-    включительно) совпадают с элементами структуры
+  <div class=dfn>Р­Р»РµРјРµРЅС‚С‹, РѕР±С‰РёРµ СЃРѕ СЃС‚СЂСѓРєС‚СѓСЂРѕР№ PluginPanelItem</div>
+    <div class=dfndescr>РџРµСЂРІС‹Рµ 17 СЌР»РµРјРµРЅС‚РѕРІ СЃС‚СЂСѓРєС‚СѓСЂС‹ (РїРѕ <code>CRC32</code>
+    РІРєР»СЋС‡РёС‚РµР»СЊРЅРѕ) СЃРѕРІРїР°РґР°СЋС‚ СЃ СЌР»РµРјРµРЅС‚Р°РјРё СЃС‚СЂСѓРєС‚СѓСЂС‹
     <a href="pluginpanelitem.html">PluginPanelItem</a>.
     </div>
   <div class=dfn>Position</div>
-    <div class=dfndescr>Позиция элемента во внутреннем списке. Эта величина не может быть одинаковой для двух разных элементов списка.
+    <div class=dfndescr>РџРѕР·РёС†РёСЏ СЌР»РµРјРµРЅС‚Р° РІРѕ РІРЅСѓС‚СЂРµРЅРЅРµРј СЃРїРёСЃРєРµ. Р­С‚Р° РІРµР»РёС‡РёРЅР° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕРґРёРЅР°РєРѕРІРѕР№ РґР»СЏ РґРІСѓС… СЂР°Р·РЅС‹С… СЌР»РµРјРµРЅС‚РѕРІ СЃРїРёСЃРєР°.
     </div>
   <div class=dfn>SortGroup</div>
-    <div class=dfndescr>Идентификатор группы сортировки. Если элемент не входит
-    ни в одну группу сортировки, данная величина равна 0.
+    <div class=dfndescr>РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РіСЂСѓРїРїС‹ СЃРѕСЂС‚РёСЂРѕРІРєРё. Р•СЃР»Рё СЌР»РµРјРµРЅС‚ РЅРµ РІС…РѕРґРёС‚
+    РЅРё РІ РѕРґРЅСѓ РіСЂСѓРїРїСѓ СЃРѕСЂС‚РёСЂРѕРІРєРё, РґР°РЅРЅР°СЏ РІРµР»РёС‡РёРЅР° СЂР°РІРЅР° 0.
     </div>
   <div class=dfn>NumberOfStreams</div>
-    <div class=dfndescr>Количество потоков для данного элемента (NTFS).
+    <div class=dfndescr>РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕС‚РѕРєРѕРІ РґР»СЏ РґР°РЅРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р° (NTFS).
     </div>
   <div class=dfn>StreamsSize</div>
-    <div class=dfndescr>Суммарный размер потоков данного элемента (NTFS).
+    <div class=dfndescr>РЎСѓРјРјР°СЂРЅС‹Р№ СЂР°Р·РјРµСЂ РїРѕС‚РѕРєРѕРІ РґР°РЅРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р° (NTFS).
     </div>
 </div>
 
-<div class=see>Смотрите также:</div>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
 <div class=seecont>
-<a href="index.html">структуры</a>,
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>,
 <a href="pluginpanelitem.html">PluginPanelItem</a>
 </div>
 

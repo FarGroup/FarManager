@@ -1,11 +1,11 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
         "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>$While - Макросы</title>
-<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<title>$While - РњР°РєСЂРѕСЃС‹</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 </head>
 
@@ -13,53 +13,53 @@
 
 <h1>$While</h1>
 <div class="navbar">
-<a href="../../index.html">главная</a> |
-<a href="../index.html">Макросы</a> |
-<a href="index.html">Макроязык</a> |
-<a href="cmds.html">Макрокоманды</a>
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="../index.html">РњР°РєСЂРѕСЃС‹</a> |
+<a href="index.html">РњР°РєСЂРѕСЏР·С‹Рє</a> |
+<a href="cmds.html">РњР°РєСЂРѕРєРѕРјР°РЅРґС‹</a>
 </div>
 
 <div class="shortdescr">
-Оператор цикла <dfn>$While</dfn> позволяет организовать в макросах циклический процесс - "Пока условие Expr истинно выполнять последовательность Sequence".
+РћРїРµСЂР°С‚РѕСЂ С†РёРєР»Р° <dfn>$While</dfn> РїРѕР·РІРѕР»СЏРµС‚ РѕСЂРіР°РЅРёР·РѕРІР°С‚СЊ РІ РјР°РєСЂРѕСЃР°С… С†РёРєР»РёС‡РµСЃРєРёР№ РїСЂРѕС†РµСЃСЃ - "РџРѕРєР° СѓСЃР»РѕРІРёРµ Expr РёСЃС‚РёРЅРЅРѕ РІС‹РїРѕР»РЅСЏС‚СЊ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ Sequence".
 </div>
 
 <pre class="syntax">
 <dfn>$While</dfn> <dfn>(</dfn><em>Expr</em><dfn>)</dfn> <em>Sequence</em> <dfn>$End</dfn>
 </pre>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 
 <div class="descr">
 <div class="dfn">Expr</div>
-<div class="dfndescr">Выражение</div>
+<div class="dfndescr">Р’С‹СЂР°Р¶РµРЅРёРµ</div>
 
 <div class="dfn">Sequence</div>
-<div class="dfndescr">Выполняется, пока условие <dfn>Expr</dfn> истинно.</div>
+<div class="dfndescr">Р’С‹РїРѕР»РЅСЏРµС‚СЃСЏ, РїРѕРєР° СѓСЃР»РѕРІРёРµ <dfn>Expr</dfn> РёСЃС‚РёРЅРЅРѕ.</div>
 </div>
 
-<h3>Примеры</h3>
+<h3>РџСЂРёРјРµСЂС‹</h3>
 <div class="descr">
 <ol>
-<li>Если под курсором папка, то спозиционировать курсор на первый файл.
+<li>Р•СЃР»Рё РїРѕРґ РєСѓСЂСЃРѕСЂРѕРј РїР°РїРєР°, С‚Рѕ СЃРїРѕР·РёС†РёРѕРЅРёСЂРѕРІР°С‚СЊ РєСѓСЂСЃРѕСЂ РЅР° РїРµСЂРІС‹Р№ С„Р°Р№Р».
 <pre class="codesample"><code>$While (APanel.Folder &amp;&amp; !APanel.Eof)
   Down
 $End</code></pre>
 </li>
 
-<li>Организация оператора <dfn>for</dfn>: "<em>for (выражение_1;выражение_2;выражение_3) оператор</em>"
-<pre class="codesample"><code>выражение_1
-$While (выражение_2)
-  оператор
-  выражение_3
+<li>РћСЂРіР°РЅРёР·Р°С†РёСЏ РѕРїРµСЂР°С‚РѕСЂР° <dfn>for</dfn>: "<em>for (РІС‹СЂР°Р¶РµРЅРёРµ_1;РІС‹СЂР°Р¶РµРЅРёРµ_2;РІС‹СЂР°Р¶РµРЅРёРµ_3) РѕРїРµСЂР°С‚РѕСЂ</em>"
+<pre class="codesample"><code>РІС‹СЂР°Р¶РµРЅРёРµ_1
+$While (РІС‹СЂР°Р¶РµРЅРёРµ_2)
+  РѕРїРµСЂР°С‚РѕСЂ
+  РІС‹СЂР°Р¶РµРЅРёРµ_3
 $End</code></pre>
 </li>
 </ol>
 </div>
 
-<div class="see">Смотрите также:</div><div class="seecont">
+<div class="see">РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class="seecont">
 <a href="rep.html">$Rep</a>,
 <a href="continue.html">$Continue</a>,
-<a href="../examples.html">Примеры</a>
+<a href="../examples.html">РџСЂРёРјРµСЂС‹</a>
 </div>
 
 </body>

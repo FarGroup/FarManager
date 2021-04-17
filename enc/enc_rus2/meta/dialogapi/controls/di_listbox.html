@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>DI_LISTBOX</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
@@ -10,13 +10,13 @@
 
 <h1>DI_LISTBOX</h1>
 <div class=navbar>
-<a href="../../index.html">главная</a> |
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
 <a href="../index.html">Dialog API</a> |
-<a href="index.html">Элементы диалога</a><br>
+<a href="index.html">Р­Р»РµРјРµРЅС‚С‹ РґРёР°Р»РѕРіР°</a><br>
 </div>
 
 <div class=shortdescr>
-Элемент диалога <dfn>DI_LISTBOX</dfn> описывает список.
+Р­Р»РµРјРµРЅС‚ РґРёР°Р»РѕРіР° <dfn>DI_LISTBOX</dfn> РѕРїРёСЃС‹РІР°РµС‚ СЃРїРёСЃРѕРє.
 </div>
 
 <pre class=syntax>
@@ -29,82 +29,82 @@ struct FarDialogItem
   int Y2            = <b>Y2</b>
   int Focus         = <b>Focus</b>
   union {
-    FarList *ListItems= <b>ListItems</b>  [передаётся]
-    int ListPos       = <b>ListPos</b>    [возвращается]
+    FarList *ListItems= <b>ListItems</b>  [РїРµСЂРµРґР°С‘С‚СЃСЏ]
+    int ListPos       = <b>ListPos</b>    [РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ]
   };
   DWORD Flags       = <b>Flags</b>
   int DefaultButton = <b>DefaultButton</b>
-  const wchar_t *PtrData  = <b>Верхний заголовок списка</b>
+  const wchar_t *PtrData  = <b>Р’РµСЂС…РЅРёР№ Р·Р°РіРѕР»РѕРІРѕРє СЃРїРёСЃРєР°</b>
 };
 </pre>
-<p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
+<p class=note><img src="../../../images/note.gif" alt="Р’РЅРёРјР°РЅРёРµ!" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!</p>
+<UL class=note><LI>РџСЂРёРІРµРґРµРЅРѕ СЃС…РµРјР°С‚РёС‡РЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹; РїРѕР»РЅРѕРµ РѕРїРёСЃР°РЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="../structures/fardialogitem.html">СЃРј. Р·РґРµСЃСЊ</a>.</LI></UL>
 
 <h3>ListItems</h3>
 <div class=descr>
-<p>Указатель на структуру <a href="../structures/farlist.html">FarList</a>,
-описывающую пункты для начальной инициализации списка.
+<p>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/farlist.html">FarList</a>,
+РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ РїСѓРЅРєС‚С‹ РґР»СЏ РЅР°С‡Р°Р»СЊРЅРѕР№ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё СЃРїРёСЃРєР°.
 </div>
 
 <h3>ListPos</h3>
 <div class=descr>
-<p>Текущая позиция в списке <a href="../structures/farlist.html">ListItems.Items</a>.
-В Plugins API v1.0 после закрытия диалога это поле содержало позицию выбранного пользователем элемента списка.
-В Plugins API v2.0 для получения позиции выбранного пользователем элемента списка воспользуйтесь сообщением <a href="../dmsg/dm_listgetcurpos.html">DM_LISTGETCURPOS</a>.
+<p>РўРµРєСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ РІ СЃРїРёСЃРєРµ <a href="../structures/farlist.html">ListItems.Items</a>.
+Р’ Plugins API v1.0 РїРѕСЃР»Рµ Р·Р°РєСЂС‹С‚РёСЏ РґРёР°Р»РѕРіР° СЌС‚Рѕ РїРѕР»Рµ СЃРѕРґРµСЂР¶Р°Р»Рѕ РїРѕР·РёС†РёСЋ РІС‹Р±СЂР°РЅРЅРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј СЌР»РµРјРµРЅС‚Р° СЃРїРёСЃРєР°.
+Р’ Plugins API v2.0 РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РїРѕР·РёС†РёРё РІС‹Р±СЂР°РЅРЅРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј СЌР»РµРјРµРЅС‚Р° СЃРїРёСЃРєР° РІРѕСЃРїРѕР»СЊР·СѓР№С‚РµСЃСЊ СЃРѕРѕР±С‰РµРЅРёРµРј <a href="../dmsg/dm_listgetcurpos.html">DM_LISTGETCURPOS</a>.
 </div>
 
 
-<h3>Флаги</h3>
+<h3>Р¤Р»Р°РіРё</h3>
 <div class=descr>
-Для элемента <dfn>DI_LISTBOX</dfn> имеют значения следующие флаги (про флаги
-списка см. <a href="../structures/farlistitem.html">FarListItem</a>):<br>
+Р”Р»СЏ СЌР»РµРјРµРЅС‚Р° <dfn>DI_LISTBOX</dfn> РёРјРµСЋС‚ Р·РЅР°С‡РµРЅРёСЏ СЃР»РµРґСѓСЋС‰РёРµ С„Р»Р°РіРё (РїСЂРѕ С„Р»Р°РіРё
+СЃРїРёСЃРєР° СЃРј. <a href="../structures/farlistitem.html">FarListItem</a>):<br>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listautohighlight.html">DIF_LISTAUTOHIGHLIGHT</a></td>
- <td class="cont" width="60%">Горячие клавиши будут назначены автоматически.
+ <td class="cont" width="60%">Р“РѕСЂСЏС‡РёРµ РєР»Р°РІРёС€Рё Р±СѓРґСѓС‚ РЅР°Р·РЅР°С‡РµРЅС‹ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё.
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnoampersand.html">DIF_LISTNOAMPERSAND</a></td>
- <td class="cont" width="60%">Показывать горячие клавиши в списке.
+ <td class="cont" width="60%">РџРѕРєР°Р·С‹РІР°С‚СЊ РіРѕСЂСЏС‡РёРµ РєР»Р°РІРёС€Рё РІ СЃРїРёСЃРєРµ.
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listwrapmode.html">DIF_LISTWRAPMODE</a></td>
- <td class="cont" width="60%">"Заворачивает" список при навигации по списку.
+ <td class="cont" width="60%">"Р—Р°РІРѕСЂР°С‡РёРІР°РµС‚" СЃРїРёСЃРѕРє РїСЂРё РЅР°РІРёРіР°С†РёРё РїРѕ СЃРїРёСЃРєСѓ.
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnoclose.html">DIF_LISTNOCLOSE</a></td>
- <td class="cont" width="60%">Не закрывать диалог при выборе элемента в списке.
+ <td class="cont" width="60%">РќРµ Р·Р°РєСЂС‹РІР°С‚СЊ РґРёР°Р»РѕРі РїСЂРё РІС‹Р±РѕСЂРµ СЌР»РµРјРµРЅС‚Р° РІ СЃРїРёСЃРєРµ.
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
- <td class="cont" width="60%">Элемент является недоступным.
+ <td class="cont" width="60%">Р­Р»РµРјРµРЅС‚ СЏРІР»СЏРµС‚СЃСЏ РЅРµРґРѕСЃС‚СѓРїРЅС‹Рј.
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
- <td class="cont" width="60%">Управляющий элемент не получает клавиатурный фокус ввода.
+ <td class="cont" width="60%">РЈРїСЂР°РІР»СЏСЋС‰РёР№ СЌР»РµРјРµРЅС‚ РЅРµ РїРѕР»СѓС‡Р°РµС‚ РєР»Р°РІРёР°С‚СѓСЂРЅС‹Р№ С„РѕРєСѓСЃ РІРІРѕРґР°.
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnobox.html">DIF_LISTNOBOX</a></td>
- <td class="cont" width="60%">Отключает прорисовку рамки вокруг списка. В этом случае <b>Data</b> игнорируется.
+ <td class="cont" width="60%">РћС‚РєР»СЋС‡Р°РµС‚ РїСЂРѕСЂРёСЃРѕРІРєСѓ СЂР°РјРєРё РІРѕРєСЂСѓРі СЃРїРёСЃРєР°. Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ <b>Data</b> РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ.
  </td></tr>
 </table>
 </div>
 
-<h3>События</h3>
+<h3>РЎРѕР±С‹С‚РёСЏ</h3>
 <div class=descr>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">РЎРѕР±С‹С‚РёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
- <td class="cont" width="60%">начало отрисовки элемента
+ <td class="cont" width="60%">РЅР°С‡Р°Р»Рѕ РѕС‚СЂРёСЃРѕРІРєРё СЌР»РµРјРµРЅС‚Р°
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlglist.html">DN_CTLCOLORDLGLIST</a></td>
- <td class="cont" width="60%">запрос цветовых атрибутов для отрисовки списка.
+ <td class="cont" width="60%">Р·Р°РїСЂРѕСЃ С†РІРµС‚РѕРІС‹С… Р°С‚СЂРёР±СѓС‚РѕРІ РґР»СЏ РѕС‚СЂРёСЃРѕРІРєРё СЃРїРёСЃРєР°.
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_listchange.html">DN_LISTCHANGE</a></td>
- <td class="cont" width="60%">изменилась позиция в списке
+ <td class="cont" width="60%">РёР·РјРµРЅРёР»Р°СЃСЊ РїРѕР·РёС†РёСЏ РІ СЃРїРёСЃРєРµ
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_listhotkey.html">DN_LISTHOTKEY</a></td>
- <td class="cont" width="60%">пользователь для смены пункта в списке воспользовался горячими клавишами.
+ <td class="cont" width="60%">РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РґР»СЏ СЃРјРµРЅС‹ РїСѓРЅРєС‚Р° РІ СЃРїРёСЃРєРµ РІРѕСЃРїРѕР»СЊР·РѕРІР°Р»СЃСЏ РіРѕСЂСЏС‡РёРјРё РєР»Р°РІРёС€Р°РјРё.
 </td></tr>
 </table>
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
 <a href="di_combobox.html">DI_COMBOBOX</a>,
 <a href="../structures/fardialogitem.html">FarDialogItem</a>
 

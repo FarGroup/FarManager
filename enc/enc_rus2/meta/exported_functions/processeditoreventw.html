@@ -1,20 +1,20 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>ProcessEditorEventW</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
 <body>
 
 <h1>ProcessEditorEventW</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">экспортируемые функции</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЌРєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>ProcessEditorEventW</dfn> сообщает плагину о событиях, происходящих в редакторе FAR Manager.</div>
+Р¤СѓРЅРєС†РёСЏ <dfn>ProcessEditorEventW</dfn> СЃРѕРѕР±С‰Р°РµС‚ РїР»Р°РіРёРЅСѓ Рѕ СЃРѕР±С‹С‚РёСЏС…, РїСЂРѕРёСЃС…РѕРґСЏС‰РёС… РІ СЂРµРґР°РєС‚РѕСЂРµ FAR Manager.</div>
 
 <pre class=syntax>
 int WINAPI ProcessEditorEventW(
@@ -23,31 +23,31 @@ int WINAPI ProcessEditorEventW(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
     <div class=dfn>Event</div>
-    <div class=dfndescr>Тип события.<br>
-      Может быть одной из следующих величин (перечисление <a name="EDITOR_EVENTS">EDITOR_EVENTS</a>):
+    <div class=dfndescr>РўРёРї СЃРѕР±С‹С‚РёСЏ.<br>
+      РњРѕР¶РµС‚ Р±С‹С‚СЊ РѕРґРЅРѕР№ РёР· СЃР»РµРґСѓСЋС‰РёС… РІРµР»РёС‡РёРЅ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="EDITOR_EVENTS">EDITOR_EVENTS</a>):
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">РЎРѕР±С‹С‚РёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="EE_CLOSE">EE_CLOSE</a></td>
         <td class="cont" width="60%">
-        Одно из окон редактора закрывается.<br>
-        Плагин может использовать
-          это сообщение для освобождения внутренних структур данных. Заметьте,
-          что несколько окон редактора могут работать одновременно.<br>
-          Параметр
-          <dfn>Param</dfn> указывает на переменную, содержащую значение
-          EditorID закрываемого редактора. EditorID может быть получен ранее с
-          использованием <a href="../service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a> команды <a href="../service_functions/editorcontrol.html">EditorControl</a>.
-          Но плагин не должен вызывать EditorControl при обработке этого
-          сообщения потому что редактор уже закрыт.<br>
-          Функция должна вернуть 0.
+        РћРґРЅРѕ РёР· РѕРєРѕРЅ СЂРµРґР°РєС‚РѕСЂР° Р·Р°РєСЂС‹РІР°РµС‚СЃСЏ.<br>
+        РџР»Р°РіРёРЅ РјРѕР¶РµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ
+          СЌС‚Рѕ СЃРѕРѕР±С‰РµРЅРёРµ РґР»СЏ РѕСЃРІРѕР±РѕР¶РґРµРЅРёСЏ РІРЅСѓС‚СЂРµРЅРЅРёС… СЃС‚СЂСѓРєС‚СѓСЂ РґР°РЅРЅС‹С…. Р—Р°РјРµС‚СЊС‚Рµ,
+          С‡С‚Рѕ РЅРµСЃРєРѕР»СЊРєРѕ РѕРєРѕРЅ СЂРµРґР°РєС‚РѕСЂР° РјРѕРіСѓС‚ СЂР°Р±РѕС‚Р°С‚СЊ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ.<br>
+          РџР°СЂР°РјРµС‚СЂ
+          <dfn>Param</dfn> СѓРєР°Р·С‹РІР°РµС‚ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ, СЃРѕРґРµСЂР¶Р°С‰СѓСЋ Р·РЅР°С‡РµРЅРёРµ
+          EditorID Р·Р°РєСЂС‹РІР°РµРјРѕРіРѕ СЂРµРґР°РєС‚РѕСЂР°. EditorID РјРѕР¶РµС‚ Р±С‹С‚СЊ РїРѕР»СѓС‡РµРЅ СЂР°РЅРµРµ СЃ
+          РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј <a href="../service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a> РєРѕРјР°РЅРґС‹ <a href="../service_functions/editorcontrol.html">EditorControl</a>.
+          РќРѕ РїР»Р°РіРёРЅ РЅРµ РґРѕР»Р¶РµРЅ РІС‹Р·С‹РІР°С‚СЊ EditorControl РїСЂРё РѕР±СЂР°Р±РѕС‚РєРµ СЌС‚РѕРіРѕ
+          СЃРѕРѕР±С‰РµРЅРёСЏ РїРѕС‚РѕРјСѓ С‡С‚Рѕ СЂРµРґР°РєС‚РѕСЂ СѓР¶Рµ Р·Р°РєСЂС‹С‚.<br>
+          Р¤СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° РІРµСЂРЅСѓС‚СЊ 0.
 
-       <p class=note><img src="../../images/note.gif" alt="Замечание для EE_CLOSE" width="10" height="10"> Замечание.</p>
+       <p class=note><img src="../../images/note.gif" alt="Р—Р°РјРµС‡Р°РЅРёРµ РґР»СЏ EE_CLOSE" width="10" height="10"> Р—Р°РјРµС‡Р°РЅРёРµ.</p>
        <UL class=note><LI>
-       В <dfn>EE_CLOSE</dfn> допускается использовать только
-       <a href="../service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a> и
+       Р’ <dfn>EE_CLOSE</dfn> РґРѕРїСѓСЃРєР°РµС‚СЃСЏ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С‚РѕР»СЊРєРѕ
+       <a href="../service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a> Рё
        <a href="../service_functions/editorcontrol.html#ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a>.
        </LI></UL>
 
@@ -55,93 +55,93 @@ int WINAPI ProcessEditorEventW(
 
         <tr class="cont"><td class="cont" width="40%"><a name="EE_READ">EE_READ</a></td>
         <td class="cont" width="60%">
-        Новый файл загружен в редактор. Плагин может
-          использовать команды функции <a href="../service_functions/editorcontrol.html">EditorControl</a>
-          для модификации считанных данных.<br>
+        РќРѕРІС‹Р№ С„Р°Р№Р» Р·Р°РіСЂСѓР¶РµРЅ РІ СЂРµРґР°РєС‚РѕСЂ. РџР»Р°РіРёРЅ РјРѕР¶РµС‚
+          РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РєРѕРјР°РЅРґС‹ С„СѓРЅРєС†РёРё <a href="../service_functions/editorcontrol.html">EditorControl</a>
+          РґР»СЏ РјРѕРґРёС„РёРєР°С†РёРё СЃС‡РёС‚Р°РЅРЅС‹С… РґР°РЅРЅС‹С….<br>
           <i>Param</i> = NULL.<br>
-          Функция должна вернуть 0.
+          Р¤СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° РІРµСЂРЅСѓС‚СЊ 0.
         </td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="EE_SAVE">EE_SAVE</a></td>
-        <td class="cont" width="60%">Отредактированный файл собираются сохранять.
-          Плагин может использовать команды функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для модификации данных
-          перед сохранением.<br>
+        <td class="cont" width="60%">РћС‚СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРЅС‹Р№ С„Р°Р№Р» СЃРѕР±РёСЂР°СЋС‚СЃСЏ СЃРѕС…СЂР°РЅСЏС‚СЊ.
+          РџР»Р°РіРёРЅ РјРѕР¶РµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РєРѕРјР°РЅРґС‹ С„СѓРЅРєС†РёРё <a href="../service_functions/editorcontrol.html">EditorControl</a> РґР»СЏ РјРѕРґРёС„РёРєР°С†РёРё РґР°РЅРЅС‹С…
+          РїРµСЂРµРґ СЃРѕС…СЂР°РЅРµРЅРёРµРј.<br>
           <i>Param</i> = NULL.<br>
-          Функция должна вернуть 0.
+          Р¤СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° РІРµСЂРЅСѓС‚СЊ 0.
         </td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="EE_REDRAW">EE_REDRAW</a></td>
-        <td class="cont" width="60%">Редактор собирается перерисовать экран. Плагин
-          может использовать команду <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a>
-          функции <a href="../service_functions/editorcontrol.html">EditorControl</a>,
-          чтобы установить цвета для строки. <br>
-          <i>Param</i> может быть одним из следующих значений:
+        <td class="cont" width="60%">Р РµРґР°РєС‚РѕСЂ СЃРѕР±РёСЂР°РµС‚СЃСЏ РїРµСЂРµСЂРёСЃРѕРІР°С‚СЊ СЌРєСЂР°РЅ. РџР»Р°РіРёРЅ
+          РјРѕР¶РµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РєРѕРјР°РЅРґСѓ <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a>
+          С„СѓРЅРєС†РёРё <a href="../service_functions/editorcontrol.html">EditorControl</a>,
+          С‡С‚РѕР±С‹ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ С†РІРµС‚Р° РґР»СЏ СЃС‚СЂРѕРєРё. <br>
+          <i>Param</i> РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕРґРЅРёРј РёР· СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№:
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">РљРѕРЅСЃС‚Р°РЅС‚Р°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="EEREDRAW_ALL">EEREDRAW_ALL</a></td>
-        <td class="cont" width="60%">Прорисовывается весь экран</td></tr>
+        <td class="cont" width="60%">РџСЂРѕСЂРёСЃРѕРІС‹РІР°РµС‚СЃСЏ РІРµСЃСЊ СЌРєСЂР°РЅ</td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="EEREDRAW_LINE">EEREDRAW_LINE</a></td>
-        <td class="cont" width="60%">Перерисовка только текущей строки</td></tr>
+        <td class="cont" width="60%">РџРµСЂРµСЂРёСЃРѕРІРєР° С‚РѕР»СЊРєРѕ С‚РµРєСѓС‰РµР№ СЃС‚СЂРѕРєРё</td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="EEREDRAW_CHANGE">EEREDRAW_CHANGE</a></td>
-        <td class="cont" width="60%">Перерисовка вызвана изменением текста.<br><br>
+        <td class="cont" width="60%">РџРµСЂРµСЂРёСЃРѕРІРєР° РІС‹Р·РІР°РЅР° РёР·РјРµРЅРµРЅРёРµРј С‚РµРєСЃС‚Р°.<br><br>
 
-          В случае изменения <dfn>EEREDRAW_CHANGE</dfn> может
-          быть перерисована как текущая строка, так и весь экран. Поэтому если
-          были изменения раскраски вне текущей строки, настоятельно рекомендуется
-          по окончании раскраски вызвать
+          Р’ СЃР»СѓС‡Р°Рµ РёР·РјРµРЅРµРЅРёСЏ <dfn>EEREDRAW_CHANGE</dfn> РјРѕР¶РµС‚
+          Р±С‹С‚СЊ РїРµСЂРµСЂРёСЃРѕРІР°РЅР° РєР°Рє С‚РµРєСѓС‰Р°СЏ СЃС‚СЂРѕРєР°, С‚Р°Рє Рё РІРµСЃСЊ СЌРєСЂР°РЅ. РџРѕСЌС‚РѕРјСѓ РµСЃР»Рё
+          Р±С‹Р»Рё РёР·РјРµРЅРµРЅРёСЏ СЂР°СЃРєСЂР°СЃРєРё РІРЅРµ С‚РµРєСѓС‰РµР№ СЃС‚СЂРѕРєРё, РЅР°СЃС‚РѕСЏС‚РµР»СЊРЅРѕ СЂРµРєРѕРјРµРЅРґСѓРµС‚СЃСЏ
+          РїРѕ РѕРєРѕРЅС‡Р°РЅРёРё СЂР°СЃРєСЂР°СЃРєРё РІС‹Р·РІР°С‚СЊ
           <a href="../service_functions/editorcontrol.html#ECTL_REDRAW">ECTL_REDRAW</a>.
-          Иначе эти изменения отобразятся только после движения курсора или
-          других вызывающих перерисовку событий. Главное при этом не попасть в
-          рекурсию.
+          РРЅР°С‡Рµ СЌС‚Рё РёР·РјРµРЅРµРЅРёСЏ РѕС‚РѕР±СЂР°Р·СЏС‚СЃСЏ С‚РѕР»СЊРєРѕ РїРѕСЃР»Рµ РґРІРёР¶РµРЅРёСЏ РєСѓСЂСЃРѕСЂР° РёР»Рё
+          РґСЂСѓРіРёС… РІС‹Р·С‹РІР°СЋС‰РёС… РїРµСЂРµСЂРёСЃРѕРІРєСѓ СЃРѕР±С‹С‚РёР№. Р“Р»Р°РІРЅРѕРµ РїСЂРё СЌС‚РѕРј РЅРµ РїРѕРїР°СЃС‚СЊ РІ
+          СЂРµРєСѓСЂСЃРёСЋ.
 
         </td></tr>
 
 </table>
-          Функция должна вернуть 0.<br><br>
+          Р¤СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° РІРµСЂРЅСѓС‚СЊ 0.<br><br>
         </td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="EE_KILLFOCUS">EE_KILLFOCUS</a></td>
-        <td class="cont" width="60%">Редактор потерял фокус ввода.<br>
-          <i>Param</i> указывает на переменную, содержащую значение EditorID редактора, теряющего фокус.<br>
-          Функция должна вернуть 0.
+        <td class="cont" width="60%">Р РµРґР°РєС‚РѕСЂ РїРѕС‚РµСЂСЏР» С„РѕРєСѓСЃ РІРІРѕРґР°.<br>
+          <i>Param</i> СѓРєР°Р·С‹РІР°РµС‚ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ, СЃРѕРґРµСЂР¶Р°С‰СѓСЋ Р·РЅР°С‡РµРЅРёРµ EditorID СЂРµРґР°РєС‚РѕСЂР°, С‚РµСЂСЏСЋС‰РµРіРѕ С„РѕРєСѓСЃ.<br>
+          Р¤СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° РІРµСЂРЅСѓС‚СЊ 0.
         </td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="EE_GOTFOCUS">EE_GOTFOCUS</a></td>
-        <td class="cont" width="60%">Редактор получил фокус ввода.<br>
-          <i>Param</i> указывает на переменную, содержащую значение EditorID редактора, получающего фокус.<br>
-          Функция должна вернуть 0.
+        <td class="cont" width="60%">Р РµРґР°РєС‚РѕСЂ РїРѕР»СѓС‡РёР» С„РѕРєСѓСЃ РІРІРѕРґР°.<br>
+          <i>Param</i> СѓРєР°Р·С‹РІР°РµС‚ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ, СЃРѕРґРµСЂР¶Р°С‰СѓСЋ Р·РЅР°С‡РµРЅРёРµ EditorID СЂРµРґР°РєС‚РѕСЂР°, РїРѕР»СѓС‡Р°СЋС‰РµРіРѕ С„РѕРєСѓСЃ.<br>
+          Р¤СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° РІРµСЂРЅСѓС‚СЊ 0.
         </td></tr>
 
 </table>
-       <p class=warning><img src="../../images/warning.gif" alt="Замечание для EE_REDRAW" width="10" height="10"> Внимание!</p>
+       <p class=warning><img src="../../images/warning.gif" alt="Р—Р°РјРµС‡Р°РЅРёРµ РґР»СЏ EE_REDRAW" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!</p>
        <UL class=warning><LI>
-       <b>При обработке EE_REDRAW <u>НЕЖЕЛАТЕЛЬНО</u> ИСПОЛЬЗОВАТЬ
+       <b>РџСЂРё РѕР±СЂР°Р±РѕС‚РєРµ EE_REDRAW <u>РќР•Р–Р•Р›РђРўР•Р›Р¬РќРћ</u> РРЎРџРћР›Р¬Р—РћР’РђРўР¬
              <a href="../service_functions/message.html">Info.Message</a>,
              <a href="../service_functions/menu.html">Info.Menu</a>,
              <a href="../dialogapi/dialogrun.html">Info.DialogRun</a>.
-             Вызов этих функций приводит к рекурсивному вызову EE_REDRAW.</b>
+             Р’С‹Р·РѕРІ СЌС‚РёС… С„СѓРЅРєС†РёР№ РїСЂРёРІРѕРґРёС‚ Рє СЂРµРєСѓСЂСЃРёРІРЅРѕРјСѓ РІС‹Р·РѕРІСѓ EE_REDRAW.</b>
        </LI></UL>
 
     </div>
     <div class=dfn>Param</div>
     <div class=dfndescr>
-      Указатель на данные, зависящие от типа события <i>Event</i>.
+      РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РґР°РЅРЅС‹Рµ, Р·Р°РІРёСЃСЏС‰РёРµ РѕС‚ С‚РёРїР° СЃРѕР±С‹С‚РёСЏ <i>Event</i>.
     </div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-  Возвращаемое значение зависит от типа события <i>Event</i>.<br>
-  Верните 0 для неизвестного типа события.
+  Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ Р·Р°РІРёСЃРёС‚ РѕС‚ С‚РёРїР° СЃРѕР±С‹С‚РёСЏ <i>Event</i>.<br>
+  Р’РµСЂРЅРёС‚Рµ 0 РґР»СЏ РЅРµРёР·РІРµСЃС‚РЅРѕРіРѕ С‚РёРїР° СЃРѕР±С‹С‚РёСЏ.
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-  <li>EE_READ вызывается только один раз для файла. </li>
-  <li>EE_SAVE вызывается при каждом нажатии F2 или Shift-F2.</li>
-  <li>EE_REDRAW вызывается при любой перерисовке экрана (в частности, при движении курсора)</li>
+  <li>EE_READ РІС‹Р·С‹РІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РѕРґРёРЅ СЂР°Р· РґР»СЏ С„Р°Р№Р»Р°. </li>
+  <li>EE_SAVE РІС‹Р·С‹РІР°РµС‚СЃСЏ РїСЂРё РєР°Р¶РґРѕРј РЅР°Р¶Р°С‚РёРё F2 РёР»Рё Shift-F2.</li>
+  <li>EE_REDRAW РІС‹Р·С‹РІР°РµС‚СЃСЏ РїСЂРё Р»СЋР±РѕР№ РїРµСЂРµСЂРёСЃРѕРІРєРµ СЌРєСЂР°РЅР° (РІ С‡Р°СЃС‚РЅРѕСЃС‚Рё, РїСЂРё РґРІРёР¶РµРЅРёРё РєСѓСЂСЃРѕСЂР°)</li>
 </div>
 
 </body>

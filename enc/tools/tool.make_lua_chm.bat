@@ -7,23 +7,21 @@ cd ..\build\lua || exit 1
 
 if not '%1'=='' goto :make
 
-call :make luafar_manual
-call :make macroapi_manual.ru
-call :make macroapi_manual.en
+call :make luafar_manual windows-1252
+call :make macroapi_manual.ru windows-1251
+call :make macroapi_manual.en windows-1252
 
-goto :end
+goto :eof
 
 :make
 mkdir %1
 cd %1 || exit 1
-"%~dp0lua\lua.exe" "%~dp0lua\scripts\tp2hh.lua" "..\..\..\enc_lua\%1.tsi" tsi "%~dp0lua\templates\api.tem"
+python %~dp0convert.py "..\..\..\enc_lua\%1.tsi" "%1.tsi" %2
+"%~dp0lua\lua.exe" "%~dp0lua\scripts\tp2hh.lua" "%1.tsi" tsi "%~dp0lua\templates\api.tem"
 "C:\Program Files (x86)\HTML Help Workshop\hhc.exe" %1.hhp
 if not exist %1.chm (
 	echo "Error: %1.chm wasn't created!"
 	exit 1
 )
 cd ..
-goto :EOF
-
-:end
-exit 0
+goto :eof

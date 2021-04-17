@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>CRegExp.Parse</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
@@ -12,53 +12,53 @@
 
 <h1>CRegExp.Parse</h1>
 <div class=navbar>
-<a href="../../index.html">главная</a> |
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
 <a href="../index.html">Custom API</a> |
-<a href="index.html">регэкспы</a><br>
+<a href="index.html">СЂРµРіСЌРєСЃРїС‹</a><br>
 </div>
 
 
 <div class=shortdescr>
-Сопоставляет скомпилированное регулярное выражение целевой строке.
+РЎРѕРїРѕСЃС‚Р°РІР»СЏРµС‚ СЃРєРѕРјРїРёР»РёСЂРѕРІР°РЅРЅРѕРµ СЂРµРіСѓР»СЏСЂРЅРѕРµ РІС‹СЂР°Р¶РµРЅРёРµ С†РµР»РµРІРѕР№ СЃС‚СЂРѕРєРµ.
 </div>
 
-<h4>Метод класса:</h4>
+<h4>РњРµС‚РѕРґ РєР»Р°СЃСЃР°:</h4>
 <pre class=syntax>
 bool Parse(char *Str, PMatches Mtch);
 </pre>
 
-<h4>DLL интерфейс:</h4>
+<h4>DLL РёРЅС‚РµСЂС„РµР№СЃ:</h4>
 <pre class=syntax>
 BOOL WINAPI reParse(PRegExp re, char *str, PMatches mtch);
 </pre>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
 
     <div class=dfn>re</div>
-    <div class=dfndescr>Указатель на объект</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РѕР±СЉРµРєС‚</div>
     <div class=dfn>str</div>
-    <div class=dfndescr>Целевая строка для обработки</div>
+    <div class=dfndescr>Р¦РµР»РµРІР°СЏ СЃС‚СЂРѕРєР° РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё</div>
     <div class=dfn>mtch</div>
-    <div class=dfndescr>Указатель на структуру для хранения сопоставленных пар скобок</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРЅС‹С… РїР°СЂ СЃРєРѕР±РѕРє</div>
 
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-Возвращает TRUE или FALSE в зависимости от успеха сопоставления.
+Р’РѕР·РІСЂР°С‰Р°РµС‚ TRUE РёР»Рё FALSE РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ СѓСЃРїРµС…Р° СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРёСЏ.
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-В этом методе некоторые параметры принимаются по умолчанию.
-Начало строки соответствует реальному началу строки, конец -
-реальному ээ... концу.
-Если хотите использовать расширенные параметры - используйте
-расширенный вариант <a href="parse2.html">Parse</a>
+Р’ СЌС‚РѕРј РјРµС‚РѕРґРµ РЅРµРєРѕС‚РѕСЂС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ РїСЂРёРЅРёРјР°СЋС‚СЃСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ.
+РќР°С‡Р°Р»Рѕ СЃС‚СЂРѕРєРё СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ СЂРµР°Р»СЊРЅРѕРјСѓ РЅР°С‡Р°Р»Сѓ СЃС‚СЂРѕРєРё, РєРѕРЅРµС† -
+СЂРµР°Р»СЊРЅРѕРјСѓ СЌСЌ... РєРѕРЅС†Сѓ.
+Р•СЃР»Рё С…РѕС‚РёС‚Рµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЂР°СЃС€РёСЂРµРЅРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ - РёСЃРїРѕР»СЊР·СѓР№С‚Рµ
+СЂР°СЃС€РёСЂРµРЅРЅС‹Р№ РІР°СЂРёР°РЅС‚ <a href="parse2.html">Parse</a>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
 <a href="parse2.html">Parse</a><br>
 <a href="cregexp.html">CRegExp</a>
 </div>

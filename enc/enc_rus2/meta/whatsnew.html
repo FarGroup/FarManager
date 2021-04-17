@@ -1,162 +1,162 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-<title>Что нового в Encyclopedia for Developers?</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<title>Р§С‚Рѕ РЅРѕРІРѕРіРѕ РІ Encyclopedia for Developers?</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../styles/styles.css">
 </head>
 <body>
 
-<h1>Что нового в Encyclopedia for Developers?</h1>
+<h1>Р§С‚Рѕ РЅРѕРІРѕРіРѕ РІ Encyclopedia for Developers?</h1>
 <div class=navbar>
-<a href="index.html">главная</a>
+<a href="index.html">РіР»Р°РІРЅР°СЏ</a>
 </div>
 
 
-<h3>03 Февраля 2011 г.</h3>
+<h3>03 Р¤РµРІСЂР°Р»СЏ 2011 Рі.</h3>
 <ul>
-<h3>Внимание! Начался второй этап изменений Plugins API - версия API теперь v3.0</h3>
+<h3>Р’РЅРёРјР°РЅРёРµ! РќР°С‡Р°Р»СЃСЏ РІС‚РѕСЂРѕР№ СЌС‚Р°Рї РёР·РјРµРЅРµРЅРёР№ Plugins API - РІРµСЂСЃРёСЏ API С‚РµРїРµСЂСЊ v3.0</h3>
 </ul>
 
 
-<h3>01 февраля 2011 г.</h3>
+<h3>01 С„РµРІСЂР°Р»СЏ 2011 Рі.</h3>
 <ul>
-<h3>Что изменилось в Plugins API v2.0 в сравнении c Plugins API v1.0</h3>
-<li>глобально char/char* заменены на wchar_t/wchar_t*
-<li>глобально фиксированные массивы char[n] заменены на указатели wchar_t* на буферы выделяемые плагином
-<li>ФАР не использует SetCurrentDirectoryW() при навигации по папкам, как следствие, бонусы:<br>
-- хождение по папкам глубже MAX_PATH;<br>
-- вход в папки, оканчивающиеся точками, пробелами и прочим;<br>
-- папка, открытая на панели, не блокируется от удаления извне;
-<li>изменилась синхронизация CurrentDirectory ФАРа:<br>
-- команда Info.Control - FCTL_GETCURRENTDIRECTORY переименована в FCTL_GETPANELDIR<br>
-- вместо Info.Control - FCTL_GETCURRENTDIRECTORY используйте FSF.GetCurrentDirectory()<br>
-- вместо ConvertNameToFullW() используйте FSF.ConvertPath()
-<li>описатели CURRENT_PANEL/ANOTHER_PANEL переименованы в PANEL_ACTIVE/PANEL_PASSIVE
-<li>функция Info.GetPluginDirList() изменена, вместо INVALID_HANDLE_VALUE используются PANEL_ACTIVE/PANEL_PASSIVE
-<li>макроса NM больше нет
-<li>структура PluginPanelItem.FindData изменена
-<li>проверки на размер PluginPanelItem больше нет
-<li>в структуре OpenPluginInfo.InfoPanelLine - массив структур заменён на массив указателей
-<li>функция Info.Control() изменена, у ней теперь вместо трёх - ЧЕТЫРЕ параметра!
-<li>изменена структура PanelInfo: убраны элементы PanelItems, SelectedItems, ColumnTypes, ColumnWidths, CurDir
-<li>команды Info.Control - FCTL_GETPANELSHORTINFO больше нет, её функцию выполняет FCTL_GETPANELINFO
-<li>в команде Info.Control - FCTL_GETCMDLINE память под буфер плагин выделяет сам
-<li>в команде Info.Control - FCTL_SELECTEDTEXT память под буфер плагин выделяет сам
-<li>команда Info.AdvControl - ACTL_GETWCHARMODE удалена
-<li>команда Info.AdvControl - ACTL_CONSOLEMODE удалена
-<li>команда Info.EditorControl - ECTL_EDITORTOOEM удалена
-<li>команда Info.EditorControl - ECTL_OEMTOEDITOR удалена
-<li>команда Info.EditorControl - ECTL_SETTITLE, теперь плагин самостоятельно должен восстанавливать "заголовок"
-<li>команда FCTL_SETSELECTION изменена на систему команд:<br>
+<h3>Р§С‚Рѕ РёР·РјРµРЅРёР»РѕСЃСЊ РІ Plugins API v2.0 РІ СЃСЂР°РІРЅРµРЅРёРё c Plugins API v1.0</h3>
+<li>РіР»РѕР±Р°Р»СЊРЅРѕ char/char* Р·Р°РјРµРЅРµРЅС‹ РЅР° wchar_t/wchar_t*
+<li>РіР»РѕР±Р°Р»СЊРЅРѕ С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Рµ РјР°СЃСЃРёРІС‹ char[n] Р·Р°РјРµРЅРµРЅС‹ РЅР° СѓРєР°Р·Р°С‚РµР»Рё wchar_t* РЅР° Р±СѓС„РµСЂС‹ РІС‹РґРµР»СЏРµРјС‹Рµ РїР»Р°РіРёРЅРѕРј
+<li>Р¤РђР  РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚ SetCurrentDirectoryW() РїСЂРё РЅР°РІРёРіР°С†РёРё РїРѕ РїР°РїРєР°Рј, РєР°Рє СЃР»РµРґСЃС‚РІРёРµ, Р±РѕРЅСѓСЃС‹:<br>
+- С…РѕР¶РґРµРЅРёРµ РїРѕ РїР°РїРєР°Рј РіР»СѓР±Р¶Рµ MAX_PATH;<br>
+- РІС…РѕРґ РІ РїР°РїРєРё, РѕРєР°РЅС‡РёРІР°СЋС‰РёРµСЃСЏ С‚РѕС‡РєР°РјРё, РїСЂРѕР±РµР»Р°РјРё Рё РїСЂРѕС‡РёРј;<br>
+- РїР°РїРєР°, РѕС‚РєСЂС‹С‚Р°СЏ РЅР° РїР°РЅРµР»Рё, РЅРµ Р±Р»РѕРєРёСЂСѓРµС‚СЃСЏ РѕС‚ СѓРґР°Р»РµРЅРёСЏ РёР·РІРЅРµ;
+<li>РёР·РјРµРЅРёР»Р°СЃСЊ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ CurrentDirectory Р¤РђР Р°:<br>
+- РєРѕРјР°РЅРґР° Info.Control - FCTL_GETCURRENTDIRECTORY РїРµСЂРµРёРјРµРЅРѕРІР°РЅР° РІ FCTL_GETPANELDIR<br>
+- РІРјРµСЃС‚Рѕ Info.Control - FCTL_GETCURRENTDIRECTORY РёСЃРїРѕР»СЊР·СѓР№С‚Рµ FSF.GetCurrentDirectory()<br>
+- РІРјРµСЃС‚Рѕ ConvertNameToFullW() РёСЃРїРѕР»СЊР·СѓР№С‚Рµ FSF.ConvertPath()
+<li>РѕРїРёСЃР°С‚РµР»Рё CURRENT_PANEL/ANOTHER_PANEL РїРµСЂРµРёРјРµРЅРѕРІР°РЅС‹ РІ PANEL_ACTIVE/PANEL_PASSIVE
+<li>С„СѓРЅРєС†РёСЏ Info.GetPluginDirList() РёР·РјРµРЅРµРЅР°, РІРјРµСЃС‚Рѕ INVALID_HANDLE_VALUE РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ PANEL_ACTIVE/PANEL_PASSIVE
+<li>РјР°РєСЂРѕСЃР° NM Р±РѕР»СЊС€Рµ РЅРµС‚
+<li>СЃС‚СЂСѓРєС‚СѓСЂР° PluginPanelItem.FindData РёР·РјРµРЅРµРЅР°
+<li>РїСЂРѕРІРµСЂРєРё РЅР° СЂР°Р·РјРµСЂ PluginPanelItem Р±РѕР»СЊС€Рµ РЅРµС‚
+<li>РІ СЃС‚СЂСѓРєС‚СѓСЂРµ OpenPluginInfo.InfoPanelLine - РјР°СЃСЃРёРІ СЃС‚СЂСѓРєС‚СѓСЂ Р·Р°РјРµРЅС‘РЅ РЅР° РјР°СЃСЃРёРІ СѓРєР°Р·Р°С‚РµР»РµР№
+<li>С„СѓРЅРєС†РёСЏ Info.Control() РёР·РјРµРЅРµРЅР°, Сѓ РЅРµР№ С‚РµРїРµСЂСЊ РІРјРµСЃС‚Рѕ С‚СЂС‘С… - Р§Р•РўР«Р Р• РїР°СЂР°РјРµС‚СЂР°!
+<li>РёР·РјРµРЅРµРЅР° СЃС‚СЂСѓРєС‚СѓСЂР° PanelInfo: СѓР±СЂР°РЅС‹ СЌР»РµРјРµРЅС‚С‹ PanelItems, SelectedItems, ColumnTypes, ColumnWidths, CurDir
+<li>РєРѕРјР°РЅРґС‹ Info.Control - FCTL_GETPANELSHORTINFO Р±РѕР»СЊС€Рµ РЅРµС‚, РµС‘ С„СѓРЅРєС†РёСЋ РІС‹РїРѕР»РЅСЏРµС‚ FCTL_GETPANELINFO
+<li>РІ РєРѕРјР°РЅРґРµ Info.Control - FCTL_GETCMDLINE РїР°РјСЏС‚СЊ РїРѕРґ Р±СѓС„РµСЂ РїР»Р°РіРёРЅ РІС‹РґРµР»СЏРµС‚ СЃР°Рј
+<li>РІ РєРѕРјР°РЅРґРµ Info.Control - FCTL_SELECTEDTEXT РїР°РјСЏС‚СЊ РїРѕРґ Р±СѓС„РµСЂ РїР»Р°РіРёРЅ РІС‹РґРµР»СЏРµС‚ СЃР°Рј
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_GETWCHARMODE СѓРґР°Р»РµРЅР°
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_CONSOLEMODE СѓРґР°Р»РµРЅР°
+<li>РєРѕРјР°РЅРґР° Info.EditorControl - ECTL_EDITORTOOEM СѓРґР°Р»РµРЅР°
+<li>РєРѕРјР°РЅРґР° Info.EditorControl - ECTL_OEMTOEDITOR СѓРґР°Р»РµРЅР°
+<li>РєРѕРјР°РЅРґР° Info.EditorControl - ECTL_SETTITLE, С‚РµРїРµСЂСЊ РїР»Р°РіРёРЅ СЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅРѕ РґРѕР»Р¶РµРЅ РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ "Р·Р°РіРѕР»РѕРІРѕРє"
+<li>РєРѕРјР°РЅРґР° FCTL_SETSELECTION РёР·РјРµРЅРµРЅР° РЅР° СЃРёСЃС‚РµРјСѓ РєРѕРјР°РЅРґ:<br>
 - FCTL_BEGINSELECTION<br>
 - FCTL_SETSELECTION<br>
 - FCTL_ENDSELECTION
-<li>в Info.AdvControl - ACTL_WAITKEY теперь приходят и макрокнопки
-<li>в функции Info.Message удалён флаг FMSG_DOWN
-<li>память под WindowInfo::TypeName выделяет плагин
-<li>память под WindowInfo::Name выделяет плагин
-<li>функции FSF.ConvertNameToReal() больше нет
-<li>функции FSF.ExpandEnvironmentStr() больше нет
-<li>функция FSF.GetDirList() изменена
-<li>функция FSF.MkTemp() изменена
-<li>функция FSF.GetFileOwner() изменена
-<li>функция FSF.FarKeyToName() изменена
-<li>функция WINAPI PutFilesW() изменена
-<li>функция WINAPI MakeDirectoryW() изменена
-<li>функция WINAPI GetFilesW() изменена
-<li>флага OPIF_FINDFOLDERS больше нет
-<li>структуры FARINT64 больше нет
-<li>структуры EditorConvertText больше нет
-<li>изменена структура EditorInfo: убран элемент FileName
-<li>изменилась системы команд Info.GetDirList/GetPluginDirList и Info.FreeDirList/FreePluginDirList
-<li>команда EditorSetParameter - ESPT_GETWORDDIV изменена
-<li>таблиц кодировки больше нет, все Table теперь CodePage
-<li>плагины в Viewer/Editor могут теперь передавать конкретные кодовые страницы
-<li>изменения в Dialog API:<br>
-- главное отличие от старого Dialog API, это то, что массив структур FarDialogItem
-  является только входным, в него не пишутся изменения при закрытии диалога<br>
-- структура FarDialogItem изменена<br>
-- функций Dialog() и DialogEx() больше нет<br>
-- вместо них DialogInit(), DialogRun(), DialogFree()<br>
-- сообщение DM_GETDLGITEM изменено, Param2 указатель на память куда будет скопирован элемент<br>
-- событие DN_EDITCHANGE приходит при любых изменениях в строке редактирования<br>
-- событие DN_LISTHOTKEY приходит в комбинированный список<br>
-- добавилось сообщение DM_GETCONSTTEXTPTR<br>
-- добавилось сообщение DM_GETDLGITEMSHORT<br>
-- добавилось сообщение DM_SETDLGITEMSHORT<br>
-- добавился флаг DIF_EDITPATH<br>
-- добавился флаг FIB_EDITPATH<br>
-- добавился флаг FDLG_KEEPCONSOLETITLE в функции Info.DialogInit()
-- флага DIF_NOTCVTUSERCONTROL больше нет<br>
-- флага LIF_USETEXTPTR больше нет<br>
-- флага MIF_USETEXTPTR больше нет<br>
+<li>РІ Info.AdvControl - ACTL_WAITKEY С‚РµРїРµСЂСЊ РїСЂРёС…РѕРґСЏС‚ Рё РјР°РєСЂРѕРєРЅРѕРїРєРё
+<li>РІ С„СѓРЅРєС†РёРё Info.Message СѓРґР°Р»С‘РЅ С„Р»Р°Рі FMSG_DOWN
+<li>РїР°РјСЏС‚СЊ РїРѕРґ WindowInfo::TypeName РІС‹РґРµР»СЏРµС‚ РїР»Р°РіРёРЅ
+<li>РїР°РјСЏС‚СЊ РїРѕРґ WindowInfo::Name РІС‹РґРµР»СЏРµС‚ РїР»Р°РіРёРЅ
+<li>С„СѓРЅРєС†РёРё FSF.ConvertNameToReal() Р±РѕР»СЊС€Рµ РЅРµС‚
+<li>С„СѓРЅРєС†РёРё FSF.ExpandEnvironmentStr() Р±РѕР»СЊС€Рµ РЅРµС‚
+<li>С„СѓРЅРєС†РёСЏ FSF.GetDirList() РёР·РјРµРЅРµРЅР°
+<li>С„СѓРЅРєС†РёСЏ FSF.MkTemp() РёР·РјРµРЅРµРЅР°
+<li>С„СѓРЅРєС†РёСЏ FSF.GetFileOwner() РёР·РјРµРЅРµРЅР°
+<li>С„СѓРЅРєС†РёСЏ FSF.FarKeyToName() РёР·РјРµРЅРµРЅР°
+<li>С„СѓРЅРєС†РёСЏ WINAPI PutFilesW() РёР·РјРµРЅРµРЅР°
+<li>С„СѓРЅРєС†РёСЏ WINAPI MakeDirectoryW() РёР·РјРµРЅРµРЅР°
+<li>С„СѓРЅРєС†РёСЏ WINAPI GetFilesW() РёР·РјРµРЅРµРЅР°
+<li>С„Р»Р°РіР° OPIF_FINDFOLDERS Р±РѕР»СЊС€Рµ РЅРµС‚
+<li>СЃС‚СЂСѓРєС‚СѓСЂС‹ FARINT64 Р±РѕР»СЊС€Рµ РЅРµС‚
+<li>СЃС‚СЂСѓРєС‚СѓСЂС‹ EditorConvertText Р±РѕР»СЊС€Рµ РЅРµС‚
+<li>РёР·РјРµРЅРµРЅР° СЃС‚СЂСѓРєС‚СѓСЂР° EditorInfo: СѓР±СЂР°РЅ СЌР»РµРјРµРЅС‚ FileName
+<li>РёР·РјРµРЅРёР»Р°СЃСЊ СЃРёСЃС‚РµРјС‹ РєРѕРјР°РЅРґ Info.GetDirList/GetPluginDirList Рё Info.FreeDirList/FreePluginDirList
+<li>РєРѕРјР°РЅРґР° EditorSetParameter - ESPT_GETWORDDIV РёР·РјРµРЅРµРЅР°
+<li>С‚Р°Р±Р»РёС† РєРѕРґРёСЂРѕРІРєРё Р±РѕР»СЊС€Рµ РЅРµС‚, РІСЃРµ Table С‚РµРїРµСЂСЊ CodePage
+<li>РїР»Р°РіРёРЅС‹ РІ Viewer/Editor РјРѕРіСѓС‚ С‚РµРїРµСЂСЊ РїРµСЂРµРґР°РІР°С‚СЊ РєРѕРЅРєСЂРµС‚РЅС‹Рµ РєРѕРґРѕРІС‹Рµ СЃС‚СЂР°РЅРёС†С‹
+<li>РёР·РјРµРЅРµРЅРёСЏ РІ Dialog API:<br>
+- РіР»Р°РІРЅРѕРµ РѕС‚Р»РёС‡РёРµ РѕС‚ СЃС‚Р°СЂРѕРіРѕ Dialog API, СЌС‚Рѕ С‚Рѕ, С‡С‚Рѕ РјР°СЃСЃРёРІ СЃС‚СЂСѓРєС‚СѓСЂ FarDialogItem
+  СЏРІР»СЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РІС…РѕРґРЅС‹Рј, РІ РЅРµРіРѕ РЅРµ РїРёС€СѓС‚СЃСЏ РёР·РјРµРЅРµРЅРёСЏ РїСЂРё Р·Р°РєСЂС‹С‚РёРё РґРёР°Р»РѕРіР°<br>
+- СЃС‚СЂСѓРєС‚СѓСЂР° FarDialogItem РёР·РјРµРЅРµРЅР°<br>
+- С„СѓРЅРєС†РёР№ Dialog() Рё DialogEx() Р±РѕР»СЊС€Рµ РЅРµС‚<br>
+- РІРјРµСЃС‚Рѕ РЅРёС… DialogInit(), DialogRun(), DialogFree()<br>
+- СЃРѕРѕР±С‰РµРЅРёРµ DM_GETDLGITEM РёР·РјРµРЅРµРЅРѕ, Param2 СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РїР°РјСЏС‚СЊ РєСѓРґР° Р±СѓРґРµС‚ СЃРєРѕРїРёСЂРѕРІР°РЅ СЌР»РµРјРµРЅС‚<br>
+- СЃРѕР±С‹С‚РёРµ DN_EDITCHANGE РїСЂРёС…РѕРґРёС‚ РїСЂРё Р»СЋР±С‹С… РёР·РјРµРЅРµРЅРёСЏС… РІ СЃС‚СЂРѕРєРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ<br>
+- СЃРѕР±С‹С‚РёРµ DN_LISTHOTKEY РїСЂРёС…РѕРґРёС‚ РІ РєРѕРјР±РёРЅРёСЂРѕРІР°РЅРЅС‹Р№ СЃРїРёСЃРѕРє<br>
+- РґРѕР±Р°РІРёР»РѕСЃСЊ СЃРѕРѕР±С‰РµРЅРёРµ DM_GETCONSTTEXTPTR<br>
+- РґРѕР±Р°РІРёР»РѕСЃСЊ СЃРѕРѕР±С‰РµРЅРёРµ DM_GETDLGITEMSHORT<br>
+- РґРѕР±Р°РІРёР»РѕСЃСЊ СЃРѕРѕР±С‰РµРЅРёРµ DM_SETDLGITEMSHORT<br>
+- РґРѕР±Р°РІРёР»СЃСЏ С„Р»Р°Рі DIF_EDITPATH<br>
+- РґРѕР±Р°РІРёР»СЃСЏ С„Р»Р°Рі FIB_EDITPATH<br>
+- РґРѕР±Р°РІРёР»СЃСЏ С„Р»Р°Рі FDLG_KEEPCONSOLETITLE РІ С„СѓРЅРєС†РёРё Info.DialogInit()
+- С„Р»Р°РіР° DIF_NOTCVTUSERCONTROL Р±РѕР»СЊС€Рµ РЅРµС‚<br>
+- С„Р»Р°РіР° LIF_USETEXTPTR Р±РѕР»СЊС€Рµ РЅРµС‚<br>
+- С„Р»Р°РіР° MIF_USETEXTPTR Р±РѕР»СЊС€Рµ РЅРµС‚<br>
 
-<li>Плановые изменения в макросах:<br>
-- удалена команда $Date - заменить на print(Date("формат"))<br>
-- удалена команда $MMode - заменить на mmode(1,2)<br>
-- удалено состояние IClip - заменить на clip(5,-1) (при этом учесть, что clip() вернет 1 или 2)<br>
-- удалена команда $IClip - заменить на clip(5,0) или просто clip(5)<br>
-- удалено состояние DisableOutput (не флаг макроса!) - заменить на вызов функции mmode(1,-1)<br>
-- добавлена функция N=mload(S)<br>
-- добавлена функция beep()<br>
-- добавлена функция kbdLayout()<br>
-- удалена команда $KbdSwitch, замените $KbdSwitch на kbdLayout(1)<br>
-- функция Menu.ItemStatus() теперь в старшем слове возвращает код символа пометки U+XXXX<br>
-- добавлен условный оператор "^^" - XOR, исключающее ИЛИ
+<li>РџР»Р°РЅРѕРІС‹Рµ РёР·РјРµРЅРµРЅРёСЏ РІ РјР°РєСЂРѕСЃР°С…:<br>
+- СѓРґР°Р»РµРЅР° РєРѕРјР°РЅРґР° $Date - Р·Р°РјРµРЅРёС‚СЊ РЅР° print(Date("С„РѕСЂРјР°С‚"))<br>
+- СѓРґР°Р»РµРЅР° РєРѕРјР°РЅРґР° $MMode - Р·Р°РјРµРЅРёС‚СЊ РЅР° mmode(1,2)<br>
+- СѓРґР°Р»РµРЅРѕ СЃРѕСЃС‚РѕСЏРЅРёРµ IClip - Р·Р°РјРµРЅРёС‚СЊ РЅР° clip(5,-1) (РїСЂРё СЌС‚РѕРј СѓС‡РµСЃС‚СЊ, С‡С‚Рѕ clip() РІРµСЂРЅРµС‚ 1 РёР»Рё 2)<br>
+- СѓРґР°Р»РµРЅР° РєРѕРјР°РЅРґР° $IClip - Р·Р°РјРµРЅРёС‚СЊ РЅР° clip(5,0) РёР»Рё РїСЂРѕСЃС‚Рѕ clip(5)<br>
+- СѓРґР°Р»РµРЅРѕ СЃРѕСЃС‚РѕСЏРЅРёРµ DisableOutput (РЅРµ С„Р»Р°Рі РјР°РєСЂРѕСЃР°!) - Р·Р°РјРµРЅРёС‚СЊ РЅР° РІС‹Р·РѕРІ С„СѓРЅРєС†РёРё mmode(1,-1)<br>
+- РґРѕР±Р°РІР»РµРЅР° С„СѓРЅРєС†РёСЏ N=mload(S)<br>
+- РґРѕР±Р°РІР»РµРЅР° С„СѓРЅРєС†РёСЏ beep()<br>
+- РґРѕР±Р°РІР»РµРЅР° С„СѓРЅРєС†РёСЏ kbdLayout()<br>
+- СѓРґР°Р»РµРЅР° РєРѕРјР°РЅРґР° $KbdSwitch, Р·Р°РјРµРЅРёС‚Рµ $KbdSwitch РЅР° kbdLayout(1)<br>
+- С„СѓРЅРєС†РёСЏ Menu.ItemStatus() С‚РµРїРµСЂСЊ РІ СЃС‚Р°СЂС€РµРј СЃР»РѕРІРµ РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕРґ СЃРёРјРІРѕР»Р° РїРѕРјРµС‚РєРё U+XXXX<br>
+- РґРѕР±Р°РІР»РµРЅ СѓСЃР»РѕРІРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ "^^" - XOR, РёСЃРєР»СЋС‡Р°СЋС‰РµРµ РР›Р
 
 
-<h3>Что добавилось в Plugins API v2.0 в сравнении c Plugins API v1.0</h3>
+<h3>Р§С‚Рѕ РґРѕР±Р°РІРёР»РѕСЃСЊ РІ Plugins API v2.0 РІ СЃСЂР°РІРЅРµРЅРёРё c Plugins API v1.0</h3>
 
-<li>функция WINAPI ProcessSynchroEventW()
-<li>функция FSF.ConvertPath(CPM_REAL,...)
-<li>функция FSF.ConvertPath(CPM_FULL,...)
-<li>функция FSF.ConvertPath(CPM_NATIVE,...)
-<li>функция FSF.GetCurrentDirectory()
-<li>команда FSF.MkLink() - FLINK_SYMLINK, автоматически выбрать тип создаваемой символической ссылки
-<li>команда Info.AdvControl - ACTL_QUIT
-<li>команда Info.AdvControl - ACTL_SETPROGRESSSTATE
-<li>команда Info.AdvControl - ACTL_SETPROGRESSVALUE
-<li>команда Info.AdvControl - ACTL_SYNCHRO
-<li>команда Info.AdvControl - ACTL_KEYMACRO, добавилась команда MCMD_CHECKMACRO
-<li>команда Info.AdvControl - ACTL_PROGRESSNOTIFY
-<li>команда Info.EditorControl - ECTL_GETFILENAME, плагин сам выделяет память под элемент
-<li>команда Info.EditorControl - ECTL_UNDOREDO
-<li>команда Info.EditorControl - ESPT_SETBOM
-<li>команда Info.Control - FCTL_ISACTIVEPANEL
-<li>команда Info.Control - FCTL_GETPANELITEM, плагин сам выделяет память под элемент
-<li>команда Info.Control - FCTL_GETSELECTEDPANELITEM, плагин сам выделяет память под элемент
-<li>команда Info.Control - FCTL_GETCOLUMNTYPES, плагин сам выделяет память под элемент
-<li>команда Info.Control - FCTL_GETCOLUMNWIDTHS, плагин сам выделяет память под элемент
-<li>команда Info.Control - FCTL_GETCURRENTDIRECTORY, плагин сам выделяет память под элемент
-<li>команда Info.Control - FCTL_GETCURRENTITEM, плагин сам выделяет память под элемент
-<li>команда Info.Control - FCTL_CLEARSELECTION
-<li>команда Info.Control - FCTL_SETDIRECTORIESFIRST
-<li>команда Info.Control - FCTL_GETPANELFORMAT
-<li>команда Info.Control - FCTL_GETPANELHOSTFILE
-<li>опция в Info.AdvControl - ACTL_GETCONFIRMATIONS - FCS_OVERWRITEDELETEROFILES
-<li>опция в Info.AdvControl - ACTL_GETINTERFACESETTINGS - FIS_SHOWTOTALDELPROGRESSINDICATOR
-<li>флаг в EditorInfo.Options - EOPT_SHOWWHITESPACE
-<li>флаг в EditorInfo.Options - EOPT_BOM
-<li>флаг в EditorSetParameter.Type - ESPT_SHOWWHITESPACE
-<li>флаг в DI_BUTTON - DIF_SETSHIELD, аналог BCM_SETSHIELD
-<li>флаги PFLAGS_USECRC32/OPIF_USECRC32 определяющие, что поле CRC32 элементов панели заполнено
-<li>система идентификации диалогов:<br>
-- сообщения DN_GETDIALOGINFO/DM_GETDIALOGINFO<br>
-- идентификатор для диалога перезаписи файла - {9FBCB7E1-ACA2-475d-B40D-0F7365B632FF}<br>
-- идентификатор для диалога поиска (AltF7) - {8C9EAD29-910F-4b24-A669-EDAFBA6ED964}
-<li>Far теперь умеет работать в пределах окна (а не буфера), соответственно введены:<br>
-- команда Info.AdvControl - ACTL_GETFARRECT<br>
-- команда Info.AdvControl - ACTL_GETCURSORPOS<br>
-- команда Info.AdvControl - ACTL_SETCURSORPOS
+<li>С„СѓРЅРєС†РёСЏ WINAPI ProcessSynchroEventW()
+<li>С„СѓРЅРєС†РёСЏ FSF.ConvertPath(CPM_REAL,...)
+<li>С„СѓРЅРєС†РёСЏ FSF.ConvertPath(CPM_FULL,...)
+<li>С„СѓРЅРєС†РёСЏ FSF.ConvertPath(CPM_NATIVE,...)
+<li>С„СѓРЅРєС†РёСЏ FSF.GetCurrentDirectory()
+<li>РєРѕРјР°РЅРґР° FSF.MkLink() - FLINK_SYMLINK, Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РІС‹Р±СЂР°С‚СЊ С‚РёРї СЃРѕР·РґР°РІР°РµРјРѕР№ СЃРёРјРІРѕР»РёС‡РµСЃРєРѕР№ СЃСЃС‹Р»РєРё
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_QUIT
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_SETPROGRESSSTATE
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_SETPROGRESSVALUE
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_SYNCHRO
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_KEYMACRO, РґРѕР±Р°РІРёР»Р°СЃСЊ РєРѕРјР°РЅРґР° MCMD_CHECKMACRO
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_PROGRESSNOTIFY
+<li>РєРѕРјР°РЅРґР° Info.EditorControl - ECTL_GETFILENAME, РїР»Р°РіРёРЅ СЃР°Рј РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ СЌР»РµРјРµРЅС‚
+<li>РєРѕРјР°РЅРґР° Info.EditorControl - ECTL_UNDOREDO
+<li>РєРѕРјР°РЅРґР° Info.EditorControl - ESPT_SETBOM
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_ISACTIVEPANEL
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETPANELITEM, РїР»Р°РіРёРЅ СЃР°Рј РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ СЌР»РµРјРµРЅС‚
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETSELECTEDPANELITEM, РїР»Р°РіРёРЅ СЃР°Рј РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ СЌР»РµРјРµРЅС‚
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETCOLUMNTYPES, РїР»Р°РіРёРЅ СЃР°Рј РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ СЌР»РµРјРµРЅС‚
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETCOLUMNWIDTHS, РїР»Р°РіРёРЅ СЃР°Рј РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ СЌР»РµРјРµРЅС‚
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETCURRENTDIRECTORY, РїР»Р°РіРёРЅ СЃР°Рј РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ СЌР»РµРјРµРЅС‚
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETCURRENTITEM, РїР»Р°РіРёРЅ СЃР°Рј РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ СЌР»РµРјРµРЅС‚
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_CLEARSELECTION
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_SETDIRECTORIESFIRST
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETPANELFORMAT
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETPANELHOSTFILE
+<li>РѕРїС†РёСЏ РІ Info.AdvControl - ACTL_GETCONFIRMATIONS - FCS_OVERWRITEDELETEROFILES
+<li>РѕРїС†РёСЏ РІ Info.AdvControl - ACTL_GETINTERFACESETTINGS - FIS_SHOWTOTALDELPROGRESSINDICATOR
+<li>С„Р»Р°Рі РІ EditorInfo.Options - EOPT_SHOWWHITESPACE
+<li>С„Р»Р°Рі РІ EditorInfo.Options - EOPT_BOM
+<li>С„Р»Р°Рі РІ EditorSetParameter.Type - ESPT_SHOWWHITESPACE
+<li>С„Р»Р°Рі РІ DI_BUTTON - DIF_SETSHIELD, Р°РЅР°Р»РѕРі BCM_SETSHIELD
+<li>С„Р»Р°РіРё PFLAGS_USECRC32/OPIF_USECRC32 РѕРїСЂРµРґРµР»СЏСЋС‰РёРµ, С‡С‚Рѕ РїРѕР»Рµ CRC32 СЌР»РµРјРµРЅС‚РѕРІ РїР°РЅРµР»Рё Р·Р°РїРѕР»РЅРµРЅРѕ
+<li>СЃРёСЃС‚РµРјР° РёРґРµРЅС‚РёС„РёРєР°С†РёРё РґРёР°Р»РѕРіРѕРІ:<br>
+- СЃРѕРѕР±С‰РµРЅРёСЏ DN_GETDIALOGINFO/DM_GETDIALOGINFO<br>
+- РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РґР»СЏ РґРёР°Р»РѕРіР° РїРµСЂРµР·Р°РїРёСЃРё С„Р°Р№Р»Р° - {9FBCB7E1-ACA2-475d-B40D-0F7365B632FF}<br>
+- РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РґР»СЏ РґРёР°Р»РѕРіР° РїРѕРёСЃРєР° (AltF7) - {8C9EAD29-910F-4b24-A669-EDAFBA6ED964}
+<li>Far С‚РµРїРµСЂСЊ СѓРјРµРµС‚ СЂР°Р±РѕС‚Р°С‚СЊ РІ РїСЂРµРґРµР»Р°С… РѕРєРЅР° (Р° РЅРµ Р±СѓС„РµСЂР°), СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ РІРІРµРґРµРЅС‹:<br>
+- РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_GETFARRECT<br>
+- РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_GETCURSORPOS<br>
+- РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_SETCURSORPOS
 <li>RegExp API
 <li>FileFilter API
 <li>PluginsControl API
 </ul>
 
-<h3>5 Января 2010 г.</h3>
-<ul><li>Пишем новое писание.<br>
-Все изменения в АПИ (соответственно и в энциклопедии) просим добавлять сюда.
+<h3>5 РЇРЅРІР°СЂСЏ 2010 Рі.</h3>
+<ul><li>РџРёС€РµРј РЅРѕРІРѕРµ РїРёСЃР°РЅРёРµ.<br>
+Р’СЃРµ РёР·РјРµРЅРµРЅРёСЏ РІ РђРџР (СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ Рё РІ СЌРЅС†РёРєР»РѕРїРµРґРёРё) РїСЂРѕСЃРёРј РґРѕР±Р°РІР»СЏС‚СЊ СЃСЋРґР°.
 </ul>
 
 </body>

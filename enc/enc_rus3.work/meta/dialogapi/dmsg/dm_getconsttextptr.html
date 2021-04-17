@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>DM_GETCONSTTEXTPTR</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
@@ -10,18 +10,18 @@
 
 <h1>DM_GETCONSTTEXTPTR</h1>
 <div class=navbar>
-<a href="../../index.html">главная</a> |
-<a href="index_dm.html">сообщения</a> |
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index_dm.html">СЃРѕРѕР±С‰РµРЅРёСЏ</a> |
 <a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <code>DM_GETCONSTTEXTPTR</code> посылается Менеджеру диалогов для получения указателя на внутренний буфер Far Manager, содержащий строку ввода.
+РЎРѕРѕР±С‰РµРЅРёРµ <code>DM_GETCONSTTEXTPTR</code> РїРѕСЃС‹Р»Р°РµС‚СЃСЏ РњРµРЅРµРґР¶РµСЂСѓ РґРёР°Р»РѕРіРѕРІ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СѓРєР°Р·Р°С‚РµР»СЏ РЅР° РІРЅСѓС‚СЂРµРЅРЅРёР№ Р±СѓС„РµСЂ Far Manager, СЃРѕРґРµСЂР¶Р°С‰РёР№ СЃС‚СЂРѕРєСѓ РІРІРѕРґР°.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента.
+ID С‚СЂРµР±СѓРµРјРѕРіРѕ СЌР»РµРјРµРЅС‚Р°.
 </div>
 
 <h3>Param2</h3>
@@ -31,37 +31,37 @@ ID требуемого элемента.
 
 <h3>Return</h3>
 <div class=descr>
-Возвращает указатель на внутренний буфер Far Manager, содержащий строку ввода, переменная типа <code>const wchar_t*</code>.
+Р’РѕР·РІСЂР°С‰Р°РµС‚ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РІРЅСѓС‚СЂРµРЅРЅРёР№ Р±СѓС„РµСЂ Far Manager, СЃРѕРґРµСЂР¶Р°С‰РёР№ СЃС‚СЂРѕРєСѓ РІРІРѕРґР°, РїРµСЂРµРјРµРЅРЅР°СЏ С‚РёРїР° <code>const wchar_t*</code>.
 </div>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">Р­Р»РµРјРµРЅС‚</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список (без флага <a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a>)</td></tr>
+<td class="cont" width="60%">РєРѕРјР±РёРЅРёСЂРѕРІР°РЅРЅС‹Р№ СЃРїРёСЃРѕРє (Р±РµР· С„Р»Р°РіР° <a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a>)</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="60%">строка ввода</td></tr>
+<td class="cont" width="60%">СЃС‚СЂРѕРєР° РІРІРѕРґР°</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
-<td class="cont" width="60%">поле ввода фиксированного размера</td></tr>
+<td class="cont" width="60%">РїРѕР»Рµ РІРІРѕРґР° С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕРіРѕ СЂР°Р·РјРµСЂР°</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_pswedit.html">DI_PSWEDIT</a></td>
-<td class="cont" width="60%">поле ввода пароля</td></tr>
+<td class="cont" width="60%">РїРѕР»Рµ РІРІРѕРґР° РїР°СЂРѕР»СЏ</td></tr>
 </table>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-<p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p> <br>
-<div class=alert2> Полученную сообщением <code>DM_GETCONSTTEXTPTR</code> строку ни в коем случае нельзя изменять! <br>
-А также нельзя сохранять сам указатель, так как он меняется при изменениях в строке ввода. <br> </div>
+<p class=note><img src="../../../images/note.gif" alt="Р’РЅРёРјР°РЅРёРµ!" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!</p> <br>
+<div class=alert2> РџРѕР»СѓС‡РµРЅРЅСѓСЋ СЃРѕРѕР±С‰РµРЅРёРµРј <code>DM_GETCONSTTEXTPTR</code> СЃС‚СЂРѕРєСѓ РЅРё РІ РєРѕРµРј СЃР»СѓС‡Р°Рµ РЅРµР»СЊР·СЏ РёР·РјРµРЅСЏС‚СЊ! <br>
+Рђ С‚Р°РєР¶Рµ РЅРµР»СЊР·СЏ СЃРѕС…СЂР°РЅСЏС‚СЊ СЃР°Рј СѓРєР°Р·Р°С‚РµР»СЊ, С‚Р°Рє РєР°Рє РѕРЅ РјРµРЅСЏРµС‚СЃСЏ РїСЂРё РёР·РјРµРЅРµРЅРёСЏС… РІ СЃС‚СЂРѕРєРµ РІРІРѕРґР°. <br> </div>
 
-<p>Добавлен для удобства работы после закрытия диалога (функция <a href="../../service_functions/dialogrun.html">DialogRun</a>) и до функции <a href="../../service_functions/dialogfree.html">DialogFree</a>.</div>
+<p>Р”РѕР±Р°РІР»РµРЅ РґР»СЏ СѓРґРѕР±СЃС‚РІР° СЂР°Р±РѕС‚С‹ РїРѕСЃР»Рµ Р·Р°РєСЂС‹С‚РёСЏ РґРёР°Р»РѕРіР° (С„СѓРЅРєС†РёСЏ <a href="../../service_functions/dialogrun.html">DialogRun</a>) Рё РґРѕ С„СѓРЅРєС†РёРё <a href="../../service_functions/dialogfree.html">DialogFree</a>.</div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
 <div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>

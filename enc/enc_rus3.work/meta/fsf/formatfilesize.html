@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.FormatFileSize</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,12 +10,12 @@
 
 <h1>FormatFileSize</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">стандартные функции</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <code>FSF.FormatFileSize</code> форматирует число (размер файла) по заданным условиям.
+Р¤СѓРЅРєС†РёСЏ <code>FSF.FormatFileSize</code> С„РѕСЂРјР°С‚РёСЂСѓРµС‚ С‡РёСЃР»Рѕ (СЂР°Р·РјРµСЂ С„Р°Р№Р»Р°) РїРѕ Р·Р°РґР°РЅРЅС‹Рј СѓСЃР»РѕРІРёСЏРј.
 </div>
 
 <pre class=syntax>
@@ -28,47 +28,47 @@ size_t WINAPI FormatFileSize(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Size</div>
-    <div class=dfndescr>Число для форматирования.</div>
+    <div class=dfndescr>Р§РёСЃР»Рѕ РґР»СЏ С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёСЏ.</div>
   <div class=dfn>Width</div>
-    <div class=dfndescr>Ширина поля (примером может служить ширина колонки в панели). При значении равном <code>0</code> подразумевается - "сколько получится". Отрицательное значение ширины позволяет выравнивать по левому краю.</div>
+    <div class=dfndescr>РЁРёСЂРёРЅР° РїРѕР»СЏ (РїСЂРёРјРµСЂРѕРј РјРѕР¶РµС‚ СЃР»СѓР¶РёС‚СЊ С€РёСЂРёРЅР° РєРѕР»РѕРЅРєРё РІ РїР°РЅРµР»Рё). РџСЂРё Р·РЅР°С‡РµРЅРёРё СЂР°РІРЅРѕРј <code>0</code> РїРѕРґСЂР°Р·СѓРјРµРІР°РµС‚СЃСЏ - "СЃРєРѕР»СЊРєРѕ РїРѕР»СѓС‡РёС‚СЃСЏ". РћС‚СЂРёС†Р°С‚РµР»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ С€РёСЂРёРЅС‹ РїРѕР·РІРѕР»СЏРµС‚ РІС‹СЂР°РІРЅРёРІР°С‚СЊ РїРѕ Р»РµРІРѕРјСѓ РєСЂР°СЋ.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Формат представления, может быть комбинацией следующих значений (тип <a name="FARFORMATFILESIZEFLAGS">FARFORMATFILESIZEFLAGS</a>):
+    <div class=dfndescr>Р¤РѕСЂРјР°С‚ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёСЏ, РјРѕР¶РµС‚ Р±С‹С‚СЊ РєРѕРјР±РёРЅР°С†РёРµР№ СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (С‚РёРї <a name="FARFORMATFILESIZEFLAGS">FARFORMATFILESIZEFLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FFFS_COMMAS">FFFS_COMMAS</a></td>
-    <td class="cont" width="60%">Вставлять разделитель между тысячами - "12 345".</td></tr>
+    <td class="cont" width="60%">Р’СЃС‚Р°РІР»СЏС‚СЊ СЂР°Р·РґРµР»РёС‚РµР»СЊ РјРµР¶РґСѓ С‚С‹СЃСЏС‡Р°РјРё - "12 345".</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FFFS_FLOATSIZE">FFFS_FLOATSIZE</a></td>
-    <td class="cont" width="60%">Показывать размер в виде десятичной дроби, используя наиболее подходящую единицу измерения, например 0,97 К, 1,44 М, 53,2 Г.</td></tr>
+    <td class="cont" width="60%">РџРѕРєР°Р·С‹РІР°С‚СЊ СЂР°Р·РјРµСЂ РІ РІРёРґРµ РґРµСЃСЏС‚РёС‡РЅРѕР№ РґСЂРѕР±Рё, РёСЃРїРѕР»СЊР·СѓСЏ РЅР°РёР±РѕР»РµРµ РїРѕРґС…РѕРґСЏС‰СѓСЋ РµРґРёРЅРёС†Сѓ РёР·РјРµСЂРµРЅРёСЏ, РЅР°РїСЂРёРјРµСЂ 0,97 Рљ, 1,44 Рњ, 53,2 Р“.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FFFS_SHOWBYTESINDEX">FFFS_SHOWBYTESINDEX</a></td>
-    <td class="cont" width="60%">Добавлять суффиксы: B - для байт, K - килобайт, M - мегабайт, G - гигабайт, T - терабайт, P - петабайт, E - эксабайт</td></tr>
+    <td class="cont" width="60%">Р”РѕР±Р°РІР»СЏС‚СЊ СЃСѓС„С„РёРєСЃС‹: B - РґР»СЏ Р±Р°Р№С‚, K - РєРёР»РѕР±Р°Р№С‚, M - РјРµРіР°Р±Р°Р№С‚, G - РіРёРіР°Р±Р°Р№С‚, T - С‚РµСЂР°Р±Р°Р№С‚, P - РїРµС‚Р°Р±Р°Р№С‚, E - СЌРєСЃР°Р±Р°Р№С‚</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FFFS_ECONOMIC">FFFS_ECONOMIC</a></td>
-    <td class="cont" width="60%">Экономичный режим, не показывать пробел перед суффиксом размера файла (т.е. "0.97K").</td></tr>
+    <td class="cont" width="60%">Р­РєРѕРЅРѕРјРёС‡РЅС‹Р№ СЂРµР¶РёРј, РЅРµ РїРѕРєР°Р·С‹РІР°С‚СЊ РїСЂРѕР±РµР» РїРµСЂРµРґ СЃСѓС„С„РёРєСЃРѕРј СЂР°Р·РјРµСЂР° С„Р°Р№Р»Р° (С‚.Рµ. "0.97K").</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FFFS_THOUSAND">FFFS_THOUSAND</a></td>
-    <td class="cont" width="60%">Использовать 1000 вместо 1024 в качестве делителя.</td></tr>
+    <td class="cont" width="60%">РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ 1000 РІРјРµСЃС‚Рѕ 1024 РІ РєР°С‡РµСЃС‚РІРµ РґРµР»РёС‚РµР»СЏ.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FFFS_MINSIZEINDEX">FFFS_MINSIZEINDEX</a></td>
-    <td class="cont" width="60%">Использовать минимально допустимый индекс при форматировании. Индекс указывается в младшем байте и может быть только 0, 1, 2 или 3 (K,M,G,T),
-    например, <code>FFFS_MINSIZEINDEX|1</code> - "размер как минимум в мегабайтах".</td></tr>
+    <td class="cont" width="60%">РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјРёРЅРёРјР°Р»СЊРЅРѕ РґРѕРїСѓСЃС‚РёРјС‹Р№ РёРЅРґРµРєСЃ РїСЂРё С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёРё. РРЅРґРµРєСЃ СѓРєР°Р·С‹РІР°РµС‚СЃСЏ РІ РјР»Р°РґС€РµРј Р±Р°Р№С‚Рµ Рё РјРѕР¶РµС‚ Р±С‹С‚СЊ С‚РѕР»СЊРєРѕ 0, 1, 2 РёР»Рё 3 (K,M,G,T),
+    РЅР°РїСЂРёРјРµСЂ, <code>FFFS_MINSIZEINDEX|1</code> - "СЂР°Р·РјРµСЂ РєР°Рє РјРёРЅРёРјСѓРј РІ РјРµРіР°Р±Р°Р№С‚Р°С…".</td></tr>
     </table>
     </div>
   <div class=dfn>Dest</div>
-    <div class=dfndescr>Указатель на строку, куда будет помещён результат преобразования. Установите <code>Dest = NULL</code> для того, чтобы узнать необходимый размер буфера в символах.</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂРѕРєСѓ, РєСѓРґР° Р±СѓРґРµС‚ РїРѕРјРµС‰С‘РЅ СЂРµР·СѓР»СЊС‚Р°С‚ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ. РЈСЃС‚Р°РЅРѕРІРёС‚Рµ <code>Dest = NULL</code> РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ СѓР·РЅР°С‚СЊ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С….</div>
   <div class=dfn>DestSize</div>
-    <div class=dfndescr>Максимальное количество символов, которое можно поместить в <code>Dest</code>, с заключительным нулём.</div>
+    <div class=dfndescr>РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ, РєРѕС‚РѕСЂРѕРµ РјРѕР¶РЅРѕ РїРѕРјРµСЃС‚РёС‚СЊ РІ <code>Dest</code>, СЃ Р·Р°РєР»СЋС‡РёС‚РµР»СЊРЅС‹Рј РЅСѓР»С‘Рј.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-Необходимый размер буфера <code>Dest</code> в символах.
+РќРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° <code>Dest</code> РІ СЃРёРјРІРѕР»Р°С….
 </div>
 
-<h3>Примечание</h3>
+<h3>РџСЂРёРјРµС‡Р°РЅРёРµ</h3>
 <div class=descr>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 </div>
 

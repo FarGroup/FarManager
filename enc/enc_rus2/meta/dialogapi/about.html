@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>Dialog API</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="JavaScript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -11,42 +11,42 @@
 
 <h1>Dialog API</h1>
 <div class=navbar>
-<a href="../index.html">главная</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a>
 </div>
 
 
-<p class=note><img src="../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-<UL class=note><LI>Все детали по Dialog API написаны с учётом именованных объединений
-структуры <a href="structures/fardialogitem.html">FarDialogItem</a>.
-Более подробно читайте в описании определения
+<p class=note><img src="../../images/note.gif" alt="Р’РЅРёРјР°РЅРёРµ!" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!</p>
+<UL class=note><LI>Р’СЃРµ РґРµС‚Р°Р»Рё РїРѕ Dialog API РЅР°РїРёСЃР°РЅС‹ СЃ СѓС‡С‘С‚РѕРј РёРјРµРЅРѕРІР°РЅРЅС‹С… РѕР±СЉРµРґРёРЅРµРЅРёР№
+СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="structures/fardialogitem.html">FarDialogItem</a>.
+Р‘РѕР»РµРµ РїРѕРґСЂРѕР±РЅРѕ С‡РёС‚Р°Р№С‚Рµ РІ РѕРїРёСЃР°РЅРёРё РѕРїСЂРµРґРµР»РµРЅРёСЏ
 <a href="../defs/_far_no_nameless_unions.html">_FAR_NO_NAMELESS_UNIONS</a>.</LI></UL>
 
 <div class=shortdescr>
-<p>DialogAPI выделен в отдельное API, для максимального контроля над созданным диалогом.
-<p> Менеджер диалогов поддерживает только так называемые <b>Модальные Диалоги</b> (Modal Dialog).
-Модальный диалог представляет собой окно, запрещающее пользователю взаимодействовать с любым
-объектом FAR Manager вне данного диалога. Модальный диалог отсекает поток
-сообщений, идущих от мыши или клавиатуры к другим объектам FAR Manager.
+<p>DialogAPI РІС‹РґРµР»РµРЅ РІ РѕС‚РґРµР»СЊРЅРѕРµ API, РґР»СЏ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ РєРѕРЅС‚СЂРѕР»СЏ РЅР°Рґ СЃРѕР·РґР°РЅРЅС‹Рј РґРёР°Р»РѕРіРѕРј.
+<p> РњРµРЅРµРґР¶РµСЂ РґРёР°Р»РѕРіРѕРІ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ С‚РѕР»СЊРєРѕ С‚Р°Рє РЅР°Р·С‹РІР°РµРјС‹Рµ <b>РњРѕРґР°Р»СЊРЅС‹Рµ Р”РёР°Р»РѕРіРё</b> (Modal Dialog).
+РњРѕРґР°Р»СЊРЅС‹Р№ РґРёР°Р»РѕРі РїСЂРµРґСЃС‚Р°РІР»СЏРµС‚ СЃРѕР±РѕР№ РѕРєРЅРѕ, Р·Р°РїСЂРµС‰Р°СЋС‰РµРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ РІР·Р°РёРјРѕРґРµР№СЃС‚РІРѕРІР°С‚СЊ СЃ Р»СЋР±С‹Рј
+РѕР±СЉРµРєС‚РѕРј FAR Manager РІРЅРµ РґР°РЅРЅРѕРіРѕ РґРёР°Р»РѕРіР°. РњРѕРґР°Р»СЊРЅС‹Р№ РґРёР°Р»РѕРі РѕС‚СЃРµРєР°РµС‚ РїРѕС‚РѕРє
+СЃРѕРѕР±С‰РµРЅРёР№, РёРґСѓС‰РёС… РѕС‚ РјС‹С€Рё РёР»Рё РєР»Р°РІРёР°С‚СѓСЂС‹ Рє РґСЂСѓРіРёРј РѕР±СЉРµРєС‚Р°Рј FAR Manager.
 </div>
 
-<h3>Подробности</h3>
+<h3>РџРѕРґСЂРѕР±РЅРѕСЃС‚Рё</h3>
 <div class=descr>
-Плагин полностью управляет поведением диалога:
+РџР»Р°РіРёРЅ РїРѕР»РЅРѕСЃС‚СЊСЋ СѓРїСЂР°РІР»СЏРµС‚ РїРѕРІРµРґРµРЅРёРµРј РґРёР°Р»РѕРіР°:
 <ul>
-<li>диалог имеет функцию-обработчик, которая реагирует на массу событий,
-    приходящих от Менеджера диалогов;
-<li>функция-обработчик общается с Менеджером Диалогов путём посылки
-    <a href="dmsg/index.html">сообщений</a>, используя функцию
+<li>РґРёР°Р»РѕРі РёРјРµРµС‚ С„СѓРЅРєС†РёСЋ-РѕР±СЂР°Р±РѕС‚С‡РёРє, РєРѕС‚РѕСЂР°СЏ СЂРµР°РіРёСЂСѓРµС‚ РЅР° РјР°СЃСЃСѓ СЃРѕР±С‹С‚РёР№,
+    РїСЂРёС…РѕРґСЏС‰РёС… РѕС‚ РњРµРЅРµРґР¶РµСЂР° РґРёР°Р»РѕРіРѕРІ;
+<li>С„СѓРЅРєС†РёСЏ-РѕР±СЂР°Р±РѕС‚С‡РёРє РѕР±С‰Р°РµС‚СЃСЏ СЃ РњРµРЅРµРґР¶РµСЂРѕРј Р”РёР°Р»РѕРіРѕРІ РїСѓС‚С‘Рј РїРѕСЃС‹Р»РєРё
+    <a href="dmsg/index.html">СЃРѕРѕР±С‰РµРЅРёР№</a>, РёСЃРїРѕР»СЊР·СѓСЏ С„СѓРЅРєС†РёСЋ
     <a href="senddlgmessage.html">SendDlgMessage</a>;
-<li>функция-обработчик может передать управление Менеджеру Диалогов используя
-    функцию <a href="defdlgproc.html">DefDlgProc</a>;
-<li>окончанием обработки диалога управляет плагин.
+<li>С„СѓРЅРєС†РёСЏ-РѕР±СЂР°Р±РѕС‚С‡РёРє РјРѕР¶РµС‚ РїРµСЂРµРґР°С‚СЊ СѓРїСЂР°РІР»РµРЅРёРµ РњРµРЅРµРґР¶РµСЂСѓ Р”РёР°Р»РѕРіРѕРІ РёСЃРїРѕР»СЊР·СѓСЏ
+    С„СѓРЅРєС†РёСЋ <a href="defdlgproc.html">DefDlgProc</a>;
+<li>РѕРєРѕРЅС‡Р°РЅРёРµРј РѕР±СЂР°Р±РѕС‚РєРё РґРёР°Р»РѕРіР° СѓРїСЂР°РІР»СЏРµС‚ РїР»Р°РіРёРЅ.
 </ul>
-Если в обработчике диалога просто передать управление ядру посредством
-функции <a href="defdlgproc.html">DefDlgProc</a>, то получим... простой, неуправляемый диалог
-(такие же диалоги можно получить при вызове функции <a href="dialoginit.html">DialogInit</a> с параметром <var>DlgProc</var>, равным NULL):
+Р•СЃР»Рё РІ РѕР±СЂР°Р±РѕС‚С‡РёРєРµ РґРёР°Р»РѕРіР° РїСЂРѕСЃС‚Рѕ РїРµСЂРµРґР°С‚СЊ СѓРїСЂР°РІР»РµРЅРёРµ СЏРґСЂСѓ РїРѕСЃСЂРµРґСЃС‚РІРѕРј
+С„СѓРЅРєС†РёРё <a href="defdlgproc.html">DefDlgProc</a>, С‚Рѕ РїРѕР»СѓС‡РёРј... РїСЂРѕСЃС‚РѕР№, РЅРµСѓРїСЂР°РІР»СЏРµРјС‹Р№ РґРёР°Р»РѕРі
+(С‚Р°РєРёРµ Р¶Рµ РґРёР°Р»РѕРіРё РјРѕР¶РЅРѕ РїРѕР»СѓС‡РёС‚СЊ РїСЂРё РІС‹Р·РѕРІРµ С„СѓРЅРєС†РёРё <a href="dialoginit.html">DialogInit</a> СЃ РїР°СЂР°РјРµС‚СЂРѕРј <var>DlgProc</var>, СЂР°РІРЅС‹Рј NULL):
 <pre class=code>
-// минимальный обработчик диалога
+// РјРёРЅРёРјР°Р»СЊРЅС‹Р№ РѕР±СЂР°Р±РѕС‚С‡РёРє РґРёР°Р»РѕРіР°
 LONG_PTR WINAPI MyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 {
   return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
@@ -55,24 +55,24 @@ LONG_PTR WINAPI MyDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR Param2)
 </div>
 
 
-<p>Итак. Dialog API:</p>
+<p>РС‚Р°Рє. Dialog API:</p>
 <div class=descr>
-<a href="index_service_functions.html">Сервисные функции</a><br>
-<a href="index_structures.html">Структуры</a><br>
-<a href="../defs/index.html">Макросы и типы</a><br>
-<a href="controls/index.html">Элементы диалога</a><br>
-<a href="flags/index.html">Флаги элементов диалога</a><br>
-<a href="dmsg/index.html">События и сообщения</a><br>
-<a href="keybfocus.html">Фокус ввода</a><br>
-<a href="lists.html">Механизмы работы со списками</a><br>
+<a href="index_service_functions.html">РЎРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a><br>
+<a href="index_structures.html">РЎС‚СЂСѓРєС‚СѓСЂС‹</a><br>
+<a href="../defs/index.html">РњР°РєСЂРѕСЃС‹ Рё С‚РёРїС‹</a><br>
+<a href="controls/index.html">Р­Р»РµРјРµРЅС‚С‹ РґРёР°Р»РѕРіР°</a><br>
+<a href="flags/index.html">Р¤Р»Р°РіРё СЌР»РµРјРµРЅС‚РѕРІ РґРёР°Р»РѕРіР°</a><br>
+<a href="dmsg/index.html">РЎРѕР±С‹С‚РёСЏ Рё СЃРѕРѕР±С‰РµРЅРёСЏ</a><br>
+<a href="keybfocus.html">Р¤РѕРєСѓСЃ РІРІРѕРґР°</a><br>
+<a href="lists.html">РњРµС…Р°РЅРёР·РјС‹ СЂР°Р±РѕС‚С‹ СЃРѕ СЃРїРёСЃРєР°РјРё</a><br>
 </div>
 
 <p>&nbsp;</p>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../exported_functions/index.html">Экспортируемые функции</a>,
-<a href="../service_functions/index.html">Сервисные функции</a>,
-<a href="../structures/index.html">Структуры</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
+<a href="../exported_functions/index.html">Р­РєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё</a>,
+<a href="../service_functions/index.html">РЎРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a>,
+<a href="../structures/index.html">РЎС‚СЂСѓРєС‚СѓСЂС‹</a>
 </div>
 
 </body>

@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>DialogInit</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,13 +10,13 @@
 
 <h1>DialogInit</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a> |
 <a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Функция <code>DialogInit</code> инициализирует диалог, для последующего показа на экране функцией <a href="dialogrun.html">DialogRun</a>.
+Р¤СѓРЅРєС†РёСЏ <code>DialogInit</code> РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РґРёР°Р»РѕРі, РґР»СЏ РїРѕСЃР»РµРґСѓСЋС‰РµРіРѕ РїРѕРєР°Р·Р° РЅР° СЌРєСЂР°РЅРµ С„СѓРЅРєС†РёРµР№ <a href="dialogrun.html">DialogRun</a>.
 </div>
 
 <pre class=syntax>
@@ -37,63 +37,63 @@ HANDLE WINAPI DialogInit(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>PluginId</div>
-    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° GUID РїР»Р°РіРёРЅР° (РґР»СЏ РІР°С€РµРіРѕ РїР»Р°РіРёРЅР°, GUID РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ С‚Р°РєРёРј Р¶Рµ, С‡С‚Рѕ Рё РІ РїРѕР»Рµ <code>GlobalInfo.Guid</code> С„СѓРЅРєС†РёРё <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
   <div class=dfn>Id</div>
-    <div class=dfndescr>Указатель на GUID диалога. GUID должен быть уникальным.</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° GUID РґРёР°Р»РѕРіР°. GUID РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓРЅРёРєР°Р»СЊРЅС‹Рј.</div>
   <div class=dfn>X1, Y1, X2, Y2</div>
-    <div class=dfndescr>Геометрия диалога. Задайте эти координаты непосредственно или воспользуйтесь формулой <code>"Width x Height"</code> - для этого установите <code>X1</code> и <code>Y1</code> в <code>-1</code>, при этом
-    <code>X2</code> - ширина и <code>Y2</code> - высота диалога. В последнем случае при выводе на экран диалог будет автоматически центрироваться. Параметры <code>X2</code> и <code>Y2</code> не могут быть меньше нуля.</div>
+    <div class=dfndescr>Р“РµРѕРјРµС‚СЂРёСЏ РґРёР°Р»РѕРіР°. Р—Р°РґР°Р№С‚Рµ СЌС‚Рё РєРѕРѕСЂРґРёРЅР°С‚С‹ РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ РёР»Рё РІРѕСЃРїРѕР»СЊР·СѓР№С‚РµСЃСЊ С„РѕСЂРјСѓР»РѕР№ <code>"Width x Height"</code> - РґР»СЏ СЌС‚РѕРіРѕ СѓСЃС‚Р°РЅРѕРІРёС‚Рµ <code>X1</code> Рё <code>Y1</code> РІ <code>-1</code>, РїСЂРё СЌС‚РѕРј
+    <code>X2</code> - С€РёСЂРёРЅР° Рё <code>Y2</code> - РІС‹СЃРѕС‚Р° РґРёР°Р»РѕРіР°. Р’ РїРѕСЃР»РµРґРЅРµРј СЃР»СѓС‡Р°Рµ РїСЂРё РІС‹РІРѕРґРµ РЅР° СЌРєСЂР°РЅ РґРёР°Р»РѕРі Р±СѓРґРµС‚ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё С†РµРЅС‚СЂРёСЂРѕРІР°С‚СЊСЃСЏ. РџР°СЂР°РјРµС‚СЂС‹ <code>X2</code> Рё <code>Y2</code> РЅРµ РјРѕРіСѓС‚ Р±С‹С‚СЊ РјРµРЅСЊС€Рµ РЅСѓР»СЏ.</div>
   <div class=dfn>HelpTopic</div>
-    <div class=dfndescr><a href="../language/helptopic.html">Тема подсказки</a> связанная с данным диалогом. Если подсказка не используется, то установите этот параметр в <code>NULL</code>.</div>
+    <div class=dfndescr><a href="../language/helptopic.html">РўРµРјР° РїРѕРґСЃРєР°Р·РєРё</a> СЃРІСЏР·Р°РЅРЅР°СЏ СЃ РґР°РЅРЅС‹Рј РґРёР°Р»РѕРіРѕРј. Р•СЃР»Рё РїРѕРґСЃРєР°Р·РєР° РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ, С‚Рѕ СѓСЃС‚Р°РЅРѕРІРёС‚Рµ СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ РІ <code>NULL</code>.</div>
   <div class=dfn>Item</div>
-    <div class=dfndescr>Указатель на массив структур <a href="../structures/fardialogitem.html">FarDialogItem</a>. Каждая структура описывает пункт диалога.</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РјР°СЃСЃРёРІ СЃС‚СЂСѓРєС‚СѓСЂ <a href="../structures/fardialogitem.html">FarDialogItem</a>. РљР°Р¶РґР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° РѕРїРёСЃС‹РІР°РµС‚ РїСѓРЅРєС‚ РґРёР°Р»РѕРіР°.</div>
   <div class=dfn>ItemsNumber</div>
-    <div class=dfndescr>Количество элементов массива <code>FarDialogItem</code>.</div>
+    <div class=dfndescr>РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РјР°СЃСЃРёРІР° <code>FarDialogItem</code>.</div>
   <div class=dfn>Reserved</div>
-    <div class=dfndescr>Зарезервировано. Должно быть рано <code>0</code>.</div>
+    <div class=dfndescr>Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ. Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЂР°РЅРѕ <code>0</code>.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Набор флагов, уточняющих некоторые параметры диалога. Может быть комбинацией следующих значений (тип <a name="FARDIALOGFLAGS">FARDIALOGFLAGS</a>):
+    <div class=dfndescr>РќР°Р±РѕСЂ С„Р»Р°РіРѕРІ, СѓС‚РѕС‡РЅСЏСЋС‰РёС… РЅРµРєРѕС‚РѕСЂС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ РґРёР°Р»РѕРіР°. РњРѕР¶РµС‚ Р±С‹С‚СЊ РєРѕРјР±РёРЅР°С†РёРµР№ СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (С‚РёРї <a name="FARDIALOGFLAGS">FARDIALOGFLAGS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FDLG_WARNING">FDLG_WARNING</a></td>
-    <td class="cont" width="60%">Задаёт для диалога цветовую схему "Предупреждение".</td></tr>
+    <td class="cont" width="60%">Р—Р°РґР°С‘С‚ РґР»СЏ РґРёР°Р»РѕРіР° С†РІРµС‚РѕРІСѓСЋ СЃС…РµРјСѓ "РџСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРµ".</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FDLG_SMALLDIALOG">FDLG_SMALLDIALOG</a></td>
-    <td class="cont" width="60%">Позволяет создавать диалоги с уменьшенным размером рамки. Для таких диалогов при отрисовке разделительных линий (<code>DIF_SEPARATOR</code>) предполагается
-    нулевой отступ между границей диалога и окружающей его двойной рамкой.</td></tr>
+    <td class="cont" width="60%">РџРѕР·РІРѕР»СЏРµС‚ СЃРѕР·РґР°РІР°С‚СЊ РґРёР°Р»РѕРіРё СЃ СѓРјРµРЅСЊС€РµРЅРЅС‹Рј СЂР°Р·РјРµСЂРѕРј СЂР°РјРєРё. Р”Р»СЏ С‚Р°РєРёС… РґРёР°Р»РѕРіРѕРІ РїСЂРё РѕС‚СЂРёСЃРѕРІРєРµ СЂР°Р·РґРµР»РёС‚РµР»СЊРЅС‹С… Р»РёРЅРёР№ (<code>DIF_SEPARATOR</code>) РїСЂРµРґРїРѕР»Р°РіР°РµС‚СЃСЏ
+    РЅСѓР»РµРІРѕР№ РѕС‚СЃС‚СѓРї РјРµР¶РґСѓ РіСЂР°РЅРёС†РµР№ РґРёР°Р»РѕРіР° Рё РѕРєСЂСѓР¶Р°СЋС‰РµР№ РµРіРѕ РґРІРѕР№РЅРѕР№ СЂР°РјРєРѕР№.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FDLG_NODRAWSHADOW">FDLG_NODRAWSHADOW</a></td>
-    <td class="cont" width="60%">Не рисовать тень диалога.</td></tr>
+    <td class="cont" width="60%">РќРµ СЂРёСЃРѕРІР°С‚СЊ С‚РµРЅСЊ РґРёР°Р»РѕРіР°.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FDLG_NODRAWPANEL">FDLG_NODRAWPANEL</a></td>
-    <td class="cont" width="60%">Не рисовать поле диалога.</td></tr>
+    <td class="cont" width="60%">РќРµ СЂРёСЃРѕРІР°С‚СЊ РїРѕР»Рµ РґРёР°Р»РѕРіР°.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FDLG_KEEPCONSOLETITLE">FDLG_KEEPCONSOLETITLE</a></td>
-    <td class="cont" width="60%">Отключить установку заголовка консоли Far Manager по заголовку диалога.</td></tr>
+    <td class="cont" width="60%">РћС‚РєР»СЋС‡РёС‚СЊ СѓСЃС‚Р°РЅРѕРІРєСѓ Р·Р°РіРѕР»РѕРІРєР° РєРѕРЅСЃРѕР»Рё Far Manager РїРѕ Р·Р°РіРѕР»РѕРІРєСѓ РґРёР°Р»РѕРіР°.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FDLG_KEEPCONSOLETITLE">FDLG_NONMODAL</a></td>
-    <td class="cont" width="60%">Создать немодальный диалог. Диалог отображается сразу и сам освобождается при закрытии. Вызывать DialogRun и DialogFree для такого диалога не нужно.</td></tr>
+    <td class="cont" width="60%">РЎРѕР·РґР°С‚СЊ РЅРµРјРѕРґР°Р»СЊРЅС‹Р№ РґРёР°Р»РѕРі. Р”РёР°Р»РѕРі РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ СЃСЂР°Р·Сѓ Рё СЃР°Рј РѕСЃРІРѕР±РѕР¶РґР°РµС‚СЃСЏ РїСЂРё Р·Р°РєСЂС‹С‚РёРё. Р’С‹Р·С‹РІР°С‚СЊ DialogRun Рё DialogFree РґР»СЏ С‚Р°РєРѕРіРѕ РґРёР°Р»РѕРіР° РЅРµ РЅСѓР¶РЅРѕ.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FDLG_NONE">FDLG_NONE</a></td>
-    <td class="cont" width="60%">Нулевой флаг.</td></tr>
+    <td class="cont" width="60%">РќСѓР»РµРІРѕР№ С„Р»Р°Рі.</td></tr>
     </table>
     </div>
   <div class=dfn>DlgProc</div>
-    <div class=dfndescr>Указатель на функцию-обработчик диалогового окна типа <a href="../defs/farwindowproc.html">FARWINDOWPROC</a>.</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° С„СѓРЅРєС†РёСЋ-РѕР±СЂР°Р±РѕС‚С‡РёРє РґРёР°Р»РѕРіРѕРІРѕРіРѕ РѕРєРЅР° С‚РёРїР° <a href="../defs/farwindowproc.html">FARWINDOWPROC</a>.</div>
   <div class=dfn>Param</div>
-    <div class=dfndescr>Данные, которые обработчик диалога получит в сообщении <a href="../dialogapi/dmsg/dn_initdialog.html">DN_INITDIALOG</a></div>
+    <div class=dfndescr>Р”Р°РЅРЅС‹Рµ, РєРѕС‚РѕСЂС‹Рµ РѕР±СЂР°Р±РѕС‚С‡РёРє РґРёР°Р»РѕРіР° РїРѕР»СѓС‡РёС‚ РІ СЃРѕРѕР±С‰РµРЅРёРё <a href="../dialogapi/dmsg/dn_initdialog.html">DN_INITDIALOG</a></div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-Функция возвращает созданный описатель диалога, либо <code>INVALID_HANDLE_VALUE</code> в случае ошибки. <br>
-После закрытия диалога и получения нужных данных, созданный описатель диалога необходимо освободить в функции <a href="dialogfree.html">DialogFree</a>.</div>
+Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ СЃРѕР·РґР°РЅРЅС‹Р№ РѕРїРёСЃР°С‚РµР»СЊ РґРёР°Р»РѕРіР°, Р»РёР±Рѕ <code>INVALID_HANDLE_VALUE</code> РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё. <br>
+РџРѕСЃР»Рµ Р·Р°РєСЂС‹С‚РёСЏ РґРёР°Р»РѕРіР° Рё РїРѕР»СѓС‡РµРЅРёСЏ РЅСѓР¶РЅС‹С… РґР°РЅРЅС‹С…, СЃРѕР·РґР°РЅРЅС‹Р№ РѕРїРёСЃР°С‚РµР»СЊ РґРёР°Р»РѕРіР° РЅРµРѕР±С…РѕРґРёРјРѕ РѕСЃРІРѕР±РѕРґРёС‚СЊ РІ С„СѓРЅРєС†РёРё <a href="dialogfree.html">DialogFree</a>.</div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 <ol>
-<li>Массив элементов <code>Item</code> не корректируется в процессе работы пользователя с этим диалогом, он необходим только для построения самого диалога. Far Manager перед созданием  диалога преобразует элементы <code>Item</code> во внутреннее представление. </ol>
+<li>РњР°СЃСЃРёРІ СЌР»РµРјРµРЅС‚РѕРІ <code>Item</code> РЅРµ РєРѕСЂСЂРµРєС‚РёСЂСѓРµС‚СЃСЏ РІ РїСЂРѕС†РµСЃСЃРµ СЂР°Р±РѕС‚С‹ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ СЃ СЌС‚РёРј РґРёР°Р»РѕРіРѕРј, РѕРЅ РЅРµРѕР±С…РѕРґРёРј С‚РѕР»СЊРєРѕ РґР»СЏ РїРѕСЃС‚СЂРѕРµРЅРёСЏ СЃР°РјРѕРіРѕ РґРёР°Р»РѕРіР°. Far Manager РїРµСЂРµРґ СЃРѕР·РґР°РЅРёРµРј  РґРёР°Р»РѕРіР° РїСЂРµРѕР±СЂР°Р·СѓРµС‚ СЌР»РµРјРµРЅС‚С‹ <code>Item</code> РІРѕ РІРЅСѓС‚СЂРµРЅРЅРµРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ. </ol>
 </div>
 
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 <pre class=code>
 // {B66C436D-E657-419C-86D3-6834B9ACF3D2}
@@ -106,9 +106,9 @@ HANDLE hDlg = Info.DialogInit(&MainGuid,&DialogGuid, -1,-1,76,10, L&quot;TempCfg
 if (hDlg != INVALID_HANDLE_VALUE)
 {
   int ExitCode=Info.DialogRun(hDlg);
-  if (ExitCode == 1) // вышли по Ок
+  if (ExitCode == 1) // РІС‹С€Р»Рё РїРѕ РћРє
   {
-    // различные вызовы Info.SendDlgMessage() для получения нужных выходных данных из диалога
+    // СЂР°Р·Р»РёС‡РЅС‹Рµ РІС‹Р·РѕРІС‹ Info.SendDlgMessage() РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РЅСѓР¶РЅС‹С… РІС‹С…РѕРґРЅС‹С… РґР°РЅРЅС‹С… РёР· РґРёР°Р»РѕРіР°
   }
   Info.DialogFree(hDlg);
   if (ExitCode == 1)
@@ -118,12 +118,12 @@ return(FALSE);
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
 <div class=seecont>
 <a href="dialogrun.html">DialogRun</a>,
 <a href="defdlgproc.html">DefDlgProc</a>,
 <a href="senddlgmessage.html">SendDlgMessage</a>,
-<a href="../service_functions/index.html">сервисные функции</a>,
+<a href="../service_functions/index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a>,
 <a href="../service_functions/message.html">Message</a>
 </div>
 

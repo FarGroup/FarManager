@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.CompareStrings</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,13 +10,13 @@
 
 <h1>CompareStrings</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">стандартные функции</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <code>FSF.CompareStrings</code> сравнивает две строки.
-Используемый алгоритм зависит от настроек Far.
+Р¤СѓРЅРєС†РёСЏ <code>FSF.CompareStrings</code> СЃСЂР°РІРЅРёРІР°РµС‚ РґРІРµ СЃС‚СЂРѕРєРё.
+РСЃРїРѕР»СЊР·СѓРµРјС‹Р№ Р°Р»РіРѕСЂРёС‚Рј Р·Р°РІРёСЃРёС‚ РѕС‚ РЅР°СЃС‚СЂРѕРµРє Far.
 </div>
 
 <pre class=syntax>
@@ -28,31 +28,31 @@ int WINAPI CompareStrings(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Str1, Str2</div>
-    <div class=dfndescr>Указатели на строки, которые вы хотите сравнить.</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»Рё РЅР° СЃС‚СЂРѕРєРё, РєРѕС‚РѕСЂС‹Рµ РІС‹ С…РѕС‚РёС‚Рµ СЃСЂР°РІРЅРёС‚СЊ.</div>
   <div class=dfn>Size1, Size2</div>
-    <div class=dfndescr>Размеры строк в символах.</div>
+    <div class=dfndescr>Р Р°Р·РјРµСЂС‹ СЃС‚СЂРѕРє РІ СЃРёРјРІРѕР»Р°С….</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-Функция возвращает:<br>
- неопределённое отрицательное значение, если <code>Str1</code> меньше <code>Str2</code><br>
- неопределённое положительное значение, если <code>Str1</code> больше <code>Str2</code><br>
-<code> 0</code>, если строки эквивалентны<br>
+Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚:<br>
+ РЅРµРѕРїСЂРµРґРµР»С‘РЅРЅРѕРµ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ, РµСЃР»Рё <code>Str1</code> РјРµРЅСЊС€Рµ <code>Str2</code><br>
+ РЅРµРѕРїСЂРµРґРµР»С‘РЅРЅРѕРµ РїРѕР»РѕР¶РёС‚РµР»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ, РµСЃР»Рё <code>Str1</code> Р±РѕР»СЊС€Рµ <code>Str2</code><br>
+<code> 0</code>, РµСЃР»Рё СЃС‚СЂРѕРєРё СЌРєРІРёРІР°Р»РµРЅС‚РЅС‹<br>
 </div>
 
-<p class="note"><img src="../../images/warning.gif" alt="ВНИМАНИЕ!" width="10" height="10"> ВНИМАНИЕ!</p>
-<ul class="note"><li>Эквивалентность строк ещё не означает, что они идентичны.<br>Функция предназначена для использования в качестве предиката сортировки, а не для проверки равенства строк.</li>
+<p class="note"><img src="../../images/warning.gif" alt="Р’РќРРњРђРќРР•!" width="10" height="10"> Р’РќРРњРђРќРР•!</p>
+<ul class="note"><li>Р­РєРІРёРІР°Р»РµРЅС‚РЅРѕСЃС‚СЊ СЃС‚СЂРѕРє РµС‰С‘ РЅРµ РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ РѕРЅРё РёРґРµРЅС‚РёС‡РЅС‹.<br>Р¤СѓРЅРєС†РёСЏ РїСЂРµРґРЅР°Р·РЅР°С‡РµРЅР° РґР»СЏ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РІ РєР°С‡РµСЃС‚РІРµ РїСЂРµРґРёРєР°С‚Р° СЃРѕСЂС‚РёСЂРѕРІРєРё, Р° РЅРµ РґР»СЏ РїСЂРѕРІРµСЂРєРё СЂР°РІРµРЅСЃС‚РІР° СЃС‚СЂРѕРє.</li>
 </ul>
 
-<h3>Примечание</h3>
+<h3>РџСЂРёРјРµС‡Р°РЅРёРµ</h3>
 <div class=descr>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 </div>
 

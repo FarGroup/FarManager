@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>GetFormatName</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
@@ -11,13 +11,13 @@
 
 <h1>GetFormatName</h1>
 <div class=navbar>
-<a href="../../index.html">главная</a> |
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
 <a href="../index.html">Custom API</a> |
-<a href="index.html">поддержка архивов</a>
+<a href="index.html">РїРѕРґРґРµСЂР¶РєР° Р°СЂС…РёРІРѕРІ</a>
 </div>
 
 <div class=shortdescr>
-Получить имя формата архива.
+РџРѕР»СѓС‡РёС‚СЊ РёРјСЏ С„РѕСЂРјР°С‚Р° Р°СЂС…РёРІР°.
 </div>
 
 <pre class=syntax>
@@ -27,28 +27,28 @@ BOOL WINAPI GetFormatName(
   char *DefaultExt
 );
 </pre>
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
 
     <div class=dfn>Type</div>
-    <div class=dfndescr>тип архива</div>
+    <div class=dfndescr>С‚РёРї Р°СЂС…РёРІР°</div>
     <div class=dfn>FormatName</div>
-    <div class=dfndescr>имя формата; оно будет использовано при
-      сохранении параметров в реестре и при выборе желательного формата архива.</div>
+    <div class=dfndescr>РёРјСЏ С„РѕСЂРјР°С‚Р°; РѕРЅРѕ Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°РЅРѕ РїСЂРё
+      СЃРѕС…СЂР°РЅРµРЅРёРё РїР°СЂР°РјРµС‚СЂРѕРІ РІ СЂРµРµСЃС‚СЂРµ Рё РїСЂРё РІС‹Р±РѕСЂРµ Р¶РµР»Р°С‚РµР»СЊРЅРѕРіРѕ С„РѕСЂРјР°С‚Р° Р°СЂС…РёРІР°.</div>
     <div class=dfn>DefaultExt</div>
-    <div class=dfndescr>расширение файла по умолчанию для данного
-      формата (без точки); используется для ускорения распознавания формата.</div>
+    <div class=dfndescr>СЂР°СЃС€РёСЂРµРЅРёРµ С„Р°Р№Р»Р° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ РґР°РЅРЅРѕРіРѕ
+      С„РѕСЂРјР°С‚Р° (Р±РµР· С‚РѕС‡РєРё); РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ СѓСЃРєРѕСЂРµРЅРёСЏ СЂР°СЃРїРѕР·РЅР°РІР°РЅРёСЏ С„РѕСЂРјР°С‚Р°.</div>
 
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-  <p>В случае успеха возвращается TRUE. Если указанное значение типа архива не поддерживается, то должно возвращаться FALSE.</p>
+  <p>Р’ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р° РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ TRUE. Р•СЃР»Рё СѓРєР°Р·Р°РЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ С‚РёРїР° Р°СЂС…РёРІР° РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ, С‚Рѕ РґРѕР»Р¶РЅРѕ РІРѕР·РІСЂР°С‰Р°С‚СЊСЃСЏ FALSE.</p>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
-  <p>Пример получения имени формата ZIP-файла (ZIP.CPP)</p>
+  <p>РџСЂРёРјРµСЂ РїРѕР»СѓС‡РµРЅРёСЏ РёРјРµРЅРё С„РѕСЂРјР°С‚Р° ZIP-С„Р°Р№Р»Р° (ZIP.CPP)</p>
 <pre class=code>BOOL WINAPI _export GetFormatName(int Type,char *FormatName,char *DefaultExt)
 {
   if (Type==0)
@@ -63,8 +63,8 @@ BOOL WINAPI GetFormatName(
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">поддержка архивов</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
+<a href="index.html">РїРѕРґРґРµСЂР¶РєР° Р°СЂС…РёРІРѕРІ</a>
 </div>
 
 </body>

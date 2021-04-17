@@ -1,9 +1,9 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 
 <head>
 <title>PluginsControl</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -11,13 +11,13 @@
 
 <h1>PluginsControl</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a> |
 <a href="../pluginapi/index.html">Plugin Manager API</a>
 </div>
 
 <div class=shortdescr>
-Функция <code>PluginsControl</code> позволяет управлять сторонними плагинами.
+Р¤СѓРЅРєС†РёСЏ <code>PluginsControl</code> РїРѕР·РІРѕР»СЏРµС‚ СѓРїСЂР°РІР»СЏС‚СЊ СЃС‚РѕСЂРѕРЅРЅРёРјРё РїР»Р°РіРёРЅР°РјРё.
 </div>
 
 <pre class=syntax>
@@ -29,83 +29,83 @@ intptr_t WINAPI PluginsControl(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>hHandle</div>
-    <div class=dfndescr>Смотрите описание <code>Command</code>.</div>
+    <div class=dfndescr>РЎРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ <code>Command</code>.</div>
   <div class=dfn>Command</div>
-    <div class=dfndescr>Может быть одним из следующих значений (перечисление <a name="FAR_PLUGINS_CONTROL_COMMANDS">FAR_PLUGINS_CONTROL_COMMANDS</a>):
+    <div class=dfndescr>РњРѕР¶РµС‚ Р±С‹С‚СЊ РѕРґРЅРёРј РёР· СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="FAR_PLUGINS_CONTROL_COMMANDS">FAR_PLUGINS_CONTROL_COMMANDS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><th class="cont" width="40%">РљРѕРјР°РЅРґР°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_LOADPLUGIN">PCTL_LOADPLUGIN</a>,<br><a name="PCTL_FORCEDLOADPLUGIN">PCTL_FORCEDLOADPLUGIN</a></td>
-    <td class="cont" width="60%">Загрузить необходимый плагин обычным способом (плагин не всегда грузится в память, данные могут браться из кеша), либо форсировано сразу в память (может понадобиться для межплагинового взаимодействия).<br>
-    <code>hHandle</code> установите в значение <code>INVALID_HANDLE_VALUE</code>.<br>
-    <code>Param1</code> должен быть установлен в одно из значений (перечисление <a name="FAR_PLUGIN_LOAD_TYPE">FAR_PLUGIN_LOAD_TYPE</a>):
+    <td class="cont" width="60%">Р—Р°РіСЂСѓР·РёС‚СЊ РЅРµРѕР±С…РѕРґРёРјС‹Р№ РїР»Р°РіРёРЅ РѕР±С‹С‡РЅС‹Рј СЃРїРѕСЃРѕР±РѕРј (РїР»Р°РіРёРЅ РЅРµ РІСЃРµРіРґР° РіСЂСѓР·РёС‚СЃСЏ РІ РїР°РјСЏС‚СЊ, РґР°РЅРЅС‹Рµ РјРѕРіСѓС‚ Р±СЂР°С‚СЊСЃСЏ РёР· РєРµС€Р°), Р»РёР±Рѕ С„РѕСЂСЃРёСЂРѕРІР°РЅРѕ СЃСЂР°Р·Сѓ РІ РїР°РјСЏС‚СЊ (РјРѕР¶РµС‚ РїРѕРЅР°РґРѕР±РёС‚СЊСЃСЏ РґР»СЏ РјРµР¶РїР»Р°РіРёРЅРѕРІРѕРіРѕ РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ).<br>
+    <code>hHandle</code> СѓСЃС‚Р°РЅРѕРІРёС‚Рµ РІ Р·РЅР°С‡РµРЅРёРµ <code>INVALID_HANDLE_VALUE</code>.<br>
+    <code>Param1</code> РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РІ РѕРґРЅРѕ РёР· Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="FAR_PLUGIN_LOAD_TYPE">FAR_PLUGIN_LOAD_TYPE</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><th class="cont" width="40%">РўРёРї</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PLT_PATH">PLT_PATH</a></td>
-    <td class="cont" width="60%">Полный путь с именем dll-файла плагина.</td></tr>
+    <td class="cont" width="60%">РџРѕР»РЅС‹Р№ РїСѓС‚СЊ СЃ РёРјРµРЅРµРј dll-С„Р°Р№Р»Р° РїР»Р°РіРёРЅР°.</td></tr>
     </table>
-    <code>Param2</code> указывает на строку, содержащую полный путь с именем dll-файла плагина.<br>
-    Функция возвращает описатель плагина, если плагин удалось загрузить, и <code>NULL</code> - если не удалось.</td></tr>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂРѕРєСѓ, СЃРѕРґРµСЂР¶Р°С‰СѓСЋ РїРѕР»РЅС‹Р№ РїСѓС‚СЊ СЃ РёРјРµРЅРµРј dll-С„Р°Р№Р»Р° РїР»Р°РіРёРЅР°.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РѕРїРёСЃР°С‚РµР»СЊ РїР»Р°РіРёРЅР°, РµСЃР»Рё РїР»Р°РіРёРЅ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ, Рё <code>NULL</code> - РµСЃР»Рё РЅРµ СѓРґР°Р»РѕСЃСЊ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_FINDPLUGIN">PCTL_FINDPLUGIN</a></td>
-    <td class="cont" width="60%">Найти необходимый плагин среди установленных.<br>
-    <code>hHandle</code> установите в значение <code>INVALID_HANDLE_VALUE</code>.<br>
-    <code>Param1</code> должен быть установлен в одно из значений (перечисление <a name="FAR_PLUGIN_FIND_TYPE">FAR_PLUGIN_FIND_TYPE</a>):
+    <td class="cont" width="60%">РќР°Р№С‚Рё РЅРµРѕР±С…РѕРґРёРјС‹Р№ РїР»Р°РіРёРЅ СЃСЂРµРґРё СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹С….<br>
+    <code>hHandle</code> СѓСЃС‚Р°РЅРѕРІРёС‚Рµ РІ Р·РЅР°С‡РµРЅРёРµ <code>INVALID_HANDLE_VALUE</code>.<br>
+    <code>Param1</code> РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РІ РѕРґРЅРѕ РёР· Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="FAR_PLUGIN_FIND_TYPE">FAR_PLUGIN_FIND_TYPE</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><th class="cont" width="40%">РўРёРї</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PFM_GUID">PFM_GUID</a></td>
-    <td class="cont" width="60%">Искать по значению GUIDа плагина.</td></tr>
+    <td class="cont" width="60%">РСЃРєР°С‚СЊ РїРѕ Р·РЅР°С‡РµРЅРёСЋ GUIDР° РїР»Р°РіРёРЅР°.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PFM_MODULENAME">PFM_MODULENAME</a></td>
-    <td class="cont" width="60%">Искать по имени dll-файла плагина.</td></tr>
+    <td class="cont" width="60%">РСЃРєР°С‚СЊ РїРѕ РёРјРµРЅРё dll-С„Р°Р№Р»Р° РїР»Р°РіРёРЅР°.</td></tr>
     </table>
-    <code>Param2</code> указывает либо на структуру с значением GUID, либо на строку, содержащую имя dll-файла плагина.<br>
-    Функция возвращает описатель найденного плагина, либо <code>NULL</code>, если плагин не удалось найти.</td></tr>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ Р»РёР±Рѕ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ СЃ Р·РЅР°С‡РµРЅРёРµРј GUID, Р»РёР±Рѕ РЅР° СЃС‚СЂРѕРєСѓ, СЃРѕРґРµСЂР¶Р°С‰СѓСЋ РёРјСЏ dll-С„Р°Р№Р»Р° РїР»Р°РіРёРЅР°.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РѕРїРёСЃР°С‚РµР»СЊ РЅР°Р№РґРµРЅРЅРѕРіРѕ РїР»Р°РіРёРЅР°, Р»РёР±Рѕ <code>NULL</code>, РµСЃР»Рё РїР»Р°РіРёРЅ РЅРµ СѓРґР°Р»РѕСЃСЊ РЅР°Р№С‚Рё.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_UNLOADPLUGIN">PCTL_UNLOADPLUGIN</a></td>
-    <td class="cont" width="60%">Выгрузить плагин.<br>
-    <code>hHandle</code> описатель установленного плагина, его можно получить по команде <a href="#PCTL_FINDPLUGIN">PCTL_FINDPLUGIN</a>.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.<br>
-    Функция возвращает <code>TRUE</code>, если плагин удалось выгрузить.</td></tr>
+    <td class="cont" width="60%">Р’С‹РіСЂСѓР·РёС‚СЊ РїР»Р°РіРёРЅ.<br>
+    <code>hHandle</code> РѕРїРёСЃР°С‚РµР»СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРіРѕ РїР»Р°РіРёРЅР°, РµРіРѕ РјРѕР¶РЅРѕ РїРѕР»СѓС‡РёС‚СЊ РїРѕ РєРѕРјР°РЅРґРµ <a href="#PCTL_FINDPLUGIN">PCTL_FINDPLUGIN</a>.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>, РµСЃР»Рё РїР»Р°РіРёРЅ СѓРґР°Р»РѕСЃСЊ РІС‹РіСЂСѓР·РёС‚СЊ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_GETPLUGININFORMATION">PCTL_GETPLUGININFORMATION</a></td>
-    <td class="cont" width="60%">Получить суммарную информацию об установленном плагине.<br>
-    <code>hHandle</code> описатель установленного плагина, его можно получить по команде <a href="#PCTL_FINDPLUGIN">PCTL_FINDPLUGIN</a> или <a href="#PCTL_GETPLUGINS">PCTL_GETPLUGINS</a>.<br>
-    <code>Param1</code> размер буфера под запрошенные данные. Начало буфера - структура типа <a href="../structures/fargetplugininformation.html">FarGetPluginInformation</a>, затем следуют компоненты структуры.<br>
-    <code>Param2</code> указатель на структуру <a href="../structures/fargetplugininformation.html">FarGetPluginInformation</a>, может быть <code>NULL</code> для запроса размера буфера.<br>
-    Функция возвращает необходимый размер буфера.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ СЃСѓРјРјР°СЂРЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ РѕР± СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРј РїР»Р°РіРёРЅРµ.<br>
+    <code>hHandle</code> РѕРїРёСЃР°С‚РµР»СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРіРѕ РїР»Р°РіРёРЅР°, РµРіРѕ РјРѕР¶РЅРѕ РїРѕР»СѓС‡РёС‚СЊ РїРѕ РєРѕРјР°РЅРґРµ <a href="#PCTL_FINDPLUGIN">PCTL_FINDPLUGIN</a> РёР»Рё <a href="#PCTL_GETPLUGINS">PCTL_GETPLUGINS</a>.<br>
+    <code>Param1</code> СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РїРѕРґ Р·Р°РїСЂРѕС€РµРЅРЅС‹Рµ РґР°РЅРЅС‹Рµ. РќР°С‡Р°Р»Рѕ Р±СѓС„РµСЂР° - СЃС‚СЂСѓРєС‚СѓСЂР° С‚РёРїР° <a href="../structures/fargetplugininformation.html">FarGetPluginInformation</a>, Р·Р°С‚РµРј СЃР»РµРґСѓСЋС‚ РєРѕРјРїРѕРЅРµРЅС‚С‹ СЃС‚СЂСѓРєС‚СѓСЂС‹.<br>
+    <code>Param2</code> СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/fargetplugininformation.html">FarGetPluginInformation</a>, РјРѕР¶РµС‚ Р±С‹С‚СЊ <code>NULL</code> РґР»СЏ Р·Р°РїСЂРѕСЃР° СЂР°Р·РјРµСЂР° Р±СѓС„РµСЂР°.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_GETPLUGINS">PCTL_GETPLUGINS</a></td>
-    <td class="cont" width="60%">Получить описатели всех установленных плагинов.<br>
-    <code>hHandle</code> установите в значение <code>INVALID_HANDLE_VALUE</code>.<br>
-    <code>Param1</code> количество элементов в массиве <code>Param2</code>.<br>
-    <code>Param2</code> массив описателей <code>HANDLE</code>, буфер под данные выделяет плагин, может быть <code>NULL</code> для запроса количества элементов.<br>
-    Функция возвращает количество установленных плагинов.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РѕРїРёСЃР°С‚РµР»Рё РІСЃРµС… СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹С… РїР»Р°РіРёРЅРѕРІ.<br>
+    <code>hHandle</code> СѓСЃС‚Р°РЅРѕРІРёС‚Рµ РІ Р·РЅР°С‡РµРЅРёРµ <code>INVALID_HANDLE_VALUE</code>.<br>
+    <code>Param1</code> РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ РјР°СЃСЃРёРІРµ <code>Param2</code>.<br>
+    <code>Param2</code> РјР°СЃСЃРёРІ РѕРїРёСЃР°С‚РµР»РµР№ <code>HANDLE</code>, Р±СѓС„РµСЂ РїРѕРґ РґР°РЅРЅС‹Рµ РІС‹РґРµР»СЏРµС‚ РїР»Р°РіРёРЅ, РјРѕР¶РµС‚ Р±С‹С‚СЊ <code>NULL</code> РґР»СЏ Р·Р°РїСЂРѕСЃР° РєРѕР»РёС‡РµСЃС‚РІР° СЌР»РµРјРµРЅС‚РѕРІ.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹С… РїР»Р°РіРёРЅРѕРІ.</td></tr>
 
     </table>
     </div>
   <div class=dfn>Param1</div>
-    <div class=dfndescr>Указывает на <code>Параметр1</code> команды. Смотрите описание <code>Command</code>.</div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° <code>РџР°СЂР°РјРµС‚СЂ1</code> РєРѕРјР°РЅРґС‹. РЎРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ <code>Command</code>.</div>
   <div class=dfn>Param2</div>
-    <div class=dfndescr>Указывает на <code>Параметр2</code> команды. Смотрите описание <code>Command</code>.</div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° <code>РџР°СЂР°РјРµС‚СЂ2</code> РєРѕРјР°РЅРґС‹. РЎРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ <code>Command</code>.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-Смотрите описание <code>Command</code>.
+РЎРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ <code>Command</code>.
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <pre class=code>
 const wchar_t *PlugPath = L"C:\\FAR\\Plugins\\AutoWrap\\AutoWrap.dll";
 
-//загрузим либо выгрузим плагин
+//Р·Р°РіСЂСѓР·РёРј Р»РёР±Рѕ РІС‹РіСЂСѓР·РёРј РїР»Р°РіРёРЅ
 if (Load || Unload)
 {
   if (Load)
@@ -119,7 +119,7 @@ if (Load || Unload)
 }
 </pre>
 
-<div class=see>Смотрите также:</div>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
 <div class=seecont>
 <a href="panelcontrol.html">PanelControl</a></div>
 </body>

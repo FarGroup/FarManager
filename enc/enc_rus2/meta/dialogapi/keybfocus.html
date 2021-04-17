@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-<title>Фокус ввода</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<title>Р¤РѕРєСѓСЃ РІРІРѕРґР°</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,77 +10,77 @@
 -->
 <body>
 
-<h1>Фокус ввода</h1>
+<h1>Р¤РѕРєСѓСЃ РІРІРѕРґР°</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
 <a href="index.html">Dialog API</a> |
-<a href="controls/index.html">Элементы диалога</a>
+<a href="controls/index.html">Р­Р»РµРјРµРЅС‚С‹ РґРёР°Р»РѕРіР°</a>
 </div>
 
 <div class=shortdescr>
-<p>Для распределения сообщений от клавиатуры используется концепция так
-называемого клавиатурного фокуса ввода. Фокус ввода - это атрибут, который
-присваивается элементу диалога. Если элемент имеет фокус ввода, то он
-получает все клавиатурные сообщения (в основном :-) из системной очереди
+<p>Р”Р»СЏ СЂР°СЃРїСЂРµРґРµР»РµРЅРёСЏ СЃРѕРѕР±С‰РµРЅРёР№ РѕС‚ РєР»Р°РІРёР°С‚СѓСЂС‹ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РєРѕРЅС†РµРїС†РёСЏ С‚Р°Рє
+РЅР°Р·С‹РІР°РµРјРѕРіРѕ РєР»Р°РІРёР°С‚СѓСЂРЅРѕРіРѕ С„РѕРєСѓСЃР° РІРІРѕРґР°. Р¤РѕРєСѓСЃ РІРІРѕРґР° - СЌС‚Рѕ Р°С‚СЂРёР±СѓС‚, РєРѕС‚РѕСЂС‹Р№
+РїСЂРёСЃРІР°РёРІР°РµС‚СЃСЏ СЌР»РµРјРµРЅС‚Сѓ РґРёР°Р»РѕРіР°. Р•СЃР»Рё СЌР»РµРјРµРЅС‚ РёРјРµРµС‚ С„РѕРєСѓСЃ РІРІРѕРґР°, С‚Рѕ РѕРЅ
+РїРѕР»СѓС‡Р°РµС‚ РІСЃРµ РєР»Р°РІРёР°С‚СѓСЂРЅС‹Рµ СЃРѕРѕР±С‰РµРЅРёСЏ (РІ РѕСЃРЅРѕРІРЅРѕРј :-) РёР· СЃРёСЃС‚РµРјРЅРѕР№ РѕС‡РµСЂРµРґРё
 FAR Manager.</p>
 
-<p>Менеджер диалогов может передавать фокус ввода от одного элемента другому.
-Когда вы нажимаете клавиши Tab, Shift-Tab или Alt-Символ, фокус ввода
-передаётся следующему/предыдущему элементу диалога (или элементу диалога,
-имеющему соответствующую горячую клавишу).
+<p>РњРµРЅРµРґР¶РµСЂ РґРёР°Р»РѕРіРѕРІ РјРѕР¶РµС‚ РїРµСЂРµРґР°РІР°С‚СЊ С„РѕРєСѓСЃ РІРІРѕРґР° РѕС‚ РѕРґРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р° РґСЂСѓРіРѕРјСѓ.
+РљРѕРіРґР° РІС‹ РЅР°Р¶РёРјР°РµС‚Рµ РєР»Р°РІРёС€Рё Tab, Shift-Tab РёР»Рё Alt-РЎРёРјРІРѕР», С„РѕРєСѓСЃ РІРІРѕРґР°
+РїРµСЂРµРґР°С‘С‚СЃСЏ СЃР»РµРґСѓСЋС‰РµРјСѓ/РїСЂРµРґС‹РґСѓС‰РµРјСѓ СЌР»РµРјРµРЅС‚Сѓ РґРёР°Р»РѕРіР° (РёР»Рё СЌР»РµРјРµРЅС‚Сѓ РґРёР°Р»РѕРіР°,
+РёРјРµСЋС‰РµРјСѓ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰СѓСЋ РіРѕСЂСЏС‡СѓСЋ РєР»Р°РІРёС€Сѓ).
 
-<p>Функция обработки диалога может проследить за получением и потерей фокуса
-ввода. Когда элемент получает фокус ввода, функции-обработчику передаётся
-сообщение <a href="dmsg/dn_gotfocus.html">DN_GOTFOCUS</a>. Когда элемент теряет
-фокус ввода, функции-обработчику передаётся сообщение <a href="dmsg/dn_killfocus.html">DN_KILLFOCUS</a>.
-В ответ на сообщение <a href="dmsg/dn_killfocus.html">DN_KILLFOCUS</a> функция
-обработки диалога может запретить потерю фокуса ввода, вернув значение -1.
-Сообщение <a href="dmsg/dn_gotfocus.html">DN_GOTFOCUS</a> носит чисто
-информативный характер, т.е. вы не можете отменить данное событие, как таковое.</p>
+<p>Р¤СѓРЅРєС†РёСЏ РѕР±СЂР°Р±РѕС‚РєРё РґРёР°Р»РѕРіР° РјРѕР¶РµС‚ РїСЂРѕСЃР»РµРґРёС‚СЊ Р·Р° РїРѕР»СѓС‡РµРЅРёРµРј Рё РїРѕС‚РµСЂРµР№ С„РѕРєСѓСЃР°
+РІРІРѕРґР°. РљРѕРіРґР° СЌР»РµРјРµРЅС‚ РїРѕР»СѓС‡Р°РµС‚ С„РѕРєСѓСЃ РІРІРѕРґР°, С„СѓРЅРєС†РёРё-РѕР±СЂР°Р±РѕС‚С‡РёРєСѓ РїРµСЂРµРґР°С‘С‚СЃСЏ
+СЃРѕРѕР±С‰РµРЅРёРµ <a href="dmsg/dn_gotfocus.html">DN_GOTFOCUS</a>. РљРѕРіРґР° СЌР»РµРјРµРЅС‚ С‚РµСЂСЏРµС‚
+С„РѕРєСѓСЃ РІРІРѕРґР°, С„СѓРЅРєС†РёРё-РѕР±СЂР°Р±РѕС‚С‡РёРєСѓ РїРµСЂРµРґР°С‘С‚СЃСЏ СЃРѕРѕР±С‰РµРЅРёРµ <a href="dmsg/dn_killfocus.html">DN_KILLFOCUS</a>.
+Р’ РѕС‚РІРµС‚ РЅР° СЃРѕРѕР±С‰РµРЅРёРµ <a href="dmsg/dn_killfocus.html">DN_KILLFOCUS</a> С„СѓРЅРєС†РёСЏ
+РѕР±СЂР°Р±РѕС‚РєРё РґРёР°Р»РѕРіР° РјРѕР¶РµС‚ Р·Р°РїСЂРµС‚РёС‚СЊ РїРѕС‚РµСЂСЋ С„РѕРєСѓСЃР° РІРІРѕРґР°, РІРµСЂРЅСѓРІ Р·РЅР°С‡РµРЅРёРµ -1.
+РЎРѕРѕР±С‰РµРЅРёРµ <a href="dmsg/dn_gotfocus.html">DN_GOTFOCUS</a> РЅРѕСЃРёС‚ С‡РёСЃС‚Рѕ
+РёРЅС„РѕСЂРјР°С‚РёРІРЅС‹Р№ С…Р°СЂР°РєС‚РµСЂ, С‚.Рµ. РІС‹ РЅРµ РјРѕР¶РµС‚Рµ РѕС‚РјРµРЅРёС‚СЊ РґР°РЅРЅРѕРµ СЃРѕР±С‹С‚РёРµ, РєР°Рє С‚Р°РєРѕРІРѕРµ.</p>
 
-<p>Программный интерфейс Dialog API Far Manager содержит два сообщения,
-позволяющие узнать или изменить элемент, владеющий фокусом ввода. Эти сообщения
-имеют соответственно имена <a href="dmsg/dm_getfocus.html">DM_GETFOCUS</a> и
+<p>РџСЂРѕРіСЂР°РјРјРЅС‹Р№ РёРЅС‚РµСЂС„РµР№СЃ Dialog API Far Manager СЃРѕРґРµСЂР¶РёС‚ РґРІР° СЃРѕРѕР±С‰РµРЅРёСЏ,
+РїРѕР·РІРѕР»СЏСЋС‰РёРµ СѓР·РЅР°С‚СЊ РёР»Рё РёР·РјРµРЅРёС‚СЊ СЌР»РµРјРµРЅС‚, РІР»Р°РґРµСЋС‰РёР№ С„РѕРєСѓСЃРѕРј РІРІРѕРґР°. Р­С‚Рё СЃРѕРѕР±С‰РµРЅРёСЏ
+РёРјРµСЋС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ РёРјРµРЅР° <a href="dmsg/dm_getfocus.html">DM_GETFOCUS</a> Рё
 <a href="dmsg/dm_setfocus.html">DM_SETFOCUS</a>.
 
-<p>Ниже перечислены элементы диалога, которые могут иметь клавиатурный
-фокус ввода (при условии, что для этих элементов не выставлены флаги
-<a href="flags/dif_nofocus.html">DIF_NOFOCUS</a> и/или <a href="flags/dif_disable.html">DIF_DISABLE</a>):</p>
+<p>РќРёР¶Рµ РїРµСЂРµС‡РёСЃР»РµРЅС‹ СЌР»РµРјРµРЅС‚С‹ РґРёР°Р»РѕРіР°, РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ РёРјРµС‚СЊ РєР»Р°РІРёР°С‚СѓСЂРЅС‹Р№
+С„РѕРєСѓСЃ РІРІРѕРґР° (РїСЂРё СѓСЃР»РѕРІРёРё, С‡С‚Рѕ РґР»СЏ СЌС‚РёС… СЌР»РµРјРµРЅС‚РѕРІ РЅРµ РІС‹СЃС‚Р°РІР»РµРЅС‹ С„Р»Р°РіРё
+<a href="flags/dif_nofocus.html">DIF_NOFOCUS</a> Рё/РёР»Рё <a href="flags/dif_disable.html">DIF_DISABLE</a>):</p>
 </div>
 
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">Р­Р»РµРјРµРЅС‚</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a href="controls/di_button.html">DI_BUTTON</a></td>
-<td class="cont" width="60%">Кнопка (Push Button).</td></tr>
+<td class="cont" width="60%">РљРЅРѕРїРєР° (Push Button).</td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a href="controls/di_checkbox.html">DI_CHECKBOX</a></td>
-<td class="cont" width="60%">Контрольный переключатель (Check Box).</td></tr>
+<td class="cont" width="60%">РљРѕРЅС‚СЂРѕР»СЊРЅС‹Р№ РїРµСЂРµРєР»СЋС‡Р°С‚РµР»СЊ (Check Box).</td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a href="controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">Комбинированный список.</td></tr>
+<td class="cont" width="60%">РљРѕРјР±РёРЅРёСЂРѕРІР°РЅРЅС‹Р№ СЃРїРёСЃРѕРє.</td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a href="controls/di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="60%">Поле ввода.</td></tr>
+<td class="cont" width="60%">РџРѕР»Рµ РІРІРѕРґР°.</td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a href="controls/di_fixedit.html">DI_FIXEDIT</a></td>
-<td class="cont" width="60%">Поле ввода фиксированного размера.</td></tr>
+<td class="cont" width="60%">РџРѕР»Рµ РІРІРѕРґР° С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕРіРѕ СЂР°Р·РјРµСЂР°.</td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a href="controls/di_listbox.html">DI_LISTBOX</a></td>
-<td class="cont" width="60%">Окно списка.</td></tr>
+<td class="cont" width="60%">РћРєРЅРѕ СЃРїРёСЃРєР°.</td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a href="controls/di_pswedit.html">DI_PSWEDIT</a></td>
-<td class="cont" width="60%">Поле ввода пароля.</td></tr>
+<td class="cont" width="60%">РџРѕР»Рµ РІРІРѕРґР° РїР°СЂРѕР»СЏ.</td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a href="controls/di_radiobutton.html">DI_RADIOBUTTON</a></td>
-<td class="cont" width="60%">Селекторная кнопка (Radio Button).</td></tr>
+<td class="cont" width="60%">РЎРµР»РµРєС‚РѕСЂРЅР°СЏ РєРЅРѕРїРєР° (Radio Button).</td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a href="controls/di_usercontrol.html">DI_USERCONTROL</a></td>
-<td class="cont" width="60%">Элемент управления, определяемый программистом.</td></tr>
+<td class="cont" width="60%">Р­Р»РµРјРµРЅС‚ СѓРїСЂР°РІР»РµРЅРёСЏ, РѕРїСЂРµРґРµР»СЏРµРјС‹Р№ РїСЂРѕРіСЂР°РјРјРёСЃС‚РѕРј.</td></tr>
 </table>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
 <a href="defdlgproc.html">DefDlgProc</a>,
 <a href="dialoginit.html">DialogInit</a>,
 <a href="senddlgmessage.html">SendDlgMessage</a>

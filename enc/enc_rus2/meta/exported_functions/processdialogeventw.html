@@ -1,20 +1,20 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>ProcessDialogEventW</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
 <body>
 
 <h1>ProcessDialogEventW</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">экспортируемые функции</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЌРєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>ProcessDialogEventW</dfn> сообщает плагину о событиях, происходящих в диалоге FAR Manager.</div>
+Р¤СѓРЅРєС†РёСЏ <dfn>ProcessDialogEventW</dfn> СЃРѕРѕР±С‰Р°РµС‚ РїР»Р°РіРёРЅСѓ Рѕ СЃРѕР±С‹С‚РёСЏС…, РїСЂРѕРёСЃС…РѕРґСЏС‰РёС… РІ РґРёР°Р»РѕРіРµ FAR Manager.</div>
 
 <pre class=syntax>
 int WINAPI ProcessDialogEventW(
@@ -23,29 +23,29 @@ int WINAPI ProcessDialogEventW(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
     <div class=dfn>Event</div>
-    <div class=dfndescr>Тип события.<br>
-      Может быть одной из следующих величин (перечисление <a name="DIALOG_EVENTS">DIALOG_EVENTS</a>):
+    <div class=dfndescr>РўРёРї СЃРѕР±С‹С‚РёСЏ.<br>
+      РњРѕР¶РµС‚ Р±С‹С‚СЊ РѕРґРЅРѕР№ РёР· СЃР»РµРґСѓСЋС‰РёС… РІРµР»РёС‡РёРЅ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="DIALOG_EVENTS">DIALOG_EVENTS</a>):
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">РЎРѕР±С‹С‚РёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="DE_DLGPROCINIT">DE_DLGPROCINIT</a></td>
         <td class="cont" width="60%">
-        <i>Param</i> - указатель на структуру <a href="../structures/fardialogevent.html">FarDialogEvent</a>.<br>
-        Событие FarDialogEvent.Msg поступает в функцию обработки диалога.
+        <i>Param</i> - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/fardialogevent.html">FarDialogEvent</a>.<br>
+        РЎРѕР±С‹С‚РёРµ FarDialogEvent.Msg РїРѕСЃС‚СѓРїР°РµС‚ РІ С„СѓРЅРєС†РёСЋ РѕР±СЂР°Р±РѕС‚РєРё РґРёР°Р»РѕРіР°.
         </td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="DE_DEFDLGPROCINIT">DE_DEFDLGPROCINIT</a></td>
         <td class="cont" width="60%">
-        <i>Param</i> - указатель на структуру <a href="../structures/fardialogevent.html">FarDialogEvent</a>.<br>
-        Событие FarDialogEvent.Msg поступает в <a href="../dialogapi/defdlgproc.html">стандартную</a> (внутреннюю) функцию обработки диалога.
+        <i>Param</i> - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/fardialogevent.html">FarDialogEvent</a>.<br>
+        РЎРѕР±С‹С‚РёРµ FarDialogEvent.Msg РїРѕСЃС‚СѓРїР°РµС‚ РІ <a href="../dialogapi/defdlgproc.html">СЃС‚Р°РЅРґР°СЂС‚РЅСѓСЋ</a> (РІРЅСѓС‚СЂРµРЅРЅСЋСЋ) С„СѓРЅРєС†РёСЋ РѕР±СЂР°Р±РѕС‚РєРё РґРёР°Р»РѕРіР°.
         </td></tr>
 
         <tr class="cont"><td class="cont" width="40%"><a name="DE_DLGPROCEND">DE_DLGPROCEND</a></td>
         <td class="cont" width="60%">
-        <i>Param</i> - указатель на структуру <a href="../structures/fardialogevent.html">FarDialogEvent</a>.<br>
-        Событие FarDialogEvent.Msg обработано функцией обработки диалога. FarDialogEvent.Result содержит возвращённое обработчиком значение.
+        <i>Param</i> - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/fardialogevent.html">FarDialogEvent</a>.<br>
+        РЎРѕР±С‹С‚РёРµ FarDialogEvent.Msg РѕР±СЂР°Р±РѕС‚Р°РЅРѕ С„СѓРЅРєС†РёРµР№ РѕР±СЂР°Р±РѕС‚РєРё РґРёР°Р»РѕРіР°. FarDialogEvent.Result СЃРѕРґРµСЂР¶РёС‚ РІРѕР·РІСЂР°С‰С‘РЅРЅРѕРµ РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРј Р·РЅР°С‡РµРЅРёРµ.
         </td></tr>
 
 </table>
@@ -53,23 +53,23 @@ int WINAPI ProcessDialogEventW(
     </div>
     <div class=dfn>Param</div>
     <div class=dfndescr>
-      Указатель на структуру <a href="../structures/fardialogevent.html">FarDialogEvent</a>.
+      РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/fardialogevent.html">FarDialogEvent</a>.
     </div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-  TRUE - плагин самостоятельно обработал событие. Переменная FarDialogEvent.Result будет использована в качестве возвращаемого значения обработчика диалога.<br>
-  FALSE - продолжить обработку события.
+  TRUE - РїР»Р°РіРёРЅ СЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅРѕ РѕР±СЂР°Р±РѕС‚Р°Р» СЃРѕР±С‹С‚РёРµ. РџРµСЂРµРјРµРЅРЅР°СЏ FarDialogEvent.Result Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°РЅР° РІ РєР°С‡РµСЃС‚РІРµ РІРѕР·РІСЂР°С‰Р°РµРјРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РѕР±СЂР°Р±РѕС‚С‡РёРєР° РґРёР°Р»РѕРіР°.<br>
+  FALSE - РїСЂРѕРґРѕР»Р¶РёС‚СЊ РѕР±СЂР°Р±РѕС‚РєСѓ СЃРѕР±С‹С‚РёСЏ.
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
 <a href="../structures/fardialogevent.html">FarDialogEvent</a>,
-<a href="../dialogapi/dmsg/index_dn.html">события</a>,
+<a href="../dialogapi/dmsg/index_dn.html">СЃРѕР±С‹С‚РёСЏ</a>,
 <a href="../dialogapi/index.html">Dialog API</a>
 </div>
 

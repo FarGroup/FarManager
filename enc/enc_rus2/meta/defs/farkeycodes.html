@@ -1,80 +1,80 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 
 <head>
-<title>Коды клавиш FAR Manager</title>
-<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<title>РљРѕРґС‹ РєР»Р°РІРёС€ FAR Manager</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
 
 <body>
 
 <a name="KEY_"></a>
-<h1>Коды клавиш FAR Manager</h1>
+<h1>РљРѕРґС‹ РєР»Р°РІРёС€ FAR Manager</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">типы и определения</a> |
-<a href="../winapi/virtualkeycodes.html">Виртуальные коды клавиш</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">С‚РёРїС‹ Рё РѕРїСЂРµРґРµР»РµРЅРёСЏ</a> |
+<a href="../winapi/virtualkeycodes.html">Р’РёСЂС‚СѓР°Р»СЊРЅС‹Рµ РєРѕРґС‹ РєР»Р°РІРёС€</a>
 </div>
 
 
 
 <div class="shortdescr">
-  В этой таблице приведены hex-коды клавиш, используемые в FAR Manager
-  (файл <code>farkeys.hpp</code>, перечисление <a name="BaseDefKeyboard">BaseDefKeyboard</a>).
+  Р’ СЌС‚РѕР№ С‚Р°Р±Р»РёС†Рµ РїСЂРёРІРµРґРµРЅС‹ hex-РєРѕРґС‹ РєР»Р°РІРёС€, РёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ РІ FAR Manager
+  (С„Р°Р№Р» <code>farkeys.hpp</code>, РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="BaseDefKeyboard">BaseDefKeyboard</a>).
 </div>
 
 
-<h3>Базовый набор:</h3>
+<h3>Р‘Р°Р·РѕРІС‹Р№ РЅР°Р±РѕСЂ:</h3>
 <table border="0" cellspacing="1" cellpadding="3" width="100%">
   <tr>
-    <th align="left" width="10%"><small>Клавиша</small></th>
+    <th align="left" width="10%"><small>РљР»Р°РІРёС€Р°</small></th>
     <th align="left" width="25%"><small>KEY_</small></th>
     <th align="left" width="10%"><small>Hex</small></th>
-    <th align="left" width="55%"><small>Замечания</small></th>
+    <th align="left" width="55%"><small>Р—Р°РјРµС‡Р°РЅРёСЏ</small></th>
   </tr>
 
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_CTRLMASK</td>
     <th class="gray"><code>FFF00000</code></th>
-    <td class="gray">Маска модификаторов</td>
+    <td class="gray">РњР°СЃРєР° РјРѕРґРёС„РёРєР°С‚РѕСЂРѕРІ</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_M_OEM</td>
     <th class="white"><code>00100000</code></th>
-    <td>Модификатор для OEM-клавиш</td>
+    <td>РњРѕРґРёС„РёРєР°С‚РѕСЂ РґР»СЏ OEM-РєР»Р°РІРёС€</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_M_SPEC</td>
     <th class="gray"><code>00200000</code></th>
-    <td class="gray">Модификатор для SPEC-клавиш (у которых виртуальный код равен 0xFF)</td>
+    <td class="gray">РњРѕРґРёС„РёРєР°С‚РѕСЂ РґР»СЏ SPEC-РєР»Р°РІРёС€ (Сѓ РєРѕС‚РѕСЂС‹С… РІРёСЂС‚СѓР°Р»СЊРЅС‹Р№ РєРѕРґ СЂР°РІРµРЅ 0xFF)</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <th class="white"><code>00400000</code></th>
-    <td>зарезервировано</td>
+    <td>Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">&nbsp;</td>
     <th class="gray"><code>00800000</code></th>
-    <td class="gray">зарезервировано</td>
+    <td class="gray">Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ</td>
   </tr>
   <tr>
     <td>Ctrl</td>
     <td>KEY_CTRL</td>
     <th class="white"><code>01000000</code></th>
-    <td>Левый Ctrl</td>
+    <td>Р›РµРІС‹Р№ Ctrl</td>
   </tr>
   <tr>
     <td class="gray">Alt</td>
     <td class="gray">KEY_ALT</td>
     <th class="gray"><code>02000000</code></th>
-    <td class="gray">Левый Alt</td>
+    <td class="gray">Р›РµРІС‹Р№ Alt</td>
   </tr>
   <tr>
     <td>Shift</td>
@@ -86,31 +86,31 @@
     <td class="gray">&nbsp;</td>
     <td class="gray">&nbsp;</td>
     <th class="gray"><code>08000000</code></th>
-    <td class="gray">зарезервировано</td>
+    <td class="gray">Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ</td>
   </tr>
   <tr>
     <td>Right Ctrl</td>
     <td>KEY_RCTRL</td>
     <th class="white"><code>10000000</code></th>
-    <td>Правый Ctrl</td>
+    <td>РџСЂР°РІС‹Р№ Ctrl</td>
   </tr>
   <tr>
     <td class="gray">Right Alt</td>
     <td class="gray">KEY_RALT</td>
     <th class="gray"><code>20000000</code></th>
-    <td class="gray">Правый Alt</td>
+    <td class="gray">РџСЂР°РІС‹Р№ Alt</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <th class="white"><code>40000000</code></th>
-    <td>зарезервировано</td>
+    <td>Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">&nbsp;</td>
     <th class="gray"><code>80000000</code></th>
-    <td class="gray">зарезервировано</td>
+    <td class="gray">Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ</td>
   </tr>
   <tr>
     <td>Backspace</td>
@@ -194,7 +194,7 @@
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_MASKF</td>
     <th class="gray"><code>0001FFFF</code></th>
-    <td class="gray">Маска "нормальных" клавиш без модификаторов</td>
+    <td class="gray">РњР°СЃРєР° "РЅРѕСЂРјР°Р»СЊРЅС‹С…" РєР»Р°РІРёС€ Р±РµР· РјРѕРґРёС„РёРєР°С‚РѕСЂРѕРІ</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
@@ -272,103 +272,103 @@
     <td>&nbsp;</td>
     <td>KEY_STANDBY</td>
     <th class="white"><code>0001005F</code></th>
-    <td>Аналог VK_SLEEP</td>
+    <td>РђРЅР°Р»РѕРі VK_SLEEP</td>
   </tr>
   <tr>
     <td class="gray">Numpad 0</td>
     <td class="gray">KEY_NUMPAD0</td>
     <th class="gray"><code>00010060</code></th>
-    <td class="gray">На цифровой клавиатуре (при включённом правиле "UseNumPad")</td>
+    <td class="gray">РќР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ (РїСЂРё РІРєР»СЋС‡С‘РЅРЅРѕРј РїСЂР°РІРёР»Рµ "UseNumPad")</td>
   </tr>
   <tr>
     <td>Numpad 1</td>
     <td>KEY_NUMPAD1</td>
     <th class="white"><code>00010061</code></th>
-    <td>На цифровой клавиатуре (при включённом правиле "UseNumPad")</td>
+    <td>РќР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ (РїСЂРё РІРєР»СЋС‡С‘РЅРЅРѕРј РїСЂР°РІРёР»Рµ "UseNumPad")</td>
   </tr>
   <tr>
     <td class="gray">Numpad 2</td>
     <td class="gray">KEY_NUMPAD2</td>
     <th class="gray"><code>00010062</code></th>
-    <td class="gray">На цифровой клавиатуре (при включённом правиле "UseNumPad")</td>
+    <td class="gray">РќР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ (РїСЂРё РІРєР»СЋС‡С‘РЅРЅРѕРј РїСЂР°РІРёР»Рµ "UseNumPad")</td>
   </tr>
   <tr>
     <td>Numpad 3</td>
     <td>KEY_NUMPAD3</td>
     <th class="white"><code>00010063</code></th>
-    <td>На цифровой клавиатуре (при включённом правиле "UseNumPad")</td>
+    <td>РќР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ (РїСЂРё РІРєР»СЋС‡С‘РЅРЅРѕРј РїСЂР°РІРёР»Рµ "UseNumPad")</td>
   </tr>
   <tr>
     <td class="gray">Numpad 4</td>
     <td class="gray">KEY_NUMPAD2</td>
     <th class="gray"><code>00010064</code></th>
-    <td class="gray">На цифровой клавиатуре (при включённом правиле "UseNumPad")</td>
+    <td class="gray">РќР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ (РїСЂРё РІРєР»СЋС‡С‘РЅРЅРѕРј РїСЂР°РІРёР»Рµ "UseNumPad")</td>
   </tr>
   <tr>
     <td>Numpad 5</td>
     <td>KEY_NUMPAD5</td>
     <th class="white"><code>00010065</code></th>
-    <td>На цифровой клавиатуре</td>
+    <td>РќР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_CLEAR</td>
     <th class="gray"><code>00010065</code></th>
-    <td class="gray">Аналогичен KEY_NUMPAD5</td>
+    <td class="gray">РђРЅР°Р»РѕРіРёС‡РµРЅ KEY_NUMPAD5</td>
   </tr>
   <tr>
     <td>Numpad 6</td>
     <td>KEY_NUMPAD6</td>
     <th class="white"><code>00010066</code></th>
-    <td>На цифровой клавиатуре (при включённом правиле "UseNumPad")</td>
+    <td>РќР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ (РїСЂРё РІРєР»СЋС‡С‘РЅРЅРѕРј РїСЂР°РІРёР»Рµ "UseNumPad")</td>
   </tr>
   <tr>
     <td class="gray">Numpad 7</td>
     <td class="gray">KEY_NUMPAD7</td>
     <th class="gray"><code>00010067</code></th>
-    <td class="gray">На цифровой клавиатуре (при включённом правиле "UseNumPad")</td>
+    <td class="gray">РќР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ (РїСЂРё РІРєР»СЋС‡С‘РЅРЅРѕРј РїСЂР°РІРёР»Рµ "UseNumPad")</td>
   </tr>
   <tr>
     <td>Numpad 8</td>
     <td>KEY_NUMPAD8</td>
     <th class="white"><code>00010068</code></th>
-    <td>На цифровой клавиатуре (при включённом правиле "UseNumPad")</td>
+    <td>РќР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ (РїСЂРё РІРєР»СЋС‡С‘РЅРЅРѕРј РїСЂР°РІРёР»Рµ "UseNumPad")</td>
   </tr>
   <tr>
     <td class="gray">Numpad 9</td>
     <td class="gray">KEY_NUMPAD9</td>
     <th class="gray"><code>00010069</code></th>
-    <td class="gray">На цифровой клавиатуре (при включённом правиле "UseNumPad")</td>
+    <td class="gray">РќР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ (РїСЂРё РІРєР»СЋС‡С‘РЅРЅРѕРј РїСЂР°РІРёР»Рµ "UseNumPad")</td>
   </tr>
   <tr>
     <td>Gray *</td>
     <td>KEY_MULTIPLY</td>
     <th class="white"><code>0001006A</code></th>
-    <td>На цифровой клавиатуре</td>
+    <td>РќР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ</td>
   </tr>
   <tr>
     <td class="gray">Gray +</td>
     <td class="gray">KEY_ADD</td>
     <th class="gray"><code>0001006B</code></th>
-    <td class="gray">На цифровой клавиатуре</td>
+    <td class="gray">РќР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ</td>
   </tr>
   <tr>
     <td>Gray -</td>
     <td>KEY_SUBTRACT</td>
     <th class="white"><code>0001006D</code></th>
-    <td>На цифровой клавиатуре</td>
+    <td>РќР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_DECIMAL</td>
     <th class="gray"><code>0001006E</code></th>
-    <td class="gray">Del на цифровой клавиатуре при включённом NumLock</td>
+    <td class="gray">Del РЅР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ РїСЂРё РІРєР»СЋС‡С‘РЅРЅРѕРј NumLock</td>
   </tr>
   <tr>
     <td>Gray /</td>
     <td>KEY_DIVIDE</td>
     <th class="white"><code>0001006F</code></th>
-    <td>На цифровой клавиатуре</td>
+    <td>РќР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ</td>
   </tr>
   <tr>
     <td class="gray">F1</td>
@@ -512,127 +512,127 @@
     <td>&nbsp;</td>
     <td>KEY_BROWSER_BACK</td>
     <th class="white"><code>000100A6</code></th>
-    <td>Аналог VK_BROWSER_BACK</td>
+    <td>РђРЅР°Р»РѕРі VK_BROWSER_BACK</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_BROWSER_FORWARD</td>
     <th class="gray"><code>000100A7</code></th>
-    <td class="gray">Аналог VK_BROWSER_FORWARD</td>
+    <td class="gray">РђРЅР°Р»РѕРі VK_BROWSER_FORWARD</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_BROWSER_REFRESH</td>
     <th class="white"><code>000100A8</code></th>
-    <td>Аналог VK_BROWSER_REFRESH</td>
+    <td>РђРЅР°Р»РѕРі VK_BROWSER_REFRESH</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_BROWSER_STOP</td>
     <th class="gray"><code>000100A9</code></th>
-    <td class="gray">Аналог VK_BROWSER_STOP</td>
+    <td class="gray">РђРЅР°Р»РѕРі VK_BROWSER_STOP</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_BROWSER_SEARCH</td>
     <th class="white"><code>000100AA</code></th>
-    <td>Аналог VK_BROWSER_SEARCH</td>
+    <td>РђРЅР°Р»РѕРі VK_BROWSER_SEARCH</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_BROWSER_FAVORITES</td>
     <th class="gray"><code>000100AB</code></th>
-    <td class="gray">Аналог VK_BROWSER_FAVORITES</td>
+    <td class="gray">РђРЅР°Р»РѕРі VK_BROWSER_FAVORITES</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_BROWSER_HOME</td>
     <th class="white"><code>000100AC</code></th>
-    <td>Аналог VK_BROWSER_HOME</td>
+    <td>РђРЅР°Р»РѕРі VK_BROWSER_HOME</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_VOLUME_MUTE</td>
     <th class="gray"><code>000100AD</code></th>
-    <td class="gray">Аналог VK_VOLUME_MUTE</td>
+    <td class="gray">РђРЅР°Р»РѕРі VK_VOLUME_MUTE</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_VOLUME_DOWN</td>
     <th class="white"><code>000100AE</code></th>
-    <td>Аналог VK_VOLUME_DOWN</td>
+    <td>РђРЅР°Р»РѕРі VK_VOLUME_DOWN</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_VOLUME_UP</td>
     <th class="gray"><code>000100AF</code></th>
-    <td class="gray">Аналог VK_VOLUME_UP</td>
+    <td class="gray">РђРЅР°Р»РѕРі VK_VOLUME_UP</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_MEDIA_NEXT_TRACK</td>
     <th class="white"><code>000100B0</code></th>
-    <td>Аналог VK_MEDIA_NEXT_TRACK</td>
+    <td>РђРЅР°Р»РѕРі VK_MEDIA_NEXT_TRACK</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_MEDIA_PREV_TRACK</td>
     <th class="gray"><code>000100B1</code></th>
-    <td class="gray">Аналог VK_MEDIA_PREV_TRACK</td>
+    <td class="gray">РђРЅР°Р»РѕРі VK_MEDIA_PREV_TRACK</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_MEDIA_STOP</td>
     <th class="white"><code>000100B2</code></th>
-    <td>Аналог VK_MEDIA_STOP</td>
+    <td>РђРЅР°Р»РѕРі VK_MEDIA_STOP</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_MEDIA_PLAY_PAUSE</td>
     <th class="gray"><code>000100B3</code></th>
-    <td class="gray">Аналог VK_MEDIA_PLAY_PAUSE</td>
+    <td class="gray">РђРЅР°Р»РѕРі VK_MEDIA_PLAY_PAUSE</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_LAUNCH_MAIL</td>
     <th class="white"><code>000100B4</code></th>
-    <td>Аналог VK_LAUNCH_MAIL</td>
+    <td>РђРЅР°Р»РѕРі VK_LAUNCH_MAIL</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_LAUNCH_MEDIA_SELECT</td>
     <th class="gray"><code>000100B5</code></th>
-    <td class="gray">Аналог VK_LAUNCH_MEDIA_SELECT</td>
+    <td class="gray">РђРЅР°Р»РѕРі VK_LAUNCH_MEDIA_SELECT</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_LAUNCH_APP1</td>
     <th class="white"><code>000100B6</code></th>
-    <td>Аналог VK_LAUNCH_APP1</td>
+    <td>РђРЅР°Р»РѕРі VK_LAUNCH_APP1</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_LAUNCH_APP2</td>
     <th class="gray"><code>000100B7</code></th>
-    <td class="gray">Аналог VK_LAUNCH_APP2</td>
+    <td class="gray">РђРЅР°Р»РѕРі VK_LAUNCH_APP2</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_VK_0xFF_BEGIN</td>
     <th class="white"><code>00010100</code></th>
-    <td>Начало определения специфических клавиш, у которых виртуальный код равен 0xFF (например, разнообразные мультимедийные клавиши, которые производители дополнительно встраивают в клавиатуру). Код формируется по формуле: "KEY_VK_0xFF_BEGIN" + ScanCode. В макросах такие клавиши хранятся как "SpecXXXXX" (здесь XXXXX сканкод клавиши).</td>
+    <td>РќР°С‡Р°Р»Рѕ РѕРїСЂРµРґРµР»РµРЅРёСЏ СЃРїРµС†РёС„РёС‡РµСЃРєРёС… РєР»Р°РІРёС€, Сѓ РєРѕС‚РѕСЂС‹С… РІРёСЂС‚СѓР°Р»СЊРЅС‹Р№ РєРѕРґ СЂР°РІРµРЅ 0xFF (РЅР°РїСЂРёРјРµСЂ, СЂР°Р·РЅРѕРѕР±СЂР°Р·РЅС‹Рµ РјСѓР»СЊС‚РёРјРµРґРёР№РЅС‹Рµ РєР»Р°РІРёС€Рё, РєРѕС‚РѕСЂС‹Рµ РїСЂРѕРёР·РІРѕРґРёС‚РµР»Рё РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ РІСЃС‚СЂР°РёРІР°СЋС‚ РІ РєР»Р°РІРёР°С‚СѓСЂСѓ). РљРѕРґ С„РѕСЂРјРёСЂСѓРµС‚СЃСЏ РїРѕ С„РѕСЂРјСѓР»Рµ: "KEY_VK_0xFF_BEGIN" + ScanCode. Р’ РјР°РєСЂРѕСЃР°С… С‚Р°РєРёРµ РєР»Р°РІРёС€Рё С…СЂР°РЅСЏС‚СЃСЏ РєР°Рє "SpecXXXXX" (Р·РґРµСЃСЊ XXXXX СЃРєР°РЅРєРѕРґ РєР»Р°РІРёС€Рё).</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_VK_0xFF_END</td>
     <th class="gray"><code>000101FF</code></th>
-    <td class="gray">Конец определения специфических клавиш.</td>
+    <td class="gray">РљРѕРЅРµС† РѕРїСЂРµРґРµР»РµРЅРёСЏ СЃРїРµС†РёС„РёС‡РµСЃРєРёС… РєР»Р°РІРёС€.</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>&nbsp;</td>
     <th class="white"><code>0001XXXX</code></th>
-    <td>Прочие специфические клавиши, имеющие виртуальный код, отличный от 0xFF, формируются по формуле: "KEY_FKEY_BEGIN" + "Виртуальный код". В макросах такие клавиши хранятся как "OemXXXXX" (здесь XXXXX виртуальный код клавиши).</td>
+    <td>РџСЂРѕС‡РёРµ СЃРїРµС†РёС„РёС‡РµСЃРєРёРµ РєР»Р°РІРёС€Рё, РёРјРµСЋС‰РёРµ РІРёСЂС‚СѓР°Р»СЊРЅС‹Р№ РєРѕРґ, РѕС‚Р»РёС‡РЅС‹Р№ РѕС‚ 0xFF, С„РѕСЂРјРёСЂСѓСЋС‚СЃСЏ РїРѕ С„РѕСЂРјСѓР»Рµ: "KEY_FKEY_BEGIN" + "Р’РёСЂС‚СѓР°Р»СЊРЅС‹Р№ РєРѕРґ". Р’ РјР°РєСЂРѕСЃР°С… С‚Р°РєРёРµ РєР»Р°РІРёС€Рё С…СЂР°РЅСЏС‚СЃСЏ РєР°Рє "OemXXXXX" (Р·РґРµСЃСЊ XXXXX РІРёСЂС‚СѓР°Р»СЊРЅС‹Р№ РєРѕРґ РєР»Р°РІРёС€Рё).</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
@@ -644,115 +644,115 @@
     <td>&nbsp;</td>
     <td>KEY_CTRLALTSHIFTPRESS</td>
     <th class="white"><code>00020001</code></th>
-    <td>Все три клавиши нажаты</td>
+    <td>Р’СЃРµ С‚СЂРё РєР»Р°РІРёС€Рё РЅР°Р¶Р°С‚С‹</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_CTRLALTSHIFTRELEASE</td>
     <th class="gray"><code>00020002</code></th>
-    <td class="gray">Любая из трёх клавиш отпущена</td>
+    <td class="gray">Р›СЋР±Р°СЏ РёР· С‚СЂС‘С… РєР»Р°РІРёС€ РѕС‚РїСѓС‰РµРЅР°</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_MSWHEEL_UP</td>
     <th class="white"><code>00020003</code></th>
-    <td>Прокрутка колеса мыши вверх</td>
+    <td>РџСЂРѕРєСЂСѓС‚РєР° РєРѕР»РµСЃР° РјС‹С€Рё РІРІРµСЂС…</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_MSWHEEL_DOWN</td>
     <th class="gray"><code>00020004</code></th>
-    <td class="gray">Прокрутка колеса мыши вниз</td>
+    <td class="gray">РџСЂРѕРєСЂСѓС‚РєР° РєРѕР»РµСЃР° РјС‹С€Рё РІРЅРёР·</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_NUMDEL</td>
     <th class="white"><code>00020009</code></th>
-    <td>Del на цифровой клавиатуре при выключенном NumLock</td>
+    <td>Del РЅР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ РїСЂРё РІС‹РєР»СЋС‡РµРЅРЅРѕРј NumLock</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_NUMENTER</td>
     <th class="gray"><code>0002000B</code></th>
-    <td class="gray">Enter на цифровой клавиатуре</td>
+    <td class="gray">Enter РЅР° С†РёС„СЂРѕРІРѕР№ РєР»Р°РІРёР°С‚СѓСЂРµ</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_MSWHEEL_LEFT</td>
     <th class="white"><code>0002000C</code></th>
-    <td>Прокрутка колеса мыши влево</td>
+    <td>РџСЂРѕРєСЂСѓС‚РєР° РєРѕР»РµСЃР° РјС‹С€Рё РІР»РµРІРѕ</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_MSWHEEL_RIGHT</td>
     <th class="gray"><code>0002000D</code></th>
-    <td class="gray">Прокрутка колеса мыши вправо</td>
+    <td class="gray">РџСЂРѕРєСЂСѓС‚РєР° РєРѕР»РµСЃР° РјС‹С€Рё РІРїСЂР°РІРѕ</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_MSLCLICK</td>
     <th class="white"><code>0002000F</code></th>
-    <td>Нажатие левой клавиши мыши (только для макросов - назначенные клавиши и в теле макропоследовательности)</td>
+    <td>РќР°Р¶Р°С‚РёРµ Р»РµРІРѕР№ РєР»Р°РІРёС€Рё РјС‹С€Рё (С‚РѕР»СЊРєРѕ РґР»СЏ РјР°РєСЂРѕСЃРѕРІ - РЅР°Р·РЅР°С‡РµРЅРЅС‹Рµ РєР»Р°РІРёС€Рё Рё РІ С‚РµР»Рµ РјР°РєСЂРѕРїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё)</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_MSRCLICK</td>
     <th class="gray"><code>00020010</code></th>
-    <td class="gray">Нажатие правой клавиши мыши (только для макросов - назначенные клавиши и в теле макропоследовательности)</td>
+    <td class="gray">РќР°Р¶Р°С‚РёРµ РїСЂР°РІРѕР№ РєР»Р°РІРёС€Рё РјС‹С€Рё (С‚РѕР»СЊРєРѕ РґР»СЏ РјР°РєСЂРѕСЃРѕРІ - РЅР°Р·РЅР°С‡РµРЅРЅС‹Рµ РєР»Р°РІРёС€Рё Рё РІ С‚РµР»Рµ РјР°РєСЂРѕРїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё)</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_MSM1CLICK</td>
     <th class="white"><code>00020011</code></th>
-    <td>Нажатие средней (следующей после левой) клавиши мыши (только для макросов - назначенные клавиши и в теле макропоследовательности)</td>
+    <td>РќР°Р¶Р°С‚РёРµ СЃСЂРµРґРЅРµР№ (СЃР»РµРґСѓСЋС‰РµР№ РїРѕСЃР»Рµ Р»РµРІРѕР№) РєР»Р°РІРёС€Рё РјС‹С€Рё (С‚РѕР»СЊРєРѕ РґР»СЏ РјР°РєСЂРѕСЃРѕРІ - РЅР°Р·РЅР°С‡РµРЅРЅС‹Рµ РєР»Р°РІРёС€Рё Рё РІ С‚РµР»Рµ РјР°РєСЂРѕРїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё)</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_MSM2CLICK</td>
     <th class="gray"><code>00020012</code></th>
-    <td class="gray">Нажатие третей после левой клавиши мыши (только для макросов - назначенные клавиши и в теле макропоследовательности)</td>
+    <td class="gray">РќР°Р¶Р°С‚РёРµ С‚СЂРµС‚РµР№ РїРѕСЃР»Рµ Р»РµРІРѕР№ РєР»Р°РІРёС€Рё РјС‹С€Рё (С‚РѕР»СЊРєРѕ РґР»СЏ РјР°РєСЂРѕСЃРѕРІ - РЅР°Р·РЅР°С‡РµРЅРЅС‹Рµ РєР»Р°РІРёС€Рё Рё РІ С‚РµР»Рµ РјР°РєСЂРѕРїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё)</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_MSM3CLICK</td>
     <th class="white"><code>00020013</code></th>
-    <td>Нажатие четвёртой после левой клавиши мыши (только для макросов - назначенные клавиши и в теле макропоследовательности)</td>
+    <td>РќР°Р¶Р°С‚РёРµ С‡РµС‚РІС‘СЂС‚РѕР№ РїРѕСЃР»Рµ Р»РµРІРѕР№ РєР»Р°РІРёС€Рё РјС‹С€Рё (С‚РѕР»СЊРєРѕ РґР»СЏ РјР°РєСЂРѕСЃРѕРІ - РЅР°Р·РЅР°С‡РµРЅРЅС‹Рµ РєР»Р°РІРёС€Рё Рё РІ С‚РµР»Рµ РјР°РєСЂРѕРїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё)</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_NONE</td>
     <th class="gray"><code>00030001</code></th>
-    <td class="gray">Far самостоятельно обработал ситуацию, подразумевается как "холостой ход". От таймера не зависит.</td>
+    <td class="gray">Far СЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅРѕ РѕР±СЂР°Р±РѕС‚Р°Р» СЃРёС‚СѓР°С†РёСЋ, РїРѕРґСЂР°Р·СѓРјРµРІР°РµС‚СЃСЏ РєР°Рє "С…РѕР»РѕСЃС‚РѕР№ С…РѕРґ". РћС‚ С‚Р°Р№РјРµСЂР° РЅРµ Р·Р°РІРёСЃРёС‚.</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_IDLE</td>
     <th class="white"><code>00030002</code></th>
-    <td>Не поступало никаких событий за последние 64 опроса входного консольного буфера ("холостой ход"). От таймера не зависит.</td>
+    <td>РќРµ РїРѕСЃС‚СѓРїР°Р»Рѕ РЅРёРєР°РєРёС… СЃРѕР±С‹С‚РёР№ Р·Р° РїРѕСЃР»РµРґРЅРёРµ 64 РѕРїСЂРѕСЃР° РІС…РѕРґРЅРѕРіРѕ РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ Р±СѓС„РµСЂР° ("С…РѕР»РѕСЃС‚РѕР№ С…РѕРґ"). РћС‚ С‚Р°Р№РјРµСЂР° РЅРµ Р·Р°РІРёСЃРёС‚.</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_KILLFOCUS</td>
     <th class="gray"><code>00030006</code></th>
-    <td class="gray">Консольное окно потеряло фокус</td>
+    <td class="gray">РљРѕРЅСЃРѕР»СЊРЅРѕРµ РѕРєРЅРѕ РїРѕС‚РµСЂСЏР»Рѕ С„РѕРєСѓСЃ</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_GOTFOCUS</td>
     <th class="white"><code>00030007</code></th>
-    <td>Консольное окно получило фокус</td>
+    <td>РљРѕРЅСЃРѕР»СЊРЅРѕРµ РѕРєРЅРѕ РїРѕР»СѓС‡РёР»Рѕ С„РѕРєСѓСЃ</td>
   </tr>
   <tr>
     <td class="gray">&nbsp;</td>
     <td class="gray">KEY_CONSOLE_BUFFER_RESIZE</td>
     <th class="gray"><code>00030008</code></th>
-    <td class="gray">Изменение размера консольного окна</td>
+    <td class="gray">РР·РјРµРЅРµРЅРёРµ СЂР°Р·РјРµСЂР° РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ РѕРєРЅР°</td>
   </tr>
   <tr>
     <td>&nbsp;</td>
     <td>KEY_END_SKEY</td>
     <th class="white"><code>0003FFFF</code></th>
-    <td>Конец базовых определений</td>
+    <td>РљРѕРЅРµС† Р±Р°Р·РѕРІС‹С… РѕРїСЂРµРґРµР»РµРЅРёР№</td>
   </tr>
 
 </body>

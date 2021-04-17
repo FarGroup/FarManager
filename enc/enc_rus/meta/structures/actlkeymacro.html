@@ -1,22 +1,22 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>ActlKeyMacro</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
 <body>
 
 <h1>ActlKeyMacro</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a  href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a><br>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>ActlKeyMacro</dfn> используется в функции
+РЎС‚СЂСѓРєС‚СѓСЂР° <dfn>ActlKeyMacro</dfn> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ С„СѓРЅРєС†РёРё
 <a href="../service_functions/advcontrol.html">AdvControl</a>
-для операций с макрокомандами.
+РґР»СЏ РѕРїРµСЂР°С†РёР№ СЃ РјР°РєСЂРѕРєРѕРјР°РЅРґР°РјРё.
 </div>
 
 <pre class=syntax>
@@ -31,95 +31,95 @@ struct ActlKeyMacro {
   } Param;
 };
 </pre>
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
 
     <div class=dfn>Command</div>
-    <div class=dfndescr>Одна из команд (перечисление <a name="FARMACROCOMMAND">FARMACROCOMMAND</a>):
+    <div class=dfndescr>РћРґРЅР° РёР· РєРѕРјР°РЅРґ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="FARMACROCOMMAND">FARMACROCOMMAND</a>):
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">РљРѕРјР°РЅРґР°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a name="MCMD_LOADALL">MCMD_LOADALL</a></td>
-<td class="cont" width="60%">Считать из реестра в память FAR все макросы с затиранием предыдущих значений.
+<td class="cont" width="60%">РЎС‡РёС‚Р°С‚СЊ РёР· СЂРµРµСЃС‚СЂР° РІ РїР°РјСЏС‚СЊ FAR РІСЃРµ РјР°РєСЂРѕСЃС‹ СЃ Р·Р°С‚РёСЂР°РЅРёРµРј РїСЂРµРґС‹РґСѓС‰РёС… Р·РЅР°С‡РµРЅРёР№.
 </td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a name="MCMD_POSTMACROSTRING">MCMD_POSTMACROSTRING</a></td>
-<td class="cont" width="60%">Передать в FAR макрос в текстовом виде (в том виде, как их хранит FAR Manager в реестре).<br>
-Функция <a href="..\service_functions\advcontrol.html">AdvControl</a> возвращает TRUE - макрос проанализирован и
-помещены в очередь, и FALSE - ошибка (макропоследовательность содержит ошибки). Макропоследовательность начнет
-исполняться тогда, когда FAR получит управление.
+<td class="cont" width="60%">РџРµСЂРµРґР°С‚СЊ РІ FAR РјР°РєСЂРѕСЃ РІ С‚РµРєСЃС‚РѕРІРѕРј РІРёРґРµ (РІ С‚РѕРј РІРёРґРµ, РєР°Рє РёС… С…СЂР°РЅРёС‚ FAR Manager РІ СЂРµРµСЃС‚СЂРµ).<br>
+Р¤СѓРЅРєС†РёСЏ <a href="..\service_functions\advcontrol.html">AdvControl</a> РІРѕР·РІСЂР°С‰Р°РµС‚ TRUE - РјР°РєСЂРѕСЃ РїСЂРѕР°РЅР°Р»РёР·РёСЂРѕРІР°РЅ Рё
+РїРѕРјРµС‰РµРЅС‹ РІ РѕС‡РµСЂРµРґСЊ, Рё FALSE - РѕС€РёР±РєР° (РјР°РєСЂРѕРїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ СЃРѕРґРµСЂР¶РёС‚ РѕС€РёР±РєРё). РњР°РєСЂРѕРїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ РЅР°С‡РЅРµС‚
+РёСЃРїРѕР»РЅСЏС‚СЊСЃСЏ С‚РѕРіРґР°, РєРѕРіРґР° FAR РїРѕР»СѓС‡РёС‚ СѓРїСЂР°РІР»РµРЅРёРµ.
 </td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a name="MCMD_SAVEALL">MCMD_SAVEALL</a></td>
-<td class="cont" width="60%">Принудительное сохранение макросов из памяти FAR в реестр.</td></tr>
+<td class="cont" width="60%">РџСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕРµ СЃРѕС…СЂР°РЅРµРЅРёРµ РјР°РєСЂРѕСЃРѕРІ РёР· РїР°РјСЏС‚Рё FAR РІ СЂРµРµСЃС‚СЂ.</td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a name="MCMD_GETSTATE">MCMD_GETSTATE</a></td>
-<td class="cont" width="60%">Получить статус работы макродвижка.<br>Возвращает одно из значений (перечисление <a name="FARMACROSTATE">FARMACROSTATE</a>):
+<td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ СЃС‚Р°С‚СѓСЃ СЂР°Р±РѕС‚С‹ РјР°РєСЂРѕРґРІРёР¶РєР°.<br>Р’РѕР·РІСЂР°С‰Р°РµС‚ РѕРґРЅРѕ РёР· Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="FARMACROSTATE">FARMACROSTATE</a>):
   <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Значение</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><th class="cont" width="40%">Р—РЅР°С‡РµРЅРёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_NOMACRO">MACROSTATE_NOMACRO</a></td>
-    <td class="cont" width="60%">макродвижок не выполняет ни какой макрос в текущий момент</td></tr>
+    <td class="cont" width="60%">РјР°РєСЂРѕРґРІРёР¶РѕРє РЅРµ РІС‹РїРѕР»РЅСЏРµС‚ РЅРё РєР°РєРѕР№ РјР°РєСЂРѕСЃ РІ С‚РµРєСѓС‰РёР№ РјРѕРјРµРЅС‚</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_EXECUTING">MACROSTATE_EXECUTING</a></td>
-    <td class="cont" width="60%">идет исполнение макроса без передачи кодов клавиш в плагин</td></tr>
+    <td class="cont" width="60%">РёРґРµС‚ РёСЃРїРѕР»РЅРµРЅРёРµ РјР°РєСЂРѕСЃР° Р±РµР· РїРµСЂРµРґР°С‡Рё РєРѕРґРѕРІ РєР»Р°РІРёС€ РІ РїР»Р°РіРёРЅ</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_EXECUTING_COMMON">MACROSTATE_EXECUTING_COMMON</a></td>
-    <td class="cont" width="60%">идет исполнение макроса; коды клавиш в плагин передаются</td></tr>
+    <td class="cont" width="60%">РёРґРµС‚ РёСЃРїРѕР»РЅРµРЅРёРµ РјР°РєСЂРѕСЃР°; РєРѕРґС‹ РєР»Р°РІРёС€ РІ РїР»Р°РіРёРЅ РїРµСЂРµРґР°СЋС‚СЃСЏ</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_RECORDING">MACROSTATE_RECORDING</a></td>
-    <td class="cont" width="60%">идет запись макроса без передачи кодов клавиш в плагин</td></tr>
+    <td class="cont" width="60%">РёРґРµС‚ Р·Р°РїРёСЃСЊ РјР°РєСЂРѕСЃР° Р±РµР· РїРµСЂРµРґР°С‡Рё РєРѕРґРѕРІ РєР»Р°РІРёС€ РІ РїР»Р°РіРёРЅ</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_RECORDING_COMMON">MACROSTATE_RECORDING_COMMON</a></td>
-    <td class="cont" width="60%">идет запись макроса; коды клавиш в плагин передаются</td></tr>
+    <td class="cont" width="60%">РёРґРµС‚ Р·Р°РїРёСЃСЊ РјР°РєСЂРѕСЃР°; РєРѕРґС‹ РєР»Р°РІРёС€ РІ РїР»Р°РіРёРЅ РїРµСЂРµРґР°СЋС‚СЃСЏ</td></tr>
   </table>
-  Компонента <em>Param</em> игнорируется. Значение возвращается функцией <a href="../service_functions/advcontrol.html">AdvControl</a>.
+  РљРѕРјРїРѕРЅРµРЅС‚Р° <em>Param</em> РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ. Р—РЅР°С‡РµРЅРёРµ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ С„СѓРЅРєС†РёРµР№ <a href="../service_functions/advcontrol.html">AdvControl</a>.
 
 </td></tr>
 
 </table>
     </div>
     <div class=dfn>Param.PlainText.SequenceText</div>
-    <div class=dfndescr>Указатель на строку, содержащую макрос в текстовом виде.
-     Макропоследовательность должна быть в OEM-кодировке.
-     Этот член структуры используется для команды <dfn>MCMD_POSTMACROSTRING</dfn>.
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂРѕРєСѓ, СЃРѕРґРµСЂР¶Р°С‰СѓСЋ РјР°РєСЂРѕСЃ РІ С‚РµРєСЃС‚РѕРІРѕРј РІРёРґРµ.
+     РњР°РєСЂРѕРїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РІ OEM-РєРѕРґРёСЂРѕРІРєРµ.
+     Р­С‚РѕС‚ С‡Р»РµРЅ СЃС‚СЂСѓРєС‚СѓСЂС‹ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РєРѕРјР°РЅРґС‹ <dfn>MCMD_POSTMACROSTRING</dfn>.
     </div>
 
     <div class=dfn>Param.PlainText.Flags</div>
-    <div class=dfndescr>Комбинация флагов исполнения макропоследовательности (перечисление <a name="FARKEYSEQUENCEFLAGS">FARKEYSEQUENCEFLAGS</a>):
+    <div class=dfndescr>РљРѕРјР±РёРЅР°С†РёСЏ С„Р»Р°РіРѕРІ РёСЃРїРѕР»РЅРµРЅРёСЏ РјР°РєСЂРѕРїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="FARKEYSEQUENCEFLAGS">FARKEYSEQUENCEFLAGS</a>):
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="KSFLAGS_DISABLEOUTPUT">KSFLAGS_DISABLEOUTPUT</a></td>
-       <td class="cont" width="60%">Не отображать на экране результат работы каждой клавиши.</td></tr>
+       <td class="cont" width="60%">РќРµ РѕС‚РѕР±СЂР°Р¶Р°С‚СЊ РЅР° СЌРєСЂР°РЅРµ СЂРµР·СѓР»СЊС‚Р°С‚ СЂР°Р±РѕС‚С‹ РєР°Р¶РґРѕР№ РєР»Р°РІРёС€Рё.</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="KSFLAGS_NOSENDKEYSTOPLUGINS">KSFLAGS_NOSENDKEYSTOPLUGINS</a></td>
-       <td class="cont" width="60%">Не передавать клавиши редакторным плагинам (плагинам, экспортирующим
-        функцию <a href="../exported_functions/processeditorinput.html">ProcessEditorInput</a>).</td></tr>
+       <td class="cont" width="60%">РќРµ РїРµСЂРµРґР°РІР°С‚СЊ РєР»Р°РІРёС€Рё СЂРµРґР°РєС‚РѕСЂРЅС‹Рј РїР»Р°РіРёРЅР°Рј (РїР»Р°РіРёРЅР°Рј, СЌРєСЃРїРѕСЂС‚РёСЂСѓСЋС‰РёРј
+        С„СѓРЅРєС†РёСЋ <a href="../exported_functions/processeditorinput.html">ProcessEditorInput</a>).</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="KSFLAGS_REG_MULTI_SZ">KSFLAGS_REG_MULTI_SZ</a></td>
-       <td class="cont" width="60%">Параметр <em>Param.PlainText.SequenceText</em> представлен в формате <dfn>REG_MULTI_SZ</dfn>.<br>REG_MULTI_SZ в реестре:
-<pre class=code>строка 1\x00
-строка 2\x00
+       <td class="cont" width="60%">РџР°СЂР°РјРµС‚СЂ <em>Param.PlainText.SequenceText</em> РїСЂРµРґСЃС‚Р°РІР»РµРЅ РІ С„РѕСЂРјР°С‚Рµ <dfn>REG_MULTI_SZ</dfn>.<br>REG_MULTI_SZ РІ СЂРµРµСЃС‚СЂРµ:
+<pre class=code>СЃС‚СЂРѕРєР° 1\x00
+СЃС‚СЂРѕРєР° 2\x00
 ...
-строка N\x00
+СЃС‚СЂРѕРєР° N\x00
 \x00</pre>
 
        </td>
        </tr>
 
 </table>
-     Этот член структуры используется для команды <dfn>MCMD_POSTMACROSTRING</dfn>.
+     Р­С‚РѕС‚ С‡Р»РµРЅ СЃС‚СЂСѓРєС‚СѓСЂС‹ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РєРѕРјР°РЅРґС‹ <dfn>MCMD_POSTMACROSTRING</dfn>.
     </div>
 
     <div class=dfn>Reserved</div>
-    <div class=dfndescr>Зарезервировано.</div>
+    <div class=dfndescr>Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ.</div>
 
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 <ol>
-<li>Команды <dfn>MCMD_LOADALL</dfn> и <dfn>MCMD_SAVEALL</dfn> не будут исполняться во время записи или "проигрывания" макроса.</li>
-<li>Флаг <dfn>KSFLAGS_REG_MULTI_SZ</dfn> можно не указывать, если в <em>Param.PlainText.SequenceText</em> вместо 0x00 будут стоять '\n'.
+<li>РљРѕРјР°РЅРґС‹ <dfn>MCMD_LOADALL</dfn> Рё <dfn>MCMD_SAVEALL</dfn> РЅРµ Р±СѓРґСѓС‚ РёСЃРїРѕР»РЅСЏС‚СЊСЃСЏ РІРѕ РІСЂРµРјСЏ Р·Р°РїРёСЃРё РёР»Рё "РїСЂРѕРёРіСЂС‹РІР°РЅРёСЏ" РјР°РєСЂРѕСЃР°.</li>
+<li>Р¤Р»Р°Рі <dfn>KSFLAGS_REG_MULTI_SZ</dfn> РјРѕР¶РЅРѕ РЅРµ СѓРєР°Р·С‹РІР°С‚СЊ, РµСЃР»Рё РІ <em>Param.PlainText.SequenceText</em> РІРјРµСЃС‚Рѕ 0x00 Р±СѓРґСѓС‚ СЃС‚РѕСЏС‚СЊ '\n'.
 </ol>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
-Использование <dfn>MCMD_POSTMACROSTRING</dfn> в плагине FARCmds:
+РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ <dfn>MCMD_POSTMACROSTRING</dfn> РІ РїР»Р°РіРёРЅРµ FARCmds:
 <pre class=code>command.Command=MCMD_POSTMACROSTRING;
 command.Param.PlainText.SequenceText=(char *)malloc(strlen(pCmd)+1);
 if(command.Param.PlainText.SequenceText)
@@ -130,19 +130,19 @@ if(command.Param.PlainText.SequenceText)
   free(command.Param.PlainText.SequenceText);
 }
 </pre>
-Использование <dfn>MCMD_LOADALL</dfn> в плагине FARCmds:
+РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ <dfn>MCMD_LOADALL</dfn> РІ РїР»Р°РіРёРЅРµ FARCmds:
 <pre class=code>command.Command=MCMD_LOADALL;
 Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
 </pre>
-Использование <dfn>MCMD_SAVEALL</dfn> в плагине FARCmds:
+РСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ <dfn>MCMD_SAVEALL</dfn> РІ РїР»Р°РіРёРЅРµ FARCmds:
 <pre class=code>command.Command=MCMD_SAVEALL;
 Info.AdvControl(Info.ModuleNumber,ACTL_KEYMACRO,&command);
 </pre>
 
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
 <a href="keysequence.html">KeySequence</a> |
 <a href="../delphi/tactlkeymacro.html">TActlKeyMacro</a>
 </div>

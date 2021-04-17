@@ -1,48 +1,48 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 
-<title>Как получить полный путь редактируемого файла...</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<title>РљР°Рє РїРѕР»СѓС‡РёС‚СЊ РїРѕР»РЅС‹Р№ РїСѓС‚СЊ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРіРѕ С„Р°Р№Р»Р°...</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <link REV="made" href="mailto:vskirdin@mail.ru">
 <meta name="Author" content="Valentin Skirdin">
-<meta name="description" content="Как получить полный путь редактируемого файла из плагина в редакторе? How to get a full path of edited file from the plugin in the editor?">
+<meta name="description" content="РљР°Рє РїРѕР»СѓС‡РёС‚СЊ РїРѕР»РЅС‹Р№ РїСѓС‚СЊ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРіРѕ С„Р°Р№Р»Р° РёР· РїР»Р°РіРёРЅР° РІ СЂРµРґР°РєС‚РѕСЂРµ? How to get a full path of edited file from the plugin in the editor?">
 <script language="JavaScript" src='../links.js' type="text/javascript"></script>
 </head>
 <body>
 
 <a name="top"></a>
-<h1>Как получить полный путь редактируемого файла из плагина в редакторе?</h1>
+<h1>РљР°Рє РїРѕР»СѓС‡РёС‚СЊ РїРѕР»РЅС‹Р№ РїСѓС‚СЊ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРіРѕ С„Р°Р№Р»Р° РёР· РїР»Р°РіРёРЅР° РІ СЂРµРґР°РєС‚РѕСЂРµ?</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">статьи</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°С‚СЊРё</a>
 </div>
 
 <div align=right><code>
-Валентин Скирдин <a href="mailto:Valentin%20Skirdin%20<vskirdin@mail.ru>?subject=Articles">
+Р’Р°Р»РµРЅС‚РёРЅ РЎРєРёСЂРґРёРЅ <a href="mailto:Valentin%20Skirdin%20<vskirdin@mail.ru>?subject=Articles">
 <img src="../../images/email.gif" border="0" alt="[vskirdin@mail.ru]" width="16" height="16" align="middle">vskirdin@mail.ru
 </a>
 </code></div>
 <hr color="#003399">
 
-<p class=note><img src="../../images/note.gif" alt="Замечание" width="10" height="10"> Замечание</p>
-<UL class=note><LI>Материал данной статьи потерял всякую актуальность с выходом FAR Manager 1.65, но оставлен в качестве учебного пособия.
+<p class=note><img src="../../images/note.gif" alt="Р—Р°РјРµС‡Р°РЅРёРµ" width="10" height="10"> Р—Р°РјРµС‡Р°РЅРёРµ</p>
+<UL class=note><LI>РњР°С‚РµСЂРёР°Р» РґР°РЅРЅРѕР№ СЃС‚Р°С‚СЊРё РїРѕС‚РµСЂСЏР» РІСЃСЏРєСѓСЋ Р°РєС‚СѓР°Р»СЊРЅРѕСЃС‚СЊ СЃ РІС‹С…РѕРґРѕРј FAR Manager 1.65, РЅРѕ РѕСЃС‚Р°РІР»РµРЅ РІ РєР°С‡РµСЃС‚РІРµ СѓС‡РµР±РЅРѕРіРѕ РїРѕСЃРѕР±РёСЏ.
 </LI></UL>
 
-<p class=plain>В FIDO этот вопрос задавали, здесь повторяют... </p>
+<p class=plain>Р’ FIDO СЌС‚РѕС‚ РІРѕРїСЂРѕСЃ Р·Р°РґР°РІР°Р»Рё, Р·РґРµСЃСЊ РїРѕРІС‚РѕСЂСЏСЋС‚... </p>
 
-<p class=plain>Решил я поэкспериментировать с этим
-вопросом, и вот что у меня получилось. Очень
-кратко, самую суть...</p>
+<p class=plain>Р РµС€РёР» СЏ РїРѕСЌРєСЃРїРµСЂРёРјРµРЅС‚РёСЂРѕРІР°С‚СЊ СЃ СЌС‚РёРј
+РІРѕРїСЂРѕСЃРѕРј, Рё РІРѕС‚ С‡С‚Рѕ Сѓ РјРµРЅСЏ РїРѕР»СѓС‡РёР»РѕСЃСЊ. РћС‡РµРЅСЊ
+РєСЂР°С‚РєРѕ, СЃР°РјСѓСЋ СЃСѓС‚СЊ...</p>
 
-<p class=plain>После получения информации о
-редактируемом файле в <code>EditorInfo-&gt;Filename</code>
-находится имя редактируемого файла. Если имя
-файла без пути, то файл явно в текущем каталоге.
-Воспользуемся экспортируемой функцией <code><a href="../exported_functions/processeditorevent.html">ProcessEditorEvent</a></code>
-(событие <code><a href="../exported_functions/processeditorevent.html#EE_READ">EE_READ</code></a>)&nbsp; и тем фактом, что в полный
-путь входит имя диска.</p>
+<p class=plain>РџРѕСЃР»Рµ РїРѕР»СѓС‡РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё Рѕ
+СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРј С„Р°Р№Р»Рµ РІ <code>EditorInfo-&gt;Filename</code>
+РЅР°С…РѕРґРёС‚СЃСЏ РёРјСЏ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРіРѕ С„Р°Р№Р»Р°. Р•СЃР»Рё РёРјСЏ
+С„Р°Р№Р»Р° Р±РµР· РїСѓС‚Рё, С‚Рѕ С„Р°Р№Р» СЏРІРЅРѕ РІ С‚РµРєСѓС‰РµРј РєР°С‚Р°Р»РѕРіРµ.
+Р’РѕСЃРїРѕР»СЊР·СѓРµРјСЃСЏ СЌРєСЃРїРѕСЂС‚РёСЂСѓРµРјРѕР№ С„СѓРЅРєС†РёРµР№ <code><a href="../exported_functions/processeditorevent.html">ProcessEditorEvent</a></code>
+(СЃРѕР±С‹С‚РёРµ <code><a href="../exported_functions/processeditorevent.html#EE_READ">EE_READ</code></a>)&nbsp; Рё С‚РµРј С„Р°РєС‚РѕРј, С‡С‚Рѕ РІ РїРѕР»РЅС‹Р№
+РїСѓС‚СЊ РІС…РѕРґРёС‚ РёРјСЏ РґРёСЃРєР°.</p>
 
 <pre class=code>char Buffer[250]={0};
 char *FilePart;
@@ -64,20 +64,20 @@ int WINAPI _export <b>ProcessEditorEvent</b>( int Event, void *Param)
   return 0;
 }</pre>
 
-<p class=plain>Событие EE_READ происходит один
-раз, после того, как редактор загрузил файл на
-редактирование. На этом и построен весь механизм
-определения полного пути к файлу. После
-отработки этого фрагмента у Вас всегда в
-переменной <em>Buffer</em> будет имя редактируемого файла с
-полным путем.</p>
+<p class=plain>РЎРѕР±С‹С‚РёРµ EE_READ РїСЂРѕРёСЃС…РѕРґРёС‚ РѕРґРёРЅ
+СЂР°Р·, РїРѕСЃР»Рµ С‚РѕРіРѕ, РєР°Рє СЂРµРґР°РєС‚РѕСЂ Р·Р°РіСЂСѓР·РёР» С„Р°Р№Р» РЅР°
+СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ. РќР° СЌС‚РѕРј Рё РїРѕСЃС‚СЂРѕРµРЅ РІРµСЃСЊ РјРµС…Р°РЅРёР·Рј
+РѕРїСЂРµРґРµР»РµРЅРёСЏ РїРѕР»РЅРѕРіРѕ РїСѓС‚Рё Рє С„Р°Р№Р»Сѓ. РџРѕСЃР»Рµ
+РѕС‚СЂР°Р±РѕС‚РєРё СЌС‚РѕРіРѕ С„СЂР°РіРјРµРЅС‚Р° Сѓ Р’Р°СЃ РІСЃРµРіРґР° РІ
+РїРµСЂРµРјРµРЅРЅРѕР№ <em>Buffer</em> Р±СѓРґРµС‚ РёРјСЏ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРіРѕ С„Р°Р№Р»Р° СЃ
+РїРѕР»РЅС‹Рј РїСѓС‚РµРј.</p>
 
 
 <div align=right><code>
 <br>&nbsp;<br>
 19.08.1999
 </code></div>
-<div class=seecont><a href="#top">наверх</a></div>
+<div class=seecont><a href="#top">РЅР°РІРµСЂС…</a></div>
 
 </body>
 </html>

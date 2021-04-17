@@ -1,9 +1,9 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 
 <head>
 <title>Menu</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
 
@@ -11,12 +11,12 @@
 
 <h1>Menu</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a><br>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>Menu</dfn> показывает меню.
+Р¤СѓРЅРєС†РёСЏ <dfn>Menu</dfn> РїРѕРєР°Р·С‹РІР°РµС‚ РјРµРЅСЋ.
 </div>
 
 <pre class=syntax>
@@ -36,44 +36,44 @@ int WINAPI Menu(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>PluginNumber</div>
-  <div class=dfndescr>Номер плагина. Его вы получаете в функции
+  <div class=dfndescr>РќРѕРјРµСЂ РїР»Р°РіРёРЅР°. Р•РіРѕ РІС‹ РїРѕР»СѓС‡Р°РµС‚Рµ РІ С„СѓРЅРєС†РёРё
     <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>.</div>
   <div class=dfn>X,Y</div>
-  <div class=dfndescr>Координаты верхнего левого угла меню<br>
-    Чтобы назначить их автоматически, приравняйте их <code>-1</code>.</div>
+  <div class=dfndescr>РљРѕРѕСЂРґРёРЅР°С‚С‹ РІРµСЂС…РЅРµРіРѕ Р»РµРІРѕРіРѕ СѓРіР»Р° РјРµРЅСЋ<br>
+    Р§С‚РѕР±С‹ РЅР°Р·РЅР°С‡РёС‚СЊ РёС… Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё, РїСЂРёСЂР°РІРЅСЏР№С‚Рµ РёС… <code>-1</code>.</div>
   <div class=dfn>MaxHeight</div>
-  <div class=dfndescr>Максимальное количество видимых на экране
-    пунктов меню. Если высота меню меньше, чем
-    число пунктов, то появится полоса прокрутки.<br>
-    Чтобы использовать максимально возможное
-    значение, установите этот параметр равным <code>0</code>.</div>
+  <div class=dfndescr>РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РІРёРґРёРјС‹С… РЅР° СЌРєСЂР°РЅРµ
+    РїСѓРЅРєС‚РѕРІ РјРµРЅСЋ. Р•СЃР»Рё РІС‹СЃРѕС‚Р° РјРµРЅСЋ РјРµРЅСЊС€Рµ, С‡РµРј
+    С‡РёСЃР»Рѕ РїСѓРЅРєС‚РѕРІ, С‚Рѕ РїРѕСЏРІРёС‚СЃСЏ РїРѕР»РѕСЃР° РїСЂРѕРєСЂСѓС‚РєРё.<br>
+    Р§С‚РѕР±С‹ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјР°РєСЃРёРјР°Р»СЊРЅРѕ РІРѕР·РјРѕР¶РЅРѕРµ
+    Р·РЅР°С‡РµРЅРёРµ, СѓСЃС‚Р°РЅРѕРІРёС‚Рµ СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СЂР°РІРЅС‹Рј <code>0</code>.</div>
   <div class=dfn>Flags</div>
-  <div class=dfndescr>Может быть комбинацией из следующих значений (перечисление <a name="FARMENUFLAGS">FARMENUFLAGS</a>):
+  <div class=dfndescr>РњРѕР¶РµС‚ Р±С‹С‚СЊ РєРѕРјР±РёРЅР°С†РёРµР№ РёР· СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="FARMENUFLAGS">FARMENUFLAGS</a>):
 
-   <table class="cont"><tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
+   <table class="cont"><tr class="cont"><th class="cont" width="40%">РљРѕРЅСЃС‚Р°РЅС‚Р°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="FMENU_AUTOHIGHLIGHT">FMENU_AUTOHIGHLIGHT</a></td>
-      <td class="cont" width="60%">Если указан, то горячие клавиши будут назначены автоматически, начиная с первого пункта.</td></tr>
+      <td class="cont" width="60%">Р•СЃР»Рё СѓРєР°Р·Р°РЅ, С‚Рѕ РіРѕСЂСЏС‡РёРµ РєР»Р°РІРёС€Рё Р±СѓРґСѓС‚ РЅР°Р·РЅР°С‡РµРЅС‹ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё, РЅР°С‡РёРЅР°СЏ СЃ РїРµСЂРІРѕРіРѕ РїСѓРЅРєС‚Р°.</td></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="FMENU_CHANGECONSOLETITLE">FMENU_CHANGECONSOLETITLE</a></td>
-      <td class="cont" width="60%">Если указан, то FAR изменит заголовок консоли в значение, указанное в параметре <dfn>Title</dfn> (если Title не пуст).</td></tr>
+      <td class="cont" width="60%">Р•СЃР»Рё СѓРєР°Р·Р°РЅ, С‚Рѕ FAR РёР·РјРµРЅРёС‚ Р·Р°РіРѕР»РѕРІРѕРє РєРѕРЅСЃРѕР»Рё РІ Р·РЅР°С‡РµРЅРёРµ, СѓРєР°Р·Р°РЅРЅРѕРµ РІ РїР°СЂР°РјРµС‚СЂРµ <dfn>Title</dfn> (РµСЃР»Рё Title РЅРµ РїСѓСЃС‚).</td></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="FMENU_SHOWAMPERSAND">FMENU_SHOWAMPERSAND</a></td>
-      <td class="cont" width="60%">При показе меню не использовать амперсанды (<code>&amp;</code>) для определения горячих клавиш.</td></tr>
+      <td class="cont" width="60%">РџСЂРё РїРѕРєР°Р·Рµ РјРµРЅСЋ РЅРµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р°РјРїРµСЂСЃР°РЅРґС‹ (<code>&amp;</code>) РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РіРѕСЂСЏС‡РёС… РєР»Р°РІРёС€.</td></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="FMENU_REVERSEAUTOHIGHLIGHT">FMENU_REVERSEAUTOHIGHLIGHT</a></td>
-      <td class="cont" width="60%">Если указан, то горячие клавиши будут назначены автоматически, начиная с последнего пункта.</td></tr>
+      <td class="cont" width="60%">Р•СЃР»Рё СѓРєР°Р·Р°РЅ, С‚Рѕ РіРѕСЂСЏС‡РёРµ РєР»Р°РІРёС€Рё Р±СѓРґСѓС‚ РЅР°Р·РЅР°С‡РµРЅС‹ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё, РЅР°С‡РёРЅР°СЏ СЃ РїРѕСЃР»РµРґРЅРµРіРѕ РїСѓРЅРєС‚Р°.</td></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="FMENU_USEEXT">FMENU_USEEXT</a></td>
-      <td class="cont" width="60%">Вместо структуры <a href="../structures/farmenuitem.html">FarMenuItem</a>
-        использовать структуру <a href="../structures/farmenuitemex.html">FarMenuItemEx</a>.</td></tr>
+      <td class="cont" width="60%">Р’РјРµСЃС‚Рѕ СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="../structures/farmenuitem.html">FarMenuItem</a>
+        РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/farmenuitemex.html">FarMenuItemEx</a>.</td></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="FMENU_WRAPMODE">FMENU_WRAPMODE</a></td>
-      <td class="cont" width="60%">Если указан, то попытка перемещения курсора
-        выше первого пункта или ниже последнего будет приводить к
-        перемещению соответственно к последнему или к первому пункту.
-        <p>Этот флаг рекомендуется ставить всегда, когда нет специальных причин
-        его не ставить.</td></tr>
+      <td class="cont" width="60%">Р•СЃР»Рё СѓРєР°Р·Р°РЅ, С‚Рѕ РїРѕРїС‹С‚РєР° РїРµСЂРµРјРµС‰РµРЅРёСЏ РєСѓСЂСЃРѕСЂР°
+        РІС‹С€Рµ РїРµСЂРІРѕРіРѕ РїСѓРЅРєС‚Р° РёР»Рё РЅРёР¶Рµ РїРѕСЃР»РµРґРЅРµРіРѕ Р±СѓРґРµС‚ РїСЂРёРІРѕРґРёС‚СЊ Рє
+        РїРµСЂРµРјРµС‰РµРЅРёСЋ СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ Рє РїРѕСЃР»РµРґРЅРµРјСѓ РёР»Рё Рє РїРµСЂРІРѕРјСѓ РїСѓРЅРєС‚Сѓ.
+        <p>Р­С‚РѕС‚ С„Р»Р°Рі СЂРµРєРѕРјРµРЅРґСѓРµС‚СЃСЏ СЃС‚Р°РІРёС‚СЊ РІСЃРµРіРґР°, РєРѕРіРґР° РЅРµС‚ СЃРїРµС†РёР°Р»СЊРЅС‹С… РїСЂРёС‡РёРЅ
+        РµРіРѕ РЅРµ СЃС‚Р°РІРёС‚СЊ.</td></tr>
      </table>
 
-     Если выставлен флаг <dfn>FMENU_USEEXT</dfn>, то необходимо выполнить приведение типов:
+     Р•СЃР»Рё РІС‹СЃС‚Р°РІР»РµРЅ С„Р»Р°Рі <dfn>FMENU_USEEXT</dfn>, С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ РІС‹РїРѕР»РЅРёС‚СЊ РїСЂРёРІРµРґРµРЅРёРµ С‚РёРїРѕРІ:
         <pre class=code>struct FarMenuItemEx FooEx[]={
   ...
 };
@@ -81,29 +81,29 @@ Info.Menu(...,FMENU_USEEXT|...,<b>(const struct FarMenuItem *)</b>FooEx,...)</pr
   </div>
 
   <div class=dfn>Title</div>
-  <div class=dfndescr>Заголовок меню. Укажите <code>NULL</code>, если заголовок
-    меню не нужен.</div>
+  <div class=dfndescr>Р—Р°РіРѕР»РѕРІРѕРє РјРµРЅСЋ. РЈРєР°Р¶РёС‚Рµ <code>NULL</code>, РµСЃР»Рё Р·Р°РіРѕР»РѕРІРѕРє
+    РјРµРЅСЋ РЅРµ РЅСѓР¶РµРЅ.</div>
 
   <div class=dfn>Bottom</div>
-  <div class=dfndescr>Нижняя строка меню. Укажите <code>NULL</code>, если нижняя
-    строка меню не нужна.</div>
+  <div class=dfndescr>РќРёР¶РЅСЏСЏ СЃС‚СЂРѕРєР° РјРµРЅСЋ. РЈРєР°Р¶РёС‚Рµ <code>NULL</code>, РµСЃР»Рё РЅРёР¶РЅСЏСЏ
+    СЃС‚СЂРѕРєР° РјРµРЅСЋ РЅРµ РЅСѓР¶РЅР°.</div>
 
   <div class=dfn>HelpTopic</div>
-  <div class=dfndescr><a href="../language/helptopic.html">Тема</a> в файле помощи, ассоциированная с меню.
-    Может быть <code>NULL</code>, если подсказка не требуется.</div>
+  <div class=dfndescr><a href="../language/helptopic.html">РўРµРјР°</a> РІ С„Р°Р№Р»Рµ РїРѕРјРѕС‰Рё, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅР°СЏ СЃ РјРµРЅСЋ.
+    РњРѕР¶РµС‚ Р±С‹С‚СЊ <code>NULL</code>, РµСЃР»Рё РїРѕРґСЃРєР°Р·РєР° РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ.</div>
 
   <div class=dfn>BreakKeys</div>
-  <div class=dfndescr>Адрес массива с кодами виртуальных клавиш
-    (<a href="../winapi/virtualkeycodes.html">VK_*</a>), которые будут закрывать
-    меню. Последний элемент массива должен быть равным 0.
-    Если вам не нужно определять такие клавиши в дополнение к
-    стандартным (<kbd>&lt;Enter&gt;</kbd>, <kbd>&lt;Esc&gt;</kbd> и <kbd>&lt;F10&gt;</kbd>),
-    установите этот параметр в <code>NULL</code>. Старшее слово (high word) элемента
-    массива может быть или 0, или комбинацией флагов <dfn>PKF_CONTROL</dfn>,
-    <dfn>PKF_ALT</dfn> и <dfn>PKF_SHIFT</dfn> для описания комбинаций клавиш.
+  <div class=dfndescr>РђРґСЂРµСЃ РјР°СЃСЃРёРІР° СЃ РєРѕРґР°РјРё РІРёСЂС‚СѓР°Р»СЊРЅС‹С… РєР»Р°РІРёС€
+    (<a href="../winapi/virtualkeycodes.html">VK_*</a>), РєРѕС‚РѕСЂС‹Рµ Р±СѓРґСѓС‚ Р·Р°РєСЂС‹РІР°С‚СЊ
+    РјРµРЅСЋ. РџРѕСЃР»РµРґРЅРёР№ СЌР»РµРјРµРЅС‚ РјР°СЃСЃРёРІР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЂР°РІРЅС‹Рј 0.
+    Р•СЃР»Рё РІР°Рј РЅРµ РЅСѓР¶РЅРѕ РѕРїСЂРµРґРµР»СЏС‚СЊ С‚Р°РєРёРµ РєР»Р°РІРёС€Рё РІ РґРѕРїРѕР»РЅРµРЅРёРµ Рє
+    СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рј (<kbd>&lt;Enter&gt;</kbd>, <kbd>&lt;Esc&gt;</kbd> Рё <kbd>&lt;F10&gt;</kbd>),
+    СѓСЃС‚Р°РЅРѕРІРёС‚Рµ СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ РІ <code>NULL</code>. РЎС‚Р°СЂС€РµРµ СЃР»РѕРІРѕ (high word) СЌР»РµРјРµРЅС‚Р°
+    РјР°СЃСЃРёРІР° РјРѕР¶РµС‚ Р±С‹С‚СЊ РёР»Рё 0, РёР»Рё РєРѕРјР±РёРЅР°С†РёРµР№ С„Р»Р°РіРѕРІ <dfn>PKF_CONTROL</dfn>,
+    <dfn>PKF_ALT</dfn> Рё <dfn>PKF_SHIFT</dfn> РґР»СЏ РѕРїРёСЃР°РЅРёСЏ РєРѕРјР±РёРЅР°С†РёР№ РєР»Р°РІРёС€.
 
-    <p>Например, в плагине MultiArc реакция на нажатие клавиши <kbd>F4</kbd> в меню
-      "Archive commands" (<kbd>Shift-F3</kbd> на архиве) обрабатывается так:
+    <p>РќР°РїСЂРёРјРµСЂ, РІ РїР»Р°РіРёРЅРµ MultiArc СЂРµР°РєС†РёСЏ РЅР° РЅР°Р¶Р°С‚РёРµ РєР»Р°РІРёС€Рё <kbd>F4</kbd> РІ РјРµРЅСЋ
+      "Archive commands" (<kbd>Shift-F3</kbd> РЅР° Р°СЂС…РёРІРµ) РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ С‚Р°Рє:
         <pre class=code>
 <b>int BreakCode;</b>
 <b>int BreakKeys[2]={VK_F4,0};</b>
@@ -125,29 +125,29 @@ else
    </div>
 
   <div class=dfn>BreakCode</div>
-  <div class=dfndescr>Адрес переменной, в которую будет записан номер
-  элемента массива <var>BreakKeys</var>, использованного для закрытия меню,
-  или -1, если меню было закрыто одной из стандартных клавиш. Этот параметр
-  может быть равным <code>NULL</code>.</div>
+  <div class=dfndescr>РђРґСЂРµСЃ РїРµСЂРµРјРµРЅРЅРѕР№, РІ РєРѕС‚РѕСЂСѓСЋ Р±СѓРґРµС‚ Р·Р°РїРёСЃР°РЅ РЅРѕРјРµСЂ
+  СЌР»РµРјРµРЅС‚Р° РјР°СЃСЃРёРІР° <var>BreakKeys</var>, РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅРѕРіРѕ РґР»СЏ Р·Р°РєСЂС‹С‚РёСЏ РјРµРЅСЋ,
+  РёР»Рё -1, РµСЃР»Рё РјРµРЅСЋ Р±С‹Р»Рѕ Р·Р°РєСЂС‹С‚Рѕ РѕРґРЅРѕР№ РёР· СЃС‚Р°РЅРґР°СЂС‚РЅС‹С… РєР»Р°РІРёС€. Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ
+  РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРЅС‹Рј <code>NULL</code>.</div>
   <div class=dfn>Item</div>
-  <div class=dfndescr>Адрес массива структур <a href="../structures/farmenuitem.html">FarMenuItem</a> или,
-    если указан флаг <dfn>FMENU_USEEXT</dfn>, то адрес массива структур
+  <div class=dfndescr>РђРґСЂРµСЃ РјР°СЃСЃРёРІР° СЃС‚СЂСѓРєС‚СѓСЂ <a href="../structures/farmenuitem.html">FarMenuItem</a> РёР»Рё,
+    РµСЃР»Рё СѓРєР°Р·Р°РЅ С„Р»Р°Рі <dfn>FMENU_USEEXT</dfn>, С‚Рѕ Р°РґСЂРµСЃ РјР°СЃСЃРёРІР° СЃС‚СЂСѓРєС‚СѓСЂ
     <a href="../structures/farmenuitemex.html">FarMenuItemEx</a>.
-    Каждая структура описывает элемент меню.
+    РљР°Р¶РґР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° РѕРїРёСЃС‹РІР°РµС‚ СЌР»РµРјРµРЅС‚ РјРµРЅСЋ.
   </div>
   <div class=dfn>ItemsNumber</div>
-  <div class=dfndescr>Количество структур <a href="../structures/farmenuitem.html">FarMenuItem</a>.</div>
+  <div class=dfndescr>РљРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂСѓРєС‚СѓСЂ <a href="../structures/farmenuitem.html">FarMenuItem</a>.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-  Функция возвращает или -1, если пользователь
-  отменил меню, или номер выбранного элемента меню.
+  Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РёР»Рё -1, РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ
+  РѕС‚РјРµРЅРёР» РјРµРЅСЋ, РёР»Рё РЅРѕРјРµСЂ РІС‹Р±СЂР°РЅРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р° РјРµРЅСЋ.
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
-  Пример взят из плагина EditCase:
+  РџСЂРёРјРµСЂ РІР·СЏС‚ РёР· РїР»Р°РіРёРЅР° EditCase:
 <pre class=code>struct FarMenuItem MenuItems[2];
 memset(MenuItems,0,sizeof(MenuItems));
 strcpy(MenuItems[0].Text,GetMsg(MCaseLower));
@@ -164,11 +164,11 @@ if (MenuCode&lt;0)
 . . .
 </pre>
 
-  Причем, <dfn>Info</dfn> определяется как глобальная переменная:
+  РџСЂРёС‡РµРј, <dfn>Info</dfn> РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РєР°Рє РіР»РѕР±Р°Р»СЊРЅР°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ:
 
 <pre class=code>struct PluginStartupInfo <dfn>Info</dfn>;</pre>
 
-  ...а инициализируется она в функции
+  ...Р° РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚СЃСЏ РѕРЅР° РІ С„СѓРЅРєС†РёРё
   <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>:
 
 <pre class=code>void WINAPI _export SetStartupInfo(struct PluginStartupInfo *Info)
@@ -180,7 +180,7 @@ if (MenuCode&lt;0)
 
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
 <a href="../structures/farmenuitem.html">FarMenuItem</a>
 </div>
 

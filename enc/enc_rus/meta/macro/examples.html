@@ -1,24 +1,24 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 
 <head>
-<title>Примеры - Макросы</title>
-<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<title>РџСЂРёРјРµСЂС‹ - РњР°РєСЂРѕСЃС‹</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
 
 <body>
 
-<h1>Примеры</h1>
+<h1>РџСЂРёРјРµСЂС‹</h1>
 <div class="navbar">
-<a href="../index.html">главная</a> |
-<a href="index.html">Макросы</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">РњР°РєСЂРѕСЃС‹</a>
 </div>
 
 <p><pre class=code>REGEDIT4
 
-; переход в меню выбора дисков на противоположной панели
-; включение видимости панели в которой будет происходить смена диска, если её не было
+; РїРµСЂРµС…РѕРґ РІ РјРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєРѕРІ РЅР° РїСЂРѕС‚РёРІРѕРїРѕР»РѕР¶РЅРѕР№ РїР°РЅРµР»Рё
+; РІРєР»СЋС‡РµРЅРёРµ РІРёРґРёРјРѕСЃС‚Рё РїР°РЅРµР»Рё РІ РєРѕС‚РѕСЂРѕР№ Р±СѓРґРµС‚ РїСЂРѕРёСЃС…РѕРґРёС‚СЊ СЃРјРµРЅР° РґРёСЃРєР°, РµСЃР»Рё РµС‘ РЅРµ Р±С‹Р»Рѕ
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Disks\Tab]
 "Sequence"="Esc $If (!PPanel.Visible) $If (APanel.Left) CtrlF2 $Else CtrlF1 $End $End Tab F9 Enter End Enter"
@@ -26,7 +26,7 @@
 
 <pre class=code>REGEDIT4
 
-;выделить/(снять выделение) слово(а) под курсором
+;РІС‹РґРµР»РёС‚СЊ/(СЃРЅСЏС‚СЊ РІС‹РґРµР»РµРЅРёРµ) СЃР»РѕРІРѕ(Р°) РїРѕРґ РєСѓСЂСЃРѕСЂРѕРј
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Editor\RAlt]
 "Sequence"="RCtrl9 CtrlRight CtrlLeft $If (!Selected) CtrlShiftRight $Else CtrlU $End Ctrl9"
@@ -34,7 +34,7 @@
 
 <pre class=code>REGEDIT4
 
-;создание папки с именем = текущей дате
+;СЃРѕР·РґР°РЅРёРµ РїР°РїРєРё СЃ РёРјРµРЅРµРј = С‚РµРєСѓС‰РµР№ РґР°С‚Рµ
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlShiftF7]
 "Sequence"="%folder=date(\"%d.%m0.%Y\"); $If (!panel.fexist(0,%folder)) F7 CtrlY $Text %folder Enter $End"
@@ -43,9 +43,9 @@
 
 <pre class=code>REGEDIT4
 
-;искать тот же файл на другой панели что и на активной
-;F5 ShiftEnter CtrlIns - применено чтобы получить имя файла вне зависимости
-;пусто/непусто в cmdline и сколько выделено на панели файлов
+;РёСЃРєР°С‚СЊ С‚РѕС‚ Р¶Рµ С„Р°Р№Р» РЅР° РґСЂСѓРіРѕР№ РїР°РЅРµР»Рё С‡С‚Рѕ Рё РЅР° Р°РєС‚РёРІРЅРѕР№
+;F5 ShiftEnter CtrlIns - РїСЂРёРјРµРЅРµРЅРѕ С‡С‚РѕР±С‹ РїРѕР»СѓС‡РёС‚СЊ РёРјСЏ С„Р°Р№Р»Р° РІРЅРµ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё
+;РїСѓСЃС‚Рѕ/РЅРµРїСѓСЃС‚Рѕ РІ cmdline Рё СЃРєРѕР»СЊРєРѕ РІС‹РґРµР»РµРЅРѕ РЅР° РїР°РЅРµР»Рё С„Р°Р№Р»РѕРІ
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlAltLeft]
 "Sequence"="$IClip $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
@@ -62,7 +62,7 @@ Esc Tab Home Alt< ShiftIns Esc $End $End"
 
 <pre class=code>REGEDIT4
 
-;выделение следующих нижних/верхних 30 файлов
+;РІС‹РґРµР»РµРЅРёРµ СЃР»РµРґСѓСЋС‰РёС… РЅРёР¶РЅРёС…/РІРµСЂС…РЅРёС… 30 С„Р°Р№Р»РѕРІ
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlDown]
 "Sequence"="$If (!Eof) $Rep (30) $If (Eof) Ins $Exit $Else Ins $End $End $End"
@@ -78,8 +78,8 @@ $If (!APanel.Root) Down $End $Exit $End $End Up"
 
 <pre class=code>REGEDIT4
 
-;сграбить весь экран в текстовый файл far-screen.out
-;работает в области Dialog
+;СЃРіСЂР°Р±РёС‚СЊ РІРµСЃСЊ СЌРєСЂР°РЅ РІ С‚РµРєСЃС‚РѕРІС‹Р№ С„Р°Р№Р» far-screen.out
+;СЂР°Р±РѕС‚Р°РµС‚ РІ РѕР±Р»Р°СЃС‚Рё Dialog
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Dialog\AltP]
 "Sequence"="$IClip AltIns CtrlHome ShiftEnd ShiftPgDn Enter Esc
@@ -90,9 +90,9 @@ $If (!Shell) Esc $End $If (Shell &amp;&amp; !APanel.Plugin) ShiftF4 CtrlY
 
 <pre class=code>REGEDIT4
 
-;удаление файла/папки по клавише Del
-;если стояли на элементе .. то пытаемся удалить вышестоящую папку
-;если не в конце ком строки то удаляем символы в ней
+;СѓРґР°Р»РµРЅРёРµ С„Р°Р№Р»Р°/РїР°РїРєРё РїРѕ РєР»Р°РІРёС€Рµ Del
+;РµСЃР»Рё СЃС‚РѕСЏР»Рё РЅР° СЌР»РµРјРµРЅС‚Рµ .. С‚Рѕ РїС‹С‚Р°РµРјСЃСЏ СѓРґР°Р»РёС‚СЊ РІС‹С€РµСЃС‚РѕСЏС‰СѓСЋ РїР°РїРєСѓ
+;РµСЃР»Рё РЅРµ РІ РєРѕРЅС†Рµ РєРѕРј СЃС‚СЂРѕРєРё С‚Рѕ СѓРґР°Р»СЏРµРј СЃРёРјРІРѕР»С‹ РІ РЅРµР№
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\Del]
 "Sequence"="$If (!CmdLine.Eof) Del $Exit $Else
@@ -103,9 +103,9 @@ $If ((APanel.Bof &amp;&amp; !APanel.Selected) &amp;&amp;
 
 <pre class=code>REGEDIT4
 
-; перед вызовом быстрого просмотра сделать пассивную панель
-; максимально большего размера.
-; для обратной операции восстановить панели.
+; РїРµСЂРµРґ РІС‹Р·РѕРІРѕРј Р±С‹СЃС‚СЂРѕРіРѕ РїСЂРѕСЃРјРѕС‚СЂР° СЃРґРµР»Р°С‚СЊ РїР°СЃСЃРёРІРЅСѓСЋ РїР°РЅРµР»СЊ
+; РјР°РєСЃРёРјР°Р»СЊРЅРѕ Р±РѕР»СЊС€РµРіРѕ СЂР°Р·РјРµСЂР°.
+; РґР»СЏ РѕР±СЂР°С‚РЅРѕР№ РѕРїРµСЂР°С†РёРё РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ РїР°РЅРµР»Рё.
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlQ]
 "Sequence"="Tab $If (QView) Tab Ctrl2 Tab CtrlClear $Else Tab Ctrl6 Tab
@@ -115,7 +115,7 @@ $Rep (APanel.width) CtrlLeft $End $End $End Tab CtrlQ"
 </pre>
 
 
-<p><p>Следующий макрос служит для того чтобы помечать вместе с htm-файлом и парную ему папку:
+<p><p>РЎР»РµРґСѓСЋС‰РёР№ РјР°РєСЂРѕСЃ СЃР»СѓР¶РёС‚ РґР»СЏ С‚РѕРіРѕ С‡С‚РѕР±С‹ РїРѕРјРµС‡Р°С‚СЊ РІРјРµСЃС‚Рµ СЃ htm-С„Р°Р№Р»РѕРј Рё РїР°СЂРЅСѓСЋ РµРјСѓ РїР°РїРєСѓ:
 <pre class=code>REGEDIT4
 
 [HKEY_CURRENT_USER\Software\Far\KeyMacros\Shell\CtrlShiftIns]
@@ -130,8 +130,8 @@ panel.setpos(ACTIVEPANEL,%Current) $If(!panelitem(ACTIVEPANEL,0,PANELITEM_SELECT
 Ins $End $End $MMode 1 $MMode 1"
 "DisableOutput"=dword:00000001
 
-;При непустой командной строке макрос не вызывается чтобы можно пользоваться первоначальной
-;функцией сочетания CtrlShiftIns - Поместить помеченные имена в Буфер Обмена
+;РџСЂРё РЅРµРїСѓСЃС‚РѕР№ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРµ РјР°РєСЂРѕСЃ РЅРµ РІС‹Р·С‹РІР°РµС‚СЃСЏ С‡С‚РѕР±С‹ РјРѕР¶РЅРѕ РїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РїРµСЂРІРѕРЅР°С‡Р°Р»СЊРЅРѕР№
+;С„СѓРЅРєС†РёРµР№ СЃРѕС‡РµС‚Р°РЅРёСЏ CtrlShiftIns - РџРѕРјРµСЃС‚РёС‚СЊ РїРѕРјРµС‡РµРЅРЅС‹Рµ РёРјРµРЅР° РІ Р‘СѓС„РµСЂ РћР±РјРµРЅР°
 "EmptyCommandLine"=dword:00000001
 </pre>
 

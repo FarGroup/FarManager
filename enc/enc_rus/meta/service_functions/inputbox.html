@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>InputBox</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
 
@@ -10,12 +10,12 @@
 
 <h1>InputBox</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a><br>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>InputBox</dfn> позволяет ввести одну строку текста.
+Р¤СѓРЅРєС†РёСЏ <dfn>InputBox</dfn> РїРѕР·РІРѕР»СЏРµС‚ РІРІРµСЃС‚Рё РѕРґРЅСѓ СЃС‚СЂРѕРєСѓ С‚РµРєСЃС‚Р°.
 </div>
 
 <pre class=syntax>
@@ -30,70 +30,70 @@ int WINAPI InputBox(
   DWORD Flags
 );
 </pre>
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
     <div class=dfn>Title</div>
-    <div class=dfndescr>Заголовок окна ввода. Может быть равен NULL или "".</div>
+    <div class=dfndescr>Р—Р°РіРѕР»РѕРІРѕРє РѕРєРЅР° РІРІРѕРґР°. РњРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРµРЅ NULL РёР»Рё "".</div>
 
     <div class=dfn>Prompt</div>
-    <div class=dfndescr>Приглашение на ввод данных. Может быть равен NULL или "".</div>
+    <div class=dfndescr>РџСЂРёРіР»Р°С€РµРЅРёРµ РЅР° РІРІРѕРґ РґР°РЅРЅС‹С…. РњРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРµРЅ NULL РёР»Рё "".</div>
 
     <div class=dfn>HistoryName</div>
-    <div class=dfndescr>Адрес строки для "истории". Установите в NULL если "история" ввода не используется.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ СЃС‚СЂРѕРєРё РґР»СЏ "РёСЃС‚РѕСЂРёРё". РЈСЃС‚Р°РЅРѕРІРёС‚Рµ РІ NULL РµСЃР»Рё "РёСЃС‚РѕСЂРёСЏ" РІРІРѕРґР° РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.</div>
 
     <div class=dfn>SrcText</div>
-    <div class=dfndescr>Исходные данные для ввода и редактирования. Может быть равен NULL или "".</div>
+    <div class=dfndescr>РСЃС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ РґР»СЏ РІРІРѕРґР° Рё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ. РњРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРµРЅ NULL РёР»Рё "".</div>
 
     <div class=dfn>DestText</div>
-    <div class=dfndescr>"Приемник" введенных данных. Может указать на ту же область памяти что и <dfn>SrcText</dfn>.</div>
+    <div class=dfndescr>"РџСЂРёРµРјРЅРёРє" РІРІРµРґРµРЅРЅС‹С… РґР°РЅРЅС‹С…. РњРѕР¶РµС‚ СѓРєР°Р·Р°С‚СЊ РЅР° С‚Сѓ Р¶Рµ РѕР±Р»Р°СЃС‚СЊ РїР°РјСЏС‚Рё С‡С‚Рѕ Рё <dfn>SrcText</dfn>.</div>
 
     <div class=dfn>DestLength</div>
-    <div class=dfndescr>Размер "приемника"</div>
+    <div class=dfndescr>Р Р°Р·РјРµСЂ "РїСЂРёРµРјРЅРёРєР°"</div>
 
     <div class=dfn>HelpTopic</div>
-    <div class=dfndescr>Адрес строки с <a href="../language/helptopic.html">названием темы</a>
-     помощи в формате "&lt;FullPath&gt;Topic", например:
+    <div class=dfndescr>РђРґСЂРµСЃ СЃС‚СЂРѕРєРё СЃ <a href="../language/helptopic.html">РЅР°Р·РІР°РЅРёРµРј С‚РµРјС‹</a>
+     РїРѕРјРѕС‰Рё РІ С„РѕСЂРјР°С‚Рµ "&lt;FullPath&gt;Topic", РЅР°РїСЂРёРјРµСЂ:
      <pre class=code>"&lt;D:\\FAR\\Plugins\\Foo\\&gt;FooInfo"</pre>
-     <br>Установите в NULL если подсказка не используется.
+     <br>РЈСЃС‚Р°РЅРѕРІРёС‚Рµ РІ NULL РµСЃР»Рё РїРѕРґСЃРєР°Р·РєР° РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.
     </div>
 
     <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть комбинацией следующих значений (перечисленние <a name="INPUTBOXFLAGS">INPUTBOXFLAGS</a>):
-        <table class="cont"><tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
+    <div class=dfndescr>РњРѕР¶РµС‚ Р±С‹С‚СЊ РєРѕРјР±РёРЅР°С†РёРµР№ СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРЅРёРµ <a name="INPUTBOXFLAGS">INPUTBOXFLAGS</a>):
+        <table class="cont"><tr class="cont"><th class="cont" width="40%">РљРѕРЅСЃС‚Р°РЅС‚Р°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_ENABLEEMPTY">FIB_ENABLEEMPTY</a></td>
-           <td class="cont" width="60%">даже если строка ввода пуста функция вернет значение TRUE.</td></tr>
+           <td class="cont" width="60%">РґР°Р¶Рµ РµСЃР»Рё СЃС‚СЂРѕРєР° РІРІРѕРґР° РїСѓСЃС‚Р° С„СѓРЅРєС†РёСЏ РІРµСЂРЅРµС‚ Р·РЅР°С‡РµРЅРёРµ TRUE.</td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_PASSWORD">FIB_PASSWORD</a></td>
-           <td class="cont" width="60%">используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code>.</td></tr>
+           <td class="cont" width="60%">РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РІРІРѕРґР° РїР°СЂРѕР»СЏ - РІРІРѕРґРёРјС‹Р№ С‚РµРєСЃС‚ РЅР° СЌРєСЂР°РЅРµ РѕС‚СЂРёСЃРѕРІС‹РІР°РµС‚СЃСЏ СЃРёРјРІРѕР»Р°РјРё <code>'*'</code>.</td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_EXPANDENV">FIB_EXPANDENV</a></td>
-           <td class="cont" width="60%">после успешного ввода, в строке <dfn>DestText</dfn> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввел '<code>%TEMP%</code>', то <dfn>DestText</dfn> будет содержать '<code>C:\TEMP</code>'.</td></tr>
+           <td class="cont" width="60%">РїРѕСЃР»Рµ СѓСЃРїРµС€РЅРѕРіРѕ РІРІРѕРґР°, РІ СЃС‚СЂРѕРєРµ <dfn>DestText</dfn> РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂС‹ РїРµСЂРµРјРµРЅРЅС‹С… РѕРєСЂСѓР¶РµРЅРёСЏ Р·Р°РјРµРЅСЏСЋС‚СЃСЏ РЅР° РёС… Р·РЅР°С‡РµРЅРёСЏ, РЅР°РїСЂРёРјРµСЂ, РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РІРІРµР» '<code>%TEMP%</code>', С‚Рѕ <dfn>DestText</dfn> Р±СѓРґРµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ '<code>C:\TEMP</code>'.</td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_NOUSELASTHISTORY">FIB_NOUSELASTHISTORY</a></td>
-           <td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если параметр <dfn>HistoryName</dfn> не равен NULL.</td></tr>
+           <td class="cont" width="60%">РЅРµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РїСЂРµРґС‹РґСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ РёР· РёСЃС‚РѕСЂРёРё, РѕСЃС‚Р°РІРёС‚СЊ СЃС‚СЂРѕРєСѓ РІРІРѕРґР° РїСѓСЃС‚РѕР№; Р°РєС‚СѓР°Р»РµРЅ, РµСЃР»Рё РїР°СЂР°РјРµС‚СЂ <dfn>HistoryName</dfn> РЅРµ СЂР°РІРµРЅ NULL.</td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_BUTTONS">FIB_BUTTONS</a></td>
-           <td class="cont" width="60%">показать разделительную линию и кнопки [Ok] и [Cancel]. Диалог увеличится на 2 строки.</td></tr>
+           <td class="cont" width="60%">РїРѕРєР°Р·Р°С‚СЊ СЂР°Р·РґРµР»РёС‚РµР»СЊРЅСѓСЋ Р»РёРЅРёСЋ Рё РєРЅРѕРїРєРё [Ok] Рё [Cancel]. Р”РёР°Р»РѕРі СѓРІРµР»РёС‡РёС‚СЃСЏ РЅР° 2 СЃС‚СЂРѕРєРё.</td></tr>
            <tr class="cont"><td class="cont" width="40%"><a name="FIB_NOAMPERSAND">FIB_NOAMPERSAND</a></td>
-           <td class="cont" width="60%">не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши.</td></tr>
+           <td class="cont" width="60%">РЅРµ РїРѕРєР°Р·С‹РІР°С‚СЊ РІ РїСЂРёРіР»Р°С€РµРЅРёРё РІРІРѕРґР° Р°РјРїРµСЂСЃР°РЅРґ, РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РµРіРѕ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РіРѕСЂСЏС‡РµР№ РєР»Р°РІРёС€Рё.</td></tr>
         </table>
     </div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-  Функция возвращает TRUE в случае успешного ввода строки и
-  FALSE, если пользователь прервал ввод.
+  Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ TRUE РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС€РЅРѕРіРѕ РІРІРѕРґР° СЃС‚СЂРѕРєРё Рё
+  FALSE, РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РїСЂРµСЂРІР°Р» РІРІРѕРґ.
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-FAR Manager использует данную функцию, когда пользователь пытается создать
-папку:<br>
+FAR Manager РёСЃРїРѕР»СЊР·СѓРµС‚ РґР°РЅРЅСѓСЋ С„СѓРЅРєС†РёСЋ, РєРѕРіРґР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РїС‹С‚Р°РµС‚СЃСЏ СЃРѕР·РґР°С‚СЊ
+РїР°РїРєСѓ:<br>
 <img src="../../images/inputbox.gif">
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
 <a href="../dialogapi/dialog.html">Dialog</a>
 </div>
 

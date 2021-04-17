@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FarMacroValue</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,13 +10,13 @@
 
 <h1>FarMacroValue</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">структуры</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
 <a href="../macroapi/index.html">Macro API</a>
 </div>
 
 <div class=shortdescr>
-Структура <code>FarMacroValue</code> описывает макропеременную.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>FarMacroValue</code> РѕРїРёСЃС‹РІР°РµС‚ РјР°РєСЂРѕРїРµСЂРµРјРµРЅРЅСѓСЋ.
 </div>
 
 <pre class=syntax>
@@ -48,45 +48,45 @@ struct FarMacroValue
 };
 </pre>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
   <div class=dfn>Type</div>
-    <div class=dfndescr>Тип переменной, одно из следующих значений (перечисление <code><a name="FARMACROVARTYPE">FARMACROVARTYPE</a></code>):
+    <div class=dfndescr>РўРёРї РїРµСЂРµРјРµРЅРЅРѕР№, РѕРґРЅРѕ РёР· СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <code><a name="FARMACROVARTYPE">FARMACROVARTYPE</a></code>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><th class="cont" width="40%">РўРёРї</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_UNKNOWN">FMVT_UNKNOWN</a></td>
-    <td class="cont" width="60%">Неопределенный тип. <code>Value.Integer = 0</code>.</td></tr>
+    <td class="cont" width="60%">РќРµРѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ С‚РёРї. <code>Value.Integer = 0</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_INTEGER">FMVT_INTEGER</a></td>
-    <td class="cont" width="60%">Число. Компонента <code>Value.Integer</code>.</td></tr>
+    <td class="cont" width="60%">Р§РёСЃР»Рѕ. РљРѕРјРїРѕРЅРµРЅС‚Р° <code>Value.Integer</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_STRING">FMVT_STRING</a></td>
-    <td class="cont" width="60%">Строка. Компонента <code>Value.String</code>.</td></tr>
+    <td class="cont" width="60%">РЎС‚СЂРѕРєР°. РљРѕРјРїРѕРЅРµРЅС‚Р° <code>Value.String</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_DOUBLE">FMVT_DOUBLE</a></td>
-    <td class="cont" width="60%">Вещественное значение. Компонента <code>Value.Double</code>.</td></tr>
+    <td class="cont" width="60%">Р’РµС‰РµСЃС‚РІРµРЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ. РљРѕРјРїРѕРЅРµРЅС‚Р° <code>Value.Double</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_BOOLEAN">FMVT_BOOLEAN</a></td>
-    <td class="cont" width="60%">Логическое значение. Компонента <code>Value.Boolean</code>.</td></tr>
+    <td class="cont" width="60%">Р›РѕРіРёС‡РµСЃРєРѕРµ Р·РЅР°С‡РµРЅРёРµ. РљРѕРјРїРѕРЅРµРЅС‚Р° <code>Value.Boolean</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_BINARY">FMVT_BINARY</a></td>
-    <td class="cont" width="60%">Структура <code>Value.Binary</code>, где поле <code>Size</code> определяет размер <code>Data</code>.</td></tr>
+    <td class="cont" width="60%">РЎС‚СЂСѓРєС‚СѓСЂР° <code>Value.Binary</code>, РіРґРµ РїРѕР»Рµ <code>Size</code> РѕРїСЂРµРґРµР»СЏРµС‚ СЂР°Р·РјРµСЂ <code>Data</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_POINTER">FMVT_POINTER</a></td>
-    <td class="cont" width="60%">Указатель. Компонента <code>Value.Pointer</code>.</td></tr>
+    <td class="cont" width="60%">РЈРєР°Р·Р°С‚РµР»СЊ. РљРѕРјРїРѕРЅРµРЅС‚Р° <code>Value.Pointer</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_NIL">FMVT_NIL</a></td>
-    <td class="cont" width="60%">Специальное значение <code>nil</code>. Все компоненты <code>Value</code> должны игнорироваться.</td></tr>
+    <td class="cont" width="60%">РЎРїРµС†РёР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ <code>nil</code>. Р’СЃРµ РєРѕРјРїРѕРЅРµРЅС‚С‹ <code>Value</code> РґРѕР»Р¶РЅС‹ РёРіРЅРѕСЂРёСЂРѕРІР°С‚СЊСЃСЏ.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_ARRAY">FMVT_ARRAY</a></td>
-    <td class="cont" width="60%">Структура <code>Value.Array</code>, где поле <code>Count</code> определяет количество величин в массиве <code>Values</code>.</td></tr>
+    <td class="cont" width="60%">РЎС‚СЂСѓРєС‚СѓСЂР° <code>Value.Array</code>, РіРґРµ РїРѕР»Рµ <code>Count</code> РѕРїСЂРµРґРµР»СЏРµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ РІРµР»РёС‡РёРЅ РІ РјР°СЃСЃРёРІРµ <code>Values</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_PANEL">FMVT_PANEL</a></td>
-    <td class="cont" width="60%">Описатель панели плагина. Компонента <code>Value.Pointer</code>.</td></tr>
+    <td class="cont" width="60%">РћРїРёСЃР°С‚РµР»СЊ РїР°РЅРµР»Рё РїР»Р°РіРёРЅР°. РљРѕРјРїРѕРЅРµРЅС‚Р° <code>Value.Pointer</code>.</td></tr>
     </table>
     </div>
   <div class=dfn>Value</div>
-    <div class=dfndescr>Значение.</div>
+    <div class=dfndescr>Р—РЅР°С‡РµРЅРёРµ.</div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
 <div class=seecont>
-<a href="index.html">структуры</a>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>
 </div>
 
 </body>

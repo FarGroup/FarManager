@@ -3,7 +3,7 @@ Aux buildbot script to cleanup Encyclopedia build directory
 """
 
 
-execfile("config.inc.py")
+from config import *
 
 import shutil
 from os.path import isdir
@@ -12,4 +12,4 @@ from os.path import isdir
 if isdir(DEST):
   shutil.rmtree(DEST)
 
-print "Cleanup done."
+print("Cleanup done.")

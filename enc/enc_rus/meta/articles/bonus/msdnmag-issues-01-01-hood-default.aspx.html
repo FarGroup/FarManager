@@ -1,10 +1,10 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!-- saved from url=(0064)http://msdn.microsoft.com/msdnmag/issues/01/01/hood/default.aspx -->
 <html>
 
 <head>
 <title>Under the Hood: Reduce EXE and DLL Size with LIBCTINY.LIB -- MSDN Magazine, January 2001</title>
-<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <meta content="Under the Hood: Reduce EXE and DLL Size with LIBCTINY.LIB." name="Description">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 </head>
@@ -14,13 +14,13 @@
 <a name="top"></a>
 <h1>Reduce EXE and DLL Size with LIBCTINY.LIB</h1>
 <div class=navbar>
-<a href="../../index.html">главная</a> |
-<a href="../index.html">статьи</a>
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="../index.html">СЃС‚Р°С‚СЊРё</a>
 </div>
 
 <div align=right><code>
 Matt Pietrek
-<br>Оригинал: <a href="http://msdn.microsoft.com/msdnmag/issues/01/01/hood/default.aspx" target="_blank">http://msdn.microsoft.com/msdnmag/issues/01/01/hood/default.aspx</a>
+<br>РћСЂРёРіРёРЅР°Р»: <a href="http://msdn.microsoft.com/msdnmag/issues/01/01/hood/default.aspx" target="_blank">http://msdn.microsoft.com/msdnmag/issues/01/01/hood/default.aspx</a>
 </code></div>
 <hr color="#003399">
 
@@ -30,7 +30,7 @@ Matt Pietrek
 1996 column</a> in <i>MSJ</i>, I addressed a question concerning the size of
 executable files. Back then, a simple Hello World program compiled to a 32KB
 executable. Two compiler versions later, the problem is only slightly better.
-The same program with the Visual C++о 6.0 compiler is now 28KB.</p>
+The same program with the Visual C++Рѕ 6.0 compiler is now 28KB.</p>
 
 <p class=plain>In that column, I provided a replacement runtime library that lets you create
 very small executable programs. There were some restrictions on what situations
@@ -70,7 +70,7 @@ for stdio makes sense. Likewise, it's reasonable to expect that the printf code
 might call strlen, so its inclusion isn't a surprise.</p>
 <p class=plain>However, take a look at some of the other functions, for instance
 __sbh_heap_init. This is the initialization function for the runtime library's
-small block heap. The Win32о-based operating systems offer up their own heap in
+small block heap. The Win32Рѕ-based operating systems offer up their own heap in
 the form of the HeapAlloc family of functions. Potential performance gains
 notwithstanding, the Visual C++ library could choose to use the Win32 heap APIs,
 but doesn't. Thus, you end up with more code than necessary in your executable.</p>
@@ -94,7 +94,7 @@ cases and you're into serious amounts of code!</p>
 <p class=plain>Alert readers might say, &quot;Hey Matt! Why don't you just use the DLL version
 of the runtime library?&quot; In the past, I could make the argument that there
 was no consistently named version of the C++ runtime library DLL available on
-Windowsо 95, Windows 98, Windows NT 3.51, Windows NTо 4.0, and so forth.
+WindowsРѕ 95, Windows 98, Windows NT 3.51, Windows NTРѕ 4.0, and so forth.
 Luckily, we've moved past those days, and in most cases you can rely on
 MSVCRT.DLL being available on your target machines.</p>
 <p class=plain>Making this switch and recompiling Hello.CPP, the resulting executable is now
@@ -141,7 +141,7 @@ alignment in memory. This provides a slight load-time performance improvement on
 Windows 9<i>x</i>, but makes executables bigger.</p>
 <p class=plain>Luckily, the Visual C++ linker has a way to go back to the previous behavior.
 The magic switch is /OPT:NOWIN98. Rebuilding Hello.CPP as before, but with the
-addition of this linker switch gets the executable file down to 21KBЧa savings
+addition of this linker switch gets the executable file down to 21KBР§a savings
 of 7KB. If I switch to linking with MSVCRT.DLL and using /OPT:NOWIN98, the
 executable size drops to 2560 bytes!</p>
 
@@ -282,7 +282,7 @@ using LIBCTINY, you'd probably want to use /OPT:NOWIN98 as well.</p>
 
 <h3>Using LIBCTINY.LIB</h3>
 <p class=plain>Using LIBCTINY is very simple. All you have to do is add LIBCTINY.LIB to the
-linker's list of .LIB files to search. If you're using the Visual Studioо IDE,
+linker's list of .LIB files to search. If you're using the Visual StudioРѕ IDE,
 this would be in the Projects | Settings | Link tab. It doesn't matter what type
 of binary you're building (console EXE, GUI EXE, or DLL), since LIBCTINY.LIB
 contains appropriate entry point routines for each of them.</p><p class=plain>

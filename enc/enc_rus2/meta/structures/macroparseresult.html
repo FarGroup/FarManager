@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>MacroParseResult</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,14 +10,14 @@
 
 <h1>MacroParseResult</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a  href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a><br>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>MacroParseResult</dfn> используется в функции
+РЎС‚СЂСѓРєС‚СѓСЂР° <dfn>MacroParseResult</dfn> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ С„СѓРЅРєС†РёРё
 <a href="../service_functions/advcontrol.html">AdvControl</a>
-для возврата плагину результатов проверки макропоследовательности.
+РґР»СЏ РІРѕР·РІСЂР°С‚Р° РїР»Р°РіРёРЅСѓ СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ РїСЂРѕРІРµСЂРєРё РјР°РєСЂРѕРїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё.
 </div>
 
 <pre class=syntax>
@@ -28,58 +28,58 @@ struct MacroParseResult
   const wchar_t *ErrSrc;
 };
 </pre>
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
 
     <div class=dfn>ErrCode</div>
-    <div class=dfndescr>Результат проверки (перечисление <a name="FARMACROPARSEERRORCODE">FARMACROPARSEERRORCODE</a>):
+    <div class=dfndescr>Р РµР·СѓР»СЊС‚Р°С‚ РїСЂРѕРІРµСЂРєРё (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="FARMACROPARSEERRORCODE">FARMACROPARSEERRORCODE</a>):
      <table class="cont">
-     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+     <tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="MPEC_SUCCESS">MPEC_SUCCESS</a></td>
-       <td class="cont" width="60%">Ошибок нет</td></tr>
+       <td class="cont" width="60%">РћС€РёР±РѕРє РЅРµС‚</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="MPEC_UNRECOGNIZED_KEYWORD">MPEC_UNRECOGNIZED_KEYWORD</a></td>
-       <td class="cont" width="60%">Неизвестное ключевое слово '%s'</td></tr>
+       <td class="cont" width="60%">РќРµРёР·РІРµСЃС‚РЅРѕРµ РєР»СЋС‡РµРІРѕРµ СЃР»РѕРІРѕ '%s'</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="MPEC_UNRECOGNIZED_FUNCTION">MPEC_UNRECOGNIZED_FUNCTION</a></td>
-       <td class="cont" width="60%">Неизвестная функция '%s'</td></tr>
+       <td class="cont" width="60%">РќРµРёР·РІРµСЃС‚РЅР°СЏ С„СѓРЅРєС†РёСЏ '%s'</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="MPEC_FUNC_PARAM">MPEC_FUNC_PARAM</a></td>
-       <td class="cont" width="60%">Неверное количество параметров у функции '%s'</td></tr>
+       <td class="cont" width="60%">РќРµРІРµСЂРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РїР°СЂР°РјРµС‚СЂРѕРІ Сѓ С„СѓРЅРєС†РёРё '%s'</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="MPEC_NOT_EXPECTED_ELSE">MPEC_NOT_EXPECTED_ELSE</a></td>
-       <td class="cont" width="60%">Неожиданное появление $Else</td></tr>
+       <td class="cont" width="60%">РќРµРѕР¶РёРґР°РЅРЅРѕРµ РїРѕСЏРІР»РµРЅРёРµ $Else</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="MPEC_NOT_EXPECTED_END">MPEC_NOT_EXPECTED_END</a></td>
-       <td class="cont" width="60%">Неожиданное появление $End</td></tr>
+       <td class="cont" width="60%">РќРµРѕР¶РёРґР°РЅРЅРѕРµ РїРѕСЏРІР»РµРЅРёРµ $End</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="MPEC_UNEXPECTED_EOS">MPEC_UNEXPECTED_EOS</a></td>
-       <td class="cont" width="60%">Неожиданный конец строки</td></tr>
+       <td class="cont" width="60%">РќРµРѕР¶РёРґР°РЅРЅС‹Р№ РєРѕРЅРµС† СЃС‚СЂРѕРєРё</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="MPEC_EXPECTED_TOKEN">MPEC_EXPECTED_TOKEN</a></td>
-       <td class="cont" width="60%">Ожидается '%s'</td></tr>
+       <td class="cont" width="60%">РћР¶РёРґР°РµС‚СЃСЏ '%s'</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="MPEC_BAD_HEX_CONTROL_CHAR">MPEC_BAD_HEX_CONTROL_CHAR</a></td>
-       <td class="cont" width="60%">Неизвестный шестнадцатеричный управляющий символ</td></tr>
+       <td class="cont" width="60%">РќРµРёР·РІРµСЃС‚РЅС‹Р№ С€РµСЃС‚РЅР°РґС†Р°С‚РµСЂРёС‡РЅС‹Р№ СѓРїСЂР°РІР»СЏСЋС‰РёР№ СЃРёРјРІРѕР»</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="MPEC_BAD_CONTROL_CHAR">MPEC_BAD_CONTROL_CHAR</a></td>
-       <td class="cont" width="60%">Неправильный управляющий символ</td></tr>
+       <td class="cont" width="60%">РќРµРїСЂР°РІРёР»СЊРЅС‹Р№ СѓРїСЂР°РІР»СЏСЋС‰РёР№ СЃРёРјРІРѕР»</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="MPEC_VAR_EXPECTED">MPEC_VAR_EXPECTED</a></td>
-       <td class="cont" width="60%">Переменная '%s' не найдена</td></tr>
+       <td class="cont" width="60%">РџРµСЂРµРјРµРЅРЅР°СЏ '%s' РЅРµ РЅР°Р№РґРµРЅР°</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="MPEC_EXPR_EXPECTED">MPEC_EXPR_EXPECTED</a></td>
-       <td class="cont" width="60%">Ошибка синтаксиса</td></tr>
+       <td class="cont" width="60%">РћС€РёР±РєР° СЃРёРЅС‚Р°РєСЃРёСЃР°</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="MPEC_ZEROLENGTHMACRO">MPEC_ZEROLENGTHMACRO</a></td>
-       <td class="cont" width="60%">Пустая макропоследовательность</td></tr>
+       <td class="cont" width="60%">РџСѓСЃС‚Р°СЏ РјР°РєСЂРѕРїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="MPEC_INTPARSERERROR">MPEC_INTPARSERERROR</a></td>
-       <td class="cont" width="60%">Внутренняя ошибка парсера</td></tr>
+       <td class="cont" width="60%">Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР° РїР°СЂСЃРµСЂР°</td></tr>
        <tr class="cont"><td class="cont" width="40%"><a name="MPEC_CONTINUE_OTL">MPEC_CONTINUE_OTL</a></td>
-       <td class="cont" width="60%">Оператор $Continue вне цикла</td></tr>
+       <td class="cont" width="60%">РћРїРµСЂР°С‚РѕСЂ $Continue РІРЅРµ С†РёРєР»Р°</td></tr>
       </table>
     </div>
 
     <div class=dfn>ErrPos</div>
-    <div class=dfndescr>Позиция ошибки в исходном тексте.</div>
+    <div class=dfndescr>РџРѕР·РёС†РёСЏ РѕС€РёР±РєРё РІ РёСЃС…РѕРґРЅРѕРј С‚РµРєСЃС‚Рµ.</div>
     <div class=dfn>ErrSrc</div>
-    <div class=dfndescr>"слово" вызвавщее ошибку, может быть пустым в зависимости от кода ошибки.</div>
+    <div class=dfndescr>"СЃР»РѕРІРѕ" РІС‹Р·РІР°РІС‰РµРµ РѕС€РёР±РєСѓ, РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РєРѕРґР° РѕС€РёР±РєРё.</div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
 <a href="actlkeymacro.html">ActlKeyMacro</a> |
 </div>
 

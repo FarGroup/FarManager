@@ -1,19 +1,19 @@
-ПРОВЕРИТЬ ВСЕ:
-везде где используются названия структур, переменных, ф-ций .... юзать тег <code></code>
+п»їРџР РћР’Р•Р РРўР¬ Р’РЎР•:
+РІРµР·РґРµ РіРґРµ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РЅР°Р·РІР°РЅРёСЏ СЃС‚СЂСѓРєС‚СѓСЂ, РїРµСЂРµРјРµРЅРЅС‹С…, С„-С†РёР№ .... СЋР·Р°С‚СЊ С‚РµРі <code></code>
 
 
-ТРЕБУЕТСЯ УТОЧНЕНИЯ:
+РўР Р•Р‘РЈР•РўРЎРЇ РЈРўРћР§РќР•РќРРЇ:
 deletefilesw.html
-<li>Хорошим тоном считается вариант, когда плагин перед удалением "попросит" подтвердить пользователя о своих намерениях (см. так же <a href="../service_functions/advcontrol.html#ACTL_GETCONFIRMATIONS">ACTL_GETCONFIRMATIONS</a>,
-флаги <a href="../service_functions/advcontrol.html#FCS_DELETE">FCS_DELETE</a> и <a href="../service_functions/advcontrol.html#FCS_DELETENONEMPTYFOLDERS">FCS_DELETENONEMPTYFOLDERS</a>)
+<li>РҐРѕСЂРѕС€РёРј С‚РѕРЅРѕРј СЃС‡РёС‚Р°РµС‚СЃСЏ РІР°СЂРёР°РЅС‚, РєРѕРіРґР° РїР»Р°РіРёРЅ РїРµСЂРµРґ СѓРґР°Р»РµРЅРёРµРј "РїРѕРїСЂРѕСЃРёС‚" РїРѕРґС‚РІРµСЂРґРёС‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рѕ СЃРІРѕРёС… РЅР°РјРµСЂРµРЅРёСЏС… (СЃРј. С‚Р°Рє Р¶Рµ <a href="../service_functions/advcontrol.html#ACTL_GETCONFIRMATIONS">ACTL_GETCONFIRMATIONS</a>,
+С„Р»Р°РіРё <a href="../service_functions/advcontrol.html#FCS_DELETE">FCS_DELETE</a> Рё <a href="../service_functions/advcontrol.html#FCS_DELETENONEMPTYFOLDERS">FCS_DELETENONEMPTYFOLDERS</a>)
 
 settingscontrol.html
 
 
-МНЕ НЕПОНЯТНО! ТРЕБУЕТСЯ ПОЛНОСТЬЮ РАСПИСАТЬ АВТОРУ СТРУКТУРЫ:
+РњРќР• РќР•РџРћРќРЇРўРќРћ! РўР Р•Р‘РЈР•РўРЎРЇ РџРћР›РќРћРЎРўР¬Р® Р РђРЎРџРРЎРђРўР¬ РђР’РўРћР РЈ РЎРўР РЈРљРўРЈР Р«:
 farsettingshistory.html
 
-КУДА-ТО ЭТО ЗАПИХАТЬ, ТРЕБУЕТСЯ ПОЛНОСТЬЮ РАСПИСАТЬ АВТОРУ:
+РљРЈР”Рђ-РўРћ Р­РўРћ Р—РђРџРРҐРђРўР¬, РўР Р•Р‘РЈР•РўРЎРЇ РџРћР›РќРћРЎРўР¬Р® Р РђРЎРџРРЎРђРўР¬ РђР’РўРћР РЈ:
 #define INDEXMASK 0x0000000f
 #define COLORMASK 0x00ffffff
 #define ALPHAMASK 0xff000000

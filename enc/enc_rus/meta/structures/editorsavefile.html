@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>EditorSaveFile</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -15,13 +15,13 @@
 
 <h1>EditorSaveFile</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a  href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a><br>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>EditorSaveFile</dfn> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a>
-для сохранения редактируемого файла (команда <a href="../service_functions/editorcontrol.html#ECTL_SAVEFILE">ECTL_SAVEFILE</a>).
+РЎС‚СЂСѓРєС‚СѓСЂР° <dfn>EditorSaveFile</dfn> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ С„СѓРЅРєС†РёРё <a href="../service_functions/editorcontrol.html">EditorControl</a>
+РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРіРѕ С„Р°Р№Р»Р° (РєРѕРјР°РЅРґР° <a href="../service_functions/editorcontrol.html#ECTL_SAVEFILE">ECTL_SAVEFILE</a>).
 </div>
 
 <pre class=syntax>
@@ -31,18 +31,18 @@ struct EditorSaveFile
   char *FileEOL;
 };
 </pre>
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
 
     <div class=dfn>FileName</div>
-    <div class=dfndescr>Здесь вы можете определить новое имя для сохраняемого файла. Имейте в виду, что здесь должен быть полный путь к файлу (включая директории). Если вы не желаете изменять имя редактируемого файла, то установите первый байт поля FileName равным нулю.</div>
+    <div class=dfndescr>Р—РґРµСЃСЊ РІС‹ РјРѕР¶РµС‚Рµ РѕРїСЂРµРґРµР»РёС‚СЊ РЅРѕРІРѕРµ РёРјСЏ РґР»СЏ СЃРѕС…СЂР°РЅСЏРµРјРѕРіРѕ С„Р°Р№Р»Р°. РРјРµР№С‚Рµ РІ РІРёРґСѓ, С‡С‚Рѕ Р·РґРµСЃСЊ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ (РІРєР»СЋС‡Р°СЏ РґРёСЂРµРєС‚РѕСЂРёРё). Р•СЃР»Рё РІС‹ РЅРµ Р¶РµР»Р°РµС‚Рµ РёР·РјРµРЅСЏС‚СЊ РёРјСЏ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРіРѕ С„Р°Р№Р»Р°, С‚Рѕ СѓСЃС‚Р°РЅРѕРІРёС‚Рµ РїРµСЂРІС‹Р№ Р±Р°Р№С‚ РїРѕР»СЏ FileName СЂР°РІРЅС‹Рј РЅСѓР»СЋ.</div>
     <div class=dfn>FileEOL</div>
-    <div class=dfndescr>Последовательность, обозначающая конец строки. Может быть <code>NULL</code> (оставить исходную EOL-последовательность), <code>\r\n</code> или <code>\n</code></div>
+    <div class=dfndescr>РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ, РѕР±РѕР·РЅР°С‡Р°СЋС‰Р°СЏ РєРѕРЅРµС† СЃС‚СЂРѕРєРё. РњРѕР¶РµС‚ Р±С‹С‚СЊ <code>NULL</code> (РѕСЃС‚Р°РІРёС‚СЊ РёСЃС…РѕРґРЅСѓСЋ EOL-РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ), <code>\r\n</code> РёР»Рё <code>\n</code></div>
 
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
 <a href="../delphi/teditorsavefile.html">TEditorSaveFile</a>
 </div>
 

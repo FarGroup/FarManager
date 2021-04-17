@@ -1,20 +1,20 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-<title>История FAR plugins API</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<title>РСЃС‚РѕСЂРёСЏ FAR plugins API</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../styles/styles.css">
 </head>
 
 <body>
 
-<h1>История FAR plugins API</h1>
+<h1>РСЃС‚РѕСЂРёСЏ FAR plugins API</h1>
 <div class=navbar>
-<a href="index.html">главная</a>
+<a href="index.html">РіР»Р°РІРЅР°СЏ</a>
 </div>
 
 
-<div class=smalldescr>Здесь отмечены ключевые моменты в истории Plugins API</div>
+<div class=smalldescr>Р—РґРµСЃСЊ РѕС‚РјРµС‡РµРЅС‹ РєР»СЋС‡РµРІС‹Рµ РјРѕРјРµРЅС‚С‹ РІ РёСЃС‚РѕСЂРёРё Plugins API</div>
 
 <h3>FAR 1.75 01.04.2009</h3>
 <div class=dfndescr>
@@ -52,7 +52,7 @@
 <h3>FAR 1.71 24.09.2008</h3>
 <div class=dfndescr>
 <pre>
-* FLINK_SYMLINK переименован в FLINK_JUNCTION
+* FLINK_SYMLINK РїРµСЂРµРёРјРµРЅРѕРІР°РЅ РІ FLINK_JUNCTION
 + FLINK_SYMLINKFILE
 + FLINK_SYMLINKDIR
 </pre>
@@ -204,7 +204,7 @@
 <h3>FAR 1.71 01.12.2006</h3>
 <div class=dfndescr>
 <pre>
-* Член структуры ViewerMode.TypeWrap переименован в ViewerMode.WordWrap
+* Р§Р»РµРЅ СЃС‚СЂСѓРєС‚СѓСЂС‹ ViewerMode.TypeWrap РїРµСЂРµРёРјРµРЅРѕРІР°РЅ РІ ViewerMode.WordWrap
 + VCTL_SETMODE
 + enum VIEWER_SETMODE_TYPES
 + struct ViewerSetMode
@@ -214,7 +214,7 @@
 <h3>FAR 1.70 29.03.2006</h3>
 <div class=dfndescr>
 <pre>
-! снято ограничение на приходящие в функцию ProcessKey() клавиши.
+! СЃРЅСЏС‚Рѕ РѕРіСЂР°РЅРёС‡РµРЅРёРµ РЅР° РїСЂРёС…РѕРґСЏС‰РёРµ РІ С„СѓРЅРєС†РёСЋ ProcessKey() РєР»Р°РІРёС€Рё.
 + PKF_PREPROCESS
 + ACTL_GETSHORTWINDOWINFO
 + ECF_TAB1
@@ -223,20 +223,20 @@
 + FARINT64
 + ViewerAPI: ViewerInfo, ViewerMode, ViewerSelect, ViewerSetPosition,
              ViewerControl, ProcessViewerEvent,
-* Все перечисления в plugin.hpp сделаны именованными
+* Р’СЃРµ РїРµСЂРµС‡РёСЃР»РµРЅРёСЏ РІ plugin.hpp СЃРґРµР»Р°РЅС‹ РёРјРµРЅРѕРІР°РЅРЅС‹РјРё
 + FARMACRO_KEY_EVENT
 + DM_GETSELECTION, DM_SETSELECTION
 + DN_LISTHOTKEY
-! плагин в ProcessEditorInput получает клавиатурные события
-  как при записи, так и при воспроизведении макропоследовательности.
-* Частично снято ограничение на приходящие плагину в ProcessEditorInput клавиши.
-  Плагину не передаются: Ctrl-W, F11, Alt-F9, F12, Ctrl-Tab,
-  Ctrl-Shift-Tab, Alt-Ins и Ctrl-Alt-Shift.
-  Следующие сочетания клавиш передаются при условии, что:
-   Alt-F5  - плагин PrintMan не установлен;
-   Alt-F11 - редактор модальный;
-   F6      - есть запрет на переключение в программу просмотра
-             (при вызове функции Editor не указан флаг EF_ENABLE_F6).
+! РїР»Р°РіРёРЅ РІ ProcessEditorInput РїРѕР»СѓС‡Р°РµС‚ РєР»Р°РІРёР°С‚СѓСЂРЅС‹Рµ СЃРѕР±С‹С‚РёСЏ
+  РєР°Рє РїСЂРё Р·Р°РїРёСЃРё, С‚Р°Рє Рё РїСЂРё РІРѕСЃРїСЂРѕРёР·РІРµРґРµРЅРёРё РјР°РєСЂРѕРїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё.
+* Р§Р°СЃС‚РёС‡РЅРѕ СЃРЅСЏС‚Рѕ РѕРіСЂР°РЅРёС‡РµРЅРёРµ РЅР° РїСЂРёС…РѕРґСЏС‰РёРµ РїР»Р°РіРёРЅСѓ РІ ProcessEditorInput РєР»Р°РІРёС€Рё.
+  РџР»Р°РіРёРЅСѓ РЅРµ РїРµСЂРµРґР°СЋС‚СЃСЏ: Ctrl-W, F11, Alt-F9, F12, Ctrl-Tab,
+  Ctrl-Shift-Tab, Alt-Ins Рё Ctrl-Alt-Shift.
+  РЎР»РµРґСѓСЋС‰РёРµ СЃРѕС‡РµС‚Р°РЅРёСЏ РєР»Р°РІРёС€ РїРµСЂРµРґР°СЋС‚СЃСЏ РїСЂРё СѓСЃР»РѕРІРёРё, С‡С‚Рѕ:
+   Alt-F5  - РїР»Р°РіРёРЅ PrintMan РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ;
+   Alt-F11 - СЂРµРґР°РєС‚РѕСЂ РјРѕРґР°Р»СЊРЅС‹Р№;
+   F6      - РµСЃС‚СЊ Р·Р°РїСЂРµС‚ РЅР° РїРµСЂРµРєР»СЋС‡РµРЅРёРµ РІ РїСЂРѕРіСЂР°РјРјСѓ РїСЂРѕСЃРјРѕС‚СЂР°
+             (РїСЂРё РІС‹Р·РѕРІРµ С„СѓРЅРєС†РёРё Editor РЅРµ СѓРєР°Р·Р°РЅ С„Р»Р°Рі EF_ENABLE_F6).
 + DN_DRAWDIALOGDONE
 + ACTL_GETPLUGINMAXREADDATA, ACTL_GETWCHARMODE
 + ACTL_GETDIALOGSETTINGS
@@ -245,17 +245,17 @@
 ! FIS_AUTOCOMPLETEININPUTLINES       -&gt; FDIS_AUTOCOMPLETEININPUTLINES
 + FRS_SCANSYMLINK
 + FSS_SCANSYMLINK
-! Теперь GetReparsePointInfo для сетевых каталогов возвращает ошибку,
-  т.к. корректную информацию о содержимом символической связи в этом
-  случае получить невозможно.
-- FAR возвращал мусор в PanelInfo.SelectedItems[0] для случая, когда
-  на панели нет выделенных файлов и курсор стоит на элементе ".."
+! РўРµРїРµСЂСЊ GetReparsePointInfo РґР»СЏ СЃРµС‚РµРІС‹С… РєР°С‚Р°Р»РѕРіРѕРІ РІРѕР·РІСЂР°С‰Р°РµС‚ РѕС€РёР±РєСѓ,
+  С‚.Рє. РєРѕСЂСЂРµРєС‚РЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЃРѕРґРµСЂР¶РёРјРѕРј СЃРёРјРІРѕР»РёС‡РµСЃРєРѕР№ СЃРІСЏР·Рё РІ СЌС‚РѕРј
+  СЃР»СѓС‡Р°Рµ РїРѕР»СѓС‡РёС‚СЊ РЅРµРІРѕР·РјРѕР¶РЅРѕ.
+- FAR РІРѕР·РІСЂР°С‰Р°Р» РјСѓСЃРѕСЂ РІ PanelInfo.SelectedItems[0] РґР»СЏ СЃР»СѓС‡Р°СЏ, РєРѕРіРґР°
+  РЅР° РїР°РЅРµР»Рё РЅРµС‚ РІС‹РґРµР»РµРЅРЅС‹С… С„Р°Р№Р»РѕРІ Рё РєСѓСЂСЃРѕСЂ СЃС‚РѕРёС‚ РЅР° СЌР»РµРјРµРЅС‚Рµ ".."
 + MCMD_POSTMACROSTRING
 + ActlKeyMacro.Param
 + KSFLAGS_NOSENDKEYSTOPLUGINS
 + ESPT_SETWORDDIV, ESPT_GETWORDDIV
 + FMENU_CHANGECONSOLETITLE
-! DM_LISTSETMOUSEREACTION (изменено поведение)
+! DM_LISTSETMOUSEREACTION (РёР·РјРµРЅРµРЅРѕ РїРѕРІРµРґРµРЅРёРµ)
 + LMRT_*
 + FCTL_SETNUMERICSORT, FCTL_SETANOTHERNUMERICSORT, PFLAGS_NUMERICSORT
 </pre>
@@ -339,70 +339,70 @@ MultiArc:
 <h3>FAR 1.70 beta 3 20.04.2001</h3>
 <div class=dfndescr>
 <pre>
-! В plugin.hpp в некоторых экспортируемых и сервисных функциях для
-  неизменяемых параметров применен модификатор "const".
+! Р’ plugin.hpp РІ РЅРµРєРѕС‚РѕСЂС‹С… СЌРєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹С… Рё СЃРµСЂРІРёСЃРЅС‹С… С„СѓРЅРєС†РёСЏС… РґР»СЏ
+  РЅРµРёР·РјРµРЅСЏРµРјС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ РїСЂРёРјРµРЅРµРЅ РјРѕРґРёС„РёРєР°С‚РѕСЂ "const".
 
-+ DIF_VAREDIT - "преодоление барьера в 512 байт" - работает с элементами
-  DI_EDIT и DI_COMBOBOX
++ DIF_VAREDIT - "РїСЂРµРѕРґРѕР»РµРЅРёРµ Р±Р°СЂСЊРµСЂР° РІ 512 Р±Р°Р№С‚" - СЂР°Р±РѕС‚Р°РµС‚ СЃ СЌР»РµРјРµРЅС‚Р°РјРё
+  DI_EDIT Рё DI_COMBOBOX
 
-! Изменена структура FarListItem (возможность работы с "длинными данными")
+! РР·РјРµРЅРµРЅР° СЃС‚СЂСѓРєС‚СѓСЂР° FarListItem (РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ СЂР°Р±РѕС‚С‹ СЃ "РґР»РёРЅРЅС‹РјРё РґР°РЅРЅС‹РјРё")
 
-+ LIF_PTRDATA - для работы с "длинными данными".
++ LIF_PTRDATA - РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ "РґР»РёРЅРЅС‹РјРё РґР°РЅРЅС‹РјРё".
 
-! Изменены флаги LISTITEMFLAGS (LIF_*) - значения для LIF_SELECTED,
-  LIF_CHECKED и LIF_SEPARATOR перенесены в младший байт старшего слова,
-  LIF_DISABLE смещен "вниз".
+! РР·РјРµРЅРµРЅС‹ С„Р»Р°РіРё LISTITEMFLAGS (LIF_*) - Р·РЅР°С‡РµРЅРёСЏ РґР»СЏ LIF_SELECTED,
+  LIF_CHECKED Рё LIF_SEPARATOR РїРµСЂРµРЅРµСЃРµРЅС‹ РІ РјР»Р°РґС€РёР№ Р±Р°Р№С‚ СЃС‚Р°СЂС€РµРіРѕ СЃР»РѕРІР°,
+  LIF_DISABLE СЃРјРµС‰РµРЅ "РІРЅРёР·".
 
-! Изменены имена полей структуры FarDialogItemData.
+! РР·РјРµРЅРµРЅС‹ РёРјРµРЅР° РїРѕР»РµР№ СЃС‚СЂСѓРєС‚СѓСЂС‹ FarDialogItemData.
 
-+ В сообщении DN_MOUSECLICK теперь можно отловить событие DOUBLE_CLICK.
++ Р’ СЃРѕРѕР±С‰РµРЅРёРё DN_MOUSECLICK С‚РµРїРµСЂСЊ РјРѕР¶РЅРѕ РѕС‚Р»РѕРІРёС‚СЊ СЃРѕР±С‹С‚РёРµ DOUBLE_CLICK.
   (MouseEvent.dwEventFlags==DOUBLE_CLICK)
 
-! Основательная переделка внутренних кодов клавиш (farkeys.hpp).
+! РћСЃРЅРѕРІР°С‚РµР»СЊРЅР°СЏ РїРµСЂРµРґРµР»РєР° РІРЅСѓС‚СЂРµРЅРЅРёС… РєРѕРґРѕРІ РєР»Р°РІРёС€ (farkeys.hpp).
 
 + ACTL_EJECTMEDIA
 
 + DM_GETTEXTPTR, DM_SETTEXTPTR, DM_SHOWITEM, DM_ADDHISTORY
 
-! Ctrl-Break управляемый. Раньше диалог закрывался безусловно,
-  независимо от того, что вернул обработчик диалога на DM_CLOSE.
+! Ctrl-Break СѓРїСЂР°РІР»СЏРµРјС‹Р№. Р Р°РЅСЊС€Рµ РґРёР°Р»РѕРі Р·Р°РєСЂС‹РІР°Р»СЃСЏ Р±РµР·СѓСЃР»РѕРІРЅРѕ,
+  РЅРµР·Р°РІРёСЃРёРјРѕ РѕС‚ С‚РѕРіРѕ, С‡С‚Рѕ РІРµСЂРЅСѓР» РѕР±СЂР°Р±РѕС‚С‡РёРє РґРёР°Р»РѕРіР° РЅР° DM_CLOSE.
 
 + DIF_HIDDEN, DIF_MANUALADDHISTORY
 
-+ DIF_SHOWAMPERSAND доступен для элементов DI_SINGLEBOX и DI_DOUBLEBOX
++ DIF_SHOWAMPERSAND РґРѕСЃС‚СѓРїРµРЅ РґР»СЏ СЌР»РµРјРµРЅС‚РѕРІ DI_SINGLEBOX Рё DI_DOUBLEBOX
 
 + ACTL_KEYMACRO:
-  struct ActlKeyMacro - интерфейсная часть для ACTL_KEYMACRO
-  MCMD_LOADALL     - все макросы из реестра в память FAR`а
-  MCMD_SAVEALL     - все макросы из памяти FAR`а в реестр
+  struct ActlKeyMacro - РёРЅС‚РµСЂС„РµР№СЃРЅР°СЏ С‡Р°СЃС‚СЊ РґР»СЏ ACTL_KEYMACRO
+  MCMD_LOADALL     - РІСЃРµ РјР°РєСЂРѕСЃС‹ РёР· СЂРµРµСЃС‚СЂР° РІ РїР°РјСЏС‚СЊ FAR`Р°
+  MCMD_SAVEALL     - РІСЃРµ РјР°РєСЂРѕСЃС‹ РёР· РїР°РјСЏС‚Рё FAR`Р° РІ СЂРµРµСЃС‚СЂ
 
-! Расширен синтаксис функции Message.
+! Р Р°СЃС€РёСЂРµРЅ СЃРёРЅС‚Р°РєСЃРёСЃ С„СѓРЅРєС†РёРё Message.
 
 + FSF.qsortex
 
 + EF_CREATENEW
 
-! FSF.FarRecursiveSearch - добавлен параметр void *param
+! FSF.FarRecursiveSearch - РґРѕР±Р°РІР»РµРЅ РїР°СЂР°РјРµС‚СЂ void *param
 
-+ FAR "знает" 4 предопределенных темы в HLF-файлах:
-  Contents - стандартная главная тема;
-  Config   - тема, вызываемая по Shift-F1 из меню настроек плагинов;
-  Editor   - тема, вызываемая по Shift-F1 из меню плагинов в редакторе;
-  Viewer   - тема, вызываемая по Shift-F1 из меню плагинов в программе просмотра.
++ FAR "Р·РЅР°РµС‚" 4 РїСЂРµРґРѕРїСЂРµРґРµР»РµРЅРЅС‹С… С‚РµРјС‹ РІ HLF-С„Р°Р№Р»Р°С…:
+  Contents - СЃС‚Р°РЅРґР°СЂС‚РЅР°СЏ РіР»Р°РІРЅР°СЏ С‚РµРјР°;
+  Config   - С‚РµРјР°, РІС‹Р·С‹РІР°РµРјР°СЏ РїРѕ Shift-F1 РёР· РјРµРЅСЋ РЅР°СЃС‚СЂРѕРµРє РїР»Р°РіРёРЅРѕРІ;
+  Editor   - С‚РµРјР°, РІС‹Р·С‹РІР°РµРјР°СЏ РїРѕ Shift-F1 РёР· РјРµРЅСЋ РїР»Р°РіРёРЅРѕРІ РІ СЂРµРґР°РєС‚РѕСЂРµ;
+  Viewer   - С‚РµРјР°, РІС‹Р·С‹РІР°РµРјР°СЏ РїРѕ Shift-F1 РёР· РјРµРЅСЋ РїР»Р°РіРёРЅРѕРІ РІ РїСЂРѕРіСЂР°РјРјРµ РїСЂРѕСЃРјРѕС‚СЂР°.
 
 + FHELP_USECONTENTS
 
-* ACTL_GETFARVERSION возвращает номер версии, а не TRUE/FALSE.
+* ACTL_GETFARVERSION РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРѕРјРµСЂ РІРµСЂСЃРёРё, Р° РЅРµ TRUE/FALSE.
 
-* ACTL_WAITKEY ждет любую клавишу, если в качестве параметра Param передали
-  NULL или -1.
+* ACTL_WAITKEY Р¶РґРµС‚ Р»СЋР±СѓСЋ РєР»Р°РІРёС€Сѓ, РµСЃР»Рё РІ РєР°С‡РµСЃС‚РІРµ РїР°СЂР°РјРµС‚СЂР° Param РїРµСЂРµРґР°Р»Рё
+  NULL РёР»Рё -1.
 
-+ ECTL_SETPARAM - установка параметров:
-  - "Размер табуляции" (ESPT_TABSIZE)
-  - "Пробелы вместо табуляции" (ESPT_EXPANDTABS)
-  - "Автоотступ" (ESPT_AUTOINDENT)
-  - "Курсор за пределами строки" (ESPT_CURSORBEYONDEOL)
-  - Формат показа кода текущего символа (ESPT_CHARCODEBASE)
++ ECTL_SETPARAM - СѓСЃС‚Р°РЅРѕРІРєР° РїР°СЂР°РјРµС‚СЂРѕРІ:
+  - "Р Р°Р·РјРµСЂ С‚Р°Р±СѓР»СЏС†РёРё" (ESPT_TABSIZE)
+  - "РџСЂРѕР±РµР»С‹ РІРјРµСЃС‚Рѕ С‚Р°Р±СѓР»СЏС†РёРё" (ESPT_EXPANDTABS)
+  - "РђРІС‚РѕРѕС‚СЃС‚СѓРї" (ESPT_AUTOINDENT)
+  - "РљСѓСЂСЃРѕСЂ Р·Р° РїСЂРµРґРµР»Р°РјРё СЃС‚СЂРѕРєРё" (ESPT_CURSORBEYONDEOL)
+  - Р¤РѕСЂРјР°С‚ РїРѕРєР°Р·Р° РєРѕРґР° С‚РµРєСѓС‰РµРіРѕ СЃРёРјРІРѕР»Р° (ESPT_CHARCODEBASE)
 
 </pre>
 </div>
@@ -410,24 +410,24 @@ MultiArc:
 <h3>FAR 1.70 beta 2 16.12.2000</h3>
 <div class=dfndescr>
 <pre>
-! Изменения в Param2 для сообщений DM_SETTEXT & DM_GETTEXT.
-  Теперь здесь передается указатель на структуру FarDialogItemData.
+! РР·РјРµРЅРµРЅРёСЏ РІ Param2 РґР»СЏ СЃРѕРѕР±С‰РµРЅРёР№ DM_SETTEXT & DM_GETTEXT.
+  РўРµРїРµСЂСЊ Р·РґРµСЃСЊ РїРµСЂРµРґР°РµС‚СЃСЏ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ FarDialogItemData.
 
-+ 6 цветов для DISABLED элементов (в диалогах и предупреждениях)
-  см. Headers.c\farcolor.hpp (или Headers.pas\farcolor.pas)
++ 6 С†РІРµС‚РѕРІ РґР»СЏ DISABLED СЌР»РµРјРµРЅС‚РѕРІ (РІ РґРёР°Р»РѕРіР°С… Рё РїСЂРµРґСѓРїСЂРµР¶РґРµРЅРёСЏС…)
+  СЃРј. Headers.c\farcolor.hpp (РёР»Рё Headers.pas\farcolor.pas)
 
 + DIF_3STATE
 
-! Для DI_PSWEDIT и DI_FIXEDIT исключена обработка флага DIF_EDITEXPAND.
+! Р”Р»СЏ DI_PSWEDIT Рё DI_FIXEDIT РёСЃРєР»СЋС‡РµРЅР° РѕР±СЂР°Р±РѕС‚РєР° С„Р»Р°РіР° DIF_EDITEXPAND.
 
 + ACTL_GETCOLOR, ACTL_GETARRAYCOLOR
 
-! FSF.AddEndSlash работает с обоими видами слешей, также происходит
-  изменение уже существующего конечного слеша на такой, который встречается
-  чаще.
+! FSF.AddEndSlash СЂР°Р±РѕС‚Р°РµС‚ СЃ РѕР±РѕРёРјРё РІРёРґР°РјРё СЃР»РµС€РµР№, С‚Р°РєР¶Рµ РїСЂРѕРёСЃС…РѕРґРёС‚
+  РёР·РјРµРЅРµРЅРёРµ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ РєРѕРЅРµС‡РЅРѕРіРѕ СЃР»РµС€Р° РЅР° С‚Р°РєРѕР№, РєРѕС‚РѕСЂС‹Р№ РІСЃС‚СЂРµС‡Р°РµС‚СЃСЏ
+  С‡Р°С‰Рµ.
 
-! Изменен формат версии - константа plugin.hpp::FARMANAGERVERSION имеет
-  следующий формат:
+! РР·РјРµРЅРµРЅ С„РѕСЂРјР°С‚ РІРµСЂСЃРёРё - РєРѕРЅСЃС‚Р°РЅС‚Р° plugin.hpp::FARMANAGERVERSION РёРјРµРµС‚
+  СЃР»РµРґСѓСЋС‰РёР№ С„РѕСЂРјР°С‚:
      HIWORD:         = NNN - # build
      LOWORD:  HIBYTE =   1 - version Hi
               LOBYTE =  70 - version Lo
@@ -439,12 +439,12 @@ MultiArc:
 <pre>
 + Dialog API 1.0
 
-! Новые/измененные заголовочные файлы:
-       farcolor.hpp  - Индексы цветовых атрибут.
-       farkeys.hpp   - коды внутренних клавиш FAR Manager
-+ FarStandardFunctions: "стандартные функции" - для уменьшения размера плагина
+! РќРѕРІС‹Рµ/РёР·РјРµРЅРµРЅРЅС‹Рµ Р·Р°РіРѕР»РѕРІРѕС‡РЅС‹Рµ С„Р°Р№Р»С‹:
+       farcolor.hpp  - РРЅРґРµРєСЃС‹ С†РІРµС‚РѕРІС‹С… Р°С‚СЂРёР±СѓС‚.
+       farkeys.hpp   - РєРѕРґС‹ РІРЅСѓС‚СЂРµРЅРЅРёС… РєР»Р°РІРёС€ FAR Manager
++ FarStandardFunctions: "СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё" - РґР»СЏ СѓРјРµРЅСЊС€РµРЅРёСЏ СЂР°Р·РјРµСЂР° РїР»Р°РіРёРЅР°
 + GetMinFarVersion().
-+ URL-активаторы и цветовые атрибуты в HLF-файлах.
++ URL-Р°РєС‚РёРІР°С‚РѕСЂС‹ Рё С†РІРµС‚РѕРІС‹Рµ Р°С‚СЂРёР±СѓС‚С‹ РІ HLF-С„Р°Р№Р»Р°С….
 
 struct PluginStartupInfo:
   + AdvControl
@@ -469,11 +469,11 @@ struct KeyBarTitles:
 + DIF_EDITEXPAND, DIF_DROPDOWNLIST, DIF_USELASTHISTORY, DIF_BTNNOCLOSE,
   DIF_MASKEDIT, DIF_DISABLE
 
-+ Поля редактирования с фиксированной длиной могут иметь
-  маску ввода.
++ РџРѕР»СЏ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ СЃ С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕР№ РґР»РёРЅРѕР№ РјРѕРіСѓС‚ РёРјРµС‚СЊ
+  РјР°СЃРєСѓ РІРІРѕРґР°.
 
-+ Структуры: FarListItem, FarList
-+ Интерфейс для Pascal/Delphi
++ РЎС‚СЂСѓРєС‚СѓСЂС‹: FarListItem, FarList
++ РРЅС‚РµСЂС„РµР№СЃ РґР»СЏ Pascal/Delphi
 </pre>
 </div>
 
@@ -512,7 +512,7 @@ struct KeyBarTitles:
 </div>
 
 <h3>FAR 1.62 b 24.04.1999</h3>
-<div class=dfndescr>Плагин "Colorer" "ввел" раскраску в редакторе:
+<div class=dfndescr>РџР»Р°РіРёРЅ "Colorer" "РІРІРµР»" СЂР°СЃРєСЂР°СЃРєСѓ РІ СЂРµРґР°РєС‚РѕСЂРµ:
 <pre>
 + EE_REDRAW
 + ECTL_ADDCOLOR
@@ -534,7 +534,7 @@ struct KeyBarTitles:
 </div>
 
 <h3>FAR 1.60 13.10.1998</h3>
-<div class=dfndescr>Бурный прогресс Editor API:
+<div class=dfndescr>Р‘СѓСЂРЅС‹Р№ РїСЂРѕРіСЂРµСЃСЃ Editor API:
 <pre>
 + FCTL_SETPANELDIR
 + ECTL_*
@@ -634,11 +634,11 @@ struct KeyBarTitles:
   +ShortcutData
 
 MultiArc:
-  Изменено поле структуры ArcInfo:
+  РР·РјРµРЅРµРЅРѕ РїРѕР»Рµ СЃС‚СЂСѓРєС‚СѓСЂС‹ ArcInfo:
     - int AuthVer
     + DWORD Flags
 
-  Добавлены флаги...
+  Р”РѕР±Р°РІР»РµРЅС‹ С„Р»Р°РіРё...
     enum ARCINFO_FLAGS
     {
       AF_AVPRESENT=1,
@@ -650,20 +650,20 @@ MultiArc:
 
 
 <h3>FAR 1.40 beta 27.06.1997</h3>
-<div class=dfndescr>Первое упоминание о FAR Plugins API:<br>
+<div class=dfndescr>РџРµСЂРІРѕРµ СѓРїРѕРјРёРЅР°РЅРёРµ Рѕ FAR Plugins API:<br>
 "<em>External DLL modules (plugins) can be used to implement new FAR commands and emulate file systems...</em>"<br>
 
 <blockquote>
 <pre>
-ER&gt; "Вообще о плагинах я задумался после того, как Лаврентьев попросил меня
-ER&gt; сделать версию FAR с поддержкой Арвида. Для нее еще Спасибожко хорошее
-ER&gt; название придумал - FARvid ;-) Разрабатывать такую версию мне было неохота,
-ER&gt; поэтому я решил предоставить желающим API, достаточное для добавления
-ER&gt; такой поддержки без моего участия..."
+ER&gt; "Р’РѕРѕР±С‰Рµ Рѕ РїР»Р°РіРёРЅР°С… СЏ Р·Р°РґСѓРјР°Р»СЃСЏ РїРѕСЃР»Рµ С‚РѕРіРѕ, РєР°Рє Р›Р°РІСЂРµРЅС‚СЊРµРІ РїРѕРїСЂРѕСЃРёР» РјРµРЅСЏ
+ER&gt; СЃРґРµР»Р°С‚СЊ РІРµСЂСЃРёСЋ FAR СЃ РїРѕРґРґРµСЂР¶РєРѕР№ РђСЂРІРёРґР°. Р”Р»СЏ РЅРµРµ РµС‰Рµ РЎРїР°СЃРёР±РѕР¶РєРѕ С…РѕСЂРѕС€РµРµ
+ER&gt; РЅР°Р·РІР°РЅРёРµ РїСЂРёРґСѓРјР°Р» - FARvid ;-) Р Р°Р·СЂР°Р±Р°С‚С‹РІР°С‚СЊ С‚Р°РєСѓСЋ РІРµСЂСЃРёСЋ РјРЅРµ Р±С‹Р»Рѕ РЅРµРѕС…РѕС‚Р°,
+ER&gt; РїРѕСЌС‚РѕРјСѓ СЏ СЂРµС€РёР» РїСЂРµРґРѕСЃС‚Р°РІРёС‚СЊ Р¶РµР»Р°СЋС‰РёРј API, РґРѕСЃС‚Р°С‚РѕС‡РЅРѕРµ РґР»СЏ РґРѕР±Р°РІР»РµРЅРёСЏ
+ER&gt; С‚Р°РєРѕР№ РїРѕРґРґРµСЂР¶РєРё Р±РµР· РјРѕРµРіРѕ СѓС‡Р°СЃС‚РёСЏ..."
 </pre>
 </blockquote>
 
-Для данной версии доступны:
+Р”Р»СЏ РґР°РЅРЅРѕР№ РІРµСЂСЃРёРё РґРѕСЃС‚СѓРїРЅС‹:
 <ul><li><dfn>Exported functions</dfn>:<br>
 ClosePlugin, Configure, DeleteFiles, ExitFAR, FreeFindData, FreeVirtualFindData,
 GetFiles, GetFindData, GetOpenPluginInfo, GetPluginInfo, GetVirtualFindData,

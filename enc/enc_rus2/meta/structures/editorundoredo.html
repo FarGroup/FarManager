@@ -1,22 +1,22 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>EditorUndoRedo</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
 <body>
 
 <h1>EditorUndoRedo</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a  href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a><br>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>EditorUndoRedo</dfn> используется в функции
+РЎС‚СЂСѓРєС‚СѓСЂР° <dfn>EditorUndoRedo</dfn> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ С„СѓРЅРєС†РёРё
 <a href="../service_functions/editorcontrol.html">EditorControl</a>
-для управления поведением операции Отмена-Возврат действия, т.н. Undo-Redo в редакторе FAR'а.
+РґР»СЏ СѓРїСЂР°РІР»РµРЅРёСЏ РїРѕРІРµРґРµРЅРёРµРј РѕРїРµСЂР°С†РёРё РћС‚РјРµРЅР°-Р’РѕР·РІСЂР°С‚ РґРµР№СЃС‚РІРёСЏ, С‚.РЅ. Undo-Redo РІ СЂРµРґР°РєС‚РѕСЂРµ FAR'Р°.
 </div>
 
 <pre class=syntax>
@@ -26,39 +26,39 @@ struct EditorUndoRedo
   DWORD_PTR Reserved[3];
 };
 </pre>
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
 
     <div class=dfn>Command</div>
-    <div class=dfndescr>Одно из следующих значений (перечисление <a name="EDITOR_UNDOREDO_COMMANDS">EDITOR_UNDOREDO_COMMANDS</a>):
+    <div class=dfndescr>РћРґРЅРѕ РёР· СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="EDITOR_UNDOREDO_COMMANDS">EDITOR_UNDOREDO_COMMANDS</a>):
         <table class="cont">
-        <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+        <tr class="cont"><th class="cont" width="40%">РљРѕРјР°РЅРґР°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="EUR_BEGIN">EUR_BEGIN</a></td>
-        <td class="cont" width="60%">начало блочной операции</td></tr>
+        <td class="cont" width="60%">РЅР°С‡Р°Р»Рѕ Р±Р»РѕС‡РЅРѕР№ РѕРїРµСЂР°С†РёРё</td></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="EUR_END">EUR_END</a></td>
-        <td class="cont" width="60%">конец блочной операции</td></tr>
+        <td class="cont" width="60%">РєРѕРЅРµС† Р±Р»РѕС‡РЅРѕР№ РѕРїРµСЂР°С†РёРё</td></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="EUR_UNDO">EUR_UNDO</a></td>
-        <td class="cont" width="60%">сделать отмену действия (Undo) от EUR_END до EUR_BEGIN</td></tr>
+        <td class="cont" width="60%">СЃРґРµР»Р°С‚СЊ РѕС‚РјРµРЅСѓ РґРµР№СЃС‚РІРёСЏ (Undo) РѕС‚ EUR_END РґРѕ EUR_BEGIN</td></tr>
         <tr class="cont"><td class="cont" width="40%"><a name="EUR_REDO">EUR_REDO</a></td>
-        <td class="cont" width="60%">вернуть действие назад (Redo) от EUR_BEGIN до EUR_END</td></tr>
+        <td class="cont" width="60%">РІРµСЂРЅСѓС‚СЊ РґРµР№СЃС‚РІРёРµ РЅР°Р·Р°Рґ (Redo) РѕС‚ EUR_BEGIN РґРѕ EUR_END</td></tr>
         </table>
      </div>
     <div class=dfn>Reserved</div>
-    <div class=dfndescr>Не используется, зарезервировано для будущих нужд.</div>
+    <div class=dfndescr>РќРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ, Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ РґР»СЏ Р±СѓРґСѓС‰РёС… РЅСѓР¶Рґ.</div>
     </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 <ol>
 </ol>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>
 </div>
 
 </body>

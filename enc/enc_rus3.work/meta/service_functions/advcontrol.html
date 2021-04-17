@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>AdvControl</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,13 +10,13 @@
 
 <h1>AdvControl</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a> |
 <a href="../miscapi/index.html">Miscellaneous API</a>
 </div>
 
 <div class=shortdescr>
-Функция <code>AdvControl</code> позволяет запрашивать различную информацию и выполнять управляющие действия. Она работает везде: в панелях/редакторе/вьюере.
+Р¤СѓРЅРєС†РёСЏ <code>AdvControl</code> РїРѕР·РІРѕР»СЏРµС‚ Р·Р°РїСЂР°С€РёРІР°С‚СЊ СЂР°Р·Р»РёС‡РЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рё РІС‹РїРѕР»РЅСЏС‚СЊ СѓРїСЂР°РІР»СЏСЋС‰РёРµ РґРµР№СЃС‚РІРёСЏ. РћРЅР° СЂР°Р±РѕС‚Р°РµС‚ РІРµР·РґРµ: РІ РїР°РЅРµР»СЏС…/СЂРµРґР°РєС‚РѕСЂРµ/РІСЊСЋРµСЂРµ.
 </div>
 
 <pre class=syntax>
@@ -28,116 +28,116 @@ intptr_t WINAPI AdvControl(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>PluginId</div>
-    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° GUID РїР»Р°РіРёРЅР° (РґР»СЏ РІР°С€РµРіРѕ РїР»Р°РіРёРЅР°, GUID РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ С‚Р°РєРёРј Р¶Рµ, С‡С‚Рѕ Рё РІ РїРѕР»Рµ <code>GlobalInfo.Guid</code> С„СѓРЅРєС†РёРё <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
   <div class=dfn>Command</div>
-    <div class=dfndescr>Тип команды. Может быть следующим (перечисление <a name="ADVANCED_CONTROL_COMMANDS">ADVANCED_CONTROL_COMMANDS</a>):
+    <div class=dfndescr>РўРёРї РєРѕРјР°РЅРґС‹. РњРѕР¶РµС‚ Р±С‹С‚СЊ СЃР»РµРґСѓСЋС‰РёРј (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="ADVANCED_CONTROL_COMMANDS">ADVANCED_CONTROL_COMMANDS</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><th class="cont" width="40%">РљРѕРјР°РЅРґР°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_COMMIT">ACTL_COMMIT</a></td>
-    <td class="cont" width="60%">"Фиксирует" действие последней операции с окнами (например, после <code>ACTL_SETCURRENTWINDOW</code>).<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.<br>
-    Функция возвращает <code>TRUE</code> в случае успеха и <code>FALSE</code> при неудаче.</td></tr>
+    <td class="cont" width="60%">"Р¤РёРєСЃРёСЂСѓРµС‚" РґРµР№СЃС‚РІРёРµ РїРѕСЃР»РµРґРЅРµР№ РѕРїРµСЂР°С†РёРё СЃ РѕРєРЅР°РјРё (РЅР°РїСЂРёРјРµСЂ, РїРѕСЃР»Рµ <code>ACTL_SETCURRENTWINDOW</code>).<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р° Рё <code>FALSE</code> РїСЂРё РЅРµСѓРґР°С‡Рµ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETARRAYCOLOR">ACTL_GETARRAYCOLOR</a></td>
-    <td class="cont" width="60%">Получить все цвета Far Manager.<br>
-    <code>Param1</code> размер буфера, в элементах <a href="../structures/farcolor.html">FarColor</a>.<br>
-    <code>Param2</code> указатель на буфер плагина, в который будут скопированы текущие цветовые атрибуты.<br>
-    <code>Param2 = NULL</code> позволяет узнать количество элементов в массиве цветов для копирования.<br>
-    Функция всегда возвращает количество элементов в массиве цветов.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ С†РІРµС‚Р° Far Manager.<br>
+    <code>Param1</code> СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°, РІ СЌР»РµРјРµРЅС‚Р°С… <a href="../structures/farcolor.html">FarColor</a>.<br>
+    <code>Param2</code> СѓРєР°Р·Р°С‚РµР»СЊ РЅР° Р±СѓС„РµСЂ РїР»Р°РіРёРЅР°, РІ РєРѕС‚РѕСЂС‹Р№ Р±СѓРґСѓС‚ СЃРєРѕРїРёСЂРѕРІР°РЅС‹ С‚РµРєСѓС‰РёРµ С†РІРµС‚РѕРІС‹Рµ Р°С‚СЂРёР±СѓС‚С‹.<br>
+    <code>Param2 = NULL</code> РїРѕР·РІРѕР»СЏРµС‚ СѓР·РЅР°С‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ РјР°СЃСЃРёРІРµ С†РІРµС‚РѕРІ РґР»СЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ.<br>
+    Р¤СѓРЅРєС†РёСЏ РІСЃРµРіРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ РјР°СЃСЃРёРІРµ С†РІРµС‚РѕРІ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETCOLOR">ACTL_GETCOLOR</a></td>
-    <td class="cont" width="60%">Получить цвет Far Manager по индексу.<br>
-    <code>Param1</code> одна из констант <a href="../defs/farcolors.html">COL_*</a>, описанных в <code>farcolor.hpp</code><br>
-    <code>Param2</code> указывает на переменную типа <a href="../structures/farcolor.html">FarColor</a>, в которую будет помещен соответствующий индексу код цвета.<br>
-    Функция возвращает <code>TRUE</code>, если удалось получить указанные цветовые атрибуты.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ С†РІРµС‚ Far Manager РїРѕ РёРЅРґРµРєСЃСѓ.<br>
+    <code>Param1</code> РѕРґРЅР° РёР· РєРѕРЅСЃС‚Р°РЅС‚ <a href="../defs/farcolors.html">COL_*</a>, РѕРїРёСЃР°РЅРЅС‹С… РІ <code>farcolor.hpp</code><br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ С‚РёРїР° <a href="../structures/farcolor.html">FarColor</a>, РІ РєРѕС‚РѕСЂСѓСЋ Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ РёРЅРґРµРєСЃСѓ РєРѕРґ С†РІРµС‚Р°.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>, РµСЃР»Рё СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ СѓРєР°Р·Р°РЅРЅС‹Рµ С†РІРµС‚РѕРІС‹Рµ Р°С‚СЂРёР±СѓС‚С‹.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETCURSORPOS">ACTL_GETCURSORPOS</a></td>
-    <td class="cont" width="60%">Получить информацию о положении курсора относительно окна Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на структуру <a href="../winapi/coord.html">COORD</a>.<br>
-    Функция возвращает <code>TRUE</code>, если положение курсора удалось получить, иначе - <code>FALSE</code>.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїРѕР»РѕР¶РµРЅРёРё РєСѓСЂСЃРѕСЂР° РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РѕРєРЅР° Far Manager.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../winapi/coord.html">COORD</a>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>, РµСЃР»Рё РїРѕР»РѕР¶РµРЅРёРµ РєСѓСЂСЃРѕСЂР° СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ, РёРЅР°С‡Рµ - <code>FALSE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETFARHWND">ACTL_GETFARHWND</a></td>
-    <td class="cont" width="60%">Возвращает <code>HWND</code> текущего окна Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.</td></tr>
+    <td class="cont" width="60%">Р’РѕР·РІСЂР°С‰Р°РµС‚ <code>HWND</code> С‚РµРєСѓС‰РµРіРѕ РѕРєРЅР° Far Manager.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETFARRECT">ACTL_GETFARRECT</a></td>
-    <td class="cont" width="60%">Получить информацию о координатах окна Far Manager в консольном буфере.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на структуру <a href="../winapi/small_rect.html">SMALL_RECT</a>.<br>
-    Функция возвращает <code>TRUE</code>, если координаты окна Far Manager удалось получить, иначе - <code>FALSE</code>.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РєРѕРѕСЂРґРёРЅР°С‚Р°С… РѕРєРЅР° Far Manager РІ РєРѕРЅСЃРѕР»СЊРЅРѕРј Р±СѓС„РµСЂРµ.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../winapi/small_rect.html">SMALL_RECT</a>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>, РµСЃР»Рё РєРѕРѕСЂРґРёРЅР°С‚С‹ РѕРєРЅР° Far Manager СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ, РёРЅР°С‡Рµ - <code>FALSE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETFARMANAGERVERSION">ACTL_GETFARMANAGERVERSION</a></td>
-    <td class="cont" width="60%">Узнать версию Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указывает на переменную типа <a href="../structures/versioninfo.html">VersionInfo</a>, в которую будет помещена информация о версии Far Manager.<br>
-    Функция всегда возвращает <code>TRUE</code>.</td></tr>
+    <td class="cont" width="60%">РЈР·РЅР°С‚СЊ РІРµСЂСЃРёСЋ Far Manager.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° РїРµСЂРµРјРµРЅРЅСѓСЋ С‚РёРїР° <a href="../structures/versioninfo.html">VersionInfo</a>, РІ РєРѕС‚РѕСЂСѓСЋ Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅР° РёРЅС„РѕСЂРјР°С†РёСЏ Рѕ РІРµСЂСЃРёРё Far Manager.<br>
+    Р¤СѓРЅРєС†РёСЏ РІСЃРµРіРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETWINDOWCOUNT">ACTL_GETWINDOWCOUNT</a></td>
-    <td class="cont" width="60%">Возвращает число открытых окон в Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.<br>
-    Минимальное число окон равно <code>1</code> (при запуске Far Manager: в обычном режиме - файловые панели; с ключами <code>-e</code> или <code>-v</code> - редактор или программа просмотра, соответственно).<br></td></tr>
+    <td class="cont" width="60%">Р’РѕР·РІСЂР°С‰Р°РµС‚ С‡РёСЃР»Рѕ РѕС‚РєСЂС‹С‚С‹С… РѕРєРѕРЅ РІ Far Manager.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    РњРёРЅРёРјР°Р»СЊРЅРѕРµ С‡РёСЃР»Рѕ РѕРєРѕРЅ СЂР°РІРЅРѕ <code>1</code> (РїСЂРё Р·Р°РїСѓСЃРєРµ Far Manager: РІ РѕР±С‹С‡РЅРѕРј СЂРµР¶РёРјРµ - С„Р°Р№Р»РѕРІС‹Рµ РїР°РЅРµР»Рё; СЃ РєР»СЋС‡Р°РјРё <code>-e</code> РёР»Рё <code>-v</code> - СЂРµРґР°РєС‚РѕСЂ РёР»Рё РїСЂРѕРіСЂР°РјРјР° РїСЂРѕСЃРјРѕС‚СЂР°, СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ).<br></td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETWINDOWINFO">ACTL_GETWINDOWINFO</a></td>
-    <td class="cont" width="60%">Получить информацию о конкретном окне Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на структуру <a href="../structures/windowinfo.html">WindowInfo</a>.<br>
-    Функция возвращает <code>TRUE</code>, если окно с номером <code>WindowInfo.Pos</code> существует и
-    <code>FALSE</code> - такого окна нет (поля структуры <a href="../structures/windowinfo.html">WindowInfo</a> не заполняются).<br>
-    <code>WindowInfo.Pos</code> надо инициализировать перед вызовом функции.<br>
-    Память под <code>WindowInfo.TypeName</code> и <code>WindowInfo.Name</code> плагин должен выделить самостоятельно,
-    требуемые размеры можно получить передав <code>NULL</code> в качестве <code>WindowInfo.TypeName</code> и <code>WindowInfo.Name</code>.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РєРѕРЅРєСЂРµС‚РЅРѕРј РѕРєРЅРµ Far Manager.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/windowinfo.html">WindowInfo</a>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>, РµСЃР»Рё РѕРєРЅРѕ СЃ РЅРѕРјРµСЂРѕРј <code>WindowInfo.Pos</code> СЃСѓС‰РµСЃС‚РІСѓРµС‚ Рё
+    <code>FALSE</code> - С‚Р°РєРѕРіРѕ РѕРєРЅР° РЅРµС‚ (РїРѕР»СЏ СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="../structures/windowinfo.html">WindowInfo</a> РЅРµ Р·Р°РїРѕР»РЅСЏСЋС‚СЃСЏ).<br>
+    <code>WindowInfo.Pos</code> РЅР°РґРѕ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ РїРµСЂРµРґ РІС‹Р·РѕРІРѕРј С„СѓРЅРєС†РёРё.<br>
+    РџР°РјСЏС‚СЊ РїРѕРґ <code>WindowInfo.TypeName</code> Рё <code>WindowInfo.Name</code> РїР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ РІС‹РґРµР»РёС‚СЊ СЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅРѕ,
+    С‚СЂРµР±СѓРµРјС‹Рµ СЂР°Р·РјРµСЂС‹ РјРѕР¶РЅРѕ РїРѕР»СѓС‡РёС‚СЊ РїРµСЂРµРґР°РІ <code>NULL</code> РІ РєР°С‡РµСЃС‚РІРµ <code>WindowInfo.TypeName</code> Рё <code>WindowInfo.Name</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_GETWINDOWTYPE">ACTL_GETWINDOWTYPE</a></td>
-    <td class="cont" width="60%">Получить информацию о типе окна Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на структуру <a href="../structures/windowtype.html">WindowType</a>.<br>
-    Функция возвращает <code>TRUE</code>, если удалось определить тип окна.<br>
-    В отличие от <code>ACTL_GETWINDOWINFO</code> эту команду можно вызывать из любых тредов.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ С‚РёРїРµ РѕРєРЅР° Far Manager.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/windowtype.html">WindowType</a>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>, РµСЃР»Рё СѓРґР°Р»РѕСЃСЊ РѕРїСЂРµРґРµР»РёС‚СЊ С‚РёРї РѕРєРЅР°.<br>
+    Р’ РѕС‚Р»РёС‡РёРµ РѕС‚ <code>ACTL_GETWINDOWINFO</code> СЌС‚Сѓ РєРѕРјР°РЅРґСѓ РјРѕР¶РЅРѕ РІС‹Р·С‹РІР°С‚СЊ РёР· Р»СЋР±С‹С… С‚СЂРµРґРѕРІ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_QUIT">ACTL_QUIT</a></td>
-    <td class="cont" width="60%">Завершение работы Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.</td></tr>
+    <td class="cont" width="60%">Р—Р°РІРµСЂС€РµРЅРёРµ СЂР°Р±РѕС‚С‹ Far Manager.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_REDRAWALL">ACTL_REDRAWALL</a></td>
-    <td class="cont" width="60%">Перерисовка всех окон Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.</td></tr>
+    <td class="cont" width="60%">РџРµСЂРµСЂРёСЃРѕРІРєР° РІСЃРµС… РѕРєРѕРЅ Far Manager.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_SETARRAYCOLOR">ACTL_SETARRAYCOLOR</a></td>
-    <td class="cont" width="60%">Изменить заданный диапазон цветовой схемы Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на структуру <a href="../structures/farsetcolors.html">FarSetColors</a>.<br>
-    Функция возвращает <code>TRUE</code> при успешной замене заданного диапазона цветовой схемы и
-    <code>FALSE</code> для неверно заданных параметров в структуре <a href="../structures/farsetcolors.html">FarSetColors</a>.</td></tr>
+    <td class="cont" width="60%">РР·РјРµРЅРёС‚СЊ Р·Р°РґР°РЅРЅС‹Р№ РґРёР°РїР°Р·РѕРЅ С†РІРµС‚РѕРІРѕР№ СЃС…РµРјС‹ Far Manager.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/farsetcolors.html">FarSetColors</a>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> РїСЂРё СѓСЃРїРµС€РЅРѕР№ Р·Р°РјРµРЅРµ Р·Р°РґР°РЅРЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР° С†РІРµС‚РѕРІРѕР№ СЃС…РµРјС‹ Рё
+    <code>FALSE</code> РґР»СЏ РЅРµРІРµСЂРЅРѕ Р·Р°РґР°РЅРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ РІ СЃС‚СЂСѓРєС‚СѓСЂРµ <a href="../structures/farsetcolors.html">FarSetColors</a>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_SETCURRENTWINDOW">ACTL_SETCURRENTWINDOW</a></td>
-    <td class="cont" width="60%">Позволяет переключиться в конкретное окно Far Manager.<br>
-    <code>Param1</code> число, задающее номер активного окна (нумерация начинается с <code>0</code>).<br>
-    <code>Param2</code> не используется.<br>
-    Функция возвращает <code>TRUE</code>, если переключение состоялось и <code>FALSE</code> при неудаче (не существует требуемого окна).<br>
-    <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_SETCURRENTWINDOW" width="10" height="10"> Внимание!</p>
-    <UL class=note><LI>Переключение не произойдёт до тех пор, пока не будет вызвана команда <code>ACTL_COMMIT</code> или пока Far Manager не получит управление.</LI></UL></td></tr>
+    <td class="cont" width="60%">РџРѕР·РІРѕР»СЏРµС‚ РїРµСЂРµРєР»СЋС‡РёС‚СЊСЃСЏ РІ РєРѕРЅРєСЂРµС‚РЅРѕРµ РѕРєРЅРѕ Far Manager.<br>
+    <code>Param1</code> С‡РёСЃР»Рѕ, Р·Р°РґР°СЋС‰РµРµ РЅРѕРјРµСЂ Р°РєС‚РёРІРЅРѕРіРѕ РѕРєРЅР° (РЅСѓРјРµСЂР°С†РёСЏ РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ <code>0</code>).<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>, РµСЃР»Рё РїРµСЂРµРєР»СЋС‡РµРЅРёРµ СЃРѕСЃС‚РѕСЏР»РѕСЃСЊ Рё <code>FALSE</code> РїСЂРё РЅРµСѓРґР°С‡Рµ (РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ С‚СЂРµР±СѓРµРјРѕРіРѕ РѕРєРЅР°).<br>
+    <p class=note><img src="../../images/note.gif" alt="Р—Р°РјРµС‡Р°РЅРёРµ РґР»СЏ ACTL_SETCURRENTWINDOW" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!</p>
+    <UL class=note><LI>РџРµСЂРµРєР»СЋС‡РµРЅРёРµ РЅРµ РїСЂРѕРёР·РѕР№РґС‘С‚ РґРѕ С‚РµС… РїРѕСЂ, РїРѕРєР° РЅРµ Р±СѓРґРµС‚ РІС‹Р·РІР°РЅР° РєРѕРјР°РЅРґР° <code>ACTL_COMMIT</code> РёР»Рё РїРѕРєР° Far Manager РЅРµ РїРѕР»СѓС‡РёС‚ СѓРїСЂР°РІР»РµРЅРёРµ.</LI></UL></td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_SETCURSORPOS">ACTL_SETCURSORPOS</a></td>
-    <td class="cont" width="60%">Устанавливает положение курсора относительно окна Far Manager.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на заполненную структуру <a href="../winapi/coord.html">COORD</a>.<br>
-    Функция возвращает <code>TRUE</code>, если положение курсора удалось изменить, иначе - <code>FALSE</code>.</td></tr>
+    <td class="cont" width="60%">РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РїРѕР»РѕР¶РµРЅРёРµ РєСѓСЂСЃРѕСЂР° РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РѕРєРЅР° Far Manager.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·Р°С‚РµР»СЊ РЅР° Р·Р°РїРѕР»РЅРµРЅРЅСѓСЋ СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../winapi/coord.html">COORD</a>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>, РµСЃР»Рё РїРѕР»РѕР¶РµРЅРёРµ РєСѓСЂСЃРѕСЂР° СѓРґР°Р»РѕСЃСЊ РёР·РјРµРЅРёС‚СЊ, РёРЅР°С‡Рµ - <code>FALSE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_SETPROGRESSSTATE">ACTL_SETPROGRESSSTATE</a></td>
-    <td class="cont" width="60%">Устанавливает тип и состояние индикатора прогресса на кнопке Far Manager в панели задач.<br>
-    <code>Param1</code> может принимать одно из следующих значений (перечисление <code>TASKBARPROGRESSTATE</code>):
+    <td class="cont" width="60%">РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С‚РёРї Рё СЃРѕСЃС‚РѕСЏРЅРёРµ РёРЅРґРёРєР°С‚РѕСЂР° РїСЂРѕРіСЂРµСЃСЃР° РЅР° РєРЅРѕРїРєРµ Far Manager РІ РїР°РЅРµР»Рё Р·Р°РґР°С‡.<br>
+    <code>Param1</code> РјРѕР¶РµС‚ РїСЂРёРЅРёРјР°С‚СЊ РѕРґРЅРѕ РёР· СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <code>TASKBARPROGRESSTATE</code>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><th class="cont" width="40%">РљРѕРЅСЃС‚Р°РЅС‚Р°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="TBPS_NOPROGRESS">TBPS_NOPROGRESS</a></td>
     <td class="cont" width="60%"></td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="TBPS_INDETERMINATE">TBPS_INDETERMINATE</a></td>
@@ -149,55 +149,55 @@ intptr_t WINAPI AdvControl(
     <tr class="cont"><td class="cont" width="40%"><a name="TBPS_PAUSED">TBPS_PAUSED</a></td>
     <td class="cont" width="60%"></td></tr>
     </table>
-    <code>Param2</code> не используется.<br>
-    Функция возвращает <code>TRUE</code>.
-    <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_SETPROGRESSSTATE" width="10" height="10"> Внимание!</p>
-    <UL class=note><LI>Работает в Windows 7 и выше. Для подробностей см. <a href="https://msdn.microsoft.com/" target="_blank">https://msdn.microsoft.com</a> - метод <dfn>ITaskbarList3::SetProgressStat</dfn></LI></UL></td></tr>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>.
+    <p class=note><img src="../../images/note.gif" alt="Р—Р°РјРµС‡Р°РЅРёРµ РґР»СЏ ACTL_SETPROGRESSSTATE" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!</p>
+    <UL class=note><LI>Р Р°Р±РѕС‚Р°РµС‚ РІ Windows 7 Рё РІС‹С€Рµ. Р”Р»СЏ РїРѕРґСЂРѕР±РЅРѕСЃС‚РµР№ СЃРј. <a href="https://msdn.microsoft.com/" target="_blank">https://msdn.microsoft.com</a> - РјРµС‚РѕРґ <dfn>ITaskbarList3::SetProgressStat</dfn></LI></UL></td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_SETPROGRESSVALUE">ACTL_SETPROGRESSVALUE</a></td>
-    <td class="cont" width="60%">Отображает и корректирует прогресс операции на кнопке Far Manager в панели задач.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на структуру <a href="../structures/progressvalue.html">ProgressValue</a>.<br>
-    Функция возвращает <code>TRUE</code>.
-    <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_SETPROGRESSVALUE" width="10" height="10"> Внимание!</p>
-    <UL class=note><LI>Работает в Windows 7 и выше. Для подробностей см. <a href="https://msdn.microsoft.com/" target="_blank">https://msdn.microsoft.com</a> - метод <dfn>ITaskbarList3::SetProgressValue</dfn></LI></UL></td></tr>
+    <td class="cont" width="60%">РћС‚РѕР±СЂР°Р¶Р°РµС‚ Рё РєРѕСЂСЂРµРєС‚РёСЂСѓРµС‚ РїСЂРѕРіСЂРµСЃСЃ РѕРїРµСЂР°С†РёРё РЅР° РєРЅРѕРїРєРµ Far Manager РІ РїР°РЅРµР»Рё Р·Р°РґР°С‡.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/progressvalue.html">ProgressValue</a>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>.
+    <p class=note><img src="../../images/note.gif" alt="Р—Р°РјРµС‡Р°РЅРёРµ РґР»СЏ ACTL_SETPROGRESSVALUE" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!</p>
+    <UL class=note><LI>Р Р°Р±РѕС‚Р°РµС‚ РІ Windows 7 Рё РІС‹С€Рµ. Р”Р»СЏ РїРѕРґСЂРѕР±РЅРѕСЃС‚РµР№ СЃРј. <a href="https://msdn.microsoft.com/" target="_blank">https://msdn.microsoft.com</a> - РјРµС‚РѕРґ <dfn>ITaskbarList3::SetProgressValue</dfn></LI></UL></td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_PROGRESSNOTIFY">ACTL_PROGRESSNOTIFY</a></td>
-    <td class="cont" width="60%">Far Manager выполняет стандартное оповещение о завершении операции
-    (при неактивном окне приложения кратковременное мерцание кнопкой Far Manager в панели задач и последующая подсветка её до получения окном фокуса).<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> не используется.<br>
-    Функция возвращает <code>TRUE</code>.</td></tr>
+    <td class="cont" width="60%">Far Manager РІС‹РїРѕР»РЅСЏРµС‚ СЃС‚Р°РЅРґР°СЂС‚РЅРѕРµ РѕРїРѕРІРµС‰РµРЅРёРµ Рѕ Р·Р°РІРµСЂС€РµРЅРёРё РѕРїРµСЂР°С†РёРё
+    (РїСЂРё РЅРµР°РєС‚РёРІРЅРѕРј РѕРєРЅРµ РїСЂРёР»РѕР¶РµРЅРёСЏ РєСЂР°С‚РєРѕРІСЂРµРјРµРЅРЅРѕРµ РјРµСЂС†Р°РЅРёРµ РєРЅРѕРїРєРѕР№ Far Manager РІ РїР°РЅРµР»Рё Р·Р°РґР°С‡ Рё РїРѕСЃР»РµРґСѓСЋС‰Р°СЏ РїРѕРґСЃРІРµС‚РєР° РµС‘ РґРѕ РїРѕР»СѓС‡РµРЅРёСЏ РѕРєРЅРѕРј С„РѕРєСѓСЃР°).<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_SYNCHRO">ACTL_SYNCHRO</a></td>
-    <td class="cont" width="60%">Позволяет потоку, запущенному плагином, выполнить код в контексте главного потока Far Manager посредством вызова функции <a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a>.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2</code> указатель на данные, передающиеся в функцию <code>ProcessSynchroEventW</code>, может быть <code>NULL</code>.<br>
-    Функция всегда возвращает <code>0</code>.<br>
-    <p class=note><img src="../../images/note.gif" alt="Замечание для ACTL_SYNCHRO" width="10" height="10"> Внимание!</p>
-    <UL class=note><LI>Проверка на вызов функции <code>ProcessSynchroEventW</code> проводится в  <code>GetInputRecord</code>, т.е. гарантированного времени отклика нет, но должно быть достаточно быстро.</LI></UL></td></tr>
+    <td class="cont" width="60%">РџРѕР·РІРѕР»СЏРµС‚ РїРѕС‚РѕРєСѓ, Р·Р°РїСѓС‰РµРЅРЅРѕРјСѓ РїР»Р°РіРёРЅРѕРј, РІС‹РїРѕР»РЅРёС‚СЊ РєРѕРґ РІ РєРѕРЅС‚РµРєСЃС‚Рµ РіР»Р°РІРЅРѕРіРѕ РїРѕС‚РѕРєР° Far Manager РїРѕСЃСЂРµРґСЃС‚РІРѕРј РІС‹Р·РѕРІР° С„СѓРЅРєС†РёРё <a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a>.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РґР°РЅРЅС‹Рµ, РїРµСЂРµРґР°СЋС‰РёРµСЃСЏ РІ С„СѓРЅРєС†РёСЋ <code>ProcessSynchroEventW</code>, РјРѕР¶РµС‚ Р±С‹С‚СЊ <code>NULL</code>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІСЃРµРіРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ <code>0</code>.<br>
+    <p class=note><img src="../../images/note.gif" alt="Р—Р°РјРµС‡Р°РЅРёРµ РґР»СЏ ACTL_SYNCHRO" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!</p>
+    <UL class=note><LI>РџСЂРѕРІРµСЂРєР° РЅР° РІС‹Р·РѕРІ С„СѓРЅРєС†РёРё <code>ProcessSynchroEventW</code> РїСЂРѕРІРѕРґРёС‚СЃСЏ РІ  <code>GetInputRecord</code>, С‚.Рµ. РіР°СЂР°РЅС‚РёСЂРѕРІР°РЅРЅРѕРіРѕ РІСЂРµРјРµРЅРё РѕС‚РєР»РёРєР° РЅРµС‚, РЅРѕ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ Р±С‹СЃС‚СЂРѕ.</LI></UL></td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_WAITKEY">ACTL_WAITKEY</a></td>
-    <td class="cont" width="60%">Ожидать клавишу.<br>
-    <code>Param1</code> не используется.<br>
-    <code>Param2 = NULL</code> - ждём любую клавишу.<br>
-    <code>Param2</code> указатель на заполненную структуру <a href="../winapi/input_record.html">INPUT_RECORD</a> (код клавиши) - ждём конкретную клавишу.<br>
-    Функция всегда возвращает <code>0</code>.</td></tr>
+    <td class="cont" width="60%">РћР¶РёРґР°С‚СЊ РєР»Р°РІРёС€Сѓ.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2 = NULL</code> - Р¶РґС‘Рј Р»СЋР±СѓСЋ РєР»Р°РІРёС€Сѓ.<br>
+    <code>Param2</code> СѓРєР°Р·Р°С‚РµР»СЊ РЅР° Р·Р°РїРѕР»РЅРµРЅРЅСѓСЋ СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../winapi/input_record.html">INPUT_RECORD</a> (РєРѕРґ РєР»Р°РІРёС€Рё) - Р¶РґС‘Рј РєРѕРЅРєСЂРµС‚РЅСѓСЋ РєР»Р°РІРёС€Сѓ.<br>
+    Р¤СѓРЅРєС†РёСЏ РІСЃРµРіРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ <code>0</code>.</td></tr>
 
     </table>
     </div>
   <div class=dfn>Param1</div>
-    <div class=dfndescr>Указывает на параметры1 команды. Смотрите описание <code>Command</code>.</div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РїР°СЂР°РјРµС‚СЂС‹1 РєРѕРјР°РЅРґС‹. РЎРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ <code>Command</code>.</div>
   <div class=dfn>Param2</div>
-    <div class=dfndescr>Указывает на параметры2 команды. Смотрите описание <code>Command</code>.</div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РїР°СЂР°РјРµС‚СЂС‹2 РєРѕРјР°РЅРґС‹. РЎРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ <code>Command</code>.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-Смотрите описание <code>Command</code>.
+РЎРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ <code>Command</code>.
 </div>
 
-<div class=see>Смотрите также:</div>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
 <div class=seecont>
 <a href="panelcontrol.html">PanelControl</a>,
 <a href="editorcontrol.html">EditorControl</a>,

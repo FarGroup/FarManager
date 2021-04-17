@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>AnalyseInfo</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,13 +10,13 @@
 
 <h1>AnalyseInfo</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">структуры</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
 <div class=shortdescr>
-Структура <code>AnalyseInfo</code> используется для возвращения Far Manager'ом данных из начала файла в функции <a href="../exported_functions/analysew.html">AnalyseW</a>.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>AnalyseInfo</code> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РІРѕР·РІСЂР°С‰РµРЅРёСЏ Far Manager'РѕРј РґР°РЅРЅС‹С… РёР· РЅР°С‡Р°Р»Р° С„Р°Р№Р»Р° РІ С„СѓРЅРєС†РёРё <a href="../exported_functions/analysew.html">AnalyseW</a>.
 </div>
 
 <pre class=syntax>
@@ -30,32 +30,32 @@ struct AnalyseInfo
 };
 </pre>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <code>AnalyseInfo</code>.</div>
+    <div class=dfndescr>Р­С‚Рѕ РїРѕР»Рµ СЃРѕРґРµСЂР¶РёС‚ СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ <code>AnalyseInfo</code>.</div>
   <div class=dfn>FileName</div>
-    <div class=dfndescr>Полное имя обрабатываемого файла.</div>
+    <div class=dfndescr>РџРѕР»РЅРѕРµ РёРјСЏ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјРѕРіРѕ С„Р°Р№Р»Р°.</div>
   <div class=dfn>Buffer</div>
-    <div class=dfndescr>Указывает на данные из начала файла. Они могут использоваться для определения типа файла. Плагин не должен их изменять.</div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РґР°РЅРЅС‹Рµ РёР· РЅР°С‡Р°Р»Р° С„Р°Р№Р»Р°. РћРЅРё РјРѕРіСѓС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ С‚РёРїР° С„Р°Р№Р»Р°. РџР»Р°РіРёРЅ РЅРµ РґРѕР»Р¶РµРЅ РёС… РёР·РјРµРЅСЏС‚СЊ.</div>
   <div class=dfn>BufferSize</div>
-    <div class=dfndescr>Размер переданных данных из начала файла в байтах. В настоящий момент он может быть от 0 до 128Kb, в зависимости от размера файла, но вы должны быть готовы к любому другому значению.</div>
+    <div class=dfndescr>Р Р°Р·РјРµСЂ РїРµСЂРµРґР°РЅРЅС‹С… РґР°РЅРЅС‹С… РёР· РЅР°С‡Р°Р»Р° С„Р°Р№Р»Р° РІ Р±Р°Р№С‚Р°С…. Р’ РЅР°СЃС‚РѕСЏС‰РёР№ РјРѕРјРµРЅС‚ РѕРЅ РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕС‚ 0 РґРѕ 128Kb, РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ СЂР°Р·РјРµСЂР° С„Р°Р№Р»Р°, РЅРѕ РІС‹ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РіРѕС‚РѕРІС‹ Рє Р»СЋР±РѕРјСѓ РґСЂСѓРіРѕРјСѓ Р·РЅР°С‡РµРЅРёСЋ.</div>
   <div class=dfn> OpMode</div>
-    <div class=dfndescr>Комбинация флагов <a href="../defs/operation_mode.html">OPERATION_MODES</a>.</div>
+    <div class=dfndescr>РљРѕРјР±РёРЅР°С†РёСЏ С„Р»Р°РіРѕРІ <a href="../defs/operation_mode.html">OPERATION_MODES</a>.</div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-<li>Количество читаемых байт можно изменить, команда - "far:config":
+<li>РљРѕР»РёС‡РµСЃС‚РІРѕ С‡РёС‚Р°РµРјС‹С… Р±Р°Р№С‚ РјРѕР¶РЅРѕ РёР·РјРµРЅРёС‚СЊ, РєРѕРјР°РЅРґР° - "far:config":
 <pre class=code>
-Параметр "System.PluginMaxReadData" с типом DWORD позволяет задавать максимальный размер читаемых данных из файла в который попытались
-войти из панелей (<kbd>Enter</kbd> или <kbd>Ctrl</kbd>+<kbd>PgDn</kbd>). Считанные данные будут переданы плагинам для определения плагина поддерживающего файл этого типа.
-Диапазон от 0x1000 до 0x80000. По умолчанию 0x20000.</pre>
+РџР°СЂР°РјРµС‚СЂ "System.PluginMaxReadData" СЃ С‚РёРїРѕРј DWORD РїРѕР·РІРѕР»СЏРµС‚ Р·Р°РґР°РІР°С‚СЊ РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ С‡РёС‚Р°РµРјС‹С… РґР°РЅРЅС‹С… РёР· С„Р°Р№Р»Р° РІ РєРѕС‚РѕСЂС‹Р№ РїРѕРїС‹С‚Р°Р»РёСЃСЊ
+РІРѕР№С‚Рё РёР· РїР°РЅРµР»РµР№ (<kbd>Enter</kbd> РёР»Рё <kbd>Ctrl</kbd>+<kbd>PgDn</kbd>). РЎС‡РёС‚Р°РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ Р±СѓРґСѓС‚ РїРµСЂРµРґР°РЅС‹ РїР»Р°РіРёРЅР°Рј РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РїР»Р°РіРёРЅР° РїРѕРґРґРµСЂР¶РёРІР°СЋС‰РµРіРѕ С„Р°Р№Р» СЌС‚РѕРіРѕ С‚РёРїР°.
+Р”РёР°РїР°Р·РѕРЅ РѕС‚ 0x1000 РґРѕ 0x80000. РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 0x20000.</pre>
 </div>
 
-<div class=see>Смотрите также:</div>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
 <div class=seecont>
-<a href="index.html">структуры</a>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>
 </div>
 
 </body>

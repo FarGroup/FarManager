@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>SetDirectoryW</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,13 +10,13 @@
 
 <h1>SetDirectoryW</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">экспортируемые функции</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЌРєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё</a> |
 <a href="../panelapi/index.html">Panel API</a>
 </div>
 
 <div class=shortdescr>
-Функция <code>SetDirectoryW</code> вызывается Far Manager'ом для смены каталога в эмулируемой файловой системе.
+Р¤СѓРЅРєС†РёСЏ <code>SetDirectoryW</code> РІС‹Р·С‹РІР°РµС‚СЃСЏ Far Manager'РѕРј РґР»СЏ СЃРјРµРЅС‹ РєР°С‚Р°Р»РѕРіР° РІ СЌРјСѓР»РёСЂСѓРµРјРѕР№ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјРµ.
 </div>
 
 <pre class=syntax>
@@ -25,31 +25,31 @@ intptr_t WINAPI SetDirectoryW(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a href="../structures/setdirectoryinfo.html">SetDirectoryInfo</a>, Far Manager передает плагину информацию о новом каталоге.<br>
-    В начале функции проверьте, что поле <code>SetDirectoryInfo.StructSize >= sizeof(SetDirectoryInfo)</code>.</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/setdirectoryinfo.html">SetDirectoryInfo</a>, Far Manager РїРµСЂРµРґР°РµС‚ РїР»Р°РіРёРЅСѓ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РЅРѕРІРѕРј РєР°С‚Р°Р»РѕРіРµ.<br>
+    Р’ РЅР°С‡Р°Р»Рµ С„СѓРЅРєС†РёРё РїСЂРѕРІРµСЂСЊС‚Рµ, С‡С‚Рѕ РїРѕР»Рµ <code>SetDirectoryInfo.StructSize >= sizeof(SetDirectoryInfo)</code>.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-Если функция выполнила свои действия успешно, то верните <code>1</code>. В противном случае <code>0</code>.
+Р•СЃР»Рё С„СѓРЅРєС†РёСЏ РІС‹РїРѕР»РЅРёР»Р° СЃРІРѕРё РґРµР№СЃС‚РІРёСЏ СѓСЃРїРµС€РЅРѕ, С‚Рѕ РІРµСЂРЅРёС‚Рµ <code>1</code>. Р’ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ <code>0</code>.
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-Если в <code>SetDirectoryInfo.OpMode</code> выставлен флаг <a href="../defs/operation_mode.html#OPM_FIND">OPM_FIND</a>, то:
+Р•СЃР»Рё РІ <code>SetDirectoryInfo.OpMode</code> РІС‹СЃС‚Р°РІР»РµРЅ С„Р»Р°Рі <a href="../defs/operation_mode.html#OPM_FIND">OPM_FIND</a>, С‚Рѕ:
 <ol>
-<li>это значит, что функция <code>SetDirectoryW</code> вызывается из диалога поиска файлов (<kbd>Alt</kbd>+<kbd>F7</kbd>) или другой команды, сканирующей каталоги.
-Поэтому плагин не должен производить никаких действий кроме смены каталога и возвращения <code>1</code> в случае удачи или <code>0</code> в случае невозможности сменить каталог.
-<li>плагин должен аккуратно обрабатывать каталог ".." и при невозможности сменить его - возвращать <code>0</code>. Иначе поиск может зациклиться на панели этого плагина.
+<li>СЌС‚Рѕ Р·РЅР°С‡РёС‚, С‡С‚Рѕ С„СѓРЅРєС†РёСЏ <code>SetDirectoryW</code> РІС‹Р·С‹РІР°РµС‚СЃСЏ РёР· РґРёР°Р»РѕРіР° РїРѕРёСЃРєР° С„Р°Р№Р»РѕРІ (<kbd>Alt</kbd>+<kbd>F7</kbd>) РёР»Рё РґСЂСѓРіРѕР№ РєРѕРјР°РЅРґС‹, СЃРєР°РЅРёСЂСѓСЋС‰РµР№ РєР°С‚Р°Р»РѕРіРё.
+РџРѕСЌС‚РѕРјСѓ РїР»Р°РіРёРЅ РЅРµ РґРѕР»Р¶РµРЅ РїСЂРѕРёР·РІРѕРґРёС‚СЊ РЅРёРєР°РєРёС… РґРµР№СЃС‚РІРёР№ РєСЂРѕРјРµ СЃРјРµРЅС‹ РєР°С‚Р°Р»РѕРіР° Рё РІРѕР·РІСЂР°С‰РµРЅРёСЏ <code>1</code> РІ СЃР»СѓС‡Р°Рµ СѓРґР°С‡Рё РёР»Рё <code>0</code> РІ СЃР»СѓС‡Р°Рµ РЅРµРІРѕР·РјРѕР¶РЅРѕСЃС‚Рё СЃРјРµРЅРёС‚СЊ РєР°С‚Р°Р»РѕРі.
+<li>РїР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ Р°РєРєСѓСЂР°С‚РЅРѕ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ РєР°С‚Р°Р»РѕРі ".." Рё РїСЂРё РЅРµРІРѕР·РјРѕР¶РЅРѕСЃС‚Рё СЃРјРµРЅРёС‚СЊ РµРіРѕ - РІРѕР·РІСЂР°С‰Р°С‚СЊ <code>0</code>. РРЅР°С‡Рµ РїРѕРёСЃРє РјРѕР¶РµС‚ Р·Р°С†РёРєР»РёС‚СЊСЃСЏ РЅР° РїР°РЅРµР»Рё СЌС‚РѕРіРѕ РїР»Р°РіРёРЅР°.
 </ol>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
-Пример из плагина "TmpPanel".
+РџСЂРёРјРµСЂ РёР· РїР»Р°РіРёРЅР° "TmpPanel".
 <pre class=code>
 intptr_t WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
 {
@@ -59,7 +59,7 @@ intptr_t WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
 <div class=seecont>
 </div>
 

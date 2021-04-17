@@ -1,21 +1,21 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>ProcessViewerEventW</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
 <body>
 
 <h1>ProcessViewerEventW</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">экспортируемые функции</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЌРєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё</a> |
 <a href="../viewerapi/index.html">Viewer API</a>
 </div>
 
 <div class=shortdescr>
-Функция <code>ProcessViewerEventW</code> сообщает плагину о событиях, происходящих во внутренней программе просмотра Far Manager.
+Р¤СѓРЅРєС†РёСЏ <code>ProcessViewerEventW</code> СЃРѕРѕР±С‰Р°РµС‚ РїР»Р°РіРёРЅСѓ Рѕ СЃРѕР±С‹С‚РёСЏС…, РїСЂРѕРёСЃС…РѕРґСЏС‰РёС… РІРѕ РІРЅСѓС‚СЂРµРЅРЅРµР№ РїСЂРѕРіСЂР°РјРјРµ РїСЂРѕСЃРјРѕС‚СЂР° Far Manager.
 </div>
 
 <pre class=syntax>
@@ -24,20 +24,20 @@ intptr_t WINAPI ProcessViewerEventW(
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a href="../structures/processviewereventinfo.html">ProcessViewerEventInfo</a>, Far Manager передает информацию о событии.<br>
-    В начале функции проверьте, что поле <code>ProcessViewerEventInfo.StructSize >= sizeof(ProcessViewerEventInfo)</code>.</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/processviewereventinfo.html">ProcessViewerEventInfo</a>, Far Manager РїРµСЂРµРґР°РµС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЃРѕР±С‹С‚РёРё.<br>
+    Р’ РЅР°С‡Р°Р»Рµ С„СѓРЅРєС†РёРё РїСЂРѕРІРµСЂСЊС‚Рµ, С‡С‚Рѕ РїРѕР»Рµ <code>ProcessViewerEventInfo.StructSize >= sizeof(ProcessViewerEventInfo)</code>.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-Возвращаемое значение зависит от типа события, смотрите описание событий для уточнения информации.<br>
-Для необрабатываемых плагином событий, функция должна возвращать <code>0</code>.
+Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ Р·Р°РІРёСЃРёС‚ РѕС‚ С‚РёРїР° СЃРѕР±С‹С‚РёСЏ, СЃРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ СЃРѕР±С‹С‚РёР№ РґР»СЏ СѓС‚РѕС‡РЅРµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё.<br>
+Р”Р»СЏ РЅРµРѕР±СЂР°Р±Р°С‚С‹РІР°РµРјС‹С… РїР»Р°РіРёРЅРѕРј СЃРѕР±С‹С‚РёР№, С„СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° РІРѕР·РІСЂР°С‰Р°С‚СЊ <code>0</code>.
 </div>
 
-<div class=see>Смотрите также:</div>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
 <div class=seecont>
 <a href="../service_functions/viewercontrol.html">ViewerControl</a>
 </div>

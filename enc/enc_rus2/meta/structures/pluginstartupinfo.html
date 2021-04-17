@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>PluginStartupInfo</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,13 +10,13 @@
 
 <h1>PluginStartupInfo</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a  href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>PluginStartupInfo</dfn> используется в функции <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>
-для передачи плагину различной важной информации.
+РЎС‚СЂСѓРєС‚СѓСЂР° <dfn>PluginStartupInfo</dfn> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ С„СѓРЅРєС†РёРё <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>
+РґР»СЏ РїРµСЂРµРґР°С‡Рё РїР»Р°РіРёРЅСѓ СЂР°Р·Р»РёС‡РЅРѕР№ РІР°Р¶РЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё.
 </div>
 
 <pre class=syntax>
@@ -60,88 +60,88 @@ struct PluginStartupInfo
   FARAPIREGEXPCONTROL    RegExpControl;
 };
 </pre>
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
 
     <div class=dfn>StructSize</div>
-    <div class=dfndescr>Размер структуры. Если в будущем будут добавлены новые поля, это поле позволит определить это.</div>
+    <div class=dfndescr>Р Р°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹. Р•СЃР»Рё РІ Р±СѓРґСѓС‰РµРј Р±СѓРґСѓС‚ РґРѕР±Р°РІР»РµРЅС‹ РЅРѕРІС‹Рµ РїРѕР»СЏ, СЌС‚Рѕ РїРѕР»Рµ РїРѕР·РІРѕР»РёС‚ РѕРїСЂРµРґРµР»РёС‚СЊ СЌС‚Рѕ.</div>
     <div class=dfn>ModuleName</div>
-    <div class=dfndescr>Полное имя плагина с путём.</div>
+    <div class=dfndescr>РџРѕР»РЅРѕРµ РёРјСЏ РїР»Р°РіРёРЅР° СЃ РїСѓС‚С‘Рј.</div>
     <div class=dfn>ModuleNumber</div>
-    <div class=dfndescr>Номер плагина. Передаётся как параметр в некоторых функциях.</div>
+    <div class=dfndescr>РќРѕРјРµСЂ РїР»Р°РіРёРЅР°. РџРµСЂРµРґР°С‘С‚СЃСЏ РєР°Рє РїР°СЂР°РјРµС‚СЂ РІ РЅРµРєРѕС‚РѕСЂС‹С… С„СѓРЅРєС†РёСЏС….</div>
     <div class=dfn>RootKey</div>
-    <div class=dfndescr>Ключ Реестра, где плагин может сохранять свои параметры.
-      Одинаков и для <b>HKEY_CURRENT_USER</b> и для <b>HKEY_LOCAL_MACHINE</b>.
-      Обычно это "<code>Software\Far2\Plugins</code>", но вы не должны указывать
-      эту строку непосредственно, т.к. она может быть изменена или может стать
-      опциональной в будущем. Например, если FAR запущен с ключом
-      '<code>/u user1</code>', то <em>RootKey</em> соответственно будет
-      содержать строку "<code>Software\Far2\Users\user1\Plugins</code>".
-      <p>Не сохраняйте параметры прямо в <i>RootKey</i>,
-      создайте здесь свой собственный подключ.</div>
+    <div class=dfndescr>РљР»СЋС‡ Р РµРµСЃС‚СЂР°, РіРґРµ РїР»Р°РіРёРЅ РјРѕР¶РµС‚ СЃРѕС…СЂР°РЅСЏС‚СЊ СЃРІРѕРё РїР°СЂР°РјРµС‚СЂС‹.
+      РћРґРёРЅР°РєРѕРІ Рё РґР»СЏ <b>HKEY_CURRENT_USER</b> Рё РґР»СЏ <b>HKEY_LOCAL_MACHINE</b>.
+      РћР±С‹С‡РЅРѕ СЌС‚Рѕ "<code>Software\Far2\Plugins</code>", РЅРѕ РІС‹ РЅРµ РґРѕР»Р¶РЅС‹ СѓРєР°Р·С‹РІР°С‚СЊ
+      СЌС‚Сѓ СЃС‚СЂРѕРєСѓ РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ, С‚.Рє. РѕРЅР° РјРѕР¶РµС‚ Р±С‹С‚СЊ РёР·РјРµРЅРµРЅР° РёР»Рё РјРѕР¶РµС‚ СЃС‚Р°С‚СЊ
+      РѕРїС†РёРѕРЅР°Р»СЊРЅРѕР№ РІ Р±СѓРґСѓС‰РµРј. РќР°РїСЂРёРјРµСЂ, РµСЃР»Рё FAR Р·Р°РїСѓС‰РµРЅ СЃ РєР»СЋС‡РѕРј
+      '<code>/u user1</code>', С‚Рѕ <em>RootKey</em> СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ Р±СѓРґРµС‚
+      СЃРѕРґРµСЂР¶Р°С‚СЊ СЃС‚СЂРѕРєСѓ "<code>Software\Far2\Users\user1\Plugins</code>".
+      <p>РќРµ СЃРѕС…СЂР°РЅСЏР№С‚Рµ РїР°СЂР°РјРµС‚СЂС‹ РїСЂСЏРјРѕ РІ <i>RootKey</i>,
+      СЃРѕР·РґР°Р№С‚Рµ Р·РґРµСЃСЊ СЃРІРѕР№ СЃРѕР±СЃС‚РІРµРЅРЅС‹Р№ РїРѕРґРєР»СЋС‡.</div>
     <div class=dfn>Menu</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/menu.html">Menu</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/menu.html">Menu</a>.</div>
     <div class=dfn>Message</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/message.html">Message</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/message.html">Message</a>.</div>
     <div class=dfn>GetMsg</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/getmsg.html">GetMsg</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/getmsg.html">GetMsg</a>.</div>
     <div class=dfn>Control</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/control.html">Control</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/control.html">Control</a>.</div>
     <div class=dfn>SaveScreen</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/savescreen.html">SaveScreen</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/savescreen.html">SaveScreen</a>.</div>
     <div class=dfn>RestoreScreen</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/restorescreen.html">RestoreScreen</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/restorescreen.html">RestoreScreen</a>.</div>
     <div class=dfn>GetDirList</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/getdirlist.html">GetDirList</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/getdirlist.html">GetDirList</a>.</div>
     <div class=dfn>GetPluginDirList</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/getplugindirlist.html">GetPluginDirList</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/getplugindirlist.html">GetPluginDirList</a>.</div>
     <div class=dfn>FreeDirList</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/freedirlist.html">FreeDirList</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/freedirlist.html">FreeDirList</a>.</div>
     <div class=dfn>FreePluginDirList</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/freeplugindirlist.html">FreePluginDirList</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/freeplugindirlist.html">FreePluginDirList</a>.</div>
     <div class=dfn>Viewer</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/viewer.html">Viewer</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/viewer.html">Viewer</a>.</div>
     <div class=dfn>Editor</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/editor.html">Editor</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/editor.html">Editor</a>.</div>
     <div class=dfn>CmpName</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/cmpname.html">CmpName</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/cmpname.html">CmpName</a>.</div>
     <div class=dfn>Text</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/text.html">Text</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/text.html">Text</a>.</div>
     <div class=dfn>EditorControl</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/editorcontrol.html">EditorControl</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/editorcontrol.html">EditorControl</a>.</div>
 
     <div class=dfn>FSF</div>
-    <div class=dfndescr>Указатель на структуру <a href="../fsf/index.html">FarStandardFunctions</a> с адресами полезных функций из far.exe.</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../fsf/index.html">FarStandardFunctions</a> СЃ Р°РґСЂРµСЃР°РјРё РїРѕР»РµР·РЅС‹С… С„СѓРЅРєС†РёР№ РёР· far.exe.</div>
     <div class=dfn>ShowHelp</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/showhelp.html">ShowHelp</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/showhelp.html">ShowHelp</a>.</div>
     <div class=dfn>AdvControl</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/advcontrol.html">AdvControl</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/advcontrol.html">AdvControl</a>.</div>
     <div class=dfn>InputBox</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/inputbox.html">InputBox</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/inputbox.html">InputBox</a>.</div>
     <div class=dfn>DialogInit</div>
-    <div class=dfndescr>Адрес функции <a href="../dialogapi/dialoginit.html">DialogInit</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../dialogapi/dialoginit.html">DialogInit</a>.</div>
     <div class=dfn>DialogRun</div>
-    <div class=dfndescr>Адрес функции <a href="../dialogapi/dialogrun.html">DialogRun</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../dialogapi/dialogrun.html">DialogRun</a>.</div>
     <div class=dfn>DialogFree</div>
-    <div class=dfndescr>Адрес функции <a href="../dialogapi/dialogfree.html">DialogFree</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../dialogapi/dialogfree.html">DialogFree</a>.</div>
     <div class=dfn>SendDlgMessage</div>
-    <div class=dfndescr>Адрес функции <a href="../dialogapi/senddlgmessage.html">SendDlgMessage</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../dialogapi/senddlgmessage.html">SendDlgMessage</a>.</div>
     <div class=dfn>DefDlgProc</div>
-    <div class=dfndescr>Адрес функции <a href="../dialogapi/defdlgproc.html">DefDlgProc</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../dialogapi/defdlgproc.html">DefDlgProc</a>.</div>
     <div class=dfn>ViewerControl</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/viewercontrol.html">ViewerControl</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/viewercontrol.html">ViewerControl</a>.</div>
     <div class=dfn>PluginsControl</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/pluginscontrol.html">PluginsControl</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/pluginscontrol.html">PluginsControl</a>.</div>
     <div class=dfn>FileFilterControl</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/filefiltercontrol.html">FileFilterControl</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/filefiltercontrol.html">FileFilterControl</a>.</div>
     <div class=dfn>RegExpControl</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/regexpcontrol.html">RegExpControl</a>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ С„СѓРЅРєС†РёРё <a href="../service_functions/regexpcontrol.html">RegExpControl</a>.</div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> 
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> 
 </div>
 
 </body>

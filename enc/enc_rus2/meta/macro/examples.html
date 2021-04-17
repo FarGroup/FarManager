@@ -1,26 +1,26 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
         "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>Примеры - Макросы</title>
-<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<title>РџСЂРёРјРµСЂС‹ - РњР°РєСЂРѕСЃС‹</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 </head>
 
 <body>
 
-<h1>Примеры</h1>
+<h1>РџСЂРёРјРµСЂС‹</h1>
 <div class="navbar">
-<a href="../index.html">главная</a> |
-<a href="index.html">Макросы</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">РњР°РєСЂРѕСЃС‹</a>
 </div>
 
 <pre class="codesample"><code>REGEDIT4
 
-; переход в меню выбора дисков на противоположной панели
-; включение видимости панели в которой будет происходить смена диска, если её не было
+; РїРµСЂРµС…РѕРґ РІ РјРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєРѕРІ РЅР° РїСЂРѕС‚РёРІРѕРїРѕР»РѕР¶РЅРѕР№ РїР°РЅРµР»Рё
+; РІРєР»СЋС‡РµРЅРёРµ РІРёРґРёРјРѕСЃС‚Рё РїР°РЅРµР»Рё РІ РєРѕС‚РѕСЂРѕР№ Р±СѓРґРµС‚ РїСЂРѕРёСЃС…РѕРґРёС‚СЊ СЃРјРµРЅР° РґРёСЃРєР°, РµСЃР»Рё РµС‘ РЅРµ Р±С‹Р»Рѕ
 
 [HKEY_CURRENT_USER\Software\Far2\KeyMacros\Disks\Tab]
 "Sequence"="Esc $If (!PPanel.Visible) $If (APanel.Left) CtrlF2 $Else CtrlF1 $End $End Tab F9 Enter End Enter"
@@ -28,7 +28,7 @@
 
 <pre class="codesample"><code>REGEDIT4
 
-;выделить/(снять выделение) слово(а) под курсором
+;РІС‹РґРµР»РёС‚СЊ/(СЃРЅСЏС‚СЊ РІС‹РґРµР»РµРЅРёРµ) СЃР»РѕРІРѕ(Р°) РїРѕРґ РєСѓСЂСЃРѕСЂРѕРј
 
 [HKEY_CURRENT_USER\Software\Far2\KeyMacros\Editor\RAlt]
 "Sequence"="RCtrl9 CtrlRight CtrlLeft $If (!Selected) CtrlShiftRight $Else CtrlU $End Ctrl9"
@@ -36,7 +36,7 @@
 
 <pre class="codesample"><code>REGEDIT4
 
-;создание папки с именем = текущей дате
+;СЃРѕР·РґР°РЅРёРµ РїР°РїРєРё СЃ РёРјРµРЅРµРј = С‚РµРєСѓС‰РµР№ РґР°С‚Рµ
 
 [HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlShiftF7]
 "Sequence"="%folder=date(\"%d.%m0.%Y\"); $If (!panel.fexist(0,%folder)) F7 CtrlY $Text %folder Enter $End"
@@ -45,9 +45,9 @@
 
 <pre class="codesample"><code>REGEDIT4
 
-;искать тот же файл на другой панели что и на активной
-;F5 ShiftEnter CtrlIns - применено чтобы получить имя файла вне зависимости
-;пусто/непусто в cmdline и сколько выделено на панели файлов
+;РёСЃРєР°С‚СЊ С‚РѕС‚ Р¶Рµ С„Р°Р№Р» РЅР° РґСЂСѓРіРѕР№ РїР°РЅРµР»Рё С‡С‚Рѕ Рё РЅР° Р°РєС‚РёРІРЅРѕР№
+;F5 ShiftEnter CtrlIns - РїСЂРёРјРµРЅРµРЅРѕ С‡С‚РѕР±С‹ РїРѕР»СѓС‡РёС‚СЊ РёРјСЏ С„Р°Р№Р»Р° РІРЅРµ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё
+;РїСѓСЃС‚Рѕ/РЅРµРїСѓСЃС‚Рѕ РІ cmdline Рё СЃРєРѕР»СЊРєРѕ РІС‹РґРµР»РµРЅРѕ РЅР° РїР°РЅРµР»Рё С„Р°Р№Р»РѕРІ
 
 [HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlAltLeft]
 "Sequence"="clip(5) $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
@@ -64,7 +64,7 @@ Esc Tab Home Alt&lt; ShiftIns Esc $End $End"
 
 <pre class="codesample"><code>REGEDIT4
 
-;выделение следующих нижних/верхних 30 файлов
+;РІС‹РґРµР»РµРЅРёРµ СЃР»РµРґСѓСЋС‰РёС… РЅРёР¶РЅРёС…/РІРµСЂС…РЅРёС… 30 С„Р°Р№Р»РѕРІ
 
 [HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlDown]
 "Sequence"="$If (!Eof) $Rep (30) $If (Eof) Ins $Exit $Else Ins $End $End $End"
@@ -80,8 +80,8 @@ $If (!APanel.Root) Down $End $Exit $End $End Up"
 
 <pre class="codesample"><code>REGEDIT4
 
-;сграбить весь экран в текстовый файл far-screen.out
-;работает в области Dialog
+;СЃРіСЂР°Р±РёС‚СЊ РІРµСЃСЊ СЌРєСЂР°РЅ РІ С‚РµРєСЃС‚РѕРІС‹Р№ С„Р°Р№Р» far-screen.out
+;СЂР°Р±РѕС‚Р°РµС‚ РІ РѕР±Р»Р°СЃС‚Рё Dialog
 
 [HKEY_CURRENT_USER\Software\Far2\KeyMacros\Dialog\AltP]
 "Sequence"="clip(5) AltIns CtrlHome ShiftEnd ShiftPgDn Enter Esc
@@ -92,9 +92,9 @@ $If (!Shell) Esc $End $If (Shell &amp;&amp; !APanel.Plugin) ShiftF4 CtrlY
 
 <pre class="codesample"><code>REGEDIT4
 
-;удаление файла/папки по клавише Del
-;если стояли на элементе .. то пытаемся удалить вышестоящую папку
-;если не в конце ком строки то удаляем символы в ней
+;СѓРґР°Р»РµРЅРёРµ С„Р°Р№Р»Р°/РїР°РїРєРё РїРѕ РєР»Р°РІРёС€Рµ Del
+;РµСЃР»Рё СЃС‚РѕСЏР»Рё РЅР° СЌР»РµРјРµРЅС‚Рµ .. С‚Рѕ РїС‹С‚Р°РµРјСЃСЏ СѓРґР°Р»РёС‚СЊ РІС‹С€РµСЃС‚РѕСЏС‰СѓСЋ РїР°РїРєСѓ
+;РµСЃР»Рё РЅРµ РІ РєРѕРЅС†Рµ РєРѕРј СЃС‚СЂРѕРєРё С‚Рѕ СѓРґР°Р»СЏРµРј СЃРёРјРІРѕР»С‹ РІ РЅРµР№
 
 [HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\Del]
 "Sequence"="$If (!CmdLine.Eof) Del $Exit $Else
@@ -105,9 +105,9 @@ $If ((APanel.Bof &amp;&amp; !APanel.Selected) &amp;&amp;
 
 <pre class="codesample"><code>REGEDIT4
 
-; перед вызовом быстрого просмотра сделать пассивную панель
-; максимально большего размера.
-; для обратной операции восстановить панели.
+; РїРµСЂРµРґ РІС‹Р·РѕРІРѕРј Р±С‹СЃС‚СЂРѕРіРѕ РїСЂРѕСЃРјРѕС‚СЂР° СЃРґРµР»Р°С‚СЊ РїР°СЃСЃРёРІРЅСѓСЋ РїР°РЅРµР»СЊ
+; РјР°РєСЃРёРјР°Р»СЊРЅРѕ Р±РѕР»СЊС€РµРіРѕ СЂР°Р·РјРµСЂР°.
+; РґР»СЏ РѕР±СЂР°С‚РЅРѕР№ РѕРїРµСЂР°С†РёРё РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ РїР°РЅРµР»Рё.
 
 [HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlQ]
 "Sequence"="Tab $If (QView) Tab Ctrl2 Tab CtrlClear $Else Tab Ctrl6 Tab
@@ -117,7 +117,7 @@ $Rep (APanel.width) CtrlLeft $End $End $End Tab CtrlQ"
 </code></pre>
 
 
-<h2>Пометить вместе с htm-файлом и парную ему папку:</h2>
+<h2>РџРѕРјРµС‚РёС‚СЊ РІРјРµСЃС‚Рµ СЃ htm-С„Р°Р№Р»РѕРј Рё РїР°СЂРЅСѓСЋ РµРјСѓ РїР°РїРєСѓ:</h2>
 <pre class="codesample"><code>REGEDIT4
 
 [HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlShiftIns]
@@ -132,13 +132,13 @@ panel.setpos(ACTIVEPANEL,%Current) $If(!panel.item(ACTIVEPANEL,0,PANELITEM_SELEC
 Ins $End $End mmode(1,2) mmode(1,2)"
 "DisableOutput"=dword:00000001
 
-;При непустой командной строке макрос не вызывается чтобы можно пользоваться первоначальной
-;функцией сочетания CtrlShiftIns - Поместить помеченные имена в Буфер Обмена
+;РџСЂРё РЅРµРїСѓСЃС‚РѕР№ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРµ РјР°РєСЂРѕСЃ РЅРµ РІС‹Р·С‹РІР°РµС‚СЃСЏ С‡С‚РѕР±С‹ РјРѕР¶РЅРѕ РїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РїРµСЂРІРѕРЅР°С‡Р°Р»СЊРЅРѕР№
+;С„СѓРЅРєС†РёРµР№ СЃРѕС‡РµС‚Р°РЅРёСЏ CtrlShiftIns - РџРѕРјРµСЃС‚РёС‚СЊ РїРѕРјРµС‡РµРЅРЅС‹Рµ РёРјРµРЅР° РІ Р‘СѓС„РµСЂ РћР±РјРµРЅР°
 "EmptyCommandLine"=dword:00000001
 </code></pre>
 
-<h2>Скроллинг текста по горизонтали:</h2>
-<p>При включённом <kbd>ScrollLock</kbd> клавиши <kbd>Left</kbd>/<kbd>Right</kbd> выполняют скроллинг текста по горизонтали</p>
+<h2>РЎРєСЂРѕР»Р»РёРЅРі С‚РµРєСЃС‚Р° РїРѕ РіРѕСЂРёР·РѕРЅС‚Р°Р»Рё:</h2>
+<p>РџСЂРё РІРєР»СЋС‡С‘РЅРЅРѕРј <kbd>ScrollLock</kbd> РєР»Р°РІРёС€Рё <kbd>Left</kbd>/<kbd>Right</kbd> РІС‹РїРѕР»РЅСЏСЋС‚ СЃРєСЂРѕР»Р»РёРЅРі С‚РµРєСЃС‚Р° РїРѕ РіРѕСЂРёР·РѕРЅС‚Р°Р»Рё</p>
 
 <pre class="codesample">
 <code>[HKEY_CURRENT_USER\Software\far2\KeyMacros\Editor\Right]
@@ -150,9 +150,9 @@ Ins $End $End mmode(1,2) mmode(1,2)"
 "DisableOutput"=dword:00000001</code></pre>
 
 
-<h2>Пример использования <a href="macrocmd/prop_func/general.html#eval">eval()</a>:</h2>
-<p>Требуется по <kbd>F10</kbd> запускать окно проводника для папки на активной панели, содержимое командной строки должно сохраняться.<br>
-В области <code>Vars</code> задаём 2 строковых переменных макропроцедуры, описывающие сохранение и восстановление содержимое командной строки:</p>
+<h2>РџСЂРёРјРµСЂ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ <a href="macrocmd/prop_func/general.html#eval">eval()</a>:</h2>
+<p>РўСЂРµР±СѓРµС‚СЃСЏ РїРѕ <kbd>F10</kbd> Р·Р°РїСѓСЃРєР°С‚СЊ РѕРєРЅРѕ РїСЂРѕРІРѕРґРЅРёРєР° РґР»СЏ РїР°РїРєРё РЅР° Р°РєС‚РёРІРЅРѕР№ РїР°РЅРµР»Рё, СЃРѕРґРµСЂР¶РёРјРѕРµ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё РґРѕР»Р¶РЅРѕ СЃРѕС…СЂР°РЅСЏС‚СЊСЃСЏ.<br>
+Р’ РѕР±Р»Р°СЃС‚Рё <code>Vars</code> Р·Р°РґР°С‘Рј 2 СЃС‚СЂРѕРєРѕРІС‹С… РїРµСЂРµРјРµРЅРЅС‹С… РјР°РєСЂРѕРїСЂРѕС†РµРґСѓСЂС‹, РѕРїРёСЃС‹РІР°СЋС‰РёРµ СЃРѕС…СЂР°РЅРµРЅРёРµ Рё РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ СЃРѕРґРµСЂР¶РёРјРѕРµ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё:</p>
 <pre class="codesample">
 <code>%%CmdSave=$If (!CmdLine.Empty) %Flg_Cmd=1;
           %CmdCurPos=CmdLine.ItemCount-CmdLine.CurPos+1;
@@ -162,7 +162,7 @@ Ins $End $End mmode(1,2) mmode(1,2)"
           %Flg_Cmd=0; %Num=%CmdCurPos;
           $While (%Num!=0) %Num=%Num-1; CtrlS $End $End
 </code></pre>
-далее на <kbd>F10</kbd> вешаем макрос:
+РґР°Р»РµРµ РЅР° <kbd>F10</kbd> РІРµС€Р°РµРј РјР°РєСЂРѕСЃ:
 <pre class="codesample">
 <code>$If (APanel.Visible &amp;&amp; (!APanel.Plugin || (!APanel.Bof &amp;&amp;(APanel.OPIFlags &amp; 0x20))))
   Eval(%%CmdSave)
@@ -183,11 +183,11 @@ Ins $End $End mmode(1,2) mmode(1,2)"
   Eval(%%CmdRestore)
 $End</code></pre>
 
-<div class="see">Смотрите также:</div><div class="seecont">
-<a href="about/index.html">Общие замечания</a>,
-<a href="macrokey/index.html">Работа с макросами</a>,
-<a href="macrocmd/index.html">Макроязык</a>,
-<a href="techinfo.html">Технические подробности</a>
+<div class="see">РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class="seecont">
+<a href="about/index.html">РћР±С‰РёРµ Р·Р°РјРµС‡Р°РЅРёСЏ</a>,
+<a href="macrokey/index.html">Р Р°Р±РѕС‚Р° СЃ РјР°РєСЂРѕСЃР°РјРё</a>,
+<a href="macrocmd/index.html">РњР°РєСЂРѕСЏР·С‹Рє</a>,
+<a href="techinfo.html">РўРµС…РЅРёС‡РµСЃРєРёРµ РїРѕРґСЂРѕР±РЅРѕСЃС‚Рё</a>
 </div>
 
 </body>
