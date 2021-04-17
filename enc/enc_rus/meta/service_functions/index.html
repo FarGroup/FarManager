@@ -6,149 +6,203 @@
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-
 <body>
+
 <h1>Сервисные функции</h1>
+
 <div class=navbar>
 <a href="../index.html">главная</a>
 </div>
 
-
-
 <div class=shortdescr>
-  Следующие функции дают возможность плагину
-  использовать меню, диалоги, языковую поддержку и
-  прочие полезности. Указатели на эти функции плагин
-  получает в функции
-  <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>.
-
-  <p class=note><img src="../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-  <UL class=note><LI>Некоторые функции, приведенные ниже, отсутствуют в ранних
-  версиях FAR Manager. Прочитайте замечания по структуре
-  <a href="../structures/pluginstartupinfo.html">PluginStartupInfo</a> и
-  функции <a href="../exported_functions/getminfarversion.html">GetMinFarVersion</a>
-  для более подробной информации.</LI></UL>
+Следующие функции дают возможность плагину использовать меню, диалоги, языковую поддержку и прочие полезности.
+Указатели на эти функции плагин получает в функции
+<a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>.
 </div>
 
+<!-- HHC following links are used to create the chm hhc file -->
 <h3>Функции общего назначения</h3>
+
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th></tr>
-<tr>
-<td class="cont" width="40%"><a href="advcontrol.html">AdvControl</a></td>
-<td class="cont" width="60%">дополнительные управляющие функции; работают везде: в панелях/редакторе/вьюере.</td>
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="chartable.html">CharTable</a></td>
-<td class="cont" width="60%">позволяет получить информацию об установленных таблицах символов</td>
+<td class="cont" width="40%"><a href="../service_functions/advcontrol.html">AdvControl</a></td>
+<td class="cont" width="60%">дополнительные управляющие функции; работают везде: в панелях/редакторе/просмотре</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="cmpname.html">CmpName</a></td>
-<td class="cont" width="60%">сравнивает текстовую строку (например, имя файла) с образцом (маской).</td>
+<td class="cont" width="40%"><a href="../service_functions/colordialog.html">ColorDialog</a></td>
+<td class="cont" width="60%">диалог изменения цвета</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="control.html">Control</a></td>
-<td class="cont" width="60%">позволяет запрашивать различную информацию и выполнять управляющие действия.</td>
+<td class="cont" width="40%"><a href="../service_functions/freescreen.html">FreeScreen</a></td>
+<td class="cont" width="60%">освобождает память, зарезервированную функцией <a href="../service_functions/savescreen.html">SaveScreen</a>, без восстановления экрана</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="freedirlist.html">FreeDirList</a></td>
-<td class="cont" width="60%">освобождает память, выделенную для списка файлов функциями GetDirList и GetPluginDirList</td>
+<td class="cont" width="40%"><a href="../service_functions/getmsg.html">GetMsg</a></td>
+<td class="cont" width="60%">получить строку сообщения из <a href="../language/language_files.html">языкового файла</a></td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="getdirlist.html">GetDirList</a></td>
-<td class="cont" width="60%">возвращает список файлов в указанной директории</td>
+<td class="cont" width="40%"><a href="../service_functions/inputbox.html">InputBox</a></td>
+<td class="cont" width="60%">позволяет запросить у пользователя текстовую строку</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="getmsg.html">GetMsg</a></td>
-<td class="cont" width="60%">получить строку сообщения из <a href="../language/language_files.html">языкового файла</a>.</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="getplugindirlist.html">GetPluginDirList</a></td>
-<td class="cont" width="60%">возвращает список файлов в указанной директории эмулируемой файловой системы</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="menu.html">Menu</a></td>
+<td class="cont" width="40%"><a href="../service_functions/menu.html">Menu</a></td>
 <td class="cont" width="60%">показывает меню</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="restorescreen.html">RestoreScreen</a></td>
-<td class="cont" width="60%">восстанавливает предварительно сохраненную область экрана</td>
+<td class="cont" width="40%"><a href="../service_functions/message.html">Message</a></td>
+<td class="cont" width="60%">показывает сообщение</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="savescreen.html">SaveScreen</a></td>
+<td class="cont" width="40%"><a href="../service_functions/regexpcontrol.html">RegExpControl</a></td>
+<td class="cont" width="60%">управляющие функции регулярных выражений</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/restorescreen.html">RestoreScreen</a></td>
+<td class="cont" width="60%">восстанавливает предварительно сохранённую область экрана</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/savescreen.html">SaveScreen</a></td>
 <td class="cont" width="60%">сохраняет область экрана</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="showhelp.html">ShowHelp</a></td>
-<td class="cont" width="60%">показывает нужный топик из hlf</td>
+<td class="cont" width="40%"><a href="../service_functions/showhelp.html">ShowHelp</a></td>
+<td class="cont" width="60%">показывает нужный раздел из файла помощи</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="text.html">Text</a></td>
+<td class="cont" width="40%"><a href="../service_functions/text.html">Text</a></td>
 <td class="cont" width="60%">выводит текстовую строку на экран</td>
 </tr>
 </table>
 
-<h3>Специфические функции редактора</h3>
+<h3>Специфические функции работы с панелью</h3>
+
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th></tr>
-<tr>
-<td class="cont" width="40%"><a href="editor.html">Editor</a></td>
-<td class="cont" width="60%">обеспечивает доступ к внутреннему редактору FAR'a</td>
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="editorcontrol.html">EditorControl</a></td>
-<td class="cont" width="60%">обеспечивает доступ на низком уровне к API редактора FAR'a</td>
+<td class="cont" width="40%"><a href="../service_functions/panelcontrol.html">PanelControl</a></td>
+<td class="cont" width="60%">позволяет запрашивать различную информацию и выполнять управляющие действия</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/filefiltercontrol.html">FileFilterControl</a></td>
+<td class="cont" width="60%">управляет созданием и применением файловых фильтров</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/freedirlist.html">FreeDirList</a></td>
+<td class="cont" width="60%">освобождает память, выделенную для списка файлов функцией GetDirList</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/freeplugindirlist.html">FreePluginDirList</a></td>
+<td class="cont" width="60%">освобождает память, выделенную для списка файлов функцией GetPluginDirList</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/getdirlist.html">GetDirList</a></td>
+<td class="cont" width="60%">возвращает список файлов в указанной директории</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/getplugindirlist.html">GetPluginDirList</a></td>
+<td class="cont" width="60%">возвращает список файлов в указанной директории эмулируемой файловой системы</td>
 </tr>
 </table>
 
-<h3>Специфические функции Dialog API</h3>
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th></tr>
+<h3>Специфические функции редактора</h3>
 
-<tr>
-<td class="cont" width="40%"><a href="../dialogapi/defdlgproc.html">DefDlgProc</a></td>
-<td class="cont" width="60%">вызывает стандартный обработчик диалога</td>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="../dialogapi/dialog.html">Dialog</a></td>
-<td class="cont" width="60%">показывает диалог</td>
+<td class="cont" width="40%"><a href="../service_functions/editor.html">Editor</a></td>
+<td class="cont" width="60%">обеспечивает доступ к внутреннему редактору Far Manager</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="../dialogapi/dialogex.html">DialogEx</a></td>
-<td class="cont" width="60%">расширенный диалог с функцией обработчиком</td>
+<td class="cont" width="40%"><a href="../service_functions/editorcontrol.html">EditorControl</a></td>
+<td class="cont" width="60%">позволяет запрашивать различную информацию о внутреннем редакторе Far Manager и управлять его состоянием</td>
 </tr>
-<tr>
-<td class="cont" width="40%"><a href="inputbox.html">InputBox</a></td>
-<td class="cont" width="60%">позволяет ввести строку текста</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="message.html">Message</a></td>
-<td class="cont" width="60%">показывает сообщение</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="../dialogapi/senddlgmessage.html">SendDlgMessage</a></td>
-<td class="cont" width="60%">послать сообщение обработчику диалога.</td>
 </table>
 
 <h3>Специфические функции программы просмотра</h3>
+
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th></tr>
-<tr>
-<td class="cont" width="40%"><a href="viewer.html">Viewer</a></td>
-<td class="cont" width="60%">обеспечивает доступ к внутреннему вьюеру FAR'a</td>
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="viewercontrol.html">ViewerControl</a></td>
-<td class="cont" width="60%">позволяет запрашивать различную информацию о встроенной программе просмотра FAR и управлять ее состоянием</td>
+<td class="cont" width="40%"><a href="../service_functions/viewer.html">Viewer</a></td>
+<td class="cont" width="60%">обеспечивает доступ к внутренней программе просмотра Far Manager</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/viewercontrol.html">ViewerControl</a></td>
+<td class="cont" width="60%">позволяет запрашивать различную информацию о встроенной программе просмотра Far Manager и управлять её состоянием</td>
 </tr>
 </table>
 
+<h3>Специфические функции диалога</h3>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/defdlgproc.html">DefDlgProc</a></td>
+<td class="cont" width="60%">вызывает стандартный обработчик диалога</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/dialoginit.html">DialogInit</a></td>
+<td class="cont" width="60%">создаёт (инициализирует) диалог</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/dialogrun.html">DialogRun</a></td>
+<td class="cont" width="60%">показывает диалог созданный функцией DialogInit</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/dialogfree.html">DialogFree</a></td>
+<td class="cont" width="60%">освобождает память, выделенную под внутренние структуры диалога функцией DialogInit</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/senddlgmessage.html">SendDlgMessage</a></td>
+<td class="cont" width="60%">послать сообщение обработчику диалога</td>
+</table>
+
+<h3>Специфические функции для настройки плагина</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/settingscontrol.html">SettingsControl</a></td>
+<td class="cont" width="60%">управляет настройками плагина</td>
+</tr>
+</table>
+
+<h3>Специфические функции для работы с плагинами</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/pluginscontrol.html">PluginsControl</a></td>
+<td class="cont" width="60%">управляет сторонними плагинами</td>
+</tr>
+</tr>
+</table>
+
+<h3>Специфические функции для работы с макрокомандами</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/macrocontrol.html">MacroControl</a></td>
+<td class="cont" width="60%">управляет макрокомандами</td>
+</tr>
+</table>
+<!-- HHC end hhc section -->
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../exported_functions/index.html">Экспортируемые функции</a>,
 <a href="../structures/index.html">Структуры</a>,
-<a href="../customapi/index.html">Поддержка архивов</A>,
-<a href="../addons/index.html">Дополнения</a>,
-<a href="../winapi/index.html">Win32 структуры и функции</a>
+<a href="../defs/index.html">Типы и определения</a>,
+<a href="../winapi/index.html">Структуры и функции Windows API</a>
 </div>
 
 </body>

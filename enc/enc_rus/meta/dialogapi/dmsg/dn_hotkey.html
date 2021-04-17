@@ -10,29 +10,29 @@
 
 <h1>DN_HOTKEY</h1>
 <div class=navbar>
-<a  href="index_dn.html">События</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dn.html">события</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_HOTKEY</dfn> посылается в обработчик диалога,
-когда пользователь нажал <code>Alt</code>-<code>буква</code>.
+Событие <code>DN_HOTKEY</code> посылается в обработчик диалога, когда пользователь нажал <kbd>Alt</kbd>+<kbd>буква</kbd>.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента диалога, который получит <a href="../keybfocus.html">фокус ввода</a>.
+ID элемента диалога, который получит <a href="../../other/dict.html#keybfocus">фокус ввода</a>.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Внутренний код клавиши.
+Указатель на структуру <a href="../../winapi/input_record.html">INPUT_RECORD</a> описывающую клавишу</a>.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - согласен<br>
-FALSE - отменить обработку клавиши.
+<code>TRUE</code> - согласен.<br>
+<code>FALSE</code> - отменить обработку клавиши.
 </div>
 
 <h3>Элементы</h3>
@@ -41,43 +41,41 @@ FALSE - отменить обработку клавиши.
 <tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_doublebox.html">DI_DOUBLEBOX</a></td>
 <td class="cont" width="60%">двойная рамка; если имеет горячую клавишу
-(флаг <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a> не выставлен), то передает
-управление ближайшему элементу, который может иметь <a href="../keybfocus.html">фокус ввода</a></td></tr>
+(флаг <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a> не выставлен), то передаёт
+управление ближайшему элементу, который может иметь <a href="../../other/dict.html#keybfocus">фокус ввода</a></td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_singlebox.html">DI_SINGLEBOX</a></td>
 <td class="cont" width="60%">одиночная рамка; если имеет горячую клавишу
-(флаг <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a> не выставлен), то передает
-управление ближайшему элементу, который может иметь <a href="../keybfocus.html">фокус ввода</a></td></tr>
+(флаг <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a> не выставлен), то передаёт
+управление ближайшему элементу, который может иметь <a href="../../other/dict.html#keybfocus">фокус ввода</a></td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_text.html">DI_TEXT</a></td>
 <td class="cont" width="60%">текстовая строка; если имеет горячую клавишу
-(флаг <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a> не выставлен), то передает
-управление ближайшему элементу, который может иметь <a href="../keybfocus.html">фокус ввода</a></td></tr>
+(флаг <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a> не выставлен), то передаёт
+управление ближайшему элементу, который может иметь <a href="../../other/dict.html#keybfocus">фокус ввода</a></td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_vtext.html">DI_VTEXT</a></td>
 <td class="cont" width="60%">вертикальная текстовая строка; если имеет горячую клавишу
-(флаг <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a> не выставлен), то передает
-управление ближайшему элементу, который может иметь <a href="../keybfocus.html">фокус ввода</a></td></tr>
+(флаг <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a> не выставлен), то передаёт
+управление ближайшему элементу, который может иметь <a href="../../other/dict.html#keybfocus">фокус ввода</a></td></tr>
 
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_button.html">DI_BUTTON</a></td>
 <td class="cont" width="60%">кнопка (Push Button); элемент без выставленного флага <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a>
-  сам реагирует на комбинацию <code>Alt</code>-<code>буква</code></td></tr>
+  сам реагирует на комбинацию <kbd>Alt</kbd>+<kbd>буква</kbd></td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_checkbox.html">DI_CHECKBOX</a></td>
 <td class="cont" width="60%">контрольный переключатель (Check Box); элемент без выставленного флага <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a>
-  сам реагирует на комбинацию <code>Alt</code>-<code>буква</code></td></tr>
+  сам реагирует на комбинацию <kbd>Alt</kbd>+<kbd>буква</kbd></td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a></td>
 <td class="cont" width="60%">селекторная кнопка (Radio Button); элемент без выставленного флага <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a>
-  сам реагирует на комбинацию <code>Alt</code>-<code>буква</code></td></tr>
+  сам реагирует на комбинацию <kbd>Alt</kbd>+<kbd>буква</kbd></td></tr>
 
 </table>
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
-
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialogex.html">DialogEx</a><br>
-
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

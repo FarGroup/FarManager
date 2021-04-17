@@ -6,52 +6,42 @@
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
- Date: Mon 20 Nov 19:19:43 2000
-   Author: Ivan Sintyurin
-   E-mail: spinoza@mail.ru
--->
 <body>
 
 <h1>GetFileOwner</h1>
 <div class=navbar>
 <a href="../index.html">главная</a> |
-<a href="index.html">FarStandardFunctions</a>
+<a href="index.html">стандартные функции</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.GetFileOwner</dfn> используется для определения владельца указанного файла.
+Функция <code>FSF.GetFileOwner</code> используется для определения владельца указанного файла.
 </div>
 
 <pre class=syntax>
-int WINAPI GetFileOwner(
-  const char *Computer,
-  const char *Name,
-  char *Owner
+size_t WINAPI GetFileOwner(
+  const wchar_t *Computer,
+  const wchar_t *Name,
+  wchar_t *Owner,
+  size_t Size
 );
 </pre>
 
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Computer</div>
-  <div class=dfndescr>Имя компьютера, содержащего обрабатываемый файл.
-  Если этот параметр равен NULL, то используется текущий компьютер.
-  </div>
-
+    <div class=dfndescr>Имя компьютера, содержащего обрабатываемый файл. Если этот параметр равен <code>NULL</code>, то используется текущий компьютер.</div>
   <div class=dfn>Name</div>
-  <div class=dfndescr>Имя файла, для которого нужно определить владельца.
-  </div>
-
+    <div class=dfndescr>Имя файла, для которого нужно определить владельца.</div>
   <div class=dfn>Owner</div>
-  <div class=dfndescr>Указатель на буфер, который получит имя владельца файла.
-  Буфер должен иметь достаточный для хранения получаемой строки объем
-  (минимальный размер буфера - <a href="../defs/nm.html">NM</a>)
-  </div>
+    <div class=dfndescr>Указатель на буфер, который получит имя владельца файла. Установите <code>Owner = NULL</code> для того, чтобы узнать необходмый размер буфера в символах.</div>
+  <div class=dfn>Size</div>
+    <div class=dfndescr>Максимальное количество символов, которое можно поместить в <code>Owner</code>, с заключительным нулём.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-В случае успеха возвращается TRUE, иначе - FALSE.
+Функция возвращает необходимый размер буфера <code>Owner</code>.
 </div>
 
 <h3>Примечание</h3>

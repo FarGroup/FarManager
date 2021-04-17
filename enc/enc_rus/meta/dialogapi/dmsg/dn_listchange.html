@@ -10,28 +10,29 @@
 
 <h1>DN_LISTCHANGE</h1>
 <div class=navbar>
-<a  href="index_dn.html">События</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dn.html">события</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_LISTCHANGE</dfn> оповещает обработчик об изменении состояния элемента списка (<a href="../controls/di_combobox.html">DI_COMBOBOX</a>, <a href="../controls/di_listbox.html">DI_LISTBOX</a>, <a href="../flags/dif_history.html">DIF_HISTORY</a>).
+Событие <code>DN_LISTCHANGE</code> оповещает обработчик об изменении позиции курсора элемента списка (<a href="../controls/di_combobox.html">DI_COMBOBOX</a>, <a href="../controls/di_listbox.html">DI_LISTBOX</a>, <a href="../flags/dif_history.html">DIF_HISTORY</a>).
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Текущая позиция в списке.
+Новая позиция в списке.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - разрешить изменение (и соответственно отрисовку того, что пользователь ввёл)<br>
-FALSE - запретить изменение.
+<code>TRUE</code> - разрешить изменение позиции курсора.<br>
+<code>FALSE</code> - запретить изменение позиции курсора.
 </div>
 
 <h3>Элементы</h3>
@@ -43,28 +44,23 @@ FALSE - запретить изменение.
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
 <td class="cont" width="60%">список</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="60%">строка ввода (с установленным
-флагом <a href="../flags/dif_history.html">DIF_HISTORY</a>)</td></tr>
+<td class="cont" width="60%">строка ввода (с установленным флагом <a href="../flags/dif_history.html">DIF_HISTORY</a>)</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
-<td class="cont" width="60%">поле ввода фиксированного размера (с установленным
-флагом <a href="../flags/dif_history.html">DIF_HISTORY</a>)</td></tr>
+<td class="cont" width="60%">поле ввода фиксированного размера (с установленным флагом <a href="../flags/dif_history.html">DIF_HISTORY</a>)</td></tr>
 </table>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
-
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialogex.html">DialogEx</a><br>
-
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

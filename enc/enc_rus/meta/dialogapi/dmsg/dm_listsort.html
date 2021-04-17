@@ -10,30 +10,30 @@
 
 <h1>DM_LISTSORT</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTSORT</dfn> посылается Менеджеру диалогов для сортировки
-элементов списка <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
+Сообщение <code>DM_LISTSORT</code> посылается Менеджеру диалогов для сортировки элементов списка <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
 <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Направление сортировки: 0 - по возрастанию, 1 - по убыванию.
+Направление сортировки: <code>0</code> - по возрастанию, <code>1</code> - по убыванию.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - список отсортирован.<br>
-FALSE - ошибка при сортировке списка.
+<code>TRUE</code> - список отсортирован.<br>
+<code>FALSE</code> - ошибка при сортировке списка.
 </div>
 
 <h3>Элементы</h3>
@@ -55,13 +55,13 @@ FALSE - ошибка при сортировке списка.
 <div class=descr>
 <pre class=code>
 // Сортировать список по убыванию (от 'Z' до 'A')
-Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,1);
+Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,(void*)1);
 </pre>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialogex.html">DialogEx</a>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

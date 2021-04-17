@@ -29,9 +29,6 @@
 и т.п.
 </ul>
 <br>
-Для анализа структуры Энциклопедии лучше всего воспользоваться плагином
-<a href="http://plugring.farmanager.com/cgi-bin/downld.cgi?Draw=List&Select=PlugIn&SelectPlugIn=59" target="_blank">DocFile browser</a>
-<br>
 <br>
 
 <li>Ссылка на WinAPI функцию (не описанную в Энциклопедии) для Вашей статьи
@@ -50,7 +47,7 @@
 &lt;param name="Item2" value="GetLastError"&gt;<br>
 &lt;/object&gt;</code><br><br>
 Здесь <b>linkXXXX</b> - уникальный ID объекта в пределах одной HTML-страницы.<br><br>
-При этом, если CHM-файл <a href="../setuphelp.html">внедрен в MSDN</a>, то выбор ссылки приведет к
+При этом, если CHM-файл, то выбор ссылки приведёт к
 открытию соответствующей статьи из MSDN. Если MSDN`а поблизости нет, то пользователь получит сообщение:<br><br>
 <img src="../../images/notfound.gif" width=335 height=119>
 <br>
@@ -58,9 +55,9 @@
 
 
 <li>Ссылка на WinAPI функцию (не описанную в Энциклопедии) для Интернета (например, для функции GetLastError):<br><br>
-<code>&lt;a href="../notfound.html?GetLastError"&gt;GetLastError&lt;/a&gt;</code><br><br>
+<code>&lt;a href="msdn.html?GetLastError"&gt;GetLastError&lt;/a&gt;</code><br><br>
 
-Предполагается, что "notfound.html" располагается в "корне" проекта и браузер пользователя MSIE 4.x и выше.<br>
+Предполагается, что "msdn.html" располагается в "корне" проекта и браузер пользователя MSIE 4.x и выше.<br>
 Содержимое файла:
 <pre class=code>
 &lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"&gt;
@@ -70,42 +67,31 @@
 &lt;title&gt;Внешняя ссылка&lt;/title&gt;
 &lt;meta http-equiv="Content-Type" content="text/html; charset=Windows-1251"&gt;
 &lt;link rel="stylesheet" type="text/css" href="../styles/styles.css"&gt;
-&lt;script language="javascript" type="text/javascript"&gt;&lt;!--
-var roll = document.images != null;
-function DrawNotFound(){
- if (roll &amp;&amp; navigator.userAgent.indexOf("Mozilla", 0) != -1){
-  var agent = navigator.userAgent.toLowerCase();
-  if(agent.indexOf("msie 4")&gt;0 || agent.indexOf("msie 5")&gt;0 || agent.indexOf("msie 6")&gt;0){
-   f=document.location.href.indexOf("?");
-   if(f &gt; 0){
-    qu=document.location.href.substring(f+1);
-    str=" по &lt;a href='http://search.microsoft.com/default.asp?boolean=ALL&amp;"
-    str=str+"nq=NEW&amp;so=RECCNT&amp;p=1&amp;ig=01&amp;i=00&amp;i=01&amp;i=02&amp;"
-    str=str+"i=03&amp;i=04&amp;i=05&amp;i=06&amp;i=07&amp;i=08&amp;i=09&amp;i=10&amp;"
-    str=str+"i=11&amp;i=12&amp;i=13&amp;i=14&amp;i=15&amp;i=16&amp;i=17&amp;i=18&amp;"
-    str=str+"i=19&amp;i=20&amp;i=21&amp;i=22&amp;i=23&amp;i=24&amp;i=25&amp;i=26&amp;"
-    str=str+"i=27&amp;i=28&amp;i=29&amp;i=30&amp;i=31&amp;i=32&amp;i=33&amp;i=34&amp;"
-    str=str+"i=35&amp;i=36&amp;i=37&amp;i=38&amp;i=39&amp;i=40&amp;i=41&amp;"
-    str=str+"siteid=us/dev&amp;qu=" + qu + "' target='_blank' style='font-weight:bold;'&gt;"
-    str=str+ qu+ "&lt;/a&gt; ";
-    inf.innerHTML=str
-   }
-  }
- }
-}
-//--&gt;&lt;/script&gt;
 &lt;/head&gt;
 
-&lt;body onload="DrawNotFound()"&gt;
+&lt;body&gt;
 
-&lt;h1&gt;404 - Информация недоступна&lt;/h1&gt;
+&lt;h1&gt;Внешняя ссылка&lt;/h1&gt;
 &lt;div class="navbar"&gt;
   &lt;a href="index.html"&gt;главная&lt;/a&gt;
 &lt;/div&gt;
 
 &lt;div class="descr"&gt;
-Запрашиваемая информация &lt;span id="inf"&gt;&lt;/span&gt; находится где-то в дебрях
-&lt;b&gt;&lt;a href="http://msdn.microsoft.com/library/" target="_blank"&gt;MSDN Library&lt;/a&gt;&lt;/b&gt;.
+Запрашиваемая информация &lt;span id="msdn"&gt;&lt;/span&gt; находится где-то в дебрях
+&lt;b&gt;&lt;a href="https://msdn.microsoft.com/library/" target="_blank"&gt;MSDN Library&lt;/a&gt;&lt;/b&gt;.
+
+&lt;script language="javascript" type="text/javascript"&gt;&lt;!--
+if (document.images != null &amp;&amp; navigator.userAgent.indexOf("Mozilla", 0) != -1)
+{
+  var f=document.location.href.indexOf("?");
+  if(f > 0)
+  {
+    var qu=document.location.href.substring(f+1);
+    msdn.innerHTML=" по &lt;a href='https://social.msdn.microsoft.com/Search/?query=" +
+        qu + "' target='_blank' style='font-weight:bold;'&gt;" +qu+ "&lt;/a&gt; "
+  }
+}
+//--&gt;&lt;/script&gt;
 
 &lt;/body&gt;
 

@@ -7,64 +7,80 @@
 <script language="JavaScript" src='../links.js' type="text/javascript"></script>
 </head>
 <body>
+
 <h1>Viewer API</h1>
+
 <div class=navbar>
 <a href="../index.html">главная</a>
 </div>
 
-
 <div class=shortdescr>
-  <p>
+  <p>Краткое описание <a href="about.html">Viewer API</a>
 </div>
 
-<h3>Экспортируемые функции</h3>
+<!-- HHC following links are used to create the chm hhc file -->
+<h3>Экспортируемые функции, т.е. те, которые плагин экспортирует для Far Manager</h3>
+
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont">
-<td class="cont" width="40%"><a href="../exported_functions/processviewerevent.html">ProcessViewerEvent</a></td>
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a></td>
 <td class="cont" width="60%">обработка событий программы просмотра</td>
 </tr>
 </table>
 
-<h3>Сервисные функции</h3>
+<h3>Сервисные функции, указатели на эти функции плагины получают от Far Manager в функции
+  <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a></h3>
+
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
+</tr>
 <tr>
 <td class="cont" width="40%"><a href="../service_functions/viewer.html">Viewer</a></td>
-<td class="cont" width="60%">обеспечивает доступ к внутреннему вьюеру FAR'a</td>
+<td class="cont" width="60%">обеспечивает доступ к внутренней программе просмотра Far Manager</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="../service_functions/viewercontrol.html">ViewerControl</a></td>
-<td class="cont" width="60%">позволяет запрашивать различную информацию о встроенной программе просмотра FAR и управлять ее состоянием</td>
+<td class="cont" width="60%">позволяет запрашивать различную информацию о встроенной программе просмотра Far Manager и управлять её состоянием</td>
 </tr>
 </table>
 
 <h3>Структуры</h3>
+
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Структура</th><th class="cont" width="60%">Описание</th></tr>
-
-<tr class="cont"><td class="cont" width="40%"><a href="../structures/viewerinfo.html">ViewerInfo</a></td>
-<td class="cont" width="60%">информации о текущем состоянии программы просмотра</td></tr>
-
-<tr class="cont"><td class="cont" width="40%"><a href="../structures/viewermode.html">ViewerMode</a></td>
-<td class="cont" width="60%">информация о режимах программы просмотра</td></tr>
-
-<tr class="cont"><td class="cont" width="40%"><a href="../structures/viewerselect.html">ViewerSelect</a></td>
-<td class="cont" width="60%">выделение области в программе просмотра</td></tr>
-
-<tr class="cont"><td class="cont" width="40%"><a href="../structures/viewersetmode.html">ViewerSetMode</a></td>
-<td class="cont" width="60%">изменение режим работы программы просмотра</td></tr>
-
-<tr class="cont"><td class="cont" width="40%"><a href="../structures/viewersetposition.html">ViewerSetPosition</a></td>
-<td class="cont" width="60%">изменение текущей позиции в файле</td></tr>
-
-<tr class="cont">
-<td class="cont" width="40%"><a href="../structures/farint64.html">FARINT64</a></td>
-<td class="cont" width="60%">используется для хранения 64-битного целого</td>
+<tr class="cont"><th class="cont" width="40%">Структура</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/viewerinfo.html">ViewerInfo</a></td>
+<td class="cont" width="60%">информации о текущем состоянии программы просмотра</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/viewermode.html">ViewerMode</a></td>
+<td class="cont" width="60%">информация о режимах программы просмотра</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/viewerselect.html">ViewerSelect</a></td>
+<td class="cont" width="60%">выделение области в программе просмотра</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/viewersetmode.html">ViewerSetMode</a></td>
+<td class="cont" width="60%">изменение режима программы просмотра</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/viewersetposition.html">ViewerSetPosition</a></td>
+<td class="cont" width="60%">изменение текущей позиции в файле</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/processviewereventinfo.html">ProcessViewerEventInfo</a></td>
+<td class="cont" width="60%">информация о событии в программе просмотра</td>
 </tr>
 </table>
+<!-- HHC end hhc section -->
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../defs/index.html">Типы и определения</a>
 </div>
 
 </body>

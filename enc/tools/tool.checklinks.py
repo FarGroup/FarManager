@@ -27,4 +27,5 @@ def check_links(dir_to_check):
             print("%s - %s" % (join(root, f)[len(dir_to_check)+1:], r[1]))
       infile.close()
 
-check_links(join(ROOT_DIR,"enc_rus3.work","meta"))
+check_links(join(ROOT_DIR,"enc_rus","meta"))
+#check_links(join(ROOT_DIR,"enc_eng","meta"))

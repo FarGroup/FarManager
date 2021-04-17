@@ -6,11 +6,8 @@
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
-  27 Mar 2000
-    Valentin Skirdin <vskirdin@mail.ru>
--->
 <body>
+
 <h1>FARMANAGERVERSION</h1>
 <div class=navbar>
 <a href="../index.html">главная</a> |
@@ -19,20 +16,24 @@
 
 
 <div class=shortdescr>
-Константа <dfn>FARMANAGERVERSION</dfn> определяет текущий номер версии FAR
-Manager и имеет следующий формат - <code>0xBBBBXXYY</code>:<br><br>
-BBBB = номер билда (343 = 0x0157)<br>
-XX = major version (FAR 1.70 = 0x01)<br>
-YY = minor version (FAR 1.70 = 0x46)<br><br>
+Константа <code>FARMANAGERVERSION</code> определяет текущий номер версии Far Manager и имеет следующий формат:
 
-<p>Т.о. для FAR Manager 1.70 beta 3 build 343 эта константа будет равна:
-0x01570146
+<pre class=syntax>
+#define FARMANAGERVERSION_MAJOR 3
+#define FARMANAGERVERSION_MINOR 0
+#define FARMANAGERVERSION_REVISION 0
+#define FARMANAGERVERSION_BUILD 2188
+#define FARMANAGERVERSION_STAGE VS_RELEASE
 
-<p>Константа <dfn>FARMANAGERVERSION</dfn> формируется с помощью макроса <a href="makefarversion.html">MAKEFARVERSION</a>
+#define FARMANAGERVERSION MAKEFARVERSION(FARMANAGERVERSION_MAJOR,FARMANAGERVERSION_MINOR, FARMANAGERVERSION_REVISION, FARMANAGERVERSION_BUILD, FARMANAGERVERSION_STAGE)
+</pre>
+
+<p>Константа <code>FARMANAGERVERSION</code> формируется с помощью макроса <a href="makefarversion.html">MAKEFARVERSION</a>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../exported_functions/getminfarversion.html">GetMinFarVersion</a>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>
 </div>
 
 </body>

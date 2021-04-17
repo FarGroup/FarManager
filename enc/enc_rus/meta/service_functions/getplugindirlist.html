@@ -6,83 +6,63 @@
 <meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
-
 </head>
-
 <body>
 
 <h1>GetPluginDirList</h1>
 <div class=navbar>
 <a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a><br>
+<a href="index.html">сервисные функции</a> |
+<a href="../panelapi/index.html">Panel API</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>GetPluginDirList</dfn> возвращает список файлов в указанной
-директории (с поддиректориями) эмулируемой файловой системы.
+Функция <code>GetPluginDirList</code> возвращает список файлов в указанной директории (с поддиректориями) эмулируемой файловой системы.
 </div>
 
 <pre class=syntax>
-int WINAPI GetPluginDirList(
-  int PluginNumber,
-  HANDLE hPlugin,
-  const char *Dir,
+intptr_t WINAPI GetPluginDirList(
+  const GUID *PluginId,
+  HANDLE hPanel,
+  const wchar_t *Dir,
   struct PluginPanelItem **pPanelItem,
-  int *pItemsNumber
+  size_t *pItemsNumber
 );
 </pre>
 <h3>Параметры</h3>
 <div class=descr>
-  <div class=dfn>PluginNumber</div>
-  <div class=dfndescr>Номер плагина. Его вы получаете в функции
-     <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>.</div>
-  <div class=dfn>hPlugin</div>
-  <div class=dfndescr>Текущий описатель плагина. Если описатель плагина
-    равен INVALID_HANDLE_VALUE, то значение параметра PluginNumber
-    игнорируется и используется номер плагина, которому принадлежит
-    активная панель.</div>
+  <div class=dfn>PluginId</div>
+    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+  <div class=dfn>hPanel</div>
+    <div class=dfndescr>Текущий описатель панели. Если описатель панели равен <code>PANEL_ACTIVE</code> (или <code>PANEL_PASSIVE</code>), то значение параметра <code>PluginId</code> игнорируется и используется GUID плагина, которому принадлежит активная (или пассивная) панель.</div>
   <div class=dfn>Dir</div>
-  <div class=dfndescr>Имя обрабатываемой директории. Должно быть в
-    форме, приемлемой для функции плагина <a href="../exported_functions/setdirectory.html">SetDirectory</a>.
-    Плагинам обычно не требуется обработка полного пути функцией <dfn>SetDirectory</dfn>,
-    поэтому чаще всего (нужно в этом убедиться), это просто имя обрабатываемого подкаталога текущего каталога.
-    <p>Для сохранения текущей директории плагина неизменной после
-    вызова <dfn>GetPluginDirList</dfn>, либо <em>Dir</em> должен быть
-    подкаталогом текущего каталога плагина, либо функция <a href="../exported_functions/setdirectory.html">SetDirectory</a>
-    плагина должна уметь обрабатывать имя каталога, возвращаемое
-    <a href="../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a>.
-    Иначе текущая директория будет изменена, и вы должны быть
-    готовы восстановить ее.</div>
+    <div class=dfndescr>Имя обрабатываемой директории. Должно быть в форме, приемлемой для функции плагина <a href="../exported_functions/setdirectoryw.html">SetDirectoryW</a>.
+    Плагинам обычно не требуется обработка полного пути функцией <code>SetDirectoryW</code>, поэтому чаще всего (нужно в этом убедиться), это просто имя обрабатываемого подкаталога текущего каталога.
+    <p>Для сохранения текущей директории плагина неизменной после вызова <code>GetPluginDirList</code>, либо <code>Dir</code> должен быть подкаталогом текущего каталога плагина, либо функция <a href="../exported_functions/setdirectoryw.html">SetDirectoryW</a>
+    плагина должна уметь обрабатывать имя каталога, возвращаемое <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>.
+    Иначе текущая директория будет изменена, и вы должны быть готовы восстановить её.</div>
   <div class=dfn>pPanelItem</div>
-  <div class=dfndescr>Указывает на переменную, которая получит адрес
-    массива структур <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>.<br>
-    Когда этот массив больше не нужен, он должен быть
-    передан функции <a href="freedirlist.html">FreeDirList</a>.</div>
+    <div class=dfndescr>Указывает на переменную, которая получит адрес массива структур <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>.<br>
+    Когда этот массив больше не нужен, он должен быть передан функции <a href="freeplugindirlist.html">FreePluginDirList</a>.</div>
   <div class=dfn>pItemsNumber</div>
-  <div class=dfndescr>Указывает на переменную, которая получит число
-    структур <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>.</div>
+    <div class=dfndescr>Указывает на переменную, которая получит число структур <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-  Если функция завершилась успешно, она вернет
-  TRUE. Если функция закончилась неудачно или
-  обработка директории была прервана
-  пользователем, то она вернет FALSE.
+Если функция завершилась успешно, она вернёт <code>TRUE</code>. Если функция закончилась неудачно или обработка директории была прервана пользователем, то она вернёт <code>FALSE</code>.
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>Функция возвращает имена файлов относительно указанного каталога.
-  Например, если <dfn>Dir</dfn> есть <code>D:\DIR1\DIR2</code>,
-  имена файлов будут в виде DIR2\file.ext.
-<li>Пользователь может прервать выполнение функции, нажав клавишу Esc,
-    при этом функция вернет значение FALSE.
+<li>Возвращаемые имена файлов включают исходный каталог <code>Dir</code>. Например, если <code>Dir</code> есть <code>DIR1\DIR2</code>, то имена файлов будут в виде <code>DIR1\DIR2\file.ext</code>, <code>DIR1\DIR2\subdir\file.ext</code> и т.п.
+<li>Пользователь может прервать выполнение функции, нажав клавишу <kbd>Esc</kbd>,  при этом функция вернёт значение <code>FALSE</code>.
 </ol>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="getdirlist.html">GetDirList</a>
 </div>
 

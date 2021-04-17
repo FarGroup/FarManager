@@ -6,43 +6,38 @@
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
--->
 <body>
 
 <h1>atoi</h1>
 <div class=navbar>
 <a href="../index.html">главная</a> |
-<a href="index.html">FarStandardFunctions</a>
+<a href="index.html">стандартные функции</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.atoi</dfn> преобразует символьную строку в целое число типа <b>int</b> (32-битное целое).
+Функция <code>FSF.atoi</code> преобразует символьную строку в целое число типа <code>int</code>.
 </div>
 
 <pre class=syntax>
 int WINAPI atoi(
-  const char *Str
+  const wchar_t *Str
 );
 </pre>
 
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Str</div>
-  <div class=dfndescr>Указатель на строку, содержащую строковое представление
-  числа.
-  </div>
+    <div class=dfndescr>Указатель на строку, содержащую строковое представление числа.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-<dfn>atoi</dfn> возвращает преобразованное значение входной строки
-<em>Str</em>. Если строка не может быть преобразована, то функция возвращает 0.
+<code>atoi</code> возвращает преобразованное значение входной строки <code>Str</code>. Если строка не может быть преобразована, то функция возвращает <code>0</code>.
 </div>
 
-<h3>Примечание</h3>
+<h3>Замечания</h3>
 <div class=descr>
-Символы в строке <em>Str</em> должны совпадать со следующим форматом:<br>
+Символы в строке <code>Str</code> должны совпадать со следующим форматом:<br>
 <code>[ws][sn][ddd]</code>
 где<br>
 &nbsp;&nbsp;ws - табуляция и пробел<br>
@@ -50,13 +45,12 @@ int WINAPI atoi(
 &nbsp;&nbsp;ddd - строка цифр - от '0' до '9'<br>
 
 Преобразование заканчивается, когда функция встречает первый "неправильный" символ.
-Проверка на переполнение не ведется (результат неопределенный).<br><br></p>
+Проверка на переполнение не ведётся (результат неопределённый).
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
-Вы можете в программе описать указатель на функцию, инициализировать и
-использовать ее:
+Вы можете в программе описать указатель на функцию, инициализировать и использовать её:
 <pre class=code>
 FARSTDATOI FarAtoi;
 ...
@@ -70,9 +64,10 @@ I=Info.FSF-&gt;atoi(Str);
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="atoi64.html">FSF.atoi64</a> |
-<a href="itoa.html">FSF.itoa</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="atoi64.html">FSF.atoi64</a>,
+<a href="itoa.html">FSF.itoa</a>,
 <a href="itoa64.html">FSF.itoa64</a>
 </div>
 

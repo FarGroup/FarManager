@@ -10,13 +10,13 @@
 
 <h1>DM_RESIZEDIALOG</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_RESIZEDIALOG</dfn> посылается менеджеру диалогов для
-изменения размеров диалога.
+Сообщение <code>DM_RESIZEDIALOG</code> посылается менеджеру диалогов для изменения размеров диалога.
 </div>
 
 <h3>Param1</h3>
@@ -26,27 +26,28 @@
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../../winapi/coord.html">COORD</a>, в которой
-указаны новые размеры диалогового окна.
+Указатель на структуру <a href="../../winapi/coord.html">COORD</a>, в которой указаны новые размеры диалогового окна.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Структура <a href="../../winapi/coord.html">COORD</a>, содержащая новые
-размеры диалогового окна.
+Структура <a href="../../winapi/coord.html">COORD</a>, содержащая новые размеры диалогового окна.
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
+Если Far Manager был запущен с параметром "far.exe /w", то размеры окна могут отличаться от размеров экранного буфера Far Manager
+и Ваш диалог может "уплыть" за границы экрана, учитывайте этот случай в своем плагине.
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="dm_movedialog.html">DM_MOVEDIALOG</a><br>
-<a href="../dialogex.html">DialogEx</a><br>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="dm_movedialog.html">DM_MOVEDIALOG</a>,
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 
 </div>
 

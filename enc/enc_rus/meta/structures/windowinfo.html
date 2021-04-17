@@ -11,66 +11,77 @@
 <h1>WindowInfo</h1>
 <div class=navbar>
 <a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="index.html">структуры</a> |
+<a href="../miscapi/index.html">Miscellaneous API</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>WindowInfo</dfn> содержит информацию о конкретном окне
-FAR Manager. Плагин может получить информацию, используя команду
-<a href="../service_functions/advcontrol.html#ACTL_GETWINDOWINFO">ACTL_GETWINDOWINFO</a>.
+Структура <code>WindowInfo</code> содержит информацию о конкретном окне Far Manager. Плагин может получить информацию, используя команду <a href="../service_functions/advcontrol.html#ACTL_GETWINDOWINFO">ACTL_GETWINDOWINFO</a>.
 </div>
 
 <pre class=syntax>
-struct WindowInfo{
-  int  Pos;
-  int  Type;
-  int  Modified;
-  int  Current;
-  char TypeName[64];
-  char Name[NM];
+struct WindowInfo
+{
+  size_t StructSize;
+  intptr_t Id;
+  wchar_t *TypeName;
+  wchar_t *Name;
+  intptr_t TypeNameSize;
+  intptr_t NameSize;
+  intptr_t Pos;
+  enum WINDOWINFO_TYPE Type;
+  WINDOWINFO_FLAGS Flags;
 };
 </pre>
+
 <h3>Элементы</h3>
 <div class=descr>
-    <div class=dfn>Pos</div>
-    <div class=dfndescr>Номер окна, о котором нужно узнать информацию.
-      Нумерация идет с 0. <var>Pos</var> = -1 вернет информацию о текущем окне.
-    </div>
-    <div class=dfn>Type</div>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>WindowInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class=dfn>Id</div>
+    <div class=dfndescr>Это поле содержит для диалога описатель, для программы просмотра и редактора - ID.</div>
+  <div class=dfn>TypeName</div>
+    <div class=dfndescr>Имя типа окна (Panels,View,Edit,Help,VMenu), зависит от текущего языка.</div>
+  <div class=dfn>Name</div>
+    <div class=dfndescr>Имя окна. Для окон типа <code>WTYPE_VIEWER</code>, <code>WTYPE_EDITOR</code> содержит имя файла.<br>
+    Для панелей - имя текущего файлового объекта.<br>
+    Для окна помощи - полный путь к просматриваемому HLF-файлу.<br>
+    Для диалогов и меню - заголовок.<br></div>
+  <div class=dfn>TypeNameSize</div>
+    <div class=dfndescr>Размер буфера <code>TypeName</code> в символах, с учётом завершающего <code>'\0'</code>.</div>
+  <div class=dfn>NameSize</div>
+    <div class=dfndescr>Размер буфера <code>Name</code> в символах, с учётом завершающего <code>'\0'</code>.</div>
+  <div class=dfn>Pos</div>
+    <div class=dfndescr>Номер окна, о котором нужно узнать информацию. Нумерация идёт с 0. <code>Pos = -1</code> вернёт информацию о текущем окне.</div>
+  <div class=dfn>Type</div>
     <div class=dfndescr>Тип окна. Может иметь одно из следующих значений (перечисление <a name="WINDOWINFO_TYPE">WINDOWINFO_TYPE</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
-     <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_PANELS">WTYPE_PANELS</a></td>
-     <td class="cont" width="60%">Файловые панели.</td></tr>
-     <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_VIEWER">WTYPE_VIEWER</a></td>
-      <td class="cont" width="60%">Окно встроенной программы просмотра.</td></tr>
-     <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_EDITOR">WTYPE_EDITOR</a></td>
-      <td class="cont" width="60%">Окно встроенного редактора.</td></tr>
-     <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_DIALOG">WTYPE_DIALOG</a></td>
-      <td class="cont" width="60%">Диалог.</td></tr>
-     <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_VMENU">WTYPE_VMENU</a></td>
-      <td class="cont" width="60%">Меню.</td></tr>
-     <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_HELP">WTYPE_HELP</a></td>
-      <td class="cont" width="60%">Окно подсказки.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_PANELS">WTYPE_PANELS</a></td>
+    <td class="cont" width="60%">файловые панели</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_VIEWER">WTYPE_VIEWER</a></td>
+    <td class="cont" width="60%">окно встроенной программы просмотра</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_EDITOR">WTYPE_EDITOR</a></td>
+    <td class="cont" width="60%">окно встроенного редактора</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_DIALOG">WTYPE_DIALOG</a></td>
+    <td class="cont" width="60%">диалог</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_VMENU">WTYPE_VMENU</a></td>
+    <td class="cont" width="60%">меню</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_HELP">WTYPE_HELP</a></td>
+    <td class="cont" width="60%">окно подсказки</td></tr>
     </table>
     </div>
-    <div class=dfn>Modified</div>
-    <div class=dfndescr>Признак модификации содержимого файла в окне.
-      Может быть только у <dfn>WTYPE_EDITOR</dfn>.
-    </div>
-    <div class=dfn>Current</div>
-    <div class=dfndescr>Является ли окно текущим.
-    </div>
-    <div class=dfn>TypeName</div>
-    <div class=dfndescr>Имя типа окна (Panels,View,Edit,Help,VMenu),
-     зависит от текущего языка.
-    </div>
-    <div class=dfn>Name</div>
-    <div class=dfndescr>Имя окна. Для окон типа <dfn>WTYPE_VIEWER</dfn>,
-       <dfn>WTYPE_EDITOR</dfn> содержит имя файла.
-       Для панелей - имя текущего файлового объекта.
-       Для окна помощи - полный путь к просматриваемому HLF-файлу.
-       Для диалогов и меню - заголовок.
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Могут быть комбинацией следующих значений (тип <a name="WINDOWINFO_FLAGS">WINDOWINFO_FLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WIF_MODIFIED">WIF_MODIFIED</a></td>
+    <td class="cont" width="60%">признак модификации содержимого файла в окне, может быть только у <code>WTYPE_EDITOR</code></td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WIF_CURRENT">WIF_CURRENT</a></td>
+    <td class="cont" width="60%">признак, является ли окно текущим</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WIF_MODAL">WIF_MODAL</a></td>
+    <td class="cont" width="60%">признак, является ли окно модальным</td></tr>
+    </table>
     </div>
 </div>
 
@@ -79,43 +90,56 @@ struct WindowInfo{
 <pre class=code>
 void GetFarWindowInfo()
 {
-  WindowInfo WInfo;
+  WindowInfo WInfo={sizeof(WindowInfo)};
   int CountWindow;
   int I;
   FILE *Fp;
 
-  if((Fp=fopen("window.log","a+t")) == NULL)
+  if((Fp=_wfopen(L"window.log",L"a+t")) == NULL)
       return ;
 
   // запросили число окон
-  CountWindow=(int)Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWCOUNT,NULL);
-  fprintf(Fp,"WindowCount=%i\n",CountWindow);
+  CountWindow=(int)Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWCOUNT,0,NULL);
+  fwprintf(Fp,L"WindowCount=%i\n",CountWindow);
 
   for ( I=0; I &lt; CountWindow; I++ )
   {
     // установили нужный номер
     WInfo.Pos=I;
 
-    // запросили информаци об окне
-    Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWINFO,(void*)&amp;WInfo);
+    WInfo.TypeName=NULL;
+    WInfo.Name=NULL;
 
-    // распечатали ее
-    fprintf(Fp,"Window[%i], Type=%i (%s), File=[%s] Current=%i, Modified=%i\n",
+    // запросили информацию об размере буферов
+    Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWINFO,0,(void*)&amp;WInfo);
+
+    WInfo.TypeName=(wchar_t *) malloc(WInfo.TypeNameSize);
+    WInfo.Name=(wchar_t *) malloc(WInfo.NameSize);
+
+    // запросили информацию
+    Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWINFO,0,(void*)&amp;WInfo);
+    
+    // распечатали её
+    fwprintf(Fp,L"Window[%i], Type=%i (%s), File=[%s] Current=%i, Modified=%i\n",
                I,WInfo.Type,WInfo.TypeName,WInfo.Name,
                WInfo.Current,WInfo.Modified);
-  }
+    
+    free(WInfo.TypeName);
+    free(WInfo.Name);
+
+ }
   fclose(Fp);
 
   // установили окно номер 1 (то есть второе)
-  Info.AdvControl(Info.ModuleNumber,ACTL_SETCURRENTWINDOW,(void*)1);
+  Info.AdvControl(Info.ModuleNumber,ACTL_SETCURRENTWINDOW,0,(void*)1);
 }
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
-<a href="../service_functions/advcontrol.html">AdvControl</a> |
-<a href="../delphi/twindowinfo.html">TWindowInfo</a>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>,
+<a href="../service_functions/advcontrol.html">AdvControl</a>
 </div>
 
 </body>

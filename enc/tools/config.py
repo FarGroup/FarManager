@@ -2,10 +2,6 @@
 
 from os.path import join, dirname, abspath
 
-#
-# IMPORTANT: must be albe to run under python 2.4
-#
-
 #: path to Encyclopedia sources root
 ROOT_DIR        = abspath(join(dirname(__file__), ".."))
 

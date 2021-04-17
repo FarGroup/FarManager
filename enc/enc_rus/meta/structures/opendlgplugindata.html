@@ -6,46 +6,42 @@
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!-- History of modification:
--->
 <body>
 
 <h1>OpenDlgPluginData</h1>
 <div class=navbar>
 <a href="../index.html">главная</a> |
-<a href="index.html">Dialog API</a><br>
+<a href="index.html">структуры</a> |
+<a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Указатель на структуру <dfn>OpenDlgPluginData</dfn> передается в функцию <a href="../exported_functions/openplugin.html">OpenPlugin</a>
-плагина при вызове его из диалога.
+Указатель на структуру <code>OpenDlgPluginData</code> передаётся в функцию <a href="../exported_functions/openw.html">OpenW</a> плагина при вызове его из диалога.
 </div>
 
 <pre class=syntax>
 struct OpenDlgPluginData
 {
-  int ItemNumber;
+  size_t StructSize;
   HANDLE hDlg;
 };
 </pre>
+
 <h3>Элементы</h3>
 <div class=descr>
-  <div class=dfn>ItemNumber</div>
-  <div class=dfndescr>Номер выбранного пункта в меню из зарегистрированных плагином пунктов.
-  </div>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>OpenDlgPluginData</code>.</div>
   <div class=dfn>hDlg</div>
-  <div class=dfndescr>Указатель на диалог, из которого вызван плагин.
-  </div>
+    <div class=dfndescr>Описатель диалога, из которого вызван плагин.</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">Структуры</a>,
-<a href="../exported_functions/openplugin.html">OpenPlugin</a>,
-<a href="../dialogapi/index.html">Dialog API</a>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../exported_functions/openw.html">OpenW</a>
 </div>
 
 </body>

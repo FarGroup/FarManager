@@ -6,24 +6,22 @@
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
--->
 <body>
 
 <h1>sprintf</h1>
 <div class=navbar>
 <a href="../index.html">главная</a> |
-<a href="index.html">FarStandardFunctions</a>
+<a href="index.html">стандартные функции</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.sprintf</dfn> осуществляет форматированный вывод в строку.
+Функция <code>FSF.sprintf</code> осуществляет форматированный вывод в строку.
 </div>
 
 <pre class=syntax>
 int WINAPI sprintf(
-  char *Buffer,
-  const char *Format,
+  wchar_t *Buffer,
+  const wchar_t *Format,
   ...
 );
 </pre>
@@ -31,37 +29,26 @@ int WINAPI sprintf(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Buffer</div>
-  <div class=dfndescr>Приемник форматированных данных.
-  </div>
-
+    <div class=dfndescr>Приёмник форматированных данных.</div>
   <div class=dfn>Format</div>
-  <div class=dfndescr>Указатель на строку, содержащую спецификаторы формата<br>
-  </div>
-
+    <div class=dfndescr>Указатель на строку, содержащую спецификаторы формата<br></div>
   <div class=dfn>...</div>
-  <div class=dfndescr>Необязательные аргументы.
-  </div>
+    <div class=dfndescr>Необязательные аргументы.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-В случае успеха функция возвращает количество записанных в <em>Buffer</em> байт
-(символ конца строки в это количество не входит).<br>
-В случае ошибки возвращается EOF (-1)
-
+В случае успеха функция возвращает количество записанных в <code>Buffer</code> байт (символ конца строки в это количество не входит).<br>
+В случае ошибки возвращается EOF (-1).
 </div>
 
 <h3>Примечание</h3>
 <div class=descr>
 Более подробно о функции см. справочное руководство по языку C/C++.
-<div class=dfn>Delphi:</div>
-<div class=dfndescr>Используйте функцию format().<br>
-<small>Подробнее смотрите описание функции в справочном руководстве по
-языку Object Pascal (Delphi).</small><br>
-</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="snprintf.html">FSF.snprintf</a>
 </div>
 

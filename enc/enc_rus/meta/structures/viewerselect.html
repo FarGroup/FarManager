@@ -11,37 +11,37 @@
 <h1>ViewerSelect</h1>
 <div class=navbar>
 <a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="index.html">структуры</a> |
+<a href="../viewerapi/index.html">Viewer API</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>ViewerSelect</dfn>
-используется для выделения области в программе просмотра FAR.
+Структура <code>ViewerSelect</code> используется для выделения области в программе просмотра Far Manager.
 </div>
 
 <pre class=syntax>
 struct ViewerSelect
 {
-   FARINT64 BlockStartPos;
-   int  BlockLen;
+  size_t StructSize;
+  __int64 BlockStartPos;
+  __int64 BlockLen;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>ViewerSelect</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>BlockStartPos</div>
-  <div class=dfndescr>Начало выделения - в символах, а не в байтах. Это
-  означает, что если программа просмотра находится в режиме <b>Unicode</b>, то
-  <dfn>BlockStartPos</dfn> будет равно (позиция в файле в байтах / 2).</div>
-
+    <div class=dfndescr>Начало выделения - в символах, а не в байтах. Это означает, что если программа просмотра находится в режиме <b>Unicode</b>, то <code>BlockStartPos</code> будет равно (позиция в файле в байтах / 2).</div>
   <div class=dfn>BlockLen</div>
-  <div class=dfndescr>Длина выделения в символах.</div>
+    <div class=dfndescr>Длина выделения в символах.</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">Структуры</a>,
-<a href="../service_functions/viewercontrol.html">ViewerControl</a>,
-<a href="farint64.html">FARINT64</a>
+<a href="../service_functions/viewercontrol.html">ViewerControl</a>
 </div>
 
 </body>

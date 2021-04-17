@@ -10,18 +10,21 @@
 
 <h1>DN_KILLFOCUS</h1>
 <div class=navbar>
-<a  href="index_dn.html">События</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dn.html">события</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_KILLFOCUS</dfn> передается процедуре обработки диалога
-непосредственно перед потерей клавиатурного фокуса элементом диалога.
+Событие <code>DN_KILLFOCUS</code> передаётся процедуре обработки диалога непосредственно перед потерей клавиатурного фокуса элементом диалога.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента, теряющего фокус ввода.
+<ul>
+<li>ID элемента диалога, теряющего фокус ввода.</li>
+<li><code>-1</code> — если немодальный диалог теряет фокус. В этом случае возвращаемое значение игнорируется.</li>
+</ul>
 </div>
 
 <h3>Param2</h3>
@@ -31,8 +34,8 @@ ID элемента, теряющего фокус ввода.
 
 <h3>Return</h3>
 <div class=descr>
--1 - "Согласен с потерей фокуса".<br>
->=0 - номер желаемого элемента, которому хотим передать фокус.
+<code>-1</code> - "Согласен с потерей фокуса".<br>
+<code>>=0</code> - номер желаемого элемента, которому хотим передать фокус.
 </div>
 
 <h3>Элементы</h3>
@@ -40,24 +43,21 @@ ID элемента, теряющего фокус ввода.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
 <tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Все элементы, которые могут иметь <a href="../keybfocus.html">клавиатурный фокус ввода</a>.</td></tr>
+<td class="cont" width="60%">все элементы, которые могут иметь <a href="../../other/dict.html#keybfocus">клавиатурный фокус ввода</a>.</td></tr>
 </table>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-<!-- ПОЛНОСТЬЮ НЕ ПРОРАБОТАНО!!! -->
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
-
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialogex.html">DialogEx</a><br>
-
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

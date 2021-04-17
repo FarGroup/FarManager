@@ -6,35 +6,28 @@
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
- Date: Tue 21 Nov 21:35:51 2000
-   Author: Ivan Sintyurin
-   E-mail: spinoza@mail.ru
--->
 <body>
 
 <h1>LStrlwr</h1>
 <div class=navbar>
 <a href="../index.html">главная</a> |
-<a href="index.html">FarStandardFunctions</a>
+<a href="index.html">стандартные функции</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.LStrlwr</dfn> преобразует строку, оканчивающуюся нулем, в нижний регистр.
-Функция работает с кодировкой OEM.
+Функция <code>FSF.LStrlwr</code> преобразует строку, оканчивающуюся нулём, в нижний регистр.
 </div>
 
 <pre class=syntax>
 void WINAPI LStrlwr(
-  char *s1
+  wchar_t *s1
 );
 </pre>
 
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>s1</div>
-  <div class=dfndescr>Указатель на обрабатываемую строку.
-  </div>
+    <div class=dfndescr>Указатель на обрабатываемую строку.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>

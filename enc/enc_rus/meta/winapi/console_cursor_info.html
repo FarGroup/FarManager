@@ -17,7 +17,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <strong>CONSOLE_CURSOR_INFO</strong> содержит информацию о консольном курсоре.
+Структура <code>CONSOLE_CURSOR_INFO</code> содержит информацию о консольном курсоре.
 </div>
 
 <pre class=syntax>
@@ -33,16 +33,13 @@ typedef struct _CONSOLE_CURSOR_INFO {
       Процент ячейки символа который заполняет курсор. Значение между 0 и 100.
       Вид курсора меняется, простираясь от полного заполнения ячейки до горизонтальной
       линии внизу ячейки.
-      <p class=note><img src="../../images/note.gif" alt="Замечание для Windows 9x/Me" width="10" height="10"> Windows 9X/Me</p>
-      <UL class=note><LI>
-         Для показа полностью заполненного курсора в Windows 9x/Me укажите значение, равное 99.
-      </LI></UL>
     </div>
     <div class=dfn>bVisible</div>
-    <div class=dfndescr>Видимость курсора. Если курсор виден, этот элемент равен TRUE.</div>
+    <div class=dfndescr>Видимость курсора. Если курсор виден, этот элемент равен <code>TRUE</code>.</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="win32/GetConsoleCursorInfo">GetConsoleCursorInfo</a>,
 <a href="win32/SetConsoleCursorInfo">SetConsoleCursorInfo</a>
 

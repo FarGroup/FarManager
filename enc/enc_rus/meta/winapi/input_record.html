@@ -17,7 +17,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <strong>INPUT_RECORD</strong> используется
+Структура <code>INPUT_RECORD</code> используется
 для возвращения информации о входных сообщениях в консольном входном буфере.
 Эти записи могут быть считаны из входного буфера используя
 функции <a href="readconsoleinput.html">ReadConsoleInput</a> или
@@ -43,7 +43,7 @@ typedef struct _INPUT_RECORD {
 <div class=descr>
 
     <div class=dfn>EventType</div>
-    <div class=dfndescr>Означает тип входного сообщения и запись события, сохраненную в
+    <div class=dfndescr>Означает тип входного сообщения и запись события, сохранённую в
     элементе Event.<br>
     Этот элемент может иметь одно из следующих значений:
 
@@ -70,23 +70,18 @@ typedef struct _INPUT_RECORD {
 <td class="cont" width="60%">Элемент Event содержит структуру <a href="focus_event_record.html">FOCUS_EVENT_RECORD</a>.
         Эти сообщения используются системой и должны игнорироваться.</td>
 </tr>
-<tr class="cont"><td class="cont" width="40%">FARMACRO_KEY_EVENT</td>
-<td class="cont" width="60%">Элемент Event содержит структуру <a href="key_event_record.html">KEY_EVENT_RECORD</a>
-        с информацией о сообщении с клавиатуры. <font color="red">Это сообщение, специфичное для <strong>FAR
-        manager</strong> (начиная с версии 1.70 build 1663), приходит плагину во время "проигрывания" макрокоманды.</font>
-        </td>
-</tr>
 </table>
     </div>
 
     <div class=dfn>Event</div>
-    <div class=dfndescr>Содержит структуры KEY_EVENT_RECORD, MOUSE_EVENT_RECORD, WINDOW_BUFFER_SIZE_RECORD,
-      MENU_EVENT_RECORD, FOCUS_EVENT_RECORD или FARMACRO_KEY_EVENT, в зависимости от значения,
-      указанного в EventType.
+    <div class=dfndescr>Содержит структуры <code>KEY_EVENT_RECORD</code>, <code>MOUSE_EVENT_RECORD</code>, <code>WINDOW_BUFFER_SIZE_RECORD</code>,
+      <code>MENU_EVENT_RECORD</code> или <code>FOCUS_EVENT_RECORD</code>, в зависимости от значения,
+      указанного в <code>EventType</code>.
     </div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="key_event_record.html">KEY_EVENT_RECORD</a>,
 <a href="mouse_event_record.html">MOUSE_EVENT_RECORD</a>,
 <a href="window_buffer_size_record.html">WINDOW_BUFFER_SIZE_RECORD</a>,

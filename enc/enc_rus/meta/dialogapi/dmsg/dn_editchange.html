@@ -10,34 +10,31 @@
 
 <h1>DN_EDITCHANGE</h1>
 <div class=navbar>
-<a  href="index_dn.html">События</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dn.html">события</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_EDITCHANGE</dfn> оповещает обработчик об изменении
-состояния редактируемого элемента диалога - например, ввели символ.
+Сообщение <code>DN_EDITCHANGE</code> оповещает обработчик об изменении состояния редактируемого элемента диалога - например, ввели символ.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента.
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../structures/fardialogitem.html">FarDialogItem</a>,
-описывающую измененный элемент.
+Указатель на структуру <a href="../../structures/fardialogitem.html">FarDialogItem</a>, описывающую изменённый элемент.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-В Dialog API версии 1.0 результат игнорируется, но для обеспечения
-работоспособности плагина с будущими версиями Dialog API рекомендуется
-возвращать:
+В текущем Dialog API результат игнорируется, но для обеспечения работоспособности плагина с будущими версиями Dialog API рекомендуется возвращать:
 <ul>
-<li>TRUE  - "подтверждаю изменения"
-<li>FALSE - "изменения в окне редактирования не принимаются"
+<li><code>TRUE</code>  - "подтверждаю изменения"
+<li><code>FALSE</code> - "изменения в окне редактирования не принимаются"
 </ul>
 </div>
 
@@ -58,32 +55,24 @@ ID элемента.
 
 <h3>Замечания</h3>
 <div class=descr>
-<ol>
-<li>В Dialog API версии 1.0 отсутствует возможность принудительно изменять
-состояние элемента, изменяя элементы структуры
-<a href="../structures/fardialogitem.html">FarDialogItem</a>.
-<li>Событие <dfn>DN_EDITCHANGE</dfn> не приходит в ответ
-на посылку обработчиком сообщений
-<a href="dm_settextptr.html">DM_SETTEXTPTR</a> и
-<a href="dm_settext.html">DM_SETTEXT</a>.
-</ol>
+В Dialog API нельзя принудительно изменить состояние элемента, изменяя элементы структуры <a href="../../structures/fardialogitem.html">FarDialogItem</a>.
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
 <pre class=code>
 ...
-// отобразить копию введенных данных только для чисел
+// отобразить копию введённых данных только для чисел
 if (Msg == DN_EDITCHANGE &amp;&amp; Param1 == 2)
 {
   FarDialogItem *Item=(FarDialogItem *)Param2;
-  int Len=strlen(Item-&gt;Data);
+  int Len=wcslen(Item-&gt;PtrData);
   for(int I=0; I &lt; Len; ++I)
-    if(!isdigit(Item-&gt;Data[I]))
+    if(!isdigit(Item-&gt;PtrData[I]))
       break;
   if(I == Len)
     return FALSE;
-  Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, 3, (LONG_PTR)Item-&gt;Data);
+  Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, 3, Item-&gt;PtrData);
   return TRUE;
 }
 ...
@@ -91,9 +80,9 @@ if (Msg == DN_EDITCHANGE &amp;&amp; Param1 == 2)
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialogex.html">DialogEx</a><br>
-
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

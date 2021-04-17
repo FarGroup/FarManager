@@ -7,10 +7,6 @@ Make projects files for building Far Manager Encyclopedia in .CHM format
 # pythonized by techtonik // gmail.com
 # modifications by Far Group
 
-#
-# IMPORTANT: must be albe to run under python 2.4
-#
-
 # keywords for HHK are generated from "<a name=>" and "<h1>"
 
 # contents tree for HHC is generated from /html/index.html following links one level down.
@@ -310,7 +306,7 @@ logging.getLogger().addHandler(logfile)
 log("-- making directory tree")
 makedirs(DEST_CHM)
 
-make_chm_lang("rus3.work")
+make_chm_lang("rus")
 #make_chm_lang("eng")
 
 log("-- done. check build log at %s" % BUILD_CHM_LOG)

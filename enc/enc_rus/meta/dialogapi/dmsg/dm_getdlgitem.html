@@ -10,27 +10,29 @@
 
 <h1>DM_GETDLGITEM</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETDLGITEM</dfn> посылается Менеджеру диалогов для получения полной информации о заданном элементе.
+Сообщение <code>DM_GETDLGITEM</code> посылается Менеджеру диалогов для получения полной информации о заданном элементе.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента диалога
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../structures/fardialogitem.html">FarDialogItem</a>.
+Указатель на структуру <a href="../../structures/fargetdialogitem.html">FarGetDialogItem</a>, память под запрашиваемый элемент плагин выделяет самостоятельно.
+Плагин должен корректно заполнить поле <a href="../../structures/fargetdialogitem.html">FarGetDialogItem.StructSize</a> перед вызовом.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - данные скопированы или FALSE - для неверного ID элемента.
+Необходимый размер буфера, при <code>Param2 = NULL</code>.
 </div>
 
 <h3>Элементы</h3>
@@ -38,30 +40,39 @@ TRUE - данные скопированы или FALSE - для неверно�
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
 <tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Все элементы диалога</td></tr>
+<td class="cont" width="60%">все элементы диалога</td></tr>
 </table>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
 <pre class=code>
-// получить параметры 12-го элемента
-struct FarDialogItem DialogItem;
+// получить 12-й элемент
+struct FarGetDialogItem DialogItem={sizeof(FarGetDialogItem)};
+// выделяем память
+DialogItem.Item = (FarDialogItem *)malloc(DialogItem.Size=Info.SendDlgMessage(hDlg,DM_GETDLGITEM,12,NULL));
+if (DialogItem.Item)
+{
+  // получаем элемент
+  Info.SendDlgMessage(hDlg,DM_GETDLGITEM,12,&DialogItem);
 
-Info.SendDlgMessage(hDlg,DM_GETDLGITEM,12,(LONG_PTR)&amp;DialogItem);
+  // что-то делаем
+
+  // освобождаем память 
+  free(DialogItem.Item);
+}
 </pre>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialogex.html">DialogEx</a><br>
-<a href="dm_getitemposition.html">DM_GETITEMPOSITION</a><br>
-<a href="dm_getdlgrect.html">DM_GETDLGRECT</a><br>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
+<a href="dm_getitemposition.html">DM_GETITEMPOSITION</a>,
+<a href="dm_getdlgrect.html">DM_GETDLGRECT</a>
 </div>
 
 </body>

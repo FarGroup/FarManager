@@ -7,10 +7,6 @@ Make web suitable Encyclopedia
 # based on tool.make_chm.py pythonized by techtonik // gmail.com
 # modifications by Far Group
 
-#
-# IMPORTANT: must be albe to run under python 2.4
-#
-
 from config import *
 
 from os import makedirs, walk, listdir
@@ -101,7 +97,7 @@ makedirs(DEST_INET)
 makedirs(join(DEST_INET,"images"))
 makedirs(join(DEST_INET,"styles"))
 
-make_inet_lang("rus3.work")
+make_inet_lang("rus")
 #make_inet_lang("eng")
 
 log("-- copying index files")
