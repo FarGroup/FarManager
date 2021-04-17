@@ -11,7 +11,7 @@ call :make luafar_manual windows-1252
 call :make macroapi_manual.ru windows-1251
 call :make macroapi_manual.en windows-1252
 
-goto :eof
+goto :end
 
 :make
 mkdir %1
@@ -24,4 +24,7 @@ if not exist %1.chm (
 	exit 1
 )
 cd ..
-goto :eof
+goto :EOF
+
+:end
+exit 0
