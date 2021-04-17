@@ -1,4 +1,6 @@
-﻿"""
+﻿#!/usr/bin/env python3
+
+"""
 Aux buildbot script to cleanup Encyclopedia build directory
 """
 

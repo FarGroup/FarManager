@@ -5,7 +5,4 @@ nightroman -  Submitted by Roman Kuzmin
               Creation of pluginse.chm or pluginsr.chm by PowerShell script (V2 CTP3).
 
 techtonik  -  Python scripts to automate Encyclopedia building tasks
-              - tool.make_chm.py - build Encyclopedia from source
-              - config.inc.py   - shared configuration / options
-              - clean.py        - cleans build directory
-              - untranslated.py - finds untranslated files
+              - rucheck.py - finds untranslated files

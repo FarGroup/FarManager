@@ -1,4 +1,6 @@
-﻿"""
+﻿#!/usr/bin/env python3
+
+"""
 Make projects files for building Far Manager Encyclopedia in .CHM format
 """
 

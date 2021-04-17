@@ -1,4 +1,6 @@
-﻿"""
+﻿#!/usr/bin/env python3
+
+"""
 Make web suitable Encyclopedia
 """
 
