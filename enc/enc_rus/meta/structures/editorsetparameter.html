@@ -1,174 +1,137 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>EditorSetParameter</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-
 <body>
 
 <h1>EditorSetParameter</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="../index.html">структуры</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
+<a href="../editorapi/index.html">Editor API</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>EditorSetParameter</dfn> используется в функции
-<a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">EditorControl</a>
-для изменения настроек текущего редактора FAR'а.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>EditorSetParameter</code> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ С„СѓРЅРєС†РёРё <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">EditorControl</a> РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ РЅР°СЃС‚СЂРѕРµРє С‚РµРєСѓС‰РµРіРѕ СЂРµРґР°РєС‚РѕСЂР° Far Manager.
 </div>
 
 <pre class=syntax>
 struct EditorSetParameter
 {
-  int Type;
-  union {
-    int iParam;
-    char *cParam;
-    DWORD Reserved1;
-  } Param;
-  DWORD Flags;
-  DWORD Reserved2;
+  size_t StructSize;
+  enum EDITOR_SETPARAMETER_TYPES Type;
+  union
+  {
+    intptr_t iParam;
+    wchar_t *wszParam;
+    intptr_t Reserved;
+  }
+<b>#ifndef __cplusplus</b>
+  Param
+<b>#endif</b>
+  ;
+  unsigned __int64 Flags;
+  size_t Size;
 };
 </pre>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Р­С‚Рѕ РїРѕР»Рµ РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ <code>EditorSetParameter</code>. РџРµСЂРµРґ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј СЃС‚СЂСѓРєС‚СѓСЂС‹ РїР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ Р·Р°РїРѕР»РЅРёС‚СЊ РїРѕР»Рµ.</div>
   <div class=dfn>Type</div>
-  <div class=dfndescr>Тип настройки. Может быть одним из следующих (перечисление <a name="EDITOR_SETPARAMETER_TYPES">EDITOR_SETPARAMETER_TYPES</a>):
+    <div class=dfndescr>РўРёРї РЅР°СЃС‚СЂРѕР№РєРё. РњРѕР¶РµС‚ Р±С‹С‚СЊ РѕРґРЅРёРј РёР· СЃР»РµРґСѓСЋС‰РёС… (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="EDITOR_SETPARAMETER_TYPES">EDITOR_SETPARAMETER_TYPES</a>):
     <table class="cont">
-      <tr class="cont"><th class="cont" width="40%">Настройка</th><th class="cont" width="60%">Описание</th></tr>
-
+    <tr class="cont"><th class="cont" width="40%">РќР°СЃС‚СЂРѕР№РєР°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="ESPT_AUTOINDENT">ESPT_AUTOINDENT</a></td>
-    <td class="cont" width="60%">Включение/выключение режима "<em>Автоотступ</em>".
-      <dfn>iParam</dfn> соответственно должен быть равен TRUE или FALSE.</td></tr>
-
-
+    <td class="cont" width="60%">Р’РєР»СЋС‡РµРЅРёРµ/РІС‹РєР»СЋС‡РµРЅРёРµ СЂРµР¶РёРјР° "РђРІС‚РѕРѕС‚СЃС‚СѓРї".<br>
+    <code>iParam</code> СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЂР°РІРµРЅ <code>TRUE</code> РёР»Рё <code>FALSE</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="ESPT_CHARCODEBASE">ESPT_CHARCODEBASE</a></td>
-    <td class="cont" width="60%">Указать формат показа кода текущего символа в статусной
-      строке редактора.
-      <dfn>iParam</dfn> может принимать следующие значения:
+    <td class="cont" width="60%">РЈРєР°Р·Р°С‚СЊ С„РѕСЂРјР°С‚ РїРѕРєР°Р·Р° РєРѕРґР° С‚РµРєСѓС‰РµРіРѕ СЃРёРјРІРѕР»Р° РІ СЃС‚Р°С‚СѓСЃРЅРѕР№ СЃС‚СЂРѕРєРµ СЂРµРґР°РєС‚РѕСЂР°.<br>
+    <code>iParam</code> РјРѕР¶РµС‚ РїСЂРёРЅРёРјР°С‚СЊ СЃР»РµРґСѓСЋС‰РёРµ Р·РЅР°С‡РµРЅРёСЏ:
       <ul>
-      <li>0 - восьмеричное значение (3 символа с ведущим нулями)
-      <li>1 - десятеричное значение (3 символа с ведущими пробелами)
-      <li>2 - шестнадцатеричное значение (2 символа под цифру + символ '<code>h</code>')
+      <li><code>0</code> - РІРѕСЃСЊРјРµСЂРёС‡РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ (3 СЃРёРјРІРѕР»Р° СЃ РІРµРґСѓС‰РёРј РЅСѓР»СЏРјРё)
+      <li><code>1</code> - РґРµСЃСЏС‚РµСЂРёС‡РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ (3 СЃРёРјРІРѕР»Р° СЃ РІРµРґСѓС‰РёРјРё РїСЂРѕР±РµР»Р°РјРё)
+      <li><code>2</code> - С€РµСЃС‚РЅР°РґС†Р°С‚РµСЂРёС‡РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ (2 СЃРёРјРІРѕР»Р° РїРѕРґ С†РёС„СЂСѓ + СЃРёРјРІРѕР» '<code>h</code>')
       </ul>
     </td></tr>
-
-    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_CHARTABLE">ESPT_CHARTABLE</a></td>
-    <td class="cont" width="60%">Изменить текущую кодировку в редакторе.
-      <var>iParam</var> - код устанавливаемой кодировки. Может быть одним
-      из следующих:
-      <ul>
-      <li>1 - OEM
-      <li>2 - ANSI
-      <li>3 - таблица с номером 0
-      <li>N - таблица с номером (N-3)
-      </ul>
-      В случае неудачи <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">EditorControl</a>
-      возвращает FALSE, кодировка не изменяется.
-    </td></tr>
-
+    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_CODEPAGE">ESPT_CODEPAGE</a></td>
+    <td class="cont" width="60%">РР·РјРµРЅРёС‚СЊ С‚РµРєСѓС‰СѓСЋ РєРѕРґРёСЂРѕРІРєСѓ РІ СЂРµРґР°РєС‚РѕСЂРµ.<br>
+    <code>iParam</code> - РЅРѕРјРµСЂ СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРјРѕР№ РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹. Р’ СЃР»СѓС‡Р°Рµ РЅРµСѓРґР°С‡Рё <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">EditorControl</a> РІРѕР·РІСЂР°С‰Р°РµС‚ <code>FALSE</code>, РєРѕРґРёСЂРѕРІРєР° РЅРµ РёР·РјРµРЅСЏРµС‚СЃСЏ. РњРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р·РЅР°С‡РµРЅРёСЏ CP_REDETECT Рё CP_DEFAULT, РґР»СЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРіРѕ РѕРїСЂРµРґРµР»РµРЅРёСЏ РєРѕРґРёСЂРѕРІРєРё Рё СѓСЃС‚Р°РЅРѕРІРєРё РїРѕСЃР»РµРґРЅРµР№ СЃРѕС…СЂР°РЅС‘РЅРЅРѕР№ РєРѕРґРёСЂРѕРІРєРё РёР· РёСЃС‚РѕСЂРёРё.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="ESPT_CURSORBEYONDEOL">ESPT_CURSORBEYONDEOL</a></td>
-    <td class="cont" width="60%">Включение/выключение режима "<em>Курсор за пределами
-      строки</em>".
-      <dfn>iParam</dfn> соответственно должен быть равен TRUE или FALSE.
-    </td></tr>
-
+    <td class="cont" width="60%">Р’РєР»СЋС‡РµРЅРёРµ/РІС‹РєР»СЋС‡РµРЅРёРµ СЂРµР¶РёРјР° "РљСѓСЂСЃРѕСЂ Р·Р° РїСЂРµРґРµР»Р°РјРё СЃС‚СЂРѕРєРё".<br>
+    <code>iParam</code> СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЂР°РІРµРЅ <code>TRUE</code> РёР»Рё <code>FALSE</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="ESPT_EXPANDTABS">ESPT_EXPANDTABS</a></td>
-    <td class="cont" width="60%">Управление поведением замены пробелов вместо табуляции.<br>
-      <dfn>iParam</dfn> может быть одним из следующих режимов (перечисление <a name="EXPAND_TABS">EXPAND_TABS</a>):
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-       <tr class="cont"><td class="cont" width="40%"><a name="EXPAND_NOTABS">EXPAND_NOTABS</a></td>
-       <td class="cont" width="60%"></td></tr>
-       <tr class="cont"><td class="cont" width="40%"><a name="EXPAND_ALLTABS">EXPAND_ALLTABS</a></td>
-       <td class="cont" width="60%"></td></tr>
-       <tr class="cont"><td class="cont" width="40%"><a name="EXPAND_NEWTABS">EXPAND_NEWTABS</a></td>
-       <td class="cont" width="60%"></td></tr>
-</table>
-
-<p class=note><img src="../../images/warning.gif" alt="ВНИМАНИЕ!" width="10" height="10"> ВНИМАНИЕ!</p>
-<UL class=note><LI>
-      Данная операция необратима, т.е. если в файле были использованы пробелы вместо табуляции,
-      то при переходе к обычным символам табуляции присутствующие в файле
-      идущие подряд пробелы в символы табуляции преобразованы не будут.
-</LI></UL>
-
+    <td class="cont" width="60%">РЈРїСЂР°РІР»РµРЅРёРµ РїРѕРІРµРґРµРЅРёРµРј Р·Р°РјРµРЅС‹ РїСЂРѕР±РµР»РѕРІ РІРјРµСЃС‚Рѕ С‚Р°Р±СѓР»СЏС†РёРё.<br>
+    <code>iParam</code> РјРѕР¶РµС‚ Р±С‹С‚СЊ РѕРґРЅРёРј РёР· СЃР»РµРґСѓСЋС‰РёС… СЂРµР¶РёРјРѕРІ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="EXPAND_TABS">EXPAND_TABS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EXPAND_NOTABS">EXPAND_NOTABS</a></td>
+    <td class="cont" width="60%"></td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EXPAND_ALLTABS">EXPAND_ALLTABS</a></td>
+    <td class="cont" width="60%"></td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EXPAND_NEWTABS">EXPAND_NEWTABS</a></td>
+    <td class="cont" width="60%"></td></tr>
+    </table>
+    <p class=note><img src="../../images/warning.gif" alt="Р’РќРРњРђРќРР•!" width="10" height="10"> Р’РќРРњРђРќРР•!</p>
+    <UL class=note>
+    <LI>Р”Р°РЅРЅР°СЏ РѕРїРµСЂР°С†РёСЏ РЅРµРѕР±СЂР°С‚РёРјР°, С‚.Рµ. РµСЃР»Рё РІ С„Р°Р№Р»Рµ Р±С‹Р»Рё РёСЃРїРѕР»СЊР·РѕРІР°РЅС‹ РїСЂРѕР±РµР»С‹ РІРјРµСЃС‚Рѕ С‚Р°Р±СѓР»СЏС†РёРё, С‚Рѕ РїСЂРё РїРµСЂРµС…РѕРґРµ Рє РѕР±С‹С‡РЅС‹Рј СЃРёРјРІРѕР»Р°Рј С‚Р°Р±СѓР»СЏС†РёРё РїСЂРёСЃСѓС‚СЃС‚РІСѓСЋС‰РёРµ РІ С„Р°Р№Р»Рµ
+    РёРґСѓС‰РёРµ РїРѕРґСЂСЏРґ РїСЂРѕР±РµР»С‹ РІ СЃРёРјРІРѕР»С‹ С‚Р°Р±СѓР»СЏС†РёРё РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅС‹ РЅРµ Р±СѓРґСѓС‚.</LI></UL>
     </td></tr>
-
     <tr class="cont"><td class="cont" width="40%"><a name="ESPT_LOCKMODE">ESPT_LOCKMODE</a></td>
-    <td class="cont" width="60%">Включение/выключение запрета модификации текста
-       (аналог <kbd>Ctrl-L</kbd>). Если <dfn>iParam</dfn> равен TRUE, то
-       включается запрет модификации текста, если FALSE - запрет отменяется.
-    </td></tr>
-
+    <td class="cont" width="60%">Р’РєР»СЋС‡РµРЅРёРµ/РІС‹РєР»СЋС‡РµРЅРёРµ Р·Р°РїСЂРµС‚Р° РјРѕРґРёС„РёРєР°С†РёРё С‚РµРєСЃС‚Р° (Р°РЅР°Р»РѕРі <kbd>Ctrl</kbd>+<kbd>L</kbd>).<br>
+    Р•СЃР»Рё <code>iParam</code> СЂР°РІРµРЅ <code>TRUE</code>, С‚Рѕ РІРєР»СЋС‡Р°РµС‚СЃСЏ Р·Р°РїСЂРµС‚ РјРѕРґРёС„РёРєР°С†РёРё С‚РµРєСЃС‚Р°, РµСЃР»Рё <code>FALSE</code> - Р·Р°РїСЂРµС‚ РѕС‚РјРµРЅСЏРµС‚СЃСЏ.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="ESPT_SAVEFILEPOSITION">ESPT_SAVEFILEPOSITION</a></td>
-    <td class="cont" width="60%">включение/выключение опции "<em>Сохранять позицию файла</em>".
-      <dfn>iParam</dfn> соответственно должен быть равен TRUE или FALSE.
+    <td class="cont" width="60%">Р’РєР»СЋС‡РµРЅРёРµ/РІС‹РєР»СЋС‡РµРЅРёРµ РѕРїС†РёРё "РЎРѕС…СЂР°РЅСЏС‚СЊ РїРѕР·РёС†РёСЋ С„Р°Р№Р»Р°".<br>
+    <code>iParam</code> СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЂР°РІРµРЅ <code>TRUE</code> РёР»Рё <code>FALSE</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_SHOWWHITESPACE">ESPT_SHOWWHITESPACE</a></td>
+    <td class="cont" width="60%">Р’РєР»СЋС‡РµРЅРёРµ/РІС‹РєР»СЋС‡РµРЅРёРµ РѕРїС†РёРё "РџСЂРѕР±РµР»СЊРЅС‹Рµ СЃРёРјРІРѕР»С‹".<br>
+    <code>iParam</code> РјРѕР¶РµС‚ РїСЂРёРЅРёРјР°С‚СЊ СЃР»РµРґСѓСЋС‰РёРµ Р·РЅР°С‡РµРЅРёСЏ:
+      <ul>
+      <li><code>0</code> - РЅРµ РїРѕРєР°Р·С‹РІР°С‚СЊ РїСЂРѕР±РµР»СЊРЅС‹Рµ СЃРёРјРІРѕР»С‹, Р·РЅР°РєРё С‚Р°Р±СѓР»СЏС†РёРё Рё РѕРєРѕРЅС‡Р°РЅРёСЏ СЃС‚СЂРѕРє
+      <li><code>1</code> - РїРѕРєР°Р·С‹РІР°С‚СЊ РїСЂРѕР±РµР»СЊРЅС‹Рµ СЃРёРјРІРѕР»С‹ Рё Р·РЅР°РєРё С‚Р°Р±СѓР»СЏС†РёРё
+      <li><code>2</code> - РїРѕРєР°Р·С‹РІР°С‚СЊ РїСЂРѕР±РµР»СЊРЅС‹Рµ СЃРёРјРІРѕР»С‹, Р·РЅР°РєРё С‚Р°Р±СѓР»СЏС†РёРё Рё РѕРєРѕРЅС‡Р°РЅРёСЏ СЃС‚СЂРѕРє
+      </ul>
     </td></tr>
-
+    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_SETBOM">ESPT_SETBOM</a></td>
+    <td class="cont" width="60%">Р’РєР»СЋС‡РµРЅРёРµ/РІС‹РєР»СЋС‡РµРЅРёРµ РѕРїС†РёРё "Р”РѕР±Р°РІРёС‚СЊ СЃРёРіРЅР°С‚СѓСЂСѓ (BOM)" РїСЂРё СЃРѕС…СЂР°РЅРµРЅРёРё С„Р°Р№Р»Р° РІ РєРѕРґРёСЂРѕРІРєРµ Unicode/UTF8.<br>
+    <code>iParam</code> СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЂР°РІРµРЅ <code>TRUE</code> РёР»Рё <code>FALSE</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="ESPT_SETWORDDIV">ESPT_SETWORDDIV</a></td>
-    <td class="cont" width="60%">Позволяет изменить строку символов-разделителей слов (параметр <dfn>cParam</dfn>)
-       для текущей копии редактора.<br>
-
-       Если <dfn>cParam</dfn> равен NULL или пустой строке, то
-       в качестве строки разделителей принимается установленное по умолчанию значение -
-       "<code>~!%^&amp;*()+&#124;{}:"&lt;&gt;?`-=\[];',./</code>"
-       Эта строка может содержать не более 255 символов.
-    </td></tr>
-
+    <td class="cont" width="60%">РџРѕР·РІРѕР»СЏРµС‚ РёР·РјРµРЅРёС‚СЊ СЃС‚СЂРѕРєСѓ СЃРёРјРІРѕР»РѕРІ-СЂР°Р·РґРµР»РёС‚РµР»РµР№ СЃР»РѕРІ (РїР°СЂР°РјРµС‚СЂ <code>wszParam</code>) РґР»СЏ С‚РµРєСѓС‰РµР№ РєРѕРїРёРё СЂРµРґР°РєС‚РѕСЂР°.<br>
+    Р•СЃР»Рё <code>wszParam</code> СЂР°РІРµРЅ NULL РёР»Рё РїСѓСЃС‚РѕР№ СЃС‚СЂРѕРєРµ, С‚Рѕ РІ РєР°С‡РµСЃС‚РІРµ СЃС‚СЂРѕРєРё СЂР°Р·РґРµР»РёС‚РµР»РµР№ РїСЂРёРЅРёРјР°РµС‚СЃСЏ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ Р·РЅР°С‡РµРЅРёРµ - "<code>~!%^&amp;*()+&#124;{}:"&lt;&gt;?`-=\[];',./</code>"
+    Р­С‚Р° СЃС‚СЂРѕРєР° РјРѕР¶РµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ РЅРµ Р±РѕР»РµРµ 255 СЃРёРјРІРѕР»РѕРІ.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="ESPT_GETWORDDIV">ESPT_GETWORDDIV</a></td>
-    <td class="cont" width="60%">Позволяет получить строку символов-разделителей слов (параметр <dfn>cParam</dfn>)
-       для текущей копии редактора.<br>
-       <dfn>cParam</dfn> должен указывать на строку не менее 256 символов.
-    </td></tr>
-
+    <td class="cont" width="60%">РџРѕР·РІРѕР»СЏРµС‚ РїРѕР»СѓС‡РёС‚СЊ (РІ РїРѕР»Рµ <code>wszParam</code>) СЃС‚СЂРѕРєСѓ СЃРёРјРІРѕР»РѕРІ-СЂР°Р·РґРµР»РёС‚РµР»РµР№ СЃР»РѕРІ РґР»РёРЅРѕСЋ <code>Size</code> РґР»СЏ С‚РµРєСѓС‰РµР№ РєРѕРїРёРё СЂРµРґР°РєС‚РѕСЂР°.<br>
+    <code>wszParam</code> РґРѕР»Р¶РµРЅ СѓРєР°Р·С‹РІР°С‚СЊ РЅР° Р±СѓС„РµСЂ РІС‹РґРµР»РµРЅРЅС‹Р№ РїР»Р°РіРёРЅРѕРј. Р•СЃР»Рё <code>wszParam = NULL</code>, С‚Рѕ <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">EditorControl</a> РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С….</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="ESPT_TABSIZE">ESPT_TABSIZE</a></td>
-    <td class="cont" width="60%">Изменение размера табуляции. <dfn>iParam</dfn>
-      содержит новое значение - от 1 до 512. Значение размера табуляции,
-      выходящее за указанные границы, выставляется равным 8.</td></tr>
-
-   </table>
-
-
-  </div>
-
+    <td class="cont" width="60%">РР·РјРµРЅРµРЅРёРµ СЂР°Р·РјРµСЂР° С‚Р°Р±СѓР»СЏС†РёРё.<br>
+    <code>iParam</code> СЃРѕРґРµСЂР¶РёС‚ РЅРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ - РѕС‚ 1 РґРѕ 512. Р—РЅР°С‡РµРЅРёРµ СЂР°Р·РјРµСЂР° С‚Р°Р±СѓР»СЏС†РёРё, РІС‹С…РѕРґСЏС‰РµРµ Р·Р° СѓРєР°Р·Р°РЅРЅС‹Рµ РіСЂР°РЅРёС†С‹, РІС‹СЃС‚Р°РІР»СЏРµС‚СЃСЏ СЂР°РІРЅС‹Рј 8.</td></tr>
+    </table>
+    </div>
   <div class=dfn>iParam</div>
-  <div class=dfndescr>Содержит число, см. описание по конкретному типу
-    настройки.</div>
-
-  <div class=dfn>cParam</div>
-  <div class=dfndescr>Указатель на строку, оканчивающуюся нулем, см. описание
-    по конкретному типу настройки.</div>
-
-  <div class=dfn>Reserved1</div>
-  <div class=dfndescr>Не используется, зарезервировано для будущего
-    использования.</div>
-
+    <div class=dfndescr>РЎРѕРґРµСЂР¶РёС‚ С‡РёСЃР»Рѕ, СЃРј. РѕРїРёСЃР°РЅРёРµ РїРѕ РєРѕРЅРєСЂРµС‚РЅРѕРјСѓ С‚РёРїСѓ РЅР°СЃС‚СЂРѕР№РєРё.</div>
+  <div class=dfn>wszParam</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂРѕРєСѓ, РѕРєР°РЅС‡РёРІР°СЋС‰СѓСЋСЃСЏ РЅСѓР»С‘Рј, СЃРј. РѕРїРёСЃР°РЅРёРµ РїРѕ РєРѕРЅРєСЂРµС‚РЅРѕРјСѓ С‚РёРїСѓ РЅР°СЃС‚СЂРѕР№РєРё.</div>
+  <div class=dfn>Reserved</div>
+    <div class=dfndescr>Р Р°Р·РјРµСЂ СЌС‚РѕРіРѕ РїР°СЂР°РјРµС‚СЂР° РІСЃРµРіРґР° СЂР°РІРµРЅ СЂР°Р·РјРµСЂСѓ РѕР±СЉРµРґРёРЅРµРЅРёСЏ <code>Param</code>, С‡С‚Рѕ РїРѕР·РІРѕР»СЏРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ РґР»СЏ РїР»Р°С‚С„РѕСЂРјРµРЅРЅРѕ-РЅРµР·Р°РІРёСЃРёРјРѕР№ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё..</div>
   <div class=dfn>Flags</div>
-  <div class=dfndescr>Содержит дополнительные условия/данные, см. описание
-    по конкретному типу настройки.</div>
-
-  <div class=dfn>Reserved2</div>
-  <div class=dfndescr>Не используется, зарезервировано для будущего использования.
-    Должно быть установлено в 0.</div>
+    <div class=dfndescr>РЎРѕРґРµСЂР¶РёС‚ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ СѓСЃР»РѕРІРёСЏ/РґР°РЅРЅС‹Рµ, СЃРј. РѕРїРёСЃР°РЅРёРµ РїРѕ РєРѕРЅРєСЂРµС‚РЅРѕРјСѓ С‚РёРїСѓ РЅР°СЃС‚СЂРѕР№РєРё.</div>
+  <div class=dfn>Size</div>
+    <div class=dfndescr>РЎРѕРґРµСЂР¶РёС‚ С‡РёСЃР»Рѕ, СЃРј. РѕРїРёСЃР°РЅРёРµ РїРѕ РєРѕРЅРєСЂРµС‚РЅРѕРјСѓ С‚РёРїСѓ РЅР°СЃС‚СЂРѕР№РєРё.</div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-Если плагин меняет одновременно размер табуляции и состояние режима
-пробелы вместо табуляции, то имеет смысл применять команды в такой
-последовательности: сначала <code>ESPT_TABSIZE</code>,
-потом <code>ESPT_EXPANDTABS</code>.
+Р•СЃР»Рё РїР»Р°РіРёРЅ РјРµРЅСЏРµС‚ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ СЂР°Р·РјРµСЂ С‚Р°Р±СѓР»СЏС†РёРё Рё СЃРѕСЃС‚РѕСЏРЅРёРµ СЂРµР¶РёРјР° "РџСЂРѕР±РµР»С‹ РІРјРµСЃС‚Рѕ С‚Р°Р±СѓР»СЏС†РёРё", С‚Рѕ РёРјРµРµС‚ СЃРјС‹СЃР» РїСЂРёРјРµРЅСЏС‚СЊ РєРѕРјР°РЅРґС‹ РІ С‚Р°РєРѕР№ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё: СЃРЅР°С‡Р°Р»Р° <code>ESPT_TABSIZE</code>, РїРѕС‚РѕРј <code>ESPT_EXPANDTABS</code>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
-<a href="../delphi/teditorsetparameter.html">TEditorSetParameter</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>
 </div>
 
 </body>

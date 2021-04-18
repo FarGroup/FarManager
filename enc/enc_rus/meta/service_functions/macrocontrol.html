@@ -1,0 +1,187 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>MacroControl</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>MacroControl</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">сервисные функции</a> |
+<a href="../macroapi/index.html">Macro API</a>
+</div>
+
+<div class=shortdescr>
+Функция <code>MacroControl</code> позволяет управлять макрокомандами Far Manager.
+</div>
+
+<pre class=syntax>
+intptr_t WINAPI MacroControl(
+  const GUID *PluginId,
+  enum FAR_MACRO_CONTROL_COMMANDS Command,
+  intptr_t Param1,
+  void *Param2
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>PluginId</div>
+    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+  <div class=dfn>Command</div>
+    <div class=dfndescr>Может быть одним из следующих значений (перечисление <a name="FAR_MACRO_CONTROL_COMMANDS">FAR_MACRO_CONTROL_COMMANDS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_LOADALL">MCTL_LOADALL</a></td>
+    <td class="cont" width="60%">Загрузить все макросы из файлов в память Far Manager.<br>
+      Предыдущие значения макросов при этом выгружаются, за исключением макросов,
+      добавленных с помощью команды <a href="#MCTL_ADDMACRO">MCTL_ADDMACRO</a>.<br>
+    <code>Param1</code> не используется.<br>
+    <code>Param2</code> указывает на структуру
+      <a href="../structures/farmacroload.html">FarMacroLoad</a>.
+      Для загрузки с параметрами по умолчанию установите в <code>NULL</code>.<br>
+    Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_SAVEALL">MCTL_SAVEALL</a></td>
+    <td class="cont" width="60%">Сохранить клавиатурные макросы из памяти Far Manager в файлы.<br>
+      Если пользователь записал с клавиатуры новые макросы, изменил либо удалил
+      существующие, то данные изменения станут постоянными.<br>
+    <code>Param1</code> не используется.<br>
+    <code>Param2</code> не используется.<br>
+    Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_SENDSTRING">MCTL_SENDSTRING</a></td>
+    <td class="cont" width="60%">Выполнить или проверить макрос.<br>
+    <code>Param1</code> значение типа <a name="FARMACROSENDSTRINGCOMMAND">FARMACROSENDSTRINGCOMMAND</a>:
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MSSC_POST">MSSC_POST</a></td>
+    <td class="cont" width="60%">Выполнить макрос.<br>
+    <code>Param2</code> указывает на структуру <a href="../structures/macrosendmacrotext.html">MacroSendMacroText</a>.
+    Функция возвращает <code>TRUE</code> - макрос проанализирован и помещен в очередь, и <code>FALSE</code> - ошибка (макропоследовательность содержит ошибки). Макропоследовательность начнёт исполняться тогда, когда Far Manager получит управление.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MSSC_CHECK">MSSC_CHECK</a></td>
+    <td class="cont" width="60%">Проверить макрос.<br>
+    <code>Param2</code> указывает на структуру <a href="../structures/macrosendmacrotext.html">MacroSendMacroText</a>. Функция при неудаче вернёт <code>FALSE</code>.
+    </td></tr>
+    </table>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_EXECSTRING">MCTL_EXECSTRING</a></td>
+    <td class="cont" width="60%">Исполнить скрипт (строку или файл).<br>
+    <code>Param1</code> не используется.<br>
+    <code>Param2</code> указывает на структуру  <a href="../structures/macroexecutestring.html">MacroExecuteString</a>.<br>
+    Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_GETLASTERROR">MCTL_GETLASTERROR</a></td>
+    <td class="cont" width="60%">Получить расширенную диагностику об ошибке проверки макроса или скрипта
+    (после исполнения команды <a href="#MCTL_SENDSTRING"><code>MCTL_SENDSTRING</code></a> или <a href="#MCTL_EXECSTRING"><code>MCTL_EXECSTRING</code></a>).<br>
+    <code>Param1</code> размер буфера. Указывает максимальное количество байт, которые могут быть записаны в <code>Param2</code>.<br>
+    <code>Param2</code> указатель на буфер, структуру <a href="../structures/macroparseresult.html">MacroParseResult</a>, память плагин выделяет самостоятельно.<br>
+    Функция возвращает размер требуемого буфера, при <code>Param2 = NULL</code>.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_GETSTATE">MCTL_GETSTATE</a></td>
+    <td class="cont" width="60%">Получить статус работы макродвижка.<br>
+    <code>Param1</code> не используется.<br>
+    <code>Param2</code> не используется.<br>
+    Функция возвращает одно из значений (перечисление <a name="FARMACROSTATE">FARMACROSTATE</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Значение</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_NOMACRO">MACROSTATE_NOMACRO</a></td>
+    <td class="cont" width="60%">макродвижок не выполняет никакой макрос в текущий момент</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_EXECUTING">MACROSTATE_EXECUTING</a></td>
+    <td class="cont" width="60%">идёт исполнение макроса без передачи кодов клавиш в плагин</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_EXECUTING_COMMON">MACROSTATE_EXECUTING_COMMON</a></td>
+    <td class="cont" width="60%">идёт исполнение макроса; коды клавиш в плагин передаются</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_RECORDING">MACROSTATE_RECORDING</a></td>
+    <td class="cont" width="60%">идёт запись макроса без передачи кодов клавиш в плагин</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_RECORDING_COMMON">MACROSTATE_RECORDING_COMMON</a></td>
+    <td class="cont" width="60%">идёт запись макроса; коды клавиш в плагин передаются</td></tr>
+    </table>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_GETAREA">MCTL_GETAREA</a></td>
+    <td class="cont" width="60%">Получить текущую макрообласть.<br>
+    <code>Param1</code> не используется.<br>
+    <code>Param2</code> не используется.<br>
+    Функция возвращает значение типа <code><a name="FARMACROAREA">FARMACROAREA</a></code>:
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Значение</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_OTHER">MACROAREA_OTHER</a></td>
+    <td class="cont" width="60%">режим копирования текста с экрана</tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_SHELL">MACROAREA_SHELL</a></td>
+    <td class="cont" width="60%">файловые панели</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_VIEWER">MACROAREA_VIEWER</a></td>
+    <td class="cont" width="60%">внутренняя программа просмотра</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_EDITOR">MACROAREA_EDITOR</a></td>
+    <td class="cont" width="60%">редактор</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_DIALOG">MACROAREA_DIALOG</a></td>
+    <td class="cont" width="60%">диалоги</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_SEARCH">MACROAREA_SEARCH</a></td>
+    <td class="cont" width="60%">быстрый поиск в панелях</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_DISKS">MACROAREA_DISKS</a></td>
+    <td class="cont" width="60%">меню выбора дисков</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_MAINMENU">MACROAREA_MAINMENU</a></td>
+    <td class="cont" width="60%">основное меню</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_MENU">MACROAREA_MENU</a></td>
+    <td class="cont" width="60%">прочие меню</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_HELP">MACROAREA_HELP</a></td>
+    <td class="cont" width="60%">система помощи</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_INFOPANEL">MACROAREA_INFOPANEL</a></td>
+    <td class="cont" width="60%">информационная панель</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_QVIEWPANEL">MACROAREA_QVIEWPANEL</a></td>
+    <td class="cont" width="60%">панель быстрого просмотра</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_TREEPANEL">MACROAREA_TREEPANEL</a></td>
+    <td class="cont" width="60%">панель дерева папок</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_FINDFOLDER">MACROAREA_FINDFOLDER</a></td>
+    <td class="cont" width="60%">панель поиска папок</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_USERMENU">MACROAREA_USERMENU</a></td>
+    <td class="cont" width="60%">пользовательское меню</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_SHELLAUTOCOMPLETION">MACROAREA_SHELLAUTOCOMPLETION</a></td>
+    <td class="cont" width="60%">список автодополнения в панелях</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_DIALOGAUTOCOMPLETION">MACROAREA_DIALOGAUTOCOMPLETION</a></td>
+    <td class="cont" width="60%">список автодополнения в диалогах</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROAREA_COMMON">MACROAREA_COMMON</a></td>
+    <td class="cont" width="60%">общая область</td></tr>
+    </table>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_ADDMACRO">MCTL_ADDMACRO</a></td>
+    <td class="cont" width="60%">Добавить в память Far Manager макрос.<br>
+    <code>Param1</code> игнорируется. <br>
+    <code>Param2</code> указывает на структуру <a href="../structures/macroaddmacro.html">MacroAddMacro</a>.<br>
+    Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_DELMACRO">MCTL_DELMACRO</a></td>
+    <td class="cont" width="60%">Удалить из памяти Far Manager макрос, добавленный ранее командой <a href="#MCTL_ADDMACRO">MCTL_ADDMACRO</a>.<br>
+    <code>Param1</code> игнорируется. <br>
+    <code>Param2</code> указывает на идентификатор удаляемого макроса, поле <code>Id</code> структуры <a href="../structures/macroaddmacro.html">MacroAddMacro</a>.<br>
+    Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
+
+   </table>
+   </div>
+  <div class=dfn>Param1</div>
+    <div class=dfndescr>Указывает на <code>Параметр1</code> команды. Смотрите описание <code>Command</code>.</div>
+  <div class=dfn>Param2</div>
+    <div class=dfndescr>Указывает на <code>Параметр2</code> команды. Смотрите описание <code>Command</code>.</div>
+</div>
+
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Смотрите описание <code>Command</code>.
+</div>
+
+<h3>Пример</h3>
+<pre class=code>
+</pre>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="panelcontrol.html">PanelControl</a></div>
+
+</body>
+</html>

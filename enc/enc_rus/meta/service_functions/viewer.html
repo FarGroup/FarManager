@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>Viewer</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,95 +10,86 @@
 
 <h1>Viewer</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a> |
+<a href="../viewerapi/index.html">Viewer API</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>Viewer</dfn> позволяет открыть внутреннюю программу просмотра
-FAR Manager.
+Р¤СѓРЅРєС†РёСЏ <code>Viewer</code> РїРѕР·РІРѕР»СЏРµС‚ РѕС‚РєСЂС‹С‚СЊ РІРЅСѓС‚СЂРµРЅРЅСЋСЋ РїСЂРѕРіСЂР°РјРјСѓ РїСЂРѕСЃРјРѕС‚СЂР° Far Manager.
 </div>
 
 <pre class=syntax>
-int WINAPI Viewer (
-  const char *FileName,
-  const char *Title,
-  int X1,
-  int Y1,
-  int X2,
-  int Y2,
-  DWORD Flags
+intptr_t WINAPI Viewer (
+  const wchar_t *FileName,
+  const wchar_t *Title,
+  intptr_t X1,
+  intptr_t Y1,
+  intptr_t X2,
+  intptr_t Y2,
+  VIEWER_FLAGS Flags,
+  uintptr_t CodePage
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
-    <div class=dfn>FileName</div>
-    <div class=dfndescr>Файл для просмотра</div>
-    <div class=dfn>Title</div>
-    <div class=dfndescr>Текстовая строка, которая будет показана вверху
-      окна вьюера. Если этот параметр равен <code>NULL</code>, то используется имя файла.</div>
-    <div class=dfn>X1, Y1, X2, Y2</div>
-    <div class=dfndescr>Координаты окна вьюера. Если координата <var>X2</var>
-      или <var>Y2</var> равна -1, то она будет замещена
-      соответственно шириной или высотой экрана.
-      Если координата <var>X1</var> или <code>Y1</code> меньше нуля, то
-      считается, что она равна нулю.
+  <div class=dfn>FileName</div>
+    <div class=dfndescr>Р¤Р°Р№Р» РґР»СЏ РїСЂРѕСЃРјРѕС‚СЂР°.</div>
+  <div class=dfn>Title</div>
+    <div class=dfndescr>РўРµРєСЃС‚РѕРІР°СЏ СЃС‚СЂРѕРєР°, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РїРѕРєР°Р·Р°РЅР° РІРІРµСЂС…Сѓ РѕРєРЅР° РІСЊСЋРµСЂР°. Р•СЃР»Рё СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СЂР°РІРµРЅ <code>NULL</code>, С‚Рѕ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РёРјСЏ С„Р°Р№Р»Р°.</div>
+  <div class=dfn>X1, Y1, X2, Y2</div>
+    <div class=dfndescr>РљРѕРѕСЂРґРёРЅР°С‚С‹ РѕРєРЅР° РІСЊСЋРµСЂР°. Р•СЃР»Рё РєРѕРѕСЂРґРёРЅР°С‚Р° <code>X2</code> РёР»Рё <code>Y2</code> СЂР°РІРЅР° <code>-1</code>, С‚Рѕ РѕРЅР° Р±СѓРґРµС‚ Р·Р°РјРµС‰РµРЅР° СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ С€РёСЂРёРЅРѕР№ РёР»Рё РІС‹СЃРѕС‚РѕР№ СЌРєСЂР°РЅР°.
+    Р•СЃР»Рё РєРѕРѕСЂРґРёРЅР°С‚Р° <code>X1</code> РёР»Рё <code>Y1</code> РјРµРЅСЊС€Рµ РЅСѓР»СЏ, С‚Рѕ СЃС‡РёС‚Р°РµС‚СЃСЏ, С‡С‚Рѕ РѕРЅР° СЂР°РІРЅР° РЅСѓР»СЋ.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>РњРѕР¶РµС‚ Р±С‹С‚СЊ РєРѕРјР±РёРЅР°С†РёРµР№ СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (С‚РёРї <a name="VIEWER_FLAGS">VIEWER_FLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VF_DELETEONCLOSE">VF_DELETEONCLOSE</a></td>
+    <td class="cont" width="60%">Far Manager СѓРґР°Р»РёС‚ РїСЂРѕСЃРјР°С‚СЂРёРІР°РµРјС‹Р№ С„Р°Р№Р» РїРѕСЃР»Рµ Р·Р°РєСЂС‹С‚РёСЏ РІСЊСЋРµСЂР°. Р•СЃР»Рё РІ РґРёСЂРµРєС‚РѕСЂРёРё, СЃРѕРґРµСЂР¶Р°С‰РµР№ РїСЂРѕСЃРјР°С‚СЂРёРІР°РµРјС‹Р№ С„Р°Р№Р», РЅРµС‚ РґСЂСѓРіРёС… С„Р°Р№Р»РѕРІ, РѕРЅР° С‚Р°РєР¶Рµ Р±СѓРґРµС‚ СѓРґР°Р»РµРЅР°.
+    Р•СЃР»Рё С‚СЂРµР±СѓРµС‚СЃСЏ СѓРґР°Р»РµРЅРёРµ С‚РѕР»СЊРєРѕ С„Р°Р№Р»Р°, С‚Рѕ РёСЃРїРѕР»СЊР·СѓР№С‚Рµ <code>VF_DELETEONLYFILEONCLOSE</code>. Р¤Р°Р№Р» РЅРµ СѓРґР°Р»СЏРµС‚СЃСЏ, РµСЃР»Рё Р±С‹Р»Рѕ РїСЂРѕРёР·РІРµРґРµРЅРѕ РїРµСЂРµРєР»СЋС‡РµРЅРёРµ РїРѕ <kbd>F6</kbd> Рё  РµСЃР»Рё  СЃСѓС‰РµСЃС‚РІСѓСЋС‚
+    РґСЂСѓРіРёРµ РѕС‚РєСЂС‹С‚С‹Рµ РІСЊСЋРµСЂС‹/СЂРµРґР°РєС‚РѕСЂС‹ СЃ СЌС‚РёРј Р¶Рµ С„Р°Р№Р»РѕРј.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VF_DELETEONLYFILEONCLOSE">VF_DELETEONLYFILEONCLOSE</a></td>
+    <td class="cont" width="60%">РђРЅР°Р»РѕРі <code>VF_DELETEONCLOSE</code>, РЅРѕ СѓРґР°Р»СЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ С„Р°Р№Р». Р­С‚РѕС‚ С„Р»Р°Рі РёРјРµРµС‚ Р±РѕР»РµРµ РЅРёР·РєРёР№ РїСЂРёРѕСЂРёС‚РµС‚ РїСЂРё РѕР±СЂР°Р±РѕС‚РєРµ, С‡РµРј <code>VF_DELETEONCLOSE</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VF_DISABLEHISTORY">VF_DISABLEHISTORY</a></td>
+    <td class="cont" width="60%">Р—Р°РїСЂРµС‚РёС‚СЊ РґРѕР±Р°РІР»РµРЅРёРµ РёРјРµРЅРё С„Р°Р№Р»Р° РІ РёСЃС‚РѕСЂРёСЋ РїСЂРѕСЃРјРѕС‚СЂР° (<kbd>Alt</kbd>+<kbd>F11</kbd>). РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РёРјСЏ РІ РёСЃС‚РѕСЂРёСЋ РґРѕР±Р°РІР»СЏРµС‚СЃСЏ.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VF_ENABLE_F6">VF_ENABLE_F6</a></td>
+    <td class="cont" width="60%">Р Р°Р·СЂРµС€Р°РµС‚ РїРµСЂРµРєР»СЋС‡РµРЅРёРµ РїРѕ <kbd>F6</kbd> РёР· РІСЊСЋРµСЂР° РІ СЂРµРґР°РєС‚РѕСЂ.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VF_IMMEDIATERETURN">VF_IMMEDIATERETURN</a></td>
+    <td class="cont" width="60%">РџРѕР·РІРѕР»СЏРµС‚ РїР»Р°РіРёРЅСѓ РїРѕР»СѓС‡Р°С‚СЊ СѓРїСЂР°РІР»РµРЅРёРµ СЃСЂР°Р·Сѓ Р¶Рµ РїРѕСЃР»Рµ РѕС‚РєСЂС‹С‚РёСЏ РїСЂРѕРіСЂР°РјРјС‹ РїСЂРѕСЃРјРѕС‚СЂР°. РћС‚РєСЂС‹РІР°РµРјР°СЏ РїСЂРѕРіСЂР°РјРјР° РїСЂРѕСЃРјРѕС‚СЂР° СЃС‚Р°РЅРѕРІРёС‚СЃСЏ Р°РєС‚РёРІРЅРѕР№.
+    Р’С‹СЃС‚Р°РІР»СЏС‚СЊ СЌС‚РѕС‚ С„Р»Р°Рі РёРјРµРµС‚ СЃРјС‹СЃР» <u>С‚РѕР»СЊРєРѕ</u> РІ РїР°СЂРµ СЃ С„Р»Р°РіРѕРј <code>VF_NONMODAL</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VF_NONMODAL">VF_NONMODAL</a></td>
+    <td class="cont" width="60%">РЎРѕР·РґР°С‚СЊ РЅРµРјРѕРґР°Р»СЊРЅРѕРµ РѕРєРЅРѕ РІСЊСЋРµСЂР°. Р•СЃР»Рё СЌС‚РѕС‚ С„Р»Р°Рі РїСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚, РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃРјРѕР¶РµС‚ РїРµСЂРµРєР»СЋС‡Р°С‚СЊСЃСЏ РјРµР¶РґСѓ РїСЂРѕРіСЂР°РјРјРѕР№ РїСЂРѕСЃРјРѕС‚СЂР° Рё РґСЂСѓРіРёРјРё РѕРєРЅР°РјРё Far Manager.
+    <p>РџР»Р°РіРёРЅ РїРѕР»СѓС‡РёС‚ СѓРїСЂР°РІР»РµРЅРёРµ С‚РѕР»СЊРєРѕ РїРѕСЃР»Рµ Р·Р°РєСЂС‹С‚РёСЏ РёР»Рё СѓС…РѕРґР° РёР· РѕС‚РєСЂС‹С‚РѕР№ РїСЂРѕРіСЂР°РјРјС‹ РїСЂРѕСЃРјРѕС‚СЂР° (РЅР°РїСЂРёРјРµСЂ, РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» <kbd>Ctrl</kbd>+<kbd>Tab</kbd>).
+    Р•СЃР»Рё РІР°Рј РЅСѓР¶РЅРѕ, С‡С‚РѕР±С‹ РїР»Р°РіРёРЅ РїРѕР»СѓС‡Р°Р» СѓРїСЂР°РІР»РµРЅРёРµ СЃСЂР°Р·Сѓ Р¶Рµ РїРѕСЃР»Рµ РѕС‚РєСЂС‹С‚РёСЏ РїСЂРѕРіСЂР°РјРјС‹ РїСЂРѕСЃРјРѕС‚СЂР°, С‚Рѕ РёСЃРїРѕР»СЊР·СѓР№С‚Рµ С„Р»Р°Рі <code>VF_IMMEDIATERETURN</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VF_NONE">VF_NONE</a></td>
+    <td class="cont" width="60%">РќСѓР»РµРІРѕР№ С„Р»Р°Рі.</td></tr>
+    </table>
     </div>
-    <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть комбинацией следующих значений (перечисление <a name="VIEWER_FLAGS">VIEWER_FLAGS</a>):
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="40%"><a name="VF_DELETEONCLOSE">VF_DELETEONCLOSE</a></td>
-        <td class="cont" width="60%">FAR удалит просматриваемый файл после закрытия вьюера. Если в директории,
-         содержащей просматриваемый файл, нет других файлов, она также будет удалена.
-         Если требуется удаление только файла, то используйте <dfn>VF_DELETEONLYFILEONCLOSE</dfn>.
-         Файл не удаляется, если было произведено переключение по <kbd>F6</kbd> и  если  существуют
-         другие открытые вьюеры/редакторы с этим же файлом.</td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="VF_DELETEONLYFILEONCLOSE">VF_DELETEONLYFILEONCLOSE</a></td>
-        <td class="cont" width="60%">Аналог <dfn>VF_DELETEONCLOSE</dfn>, но удаляется только файл.
-         Этот флаг имеет более низкий приоритет при обработке, чем <dfn>VF_DELETEONCLOSE</dfn>.
-        </td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="VF_DISABLEHISTORY">VF_DISABLEHISTORY</a></td>
-        <td class="cont" width="60%">Запретить добавление имени файла в историю
-          просмотра (<kbd>Alt-F11</kbd>). По умолчанию имя в историю добавляется.
-        </td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="VF_ENABLE_F6">VF_ENABLE_F6</a></td>
-        <td class="cont" width="60%">Разрешает переключение по <kbd>F6</kbd> из
-          вьюера в редактор.</td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="VF_IMMEDIATERETURN">VF_IMMEDIATERETURN</a></td>
-        <td class="cont" width="60%">Позволяет плагину получать управление сразу же
-         после открытия программы просмотра. Открываемая программа просмотра становится активной.
-         Выставлять этот флаг имеет смысл <u>только</u> в паре с флагом <dfn>VF_NONMODAL</dfn>.
-        </td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="VF_NONMODAL">VF_NONMODAL</a></td>
-        <td class="cont" width="60%">Создать немодальное окно вьюера. Если этот флаг
-          присутствует, пользователь сможет переключаться между программой
-          просмотра и другими окнами FAR Manager.
-          <p>Плагин получит управление только после закрытия или ухода из
-          открытой программы просмотра (например, пользователь нажал <kbd>Ctrl-Tab</kbd>).
-          Если вам нужно, чтобы плагин получал управление сразу же после
-          открытия программы просмотра, то используйте флаг <dfn>VF_IMMEDIATERETURN</dfn>.
-        </td></tr>
-</table>
-
-    </div>
+  <div class=dfn>CodePage</div>
+    <div class=dfndescr>РќРѕРјРµСЂ РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹, РІ РєРѕС‚РѕСЂРѕР№ Р±СѓРґРµС‚ РѕС‚РєСЂС‹С‚ РІСЊСЋРµСЂ. РњРѕР¶РµС‚Рµ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·РЅР°С‡РµРЅРёРµ РІ <code>CP_DEFAULT</code>.
+    РџРѕРјРёРјРѕ СЌС‚РѕРіРѕ РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЃР»РµРґСѓСЋС‰РёРµ РѕРїСЂРµРґРµР»РµРЅРёСЏ.
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">РћРїСЂРµРґРµР»РµРЅРёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="CP_UNICODE">CP_UNICODE</a></td>
+    <td class="cont" width="60%">РєРѕРґРѕРІР°СЏ СЃС‚СЂР°РЅРёС†Р° 1200</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="CP_REVERSEBOM">CP_REVERSEBOM</a></td>
+    <td class="cont" width="60%">РєРѕРґРѕРІР°СЏ СЃС‚СЂР°РЅРёС†Р° 1201</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="CP_DEFAULT">CP_DEFAULT</a></td>
+    <td class="cont" width="60%">Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РѕРїСЂРµРґРµР»РёС‚СЊ РЅРѕРјРµСЂ РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="CP_REDETECT">CP_REDETECT</a></td>
+    <td class="cont" width="60%">РїРµСЂРµРѕРїСЂРµРґРµР»РёС‚СЊ РЅРѕРјРµСЂ РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹</td></tr>
+    </table>
+    </div>.
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=dfndescr>
- Если флаг <dfn>VF_NONMODAL</dfn> отсутствует, эта функция
- возвращает <code>TRUE</code> в случае успеха или <code>FALSE</code>, если файл
- не удалось открыть. Если этот флаг присутствует,
- то всегда возвращается <code>TRUE</code>.
+Р•СЃР»Рё С„Р»Р°Рі <code>VF_NONMODAL</code> РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚, СЌС‚Р° С„СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р° РёР»Рё <code>FALSE</code>, РµСЃР»Рё С„Р°Р№Р» РЅРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ. Р•СЃР»Рё СЌС‚РѕС‚ С„Р»Р°Рі РїСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚, С‚Рѕ РІСЃРµРіРґР° РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ <code>TRUE</code>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
 <a href="editor.html">Editor</a>
 </div>
 

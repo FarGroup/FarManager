@@ -1,152 +1,163 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>PluginPanelItem</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-
 <body>
 
 <h1>PluginPanelItem</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
+<a href="../panelapi/index.html">Panel API</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>PluginPanelItem</dfn> описывает элемент файловой системы в файловой системе
-эмулируемой плагином. Она используется для возвращения информации о файловой системе плагина и
-для передачи плагину списка файлов для обработки.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>PluginPanelItem</code> РѕРїРёСЃС‹РІР°РµС‚ СЌР»РµРјРµРЅС‚ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹ РїР»Р°РіРёРЅР°. РћРЅР° РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РІРѕР·РІСЂР°С‰РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё Рѕ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјРµ РїР»Р°РіРёРЅР° Рё РґР»СЏ РїРµСЂРµРґР°С‡Рё РїР»Р°РіРёРЅСѓ СЃРїРёСЃРєР° С„Р°Р№Р»РѕРІ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё.
 </div>
-
-<p class=note><img src="../../images/warning.gif" alt="ВНИМАНИЕ!" width="10" height="10"> ВНИМАНИЕ!</p>
-<UL class=note><LI>
-Размер структуры <dfn>PluginPanelItem</dfn> должен быть равен 366 байтам.
-Подробности в статье Игоря Павлова "<a href="../articles/alignment.html">Как настроить Alignment</a>"
-</LI></UL>
-
 
 <pre class=syntax>
 struct PluginPanelItem
 {
-#ifndef _FAR_USE_WIN32_FIND_DATA
-  struct FAR_FIND_DATA   FindData;
-#else
-  WIN32_FIND_DATA FindData;
-#endif
-  DWORD PackSizeHigh;
-  DWORD PackSize;
-  DWORD Flags;
-  DWORD NumberOfLinks;
-  char *Description;
-  char *Owner;
-  char **CustomColumnData;
-  int CustomColumnNumber;
-  DWORD_PTR UserData;
-  DWORD CRC32;
-  DWORD Reserved[2];
+  FILETIME CreationTime;
+  FILETIME LastAccessTime;
+  FILETIME LastWriteTime;
+  FILETIME ChangeTime;
+  unsigned __int64 FileSize;
+  unsigned __int64 AllocationSize;
+  const wchar_t *FileName;
+  const wchar_t *AlternateFileName;
+  const wchar_t *Description;
+  const wchar_t *Owner;
+  const wchar_t * const *CustomColumnData;
+  size_t CustomColumnNumber;
+  PLUGINPANELITEMFLAGS Flags;
+  struct
+  {
+    void *Data;
+    FARPANELITEMFREECALLBACK FreeData;
+  } UserData;
+  uintptr_t FileAttributes;
+  uintptr_t NumberOfLinks;
+  uintptr_t CRC32;
+  intptr_t Reserved[2];
 };
 </pre>
-<h3>Элементы</h3>
+
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
-  <div class=dfn>FindData</div>
-  <div class=dfndescr>Структура FindData содержит много файловых
-    параметров. См. описание структуры <a href="../winapi/win32_find_data.html">WIN32_FIND_DATA</a>
-    для более подробной информации.</div>
-  <div class=dfn>PackSizeHigh</div>
-  <div class=dfndescr>Содержит старшие 4 байта упакованного размера файла, в байтах. Сейчас не используется.</div>
-  <div class=dfn>PackSize</div>
-  <div class=dfndescr>Содержит младшие 4 байта упакованного размера файла, в байтах.</div>
-  <div class=dfn>Flags</div>
-  <div class=dfndescr>Может быть комбинацией следующих значений (перечисление <a name="PLUGINPANELITEMFLAGS">PLUGINPANELITEMFLAGS</a>):
-    <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-      <tr class="cont"><td class="cont" width="40%"><a name="PPIF_PROCESSDESCR">PPIF_PROCESSDESCR</a></td>
-      <td class="cont" width="60%">Использовать внутреннюю обработку описаний FAR'а.
-        Этот флаг может быть установлен для обрабатываемых файлов в
-        функциях  <a href="../exported_functions/deletefiles.html">DeleteFiles</a>,
-        <a href="../exported_functions/getfiles.html">GetFiles</a> и
-        <a href="../exported_functions/putfiles.html">PutFiles</a>.
-        В этом случае FAR будет обновлять файлы описаний с именами,
-        возвращенными в функции <a href="../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a>.
-      </td></tr>
-
-      <tr class="cont"><td class="cont" width="40%"><a name="PPIF_SELECTED">PPIF_SELECTED</a></td>
-      <td class="cont" width="60%">Для <a href="../service_functions/control.html">Control</a>, в функциях FCTL_GETPANELINFO,
-        FCTL_GETANOTHERPANELINFO, FCTL_SETSELECTION и FCTL_SETANOTHERSELECTION этот флаг позволяет
-        проверить и установить выделение элементов.<br>
-        В функциях <a href="../exported_functions/putfiles.html">PutFiles</a>, <a href="../exported_functions/getfiles.html">GetFiles</a>
-        и <a href="../exported_functions/processhostfile.html">ProcessHostFile</a>, если операция не удалась,
-        но часть файлов была успешно обработана, плагин может убрать выделение только с
-        обработанных файлов.<br>
-        Для этого плагин должен очистить флаг PPIF_SELECTED у обрабатываемых элементов в переданном функции списке <i>PluginPanelItem</i>.
-      </td></tr>
-
-      <tr class="cont"><td class="cont" width="40%"><a name="PPIF_USERDATA">PPIF_USERDATA</a></td>
-      <td class="cont" width="60%">Если этот флаг установлен, FAR считает поле <i>UserData</i> указателем на структуру пользовательских данных.
-        Читайте описание <i>UserData</i> для уточнения информации.
-        <p>Младшее слово параметра Flags может быть использовано плагином для своих собственных флагов.
-      </td></tr>
-      </table>
-  </div>
-
-  <div class=dfn>NumberOfLinks</div>
-  <div class=dfndescr>Количество жестких связей.</div>
+  <div class=dfn>CreationTime</div>
+    <div class=dfndescr>Р’СЂРµРјСЏ СЃРѕР·РґР°РЅРёСЏ - СЃС‚СЂСѓРєС‚СѓСЂР° <a href="../winapi/filetime.html">FILETIME</a> СЃРѕРґРµСЂР¶Р°С‰Р°СЏ РІСЂРµРјСЏ СЃРѕР·РґР°РЅРёСЏ С„Р°Р№Р»Р°. <a href="win32/FindFirstFile">FindFirstFile</a> Рё <a href="win32/FindNextFile">FindNextFile</a>
+    РІРѕР·РІСЂР°С‰Р°СЋС‚ РІСЂРµРјСЏ С„Р°Р№Р»Р° РІ UTC-С„РѕСЂРјР°С‚Рµ. Р­С‚Рё С„СѓРЅРєС†РёРё СѓСЃС‚Р°РЅР°РІР»РёРІР°СЋС‚ СЌР»РµРјРµРЅС‚С‹ FILETIME РІ РЅРѕР»СЊ, РµСЃР»Рё С„Р°Р№Р»РѕРІР°СЏ СЃРёСЃС‚РµРјР°, СЃРѕРґРµСЂР¶Р°С‰Р°СЏ С„Р°Р№Р» РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ СЌС‚РѕС‚ РІСЂРµРјРµРЅРЅРѕР№ Р°С‚СЂРёР±СѓС‚.
+    Р’С‹ РјРѕР¶РµС‚Рµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С„СѓРЅРєС†РёСЋ <a href="win32/FileTimeToLocalFileTime">FileTimeToLocalFileTime</a> РґР»СЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ РёР· UTC РІ Р»РѕРєР°Р»СЊРЅРѕРµ РІСЂРµРјСЏ Рё С‚РѕРіРґР° РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ
+    С„СѓРЅРєС†РёСЋ <a href="win32/FileTimeToSystemTime">FileTimeToSystemTime</a> РґР»СЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ Р»РѕРєР°Р»СЊРЅРѕРіРѕ РІСЂРµРјРµРЅРё РІ СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../winapi/systemtime.html">SYSTEMTIME</a>
+    СЃРѕРґРµСЂР¶Р°С‰СѓСЋ РѕС‚РґРµР»СЊРЅС‹Рµ СЌР»РµРјРµРЅС‚С‹ РґР»СЏ РјРµСЃСЏС†Р°, РґРЅСЏ, РіРѕРґР° Рё С‚Р°Рє РґР°Р»РµРµ...</div>
+  <div class=dfn>LastAccessTime</div>
+    <div class=dfndescr>РЎС‚СЂСѓРєС‚СѓСЂР° <a href="../winapi/filetime.html">FILETIME</a> СЃ РІСЂРµРјРµРЅРµРј РїРѕСЃР»РµРґРЅРµРіРѕ РґРѕСЃС‚СѓРїР° Рє С„Р°Р№Р»Сѓ. Р’СЂРµРјСЏ С…СЂР°РЅРёС‚СЃСЏ РІ UTC С„РѕСЂРјР°С‚Рµ; СЌР»РµРјРµРЅС‚С‹ СЃС‚СЂСѓРєС‚СѓСЂС‹ СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹ РІ РЅРѕР»СЊ, РµСЃР»Рё С„Р°Р№Р»РѕРІР°СЏ СЃРёСЃС‚РµРјР° РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ СЌС‚РѕРіРѕ СЃРІРѕР№СЃС‚РІР°.</div>
+  <div class=dfn>LastWriteTime</div>
+    <div class=dfndescr>РЎС‚СЂСѓРєС‚СѓСЂР° <a href="../winapi/filetime.html">FILETIME</a> СЃ РІСЂРµРјРµРЅРµРј РїРѕСЃР»РµРґРЅРµР№ Р·Р°РїРёСЃРё РІ С„Р°Р№Р». Р’СЂРµРјСЏ С…СЂР°РЅРёС‚СЃСЏ РІ UTC С„РѕСЂРјР°С‚Рµ; СЌР»РµРјРµРЅС‚С‹ СЃС‚СЂСѓРєС‚СѓСЂС‹ СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹ РІ РЅРѕР»СЊ, РµСЃР»Рё С„Р°Р№Р»РѕРІР°СЏ СЃРёСЃС‚РµРјР° РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ СЌС‚РѕРіРѕ СЃРІРѕР№СЃС‚РІР°.</div>
+  <div class=dfn>ChangeTime</div>
+    <div class=dfndescr>РЎС‚СЂСѓРєС‚СѓСЂР° <a href="../winapi/filetime.html">FILETIME</a> СЃ РІСЂРµРјРµРЅРµРј РїРѕСЃР»РµРґРЅРµРіРѕ РёР·РјРµРЅРµРЅРёСЏ С„Р°Р№Р»Р°. Р’СЂРµРјСЏ С…СЂР°РЅРёС‚СЃСЏ РІ UTC С„РѕСЂРјР°С‚Рµ; СЌР»РµРјРµРЅС‚С‹ СЃС‚СЂСѓРєС‚СѓСЂС‹ СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹ РІ РЅРѕР»СЊ, РµСЃР»Рё С„Р°Р№Р»РѕРІР°СЏ СЃРёСЃС‚РµРјР° РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ СЌС‚РѕРіРѕ СЃРІРѕР№СЃС‚РІР°.</div>
+  <div class=dfn>FileSize</div>
+    <div class=dfndescr>Р Р°Р·РјРµСЂ С„Р°Р№Р»Р° РІ Р±Р°Р№С‚Р°С….</div>
+  <div class=dfn>AllocationSize</div>
+    <div class=dfndescr>Р’С‹РґРµР»РµРЅРЅС‹Р№ СЂР°Р·РјРµСЂ С„Р°Р№Р»Р° РІ Р±Р°Р№С‚Р°С….</div>
+  <div class=dfn>FileName</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂРѕРєСѓ СЃ РёРјРµРЅРµРј С„Р°Р№Р»Р°.</div>
+  <div class=dfn>AlternateFileName</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂРѕРєСѓ СЃ Р°Р»СЊС‚РµСЂРЅР°С‚РёРІРЅС‹Рј РёРјРµРЅРµРј С„Р°Р№Р»Р°. </div>
   <div class=dfn>Description</div>
-  <div class=dfndescr>Указывает на описание файла. Плагин может использовать это поле для передачи описания файла
-    FAR'у. Если вы не хотите указывать описания, установите <i>Description</i> в NULL. Если плагин
-    использует стандартную обработку описаний FAR'а, и передал имена описаний FAR'у в функции <a href="../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a>, это поле также должно быть NULL.</div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РѕРїРёСЃР°РЅРёРµ С„Р°Р№Р»Р°. РџР»Р°РіРёРЅ РјРѕР¶РµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЌС‚Рѕ РїРѕР»Рµ РґР»СЏ РїРµСЂРµРґР°С‡Рё РѕРїРёСЃР°РЅРёСЏ С„Р°Р№Р»Р° Far Manager'Сѓ. Р•СЃР»Рё РІС‹ РЅРµ С…РѕС‚РёС‚Рµ СѓРєР°Р·С‹РІР°С‚СЊ РѕРїРёСЃР°РЅРёСЏ, СѓСЃС‚Р°РЅРѕРІРёС‚Рµ <code>Description</code> РІ <code>NULL</code>. Р•СЃР»Рё РїР»Р°РіРёРЅ
+    РёСЃРїРѕР»СЊР·СѓРµС‚ СЃС‚Р°РЅРґР°СЂС‚РЅСѓСЋ РѕР±СЂР°Р±РѕС‚РєСѓ РѕРїРёСЃР°РЅРёР№ Far Manager'Р°, Рё РїРµСЂРµРґР°Р» РёРјРµРЅР° РѕРїРёСЃР°РЅРёР№ Far Manager'Сѓ РІ С„СѓРЅРєС†РёРё <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>, СЌС‚Рѕ РїРѕР»Рµ С‚Р°РєР¶Рµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ <code>NULL</code>.</div>
   <div class=dfn>Owner</div>
-  <div class=dfndescr>Указывает на имя владельца файла. Плагин может использовать это поле для передачи имен владельцев файлов FAR'у.
-    Если Вам это не нужно, установите это поле в NULL.</div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РёРјСЏ РІР»Р°РґРµР»СЊС†Р° С„Р°Р№Р»Р°. РџР»Р°РіРёРЅ РјРѕР¶РµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЌС‚Рѕ РїРѕР»Рµ РґР»СЏ РїРµСЂРµРґР°С‡Рё РёРјС‘РЅ РІР»Р°РґРµР»СЊС†РµРІ С„Р°Р№Р»РѕРІ Far Manager'Сѓ. Р•СЃР»Рё Р’Р°Рј СЌС‚Рѕ РЅРµ РЅСѓР¶РЅРѕ, СѓСЃС‚Р°РЅРѕРІРёС‚Рµ СЌС‚Рѕ РїРѕР»Рµ РІ <code>NULL</code>.</div>
   <div class=dfn>CustomColumnData</div>
-  <div class=dfndescr>Указывает на массив адресов строк для определенных плагином типов колонок. Первая строка содержит
-    данные для типа колонки C0, вторая - для C1 и т.д. Может быть задано до 10 дополнительных типов колонок от <b><code>C0</code></b>
-    до <b><code>C9</code></b>. Если вы не нуждаетесь в дополнительных типах колонок, установите
-    это поле в NULL.</div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РјР°СЃСЃРёРІ Р°РґСЂРµСЃРѕРІ СЃС‚СЂРѕРє РґР»СЏ РѕРїСЂРµРґРµР»С‘РЅРЅС‹С… РїР»Р°РіРёРЅРѕРј С‚РёРїРѕРІ РєРѕР»РѕРЅРѕРє. РџРµСЂРІР°СЏ СЃС‚СЂРѕРєР° СЃРѕРґРµСЂР¶РёС‚ РґР°РЅРЅС‹Рµ РґР»СЏ С‚РёРїР° РєРѕР»РѕРЅРєРё C0, РІС‚РѕСЂР°СЏ - РґР»СЏ C1 Рё С‚.Рґ. РњРѕР¶РµС‚ Р±С‹С‚СЊ Р·Р°РґР°РЅРѕ РґРѕ 100 РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… С‚РёРїРѕРІ РєРѕР»РѕРЅРѕРє РѕС‚ <code>C0</code>
+    РґРѕ <code>C99</code>. Р•СЃР»Рё РІС‹ РЅРµ РЅСѓР¶РґР°РµС‚РµСЃСЊ РІ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… С‚РёРїР°С… РєРѕР»РѕРЅРѕРє, СѓСЃС‚Р°РЅРѕРІРёС‚Рµ СЌС‚Рѕ РїРѕР»Рµ РІ <code>NULL</code>.</div>
   <div class=dfn>CustomColumnNumber</div>
-  <div class=dfndescr>Число строк с данными о дополнительных типах колонок.</div>
+    <div class=dfndescr>Р§РёСЃР»Рѕ СЃС‚СЂРѕРє СЃ РґР°РЅРЅС‹РјРё Рѕ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… С‚РёРїР°С… РєРѕР»РѕРЅРѕРє.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>РњРѕР¶РµС‚ Р±С‹С‚СЊ РєРѕРјР±РёРЅР°С†РёРµР№ СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (С‚РёРї <a name="PLUGINPANELITEMFLAGS">PLUGINPANELITEMFLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PPIF_PROCESSDESCR">PPIF_PROCESSDESCR</a></td>
+    <td class="cont" width="60%">РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РІРЅСѓС‚СЂРµРЅРЅСЋСЋ РѕР±СЂР°Р±РѕС‚РєСѓ РѕРїРёСЃР°РЅРёР№ Far Manager'Р°.<br>
+    Р­С‚РѕС‚ С„Р»Р°Рі РјРѕР¶РµС‚ Р±С‹С‚СЊ СѓСЃС‚Р°РЅРѕРІР»РµРЅ РґР»СЏ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјС‹С… С„Р°Р№Р»РѕРІ РІ С„СѓРЅРєС†РёСЏС…  <a href="../exported_functions/deletefilesw.html">DeleteFilesW</a>, <a href="../exported_functions/getfilesw.html">GetFilesW</a> Рё
+    <a href="../exported_functions/putfilesw.html">PutFilesW</a>. Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ Far Manager Р±СѓРґРµС‚ РѕР±РЅРѕРІР»СЏС‚СЊ С„Р°Р№Р»С‹ РѕРїРёСЃР°РЅРёР№ СЃ РёРјРµРЅР°РјРё, РІРѕР·РІСЂР°С‰С‘РЅРЅС‹РјРё РІ С„СѓРЅРєС†РёРё <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PPIF_SELECTED">PPIF_SELECTED</a></td>
+    <td class="cont" width="60%">Р­С‚РѕС‚ С„Р»Р°Рі РѕС‚РІРµС‡Р°РµС‚ Р·Р° РІС‹РґРµР»РµРЅРёРµ СЌР»РµРјРµРЅС‚Р°.<br>
+    Р’ С„СѓРЅРєС†РёСЏС… <a href="../exported_functions/putfilesw.html">PutFilesW</a>, <a href="../exported_functions/getfilesw.html">GetFilesW</a> Рё <a href="../exported_functions/processhostfilew.html">ProcessHostFileW</a>, РµСЃР»Рё РѕРїРµСЂР°С†РёСЏ РЅРµ СѓРґР°Р»Р°СЃСЊ,
+    РЅРѕ С‡Р°СЃС‚СЊ С„Р°Р№Р»РѕРІ Р±С‹Р»Р° СѓСЃРїРµС€РЅРѕ РѕР±СЂР°Р±РѕС‚Р°РЅР°, РїР»Р°РіРёРЅ РјРѕР¶РµС‚ СѓР±СЂР°С‚СЊ РІС‹РґРµР»РµРЅРёРµ С‚РѕР»СЊРєРѕ СЃ РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹С… С„Р°Р№Р»РѕРІ.<br>
+    Р”Р»СЏ СЌС‚РѕРіРѕ РїР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ РѕС‡РёСЃС‚РёС‚СЊ С„Р»Р°Рі <code>PPIF_SELECTED</code> Сѓ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјС‹С… СЌР»РµРјРµРЅС‚РѕРІ РІ РїРµСЂРµРґР°РЅРЅРѕРј С„СѓРЅРєС†РёРё СЃРїРёСЃРєРµ <code>PluginPanelItem</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PPIF_NONE">PPIF_NONE</a></td>
+    <td class="cont" width="60%">РќСѓР»РµРІРѕР№ С„Р»Р°Рі.</td></tr>
+    </table></div>
   <div class=dfn>UserData</div>
-  <div class=dfndescr>Это поле может быть использовано плагином для хранения 32-битного значения или указателя на структуру данных.
-    В последнем случае, когда <i>UserData</i> указывает на структуру данных, первое поле
-    этой структуры должно быть 32-битным значением, равным размеру структуры, и плагин должен установить флаг PPIF_USERDATA в
-    поле <i>Flags</i>. Это позволит FAR'у правильно скопировать структуру во внутренний буфер FAR'а
-    и позже передать ее плагину в списках <i>PluginPanelItem</i>. В функции <a href="../exported_functions/freefinddata.html">FreeFindData</a> плагин должен освободить память,
-    занятую такими дополнительными структурами.</div>
+    <div class=dfndescr>Р­С‚Рѕ РїРѕР»Рµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅРѕ РїР»Р°РіРёРЅРѕРј РґР»СЏ С…СЂР°РЅРµРЅРёСЏ С†РµР»РѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ РёР»Рё СѓРєР°Р·Р°С‚РµР»СЏ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ РґР°РЅРЅС‹С….<br>
+    Р’ РїРѕСЃР»РµРґРЅРµРј СЃР»СѓС‡Р°Рµ, РєРѕРіРґР° <code>UserData.Data</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ РґР°РЅРЅС‹С… Рё С‚СЂРµР±СѓРµС‚СЃСЏ РµС‘ РѕСЃРІРѕР±РѕР¶РґРµРЅРёРµ, С‚Рѕ РїР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ РѕРїСЂРµРґРµР»РёС‚СЊ С„СѓРЅРєС†РёСЋ <a href="../defs/farpanelitemfreecallback.html">UserData.FreeData</a>, РёСЃРїРѕР»СЊР·СѓРµРјСѓСЋ Far Manager'РѕРј РґР»СЏ РѕСЃРІРѕР±РѕР¶РґРµРЅРёСЏ Р·Р°РЅСЏС‚С‹С… СЂРµСЃСѓСЂСЃРѕРІ.</div>
+  <div class=dfn>FileAttributes</div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ Р°С‚СЂРёР±СѓС‚С‹ РЅР°Р№РґРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р°. Р­С‚РѕС‚ СЌР»РµРјРµРЅС‚ РјРѕР¶РµС‚ Р±С‹С‚СЊ РєРѕРјР±РёРЅР°С†РёРµР№ СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№:
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">РђС‚СЂРёР±СѓС‚</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_ARCHIVE">FILE_ATTRIBUTE_ARCHIVE</a></td>
+    <td class="cont" width="60%">Р­С‚Рѕ Р°СЂС…РёРІРЅС‹Р№ С„Р°Р№Р». РџСЂРёР»РѕР¶РµРЅРёСЏ РґРѕР»Р¶РЅС‹ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЌС‚РѕС‚ С„Р»Р°Рі РґР»СЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ, Р°СЂС…РёРІРёСЂРѕРІР°РЅРёСЏ РёР»Рё СѓРґР°Р»РµРЅРёСЏ.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_COMPRESSED">FILE_ATTRIBUTE_COMPRESSED</a></td>
+    <td class="cont" width="60%">Р¤Р°Р№Р» РёР»Рё РєР°С‚Р°Р»РѕРі СЃР¶Р°С‚. Р”Р»СЏ С„Р°Р№Р»Р° СЌС‚Рѕ РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ РІСЃРµ РґР°РЅРЅС‹Рµ РµРіРѕ СЃР¶Р°С‚С‹, РґР»СЏ РєР°С‚Р°Р»РѕРіР° - С‡С‚Рѕ РєРѕРјРїСЂРµСЃСЃРёСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РїСЂРёРјРµРЅСЏРµС‚СЃСЏ РєРѕ РІСЃРµРј РµРіРѕ С„Р°Р№Р»Р°Рј Рё РїРѕРґРєР°С‚Р°Р»РѕРіР°Рј.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_DIRECTORY">FILE_ATTRIBUTE_DIRECTORY</a></td>
+    <td class="cont" width="60%">Р­С‚Рѕ РєР°С‚Р°Р»РѕРі.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_ENCRYPTED">FILE_ATTRIBUTE_ENCRYPTED</a></td>
+    <td class="cont" width="60%">Р¤Р°Р№Р» РёР»Рё РєР°С‚Р°Р»РѕРі Р·Р°С€РёС„СЂРѕРІР°РЅ. Р”Р»СЏ С„Р°Р№Р»Р°, СЌС‚Рѕ РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ РІСЃРµ РґР°РЅРЅС‹Рµ РІ С„Р°Р№Р»Рµ Р·Р°С€РёС„СЂРѕРІР°РЅС‹. Р”Р»СЏ РґРёСЂРµРєС‚РѕСЂРёСЏ, СЌС‚Рѕ РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ С€РёС„СЂРѕРІР°РЅРёРµ СЏРІР»СЏРµС‚СЃСЏ СѓРјРѕР»С‡Р°РЅРёРµРј РґР»СЏ РІРЅРѕРІСЊ СЃРѕР·РґР°РЅРЅС‹С… С„Р°Р№Р»РѕРІ Рё РїРѕРґРєР°С‚Р°Р»РѕРіРѕРІ.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_HIDDEN">FILE_ATTRIBUTE_HIDDEN</a></td>
+    <td class="cont" width="60%">Р¤Р°Р№Р» СЃРєСЂС‹С‚. РўР°РєРѕР№ С„Р°Р№Р» РЅРµ РІРєР»СЋС‡Р°РµС‚СЃСЏ РІ РѕР±С‹С‡РЅС‹Р№ Р»РёСЃС‚РёРЅРі РєР°С‚Р°Р»РѕРіР°.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_NORMAL">FILE_ATTRIBUTE_NORMAL</a></td>
+    <td class="cont" width="60%">РЈ СЌС‚РѕРіРѕ С„Р°Р№Р»Р° РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹ РґСЂСѓРіРёРµ Р°С‚СЂРёР±СѓС‚С‹. Р­С‚Рѕ Р·РЅР°С‡РµРЅРёРµ РєРѕСЂСЂРµРєС‚РЅРѕ С‚РѕР»СЊРєРѕ РїСЂРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё Р±РµР· РѕСЃС‚Р°Р»СЊРЅС‹С… С„Р»Р°РіРѕРІ.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_OFFLINE">FILE_ATTRIBUTE_OFFLINE</a></td>
+    <td class="cont" width="60%">Р”Р°РЅРЅС‹Рµ С„Р°Р№Р»Р° РЅРµ РґРѕСЃС‚СѓРїРЅС‹ РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ. РћР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ СЂРµР°Р»СЊРЅС‹Рµ РґР°РЅРЅС‹Рµ С„Р°Р№Р»Р° Р±С‹Р»Рё С„РёР·РёС‡РµСЃРєРё РїРµСЂРµРјРµС‰РµРЅС‹ РЅР° СѓСЃС‚СЂРѕР№СЃС‚РІР° С…СЂР°РЅРµРЅРёСЏ.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_READONLY">FILE_ATTRIBUTE_READONLY</a></td>
+    <td class="cont" width="60%">Р¤Р°Р№Р» С‚РѕР»СЊРєРѕ РґР»СЏ С‡С‚РµРЅРёСЏ. РџСЂРёР»РѕР¶РµРЅРёСЏ РјРѕРіСѓС‚ С‡РёС‚Р°С‚СЊ С‚Р°РєРѕР№ С„Р°Р№Р», РЅРѕ РЅРµ РјРѕРіСѓС‚ Р·Р°РїРёСЃС‹РІР°С‚СЊ РёР»Рё СѓРґР°Р»СЏС‚СЊ РµРіРѕ.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_REPARSE_POINT">FILE_ATTRIBUTE_REPARSE_POINT</a></td>
+    <td class="cont" width="60%">РљР°С‚Р°Р»РѕРі СЏРІР»СЏРµС‚СЃСЏ С‚РѕС‡РєРѕР№ РїРѕРІС‚РѕСЂРЅРѕР№ РѕР±СЂР°Р±РѕС‚РєРё.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_SPARSE_FILE">FILE_ATTRIBUTE_SPARSE_FILE</a></td>
+    <td class="cont" width="60%">Р¤Р°Р№Р» СЏРІР»СЏРµС‚СЃСЏ С‚.РЅ. "Sparse file".</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_SYSTEM">FILE_ATTRIBUTE_SYSTEM</a></td>
+    <td class="cont" width="60%">Р­С‚РѕС‚ С„Р°Р№Р» - С‡Р°СЃС‚СЊ РѕРїРµСЂР°С†РёРѕРЅРЅРѕР№ СЃРёСЃС‚РµРјС‹.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_TEMPORARY">FILE_ATTRIBUTE_TEMPORARY</a></td>
+    <td class="cont" width="60%">Р­С‚Рѕ РІСЂРµРјРµРЅРЅС‹Р№ С„Р°Р№Р». РџСЂРёР»РѕР¶РµРЅРёСЏ РґРѕР»Р¶РЅС‹ Р·Р°РїРёСЃС‹РІР°С‚СЊ РІ С‚Р°РєРѕР№ С„Р°Р№Р» С‚РѕР»СЊРєРѕ РІ РєСЂР°Р№РЅРµР№ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё. Р‘РѕР»СЊС€Р°СЏ С‡Р°СЃС‚СЊ РґР°РЅРЅС‹С… С„Р°Р№Р»Р° РЅР°С…РѕРґРёС‚СЃСЏ РІ РїР°РјСЏС‚Рё Рё РЅРµ СЃР±СЂР°СЃС‹РІР°РµС‚СЃСЏ РЅР° РґРёСЃРє, С‚Р°Рє РєР°Рє С„Р°Р№Р» Р±СѓРґРµС‚ СѓРґР°Р»РµРЅ.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_NOT_CONTENT_INDEXED">FILE_ATTRIBUTE_NOT_CONTENT_INDEXED</a></td>
+    <td class="cont" width="60%">Р­С‚РѕС‚ С„Р°Р№Р» РёР»Рё РєР°С‚Р°Р»РѕРі РЅРµ Р±СѓРґСѓС‚ РёРЅРґРµРєСЃРёСЂРѕРІР°С‚СЊСЃСЏ СЃР»СѓР¶Р±РѕР№ РёРЅРґРµРєСЃРёСЂРѕРІР°РЅРёСЏ.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FILE_ATTRIBUTE_VIRTUAL">FILE_ATTRIBUTE_VIRTUAL</a></td>
+    <td class="cont" width="60%">Р­С‚РѕС‚ С„Р°Р№Р» - РІРёСЂС‚СѓР°Р»СЊРЅС‹Р№ С„Р°Р№Р».</td></tr>
+    </table></div>
+  <div class=dfn>NumberOfLinks</div>
+    <div class=dfndescr>РљРѕР»РёС‡РµСЃС‚РІРѕ Р¶С‘СЃС‚РєРёС… СЃСЃС‹Р»РѕРє.</div>
   <div class=dfn>CRC32</div>
-  <div class=dfndescr>Контрольная сумма. FAR не использует это поле.</div>
+    <div class=dfndescr>РљРѕРЅС‚СЂРѕР»СЊРЅР°СЏ СЃСѓРјРјР°. Far Manager РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚ СЌС‚Рѕ РїРѕР»Рµ. Р•СЃР»Рё РїР»Р°РіРёРЅ РёСЃРїРѕР»СЊР·СѓРµС‚ СЌС‚Рѕ РїРѕР»Рµ, РЅРµРѕР±С…РѕРґРёРјРѕ РІС‹СЃС‚Р°РІРёС‚СЊ С„Р»Р°Рі <a href="openpanelinfo.html">OPIF_USECRC32</a>.</div>
   <div class=dfn>Reserved</div>
-  <div class=dfndescr>Зарезервировано для будущего использования. Установите в 0.</div>
+    <div class=dfndescr>РџРѕР»СЏ Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅС‹ РґР»СЏ Р±СѓРґСѓС‰РµРіРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ. РЈСЃС‚Р°РЅРѕРІРёС‚Рµ РІ <code>0</code>.</div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 <ol>
-<li>Все данные, выделенные плагином для членов <var>Description</var>,
-  <var>Owner</var> и <var>CustomColumnData</var>, должны быть освобождены им.
-  FAR создает копии этих данные в своих внутренних структурах. Таким образом
-  они могут быть освобождены в любой момент после передачи FAR'у в
-  функции <a href="../exported_functions/getfinddata.html">GetFindData</a>.
-
-<li>Если плагин использует, например, <var>UserData</var> для получения данных о
-   файле, то плагинописатель должен удостовериться в валидности этих
-   данных. Это связано с тем, что при вызове <a href="../exported_functions/getfiles.html">GetFiles</a>
-   из списка найденных файлов  FAR передает плагину элементы  <dfn>PluginPanelItem</dfn>
-   только с одним правильно заполненным членом - <var>FindData</var>, остальные
-   члены установлены в <code>NULL</code>.
-
+<li>Р’СЃРµ РґР°РЅРЅС‹Рµ, РІС‹РґРµР»РµРЅРЅС‹Рµ РїР»Р°РіРёРЅРѕРј РґР»СЏ С‡Р»РµРЅРѕРІ <code>FileName</code>, <code>AlternateFileName</code>, <code>Description</code>, <code>Owner</code> Рё <code>CustomColumnData</code>, РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РѕСЃРІРѕР±РѕР¶РґРµРЅС‹ РёРј.
+Far Manager СЃРѕР·РґР°С‘С‚ РєРѕРїРёРё СЌС‚РёС… РґР°РЅРЅС‹С… РІ СЃРІРѕРёС… РІРЅСѓС‚СЂРµРЅРЅРёС… СЃС‚СЂСѓРєС‚СѓСЂР°С…. РўР°РєРёРј РѕР±СЂР°Р·РѕРј РѕРЅРё РјРѕРіСѓС‚ Р±С‹С‚СЊ РѕСЃРІРѕР±РѕР¶РґРµРЅС‹ РІ Р»СЋР±РѕР№ РјРѕРјРµРЅС‚ РїРѕСЃР»Рµ РїРµСЂРµРґР°С‡Рё Far Manager'Сѓ РІ
+С„СѓРЅРєС†РёРё <a href="../exported_functions/getfinddataw.html">GetFindDataW</a>.
+<li>РџСЂРё Р·Р°РїСЂРѕСЃРµ С„Р°Р№Р»РѕРІРѕРіРѕ РѕР±СЉРµРєС‚Р° СЃ РїР°РЅРµР»Рё Far Manager'Р° - РµСЃР»Рё С„Р°Р№Р» РёРјРµРµС‚ РґР»РёРЅРЅРѕРµ РёРјСЏ, С‚Рѕ РїРѕР»РЅРѕРµ РёРјСЏ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РІ СЌР»РµРјРµРЅС‚Рµ <code>FileName</code>, Р° СѓСЃРµС‡РµРЅРЅР°СЏ РІРµСЂСЃРёСЏ С„РѕСЂРјР°С‚Р° 8.3 СЃРѕС…СЂР°РЅСЏРµС‚СЃСЏ РІ <code>AlternateFileName</code>. РРЅР°С‡Рµ <code>AlternateFileName</code> РїСѓСЃС‚Рѕ.
+<li>РџСЂРё Р·Р°РїСЂРѕСЃРµ С„Р°Р№Р»РѕРІРѕРіРѕ РѕР±СЉРµРєС‚Р° СЃ РїР°РЅРµР»Рё РїР»Р°РіРёРЅР° - <code>AlternateFileName</code> РјРѕР¶РµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ Р»СЋР±СѓСЋ СЃС‚СЂРѕРєСѓ СЃС„РѕСЂРјРёСЂРѕРІР°РЅРЅСѓСЋ РїР»Р°РіРёРЅРѕРј, С‚.Рµ. Р·Р° СЃРѕРґРµСЂР¶РёРјРѕРµ РѕС‚РІРµС‡Р°РµС‚ РѕРїСЂР°С€РёРІР°РµРјС‹Р№ РїР»Р°РіРёРЅ.
+<li>РќРµ РІСЃРµ С„Р°Р№Р»РѕРІС‹Рµ СЃРёСЃС‚РµРјС‹ РїРѕР·РІРѕР»СЏСЋС‚ С…СЂР°РЅРёС‚СЊ РІСЂРµРјСЏ СЃРѕР·РґР°РЅРёСЏ С„Р°Р№Р»Р° Рё РїРѕСЃР»РµРґРЅРµРіРѕ РґРѕСЃС‚СѓРїР° Рє РЅРµРјСѓ, Рё РЅРµ РІСЃРµ СЃРёСЃС‚РµРјС‹ С…СЂР°РЅСЏС‚ РёС… РѕРґРёРЅР°РєРѕРІРѕ. РќР°РїСЂРёРјРµСЂ, РІ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјРµ FAT РїРѕРґ Windows NT РІСЂРµРјСЏ СЃРѕР·РґР°РЅРёСЏ С„Р°Р№Р»Р° Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ СЃ
+СЂР°Р·СЂРµС€РµРЅРёРµРј 10 РјРёР»Р»РёСЃРµРєСѓРЅРґ, РІСЂРµРјСЏ РїРѕСЃР»РµРґРЅРµР№ РјРѕРґРёС„РёРєР°С†РёРё - 2 СЃРµРєСѓРЅРґС‹, Р° РІСЂРµРјСЏ РґРѕСЃС‚СѓРїР° - 1 РґРµРЅСЊ (С‚Рѕ РµСЃС‚СЊ, С„Р°РєС‚РёС‡РµСЃРєРё, Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР°С‚Р° РґРѕСЃС‚СѓРїР°). РќР° С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјРµ NTFS РІСЂРµРјСЏ РґРѕСЃС‚СѓРїР° РёРјРµРµС‚ СЂР°Р·СЂРµС€РµРЅРёРµ 1 С‡Р°СЃ.
 </ol>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
-<a href="../defs/_far_use_win32_find_data.html">_FAR_USE_WIN32_FIND_DATA</a> |
-<a href="../defs/far_find_data.html">FAR_FIND_DATA</a> |
-<a href="../delphi/tpluginpanelitem.html">TPluginPanelItem</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>,
+<a href="../winapi/win32_find_data.html">WIN32_FIND_DATA</a>,
+<a href="../winapi/filetime.html">FILETIME</a>
 </div>
-
 
 </body>
 </html>

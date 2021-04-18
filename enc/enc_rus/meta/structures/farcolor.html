@@ -1,0 +1,76 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FarColor</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>FarColor</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">структуры</a> |
+<a href="../miscapi/index.html">Miscellaneous API</a>
+</div>
+
+<div class=shortdescr>
+Структура <code>FarColor</code> описывает код цвета, используется, например, в функции <a href="../service_functions/text.html">Text</a>.
+</div>
+
+<pre class=syntax>
+struct FarColor
+{
+  FARCOLORFLAGS Flags;
+  COLORREF ForegroundColor;
+  COLORREF BackgroundColor;
+  void *Reserved;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Может быть комбинацией следующих значений (тип <a name="FARCOLORFLAGS">FARCOLORFLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_4BIT">FCF_FG_4BIT</a></td>
+    <td class="cont" width="60%">цвет символа задан стандартным кодом в 4 бита</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FCF_BG_4BIT">FCF_BG_4BIT</a></td>
+    <td class="cont" width="60%">цвет фона символа задан стандартным кодом в 4 бита</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FCF_4BITMASK">FCF_4BITMASK</a></td>
+    <td class="cont" width="60%">стандартный четырехбитный цвет (FCF_FG_4BIT|FCF_BG_4BIT)</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FCF_EXTENDEDFLAGS">FCF_EXTENDEDFLAGS</a></td>
+    <td class="cont" width="60%">расширенные атрибуты (~FCF_4BITMASK)</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_BOLD">FCF_FG_BOLD</a></td>
+    <td class="cont" width="60%">расширенные атрибуты, задан стиль: "жирный" символ</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_ITALIC">FCF_FG_ITALIC</a></td>
+    <td class="cont" width="60%">расширенные атрибуты, задан стиль: "наклонный" символ</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_UNDERLINE">FCF_FG_UNDERLINE</a></td>
+    <td class="cont" width="60%">расширенные атрибуты, задан стиль: "подчеркнутый" символ</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FCF_STYLEMASK">FCF_STYLEMASK</a></td>
+    <td class="cont" width="60%">расширенные атрибуты, используются стили (FCF_FG_BOLD|FCF_FG_ITALIC|FCF_FG_UNDERLINE)</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FCF_NONE">FCF_NONE</a></td>
+    <td class="cont" width="60%">нулевой флаг</td></tr>
+    </table>
+    </div>
+  <div class=dfn>ForegroundColor</div>
+    <div class=dfndescr>Цвет символа, значение типа <code>COLORREF</code>.</div>
+  <div class=dfn>BackgroundColor</div>
+    <div class=dfndescr>Цвет фона символа, значение типа <code>COLORREF</code>.</div>
+  <div class=dfn>Reserved</div>
+    <div class=dfndescr>Не используется.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+При формировании цвета для стандартной консоли Windows обязательно указывайте флаги <code>FCF_FG_4BIT</code> и <code>FCF_BG_4BIT</code>.
+</div>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+</div>
+
+</body>
+</html>

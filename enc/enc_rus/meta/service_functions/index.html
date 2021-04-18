@@ -1,154 +1,208 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-<title>Сервисные функции</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<title>РЎРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-
 <body>
-<h1>Сервисные функции</h1>
+
+<h1>РЎРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</h1>
+
 <div class=navbar>
-<a href="../index.html">главная</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a>
 </div>
-
-
 
 <div class=shortdescr>
-  Следующие функции дают возможность плагину
-  использовать меню, диалоги, языковую поддержку и
-  прочие полезности. Указатели на эти функции плагин
-  получает в функции
-  <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>.
-
-  <p class=note><img src="../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-  <UL class=note><LI>Некоторые функции, приведенные ниже, отсутствуют в ранних
-  версиях FAR Manager. Прочитайте замечания по структуре
-  <a href="../structures/pluginstartupinfo.html">PluginStartupInfo</a> и
-  функции <a href="../exported_functions/getminfarversion.html">GetMinFarVersion</a>
-  для более подробной информации.</LI></UL>
+РЎР»РµРґСѓСЋС‰РёРµ С„СѓРЅРєС†РёРё РґР°СЋС‚ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РїР»Р°РіРёРЅСѓ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјРµРЅСЋ, РґРёР°Р»РѕРіРё, СЏР·С‹РєРѕРІСѓСЋ РїРѕРґРґРµСЂР¶РєСѓ Рё РїСЂРѕС‡РёРµ РїРѕР»РµР·РЅРѕСЃС‚Рё.
+РЈРєР°Р·Р°С‚РµР»Рё РЅР° СЌС‚Рё С„СѓРЅРєС†РёРё РїР»Р°РіРёРЅ РїРѕР»СѓС‡Р°РµС‚ РІ С„СѓРЅРєС†РёРё
+<a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>.
 </div>
 
-<h3>Функции общего назначения</h3>
+<!-- HHC following links are used to create the chm hhc file -->
+<h3>Р¤СѓРЅРєС†РёРё РѕР±С‰РµРіРѕ РЅР°Р·РЅР°С‡РµРЅРёСЏ</h3>
+
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th></tr>
-<tr>
-<td class="cont" width="40%"><a href="advcontrol.html">AdvControl</a></td>
-<td class="cont" width="60%">дополнительные управляющие функции; работают везде: в панелях/редакторе/вьюере.</td>
+<tr class="cont"><th class="cont" width="40%">Р¤СѓРЅРєС†РёСЏ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="chartable.html">CharTable</a></td>
-<td class="cont" width="60%">позволяет получить информацию об установленных таблицах символов</td>
+<td class="cont" width="40%"><a href="../service_functions/advcontrol.html">AdvControl</a></td>
+<td class="cont" width="60%">РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ СѓРїСЂР°РІР»СЏСЋС‰РёРµ С„СѓРЅРєС†РёРё; СЂР°Р±РѕС‚Р°СЋС‚ РІРµР·РґРµ: РІ РїР°РЅРµР»СЏС…/СЂРµРґР°РєС‚РѕСЂРµ/РїСЂРѕСЃРјРѕС‚СЂРµ</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="cmpname.html">CmpName</a></td>
-<td class="cont" width="60%">сравнивает текстовую строку (например, имя файла) с образцом (маской).</td>
+<td class="cont" width="40%"><a href="../service_functions/colordialog.html">ColorDialog</a></td>
+<td class="cont" width="60%">РґРёР°Р»РѕРі РёР·РјРµРЅРµРЅРёСЏ С†РІРµС‚Р°</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="control.html">Control</a></td>
-<td class="cont" width="60%">позволяет запрашивать различную информацию и выполнять управляющие действия.</td>
+<td class="cont" width="40%"><a href="../service_functions/freescreen.html">FreeScreen</a></td>
+<td class="cont" width="60%">РѕСЃРІРѕР±РѕР¶РґР°РµС‚ РїР°РјСЏС‚СЊ, Р·Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРЅСѓСЋ С„СѓРЅРєС†РёРµР№ <a href="../service_functions/savescreen.html">SaveScreen</a>, Р±РµР· РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ СЌРєСЂР°РЅР°</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="freedirlist.html">FreeDirList</a></td>
-<td class="cont" width="60%">освобождает память, выделенную для списка файлов функциями GetDirList и GetPluginDirList</td>
+<td class="cont" width="40%"><a href="../service_functions/getmsg.html">GetMsg</a></td>
+<td class="cont" width="60%">РїРѕР»СѓС‡РёС‚СЊ СЃС‚СЂРѕРєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ РёР· <a href="../language/language_files.html">СЏР·С‹РєРѕРІРѕРіРѕ С„Р°Р№Р»Р°</a></td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="getdirlist.html">GetDirList</a></td>
-<td class="cont" width="60%">возвращает список файлов в указанной директории</td>
+<td class="cont" width="40%"><a href="../service_functions/inputbox.html">InputBox</a></td>
+<td class="cont" width="60%">РїРѕР·РІРѕР»СЏРµС‚ Р·Р°РїСЂРѕСЃРёС‚СЊ Сѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ С‚РµРєСЃС‚РѕРІСѓСЋ СЃС‚СЂРѕРєСѓ</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="getmsg.html">GetMsg</a></td>
-<td class="cont" width="60%">получить строку сообщения из <a href="../language/language_files.html">языкового файла</a>.</td>
+<td class="cont" width="40%"><a href="../service_functions/menu.html">Menu</a></td>
+<td class="cont" width="60%">РїРѕРєР°Р·С‹РІР°РµС‚ РјРµРЅСЋ</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="getplugindirlist.html">GetPluginDirList</a></td>
-<td class="cont" width="60%">возвращает список файлов в указанной директории эмулируемой файловой системы</td>
+<td class="cont" width="40%"><a href="../service_functions/message.html">Message</a></td>
+<td class="cont" width="60%">РїРѕРєР°Р·С‹РІР°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="menu.html">Menu</a></td>
-<td class="cont" width="60%">показывает меню</td>
+<td class="cont" width="40%"><a href="../service_functions/regexpcontrol.html">RegExpControl</a></td>
+<td class="cont" width="60%">СѓРїСЂР°РІР»СЏСЋС‰РёРµ С„СѓРЅРєС†РёРё СЂРµРіСѓР»СЏСЂРЅС‹С… РІС‹СЂР°Р¶РµРЅРёР№</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="restorescreen.html">RestoreScreen</a></td>
-<td class="cont" width="60%">восстанавливает предварительно сохраненную область экрана</td>
+<td class="cont" width="40%"><a href="../service_functions/restorescreen.html">RestoreScreen</a></td>
+<td class="cont" width="60%">РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ СЃРѕС…СЂР°РЅС‘РЅРЅСѓСЋ РѕР±Р»Р°СЃС‚СЊ СЌРєСЂР°РЅР°</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="savescreen.html">SaveScreen</a></td>
-<td class="cont" width="60%">сохраняет область экрана</td>
+<td class="cont" width="40%"><a href="../service_functions/savescreen.html">SaveScreen</a></td>
+<td class="cont" width="60%">СЃРѕС…СЂР°РЅСЏРµС‚ РѕР±Р»Р°СЃС‚СЊ СЌРєСЂР°РЅР°</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="showhelp.html">ShowHelp</a></td>
-<td class="cont" width="60%">показывает нужный топик из hlf</td>
+<td class="cont" width="40%"><a href="../service_functions/showhelp.html">ShowHelp</a></td>
+<td class="cont" width="60%">РїРѕРєР°Р·С‹РІР°РµС‚ РЅСѓР¶РЅС‹Р№ СЂР°Р·РґРµР» РёР· С„Р°Р№Р»Р° РїРѕРјРѕС‰Рё</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="text.html">Text</a></td>
-<td class="cont" width="60%">выводит текстовую строку на экран</td>
+<td class="cont" width="40%"><a href="../service_functions/text.html">Text</a></td>
+<td class="cont" width="60%">РІС‹РІРѕРґРёС‚ С‚РµРєСЃС‚РѕРІСѓСЋ СЃС‚СЂРѕРєСѓ РЅР° СЌРєСЂР°РЅ</td>
 </tr>
 </table>
 
-<h3>Специфические функции редактора</h3>
+<h3>РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ С„СѓРЅРєС†РёРё СЂР°Р±РѕС‚С‹ СЃ РїР°РЅРµР»СЊСЋ</h3>
+
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th></tr>
-<tr>
-<td class="cont" width="40%"><a href="editor.html">Editor</a></td>
-<td class="cont" width="60%">обеспечивает доступ к внутреннему редактору FAR'a</td>
+<tr class="cont"><th class="cont" width="40%">Р¤СѓРЅРєС†РёСЏ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="editorcontrol.html">EditorControl</a></td>
-<td class="cont" width="60%">обеспечивает доступ на низком уровне к API редактора FAR'a</td>
+<td class="cont" width="40%"><a href="../service_functions/panelcontrol.html">PanelControl</a></td>
+<td class="cont" width="60%">РїРѕР·РІРѕР»СЏРµС‚ Р·Р°РїСЂР°С€РёРІР°С‚СЊ СЂР°Р·Р»РёС‡РЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рё РІС‹РїРѕР»РЅСЏС‚СЊ СѓРїСЂР°РІР»СЏСЋС‰РёРµ РґРµР№СЃС‚РІРёСЏ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/filefiltercontrol.html">FileFilterControl</a></td>
+<td class="cont" width="60%">СѓРїСЂР°РІР»СЏРµС‚ СЃРѕР·РґР°РЅРёРµРј Рё РїСЂРёРјРµРЅРµРЅРёРµРј С„Р°Р№Р»РѕРІС‹С… С„РёР»СЊС‚СЂРѕРІ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/freedirlist.html">FreeDirList</a></td>
+<td class="cont" width="60%">РѕСЃРІРѕР±РѕР¶РґР°РµС‚ РїР°РјСЏС‚СЊ, РІС‹РґРµР»РµРЅРЅСѓСЋ РґР»СЏ СЃРїРёСЃРєР° С„Р°Р№Р»РѕРІ С„СѓРЅРєС†РёРµР№ GetDirList</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/freeplugindirlist.html">FreePluginDirList</a></td>
+<td class="cont" width="60%">РѕСЃРІРѕР±РѕР¶РґР°РµС‚ РїР°РјСЏС‚СЊ, РІС‹РґРµР»РµРЅРЅСѓСЋ РґР»СЏ СЃРїРёСЃРєР° С„Р°Р№Р»РѕРІ С„СѓРЅРєС†РёРµР№ GetPluginDirList</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/getdirlist.html">GetDirList</a></td>
+<td class="cont" width="60%">РІРѕР·РІСЂР°С‰Р°РµС‚ СЃРїРёСЃРѕРє С„Р°Р№Р»РѕРІ РІ СѓРєР°Р·Р°РЅРЅРѕР№ РґРёСЂРµРєС‚РѕСЂРёРё</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/getplugindirlist.html">GetPluginDirList</a></td>
+<td class="cont" width="60%">РІРѕР·РІСЂР°С‰Р°РµС‚ СЃРїРёСЃРѕРє С„Р°Р№Р»РѕРІ РІ СѓРєР°Р·Р°РЅРЅРѕР№ РґРёСЂРµРєС‚РѕСЂРёРё СЌРјСѓР»РёСЂСѓРµРјРѕР№ С„Р°Р№Р»РѕРІРѕР№ СЃРёСЃС‚РµРјС‹</td>
 </tr>
 </table>
 
-<h3>Специфические функции Dialog API</h3>
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th></tr>
+<h3>РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ С„СѓРЅРєС†РёРё СЂРµРґР°РєС‚РѕСЂР°</h3>
 
-<tr>
-<td class="cont" width="40%"><a href="../dialogapi/defdlgproc.html">DefDlgProc</a></td>
-<td class="cont" width="60%">вызывает стандартный обработчик диалога</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="../dialogapi/dialog.html">Dialog</a></td>
-<td class="cont" width="60%">показывает диалог</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="../dialogapi/dialogex.html">DialogEx</a></td>
-<td class="cont" width="60%">расширенный диалог с функцией обработчиком</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="inputbox.html">InputBox</a></td>
-<td class="cont" width="60%">позволяет ввести строку текста</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="message.html">Message</a></td>
-<td class="cont" width="60%">показывает сообщение</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="../dialogapi/senddlgmessage.html">SendDlgMessage</a></td>
-<td class="cont" width="60%">послать сообщение обработчику диалога.</td>
-</table>
-
-<h3>Специфические функции программы просмотра</h3>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th></tr>
-<tr>
-<td class="cont" width="40%"><a href="viewer.html">Viewer</a></td>
-<td class="cont" width="60%">обеспечивает доступ к внутреннему вьюеру FAR'a</td>
+<tr class="cont"><th class="cont" width="40%">Р¤СѓРЅРєС†РёСЏ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="viewercontrol.html">ViewerControl</a></td>
-<td class="cont" width="60%">позволяет запрашивать различную информацию о встроенной программе просмотра FAR и управлять ее состоянием</td>
+<td class="cont" width="40%"><a href="../service_functions/editor.html">Editor</a></td>
+<td class="cont" width="60%">РѕР±РµСЃРїРµС‡РёРІР°РµС‚ РґРѕСЃС‚СѓРї Рє РІРЅСѓС‚СЂРµРЅРЅРµРјСѓ СЂРµРґР°РєС‚РѕСЂСѓ Far Manager</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/editorcontrol.html">EditorControl</a></td>
+<td class="cont" width="60%">РїРѕР·РІРѕР»СЏРµС‚ Р·Р°РїСЂР°С€РёРІР°С‚СЊ СЂР°Р·Р»РёС‡РЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РІРЅСѓС‚СЂРµРЅРЅРµРј СЂРµРґР°РєС‚РѕСЂРµ Far Manager Рё СѓРїСЂР°РІР»СЏС‚СЊ РµРіРѕ СЃРѕСЃС‚РѕСЏРЅРёРµРј</td>
 </tr>
 </table>
 
+<h3>РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ С„СѓРЅРєС†РёРё РїСЂРѕРіСЂР°РјРјС‹ РїСЂРѕСЃРјРѕС‚СЂР°</h3>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../exported_functions/index.html">Экспортируемые функции</a>,
-<a href="../structures/index.html">Структуры</a>,
-<a href="../customapi/index.html">Поддержка архивов</A>,
-<a href="../addons/index.html">Дополнения</a>,
-<a href="../winapi/index.html">Win32 структуры и функции</a>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Р¤СѓРЅРєС†РёСЏ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/viewer.html">Viewer</a></td>
+<td class="cont" width="60%">РѕР±РµСЃРїРµС‡РёРІР°РµС‚ РґРѕСЃС‚СѓРї Рє РІРЅСѓС‚СЂРµРЅРЅРµР№ РїСЂРѕРіСЂР°РјРјРµ РїСЂРѕСЃРјРѕС‚СЂР° Far Manager</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/viewercontrol.html">ViewerControl</a></td>
+<td class="cont" width="60%">РїРѕР·РІРѕР»СЏРµС‚ Р·Р°РїСЂР°С€РёРІР°С‚СЊ СЂР°Р·Р»РёС‡РЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїСЂРѕРіСЂР°РјРјРµ РїСЂРѕСЃРјРѕС‚СЂР° Far Manager Рё СѓРїСЂР°РІР»СЏС‚СЊ РµС‘ СЃРѕСЃС‚РѕСЏРЅРёРµРј</td>
+</tr>
+</table>
+
+<h3>РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ С„СѓРЅРєС†РёРё РґРёР°Р»РѕРіР°</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Р¤СѓРЅРєС†РёСЏ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/defdlgproc.html">DefDlgProc</a></td>
+<td class="cont" width="60%">РІС‹Р·С‹РІР°РµС‚ СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РѕР±СЂР°Р±РѕС‚С‡РёРє РґРёР°Р»РѕРіР°</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/dialoginit.html">DialogInit</a></td>
+<td class="cont" width="60%">СЃРѕР·РґР°С‘С‚ (РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚) РґРёР°Р»РѕРі</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/dialogrun.html">DialogRun</a></td>
+<td class="cont" width="60%">РїРѕРєР°Р·С‹РІР°РµС‚ РґРёР°Р»РѕРі СЃРѕР·РґР°РЅРЅС‹Р№ С„СѓРЅРєС†РёРµР№ DialogInit</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/dialogfree.html">DialogFree</a></td>
+<td class="cont" width="60%">РѕСЃРІРѕР±РѕР¶РґР°РµС‚ РїР°РјСЏС‚СЊ, РІС‹РґРµР»РµРЅРЅСѓСЋ РїРѕРґ РІРЅСѓС‚СЂРµРЅРЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ РґРёР°Р»РѕРіР° С„СѓРЅРєС†РёРµР№ DialogInit</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/senddlgmessage.html">SendDlgMessage</a></td>
+<td class="cont" width="60%">РїРѕСЃР»Р°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РѕР±СЂР°Р±РѕС‚С‡РёРєСѓ РґРёР°Р»РѕРіР°</td>
+</table>
+
+<h3>РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ С„СѓРЅРєС†РёРё РґР»СЏ РЅР°СЃС‚СЂРѕР№РєРё РїР»Р°РіРёРЅР°</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Р¤СѓРЅРєС†РёСЏ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/settingscontrol.html">SettingsControl</a></td>
+<td class="cont" width="60%">СѓРїСЂР°РІР»СЏРµС‚ РЅР°СЃС‚СЂРѕР№РєР°РјРё РїР»Р°РіРёРЅР°</td>
+</tr>
+</table>
+
+<h3>РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ С„СѓРЅРєС†РёРё РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РїР»Р°РіРёРЅР°РјРё</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Р¤СѓРЅРєС†РёСЏ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/pluginscontrol.html">PluginsControl</a></td>
+<td class="cont" width="60%">СѓРїСЂР°РІР»СЏРµС‚ СЃС‚РѕСЂРѕРЅРЅРёРјРё РїР»Р°РіРёРЅР°РјРё</td>
+</tr>
+</tr>
+</table>
+
+<h3>РЎРїРµС†РёС„РёС‡РµСЃРєРёРµ С„СѓРЅРєС†РёРё РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РјР°РєСЂРѕРєРѕРјР°РЅРґР°РјРё</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Р¤СѓРЅРєС†РёСЏ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/macrocontrol.html">MacroControl</a></td>
+<td class="cont" width="60%">СѓРїСЂР°РІР»СЏРµС‚ РјР°РєСЂРѕРєРѕРјР°РЅРґР°РјРё</td>
+</tr>
+</table>
+<!-- HHC end hhc section -->
+
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="../exported_functions/index.html">Р­РєСЃРїРѕСЂС‚РёСЂСѓРµРјС‹Рµ С„СѓРЅРєС†РёРё</a>,
+<a href="../structures/index.html">РЎС‚СЂСѓРєС‚СѓСЂС‹</a>,
+<a href="../defs/index.html">РўРёРїС‹ Рё РѕРїСЂРµРґРµР»РµРЅРёСЏ</a>,
+<a href="../winapi/index.html">РЎС‚СЂСѓРєС‚СѓСЂС‹ Рё С„СѓРЅРєС†РёРё Windows API</a>
 </div>
 
 </body>

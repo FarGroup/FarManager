@@ -1,51 +1,47 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>OpenDlgPluginData</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!-- History of modification:
--->
 <body>
 
 <h1>OpenDlgPluginData</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">Dialog API</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
+<a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Указатель на структуру <dfn>OpenDlgPluginData</dfn> передается в функцию <a href="../exported_functions/openplugin.html">OpenPlugin</a>
-плагина при вызове его из диалога.
+РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <code>OpenDlgPluginData</code> РїРµСЂРµРґР°С‘С‚СЃСЏ РІ С„СѓРЅРєС†РёСЋ <a href="../exported_functions/openw.html">OpenW</a> РїР»Р°РіРёРЅР° РїСЂРё РІС‹Р·РѕРІРµ РµРіРѕ РёР· РґРёР°Р»РѕРіР°.
 </div>
 
 <pre class=syntax>
 struct OpenDlgPluginData
 {
-  int ItemNumber;
+  size_t StructSize;
   HANDLE hDlg;
 };
 </pre>
-<h3>Элементы</h3>
+
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
-  <div class=dfn>ItemNumber</div>
-  <div class=dfndescr>Номер выбранного пункта в меню из зарегистрированных плагином пунктов.
-  </div>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Р­С‚Рѕ РїРѕР»Рµ СЃРѕРґРµСЂР¶РёС‚ СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ <code>OpenDlgPluginData</code>.</div>
   <div class=dfn>hDlg</div>
-  <div class=dfndescr>Указатель на диалог, из которого вызван плагин.
-  </div>
+    <div class=dfndescr>РћРїРёСЃР°С‚РµР»СЊ РґРёР°Р»РѕРіР°, РёР· РєРѕС‚РѕСЂРѕРіРѕ РІС‹Р·РІР°РЅ РїР»Р°РіРёРЅ.</div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">Структуры</a>,
-<a href="../exported_functions/openplugin.html">OpenPlugin</a>,
-<a href="../dialogapi/index.html">Dialog API</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="../exported_functions/openw.html">OpenW</a>
 </div>
 
 </body>

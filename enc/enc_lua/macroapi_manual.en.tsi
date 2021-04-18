@@ -1,4 +1,4 @@
-<header>
+ï»¿<header>
 tag=SMZ1
 ver=2.7
 </header>
@@ -769,7 +769,7 @@ mtime=3720944940
 #_1. `Menu.Info.Id -> Menu.Id`
 #_1. `MsX`, `MsY`, `MsButton`, `MsCtrlState`, `MsEventFlags` -- see table [`Mouse`][Mouse]
 #_1. `RCounter` does not exist anymore.
-#_1. `Macro.Const`, `Macro.Func`, `Macro.Keyword` è `Macro.Var` do not exist anymore.
+#_1. `Macro.Const`, `Macro.Func`, `Macro.Keyword` and `Macro.Var` do not exist anymore.
 #_1. Macro specification: flag `DisableOutput` does not exist; screen redraw is disabled by default;
 #_   added flag `EnableOutput` (apply it if screen redraw is needed during macro execution).
 #_1. Macro specification: flags `Selection` and `NoSelection` are no more applicable for
@@ -855,7 +855,7 @@ mtime=3659609142
 #_
 #_**Notes:**
 #_
-#_1. Functions *band*, *bnot*, *bor*, *bxor*, *lshift* è *rshift* (bitwise operations)
+#_1. Functions *band*, *bnot*, *bor*, *bxor*, *lshift* and *rshift* (bitwise operations)
 #_   are global aliases of the same-named functions of *bit64* library.
 #_   (see LuaFAR manual).
 #_
@@ -863,7 +863,7 @@ mtime=3659609142
 #_   return *false*.
 #_
 #_3. For uniformity sake, all the above functions (except the bitwise ones)
-#_   are duplicated in table `mf`, for example: *eval* è *mf.eval* reference
+#_   are duplicated in table `mf`, for example: *eval* and *mf.eval* reference
 #_   the same function.
 #_
 #_@@@
@@ -1723,7 +1723,7 @@ mtime=3807114389
 #_  result = Compare (Pi1, Pi2, FarOptions)
 #_
 #_  **Parameters:**
-#_    Pi1 è Pi2  - panel elements being compared, structures of `SortingPanelItem` type.
+#_    Pi1, Pi2   - panel elements being compared, structures of `SortingPanelItem` type.
 #_    FarOptions - a table containing the current Far Manager panel sort options
 #_                 (all values are boolean): *DirectoriesFirst, SelectedFirst,*
 #_                 *RevertSorting, SortGroups, NumericSort, CaseSensitiveSort*.
@@ -2850,7 +2850,7 @@ mtime=3607436842
 #_<markdown>
 #_## License
 #_
-#_Copyright © 2008 Lua.org, PUC-Rio.
+#_Copyright Â© 2008 Lua.org, PUC-Rio.
 #_
 #_Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 #_
@@ -2913,7 +2913,7 @@ mtime=3607111919
 #_<markdown>
 #_<font face="Tahoma">
 #_
-#_By **Gleb Varenov** ("Acerbic") » Tue 23 Apr, 2013 22:53<br>
+#_By **Gleb Varenov** ("Acerbic") Â» Tue 23 Apr, 2013 22:53<br>
 #_[Revision 1.1][article on forum]
 #_
 #_*Gather round, boys and girls, for I am about to tell you a story.*

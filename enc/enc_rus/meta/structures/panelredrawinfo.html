@@ -1,46 +1,47 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>PanelRedrawInfo</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-
 <body>
 
 <h1>PanelRedrawInfo</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
+<a href="../panelapi/index.html">Panel API</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>PanelRedrawInfo</dfn> может быть использована для определения
-новой позиции при перерисовке панели с помощи функции
-<a href="../service_functions/control.html">Control</a>.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>PanelRedrawInfo</code> РјРѕР¶РµС‚ Р±С‹С‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅР° РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РЅРѕРІРѕР№ РїРѕР·РёС†РёРё РїСЂРё РїРµСЂРµСЂРёСЃРѕРІРєРµ РїР°РЅРµР»Рё СЃ РїРѕРјРѕС‰Рё С„СѓРЅРєС†РёРё <a href="../service_functions/panelcontrol.html">PanelControl</a>.
 </div>
 
 <pre class=syntax>
 struct PanelRedrawInfo
 {
-  int CurrentItem;
-  int TopPanelItem;
+  size_t StructSize;
+  size_t CurrentItem;
+  size_t TopPanelItem;
 };
 </pre>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
-    <div class=dfn>CurrentItem</div>
-    <div class=dfndescr>Текущая позиция на панели (начиная с 0).</div>
-    <div class=dfn>TopPanelItem</div>
-    <div class=dfndescr>Позиция верхнего пункта панели (начиная с 0).</div>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Р­С‚Рѕ РїРѕР»Рµ РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ <code>PanelRedrawInfo</code>. РџРµСЂРµРґ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј СЃС‚СЂСѓРєС‚СѓСЂС‹ РїР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ Р·Р°РїРѕР»РЅРёС‚СЊ РїРѕР»Рµ.</div>
+  <div class=dfn>CurrentItem</div>
+    <div class=dfndescr>РўРµРєСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ РЅР° РїР°РЅРµР»Рё (РЅР°С‡РёРЅР°СЏ СЃ 0).</div>
+  <div class=dfn>TopPanelItem</div>
+    <div class=dfndescr>РџРѕР·РёС†РёСЏ РІРµСЂС…РЅРµРіРѕ РїСѓРЅРєС‚Р° РїР°РЅРµР»Рё (РЅР°С‡РёРЅР°СЏ СЃ 0).</div>
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
-<a href="../delphi/tpanelredrawinfo.html">TPanelRedrawInfo</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>
 </div>
 
 </body>

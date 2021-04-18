@@ -1,108 +1,117 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 
 <head>
 <title>ShowHelp</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
-
-<!-- History of modification:
- Jul 07 2000
-   Valentin Skirdin <vskirdin@mail.ru>
-   created
--->
 </head>
-
 <body>
 
 <h1>ShowHelp</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a> |
+<a href="../basicapi/index.html">Basic API</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>ShowHelp</dfn> показывает заданный топик из hlf-файла.
+Р¤СѓРЅРєС†РёСЏ <code>ShowHelp</code> РїРѕРєР°Р·С‹РІР°РµС‚ Р·Р°РґР°РЅРЅС‹Р№ С‚РѕРїРёРє РёР· hlf-С„Р°Р№Р»Р°.
 </div>
 
 <pre class=syntax>
 BOOL WINAPI ShowHelp(
-  const char *ModuleName,
-  const char *HelpTopic,
-  int   Flags
+  const wchar_t *ModuleName,
+  const wchar_t *HelpTopic,
+  FARHELPFLAGS Flags
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>ModuleName</div>
-  <div class=dfndescr>Полное имя плагина. Его вы получаете в функции
-    <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>.</div>
+    <div class=dfndescr>РџРѕР»РЅРѕРµ РёРјСЏ РїР»Р°РіРёРЅР°. Р•РіРѕ РІС‹ РїРѕР»СѓС‡Р°РµС‚Рµ РІ С„СѓРЅРєС†РёРё <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>.</div>
   <div class=dfn>HelpTopic</div>
-  <div class=dfndescr><a href="../language/helptopic.html">Тема помощи</a>.
-    Если параметр <var>HelpTopic</var> = <code>NULL</code>, то будет показана
-    тема со стандартным именем "<a href="../language/help_files.html">Contents</a>".
-  </div>
+    <div class=dfndescr><a href="../language/helptopic.html">РўРµРјР° РїРѕРјРѕС‰Рё</a>. Р•СЃР»Рё РїР°СЂР°РјРµС‚СЂ <code>HelpTopic = NULL</code>, С‚Рѕ Р±СѓРґРµС‚ РїРѕРєР°Р·Р°РЅР° С‚РµРјР° СЃРѕ СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рј РёРјРµРЅРµРј "<a href="../language/help_files.html">Contents</a>".</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть одним из следующий значений (перечисление <a name="FarHelpFlags">FarHelpFlags</a>):
-   <table class="cont"><tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
+    <div class=dfndescr>РњРѕР¶РµС‚ Р±С‹С‚СЊ РѕРґРЅРёРј РёР· СЃР»РµРґСѓСЋС‰РёР№ Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="FARHELPFLAGS">FARHELPFLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">РљРѕРЅСЃС‚Р°РЅС‚Р°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FHELP_SELFHELP">FHELP_SELFHELP</a></td>
-    <td class="cont" width="60%">Трактовать параметр <var>ModuleName</var> как <kbd>Info.ModuleName</kbd> и показать тему из файла помощи вызвавшего плагина. Если <var>HelpTopic</var> начинается с символа <code>':'</code>, то будет показана тема из основного файла помощи FAR (в этом случае параметр <var>ModuleName</var> игнорируется).</td></tr>
+    <td class="cont" width="60%">РўСЂР°РєС‚РѕРІР°С‚СЊ РїР°СЂР°РјРµС‚СЂ <code>ModuleName</code> РєР°Рє <code>Info.ModuleName</code> Рё РїРѕРєР°Р·Р°С‚СЊ С‚РµРјСѓ РёР· С„Р°Р№Р»Р° РїРѕРјРѕС‰Рё РІС‹Р·РІР°РІС€РµРіРѕ РїР»Р°РіРёРЅР°. Р•СЃР»Рё <code>HelpTopic</code> РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ СЃРёРјРІРѕР»Р° <code>':'</code>, С‚Рѕ Р±СѓРґРµС‚ РїРѕРєР°Р·Р°РЅР° С‚РµРјР° РёР· РѕСЃРЅРѕРІРЅРѕРіРѕ С„Р°Р№Р»Р° РїРѕРјРѕС‰Рё Far Manager (РІ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РїР°СЂР°РјРµС‚СЂ <code>ModuleName</code> РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FHELP_FARHELP">FHELP_FARHELP</a></td>
-    <td class="cont" width="60%">Параметр <var>ModuleName</var> игнорируется и будет показана тема из основного файла помощи FAR. При этом в параметре <var>HelpTopic</var> не надо указывать первым символом <code>':'</code>.</td></tr>
+    <td class="cont" width="60%">РџР°СЂР°РјРµС‚СЂ <code>ModuleName</code> РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ Рё Р±СѓРґРµС‚ РїРѕРєР°Р·Р°РЅР° С‚РµРјР° РёР· РѕСЃРЅРѕРІРЅРѕРіРѕ С„Р°Р№Р»Р° РїРѕРјРѕС‰Рё Far Manager. РџСЂРё СЌС‚РѕРј РІ РїР°СЂР°РјРµС‚СЂРµ <code>HelpTopic</code> РЅРµ РЅР°РґРѕ СѓРєР°Р·С‹РІР°С‚СЊ РїРµСЂРІС‹Рј СЃРёРјРІРѕР»РѕРј <code>':'</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FHELP_CUSTOMFILE">FHELP_CUSTOMFILE</a></td>
-    <td class="cont" width="60%">Трактовать параметр <var>ModuleName</var> как указатель на имя HLF-файла (<code>c:\path\filename</code>).</td></tr>
+    <td class="cont" width="60%">РўСЂР°РєС‚РѕРІР°С‚СЊ РїР°СЂР°РјРµС‚СЂ <code>ModuleName</code> РєР°Рє СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РёРјСЏ HLF-С„Р°Р№Р»Р° (<code>c:\path\filename</code>).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FHELP_CUSTOMPATH">FHELP_CUSTOMPATH</a></td>
-    <td class="cont" width="60%">Трактовать параметр <var>ModuleName</var> как указатель на путь (<code>c:\path</code>), а файл выберется автоматически, исходя из текущих настроек языка.</td></tr>
+    <td class="cont" width="60%">РўСЂР°РєС‚РѕРІР°С‚СЊ РїР°СЂР°РјРµС‚СЂ <code>ModuleName</code> РєР°Рє СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РїСѓС‚СЊ (<code>c:\path</code>), Р° С„Р°Р№Р» РІС‹Р±РµСЂРµС‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё, РёСЃС…РѕРґСЏ РёР· С‚РµРєСѓС‰РёС… РЅР°СЃС‚СЂРѕРµРє СЏР·С‹РєР°.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FHELP_GUID">FHELP_GUID</a></td>
+    <td class="cont" width="60%">РўСЂР°РєС‚РѕРІР°С‚СЊ РїР°СЂР°РјРµС‚СЂ <code>ModuleName</code> РєР°Рє СѓРєР°Р·Р°С‚РµР»СЊ РЅР° GUID РїР»Р°РіРёРЅР°, "СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ РІ СЌС‚РѕР№ СЃРµСЃСЃРёРё Far Manager". Р¤Р°Р№Р» РІС‹Р±РµСЂРµС‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё, РёСЃС…РѕРґСЏ РёР· С‚РµРєСѓС‰РёС… РЅР°СЃС‚СЂРѕРµРє СЏР·С‹РєР°.
+    Р•СЃР»Рё РїР°СЂР°РјРµС‚СЂ <code>ModuleName</code> РїСѓСЃС‚Р°СЏ СЃС‚СЂРѕРєР° ("") РёР»Рё СЂР°РІРµРЅ GUID {00000000-0000-0000-0000-000000000000}, С‚Рѕ Р±СѓРґРµС‚ РїРѕРєР°Р·Р°РЅР° С‚РµРјР° РёР· РѕСЃРЅРѕРІРЅРѕРіРѕ С„Р°Р№Р»Р° РїРѕРјРѕС‰Рё Far Manager.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FHELP_USECONTENTS">FHELP_USECONTENTS</a></td>
-    <td class="cont" width="60%">Если требуемая тема <var>HelpTopic</var> не найдена, то попытаться отобразить тему <code>"Contents"</code>. Флаг может комбинироваться с другими флагами.</td></tr>
+    <td class="cont" width="60%">Р•СЃР»Рё С‚СЂРµР±СѓРµРјР°СЏ С‚РµРјР° <code>HelpTopic</code> РЅРµ РЅР°Р№РґРµРЅР°, С‚Рѕ РїРѕРїС‹С‚Р°С‚СЊСЃСЏ РѕС‚РѕР±СЂР°Р·РёС‚СЊ С‚РµРјСѓ <code>"Contents"</code>. Р¤Р»Р°Рі РјРѕР¶РµС‚ РєРѕРјР±РёРЅРёСЂРѕРІР°С‚СЊСЃСЏ СЃ РґСЂСѓРіРёРјРё С„Р»Р°РіР°РјРё.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FHELP_NOSHOWERROR">FHELP_NOSHOWERROR</a></td>
-    <td class="cont" width="60%">Не выводить сообщения об ошибках в случае, если требуемая тема или файл помощи не найдены. Флаг может комбинироваться с другими флагами.</td></tr>
-   </table>
-  </div>
+    <td class="cont" width="60%">РќРµ РІС‹РІРѕРґРёС‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ РѕР± РѕС€РёР±РєР°С… РІ СЃР»СѓС‡Р°Рµ, РµСЃР»Рё С‚СЂРµР±СѓРµРјР°СЏ С‚РµРјР° РёР»Рё С„Р°Р№Р» РїРѕРјРѕС‰Рё РЅРµ РЅР°Р№РґРµРЅС‹. Р¤Р»Р°Рі РјРѕР¶РµС‚ РєРѕРјР±РёРЅРёСЂРѕРІР°С‚СЊСЃСЏ СЃ РґСЂСѓРіРёРјРё С„Р»Р°РіР°РјРё.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FHELP_NONE">FHELP_NONE</a></td>
+    <td class="cont" width="60%">РќСѓР»РµРІРѕР№ С„Р»Р°Рі.</td></tr>
+    </table>
+    </div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-<code>TRUE</code> - удалось передать параметры в Менеджер Помощи.<br>
-<code>FALSE</code> - ошибка:
+<code>TRUE</code> - СѓРґР°Р»РѕСЃСЊ РїРµСЂРµРґР°С‚СЊ РїР°СЂР°РјРµС‚СЂС‹ РІ РњРµРЅРµРґР¶РµСЂ РџРѕРјРѕС‰Рё.<br>
+<code>FALSE</code> - РѕС€РёР±РєР°:
 <ul>
-<li><var>Flags</var> содержит неверное значение,
-<li><var>ModuleName</var> = <code>NULL</code> для случаев, отличных от <dfn>FHELP_FARHELP</dfn>
-<li>Менеджер Помощи не нашел заданный файл/тему помощи
-<li>Менеджер Помощи не нашел файл/тему помощи в процессе навигации по системе помощи.
+<li><code>Flags</code> СЃРѕРґРµСЂР¶РёС‚ РЅРµРІРµСЂРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ,
+<li><code>ModuleName = NULL</code> РґР»СЏ СЃР»СѓС‡Р°РµРІ, РѕС‚Р»РёС‡РЅС‹С… РѕС‚ <code>FHELP_FARHELP</code>
+<li>РњРµРЅРµРґР¶РµСЂ РџРѕРјРѕС‰Рё РЅРµ РЅР°С€С‘Р» Р·Р°РґР°РЅРЅС‹Р№ С„Р°Р№Р»/С‚РµРјСѓ РїРѕРјРѕС‰Рё
+<li>РњРµРЅРµРґР¶РµСЂ РџРѕРјРѕС‰Рё РЅРµ РЅР°С€С‘Р» С„Р°Р№Р»/С‚РµРјСѓ РїРѕРјРѕС‰Рё РІ РїСЂРѕС†РµСЃСЃРµ РЅР°РІРёРіР°С†РёРё РїРѕ СЃРёСЃС‚РµРјРµ РїРѕРјРѕС‰Рё.
 </ul>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
-  Для удобства при частом использовании можно использовать следующую функцию в
-  вашей программе:
-<pre class=code>void ShowHelp(const char *HelpTopic)
+Р”Р»СЏ СѓРґРѕР±СЃС‚РІР° РїСЂРё С‡Р°СЃС‚РѕРј РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЃР»РµРґСѓСЋС‰СѓСЋ С„СѓРЅРєС†РёСЋ РІ РІР°С€РµР№ РїСЂРѕРіСЂР°РјРјРµ:
+<pre class=code>void ShowHelp(const wchar_t *HelpTopic)
 {
   Info.ShowHelp(Info.ModuleName,HelpTopic,0);
 }
 </pre>
 
-Причем, <dfn>Info</dfn> определяется как глобальная переменная...
+РџСЂРёС‡С‘Рј, <code>Info</code> РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РєР°Рє РіР»РѕР±Р°Р»СЊРЅР°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ...
 
-<pre class=code>struct PluginStartupInfo <dfn>Info</dfn>;</pre>
+<pre class=code>struct PluginStartupInfo <code>Info</code>;</pre>
 
-  ...а инициализируется она в функции
-  <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>:
+  ...Р° РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚СЃСЏ РѕРЅР° РІ С„СѓРЅРєС†РёРё
+  <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>:
 
-<pre class=code>void WINAPI _export SetStartupInfo(const struct PluginStartupInfo *Info)
+<pre class=code>void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
 . . .
-  ::<dfn>Info</dfn>=*Info;
+  ::<code>Info</code>=*Info;
 . . .
 }</pre>
 
+<p>РџСЂРёРјРµСЂ РІС‹Р·РѕРІР° С‚РµРјС‹ СЃРѕР·РґР°РЅРёСЏ Р»РёРЅРєРѕРІ РёР· РїР»Р°РіРёРЅР° FarCmds:</p>
+<pre class=code>
+bool StrToGuid(const wchar_t *Value,GUID *Guid)
+{
+  return UuidFromString(reinterpret_cast&lt;unsigned short*&gt;((void*)Value), Guid) == RPC_S_OK;
+}
+
+GUID FindGuid;
+if (StrToGuid(L"3A2AF458-43E2-4715-AFEA-93D33D56C0C2",&amp;FindGuid))
+  Info.ShowHelp((const wchar_t*)&amp;FindGuid,L"Link",FHELP_GUID);
+</pre>
+
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../language/help_files.html">Файлы помощи</a>
+
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="../language/help_files.html">Р¤Р°Р№Р»С‹ РїРѕРјРѕС‰Рё</a>
 </div>
 
 </body>

@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>DM_GETITEMDATA</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
@@ -10,20 +10,19 @@
 
 <h1>DM_GETITEMDATA</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index_dm.html">СЃРѕРѕР±С‰РµРЅРёСЏ</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETITEMDATA</dfn> возвращает 32-битное значение,
-связанное с элементом диалога. Каждый элемент диалога имеет соответствующее
-32-битное значение, предназначенное для использования плагином, который
-создавал диалог.
+РЎРѕРѕР±С‰РµРЅРёРµ <code>DM_GETITEMDATA</code> РІРѕР·РІСЂР°С‰Р°РµС‚ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃРІСЏР·Р°РЅРЅС‹Рµ СЃ СЌР»РµРјРµРЅС‚РѕРј РґРёР°Р»РѕРіРѕРј РґР°РЅРЅС‹Рµ.
+РљР°Р¶РґС‹Р№ СЌР»РµРјРµРЅС‚ РґРёР°Р»РѕРіР° РјРѕР¶РµС‚ РёРјРµС‚СЊ СЃРІРѕРё РґР°РЅРЅС‹Рµ, РїСЂРµРґРЅР°Р·РЅР°С‡РµРЅРЅС‹Рµ РґР»СЏ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РїР»Р°РіРёРЅРѕРј, РєРѕС‚РѕСЂС‹Р№ СЃРѕР·РґР°РІР°Р» РґРёР°Р»РѕРі.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента управления.
+ID СЌР»РµРјРµРЅС‚Р° РґРёР°Р»РѕРіР°.
 </div>
 
 <h3>Param2</h3>
@@ -33,24 +32,32 @@ ID элемента управления.
 
 <h3>Return</h3>
 <div class=descr>
-Менеджер Диалогов возвращает 32-битное значение, ранее переданное
-плагином (или 0, если плагин не ассоциировал данные с этим элементом диалога).
+РњРµРЅРµРґР¶РµСЂ Р”РёР°Р»РѕРіРѕРІ РІРѕР·РІСЂР°С‰Р°РµС‚ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЂР°РЅРµРµ РїРµСЂРµРґР°РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ РїР»Р°РіРёРЅРѕРј (РёР»Рё <code>0</code>, РµСЃР»Рё РїР»Р°РіРёРЅ РЅРµ Р°СЃСЃРѕС†РёРёСЂРѕРІР°Р» РґР°РЅРЅС‹Рµ СЃ СЌС‚РёРј СЌР»РµРјРµРЅС‚РѕРј РґРёР°Р»РѕРіР°).
 </div>
 
-<h3>Замечания</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Р­Р»РµРјРµРЅС‚</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+<tr class="cont"><td class="cont" width="40%">Р’СЃРµ</td>
+<td class="cont" width="60%">РІСЃРµ СЌР»РµРјРµРЅС‚С‹ РґРёР°Р»РѕРіР°</td></tr>
+</table>
+</div>
+
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialogex.html">DialogEx</a>,
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_setitemdata.html">DM_SETITEMDATA</a>,
-<a href="dm_getdlgdata.html">DM_GETDLGDATA</a>
-<a href="dm_setdlgdata.html">DM_SETDLGDATA</a>,
+<a href="dm_getdlgdata.html">DM_GETDLGDATA</a>,
+<a href="dm_setdlgdata.html">DM_SETDLGDATA</a>
 </div>
 
 </body>

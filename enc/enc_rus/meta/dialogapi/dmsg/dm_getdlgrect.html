@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>DM_GETDLGRECT</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
@@ -10,65 +10,58 @@
 
 <h1>DM_GETDLGRECT</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index_dm.html">СЃРѕРѕР±С‰РµРЅРёСЏ</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETDLGRECT</dfn> позволяет получить экранные координаты
-диалогового окна.
+РЎРѕРѕР±С‰РµРЅРёРµ <code>DM_GETDLGRECT</code> РїРѕР·РІРѕР»СЏРµС‚ РїРѕР»СѓС‡РёС‚СЊ СЌРєСЂР°РЅРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ РґРёР°Р»РѕРіРѕРІРѕРіРѕ РѕРєРЅР°.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-0
+<code>0</code>
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../../winapi/small_rect.html">SMALL_RECT</a>
-в которой менеджер диалогов вернет экранные координаты диалога.
+РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../../winapi/small_rect.html">SMALL_RECT</a> РІ РєРѕС‚РѕСЂРѕР№ РјРµРЅРµРґР¶РµСЂ РґРёР°Р»РѕРіРѕРІ РІРµСЂРЅС‘С‚ СЌРєСЂР°РЅРЅС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ РґРёР°Р»РѕРіР°.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - данные скопированы или FALSE, если в качестве <dfn>Param2</dfn>
-передано значение NULL.
+<code>TRUE</code> - РґР°РЅРЅС‹Рµ СЃРєРѕРїРёСЂРѕРІР°РЅС‹ РёР»Рё <code>FALSE</code>, РµСЃР»Рё РІ РєР°С‡РµСЃС‚РІРµ <code>Param2</code> РїРµСЂРµРґР°РЅРѕ Р·РЅР°С‡РµРЅРёРµ <code>NULL</code>.
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 <pre class=code>
-struct InitDialogItem InitDlg[]={
-...
-/*11*/  DI_USERCONTROL,9,4,32,11,0,0,DIF_NOFOCUS,0,"",
-...
-};
-
-LONG_PTR WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
+case DN_INPUT:
 {
-...
-    case DN_DRAWDLGITEM:
-      if(Param1 == 11)
+  const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+  if (record->EventType==MOUSE_EVENT)
+    // РѕС‚СЂР°Р±РѕС‚Р°РµРј С‰РµР»С‡РѕРє РјС‹С€Рё РІ LISTРµ РґРёР°Р»РѕРіР°
+    if (Param1==ID && record->Event.MouseEvent.dwButtonState==FROM_LEFT_1ST_BUTTON_PRESSED && record->Event.MouseEvent.dwEventFlags!=DOUBLE_CLICK)
+    {
+      SMALL_RECT dlgRect;
+      Info.SendDlgMessage(hDlg, DM_GETDLGRECT, ID, &dlgRect);
+      // С‰РµР»РєРЅСѓР»Рё РІ LISTРµ
+      if (record->Event.MouseEvent.dwMousePosition.X > dlgRect.Left && record->Event.MouseEvent.dwMousePosition.X < dlgRect.Right
+          && record->Event.MouseEvent.dwMousePosition.Y > dlgRect.Top && record->Event.MouseEvent.dwMousePosition.Y < dlgRect.Bottom)
       {
-        SMALL_RECT Rect;
-        Info.SendDlgMessage(hDlg,DM_GETDLGRECT,0,(LONG_PTR)&amp;Rect);
-        ...
-              Info.Text(Rect.Left+DialogItem.X1+X*3,
-                       Rect.Top+DialogItem.Y1+Y,
-                      ColorsPanel[Y&amp;1][X&amp;1]|AddColor,
-                      Face);
-        ...
-...
-}</pre>
+       // С‡С‚Рѕ-С‚Рѕ РґРµР»Р°РµРј
+      }
+    }
+}
+</pre>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialogex.html">DialogEx</a><br>
-<a href="dm_getdlgitem.html">DM_GETDLGITEM</a><br>
-<a href="dm_getitemposition.html">DM_GETITEMPOSITION</a><br>
-
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
+<a href="dm_getdlgitem.html">DM_GETDLGITEM</a>,
+<a href="dm_getitemposition.html">DM_GETITEMPOSITION</a>
 </div>
 
 </body>

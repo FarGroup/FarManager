@@ -1,72 +1,58 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>EditorGetString</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!-- History of modification:
- Date: Oct 30 1999
-   Author: Valentin Skirdin
-   E-mail: vskirdin@mail.ru
-
- Date: Dec 4 1999
-   Author: Ivan Sintyurin
-   E-mail: spinoza@mail.ru
-   перевел
-
- Jan 26 2000
-   Valentin Skirdin
-   vskirdin@mail.ru
-   косметика ;-)
--->
 <body>
 
 <h1>EditorGetString</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
+<a href="../editorapi/index.html">Editor API</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>EditorGetString</dfn> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a>
-для получения строки из редактора FAR'а.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>EditorGetString</code> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ С„СѓРЅРєС†РёРё <a href="../service_functions/editorcontrol.html">EditorControl</a> РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СЃС‚СЂРѕРєРё РёР· СЂРµРґР°РєС‚РѕСЂР° Far Manager.
 </div>
 
 <pre class=syntax>
 struct EditorGetString
 {
-  int StringNumber;
-  const char *StringText;
-  const char *StringEOL;
-  int StringLength;
-  int SelStart;
-  int SelEnd;
+  size_t StructSize;
+  intptr_t StringNumber;
+  intptr_t StringLength;
+  const wchar_t *StringText;
+  const wchar_t *StringEOL;
+  intptr_t SelStart;
+  intptr_t SelEnd;
 };
 </pre>
-<h3>Элементы</h3>
+
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
-
-    <div class=dfn>StringNumber</div>
-    <div class=dfndescr>Номер получаемой строки (первая строка имеет индекс 0). Можно установить это поле в -1 для получения текущей строки
-    (<small>замечания, относительно значения -1 читайте <a href="../articles/ectl_getstring.html">здесь</a></small>)</div>
-    <div class=dfn>StringText</div>
-    <div class=dfndescr>Указывает на данные строки. Вы не должны их изменять. Помните, что среди этих данных могут быть нулевые символы.</div>
-    <div class=dfn>StringEOL</div>
-    <div class=dfndescr>Последовательность, обозначающая конец строки. Может быть пустой строкой, <code>\r\n</code> или <code>\n</code></div>
-    <div class=dfn>StringLength</div>
-    <div class=dfndescr>Размер данных, на которые указывает <i>StringText</i>.</div>
-    <div class=dfn>SelStart</div>
-    <div class=dfndescr>Стартовая позиция выделения в строке. Если строка не содержит выделения, то это поле равно -1.</div>
-    <div class=dfn>SelEnd</div>
-    <div class=dfndescr>Конечная позиция выделения в строке. Если область выделения включает в себя последовательность, равную <i>StringEOL</i>, то это поле равно -1.</div>
-
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Р­С‚Рѕ РїРѕР»Рµ РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ <code>EditorGetString</code>. РџРµСЂРµРґ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј СЃС‚СЂСѓРєС‚СѓСЂС‹ РїР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ Р·Р°РїРѕР»РЅРёС‚СЊ РїРѕР»Рµ.</div>
+  <div class=dfn>StringNumber</div>
+    <div class=dfndescr>РќРѕРјРµСЂ РїРѕР»СѓС‡Р°РµРјРѕР№ СЃС‚СЂРѕРєРё (РїРµСЂРІР°СЏ СЃС‚СЂРѕРєР° РёРјРµРµС‚ РёРЅРґРµРєСЃ <code>0</code>). РњРѕР¶РЅРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ СЌС‚Рѕ РїРѕР»Рµ РІ <code>-1</code> РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ С‚РµРєСѓС‰РµР№ СЃС‚СЂРѕРєРё.</div>
+  <div class=dfn>StringLength</div>
+    <div class=dfndescr>Р Р°Р·РјРµСЂ РґР°РЅРЅС‹С…, РЅР° РєРѕС‚РѕСЂС‹Рµ СѓРєР°Р·С‹РІР°РµС‚ <code>StringText</code>.</div>
+  <div class=dfn>StringText</div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РґР°РЅРЅС‹Рµ СЃС‚СЂРѕРєРё. Р’С‹ РЅРµ РґРѕР»Р¶РЅС‹ РёС… РёР·РјРµРЅСЏС‚СЊ. РџРѕРјРЅРёС‚Рµ, С‡С‚Рѕ СЃСЂРµРґРё СЌС‚РёС… РґР°РЅРЅС‹С… РјРѕРіСѓС‚ Р±С‹С‚СЊ РЅСѓР»РµРІС‹Рµ СЃРёРјРІРѕР»С‹.</div>
+  <div class=dfn>StringEOL</div>
+    <div class=dfndescr>РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ, РѕР±РѕР·РЅР°С‡Р°СЋС‰Р°СЏ РєРѕРЅРµС† СЃС‚СЂРѕРєРё. РњРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚РѕР№ СЃС‚СЂРѕРєРѕР№, <code>\r\n</code> РёР»Рё <code>\n</code>.</div>
+  <div class=dfn>SelStart</div>
+    <div class=dfndescr>РЎС‚Р°СЂС‚РѕРІР°СЏ РїРѕР·РёС†РёСЏ РІС‹РґРµР»РµРЅРёСЏ РІ СЃС‚СЂРѕРєРµ. Р•СЃР»Рё СЃС‚СЂРѕРєР° РЅРµ СЃРѕРґРµСЂР¶РёС‚ РІС‹РґРµР»РµРЅРёСЏ, С‚Рѕ СЌС‚Рѕ РїРѕР»Рµ СЂР°РІРЅРѕ <code>-1</code>.</div>
+  <div class=dfn>SelEnd</div>
+    <div class=dfndescr>РљРѕРЅРµС‡РЅР°СЏ РїРѕР·РёС†РёСЏ РІС‹РґРµР»РµРЅРёСЏ РІ СЃС‚СЂРѕРєРµ. Р•СЃР»Рё РѕР±Р»Р°СЃС‚СЊ РІС‹РґРµР»РµРЅРёСЏ РІРєР»СЋС‡Р°РµС‚ РІ СЃРµР±СЏ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ, СЂР°РІРЅСѓСЋ <code>StringEOL</code>, С‚Рѕ СЌС‚Рѕ РїРѕР»Рµ СЂР°РІРЅРѕ <code>-1</code>.</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
-<a href="../delphi/teditorgetstring.html">TEditorGetString</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>
 </div>
 
 </body>

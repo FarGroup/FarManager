@@ -470,10 +470,10 @@ static const auto& HistoryRef(int Type)
 	{
 		switch (Type)
 		{
-		case HISTORYTYPE_CMD: return Global->Opt->SaveHistory;
-		case HISTORYTYPE_FOLDER: return Global->Opt->SaveFoldersHistory;
-		case HISTORYTYPE_VIEW: return Global->Opt->SaveViewHistory;
-		case HISTORYTYPE_DIALOG: return Global->Opt->Dialogs.EditHistory;
+		case HISTORYTYPE_CMD: return Global->Opt->SaveHistory != BSTATE_UNCHECKED;
+		case HISTORYTYPE_FOLDER: return Global->Opt->SaveFoldersHistory != BSTATE_UNCHECKED;
+		case HISTORYTYPE_VIEW: return Global->Opt->SaveViewHistory != BSTATE_UNCHECKED;
+		case HISTORYTYPE_DIALOG: return Global->Opt->Dialogs.EditHistory != BSTATE_UNCHECKED;
 		default: return true;
 		}
 	};

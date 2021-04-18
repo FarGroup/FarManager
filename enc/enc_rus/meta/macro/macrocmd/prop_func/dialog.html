@@ -1,0 +1,188 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Свойства и функции для работы с диалогами - Макросы</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../../../styles/styles.css">
+<script language="javascript" src="../../../links.js" type="text/javascript"></script>
+</head>
+<body>
+
+<h1>Свойства и функции для работы с диалогами</h1>
+<div class="navbar">
+<a href="../../../index.html">главная</a> |
+<a href="../../index.html">Макросы</a> |
+<a href="../index.html">Макроязык</a> |
+<a href="index.html">Свойства и функции: по областям</a>
+</div>
+
+<h2>Свойства</h2>
+<table class="cont2 funcs">
+  <col>
+  <col>
+  <col class="descr">
+  <tr><th>Оператор</th><th>Тип</th><th>Описание</th></tr>
+  <tr>
+    <td><a name="Dlg.ItemCount">Dlg.ItemCount</a></td>
+    <td>Number</td>
+    <td>количество элементов диалога</td>
+  </tr>
+  <tr>
+    <td><a name="Dlg.CurPos">Dlg.CurPos</a></td>
+    <td>Number</td>
+    <td>номер текущего (фокусного) элемента диалога</td>
+  </tr>
+  <tr>
+    <td><a name="Dlg.PrevPos">Dlg.PrevPos</a></td>
+    <td>Number</td>
+    <td>номер предыдущего фокусного элемента диалога</td>
+  </tr>
+  <tr>
+    <td><a name="Dlg.Info.Id">Dlg.Info.Id</a></td>
+    <td>GUID</td>
+    <td>строковое представление идентификатора текущего диалога в формате "{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}" (<em>см. <a href="../../../defs/guid.html">GUID объектов</a></em>)
+    </td>
+  </tr>
+  <tr>
+    <td><a name="Dlg.ItemType">Dlg.ItemType</a></td>
+    <td>Number</td>
+    <td>тип фокусного элемента диалога
+      <table class="cont2 params lite tiny">
+        <col class="value">
+        <col>
+        <tr>
+          <th>Значение</th>
+          <th>Описание</th>
+        </tr>
+        <tr><td>-1</td><td>Ошибка, например, Dlg.ItemType вызван не в диалоге</td></tr>
+        <tr><td>4</td><td>Поле ввода</td></tr>
+        <tr><td>5</td><td>Поле ввода пароля</td></tr>
+        <tr><td>6</td><td>Поле ввода фиксированного размера</td></tr>
+        <tr><td>7</td><td>Кнопка (Button)</td></tr>
+        <tr><td>8</td><td>Контрольный переключатель (Check box)</td></tr>
+        <tr><td>9</td><td>Селекторная кнопка (Radio button)</td></tr>
+        <tr><td>10</td><td>Комбинированный список (Combo box)</td></tr>
+        <tr><td>11</td><td>Окно списка (List box)*</td></tr>
+        <tr><td>255</td><td>Элемент управления, определяемый программистом</td></tr>
+        <!--
+        <tr><td>3</td><td>Двойная рамка</td></tr>
+        <tr><td>2</td><td>Одиночная рамка</td></tr>
+        <tr><td>0</td><td>Текстовая строка</td></tr>
+        <tr><td>1</td><td>Вертикальная текстовая строка</td></tr>
+        -->
+        <tr><td>0x8004</td><td>Выбор из истории поля ввода*</td></tr>
+        <tr><td>0x800A</td><td>Выбор из комбинированного списка*</td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<h2>Функции</h2>
+
+<table class="cont2 funcs">
+  <col>
+  <col class="descr">
+  <tr>
+    <th>Функция</th>
+    <th>Описание</th>
+  </tr>
+
+  <tr>
+    <td>V=<dfn><a name="Dlg.GetValue">Dlg.GetValue</a></dfn>([Pos[,Type]])</td>
+    <td><p>Получить различные значения текущего диалога.</p>
+      <p><var>Pos</var> - номер элемента диалога (0 - само диалоговое окно). Если параметр не указан или равен -1, то функция вернет значение для текущего фокусного элемента.</p>
+      <p><var>Type</var> - тип получаемой информации, зависит от типа элемента. Если параметр не указан, то подразумевается, что <var>Type</var>=0.</p>
+      <p>Для самого диалога (<var>Pos</var>=0) допустимы следующие значения <var>Type</var>:</p>
+       <table class="cont2 params lite">
+       <col class="value">
+       <col>
+       <col>
+       <tr><th><var>Type</var></th><th>Тип <var>V</var></th><th>Описание</th></tr>
+        <tr><td>0</td><td>Number</td><td>Количество элементов диалога</td></tr>
+        <tr><td>2</td><td>Number</td><td>X1</td></tr>
+        <tr><td>3</td><td>Number</td><td>Y1</td></tr>
+        <tr><td>4</td><td>Number</td><td>X2</td></tr>
+        <tr><td>5</td><td>Number</td><td>Y2</td></tr>
+        <tr><td>6</td><td>Number</td><td><var>Pos</var> текущего элемента, имеющего <a href="../../../other/dict.html#keybfocus">клавиатурный фокус ввода</a></td></tr>
+       </table>
+
+       Для элементов диалога допустимы следующие значения <var>Type</var>:
+       <table class="cont2 params lite">
+       <col class="value">
+       <col>
+       <col>
+       <col>
+       <tr><th><var>Type</var></th><th>Тип <var>V</var></th><th>Элемент</th><th>Описание</th></tr>
+        <tr><td rowspan="5">0</td><td>Number</td><td>Check box</td><td>Состояние переключателя</td></tr>
+        <tr>          <td>Number</td><td>Radio buttons</td><td>Состояние переключателя</td></tr>
+        <tr>          <td>String</td><td>List box</td><td>Значение текущего элемента списка</td></tr>
+        <tr>          <td>String</td><td>Combo box</td><td>Значение текущего элемента списка</td></tr>
+        <tr>          <td>String</td><td>Остальные</td><td>Текстовое значение (поле <a href="../../../structures/fardialogitem.html">FarDialogItem.Data</a>)</td></tr>
+        <tr><td>1</td><td>Number</td><td>Все</td><td><a href="../../../dialogapi/controls/index.html">Тип элемента</a></td></tr>
+        <tr><td>2</td><td>Number</td><td>Все</td><td>X1 относительно диалога</td></tr>
+        <tr><td>3</td><td>Number</td><td>Все</td><td>Y1 относительно диалога</td></tr>
+        <tr><td>4</td><td>Number</td><td>Все</td><td>X2 относительно диалога</td></tr>
+        <tr><td>5</td><td>Number</td><td>Все</td><td>Y2 относительно диалога</td></tr>
+        <tr><td>6</td><td>Number</td><td>Все</td><td>элемент в фокусе? (0/1)</td></tr>
+
+        <tr><td rowspan="5">7</td><td>Number</td><td>Check box</td><td>Состояние переключателя</td></tr>
+        <tr>          <td>Number</td><td>Radio buttons</td><td>Состояние переключателя</td></tr>
+        <tr>          <td>Number</td><td>List box</td><td>Текущая позиция в списке</td></tr>
+        <tr>          <td>Number</td><td>Combo box</td><td>Текущая позиция в списке</td></tr>
+        <tr>          <td>Number</td><td>Остальные</td><td>0</td></tr>
+
+        <tr><td>8</td><td>Number</td><td>Все</td><td><a href="../../../dialogapi/flags/index.html">Флаги элемента</a></td></tr>
+        <tr><td>9</td><td>Number</td><td>Все</td><td>Флаг, означающий, что данный элемент диалога является "элементом по умолчанию"</td></tr>
+
+        <tr><td>10</td><td>String</td><td>Остальные</td><td>Текстовое значение (поле <a href="../../../structures/fardialogitem.html">FarDialogItem.Data</a>)</td></tr>
+        <tr><td rowspan="2">11</td><td>Number</td><td>List box</td><td>Количество элементов списка</td></tr>
+        <tr>          <td>Number</td><td>Combo box</td><td>Количество элементов списка</td></tr>
+       </table>
+       Возвращает -1, если <var>Pos</var> больше количества элементов диалога или значение <var>Type</var> не поддерживается.</br>
+       Если текущий объект плагиновый диалог, то плагин может возвращать модифицированные данные (см. <a href="../../../dialogapi/dmsg/dn_getvalue.html">DN_GETVALUE</a>).
+    </td>
+  </tr>
+
+  <tr>
+    <td>N=<dfn><a name="Dlg.SetFocus">Dlg.SetFocus</a></dfn>([ID])</td>
+    <td><p>Функция позволяет установить фокус ввода на элемент с номером <var>ID</var>.</p>
+    <p>Если параметр <var>ID</var> не указан или равен 0, то возвращает номер текущего (фокусного) элемента.</p>
+    <p>Функция возвращает -1 (внутренняя ошибка или функция применена вне диалога), 0 (параметр <var>ID</var> содержит номер нефокусного элемента) или номер предыдущего фокусного элемента.</p>
+   </td>
+  </tr>
+
+
+  <tr>
+    <td>Pos=<dfn>checkhotkey</dfn>(S[,StartPos])</td>
+    <td><p>Функция позволяет проверить и получить позицию элемента, для которого назначена горячая клавиша <var>S</var>.</p>
+    <p>Подробности в описании <a href="menus.html#checkhotkey">cвойств и функций для меню и списков</a>.</p>
+   </td>
+  </tr>
+
+  <tr>
+    <td>V=<dfn>editor.sel</dfn>(Action[,Opt])</td>
+    <td><p>Функция позволяет производить некоторые операции с блоками в тексте (в редакторе, в строках ввода в диалогах, в командной строке).</p>
+    <p>Подробности в описании <a href="editor.html#editor.sel">свойств и функций для редактора</a>.</p>
+    </td>
+  </tr>
+</table>
+
+<h3>Замечания</h3>
+<div class="descr">
+<ol>
+  <li>Элементы диалога нумеруются с 1.</li>
+  <li>Элементы списков нумеруются с 1.</li>
+  <li><p>Для работы со списками можно использовать <a href="menus.html">cвойства и функции для меню и списков</a>.</p>
+      <p>(Под списками понимаются такие элементы диалога, как "Окно списка", "Выбор из истории поля ввода",
+      "Выбор из комбинированного списка").</p>
+  </li>
+</ol>
+</div>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="../../examples.html">Примеры</a>
+</div>
+
+</body>
+
+</html>

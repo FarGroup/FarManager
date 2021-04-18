@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>INPUT_RECORD</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src="../links.js" type="text/javascript"></script>
 </head>
@@ -11,18 +11,18 @@
 
 <h1>INPUT_RECORD</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="../structures/index.html">структуры</a> |
-<a href="index.html">win32 структуры</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="../structures/index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
+<a href="index.html">win32 СЃС‚СЂСѓРєС‚СѓСЂС‹</a>
 </div>
 
 <div class=shortdescr>
-Структура <strong>INPUT_RECORD</strong> используется
-для возвращения информации о входных сообщениях в консольном входном буфере.
-Эти записи могут быть считаны из входного буфера используя
-функции <a href="readconsoleinput.html">ReadConsoleInput</a> или
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>INPUT_RECORD</code> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
+РґР»СЏ РІРѕР·РІСЂР°С‰РµРЅРёСЏ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РІС…РѕРґРЅС‹С… СЃРѕРѕР±С‰РµРЅРёСЏС… РІ РєРѕРЅСЃРѕР»СЊРЅРѕРј РІС…РѕРґРЅРѕРј Р±СѓС„РµСЂРµ.
+Р­С‚Рё Р·Р°РїРёСЃРё РјРѕРіСѓС‚ Р±С‹С‚СЊ СЃС‡РёС‚Р°РЅС‹ РёР· РІС…РѕРґРЅРѕРіРѕ Р±СѓС„РµСЂР° РёСЃРїРѕР»СЊР·СѓСЏ
+С„СѓРЅРєС†РёРё <a href="readconsoleinput.html">ReadConsoleInput</a> РёР»Рё
 <a href="peekconsoleinput.html">PeekConsoleInput</a>,
-или записаны функцией <a href="writeconsoleinput.html">WriteConsoleInput</a>.
+РёР»Рё Р·Р°РїРёСЃР°РЅС‹ С„СѓРЅРєС†РёРµР№ <a href="writeconsoleinput.html">WriteConsoleInput</a>.
 </div>
 
 
@@ -39,54 +39,49 @@ typedef struct _INPUT_RECORD {
 } INPUT_RECORD;
 </pre>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
 
     <div class=dfn>EventType</div>
-    <div class=dfndescr>Означает тип входного сообщения и запись события, сохраненную в
-    элементе Event.<br>
-    Этот элемент может иметь одно из следующих значений:
+    <div class=dfndescr>РћР·РЅР°С‡Р°РµС‚ С‚РёРї РІС…РѕРґРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ Рё Р·Р°РїРёСЃСЊ СЃРѕР±С‹С‚РёСЏ, СЃРѕС…СЂР°РЅС‘РЅРЅСѓСЋ РІ
+    СЌР»РµРјРµРЅС‚Рµ Event.<br>
+    Р­С‚РѕС‚ СЌР»РµРјРµРЅС‚ РјРѕР¶РµС‚ РёРјРµС‚СЊ РѕРґРЅРѕ РёР· СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№:
 
     <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">РЎРѕР±С‹С‚РёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
 <tr class="cont"><td class="cont" width="40%">KEY_EVENT</td>
-<td class="cont" width="60%">Элемент Event содержит структуру <a href="key_event_record.html">KEY_EVENT_RECORD</a>
-        с информацией о сообщении с клавиатуры.</td>
+<td class="cont" width="60%">Р­Р»РµРјРµРЅС‚ Event СЃРѕРґРµСЂР¶РёС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="key_event_record.html">KEY_EVENT_RECORD</a>
+        СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ СЃРѕРѕР±С‰РµРЅРёРё СЃ РєР»Р°РІРёР°С‚СѓСЂС‹.</td>
 </tr>
 <tr class="cont"><td class="cont" width="40%">MOUSE_EVENT </td>
-<td class="cont" width="60%">Элемент Event содержит структуру <a href="mouse_event_record.html">MOUSE_EVENT_RECORD</a>
-        с информацией о сообщении мыши - перемещении или нажатии клавиш.</td>
+<td class="cont" width="60%">Р­Р»РµРјРµРЅС‚ Event СЃРѕРґРµСЂР¶РёС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="mouse_event_record.html">MOUSE_EVENT_RECORD</a>
+        СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ СЃРѕРѕР±С‰РµРЅРёРё РјС‹С€Рё - РїРµСЂРµРјРµС‰РµРЅРёРё РёР»Рё РЅР°Р¶Р°С‚РёРё РєР»Р°РІРёС€.</td>
 </tr>
 <tr class="cont"><td class="cont" width="40%">WINDOW_BUFFER_SIZE_EVENT </td>
-<td class="cont" width="60%">Элемент Event
-        содержит структуру <a href="window_buffer_size_record.html">WINDOW_BUFFER_SIZE_RECORD</a>
-        с информацией о новом размере экрана консоли.</td>
+<td class="cont" width="60%">Р­Р»РµРјРµРЅС‚ Event
+        СЃРѕРґРµСЂР¶РёС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="window_buffer_size_record.html">WINDOW_BUFFER_SIZE_RECORD</a>
+        СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ РЅРѕРІРѕРј СЂР°Р·РјРµСЂРµ СЌРєСЂР°РЅР° РєРѕРЅСЃРѕР»Рё.</td>
 </tr>
 <tr class="cont"><td class="cont" width="40%">MENU_EVENT</td>
-<td class="cont" width="60%">Элемент Event содержит структуру <a href="menu_event_record.html">MENU_EVENT_RECORD</a>.
-        Эти сообщения используются системой и должны игнорироваться.</td>
+<td class="cont" width="60%">Р­Р»РµРјРµРЅС‚ Event СЃРѕРґРµСЂР¶РёС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="menu_event_record.html">MENU_EVENT_RECORD</a>.
+        Р­С‚Рё СЃРѕРѕР±С‰РµРЅРёСЏ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ СЃРёСЃС‚РµРјРѕР№ Рё РґРѕР»Р¶РЅС‹ РёРіРЅРѕСЂРёСЂРѕРІР°С‚СЊСЃСЏ.</td>
 </tr>
 <tr class="cont"><td class="cont" width="40%">FOCUS_EVENT</td>
-<td class="cont" width="60%">Элемент Event содержит структуру <a href="focus_event_record.html">FOCUS_EVENT_RECORD</a>.
-        Эти сообщения используются системой и должны игнорироваться.</td>
-</tr>
-<tr class="cont"><td class="cont" width="40%">FARMACRO_KEY_EVENT</td>
-<td class="cont" width="60%">Элемент Event содержит структуру <a href="key_event_record.html">KEY_EVENT_RECORD</a>
-        с информацией о сообщении с клавиатуры. <font color="red">Это сообщение, специфичное для <strong>FAR
-        manager</strong> (начиная с версии 1.70 build 1663), приходит плагину во время "проигрывания" макрокоманды.</font>
-        </td>
+<td class="cont" width="60%">Р­Р»РµРјРµРЅС‚ Event СЃРѕРґРµСЂР¶РёС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="focus_event_record.html">FOCUS_EVENT_RECORD</a>.
+        Р­С‚Рё СЃРѕРѕР±С‰РµРЅРёСЏ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ СЃРёСЃС‚РµРјРѕР№ Рё РґРѕР»Р¶РЅС‹ РёРіРЅРѕСЂРёСЂРѕРІР°С‚СЊСЃСЏ.</td>
 </tr>
 </table>
     </div>
 
     <div class=dfn>Event</div>
-    <div class=dfndescr>Содержит структуры KEY_EVENT_RECORD, MOUSE_EVENT_RECORD, WINDOW_BUFFER_SIZE_RECORD,
-      MENU_EVENT_RECORD, FOCUS_EVENT_RECORD или FARMACRO_KEY_EVENT, в зависимости от значения,
-      указанного в EventType.
+    <div class=dfndescr>РЎРѕРґРµСЂР¶РёС‚ СЃС‚СЂСѓРєС‚СѓСЂС‹ <code>KEY_EVENT_RECORD</code>, <code>MOUSE_EVENT_RECORD</code>, <code>WINDOW_BUFFER_SIZE_RECORD</code>,
+      <code>MENU_EVENT_RECORD</code> РёР»Рё <code>FOCUS_EVENT_RECORD</code>, РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ Р·РЅР°С‡РµРЅРёСЏ,
+      СѓРєР°Р·Р°РЅРЅРѕРіРѕ РІ <code>EventType</code>.
     </div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
 <a href="key_event_record.html">KEY_EVENT_RECORD</a>,
 <a href="mouse_event_record.html">MOUSE_EVENT_RECORD</a>,
 <a href="window_buffer_size_record.html">WINDOW_BUFFER_SIZE_RECORD</a>,

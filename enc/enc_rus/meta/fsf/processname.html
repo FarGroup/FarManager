@@ -1,83 +1,91 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.ProcessName</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
--->
 <body>
 
 <h1>ProcessName</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">FarStandardFunctions</a> |
-<a href="../service_functions/cmpname.html">CmpName</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.ProcessName</dfn> позволяет обработать некое имя файла:
-сравнить с маской, с масками или сгенерировать по маске новое имя.
+Р¤СѓРЅРєС†РёСЏ <code>FSF.ProcessName</code> РїРѕР·РІРѕР»СЏРµС‚ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ РЅРµРєРѕРµ РёРјСЏ С„Р°Р№Р»Р°: СЃСЂР°РІРЅРёС‚СЊ СЃ РјР°СЃРєРѕР№, СЃ РјР°СЃРєР°РјРё РёР»Рё СЃРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ РїРѕ РјР°СЃРєРµ РЅРѕРІРѕРµ РёРјСЏ.
 </div>
 
 <pre class=syntax>
-int WINAPI ProcessName(
-  const char *Param1,
-  char *Param2,
-  DWORD Flags
+size_t WINAPI ProcessName(
+  const wchar_t *Param1,
+  wchar_t *Param2,
+  size_t Size,
+  PROCESSNAME_FLAGS Flags
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Param1</div>
-  <div class=dfndescr>зависит от Flags</div>
+    <div class=dfndescr>Р—Р°РІРёСЃРёС‚ РѕС‚ Flags.</div>
   <div class=dfn>Param2</div>
-  <div class=dfndescr>зависит от Flags</div>
+    <div class=dfndescr>Р—Р°РІРёСЃРёС‚ РѕС‚ Flags.</div>
+  <div class=dfn>Size</div>
+    <div class=dfndescr>Р—Р°РІРёСЃРёС‚ РѕС‚ Flags.</div>
   <div class=dfn>Flags</div>
-  <div class=dfndescr>указывает на необходимое действие. Может быть следующим (перечисление <a name="PROCESSNAME_FLAGS">PROCESSNAME_FLAGS</a>):
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Действие</th><th class="cont" width="60%">Описание</th></tr>
-  <tr class="cont"><td class="cont" width="40%"><a name="PN_CMPNAME">PN_CMPNAME</a></td>
-  <td class="cont" width="60%">
-     сравнить имя файла с маской. Аналог <a href="../service_functions/cmpname.html">CmpName</a>:
-     Param1 соответствует Pattern, Param2 соответствует String.
-     В случае успеха возвращается TRUE.
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РЅРµРѕР±С…РѕРґРёРјРѕРµ РґРµР№СЃС‚РІРёРµ. РњРѕР¶РµС‚ Р±С‹С‚СЊ СЃР»РµРґСѓСЋС‰РёРј (С‚РёРї <a name="PROCESSNAME_FLAGS">PROCESSNAME_FLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Р”РµР№СЃС‚РІРёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="PN_CMPNAME">PN_CMPNAME</a></td>
+    <td class="cont" width="60%">РЎСЂР°РІРЅРёС‚СЊ РёРјСЏ С„Р°Р№Р»Р° СЃ РјР°СЃРєРѕР№.<br>
+    <code>Param1</code> СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ <em>Pattern</em>, <code>Param2</code> СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ <em>String</em>, <code>Size</code> РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ.
+    РџР°СЂР°РјРµС‚СЂ <code>Param1</code> РјРѕР¶РµС‚ РІРєР»СЋС‡Р°С‚СЊ РѕР±С‹С‡РЅС‹Рµ РґРѕРїСѓСЃС‚РёРјС‹Рµ РІ РёРјРµРЅР°С… С„Р°Р№Р»РѕРІ СЃРёРјРІРѕР»С‹, Р° С‚Р°РєР¶Рµ СЃРїРµС†РёР°Р»СЊРЅС‹Рµ РІС‹СЂР°Р¶РµРЅРёСЏ:
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">РњРµС‚Р°СЃРёРјРІРѕР»</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><code>*</code></td>
+    <td class="cont" width="60%">Р»СЋР±РѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><code>?</code></td>
+    <td class="cont" width="60%">Р»СЋР±РѕР№ СЃРёРјРІРѕР»</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><code>[c,x-z]</code></td>
+    <td class="cont" width="60%">Р»СЋР±РѕР№ СЃРёРјРІРѕР» РёР· РЅР°С…РѕРґСЏС‰РёС…СЃСЏ РІ РєРІР°РґСЂР°С‚РЅС‹С… СЃРєРѕР±РєР°С…; РґРѕРїСѓСЃРєР°СЋС‚СЃСЏ Рё РѕС‚РґРµР»СЊРЅС‹Рµ СЃРёРјРІРѕР»С‹, Рё РёС… РґРёР°РїР°Р·РѕРЅС‹.</td></tr>
+    </table>
+
+    РќР°РїСЂРёРјРµСЂ, С„Р°Р№Р»С‹ ftp.exe, fc.exe Рё f.ext СЃРѕРІРїР°РґР°СЋС‚ СЃ РјР°СЃРєРѕР№ <code>f*.ex?</code>, РјР°СЃРєР° <code>*co*</code> СЃРѕРІРїР°РґР°РµС‚ СЃ color.ini Рё edit.com, РјР°СЃРєРµ
+    <code>[c-ft]*.txt</code> Р±СѓРґСѓС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІРѕРІР°С‚СЊ config.txt, demo.txt, faq.txt Рё tips.txt.<br>
+    Р’ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р° С„СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ TRUE.
     </td></tr>
 
-  <tr class="cont"><td class="cont" width="40%"><a name="PN_CMPNAMELIST">PN_CMPNAMELIST</a></td>
-  <td class="cont" width="60%">
-     Сравнить имя файла со списком масок, перечисленных через запятую. Аналог
-     предыдущего флага, только Param1 соответствует списку масок. Маски
-     исключения не поддерживаются.
-    </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PN_CMPNAMELIST">PN_CMPNAMELIST</a></td>
+    <td class="cont" width="60%">РЎСЂР°РІРЅРёС‚СЊ РёРјСЏ С„Р°Р№Р»Р° СЃРѕ СЃРїРёСЃРєРѕРј РјР°СЃРѕРє, РїРµСЂРµС‡РёСЃР»РµРЅРЅС‹С… С‡РµСЂРµР· Р·Р°РїСЏС‚СѓСЋ. РђРЅР°Р»РѕРі РїСЂРµРґС‹РґСѓС‰РµРіРѕ С„Р»Р°РіР°, С‚РѕР»СЊРєРѕ <code>Param1</code> СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ СЃРїРёСЃРєСѓ РјР°СЃРѕРє.
+    <code>Size</code> РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ.</td></tr>
 
-  <tr class="cont"><td class="cont" width="40%"><a name="PN_SKIPPATH">PN_SKIPPATH</a></td>
-  <td class="cont" width="60%">
-     Может сочетаться с PN_CMPNAME или PN_CMPNAMELIST - указывает на то, что путь
-     к имени файла при сравнении должен игнорироваться.
-    </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PN_SKIPPATH">PN_SKIPPATH</a></td>
+    <td class="cont" width="60%">РњРѕР¶РµС‚ СЃРѕС‡РµС‚Р°С‚СЊСЃСЏ СЃ <code>PN_CMPNAME</code> РёР»Рё <code>PN_CMPNAMELIST</code> - СѓРєР°Р·С‹РІР°РµС‚ РЅР° С‚Рѕ, С‡С‚Рѕ РїСѓС‚СЊ Рє РёРјРµРЅРё С„Р°Р№Р»Р° РїСЂРё СЃСЂР°РІРЅРµРЅРёРё РґРѕР»Р¶РµРЅ РёРіРЅРѕСЂРёСЂРѕРІР°С‚СЊСЃСЏ.</td></tr>
 
-  <tr class="cont"><td class="cont" width="40%"><a name="PN_GENERATENAME">PN_GENERATENAME</a></td>
-  <td class="cont" width="60%">
-     генерировать имя файла на основе существующего (Param1) и маски (Param2).
-     Результат записывается в Param2. В случае успеха возвращается TRUE,
-     иначе - FALSE. Если нужно преобразовать только часть Param1, то можно
-     указать размер этой части (может быть до 255 байт) в Flags (добавить по
-     принципу OR), например: Param1="dir1\\file1", а нам нужно изменить только
-     "dir1", тогда параметр Flags должен быть равен PN_GENERATENAME|4
-    </td></tr>
-</table>
-  </div>
+    <tr class="cont"><td class="cont" width="40%"><a name="PN_GENERATENAME">PN_GENERATENAME</a></td>
+    <td class="cont" width="60%">Р“РµРЅРµСЂРёСЂРѕРІР°С‚СЊ РёРјСЏ С„Р°Р№Р»Р° РЅР° РѕСЃРЅРѕРІРµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ (<code>Param1</code>) Рё РјР°СЃРєРё (<code>Param2</code>).
+     Р РµР·СѓР»СЊС‚Р°С‚ Р·Р°РїРёСЃС‹РІР°РµС‚СЃСЏ РІ <code>Param2</code>. <code>Size</code> РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° СЃ СѓС‡С‘С‚РѕРј Р·Р°РІРµСЂС€Р°СЋС‰РµРіРѕ <code>\0</code>.
+     Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ - РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°.<br>
+     Р•СЃР»Рё РЅСѓР¶РЅРѕ РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ С‚РѕР»СЊРєРѕ С‡Р°СЃС‚СЊ <code>Param1</code>, С‚Рѕ РјРѕР¶РЅРѕ СѓРєР°Р·Р°С‚СЊ СЂР°Р·РјРµСЂ СЌС‚РѕР№ С‡Р°СЃС‚Рё (РјРѕР¶РµС‚ Р±С‹С‚СЊ РґРѕ 65535 СЃРёРјРІРѕР»РѕРІ) РІ <code>Flags</code> (РґРѕР±Р°РІРёС‚СЊ РїРѕ РїСЂРёРЅС†РёРїСѓ OR), РЅР°РїСЂРёРјРµСЂ: <code>Param1=L"dir1\\file1"</code>, Р° РЅР°Рј РЅСѓР¶РЅРѕ РёР·РјРµРЅРёС‚СЊ С‚РѕР»СЊРєРѕ
+     "dir1", С‚РѕРіРґР° РїР°СЂР°РјРµС‚СЂ <code>Flags</code> РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЂР°РІРµРЅ <code>PN_GENERATENAME|4</code> </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="PN_CHECKMASK">PN_CHECKMASK</a></td>
+    <td class="cont" width="60%">РџСЂРѕРІРµСЂРёС‚СЊ РІР°Р»РёРґРЅРѕСЃС‚СЊ РјР°СЃРєРё. <code>Param1</code> СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ СЃРїРёСЃРєСѓ РјР°СЃРѕРє РґР»СЏ РїСЂРѕРІРµСЂРєРё.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="PN_SHOWERRORMESSAGE">PN_SHOWERRORMESSAGE</a></td>
+    <td class="cont" width="60%">РџСЂРё РїСЂРѕРІРµСЂРєРµ РІР°Р»РёРґРЅРѕСЃС‚Рё РјР°СЃРєРё (<code>PN_CHECKMASK</code>) РІС‹РІРѕРґРёС‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ.</td></tr>
+     </table>
+     </div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-См. описание параметра <dfn>Flags</dfn>
+РЎРј. РѕРїРёСЃР°РЅРёРµ РїР°СЂР°РјРµС‚СЂР° <code>Flags</code>
 </div>
-
 
 </body>
 </html>

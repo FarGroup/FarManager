@@ -1,64 +1,54 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.GetFileOwner</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
- Date: Mon 20 Nov 19:19:43 2000
-   Author: Ivan Sintyurin
-   E-mail: spinoza@mail.ru
--->
 <body>
 
 <h1>GetFileOwner</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">FarStandardFunctions</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.GetFileOwner</dfn> используется для определения владельца указанного файла.
+Р¤СѓРЅРєС†РёСЏ <code>FSF.GetFileOwner</code> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РІР»Р°РґРµР»СЊС†Р° СѓРєР°Р·Р°РЅРЅРѕРіРѕ С„Р°Р№Р»Р°.
 </div>
 
 <pre class=syntax>
-int WINAPI GetFileOwner(
-  const char *Computer,
-  const char *Name,
-  char *Owner
+size_t WINAPI GetFileOwner(
+  const wchar_t *Computer,
+  const wchar_t *Name,
+  wchar_t *Owner,
+  size_t Size
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Computer</div>
-  <div class=dfndescr>Имя компьютера, содержащего обрабатываемый файл.
-  Если этот параметр равен NULL, то используется текущий компьютер.
-  </div>
-
+    <div class=dfndescr>РРјСЏ РєРѕРјРїСЊСЋС‚РµСЂР°, СЃРѕРґРµСЂР¶Р°С‰РµРіРѕ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјС‹Р№ С„Р°Р№Р». Р•СЃР»Рё СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СЂР°РІРµРЅ <code>NULL</code>, С‚Рѕ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‚РµРєСѓС‰РёР№ РєРѕРјРїСЊСЋС‚РµСЂ.</div>
   <div class=dfn>Name</div>
-  <div class=dfndescr>Имя файла, для которого нужно определить владельца.
-  </div>
-
+    <div class=dfndescr>РРјСЏ С„Р°Р№Р»Р°, РґР»СЏ РєРѕС‚РѕСЂРѕРіРѕ РЅСѓР¶РЅРѕ РѕРїСЂРµРґРµР»РёС‚СЊ РІР»Р°РґРµР»СЊС†Р°.</div>
   <div class=dfn>Owner</div>
-  <div class=dfndescr>Указатель на буфер, который получит имя владельца файла.
-  Буфер должен иметь достаточный для хранения получаемой строки объем
-  (минимальный размер буфера - <a href="../defs/nm.html">NM</a>)
-  </div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° Р±СѓС„РµСЂ, РєРѕС‚РѕСЂС‹Р№ РїРѕР»СѓС‡РёС‚ РёРјСЏ РІР»Р°РґРµР»СЊС†Р° С„Р°Р№Р»Р°. РЈСЃС‚Р°РЅРѕРІРёС‚Рµ <code>Owner = NULL</code> РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ СѓР·РЅР°С‚СЊ РЅРµРѕР±С…РѕРґРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С….</div>
+  <div class=dfn>Size</div>
+    <div class=dfndescr>РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ, РєРѕС‚РѕСЂРѕРµ РјРѕР¶РЅРѕ РїРѕРјРµСЃС‚РёС‚СЊ РІ <code>Owner</code>, СЃ Р·Р°РєР»СЋС‡РёС‚РµР»СЊРЅС‹Рј РЅСѓР»С‘Рј.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-В случае успеха возвращается TRUE, иначе - FALSE.
+Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° <code>Owner</code>.
 </div>
 
-<h3>Примечание</h3>
+<h3>РџСЂРёРјРµС‡Р°РЅРёРµ</h3>
 <div class=descr>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 </div>
 

@@ -1,285 +1,348 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
-
 <head>
-<title>Технические подробности - Макросы</title>
-<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<title>РўРµС…РЅРёС‡РµСЃРєРёРµ РїРѕРґСЂРѕР±РЅРѕСЃС‚Рё - РњР°РєСЂРѕСЃС‹</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src="../links.js" type="text/javascript"></script>
 </head>
-
 <body>
 
-<h1>Технические подробности</h1>
+<h1>РўРµС…РЅРёС‡РµСЃРєРёРµ РїРѕРґСЂРѕР±РЅРѕСЃС‚Рё</h1>
 <div class="navbar">
-<a href="../index.html">главная</a> |
-<a href="index.html">Макросы</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">РњР°РєСЂРѕСЃС‹</a>
 </div>
 
-<a name="register"></a>
-<h3>Хранение макросов</h3>
-<p>Все макрокоманды хранятся в ветке реестра <code>[HKEY_CURRENT_USER\Software\Far\[Users\USERNAME\]KeyMacros]</code>
-в текстовом виде.
-<p>Макрокоманды делятся на 16 областей действий (см. <a href="about/macroarea.html">Области действия</a>) и 2 области для хранения глобальных переменных и констант.
-Имя области соответствует ветке реестра:
-<table class="cont">
-  <tr class="cont">
-    <th class="cont" width="40%">Область</th>
-    <th class="cont" width="60%">Назначение</th>
+<h3><a name="register">РҐСЂР°РЅРµРЅРёРµ РјР°РєСЂРѕСЃРѕРІ</a></h3>
+<p>Р’СЃРµ РјР°РєСЂРѕРєРѕРјР°РЅРґС‹ С…СЂР°РЅСЏС‚СЃСЏ РІ SQLite Р±Р°Р·Рµ macros.db</p>
+<p>РњР°РєСЂРѕРєРѕРјР°РЅРґС‹ РґРµР»СЏС‚СЃСЏ РЅР° 17 РѕР±Р»Р°СЃС‚РµР№ РґРµР№СЃС‚РІРёР№ (СЃРј. <a href="about/macroarea.html">РћР±Р»Р°СЃС‚Рё РґРµР№СЃС‚РІРёСЏ</a>) Рё 2 РѕР±Р»Р°СЃС‚Рё РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РіР»РѕР±Р°Р»СЊРЅС‹С… РїРµСЂРµРјРµРЅРЅС‹С… Рё РєРѕРЅСЃС‚Р°РЅС‚:</p>
+<table class="cont2">
+  <col span="2">
+  <tr>
+    <th>РћР±Р»Р°СЃС‚СЊ</th>
+    <th>РќР°Р·РЅР°С‡РµРЅРёРµ</th>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;Shell&quot;</td>
-    <td class="cont" width="60%">Файловые панели</td>
+  <tr>
+    <td><code>Shell</code></td>
+    <td>Р¤Р°Р№Р»РѕРІС‹Рµ РїР°РЅРµР»Рё</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;Viewer&quot;</td>
-    <td class="cont" width="60%">Внутренняя программа просмотра</td>
+  <tr>
+    <td><code>Info</code></td>
+    <td>РРЅС„РѕСЂРјР°С†РёРѕРЅРЅР°СЏ РїР°РЅРµР»СЊ</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;Editor&quot;</td>
-    <td class="cont" width="60%">Редактор</td>
+  <tr>
+    <td><code>QView</code></td>
+    <td>РџР°РЅРµР»СЊ Р±С‹СЃС‚СЂРѕРіРѕ РїСЂРѕСЃРјРѕС‚СЂР°</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;Dialog&quot;</td>
-    <td class="cont" width="60%">Диалоги</td>
+  <tr>
+    <td><code>Tree</code></td>
+    <td>РџР°РЅРµР»СЊ РґРµСЂРµРІР° РїР°РїРѕРє</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;Search&quot;</td>
-    <td class="cont" width="60%">Быстрый поиск в панелях</td>
+  <tr>
+    <td><code>Search</code></td>
+    <td>Р‘С‹СЃС‚СЂС‹Р№ РїРѕРёСЃРє РІ РїР°РЅРµР»СЏС…</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;Disks&quot;</td>
-    <td class="cont" width="60%">Меню выбора дисков</td>
+  <tr>
+    <td><code>FindFolder</code></td>
+    <td>РџР°РЅРµР»СЊ РїРѕРёСЃРєР° РїР°РїРѕРє</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;MainMenu&quot;</td>
-    <td class="cont" width="60%">Основное меню</td>
+  <tr>
+    <td><code>Viewer</code></td>
+    <td>Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РїСЂРѕРіСЂР°РјРјР° РїСЂРѕСЃРјРѕС‚СЂР°</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;Menu&quot;</td>
-    <td class="cont" width="60%">Прочие меню</td>
+  <tr>
+    <td><code>Editor</code></td>
+    <td>Р РµРґР°РєС‚РѕСЂ</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;Help&quot;</td>
-    <td class="cont" width="60%">Система помощи</td>
+  <tr>
+    <td><code>Dialog</code></td>
+    <td>Р”РёР°Р»РѕРіРё</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;Info&quot;</td>
-    <td class="cont" width="60%">Информационная панель</td>
+  <tr>
+    <td><code>Menu</code></td>
+    <td>РџСЂРѕС‡РёРµ РјРµРЅСЋ</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;QView&quot;</td>
-    <td class="cont" width="60%">Панель быстрого просмотра</td>
+  <tr>
+    <td><code>MainMenu</code></td>
+    <td>РћСЃРЅРѕРІРЅРѕРµ РјРµРЅСЋ</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;Tree&quot;</td>
-    <td class="cont" width="60%">Панель дерева папок</td>
+  <tr>
+    <td><code>UserMenu</code></td>
+    <td>РџРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРµ РјРµРЅСЋ</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;FindFolder&quot;</td>
-    <td class="cont" width="60%">Панель поиска папок</td>
+  <tr>
+    <td><code>Disks</code></td>
+    <td>РњРµРЅСЋ РІС‹Р±РѕСЂР° РґРёСЃРєР°</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;UserMenu&quot;</td>
-    <td class="cont" width="60%">Пользовательское меню</td>
+  <tr>
+    <td><code>Shell.AutoCompletion</code></td>
+    <td>РЎРїРёСЃРѕРє Р°РІС‚РѕРґРѕРїРѕР»РЅРµРЅРёСЏ РІ РїР°РЅРµР»СЏС…</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;Other&quot;</td>
-    <td class="cont" width="60%">Режим копирования текста с экрана</td>
+  <tr>
+    <td><code>Dialog.AutoCompletion</code></td>
+    <td>РЎРїРёСЃРѕРє Р°РІС‚РѕРґРѕРїРѕР»РЅРµРЅРёСЏ РІ РґРёР°Р»РѕРіР°С…</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;Common&quot;</td>
-    <td class="cont" width="60%">Макросы из этой области работают везде. FAR просматривает эту область последней.</td>
+  <tr>
+    <td><code>Help</code></td>
+    <td>РЎРёСЃС‚РµРјР° РїРѕРјРѕС‰Рё</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;Vars&quot;</td>
-    <td class="cont" width="60%">Область для глобальных переменных, которые FAR считывает при старте.
-    Переменные могут быть двух типов - строковые (типа REG_SZ) и числовые (типа REG_QWORD). В эту область можно писать
-    с помощью функции <a href="macrocmd/functions.html#msave">msave()</a></td>
+  <tr>
+    <td><code>Other</code></td>
+    <td>Р РµР¶РёРј РєРѕРїРёСЂРѕРІР°РЅРёСЏ С‚РµРєСЃС‚Р° СЃ СЌРєСЂР°РЅР°</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&quot;Consts&quot;</td>
-    <td class="cont" width="60%">Область для глобальных констант, которые FAR считывает при старте.
-    Константы могут быть двух типов - строковые (типа REG_SZ) и числовые (типа REG_QWORD). </td>
+  <tr>
+    <td><code>Common</code></td>
+    <td>РњР°РєСЂРѕСЃС‹ РёР· СЌС‚РѕР№ РѕР±Р»Р°СЃС‚Рё СЂР°Р±РѕС‚Р°СЋС‚ РІРµР·РґРµ. Far Manager РїСЂРѕСЃРјР°С‚СЂРёРІР°РµС‚ СЌС‚Сѓ РѕР±Р»Р°СЃС‚СЊ РїРѕСЃР»РµРґРЅРµР№.</td>
+  </tr>
+  <tr>
+    <td><code>Vars</code></td>
+    <td><p>РћР±Р»Р°СЃС‚СЊ РґР»СЏ РіР»РѕР±Р°Р»СЊРЅС‹С… <a href="macrocmd/vars.html">РїРµСЂРµРјРµРЅРЅС‹С…</a>, РєРѕС‚РѕСЂС‹Рµ Far Manager СЃС‡РёС‚С‹РІР°РµС‚ РїСЂРё СЃС‚Р°СЂС‚Рµ.</p>
+    <p>Р’ СЌС‚Сѓ РѕР±Р»Р°СЃС‚СЊ РјРѕР¶РЅРѕ РїРёСЃР°С‚СЊ СЃ РїРѕРјРѕС‰СЊСЋ С„СѓРЅРєС†РёРё <a href="macrocmd/prop_func/general.html#msave">msave()</a>.</p></td>
+  </tr>
+  <tr>
+    <td><code>Consts</code></td>
+    <td><p>РћР±Р»Р°СЃС‚СЊ РґР»СЏ РіР»РѕР±Р°Р»СЊРЅС‹С… <a href="macrocmd/consts.html">РєРѕРЅСЃС‚Р°РЅС‚</a>, РєРѕС‚РѕСЂС‹Рµ Far Manager СЃС‡РёС‚С‹РІР°РµС‚ РїСЂРё СЃС‚Р°СЂС‚Рµ.</p></td>
   </tr>
 </table>
 
-<p>В областях на каждую макрокоманду в реестре заводится
-отдельная ветвь с именем назначенной клавиши. Макрокоманда
-описывается определенным набором значений:
-<table class="cont">
-  <tr class="cont">
-    <th class="cont" width="25%">Имя</th>
-    <th class="cont" width="10%">Тип</th>
-    <th class="cont" width="10%">Default</th>
-    <th class="cont" width="55%">Описание</th>
+<p>Р•СЃР»Рё Far Manager Р·Р°РїСѓС‰РµРЅ СЃ РєР»СЋС‡Р°РјРё /e РёР»Рё /v, С‚Рѕ РЅРµ РіСЂСѓР·СЏС‚СЃСЏ РјР°РєСЂРѕСЃС‹ РёР· СЃР»РµРґСѓСЋС‰РёС… РјР°РєСЂРѕРѕР±Р»Р°СЃС‚РµР№: <code>Shell</code>,
+<code>Info</code>, <code>QView</code>, <code>Tree</code>, <code>Search</code>, <code>FindFolder</code>,
+<code>MainMenu</code>, <code>Disks</code>, <code>Shell.AutoCompletion</code>, <code>Dialog.AutoCompletion</code>.</p>
+
+<p>РќР° РєР°Р¶РґСѓСЋ РјР°РєСЂРѕРєРѕРјР°РЅРґСѓ РІ Р±Р°Р·Рµ Р·Р°РІРѕРґРёС‚СЃСЏ РѕС‚РґРµР»СЊРЅР°СЏ Р·Р°РїРёСЃСЊ СЃРѕ СЃР»РµРґСѓСЋС‰РёРјРё РїРѕР»СЏРјРё:</p>
+<table class="cont2">
+  <col span="4">
+  <tr>
+    <th>РџРѕР»Рµ</th>
+    <th>РћРїРёСЃР°РЅРёРµ</th>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">Sequence</td>
-    <td class="cont" width="10%">REG_SZ<br>REG_MULTI_SZ</td>
-    <td class="cont" width="10%">&nbsp;</td>
-    <td class="cont" width="55%">Последовательность клавиш.</td>
+  <tr>
+    <td><code>area</code></td>
+    <td>РРјСЏ РјР°РєСЂРѕРѕР±Р»Р°СЃС‚Рё</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">DisableOutput</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Запретить на время выполнения вывод на экран. При записи нового
-      макроса значение этого параметра выставляется в 1 (запретить вывод на экран). Если
-      параметр отсутствует, то вывод на экран во время исполнения макроса разрешен.</td>
+  <tr>
+    <td><code>key</code></td>
+    <td>РќР°Р·РЅР°С‡РµРЅРЅР°СЏ РєР»Р°РІРёС€Р°</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">RunAfterFARStart</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Выполнять после запуска FAR. Флаг актуален только для макросов, стартующих в области <dfn>Shell</dfn>.</td>
+  <tr>
+    <td><code>flags</code></td>
+    <td>Р¤Р»Р°РіРё РґР»СЏ РјР°РєСЂРѕРїРѕР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё (РїРµСЂРµС‡РёСЃР»РµРЅРЅС‹Рµ С‡РµСЂРµР· СЃРёРјРІРѕР» '|'):
+<table class="cont2">
+  <col span="3">
+  <tr>
+    <th>Р¤Р»Р°Рі</th>
+    <th>Default</th>
+    <th>РћРїРёСЃР°РЅРёРµ</th>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">EmptyCommandLine</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Выполнять, только если командная строка пуста</td>
+  <tr>
+    <td><code>DisableOutput</code></td>
+    <td>0</td>
+    <td><p>Р—Р°РїСЂРµС‚РёС‚СЊ РЅР° РІСЂРµРјСЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РІС‹РІРѕРґ РЅР° СЌРєСЂР°РЅ.</p>
+      <p>РџСЂРё Р·Р°РїРёСЃРё РЅРѕРІРѕРіРѕ РјР°РєСЂРѕСЃР° Р·РЅР°С‡РµРЅРёРµ СЌС‚РѕРіРѕ РїР°СЂР°РјРµС‚СЂР° РІС‹СЃС‚Р°РІР»СЏРµС‚СЃСЏ РІ 1 (Р·Р°РїСЂРµС‚РёС‚СЊ РІС‹РІРѕРґ РЅР° СЌРєСЂР°РЅ).</p>
+      <p>Р•СЃР»Рё РїР°СЂР°РјРµС‚СЂ РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚, С‚Рѕ РІС‹РІРѕРґ РЅР° СЌРєСЂР°РЅ РІРѕ РІСЂРµРјСЏ РёСЃРїРѕР»РЅРµРЅРёСЏ РјР°РєСЂРѕСЃР° СЂР°Р·СЂРµС€С‘РЅ.</p></td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">NotEmptyCommandLine</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Выполнять, только если командная строка не
-      пуста</td>
+  <tr>
+    <td><code>RunAfterFARStart</code></td>
+    <td>0</td>
+    <td>Р’С‹РїРѕР»РЅСЏС‚СЊ РїРѕСЃР»Рµ Р·Р°РїСѓСЃРєР° Far Manager. Р¤Р»Р°Рі Р°РєС‚СѓР°Р»РµРЅ С‚РѕР»СЊРєРѕ РґР»СЏ РјР°РєСЂРѕСЃРѕРІ, СЃС‚Р°СЂС‚СѓСЋС‰РёС… РІ РѕР±Р»Р°СЃС‚Рё <code>Shell</code>.</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">NoFilePanels</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Не выполнять для файловой панели</td>
+  <tr>
+    <td><code>EmptyCommandLine</code></td>
+    <td>0</td>
+    <td>Р’С‹РїРѕР»РЅСЏС‚СЊ, С‚РѕР»СЊРєРѕ РµСЃР»Рё РєРѕРјР°РЅРґРЅР°СЏ СЃС‚СЂРѕРєР° РїСѓСЃС‚Р°</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">NoFilePPanels</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Не выполнять если пассивная панель - файловая</td>
+  <tr>
+    <td><code>NotEmptyCommandLine</code></td>
+    <td>0</td>
+    <td>Р’С‹РїРѕР»РЅСЏС‚СЊ, С‚РѕР»СЊРєРѕ РµСЃР»Рё РєРѕРјР°РЅРґРЅР°СЏ СЃС‚СЂРѕРєР° РЅРµ
+      РїСѓСЃС‚Р°</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">NoPluginPanels</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Не выполнять для плагиновой панели</td>
+  <tr>
+    <td><code>NoFilePanels</code></td>
+    <td>0</td>
+    <td>РќРµ РІС‹РїРѕР»РЅСЏС‚СЊ РґР»СЏ С„Р°Р№Р»РѕРІРѕР№ РїР°РЅРµР»Рё</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">NoPluginPPanels</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Не выполнять если пассивная панель - плагиновая</td>
+  <tr>
+    <td><code>NoFilePPanels</code></td>
+    <td>0</td>
+    <td>РќРµ РІС‹РїРѕР»РЅСЏС‚СЊ РµСЃР»Рё РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ - С„Р°Р№Р»РѕРІР°СЏ</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">NoFolders</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Не выполнять если текущий элемент - папка</td>
+  <tr>
+    <td><code>NoPluginPanels</code></td>
+    <td>0</td>
+    <td>РќРµ РІС‹РїРѕР»РЅСЏС‚СЊ РґР»СЏ РїР»Р°РіРёРЅРѕРІРѕР№ РїР°РЅРµР»Рё</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">NoPFolders</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Не выполнять если текущий элемент - папка (пассивная
-      панель)</td>
+  <tr>
+    <td><code>NoPluginPPanels</code></td>
+    <td>0</td>
+    <td>РќРµ РІС‹РїРѕР»РЅСЏС‚СЊ РµСЃР»Рё РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ - РїР»Р°РіРёРЅРѕРІР°СЏ</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">NoFiles</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Не выполнять если текущий элемент - файл</td>
+  <tr>
+    <td><code>NoFolders</code></td>
+    <td>0</td>
+    <td>РќРµ РІС‹РїРѕР»РЅСЏС‚СЊ РµСЃР»Рё С‚РµРєСѓС‰РёР№ СЌР»РµРјРµРЅС‚ - РїР°РїРєР°</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">NoPFiles</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Не выполнять если текущий элемент - файл (пассивная
-      панель)</td>
+  <tr>
+    <td><code>NoPFolders</code></td>
+    <td>0</td>
+    <td>РќРµ РІС‹РїРѕР»РЅСЏС‚СЊ РµСЃР»Рё С‚РµРєСѓС‰РёР№ СЌР»РµРјРµРЅС‚ - РїР°РїРєР° (РїР°СЃСЃРёРІРЅР°СЏ
+      РїР°РЅРµР»СЊ)</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">Selection</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Выполнять, только если на панели есть
-      отмеченные файлы/папки</td>
+  <tr>
+    <td><code>NoFiles</code></td>
+    <td>0</td>
+    <td>РќРµ РІС‹РїРѕР»РЅСЏС‚СЊ РµСЃР»Рё С‚РµРєСѓС‰РёР№ СЌР»РµРјРµРЅС‚ - С„Р°Р№Р»</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">PSelection</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Выполнять, только если на панели есть
-      отмеченные файлы/папки (пассивная панель)</td>
+  <tr>
+    <td><code>NoPFiles</code></td>
+    <td>0</td>
+    <td>РќРµ РІС‹РїРѕР»РЅСЏС‚СЊ РµСЃР»Рё С‚РµРєСѓС‰РёР№ СЌР»РµРјРµРЅС‚ - С„Р°Р№Р» (РїР°СЃСЃРёРІРЅР°СЏ
+      РїР°РЅРµР»СЊ)</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">NoSelection</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Выполнять, если нет отмеченных файлов/папок (пассивная
-      панель)</td>
+  <tr>
+    <td><code>Selection</code></td>
+    <td>0</td>
+    <td>Р’С‹РїРѕР»РЅСЏС‚СЊ, С‚РѕР»СЊРєРѕ РµСЃР»Рё РЅР° РїР°РЅРµР»Рё РµСЃС‚СЊ РѕС‚РјРµС‡РµРЅРЅС‹Рµ С„Р°Р№Р»С‹/РїР°РїРєРё РёР»Рё РµСЃС‚СЊ РІС‹РґРµР»РµРЅРЅС‹Р№ Р±Р»РѕРє РІ СЂРµРґР°РєС‚РѕСЂРµ/РїСЂРѕРіСЂР°РјРјРµ РїСЂРѕСЃРјРѕС‚СЂР°</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">NoPSelection</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Выполнять, если нет отмеченных файлов/папок (пассивная
-      панель)</td>
+  <tr>
+    <td><code>PSelection</code></td>
+    <td>0</td>
+    <td>Р’С‹РїРѕР»РЅСЏС‚СЊ, С‚РѕР»СЊРєРѕ РµСЃР»Рё РЅР° РїР°РЅРµР»Рё РµСЃС‚СЊ
+      РѕС‚РјРµС‡РµРЅРЅС‹Рµ С„Р°Р№Р»С‹/РїР°РїРєРё (РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ)</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">EVSelection</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Выполнять, если отмечен блок в редакторе,
-      программе просмотра, в строках ввода в диалогах.</td>
+  <tr>
+    <td><code>NoSelection</code></td>
+    <td>0</td>
+    <td>Р’С‹РїРѕР»РЅСЏС‚СЊ, РµСЃР»Рё РЅРµС‚ РѕС‚РјРµС‡РµРЅРЅС‹С… С„Р°Р№Р»РѕРІ/РїР°РїРѕРє</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">NoEVSelection</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Выполнять, если не отмечен блок в редакторе,
-      программе просмотра, в строках ввода в диалогах.</td>
+  <tr>
+    <td><code>NoPSelection</code></td>
+    <td>0</td>
+    <td>Р’С‹РїРѕР»РЅСЏС‚СЊ, РµСЃР»Рё РЅРµС‚ РѕС‚РјРµС‡РµРЅРЅС‹С… С„Р°Р№Р»РѕРІ/РїР°РїРѕРє (РїР°СЃСЃРёРІРЅР°СЏ РїР°РЅРµР»СЊ)</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">NoSendKeysToPlugins</td>
-    <td class="cont" width="10%">REG_DWORD</td>
-    <td class="cont" width="10%">0</td>
-    <td class="cont" width="55%">Специальный режим: нажимаемые клавиши при
-      записи и воспроизведении не будут передаваться плагинам.</td>
+  <tr>
+    <td><code>EVSelection</code></td>
+    <td>0</td>
+    <td>Р’С‹РїРѕР»РЅСЏС‚СЊ, РµСЃР»Рё РѕС‚РјРµС‡РµРЅ Р±Р»РѕРє РІ СЂРµРґР°РєС‚РѕСЂРµ,
+      РїСЂРѕРіСЂР°РјРјРµ РїСЂРѕСЃРјРѕС‚СЂР°, РІ СЃС‚СЂРѕРєР°С… РІРІРѕРґР° РІ РґРёР°Р»РѕРіР°С….</td>
   </tr>
-  <tr class="cont">
-    <td class="cont" width="25%">Description</td>
-    <td class="cont" width="10%">REG_SZ</td>
-    <td class="cont" width="10%">&nbsp;</td>
-    <td class="cont" width="55%">Комментарий (не используется)</td>
+  <tr>
+    <td><code>NoEVSelection</code></td>
+    <td>0</td>
+    <td>Р’С‹РїРѕР»РЅСЏС‚СЊ, РµСЃР»Рё РЅРµ РѕС‚РјРµС‡РµРЅ Р±Р»РѕРє РІ СЂРµРґР°РєС‚РѕСЂРµ,
+      РїСЂРѕРіСЂР°РјРјРµ РїСЂРѕСЃРјРѕС‚СЂР°, РІ СЃС‚СЂРѕРєР°С… РІРІРѕРґР° РІ РґРёР°Р»РѕРіР°С….</td>
+  </tr>
+  <tr>
+    <td><code>NoSendKeysToPlugins</code></td>
+    <td>0</td>
+    <td>РЎРїРµС†РёР°Р»СЊРЅС‹Р№ СЂРµР¶РёРј: РЅР°Р¶РёРјР°РµРјС‹Рµ РєР»Р°РІРёС€Рё РїСЂРё
+      Р·Р°РїРёСЃРё Рё РІРѕСЃРїСЂРѕРёР·РІРµРґРµРЅРёРё РЅРµ Р±СѓРґСѓС‚ РїРµСЂРµРґР°РІР°С‚СЊСЃСЏ РїР»Р°РіРёРЅР°Рј.</td>
   </tr>
 </table>
-<p>Обязательным является параметр &quot;Sequence&quot;, остальные могут
-отсутствовать и принимать значение по умолчанию.
-<p>Последовательность &quot;Sequence&quot; содержит строковое
-представление макрокоманды. Каждая клавиша имеет свой строковый
-эквивалент, разделителем клавиш является пробел или табуляция.
-<p>При старте FAR компилирует последовательность &quot;Sequence&quot; во
-внутренний байткод. Если в процессе компиляции обнаружена ошибка,
-то макрос &quot;отбрасывается&quot; <a name="startmacro"></a>
-<h3>Условия запуска макроса</h3>
-<p>Перед исполнением макроса FAR проверяет условия запуска в
-следующей последовательности:
+РќР°РїСЂРёРјРµСЂ: <code>DisableOutput|Selection</code> - РЅРµ РІС‹РІРѕРґРёС‚СЊ РЅР° СЌРєСЂР°РЅ Рё РµСЃР»Рё РµСЃС‚СЊ РІС‹РґРµР»РµРЅРЅС‹Рµ С„Р°Р№Р»С‹/Р±Р»РѕРє.
+    </td>
+  </tr>
+  <tr>
+    <td><code>description</code></td>
+    <td>РћРїРёСЃР°РЅРёРµ РјР°РєСЂРѕСЃР°</td>
+  </tr>
+  <tr>
+    <td><code>sequence</code></td>
+    <td>РњР°РєСЂРѕРїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ</td>
+  </tr>
+</table>
+
+<p>РџСЂРё РёРјРїРѕСЂС‚Рµ РєР°Р¶РґР°СЏ Р·Р°РїРёСЃСЊ РІ XML-С„Р°Р№Р»Рµ РёРјРµРµС‚ РІРёРґ:</p>
+<pre>&lt;macro area="%AREA%" key="%KEY%" flags="%FLAGS%" description="%DESC%"&gt;%SEQUENCE%&lt;/macro&gt;</pre>
+
+<p>Р’ Р·РЅР°С‡РµРЅРёСЏС… area, key Рё description СЃРёРјРІРѕР»С‹ <code>"&lt;&gt;&amp;</code> РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ Р·Р°РјРµРЅРµРЅС‹ РЅР° &amp;quot; &amp;lt; &amp;gt; Рё &amp;amp;, СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ.</p>
+<p>Р•СЃР»Рё РјР°РєСЂРѕРїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ %SEQUENCE% СЃРѕРґРµСЂР¶РёС‚ СЃРёРјРІРѕР»С‹ <code>&lt;&gt;&amp;</code>, С‚Рѕ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РѕР±СЂР°РјР»РµРЅР° РІ "СЃРєРѕР±РєРё": <code>&lt;![CDATA[%SEQUENCE%]]&gt;</code></p>
+<p>РћР±СЏР·Р°С‚РµР»СЊРЅС‹РјРё СЏРІР»СЏСЋС‚СЃСЏ РїР°СЂР°РјРµС‚СЂС‹ <code>area</code> Рё <code>key</code>, РѕСЃС‚Р°Р»СЊРЅС‹Рµ РјРѕРіСѓС‚ РѕС‚СЃСѓС‚СЃС‚РІРѕРІР°С‚СЊ Рё РїСЂРёРЅРёРјР°С‚СЊ Р·РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ.</p>
+<p>Р•СЃР»Рё %SEQUENCE% РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚, С‚Рѕ РїСЂРё РёРјРїРѕСЂС‚Рµ xml-С„Р°Р№Р»Р° РјР°РєСЂРѕСЃ, Р·Р°РґР°РЅРЅС‹Р№ РїР°СЂР°РјРµС‚СЂР°РјРё <code>area</code> Рё <code>key</code> Р±СѓРґРµС‚ СѓРґР°Р»РµРЅ РёР· Р±Р°Р·С‹.
+
+<p>РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ "<code>sequence</code>" СЃРѕРґРµСЂР¶РёС‚ СЃС‚СЂРѕРєРѕРІРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ РјР°РєСЂРѕРєРѕРјР°РЅРґС‹. РљР°Р¶РґР°СЏ РєР»Р°РІРёС€Р° РёРјРµРµС‚ СЃРІРѕР№ СЃС‚СЂРѕРєРѕРІС‹Р№
+СЌРєРІРёРІР°Р»РµРЅС‚, СЂР°Р·РґРµР»РёС‚РµР»РµРј РєР»Р°РІРёС€ СЏРІР»СЏРµС‚СЃСЏ РїСЂРѕР±РµР», С‚Р°Р±СѓР»СЏС†РёСЏ, РёР»Рё СЃРёРјРІРѕР»С‹ РєРѕРЅС†Р° СЃС‚СЂРѕРєРё.</p>
+<p>РџСЂРё СЃС‚Р°СЂС‚Рµ Far Manager РєРѕРјРїРёР»РёСЂСѓРµС‚ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚СЊ "<code>sequence</code>" РІРѕ РІРЅСѓС‚СЂРµРЅРЅРёР№ Р±Р°Р№С‚РєРѕРґ. Р•СЃР»Рё РІ РїСЂРѕС†РµСЃСЃРµ РєРѕРјРїРёР»СЏС†РёРё РѕР±РЅР°СЂСѓР¶РµРЅР° РѕС€РёР±РєР°,
+С‚Рѕ РјР°РєСЂРѕСЃ "РѕС‚Р±СЂР°СЃС‹РІР°РµС‚СЃСЏ".
+</p>
+
+<h3><a name="startmacro">РЈСЃР»РѕРІРёСЏ Р·Р°РїСѓСЃРєР° РјР°РєСЂРѕСЃР°</a></h3>
+<p>РџРµСЂРµРґ РёСЃРїРѕР»РЅРµРЅРёРµРј РјР°РєСЂРѕСЃР° Far Manager РїСЂРѕРІРµСЂСЏРµС‚ СѓСЃР»РѕРІРёСЏ Р·Р°РїСѓСЃРєР° РІ
+СЃР»РµРґСѓСЋС‰РµР№ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚Рё:</p>
+<!--ol>
+  <li>NoSendKeysToPlugins</li>
+  <li>EmptyCommandLine + NotEmptyCommandLine</li>
+  <li>NoFilePanels     + NoPluginPanels</li>
+  <li>NoFilePPanels    + NoPluginPPanels</li>
+  <li>NoFolders        + NoFiles</li>
+  <li>NoPFolders       + NoPFiles</li>
+  <li>Selection        + NoSelection   (РµСЃР»Рё РЅРµ РІ <code>Viewer</code>, <code>Editor</code> Рё <code>Dialog</code>)</li>
+  <li>PSelection       + NoPSelection  (РµСЃР»Рё РЅРµ РІ <code>Viewer</code>, <code>Editor</code> Рё <code>Dialog</code>)</li>
+  <li>EVSelection      + NoEVSelection (РµСЃР»Рё РІ    <code>Viewer</code>, <code>Editor</code> Рё <code>Dialog</code>)</li>
+</ol-->
+
 <ol>
-  <li>NoSendKeysToPlugins
-  <li>EmptyCommandLine + NotEmptyCommandLine
-  <li>NoFilePanels + NoPluginPanels
-  <li>NoFilePPanels + NoPluginPPanels
-  <li>NoFolders + NoFiles
-  <li>NoPFolders + NoPFiles
-  <li>Selection + NoSelection (если не в Viewer, Editor и Dialog)
-  <li>PSelection + NoPSelection (если не в Viewer, Editor и Dialog)
-  <li>EVSelection + NoEVSelection (если в Viewer, Editor и Dialog)
+  <li><code>NoSendKeysToPlugins</code></li>
+  <li><code>EmptyCommandLine</code> + <code>NotEmptyCommandLine</code></li>
+  <li><code>NoFilePanels</code>     + <code>NoPluginPanels</code></li>
+  <li><code>NoFilePPanels</code>    + <code>NoPluginPPanels</code></li>
+  <li><code>NoFolders</code>        + <code>NoFiles</code></li>
+  <li><code>NoPFolders</code>       + <code>NoPFiles</code></li>
+  <li>РµСЃР»Рё РЅРµ РІ <code>Viewer</code>, <code>Editor</code> Рё <code>Dialog</code>:
+     <ul>
+      <li><code>Selection</code>        + <code>NoSelection</code></li>
+      <li><code>PSelection</code>       + <code>NoPSelection</code></li>
+     </ul>
+  </li>
+  <li>РµСЃР»Рё РІ    <code>Viewer</code>, <code>Editor</code> Рё <code>Dialog</code>:
+      <ul><li><code>EVSelection</code>      + <code>NoEVSelection</code></li></ul>
+  </li>
 </ol>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="about/index.html">Общие сведения</a>,
-<a href="macrokey/index.html">Работа с макросами</a>,
-<a href="macrocmd/index.html">Макроязык</a>,
-<a href="examples.html">Примеры</a>
+
+<h3>Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹</h3>
+<p>Р’СЃРµ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ С…СЂР°РЅСЏС‚СЃСЏ РІ SQLite-Р±Р°Р·Рµ generalconfig.db (key="KeyMacros").</p>
+
+<table class="cont2">
+  <col span="4">
+  <tr>
+    <th>РРјСЏ</th>
+    <th>РўРёРї</th>
+    <th>Default</th>
+    <th>РћРїРёСЃР°РЅРёРµ</th>
+  </tr>
+  <tr>
+    <td><code>DateFormat</code></td>
+    <td><code>TEXT</code></td>
+    <td><code class="nobr">%a %b %d %H:%M:%S %z %Y</code></td>
+    <td>Р¤РѕСЂРјР°С‚ РІС‹РІРѕРґР° РґР°С‚С‹/РІСЂРµРјРµРЅРё РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ (СЃРј. <a href="macrocmd/prop_func/general.html#date">date()</a>)</td>
+  </tr>
+  <tr>
+    <td><code>CONVFMT</code></td>
+    <td><code>TEXT</code></td>
+    <td><code>%.6g</code></td>
+    <td>Р¤РѕСЂРјР°С‚ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ С‡РёСЃРµР» (РєРѕРЅСЃС‚Р°РЅС‚ Рё РїРµСЂРµРјРµРЅРЅС‹С…) СЃ РїР»Р°РІР°СЋС‰РµР№ С‚РѕС‡РєРѕР№ РІ СЃС‚СЂРѕРєСѓ.</td>
+  </tr>
+  <tr>
+    <td><code>KeyRecordCtrlDot</code></td>
+    <td><code>TEXT</code></td>
+    <td><code>Ctrl.</code></td>
+    <td>РРјСЏ РєРѕРјР±РёРЅР°С†РёРё РєР»Р°РІРёС€ РґР»СЏ Р·Р°РїРёСЃРё РјР°РєСЂРѕСЃР° РІ РѕР±С‰РµРј СЂРµР¶РёРјРµ (СЃРј. "<a href="macrokey/record.html">Р—Р°РїРёСЃСЊ РјР°РєСЂРѕСЃР°</a>").</td>
+  </tr>
+  <tr>
+    <td><code>KeyRecordCtrlShiftDot</code></td>
+    <td><code>TEXT</code></td>
+    <td><code>CtrlShift.</code></td>
+    <td>РРјСЏ РєРѕРјР±РёРЅР°С†РёРё РєР»Р°РІРёС€ РґР»СЏ Р·Р°РїРёСЃРё РјР°РєСЂРѕСЃР° РІ СЃРїРµС†РёР°Р»СЊРЅРѕРј СЂРµР¶РёРјРµ (СЃРј. "<a href="macrokey/record.html">Р—Р°РїРёСЃСЊ РјР°РєСЂРѕСЃР°</a>").</td>
+  </tr>
+</table>
+
+<div class="see">РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class="seecont">
+<a href="about/index.html">РћР±С‰РёРµ Р·Р°РјРµС‡Р°РЅРёСЏ</a>,
+<a href="macrokey/index.html">Р Р°Р±РѕС‚Р° СЃ РјР°РєСЂРѕСЃР°РјРё</a>,
+<a href="macrocmd/index.html">РњР°РєСЂРѕСЏР·С‹Рє</a>,
+<a href="examples.html">РџСЂРёРјРµСЂС‹</a>
 </div>
 
 </body>

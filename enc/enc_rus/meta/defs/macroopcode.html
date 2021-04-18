@@ -1,0 +1,1179 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>MACROOPCODE</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="JavaScript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>MACROOPCODE</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">типы и определения</a>
+</div>
+
+<div class=shortdescr>
+  <p>Перечислены значения кодов операций (MACROOPCODE), которые исполнятор должен передать в Far Manager, используя функцию <code>FARAPICALLFAR</code></p>
+</div>
+
+<table class="cont2 funcs">
+  <col>
+  <col>
+  <col class="descr">
+  <tr><th>MACROOPCODE</th><th>Значение</th><th>Описание</th></tr>
+  <tr>
+    <td>MCODE_OP_EXIT</td>
+    <td>0x80000</td>
+    <td>принудительно закончить выполнение макропоследовательности</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_NOFUNC</td>
+    <td>0x80C00</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_ABS</td>
+    <td>0x80C01</td>
+    <td>N=abs(N)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_AKEY</td>
+    <td>0x80C02</td>
+    <td>V=akey(Mode[,Type])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_ASC</td>
+    <td>0x80C03</td>
+    <td>N=asc(S)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_ATOI</td>
+    <td>0x80C04</td>
+    <td>N=atoi(S[,radix])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_CLIP</td>
+    <td>0x80C05</td>
+    <td>V=clip(N[,V])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_CHR</td>
+    <td>0x80C06</td>
+    <td>S=chr(N)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_DATE</td>
+    <td>0x80C07</td>
+    <td>S=date([S])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_DLG_GETVALUE</td>
+    <td>0x80C08</td>
+    <td>V=Dlg.GetValue([Pos[,InfoID]])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_EDITOR_SEL</td>
+    <td>0x80C09</td>
+    <td>V=Editor.Sel(Action[,Opt])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_EDITOR_SET</td>
+    <td>0x80C0A</td>
+    <td>N=Editor.Set(N[,Var])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_EDITOR_UNDO</td>
+    <td>0x80C0B</td>
+    <td>V=Editor.Undo(N)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_EDITOR_POS</td>
+    <td>0x80C0C</td>
+    <td>N=Editor.Pos(Op,What[,Where])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_ENVIRON</td>
+    <td>0x80C0D</td>
+    <td>S=Env(S[,Mode[,Value]])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_FATTR</td>
+    <td>0x80C0E</td>
+    <td>N=fattr(S)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_FEXIST</td>
+    <td>0x80C0F</td>
+    <td>S=fexist(S)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_FSPLIT</td>
+    <td>0x80C10</td>
+    <td>S=fsplit(S,N)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_IIF</td>
+    <td>0x80C11</td>
+    <td>V=iif(C,V1,V2)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_INDEX</td>
+    <td>0x80C12</td>
+    <td>S=index(S1,S2[,Mode])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_INT</td>
+    <td>0x80C13</td>
+    <td>N=int(V)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_ITOA</td>
+    <td>0x80C14</td>
+    <td>S=itoa(N[,radix])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_KEY</td>
+    <td>0x80C15</td>
+    <td>S=key(V)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_LCASE</td>
+    <td>0x80C16</td>
+    <td>S=lcase(S1)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_LEN</td>
+    <td>0x80C17</td>
+    <td>N=len(S)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MAX</td>
+    <td>0x80C18</td>
+    <td>N=max(N1,N2)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MENU_CHECKHOTKEY</td>
+    <td>0x80C19</td>
+    <td>N=checkhotkey(S[,N])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MENU_GETHOTKEY</td>
+    <td>0x80C1A</td>
+    <td>S=gethotkey([N])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MENU_SELECT</td>
+    <td>0x80C1B</td>
+    <td>N=Menu.Select(S[,N[,Dir]])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MENU_SHOW</td>
+    <td>0x80C1C</td>
+    <td>S=Menu.Show(Items[,Title[,Flags[,FindOrFilter[,X[,Y]]]]])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MIN</td>
+    <td>0x80C1D</td>
+    <td>N=min(N1,N2)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MOD</td>
+    <td>0x80C1E</td>
+    <td>N=mod(a,b) == a %  b</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MLOAD</td>
+    <td>0x80C1F</td>
+    <td>B=mload(var)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MSAVE</td>
+    <td>0x80C20</td>
+    <td>B=msave(var)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MSGBOX</td>
+    <td>0x80C21</td>
+    <td>N=msgbox(["Title"[,"Text"[,flags]]])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PANEL_FATTR</td>
+    <td>0x80C22</td>
+    <td>N=Panel.FAttr(panelType,fileMask)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PANEL_SETPATH</td>
+    <td>0x80C23</td>
+    <td>N=panel.SetPath(panelType,pathName[,fileName])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PANEL_FEXIST</td>
+    <td>0x80C24</td>
+    <td>N=Panel.FExist(panelType,fileMask)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PANEL_SETPOS</td>
+    <td>0x80C25</td>
+    <td>N=Panel.SetPos(panelType,fileName)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PANEL_SETPOSIDX</td>
+    <td>0x80C26</td>
+    <td>N=Panel.SetPosIdx(panelType,Idx[,InSelection])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PANEL_SELECT</td>
+    <td>0x80C27</td>
+    <td>V=Panel.Select(panelType,Action[,Mode[,Items]])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PANELITEM</td>
+    <td>0x80C28</td>
+    <td>V=PanelItem(Panel,Index,TypeInfo)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_EVAL</td>
+    <td>0x80C29</td>
+    <td>N=eval(S[,N])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_RINDEX</td>
+    <td>0x80C2A</td>
+    <td>S=rindex(S1,S2[,Mode])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_SLEEP</td>
+    <td>0x80C2B</td>
+    <td>Sleep(N)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_STRING</td>
+    <td>0x80C2C</td>
+    <td>S=string(V)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_SUBSTR</td>
+    <td>0x80C2D</td>
+    <td>S=substr(S,start[,length])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_UCASE</td>
+    <td>0x80C2E</td>
+    <td>S=ucase(S1)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_WAITKEY</td>
+    <td>0x80C2F</td>
+    <td>V=waitkey([N,[T]])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_XLAT</td>
+    <td>0x80C30</td>
+    <td>S=xlat(S)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_FLOCK</td>
+    <td>0x80C31</td>
+    <td>N=FLock(N,N)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_CALLPLUGIN</td>
+    <td>0x80C32</td>
+    <td>V=callplugin(SysID[,param])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_REPLACE</td>
+    <td>0x80C33</td>
+    <td>S=replace(sS,sF,sR[,Count[,Mode]])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PROMPT</td>
+    <td>0x80C34</td>
+    <td>S=prompt(["Title"[,"Prompt"[,flags[, "Src"[, "History"]]]]])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_BM_ADD</td>
+    <td>0x80C35</td>
+    <td>N=BM.Add()  - добавить текущие координаты и обрезать хвост</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_BM_CLEAR</td>
+    <td>0x80C36</td>
+    <td>N=BM.Clear() - очистить все закладки</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_BM_DEL</td>
+    <td>0x80C37</td>
+    <td>N=BM.Del([Idx]) - удаляет закладку с указанным индексом (x=1...), 0 - удаляет текущую закладку</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_BM_GET</td>
+    <td>0x80C38</td>
+    <td>N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=1...)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_BM_GOTO</td>
+    <td>0x80C39</td>
+    <td>N=BM.Goto([n]) - переход на закладку с указанным индексом (0 --> текущую)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_BM_NEXT</td>
+    <td>0x80C3A</td>
+    <td>N=BM.Next() - перейти на следующую закладку</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_BM_POP</td>
+    <td>0x80C3B</td>
+    <td>N=BM.Pop() - восстановить текущую позицию из закладки в конце стека и удалить закладку</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_BM_PREV</td>
+    <td>0x80C3C</td>
+    <td>N=BM.Prev() - перейти на предыдущую закладку</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_BM_BACK</td>
+    <td>0x80C3D</td>
+    <td>N=BM.Back() - перейти на предыдущую закладку с возможным сохранением текущей позиции</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_BM_PUSH</td>
+    <td>0x80C3E</td>
+    <td>N=BM.Push() - сохранить текущую позицию в виде закладки в конце стека</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_BM_STAT</td>
+    <td>0x80C3F</td>
+    <td>N=BM.Stat([M]) - возвращает информацию о закладках, N=0 - текущее количество закладок</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_TRIM</td>
+    <td>0x80C40</td>
+    <td>S=trim(S[,N])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_FLOAT</td>
+    <td>0x80C41</td>
+    <td>N=float(V)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_TESTFOLDER</td>
+    <td>0x80C42</td>
+    <td>N=testfolder(S)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PRINT</td>
+    <td>0x80C43</td>
+    <td>N=Print(Str)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MMODE</td>
+    <td>0x80C44</td>
+    <td>N=MMode(Action[,Value])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_EDITOR_SETTITLE</td>
+    <td>0x80C45</td>
+    <td>N=Editor.SetTitle([Title])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MENU_GETVALUE</td>
+    <td>0x80C46</td>
+    <td>S=Menu.GetValue([N])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MENU_ITEMSTATUS</td>
+    <td>0x80C47</td>
+    <td>N=Menu.ItemStatus([N])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_BEEP</td>
+    <td>0x80C48</td>
+    <td>N=beep([N])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_KBDLAYOUT</td>
+    <td>0x80C49</td>
+    <td>N=kbdLayout([N])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_WINDOW_SCROLL</td>
+    <td>0x80C4A</td>
+    <td>N=Window.Scroll(Lines[,Axis])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_KEYBAR_SHOW</td>
+    <td>0x80C4B</td>
+    <td>N=KeyBar.Show([N])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_HISTIORY_DISABLE</td>
+    <td>0x80C4C</td>
+    <td>N=History.Disable([State])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_FMATCH</td>
+    <td>0x80C4D</td>
+    <td>N=FMatch(S,Mask)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PLUGIN_MENU</td>
+    <td>0x80C4E</td>
+    <td>N=Plugin.Menu(Guid[,MenuGuid])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PLUGIN_CONFIG</td>
+    <td>0x80C4F</td>
+    <td>N=Plugin.Config(Guid[,MenuGuid])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PLUGIN_CALL</td>
+    <td>0x80C50</td>
+    <td>N=Plugin.Call(Guid[,Item])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PLUGIN_LOAD</td>
+    <td>0x80C51</td>
+    <td>N=Plugin.Load(DllPath[,ForceLoad])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PLUGIN_COMMAND</td>
+    <td>0x80C52</td>
+    <td>N=Plugin.Command(Guid[,Command])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PLUGIN_UNLOAD</td>
+    <td>0x80C53</td>
+    <td>N=Plugin.UnLoad(DllPath)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_PLUGIN_EXIST</td>
+    <td>0x80C54</td>
+    <td>N=Plugin.Exist(Guid)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MENU_FILTER</td>
+    <td>0x80C55</td>
+    <td>N=Menu.Filter(Action[,Mode])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MENU_FILTERSTR</td>
+    <td>0x80C56</td>
+    <td>S=Menu.FilterStr([Action[,S]])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_DLG_SETFOCUS</td>
+    <td>0x80C57</td>
+    <td>N=Dlg.SetFocus([ID])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_FAR_CFG_GET</td>
+    <td>0x80C58</td>
+    <td>V=Far.Cfg.Get(Key,Name)</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_SIZE2STR</td>
+    <td>0x80C59</td>
+    <td>S=Size2Str(N,Flags[,Width])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_STRWRAP</td>
+    <td>0x80C5A</td>
+    <td>S=StrWrap(Text,Width[,Break[,Flags]])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MACRO_KEYWORD</td>
+    <td>0x80C5B</td>
+    <td>S=Macro.Keyword(Index[,Type])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MACRO_FUNC</td>
+    <td>0x80C5C</td>
+    <td>S=Macro.Func(Index[,Type])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MACRO_VAR</td>
+    <td>0x80C5D</td>
+    <td>S=Macro.Var(Index[,Type])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_MACRO_CONST</td>
+    <td>0x80C5E</td>
+    <td>S=Macro.Const(Index[,Type])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_STRPAD</td>
+    <td>0x80C5F</td>
+    <td>S=StrPad(V,Cnt[,Fill[,Op]])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_EDITOR_DELLINE</td>
+    <td>0x80C60</td>
+    <td>N=Editor.DelLine([Line])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_EDITOR_GETSTR</td>
+    <td>0x80C61</td>
+    <td>S=Editor.GetStr([Line])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_EDITOR_INSSTR</td>
+    <td>0x80C62</td>
+    <td>N=Editor.InsStr([S[,Line]])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_EDITOR_SETSTR</td>
+    <td>0x80C63</td>
+    <td>N=Editor.SetStr([S[,Line]])</td>
+  </tr>
+  <tr>
+    <td>MCODE_F_GETMACROSRC</td>
+    <td>0x80C64</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>MCODE_F_READVARSCONSTS</td>
+    <td>0x80C65</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>MCODE_F_LAST</td>
+    <td>0x80C66</td>
+    <td>marker</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_OTHER</td>
+    <td>0x80400</td>
+    <td>Режим копирования текста с экрана, вертикальные меню</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_SHELL</td>
+    <td>0x80401</td>
+    <td>Файловые панели</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_VIEWER</td>
+    <td>0x80402</td>
+    <td>Внутренняя программа просмотра</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_EDITOR</td>
+    <td>0x80403</td>
+    <td>Редактор</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_DIALOG</td>
+    <td>0x80404</td>
+    <td>Диалоги</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_SEARCH</td>
+    <td>0x80405</td>
+    <td>Быстрый поиск в панелях</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_DISKS</td>
+    <td>0x80406</td>
+    <td>Меню выбора дисков</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_MAINMENU</td>
+    <td>0x80407</td>
+    <td>Основное меню</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_MENU</td>
+    <td>0x80408</td>
+    <td>Прочие меню</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_HELP</td>
+    <td>0x80409</td>
+    <td>Система помощи</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_INFOPANEL</td>
+    <td>0x8040A</td>
+    <td>Информационная панель</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_QVIEWPANEL</td>
+    <td>0x8040B</td>
+    <td>Панель быстрого просмотра</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_TREEPANEL</td>
+    <td>0x8040C</td>
+    <td>Панель дерева папок</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_FINDFOLDER</td>
+    <td>0x8040D</td>
+    <td>Поиск папок</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_USERMENU</td>
+    <td>0x8040E</td>
+    <td>Меню пользователя</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_SHELL_AUTOCOMPLETION</td>
+    <td>0x8040F</td>
+    <td>Список автодополнения в панелях в ком.строке</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_AREA_DIALOG_AUTOCOMPLETION</td>
+    <td>0x80410</td>
+    <td>Список автодополнения в диалоге</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_FULLSCREENMODE</td>
+    <td>0x80411</td>
+    <td>полноэкранный режим?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_ISUSERADMIN</td>
+    <td>0x80412</td>
+    <td>Administrator status</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_BOF</td>
+    <td>0x80413</td>
+    <td>начало файла/активного каталога?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_EOF</td>
+    <td>0x80414</td>
+    <td>конец файла/активного каталога?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_EMPTY</td>
+    <td>0x80415</td>
+    <td>ком.строка пуста?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_SELECTED</td>
+    <td>0x80416</td>
+    <td>выделенный блок есть?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_ROOTFOLDER</td>
+    <td>0x80417</td>
+    <td>аналог MCODE_C_APANEL_ROOT для активной панели</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_APANEL_BOF</td>
+    <td>0x80418</td>
+    <td>начало активного  каталога?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_PPANEL_BOF</td>
+    <td>0x80419</td>
+    <td>начало пассивного каталога?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_APANEL_EOF</td>
+    <td>0x8041A</td>
+    <td>конец активного  каталога?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_PPANEL_EOF</td>
+    <td>0x8041B</td>
+    <td>конец пассивного каталога?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_APANEL_ISEMPTY</td>
+    <td>0x8041C</td>
+    <td>активная панель:  пуста?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_PPANEL_ISEMPTY</td>
+    <td>0x8041D</td>
+    <td>пассивная панель: пуста?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_APANEL_SELECTED</td>
+    <td>0x8041E</td>
+    <td>активная панель:  выделенные элементы есть?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_PPANEL_SELECTED</td>
+    <td>0x8041F</td>
+    <td>пассивная панель: выделенные элементы есть?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_APANEL_ROOT</td>
+    <td>0x80420</td>
+    <td>это корневой каталог активной панели?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_PPANEL_ROOT</td>
+    <td>0x80421</td>
+    <td>это корневой каталог пассивной панели?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_APANEL_VISIBLE</td>
+    <td>0x80422</td>
+    <td>активная панель:  видима?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_PPANEL_VISIBLE</td>
+    <td>0x80423</td>
+    <td>пассивная панель: видима?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_APANEL_PLUGIN</td>
+    <td>0x80424</td>
+    <td>активная панель:  плагиновая?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_PPANEL_PLUGIN</td>
+    <td>0x80425</td>
+    <td>пассивная панель: плагиновая?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_APANEL_FILEPANEL</td>
+    <td>0x80426</td>
+    <td>активная панель:  файловая?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_PPANEL_FILEPANEL</td>
+    <td>0x80427</td>
+    <td>пассивная панель: файловая?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_APANEL_FOLDER</td>
+    <td>0x80428</td>
+    <td>активная панель:  текущий элемент каталог?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_PPANEL_FOLDER</td>
+    <td>0x80429</td>
+    <td>пассивная панель: текущий элемент каталог?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_APANEL_LEFT</td>
+    <td>0x8042A</td>
+    <td>активная панель левая?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_PPANEL_LEFT</td>
+    <td>0x8042B</td>
+    <td>пассивная панель левая?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_APANEL_LFN</td>
+    <td>0x8042C</td>
+    <td>на активной панели длинные имена?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_PPANEL_LFN</td>
+    <td>0x8042D</td>
+    <td>на пассивной панели длинные имена?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_APANEL_FILTER</td>
+    <td>0x8042E</td>
+    <td>на активной панели включен фильтр?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_PPANEL_FILTER</td>
+    <td>0x8042F</td>
+    <td>на пассивной панели включен фильтр?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_CMDLINE_BOF</td>
+    <td>0x80430</td>
+    <td>курсор в начале cmd-строки редактирования?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_CMDLINE_EOF</td>
+    <td>0x80431</td>
+    <td>курсор в конце cmd-строки редактирования?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_CMDLINE_EMPTY</td>
+    <td>0x80432</td>
+    <td>ком.строка пуста?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_CMDLINE_SELECTED</td>
+    <td>0x80433</td>
+    <td>в ком.строке есть выделение блока?</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_MSX</td>
+    <td>0x80434</td>
+    <td>"MsX"</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_MSY</td>
+    <td>0x80435</td>
+    <td>"MsY"</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_MSBUTTON</td>
+    <td>0x80436</td>
+    <td>"MsButton"</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_MSCTRLSTATE</td>
+    <td>0x80437</td>
+    <td>"MsCtrlState"</td>
+  </tr>
+  <tr>
+    <td>MCODE_C_MSEVENTFLAGS</td>
+    <td>0x80438</td>
+    <td>"MsEventFlags"</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_FAR_WIDTH</td>
+    <td>0x80800</td>
+    <td>Far.Width - ширина консольного окна</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_FAR_HEIGHT</td>
+    <td>0x80801</td>
+    <td>Far.Height - высота консольного окна</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_FAR_TITLE</td>
+    <td>0x80802</td>
+    <td>Far.Title - текущий заголовок консольного окна</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_FAR_UPTIME</td>
+    <td>0x80803</td>
+    <td>Far.UpTime - время работы Far в миллисекундах</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_FAR_PID</td>
+    <td>0x80804</td>
+    <td>Far.PID - содержит ИД текущей запущенной копии Far Manager</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_MACRO_AREA</td>
+    <td>0x80805</td>
+    <td>MacroArea - имя текущей макрос области</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_CURRENT</td>
+    <td>0x80806</td>
+    <td>APanel.Current - имя файла на активной панели</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_CURRENT</td>
+    <td>0x80807</td>
+    <td>PPanel.Current - имя файла на пассивной панели</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_SELCOUNT</td>
+    <td>0x80808</td>
+    <td>APanel.SelCount - активная панель:  число выделенных элементов</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_SELCOUNT</td>
+    <td>0x80809</td>
+    <td>PPanel.SelCount - пассивная панель: число выделенных элементов</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_PATH</td>
+    <td>0x8080A</td>
+    <td>APanel.Path - активная панель:  путь на панели</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_PATH</td>
+    <td>0x8080B</td>
+    <td>PPanel.Path - пассивная панель: путь на панели</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_PATH0</td>
+    <td>0x8080C</td>
+    <td>APanel.Path0 - активная панель:  путь на панели до вызова плагинов</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_PATH0</td>
+    <td>0x8080D</td>
+    <td>PPanel.Path0 - пассивная панель: путь на панели до вызова плагинов</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_UNCPATH</td>
+    <td>0x8080E</td>
+    <td>APanel.UNCPath - активная панель:  UNC-путь на панели</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_UNCPATH</td>
+    <td>0x8080F</td>
+    <td>PPanel.UNCPath - пассивная панель: UNC-путь на панели</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_WIDTH</td>
+    <td>0x80810</td>
+    <td>APanel.Width - активная панель:  ширина панели</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_WIDTH</td>
+    <td>0x80811</td>
+    <td>PPanel.Width - пассивная панель: ширина панели</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_TYPE</td>
+    <td>0x80812</td>
+    <td>APanel.Type - тип активной панели</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_TYPE</td>
+    <td>0x80813</td>
+    <td>PPanel.Type - тип пассивной панели</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_ITEMCOUNT</td>
+    <td>0x80814</td>
+    <td>APanel.ItemCount - активная панель:  число элементов</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_ITEMCOUNT</td>
+    <td>0x80815</td>
+    <td>PPanel.ItemCount - пассивная панель: число элементов</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_CURPOS</td>
+    <td>0x80816</td>
+    <td>APanel.CurPos - активная панель:  текущий индекс</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_CURPOS</td>
+    <td>0x80817</td>
+    <td>PPanel.CurPos - пассивная панель: текущий индекс</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_OPIFLAGS</td>
+    <td>0x80818</td>
+    <td>APanel.OPIFlags - активная панель: флаги открытого плагина</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_OPIFLAGS</td>
+    <td>0x80819</td>
+    <td>PPanel.OPIFlags - пассивная панель: флаги открытого плагина</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_DRIVETYPE</td>
+    <td>0x8081A</td>
+    <td>APanel.DriveType - активная панель: тип привода</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_DRIVETYPE</td>
+    <td>0x8081B</td>
+    <td>PPanel.DriveType - пассивная панель: тип привода</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_HEIGHT</td>
+    <td>0x8081C</td>
+    <td>APanel.Height - активная панель:  высота панели</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_HEIGHT</td>
+    <td>0x8081D</td>
+    <td>PPanel.Height - пассивная панель: высота панели</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_COLUMNCOUNT</td>
+    <td>0x8081E</td>
+    <td>APanel.ColumnCount - активная панель:  количество колонок</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_COLUMNCOUNT</td>
+    <td>0x8081F</td>
+    <td>PPanel.ColumnCount - пассивная панель: количество колонок</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_HOSTFILE</td>
+    <td>0x80820</td>
+    <td>APanel.HostFile - активная панель:  имя Host-файла</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_HOSTFILE</td>
+    <td>0x80821</td>
+    <td>PPanel.HostFile - пассивная панель: имя Host-файла</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_PREFIX</td>
+    <td>0x80822</td>
+    <td>APanel.Prefix</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_PREFIX</td>
+    <td>0x80823</td>
+    <td>PPanel.Prefix</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_APANEL_FORMAT</td>
+    <td>0x80824</td>
+    <td>APanel.Format</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_PPANEL_FORMAT</td>
+    <td>0x80825</td>
+    <td>PPanel.Format</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_ITEMCOUNT</td>
+    <td>0x80826</td>
+    <td>ItemCount - число элементов в текущем объекте</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_CURPOS</td>
+    <td>0x80827</td>
+    <td>CurPos - текущий индекс в текущем объекте</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_TITLE</td>
+    <td>0x80828</td>
+    <td>Title - заголовок текущего объекта</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_HEIGHT</td>
+    <td>0x80829</td>
+    <td>Height - высота текущего объекта</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_WIDTH</td>
+    <td>0x8082A</td>
+    <td>Width - ширина текущего объекта</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_EDITORFILENAME</td>
+    <td>0x8082B</td>
+    <td>Editor.FileName - имя редактируемого файла</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_EDITORLINES</td>
+    <td>0x8082C</td>
+    <td>Editor.Lines - количество строк в редакторе</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_EDITORCURLINE</td>
+    <td>0x8082D</td>
+    <td>Editor.CurLine - текущая линия в редакторе (в дополнении к Count)</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_EDITORCURPOS</td>
+    <td>0x8082E</td>
+    <td>Editor.CurPos - текущая поз. в редакторе</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_EDITORREALPOS</td>
+    <td>0x8082F</td>
+    <td>Editor.RealPos - текущая поз. в редакторе без привязки к размеру табуляции</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_EDITORSTATE</td>
+    <td>0x80830</td>
+    <td>Editor.State</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_EDITORVALUE</td>
+    <td>0x80831</td>
+    <td>Editor.Value - содержимое текущей строки</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_EDITORSELVALUE</td>
+    <td>0x80832</td>
+    <td>Editor.SelValue - содержит содержимое выделенного блока</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_DLGITEMTYPE</td>
+    <td>0x80833</td>
+    <td>Dlg.ItemType</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_DLGITEMCOUNT</td>
+    <td>0x80834</td>
+    <td>Dlg.ItemCount</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_DLGCURPOS</td>
+    <td>0x80835</td>
+    <td>Dlg.CurPos</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_DLGPREVPOS</td>
+    <td>0x80836</td>
+    <td>Dlg.PrevPos</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_DLGINFOID</td>
+    <td>0x80837</td>
+    <td>Dlg.Info.Id</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_DLGINFOOWNER</td>
+    <td>0x80838</td>
+    <td>Dlg.Info.Owner</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_VIEWERFILENAME</td>
+    <td>0x80839</td>
+    <td>Viewer.FileName - имя просматриваемого файла</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_VIEWERSTATE</td>
+    <td>0x8083A</td>
+    <td>Viewer.State</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_CMDLINE_ITEMCOUNT</td>
+    <td>0x8083B</td>
+    <td>CmdLine.ItemCount</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_CMDLINE_CURPOS</td>
+    <td>0x8083C</td>
+    <td>CmdLine.CurPos</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_CMDLINE_VALUE</td>
+    <td>0x8083D</td>
+    <td>CmdLine.Value</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_DRVSHOWPOS</td>
+    <td>0x8083E</td>
+    <td>Drv.ShowPos - меню выбора дисков отображено: 1=слева (Alt-F1), 2=справа (Alt-F2), 0="нету его"</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_DRVSHOWMODE</td>
+    <td>0x8083F</td>
+    <td>Drv.ShowMode - режимы отображения меню выбора дисков</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_HELPFILENAME</td>
+    <td>0x80840</td>
+    <td>Help.FileName</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_HELPTOPIC</td>
+    <td>0x80841</td>
+    <td>Help.Topic</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_HELPSELTOPIC</td>
+    <td>0x80842</td>
+    <td>Help.SelTopic</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_MENU_VALUE</td>
+    <td>0x80843</td>
+    <td>Menu.Value</td>
+  </tr>
+  <tr>
+    <td>MCODE_V_MENUINFOID</td>
+    <td>0x80844</td>
+    <td>Menu.Info.Id</td>
+  </tr>
+</table>
+
+</body>
+</html>

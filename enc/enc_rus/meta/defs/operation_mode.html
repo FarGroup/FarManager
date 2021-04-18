@@ -1,73 +1,57 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>Operation mode</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-
 <body>
 
 <h1>Operation mode</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">типы и определения</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">С‚РёРїС‹ Рё РѕРїСЂРµРґРµР»РµРЅРёСЏ</a>
 </div>
 
-
-
 <div class=shortdescr>
-Параметр <dfn>OpMode</dfn> передает плагину дополнительную информацию о
-режиме функции и месте, откуда она была вызвана. <dfn>OpMode</dfn> может быть
-комбинацией следующих констант (перечисление <a name="OPERATION_MODES">OPERATION_MODES</a>): </div>
+РџР°СЂР°РјРµС‚СЂ <code>OpMode</code> РїРµСЂРµРґР°С‘С‚ РїР»Р°РіРёРЅСѓ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЂРµР¶РёРјРµ С„СѓРЅРєС†РёРё Рё РјРµСЃС‚Рµ, РѕС‚РєСѓРґР° РѕРЅР° Р±С‹Р»Р° РІС‹Р·РІР°РЅР°. <code>OpMode</code> РјРѕР¶РµС‚ Р±С‹С‚СЊ
+РєРѕРјР±РёРЅР°С†РёРµР№ СЃР»РµРґСѓСЋС‰РёС… РєРѕРЅСЃС‚Р°РЅС‚ (С‚РёРї <a name="OPERATION_MODES">OPERATION_MODES</a>):
+</div>
 
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Метод</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPM_SILENT">OPM_SILENT</a></td>
-    <td class="cont" width="60%">Плагин должен минимизировать запросы пользователя по возможности,
-    так как вызываемая функция - это часть более комплексной операции.</td></tr>
-
-    <tr class="cont"><td class="cont" width="40%"><a name="OPM_FIND">OPM_FIND</a></td>
-    <td class="cont" width="60%">Функция плагина была вызвана из Диалога поиска файлов,
-    или другой команды, сканирующей каталоги.
-    Экранный вывод должен быть минимизирован.</td></tr>
-
-    <tr class="cont"><td class="cont" width="40%"><a name="OPM_VIEW">OPM_VIEW</a></td>
-    <td class="cont" width="60%">Функция плагина вызвана как часть операции
-     просмотра файла. Если файл просматривается на панели быстрого
-     просмотра, то OPM_VIEW используется совместно с OPM_QUICKVIEW.</td></tr>
-
-    <tr class="cont"><td class="cont" width="40%"><a name="OPM_QUICKVIEW">OPM_QUICKVIEW</a></td>
-    <td class="cont" width="60%">Функция плагина вызвана как часть операции
-    просмотра файла на панели быстрого просмотра (пользователь нажал
-    <kbd>Ctrl-Q</kbd> в панелях)
-    </td></tr>
-
-    <tr class="cont"><td class="cont" width="40%"><a name="OPM_EDIT">OPM_EDIT</a></td>
-    <td class="cont" width="60%">Функция плагина вызвана как часть операции редактирования файла.</td></tr>
-
-    <tr class="cont"><td class="cont" width="40%"><a name="OPM_DESCR">OPM_DESCR</a></td>
-    <td class="cont" width="60%">Функция была вызвана для запроса или для изменения файла и его описания.</td></tr>
-
-    <tr class="cont"><td class="cont" width="40%"><a name="OPM_TOPLEVEL">OPM_TOPLEVEL</a></td>
-    <td class="cont" width="60%">
-    Все файлы в плагине будут обработаны.
-    Этот флаг устанавливается во время обработки команд
-    <kbd>Shift-F2</kbd> и <kbd>Shift-F3</kbd> вне базового файла плагина.
-    Переданный в функцию плагина список также содержит всю необходимую
-    информацию, поэтому плагин может игнорировать этот флаг, или же
-    повысить скорость операции.</td></tr>
+<tr class="cont"><th class="cont" width="40%">РњРµС‚РѕРґ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_SILENT">OPM_SILENT</a></td>
+<td class="cont" width="60%">РџР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ РјРёРЅРёРјРёР·РёСЂРѕРІР°С‚СЊ Р·Р°РїСЂРѕСЃС‹ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё, С‚Р°Рє РєР°Рє РІС‹Р·С‹РІР°РµРјР°СЏ С„СѓРЅРєС†РёСЏ - СЌС‚Рѕ С‡Р°СЃС‚СЊ Р±РѕР»РµРµ РєРѕРјРїР»РµРєСЃРЅРѕР№ РѕРїРµСЂР°С†РёРё.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_FIND">OPM_FIND</a></td>
+<td class="cont" width="60%">Р¤СѓРЅРєС†РёСЏ РїР»Р°РіРёРЅР° Р±С‹Р»Р° РІС‹Р·РІР°РЅР° РёР· Р”РёР°Р»РѕРіР° РїРѕРёСЃРєР° С„Р°Р№Р»РѕРІ, РёР»Рё РґСЂСѓРіРѕР№ РєРѕРјР°РЅРґС‹, СЃРєР°РЅРёСЂСѓСЋС‰РµР№ РєР°С‚Р°Р»РѕРіРё. Р­РєСЂР°РЅРЅС‹Р№ РІС‹РІРѕРґ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РјРёРЅРёРјРёР·РёСЂРѕРІР°РЅ.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_VIEW">OPM_VIEW</a></td>
+<td class="cont" width="60%">Р¤СѓРЅРєС†РёСЏ РїР»Р°РіРёРЅР° РІС‹Р·РІР°РЅР° РєР°Рє С‡Р°СЃС‚СЊ РѕРїРµСЂР°С†РёРё РїСЂРѕСЃРјРѕС‚СЂР° С„Р°Р№Р»Р°. Р•СЃР»Рё С„Р°Р№Р» РїСЂРѕСЃРјР°С‚СЂРёРІР°РµС‚СЃСЏ РЅР° РїР°РЅРµР»Рё Р±С‹СЃС‚СЂРѕРіРѕ РїСЂРѕСЃРјРѕС‚СЂР°, С‚Рѕ <code>OPM_VIEW</code> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ СЃРѕРІРјРµСЃС‚РЅРѕ СЃ <code>OPM_QUICKVIEW</code>.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_QUICKVIEW">OPM_QUICKVIEW</a></td>
+<td class="cont" width="60%">Р¤СѓРЅРєС†РёСЏ РїР»Р°РіРёРЅР° РІС‹Р·РІР°РЅР° РєР°Рє С‡Р°СЃС‚СЊ РѕРїРµСЂР°С†РёРё РїСЂРѕСЃРјРѕС‚СЂР° С„Р°Р№Р»Р° РЅР° РїР°РЅРµР»Рё Р±С‹СЃС‚СЂРѕРіРѕ РїСЂРѕСЃРјРѕС‚СЂР° (РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» <kbd>Ctrl</kbd>+<kbd>Q</kbd> РІ РїР°РЅРµР»СЏС…).</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_EDIT">OPM_EDIT</a></td>
+<td class="cont" width="60%">Р¤СѓРЅРєС†РёСЏ РїР»Р°РіРёРЅР° РІС‹Р·РІР°РЅР° РєР°Рє С‡Р°СЃС‚СЊ РѕРїРµСЂР°С†РёРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ С„Р°Р№Р»Р°.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_DESCR">OPM_DESCR</a></td>
+<td class="cont" width="60%">Р¤СѓРЅРєС†РёСЏ Р±С‹Р»Р° РІС‹Р·РІР°РЅР° РґР»СЏ Р·Р°РїСЂРѕСЃР° РёР»Рё РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ С„Р°Р№Р»Р° Рё РµРіРѕ РѕРїРёСЃР°РЅРёСЏ.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_TOPLEVEL">OPM_TOPLEVEL</a></td>
+<td class="cont" width="60%">Р’СЃРµ С„Р°Р№Р»С‹ РІ РїР»Р°РіРёРЅРµ Р±СѓРґСѓС‚ РѕР±СЂР°Р±РѕС‚Р°РЅС‹. Р­С‚РѕС‚ С„Р»Р°Рі СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РІРѕ РІСЂРµРјСЏ РѕР±СЂР°Р±РѕС‚РєРё РєРѕРјР°РЅРґ <kbd>Shift</kbd>+<kbd>F2</kbd> Рё <kbd>Shift</kbd>+<kbd>F3</kbd> РІРЅРµ Р±Р°Р·РѕРІРѕРіРѕ С„Р°Р№Р»Р° РїР»Р°РіРёРЅР°.
+РџРµСЂРµРґР°РЅРЅС‹Р№ РІ С„СѓРЅРєС†РёСЋ РїР»Р°РіРёРЅР° СЃРїРёСЃРѕРє С‚Р°РєР¶Рµ СЃРѕРґРµСЂР¶РёС‚ РІСЃСЋ РЅРµРѕР±С…РѕРґРёРјСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ, РїРѕСЌС‚РѕРјСѓ РїР»Р°РіРёРЅ РјРѕР¶РµС‚ РёРіРЅРѕСЂРёСЂРѕРІР°С‚СЊ СЌС‚РѕС‚ С„Р»Р°Рі, РёР»Рё Р¶Рµ РїРѕРІС‹СЃРёС‚СЊ СЃРєРѕСЂРѕСЃС‚СЊ РѕРїРµСЂР°С†РёРё.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_PGDN">OPM_PGDN</a></td>
+<td class="cont" width="60%">Р¤СѓРЅРєС†РёСЏ РїР»Р°РіРёРЅР° РІС‹Р·РІР°РЅР° РїРѕСЃР»Рµ РЅР°Р¶Р°С‚РёСЏ <kbd>Ctrl</kbd>+<kbd>PgDn</kbd> РІ РїР°РЅРµР»СЏС….</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_COMMANDS">OPM_COMMANDS</a></td>
+<td class="cont" width="60%">Р¤СѓРЅРєС†РёСЏ РїР»Р°РіРёРЅР° РІС‹Р·РІР°РЅР° РёР· РјРµРЅСЋ Р°СЂС…РёРІРЅС‹С… РєРѕРјР°РЅРґ <kbd>Shift</kbd>+<kbd>F3</kbd>.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_NONE">OPM_NONE</a></td>
+<td class="cont" width="60%">РќСѓР»РµРІР°СЏ РєРѕРЅСЃС‚Р°РЅС‚Р°.</td></tr>
 </table>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../exported_functions/setdirectory.html">SetDirectory</a>,
-<a href="../exported_functions/putfiles.html">PutFiles</a>,
-<a href="../exported_functions/processhostfile.html">ProcessHostFile</a>,
-<a href="../exported_functions/getfiles.html">GetFiles</a>,
-<a href="../exported_functions/deletefiles.html">DeleteFiles</a>,
-<a href="../exported_functions/getfinddata.html">GetFindData</a>,
-<a href="../exported_functions/makedirectory.html">MakeDirectory</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
+<a href="../exported_functions/setdirectoryw.html">SetDirectoryW</a>,
+<a href="../exported_functions/putfilesw.html">PutFilesW</a>,
+<a href="../exported_functions/processhostfilew.html">ProcessHostFileW</a>,
+<a href="../exported_functions/getfilesw.html">GetFilesW</a>,
+<a href="../exported_functions/deletefilesw.html">DeleteFilesW</a>,
+<a href="../exported_functions/getfinddataw.html">GetFindDataW</a>,
+<a href="../exported_functions/makedirectoryw.html">MakeDirectoryW</a>
 </div>
 
 </body>

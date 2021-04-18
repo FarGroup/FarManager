@@ -1,0 +1,79 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>GetContentFieldsW</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>GetContentFieldsW</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">экспортируемые функции</a> |
+<a href="../contentapi/index.html">TODO: Content API</a>
+</div>
+
+<div class=shortdescr>
+Функция <code>GetContentFieldsW</code> вызывается, чтобы узнать, есть ли в заданном списке типов
+контент-колонок хотя бы один тип, поддерживаемый данным плагином.<br>
+Вызов производится один раз перед каждым обновлением панели.
+</div>
+
+<pre class=syntax>
+intptr_t WINAPI GetContentFieldsW(
+  const struct GetContentFieldsInfo *Info
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>Info</div>
+    <div class=dfndescr>Указатель на структуру <a href="../structures/getcontentfieldsinfo.html">GetContentFieldsInfo</a>, содержащую список типов колонок.<br>
+  </div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Если плагин поддерживает хотя бы один тип колонок из переданного списка, то верните <code>1</code>. В противном случае <code>0</code>.
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+<pre class=code>
+FarStandardFunctions FSF; // assuming it is already initialized
+
+const wchar_t *SupportedColumns[] = {
+  L"Compression", L"Resolution", L"Original size", L"Current size",
+  NULL
+};
+
+intptr_t WINAPI GetContentFieldsW(const struct GetContentFieldsInfo *Info)
+{
+  for(size_t i=0; i&lt;Info-&gt;Count; i++)
+  {
+    for(size_t j=0; SupportedColumns[j]; j++)
+    {
+      if (!FSF.LStricmp(Info-&gt;Names[i], SupportedColumns[j])
+        return 1;
+    }
+  }
+  return 0;
+}
+</pre>
+</div>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="getcontentdataw.html">GetContentDataW</a>,
+<a href="freecontentdataw.html">FreeContentDataW</a>
+</div>
+
+<h3>ПРИМЕЧАНИЕ</h3>
+<div class=descr>
+Данное API не является окончательным и может быть изменено или удалено в любой момент.
+</div>
+
+</body>
+</html>

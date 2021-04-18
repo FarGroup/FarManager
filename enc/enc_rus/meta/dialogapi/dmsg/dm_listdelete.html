@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>DM_LISTDELETE</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
@@ -10,73 +10,72 @@
 
 <h1>DM_LISTDELETE</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index_dm.html">СЃРѕРѕР±С‰РµРЅРёСЏ</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTDELETE</dfn> посылается Менеджеру диалогов для удаления
-элементов из списка <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
+РЎРѕРѕР±С‰РµРЅРёРµ <code>DM_LISTDELETE</code> РїРѕСЃС‹Р»Р°РµС‚СЃСЏ РњРµРЅРµРґР¶РµСЂСѓ РґРёР°Р»РѕРіРѕРІ РґР»СЏ СѓРґР°Р»РµРЅРёСЏ СЌР»РµРјРµРЅС‚РѕРІ РёР· СЃРїРёСЃРєР° <a href="../controls/di_combobox.html">DI_COMBOBOX</a> РёР»Рё
 <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+ID СЌР»РµРјРµРЅС‚Р° РґРёР°Р»РѕРіР°.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру типа <a href="../structures/farlistdelete.html">FarListDelete</a>,
-описывающую параметры удаления, или NULL.
+РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ С‚РёРїР° <a href="../../structures/farlistdelete.html">FarListDelete</a>, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ РїР°СЂР°РјРµС‚СЂС‹ СѓРґР°Р»РµРЅРёСЏ, РёР»Рё <code>NULL</code>.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - данные удалены из списка.<br>
-FALSE - ошибка при удалении данных.
+<code>TRUE</code> - РґР°РЅРЅС‹Рµ СѓРґР°Р»РµРЅС‹ РёР· СЃРїРёСЃРєР°.<br>
+<code>FALSE</code> - РѕС€РёР±РєР° РїСЂРё СѓРґР°Р»РµРЅРёРё РґР°РЅРЅС‹С….
 </div>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">Р­Р»РµРјРµРЅС‚</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
-<td class="cont" width="60%">список</td></tr>
+<td class="cont" width="60%">СЃРїРёСЃРѕРє</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
-<td class="cont" width="60%">комбинированный список</td></tr>
+<td class="cont" width="60%">РєРѕРјР±РёРЅРёСЂРѕРІР°РЅРЅС‹Р№ СЃРїРёСЃРѕРє</td></tr>
 </table>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-Если в качестве <dfn>Param2</dfn> задано значение <code>NULL</code>,
-то из списка будут удалены все элементы.
+Р•СЃР»Рё РІ РєР°С‡РµСЃС‚РІРµ <code>Param2</code> Р·Р°РґР°РЅРѕ Р·РЅР°С‡РµРЅРёРµ <code>NULL</code>, С‚Рѕ РёР· СЃРїРёСЃРєР° Р±СѓРґСѓС‚ СѓРґР°Р»РµРЅС‹ РІСЃРµ СЌР»РµРјРµРЅС‚С‹.
+Р”Р°РЅРЅС‹Рµ, РєРѕС‚РѕСЂС‹Рµ РїР»Р°РіРёРЅ Р°СЃСЃРѕС†РёРёСЂРѕРІР°Р» СЃ СЌР»РµРјРµРЅС‚РѕРј СЃРїРёСЃРєР° СЃ РїРѕРјРѕС‰СЊСЋ СЃРѕРѕР±С‰РµРЅРёСЏ <a href="dm_listsetdata.html">DM_LISTSETDATA</a> С‚Р°РєР¶Рµ Р±СѓРґСѓС‚ СѓРґР°Р»РµРЅС‹.
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 <pre class=code>
-// *** УДАЛИТЬ ПЕРВЫЕ ДВА ЭЛЕМЕНТА СПИСКА ***
-struct FarListDelete FLDItem;
+// *** РЈР”РђР›РРўР¬ РџР•Р Р’Р«Р• Р”Р’Рђ Р­Р›Р•РњР•РќРўРђ РЎРџРРЎРљРђ ***
+struct FarListDelete FLDItem={sizeof(FarListDelete)};
 FLDItem.StartIndex=0;
 FLDItem.Count=2;
-Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(LONG_PTR)&amp;FLDItem);
+Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,&amp;FLDItem);
 
-// *** ОЧИСТИТЬ ВЕСЬ СПИСОК ***
-  //   Способ 1:
-  struct FarListDelete FLDItem={0,<b>0</b>};
-  Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(LONG_PTR)&amp;FLDItem);
+// *** РћР§РРЎРўРРўР¬ Р’Р•РЎР¬ РЎРџРРЎРћРљ ***
+  //   РЎРїРѕСЃРѕР± 1:
+  struct FarListDelete FLDItem={sizeof(FarListDelete),0,<b>0</b>};
+  Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,&amp;FLDItem);
 
-  //   Способ 2:
-  Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(LONG_PTR)<b>NULL</b>);
+  //   РЎРїРѕСЃРѕР± 2:
+  Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,NULL);
 </pre>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialogex.html">DialogEx</a>,
-<a href="../structures/farlistdelete.html">FarListDelete</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
+<a href="../../structures/farlistdelete.html">FarListDelete</a>
 </div>
 
 </body>

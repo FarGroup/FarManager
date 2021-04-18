@@ -1,128 +1,89 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>PluginInfo</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-
 <body>
 
 <h1>PluginInfo</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
+<a href="../basicapi/index.html">Basic API</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>PluginInfo</dfn> используется для возвращения FAR
-информации о плагине.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>PluginInfo</code> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РІРѕР·РІСЂР°С‰РµРЅРёСЏ Far Manager'Сѓ РёРЅС„РѕСЂРјР°С†РёРё Рѕ РїР»Р°РіРёРЅРµ РІ С„СѓРЅРєС†РёРё <a href="../exported_functions/getplugininfow.html">GetPluginInfoW</a>.
 </div>
 
 <pre class=syntax>
 struct PluginInfo
 {
-  int StructSize;
-  DWORD Flags;
-  const char * const *DiskMenuStrings;
-  int *DiskMenuNumbers;
-  int DiskMenuStringsNumber;
-  const char * const *PluginMenuStrings;
-  int PluginMenuStringsNumber;
-  const char * const *PluginConfigStrings;
-  int PluginConfigStringsNumber;
-  const char *CommandPrefix;
-  DWORD Reserved;
+  size_t StructSize;
+  PLUGIN_FLAGS Flags;
+  struct PluginMenuItem DiskMenu;
+  struct PluginMenuItem PluginMenu;
+  struct PluginMenuItem PluginConfig;
+  const wchar_t *CommandPrefix;
 };
 </pre>
-<h3>Элементы</h3>
+
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
-
-    <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>PluginInfo</dfn>.</div>
-    <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация следующих значений (перечисление <a name="PLUGIN_FLAGS">PLUGIN_FLAGS</a>).
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="40%"><a name="PF_PRELOAD">PF_PRELOAD</a></td>
-        <td class="cont" width="60%">Отменить кеширование параметров плагина и заставить
-          FAR всегда загружать плагин в память при старте. Должно быть указано,
-          если необходимо изменять строки в меню &quot;Диск&quot;,
-          &quot;Команды внешних модулей&quot; или &quot;Конфигурация
-          модулей&quot; динамически. Этот флаг уменьшает эффективность
-          использования памяти.</td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="PF_DISABLEPANELS">PF_DISABLEPANELS</a></td>
-        <td class="cont" width="60%">Не показывать плагин в меню &laquo;Команды внешних модулей&raquo;, вызываемом из панелей.</td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="PF_EDITOR">PF_EDITOR</a></td>
-        <td class="cont" width="60%">Показывать плагин в меню "Команды внешних модулей", вызываемом из редактора FAR'а.</td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="PF_VIEWER">PF_VIEWER</a></td>
-        <td class="cont" width="60%">Показывать плагин в меню "Команды внешних модулей", вызываемом из вьюера FAR'а.</td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="PF_DIALOG">PF_DIALOG</a></td>
-        <td class="cont" width="60%">Показывать плагин в меню "Команды внешних модулей", вызываемом из диалога FAR'а.</td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="PF_FULLCMDLINE">PF_FULLCMDLINE</a></td>
-        <td class="cont" width="60%">Заставляет FAR Manager передавать плагину всю
-          командную строку вместе с префиксом <dfn>CommandPrefix</dfn>.
-          Обязательно использовать этот флаг, если плагин умеет обрабатывать
-          несколько префиксов <dfn>CommandPrefix</dfn>.</td></tr>
-</table>
-    </div>
-
-    <div class=dfn>DiskMenuStrings</div>
-    <div class=dfndescr>Если плагин добавляет строки в меню <i>Диск</i>, это поле должно быть равным адресу
-      массива указателей на строки меню, в противном случае, установите его в NULL.</div>
-    <div class=dfn>DiskMenuNumbers</div>
-    <div class=dfndescr>Задает номера горячих клавиш для экспортированных строк в меню <i>Диск</i>. Если вы хотите
-      позволить FAR'у самому назначить их, установите DiskMenuNumbers в NULL или в 0.</div>
-    <div class=dfndescr>Если указанный номер уже используется другим плагином, FAR изменит его сам.</div>
-    <div class=dfn>DiskMenuStringsNumber</div>
-    <div class=dfndescr>Число добавляемых в меню <i>Диск</i> строк.</div>
-    <div class=dfn>PluginMenuStrings</div>
-    <div class=dfndescr>То же, что <em>DiskMenuStrings</em>, но строки
-      добавляются в меню <b>"Plugin commands"</b> ("Команды внешних модулей").</div>
-    <div class=dfn>PluginMenuStringsNumber</div>
-    <div class=dfndescr>Число строк, добавляемых в меню <b>"Plugin commands"</b> ("Команды внешних модулей").</div>
-    <div class=dfn>PluginConfigStrings</div>
-    <div class=dfndescr>То же, что <em>DiskMenuStrings</em>, но строки
-      добавляются в меню <b>"Plugins configuration"</b> ("Параметры внешних модулей").</div>
-    <div class=dfn>PluginConfigStringsNumber</div>
-    <div class=dfndescr>Число строк, добавляемых в меню <b>"Plugins configuration"</b> ("Параметры внешних модулей").</div>
-    <div class=dfn>CommandPrefix</div>
-    <div class=dfndescr>Плагин может указать в этом поле строку префиксов
-      командной строки, которые будут использоваться для перехвата команд FAR.
-      Например, если плагин передал здесь адрес строки <b><code>ftp</code></b>
-      и пользователь ввел в командной строке что-то, начинающееся с <b><code>ftp:</code></b>,
-      то функция <a href="../exported_functions/openplugin.html">OpenPlugin</a> будет вызвана с
-      параметром <a href="../exported_functions/openplugin.html#OPEN_COMMANDLINE">OPEN_COMMANDLINE</a>.<br>
-      Если предполагается, что плагин будет обрабатывать несколько командных
-      префиксов, то необходимо указать префиксы, разделенные двоеточием. Например,
-      плагин если обрабатывает префиксы <code>edit:</code>, <code>goto:</code> и <code>view:</code>,
-      то строка должна быть такой:<pre class=code>CommandPrefix="edit:view:goto";</pre>
-      Если вы не хотите добавлять команды к FAR'у, установите этот параметр в NULL.</div>
-    <div class=dfn>Reserved</div>
-    <div class=dfndescr>Не используется и должно быть равно 0.</div>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Р­С‚Рѕ РїРѕР»Рµ РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ <code>PluginInfo</code>. РџРµСЂРµРґ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј СЃС‚СЂСѓРєС‚СѓСЂС‹ РїР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ Р·Р°РїРѕР»РЅРёС‚СЊ РїРѕР»Рµ.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>РљРѕРјР±РёРЅР°С†РёСЏ СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (С‚РёРї <a name="PLUGIN_FLAGS">PLUGIN_FLAGS</a>).
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PF_PRELOAD">PF_PRELOAD</a></td>
+    <td class="cont" width="60%">РћС‚РјРµРЅРёС‚СЊ РєРµС€РёСЂРѕРІР°РЅРёРµ РїР°СЂР°РјРµС‚СЂРѕРІ РїР»Р°РіРёРЅР° Рё Р·Р°СЃС‚Р°РІРёС‚СЊ Far Manager РІСЃРµРіРґР° Р·Р°РіСЂСѓР¶Р°С‚СЊ РїР»Р°РіРёРЅ РІ РїР°РјСЏС‚СЊ РїСЂРё СЃС‚Р°СЂС‚Рµ. Р”РѕР»Р¶РЅРѕ Р±С‹С‚СЊ СѓРєР°Р·Р°РЅРѕ,
+    РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ РёР·РјРµРЅСЏС‚СЊ СЃС‚СЂРѕРєРё РІ РјРµРЅСЋ "Р”РёСЃРє", "РљРѕРјР°РЅРґС‹ РІРЅРµС€РЅРёС… РјРѕРґСѓР»РµР№" РёР»Рё "РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РјРѕРґСѓР»РµР№" РґРёРЅР°РјРёС‡РµСЃРєРё. Р­С‚РѕС‚ С„Р»Р°Рі СѓРјРµРЅСЊС€Р°РµС‚ СЌС„С„РµРєС‚РёРІРЅРѕСЃС‚СЊ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ РїР°РјСЏС‚Рё.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PF_DISABLEPANELS">PF_DISABLEPANELS</a></td>
+    <td class="cont" width="60%">РќРµ РїРѕРєР°Р·С‹РІР°С‚СЊ РїР»Р°РіРёРЅ РІ РјРµРЅСЋ "РљРѕРјР°РЅРґС‹ РІРЅРµС€РЅРёС… РјРѕРґСѓР»РµР№", РІС‹Р·С‹РІР°РµРјРѕРј РёР· РїР°РЅРµР»РµР№.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PF_EDITOR">PF_EDITOR</a></td>
+    <td class="cont" width="60%">РџРѕРєР°Р·С‹РІР°С‚СЊ РїР»Р°РіРёРЅ РІ РјРµРЅСЋ "РљРѕРјР°РЅРґС‹ РІРЅРµС€РЅРёС… РјРѕРґСѓР»РµР№", РІС‹Р·С‹РІР°РµРјРѕРј РёР· СЂРµРґР°РєС‚РѕСЂР° Far Manager.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PF_VIEWER">PF_VIEWER</a></td>
+    <td class="cont" width="60%">РџРѕРєР°Р·С‹РІР°С‚СЊ РїР»Р°РіРёРЅ РІ РјРµРЅСЋ "РљРѕРјР°РЅРґС‹ РІРЅРµС€РЅРёС… РјРѕРґСѓР»РµР№", РІС‹Р·С‹РІР°РµРјРѕРј РёР· РІСЊСЋРµСЂР° Far Manager.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PF_DIALOG">PF_DIALOG</a></td>
+    <td class="cont" width="60%">РџРѕРєР°Р·С‹РІР°С‚СЊ РїР»Р°РіРёРЅ РІ РјРµРЅСЋ "РљРѕРјР°РЅРґС‹ РІРЅРµС€РЅРёС… РјРѕРґСѓР»РµР№", РІС‹Р·С‹РІР°РµРјРѕРј РёР· РґРёР°Р»РѕРіР° Far Manager.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PF_FULLCMDLINE">PF_FULLCMDLINE</a></td>
+    <td class="cont" width="60%">Р—Р°СЃС‚Р°РІР»СЏРµС‚ Far Manager РїРµСЂРµРґР°РІР°С‚СЊ РїР»Р°РіРёРЅСѓ РІСЃСЋ РєРѕРјР°РЅРґРЅСѓСЋ СЃС‚СЂРѕРєСѓ РІРјРµСЃС‚Рµ СЃ РїСЂРµС„РёРєСЃРѕРј <code>CommandPrefix</code>.
+    РћР±СЏР·Р°С‚РµР»СЊРЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЌС‚РѕС‚ С„Р»Р°Рі, РµСЃР»Рё РїР»Р°РіРёРЅ СѓРјРµРµС‚ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ РЅРµСЃРєРѕР»СЊРєРѕ РїСЂРµС„РёРєСЃРѕРІ <code>CommandPrefix</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PF_NONE">PF_NONE</a></td>
+    <td class="cont" width="60%">РќСѓР»РµРІРѕР№ С„Р»Р°Рі.</td></tr>
+    </table></div>
+  <div class=dfn>DiskMenu</div>
+    <div class=dfndescr>Р•СЃР»Рё РїР»Р°РіРёРЅ РґРѕР±Р°РІР»СЏРµС‚ СЃС‚СЂРѕРєРё РІ РјРµРЅСЋ "Р”РёСЃРє", СЌС‚Рѕ РїРѕР»Рµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЂР°РІРЅС‹Рј Р·Р°РїРѕР»РЅРµРЅРЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂРµ <a href="pluginmenuitem.html">PluginMenuItem</a>.</div>
+  <div class=dfn>PluginMenu</div>
+    <div class=dfndescr>Р•СЃР»Рё РїР»Р°РіРёРЅ РґРѕР±Р°РІР»СЏРµС‚ СЃС‚СЂРѕРєРё РІ РјРµРЅСЋ "РљРѕРјР°РЅРґС‹ РІРЅРµС€РЅРёС… РјРѕРґСѓР»РµР№", СЌС‚Рѕ РїРѕР»Рµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЂР°РІРЅС‹Рј Р·Р°РїРѕР»РЅРµРЅРЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂРµ <a href="pluginmenuitem.html">PluginMenuItem</a>.</div>
+  <div class=dfn>PluginConfig</div>
+    <div class=dfndescr>Р•СЃР»Рё РїР»Р°РіРёРЅ РґРѕР±Р°РІР»СЏРµС‚ СЃС‚СЂРѕРєРё РІ РјРµРЅСЋ "РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РјРѕРґСѓР»РµР№", СЌС‚Рѕ РїРѕР»Рµ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЂР°РІРЅС‹Рј Р·Р°РїРѕР»РЅРµРЅРЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂРµ <a href="pluginmenuitem.html">PluginMenuItem</a>.</div>
+  <div class=dfn>CommandPrefix</div>
+    <div class=dfndescr>РџР»Р°РіРёРЅ РјРѕР¶РµС‚ СѓРєР°Р·Р°С‚СЊ РІ СЌС‚РѕРј РїРѕР»Рµ СЃС‚СЂРѕРєСѓ РїСЂРµС„РёРєСЃРѕРІ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРё, РєРѕС‚РѕСЂС‹Рµ Р±СѓРґСѓС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РґР»СЏ РїРµСЂРµС…РІР°С‚Р° РєРѕРјР°РЅРґ Far Manager.
+    РќР°РїСЂРёРјРµСЂ, РµСЃР»Рё РїР»Р°РіРёРЅ РїРµСЂРµРґР°Р» Р·РґРµСЃСЊ Р°РґСЂРµСЃ СЃС‚СЂРѕРєРё <code>ftp</code> Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РІРІС‘Р» РІ РєРѕРјР°РЅРґРЅРѕР№ СЃС‚СЂРѕРєРµ С‡С‚Рѕ-С‚Рѕ, РЅР°С‡РёРЅР°СЋС‰РµРµСЃСЏ СЃ <code>ftp:</code>,
+    С‚Рѕ С„СѓРЅРєС†РёСЏ <a href="../exported_functions/openw.html">OpenW</a> Р±СѓРґРµС‚ РІС‹Р·РІР°РЅР° СЃ РїР°СЂР°РјРµС‚СЂРѕРј <a href="../exported_functions/openw.html#OPEN_COMMANDLINE">OPEN_COMMANDLINE</a>.<br>
+    Р•СЃР»Рё РїСЂРµРґРїРѕР»Р°РіР°РµС‚СЃСЏ, С‡С‚Рѕ РїР»Р°РіРёРЅ Р±СѓРґРµС‚ РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊ РЅРµСЃРєРѕР»СЊРєРѕ РєРѕРјР°РЅРґРЅС‹С… РїСЂРµС„РёРєСЃРѕРІ, С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ СѓРєР°Р·Р°С‚СЊ РїСЂРµС„РёРєСЃС‹, СЂР°Р·РґРµР»С‘РЅРЅС‹Рµ РґРІРѕРµС‚РѕС‡РёРµРј. РќР°РїСЂРёРјРµСЂ,
+    РїР»Р°РіРёРЅ РµСЃР»Рё РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚ РїСЂРµС„РёРєСЃС‹ <code>edit:</code>, <code>goto:</code> Рё <code>view:</code>, С‚Рѕ СЃС‚СЂРѕРєР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ С‚Р°РєРѕР№:<pre class=code>CommandPrefix=L"edit:view:goto";</pre>
+    Р•СЃР»Рё РІС‹ РЅРµ С…РѕС‚РёС‚Рµ РґРѕР±Р°РІР»СЏС‚СЊ РєРѕРјР°РЅРґС‹ Рє Far Manager'Сѓ, СѓСЃС‚Р°РЅРѕРІРёС‚Рµ СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ РІ <code>NULL</code>.</div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
- <ol>
-  <li>Все передаваемые в этой структуре данные должны быть правильными после
-      возвращения из <a href="../exported_functions/getplugininfo.html">GetPluginInfo</a>,
-      таким образом вы не должны использовать автоматически создаваемые
-      адреса переменных. Используйте статические или глобальные переменные.</li>
-  <li>Структура, передаваемая функции <a href="../exported_functions/getplugininfo.html">GetPluginInfo</a>,
-      уже заполнена 0.</li>
- </ol>
+<ol>
+<li>Р’СЃРµ РїРµСЂРµРґР°РІР°РµРјС‹Рµ РІ СЌС‚РѕР№ СЃС‚СЂСѓРєС‚СѓСЂРµ РґР°РЅРЅС‹Рµ РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РїСЂР°РІРёР»СЊРЅС‹РјРё РїРѕСЃР»Рµ РІРѕР·РІСЂР°С‰РµРЅРёСЏ РёР· <a href="../exported_functions/getplugininfow.html">GetPluginInfoW</a>,
+С‚Р°РєРёРј РѕР±СЂР°Р·РѕРј РІС‹ РЅРµ РґРѕР»Р¶РЅС‹ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё СЃРѕР·РґР°РІР°РµРјС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ. РСЃРїРѕР»СЊР·СѓР№С‚Рµ СЃС‚Р°С‚РёС‡РµСЃРєРёРµ РёР»Рё РіР»РѕР±Р°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ.</li>
+<li>РЎС‚СЂСѓРєС‚СѓСЂР°, РїРµСЂРµРґР°РІР°РµРјР°СЏ С„СѓРЅРєС†РёРё <a href="../exported_functions/getplugininfow.html">GetPluginInfoW</a>, СѓР¶Рµ Р·Р°РїРѕР»РЅРµРЅР° 0.</li>
+</ol>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
-<a href="../delphi/tplugininfo.html">TPluginInfo</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>,
+<a href="pluginmenuitem.html">PluginMenuItem</a>
 </div>
 
 </body>

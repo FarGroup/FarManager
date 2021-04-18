@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>WindowInfo</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
@@ -10,112 +10,136 @@
 
 <h1>WindowInfo</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
+<a href="../miscapi/index.html">Miscellaneous API</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>WindowInfo</dfn> содержит информацию о конкретном окне
-FAR Manager. Плагин может получить информацию, используя команду
-<a href="../service_functions/advcontrol.html#ACTL_GETWINDOWINFO">ACTL_GETWINDOWINFO</a>.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>WindowInfo</code> СЃРѕРґРµСЂР¶РёС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РєРѕРЅРєСЂРµС‚РЅРѕРј РѕРєРЅРµ Far Manager. РџР»Р°РіРёРЅ РјРѕР¶РµС‚ РїРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ, РёСЃРїРѕР»СЊР·СѓСЏ РєРѕРјР°РЅРґСѓ <a href="../service_functions/advcontrol.html#ACTL_GETWINDOWINFO">ACTL_GETWINDOWINFO</a>.
 </div>
 
 <pre class=syntax>
-struct WindowInfo{
-  int  Pos;
-  int  Type;
-  int  Modified;
-  int  Current;
-  char TypeName[64];
-  char Name[NM];
+struct WindowInfo
+{
+  size_t StructSize;
+  intptr_t Id;
+  wchar_t *TypeName;
+  wchar_t *Name;
+  intptr_t TypeNameSize;
+  intptr_t NameSize;
+  intptr_t Pos;
+  enum WINDOWINFO_TYPE Type;
+  WINDOWINFO_FLAGS Flags;
 };
 </pre>
-<h3>Элементы</h3>
+
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
-    <div class=dfn>Pos</div>
-    <div class=dfndescr>Номер окна, о котором нужно узнать информацию.
-      Нумерация идет с 0. <var>Pos</var> = -1 вернет информацию о текущем окне.
-    </div>
-    <div class=dfn>Type</div>
-    <div class=dfndescr>Тип окна. Может иметь одно из следующих значений (перечисление <a name="WINDOWINFO_TYPE">WINDOWINFO_TYPE</a>):
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Р­С‚Рѕ РїРѕР»Рµ РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ <code>WindowInfo</code>. РџРµСЂРµРґ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј СЃС‚СЂСѓРєС‚СѓСЂС‹ РїР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ Р·Р°РїРѕР»РЅРёС‚СЊ РїРѕР»Рµ.</div>
+  <div class=dfn>Id</div>
+    <div class=dfndescr>Р­С‚Рѕ РїРѕР»Рµ СЃРѕРґРµСЂР¶РёС‚ РґР»СЏ РґРёР°Р»РѕРіР° РѕРїРёСЃР°С‚РµР»СЊ, РґР»СЏ РїСЂРѕРіСЂР°РјРјС‹ РїСЂРѕСЃРјРѕС‚СЂР° Рё СЂРµРґР°РєС‚РѕСЂР° - ID.</div>
+  <div class=dfn>TypeName</div>
+    <div class=dfndescr>РРјСЏ С‚РёРїР° РѕРєРЅР° (Panels,View,Edit,Help,VMenu), Р·Р°РІРёСЃРёС‚ РѕС‚ С‚РµРєСѓС‰РµРіРѕ СЏР·С‹РєР°.</div>
+  <div class=dfn>Name</div>
+    <div class=dfndescr>РРјСЏ РѕРєРЅР°. Р”Р»СЏ РѕРєРѕРЅ С‚РёРїР° <code>WTYPE_VIEWER</code>, <code>WTYPE_EDITOR</code> СЃРѕРґРµСЂР¶РёС‚ РёРјСЏ С„Р°Р№Р»Р°.<br>
+    Р”Р»СЏ РїР°РЅРµР»РµР№ - РёРјСЏ С‚РµРєСѓС‰РµРіРѕ С„Р°Р№Р»РѕРІРѕРіРѕ РѕР±СЉРµРєС‚Р°.<br>
+    Р”Р»СЏ РѕРєРЅР° РїРѕРјРѕС‰Рё - РїРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РїСЂРѕСЃРјР°С‚СЂРёРІР°РµРјРѕРјСѓ HLF-С„Р°Р№Р»Сѓ.<br>
+    Р”Р»СЏ РґРёР°Р»РѕРіРѕРІ Рё РјРµРЅСЋ - Р·Р°РіРѕР»РѕРІРѕРє.<br></div>
+  <div class=dfn>TypeNameSize</div>
+    <div class=dfndescr>Р Р°Р·РјРµСЂ Р±СѓС„РµСЂР° <code>TypeName</code> РІ СЃРёРјРІРѕР»Р°С…, СЃ СѓС‡С‘С‚РѕРј Р·Р°РІРµСЂС€Р°СЋС‰РµРіРѕ <code>'\0'</code>.</div>
+  <div class=dfn>NameSize</div>
+    <div class=dfndescr>Р Р°Р·РјРµСЂ Р±СѓС„РµСЂР° <code>Name</code> РІ СЃРёРјРІРѕР»Р°С…, СЃ СѓС‡С‘С‚РѕРј Р·Р°РІРµСЂС€Р°СЋС‰РµРіРѕ <code>'\0'</code>.</div>
+  <div class=dfn>Pos</div>
+    <div class=dfndescr>РќРѕРјРµСЂ РѕРєРЅР°, Рѕ РєРѕС‚РѕСЂРѕРј РЅСѓР¶РЅРѕ СѓР·РЅР°С‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ. РќСѓРјРµСЂР°С†РёСЏ РёРґС‘С‚ СЃ 0. <code>Pos = -1</code> РІРµСЂРЅС‘С‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ С‚РµРєСѓС‰РµРј РѕРєРЅРµ.</div>
+  <div class=dfn>Type</div>
+    <div class=dfndescr>РўРёРї РѕРєРЅР°. РњРѕР¶РµС‚ РёРјРµС‚СЊ РѕРґРЅРѕ РёР· СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="WINDOWINFO_TYPE">WINDOWINFO_TYPE</a>):
     <table class="cont">
-    <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
-     <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_PANELS">WTYPE_PANELS</a></td>
-     <td class="cont" width="60%">Файловые панели.</td></tr>
-     <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_VIEWER">WTYPE_VIEWER</a></td>
-      <td class="cont" width="60%">Окно встроенной программы просмотра.</td></tr>
-     <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_EDITOR">WTYPE_EDITOR</a></td>
-      <td class="cont" width="60%">Окно встроенного редактора.</td></tr>
-     <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_DIALOG">WTYPE_DIALOG</a></td>
-      <td class="cont" width="60%">Диалог.</td></tr>
-     <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_VMENU">WTYPE_VMENU</a></td>
-      <td class="cont" width="60%">Меню.</td></tr>
-     <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_HELP">WTYPE_HELP</a></td>
-      <td class="cont" width="60%">Окно подсказки.</td></tr>
+    <tr class="cont"><th class="cont" width="40%">РўРёРї</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_PANELS">WTYPE_PANELS</a></td>
+    <td class="cont" width="60%">С„Р°Р№Р»РѕРІС‹Рµ РїР°РЅРµР»Рё</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_VIEWER">WTYPE_VIEWER</a></td>
+    <td class="cont" width="60%">РѕРєРЅРѕ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїСЂРѕРіСЂР°РјРјС‹ РїСЂРѕСЃРјРѕС‚СЂР°</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_EDITOR">WTYPE_EDITOR</a></td>
+    <td class="cont" width="60%">РѕРєРЅРѕ РІСЃС‚СЂРѕРµРЅРЅРѕРіРѕ СЂРµРґР°РєС‚РѕСЂР°</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_DIALOG">WTYPE_DIALOG</a></td>
+    <td class="cont" width="60%">РґРёР°Р»РѕРі</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_VMENU">WTYPE_VMENU</a></td>
+    <td class="cont" width="60%">РјРµРЅСЋ</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WTYPE_HELP">WTYPE_HELP</a></td>
+    <td class="cont" width="60%">РѕРєРЅРѕ РїРѕРґСЃРєР°Р·РєРё</td></tr>
     </table>
     </div>
-    <div class=dfn>Modified</div>
-    <div class=dfndescr>Признак модификации содержимого файла в окне.
-      Может быть только у <dfn>WTYPE_EDITOR</dfn>.
-    </div>
-    <div class=dfn>Current</div>
-    <div class=dfndescr>Является ли окно текущим.
-    </div>
-    <div class=dfn>TypeName</div>
-    <div class=dfndescr>Имя типа окна (Panels,View,Edit,Help,VMenu),
-     зависит от текущего языка.
-    </div>
-    <div class=dfn>Name</div>
-    <div class=dfndescr>Имя окна. Для окон типа <dfn>WTYPE_VIEWER</dfn>,
-       <dfn>WTYPE_EDITOR</dfn> содержит имя файла.
-       Для панелей - имя текущего файлового объекта.
-       Для окна помощи - полный путь к просматриваемому HLF-файлу.
-       Для диалогов и меню - заголовок.
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>РњРѕРіСѓС‚ Р±С‹С‚СЊ РєРѕРјР±РёРЅР°С†РёРµР№ СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (С‚РёРї <a name="WINDOWINFO_FLAGS">WINDOWINFO_FLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">РўРёРї</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WIF_MODIFIED">WIF_MODIFIED</a></td>
+    <td class="cont" width="60%">РїСЂРёР·РЅР°Рє РјРѕРґРёС„РёРєР°С†РёРё СЃРѕРґРµСЂР¶РёРјРѕРіРѕ С„Р°Р№Р»Р° РІ РѕРєРЅРµ, РјРѕР¶РµС‚ Р±С‹С‚СЊ С‚РѕР»СЊРєРѕ Сѓ <code>WTYPE_EDITOR</code></td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WIF_CURRENT">WIF_CURRENT</a></td>
+    <td class="cont" width="60%">РїСЂРёР·РЅР°Рє, СЏРІР»СЏРµС‚СЃСЏ Р»Рё РѕРєРЅРѕ С‚РµРєСѓС‰РёРј</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="WIF_MODAL">WIF_MODAL</a></td>
+    <td class="cont" width="60%">РїСЂРёР·РЅР°Рє, СЏРІР»СЏРµС‚СЃСЏ Р»Рё РѕРєРЅРѕ РјРѕРґР°Р»СЊРЅС‹Рј</td></tr>
+    </table>
     </div>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 <pre class=code>
 void GetFarWindowInfo()
 {
-  WindowInfo WInfo;
+  WindowInfo WInfo={sizeof(WindowInfo)};
   int CountWindow;
   int I;
   FILE *Fp;
 
-  if((Fp=fopen("window.log","a+t")) == NULL)
+  if((Fp=_wfopen(L"window.log",L"a+t")) == NULL)
       return ;
 
-  // запросили число окон
-  CountWindow=(int)Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWCOUNT,NULL);
-  fprintf(Fp,"WindowCount=%i\n",CountWindow);
+  // Р·Р°РїСЂРѕСЃРёР»Рё С‡РёСЃР»Рѕ РѕРєРѕРЅ
+  CountWindow=(int)Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWCOUNT,0,NULL);
+  fwprintf(Fp,L"WindowCount=%i\n",CountWindow);
 
   for ( I=0; I &lt; CountWindow; I++ )
   {
-    // установили нужный номер
+    // СѓСЃС‚Р°РЅРѕРІРёР»Рё РЅСѓР¶РЅС‹Р№ РЅРѕРјРµСЂ
     WInfo.Pos=I;
 
-    // запросили информаци об окне
-    Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWINFO,(void*)&amp;WInfo);
+    WInfo.TypeName=NULL;
+    WInfo.Name=NULL;
 
-    // распечатали ее
-    fprintf(Fp,"Window[%i], Type=%i (%s), File=[%s] Current=%i, Modified=%i\n",
+    // Р·Р°РїСЂРѕСЃРёР»Рё РёРЅС„РѕСЂРјР°С†РёСЋ РѕР± СЂР°Р·РјРµСЂРµ Р±СѓС„РµСЂРѕРІ
+    Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWINFO,0,(void*)&amp;WInfo);
+
+    WInfo.TypeName=(wchar_t *) malloc(WInfo.TypeNameSize);
+    WInfo.Name=(wchar_t *) malloc(WInfo.NameSize);
+
+    // Р·Р°РїСЂРѕСЃРёР»Рё РёРЅС„РѕСЂРјР°С†РёСЋ
+    Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWINFO,0,(void*)&amp;WInfo);
+    
+    // СЂР°СЃРїРµС‡Р°С‚Р°Р»Рё РµС‘
+    fwprintf(Fp,L"Window[%i], Type=%i (%s), File=[%s] Current=%i, Modified=%i\n",
                I,WInfo.Type,WInfo.TypeName,WInfo.Name,
                WInfo.Current,WInfo.Modified);
-  }
+    
+    free(WInfo.TypeName);
+    free(WInfo.Name);
+
+ }
   fclose(Fp);
 
-  // установили окно номер 1 (то есть второе)
-  Info.AdvControl(Info.ModuleNumber,ACTL_SETCURRENTWINDOW,(void*)1);
+  // СѓСЃС‚Р°РЅРѕРІРёР»Рё РѕРєРЅРѕ РЅРѕРјРµСЂ 1 (С‚Рѕ РµСЃС‚СЊ РІС‚РѕСЂРѕРµ)
+  Info.AdvControl(Info.ModuleNumber,ACTL_SETCURRENTWINDOW,0,(void*)1);
 }
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
-<a href="../service_functions/advcontrol.html">AdvControl</a> |
-<a href="../delphi/twindowinfo.html">TWindowInfo</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>,
+<a href="../service_functions/advcontrol.html">AdvControl</a>
 </div>
 
 </body>

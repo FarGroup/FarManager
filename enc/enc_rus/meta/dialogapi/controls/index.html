@@ -1,108 +1,103 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-<title>Элементы диалога</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<title>Р­Р»РµРјРµРЅС‚С‹ РґРёР°Р»РѕРіР° - Dialog API</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
-<!-- History of modification:
--->
 <body>
 
-<h1>Элементы диалога</h1>
+<h1>Р­Р»РµРјРµРЅС‚С‹ РґРёР°Р»РѕРіР° - Dialog API</h1>
+
 <div class=navbar>
-<a href="../../index.html">главная</a> |
-<a href="../index.html">Dialog API</a> |
-<a href="../structures/fardialogitem.html">FarDialogItem</a><br>
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-DialogAPI поддерживает определенное множество управляющих элементов.
-Каждый элемент управления описывается структурой
-<a href="../structures/fardialogitem.html">FarDialogItem</a>.
-Массив этих структур передается в функции <a href="../dialog.html">Dialog</a> и
-<a href="../dialogex.html">DialogEx</a> для показа диалога.
+Dialog API РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РѕРїСЂРµРґРµР»С‘РЅРЅРѕРµ РјРЅРѕР¶РµСЃС‚РІРѕ СѓРїСЂР°РІР»СЏСЋС‰РёС… СЌР»РµРјРµРЅС‚РѕРІ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ FARDIALOGITEMTYPES).
+РљР°Р¶РґС‹Р№ СЌР»РµРјРµРЅС‚ СѓРїСЂР°РІР»РµРЅРёСЏ РѕРїРёСЃС‹РІР°РµС‚СЃСЏ СЃС‚СЂСѓРєС‚СѓСЂРѕР№ <a href="../../structures/fardialogitem.html">FarDialogItem</a>.
+РњР°СЃСЃРёРІ СЌС‚РёС… СЃС‚СЂСѓРєС‚СѓСЂ РїРµСЂРµРґР°С‘С‚СЃСЏ РІ С„СѓРЅРєС†РёРё <a href="../../service_functions/dialoginit.html">DialogInit</a> РґР»СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РґРёР°Р»РѕРіР°.
 </div>
 
 <table class="cont">
-<tr class="cont"><th class="cont" width="30%">Элемент</th><th class="cont" width="10%">Значение</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="30%">Р­Р»РµРјРµРЅС‚</th><th class="cont" width="10%">Р—РЅР°С‡РµРЅРёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
 <tr class="cont">
 <td class="cont" width="30%"><a href="di_button.html">DI_BUTTON</a></td>
 <td class="cont" width="10%">7</td>
-<td class="cont" width="60%">Кнопка (Push Button).</td>
+<td class="cont" width="60%">РєРЅРѕРїРєР° (Push Button)</td>
 </tr>
 <tr class="cont">
 <td class="cont" width="30%"><a href="di_checkbox.html">DI_CHECKBOX</a></td>
 <td class="cont" width="10%">8</td>
-<td class="cont" width="60%">Контрольный переключатель (Check Box).</td>
+<td class="cont" width="60%">РєРѕРЅС‚СЂРѕР»СЊРЅС‹Р№ РїРµСЂРµРєР»СЋС‡Р°С‚РµР»СЊ (Check Box)</td>
 </tr>
 <tr class="cont">
 <td class="cont" width="30%"><a href="di_combobox.html">DI_COMBOBOX</a></td>
 <td class="cont" width="10%">10</td>
-<td class="cont" width="60%">Комбинированный список.</td>
+<td class="cont" width="60%">РєРѕРјР±РёРЅРёСЂРѕРІР°РЅРЅС‹Р№ СЃРїРёСЃРѕРє</td>
 </tr>
 <tr class="cont">
 <td class="cont" width="30%"><a href="di_doublebox.html">DI_DOUBLEBOX</a></td>
 <td class="cont" width="10%">3</td>
-<td class="cont" width="60%">Двойная рамка.</td>
+<td class="cont" width="60%">РґРІРѕР№РЅР°СЏ СЂР°РјРєР°</td>
 </tr>
 <tr class="cont">
 <td class="cont" width="30%"><a href="di_edit.html">DI_EDIT</a></td>
 <td class="cont" width="10%">4</td>
-<td class="cont" width="60%">Поле ввода.</td>
+<td class="cont" width="60%">РїРѕР»Рµ РІРІРѕРґР°</td>
 </tr>
 <tr class="cont">
 <td class="cont" width="30%"><a href="di_fixedit.html">DI_FIXEDIT</a></td>
 <td class="cont" width="10%">6</td>
-<td class="cont" width="60%">Поле ввода фиксированного размера.</td>
+<td class="cont" width="60%">РїРѕР»Рµ РІРІРѕРґР° С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕРіРѕ СЂР°Р·РјРµСЂР°</td>
 </tr>
 <tr class="cont">
 <td class="cont" width="30%"><a href="di_listbox.html">DI_LISTBOX</a></td>
 <td class="cont" width="10%">11</td>
-<td class="cont" width="60%">Окно списка.</td>
+<td class="cont" width="60%">РѕРєРЅРѕ СЃРїРёСЃРєР°</td>
 </tr>
 <tr class="cont">
 <td class="cont" width="30%"><a href="di_pswedit.html">DI_PSWEDIT</a></td>
 <td class="cont" width="10%">5</td>
-<td class="cont" width="60%">Поле ввода пароля.</td>
+<td class="cont" width="60%">РїРѕР»Рµ РІРІРѕРґР° РїР°СЂРѕР»СЏ</td>
 </tr>
 <tr class="cont">
 <td class="cont" width="30%"><a href="di_radiobutton.html">DI_RADIOBUTTON</a></td>
 <td class="cont" width="10%">9</td>
-<td class="cont" width="60%">Селекторная кнопка (Radio Button).</td>
+<td class="cont" width="60%">СЃРµР»РµРєС‚РѕСЂРЅР°СЏ РєРЅРѕРїРєР° (Radio Button)</td>
 </tr>
 <tr class="cont">
 <td class="cont" width="30%"><a href="di_singlebox.html">DI_SINGLEBOX</a></td>
 <td class="cont" width="10%">2</td>
-<td class="cont" width="60%">Одиночная рамка.</td>
+<td class="cont" width="60%">РѕРґРёРЅРѕС‡РЅР°СЏ СЂР°РјРєР°</td>
 </tr>
 <tr class="cont">
 <td class="cont" width="30%"><a href="di_text.html">DI_TEXT</a></td>
 <td class="cont" width="10%">0</td>
-<td class="cont" width="60%">Текстовая строка.</td>
+<td class="cont" width="60%">С‚РµРєСЃС‚РѕРІР°СЏ СЃС‚СЂРѕРєР°</td>
 </tr>
 <tr class="cont">
 <td class="cont" width="30%"><a href="di_usercontrol.html">DI_USERCONTROL</a></td>
 <td class="cont" width="10%">255</td>
-<td class="cont" width="60%">Элемент управления, определяемый программистом.</td>
+<td class="cont" width="60%">СЌР»РµРјРµРЅС‚ СѓРїСЂР°РІР»РµРЅРёСЏ, РѕРїСЂРµРґРµР»СЏРµРјС‹Р№ РїСЂРѕРіСЂР°РјРјРёСЃС‚РѕРј</td>
 </tr>
 <tr class="cont">
 <td class="cont" width="30%"><a href="di_vtext.html">DI_VTEXT</a></td>
 <td class="cont" width="10%">1</td>
-<td class="cont" width="60%">Вертикальная текстовая строка.</td>
+<td class="cont" width="60%">РІРµСЂС‚РёРєР°Р»СЊРЅР°СЏ С‚РµРєСЃС‚РѕРІР°СЏ СЃС‚СЂРѕРєР°</td>
 </tr>
 </table>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
+
 <div class=descr>
-При описании всех элементов использовалось схематичное представление
-структуры <a href="../structures/fardialogitem.html">FarDialogItem</a>.
+РџСЂРё РѕРїРёСЃР°РЅРёРё РІСЃРµС… СЌР»РµРјРµРЅС‚РѕРІ РёСЃРїРѕР»СЊР·РѕРІР°Р»РѕСЃСЊ СЃС…РµРјР°С‚РёС‡РЅРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="../../structures/fardialogitem.html">FarDialogItem</a>.
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../flags/index.html">Флаги элементов диалога</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
+<a href="../flags/index.html">Р¤Р»Р°РіРё СЌР»РµРјРµРЅС‚РѕРІ РґРёР°Р»РѕРіР°</a>
 </div>
 
 </body>

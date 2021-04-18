@@ -1,151 +1,149 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>Editor</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-
 <body>
 
 <h1>Editor</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a> |
+<a href="../editorapi/index.html">Editor API</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>Editor</dfn> позволяет открыть внутренний редактор FAR Manager.
+Р¤СѓРЅРєС†РёСЏ <code>Editor</code> РїРѕР·РІРѕР»СЏРµС‚ РѕС‚РєСЂС‹С‚СЊ РІРЅСѓС‚СЂРµРЅРЅРёР№ СЂРµРґР°РєС‚РѕСЂ Far Manager.
 </div>
 
 <pre class=syntax>
-int WINAPI Editor(
-  const char *FileName,
-  const char *Title,
-  int X1,
-  int Y1,
-  int X2,
-  int Y2,
-  DWORD Flags,
-  int StartLine,
-  int StartChar
+intptr_t WINAPI Editor(
+  const wchar_t *FileName,
+  const wchar_t *Title,
+  intptr_t X1,
+  intptr_t Y1,
+  intptr_t X2,
+  intptr_t Y2,
+  EDITOR_FLAGS Flags,
+  intptr_t StartLine,
+  intptr_t StartChar,
+  uintptr_t CodePage
 );
 </pre>
-<h3>Параметры</h3>
+
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>FileName</div>
-  <div class=dfndescr>Файл для редактирования. Если не указан флаг
-    <dfn>EF_CREATENEW</dfn>, то <var>FileName</var> должен содержать имя
-    существующего файла.</div>
+    <div class=dfndescr>Р¤Р°Р№Р» РґР»СЏ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ. Р•СЃР»Рё РЅРµ СѓРєР°Р·Р°РЅ С„Р»Р°Рі <code>EF_CREATENEW</code>, С‚Рѕ <code>FileName</code> РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ РёРјСЏ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ С„Р°Р№Р»Р°.</div>
   <div class=dfn>Title</div>
-  <div class=dfndescr>Текстовая строка, которая будет показана вверху
-    окна редактора. Если этот параметр равен <code>NULL</code>, то
-    используется имя файла.</div>
+    <div class=dfndescr>РўРµРєСЃС‚РѕРІР°СЏ СЃС‚СЂРѕРєР°, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РїРѕРєР°Р·Р°РЅР° РІРІРµСЂС…Сѓ РѕРєРЅР° СЂРµРґР°РєС‚РѕСЂР°. Р•СЃР»Рё СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СЂР°РІРµРЅ <code>NULL</code>, С‚Рѕ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РёРјСЏ С„Р°Р№Р»Р°.</div>
   <div class=dfn>X1, Y1, X2, Y2</div>
-  <div class=dfndescr>Координаты окна редактора. Если координата <var>X2</var>
-    или <var>Y2</var> равна -1, то она будет замещена
-    соответственно шириной или высотой экрана.
-    Если координата <var>X1</var> или <code>Y1</code> меньше нуля, то
-    считается, что она равна нулю.
-  </div>
+    <div class=dfndescr>РљРѕРѕСЂРґРёРЅР°С‚С‹ РѕРєРЅР° СЂРµРґР°РєС‚РѕСЂР°. Р•СЃР»Рё РєРѕРѕСЂРґРёРЅР°С‚Р° <code>X2</code> РёР»Рё <code>Y2</code> СЂР°РІРЅР° <code>-1</code>, С‚Рѕ РѕРЅР° Р±СѓРґРµС‚ Р·Р°РјРµС‰РµРЅР° СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ С€РёСЂРёРЅРѕР№ РёР»Рё РІС‹СЃРѕС‚РѕР№ СЌРєСЂР°РЅР°.
+    Р•СЃР»Рё РєРѕРѕСЂРґРёРЅР°С‚Р° <code>X1</code> РёР»Рё <code>Y1</code> РјРµРЅСЊС€Рµ РЅСѓР»СЏ, С‚Рѕ СЃС‡РёС‚Р°РµС‚СЃСЏ, С‡С‚Рѕ РѕРЅР° СЂР°РІРЅР° РЅСѓР»СЋ.</div>
   <div class=dfn>Flags</div>
-  <div class=dfndescr>Флаги редактора. Может быть комбинацией следующих значений (перечисление <a name="EDITOR_FLAGS">EDITOR_FLAGS</a>):<br>
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-
+    <div class=dfndescr>Р¤Р»Р°РіРё СЂРµРґР°РєС‚РѕСЂР°. РњРѕР¶РµС‚ Р±С‹С‚СЊ РєРѕРјР±РёРЅР°С†РёРµР№ СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (С‚РёРї <a name="EDITOR_FLAGS">EDITOR_FLAGS</a>):<br>
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="EF_NONMODAL">EF_NONMODAL</a></td>
-    <td class="cont" width="60%">Создать немодальное окно редактора. Если этот флаг
-      присутствует, пользователь сможет переключаться
-      между редактором и другими окнами FAR Manager.
-     <p>Плагин получит управление только после закрытия или ухода из
-      открытого редактора (например, пользователь нажал <kbd>Ctrl-Tab</kbd>).
-      Если вам нужно, чтобы плагин получал управление сразу же после
-      открытия редактора, то используйте флаг <dfn>EF_IMMEDIATERETURN</dfn>.
-    </td></tr>
-
+    <td class="cont" width="60%">РЎРѕР·РґР°С‚СЊ РЅРµРјРѕРґР°Р»СЊРЅРѕРµ РѕРєРЅРѕ СЂРµРґР°РєС‚РѕСЂР°. Р•СЃР»Рё СЌС‚РѕС‚ С„Р»Р°Рі РїСЂРёСЃСѓС‚СЃС‚РІСѓРµС‚, РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃРјРѕР¶РµС‚ РїРµСЂРµРєР»СЋС‡Р°С‚СЊСЃСЏ РјРµР¶РґСѓ СЂРµРґР°РєС‚РѕСЂРѕРј Рё РґСЂСѓРіРёРјРё РѕРєРЅР°РјРё Far Manager.
+    <p>РџР»Р°РіРёРЅ РїРѕР»СѓС‡РёС‚ СѓРїСЂР°РІР»РµРЅРёРµ С‚РѕР»СЊРєРѕ РїРѕСЃР»Рµ Р·Р°РєСЂС‹С‚РёСЏ РёР»Рё СѓС…РѕРґР° РёР· РѕС‚РєСЂС‹С‚РѕРіРѕ СЂРµРґР°РєС‚РѕСЂР° (РЅР°РїСЂРёРјРµСЂ, РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» <kbd>Ctrl</kbd>+<kbd>Tab</kbd>).
+    Р•СЃР»Рё РІР°Рј РЅСѓР¶РЅРѕ, С‡С‚РѕР±С‹ РїР»Р°РіРёРЅ РїРѕР»СѓС‡Р°Р» СѓРїСЂР°РІР»РµРЅРёРµ СЃСЂР°Р·Сѓ Р¶Рµ РїРѕСЃР»Рµ РѕС‚РєСЂС‹С‚РёСЏ СЂРµРґР°РєС‚РѕСЂР°, С‚Рѕ РёСЃРїРѕР»СЊР·СѓР№С‚Рµ С„Р»Р°Рі <code>EF_IMMEDIATERETURN</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="EF_IMMEDIATERETURN">EF_IMMEDIATERETURN</a></td>
-    <td class="cont" width="60%">Позволяет плагину получать управление сразу же
-         после открытия редактора. Открываемый редактор становится активным.
-         Выставлять этот флаг имеет смысл <u>только</u> в паре с флагом <dfn>EF_NONMODAL</dfn>.
-     </td></tr>
-
+    <td class="cont" width="60%">РџРѕР·РІРѕР»СЏРµС‚ РїР»Р°РіРёРЅСѓ РїРѕР»СѓС‡Р°С‚СЊ СѓРїСЂР°РІР»РµРЅРёРµ СЃСЂР°Р·Сѓ Р¶Рµ РїРѕСЃР»Рµ РѕС‚РєСЂС‹С‚РёСЏ СЂРµРґР°РєС‚РѕСЂР°.
+    РћС‚РєСЂС‹РІР°РµРјС‹Р№ СЂРµРґР°РєС‚РѕСЂ СЃС‚Р°РЅРѕРІРёС‚СЃСЏ Р°РєС‚РёРІРЅС‹Рј. Р’С‹СЃС‚Р°РІР»СЏС‚СЊ СЌС‚РѕС‚ С„Р»Р°Рі РёРјРµРµС‚ СЃРјС‹СЃР» <u>С‚РѕР»СЊРєРѕ</u> РІ РїР°СЂРµ СЃ С„Р»Р°РіРѕРј <code>EF_NONMODAL</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="EF_DELETEONCLOSE">EF_DELETEONCLOSE</a></td>
-    <td class="cont" width="60%">Поручает FAR'у удалить редактируемый файл после закрытия редактора. Если в
-     директории, содержащей редактируемый файл, нет других файлов, она также будет
-     удалена. Если требуется удаление только файла, то используйте <dfn>EF_DELETEONLYFILEONCLOSE</dfn>.<br>
-      Файл не удаляется:<ol>
-      <li>если было произведено переключение по <kbd>F6</kbd> и если
-         существуют другие открытые вьюеры/редакторы с этим же файлом.
-      <li>если файл был сохранен из редактора.
-     </ol>
-    </td></tr>
-
+    <td class="cont" width="60%">РџРѕСЂСѓС‡Р°РµС‚ Far Manager'Сѓ СѓРґР°Р»РёС‚СЊ СЂРµРґР°РєС‚РёСЂСѓРµРјС‹Р№ С„Р°Р№Р» РїРѕСЃР»Рµ Р·Р°РєСЂС‹С‚РёСЏ СЂРµРґР°РєС‚РѕСЂР°.
+    Р•СЃР»Рё РІ РґРёСЂРµРєС‚РѕСЂРёРё, СЃРѕРґРµСЂР¶Р°С‰РµР№ СЂРµРґР°РєС‚РёСЂСѓРµРјС‹Р№ С„Р°Р№Р», РЅРµС‚ РґСЂСѓРіРёС… С„Р°Р№Р»РѕРІ, РѕРЅР° С‚Р°РєР¶Рµ Р±СѓРґРµС‚ СѓРґР°Р»РµРЅР°. Р•СЃР»Рё С‚СЂРµР±СѓРµС‚СЃСЏ СѓРґР°Р»РµРЅРёРµ С‚РѕР»СЊРєРѕ С„Р°Р№Р»Р°, С‚Рѕ РёСЃРїРѕР»СЊР·СѓР№С‚Рµ <code>EF_DELETEONLYFILEONCLOSE</code>.<br>
+    Р¤Р°Р№Р» РЅРµ СѓРґР°Р»СЏРµС‚СЃСЏ:
+    <ol>
+       <li>РµСЃР»Рё Р±С‹Р»Рѕ РїСЂРѕРёР·РІРµРґРµРЅРѕ РїРµСЂРµРєР»СЋС‡РµРЅРёРµ РїРѕ <kbd>F6</kbd> Рё РµСЃР»Рё СЃСѓС‰РµСЃС‚РІСѓСЋС‚ РґСЂСѓРіРёРµ РѕС‚РєСЂС‹С‚С‹Рµ РІСЊСЋРµСЂС‹/СЂРµРґР°РєС‚РѕСЂС‹ СЃ СЌС‚РёРј Р¶Рµ С„Р°Р№Р»РѕРј.
+       <li>РµСЃР»Рё С„Р°Р№Р» Р±С‹Р» СЃРѕС…СЂР°РЅС‘РЅ РёР· СЂРµРґР°РєС‚РѕСЂР°.
+    </ol></td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="EF_DELETEONLYFILEONCLOSE">EF_DELETEONLYFILEONCLOSE</a></td>
-    <td class="cont" width="60%">Аналог <dfn>EF_DELETEONCLOSE</dfn>, но удаляется только файл.
-      Этот флаг имеет более низкий приоритет при обработке, чем <dfn>EF_DELETEONCLOSE</dfn>.
-    </td></tr>
-
+    <td class="cont" width="60%">РђРЅР°Р»РѕРі <code>EF_DELETEONCLOSE</code>, РЅРѕ СѓРґР°Р»СЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ С„Р°Р№Р». Р­С‚РѕС‚ С„Р»Р°Рі РёРјРµРµС‚ Р±РѕР»РµРµ РЅРёР·РєРёР№ РїСЂРёРѕСЂРёС‚РµС‚ РїСЂРё РѕР±СЂР°Р±РѕС‚РєРµ, С‡РµРј <code>EF_DELETEONCLOSE</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="EF_CREATENEW">EF_CREATENEW</a></td>
-    <td class="cont" width="60%">Создать новый файл на диске. Вызов редактора
-      с этим флагом аналогичен вызову редактора по <kbd>Shift+F4</kbd>
-      в панелях.</td></tr>
-
+    <td class="cont" width="60%">РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ С„Р°Р№Р» РЅР° РґРёСЃРєРµ. Р’С‹Р·РѕРІ СЂРµРґР°РєС‚РѕСЂР° СЃ СЌС‚РёРј С„Р»Р°РіРѕРј Р°РЅР°Р»РѕРіРёС‡РµРЅ РІС‹Р·РѕРІСѓ СЂРµРґР°РєС‚РѕСЂР° РїРѕ <kbd>Shift</kbd>+<kbd>F4</kbd> РІ РїР°РЅРµР»СЏС….</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="EF_ENABLE_F6">EF_ENABLE_F6</a></td>
-    <td class="cont" width="60%">Разрешает переключение по <kbd>F6</kbd>
-      из редактора во вьюер.</td></tr>
-
+    <td class="cont" width="60%">Р Р°Р·СЂРµС€Р°РµС‚ РїРµСЂРµРєР»СЋС‡РµРЅРёРµ РїРѕ <kbd>F6</kbd> РёР· СЂРµРґР°РєС‚РѕСЂР° РІРѕ РІСЊСЋРµСЂ.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="EF_DISABLEHISTORY">EF_DISABLEHISTORY</a></td>
-    <td class="cont" width="60%">Запретить добавление имени файла в историю
-     редактирования (<kbd>Alt-F11</kbd>). По умолчанию имя в историю добавляется.</td></tr>
+    <td class="cont" width="60%">Р—Р°РїСЂРµС‚РёС‚СЊ РґРѕР±Р°РІР»РµРЅРёРµ РёРјРµРЅРё С„Р°Р№Р»Р° РІ РёСЃС‚РѕСЂРёСЋ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ (<kbd>Alt</kbd>+<kbd>F11</kbd>). РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РёРјСЏ РІ РёСЃС‚РѕСЂРёСЋ РґРѕР±Р°РІР»СЏРµС‚СЃСЏ.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_LOCKED">EF_LOCKED</a></td>
+    <td class="cont" width="60%">РџСЂРё РѕС‚РєСЂС‹С‚РёРё С„Р°Р№Р»Р° Р·Р°РїСЂРµС‚РёС‚СЊ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ. РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃРјРѕР¶РµС‚ СЃРЅСЏС‚СЊ Р±Р»РѕРєРёСЂРѕРІРєСѓ СЃ РїРѕРјРѕС‰СЊСЋ РєР»Р°РІРёС€ <kbd>Ctrl</kbd>+<kbd>L</kbd>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_DISABLESAVEPOS">EF_DISABLESAVEPOS</a></td>
+    <td class="cont" width="60%">РќРµ СЃРѕС…СЂР°РЅСЏС‚СЊ РїРѕР·РёС†РёСЋ РІ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРј С„Р°Р№Р»Рµ.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EN_NONE">EN_NONE</a></td>
+    <td class="cont" width="60%">РќСѓР»РµРІРѕР№ С„Р»Р°Рі.</td></tr>
 
-</table>
-  </div>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_OPENMODE_MASK">EF_OPENMODE_MASK</a></td>
+    <td class="cont" width="60%">РњР°СЃРєР° РґР»СЏ EF_OPENMODE_*</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_OPENMODE_QUERY">EF_OPENMODE_QUERY</a></td>
+    <td class="cont" width="60%">Р РµР¶РёРј РѕС‚РєСЂС‹С‚РёСЏ. Р•СЃР»Рё С„Р°Р№Р» РѕС‚РєСЂС‹С‚ РІ СЂРµРґР°РєС‚РѕСЂРµ, РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ Р±СѓРґРµС‚ РїРѕРєР°Р·Р°РЅ РґРёР°Р»РѕРі РґР°Р»СЊРЅРµР№С€РёС… РґРµР№СЃС‚РІРёР№ (GUID: {AFDAD388-494C-41E8-BAC6-BBE9115E1CC0})</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_OPENMODE_NEWIFOPEN">EF_OPENMODE_NEWIFOPEN</a></td>
+    <td class="cont" width="60%">Р РµР¶РёРј РѕС‚РєСЂС‹С‚РёСЏ. РћС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РІ РЅРѕРІРѕРј СЂРµРґР°РєС‚РѕСЂРµ, РµСЃР»Рё С„Р°Р№Р» СѓР¶Рµ РѕС‚РєСЂС‹С‚ РІ СЂРµРґР°РєС‚РѕСЂРµ</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_OPENMODE_USEEXISTING">EF_OPENMODE_USEEXISTING</a></td>
+    <td class="cont" width="60%">Р РµР¶РёРј РѕС‚РєСЂС‹С‚РёСЏ. РџРµСЂРµРєР»СЋС‡РёС‚СЊСЃСЏ РЅР° РѕС‚РєСЂС‹С‚С‹Р№ РІ СЂРµРґР°РєС‚РѕСЂРµ С„Р°Р№Р».</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_OPENMODE_BREAKIFOPEN">EF_OPENMODE_BREAKIFOPEN</a></td>
+    <td class="cont" width="60%">Р РµР¶РёРј РѕС‚РєСЂС‹С‚РёСЏ. РџСЂРµСЂРІР°С‚СЊ РІС‹РїРѕР»РЅРµРЅРёРµ С„СѓРЅРєС†РёРё, РµСЃР»Рё С„Р°Р№Р» РѕС‚РєСЂС‹С‚ РІ СЂРµРґР°РєС‚РѕСЂРµ</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_OPENMODE_RELOADIFOPEN">EF_OPENMODE_RELOADIFOPEN</a></td>
+    <td class="cont" width="60%">Р РµР¶РёРј РѕС‚РєСЂС‹С‚РёСЏ. РџРµСЂРµРѕС‚РєСЂС‹С‚СЊ, РµСЃР»Рё С„Р°Р№Р» РѕС‚РєСЂС‹С‚ РІ СЂРµРґР°РєС‚РѕСЂРµ.</td></tr>
 
+    </table>
+    </div>
   <div class=dfn>StartLine</div>
-  <div class=dfndescr>Начальная строка, в которую помещаем курсор.
-    Нумерация строк начинается с 0.</div>
+    <div class=dfndescr>РќР°С‡Р°Р»СЊРЅР°СЏ СЃС‚СЂРѕРєР°, РІ РєРѕС‚РѕСЂСѓСЋ РїРѕРјРµС‰Р°РµРј РєСѓСЂСЃРѕСЂ. РќСѓРјРµСЂР°С†РёСЏ СЃС‚СЂРѕРє РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ <code>1</code>.</div>
   <div class=dfn>StartChar</div>
-  <div class=dfndescr>Позиция курсора в строке.
-    Нумерация позиции начинается с 1.</div>
+    <div class=dfndescr>РџРѕР·РёС†РёСЏ РєСѓСЂСЃРѕСЂР° РІ СЃС‚СЂРѕРєРµ. РќСѓРјРµСЂР°С†РёСЏ РїРѕР·РёС†РёРё РЅР°С‡РёРЅР°РµС‚СЃСЏ СЃ <code>1</code>.</div>
+  <div class=dfn>CodePage</div>
+    <div class=dfndescr>РќРѕРјРµСЂ РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹, РІ РєРѕС‚РѕСЂРѕР№ Р±СѓРґРµС‚ РѕС‚РєСЂС‹С‚ СЂРµРґР°РєС‚РѕСЂ. РњРѕР¶РµС‚Рµ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р·РЅР°С‡РµРЅРёРµ РІ <code>CP_DEFAULT</code>.
+    РџРѕРјРёРјРѕ СЌС‚РѕРіРѕ РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЃР»РµРґСѓСЋС‰РёРµ РѕРїСЂРµРґРµР»РµРЅРёСЏ.
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">РћРїСЂРµРґРµР»РµРЅРёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="CP_UNICODE">CP_UNICODE</a></td>
+    <td class="cont" width="60%">РєРѕРґРѕРІР°СЏ СЃС‚СЂР°РЅРёС†Р° 1200</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="CP_REVERSEBOM">CP_REVERSEBOM</a></td>
+    <td class="cont" width="60%">РєРѕРґРѕРІР°СЏ СЃС‚СЂР°РЅРёС†Р° 1201</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="CP_DEFAULT">CP_DEFAULT</a></td>
+    <td class="cont" width="60%">Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РѕРїСЂРµРґРµР»РёС‚СЊ РЅРѕРјРµСЂ РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="CP_REDETECT">CP_REDETECT</a></td>
+    <td class="cont" width="60%">РїРµСЂРµРѕРїСЂРµРґРµР»РёС‚СЊ РЅРѕРјРµСЂ РєРѕРґРѕРІРѕР№ СЃС‚СЂР°РЅРёС†С‹</td></tr>
+    </table>
+    </div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-  Эта функция возвращает следующие значения (перечисление <a name="EDITOR_EXITCODE">EDITOR_EXITCODE</a>):
+Р­С‚Р° С„СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ СЃР»РµРґСѓСЋС‰РёРµ Р·РЅР°С‡РµРЅРёСЏ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="EDITOR_EXITCODE">EDITOR_EXITCODE</a>):
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Возвращаемое значение</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="EEC_OPEN_ERROR">EEC_OPEN_ERROR</a></td>
-    <td class="cont" width="60%">Ошибка открытия файла. Ошибка возникает в случаях, если:
-      <ul>
-        <li>FAR не смог выделить достаточно памяти при создании редактора (как объекта);
-        <li>в качестве параметра <em>FileName</em> передали пустую строку;
-        <li>в качестве параметра <em>FileName</em> было передано имя каталога;
-        <li>редактируемый файл имеет RO-атрибут и пользователь в диалоге подтверждения
-            открытия такого файла отказался от дальнейшего редактирования.
-      </ul>
-    </td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="EEC_MODIFIED">EEC_MODIFIED</a></td>
-    <td class="cont" width="60%">Успешное завершение. Файл был изменен.
-      Функция <dfn>Editor</dfn> также возвращает этот код возврата при использовании флага
-      <dfn>EF_NONMODAL</dfn>.
-    </td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="EEC_NOT_MODIFIED">EEC_NOT_MODIFIED</a></td>
-    <td class="cont" width="60%">Успешное завершение. Файл не был изменен.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="EEC_LOADING_INTERRUPTED">EEC_LOADING_INTERRUPTED</a></td>
-    <td class="cont" width="60%">Загрузка файла прервана пользователем.</td></tr>
+<tr class="cont"><th class="cont" width="40%">Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="EEC_OPEN_ERROR">EEC_OPEN_ERROR</a></td>
+<td class="cont" width="60%">РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°. РћС€РёР±РєР° РІРѕР·РЅРёРєР°РµС‚ РІ СЃР»СѓС‡Р°СЏС…, РµСЃР»Рё:
+<ul>
+<li>Far Manager РЅРµ СЃРјРѕРі РІС‹РґРµР»РёС‚СЊ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РїР°РјСЏС‚Рё РїСЂРё СЃРѕР·РґР°РЅРёРё СЂРµРґР°РєС‚РѕСЂР° (РєР°Рє РѕР±СЉРµРєС‚Р°);
+<li>РІ РєР°С‡РµСЃС‚РІРµ РїР°СЂР°РјРµС‚СЂР° <code>FileName</code> РїРµСЂРµРґР°Р»Рё РїСѓСЃС‚СѓСЋ СЃС‚СЂРѕРєСѓ;
+<li>РІ РєР°С‡РµСЃС‚РІРµ РїР°СЂР°РјРµС‚СЂР° <code>FileName</code> Р±С‹Р»Рѕ РїРµСЂРµРґР°РЅРѕ РёРјСЏ РєР°С‚Р°Р»РѕРіР°;
+<li>СЂРµРґР°РєС‚РёСЂСѓРµРјС‹Р№ С„Р°Р№Р» РёРјРµРµС‚ RO-Р°С‚СЂРёР±СѓС‚ Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РІ РґРёР°Р»РѕРіРµ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РѕС‚РєСЂС‹С‚РёСЏ С‚Р°РєРѕРіРѕ С„Р°Р№Р»Р° РѕС‚РєР°Р·Р°Р»СЃСЏ РѕС‚ РґР°Р»СЊРЅРµР№С€РµРіРѕ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ.
+</ul>
+</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="EEC_MODIFIED">EEC_MODIFIED</a></td>
+<td class="cont" width="60%">РЈСЃРїРµС€РЅРѕРµ Р·Р°РІРµСЂС€РµРЅРёРµ. Р¤Р°Р№Р» Р±С‹Р» РёР·РјРµРЅС‘РЅ. Р¤СѓРЅРєС†РёСЏ <code>Editor</code> С‚Р°РєР¶Рµ РІРѕР·РІСЂР°С‰Р°РµС‚ СЌС‚РѕС‚ РєРѕРґ РІРѕР·РІСЂР°С‚Р° РїСЂРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё С„Р»Р°РіР° <code>EF_NONMODAL</code>.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="EEC_NOT_MODIFIED">EEC_NOT_MODIFIED</a></td>
+<td class="cont" width="60%">РЈСЃРїРµС€РЅРѕРµ Р·Р°РІРµСЂС€РµРЅРёРµ. Р¤Р°Р№Р» РЅРµ Р±С‹Р» РёР·РјРµРЅС‘РЅ.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="EEC_LOADING_INTERRUPTED">EEC_LOADING_INTERRUPTED</a></td>
+<td class="cont" width="60%">Р—Р°РіСЂСѓР·РєР° С„Р°Р№Р»Р° РїСЂРµСЂРІР°РЅР° РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј.</td></tr>
 </table>
-  </div>
+</div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-Если StartLine и StartChar равны -1, то при открытии редактора
-    будет восстановлена предварительно сохраненная позиция в файле
-    (если это включено в настройках).
+Р•СЃР»Рё <code>StartLine</code> Рё <code>StartChar</code> СЂР°РІРЅС‹ <code>-1</code>, С‚Рѕ РїСЂРё РѕС‚РєСЂС‹С‚РёРё СЂРµРґР°РєС‚РѕСЂР° Р±СѓРґРµС‚ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅР° РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ СЃРѕС…СЂР°РЅС‘РЅРЅР°СЏ РїРѕР·РёС†РёСЏ РІ С„Р°Р№Р»Рµ (РµСЃР»Рё СЌС‚Рѕ РІРєР»СЋС‡РµРЅРѕ РІ РЅР°СЃС‚СЂРѕР№РєР°С…).
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
 <a href="viewer.html">Viewer</a>
 </div>
 

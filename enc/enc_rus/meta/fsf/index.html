@@ -1,256 +1,240 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-<title>FarStandardFunctions</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<title>РЎС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-
 <body>
 
-<h1>FarStandardFunctions</h1>
+<h1>РЎС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</h1>
+
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="../structures/index.html">структуры</a> |
-<a href="../delphi/tfarstandardfunctions.html">TFarStandardFunctions</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a>
 </div>
 
-
-<div class=shortdescr>
-Структура <dfn>FarStandardFunctions</dfn> содержит указатели на полезные
-функции используемые в Far.exe</div>
-
-<pre class=syntax>
-struct FarStandardFunctions
-{
-  int StructSize;
-
-  FARSTDATOI                 <a href="atoi.html">atoi</a>;
-  FARSTDATOI64               <a href="atoi64.html">atoi64</a>;
-  FARSTDITOA                 <a href="itoa.html">itoa</a>;
-  FARSTDITOA64               <a href="itoa64.html">itoa64</a>;
-  FARSTDSPRINTF              <a href="sprintf.html">sprintf</a>;
-  FARSTDSSCANF               <a href="sscanf.html">sscanf</a>;
-  FARSTDQSORT                <a href="qsort.html">qsort</a>;
-  FARSTDBSEARCH              <a href="bsearch.html">bsearch</a>;
-  FARSTDQSORT                <a href="qsortex.html">qsortex</a>;
-  FARSTDSNPRINTF             <a href="snprintf.html">snprintf</a>;
-
-  DWORD_PTR                  Reserved[8];
-
-  FARSTDLOCALISLOWER         <a href="lislower.html">LIsLower</a>;
-  FARSTDLOCALISUPPER         <a href="lisupper.html">LIsUpper</a>;
-  FARSTDLOCALISALPHA         <a href="lisalpha.html">LIsAlpha</a>;
-  FARSTDLOCALISALPHANUM      <a href="lisalphanum.html">LIsAlphanum</a>;
-  FARSTDLOCALUPPER           <a href="lupper.html">LUpper</a>;
-  FARSTDLOCALLOWER           <a href="llower.html">LLower</a>;
-  FARSTDLOCALUPPERBUF        <a href="lupperbuf.html">LUpperBuf</a>;
-  FARSTDLOCALLOWERBUF        <a href="llowerbuf.html">LLowerBuf</a>;
-  FARSTDLOCALSTRUPR          <a href="lstrupr.html">LStrupr</a>;
-  FARSTDLOCALSTRLWR          <a href="lstrlwr.html">LStrlwr</a>;
-  FARSTDLOCALSTRICMP         <a href="lstricmp.html">LStricmp</a>;
-  FARSTDLOCALSTRNICMP        <a href="lstrnicmp.html">LStrnicmp</a>;
-
-  FARSTDUNQUOTE              <a href="unquote.html">Unquote</a>;
-  FARSTDEXPANDENVIRONMENTSTR <a href="expandenvironmentstr.html">ExpandEnvironmentStr</a>;
-  FARSTDLTRIM                <a href="ltrim.html">LTrim</a>;
-  FARSTDRTRIM                <a href="rtrim.html">RTrim</a>;
-  FARSTDTRIM                 <a href="trim.html">Trim</a>;
-  FARSTDTRUNCSTR             <a href="truncstr.html">TruncStr</a>;
-  FARSTDTRUNCPATHSTR         <a href="truncpathstr.html">TruncPathStr</a>;
-  FARSTDQUOTESPACEONLY       <a href="quotespaceonly.html">QuoteSpaceOnly</a>;
-  FARSTDPOINTTONAME          <a href="pointtoname.html">PointToName</a>;
-  FARSTDGETPATHROOT          <a href="getpathroot.html">GetPathRoot</a>;
-  FARSTDADDENDSLASH          <a href="addendslash.html">AddEndSlash</a>;
-  FARSTDCOPYTOCLIPBOARD      <a href="copytoclipboard.html">CopyToClipboard</a>;
-  FARSTDPASTEFROMCLIPBOARD   <a href="pastefromclipboard.html">PasteFromClipboard</a>;
-  FARSTDKEYTOKEYNAME         <a href="farkeytoname.html">FarKeyToName</a>;
-  FARSTDKEYNAMETOKEY         <a href="farnametokey.html">FarNameToKey</a>;
-  FARSTDINPUTRECORDTOKEY     <a href="farinputrecordtokey.html">FarInputRecordToKey</a>;
-  FARSTDXLAT                 <a href="xlat.html">XLat</a>;
-  FARSTDGETFILEOWNER         <a href="getfileowner.html">GetFileOwner</a>;
-  FARSTDGETNUMBEROFLINKS     <a href="getnumberoflinks.html">GetNumberOfLinks</a>;
-  FARSTDRECURSIVESEARCH      <a href="farrecursivesearch.html">FarRecurseSearch</a>;
-  FARSTDMKTEMP               <a href="mktemp.html">MkTemp</a>;
-  FARSTDDELETEBUFFER         <a href="deletebuffer.html">DeleteBuffer</a>;
-  FARSTDPROCESSNAME          <a href="processname.html">ProcessName</a>;
-  FARSTDMKLINK               <a href="mklink.html">MkLink</a>;
-  FARCONVERTNAMETOREAL       <a href="convertnametoreal.html">ConvertNameToReal</a>;
-  FARGETREPARSEPOINTINFO     <a href="getreparsepointinfo.html">GetReparsePointInfo</a>;
-};
-</pre>
-<h3>Элементы</h3>
+<!-- HHC following links are used to create the chm hhc file -->
+<h3>РЎС‚Р°РЅРґР°СЂС‚РЅС‹Рµ C С„СѓРЅРєС†РёРё Рё С‚.Рї.</h3>
 
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Сообщение</th><th class="cont" width="60%">Описание</th></tr>
-
-  <tr class="cont"><td class="cont" width="40%">StructSize</td>
-  <td class="cont" width="60%">Размер структуры. Если в будущем будут добавлены новые поля в структуре, это поле позволит определить данный факт.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="atoi.html">atoi</a></td>
-  <td class="cont" width="60%">конвертирует строку в целое число типа <b>int</b> (32-битное целое).</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="atoi64.html">atoi64</a></td>
-  <td class="cont" width="60%">конвертирует строку в целое число типа <b>__int64</b> (64-битное целое).</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="itoa.html">itoa</a></td>
-  <td class="cont" width="60%">конвертирует целое число типа <b>int</b> (32-битное целое) в строку.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="itoa64.html">itoa64</a></td>
-  <td class="cont" width="60%">конвертирует целое число типа <b>__int64</b> (64-битное целое) в строку.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="sprintf.html">sprintf</a></td>
-  <td class="cont" width="60%">осуществляет форматированный вывод в строку.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="sscanf.html">sscanf</a></td>
-  <td class="cont" width="60%">осуществляет форматированный ввод из строки.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="qsort.html">qsort</a></td>
-  <td class="cont" width="60%">осуществляет сортировку данных с использованием алгоритма QuickSort.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="bsearch.html">bsearch</a></td>
-  <td class="cont" width="60%">осуществляет двоичный поиск в массиве.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="qsortex.html">qsortex</a></td>
-  <td class="cont" width="60%">осуществляет сортировку данных с использованием алгоритма QuickSort.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="snprintf.html">snprintf</a></td>
-  <td class="cont" width="60%">осуществляет форматированный вывод в строку с заданным размером.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="lislower.html">LIsLower</a></td>
-  <td class="cont" width="60%">проверяет, является ли символ с указанным кодом буквой в нижнем регистре.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="lisupper.html">LIsUpper</a></td>
-  <td class="cont" width="60%">проверяет, является ли символ с указанным кодом буквой в верхнем регистре.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="lisalpha.html">LIsAlpha</a></td>
-  <td class="cont" width="60%">проверяет, является ли символ с указанным кодом буквой.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="lisalphanum.html">LIsAlphanum</a></td>
-  <td class="cont" width="60%">проверяет, является ли символ с указанным кодом буквой или цифрой.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="lupper.html">LUpper</a></td>
-  <td class="cont" width="60%">преобразует символ в верхний регистр.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="llower.html">LLower</a></td>
-  <td class="cont" width="60%">преобразует символ в нижний регистр.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="lupperbuf.html">LUpperBuf</a></td>
-  <td class="cont" width="60%">преобразует массив символов указанной длины, (который может содержать нулевые символы) в верхнем регистр.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="llowerbuf.html">LLowerBuf</a></td>
-  <td class="cont" width="60%">преобразует массив символов указанной длины, (который может содержать нулевые символы) в нижний регистр.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="lstrupr.html">LStrupr</a></td>
-  <td class="cont" width="60%">преобразует строку, оканчивающуюся нулем, в верхний регистр.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="lstrlwr.html">LStrlwr</a></td>
-  <td class="cont" width="60%">преобразует строку, оканчивающуюся нулем, в нижний регистр.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="lstricmp.html">LStricmp</a></td>
-  <td class="cont" width="60%">сравнивает две строки без учета регистра.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="lstrnicmp.html">LStrnicmp</a></td>
-  <td class="cont" width="60%">сравнивает части двух строк без учета регистра.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="unquote.html">Unquote</a></td>
-  <td class="cont" width="60%">убирает из строки все двойные кавычки.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="expandenvironmentstr.html">ExpandEnvironmentStr</a></td>
-  <td class="cont" width="60%">заменяет в строке ссылки на переменные окружения на их значения.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="ltrim.html">LTrim</a></td>
-  <td class="cont" width="60%">удаляет ведущие пробелы в строке.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="rtrim.html">RTrim</a></td>
-  <td class="cont" width="60%">удаляет конечные пробелы в строке.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="trim.html">Trim</a></td>
-  <td class="cont" width="60%">удаляет ведущие и конечные пробелы в строке.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="truncstr.html">TruncStr</a></td>
-  <td class="cont" width="60%">усекает указанную строку до требуемой длины и вставляет в начало строки многоточие вместо отрезанной части.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="truncpathstr.html">TruncPathStr</a></td>
-  <td class="cont" width="60%">усекает указанный путь до требуемого размера и вставляет при надобности многоточие вместо отрезанной части.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="quotespaceonly.html">QuoteSpaceOnly</a></td>
-  <td class="cont" width="60%">заключает строку в кавычки, если она содержит хотя бы один пробел.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="pointtoname.html">PointToName</a></td>
-  <td class="cont" width="60%">используется для получения указателя на имя файла в данном имени файла с путем.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="getpathroot.html">GetPathRoot</a></td>
-  <td class="cont" width="60%">используется для получения имени корневого каталога из указанного пути.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="addendslash.html">AddEndSlash</a></td>
-  <td class="cont" width="60%">добавляет к строке обратный слеш.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="copytoclipboard.html">CopyToClipboard</a></td>
-  <td class="cont" width="60%">копирует текстовую строку в буфер обмена Windows.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="pastefromclipboard.html">PasteFromClipboard</a></td>
-  <td class="cont" width="60%">используется для получения данных из буфера Windows.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="farkeytoname.html">FarKeyToName</a></td>
-  <td class="cont" width="60%">конвертирует код клавиши во внутреннем формате FAR Manager в строку.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="farnametokey.html">FarNameToKey</a></td>
-  <td class="cont" width="60%">преобразует символьное представление клавиши во внутренний формат клавиши FAR Manager.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="farinputrecordtokey.html">FarInputRecordToKey</a></td>
-  <td class="cont" width="60%">конвертирует код клавиши из <a href="../winapi/input_record.html">INPUT_RECORD</a> во внутренний формат представления клавиш FAR'а.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="xlat.html">XLat</a></td>
-  <td class="cont" width="60%">используется для конвертирования части строки из одного набора символов (например Русский) в другой (например Латиница).</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="getfileowner.html">GetFileOwner</a></td>
-  <td class="cont" width="60%">используется для определения владельца указанного файла.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="getnumberoflinks.html">GetNumberOfLinks</a></td>
-  <td class="cont" width="60%">возвращает количество жестких связей для заданного файла.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="farrecursivesearch.html">FarRecursiveSearch</a></td>
-  <td class="cont" width="60%">осуществляет рекурсивный поиск файлов.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="mktemp.html">MkTemp</a></td>
-  <td class="cont" width="60%">создает имя временного файла на основе шаблона.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="deletebuffer.html">DeleteBuffer</a></td>
-  <td class="cont" width="60%">используется для освобождения памяти, запрошенной функцией <dfn>PasteFromClipboard</dfn>.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="processname.html">ProcessName</a></td>
-  <td class="cont" width="60%">позволяет обработать некое имя файла: сравнить с маской, с масками или сгенерировать по маске новое имя.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="mklink.html">MkLink</a></td>
-  <td class="cont" width="60%">создает жесткие и символические связи, а также монтирует локальные диски на файловую систему.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="convertnametoreal.html">ConvertNameToReal</a></td>
-  <td class="cont" width="60%">преобразует относительное имя файлового объекта в полное с учетом символических связей (т.н. reparse point в Windows 2000) и текущего каталога.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a href="getreparsepointinfo.html">GetReparsePointInfo</a></td>
-  <td class="cont" width="60%">позволяет для указанной символической связи получить информацию об источнике -  путь к исходному каталогу/диску.</td></tr>
-
+<tr class="cont"><th class="cont" width="40%">Р¤СѓРЅРєС†РёСЏ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="atoi.html">atoi</a></td>
+<td class="cont" width="60%">РєРѕРЅРІРµСЂС‚РёСЂСѓРµС‚ СЃС‚СЂРѕРєСѓ РІ С†РµР»РѕРµ С‡РёСЃР»Рѕ С‚РёРїР° <b>int</b> (32-Р±РёС‚РЅРѕРµ С†РµР»РѕРµ)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="atoi64.html">atoi64</a></td>
+<td class="cont" width="60%">РєРѕРЅРІРµСЂС‚РёСЂСѓРµС‚ СЃС‚СЂРѕРєСѓ РІ С†РµР»РѕРµ С‡РёСЃР»Рѕ С‚РёРїР° <b>__int64</b> (64-Р±РёС‚РЅРѕРµ С†РµР»РѕРµ)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="bsearch.html">bsearch</a></td>
+<td class="cont" width="60%">РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚ РґРІРѕРёС‡РЅС‹Р№ РїРѕРёСЃРє РІ РјР°СЃСЃРёРІРµ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="itoa.html">itoa</a></td>
+<td class="cont" width="60%">РєРѕРЅРІРµСЂС‚РёСЂСѓРµС‚ С†РµР»РѕРµ С‡РёСЃР»Рѕ С‚РёРїР° <b>int</b> (32-Р±РёС‚РЅРѕРµ С†РµР»РѕРµ) РІ СЃС‚СЂРѕРєСѓ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="itoa64.html">itoa64</a></td>
+<td class="cont" width="60%">РєРѕРЅРІРµСЂС‚РёСЂСѓРµС‚ С†РµР»РѕРµ С‡РёСЃР»Рѕ С‚РёРїР° <b>__int64</b> (64-Р±РёС‚РЅРѕРµ С†РµР»РѕРµ) РІ СЃС‚СЂРѕРєСѓ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="lisalpha.html">LIsAlpha</a></td>
+<td class="cont" width="60%">РїСЂРѕРІРµСЂСЏРµС‚, СЏРІР»СЏРµС‚СЃСЏ Р»Рё СЃРёРјРІРѕР» СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РєРѕРґРѕРј Р±СѓРєРІРѕР№</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="lisalphanum.html">LIsAlphanum</a></td>
+<td class="cont" width="60%">РїСЂРѕРІРµСЂСЏРµС‚, СЏРІР»СЏРµС‚СЃСЏ Р»Рё СЃРёРјРІРѕР» СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РєРѕРґРѕРј Р±СѓРєРІРѕР№ РёР»Рё С†РёС„СЂРѕР№</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="lislower.html">LIsLower</a></td>
+<td class="cont" width="60%">РїСЂРѕРІРµСЂСЏРµС‚, СЏРІР»СЏРµС‚СЃСЏ Р»Рё СЃРёРјРІРѕР» СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РєРѕРґРѕРј Р±СѓРєРІРѕР№ РІ РЅРёР¶РЅРµРј СЂРµРіРёСЃС‚СЂРµ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="lisupper.html">LIsUpper</a></td>
+<td class="cont" width="60%">РїСЂРѕРІРµСЂСЏРµС‚, СЏРІР»СЏРµС‚СЃСЏ Р»Рё СЃРёРјРІРѕР» СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РєРѕРґРѕРј Р±СѓРєРІРѕР№ РІ РІРµСЂС…РЅРµРј СЂРµРіРёСЃС‚СЂРµ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="llower.html">LLower</a></td>
+<td class="cont" width="60%">РїСЂРµРѕР±СЂР°Р·СѓРµС‚ СЃРёРјРІРѕР» РІ РЅРёР¶РЅРёР№ СЂРµРіРёСЃС‚СЂ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="llowerbuf.html">LLowerBuf</a></td>
+<td class="cont" width="60%">РїСЂРµРѕР±СЂР°Р·СѓРµС‚ РјР°СЃСЃРёРІ СЃРёРјРІРѕР»РѕРІ СѓРєР°Р·Р°РЅРЅРѕР№ РґР»РёРЅС‹, (РєРѕС‚РѕСЂС‹Р№ РјРѕР¶РµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ РЅСѓР»РµРІС‹Рµ СЃРёРјРІРѕР»С‹) РІ РЅРёР¶РЅРёР№ СЂРµРіРёСЃС‚СЂ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="lstrlwr.html">LStrlwr</a></td>
+<td class="cont" width="60%">РїСЂРµРѕР±СЂР°Р·СѓРµС‚ СЃС‚СЂРѕРєСѓ, РѕРєР°РЅС‡РёРІР°СЋС‰СѓСЋСЃСЏ РЅСѓР»С‘Рј, РІ РЅРёР¶РЅРёР№ СЂРµРіРёСЃС‚СЂ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="lstrupr.html">LStrupr</a></td>
+<td class="cont" width="60%">РїСЂРµРѕР±СЂР°Р·СѓРµС‚ СЃС‚СЂРѕРєСѓ, РѕРєР°РЅС‡РёРІР°СЋС‰СѓСЋСЃСЏ РЅСѓР»С‘Рј, РІ РІРµСЂС…РЅРёР№ СЂРµРіРёСЃС‚СЂ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="lupper.html">LUpper</a></td>
+<td class="cont" width="60%">РїСЂРµРѕР±СЂР°Р·СѓРµС‚ СЃРёРјРІРѕР» РІ РІРµСЂС…РЅРёР№ СЂРµРіРёСЃС‚СЂ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="lupperbuf.html">LUpperBuf</a></td>
+<td class="cont" width="60%">РїСЂРµРѕР±СЂР°Р·СѓРµС‚ РјР°СЃСЃРёРІ СЃРёРјРІРѕР»РѕРІ СѓРєР°Р·Р°РЅРЅРѕР№ РґР»РёРЅС‹, (РєРѕС‚РѕСЂС‹Р№ РјРѕР¶РµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ РЅСѓР»РµРІС‹Рµ СЃРёРјРІРѕР»С‹) РІ РІРµСЂС…РЅРµРј СЂРµРіРёСЃС‚СЂ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="qsort.html">qsort</a></td>
+<td class="cont" width="60%">РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚ СЃРѕСЂС‚РёСЂРѕРІРєСѓ РґР°РЅРЅС‹С… СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј Р°Р»РіРѕСЂРёС‚РјР° QuickSort</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="snprintf.html">snprintf</a></td>
+<td class="cont" width="60%">РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚ С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРЅС‹Р№ РІС‹РІРѕРґ РІ СЃС‚СЂРѕРєСѓ СЃ Р·Р°РґР°РЅРЅС‹Рј СЂР°Р·РјРµСЂРѕРј</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="sprintf.html">sprintf</a></td>
+<td class="cont" width="60%">РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚ С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРЅС‹Р№ РІС‹РІРѕРґ РІ СЃС‚СЂРѕРєСѓ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="sscanf.html">sscanf</a></td>
+<td class="cont" width="60%">РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚ С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРЅС‹Р№ РІРІРѕРґ РёР· СЃС‚СЂРѕРєРё</td>
+</tr>
 </table>
 
-<h3>Замечания</h3>
-<div class=descr>
-  <p>Сохраните содержимое структуры в локальное пространство плагина:</p>
-  <pre class=code>static struct PluginStartupInfo Info;
-static struct FarStandardFunctions FSF;
+<h3>Р Р°Р·Р»РёС‡РЅС‹Рµ С„СѓРЅРєС†РёРё РґР»СЏ СЂР°Р±РѕС‚С‹ СЃРѕ СЃС‚СЂРѕРєР°РјРё</h3>
 
-void  _export SetStartupInfo(struct PluginStartupInfo *psInfo)
-{
-    Info=*psInfo;
-    FSF=*psInfo-&gt;FSF;
-    Info.FSF=&amp;FSF; // скорректируем адрес в локальной структуре
-    ...
-} </pre>
-</div>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Р¤СѓРЅРєС†РёСЏ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="addendslash.html">AddEndSlash</a></td>
+<td class="cont" width="60%">РґРѕР±Р°РІР»СЏРµС‚ Рє СЃС‚СЂРѕРєРµ РѕР±СЂР°С‚РЅС‹Р№ СЃР»РµС€</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="pointtoname.html">PointToName</a></td>
+<td class="cont" width="60%">РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СѓРєР°Р·Р°С‚РµР»СЏ РЅР° РёРјСЏ С„Р°Р№Р»Р° РІ РґР°РЅРЅРѕРј РёРјРµРЅРё С„Р°Р№Р»Р° СЃ РїСѓС‚С‘Рј</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="ltrim.html">LTrim</a></td>
+<td class="cont" width="60%">СѓРґР°Р»СЏРµС‚ РІРµРґСѓС‰РёРµ РїСЂРѕР±РµР»С‹ РІ СЃС‚СЂРѕРєРµ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="quotespaceonly.html">QuoteSpaceOnly</a></td>
+<td class="cont" width="60%">Р·Р°РєР»СЋС‡Р°РµС‚ СЃС‚СЂРѕРєСѓ РІ РєР°РІС‹С‡РєРё, РµСЃР»Рё РѕРЅР° СЃРѕРґРµСЂР¶РёС‚ С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ РїСЂРѕР±РµР»</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="rtrim.html">RTrim</a></td>
+<td class="cont" width="60%">СѓРґР°Р»СЏРµС‚ РєРѕРЅРµС‡РЅС‹Рµ РїСЂРѕР±РµР»С‹ РІ СЃС‚СЂРѕРєРµ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="trim.html">Trim</a></td>
+<td class="cont" width="60%">СѓРґР°Р»СЏРµС‚ РІРµРґСѓС‰РёРµ Рё РєРѕРЅРµС‡РЅС‹Рµ РїСЂРѕР±РµР»С‹ РІ СЃС‚СЂРѕРєРµ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="truncpathstr.html">TruncPathStr</a></td>
+<td class="cont" width="60%">СѓСЃРµРєР°РµС‚ СѓРєР°Р·Р°РЅРЅС‹Р№ РїСѓС‚СЊ РґРѕ С‚СЂРµР±СѓРµРјРѕРіРѕ СЂР°Р·РјРµСЂР° Рё РІСЃС‚Р°РІР»СЏРµС‚ РїСЂРё РЅР°РґРѕР±РЅРѕСЃС‚Рё РјРЅРѕРіРѕС‚РѕС‡РёРµ РІРјРµСЃС‚Рѕ РѕС‚СЂРµР·Р°РЅРЅРѕР№ С‡Р°СЃС‚Рё</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="truncstr.html">TruncStr</a></td>
+<td class="cont" width="60%">СѓСЃРµРєР°РµС‚ СѓРєР°Р·Р°РЅРЅСѓСЋ СЃС‚СЂРѕРєСѓ РґРѕ С‚СЂРµР±СѓРµРјРѕР№ РґР»РёРЅС‹ Рё РІСЃС‚Р°РІР»СЏРµС‚ РІ РЅР°С‡Р°Р»Рѕ СЃС‚СЂРѕРєРё РјРЅРѕРіРѕС‚РѕС‡РёРµ РІРјРµСЃС‚Рѕ РѕС‚СЂРµР·Р°РЅРЅРѕР№ С‡Р°СЃС‚Рё</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="unquote.html">Unquote</a></td>
+<td class="cont" width="60%">СѓР±РёСЂР°РµС‚ РёР· СЃС‚СЂРѕРєРё РІСЃРµ РґРІРѕР№РЅС‹Рµ РєР°РІС‹С‡РєРё</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="comparestrings.html">CompareStrings</a></td>
+<td class="cont" width="60%">СЃСЂР°РІРЅРµРЅРёРµ СЃС‚СЂРѕРє</td>
+</tr>
+</table>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../structures/index.html">структуры</a> |
+<h3>Р¤СѓРЅРєС†РёРё РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ С„Р°Р№Р»Р°РјРё</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Р¤СѓРЅРєС†РёСЏ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="convertpath.html">ConvertPath</a></td>
+<td class="cont" width="60%">РїСЂРµРѕР±СЂР°Р·СѓРµС‚ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕРµ РёРјСЏ С„Р°Р№Р»РѕРІРѕРіРѕ РѕР±СЉРµРєС‚Р° РІ РїРѕР»РЅРѕРµ
+<p class=note><img src="../../images/note.gif" alt="Р—Р°РјРµС‡Р°РЅРёРµ РґР»СЏ ConvertPath" width="10" height="10">Р’РЅРёРјР°РЅРёРµ!</p>
+<ul class=note><li>РќРµ РёСЃРїРѕР»СЊР·СѓР№С‚Рµ РґР»СЏ СЌС‚РёС… С†РµР»РµР№ С„СѓРЅРєС†РёСЋ <code>GetFullPathName</code> РёР· Windows API</li></ul>
+</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="farrecursivesearch.html">FarRecursiveSearch</a></td>
+<td class="cont" width="60%">РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚ СЂРµРєСѓСЂСЃРёРІРЅС‹Р№ РїРѕРёСЃРє С„Р°Р№Р»РѕРІ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="getcurrentdirectory.html">GetCurrentDirectory</a></td>
+<td class="cont" width="60%">РїРѕР·РІРѕР»СЏРµС‚ СѓР·РЅР°С‚СЊ РІРЅСѓС‚СЂРµРЅРЅРёР№ "С‚РµРєСѓС‰РёР№ РєР°С‚Р°Р»РѕРі" Far Manager
+<p class=note><img src="../../images/note.gif" alt="Р—Р°РјРµС‡Р°РЅРёРµ РґР»СЏ GetCurrentDirectory" width="10" height="10">Р’РЅРёРјР°РЅРёРµ!</p>
+<ul class=note><li>РќРµ РёСЃРїРѕР»СЊР·СѓР№С‚Рµ РґР»СЏ СЌС‚РёС… С†РµР»РµР№ С„СѓРЅРєС†РёСЋ <code>GetCurrentDirectory</code> РёР· Windows API</li></ul>
+</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="getfileowner.html">GetFileOwner</a></td>
+<td class="cont" width="60%">РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РІР»Р°РґРµР»СЊС†Р° СѓРєР°Р·Р°РЅРЅРѕРіРѕ С„Р°Р№Р»Р°</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="getnumberoflinks.html">GetNumberOfLinks</a></td>
+<td class="cont" width="60%">РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ Р¶С‘СЃС‚РєРёС… СЃСЃС‹Р»РѕРє РґР»СЏ Р·Р°РґР°РЅРЅРѕРіРѕ С„Р°Р№Р»Р°</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="getpathroot.html">GetPathRoot</a></td>
+<td class="cont" width="60%">РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РёРјРµРЅРё РєРѕСЂРЅРµРІРѕРіРѕ РєР°С‚Р°Р»РѕРіР° РёР· СѓРєР°Р·Р°РЅРЅРѕРіРѕ РїСѓС‚Рё</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="getreparsepointinfo.html">GetReparsePointInfo</a></td>
+<td class="cont" width="60%">РїРѕР·РІРѕР»СЏРµС‚ РґР»СЏ СѓРєР°Р·Р°РЅРЅРѕР№ СЃРёРјРІРѕР»РёС‡РµСЃРєРѕР№ СЃСЃС‹Р»РєРё РїРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РѕР± РёСЃС‚РѕС‡РЅРёРєРµ - РїСѓС‚СЊ Рє РёСЃС…РѕРґРЅРѕРјСѓ РєР°С‚Р°Р»РѕРіСѓ/РґРёСЃРєСѓ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="mklink.html">MkLink</a></td>
+<td class="cont" width="60%">СЃРѕР·РґР°С‘С‚ Р¶С‘СЃС‚РєРёРµ Рё СЃРёРјРІРѕР»РёС‡РµСЃРєРёРµ СЃСЃС‹Р»РєРё, СЃРІСЏР·Рё РєР°С‚Р°Р»РѕРіРѕРІ, Р° С‚Р°РєР¶Рµ РјРѕРЅС‚РёСЂСѓРµС‚ Р»РѕРєР°Р»СЊРЅС‹Рµ РґРёСЃРєРё РЅР° С„Р°Р№Р»РѕРІСѓСЋ СЃРёСЃС‚РµРјСѓ</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="mktemp.html">MkTemp</a></td>
+<td class="cont" width="60%">СЃРѕР·РґР°С‘С‚ РёРјСЏ РІСЂРµРјРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р° РЅР° РѕСЃРЅРѕРІРµ С€Р°Р±Р»РѕРЅР°</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="processname.html">ProcessName</a></td>
+<td class="cont" width="60%">РїРѕР·РІРѕР»СЏРµС‚ РѕР±СЂР°Р±РѕС‚Р°С‚СЊ РЅРµРєРѕРµ РёРјСЏ С„Р°Р№Р»Р°: СЃСЂР°РІРЅРёС‚СЊ СЃ РјР°СЃРєРѕР№, СЃ РјР°СЃРєР°РјРё РёР»Рё СЃРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ РїРѕ РјР°СЃРєРµ РЅРѕРІРѕРµ РёРјСЏ</td>
+</tr>
+<table>
+
+<h3>Р Р°Р·Р»РёС‡РЅС‹Рµ С„СѓРЅРєС†РёРё</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Р¤СѓРЅРєС†РёСЏ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="copytoclipboard.html">CopyToClipboard</a></td>
+<td class="cont" width="60%">РєРѕРїРёСЂСѓРµС‚ С‚РµРєСЃС‚РѕРІСѓСЋ СЃС‚СЂРѕРєСѓ РІ Р±СѓС„РµСЂ РѕР±РјРµРЅР° Windows</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="farclock.html">FarClock</a></td>
+<td class="cont" width="60%">РІРѕР·РІСЂР°С‰Р°РµС‚ РІСЂРµРјСЏ (РІ РјРёРєСЂРѕСЃРµРєСѓРЅРґР°С…), РёСЃС‚РµРєС€РµРµ СЃ РјРѕРјРµРЅС‚Р° Р·Р°РїСѓСЃРєР° СЃРµСЃСЃРёРё Far Manager</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="farinputrecordtoname.html">FarInputRecordToName</a></td>
+<td class="cont" width="60%">РєРѕРЅРІРµСЂС‚РёСЂСѓРµС‚ РєРѕРґ РєР»Р°РІРёС€ РёР· <a href="../winapi/input_record.html">INPUT_RECORD</a> РІ СЃС‚СЂРѕРєСѓ СЃ РєРѕРґР°РјРё РєР»Р°РІРёС€ РІРѕ РІРЅСѓС‚СЂРµРЅРЅРµРј РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРё Far Manager'Р°</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="farnametoinputrecord.html">FarNameToInputRecord</a></td>
+<td class="cont" width="60%">РєРѕРЅРІРµСЂС‚РёСЂСѓРµС‚ СЃС‚СЂРѕРєСѓ РёР· РєРѕРґР° РєР»Р°РІРёС€ СЃ РІРЅСѓС‚СЂРµРЅРЅРёРј С„РѕСЂРјР°С‚РѕРј РєР»Р°РІРёС€ Far Manager'Р° РІ <a href="../winapi/input_record.html">INPUT_RECORD</a></td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="formatfilesize.html">FormatFileSize</a></td>
+<td class="cont" width="60%">С„РѕСЂРјР°С‚РёСЂСѓРµС‚ С‡РёСЃР»Рѕ (СЂР°Р·РјРµСЂ С„Р°Р№Р»Р°) РїРѕ Р·Р°РґР°РЅРЅС‹Рј СѓСЃР»РѕРІРёСЏРј</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="pastefromclipboard.html">PasteFromClipboard</a></td>
+<td class="cont" width="60%">РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РґР°РЅРЅС‹С… РёР· Р±СѓС„РµСЂР° Windows</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="xlat.html">XLat</a></td>
+<td class="cont" width="60%">РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°РЅРёСЏ С‡Р°СЃС‚Рё СЃС‚СЂРѕРєРё РёР· РѕРґРЅРѕРіРѕ РЅР°Р±РѕСЂР° СЃРёРјРІРѕР»РѕРІ (РЅР°РїСЂРёРјРµСЂ Р СѓСЃСЃРєРёР№) РІ РґСЂСѓРіРѕР№ (РЅР°РїСЂРёРјРµСЂ Р›Р°С‚РёРЅРёС†Р°)</td>
+</tr>
+</table>
+<!-- HHC end hhc section -->
+
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div><div class=seecont>
 <a href="../structures/pluginstartupinfo.html">PluginStartupInfo</a>
 </div>
 

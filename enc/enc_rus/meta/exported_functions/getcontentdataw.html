@@ -1,0 +1,53 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>GetContentDataW</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>GetContentDataW</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">экспортируемые функции</a> |
+<a href="../contentapi/index.html">TODO: Content API</a>
+</div>
+
+<div class=shortdescr>
+Функция <code>GetContentDataW</code> вызывается для получения от плагина данных контент-колонок
+для заданного файла.<br>
+</div>
+
+<pre class=syntax>
+intptr_t WINAPI GetContentDataW(
+  struct GetContentDataInfo *Info
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>Info</div>
+    <div class=dfndescr>Указатель на структуру <a href="../structures/getcontentdatainfo.html">GetContentDataInfo</a>.<br>
+  </div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Если плагин устанавливал данные в Info-&gt;Values, то верните <code>1</code>. В противном случае <code>0</code>.
+</div>
+
+<div class=see>Смотрите также:</div>
+<a href="getcontentfieldsw.html">GetContentFieldsW</a>,
+<a href="freecontentdataw.html">FreeContentDataW</a>
+<div class=seecont>
+</div>
+
+<h3>ПРИМЕЧАНИЕ</h3>
+<div class=descr>
+Данное API не является окончательным и может быть изменено или удалено в любой момент.
+</div>
+
+</body>
+</html>

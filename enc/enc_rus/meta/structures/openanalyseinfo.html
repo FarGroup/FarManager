@@ -1,0 +1,47 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>OpenAnalyseInfo</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>OpenAnalyseInfo</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">структуры</a> |
+<a href="../panelapi/index.html">Panel API</a>
+</div>
+
+<div class=shortdescr>
+Указатель на структуру <code>OpenAnalyseInfo</code> передается в функцию <a href="../exported_functions/openw.html">OpenW</a>, когда плагин открывает панель на базе како-либо контейнера (например, архива).
+</div>
+
+<pre class=syntax>
+struct OpenAnalyseInfo
+{
+  size_t StructSize;
+  struct AnalyseInfo* Info;
+  HANDLE Handle;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>OpenAnalyseInfo</code>.</div>
+  <div class=dfn>Info</div>
+    <div class=dfndescr>Указатель на структуру типа <a href="analyseinfo.html">AnalyseInfo</a>.</div>
+  <div class=dfn>Handle</div>
+    <div class=dfndescr>Описатель, возвращаемый функцией <a href="../exported_functions/analysew.html">AnalyseW</a>.</div>
+</div>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../exported_functions/openw.html">OpenW</a>
+</div>
+
+</body>
+</html>

@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>DM_ENABLEREDRAW</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
@@ -10,54 +10,55 @@
 
 <h1>DM_ENABLEREDRAW</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index_dm.html">СЃРѕРѕР±С‰РµРЅРёСЏ</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Команда <dfn>DM_ENABLEREDRAW</dfn> посылается Менеджеру диалогов для
-отключения/включения перерисовки всего диалога.
+РљРѕРјР°РЅРґР° <code>DM_ENABLEREDRAW</code> РїРѕСЃС‹Р»Р°РµС‚СЃСЏ РњРµРЅРµРґР¶РµСЂСѓ РґРёР°Р»РѕРіРѕРІ РґР»СЏ РѕС‚РєР»СЋС‡РµРЅРёСЏ/РІРєР»СЋС‡РµРЅРёСЏ РїРµСЂРµСЂРёСЃРѕРІРєРё РІСЃРµРіРѕ РґРёР°Р»РѕРіР°.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-<code>TRUE</code> - Включить отрисовку диалога<br>
-<code>FALSE</code> - Отключить отрисовку диалога<br>
-<code>-1</code> - Получить текущее значение счетчика блокировки вывода.
+<code>TRUE</code> - Р’РєР»СЋС‡РёС‚СЊ РѕС‚СЂРёСЃРѕРІРєСѓ РґРёР°Р»РѕРіР°<br>
+<code>FALSE</code> - РћС‚РєР»СЋС‡РёС‚СЊ РѕС‚СЂРёСЃРѕРІРєСѓ РґРёР°Р»РѕРіР°<br>
+<code>-1</code> - РџРѕР»СѓС‡РёС‚СЊ С‚РµРєСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ СЃС‡С‘С‚С‡РёРєР° Р±Р»РѕРєРёСЂРѕРІРєРё РІС‹РІРѕРґР°.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-0
+<code>0</code>
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Предыдущее значение счетчика блокировки вывода.
+РџСЂРµРґС‹РґСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ СЃС‡С‘С‚С‡РёРєР° Р±Р»РѕРєРёСЂРѕРІРєРё РІС‹РІРѕРґР°.
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-Эта команда предназначена в основном для того, чтобы исключить
-перерисовку диалога при изменении нескольких элементов одновременно.
-Когда посылается это сообщение - счетчик блокировки при <dfn>Param1</dfn> = <code>TRUE</code>
-увеличивается, при <dfn>Param1</dfn> = <code>FALSE</code> - уменьшается.
-Диалог отрисовывается, когда значение счетчика равно 0.
-Это нормальное поведение для вложенных манипуляций.
-Типичное использование:
-<pre class=code>
-Info.SendDlgMessage(hDlg,<dfn>DM_ENABLEREDRAW</dfn>,FALSE,0);
+Р­С‚Р° РєРѕРјР°РЅРґР° РїСЂРµРґРЅР°Р·РЅР°С‡РµРЅР° РІ РѕСЃРЅРѕРІРЅРѕРј РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РёСЃРєР»СЋС‡РёС‚СЊ РїРµСЂРµСЂРёСЃРѕРІРєСѓ РґРёР°Р»РѕРіР° РїСЂРё РёР·РјРµРЅРµРЅРёРё РЅРµСЃРєРѕР»СЊРєРёС… СЌР»РµРјРµРЅС‚РѕРІ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ.
+РљРѕРіРґР° РїРѕСЃС‹Р»Р°РµС‚СЃСЏ СЌС‚Рѕ СЃРѕРѕР±С‰РµРЅРёРµ - СЃС‡С‘С‚С‡РёРє Р±Р»РѕРєРёСЂРѕРІРєРё РїСЂРё <code>Param1 = TRUE</code> СѓРІРµР»РёС‡РёРІР°РµС‚СЃСЏ, РїСЂРё <code>Param1 = FALSE</code> - СѓРјРµРЅСЊС€Р°РµС‚СЃСЏ.
+Р”РёР°Р»РѕРі РѕС‚СЂРёСЃРѕРІС‹РІР°РµС‚СЃСЏ, РєРѕРіРґР° Р·РЅР°С‡РµРЅРёРµ СЃС‡С‘С‚С‡РёРєР° СЂР°РІРЅРѕ <code>0</code>.
+Р­С‚Рѕ РЅРѕСЂРјР°Р»СЊРЅРѕРµ РїРѕРІРµРґРµРЅРёРµ РґР»СЏ РІР»РѕР¶РµРЅРЅС‹С… РјР°РЅРёРїСѓР»СЏС†РёР№.
+</div>
 
-// изменяем кучу заголовков
+<h3>РџСЂРёРјРµСЂ</h3>
+<div class=descr>
+РўРёРїРёС‡РЅРѕРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµ:
+<pre class=code>
+Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+// РёР·РјРµРЅСЏРµРј РєСѓС‡Сѓ Р·Р°РіРѕР»РѕРІРєРѕРІ
 
 Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 </pre>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialogex.html">DialogEx</a><br>
-
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

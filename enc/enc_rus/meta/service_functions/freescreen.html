@@ -1,0 +1,47 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>FreeScreen</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>FreeScreen</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">сервисные функции</a> |
+<a href="../miscapi/index.html">Miscellaneous API</a>
+</div>
+
+<div class=shortdescr>
+Функция <code>FreeScreen</code> освобождает память, зарезервированную функцией <a href="savescreen.html">SaveScreen</a>, без восстановления экрана.
+</div>
+
+<pre class=syntax>
+void WINAPI FreeScreen(
+  HANDLE hScreen
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>hScreen</div>
+    <div class=dfndescr>Описатель, полученный после вызова <a href="savescreen.html">SaveScreen</a>. После вызова <code>FreeScreen</code> он больше не может использоваться.</div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Нет.
+</div>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="savescreen.html">SaveScreen</a><br>
+<a href="restorescreen.html">RestoreScreen</a>
+</div>
+
+</body>
+</html>

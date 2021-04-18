@@ -1,96 +1,79 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.MkTemp</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
- Date: Tue 21 Nov 21:53:32 2000
-   Author: Ivan Sintyurin
-   E-mail: spinoza@mail.ru
--->
 <body>
 
 <h1>MkTemp</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">FarStandardFunctions</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.MkTemp</dfn> создает имя временного файла на основе шаблона.
+Р¤СѓРЅРєС†РёСЏ <code>FSF.MkTemp</code> СЃРѕР·РґР°С‘С‚ РёРјСЏ РІСЂРµРјРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р° РЅР° РѕСЃРЅРѕРІРµ С€Р°Р±Р»РѕРЅР°.
 </div>
 
 <pre class=syntax>
-char* WINAPI MkTemp(
-  char *Dest,
-  const char *Prefix
+size_t WINAPI MkTemp(
+  wchar_t *Dest,
+  size_t DestSize,
+  const wchar_t *Prefix
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Dest</div>
-  <div class=dfndescr>Указатель на буфер, который получит полное имя
-    временного файла в верхнем регистре. Размер приемного буфера должен иметь
-    достаточный размер для хранения результирующей строки (путь к каталогу
-    для временных файлов + имя временного файла из 12 символов).
-  </div>
-
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° Р±СѓС„РµСЂ, РєРѕС‚РѕСЂС‹Р№ РїРѕР»СѓС‡РёС‚ РїРѕР»РЅРѕРµ РёРјСЏ РІСЂРµРјРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р° РІ РІРµСЂС…РЅРµРј СЂРµРіРёСЃС‚СЂРµ. РЈСЃС‚Р°РЅРѕРІРёС‚Рµ <code>Dest = NULL</code> РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ СѓР·РЅР°С‚СЊ РЅРµРѕР±С…РѕРґРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°.</div>
+  <div class=dfn>DestSize</div>
+    <div class=dfndescr>РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ, РєРѕС‚РѕСЂРѕРµ РјРѕР¶РЅРѕ РїРѕРјРµСЃС‚РёС‚СЊ РІ <code>Dest</code>, СЃ Р·Р°РєР»СЋС‡РёС‚РµР»СЊРЅС‹Рј РЅСѓР»С‘Рј.</div>
   <div class=dfn>Prefix</div>
-  <div class=dfndescr>Указывает на оканчивающуюся нулем строку-префикс.
-    Максимум первые четыре символа из этой строки будут использованы в качестве
-    префикса имени файла. FAR дополнит символами <code>'0'</code> префикс,
-    если размер <var>Prefix</var> меньше 4.<br>
-    Если <var>Prefix</var> равен <code>NULL</code> или пустой строке,
-    то будет применен стандартный префикс <code>"FTMP"</code>
-  </div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РѕРєР°РЅС‡РёРІР°СЋС‰СѓСЋСЃСЏ РЅСѓР»С‘Рј СЃС‚СЂРѕРєСѓ-РїСЂРµС„РёРєСЃ. РњР°РєСЃРёРјСѓРј РїРµСЂРІС‹Рµ С‚СЂРё СЃРёРјРІРѕР»Р° РёР· СЌС‚РѕР№ СЃС‚СЂРѕРєРё Р±СѓРґСѓС‚ РёСЃРїРѕР»СЊР·РѕРІР°РЅС‹ РІ РєР°С‡РµСЃС‚РІРµ РїСЂРµС„РёРєСЃР° РёРјРµРЅРё С„Р°Р№Р»Р°.<br>
+    Р•СЃР»Рё <code>Prefix = NULL</code> РёР»Рё РїСѓСЃС‚РѕР№ СЃС‚СЂРѕРєРµ, С‚Рѕ Р±СѓРґРµС‚ РїСЂРёРјРµРЅС‘РЅ СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ РїСЂРµС„РёРєСЃ <code>"FAR"</code></div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-<em>Указатель</em> на <em>Dest</em>, содержащий имя временного файла в
-верхнем регистре, или NULL, в случае неудачи (не удалось создать уникального имени файла -
-возможно, что каталог для временных файлов <code>%TEMP%</code> содержит
-слишком много файлов, попробуйте очистить этот каталог).
+Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° <code>Dest</code> РІ СЃРёРјРІРѕР»Р°С….
 </div>
 
-<h3>Примечание</h3>
+<h3>РџСЂРёРјРµС‡Р°РЅРёРµ</h3>
 <div class=descr>
 <ol>
-<li>Имя временного файла формируется объединением пути к временному
-каталогу (получаемого через вызов функции <a href="win32/GetTempPath">GetTempPath</a>), переданного
-префикса, набора случайных шестнадцатеричных цифр. Формат:<p>
-
+<li>РРјСЏ РІСЂРµРјРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р° С„РѕСЂРјРёСЂСѓРµС‚СЃСЏ РѕР±СЉРµРґРёРЅРµРЅРёРµРј РїСѓС‚Рё Рє РІСЂРµРјРµРЅРЅРѕРјСѓ РєР°С‚Р°Р»РѕРіСѓ (РїРѕР»СѓС‡Р°РµРјРѕРіРѕ С‡РµСЂРµР· РІС‹Р·РѕРІ С„СѓРЅРєС†РёРё <a href="win32/GetTempPath">GetTempPath</a>), РїРµСЂРµРґР°РЅРЅРѕРіРѕ
+РїСЂРµС„РёРєСЃР°, РЅР°Р±РѕСЂР° СЃР»СѓС‡Р°Р№РЅС‹С… С€РµСЃС‚РЅР°РґС†Р°С‚РµСЂРёС‡РЅС‹С… С†РёС„СЂ. Р¤РѕСЂРјР°С‚:<p>
 <code>PrefXXXP.PTT</code><p>
 
-здесь<br>
-&nbsp;&nbsp;&nbsp;<b>Pref</b> - 4-х символьный префикс;<br>
-&nbsp;&nbsp;&nbsp;<b>XXX</b> - три 16-ричных цифры;<br>
-&nbsp;&nbsp;&nbsp;<b>PP</b> - две 16-ричных цифры PID (результат функции <a href="win32/GetCurrentProcessId">GetCurrentProcessId</a>);<br>
-&nbsp;&nbsp;&nbsp;<b>TT</b> - две 16-ричных цифры TID (результат функции <a href="win32/GetCurrentThreadId">GetCurrentThreadId</a>).<br>
+Р·РґРµСЃСЊ<br>
+&nbsp;&nbsp;&nbsp;<b>Pref</b> - 4-С… СЃРёРјРІРѕР»СЊРЅС‹Р№ РїСЂРµС„РёРєСЃ;<br>
+&nbsp;&nbsp;&nbsp;<b>XXX</b> - С‚СЂРё 16-СЂРёС‡РЅС‹С… С†РёС„СЂС‹;<br>
+&nbsp;&nbsp;&nbsp;<b>PP</b> - РґРІРµ 16-СЂРёС‡РЅС‹С… С†РёС„СЂС‹ PID (СЂРµР·СѓР»СЊС‚Р°С‚ С„СѓРЅРєС†РёРё <a href="win32/GetCurrentProcessId">GetCurrentProcessId</a>);<br>
+&nbsp;&nbsp;&nbsp;<b>TT</b> - РґРІРµ 16-СЂРёС‡РЅС‹С… С†РёС„СЂС‹ TID (СЂРµР·СѓР»СЊС‚Р°С‚ С„СѓРЅРєС†РёРё <a href="win32/GetCurrentThreadId">GetCurrentThreadId</a>).<br>
 
-<li>Функция, в отличии от FAR 1.70 beta 3, физически не создает файл
-на диске, только формирует имя.
-
-<li>В FAR 1.70 beta 3 функция работала только с первыми тремя символами префикса.
-
+<li>Р¤СѓРЅРєС†РёСЏ, С„РёР·РёС‡РµСЃРєРё РЅРµ СЃРѕР·РґР°С‘С‚ С„Р°Р№Р» РЅР° РґРёСЃРєРµ, С‚РѕР»СЊРєРѕ С„РѕСЂРјРёСЂСѓРµС‚ РёРјСЏ.
 </ol>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 <pre class=code>
-char TempName[NM];
+wchar_t TempName[MAX_PATH];
 
-FSF.MkTemp(TempName,NULL);        -&gt; "FTMP000D.P50"
-FSF.MkTemp(TempName,"");          -&gt; "FTMP000D.P50"
-FSF.MkTemp(TempName,"MY");        -&gt; "MY00000D.P50"
-FSF.MkTemp(TempName,"BaR");       -&gt; "BAR0000D.P50"
-FSF.MkTemp(TempName,"TstPlugin"); -&gt; "TSTP000D.P50"
+FSF.MkTemp(TempName,MAX_PATH,NULL);         -&gt; "FTMP000D.P50"
+FSF.MkTemp(TempName,MAX_PATH,L"");          -&gt; "FTMP000D.P50"
+FSF.MkTemp(TempName,MAX_PATH,L"MY");        -&gt; "MY00000D.P50"
+FSF.MkTemp(TempName,MAX_PATH,L"BaR");       -&gt; "BAR0000D.P50"
+FSF.MkTemp(TempName,MAX_PATH,L"TstPlugin"); -&gt; "TSTP000D.P50"
 </pre>
+</div>
+
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
 </div>
 
 </body>

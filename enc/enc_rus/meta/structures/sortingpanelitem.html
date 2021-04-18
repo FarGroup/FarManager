@@ -1,0 +1,81 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>SortingPanelItem</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>SortingPanelItem</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">структуры</a>
+</div>
+
+<div class=shortdescr>
+Структура <code>SortingPanelItem</code> описывает элемент файловой системы. Она используется при пользовательской сортировке элементов панели.
+</div>
+
+<pre class=syntax>
+struct SortingPanelItem
+{
+  FILETIME CreationTime;
+  FILETIME LastAccessTime;
+  FILETIME LastWriteTime;
+  FILETIME ChangeTime;
+  unsigned __int64 FileSize;
+  unsigned __int64 AllocationSize;
+  const wchar_t *FileName;
+  const wchar_t *AlternateFileName;
+  const wchar_t *Description;
+  const wchar_t *Owner;
+  const wchar_t * const *CustomColumnData;
+  size_t CustomColumnNumber;
+  PLUGINPANELITEMFLAGS Flags;
+  struct
+  {
+    void *Data;
+    FARPANELITEMFREECALLBACK FreeData;
+  } UserData;
+  uintptr_t FileAttributes;
+  uintptr_t NumberOfLinks;
+  uintptr_t CRC32;
+  intptr_t Position;
+  intptr_t SortGroup;
+  uintptr_t NumberOfStreams;
+  unsigned __int64 StreamsSize;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>Элементы, общие со структурой PluginPanelItem</div>
+    <div class=dfndescr>Первые 17 элементов структуры (по <code>CRC32</code>
+    включительно) совпадают с элементами структуры
+    <a href="pluginpanelitem.html">PluginPanelItem</a>.
+    </div>
+  <div class=dfn>Position</div>
+    <div class=dfndescr>Позиция элемента во внутреннем списке. Эта величина не может быть одинаковой для двух разных элементов списка.
+    </div>
+  <div class=dfn>SortGroup</div>
+    <div class=dfndescr>Идентификатор группы сортировки. Если элемент не входит
+    ни в одну группу сортировки, данная величина равна 0.
+    </div>
+  <div class=dfn>NumberOfStreams</div>
+    <div class=dfndescr>Количество потоков для данного элемента (NTFS).
+    </div>
+  <div class=dfn>StreamsSize</div>
+    <div class=dfndescr>Суммарный размер потоков данного элемента (NTFS).
+    </div>
+</div>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>,
+<a href="pluginpanelitem.html">PluginPanelItem</a>
+</div>
+
+</body>
+</html>

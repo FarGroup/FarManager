@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>DM_KEY</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
@@ -10,23 +10,23 @@
 
 <h1>DM_KEY</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index_dm.html">СЃРѕРѕР±С‰РµРЅРёСЏ</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Используя сообщение <dfn>DM_KEY</dfn> плагин передает массив значений
-<a href="../../defs/farkeycodes.html">кодов клавиш</a> Менеджеру диалогов.
+РСЃРїРѕР»СЊР·СѓСЏ СЃРѕРѕР±С‰РµРЅРёРµ <code>DM_KEY</code> РїР»Р°РіРёРЅ РїРµСЂРµРґР°С‘С‚ РјР°СЃСЃРёРІ РєР»Р°РІРёС€ РњРµРЅРµРґР¶РµСЂСѓ РґРёР°Р»РѕРіРѕРІ.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-Количество передаваемых клавиш.
+РљРѕР»РёС‡РµСЃС‚РІРѕ РїРµСЂРµРґР°РІР°РµРјС‹С… РєР»Р°РІРёС€.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на массив (типа DWORD) внутренних кодов клавиш.
+РњР°СЃСЃРёРІ СЃС‚СЂСѓРєС‚СѓСЂ С‚РёРїР° <a href="../../winapi/input_record.html">INPUT_RECORD</a>.
 </div>
 
 <h3>Return</h3>
@@ -34,27 +34,19 @@
 0
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-Обработчик диалога не получит события <a href="dn_key.html">DN_KEY</a> в
-ответ на посылку Менеджеру диалогов сообщения <dfn>DM_KEY</dfn>.
+РћР±СЂР°Р±РѕС‚С‡РёРє РґРёР°Р»РѕРіР° РЅРµ РїРѕР»СѓС‡РёС‚ СЃРѕР±С‹С‚РёСЏ <a href="dn_controlinput.html">DN_CONTROLINPUT</a> РІ РѕС‚РІРµС‚ РЅР° РїРѕСЃС‹Р»РєСѓ РњРµРЅРµРґР¶РµСЂСѓ РґРёР°Р»РѕРіРѕРІ СЃРѕРѕР±С‰РµРЅРёСЏ <code>DM_KEY</code>.
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
-<p>Пример передачи набора клавиш диалогу (фокусному элементу):
-<pre class=code>
-// в конец строки редактирования добавить точку с запятой.
-DWORD Keys[2]={KEY_END,';'};
-
-Info.SendDlgMessage(hDlg,DM_KEY,sizeof(Keys)/sizeof(Keys[0]),(LONG_PTR)Keys);
-</pre>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialogex.html">DialogEx</a>,
-<a href="dn_key.html">DN_KEY</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
+<a href="dn_controlinput.html">DN_CONTROLINPUT</a>
 </div>
 
 </body>

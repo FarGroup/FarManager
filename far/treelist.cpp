@@ -746,7 +746,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 			os::fs::filebuf StreamBuffer(TreeFile, std::ios::out);
 			std::ostream Stream(&StreamBuffer);
 			Stream.exceptions(Stream.badbit | Stream.failbit);
-			encoding::writer Writer(Stream, CP_UNICODE, false);
+			encoding::writer Writer(Stream, CP_UNICODE);
 			const auto Eol = eol::system.str();
 
 			for (const auto& i: Container)

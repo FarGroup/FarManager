@@ -1020,7 +1020,7 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 			const auto& DlgHistory = EditPtr->GetHistory();
 			if(DlgHistory)
 			{
-				DlgHistory->ReadLastItem(CurItem->strHistory, strData);
+				strData = DlgHistory->LastItem();
 			}
 
 			if (MsgIndex != -1)

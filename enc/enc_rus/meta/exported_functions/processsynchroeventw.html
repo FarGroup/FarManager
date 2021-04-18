@@ -1,0 +1,45 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ProcessSynchroEventW</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+<body>
+
+<h1>ProcessSynchroEventW</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">экспортируемые функции</a> |
+<a href="../miscapi/index.html">Miscellaneous API</a>
+</div>
+
+<div class=shortdescr>
+<code>ProcessSynchroEventW</code> позволяет плагину выполнить код в контексте главного потока Far Manager.
+</div>
+
+<pre class=syntax>
+intptr_t WINAPI ProcessSynchroEventW(
+  const struct ProcessSynchroEventInfo *Info
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>Info</div>
+    <div class=dfndescr>Указатель на структуру <a href="../structures/processsynchroeventinfo.html">ProcessSynchroEventInfo</a>, Far Manager передает информацию о событии, посланном из созданного плагином потока.<br>
+    В начале функции проверьте, что поле <code>ProcessSynchroEventInfo.StructSize >= sizeof(ProcessSynchroEventInfo)</code>.</div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Возвращаемое значение зависит от типа события, смотрите описание событий для уточнения информации.<br>
+Для необрабатываемых плагином событий, функция должна возвращать <code>0</code>.
+</div>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+</div>
+
+</body>
+</html>

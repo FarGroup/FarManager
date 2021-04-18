@@ -1,61 +1,55 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.AddEndSlash</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
-<script language="javascript" src='../links.js' type="text/javascript"></script>
+<script language="javascript" src="../links.js" type="text/javascript"></script>
 </head>
-<!--history
- Date: Mon 20 Nov 19:02:45 2000
-   Author: Ivan Sintyurin
-   E-mail: spinoza@mail.ru
--->
 <body>
 
 <h1>AddEndSlash</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">FarStandardFunctions</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.AddEndSlash</dfn> добавляет к строке обратный слеш.
+Р¤СѓРЅРєС†РёСЏ <code>FSF.AddEndSlash</code> РґРѕР±Р°РІР»СЏРµС‚ Рє СЃС‚СЂРѕРєРµ РѕР±СЂР°С‚РЅС‹Р№ СЃР»РµС€.
 </div>
 
 <pre class=syntax>
-int WINAPI AddEndSlash(
-  char *Path
+BOOL WINAPI AddEndSlash(
+  wchar_t *Path
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Path</div>
-  <div class=dfndescr>Указатель на обрабатываемую строку.
-  </div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјСѓСЋ СЃС‚СЂРѕРєСѓ.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-TRUE - при успешном добавлении/преобразовании строки <em>Path</em>.<br>
-FALSE - если в качестве параметра <em>Path</em> передали значение NULL.
+<ul>
+<li><code>TRUE</code> - РїСЂРё СѓСЃРїРµС€РЅРѕРј РґРѕР±Р°РІР»РµРЅРёРё/РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРё СЃС‚СЂРѕРєРё <code>Path</code>.
+<li><code>FALSE</code> - РµСЃР»Рё РІ РєР°С‡РµСЃС‚РІРµ РїР°СЂР°РјРµС‚СЂР° <code>Path</code> РїРµСЂРµРґР°Р»Рё Р·РЅР°С‡РµРЅРёРµ <code>NULL</code>.
+</ul>
 </div>
 
-<h3>Примечание</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 <ol>
-<li>Строка должна иметь достаточный объем, чтобы поместить в нее еще один символ.
-<li>Функция работает с обоими видами слешей - прямым и обратным.
-<li>Также происходит изменение уже существующего конечного слеша на тот,
-    который чаще встречается в строке <em>Path</em>.
-<li>Если в конце строки уже содержится обратный слеш, то еще один слеш в
-    конец не добавляется.
+<li>РЎС‚СЂРѕРєР° РґРѕР»Р¶РЅР° РёРјРµС‚СЊ РґРѕСЃС‚Р°С‚РѕС‡РЅС‹Р№ РѕР±СЉС‘Рј, С‡С‚РѕР±С‹ РїРѕРјРµСЃС‚РёС‚СЊ РІ РЅРµС‘ РµС‰С‘ РѕРґРёРЅ СЃРёРјРІРѕР».
+<li>Р¤СѓРЅРєС†РёСЏ СЂР°Р±РѕС‚Р°РµС‚ СЃ РѕР±РѕРёРјРё РІРёРґР°РјРё СЃР»РµС€РµР№ - РїСЂСЏРјС‹Рј Рё РѕР±СЂР°С‚РЅС‹Рј.
+<li>РўР°РєР¶Рµ РїСЂРѕРёСЃС…РѕРґРёС‚ РёР·РјРµРЅРµРЅРёРµ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРіРѕ РєРѕРЅРµС‡РЅРѕРіРѕ СЃР»РµС€Р° РЅР° С‚РѕС‚, РєРѕС‚РѕСЂС‹Р№ С‡Р°С‰Рµ РІСЃС‚СЂРµС‡Р°РµС‚СЃСЏ РІ СЃС‚СЂРѕРєРµ <code>Path</code>.
+<li>Р•СЃР»Рё РІ РєРѕРЅС†Рµ СЃС‚СЂРѕРєРё СѓР¶Рµ СЃРѕРґРµСЂР¶РёС‚СЃСЏ РѕР±СЂР°С‚РЅС‹Р№ СЃР»РµС€, С‚Рѕ РµС‰С‘ РѕРґРёРЅ СЃР»РµС€ РІ РєРѕРЅРµС† РЅРµ РґРѕР±Р°РІР»СЏРµС‚СЃСЏ.
 </ol>
 </div>
 
-<h3>Пример</h3>
-<div class=descr>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
 </div>
 
 </body>

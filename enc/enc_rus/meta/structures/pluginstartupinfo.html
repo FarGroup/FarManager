@@ -1,159 +1,85 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>PluginStartupInfo</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-
 <body>
 
 <h1>PluginStartupInfo</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
+<a href="../basicapi/index.html">Basic API</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>PluginStartupInfo</dfn> используется в функции <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>
-для передачи плагину различной важной информации.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>PluginStartupInfo</code> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ С„СѓРЅРєС†РёРё <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a> РґР»СЏ РїРµСЂРµРґР°С‡Рё Far Manager'РѕРј РїР»Р°РіРёРЅСѓ СЂР°Р·Р»РёС‡РЅРѕР№ РІР°Р¶РЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё.
 </div>
 
 <pre class=syntax>
 struct PluginStartupInfo
 {
-  int StructSize;
+  size_t                   StructSize;
+  const wchar_t           *ModuleName;
 
-  char ModuleName[NM];
-  int ModuleNumber;
-  const char *RootKey;
-  FARAPIMENU             Menu;
-  FARAPIDIALOG           Dialog;
-  FARAPIMESSAGE          Message;
-  FARAPIGETMSG           GetMsg;
-  FARAPICONTROL          Control;
-  FARAPISAVESCREEN       SaveScreen;
-  FARAPIRESTORESCREEN    RestoreScreen;
-  FARAPIGETDIRLIST       GetDirList;
-  FARAPIGETPLUGINDIRLIST GetPluginDirList;
-  FARAPIFREEDIRLIST      FreeDirList;
+  FARAPIMENU               <a href="../service_functions/menu.html">Menu</a>;
+  FARAPIMESSAGE            <a href="../service_functions/message.html">Message</a>;
+  FARAPIGETMSG             <a href="../service_functions/getmsg.html">GetMsg</a>;
+  FARAPIPANELCONTROL       <a href="../service_functions/panelcontrol.html">PanelControl</a>;
+  FARAPISAVESCREEN         <a href="../service_functions/savescreen.html">SaveScreen</a>;
+  FARAPIRESTORESCREEN      <a href="../service_functions/restorescreen.html">RestoreScreen</a>;
+  FARAPIGETDIRLIST         <a href="../service_functions/getdirlist.html">GetDirList</a>;
+  FARAPIGETPLUGINDIRLIST   <a href="../service_functions/getplugindirlist.html">GetPluginDirList</a>;
+  FARAPIFREEDIRLIST        <a href="../service_functions/freedirlist.html">FreeDirList</a>;
+  FARAPIFREEPLUGINDIRLIST  <a href="../service_functions/freeplugindirlist.html">FreePluginDirList</a>;
+  FARAPIVIEWER             <a href="../service_functions/viewer.html">Viewer</a>;
+  FARAPIEDITOR             <a href="../service_functions/editor.html">Editor</a>;
+  FARAPITEXT               <a href="../service_functions/text.html">Text</a>;
+  FARAPIEDITORCONTROL      <a href="../service_functions/editorcontrol.html">EditorControl</a>;
 
-  // <em>FAR &gt;= 1.50</em>
-  FARAPIVIEWER           Viewer;
-  FARAPIEDITOR           Editor;
-  FARAPICMPNAME          CmpName;
+  FARSTANDARDFUNCTIONS    *<a href="../structures/farstandardfunctions.html">FSF</a>;
 
-  // <em>FAR &gt;= 1.52</em>
-  FARAPICHARTABLE        CharTable;
-  FARAPITEXT             Text;
+  FARAPISHOWHELP           <a href="../service_functions/showhelp.html">ShowHelp</a>;
+  FARAPIADVCONTROL         <a href="../service_functions/advcontrol.html">AdvControl</a>;
+  FARAPIINPUTBOX           <a href="../service_functions/inputbox.html">InputBox</a>;
+  FARAPICOLORDIALOG        <a href="../service_functions/colordialog.html">ColorDialog</a>;
+  FARAPIDIALOGINIT         <a href="../service_functions/dialoginit.html">DialogInit</a>;
+  FARAPIDIALOGRUN          <a href="../service_functions/dialogrun.html">DialogRun</a>;
+  FARAPIDIALOGFREE         <a href="../service_functions/dialogfree.html">DialogFree</a>;
+  FARAPISENDDLGMESSAGE     <a href="../service_functions/senddlgmessage.html">SendDlgMessage</a>;
+  FARAPIDEFDLGPROC         <a href="../service_functions/defdlgproc.html">DefDlgProc</a>;
+  FARAPIVIEWERCONTROL      <a href="../service_functions/viewercontrol.html">ViewerControl</a>;
+  FARAPIPLUGINSCONTROL     <a href="../service_functions/pluginscontrol.html">PluginsControl</a>;
+  FARAPIFILEFILTERCONTROL  <a href="../service_functions/filefiltercontrol.html">FileFilterControl</a>;
+  FARAPIREGEXPCONTROL      <a href="../service_functions/regexpcontrol.html">RegExpControl</a>;
+  FARAPIMACROCONTROL       <a href="../service_functions/macrocontrol.html">MacroControl</a>;
+  FARAPISETTINGSCONTROL    <a href="../service_functions/settingscontrol.html">SettingsControl</a>;
 
-  // <em>FAR &gt;= 1.60</em>
-  FARAPIEDITORCONTROL    EditorControl;
+  void                    *Private;
+  void                    *Instance;
 
-  // <em>FAR &gt;= 1.70</em>
-  FARSTANDARDFUNCTIONS  *FSF;
-
-  FARAPISHOWHELP         ShowHelp;
-  FARAPIADVCONTROL       AdvControl;
-  FARAPIINPUTBOX         InputBox;
-  FARAPIDIALOGEX         DialogEx;
-  FARAPISENDDLGMESSAGE   SendDlgMessage;
-  FARAPIDEFDLGPROC       DefDlgProc;
-  DWORD_PTR              Reserved;
-  FARAPIVIEWERCONTROL    ViewerControl;
+  FARAPIFREESCREEN         <a href="../service_functions/freescreen.html">FreeScreen</a>;
 };
 </pre>
-<h3>Элементы</h3>
+
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
-
-    <div class=dfn>StructSize</div>
-    <div class=dfndescr>Размер структуры. Если в будущем будут добавлены новые поля, это поле позволит определить это.</div>
-    <div class=dfn>ModuleName</div>
-    <div class=dfndescr>Полное имя плагина с путем.</div>
-    <div class=dfn>ModuleNumber</div>
-    <div class=dfndescr>Номер плагина. Передается как параметр в некоторых функциях.</div>
-    <div class=dfn>RootKey</div>
-    <div class=dfndescr>Ключ Реестра, где плагин может сохранять свои параметры.
-      Одинаков и для <b>HKEY_CURRENT_USER</b> и для <b>HKEY_LOCAL_MACHINE</b>.
-      Обычно это "<code>Software\Far\Plugins</code>", но вы не должны указывать
-      эту строку непосредственно, т.к. она может быть изменена или может стать
-      опциональной в будущем. Например, если FAR запущен с ключем
-      '<code>/u user1</code>', то <em>RootKey</em> соответственно будет
-      содержать строку "<code>Software\Far\Users\user1\Plugins</code>".
-      <p>Не сохраняйте параметры прямо в <i>RootKey</i>,
-      создайте здесь свой собственный подключ.</div>
-    <div class=dfn>Menu</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/menu.html">Menu</a>.</div>
-    <div class=dfn>Dialog</div>
-    <div class=dfndescr>Адрес функции <a href="../dialogapi/dialog.html">Dialog</a>.</div>
-    <div class=dfn>Message</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/message.html">Message</a>.</div>
-    <div class=dfn>GetMsg</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/getmsg.html">GetMsg</a>.</div>
-    <div class=dfn>Control</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/control.html">Control</a>.</div>
-    <div class=dfn>SaveScreen</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/savescreen.html">SaveScreen</a>.</div>
-    <div class=dfn>RestoreScreen</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/restorescreen.html">RestoreScreen</a>.</div>
-    <div class=dfn>GetDirList</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/getdirlist.html">GetDirList</a>.</div>
-    <div class=dfn>GetPluginDirList</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/getplugindirlist.html">GetPluginDirList</a>.</div>
-    <div class=dfn>FreeDirList</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/freedirlist.html">FreeDirList</a>.</div>
-
-    <div class=dfn>Viewer</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/viewer.html">Viewer</a>.</div>
-    <div class=dfn>Editor</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/editor.html">Editor</a>.</div>
-    <div class=dfn>CmpName</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/cmpname.html">CmpName</a>.</div>
-
-    <div class=dfn>CharTable</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/chartable.html">CharTable</a>.</div>
-    <div class=dfn>Text</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/text.html">Text</a>.</div>
-    <div class=dfn>EditorControl</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/editorcontrol.html">EditorControl</a>.</div>
-
-    <div class=dfn>FSF</div>
-    <div class=dfndescr>Указатель на структуру <a href="../fsf/index.html">FarStandardFunctions</a> с адресами полезных функций из far.exe.</div>
-    <div class=dfn>ShowHelp</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/showhelp.html">ShowHelp</a>.</div>
-    <div class=dfn>AdvControl</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/advcontrol.html">AdvControl</a>.</div>
-    <div class=dfn>InputBox</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/inputbox.html">InputBox</a>.</div>
-    <div class=dfn>DialogEx</div>
-    <div class=dfndescr>Адрес функции <a href="../dialogapi/dialogex.html">DialogEx</a>.</div>
-    <div class=dfn>SendDlgMessage</div>
-    <div class=dfndescr>Адрес функции <a href="../dialogapi/senddlgmessage.html">SendDlgMessage</a>.</div>
-    <div class=dfn>DefDlgProc</div>
-    <div class=dfndescr>Адрес функции <a href="../dialogapi/defdlgproc.html">DefDlgProc</a>.</div>
-    <div class=dfn>DefDlgProc</div>
-    <div class=dfndescr>Адрес функции <a href="../service_functions/viewercontrol.html">ViewerControl</a>.</div>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Р­С‚Рѕ РїРѕР»Рµ СЃРѕРґРµСЂР¶РёС‚ СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ <code>PluginStartupInfo</code>. Р•СЃР»Рё РІ Р±СѓРґСѓС‰РµРј Р±СѓРґСѓС‚ РґРѕР±Р°РІР»РµРЅС‹ РЅРѕРІС‹Рµ РїРѕР»СЏ, СЌС‚Рѕ РїРѕР»Рµ РїРѕР·РІРѕР»РёС‚ РѕРїСЂРµРґРµР»РёС‚СЊ СЌС‚Рѕ.</div>
+  <div class=dfn>ModuleName</div>
+    <div class=dfndescr>РџРѕР»РЅРѕРµ РёРјСЏ РїР»Р°РіРёРЅР° СЃ РїСѓС‚С‘Рј.</div>
+  <div class=dfn>Private</div>
+    <div class=dfndescr>РџРѕР»Рµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ Far Manager'РѕРј РґР»СЏ РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёСЏ СЃ РѕС‚РґРµР»СЊРЅС‹РјРё СЃС‚Р°РЅРґР°СЂС‚РЅС‹РјРё РїР»Р°РіРёРЅР°РјРё.</div>
 </div>
 
-<h3>Замечания</h3>
-<div class=descr>
-  Версии FAR Manager:<ul>
-  <li>ниже 1.50 (с поддержкой плагинов) - не содержат поля после <a href="../service_functions/freedirlist.html">FreeDirList</a>;
-  <li>ниже 1.52 - не содержат поля после <a href="../service_functions/cmpname.html">CmpName</a>;
-  <li>ниже 1.60 - не содержат поля после <a href="../service_functions/text.html">Text</a>;
-  <li>ниже 1.65 -  не содержат поля после <a href="../service_functions/editorcontrol.html">EditorControl</a>
-  </ul>
-  Таким образом, если вы собираетесь использовать функции
-  <a href="../service_functions/viewer.html">Viewer</a>,
-  <a href="../service_functions/editor.html">Editor</a>
-  или любую другую после нее, вы должны сначала проверить поле <i>StructSize</i>,
-  чтобы гарантировать, что эти функции обеспечиваются текущей версией FAR'а.
-</div>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
-<a href="../delphi/tpluginstartupinfo.html">TPluginStartupInfo</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> 
 </div>
 
 </body>

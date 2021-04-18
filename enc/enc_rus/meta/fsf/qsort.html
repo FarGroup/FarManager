@@ -1,85 +1,69 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.qsort</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
--->
 <body>
 
 <h1>qsort</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">FarStandardFunctions</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.qsort</dfn> осуществляет сортировку данных с использованием
-алгоритма QuickSort.</div>
+Р¤СѓРЅРєС†РёСЏ <code>FSF.qsort</code> РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚ СЃРѕСЂС‚РёСЂРѕРІРєСѓ РґР°РЅРЅС‹С… СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј Р°Р»РіРѕСЂРёС‚РјР° QuickSort.
+</div>
 
 <pre class=syntax>
 void WINAPI qsort(
   void *Base,
   size_t NElem,
   size_t Width,
-  int (<b>__cdecl</b> *fcmp)(const void *, const void *)
+  int (<b>WINAPI</b> *fcmp)(const void *, const void *, void *),
+  void *UserParam
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Base</div>
-  <div class=dfndescr>Указатель на начало данных для сортировки.
-  </div>
-
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РЅР°С‡Р°Р»Рѕ РґР°РЅРЅС‹С… РґР»СЏ СЃРѕСЂС‚РёСЂРѕРІРєРё.</div>
   <div class=dfn>NElem</div>
-  <div class=dfndescr>Количество сортируемых данных.
-  </div>
-
+    <div class=dfndescr>РљРѕР»РёС‡РµСЃС‚РІРѕ СЃРѕСЂС‚РёСЂСѓРµРјС‹С… РґР°РЅРЅС‹С….</div>
   <div class=dfn>Width</div>
-  <div class=dfndescr>Размер одного элемента сортируемых данных.
-  </div>
-
+    <div class=dfndescr>Р Р°Р·РјРµСЂ РѕРґРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р° СЃРѕСЂС‚РёСЂСѓРµРјС‹С… РґР°РЅРЅС‹С….</div>
   <div class=dfn>fcmp</div>
-  <div class=dfndescr>Функция сравнения двух элементов. В процессе сортировки
-  вызывается каждый раз, когда необходимо сравнить пару элементов данных.
-  Функция сравнения <dfn>fcmp</dfn> должна иметь C-декларацию (_USERENTRY или _cdecl).<br>
-  <em>fcmp</em> получает два аргумента - <em>elem1</em> и <em>elem2</em>,
-  которые являются указателями на данные, и возвращает результат:
-  <table border=0>
-   <tr><td>*elem1 &lt; *elem2</td><td>- fcmp возвращает целое меньше 0</td></tr>
-   <tr><td>*elem1 == *elem2</td><td>- fcmp возвращает 0</td></tr>
-   <tr><td>*elem1  &gt; *elem2</td><td>- fcmp возвращает целое больше 0</td></tr>
-  </table>
-  </div>
+    <div class=dfndescr>Р¤СѓРЅРєС†РёСЏ СЃСЂР°РІРЅРµРЅРёСЏ РґРІСѓС… СЌР»РµРјРµРЅС‚РѕРІ. Р’ РїСЂРѕС†РµСЃСЃРµ СЃРѕСЂС‚РёСЂРѕРІРєРё РІС‹Р·С‹РІР°РµС‚СЃСЏ РєР°Р¶РґС‹Р№ СЂР°Р·, РєРѕРіРґР° РЅРµРѕР±С…РѕРґРёРјРѕ СЃСЂР°РІРЅРёС‚СЊ РїР°СЂСѓ СЌР»РµРјРµРЅС‚РѕРІ РґР°РЅРЅС‹С….
+    Р¤СѓРЅРєС†РёСЏ СЃСЂР°РІРЅРµРЅРёСЏ <code>fcmp</code> РґРѕР»Р¶РЅР° РёРјРµС‚СЊ РґРµРєР»Р°СЂР°С†РёСЋ <code>WINAPI</code>.<br>
+    <code>fcmp</code> РїРѕР»СѓС‡Р°РµС‚ С‚СЂРё Р°СЂРіСѓРјРµРЅС‚Р° - <code>elem1</code>, <code>elem2</code> (РєРѕС‚РѕСЂС‹Рµ СЏРІР»СЏСЋС‚СЃСЏ СѓРєР°Р·Р°С‚РµР»СЏРјРё РЅР° РґР°РЅРЅС‹Рµ) Рё <code>userparam</code> (С‚Рѕ, С‡С‚Рѕ Р±С‹Р»Рѕ РїРµСЂРµРґР°РЅРѕ РІ С„СѓРЅРєС†РёСЋ РІ РєР°С‡РµСЃС‚РІРµ РїР°СЂР°РјРµС‚СЂР° <code>UserParam</code>),
+    Рё РІРѕР·РІСЂР°С‰Р°РµС‚ СЂРµР·СѓР»СЊС‚Р°С‚:
+    <table border=0>
+    <tr><td>*elem1 &lt; *elem2</td><td>- fcmp РІРѕР·РІСЂР°С‰Р°РµС‚ С†РµР»РѕРµ РјРµРЅСЊС€Рµ 0</td></tr>
+    <tr><td>*elem1 == *elem2</td><td>- fcmp РІРѕР·РІСЂР°С‰Р°РµС‚ 0</td></tr>
+    <tr><td>*elem1  &gt; *elem2</td><td>- fcmp РІРѕР·РІСЂР°С‰Р°РµС‚ С†РµР»РѕРµ Р±РѕР»СЊС€Рµ 0</td></tr>
+    </table>
+    </div>
+  <div class=dfn>UserParam</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёРµ РґР°РЅРЅС‹Рµ, РєРѕС‚РѕСЂС‹Рµ С„СѓРЅРєС†РёСЏ <code>qsort</code> Р±СѓРґРµС‚ РїРµСЂРµРґР°РІР°С‚СЊ РІ С„СѓРЅРєС†РёСЋ СЃСЂР°РІРЅРµРЅРёСЏ <code>fcmp</code> РІ РєР°С‡РµСЃС‚РІРµ С‚СЂРµС‚СЊРµРіРѕ РїР°СЂР°РјРµС‚СЂР°.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-Нет.
+РќРµС‚.
 </div>
 
-<h3>Замечания</h3>
+<h3>РџСЂРёРјРµС‡Р°РЅРёРµ</h3>
 <div class=descr>
-<ol>
-<li>Более подробно о функции см. справочное руководство по языку C/C++.
-<li>Функция qsort() реализует нестабильную сортировку. Иными словами,
-порядок элементов, равных с точки зрения функции сравнения, не определён и
-может меняться при повторных сортировках уже отсортированного массива.
-</ol>
+Р¤СѓРЅРєС†РёСЏ СЂРµР°Р»РёР·СѓРµС‚ РЅРµСЃС‚Р°Р±РёР»СЊРЅСѓСЋ СЃРѕСЂС‚РёСЂРѕРІРєСѓ. РРЅС‹РјРё СЃР»РѕРІР°РјРё, РїРѕСЂСЏРґРѕРє СЌР»РµРјРµРЅС‚РѕРІ, СЂР°РІРЅС‹С… СЃ С‚РѕС‡РєРё Р·СЂРµРЅРёСЏ С„СѓРЅРєС†РёРё СЃСЂР°РІРЅРµРЅРёСЏ, РЅРµ РѕРїСЂРµРґРµР»С‘РЅ Рё РјРѕР¶РµС‚ РјРµРЅСЏС‚СЊСЃСЏ РїСЂРё РїРѕРІС‚РѕСЂРЅС‹С… СЃРѕСЂС‚РёСЂРѕРІРєР°С… СѓР¶Рµ РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅРЅРѕРіРѕ РјР°СЃСЃРёРІР°.
 </div>
 
-<h3>Пример</h3>
-<div class=descr>
-</div>
-
-
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="bsearch.html">FSF.bsearch</a>,
-<a href="qsortex.html">FSF.qsortex</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="bsearch.html">FSF.bsearch</a>
 </div>
 
 </body>

@@ -473,23 +473,31 @@ size_t encoding::get_bytes(uintptr_t const Codepage, string_view const Str, span
 	return Result;
 }
 
-std::string encoding::get_bytes(uintptr_t const Codepage, string_view const Str, error_position* const ErrorPosition)
+void encoding::get_bytes(uintptr_t Codepage, string_view Str, std::string& Buffer, error_position* ErrorPosition)
 {
 	if (Str.empty())
-		return {};
+	{
+		Buffer.clear();
+		return;
+	}
 
 	// DataSize is a good estimation for the bytes count.
 	// With this approach we can fill the buffer with only one attempt in many cases.
-	std::string Buffer(Str.size(), '\0');
+	Buffer.resize(Str.size(), '\0');
 
 	for (auto Overflow = true; Overflow;)
 	{
-		const auto Size = get_bytes(Codepage, Str, Buffer, ErrorPosition);
+		const auto Size = get_bytes(Codepage, Str, span(Buffer), ErrorPosition);
 		Overflow = Size > Buffer.size();
 		Buffer.resize(Size);
 	}
+}
 
-	return Buffer;
+std::string encoding::get_bytes(uintptr_t const Codepage, string_view const Str, error_position* const ErrorPosition)
+{
+	std::string Result;
+	get_bytes(Codepage, Str, Result, ErrorPosition);
+	return Result;
 }
 
 size_t encoding::get_bytes_count(uintptr_t const Codepage, string_view const Str, error_position* ErrorPosition)
@@ -536,15 +544,13 @@ size_t encoding::get_chars(uintptr_t const Codepage, std::string_view const Str,
 	return Result;
 }
 
-size_t encoding::get_chars(uintptr_t const Codepage, bytes_view const Str, span<wchar_t> Buffer, error_position* const ErrorPosition)
-{
-	return get_chars(Codepage, to_string_view(Str), Buffer, ErrorPosition);
-}
-
-string encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, error_position* const ErrorPosition)
+void encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, string& Buffer, error_position* const ErrorPosition)
 {
 	if (Str.empty())
-		return {};
+	{
+		Buffer.clear();
+		return;
+	}
 
 	const auto EstimatedCharsCount = [&]
 	{
@@ -565,15 +571,31 @@ string encoding::get_chars(uintptr_t const Codepage, std::string_view const Str,
 	};
 
 	// With this approach we can fill the buffer with only one attempt in many cases.
-	string Buffer(EstimatedCharsCount(), {});
+	resize_exp_noshrink(Buffer, EstimatedCharsCount());
+
 	for (auto Overflow = true; Overflow;)
 	{
-		const auto Size = get_chars(Codepage, Str, Buffer, ErrorPosition);
+		const auto Size = get_chars(Codepage, Str, span(Buffer), ErrorPosition);
 		Overflow = Size > Buffer.size();
 		Buffer.resize(Size);
 	}
+}
 
-	return Buffer;
+size_t encoding::get_chars(uintptr_t const Codepage, bytes_view const Str, span<wchar_t> Buffer, error_position* const ErrorPosition)
+{
+	return get_chars(Codepage, to_string_view(Str), Buffer, ErrorPosition);
+}
+
+void encoding::get_chars(uintptr_t const Codepage, bytes_view const Str, string& Buffer, error_position* const ErrorPosition)
+{
+	return get_chars(Codepage, to_string_view(Str), Buffer, ErrorPosition);
+}
+
+string encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, error_position* const ErrorPosition)
+{
+	string Result;
+	get_chars(Codepage, Str, Result, ErrorPosition);
+	return Result;
 }
 
 string encoding::get_chars(uintptr_t const Codepage, bytes_view const Str, error_position* const ErrorPosition)
@@ -589,6 +611,17 @@ size_t encoding::get_chars_count(uintptr_t const Codepage, std::string_view cons
 size_t encoding::get_chars_count(uintptr_t const Codepage, bytes_view const Str, error_position* const ErrorPosition)
 {
 	return get_chars(Codepage, Str, {}, ErrorPosition);
+}
+
+void encoding::raise_exception(uintptr_t const Codepage, string_view const Str, size_t const Position)
+{
+	throw MAKE_FAR_KNOWN_EXCEPTION(
+		concat(
+			codepages::UnsupportedCharacterMessage(Str[Position]),
+			L"\n"sv,
+			codepages::FormatName(Codepage)
+		)
+	);
 }
 
 std::string_view encoding::get_signature_bytes(uintptr_t Cp)
@@ -630,30 +663,47 @@ void encoding::writer::write(const string_view Str)
 	if (m_Codepage == CP_UNICODE)
 		return io::write(*m_Stream, Str);
 
-	// External buffer to minimise allocations
-	m_Buffer.resize(m_Buffer.capacity());
 
-	for (auto Overflow = true; Overflow;)
-	{
-		error_position ErrorPosition;
-		const auto Size = get_bytes(m_Codepage, Str, m_Buffer, m_IgnoreEncodingErrors? nullptr : &ErrorPosition);
+	error_position ErrorPosition;
+	get_bytes(m_Codepage, Str, m_Buffer, m_IgnoreEncodingErrors? nullptr : &ErrorPosition);
 
-		if (ErrorPosition)
-		{
-			throw MAKE_FAR_KNOWN_EXCEPTION(
-				concat(
-					codepages::UnsupportedCharacterMessage(Str[*ErrorPosition]),
-					L"\n"sv,
-					codepages::FormatName(m_Codepage)
-				)
-			);
-		}
-
-		Overflow = Size > m_Buffer.size();
-		m_Buffer.resize(Size);
-	}
+	if (ErrorPosition)
+		raise_exception(m_Codepage, Str, *ErrorPosition);
 
 	io::write(*m_Stream, m_Buffer);
+}
+
+encoding::memory_writer::memory_writer(uintptr_t const Codepage, bool const AddSignature):
+	m_Codepage(Codepage),
+	m_AddSignature(AddSignature)
+{
+}
+
+void encoding::memory_writer::write(string_view Str)
+{
+	if (m_AddSignature)
+	{
+		m_Data.emplace_back(get_signature_bytes(m_Codepage));
+		m_AddSignature = false;
+	}
+
+	// Nothing to do here
+	if (Str.empty())
+		return;
+
+	error_position ErrorPosition;
+	m_Data.emplace_back(get_bytes(m_Codepage, Str, &ErrorPosition));
+
+	if (ErrorPosition)
+		raise_exception(m_Codepage, Str, *ErrorPosition);
+}
+
+void encoding::memory_writer::flush_to(std::ostream& Stream)
+{
+	for (const auto& i: m_Data)
+	{
+		io::write(Stream, i);
+	}
 }
 
 //################################################################################################
@@ -1430,6 +1480,54 @@ bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialConte
 #ifdef ENABLE_TESTS
 
 #include "testing.hpp"
+
+TEST_CASE("encoding.basic")
+{
+	static const struct
+	{
+		std::string_view Str;
+		string_view WideStr;
+	}
+	Tests[]
+	{
+#define INIT(x) { x, L ## x }
+		INIT(""),
+		INIT("0123456789"),
+		INIT("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+#undef INIT
+	};
+
+	std::array const Codepages
+	{
+		static_cast<uintptr_t>(CP_UTF8),
+		encoding::codepage::ansi(),
+		encoding::codepage::oem()
+	};
+
+	for (const auto& Codepage: Codepages)
+	{
+		for (const auto& i: Tests)
+		{
+			{
+				auto WideStr = encoding::get_chars(Codepage, i.Str);
+				REQUIRE(i.WideStr == WideStr);
+
+				auto Str = encoding::get_bytes(Codepage, i.WideStr);
+				REQUIRE(i.Str == Str);
+			}
+
+			{
+				string WideStr;
+				encoding::get_chars(Codepage, i.Str, WideStr);
+				REQUIRE(i.WideStr == WideStr);
+
+				std::string Str;
+				encoding::get_bytes(Codepage, i.WideStr, Str);
+				REQUIRE(i.Str == Str);
+			}
+		}
+	}
+}
 
 TEST_CASE("encoding.utf8")
 {

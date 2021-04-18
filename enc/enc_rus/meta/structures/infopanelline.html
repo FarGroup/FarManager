@@ -1,53 +1,52 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>InfoPanelLine</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-
 <body>
 
 <h1>InfoPanelLine</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
+<a href="../panelapi/index.html">Panel API</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>InfoPanelLine</dfn> описывает одну строку информационной
-панели. Массив этих структур передается в FAR функцией
-<a href="../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a>.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>InfoPanelLine</code> РѕРїРёСЃС‹РІР°РµС‚ РѕРґРЅСѓ СЃС‚СЂРѕРєСѓ РёРЅС„РѕСЂРјР°С†РёРѕРЅРЅРѕР№ РїР°РЅРµР»Рё. РњР°СЃСЃРёРІ СЌС‚РёС… СЃС‚СЂСѓРєС‚СѓСЂ РїРµСЂРµРґР°С‘С‚СЃСЏ РІ Far Manager С„СѓРЅРєС†РёРµР№ <a href="../exported_functions/getopenpanelinfow.html">GetOpenPluginInfoW</a>.
 </div>
 
 <pre class=syntax>
 struct InfoPanelLine
 {
-  char Text[80];
-  char Data[80];
-  int Separator;
+  const wchar_t *Text;
+  const wchar_t *Data;
+  INFOPANELLINE_FLAGS Flags;
 };
 </pre>
-<h3>Элементы</h3>
+
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
-    <div class=dfn>Text</div>
-    <div class=dfndescr>Заголовок параметра - текст, выровненный по левому краю
-      панели и отображаемый цветом обычного текста
-      (<a href="../defs/farcolors.html#COL_PANELTEXT">COL_PANELTEXT</a>).</div>
-    <div class=dfn>Data</div>
-    <div class=dfndescr>Данные параметра - текст, выровненный по правому краю
-      панели и отображаемый цветом выделенной информации
-      (<a href="../defs/farcolors.html#COL_PANELINFOTEXT">COL_PANELINFOTEXT</a>)</div>
-    <div class=dfn>Separator</div>
-    <div class=dfndescr>Если не равно нулю, показывается разделитель.
-    <i>Text</i> используется как заголовок разделителя, <i>Data</i>
-    игнорируется.</div>
+  <div class=dfn>Text</div>
+    <div class=dfndescr>Р—Р°РіРѕР»РѕРІРѕРє РїР°СЂР°РјРµС‚СЂР° - С‚РµРєСЃС‚, РІС‹СЂРѕРІРЅРµРЅРЅС‹Р№ РїРѕ Р»РµРІРѕРјСѓ РєСЂР°СЋ РїР°РЅРµР»Рё Рё РѕС‚РѕР±СЂР°Р¶Р°РµРјС‹Р№ С†РІРµС‚РѕРј РѕР±С‹С‡РЅРѕРіРѕ С‚РµРєСЃС‚Р° (<a href="../defs/farcolors.html#COL_PANELTEXT">COL_PANELTEXT</a>).</div>
+  <div class=dfn>Data</div>
+    <div class=dfndescr>Р”Р°РЅРЅС‹Рµ РїР°СЂР°РјРµС‚СЂР° - С‚РµРєСЃС‚, РІС‹СЂРѕРІРЅРµРЅРЅС‹Р№ РїРѕ РїСЂР°РІРѕРјСѓ РєСЂР°СЋ РїР°РЅРµР»Рё Рё РѕС‚РѕР±СЂР°Р¶Р°РµРјС‹Р№ С†РІРµС‚РѕРј РІС‹РґРµР»РµРЅРЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё (<a href="../defs/farcolors.html#COL_PANELINFOTEXT">COL_PANELINFOTEXT</a>)</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>РљРѕРјР±РёРЅР°С†РёСЏ С„Р»Р°РіРѕРІ (С‚РёРї <a name="INFOPANELLINE_FLAGS">INFOPANELLINE_FLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="IPLFLAGS_SEPARATOR">IPLFLAGS_SEPARATOR</a></td>
+    <td class="cont" width="60%">РџР°СЂР°РјРµС‚СЂ РїРѕРєР°Р·С‹РІР°РµС‚СЃСЏ РєР°Рє СЂР°Р·РґРµР»РёС‚РµР»СЊ. <code>Text</code> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РєР°Рє Р·Р°РіРѕР»РѕРІРѕРє СЂР°Р·РґРµР»РёС‚РµР»СЏ, <code>Data</code> РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ.</td></tr>
+    </table></div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
-<a href="../delphi/tinfopanelline.html">TInfoPanelLine</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>
 </div>
+
 </body>
 </html>

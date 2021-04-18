@@ -1,56 +1,48 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.QuoteSpaceOnly</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
- Date: Tue 21 Nov 22:00:07 2000
-   Author: Ivan Sintyurin
-   E-mail: spinoza@mail.ru
--->
 <body>
 
 <h1>QuoteSpaceOnly</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">FarStandardFunctions</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.QuoteSpaceOnly</dfn> заключает строку в кавычки, если она содержит хотя бы один пробел.
+Р¤СѓРЅРєС†РёСЏ <code>FSF.QuoteSpaceOnly</code> Р·Р°РєР»СЋС‡Р°РµС‚ СЃС‚СЂРѕРєСѓ РІ РєР°РІС‹С‡РєРё, РµСЃР»Рё РѕРЅР° СЃРѕРґРµСЂР¶РёС‚ С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ РїСЂРѕР±РµР».
 </div>
 
 <pre class=syntax>
-char* WINAPI QuoteSpaceOnly(
-  char *Str
+wchar_t* WINAPI QuoteSpaceOnly(
+  wchar_t *Str
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Str</div>
-  <div class=dfndescr>Указатель на обрабатываемую строку.
-  </div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјСѓСЋ СЃС‚СЂРѕРєСѓ.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-Возвращается указатель на результирующую строку.
+Р’РѕР·РІСЂР°С‰Р°РµС‚СЃСЏ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰СѓСЋ СЃС‚СЂРѕРєСѓ.
 </div>
 
-<h3>Примечание</h3>
+<h3>РџСЂРёРјРµС‡Р°РЅРёРµ</h3>
 <div class=descr>
 <ol>
-<li>Помните, что Str должна иметь достаточный размер, чтобы вместить кавычки.
-<li>Если строка уже заключена в кавычки - преобразования не происходит.
-<li>Функция корректно добавляет недостающие кавычки в начало или в конец строки,
-    если таковых нету.
+<li>РџРѕРјРЅРёС‚Рµ, С‡С‚Рѕ <code>Str</code> РґРѕР»Р¶РЅР° РёРјРµС‚СЊ РґРѕСЃС‚Р°С‚РѕС‡РЅС‹Р№ СЂР°Р·РјРµСЂ, С‡С‚РѕР±С‹ РІРјРµСЃС‚РёС‚СЊ РєР°РІС‹С‡РєРё.
+<li>Р•СЃР»Рё СЃС‚СЂРѕРєР° СѓР¶Рµ Р·Р°РєР»СЋС‡РµРЅР° РІ РєР°РІС‹С‡РєРё - РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ РЅРµ РїСЂРѕРёСЃС…РѕРґРёС‚.
+<li>Р¤СѓРЅРєС†РёСЏ РєРѕСЂСЂРµРєС‚РЅРѕ РґРѕР±Р°РІР»СЏРµС‚ РЅРµРґРѕСЃС‚Р°СЋС‰РёРµ РєР°РІС‹С‡РєРё РІ РЅР°С‡Р°Р»Рѕ РёР»Рё РІ РєРѕРЅРµС† СЃС‚СЂРѕРєРё, РµСЃР»Рё С‚Р°РєРѕРІС‹С… РЅРµС‚Сѓ.
 </ol>
 </div>
-
 
 </body>
 </html>

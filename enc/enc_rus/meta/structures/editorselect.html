@@ -1,82 +1,85 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>EditorSelect</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-
 <body>
 
 <h1>EditorSelect</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
+<a href="../editorapi/index.html">Editor API</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>EditorSelect</dfn> используется в функции
-<a href="../service_functions/editorcontrol.html">EditorControl</a>
-для выделения или снятия выделения с текста в редакторе FAR'а.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>EditorSelect</code> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ С„СѓРЅРєС†РёРё <a href="../service_functions/editorcontrol.html">EditorControl</a> РґР»СЏ РІС‹РґРµР»РµРЅРёСЏ РёР»Рё СЃРЅСЏС‚РёСЏ РІС‹РґРµР»РµРЅРёСЏ СЃ С‚РµРєСЃС‚Р° РІ СЂРµРґР°РєС‚РѕСЂРµ Far Manager.
 </div>
 
 <pre class=syntax>
 struct EditorSelect
 {
-  int BlockType;
-  int BlockStartLine;
-  int BlockStartPos;
-  int BlockWidth;
-  int BlockHeight;
+  size_t StructSize;
+  intptr_t BlockType;
+  intptr_t BlockStartLine;
+  intptr_t BlockStartPos;
+  intptr_t BlockWidth;
+  intptr_t BlockHeight;
 };
 </pre>
-<h3>Элементы</h3>
-<div class=descr>
 
-    <div class=dfn>BlockType</div>
-    <div class=dfndescr>Одно из следующих значений (перечисление <a name="EDITOR_BLOCK_TYPES">EDITOR_BLOCK_TYPES</a>):
-        <table class="cont">
-        <tr class="cont"><th class="cont" width="40%">Тип блока</th><th class="cont" width="60%">Описание</th></tr>
-        <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_NONE">BTYPE_NONE</a></td>
-        <td class="cont" width="60%">снять выделение с блока</td></tr>
-        <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_STREAM">BTYPE_STREAM</a></td>
-        <td class="cont" width="60%">выделить строковой блок</td></tr>
-        <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_COLUMN">BTYPE_COLUMN</a></td>
-        <td class="cont" width="60%">выделить вертикальный блок</td></tr>
-        </table>
-        Если <i>BlockType</i> равен BTYPE_NONE, другие поля этой структуры не важны.
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
+<div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Р­С‚Рѕ РїРѕР»Рµ РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ <code>EditorSelect</code>. РџРµСЂРµРґ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј СЃС‚СЂСѓРєС‚СѓСЂС‹ РїР»Р°РіРёРЅ РґРѕР»Р¶РµРЅ Р·Р°РїРѕР»РЅРёС‚СЊ РїРѕР»Рµ.</div>
+  <div class=dfn>BlockType</div>
+    <div class=dfndescr>РћРґРЅРѕ РёР· СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="EDITOR_BLOCK_TYPES">EDITOR_BLOCK_TYPES</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">РўРёРї Р±Р»РѕРєР°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_NONE">BTYPE_NONE</a></td>
+    <td class="cont" width="60%">СЃРЅСЏС‚СЊ РІС‹РґРµР»РµРЅРёРµ СЃ Р±Р»РѕРєР°</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_STREAM">BTYPE_STREAM</a></td>
+    <td class="cont" width="60%">РІС‹РґРµР»РёС‚СЊ СЃС‚СЂРѕРєРѕРІРѕР№ Р±Р»РѕРє</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_COLUMN">BTYPE_COLUMN</a></td>
+    <td class="cont" width="60%">РІС‹РґРµР»РёС‚СЊ РІРµСЂС‚РёРєР°Р»СЊРЅС‹Р№ Р±Р»РѕРє</td></tr>
+    </table>
+    Р•СЃР»Рё <code>BlockType = BTYPE_NONE</code>, РґСЂСѓРіРёРµ РїРѕР»СЏ СЌС‚РѕР№ СЃС‚СЂСѓРєС‚СѓСЂС‹ РЅРµ РІР°Р¶РЅС‹.
     </div>
-    <div class=dfn>BlockStartLine</div>
-    <div class=dfndescr>Первая строка блока. Можно установить это поле в <code>-1</code> - началом блока будет текущая строка.</div>
-    <div class=dfn>BlockStartPos</div>
-    <div class=dfndescr>Начальная позиция блока. Если <em>BlockStartPos</em> = -1, то выделение блока снимается.</div>
-    <div class=dfn>BlockWidth</div>
-    <div class=dfndescr>Ширина блока. Может быть отрицательной величиной.</div>
-    <div class=dfn>BlockHeight</div>
-    <div class=dfndescr>Высота блока. Должна быть &gt;= 1</div>
+  <div class=dfn>BlockStartLine</div>
+    <div class=dfndescr>РџРµСЂРІР°СЏ СЃС‚СЂРѕРєР° Р±Р»РѕРєР°. РњРѕР¶РЅРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ СЌС‚Рѕ РїРѕР»Рµ РІ <code>-1</code> - РЅР°С‡Р°Р»РѕРј Р±Р»РѕРєР° Р±СѓРґРµС‚ С‚РµРєСѓС‰Р°СЏ СЃС‚СЂРѕРєР°.</div>
+  <div class=dfn>BlockStartPos</div>
+    <div class=dfndescr>РќР°С‡Р°Р»СЊРЅР°СЏ РїРѕР·РёС†РёСЏ Р±Р»РѕРєР°. Р•СЃР»Рё <code>BlockStartPos = -1</code>, С‚Рѕ РІС‹РґРµР»РµРЅРёРµ Р±Р»РѕРєР° СЃРЅРёРјР°РµС‚СЃСЏ.</div>
+  <div class=dfn>BlockWidth</div>
+    <div class=dfndescr>РЁРёСЂРёРЅР° Р±Р»РѕРєР°. РњРѕР¶РµС‚ Р±С‹С‚СЊ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕР№ РІРµР»РёС‡РёРЅРѕР№.</div>
+  <div class=dfn>BlockHeight</div>
+    <div class=dfndescr>Р’С‹СЃРѕС‚Р° Р±Р»РѕРєР°. Р”РѕР»Р¶РЅР° Р±С‹С‚СЊ &gt;= 1.</div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 <ol>
-<li>Функция <a href="../service_functions/editorcontrol.html">EditorControl</a> вернет FALSE, если:
-  <ul>
-  <li>размер передаваемой переменной меньше размера структуры EditorSelect;
-  <li><em>BlockHeight</em> меньше 1;
-  <li><em>BlockStartLine</em> больше количества строк в редакторе.
-  </ul>
+<li>Р¤СѓРЅРєС†РёСЏ <a href="../service_functions/editorcontrol.html">EditorControl</a> РІРµСЂРЅС‘С‚ <code>FALSE</code>, РµСЃР»Рё:
+<ul>
+<li>СЂР°Р·РјРµСЂ РїРµСЂРµРґР°РІР°РµРјРѕР№ РїРµСЂРµРјРµРЅРЅРѕР№ РјРµРЅСЊС€Рµ СЂР°Р·РјРµСЂР° СЃС‚СЂСѓРєС‚СѓСЂС‹ <code>EditorSelect</code>;
+<li><code>BlockHeight</code> РјРµРЅСЊС€Рµ 1;
+<li><code>BlockStartLine</code> Р±РѕР»СЊС€Рµ РєРѕР»РёС‡РµСЃС‚РІР° СЃС‚СЂРѕРє РІ СЂРµРґР°РєС‚РѕСЂРµ.
+</ul>
 </li>
 </ol>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
-Программно строковый блок от (X1,Y1) до (X2,Y2) можно выделить так:
-<pre class=code>es.BlockType=BTYPE_STREAM;
+РџСЂРѕРіСЂР°РјРјРЅРѕ СЃС‚СЂРѕРєРѕРІС‹Р№ Р±Р»РѕРє РѕС‚ (X1,Y1) РґРѕ (X2,Y2) РјРѕР¶РЅРѕ РІС‹РґРµР»РёС‚СЊ С‚Р°Рє:
+<pre class=code>
+es.BlockType=BTYPE_STREAM;
 es.BlockStartLine=min(Y2,Y1);
 es.BlockStartPos=(Y1 &lt; Y2?X1:X2);
 
-// небольшая коррекция, если позиции равны
+// РЅРµР±РѕР»СЊС€Р°СЏ РєРѕСЂСЂРµРєС†РёСЏ, РµСЃР»Рё РїРѕР·РёС†РёРё СЂР°РІРЅС‹
 if(X1 == X2)
   es.BlockStartPos+=(Y1 &lt; Y2?1:-1);
 
@@ -95,12 +98,12 @@ if(X1 == X2)
     es.BlockStartPos++;
 }
 
-Info.EditorControl(ECTL_SELECT,(void*)&amp;es);</pre>
+Info.EditorControl(-1,ECTL_SELECT,0,(void*)&amp;es);</pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
-<a href="../delphi/teditorselect.html">TEditorSelect</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>
 </div>
 
 </body>

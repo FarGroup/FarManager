@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>DN_KILLFOCUS</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
@@ -10,18 +10,21 @@
 
 <h1>DN_KILLFOCUS</h1>
 <div class=navbar>
-<a  href="index_dn.html">События</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index_dn.html">СЃРѕР±С‹С‚РёСЏ</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_KILLFOCUS</dfn> передается процедуре обработки диалога
-непосредственно перед потерей клавиатурного фокуса элементом диалога.
+РЎРѕР±С‹С‚РёРµ <code>DN_KILLFOCUS</code> РїРµСЂРµРґР°С‘С‚СЃСЏ РїСЂРѕС†РµРґСѓСЂРµ РѕР±СЂР°Р±РѕС‚РєРё РґРёР°Р»РѕРіР° РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ РїРµСЂРµРґ РїРѕС‚РµСЂРµР№ РєР»Р°РІРёР°С‚СѓСЂРЅРѕРіРѕ С„РѕРєСѓСЃР° СЌР»РµРјРµРЅС‚РѕРј РґРёР°Р»РѕРіР°.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента, теряющего фокус ввода.
+<ul>
+<li>ID СЌР»РµРјРµРЅС‚Р° РґРёР°Р»РѕРіР°, С‚РµСЂСЏСЋС‰РµРіРѕ С„РѕРєСѓСЃ РІРІРѕРґР°.</li>
+<li><code>-1</code> вЂ” РµСЃР»Рё РЅРµРјРѕРґР°Р»СЊРЅС‹Р№ РґРёР°Р»РѕРі С‚РµСЂСЏРµС‚ С„РѕРєСѓСЃ. Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РІРѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ.</li>
+</ul>
 </div>
 
 <h3>Param2</h3>
@@ -31,33 +34,30 @@ ID элемента, теряющего фокус ввода.
 
 <h3>Return</h3>
 <div class=descr>
--1 - "Согласен с потерей фокуса".<br>
->=0 - номер желаемого элемента, которому хотим передать фокус.
+<code>-1</code> - "РЎРѕРіР»Р°СЃРµРЅ СЃ РїРѕС‚РµСЂРµР№ С„РѕРєСѓСЃР°".<br>
+<code>>=0</code> - РЅРѕРјРµСЂ Р¶РµР»Р°РµРјРѕРіРѕ СЌР»РµРјРµРЅС‚Р°, РєРѕС‚РѕСЂРѕРјСѓ С…РѕС‚РёРј РїРµСЂРµРґР°С‚СЊ С„РѕРєСѓСЃ.
 </div>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Все элементы, которые могут иметь <a href="../keybfocus.html">клавиатурный фокус ввода</a>.</td></tr>
+<tr class="cont"><th class="cont" width="40%">Р­Р»РµРјРµРЅС‚</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+<tr class="cont"><td class="cont" width="40%">Р’СЃРµ</td>
+<td class="cont" width="60%">РІСЃРµ СЌР»РµРјРµРЅС‚С‹, РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ РёРјРµС‚СЊ <a href="../../other/dict.html#keybfocus">РєР»Р°РІРёР°С‚СѓСЂРЅС‹Р№ С„РѕРєСѓСЃ РІРІРѕРґР°</a>.</td></tr>
 </table>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-<!-- ПОЛНОСТЬЮ НЕ ПРОРАБОТАНО!!! -->
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
-
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialogex.html">DialogEx</a><br>
-
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

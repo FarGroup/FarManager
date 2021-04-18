@@ -1,76 +1,45 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>KeyBarTitles</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!-- History of modification:
-
- Date: Oct 30 1999
-   Author: Valentin Skirdin
-   E-mail: vskirdin@mail.ru
-
- Date: Nov 18 1999
-   Author: Kirill Kirichenko
-   E-mail: nectokris@mail.ru
-
- Date: Dec 4 1999
-   Author: Ivan Sintyurin
-   E-mail: spinoza@mail.ru
-   исправил опечатки...
-
--->
-
 <body>
 
 <h1>KeyBarTitles</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a  href="index.html">структуры</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
+<a href="../panelapi/index.html">Panel API</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>KeyBarTitles</dfn> позволяет переопределять заголовки функциональных
-клавиш. Массив этих структур передается в FAR функцией
-<a href="../exported_functions/getopenplugininfo.html">GetOpenPluginInfo</a>.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>KeyBarTitles</code> РїРѕР·РІРѕР»СЏРµС‚ РїРµСЂРµРѕРїСЂРµРґРµР»СЏС‚СЊ Р·Р°РіРѕР»РѕРІРєРё С„СѓРЅРєС†РёРѕРЅР°Р»СЊРЅС‹С… РєР»Р°РІРёС€. РњР°СЃСЃРёРІ СЌС‚РёС… СЃС‚СЂСѓРєС‚СѓСЂ РїРµСЂРµРґР°С‘С‚СЃСЏ РІ Far Manager С„СѓРЅРєС†РёРµР№ <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>.
 </div>
 
 <pre class=syntax>
 struct KeyBarTitles
 {
-  char *Titles[12];
-  char *CtrlTitles[12];
-  char *AltTitles[12];
-  char *ShiftTitles[12];
-
-  // FAR Manager >= 1.70
-  char *CtrlShiftTitles[12];
-  char *AltShiftTitles[12];
-  char *CtrlAltTitles[12];
+  size_t CountLabels;
+  struct KeyBarLabel *Labels;
 };
 </pre>
-<h3>Элементы</h3>
-<div class=descr>
-    <div class=dfn>Titles, CtrlTitles, AltTitles, ShiftTitles</div>
-    <div class=dfndescr>Содержат адреса новых заголовков функциональных клавиш. <i>CtrlTitles</i>,
-      <i>AltTitles</i> и <i>ShiftTitles</i> используются, когда нажаты клавиши &lt;Ctrl&gt;, &lt;Alt&gt;
-      или &lt;Shift&gt; соответственно. Для сохранения
-      стандартного заголовка FAR укажите в соответствующем элементе массива NULL.</div>
 
-    <div class=dfn>CtrlShiftTitles, AltShiftTitles, CtrlAltTitles</div>
-    <div class=dfndescr>Содержат адреса новых заголовков функциональных клавиш. <i>CtrlShiftTitles</i>,
-      <i>AltShiftTitles</i> и <i>CtrlAltTitles</i> используются, когда нажаты
-      клавиши &lt;CtrlShift&gt;, &lt;AltShift&gt; или &lt;CtrlAlt&gt;
-      соответственно. Для сохранения стандартного заголовка FAR укажите в соответствующем
-      элементе массива NULL. <em>Доступно в FAR Manager версии от 1.70</em></div>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
+<div class=descr>
+  <div class=dfn>CountLabels</div>
+    <div class=dfndescr>РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РІ РјР°СЃСЃРёРІРµ <code>Labels</code>.</div>
+  <div class=dfn>Labels</div>
+    <div class=dfndescr>РЎРѕРґРµСЂР¶РёС‚ РјР°СЃСЃРёРІ СЃС‚СЂСѓРєС‚СѓСЂ С‚РёРїР° <a href="keybarlabel.html">KeyBarLabel</a>, СЃ РЅРѕРІС‹РјРё Р·Р°РіРѕР»РѕРІРєР°РјРё С„СѓРЅРєС†РёРѕРЅР°Р»СЊРЅС‹С… РєР»Р°РІРёС€.</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../service_functions/editorcontrol.html#ECTL_SETKEYBAR">ECTL_SETKEYBAR</a> |
-<a href="index.html">структуры</a> |
-<a href="../delphi/tkeybartitles.html">TKeyBarTitles</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="../service_functions/editorcontrol.html#ECTL_SETKEYBAR">ECTL_SETKEYBAR</a>,
+<a href="index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a>,
+<a href="keybarlabel.html">KeyBarLabel</a>
 </div>
 
 </body>

@@ -1,112 +1,88 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>GetMsg</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
-
-<!-- History of modification:
- Date: Oct 30 1999
-   Author: Valentin Skirdin
-   E-mail: vskirdin@mail.ru
- Jan 12 2000
-   Valentin Skirdin <vskirdin@mail.ru>
-   корректировка
--->
 </head>
-
 <body>
 
 <h1>GetMsg</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a> |
+<a href="../basicapi/index.html">Basic API</a>
 </div>
 
 <div class=shortdescr>
-  Функция <dfn>GetMsg</dfn> возвращает строку сообщения из
-  <a href="../language/language_files.html">языкового файла</a>.
-  Настоятельно рекомендуется использовать эту функцию вместо
-  предопределенного текста в ваших программах, поскольку это
-  позволит локализовать ваш плагин
-  и переключать языки в FAR Manager и плагине одновременно.
+Р¤СѓРЅРєС†РёСЏ <code>GetMsg</code> РІРѕР·РІСЂР°С‰Р°РµС‚ СЃС‚СЂРѕРєСѓ СЃРѕРѕР±С‰РµРЅРёСЏ РёР· <a href="../language/language_files.html">СЏР·С‹РєРѕРІРѕРіРѕ С„Р°Р№Р»Р°</a>.
+РќР°СЃС‚РѕСЏС‚РµР»СЊРЅРѕ СЂРµРєРѕРјРµРЅРґСѓРµС‚СЃСЏ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ СЌС‚Сѓ С„СѓРЅРєС†РёСЋ РІРјРµСЃС‚Рѕ РїСЂРµРґРѕРїСЂРµРґРµР»С‘РЅРЅРѕРіРѕ С‚РµРєСЃС‚Р° РІ РІР°С€РёС… РїСЂРѕРіСЂР°РјРјР°С…, РїРѕСЃРєРѕР»СЊРєСѓ СЌС‚Рѕ РїРѕР·РІРѕР»РёС‚ Р»РѕРєР°Р»РёР·РѕРІР°С‚СЊ РІР°С€ РїР»Р°РіРёРЅ Рё РїРµСЂРµРєР»СЋС‡Р°С‚СЊ СЏР·С‹РєРё РІ Far Manager Рё РїР»Р°РіРёРЅРµ РѕРґРЅРѕРІСЂРµРјРµРЅРЅРѕ.
 </div>
 
 <pre class=syntax>
-const char* WINAPI GetMsg(
-  int PluginNumber,
-  int MsgId
+const wchar_t* WINAPI GetMsg(
+  const GUID *PluginId,
+  intptr_t MsgId
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
-    <div class=dfn>PluginNumber</div>
-    <div class=dfndescr>Номер плагина. Этот номер вы
-      получаете в функции <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>.</div>
-    <div class=dfn>MsgId</div>
-    <div class=dfndescr>Номер строки сообщения в файле сообщений.<br>
-    </div>
+  <div class=dfn>PluginId</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° GUID РїР»Р°РіРёРЅР° (РґР»СЏ РІР°С€РµРіРѕ РїР»Р°РіРёРЅР°, GUID РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ С‚Р°РєРёРј Р¶Рµ, С‡С‚Рѕ Рё РІ РїРѕР»Рµ <code>GlobalInfo.Guid</code> С„СѓРЅРєС†РёРё <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+  <div class=dfn>MsgId</div>
+    <div class=dfndescr>РќРѕРјРµСЂ СЃС‚СЂРѕРєРё СЃРѕРѕР±С‰РµРЅРёСЏ РІ С„Р°Р№Р»Рµ СЃРѕРѕР±С‰РµРЅРёР№.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-  Эта функция возвращает адрес запрашиваемой
-  строки сообщения.
+Р­С‚Р° С„СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ Р°РґСЂРµСЃ Р·Р°РїСЂР°С€РёРІР°РµРјРѕР№ СЃС‚СЂРѕРєРё СЃРѕРѕР±С‰РµРЅРёСЏ.
 </div>
 
-<h3>Примечание</h3>
+<p class="note"><img src="../../images/warning.gif" alt="Р’РќРРњРђРќРР•!" width="10" height="10"> Р’РќРРњРђРќРР•!</p>
+<ul class="note"><li>РќРµ СЃРѕС…СЂР°РЅСЏР№С‚Рµ Сѓ СЃРµР±СЏ СЌС‚РѕС‚ Р°РґСЂРµСЃ, РІСЃРµРіРґР° Р·Р°РїСЂР°С€РёРІР°Р№С‚Рµ РµРіРѕ Р·Р°РЅРѕРІРѕ. Р•СЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃРјРµРЅРёС‚ СЏР·С‹Рє РёРЅС‚РµСЂС„РµР№СЃР°, Р°РґСЂРµСЃ СЃС‚Р°РЅРµС‚ РЅРµРґРµР№СЃС‚РІРёС‚РµР»СЊРЅС‹Рј, СЃРѕ РІСЃРµРјРё РІС‹С‚РµРєР°СЋС‰РёРјРё РїРѕСЃР»РµРґСЃС‚РІРёСЏРјРё.</li>
+</ul>
+
+<h3>РџСЂРёРјРµС‡Р°РЅРёРµ</h3>
 <div class=descr>
-  Все <code>*.lng</code> файлы в каталоге с плагином являются языковыми
-  файлами. FAR выбирает необходимый <code>*.lng</code> файл в соответствии
-  с установленным языком.
-  При первом использования функции <dfn>GetMsg</dfn> все сообщения загружаются
-  в память, поэтому при последующих вызовах этой функции доступ к сообщениям
-  производится быстрее и вам не надо сохранять полученные строки
-  сообщений в промежуточные буферы.
+Р’СЃРµ <code>*.lng</code> С„Р°Р№Р»С‹ РІ РєР°С‚Р°Р»РѕРіРµ СЃ РїР»Р°РіРёРЅРѕРј СЏРІР»СЏСЋС‚СЃСЏ СЏР·С‹РєРѕРІС‹РјРё С„Р°Р№Р»Р°РјРё. Far Manager РІС‹Р±РёСЂР°РµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ <code>*.lng</code> С„Р°Р№Р» РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Рј СЏР·С‹РєРѕРј.
+РџСЂРё РїРµСЂРІРѕРј РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ С„СѓРЅРєС†РёРё <code>GetMsg</code> РІСЃРµ СЃРѕРѕР±С‰РµРЅРёСЏ Р·Р°РіСЂСѓР¶Р°СЋС‚СЃСЏ РІ РїР°РјСЏС‚СЊ, РїРѕСЌС‚РѕРјСѓ РїСЂРё РїРѕСЃР»РµРґСѓСЋС‰РёС… РІС‹Р·РѕРІР°С… СЌС‚РѕР№ С„СѓРЅРєС†РёРё РґРѕСЃС‚СѓРї Рє СЃРѕРѕР±С‰РµРЅРёСЏРј РїСЂРѕРёР·РІРѕРґРёС‚СЃСЏ Р±С‹СЃС‚СЂРµРµ Рё РІР°Рј
+РЅРµ РЅР°РґРѕ СЃРѕС…СЂР°РЅСЏС‚СЊ РїРѕР»СѓС‡РµРЅРЅС‹Рµ СЃС‚СЂРѕРєРё СЃРѕРѕР±С‰РµРЅРёР№ РІ РїСЂРѕРјРµР¶СѓС‚РѕС‡РЅС‹Рµ Р±СѓС„РµСЂС‹.
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
-  Во всех <a href="../examples.html">примерах</a>, как вы могли
-  заметить, используется следующая функция:
+Р’Рѕ РІСЃРµС… <a href="../other/examples.html">РїСЂРёРјРµСЂР°С…</a>, РєР°Рє РІС‹ РјРѕРіР»Рё Р·Р°РјРµС‚РёС‚СЊ, РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ СЃР»РµРґСѓСЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ:
+<pre class=code>
+// {B076F0B0-90AE-408c-AD09-491606F09435}
+DEFINE_GUID(MainGuid, 0xb076f0b0, 0x90ae, 0x408c, 0xad, 0x9, 0x49, 0x16, 0x6, 0xf0, 0x94, 0x35);
 
-<div class=dfn>C/C++:</div>
-<pre class=code>const char *GetMsg(int MsgId)
+const wchar_t *GetMsg(intptr_t MsgId)
 {
-  return(Info.GetMsg(Info.ModuleNumber,MsgId));
+  return(Info.GetMsg(&MainGuid,MsgId));
 }
 </pre>
 
-<div class=dfn>Delphi:</div>
-<pre class=code>function GetMsg(MsgId: TMessageStrings): PChar;
-begin
-  result:= <dfn>Info</dfn>.GetMsg(<dfn>Info</dfn>.ModuleNumber,integer(MsgId));
-end;
+  РџСЂРёС‡С‘Рј, <code>Info</code> РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РєР°Рє РіР»РѕР±Р°Р»СЊРЅР°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ:
+
+<pre class=code>struct PluginStartupInfo <code>Info</code>;
 </pre>
 
-  Причем, <dfn>Info</dfn> определяется как глобальная переменная:
+  ...Р° РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚СЃСЏ РѕРЅР° РІ С„СѓРЅРєС†РёРё <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>:
 
-<pre class=code>struct PluginStartupInfo <dfn>Info</dfn>;
-</pre>
-
-  ...а инициализируется она в функции <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>:
-
-<pre class=code>void WINAPI _export SetStartupInfo(struct PluginStartupInfo *Info)
+<pre class=code>void WINAPI SetStartupInfoW(struct PluginStartupInfo *Info)
 {
   ...
   ::Info=*Info;
   ...
 }
 </pre>
-
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../language/index.html">Языки и файлы помощи</a> |
-<a href="../addons/locmsg.html">LocMsg</a><br>
-"<a href="../articles/localization.html">Локализация плагинов второго уровня</a>"
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="../language/index.html">РЇР·С‹РєРё Рё С„Р°Р№Р»С‹ РїРѕРјРѕС‰Рё</a>
 </div>
 
 </body>

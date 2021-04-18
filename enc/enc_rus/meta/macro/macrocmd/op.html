@@ -1,135 +1,187 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
-
 <head>
-<title>Операции - Макросы</title>
-<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<title>РћРїРµСЂР°С†РёРё - РњР°РєСЂРѕСЃС‹</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src="../../links.js" type="text/javascript"></script>
 </head>
-
 <body>
 
-<h1>Операции</h1>
-<div class="navbar">
-<a href="../../index.html">главная</a> |
-<a href="../index.html">Макросы</a> |
-<a href="index.html">Макроязык</a>
-</div>
-
 <a name="op"></a>
-<p>Над переменными можно производить следующие операции:
-<table class="cont">
-  <tr class="cont">
-    <th class="cont" width="40%">Операция</th>
-    <th class="cont" width="60%">Описание</th>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">+</td>
-    <td class="cont" width="60%">Числовое сложение или сцепление строк</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">-</td>
-    <td class="cont" width="60%">Числовое вычитание или унарный минус</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">*</td>
-    <td class="cont" width="60%">Числовое умножение</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">/</td>
-    <td class="cont" width="60%">Числовое деление. FAR прерывает исполнение макроса, если происходит деление на 0</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&amp;</td>
-    <td class="cont" width="60%">Битовое умножение</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">^</td>
-    <td class="cont" width="60%">Битовое Исключающее ИЛИ (XOR)</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">|</td>
-    <td class="cont" width="60%">Битовое сложение</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&lt;&lt;</td>
-    <td class="cont" width="60%">Битовый сдвиг влево</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&gt;&gt;</td>
-    <td class="cont" width="60%">Битовый сдвиг вправо</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">!</td>
-    <td class="cont" width="60%">Логическое отрицание</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">~</td>
-    <td class="cont" width="60%">Битовое отрицание</td>
-  </tr>
-</table>
-
-<p>Приоритеты операций в выражениях:
-<table class="cont">
-  <tr class="cont">
-    <th class="cont" width="40%">Операция</th>
-    <th class="cont" width="60%">Описание</th>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">!  ~  -</td>
-    <td class="cont" width="60%">Унарные (R->L)</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">* /</td>
-    <td class="cont" width="60%">арифметические</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">+ -</td>
-    <td class="cont" width="60%">арифметические</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&lt;&lt; &gt;&gt;</td>
-    <td class="cont" width="60%">Битовый сдвиг</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&lt;  &lt;=  &gt;  =&gt;</td>
-    <td class="cont" width="60%">Логическое сравнение</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">== !=</td>
-    <td class="cont" width="60%">Логическое сравнение</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&amp;</td>
-    <td class="cont" width="60%">Битовая (and)</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">^</td>
-    <td class="cont" width="60%">Битовая (xor)</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">|</td>
-    <td class="cont" width="60%">Битовая (or)</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">&amp;&amp;</td>
-    <td class="cont" width="60%">Логическая</td>
-  </tr>
-  <tr class="cont">
-    <td class="cont" width="40%">||</td>
-    <td class="cont" width="60%">Логическая</td>
-  </tr>
-</table>
-
-<h3>Замечания</h3>
-<div class=descr>
-<ol>
-<li>Именованные клавиши (например, CtrlK) могут участвовать в любых выражениях; в этом случае они считаются как числа.
-<li>Элементы макроязыка невозможно использовать во время <a href="../macrokey/record.html">записи
-    макроса</a> стандартным образом. Добавить элементы языка в макрос можно только путем ручной
-    правки реестра или путем применения специальных программ/плагинов.</li>
-</ol>
+<h1>РћРїРµСЂР°С†РёРё</h1>
+<div class="navbar">
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="../index.html">РњР°РєСЂРѕСЃС‹</a> |
+<a href="index.html">РњР°РєСЂРѕСЏР·С‹Рє</a>
 </div>
+
+<h3>Р’РІРµРґРµРЅРёРµ</h3>
+<p>РќР°Рґ Р·РЅР°С‡РµРЅРёСЏРјРё РјРѕР¶РЅРѕ РїСЂРѕРёР·РІРѕРґРёС‚СЊ СЃР»РµРґСѓСЋС‰РёРµ РѕРїРµСЂР°С†РёРё:</p>
+
+<table class="cont2">
+  <col span="2">
+  <tr>
+    <th>РћРїРµСЂР°С†РёСЏ</th>
+    <th>РћРїРёСЃР°РЅРёРµ</th>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td>Р§РёСЃР»РѕРІРѕРµ СЃР»РѕР¶РµРЅРёРµ РёР»Рё СЃС†РµРїР»РµРЅРёРµ СЃС‚СЂРѕРє</td>
+  </tr>
+  <tr>
+    <td>-</td>
+    <td>Р§РёСЃР»РѕРІРѕРµ РІС‹С‡РёС‚Р°РЅРёРµ РёР»Рё СѓРЅР°СЂРЅС‹Р№ РјРёРЅСѓСЃ</td>
+  </tr>
+  <tr>
+    <td>*</td>
+    <td>Р§РёСЃР»РѕРІРѕРµ СѓРјРЅРѕР¶РµРЅРёРµ</td>
+  </tr>
+  <tr>
+    <td>/</td>
+    <td>Р§РёСЃР»РѕРІРѕРµ РґРµР»РµРЅРёРµ. FAR РїСЂРµСЂС‹РІР°РµС‚ РёСЃРїРѕР»РЅРµРЅРёРµ РјР°РєСЂРѕСЃР°, РµСЃР»Рё РїСЂРѕРёСЃС…РѕРґРёС‚ РґРµР»РµРЅРёРµ РЅР°&nbsp;0</td>
+  </tr>
+  <tr>
+    <td>&amp;</td>
+    <td>Р‘РёС‚РѕРІРѕРµ СѓРјРЅРѕР¶РµРЅРёРµ</td>
+  </tr>
+  <tr>
+    <td>^</td>
+    <td>Р‘РёС‚РѕРІРѕРµ РСЃРєР»СЋС‡Р°СЋС‰РµРµ РР›Р (XOR)</td>
+  </tr>
+  <tr>
+    <td>|</td>
+    <td>Р‘РёС‚РѕРІРѕРµ СЃР»РѕР¶РµРЅРёРµ</td>
+  </tr>
+  <tr>
+    <td>&lt;&lt;</td>
+    <td>Р‘РёС‚РѕРІС‹Р№ СЃРґРІРёРі РІР»РµРІРѕ</td>
+  </tr>
+  <tr>
+    <td>&gt;&gt;</td>
+    <td>Р‘РёС‚РѕРІС‹Р№ СЃРґРІРёРі РІРїСЂР°РІРѕ</td>
+  </tr>
+  <tr>
+    <td>!</td>
+    <td>Р›РѕРіРёС‡РµСЃРєРѕРµ РѕС‚СЂРёС†Р°РЅРёРµ</td>
+  </tr>
+  <tr>
+    <td>~</td>
+    <td>Р‘РёС‚РѕРІРѕРµ РѕС‚СЂРёС†Р°РЅРёРµ</td>
+  </tr>
+</table>
+
+<h3>Р”РµС‚Р°Р»СЊРЅРѕРµ РѕРїРёСЃР°РЅРёРµ</h3>
+<p>Р”Р»СЏ СЂР°Р·Р±РѕСЂР° РѕРїРµСЂР°С†РёР№ РѕРїСЂРµРґРµР»РёРјСЃСЏ СЃ РѕРїСЂРµРґРµР»РµРЅРёСЏРјРё:</p>
+<ul>
+  <li><code>Int</code> - С†РµР»РѕРµ С‡РёСЃР»Рѕ;</li>
+  <li><code>Dbl</code> - РІРµС‰РµСЃС‚РІРµРЅРЅРѕРµ С‡РёСЃР»Рѕ;</li>
+  <li><code>StrInt</code> - СЃС‚СЂРѕРєР°, РєРѕС‚РѕСЂР°СЏ РїРѕР»РЅРѕСЃС‚СЊСЋ РїСЂРµРѕР±СЂР°Р·СѓРµС‚СЃСЏ РІ <code>Int</code>;</li>
+  <li><code>StrDbl</code> - СЃС‚СЂРѕРєР°, РєРѕС‚РѕСЂР°СЏ РїРѕР»РЅРѕСЃС‚СЊСЋ РїСЂРµРѕР±СЂР°Р·СѓРµС‚СЃСЏ РІ <code>Dbl</code>;</li>
+  <li><code>Str</code> - СЃС‚СЂРѕРєР°, РєРѕС‚РѕСЂР°СЏ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїРѕР»РЅРѕСЃС‚СЊСЋ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅР° РІ <code>Int</code> РёР»Рё <code>Dbl</code> (СЃРѕР±СЃС‚РІРµРЅРЅРѕ, РїСЂРѕСЃС‚Рѕ РЅР°Р±РѕСЂ СЃРёРјРІРѕР»РѕРІ).</li>
+</ul>
+
+<p>Р’ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃ СЌС‚РёРјРё РѕРїСЂРµРґРµР»РµРЅРёСЏРјРё, С‚Р°Рј, РіРґРµ СЌС‚Рѕ РІРѕР·РјРѕР¶РЅРѕ, РїСЂРѕРёСЃС…РѕРґРёС‚
+РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ СЃС‚СЂРѕРєРё РІ С‡РёСЃР»Рѕ Рё РІС‹РїРѕР»РЅРµРЅРёРµ РѕРїРµСЂР°С†РёРё.</p>
+<p>Р”Р°Р»РµРµ РїСЂРёРІРµРґРµРЅС‹ С‚Р°Р±Р»РёС†С‹, РїРѕРєР°Р·С‹РІР°СЋС‰РёРµ СЂРµР·СѓР»СЊС‚Р°С‚С‹ СЂР°Р±РѕС‚С‹ РѕРїРµСЂР°С†РёР№ РЅР°Рґ Р·РЅР°С‡РµРЅРёСЏРјРё A Рё B:</p>
+
+<table class="cont2">
+  <col width="15%">
+  <col span="5" width="17%">
+  <tr><th>+</th><th>B.Int</th><th>B.Dbl</th><th>B.StrInt</th><th>B.StrDbl</th><th>B.Str</th></tr>
+  <tr><th>A.Int</th><td>Int</td><td>Dbl</td><td>Int</td><td>Dbl</td><td>Str</td></tr>
+  <tr><th>A.Dbl</th><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Str</td></tr>
+  <tr><th>A.StrInt</th><td>Int</td><td>Dbl</td><td>Int</td><td>Dbl</td><td>Str</td></tr>
+  <tr><th>A.StrDbl</th><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Str</td></tr>
+  <tr><th>A.Str</th><td>Str</td><td>Str</td><td>Str</td><td>Str</td><td>Str</td></tr>
+</table>
+<p>Р—РґРµСЃСЊ Str РѕР±РѕР·РЅР°С‡Р°РµС‚ РєРѕРЅРєР°С‚РµРЅР°С†РёСЋ РґРІСѓС… РѕРїРµСЂР°РЅРґРѕРІ.</p>
+
+<table class="cont2">
+  <col width="15%">
+  <col span="5" width="17%">
+  <tr><th>- * / %</th><th>B.Int</th><th>B.Dbl</th><th>B.StrInt</th><th>B.StrDbl</th><th>B.Str</th></tr>
+  <tr><th>A.Int</th><td>Int</td><td>Dbl</td><td>Int</td><td>Dbl</td><td>A.Str</td></tr>
+  <tr><th>A.Dbl</th><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>A.Str</td></tr>
+  <tr><th>A.StrInt</th><td>Int</td><td>Dbl</td><td>Int</td><td>Dbl</td><td>A.Str</td></tr>
+  <tr><th>A.StrDbl</th><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>A.Str</td></tr>
+  <tr><th>A.Str</th><td>A.Str</td><td>A.Str</td><td>A.Str</td><td>A.Str</td><td>A.Str</td></tr>
+</table>
+<p>Р—РґРµСЃСЊ A.Str - РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ Р·РЅР°С‡РµРЅРёРµ РѕРїРµСЂР°РЅРґР° A.</p>
+
+<p>Р”Р»СЏ Р±РёРЅР°СЂРЅС‹С… РѕРїРµСЂР°С†РёР№ РѕРїРµСЂР°РЅРґС‹ Dbl РёР»Рё StrDbl РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ РїСЂРµРѕР±СЂР°Р·СѓРµС‚СЃСЏ Рє Int.</p>
+<table class="cont2">
+  <col width="15%">
+  <col span="5" width="17%">
+  <tr><th><em>| &amp; ^ &lt;&lt; &gt;&gt;</em></th><th>B.Int</th><th>B.Dbl</th><th>B.StrInt</th><th>B.StrDbl</th><th>B.Str</th></tr>
+  <tr><th>A.Int</th><td>Int</td><td>Int</td><td>Int</td><td>Int</td><td>A.Str</td></tr>
+  <tr><th>A.Dbl</th><td>Int</td><td>Int</td><td>Int</td><td>Int</td><td>A.Str</td></tr>
+  <tr><th>A.StrInt</th><td>Int</td><td>Int</td><td>Int</td><td>Int</td><td>A.Str</td></tr>
+  <tr><th>A.StrDbl</th><td>Int</td><td>Int</td><td>Int</td><td>Int</td><td>A.Str</td></tr>
+  <tr><th>A.Str</th><td>A.Str</td><td>A.Str</td><td>A.Str</td><td>A.Str</td><td>A.Str</td></tr>
+</table>
+<p>Р—РґРµСЃСЊ A.Str - РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ Р·РЅР°С‡РµРЅРёРµ РѕРїРµСЂР°РЅРґР° A.</p>
+
+<p>Р’ РѕРїРµСЂР°С†РёСЏС… СЃСЂР°РІРЅРµРЅРёСЏ (==, !=, &lt;, &lt;=, &gt;, &gt;=) РѕРїРµСЂР°РЅРґС‹ РїСЂРµРѕР±СЂР°Р·СѓСЋС‚СЃСЏ (С‚Р°Рј, РіРґРµ СЌС‚Рѕ РІРѕР·РјРѕР¶РЅРѕ) Рё СЃСЂР°РІРЅРёРІР°СЋС‚СЃСЏ.</p>
+<p>Р’ Р»РѕРіРёС‡РµСЃРєРёС… OR Рё AND РѕРїРµСЂР°РЅРґС‹ СЃСЂР°РІРЅРёРІР°СЋС‚СЃСЏ РєР°Рє РµСЃС‚СЊ, СЃС‚СЂРѕРєРё РЅРµ РїСЂРµРѕР±СЂР°Р·СѓСЋС‚СЃСЏ РІ StrInt Рё StrDbl, Р° РїСЂРѕРІРµСЂСЏСЋС‚СЃСЏ РЅР° РЅРµ РїСѓСЃС‚СѓСЋ СЃС‚СЂРѕРєСѓ.</p>
+
+<h3>РџСЂРёРѕСЂРёС‚РµС‚С‹ РѕРїРµСЂР°С†РёР№ РІ РІС‹СЂР°Р¶РµРЅРёСЏС…</h3>
+<table class="cont2">
+  <col span="2">
+  <tr>
+    <th>РћРїРµСЂР°С†РёСЏ</th>
+    <th>РћРїРёСЃР°РЅРёРµ</th>
+  </tr>
+  <tr>
+    <td>!  ~  -</td>
+    <td>РЈРЅР°СЂРЅС‹Рµ (R-&gt;L)</td>
+  </tr>
+  <tr>
+    <td>* /</td>
+    <td>Р°СЂРёС„РјРµС‚РёС‡РµСЃРєРёРµ</td>
+  </tr>
+  <tr>
+    <td>+ -</td>
+    <td>Р°СЂРёС„РјРµС‚РёС‡РµСЃРєРёРµ</td>
+  </tr>
+  <tr>
+    <td>&lt;&lt; &gt;&gt;</td>
+    <td>Р‘РёС‚РѕРІС‹Р№ СЃРґРІРёРі</td>
+  </tr>
+  <tr>
+    <td>&lt;  &lt;=  &gt;  =&gt;</td>
+    <td>Р›РѕРіРёС‡РµСЃРєРѕРµ СЃСЂР°РІРЅРµРЅРёРµ</td>
+  </tr>
+  <tr>
+    <td>== !=</td>
+    <td>Р›РѕРіРёС‡РµСЃРєРѕРµ СЃСЂР°РІРЅРµРЅРёРµ</td>
+  </tr>
+  <tr>
+    <td>&amp;</td>
+    <td>Р‘РёС‚РѕРІР°СЏ (and)</td>
+  </tr>
+  <tr>
+    <td>^</td>
+    <td>Р‘РёС‚РѕРІР°СЏ (xor)</td>
+  </tr>
+  <tr>
+    <td>|</td>
+    <td>Р‘РёС‚РѕРІР°СЏ (or)</td>
+  </tr>
+  <tr>
+    <td>&amp;&amp;</td>
+    <td>Р›РѕРіРёС‡РµСЃРєР°СЏ (and)</td>
+  </tr>
+  <tr>
+    <td>^^</td>
+    <td>Р›РѕРіРёС‡РµСЃРєР°СЏ (xor)</td>
+  </tr>
+  <tr>
+    <td>||</td>
+    <td>Р›РѕРіРёС‡РµСЃРєР°СЏ (or)</td>
+  </tr>
+</table>
 
 </body>
+
 </html>

@@ -1,152 +1,120 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>DI_TEXT</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
-<!-- History of modification:
--->
 <body>
 
 <h1>DI_TEXT</h1>
 <div class=navbar>
-<a href="../../index.html">главная</a> |
-<a href="../index.html">Dialog API</a> |
-<a href="index.html">Элементы диалога</a><br>
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЌР»РµРјРµРЅС‚С‹ РґРёР°Р»РѕРіР°</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Элемент диалога <dfn>DI_TEXT</dfn> описывает статическую текстовую строку.
-В понятиях WinAPI это управляющий элемент STATIC.<br>
+Р­Р»РµРјРµРЅС‚ РґРёР°Р»РѕРіР° <code>DI_TEXT</code> РѕРїРёСЃС‹РІР°РµС‚ СЃС‚Р°С‚РёС‡РµСЃРєСѓСЋ С‚РµРєСЃС‚РѕРІСѓСЋ СЃС‚СЂРѕРєСѓ. Р’ РїРѕРЅСЏС‚РёСЏС… WinAPI СЌС‚Рѕ СѓРїСЂР°РІР»СЏСЋС‰РёР№ СЌР»РµРјРµРЅС‚ STATIC.
 </div>
 
 <pre class=syntax>
 struct FarDialogItem
 {
-  int Type          = <b>DI_TEXT</b>
-  int X1            = <b>X1</b>
-  int Y1            = <b>Y</b>
-  int X2            = <b>X2</b>
-  int Y2            = <b>Y</b> (в Dialog API 1.0 не используется, должно быть равно значению Y1)
-  int Focus         = <b>0</b>
-  int Selected      = <b>0</b>
-  DWORD Flags       = <b>Flags</b>
-  int DefaultButton = <b>0</b>
-  char Data[512]    = <b>выводимый текст</b>
+  enum FARDIALOGITEMTYPES Type = <b>DI_TEXT</b>
+  intptr_t X1                  = <b>X1</b>
+  intptr_t Y1                  = <b>Y</b>
+  intptr_t X2                  = <b>X2</b>
+  intptr_t Y2                  = <b>Y</b> (СЂР°РІРµРЅ Р·РЅР°С‡РµРЅРёСЋ Y1)
+  const wchar_t *Mask          = <b>Mask</b>
+  FARDIALOGITEMFLAGS Flags     = <b>Flags</b>
+  const wchar_t *Data          = <b>РІС‹РІРѕРґРёРјС‹Р№ С‚РµРєСЃС‚</b>
 };
 </pre>
-<p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
 
-<h3>Флаги</h3>
-<div class=descr>
-Для элемента <dfn>DI_TEXT</dfn> имеют значения следующие флаги:<br>
+<p class=note><img src="../../../images/note.gif" alt="Р’РЅРёРјР°РЅРёРµ!" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!</p>
+<UL class=note><LI>РџСЂРёРІРµРґРµРЅРѕ СЃС…РµРјР°С‚РёС‡РЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹; РїРѕР»РЅРѕРµ РѕРїРёСЃР°РЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="../../structures/fardialogitem.html">СЃРј. Р·РґРµСЃСЊ</a>.</LI></UL>
+
+<h3>Mask</h3>
+  <div class=descr>РџРѕР»Рµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‚РѕР»СЊРєРѕ СЃ С„Р»Р°РіРѕРј <a href="../flags/dif_separatoruser.html">DIF_SEPARATORUSER</a>, РјРѕР¶РµС‚ Р±С‹С‚СЊ <code>NULL</code>, РёР»Рё
+СѓРєР°Р·С‹РІР°С‚СЊ РЅР° СЃС‚СЂРѕРєСѓ, СЃРѕРґРµСЂР¶Р°С‰СѓСЋ РЅР°Р±РѕСЂ РёР· С‚СЂРµС… СЃРёРјРІРѕР»РѕРІ, РѕРїРёСЃС‹РІР°СЋС‰РёС… С„РѕСЂРјРёСЂСѓРµРјСѓСЋ СЂР°Р·РґРµР»РёС‚РµР»СЊРЅСѓСЋ Р»РёРЅРёСЋ.</div>
+
+<h3>Р¤Р»Р°РіРё</h3>
+  <div class=descr>Р”Р»СЏ СЌР»РµРјРµРЅС‚Р° <code>DI_TEXT</code> РёРјРµСЋС‚ Р·РЅР°С‡РµРЅРёСЏ СЃР»РµРґСѓСЋС‰РёРµ С„Р»Р°РіРё:
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a></td>
- <td class="cont" width="60%">
- определить цвет элемента (младший байт параметра <dfn>Flags</dfn> должен
- содержать атрибут выводимого текста)
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_boxcolor.html">DIF_BOXCOLOR</a></td>
- <td class="cont" width="60%">
- текст будет иметь цвет рамок (<a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a> или <a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a>)
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
- <td class="cont" width="60%">
- центрирование двух текстовых строк с одинаковой вертикальной позицией (параметр <dfn>X1</dfn> игнорируется)
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_separator.html">DIF_SEPARATOR</a></td>
- <td class="cont" width="60%">
- горизонтальный разделитель диалога (одинарная линия); координата <dfn>X1</dfn> не используется для
- случая, когда <dfn>Data</dfn> пустая строка;<br>
- если <dfn>Data</dfn> не пустая строка, то она также будет отрисована (для
- вывода строки будет использована координата <dfn>X1</dfn>);<br>
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_separator2.html">DIF_SEPARATOR2</a></td>
- <td class="cont" width="60%">
- горизонтальный разделитель диалога (двойная линия); координата <dfn>X1</dfn> не
- используется для случая, когда <dfn>Data</dfn> пустая строка;<br>
- если <dfn>Data</dfn> не пустая строка, то она также будет отрисована (для
- вывода строки будет использована координата <dfn>X1</dfn>);<br>
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
- <td class="cont" width="60%">
- показывать в текстовой строке амперсанд не используя его для определения горячей клавиши
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a></td>
- <td class="cont" width="60%">выравнивать текст по центру относительно координат <var>X1</var> и <var>X2</var>
- </td></tr>
+<tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_boxcolor.html">DIF_BOXCOLOR</a></td>
+<td class="cont" width="60%">С‚РµРєСЃС‚ Р±СѓРґРµС‚ РёРјРµС‚СЊ С†РІРµС‚ СЂР°РјРѕРє (<a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a> РёР»Рё <a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a>)</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
+<td class="cont" width="60%">С†РµРЅС‚СЂРёСЂРѕРІР°РЅРёРµ РґРІСѓС… С‚РµРєСЃС‚РѕРІС‹С… СЃС‚СЂРѕРє СЃ РѕРґРёРЅР°РєРѕРІРѕР№ РІРµСЂС‚РёРєР°Р»СЊРЅРѕР№ РїРѕР·РёС†РёРµР№ (РїР°СЂР°РјРµС‚СЂ <code>X1</code> РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ)</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_separator.html">DIF_SEPARATOR</a></td>
+<td class="cont" width="60%">РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅС‹Р№ СЂР°Р·РґРµР»РёС‚РµР»СЊ РґРёР°Р»РѕРіР° (РѕРґРёРЅР°СЂРЅР°СЏ Р»РёРЅРёСЏ); РєРѕРѕСЂРґРёРЅР°С‚Р° <code>X1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ СЃР»СѓС‡Р°СЏ, РєРѕРіРґР° <code>Data</code> РїСѓСЃС‚Р°СЏ СЃС‚СЂРѕРєР°;<br>
+РµСЃР»Рё <code>Data</code> РЅРµ РїСѓСЃС‚Р°СЏ СЃС‚СЂРѕРєР°, С‚Рѕ РѕРЅР° С‚Р°РєР¶Рµ Р±СѓРґРµС‚ РѕС‚СЂРёСЃРѕРІР°РЅР° (РґР»СЏ РІС‹РІРѕРґР° СЃС‚СЂРѕРєРё Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°РЅР° РєРѕРѕСЂРґРёРЅР°С‚Р° <code>X1</code>);</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_separator2.html">DIF_SEPARATOR2</a></td>
+<td class="cont" width="60%">РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅС‹Р№ СЂР°Р·РґРµР»РёС‚РµР»СЊ РґРёР°Р»РѕРіР° (РґРІРѕР№РЅР°СЏ Р»РёРЅРёСЏ); РєРѕРѕСЂРґРёРЅР°С‚Р° <code>X1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ СЃР»СѓС‡Р°СЏ, РєРѕРіРґР° <code>Data</code> РїСѓСЃС‚Р°СЏ СЃС‚СЂРѕРєР°;<br>
+РµСЃР»Рё <code>Data</code> РЅРµ РїСѓСЃС‚Р°СЏ СЃС‚СЂРѕРєР°, С‚Рѕ РѕРЅР° С‚Р°РєР¶Рµ Р±СѓРґРµС‚ РѕС‚СЂРёСЃРѕРІР°РЅР° (РґР»СЏ РІС‹РІРѕРґР° СЃС‚СЂРѕРєРё Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°РЅР° РєРѕРѕСЂРґРёРЅР°С‚Р° <code>X1</code>);</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_separatoruser.html">DIF_SEPARATORUSER</a></td>
+<td class="cont" width="60%">РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅС‹Р№ СЂР°Р·РґРµР»РёС‚РµР»СЊ РґРёР°Р»РѕРіР° (С„РѕСЂРјР°С‚ Р»РёРЅРёРё СѓРєР°Р·Р°РЅ РІ <code>Mask</code>); РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ СѓРєР°Р·Р°РЅС‹ РѕР±Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ <code>X1</code> Рё <code>X2</code></td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
+<td class="cont" width="60%">РїРѕРєР°Р·С‹РІР°С‚СЊ РІ С‚РµРєСЃС‚РѕРІРѕР№ СЃС‚СЂРѕРєРµ Р°РјРїРµСЂСЃР°РЅРґ РЅРµ РёСЃРїРѕР»СЊР·СѓСЏ РµРіРѕ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РіРѕСЂСЏС‡РµР№ РєР»Р°РІРёС€Рё</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a></td>
+<td class="cont" width="60%">РІС‹СЂР°РІРЅРёРІР°С‚СЊ С‚РµРєСЃС‚ РїРѕ С†РµРЅС‚СЂСѓ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РєРѕРѕСЂРґРёРЅР°С‚ <code>X1</code> Рё <code>X2</code></td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_righttext.html">DIF_RIGHTTEXT</a></td>
+<td class="cont" width="60%">РІС‹СЂР°РІРЅРёРІР°С‚СЊ С‚РµРєСЃС‚ РїРѕ РїСЂР°РІРѕРјСѓ РєСЂР°СЋ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РєРѕРѕСЂРґРёРЅР°С‚ <code>X1</code> Рё <code>X2</code></td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_wordwrap.html">DIF_WORDWRAP</a></td>
+<td class="cont" width="60%">СѓСЃРµРєР°РµС‚ РѕС‡РµСЂРµРґРЅРѕРµ СЃР»РѕРІРѕ РІ С‚РµРєСЃС‚Рµ СЌР»РµРјРµРЅС‚Р°, РµСЃР»Рё РѕРЅРѕ РЅРµ РІРјРµС‰Р°РµС‚СЃСЏ РїРѕ С€РёСЂРёРЅРµ, СѓС‡РёС‚С‹РІР°СЋС‚СЃСЏ РІСЃРµ РєРѕРѕСЂРґРёРЅР°С‚С‹ СЌР»РµРјРµРЅС‚Р° <code>X1,X2,Y1,Y2</code></td></tr>
 </table>
 </div>
 
-<h3>События</h3>
+<h3>РЎРѕР±С‹С‚РёСЏ</h3>
 <div class=descr>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
-
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
- <td class="cont" width="60%">начало отрисовки текстовой строки
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
- <td class="cont" width="60%">запрос цветовых атрибутов для отрисовки; Param2:
-<pre>LoWord LoByte - текст
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGTEXT">COL_WARNDIALOGTEXT</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGTEXT">COL_DIALOGTEXT</a>
-                при выставленном флаге <a href="../flags/dif_boxcolor.html">DIF_BOXCOLOR</a>:
-                <a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a> или
-                <a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a>)
-LoWord HiByte - выделенный текст
-                (highlighting text)
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTTEXT">COL_WARNDIALOGHIGHLIGHTTEXT</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTTEXT">COL_DIALOGHIGHLIGHTTEXT</a>)
-HiWord LoByte - 0 (не используется)
-HiWord HiByte - 0 (не используется)</pre>
-Если используется заказной атрибут (флаг <a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a>),
-то текст (LoWord LoByte) будет тем, что указали.
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
- <td class="cont" width="60%">"кликнули" клавишей мыши
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
- <td class="cont" width="60%">горячая клавиша (Alt-Символ)
- </td></tr>
-
+<tr class="cont"><th class="cont" width="40%">РЎРѕР±С‹С‚РёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+<td class="cont" width="60%">РЅР°С‡Р°Р»Рѕ РѕС‚СЂРёСЃРѕРІРєРё С‚РµРєСЃС‚РѕРІРѕР№ СЃС‚СЂРѕРєРё</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
+<td class="cont" width="60%">Р·Р°РїСЂРѕСЃ С†РІРµС‚РѕРІС‹С… Р°С‚СЂРёР±СѓС‚РѕРІ РґР»СЏ РѕС‚СЂРёСЃРѕРІРєРё; <code>Param2</code>:
+<pre>
+<code>Colors[0]</code> - С‚РµРєСЃС‚
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGTEXT">COL_WARNDIALOGTEXT</a> РёР»Рё <a href="../../defs/farcolors.html#COL_DIALOGTEXT">COL_DIALOGTEXT</a>
+              РїСЂРё РІС‹СЃС‚Р°РІР»РµРЅРЅРѕРј С„Р»Р°РіРµ <a href="../flags/dif_boxcolor.html">DIF_BOXCOLOR</a>:
+                <a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a> РёР»Рё <a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a>)
+<code>Colors[1]</code> - РІС‹РґРµР»РµРЅРЅС‹Р№ С‚РµРєСЃС‚ (highlighting text)
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTTEXT">COL_WARNDIALOGHIGHLIGHTTEXT</a> РёР»Рё <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTTEXT">COL_DIALOGHIGHLIGHTTEXT</a>)
+<code>Colors[2]</code> - 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)
+<code>Colors[3]</code> - 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)</pre>
+</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_controlinput.html">DN_CONTROLINPUT</a></td>
+<td class="cont" width="60%">"РєР»РёРєРЅСѓР»Рё" РєР»Р°РІРёС€РµР№ РјС‹С€Рё</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
+<td class="cont" width="60%">РіРѕСЂСЏС‡Р°СЏ РєР»Р°РІРёС€Р° (<kbd>Alt</kbd>+<kbd>РЎРёРјРІРѕР»</kbd>)</td></tr>
 </table>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 <ol>
-<li>Хотя координата <var>Y2</var> в Dialog API 1.0 не используется,
-но для нормальной работы в будущих версиях FAR желательно корректно заполнить
-значение этого поля. Укажите то же значение координаты, что и <var>Y1</var>.
-
-<li>Если указан флаг <a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a>, то
-координата <var>X2</var> должна быть обязательно указана, в противном случае
-действие флага не будет иметь действия.
-
-<li>Если не указан флаг <a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a>,
-то FAR самостоятельно перерасчитает координаты <var>X2</var> и <var>Y2</var>, исходя
-из размера строки и размера диалога.
-
-<li>Если элемент в массиве управляющих элементов стоит первым, то консольное окно
-FAR Manager будет содержать заголовок "<em>выводимый текст</em>".</li>
-
-<li>Если в тексте элемента <dfn>DI_TEXT</dfn> имеется "горячая клавиша" (HotKey) и
-не выставлен флаг <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a>,
-то при нажатии в диалоге <b>Alt-Символ</b> клавиатурный фокус ввода перейдет
-на следующий элемент, который может иметь <a href="../keybfocus.html">фокус ввода</a>
+<li>РҐРѕС‚СЏ РєРѕРѕСЂРґРёРЅР°С‚Р° <code>Y2</code> РІ Dialog API РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ, РЅРѕ РґР»СЏ РЅРѕСЂРјР°Р»СЊРЅРѕР№ СЂР°Р±РѕС‚С‹ РІ Р±СѓРґСѓС‰РёС… РІРµСЂСЃРёСЏС… Far Manager Р¶РµР»Р°С‚РµР»СЊРЅРѕ РєРѕСЂСЂРµРєС‚РЅРѕ Р·Р°РїРѕР»РЅРёС‚СЊ
+Р·РЅР°С‡РµРЅРёРµ СЌС‚РѕРіРѕ РїРѕР»СЏ. РЈРєР°Р¶РёС‚Рµ С‚Рѕ Р¶Рµ Р·РЅР°С‡РµРЅРёРµ РєРѕРѕСЂРґРёРЅР°С‚С‹, С‡С‚Рѕ Рё <code>Y1</code>.
+<li>Р•СЃР»Рё СѓРєР°Р·Р°РЅ С„Р»Р°Рі <a href="../flags/dif_separatoruser.html">DIF_SEPARATORUSER</a>, С‚Рѕ РєРѕРѕСЂРґРёРЅР°С‚С‹ <code>X1</code> Рё <code>X2</code> РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ СѓРєР°Р·Р°РЅС‹, РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ
+РґРµР№СЃС‚РІРёРµ С„Р»Р°РіР° РЅРµ Р±СѓРґРµС‚ РёРјРµС‚СЊ РґРµР№СЃС‚РІРёСЏ.
+<li>Р•СЃР»Рё СѓРєР°Р·Р°РЅ С„Р»Р°Рі <a href="../flags/dif_separatoruser.html">DIF_SEPARATORUSER</a>, С‚Рѕ РІ РїРѕР»Рµ <code>Mask</code> Far Manager РѕР¶РёРґР°РµС‚ 3 СЃРёРјРІРѕР»Р°
+"Р›РµРІРѕ-РЎРµСЂРµРґРёРЅР°-РџСЂР°РІРѕ". РќРµРґРѕСЃС‚Р°СЋС‰РёРµ (РґРѕ 3-С…) СЃРёРјРІРѕР»С‹ РґР»СЏ С‚Р°РєРѕР№ СЂР°Р·РґРµР»РёС‚РµР»СЊРЅРѕР№ Р»РёРЅРё Р±СѓРґСѓС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ РїСЂРѕР±РµР»С‹.
+<li>Р•СЃР»Рё СѓРєР°Р·Р°РЅ С„Р»Р°Рі <a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a>, С‚Рѕ РєРѕРѕСЂРґРёРЅР°С‚Р° <code>X2</code> РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ СѓРєР°Р·Р°РЅР°, РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ
+РґРµР№СЃС‚РІРёРµ С„Р»Р°РіР° РЅРµ Р±СѓРґРµС‚ РёРјРµС‚СЊ РґРµР№СЃС‚РІРёСЏ.
+<li>Р•СЃР»Рё РЅРµ СѓРєР°Р·Р°РЅ С„Р»Р°Рі <a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a>, С‚Рѕ Far Manager СЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅРѕ РїРµСЂРµСЂР°СЃС‡РёС‚Р°РµС‚ РєРѕРѕСЂРґРёРЅР°С‚С‹ <code>X2</code> Рё <code>Y2</code>, РёСЃС…РѕРґСЏ
+РёР· СЂР°Р·РјРµСЂР° СЃС‚СЂРѕРєРё Рё СЂР°Р·РјРµСЂР° РґРёР°Р»РѕРіР°.
+<li>Р•СЃР»Рё СЌР»РµРјРµРЅС‚ РІ РјР°СЃСЃРёРІРµ СѓРїСЂР°РІР»СЏСЋС‰РёС… СЌР»РµРјРµРЅС‚РѕРІ СЃС‚РѕРёС‚ РїРµСЂРІС‹Рј, С‚Рѕ РєРѕРЅСЃРѕР»СЊРЅРѕРµ РѕРєРЅРѕ Far Manager Р±СѓРґРµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ Р·Р°РіРѕР»РѕРІРѕРє "<em>РІС‹РІРѕРґРёРјС‹Р№ С‚РµРєСЃС‚</em>".</li>
+<li>Р•СЃР»Рё РІ С‚РµРєСЃС‚Рµ СЌР»РµРјРµРЅС‚Р° <code>DI_TEXT</code> РёРјРµРµС‚СЃСЏ "РіРѕСЂСЏС‡Р°СЏ РєР»Р°РІРёС€Р°" (HotKey) Рё РЅРµ РІС‹СЃС‚Р°РІР»РµРЅ С„Р»Р°Рі <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a>,
+С‚Рѕ РїСЂРё РЅР°Р¶Р°С‚РёРё РІ РґРёР°Р»РѕРіРµ <kbd>Alt</kbd>+<kbd>РЎРёРјРІРѕР»</kbd> РєР»Р°РІРёР°С‚СѓСЂРЅС‹Р№ С„РѕРєСѓСЃ РІРІРѕРґР° РїРµСЂРµР№РґС‘С‚ РЅР° СЃР»РµРґСѓСЋС‰РёР№ СЌР»РµРјРµРЅС‚, РєРѕС‚РѕСЂС‹Р№ РјРѕР¶РµС‚ РёРјРµС‚СЊ <a href="../../other/dict.html#keybfocus">С„РѕРєСѓСЃ РІРІРѕРґР°</a>
 </ol>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
 <a href="di_vtext.html">DI_VTEXT</a>,
-<a href="../structures/fardialogitem.html">FarDialogItem</a>
-
+<a href="../../structures/fardialogitem.html">FarDialogItem</a>
 </div>
 
 </body>

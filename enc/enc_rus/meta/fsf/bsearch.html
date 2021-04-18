@@ -1,86 +1,75 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.bsearch</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
--->
 <body>
 
 <h1>bsearch</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">FarStandardFunctions</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.bsearch</dfn> осуществляет двоичный поиск в массиве.
+Р¤СѓРЅРєС†РёСЏ <code>FSF.bsearch</code> РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚ РґРІРѕРёС‡РЅС‹Р№ РїРѕРёСЃРє РІ РјР°СЃСЃРёРІРµ.
 </div>
 
 <pre class=syntax>
 void* WINAPI bsearch(
-  const void *key,
-  const void *base,
-  size_t nelem,
-  size_t width,
-  int (<b>__cdecl</b> *fcmp)(const void *, const void *)
+  const void *Key,
+  const void *Base,
+  size_t NElem,
+  size_t Width,
+  int (<b>WINAPI</b> *fcmp)(const void *, const void *,void *),
+  void *UserParam
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
-  <div class=dfn>key</div>
-  <div class=dfndescr>Указатель на элемент, который хотим найти.
-  </div>
-
-  <div class=dfn>base</div>
-  <div class=dfndescr>Указатель на начало данных для сортировки.
-   Массив данных должен быть отсортирован.
-  </div>
-
-  <div class=dfn>nelem</div>
-  <div class=dfndescr>Количество сортируемых данных.
-  </div>
-
-  <div class=dfn>width</div>
-  <div class=dfndescr>Размер одного элемента сортируемых данных.
-  </div>
-
+  <div class=dfn>Key</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЌР»РµРјРµРЅС‚, РєРѕС‚РѕСЂС‹Р№ С…РѕС‚РёРј РЅР°Р№С‚Рё.</div>
+  <div class=dfn>Base</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РЅР°С‡Р°Р»Рѕ РґР°РЅРЅС‹С… РґР»СЏ СЃРѕСЂС‚РёСЂРѕРІРєРё. РњР°СЃСЃРёРІ РґР°РЅРЅС‹С… РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕС‚СЃРѕСЂС‚РёСЂРѕРІР°РЅ.</div>
+  <div class=dfn>NElem</div>
+    <div class=dfndescr>РљРѕР»РёС‡РµСЃС‚РІРѕ СЃРѕСЂС‚РёСЂСѓРµРјС‹С… РґР°РЅРЅС‹С….</div>
+  <div class=dfn>Width</div>
+    <div class=dfndescr>Р Р°Р·РјРµСЂ РѕРґРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р° СЃРѕСЂС‚РёСЂСѓРµРјС‹С… РґР°РЅРЅС‹С….</div>
   <div class=dfn>fcmp</div>
-  <div class=dfndescr>Функция сравнения двух элементов. В процессе сортировки
-  вызывается каждый раз, когда необходимо сравнить пару элементов данных.
-  Функция сравнения <dfn>fcmp</dfn> должна иметь C-декларацию (_USERENTRY или _cdecl).<br>
-  <em>fcmp</em> получает два аргумента - <em>elem1</em> и <em>elem2</em>,
-  которые являются указателями на данные, и возвращает результат:
-  <table border=0>
-   <tr><td>*elem1 &lt; *elem2</td><td>- fcmp возвращает целое меньше 0</td></tr>
-   <tr><td>*elem1 == *elem2</td><td>- fcmp возвращает 0</td></tr>
-   <tr><td>*elem1  &gt; *elem2</td><td>- fcmp возвращает целое больше 0</td></tr>
-  </table>
-  </div>
+    <div class=dfndescr>Р¤СѓРЅРєС†РёСЏ СЃСЂР°РІРЅРµРЅРёСЏ РґРІСѓС… СЌР»РµРјРµРЅС‚РѕРІ. Р’ РїСЂРѕС†РµСЃСЃРµ СЃРѕСЂС‚РёСЂРѕРІРєРё РІС‹Р·С‹РІР°РµС‚СЃСЏ РєР°Р¶РґС‹Р№ СЂР°Р·, РєРѕРіРґР° РЅРµРѕР±С…РѕРґРёРјРѕ СЃСЂР°РІРЅРёС‚СЊ РїР°СЂСѓ СЌР»РµРјРµРЅС‚РѕРІ РґР°РЅРЅС‹С….
+    Р¤СѓРЅРєС†РёСЏ СЃСЂР°РІРЅРµРЅРёСЏ <code>fcmp</code> РґРѕР»Р¶РЅР° РёРјРµС‚СЊ РґРµРєР»Р°СЂР°С†РёСЋ <code>WINAPI</code>.<br>
+    <code>fcmp</code> РїРѕР»СѓС‡Р°РµС‚ С‚СЂРё Р°СЂРіСѓРјРµРЅС‚Р° - <code>elem1</code>, <code>elem2</code> (РєРѕС‚РѕСЂС‹Рµ СЏРІР»СЏСЋС‚СЃСЏ СѓРєР°Р·Р°С‚РµР»СЏРјРё РЅР° РґР°РЅРЅС‹Рµ) Рё <code>userparam</code> (С‚Рѕ, С‡С‚Рѕ Р±С‹Р»Рѕ РїРµСЂРµРґР°РЅРѕ РІ С„СѓРЅРєС†РёСЋ РІ РєР°С‡РµСЃС‚РІРµ РїР°СЂР°РјРµС‚СЂР° <code>UserParam</code>),
+    Рё РІРѕР·РІСЂР°С‰Р°РµС‚ СЂРµР·СѓР»СЊС‚Р°С‚:
+    <table border=0>
+    <tr><td>*elem1 &lt; *elem2</td><td>- fcmp РІРѕР·РІСЂР°С‰Р°РµС‚ С†РµР»РѕРµ РјРµРЅСЊС€Рµ 0</td></tr>
+    <tr><td>*elem1 == *elem2</td><td>- fcmp РІРѕР·РІСЂР°С‰Р°РµС‚ 0</td></tr>
+    <tr><td>*elem1  &gt; *elem2</td><td>- fcmp РІРѕР·РІСЂР°С‰Р°РµС‚ С†РµР»РѕРµ Р±РѕР»СЊС€Рµ 0</td></tr>
+    </table>
+    </div>
+  <div class=dfn>UserParam</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёРµ РґР°РЅРЅС‹Рµ, РєРѕС‚РѕСЂС‹Рµ С„СѓРЅРєС†РёСЏ <code>qsort</code> Р±СѓРґРµС‚ РїРµСЂРµРґР°РІР°С‚СЊ РІ С„СѓРЅРєС†РёСЋ СЃСЂР°РІРЅРµРЅРёСЏ <code>fcmp</code> РІ РєР°С‡РµСЃС‚РІРµ С‚СЂРµС‚СЊРµРіРѕ РїР°СЂР°РјРµС‚СЂР°.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-<dfn>bsearch</dfn> возвращает адрес первого вхождения в таблице <dfn>base</dfn>,
-которое соответствует ключу поиска <dfn>key</dfn>.
-Если значение не найдено, то функция возвращает 0.
+Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ Р°РґСЂРµСЃ РїРµСЂРІРѕРіРѕ РІС…РѕР¶РґРµРЅРёСЏ РІ С‚Р°Р±Р»РёС†Рµ <code>Base</code>, РєРѕС‚РѕСЂРѕРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РєР»СЋС‡Сѓ РїРѕРёСЃРєР° <code>Key</code>. Р•СЃР»Рё Р·РЅР°С‡РµРЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ, С‚Рѕ С„СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>0</code>.
 </div>
 
-<h3>Примечание</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-Более подробно о функции см. справочное руководство по языку C/C++.
+Р‘РѕР»РµРµ РїРѕРґСЂРѕР±РЅРѕ Рѕ С„СѓРЅРєС†РёРё СЃРј. СЃРїСЂР°РІРѕС‡РЅРѕРµ СЂСѓРєРѕРІРѕРґСЃС‚РІРѕ РїРѕ СЏР·С‹РєСѓ C/C++.
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
 <a href="qsort.html">FSF.qsort</a>
 </div>
 

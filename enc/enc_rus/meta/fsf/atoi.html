@@ -1,62 +1,56 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.atoi</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
--->
 <body>
 
 <h1>atoi</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">FarStandardFunctions</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.atoi</dfn> преобразует символьную строку в целое число типа <b>int</b> (32-битное целое).
+Р¤СѓРЅРєС†РёСЏ <code>FSF.atoi</code> РїСЂРµРѕР±СЂР°Р·СѓРµС‚ СЃРёРјРІРѕР»СЊРЅСѓСЋ СЃС‚СЂРѕРєСѓ РІ С†РµР»РѕРµ С‡РёСЃР»Рѕ С‚РёРїР° <code>int</code>.
 </div>
 
 <pre class=syntax>
 int WINAPI atoi(
-  const char *Str
+  const wchar_t *Str
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Str</div>
-  <div class=dfndescr>Указатель на строку, содержащую строковое представление
-  числа.
-  </div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂРѕРєСѓ, СЃРѕРґРµСЂР¶Р°С‰СѓСЋ СЃС‚СЂРѕРєРѕРІРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ С‡РёСЃР»Р°.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-<dfn>atoi</dfn> возвращает преобразованное значение входной строки
-<em>Str</em>. Если строка не может быть преобразована, то функция возвращает 0.
+<code>atoi</code> РІРѕР·РІСЂР°С‰Р°РµС‚ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РІС…РѕРґРЅРѕР№ СЃС‚СЂРѕРєРё <code>Str</code>. Р•СЃР»Рё СЃС‚СЂРѕРєР° РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅР°, С‚Рѕ С„СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>0</code>.
 </div>
 
-<h3>Примечание</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-Символы в строке <em>Str</em> должны совпадать со следующим форматом:<br>
+РЎРёРјРІРѕР»С‹ РІ СЃС‚СЂРѕРєРµ <code>Str</code> РґРѕР»Р¶РЅС‹ СЃРѕРІРїР°РґР°С‚СЊ СЃРѕ СЃР»РµРґСѓСЋС‰РёРј С„РѕСЂРјР°С‚РѕРј:<br>
 <code>[ws][sn][ddd]</code>
-где<br>
-&nbsp;&nbsp;ws - табуляция и пробел<br>
-&nbsp;&nbsp;sn - знак числа - '+' или '-'<br>
-&nbsp;&nbsp;ddd - строка цифр - от '0' до '9'<br>
+РіРґРµ<br>
+&nbsp;&nbsp;ws - С‚Р°Р±СѓР»СЏС†РёСЏ Рё РїСЂРѕР±РµР»<br>
+&nbsp;&nbsp;sn - Р·РЅР°Рє С‡РёСЃР»Р° - '+' РёР»Рё '-'<br>
+&nbsp;&nbsp;ddd - СЃС‚СЂРѕРєР° С†РёС„СЂ - РѕС‚ '0' РґРѕ '9'<br>
 
-Преобразование заканчивается, когда функция встречает первый "неправильный" символ.
-Проверка на переполнение не ведется (результат неопределенный).<br><br></p>
+РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ Р·Р°РєР°РЅС‡РёРІР°РµС‚СЃСЏ, РєРѕРіРґР° С„СѓРЅРєС†РёСЏ РІСЃС‚СЂРµС‡Р°РµС‚ РїРµСЂРІС‹Р№ "РЅРµРїСЂР°РІРёР»СЊРЅС‹Р№" СЃРёРјРІРѕР».
+РџСЂРѕРІРµСЂРєР° РЅР° РїРµСЂРµРїРѕР»РЅРµРЅРёРµ РЅРµ РІРµРґС‘С‚СЃСЏ (СЂРµР·СѓР»СЊС‚Р°С‚ РЅРµРѕРїСЂРµРґРµР»С‘РЅРЅС‹Р№).
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
-Вы можете в программе описать указатель на функцию, инициализировать и
-использовать ее:
+Р’С‹ РјРѕР¶РµС‚Рµ РІ РїСЂРѕРіСЂР°РјРјРµ РѕРїРёСЃР°С‚СЊ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° С„СѓРЅРєС†РёСЋ, РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ Рё РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РµС‘:
 <pre class=code>
 FARSTDATOI FarAtoi;
 ...
@@ -64,15 +58,16 @@ FarAtoi=Info.FSF-&gt;atoi;
 ...
 I=FarAtoi(Str);
 </pre>
-...или вызывать непосредственно:
+...РёР»Рё РІС‹Р·С‹РІР°С‚СЊ РЅРµРїРѕСЃСЂРµРґСЃС‚РІРµРЅРЅРѕ:
 <pre class=code>
 I=Info.FSF-&gt;atoi(Str);
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="atoi64.html">FSF.atoi64</a> |
-<a href="itoa.html">FSF.itoa</a> |
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="atoi64.html">FSF.atoi64</a>,
+<a href="itoa.html">FSF.itoa</a>,
 <a href="itoa64.html">FSF.itoa64</a>
 </div>
 

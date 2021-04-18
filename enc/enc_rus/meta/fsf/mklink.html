@@ -1,144 +1,125 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.MkLink</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
- Date: Tue 21 Nov 21:53:32 2000
-   Author: Ivan Sintyurin
-   E-mail: spinoza@mail.ru
--->
 <body>
 
 <h1>MkLink</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">FarStandardFunctions</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.MkLink</dfn> создает жесткие и символические ссылки, связи каталогов, а
-также монтирует локальные диски на файловую систему. Функция работает
-только под Windows NT 4 и выше.
+Р¤СѓРЅРєС†РёСЏ <code>FSF.MkLink</code> СЃРѕР·РґР°С‘С‚ Р¶С‘СЃС‚РєРёРµ Рё СЃРёРјРІРѕР»РёС‡РµСЃРєРёРµ СЃСЃС‹Р»РєРё, СЃРІСЏР·Рё РєР°С‚Р°Р»РѕРіРѕРІ, Р° С‚Р°РєР¶Рµ РјРѕРЅС‚РёСЂСѓРµС‚ Р»РѕРєР°Р»СЊРЅС‹Рµ РґРёСЃРєРё РЅР° С„Р°Р№Р»РѕРІСѓСЋ СЃРёСЃС‚РµРјСѓ.
 </div>
 
 <pre class=syntax>
-int WINAPI MkLink(
-  const char *Src,
-  const char *Dest,
-  DWORD Flags
+BOOL WINAPI MkLink(
+  const wchar_t *Target,
+  const wchar_t *LinkName,
+  enum LINK_TYPE LinkType,
+  MKLINK_FLAGS Flags
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
+
 <div class=descr>
-  <div class=dfn>Src</div>
-  <div class=dfndescr>Имя файлового объекта, на который создаётся ссылка.
-  </div>
-
-  <div class=dfn>Dest</div>
-  <div class=dfndescr>Имя создаваемой ссылки.
-  </div>
-
+  <div class=dfn>Target</div>
+    <div class=dfndescr>РРјСЏ С„Р°Р№Р»РѕРІРѕРіРѕ РѕР±СЉРµРєС‚Р°, РЅР° РєРѕС‚РѕСЂС‹Р№ СЃРѕР·РґР°С‘С‚СЃСЏ СЃСЃС‹Р»РєР°.</div>
+  <div class=dfn>LinkName</div>
+    <div class=dfndescr>РРјСЏ СЃРѕР·РґР°РІР°РµРјРѕР№ СЃСЃС‹Р»РєРё.</div>
+  <div class=dfn>LinkType</div>
+    <div class=dfndescr>РўРёРї РѕРїРµСЂР°С†РёРё. РћРґРЅРѕ РёР· (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="LINK_TYPE">LINK_TYPE</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">РћРїРµСЂР°С†РёСЏ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr><td class="cont" width="40%"><a name="LINK_HARDLINK">LINK_HARDLINK</a></td>
+    <td class="cont" width="60%">СЃРѕР·РґР°С‚СЊ Р¶С‘СЃС‚РєСѓСЋ СЃСЃС‹Р»РєСѓ (hardlink)</td></tr>
+    <tr><td class="cont" width="40%"><a name="LINK_JUNCTION">LINK_JUNCTION</a></td>
+    <td class="cont" width="60%">СЃРѕР·РґР°С‚СЊ СЃРІСЏР·СЊ РєР°С‚Р°Р»РѕРіРѕРІ (junction)</td></tr>
+    <tr><td class="cont" width="40%"><a name="LINK_VOLMOUNT">LINK_VOLMOUNT</a></td>
+    <td class="cont" width="60%">РјРѕРЅС‚РёСЂРѕРІР°С‚СЊ Р»РѕРєР°Р»СЊРЅС‹Р№ РґРёСЃРє РЅР° С„Р°Р№Р»РѕРІСѓСЋ СЃРёСЃС‚РµРјСѓ</td></tr>
+    <tr><td class="cont" width="40%"><a name="LINK_SYMLINKFILE">LINK_SYMLINKFILE</a></td>
+    <td class="cont" width="60%">СЃРѕР·РґР°С‚СЊ СЃРёРјРІРѕР»РёС‡РµСЃРєСѓСЋ СЃСЃС‹Р»РєСѓ-С„Р°Р№Р»</td></tr>
+    <tr><td class="cont" width="40%"><a name="LINK_SYMLINKDIR">LINK_SYMLINKDIR</a></td>
+    <td class="cont" width="60%">СЃРѕР·РґР°С‚СЊ СЃРёРјРІРѕР»РёС‡РµСЃРєСѓСЋ СЃСЃС‹Р»РєСѓ-РєР°С‚Р°Р»РѕРі</td></tr>
+    <tr><td class="cont" width="40%"><a name="LINK_SYMLINK">LINK_SYMLINK</a></td>
+    <td class="cont" width="60%">Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РІС‹Р±СЂР°С‚СЊ С‚РёРї СЃРѕР·РґР°РІР°РµРјРѕР№ СЃРёРјРІРѕР»РёС‡РµСЃРєРѕР№ СЃСЃС‹Р»РєРё</td></tr>
+    </table>
+    </div>
   <div class=dfn>Flags</div>
-  <div class=dfndescr>Тип операции. Одно из (перечисление <a name="MKLINKOP">MKLINKOP</a>):
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Операция</th><th class="cont" width="60%">Описание</th></tr>
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_HARDLINK">FLINK_HARDLINK</a></td>
-  <td class="cont" width="60%">Создать жесткую ссылку (hardlink).
-    </td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_JUNCTION">FLINK_JUNCTION</a></td>
-  <td class="cont" width="60%">Создать связь каталогов (junction).
-    </td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_VOLMOUNT">FLINK_VOLMOUNT</a></td>
-  <td class="cont" width="60%">монтировать локальный диск на файловую систему.
-    </td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_SYMLINKFILE">FLINK_SYMLINKFILE</a></td>
-  <td class="cont" width="60%">Создать символическую ссылку-файл.
-    </td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_SYMLINKDIR">FLINK_SYMLINKDIR</a></td>
-  <td class="cont" width="60%">Создать символическую ссылку-каталог.
-    </td></tr>
-</table>
-
-<p>В дополнении к вышеуказанным операциям можно указать флаг:</p>
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_SHOWERRMSG">FLINK_SHOWERRMSG</a></td>
-  <td class="cont" width="60%">Выводить сообщения об ошибках.
-    </td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a name="FLINK_DONOTUPDATEPANEL">FLINK_DONOTUPDATEPANEL</a></td>
-  <td class="cont" width="60%">После создания связи не обновлять панели.
-    </td></tr>
-</table>
-  </div>
+    <div class=dfndescr>Р¤Р»Р°Рі, РѕРґРЅРѕ РёР· (С‚РёРї <a name="MKLINK_FLAGS">MKLINK_FLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr><td class="cont" width="40%"><a name="MLF_SHOWERRMSG">MLF_SHOWERRMSG</a></td>
+    <td class="cont" width="60%">РІС‹РІРѕРґРёС‚СЊ СЃРѕРѕР±С‰РµРЅРёСЏ РѕР± РѕС€РёР±РєР°С…</td></tr>
+    <tr><td class="cont" width="40%"><a name="MLF_DONOTUPDATEPANEL">MLF_DONOTUPDATEPANEL</a></td>
+    <td class="cont" width="60%">РїРѕСЃР»Рµ СЃРѕР·РґР°РЅРёСЏ СЃСЃС‹Р»РєРё РЅРµ РѕР±РЅРѕРІР»СЏС‚СЊ РїР°РЅРµР»Рё</td></tr>
+    <tr><td class="cont" width="40%"><a name="MLF_HOLDTARGET">MLF_HOLDTARGET</a></td>
+    <td class="cont" width="60%">РґР»СЏ СЃРёРјРІРѕР»РёС‡РµСЃРєРёС… СЃСЃС‹Р»РѕРє РЅРµ РєРѕРЅРІРµСЂС‚РёСЂРѕРІР°С‚СЊ Target РІ РїРѕР»РЅС‹Р№ РїСѓС‚СЊ</td></tr>
+    <tr><td class="cont" width="40%"><a name="MLF_NONE">MLF_NONE</a></td>
+    <td class="cont" width="60%">РЅСѓР»РµРІРѕР№ С„Р»Р°Рі</td></tr>
+    </table>
+    </div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-<p>1 - ссылка создана.
-<p>0 - ошибка при создании ссылки:
+<p><code>1</code> - СЃСЃС‹Р»РєР° СЃРѕР·РґР°РЅР°.
+<p><code>0</code> - РѕС€РёР±РєР° РїСЂРё СЃРѕР·РґР°РЅРёРё СЃСЃС‹Р»РєРё:
 <ul>
-<li>Для жестких ссылок:
+<li>Р”Р»СЏ Р¶С‘СЃС‚РєРёС… СЃСЃС‹Р»РѕРє:
   <ul>
-   <li>Src или Dest находятся на разных разделах;
-   <li>раздел не NTFS;
-   <li>раздел не локальный;
-   <li>Src не существует или не является файлом.
-   <li>Dest уже существует;
+   <li>Target РёР»Рё LinkName РЅР°С…РѕРґСЏС‚СЃСЏ РЅР° СЂР°Р·РЅС‹С… СЂР°Р·РґРµР»Р°С…;
+   <li>СЂР°Р·РґРµР» РЅРµ NTFS;
+   <li>СЂР°Р·РґРµР» РЅРµ Р»РѕРєР°Р»СЊРЅС‹Р№;
+   <li>Target РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РёР»Рё РЅРµ СЏРІР»СЏРµС‚СЃСЏ С„Р°Р№Р»РѕРј.
+   <li>LinkName СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚;
   </ul>
-<li>Для связей:
+<li>Р”Р»СЏ СЃРІСЏР·РµР№:
   <ul>
-   <li>Src или Dest находятся не на локальных разделах;
-   <li>раздел не NTFS 5.0;
-   <li>Src не существует или не является каталогом;
-   <li>Dest существует, но не пустой каталог.
+   <li>Target РёР»Рё LinkName РЅР°С…РѕРґСЏС‚СЃСЏ РЅРµ РЅР° Р»РѕРєР°Р»СЊРЅС‹С… СЂР°Р·РґРµР»Р°С…;
+   <li>СЂР°Р·РґРµР» РЅРµ NTFS 5.0;
+   <li>Target РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РёР»Рё РЅРµ СЏРІР»СЏРµС‚СЃСЏ РєР°С‚Р°Р»РѕРіРѕРј;
+   <li>LinkName СЃСѓС‰РµСЃС‚РІСѓРµС‚, РЅРѕ РЅРµ РїСѓСЃС‚РѕР№ РєР°С‚Р°Р»РѕРі.
   </ul>
-<li>Для монтирования дисков:
+<li>Р”Р»СЏ РјРѕРЅС‚РёСЂРѕРІР°РЅРёСЏ РґРёСЃРєРѕРІ:
   <ul>
-   <li>Src или Dest находятся не на локальных разделах;
-   <li>раздел для Dest не NTFS 5.0;
-   <li>Src не существует или диск является не локальным;
-   <li>Dest существует, но не пустой каталог.
+   <li>Target РёР»Рё LinkName РЅР°С…РѕРґСЏС‚СЃСЏ РЅРµ РЅР° Р»РѕРєР°Р»СЊРЅС‹С… СЂР°Р·РґРµР»Р°С…;
+   <li>СЂР°Р·РґРµР» РґР»СЏ LinkName РЅРµ NTFS 5.0;
+   <li>Src РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚ РёР»Рё РґРёСЃРє СЏРІР»СЏРµС‚СЃСЏ РЅРµ Р»РѕРєР°Р»СЊРЅС‹Рј;
+   <li>LinkName СЃСѓС‰РµСЃС‚РІСѓРµС‚, РЅРѕ РЅРµ РїСѓСЃС‚РѕР№ РєР°С‚Р°Р»РѕРі.
   </ul>
 </ul>
 </div>
 
-<h3>Примечание</h3>
+<h3>РџСЂРёРјРµС‡Р°РЅРёРµ</h3>
 <div class=descr>
 <ol>
-<li>Ссылки создаются по следующим правилам:
+<li>РЎСЃС‹Р»РєРё СЃРѕР·РґР°СЋС‚СЃСЏ РїРѕ СЃР»РµРґСѓСЋС‰РёРј РїСЂР°РІРёР»Р°Рј:
   <ul>
-  <li>жесткие ссылки (hardlink) создаются только для файлов в пределах
-      текущего NTFS-раздела (<b>NT4/Win2K/NTFS</b>);
-  <li>связи (junction) создаются только для каталогов в
-      пределах локальных NTFS-разделов (<b>Win2K/NTFS 5.0</b>);
-  <li>монтирование локальных дисков на файловую систему только на NTFS-раздел
-      (<b>Win2K/NTFS 5.0</b>)
+  <li>Р¶С‘СЃС‚РєРёРµ СЃСЃС‹Р»РєРё (hardlink) СЃРѕР·РґР°СЋС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ С„Р°Р№Р»РѕРІ РІ РїСЂРµРґРµР»Р°С… С‚РµРєСѓС‰РµРіРѕ NTFS-СЂР°Р·РґРµР»Р°;
+  <li>СЃРІСЏР·Рё (junction) СЃРѕР·РґР°СЋС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РєР°С‚Р°Р»РѕРіРѕРІ РІ РїСЂРµРґРµР»Р°С… Р»РѕРєР°Р»СЊРЅС‹С… NTFS-СЂР°Р·РґРµР»РѕРІ;
+  <li>РјРѕРЅС‚РёСЂРѕРІР°РЅРёРµ Р»РѕРєР°Р»СЊРЅС‹С… РґРёСЃРєРѕРІ РЅР° С„Р°Р№Р»РѕРІСѓСЋ СЃРёСЃС‚РµРјСѓ С‚РѕР»СЊРєРѕ РЅР° NTFS-СЂР°Р·РґРµР».
   </ul>
-<li>Если в качестве Src было передано значение, например "C:", то вместо
-связи каталогов будет монтирован диск.
-<li>Если для монтирования диска Dest оканчивается слешем, то в Dest будет
-создан каталог "disk_N" (где N - буква диска).
+<li>Р•СЃР»Рё РІ РєР°С‡РµСЃС‚РІРµ Target Р±С‹Р»Рѕ РїРµСЂРµРґР°РЅРѕ Р·РЅР°С‡РµРЅРёРµ, РЅР°РїСЂРёРјРµСЂ L"C:", С‚Рѕ РІРјРµСЃС‚Рѕ СЃРІСЏР·Рё РєР°С‚Р°Р»РѕРіРѕРІ Р±СѓРґРµС‚ РјРѕРЅС‚РёСЂРѕРІР°РЅ РґРёСЃРє.
+<li>Р•СЃР»Рё РґР»СЏ РјРѕРЅС‚РёСЂРѕРІР°РЅРёСЏ РґРёСЃРєР° LinkName РѕРєР°РЅС‡РёРІР°РµС‚СЃСЏ СЃР»РµС€РµРј, С‚Рѕ РІ LinkName Р±СѓРґРµС‚ СЃРѕР·РґР°РЅ РєР°С‚Р°Р»РѕРі "disk_N" (РіРґРµ N - Р±СѓРєРІР° РґРёСЃРєР°).
 
-<li>В Windows 2000 напрямую делать связи на папки CD-ROM нельзя, но можно это
-ограничение обойти, смонтировав CD-ROM диск на папку NTFS-раздела (т.н. <a href="../dict.html#mountpoints">Mount Points</a>).
-И уже из этой папки сделать нужную связь.
+<li>Р’ Windows 2000 РЅР°РїСЂСЏРјСѓСЋ РґРµР»Р°С‚СЊ СЃРІСЏР·Рё РЅР° РїР°РїРєРё CD-ROM РЅРµР»СЊР·СЏ, РЅРѕ РјРѕР¶РЅРѕ СЌС‚Рѕ РѕРіСЂР°РЅРёС‡РµРЅРёРµ РѕР±РѕР№С‚Рё, СЃРјРѕРЅС‚РёСЂРѕРІР°РІ CD-ROM РґРёСЃРє РЅР° РїР°РїРєСѓ NTFS-СЂР°Р·РґРµР»Р°
+(С‚.РЅ. <a href="../other/dict.html#mountpoints">Mount Points</a>). Р СѓР¶Рµ РёР· СЌС‚РѕР№ РїР°РїРєРё СЃРґРµР»Р°С‚СЊ РЅСѓР¶РЅСѓСЋ СЃРІСЏР·СЊ.
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
 <a href="getnumberoflinks.html">GetNumberOfLinks</a>
 </div>
 

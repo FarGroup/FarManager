@@ -625,7 +625,7 @@ public:
 	struct DialogsOptions
 	{
 		BoolOption EditBlock;            // Постоянные блоки в строках ввода
-		BoolOption EditHistory;          // Добавлять в историю?
+		Bool3Option EditHistory;          // Добавлять в историю?
 		BoolOption AutoComplete;         // Разрешено автодополнение?
 		BoolOption EULBsClear;           // = 1 - BS в диалогах для UnChanged строки удаляет такую строку также, как и Del
 		IntOption MouseButton;          // Отключение восприятие правой/левой кнопки мыши как команд закрытия окна диалога
@@ -835,7 +835,7 @@ public:
 	BoolOption UseRegisteredTypes;
 
 	BoolOption ViewerEditorClock;
-	BoolOption SaveViewHistory;
+	Bool3Option SaveViewHistory;
 	IntOption ViewHistoryCount;
 	IntOption ViewHistoryLifetime;
 
@@ -852,10 +852,10 @@ public:
 	IntOption ChangeDriveMode;
 	BoolOption ChangeDriveDisconnectMode;
 
-	BoolOption SaveHistory;
+	Bool3Option SaveHistory;
 	IntOption HistoryCount;
 	IntOption HistoryLifetime;
-	BoolOption SaveFoldersHistory;
+	Bool3Option SaveFoldersHistory;
 	IntOption FoldersHistoryCount;
 	IntOption FoldersHistoryLifetime;
 	IntOption DialogsHistoryCount;

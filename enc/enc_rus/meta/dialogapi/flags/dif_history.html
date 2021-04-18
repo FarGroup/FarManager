@@ -1,103 +1,72 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>DIF_HISTORY</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
-<!-- History of modification:
--->
 <body>
 
 <h1>DIF_HISTORY</h1>
 <div class=navbar>
-<a href="../../index.html">главная</a> |
-<a href="../index.html">Dialog API</a> |
-<a href="index.html">Флаги элементов диалога</a><br>
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">С„Р»Р°РіРё СЌР»РµРјРµРЅС‚РѕРІ РґРёР°Р»РѕРіР°</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-<p>Флаг <dfn>DIF_HISTORY</dfn> позволяет вести историю редактирования для
-полей ввода. Если этот флаг установлен, то поле <dfn>History</dfn> должно содержать
-адрес текстовой строки, которая будет использоваться как внутреннее название
-истории редактирования. Если для нескольких полей ввода оно одинаково, они
-используют одну и ту же историю редактирования. Для следующего примера
-(файл ARCPROC.CPP из MultiArc):
+Р¤Р»Р°Рі <code>DIF_HISTORY</code> РїРѕР·РІРѕР»СЏРµС‚ РІРµСЃС‚Рё РёСЃС‚РѕСЂРёСЋ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ РґР»СЏ РїРѕР»РµР№ РІРІРѕРґР°. Р•СЃР»Рё СЌС‚РѕС‚ С„Р»Р°Рі СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РїРѕР»Рµ <code>History</code> РґРѕР»Р¶РЅРѕ СЃРѕРґРµСЂР¶Р°С‚СЊ
+Р°РґСЂРµСЃ С‚РµРєСЃС‚РѕРІРѕР№ СЃС‚СЂРѕРєРё, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РєР°Рє РІРЅСѓС‚СЂРµРЅРЅРµРµ РЅР°Р·РІР°РЅРёРµ РёСЃС‚РѕСЂРёРё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ. Р•СЃР»Рё РґР»СЏ РЅРµСЃРєРѕР»СЊРєРёС… РїРѕР»РµР№ РІРІРѕРґР° РѕРЅРѕ РѕРґРёРЅР°РєРѕРІРѕ, РѕРЅРё
+РёСЃРїРѕР»СЊР·СѓСЋС‚ РѕРґРЅСѓ Рё С‚Сѓ Р¶Рµ РёСЃС‚РѕСЂРёСЋ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ.</div>
 
-<pre class=code>const char *PathHistoryName="<dfn>ExtrDestPath</dfn>";
-struct InitDialogItem InitItems[]={
- ...
- DI_EDIT,5,3,70,3,1,(DWORD)PathHistoryName,DIF_HISTORY,0,DestPath,
- ...
-};
-</pre>
-
-история будет храниться в реестре (ключ <code>HKCU\Software\Far\SavedDialogHistory\<em>ExtrDestPath</em></code>)
-по одной строке (имена параметров выглядят как "Line&lt;номер&gt;", тип REG_SZ) для
-каждого введенного пользователем значения.<br>
-Параметры, имена которых выглядят как "Locked&lt;номер&gt;" (REG_DWORD),
-предназначены для обозначения строк, которые являются неудаляемыми (в списке
-это состояние можно менять нажатием клавиши &lt;Insert&gt;)
-</div>
-
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
-
-<p>Флаг <dfn>DIF_HISTORY</dfn> имеет смысл для следующих элементов диалога:<br>
+Р¤Р»Р°Рі <code>DIF_HISTORY</code> РёРјРµРµС‚ СЃРјС‹СЃР» РґР»СЏ СЃР»РµРґСѓСЋС‰РёС… СЌР»РµРјРµРЅС‚РѕРІ РґРёР°Р»РѕРіР°:
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">Р­Р»РµРјРµРЅС‚</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="60%">строка ввода</td></tr>
+<td class="cont" width="60%">СЃС‚СЂРѕРєР° РІРІРѕРґР°</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
-<td class="cont" width="60%">поле ввода фиксированного размера</td></tr>
+<td class="cont" width="60%">РїРѕР»Рµ РІРІРѕРґР° С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕРіРѕ СЂР°Р·РјРµСЂР°</td></tr>
 </table>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 <ol>
-<li>Флаг <dfn>DIF_HISTORY</dfn> <b><u>НЕ РАБОТАЕТ</u></b> с элементом диалога
-    <a href="../controls/di_pswedit.html">DI_PSWEDIT</a>!
-<li><dfn>DIF_HISTORY</dfn> имеет более высокий приоритет, чем флаг
-    <a href="dif_maskedit.html">DIF_MASKEDIT</a>.
-<li><b>FAR 1.70 beta 3</b>: Если плагин имеет строку ввода с историей, но при
-    этом выход из диалога предполагается осуществлять по Esc (Enter
-    задействован для других целей), то данные не будут попадать в историю,
-    т.к. Esc означает отказ от дальнейшей обработки диалога. В этом случае
-    плагин может сам добавлять нужную строку в историю редактирования. Для
-    этого необходимо послать Менеджеру Диалогов сообщение
+<li>Р¤Р»Р°Рі <code>DIF_HISTORY</code> <b><u>РќР• Р РђР‘РћРўРђР•Рў</u></b> СЃ СЌР»РµРјРµРЅС‚РѕРј РґРёР°Р»РѕРіР° <a href="../controls/di_pswedit.html">DI_PSWEDIT</a>!
+<li><code>DIF_HISTORY</code> РёРјРµРµС‚ Р±РѕР»РµРµ РІС‹СЃРѕРєРёР№ РїСЂРёРѕСЂРёС‚РµС‚, С‡РµРј С„Р»Р°Рі <a href="dif_maskedit.html">DIF_MASKEDIT</a>.
+<li>Р•СЃР»Рё РїР»Р°РіРёРЅ РёРјРµРµС‚ СЃС‚СЂРѕРєСѓ РІРІРѕРґР° СЃ РёСЃС‚РѕСЂРёРµР№, РЅРѕ РїСЂРё СЌС‚РѕРј РІС‹С…РѕРґ РёР· РґРёР°Р»РѕРіР° РїСЂРµРґРїРѕР»Р°РіР°РµС‚СЃСЏ РѕСЃСѓС‰РµСЃС‚РІР»СЏС‚СЊ РїРѕ <kbd>Esc</kbd> (<kbd>Enter</kbd> Р·Р°РґРµР№СЃС‚РІРѕРІР°РЅ РґР»СЏ РґСЂСѓРіРёС… С†РµР»РµР№), С‚Рѕ РґР°РЅРЅС‹Рµ РЅРµ Р±СѓРґСѓС‚ РїРѕРїР°РґР°С‚СЊ РІ РёСЃС‚РѕСЂРёСЋ,
+    С‚.Рє. <kbd>Esc</kbd> РѕР·РЅР°С‡Р°РµС‚ РѕС‚РєР°Р· РѕС‚ РґР°Р»СЊРЅРµР№С€РµР№ РѕР±СЂР°Р±РѕС‚РєРё РґРёР°Р»РѕРіР°. Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ РїР»Р°РіРёРЅ РјРѕР¶РµС‚ СЃР°Рј РґРѕР±Р°РІР»СЏС‚СЊ РЅСѓР¶РЅСѓСЋ СЃС‚СЂРѕРєСѓ РІ РёСЃС‚РѕСЂРёСЋ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ. Р”Р»СЏ СЌС‚РѕРіРѕ РЅРµРѕР±С…РѕРґРёРјРѕ РїРѕСЃР»Р°С‚СЊ РњРµРЅРµРґР¶РµСЂСѓ Р”РёР°Р»РѕРіРѕРІ СЃРѕРѕР±С‰РµРЅРёРµ
     <a href="../dmsg/dm_addhistory.html">DM_ADDHISTORY</a>.
-<li>Если у элемента выставлен флаг <a href="dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a>,
-    то Менеджер Диалогов не будет по завершении работы диалога добавлять
-    строку в историю редактирования.
-<li>Плагин может также вести совместные с FAR истории, использовав
-    предопределенные наименования:
+<li>Р•СЃР»Рё Сѓ СЌР»РµРјРµРЅС‚Р° РІС‹СЃС‚Р°РІР»РµРЅ С„Р»Р°Рі <a href="dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a>, С‚Рѕ РњРµРЅРµРґР¶РµСЂ Р”РёР°Р»РѕРіРѕРІ РЅРµ Р±СѓРґРµС‚ РїРѕ Р·Р°РІРµСЂС€РµРЅРёРё СЂР°Р±РѕС‚С‹ РґРёР°Р»РѕРіР° РґРѕР±Р°РІР»СЏС‚СЊ
+    СЃС‚СЂРѕРєСѓ РІ РёСЃС‚РѕСЂРёСЋ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ.
+<li>РџР»Р°РіРёРЅ РјРѕР¶РµС‚ С‚Р°РєР¶Рµ РІРµСЃС‚Рё СЃРѕРІРјРµСЃС‚РЅС‹Рµ СЃ Far Manager РёСЃС‚РѕСЂРёРё, РёСЃРїРѕР»СЊР·РѕРІР°РІ РїСЂРµРґРѕРїСЂРµРґРµР»С‘РЅРЅС‹Рµ РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ:
     <table border=1>
-    <tr><th>имя</th><th>назначение</th></tr>
-    <tr><td>"SearchText"</td><td>строки поиска</td></tr>
-    <tr><td>"ReplaceText"</td><td>строки замены</td></tr>
-    <tr><td>"PersPath"</td><td>пути к персональным плагинам</td></tr>
-    <tr><td>"Copy"</td><td>строки назначения в диалоге копирования</td></tr>
-    <tr><td>"LineNumber"</td><td>переходы в редакторе (Alt-F8)</td></tr>
-    <tr><td>"ViewerOffset"</td><td>переходы в программе просмотра (Alt-F8)</td></tr>
-    <tr><td>"NewEdit"</td><td>редактируемые файлы (Shift-F4/Shift-F2)</td></tr>
-    <tr><td>"Masks"</td><td>маски файлов (пометка, ассоциации, фильтры, поиск файлов)</td></tr>
-    <tr><td>"UserVarN"</td><td>переменные в подстановках</td></tr>
-    <tr><td>"ApplyCmd"</td><td>"выполнить команду" (Ctrl-G)</td></tr>
-    <tr><td>"DizText"</td><td>строки ввода описаний файлов</td></tr>
-    <tr><td>"NewFolder"</td><td>создание каталогов</td></tr>
+    <tr><th>РёРјСЏ</th><th>РЅР°Р·РЅР°С‡РµРЅРёРµ</th></tr>
+    <tr><td>L"SearchText"</td><td>СЃС‚СЂРѕРєРё РїРѕРёСЃРєР°</td></tr>
+    <tr><td>L"ReplaceText"</td><td>СЃС‚СЂРѕРєРё Р·Р°РјРµРЅС‹</td></tr>
+    <tr><td>L"PersPath"</td><td>РїСѓС‚Рё Рє РїРµСЂСЃРѕРЅР°Р»СЊРЅС‹Рј РїР»Р°РіРёРЅР°Рј</td></tr>
+    <tr><td>L"Copy"</td><td>СЃС‚СЂРѕРєРё РЅР°Р·РЅР°С‡РµРЅРёСЏ РІ РґРёР°Р»РѕРіРµ РєРѕРїРёСЂРѕРІР°РЅРёСЏ</td></tr>
+    <tr><td>L"LineNumber"</td><td>РїРµСЂРµС…РѕРґС‹ РІ СЂРµРґР°РєС‚РѕСЂРµ (<kbd>Alt</kbd>+<kbd>F8</kbd>)</td></tr>
+    <tr><td>L"ViewerOffset"</td><td>РїРµСЂРµС…РѕРґС‹ РІ РїСЂРѕРіСЂР°РјРјРµ РїСЂРѕСЃРјРѕС‚СЂР° (<kbd>Alt</kbd>+<kbd>F8</kbd>)</td></tr>
+    <tr><td>L"NewEdit"</td><td>СЂРµРґР°РєС‚РёСЂСѓРµРјС‹Рµ С„Р°Р№Р»С‹ (<kbd>Shift</kbd>+<kbd>F4</kbd> / <kbd>Shift</kbd>+<kbd>F2</kbd>)</td></tr>
+    <tr><td>L"Masks"</td><td>РјР°СЃРєРё С„Р°Р№Р»РѕРІ (РїРѕРјРµС‚РєР°, Р°СЃСЃРѕС†РёР°С†РёРё, С„РёР»СЊС‚СЂС‹, РїРѕРёСЃРє С„Р°Р№Р»РѕРІ)</td></tr>
+    <tr><td>L"UserVarN"</td><td>РїРµСЂРµРјРµРЅРЅС‹Рµ РІ РїРѕРґСЃС‚Р°РЅРѕРІРєР°С…</td></tr>
+    <tr><td>L"ApplyCmd"</td><td>"РІС‹РїРѕР»РЅРёС‚СЊ РєРѕРјР°РЅРґСѓ" (<kbd>Ctrl</kbd>+<kbd>G</kbd>)</td></tr>
+    <tr><td>L"DizText"</td><td>СЃС‚СЂРѕРєРё РІРІРѕРґР° РѕРїРёСЃР°РЅРёР№ С„Р°Р№Р»РѕРІ</td></tr>
+    <tr><td>L"NewFolder"</td><td>СЃРѕР·РґР°РЅРёРµ РєР°С‚Р°Р»РѕРіРѕРІ</td></tr>
     </table>
     </li>
 </ol>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
 <a href="dif_uselasthistory.html">DIF_USELASTHISTORY</a>,
 <a href="../dmsg/dm_addhistory.html">DM_ADDHISTORY</a>,
 <a href="dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a>.
-
 </div>
 
 </body>

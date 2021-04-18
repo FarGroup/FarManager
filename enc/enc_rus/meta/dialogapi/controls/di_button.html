@@ -1,150 +1,117 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>DI_BUTTON</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
-<!-- History of modification:
--->
 <body>
 
 <h1>DI_BUTTON</h1>
 <div class=navbar>
-<a href="../../index.html">главная</a> |
-<a href="../index.html">Dialog API</a> |
-<a href="index.html">Элементы диалога</a><br>
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЌР»РµРјРµРЅС‚С‹ РґРёР°Р»РѕРіР°</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Элемент диалога <dfn>DI_BUTTON</dfn> описывает кнопку (Push Button).
+Р­Р»РµРјРµРЅС‚ РґРёР°Р»РѕРіР° <code>DI_BUTTON</code> РѕРїРёСЃС‹РІР°РµС‚ РєРЅРѕРїРєСѓ (Push Button).
 </div>
 
 <pre class=syntax>
 struct FarDialogItem
 {
-  int Type          = <b>DI_BUTTON</b>
-  int X1            = <b>X</b>
-  int Y1            = <b>Y</b>
-  int X2            = <b>0</b> (в Dialog API 1.0 не используется)
-  int Y2            = <b>Y</b> (равен значению Y1)
-  int Focus         = <b>Focus</b>
-  int Selected      = <b>Selected</b>
-  DWORD Flags       = <b>Flags</b>
-  int DefaultButton = <b>DefaultButton</b>
-  char Data[512]    = <b>надпись на кнопке</b>
+  enum FARDIALOGITEMTYPES Type = <b>DI_BUTTON</b>
+  intptr_t X1                  = <b>X</b>
+  intptr_t Y1                  = <b>Y</b>
+  intptr_t X2                  = <b>0</b>
+  intptr_t Y2                  = <b>Y</b> (СЂР°РІРµРЅ Р·РЅР°С‡РµРЅРёСЋ Y1)
+  intptr_t Selected            = <b>Selected</b>
+  FARDIALOGITEMFLAGS Flags     = <b>Flags</b>
+  const wchar_t *Data          = <b>РЅР°РґРїРёСЃСЊ РЅР° РєРЅРѕРїРєРµ</b>
 };
 </pre>
 
-<p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
-
-<h3>Focus</h3>
-<div class=descr>
-Определяет имеет ли кнопка клавиатурный фокус ввода.
-</div>
+<p class=note><img src="../../../images/note.gif" alt="Р’РЅРёРјР°РЅРёРµ!" width="10" height="10"> Р’РЅРёРјР°РЅРёРµ!</p>
+<UL class=note><LI>РџСЂРёРІРµРґРµРЅРѕ СЃС…РµРјР°С‚РёС‡РЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹; РїРѕР»РЅРѕРµ РѕРїРёСЃР°РЅРёРµ СЃС‚СЂСѓРєС‚СѓСЂС‹ <a href="../../structures/fardialogitem.html">СЃРј. Р·РґРµСЃСЊ</a>.</LI></UL>
 
 <h3>Selected</h3>
-<div class=descr>
-Если кнопка имеет фокус ввода, то при нажатии &lt;Enter&gt; это поле примет
-значение 1.
-</div>
+  <div class=descr>Р•СЃР»Рё РєРЅРѕРїРєР° РёРјРµРµС‚ С„РѕРєСѓСЃ РІРІРѕРґР°, С‚Рѕ РїСЂРё РЅР°Р¶Р°С‚РёРё <kbd>Enter</kbd> СЌС‚Рѕ РїРѕР»Рµ РїСЂРёРјРµС‚ Р·РЅР°С‡РµРЅРёРµ <code>1</code>.</div>
 
-<h3>Флаги</h3>
+<h3>Р¤Р»Р°РіРё</h3>
 <div class=descr>
-Для элемента <dfn>DI_BUTTON</dfn> имеют значения следующие флаги:<br>
+Р”Р»СЏ СЌР»РµРјРµРЅС‚Р° <code>DI_BUTTON</code> РёРјРµСЋС‚ Р·РЅР°С‡РµРЅРёСЏ СЃР»РµРґСѓСЋС‰РёРµ С„Р»Р°РіРё:
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
+<td class="cont" width="60%">С„Р»Р°Рі, РѕР·РЅР°С‡Р°СЋС‰РёР№, С‡С‚Рѕ РґР°РЅРЅС‹Р№ СЌР»РµРјРµРЅС‚ РґРёР°Р»РѕРіР° СЏРІР»СЏРµС‚СЃСЏ "СЌР»РµРјРµРЅС‚РѕРј РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ"</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_focus.html">DIF_FOCUS</a></td>
+<td class="cont" width="60%">РѕРїСЂРµРґРµР»СЏРµС‚, С‡С‚Рѕ РїСЂРё РїРѕРєР°Р·Рµ РґРёР°Р»РѕРіР° СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РєР»Р°РІРёР°С‚СѓСЂРЅС‹Р№ С„РѕРєСѓСЃ РІРІРѕРґР° РЅР° РґР°РЅРЅС‹Р№ СЌР»РµРјРµРЅС‚</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_btnnoclose.html">DIF_BTNNOCLOSE</a></td>
-<td class="cont" width="60%">Не завершать работу диалога при нажатии на кнопку.</td></tr>
+<td class="cont" width="60%">РЅРµ Р·Р°РІРµСЂС€Р°С‚СЊ СЂР°Р±РѕС‚Сѓ РґРёР°Р»РѕРіР° РїСЂРё РЅР°Р¶Р°С‚РёРё РЅР° РєРЅРѕРїРєСѓ</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
-<td class="cont" width="60%">центрирование идущих подряд кнопок с одинаковой вертикальной позицией (параметр <dfn>X</dfn> игнорируется)
-</td></tr>
+<td class="cont" width="60%">С†РµРЅС‚СЂРёСЂРѕРІР°РЅРёРµ РёРґСѓС‰РёС… РїРѕРґСЂСЏРґ РєРЅРѕРїРѕРє СЃ РѕРґРёРЅР°РєРѕРІРѕР№ РІРµСЂС‚РёРєР°Р»СЊРЅРѕР№ РїРѕР·РёС†РёРµР№ (РїР°СЂР°РјРµС‚СЂ <code>X</code> РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ)</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nobrackets.html">DIF_NOBRACKETS</a></td>
-<td class="cont" width="60%">Показывает заголовок кнопки без скобок.
-</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a></td>
-<td class="cont" width="60%">определить цвет элемента (младший байт параметра <dfn>Flags</dfn> должен содержать атрибут текста кнопки)
-</td></tr>
+<td class="cont" width="60%">РїРѕРєР°Р·С‹РІР°РµС‚ Р·Р°РіРѕР»РѕРІРѕРє РєРЅРѕРїРєРё Р±РµР· СЃРєРѕР±РѕРє</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
-<td class="cont" width="60%">Элемент является недоступным.
-</td></tr>
+<td class="cont" width="60%">СЌР»РµРјРµРЅС‚ СЏРІР»СЏРµС‚СЃСЏ РЅРµРґРѕСЃС‚СѓРїРЅС‹Рј</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
-<td class="cont" width="60%">Управляющий элемент не получает клавиатурный фокус ввода.</td></tr>
+<td class="cont" width="60%">СѓРїСЂР°РІР»СЏСЋС‰РёР№ СЌР»РµРјРµРЅС‚ РЅРµ РїРѕР»СѓС‡Р°РµС‚ РєР»Р°РІРёР°С‚СѓСЂРЅС‹Р№ С„РѕРєСѓСЃ РІРІРѕРґР°</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_setshield.html">DIF_SETSHIELD</a></td>
+<td class="cont" width="60%">СЂР°Р·РјРµС‰Р°РµС‚ РЅР° РєРЅРѕРїРєРµ Р°РЅР°Р»РѕРі "РёРєРѕРЅРєРё СЃРѕ С‰РёС‚РѕРј" Microsoft UAC</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
-<td class="cont" width="60%">показывать в заголовке рамки амперсанд не используя его для определения горячей
-клавиши</td></tr>
+<td class="cont" width="60%">РїРѕРєР°Р·С‹РІР°С‚СЊ РІ Р·Р°РіРѕР»РѕРІРєРµ СЂР°РјРєРё Р°РјРїРµСЂСЃР°РЅРґ РЅРµ РёСЃРїРѕР»СЊР·СѓСЏ РµРіРѕ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РіРѕСЂСЏС‡РµР№ РєР»Р°РІРёС€Рё</td></tr>
 </table>
 </div>
 
-<h3>События</h3>
+<h3>РЎРѕР±С‹С‚РёСЏ</h3>
 <div class=descr>
-
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><th class="cont" width="40%">РЎРѕР±С‹С‚РёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+<td class="cont" width="60%">РЅР°С‡Р°Р»Рѕ РѕС‚СЂРёСЃРѕРІРєРё С‚РµРєСЃС‚РѕРІРѕР№ СЃС‚СЂРѕРєРё</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
+<td class="cont" width="60%">Р·Р°РїСЂРѕСЃ С†РІРµС‚РѕРІС‹С… Р°С‚СЂРёР±СѓС‚РѕРІ РґР»СЏ РѕС‚СЂРёСЃРѕРІРєРё;
+<code>Param2</code>:
+<pre>
+<code>Colors[0]</code> - С‚РµРєСЃС‚ РєРЅРѕРїРєРё
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGBUTTON">COL_WARNDIALOGBUTTON</a> РёР»Рё <a href="../../defs/farcolors.html#COL_DIALOGBUTTON">COL_DIALOGBUTTON</a>)
+<code>Colors[1]</code> - РІС‹РґРµР»РµРЅРЅС‹Р№ С‚РµРєСЃС‚ (highlighting text)
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTBUTTON">COL_WARNDIALOGHIGHLIGHTBUTTON</a> РёР»Рё <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTBUTTON">COL_DIALOGHIGHLIGHTBUTTON</a>)
 
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
- <td class="cont" width="60%">начало отрисовки текстовой строки</td></tr>
+<code>Param2</code>, РєРѕРіРґР° РєРЅРѕРїРєР° РІ С„РѕРєСѓСЃРµ:
 
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
- <td class="cont" width="60%">запрос цветовых атрибутов для отрисовки; Param2:
-<pre>LoWord LoByte - текст кнопки
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGBUTTON">COL_WARNDIALOGBUTTON</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGBUTTON">COL_DIALOGBUTTON</a>)
-LoWord HiByte - выделенный текст (highlighting text)
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTBUTTON">COL_WARNDIALOGHIGHLIGHTBUTTON</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTBUTTON">COL_DIALOGHIGHLIGHTBUTTON</a>)
-
-Param2, когда кнопка в фокусе:
-
-LoWord LoByte - текст кнопки
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGSELECTEDBUTTON">COL_WARNDIALOGSELECTEDBUTTON</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGSELECTEDBUTTON">COL_DIALOGSELECTEDBUTTON</a>)
-LoWord HiByte - выделенный текст
-                (highlighting text)
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON">COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON</a>
-                или
-                 <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTSELECTEDBUTTON">COL_DIALOGHIGHLIGHTSELECTEDBUTTON</a>)</pre>
-<pre>HiWord LoByte - 0
-HiWord HiByte - 0</pre>
-Если используется заказной атрибут (флаг <a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a>),
-то текст кнопки (LoWord LoByte) будет тем, что указали.
- </td></tr>
-
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_key.html">DN_KEY</a></td>
- <td class="cont" width="60%">нажали клавишу.</td></tr>
-
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
- <td class="cont" width="60%">горячая клавиша (Alt-Символ)</td></tr>
-
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
- <td class="cont" width="60%">"кликнули" клавишей мыши</td></tr>
-
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_btnclick.html">DN_BTNCLICK</a></td>
- <td class="cont" width="60%">нажата кнопка</td></tr>
-
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
- <td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>).</td></tr>
-
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
- <td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>).</td></tr>
-
+<code>Colors[0]</code> - С‚РµРєСЃС‚ РєРЅРѕРїРєРё
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGSELECTEDBUTTON">COL_WARNDIALOGSELECTEDBUTTON</a> РёР»Рё <a href="../../defs/farcolors.html#COL_DIALOGSELECTEDBUTTON">COL_DIALOGSELECTEDBUTTON</a>)
+<code>Colors[1]</code> - РІС‹РґРµР»РµРЅРЅС‹Р№ С‚РµРєСЃС‚ (highlighting text)
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON">COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON</a> РёР»Рё <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTSELECTEDBUTTON">COL_DIALOGHIGHLIGHTSELECTEDBUTTON</a>)
+</pre>
+<pre><code>Colors[2]</code> - 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)
+<code>Colors[3]</code> - 0 (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)</pre>
+</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_controlinput.html">DN_CONTROLINPUT</a></td>
+<td class="cont" width="60%">РЅР°Р¶Р°Р»Рё РєР»Р°РІРёР°С‚СѓСЂРЅСѓСЋ РєР»Р°РІРёС€Сѓ РёР»Рё РєР»РёРєРЅСѓР»Рё РєР»Р°РІРёС€РµР№ РјС‹С€Рё</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
+<td class="cont" width="60%">РіРѕСЂСЏС‡Р°СЏ РєР»Р°РІРёС€Р° (<kbd>Alt</kbd>+<kbd>РЎРёРјРІРѕР»</kbd>)</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_btnclick.html">DN_BTNCLICK</a></td>
+<td class="cont" width="60%">РЅР°Р¶Р°С‚Р° РєРЅРѕРїРєР°</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
+<td class="cont" width="60%">СЌР»РµРјРµРЅС‚ РїРѕС‚РµСЂСЏР» С„РѕРєСѓСЃ (РїСЂРё СѓСЃР»РѕРІРёРё, С‡С‚Рѕ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С„Р»Р°Рі <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
+<td class="cont" width="60%">СЌР»РµРјРµРЅС‚ РїРѕР»СѓС‡РёР» С„РѕРєСѓСЃ (РїСЂРё СѓСЃР»РѕРІРёРё, С‡С‚Рѕ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С„Р»Р°Рі <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
 </table>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-Вся информация по структуре <dfn>FarDialogItem</dfn> изложена
-    с учетом именованных объединений. Более подробно читайте в описании
-    определения <a href="../../defs/_far_no_nameless_unions.html">_FAR_NO_NAMELESS_UNIONS</a>.
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
 <a href="di_checkbox.html">DI_CHECKBOX</a>,
 <a href="di_radiobutton.html">DI_RADIOBUTTON</a>,
-<a href="../structures/fardialogitem.html">FarDialogItem</a>
+<a href="../../structures/fardialogitem.html">FarDialogItem</a>
 
 </div>
 

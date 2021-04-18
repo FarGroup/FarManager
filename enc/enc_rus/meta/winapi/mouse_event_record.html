@@ -1,33 +1,25 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>MOUSE_EVENT_RECORD</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src="../links.js" type="text/javascript"></script>
 </head>
-<!--history
-  Tue 14 Dec 21:34:12 1999
-    Igor Ruskih <ruiv@uic.nnov.ru>
-    перевел
-  Thu 19 Apr 13:40:00 2001
-    VVM <vmoshninov@newmail.ru>
-    дополнение про MOUSE_WHEELED
--->
 <body>
 
 <h1>MOUSE_EVENT_RECORD</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="../structures/index.html">структуры</a> |
-<a href="index.html">win32 структуры</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="../structures/index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
+<a href="index.html">win32 СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
 <a href="input_record.html">input_record</a>
 </div>
 
 <div class=shortdescr>
-Структура <strong>MOUSE_EVENT_RECORD</strong> используется
-консольной структурой <strong>INPUT_RECORD</strong>
-для получения сообщений мыши.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>MOUSE_EVENT_RECORD</code> РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ
+РєРѕРЅСЃРѕР»СЊРЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂРѕР№ <code>INPUT_RECORD</code>
+РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СЃРѕРѕР±С‰РµРЅРёР№ РјС‹С€Рё.
 </div>
 
 <pre class=syntax>
@@ -39,16 +31,16 @@ typedef struct _MOUSE_EVENT_RECORD {
 } MOUSE_EVENT_RECORD;
 </pre>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
     <div class=dfn>dwMousePosition</div>
-    <div class=dfndescr>Положение курсора в координатах экранного буфера (структура <a href="coord.html">COORD</a>).</div>
+    <div class=dfndescr>РџРѕР»РѕР¶РµРЅРёРµ РєСѓСЂСЃРѕСЂР° РІ РєРѕРѕСЂРґРёРЅР°С‚Р°С… СЌРєСЂР°РЅРЅРѕРіРѕ Р±СѓС„РµСЂР° (СЃС‚СЂСѓРєС‚СѓСЂР° <a href="coord.html">COORD</a>).</div>
     <div class=dfn>dwButtonState</div>
-    <div class=dfndescr>Состояние клавиш мыши.
-    Младший бит соответствует самой левой кнопке, следующий - самой правой,
-    Следующий бит - следующая за левой клавиша.
-    Далее биты соответствуют клавишам слева направо. Если бит установлен - клавиша нажата.<br>
-    Определены следующие константы для первых пяти клавиш мыши:<br>
+    <div class=dfndescr>РЎРѕСЃС‚РѕСЏРЅРёРµ РєР»Р°РІРёС€ РјС‹С€Рё.
+    РњР»Р°РґС€РёР№ Р±РёС‚ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ СЃР°РјРѕР№ Р»РµРІРѕР№ РєРЅРѕРїРєРµ, СЃР»РµРґСѓСЋС‰РёР№ - СЃР°РјРѕР№ РїСЂР°РІРѕР№,
+    РЎР»РµРґСѓСЋС‰РёР№ Р±РёС‚ - СЃР»РµРґСѓСЋС‰Р°СЏ Р·Р° Р»РµРІРѕР№ РєР»Р°РІРёС€Р°.
+    Р”Р°Р»РµРµ Р±РёС‚С‹ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‚ РєР»Р°РІРёС€Р°Рј СЃР»РµРІР° РЅР°РїСЂР°РІРѕ. Р•СЃР»Рё Р±РёС‚ СѓСЃС‚Р°РЅРѕРІР»РµРЅ - РєР»Р°РІРёС€Р° РЅР°Р¶Р°С‚Р°.<br>
+    РћРїСЂРµРґРµР»РµРЅС‹ СЃР»РµРґСѓСЋС‰РёРµ РєРѕРЅСЃС‚Р°РЅС‚С‹ РґР»СЏ РїРµСЂРІС‹С… РїСЏС‚Рё РєР»Р°РІРёС€ РјС‹С€Рё:<br>
     <br>
       <a name="FROM_LEFT_1ST_BUTTON_PRESSED">FROM_LEFT_1ST_BUTTON_PRESSED</a><br>
       <a name="RIGHTMOST_BUTTON_PRESSED">RIGHTMOST_BUTTON_PRESSED</a><br>
@@ -56,67 +48,68 @@ typedef struct _MOUSE_EVENT_RECORD {
       <a name="FROM_LEFT_3RD_BUTTON_PRESSED">FROM_LEFT_3RD_BUTTON_PRESSED</a><br>
       <a name="FROM_LEFT_4TH_BUTTON_PRESSED">FROM_LEFT_4TH_BUTTON_PRESSED</a></div>
     <div class=dfn>dwControlKeyState</div>
-    <div class=dfndescr>Состояние управляющих клавиш. Может быть комбинацией следующих значений:
+    <div class=dfndescr>РЎРѕСЃС‚РѕСЏРЅРёРµ СѓРїСЂР°РІР»СЏСЋС‰РёС… РєР»Р°РІРёС€. РњРѕР¶РµС‚ Р±С‹С‚СЊ РєРѕРјР±РёРЅР°С†РёРµР№ СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№:
 
       <table class="cont">
-     <tr class="cont"><th class="cont" width="40%">Клавиша</th><th class="cont" width="60%">Описание</th></tr>
+     <tr class="cont"><th class="cont" width="40%">РљР»Р°РІРёС€Р°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
         <tr class="cont"><td class="cont" width="40%">CAPSLOCK_ON</td>
-        <td class="cont" width="60%">CAPS LOCK включен.</td></tr>
+        <td class="cont" width="60%">CAPS LOCK РІРєР»СЋС‡С‘РЅ.</td></tr>
         <tr class="cont"><td class="cont" width="40%">ENHANCED_KEY</td>
-        <td class="cont" width="60%">Клавиша расширенная.</td></tr>
+        <td class="cont" width="60%">РљР»Р°РІРёС€Р° СЂР°СЃС€РёСЂРµРЅРЅР°СЏ.</td></tr>
         <tr class="cont"><td class="cont" width="40%">LEFT_ALT_PRESSED </td>
-        <td class="cont" width="60%">Левый ALT нажат.</td></tr>
+        <td class="cont" width="60%">Р›РµРІС‹Р№ ALT РЅР°Р¶Р°С‚.</td></tr>
         <tr class="cont"><td class="cont" width="40%">LEFT_CTRL_PRESSED </td>
-        <td class="cont" width="60%">Левый CTRL нажат.</td></tr>
+        <td class="cont" width="60%">Р›РµРІС‹Р№ CTRL РЅР°Р¶Р°С‚.</td></tr>
         <tr class="cont"><td class="cont" width="40%">NUMLOCK_ON </td>
-        <td class="cont" width="60%">NUM LOCK включен. </td></tr>
+        <td class="cont" width="60%">NUM LOCK РІРєР»СЋС‡С‘РЅ. </td></tr>
         <tr class="cont"><td class="cont" width="40%">RIGHT_ALT_PRESSED </td>
-        <td class="cont" width="60%">Правый ALT нажат.</td></tr>
+        <td class="cont" width="60%">РџСЂР°РІС‹Р№ ALT РЅР°Р¶Р°С‚.</td></tr>
         <tr class="cont"><td class="cont" width="40%">RIGHT_CTRL_PRESSED </td>
-        <td class="cont" width="60%">Правый CTRL нажат.</td></tr>
+        <td class="cont" width="60%">РџСЂР°РІС‹Р№ CTRL РЅР°Р¶Р°С‚.</td></tr>
         <tr class="cont"><td class="cont" width="40%">SCROLLLOCK_ON </td>
-        <td class="cont" width="60%">SCROLL LOCK включен. </td></tr>
+        <td class="cont" width="60%">SCROLL LOCK РІРєР»СЋС‡С‘РЅ. </td></tr>
         <tr class="cont"><td class="cont" width="40%">SHIFT_PRESSED </td>
-        <td class="cont" width="60%">Клавиша SHIFT нажата. </td></tr>
+        <td class="cont" width="60%">РљР»Р°РІРёС€Р° SHIFT РЅР°Р¶Р°С‚Р°. </td></tr>
      </table>
 
     </div>
     <div class=dfn>dwEventFlags</div>
-    <div class=dfndescr>Тип сообщения мыши. Если ноль, то кнопка мыши была нажата или отпущена.
-      Иначе одно из следующих значений:
+    <div class=dfndescr>РўРёРї СЃРѕРѕР±С‰РµРЅРёСЏ РјС‹С€Рё. Р•СЃР»Рё РЅРѕР»СЊ, С‚Рѕ РєРЅРѕРїРєР° РјС‹С€Рё Р±С‹Р»Р° РЅР°Р¶Р°С‚Р° РёР»Рё РѕС‚РїСѓС‰РµРЅР°.
+      РРЅР°С‡Рµ РѕРґРЅРѕ РёР· СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№:
        <table class="cont">
-       <tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+       <tr class="cont"><th class="cont" width="40%">РЎРѕР±С‹С‚РёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
        <tr class="cont"><td class="cont" width="40%">DOUBLE_CLICK</td>
-       <td class="cont" width="60%">Второе нажатие при двойном щелчке (первое нажатие приходит как обычное сообщение).</td>
+       <td class="cont" width="60%">Р’С‚РѕСЂРѕРµ РЅР°Р¶Р°С‚РёРµ РїСЂРё РґРІРѕР№РЅРѕРј С‰РµР»С‡РєРµ (РїРµСЂРІРѕРµ РЅР°Р¶Р°С‚РёРµ РїСЂРёС…РѕРґРёС‚ РєР°Рє РѕР±С‹С‡РЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ).</td>
        </tr>
        <tr class="cont"><td class="cont" width="40%">MOUSE_MOVED</td>
-       <td class="cont" width="60%">Позиция мыши изменилась.</td></tr>
+       <td class="cont" width="60%">РџРѕР·РёС†РёСЏ РјС‹С€Рё РёР·РјРµРЅРёР»Р°СЃСЊ.</td></tr>
        <tr class="cont"><td class="cont" width="40%">MOUSE_WHEELED</td>
-       <td class="cont" width="60%"><strong>Windows 2000/XP/2003/Vista/2008/7:</strong> Устанавливается при вертикальной прокрутке колесика
-           на мышке. Если установлен этот флаг, то в старшем слове <b>dwButtonState</b> содержтся
-           значение, кратное WHEEL_DELTA. По умолчанию это значение равно 120, но может
-           изменяться в зависимости от драйвера мыши.</td>
+       <td class="cont" width="60%">РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РїСЂРё РІРµСЂС‚РёРєР°Р»СЊРЅРѕР№ РїСЂРѕРєСЂСѓС‚РєРµ РєРѕР»С‘СЃРёРєР°
+           РЅР° РјС‹С€РєРµ. Р•СЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ СЌС‚РѕС‚ С„Р»Р°Рі, С‚Рѕ РІ СЃС‚Р°СЂС€РµРј СЃР»РѕРІРµ <code>dwButtonState</code> СЃРѕРґРµСЂР¶С‚СЃСЏ
+           Р·РЅР°С‡РµРЅРёРµ, РєСЂР°С‚РЅРѕРµ <code>WHEEL_DELTA</code>. РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ СЂР°РІРЅРѕ 120, РЅРѕ РјРѕР¶РµС‚
+           РёР·РјРµРЅСЏС‚СЊСЃСЏ РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РґСЂР°Р№РІРµСЂР° РјС‹С€Рё.</td>
        </tr>
        <tr class="cont"><td class="cont" width="40%">MOUSE_HWHEELED</td>
-       <td class="cont" width="60%"><strong>Windows Vista/2008/7:</strong> Устанавливается при горизонтальной прокрутке колесика
-           на мышке. Если установлен этот флаг, то в старшем слове <b>dwButtonState</b> содержтся
-           значение, кратное WHEEL_DELTA. По умолчанию это значение равно 120, но может
-           изменяться в зависимости от драйвера мыши.</td>
+       <td class="cont" width="60%"><code>Windows Vista/2008/7:</code> РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РїСЂРё РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕР№ РїСЂРѕРєСЂСѓС‚РєРµ РєРѕР»С‘СЃРёРєР°
+           РЅР° РјС‹С€РєРµ. Р•СЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ СЌС‚РѕС‚ С„Р»Р°Рі, С‚Рѕ РІ СЃС‚Р°СЂС€РµРј СЃР»РѕРІРµ <code>dwButtonState</code> СЃРѕРґРµСЂР¶С‚СЃСЏ
+           Р·РЅР°С‡РµРЅРёРµ, РєСЂР°С‚РЅРѕРµ <code>WHEEL_DELTA</code>. РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ СЂР°РІРЅРѕ 120, РЅРѕ РјРѕР¶РµС‚
+           РёР·РјРµРЅСЏС‚СЊСЃСЏ РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РґСЂР°Р№РІРµСЂР° РјС‹С€Рё.</td>
        </tr>
        </table>
     </div>
 
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-  Сообщения мыши помещаются во входной буфер, когда консоль имеет установленный
-  флаг <strong>ENABLE_MOUSE_INPUT</strong>.<br>
-  Сообщения мыши посылаются в буфер, только если консоль имеет активный
-  клавиатурный фокус и курсор находится в границах консольного окна.
+  РЎРѕРѕР±С‰РµРЅРёСЏ РјС‹С€Рё РїРѕРјРµС‰Р°СЋС‚СЃСЏ РІРѕ РІС…РѕРґРЅРѕР№ Р±СѓС„РµСЂ, РєРѕРіРґР° РєРѕРЅСЃРѕР»СЊ РёРјРµРµС‚ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅС‹Р№
+  С„Р»Р°Рі <code>ENABLE_MOUSE_INPUT</code>.<br>
+  РЎРѕРѕР±С‰РµРЅРёСЏ РјС‹С€Рё РїРѕСЃС‹Р»Р°СЋС‚СЃСЏ РІ Р±СѓС„РµСЂ, С‚РѕР»СЊРєРѕ РµСЃР»Рё РєРѕРЅСЃРѕР»СЊ РёРјРµРµС‚ Р°РєС‚РёРІРЅС‹Р№
+  РєР»Р°РІРёР°С‚СѓСЂРЅС‹Р№ С„РѕРєСѓСЃ Рё РєСѓСЂСЃРѕСЂ РЅР°С…РѕРґРёС‚СЃСЏ РІ РіСЂР°РЅРёС†Р°С… РєРѕРЅСЃРѕР»СЊРЅРѕРіРѕ РѕРєРЅР°.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
   <a href="coord.html">COORD</a>,
   <a href="peekconsoleinput.html">PeekConsoleInput</a>,
   <a href="readconsoleinput.html">ReadConsoleInput</a>,

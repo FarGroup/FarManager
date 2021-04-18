@@ -1,327 +1,317 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>EditorControl</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-
 <body>
 
 <h1>EditorControl</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a> |
+<a href="../editorapi/index.html">Editor API</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>EditorControl</dfn> обеспечивает доступ на низком уровне к API редактора FAR'a.
+Р¤СѓРЅРєС†РёСЏ <code>EditorControl</code> РїРѕР·РІРѕР»СЏРµС‚ Р·Р°РїСЂР°С€РёРІР°С‚СЊ СЂР°Р·Р»РёС‡РЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РІСЃС‚СЂРѕРµРЅРЅРѕРј СЂРµРґР°РєС‚РѕСЂРµ Far Manager Рё СѓРїСЂР°РІР»СЏС‚СЊ РµРіРѕ СЃРѕСЃС‚РѕСЏРЅРёРµРј.
 </div>
 
 <pre class=syntax>
-int WINAPI EditorControl(
-  int Command,
-  void* Param
+intptr_t WINAPI EditorControl(
+  intptr_t EditorID,
+  enum EDITOR_CONTROL_COMMANDS Command,
+  intptr_t Param1,
+  void *Param2
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
+  <div class=dfn>EditorID</div>
+    <div class=dfndescr>РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЌРєР·РµРјРїР»СЏСЂР° СЂРµРґР°РєС‚РѕСЂР° (С‚РµРєСѓС‰РёР№ СЂРµРґР°РєС‚РѕСЂ: <code>-1</code>). РљР°Р¶РґС‹Р№ СЌРєР·РµРјРїР»СЏСЂ СЂРµРґР°РєС‚РѕСЂР° РёРјРµРµС‚ СѓРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ, РєРѕС‚РѕСЂС‹Р№ РЅРµ РїРѕРІС‚РѕСЂСЏРµС‚СЃСЏ РІ С‚РµРєСѓС‰РµР№ СЃРµСЃСЃРёРё Far Manager.</div>
+    <p class="note"><img src="../../images/warning.gif" alt="Р’РќРРњРђРќРР•!" width="10" height="10"> Р’РќРРњРђРќРР•!</p>
+    <ul class="note"><li>РћР±СЂР°С‰РµРЅРёРµ Рє С‚РµРєСѓС‰РµРјСѓ СЂРµРґР°РєС‚РѕСЂСѓ Р±РµР·РѕРїР°СЃРЅРѕ С‚РѕР»СЊРєРѕ РІ РєРѕРЅС‚РµРєСЃС‚Рµ ProcessEditorInputW. Р’Рѕ РІСЃРµС… РѕСЃС‚Р°Р»СЊРЅС‹С… СЃР»СѓС‡Р°СЏС… С‚РµРєСѓС‰РёРј РІРЅРµР·Р°РїРЅРѕ РјРѕР¶РµС‚ РѕРєР°Р·Р°С‚СЊСЃСЏ СЃРѕРІСЃРµРј РЅРµ С‚РѕС‚ СЂРµРґР°РєС‚РѕСЂ, РєРѕС‚РѕСЂС‹Р№ РІС‹ РѕР¶РёРґР°Р»Рё СѓРІРёРґРµС‚СЊ. РСЃРїРѕР»СЊР·СѓР№С‚Рµ EditorInfo.EditorID РёР»Рё ProcessEditorEventInfo.EditorID (РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РєРѕРЅС‚РµРєСЃС‚Р°).</li>
+    </ul>
   <div class=dfn>Command</div>
-  <div class=dfndescr>Тип команды. Может быть одним из следующих (перечисление <a name="EDITOR_CONTROL_COMMANDS">EDITOR_CONTROL_COMMANDS</a>):
-
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+    <div class=dfndescr>РўРёРї РєРѕРјР°РЅРґС‹. РњРѕР¶РµС‚ Р±С‹С‚СЊ РѕРґРЅРёРј РёР· СЃР»РµРґСѓСЋС‰РёС… (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="EDITOR_CONTROL_COMMANDS">EDITOR_CONTROL_COMMANDS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">РљРѕРјР°РЅРґР°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_ADDCOLOR">ECTL_ADDCOLOR</a></td>
-    <td class="cont" width="60%">Задать цвет части строки. Эта команда может быть
-      вызвана несколько раз для одной и той же строки
-      для задания нескольких цветных областей. <em>Param</em>
-      указывает на структуру <a href="../structures/editorcolor.html">EditorColor</a>.
-      Если указанная строка отсутствует, то
-      возвращается FALSE, иначе TRUE.</td></tr>
+    <td class="cont" width="60%">Р—Р°РґР°С‚СЊ С†РІРµС‚ С‡Р°СЃС‚Рё СЃС‚СЂРѕРєРё. Р­С‚Р° РєРѕРјР°РЅРґР° РјРѕР¶РµС‚ Р±С‹С‚СЊ РІС‹Р·РІР°РЅР° РЅРµСЃРєРѕР»СЊРєРѕ СЂР°Р· РґР»СЏ РѕРґРЅРѕР№ Рё С‚РѕР№ Р¶Рµ СЃС‚СЂРѕРєРё РґР»СЏ Р·Р°РґР°РЅРёСЏ РЅРµСЃРєРѕР»СЊРєРёС… С†РІРµС‚РЅС‹С… РѕР±Р»Р°СЃС‚РµР№.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorcolor.html">EditorColor</a>.<br>
+    Р•СЃР»Рё СѓРєР°Р·Р°РЅРЅР°СЏ СЃС‚СЂРѕРєР° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ <code>FALSE</code>, РёРЅР°С‡Рµ <code>TRUE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_ADDSTACKBOOKMARK">ECTL_ADDSTACKBOOKMARK</a></td>
-    <td class="cont" width="60%">Добавить позицию навигации ("стековую закладку") в текущую позицию редактора.
-  При добавлении удаляются все позиции навигации с индексом выше индекса текущей позиции навигации.
-  Param должен быть равен NULL. Команда возвращает TRUE в случае успешного выполнения.
-  </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_ADDSESSIONBOOKMARK">ECTL_ADDSESSIONBOOKMARK</a></td>
+    <td class="cont" width="60%">Р”РѕР±Р°РІРёС‚СЊ РїРѕР·РёС†РёСЋ РЅР°РІРёРіР°С†РёРё (СЌС‚Рѕ РѕСЃРѕР±С‹Р№ РІРёРґ Р·Р°РєР»Р°РґРѕРє, РѕС‚Р»РёС‡Р°СЋС‰РёР№СЃСЏ РѕС‚ РѕР±С‹С‡РЅС‹С… С‚РµРј, С‡С‚Рѕ РґРµР№СЃС‚РІСѓСЋС‚ РІ РїСЂРµРґРµР»Р°С… СЃРµР°РЅСЃР° СЂРµРґР°РєС‚РѕСЂР°) РІ СЃС‚РµРє,
+    РїСЂРё СЌС‚РѕРј, РµСЃР»Рё РґРѕР±Р°РІР»РµРЅРёРµ РёРґРµС‚ РјРµР¶РґСѓ СЌР»РµРјРµРЅС‚Р°РјРё СЃС‚РµРєР°, С‚Рѕ РІСЃРµ Р·Р°РєР»Р°РґРєРё, СЃ РёРЅРґРµРєСЃРѕРј Р±РѕР»СЊС€Рµ С‚РµРєСѓС‰РµРіРѕ, Р±СѓРґСѓС‚ СѓРґР°Р»РµРЅС‹.<br>
+    <code>Param1</code> Рё <code>Param2</code> РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ <code>NULL</code>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС€РЅРѕРіРѕ РІС‹РїРѕР»РЅРµРЅРёСЏ.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_CLEARSTACKBOOKMARKS">ECTL_CLEARSTACKBOOKMARKS</a></td>
-    <td class="cont" width="60%">Удалить все позиции навигации. <em>Param</em> должен быть равен <code>NULL</code>.
-  </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_CLEARSESSIONBOOKMARKS">ECTL_CLEARSESSIONBOOKMARKS</a></td>
+    <td class="cont" width="60%">РЈРґР°Р»РёС‚СЊ РІСЃРµ РїРѕР·РёС†РёРё РЅР°РІРёРіР°С†РёРё.<br>
+    <code>Param1</code> Рё <code>Param2</code> РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ <code>NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETEBLOCK">ECTL_DELETEBLOCK</a></td>
-    <td class="cont" width="60%">Удалить блок в редакторе. Функция вернет
-     <code>TRUE</code> в случае удачного удаления блока и <code>FALSE</code>,
-     если редактор заблокирован (пользователь нажал <kbd>Ctrl-L</kbd>) или
-     нет выделенного блока. <em>Param</em> должен быть равен <code>NULL</code>.
-    </td></tr>
+    <td class="cont" width="60%">РЈРґР°Р»РёС‚СЊ Р±Р»РѕРє РІ СЂРµРґР°РєС‚РѕСЂРµ.<br>
+    <code>Param1</code> Рё <code>Param2</code> РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ <code>NULL</code>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРµСЂРЅС‘С‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓРґР°С‡РЅРѕРіРѕ СѓРґР°Р»РµРЅРёСЏ Р±Р»РѕРєР° Рё <code>FALSE</code>, РµСЃР»Рё СЂРµРґР°РєС‚РѕСЂ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ (РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» <kbd>Ctrl</kbd>+<kbd>L</kbd>) РёР»Рё РЅРµС‚ РІС‹РґРµР»РµРЅРЅРѕРіРѕ Р±Р»РѕРєР°.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELCOLOR">ECTL_DELCOLOR</a></td>
+    <td class="cont" width="60%">РЈРґР°Р»РёС‚СЊ С†РІРµС‚РѕРІСѓСЋ РѕР±Р»Р°СЃС‚СЊ РІ СЃС‚СЂРѕРєРµ. Р­С‚Р° РєРѕРјР°РЅРґР° РјРѕР¶РµС‚ Р±С‹С‚СЊ РІС‹Р·РІР°РЅР° РЅРµСЃРєРѕР»СЊРєРѕ СЂР°Р· РґР»СЏ РѕРґРЅРѕР№ Рё С‚РѕР№ Р¶Рµ СЃС‚СЂРѕРєРё.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editordeletecolor.html">EditorDeleteColor</a>.<br>
+    Р•СЃР»Рё СѓРєР°Р·Р°РЅРЅР°СЏ СЃС‚СЂРѕРєР° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ <code>FALSE</code>, РёРЅР°С‡Рµ <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETECHAR">ECTL_DELETECHAR</a></td>
-    <td class="cont" width="60%">Удалить символ под курсором. <em>Param</em> должен быть
-      NULL.</td></tr>
+    <td class="cont" width="60%">РЈРґР°Р»РёС‚СЊ СЃРёРјРІРѕР» РїРѕРґ РєСѓСЂСЃРѕСЂРѕРј.<br>
+    <code>Param1</code> Рё <code>Param2</code> РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ <code>NULL</code>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРµСЂРЅС‘С‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓРґР°С‡РЅРѕРіРѕ СѓРґР°Р»РµРЅРёСЏ Рё <code>FALSE</code>, РµСЃР»Рё СЂРµРґР°РєС‚РѕСЂ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ (РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» <kbd>Ctrl</kbd>+<kbd>L</kbd>).</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETESTACKBOOKMARK">ECTL_DELETESTACKBOOKMARK</a></td>
-    <td class="cont" width="60%">Удалить указанную позицию навигации.
-  <em>Param</em> должен быть равен индексу удаляемой позиции навигации (0 и более) или -1 для удаления текущей позиции навигации.
-  Количество позиций навигации можна получить, вызвав <a href="#ECTL_GETSTACKBOOKMARKS">ECTL_GETSTACKBOOKMARKS</a> c <em>Param</em>
-  равным значению <code>NULL</code>.<br>
-  Команда возвращает TRUE в случае успешного выполнения.
-  </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETESESSIONBOOKMARK">ECTL_DELETESESSIONBOOKMARK</a></td>
+    <td class="cont" width="60%">РЈРґР°Р»РёС‚СЊ СѓРєР°Р·Р°РЅРЅСѓСЋ РїРѕР·РёС†РёСЋ РЅР°РІРёРіР°С†РёРё.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЂР°РІРµРЅ РёРЅРґРµРєСЃСѓ СѓРґР°Р»СЏРµРјРѕР№ РїРѕР·РёС†РёРё РЅР°РІРёРіР°С†РёРё (<code>0</code> Рё Р±РѕР»РµРµ) РёР»Рё <code>-1</code> РґР»СЏ СѓРґР°Р»РµРЅРёСЏ С‚РµРєСѓС‰РµР№ РїРѕР·РёС†РёРё РЅР°РІРёРіР°С†РёРё.
+    РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕР·РёС†РёР№ РЅР°РІРёРіР°С†РёРё РјРѕР¶РЅРѕ РїРѕР»СѓС‡РёС‚СЊ, РІС‹Р·РІР°РІ <a href="#ECTL_GETSESSIONBOOKMARKS">ECTL_GETSESSIONBOOKMARKS</a>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС€РЅРѕРіРѕ РІС‹РїРѕР»РЅРµРЅРёСЏ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETESTRING">ECTL_DELETESTRING</a></td>
-    <td class="cont" width="60%">Удалить текущую строку. <em>Param</em> должен быть NULL.</td></tr>
-
-
-    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_EDITORTOOEM">ECTL_EDITORTOOEM</a></td>
-    <td class="cont" width="60%">Конвертировать текст из кодировки
-      редактора в OEM-кодировку. <em>Param</em> указывает на
-      структуру <a href="../structures/editorconverttext.html">EditorConvertText</a>.</td></tr>
+    <td class="cont" width="60%">РЈРґР°Р»РёС‚СЊ С‚РµРєСѓС‰СѓСЋ СЃС‚СЂРѕРєСѓ.<br>
+    <code>Param1</code> Рё <code>Param2</code> РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ <code>NULL</code>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРµСЂРЅС‘С‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓРґР°С‡РЅРѕРіРѕ СѓРґР°Р»РµРЅРёСЏ Рё <code>FALSE</code>, РµСЃР»Рё СЂРµРґР°РєС‚РѕСЂ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ (РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» <kbd>Ctrl</kbd>+<kbd>L</kbd>).</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_EXPANDTABS">ECTL_EXPANDTABS</a></td>
-    <td class="cont" width="60%">Заменить все символы табуляции в строке
-      пробелами. <em>Param</em> указывает на целую переменную,
-      содержащую номер обрабатываемой строки или
-      -1 для обработки текущей строки.</td></tr>
+    <td class="cont" width="60%">Р—Р°РјРµРЅРёС‚СЊ РІСЃРµ СЃРёРјРІРѕР»С‹ С‚Р°Р±СѓР»СЏС†РёРё РІ СЃС‚СЂРѕРєРµ РїСЂРѕР±РµР»Р°РјРё.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° С†РµР»РѕС‡РёСЃР»РµРЅРЅСѓСЋ РїРµСЂРµРјРµРЅРЅСѓСЋ РєРѕС‚РѕСЂР°СЏ СЃРѕРґРµСЂР¶РёС‚ РЅРѕРјРµСЂ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРјРѕР№ СЃС‚СЂРѕРєРё РёР»Рё <code>-1</code> РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё С‚РµРєСѓС‰РµР№ СЃС‚СЂРѕРєРё.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРµСЂРЅС‘С‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓРґР°С‡РЅРѕР№ Р·Р°РјРµРЅС‹ Рё <code>FALSE</code>, РµСЃР»Рё СЂРµРґР°РєС‚РѕСЂ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ (РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» <kbd>Ctrl</kbd>+<kbd>L</kbd>) РёР»Рё РЅРµС‚ С‚Р°РєРѕР№ СЃС‚СЂРѕРєРё.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a></td>
-    <td class="cont" width="60%">Получить информацию о закладках для текущего
-     редактируемого файла.
-     <em>Param</em> указывает на структуру <a href="../structures/editorbookmarks.html">EditorBookMarks</a>.
-     <br>Команда возвращает FALSE в случае, если:
-     <ol>
-       <li>файл еще не открыт;
-       <li>в качестве <var>Param</var> был передано значение <code>NULL</code>;
-     </ol>
-     В случае успеха возвращается TRUE.<br>
-    </td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ Р·Р°РєР»Р°РґРєР°С… РґР»СЏ С‚РµРєСѓС‰РµРіРѕ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРіРѕ С„Р°Р№Р»Р°.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorbookmarks.html">EditorBookmarks</a> - РІС‹РґРµР»РµРЅРЅС‹Р№ РїР»Р°РіРёРЅРѕРј Р±Р»РѕРє РїР°РјСЏС‚Рё, РёР»Рё СЂР°РІРµРЅ <code>NULL</code> (РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ СѓР·РЅР°С‚СЊ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°).<br>
+    РљРѕРјР°РЅРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ <code>0</code>, РµСЃР»Рё С„Р°Р№Р» РµС‰С‘ РЅРµ РѕС‚РєСЂС‹С‚, РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ, РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РїР°РјСЏС‚Рё.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETSTACKBOOKMARKS">ECTL_GETSTACKBOOKMARKS</a></td>
-    <td class="cont" width="60%">Получить информацию о позициях навигации ("стековых закладках") для текущего
-     редактируемого файла. 
-     <em>Param</em> указывает на структуру <a href="../structures/editorbookmarks.html">EditorBookMarks</a> или равен значению <code>NULL</code>.<br>
-     Команда возвращает количество позиций навигации, информация о которых была передана (или общее количество позиций навигации,
-     если в качестве <var>Param</var> было передано значение <code>NULL</code>).
-    </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETSESSIONBOOKMARKS">ECTL_GETSESSIONBOOKMARKS</a></td>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїРѕР·РёС†РёСЏС… РЅР°РІРёРіР°С†РёРё РґР»СЏ С‚РµРєСѓС‰РµРіРѕ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРіРѕ С„Р°Р№Р»Р°.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorbookmarks.html">EditorBookmarks</a> - РІС‹РґРµР»РµРЅРЅС‹Р№ РїР»Р°РіРёРЅРѕРј Р±Р»РѕРє РїР°РјСЏС‚Рё, РёР»Рё СЂР°РІРµРЅ <code>NULL</code> (РµСЃР»Рё РЅРµРѕР±С…РѕРґРёРјРѕ СѓР·РЅР°С‚СЊ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°).<br>
+    РљРѕРјР°РЅРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ <code>0</code> РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё, РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ, РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РїР°РјСЏС‚Рё.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETCOLOR">ECTL_GETCOLOR</a></td>
-    <td class="cont" width="60%">Получить цвет части строки. <em>Param</em> указывает на
-      структуру <a href="../structures/editorcolor.html">EditorColor</a>. Если
-      указанная строка или часть строки отсутствует,
-      то возвращается FALSE, иначе TRUE.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ С†РІРµС‚ С‡Р°СЃС‚Рё СЃС‚СЂРѕРєРё.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorcolor.html">EditorColor</a>.<br>
+    Р•СЃР»Рё СѓРєР°Р·Р°РЅРЅР°СЏ СЃС‚СЂРѕРєР° РёР»Рё С‡Р°СЃС‚СЊ СЃС‚СЂРѕРєРё РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ <code>FALSE</code>, РёРЅР°С‡Рµ <code>TRUE</code>.</td></tr>
 
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETFILENAME">ECTL_GETFILENAME</a></td>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРјСЏ РѕС‚РєСЂС‹С‚РѕРіРѕ РІ СЂРµРґР°РєС‚РѕСЂРµ С„Р°Р№Р»Р°.<br>
+    <code>Param1</code> - СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С…, РєРѕС‚РѕСЂС‹Р№ РІС‹РґРµР»РёР» РїР»Р°РіРёРЅ РґР»СЏ РґР°РЅРЅС‹С….<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° Р±СѓС„РµСЂ, РІС‹РґРµР»РµРЅРЅС‹Р№ РїР»Р°РіРёРЅРѕРј, РєСѓРґР° Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅРѕ РёРјСЏ С„Р°Р№Р»Р°.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ С‚СЂРµР±СѓРµРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С…, СЃ СѓС‡РµС‚РѕРј Р·Р°РІРµСЂС€Р°СЋС‰РµРіРѕ РЅСѓР»СЏ.<br>
+    Р•СЃР»Рё <code>Param2 = NULL</code> РёР»Рё <code>Param1</code> РјРµРЅСЊС€Рµ С‚СЂРµР±СѓРµРјРѕРіРѕ СЂР°Р·РјРµСЂР°, С„СѓРЅРєС†РёСЏ РїСЂРѕСЃС‚Рѕ РІРµСЂРЅРµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETINFO">ECTL_GETINFO</a></td>
-    <td class="cont" width="60%">Получить информацию о редакторе. <em>Param</em>
-      указывает на структуру <a href="../structures/editorinfo.html">EditorInfo</a>.</td></tr>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЂРµРґР°РєС‚РѕСЂРµ.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorinfo.html">EditorInfo</a>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС€РЅРѕРіРѕ РІС‹РїРѕР»РЅРµРЅРёСЏ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETSTRING">ECTL_GETSTRING</a></td>
-    <td class="cont" width="60%">Получить информацию о строке. <em>Param</em>
-    указывает на структуру <a href="../structures/editorgetstring.html">EditorGetString</a>.
-    Полученная строка будет в кодировке редактора.
-    <pre class=code>// получить первую строку редактируемого файла
-struct EditorGetString egs;
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЃС‚СЂРѕРєРµ.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorgetstring.html">EditorGetString</a>.
+    <pre class=code>
+// РїРѕР»СѓС‡РёС‚СЊ РїРµСЂРІСѓСЋ СЃС‚СЂРѕРєСѓ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРіРѕ С„Р°Р№Р»Р°
+struct EditorGetString egs={sizeof(EditorGetString)};
 egs.StringNumber=0;
-Info.EditorControl(ECTL_GETSTRING,&amp;egs);</pre>
-    </td></tr>
+Info.EditorControl(-1,ECTL_GETSTRING,0,&amp;egs);
+    </pre>
+    Р•СЃР»Рё СѓРєР°Р·Р°РЅРЅР°СЏ СЃС‚СЂРѕРєР° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ <code>FALSE</code>, РёРЅР°С‡Рµ <code>TRUE</code>.</td></tr>
 
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_GETTITLE">ECTL_GETTITLE</a></td>
+    <td class="cont" width="60%">РџРѕР»СѓС‡РёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє СЂРµРґР°РєС‚РѕСЂР°.<br>
+    <code>Param1</code> - СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С…, РєРѕС‚РѕСЂС‹Р№ РІС‹РґРµР»РёР» РїР»Р°РіРёРЅ РґР»СЏ РґР°РЅРЅС‹С….<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° Р±СѓС„РµСЂ, РІС‹РґРµР»РµРЅРЅС‹Р№ РїР»Р°РіРёРЅРѕРј, РєСѓРґР° Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅ Р·Р°РіРѕР»РѕРІРѕРє СЂРµРґР°РєС‚РѕСЂР°.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ С‚СЂРµР±СѓРµРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С…, СЃ СѓС‡РµС‚РѕРј Р·Р°РІРµСЂС€Р°СЋС‰РµРіРѕ РЅСѓР»СЏ.<br>
+    Р•СЃР»Рё <code>Param2 = NULL</code> РёР»Рё <code>Param1</code> РјРµРЅСЊС€Рµ С‚СЂРµР±СѓРµРјРѕРіРѕ СЂР°Р·РјРµСЂР°, С„СѓРЅРєС†РёСЏ РїСЂРѕСЃС‚Рѕ РІРµСЂРЅРµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР°.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_INSERTSTRING">ECTL_INSERTSTRING</a></td>
-    <td class="cont" width="60%">
-      Вставить новую строку (разорвать строку) с текущей позиции
-      курсора и переместить курсор либо на первую позицию новой
-      строки, либо на позицию с учетом отступа.
-      Если <em>Param</em> указывает на целочисленную переменную, равную 1,
-      то при выполнении данной команды будет использоваться отступ.
-      Для его отключения установите <em>Param</em> в <code>NULL</code>
-      или установите целую переменную в 0.
-      Поведение при отступе из плагина точно такое же, как и при нажатии
-      <code>&lt;Enter&gt;</code> пользователем в редакторе, например, в
-      новую строку пробелы (или табуляция) не вставляются, если после
-      нового положения курсора строка не содержит никаких символов.
-      <pre class=code>// вставить пустую строку без отступа
-Info.EditorControl(ECTL_INSERTSTRING,0);</pre>
-    </td></tr>
+    <td class="cont" width="60%">Р’СЃС‚Р°РІРёС‚СЊ РЅРѕРІСѓСЋ СЃС‚СЂРѕРєСѓ (СЂР°Р·РѕСЂРІР°С‚СЊ СЃС‚СЂРѕРєСѓ) СЃ С‚РµРєСѓС‰РµР№ РїРѕР·РёС†РёРё РєСѓСЂСЃРѕСЂР° Рё РїРµСЂРµРјРµСЃС‚РёС‚СЊ РєСѓСЂСЃРѕСЂ Р»РёР±Рѕ РЅР° РїРµСЂРІСѓСЋ РїРѕР·РёС†РёСЋ РЅРѕРІРѕР№ СЃС‚СЂРѕРєРё, Р»РёР±Рѕ РЅР° РїРѕР·РёС†РёСЋ СЃ СѓС‡С‘С‚РѕРј РѕС‚СЃС‚СѓРїР°.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    Р•СЃР»Рё <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° С†РµР»РѕС‡РёСЃР»РµРЅРЅСѓСЋ РїРµСЂРµРјРµРЅРЅСѓСЋ, СЂР°РІРЅСѓСЋ <code>1</code>, С‚Рѕ РїСЂРё РІС‹РїРѕР»РЅРµРЅРёРё РґР°РЅРЅРѕР№ РєРѕРјР°РЅРґС‹ Р±СѓРґРµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РѕС‚СЃС‚СѓРї.
+    Р”Р»СЏ РµРіРѕ РѕС‚РєР»СЋС‡РµРЅРёСЏ СѓСЃС‚Р°РЅРѕРІРёС‚Рµ <code>Param2</code> РІ <code>NULL</code> РёР»Рё СѓСЃС‚Р°РЅРѕРІРёС‚Рµ С†РµР»СѓСЋ РїРµСЂРµРјРµРЅРЅСѓСЋ РІ <code>0</code>.
+    РџРѕРІРµРґРµРЅРёРµ РїСЂРё РѕС‚СЃС‚СѓРїРµ РёР· РїР»Р°РіРёРЅР° С‚РѕС‡РЅРѕ С‚Р°РєРѕРµ Р¶Рµ, РєР°Рє Рё РїСЂРё РЅР°Р¶Р°С‚РёРё <kbd>Enter</kbd> РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј РІ СЂРµРґР°РєС‚РѕСЂРµ, РЅР°РїСЂРёРјРµСЂ, РІ
+    РЅРѕРІСѓСЋ СЃС‚СЂРѕРєСѓ РїСЂРѕР±РµР»С‹ (РёР»Рё С‚Р°Р±СѓР»СЏС†РёСЏ) РЅРµ РІСЃС‚Р°РІР»СЏСЋС‚СЃСЏ, РµСЃР»Рё РїРѕСЃР»Рµ РЅРѕРІРѕРіРѕ РїРѕР»РѕР¶РµРЅРёСЏ РєСѓСЂСЃРѕСЂР° СЃС‚СЂРѕРєР° РЅРµ СЃРѕРґРµСЂР¶РёС‚ РЅРёРєР°РєРёС… СЃРёРјРІРѕР»РѕРІ.
+    <pre class=code>
+// РІСЃС‚Р°РІРёС‚СЊ РїСѓСЃС‚СѓСЋ СЃС‚СЂРѕРєСѓ Р±РµР· РѕС‚СЃС‚СѓРїР°
+Info.EditorControl(-1,ECTL_INSERTSTRING,0,0);
+    </pre>
+    Р¤СѓРЅРєС†РёСЏ РІРµСЂРЅС‘С‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓРґР°С‡РЅРѕРіРѕ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё Рё <code>FALSE</code>, РµСЃР»Рё СЂРµРґР°РєС‚РѕСЂ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ (РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» <kbd>Ctrl</kbd>+<kbd>L</kbd>).</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_INSERTTEXT">ECTL_INSERTTEXT</a></td>
-    <td class="cont" width="60%">Вставить текст, начиная с позиции курсора. <em>Param</em>
-      указывает на строку в OEM кодировке, оканчивающуюся нулем (ASCIIZ). Команда корректно
-      обрабатывает символ(ы) перевода строки (CR). Команда
-      <dfn>ECTL_INSERTTEXT</dfn> работает так, как будто текст вводится с
-      клавиатуры.
-      <pre class=code>// вставить строку "Text" в текущую позицию курсора
-Info.EditorControl(ECTL_INSERTTEXT,"Text");</pre>
-    </td></tr>
+    <td class="cont" width="60%">Р’СЃС‚Р°РІРёС‚СЊ С‚РµРєСЃС‚, РЅР°С‡РёРЅР°СЏ СЃ РїРѕР·РёС†РёРё РєСѓСЂСЃРѕСЂР°.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂРѕРєСѓ, РѕРєР°РЅС‡РёРІР°СЋС‰СѓСЋСЃСЏ РЅСѓР»С‘Рј. РљРѕРјР°РЅРґР° РєРѕСЂСЂРµРєС‚РЅРѕ РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СЃРёРјРІРѕР»(С‹) РїРµСЂРµРІРѕРґР° СЃС‚СЂРѕРєРё ('\n').
+    РљРѕРјР°РЅРґР° <code>ECTL_INSERTTEXT</code> СЂР°Р±РѕС‚Р°РµС‚ С‚Р°Рє, РєР°Рє Р±СѓРґС‚Рѕ С‚РµРєСЃС‚ РІРІРѕРґРёС‚СЃСЏ СЃ РєР»Р°РІРёР°С‚СѓСЂС‹.
+    <pre class=code>
+// РІСЃС‚Р°РІРёС‚СЊ СЃС‚СЂРѕРєСѓ "Text" РІ С‚РµРєСѓС‰СѓСЋ РїРѕР·РёС†РёСЋ РєСѓСЂСЃРѕСЂР°
+Info.EditorControl(-1,ECTL_INSERTTEXT,0,(void*)L"Text");
+    </pre>
+    Р¤СѓРЅРєС†РёСЏ РІРµСЂРЅС‘С‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓРґР°С‡РЅРѕРіРѕ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё Рё <code>FALSE</code>, РµСЃР»Рё СЂРµРґР°РєС‚РѕСЂ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ (РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅР°Р¶Р°Р» <kbd>Ctrl</kbd>+<kbd>L</kbd>) РёР»Рё СЃС‚СЂРѕРєР° СЂР°РІРЅР° <code>NULL</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_NEXTSTACKBOOKMARK">ECTL_NEXTSTACKBOOKMARK</a></td>
-    <td class="cont" width="60%">Перейти на следующую позицию навигации.
-  <em>Param</em> должен быть равен <code>NULL</code>.<br>
-  Команда возвращает TRUE в случае успешного выполнения.
-  </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_NEXTSESSIONBOOKMARK">ECTL_NEXTSESSIONBOOKMARK</a></td>
+    <td class="cont" width="60%">РџРµСЂРµР№С‚Рё РЅР° СЃР»РµРґСѓСЋС‰СѓСЋ РїРѕР·РёС†РёСЋ РЅР°РІРёРіР°С†РёРё.<br>
+    <code>Param1</code> Рё <code>Param2</code> РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ <code>NULL</code>.<br>
+    РљРѕРјР°РЅРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС€РЅРѕРіРѕ РІС‹РїРѕР»РЅРµРЅРёСЏ.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_OEMTOEDITOR">ECTL_OEMTOEDITOR</a></td>
-    <td class="cont" width="60%">Конвертировать текст из OEM-кодировки в
-      кодировку редактора. <em>Param</em> указывает на
-      структуру <a href="../structures/editorconverttext.html">EditorConvertText</a>.</td></tr>
-
-    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_PREVSTACKBOOKMARK">ECTL_PREVSTACKBOOKMARK</a></td>
-    <td class="cont" width="60%">Перейти на предыдущую позицию навигации. 
-  Если после предыдущего вызова команды <a href="#ECTL_ADDSTACKBOOKMARK">ECTL_ADDSTACKBOOKMARK</a> не выполнялось операций
-  с позициями навигации, то перед переходом запоминается текущая позиция редактора в качестве новой позиции навигации.
-  <em>Param</em> должен быть равен <code>NULL</code>. Команда возвращает TRUE в случае успешного выполнения.
-  </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_PREVSESSIONBOOKMARK">ECTL_PREVSESSIONBOOKMARK</a></td>
+    <td class="cont" width="60%">РџРµСЂРµР№С‚Рё РЅР° РїСЂРµРґС‹РґСѓС‰СѓСЋ РїРѕР·РёС†РёСЋ РЅР°РІРёРіР°С†РёРё.<br>
+    Р•СЃР»Рё РїРѕСЃР»Рµ РїСЂРµРґС‹РґСѓС‰РµРіРѕ РІС‹Р·РѕРІР° РєРѕРјР°РЅРґС‹ <a href="#ECTL_ADDSESSIONBOOKMARK">ECTL_ADDSESSIONBOOKMARK</a> РЅРµ РІС‹РїРѕР»РЅСЏР»РѕСЃСЊ РѕРїРµСЂР°С†РёР№
+    СЃ РїРѕР·РёС†РёСЏРјРё РЅР°РІРёРіР°С†РёРё, С‚Рѕ РїРµСЂРµРґ РїРµСЂРµС…РѕРґРѕРј Р·Р°РїРѕРјРёРЅР°РµС‚СЃСЏ С‚РµРєСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ СЂРµРґР°РєС‚РѕСЂР° РІ РєР°С‡РµСЃС‚РІРµ РЅРѕРІРѕР№ РїРѕР·РёС†РёРё РЅР°РІРёРіР°С†РёРё.
+    <code>Param1</code> Рё <code>Param2</code> РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ <code>NULL</code>.<br>
+    РљРѕРјР°РЅРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС€РЅРѕРіРѕ РІС‹РїРѕР»РЅРµРЅРёСЏ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a></td>
-    <td class="cont" width="60%">Передает структуру <a href="../winapi/input_record.html">INPUT_RECORD</a>,
-      указатель на которую передается в <em>Param</em>, внутреннему редактору
-      FAR для обработки.<br>
-      Учтите, что если ваш плагин экспортирует функцию <a href="../exported_functions/processeditorinput.html">ProcessEditorInput</a>,
-      то данные из <em>Param</em> сразу же будут переданы в ProcessEditorInput.
-      Схема проста:
-<pre class=code>case ECTL_PROCESSINPUT:
-  if (ProcessEditorInput(Param))
-    return(TRUE);
+    <td class="cont" width="60%">РџРµСЂРµРґР°С‘С‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../winapi/input_record.html">INPUT_RECORD</a>,
+    СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РєРѕС‚РѕСЂСѓСЋ РїРµСЂРµРґР°С‘С‚СЃСЏ РІ <code>Param2</code>, РІРЅСѓС‚СЂРµРЅРЅРµРјСѓ СЂРµРґР°РєС‚РѕСЂСѓ Far Manager РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё.<br>
+    РЈС‡С‚РёС‚Рµ, С‡С‚Рѕ РµСЃР»Рё РІР°С€ РїР»Р°РіРёРЅ СЌРєСЃРїРѕСЂС‚РёСЂСѓРµС‚ С„СѓРЅРєС†РёСЋ <a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a>,
+    С‚Рѕ РґР°РЅРЅС‹Рµ РёР· <code>Param2</code> СЃСЂР°Р·Сѓ Р¶Рµ Р±СѓРґСѓС‚ РїРµСЂРµРґР°РЅС‹ РІ <code>ProcessEditorInputW</code>.
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    РЎС…РµРјР° РїСЂРѕСЃС‚Р°:
+    <pre class=code>
+case ECTL_PROCESSINPUT:
+if (ProcessEditorInput(Param))
+  return(TRUE);
   ...
-</pre>
-      Поэтому используя <code>EditorControl(ECTL_PROCESSINPUT)</code> в функции <a href="../exported_functions/processeditorinput.html">ProcessEditorInput</a> следите
-      за тем, чтобы не впасть в бесконечную рекурсию.
-      </td></tr>
-
-    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_PROCESSKEY">ECTL_PROCESSKEY</a></td>
-    <td class="cont" width="60%">Функция позволяющая "нажимать" в редакторе
-     различные клавиши, коды которых передаются в <em>Param</em>.<br>
-     Используются <a href="../defs/farkeycodes.html">внутренние коды клавиш</a>
-     FAR Manager (см. farkeys.hpp)
-     <br>Эта команда всегда возвращает TRUE.
-<pre class=code>// перейти в конец редактируемого файла
-Info.EditorControl(ECTL_PROCESSKEY,(void*)KEY_CTRLEND);
-</pre>
-
-     </td></tr>
+    </pre>
+    РџРѕСЌС‚РѕРјСѓ РёСЃРїРѕР»СЊР·СѓСЏ <code>EditorControl(ECTL_PROCESSINPUT)</code> РІ С„СѓРЅРєС†РёРё <a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a> СЃР»РµРґРёС‚Рµ Р·Р° С‚РµРј, С‡С‚РѕР±С‹ РЅРµ РІРїР°СЃС‚СЊ РІ Р±РµСЃРєРѕРЅРµС‡РЅСѓСЋ СЂРµРєСѓСЂСЃРёСЋ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_QUIT">ECTL_QUIT</a></td>
-    <td class="cont" width="60%">Закрыть редактор. Любая несохраненная информация будет потеряна.
-     <em>Param</em> должен быть равен NULL.
-     Эта команда всегда возвращает TRUE.</td></tr>
+    <td class="cont" width="60%">Р—Р°РєСЂС‹С‚СЊ СЂРµРґР°РєС‚РѕСЂ. Р›СЋР±Р°СЏ РЅРµ СЃРѕС…СЂР°РЅРµРЅРЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ Р±СѓРґРµС‚ РїРѕС‚РµСЂСЏРЅР°.<br>
+    <code>Param1</code> Рё <code>Param2</code> РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ <code>NULL</code>.<br>
+    Р­С‚Р° РєРѕРјР°РЅРґР° РІСЃРµРіРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_READINPUT">ECTL_READINPUT</a></td>
-    <td class="cont" width="60%">Заполняет структуру <a href="../winapi/input_record.html">INPUT_RECORD</a>
-      читая данные со стандартного устройства ввода. <em>Param</em>
-      указывает на структуру INPUT_RECORD (<i>она определена в
-      Win32 API и используется в функции <a
-      href="../winapi/readconsoleinput.html">ReadConsoleInput</a></i>).</td></tr>
+    <td class="cont" width="60%">Р—Р°РїРѕР»РЅСЏРµС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../winapi/input_record.html">INPUT_RECORD</a>, С‡РёС‚Р°СЏ РґР°РЅРЅС‹Рµ СЃРѕ СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ СѓСЃС‚СЂРѕР№СЃС‚РІР° РІРІРѕРґР°.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../winapi/input_record.html">INPUT_RECORD</a> (РѕРЅР° РѕРїСЂРµРґРµР»РµРЅР° РІ Windows API Рё РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ С„СѓРЅРєС†РёРё <a href="../winapi/readconsoleinput.html">ReadConsoleInput</a>).</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_REALTOTAB">ECTL_REALTOTAB</a></td>
-    <td class="cont" width="60%">Конвертировать реальную строковую позицию
-      курсора в экранную позицию. Если строка не
-      содержит символов табуляции, входная и
-      получаемая позиция будут равными. <em>Param</em>
-      указывает на структуру <a href="../structures/editorconvertpos.html">EditorConvertPos</a>.</td></tr>
+    <td class="cont" width="60%">РљРѕРЅРІРµСЂС‚РёСЂРѕРІР°С‚СЊ СЂРµР°Р»СЊРЅСѓСЋ СЃС‚СЂРѕРєРѕРІСѓСЋ РїРѕР·РёС†РёСЋ РєСѓСЂСЃРѕСЂР° РІ СЌРєСЂР°РЅРЅСѓСЋ РїРѕР·РёС†РёСЋ. Р•СЃР»Рё СЃС‚СЂРѕРєР° РЅРµ СЃРѕРґРµСЂР¶РёС‚ СЃРёРјРІРѕР»РѕРІ С‚Р°Р±СѓР»СЏС†РёРё, РІС…РѕРґРЅР°СЏ Рё РїРѕР»СѓС‡Р°РµРјР°СЏ РїРѕР·РёС†РёСЏ Р±СѓРґСѓС‚ СЂР°РІРЅС‹РјРё.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorconvertpos.html">EditorConvertPos</a>.<br>
+    Р•СЃР»Рё СѓРєР°Р·Р°РЅРЅР°СЏ СЃС‚СЂРѕРєР° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ <code>FALSE</code>, РёРЅР°С‡Рµ <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_REDRAW">ECTL_REDRAW</a></td>
-    <td class="cont" width="60%">Перерисовать окно редактора. <em>Param</em> должен быть
-      NULL.</td></tr>
+    <td class="cont" width="60%">РџРµСЂРµСЂРёСЃРѕРІР°С‚СЊ РѕРєРЅРѕ СЂРµРґР°РєС‚РѕСЂР°.<br>
+    <code>Param1</code> Рё <code>Param2</code> РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ <code>NULL</code>.<br>
+    Р­С‚Р° РєРѕРјР°РЅРґР° РІСЃРµРіРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SAVEFILE">ECTL_SAVEFILE</a></td>
-    <td class="cont" width="60%">Позволяет плагину сохранить редактируемый файл.
-     <em>Param</em> указывает на структуру
-     <a href="../structures/editorsavefile.html">EditorSaveFile</a>.
-     Если <em>Param</em> равен NULL, то будут использованы имя редактируемого
-     файла и текущий формат сохранения (DOS-формат - перевод строки заменяется
-     на "\r\n", Unix-формат - "\n").
-     При успешном сохранении файла функция вернет TRUE.</td></tr>
+    <td class="cont" width="60%">РџРѕР·РІРѕР»СЏРµС‚ РїР»Р°РіРёРЅСѓ СЃРѕС…СЂР°РЅРёС‚СЊ СЂРµРґР°РєС‚РёСЂСѓРµРјС‹Р№ С„Р°Р№Р».<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorsavefile.html">EditorSaveFile</a>.
+    Р•СЃР»Рё <code>Param2</code> СЂР°РІРµРЅ <code>NULL</code>, С‚Рѕ Р±СѓРґСѓС‚ РёСЃРїРѕР»СЊР·РѕРІР°РЅС‹ РёРјСЏ СЂРµРґР°РєС‚РёСЂСѓРµРјРѕРіРѕ С„Р°Р№Р»Р° Рё С‚РµРєСѓС‰РёР№ С„РѕСЂРјР°С‚ СЃРѕС…СЂР°РЅРµРЅРёСЏ (DOS-С„РѕСЂРјР°С‚ - РїРµСЂРµРІРѕРґ СЃС‚СЂРѕРєРё Р·Р°РјРµРЅСЏРµС‚СЃСЏ РЅР° "\r\n", Unix-С„РѕСЂРјР°С‚ - "\n").
+    РџСЂРё СѓСЃРїРµС€РЅРѕРј СЃРѕС…СЂР°РЅРµРЅРёРё С„Р°Р№Р»Р° С„СѓРЅРєС†РёСЏ РІРµСЂРЅС‘С‚ <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SELECT">ECTL_SELECT</a></td>
-    <td class="cont" width="60%">Выделить или снять выделение с блока. <em>Param</em>
-      указывает на структуру <a href="../structures/editorselect.html">EditorSelect</a>.</td></tr>
+    <td class="cont" width="60%">Р’С‹РґРµР»РёС‚СЊ РёР»Рё СЃРЅСЏС‚СЊ РІС‹РґРµР»РµРЅРёРµ СЃ Р±Р»РѕРєР°.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorselect.html">EditorSelect</a>.<br>
+    РџСЂРё СѓСЃРїРµС€РЅРѕР№ РѕРїРµСЂР°С†РёРё С„СѓРЅРєС†РёСЏ РІРµСЂРЅС‘С‚ <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETKEYBAR">ECTL_SETKEYBAR</a></td>
-    <td class="cont" width="60%">Функция, позволяющая управлять поведением
-     строки функциональных клавиш в редакторе:<br>
-     <em>Param</em> = NULL - восстановить, предыдущее значение<br>
-     <em>Param</em> = -1   - обновить полосу (перерисовать)<br>
-     <em>Param</em> = указатель на структуру <a href="../structures/keybartitles.html">KeyBarTitles</a>.<p>
-     Вызывать данную команду в событии <a href="../exported_functions/processeditorevent.html#EE_READ">EE_READ</a>
-     не имеет смысла, т.к. строки функциональных клавиш, как объекта, в момент
-     загрузки файла в редактор еще не существует.<br>
-     Команда возвращает TRUE в случае успешного выполнения или FALSE (когда
-     строка, как объект, не создана).<br>
-     </td></tr>
+    <td class="cont" width="60%">Р¤СѓРЅРєС†РёСЏ, РїРѕР·РІРѕР»СЏСЋС‰Р°СЏ СѓРїСЂР°РІР»СЏС‚СЊ РїРѕРІРµРґРµРЅРёРµРј СЃС‚СЂРѕРєРё С„СѓРЅРєС†РёРѕРЅР°Р»СЊРЅС‹С… РєР»Р°РІРёС€ РІ СЂРµРґР°РєС‚РѕСЂРµ.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2 = NULL</code> - РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ РїСЂРµРґС‹РґСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ<br>
+    <code>Param2 = -1</code> - РѕР±РЅРѕРІРёС‚СЊ РїРѕР»РѕСЃСѓ (РїРµСЂРµСЂРёСЃРѕРІР°С‚СЊ)<br>
+    <code>Param2</code> СЂР°РІРµРЅ СѓРєР°Р·Р°С‚РµР»СЋ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/farsetkeybartitles.html">FarSetKeyBarTitles</a>, РЅРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ.<br>
+    Р’С‹Р·С‹РІР°С‚СЊ РґР°РЅРЅСѓСЋ РєРѕРјР°РЅРґСѓ РІ СЃРѕР±С‹С‚РёРё <a href="../exported_functions/processeditoreventw.html#EE_READ">EE_READ</a>
+    РЅРµ РёРјРµРµС‚ СЃРјС‹СЃР»Р°, С‚.Рє. СЃС‚СЂРѕРєРё С„СѓРЅРєС†РёРѕРЅР°Р»СЊРЅС‹С… РєР»Р°РІРёС€, РєР°Рє РѕР±СЉРµРєС‚Р°, РІ РјРѕРјРµРЅС‚ Р·Р°РіСЂСѓР·РєРё С„Р°Р№Р»Р° РІ СЂРµРґР°РєС‚РѕСЂ РµС‰С‘ РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС€РЅРѕРіРѕ РІС‹РїРѕР»РЅРµРЅРёСЏ РёР»Рё <code>FALSE</code> (РєРѕРіРґР° СЃС‚СЂРѕРєР°, РєР°Рє РѕР±СЉРµРєС‚, РЅРµ СЃРѕР·РґР°РЅР°).</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETPARAM">ECTL_SETPARAM</a></td>
-    <td class="cont" width="60%">Изменение настроек текущего редактора.
-     <em>Param</em> указывает на структуру <a href="../structures/editorsetparameter.html">EditorSetParameter</a>.
-     <br>Команда возвращает TRUE в случае успешного изменения параметров.
-    </td></tr>
-
+    <td class="cont" width="60%">РР·РјРµРЅРµРЅРёРµ РЅР°СЃС‚СЂРѕРµРє С‚РµРєСѓС‰РµРіРѕ СЂРµРґР°РєС‚РѕСЂР°.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorsetparameter.html">EditorSetParameter</a>.<br>
+    Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС€РЅРѕРіРѕ РёР·РјРµРЅРµРЅРёСЏ РїР°СЂР°РјРµС‚СЂРѕРІ.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETPOSITION">ECTL_SETPOSITION</a></td>
-    <td class="cont" width="60%">Установить позицию курсора. <em>Param</em> указывает на
-      структуру <a href="../structures/editorsetposition.html">EditorSetPosition</a>.
-      </td></tr>
-
+    <td class="cont" width="60%">РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РїРѕР·РёС†РёСЋ РєСѓСЂСЃРѕСЂР°.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorsetposition.html">EditorSetPosition</a>.<br>
+    РџСЂРё СѓСЃРїРµС€РЅРѕР№ РѕРїРµСЂР°С†РёРё С„СѓРЅРєС†РёСЏ РІРµСЂРЅС‘С‚ <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETSTRING">ECTL_SETSTRING</a></td>
-    <td class="cont" width="60%">Поместить текст в строку. <em>Param</em> указывает на
-    структуру <a href="../structures/editorsetstring.html">EditorSetString</a>.
-    Помещаемая строка должна быть в кодировке редактора.</td></tr>
-
+    <td class="cont" width="60%">РџРѕРјРµСЃС‚РёС‚СЊ С‚РµРєСЃС‚ РІ СЃС‚СЂРѕРєСѓ.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorsetstring.html">EditorSetString</a>.<br>
+    РџСЂРё СѓСЃРїРµС€РЅРѕР№ РѕРїРµСЂР°С†РёРё С„СѓРЅРєС†РёСЏ РІРµСЂРЅС‘С‚ <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SETTITLE">ECTL_SETTITLE</a></td>
-    <td class="cont" width="60%"><img src="..\..\images\ectl_settitle.gif" width=213 height=53 align=right alt="DrawLine\DrawLine.cpp: Применена функция SetTitle()">Установить заголовок редактора (верхняя статусная панель).
-      Стандартный заголовок будет восстановлен после отработки плагина.
-      <em>Param</em> указывает на строку, оканчивающуюся нулем, которая
-      содержит текст заголовка.<br>
-<pre class=code>// DrawLine\DrawLine.cpp: функция SetTitle
-Info.EditorControl(ECTL_SETTITLE,(char *)GetMsg(IDTitle));</pre>
-</td></tr>
+    <td class="cont" width="60%"><img src="../../images/ectl_settitle.gif" width=213 height=53 align=right alt="DrawLine\DrawLine.cpp: РџСЂРёРјРµРЅРµРЅР° С„СѓРЅРєС†РёСЏ SetTitle()">РЈСЃС‚Р°РЅРѕРІРёС‚СЊ Р·Р°РіРѕР»РѕРІРѕРє СЂРµРґР°РєС‚РѕСЂР° (РІРµСЂС…РЅСЏСЏ СЃС‚Р°С‚СѓСЃРЅР°СЏ РїР°РЅРµР»СЊ).<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂРѕРєСѓ, РѕРєР°РЅС‡РёРІР°СЋС‰СѓСЋСЃСЏ РЅСѓР»С‘Рј, РєРѕС‚РѕСЂР°СЏ СЃРѕРґРµСЂР¶РёС‚ С‚РµРєСЃС‚ Р·Р°РіРѕР»РѕРІРєР°.<br>
+    Р”Р»СЏ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ СЃС‚Р°С‚СѓСЃРЅРѕР№ СЃС‚СЂРѕРєРё СѓРєР°Р¶РёС‚Рµ РїР°СЂР°РјРµС‚СЂ <code>Param2 = NULL</code> РёР»Рё РїСѓСЃС‚РѕР№ СЃС‚СЂРѕРєРµ.<br>
+    Р—Р°РіРѕР»РѕРІРѕРє РЅРµ Р±СѓРґРµС‚ РІС‹РІРµРґРµРЅ, РµСЃР»Рё СЃС‚Р°С‚СѓСЃРЅР°СЏ СЃС‚СЂРѕРєР° РїРѕРіР°С€РµРЅР°.<br>
+    РџСЂРё РїРѕРєР°Р·Рµ Р·Р°РіРѕР»РѕРІРѕРє Р±СѓРґРµС‚ СѓСЃРµС‡С‘РЅ РґРѕ СЂР°Р·РјРµСЂР°, РЅРµ Р·Р°С‚СЂР°РіРёРІР°СЋС‰РµРіРѕ СЃР»СѓР¶РµР±РЅСѓСЋ РёРЅС„РѕСЂРјР°С†РёСЋ (РєРѕРґРёСЂРѕРІРєР°, РїРѕР·РёС†РёСЏ, etc.)<br>
+    <pre class=code>
+// DrawLine\DrawLine.cpp: С„СѓРЅРєС†РёСЏ SetTitle
+Info.EditorControl(-1,ECTL_SETTITLE,0,GetMsg(IDTitle));
+    </pre>
+    Р­С‚Р° РєРѕРјР°РЅРґР° РІСЃРµРіРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_TABTOREAL">ECTL_TABTOREAL</a></td>
-    <td class="cont" width="60%">Конвертировать экранную позицию курсора в
-      реальную строковую позицию. Если строка не
-      содержит символов табуляции, входная и
-      получаемая позиция будут равными. <em>Param</em>
-      указывает на структуру <a href="../structures/editorconvertpos.html">EditorConvertPos</a>.</td></tr>
+    <td class="cont" width="60%">РљРѕРЅРІРµСЂС‚РёСЂРѕРІР°С‚СЊ СЌРєСЂР°РЅРЅСѓСЋ РїРѕР·РёС†РёСЋ РєСѓСЂСЃРѕСЂР° РІ СЂРµР°Р»СЊРЅСѓСЋ СЃС‚СЂРѕРєРѕРІСѓСЋ РїРѕР·РёС†РёСЋ. Р•СЃР»Рё СЃС‚СЂРѕРєР° РЅРµ СЃРѕРґРµСЂР¶РёС‚ СЃРёРјРІРѕР»РѕРІ С‚Р°Р±СѓР»СЏС†РёРё, РІС…РѕРґРЅР°СЏ Рё РїРѕР»СѓС‡Р°РµРјР°СЏ РїРѕР·РёС†РёСЏ Р±СѓРґСѓС‚ СЂР°РІРЅС‹РјРё.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorconvertpos.html">EditorConvertPos</a>.<br>
+    Р•СЃР»Рё СѓРєР°Р·Р°РЅРЅР°СЏ СЃС‚СЂРѕРєР° РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ <code>FALSE</code>, РёРЅР°С‡Рµ <code>TRUE</code>.</td></tr>
 
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_UNDOREDO">ECTL_UNDOREDO</a></td>
+    <td class="cont" width="60%">Р¤СѓРЅРєС†РёСЏ, РїРѕР·РІРѕР»СЏСЋС‰Р°СЏ СѓРїСЂР°РІР»СЏС‚СЊ РїРѕРІРµРґРµРЅРёРµРј РѕРїРµСЂР°С†РёРё РћС‚РјРµРЅР°-Р’РѕР·РІСЂР°С‚ РґРµР№СЃС‚РІРёСЏ, С‚.РЅ. Undo-Redo.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorundoredo.html">EditorUndoRedo</a>.<br>
+    РљРѕРјР°РЅРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС€РЅРѕРіРѕ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_TURNOFFMARKINGBLOCK">ECTL_TURNOFFMARKINGBLOCK</a></td>
-    <td class="cont" width="60%">Убрать флаг редактора, который устанавливается всегда,
-     когда пользователь осуществляет выделение вертикального или
-     поточного блока. Этот флаг существует только для внутренних нужд
-     FAR Manager и плагинами не используется, но пользователь может заметить
-     негативные (в основном косметические) дефекты, когда он начал выделять
-     блок и запустил (или это произошло автоматически) ваш плагин, который,
-     например, изменил позицию курсора, поэтому вы почти всегда должны
-     использовать данную команды перед передачей управления FAR, если ваш
-     плагин изменил файл в редакторе или положение курсора.<br>
-     <em>Param</em> должен быть <code>NULL</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_SUBSCRIBECHANGEEVENT">ECTL_SUBSCRIBECHANGEEVENT</a></td>
+    <td class="cont" width="60%">РџРѕРґРїРёСЃР°С‚СЊСЃСЏ РЅР° РїРѕР»СѓС‡РµРЅРёРµ <a href="../structures/processeditoreventinfo.html#EE_CHANGE">EE_CHANGE</a> СЃРѕР±С‹С‚РёР№ РґР»СЏ Р·Р°РґР°РЅРЅРѕР№ СЃРµСЃСЃРёРё СЂРµРґР°РєС‚РѕСЂР°.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorsubscribechangeevent.html">EditorSubscribeChangeEvent</a>.<br>
+    РљРѕРјР°РЅРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС€РЅРѕРіРѕ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё.</td></tr>
 
+    <tr class="cont"><td class="cont" width="40%"><a name="ECTL_UNSUBSCRIBECHANGEEVENT">ECTL_UNSUBSCRIBECHANGEEVENT</a></td>
+    <td class="cont" width="60%">РћС‚РїРёСЃР°С‚СЊСЃСЏ РѕС‚ РїРѕР»СѓС‡РµРЅРёСЏ <a href="../structures/processeditoreventinfo.html#EE_CHANGE">EE_CHANGE</a> СЃРѕР±С‹С‚РёР№ РґР»СЏ Р·Р°РґР°РЅРЅРѕР№ СЃРµСЃСЃРёРё СЂРµРґР°РєС‚РѕСЂР°.<br>
+    <code>Param1</code> РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.<br>
+    <code>Param2</code> СѓРєР°Р·С‹РІР°РµС‚ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../structures/editorsubscribechangeevent.html">EditorSubscribeChangeEvent</a>.<br>
+    РљРѕРјР°РЅРґР° РІРѕР·РІСЂР°С‰Р°РµС‚ <code>TRUE</code> РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС€РЅРѕРіРѕ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё.</td></tr>
+    </table>
+    </div>
 
-</table>
-
-  </div>
-
-  <div class=dfn>Param</div>
-  <div class=dfndescr>Указывает на параметр команды. Смотрите
-    описание <dfn>Command</dfn>.</div>
+  <div class=dfn>Param1</div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РїР°СЂР°РјРµС‚СЂС‹1 РєРѕРјР°РЅРґС‹. РЎРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ <code>Command</code>.</div>
+  <div class=dfn>Param2</div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РїР°СЂР°РјРµС‚СЂС‹2 РєРѕРјР°РЅРґС‹. РЎРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ <code>Command</code>.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-  В случае успеха возвращается TRUE. В случае
-  неудачи - FALSE.
+<div class=descr>РЎРјРѕС‚СЂРёС‚Рµ РѕРїРёСЃР°РЅРёРµ РєРѕРЅРєСЂРµС‚РЅРѕР№ РєРѕРјР°РЅРґС‹.
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-FAR обновляет содержимое окна редактора при активных действиях пользователя.
-Вызовите <dfn>ECTL_REDRAW</dfn>, чтобы принудительно обновить окно после любых активных изменений содержимого редактора.
+Far Manager РѕР±РЅРѕРІР»СЏРµС‚ СЃРѕРґРµСЂР¶РёРјРѕРµ РѕРєРЅР° СЂРµРґР°РєС‚РѕСЂР° РїСЂРё Р°РєС‚РёРІРЅС‹С… РґРµР№СЃС‚РІРёСЏС… РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ. Р’С‹Р·РѕРІРёС‚Рµ <code>ECTL_REDRAW</code>, С‡С‚РѕР±С‹ РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ РѕР±РЅРѕРІРёС‚СЊ РѕРєРЅРѕ РїРѕСЃР»Рµ Р»СЋР±С‹С… Р°РєС‚РёРІРЅС‹С… РёР·РјРµРЅРµРЅРёР№ СЃРѕРґРµСЂР¶РёРјРѕРіРѕ СЂРµРґР°РєС‚РѕСЂР°.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
 <a href="advcontrol.html">AdvControl</a>,
-<a href="control.html">Control</a>
+<a href="panelcontrol.html">PanelControl</a>
 </div>
 
 </body>

@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>KEY_EVENT_RECORD</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src="../links.js" type="text/javascript"></script>
 </head>
@@ -11,16 +11,16 @@
 
 <h1>KEY_EVENT_RECORD</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="../structures/index.html">структуры</a> |
-<a href="index.html">win32 структуры</a> |
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="../structures/index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
+<a href="index.html">win32 СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
 <a href="input_record.html">INPUT_RECORD</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>KEY_EVENT_RECORD</dfn>
-используется для получения входных событий в консольной структуре
-<dfn>INPUT_RECORD</dfn>.
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>KEY_EVENT_RECORD</code>
+РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РІС…РѕРґРЅС‹С… СЃРѕР±С‹С‚РёР№ РІ РєРѕРЅСЃРѕР»СЊРЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂРµ
+<code>INPUT_RECORD</code>.
 </div>
 
 <pre class=syntax>
@@ -37,66 +37,66 @@ typedef struct _KEY_EVENT_RECORD {
 } KEY_EVENT_RECORD;
 </pre>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
     <div class=dfn>bKeyDown</div>
-    <div class=dfndescr>Равно TRUE если клавиша нажата, иначе FALSE. </div>
+    <div class=dfndescr>Р Р°РІРЅРѕ <code>TRUE</code> РµСЃР»Рё РєР»Р°РІРёС€Р° РЅР°Р¶Р°С‚Р°, РёРЅР°С‡Рµ <code>FALSE</code>. </div>
     <div class=dfn>wRepeatCount</div>
-    <div class=dfndescr>Число повторов нажатия клавиши.
-    Например, когда клавиша нажата, вы можете получить пять сообщений с
-    этим членом равным 1, одно сообщение с равным 5, или несколько сообщений
-    с элементом большим, либо равным 1.</div>
+    <div class=dfndescr>Р§РёСЃР»Рѕ РїРѕРІС‚РѕСЂРѕРІ РЅР°Р¶Р°С‚РёСЏ РєР»Р°РІРёС€Рё.
+    РќР°РїСЂРёРјРµСЂ, РєРѕРіРґР° РєР»Р°РІРёС€Р° РЅР°Р¶Р°С‚Р°, РІС‹ РјРѕР¶РµС‚Рµ РїРѕР»СѓС‡РёС‚СЊ РїСЏС‚СЊ СЃРѕРѕР±С‰РµРЅРёР№ СЃ
+    СЌС‚РёРј С‡Р»РµРЅРѕРј СЂР°РІРЅС‹Рј 1, РѕРґРЅРѕ СЃРѕРѕР±С‰РµРЅРёРµ СЃ СЂР°РІРЅС‹Рј 5, РёР»Рё РЅРµСЃРєРѕР»СЊРєРѕ СЃРѕРѕР±С‰РµРЅРёР№
+    СЃ СЌР»РµРјРµРЅС‚РѕРј Р±РѕР»СЊС€РёРј, Р»РёР±Рѕ СЂР°РІРЅС‹Рј 1.</div>
     <div class=dfn>wVirtualKeyCode</div>
-    <div class=dfndescr><a href="virtualkeycodes.html">Виртуальный код</a> клавиши, определяющий данную клавишу в независимой
-    от устройства форме.</div>
+    <div class=dfndescr><a href="virtualkeycodes.html">Р’РёСЂС‚СѓР°Р»СЊРЅС‹Р№ РєРѕРґ</a> РєР»Р°РІРёС€Рё, РѕРїСЂРµРґРµР»СЏСЋС‰РёР№ РґР°РЅРЅСѓСЋ РєР»Р°РІРёС€Сѓ РІ РЅРµР·Р°РІРёСЃРёРјРѕР№
+    РѕС‚ СѓСЃС‚СЂРѕР№СЃС‚РІР° С„РѕСЂРјРµ.</div>
     <div class=dfn>wVirtualScanCode</div>
-    <div class=dfndescr>Виртуальный скан-код клавиши. Определяет устройство-зависимое значение,
-    генерируемое аппаратурой клавиатуры.</div>
+    <div class=dfndescr>Р’РёСЂС‚СѓР°Р»СЊРЅС‹Р№ СЃРєР°РЅ-РєРѕРґ РєР»Р°РІРёС€Рё. РћРїСЂРµРґРµР»СЏРµС‚ СѓСЃС‚СЂРѕР№СЃС‚РІРѕ-Р·Р°РІРёСЃРёРјРѕРµ Р·РЅР°С‡РµРЅРёРµ,
+    РіРµРЅРµСЂРёСЂСѓРµРјРѕРµ Р°РїРїР°СЂР°С‚СѓСЂРѕР№ РєР»Р°РІРёР°С‚СѓСЂС‹.</div>
     <div class=dfn>uChar</div>
-    <div class=dfndescr>Переведенный Unicode или ASCII символ, в зависимости от того,
-    использовалась Wide- или ANSI-версия функции <a href="readconsoleinput.html">ReadConsoleInput</a>.</div>
+    <div class=dfndescr>РџРµСЂРµРІРµРґС‘РЅРЅС‹Р№ Unicode РёР»Рё ASCII СЃРёРјРІРѕР», РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ С‚РѕРіРѕ,
+    РёСЃРїРѕР»СЊР·РѕРІР°Р»Р°СЃСЊ Wide- РёР»Рё ANSI-РІРµСЂСЃРёСЏ С„СѓРЅРєС†РёРё <a href="readconsoleinput.html">ReadConsoleInput</a>.</div>
     <div class=dfn>dwControlKeyState</div>
-    <div class=dfndescr>Состояние управляющих клавиш. Может быть комбинацией следующих значений:
+    <div class=dfndescr>РЎРѕСЃС‚РѕСЏРЅРёРµ СѓРїСЂР°РІР»СЏСЋС‰РёС… РєР»Р°РІРёС€. РњРѕР¶РµС‚ Р±С‹С‚СЊ РєРѕРјР±РёРЅР°С†РёРµР№ СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№:
 
       <table class="cont">
-     <tr class="cont"><th class="cont" width="20%">Клавиша</th><th class="cont" width="20%">Значение</th><th class="cont" width="60%">Описание</th></tr>
+     <tr class="cont"><th class="cont" width="20%">РљР»Р°РІРёС€Р°</th><th class="cont" width="20%">Р—РЅР°С‡РµРЅРёРµ</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
         <tr class="cont"><td class="cont" width="20%">CAPSLOCK_ON</td><td class="cont" width="20%">0x0080</td>
-        <td class="cont" width="60%">CAPS LOCK включен.</td>
-        </tr>
+        <td class="cont" width="60%">CAPS LOCK РІРєР»СЋС‡С‘РЅ.</td></tr>
         <tr class="cont"><td class="cont" width="20%">ENHANCED_KEY</td><td class="cont" width="20%">0x0100</td>
-        <td class="cont" width="60%">Клавиша расширенная.</td></tr>
+        <td class="cont" width="60%">РљР»Р°РІРёС€Р° СЂР°СЃС€РёСЂРµРЅРЅР°СЏ.</td></tr>
         <tr class="cont"><td class="cont" width="20%">LEFT_ALT_PRESSED </td><td class="cont" width="20%">0x0002</td>
-        <td class="cont" width="60%">Левый ALT нажат.</td></tr>
+        <td class="cont" width="60%">Р›РµРІС‹Р№ ALT РЅР°Р¶Р°С‚.</td></tr>
         <tr class="cont"><td class="cont" width="20%">LEFT_CTRL_PRESSED </td><td class="cont" width="20%">0x0008</td>
-        <td class="cont" width="60%">Левый CTRL нажат.</td></tr>
+        <td class="cont" width="60%">Р›РµРІС‹Р№ CTRL РЅР°Р¶Р°С‚.</td></tr>
         <tr class="cont"><td class="cont" width="20%">NUMLOCK_ON </td><td class="cont" width="20%">0x0020</td>
-        <td class="cont" width="60%">NUM LOCK включен.</td></tr>
+        <td class="cont" width="60%">NUM LOCK РІРєР»СЋС‡С‘РЅ.</td></tr>
         <tr class="cont"><td class="cont" width="20%">RIGHT_ALT_PRESSED </td><td class="cont" width="20%">0x0001</td>
-        <td class="cont" width="60%">Правый ALT нажат.</td></tr>
+        <td class="cont" width="60%">РџСЂР°РІС‹Р№ ALT РЅР°Р¶Р°С‚.</td></tr>
         <tr class="cont"><td class="cont" width="20%">RIGHT_CTRL_PRESSED </td><td class="cont" width="20%">0x0004</td>
-        <td class="cont" width="60%">Правый CTRL нажат.</td></tr>
+        <td class="cont" width="60%">РџСЂР°РІС‹Р№ CTRL РЅР°Р¶Р°С‚.</td></tr>
         <tr class="cont"><td class="cont" width="20%">SCROLLLOCK_ON </td><td class="cont" width="20%">0x0040</td>
-        <td class="cont" width="60%">SCROLL LOCK включен. </td></tr>
+        <td class="cont" width="60%">SCROLL LOCK РІРєР»СЋС‡С‘РЅ. </td></tr>
         <tr class="cont"><td class="cont" width="20%">SHIFT_PRESSED </td><td class="cont" width="20%">0x0010</td>
-        <td class="cont" width="60%">Клавиша SHIFT нажата.</td></tr>
+        <td class="cont" width="60%">РљР»Р°РІРёС€Р° SHIFT РЅР°Р¶Р°С‚Р°.</td></tr>
      </table>
     </div>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-  Расширенные клавиши для IBM<sup>&#174;</sup> 101- и 102-х клавишных
-  клавиатур - это INS, DEL, HOME, END, PAGE UP, PAGE DOWN, клавиши курсора,
-  клавиша divide (<code>/</code>) и ENTER на цифровой части.
+  Р Р°СЃС€РёСЂРµРЅРЅС‹Рµ РєР»Р°РІРёС€Рё РґР»СЏ IBM<sup>&#174;</sup> 101- Рё 102-С… РєР»Р°РІРёС€РЅС‹С…
+  РєР»Р°РІРёР°С‚СѓСЂ - СЌС‚Рѕ <kbd>INS</kbd>, <kbd>DEL</kbd>, <kbd>HOME</kbd>, <kbd>END</kbd>, <kbd>PAGE UP</kbd>, <kbd>PAGE DOWN</kbd>, РєР»Р°РІРёС€Рё РєСѓСЂСЃРѕСЂР°,
+  РєР»Р°РІРёС€Р° divide (<kbd>/</kbd>) Рё <kbd>ENTER</kbd> РЅР° С†РёС„СЂРѕРІРѕР№ С‡Р°СЃС‚Рё.
   <br>
-  Сообщения клавиатурного ввода генерируются, когда любая клавиша,
-  включая управляющую, нажата или отпущена.
-  Однако, когда клавиша ALT нажимается и отпускается, это имеет специальное значение в Windows
-  и такое событие не передается приложению. Также сочетание <code>CTRL+C</code>
-  не передается, если хендл входной консоли имеет флаг ENABLE_PROCESSED_INPUT.
+  РЎРѕРѕР±С‰РµРЅРёСЏ РєР»Р°РІРёР°С‚СѓСЂРЅРѕРіРѕ РІРІРѕРґР° РіРµРЅРµСЂРёСЂСѓСЋС‚СЃСЏ, РєРѕРіРґР° Р»СЋР±Р°СЏ РєР»Р°РІРёС€Р°,
+  РІРєР»СЋС‡Р°СЏ СѓРїСЂР°РІР»СЏСЋС‰СѓСЋ, РЅР°Р¶Р°С‚Р° РёР»Рё РѕС‚РїСѓС‰РµРЅР°.
+  РћРґРЅР°РєРѕ, РєРѕРіРґР° РєР»Р°РІРёС€Р° <kbd>ALT</kbd> РЅР°Р¶РёРјР°РµС‚СЃСЏ Рё РѕС‚РїСѓСЃРєР°РµС‚СЃСЏ, СЌС‚Рѕ РёРјРµРµС‚ СЃРїРµС†РёР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ РІ Windows
+  Рё С‚Р°РєРѕРµ СЃРѕР±С‹С‚РёРµ РЅРµ РїРµСЂРµРґР°С‘С‚СЃСЏ РїСЂРёР»РѕР¶РµРЅРёСЋ. РўР°РєР¶Рµ СЃРѕС‡РµС‚Р°РЅРёРµ <kbd>CTRL</kbd>+<kbd>C</kbd>
+  РЅРµ РїРµСЂРµРґР°С‘С‚СЃСЏ, РµСЃР»Рё С…РµРЅРґР» РІС…РѕРґРЅРѕР№ РєРѕРЅСЃРѕР»Рё РёРјРµРµС‚ С„Р»Р°Рі <code>ENABLE_PROCESSED_INPUT</code>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
 <a href="peekconsoleinput.html">PeekConsoleInput</a>,
 <a href="readconsoleinput.html">ReadConsoleInput</a>,
 <a href="writeconsoleinput.html">WriteConsoleInput</a>,

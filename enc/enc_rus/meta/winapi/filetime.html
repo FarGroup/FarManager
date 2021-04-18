@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FILETIME</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src="../links.js" type="text/javascript"></script>
 </head>
@@ -11,15 +11,15 @@
 
 <h1>FILETIME</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="../structures/index.html">структуры</a> |
-<a href="index.html">win32 структуры</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="../structures/index.html">СЃС‚СЂСѓРєС‚СѓСЂС‹</a> |
+<a href="index.html">win32 СЃС‚СЂСѓРєС‚СѓСЂС‹</a>
 </div>
 
 <div class=shortdescr>
-Структура <strong>FILETIME</strong> - это 64-х разрядное значение,
-представляющее число сто-наносекундных интервалов, прошедших с первого
-января 1601 года (UTC).
+РЎС‚СЂСѓРєС‚СѓСЂР° <code>FILETIME</code> - СЌС‚Рѕ 64-С… СЂР°Р·СЂСЏРґРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ,
+РїСЂРµРґСЃС‚Р°РІР»СЏСЋС‰РµРµ С‡РёСЃР»Рѕ СЃС‚Рѕ-РЅР°РЅРѕСЃРµРєСѓРЅРґРЅС‹С… РёРЅС‚РµСЂРІР°Р»РѕРІ, РїСЂРѕС€РµРґС€РёС… СЃ РїРµСЂРІРѕРіРѕ
+СЏРЅРІР°СЂСЏ 1601 РіРѕРґР° (UTC).
 </div>
 
 <pre class=syntax>
@@ -28,24 +28,24 @@ typedef struct _FILETIME {
   DWORD dwHighDateTime;
 } FILETIME; </pre>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
 
     <div class=dfn>dwLowDateTime</div>
-    <div class=dfndescr>Младшие 32 бита времени файла</div>
+    <div class=dfndescr>РњР»Р°РґС€РёРµ 32 Р±РёС‚Р° РІСЂРµРјРµРЅРё С„Р°Р№Р»Р°</div>
     <div class=dfn>dwHighDateTime</div>
-    <div class=dfndescr>Старшие 32 бита времени файла</div>
+    <div class=dfndescr>РЎС‚Р°СЂС€РёРµ 32 Р±РёС‚Р° РІСЂРµРјРµРЅРё С„Р°Р№Р»Р°</div>
 
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-  <p>Не рекомендуется, добавлять или вычитать значения
-  из этой структуры для получения относительного времени. Вместо этого вы можете:
+  <p>РќРµ СЂРµРєРѕРјРµРЅРґСѓРµС‚СЃСЏ, РґРѕР±Р°РІР»СЏС‚СЊ РёР»Рё РІС‹С‡РёС‚Р°С‚СЊ Р·РЅР°С‡РµРЅРёСЏ
+  РёР· СЌС‚РѕР№ СЃС‚СЂСѓРєС‚СѓСЂС‹ РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕРіРѕ РІСЂРµРјРµРЅРё. Р’РјРµСЃС‚Рѕ СЌС‚РѕРіРѕ РІС‹ РјРѕР¶РµС‚Рµ:
   <ul>
-    <li>Скопировать результирующую структуру в структуру <a href="win32/ULARGE_INTEGER">ULARGE_INTEGER</a></li>
-    <li>Использовать обычную 64-х битную арифметику для значения <a href="win32/ULARGE_INTEGER">ULARGE_INTEGER</a> или
-    привести переменную типа <strong>FILETIME</strong> к типу <strong>__int64</strong>:
+    <li>РЎРєРѕРїРёСЂРѕРІР°С‚СЊ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰СѓСЋ СЃС‚СЂСѓРєС‚СѓСЂСѓ РІ СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="win32/ULARGE_INTEGER">ULARGE_INTEGER</a></li>
+    <li>РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РѕР±С‹С‡РЅСѓСЋ 64-С… Р±РёС‚РЅСѓСЋ Р°СЂРёС„РјРµС‚РёРєСѓ РґР»СЏ Р·РЅР°С‡РµРЅРёСЏ <a href="win32/ULARGE_INTEGER">ULARGE_INTEGER</a> РёР»Рё
+    РїСЂРёРІРµСЃС‚Рё РїРµСЂРµРјРµРЅРЅСѓСЋ С‚РёРїР° <code>FILETIME</code> Рє С‚РёРїСѓ <code>__int64</code>:
 <pre class=code>
 FILETIME WriteTime1, WriteTime2;
 
@@ -55,17 +55,18 @@ if(*(__int64*) &amp; WriteTime1 == *(__int64*) &amp; WriteTime2)
     </li>
   </ul>
 <a name="precise"></a>
-Не все файловые системы могут хранить время создания и доступа, и не
-все они хранят времена одинаковым образом. Например, в FAT время
-создания задаётся с точностью до 10 миллисекунд, записи - до 2 секунд,
-а время доступа - 1 день (фактически, дата доступа). У NTFS время
-доступа имеет точность в 1 час. Таким образом, функция <a href="getfiletime.html">GetFileTime</a>
-может вернуть время, отличное от установленного функцией <a href="setfiletime.html">SetFileTime</a>.
-К тому же, FAT хранит времена в локальном часовом поясе, а NTFS - в
-универсальном синхронизированном времени (UTC).
+РќРµ РІСЃРµ С„Р°Р№Р»РѕРІС‹Рµ СЃРёСЃС‚РµРјС‹ РјРѕРіСѓС‚ С…СЂР°РЅРёС‚СЊ РІСЂРµРјСЏ СЃРѕР·РґР°РЅРёСЏ Рё РґРѕСЃС‚СѓРїР°, Рё РЅРµ
+РІСЃРµ РѕРЅРё С…СЂР°РЅСЏС‚ РІСЂРµРјРµРЅР° РѕРґРёРЅР°РєРѕРІС‹Рј РѕР±СЂР°Р·РѕРј. РќР°РїСЂРёРјРµСЂ, РІ FAT РІСЂРµРјСЏ
+СЃРѕР·РґР°РЅРёСЏ Р·Р°РґР°С‘С‚СЃСЏ СЃ С‚РѕС‡РЅРѕСЃС‚СЊСЋ РґРѕ 10 РјРёР»Р»РёСЃРµРєСѓРЅРґ, Р·Р°РїРёСЃРё - РґРѕ 2 СЃРµРєСѓРЅРґ,
+Р° РІСЂРµРјСЏ РґРѕСЃС‚СѓРїР° - 1 РґРµРЅСЊ (С„Р°РєС‚РёС‡РµСЃРєРё, РґР°С‚Р° РґРѕСЃС‚СѓРїР°). РЈ NTFS РІСЂРµРјСЏ
+РґРѕСЃС‚СѓРїР° РёРјРµРµС‚ С‚РѕС‡РЅРѕСЃС‚СЊ РІ 1 С‡Р°СЃ. РўР°РєРёРј РѕР±СЂР°Р·РѕРј, С„СѓРЅРєС†РёСЏ <a href="getfiletime.html">GetFileTime</a>
+РјРѕР¶РµС‚ РІРµСЂРЅСѓС‚СЊ РІСЂРµРјСЏ, РѕС‚Р»РёС‡РЅРѕРµ РѕС‚ СѓСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРіРѕ С„СѓРЅРєС†РёРµР№ <a href="setfiletime.html">SetFileTime</a>.
+Рљ С‚РѕРјСѓ Р¶Рµ, FAT С…СЂР°РЅРёС‚ РІСЂРµРјРµРЅР° РІ Р»РѕРєР°Р»СЊРЅРѕРј С‡Р°СЃРѕРІРѕРј РїРѕСЏСЃРµ, Р° NTFS - РІ
+СѓРЅРёРІРµСЂСЃР°Р»СЊРЅРѕРј СЃРёРЅС…СЂРѕРЅРёР·РёСЂРѕРІР°РЅРЅРѕРј РІСЂРµРјРµРЅРё (UTC).
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
 <a href="win32/CompareFileTime">CompareFileTime</a>,
 <a href="getfiletime.html">GetFileTime</a>,
 <a href="setfiletime.html">SetFileTime</a>,

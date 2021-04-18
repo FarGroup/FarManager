@@ -1,0 +1,69 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DefDlgProc</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DefDlgProc</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">сервисные функции</a> |
+<a href="../dialogapi/index.html">Dialog API</a>
+</div>
+
+<div class=shortdescr>
+Функция <code>DefDlgProc</code> позволяет вызвать стандартную (внутреннюю) функцию обработки диалога.
+</div>
+
+<pre class=syntax>
+intptr_t WINAPI DefDlgProc(
+  HANDLE hDlg,
+  intptr_t Msg,
+  intptr_t Param1,
+  void *Param2
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>hDlg</div>
+    <div class=dfndescr>Указатель на диалог.</div>
+  <div class=dfn>Msg</div>
+    <div class=dfndescr>Одно из <a href="../dialogapi/dmsg/index_dm.html">сообщений</a> или <a href="../dialogapi/dmsg/index_dn.html">событий</a>.</div>
+  <div class=dfn>Param1</div>
+    <div class=dfndescr>Параметр 1.</div>
+  <div class=dfn>Param2</div>
+    <div class=dfndescr>Параметр 2.</div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Значение, возвращаемое функцией <code>DefDlgProc</code> зависит от параметра <code>Msg</code>.
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+Фрагмент обработчика диалога игры Reversi:
+<pre class=code>intptr_t ReversiDialogProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void *Param2)
+{
+  ...
+  return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
+}</pre>
+</div>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="dialoginit.html">DialogInit</a><br>
+<a href="senddlgmessage.html">SendDlgMessage</a>
+</div>
+
+</body>
+</html>

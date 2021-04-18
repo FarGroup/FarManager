@@ -1,208 +1,158 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>Message</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-
 <body>
 
 <h1>Message</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a> |
+<a href="../basicapi/index.html">Basic API</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>Message</dfn> показывает сообщение.
+Р¤СѓРЅРєС†РёСЏ <code>Message</code> РїРѕРєР°Р·С‹РІР°РµС‚ СЃРѕРѕР±С‰РµРЅРёРµ.
 </div>
 
 <pre class=syntax>
-int WINAPI Message(
-  int PluginNumber,
-  DWORD Flags,
-  const char *HelpTopic,
-  const char * const *Items,
-  int ItemsNumber,
-  int ButtonsNumber
+intptr_t WINAPI Message(
+  const GUID *PluginId,
+  const GUID *Id,
+  FARMESSAGEFLAGS Flags,
+  const wchar_t *HelpTopic,
+  const wchar_t * const *Items,
+  size_t ItemsNumber,
+  intptr_t ButtonsNumber
 );
 </pre>
-<h3>Параметры</h3>
+
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
-
-    <div class=dfn>PluginNumber</div>
-    <div class=dfndescr>Номер плагина. Его вы получаете в функции
-      <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>.
+  <div class=dfn>PluginId</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° GUID РїР»Р°РіРёРЅР° (РґР»СЏ РІР°С€РµРіРѕ РїР»Р°РіРёРЅР°, GUID РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ С‚Р°РєРёРј Р¶Рµ, С‡С‚Рѕ Рё РІ РїРѕР»Рµ <code>GlobalInfo.Guid</code> С„СѓРЅРєС†РёРё <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+  <div class=dfn>Id</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° GUID С‚РµРєСѓС‰РµРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ. GUID РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓРЅРёРєР°Р»СЊРЅС‹Рј.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>РњРѕР¶РµС‚ Р±С‹С‚СЊ РєРѕРјР±РёРЅР°С†РёРµР№ СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (С‚РёРї <a name="FARMESSAGEFLAGS">FARMESSAGEFLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_WARNING">FMSG_WARNING</a></td>
+    <td class="cont" width="60%">РСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ С†РІРµС‚Р° &quot;РџСЂРµРґСѓРїСЂРµР¶РґРµРЅРёСЏ&quot; (РѕР±С‹С‡РЅРѕ Р±РµР»С‹Рµ Р±СѓРєРІС‹ РЅР° РєСЂР°СЃРЅРѕРј С„РѕРЅРµ).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_ERRORTYPE">FMSG_ERRORTYPE</a></td>
+    <td class="cont" width="60%">Р•СЃР»Рё С‚РёРї РѕС€РёР±РєРё, РІРѕР·РІСЂР°С‰Р°РµРјС‹Р№ С„СѓРЅРєС†РёРµР№ <code>GetLastError</code>, <a href="../defs/winerror.html">РёР·РІРµСЃС‚РµРЅ Far Manager'Сѓ</a> РёР»Рё Windows,
+    С‚Рѕ РѕРїРёСЃР°РЅРёРµ РѕС€РёР±РєРё Р±СѓРґРµС‚ РІС‹РІРµРґРµРЅРѕ РїРѕСЃР»Рµ СЃС‚СЂРѕРє, РїРµСЂРµРґР°РЅРЅС‹С… РїР»Р°РіРёРЅРѕРј.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_KEEPBACKGROUND">FMSG_KEEPBACKGROUND</a></td>
+    <td class="cont" width="60%">РќРµ РїРµСЂРµСЂРёСЃРѕРІС‹РІР°С‚СЊ С„РѕРЅ СЃРѕРѕР±С‰РµРЅРёСЏ.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_LEFTALIGN">FMSG_LEFTALIGN</a></td>
+    <td class="cont" width="60%">РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґР»СЏ СЃС‚СЂРѕРє СЃРѕРѕР±С‰РµРЅРёСЏ РІС‹СЂР°РІРЅРёРІР°РЅРёРµ РІР»РµРІРѕ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ СЃС‚СЂРѕРєРё РІС‹РІРѕРґСЏС‚СЃСЏ РїРѕ С†РµРЅС‚СЂСѓ).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_ALLINONE">FMSG_ALLINONE</a></td>
+    <td class="cont" width="60%">Р’ СЌС‚РѕРј СЃР»СѓС‡Р°Рµ Р°СЂРіСѓРјРµРЅС‚ <code>Items</code> РЅРµ СЏРІР»СЏРµС‚СЃСЏ РјР°СЃСЃРёРІРѕРј СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° СЃС‚СЂРѕРєРё - <dfn class=alert3>СЌС‚Рѕ РЈРљРђР—РђРўР•Р›Р¬ РЅР° РѕРґРЅСѓ
+    СЃС‚СЂРѕРєСѓ</dfn>, РІ РєРѕС‚РѕСЂРѕР№ СЂР°Р·РґРµР»РёС‚РµР»РµРј РІС‹РІРѕРґРёРјС‹С… СЃС‚СЂРѕРє СЏРІР»СЏРµС‚СЃСЏ СЃРёРјРІРѕР» <code>'\n'</code>.
+    <p>РњРёРЅРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє - 2 - Р·Р°РіРѕР»РѕРІРѕРє Рё РѕРґРЅР° СЃС‚СЂРѕРєР° СЃРѕРѕР±С‰РµРЅРёСЏ.
+    <p>РџСЂРё СѓРєР°Р·Р°РЅРёРё С„Р»Р°РіР° <code>FMSG_ALLINONE</code> Р°СЂРіСѓРјРµРЅС‚ <code>ItemsNumber</code> РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ Рё РєРѕР»РёС‡РµСЃС‚РІРѕ РІС‹РІРѕРґРёРјС‹С… СЃС‚СЂРѕРє РІС‹С‡РёСЃР»СЏРµС‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё (СЃ СѓС‡С‘С‚РѕРј С„Р»Р°РіРѕРІ-РєРЅРѕРїРѕРє <code>FMSG_MB_*</code>).
+    <p>Р”Р»СЏ РїРѕРґР°РІР»РµРЅРёСЏ РІС‹РІРѕРґР° Р·Р°РіРѕР»РѕРІРєР° РїСЂРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё С„Р»Р°РіР° <code>FMSG_ALLINONE</code> РЅР°С‡РЅРёС‚Рµ СЃС‚СЂРѕРєСѓ СЃ СЃРёРјРІРѕР»Р° <code>'\n'</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_OK">FMSG_MB_OK</a></td>
+    <td class="cont" width="60%">Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ РІС‹РІРѕРґРёС‚СЃСЏ РєРЅРѕРїРєР° &lt;Ok&gt;</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_OKCANCEL">FMSG_MB_OKCANCEL</a></td>
+    <td class="cont" width="60%">Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ РІС‹РІРѕРґСЏС‚СЃСЏ РєРЅРѕРїРєРё &lt;Ok&gt; Рё &lt;Cancel&gt;</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_ABORTRETRYIGNORE">FMSG_MB_ABORTRETRYIGNORE</a></td>
+    <td class="cont" width="60%">Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ РІС‹РІРѕРґСЏС‚СЃСЏ РєРЅРѕРїРєРё &lt;Abort&gt;, &lt;Retry&gt; Рё &lt;Ignore&gt;</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_YESNO">FMSG_MB_YESNO</a></td>
+    <td class="cont" width="60%">Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ РІС‹РІРѕРґСЏС‚СЃСЏ РєРЅРѕРїРєРё &lt;Yes&gt; Рё &lt;No&gt;</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_YESNOCANCEL">FMSG_MB_YESNOCANCEL</a></td>
+    <td class="cont" width="60%">Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ РІС‹РІРѕРґСЏС‚СЃСЏ РєРЅРѕРїРєРё &lt;Yes&gt;, &lt;No&gt; Рё &lt;Cancel&gt;</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_RETRYCANCEL">FMSG_MB_RETRYCANCEL</a></td>
+    <td class="cont" width="60%">Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ РІС‹РІРѕРґСЏС‚СЃСЏ РєРЅРѕРїРєРё &lt;Retry&gt; Рё &lt;Cancel&gt;</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_NONE">FMSG_NONE</a></td>
+    <td class="cont" width="60%">РќСѓР»РµРІРѕР№ С„Р»Р°Рі</td></tr>
+    </table>
     </div>
-
-    <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть комбинацией следующих значений (перечисление <a name="FARMESSAGEFLAGS">FARMESSAGEFLAGS</a>):
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="FMSG_WARNING">FMSG_WARNING</a></td>
-        <td class="cont" width="60%">Используются цвета &quot;Предупреждения&quot;
-          (обычно белые буквы на красном фоне).
-        </td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="FMSG_ERRORTYPE">FMSG_ERRORTYPE</a></td>
-        <td class="cont" width="60%">Если тип ошибки, возвращаемый функцией
-          <a href="win32/getlasterror.html">GetLastError</a>,
-          <a href="../defs/winerror.html">известен FAR'у</a> или Windows,
-          то описание ошибки будет показано в первых строках сообщения.
-          При этом строки, переданные плагином в функцию, сдвинутся вниз.
-        </td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="FMSG_KEEPBACKGROUND">FMSG_KEEPBACKGROUND</a></td>
-        <td class="cont" width="60%">Не перерисовывать фон сообщения.
-         </td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="FMSG_DOWN">FMSG_DOWN</a></td>
-        <td class="cont" width="60%">Показать сообщение двумя строками ниже.
-         </td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="FMSG_LEFTALIGN">FMSG_LEFTALIGN</a></td>
-        <td class="cont" width="60%">Использовать для строк сообщения выравнивание
-          влево (по умолчанию строки выводятся по центру).
-        </td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="FMSG_ALLINONE">FMSG_ALLINONE</a></td>
-        <td class="cont" width="60%">
-          В этом случае параметра <var>Items</var> не является массивом
-          указателей на строки - <dfn class=alert3>это УКАЗАТЕЛЬ на одну
-          строку</dfn>, в которой разделителем выводимых строк является
-          символ <code>'\n'</code>.
-        <p>Минимальное количество строк - 2 - заголовок и одна строка сообщения.
-        <p>При указании флага <dfn>FMSG_ALLINONE</dfn> параметр
-        <var>ItemsNumber</var> игнорируется и количество выводимых строк
-        вычисляется автоматически (с учетом флагов-кнопок FMSG_MB_*).
-        <p>Для подавления вывода заголовка при использовании флага <dfn>FMSG_ALLINONE</dfn>
-        начните строку с символа <code>'\n'</code>.
-        </td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_OK">FMSG_MB_OK</a></td>
-        <td class="cont" width="60%">Дополнительно выводится кнопка &lt;Ok&gt;</td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_OKCANCEL">FMSG_MB_OKCANCEL</a></td>
-        <td class="cont" width="60%">Дополнительно выводятся кнопки &lt;Ok&gt; и &lt;Cancel&gt;</td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_ABORTRETRYIGNORE">FMSG_MB_ABORTRETRYIGNORE</a></td>
-        <td class="cont" width="60%">Дополнительно выводятся кнопки &lt;Abort&gt;, &lt;Retry&gt; и &lt;Ignore&gt;</td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_YESNO">FMSG_MB_YESNO</a></td>
-        <td class="cont" width="60%">Дополнительно выводятся кнопки &lt;Yes&gt; и &lt;No&gt;</td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_YESNOCANCEL">FMSG_MB_YESNOCANCEL</a></td>
-        <td class="cont" width="60%">Дополнительно выводятся кнопки &lt;Yes&gt;, &lt;No&gt; и &lt;Cancel&gt;</td></tr>
-
-        <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_RETRYCANCEL">FMSG_MB_RETRYCANCEL</a></td>
-        <td class="cont" width="60%">Дополнительно выводятся кнопки &lt;Retry&gt; и &lt;Cancel&gt;</td></tr>
-
-</table>
-      </div>
-
-    <div class=dfn>HelpTopic</div>
-    <div class=dfndescr><a href="../language/helptopic.html">Тема подсказки</a>
-     в файле помощи связанная с сообщением.
-     Установите это значение в <code>NULL</code> если подсказка не
-     требуется.
-    </div>
-
-    <div class=dfn>Items</div>
-    <div class=dfndescr>Адрес массива с указателями на ASCIIZ строки.
-      Первая строка - заголовок сообщения, последние <var>ButtonsNumber</var>
-      строк - кнопки, все остальные строки принадлежат телу сообщения.<br>
-      Для отрисовки одинарной разделительной линии начните строку с
-      символа с кодом 1 (\x001).<br>
-      Для отрисовки двойной разделительной линии начните строку с
-      символа с кодом 2 (\x002).<br>
-      Смотрите также описание флага <a href="#FMSG_ALLINONE">FMSG_ALLINONE</a>.</div>
-    <div class=dfn>ItemsNumber</div>
-    <div class=dfndescr>Количество указателей в массиве <var>Items</var>.
-      Минимальное значение - 2 строки.</div>
-    <div class=dfn>ButtonsNumber</div>
-    <div class=dfndescr>Количество заключительных строк, которые будут
-      использоваться в качестве кнопок. При указании флагов FMSG_MB_*
-      параметр <var>ButtonsNumber</var> игнорируется.</div>
-
+  <div class=dfn>HelpTopic</div>
+    <div class=dfndescr><a href="../language/helptopic.html">РўРµРјР° РїРѕРґСЃРєР°Р·РєРё</a> РІ С„Р°Р№Р»Рµ РїРѕРјРѕС‰Рё СЃРІСЏР·Р°РЅРЅР°СЏ СЃ СЃРѕРѕР±С‰РµРЅРёРµРј. РЈСЃС‚Р°РЅРѕРІРёС‚Рµ СЌС‚Рѕ Р·РЅР°С‡РµРЅРёРµ РІ <code>NULL</code> РµСЃР»Рё РїРѕРґСЃРєР°Р·РєР° РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ.</div>
+  <div class=dfn>Items</div>
+    <div class=dfndescr>РђРґСЂРµСЃ РјР°СЃСЃРёРІР° СЃ СѓРєР°Р·Р°С‚РµР»СЏРјРё РЅР° Unicode СЃС‚СЂРѕРєРё. РџРµСЂРІР°СЏ СЃС‚СЂРѕРєР° - Р·Р°РіРѕР»РѕРІРѕРє СЃРѕРѕР±С‰РµРЅРёСЏ, РїРѕСЃР»РµРґРЅРёРµ <code>ButtonsNumber</code> СЃС‚СЂРѕРє - РєРЅРѕРїРєРё, РІСЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ СЃС‚СЂРѕРєРё РїСЂРёРЅР°РґР»РµР¶Р°С‚ С‚РµР»Сѓ СЃРѕРѕР±С‰РµРЅРёСЏ.<br>
+    Р”Р»СЏ РѕС‚СЂРёСЃРѕРІРєРё РѕРґРёРЅР°СЂРЅРѕР№ СЂР°Р·РґРµР»РёС‚РµР»СЊРЅРѕР№ Р»РёРЅРёРё РЅР°С‡РЅРёС‚Рµ СЃС‚СЂРѕРєСѓ СЃ СЃРёРјРІРѕР»Р° СЃ РєРѕРґРѕРј 1 (L"\1").<br>
+    Р”Р»СЏ РѕС‚СЂРёСЃРѕРІРєРё РґРІРѕР№РЅРѕР№ СЂР°Р·РґРµР»РёС‚РµР»СЊРЅРѕР№ Р»РёРЅРёРё РЅР°С‡РЅРёС‚Рµ СЃС‚СЂРѕРєСѓ СЃ СЃРёРјРІРѕР»Р° СЃ РєРѕРґРѕРј 2 (L"\2").<br>
+    РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ РѕРїРёСЃР°РЅРёРµ С„Р»Р°РіР° <a href="#FMSG_ALLINONE">FMSG_ALLINONE</a>.</div>
+  <div class=dfn>ItemsNumber</div>
+    <div class=dfndescr>РљРѕР»РёС‡РµСЃС‚РІРѕ СѓРєР°Р·Р°С‚РµР»РµР№ РІ РјР°СЃСЃРёРІРµ <code>Items</code>. РњРёРЅРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ - 2 СЃС‚СЂРѕРєРё.</div>
+  <div class=dfn>ButtonsNumber</div>
+    <div class=dfndescr>РљРѕР»РёС‡РµСЃС‚РІРѕ Р·Р°РєР»СЋС‡РёС‚РµР»СЊРЅС‹С… СЃС‚СЂРѕРє, РєРѕС‚РѕСЂС‹Рµ Р±СѓРґСѓС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РІ РєР°С‡РµСЃС‚РІРµ РєРЅРѕРїРѕРє. РџСЂРё СѓРєР°Р·Р°РЅРёРё С„Р»Р°РіРѕРІ <code>FMSG_MB_*</code>  РїР°СЂР°РјРµС‚СЂ <code>ButtonsNumber</code> РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-Функция возвращает -1, если пользователь отменил сообщение (или системе
-не удалось выделить достаточно памяти для внутренних буферов),
-или выбранный номер кнопки (для первой кнопки - 0, для второй - 1 и так далее).
+Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ <code>-1</code>, РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РѕС‚РјРµРЅРёР» СЃРѕРѕР±С‰РµРЅРёРµ (РёР»Рё СЃРёСЃС‚РµРјРµ РЅРµ СѓРґР°Р»РѕСЃСЊ РІС‹РґРµР»РёС‚СЊ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РїР°РјСЏС‚Рё РґР»СЏ РІРЅСѓС‚СЂРµРЅРЅРёС… Р±СѓС„РµСЂРѕРІ),
+РёР»Рё РІС‹Р±СЂР°РЅРЅС‹Р№ РЅРѕРјРµСЂ РєРЅРѕРїРєРё (РґР»СЏ РїРµСЂРІРѕР№ РєРЅРѕРїРєРё - <code>0</code>, РґР»СЏ РІС‚РѕСЂРѕР№ - <code>1</code> Рё С‚Р°Рє РґР°Р»РµРµ).
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 <ol>
-<li>До FAR Manager 1.70 beta 4 суммарное количество элементов сообщения (строк и кнопок) не могло превышать 13.
-<li>Если <var>ButtonsNumber</var> равен 0 (флаги FMSG_MB_* не используются)
-    и выведенное сообщение больше не нужно, то плагин <u>должен</u>
-    восстановить экран, используя функцию <a href="restorescreen.html">RestoreScreen</a>
-    или любым другим путем.
-<li>Если <var>ButtonsNumber</var> не равен 0, то экран восстанавливает сам FAR.
-<li>Диалог не выводится, если в качестве <var>Items</var> указан <code>NULL</code> или
-    количество элементов меньше двух.
-<li>При указании флагов-кнопок FMSG_MB_* параметр <var>ButtonsNumber</var>
-    игнорируется.
-<li>Кнопки могут иметь горячие клавиши.
-<li>При использовании флага FMSG_ALLINONE для корректной компиляции кода необходимо произвести
-          явное преобразование типов:
+<li>Р•СЃР»Рё <code>ButtonsNumber</code> СЂР°РІРµРЅ <code>0</code> (С„Р»Р°РіРё <code>FMSG_MB_*</code> РЅРµ РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ) Рё РІС‹РІРµРґРµРЅРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ Р±РѕР»СЊС€Рµ РЅРµ РЅСѓР¶РЅРѕ, С‚Рѕ РїР»Р°РіРёРЅ <u>РґРѕР»Р¶РµРЅ</u>
+РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ СЌРєСЂР°РЅ, РёСЃРїРѕР»СЊР·СѓСЏ С„СѓРЅРєС†РёСЋ <a href="restorescreen.html">RestoreScreen</a> РёР»Рё Р»СЋР±С‹Рј РґСЂСѓРіРёРј РїСѓС‚С‘Рј.
+<li>Р•СЃР»Рё <code>ButtonsNumber</code> РЅРµ СЂР°РІРµРЅ <code>0</code>, С‚Рѕ СЌРєСЂР°РЅ РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ СЃР°Рј Far Manager.
+<li>Р”РёР°Р»РѕРі РЅРµ РІС‹РІРѕРґРёС‚СЃСЏ, РµСЃР»Рё РІ РєР°С‡РµСЃС‚РІРµ <code>Items</code> СѓРєР°Р·Р°РЅ <code>NULL</code> РёР»Рё РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РјРµРЅСЊС€Рµ РґРІСѓС….
+<li>РџСЂРё СѓРєР°Р·Р°РЅРёРё С„Р»Р°РіРѕРІ-РєРЅРѕРїРѕРє <code>FMSG_MB_*</code> РїР°СЂР°РјРµС‚СЂ <code>ButtonsNumber</code> РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ.
+<li>РљРЅРѕРїРєРё РјРѕРіСѓС‚ РёРјРµС‚СЊ РіРѕСЂСЏС‡РёРµ РєР»Р°РІРёС€Рё.
+<li>РџСЂРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё С„Р»Р°РіР° <code>FMSG_ALLINONE</code> РґР»СЏ РєРѕСЂСЂРµРєС‚РЅРѕР№ РєРѕРјРїРёР»СЏС†РёРё РєРѕРґР° РЅРµРѕР±С…РѕРґРёРјРѕ РїСЂРѕРёР·РІРµСЃС‚Рё СЏРІРЅРѕРµ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ С‚РёРїРѕРІ:
 <table border=0><tr>
 <td>
-<pre class=code>Info.Message(Info.ModuleNumber,
-  FMSG_ALLINONE|FMSG_MB_OKCANCEL,
-  "HelpTopic",
-  <b>(const char * const *)</b>"Title\nItem1\nItem2\nItem3",
-  0,0);</pre>
-или
 <pre class=code>
-const char *Msg="Title\nItem1\nItem2\nItem3\nOk\nCancel";
-Info.Message(Info.ModuleNumber,
+  Info.Message(&MainGUID,&MsgGUID,
+  FMSG_ALLINONE|FMSG_MB_OKCANCEL,
+  L"HelpTopic",
+  <b>(const wchar_t * const *)</b>L"Title\nItem1\nItem2\nItem3",
+  0,0);</pre>
+РёР»Рё
+<pre class=code>
+const wchar_t *Msg=L"Title\nItem1\nItem2\nItem3\nOk\nCancel";
+Info.Message(&MainGUID,&MsgGUID,
   FMSG_ALLINONE,
-  "HelpTopic",
-  <b>(const char * const *)</b>Msg,
+  L"HelpTopic",
+  <b>(const wchar_t * const *)</b>Msg,
   0,2);</pre>
 </td>
 <td><img src="../../images/msg1.gif" width="110" height="96"></td>
 </tr></table>
-
 </ol>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
-  Следующая функция выводит на экран диалог-подтверждение на удаление файла:<br>
-  <img src="../../images/message.gif" width="234" height="63" alt="диалог-подтверждение на удаление файла">
-<pre class=code>BOOL IsDeleted(char *filename)
+РЎР»РµРґСѓСЋС‰Р°СЏ С„СѓРЅРєС†РёСЏ РІС‹РІРѕРґРёС‚ РЅР° СЌРєСЂР°РЅ РґРёР°Р»РѕРі-РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РЅР° СѓРґР°Р»РµРЅРёРµ С„Р°Р№Р»Р°:<br>
+<img src="../../images/message.gif" width="234" height="63" alt="РґРёР°Р»РѕРі-РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ РЅР° СѓРґР°Р»РµРЅРёРµ С„Р°Р№Р»Р°">
+<pre class=code>
+BOOL IsDeleted(wchar_t *filename)
 {
-  const char *Msg[5];
+  const wchar_t *Msg[5];
 
-  Msg[0]=GetMsg(MTitle);       // заголовок сообщения
-  Msg[1]=GetMsg(MIsDeleted);   // тело сообщения
+  Msg[0]=GetMsg(MTitle);       // Р·Р°РіРѕР»РѕРІРѕРє СЃРѕРѕР±С‰РµРЅРёСЏ
+  Msg[1]=GetMsg(MIsDeleted);   // С‚РµР»Рѕ СЃРѕРѕР±С‰РµРЅРёСЏ
   Msg[2]=filename;
-  Msg[3]=GetMsg(MDelete);      // последние ButtonsNumber (2) строк - кнопки
+  Msg[3]=GetMsg(MDelete);      // РїРѕСЃР»РµРґРЅРёРµ ButtonsNumber (2) СЃС‚СЂРѕРє - РєРЅРѕРїРєРё
   Msg[4]=GetMsg(MCancel);
 
-  return Info.Message(Info.ModuleNumber,
+  return Info.Message(&MainGUID,&MsgGUID,
                0,
-               "DeleteFile",
+               L"DeleteFile",
                Msg,
                sizeof(Msg)/sizeof(Msg[0]),
                2) == 0;
 }</pre>
 
-Причем, Info определяется как глобальная переменная:
+РџСЂРёС‡С‘Рј, Info РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РєР°Рє РіР»РѕР±Р°Р»СЊРЅР°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ:
 
 <pre class=code>struct <a href="../structures/pluginstartupinfo.html">PluginStartupInfo</a> Info;</pre>
 
-...а инициализируется она в функции <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>:
+...Р° РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚СЃСЏ РѕРЅР° РІ С„СѓРЅРєС†РёРё <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>:
 
-<pre class=code>void WINAPI _export SetStartupInfo(struct PluginStartupInfo *Info)
+<pre class=code>void WINAPI SetStartupInfoW(struct PluginStartupInfo *Info)
 {
   ...
   ::Info=*Info;
@@ -211,8 +161,9 @@ Info.Message(Info.ModuleNumber,
 
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialogapi/dialog.html">Dialog</a>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

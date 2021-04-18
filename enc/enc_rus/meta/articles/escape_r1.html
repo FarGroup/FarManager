@@ -1,35 +1,34 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-<title>"Обработка нажатия ESC или . . ."</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<title>"РћР±СЂР°Р±РѕС‚РєР° РЅР°Р¶Р°С‚РёСЏ ESC РёР»Рё . . ."</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <link REV="made" href="mailto:vmoshninov@newmail.ru">
 <meta name="Author" content="Vasily V. Moshninov">
-<meta name="description" content="Обработка нажатия ESC или . . .">
+<meta name="description" content="РћР±СЂР°Р±РѕС‚РєР° РЅР°Р¶Р°С‚РёСЏ ESC РёР»Рё . . .">
 <script language="JavaScript" src='../links.js' type="text/javascript"></script>
 </head>
 <body>
 
 <a name="top"></a>
-<h1>"Обработка нажатия ESC или . . ."</h1>
+<h1>"РћР±СЂР°Р±РѕС‚РєР° РЅР°Р¶Р°С‚РёСЏ ESC РёР»Рё . . ."</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">статьи</a> |
-<a href="escape.html">статья</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°С‚СЊРё</a> |
+<a href="escape.html">СЃС‚Р°С‚СЊСЏ</a>
 </div>
 
 <div align=right><code>
-<code>Василий Мошнинов <a href="mailto:Vasily%20V%2E%20Moshninov%20<vmoshninov@newmail.ru>?subject=Articles">
+<code>Р’Р°СЃРёР»РёР№ РњРѕС€РЅРёРЅРѕРІ <a href="mailto:Vasily%20V%2E%20Moshninov%20<vmoshninov@newmail.ru>?subject=Articles">
 <img src="../../images/email.gif" border="0" alt="[vmoshninov@newmail.ru]" width="16" height="16" align="middle">vmoshninov@newmail.ru</a>
 </code></div>
 <hr color="#003399">
 
-<p class=plain>Я бы предложил переписать функцию проверки на ESC
-по-другому. В свое время у меня были замечания по поводу того, что
-плагин <a target="_blank" href="http://plugring.farmanager.com/cgi-bin/downld.cgi?Draw=List&Select=PlugIn&SelectPlugIn=39">ProxyFtp</a>
-чистит буфер и нельзя делать &laquo;упреждающие нажатия&raquo; :)) клавиш. Поэтому такая
-функция была мной переписана вот так:
+<p class=plain>РЇ Р±С‹ РїСЂРµРґР»РѕР¶РёР» РїРµСЂРµРїРёСЃР°С‚СЊ С„СѓРЅРєС†РёСЋ РїСЂРѕРІРµСЂРєРё РЅР° ESC
+РїРѕ-РґСЂСѓРіРѕРјСѓ. Р’ СЃРІРѕС‘ РІСЂРµРјСЏ Сѓ РјРµРЅСЏ Р±С‹Р»Рё Р·Р°РјРµС‡Р°РЅРёСЏ РїРѕ РїРѕРІРѕРґСѓ С‚РѕРіРѕ, С‡С‚Рѕ
+РїР»Р°РіРёРЅ ProxyFtp С‡РёСЃС‚РёС‚ Р±СѓС„РµСЂ Рё РЅРµР»СЊР·СЏ РґРµР»Р°С‚СЊ &laquo;СѓРїСЂРµР¶РґР°СЋС‰РёРµ РЅР°Р¶Р°С‚РёСЏ&raquo; :)) РєР»Р°РІРёС€. РџРѕСЌС‚РѕРјСѓ С‚Р°РєР°СЏ
+С„СѓРЅРєС†РёСЏ Р±С‹Р»Р° РјРЅРѕР№ РїРµСЂРµРїРёСЃР°РЅР° РІРѕС‚ С‚Р°Рє:
 
 <pre class=code>function CheckForKey(vKey: word): boolean;
 const
@@ -71,9 +70,9 @@ Begin
   end;
 end;</pre>
 
-<p class=plain>Эта функция не чистит буфер клавиатуры, если искомого кода там нет.<br><br><br></p>
+<p class=plain>Р­С‚Р° С„СѓРЅРєС†РёСЏ РЅРµ С‡РёСЃС‚РёС‚ Р±СѓС„РµСЂ РєР»Р°РІРёР°С‚СѓСЂС‹, РµСЃР»Рё РёСЃРєРѕРјРѕРіРѕ РєРѕРґР° С‚Р°Рј РЅРµС‚.<br><br><br></p>
 
-<p class=plain>Вариант функции на C/C++: </div>
+<p class=plain>Р’Р°СЂРёР°РЅС‚ С„СѓРЅРєС†РёРё РЅР° C/C++: </div>
 
 <pre class=code>BOOL CheckForKey(WORD vKey)
 {
@@ -111,6 +110,6 @@ end;</pre>
 <br>&nbsp;<br>
 15.04.2000
 </code></div>
-<div class=seecont><a href="#top">наверх</a></div>
+<div class=seecont><a href="#top">РЅР°РІРµСЂС…</a></div>
 </body>
 </html>

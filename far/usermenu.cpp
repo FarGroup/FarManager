@@ -326,10 +326,13 @@ void UserMenu::SaveMenu(string_view const MenuFileName) const
 			return;
 		}
 
+		// Encoding could fail, so we need to prepare the data before touching the file
+		encoding::memory_writer Writer(m_MenuCP);
+		Writer.write(SerialisedMenu);
+
 		save_file_with_replace(MenuFileName, FileAttr, 0, false, [&](std::ostream& Stream)
 		{
-			encoding::writer Writer(Stream, m_MenuCP);
-			Writer.write(SerialisedMenu);
+			Writer.flush_to(Stream);
 		});
 	}
 	catch (const far_exception& e)

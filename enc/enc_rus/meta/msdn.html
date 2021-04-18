@@ -1,0 +1,44 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Внешняя ссылка</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Внешняя ссылка</h1>
+<div class="navbar">
+  <a href="index.html">главная</a>
+</div>
+
+<div class="descr">
+Запрашиваемая информация <span id="msdn"></span> находится где-то в дебрях
+<b><span id="msdn2"><a href="https://msdn.microsoft.com/library/" target="_blank">MSDN Library</a></span></b>.
+
+<script language="javascript" type="text/javascript"><!--
+if (document.images != null && navigator.userAgent.indexOf("Mozilla", 0) != -1)
+{
+	var f=document.location.href.indexOf("?");
+	if(f > 0)
+	{
+		var qu=document.location.href.substring(f+1);
+		if (qu.length > 0)
+		{
+			var quv=qu;
+			qu=qu.replace(/&/g, " ");
+			qu=qu.replace(/%3[CE]+/gi, " ");
+			qu=qu.replace(/</g, " ");
+			qu=qu.replace(/\>/g, " ");
+			msdn.innerHTML=" по <a href='https://social.msdn.microsoft.com/Search/?query=" + qu + "' target='_blank' style='font-weight:bold;'>" +quv+ "</a> ";
+			msdn2.innerHTML="MSDN Library";
+		}
+	}
+}
+//--></script>
+
+</body>
+
+</html>

@@ -95,7 +95,7 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
       <PrecompiledHeaderFile>headers.hpp</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)headers.pch</PrecompiledHeaderOutputFile>
       <WarningLevel>EnableAllWarnings</WarningLevel>
-      <DisableSpecificWarnings>5045</DisableSpecificWarnings>
+      <ExternalWarningLevel>Level4</ExternalWarningLevel>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>

@@ -1,99 +1,67 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.FarRecursiveSearch</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
--->
 <body>
 
 <h1>FarRecursiveSearch</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">FarStandardFunctions</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.FarRecursiveSearch</dfn> осуществляет рекурсивный поиск файлов.
+Р¤СѓРЅРєС†РёСЏ <code>FSF.FarRecursiveSearch</code> РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚ СЂРµРєСѓСЂСЃРёРІРЅС‹Р№ РїРѕРёСЃРє С„Р°Р№Р»РѕРІ.
 </div>
 
 <pre class=syntax>
 void WINAPI FarRecursiveSearch(
-  const char *InitDir,
-  const char *Mask,
+  const wchar_t *InitDir,
+  const wchar_t *Mask,
   <a href="../defs/frsuserfunc.html">FRSUSERFUNC</a> UserFunc,
-  DWORD Flags,
+  FRSMODE Flags,
   void *Param
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>InitDir</div>
-  <div class=dfndescr>Указывает на каталог, откуда начинается поиск,
-    например <code>"c:\far\plugins"</code></div>
-
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РєР°С‚Р°Р»РѕРі, РѕС‚РєСѓРґР° РЅР°С‡РёРЅР°РµС‚СЃСЏ РїРѕРёСЃРє, РЅР°РїСЂРёРјРµСЂ <code>L"c:\far\plugins"</code></div>
   <div class=dfn>Mask</div>
-  <div class=dfndescr>Указывает на маску файлов. Маска файла может быть
-       стандартного <a href="../filemasks.html">ФАРовского вида</a>.</div>
-
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РјР°СЃРєСѓ С„Р°Р№Р»РѕРІ. РњР°СЃРєР° С„Р°Р№Р»Р° РјРѕР¶РµС‚ Р±С‹С‚СЊ СЃС‚Р°РЅРґР°СЂС‚РЅРѕРіРѕ <a href="../other/dict.html#filemasks">Far Manager РІРёРґР°</a>.</div>
   <div class=dfn>UserFunc</div>
-  <div class=dfndescr>Указывает на функцию типа <a href="../defs/frsuserfunc.html">FRSUSERFUNC</a>,
-    которая будет вызываться для каждого найденного файла. Функция должна вернуть
-    <code>TRUE</code> для продолжения поиска файлов, или <code>FALSE</code> для
-    окончания поиска.
-  </div>
-
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° С„СѓРЅРєС†РёСЋ С‚РёРїР° <a href="../defs/frsuserfunc.html">FRSUSERFUNC</a>, РєРѕС‚РѕСЂР°СЏ Р±СѓРґРµС‚ РІС‹Р·С‹РІР°С‚СЊСЃСЏ РґР»СЏ РєР°Р¶РґРѕРіРѕ РЅР°Р№РґРµРЅРЅРѕРіРѕ С„Р°Р№Р»Р°. Р¤СѓРЅРєС†РёСЏ РґРѕР»Р¶РЅР° РІРµСЂРЅСѓС‚СЊ
+    <code>TRUE</code> РґР»СЏ РїСЂРѕРґРѕР»Р¶РµРЅРёСЏ РїРѕРёСЃРєР° С„Р°Р№Р»РѕРІ, РёР»Рё <code>FALSE</code> РґР»СЏ РѕРєРѕРЅС‡Р°РЅРёСЏ РїРѕРёСЃРєР°.</div>
   <div class=dfn>Flags</div>
-  <div class=dfndescr>Указывает на необходимое действие. Может быть следующим (перечисление <a name="FRSMODE">FRSMODE</a>):
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-  <tr class="cont"><td class="cont" width="40%"><a name="FRS_RETUPDIR">FRS_RETUPDIR</a></td>
-  <td class="cont" width="60%">По окончании поиска параметр <dfn>FullName</dfn>
-      функции <a href="../defs/frsuserfunc.html">UserFunc</a> будет содержать имя
-      каталога, в котором обнаружен заданный файл.
-    </td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a name="FRS_RECUR">FRS_RECUR</a></td>
-  <td class="cont" width="60%">Поиск заданного файла в дереве каталогов.</td></tr>
-
-  <tr class="cont"><td class="cont" width="40%"><a name="FRS_SCANSYMLINK">FRS_SCANSYMLINK</a></td>
-  <td class="cont" width="60%">Позволяет искать файлы в символических связях наравне с обычными подкаталогами.<br>
-  Если при помощи символических связей в файловой
-     системе образованы рекурсивные кольца (например, символическая связь указывает
-     на один из собственных родительских каталогов), поиск будет идти до достижения
-     максимально допустимой длины полного пути файлов.
-  </td></tr>
-    </table>
-   </div>
+    <div class=dfndescr>РЈРєР°Р·С‹РІР°РµС‚ РЅР° РЅРµРѕР±С…РѕРґРёРјРѕРµ РґРµР№СЃС‚РІРёРµ. РњРѕР¶РµС‚ Р±С‹С‚СЊ СЃР»РµРґСѓСЋС‰РёРј (С‚РёРї <a name="FRSMODE">FRSMODE</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Р¤Р»Р°Рі</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FRS_RETUPDIR">FRS_RETUPDIR</a></td>
+    <td class="cont" width="60%">РџРѕ РѕРєРѕРЅС‡Р°РЅРёРё РїРѕРёСЃРєР° РїР°СЂР°РјРµС‚СЂ <code>FullName</code> С„СѓРЅРєС†РёРё <a href="../defs/frsuserfunc.html">UserFunc</a> Р±СѓРґРµС‚ СЃРѕРґРµСЂР¶Р°С‚СЊ РёРјСЏ РєР°С‚Р°Р»РѕРіР°, РІ РєРѕС‚РѕСЂРѕРј РѕР±РЅР°СЂСѓР¶РµРЅ Р·Р°РґР°РЅРЅС‹Р№ С„Р°Р№Р».</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FRS_RECUR">FRS_RECUR</a></td>
+    <td class="cont" width="60%">РџРѕРёСЃРє Р·Р°РґР°РЅРЅРѕРіРѕ С„Р°Р№Р»Р° РІ РґРµСЂРµРІРµ РєР°С‚Р°Р»РѕРіРѕРІ.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FRS_SCANSYMLINK">FRS_SCANSYMLINK</a></td>
+    <td class="cont" width="60%">РџРѕР·РІРѕР»СЏРµС‚ РёСЃРєР°С‚СЊ С„Р°Р№Р»С‹ РІ СЃРёРјРІРѕР»РёС‡РµСЃРєРёС… СЃРІСЏР·СЏС… РЅР°СЂР°РІРЅРµ СЃ РѕР±С‹С‡РЅС‹РјРё РїРѕРґРєР°С‚Р°Р»РѕРіР°РјРё.</td></tr>
+    </table></div>
   <div class=dfn>Param</div>
-  <div class=dfndescr>Указатель на данные пользователя,
-    FAR его никак не обрабатывает, просто передает в <var>UserFunc</var>.</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РґР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ, Far Manager РµРіРѕ РЅРёРєР°Рє РЅРµ РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚, РїСЂРѕСЃС‚Рѕ РїРµСЂРµРґР°С‘С‚ РІ <code>UserFunc</code>.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-См. описание параметра <dfn>Flags</dfn>
+РЎРј. РѕРїРёСЃР°РЅРёРµ РїР°СЂР°РјРµС‚СЂР° <code>Flags</code>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
 <ol>
-<li>Если хотите использовать данные, переданные функции <dfn>UserFunc</dfn> по
-    окончании поиска, вы должны скопировать эти данные во внутренние переменные.
-<li><u>Для FAR вплоть до 1.70 beta 3</u>: Для перечисления всех файлов задайте маску файла
-    <var>Mask</var> равную "*".
-<li><u>Для FAR вплоть до 1.70 beta 3</u>: При рекурсивном поиске каталоги, в которых
-    производится поиск, тоже определяются на основании параметра <var>Mask</var>.
-    Поэтому  в  большинстве случаев при рекурсивном поиске следует указывать
-    маску "*" и в callback-функции при помощи функции
-    <a href="../service_functions/cmpname.html">CmpName</a>
-    определять, соответствует ли файл критериям поиска.
-<li>Если флаг <dfn>FRS_SCANSYMLINK</dfn> не указан, то независимо от настроек FAR, символические связи обрабатываться не будут.
-
+<li>Р•СЃР»Рё С…РѕС‚РёС‚Рµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РґР°РЅРЅС‹Рµ, РїРµСЂРµРґР°РЅРЅС‹Рµ С„СѓРЅРєС†РёРё <code>UserFunc</code> РїРѕ РѕРєРѕРЅС‡Р°РЅРёРё РїРѕРёСЃРєР°, РІС‹ РґРѕР»Р¶РЅС‹ СЃРєРѕРїРёСЂРѕРІР°С‚СЊ СЌС‚Рё РґР°РЅРЅС‹Рµ РІРѕ РІРЅСѓС‚СЂРµРЅРЅРёРµ РїРµСЂРµРјРµРЅРЅС‹Рµ.
+<li>Р•СЃР»Рё С„Р»Р°Рі <code>FRS_SCANSYMLINK</code> РЅРµ СѓРєР°Р·Р°РЅ, С‚Рѕ РЅРµР·Р°РІРёСЃРёРјРѕ РѕС‚ РЅР°СЃС‚СЂРѕРµРє Far Manager, СЃРёРјРІРѕР»РёС‡РµСЃРєРёРµ СЃСЃС‹Р»РєРё РѕР±СЂР°Р±Р°С‚С‹РІР°С‚СЊСЃСЏ РЅРµ Р±СѓРґСѓС‚.
 </ol>
 </div>
 

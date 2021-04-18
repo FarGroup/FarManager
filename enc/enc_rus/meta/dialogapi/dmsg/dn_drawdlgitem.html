@@ -1,8 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>DN_DRAWDLGITEM</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
@@ -10,68 +10,64 @@
 
 <h1>DN_DRAWDLGITEM</h1>
 <div class=navbar>
-<a  href="index_dn.html">События</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index_dn.html">СЃРѕР±С‹С‚РёСЏ</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_DRAWDLGITEM</dfn> посылается
-обработчику диалога <u>перед отрисовкой элемента</u> диалога.
+РЎРѕРѕР±С‰РµРЅРёРµ <code>DN_DRAWDLGITEM</code> РїРѕСЃС‹Р»Р°РµС‚СЃСЏ РѕР±СЂР°Р±РѕС‚С‡РёРєСѓ РґРёР°Р»РѕРіР° <b>РїРµСЂРµРґ РѕС‚СЂРёСЃРѕРІРєРѕР№ СЌР»РµРјРµРЅС‚Р°</b> РґРёР°Р»РѕРіР°.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента диалога, который будет отрисован.
+ID СЌР»РµРјРµРЅС‚Р° РґРёР°Р»РѕРіР°, РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ РѕС‚СЂРёСЃРѕРІР°РЅ.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../structures/fardialogitem.html">FarDialogItem</a>, описывающую элемент для отрисовки.
+РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ <a href="../../structures/fardialogitem.html">FarDialogItem</a>, РѕРїРёСЃС‹РІР°СЋС‰СѓСЋ СЌР»РµРјРµРЅС‚ РґР»СЏ РѕС‚СЂРёСЃРѕРІРєРё.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Если обработчик диалога вернет FALSE, то указанный элемент не будет выводится на экран.
+Р•СЃР»Рё РѕР±СЂР°Р±РѕС‚С‡РёРє РґРёР°Р»РѕРіР° РІРµСЂРЅС‘С‚ <code>FALSE</code>, С‚Рѕ СѓРєР°Р·Р°РЅРЅС‹Р№ СЌР»РµРјРµРЅС‚ РЅРµ Р±СѓРґРµС‚ РІС‹РІРѕРґРёС‚СЃСЏ РЅР° СЌРєСЂР°РЅ.
 </div>
 
-<h3>Элементы</h3>
+<h3>Р­Р»РµРјРµРЅС‚С‹</h3>
 <div class=descr>
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Все элементы диалога</td></tr>
+<tr class="cont"><th class="cont" width="40%">Р­Р»РµРјРµРЅС‚</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+<tr class="cont"><td class="cont" width="40%">Р’СЃРµ</td>
+<td class="cont" width="60%">Р’СЃРµ СЌР»РµРјРµРЅС‚С‹ РґРёР°Р»РѕРіР°</td></tr>
 </table>
 </div>
 
-<h3>Замечания</h3>
+<h3>Р—Р°РјРµС‡Р°РЅРёСЏ</h3>
 <div class=descr>
-Внешний вид <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>, в
-отличие от прочих элементов диалога, можно предварительно подготавливать
-в <a href="../controls/di_usercontrol.html#virtbuf">виртуальном буфере</a>.
-FAR Manager не копирует во внутренние переменные содержимое этого буфера,
-поэтому в ответ на событие <dfn>DN_DRAWDLGITEM</dfn> достаточно изменить состояние
-<a href="../controls/di_usercontrol.html#virtbuf">виртуального буфера</a>:
+Р’РЅРµС€РЅРёР№ РІРёРґ <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>, РІ РѕС‚Р»РёС‡РёРµ РѕС‚ РїСЂРѕС‡РёС… СЌР»РµРјРµРЅС‚РѕРІ РґРёР°Р»РѕРіР°, РјРѕР¶РЅРѕ РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ РїРѕРґРіРѕС‚Р°РІР»РёРІР°С‚СЊ
+РІ <a href="../controls/di_usercontrol.html#virtbuf">РІРёСЂС‚СѓР°Р»СЊРЅРѕРј Р±СѓС„РµСЂРµ</a>.
+Far Manager РЅРµ РєРѕРїРёСЂСѓРµС‚ РІРѕ РІРЅСѓС‚СЂРµРЅРЅРёРµ РїРµСЂРµРјРµРЅРЅС‹Рµ СЃРѕРґРµСЂР¶РёРјРѕРµ СЌС‚РѕРіРѕ Р±СѓС„РµСЂР°, РїРѕСЌС‚РѕРјСѓ РІ РѕС‚РІРµС‚ РЅР° СЃРѕР±С‹С‚РёРµ <code>DN_DRAWDLGITEM</code> РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РёР·РјРµРЅРёС‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ
+<a href="../controls/di_usercontrol.html#virtbuf">РІРёСЂС‚СѓР°Р»СЊРЅРѕРіРѕ Р±СѓС„РµСЂР°</a>:
 <pre class=code>
 case DN_DRAWDLGITEM:
-  CHAR_INFO *VBuf=((struct FarDialogItem*)Param2)-&gt;Param.VBuf;
+  FAR_CHAR_INFO *VBuf=((struct FarDialogItem*)Param2)-&gt;Param.VBuf;
   for (I=0; I &lt; 256; I++)
   {
-    VBuf[I].Char.AsciiChar = DecodeTable[I];
+    VBuf[I].Char = DecodeTable[I];
     VBuf[I].Attributes = Color;
   }
   return TRUE;
 </pre>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
-
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialogex.html">DialogEx</a><br>
-
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

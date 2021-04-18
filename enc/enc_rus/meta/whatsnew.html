@@ -1,535 +1,253 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-<title>Что нового в Far Manager Encyclopedia?</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<title>Р§С‚Рѕ РЅРѕРІРѕРіРѕ РІ Encyclopedia for Developers?</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../styles/styles.css">
 </head>
 <body>
 
-<h1>Что нового в Far Manager Encyclopedia 1.75 SR2555?</h1>
+<h1>Р§С‚Рѕ РЅРѕРІРѕРіРѕ РІ Encyclopedia for Developers?</h1>
 <div class=navbar>
-<a href="index.html">main</a>
+<a href="index.html">РіР»Р°РІРЅР°СЏ</a>
 </div>
 
-<h3>7 Октября 2009</h3>
+<h3>19 Р°РІРіСѓСЃС‚Р° 2018 Рі.</h3>
 <ul>
-  <li>Macro: уточнение функции <a href="macro/macrocmd/functions.html#checkhotkey">checkhotkey</a>.
-    <br><br>
-</ul>
-
-<h3>8 юиня 2009</h3>
-<ul>
-  <li>Начало процесса выхода за рамки "только описания АПИ"...<br>
-      Новые имена файлов FarEncyclopedia.en.chm и FarEncyclopedia.ru.chm.
-    <br><br>
-</ul>
-
-<h3>1 апреля 2009</h3>
-<ul>
-  <li>Добавлены флаги <a href="dialogapi/structures/farlistitem.html#LIF_HIDDEN">LIF_HIDDEN</a>, <a href="dialogapi/structures/farlistitem.html#LIF_GRAYED">LIF_GRAYED</a>,
-  <a href="structures/farmenuitemex.html#MIF_HIDDEN">MIF_HIDDEN</a>, <a href="structures/farmenuitemex.html#MIF_GRAYED">MIF_GRAYED</a>.
-    <br><br>
-
-  <li><a href="defs/farcolors.html">Цветовая палитра</a> увеличена на 10 цветов.
-    <br><br>
-</ul>
-
-<h3>4 марта 2009</h3>
-<ul>
-  <li>Macro: функция <a href="macro/macrocmd/functions.html#eval">Eval</a> теперь имеет второй аргумент, позволяющий только проверить макропоследовательность на корректность.
-    Так же описаны коды возврата функции.
-    <br><br>
-</ul>
-
-<h3>3 марта 2009</h3>
-<ul>
-  <li>Macro: функция <a href="macro/macrocmd/functions.html#menu.select">Menu.Select</a> возвращает -1, если вызвана не из контента (не из меню).
-    <br><br>
-</ul>
-
-
-<h3>2 марта 2009</h3>
-<ul>
-  <li>Macro: макросы можно назначать на клавиши мыши. В теле макропоследовательности доступны константы: MsX, MsY, MsButton, MsCtrlState.
-    <br><br>
-</ul>
-
-<h3>24 февраля 2009</h3>
-<ul>
-  <li>Macro: новая функция <a href="macro/macrocmd/functions.html#atoi">atoi</a> - преобразует число из строкового представления в числовое.
-    <br><br>
-</ul>
-
-<h3>23 января 2009</h3>
-<ul>
-  <li>Macro: дополнения и уточнения функционала у функции <a href="macro/macrocmd/functions.html#editor.sel">editor.sel</a> - работает в редакторе, в строках ввода в диалогах, в командной строке.
-    <br><br>
-
-  <li>Исправлены ошибки в <a href="service_functions/editorcontrol.html#ECTL_SELECT">ECTL_SELECT</a>:
-     <ul>
-     <li>отметка блока снимается всегда, даже если были неправильные параметры
-     <li>отметка блока снимается всегда, даже если указанной строки (BlockStartLine) нет (BlockStartLine больше количества строк в редакторе)
-     <li>если BlockHeight превышал количество строк в редакторе (например, пытаемся выделить блок, указывая последнюю строку,
-         а BlockHeight, например, равный 10), то EditorControl возвращал FALSE, хотя блок успешно выделялся.
-     <li>для BlockWidth, равным -1, получалось так, что для BTYPE_COLUMN "транзакция" пометки блока была неполной - это могло приводить к всевозможным проблемам с блоками.
-     </ul>
-
-    <br><br>
-</ul>
-
-<h3>16 января 2009</h3>
-<ul>
-  <li>Macro: функция <a href="macro/macrocmd/functions.html#waitkey">waitkey</a> имеет второй необязательный параметр - тип возвращаемого значения.
-    <br><br>
-
-  <li>Macro: новая функция <a href="macro/macrocmd/functions.html#editor.sel">editor.sel</a> позволяет манипулировать блоками в тексте.
-    <br><br>
-
-  <li>Macro: новая функция <a href="macro/macrocmd/functions.html#key">key</a> преобразует значение V в строковый эквивалент названия клавиши.
-    <br><br>
-
-  <li>Macro: Именованные клавиши (например, CtrlK) могут участвовать в любых выражениях; в этом случае они считаются как числа.
-    <br><br>
-</ul>
-
-
-<h3>26 ноября 2008</h3>
-<ul>
-  <li>Добавлен новый цвет в палитру - <a href="defs/farcolors.html#COL_EDITORSCROLLBAR">COL_EDITORSCROLLBAR</a>.
-    <br><br>
-</ul>
-
-
-<h3>6 ноября 2008</h3>
-<ul>
-  <li>Диалоги с флагом FDLG_SMALLDIALOG теперь отрисовываются с тенью. Чтобы запретить рисовать тень, укажите флаг FDLG_NODRAWSHADOW.
-    <br><br>
-</ul>
-
-<h3>24 сентября 2008 г.</h3>
-<ul>
-  <li>Новые флаги функции <a href="fsf/mklink.html">MkLink</a>: FLINK_SYMLINKFILE, FLINK_SYMLINKDIR, позволяющие создавать символические ссылки Windows Vista/2008. Флаг FLINK_SYMLINK переименован в FLINK_JUNCTION.
-    <br><br>
-</ul>
-
-<h3>11 августа 2008 г.</h3>
-<ul>
-  <li>В <a href="defs/farcolors.html">цветовую палитру</a> добавлен цвет пользовательского экрана.
-    <br><br>
-</ul>
-
-<h3>06 августа 2008 г.</h3>
-<ul>
-  <li>Macro: Комбинация CtrlBreak прерывает выполнение макроса.
-    <br><br>
-  <li>Macro: Добавлена функция <a href="macro/macrocmd/functions.html#trim">S=trim(S[,Mode])</a> - удаляет все пробельные символы.
-    <br><br>
-  <li>Viewer API: Команда <a href="service_functions/viewercontrol.html#VCTL_GETINFO">VCTL_GETINFO</a> возвращала значение WindowSizeY на 1 меньше реального значения.
-    <br><br>
-</ul>
-
-
-
-<h3>19 июня 2008 г.</h3>
-<ul>
-  <li>Macro: Теперь <a href="macro/macrocmd/states.html#Dlg.ItemType">Dlg.ItemType</a> "отдает" все то же самое, что возвращает Dlg.GetValue(XXX,1).
-    <br><br>
-</ul>
-
-
-<h3>17 июня 2008 г.</h3>
-<ul>
-  <li>Viewer API: добавлены два события <a href="exported_functions/processviewerevent.html#VE_GOTFOCUS">VE_GOTFOCUS</a> и <a href="exported_functions/processviewerevent.html#VE_KILLFOCUS">VE_KILLFOCUS</a>.
-    <br><br>
-</ul>
-
-
-<h3>15 мая 2008 г.</h3>
-<ul>
-  <li>В перечисление <a href="defs/fardialogsettings.html">FarDialogSettings</a> добавлены константы
-  FDIS_DELREMOVESBLOCKS и FDIS_MOUSECLICKOUTSIDECLOSESDIALOG, соответствующие настройкам диалогов
-  "Del удаляет блоки в строках ввода" и "Клик мыши вне диалога закрывает диалог".
-    <br><br>
-</ul>
-
-<h3>3 апреля 2008 г.</h3>
-<ul>
-  <li>Macro: добавлены функции для работы со стековыми закладками <a href="macro/macrocmd/functions.html">BM.XXX()</a>.
-    <br><br>
-</ul>
-
-
-<h3>30 марта 2008 г.</h3>
-<ul>
-  <li>6 новых команд EditorControl для управления позициями навигации ("стековыми закладками") в редакторе:<br>
-  <a href="service_functions/editorcontrol.html#ECTL_ADDSTACKBOOKMARK">ECTL_ADDSTACKBOOKMARK</a>,
-  <a href="service_functions/editorcontrol.html#ECTL_CLEARSTACKBOOKMARKS">ECTL_CLEARSTACKBOOKMARKS</a> и
-  <a href="service_functions/editorcontrol.html#ECTL_DELETESTACKBOOKMARK">ECTL_DELETESTACKBOOKMARK</a>
-  - создание и удаление позиций навигации,<br>
-  <a href="service_functions/editorcontrol.html#ECTL_GETSTACKBOOKMARKS">ECTL_GETSTACKBOOKMARKS</a>
-  - получение информации о позициях навигации,<br>
-  <a href="service_functions/editorcontrol.html#ECTL_NEXTSTACKBOOKMARK">ECTL_NEXTSTACKBOOKMARK</a> и
-  <a href="service_functions/editorcontrol.html#ECTL_PREVSTACKBOOKMARK">ECTL_PREVSTACKBOOKMARK</a>
-  - навигация в редакторе
-    <br><br>
-</ul>
-
-<h3>29 марта 2008 г.</h3>
-<ul>
-  <li>новый флаг панели: <a href="structures/panelinfo.html#PFLAGS_PANELLEFT">PFLAGS_PANELLEFT</a>.
-    <br><br>
-</ul>
-
-<h3>27 марта 2008 г.</h3>
-<ul>
-  <li>Macro: добавлена макрообласть "Consts" для хранения <a href="macro/macrocmd/consts.html">именованных констант</a>.
-    <br><br>
-</ul>
-
-<h3>25 марта 2008 г.</h3>
-<ul>
-  <li>В <a href="defs/farcolors.html">цветовую палитру</a> добавлены цвета для индикаторов длинных строк в меню, списках и комбинированных списках.
-    <br><br>
-
-  <li>Macro: Добавлена константа "<a href="macro/macrocmd/states.html#Editor.RealPos">Editor.RealPos</a>" - текущая позиция курсора в строке в редакторе без привязки к размеру табуляции.
-    <br><br>
-
-  <li>Macro: Некоторые функции могут иметь опциональные параметры.
-    <br><br>
-
-  <li>Macro: Новая функция <a href="macro/macrocmd/functions.html#prompt">prompt</a> - позволяет ввести одну строку текста.
-    <br><br>
-</ul>
-
-<h3>11 марта 2008 г.</h3>
-<ul>
-  <li>Macro: Новая функция <a href="macro/macrocmd/functions.html#akey">V=akey(N)</a> - возвращает имя или код клавиши, инициировавшей макрос.
-    <br><br>
-</ul>
-
-
-<h3>31 декабря 2007 г.</h3>
-<ul>
-  <li>API: Новая команда <a href="service_functions/advcontrol.html#ACTL_REDRAWALL">ACTL_REDRAWALL</a> - перерисовка всех окон FAR.
-    <br><br>
-</ul>
-
-<h3>23 декабря 2007 г.</h3>
-<ul>
-  <li>Меню плагинов можно вызывать из диалога.
-    <br><br>
-
-  <li>Плагин может экспортировать функцию <a href="exported_functions/processdialogevent.html">ProcessDialogEvent</a> для обработки событий, поступающих в диалог.
-    <br><br>
+<h3>РњРёРЅРёРјР°Р»СЊРЅРѕ РЅРµРѕР±С…РѕРґРёРјР°СЏ РІРµСЂСЃРёСЏ Far Manager - <a href="exported_functions/getglobalinfow.html">3.0.0.5258</a>.</h3>
+<li><a href="structures/openpanelinfo.html#OPIF_ADDDOTS">OPIF_ADDDOTS</a> РґРѕР±Р°РІР»СЏРµС‚ СЌР»РµРјРµРЅС‚ ".." РІСЃРµРіРґР°.
 
 </ul>
 
-<h3>14 декабря 2007 г.</h3>
+<h3>21 РёСЋРЅСЏ 2018 Рі.</h3>
 <ul>
-  <li>Macro: Добавлена в коллекцию функция <a href="macro/macrocmd/functions.html#replace">Result=replace(Str,Find,Replace,Cnt)</a>.
-    <br><br>
-
-  <li>API: Новая команда <a href="structures/actlkeymacro.html#MCMD_GETSTATE">MCMD_GETSTATE</a> для <a href="service_functions/advcontrol.html#ACTL_KEYMACRO">ACTL_KEYMACRO</a>, возвращает статус работы макродвижка.
-    <br><br>
-
-  <li>Macro: функция <a href="macro/macrocmd/functions.html#menu.select">Menu.Select</a> теперь с двумя параметрами.
-    <br><br>
+<h3>РњРёРЅРёРјР°Р»СЊРЅРѕ РЅРµРѕР±С…РѕРґРёРјР°СЏ РІРµСЂСЃРёСЏ Far Manager - <a href="exported_functions/getglobalinfow.html">3.0.0.5230</a>.</h3>
+<li>Р’ <a href="structures/farlistitem.html">FarListItem</a> РґРѕР±Р°РІР»РµРЅРѕ РїРѕР»Рµ <code>intptr_t UserData</code> РґР»СЏ Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёС… РґР°РЅРЅС‹С… СЃ СЌР»РµРјРµРЅС‚РѕРј СЃРїРёСЃРєР°.
 
 </ul>
 
-<h3>6 декабря 2007 г.</h3>
+<h3>25 С„РµРІСЂР°Р»СЏ 2018 Рі.</h3>
 <ul>
-  <li>2 новых эвента для панельного плагина: <a href="exported_functions/processevent.html#FE_GOTFOCUS">FE_GOTFOCUS</a> и <a href="exported_functions/processevent.html#FE_KILLFOCUS">FE_KILLFOCUS</a>.
-    <br><br>
-
-  <li>2 новых эвента для редакторного плагина: <a href="exported_functions/processeditorevent.html#EE_GOTFOCUS">EE_GOTFOCUS</a> и <a href="exported_functions/processeditorevent.html#EE_KILLFOCUS">EE_KILLFOCUS</a>.
-    <br><br>
-
-  <li>В диалогах, сразу после <a href="dialogapi/dmsg/dn_initdialog.html">DN_INITDIALOG</a> приходит <a href="dialogapi/dmsg/dn_gotfocus.html">DN_GOTFOCUS</a> для того элемента, который Focus=1.
-    <br><br>
+<h3>РњРёРЅРёРјР°Р»СЊРЅРѕ РЅРµРѕР±С…РѕРґРёРјР°СЏ РІРµСЂСЃРёСЏ Far Manager - <a href="exported_functions/getglobalinfow.html">3.0.0.5150</a>.</h3>
+<li>РґРѕР±Р°РІР»РµРЅР° СЃС‚Р°РЅРґР°СЂС‚РЅР°СЏ С„СѓРЅРєС†РёСЏ <a href="fsf/comparestrings.html">FSF.CompareStrings</a>, Р·Р°РјРµРЅСЏСЋС‰Р°СЏ <code>FSF.LStricmp</code>, <code>FSF.LStrnicmp</code> Рё РїРѕР·РІРѕР»СЏСЋС‰Р°СЏ СЃРѕСЂС‚РёСЂРѕРІР°С‚СЊ СЃС‚СЂРѕРєРё С‚Р°Рє Р¶Рµ, РєР°Рє Рё Far (РєР°Рє РёРјРµРЅРЅРѕ - РЅРµ РѕРіРѕРІРѕСЂРµРЅРѕ Рё Р·Р°РІРёСЃРёС‚ РѕС‚ РЅР°СЃС‚СЂРѕРµРє)
+<li>РћРїРёСЃР°РЅРёСЏ <code>FSF.LStricmp</code>, <code>FSF.LStrnicmp</code>, <code>FCTL_SETNUMERICSORT</code>, <code>FCTL_SETCASESENSITIVESORT</code>, <code>PFLAGS_NUMERICSORT</code>, <code>PFLAGS_CASESENSITIVESORT</code> СѓРґР°Р»РµРЅС‹.
 
 </ul>
 
-
-<h3>4 декабря 2007 г.</h3>
+<h3>03 С„РµРІСЂР°Р»СЏ 2015 Рі.</h3>
 <ul>
-  <li>Macro: Добавлена в коллекцию функция <a href="macro/macrocmd/functions.html#mod">n=mod(n1,n2)</a>.
-    <br><br>
-
-  <li>Macro: добавлена функция <a href="macro/macrocmd/functions.html#menu.select">N=Menu.Select(S)</a>. Позиционирует на первый пункт, содержащий подстроку S.
-    <br><br>
-
-  <li>Новый флаг <a href="dialogapi/flags/dif_noautocomplete.html">DIF_NOAUTOCOMPLETE</a> для строк редактирования - отключает автодополнение.
-    <br><br>
-
+<h3>РњРёРЅРёРјР°Р»СЊРЅРѕ РЅРµРѕР±С…РѕРґРёРјР°СЏ РІРµСЂСЃРёСЏ Far Manager - <a href="exported_functions/getglobalinfow.html">3.0.0.4261</a>.</h3>
+<li>РґРѕР±Р°РІР»РµРЅР° СЃС‚Р°РЅРґР°СЂС‚РЅР°СЏ С„СѓРЅРєС†РёСЏ <a href="fsf/farclock.html">FSF.FarClock</a> - С‚Рѕ Р¶Рµ, С‡С‚Рѕ <code>Far.UpTime</code> РІ РјР°РєСЂРѕСЃР°С…, РЅРѕ РІ РјРёРєСЂРѕСЃРµРєСѓРЅРґР°С… Рё СЃ РјРёРєСЂРѕСЃРµРєСѓРЅРґРЅС‹Рј СЂР°Р·СЂРµС€РµРЅРёРµРј
 </ul>
 
-<h3>12 октября 2007 г.</h3>
+<h3>16 РѕРєС‚СЏР±СЂСЏ 2014 Рі.</h3>
 <ul>
-  <li>Macro: Добавлена константа "<a href="macro/macrocmd/states.html#MacroArea">MacroArea</a>" - возвращает имя текущей макрообласти.
-    <br><br>
-
-  <li>Macro: Bof/Eof/Empty/Selected в панелях типа QView/Info/Tree возвращают значения для этих типов панелей. Для обычных панелей возвращают значения из командной строки.
-    <br><br>
+<h3>РњРёРЅРёРјР°Р»СЊРЅРѕ РЅРµРѕР±С…РѕРґРёРјР°СЏ РІРµСЂСЃРёСЏ Far Manager - <a href="exported_functions/getglobalinfow.html">3.0.0.4134</a>.</h3>
+<li>РґРѕР±Р°РІР»РµРЅ С„Р»Р°Рі РІ Editor API: <a href="structures/editorcolor.html#ECF_AUTODELETE">ECF_AUTODELETE</a>
 </ul>
 
-<h3>13 сентября 2007 г.</h3>
+<h3>21 РёСЋР»СЏ 2014 Рі.</h3>
 <ul>
-  <li>Теперь при открытом DI_COMBOBOX в диалоговую процедуру посылаются
-    события DN_KEY или DN_MOUSEEVENT. Управлять этим поведением можно с помощью
-    сообщений <a href="dialogapi/dmsg/dm_setcomboboxevent.html">DM_SETCOMBOBOXEVENT</a> и <a href="dialogapi/dmsg/dm_getcomboboxevent.html">DM_GETCOMBOBOXEVENT</a>.
-    <br><br>
+<h3>РњРёРЅРёРјР°Р»СЊРЅРѕ РЅРµРѕР±С…РѕРґРёРјР°СЏ РІРµСЂСЃРёСЏ Far Manager - <a href="exported_functions/getglobalinfow.html">3.0.0.4013</a>.</h3>
+<li>РґРѕР±Р°РІРёР»Р°СЃСЊ РєРѕРјР°РЅРґР° ECTL_GETTITLE
 </ul>
 
-
-<h3>30 августа 2007 г.</h3>
+<h3>21 РјР°СЂС‚Р° 2014 Рі.</h3>
 <ul>
-  <li>Bug: Macro: Если пункт меню не содержит горячую клавишу, то <a href="macro/macrocmd/functions.html">GetHotkey()</a> возвращает "0" вместо ""
-    <br><br>
-
-  <li>Macro: Добавлена команда <a href="macro/macrocmd/selword.html">$SelWord</a> - выделяет слово.
-    <br><br>
-
-  <li>Bug: Macro: В панелях быстрого просмотра и информации не работали некоторые переменные: ItemCount, CurPos, Selected, Bof, Eof всегда 0; Empty всегда 1.
-    <br><br>
-
+<h3>РњРёРЅРёРјР°Р»СЊРЅРѕ РЅРµРѕР±С…РѕРґРёРјР°СЏ РІРµСЂСЃРёСЏ Far Manager - <a href="exported_functions/getglobalinfow.html">3.0.0.3838, СЂРµР»РёР·</a>.</h3>
+<li>РґРѕР±Р°РІРёР»РѕСЃСЊ СЃРѕРѕР±С‰РµРЅРёРµ DM_GETDIALOGTITLE
+<li>РґРѕР±Р°РІРёР»РѕСЃСЊ СЃРѕРѕР±С‰РµРЅРёРµ DN_DRAWDLGITEMDONE
+<li>РґРѕР±Р°РІРёР»РѕСЃСЊ СЃРѕРѕР±С‰РµРЅРёРµ DN_DROPDOWNOPENED
+<li><a href="defs/guid.html">РёР·РІРµСЃС‚РЅС‹Рµ GUID</a> РґРёР°Р»РѕРіРѕРІ Рё РјРµРЅСЋ Far Manager
 </ul>
 
-<h3>7 августа 2007 г.</h3>
+<h3>16 РЅРѕСЏР±СЂСЏ 2013 Рі.</h3>
 <ul>
-  <li>Bug: Если плагин для списка отключал реакцию слежения за курсором мыши
-    (<a href="dialogapi/dmsg/dm_listsetmousereaction.html#LMRT_NEVER">LMRT_NEVER</a>), то в диалоговую процедуру не приходило событие DN_MOUSECLICK
-    для двойного клика мыши (Mantis#0000309)
-    <br><br>
-
-  <li>В структуре <a href="structures/pluginpanelitem.html">PluginPanelItem</a> вместо <a href="winapi/win32_find_data.html">WIN32_FIND_DATA</a> используется
-    структура <a href="defs/far_find_data.html">FAR_FIND_DATA</a>. Вместо макроса _FAR_USE_FARFINDDATA необходимо
-    использовать <a href="defs/_far_use_win32_find_data.html">_FAR_USE_WIN32_FIND_DATA</a>.
-    <br><br>
-
+<h3>РњРёРЅРёРјР°Р»СЊРЅРѕ РЅРµРѕР±С…РѕРґРёРјР°СЏ РІРµСЂСЃРёСЏ Far Manager - <a href="exported_functions/getglobalinfow.html">3.0.0.3714, СЂРµР»РёР·</a>.</h3>
+<li>РґРѕР±Р°РІР»РµРЅ С‚РёРї СЃРѕР±С‹С‚РёСЏ РІ Panel API: <a href="structures/processpaneleventinfo.html#FE_CHANGESORTPARAMS">FE_CHANGESORTPARAMS</a>
 </ul>
 
-<h3>23 июля 2007 г.</h3>
+<h3>30 РјР°СЏ 2013 Рі.</h3>
 <ul>
-  <li>Добавлены команды <a href="dialogapi/dmsg/dm_geteditposition.html">DM_GETEDITPOSITION</a> и <a href="dialogapi/dmsg/dm_seteditposition.html">DM_SETEDITPOSITION</a> - управление позицией строки в строках ввода в диалогах.
-    <br><br>
-
+<h3>РњРёРЅРёРјР°Р»СЊРЅРѕ РЅРµРѕР±С…РѕРґРёРјР°СЏ РІРµСЂСЃРёСЏ Far Manager - <a href="exported_functions/getglobalinfow.html">3.0.0.3436</a>.</h3>
+<li><code>KMFLAGS_DISABLEOUTPUT</code> С‚РµРїРµСЂСЊ СЏРІР»СЏРµС‚СЃСЏ Р·РЅР°С‡РµРЅРёРµРј РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ Рё РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ Far Manager'РѕРј
+<li>РґРѕР±Р°РІР»РµРЅ РЅРѕРІС‹Р№ С„Р»Р°Рі <code>KMFLAGS_ENABLEOUTPUT<code>
 </ul>
 
-<h3>5 июля 2007 г.</h3>
+<h3>28 Р°РїСЂРµР»СЏ 2013 Рі.</h3>
 <ul>
-  <li>Macro: добавлена функция <a href="macro/macrocmd/functions.html#gethotkey">gethotkey</a>.
-    <br><br>
-
-  <li>Macro: Не воспринимались переменные начинающиеся с цифр (например, %3DO).
-    <br><br>
-
-  <li>Bug: <a href="dialogapi/dmsg/dm_listgetcurpos.html">DM_LISTGETCURPOS</a> возвращал неправильное значение после открытия ComboBox`а, навигации по списку с последующим отказом от выбора (нажали Esc).
-    <br><br>
-
+<h3>РњРёРЅРёРјР°Р»СЊРЅРѕ РЅРµРѕР±С…РѕРґРёРјР°СЏ РІРµСЂСЃРёСЏ Far Manager - <a href="exported_functions/getglobalinfow.html">3.0.0.3371, СЂРµР»РёР·</a>.</h3>
+<li>РґРѕР±Р°РІР»РµРЅС‹ РєРѕРјР°РЅРґС‹ Info.EditorControl: ECTL_SUBSCRIBECHANGEEVENT, ECTL_UNSUBSCRIBECHANGEEVENT
 </ul>
 
-<h3>31 мая 2007 г.</h3>
+<h3>22 РјР°СЂС‚Р° 2013 Рі.</h3>
 <ul>
-  <li>Macro: добавлена функция <a href="macro/macrocmd/functions.html#panel.setposidx">Panel.SetPosIdx</a> - позиционирование на файловой панели по индексу.
-    <br><br>
-
+<h3>РњРёРЅРёРјР°Р»СЊРЅРѕ РЅРµРѕР±С…РѕРґРёРјР°СЏ РІРµСЂСЃРёСЏ Far Manager - <a href="exported_functions/getglobalinfow.html">3.0.0.3265, СЂРµР»РёР·</a>.</h3>
+<li>РґРѕР±Р°РІР»РµРЅР° РєРѕРјР°РЅРґР° РІ Panel API: FCTL_SETACTIVEPANEL
 </ul>
 
-<h3>10 мая 2007 г.</h3>
+<h3>14 РґРµРєР°Р±СЂСЏ 2012 Рі.</h3>
 <ul>
-  <li>Macro: новые функции <a href="macro/macrocmd/functions.html#asc">asc()</a> и
-     <a href="macro/macrocmd/functions.html#chr">chr</a>.
-    <br><br>
-
+<h3>РњРёРЅРёРјР°Р»СЊРЅРѕ РЅРµРѕР±С…РѕРґРёРјР°СЏ РІРµСЂСЃРёСЏ Far Manager - <a href="exported_functions/getglobalinfow.html">3.0.0.3013, СЂРµР»РёР·</a>.</h3>
+<li>РґРѕР±Р°РІР»РµРЅС‹ С„Р»Р°РіРё РІ Dialog API: DIF_SEPARATORUSER, DIF_RIGHTTEXT Рё DIF_WORDWRAP
 </ul>
 
-<h3>23 марта 2007 г.</h3>
+<h3>04 РЅРѕСЏР±СЂСЏ 2012 Рі.</h3>
 <ul>
-  <li>Макросы в реестре могут иметь тип REG_MULTI_SZ.
-    <br><br>
-  <li>Добавлен флаг <a href="structures/actlkeymacro.html#KSFLAGS_REG_MULTI_SZ">KSFLAGS_REG_MULTI_SZ</a>.
-    <br><br>
-
+<h3>Р—Р°РІРµСЂС€РёР»СЃСЏ Р°РєС‚РёРІРЅС‹Р№ СЌС‚Р°Рї РёР·РјРµРЅРµРЅРёР№ Plugins API v3.0</h3>
+<h3>РњРёРЅРёРјР°Р»СЊРЅРѕ РЅРµРѕР±С…РѕРґРёРјР°СЏ РІРµСЂСЃРёСЏ Far Manager - <a href="exported_functions/getglobalinfow.html">3.0.0.2927, СЂРµР»РёР·</a>.</h3>
+<li>РёР·РјРµРЅРµРЅРёСЋ РїРѕРґРІРµСЂРіР»РѕСЃСЊ РїРѕРґР°РІР»СЏСЋС‰РµРµ Р±РѕР»СЊС€РёРЅСЃС‚РІРѕ С„СѓРЅРєС†РёР№ Рё СЃС‚СЂСѓРєС‚СѓСЂ API,<br>
+    РїР»Р°РіРёРЅС‹, <u>РЅР°РїРёСЃР°РЅРЅС‹Рµ РґР»СЏ РїСЂРµРґС‹РґСѓС‰РёС… РІРµСЂСЃРёР№ СѓРЅРёРєРѕРґРЅРѕРіРѕ Far Manager</u>, С‚СЂРµР±СѓРµС‚СЃСЏ Р°РґР°РїС‚РёСЂРѕРІР°С‚СЊ!<br>
 </ul>
 
-<h3>14 марта 2007 г.</h3>
+<h3>03 Р¤РµРІСЂР°Р»СЏ 2011 Рі.</h3>
 <ul>
-  <li>После вызова <a href="service_functions/editorcontrol.html#ECTL_SELECT">EditorControl(ECTL_SELECT)</a> с установленным значением
-      поля <a href="structures/editorselect.html">BlockStartLine</a> = -1, последующий вызов
-      <a href="service_functions/editorcontrol.html#ECTL_GETINFO">ECTL_GETINFO</a> так же возвращал -1 в поле <a href="structures/editorinfo.html">BlockStartLine</a>.
-    <br><br>
-
+<h3>Р’РЅРёРјР°РЅРёРµ! РќР°С‡Р°Р»СЃСЏ РІС‚РѕСЂРѕР№ СЌС‚Р°Рї РёР·РјРµРЅРµРЅРёР№ Plugins API - РІРµСЂСЃРёСЏ API С‚РµРїРµСЂСЊ v3.0</h3>
 </ul>
 
 
-
-<h3>13 марта 2007 г.</h3>
+<h3>01 С„РµРІСЂР°Р»СЏ 2011 Рі.</h3>
 <ul>
-  <li>Macro: новые функции <a href="macro/macrocmd/functions.html#waitkey">waitkey()</a> и
-     <a href="macro/macrocmd/functions.html#eval">eval</a>.
-    <br><br>
+<h3>Р§С‚Рѕ РёР·РјРµРЅРёР»РѕСЃСЊ РІ Plugins API v2.0 РІ СЃСЂР°РІРЅРµРЅРёРё c Plugins API v1.0</h3>
+<li>РіР»РѕР±Р°Р»СЊРЅРѕ char/char* Р·Р°РјРµРЅРµРЅС‹ РЅР° wchar_t/wchar_t*
+<li>РіР»РѕР±Р°Р»СЊРЅРѕ С„РёРєСЃРёСЂРѕРІР°РЅРЅС‹Рµ РјР°СЃСЃРёРІС‹ char[n] Р·Р°РјРµРЅРµРЅС‹ РЅР° СѓРєР°Р·Р°С‚РµР»Рё wchar_t* РЅР° Р±СѓС„РµСЂС‹ РІС‹РґРµР»СЏРµРјС‹Рµ РїР»Р°РіРёРЅРѕРј
+<li>Р¤РђР  РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚ SetCurrentDirectoryW() РїСЂРё РЅР°РІРёРіР°С†РёРё РїРѕ РїР°РїРєР°Рј, РєР°Рє СЃР»РµРґСЃС‚РІРёРµ, Р±РѕРЅСѓСЃС‹:<br>
+- С…РѕР¶РґРµРЅРёРµ РїРѕ РїР°РїРєР°Рј РіР»СѓР±Р¶Рµ MAX_PATH;<br>
+- РІС…РѕРґ РІ РїР°РїРєРё, РѕРєР°РЅС‡РёРІР°СЋС‰РёРµСЃСЏ С‚РѕС‡РєР°РјРё, РїСЂРѕР±РµР»Р°РјРё Рё РїСЂРѕС‡РёРј;<br>
+- РїР°РїРєР°, РѕС‚РєСЂС‹С‚Р°СЏ РЅР° РїР°РЅРµР»Рё, РЅРµ Р±Р»РѕРєРёСЂСѓРµС‚СЃСЏ РѕС‚ СѓРґР°Р»РµРЅРёСЏ РёР·РІРЅРµ;
+<li>РёР·РјРµРЅРёР»Р°СЃСЊ СЃРёРЅС…СЂРѕРЅРёР·Р°С†РёСЏ CurrentDirectory Р¤РђР Р°:<br>
+- РєРѕРјР°РЅРґР° Info.Control - FCTL_GETCURRENTDIRECTORY РїРµСЂРµРёРјРµРЅРѕРІР°РЅР° РІ FCTL_GETPANELDIR<br>
+- РІРјРµСЃС‚Рѕ Info.Control - FCTL_GETCURRENTDIRECTORY РёСЃРїРѕР»СЊР·СѓР№С‚Рµ FSF.GetCurrentDirectory()<br>
+- РІРјРµСЃС‚Рѕ ConvertNameToFullW() РёСЃРїРѕР»СЊР·СѓР№С‚Рµ FSF.ConvertPath()
+<li>РѕРїРёСЃР°С‚РµР»Рё CURRENT_PANEL/ANOTHER_PANEL РїРµСЂРµРёРјРµРЅРѕРІР°РЅС‹ РІ PANEL_ACTIVE/PANEL_PASSIVE
+<li>С„СѓРЅРєС†РёСЏ Info.GetPluginDirList() РёР·РјРµРЅРµРЅР°, РІРјРµСЃС‚Рѕ INVALID_HANDLE_VALUE РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ PANEL_ACTIVE/PANEL_PASSIVE
+<li>РјР°РєСЂРѕСЃР° NM Р±РѕР»СЊС€Рµ РЅРµС‚
+<li>СЃС‚СЂСѓРєС‚СѓСЂР° PluginPanelItem.FindData РёР·РјРµРЅРµРЅР°
+<li>РїСЂРѕРІРµСЂРєРё РЅР° СЂР°Р·РјРµСЂ PluginPanelItem Р±РѕР»СЊС€Рµ РЅРµС‚
+<li>РІ СЃС‚СЂСѓРєС‚СѓСЂРµ OpenPluginInfo.InfoPanelLine - РјР°СЃСЃРёРІ СЃС‚СЂСѓРєС‚СѓСЂ Р·Р°РјРµРЅС‘РЅ РЅР° РјР°СЃСЃРёРІ СѓРєР°Р·Р°С‚РµР»РµР№
+<li>С„СѓРЅРєС†РёСЏ Info.Control() РёР·РјРµРЅРµРЅР°, Сѓ РЅРµР№ С‚РµРїРµСЂСЊ РІРјРµСЃС‚Рѕ С‚СЂС‘С… - Р§Р•РўР«Р Р• РїР°СЂР°РјРµС‚СЂР°!
+<li>РёР·РјРµРЅРµРЅР° СЃС‚СЂСѓРєС‚СѓСЂР° PanelInfo: СѓР±СЂР°РЅС‹ СЌР»РµРјРµРЅС‚С‹ PanelItems, SelectedItems, ColumnTypes, ColumnWidths, CurDir
+<li>РєРѕРјР°РЅРґС‹ Info.Control - FCTL_GETPANELSHORTINFO Р±РѕР»СЊС€Рµ РЅРµС‚, РµС‘ С„СѓРЅРєС†РёСЋ РІС‹РїРѕР»РЅСЏРµС‚ FCTL_GETPANELINFO
+<li>РІ РєРѕРјР°РЅРґРµ Info.Control - FCTL_GETCMDLINE РїР°РјСЏС‚СЊ РїРѕРґ Р±СѓС„РµСЂ РїР»Р°РіРёРЅ РІС‹РґРµР»СЏРµС‚ СЃР°Рј
+<li>РІ РєРѕРјР°РЅРґРµ Info.Control - FCTL_SELECTEDTEXT РїР°РјСЏС‚СЊ РїРѕРґ Р±СѓС„РµСЂ РїР»Р°РіРёРЅ РІС‹РґРµР»СЏРµС‚ СЃР°Рј
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_GETWCHARMODE СѓРґР°Р»РµРЅР°
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_CONSOLEMODE СѓРґР°Р»РµРЅР°
+<li>РєРѕРјР°РЅРґР° Info.EditorControl - ECTL_EDITORTOOEM СѓРґР°Р»РµРЅР°
+<li>РєРѕРјР°РЅРґР° Info.EditorControl - ECTL_OEMTOEDITOR СѓРґР°Р»РµРЅР°
+<li>РєРѕРјР°РЅРґР° Info.EditorControl - ECTL_SETTITLE, С‚РµРїРµСЂСЊ РїР»Р°РіРёРЅ СЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅРѕ РґРѕР»Р¶РµРЅ РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°С‚СЊ "Р·Р°РіРѕР»РѕРІРѕРє"
+<li>РєРѕРјР°РЅРґР° FCTL_SETSELECTION РёР·РјРµРЅРµРЅР° РЅР° СЃРёСЃС‚РµРјСѓ РєРѕРјР°РЅРґ:<br>
+- FCTL_BEGINSELECTION<br>
+- FCTL_SETSELECTION<br>
+- FCTL_ENDSELECTION
+<li>РІ Info.AdvControl - ACTL_WAITKEY С‚РµРїРµСЂСЊ РїСЂРёС…РѕРґСЏС‚ Рё РјР°РєСЂРѕРєРЅРѕРїРєРё
+<li>РІ С„СѓРЅРєС†РёРё Info.Message СѓРґР°Р»С‘РЅ С„Р»Р°Рі FMSG_DOWN
+<li>РїР°РјСЏС‚СЊ РїРѕРґ WindowInfo::TypeName РІС‹РґРµР»СЏРµС‚ РїР»Р°РіРёРЅ
+<li>РїР°РјСЏС‚СЊ РїРѕРґ WindowInfo::Name РІС‹РґРµР»СЏРµС‚ РїР»Р°РіРёРЅ
+<li>С„СѓРЅРєС†РёРё FSF.ConvertNameToReal() Р±РѕР»СЊС€Рµ РЅРµС‚
+<li>С„СѓРЅРєС†РёРё FSF.ExpandEnvironmentStr() Р±РѕР»СЊС€Рµ РЅРµС‚
+<li>С„СѓРЅРєС†РёСЏ FSF.GetDirList() РёР·РјРµРЅРµРЅР°
+<li>С„СѓРЅРєС†РёСЏ FSF.MkTemp() РёР·РјРµРЅРµРЅР°
+<li>С„СѓРЅРєС†РёСЏ FSF.GetFileOwner() РёР·РјРµРЅРµРЅР°
+<li>С„СѓРЅРєС†РёСЏ FSF.FarKeyToName() РёР·РјРµРЅРµРЅР°
+<li>С„СѓРЅРєС†РёСЏ WINAPI PutFilesW() РёР·РјРµРЅРµРЅР°
+<li>С„СѓРЅРєС†РёСЏ WINAPI MakeDirectoryW() РёР·РјРµРЅРµРЅР°
+<li>С„СѓРЅРєС†РёСЏ WINAPI GetFilesW() РёР·РјРµРЅРµРЅР°
+<li>С„Р»Р°РіР° OPIF_FINDFOLDERS Р±РѕР»СЊС€Рµ РЅРµС‚
+<li>СЃС‚СЂСѓРєС‚СѓСЂС‹ FARINT64 Р±РѕР»СЊС€Рµ РЅРµС‚
+<li>СЃС‚СЂСѓРєС‚СѓСЂС‹ EditorConvertText Р±РѕР»СЊС€Рµ РЅРµС‚
+<li>РёР·РјРµРЅРµРЅР° СЃС‚СЂСѓРєС‚СѓСЂР° EditorInfo: СѓР±СЂР°РЅ СЌР»РµРјРµРЅС‚ FileName
+<li>РёР·РјРµРЅРёР»Р°СЃСЊ СЃРёСЃС‚РµРјС‹ РєРѕРјР°РЅРґ Info.GetDirList/GetPluginDirList Рё Info.FreeDirList/FreePluginDirList
+<li>РєРѕРјР°РЅРґР° EditorSetParameter - ESPT_GETWORDDIV РёР·РјРµРЅРµРЅР°
+<li>С‚Р°Р±Р»РёС† РєРѕРґРёСЂРѕРІРєРё Р±РѕР»СЊС€Рµ РЅРµС‚, РІСЃРµ Table С‚РµРїРµСЂСЊ CodePage
+<li>РїР»Р°РіРёРЅС‹ РІ Viewer/Editor РјРѕРіСѓС‚ С‚РµРїРµСЂСЊ РїРµСЂРµРґР°РІР°С‚СЊ РєРѕРЅРєСЂРµС‚РЅС‹Рµ РєРѕРґРѕРІС‹Рµ СЃС‚СЂР°РЅРёС†С‹
+<li>РёР·РјРµРЅРµРЅРёСЏ РІ Dialog API:<br>
+- РіР»Р°РІРЅРѕРµ РѕС‚Р»РёС‡РёРµ РѕС‚ СЃС‚Р°СЂРѕРіРѕ Dialog API, СЌС‚Рѕ С‚Рѕ, С‡С‚Рѕ РјР°СЃСЃРёРІ СЃС‚СЂСѓРєС‚СѓСЂ FarDialogItem
+  СЏРІР»СЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РІС…РѕРґРЅС‹Рј, РІ РЅРµРіРѕ РЅРµ РїРёС€СѓС‚СЃСЏ РёР·РјРµРЅРµРЅРёСЏ РїСЂРё Р·Р°РєСЂС‹С‚РёРё РґРёР°Р»РѕРіР°<br>
+- СЃС‚СЂСѓРєС‚СѓСЂР° FarDialogItem РёР·РјРµРЅРµРЅР°<br>
+- С„СѓРЅРєС†РёР№ Dialog() Рё DialogEx() Р±РѕР»СЊС€Рµ РЅРµС‚<br>
+- РІРјРµСЃС‚Рѕ РЅРёС… DialogInit(), DialogRun(), DialogFree()<br>
+- СЃРѕРѕР±С‰РµРЅРёРµ DM_GETDLGITEM РёР·РјРµРЅРµРЅРѕ, Param2 СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РїР°РјСЏС‚СЊ РєСѓРґР° Р±СѓРґРµС‚ СЃРєРѕРїРёСЂРѕРІР°РЅ СЌР»РµРјРµРЅС‚<br>
+- СЃРѕР±С‹С‚РёРµ DN_EDITCHANGE РїСЂРёС…РѕРґРёС‚ РїСЂРё Р»СЋР±С‹С… РёР·РјРµРЅРµРЅРёСЏС… РІ СЃС‚СЂРѕРєРµ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ<br>
+- СЃРѕР±С‹С‚РёРµ DN_LISTHOTKEY РїСЂРёС…РѕРґРёС‚ РІ РєРѕРјР±РёРЅРёСЂРѕРІР°РЅРЅС‹Р№ СЃРїРёСЃРѕРє<br>
+- РґРѕР±Р°РІРёР»РѕСЃСЊ СЃРѕРѕР±С‰РµРЅРёРµ DM_GETCONSTTEXTPTR<br>
+- РґРѕР±Р°РІРёР»РѕСЃСЊ СЃРѕРѕР±С‰РµРЅРёРµ DM_GETDLGITEMSHORT<br>
+- РґРѕР±Р°РІРёР»РѕСЃСЊ СЃРѕРѕР±С‰РµРЅРёРµ DM_SETDLGITEMSHORT<br>
+- РґРѕР±Р°РІРёР»РѕСЃСЊ СЃРѕРѕР±С‰РµРЅРёРµ DM_GETDIALOGTITLE<br>
+- РґРѕР±Р°РІРёР»РѕСЃСЊ СЃРѕРѕР±С‰РµРЅРёРµ DN_DRAWDLGITEMDONE<br>
+- РґРѕР±Р°РІРёР»РѕСЃСЊ СЃРѕРѕР±С‰РµРЅРёРµ DN_DROPDOWNOPENED<br>
+- РґРѕР±Р°РІРёР»СЃСЏ С„Р»Р°Рі DIF_EDITPATH<br>
+- РґРѕР±Р°РІРёР»СЃСЏ С„Р»Р°Рі FIB_EDITPATH<br>
+- РґРѕР±Р°РІРёР»СЃСЏ С„Р»Р°Рі FDLG_KEEPCONSOLETITLE РІ С„СѓРЅРєС†РёРё Info.DialogInit()
+- С„Р»Р°РіР° DIF_NOTCVTUSERCONTROL Р±РѕР»СЊС€Рµ РЅРµС‚<br>
+- С„Р»Р°РіР° LIF_USETEXTPTR Р±РѕР»СЊС€Рµ РЅРµС‚<br>
+- С„Р»Р°РіР° MIF_USETEXTPTR Р±РѕР»СЊС€Рµ РЅРµС‚<br>
 
+<li>РџР»Р°РЅРѕРІС‹Рµ РёР·РјРµРЅРµРЅРёСЏ РІ РјР°РєСЂРѕСЃР°С…:<br>
+- СѓРґР°Р»РµРЅР° РєРѕРјР°РЅРґР° $Date - Р·Р°РјРµРЅРёС‚СЊ РЅР° print(Date("С„РѕСЂРјР°С‚"))<br>
+- СѓРґР°Р»РµРЅР° РєРѕРјР°РЅРґР° $MMode - Р·Р°РјРµРЅРёС‚СЊ РЅР° mmode(1,2)<br>
+- СѓРґР°Р»РµРЅРѕ СЃРѕСЃС‚РѕСЏРЅРёРµ IClip - Р·Р°РјРµРЅРёС‚СЊ РЅР° clip(5,-1) (РїСЂРё СЌС‚РѕРј СѓС‡РµСЃС‚СЊ, С‡С‚Рѕ clip() РІРµСЂРЅРµС‚ 1 РёР»Рё 2)<br>
+- СѓРґР°Р»РµРЅР° РєРѕРјР°РЅРґР° $IClip - Р·Р°РјРµРЅРёС‚СЊ РЅР° clip(5,0) РёР»Рё РїСЂРѕСЃС‚Рѕ clip(5)<br>
+- СѓРґР°Р»РµРЅРѕ СЃРѕСЃС‚РѕСЏРЅРёРµ DisableOutput (РЅРµ С„Р»Р°Рі РјР°РєСЂРѕСЃР°!) - Р·Р°РјРµРЅРёС‚СЊ РЅР° РІС‹Р·РѕРІ С„СѓРЅРєС†РёРё mmode(1,-1)<br>
+- РґРѕР±Р°РІР»РµРЅР° С„СѓРЅРєС†РёСЏ N=mload(S)<br>
+- РґРѕР±Р°РІР»РµРЅР° С„СѓРЅРєС†РёСЏ beep()<br>
+- РґРѕР±Р°РІР»РµРЅР° С„СѓРЅРєС†РёСЏ kbdLayout()<br>
+- СѓРґР°Р»РµРЅР° РєРѕРјР°РЅРґР° $KbdSwitch, Р·Р°РјРµРЅРёС‚Рµ $KbdSwitch РЅР° kbdLayout(1)<br>
+- С„СѓРЅРєС†РёСЏ Menu.ItemStatus() С‚РµРїРµСЂСЊ РІ СЃС‚Р°СЂС€РµРј СЃР»РѕРІРµ РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕРґ СЃРёРјРІРѕР»Р° РїРѕРјРµС‚РєРё U+XXXX<br>
+- РґРѕР±Р°РІР»РµРЅ СѓСЃР»РѕРІРЅС‹Р№ РѕРїРµСЂР°С‚РѕСЂ "^^" - XOR, РёСЃРєР»СЋС‡Р°СЋС‰РµРµ РР›Р
+
+
+<h3>Р§С‚Рѕ РґРѕР±Р°РІРёР»РѕСЃСЊ РІ Plugins API v2.0 РІ СЃСЂР°РІРЅРµРЅРёРё c Plugins API v1.0</h3>
+
+<li>С„СѓРЅРєС†РёСЏ WINAPI ProcessSynchroEventW()
+<li>С„СѓРЅРєС†РёСЏ FSF.ConvertPath(CPM_REAL,...)
+<li>С„СѓРЅРєС†РёСЏ FSF.ConvertPath(CPM_FULL,...)
+<li>С„СѓРЅРєС†РёСЏ FSF.ConvertPath(CPM_NATIVE,...)
+<li>С„СѓРЅРєС†РёСЏ FSF.GetCurrentDirectory()
+<li>РєРѕРјР°РЅРґР° FSF.MkLink() - FLINK_SYMLINK, Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РІС‹Р±СЂР°С‚СЊ С‚РёРї СЃРѕР·РґР°РІР°РµРјРѕР№ СЃРёРјРІРѕР»РёС‡РµСЃРєРѕР№ СЃСЃС‹Р»РєРё
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_QUIT
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_SETPROGRESSSTATE
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_SETPROGRESSVALUE
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_SYNCHRO
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_KEYMACRO, РґРѕР±Р°РІРёР»Р°СЃСЊ РєРѕРјР°РЅРґР° MCMD_CHECKMACRO
+<li>РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_PROGRESSNOTIFY
+<li>РєРѕРјР°РЅРґР° Info.EditorControl - ECTL_GETFILENAME, РїР»Р°РіРёРЅ СЃР°Рј РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ СЌР»РµРјРµРЅС‚
+<li>РєРѕРјР°РЅРґР° Info.EditorControl - ECTL_UNDOREDO
+<li>РєРѕРјР°РЅРґР° Info.EditorControl - ESPT_SETBOM
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_ISACTIVEPANEL
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETPANELITEM, РїР»Р°РіРёРЅ СЃР°Рј РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ СЌР»РµРјРµРЅС‚
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETSELECTEDPANELITEM, РїР»Р°РіРёРЅ СЃР°Рј РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ СЌР»РµРјРµРЅС‚
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETCOLUMNTYPES, РїР»Р°РіРёРЅ СЃР°Рј РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ СЌР»РµРјРµРЅС‚
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETCOLUMNWIDTHS, РїР»Р°РіРёРЅ СЃР°Рј РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ СЌР»РµРјРµРЅС‚
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETCURRENTDIRECTORY, РїР»Р°РіРёРЅ СЃР°Рј РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ СЌР»РµРјРµРЅС‚
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETCURRENTITEM, РїР»Р°РіРёРЅ СЃР°Рј РІС‹РґРµР»СЏРµС‚ РїР°РјСЏС‚СЊ РїРѕРґ СЌР»РµРјРµРЅС‚
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_CLEARSELECTION
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_SETDIRECTORIESFIRST
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETPANELFORMAT
+<li>РєРѕРјР°РЅРґР° Info.Control - FCTL_GETPANELHOSTFILE
+<li>РѕРїС†РёСЏ РІ Info.AdvControl - ACTL_GETCONFIRMATIONS - FCS_OVERWRITEDELETEROFILES
+<li>РѕРїС†РёСЏ РІ Info.AdvControl - ACTL_GETINTERFACESETTINGS - FIS_SHOWTOTALDELPROGRESSINDICATOR
+<li>С„Р»Р°Рі РІ EditorInfo.Options - EOPT_SHOWWHITESPACE
+<li>С„Р»Р°Рі РІ EditorInfo.Options - EOPT_BOM
+<li>С„Р»Р°Рі РІ EditorSetParameter.Type - ESPT_SHOWWHITESPACE
+<li>С„Р»Р°Рі РІ DI_BUTTON - DIF_SETSHIELD, Р°РЅР°Р»РѕРі BCM_SETSHIELD
+<li>С„Р»Р°РіРё PFLAGS_USECRC32/OPIF_USECRC32 РѕРїСЂРµРґРµР»СЏСЋС‰РёРµ, С‡С‚Рѕ РїРѕР»Рµ CRC32 СЌР»РµРјРµРЅС‚РѕРІ РїР°РЅРµР»Рё Р·Р°РїРѕР»РЅРµРЅРѕ
+<li>СЃРёСЃС‚РµРјР° РёРґРµРЅС‚РёС„РёРєР°С†РёРё РґРёР°Р»РѕРіРѕРІ:<br>
+- СЃРѕРѕР±С‰РµРЅРёСЏ DN_GETDIALOGINFO/DM_GETDIALOGINFO<br>
+- РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РґР»СЏ РґРёР°Р»РѕРіР° РїРµСЂРµР·Р°РїРёСЃРё С„Р°Р№Р»Р° - {9FBCB7E1-ACA2-475d-B40D-0F7365B632FF}<br>
+- РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РґР»СЏ РґРёР°Р»РѕРіР° РїРѕРёСЃРєР° (AltF7) - {8C9EAD29-910F-4b24-A669-EDAFBA6ED964}
+<li>Far С‚РµРїРµСЂСЊ СѓРјРµРµС‚ СЂР°Р±РѕС‚Р°С‚СЊ РІ РїСЂРµРґРµР»Р°С… РѕРєРЅР° (Р° РЅРµ Р±СѓС„РµСЂР°), СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ РІРІРµРґРµРЅС‹:<br>
+- РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_GETFARRECT<br>
+- РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_GETCURSORPOS<br>
+- РєРѕРјР°РЅРґР° Info.AdvControl - ACTL_SETCURSORPOS
+<li>RegExp API
+<li>FileFilter API
+<li>PluginsControl API
 </ul>
 
-<h3>20 февраля 2007 г.</h3>
-<ul>
-  <li>Добавлен флаг <a href="dialogapi/flags/dif_notcvtusercontrol.html">DIF_NOTCVTUSERCONTROL</a> для <a href="dialogapi/controls/di_usercontrol.html">DI_USERCONTROL</a>.
-    <br><br>
-
+<h3>5 РЇРЅРІР°СЂСЏ 2010 Рі.</h3>
+<ul><li>РџРёС€РµРј РЅРѕРІРѕРµ РїРёСЃР°РЅРёРµ.<br>
+Р’СЃРµ РёР·РјРµРЅРµРЅРёСЏ РІ РђРџР (СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ Рё РІ СЌРЅС†РёРєР»РѕРїРµРґРёРё) РїСЂРѕСЃРёРј РґРѕР±Р°РІР»СЏС‚СЊ СЃСЋРґР°.
 </ul>
-
-
-<h3>7 февраля 2007 г.</h3>
-<ul>
-  <li>Macro: новые слова <a href="macro/macrocmd/states.html#APanel.ColumnCount">APanel.ColumnCount</a> и
-     <a href="macro/macrocmd/states.html#PPanel.ColumnCount">PPanel.ColumnCount</a>.
-    <br><br>
-
-</ul>
-
-<h3>30 января 2007 г.</h3>
-<ul>
-  <li>Новая команда: <a href="service_functions/control.html#FCTL_GETUSERSCREEN">FCTL_GETUSERSCREEN</a>.
-  <br><br>
-</ul>
-
-<h3>25 января 2007 г.</h3>
-<ul>
-  <li>Для элемента <a href="dialogapi/controls/di_vtext.html">DI_VTEXT</a> добавлена обработка флагов: DIF_CENTERGROUP, DIF_SEPARATOR, DIF_SEPARATOR2, DIF_SHOWAMPERSAND.
-    <br><br>
-
-  <li>В обработчике <a href="dialogapi/defdlgproc.html">DefDlgProc</a> для события <a href="dialogapi/dmsg/dn_btnclick.html">DN_BTNCLICK</a> не учитывался флаг <a href="dialogapi/flags/dif_btnnoclose.html">DIF_BTNNOCLOSE</a>.
-    <br><br>
-
-  <li>Некорректная отрисовка элемента <a href="dialogapi/controls/di_text.html">DI_TEXT</a> для сочетания условий: DIF_CENTERTEXT + DIF_SEPARATOR + X1 не равен "-1"
-    <br><br>
-
-</ul>
-
-
-<h3>24 января 2007 г.</h3>
-<ul>
-  <li>Ужесточение правил, касаемых координат X2 и Y2 в элементах диалогов. Y2 указывать всегда, а не 0.
-    <br><br>
-
-</ul>
-
-<h3>18 января 2007 г.</h3>
-<ul>
-  <li>Не посылался <a href="exported_functions/processeditorevent.html#EE_CLOSE">EE_CLOSE</a> для "?New File?".
-    <br><br>
-
-  <li>Неправильная цветовая отрисовка диалога сообщения при использование флага FMSG_WARNING в функции <a href="service_functions/message.html">Messag</a> без кнопок.
-    <br><br>
-</ul>
-
-<h3>27 декабря 2006 г.</h3>
-<ul>
-  <li>Macro: новые слова <a href="macro/macrocmd/states.html#Help.FileName">Help.FileName</a>,
-     <a href="macro/macrocmd/states.html#Help.Topic">Help.Topic</a> и
-     <a href="macro/macrocmd/states.html#Help.SelTopic">Help.SelTopic</a>.
-    <br><br>
-
-  <li>Для окна помощи команда <a href="service_functions/advcontrol.html#ACTL_GETWINDOWINFO">ACTL_GETWINDOWINFO</a> теперь
-      заполняет поле Name - содержит полный путь к просматриваемому HLF-файлу.
-    <br><br>
-</ul>
-
-<h3>01 декабря 2006 г.</h3>
-<ul>
-  <li>Viewer API: Член структуры <a href="structures/viewermode.html">ViewerMode</a>.TypeWrap переименован в ViewerMode.WordWrap
-    <br><br>
-
-  <li>Viewer API: Добавлена команда <a href="service_functions/viewercontrol.html#VCTL_SETMODE">VCTL_SETMODE</a>, позволяющая менять режимы программы просмотра.
-    <br><br>
-</ul>
-
-
-<h3>23 ноября 2006 г.</h3>
-<ul>
-  <li>Macro: <a href="macro/macrocmd/akey.html">$AKey</a> - вставить во входной буфер код клавиши, вызвавшей макрос.
-    <br><br>
-</ul>
-
-
-<h3>21 ноября 2006 г.</h3>
-<ul>
-  <li>Приведение АПИ к 64bit совместимости:
-     <ul>
-     <li>DlgProc: long Param2 -> LONG_PTR Param2 и возвращает LONG_PTR вместо long
-     <li>SendDlgMessage: long Param2 -> LONG_PTR Param2 и возвращает LONG_PTR вместо long
-     <li>DefDlgProc: long Param2 -> LONG_PTR Param2 и возвращает LONG_PTR вместо long
-     <li>DialogEx: long Param -> LONG_PTR Param
-     <li>FarMenuItemEx: DWORD UserData -> DWORD_PTR UserData
-     <li>PluginPanelItem: DWORD UserData -> DWORD_PTR UserData
-     <li>AdvControl: возвращает INT_PTR вместо int
-     <li>OpenPlugin: int Item -> INT_PTR Item
-     </ul>
-    <br><br>
-</ul>
-
-
-
-<h3>20 сентября 2006 г.</h3>
-<ul>
-  <li>Macro: <a href="macro/macrocmd/functions.html#fexist">fexist()</a> понимает символы маски '*' и '?'
-    <br><br>
-
-  <li>Macro: Если имя содержит символы '*' и '?', то <a href="macro/macrocmd/functions.html#fattr">fattr()</a> возвращает атрибуты для первого найденного файлового объекта.
-    <br><br>
-
-  <li>Macro: fexist() и fattr() теперь не работают с панелями, для работы с панелями добавлены новые функции <a href="macro/macrocmd/functions.html#panel.fexist">panel.fexist()</a> и <a href="macro/macrocmd/functions.html#panel.fattr">panel.fattr()</a>.
-    <br><br>
-
-</ul>
-
-<h3>25 августа 2006 г.</h3>
-<ul>
-  <li>Скорректировано описание работы события <a href="dialogapi/dmsg/dn_btnclick.html">DN_BTNCLICK</a> для <a href="dialogapi/controls/di_radiobutton.html">DI_RADIOBUTTON</a>.
-    <br><br>
-</ul>
-
-
-<h3>29 июля 2006 г.</h3>
-<ul>
-  <li>Добавлена функция <a href="fsf/snprintf.html">FSF.snprintf</a> - осуществляет форматированный вывод в строку с заданным размером.
-    <br><br>
-</ul>
-
-<h3>20 июня 2006 г.</h3>
-<ul>
-  <li>Статья Ивана Синтюрина - "<a href="articles/temppanel.html">Работа с &quot;временной панелью&quot; в своем плагине</a>"
-    <br><br>
-  <li>Статья от Gigabyte - "<a href="articles/delphisimple.html">Написание плагина на Delphi (ID3 Viewer)</a>"
-    <br><br>
-</ul>
-
-<h3>05 апреля 2006 г.</h3>
-<ul>
-<li>Macro: Новая функция "<a href="macro/macrocmd/functions.html#sleep">N=sleep(N)</a>". Организация задержки в макросе.
-    <br><br>
-
-<li>Macro: Константа "<a href="macro/macrocmd/states.html#Far.Height">Far.Height</a>" - высота консольного окна FAR в строках.
-    <br><br>
-
-<li>Macro: Константа "<a href="macro/macrocmd/states.html#Far.Title">Far.Title</a>" - текущий заголовок консольного окна FAR (без суффикса " - Far").
-    <br><br>
-
-<li>Macro: Константа "<a href="macro/macrocmd/states.html#Title">Title</a>" - заголовок текущего объекта.
-    <br><br>
-
-<li>Macro: Константа "<a href="macro/macrocmd/states.html#Drv.ShowPos">Drv.ShowPos</a>" - для левой (1) или правой (2) панели вызвано меню выбора дисков.
-    <br><br>
-
-<li>Macro: Константа "<a href="macro/macrocmd/states.html#Drv.ShowMode">Drv.ShowMode</a>" - флаги отображения меню выбора дисков.
-    <br><br>
-
-</ul>
-
-<a href="history.html">long History</a>,
-<a href="historyapi.html">история API</a>
 
 </body>
 </html>

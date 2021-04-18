@@ -1,87 +1,60 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
 <title>FSF.GetReparsePointInfo</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
- Date: Tue 21 Nov 21:53:32 2000
-   Author: Ivan Sintyurin
-   E-mail: spinoza@mail.ru
--->
 <body>
 
 <h1>GetReparsePointInfo</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">FarStandardFunctions</a>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рµ С„СѓРЅРєС†РёРё</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.GetReparsePointInfo</dfn> позволяет для указанной
-символической связи получить информацию об источнике -  путь к
-исходному каталогу/диску.
+Р¤СѓРЅРєС†РёСЏ <code>FSF.GetReparsePointInfo</code> РїРѕР·РІРѕР»СЏРµС‚ РґР»СЏ СѓРєР°Р·Р°РЅРЅРѕР№ СЃРёРјРІРѕР»РёС‡РµСЃРєРѕР№ СЃСЃС‹Р»РєРё РёР»Рё СЃРІСЏР·Рё РєР°С‚Р°Р»РѕРіРѕРІ РїРѕР»СѓС‡РёС‚СЊ РёРЅС„РѕСЂРјР°С†РёСЋ РѕР± РёСЃС‚РѕС‡РЅРёРєРµ -  РїСѓС‚СЊ Рє РёСЃС…РѕРґРЅРѕРјСѓ С„Р°Р№Р»Сѓ/РєР°С‚Р°Р»РѕРіСѓ.
 </div>
 
 <pre class=syntax>
-int WINAPI GetReparsePointInfo(
-  const char *Src,
-  char *Dest,
-  int DestSize
+size_t WINAPI GetReparsePointInfo(
+  const wchar_t *Src,
+  wchar_t *Dest,
+  size_t DestSize
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
   <div class=dfn>Src</div>
-  <div class=dfndescr>Источник данных. Строка должна содержать полное имя к
-    символической связи и заканчиваться слешем (<code>'\'</code>).
-  </div>
-
+    <div class=dfndescr>РСЃС‚РѕС‡РЅРёРє РґР°РЅРЅС‹С…. РЎС‚СЂРѕРєР° РґРѕР»Р¶РЅР° СЃРѕРґРµСЂР¶Р°С‚СЊ РїРѕР»РЅРѕРµ РёРјСЏ Рє СЃРёРјРІРѕР»РёС‡РµСЃРєРѕР№ СЃСЃС‹Р»РєРµ Рё Р·Р°РєР°РЅС‡РёРІР°С‚СЊСЃСЏ СЃР»РµС€РµРј (<code>'\'</code>).</div>
   <div class=dfn>Dest</div>
-  <div class=dfndescr>Строка назначения. Может быть равна <code>NULL</code>.
-  </div>
-
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° Р±СѓС„РµСЂ, РєСѓРґР° Р±СѓРґРµС‚ РїРѕРјРµС‰РµРЅ РїСѓС‚СЊ. РЈСЃС‚Р°РЅРѕРІРёС‚Рµ <code>Dest = NULL</code> РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ СѓР·РЅР°С‚СЊ РЅРµРѕР±С…РѕРґРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С….</div>
   <div class=dfn>DestSize</div>
-  <div class=dfndescr>Размер строки назначения <var>Dest</var>.
-    Если <var>Dest</var>=<code>NULL</code>, то параметр <var>DestSize</var> игнорируется.
-  </div>
+    <div class=dfndescr>Р Р°Р·РјРµСЂ СЃС‚СЂРѕРєРё РЅР°Р·РЅР°С‡РµРЅРёСЏ <code>Dest</code> РІ СЃРёРјРІРѕР»Р°С… СЃ Р·Р°РІРµСЂС€Р°СЋС‰РёРј РЅСѓР»РµРј.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-<p>Реальный размер строки, размещенной в <var>Dest</var> или требуемый размер
-строки для случая, когда <var>Dest</var>=<code>NULL</code>.
-<p>0 - в случае ошибки:
+<p>Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРµРѕР±С…РѕРґРёРјС‹Р№ СЂР°Р·РјРµСЂ Р±СѓС„РµСЂР° РІ СЃРёРјРІРѕР»Р°С….
+<p>0 - РІ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё:
 <ul>
-<li>функция не поддерживается (пользователь применил плагин, использующий
-    функцию <dfn>FSF.GetReparsePointInfo</dfn>, не в Windows 2000)
-<li>неверный путь (выставляется системный номер ошибки <code>ERROR_PATH_NOT_FOUND</code>)
-<li>символическая связь находится на сетевом диске и в большинстве случаев
-    случае реальное имя каталога, на который указывает связь, использовать
-    невозможно.
+<li>РЅРµРІРµСЂРЅС‹Р№ РїСѓС‚СЊ (РІС‹СЃС‚Р°РІР»СЏРµС‚СЃСЏ СЃРёСЃС‚РµРјРЅС‹Р№ РЅРѕРјРµСЂ РѕС€РёР±РєРё <code>ERROR_PATH_NOT_FOUND</code>)
 </ul>
-
 </div>
 
-<h3>Примечание</h3>
+<h3>РџСЂРёРјРµС‡Р°РЅРёРµ</h3>
 <div class=descr>
 <ol>
-<li>Адреса Src и Dest могут совпадать.
-<li>Функция работает только в Windows 2000 и выше.
-<li>Возвращаемое функцией значение не несет никакой практической пользы
-    для сетевых дисков.
-<li>В отличии от <a href="convertnametoreal.html">ConvertNameToReal</a>,
-    функция <dfn>FSF.GetReparsePointInfo</dfn> применима только для симлинков.
-<li>Некоторые замечания относительно понятия "Символическая связь" читайте
-    <a href="../faq.html#symlink1">здесь</a>.
-
+<li>РђРґСЂРµСЃР° Src Рё Dest РјРѕРіСѓС‚ СЃРѕРІРїР°РґР°С‚СЊ.
+<li>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ С„СѓРЅРєС†РёРµР№ Р·РЅР°С‡РµРЅРёРµ РЅРµ РЅРµСЃС‘С‚ РЅРёРєР°РєРѕР№ РїСЂР°РєС‚РёС‡РµСЃРєРѕР№ РїРѕР»СЊР·С‹ РґР»СЏ СЃРµС‚РµРІС‹С… РґРёСЃРєРѕРІ.
+<li>Р’ РѕС‚Р»РёС‡РёРµ РѕС‚ <a href="convertpath.html">ConvertPath</a>, С„СѓРЅРєС†РёСЏ <code>FSF.GetReparsePointInfo</code> РїСЂРёРјРµРЅРёРјР° С‚РѕР»СЊРєРѕ РґР»СЏ СЃРёРјР»РёРЅРєРѕРІ.
 </ol>
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
 </div>
 

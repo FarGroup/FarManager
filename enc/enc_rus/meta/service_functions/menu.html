@@ -1,186 +1,127 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 
 <head>
 <title>Menu</title>
-<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-
 <body>
 
 <h1>Menu</h1>
 <div class=navbar>
-<a href="../index.html">главная</a> |
-<a href="index.html">сервисные функции</a><br>
+<a href="../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="index.html">СЃРµСЂРІРёСЃРЅС‹Рµ С„СѓРЅРєС†РёРё</a> |
+<a href="../basicapi/index.html">Basic API</a>
 </div>
 
 <div class=shortdescr>
-Функция <dfn>Menu</dfn> показывает меню.
+Р¤СѓРЅРєС†РёСЏ <code>Menu</code> РїРѕРєР°Р·С‹РІР°РµС‚ РјРµРЅСЋ.
 </div>
 
 <pre class=syntax>
-int WINAPI Menu(
-  int PluginNumber,
-  int X,
-  int Y,
-  int MaxHeight,
-  DWORD Flags,
-  const char *Title,
-  const char *Bottom,
-  const char *HelpTopic,
-  const int *BreakKeys,
-  int *BreakCode,
+intptr_t WINAPI Menu(
+  const GUID *PluginId,
+  const GUID *Id,
+  intptr_t X,
+  intptr_t Y,
+  intptr_t MaxHeight,
+  FARMENUFLAGS Flags,
+  const wchar_t *Title,
+  const wchar_t *Bottom,
+  const wchar_t *HelpTopic,
+  const struct FarKey *BreakKeys,
+  intptr_t *BreakCode,
   const struct FarMenuItem *Item,
-  int ItemsNumber
+  size_t ItemsNumber
 );
 </pre>
 
-<h3>Параметры</h3>
+<h3>РџР°СЂР°РјРµС‚СЂС‹</h3>
 <div class=descr>
-  <div class=dfn>PluginNumber</div>
-  <div class=dfndescr>Номер плагина. Его вы получаете в функции
-    <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>.</div>
+  <div class=dfn>PluginId</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° GUID РїР»Р°РіРёРЅР° (РґР»СЏ РІР°С€РµРіРѕ РїР»Р°РіРёРЅР°, GUID РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ С‚Р°РєРёРј Р¶Рµ, С‡С‚Рѕ Рё РІ РїРѕР»Рµ <code>GlobalInfo.Guid</code> С„СѓРЅРєС†РёРё <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+  <div class=dfn>Id</div>
+    <div class=dfndescr>РЈРєР°Р·Р°С‚РµР»СЊ РЅР° GUID С‚РµРєСѓС‰РµРіРѕ РјРµРЅСЋ. GUID РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СѓРЅРёРєР°Р»СЊРЅС‹Рј.</div>
   <div class=dfn>X,Y</div>
-  <div class=dfndescr>Координаты верхнего левого угла меню<br>
-    Чтобы назначить их автоматически, приравняйте их <code>-1</code>.</div>
+    <div class=dfndescr>РљРѕРѕСЂРґРёРЅР°С‚С‹ РІРµСЂС…РЅРµРіРѕ Р»РµРІРѕРіРѕ СѓРіР»Р° РјРµРЅСЋ.<br> Р§С‚РѕР±С‹ РЅР°Р·РЅР°С‡РёС‚СЊ РёС… Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё, РїСЂРёСЂР°РІРЅСЏР№С‚Рµ РёС… <code>-1</code>.</div>
   <div class=dfn>MaxHeight</div>
-  <div class=dfndescr>Максимальное количество видимых на экране
-    пунктов меню. Если высота меню меньше, чем
-    число пунктов, то появится полоса прокрутки.<br>
-    Чтобы использовать максимально возможное
-    значение, установите этот параметр равным <code>0</code>.</div>
+    <div class=dfndescr>РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РІРёРґРёРјС‹С… РЅР° СЌРєСЂР°РЅРµ РїСѓРЅРєС‚РѕРІ РјРµРЅСЋ. Р•СЃР»Рё РІС‹СЃРѕС‚Р° РјРµРЅСЋ РјРµРЅСЊС€Рµ, С‡РµРј С‡РёСЃР»Рѕ РїСѓРЅРєС‚РѕРІ, С‚Рѕ РїРѕСЏРІРёС‚СЃСЏ РїРѕР»РѕСЃР° РїСЂРѕРєСЂСѓС‚РєРё.<br>
+    Р§С‚РѕР±С‹ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РјР°РєСЃРёРјР°Р»СЊРЅРѕ РІРѕР·РјРѕР¶РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ, СѓСЃС‚Р°РЅРѕРІРёС‚Рµ СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ СЂР°РІРЅС‹Рј <code>0</code>.</div>
   <div class=dfn>Flags</div>
-  <div class=dfndescr>Может быть комбинацией из следующих значений (перечисление <a name="FARMENUFLAGS">FARMENUFLAGS</a>):
-
-   <table class="cont"><tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
-      <tr class="cont"><td class="cont" width="40%"><a name="FMENU_AUTOHIGHLIGHT">FMENU_AUTOHIGHLIGHT</a></td>
-      <td class="cont" width="60%">Если указан, то горячие клавиши будут назначены автоматически, начиная с первого пункта.</td></tr>
-      <tr class="cont"><td class="cont" width="40%"><a name="FMENU_CHANGECONSOLETITLE">FMENU_CHANGECONSOLETITLE</a></td>
-      <td class="cont" width="60%">Если указан, то FAR изменит заголовок консоли в значение, указанное в параметре <dfn>Title</dfn> (если Title не пуст).</td></tr>
-      <tr class="cont"><td class="cont" width="40%"><a name="FMENU_SHOWAMPERSAND">FMENU_SHOWAMPERSAND</a></td>
-      <td class="cont" width="60%">При показе меню не использовать амперсанды (<code>&amp;</code>) для определения горячих клавиш.</td></tr>
-      <tr class="cont"><td class="cont" width="40%"><a name="FMENU_REVERSEAUTOHIGHLIGHT">FMENU_REVERSEAUTOHIGHLIGHT</a></td>
-      <td class="cont" width="60%">Если указан, то горячие клавиши будут назначены автоматически, начиная с последнего пункта.</td></tr>
-      <tr class="cont"><td class="cont" width="40%"><a name="FMENU_USEEXT">FMENU_USEEXT</a></td>
-      <td class="cont" width="60%">Вместо структуры <a href="../structures/farmenuitem.html">FarMenuItem</a>
-        использовать структуру <a href="../structures/farmenuitemex.html">FarMenuItemEx</a>.</td></tr>
-      <tr class="cont"><td class="cont" width="40%"><a name="FMENU_WRAPMODE">FMENU_WRAPMODE</a></td>
-      <td class="cont" width="60%">Если указан, то попытка перемещения курсора
-        выше первого пункта или ниже последнего будет приводить к
-        перемещению соответственно к последнему или к первому пункту.
-        <p>Этот флаг рекомендуется ставить всегда, когда нет специальных причин
-        его не ставить.</td></tr>
-     </table>
-
-     Если выставлен флаг <dfn>FMENU_USEEXT</dfn>, то необходимо выполнить приведение типов:
-        <pre class=code>struct FarMenuItemEx FooEx[]={
-  ...
-};
-Info.Menu(...,FMENU_USEEXT|...,<b>(const struct FarMenuItem *)</b>FooEx,...)</pre>
-  </div>
-
+    <div class=dfndescr>РњРѕР¶РµС‚ Р±С‹С‚СЊ РєРѕРјР±РёРЅР°С†РёРµР№ РёР· СЃР»РµРґСѓСЋС‰РёС… Р·РЅР°С‡РµРЅРёР№ (РїРµСЂРµС‡РёСЃР»РµРЅРёРµ <a name="FARMENUFLAGS">FARMENUFLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">РљРѕРЅСЃС‚Р°РЅС‚Р°</th><th class="cont" width="60%">РћРїРёСЃР°РЅРёРµ</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_AUTOHIGHLIGHT">FMENU_AUTOHIGHLIGHT</a></td>
+    <td class="cont" width="60%">Р•СЃР»Рё СѓРєР°Р·Р°РЅ, С‚Рѕ РіРѕСЂСЏС‡РёРµ РєР»Р°РІРёС€Рё Р±СѓРґСѓС‚ РЅР°Р·РЅР°С‡РµРЅС‹ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё, РЅР°С‡РёРЅР°СЏ СЃ РїРµСЂРІРѕРіРѕ РїСѓРЅРєС‚Р°.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_CHANGECONSOLETITLE">FMENU_CHANGECONSOLETITLE</a></td>
+    <td class="cont" width="60%">Р•СЃР»Рё СѓРєР°Р·Р°РЅ, С‚Рѕ Far Manager РёР·РјРµРЅРёС‚ Р·Р°РіРѕР»РѕРІРѕРє РєРѕРЅСЃРѕР»Рё РІ Р·РЅР°С‡РµРЅРёРµ, СѓРєР°Р·Р°РЅРЅРѕРµ РІ РїР°СЂР°РјРµС‚СЂРµ <code>Title</code> (РµСЃР»Рё <code>Title</code> РЅРµ РїСѓСЃС‚).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_SHOWAMPERSAND">FMENU_SHOWAMPERSAND</a></td>
+    <td class="cont" width="60%">РџСЂРё РїРѕРєР°Р·Рµ РјРµРЅСЋ РЅРµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р°РјРїРµСЂСЃР°РЅРґС‹ (<code>&amp;</code>) РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РіРѕСЂСЏС‡РёС… РєР»Р°РІРёС€.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_REVERSEAUTOHIGHLIGHT">FMENU_REVERSEAUTOHIGHLIGHT</a></td>
+    <td class="cont" width="60%">Р•СЃР»Рё СѓРєР°Р·Р°РЅ, С‚Рѕ РіРѕСЂСЏС‡РёРµ РєР»Р°РІРёС€Рё Р±СѓРґСѓС‚ РЅР°Р·РЅР°С‡РµРЅС‹ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё, РЅР°С‡РёРЅР°СЏ СЃ РїРѕСЃР»РµРґРЅРµРіРѕ РїСѓРЅРєС‚Р°.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_NONE">FMENU_NONE</a></td>
+    <td class="cont" width="60%">РќСѓР»РµРІРѕР№ С„Р»Р°Рі.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_WRAPMODE">FMENU_WRAPMODE</a></td>
+    <td class="cont" width="60%">Р•СЃР»Рё СѓРєР°Р·Р°РЅ, С‚Рѕ РїРѕРїС‹С‚РєР° РїРµСЂРµРјРµС‰РµРЅРёСЏ РєСѓСЂСЃРѕСЂР° РІС‹С€Рµ РїРµСЂРІРѕРіРѕ РїСѓРЅРєС‚Р° РёР»Рё РЅРёР¶Рµ РїРѕСЃР»РµРґРЅРµРіРѕ Р±СѓРґРµС‚ РїСЂРёРІРѕРґРёС‚СЊ Рє РїРµСЂРµРјРµС‰РµРЅРёСЋ СЃРѕРѕС‚РІРµС‚СЃС‚РІРµРЅРЅРѕ Рє РїРѕСЃР»РµРґРЅРµРјСѓ РёР»Рё Рє РїРµСЂРІРѕРјСѓ РїСѓРЅРєС‚Сѓ.
+    <p>Р­С‚РѕС‚ С„Р»Р°Рі СЂРµРєРѕРјРµРЅРґСѓРµС‚СЃСЏ СЃС‚Р°РІРёС‚СЊ РІСЃРµРіРґР°, РєРѕРіРґР° РЅРµС‚ СЃРїРµС†РёР°Р»СЊРЅС‹С… РїСЂРёС‡РёРЅ РµРіРѕ РЅРµ СЃС‚Р°РІРёС‚СЊ.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_SHOWNOBOX">FMENU_SHOWNOBOX</a></td>
+    <td class="cont" width="60%">РњРµРЅСЋ Р±СѓРґРµС‚ РІС‹РІРµРґРµРЅРѕ Р±РµР· СЂР°РјРєРё.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_SHOWSHORTBOX">FMENU_SHOWSHORTBOX</a></td>
+    <td class="cont" width="60%">Р Р°РјРєР° РјРµРЅСЋ Р±СѓРґРµС‚ РІС‹РІРµРґРµРЅР° Р±РµР· РѕРєСЂСѓР¶Р°СЋС‰РёС… РїСЂРѕР±РµР»РѕРІ.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_SHOWSINGLEBOX">FMENU_SHOWSINGLEBOX</a></td>
+    <td class="cont" width="60%">Р‘СѓРґРµС‚ РІС‹РІРµРґРµРЅР° РѕРґРёРЅР°СЂРЅР°СЏ СЂР°РјРєР° РјРµРЅСЋ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ - РґРІРѕР№РЅР°СЏ).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_NODRAWSHADOW">FMENU_NODRAWSHADOW</a></td>
+    <td class="cont" width="60%">РњРµРЅСЋ Р±СѓРґРµС‚ РІС‹РІРµРґРµРЅРѕ Р±РµР· С‚РµРЅРё.</td></tr>
+    </table>
+    </div>
   <div class=dfn>Title</div>
-  <div class=dfndescr>Заголовок меню. Укажите <code>NULL</code>, если заголовок
-    меню не нужен.</div>
-
+    <div class=dfndescr>Р—Р°РіРѕР»РѕРІРѕРє РјРµРЅСЋ. РЈРєР°Р¶РёС‚Рµ <code>NULL</code>, РµСЃР»Рё Р·Р°РіРѕР»РѕРІРѕРє РјРµРЅСЋ РЅРµ РЅСѓР¶РµРЅ.</div>
   <div class=dfn>Bottom</div>
-  <div class=dfndescr>Нижняя строка меню. Укажите <code>NULL</code>, если нижняя
-    строка меню не нужна.</div>
-
+    <div class=dfndescr>РќРёР¶РЅСЏСЏ СЃС‚СЂРѕРєР° РјРµРЅСЋ. РЈРєР°Р¶РёС‚Рµ <code>NULL</code>, РµСЃР»Рё РЅРёР¶РЅСЏСЏ СЃС‚СЂРѕРєР° РјРµРЅСЋ РЅРµ РЅСѓР¶РЅР°.</div>
   <div class=dfn>HelpTopic</div>
-  <div class=dfndescr><a href="../language/helptopic.html">Тема</a> в файле помощи, ассоциированная с меню.
-    Может быть <code>NULL</code>, если подсказка не требуется.</div>
-
+    <div class=dfndescr><a href="../language/helptopic.html">РўРµРјР°</a> РІ С„Р°Р№Р»Рµ РїРѕРјРѕС‰Рё, Р°СЃСЃРѕС†РёРёСЂРѕРІР°РЅРЅР°СЏ СЃ РјРµРЅСЋ. РњРѕР¶РµС‚ Р±С‹С‚СЊ <code>NULL</code>, РµСЃР»Рё РїРѕРґСЃРєР°Р·РєР° РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ.</div>
   <div class=dfn>BreakKeys</div>
-  <div class=dfndescr>Адрес массива с кодами виртуальных клавиш
-    (<a href="../winapi/virtualkeycodes.html">VK_*</a>), которые будут закрывать
-    меню. Последний элемент массива должен быть равным 0.
-    Если вам не нужно определять такие клавиши в дополнение к
-    стандартным (<kbd>&lt;Enter&gt;</kbd>, <kbd>&lt;Esc&gt;</kbd> и <kbd>&lt;F10&gt;</kbd>),
-    установите этот параметр в <code>NULL</code>. Старшее слово (high word) элемента
-    массива может быть или 0, или комбинацией флагов <dfn>PKF_CONTROL</dfn>,
-    <dfn>PKF_ALT</dfn> и <dfn>PKF_SHIFT</dfn> для описания комбинаций клавиш.
-
-    <p>Например, в плагине MultiArc реакция на нажатие клавиши <kbd>F4</kbd> в меню
-      "Archive commands" (<kbd>Shift-F3</kbd> на архиве) обрабатывается так:
-        <pre class=code>
-<b>int BreakCode;</b>
-<b>int BreakKeys[2]={VK_F4,0};</b>
-ExitCode=Info.Menu(Info.ModuleNumber,-1,-1,0,FMENU_USEEXT|FMENU_WRAPMODE,
-     GetMsg(MArcCmdTitle),GetMsg(MSelectF4),"ArcCmd",<b>BreakKeys</b>,<b>&amp;BreakCode</b>,
-     (struct FarMenuItem *)MenuItems,Count);
-<b>if(ExitCode&gt;=0)</b>
+    <div class=dfndescr>РђРґСЂРµСЃ РјР°СЃСЃРёРІР° СЃ РєРѕРґР°РјРё РІРёСЂС‚СѓР°Р»СЊРЅС‹С… РєР»Р°РІРёС€ С‚РёРїР° <a href="../structures/farkey.html">FarKey</a>, РєРѕС‚РѕСЂС‹Рµ Р±СѓРґСѓС‚ Р·Р°РєСЂС‹РІР°С‚СЊ РјРµРЅСЋ.
+    РљРѕРЅРµС† РјР°СЃСЃРёРІР° РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рј СЌР»РµРјРµРЅС‚РѕРј, Сѓ РєРѕС‚РѕСЂРѕРіРѕ Р·РЅР°С‡РµРЅРёРµ РїРѕР»СЏ <code>VirtualKeyCode</code> РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ СЂР°РІРЅРѕ 0.
+    Р•СЃР»Рё РІР°Рј РЅРµ РЅСѓР¶РЅРѕ РѕРїСЂРµРґРµР»СЏС‚СЊ С‚Р°РєРёРµ РєР»Р°РІРёС€Рё РІ РґРѕРїРѕР»РЅРµРЅРёРµ Рє СЃС‚Р°РЅРґР°СЂС‚РЅС‹Рј (<kbd>Enter</kbd>, <kbd>Esc</kbd> Рё <kbd>F10</kbd>),СѓСЃС‚Р°РЅРѕРІРёС‚Рµ СЌС‚РѕС‚ РїР°СЂР°РјРµС‚СЂ РІ <code>NULL</code>.
+    <p>РќР°РїСЂРёРјРµСЂ, СЂРµР°РєС†РёСЏ РЅР° РЅР°Р¶Р°С‚РёРµ РєР»Р°РІРёС€Рё <kbd>F4</kbd> РІ РјРµРЅСЋ РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ С‚Р°Рє:
+    <pre class=code>
+int BreakCode;
+struct FarKey BreakKeys[] = {{VK_F4,0},{0,0}};
+ExitCode=Info.Menu(&MainGUID,&MenuGUID,-1,-1,0,FMENU_WRAPMODE,GetMsg(MArcCmdTitle),GetMsg(MSelectF4),L"ArcCmd",<b>BreakKeys</b>,&amp;BreakCode,MenuItems,Count);
+if(ExitCode&gt;=0)
 {
-  <b>if(BreakCode == 0)  // F4 pressed</b>
+  if(BreakCode == 0)  // F4 pressed
   {
-    GetFormatName(MenuItems[0].Text.Text);
-    ConfigCommands(MenuItems[0].Text.Text,2+MenuData[ExitCode].Cmd*2);
+    GetFormatName(MenuItems[0].Text);
+    ConfigCommands(MenuItems[0].Text,2+MenuData[ExitCode].Cmd*2);
     continue;
   }
 }
 else
   return FALSE;
-</pre>
-   </div>
-
+    </pre></div>
   <div class=dfn>BreakCode</div>
-  <div class=dfndescr>Адрес переменной, в которую будет записан номер
-  элемента массива <var>BreakKeys</var>, использованного для закрытия меню,
-  или -1, если меню было закрыто одной из стандартных клавиш. Этот параметр
-  может быть равным <code>NULL</code>.</div>
+    <div class=dfndescr>РђРґСЂРµСЃ РїРµСЂРµРјРµРЅРЅРѕР№, РІ РєРѕС‚РѕСЂСѓСЋ Р±СѓРґРµС‚ Р·Р°РїРёСЃР°РЅ РЅРѕРјРµСЂ СЌР»РµРјРµРЅС‚Р° РјР°СЃСЃРёРІР° <code>BreakKeys</code>, РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅРѕРіРѕ РґР»СЏ Р·Р°РєСЂС‹С‚РёСЏ РјРµРЅСЋ, РёР»Рё <code>-1</code>, РµСЃР»Рё РјРµРЅСЋ Р±С‹Р»Рѕ Р·Р°РєСЂС‹С‚Рѕ РѕРґРЅРѕР№ РёР· СЃС‚Р°РЅРґР°СЂС‚РЅС‹С… РєР»Р°РІРёС€. Р­С‚РѕС‚ РїР°СЂР°РјРµС‚СЂ РјРѕР¶РµС‚ Р±С‹С‚СЊ СЂР°РІРЅС‹Рј <code>NULL</code>.</div>
   <div class=dfn>Item</div>
-  <div class=dfndescr>Адрес массива структур <a href="../structures/farmenuitem.html">FarMenuItem</a> или,
-    если указан флаг <dfn>FMENU_USEEXT</dfn>, то адрес массива структур
-    <a href="../structures/farmenuitemex.html">FarMenuItemEx</a>.
-    Каждая структура описывает элемент меню.
-  </div>
+    <div class=dfndescr>РђРґСЂРµСЃ РјР°СЃСЃРёРІР° СЃС‚СЂСѓРєС‚СѓСЂ <a href="../structures/farmenuitem.html">FarMenuItem</a>. РљР°Р¶РґР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР° РѕРїРёСЃС‹РІР°РµС‚ СЌР»РµРјРµРЅС‚ РјРµРЅСЋ.</div>
   <div class=dfn>ItemsNumber</div>
-  <div class=dfndescr>Количество структур <a href="../structures/farmenuitem.html">FarMenuItem</a>.</div>
+    <div class=dfndescr>РљРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂСѓРєС‚СѓСЂ <a href="../structures/farmenuitem.html">FarMenuItem</a>.</div>
 </div>
 
-<h3>Возвращаемое значение</h3>
+<h3>Р’РѕР·РІСЂР°С‰Р°РµРјРѕРµ Р·РЅР°С‡РµРЅРёРµ</h3>
 <div class=descr>
-  Функция возвращает или -1, если пользователь
-  отменил меню, или номер выбранного элемента меню.
+Р¤СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°РµС‚ РёР»Рё <code>-1</code>, РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РѕС‚РјРµРЅРёР» РјРµРЅСЋ, РёР»Рё РЅРѕРјРµСЂ РІС‹Р±СЂР°РЅРЅРѕРіРѕ СЌР»РµРјРµРЅС‚Р° РјРµРЅСЋ.
 </div>
 
-<h3>Пример</h3>
+<h3>РџСЂРёРјРµСЂ</h3>
 <div class=descr>
-  Пример взят из плагина EditCase:
-<pre class=code>struct FarMenuItem MenuItems[2];
-memset(MenuItems,0,sizeof(MenuItems));
-strcpy(MenuItems[0].Text,GetMsg(MCaseLower));
-strcpy(MenuItems[1].Text,GetMsg(MCaseUpper));
-MenuItems[0].Selected=TRUE;
-int MenuCode=Info.<dfn>Menu</dfn>(Info.ModuleNumber,-1,-
-      1,0,FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
-      GetMsg(MCaseConversion),NULL,
-      &quot;Contents&quot;,NULL,NULL,
-      MenuItems,
-      sizeof(MenuItems)/sizeof(MenuItems[0]));
-if (MenuCode&lt;0)
-  return(INVALID_HANDLE_VALUE);
-. . .
-</pre>
-
-  Причем, <dfn>Info</dfn> определяется как глобальная переменная:
-
-<pre class=code>struct PluginStartupInfo <dfn>Info</dfn>;</pre>
-
-  ...а инициализируется она в функции
-  <a href="../exported_functions/setstartupinfo.html">SetStartupInfo</a>:
-
-<pre class=code>void WINAPI _export SetStartupInfo(struct PluginStartupInfo *Info)
-{
-  ...
-  ::<dfn>Info</dfn>=*Info;
-  ...
-}</pre>
-
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class=seecont>
 <a href="../structures/farmenuitem.html">FarMenuItem</a>
 </div>
 

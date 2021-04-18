@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 
 // Platform:
+#include "platform.chrono.hpp"
 
 // Common:
 #include "common/function_ref.hpp"
@@ -51,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Dialog;
 class HistoryConfig;
 class VMenu2;
-class BoolOption;
+class Bool3Option;
 
 enum history_type
 {
@@ -86,7 +87,7 @@ enum history_return_type
 class History: noncopyable
 {
 public:
-	History(history_type TypeHistory, string_view HistoryName, const BoolOption& EnableSave, bool CaseSensitive, bool KeepSelectedPos);
+	History(history_type TypeHistory, string_view HistoryName, const Bool3Option& State, bool CaseSensitive, bool KeepSelectedPos);
 
 	void AddToHistory(string_view Str, history_record_type Type = HR_DEFAULT, const UUID* Uuid = nullptr, string_view File = {}, string_view Data = {});
 	history_return_type Select(string_view Title, string_view HelpTopic, string& strStr, history_record_type& Type, UUID* Uuid = nullptr, string* File = nullptr, string* Data = nullptr);
@@ -97,7 +98,7 @@ public:
 	void GetAllSimilar(string_view Str, function_ref<void(string_view Name, unsigned long long Id, bool IsLocked)> Callback) const;
 	void ResetPosition() { m_CurrentItem = 0; }
 	bool DeleteIfUnlocked(unsigned long long id);
-	bool ReadLastItem(string_view HistoryName, string &strStr) const;
+	string LastItem();
 	bool IsOnTop() const { return !m_CurrentItem; }
 
 	static void CompactHistory();
@@ -110,12 +111,17 @@ private:
 	history_return_type ProcessMenu(string& strStr, UUID* Uuid, string* File, string* Data, string_view Title, VMenu2& HistoryMenu, int Height, history_record_type& Type, const Dialog* Dlg);
 	const std::unique_ptr<HistoryConfig>& HistoryCfgRef() const;
 
+	void introduce_record(os::chrono::time_point Time) const;
+	void forget_record(os::chrono::time_point Time) const;
+	bool is_known_record(os::chrono::time_point Time) const;
+	void refresh_known_records() const;
+
 	void suppress_add();
 	void restore_add();
 
 	history_type m_TypeHistory;
 	string m_HistoryName;
-	const BoolOption& m_EnableSave;
+	Bool3Option const& m_State;
 	std::atomic_size_t m_SuppressAdd{};
 	bool m_KeepSelectedPos;
 	bool m_CaseSensitive;

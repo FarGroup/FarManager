@@ -1,49 +1,33 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+п»ї<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
-
 <head>
-<title>$AKey - Макросы</title>
-<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<title>$AKey - РњР°РєСЂРѕСЃС‹</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=utf-8">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src="../../links.js" type="text/javascript"></script>
 </head>
-
 <body>
 
 <h1>$AKey</h1>
 <div class="navbar">
-<a href="../../index.html">главная</a> |
-<a href="../index.html">Макросы</a> |
-<a href="index.html">Макроязык</a> |
-<a href="cmds.html">Макрокоманды</a>
+<a href="../../index.html">РіР»Р°РІРЅР°СЏ</a> |
+<a href="../index.html">РњР°РєСЂРѕСЃС‹</a> |
+<a href="index.html">РњР°РєСЂРѕСЏР·С‹Рє</a> |
+<a href="cmds.html">РњР°РєСЂРѕРєРѕРјР°РЅРґС‹</a>
 </div>
 
-<div class=shortdescr>
-Оператор <dfn>$AKey</dfn> предназначен для вставки во входной буфер клавиши, вызвавшей макрос.<br>
+<div class="shortdescr">
+РћРїРµСЂР°С‚РѕСЂ <code>$AKey</code> РїСЂРµРґРЅР°Р·РЅР°С‡РµРЅ РґР»СЏ РІСЃС‚Р°РІРєРё РІРѕ РІС…РѕРґРЅРѕР№ Р±СѓС„РµСЂ РєР»Р°РІРёС€Рё, РІС‹Р·РІР°РІС€РµР№ РјР°РєСЂРѕСЃ (СЂРµР°Р»СЊРЅРѕ РЅР°Р¶Р°С‚РѕРµ СЃРѕС‡РµС‚Р°РЅРёРµ, РєРѕС‚РѕСЂС‹Рј РІС‹Р·С‹РІР°Р»СЃСЏ РјР°РєСЂРѕСЃ).
 </div>
 
-<pre class=syntax>
+<pre class="syntax">
 <dfn>$AKey</dfn>
 </pre>
 
-<h3>Параметры</h3>
-<div class=descr>
-Нет.
-</div>
-
-<h3>Замечания</h3>
-<div class=descr>
-<ol>
-<li>Элементы макроязыка невозможно использовать во время <a href="../macrokey/record.html">записи
-    макроса</a> стандартным образом. Добавить элементы языка в макрос можно только путем ручной
-    правки реестра или путем применения специальных программ/плагинов.</li>
-</ol>
-</div>
-
-
-<h3>Пример</h3>
-<div class=descr>
-Макрос для переключения между экранами. В разделе Common вводятся 10 однотипных макросов AltЦифра:
-<pre class="code">
+<h3>РџСЂРёРјРµСЂ</h3>
+<div class="descr">
+РњР°РєСЂРѕСЃ РґР»СЏ РїРµСЂРµРєР»СЋС‡РµРЅРёСЏ РјРµР¶РґСѓ СЌРєСЂР°РЅР°РјРё. Р’ СЂР°Р·РґРµР»Рµ Common РІРІРѕРґСЏС‚СЃСЏ 10 РѕРґРЅРѕС‚РёРїРЅС‹С… РјР°РєСЂРѕСЃРѕРІ AltР¦РёС„СЂР°:
+<pre class="codesample"><code>
 $If ( Dialog || MainMenu || Menu || UserMenu || Search )
   $AKey
 $Else
@@ -57,15 +41,15 @@ $Else
     $AKey
   $End
 $End
-</pre>
+</code></pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="functions.html#akey">akey</a>,
-<a href="../examples.html">Примеры</a>
+<div class="see">РЎРјРѕС‚СЂРёС‚Рµ С‚Р°РєР¶Рµ:</div>
+<div class="seecont">
+<a href="prop_func/general.html#akey">akey()</a>,
+<a href="../examples.html">РџСЂРёРјРµСЂС‹</a>
 </div>
 
 
 </body>
-
 </html>
