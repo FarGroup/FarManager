@@ -1,0 +1,9 @@
+# To learn more about .editorconfig see https://aka.ms/editorconfigdocs
+
+# CSharp files
+[*.cs]
+indent_style = tab
+
+# Xml files
+[*.xml]
+indent_size = 2
