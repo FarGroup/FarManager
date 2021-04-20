@@ -65,11 +65,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-DizList::DizList():
-	m_CodePage(CP_DEFAULT)
-{
-}
-
 void DizList::Reset()
 {
 	m_DizData.clear();
@@ -77,7 +72,7 @@ void DizList::Reset()
 	m_OrderForWrite.clear();
 	m_DizFileName.clear();
 	m_Modified = false;
-	m_CodePage = CP_DEFAULT;
+	m_CodePage.reset();
 }
 
 static void PR_ReadingMsg()
@@ -259,9 +254,9 @@ DizList::desc_map::iterator DizList::Find(const string& Name, const string& Shor
 		Iterator = m_DizData.find(ShortName);
 
 	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
-	if (Iterator == m_DizData.end() && !IsUnicodeOrUtfCodePage(m_CodePage) && m_CodePage != CP_DEFAULT)
+	if (Iterator == m_DizData.end() && m_CodePage && !IsUnicodeOrUtfCodePage(*m_CodePage))
 	{
-		const auto strRecoded = encoding::get_chars(m_CodePage, encoding::get_bytes(m_CodePage, Name));
+		const auto strRecoded = encoding::get_chars(*m_CodePage, encoding::get_bytes(*m_CodePage, Name));
 		if (strRecoded == Name)
 		{
 			return Iterator;
@@ -360,8 +355,18 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 			return true;
 		}
 
+		if (!m_CodePage)
+		{
+			m_CodePage =
+				Global->Opt->Diz.SaveInUTF?
+				CP_UTF8 :
+				Global->Opt->Diz.AnsiByDefault?
+					encoding::codepage::ansi() :
+					encoding::codepage::oem();
+		}
+
 		// Encoding could fail, so we need to prepare the data before touching the file
-		encoding::memory_writer Writer(Global->Opt->Diz.SaveInUTF? CP_UTF8 : Global->Opt->Diz.AnsiByDefault? encoding::codepage::ansi() : encoding::codepage::oem());
+		encoding::memory_writer Writer(*m_CodePage);
 		const auto Eol = eol::win.str();
 
 		for (const auto& i_ptr: m_OrderForWrite)
@@ -404,6 +409,9 @@ void DizList::Set(const string& Name,const string& ShortName,const string& DizTe
 	}
 
 	auto& List = Iterator->second;
+	// Keep the record alive for a while just in case if filelist decides to redraw in the process.
+	m_RemovedEntries.emplace_back(std::move(List));
+
 	List.clear();
 
 	const auto KeySize = Iterator->first.size();
