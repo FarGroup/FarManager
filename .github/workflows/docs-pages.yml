@@ -1,0 +1,31 @@
+name: Docs Pages
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Enc
+        run: ./enc/tools/tool.make_inet.py
+
+      - name: GitHub Pages
+        if: success()
+        uses: crazy-max/ghaction-github-pages@v2.3.0
+        with:
+          repo: FarGroup/api
+          target_branch: master
+          keep_history: true
+          # Build directory to deploy
+          build_dir: enc/build/inet
+          # Write the given domain name to the CNAME file
+          #fqdn: # optional
+          # Allow Jekyll to build your site
+          jekyll: false
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
