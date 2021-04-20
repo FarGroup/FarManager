@@ -355,7 +355,7 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 			return true;
 		}
 
-		if (!m_CodePage)
+		if (!m_CodePage || Global->Opt->Diz.SaveInUTF)
 		{
 			m_CodePage =
 				Global->Opt->Diz.SaveInUTF?
