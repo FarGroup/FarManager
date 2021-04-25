@@ -1,4 +1,16 @@
 --------------------------------------------------------------------------------
+drkns 25.04.2021 18:08:48 +0100 - build 5785
+
+1. Add more "style" attributes: double underline, overline, strikeout, faint, blink.
+
+2. Rework color dialog to support these attributes, as well as existing bold, italic, underline.
+   Keep in mind that Far doesn't draw anything directly - to see all this luxury your terminal must support it.
+
+3. Minor fixes to extended attributes processing.
+
+4. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 20.04.2021 17:51:24 +0100 - build 5784
 
 1. Correction of 5783.

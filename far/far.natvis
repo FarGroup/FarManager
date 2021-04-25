@@ -182,6 +182,11 @@
 					<Item Name="bold">bool(Flags &amp; FCF_FG_BOLD)</Item>
 					<Item Name="italic">bool(Flags &amp; FCF_FG_ITALIC)</Item>
 					<Item Name="underline">bool(Flags &amp; FCF_FG_UNDERLINE)</Item>
+					<Item Name="underline2">bool(Flags &amp; FCF_FG_UNDERLINE2)</Item>
+					<Item Name="overline">bool(Flags &amp; FCF_FG_OVERLINE)</Item>
+					<Item Name="strikeout">bool(Flags &amp; FCF_FG_STRIKEOUT)</Item>
+					<Item Name="faint">bool(Flags &amp; FCF_FG_FAINT)</Item>
+					<Item Name="blink">bool(Flags &amp; FCF_FG_BLINK)</Item>
 				</Expand>
 			</Synthetic>
 		</Expand>

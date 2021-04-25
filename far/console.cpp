@@ -695,16 +695,28 @@ namespace console_detail
 
 		Str.pop_back();
 
-		if (Attributes.Flags & FCF_FG_UNDERLINE)
+		const auto set_style = [&](FARCOLORFLAGS const Style, string_view const On, string_view const Off)
 		{
-			if (!LastColor.has_value() || !(LastColor->Flags & FCF_FG_UNDERLINE))
-				Str += L";4"sv;
-		}
-		else
-		{
-			if (LastColor.has_value() && LastColor->Flags & FCF_FG_UNDERLINE)
-				Str += L";24"sv;
-		}
+			if (Attributes.Flags & Style)
+			{
+				if (!LastColor.has_value() || !(LastColor->Flags & Style))
+					Str += On;
+			}
+			else
+			{
+				if (LastColor.has_value() && LastColor->Flags & Style)
+					Str += Off;
+			}
+		};
+
+		set_style(FCF_FG_BOLD,       L";1"sv,  L";22"sv);
+		set_style(FCF_FG_ITALIC,     L";3"sv,  L";23"sv);
+		set_style(FCF_FG_UNDERLINE,  L";4"sv,  L";24"sv);
+		set_style(FCF_FG_UNDERLINE2, L";21"sv, L";24"sv);
+		set_style(FCF_FG_OVERLINE,   L";53"sv, L";55"sv);
+		set_style(FCF_FG_STRIKEOUT,  L";9"sv,  L";29"sv);
+		set_style(FCF_FG_FAINT,      L";2"sv,  L";22"sv);
+		set_style(FCF_FG_BLINK,      L";5"sv,  L";25"sv);
 
 		Str += L'm';
 	}
@@ -812,18 +824,18 @@ namespace console_detail
 				assert(BufferSize.x == WriteRegion.width());
 				assert(BufferSize.y == WriteRegion.height());
 
-
-				for (auto& i: span(Buffer, BufferSize.x * BufferSize.y))
+				const auto invert_colors = [&]
 				{
-					i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
-				}
+					for (auto& i: span(Buffer, BufferSize.x* BufferSize.y))
+						i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
+				};
 
-				auto WriteRegionCopy = WriteRegion;
-				WriteOutputNTImpl(Buffer, BufferSize, WriteRegionCopy);
+				invert_colors();
+
+				WriteOutputNTImpl(Buffer, BufferSize, WriteRegion);
 				Sleep(50);
 
-				for (auto& i: span(Buffer, BufferSize.x * BufferSize.y))
-					i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
+				invert_colors();
 			}
 
 			return WriteOutputNTImpl(Buffer, BufferSize, WriteRegion) != FALSE;

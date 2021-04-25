@@ -1142,6 +1142,75 @@ TEST_CASE("utility.hash_range")
 	REQUIRE(h2 != h3);
 }
 
+TEST_CASE("utility.flags")
+{
+	using flags_type = uint8_t;
+
+	{
+		static const struct
+		{
+			using test = std::pair<flags_type, bool>;
+
+			flags_type Value;
+			test Any, All;
+		}
+		Tests[]
+		{
+			{ 0b00000000, { 0b00000000, false }, { 0b00000000, true  } },
+			{ 0b00000000, { 0b10000001, false }, { 0b10000001, false } },
+			{ 0b00000001, { 0b00000001, true  }, { 0b00000001, true  } },
+			{ 0b00000001, { 0b10000001, true  }, { 0b10000001, false } },
+			{ 0b10000000, { 0b10000001, true  }, { 0b10000001, false } },
+			{ 0b10000001, { 0b10000001, true  }, { 0b10000001, true  } },
+		};
+
+		for (const auto& i : Tests)
+		{
+			REQUIRE(flags::check_any(i.Value, i.Any.first) == i.Any.second);
+			REQUIRE(flags::check_all(i.Value, i.All.first) == i.All.second);
+		}
+	}
+
+	{
+		static const struct
+		{
+			using test = std::pair<flags_type, flags_type>;
+
+			flags_type Value;
+			test Set, Clear, Invert;
+		}
+		Tests[]
+		{
+			{ 0b00000000, { 0b00000000, 0b00000000 }, { 0b00000000, 0b00000000 }, { 0b00000000, 0b00000000 }, },
+			{ 0b00000000, { 0b00001111, 0b00001111 }, { 0b00001111, 0b00000000 }, { 0b00001111, 0b00001111 }, },
+			{ 0b11111111, { 0b00000000, 0b11111111 }, { 0b00000000, 0b11111111 }, { 0b00000000, 0b11111111 }, },
+			{ 0b11111111, { 0b00001111, 0b11111111 }, { 0b00001111, 0b11110000 }, { 0b00001111, 0b11110000 }, },
+			{ 0b10101010, { 0b10101010, 0b10101010 }, { 0b10101010, 0b00000000 }, { 0b10101010, 0b00000000 }, },
+			{ 0b10101010, { 0b01010101, 0b11111111 }, { 0b01010101, 0b10101010 }, { 0b01010101, 0b11111111 }, },
+		};
+
+		for (const auto& i: Tests)
+		{
+			{
+				auto Value = i.Value;
+				flags::set(Value, i.Set.first);
+				REQUIRE(Value == i.Set.second);
+			}
+			{
+				auto Value = i.Value;
+				flags::clear(Value, i.Clear.first);
+				REQUIRE(Value == i.Clear.second);
+			}
+			{
+				auto Value = i.Value;
+				flags::invert(Value, i.Invert.first);
+				REQUIRE(Value == i.Invert.second);
+			}
+		}
+	}
+
+}
+
 TEST_CASE("utility.aligned_size")
 {
 	constexpr auto Alignment = alignof(std::max_align_t);

@@ -837,13 +837,18 @@ private:
 	};
 };
 
-static const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[] =
+static const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]
 {
-	{FCF_FG_4BIT,      L"fg4bit"sv    },
-	{FCF_BG_4BIT,      L"bg4bit"sv    },
-	{FCF_FG_BOLD,      L"bold"sv      },
-	{FCF_FG_ITALIC,    L"italic"sv    },
-	{FCF_FG_UNDERLINE, L"underline"sv },
+	{ FCF_FG_4BIT,         L"fg4bit"sv       },
+	{ FCF_BG_4BIT,         L"bg4bit"sv       },
+	{ FCF_FG_BOLD,         L"bold"sv         },
+	{ FCF_FG_ITALIC,       L"italic"sv       },
+	{ FCF_FG_UNDERLINE,    L"underline"sv    },
+	{ FCF_FG_UNDERLINE2,   L"underline2"sv   },
+	{ FCF_FG_OVERLINE,     L"overline"sv     },
+	{ FCF_FG_STRIKEOUT,    L"strikeout"sv   },
+	{ FCF_FG_FAINT,        L"faint"sv        },
+	{ FCF_FG_BLINK,        L"blink"sv        },
 };
 
 class HighlightHierarchicalConfigDb: public HierarchicalConfigDb
