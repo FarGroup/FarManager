@@ -324,10 +324,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
     </ClCompile>
-    <ClCompile Include="sqlite_unicode.c">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
-    </ClCompile>
     <ClCompile Include="sqlitedb.cpp" />
     <ClCompile Include="stddlg.cpp" />
     <ClCompile Include="string_sort.cpp" />
@@ -540,7 +536,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="setcolor.hpp" />
     <ClInclude Include="shortcuts.hpp" />
     <ClInclude Include="sqlite.hpp" />
-    <ClInclude Include="sqlite_unicode.hpp" />
     <ClInclude Include="sqlitedb.hpp" />
     <ClInclude Include="stddlg.hpp" />
     <ClInclude Include="string_sort.hpp" />

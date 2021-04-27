@@ -23,7 +23,6 @@ endif
 
 SRCS = \
 	sqlite.c \
-	sqlite_unicode.c \
 	cache.cpp \
 	cddrv.cpp \
 	clipboard.cpp \

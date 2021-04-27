@@ -946,7 +946,6 @@ public:
 
 	// запоминать логические диски и не опрашивать каждый раз. Для предотвращения "просыпания" "зеленых" винтов.
 	BoolOption RememberLogicalDrives;
-	BoolOption FlagPosixSemantics;
 
 	IntOption MsWheelDelta; // задает смещение для прокрутки
 	IntOption MsWheelDeltaView;

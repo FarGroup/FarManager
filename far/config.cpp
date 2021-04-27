@@ -1970,7 +1970,6 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeySystem,                 L"FindCodePage"sv,                  FindCodePage, CP_DEFAULT},
 		{FSSF_PRIVATE,           NKeySystem,                 L"FindFolders"sv,                   FindOpt.FindFolders, true},
 		{FSSF_PRIVATE,           NKeySystem,                 L"FindSymLinks"sv,                  FindOpt.FindSymLinks, true},
-		{FSSF_PRIVATE,           NKeySystem,                 L"FlagPosixSemantics"sv,            FlagPosixSemantics, true},
 		{FSSF_PRIVATE,           NKeySystem,                 L"FolderInfo"sv,                    InfoPanel.strFolderInfoFiles, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"sv},
 		{FSSF_PRIVATE,           NKeySystem,                 L"MsWheelDelta"sv,                  MsWheelDelta, 1},
 		{FSSF_PRIVATE,           NKeySystem,                 L"MsWheelDeltaEdit"sv,              MsWheelDeltaEdit, 1},

@@ -21,7 +21,8 @@ function blua {
 mkdir $1
 cd $1 || return 1
 
-wine "C:/src/enc/tools/lua/lua.exe" "C:/src/enc/tools/lua/scripts/tp2hh.lua" "../../../enc_lua/${1}.tsi" tsi "C:/src/enc/tools/lua/templates/api.tem" 
+python ../../../tools/convert.py "../../../enc_lua/${1}.tsi" ${2} "${1}.tsi" ${3}
+wine "C:/src/enc/tools/lua/lua.exe" "C:/src/enc/tools/lua/scripts/tp2hh.lua" "${1}.tsi" tsi "C:/src/enc/tools/lua/templates/api.tem"
 wine "C:/Program Files (x86)/HTML Help Workshop/hhc.exe" ${1}.hhp
 
 ( \
@@ -55,9 +56,9 @@ mkdir -p enc/build/lua
 pushd enc/build/lua || exit 1
 
 ( \
-	blua macroapi_manual.ru && \
-	blua macroapi_manual.en && \
-	blua luafar_manual \
+	blua macroapi_manual.ru utf-8-sig windows-1251 && \
+	blua macroapi_manual.en utf-8-sig windows-1252 && \
+	blua luafar_manual      utf-8-sig windows-1252 \
 ) || exit 1
 
 popd

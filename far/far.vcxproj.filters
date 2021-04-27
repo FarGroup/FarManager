@@ -422,9 +422,6 @@
     <ClCompile Include="sqlite.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sqlite_unicode.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sqlitedb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1052,9 +1049,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sqlite.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sqlite_unicode.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sqlitedb.hpp">

@@ -160,7 +160,6 @@ protected:
 	void Exec(span<std::string_view const> Commands) const;
 	void SetWALJournalingMode() const;
 	void EnableForeignKeysConstraints() const;
-	void CreateNumericCollation() const;
 
 	unsigned long long LastInsertRowID() const;
 
@@ -192,7 +191,6 @@ protected:
 		FORWARD_FUNCTION(Exec)
 		FORWARD_FUNCTION(SetWALJournalingMode)
 		FORWARD_FUNCTION(EnableForeignKeysConstraints)
-		FORWARD_FUNCTION(CreateNumericCollation)
 		FORWARD_FUNCTION(PrepareStatements)
 
 #undef FORWARD_FUNCTION
@@ -210,6 +208,8 @@ private:
 
 	database_ptr Open(string_view Path, busy_handler BusyHandler, bool WAL);
 	void Close();
+
+	void create_collations() const;
 
 	// The order is important
 	bool m_DbExists{};

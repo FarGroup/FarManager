@@ -1,4 +1,14 @@
 --------------------------------------------------------------------------------
+drkns 28.04.2021 00:43:06 +0100 - build 5786
+
+1. As it turned out, the sqlite unicode extension that we were using has a rather unorthodox notion of nocase collation.
+   Quote: "automatically try to unaccent any characters that are over the 0x80 character", in other words it treats Ä, Á, Ą, Â, Ă as the same thing.
+   Given that we only need nocase for case-insensitive, Windows-like file name lookup, this does more harm than good.
+   The extension has been removed and nocase collation is now delegated to Windows.
+
+2. Remove System.FlagPosixSemantics config parameter.
+
+--------------------------------------------------------------------------------
 drkns 25.04.2021 18:08:48 +0100 - build 5785
 
 1. Add more "style" attributes: double underline, overline, strikeout, faint, blink.
