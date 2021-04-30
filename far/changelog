@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 30.04.2021 17:24:37 +0100 - build 5787
+
+1. Forum: Repeated rescan directory tree.
+
+--------------------------------------------------------------------------------
 drkns 28.04.2021 00:43:06 +0100 - build 5786
 
 1. As it turned out, the sqlite unicode extension that we were using has a rather unorthodox notion of nocase collation.
