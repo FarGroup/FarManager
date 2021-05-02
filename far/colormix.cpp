@@ -119,19 +119,20 @@ namespace colors
 		const auto merge_part = [&](COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
 		{
 			const auto TopValue = std::invoke(ColorAccessor, Top);
-			if (!is_opaque(TopValue))
+			if (is_transparent(TopValue))
 				return;
 
 			// TODO: proper alpha blending?
 			std::invoke(ColorAccessor, Result) = TopValue;
 
-			flags::change(Result.Flags, Flag, flags::check_any(Top.Flags, Flag));
+			flags::copy(Result.Flags, Flag, Top.Flags);
 		};
 
 		merge_part(&FarColor::BackgroundColor, FCF_BG_4BIT);
 		merge_part(&FarColor::ForegroundColor, FCF_FG_4BIT);
 
-		Result.Flags |= Top.Flags & FCF_EXTENDEDFLAGS;
+		if (!(Top.Flags & FCF_IGNORE_STYLE))
+			flags::copy(Result.Flags, FCF_STYLEMASK, Top.Flags);
 
 		return Result;
 	}
@@ -285,7 +286,7 @@ FarColor ConsoleColorToFarColor(WORD Color)
 {
 	return
 	{
-		FCF_FG_4BIT | FCF_BG_4BIT | (Color & FCF_RAWATTR_MASK),
+		FCF_FG_4BIT | FCF_BG_4BIT | FCF_IGNORE_STYLE | (Color & FCF_RAWATTR_MASK),
 		{ opaque((Color >> ConsoleFgShift) & ConsoleMask) },
 		{ opaque((Color >> ConsoleBgShift) & ConsoleMask) }
 	};

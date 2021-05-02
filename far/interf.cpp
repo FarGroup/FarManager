@@ -963,11 +963,6 @@ void MakeShadow(rectangle const Where)
 	Global->ScrBuf->ApplyShadow(Where);
 }
 
-void ChangeBlockColor(rectangle const Where, const FarColor& Color)
-{
-	Global->ScrBuf->ApplyColor(Where, Color, true);
-}
-
 void SetColor(int Color)
 {
 	CurColor = colors::ConsoleColorToFarColor(Color);

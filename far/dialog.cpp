@@ -437,8 +437,8 @@ Dialog::~Dialog()
 			Global->ScrBuf->Flush();
 	}
 
-//	INPUT_RECORD rec;
-//	PeekInputRecord(&rec);
+	//INPUT_RECORD rec;
+	//PeekInputRecord(&rec);
 	RemoveFromList();
 }
 
@@ -1986,7 +1986,10 @@ void Dialog::ShowDialog(size_t ID)
 				if(Item.Flags & DIF_SETSHIELD)
 				{
 					int startx = m_Where.left + CX1 + (Item.Flags&DIF_NOBRACKETS? 0 : 2);
-					Global->ScrBuf->ApplyColor({ startx, m_Where.top + CY1, startx + 1, m_Where.top + CY1 }, colors::ConsoleColorToFarColor(B_YELLOW | F_LIGHTBLUE));
+					Global->ScrBuf->ApplyColor(
+						{ startx, m_Where.top + CY1, startx + 1, m_Where.top + CY1 },
+						colors::ConsoleColorToFarColor(B_YELLOW | F_LIGHTBLUE),
+						ScreenBuf::apply_mode::all);
 				}
 				break;
 			}
@@ -2903,11 +2906,14 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 					switch (LocalKey())
 					{
 						case KEY_BS:
-						{	// В начале строки????
+						{
+							// В начале строки????
 							if (!edt->GetCurPos())
-							{	// а "выше" тоже DIF_EDITOR?
+							{
+								// а "выше" тоже DIF_EDITOR?
 								if (m_FocusPos > 0 && IsEmulatedEditorLine(Items[m_FocusPos - 1]))
-								{	// добавляем к предыдущему и...
+								{
+									// добавляем к предыдущему и...
 									bool last = false;
 									const auto prev = static_cast<DlgEdit*>(Items[m_FocusPos - 1].ObjPtr);
 									auto strStr = prev->GetString();
@@ -3852,9 +3858,7 @@ int Dialog::SetAutomation(WORD IDParent,WORD id,
 	if (IDParent < Items.size() && (Items[IDParent].Flags&DIF_AUTOMATION) &&
 	        id < Items.size() && IDParent != id) // Сами себя не юзаем!
 	{
-		Ret = Items[IDParent].AddAutomation(&Items[id], UncheckedSet, UncheckedSkip,
-			                                    CheckedSet, CheckedSkip,
-				 						        Checked3Set, Checked3Skip);
+		Ret = Items[IDParent].AddAutomation(&Items[id], UncheckedSet, UncheckedSkip, CheckedSet, CheckedSkip, Checked3Set, Checked3Skip);
 	}
 
 	return Ret;
@@ -3954,17 +3958,17 @@ bool Dialog::SelectFromEditHistory(DialogItemEx const* const CurItem, DlgEdit* c
 		HistoryMenu->SetMenuFlags(VMENU_SHOWAMPERSAND);
 		HistoryMenu->SetBoxType(SHORT_SINGLE_BOX);
 		HistoryMenu->SetId(SelectFromEditHistoryId);
-//		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
+		//SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 		// запомним (для прорисовки)
-//		CurItem->ListPtr=&HistoryMenu;
+		//CurItem->ListPtr=&HistoryMenu;
 		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 		DlgProc(DN_DROPDOWNOPENED, m_FocusPos, ToPtr(1));
 		ret = DlgHist->Select(*HistoryMenu, Global->Opt->Dialogs.CBoxMaxHeight, this, strStr);
 		SetDropDownOpened(FALSE); // Установим флаг "открытия" комбобокса.
 		DlgProc(DN_DROPDOWNOPENED, m_FocusPos, nullptr);
 		// забудем (не нужен)
-//		CurItem->ListPtr=nullptr;
-//		SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
+		//CurItem->ListPtr=nullptr;
+		//SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
 	}
 
 	if (ret != HRT_CANCEL)

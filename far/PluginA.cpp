@@ -4370,7 +4370,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 
 				return static_cast<int>(pluginapi::apiEditorControl(-1, ECTL_SAVEFILE, 0, Param? &newsf : nullptr));
 			}
-			case oldfar::ECTL_PROCESSINPUT:	//BUGBUG?
+			case oldfar::ECTL_PROCESSINPUT: //BUGBUG?
 			{
 				if (Param)
 				{
@@ -4398,7 +4398,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 				KeyToInputRecord(OldKeyToKey(static_cast<int>(reinterpret_cast<intptr_t>(Param))),&r);
 				return static_cast<int>(pluginapi::apiEditorControl(-1,ECTL_PROCESSINPUT, 0, &r));
 			}
-			case oldfar::ECTL_READINPUT:	//BUGBUG?
+			case oldfar::ECTL_READINPUT: //BUGBUG?
 			{
 				const auto ret = static_cast<int>(pluginapi::apiEditorControl(-1,ECTL_READINPUT, 0, Param));
 
@@ -4571,9 +4571,18 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 				return static_cast<int>(pluginapi::apiEditorControl(-1,ECTL_SETTITLE, 0, Param? UNSAFE_CSTR(newtit) : nullptr));
 			}
 			// BUGBUG, convert params
-			case oldfar::ECTL_DELETEBLOCK:	Command = ECTL_DELETEBLOCK; break;
-			case oldfar::ECTL_DELETECHAR:		Command = ECTL_DELETECHAR; break;
-			case oldfar::ECTL_DELETESTRING:	Command = ECTL_DELETESTRING; break;
+			case oldfar::ECTL_DELETEBLOCK:
+				Command = ECTL_DELETEBLOCK;
+				break;
+
+			case oldfar::ECTL_DELETECHAR:
+				Command = ECTL_DELETECHAR;
+				break;
+
+			case oldfar::ECTL_DELETESTRING:
+				Command = ECTL_DELETESTRING;
+				break;
+
 			case oldfar::ECTL_EXPANDTABS:
 			{
 				Command = ECTL_EXPANDTABS;
@@ -4619,8 +4628,14 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 				}
 				return bStack? static_cast<int>(newbm->Count) : TRUE;
 			}
-			case oldfar::ECTL_INSERTSTRING:	Command = ECTL_INSERTSTRING; break;
-			case oldfar::ECTL_QUIT:					Command = ECTL_QUIT; break;
+
+			case oldfar::ECTL_INSERTSTRING:
+				Command = ECTL_INSERTSTRING;
+				break;
+
+			case oldfar::ECTL_QUIT:
+				Command = ECTL_QUIT;
+				break;
 
 			case oldfar::ECTL_REALTOTAB:
 			case oldfar::ECTL_TABTOREAL:
@@ -4639,18 +4654,37 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 				EditorSelect newes={sizeof(EditorSelect),oldes->BlockType,oldes->BlockStartLine,oldes->BlockStartPos,oldes->BlockWidth,oldes->BlockHeight};
 				return static_cast<int>(pluginapi::apiEditorControl(-1, ECTL_SELECT, 0, &newes));
 			}
-			case oldfar::ECTL_REDRAW:				Command = ECTL_REDRAW; break;
+			case oldfar::ECTL_REDRAW:
+				Command = ECTL_REDRAW;
+				break;
+
 			case oldfar::ECTL_SETPOSITION:
 			{
 				const auto oldsp = static_cast<const oldfar::EditorSetPosition*>(Param);
 				EditorSetPosition newsp={sizeof(EditorSetPosition),oldsp->CurLine,oldsp->CurPos,oldsp->CurTabPos,oldsp->TopScreenLine,oldsp->LeftPos,oldsp->Overtype};
 				return static_cast<int>(pluginapi::apiEditorControl(-1, ECTL_SETPOSITION, 0, &newsp));
 			}
-			case oldfar::ECTL_ADDSTACKBOOKMARK:			Command = ECTL_ADDSESSIONBOOKMARK; break;
-			case oldfar::ECTL_PREVSTACKBOOKMARK:		Command = ECTL_PREVSESSIONBOOKMARK; break;
-			case oldfar::ECTL_NEXTSTACKBOOKMARK:		Command = ECTL_NEXTSESSIONBOOKMARK; break;
-			case oldfar::ECTL_CLEARSTACKBOOKMARKS:	Command = ECTL_CLEARSESSIONBOOKMARKS; break;
-			case oldfar::ECTL_DELETESTACKBOOKMARK:	Command = ECTL_DELETESESSIONBOOKMARK; break;
+
+			case oldfar::ECTL_ADDSTACKBOOKMARK:
+				Command = ECTL_ADDSESSIONBOOKMARK;
+				break;
+
+			case oldfar::ECTL_PREVSTACKBOOKMARK:
+				Command = ECTL_PREVSESSIONBOOKMARK;
+				break;
+
+			case oldfar::ECTL_NEXTSTACKBOOKMARK:
+				Command = ECTL_NEXTSESSIONBOOKMARK;
+				break;
+
+			case oldfar::ECTL_CLEARSTACKBOOKMARKS:
+				Command = ECTL_CLEARSESSIONBOOKMARKS;
+				break;
+
+			case oldfar::ECTL_DELETESTACKBOOKMARK:
+				Command = ECTL_DELETESESSIONBOOKMARK;
+				break;
+
 			default:
 				return FALSE;
 		}
@@ -4910,7 +4944,7 @@ static void CheckScreenLock()
 {
 	if (Global->ScrBuf->GetLockCount() > 0 && !Global->CtrlObject->Macro.PeekKey())
 	{
-//		Global->ScrBuf->SetLockCount(0);
+		//Global->ScrBuf->SetLockCount(0);
 		Global->ScrBuf->Flush();
 	}
 }

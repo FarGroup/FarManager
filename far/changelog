@@ -1,4 +1,19 @@
 --------------------------------------------------------------------------------
+drkns 02.05.2021 11:28:04 +0100 - build 5788
+
+1. Experimental: editor selection color can have transparent foreground/background.
+
+2. More transparency to come: make sure you fill alpha channels in FarColor structures properly in API.
+
+2. Multiple fixes related to color merging and processing.
+
+3. Continuation of 5785.
+
+4. SQLite diagnostic improvements.
+
+5. Minor fixes in grabber.
+
+--------------------------------------------------------------------------------
 drkns 30.04.2021 17:24:37 +0100 - build 5787
 
 1. Forum: Repeated rescan directory tree.

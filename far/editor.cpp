@@ -360,7 +360,7 @@ void Editor::ShowEditor()
 						BlockX2=XX2;
 
 					if (BlockX1 <= XX2 && BlockX2 >= m_Where.left)
-						ChangeBlockColor({ BlockX1, Y, BlockX2, Y }, colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT));
+						Global->ScrBuf->ApplyColor({ BlockX1, Y, BlockX2, Y }, colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT), ScreenBuf::apply_mode::color);
 				}
 
 				++CurPtr;
@@ -793,7 +793,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 	switch (LocalKey())
 	{
 		case KEY_CTRLSHIFTUP:   case KEY_CTRLSHIFTNUMPAD8: LocalKey = KEY_SHIFTUP;   break;
-		case KEY_CTRLSHIFTDOWN:	case KEY_CTRLSHIFTNUMPAD2: LocalKey = KEY_SHIFTDOWN; break;
+		case KEY_CTRLSHIFTDOWN: case KEY_CTRLSHIFTNUMPAD2: LocalKey = KEY_SHIFTDOWN; break;
 
 		case KEY_CTRLALTUP:     case KEY_RCTRLRALTUP:     case KEY_CTRLRALTUP:        case KEY_RCTRLALTUP:     LocalKey = KEY_ALTUP;   break;
 		case KEY_CTRLALTDOWN:   case KEY_RCTRLRALTDOWN:   case KEY_CTRLRALTDOWN:      case KEY_RCTRLALTDOWN:   LocalKey = KEY_ALTDOWN; break;
@@ -5661,7 +5661,13 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				ColorItem newcol;
 				newcol.StartPos=col->StartPos;
 				newcol.EndPos=col->EndPos;
-				newcol.SetColor(col->Color);
+
+				// BUGBUG Colorer sends transparent colors
+				auto OpaqueColor = col->Color;
+				colors::make_opaque(OpaqueColor.ForegroundColor);
+				colors::make_opaque(OpaqueColor.BackgroundColor);
+				newcol.SetColor(OpaqueColor);
+
 				newcol.Flags=col->Flags;
 				newcol.SetOwner(col->Owner);
 				newcol.Priority=col->Priority;

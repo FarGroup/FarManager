@@ -2885,8 +2885,8 @@ int FarMacroApi::dateFunc()
 
 // S=xlat(S[,Flags])
 /*
-  Flags:
-  	XLAT_SWITCHKEYBLAYOUT  = 1
+	Flags:
+		XLAT_SWITCHKEYBLAYOUT  = 1
 		XLAT_SWITCHKEYBBEEP    = 2
 		XLAT_USEKEYBLAYOUTNAME = 4
 */

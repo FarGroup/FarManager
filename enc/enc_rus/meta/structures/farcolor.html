@@ -39,33 +39,32 @@ struct FarColor
     <td class="cont" width="60%">цвет символа задан стандартным кодом в 4 бита</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_BG_4BIT">FCF_BG_4BIT</a></td>
     <td class="cont" width="60%">цвет фона символа задан стандартным кодом в 4 бита</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCF_4BITMASK">FCF_4BITMASK</a></td>
-    <td class="cont" width="60%">стандартный четырехбитный цвет (FCF_FG_4BIT|FCF_BG_4BIT)</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCF_EXTENDEDFLAGS">FCF_EXTENDEDFLAGS</a></td>
-    <td class="cont" width="60%">расширенные атрибуты (~FCF_4BITMASK)</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_BOLD">FCF_FG_BOLD</a></td>
     <td class="cont" width="60%">расширенные атрибуты, задан стиль: "жирный" символ</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_ITALIC">FCF_FG_ITALIC</a></td>
     <td class="cont" width="60%">расширенные атрибуты, задан стиль: "наклонный" символ</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_UNDERLINE">FCF_FG_UNDERLINE</a></td>
     <td class="cont" width="60%">расширенные атрибуты, задан стиль: "подчеркнутый" символ</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCF_STYLEMASK">FCF_STYLEMASK</a></td>
-    <td class="cont" width="60%">расширенные атрибуты, используются стили (FCF_FG_BOLD|FCF_FG_ITALIC|FCF_FG_UNDERLINE)</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_NONE">FCF_NONE</a></td>
     <td class="cont" width="60%">нулевой флаг</td></tr>
     </table>
     </div>
   <div class=dfn>ForegroundColor</div>
-    <div class=dfndescr>Цвет символа, значение типа <code>COLORREF</code>.</div>
+    <div class=dfndescr>Цвет символа в формате <code>0xAABBGGRR</code> или индекс <code>0xAA000000</code> - <code>0xAA00000F</code>, если установлен флаг FCF_FG_4BIT.</div>
   <div class=dfn>BackgroundColor</div>
-    <div class=dfndescr>Цвет фона символа, значение типа <code>COLORREF</code>.</div>
+    <div class=dfndescr>Цвет символа в формате <code>0xAABBGGRR</code> или индекс <code>0xAA000000</code> - <code>0xAA00000F</code>, если установлен флаг FCF_BG_4BIT.</div>
   <div class=dfn>Reserved</div>
-    <div class=dfndescr>Не используется.</div>
+    <div class=dfndescr>Не используется и должен быть установлен в 0.</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 При формировании цвета для стандартной консоли Windows обязательно указывайте флаги <code>FCF_FG_4BIT</code> и <code>FCF_BG_4BIT</code>.
+</div>
+
+<div class=descr>
+Старший байт в ForegroundColor и BackgroundColor определяет степень прозрачности цвета, от полностью прозрачного (00) до полностью непрозрачного (FF).
+В данный момент прозрачность поддерживается не везде. Во избежание неприятных сюрпризов в будущем всегда устанавливайте старший байт в <code>0xFF</code>.
 </div>
 
 <div class=see>Смотрите также:</div>

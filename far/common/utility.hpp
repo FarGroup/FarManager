@@ -214,6 +214,13 @@ namespace flags
 	{
 		Set? set(Value, Bits) : clear(Value, Bits);
 	}
+
+	template<typename value_type, typename mask_type, typename flags_type>
+	constexpr void copy(value_type& Value, mask_type Mask, flags_type Bits)
+	{
+		clear(Value, Mask);
+		set(Value, Bits & Mask);
+	}
 }
 
 [[nodiscard]]

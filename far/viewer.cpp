@@ -1171,7 +1171,7 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 				++eol_len;            // LF or CRLF
 				assert(eol_len <= 2);
 			}
-			else if ( ch != L'\r' )	 // nor LF nor CR
+			else if ( ch != L'\r' ) // nor LF nor CR
 			{
 				VgetcCache.m_Iterator = Iterator; // ungetc(1)
 				assert(eol_len <= 1); // CR or unterminated
@@ -1179,7 +1179,7 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 			else                     // CR
 			{
 				eol_char = ch;
-				if (++eol_len == 1)	 // single CR - continue
+				if (++eol_len == 1) // single CR - continue
 					continue;
 
 				assert(eol_len == 2); // CRCR...
@@ -1297,8 +1297,8 @@ long long Viewer::BegOfScreen()
 				col += ViOpt.TabSize - (col % ViOpt.TabSize);
 			else
 				++col;
-			if ( col > LeftPos )	//!! шеврон закрывает первый символ
-				break;				//!! при LeftPos=1 не видны 2 символа
+			if ( col > LeftPos ) //!! шеврон закрывает первый символ
+				break;           //!! при LeftPos=1 не видны 2 символа
 		}
 		if ( pos < 0 )
 			pos = (col > LeftPos ? prev_pos : vtell());
@@ -2217,7 +2217,7 @@ void Viewer::CacheLine( long long start, int length, bool have_eol )
 		int i = (lcache_base + lcache_count - 1) % lcache_lines.size();
 		lcache_lines[i] = (have_eol ? -start : +start);
 		i = (i + 1) % lcache_lines.size();
-		lcache_lines[i]	= lcache_last = start + length;
+		lcache_lines[i] = lcache_last = start + length;
 		if (static_cast<size_t>(lcache_count) < lcache_lines.size())
 			++lcache_count;
 		else

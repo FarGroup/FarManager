@@ -573,7 +573,7 @@ bool elevation::ElevationApproveDlg(lng const Why, string_view const Object)
 
 	if(!(os::security::is_admin() && !(Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
 		m_AskApprove && !m_DontAskAgain && !m_Recurse &&
- 		Global->WindowManager && !Global->WindowManager->ManagerIsDown())
+		Global->WindowManager && !Global->WindowManager->ManagerIsDown())
 	{
 		++m_Recurse;
 

@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common.hpp"
 #include "common/bytes_view.hpp"
 #include "common/function_ref.hpp"
+#include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
 #include "common/uuid.hpp"
 
@@ -115,28 +116,29 @@ namespace
 	}
 
 	[[noreturn]]
-	void throw_exception(string_view const DatabaseName, int const ErrorCode, string_view const ErrorString = {}, int const SystemErrorCode = 0)
+	void throw_exception(string_view const DatabaseName, int const ErrorCode, string_view const ErrorString = {}, int const SystemErrorCode = 0, string_view const Sql = {})
 	{
-		throw MAKE_EXCEPTION(far_sqlite_exception, true, format(FSTR(L"[{}] - SQLite error {}: {}{}"sv),
+		throw MAKE_EXCEPTION(far_sqlite_exception, true, format(FSTR(L"[{}] - SQLite error {}: {}{}{}"sv),
 			DatabaseName,
 			ErrorCode,
 			ErrorString.empty()? GetErrorString(ErrorCode) : ErrorString,
-			SystemErrorCode? format(FSTR(L" ({})"sv), os::format_error(SystemErrorCode)) : L""s
+			SystemErrorCode? format(FSTR(L" ({})"sv), os::format_error(SystemErrorCode)) : L""sv,
+			Sql.empty()? L""sv : format(FSTR(L" while executing {}"sv), Sql)
 		));
 	}
 
 	[[noreturn]]
-	void throw_exception(sqlite::sqlite3* Db, string_view const DbName = {})
+	void throw_exception(sqlite::sqlite3* Db, string_view const DbName = {}, string_view const Sql = {})
 	{
-		throw_exception(GetDatabaseName(Db, DbName), GetLastErrorCode(Db), GetLastErrorString(Db), GetLastSystemErrorCode(Db));
+		throw_exception(GetDatabaseName(Db, DbName), GetLastErrorCode(Db), GetLastErrorString(Db), GetLastSystemErrorCode(Db), Sql);
 	}
 
-	void invoke(sqlite::sqlite3* Db, function_ref<bool()> const Callable)
+	void invoke(sqlite::sqlite3* Db, function_ref<bool()> const Callable, function_ref<string()> const SqlAccessor = nullptr)
 	{
 		SCOPED_ACTION(lock)(Db);
 
 		if (!Callable())
-			throw_exception(Db);
+			throw_exception(Db, {}, SqlAccessor? SqlAccessor() : L""sv);
 	}
 
 	SCOPED_ACTION(components::component)([]
@@ -228,6 +230,16 @@ void SQLiteDb::SQLiteStmt::Execute() const
 	{
 		const auto StepResult = sqlite::sqlite3_step(m_Stmt.get());
 		return StepResult == SQLITE_DONE || StepResult == SQLITE_ROW;
+	},
+	[&]
+	{
+		if (const auto Sql = sqlite::sqlite3_expanded_sql(m_Stmt.get()))
+		{
+			SCOPE_EXIT{ sqlite::sqlite3_free(Sql); };
+			return encoding::utf8::get_chars(Sql);
+		}
+
+		return encoding::utf8::get_chars(sqlite::sqlite3_normalized_sql(m_Stmt.get()));
 	});
 }
 
@@ -339,7 +351,7 @@ SQLiteDb::SQLiteDb(busy_handler BusyHandler, initialiser Initialiser, string_vie
 	// then no subsequent operations in that transaction will ever fail with an SQLITE_BUSY error.
 	m_stmt_BeginTransaction(create_stmt("BEGIN EXCLUSIVE"sv)),
 	m_stmt_EndTransaction(create_stmt("END"sv)),
-	m_Init((create_collations(), (void)Initialiser(db_initialiser(this)), init{})) // yay, operator comma!
+	m_Init(((void)create_collations(), (void)Initialiser(db_initialiser(this)), init{})) // yay, operator comma!
 {
 }
 

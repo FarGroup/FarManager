@@ -73,13 +73,13 @@ static TypeString checkTypeString(const string& TestStr)
 		auto ptrTestStr = TestStr.c_str();
 		wchar_t ch, ch2;
 		bool isNum     = true;
-//		bool isDec     = false;
+		//bool isDec     = false;
 		bool isBegDec  = false;
-//		bool isHex     = false;
+		//bool isHex     = false;
 		bool isBegHex  = false;
-//		bool isOct     = false;
+		//bool isOct     = false;
 		bool isBegOct  = false;
-//		bool isE       = false;
+		//bool isE       = false;
 		bool isExp     = false;
 		bool isPoint   = false;
 		bool isSign    = false;

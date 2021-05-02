@@ -598,7 +598,7 @@ bool Plugin::LoadData()
 		Info.StructSize &&
 		Info.Title && *Info.Title &&
 		Info.Description && *Info.Description &&
- 		Info.Author && *Info.Author)
+		Info.Author && *Info.Author)
 	{
 		m_MinFarVersion = Info.MinFarVersion;
 		m_PluginVersion = Info.Version;

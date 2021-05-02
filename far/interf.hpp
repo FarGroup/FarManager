@@ -176,7 +176,6 @@ inline void BoxText(wchar_t const Chr) { return BoxText({ &Chr, 1 }, false); }
 
 void SetScreen(rectangle Where, wchar_t Ch,const FarColor& Color);
 void MakeShadow(rectangle Where);
-void ChangeBlockColor(rectangle Where, const FarColor& Color);
 void SetColor(int Color);
 void SetColor(PaletteColors Color);
 void SetColor(const FarColor& Color);

@@ -86,7 +86,7 @@ void Grabber::init()
 	else
 		GArea.Current = {};
 
-	GArea.Begin.x = -1;
+	clear();
 	Process();
 	SaveScr.reset();
 	Global->WindowManager->RefreshWindow();
@@ -94,9 +94,17 @@ void Grabber::init()
 
 std::tuple<point&, point&> Grabber::GetSelection()
 {
-	auto& SelectionBegin = GArea.Begin.y == GArea.End.y?
-	    GArea.Begin.x < GArea.End.x? GArea.Begin : GArea.End :
-	    GArea.Begin.y < GArea.End.y? GArea.Begin : GArea.End;
+	if (GArea.Begin.y == GArea.End.y)
+		return GetSelectionXWise();
+
+	auto& SelectionBegin = GArea.Begin.y < GArea.End.y? GArea.Begin : GArea.End;
+	auto& SelectionEnd = &SelectionBegin == &GArea.Begin? GArea.End : GArea.Begin;
+	return std::tie(SelectionBegin, SelectionEnd);
+}
+
+std::tuple<point&, point&> Grabber::GetSelectionXWise()
+{
+	auto& SelectionBegin = GArea.Begin.x < GArea.End.x? GArea.Begin : GArea.End;
 	auto& SelectionEnd = &SelectionBegin == &GArea.Begin? GArea.End : GArea.Begin;
 	return std::tie(SelectionBegin, SelectionEnd);
 }
@@ -208,7 +216,7 @@ void Grabber::DisplayObject()
 
 	m_StreamSelection.forget();
 
-	if (GArea.Begin.x != -1)
+	if (!empty())
 	{
 		auto FromX = X1;
 		auto ToX = X2;
@@ -365,7 +373,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLU:
 		case KEY_RCTRLU:
 			Reset();
-			GArea.Begin.x = -1;
+			clear();
 			break;
 
 		case KEY_ESC:
@@ -562,11 +570,13 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 
 		case KEY_ALTLEFT:
 		case KEY_RALTLEFT:
+			if (!empty())
 			{
-				const auto& [SelectionBegin, SelectionEnd] = GetSelection();
-				if (MovePointLeft(SelectionBegin, 1))
+				const auto& [SelectionLeft, SelectionRight] = GetSelectionXWise();
+
+				if (MovePointLeft(SelectionLeft, 1))
 				{
-					MovePointLeft(SelectionEnd, 1);
+					MovePointLeft(SelectionRight, 1);
 					GArea.Current = GArea.Begin;
 				}
 			}
@@ -574,11 +584,13 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 
 		case KEY_ALTRIGHT:
 		case KEY_RALTRIGHT:
+			if (!empty())
 			{
-				const auto& [SelectionBegin, SelectionEnd] = GetSelection();
-				if (MovePointRight(SelectionEnd, 1))
+				const auto& [SelectionLeft, SelectionRight] = GetSelectionXWise();
+
+				if (MovePointRight(SelectionRight, 1))
 				{
-					MovePointRight(SelectionBegin, 1);
+					MovePointRight(SelectionLeft, 1);
 					GArea.Current = GArea.Begin;
 				}
 			}
@@ -586,7 +598,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 
 		case KEY_ALTUP:
 		case KEY_RALTUP:
-			if (GArea.Begin.y && GArea.End.y)
+			if (!empty() && GArea.Begin.y && GArea.End.y)
 			{
 				--GArea.Begin.y;
 				--GArea.End.y;
@@ -596,7 +608,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 
 		case KEY_ALTDOWN:
 		case KEY_RALTDOWN:
-			if (GArea.Begin.y < ScrY && GArea.End.y < ScrY)
+			if (!empty() && GArea.Begin.y < ScrY && GArea.End.y < ScrY)
 			{
 				++GArea.Begin.y;
 				++GArea.End.y;
@@ -606,26 +618,38 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 
 		case KEY_ALTHOME:
 		case KEY_RALTHOME:
-			GArea.Begin.x = GArea.Current.x = abs(GArea.Begin.x - GArea.End.x);
-			GArea.End.x = 0;
+			if (!empty())
+			{
+				GArea.Begin.x = GArea.Current.x = abs(GArea.Begin.x - GArea.End.x);
+				GArea.End.x = 0;
+			}
 			break;
 
 		case KEY_ALTEND:
 		case KEY_RALTEND:
-			GArea.End.x = ScrX - abs(GArea.Begin.x - GArea.End.x);
-			GArea.Begin.x = GArea.Current.x = ScrX;
+			if (!empty())
+			{
+				GArea.End.x = ScrX - abs(GArea.Begin.x - GArea.End.x);
+				GArea.Begin.x = GArea.Current.x = ScrX;
+			}
 			break;
 
 		case KEY_ALTPGUP:
 		case KEY_RALTPGUP:
-			GArea.Begin.y = GArea.Current.y = abs(GArea.Begin.y - GArea.End.y);
-			GArea.End.y = 0;
+			if (!empty())
+			{
+				GArea.Begin.y = GArea.Current.y = abs(GArea.Begin.y - GArea.End.y);
+				GArea.End.y = 0;
+			}
 			break;
 
 		case KEY_ALTPGDN:
 		case KEY_RALTPGDN:
-			GArea.End.y = ScrY - abs(GArea.Begin.y - GArea.End.y);
-			GArea.Begin.y = GArea.Current.y = ScrY;
+			if (!empty())
+			{
+				GArea.End.y = ScrY - abs(GArea.Begin.y - GArea.End.y);
+				GArea.Begin.y = GArea.Current.y = ScrY;
+			}
 			break;
 	}
 
@@ -672,6 +696,16 @@ void Grabber::Reset()
 {
 	GArea.Begin = GArea.End = GArea.Current;
 	ResetArea = false;
+}
+
+bool Grabber::empty() const
+{
+	return GArea.Begin.x == -1;
+}
+
+void Grabber::clear()
+{
+	GArea.Begin.x = -1;
 }
 
 void Grabber::ResizeConsole()

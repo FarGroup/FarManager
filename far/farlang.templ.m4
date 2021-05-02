@@ -18786,6 +18786,20 @@ l:// 3 characters max
 "R&GB…"
 "R&GB…"
 
+MSetColorStyle
+"Стиль:"
+"Style:"
+"Styl:"
+"Stil:"
+"Stílus:"
+"Styl:"
+"Estilo:"
+"Štýl:"
+"Stile:"
+"Cтиль:"
+"Cтыль:"
+"Stilius:"
+
 MSetColorStyleBold
 "Жирный"
 "Bold"

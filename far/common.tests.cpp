@@ -1174,37 +1174,46 @@ TEST_CASE("utility.flags")
 	{
 		static const struct
 		{
-			using test = std::pair<flags_type, flags_type>;
-
 			flags_type Value;
-			test Set, Clear, Invert;
+			struct
+			{
+				flags_type Value, Expected;
+			}
+			Set, Clear, Invert, Copy;
 		}
 		Tests[]
 		{
-			{ 0b00000000, { 0b00000000, 0b00000000 }, { 0b00000000, 0b00000000 }, { 0b00000000, 0b00000000 }, },
-			{ 0b00000000, { 0b00001111, 0b00001111 }, { 0b00001111, 0b00000000 }, { 0b00001111, 0b00001111 }, },
-			{ 0b11111111, { 0b00000000, 0b11111111 }, { 0b00000000, 0b11111111 }, { 0b00000000, 0b11111111 }, },
-			{ 0b11111111, { 0b00001111, 0b11111111 }, { 0b00001111, 0b11110000 }, { 0b00001111, 0b11110000 }, },
-			{ 0b10101010, { 0b10101010, 0b10101010 }, { 0b10101010, 0b00000000 }, { 0b10101010, 0b00000000 }, },
-			{ 0b10101010, { 0b01010101, 0b11111111 }, { 0b01010101, 0b10101010 }, { 0b01010101, 0b11111111 }, },
+			//Value         Set         Expected        Clear       Expected        Invert      Expected        Copy Mask   Expected
+			{ 0b00000000, { 0b00000000, 0b00000000 }, { 0b00000000, 0b00000000 }, { 0b00000000, 0b00000000 }, { 0b00000000, 0b00000000 }},
+			{ 0b00000000, { 0b00001111, 0b00001111 }, { 0b00001111, 0b00000000 }, { 0b00001111, 0b00001111 }, { 0b00001010, 0b00001010 }},
+			{ 0b11111111, { 0b00000000, 0b11111111 }, { 0b00000000, 0b11111111 }, { 0b00000000, 0b11111111 }, { 0b00001111, 0b11110000 }},
+			{ 0b11111111, { 0b00001111, 0b11111111 }, { 0b00001111, 0b11110000 }, { 0b00001111, 0b11110000 }, { 0b01010000, 0b10101111 }},
+			{ 0b10101010, { 0b10101010, 0b10101010 }, { 0b10101010, 0b00000000 }, { 0b10101010, 0b00000000 }, { 0b11110000, 0b10101010 }},
+			{ 0b10101010, { 0b01010101, 0b11111111 }, { 0b01010101, 0b10101010 }, { 0b01010101, 0b11111111 }, { 0b11001100, 0b01100110 }},
+			{ 0b11001100, { 0b00110011, 0b11111111 }, { 0b10101010, 0b01000100 }, { 0b11001100, 0b00000000 }, { 0b01100110, 0b10101010 }},
 		};
 
 		for (const auto& i: Tests)
 		{
 			{
 				auto Value = i.Value;
-				flags::set(Value, i.Set.first);
-				REQUIRE(Value == i.Set.second);
+				flags::set(Value, i.Set.Value);
+				REQUIRE(Value == i.Set.Expected);
 			}
 			{
 				auto Value = i.Value;
-				flags::clear(Value, i.Clear.first);
-				REQUIRE(Value == i.Clear.second);
+				flags::clear(Value, i.Clear.Value);
+				REQUIRE(Value == i.Clear.Expected);
 			}
 			{
 				auto Value = i.Value;
-				flags::invert(Value, i.Invert.first);
-				REQUIRE(Value == i.Invert.second);
+				flags::invert(Value, i.Invert.Value);
+				REQUIRE(Value == i.Invert.Expected);
+			}
+			{
+				auto Value = i.Value;
+				flags::copy(Value, i.Copy.Value, i.Set.Value);
+				REQUIRE(Value == i.Copy.Expected);
 			}
 		}
 	}

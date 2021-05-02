@@ -336,27 +336,16 @@ void Edit::FastShow(const ShowInfo* Info)
 
 	SetColor(GetNormalColor());
 
+	Text(fit_to_left(OutStr, EditLength));
+
+	if (m_Flags.Check(FEDITLINE_EDITORMODE))
+		ApplyColor(GetSelectedColor(), XPos, FocusedLeftPos);
+
 	if (TabSelStart==-1)
 	{
 		if (m_Flags.Check(FEDITLINE_CLEARFLAG))
 		{
-			SetColor(GetUnchangedColor());
-
-			if (!Mask.empty())
-				inplace::trim_right(OutStr);
-
-			Text(OutStr);
-			SetColor(GetNormalColor());
-			const auto BlankLength = EditLength - OutStr.size();
-
-			if (BlankLength > 0)
-			{
-				Text(string(BlankLength, L' '));
-			}
-		}
-		else
-		{
-			Text(fit_to_left(OutStr, EditLength));
+			Global->ScrBuf->ApplyColor(m_Where, GetUnchangedColor(), ScreenBuf::apply_mode::all);
 		}
 	}
 	else
@@ -367,36 +356,15 @@ void Edit::FastShow(const ShowInfo* Info)
 			static_cast<int>(EditLength) :
 			std::max(TabSelEnd - LeftPos, 0);
 
-		OutStr.append(EditLength - OutStr.size(), L' ');
-
-		Text(cut_right(OutStr, TabSelStart));
-		SetColor(GetSelectedColor());
-
-		if (!m_Flags.Check(FEDITLINE_DROPDOWNBOX))
+		if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
 		{
-			if (TabSelStart < static_cast<int>(EditLength))
-			{
-				Text(cut_right(string_view(OutStr).substr(TabSelStart), TabSelEnd - TabSelStart));
-
-				if (TabSelEnd < static_cast<int>(EditLength))
-				{
-					//SetColor(Flags.Check(FEDITLINE_CLEARFLAG)? SelColor : Color);
-					SetColor(GetNormalColor());
-					Text(string_view(OutStr).substr(TabSelEnd));
-				}
-			}
-
+			Global->ScrBuf->ApplyColor(m_Where, GetSelectedColor(), ScreenBuf::apply_mode::color);
 		}
 		else
 		{
-			Text(cut_right(OutStr, m_Where.width()));
+			Global->ScrBuf->ApplyColor({ m_Where.left + TabSelStart, m_Where.top, m_Where.left + TabSelEnd - 1, m_Where.top }, GetSelectedColor(), ScreenBuf::apply_mode::color);
 		}
 	}
-
-	/* $ 26.07.2000 tran
-	   при дроп-даун цвета нам не нужны */
-	if (!m_Flags.Check(FEDITLINE_DROPDOWNBOX))
-		ApplyColor(GetSelectedColor(), XPos, FocusedLeftPos);
 }
 
 bool Edit::RecurseProcessKey(int Key)
@@ -2007,7 +1975,7 @@ void Edit::AdjustPersistentMark()
 	if (m_Flags.Check(FEDITLINE_PARENT_SINGLELINE))
 		persistent = m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS); // dlgedit
 	else if (!m_Flags.Check(FEDITLINE_PARENT_MULTILINE))
-		persistent = Global->Opt->CmdLine.EditBlock;				// cmdline
+		persistent = Global->Opt->CmdLine.EditBlock; // cmdline
 	else
 		persistent = false;
 
@@ -2227,13 +2195,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 		// Раскрашиваем элемент, если есть что раскрашивать
 		if (End >= Start)
 		{
-			Global->ScrBuf->ApplyColor(
-			    { m_Where.left + Start, m_Where.top, m_Where.left + End, m_Where.top },
-			    CurItem.GetColor(),
-			    // Не раскрашиваем выделение
-			    SelColor,
-			    true
-			);
+			Global->ScrBuf->ApplyColor({ m_Where.left + Start, m_Where.top, m_Where.left + End, m_Where.top }, CurItem.GetColor(), ScreenBuf::apply_mode::all);
 		}
 	}
 }

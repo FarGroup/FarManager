@@ -970,7 +970,7 @@ bool TreeList::FillLastData()
 
 		for (auto j = i; j != SubDirPos + 1; ++j)
 		{
- 			if (Depth > j->Last.size())
+			if (Depth > j->Last.size())
 			{
 				j->Last.resize(j->Last.size() + MAX_PATH, 0);
 			}

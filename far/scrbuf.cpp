@@ -197,8 +197,7 @@ void ScreenBuf::ApplyShadow(rectangle Where)
 
 /* Непосредственное изменение цветовых атрибутов
 */
-// used in block selection
-void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, bool PreserveExFlags)
+void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, apply_mode const ApplyMode)
 {
 	if (!is_visible(Where))
 		return;
@@ -207,47 +206,30 @@ void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, bool Preserve
 
 	fix_coordinates(Where);
 
-	if(PreserveExFlags)
-	{
-		for_submatrix(Buf, Where, [&Color](FAR_CHAR_INFO& Element)
-		{
-			const auto ExFlags = Element.Attributes.Flags&FCF_EXTENDEDFLAGS;
-			Element.Attributes = Color;
-			Element.Attributes.Flags = (Element.Attributes.Flags&~FCF_EXTENDEDFLAGS) | ExFlags;
-		});
-	}
-	else
-	{
-		for_submatrix(Buf, Where, [&Color](FAR_CHAR_INFO& Element)
-		{
-			Element.Attributes = Color;
-		});
-	}
-
-	debug_flush();
-}
-
-/* Непосредственное изменение цветовых атрибутов с заданным цветом исключением
-*/
-// used in stream selection
-void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, const FarColor& ExceptColor, bool ForceExFlags)
-{
-	if (!is_visible(Where))
-		return;
-
-	SCOPED_ACTION(std::lock_guard)(CS);
-
-	fix_coordinates(Where);
+	const auto
+		DoForeground = ApplyMode & apply_mode::foreground && !colors::is_transparent(Color.ForegroundColor),
+		DoBackground = ApplyMode & apply_mode::background && !colors::is_transparent(Color.BackgroundColor),
+		DoStyle = ApplyMode & apply_mode::style && !(Color.BackgroundColor & FCF_IGNORE_STYLE);
 
 	for_submatrix(Buf, Where, [&](FAR_CHAR_INFO& Element)
 	{
-		if (Element.Attributes.ForegroundColor != ExceptColor.ForegroundColor || Element.Attributes.BackgroundColor != ExceptColor.BackgroundColor)
+		auto& DstColor = Element.Attributes;
+
+		if (DoForeground)
 		{
-			Element.Attributes = Color;
+			DstColor.ForegroundColor = Color.ForegroundColor;
+			flags::copy(DstColor.Flags, FCF_FG_4BIT, Color.Flags);
 		}
-		else if (ForceExFlags)
+
+		if (DoBackground)
 		{
-			Element.Attributes.Flags = (Element.Attributes.Flags&~FCF_EXTENDEDFLAGS) | (Color.Flags&FCF_EXTENDEDFLAGS);
+			DstColor.BackgroundColor = Color.BackgroundColor;
+			flags::copy(DstColor.Flags, FCF_BG_4BIT, Color.Flags);
+		}
+
+		if (DoStyle)
+		{
+			flags::copy(DstColor.Flags, FCF_STYLEMASK, Color.Flags);
 		}
 	});
 

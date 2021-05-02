@@ -753,7 +753,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 			return EC_CLOSE_LEVEL; //  вверх на один уровень
 
 		// This time CurrentMenuItem shall never be nullptr - for all weird cases ExitCode must be -1
- 		const auto CurrentMenuItem = UserMenu->GetComplexUserDataPtr<ITERATOR(Menu)>(UserMenu->GetSelectPos());
+		const auto CurrentMenuItem = UserMenu->GetComplexUserDataPtr<ITERATOR(Menu)>(UserMenu->GetSelectPos());
 
 		auto CurrentLabel = (*CurrentMenuItem)->strLabel;
 		SubstFileName(CurrentLabel, Context, {}, true, {}, true);
