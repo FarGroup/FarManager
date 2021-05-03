@@ -203,10 +203,10 @@ namespace HlfChecker
 				case TokenKind.Title:
 				case TokenKind.Header:
 				case TokenKind.Normal:
-					if (token.Line[token.Line.Length - 1] == ' ')
+					if (token.Line.Text[token.Line.Text.Length - 1] == ' ')
 					{
 						AddWarning(token, "Trailing space(s) removed");
-						return new Token(token.Line.TrimEnd(), token.Kind, token.LineNumber, token.BlankLinesBefore);
+						return new Token(token.Line.Text.TrimEnd(), token.Line.Number, token.Kind, token.BlankLinesBefore);
 					}
 					break;
 			}
@@ -234,25 +234,22 @@ namespace HlfChecker
 
 		private readonly struct Token
 		{
-			public readonly string Line;
+			public readonly Line Line;
 			public readonly TokenKind Kind;
-			public readonly int LineNumber;
 			public readonly int BlankLinesBefore;
 
-			public Token(string line, TokenKind kind, int lineNumber, int blankLinesBefore)
+			public Token(string line, int lineNumber, TokenKind kind, int blankLinesBefore)
 			{
-				Line = line;
+				Line = new Line(line, lineNumber);
 				Kind = kind;
-				LineNumber = lineNumber;
 				BlankLinesBefore = blankLinesBefore;
 			}
 
 			public Token(string line, Token prevToken)
 			{
-				Line = line;
-				LineNumber = prevToken.LineNumber + 1;
+				Line = new Line(line, prevToken.Line.Number + 1);
 
-				Kind = ClassifyLine(Line);
+				Kind = ClassifyLine(Line.Text);
 
 				switch (prevToken.Kind)
 				{
@@ -266,7 +263,7 @@ namespace HlfChecker
 
 					case TokenKind.Eof: BlankLinesBefore = prevToken.BlankLinesBefore; return;
 
-					default: throw new Exception($"Line {LineNumber}: Invalid token kind {Kind}");
+					default: throw new Exception($"Line {Line.Number}: Invalid token kind {Kind}");
 				}
 			}
 		}
@@ -299,7 +296,7 @@ namespace HlfChecker
 			AddError(token, $"Unexpected token kind '{token.Kind}' while parsing '{parser}'. Expected: {string.Join(", ", expected)}");
 
 		public IEnumerable<string> EnumerateDiagnostics() =>
-			diagnostics.Select(diagnostic => $"{Hlf.HlfName}({diagnostic.token.LineNumber}): {diagnostic.severity}: {diagnostic.message}");
+			diagnostics.Select(diagnostic => $"{Hlf.HlfName}({diagnostic.token.Line.Number}): {diagnostic.severity}: {diagnostic.message}");
 
 		public bool Success => diagnostics.All(diagnostic => diagnostic.severity < Diagnostics.Severity.Error);
 		public bool Warnings => diagnostics.Any(diagnostic => diagnostic.severity == Diagnostics.Severity.Warning);

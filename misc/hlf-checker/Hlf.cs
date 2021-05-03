@@ -13,34 +13,46 @@ namespace HlfChecker
 		}
 
 		public readonly string HlfName;
-		public readonly List<string> Prologue;
-		public readonly List<string> Aliases;
+		public readonly List<Line> Prologue;
+		public readonly List<Line> Aliases;
 		public readonly List<Topic> Topics;
 	}
 
 	public readonly struct Topic
 	{
-		public Topic(string title)
+		public Topic(Line title)
 		{
 			Title = title;
 			Headers = new();
 			Paragraphs = new();
 		}
 
-		public readonly string Title;
-		public readonly List<string> Headers;
+		public readonly Line Title;
+		public readonly List<Line> Headers;
 		public readonly List<Paragraph> Paragraphs;
 	}
 
 	public readonly struct Paragraph
 	{
-		public Paragraph(string firstLine, int expectedBlankLinesBefore)
+		public Paragraph(Line firstLine, int expectedBlankLinesBefore)
 		{
-			Lines = new List<string> { firstLine };
+			Lines = new List<Line> { firstLine };
 			ExpectedBlankLinesBefore = expectedBlankLinesBefore;
 		}
 
-		public readonly List<string> Lines;
+		public readonly List<Line> Lines;
 		public readonly int ExpectedBlankLinesBefore;
+	}
+
+	public readonly struct Line
+	{
+		public Line(string text, int number)
+		{
+			Text = text;
+			Number = number;
+		}
+
+		public readonly string Text;
+		public readonly int Number;
 	}
 }

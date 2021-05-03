@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,9 +10,10 @@ namespace HlfChecker
 	[Flags]
 	public enum ProcessingOptions
 	{
-		None = 0,
-		Verbose = 1,
-		StrictRefs = 2
+		None = 0x0,
+		Verbose = 0x1,
+		StrictRefs = 0x2,
+		ShowHelp = 0x1000
 	}
 
 	public static class CommandLine
@@ -113,6 +115,45 @@ namespace HlfChecker
 					.Where(pd => !GlobalConstants.IgnoredPlugins.Contains(pd.Name))
 					.Prepend(GlobalConstants.FarDirectory)
 					.ToList();
+		}
+
+		public static int ShowHelp()
+		{
+			var hlfCheckerName = Path.GetFileName(Process.GetCurrentProcess().MainModule?.FileName);
+
+			$@"
+{hlfCheckerName} checks specified help files in specified languages.
+
+Synopsys:
+    {hlfCheckerName} [<directory> ...] {{ [+<lng> ...] | [-<lng> ...] }} [{ProcessingOptions.StrictRefs}]
+    {hlfCheckerName} {ProcessingOptions.ShowHelp}
+
+Examples:
+  Checks help files of Far and all plugins in all languages:
+    {hlfCheckerName}
+
+  Checks help files of Far and Temporary panel plugin in all languages:
+    {hlfCheckerName} .\far .\plugins\tmppanel
+
+  Checks help files of Far and all plugins in Polish language:
+    {hlfCheckerName} +pol
+
+  Checks help files of FAR Commands plugins in all languages except Russian:
+    {hlfCheckerName} .\plugins\farcmds -rus
+
+While comparing paragrpahs, {hlfCheckerName} extracts all references (e.g., ""@About@"") from
+corresponding paragrpahs and compares the collections of references. By default, if ""{ProcessingOptions.StrictRefs}""
+parameter is NOT specified, the collections are sorted and repeated references are removed before
+comparing. If ""{ProcessingOptions.StrictRefs}"" parameter is specified, the collections are compared exactly as extracted.
+".Trace();
+
+//If a help file was parsed successfully, the script will overwrite it with the parsed contents.
+//If there were errors, the file will not be overwritten.All errors and warnings will be printed.
+//If the file was clean, its contents will not change(but timestamp will be updated).
+//The script will correct empty lines and remove trailing spaces(while printing corresponding warnings).
+//Use ""git diff"" command after running the script.
+
+			return -1;
 		}
 	}
 }
