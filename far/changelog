@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 04.05.2021 18:08:14 +0100 - build 5789
+
+1. SQLite exception due to outdated index after collation update.
+
+2. Redirect SQLite logging to our logging.
+
+--------------------------------------------------------------------------------
 drkns 02.05.2021 11:28:04 +0100 - build 5788
 
 1. Experimental: editor selection color can have transparent foreground/background.

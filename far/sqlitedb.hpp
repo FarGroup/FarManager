@@ -209,7 +209,7 @@ private:
 	database_ptr Open(string_view Path, busy_handler BusyHandler, bool WAL);
 	void Close();
 
-	void create_collations() const;
+	void initialise() const;
 
 	// The order is important
 	bool m_DbExists{};

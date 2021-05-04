@@ -795,8 +795,10 @@ static int mainImpl(span<const wchar_t* const> const Args)
 
 	SCOPE_EXIT
 	{
+		// close() can throw, but we need to clear it anyway
+		SCOPE_EXIT { Global->CtrlObject = {}; };
+
 		CtrlObj.close();
-		Global->CtrlObject = {};
 	};
 
 	NoElevationDuringBoot.reset();

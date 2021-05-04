@@ -138,7 +138,17 @@ namespace
 		SCOPED_ACTION(lock)(Db);
 
 		if (!Callable())
+		{
+			if (GetLastErrorCode(Db) == SQLITE_CORRUPT_INDEX)
+			{
+				// We replace "nocase" collation, so reindexing is required.
+				// It's quite expensive to do on every start, so do it here when needed.
+				if (sqlite::sqlite3_exec(Db, "REINDEX NOCASE", {}, {}, {}) == SQLITE_OK && Callable())
+					return;
+			}
+
 			throw_exception(Db, {}, SqlAccessor? SqlAccessor() : L""sv);
+		}
 	}
 
 	SCOPED_ACTION(components::component)([]
@@ -147,8 +157,25 @@ namespace
 	});
 }
 
+static void sqlite_log(void*, int const Code, const char* const Message)
+{
+	const auto Level = [](int const SqliteCode)
+	{
+		switch (LOBYTE(SqliteCode))
+		{
+		case SQLITE_NOTICE:  return logging::level::notice;
+		case SQLITE_WARNING: return logging::level::warning;
+		default:             return logging::level::error;
+		}
+	}(Code);
+
+	LOG(Level, L"SQLite {} ({}): {}"sv, GetErrorString(Code), Code, encoding::utf8::get_chars(Message));
+}
+
 void SQLiteDb::library_load()
 {
+	sqlite::sqlite3_config(SQLITE_CONFIG_LOG, sqlite_log, nullptr);
+
 	if (const auto Result = sqlite::sqlite3_initialize(); Result != SQLITE_OK)
 	{
 		assert(false);
@@ -351,7 +378,7 @@ SQLiteDb::SQLiteDb(busy_handler BusyHandler, initialiser Initialiser, string_vie
 	// then no subsequent operations in that transaction will ever fail with an SQLITE_BUSY error.
 	m_stmt_BeginTransaction(create_stmt("BEGIN EXCLUSIVE"sv)),
 	m_stmt_EndTransaction(create_stmt("END"sv)),
-	m_Init(((void)create_collations(), (void)Initialiser(db_initialiser(this)), init{})) // yay, operator comma!
+	m_Init(((void)initialise(), (void)Initialiser(db_initialiser(this)), init{})) // yay, operator comma!
 {
 }
 
@@ -562,8 +589,10 @@ static int combined_comparer(void* const Param, int const Size1, const void* con
 	);
 }
 
-void SQLiteDb::create_collations() const
+void SQLiteDb::initialise() const
 {
+	sqlite::sqlite3_extended_result_codes(m_Db.get(), true);
+
 	using comparer_type = int(void*, int, const void*, int, const void*);
 
 	const auto create_collation = [&](const char* const Name, int const Encoding, comparer_type Comparer)

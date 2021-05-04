@@ -60,7 +60,7 @@ static auto GetFullName(string_view const Name)
 void FilePositionCache::CompactHistory()
 {
 	SCOPED_ACTION(auto)(ConfigProvider().HistoryCfg()->ScopedTransaction());
-	ConfigProvider().HistoryCfg()->DeleteOldPositions(90,1000);
+	ConfigProvider().HistoryCfg()->DeleteOldPositions(Global->Opt->ViewHistoryLifetime, Global->Opt->ViewHistoryCount);
 }
 
 bool FilePositionCache::AddPosition(string_view const Name, const EditorPosCache& poscache)
