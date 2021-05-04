@@ -1336,19 +1336,20 @@ bool RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 							//int setbit;
 							/*for(int j=0;j<256;j++)
 							{
-							  setbit=(chartypes[j]^isnottype)&type;
-							  if(setbit)
-							  {
-							    if(ignorecase)
-							    {
-							      SetBit(op->symbolclass,lc[j]);
-							      SetBit(op->symbolclass,uc[j]);
-							    }else
-							    {
-							      SetBit(op->symbolclass,j);
-							    }
-							    classsize++;
-							  }
+								setbit=(chartypes[j]^isnottype)&type;
+								if(setbit)
+								{
+									if(ignorecase)
+									{
+										SetBit(op->symbolclass,lc[j]);
+										SetBit(op->symbolclass,uc[j]);
+									}
+									else
+									{
+										SetBit(op->symbolclass,j);
+									}
+									classsize++;
+								}
 							}*/
 						}
 						else
@@ -3188,11 +3189,12 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 							st.savestr=str;
 							stack.emplace_back(st);
 						}
-
-//            if(op->bracket.index>=0 && op->bracket.index<matchcount)
-//            {
-//              match[op->bracket.index].end=str-start;
-//            }
+						/*
+						if(op->bracket.index>=0 && op->bracket.index<matchcount)
+						{
+							match[op->bracket.index].end=str-start;
+						}
+						*/
 						break;
 					}
 

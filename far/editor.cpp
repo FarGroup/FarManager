@@ -1980,13 +1980,13 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_F11:
 		{
 			/*
-			      if(!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
-			      {
-			        Global->CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
-			        if (Global->CtrlObject->Plugins->CommandsMenu(MODALTYPE_EDITOR,0,"Editor"))
-			          *PluginTitle=0;
-			        Refresh = true;
-			      }
+			if(!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
+			{
+				Global->CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
+				if (Global->CtrlObject->Plugins->CommandsMenu(MODALTYPE_EDITOR,0,"Editor"))
+					*PluginTitle=0;
+				Refresh = true;
+			}
 			*/
 			return true;
 		}
@@ -4205,12 +4205,13 @@ void Editor::DeleteBlock()
 		TmpStr.erase(StartSel, EndSel - StartSel);
 
 		const auto CurPos = StartSel;
-		/*    if (CurPos>=StartSel)
-		    {
-		      CurPos-=(EndSel-StartSel);
-		      if (CurPos<StartSel)
-		        CurPos=StartSel;
-		    }
+		/*
+		if (CurPos>=StartSel)
+		{
+			CurPos-=(EndSel-StartSel);
+			if (CurPos<StartSel)
+				CurPos=StartSel;
+		}
 		*/
 
 		if (DeleteNext)

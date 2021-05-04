@@ -1617,7 +1617,8 @@ bool Viewer::process_key(const Manager::Key& Key)
 		{
 			if (m_DisplayMode == VMT_TEXT)
 				ProcessWrapMode(!m_Wrap);
-			else {
+			else
+			{
 				m_DisplayMode = m_DisplayMode == VMT_DUMP || m_DumpTextMode ? VMT_TEXT : VMT_DUMP;
 				ProcessDisplayMode(m_DisplayMode);
 			}

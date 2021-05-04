@@ -274,13 +274,13 @@ bool FolderTree::ProcessKey(const Manager::Key& Key)
 		}
 
 		/*
-		      else
-		      {
-		        if((Key&(~KEY_CTRLMASK)) == KEY_ADD)
-		          Key='+';
-		        else if((Key&(~KEY_CTRLMASK)) == KEY_SUBTRACT)
-		          Key='-';
-		      }
+		else
+		{
+			if((Key&(~KEY_CTRLMASK)) == KEY_ADD)
+				Key = '+';
+			else if((Key&(~KEY_CTRLMASK)) == KEY_SUBTRACT)
+				Key = '-';
+		}
 		*/
 		if (m_FindEdit->ProcessKey(Key))
 		{

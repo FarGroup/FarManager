@@ -398,7 +398,8 @@ struct DlgParam
 	bool Changed;
 };
 
-enum {
+enum
+{
 	OP_ISEXECUTING              = 1,
 	OP_ISDISABLEOUTPUT          = 2,
 	OP_HISTORYDISABLEMASK       = 3,
@@ -925,7 +926,8 @@ bool KeyMacro::AddMacro(const UUID& PluginId, const MacroAddMacroV1* Data)
 
 	intptr_t Priority = 50;
 	if (Data->StructSize >= sizeof(MacroAddMacro)) Priority = reinterpret_cast<const MacroAddMacro*>(Data)->Priority;
-	FarMacroValue values[] = {
+	FarMacroValue values[]
+	{
 		static_cast<double>(Data->Area),
 		KeyText,
 		GetMacroLanguage(Data->Flags),

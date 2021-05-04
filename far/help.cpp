@@ -749,7 +749,7 @@ m1:
 					for (int I = static_cast<int>(strSplitLine.size()) - 1; I > 0; I--)
 					{
 						if (strSplitLine[I]==L'~' && strSplitLine[I - 1] == L'~')
-						 {
+						{
 							I--;
 							continue;
 						}

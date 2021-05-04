@@ -563,14 +563,6 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			}
 			return Global->Opt->Palette.size();
 
-		/*
-			Param=FARColor{
-			DWORD Flags;
-			int StartIndex;
-			int ColorItem;
-			LPBYTE Colors;
-			};
-		*/
 		case ACTL_SETARRAYCOLOR:
 		{
 			const auto Pal = static_cast<const FarSetColors*>(Param2);

@@ -1364,14 +1364,14 @@ void Dialog::GetDialogObjectsData()
 			}
 			case DI_LISTBOX:
 				/*
-				  if(i->ListPtr)
-				  {
-				    i->ListPos=Items[I].ListPtr->GetSelectPos();
-				    break;
-				  }
+				if(i->ListPtr)
+				{
+					i->ListPos=Items[I].ListPtr->GetSelectPos();
+					break;
+				}
 				*/
 				break;
-				/**/
+
 			default:
 				break;
 		}
