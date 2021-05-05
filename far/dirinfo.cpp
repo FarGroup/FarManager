@@ -126,11 +126,11 @@ int GetDirInfo(string_view const DirName, DirInfoData& Data, FileFilter *Filter,
 	SCOPED_ACTION(taskbar::indeterminate)(false);
 	SCOPED_ACTION(wakeful);
 
-	ScanTree ScTree(
-		false, true, (Flags & GETDIRINFO_SCANSYMLINKDEF? DWORD(-1) : (Flags & GETDIRINFO_SCANSYMLINK)),
-		Global->Opt->DirInfoDedup.Get()
-	);
+	ScanTree ScTree(false, true, (Flags & GETDIRINFO_SCANSYMLINKDEF? static_cast<DWORD>(-1) : (Flags & GETDIRINFO_SCANSYMLINK)));
 	SetCursorType(false, 0);
+	/* $ 20.03.2002 DJ
+	   для . - покажем имя родительского каталога
+	*/
 	string_view ShowDirName = DirName;
 
 	const auto strFullDirName = ConvertNameToFull(DirName);
