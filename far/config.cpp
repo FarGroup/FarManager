@@ -1777,6 +1777,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyDescriptions,           L"SetHidden"sv,                     Diz.SetHidden, true},
 		{FSSF_PRIVATE,           NKeyDescriptions,           L"StartPos"sv,                      Diz.StartPos, 0},
 		{FSSF_PRIVATE,           NKeyDescriptions,           L"UpdateMode"sv,                    Diz.UpdateMode, DIZ_UPDATE_IF_DISPLAYED},
+		{FSSF_PRIVATE,           NKeyDescriptions,           L"ValidateConvertion"sv,            Diz.ValidateConvertion, true},
 		{FSSF_PRIVATE,           NKeyDialog,                 L"AutoComplete"sv,                  Dialogs.AutoComplete, true},
 		{FSSF_PRIVATE,           NKeyDialog,                 L"CBoxMaxHeight"sv,                 Dialogs.CBoxMaxHeight, 8},
 		{FSSF_DIALOG,            NKeyDialog,                 L"EditBlock"sv,                     Dialogs.EditBlock, false},

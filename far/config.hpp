@@ -528,6 +528,7 @@ public:
 		IntOption StartPos;
 		BoolOption AnsiByDefault;
 		BoolOption SaveInUTF;
+		BoolOption ValidateConvertion;
 	};
 
 	struct CodeXLAT

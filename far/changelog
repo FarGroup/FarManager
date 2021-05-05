@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+w17 05.05.2021 17:58:17 +0300 - build 5390
+
+1. Correction 5733 (questionable)
+   far:config Descriptions.ValidateConversion=true -- configurable description encoding validation.
+
+--------------------------------------------------------------------------------
+
 drkns 04.05.2021 18:08:14 +0100 - build 5789
 
 1. SQLite exception due to outdated index after collation update.

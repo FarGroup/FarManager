@@ -372,10 +372,10 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 		for (const auto& i_ptr: m_OrderForWrite)
 		{
 			const auto& [Name, Lines] = *i_ptr;
-			Writer.write(quote_space(Name));
+			Writer.write(quote_space(Name), Global->Opt->Diz.ValidateConvertion);
 			for (const auto& Description: Lines)
 			{
-				Writer.write(Description);
+				Writer.write(Description, Global->Opt->Diz.ValidateConvertion);
 				Writer.write(Eol);
 			}
 		}
