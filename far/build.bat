@@ -106,15 +106,13 @@ goto :EOF
 
 :set_vc
 :set_vcvars
-  if "" == "%vcver%" if not "" == "%VS150COMNTOOLS%" if exist "%VS150COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars32.bat" set "vcver=15"
   if "" == "%vcver%" if not "" == "%VS160COMNTOOLS%" if exist "%VS160COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars32.bat" set "vcver=16"
-  if "" == "%vcver%" set "vcver=15"
+  if "" == "%vcver%" if not "" == "%VS150COMNTOOLS%" if exist "%VS150COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars32.bat" set "vcver=15"
+  if "" == "%vcver%" set "vcver=16"
   set "VisualStudioVersion=%vcver%.0"
   if "" == "%~1" goto :EOF
   set "vcmod=32"
   if "%~1" == "64" set "vcmod=64"
-  if "%~1" == "64/32" set "vcmod2=x86_amd64"
-  if "%~1" == "32/64" set "vcmod2=amd64_x86"
   if "%vcver%" == "15" call "%VS150COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars%vcmod%.bat"
   if "%vcver%" == "16" call "%VS160COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars%vcmod%.bat"
   set "vcmod="
