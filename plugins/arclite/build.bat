@@ -17,7 +17,7 @@
   set "deb_b=N"
   set "clean=N"& set "cleanonly=N"
   set "vcbld=msbuild"
-  set "vcver=15"
+  set "vcver=16"
 
   for %%a in (%*) do call :proc_param %%a
 
@@ -87,8 +87,6 @@ goto :EOF
   set "VisualStudioVersion=%vcver%.0"
   set "vcmod=32"
   if "%~1" == "64" set "vcmod=64"
-  if "%~1" == "64/32" set "vcmod2=x86_amd64"
-  if "%~1" == "32/64" set "vcmod2=amd64_x86"
   if "%vcver%" == "15" call "%VS150COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars%vcmod%.bat"
   if "%vcver%" == "16" call "%VS160COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars%vcmod%.bat"
 goto :EOF
