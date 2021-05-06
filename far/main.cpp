@@ -863,6 +863,7 @@ static int wmain_seh()
 	SCOPED_ACTION(unhandled_exception_filter);
 	SCOPED_ACTION(seh_terminate_handler);
 	SCOPED_ACTION(purecall_handler);
+	SCOPED_ACTION(invalid_parameter_handler);
 	SCOPED_ACTION(new_handler);
 
 	const auto CurrentFunctionName = CURRENT_FUNCTION_NAME;

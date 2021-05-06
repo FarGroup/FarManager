@@ -239,12 +239,10 @@ private:
 		os::debug::breakpoint(false);
 
 		// Q: Why?
-		// A: The same reason we override stream buffers everywhere else: the default one is shite - it goes through FILE* and breaks wide characters.
-		//    At this point the regular overrider is already dead so we need to revive it once more:
-		SCOPED_ACTION(auto)(console_detail::console::create_temporary_stream_buffers_overrider());
-
-		// Same thing - the regular instance is already dead at this point, this voodoo will bring it back from the underworld:
+		// A: The regular instances are already dead at this point, this voodoo will bring them back from the underworld:
 		SCOPED_ACTION(imports_nifty_objects::initialiser);
+		SCOPED_ACTION(console_nifty_objects::initialiser);
+		SCOPED_ACTION(tracer_nifty_objects::initialiser);
 
 		const auto Print = [](const string& Str)
 		{
@@ -292,7 +290,7 @@ private:
 				Stack[StackSize] = reinterpret_cast<uintptr_t>(i->Stack[StackSize]);
 			}
 
-			tracer::get_symbols({}, span(Stack, StackSize), [&](string_view const Line)
+			tracer.get_symbols({}, span(Stack, StackSize), [&](string_view const Line)
 			{
 				append(Message, Line, L'\n');
 			});

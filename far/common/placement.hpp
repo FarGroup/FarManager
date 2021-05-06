@@ -48,6 +48,11 @@ namespace placement
 	void destruct(T& Object) noexcept
 	{
 		Object.~T();
+
+#ifdef _DEBUG
+		// To increase the chance of crash on use-after-delete
+		std::memset(&Object, 0xFE, sizeof(Object));
+#endif
 	}
 }
 

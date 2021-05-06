@@ -135,10 +135,8 @@ namespace
 	};
 }
 
-static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const BackTrace, function_ref<void(string&&, string&&, string&&)> const Consumer)
+static void get_symbols_impl(string_view const ModuleName, span<uintptr_t const> const BackTrace, function_ref<void(string&&, string&&, string&&)> const Consumer)
 {
-	SCOPED_ACTION(tracer::with_symbols)(ModuleName);
-
 	const auto Process = GetCurrentProcess();
 
 	const auto FormatAddress = [](uintptr_t const Value)
@@ -245,16 +243,18 @@ static void GetSymbols(string_view const ModuleName, span<uintptr_t const> const
 	}
 }
 
-std::vector<uintptr_t> tracer::get(string_view const Module, CONTEXT const& ContextRecord, HANDLE ThreadHandle)
+std::vector<uintptr_t> tracer_detail::tracer::get(string_view const Module, CONTEXT const& ContextRecord, HANDLE ThreadHandle)
 {
-	SCOPED_ACTION(tracer::with_symbols)(Module);
+	SCOPED_ACTION(with_symbols)(Module);
 
 	return GetBackTrace(ContextRecord, ThreadHandle);
 }
 
-void tracer::get_symbols(string_view const Module, span<uintptr_t const> const Trace, function_ref<void(string&& Line)> const Consumer)
+void tracer_detail::tracer::get_symbols(string_view const Module, span<uintptr_t const> const Trace, function_ref<void(string&& Line)> const Consumer)
 {
-	GetSymbols(Module, Trace, [&](string&& Address, string&& Name, string&& Source)
+	SCOPED_ACTION(with_symbols)(Module);
+
+	get_symbols_impl(Module, Trace, [&](string&& Address, string&& Name, string&& Source)
 	{
 		if (!Name.empty())
 			append(Address, L' ', Name);
@@ -266,10 +266,13 @@ void tracer::get_symbols(string_view const Module, span<uintptr_t const> const T
 	});
 }
 
-void tracer::get_symbol(string_view const Module, const void* Ptr, string& Address, string& Name, string& Source)
+void tracer_detail::tracer::get_symbol(string_view const Module, const void* Ptr, string& Address, string& Name, string& Source)
 {
+	SCOPED_ACTION(with_symbols)(Module);
+
 	uintptr_t const Stack[]{ reinterpret_cast<uintptr_t>(Ptr) };
-	GetSymbols(Module, Stack, [&](string&& StrAddress, string&& StrName, string&& StrSource)
+
+	get_symbols_impl(Module, Stack, [&](string&& StrAddress, string&& StrName, string&& StrSource)
 	{
 		Address = std::move(StrAddress);
 		Name = std::move(StrName);
@@ -277,16 +280,13 @@ void tracer::get_symbol(string_view const Module, const void* Ptr, string& Addre
 	});
 }
 
-static int s_SymInitialised = 0;
-static os::concurrency::critical_section s_CS;
-
-void tracer::sym_initialise(string_view Module)
+void tracer_detail::tracer::sym_initialise(string_view Module)
 {
-	SCOPED_ACTION(std::lock_guard)(s_CS);
+	SCOPED_ACTION(std::lock_guard)(m_CS);
 
-	if (s_SymInitialised)
+	if (m_SymInitialised)
 	{
-		++s_SymInitialised;
+		++m_SymInitialised;
 		return;
 	}
 
@@ -315,19 +315,32 @@ void tracer::sym_initialise(string_view Module)
 		(imports.SymInitializeW && imports.SymInitializeW(GetCurrentProcess(), EmptyToNull(Path), TRUE)) ||
 		(imports.SymInitialize && imports.SymInitialize(GetCurrentProcess(), EmptyToNull(encoding::ansi::get_bytes(Path)), TRUE))
 	)
-		++s_SymInitialised;
+		++m_SymInitialised;
 }
 
-void tracer::sym_cleanup()
+void tracer_detail::tracer::sym_cleanup()
 {
-	SCOPED_ACTION(std::lock_guard)(s_CS);
+	SCOPED_ACTION(std::lock_guard)(m_CS);
 
-	if (s_SymInitialised)
-		--s_SymInitialised;
+	if (m_SymInitialised)
+		--m_SymInitialised;
 
-	if (!s_SymInitialised)
+	if (!m_SymInitialised)
 	{
 		if (imports.SymCleanup)
 			imports.SymCleanup(GetCurrentProcess());
 	}
 }
+
+tracer_detail::tracer::with_symbols::with_symbols(string_view const Module)
+{
+	::tracer.sym_initialise(Module);
+}
+
+tracer_detail::tracer::with_symbols::~with_symbols()
+{
+	::tracer.sym_cleanup();
+}
+
+NIFTY_DEFINE(tracer_detail::tracer, tracer);
+

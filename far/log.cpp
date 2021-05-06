@@ -192,7 +192,7 @@ namespace
 				m_Data += L"\nLog stack:\n"sv;
 
 				const auto FramesToSkip = 4; // log -> engine.log -> submit -> this ctor
-				tracer::get_symbols({}, os::debug::current_stack(FramesToSkip, TraceDepth), [&](string_view const TraceLine)
+				tracer.get_symbols({}, os::debug::current_stack(FramesToSkip, TraceDepth), [&](string_view const TraceLine)
 				{
 					append(m_Data, TraceLine, L'\n');
 				});

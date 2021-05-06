@@ -91,6 +91,17 @@ private:
 	_purecall_handler m_PreviousHandler;
 };
 
+class invalid_parameter_handler
+{
+public:
+	NONCOPYABLE(invalid_parameter_handler);
+
+	invalid_parameter_handler();
+	~invalid_parameter_handler();
+
+private:
+	_invalid_parameter_handler m_PreviousHandler;
+};
 
 void restore_system_exception_handler();
 

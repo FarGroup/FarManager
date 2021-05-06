@@ -241,6 +241,14 @@ namespace tests
 		Global->WindowManager->ExitMainLoop(FALSE);
 	}
 
+	static void cpp_invalid_parameter()
+	{
+#if IS_MICROSOFT_SDK()
+		const auto Func = printf;
+		Func({});
+#endif
+	}
+
 	static void seh_access_violation_read()
 	{
 		volatile const int* InvalidAddress = nullptr;
@@ -393,6 +401,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::cpp_terminate_unwind,         L"C++ terminate unwind"sv },
 		{ tests::cpp_pure_virtual_call,        L"C++ pure virtual call"sv },
 		{ tests::cpp_memory_leak,              L"C++ memory leak"sv },
+		{ tests::cpp_invalid_parameter,        L"C++ invalid parameter"sv },
 		{ tests::seh_access_violation_read,    L"SEH access violation (read)"sv },
 		{ tests::seh_access_violation_write,   L"SEH access violation (write)"sv },
 		{ tests::seh_access_violation_execute, L"SEH access violation (execute)"sv },

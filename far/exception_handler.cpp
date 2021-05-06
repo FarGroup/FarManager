@@ -148,14 +148,14 @@ static void get_backtrace(string_view const Module, span<uintptr_t const> const 
 
 	if (!NestedStack.empty())
 	{
-		tracer::get_symbols(Module, NestedStack, Consumer);
+		tracer.get_symbols(Module, NestedStack, Consumer);
 		Separator(L"Rethrow:"s);
 	}
 
-	tracer::get_symbols(Module, Stack, Consumer);
+	tracer.get_symbols(Module, Stack, Consumer);
 
 	Separator(L"Current stack:"s);
-	tracer::get_symbols(Module, os::debug::current_stack(), Consumer);
+	tracer.get_symbols(Module, os::debug::current_stack(), Consumer);
 }
 
 static void show_backtrace(string_view const Module, span<uintptr_t const> const Stack, span<uintptr_t const> const NestedStack, bool const UseDialog)
@@ -406,7 +406,7 @@ static void copy_information(
 	read_registers(Strings, Context.context_record(), Eol);
 	append(Strings, Eol);
 
-	get_backtrace(Module, tracer::get(Module, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
+	get_backtrace(Module, tracer.get(Module, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
 	{
 		append(Strings, Line, Eol);
 	});
@@ -539,7 +539,7 @@ static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2
 				return FALSE;
 
 			case ed_button_stack:
-				show_backtrace(Data.Module, tracer::get(Data.Module, Data.Context->context_record(), Data.Context->thread_handle()), Data.NestedStack, true);
+				show_backtrace(Data.Module, tracer.get(Data.Module, Data.Context->context_record(), Data.Context->thread_handle()), Data.NestedStack, true);
 				return FALSE;
 
 			case ed_button_minidump:
@@ -713,7 +713,7 @@ static bool ExcConsole(
 			break;
 
 		case action::stack:
-			show_backtrace(ModuleName, tracer::get(ModuleName, Context.context_record(), Context.thread_handle()), NestedStack, false);
+			show_backtrace(ModuleName, tracer.get(ModuleName, Context.context_record(), Context.thread_handle()), NestedStack, false);
 			break;
 
 		case action::minidump:
@@ -753,10 +753,10 @@ static bool ShowExceptionUI(
 	span<uintptr_t const> const NestedStack
 )
 {
-	SCOPED_ACTION(tracer::with_symbols)(PluginModule? ModuleName : L""sv);
+	SCOPED_ACTION(tracer_detail::tracer::with_symbols)(PluginModule? ModuleName : L""sv);
 
 	string Address, Name, Source;
-	tracer::get_symbol(ModuleName, Context.exception_record().ExceptionAddress, Address, Name, Source);
+	tracer.get_symbol(ModuleName, Context.exception_record().ExceptionAddress, Address, Name, Source);
 
 	if (!Name.empty())
 		append(Address, L" - "sv, Name);
@@ -835,7 +835,7 @@ static bool ShowExceptionUI(
 
 		Message += L"\n\n"sv;
 
-		get_backtrace(ModuleName, tracer::get(ModuleName, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
+		get_backtrace(ModuleName, tracer.get(ModuleName, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
 		{
 			append(Message, Line, L'\n');
 		});
@@ -1239,7 +1239,7 @@ public:
 	far_wrapper_exception(std::string_view const Function, std::string_view const File, int const Line):
 		far_exception(true, L"exception_ptr"sv, Function, File, Line),
 		m_ThreadHandle(std::make_shared<os::handle>(os::OpenCurrentThread())),
-		m_Stack(tracer::get({}, *exception_information().ContextRecord, m_ThreadHandle->native_handle()))
+		m_Stack(tracer.get({}, *exception_information().ContextRecord, m_ThreadHandle->native_handle()))
 	{
 	}
 
@@ -1348,7 +1348,7 @@ static bool handle_std_exception(
 			{},
 			SehException->message(),
 			*SehException,
-			tracer::get({}, SehException->context().context_record(), SehException->context().thread_handle())
+			tracer.get({}, SehException->context().context_record(), SehException->context().thread_handle())
 		);
 	}
 
@@ -1513,6 +1513,37 @@ purecall_handler::purecall_handler():
 purecall_handler::~purecall_handler()
 {
 	set_purecall_handler(m_PreviousHandler);
+}
+
+static void invalid_parameter_handler_impl(const wchar_t* const Expression, const wchar_t* const Function, const wchar_t* const File, unsigned int const Line, uintptr_t const Reserved)
+{
+	exception_context const Context
+	({
+		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(EXCEPTION_TERMINATE)),
+		static_cast<CONTEXT*>(*dummy_current_exception_context())
+	});
+
+	if (handle_generic_exception(
+		Context,
+		Function? encoding::utf8::get_bytes(Function) : CURRENT_FUNCTION_NAME,
+		format(FSTR(L"{}({})"sv), File? File : WIDE(CURRENT_FILE_NAME), File? Line : __LINE__),
+		{},
+		{},
+		Expression? Expression : L"Invalid parameter"sv
+	))
+		std::abort();
+
+	restore_system_exception_handler();
+}
+
+invalid_parameter_handler::invalid_parameter_handler():
+	m_PreviousHandler(_set_invalid_parameter_handler(invalid_parameter_handler_impl))
+{
+}
+
+invalid_parameter_handler::~invalid_parameter_handler()
+{
+	_set_invalid_parameter_handler(m_PreviousHandler);
 }
 
 namespace detail
