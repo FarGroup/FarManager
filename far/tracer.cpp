@@ -343,4 +343,3 @@ tracer_detail::tracer::with_symbols::~with_symbols()
 }
 
 NIFTY_DEFINE(tracer_detail::tracer, tracer);
-
