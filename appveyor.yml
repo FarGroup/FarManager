@@ -121,7 +121,7 @@ build_script:
   - set COLORER_PLATFORM=x86
   - if "%platform%" == "x64" set COLORER_PLATFORM=x64
   - set COLORER_FILE_NAME=FarColorer.%COLORER_PLATFORM%.v%COLORER_VERSION%.7z
-  - curl -fsS -o %COLORER_FILE_NAME% https://github.com/colorer/FarColorer/releases/download/v%COLORER_VERSION%/%COLORER_FILE_NAME%
+  - curl -fsLJO https://github.com/colorer/FarColorer/releases/download/v%COLORER_VERSION%/%COLORER_FILE_NAME%
   - mkdir ci\%configuration%.%platform%\Plugins\FarColorer
   - 7z x %COLORER_FILE_NAME% -oci\%configuration%.%platform%\Plugins\FarColorer
   #remove not needed build artifacts

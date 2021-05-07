@@ -5,7 +5,7 @@ function bcolorer {
   COLORER_VERSION=1.4.1
   COLORER_PLATFORM=$2
   COLORER_FILE_NAME=FarColorer.${COLORER_PLATFORM}.v${COLORER_VERSION}.7z
-  curl -fsS -o ${COLORER_FILE_NAME} https://github.com/colorer/FarColorer/releases/download/v${COLORER_VERSION}/${COLORER_FILE_NAME}
+  curl -fsLJO -o ${COLORER_FILE_NAME} https://github.com/colorer/FarColorer/releases/download/v${COLORER_VERSION}/${COLORER_FILE_NAME}
   if [ ! -e ${COLORER_FILE_NAME} ]; then
     echo "Can't find ${COLORER_FILE_NAME}"
     return 1
