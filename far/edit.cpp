@@ -362,7 +362,16 @@ void Edit::FastShow(const ShowInfo* Info)
 		}
 		else
 		{
-			Global->ScrBuf->ApplyColor({ m_Where.left + TabSelStart, m_Where.top, m_Where.left + TabSelEnd - 1, m_Where.top }, GetSelectedColor(), ScreenBuf::apply_mode::color);
+			Global->ScrBuf->ApplyColor(
+				{
+					std::min(m_Where.left + TabSelStart, static_cast<int>(m_Where.right)),
+					m_Where.top,
+					std::min(m_Where.left + TabSelEnd - 1, static_cast<int>(m_Where.right)),
+					m_Where.top
+				},
+				GetSelectedColor(),
+				ScreenBuf::apply_mode::color
+			);
 		}
 	}
 }
