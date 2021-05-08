@@ -1075,14 +1075,13 @@ static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_vie
 	return WithType(format(FSTR(L"0x{:0>8X} - {}"sv), ExceptionRecord.ExceptionCode, Name));
 }
 
-static string exception_details(EXCEPTION_RECORD const& ExceptionRecord, string_view const Message)
+static string exception_details(string_view const Module, EXCEPTION_RECORD const& ExceptionRecord, string_view const Message)
 {
 	switch (static_cast<NTSTATUS>(ExceptionRecord.ExceptionCode))
 	{
 	case EXCEPTION_ACCESS_VIOLATION:
 	case EXCEPTION_IN_PAGE_ERROR:
 	{
-		const auto AccessedAddress = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
 		const auto Mode = [](ULONG_PTR Code)
 		{
 			switch (Code)
@@ -1094,7 +1093,16 @@ static string exception_details(EXCEPTION_RECORD const& ExceptionRecord, string_
 			}
 		}(ExceptionRecord.ExceptionInformation[0]);
 
-		return format(FSTR(L"Memory at {} could not be {}"sv), AccessedAddress, Mode);
+		string Symbol;
+		tracer.get_symbols(Module, { ExceptionRecord.ExceptionInformation[1] }, [&](string&& Line)
+		{
+			Symbol = std::move(Line);
+		});
+
+		if (Symbol.empty())
+			Symbol = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
+
+		return format(FSTR(L"Memory at {} could not be {}"sv), Symbol, Mode);
 	}
 
 	case EXCEPTION_MICROSOFT_CPLUSPLUS:
@@ -1153,7 +1161,7 @@ static bool handle_generic_exception(
 	}
 
 	const auto Exception = exception_name(Context.exception_record(), Type);
-	const auto Details = exception_details(Context.exception_record(), Message);
+	const auto Details = exception_details(strFileName, Context.exception_record(), Message);
 
 	const auto PluginInformation = PluginModule? format(FSTR(L"{} {} ({}, {})"sv),
 		PluginModule->Title(),
@@ -1659,7 +1667,18 @@ namespace detail
 			return EXCEPTION_CONTINUE_SEARCH;
 		}
 
-		Ptr = std::make_exception_ptr(MAKE_EXCEPTION(seh_exception, *Info, true, concat(exception_name(*Info->ExceptionRecord, {}), L" - "sv, exception_details(*Info->ExceptionRecord, {}))));
+		Ptr = std::make_exception_ptr(
+			MAKE_EXCEPTION(
+				seh_exception,
+				*Info,
+				true,
+				concat(
+					exception_name(*Info->ExceptionRecord, {}),
+					L" - "sv,
+					exception_details({}, *Info->ExceptionRecord, {})
+				)
+			)
+		);
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
 

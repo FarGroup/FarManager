@@ -726,56 +726,65 @@ static string_view reparse_tag_to_string(DWORD ReparseTag)
 {
 	switch (ReparseTag)
 	{
+	default: return {};
+
+	// Localised
 	case IO_REPARSE_TAG_MOUNT_POINT:                 return msg(lng::MListJunction);
 	case IO_REPARSE_TAG_SYMLINK:                     return msg(lng::MListSymlink);
-	case IO_REPARSE_TAG_HSM:                         return L"HSM"sv;
-	case IO_REPARSE_TAG_HSM2:                        return L"HSM2"sv;
-	case IO_REPARSE_TAG_SIS:                         return L"SIS"sv;
-	case IO_REPARSE_TAG_WIM:                         return L"WIM"sv;
-	case IO_REPARSE_TAG_CSV:                         return L"CSV"sv;
-	case IO_REPARSE_TAG_DFS:                         return L"DFS"sv;
-	case IO_REPARSE_TAG_DFSR:                        return L"DFSR"sv;
-	case IO_REPARSE_TAG_DEDUP:                       return L"DEDUP"sv;
-	case IO_REPARSE_TAG_NFS:                         return L"NFS"sv;
-	case IO_REPARSE_TAG_FILE_PLACEHOLDER:            return L"FILE PLACEHOLDER"sv;
-	case IO_REPARSE_TAG_WOF:                         return L"WOF"sv;
-	case IO_REPARSE_TAG_WCI:                         return L"WCI"sv;
-	case IO_REPARSE_TAG_WCI_1:                       return L"WCI 1"sv;
-	case IO_REPARSE_TAG_GLOBAL_REPARSE:              return L"GLOBAL_REPARSE"sv;
-	case IO_REPARSE_TAG_CLOUD:                       return L"CLOUD"sv;
-	case IO_REPARSE_TAG_CLOUD_1:                     return L"CLOUD 1"sv;
-	case IO_REPARSE_TAG_CLOUD_2:                     return L"CLOUD 2"sv;
-	case IO_REPARSE_TAG_CLOUD_3:                     return L"CLOUD 3"sv;
-	case IO_REPARSE_TAG_CLOUD_4:                     return L"CLOUD 4"sv;
-	case IO_REPARSE_TAG_CLOUD_5:                     return L"CLOUD 5"sv;
-	case IO_REPARSE_TAG_CLOUD_6:                     return L"CLOUD 6"sv;
-	case IO_REPARSE_TAG_CLOUD_7:                     return L"CLOUD 7"sv;
-	case IO_REPARSE_TAG_CLOUD_8:                     return L"CLOUD 8"sv;
-	case IO_REPARSE_TAG_CLOUD_9:                     return L"CLOUD 9"sv;
-	case IO_REPARSE_TAG_CLOUD_A:                     return L"CLOUD A"sv;
-	case IO_REPARSE_TAG_CLOUD_B:                     return L"CLOUD B"sv;
-	case IO_REPARSE_TAG_CLOUD_C:                     return L"CLOUD C"sv;
-	case IO_REPARSE_TAG_CLOUD_D:                     return L"CLOUD D"sv;
-	case IO_REPARSE_TAG_CLOUD_E:                     return L"CLOUD E"sv;
-	case IO_REPARSE_TAG_CLOUD_F:                     return L"CLOUD F"sv;
-	case IO_REPARSE_TAG_APPEXECLINK:                 return L"APPEXECLINK"sv;
-	case IO_REPARSE_TAG_PROJFS:                      return L"PROJFS"sv;
-	case IO_REPARSE_TAG_STORAGE_SYNC:                return L"STORAGE SYNC"sv;
-	case IO_REPARSE_TAG_WCI_TOMBSTONE:               return L"WCI TOMBSTONE"sv;
-	case IO_REPARSE_TAG_UNHANDLED:                   return L"UNHANDLED"sv;
-	case IO_REPARSE_TAG_ONEDRIVE:                    return L"ONEDRIVE"sv;
-	case IO_REPARSE_TAG_PROJFS_TOMBSTONE:            return L"PROJFS TOMBSTONE"sv;
-	case IO_REPARSE_TAG_AF_UNIX:                     return L"AF UNIX"sv;
-	case IO_REPARSE_TAG_LX_SYMLINK:                  return L"LX SYMLINK"sv;
-	case IO_REPARSE_TAG_LX_FIFO:                     return L"LX FIFO"sv;
-	case IO_REPARSE_TAG_LX_CHR:                      return L"LX CHR"sv;
-	case IO_REPARSE_TAG_LX_BLK:                      return L"LX BLK"sv;
-	case IO_REPARSE_TAG_DRIVE_EXTENDER:              return L"DRIVE EXTENDER"sv;
-	case IO_REPARSE_TAG_FILTER_MANAGER:              return L"FILTER MANAGER"sv;
-	case IO_REPARSE_TAG_IIS_CACHE:                   return L"IIS CACHE"sv;
-	case IO_REPARSE_TAG_APPXSTRM:                    return L"APPXSTRM"sv;
-	case IO_REPARSE_TAG_DFM:                         return L"DFM"sv;
-	default:                                         return {};
+
+	// Generated
+#define TAG_STR(name) case IO_REPARSE_TAG_ ## name: return WSTRVIEW(name);
+	// MS tags:
+	TAG_STR(HSM)
+	TAG_STR(HSM2)
+	TAG_STR(SIS)
+	TAG_STR(WIM)
+	TAG_STR(CSV)
+	TAG_STR(DFS)
+	TAG_STR(DFSR)
+	TAG_STR(DEDUP)
+	TAG_STR(NFS)
+	TAG_STR(FILE_PLACEHOLDER)
+	TAG_STR(WOF)
+	TAG_STR(WCI)
+	TAG_STR(WCI_1)
+	TAG_STR(GLOBAL_REPARSE)
+	TAG_STR(CLOUD)
+	TAG_STR(CLOUD_1)
+	TAG_STR(CLOUD_2)
+	TAG_STR(CLOUD_3)
+	TAG_STR(CLOUD_4)
+	TAG_STR(CLOUD_5)
+	TAG_STR(CLOUD_6)
+	TAG_STR(CLOUD_7)
+	TAG_STR(CLOUD_8)
+	TAG_STR(CLOUD_9)
+	TAG_STR(CLOUD_A)
+	TAG_STR(CLOUD_B)
+	TAG_STR(CLOUD_C)
+	TAG_STR(CLOUD_D)
+	TAG_STR(CLOUD_E)
+	TAG_STR(CLOUD_F)
+	TAG_STR(APPEXECLINK)
+	TAG_STR(PROJFS)
+	TAG_STR(STORAGE_SYNC)
+	TAG_STR(WCI_TOMBSTONE)
+	TAG_STR(UNHANDLED)
+	TAG_STR(ONEDRIVE)
+	TAG_STR(PROJFS_TOMBSTONE)
+	TAG_STR(AF_UNIX)
+	TAG_STR(LX_SYMLINK)
+	TAG_STR(LX_FIFO)
+	TAG_STR(LX_CHR)
+	TAG_STR(LX_BLK)
+	TAG_STR(DRIVE_EXTENDER)
+	TAG_STR(FILTER_MANAGER)
+	TAG_STR(IIS_CACHE)
+	TAG_STR(APPXSTRM)
+	TAG_STR(DFM)
+
+	// TODO: there's almost a hundred of non-MS tags
+#undef TAG_STR
 	}
 }
 
