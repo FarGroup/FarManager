@@ -1,6 +1,7 @@
 #!/bin/bash
 
 function bcolorer {
+  BIT=$1
   PLUGIN=FarColorer
   COLORER_VERSION=1.4.1
   COLORER_PLATFORM=$2
