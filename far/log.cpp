@@ -143,29 +143,6 @@ namespace
 		return F_DARKGRAY;
 	}
 
-	static std::pair<string, string> get_time()
-	{
-		SYSTEMTIME SystemTime{};
-		GetSystemTime(&SystemTime);
-
-		return
-		{
-			format(
-				FSTR(L"{:04}/{:02}/{:02}"sv),
-				SystemTime.wYear,
-				SystemTime.wMonth,
-				SystemTime.wDay
-			),
-			format(
-				FSTR(L"{:02}:{:02}:{:02}.{:03}"sv),
-				SystemTime.wHour,
-				SystemTime.wMinute,
-				SystemTime.wSecond,
-				SystemTime.wMilliseconds
-			)
-		};
-	}
-
 	static string get_location(std::string_view const Function, std::string_view const File, int const Line)
 	{
 		return format(FSTR(L"{}, {}({})"sv), encoding::utf8::get_chars(Function), encoding::utf8::get_chars(File), Line);
@@ -412,9 +389,6 @@ namespace
 	private:
 		static string make_filename()
 		{
-			SYSTEMTIME SystemTime{};
-			GetSystemTime(&SystemTime);
-
 			auto [Date, Time] = get_time();
 			std::replace(ALL_RANGE(Date), L'/', L'.');
 			std::replace(ALL_RANGE(Time), L':', L'.');

@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 09.05.2021 20:00:49 +0100 - build 5797
+
+1. Experimental: since it's nearly impossible to teach the users that screenshots of the exception dialog are NOT useful for investigations,
+   the aforementioned dialog now doesn't display any technical information at all.
+   That information is now saved to a text file in the local profile, along with a minidump.
+
+--------------------------------------------------------------------------------
 drkns 09.05.2021 00:20:43 +0100 - build 5796
 
 1. Exception handling improvements.

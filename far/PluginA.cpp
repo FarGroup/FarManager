@@ -5100,7 +5100,7 @@ private:
 	bool SetStartupInfo(PluginStartupInfo*) override
 	{
 		AnsiExecuteStruct<iSetStartupInfo> es;
-		if (has(es) && !Global->ProcessException)
+		if (has(es) && !exception_handling_in_progress())
 		{
 WARNING_PUSH()
 WARNING_DISABLE_CLANG("-Wused-but-marked-unused")
@@ -5221,7 +5221,7 @@ WARNING_POP()
 		CheckScreenLock();
 
 		AnsiExecuteStruct<iOpen> es;
-		if (Global->ProcessException || !Load() || !has(es))
+		if (exception_handling_in_progress() || !Load() || !has(es))
 			return TranslateResult(es);
 
 		std::unique_ptr<char[]> Buffer;
@@ -5313,7 +5313,7 @@ WARNING_POP()
 	void ClosePanel(ClosePanelInfo* Info) override
 	{
 		AnsiExecuteStruct<iClosePanel> es;
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return;
 
 		ExecuteFunction(es, Info->hPanel);
@@ -5325,7 +5325,7 @@ WARNING_POP()
 		*pi = {};
 
 		AnsiExecuteStruct<iGetPluginInfo> es;
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return false;
 
 		oldfar::PluginInfo InfoA{ sizeof(InfoA) };
@@ -5343,7 +5343,7 @@ WARNING_POP()
 		Info->StructSize = sizeof(OpenPanelInfo);
 
 		AnsiExecuteStruct<iGetOpenPanelInfo> es;
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return;
 
 		oldfar::OpenPanelInfo InfoA{};
@@ -5354,7 +5354,7 @@ WARNING_POP()
 	intptr_t GetFindData(GetFindDataInfo* Info) override
 	{
 		AnsiExecuteStruct<iGetFindData> es;
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return es;
 
 		pFDPanelItemA = nullptr;
@@ -5378,7 +5378,7 @@ WARNING_POP()
 		FreeUnicodePanelItem(Info->PanelItem, Info->ItemsNumber);
 
 		AnsiExecuteStruct<iFreeFindData> es;
-		if (Global->ProcessException || !has(es) || !pFDPanelItemA)
+		if (exception_handling_in_progress() || !has(es) || !pFDPanelItemA)
 			return;
 
 		ExecuteFunction(es, Info->hPanel, pFDPanelItemA, static_cast<int>(Info->ItemsNumber));
@@ -5388,7 +5388,7 @@ WARNING_POP()
 	intptr_t GetVirtualFindData(GetVirtualFindDataInfo* Info) override
 	{
 		AnsiExecuteStruct<iGetVirtualFindData> es;
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return es;
 
 		pVFDPanelItemA = nullptr;
@@ -5412,7 +5412,7 @@ WARNING_POP()
 		FreeUnicodePanelItem(Info->PanelItem, Info->ItemsNumber);
 
 		AnsiExecuteStruct<iFreeVirtualFindData> es;
-		if (Global->ProcessException || !has(es) || !pVFDPanelItemA)
+		if (exception_handling_in_progress() || !has(es) || !pVFDPanelItemA)
 			return;
 
 		ExecuteFunction(es, Info->hPanel, pVFDPanelItemA, static_cast<int>(Info->ItemsNumber));
@@ -5422,7 +5422,7 @@ WARNING_POP()
 	intptr_t SetDirectory(SetDirectoryInfo* Info) override
 	{
 		AnsiExecuteStruct<iSetDirectory> es;
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return es;
 
 		std::unique_ptr<char[]> const DirA(UnicodeToAnsi(Info->Dir));
@@ -5435,7 +5435,7 @@ WARNING_POP()
 	intptr_t GetFiles(GetFilesInfo* Info) override
 	{
 		AnsiExecuteStruct<iGetFiles> es(-1);
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return es;
 
 		const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
@@ -5455,7 +5455,7 @@ WARNING_POP()
 	intptr_t PutFiles(PutFilesInfo* Info) override
 	{
 		AnsiExecuteStruct<iPutFiles> es(-1);
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return es;
 
 		const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
@@ -5470,7 +5470,7 @@ WARNING_POP()
 	intptr_t DeleteFiles(DeleteFilesInfo* Info) override
 	{
 		AnsiExecuteStruct<iDeleteFiles> es;
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return es;
 
 		const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
@@ -5485,7 +5485,7 @@ WARNING_POP()
 	intptr_t MakeDirectory(MakeDirectoryInfo* Info) override
 	{
 		AnsiExecuteStruct<iMakeDirectory> es(-1);
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return es;
 
 		char NameA[oldfar::NM];
@@ -5502,7 +5502,7 @@ WARNING_POP()
 	intptr_t ProcessHostFile(ProcessHostFileInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessHostFile> es;
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return es;
 
 		const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
@@ -5516,7 +5516,7 @@ WARNING_POP()
 	intptr_t SetFindList(SetFindListInfo* Info) override
 	{
 		AnsiExecuteStruct<iSetFindList> es;
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return es;
 
 		const auto PanelItemA = ConvertPanelItemsArrayToAnsi(Info->PanelItem, Info->ItemsNumber);
@@ -5528,7 +5528,7 @@ WARNING_POP()
 	intptr_t Configure(ConfigureInfo* Info) override
 	{
 		AnsiExecuteStruct<iConfigure> es;
-		if (Global->ProcessException || !Load() || !has(es))
+		if (exception_handling_in_progress() || !Load() || !has(es))
 			return es;
 
 		ExecuteFunction(es, Info->Guid->Data1);
@@ -5538,7 +5538,7 @@ WARNING_POP()
 	void ExitFAR(ExitInfo*) override
 	{
 		AnsiExecuteStruct<iExitFAR> es;
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return;
 
 		// ExitInfo ignored for ansi plugins
@@ -5548,7 +5548,7 @@ WARNING_POP()
 	intptr_t ProcessPanelInput(ProcessPanelInputInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessPanelInput> es;
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return es;
 
 		const auto Prepocess = (Info->Rec.EventType & 0x4000) != 0;
@@ -5571,7 +5571,7 @@ WARNING_POP()
 	intptr_t ProcessPanelEvent(ProcessPanelEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessPanelEvent> es;
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return es;
 
 		auto Param = Info->Param;
@@ -5590,7 +5590,7 @@ WARNING_POP()
 	intptr_t ProcessEditorEvent(ProcessEditorEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessEditorEvent> es;
-		if (Global->ProcessException || !Load() || !has(es))
+		if (exception_handling_in_progress() || !Load() || !has(es))
 			return es;
 
 		switch (Info->Event)
@@ -5612,7 +5612,7 @@ WARNING_POP()
 	intptr_t Compare(CompareInfo* Info) override
 	{
 		AnsiExecuteStruct<iCompare> es(-2);
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return es;
 
 		const auto Item1A = ConvertPanelItemsArrayToAnsi(Info->Item1, 1);
@@ -5626,7 +5626,7 @@ WARNING_POP()
 	intptr_t ProcessEditorInput(ProcessEditorInputInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessEditorInput> es;
-		if (Global->ProcessException || !Load() || !has(es))
+		if (exception_handling_in_progress() || !Load() || !has(es))
 			return es;
 
 		const INPUT_RECORD *Ptr = &Info->Rec;
@@ -5644,7 +5644,7 @@ WARNING_POP()
 	intptr_t ProcessViewerEvent(ProcessViewerEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessViewerEvent> es;
-		if (Global->ProcessException || !Load() || !has(es))
+		if (exception_handling_in_progress() || !Load() || !has(es))
 			return es;
 
 		switch (Info->Event)
@@ -5664,7 +5664,7 @@ WARNING_POP()
 	intptr_t ProcessDialogEvent(ProcessDialogEventInfo* Info) override
 	{
 		AnsiExecuteStruct<iProcessDialogEvent> es;
-		if (Global->ProcessException || !Load() || !has(es))
+		if (exception_handling_in_progress() || !Load() || !has(es))
 			return es;
 
 		ExecuteFunction(es, Info->Event, Info->Param);
@@ -5707,7 +5707,7 @@ WARNING_POP()
 	void* OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int) override
 	{
 		AnsiExecuteStruct<iOpenFilePlugin> es;
-		if (Global->ProcessException || !Load() || !has(es))
+		if (exception_handling_in_progress() || !Load() || !has(es))
 			return es;
 
 		std::unique_ptr<char[]> const NameA(UnicodeToAnsi(Name));
@@ -5718,7 +5718,7 @@ WARNING_POP()
 	bool CheckMinFarVersion() override
 	{
 		AnsiExecuteStruct<iGetMinFarVersion> es;
-		if (Global->ProcessException || !has(es))
+		if (exception_handling_in_progress() || !has(es))
 			return true;
 
 		ExecuteFunction(es);

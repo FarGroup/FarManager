@@ -80,7 +80,6 @@ public:
 	bool DisablePluginsOutput{};
 	int IsProcessAssignMacroKey{};
 	size_t PluginPanelsCount{};
-	bool ProcessException{};
 
 	class far_clock
 	{

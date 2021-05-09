@@ -106,5 +106,6 @@ private:
 	const clock_type::duration m_Interval;
 };
 
+std::pair<string, string> get_time();
 
 #endif // DATETIME_HPP_58256A07_E483_4DB7_9DAC_DFA9D90D8A32

@@ -48,6 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void disable_exception_handling();
 
+bool exception_handling_in_progress();
+
 void force_stderr_exception_ui(bool Force);
 
 class Plugin;
