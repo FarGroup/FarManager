@@ -18,6 +18,7 @@ final.*.gcc*
 .vs
 bin
 obj
+/misc/hlf-checker/Properties
 ipch
 *.db
 *.opendb

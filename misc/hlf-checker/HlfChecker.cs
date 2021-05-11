@@ -19,6 +19,11 @@ namespace HlfChecker
 				return 1;
 			}
 
+			if (options.HasFlag(ProcessingOptions.ShowHelp))
+			{
+				return CommandLine.ShowHelp();
+			}
+
 			return ValidateDirectories(directories, GlobalConstants.MasterLanguage, languageFilter, options) ? 0 : 1;
 		}
 
@@ -76,7 +81,7 @@ namespace HlfChecker
 
 			foreach (var diagnostic in parser.EnumerateDiagnostics())
 			{
-				Console.WriteLine(diagnostic);
+				diagnostic.Trace(skipLine: false);
 			}
 
 			var hlf = parser.Hlf;
