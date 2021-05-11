@@ -118,7 +118,7 @@ namespace
 	[[noreturn]]
 	void throw_exception(string_view const DatabaseName, int const ErrorCode, string_view const ErrorString = {}, int const SystemErrorCode = 0, string_view const Sql = {})
 	{
-		throw MAKE_EXCEPTION(far_sqlite_exception, true, format(FSTR(L"[{}] - SQLite error {}: {}{}{}"sv),
+		throw MAKE_EXCEPTION(far_sqlite_exception, ErrorCode, true, format(FSTR(L"[{}] - SQLite error {}: {}{}{}"sv),
 			DatabaseName,
 			ErrorCode,
 			ErrorString.empty()? GetErrorString(ErrorCode) : ErrorString,
@@ -139,14 +139,6 @@ namespace
 
 		if (!Callable())
 		{
-			if (GetLastErrorCode(Db) == SQLITE_CORRUPT_INDEX)
-			{
-				// We replace "nocase" collation, so reindexing is required.
-				// It's quite expensive to do on every start, so do it here when needed.
-				if (sqlite::sqlite3_exec(Db, "REINDEX NOCASE", {}, {}, {}) == SQLITE_OK && Callable())
-					return;
-			}
-
 			throw_exception(Db, {}, SqlAccessor? SqlAccessor() : L""sv);
 		}
 	}
@@ -172,13 +164,22 @@ static void sqlite_log(void*, int const Code, const char* const Message)
 	LOG(Level, L"SQLite {} ({}): {}"sv, GetErrorString(Code), Code, encoding::utf8::get_chars(Message));
 }
 
+bool far_sqlite_exception::is_constaint_unique() const
+{
+	return m_ErrorCode == SQLITE_CONSTRAINT_UNIQUE;
+}
+
+bool far_sqlite_exception::is_corrupt_index() const
+{
+	return m_ErrorCode == SQLITE_CORRUPT_INDEX;
+}
+
 void SQLiteDb::library_load()
 {
 	sqlite::sqlite3_config(SQLITE_CONFIG_LOG, sqlite_log, nullptr);
 
 	if (const auto Result = sqlite::sqlite3_initialize(); Result != SQLITE_OK)
 	{
-		assert(false);
 		LOGERROR(L"sqlite3_initialize(): {}"sv, GetErrorString(Result));
 	}
 }
@@ -187,7 +188,6 @@ void SQLiteDb::library_free()
 {
 	if (const auto Result = sqlite::sqlite3_shutdown(); Result != SQLITE_OK)
 	{
-		assert(false);
 		LOGERROR(L"sqlite3_shutdown(): {}"sv, GetErrorString(Result));
 	}
 }
@@ -206,8 +206,7 @@ void SQLiteDb::SQLiteStmt::stmt_deleter::operator()(sqlite::sqlite3_stmt* Object
 	{
 		if (const auto Result = sqlite::sqlite3_finalize(Object); Result != SQLITE_OK)
 		{
-			assert(false);
-			LOGERROR(L"sqlite3_finalize(): {}"sv, GetErrorString(Result));
+			LOGDEBUG(L"sqlite3_finalize(): {}"sv, GetErrorString(Result));
 		}
 		return true;
 	});
@@ -229,8 +228,7 @@ SQLiteDb::SQLiteStmt& SQLiteDb::SQLiteStmt::Reset()
 	{
 		if (const auto Result = sqlite::sqlite3_reset(m_Stmt.get()); Result != SQLITE_OK)
 		{
-			assert(false);
-			LOGERROR(L"sqlite3_reset(): {}"sv, GetErrorString(Result));
+			LOGDEBUG(L"sqlite3_reset(): {}"sv, GetErrorString(Result));
 		}
 		return true;
 	});
@@ -386,8 +384,7 @@ void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const noexcept
 {
 	if (const auto Result = sqlite::sqlite3_close(Object); Result != SQLITE_OK)
 	{
-		assert(false);
-		LOGERROR(L"sqlite3_close(): {}"sv, GetLastErrorString(Object));
+		LOGDEBUG(L"sqlite3_close(): {}"sv, GetLastErrorString(Object));
 	}
 }
 
@@ -454,7 +451,6 @@ public:
 			{
 				if (const auto Result = sqlite::sqlite3_backup_finish(Backup); Result != SQLITE_OK)
 				{
-					assert(false);
 					LOGERROR(L"sqlite3_backup_finish(): {}"sv, GetErrorString(Result));
 				}
 			}
@@ -500,6 +496,16 @@ SQLiteDb::database_ptr SQLiteDb::Open(string_view const Path, busy_handler BusyH
 	return m_DbExists?
 		implementation::try_copy_db_to_memory(Path, { BusyHandler, this }, WAL) :
 		implementation::open(memory_db_name, {});
+}
+
+void SQLiteDb::Exec(std::string const& Command) const
+{
+	Exec(std::string_view(Command));
+}
+
+void SQLiteDb::Exec(std::string_view const Command) const
+{
+	Exec(span{ Command });
 }
 
 void SQLiteDb::Exec(span<std::string_view const> const Commands) const
@@ -557,12 +563,17 @@ void SQLiteDb::Close()
 
 void SQLiteDb::SetWALJournalingMode() const
 {
-	Exec({ "PRAGMA journal_mode = WAL;"sv });
+	Exec("PRAGMA journal_mode = WAL;"sv);
 }
 
 void SQLiteDb::EnableForeignKeysConstraints() const
 {
-	Exec({ "PRAGMA foreign_keys = ON;"sv });
+	Exec("PRAGMA foreign_keys = ON;"sv);
+}
+
+void SQLiteDb::initialise() const
+{
+	sqlite::sqlite3_extended_result_codes(m_Db.get(), true);
 }
 
 template<typename char_type>
@@ -589,26 +600,28 @@ static int combined_comparer(void* const Param, int const Size1, const void* con
 	);
 }
 
-void SQLiteDb::initialise() const
+using comparer_type = int(void*, int, const void*, int, const void*);
+
+static void create_combined_collation(sqlite::sqlite3* const Db, const char* const Name, comparer_type Comparer)
 {
-	sqlite::sqlite3_extended_result_codes(m_Db.get(), true);
-
-	using comparer_type = int(void*, int, const void*, int, const void*);
-
-	const auto create_collation = [&](const char* const Name, int const Encoding, comparer_type Comparer)
+	const auto create_collation = [&](int const Encoding)
 	{
-		invoke(m_Db.get(), [&]
+		invoke(Db, [&]
 		{
-			return sqlite::sqlite3_create_collation(m_Db.get(), Name, Encoding, ToPtr(Encoding), Comparer) == SQLITE_OK;
+			return sqlite::sqlite3_create_collation(Db, Name, Encoding, ToPtr(Encoding), Comparer) == SQLITE_OK;
 		});
 	};
 
-	const auto create_combined_collation = [&](const char* const Name, comparer_type Comparer)
-	{
-		create_collation(Name, SQLITE_UTF8, Comparer);
-		create_collation(Name, SQLITE_UTF16, Comparer);
-	};
+	create_collation(SQLITE_UTF8);
+	create_collation(SQLITE_UTF16);
+}
 
-	create_combined_collation("nocase", combined_comparer<string_sort::keyhole::compare_ordinal_icase>);
-	create_combined_collation("numeric", combined_comparer<string_sort::keyhole::compare_ordinal_numeric>);
+void SQLiteDb::add_nocase_collation() const
+{
+	create_combined_collation(m_Db.get(), "nocase", combined_comparer<string_sort::keyhole::compare_ordinal_icase>);
+}
+
+void SQLiteDb::add_numeric_collation() const
+{
+	create_combined_collation(m_Db.get(), "numeric", combined_comparer<string_sort::keyhole::compare_ordinal_numeric>);
 }

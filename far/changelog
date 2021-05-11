@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 11.05.2021 02:02:02 +0100 - build 5798
+
+1. Continue the "SQLite vs nocase" saga. Now any related errors should be fixed automatically.
+
+--------------------------------------------------------------------------------
 drkns 09.05.2021 20:00:49 +0100 - build 5797
 
 1. Experimental: since it's nearly impossible to teach the users that screenshots of the exception dialog are NOT useful for investigations,

@@ -533,6 +533,8 @@ private:
 	{
 		Db.EnableForeignKeysConstraints();
 
+		Db.add_numeric_collation();
+
 		static const std::string_view Schema[]
 		{
 			"CREATE TABLE IF NOT EXISTS table_keys(id INTEGER PRIMARY KEY, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"sv,
@@ -1207,7 +1209,7 @@ private:
 			return;
 
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		Exec({ "DELETE FROM filetypes;"sv }); //delete all before importing
+		Exec("DELETE FROM filetypes;"sv); // delete all before importing
 		unsigned long long id = 0;
 		for (const auto& e: xml_enum(base, "filetype"))
 		{
@@ -1273,7 +1275,7 @@ public:
 	void DiscardCache() override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		Exec({ "DELETE FROM cachename;"sv });
+		Exec("DELETE FROM cachename;"sv);
 	}
 
 private:
@@ -1882,10 +1884,16 @@ private:
 		AsyncWork.set();
 	}
 
+	#define EDITORPOSITION_HISTORY_NAME "editorposition_history"
+	#define VIEWERPOSITION_HISTORY_NAME "viewerposition_history"
+	#define EDITORPOSITION_HISTORY_SCHEMA "(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE COLLATE NOCASE, time INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, codepage INTEGER NOT NULL);"
+	#define VIEWERPOSITION_HISTORY_SCHEMA "(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE COLLATE NOCASE, time INTEGER NOT NULL, filepos INTEGER NOT NULL, leftpos INTEGER NOT NULL, hex INTEGER NOT NULL, codepage INTEGER NOT NULL);"
+
 	static void Initialise(const db_initialiser& Db)
 	{
 		Db.SetWALJournalingMode();
-		Db.EnableForeignKeysConstraints();
+
+		Db.add_nocase_collation();
 
 		static const std::string_view Schema[]
 		{
@@ -1896,15 +1904,20 @@ private:
 			"CREATE INDEX IF NOT EXISTS history_idx3 ON history (kind, key, lock DESC, time DESC);"sv,
 			"CREATE INDEX IF NOT EXISTS history_idx4 ON history (kind, key, time DESC);"sv,
 			//view,edit file positions and bookmarks history
-			"CREATE TABLE IF NOT EXISTS editorposition_history(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE COLLATE NOCASE, time INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, codepage INTEGER NOT NULL);"sv,
+			"CREATE TABLE IF NOT EXISTS " EDITORPOSITION_HISTORY_NAME EDITORPOSITION_HISTORY_SCHEMA ""sv,
 			"CREATE TABLE IF NOT EXISTS editorbookmarks_history(pid INTEGER NOT NULL, num INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, FOREIGN KEY(pid) REFERENCES editorposition_history(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (pid, num));"sv,
 			"CREATE INDEX IF NOT EXISTS editorposition_history_idx1 ON editorposition_history (time DESC);"sv,
-			"CREATE TABLE IF NOT EXISTS viewerposition_history(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE COLLATE NOCASE, time INTEGER NOT NULL, filepos INTEGER NOT NULL, leftpos INTEGER NOT NULL, hex INTEGER NOT NULL, codepage INTEGER NOT NULL);"sv,
+			"CREATE TABLE IF NOT EXISTS " VIEWERPOSITION_HISTORY_NAME VIEWERPOSITION_HISTORY_SCHEMA ""sv,
 			"CREATE TABLE IF NOT EXISTS viewerbookmarks_history(pid INTEGER NOT NULL, num INTEGER NOT NULL, filepos INTEGER NOT NULL, leftpos INTEGER NOT NULL, FOREIGN KEY(pid) REFERENCES viewerposition_history(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (pid, num));"sv,
 			"CREATE INDEX IF NOT EXISTS viewerposition_history_idx1 ON viewerposition_history (time DESC);"sv,
 		};
 
 		Db.Exec(Schema);
+
+		reindex(Db);
+
+		// Must be after reindex
+		Db.EnableForeignKeysConstraints();
 
 		static const stmt_init<statement_id> Statements[]
 		{
@@ -1936,6 +1949,54 @@ private:
 		};
 
 		Db.PrepareStatements(Statements);
+	}
+
+	static void reindex(db_initialiser const& Db)
+	{
+		static const std::pair<std::string_view, std::string_view> ReindexTables[]
+		{
+			{ EDITORPOSITION_HISTORY_NAME ""sv, EDITORPOSITION_HISTORY_SCHEMA ""sv },
+			{ VIEWERPOSITION_HISTORY_NAME ""sv, VIEWERPOSITION_HISTORY_SCHEMA ""sv },
+		};
+
+		for (const auto& [Name, Schema]: ReindexTables)
+		{
+			const auto reindex = [&, Name = Name]{ Db.Exec(format(FSTR("REINDEX {}"sv), Name)); };
+
+			try
+			{
+				reindex();
+			}
+			catch (far_sqlite_exception const& e)
+			{
+				if (!e.is_constaint_unique())
+					throw;
+
+				recreate_position_history(Db, Name, Schema);
+				reindex();
+			}
+		}
+	}
+
+	static void recreate_position_history(const db_initialiser& Db, std::string_view const Table, std::string_view const Schema)
+	{
+		LOGNOTICE(L"Recreating {}"sv, encoding::utf8::get_chars(Table));
+
+		SCOPED_ACTION(auto)(Db.ScopedTransaction());
+
+		// The order is important - https://sqlite.org/lang_altertable.html
+
+		// 1. Create new table
+		Db.Exec(format(FSTR("CREATE TABLE {}_new{}"sv), Table, Schema));
+
+		// 2. Copy data. "WHERE 1=1" is a dirty hack to prevent xfer optimization.
+		Db.Exec(format(FSTR("INSERT OR IGNORE INTO {0}_new SELECT * FROM {0} WHERE 1=1"sv), Table));
+
+		// 3. Drop old table
+		Db.Exec(format(FSTR("DROP TABLE {}"sv), Table));
+
+		// 4. Rename new into old
+		Db.Exec(format(FSTR("ALTER TABLE {0}_new RENAME TO {0}"sv), Table));
 	}
 
 	void Delete(unsigned long long id) override

@@ -51,7 +51,7 @@ namespace placement
 
 #ifdef _DEBUG
 		// To increase the chance of crash on use-after-delete
-		std::memset(&Object, 0xFE, sizeof(Object));
+		std::memset(static_cast<void*>(&Object), 0xFE, sizeof(Object));
 #endif
 	}
 }
