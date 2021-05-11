@@ -21,8 +21,5 @@ endif
 USERCPP = -I ./WMI -I "$(FAR_DIRECTORY)/thirdparty/fmt"
 USERLIBS = -lversion -lmpr -lole32 -loleaut32 -lpsapi
 
-include ../../far/makefile_gcc_common
-
 include ../makefile_gcc_def_inc
-
 include ../makefile_gcc_target_inc

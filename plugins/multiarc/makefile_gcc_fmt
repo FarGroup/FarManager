@@ -9,7 +9,7 @@ ADDOUTDIR = /Formats
 SRCS = $(NAME).cpp
 
 USERCPP = -I ./libpcre
-USERLIBSFIRST = -L $(OBJDIR) -lPCRE
+USERLIBS = -L $(OBJDIR) -lPCRE
 
 include ../../far/makefile_gcc_common
 

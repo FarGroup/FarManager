@@ -1,8 +1,6 @@
 ANSI = 1
 USERCPP = -DWIN32 -DPCRE_STATIC -D_WIN32
 
-include ../../far/makefile_gcc_common
-
 include ../makefile_gcc_def_inc
 
 DLLNAME = libPCRE.a
@@ -19,14 +17,14 @@ ifeq ($(findstring clean,$(MAKECMDGOALS)),)
 $(OBJDIR)/%.d: ./libpcre/%.c
 	@echo making depends for $<
 	@$(MKDIR) $(@D)
-	@$(CXX) -c -MM $(CXXFLAGS) $< | $(GAWK) -f $(DEP_FILTER) -v n=$(notdir $(basename $@)) -v r=$(OBJDIR) > $(call os_name,$@)
+	@$(CC) -c -MM $(CFLAGS) $< | $(GAWK) -f $(DEP_FILTER) -v n=$(notdir $(basename $@)) -v r=$(OBJDIR) > $(call os_name,$@)
 endif
 endif
 
 $(OBJDIR)/%.o: ./libpcre/%.c
 	@echo compiling $<
 	@$(MKDIR) -p $(@D)
-	@$(CC) $(CCFLAGS) -c -o $@ $<
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
 $(DLLFULLNAME): $(OBJS)
 	@echo linking $@

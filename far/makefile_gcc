@@ -185,7 +185,7 @@ FORCEINCLUDE_DISABLED_WARNINGS=-include disabled_warnings.hpp
 FORCEINCLUDE=$(FORCEINCLUDE_DISABLED_WARNINGS) -include headers.hpp -include memcheck.hpp
 
 CFLAGS += $(FORCEINCLUDE_DISABLED_WARNINGS)
-CCFLAGS += $(ADDINCLUDE) $(FORCEINCLUDE)
+CPPFLAGS += $(ADDINCLUDE) $(FORCEINCLUDE)
 
 .PHONY: all
 all:
@@ -254,11 +254,11 @@ $(OBJDIR)%.o: %.c
 
 $(OBJDIR)%.o: %.cpp
 	@echo $<
-	$(CXX) -c -include $(OBJDIR)headers $(CCFLAGS) -o $@ $<
+	$(CXX) -c -include $(OBJDIR)headers $(CPPFLAGS) -o $@ $<
 
 $(OBJDIR)headers.gch: headers.cpp headers.hpp
 	@echo Making precompiled headers
-	$(CXX) -x c++-header -c $(CCFLAGS) -o $@ $<
+	$(CXX) -x c++-header -c $(CPPFLAGS) -o $@ $<
 
 $(OBJS): $(OBJDIR)headers.gch
 
@@ -272,7 +272,7 @@ $(OBJDIR)api_test_c.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp a
 
 $(OBJDIR)api_test_c++.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp api_test.c
 	@echo Testing C++ plugin API
-	$(CXX) $(CCFLAGS) -c -x c++ -o $@ api_test.c
+	$(CXX) $(CPPFLAGS) -c -x c++ -o $@ api_test.c
 
 MSG=@echo Generating $@
 

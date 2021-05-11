@@ -1,5 +1,3 @@
-include ../../far/makefile_gcc_common
-
 NAME=luafar3
 LUAVER=51
 LUA_PROXY=lua5.1.dll
@@ -28,8 +26,8 @@ ifeq ($(LUAVER),52)
 SRCS += luafar/compat52.c
 endif
 
-USERLIBS = luasdk/$(DIRBIT)/lua$(LUAVER).dll -lrpcrt4
-USERCPP  = -Iluasdk/include -DBUILD_DLL -DWINVER=0x500 -DLUADLL=\"lua$(LUAVER).dll\"
+USERLIBS = luasdk/$(DIRBIT)/lua$(LUAVER).lib -lrpcrt4 -Wl,--out-implib,$(OBJDIR)/luafar3.lib
+USERC  = -Iluasdk/include -DBUILD_DLL -DWINVER=0x500 -DLUADLL=\"lua$(LUAVER).dll\"
 
 RC_NAME = luafar/$(NAME)
 DEF_NAME = -

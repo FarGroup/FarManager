@@ -114,7 +114,7 @@ CFLAGS += \
 -Wno-unused-parameter \
 -Wno-missing-field-initializers \
 
-CCFLAGS = $(CFLAGS)\
+CPPFLAGS = $(CFLAGS)\
 -std=gnu++17 \
 -fvisibility=hidden \
 -Werror=old-style-cast \

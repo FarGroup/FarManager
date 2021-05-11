@@ -5,24 +5,24 @@ ifeq ($(findstring clean,$(MAKECMDGOALS)),)
 $(OBJDIR)/%.d: %.cpp
 	@echo making depends for $<
 	@$(MKDIR) $(@D)
-	@$(CXX) -c -MM $(CXXFLAGS) $< | $(GAWK) -f $(DEP_FILTER) -v n=$(notdir $(basename $@)) -v r=$(OBJDIR) > $(call os_name,$@)
+	@$(CXX) -c -MM $(CPPFLAGS) $< | $(GAWK) -f $(DEP_FILTER) -v n=$(notdir $(basename $@)) -v r=$(OBJDIR) > $(call os_name,$@)
 
 $(OBJDIR)/%.d: %.c
 	@echo making depends for $<
 	@$(MKDIR) $(@D)
-	@$(CC) -c -MM $(CCFLAGS) $< | $(GAWK) -f $(DEP_FILTER) -v n=$(notdir $(basename $@)) -v r=$(OBJDIR) > $(call os_name,$@)
+	@$(CC) -c -MM $(CFLAGS) $< | $(GAWK) -f $(DEP_FILTER) -v n=$(notdir $(basename $@)) -v r=$(OBJDIR) > $(call os_name,$@)
 endif
 endif
 
 $(OBJDIR)/%.o: %.cpp
 	@echo compiling $<
 	@$(MKDIR) -p $(@D)
-	@$(CXX) $(CXXFLAGS) -c -o $@ $<
+	@$(CXX) $(CPPFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: %.c
 	@echo compiling $<
 	@$(MKDIR) -p $(@D)
-	@$(CC) $(CCFLAGS) -c -o $@ $<
+	@$(CC) $(CFLAGS) -c -o $@ $<
 
 $(RES): $(RC_NAME).rc $(COMINC)/farversion.hpp $(COMINC)/plugin.hpp
 	@echo compiling $<

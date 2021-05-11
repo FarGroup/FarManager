@@ -17,7 +17,7 @@ all: $(OUTPUTS)
 <<
 !else
 {libpcre}.c{$(OBJDIR)}.obj:
-	$(CC) $(CPPFLAGS) { $< }
+	$(CC) $(CFLAGS) { $< }
 !endif
 
 $(OUTPUTS): $(OBJS)
