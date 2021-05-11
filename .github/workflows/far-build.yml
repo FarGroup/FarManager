@@ -58,7 +58,7 @@ jobs:
 
       - name: Set environment for debug build
         if: matrix.build_config  == 'Debug'
-        run: echo "DEBUG=1" >> $GITHUB_ENV
+        run: Add-Content -Path $env:GITHUB_ENV -Value "DEBUG=1"
 
       - name: Build MsBuild
         if: matrix.compiler == 'MSVC_PROJ'
