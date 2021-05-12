@@ -41,7 +41,7 @@ std::wstring del_trailing_slash(const std::wstring& path) {
   }
 }
 
-void locate_path_root(const std::wstring& path, size_t& path_root_len, bool& is_unc_path) {
+static void locate_path_root(const std::wstring& path, size_t& path_root_len, bool& is_unc_path) {
   unsigned prefix_len = 0;
   is_unc_path = false;
   if (substr_match(path, 0, L"\\\\")) {

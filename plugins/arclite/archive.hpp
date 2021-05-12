@@ -253,7 +253,7 @@ public:
 
   // archive contents
 public:
-  UInt32 num_indices;
+  UInt32 m_num_indices;
   FileList file_list;
   FileIndex file_list_index;
   void make_index();
@@ -292,14 +292,14 @@ private:
   std::wstring get_temp_file_name() const;
   void set_properties(IOutArchive* out_arc, const UpdateOptions& options);
 public:
-  unsigned level;
-  std::wstring method;
-  bool solid;
-  bool encrypted;
-  std::wstring password;
-  int open_password;
-  bool update_props_defined;
-  bool has_crc;
+  unsigned m_level;
+  std::wstring m_method;
+  bool m_solid;
+  bool m_encrypted;
+  std::wstring m_password;
+  int m_open_password;
+  bool m_update_props_defined;
+  bool m_has_crc;
   void load_update_props();
 public:
   void create(const std::wstring& src_dir, const std::vector<std::wstring>& file_names, const UpdateOptions& options, std::shared_ptr<ErrorLog> error_log);
@@ -321,7 +321,7 @@ public:
 
 public:
   Archive()
-   : base_stream(nullptr), num_indices(0)
-   , level(0), solid(false), encrypted(false), open_password(0), update_props_defined(false), has_crc(false)
+   : base_stream(nullptr), m_num_indices(0)
+   , m_level(0), m_solid(false), m_encrypted(false), m_open_password(0), m_update_props_defined(false), m_has_crc(false)
   { error_flags = warning_flags = 0; }
 };

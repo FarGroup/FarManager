@@ -8,9 +8,9 @@
 typedef class SimpleString
 {
 	private:
-		wchar_t *m_str;
-		size_t m_len;
-		size_t m_size;
+		wchar_t *m_str{};
+		size_t m_len{};
+		size_t m_size{};
 
 		void Alloc(size_t size)
 		{
@@ -25,11 +25,11 @@ typedef class SimpleString
 
 	public:
 
-		SimpleString() : m_str(NULL), m_len(0), m_size(0) { Alloc(__DEF_DELTA); }
-		SimpleString(const SimpleString &strCopy) : m_str(NULL), m_len(0), m_size(0) { Alloc(strCopy.Len()+1); Copy(strCopy); }
-		SimpleString(const wchar_t *data) : m_str(NULL), m_len(0), m_size(0) { size_t l = lstrlen(data?data:L""); Alloc(l+1); Copy(data, l); }
-		SimpleString(const wchar_t *data, size_t len) : m_str(NULL), m_len(0), m_size(0) { Alloc(len+1); Copy(data, len); }
-		explicit SimpleString(size_t size) : m_str(NULL), m_len(0), m_size(0) { Alloc(size); }
+		SimpleString() { Alloc(__DEF_DELTA); }
+		SimpleString(const SimpleString &strCopy) { Alloc(strCopy.Len()+1); Copy(strCopy); }
+		SimpleString(const wchar_t *data) { size_t l = lstrlen(data?data:L""); Alloc(l+1); Copy(data, l); }
+		SimpleString(const wchar_t *data, size_t len) { Alloc(len+1); Copy(data, len); }
+		explicit SimpleString(size_t size) { Alloc(size); }
 
 		~SimpleString() { free(m_str); }
 

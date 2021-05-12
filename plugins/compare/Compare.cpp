@@ -5,17 +5,19 @@
 #include <SimpleString.hpp>
 #include "CompareLng.hpp"
 #include "version.hpp"
+
+#include "guid.hpp"
 #include <initguid.h>
 #include "guid.hpp"
 
-#define GetCheck(i) (int)Info.SendDlgMessage(hDlg,DM_GETCHECK,i,0)
-#define GetDataPtr(i) ((const wchar_t *)Info.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,0))
-#define CheckDisabled(i) (!((int)Info.SendDlgMessage(hDlg,DM_ENABLE,i,(void *)-1)))
+#define GetCheck(i) (int)PsInfo.SendDlgMessage(hDlg,DM_GETCHECK,i,{})
+#define GetDataPtr(i) ((const wchar_t *)PsInfo.SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,i,{}))
+#define CheckDisabled(i) (!((int)PsInfo.SendDlgMessage(hDlg,DM_ENABLE,i,(void *)-1)))
 
 /****************************************************************************
  * Текущие настройки плагина
  ****************************************************************************/
-struct Options
+static struct Options
 {
 	int ProcessSubfolders,
 	UseMaxScanDepth,
@@ -36,8 +38,8 @@ struct Options
 /****************************************************************************
  * Копии стандартных структур FAR
  ****************************************************************************/
-static struct PluginStartupInfo Info;
-static struct FarStandardFunctions FSF;
+static PluginStartupInfo PsInfo;
+static FarStandardFunctions FSF;
 
 static void WFD2FFD(WIN32_FIND_DATA &wfd, PluginPanelItem &ffd)
 {
@@ -60,7 +62,7 @@ struct OwnPanelInfo
 	size_t ItemsNumber;
 	PluginPanelItem *SelectedItems;
 	size_t SelectedItemsNumber;
-	wchar_t *lpwszCurDir;
+	wchar_t *CurDir;
 };
 
 /****************************************************************************
@@ -68,22 +70,22 @@ struct OwnPanelInfo
  ****************************************************************************/
 static const wchar_t *GetMsg(int CompareLng)
 {
-	return Info.GetMsg(&MainGuid, CompareLng);
+	return PsInfo.GetMsg(&MainGuid, CompareLng);
 }
 
 static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
 {
 	__int64 result=0;
 	FarSettingsCreate settings={sizeof(FarSettingsCreate),FarGuid,INVALID_HANDLE_VALUE};
-	HANDLE Settings=Info.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:0;
+	HANDLE Settings=PsInfo.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:nullptr;
 	if(Settings)
 	{
 		FarSettingsItem item={sizeof(FarSettingsItem),(size_t)Root,Name,FST_UNKNOWN,{0}};
-		if(Info.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_QWORD==item.Type)
+		if(PsInfo.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_QWORD==item.Type)
 		{
 			result=item.Number;
 		}
-		Info.SettingsControl(Settings,SCTL_FREE,0,0);
+		PsInfo.SettingsControl(Settings,SCTL_FREE,0,{});
 	}
 	return result;
 }
@@ -153,7 +155,7 @@ static void ShowMessage(const wchar_t *Name1, const wchar_t *Name2)
 	dwTicks = dwNewTicks;
 	wchar_t name1[MAX_PATH], name2[MAX_PATH], sep[MAX_PATH];
 
-	wchar_t *MsgItems[1+5+1+5] = {(wchar_t *)GetMsg(MCmpTitle), name1	};
+	wchar_t *MsgItems[1+5+1+5] = {const_cast<wchar_t*>(GetMsg(MCmpTitle)), name1};
 	int n1 = SplitCopy(MsgItems+1,5, name1, Name1);
 
    wmemset(sep, 0x2500, iTruncLen); sep[iTruncLen] = L'\0'; // -------
@@ -165,13 +167,13 @@ static void ShowMessage(const wchar_t *Name1, const wchar_t *Name2)
 	{
 		if (n1 + n2 < nAdds)
 		{
-			Info.PanelControl(PANEL_ACTIVE, FCTL_REDRAWPANEL,0,0);
-			Info.PanelControl(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,0);
+			PsInfo.PanelControl(PANEL_ACTIVE, FCTL_REDRAWPANEL,0,{});
+			PsInfo.PanelControl(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,{});
 		}
 		flags = FMSG_LEFTALIGN;
 		nAdds = n1 + n2;
 	}
-	Info.Message(&MainGuid, nullptr, flags, nullptr, MsgItems, 1+n1+1+n2, 0);
+	PsInfo.Message(&MainGuid, nullptr, flags, nullptr, MsgItems, 1+n1+1+n2, 0);
 
 	while (--n2 > 0)
 		delete[] MsgItems[1+n1+1+n2];
@@ -184,7 +186,7 @@ static void ShowMessage(const wchar_t *Name1, const wchar_t *Name2)
 /****************************************************************************
  * Обработчик диалога для ShowDialog
  ****************************************************************************/
-INT_PTR WINAPI ShowDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
+static INT_PTR WINAPI ShowDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
 {
 	static int CompareContents,
 	CompareContentsIgnore,
@@ -194,10 +196,10 @@ INT_PTR WINAPI ShowDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *
 	switch (Msg)
 	{
 		case DN_INITDIALOG:
-			CompareContents = ((DWORD)Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0)) & 0x000000FF;
+			CompareContents = ((DWORD)PsInfo.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, {})) & 0x000000FF;
 			CompareContentsIgnore = CompareContents + 1;
-			ProcessSubfolders = (((DWORD)Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0)) >> 8) & 0x000000FF;
-			CompareTime = ((DWORD)Info.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0)) >> 16;
+			ProcessSubfolders = (((DWORD)PsInfo.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, {})) >> 8) & 0x000000FF;
+			CompareTime = ((DWORD)PsInfo.SendDlgMessage(hDlg, DM_GETDLGDATA, 0, {})) >> 16;
 			break;
 		case DN_BTNCLICK:
 
@@ -205,30 +207,30 @@ INT_PTR WINAPI ShowDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *
 			{
 				if (Param2)
 				{
-					Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+1, (void *)TRUE);
+					PsInfo.SendDlgMessage(hDlg, DM_ENABLE, Param1+1, (void *)TRUE);
 
-					if (!(Param1 == CompareContents && !Info.SendDlgMessage(hDlg, DM_GETCHECK, CompareContentsIgnore, 0)))
+					if (!(Param1 == CompareContents && !PsInfo.SendDlgMessage(hDlg, DM_GETCHECK, CompareContentsIgnore, {})))
 					{
-						Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+2, (void *)TRUE);
+						PsInfo.SendDlgMessage(hDlg, DM_ENABLE, Param1+2, (void *)TRUE);
 
 						if (Param1 == CompareContents)
-							Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+3, (void *)TRUE);
+							PsInfo.SendDlgMessage(hDlg, DM_ENABLE, Param1+3, (void *)TRUE);
 					}
 				}
 				else
 				{
-					Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+1, (void *)FALSE);
-					Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+2, (void *)FALSE);
+					PsInfo.SendDlgMessage(hDlg, DM_ENABLE, Param1+1, (void *)FALSE);
+					PsInfo.SendDlgMessage(hDlg, DM_ENABLE, Param1+2, (void *)FALSE);
 
 					if (Param1 == CompareContents)
-						Info.SendDlgMessage(hDlg, DM_ENABLE, Param1+3, (void *)FALSE);
+						PsInfo.SendDlgMessage(hDlg, DM_ENABLE, Param1+3, (void *)FALSE);
 				}
 			}
 
 			break;
 	}
 
-	return Info.DefDlgProc(hDlg, Msg, Param1, Param2);
+	return PsInfo.DefDlgProc(hDlg, Msg, Param1, Param2);
 }
 
 /****************************************************************************
@@ -249,14 +251,14 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
 		int          *StoreTo;
 	} InitItems[] =
 	{
-		/* 0*/ { DI_DOUBLEBOX,    3,  1, 62, 20, MCmpTitle,                0, NULL,                                 0, NULL },
-		/* 1*/ { DI_TEXT,         5,  2,  0,  0, MProcessBox,              0, NULL,                                 0, NULL },
+		/* 0*/ { DI_DOUBLEBOX,    3,  1, 62, 20, MCmpTitle,                0, {},                                   0, {} },
+		/* 1*/ { DI_TEXT,         5,  2,  0,  0, MProcessBox,              0, {},                                   0, {} },
 		/* 2*/ { DI_CHECKBOX,     5,  3,  0,  0, MProcessSubfolders,       0, L"ProcessSubfolders",                 0, &Opt.ProcessSubfolders },
 		/* 3*/ { DI_CHECKBOX,     9,  4,  0,  0, MUseMaxScanDepth,         0, L"UseMaxScanDepth",                   0, &Opt.UseMaxScanDepth },
 		/* 4*/ { DI_FIXEDIT,      0,  4,  4,  0, MNoLngStringDefined,     99, L"MaxScanDepth",           DIF_MASKEDIT, &Opt.MaxScanDepth },
 		/* 5*/ { DI_CHECKBOX,     5,  5,  0,  0, MProcessSelected,         0, L"ProcessSelected",                   0, &Opt.ProcessSelected },
-		/* 6*/ { DI_TEXT,         0,  6,  0,  0, MNoLngStringDefined,      0, NULL,                     DIF_SEPARATOR, NULL },
-		/* 7*/ { DI_TEXT,         5,  7,  0,  0, MCompareBox,              0, NULL,                                 0, NULL },
+		/* 6*/ { DI_TEXT,         0,  6,  0,  0, MNoLngStringDefined,      0, {},                       DIF_SEPARATOR, {} },
+		/* 7*/ { DI_TEXT,         5,  7,  0,  0, MCompareBox,              0, {},                                   0, {} },
 		/* 8*/ { DI_CHECKBOX,     5,  8,  0,  0, MCompareTime,             1, L"CompareTime",                       0, &Opt.CompareTime },
 		/* 9*/ { DI_CHECKBOX,     9,  9,  0,  0, MCompareLowPrecision,     1, L"LowPrecisionTime",                  0, &Opt.LowPrecisionTime },
 		/*10*/ { DI_CHECKBOX,     9, 10,  0,  0, MCompareIgnoreTimeZone,   1, L"IgnorePossibleTimeZoneDifferences", 0, &Opt.IgnorePossibleTimeZoneDifferences },
@@ -265,17 +267,17 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
 		/*13*/ { DI_CHECKBOX,     9, 13,  0,  0, MCompareContentsIgnore,   0, L"CompareContentsIgnore",             0, &Opt.CompareContentsIgnore },
 		/*14*/ { DI_RADIOBUTTON, 13, 14,  0,  0, MCompareIgnoreNewLines,   1, L"IgnoreNewLines",            DIF_GROUP, &Opt.IgnoreNewLines },
 		/*15*/ { DI_RADIOBUTTON, 13, 15,  0,  0, MCompareIgnoreWhitespace, 0, L"IgnoreWhitespace",                  0, &Opt.IgnoreWhitespace },
-		/*16*/ { DI_TEXT,         0, 16,  0,  0, MNoLngStringDefined,      0, NULL,                     DIF_SEPARATOR, NULL },
+		/*16*/ { DI_TEXT,         0, 16,  0,  0, MNoLngStringDefined,      0, {},                       DIF_SEPARATOR, {} },
 		/*17*/ { DI_CHECKBOX,     5, 17,  0,  0, MMessageWhenNoDiff,       0, L"MessageWhenNoDiff",                 0, &Opt.MessageWhenNoDiff },
-		/*18*/ { DI_TEXT,         0, 18,  0,  0, MNoLngStringDefined,      0, NULL,                     DIF_SEPARATOR, NULL },
-		/*19*/ { DI_BUTTON,       0, 19,  0,  0, MOK,                      0, NULL,                   DIF_CENTERGROUP, NULL },
-		/*20*/ { DI_BUTTON,       0, 19,  0,  0, MCancel,                  0, NULL,                   DIF_CENTERGROUP, NULL }
+		/*18*/ { DI_TEXT,         0, 18,  0,  0, MNoLngStringDefined,      0, {},                       DIF_SEPARATOR, {} },
+		/*19*/ { DI_BUTTON,       0, 19,  0,  0, MOK,                      0, {},                     DIF_CENTERGROUP, {} },
+		/*20*/ { DI_BUTTON,       0, 19,  0,  0, MCancel,                  0, {},                     DIF_CENTERGROUP, {} }
 	};
-	struct FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
+	FarDialogItem DialogItems[ARRAYSIZE(InitItems)];
 	wchar_t Mask[] = L"99999";
 	wchar_t tmpnum[ARRAYSIZE(InitItems)][32];
 	memset(DialogItems,0,sizeof(DialogItems));
-	PluginSettings settings(MainGuid, Info.SettingsControl);
+	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 	size_t DlgData=0;
 	bool bNoFocus = true;
 	size_t i;
@@ -297,8 +299,8 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
 		}
 		else if (DialogItems[i].Type == DI_FIXEDIT)
 		{
+			FSF.itoa(Value, tmpnum[i], 10);
 			DialogItems[i].Data = tmpnum[i];
-			FSF.itoa(Value, (wchar_t *)DialogItems[i].Data, 10);
 			DialogItems[i].Mask = Mask;
 			DialogItems[i].X1 = DialogItems[i-1].X1 + lstrlen(DialogItems[i-1].Data) - (wcschr(DialogItems[i-1].Data, L'&')?1:0) + 5;
 			DialogItems[i].X2 += DialogItems[i].X1;
@@ -409,14 +411,14 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
 		}
 	}
 
-	HANDLE hDlg = Info.DialogInit(&MainGuid, &DialogGuid, -1, -1, 66, 22, L"Contents",
+	HANDLE hDlg = PsInfo.DialogInit(&MainGuid, &DialogGuid, -1, -1, 66, 22, L"Contents",
 	                              DialogItems, ARRAYSIZE(DialogItems), 0, 0,
 	                              ShowDialogProc, (void *)DlgData);
 
 	if (hDlg == INVALID_HANDLE_VALUE)
 		return false;
 
-	intptr_t ExitCode = Info.DialogRun(hDlg);
+	intptr_t ExitCode = PsInfo.DialogRun(hDlg);
 
 	if (ExitCode == (ARRAYSIZE(InitItems) - 2))
 	{
@@ -446,11 +448,11 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
 		}
 
 		Opt.ProcessHidden = GetSetting(FSSF_PANEL,L"ShowHidden")?true:false;
-		Info.DialogFree(hDlg);
+		PsInfo.DialogFree(hDlg);
 		return true;
 	}
 
-	Info.DialogFree(hDlg);
+	PsInfo.DialogFree(hDlg);
 	return false;
 }
 
@@ -460,7 +462,7 @@ static HANDLE hConInp = INVALID_HANDLE_VALUE;
 /****************************************************************************
  * Проверка на Esc. Возвращает true, если пользователь нажал Esc
  ****************************************************************************/
-static bool CheckForEsc(void)
+static bool CheckForEsc()
 {
 	if (hConInp == INVALID_HANDLE_VALUE)
 		return false;
@@ -493,7 +495,7 @@ static bool CheckForEsc(void)
 					GetMsg(MNo)
 				};
 
-				if (!Info.Message(&MainGuid, nullptr, FMSG_WARNING, NULL, MsgItems, ARRAYSIZE(MsgItems), 2))
+				if (!PsInfo.Message(&MainGuid, nullptr, FMSG_WARNING, {}, MsgItems, ARRAYSIZE(MsgItems), 2))
 					return bBrokenByEsc = true;
 				else
 					nAdds = -1;
@@ -554,7 +556,9 @@ struct FileIndex
  ****************************************************************************/
 static int WINAPI PICompare(const void *el1, const void *el2, void*)
 {
-	const PluginPanelItem *ppi1 = *(const PluginPanelItem **)el1, *ppi2 = *(const PluginPanelItem **)el2;
+	const auto
+		ppi1 = *static_cast<const PluginPanelItem* const*>(el1),
+		ppi2 = *static_cast<const PluginPanelItem* const*>(el2);
 
 	if (ppi1->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 	{
@@ -573,10 +577,10 @@ static int WINAPI PICompare(const void *el1, const void *el2, void*)
 /****************************************************************************
  * Построение сортированного списка файлов для быстрого сравнения
  ****************************************************************************/
-static bool BuildPanelIndex(const OwnPanelInfo *pInfo, struct FileIndex *pIndex, HANDLE Filter)
+static bool BuildPanelIndex(const OwnPanelInfo *pInfo, FileIndex *pIndex, HANDLE Filter)
 {
 	bool bProcessSelected;
-	pIndex->ppi = NULL;
+	pIndex->ppi = {};
 	pIndex->iCount = (int)((bProcessSelected = (Opt.ProcessSelected && pInfo->SelectedItemsNumber &&
 	                        (pInfo->SelectedItems[0].Flags & PPIF_SELECTED))) ? pInfo->SelectedItemsNumber :
 	                       pInfo->ItemsNumber);
@@ -597,7 +601,7 @@ static bool BuildPanelIndex(const OwnPanelInfo *pInfo, struct FileIndex *pIndex,
 		        lstrcmp(pInfo->PanelItems[i].FileName, L"..") &&
 		        lstrcmp(pInfo->PanelItems[i].FileName, L"."))
 		{
-			if (!Info.FileFilterControl(Filter,FFCTL_ISFILEINFILTER,0,&pInfo->PanelItems[i]))
+			if (!PsInfo.FileFilterControl(Filter,FFCTL_ISFILEINFILTER,0,&pInfo->PanelItems[i]))
 				continue;
 
 			pIndex->ppi[j++] = &pInfo->PanelItems[i];
@@ -611,7 +615,7 @@ static bool BuildPanelIndex(const OwnPanelInfo *pInfo, struct FileIndex *pIndex,
 	else
 	{
 		free(pIndex->ppi);
-		pIndex->ppi = NULL;
+		pIndex->ppi = {};
 		pIndex->iCount = 0;
 	}
 
@@ -621,12 +625,12 @@ static bool BuildPanelIndex(const OwnPanelInfo *pInfo, struct FileIndex *pIndex,
 /****************************************************************************
  * Освобождение памяти
  ****************************************************************************/
-static void FreePanelIndex(struct FileIndex *pIndex)
+static void FreePanelIndex(FileIndex *pIndex)
 {
 	if (pIndex->ppi)
 		free(pIndex->ppi);
 
-	pIndex->ppi = NULL;
+	pIndex->ppi = {};
 	pIndex->iCount = 0;
 }
 
@@ -638,10 +642,10 @@ static int GetDirList(OwnPanelInfo *PInfo, const wchar_t *Dir)
 {
 	WIN32_FIND_DATA wfdFindData;
 	HANDLE hFind;
-	struct PluginPanelItem **pPanelItem = &PInfo->PanelItems;
+	PluginPanelItem **pPanelItem = &PInfo->PanelItems;
 	size_t *pItemsNumber = &PInfo->ItemsNumber;
-	PInfo->lpwszCurDir = wcsdup(Dir);
-	*pPanelItem = NULL;
+	PInfo->CurDir = wcsdup(Dir);
+	*pPanelItem = {};
 	*pItemsNumber = 0;
 	string strPathMask(Dir);
 	strPathMask += L"\\*";
@@ -659,9 +663,9 @@ static int GetDirList(OwnPanelInfo *PInfo, const wchar_t *Dir)
 		if ((wfdFindData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) && !Opt.ProcessHidden)
 			continue;
 
-		struct PluginPanelItem *pPPI;
+		PluginPanelItem *pPPI;
 
-		if (!(pPPI = (struct PluginPanelItem *)realloc(*pPanelItem, (*pItemsNumber + 1) * sizeof(*pPPI))))
+		if (!(pPPI = (PluginPanelItem *)realloc(*pPanelItem, (*pItemsNumber + 1) * sizeof(*pPPI))))
 		{
 			iRet = FALSE;
 			break;
@@ -685,11 +689,11 @@ static void FreeDirList(OwnPanelInfo *AInfo)
 	{
 		for (size_t i = 0; i < AInfo->ItemsNumber; i++)
 		{
-			free((void*)AInfo->PanelItems[i].AlternateFileName);
-			free((void*)AInfo->PanelItems[i].FileName);
+			free(const_cast<wchar_t*>(AInfo->PanelItems[i].AlternateFileName));
+			free(const_cast<wchar_t*>(AInfo->PanelItems[i].FileName));
 		}
 
-		free(AInfo->lpwszCurDir);
+		free(AInfo->CurDir);
 		free(AInfo->PanelItems);
 	}
 }
@@ -702,7 +706,7 @@ static HANDLE AFilter, PFilter;
 //      и, тем паче, к автоопознованию файлов
 static char *ABuf, *PBuf;
 
-bool isnewline(int c)
+static bool isnewline(int c)
 {
 	return (c == '\r' || c == '\n');
 }
@@ -838,14 +842,14 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 
 			ShowMessage(cpFileA, cpFileP);
 
-			if ((hFileA = CreateFile(cpFileA, GENERIC_READ, FILE_SHARE_READ , NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL)) == INVALID_HANDLE_VALUE)
+			if ((hFileA = CreateFile(cpFileA, GENERIC_READ, FILE_SHARE_READ , {}, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, {})) == INVALID_HANDLE_VALUE)
 			{
 				bOpenFail = true;
 				return false;
 			}
 
-			if ((hFileP = CreateFile(cpFileP, GENERIC_READ, FILE_SHARE_READ , NULL,
-			                         OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL)) == INVALID_HANDLE_VALUE)
+			if ((hFileP = CreateFile(cpFileP, GENERIC_READ, FILE_SHARE_READ , {},
+			                         OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, {})) == INVALID_HANDLE_VALUE)
 			{
 				CloseHandle(hFileA);
 				bOpenFail = true;
@@ -860,8 +864,8 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 				do
 				{
 					if (CheckForEsc()
-					        || !ReadFile(hFileA, ABuf, bufSize, &ReadSizeA, NULL)
-					        || !ReadFile(hFileP, PBuf, bufSize, &ReadSizeP, NULL)
+					        || !ReadFile(hFileA, ABuf, bufSize, &ReadSizeA, {})
+					        || !ReadFile(hFileP, PBuf, bufSize, &ReadSizeP, {})
 					        || ReadSizeA != ReadSizeP
 					        || memcmp(ABuf, PBuf, ReadSizeA))
 					{
@@ -883,7 +887,7 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 				{
 					while (PtrA >= ABuf+ReadSizeA && ReadSizeA)
 					{
-						if (CheckForEsc() || !ReadFile(hFileA, ABuf, bufSize, &ReadSizeA, NULL))
+						if (CheckForEsc() || !ReadFile(hFileA, ABuf, bufSize, &ReadSizeA, {}))
 						{
 							bEqual = false;
 							break;
@@ -897,7 +901,7 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 
 					while (PtrP >= PBuf+ReadSizeP && ReadSizeP)
 					{
-						if (CheckForEsc() || !ReadFile(hFileP, PBuf, bufSize, &ReadSizeP, NULL))
+						if (CheckForEsc() || !ReadFile(hFileP, PBuf, bufSize, &ReadSizeP, {}))
 						{
 							bEqual = false;
 							break;
@@ -1017,9 +1021,9 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bool bCompareAll, int ScanDepth)
 {
 	// Строим индексы файлов для быстрого сравнения
-	struct FileIndex sfiA, sfiP;
+	FileIndex sfiA, sfiP;
 	FileName DirA, DirP;
-	ShowMessage(DirA.BuildName(AInfo->lpwszCurDir, L"*"), DirP.BuildName(PInfo->lpwszCurDir, L"*"));
+	ShowMessage(DirA.BuildName(AInfo->CurDir, L"*"), DirP.BuildName(PInfo->CurDir, L"*"));
 
 	if (!BuildPanelIndex(AInfo, &sfiA, AFilter) || !BuildPanelIndex(PInfo, &sfiP, PFilter))
 	{
@@ -1029,7 +1033,7 @@ static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bo
 			GetMsg(MNoMemBody),
 			GetMsg(MOK)
 		};
-		Info.Message(&MainGuid, nullptr, FMSG_WARNING, NULL, MsgItems, ARRAYSIZE(MsgItems), 1);
+		PsInfo.Message(&MainGuid, nullptr, FMSG_WARNING, {}, MsgItems, ARRAYSIZE(MsgItems), 1);
 		bBrokenByEsc = true;
 		FreePanelIndex(&sfiA);
 		FreePanelIndex(&sfiP);
@@ -1056,7 +1060,7 @@ static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bo
 		{
 			case 0: // Имена совпали - проверяем всё остальное
 
-				if (CompareFiles(sfiA.ppi[i], sfiP.ppi[j], AInfo->lpwszCurDir, PInfo->lpwszCurDir, ScanDepth))
+				if (CompareFiles(sfiA.ppi[i], sfiP.ppi[j], AInfo->CurDir, PInfo->CurDir, ScanDepth))
 				{ // И остальное совпало
 					sfiA.ppi[i--]->Flags &= ~PPIF_SELECTED;
 					sfiP.ppi[j--]->Flags &= ~PPIF_SELECTED;
@@ -1111,7 +1115,7 @@ static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bo
  ***************************** Exported functions ***************************
  ****************************************************************************/
 
-void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 {
 	Info->StructSize=sizeof(GlobalInfo);
 	Info->MinFarVersion=FARMANAGERVERSION;
@@ -1125,16 +1129,17 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 /****************************************************************************
  * Эту функцию плагина FAR вызывает в первую очередь
  ****************************************************************************/
-void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
+void WINAPI SetStartupInfoW(const PluginStartupInfo *Info)
 {
-	::Info = *Info;
-	FSF = *Info->FSF;
+	PsInfo = *Info;
+	FSF = *PsInfo.FSF;
+	PsInfo.FSF = &FSF;
 }
 
 /****************************************************************************
  * Эту функцию плагина FAR вызывает во вторую очередь
  ****************************************************************************/
-void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+void WINAPI GetPluginInfoW(PluginInfo *Info)
 {
 	Info->StructSize=sizeof(*Info);
 	Info->Flags=0;
@@ -1145,40 +1150,40 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
 }
 
-void GetPanelItem(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,intptr_t Param1,PluginPanelItem* Param2)
+static void GetPanelItem(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,intptr_t Param1,PluginPanelItem* Param2)
 {
-	size_t Size = Info.PanelControl(hPlugin,Command,Param1,0);
+	size_t Size = PsInfo.PanelControl(hPlugin,Command,Param1,{});
 	PluginPanelItem* item=(PluginPanelItem*)malloc(Size);
 
 	if (item)
 	{
 		FarGetPluginPanelItem gpi = {sizeof(FarGetPluginPanelItem), Size, item};
-		Info.PanelControl(hPlugin,Command,Param1,&gpi);
+		PsInfo.PanelControl(hPlugin,Command,Param1,&gpi);
 		*Param2=*item;
 		Param2->FileName=wcsdup(item->FileName);
 		Param2->AlternateFileName=wcsdup(item->AlternateFileName);
-		Param2->Description=NULL;
-		Param2->Owner=NULL;
-		Param2->CustomColumnData=NULL;
+		Param2->Description={};
+		Param2->Owner={};
+		Param2->CustomColumnData={};
 		Param2->CustomColumnNumber=0;
-		Param2->UserData.Data=NULL;
-		Param2->UserData.FreeData=NULL;
+		Param2->UserData.Data={};
+		Param2->UserData.FreeData={};
 		free(item);
 	}
 }
 
-void FreePanelItems(OwnPanelInfo &AInfo,OwnPanelInfo &PInfo)
+static void FreePanelItems(OwnPanelInfo &AInfo,OwnPanelInfo &PInfo)
 {
 	for (size_t i=0; i<AInfo.ItemsNumber; i++)
 	{
-		free((void*)AInfo.PanelItems[i].FileName);
-		free((void*)AInfo.PanelItems[i].AlternateFileName);
+		free(const_cast<wchar_t*>(AInfo.PanelItems[i].FileName));
+		free(const_cast<wchar_t*>(AInfo.PanelItems[i].AlternateFileName));
 	}
 
 	for (size_t i=0; i<AInfo.SelectedItemsNumber; i++)
 	{
-		free((void*)AInfo.SelectedItems[i].FileName);
-		free((void*)AInfo.SelectedItems[i].AlternateFileName);
+		free(const_cast<wchar_t*>(AInfo.SelectedItems[i].FileName));
+		free(const_cast<wchar_t*>(AInfo.SelectedItems[i].AlternateFileName));
 	}
 
 	delete[] AInfo.PanelItems;
@@ -1186,14 +1191,14 @@ void FreePanelItems(OwnPanelInfo &AInfo,OwnPanelInfo &PInfo)
 
 	for (size_t i=0; i<PInfo.ItemsNumber; i++)
 	{
-		free((void*)PInfo.PanelItems[i].FileName);
-		free((void*)PInfo.PanelItems[i].AlternateFileName);
+		free(const_cast<wchar_t*>(PInfo.PanelItems[i].FileName));
+		free(const_cast<wchar_t*>(PInfo.PanelItems[i].AlternateFileName));
 	}
 
 	for (size_t i=0; i<PInfo.SelectedItemsNumber; i++)
 	{
-		free((void*)PInfo.SelectedItems[i].FileName);
-		free((void*)PInfo.SelectedItems[i].AlternateFileName);
+		free(const_cast<wchar_t*>(PInfo.SelectedItems[i].FileName));
+		free(const_cast<wchar_t*>(PInfo.SelectedItems[i].AlternateFileName));
 	}
 
 	delete[] PInfo.PanelItems;
@@ -1204,24 +1209,26 @@ void FreePanelItems(OwnPanelInfo &AInfo,OwnPanelInfo &PInfo)
 /****************************************************************************
  * Основная функция плагина. FAR её вызывает, когда пользователь зовёт плагин
  ****************************************************************************/
-HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
+HANDLE WINAPI OpenW(const OpenInfo *Info)
 {
 	OwnPanelInfo AInfo, PInfo;
 	memset(&AInfo,0,sizeof(OwnPanelInfo));
 	memset(&PInfo,0,sizeof(OwnPanelInfo));
 	PanelInfo AI = {sizeof(PanelInfo)}, PI = {sizeof(PanelInfo)};
-	Info.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO,0,&AI);
-	Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELINFO,0,&PI);
+	PsInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO,0,&AI);
+	PsInfo.PanelControl(PANEL_PASSIVE, FCTL_GETPANELINFO,0,&PI);
 	AInfo.PanelType=AI.PanelType;
 	AInfo.Plugin=(AI.Flags&PFLAGS_PLUGIN) == PFLAGS_PLUGIN;
 	AInfo.ItemsNumber=AI.ItemsNumber;
 	AInfo.SelectedItemsNumber=AI.SelectedItemsNumber;
-	int Size=(int)Info.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY,0,0);
-	FarPanelDirectory* dir=(FarPanelDirectory*)new char[Size];
-	dir->StructSize = sizeof(FarPanelDirectory);
-	Info.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY,Size,dir);
-	AInfo.lpwszCurDir=wcsdup(dir->Name);
-	delete[](char*)dir;
+	{
+		const auto Size = (int)PsInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, 0, {});
+		const auto dir = reinterpret_cast<FarPanelDirectory*>(new char[Size]);
+		dir->StructSize = sizeof(FarPanelDirectory);
+		PsInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, Size, dir);
+		AInfo.CurDir = wcsdup(dir->Name);
+		delete[]reinterpret_cast<char*>(dir);
+	}
 
 	if (AInfo.ItemsNumber)
 	{
@@ -1232,7 +1239,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 	else
 	{
-		AInfo.PanelItems=NULL;
+		AInfo.PanelItems={};
 	}
 
 	if (AInfo.SelectedItemsNumber)
@@ -1244,19 +1251,21 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 	else
 	{
-		AInfo.SelectedItems=NULL;
+		AInfo.SelectedItems={};
 	}
 
 	PInfo.PanelType=PI.PanelType;
 	PInfo.Plugin=(PI.Flags&PFLAGS_PLUGIN) == PFLAGS_PLUGIN;
 	PInfo.ItemsNumber=PI.ItemsNumber;
 	PInfo.SelectedItemsNumber=PI.SelectedItemsNumber;
-	Size=(int)Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY,0,0);
-	dir=(FarPanelDirectory*)new char[Size];
-	dir->StructSize = sizeof(FarPanelDirectory);
-	Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY,Size,dir);
-	PInfo.lpwszCurDir=wcsdup(dir->Name);
-	delete[](char*)dir;
+	{
+		const auto Size = (int)PsInfo.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY, 0, {});
+		const auto dir = reinterpret_cast<FarPanelDirectory*>(new char[Size]);
+		dir->StructSize = sizeof(FarPanelDirectory);
+		PsInfo.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY, Size, dir);
+		PInfo.CurDir = wcsdup(dir->Name);
+		delete[]reinterpret_cast<char*>(dir);
+	}
 
 	if (PInfo.ItemsNumber)
 	{
@@ -1267,7 +1276,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 	else
 	{
-		PInfo.PanelItems=NULL;
+		PInfo.PanelItems={};
 	}
 
 	if (PInfo.SelectedItemsNumber)
@@ -1279,7 +1288,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 	else
 	{
-		PInfo.SelectedItems=NULL;
+		PInfo.SelectedItems={};
 	}
 
 	// Если панели нефайловые...
@@ -1291,7 +1300,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			GetMsg(MFilePanelsRequired),
 			GetMsg(MOK)
 		};
-		Info.Message(&MainGuid, nullptr, FMSG_WARNING, NULL, MsgItems, ARRAYSIZE(MsgItems), 1);
+		PsInfo.Message(&MainGuid, nullptr, FMSG_WARNING, {}, MsgItems, ARRAYSIZE(MsgItems), 1);
 		FreePanelItems(AInfo,PInfo);
 		return nullptr;
 	}
@@ -1306,12 +1315,12 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 
 	// Откроем консольный ввод для проверок на Esc...
-	HANDLE hScreen = Info.SaveScreen(0, 0, -1, -1);
-	hConInp = CreateFile(L"CONIN$", GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+	HANDLE hScreen = PsInfo.SaveScreen(0, 0, -1, -1);
+	hConInp = CreateFile(L"CONIN$", GENERIC_READ, FILE_SHARE_READ, {}, OPEN_EXISTING, 0, {});
 	// Определим оптимальную ширину диалога сравнения...
 	SMALL_RECT rcFar = {0};
 
-	if (Info.AdvControl(&MainGuid, ACTL_GETFARRECT, 0, &rcFar))
+	if (PsInfo.AdvControl(&MainGuid, ACTL_GETFARRECT, 0, &rcFar))
 	{
 		SHORT X = rcFar.Right - rcFar.Left + 1;
 
@@ -1332,7 +1341,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	SetConsoleTitle(cBuffer);
 	// Читаем размер буфера сравнения из настроек...
 	{
-		PluginSettings settings(MainGuid, Info.SettingsControl);
+		PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 		bufSize = settings.Get(0, L"CompareBufferSize", 32768);
 
 		if (bufSize < 32768)
@@ -1346,10 +1355,10 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	bool bDifferenceNotFound = false;
 	AFilter = INVALID_HANDLE_VALUE;
 	PFilter = INVALID_HANDLE_VALUE;
-	Info.FileFilterControl(PANEL_ACTIVE,  FFCTL_CREATEFILEFILTER, FFT_PANEL, &AFilter);
-	Info.FileFilterControl(PANEL_PASSIVE, FFCTL_CREATEFILEFILTER, FFT_PANEL, &PFilter);
-	Info.FileFilterControl(AFilter, FFCTL_STARTINGTOFILTER, 0, 0);
-	Info.FileFilterControl(PFilter, FFCTL_STARTINGTOFILTER, 0, 0);
+	PsInfo.FileFilterControl(PANEL_ACTIVE,  FFCTL_CREATEFILEFILTER, FFT_PANEL, &AFilter);
+	PsInfo.FileFilterControl(PANEL_PASSIVE, FFCTL_CREATEFILEFILTER, FFT_PANEL, &PFilter);
+	PsInfo.FileFilterControl(AFilter, FFCTL_STARTINGTOFILTER, 0, {});
+	PsInfo.FileFilterControl(PFilter, FFCTL_STARTINGTOFILTER, 0, {});
 
 	// Теперь можем сравнить объекты на панелях...
 	if (ABuf && PBuf && AFilter != INVALID_HANDLE_VALUE && PFilter != INVALID_HANDLE_VALUE)
@@ -1357,34 +1366,34 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		bDifferenceNotFound = CompareDirs(&AInfo, &PInfo, true, 0);
 	}
 
-	Info.FileFilterControl(AFilter, FFCTL_FREEFILEFILTER, 0, 0);
-	Info.FileFilterControl(PFilter, FFCTL_FREEFILEFILTER, 0, 0);
+	PsInfo.FileFilterControl(AFilter, FFCTL_FREEFILEFILTER, 0, {});
+	PsInfo.FileFilterControl(PFilter, FFCTL_FREEFILEFILTER, 0, {});
 	free(ABuf);
 	free(PBuf);
 	CloseHandle(hConInp);
-	Info.RestoreScreen(hScreen);
+	PsInfo.RestoreScreen(hScreen);
 
 	// Отмечаем файлы и перерисовываем панели. Если нужно показываем сообщение...
 	if (!bBrokenByEsc)
 	{
-		Info.PanelControl(PANEL_ACTIVE,FCTL_BEGINSELECTION,0,0);
+		PsInfo.PanelControl(PANEL_ACTIVE,FCTL_BEGINSELECTION,0,{});
 
 		for (size_t i=0; i<AInfo.ItemsNumber; i++)
 		{
-			Info.PanelControl(PANEL_ACTIVE, FCTL_SETSELECTION,i,(void *)(AInfo.PanelItems[i].Flags&PPIF_SELECTED));
+			PsInfo.PanelControl(PANEL_ACTIVE, FCTL_SETSELECTION,i,(void *)(AInfo.PanelItems[i].Flags&PPIF_SELECTED));
 		}
 
-		Info.PanelControl(PANEL_ACTIVE,FCTL_ENDSELECTION,0,0);
-		Info.PanelControl(PANEL_PASSIVE,FCTL_BEGINSELECTION,0,0);
+		PsInfo.PanelControl(PANEL_ACTIVE,FCTL_ENDSELECTION,0,{});
+		PsInfo.PanelControl(PANEL_PASSIVE,FCTL_BEGINSELECTION,0,{});
 
 		for (size_t i=0; i<PInfo.ItemsNumber; i++)
 		{
-			Info.PanelControl(PANEL_PASSIVE, FCTL_SETSELECTION,i,(void *)(PInfo.PanelItems[i].Flags&PPIF_SELECTED));
+			PsInfo.PanelControl(PANEL_PASSIVE, FCTL_SETSELECTION,i,(void *)(PInfo.PanelItems[i].Flags&PPIF_SELECTED));
 		}
 
-		Info.PanelControl(PANEL_PASSIVE,FCTL_ENDSELECTION,0,0);
-		Info.PanelControl(PANEL_ACTIVE, FCTL_REDRAWPANEL,0,0);
-		Info.PanelControl(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,0);
+		PsInfo.PanelControl(PANEL_PASSIVE,FCTL_ENDSELECTION,0,{});
+		PsInfo.PanelControl(PANEL_ACTIVE, FCTL_REDRAWPANEL,0,{});
+		PsInfo.PanelControl(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,{});
 
 		if (bOpenFail)
 		{
@@ -1394,7 +1403,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				GetMsg(MOpenErrorBody),
 				GetMsg(MOK),
 			};
-			Info.Message(&MainGuid, nullptr, FMSG_WARNING, NULL, MsgItems, ARRAYSIZE(MsgItems), 1);
+			PsInfo.Message(&MainGuid, nullptr, FMSG_WARNING, {}, MsgItems, ARRAYSIZE(MsgItems), 1);
 		}
 
 		if (bDifferenceNotFound && Opt.MessageWhenNoDiff)
@@ -1405,7 +1414,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				GetMsg(MNoDiffBody),
 				GetMsg(MOK)
 			};
-			Info.Message(&MainGuid, nullptr, 0, NULL, MsgItems, ARRAYSIZE(MsgItems), 1);
+			PsInfo.Message(&MainGuid, nullptr, 0, {}, MsgItems, ARRAYSIZE(MsgItems), 1);
 		}
 	}
 

@@ -57,7 +57,7 @@ class TmpPanel
 		int SetFindList(const struct PluginPanelItem *PanelItem,size_t ItemsNumber);
 		int ProcessEvent(intptr_t Event,void *Param);
 		int ProcessKey(const INPUT_RECORD *Rec);
-		void IfOptCommonPanel(void);
+		void IfOptCommonPanel();
 
 		static bool GetFileInfoAndValidate(const wchar_t *FilePath, PluginPanelItem* FindData, int Any);
 };

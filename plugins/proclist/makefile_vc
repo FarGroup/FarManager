@@ -10,7 +10,8 @@ LINK_OBJS = $(OBJDIR)\fileio.obj \
 	$(OBJDIR)\perfthread.obj \
 	$(OBJDIR)\Plist.obj \
 	$(OBJDIR)\Pmix.obj \
-	$(OBJDIR)\WMI.obj \
+	$(OBJDIR)\wmi.obj \
+	$(OBJDIR)\wmi_init.obj \
 	$(OBJDIR)\Proclist.obj
 
 !ifndef FARDIR
@@ -19,7 +20,7 @@ FAR_DIRECTORY=../../far
 FAR_DIRECTORY=$(FARDIR)
 !endif
 
-USERCPP = /EHsc /I".\WMI" -D"_WIN32_DCOM" -I"$(FAR_DIRECTORY)/thirdparty/fmt"
+USERCPP = /EHsc -D"_WIN32_DCOM" -I"$(FAR_DIRECTORY)/common" -I"$(FAR_DIRECTORY)/thirdparty/fmt"
 
 !include ..\makefile_vc_def_inc
 

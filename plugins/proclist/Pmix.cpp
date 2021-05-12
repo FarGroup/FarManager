@@ -4,7 +4,7 @@
 
 const wchar_t* GetMsg(int MsgId)
 {
-	return Info.GetMsg(&MainGuid, MsgId);
+	return PsInfo.GetMsg(&MainGuid, MsgId);
 }
 
 void ConvertDate(const FILETIME& ft, wchar_t* DateText, wchar_t* TimeText)

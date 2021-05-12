@@ -27,7 +27,29 @@ SRCS += luafar/compat52.c
 endif
 
 USERLIBS = luasdk/$(DIRBIT)/lua$(LUAVER).lib -lrpcrt4 -Wl,--out-implib,$(OBJDIR)/luafar3.lib
-USERC  = -Iluasdk/include -DBUILD_DLL -DWINVER=0x500 -DLUADLL=\"lua$(LUAVER).dll\"
+USERC = -Iluasdk/include -DBUILD_DLL -DWINVER=0x500 -DLUADLL=\"lua$(LUAVER).dll\" \
+	-Wno-cast-function-type \
+	-Wno-cast-qual \
+	-Wno-format-nonliteral \
+	-Wno-implicit-fallthrough \
+	-Wno-missing-declarations \
+
+ifdef CLANG
+USERC += \
+	-Wno-bad-function-cast \
+	-Wno-cast-align \
+	-Wno-comma \
+	-Wno-conditional-uninitialized \
+	-Wno-float-equal \
+	-Wno-format-non-iso \
+	-Wno-missing-prototypes \
+	-Wno-missing-variable-declarations \
+	-Wno-pedantic \
+	-Wno-shadow \
+	-Wno-strict-prototypes \
+	-Wno-unused-macros \
+
+endif
 
 RC_NAME = luafar/$(NAME)
 DEF_NAME = -

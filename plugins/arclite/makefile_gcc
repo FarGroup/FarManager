@@ -8,13 +8,21 @@ include ../makefile_gcc_def_inc
 OUTDIR = $(BASEDIR)
 BOOTSTRAPDIR=$(OBJDIR)/include/bootstrap/
 
-CPPFLAGS += -fexceptions -std=c++17 -I $(BOOTSTRAPDIR) -I 7z/h
+ifndef FARDIR
+FAR_DIRECTORY=../../far
+else
+FAR_DIRECTORY=$(FARDIR)
+endif
+
+CPPFLAGS += -I $(BOOTSTRAPDIR) -I 7z/h -I "$(FAR_DIRECTORY)/common" -Wno-non-virtual-dtor
 
 DEPFILE = $(OBJDIR)/$(MODULE).dep
 
 
 .PHONY: all
-all: dirs copy preproc $(DEPFILE)
+all:
+	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) dirs
+	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) copy preproc $(DEPFILE)
 	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) build
 
 .PHONY: clean

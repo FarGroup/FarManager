@@ -8,12 +8,11 @@ Temporary panel miscellaneous utility functions
 #include "plugin.hpp"
 
 #include "TmpPanel.hpp"
-#include <initguid.h>
 #include "guid.hpp"
 
 const wchar_t *GetMsg(int MsgId)
 {
-	return(Info.GetMsg(&MainGuid,MsgId));
+	return(PsInfo.GetMsg(&MainGuid,MsgId));
 }
 
 void FreePanelItems(PluginPanelItem *Items, size_t Total)
@@ -23,10 +22,10 @@ void FreePanelItems(PluginPanelItem *Items, size_t Total)
 		for (size_t I=0; I<Total; I++)
 		{
 			if (Items[I].Owner)
-				free((void*)Items[I].Owner);
+				free(const_cast<wchar_t*>(Items[I].Owner));
 
 			if (Items[I].FileName)
-				free((void*)Items[I].FileName);
+				free(const_cast<wchar_t*>(Items[I].FileName));
 		}
 
 		free(Items);
@@ -36,7 +35,7 @@ void FreePanelItems(PluginPanelItem *Items, size_t Total)
 wchar_t *ParseParam(wchar_t *& str)
 {
 	wchar_t* p=str;
-	wchar_t* parm=NULL;
+	wchar_t* parm{};
 
 	if (*p==L'|')
 	{
@@ -52,7 +51,7 @@ wchar_t *ParseParam(wchar_t *& str)
 		}
 	}
 
-	return NULL;
+	return {};
 }
 
 void GoToFile(const wchar_t *Target, BOOL AnotherPanel)
@@ -79,26 +78,26 @@ void GoToFile(const wchar_t *Target, BOOL AnotherPanel)
 	if (*Dir.Ptr())
 	{
 		FarPanelDirectory dirInfo = {sizeof(dirInfo), Dir, nullptr, {}, nullptr};
-		Info.PanelControl(_PANEL_HANDLE, FCTL_SETPANELDIRECTORY, 0, &dirInfo);
+		PsInfo.PanelControl(_PANEL_HANDLE, FCTL_SETPANELDIRECTORY, 0, &dirInfo);
 	}
 
-	Info.PanelControl(_PANEL_HANDLE,FCTL_GETPANELINFO,0,&PInfo);
+	PsInfo.PanelControl(_PANEL_HANDLE,FCTL_GETPANELINFO,0,&PInfo);
 	PRI.CurrentItem=PInfo.CurrentItem;
 	PRI.TopPanelItem=PInfo.TopPanelItem;
 
 	for (size_t J=0; J < PInfo.ItemsNumber; J++)
 	{
-		size_t Size=Info.PanelControl(_PANEL_HANDLE,FCTL_GETPANELITEM,J,0);
+		size_t Size=PsInfo.PanelControl(_PANEL_HANDLE,FCTL_GETPANELITEM,J,{});
 		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 		if (PPI)
 		{
 			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
-			Info.PanelControl(_PANEL_HANDLE,FCTL_GETPANELITEM,J,&gpi);
+			PsInfo.PanelControl(_PANEL_HANDLE,FCTL_GETPANELITEM,J,&gpi);
 		}
 
 
-		if (!FSF.LStricmp(Name,FSF.PointToName((PPI?PPI->FileName:NULL))))
+		if (!FSF.LStricmp(Name,FSF.PointToName((PPI?PPI->FileName:nullptr))))
 		{
 			PRI.CurrentItem=J;
 			PRI.TopPanelItem=J;
@@ -108,7 +107,7 @@ void GoToFile(const wchar_t *Target, BOOL AnotherPanel)
 		free(PPI);
 	}
 
-	Info.PanelControl(_PANEL_HANDLE,FCTL_REDRAWPANEL,0,&PRI);
+	PsInfo.PanelControl(_PANEL_HANDLE,FCTL_REDRAWPANEL,0,&PRI);
 }
 
 void WFD2FFD(WIN32_FIND_DATA &wfd, PluginPanelItem &ffd)
@@ -122,7 +121,7 @@ void WFD2FFD(WIN32_FIND_DATA &wfd, PluginPanelItem &ffd)
 	ffd.FileSize |= wfd.nFileSizeLow;
 	ffd.AllocationSize = 0;
 	ffd.FileName = wcsdup(wfd.cFileName);
-	ffd.AlternateFileName = NULL;
+	ffd.AlternateFileName = {};
 }
 
 wchar_t* FormNtPath(const wchar_t* path, StrBuf& buf)
@@ -186,7 +185,7 @@ bool FindListFile(const wchar_t *FileName, StrBuf &output)
 	GetFullPath(FileName, FullPath);
 	StrBuf NtPath;
 	FormNtPath(FullPath, NtPath);
-	const wchar_t *final=NULL;
+	const wchar_t *final{};
 
 	if (GetFileAttributes(NtPath) != INVALID_FILE_ATTRIBUTES)
 	{
@@ -196,10 +195,10 @@ bool FindListFile(const wchar_t *FileName, StrBuf &output)
 	}
 
 	{
-		const wchar_t *tmp = FSF.PointToName(Info.ModuleName);
-		Path.Grow(tmp-Info.ModuleName+1);
-		lstrcpyn(Path,Info.ModuleName,(int)(tmp-Info.ModuleName+1));
-		dwSize=SearchPath(Path,FileName,NULL,0,NULL,NULL);
+		const wchar_t *tmp = FSF.PointToName(PsInfo.ModuleName);
+		Path.Grow(tmp-PsInfo.ModuleName+1);
+		lstrcpyn(Path,PsInfo.ModuleName,(int)(tmp-PsInfo.ModuleName+1));
+		dwSize=SearchPath(Path,FileName,{},0,{},{});
 
 		if (dwSize)
 		{
@@ -220,7 +219,7 @@ bool FindListFile(const wchar_t *FileName, StrBuf &output)
 
 		if (*str)
 		{
-			dwSize=SearchPath(str,FileName,NULL,0,NULL,NULL);
+			dwSize=SearchPath(str,FileName,{},0,{},{});
 
 			if (dwSize)
 			{
@@ -238,7 +237,7 @@ bool FindListFile(const wchar_t *FileName, StrBuf &output)
 	return false;
 success:
 	output.Grow(dwSize);
-	SearchPath(final,FileName,NULL,dwSize,output,NULL);
+	SearchPath(final,FileName,{},dwSize,output,{});
 	return true;
 }
 

@@ -1,23 +1,24 @@
 ﻿#include "NetCommon.hpp"
 #include "NetCfg.hpp"
+#include "guid.hpp"
 #include "NetFavorites.hpp"
 #include <PluginSettings.hpp>
 
-struct Options Opt;
+Options Opt;
 
-struct PluginStartupInfo Info;
-struct FarStandardFunctions FSF;
+PluginStartupInfo PsInfo;
+FarStandardFunctions FSF;
 NETRESOURCE CommonCurResource;
-NETRESOURCE *PCommonCurResource = NULL;
+NETRESOURCE *PCommonCurResource{};
 
 BOOL IsFirstRun=TRUE;
 
-void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
+void WINAPI SetStartupInfoW(const PluginStartupInfo *Info)
 {
-	::Info=*Info;
-	::FSF=*Info->FSF;
-	::Info.FSF=&::FSF;
-	PluginSettings settings(MainGuid, ::Info.SettingsControl);
+	PsInfo=*Info;
+	FSF=*PsInfo.FSF;
+	PsInfo.FSF=&FSF;
+	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 	Opt.AddToDisksMenu = settings.Get(0,StrAddToDisksMenu,1);
 	Opt.AddToPluginsMenu = settings.Get(0,StrAddToPluginsMenu,1);
 	Opt.LocalNetwork = settings.Get(0,StrLocalNetwork,TRUE);
@@ -40,15 +41,15 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* Info)
 
 BOOL DlgCreateFolder(wchar_t* lpBuffer, int nBufferSize)
 {
-	BOOL res = (BOOL)Info.InputBox(&MainGuid,
+	BOOL res = (BOOL)PsInfo.InputBox(&MainGuid,
 	                         nullptr,
 	                         L"Make Folder",
 	                         L"Folder name:",
 	                         L"NewFolder",
-	                         NULL,
+	                         {},
 	                         lpBuffer,
 	                         nBufferSize,
-	                         NULL,
+	                         {},
 	                         FIB_BUTTONS
 	                        );
 	return res;
@@ -58,7 +59,7 @@ BOOL DlgCreateFolder(wchar_t* lpBuffer, int nBufferSize)
 wchar_t* NextToken(wchar_t *szSource, wchar_t *szToken, int nBuff)
 {
   if(!szSource||!szToken)
-    return NULL;
+    return {};
   lstrcpyn(szToken, szSource, nBuff);
   return szSource + lstrlen(szSource);
 }

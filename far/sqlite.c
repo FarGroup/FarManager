@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 WARNING_PUSH(3)
 
+WARNING_DISABLE_MSC(4668) // 'symbol' is not defined as a preprocessor macro, replacing with '0' for 'directives'
 WARNING_DISABLE_MSC(5105) // macro expansion producing 'defined' has undefined behavior
 
 WARNING_DISABLE_GCC("-Wcast-function-type")

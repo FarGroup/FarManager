@@ -5,9 +5,8 @@
 
 static const wchar_t empty_wstr[] = {0};
 
-CFarMenu::CFarMenu(LPCWSTR szHelp/*=NULL*/, const GUID* MenuId/*= nullptr*/, unsigned nMaxItems/*=40*/)
+CFarMenu::CFarMenu(LPCWSTR szHelp/*={}*/, const GUID* MenuId/*= {}*/, unsigned nMaxItems/*=40*/)
   : m_szHelp(szHelp)
-  , m_pfmi(NULL)
   , m_nItemCnt(0)
   , m_szArrow(L"  \x25BA")
   , m_bArrowsAdded(false)
@@ -30,7 +29,7 @@ CFarMenu::~CFarMenu()
 
 void CFarMenu::AddSeparator()
 {
-  AddItem(NULL, false);
+  AddItem({}, false);
 }
 
 unsigned CFarMenu::AddItem(LPCWSTR szText, bool bHasSubMenu/*=false*/, ECheck enChecked/*=UNCHECKED*/, bool bDisabled/*=false*/)
@@ -59,7 +58,7 @@ unsigned CFarMenu::InsertItem(unsigned nIndex, LPCWSTR szText, bool bHasSubMenu/
     else
 	{
       m_pfmi[nIndex].Text = new wchar_t[lstrlen(szText)+1];
-      lstrcpy((wchar_t *)m_pfmi[nIndex].Text,szText);
+      lstrcpy(const_cast<wchar_t*>(m_pfmi[nIndex].Text),szText);
     }
   }
   else
@@ -118,9 +117,9 @@ void CFarMenu::AddArrows()
         }
         for (unsigned n=0; n<nMaxLen-nLen; n++)
         {
-          lstrcat((wchar_t*)m_pfmi[i].Text, L" ");
+          lstrcat(const_cast<wchar_t*>(m_pfmi[i].Text), L" ");
         }
-        lstrcat((wchar_t*)m_pfmi[i].Text, m_szArrow);
+        lstrcat(const_cast<wchar_t*>(m_pfmi[i].Text), m_szArrow);
       }
     }
   }
@@ -155,7 +154,7 @@ void CFarMenu::GetCursorXY(int* pnX, int* pnY)
   }
   else
   {
-    HWND hFarWnd=(HWND)thePlug->AdvControl(&MainGuid, ACTL_GETFARHWND, 0, NULL);
+    HWND hFarWnd=(HWND)thePlug->AdvControl(&MainGuid, ACTL_GETFARHWND, 0, {});
     if (!ScreenToClient(hFarWnd, &pt))
     {
       assert(0);
@@ -211,7 +210,7 @@ int CFarMenu::Show(LPCWSTR szTitle, int nSelItem/*=0*/, bool bAtCursorPos/*=fals
   while (1)
   {
     SetSelectedItem(nSelItem);
-    nSelItem=(int)thePlug->Menu(&MainGuid, m_Id, nX, nY, MAX_HEIGHT, FMENU_WRAPMODE, szTitle, NULL, m_szHelp, pBreakKeys, &nBreakCode, m_pfmi, m_nItemCnt);
+    nSelItem=(int)thePlug->Menu(&MainGuid, m_Id, nX, nY, MAX_HEIGHT, FMENU_WRAPMODE, szTitle, {}, m_szHelp, pBreakKeys, &nBreakCode, m_pfmi, m_nItemCnt);
     if (-1==nBreakCode) return nSelItem;
     assert(-1!=nSelItem);
     switch (pBreakKeys[nBreakCode].VirtualKeyCode)
@@ -224,7 +223,6 @@ int CFarMenu::Show(LPCWSTR szTitle, int nSelItem/*=0*/, bool bAtCursorPos/*=fals
     case VK_LEFT:
     case VK_PRIOR:
       return SHOW_BACK;
-      break;
     case VK_SPACE:
     case VK_RETURN:
       return nSelItem;

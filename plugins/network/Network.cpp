@@ -1,6 +1,9 @@
-﻿#include <initguid.h>
-#include "Network.hpp"
+﻿#include "Network.hpp"
 #include "version.hpp"
+
+#include "guid.hpp"
+#include <initguid.h>
+#include "guid.hpp"
 
 void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 {
@@ -14,20 +17,20 @@ void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 }
 
 //-----------------------------------------------------------------------------
-HANDLE WINAPI OpenW(const OpenInfo *OInfo)
+HANDLE WINAPI OpenW(const OpenInfo *Info)
 {
 	HANDLE hPlugin=new NetBrowser;
 
-	if (hPlugin==NULL)
+	if (!hPlugin)
 		return nullptr;
 
 	NetBrowser *Browser=(NetBrowser *)hPlugin;
 
-	if (OInfo->OpenFrom==OPEN_COMMANDLINE)
+	if (Info->OpenFrom==OPEN_COMMANDLINE)
 	{
 		wchar_t Path[MAX_PATH] = L"\\\\";
 		int I=0;
-		wchar_t *cmd=(wchar_t *)(((OpenCommandLineInfo*)OInfo->Data)->CommandLine); //BUGBUG
+		auto cmd=const_cast<wchar_t*>(reinterpret_cast<OpenCommandLineInfo*>(Info->Data)->CommandLine); //BUGBUG
 		wchar_t *p=wcschr(cmd, L':');
 
 		if (!p || !*p)
@@ -81,9 +84,9 @@ HANDLE WINAPI OpenW(const OpenInfo *OInfo)
 	/* The line below is an UNDOCUMENTED and UNSUPPORTED EXPERIMENTAL
 	    mechanism supported ONLY in FAR 1.70 beta 3. It will NOT be supported
 	    in later versions. Please DON'T use it in your plugins. */
-	else if (OInfo->OpenFrom == OPEN_FILEPANEL)
+	else if (Info->OpenFrom == OPEN_FILEPANEL)
 	{
-		if (!Browser->SetOpenFromFilePanel((wchar_t *) OInfo->Data))
+		if (!Browser->SetOpenFromFilePanel((wchar_t *) Info->Data))
 		{
 			// we don't support upwards browsing from NetWare shares -
 			// it doesn't work correctly
@@ -140,14 +143,14 @@ void WINAPI GetOpenPanelInfoW(OpenPanelInfo *Info)
 }
 
 //-----------------------------------------------------------------------------
-intptr_t WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
+intptr_t WINAPI SetDirectoryW(const SetDirectoryInfo *Info)
 {
 	NetBrowser *Browser=(NetBrowser *)Info->hPanel;
 	return(Browser->SetDirectory(Info->Dir,Info->OpMode));
 }
 
 //-----------------------------------------------------------------------------
-intptr_t WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
+intptr_t WINAPI DeleteFilesW(const DeleteFilesInfo *Info)
 {
 	NetBrowser *Browser=(NetBrowser *)Info->hPanel;
 	return(Browser->DeleteFiles(Info->PanelItem,(int)Info->ItemsNumber,Info->OpMode));

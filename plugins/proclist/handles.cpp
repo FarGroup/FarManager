@@ -239,7 +239,7 @@ static WORD GetTypeFromTypeToken(const wchar_t* const TypeToken)
 		return !FSF.LStricmp(i, TypeToken);
 	});
 
-	return It == std::cend(constStrTypes)? OB_OTHER : static_cast<WORD>(It - std::cbegin(constStrTypes));
+	return It == std::cend(constStrTypes)? static_cast<WORD>(OB_OTHER) : static_cast<WORD>(It - std::cbegin(constStrTypes));
 }
 
 static const auto& GetUserAccountID()
@@ -304,11 +304,11 @@ static std::wstring GetNameByType(HANDLE handle, WORD type, PerfThread* pThread)
 		if (!Data)
 			return {};
 
-		const auto& Str = *reinterpret_cast<const UNICODE_STRING*>(Data.get());
-		if (!Str.Length)
+		const auto& DataStr = *reinterpret_cast<const UNICODE_STRING*>(Data.get());
+		if (!DataStr.Length)
 			return {};
 
-		const std::wstring_view ws(Str.Buffer, Str.Length / sizeof(wchar_t));
+		const std::wstring_view ws(DataStr.Buffer, DataStr.Length / sizeof(wchar_t));
 
 		const auto
 			REGISTRY = L"\\REGISTRY\\"sv,

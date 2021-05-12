@@ -1,6 +1,7 @@
 ﻿#include "NetCfg.hpp"
 #include "NetCommon.hpp"
 #include "NetFavorites.hpp"
+#include "guid.hpp"
 #include <DlgBuilder.hpp>
 #include <PluginSettings.hpp>
 
@@ -21,7 +22,7 @@ const wchar_t *StrPanelMode=L"PanelMode";
 
 int Config()
 {
-	PluginDialogBuilder Builder(Info, MainGuid, ConfigDialogGuid, MConfigTitle, L"Config");
+	PluginDialogBuilder Builder(PsInfo, MainGuid, ConfigDialogGuid, MConfigTitle, L"Config");
 	Builder.AddCheckbox(MConfigAddToDisksMenu, &Opt.AddToDisksMenu);
 	Builder.AddCheckbox(MConfigAddToPluginMenu, &Opt.AddToPluginsMenu);
 	Builder.AddCheckbox(MNoRootDoublePoint, &Opt.RootDoublePoint);
@@ -43,7 +44,7 @@ int Config()
 
 	if (Builder.ShowDialog())
 	{
-		PluginSettings settings(MainGuid, Info.SettingsControl);
+		PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 		settings.Set(0,StrAddToDisksMenu,Opt.AddToDisksMenu);
 		settings.Set(0,StrAddToPluginsMenu,Opt.AddToPluginsMenu);
 		settings.Set(0,StrLocalNetwork,Opt.LocalNetwork);
@@ -76,7 +77,7 @@ int Config()
 	return FALSE;
 }
 
-void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+void WINAPI GetPluginInfoW(PluginInfo *Info)
 {
 	Info->StructSize=sizeof(*Info);
 	Info->Flags=PF_FULLCMDLINE;

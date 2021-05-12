@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <typeinfo>
+
 #define E_MESSAGE MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x200)
 
 struct Error {
@@ -52,14 +54,14 @@ struct Error {
 #define FAIL(code) throw Error(code, __FILE__, __LINE__)
 #define FAIL_MSG(message) throw Error(message, __FILE__, __LINE__)
 
-#define CHECK_SYS(code) { if (!(code)) FAIL(HRESULT_FROM_WIN32(GetLastError())); }
-#define CHECK_ADVSYS(code) { DWORD __ret = (code); if (__ret != ERROR_SUCCESS) FAIL(HRESULT_FROM_WIN32(__ret)); }
-#define CHECK_COM(code) { HRESULT __ret = (code); if (FAILED(__ret)) FAIL(__ret); }
-#define CHECK(code) { if (!(code)) FAIL_MSG(L###code); }
+#define CHECK_SYS(code) do { if (!(code)) FAIL(HRESULT_FROM_WIN32(GetLastError())); } while(false)
+#define CHECK_ADVSYS(code) do { DWORD __ret = (code); if (__ret != ERROR_SUCCESS) FAIL(HRESULT_FROM_WIN32(__ret)); } while(false)
+#define CHECK_COM(code) do { HRESULT __ret = (code); if (FAILED(__ret)) FAIL(__ret); } while(false)
+#define CHECK(code) do { if (!(code)) FAIL_MSG(L###code); } while(false)
 
-#define IGNORE_ERRORS(code) { try { code; } catch (...) { } }
+#define IGNORE_ERRORS(code) do { try { code; } catch (...) { } } while(false)
 
 #define CONCAT1(a, b) a##b
 #define CONCAT(a, b) CONCAT1(a, b)
 #define MAKE_UNIQUE(name) CONCAT(name, __COUNTER__)
-#define GUARD(code) std::shared_ptr<void> MAKE_UNIQUE(guard)(0, [&](void*) { code; })
+#define GUARD(code) std::shared_ptr<void> MAKE_UNIQUE(guard)(nullptr, [&](void*) { code; })

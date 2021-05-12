@@ -6,9 +6,9 @@
 #include "options.hpp"
 #include "cmdline.hpp"
 
-#define CHECK_FMT(code) { if (!(code)) FAIL(E_BAD_FORMAT); }
+#define CHECK_FMT(code) do { if (!(code)) FAIL(E_BAD_FORMAT); } while(false)
 
-std::wstring lc(const std::wstring& str) {
+static std::wstring lc(const std::wstring& str) {
   std::wstring res;
   res.reserve(str.size());
   for (unsigned i = 0; i < str.size(); i++) {
@@ -91,11 +91,11 @@ struct Param {
   std::wstring value;
 };
 
-bool is_param(const std::wstring& param_str) {
+static bool is_param(const std::wstring& param_str) {
   return !param_str.empty() && (param_str[0] == L'-' || param_str[0] == L'/');
 }
 
-Param parse_param(const std::wstring& param_str) {
+static Param parse_param(const std::wstring& param_str) {
   Param param;
   size_t p = param_str.find(L':');
   if (p == std::wstring::npos) {
@@ -108,7 +108,7 @@ Param parse_param(const std::wstring& param_str) {
   return param;
 }
 
-bool parse_bool_value(const std::wstring& value) {
+static bool parse_bool_value(const std::wstring& value) {
   if (value.empty())
     return true;
   std::wstring lcvalue = lc(value);
@@ -120,7 +120,7 @@ bool parse_bool_value(const std::wstring& value) {
     CHECK_FMT(false);
 }
 
-TriState parse_tri_state_value(const std::wstring& value) {
+static TriState parse_tri_state_value(const std::wstring& value) {
   if (value.empty())
     return triTrue;
   std::wstring lcvalue = lc(value);
@@ -190,8 +190,8 @@ OpenCommand parse_open_command(const CommandArgs& ca) {
 //   <level> = 0|1|3|5|7|9
 //   <method> = lzma|lzma2|ppmd
 
-const unsigned c_levels[] = { 0, 1, 3, 5, 7, 9 };
-const wchar_t* c_methods[] = { L"lzma", L"lzma2", L"ppmd" };
+static const unsigned c_levels[] = { 0, 1, 3, 5, 7, 9 };
+static const wchar_t* c_methods[] = { L"lzma", L"lzma2", L"ppmd" };
 
 UpdateCommand parse_update_command(const CommandArgs& ca) {
   bool create = ca.cmd == cmdCreate;

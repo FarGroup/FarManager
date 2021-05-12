@@ -36,7 +36,7 @@ public:
   }
 };
 
-StateMatrix* create_state_matrix(const std::vector<SigData>& str_list) {
+static StateMatrix* create_state_matrix(const std::vector<SigData>& str_list) {
   size_t max_states = 0;
   for (unsigned i = 0; i < str_list.size(); i++) {
     max_states += str_list[i].signature.size();

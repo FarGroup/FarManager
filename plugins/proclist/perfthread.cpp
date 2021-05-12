@@ -7,10 +7,6 @@
 #include "Proclng.hpp"
 #include "perfthread.hpp"
 
-#define INITIAL_SIZE        51200
-#define INITIAL_SIZE        51200
-#define EXTEND_SIZE         25600
-
 const counters Counters[]
 {
 	{L"% Processor Time",        MProcessorTime     , MColProcessorTime     },
@@ -234,7 +230,7 @@ void PerfThread::Refresh()
 	DebugToken token;
 	const auto dwTicksBeforeRefresh = GetTickCount();
 	// allocate the initial buffer for the performance data
-	std::vector<BYTE> buf(INITIAL_SIZE);
+	std::vector<BYTE> buf(100 * 1024);
 	const PERF_DATA_BLOCK* pPerf;
 	DWORD dwDeltaTickCount;
 
@@ -257,7 +253,7 @@ void PerfThread::Refresh()
 		}
 
 		if (rc == ERROR_MORE_DATA)
-			buf.resize(buf.size() + EXTEND_SIZE);
+			buf.resize(static_cast<size_t>(buf.size() * 1.5));
 		else if (rc < 0x100000)  // ??? sometimes we receive garbage in rc
 		{
 			bOK = false;

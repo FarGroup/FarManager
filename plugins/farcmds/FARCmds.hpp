@@ -105,9 +105,9 @@ enum CatchModeType {
 	cmtDiff      = 3,  // <? - redirect #stderr# and #stdout# as different streams
 };
 
-extern struct PluginStartupInfo Info;
-extern struct FarStandardFunctions FSF;
-extern struct Options Opt;
+extern PluginStartupInfo PsInfo;
+extern FarStandardFunctions FSF;
+extern Options Opt;
 
 
 inline int IsSpace(int x) { return x==L' ' || x==L'\t'; }

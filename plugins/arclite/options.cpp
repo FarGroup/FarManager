@@ -60,7 +60,6 @@ private:
   mutable ExternalCodec codec;
 
 public:
-  ~xml_parser() {}
   xml_parser(Options& opt) : options(opt) {}
 
   Rt OnTag(int top, const Sv *path, const Sv& /*attrs*/) const override {
@@ -253,7 +252,7 @@ Options::Options():
   strict_case(true)
 {}
 
-void load_sfx_options(OptionsKey& key, SfxOptions& sfx_options) {
+static void load_sfx_options(OptionsKey& key, SfxOptions& sfx_options) {
   SfxOptions def_sfx_options;
 #define GET_VALUE(name, type) sfx_options.name = key.get_##type(L"sfx." L###name, def_sfx_options.name)
   GET_VALUE(name, str);
@@ -277,7 +276,7 @@ void load_sfx_options(OptionsKey& key, SfxOptions& sfx_options) {
 #undef GET_VALUE
 }
 
-void save_sfx_options(OptionsKey& key, const SfxOptions& sfx_options) {
+static void save_sfx_options(OptionsKey& key, const SfxOptions& sfx_options) {
   SfxOptions def_sfx_options;
 #define SET_VALUE(name, type) key.set_##type(L"sfx." L###name, sfx_options.name, def_sfx_options.name)
   SET_VALUE(name, str);
@@ -421,7 +420,7 @@ UpdateProfiles g_profiles;
 
 const wchar_t c_profiles_key_name[] = L"profiles";
 
-std::wstring get_profile_key_name(const std::wstring& name) {
+static std::wstring get_profile_key_name(const std::wstring& name) {
   return add_trailing_slash(c_profiles_key_name) + name;
 }
 

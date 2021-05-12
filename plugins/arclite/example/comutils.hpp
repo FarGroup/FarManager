@@ -23,12 +23,12 @@ public:
 };
 
 #define UNKNOWN_DECL \
-  STDMETHOD(QueryInterface)(REFIID riid, void** object); \
-  STDMETHOD_(ULONG, AddRef)(); \
-  STDMETHOD_(ULONG, Release)();
+  STDMETHOD(QueryInterface)(REFIID riid, void** object) override; \
+  STDMETHOD_(ULONG, AddRef)() override; \
+  STDMETHOD_(ULONG, Release)() override;
 
 #define UNKNOWN_IMPL_BEGIN \
-  STDMETHOD(QueryInterface)(REFIID riid, void** object) {
+  STDMETHOD(QueryInterface)(REFIID riid, void** object) override {
 
 #define UNKNOWN_IMPL_ITF(iid) \
     if (riid == IID_##iid) { *object = static_cast<iid*>(this); AddRef(); return S_OK; }
@@ -37,8 +37,8 @@ public:
     if (riid == IID_IUnknown) { *object = static_cast<IUnknown*>(static_cast<ComBase*>(this)); AddRef(); return S_OK; } \
     *object = nullptr; return E_NOINTERFACE; \
   } \
-  STDMETHOD_(ULONG, AddRef)() { return ++ref_cnt; } \
-  STDMETHOD_(ULONG, Release)() { if (--ref_cnt == 0) { delete this; return 0; } else return ref_cnt; }
+  STDMETHOD_(ULONG, AddRef)() override { return ++ref_cnt; } \
+  STDMETHOD_(ULONG, Release)() override { if (--ref_cnt == 0) { delete this; return 0; } else return ref_cnt; }
 
 #define UNKNOWN_IMPL \
   UNKNOWN_IMPL_BEGIN \

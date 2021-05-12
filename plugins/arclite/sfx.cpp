@@ -1,4 +1,5 @@
-﻿#include "msg.h"
+﻿#include "sfx.hpp"
+#include "msg.h"
 #include "guids.hpp"
 #include "utils.hpp"
 #include "farutils.hpp"
@@ -6,6 +7,7 @@
 #include "common.hpp"
 #include "archive.hpp"
 #include "ui.hpp"
+#include "rsrc.hpp"
 
 class AttachSfxModuleProgress: public ProgressMonitor {
 private:
@@ -13,7 +15,7 @@ private:
   UInt64 completed;
   UInt64 total;
 
-  virtual void do_update_ui() {
+  void do_update_ui() override {
     const unsigned c_width = 60;
 
     percent_done = calc_percent(completed, total);
@@ -37,10 +39,7 @@ public:
   }
 };
 
-void replace_icon(const std::wstring& pe_path, const std::wstring& ico_path);
-void replace_ver_info(const std::wstring& pe_path, const SfxVersionInfo& ver_info);
-
-ByteVector generate_install_config(const SfxInstallConfig& config) {
+static ByteVector generate_install_config(const SfxInstallConfig& config) {
   std::wstring text;
   text += L";!@Install@!UTF-8!\n";
   if (!config.title.empty())
@@ -150,7 +149,7 @@ private:
     c_client_xs = 69
   };
 
-  SfxOptions& options;
+  SfxOptions& m_options;
   SfxProfiles profiles;
 
   int profile_ctrl_id;
@@ -289,9 +288,9 @@ private:
     set_text(install_config_execute_parameters_ctrl_id, options.install_config.execute_parameters);
   }
 
-  intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) {
+  intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) override {
     if (msg == DN_CLOSE && param1 >= 0 && param1 != cancel_ctrl_id) {
-      options = read_controls();
+      m_options = read_controls();
     }
     else if (msg == DN_INITDIALOG) {
       set_control_state();
@@ -339,7 +338,7 @@ private:
   }
 
 public:
-  SfxOptionsDialog(SfxOptions& options, const UpdateProfiles& update_profiles): Far::Dialog(Far::get_msg(MSG_SFX_OPTIONS_DLG_TITLE), &c_sfx_options_dialog_guid, c_client_xs, L"SfxOptions"), options(options) {
+  SfxOptionsDialog(SfxOptions& options, const UpdateProfiles& update_profiles): Far::Dialog(Far::get_msg(MSG_SFX_OPTIONS_DLG_TITLE), &c_sfx_options_dialog_guid, c_client_xs, L"SfxOptions"), m_options(options) {
     std::for_each(update_profiles.cbegin(), update_profiles.cend(), [&] (const UpdateProfile& update_profile) {
       if (update_profile.options.create_sfx) {
         SfxProfile sfx_profile;
@@ -375,14 +374,14 @@ public:
         name_width = name.size();
     });
     module_names.push_back(std::wstring());
-    module_ctrl_id = combo_box(module_names, sfx_modules.find_by_name(options.name), name_width + 6, DIF_DROPDOWNLIST);
+    module_ctrl_id = combo_box(module_names, sfx_modules.find_by_name(m_options.name), name_width + 6, DIF_DROPDOWNLIST);
     new_line();
 
-    replace_icon_ctrl_id = check_box(Far::get_msg(MSG_SFX_OPTIONS_DLG_REPLACE_ICON), options.replace_icon);
+    replace_icon_ctrl_id = check_box(Far::get_msg(MSG_SFX_OPTIONS_DLG_REPLACE_ICON), m_options.replace_icon);
     new_line();
     spacer(2);
     label(Far::get_msg(MSG_SFX_OPTIONS_DLG_ICON_PATH));
-    icon_path_ctrl_id = history_edit_box(options.icon_path, L"arclite.icon_path", AUTO_SIZE, DIF_EDITPATH | DIF_SELECTONENTRY);
+    icon_path_ctrl_id = history_edit_box(m_options.icon_path, L"arclite.icon_path", AUTO_SIZE, DIF_EDITPATH | DIF_SELECTONENTRY);
     new_line();
 
     size_t label_len = 0;
@@ -398,37 +397,37 @@ public:
         label_len = labels[i].size();
     label_len += 2;
     std::vector<std::wstring>::const_iterator label_text = labels.cbegin();
-    replace_version_ctrl_id = check_box(Far::get_msg(MSG_SFX_OPTIONS_DLG_REPLACE_VERSION), options.replace_version);
+    replace_version_ctrl_id = check_box(Far::get_msg(MSG_SFX_OPTIONS_DLG_REPLACE_VERSION), m_options.replace_version);
     new_line();
     spacer(2);
     label(*label_text++);
     pad(label_len);
-    ver_info_product_name_ctrl_id = edit_box(options.ver_info.product_name, AUTO_SIZE, DIF_SELECTONENTRY);
+    ver_info_product_name_ctrl_id = edit_box(m_options.ver_info.product_name, AUTO_SIZE, DIF_SELECTONENTRY);
     new_line();
     spacer(2);
     label(*label_text++);
     pad(label_len);
-    ver_info_version_ctrl_id = edit_box(options.ver_info.version, AUTO_SIZE, DIF_SELECTONENTRY);
+    ver_info_version_ctrl_id = edit_box(m_options.ver_info.version, AUTO_SIZE, DIF_SELECTONENTRY);
     new_line();
     spacer(2);
     label(*label_text++);
     pad(label_len);
-    ver_info_company_name_ctrl_id = edit_box(options.ver_info.company_name, AUTO_SIZE, DIF_SELECTONENTRY);
+    ver_info_company_name_ctrl_id = edit_box(m_options.ver_info.company_name, AUTO_SIZE, DIF_SELECTONENTRY);
     new_line();
     spacer(2);
     label(*label_text++);
     pad(label_len);
-    ver_info_file_description_ctrl_id = edit_box(options.ver_info.file_description, AUTO_SIZE, DIF_SELECTONENTRY);
+    ver_info_file_description_ctrl_id = edit_box(m_options.ver_info.file_description, AUTO_SIZE, DIF_SELECTONENTRY);
     new_line();
     spacer(2);
     label(*label_text++);
     pad(label_len);
-    ver_info_comments_ctrl_id = edit_box(options.ver_info.comments, AUTO_SIZE, DIF_SELECTONENTRY);
+    ver_info_comments_ctrl_id = edit_box(m_options.ver_info.comments, AUTO_SIZE, DIF_SELECTONENTRY);
     new_line();
     spacer(2);
     label(*label_text++);
     pad(label_len);
-    ver_info_legal_copyright_ctrl_id = edit_box(options.ver_info.legal_copyright, AUTO_SIZE, DIF_SELECTONENTRY);
+    ver_info_legal_copyright_ctrl_id = edit_box(m_options.ver_info.legal_copyright, AUTO_SIZE, DIF_SELECTONENTRY);
     new_line();
 
     label_len = 0;
@@ -445,25 +444,25 @@ public:
         label_len = labels[i].size();
     label_len += 2;
     label_text = labels.cbegin();
-    append_install_config_ctrl_id = check_box(Far::get_msg(MSG_SFX_OPTIONS_DLG_APPEND_INSTALL_CONFIG), options.append_install_config);
+    append_install_config_ctrl_id = check_box(Far::get_msg(MSG_SFX_OPTIONS_DLG_APPEND_INSTALL_CONFIG), m_options.append_install_config);
     new_line();
     spacer(2);
     label(*label_text++);
     pad(label_len);
-    install_config_title_ctrl_id = edit_box(options.install_config.title, AUTO_SIZE, DIF_SELECTONENTRY);
+    install_config_title_ctrl_id = edit_box(m_options.install_config.title, AUTO_SIZE, DIF_SELECTONENTRY);
     new_line();
     spacer(2);
     label(*label_text++);
     pad(label_len);
-    install_config_begin_prompt_ctrl_id = edit_box(options.install_config.begin_prompt, AUTO_SIZE, DIF_SELECTONENTRY);
+    install_config_begin_prompt_ctrl_id = edit_box(m_options.install_config.begin_prompt, AUTO_SIZE, DIF_SELECTONENTRY);
     new_line();
     spacer(2);
     label(*label_text++);
     pad(label_len);
     TriState value;
-    if (options.install_config.progress == L"yes")
+    if (m_options.install_config.progress == L"yes")
       value = triTrue;
-    else if (options.install_config.progress == L"no")
+    else if (m_options.install_config.progress == L"no")
       value = triFalse;
     else
       value = triUndef;
@@ -472,22 +471,22 @@ public:
     spacer(2);
     label(*label_text++);
     pad(label_len);
-    install_config_run_program_ctrl_id = edit_box(options.install_config.run_program, AUTO_SIZE, DIF_SELECTONENTRY);
+    install_config_run_program_ctrl_id = edit_box(m_options.install_config.run_program, AUTO_SIZE, DIF_SELECTONENTRY);
     new_line();
     spacer(2);
     label(*label_text++);
     pad(label_len);
-    install_config_directory_ctrl_id = edit_box(options.install_config.directory, AUTO_SIZE, DIF_SELECTONENTRY);
+    install_config_directory_ctrl_id = edit_box(m_options.install_config.directory, AUTO_SIZE, DIF_SELECTONENTRY);
     new_line();
     spacer(2);
     label(*label_text++);
     pad(label_len);
-    install_config_execute_file_ctrl_id = edit_box(options.install_config.execute_file, AUTO_SIZE, DIF_SELECTONENTRY);
+    install_config_execute_file_ctrl_id = edit_box(m_options.install_config.execute_file, AUTO_SIZE, DIF_SELECTONENTRY);
     new_line();
     spacer(2);
     label(*label_text++);
     pad(label_len);
-    install_config_execute_parameters_ctrl_id = edit_box(options.install_config.execute_parameters, AUTO_SIZE, DIF_SELECTONENTRY);
+    install_config_execute_parameters_ctrl_id = edit_box(m_options.install_config.execute_parameters, AUTO_SIZE, DIF_SELECTONENTRY);
     new_line();
 
     separator();

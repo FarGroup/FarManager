@@ -67,10 +67,10 @@ typedef DWORD RVA;
 
 static __inline PIMAGE_NT_HEADERS WINAPI PinhFromImageBase(HMODULE hmod)
 {
-  return PIMAGE_NT_HEADERS(PBYTE(hmod) + PIMAGE_DOS_HEADER(hmod)->e_lfanew);
+  return reinterpret_cast<PIMAGE_NT_HEADERS>(PBYTE(hmod) + PIMAGE_DOS_HEADER(hmod)->e_lfanew);
 }
 
-template <class X> X PFromRva(HMODULE m, RVA rva) { return X(PBYTE(m) + rva); }
+template <class X> X PFromRva(HMODULE m, RVA rva) { return reinterpret_cast<X>(PBYTE(m) + rva); }
 
 static __inline unsigned CountOfImports(PCImgThunkData pitdBase)
 {
@@ -91,7 +91,7 @@ static bool patch_IAT(void **ppIAT, const void *pf)
   switch (mbi.Protect) {
   case PAGE_READWRITE:
   case PAGE_EXECUTE_READWRITE:
-    *ppIAT = (void *)pf;
+    *ppIAT = const_cast<void*>(pf);
     return true;
   case PAGE_READONLY:
     prot = PAGE_READWRITE;
@@ -104,7 +104,7 @@ static bool patch_IAT(void **ppIAT, const void *pf)
   if (!::VirtualProtect(mbi.BaseAddress, mbi.RegionSize, prot, &prot))
     return false;
 
-  *ppIAT = (void *)pf;
+  *ppIAT = const_cast<void*>(pf);
 
   ::VirtualProtect(mbi.BaseAddress, mbi.RegionSize, mbi.Protect, &prot);
   return true;
@@ -152,15 +152,15 @@ static bool patch_7z_dll()
         auto func = LPCSTR(PFromRva<PIMAGE_IMPORT_BY_NAME>(hm, RVA(UINT_PTR(pitd->u1.AddressOfData)))->Name);
         FARPROC pf = nullptr;
         if (0 == memcmp(func, f_GetOEMCP, sizeof(f_GetOEMCP)))
-          pf = (FARPROC)patched::GetOEMCP;
+          pf = reinterpret_cast<FARPROC>(reinterpret_cast<void*>(patched::GetOEMCP));
         else if (0 == memcmp(func, f_GetACP, sizeof(f_GetACP)))
-          pf = (FARPROC)patched::GetACP;
+          pf = reinterpret_cast<FARPROC>(reinterpret_cast<void*>(patched::GetACP));
         else if (0 == memcmp(func, f_MultiByteToWideChar, sizeof(f_MultiByteToWideChar)))
-          pf = (FARPROC)patched::MultiByteToWideChar;
+          pf = reinterpret_cast<FARPROC>(reinterpret_cast<void*>(patched::MultiByteToWideChar));
         else if (0 == memcmp(func, f_WideCharToMultiByte, sizeof(f_WideCharToMultiByte)))
-          pf = (FARPROC)patched::WideCharToMultiByte;
+          pf = reinterpret_cast<FARPROC>(reinterpret_cast<void*>(patched::WideCharToMultiByte));
 
-        if (pf != nullptr && patch_IAT((void **)ppfnIATEntry, (const void *)pf))
+        if (pf != nullptr && patch_IAT(reinterpret_cast<void**>(ppfnIATEntry), reinterpret_cast<void*>(pf)))
           ++n_patched;
       }
     }

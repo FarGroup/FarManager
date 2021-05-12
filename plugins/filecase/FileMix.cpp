@@ -4,7 +4,7 @@
 
 const wchar_t *GetMsg(int MsgId)
 {
-	return Info.GetMsg(&MainGuid,MsgId);
+	return PsInfo.GetMsg(&MainGuid,MsgId);
 }
 
 
@@ -22,9 +22,9 @@ int IsCaseMixed(const wchar_t *Str)
 	return FALSE;
 }
 
-BOOL IsWordDiv(int c)
+static BOOL IsWordDiv(int c)
 {
-	return (wmemchr(Opt.WordDiv, c, Opt.WordDivLen)!=NULL);
+	return (wmemchr(Opt.WordDiv, c, Opt.WordDivLen)!=nullptr);
 }
 
 //  CaseWord - convert case of string by given type

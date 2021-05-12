@@ -4,10 +4,10 @@
 #include "FileLng.hpp"
 #include "guid.hpp"
 
-int ResetButtonID=0;
-int WordDivEditID=0;
+static int ResetButtonID=0;
+static int WordDivEditID=0;
 
-INT_PTR WINAPI DlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void *Param2)
+static INT_PTR WINAPI DlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void *Param2)
 {
 	switch (Msg)
 	{
@@ -15,22 +15,22 @@ INT_PTR WINAPI DlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void *Param2)
 
 			if (Param1==ResetButtonID)
 			{
-				Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,WordDivEditID,(void *)L" _");
+				PsInfo.SendDlgMessage(hDlg,DM_SETTEXTPTR,WordDivEditID,const_cast<wchar_t*>(L" _"));
 				return TRUE;
 			}
 
 			break;
 	}
 
-	return Info.DefDlgProc(hDlg,Msg,Param1,Param2);
+	return PsInfo.DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
 void CaseConvertion()
 {
-	struct Options Backup;
+	Options Backup;
 	memcpy(&Backup,&Opt,sizeof(Backup));
 
-	PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MFileCase, L"Contents", DlgProc);
+	PluginDialogBuilder Builder(PsInfo, MainGuid, DialogGuid, MFileCase, L"Contents", DlgProc);
 	Builder.StartColumns();
 	Builder.AddText(MName);
 	const int NameIDs[] = {MLower, MUpper, MFirst, MTitle, MNone};
@@ -60,30 +60,30 @@ void CaseConvertion()
 		if (Opt.ConvertMode!=MODE_NONE || Opt.ConvertModeExt!=MODE_NONE)
 		{
 			Opt.WordDivLen=lstrlen(Opt.WordDiv);
-			struct PanelInfo PInfo = {sizeof(PanelInfo)};
-			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);
+			PanelInfo PInfo = {sizeof(PanelInfo)};
+			PsInfo.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);
 
-			HANDLE hScreen=Info.SaveScreen(0,0,-1,-1);
+			HANDLE hScreen=PsInfo.SaveScreen(0,0,-1,-1);
 
 			const wchar_t *MsgItems[]={GetMsg(MFileCase),GetMsg(MConverting)};
-			Info.Message(&MainGuid, nullptr,0,NULL,MsgItems,ARRAYSIZE(MsgItems),0);
+			PsInfo.Message(&MainGuid, nullptr,0,{},MsgItems,ARRAYSIZE(MsgItems),{});
 
-			int Size=(int)Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,0);
-			FarPanelDirectory* dirInfo=(FarPanelDirectory*)malloc(Size);
+			int DirSize=(int)PsInfo.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,{});
+			FarPanelDirectory* dirInfo=(FarPanelDirectory*)malloc(DirSize);
 			if (dirInfo)
 			{
 				dirInfo->StructSize = sizeof(FarPanelDirectory);
-				Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,Size,dirInfo);
+				PsInfo.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY, DirSize,dirInfo);
 
 				for (size_t I=0; I < PInfo.SelectedItemsNumber; I++)
 				{
-					size_t Size = Info.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,0);
+					size_t Size = PsInfo.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,{});
 					PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 					if (PPI)
 					{
 						FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
-						Info.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,&gpi);
+						PsInfo.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,&gpi);
 						wchar_t *FullName=new wchar_t[lstrlen(dirInfo->Name)+lstrlen(PPI->FileName)+8];
 						if (FullName)
 						{
@@ -103,7 +103,7 @@ void CaseConvertion()
 
 			if (!CurRun)
 			{
-				PluginSettings settings(MainGuid, Info.SettingsControl);
+				PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 				settings.Set(0,L"WordDiv",Opt.WordDiv);
 				settings.Set(0,L"ConvertMode",Opt.ConvertMode);
 				settings.Set(0,L"ConvertModeExt",Opt.ConvertModeExt);
@@ -112,9 +112,9 @@ void CaseConvertion()
 				settings.Set(0,L"ProcessDir",Opt.ProcessDir);
 			}
 
-			Info.RestoreScreen(hScreen);
-			Info.PanelControl(PANEL_ACTIVE,FCTL_UPDATEPANEL,0,0);
-			Info.PanelControl(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,0);
+			PsInfo.RestoreScreen(hScreen);
+			PsInfo.PanelControl(PANEL_ACTIVE,FCTL_UPDATEPANEL,0,{});
+			PsInfo.PanelControl(PANEL_ACTIVE,FCTL_REDRAWPANEL,0,{});
 		}
 
 		if (CurRun)

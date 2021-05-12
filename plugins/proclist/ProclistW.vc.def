@@ -3,7 +3,6 @@ EXPORTS
 	CompareW
 	ConfigureW
 	DeleteFilesW
-	ExitFARW
 	FreeFindDataW
 	GetFilesW
 	GetFindDataW

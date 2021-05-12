@@ -1,15 +1,17 @@
 ﻿#include <cstdio>
 #include <ctime>
 
-#include <initguid.h>
-#include "guid.hpp"
 #include "Proclist.hpp"
 #include "Proclng.hpp"
 #include "version.hpp"
 
+#include "guid.hpp"
+#include <initguid.h>
+#include "guid.hpp"
+
 options Opt;
 
-PluginStartupInfo Info;
+PluginStartupInfo PsInfo;
 FarStandardFunctions FSF;
 
 //-----------------------------------------------------------------------------
@@ -118,7 +120,7 @@ static void dynamic_bind()
 
 #define INIT_IMPORT(Name) \
 	if (const auto FunctionAddress = GetProcAddress(Module, # Name)) \
-		p ## Name = reinterpret_cast<P ## Name>(FunctionAddress)
+		p ## Name = reinterpret_cast<P ## Name>(reinterpret_cast<void*>(FunctionAddress))
 
 
 	if (const auto Module = GetModuleHandle(L"ntdll"))
@@ -173,7 +175,7 @@ bool is_wow64_process(HANDLE Process)
 
 int Message(unsigned Flags, const wchar_t* HelpTopic, const wchar_t** Items, size_t nItems, size_t nButtons)
 {
-	return static_cast<int>(Info.Message(&MainGuid, {}, Flags, HelpTopic, Items, nItems, nButtons));
+	return static_cast<int>(PsInfo.Message(&MainGuid, {}, Flags, HelpTopic, Items, nItems, nButtons));
 }
 
 //-----------------------------------------------------------------------------
@@ -189,30 +191,25 @@ void WINAPI GetGlobalInfoW(GlobalInfo* Info)
 }
 
 
-void WINAPI SetStartupInfoW(const struct PluginStartupInfo* Info)
+void WINAPI SetStartupInfoW(const PluginStartupInfo* Info)
 {
 	dynamic_bind();
-	::Info = *Info;
-	FSF = *Info->FSF;
-	::Info.FSF = &FSF;
+	PsInfo = *Info;
+	FSF = *PsInfo.FSF;
+	PsInfo.FSF = &FSF;
 	Opt.Read();
 	DebugToken::CreateToken();
 }
 
 
-void WINAPI ExitFARW(const struct ExitInfo* Info)
-{
-}
-
-
-HANDLE WINAPI OpenW(const struct OpenInfo* OInfo)
+HANDLE WINAPI OpenW(const OpenInfo* Info)
 {
 	Opt.Read();
 	auto hPlugin = std::make_unique<Plist>();
 
-	if (OInfo->OpenFrom == OPEN_COMMANDLINE && norm_m_prefix(reinterpret_cast<OpenCommandLineInfo*>(OInfo->Data)->CommandLine))
+	if (Info->OpenFrom == OPEN_COMMANDLINE && norm_m_prefix(reinterpret_cast<OpenCommandLineInfo*>(Info->Data)->CommandLine))
 	{
-		if (!hPlugin->Connect(reinterpret_cast<OpenCommandLineInfo*>(OInfo->Data)->CommandLine))
+		if (!hPlugin->Connect(reinterpret_cast<OpenCommandLineInfo*>(Info->Data)->CommandLine))
 		{
 			return {};
 		}
@@ -222,26 +219,26 @@ HANDLE WINAPI OpenW(const struct OpenInfo* OInfo)
 }
 
 
-void WINAPI ClosePanelW(const struct ClosePanelInfo* Info)
+void WINAPI ClosePanelW(const ClosePanelInfo* Info)
 {
 	std::unique_ptr<Plist>(static_cast<Plist*>(Info->hPanel));
 }
 
 
-intptr_t WINAPI GetFindDataW(struct GetFindDataInfo* Info)
+intptr_t WINAPI GetFindDataW(GetFindDataInfo* Info)
 {
 	auto& Panel = *static_cast<Plist*>(Info->hPanel);
 	return Panel.GetFindData(Info->PanelItem, Info->ItemsNumber, Info->OpMode);
 }
 
 
-void WINAPI FreeFindDataW(const struct FreeFindDataInfo* Info)
+void WINAPI FreeFindDataW(const FreeFindDataInfo* Info)
 {
 	auto& Panel = *static_cast<Plist*>(Info->hPanel);
 	Panel.FreeFindData(Info->PanelItem, Info->ItemsNumber);
 }
 
-void WINAPI GetPluginInfoW(struct PluginInfo* Info)
+void WINAPI GetPluginInfoW(PluginInfo* Info)
 {
 	Info->StructSize = sizeof(*Info);
 	Info->Flags = PF_NONE;
@@ -274,46 +271,46 @@ void WINAPI GetPluginInfoW(struct PluginInfo* Info)
 }
 
 
-void WINAPI GetOpenPanelInfoW(struct OpenPanelInfo* Info)
+void WINAPI GetOpenPanelInfoW(OpenPanelInfo* Info)
 {
 	auto& Panel = *static_cast<Plist*>(Info->hPanel);
 	Panel.GetOpenPanelInfo(Info);
 }
 
 
-intptr_t WINAPI GetFilesW(struct GetFilesInfo* Info)
+intptr_t WINAPI GetFilesW(GetFilesInfo* Info)
 {
 	auto& Panel = *static_cast<Plist*>(Info->hPanel);
 	return Panel.GetFiles(Info->PanelItem, Info->ItemsNumber, Info->Move, &Info->DestPath, Info->OpMode);
 }
 
 
-intptr_t WINAPI DeleteFilesW(const struct DeleteFilesInfo* Info)
+intptr_t WINAPI DeleteFilesW(const DeleteFilesInfo* Info)
 {
 	auto& Panel = *static_cast<Plist*>(Info->hPanel);
 	return Panel.DeleteFiles(Info->PanelItem, Info->ItemsNumber, Info->OpMode);
 }
 
 
-intptr_t WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo* Info)
+intptr_t WINAPI ProcessPanelEventW(const ProcessPanelEventInfo* Info)
 {
 	auto& Panel = *static_cast<Plist*>(Info->hPanel);
 	return Panel.ProcessEvent(Info->Event, Info->Param);
 }
 
 
-intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* Info)
+intptr_t WINAPI ProcessPanelInputW(const ProcessPanelInputInfo* Info)
 {
 	auto& Panel = *static_cast<Plist*>(Info->hPanel);
 	return Panel.ProcessKey(&Info->Rec);
 }
 
-intptr_t WINAPI ConfigureW(const struct ConfigureInfo* Info)
+intptr_t WINAPI ConfigureW(const ConfigureInfo* Info)
 {
 	return Config();
 }
 
-intptr_t WINAPI CompareW(const struct CompareInfo* Info)
+intptr_t WINAPI CompareW(const CompareInfo* Info)
 {
 	auto& Panel = *static_cast<Plist*>(Info->hPanel);
 	return Panel.Compare(Info->Item1, Info->Item2, Info->Mode);

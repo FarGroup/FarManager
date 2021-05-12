@@ -12,7 +12,7 @@
 
 int Config()
 {
-	PluginDialogBuilder Builder(Info, MainGuid, ConfigDialogGuid, MConfigTitle, L"Config");
+	PluginDialogBuilder Builder(PsInfo, MainGuid, ConfigDialogGuid, MConfigTitle, L"Config");
 
 	Builder.AddCheckbox(MConfigAddToDisksMenu, &Opt.AddToDisksMenu);
 	Builder.AddCheckbox(MConfigAddToPluginMenu, &Opt.AddToPluginsMenu);
@@ -42,7 +42,7 @@ int Config()
 
 void options::Write() const
 {
-	PluginSettings settings(MainGuid, Info.SettingsControl);
+	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 
 	settings.Set(0, L"AddToDisksMenu", AddToDisksMenu);
 	settings.Set(0, L"AddToPluginsMenu", AddToPluginsMenu);
@@ -57,7 +57,7 @@ void options::Write() const
 
 void options::Read()
 {
-	PluginSettings settings(MainGuid, Info.SettingsControl);
+	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 
 	AddToDisksMenu = settings.Get(0, L"AddToDisksMenu", 1);
 	AddToPluginsMenu = settings.Get(0, L"AddToPluginsMenu", 1);

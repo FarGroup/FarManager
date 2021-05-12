@@ -1,4 +1,5 @@
-﻿#include "utils.hpp"
+﻿#include "rsrc.hpp"
+#include "utils.hpp"
 #include "farutils.hpp"
 #include "common.hpp"
 #include "utils.hpp"
@@ -20,7 +21,7 @@ private:
   }
 public:
   RsrcId() {
-    set(0);
+    set({});
   }
   RsrcId(LPCTSTR name_id) {
     set(name_id);
@@ -67,7 +68,7 @@ struct IconFileEntry {
 };
 #pragma pack(pop)
 
-IconFile load_icon_file(const std::wstring& file_path) {
+static IconFile load_icon_file(const std::wstring& file_path) {
   IconFile icon;
   File file(file_path, FILE_READ_DATA, FILE_SHARE_READ, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
   IconFileHeader header;
@@ -127,15 +128,15 @@ struct IconGroupEntry {
 };
 #pragma pack(pop)
 
-IconRsrc load_icon_rsrc(HMODULE h_module, LPCTSTR name, WORD lang_id) {
+static IconRsrc load_icon_rsrc(HMODULE h_module, LPCTSTR name, WORD lang_id) {
   IconRsrc icon_rsrc;
   icon_rsrc.id = name;
   icon_rsrc.lang_id = lang_id;
-  HRSRC h_rsrc = FindResourceEx(h_module, RT_GROUP_ICON, name, lang_id);
-  CHECK_SYS(h_rsrc);
-  HGLOBAL h_global = LoadResource(h_module, h_rsrc);
-  CHECK_SYS(h_global);
-  unsigned char* res_data = static_cast<unsigned char*>(LockResource(h_global));
+  HRSRC h_rsrc_group = FindResourceEx(h_module, RT_GROUP_ICON, name, lang_id);
+  CHECK_SYS(h_rsrc_group);
+  HGLOBAL h_global_group = LoadResource(h_module, h_rsrc_group);
+  CHECK_SYS(h_global_group);
+  unsigned char* res_data = static_cast<unsigned char*>(LockResource(h_global_group));
   CHECK_SYS(res_data);
   const IconGroupHeader* header = reinterpret_cast<const IconGroupHeader*>(res_data);
   for (unsigned i = 0; i < header->count; i++) {
@@ -160,7 +161,7 @@ IconRsrc load_icon_rsrc(HMODULE h_module, LPCTSTR name, WORD lang_id) {
   return icon_rsrc;
 }
 
-BOOL CALLBACK enum_names_proc(HMODULE h_module, LPCTSTR type, LPTSTR name, LONG_PTR param) {
+static BOOL CALLBACK enum_names_proc(HMODULE h_module, LPCTSTR type, LPTSTR name, LONG_PTR param) {
   try {
     std::list<RsrcId>* result = reinterpret_cast<std::list<RsrcId>*>(param);
     result->push_back(name);
@@ -171,13 +172,13 @@ BOOL CALLBACK enum_names_proc(HMODULE h_module, LPCTSTR type, LPTSTR name, LONG_
   }
 }
 
-std::list<RsrcId> enum_rsrc_names(HMODULE h_module, LPCTSTR type) {
+static std::list<RsrcId> enum_rsrc_names(HMODULE h_module, LPCTSTR type) {
   std::list<RsrcId> result;
   EnumResourceNames(h_module, type, enum_names_proc, reinterpret_cast<LONG_PTR>(&result));
   return result;
 }
 
-BOOL CALLBACK enum_langs_proc(HMODULE h_module, LPCTSTR type, LPCTSTR name, WORD language, LONG_PTR param) {
+static BOOL CALLBACK enum_langs_proc(HMODULE h_module, LPCTSTR type, LPCTSTR name, WORD language, LONG_PTR param) {
   try {
     std::list<WORD>* result = reinterpret_cast<std::list<WORD>*>(param);
     result->push_back(language);
@@ -188,7 +189,7 @@ BOOL CALLBACK enum_langs_proc(HMODULE h_module, LPCTSTR type, LPCTSTR name, WORD
   }
 }
 
-std::list<WORD> enum_rsrc_langs(HMODULE h_module, LPCTSTR type, LPCTSTR name) {
+static std::list<WORD> enum_rsrc_langs(HMODULE h_module, LPCTSTR type, LPCTSTR name) {
   std::list<WORD> result;
   EnumResourceLanguages(h_module, type, name, enum_langs_proc, reinterpret_cast<LONG_PTR>(&result));
   return result;
@@ -362,7 +363,6 @@ struct IdLang {
   RsrcId id;
   WORD lang_id;
 };
-
 void replace_ver_info(const std::wstring& pe_path, const SfxVersionInfo& ver_info) {
   // numeric version
   std::list<std::wstring> ver_parts = split(ver_info.version, L'.');
