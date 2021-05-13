@@ -24,11 +24,6 @@ install:
   - cd far && for /f "tokens=1,2,4 delims=, " %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
   #clone NetBox
   - git clone https://github.com/FarGroup/Far-NetBox.git
-  #set locale to russian, needed for chm generation
-  - ps: Set-WinSystemLocale -SystemLocale ru-RU
-  - ps: Start-Sleep -s 5
-  - ps: Restart-Computer
-  - ps: Start-Sleep -s 5
 
 environment:
   matrix:
@@ -69,12 +64,8 @@ environment:
     bit: 64
 
 build_script:
-  #prevent lost commands after reboot in install
-  - ps: Start-Sleep -s 5
-  #update AppVeyor build number to match Far build number (again after reboot)
-  - cd far && for /f "tokens=1,2,4 delims=, " %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
   #build Plugin SDK Encyclopedia
-  - set PATH=C:\Python39-x64;%PATH%
+  - set PATH=C:\Python39-x64;%PATH%;C:\Program Files (x86)\HTML Help Workshop
   - enc/tools/tool.make_enc_chm.bat
   #build Lua MacroAPI docs
   - enc/tools/tool.make_lua_chm.bat
