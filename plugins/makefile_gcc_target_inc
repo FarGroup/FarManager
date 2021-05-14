@@ -54,7 +54,7 @@ $(foreach \
 	$(DOCS), \
 	$(eval \
 	$(DLLDIR)/$(notdir $(prereq)): $(prereq); \
-		echo $$< && @$(CP) $$< $$@ \
+		echo $$< && $(CP) $$< $$@ \
 	) \
 )
 
