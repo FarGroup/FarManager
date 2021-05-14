@@ -61,7 +61,12 @@ include ../makefile_gcc_def_inc
 include ../makefile_gcc_target_inc
 
 ifndef FAR_WORKDIR
-FAR_WORKDIR := $(FARDIR)$(DIRNAME).$(DIRBIT).gcc
+ifndef DEBUG
+FAR_DIRNAME=Release
+else
+FAR_DIRNAME=Debug
+endif
+FAR_WORKDIR := $(FARDIR)$(FAR_DIRNAME).$(DIRBIT).gcc
 endif
 
 .PHONY: lualib
