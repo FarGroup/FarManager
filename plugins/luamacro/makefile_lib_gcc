@@ -4,30 +4,37 @@ LUA_PROXY=lua5.1.dll
 LUA=$(WINE_CMD)$(strip $(call os_name, luasdk/32/lua.exe))
 
 SRCS = \
-luafar/bit64.c \
-luafar/exported.c \
-luafar/flags.c \
-luafar/keysandcolors.c \
-luafar/lflua.c \
-luafar/lregex.c \
-luafar/luamacro.c \
-luafar/lusercontrol.c \
-luafar/reg.c \
-luafar/service.c \
-luafar/slnunico.c \
-luafar/lutf8lib.c \
-luafar/uliolib$(LUAVER).c \
-luafar/uloadlib$(LUAVER).c \
-luafar/ustring.c \
-luafar/util.c \
-luafar/win.c
+	luafar/bit64.c \
+	luafar/exported.c \
+	luafar/flags.c \
+	luafar/keysandcolors.c \
+	luafar/lflua.c \
+	luafar/lregex.c \
+	luafar/luamacro.c \
+	luafar/lusercontrol.c \
+	luafar/reg.c \
+	luafar/service.c \
+	luafar/slnunico.c \
+	luafar/lutf8lib.c \
+	luafar/uliolib$(LUAVER).c \
+	luafar/uloadlib$(LUAVER).c \
+	luafar/ustring.c \
+	luafar/util.c \
+	luafar/win.c \
 
 ifeq ($(LUAVER),52)
 SRCS += luafar/compat52.c
 endif
 
-USERLIBS = luasdk/$(DIRBIT)/lua$(LUAVER).lib -lrpcrt4 -Wl,--out-implib,$(OBJDIR)/luafar3.lib
-USERC = -Iluasdk/include -DBUILD_DLL -DWINVER=0x500 -DLUADLL=\"lua$(LUAVER).dll\" \
+USERLIBS = \
+	luasdk/$(DIRBIT)/lua$(LUAVER).lib \
+	-Wl,--out-implib,$(OBJDIR)/luafar3.lib \
+
+USERC = \
+	-Iluasdk/include \
+	-DBUILD_DLL \
+	-DWINVER=0x500 \
+	-DLUADLL=\"lua$(LUAVER).dll\" \
 	-Wno-cast-function-type \
 	-Wno-cast-qual \
 	-Wno-format-nonliteral \
@@ -61,7 +68,6 @@ DOCS = \
 	luasdk/$(DIRBIT)/$(LUA_PROXY) \
 	luasdk/$(DIRBIT)/lpeg.dll \
 
-SKIPCLEAN = 1
 include ../makefile_gcc_target_inc
 
 luafar/flags.c: $(COMINC)/plugin.hpp luafar/makeflags.lua
@@ -72,5 +78,5 @@ luafar/keysandcolors.c: luafar/makefarkeys.lua $(COMINC)/farcolor.hpp $(FARDIR)/
 	@echo generating $@
 	@$(LUA) luafar/makefarkeys.lua $(COMINC)/farcolor.hpp $(FARDIR)/uuids.far.dialogs.hpp $@
 
-clean:
+clean::
 	@$(RM) $(DLLDIR)/lua*.* $(OBJS) $(DEPS)

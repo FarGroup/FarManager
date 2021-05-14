@@ -11,14 +11,17 @@ EXEFULLNAME = $(EXEDIR)$(EXENAME)
 DEPFILE = $(BOOTSTRAPDIR)far.gcc.dep
 STATICDEPFILE = static.dep
 
-DEFINES += -D FAR_ALPHA_VERSION
-
 ifdef DEBUG
 ENABLE_TESTS = 1
 endif
 
+CFLAGS += \
+	-D FAR_ALPHA_VERSION \
+
 ifdef ENABLE_TESTS
-DEFINES += -D ENABLE_TESTS
+CFLAGS += \
+	-D ENABLE_TESTS \
+
 endif
 
 SRCS = \
@@ -181,10 +184,8 @@ MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 TESTOBJS = $(OBJDIR)api_test_c.testobj $(OBJDIR)api_test_c++.testobj
 
 ADDINCLUDE=-I$(BOOTSTRAPDIR).. 
-FORCEINCLUDE_DISABLED_WARNINGS=-include disabled_warnings.hpp
-FORCEINCLUDE=$(FORCEINCLUDE_DISABLED_WARNINGS) -include headers.hpp -include memcheck.hpp
+FORCEINCLUDE=-include headers.hpp -include memcheck.hpp
 
-CFLAGS += $(FORCEINCLUDE_DISABLED_WARNINGS)
 CPPFLAGS += $(ADDINCLUDE) $(FORCEINCLUDE)
 
 .PHONY: all

@@ -1,4 +1,6 @@
-all: $(DLLFULLNAME)
+DSTDOCS = $(patsubst %,$(DLLDIR)/%,$(notdir $(filter %,$(DOCS))))
+
+all: $(DLLFULLNAME) $(DSTDOCS)
 
 ifndef DISABLEAUTODEPS
 ifeq ($(findstring clean,$(MAKECMDGOALS)),)
@@ -15,17 +17,17 @@ endif
 endif
 
 $(OBJDIR)/%.o: %.cpp
-	@echo compiling $<
+	@echo $<
 	@$(MKDIR) -p $(@D)
 	@$(CXX) $(CPPFLAGS) -c -o $@ $<
 
 $(OBJDIR)/%.o: %.c
-	@echo compiling $<
+	@echo $<
 	@$(MKDIR) -p $(@D)
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 $(RES): $(RC_NAME).rc $(COMINC)/farversion.hpp $(COMINC)/plugin.hpp
-	@echo compiling $<
+	@echo $<
 	@$(MKDIR) -p $(@D)
 	@$(WINDRES) $(RCFLAGS) -i $< -o $@
 
@@ -35,8 +37,8 @@ else
 X_OPT = $(if $(MAP),-Xlinker -Map -Xlinker $(MAP),)
 endif
 
-$(DLLFULLNAME): $(OBJS) $(DEF)
-	@echo linking $@
+$(DLLFULLNAME): $(OBJS) $(DEF) $(USERTARGETS)
+	@echo Linking $@
 	@$(MKDIR) -p $(@D)
 	@$(CXX) -o $@ $(DEF) $(OBJS) $(LNKFLAGS) -Wl,--kill-at -shared $(X_OPT)
 ifdef USE_OBJDUMP_MAPS
@@ -46,14 +48,18 @@ ifndef DEBUG
 	strip $(DLLFULLNAME)
 endif
 endif
-ifdef DOCS
-	@$(CP) $(DOCS) $(DLLDIR)
-endif
 
-ifndef SKIPCLEAN
-clean:
+$(foreach \
+	prereq, \
+	$(DOCS), \
+	$(eval \
+	$(DLLDIR)/$(notdir $(prereq)): $(prereq); \
+		echo $$< && @$(CP) $$< $$@ \
+	) \
+)
+
+clean::
 	@$(RM) -r $(BASEDIR)/obj $(BASEDIR)/lib $(BASEDIR)/Formats $(BASEDIR)/*
-endif
 
 ifndef DISABLEAUTODEPS
 -include $(DEPS)

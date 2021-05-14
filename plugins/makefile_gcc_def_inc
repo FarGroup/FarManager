@@ -41,8 +41,6 @@ DEP_FILTER := $(MAKEFILE_DIR)dep_filter.awk
 
 include $(MAKEFILE_DIR)../far/makefile_gcc_common
 
-FORCEINCLUDE_DISABLED_WARNINGS = -include $(MAKEFILE_DIR)../far/disabled_warnings.hpp
-
 DIRSURF = W
 
 ifdef ANSI
@@ -108,7 +106,7 @@ else
 COMMONLIB = 
 endif
 
-CFLAGS  += -I $(COMMON) -I $(COMINC) $(WIDE) $(FORCEINCLUDE_DISABLED_WARNINGS) $(USERC)
+CFLAGS  += -I $(COMMON) -I $(COMINC) $(WIDE) $(USERC)
 CPPFLAGS += -Wno-old-style-cast $(USERCPP)
 LNKFLAGS += $(USERLIBS)
 RCFLAGS  += -I $(COMINC) $(WIDE) $(USERRC)
