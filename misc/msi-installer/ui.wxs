@@ -2,8 +2,8 @@
 <?include defines.wxi ?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Fragment>
-    <Binary Id="WixUI_Bmp_Banner" SourceFile="rsrc\banner.jpg" />
-    <Binary Id="WixUI_Bmp_Dialog" SourceFile="rsrc\dialog.jpg" />
+    <Binary Id="WixUI_Bmp_Banner" SourceFile="rsrc\banner.png" />
+    <Binary Id="WixUI_Bmp_Dialog" SourceFile="rsrc\dialog.png" />
     <Binary Id="WixUI_Ico_Exclam" SourceFile="rsrc\exclam.ico" />
     <Binary Id="WixUI_Ico_Info" SourceFile="rsrc\info.ico" />
     <Binary Id="WixUI_Bmp_New" SourceFile="rsrc\new.ico" />
