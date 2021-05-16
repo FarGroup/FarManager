@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 16.05.2021 15:31:41 +0100 - build 5799
+
+1. Correction of 5776.
+
+--------------------------------------------------------------------------------
 drkns 11.05.2021 02:02:02 +0100 - build 5798
 
 1. Continue the "SQLite vs nocase" saga. Now any related errors should be fixed automatically.

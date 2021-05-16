@@ -2294,7 +2294,8 @@ void background_searcher::DoScanTree(string_view const strRoot)
 	ScanTree ScTree(
 		false,
 		!(SearchMode==FINDAREA_CURRENT_ONLY||SearchMode==FINDAREA_INPATH),
-		Global->Opt->FindOpt.FindSymLinks
+		Global->Opt->FindOpt.FindSymLinks,
+		true
 	);
 
 	if (SearchMode==FINDAREA_SELECTED)
