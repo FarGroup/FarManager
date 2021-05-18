@@ -18754,6 +18754,22 @@ MSetColorBackground
 "&Фон:"
 "&Fonas:"
 
+MSetColorForeAARRGGBB
+l:
+l:// 8 characters max
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+
 MSetColorForeRGB
 l:
 l:// 3 characters max
@@ -18769,6 +18785,22 @@ l:// 3 characters max
 "&RGB…"
 "&RGB…"
 "&RGB…"
+
+MSetColorBackAARRGGBB
+l:
+l:// 8 characters max
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
+"AARRGGBB"
 
 MSetColorBackRGB
 l:

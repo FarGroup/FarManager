@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+drkns 19.05.2021 00:00:00 +0100 - build 5800
+
+1. Continuation of 5788: proper alpha blending.
+   Available in files highlighting and editor selection colour.
+
+--------------------------------------------------------------------------------
 drkns 16.05.2021 15:31:41 +0100 - build 5799
 
 1. Correction of 5776.

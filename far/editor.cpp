@@ -360,7 +360,7 @@ void Editor::ShowEditor()
 						BlockX2=XX2;
 
 					if (BlockX1 <= XX2 && BlockX2 >= m_Where.left)
-						Global->ScrBuf->ApplyColor({ BlockX1, Y, BlockX2, Y }, colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT), ScreenBuf::apply_mode::color);
+						Global->ScrBuf->ApplyColor({ BlockX1, Y, BlockX2, Y }, colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT));
 				}
 
 				++CurPtr;

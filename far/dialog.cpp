@@ -1988,8 +1988,8 @@ void Dialog::ShowDialog(size_t ID)
 					int startx = m_Where.left + CX1 + (Item.Flags&DIF_NOBRACKETS? 0 : 2);
 					Global->ScrBuf->ApplyColor(
 						{ startx, m_Where.top + CY1, startx + 1, m_Where.top + CY1 },
-						colors::ConsoleColorToFarColor(B_YELLOW | F_LIGHTBLUE),
-						ScreenBuf::apply_mode::all);
+						colors::ConsoleColorToFarColor(B_YELLOW | F_LIGHTBLUE)
+					);
 				}
 				break;
 			}

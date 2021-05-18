@@ -345,7 +345,7 @@ void Edit::FastShow(const ShowInfo* Info)
 	{
 		if (m_Flags.Check(FEDITLINE_CLEARFLAG))
 		{
-			Global->ScrBuf->ApplyColor(m_Where, GetUnchangedColor(), ScreenBuf::apply_mode::all);
+			Global->ScrBuf->ApplyColor(m_Where, GetUnchangedColor());
 		}
 	}
 	else
@@ -358,7 +358,7 @@ void Edit::FastShow(const ShowInfo* Info)
 
 		if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
 		{
-			Global->ScrBuf->ApplyColor(m_Where, GetSelectedColor(), ScreenBuf::apply_mode::color);
+			Global->ScrBuf->ApplyColor(m_Where, GetSelectedColor());
 		}
 		else
 		{
@@ -369,8 +369,7 @@ void Edit::FastShow(const ShowInfo* Info)
 					std::min(m_Where.left + TabSelEnd - 1, static_cast<int>(m_Where.right)),
 					m_Where.top
 				},
-				GetSelectedColor(),
-				ScreenBuf::apply_mode::color
+				GetSelectedColor()
 			);
 		}
 	}
@@ -2204,7 +2203,7 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 		// Раскрашиваем элемент, если есть что раскрашивать
 		if (End >= Start)
 		{
-			Global->ScrBuf->ApplyColor({ m_Where.left + Start, m_Where.top, m_Where.left + End, m_Where.top }, CurItem.GetColor(), ScreenBuf::apply_mode::all);
+			Global->ScrBuf->ApplyColor({ m_Where.left + Start, m_Where.top, m_Where.left + End, m_Where.top }, CurItem.GetColor());
 		}
 	}
 }

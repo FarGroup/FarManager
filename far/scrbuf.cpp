@@ -206,31 +206,9 @@ void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, apply_mode co
 
 	fix_coordinates(Where);
 
-	const auto
-		DoForeground = ApplyMode & apply_mode::foreground && !colors::is_transparent(Color.ForegroundColor),
-		DoBackground = ApplyMode & apply_mode::background && !colors::is_transparent(Color.BackgroundColor),
-		DoStyle = ApplyMode & apply_mode::style && !(Color.BackgroundColor & FCF_IGNORE_STYLE);
-
 	for_submatrix(Buf, Where, [&](FAR_CHAR_INFO& Element)
 	{
-		auto& DstColor = Element.Attributes;
-
-		if (DoForeground)
-		{
-			DstColor.ForegroundColor = Color.ForegroundColor;
-			flags::copy(DstColor.Flags, FCF_FG_4BIT, Color.Flags);
-		}
-
-		if (DoBackground)
-		{
-			DstColor.BackgroundColor = Color.BackgroundColor;
-			flags::copy(DstColor.Flags, FCF_BG_4BIT, Color.Flags);
-		}
-
-		if (DoStyle)
-		{
-			flags::copy(DstColor.Flags, FCF_STYLEMASK, Color.Flags);
-		}
+		Element.Attributes = colors::merge(Element.Attributes, Color);
 	});
 
 	debug_flush();

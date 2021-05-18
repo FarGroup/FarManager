@@ -111,7 +111,7 @@ public:
 		all        = color | style
 	};
 
-	void ApplyColor(rectangle Where, const FarColor& Color, apply_mode ApplyMode);
+	void ApplyColor(rectangle Where, const FarColor& Color, apply_mode ApplyMode = apply_mode::all);
 	void FillRect(rectangle Where, const FAR_CHAR_INFO& Info);
 
 	void Scroll(size_t Count);

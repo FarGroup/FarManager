@@ -57,6 +57,16 @@ enum
 	ConsoleFgShift=0,
 };
 
+static auto to_rgba(COLORREF const Color)
+{
+	return *reinterpret_cast<rgba const*>(&Color);
+}
+
+static auto to_color(rgba const Rgba)
+{
+	return *reinterpret_cast<COLORREF const*>(&Rgba);
+}
+
 namespace colors
 {
 	COLORREF index_value(COLORREF const Colour)
@@ -119,13 +129,47 @@ namespace colors
 		const auto merge_part = [&](COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
 		{
 			const auto TopValue = std::invoke(ColorAccessor, Top);
+
+			// Nothing to apply
 			if (is_transparent(TopValue))
 				return;
 
-			// TODO: proper alpha blending?
-			std::invoke(ColorAccessor, Result) = TopValue;
+			auto& ResultValue = std::invoke(ColorAccessor, Result);
 
-			flags::copy(Result.Flags, Flag, Top.Flags);
+			// Simple case
+			if (is_opaque(TopValue))
+			{
+				ResultValue = TopValue;
+				flags::copy(Result.Flags, Flag, Top.Flags);
+				return;
+			}
+
+			// Alpha blending
+			const auto BottomValue = std::invoke(ColorAccessor, Bottom);
+
+			const auto to_rgba = [](COLORREF const Color, bool const Is4Bit)
+			{
+				return ::to_rgba(Is4Bit ? ConsoleIndexToTrueColor(Color) : Color);
+			};
+
+			const auto TopRGBA = to_rgba(TopValue, (Top.Flags & Flag) != 0);
+			const auto BottomRGBA = to_rgba(BottomValue, (Bottom.Flags & Flag) != 0);
+
+			const auto calc_channel = [&](unsigned char rgba::*Accessor)
+			{
+				return static_cast<unsigned char>((std::invoke(Accessor, TopRGBA) * TopRGBA.a + (0xFF - TopRGBA.a) * std::invoke(Accessor, BottomRGBA)) / 0xFF);
+			};
+
+			rgba const MergedRGBA
+			{
+				calc_channel(&rgba::r),
+				calc_channel(&rgba::g),
+				calc_channel(&rgba::b),
+				static_cast<unsigned char>(BottomRGBA.a | ((0xFF - BottomRGBA.a) * TopRGBA.a / 0xFF))
+			};
+
+			ResultValue = to_color(MergedRGBA);
+			flags::clear(Result.Flags, Flag);
 		};
 
 		merge_part(&FarColor::BackgroundColor, FCF_BG_4BIT);
@@ -174,23 +218,17 @@ namespace colors
 		if (const auto Iterator = Map.find(Color); Iterator != Map.cend())
 			return Iterator->second;
 
-		union color_point
-		{
-			const COLORREF Color;
-			const rgba RGBA;
-		};
-
-		color_point const Point{ Color };
+		const auto PointRGBA = to_rgba(Color);
 
 		const auto distance = [&](COLORREF const PaletteColor)
 		{
-			color_point const PalettePoint{ PaletteColor };
+			const auto PaletteRGBA = to_rgba(PaletteColor);
 
 			const auto distance_part = [&](unsigned char rgba::* const Getter)
 			{
 				return std::abs(
-					int{ std::invoke(Getter, Point.RGBA) } -
-					int{ std::invoke(Getter, PalettePoint.RGBA) }
+					int{ std::invoke(Getter, PointRGBA) } -
+					int{ std::invoke(Getter, PaletteRGBA) }
 				);
 			};
 
@@ -292,9 +330,9 @@ FarColor ConsoleColorToFarColor(WORD Color)
 	};
 }
 
-COLORREF ConsoleIndexToTrueColor(size_t Index)
+COLORREF ConsoleIndexToTrueColor(COLORREF const Color)
 {
-	return opaque(console_palette()[Index & ConsoleMask]);
+	return alpha_value(Color) | console_palette()[Color & ConsoleMask];
 }
 
 const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex)
@@ -399,6 +437,28 @@ TEST_CASE("colors.COLORREF")
 		REQUIRE(colors::is_opaque(colors::opaque(i.Src)));
 		REQUIRE(colors::is_transparent(colors::transparent(i.Src)));
 		REQUIRE(colors::ARGB2ABGR(i.Src) == i.ABGR);
+	}
+}
+
+TEST_CASE("colors.merge")
+{
+	static const struct
+	{
+		FarColor Bottom, Top, Merged;
+	}
+	Tests[]
+	{
+		{ { 0, {0x00000000}, {0x00000000} }, { 0, {0x00000000}, {0x00000000} }, { 0, {0x00000000}, {0x00000000} } },
+		{ { 0, {0xFF123456}, {0xFF654321} }, { 0, {0xFFABCDEF}, {0xFFFEDCBA} }, { 0, {0xFFABCDEF}, {0xFFFEDCBA} } },
+		{ { 0, {0x80000000}, {0xFF000000} }, { 0, {0x80000000}, {0x01000000} }, { 0, {0xBF000000}, {0xFF000000} } },
+		{ { 0, {0xFFFFFFFF}, {0xFF000000} }, { 0, {0x80000000}, {0x80FFFFFF} }, { 0, {0xFF7F7F7F}, {0xFF808080} } },
+		{ { 0, {0xFF00D5FF}, {0xFFBB5B00} }, { 0, {0x800000FF}, {0x80000000} }, { 0, {0xFF006AFF}, {0xFF5D2D00} } },
+	};
+
+	for (const auto& i: Tests)
+	{
+		const auto Color = colors::merge(i.Bottom, i.Top);
+		REQUIRE(Color == i.Merged);
 	}
 }
 

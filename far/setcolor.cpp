@@ -463,6 +463,7 @@ enum color_dialog_items
 	cd_fg_color_first,
 	cd_fg_color_last = cd_fg_color_first + 15,
 
+	cd_fg_colorcode_title,
 	cd_fg_colorcode,
 	cd_fg_advanced,
 
@@ -471,6 +472,7 @@ enum color_dialog_items
 	cd_bg_color_first,
 	cd_bg_color_last = cd_bg_color_first + 15,
 
+	cd_bg_colorcode_title,
 	cd_bg_colorcode,
 	cd_bg_advanced,
 
@@ -497,7 +499,7 @@ enum color_dialog_items
 
 static string color_code(COLORREF Color)
 {
-	return format(FSTR(L"{:06X}"sv), colors::color_value(colors::ARGB2ABGR(Color)));
+	return format(FSTR(L"{:08X}"sv), colors::ARGB2ABGR(Color));
 }
 
 // BUGBUG
@@ -515,10 +517,16 @@ static const std::pair<color_dialog_items, FARCOLORFLAGS> StyleMapping[]
 	{ cd_style_blink,       FCF_FG_BLINK       },
 };
 
+struct color_state
+{
+	FarColor CurColor, BaseColor;
+	bool TransparencyEnabled;
+};
+
 static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	const auto ColorState = reinterpret_cast<FarColor*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-	auto& CurColor = ColorState[0];
+	auto& ColorState = *reinterpret_cast<color_state*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+	auto& CurColor = ColorState.CurColor;
 
 	const auto GetColor = [Param1](size_t const Offset)
 	{
@@ -543,20 +551,27 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	{
 		case DN_CTLCOLORDLGITEM:
 			{
+				const auto preview_or_disabled = [&](COLORREF const Color, size_t const Index)
+				{
+					return ColorState.TransparencyEnabled && colors::is_transparent(Color)?
+						colors::PaletteColorToFarColor(COL_DIALOGDISABLED) :
+						GetColor(Index);
+				};
+
 				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
 				if (Param1 >= cd_fg_color_first && Param1 <= cd_fg_color_last)
 				{
-					Colors->Colors[0] = colors::is_transparent(CurColor.ForegroundColor)? colors::PaletteColorToFarColor(COL_DIALOGDISABLED) : GetColor(cd_fg_color_first);
+					Colors->Colors[0] = preview_or_disabled(CurColor.ForegroundColor, cd_fg_color_first);
 					return TRUE;
 				}
 				else if (Param1 >= cd_bg_color_first && Param1 <= cd_bg_color_last)
 				{
-					Colors->Colors[0] = colors::is_transparent(CurColor.BackgroundColor)? colors::PaletteColorToFarColor(COL_DIALOGDISABLED) : GetColor(cd_bg_color_first);
+					Colors->Colors[0] = preview_or_disabled(CurColor.BackgroundColor, cd_bg_color_first);
 					return TRUE;
 				}
 				else if (Param1 >= cd_sample_first && Param1 <= cd_sample_last)
 				{
-					Colors->Colors[0] = colors::merge(ColorState[1], ColorState[0]);
+					Colors->Colors[0] = colors::merge(ColorState.BaseColor, ColorState.CurColor);
 					return TRUE;
 				}
 				else
@@ -569,12 +584,13 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				{
 					const auto IsFg = Param1 >= cd_fg_color_first && Param1 <= cd_fg_color_last;
 					const auto First = IsFg? cd_fg_color_first : cd_bg_color_first;
-					const auto ChosenColor = GetColor(First).BackgroundColor;
 
-					SetComponentColorValue(IsFg, ChosenColor);
+					auto& Component = IsFg? CurColor.ForegroundColor : CurColor.BackgroundColor;
+					Component = GetColor(First).BackgroundColor;
+
 					CurColor.Flags |= Flag4Bit(IsFg);
 
-					Dlg->SendMessage(DM_UPDATECOLORCODE, IsFg? cd_fg_colorcode : cd_bg_colorcode, ToPtr(colors::ConsoleIndexToTrueColor(ChosenColor)));
+					Dlg->SendMessage(DM_UPDATECOLORCODE, IsFg? cd_fg_colorcode : cd_bg_colorcode, ToPtr(colors::ConsoleIndexToTrueColor(Component)));
 
 					return TRUE;
 				}
@@ -605,6 +621,8 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					{
 						Dlg->SendMessage(DM_ENABLE, i + Offset, Param2);
 					}
+
+					Dlg->SendMessage(DM_UPDATECOLORCODE, IsFg? cd_fg_colorcode : cd_bg_colorcode, ToPtr(Component));
 
 					Dlg->SendMessage(DM_ENABLE, IsFg? cd_fg_colorcode : cd_bg_colorcode, Param2);
 					Dlg->SendMessage(DM_ENABLE, IsFg? cd_fg_advanced : cd_bg_advanced, Param2);
@@ -651,12 +669,17 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				if (std::any_of(Iterator, Iterator.end(), std::iswxdigit))
 				{
 					const auto IsFg = Param1 == cd_fg_colorcode;
-					const auto ChosenColor = colors::ARGB2ABGR(std::wcstoul(Item.Data, nullptr, 16));
-
-					SetComponentColorValue(IsFg, ChosenColor);
+					auto& Component = IsFg? CurColor.ForegroundColor : CurColor.BackgroundColor;
+					Component = colors::ARGB2ABGR(std::wcstoul(Item.Data, nullptr, 16));
 					CurColor.Flags &= ~Flag4Bit(IsFg);
 
 					Dlg->SendMessage(DM_SETCHECK, IsFg? cd_fg_color_first : cd_bg_color_first, ToPtr(BSTATE_3STATE));
+
+					if (ColorState.TransparencyEnabled && colors::is_transparent(Component))
+					{
+						Dlg->SendMessage(DM_SETCHECK, IsFg? cd_fg_active : cd_bg_active, ToPtr(BSTATE_UNCHECKED));
+						Dlg->SendMessage(DN_BTNCLICK, IsFg? cd_fg_active : cd_bg_active, ToPtr(BSTATE_UNCHECKED));
+					}
 				}
 			}
 			return TRUE;
@@ -680,12 +703,12 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 {
 	auto ColorDlg = MakeDialogItems<cd_count>(
 	{
-		{ DI_DOUBLEBOX,   {{3,  1 }, {60, 15}}, DIF_NONE, msg(lng::MSetColorTitle), },
+		{ DI_DOUBLEBOX,   {{3,  1 }, {62, 15}}, DIF_NONE, msg(lng::MSetColorTitle), },
 
 		{ DI_TEXT,        {{-1, 13}, {0,  13}}, DIF_SEPARATOR, },
-		{ DI_VTEXT,       {{38, 1 }, {38, 13}}, DIF_SEPARATORUSER, },
-		{ DI_TEXT,        {{3,  5 }, {38,  5}}, DIF_SEPARATORUSER, },
-		{ DI_TEXT,        {{3,  9 }, {38, 9 }}, DIF_SEPARATORUSER, },
+		{ DI_VTEXT,       {{39, 1 }, {39, 13}}, DIF_SEPARATORUSER, },
+		{ DI_TEXT,        {{3,  5 }, {39,  5}}, DIF_SEPARATORUSER, },
+		{ DI_TEXT,        {{3,  9 }, {39, 9 }}, DIF_SEPARATORUSER, },
 
 		{ DI_TEXT,        {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MSetColorForeground), },
 		{ DI_CHECKBOX,    {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MSetColorForeground), },
@@ -707,8 +730,9 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 		{ DI_RADIOBUTTON, {{26, 3 }, {0,  3 }}, DIF_MOVESELECT, },
 		{ DI_RADIOBUTTON, {{26, 4 }, {0,  4 }}, DIF_MOVESELECT, },
 
-		{ DI_FIXEDIT,     {{31, 3 }, {36, 3 }}, DIF_MASKEDIT, },
-		{ DI_BUTTON,      {{30, 4 }, {36, 4 }}, DIF_NONE, msg(lng::MSetColorForeRGB), },
+		{ DI_TEXT,        {{30, 2 }, {0,  2 }}, DIF_NONE, msg(lng::MSetColorForeAARRGGBB) },
+		{ DI_FIXEDIT,     {{30, 3 }, {37, 3 }}, DIF_MASKEDIT, },
+		{ DI_BUTTON,      {{30, 4 }, {37, 4 }}, DIF_NONE, msg(lng::MSetColorForeRGB), },
 
 		{ DI_TEXT,        {{5,  6 }, {0,  6 }}, DIF_NONE, msg(lng::MSetColorBackground), },
 		{ DI_CHECKBOX,    {{5,  6 }, {0,  6 }}, DIF_NONE, msg(lng::MSetColorBackground), },
@@ -730,22 +754,23 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 		{ DI_RADIOBUTTON, {{26, 7 }, {0,  7 }}, DIF_MOVESELECT, },
 		{ DI_RADIOBUTTON, {{26, 8 }, {0,  8 }}, DIF_MOVESELECT, },
 
-		{ DI_FIXEDIT,     {{31, 7 }, {36, 7 }}, DIF_MASKEDIT, },
-		{ DI_BUTTON,      {{30, 8 }, {36, 8 }}, DIF_NONE, msg(lng::MSetColorBackRGB), },
+		{ DI_TEXT,        {{30, 6 }, {0,  6 }}, DIF_NONE, msg(lng::MSetColorBackAARRGGBB) },
+		{ DI_FIXEDIT,     {{30, 7 }, {37, 7 }}, DIF_MASKEDIT, },
+		{ DI_BUTTON,      {{30, 8 }, {37, 8 }}, DIF_NONE, msg(lng::MSetColorBackRGB), },
 
-		{ DI_CHECKBOX,    {{40, 2 }, {0,  2 }}, DIF_NONE, msg(lng::MSetColorStyle), },
-		{ DI_CHECKBOX,    {{40, 3 }, {0,  3 }}, DIF_NONE, msg(lng::MSetColorStyleBold), },
-		{ DI_CHECKBOX,    {{40, 4 }, {0,  4 }}, DIF_NONE, msg(lng::MSetColorStyleItalic), },
-		{ DI_CHECKBOX,    {{40, 5 }, {0,  5 }}, DIF_NONE, msg(lng::MSetColorStyleUnderline), },
-		{ DI_CHECKBOX,    {{40, 6 }, {0,  6 }}, DIF_NONE, msg(lng::MSetColorStyleUnderline2), },
-		{ DI_CHECKBOX,    {{40, 7 }, {0,  7 }}, DIF_NONE, msg(lng::MSetColorStyleOverline), },
-		{ DI_CHECKBOX,    {{40, 8 }, {0,  8 }}, DIF_NONE, msg(lng::MSetColorStyleStrikeout), },
-		{ DI_CHECKBOX,    {{40, 9 }, {0,  9 }}, DIF_NONE, msg(lng::MSetColorStyleFaint), },
-		{ DI_CHECKBOX,    {{40, 10}, {0,  10}}, DIF_NONE, msg(lng::MSetColorStyleBlink), },
+		{ DI_CHECKBOX,    {{41, 2 }, {0,  2 }}, DIF_NONE, msg(lng::MSetColorStyle), },
+		{ DI_CHECKBOX,    {{41, 3 }, {0,  3 }}, DIF_NONE, msg(lng::MSetColorStyleBold), },
+		{ DI_CHECKBOX,    {{41, 4 }, {0,  4 }}, DIF_NONE, msg(lng::MSetColorStyleItalic), },
+		{ DI_CHECKBOX,    {{41, 5 }, {0,  5 }}, DIF_NONE, msg(lng::MSetColorStyleUnderline), },
+		{ DI_CHECKBOX,    {{41, 6 }, {0,  6 }}, DIF_NONE, msg(lng::MSetColorStyleUnderline2), },
+		{ DI_CHECKBOX,    {{41, 7 }, {0,  7 }}, DIF_NONE, msg(lng::MSetColorStyleOverline), },
+		{ DI_CHECKBOX,    {{41, 8 }, {0,  8 }}, DIF_NONE, msg(lng::MSetColorStyleStrikeout), },
+		{ DI_CHECKBOX,    {{41, 9 }, {0,  9 }}, DIF_NONE, msg(lng::MSetColorStyleFaint), },
+		{ DI_CHECKBOX,    {{41, 10}, {0,  10}}, DIF_NONE, msg(lng::MSetColorStyleBlink), },
 
-		{ DI_TEXT,        {{5,  10}, {36, 10}}, DIF_NONE, msg(lng::MSetColorSample), },
-		{ DI_TEXT,        {{5,  11}, {36, 11}}, DIF_NONE, msg(lng::MSetColorSample), },
-		{ DI_TEXT,        {{5,  12}, {36, 12}}, DIF_NONE, msg(lng::MSetColorSample), },
+		{ DI_TEXT,        {{5,  10}, {37, 10}}, DIF_NONE, msg(lng::MSetColorSample), },
+		{ DI_TEXT,        {{5,  11}, {37, 11}}, DIF_NONE, msg(lng::MSetColorSample), },
+		{ DI_TEXT,        {{5,  12}, {37, 12}}, DIF_NONE, msg(lng::MSetColorSample), },
 
 		{ DI_BUTTON,      {{0,  14}, {0,  14}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MSetColorSet), },
 		{ DI_BUTTON,      {{0,  14}, {0,  14}}, DIF_CENTERGROUP, msg(lng::MSetColorCancel), },
@@ -754,11 +779,21 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 	ColorDlg[cd_separator2].strMask = { BoxSymbols[BS_T_H2V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1] };
 	ColorDlg[cd_separator3].strMask = ColorDlg[cd_separator4].strMask = { BoxSymbols[BS_L_H1V2], BoxSymbols[BS_H1], BoxSymbols[BS_R_H1V1] };
 
-	ColorDlg[cd_fg_colorcode].strData = color_code(Color.IsFg4Bit()? colors::ConsoleIndexToTrueColor(Color.ForegroundColor) : Color.ForegroundColor);
-	ColorDlg[cd_bg_colorcode].strData = color_code(Color.IsBg4Bit()? colors::ConsoleIndexToTrueColor(Color.BackgroundColor) : Color.BackgroundColor);
-	ColorDlg[cd_fg_colorcode].strMask = ColorDlg[cd_bg_colorcode].strMask = L"HHHHHH"sv;
+	const auto to_true_color_code = [](COLORREF const Color, bool const Is4Bit)
+	{
+		return color_code(Is4Bit? colors::ConsoleIndexToTrueColor(Color) : Color);
+	};
 
-	FarColor CurColor[]{ Color, BaseColor? *BaseColor : colors::ConsoleColorToFarColor(F_BLACK | B_BLACK) };
+	ColorDlg[cd_fg_colorcode].strData = to_true_color_code(Color.ForegroundColor, Color.IsFg4Bit());
+	ColorDlg[cd_bg_colorcode].strData = to_true_color_code(Color.BackgroundColor, Color.IsBg4Bit());
+	ColorDlg[cd_fg_colorcode].strMask = ColorDlg[cd_bg_colorcode].strMask = L"HHHHHHHH"sv;
+
+	color_state ColorState
+	{
+		Color,
+		BaseColor? *BaseColor : colors::ConsoleColorToFarColor(F_BLACK | B_BLACK),
+		BaseColor != nullptr
+	};
 
 	if (Color.IsFg4Bit() || Color.IsBg4Bit())
 	{
@@ -766,9 +801,10 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 
 		if (Color.IsFg4Bit())
 		{
+			const auto ColorPart = ConsoleColor & F_MASK;
 			for (size_t i = cd_fg_color_first; i <= cd_fg_color_last; ++i)
 			{
-				if (((ColorIndex[i - cd_fg_color_first] & B_MASK) >> 4) == (ConsoleColor & F_MASK))
+				if (((ColorIndex[i - cd_fg_color_first] & B_MASK) >> 4) == ColorPart)
 				{
 					ColorDlg[i].Selected = true;
 					ColorDlg[i].Flags |= DIF_FOCUS;
@@ -779,9 +815,10 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 
 		if (Color.IsBg4Bit())
 		{
+			const auto ColorPart = ConsoleColor & B_MASK;
 			for (size_t i = cd_bg_color_first; i <= cd_bg_color_last; ++i)
 			{
-				if ((ColorIndex[i - cd_bg_color_first] & B_MASK) == (ConsoleColor & B_MASK))
+				if ((ColorIndex[i - cd_bg_color_first] & B_MASK) == ColorPart)
 				{
 					ColorDlg[i].Selected = true;
 					break;
@@ -846,7 +883,7 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 		ColorDlg[cd_bg_active].Flags|=DIF_HIDDEN;
 	}
 
-	const auto Dlg = Dialog::create(ColorDlg, GetColorDlgProc, CurColor);
+	const auto Dlg = Dialog::create(ColorDlg, GetColorDlgProc, &ColorState);
 
 	const auto
 		DlgWidth = static_cast<int>(ColorDlg[cd_border].X2) + 4,
@@ -867,6 +904,6 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 	if (Dlg->GetExitCode() != cd_button_ok)
 		return false;
 
-	Color = CurColor[0];
+	Color = ColorState.CurColor;
 	return true;
 }
