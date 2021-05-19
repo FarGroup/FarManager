@@ -124,6 +124,11 @@ namespace colors
 
 	FarColor merge(const FarColor& Bottom, const FarColor& Top)
 	{
+		static FarColor LastResult, LastBottom, LastTop;
+
+		if (Bottom == LastBottom && Top == LastTop)
+			return LastResult;
+
 		auto Result = Bottom;
 
 		const auto merge_part = [&](COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
@@ -146,6 +151,16 @@ namespace colors
 
 			// Alpha blending
 			const auto BottomValue = std::invoke(ColorAccessor, Bottom);
+
+			if (
+				TopValue == std::invoke(ColorAccessor, LastTop) && (Top.Flags & Flag) == (LastTop.Flags & Flag) &&
+				BottomValue == std::invoke(ColorAccessor, LastBottom) && (Bottom.Flags & Flag) == (LastBottom.Flags & Flag)
+			)
+			{
+				ResultValue = std::invoke(ColorAccessor, LastResult);
+				flags::clear(Result.Flags, Flag);
+				return;
+			}
 
 			const auto to_rgba = [](COLORREF const Color, bool const Is4Bit)
 			{
@@ -177,6 +192,10 @@ namespace colors
 
 		if (!(Top.Flags & FCF_IGNORE_STYLE))
 			flags::copy(Result.Flags, FCF_STYLEMASK, Top.Flags);
+
+		LastTop = Top;
+		LastBottom = Bottom;
+		LastResult = Result;
 
 		return Result;
 	}
