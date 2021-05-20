@@ -1197,7 +1197,7 @@ static int editor_GetTitle(lua_State *L)
 {
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	PSInfo *Info = GetPluginData(L)->Info;
-	size_t size = Info->EditorControl(EditorId, ECTL_GETTITLE, 0, NULL);
+	intptr_t size = Info->EditorControl(EditorId, ECTL_GETTITLE, 0, NULL);
 	if (size)
 	{
 		wchar_t* buf = (wchar_t*)lua_newuserdata(L, size*sizeof(wchar_t));

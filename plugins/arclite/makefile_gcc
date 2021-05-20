@@ -1,6 +1,5 @@
 .SILENT:
 
-include ../../far/makefile_gcc_common
 THIS_MAKE = $(TOP_MAKEFILE)
 
 include project.ini
@@ -9,13 +8,21 @@ include ../makefile_gcc_def_inc
 OUTDIR = $(BASEDIR)
 BOOTSTRAPDIR=$(OBJDIR)/include/bootstrap/
 
-CCFLAGS += -fexceptions -std=c++17 -I $(BOOTSTRAPDIR) -I 7z/h
+ifndef FARDIR
+FAR_DIRECTORY=../../far
+else
+FAR_DIRECTORY=$(FARDIR)
+endif
+
+CPPFLAGS += -I $(BOOTSTRAPDIR) -I 7z/h -I "$(FAR_DIRECTORY)/common" -Wno-non-virtual-dtor
 
 DEPFILE = $(OBJDIR)/$(MODULE).dep
 
 
 .PHONY: all
-all: dirs copy preproc $(DEPFILE)
+all:
+	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) dirs
+	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) copy preproc $(DEPFILE)
 	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) build
 
 .PHONY: clean
@@ -121,14 +128,21 @@ $(OBJDIR)/version.rc.o: $(BOOTSTRAPDIR)version.rc
 
 $(OBJDIR)/%.o: %.cpp
 	@echo $<
-	$(CXX) $(CCFLAGS) -c -include $(OBJDIR)/headers -include headers.hpp -o $@ $<
+	$(CXX) -c -include $(OBJDIR)/headers -include headers.hpp $(CPPFLAGS) -o $@ $<
 
 $(OBJS): $(OBJDIR)/headers.gch
 
 $(OBJDIR)/headers.gch: headers.cpp headers.hpp
 	@echo Making precompiled headers
-	$(CXX) -x c++-header -c $(CCFLAGS) -o $@ $<
+	$(CXX) -x c++-header -c $(CPPFLAGS) -o $@ $<
 
-$(DLLFULLNAME): $(OBJS) plugin.gcc.def
+ifeq ($(DIRBIT),32)
+DEFFILE = plugin.gcc.def
+else
+#for x64 vc.def is good enough
+DEFFILE = plugin.def
+endif
+
+$(DLLFULLNAME): $(OBJS) $(DEFFILE)
 	@echo linking $@
-	$(CXX) -o $@ plugin.gcc.def $(OBJS) $(LNKFLAGS) -Wl,--kill-at -shared -Xlinker -Map=$(MAPFULLNAME)
+	$(CXX) -o $@ $(DEFFILE) $(OBJS) $(LNKFLAGS) -Wl,--kill-at -shared -Xlinker -Map=$(MAPFULLNAME)

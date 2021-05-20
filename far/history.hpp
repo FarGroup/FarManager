@@ -87,7 +87,7 @@ enum history_return_type
 class History: noncopyable
 {
 public:
-	History(history_type TypeHistory, string_view HistoryName, const Bool3Option& State, bool CaseSensitive, bool KeepSelectedPos);
+	History(history_type TypeHistory, string_view HistoryName, const Bool3Option& State, bool KeepSelectedPos);
 
 	void AddToHistory(string_view Str, history_record_type Type = HR_DEFAULT, const UUID* Uuid = nullptr, string_view File = {}, string_view Data = {});
 	history_return_type Select(string_view Title, string_view HelpTopic, string& strStr, history_record_type& Type, UUID* Uuid = nullptr, string* File = nullptr, string* Data = nullptr);
@@ -124,7 +124,6 @@ private:
 	Bool3Option const& m_State;
 	std::atomic_size_t m_SuppressAdd{};
 	bool m_KeepSelectedPos;
-	bool m_CaseSensitive;
 	unsigned long long m_CurrentItem{};
 };
 

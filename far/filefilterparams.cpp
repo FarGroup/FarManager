@@ -93,14 +93,6 @@ filter_dates::operator bool() const
 FileFilterParams::FileFilterParams()
 {
 	SetMask(true, L"*"sv);
-
-	for (auto& i: FHighlight.Colors.Color)
-	{
-		colors::make_opaque(i.FileColor.ForegroundColor);
-		colors::make_opaque(i.MarkColor.ForegroundColor);
-	}
-
-	FHighlight.SortGroup=DEFAULT_SORT_GROUP;
 }
 
 FileFilterParams FileFilterParams::Clone() const

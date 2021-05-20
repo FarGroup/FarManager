@@ -1142,6 +1142,84 @@ TEST_CASE("utility.hash_range")
 	REQUIRE(h2 != h3);
 }
 
+TEST_CASE("utility.flags")
+{
+	using flags_type = uint8_t;
+
+	{
+		static const struct
+		{
+			using test = std::pair<flags_type, bool>;
+
+			flags_type Value;
+			test Any, All;
+		}
+		Tests[]
+		{
+			{ 0b00000000, { 0b00000000, false }, { 0b00000000, true  } },
+			{ 0b00000000, { 0b10000001, false }, { 0b10000001, false } },
+			{ 0b00000001, { 0b00000001, true  }, { 0b00000001, true  } },
+			{ 0b00000001, { 0b10000001, true  }, { 0b10000001, false } },
+			{ 0b10000000, { 0b10000001, true  }, { 0b10000001, false } },
+			{ 0b10000001, { 0b10000001, true  }, { 0b10000001, true  } },
+		};
+
+		for (const auto& i : Tests)
+		{
+			REQUIRE(flags::check_any(i.Value, i.Any.first) == i.Any.second);
+			REQUIRE(flags::check_all(i.Value, i.All.first) == i.All.second);
+		}
+	}
+
+	{
+		static const struct
+		{
+			flags_type Value;
+			struct
+			{
+				flags_type Value, Expected;
+			}
+			Set, Clear, Invert, Copy;
+		}
+		Tests[]
+		{
+			//Value         Set         Expected        Clear       Expected        Invert      Expected        Copy Mask   Expected
+			{ 0b00000000, { 0b00000000, 0b00000000 }, { 0b00000000, 0b00000000 }, { 0b00000000, 0b00000000 }, { 0b00000000, 0b00000000 }},
+			{ 0b00000000, { 0b00001111, 0b00001111 }, { 0b00001111, 0b00000000 }, { 0b00001111, 0b00001111 }, { 0b00001010, 0b00001010 }},
+			{ 0b11111111, { 0b00000000, 0b11111111 }, { 0b00000000, 0b11111111 }, { 0b00000000, 0b11111111 }, { 0b00001111, 0b11110000 }},
+			{ 0b11111111, { 0b00001111, 0b11111111 }, { 0b00001111, 0b11110000 }, { 0b00001111, 0b11110000 }, { 0b01010000, 0b10101111 }},
+			{ 0b10101010, { 0b10101010, 0b10101010 }, { 0b10101010, 0b00000000 }, { 0b10101010, 0b00000000 }, { 0b11110000, 0b10101010 }},
+			{ 0b10101010, { 0b01010101, 0b11111111 }, { 0b01010101, 0b10101010 }, { 0b01010101, 0b11111111 }, { 0b11001100, 0b01100110 }},
+			{ 0b11001100, { 0b00110011, 0b11111111 }, { 0b10101010, 0b01000100 }, { 0b11001100, 0b00000000 }, { 0b01100110, 0b10101010 }},
+		};
+
+		for (const auto& i: Tests)
+		{
+			{
+				auto Value = i.Value;
+				flags::set(Value, i.Set.Value);
+				REQUIRE(Value == i.Set.Expected);
+			}
+			{
+				auto Value = i.Value;
+				flags::clear(Value, i.Clear.Value);
+				REQUIRE(Value == i.Clear.Expected);
+			}
+			{
+				auto Value = i.Value;
+				flags::invert(Value, i.Invert.Value);
+				REQUIRE(Value == i.Invert.Expected);
+			}
+			{
+				auto Value = i.Value;
+				flags::copy(Value, i.Copy.Value, i.Set.Value);
+				REQUIRE(Value == i.Copy.Expected);
+			}
+		}
+	}
+
+}
+
 TEST_CASE("utility.aligned_size")
 {
 	constexpr auto Alignment = alignof(std::max_align_t);

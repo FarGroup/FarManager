@@ -50,8 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class DizList: noncopyable
 {
 public:
-	DizList();
-
 	void Read(string_view Path, const string* DizName = nullptr);
 
 	void Set(const string& Name, const string& ShortName, const string& DizText);
@@ -76,7 +74,7 @@ private:
 	std::list<description_data> m_RemovedEntries;
 	std::list<desc_map::value_type*> m_OrderForWrite;
 	string m_DizFileName;
-	uintptr_t m_CodePage;
+	std::optional<uintptr_t> m_CodePage;
 	bool m_Modified{};
 };
 

@@ -14,16 +14,15 @@ Temporary panel configuration
 #include "TmpCfg.hpp"
 #include "TmpClass.hpp"
 #include "TmpPanel.hpp"
-#include <initguid.h>
 #include "guid.hpp"
 
 options_t Opt;
 
 int StartupOptFullScreenPanel,StartupOptCommonPanel,StartupOpenFrom;
 
-void GetOptions(void)
+void GetOptions()
 {
-	PluginSettings settings(MainGuid, Info.SettingsControl);
+	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 
 	Opt.AddToDisksMenu=settings.Get(0,L"AddToDisksMenu",1);
 	Opt.AddToPluginsMenu=settings.Get(0,L"AddToPluginsMenu",1);
@@ -49,7 +48,7 @@ int Config()
 {
 	GetOptions();
 
-	PluginDialogBuilder Builder(Info, MainGuid, ConfigDialogGuid, MConfigTitle, L"Config");
+	PluginDialogBuilder Builder(PsInfo, MainGuid, ConfigDialogGuid, MConfigTitle, L"Config");
 	Builder.StartColumns();
 	Builder.AddCheckbox(MConfigAddToDisksMenu, &Opt.AddToDisksMenu);
 	Builder.ColumnBreak();
@@ -97,7 +96,7 @@ int Config()
 
 	if (Builder.ShowDialog())
 	{
-	    PluginSettings settings(MainGuid, Info.SettingsControl);
+		PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 
 		settings.Set(0,L"AddToDisksMenu",Opt.AddToDisksMenu);
 		settings.Set(0,L"AddToPluginsMenu",Opt.AddToPluginsMenu);
@@ -121,7 +120,7 @@ int Config()
 		if (StartupOptFullScreenPanel!=Opt.FullScreenPanel || StartupOptCommonPanel!=Opt.CommonPanel)
 		{
 			const wchar_t *MsgItems[]={GetMsg(MTempPanel),GetMsg(MConfigNewOption),GetMsg(MOk)};
-			Info.Message(&MainGuid, nullptr,0,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
+			PsInfo.Message(&MainGuid, nullptr,0,{},MsgItems,ARRAYSIZE(MsgItems),1);
 		}
 		return TRUE;
 	}

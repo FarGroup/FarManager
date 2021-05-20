@@ -1,4 +1,5 @@
 ﻿#include "utils.hpp"
+#include "comutils.hpp"
 #include "sysutils.hpp"
 #include "farutils.hpp"
 #include "error.hpp"

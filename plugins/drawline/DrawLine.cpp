@@ -2,13 +2,15 @@
 #include <plugin.hpp>
 #include "DrawLng.hpp"
 #include "version.hpp"
+
+#include "guid.hpp"
 #include <initguid.h>
 #include "guid.hpp"
 
 #define DRAWLINE_MULTIEDITSTYLE 1
 
 void ProcessShiftKey(int KeyCode,int LineWidth);
-void GetEnvType(wchar_t *NewString,intptr_t StringLength,struct EditorInfo *ei, int &LeftLine,int &UpLine,int &RightLine,int &DownLine);
+void GetEnvType(wchar_t *NewString,intptr_t StringLength,EditorInfo *ei, int &LeftLine,int &UpLine,int &RightLine,int &DownLine);
 bool SetTitle(int LineWidth,int IDTitle);
 const wchar_t *GetMsg(int MsgId);
 
@@ -27,7 +29,7 @@ static short BoxUp[]    = { 1 , 1 , 1 , 2 , 0 , 0 , 2 , 2 , 0 , 2 , 2 , 1 , 0 , 
 static short BoxRight[] = { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 1 , 1 , 1 , 2 , 1 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 2 , 1 , 1 , 2 , 2 , 1 , 1 , 2 , 0 , 1 };
 static short BoxDown[]  = { 1 , 1 , 1 , 2 , 2 , 1 , 2 , 2 , 2 , 0 , 0 , 0 , 1 , 0 , 0 , 1 , 1 , 0 , 1 , 1 , 2 , 0 , 2 , 0 , 2 , 2 , 0 , 2 , 0 , 0 , 1 , 2 , 0 , 0 , 1 , 2 , 2 , 1 , 0 , 1 };
 
-static struct PluginStartupInfo Info;
+static PluginStartupInfo PsInfo;
 
 enum DirectionType{
 	TDir_None  = 0,
@@ -39,7 +41,7 @@ enum DirectionType{
 
 static DirectionType Present_Direction=TDir_None;
 
-void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 {
 	Info->StructSize=sizeof(GlobalInfo);
 	Info->MinFarVersion=FARMANAGERVERSION;
@@ -51,12 +53,12 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 }
 
 
-void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
+void WINAPI SetStartupInfoW(const PluginStartupInfo *Info)
 {
-	::Info=*Info;
+	PsInfo=*Info;
 }
 
-HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
+HANDLE WINAPI OpenW(const OpenInfo *Info)
 {
 	static bool Reenter=false;
 
@@ -74,23 +76,23 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		return nullptr;
 	}
 
-	if (OInfo->OpenFrom==OPEN_FROMMACRO)
+	if (Info->OpenFrom==OPEN_FROMMACRO)
 	{
-		OpenMacroInfo* mi=(OpenMacroInfo*)OInfo->Data;
+		OpenMacroInfo* mi=(OpenMacroInfo*)Info->Data;
 		if(mi->Count&&FMVT_STRING==mi->Values[0].Type)
 		{
-			struct MacroSendMacroText msmt={sizeof(MacroSendMacroText),0,{0},mi->Values[0].String};
-			Info.MacroControl(&MainGuid,MCTL_SENDSTRING,MSSC_POST,&msmt);
+			MacroSendMacroText msmt={sizeof(MacroSendMacroText),0,{0},mi->Values[0].String};
+			PsInfo.MacroControl(&MainGuid,MCTL_SENDSTRING,MSSC_POST,&msmt);
 		}
 	}
 
-	struct EditorUndoRedo eur={sizeof(EditorUndoRedo)};
+	EditorUndoRedo eur={sizeof(EditorUndoRedo)};
 	eur.Command=EUR_BEGIN;
-	Info.EditorControl(-1,ECTL_UNDOREDO,0,&eur);
+	PsInfo.EditorControl(-1,ECTL_UNDOREDO,0,&eur);
 
 	while (!Done)
 	{
-		if (!Info.EditorControl(-1,ECTL_READINPUT,0,&rec))
+		if (!PsInfo.EditorControl(-1,ECTL_READINPUT,0,&rec))
 			break;
 
 		if ((rec.EventType&(~0x8000))!=KEY_EVENT || !rec.Event.KeyEvent.bKeyDown)
@@ -154,7 +156,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				MousePos=rec.Event.MouseEvent.dwMousePosition;
 			}
 #endif
-			Info.EditorControl(-1,ECTL_PROCESSINPUT,0,&rec);
+			PsInfo.EditorControl(-1,ECTL_PROCESSINPUT,0,&rec);
 			continue;
 		}
 		else
@@ -173,7 +175,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 				break;
 			case VK_F1:
-				Info.ShowHelp(Info.ModuleName,NULL,0);
+				PsInfo.ShowHelp(PsInfo.ModuleName,{},0);
 				Present_Direction=TDir_None;
 				break;
 			case VK_F2:
@@ -193,15 +195,15 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				{
 					if (rec.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
 					{
-						struct EditorUndoRedo eur2={sizeof(EditorUndoRedo)};
+						EditorUndoRedo eur2={sizeof(EditorUndoRedo)};
 						eur2.Command=EUR_BEGIN;
-						Info.EditorControl(-1,ECTL_UNDOREDO,0,&eur2);
+						PsInfo.EditorControl(-1,ECTL_UNDOREDO,0,&eur2);
 
 						#if defined(DRAWLINE_MULTIEDITSTYLE)
 						if (rec.Event.KeyEvent.dwControlKeyState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED))
 						{
 							EditorInfo ei={sizeof(EditorInfo)};
-							Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
+							PsInfo.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
 							for (int i=0; i < ei.TabSize; ++i)
 								ProcessShiftKey(KeyCode,LineWidth);
@@ -210,19 +212,19 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 						#endif
 							ProcessShiftKey(KeyCode,LineWidth);
 						eur2.Command=EUR_END;
-						Info.EditorControl(-1,ECTL_UNDOREDO,0,&eur2);
+						PsInfo.EditorControl(-1,ECTL_UNDOREDO,0,&eur2);
 					}
 					else
 					{
 						Present_Direction=TDir_None;
-						Info.EditorControl(-1,ECTL_PROCESSINPUT,0,&rec);
+						PsInfo.EditorControl(-1,ECTL_PROCESSINPUT,0,&rec);
 					}
 				}
 				else
 				{
 					Present_Direction=TDir_None;
 					if (KeyCode < VK_F3 || KeyCode > VK_F12)
-						Info.EditorControl(-1,ECTL_PROCESSINPUT,0,&rec);
+						PsInfo.EditorControl(-1,ECTL_PROCESSINPUT,0,&rec);
 
 					continue;
 				}
@@ -231,11 +233,11 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		}
 	}
 
-	Info.EditorControl(-1,ECTL_SETTITLE,0,0);
-	Info.EditorControl(-1,ECTL_SETKEYBAR,0,0);
+	PsInfo.EditorControl(-1,ECTL_SETTITLE,0,{});
+	PsInfo.EditorControl(-1,ECTL_SETKEYBAR,0,{});
 
 	eur.Command=EUR_END;
-	Info.EditorControl(-1,ECTL_UNDOREDO,0,&eur);
+	PsInfo.EditorControl(-1,ECTL_UNDOREDO,0,&eur);
 
 	Reenter=false;
 	return nullptr;
@@ -245,9 +247,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 bool SetTitle(int LineWidth,int IDTitle)
 {
 	const DWORD control[] = {0, LEFT_CTRL_PRESSED, LEFT_ALT_PRESSED, SHIFT_PRESSED, SHIFT_PRESSED|LEFT_CTRL_PRESSED, SHIFT_PRESSED|LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED};
-	struct KeyBarLabel kbl[24*7];
-	struct KeyBarTitles kbt = {ARRAYSIZE(kbl), kbl};
-	struct FarSetKeyBarTitles fskbt = {sizeof(FarSetKeyBarTitles), &kbt};
+	KeyBarLabel kbl[24*7];
+	KeyBarTitles kbt = {ARRAYSIZE(kbl), kbl};
+	FarSetKeyBarTitles fskbt = {sizeof(FarSetKeyBarTitles), &kbt};
 
 	for (int c=0, i=0; c<7; c++)
 	{
@@ -264,8 +266,8 @@ bool SetTitle(int LineWidth,int IDTitle)
 	kbl[2-1].Text=kbl[2-1].LongText=GetMsg((LineWidth==1)?MDouble:MSingle);
 	kbl[10-1].Text=kbl[10-1].LongText=GetMsg(MQuit);
 
-	if (Info.EditorControl(-1,ECTL_SETKEYBAR,0,&fskbt))
-		if (Info.EditorControl(-1,ECTL_SETTITLE,0,(void *)GetMsg(IDTitle)))
+	if (PsInfo.EditorControl(-1,ECTL_SETKEYBAR,0,&fskbt))
+		if (PsInfo.EditorControl(-1,ECTL_SETTITLE,0,const_cast<wchar_t*>(GetMsg(IDTitle))))
 			return true;
 
 	return false;
@@ -274,8 +276,8 @@ bool SetTitle(int LineWidth,int IDTitle)
 void ProcessShiftKey(int KeyCode,int LineWidth)
 {
 	EditorInfo ei={sizeof(EditorInfo)};
-	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
-	struct EditorSetPosition esp={sizeof(EditorSetPosition)};
+	PsInfo.EditorControl(-1,ECTL_GETINFO,0,&ei);
+	EditorSetPosition esp={sizeof(EditorSetPosition)};
 	esp.CurLine=ei.CurLine;
 	esp.CurPos=ei.CurTabPos;
 	esp.CurTabPos=-1;
@@ -286,36 +288,36 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 	if (ei.CurLine>0)
 	{
 		intptr_t StringNumber=ei.CurLine-1;
-		Info.EditorControl(-1,ECTL_EXPANDTABS,0,&StringNumber);
+		PsInfo.EditorControl(-1,ECTL_EXPANDTABS,0,&StringNumber);
 	}
 
-	Info.EditorControl(-1,ECTL_EXPANDTABS,0,&ei.CurLine);
+	PsInfo.EditorControl(-1,ECTL_EXPANDTABS,0,&ei.CurLine);
 
 	if (ei.CurLine>=ei.TotalLines-1)
 	{
-		struct EditorGetString egs={sizeof(EditorGetString)};
+		EditorGetString egs={sizeof(EditorGetString)};
 		egs.StringNumber=ei.CurLine;
-		Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
+		PsInfo.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
-		struct EditorSetPosition esp={sizeof(EditorSetPosition)};
-		esp.CurLine=ei.CurLine;
-		esp.CurPos=egs.StringLength;
-		esp.CurTabPos=-1;
-		esp.TopScreenLine=-1;
-		esp.LeftPos=-1;
-		esp.Overtype=-1;
-		Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
-		Info.EditorControl(-1,ECTL_INSERTSTRING,0,0);
+		EditorSetPosition SetPos={sizeof(EditorSetPosition)};
+		SetPos.CurLine=ei.CurLine;
+		SetPos.CurPos=egs.StringLength;
+		SetPos.CurTabPos=-1;
+		SetPos.TopScreenLine=-1;
+		SetPos.LeftPos=-1;
+		SetPos.Overtype=-1;
+		PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&SetPos);
+		PsInfo.EditorControl(-1,ECTL_INSERTSTRING,0,{});
 
-		esp.CurLine=ei.CurLine;
-		esp.CurPos=ei.CurTabPos;
-		Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+		SetPos.CurLine=ei.CurLine;
+		SetPos.CurPos=ei.CurTabPos;
+		PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&SetPos);
 	}
 
 	if (ei.CurLine<ei.TotalLines-1)
 	{
 		intptr_t StringNumber=ei.CurLine+1;
-		Info.EditorControl(-1,ECTL_EXPANDTABS,0,&StringNumber);
+		PsInfo.EditorControl(-1,ECTL_EXPANDTABS,0,&StringNumber);
 	}
 
 	#if defined(DRAWLINE_MULTIEDITSTYLE)
@@ -362,15 +364,15 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 	}
 
 	if (shiftCursor)
-		Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+		PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 
 	#endif
 
-	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
+	PsInfo.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
-	struct EditorGetString egs={sizeof(EditorGetString)};
+	EditorGetString egs={sizeof(EditorGetString)};
 	egs.StringNumber=ei.CurLine;
-	Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
+	PsInfo.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
 	intptr_t StringLength=egs.StringLength>ei.CurPos ? egs.StringLength:ei.CurPos+1;
 	wchar_t *NewString=(wchar_t *)malloc(StringLength*sizeof(wchar_t));
@@ -448,14 +450,14 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 		if (LeftLine==BoxLeft[I] && UpLine==BoxUp[I] && RightLine==BoxRight[I] && DownLine==BoxDown[I])
 		{
 			NewString[ei.CurPos]=BoxChar[I];
-			struct EditorSetString ess={sizeof(EditorSetString)};
+			EditorSetString ess={sizeof(EditorSetString)};
 			ess.StringNumber=egs.StringNumber;
 			ess.StringText=NewString;
-			ess.StringEOL=(wchar_t*)egs.StringEOL;
+			ess.StringEOL=const_cast<wchar_t*>(egs.StringEOL);
 			ess.StringLength=StringLength;
-			Info.EditorControl(-1,ECTL_SETSTRING,0,&ess);
-			Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
-			Info.EditorControl(-1,ECTL_REDRAW,0,0);
+			PsInfo.EditorControl(-1,ECTL_SETSTRING,0,&ess);
+			PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+			PsInfo.EditorControl(-1,ECTL_REDRAW,0,{});
 			break;
 		}
 	}
@@ -464,7 +466,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 }
 
 
-void GetEnvType(wchar_t *NewString,intptr_t StringLength,struct EditorInfo *ei,
+void GetEnvType(wchar_t *NewString,intptr_t StringLength,EditorInfo *ei,
                 int &LeftLine,int &UpLine,int &RightLine,int &DownLine)
 {
 	wchar_t OldChar[3];
@@ -480,9 +482,9 @@ void GetEnvType(wchar_t *NewString,intptr_t StringLength,struct EditorInfo *ei,
 
 	if (ei->CurLine>0)
 	{
-		struct EditorGetString UpStr={sizeof(EditorGetString)};
+		EditorGetString UpStr={sizeof(EditorGetString)};
 		UpStr.StringNumber=ei->CurLine-1;
-		Info.EditorControl(-1,ECTL_GETSTRING,0,&UpStr);
+		PsInfo.EditorControl(-1,ECTL_GETSTRING,0,&UpStr);
 
 		if (ei->CurPos<UpStr.StringLength)
 			UpChar=UpStr.StringText[ei->CurPos];
@@ -490,9 +492,9 @@ void GetEnvType(wchar_t *NewString,intptr_t StringLength,struct EditorInfo *ei,
 
 	if (ei->CurLine<ei->TotalLines-1)
 	{
-		struct EditorGetString DownStr={sizeof(EditorGetString)};
+		EditorGetString DownStr={sizeof(EditorGetString)};
 		DownStr.StringNumber=ei->CurLine+1;
-		Info.EditorControl(-1,ECTL_GETSTRING,0,&DownStr);
+		PsInfo.EditorControl(-1,ECTL_GETSTRING,0,&DownStr);
 
 		if (ei->CurPos<DownStr.StringLength)
 			DownChar=DownStr.StringText[ei->CurPos];
@@ -517,7 +519,7 @@ void GetEnvType(wchar_t *NewString,intptr_t StringLength,struct EditorInfo *ei,
 }
 
 
-void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+void WINAPI GetPluginInfoW(PluginInfo *Info)
 {
 	Info->StructSize=sizeof(*Info);
 	Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
@@ -530,5 +532,5 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 
 const wchar_t *GetMsg(int MsgId)
 {
-	return Info.GetMsg(&MainGuid,MsgId);
+	return PsInfo.GetMsg(&MainGuid,MsgId);
 }

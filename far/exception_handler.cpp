@@ -41,10 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "config.hpp"
 #include "dialog.hpp"
-#include "farcolor.hpp"
-#include "colormix.hpp"
 #include "interf.hpp"
-#include "keys.hpp"
 #include "keyboard.hpp"
 #include "lang.hpp"
 #include "language.hpp"
@@ -58,6 +55,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "eol.hpp"
 #include "log.hpp"
+#include "datetime.hpp"
+#include "execute.hpp"
+#include "FarDlgBuilder.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.version.hpp"
 
 // Common:
+#include "common/scope_exit.hpp"
 #include "common/view/zip.hpp"
 
 // External:
@@ -126,6 +127,12 @@ void disable_exception_handling()
 	LOGWARNING(L"Exception handling disabled"sv);
 }
 
+static std::atomic_size_t s_ExceptionHandlingInprogress;
+bool exception_handling_in_progress()
+{
+	return s_ExceptionHandlingInprogress != 0;
+}
+
 void force_stderr_exception_ui(bool const Force)
 {
 	ForceStderrExceptionUI = Force;
@@ -148,53 +155,60 @@ static void get_backtrace(string_view const Module, span<uintptr_t const> const 
 
 	if (!NestedStack.empty())
 	{
-		tracer::get_symbols(Module, NestedStack, Consumer);
+		tracer.get_symbols(Module, NestedStack, Consumer);
 		Separator(L"Rethrow:"s);
 	}
 
-	tracer::get_symbols(Module, Stack, Consumer);
+	tracer.get_symbols(Module, Stack, Consumer);
 
 	Separator(L"Current stack:"s);
-	tracer::get_symbols(Module, os::debug::current_stack(), Consumer);
+	tracer.get_symbols(Module, os::debug::current_stack(), Consumer);
 }
 
-static void show_backtrace(string_view const Module, span<uintptr_t const> const Stack, span<uintptr_t const> const NestedStack, bool const UseDialog)
+static string get_report_location()
 {
-	if (UseDialog)
-	{
-		std::vector<string> Symbols;
-		Symbols.reserve(Stack.size() + (NestedStack.empty()? 0 : NestedStack.size() + 3));
-		get_backtrace(Module, Stack, NestedStack, [&](string&& Line)
-		{
-			Symbols.emplace_back(std::move(Line));
-		});
+	auto [Date, Time] = get_time();
+	std::replace(ALL_RANGE(Date), L'/', L'.');
+	std::replace(ALL_RANGE(Time), L':', L'.');
 
-		Message(MSG_WARNING | MSG_LEFTALIGN,
-			msg(lng::MExcTrappedException),
-			std::move(Symbols),
-			{ lng::MOk });
-	}
-	else
+	const auto SubDir = format(L"Far.{}_{}_{}"sv, Date, Time, GetCurrentProcessId());
+
+	if (const auto CrashLogs = path::join(Global->Opt->LocalProfilePath, L"CrashLogs"); os::fs::is_directory(CrashLogs) || os::fs::create_directory(CrashLogs))
 	{
-		get_backtrace(Module, Stack, NestedStack, [&](string_view const Line)
+		if (const auto Path = path::join(CrashLogs, SubDir); os::fs::create_directory(Path))
 		{
-			std::wcout << Line << L'\n';
-		});
+			return Path;
+		}
 	}
+
+	if (string TempPath; os::fs::GetTempPath(TempPath))
+	{
+		if (const auto Path = path::join(TempPath, SubDir); os::fs::create_directory(Path))
+		{
+			return Path;
+		}
+	}
+
+	if (os::fs::create_directory(SubDir))
+		return SubDir;
+
+	return L"."s;
 }
 
-static auto minidump_path()
+static bool write_report(string_view const Data, string_view const Directory)
 {
-	// TODO: subdirectory && timestamp
-	return path::join(Global->Opt->LocalProfilePath, L"Far.mdmp"sv);
+	os::fs::file const File(path::join(Directory, L"bug_report.txt"sv), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
+	if (!File)
+		return false;
+	return File.Write(Data.data(), Data.size() * sizeof(decltype(Data)::value_type));
 }
 
-static bool write_minidump(const exception_context& Context, string_view const Path)
+static bool write_minidump(const exception_context& Context, string_view const Directory)
 {
 	if (!imports.MiniDumpWriteDump)
 		return false;
 
-	const os::fs::file DumpFile(Path, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
+	const os::fs::file DumpFile(path::join(Directory, L"Far.mdmp"sv), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
 	if (!DumpFile)
 		return false;
 
@@ -333,7 +347,6 @@ struct dialog_data_type
 	span<uintptr_t const> NestedStack;
 	string_view Module;
 	span<string_view const> Labels, Values;
-	size_t LabelsWidth;
 };
 
 static void read_registers(string& To, CONTEXT const& Context, string_view const Eol)
@@ -382,13 +395,12 @@ static void read_registers(string& To, CONTEXT const& Context, string_view const
 #endif
 }
 
-static void copy_information(
+static string collect_information(
 	exception_context const& Context,
 	span<uintptr_t const> NestedStack,
 	string_view const Module,
 	span<string_view const> const Labels,
-	span<string_view const> const Values,
-	size_t const LabelsWidth
+	span<string_view const> const Values
 )
 {
 	string Strings;
@@ -398,7 +410,7 @@ static void copy_information(
 
 	for (const auto& [Label, Value]: zip(Labels, Values))
 	{
-		format_to(Strings, FSTR(L"{:{}} {}{}"sv), Label, LabelsWidth, Value, Eol);
+		format_to(Strings, FSTR(L"{} {}{}"sv), Label, Value, Eol);
 	}
 
 	append(Strings, Eol);
@@ -406,7 +418,7 @@ static void copy_information(
 	read_registers(Strings, Context.context_record(), Eol);
 	append(Strings, Eol);
 
-	get_backtrace(Module, tracer::get(Module, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
+	get_backtrace(Module, tracer.get(Module, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
 	{
 		append(Strings, Line, Eol);
 	});
@@ -414,329 +426,81 @@ static void copy_information(
 
 	read_modules(Strings, Eol);
 
-	SetClipboardText(Strings);
+	return Strings;
 }
 
-enum exception_dialog
-{
-	ed_doublebox,
-	ed_first_line,
-	ed_text_exception = ed_first_line,
-	ed_edit_exception,
-	ed_text_details,
-	ed_edit_details,
-	ed_text_errno,
-	ed_edit_errno,
-	ed_text_lasterror,
-	ed_edit_lasterror,
-	ed_text_ntstatus,
-	ed_edit_ntstatus,
-	ed_text_address,
-	ed_edit_address,
-	ed_text_function,
-	ed_edit_function,
-	ed_text_source,
-	ed_edit_source,
-	ed_text_module,
-	ed_edit_module,
-	ed_text_plugin_information,
-	ed_edit_plugin_information,
-	ed_text_far_version,
-	ed_edit_far_version,
-	ed_text_os_version,
-	ed_edit_os_version,
-	ed_text_kernel_version,
-	ed_edit_kernel_version,
-	ed_last_line = ed_edit_kernel_version,
-	ed_separator_1,
-	ed_button_copy,
-	ed_button_stack,
-	ed_button_minidump,
-	ed_separator_2,
-	ed_button_terminate,
-	ed_button_unload,
-	ed_button_ignore,
-
-	ed_first_button = ed_button_copy,
-	ed_last_button = ed_button_ignore,
-
-	ed_items_count
-};
-
-static intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
-{
-	const auto copy_information = [&]
-	{
-		const auto& Data = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-		::copy_information(*Data.Context, Data.NestedStack, Data.Module, Data.Labels, Data.Values, Data.LabelsWidth);
-	};
-
-	switch (Msg)
-	{
-		case DN_CTLCOLORDLGITEM:
-		{
-			FarDialogItem di;
-			Dlg->SendMessage(DM_GETDLGITEMSHORT,Param1,&di);
-
-			if (di.Type != DI_EDIT)
-				break;
-
-			const auto& Color = colors::PaletteColorToFarColor(COL_WARNDIALOGTEXT);
-			auto& Colors = *static_cast<FarDialogItemColors*>(Param2);
-			Colors.Colors[0] = Color;
-			Colors.Colors[2] = Color;
-		}
-		break;
-
-		case DN_CONTROLINPUT:
-		{
-			const auto& record = *static_cast<const INPUT_RECORD *>(Param2);
-			if (record.EventType == KEY_EVENT)
-			{
-				switch (InputRecordToKey(&record))
-				{
-				case KEY_LEFT:
-				case KEY_NUMPAD4:
-				case KEY_SHIFTTAB:
-					if (Param1 == ed_first_button)
-					{
-						Dlg->SendMessage(DM_SETFOCUS, ed_last_button, nullptr);
-						return TRUE;
-					}
-					break;
-
-				case KEY_RIGHT:
-				case KEY_NUMPAD6:
-				case KEY_TAB:
-					if (Param1 == ed_last_button)
-					{
-						Dlg->SendMessage(DM_SETFOCUS, ed_first_button, nullptr);
-						return TRUE;
-					}
-					break;
-
-				case KEY_CTRLC:
-				case KEY_RCTRLC:
-				case KEY_CTRLINS:
-				case KEY_RCTRLINS:
-				case KEY_CTRLNUMPAD0:
-				case KEY_RCTRLNUMPAD0:
-					copy_information();
-					break;
-				}
-			}
-		}
-		break;
-
-		case DN_CLOSE:
-		{
-			const auto& Data = *reinterpret_cast<dialog_data_type*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-
-			switch (Param1)
-			{
-			case ed_button_copy:
-				copy_information();
-				return FALSE;
-
-			case ed_button_stack:
-				show_backtrace(Data.Module, tracer::get(Data.Module, Data.Context->context_record(), Data.Context->thread_handle()), Data.NestedStack, true);
-				return FALSE;
-
-			case ed_button_minidump:
-				{
-					auto Path = minidump_path();
-					if (write_minidump(*Data.Context, Path))
-					{
-						Message(0,
-							msg(lng::MExcMinidump),
-							{
-								msg(lng::MExcMinidumpSuccess),
-								std::move(Path)
-							},
-							{ lng::MOk });
-					}
-					else
-					{
-						const auto ErrorState = last_error();
-						Message(MSG_WARNING, ErrorState,
-							msg(lng::MError),
-							{
-								msg(lng::MEditCannotSave),
-								std::move(Path)
-							},
-							{ lng::MOk });
-					}
-
-				}
-				return FALSE;
-			}
-		}
-		break;
-
-	default:
-		break;
-	}
-	return Dlg->DefProc(Msg,Param1,Param2);
-}
-
-static size_t max_item_size(span<string_view const> const Items)
-{
-	return std::max_element(ALL_CONST_RANGE(Items), [](string_view const Str1, string_view const Str2)
-	{
-		return Str1.size() < Str2.size();
-	})->size();
-}
-
-static bool ExcDialog(
-	exception_context const& Context,
-	span<uintptr_t const> const NestedStack,
-	string_view const ModuleName,
-	span<string_view const> const Labels,
-	span<string_view const> const Values,
-	size_t const LabelsWidth,
-	Plugin const* const PluginModule
-)
+static bool ExcDialog(string const& ReportLocation, bool const CanUnload)
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
 
-	const auto SysArea = 5;
-	const auto C1X = 5;
-	const auto C1W = static_cast<int>(LabelsWidth);
-	const auto C2X = C1X + C1W + 1;
-	const auto DlgW = std::max(80, std::min(ScrX + 1, static_cast<int>(C2X + max_item_size(Values) + SysArea + 1)));
-	const auto C2W = DlgW - C2X - SysArea - 1;
+	DialogBuilder Builder(lng::MExceptionDialogTitle);
+	Builder.AddText(lng::MExceptionDialogMessage1);
+	Builder.AddText(lng::MExceptionDialogMessage2);
+	Builder.AddConstEditField(ReportLocation, 70);
+	Builder.AddSeparator();
 
-	const auto DY = static_cast<int>(Values.size() + 8);
-
-	auto EditDlg = MakeDialogItems<ed_items_count>(
+	if (CanUnload)
 	{
-		{ DI_DOUBLEBOX, {{3,   1 }, {DlgW-4,DY-2}}, DIF_NONE, msg(lng::MExcTrappedException), },
-
-#define LABEL_AND_VALUE(n)\
-		{ DI_TEXT,  {{C1X, n+2 }, {C1X+C1W, n+2 }}, DIF_NONE, Labels[n], },\
-		{ DI_EDIT,  {{C2X, n+2 }, {C2X+C2W, n+2 }}, DIF_READONLY | DIF_SELECTONENTRY, Values[n], }
-
-		LABEL_AND_VALUE(0),
-		LABEL_AND_VALUE(1),
-		LABEL_AND_VALUE(2),
-		LABEL_AND_VALUE(3),
-		LABEL_AND_VALUE(4),
-		LABEL_AND_VALUE(5),
-		LABEL_AND_VALUE(6),
-		LABEL_AND_VALUE(7),
-		LABEL_AND_VALUE(8),
-		LABEL_AND_VALUE(9),
-		LABEL_AND_VALUE(10),
-		LABEL_AND_VALUE(11),
-		LABEL_AND_VALUE(12),
-
-#undef LABEL_AND_VALUE
-
-		{ DI_TEXT,      {{-1,DY-6}, {0,     DY-6}}, DIF_SEPARATOR, },
-		{ DI_BUTTON,    {{0, DY-5}, {0,     DY-5}}, DIF_CENTERGROUP | DIF_FOCUS, msg(lng::MExcCopy), },
-		{ DI_BUTTON,    {{0, DY-5}, {0,     DY-5}}, DIF_CENTERGROUP, msg(lng::MExcStack), },
-		{ DI_BUTTON,    {{0, DY-5}, {0,     DY-5}}, DIF_CENTERGROUP, msg(lng::MExcMinidump), },
-		{ DI_TEXT,      {{-1,DY-4}, {0,     DY-4}}, DIF_SEPARATOR, },
-		{ DI_BUTTON,    {{0, DY-3}, {0,     DY-3}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MExcTerminate), },
-		{ DI_BUTTON,    {{0, DY-3}, {0,     DY-3}}, DIF_CENTERGROUP | (PluginModule? DIF_NONE : DIF_DISABLE | DIF_HIDDEN), msg(lng::MExcUnload), },
-		{ DI_BUTTON,    {{0, DY-3}, {0,     DY-3}}, DIF_CENTERGROUP, msg(lng::MIgnore), },
-	});
-
-	dialog_data_type DlgData{ &Context, NestedStack, ModuleName, Labels, Values };
-	const auto Dlg = Dialog::create(EditDlg, ExcDlgProc, &DlgData);
-	Dlg->SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
-	Dlg->SetFlags(FSCROBJ_SPECIAL);
-	Dlg->SetPosition({ -1, -1, DlgW, static_cast<int>(DY) });
-	Dlg->Process();
-
-	switch (Dlg->GetExitCode())
+		lng const MsgIDs[]{ lng::MExcTerminate, lng::MExcUnload, lng::MIgnore };
+		Builder.AddButtons(MsgIDs, 0, 2);
+	}
+	else
 	{
-	case ed_button_terminate:
+		lng const MsgIDs[]{ lng::MExcTerminate, lng::MIgnore };
+		Builder.AddButtons(MsgIDs, 0, 1);
+	}
+
+	Builder.SetDialogMode(DMODE_WARNINGSTYLE | DMODE_NOPLUGINS);
+	Builder.SetScrObjFlags(FSCROBJ_SPECIAL);
+
+	switch (Builder.ShowDialogEx())
+	{
+	case 0: // Terminate
 		UseTerminateHandler = true;
-		[[fallthrough]];
-	case ed_button_unload:
 		return true;
+
+	case 1: // Unload / Ignore
+		return CanUnload;
 
 	default:
 		return false;
 	}
 }
 
-static bool ExcConsole(
-	exception_context const& Context,
-	span<uintptr_t const> const NestedStack,
-	string_view const ModuleName,
-	span<string_view const> const Labels,
-	span<string_view const> const Values,
-	size_t const LabelsWidth,
-	Plugin const* const PluginModule
-)
+static bool ExcConsole(string const& ReportLocation, bool)
 {
 	const auto Eol = eol::std.str();
 
-	std::wcerr << Eol;
-
-	for (const auto& [m, v]: zip(Labels, Values))
+	std::array Msgs
 	{
-		const auto Label = fit_to_left(string(m), max_item_size(Labels));
-		std::wcerr << Label << L' ' << v << Eol;
-	}
-
-	enum class action
-	{
-		copy,
-		stack,
-		minidump,
-		terminate,
-		ignore,
-
-		count
+		L"Oops"sv,
+		L"Something went wrong."sv,
+		L"Please send the bug report to the developers."sv,
 	};
 
-	constexpr auto Keys = L"CSDTI"sv;
-	static_assert(Keys.size() == static_cast<size_t>(action::count));
-
-	for (;;)
+	if (far_language::instance().is_loaded())
 	{
-		switch (static_cast<action>(ConsoleChoice(
-			L"C - Copy to the clipboard\n"
-			L"S - Show the call stack\n"
-			L"D - Create a minidump\n"
-			L"T - Terminate the process\n"
-			L"I - Ignore\n"
-			L"Action"sv, Keys, static_cast<size_t>(action::terminate))
-		))
+		Msgs =
 		{
-		case action::copy:
-			copy_information(Context, NestedStack, ModuleName, Labels, Values, LabelsWidth);
-			break;
-
-		case action::stack:
-			show_backtrace(ModuleName, tracer::get(ModuleName, Context.context_record(), Context.thread_handle()), NestedStack, false);
-			break;
-
-		case action::minidump:
-			{
-				auto Path = minidump_path();
-				if (write_minidump(Context, Path))
-					std::wcout << Eol << Path << std::endl;
-				else
-					std::wcerr << Eol << last_error().Win32ErrorStr() << std::endl;
-			}
-			break;
-
-		case action::terminate:
-			UseTerminateHandler = PluginModule != nullptr;
-			return true;
-
-		case action::ignore:
-			return false;
-
-		default:
-			UNREACHABLE;
-		}
+			msg(lng::MExceptionDialogTitle),
+			msg(lng::MExceptionDialogMessage1),
+			msg(lng::MExceptionDialogMessage2),
+		};
 	}
+
+	std::wcerr << Eol << Eol;
+
+	for (const auto& i: Msgs)
+		std::wcerr << i << Eol;
+
+	std::wcerr << ReportLocation << Eol;
+
+	if (!ConsoleYesNo(L"Terminate the process"sv, true))
+		return false;
+
+	UseTerminateHandler = true;
+	return true;
 }
 
 static bool ShowExceptionUI(
@@ -753,10 +517,10 @@ static bool ShowExceptionUI(
 	span<uintptr_t const> const NestedStack
 )
 {
-	SCOPED_ACTION(tracer::with_symbols)(PluginModule? ModuleName : L""sv);
+	SCOPED_ACTION(tracer_detail::tracer::with_symbols)(PluginModule? ModuleName : L""sv);
 
 	string Address, Name, Source;
-	tracer::get_symbol(ModuleName, Context.exception_record().ExceptionAddress, Address, Name, Source);
+	tracer.get_symbol(ModuleName, Context.exception_record().ExceptionAddress, Address, Name, Source);
 
 	if (!Name.empty())
 		append(Address, L" - "sv, Name);
@@ -824,7 +588,6 @@ static bool ShowExceptionUI(
 	};
 
 	static_assert(std::size(Labels) == std::size(Values));
-	static_assert(std::size(Labels) == (ed_last_line - ed_first_line) / 2 + 1);
 
 	const auto log_message = [&]
 	{
@@ -835,7 +598,7 @@ static bool ShowExceptionUI(
 
 		Message += L"\n\n"sv;
 
-		get_backtrace(ModuleName, tracer::get(ModuleName, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
+		get_backtrace(ModuleName, tracer.get(ModuleName, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
 		{
 			append(Message, Line, L'\n');
 		});
@@ -845,15 +608,25 @@ static bool ShowExceptionUI(
 
 	LOG(PluginModule? logging::level::error : logging::level::fatal, L"\n{}\n"sv, log_message());
 
-	return (UseDialog? ExcDialog : ExcConsole)(
-		Context,
-		NestedStack,
-		ModuleName,
-		Labels,
-		span(Values), // This goofy explicit span() is a workaround for GCC
-		max_item_size(Labels),
-		PluginModule
-	);
+	const auto CanUnload = PluginModule != nullptr;
+	const auto ReportLocation = get_report_location();
+	const auto BugReport = collect_information(Context, NestedStack, ModuleName, Labels, Values);
+	const auto ReportOnDisk = write_report(BugReport, ReportLocation);
+	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
+	const auto Minidump = write_minidump(Context, ReportLocation);
+	const auto AnythingOnDisk = ReportOnDisk || Minidump;
+
+	if (AnythingOnDisk)
+		OpenFolderInShell(ReportLocation);
+
+	if (AnythingOnDisk || ReportInClipboard)
+		return (UseDialog? ExcDialog : ExcConsole)(
+			AnythingOnDisk? ReportLocation : msg(lng::MExceptionDialogClipboard),
+			CanUnload
+		);
+
+	// Should never happen - neither the filesystem nor clipboard are writable, so just dump it to the screen:
+	return ExcConsole(BugReport, CanUnload);
 }
 
 
@@ -1075,14 +848,13 @@ static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_vie
 	return WithType(format(FSTR(L"0x{:0>8X} - {}"sv), ExceptionRecord.ExceptionCode, Name));
 }
 
-static string exception_details(EXCEPTION_RECORD const& ExceptionRecord, string_view const Message)
+static string exception_details(string_view const Module, EXCEPTION_RECORD const& ExceptionRecord, string_view const Message)
 {
 	switch (static_cast<NTSTATUS>(ExceptionRecord.ExceptionCode))
 	{
 	case EXCEPTION_ACCESS_VIOLATION:
 	case EXCEPTION_IN_PAGE_ERROR:
 	{
-		const auto AccessedAddress = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
 		const auto Mode = [](ULONG_PTR Code)
 		{
 			switch (Code)
@@ -1094,7 +866,16 @@ static string exception_details(EXCEPTION_RECORD const& ExceptionRecord, string_
 			}
 		}(ExceptionRecord.ExceptionInformation[0]);
 
-		return format(FSTR(L"Memory at {} could not be {}"sv), AccessedAddress, Mode);
+		string Symbol;
+		tracer.get_symbols(Module, { ExceptionRecord.ExceptionInformation[1] }, [&](string&& Line)
+		{
+			Symbol = std::move(Line);
+		});
+
+		if (Symbol.empty())
+			Symbol = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
+
+		return format(FSTR(L"Memory at {} could not be {}"sv), Symbol, Mode);
 	}
 
 	case EXCEPTION_MICROSOFT_CPLUSPLUS:
@@ -1121,9 +902,11 @@ static bool handle_generic_exception(
 	if (ExceptionHandlingIgnored)
 		return false;
 
+	if (exception_handling_in_progress())
+		return true;
 
-	if (Global)
-		Global->ProcessException = true;
+	++s_ExceptionHandlingInprogress;
+	SCOPE_EXIT{ --s_ExceptionHandlingInprogress; };
 
 	{
 		auto ExceptionRecord = Context.exception_record();
@@ -1153,7 +936,7 @@ static bool handle_generic_exception(
 	}
 
 	const auto Exception = exception_name(Context.exception_record(), Type);
-	const auto Details = exception_details(Context.exception_record(), Message);
+	const auto Details = exception_details(strFileName, Context.exception_record(), Message);
 
 	const auto PluginInformation = PluginModule? format(FSTR(L"{} {} ({}, {})"sv),
 		PluginModule->Title(),
@@ -1239,7 +1022,7 @@ public:
 	far_wrapper_exception(std::string_view const Function, std::string_view const File, int const Line):
 		far_exception(true, L"exception_ptr"sv, Function, File, Line),
 		m_ThreadHandle(std::make_shared<os::handle>(os::OpenCurrentThread())),
-		m_Stack(tracer::get({}, *exception_information().ContextRecord, m_ThreadHandle->native_handle()))
+		m_Stack(tracer.get({}, *exception_information().ContextRecord, m_ThreadHandle->native_handle()))
 	{
 	}
 
@@ -1348,7 +1131,7 @@ static bool handle_std_exception(
 			{},
 			SehException->message(),
 			*SehException,
-			tracer::get({}, SehException->context().context_record(), SehException->context().thread_handle())
+			tracer.get({}, SehException->context().context_record(), SehException->context().thread_handle())
 		);
 	}
 
@@ -1515,6 +1298,37 @@ purecall_handler::~purecall_handler()
 	set_purecall_handler(m_PreviousHandler);
 }
 
+static void invalid_parameter_handler_impl(const wchar_t* const Expression, const wchar_t* const Function, const wchar_t* const File, unsigned int const Line, uintptr_t const Reserved)
+{
+	exception_context const Context
+	({
+		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(EXCEPTION_TERMINATE)),
+		static_cast<CONTEXT*>(*dummy_current_exception_context())
+	});
+
+	if (handle_generic_exception(
+		Context,
+		Function? encoding::utf8::get_bytes(Function) : CURRENT_FUNCTION_NAME,
+		format(FSTR(L"{}({})"sv), File? File : WIDE(CURRENT_FILE_NAME), File? Line : __LINE__),
+		{},
+		{},
+		Expression? Expression : L"Invalid parameter"sv
+	))
+		std::abort();
+
+	restore_system_exception_handler();
+}
+
+invalid_parameter_handler::invalid_parameter_handler():
+	m_PreviousHandler(_set_invalid_parameter_handler(invalid_parameter_handler_impl))
+{
+}
+
+invalid_parameter_handler::~invalid_parameter_handler()
+{
+	_set_invalid_parameter_handler(m_PreviousHandler);
+}
+
 namespace detail
 {
 	void cpp_try(function_ref<void()> const Callable, function_ref<void()> const UnknownHandler, function_ref<void(std::exception const&)> const StdHandler)
@@ -1628,7 +1442,18 @@ namespace detail
 			return EXCEPTION_CONTINUE_SEARCH;
 		}
 
-		Ptr = std::make_exception_ptr(MAKE_EXCEPTION(seh_exception, *Info, true, concat(exception_name(*Info->ExceptionRecord, {}), L" - "sv, exception_details(*Info->ExceptionRecord, {}))));
+		Ptr = std::make_exception_ptr(
+			MAKE_EXCEPTION(
+				seh_exception,
+				*Info,
+				true,
+				concat(
+					exception_name(*Info->ExceptionRecord, {}),
+					L" - "sv,
+					exception_details({}, *Info->ExceptionRecord, {})
+				)
+			)
+		);
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
 

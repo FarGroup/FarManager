@@ -14,7 +14,7 @@
 
 #include "NetClass.hpp"
 
-typedef struct _FAVORITEITEM
+struct FAVORITEITEM
 {
 	wchar_t *lpRemoteName;
 	int ccRemoteName;
@@ -22,7 +22,7 @@ typedef struct _FAVORITEITEM
 	int ccUserName;
 	wchar_t *lpPassword;
 	int ccPassword;
-} FAVORITEITEM, *LPFAVORITEITEM;
+};
 
 #define FAVORITES_UPBROWSE_TO_FAVORITES 0x01L
 #define FAVORITES_CHECK_RESOURCES       0x02L
@@ -31,8 +31,8 @@ typedef struct _FAVORITEITEM
 
 BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList);
 BOOL CheckFavoriteItem(const LPNETRESOURCE pNR);
-void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, wchar_t* szFolderName=NULL);
-BOOL ReadFavoriteItem(LPFAVORITEITEM lpFavItem);
+void WriteFavoriteItem(FAVORITEITEM* lpFavItem, wchar_t* szFolderName={});
+BOOL ReadFavoriteItem(FAVORITEITEM* lpFavItem);
 BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent);
 BOOL GetFavoriteResource(const wchar_t *SrcName, LPNETRESOURCE DstNetResource);
 

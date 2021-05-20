@@ -598,7 +598,7 @@ bool Plugin::LoadData()
 		Info.StructSize &&
 		Info.Title && *Info.Title &&
 		Info.Description && *Info.Description &&
- 		Info.Author && *Info.Author)
+		Info.Author && *Info.Author)
 	{
 		m_MinFarVersion = Info.MinFarVersion;
 		m_PluginVersion = Info.Version;
@@ -804,7 +804,7 @@ bool Plugin::IsPanelPlugin()
 bool Plugin::SetStartupInfo(PluginStartupInfo *Info)
 {
 	ExecuteStruct<iSetStartupInfo> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -873,7 +873,7 @@ void* Plugin::OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, siz
 void* Plugin::Analyse(AnalyseInfo* Info)
 {
 	ExecuteStruct<iAnalyse> es;
-	if (Global->ProcessException || !Load() || !has(es))
+	if (exception_handling_in_progress() || !Load() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -884,7 +884,7 @@ void* Plugin::Analyse(AnalyseInfo* Info)
 void Plugin::CloseAnalyse(CloseAnalyseInfo* Info)
 {
 	ExecuteStruct<iCloseAnalyse> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return;
 
 	SetInstance(Info);
@@ -894,7 +894,7 @@ void Plugin::CloseAnalyse(CloseAnalyseInfo* Info)
 void* Plugin::Open(OpenInfo* Info)
 {
 	ExecuteStruct<iOpen> es;
-	if (Global->ProcessException || !Load() || !has(es))
+	if (exception_handling_in_progress() || !Load() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -905,7 +905,7 @@ void* Plugin::Open(OpenInfo* Info)
 intptr_t Plugin::SetFindList(SetFindListInfo* Info)
 {
 	ExecuteStruct<iSetFindList> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -916,7 +916,7 @@ intptr_t Plugin::SetFindList(SetFindListInfo* Info)
 intptr_t Plugin::ProcessEditorInput(ProcessEditorInputInfo* Info)
 {
 	ExecuteStruct<iProcessEditorInput> es;
-	if (Global->ProcessException || !Load() || !has(es))
+	if (exception_handling_in_progress() || !Load() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -927,7 +927,7 @@ intptr_t Plugin::ProcessEditorInput(ProcessEditorInputInfo* Info)
 intptr_t Plugin::ProcessEditorEvent(ProcessEditorEventInfo* Info)
 {
 	ExecuteStruct<iProcessEditorEvent> es;
-	if (Global->ProcessException || !Load() || !has(es))
+	if (exception_handling_in_progress() || !Load() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -938,7 +938,7 @@ intptr_t Plugin::ProcessEditorEvent(ProcessEditorEventInfo* Info)
 intptr_t Plugin::ProcessViewerEvent(ProcessViewerEventInfo* Info)
 {
 	ExecuteStruct<iProcessViewerEvent> es;
-	if (Global->ProcessException || !Load() || !has(es))
+	if (exception_handling_in_progress() || !Load() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -949,7 +949,7 @@ intptr_t Plugin::ProcessViewerEvent(ProcessViewerEventInfo* Info)
 intptr_t Plugin::ProcessDialogEvent(ProcessDialogEventInfo* Info)
 {
 	ExecuteStruct<iProcessDialogEvent> es;
-	if (Global->ProcessException || !Load() || !has(es))
+	if (exception_handling_in_progress() || !Load() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -960,7 +960,7 @@ intptr_t Plugin::ProcessDialogEvent(ProcessDialogEventInfo* Info)
 intptr_t Plugin::ProcessSynchroEvent(ProcessSynchroEventInfo* Info)
 {
 	ExecuteStruct<iProcessSynchroEvent> es;
-	if (Global->ProcessException || !Load() || !has(es))
+	if (exception_handling_in_progress() || !Load() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -971,7 +971,7 @@ intptr_t Plugin::ProcessSynchroEvent(ProcessSynchroEventInfo* Info)
 intptr_t Plugin::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 {
 	ExecuteStruct<iProcessConsoleInput> es;
-	if (Global->ProcessException || !Load() || !has(es))
+	if (exception_handling_in_progress() || !Load() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -982,7 +982,7 @@ intptr_t Plugin::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 intptr_t Plugin::GetVirtualFindData(GetVirtualFindDataInfo* Info)
 {
 	ExecuteStruct<iGetVirtualFindData> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -993,7 +993,7 @@ intptr_t Plugin::GetVirtualFindData(GetVirtualFindDataInfo* Info)
 void Plugin::FreeVirtualFindData(FreeFindDataInfo* Info)
 {
 	ExecuteStruct<iFreeVirtualFindData> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return;
 
 	SetInstance(Info);
@@ -1003,7 +1003,7 @@ void Plugin::FreeVirtualFindData(FreeFindDataInfo* Info)
 intptr_t Plugin::GetFiles(GetFilesInfo* Info)
 {
 	ExecuteStruct<iGetFiles> es(-1);
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -1014,7 +1014,7 @@ intptr_t Plugin::GetFiles(GetFilesInfo* Info)
 intptr_t Plugin::PutFiles(PutFilesInfo* Info)
 {
 	ExecuteStruct<iPutFiles> es(-1);
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -1025,7 +1025,7 @@ intptr_t Plugin::PutFiles(PutFilesInfo* Info)
 intptr_t Plugin::DeleteFiles(DeleteFilesInfo* Info)
 {
 	ExecuteStruct<iDeleteFiles> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -1036,7 +1036,7 @@ intptr_t Plugin::DeleteFiles(DeleteFilesInfo* Info)
 intptr_t Plugin::MakeDirectory(MakeDirectoryInfo* Info)
 {
 	ExecuteStruct<iMakeDirectory> es(-1);
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -1047,7 +1047,7 @@ intptr_t Plugin::MakeDirectory(MakeDirectoryInfo* Info)
 intptr_t Plugin::ProcessHostFile(ProcessHostFileInfo* Info)
 {
 	ExecuteStruct<iProcessHostFile> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -1058,7 +1058,7 @@ intptr_t Plugin::ProcessHostFile(ProcessHostFileInfo* Info)
 intptr_t Plugin::ProcessPanelEvent(ProcessPanelEventInfo* Info)
 {
 	ExecuteStruct<iProcessPanelEvent> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -1069,7 +1069,7 @@ intptr_t Plugin::ProcessPanelEvent(ProcessPanelEventInfo* Info)
 intptr_t Plugin::Compare(CompareInfo* Info)
 {
 	ExecuteStruct<iCompare> es(-2);
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -1080,7 +1080,7 @@ intptr_t Plugin::Compare(CompareInfo* Info)
 intptr_t Plugin::GetFindData(GetFindDataInfo* Info)
 {
 	ExecuteStruct<iGetFindData> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -1091,7 +1091,7 @@ intptr_t Plugin::GetFindData(GetFindDataInfo* Info)
 void Plugin::FreeFindData(FreeFindDataInfo* Info)
 {
 	ExecuteStruct<iFreeFindData> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return;
 
 	SetInstance(Info);
@@ -1101,7 +1101,7 @@ void Plugin::FreeFindData(FreeFindDataInfo* Info)
 intptr_t Plugin::ProcessPanelInput(ProcessPanelInputInfo* Info)
 {
 	ExecuteStruct<iProcessPanelInput> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -1113,7 +1113,7 @@ intptr_t Plugin::ProcessPanelInput(ProcessPanelInputInfo* Info)
 void Plugin::ClosePanel(ClosePanelInfo* Info)
 {
 	ExecuteStruct<iClosePanel> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return;
 
 	SetInstance(Info);
@@ -1124,7 +1124,7 @@ void Plugin::ClosePanel(ClosePanelInfo* Info)
 intptr_t Plugin::SetDirectory(SetDirectoryInfo* Info)
 {
 	ExecuteStruct<iSetDirectory> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -1135,7 +1135,7 @@ intptr_t Plugin::SetDirectory(SetDirectoryInfo* Info)
 void Plugin::GetOpenPanelInfo(OpenPanelInfo* Info)
 {
 	ExecuteStruct<iGetOpenPanelInfo> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return;
 
 	SetInstance(Info);
@@ -1146,7 +1146,7 @@ void Plugin::GetOpenPanelInfo(OpenPanelInfo* Info)
 intptr_t Plugin::Configure(ConfigureInfo* Info)
 {
 	ExecuteStruct<iConfigure> es;
-	if (Global->ProcessException || !Load() || !has(es))
+	if (exception_handling_in_progress() || !Load() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -1158,7 +1158,7 @@ intptr_t Plugin::Configure(ConfigureInfo* Info)
 bool Plugin::GetPluginInfo(PluginInfo* Info)
 {
 	ExecuteStruct<iGetPluginInfo> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return false;
 
 	SetInstance(Info);
@@ -1169,7 +1169,7 @@ bool Plugin::GetPluginInfo(PluginInfo* Info)
 intptr_t Plugin::GetContentFields(GetContentFieldsInfo *Info)
 {
 	ExecuteStruct<iGetContentFields> es;
-	if (Global->ProcessException || !Load() || !has(es))
+	if (exception_handling_in_progress() || !Load() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -1180,7 +1180,7 @@ intptr_t Plugin::GetContentFields(GetContentFieldsInfo *Info)
 intptr_t Plugin::GetContentData(GetContentDataInfo *Info)
 {
 	ExecuteStruct<iGetContentData> es;
-	if (Global->ProcessException || !Load() || !has(es))
+	if (exception_handling_in_progress() || !Load() || !has(es))
 		return es;
 
 	SetInstance(Info);
@@ -1191,7 +1191,7 @@ intptr_t Plugin::GetContentData(GetContentDataInfo *Info)
 void Plugin::FreeContentData(GetContentDataInfo *Info)
 {
 	ExecuteStruct<iFreeContentData> es;
-	if (Global->ProcessException || !Load() || !has(es))
+	if (exception_handling_in_progress() || !Load() || !has(es))
 		return;
 
 	SetInstance(Info);
@@ -1201,7 +1201,7 @@ void Plugin::FreeContentData(GetContentDataInfo *Info)
 void Plugin::ExitFAR(ExitInfo *Info)
 {
 	ExecuteStruct<iExitFAR> es;
-	if (Global->ProcessException || !has(es))
+	if (exception_handling_in_progress() || !has(es))
 		return;
 
 	SetInstance(Info);
@@ -1216,7 +1216,6 @@ void Plugin::ExecuteFunctionImpl(export_index const ExportId, function_ref<void(
 			std::_Exit(EXIT_FAILURE);
 
 		m_Factory->Owner()->UnloadPlugin(this, ExportId);
-		Global->ProcessException = false;
 	};
 
 	seh_try_with_ui(

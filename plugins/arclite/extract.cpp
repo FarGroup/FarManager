@@ -17,7 +17,7 @@ ExtractOptions::ExtractOptions():
   open_dir(triFalse) {
 }
 
-std::wstring get_progress_bar_str(unsigned width, unsigned percent1, unsigned percent2) {
+static std::wstring get_progress_bar_str(unsigned width, unsigned percent1, unsigned percent2) {
   const wchar_t c_pb_black = 9608;
   const wchar_t c_pb_gray = 9619;
   const wchar_t c_pb_white = 9617;
@@ -50,7 +50,7 @@ private:
   UInt64 cache_total;
   std::wstring cache_file_path;
 
-  virtual void do_update_ui() {
+  void do_update_ui() override {
     const unsigned c_width = 60;
 
     percent_done = calc_percent(extract_completed, extract_total);
@@ -339,7 +339,7 @@ public:
   UNKNOWN_IMPL_ITF(ISequentialOutStream)
   UNKNOWN_IMPL_END
 
-  STDMETHODIMP Write(const void *data, UInt32 size, UInt32 *processedSize) {
+  STDMETHODIMP Write(const void *data, UInt32 size, UInt32 *processedSize) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     if (processedSize)
       *processedSize = 0;
@@ -394,14 +394,14 @@ public:
   UNKNOWN_IMPL_ITF(ICryptoGetTextPassword)
   UNKNOWN_IMPL_END
 
-  STDMETHODIMP SetTotal(UInt64 total) {
+  STDMETHODIMP SetTotal(UInt64 total) noexcept override {
     CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     progress->set_extract_total(total);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
-  STDMETHODIMP SetCompleted(const UInt64 *completeValue) {
+  STDMETHODIMP SetCompleted(const UInt64 *completeValue) noexcept override {
     CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     if (completeValue)
@@ -410,7 +410,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP GetStream(UInt32 index, ISequentialOutStream **outStream,  Int32 askExtractMode) {
+  STDMETHODIMP GetStream(UInt32 index, ISequentialOutStream **outStream,  Int32 askExtractMode) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     *outStream = nullptr;
     file_info = archive->file_list[index];
@@ -421,9 +421,9 @@ public:
     file_path = correct_filename(file_info.name, cmode, file_info.is_altstream);
     UInt32 parent_index = file_info.parent;
     while (parent_index != src_dir_index && parent_index != c_root_index) {
-      const ArcFileInfo& file_info = archive->file_list[parent_index];
-      file_path.insert(0, 1, L'\\').insert(0, correct_filename(file_info.name, cmode & ~(0x10 | 0x40), false));
-      parent_index = file_info.parent;
+      const ArcFileInfo& parent_file_info = archive->file_list[parent_index];
+      file_path.insert(0, 1, L'\\').insert(0, correct_filename(parent_file_info.name, cmode & ~(0x10 | 0x40), false));
+      parent_index = parent_file_info.parent;
     }
     file_path.insert(0, add_trailing_slash(dst_dir));
 
@@ -446,8 +446,8 @@ public:
         if (!overwrite_dialog(file_path, src_ov_info, dst_ov_info, odkExtract, ov_options))
           return E_ABORT;
         if (g_options.strict_case && ov_options.action == oaOverwrite) {
-			 auto dst_len = std::wcslen(dst_file_info.cFileName);
-			 if (file_path.size() > dst_len && file_path.substr(file_path.size()-dst_len) != dst_file_info.cFileName)
+          auto dst_len = std::wcslen(dst_file_info.cFileName);
+          if (file_path.size() > dst_len && file_path.substr(file_path.size()-dst_len) != dst_file_info.cFileName)
             ov_options.action = oaOverwriteCase;
         }
         overwrite = ov_options.action;
@@ -483,17 +483,17 @@ public:
     return S_OK;
     COM_ERROR_HANDLER_END
   }
-  STDMETHODIMP PrepareOperation(Int32 askExtractMode) {
+  STDMETHODIMP PrepareOperation(Int32 askExtractMode) noexcept override {
     CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     return S_OK;
     COM_ERROR_HANDLER_END
   }
-  STDMETHODIMP SetOperationResult(Int32 resultEOperationResult) {
+  STDMETHODIMP SetOperationResult(Int32 resultEOperationResult) noexcept override {
     CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     RETRY_OR_IGNORE_BEGIN
-    bool encrypted = !archive->password.empty();
+    bool encrypted = !archive->m_password.empty();
     Error error;
     switch (resultEOperationResult) {
     case NArchive::NExtract::NOperationResult::kOK:
@@ -503,11 +503,11 @@ public:
       error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNSUPPORTED_METHOD));
       break;
     case NArchive::NExtract::NOperationResult::kDataError:
-      archive->password.clear();
+      archive->m_password.clear();
       error.messages.push_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_DATA_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_DATA_ERROR));
       break;
     case NArchive::NExtract::NOperationResult::kCRCError:
-      archive->password.clear();
+      archive->m_password.clear();
       error.messages.push_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_CRC_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_CRC_ERROR));
       break;
     case NArchive::NExtract::NOperationResult::kUnavailable:
@@ -540,15 +540,15 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP CryptoGetTextPassword(BSTR *password) {
+  STDMETHODIMP CryptoGetTextPassword(BSTR *password) noexcept override {
     CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
-    if (archive->password.empty()) {
+    if (archive->m_password.empty()) {
       ProgressSuspend ps(*progress);
-      if (!password_dialog(archive->password, archive->arc_path))
+      if (!password_dialog(archive->m_password, archive->arc_path))
         FAIL(E_ABORT);
     }
-    BStr(archive->password).detach(password);
+    BStr(archive->m_password).detach(password);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
@@ -569,16 +569,16 @@ private:
   ErrorLog& error_log;
   const std::wstring* file_path;
 
-  virtual void do_update_ui() {
+  void do_update_ui() override {
     const unsigned c_width = 60;
     std::wostringstream st;
     st << std::left << std::setw(c_width) << fit_str(*file_path, c_width) << L'\n';
     progress_text = st.str();
   }
 
-  void update_progress(const std::wstring& file_path) {
+  void update_progress(const std::wstring& file_path_value) {
     CriticalSectionLock lock(GetSync());
-    this->file_path = &file_path;
+    file_path = &file_path_value;
     update_ui();
   }
 
@@ -621,18 +621,18 @@ private:
   Archive& archive;
   bool& ignore_errors;
   ErrorLog& error_log;
-  const std::wstring* file_path;
+  const std::wstring* m_file_path;
 
-  virtual void do_update_ui() {
+  void do_update_ui() override {
     const unsigned c_width = 60;
     std::wostringstream st;
-    st << std::left << std::setw(c_width) << fit_str(*file_path, c_width) << L'\n';
+    st << std::left << std::setw(c_width) << fit_str(*m_file_path, c_width) << L'\n';
     progress_text = st.str();
   }
 
-  void update_progress(const std::wstring& file_path) {
+  void update_progress(const std::wstring& file_path_value) {
     CriticalSectionLock lock(GetSync());
-    this->file_path = &file_path;
+	m_file_path = &file_path_value;
     update_ui();
   }
 

@@ -3,7 +3,6 @@ EXPORTS
 	CompareW=CompareW@4
 	ConfigureW=ConfigureW@4
 	DeleteFilesW=DeleteFilesW@4
-	ExitFARW=ExitFARW@4
 	FreeFindDataW=FreeFindDataW@4
 	GetFilesW=GetFilesW@4
 	GetFindDataW=GetFindDataW@4

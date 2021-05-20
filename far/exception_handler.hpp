@@ -48,6 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 void disable_exception_handling();
 
+bool exception_handling_in_progress();
+
 void force_stderr_exception_ui(bool Force);
 
 class Plugin;
@@ -91,6 +93,17 @@ private:
 	_purecall_handler m_PreviousHandler;
 };
 
+class invalid_parameter_handler
+{
+public:
+	NONCOPYABLE(invalid_parameter_handler);
+
+	invalid_parameter_handler();
+	~invalid_parameter_handler();
+
+private:
+	_invalid_parameter_handler m_PreviousHandler;
+};
 
 void restore_system_exception_handler();
 

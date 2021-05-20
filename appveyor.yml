@@ -12,6 +12,7 @@ max_jobs: 8
 image: Visual Studio 2019
 
 init:
+  - git config --global core.autocrlf true
 
 clone_folder: c:\projects\FarManager
 
@@ -23,21 +24,6 @@ install:
   - cd far && for /f "tokens=1,2,4 delims=, " %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
   #clone NetBox
   - git clone https://github.com/FarGroup/Far-NetBox.git
-  #clone and build Colorer-schemes
-  - git clone https://github.com/colorer/Colorer-schemes.git
-  - cd Colorer-schemes
-  - appveyor-retry choco install ant --ignore-dependencies
-  - set JAVA_HOME=C:\Program Files\Java\jdk1.8.0
-  - build.cmd base.far.clean
-  - build.cmd base.far
-  - cd ..
-  #clone FarColorer
-  - git clone https://github.com/colorer/FarColorer.git --branch build-from-far --recursive
-  #set locale to russian, needed for chm generation
-  - ps: Set-WinSystemLocale -SystemLocale ru-RU
-  - ps: Start-Sleep -s 5
-  - ps: Restart-Computer
-  - ps: Start-Sleep -s 5
 
 environment:
   matrix:
@@ -78,12 +64,8 @@ environment:
     bit: 64
 
 build_script:
-  #prevent lost commands after reboot in install
-  - ps: Start-Sleep -s 5
-  #update AppVeyor build number to match Far build number (again after reboot)
-  - cd far && for /f "tokens=1,2,4 delims=, " %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
   #build Plugin SDK Encyclopedia
-  - set PATH=C:\Python39-x64;%PATH%
+  - set PATH=C:\Python39-x64;%PATH%;C:\Program Files (x86)\HTML Help Workshop
   - enc/tools/tool.make_enc_chm.bat
   #build Lua MacroAPI docs
   - enc/tools/tool.make_lua_chm.bat
@@ -126,28 +108,13 @@ build_script:
   - copy /Y Far-NetBox\*.md ci\%configuration%.%platform%\Plugins\NetBox
   - copy /Y Far-NetBox\LICENSE.txt ci\%configuration%.%platform%\Plugins\NetBox
   #build FarColorer
-  - set PROJECT_ROOT=%APPVEYOR_BUILD_FOLDER%\FarColorer
-  - set PROJECT_CONFIG=%configuration%
-  - set PROJECT_BUILD=Build
-  - set PROJECT_CONF=%platform%
-  - set PROJECT_PLATFORM=Win32
-  - set COLORER_WIN64_BUILD=ON
-  - if "%platform%" == "x64" set PROJECT_PLATFORM=x64
-  - if "%platform%" == "x64" set COLORER_WIN64_BUILD=OFF
-  - cd FarColorer
-  - mkdir build\%configuration%\%platform%
-  - cd build\%configuration%\%platform%
-  - cmake -G "NMake Makefiles" -D CMAKE_BUILD_TYPE=%PROJECT_CONFIG% -D COLORER_WIN64_BUILD=%COLORER_WIN64_BUILD% %PROJECT_ROOT%
-  - nmake
-  - cd ..\..\..\..
-  - mkdir ci\%configuration%.%platform%\Plugins\FarColorer\base
-  - xcopy /e /q /y /k Colorer-schemes\build\basefar\* ci\%configuration%.%platform%\Plugins\FarColorer\base
-  - mkdir ci\%configuration%.%platform%\Plugins\FarColorer\bin
-  - copy /Y FarColorer\build\%configuration%\%platform%\src\colorer.* ci\%configuration%.%platform%\Plugins\FarColorer\bin
-  - copy /Y FarColorer\docs\history.ru.txt ci\%configuration%.%platform%\Plugins\FarColorer
-  - copy /Y FarColorer\LICENSE ci\%configuration%.%platform%\Plugins\FarColorer
-  - copy /Y FarColorer\README.md ci\%configuration%.%platform%\Plugins\FarColorer
-  - copy /Y FarColorer\misc\* ci\%configuration%.%platform%\Plugins\FarColorer\bin
+  - set COLORER_VERSION=1.4.2
+  - set COLORER_PLATFORM=x86
+  - if "%platform%" == "x64" set COLORER_PLATFORM=x64
+  - set COLORER_FILE_NAME=FarColorer.%COLORER_PLATFORM%.v%COLORER_VERSION%.7z
+  - curl -fsLJO https://github.com/colorer/FarColorer/releases/download/v%COLORER_VERSION%/%COLORER_FILE_NAME%
+  - mkdir ci\%configuration%.%platform%\Plugins\FarColorer
+  - 7z x %COLORER_FILE_NAME% -oci\%configuration%.%platform%\Plugins\FarColorer
   #remove not needed build artifacts
   - if "%platform%" == "x86" powershell "Get-ChildItem ci\${Env:configuration}`.${Env:platform}\FExcept -filter *.map -File | Remove-Item"
   - ps: Get-ChildItem ci\${Env:configuration}`.${Env:platform}\ -recurse -File | Where-Object { @(".lib", ".exp", ".ilk") -contains $_.extension } | Remove-Item

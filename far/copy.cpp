@@ -3202,7 +3202,7 @@ void ShellCopy::SetSecurity(const string& FileName, const os::security::descript
 
 	for (;;)
 	{
- 		if (os::fs::set_file_security(FileName, DACL_SECURITY_INFORMATION, sd))
+		if (os::fs::set_file_security(FileName, DACL_SECURITY_INFORMATION, sd))
 			return;
 
 		if (SkipSecurityErrors)

@@ -132,6 +132,8 @@
     <ClInclude Include="msearch.hpp" />
     <ClInclude Include="options.hpp" />
     <ClInclude Include="plugin_h.h" />
+    <ClInclude Include="rsrc.hpp" />
+    <ClInclude Include="sfx.hpp" />
     <ClInclude Include="SimpleXML.hpp" />
     <ClInclude Include="sysutils.hpp" />
     <ClInclude Include="ui.hpp" />

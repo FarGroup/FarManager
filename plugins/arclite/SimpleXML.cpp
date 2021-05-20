@@ -132,7 +132,7 @@ parseRet parse(const char *xml, size_t size, const IParseCallback* cb)
 					do { c = s.get_next(); } while (c != '>' && c != '\n' && c != '\r');
 					if (c != '>') {
 						for (;;) {
-							do { c = s.get_next(); } while (c == '\n' && c == '\r');
+							do { c = s.get_next(); } while (c == '\n' || c == '\r');
 							if (c == ']' && s.look_next() == '>') {
 								s.move(+1); break;
 							}

@@ -16,21 +16,22 @@ Temporary panel main plugin code
 #include "TmpCfg.hpp"
 #include "TmpClass.hpp"
 #include "TmpPanel.hpp"
+#include "version.hpp"
+
+#include "guid.hpp"
 #include <initguid.h>
 #include "guid.hpp"
-#include "version.hpp"
 
 //wchar_t *PluginRootKey;
 unsigned int CurrentCommonPanel;
-struct PluginStartupInfo Info;
-struct FarStandardFunctions FSF;
+PluginStartupInfo PsInfo;
+FarStandardFunctions FSF;
 
 PluginPanels CommonPanels[COMMONPANELSNUMBER];
 
 static void ProcessList(HANDLE hPlugin, wchar_t *Name, int Mode);
 static void ShowMenuFromList(wchar_t *Name);
 static HANDLE OpenPanelFromOutput(wchar_t *argv);
-static void ShowMenuFromList(wchar_t *Name);
 
 static HANDLE OpenPanelFromOutput(wchar_t *argv)
 {
@@ -49,7 +50,7 @@ static HANDLE OpenPanelFromOutput(wchar_t *argv)
 	sa.bInheritHandle=TRUE;
 	HANDLE FileHandle;
 	FileHandle=CreateFile(tempfilename,GENERIC_WRITE,FILE_SHARE_READ,
-	                      &sa,CREATE_ALWAYS,FILE_FLAG_SEQUENTIAL_SCAN,NULL);
+	                      &sa,CREATE_ALWAYS,FILE_FLAG_SEQUENTIAL_SCAN,{});
 
 	if (FileHandle!=INVALID_HANDLE_VALUE)
 	{
@@ -71,7 +72,7 @@ static HANDLE OpenPanelFromOutput(wchar_t *argv)
 		}
 		else
 		{
-			size_t Size=FSF.GetCurrentDirectory(0,NULL);
+			size_t Size=FSF.GetCurrentDirectory(0,{});
 
 			if (Size)
 			{
@@ -83,7 +84,7 @@ static HANDLE OpenPanelFromOutput(wchar_t *argv)
 		wchar_t consoleTitle[255];
 		DWORD tlen = GetConsoleTitle(consoleTitle, ARRAYSIZE(consoleTitle));
 		SetConsoleTitle(argv);
-		BOOL Created=CreateProcess(NULL,fullcmd,NULL,NULL,TRUE,0,NULL,workDir,&si,&pi);
+		BOOL Created=CreateProcess({},fullcmd,{},{},TRUE,0,{},workDir,&si,&pi);
 
 		if (Created)
 		{
@@ -111,7 +112,7 @@ static HANDLE OpenPanelFromOutput(wchar_t *argv)
 		{
 			hPlugin=new TmpPanel();
 
-			if (hPlugin==NULL)
+			if (!hPlugin)
 				return nullptr;
 
 			ProcessList(hPlugin, tempfilename, Opt.Mode);
@@ -122,7 +123,7 @@ static HANDLE OpenPanelFromOutput(wchar_t *argv)
 	return hPlugin;
 }
 
-void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, wchar_t **argv, wchar_t *args,
+static void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, wchar_t **argv, wchar_t *args,
                    UINT *numargs, UINT *numchars)
 {
 	*numchars = 0;
@@ -139,7 +140,7 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, wchar_t **argv, wchar
 	#define CP_UNICODE    ((uintptr_t)1200)
 	#define CP_REVERSEBOM ((uintptr_t)1201)
 
-	wchar_t *Ptr=(wchar_t *)FileData;
+	const auto Ptr = reinterpret_cast<wchar_t*>(FileData);
 
 	if (Ptr[0]==SIGN_UNICODE)
 	{
@@ -191,12 +192,12 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, wchar_t **argv, wchar
 			wchar_t c;
 			--Size;
 
-			while (Pos<Size && ((c = *(wchar_t*)&FileData[Pos]) == L'\r' || c == L'\n'))
+			while (Pos<Size && ((c = *reinterpret_cast<wchar_t*>(FileData + Pos)) == L'\r' || c == L'\n'))
 				Pos += sizeof(wchar_t);
 
 			DWORD Off = Pos;
 
-			while (Pos<Size && (c = *(wchar_t*)&FileData[Pos]) != L'\r' && c != L'\n')
+			while (Pos<Size && (c = *reinterpret_cast<wchar_t*>(FileData + Pos)) != L'\r' && c != L'\n')
 				Pos += sizeof(wchar_t);
 
 			if (Pos < Size)
@@ -247,30 +248,30 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, wchar_t **argv, wchar
 		++*numargs;
 	}
 
-	UnmapViewOfFile((LPVOID)FileData);
+	UnmapViewOfFile(FileData);
 }
 
 static void ReadFileList(wchar_t *filename, int *argc, wchar_t ***argv)
 {
 	*argc = 0;
-	*argv = NULL;
+	*argv = {};
 	StrBuf FullPath;
 	GetFullPath(filename, FullPath);
 	StrBuf NtPath;
 	FormNtPath(FullPath, NtPath);
-	HANDLE hFile=CreateFile(NtPath,GENERIC_READ,FILE_SHARE_READ,NULL,
-	                        OPEN_EXISTING,0,NULL);
+	HANDLE hFile=CreateFile(NtPath,GENERIC_READ,FILE_SHARE_READ,{},
+	                        OPEN_EXISTING,0,{});
 
 	if (hFile != INVALID_HANDLE_VALUE)
 	{
-		DWORD FileSizeLow=GetFileSize(hFile,NULL);
-		HANDLE hFileMapping=CreateFileMapping(hFile,NULL,PAGE_READONLY,0,0,NULL);
+		DWORD FileSizeLow=GetFileSize(hFile,{});
+		HANDLE hFileMapping=CreateFileMapping(hFile,{},PAGE_READONLY,0,0,{});
 		CloseHandle(hFile);
 
-		if (hFileMapping != NULL)
+		if (hFileMapping)
 		{
 			UINT i;
-			ReadFileLines(hFileMapping, FileSizeLow, NULL, NULL, (UINT*)argc, &i);
+			ReadFileLines(hFileMapping, FileSizeLow, {}, {}, (UINT*)argc, &i);
 			*argv = (wchar_t**)malloc(*argc*sizeof(wchar_t*) + i*sizeof(wchar_t));
 			ReadFileLines(hFileMapping, FileSizeLow, *argv, (wchar_t*)&(*argv)[*argc], (UINT*)argc, &i);
 			CloseHandle(hFileMapping);
@@ -331,13 +332,13 @@ static void ShowMenuFromList(wchar_t *Name)
 		FSF.TruncPathStr(Title,64);
 		FarKey BreakKeys[]={{VK_RETURN,SHIFT_PRESSED}, {0,0}};
 		intptr_t BreakCode;
-		int ExitCode=(int)Info.Menu(&MainGuid, nullptr, -1, -1, 0,
-		                       FMENU_WRAPMODE, Title, NULL, L"Contents",
+		int ExitCode=(int)PsInfo.Menu(&MainGuid, nullptr, -1, -1, 0,
+		                       FMENU_WRAPMODE, Title, {}, L"Contents",
 		                       &BreakKeys[0], &BreakCode, fmi, argc);
 
 		for (int i=0; i<argc; ++i)
 			if (fmi[i].Text)
-				free((void*)fmi[i].Text);
+				free(const_cast<wchar_t*>(fmi[i].Text));
 
 		free(fmi);
 
@@ -356,7 +357,7 @@ static void ShowMenuFromList(wchar_t *Name)
 					if (FindData.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 					{
 						FarPanelDirectory dirInfo = {sizeof(dirInfo), p, nullptr, {}, nullptr};
-						Info.PanelControl(PANEL_ACTIVE, FCTL_SETPANELDIRECTORY, 0, &dirInfo);
+						PsInfo.PanelControl(PANEL_ACTIVE, FCTL_SETPANELDIRECTORY, 0, &dirInfo);
 					}
 					else
 					{
@@ -365,12 +366,12 @@ static void ShowMenuFromList(wchar_t *Name)
 				}
 				else
 				{
-					Info.PanelControl(PANEL_ACTIVE,FCTL_SETCMDLINE,0,p);
+					PsInfo.PanelControl(PANEL_ACTIVE,FCTL_SETCMDLINE,0,p);
 				}
 			}
 
 			if (bShellExecute)
-				ShellExecute(NULL,L"open",p,NULL,NULL,SW_SHOW);
+				ShellExecute({},L"open",p,{},{},SW_SHOW);
 		}
 	}
 
@@ -391,11 +392,11 @@ void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 	Info->Author=PLUGIN_AUTHOR;
 }
 
-void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
+void WINAPI SetStartupInfoW(const PluginStartupInfo *Info)
 {
-	::Info=*Info;
-	::FSF=*Info->FSF;
-	::Info.FSF=&::FSF;
+	PsInfo=*Info;
+	FSF=*PsInfo.FSF;
+	PsInfo.FSF=&FSF;
 	GetOptions();
 	StartupOptFullScreenPanel=Opt.FullScreenPanel;
 	StartupOptCommonPanel=Opt.CommonPanel;
@@ -405,7 +406,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 	Opt.LastSearchResultsPanel = 0;
 }
 
-HANDLE WINAPI OpenW(const struct OpenInfo *Info)
+HANDLE WINAPI OpenW(const OpenInfo *Info)
 {
 	HANDLE hPlugin=nullptr;
 	GetOptions();
@@ -424,7 +425,8 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 		{
 			L"safe",L"any",L"replace",L"menu",L"full"
 		};
-		const int *ParamsOpt[OPT_COUNT]=
+
+		int* ParamsOpt[OPT_COUNT]
 		{
 			&Opt.SafeModePanel,&Opt.AnyInPanel,&Opt.Mode,
 			&Opt.MenuForFilelist,&Opt.FullScreenPanel
@@ -488,7 +490,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 					{
 						hPlugin=new TmpPanel(TmpOut);
 
-						if (hPlugin==NULL)
+						if (!hPlugin)
 							return nullptr;
 
 						ProcessList(hPlugin, TmpOut, Opt.Mode);
@@ -514,13 +516,13 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 
 			if (!Opt.MenuForFilelist)
 			{
-				HANDLE hPlugin=new TmpPanel(pName);
+				HANDLE Plugin=new TmpPanel(pName);
 
-				if (hPlugin == NULL)
+				if (!Plugin)
 					return nullptr;
 
-				ProcessList(hPlugin, pName, Opt.Mode);
-				return hPlugin;
+				ProcessList(Plugin, pName, Opt.Mode);
+				return Plugin;
 			}
 			else
 			{
@@ -535,44 +537,44 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 	{
 		hPlugin=new TmpPanel();
 
-		if (hPlugin==NULL)
+		if (!hPlugin)
 			return nullptr;
 	}
 
 	return hPlugin;
 }
 
-HANDLE WINAPI AnalyseW(const struct AnalyseInfo *Info)
+HANDLE WINAPI AnalyseW(const AnalyseInfo *Info)
 {
 	if (Info->FileName == nullptr || !Info->BufferSize)
 		return nullptr;
 
-	if (!FSF.ProcessName(Opt.Mask, (wchar_t*)Info->FileName, lstrlen(Info->FileName),PN_CMPNAMELIST))
+	if (!FSF.ProcessName(Opt.Mask, const_cast<wchar_t*>(Info->FileName), lstrlen(Info->FileName),PN_CMPNAMELIST))
 		return nullptr;
 
 	return HANDLE(1);
 }
 
-void WINAPI ClosePanelW(const struct ClosePanelInfo *Info)
+void WINAPI ClosePanelW(const ClosePanelInfo *Info)
 {
 	delete(TmpPanel *)Info->hPanel;
 }
 
-void WINAPI ExitFARW(const struct ExitInfo *Info)
+void WINAPI ExitFARW(const ExitInfo *Info)
 {
 	for (int i=0; i<COMMONPANELSNUMBER; ++i)
 		FreePanelItems(CommonPanels[i].Items, CommonPanels[i].ItemsNumber);
 }
 
 
-intptr_t WINAPI GetFindDataW(struct GetFindDataInfo *Info)
+intptr_t WINAPI GetFindDataW(GetFindDataInfo *Info)
 {
 	TmpPanel *Panel=(TmpPanel *)Info->hPanel;
 	return Panel->GetFindData(&Info->PanelItem,&Info->ItemsNumber,Info->OpMode);
 }
 
 
-void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+void WINAPI GetPluginInfoW(PluginInfo *Info)
 {
 	Info->StructSize=sizeof(*Info);
 	Info->Flags=PF_PRELOAD;
@@ -603,42 +605,42 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	Info->CommandPrefix=Opt.Prefix;
 }
 
-void WINAPI GetOpenPanelInfoW(struct OpenPanelInfo *Info)
+void WINAPI GetOpenPanelInfoW(OpenPanelInfo *Info)
 {
 	TmpPanel *Panel=(TmpPanel *)Info->hPanel;
 	Panel->GetOpenPanelInfo(Info);
 }
 
-intptr_t WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
+intptr_t WINAPI SetDirectoryW(const SetDirectoryInfo *Info)
 {
 	TmpPanel *Panel=(TmpPanel *)Info->hPanel;
 	return(Panel->SetDirectory(Info->Dir,Info->OpMode));
 }
 
-intptr_t WINAPI PutFilesW(const struct PutFilesInfo *Info)
+intptr_t WINAPI PutFilesW(const PutFilesInfo *Info)
 {
 	TmpPanel *Panel=(TmpPanel *)Info->hPanel;
 	return Panel->PutFiles(Info->PanelItem,Info->ItemsNumber,Info->Move,Info->SrcPath,Info->OpMode);
 }
 
-intptr_t WINAPI SetFindListW(const struct SetFindListInfo *Info)
+intptr_t WINAPI SetFindListW(const SetFindListInfo *Info)
 {
 	TmpPanel *Panel=(TmpPanel *)Info->hPanel;
 	return(Panel->SetFindList(Info->PanelItem,Info->ItemsNumber));
 }
 
 
-intptr_t WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
+intptr_t WINAPI ProcessPanelEventW(const ProcessPanelEventInfo *Info)
 {
 	return ((TmpPanel *)Info->hPanel)->ProcessEvent(Info->Event,Info->Param);
 }
 
-intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info)
+intptr_t WINAPI ProcessPanelInputW(const ProcessPanelInputInfo *Info)
 {
 	return ((TmpPanel *)Info->hPanel)->ProcessKey(&Info->Rec);
 }
 
-intptr_t WINAPI ConfigureW(const struct ConfigureInfo *Info)
+intptr_t WINAPI ConfigureW(const ConfigureInfo *Info)
 {
 	return Config();
 }

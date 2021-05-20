@@ -5,10 +5,5 @@ SRCS = \
 	Mix.cpp \
 	OpenCmd.cpp
 
-USERLIBS = -lole32 -luuid -lrpcrt4
-
-include ../../far/makefile_gcc_common
-
 include ../makefile_gcc_def_inc
-
 include ../makefile_gcc_target_inc

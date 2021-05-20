@@ -180,7 +180,7 @@ static size_t widechar_to_multibyte_with_validation(uintptr_t const Codepage, st
 		{
 			if (const auto Result = WideCharToMultiByte(
 				Codepage,
-				IsRetardedCodepage? 0 : WC_NO_BEST_FIT_CHARS,
+				IsRetardedCodepage || !ErrorPosition ? 0 : WC_NO_BEST_FIT_CHARS,
 				Str.data(),
 				static_cast<int>(Str.size()),
 				To.data(),
@@ -679,7 +679,7 @@ encoding::memory_writer::memory_writer(uintptr_t const Codepage, bool const AddS
 {
 }
 
-void encoding::memory_writer::write(string_view Str)
+void encoding::memory_writer::write(string_view Str, const bool validate)
 {
 	if (m_AddSignature)
 	{
@@ -692,7 +692,7 @@ void encoding::memory_writer::write(string_view Str)
 		return;
 
 	error_position ErrorPosition;
-	m_Data.emplace_back(get_bytes(m_Codepage, Str, &ErrorPosition));
+	m_Data.emplace_back(get_bytes(m_Codepage, Str, validate ? &ErrorPosition : nullptr));
 
 	if (ErrorPosition)
 		raise_exception(m_Codepage, Str, *ErrorPosition);

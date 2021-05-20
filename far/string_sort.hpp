@@ -72,6 +72,7 @@ namespace string_sort
 	class keyhole
 	{
 		friend SQLiteDb;
+		static int compare_ordinal_icase(string_view Str1, string_view Str2);
 		static int compare_ordinal_numeric(string_view Str1, string_view Str2);
 	};
 }

@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 5219) // implicit conversion from 'type1' to 'type2', possible loss of data
 #else
 // these in the rest of the code as well:
+// TODO: some of these might be useful
 #pragma warning(disable: 4061) // enumerator 'identifier' in switch of enum 'enumeration' is not explicitly handled by a case label
 #pragma warning(disable: 4100) // 'identifier' : unreferenced formal parameter
 #pragma warning(disable: 4201) // nonstandard extension used : nameless struct/union
@@ -96,6 +97,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #endif
+
+
+#ifdef __GNUC__
+// https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
+
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+
+// TODO: some of these might be useful
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+
+#endif
+
 
 #ifdef __clang__
 // https://clang.llvm.org/docs/DiagnosticsReference.html

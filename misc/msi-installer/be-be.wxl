@@ -2,8 +2,13 @@
 <WixLocalization Culture="be-be" Codepage="1251" xmlns="http://schemas.microsoft.com/wix/2006/localization">
 <String Id="Language">1059</String>
 <String Id="Codepage">1251</String>
+
 <String Id="ProductDescription">Распараднік файлаў і архіваў</String>
 <String Id="LaunchCondition">Для усталёўкі [ProductName] патрабуецца найменьш Windows 2000 Service Pack 4 з KB816542.</String>
+<String Id="FeaturesDlgReset" Overridable="yes">&amp;Скід</String>
+<String Id="ExitDialogLaunchApp" Overridable="yes">Выканаць [ProductName]</String>
+<String Id="ProgressDlgScriptInProgress" Overridable="yes">Ідзе падрыхтоўка да усталёўкі</String>
+
 <String Id="Feature.Title.Far">Far Manager</String>
 <String Id="Feature.Title.Addons">Дадаткі</String>
 <String Id="Feature.Description.Addons">Наборы наладаў для розных мэтаў (*.reg файлы).</String>
@@ -38,7 +43,7 @@
 <String Id="Feature.Title.Slovak">Славацкая</String>
 <String Id="Feature.Title.Italian">Італьянская</String>
 <String Id="Feature.Title.Ukrainian">Украінская</String>
-<String Id="Feature.Title.Belarussian">Беларуская</String>
+<String Id="Feature.Title.Belarusian">Беларуская</String>
 <String Id="Feature.Title.Lithuanian">Літоўская</String>
 <String Id="Feature.Title.FarShortcuts">Цэтлік</String>
 <String Id="Feature.Title.FarProgramsShortcut">Праграмы</String>
@@ -92,8 +97,6 @@
 <String Id="Feature.Description.FarColorer">Падфарбоўка сінтаксісу.</String>
 <String Id="Feature.Title.FARCmds">FarCmds</String>
 <String Id="Feature.Description.FARCmds">Пашыраныя каманды кіравання Far Manager.</String>
-<String Id="Feature.Title.FARCmds">SameFolder</String>
-<String Id="Feature.Description.SameFolder">Усталёўка таго ж каталогу.</String>
 <String Id="Feature.Title.FileCase">FileCase</String>
 <String Id="Feature.Description.FileCase">Пераўтварэнне рэгістру імёнаў файлаў.</String>
 <String Id="Feature.Title.NetBox">NetBox</String>
@@ -108,4 +111,6 @@
 <String Id="Feature.Description.TmpPanel">Часовая панэль.</String>
 <String Id="Feature.Title.LuaMacro">LuaMacro</String>
 <String Id="Feature.Description.LuaMacro">Макрасы на мове Lua.</String>
+<String Id="Feature.Title.SameFolder">SameFolder</String>
+<String Id="Feature.Description.SameFolder">Усталёўка таго ж каталогу.</String>
 </WixLocalization>

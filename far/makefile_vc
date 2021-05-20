@@ -105,7 +105,6 @@ PCH_FILE = "$(INTDIR)\headers.pch"
 
 LINK_OBJS = \
 	"$(INTDIR)\sqlite.obj" \
-	"$(INTDIR)\sqlite_unicode.obj" \
 	"$(INTDIR)\cache.obj" \
 	"$(INTDIR)\cddrv.obj" \
 	"$(INTDIR)\clipboard.obj" \

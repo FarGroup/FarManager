@@ -23,7 +23,7 @@ void ProcessName(const wchar_t *OldFullName, DWORD FileAttributes)
 		NewFullName[0] = 0;
 
 	//Name
-	ExtPtr=(wchar_t*)FSF.PointToName(OldFullName);
+	ExtPtr=const_cast<wchar_t*>(FSF.PointToName(OldFullName));
 	wchar_t *NewName=new wchar_t[lstrlen(ExtPtr)+1];
 	if (!NewName)
 	{
@@ -97,9 +97,9 @@ void ProcessName(const wchar_t *OldFullName, DWORD FileAttributes)
 	//Recurce to directories
 	if (Opt.ProcessSubDir && (FileAttributes&FILE_ATTRIBUTE_DIRECTORY))
 	{
-		struct PluginPanelItem *Items;
+		PluginPanelItem *Items;
 		size_t ItemsNumber,DirList;
-		DirList = Info.GetDirList(OldFullName,&Items,&ItemsNumber);
+		DirList = PsInfo.GetDirList(OldFullName,&Items,&ItemsNumber);
 
 		if (DirList && ItemsNumber)
 		{
@@ -109,6 +109,6 @@ void ProcessName(const wchar_t *OldFullName, DWORD FileAttributes)
 			}
 		}
 
-		Info.FreeDirList(Items, ItemsNumber);
+		PsInfo.FreeDirList(Items, ItemsNumber);
 	}
 }

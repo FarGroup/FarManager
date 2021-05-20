@@ -60,7 +60,7 @@ static auto GetFullName(string_view const Name)
 void FilePositionCache::CompactHistory()
 {
 	SCOPED_ACTION(auto)(ConfigProvider().HistoryCfg()->ScopedTransaction());
-	ConfigProvider().HistoryCfg()->DeleteOldPositions(90,1000);
+	ConfigProvider().HistoryCfg()->DeleteOldPositions(Global->Opt->ViewHistoryLifetime, Global->Opt->ViewHistoryCount);
 }
 
 bool FilePositionCache::AddPosition(string_view const Name, const EditorPosCache& poscache)
@@ -141,7 +141,7 @@ bool FilePositionCache::AddPosition(string_view const Name, const ViewerPosCache
 	const auto& vo = Global->Opt->ViOpt;
 
 	if (vo.SavePos || vo.SaveCodepage || vo.SaveViewMode || vo.SaveWrapMode)
-		id=ConfigProvider().HistoryCfg()->SetViewerPos(strFullName, Time, poscache.cur.FilePos, poscache.cur.LeftPos, poscache.ViewModeAndWrapState,	poscache.CodePage);
+		id=ConfigProvider().HistoryCfg()->SetViewerPos(strFullName, Time, poscache.cur.FilePos, poscache.cur.LeftPos, poscache.ViewModeAndWrapState, poscache.CodePage);
 	else if (vo.SaveShortPos)
 		id=ConfigProvider().HistoryCfg()->SetViewerPos(strFullName, Time, 0, 0, 0, 0);
 

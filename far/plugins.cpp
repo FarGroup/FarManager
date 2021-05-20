@@ -71,6 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "keyboard.hpp"
 #include "log.hpp"
+#include "exception_handler.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -2036,7 +2037,7 @@ bool PluginManager::CallPlugin(const UUID& SysID,int OpenFrom, void *Data,void *
 
 	const auto pPlugin = FindPlugin(SysID);
 
-	if (!pPlugin || !pPlugin->has(iOpen) || Global->ProcessException)
+	if (exception_handling_in_progress() || !pPlugin || !pPlugin->has(iOpen))
 		return false;
 
 	auto PluginPanel = Open(pPlugin, OpenFrom, FarUuid, reinterpret_cast<intptr_t>(Data));
@@ -2103,10 +2104,10 @@ bool PluginManager::CallPlugin(const UUID& SysID,int OpenFrom, void *Data,void *
 // поддержка макрофункций plugin.call, plugin.cmd, plugin.config и т.п
 bool PluginManager::CallPluginItem(const UUID& Uuid, CallPluginInfo *Data) const
 {
-	auto Result = false;
-
-	if (Global->ProcessException)
+	if (exception_handling_in_progress())
 		return false;
+
+	auto Result = false;
 
 	const auto curType = Global->WindowManager->GetCurrentWindow()->GetType();
 

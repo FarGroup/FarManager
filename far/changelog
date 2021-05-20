@@ -1,4 +1,128 @@
 --------------------------------------------------------------------------------
+drkns 19.05.2021 18:46:33 +0100 - build 5801
+
+1. Alpha blending performance optimisation.
+
+--------------------------------------------------------------------------------
+drkns 19.05.2021 00:00:00 +0100 - build 5800
+
+1. Continuation of 5788: proper alpha blending.
+   Available in files highlighting and editor selection colour.
+
+--------------------------------------------------------------------------------
+drkns 16.05.2021 15:31:41 +0100 - build 5799
+
+1. Correction of 5776.
+
+--------------------------------------------------------------------------------
+drkns 11.05.2021 02:02:02 +0100 - build 5798
+
+1. Continue the "SQLite vs nocase" saga. Now any related errors should be fixed automatically.
+
+--------------------------------------------------------------------------------
+drkns 09.05.2021 20:00:49 +0100 - build 5797
+
+1. Experimental: since it's nearly impossible to teach the users that screenshots of the exception dialog are NOT useful for investigations,
+   the aforementioned dialog now doesn't display any technical information at all.
+   That information is now saved to a text file in the local profile, along with a minidump.
+
+--------------------------------------------------------------------------------
+drkns 09.05.2021 00:20:43 +0100 - build 5796
+
+1. Exception handling improvements.
+
+--------------------------------------------------------------------------------
+drkns 08.05.2021 14:53:05 +0100 - build 5795
+
+1. Correction of 5788 - visual artefacts during selection.
+
+--------------------------------------------------------------------------------
+drkns 07.05.2021 22:26:27 +0100 - build 5794
+
+1. Typo in 5718.
+
+--------------------------------------------------------------------------------
+drkns 06.05.2021 20:50:34 +0100 - build 5793
+
+1. Error handling improvements.
+
+--------------------------------------------------------------------------------
+w17 05.05.2021 23:06:45 +0300 - build 5792
+
+1. -typo2
+
+--------------------------------------------------------------------------------
+w17 05.05.2021 19:19:34 +0300 - build 5791
+
+1. -typo
+
+--------------------------------------------------------------------------------
+w17 05.05.2021 17:58:17 +0300 - build 5790
+
+1. Correction 5733 (questionable)
+   far:config Descriptions.ValidateConversion=true -- configurable description encoding validation.
+
+--------------------------------------------------------------------------------
+
+drkns 04.05.2021 18:08:14 +0100 - build 5789
+
+1. SQLite exception due to outdated index after collation update.
+
+2. Redirect SQLite logging to our logging.
+
+--------------------------------------------------------------------------------
+drkns 02.05.2021 11:28:04 +0100 - build 5788
+
+1. Experimental: editor selection color can have transparent foreground/background.
+
+2. More transparency to come: make sure you fill alpha channels in FarColor structures properly in API.
+
+2. Multiple fixes related to color merging and processing.
+
+3. Continuation of 5785.
+
+4. SQLite diagnostic improvements.
+
+5. Minor fixes in grabber.
+
+--------------------------------------------------------------------------------
+drkns 30.04.2021 17:24:37 +0100 - build 5787
+
+1. Forum: Repeated rescan directory tree.
+
+--------------------------------------------------------------------------------
+drkns 28.04.2021 00:43:06 +0100 - build 5786
+
+1. As it turned out, the sqlite unicode extension that we were using has a rather unorthodox notion of nocase collation.
+   Quote: "automatically try to unaccent any characters that are over the 0x80 character", in other words it treats Ä, Á, Ą, Â, Ă as the same thing.
+   Given that we only need nocase for case-insensitive, Windows-like file name lookup, this does more harm than good.
+   The extension has been removed and nocase collation is now delegated to Windows.
+
+2. Remove System.FlagPosixSemantics config parameter.
+
+--------------------------------------------------------------------------------
+drkns 25.04.2021 18:08:48 +0100 - build 5785
+
+1. Add more "style" attributes: double underline, overline, strikeout, faint, blink.
+
+2. Rework color dialog to support these attributes, as well as existing bold, italic, underline.
+   Keep in mind that Far doesn't draw anything directly - to see all this luxury your terminal must support it.
+
+3. Minor fixes to extended attributes processing.
+
+4. Refactoring.
+
+--------------------------------------------------------------------------------
+drkns 20.04.2021 17:51:24 +0100 - build 5784
+
+1. Correction of 5783.
+
+--------------------------------------------------------------------------------
+drkns 20.04.2021 17:21:48 +0100 - build 5783
+
+1. 0003862: Preserve the description file code page.
+
+--------------------------------------------------------------------------------
 drkns 16.04.2021 01:54:01 +0100 - build 5782
 
 1. By popular demand: history checkboxes in settings are now tri-state:

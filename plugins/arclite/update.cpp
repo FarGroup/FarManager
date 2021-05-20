@@ -6,8 +6,9 @@
 #include "ui.hpp"
 #include "archive.hpp"
 #include "options.hpp"
+#include "sfx.hpp"
 
-std::wstring format_time(UInt64 t) {
+static std::wstring format_time(UInt64 t) {
   UInt64 s = t % 60;
   UInt64 m = (t / 60) % 60;
   UInt64 h = t / 60 / 60;
@@ -18,7 +19,6 @@ std::wstring format_time(UInt64 t) {
 
 class ArchiveUpdateProgress: public ProgressMonitor {
 private:
-  bool new_arc;
   UInt64 total;
   UInt64 completed;
   std::wstring arc_path;
@@ -28,7 +28,7 @@ private:
   UInt64 total_data_read;
   UInt64 total_data_written;
 
-  virtual void do_update_ui() {
+  void do_update_ui() override {
     const unsigned c_width = 60;
 
     percent_done = calc_percent(completed, total);
@@ -69,7 +69,6 @@ private:
 public:
   ArchiveUpdateProgress(bool new_arc, const std::wstring& arcpath):
     ProgressMonitor(Far::get_msg(new_arc ? MSG_PROGRESS_CREATE : MSG_PROGRESS_UPDATE)),
-    new_arc(new_arc),
     total(0),
     completed(0),
     arc_path(arcpath),
@@ -79,9 +78,9 @@ public:
     total_data_written(0) {
   }
 
-  void on_open_file(const std::wstring& file_path, UInt64 size) {
+  void on_open_file(const std::wstring& file_path_value, UInt64 size) {
     CriticalSectionLock lock(GetSync());
-    this->file_path = file_path;
+    file_path = file_path_value;
     file_total = size;
     file_completed = 0;
     update_ui();
@@ -97,14 +96,14 @@ public:
     total_data_written += size;
     update_ui();
   }
-  void on_total_update(UInt64 total) {
+  void on_total_update(UInt64 total_value) {
     CriticalSectionLock lock(GetSync());
-    this->total = total;
+    total = total_value;
     update_ui();
   }
-  void on_completed_update(UInt64 completed) {
+  void on_completed_update(UInt64 completed_value) {
     CriticalSectionLock lock(GetSync());
-    this->completed = completed;
+    completed = completed_value;
     update_ui();
   }
 
@@ -134,7 +133,7 @@ public:
   }
   virtual ~UpdateStream() {
   }
-  virtual void clean_files() throw() = 0;
+  virtual void clean_files() noexcept = 0;
 };
 
 
@@ -151,7 +150,7 @@ public:
   UNKNOWN_IMPL_ITF(IOutStream)
   UNKNOWN_IMPL_END
 
-  STDMETHODIMP Write(const void *data, UInt32 size, UInt32 *processedSize) {
+  STDMETHODIMP Write(const void *data, UInt32 size, UInt32 *processedSize) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     if (processedSize)
       *processedSize = 0;
@@ -166,7 +165,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) {
+  STDMETHODIMP Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     if (newPosition)
       *newPosition = 0;
@@ -176,7 +175,7 @@ public:
     return S_OK;
     COM_ERROR_HANDLER_END
   }
-  STDMETHODIMP SetSize(UInt64 newSize) {
+  STDMETHODIMP SetSize(UInt64 newSize) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     RETRY_OR_IGNORE_BEGIN
     set_pos(newSize, FILE_BEGIN);
@@ -186,14 +185,12 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  virtual void clean_files() throw() {
+  virtual void clean_files() noexcept override {
     close();
-    File::delete_file_nt(file_path);
+    File::delete_file_nt(m_file_path);
   }
 };
 
-
-void create_sfx_module(const std::wstring& file_path, const SfxOptions& sfx_options);
 
 class SfxUpdateStream: public UpdateStream, public ComBase, private File {
 private:
@@ -219,7 +216,7 @@ public:
   UNKNOWN_IMPL_ITF(IOutStream)
   UNKNOWN_IMPL_END
 
-  STDMETHODIMP Write(const void *data, UInt32 size, UInt32 *processedSize) {
+  STDMETHODIMP Write(const void *data, UInt32 size, UInt32 *processedSize) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     if (processedSize)
       *processedSize = 0;
@@ -234,7 +231,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) {
+  STDMETHODIMP Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     if (newPosition)
       *newPosition = 0;
@@ -250,7 +247,7 @@ public:
     return S_OK;
     COM_ERROR_HANDLER_END
   }
-  STDMETHODIMP SetSize(UInt64 newSize) {
+  STDMETHODIMP SetSize(UInt64 newSize) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     RETRY_OR_IGNORE_BEGIN
     set_pos(newSize + start_offset);
@@ -260,9 +257,9 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  virtual void clean_files() throw() {
+  void clean_files() noexcept override {
     close();
-    File::delete_file_nt(file_path);
+    File::delete_file_nt(m_file_path);
   }
 };
 
@@ -309,7 +306,7 @@ public:
   UNKNOWN_IMPL_ITF(IOutStream)
   UNKNOWN_IMPL_END
 
-  STDMETHODIMP Write(const void *data, UInt32 size, UInt32 *processedSize) {
+  STDMETHODIMP Write(const void *data, UInt32 size, UInt32 *processedSize) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     if (processedSize)
       *processedSize = 0;
@@ -385,7 +382,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) {
+  STDMETHODIMP Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     if (newPosition)
       *newPosition = 0;
@@ -410,7 +407,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP SetSize(UInt64 newSize) {
+  STDMETHODIMP SetSize(UInt64 newSize) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     if (stream_size == newSize)
       return S_OK;
@@ -448,7 +445,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  virtual void clean_files() noexcept {
+  void clean_files() noexcept override {
     volume.close();
     UInt64 last_volume_idx = get_last_volume_idx();
     for (UInt64 volume_idx = 0; volume_idx <= last_volume_idx; volume_idx++) {
@@ -473,7 +470,7 @@ public:
   UNKNOWN_IMPL_ITF(IStreamGetSize)
   UNKNOWN_IMPL_END
 
-  STDMETHODIMP Read(void *data, UInt32 size, UInt32 *processedSize) {
+  STDMETHODIMP Read(void *data, UInt32 size, UInt32 *processedSize) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     if (processedSize)
       *processedSize = 0;
@@ -485,7 +482,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) {
+  STDMETHODIMP Seek(Int64 offset, UInt32 seekOrigin, UInt64 *newPosition) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     if (newPosition)
       *newPosition = 0;
@@ -496,7 +493,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP GetSize(UInt64 *pSize) {
+  STDMETHODIMP GetSize(UInt64 *pSize) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     if (!pSize) {
       FAIL(E_INVALIDARG);
@@ -530,15 +527,15 @@ private:
 
   const std::wstring* file_path;
 
-  virtual void do_update_ui() {
+  void do_update_ui() override {
     const unsigned c_width = 60;
     std::wostringstream st;
     st << std::left << std::setw(c_width) << fit_str(*file_path, c_width) << L'\n';
     progress_text = st.str();
   }
 
-  void update_progress(const std::wstring& file_path) {
-    this->file_path = &file_path;
+  void update_progress(const std::wstring& file_path_value) {
+    file_path = &file_path_value;
     update_ui();
   }
 
@@ -578,7 +575,7 @@ private:
     else {
       // updated file
       file_index = *fi_range.first;
-      if (file_index >= archive.num_indices) { // fake index
+      if (file_index >= archive.m_num_indices) { // fake index
         file_index_map[new_index] = file_index_info;
         new_index++;
       }
@@ -700,14 +697,14 @@ public:
   UNKNOWN_IMPL_ITF(ICryptoGetTextPassword2)
   UNKNOWN_IMPL_END
 
-  STDMETHODIMP SetTotal(UInt64 total) {
+  STDMETHODIMP SetTotal(UInt64 total) noexcept override {
     CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     progress->on_total_update(total);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
-  STDMETHODIMP SetCompleted(const UInt64 *completeValue) {
+  STDMETHODIMP SetCompleted(const UInt64 *completeValue) noexcept override {
     CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     if (completeValue)
@@ -716,7 +713,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP GetUpdateItemInfo(UInt32 index, Int32 *newData, Int32 *newProperties, UInt32 *indexInArchive) {
+  STDMETHODIMP GetUpdateItemInfo(UInt32 index, Int32 *newData, Int32 *newProperties, UInt32 *indexInArchive) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     auto found = file_index_map->find(index);
     if (found == file_index_map->end()) {
@@ -732,7 +729,7 @@ public:
     return S_OK;
     COM_ERROR_HANDLER_END
   }
-  STDMETHODIMP GetProperty(UInt32 index, PROPID propID, PROPVARIANT *value) {
+  STDMETHODIMP GetProperty(UInt32 index, PROPID propID, PROPVARIANT *value) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     const FileIndexInfo& file_index_info = file_index_map->at(index);
     PropVariant prop;
@@ -758,7 +755,7 @@ public:
     return S_OK;
     COM_ERROR_HANDLER_END
   }
-  STDMETHODIMP GetStream(UInt32 index, ISequentialInStream **inStream) {
+  STDMETHODIMP GetStream(UInt32 index, ISequentialInStream **inStream) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     *inStream = nullptr;
     const FileIndexInfo& file_index_info = file_index_map->at(index);
@@ -781,7 +778,7 @@ public:
 
     COM_ERROR_HANDLER_END
   }
-  STDMETHODIMP SetOperationResult(Int32 operationResult) {
+  STDMETHODIMP SetOperationResult(Int32 operationResult) noexcept override {
     CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     if (operationResult == NArchive::NUpdate::NOperationResult::kOK)
@@ -795,7 +792,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP CryptoGetTextPassword2(Int32 *passwordIsDefined, BSTR *password) {
+  STDMETHODIMP CryptoGetTextPassword2(Int32 *passwordIsDefined, BSTR *password) noexcept override {
     CriticalSectionLock lock(GetSync());
     COM_ERROR_HANDLER_BEGIN
     *passwordIsDefined = !options.password.empty();
@@ -834,7 +831,7 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
         wchar_t *endptr = nullptr;
         UINT64 v64 = _wcstoui64(v.c_str(), &endptr, 10);
         if (endptr && !*endptr) {
-          if (v64 >= 0 && v64 <= UINT_MAX)
+          if (v64 <= UINT_MAX)
             var = static_cast<UInt32>(v64);
           else
             var = v64;
@@ -1005,17 +1002,17 @@ private:
   bool& ignore_errors;
   ErrorLog& error_log;
 
-  const std::wstring* file_path;
+  const std::wstring* m_file_path;
 
-  virtual void do_update_ui() {
+  void do_update_ui() override {
     const unsigned c_width = 60;
     std::wostringstream st;
-    st << std::left << std::setw(c_width) << fit_str(*file_path, c_width) << L'\n';
+    st << std::left << std::setw(c_width) << fit_str(*m_file_path, c_width) << L'\n';
     progress_text = st.str();
   }
 
-  void update_progress(const std::wstring& file_path) {
-    this->file_path = &file_path;
+  void update_progress(const std::wstring& file_path_value) {
+	  m_file_path = &file_path_value;
     update_ui();
   }
 
@@ -1118,7 +1115,7 @@ void Archive::update(const std::wstring& src_dir, const std::vector<std::wstring
   DisableSleepMode dsm;
 
   std::shared_ptr<bool> ignore_errors(new bool(options.ignore_errors));
-  UInt32 new_index = num_indices; // starting index for new files
+  UInt32 new_index = m_num_indices; // starting index for new files
   bool skipped_files = false;
 
   std::shared_ptr<FileIndexMap> file_index_map(new FileIndexMap());
@@ -1132,7 +1129,7 @@ void Archive::update(const std::wstring& src_dir, const std::vector<std::wstring
     set_properties(out_arc, options);
 
     std::shared_ptr<ArchiveUpdateProgress> progress(new ArchiveUpdateProgress(false, arc_path));
-    ComObject<IArchiveUpdateCallback> updater(new ArchiveUpdater(src_dir, dst_dir, num_indices, file_index_map, options, ignore_errors, error_log, progress));
+    ComObject<IArchiveUpdateCallback> updater(new ArchiveUpdater(src_dir, dst_dir, m_num_indices, file_index_map, options, ignore_errors, error_log, progress));
     ComObject<IOutStream> update_stream(new SimpleUpdateStream(temp_arc_name, progress));
 
     COM_ERROR_CHECK(copy_prologue(update_stream));
@@ -1167,16 +1164,16 @@ void Archive::create_dir(const std::wstring& dir_name, const std::wstring& dst_d
   file_index_info.find_data.ftLastAccessTime = file_time;
   file_index_info.find_data.ftLastWriteTime = file_time;
   std::wcscpy(file_index_info.find_data.cFileName, dir_name.c_str());
-  (*file_index_map)[num_indices] = file_index_info;
+  (*file_index_map)[m_num_indices] = file_index_info;
 
   UpdateOptions options;
   options.arc_type = arc_chain.back().type;
   load_update_props();
-  options.level = level;
-  options.method = method;
-  options.solid = solid;
-  options.encrypt = encrypted;
-  options.password = password;
+  options.level = m_level;
+  options.method = m_method;
+  options.solid = m_solid;
+  options.encrypt = m_encrypted;
+  options.password = m_password;
   options.overwrite = oaOverwrite;
 
   std::wstring temp_arc_name = get_temp_file_name();
@@ -1188,10 +1185,10 @@ void Archive::create_dir(const std::wstring& dir_name, const std::wstring& dst_d
     std::shared_ptr<bool> ignore_errors(new bool(options.ignore_errors));
 
     std::shared_ptr<ArchiveUpdateProgress> progress(new ArchiveUpdateProgress(false, arc_path));
-    ComObject<IArchiveUpdateCallback> updater(new ArchiveUpdater(std::wstring(), dst_dir, num_indices, file_index_map, options, ignore_errors, error_log, progress));
+    ComObject<IArchiveUpdateCallback> updater(new ArchiveUpdater(std::wstring(), dst_dir, m_num_indices, file_index_map, options, ignore_errors, error_log, progress));
     ComObject<IOutStream> update_stream(new SimpleUpdateStream(temp_arc_name, progress));
 
-    COM_ERROR_CHECK(out_arc->UpdateItems(update_stream, num_indices + 1, updater));
+    COM_ERROR_CHECK(out_arc->UpdateItems(update_stream, m_num_indices + 1, updater));
     close();
     update_stream.Release();
     File::move_file(temp_arc_name, arc_path, MOVEFILE_REPLACE_EXISTING);

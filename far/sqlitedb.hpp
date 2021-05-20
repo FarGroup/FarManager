@@ -54,9 +54,20 @@ namespace sqlite
 	struct sqlite3_stmt;
 }
 
-class far_sqlite_exception : public far_exception
+class far_sqlite_exception: public far_exception
 {
-	using far_exception::far_exception;
+public:
+	template<typename... args>
+	explicit far_sqlite_exception(int ErrorCode, args&&... Args) :
+		far_exception(FWD(Args)...),
+		m_ErrorCode(ErrorCode)
+	{}
+
+	bool is_constaint_unique() const;
+	bool is_corrupt_index() const;
+
+private:
+	int m_ErrorCode;
 };
 
 class SQLiteDb: noncopyable, virtual protected transactional
@@ -157,10 +168,11 @@ protected:
 		});
 	}
 
+	void Exec(std::string const& Command) const;
+	void Exec(std::string_view Command) const;
 	void Exec(span<std::string_view const> Commands) const;
 	void SetWALJournalingMode() const;
 	void EnableForeignKeysConstraints() const;
-	void CreateNumericCollation() const;
 
 	unsigned long long LastInsertRowID() const;
 
@@ -192,8 +204,10 @@ protected:
 		FORWARD_FUNCTION(Exec)
 		FORWARD_FUNCTION(SetWALJournalingMode)
 		FORWARD_FUNCTION(EnableForeignKeysConstraints)
-		FORWARD_FUNCTION(CreateNumericCollation)
 		FORWARD_FUNCTION(PrepareStatements)
+		FORWARD_FUNCTION(add_nocase_collation)
+		FORWARD_FUNCTION(add_numeric_collation)
+		FORWARD_FUNCTION(ScopedTransaction)
 
 #undef FORWARD_FUNCTION
 
@@ -210,6 +224,10 @@ private:
 
 	database_ptr Open(string_view Path, busy_handler BusyHandler, bool WAL);
 	void Close();
+
+	void initialise() const;
+	void add_nocase_collation() const;
+	void add_numeric_collation() const;
 
 	// The order is important
 	bool m_DbExists{};

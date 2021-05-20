@@ -182,56 +182,75 @@ static auto get_thousand_separator()
 	return Value.empty()? L',' : Value.front();
 }
 
-static auto get_months_names(int Language, locale_names& Names)
+static auto get_month_day_names(int Language, locale_names& Names)
 {
 	const LCID CurLCID = MAKELCID(MAKELANGID(Language, SUBLANG_DEFAULT), SORT_DEFAULT);
 
-	for (const auto& [i, index]: enumerate(Names.Months))
+	struct init
 	{
-		if (!os::get_locale_value(CurLCID, LCTYPE(LOCALE_SMONTHNAME1 + index), i.Full))
+		LCTYPE Index, AbbrIndex;
+		string_view Default;
+	};
+
+	static const init MonthInit[]
+	{
+#define MONTHNAME(n) LOCALE_SMONTHNAME ## n, LOCALE_SABBREVMONTHNAME ## n
+		{ MONTHNAME(1),  L"January"sv },
+		{ MONTHNAME(2),  L"February"sv },
+		{ MONTHNAME(3),  L"March"sv },
+		{ MONTHNAME(4),  L"April"sv },
+		{ MONTHNAME(5),  L"May"sv },
+		{ MONTHNAME(6),  L"June"sv },
+		{ MONTHNAME(7),  L"July"sv },
+		{ MONTHNAME(8),  L"August"sv },
+		{ MONTHNAME(9),  L"September"sv },
+		{ MONTHNAME(10), L"October"sv },
+		{ MONTHNAME(11), L"November"sv },
+		{ MONTHNAME(12), L"December"sv },
+#undef MONTHNAME
+	};
+
+	for (const auto& [Init, Dest]: zip(MonthInit, Names.Months))
+	{
+		if (!os::get_locale_value(CurLCID, Init.Index, Dest.Full))
 		{
-			LOGWARNING(L"get_locale_value(LOCALE_SMONTHNAME{}): {}"sv, 1 + index, last_error());
+			Dest.Full = Init.Default;
+			LOGWARNING(L"get_locale_value(LOCALE_SMONTHNAME{}): {}"sv, Init.Index, last_error());
 		}
 
-		if (!os::get_locale_value(CurLCID, LCTYPE(LOCALE_SABBREVMONTHNAME1 + index), i.Short))
+		if (!os::get_locale_value(CurLCID, Init.AbbrIndex, Dest.Short))
 		{
-			LOGWARNING(L"get_locale_value(LOCALE_SABBREVMONTHNAME{}): {}"sv, 1 + index, last_error());
+			Dest.Full = Init.Default.substr(0, 3);
+			LOGWARNING(L"get_locale_value(LOCALE_SABBREVMONTHNAME{}): {}"sv, Init.AbbrIndex, last_error());
 		}
 	}
 
 	// LOCALE_S[ABBREV]DAYNAME<1-7> indexes start from Monday, remap to Sunday to make them compatible with tm::tm_wday
-	static const LCTYPE DayIndexes[]
+	static const init DayInit[]
 	{
-		LOCALE_SDAYNAME7,
-		LOCALE_SDAYNAME1,
-		LOCALE_SDAYNAME2,
-		LOCALE_SDAYNAME3,
-		LOCALE_SDAYNAME4,
-		LOCALE_SDAYNAME5,
-		LOCALE_SDAYNAME6
+#define DAYNAME(n) LOCALE_SDAYNAME ## n, LOCALE_SABBREVDAYNAME ## n
+		{ DAYNAME(7), L"Sunday"sv },
+		{ DAYNAME(1), L"Monday"sv },
+		{ DAYNAME(2), L"Tuesday"sv },
+		{ DAYNAME(3), L"Wednesday"sv },
+		{ DAYNAME(4), L"Thursday"sv },
+		{ DAYNAME(5), L"Friday"sv },
+		{ DAYNAME(6), L"Saturday"sv },
+#undef DAYNAME
 	};
 
-	static const LCTYPE ShortDayIndexes[]
+	for (const auto& [Init, Dest]: zip(DayInit, Names.Weekdays))
 	{
-		LOCALE_SABBREVDAYNAME7,
-		LOCALE_SABBREVDAYNAME1,
-		LOCALE_SABBREVDAYNAME2,
-		LOCALE_SABBREVDAYNAME3,
-		LOCALE_SABBREVDAYNAME4,
-		LOCALE_SABBREVDAYNAME5,
-		LOCALE_SABBREVDAYNAME6
-	};
-
-	for (const auto& [i, index]: enumerate(Names.Weekdays))
-	{
-		if (!os::get_locale_value(CurLCID, DayIndexes[index], i.Full))
+		if (!os::get_locale_value(CurLCID, Init.Index, Dest.Full))
 		{
-			LOGWARNING(L"get_locale_value(DayIndexes[{}]): {}"sv, index, last_error());
+			Dest.Full = Init.Default;
+			LOGWARNING(L"get_locale_value({}): {}"sv, Init.Index, last_error());
 		}
 
-		if (!os::get_locale_value(CurLCID, ShortDayIndexes[index], i.Short))
+		if (!os::get_locale_value(CurLCID, Init.AbbrIndex, Dest.Short))
 		{
-			LOGWARNING(L"get_locale_value(ShortDayIndexes[{}]): {}"sv, index, last_error());
+			Dest.Full = Init.Default.substr(0, 3);
+			LOGWARNING(L"get_locale_value({}): {}"sv, Init.AbbrIndex, last_error());
 		}
 	}
 }
@@ -310,8 +329,8 @@ namespace detail
 		m_DecimalSeparator = get_decimal_separator();
 		m_ThousandSeparator = get_thousand_separator();
 
-		get_months_names(LANG_NEUTRAL, m_LocalNames);
-		get_months_names(LANG_ENGLISH, m_EnglishNames);
+		get_month_day_names(LANG_NEUTRAL, m_LocalNames);
+		get_month_day_names(LANG_ENGLISH, m_EnglishNames);
 
 		m_Valid = true;
 	}

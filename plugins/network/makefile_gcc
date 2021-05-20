@@ -8,11 +8,5 @@ SRCS = \
 	NetFavorites.cpp \
 	NetMix.cpp
 
-NEEDDEFLIB=1
-USERLIBS = -lmpr -lnetapi32
-
-include ../../far/makefile_gcc_common
-
 include ../makefile_gcc_def_inc
-
 include ../makefile_gcc_target_inc

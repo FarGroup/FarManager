@@ -100,7 +100,7 @@ bool GetList(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, PerfThread& Thre
 		//yjh:???      CurItem.AllocationSize = pd.dwProcessId;
 
 		CurItem.AlternateFileName = new wchar_t[16];
-		FSF.itoa(pd.dwProcessId, (wchar_t*)CurItem.AlternateFileName, 10);
+		FSF.itoa(pd.dwProcessId, const_cast<wchar_t*>(CurItem.AlternateFileName), 10);
 
 		CurItem.NumberOfLinks = pd.dwThreads;
 		GetPData(*static_cast<ProcessData*>(CurItem.UserData.Data), pd);
@@ -269,7 +269,7 @@ void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironme
 	}
 }
 
-void PrintModuleVersion(HANDLE InfoFile, const wchar_t* pVersion, const wchar_t* pDesc, size_t len)
+static void PrintModuleVersion(HANDLE InfoFile, const wchar_t* pVersion, const wchar_t* pDesc, size_t len)
 {
 	do
 	{
@@ -289,7 +289,7 @@ void PrintModuleVersion(HANDLE InfoFile, const wchar_t* pVersion, const wchar_t*
 	}
 }
 
-static void print_module_impl(HANDLE const InfoFile, const std::wstring& Module, DWORD const SizeOfImage, const options& Opt, const std::function<bool(wchar_t*, size_t)>& GetName)
+static void print_module_impl(HANDLE const InfoFile, const std::wstring& Module, DWORD const SizeOfImage, const options& LocalOpt, const std::function<bool(wchar_t*, size_t)>& GetName)
 {
 	auto len = WriteToFile(InfoFile, format(FSTR(L"{0} {1:8X}"), Module, SizeOfImage));
 
@@ -302,7 +302,7 @@ static void print_module_impl(HANDLE const InfoFile, const std::wstring& Module,
 		const wchar_t* pVersion, * pDesc;
 		std::unique_ptr<char[]> Buffer;
 
-		if (Opt.ExportModuleVersion && Plist::GetVersionInfo(static_cast<wchar_t*>(wszModuleName), Buffer, pVersion, pDesc))
+		if (LocalOpt.ExportModuleVersion && Plist::GetVersionInfo(static_cast<wchar_t*>(wszModuleName), Buffer, pVersion, pDesc))
 		{
 			PrintModuleVersion(InfoFile, pVersion, pDesc, len);
 		}
@@ -312,7 +312,7 @@ static void print_module_impl(HANDLE const InfoFile, const std::wstring& Module,
 }
 
 template<typename module_type>
-static void print_module(HANDLE const InfoFile, module_type Module, DWORD const SizeOfImage, options& Opt, const std::function<bool(wchar_t*, size_t)>& GetName)
+static void print_module(HANDLE const InfoFile, module_type Module, DWORD const SizeOfImage, options& LocalOpt, const std::function<bool(wchar_t*, size_t)>& GetName)
 {
 	std::wstring ModuleStr;
 
@@ -321,10 +321,10 @@ static void print_module(HANDLE const InfoFile, module_type Module, DWORD const 
 	else
 		ModuleStr = format(FSTR(L"{0:0{1}X}"), reinterpret_cast<uintptr_t>(Module), sizeof(void*) * 2);
 
-	print_module_impl(InfoFile, ModuleStr, SizeOfImage, Opt, GetName);
+	print_module_impl(InfoFile, ModuleStr, SizeOfImage, LocalOpt, GetName);
 }
 
-void PrintModules(HANDLE InfoFile, DWORD dwPID, options& Opt)
+void PrintModules(HANDLE InfoFile, DWORD dwPID, options& LocalOpt)
 {
 	DebugToken token;
 	const handle Process(OpenProcessForced(&token, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | READ_CONTROL, dwPID));
@@ -350,7 +350,7 @@ void PrintModules(HANDLE InfoFile, DWORD dwPID, options& Opt)
 			MODULEINFO Info{};
 			GetModuleInformation(Process.get(), Module, &Info, sizeof(Info));
 
-			print_module(InfoFile, Info.lpBaseOfDll, Info.SizeOfImage, Opt, [&](wchar_t* const Buffer, size_t const BufferSize)
+			print_module(InfoFile, Info.lpBaseOfDll, Info.SizeOfImage, LocalOpt, [&](wchar_t* const Buffer, size_t const BufferSize)
 			{
 				return GetModuleFileNameExW(Process.get(), Module, Buffer, static_cast<DWORD>(BufferSize)) != 0;
 			});
@@ -368,7 +368,7 @@ void PrintModules(HANDLE InfoFile, DWORD dwPID, options& Opt)
 		(
 			Process.get(),
 			InfoFile,
-			Opt
+			LocalOpt
 		);
 	}
 

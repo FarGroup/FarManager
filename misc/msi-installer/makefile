@@ -12,8 +12,8 @@ PLATFORM=x86
 TRANSFORMS =
 LANGUAGES=1033
 !else
-TRANSFORMS = $(OUTDIR)\1045 $(OUTDIR)\1049
-LANGUAGES=1033,1045,1049
+TRANSFORMS = $(OUTDIR)\1045 $(OUTDIR)\1049 $(OUTDIR)\1059
+LANGUAGES=1033,1045,1049,1059
 !endif
 
 CPPFLAGS = -nologo -D_WIN32_WINNT=0x0500 -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_WARNINGS /Zc:threadSafeInit- /W4
@@ -77,6 +77,10 @@ $(OUTDIR)\1045.msi: $(WIXOBJ) pl-pl.wxl WixUI_pl-pl.wxl $(OUTDIR)\customact.dll
 	@echo $@
 	light $(LIGHTFLAGS) -cultures:pl-pl -loc pl-pl.wxl -loc WixUI_pl-pl.wxl -out $@ $(WIXOBJ)
 
+$(OUTDIR)\1059.msi: $(WIXOBJ) be-be.wxl WixUI_be-be.wxl $(OUTDIR)\customact.dll
+	@echo $@
+	light $(LIGHTFLAGS) -cultures:be-be -loc be-be.wxl -loc WixUI_be-be.wxl -out $@ $(WIXOBJ)
+
 $(OUTDIR)\1049: $(OUTDIR)\1033.msi $(OUTDIR)\1049.msi
 	@echo $@
 	torch -nologo -t language $(OUTDIR)\1033.msi $(OUTDIR)\1049.msi -out $@
@@ -86,6 +90,11 @@ $(OUTDIR)\1045: $(OUTDIR)\1033.msi $(OUTDIR)\1045.msi
 	@echo $@
 	torch -nologo -t language $(OUTDIR)\1033.msi $(OUTDIR)\1045.msi -out $@
 	wisubstg.vbs $(OUTDIR)\1033.msi $(OUTDIR)\1045 1045
+
+$(OUTDIR)\1059: $(OUTDIR)\1033.msi $(OUTDIR)\1059.msi
+	@echo $@
+	torch -nologo -t language $(OUTDIR)\1033.msi $(OUTDIR)\1059.msi -out $@
+	wisubstg.vbs $(OUTDIR)\1033.msi $(OUTDIR)\1059 1059
 
 $(OUTDIR)\customact.dll: customact.cpp $(VC10CPP) customact.def $(VC10OBJ)
 	@echo $@

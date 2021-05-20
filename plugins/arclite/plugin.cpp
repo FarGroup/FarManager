@@ -1,7 +1,6 @@
 ﻿#include "msg.h"
 #include "plugin.h"
 #include "guids.hpp"
-
 #include "utils.hpp"
 #include "sysutils.hpp"
 #include "farutils.hpp"
@@ -10,11 +9,10 @@
 #include "archive.hpp"
 #include "options.hpp"
 #include "cmdline.hpp"
+#include "sfx.hpp"
 
-std::wstring g_plugin_prefix;
-TriState g_detect_next_time = triUndef;
-
-void attach_sfx_module(const std::wstring& file_path, const SfxOptions& sfx_options);
+static std::wstring g_plugin_prefix;
+static TriState g_detect_next_time = triUndef;
 
 class Plugin {
 private:
@@ -65,7 +63,7 @@ public:
       if (!current_dir.empty())
         panel_title += L":" + current_dir;
       host_file = archive->arc_path;
-      if (archive->has_crc)
+      if (archive->m_has_crc)
         opi->Flags |= OPIF_USECRC32;
     }
     opi->HostFile = host_file.c_str();
@@ -147,6 +145,7 @@ public:
 
   class PluginPanelItemAccessor {
   public:
+    virtual ~PluginPanelItemAccessor() = default;
     virtual const PluginPanelItem* get(size_t idx) const = 0;
     virtual size_t size() const = 0;
   };
@@ -197,7 +196,7 @@ public:
       dst_dir = options.dst_dir;
       update_dst_dir();
       if (!options.password.empty())
-        archive->password = options.password;
+        archive->m_password = options.password;
     }
     if (op_mode & OPM_TOPLEVEL)
     {
@@ -254,10 +253,10 @@ public:
     public:
       PluginPanelItems(const PluginPanelItem* panel_items, size_t items_number): panel_items(panel_items), items_number(items_number) {
       }
-      virtual const PluginPanelItem* get(size_t idx) const {
+      const PluginPanelItem* get(size_t idx) const override {
         return panel_items + idx;
       }
-      virtual size_t size() const {
+      size_t size() const override {
         return items_number;
       }
     };
@@ -282,11 +281,11 @@ public:
       PluginPanelItems(HANDLE h_plugin): h_plugin(h_plugin) {
         CHECK(Far::get_panel_info(h_plugin, panel_info));
       }
-      virtual const PluginPanelItem* get(size_t idx) const {
+      const PluginPanelItem* get(size_t idx) const override {
         Far::get_panel_item(h_plugin, FCTL_GETSELECTEDPANELITEM, idx, buf);
         return reinterpret_cast<const PluginPanelItem*>(buf.data());
       }
-      virtual size_t size() const {
+      size_t size() const override {
         return panel_info.SelectedItemsNumber;
       }
     };
@@ -319,8 +318,8 @@ public:
       }
 
       std::shared_ptr<Archive> archive = (*archives)[0];
-      if (archive->password.empty())
-        archive->password = options.password;
+      if (archive->m_password.empty())
+        archive->m_password = options.password;
       archive->make_index();
 
       FileIndexRange dir_list = archive->get_dir_list(c_root_index);
@@ -413,8 +412,8 @@ public:
       throw Error(Far::get_msg(MSG_ERROR_NOT_ARCHIVE), arch_name, __FILE__, __LINE__);
 
     std::shared_ptr<Archive> archive = (*archives)[0];
-    if (archive->password.empty())
-      archive->password = options.password;
+    if (archive->m_password.empty())
+      archive->m_password = options.password;
     archive->make_index();
     auto nf = static_cast<UInt32>(archive->file_list.size());
     std::vector<UInt32> matched_indices;
@@ -446,8 +445,8 @@ public:
       throw Error(Far::get_msg(MSG_ERROR_NOT_ARCHIVE), arch_name, __FILE__, __LINE__);
 
     std::shared_ptr<Archive> archive = (*archives)[0];
-    if (archive->password.empty())
-      archive->password = options.password;
+    if (archive->m_password.empty())
+      archive->m_password = options.password;
     archive->make_index();
     auto nf = static_cast<UInt32>(archive->file_list.size());
     std::vector<UInt32> matched_indices;
@@ -644,11 +643,11 @@ public:
         }
       }
       archive->load_update_props();
-      options.method = archive->method;
-      options.solid = archive->solid;
-      options.encrypt = archive->encrypted;
+      options.method = archive->m_method;
+      options.solid = archive->m_solid;
+      options.encrypt = archive->m_encrypted;
       options.encrypt_header = triUndef;
-      options.password = archive->password;
+      options.password = archive->m_password;
 
       //options.level = archive->level;
       options.level = g_options.update_level;
@@ -680,10 +679,10 @@ public:
       }
     }
     else {
-      archive->level = options.level;
-      archive->method = options.method;
-      archive->solid = options.solid;
-      archive->encrypted = options.encrypt;
+      archive->m_level = options.level;
+      archive->m_method = options.method;
+      archive->m_solid = options.solid;
+      archive->m_encrypted = options.encrypt;
     }
 
     bool all_path_abs = true;
@@ -891,14 +890,14 @@ public:
       options.arc_type = archive->arc_chain.back().type;
       archive->load_update_props();
       if (!cmd.level_defined)
-        options.level = archive->level;
+        options.level = archive->m_level;
       if (!cmd.method_defined)
-        options.method = archive->method;
+        options.method = archive->m_method;
       if (!cmd.solid_defined)
-        options.solid = archive->solid;
+        options.solid = archive->m_solid;
       if (!cmd.encrypt_defined) {
-        options.encrypt = archive->encrypted;
-        options.password = archive->password;
+        options.encrypt = archive->m_encrypted;
+        options.password = archive->m_password;
       }
 
       archive->update(src_path, files, std::wstring(), options, error_log);
@@ -1012,7 +1011,7 @@ void WINAPI SetStartupInfoW(const PluginStartupInfo* info) {
 
 void WINAPI GetPluginInfoW(PluginInfo* info) {
   //CriticalSectionLock lock(GetExportSync());
-  FAR_ERROR_HANDLER_BEGIN;
+  FAR_ERROR_HANDLER_BEGIN
   static const wchar_t* plugin_menu[1];
   static const wchar_t* config_menu[1];
   plugin_menu[0] = Far::msg_ptr(MSG_PLUGIN_NAME);
@@ -1026,7 +1025,7 @@ void WINAPI GetPluginInfoW(PluginInfo* info) {
   info->PluginConfig.Strings = config_menu;
   info->PluginConfig.Count = ARRAYSIZE(config_menu);
   info->CommandPrefix = g_plugin_prefix.c_str();
-  FAR_ERROR_HANDLER_END(return, return, false);
+  FAR_ERROR_HANDLER_END(return, return, false)
 }
 
 static HANDLE analyse_open(const AnalyseInfo* info, bool from_analyse) {
@@ -1120,7 +1119,7 @@ void WINAPI CloseAnalyseW(const CloseAnalyseInfo* info) {
 HANDLE WINAPI OpenW(const OpenInfo* info) {
   //CriticalSectionLock lock(GetExportSync());
   bool delayed_analyse_open = false;
-  FAR_ERROR_HANDLER_BEGIN;
+  FAR_ERROR_HANDLER_BEGIN
   if (info->OpenFrom == OPEN_PLUGINSMENU) {
     Far::MenuItems menu_items;
     unsigned open_menu_id = menu_items.add(Far::get_msg(MSG_MENU_OPEN));
@@ -1276,46 +1275,46 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
   }
 
   return nullptr;
-  FAR_ERROR_HANDLER_END(return nullptr, return delayed_analyse_open ? PANEL_STOP : nullptr, delayed_analyse_open);
+  FAR_ERROR_HANDLER_END(return nullptr, return delayed_analyse_open ? PANEL_STOP : nullptr, delayed_analyse_open)
 }
 
 void WINAPI ClosePanelW(const struct ClosePanelInfo* info) {
   //CriticalSectionLock lock(GetExportSync());
-  FAR_ERROR_HANDLER_BEGIN;
+  FAR_ERROR_HANDLER_BEGIN
   Plugin* plugin = reinterpret_cast<Plugin*>(info->hPanel);
   IGNORE_ERRORS(plugin->close());
   delete plugin;
-  FAR_ERROR_HANDLER_END(return, return, true);
+  FAR_ERROR_HANDLER_END(return, return, true)
 }
 
 void WINAPI GetOpenPanelInfoW(OpenPanelInfo* info) {
   CriticalSectionLock lock(GetExportSync());
-  FAR_ERROR_HANDLER_BEGIN;
+  FAR_ERROR_HANDLER_BEGIN
   reinterpret_cast<Plugin*>(info->hPanel)->info(info);
-  FAR_ERROR_HANDLER_END(return, return, false);
+  FAR_ERROR_HANDLER_END(return, return, false)
 }
 
 intptr_t WINAPI SetDirectoryW(const SetDirectoryInfo* info) {
   //CriticalSectionLock lock(GetExportSync());
-  FAR_ERROR_HANDLER_BEGIN;
+  FAR_ERROR_HANDLER_BEGIN
   reinterpret_cast<Plugin*>(info->hPanel)->set_dir(info->Dir);
   return TRUE;
-  FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & (OPM_SILENT | OPM_FIND)) != 0);
+  FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & (OPM_SILENT | OPM_FIND)) != 0)
 }
 
 intptr_t WINAPI GetFindDataW(GetFindDataInfo* info) {
   //CriticalSectionLock lock(GetExportSync());
-  FAR_ERROR_HANDLER_BEGIN;
+  FAR_ERROR_HANDLER_BEGIN
   reinterpret_cast<Plugin*>(info->hPanel)->list(&info->PanelItem, &info->ItemsNumber);
   return TRUE;
-  FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & (OPM_SILENT | OPM_FIND)) != 0);
+  FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & (OPM_SILENT | OPM_FIND)) != 0)
 }
 
 void WINAPI FreeFindDataW(const FreeFindDataInfo* info) {
   //CriticalSectionLock lock(GetExportSync());
-  FAR_ERROR_HANDLER_BEGIN;
+  FAR_ERROR_HANDLER_BEGIN
   delete[] info->PanelItem;
-  FAR_ERROR_HANDLER_END(return, return, false);
+  FAR_ERROR_HANDLER_END(return, return, false)
 }
 
 intptr_t WINAPI GetFilesW(GetFilesInfo *info) {
@@ -1323,36 +1322,36 @@ intptr_t WINAPI GetFilesW(GetFilesInfo *info) {
   FAR_ERROR_HANDLER_BEGIN
   reinterpret_cast<Plugin*>(info->hPanel)->get_files(info->PanelItem, info->ItemsNumber, info->Move, &info->DestPath, info->OpMode);
   return 1;
-  FAR_ERROR_HANDLER_END(return 0, return -1, (info->OpMode & (OPM_FIND | OPM_QUICKVIEW)) != 0);
+  FAR_ERROR_HANDLER_END(return 0, return -1, (info->OpMode & (OPM_FIND | OPM_QUICKVIEW)) != 0)
 }
 
 intptr_t WINAPI PutFilesW(const PutFilesInfo* info) {
   //CriticalSectionLock lock(GetExportSync());
-  FAR_ERROR_HANDLER_BEGIN;
+  FAR_ERROR_HANDLER_BEGIN
   reinterpret_cast<Plugin*>(info->hPanel)->put_files(info->PanelItem, info->ItemsNumber, info->Move, info->SrcPath, info->OpMode);
   return 2;
-  FAR_ERROR_HANDLER_END(return 0, return -1, (info->OpMode & OPM_FIND) != 0);
+  FAR_ERROR_HANDLER_END(return 0, return -1, (info->OpMode & OPM_FIND) != 0)
 }
 
 intptr_t WINAPI DeleteFilesW(const DeleteFilesInfo* info) {
   //CriticalSectionLock lock(GetExportSync());
-  FAR_ERROR_HANDLER_BEGIN;
+  FAR_ERROR_HANDLER_BEGIN
   reinterpret_cast<Plugin*>(info->hPanel)->delete_files(info->PanelItem, info->ItemsNumber, info->OpMode);
   return TRUE;
-  FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & OPM_SILENT) != 0);
+  FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & OPM_SILENT) != 0)
 }
 
 intptr_t WINAPI MakeDirectoryW(MakeDirectoryInfo* info) {
   //CriticalSectionLock lock(GetExportSync());
-  FAR_ERROR_HANDLER_BEGIN;
+  FAR_ERROR_HANDLER_BEGIN
   reinterpret_cast<Plugin*>(info->hPanel)->create_dir(&info->Name, info->OpMode);
   return 1;
-  FAR_ERROR_HANDLER_END(return -1, return -1, (info->OpMode & OPM_SILENT) != 0);
+  FAR_ERROR_HANDLER_END(return -1, return -1, (info->OpMode & OPM_SILENT) != 0)
 }
 
 intptr_t WINAPI ProcessHostFileW(const ProcessHostFileInfo* info) {
   //CriticalSectionLock lock(GetExportSync());
-  FAR_ERROR_HANDLER_BEGIN;
+  FAR_ERROR_HANDLER_BEGIN
   Far::MenuItems menu_items;
   menu_items.add(Far::get_msg(MSG_TEST_MENU));
   intptr_t item = Far::menu(c_arccmd_menu_guid, Far::get_msg(MSG_PLUGIN_NAME), menu_items);
@@ -1365,12 +1364,12 @@ intptr_t WINAPI ProcessHostFileW(const ProcessHostFileInfo* info) {
   }
   else
     return FALSE;
-  FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & OPM_SILENT) != 0);
+  FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & OPM_SILENT) != 0)
 }
 
 intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* info) {
   //CriticalSectionLock lock(GetExportSync());
-  FAR_ERROR_HANDLER_BEGIN;
+  FAR_ERROR_HANDLER_BEGIN
   if (info->Rec.EventType == KEY_EVENT) {
     const KEY_EVENT_RECORD& key_event = info->Rec.Event.KeyEvent;
     if ((key_event.dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) != 0 && key_event.wVirtualKeyCode == 'A') {
@@ -1383,11 +1382,11 @@ intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* info) {
     }
   }
   return FALSE;
-  FAR_ERROR_HANDLER_END(return FALSE, return FALSE, false);
+  FAR_ERROR_HANDLER_END(return FALSE, return FALSE, false)
 }
 
 intptr_t WINAPI ConfigureW(const struct ConfigureInfo* info) {
-  FAR_ERROR_HANDLER_BEGIN;
+  FAR_ERROR_HANDLER_BEGIN
   PluginSettings settings;
   settings.handle_create = g_options.handle_create;
   settings.handle_commands = g_options.handle_commands;
@@ -1428,7 +1427,7 @@ intptr_t WINAPI ConfigureW(const struct ConfigureInfo* info) {
   }
   else
     return FALSE;
-  FAR_ERROR_HANDLER_END(return FALSE, return FALSE, false);
+  FAR_ERROR_HANDLER_END(return FALSE, return FALSE, false)
 }
 
 void WINAPI ExitFARW(const struct ExitInfo* Info) {

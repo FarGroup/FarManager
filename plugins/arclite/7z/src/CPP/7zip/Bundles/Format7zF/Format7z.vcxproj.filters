@@ -936,6 +936,18 @@
     <ClCompile Include="..\..\..\..\C\MtDec.c">
       <Filter>C</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Archive\Base64Handler.cpp">
+      <Filter>Archive</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\Ppmd7aDec.c">
+      <Filter>C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Common\Sha1Prepare.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Common\Sha256Prepare.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc">
@@ -1620,6 +1632,15 @@
       <Filter>Asm</Filter>
     </MASM>
     <MASM Include="..\..\..\..\Asm\x86\LzmaDecOpt.asm">
+      <Filter>Asm</Filter>
+    </MASM>
+    <MASM Include="..\..\..\..\Asm\x86\Sha1Opt.asm">
+      <Filter>Asm</Filter>
+    </MASM>
+    <MASM Include="..\..\..\..\Asm\x86\Sha256Opt.asm">
+      <Filter>Asm</Filter>
+    </MASM>
+    <MASM Include="..\..\..\..\Asm\x86\XzCrc64Opt.asm">
       <Filter>Asm</Filter>
     </MASM>
   </ItemGroup>

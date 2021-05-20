@@ -13,26 +13,38 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [ MSVC_PROJ_x64_Debug,MSVC_PROJ_x64_Release,MSVC_PROJ_x86_Debug,MSVC_PROJ_x86_Release,
-                 MSVC_NMAKE_x64_Debug, MSVC_NMAKE_x64_Release,MSVC_NMAKE_x86_Debug,MSVC_NMAKE_x86_Release,
-                 CLANG_NMAKE_x64_Debug,CLANG_NMAKE_x64_Release,
-                 GCC_MAKE_x64_Debug,GCC_MAKE_x64_Release,
-                 CLANG_MAKE_x64_Debug,CLANG_MAKE_x64_Release ]
+        build: [
+                 MSVC_PROJ_x64_Debug,
+                 MSVC_PROJ_x64_Release,
+                 MSVC_PROJ_x86_Debug,
+                 MSVC_PROJ_x86_Release,
+                 MSVC_NMAKE_x64_Debug,
+                 MSVC_NMAKE_x64_Release,
+                 MSVC_NMAKE_x86_Debug,
+                 MSVC_NMAKE_x86_Release,
+                 CLANG_NMAKE_x64_Debug,
+                 CLANG_NMAKE_x64_Release,
+                 GCC_MAKE_x64_Debug,
+                 GCC_MAKE_x64_Release,
+                 CLANG_MAKE_x64_Debug,
+                 CLANG_MAKE_x64_Release
+               ]
+
         include:
-          - { build: MSVC_PROJ_x64_Debug, compiler: MSVC_PROJ, arch: x64, build_config: Debug }
-          - { build: MSVC_PROJ_x64_Release, compiler: MSVC_PROJ, arch: x64, build_config: Release }
-          - { build: MSVC_PROJ_x86_Debug, compiler: MSVC_PROJ, arch: Win32, build_config: Debug }
-          - { build: MSVC_PROJ_x86_Release, compiler: MSVC_PROJ, arch: Win32, build_config: Release }
-          - { build: MSVC_NMAKE_x64_Debug, compiler: MSVC_NMAKE, arch: x64, build_config: Debug }
-          - { build: MSVC_NMAKE_x64_Release, compiler: MSVC_NMAKE, arch: x64, build_config: Release }
-          - { build: MSVC_NMAKE_x86_Debug, compiler: MSVC_NMAKE, arch: Win32, build_config: Debug }
-          - { build: MSVC_NMAKE_x86_Release, compiler: MSVC_NMAKE, arch: Win32, build_config: Release }
-          - { build: CLANG_NMAKE_x64_Debug, compiler: CLANG_NMAKE, arch: x64, build_config: Debug }
-          - { build: CLANG_NMAKE_x64_Release, compiler: CLANG_NMAKE, arch: x64, build_config: Release }
-          - { build: GCC_MAKE_x64_Debug, compiler: GCC_MAKE, arch: x64, build_config: Debug }
-          - { build: GCC_MAKE_x64_Release, compiler: GCC_MAKE, arch: x64, build_config: Release }
-          - { build: CLANG_MAKE_x64_Debug, compiler: CLANG_MAKE, arch: x64, build_config: Debug }
-          - { build: CLANG_MAKE_x64_Release, compiler: CLANG_MAKE, arch: x64, build_config: Release }
+          - { build: MSVC_PROJ_x64_Debug,       compiler: MSVC_PROJ,     arch: x64,     build_config: Debug }
+          - { build: MSVC_PROJ_x64_Release,     compiler: MSVC_PROJ,     arch: x64,     build_config: Release }
+          - { build: MSVC_PROJ_x86_Debug,       compiler: MSVC_PROJ,     arch: Win32,   build_config: Debug }
+          - { build: MSVC_PROJ_x86_Release,     compiler: MSVC_PROJ,     arch: Win32,   build_config: Release }
+          - { build: MSVC_NMAKE_x64_Debug,      compiler: MSVC_NMAKE,    arch: x64,     build_config: Debug }
+          - { build: MSVC_NMAKE_x64_Release,    compiler: MSVC_NMAKE,    arch: x64,     build_config: Release }
+          - { build: MSVC_NMAKE_x86_Debug,      compiler: MSVC_NMAKE,    arch: Win32,   build_config: Debug }
+          - { build: MSVC_NMAKE_x86_Release,    compiler: MSVC_NMAKE,    arch: Win32,   build_config: Release }
+          - { build: CLANG_NMAKE_x64_Debug,     compiler: CLANG_NMAKE,   arch: x64,     build_config: Debug }
+          - { build: CLANG_NMAKE_x64_Release,   compiler: CLANG_NMAKE,   arch: x64,     build_config: Release }
+          - { build: GCC_MAKE_x64_Debug,        compiler: GCC_MAKE,      arch: x64,     build_config: Debug }
+          - { build: GCC_MAKE_x64_Release,      compiler: GCC_MAKE,      arch: x64,     build_config: Release }
+          - { build: CLANG_MAKE_x64_Debug,      compiler: CLANG_MAKE,    arch: x64,     build_config: Debug }
+          - { build: CLANG_MAKE_x64_Release,    compiler: CLANG_MAKE,    arch: x64,     build_config: Release }
 
     steps:
       - name: Checkout source
@@ -44,9 +56,9 @@ jobs:
         with:
           arch: ${{ matrix.arch }}
 
-      - name: Set envirement for debug build
+      - name: Set environment for debug build
         if: matrix.build_config  == 'Debug'
-        run: set DEBUG=1
+        run: Add-Content -Path $env:GITHUB_ENV -Value "DEBUG=1"
 
       - name: Build MsBuild
         if: matrix.compiler == 'MSVC_PROJ'

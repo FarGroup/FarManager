@@ -77,9 +77,9 @@ ControlObject::ControlObject()
 	HiFiles = std::make_unique<highlight::configuration>();
 	Plugins = std::make_unique<PluginManager>();
 
-	CmdHistory = std::make_unique<History>(HISTORYTYPE_CMD, string_view{}, Global->Opt->SaveHistory, false, false);
-	FolderHistory = std::make_unique<History>(HISTORYTYPE_FOLDER, string_view{}, Global->Opt->SaveFoldersHistory, false, true);
-	ViewHistory = std::make_unique<History>(HISTORYTYPE_VIEW, string_view{}, Global->Opt->SaveViewHistory, Global->Opt->FlagPosixSemantics, true);
+	CmdHistory = std::make_unique<History>(HISTORYTYPE_CMD, string_view{}, Global->Opt->SaveHistory, false);
+	FolderHistory = std::make_unique<History>(HISTORYTYPE_FOLDER, string_view{}, Global->Opt->SaveFoldersHistory, true);
+	ViewHistory = std::make_unique<History>(HISTORYTYPE_VIEW, string_view{}, Global->Opt->SaveViewHistory, true);
 
 	FileFilter::InitFilter();
 }

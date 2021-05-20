@@ -7,7 +7,7 @@ enum CompareLng {
 	MOK,
 	MCancel,
 	MYes,
-   MNo,  
+	MNo,
 
 	MCompare,
 

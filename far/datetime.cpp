@@ -792,6 +792,29 @@ time_check::operator bool() const noexcept
 	return false;
 }
 
+std::pair<string, string> get_time()
+{
+	SYSTEMTIME SystemTime{};
+	GetSystemTime(&SystemTime);
+
+	return
+	{
+		format(
+			FSTR(L"{:04}/{:02}/{:02}"sv),
+			SystemTime.wYear,
+			SystemTime.wMonth,
+			SystemTime.wDay
+		),
+		format(
+			FSTR(L"{:02}:{:02}:{:02}.{:03}"sv),
+			SystemTime.wHour,
+			SystemTime.wMinute,
+			SystemTime.wSecond,
+			SystemTime.wMilliseconds
+		)
+	};
+}
+
 #ifdef ENABLE_TESTS
 
 #include "testing.hpp"

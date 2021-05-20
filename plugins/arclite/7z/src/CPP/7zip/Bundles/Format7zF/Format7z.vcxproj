@@ -20,15 +20,15 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectName>7z</ProjectName>
-    <SccProjectName />
-    <SccLocalPath />
     <ProjectGuid>{3AAF130C-999A-BC41-F53A-BC1339658B86}</ProjectGuid>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '10.0'">v100</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -490,12 +490,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\C\Ppmd7Dec.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
+    <ClCompile Include="..\..\..\..\C\Ppmd7aDec.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\Ppmd7Dec.c">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\Ppmd7Enc.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -570,11 +569,9 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\XzCrc64Opt.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Platform)'=='Win32'" />
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
+      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\XzDec.c">
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Level4</WarningLevel>
@@ -608,7 +605,9 @@
     <ClCompile Include="..\..\..\Common\MyWindows.cpp" />
     <ClCompile Include="..\..\..\Common\MyXml.cpp" />
     <ClCompile Include="..\..\..\Common\NewHandler.cpp" />
+    <ClCompile Include="..\..\..\Common\Sha1Prepare.cpp" />
     <ClCompile Include="..\..\..\Common\Sha1Reg.cpp" />
+    <ClCompile Include="..\..\..\Common\Sha256Prepare.cpp" />
     <ClCompile Include="..\..\..\Common\Sha256Reg.cpp" />
     <ClCompile Include="..\..\..\Common\StringConvert.cpp" />
     <ClCompile Include="..\..\..\Common\StringToInt.cpp" />
@@ -662,6 +661,7 @@
     <ClCompile Include="..\..\Archive\Common\OutStreamWithCRC.cpp" />
     <ClCompile Include="..\..\Archive\Common\OutStreamWithSha1.cpp" />
     <ClCompile Include="..\..\Archive\Common\ParseProperties.cpp" />
+    <ClCompile Include="..\..\Archive\Base64Handler.cpp" />
     <ClCompile Include="..\..\Archive\CpioHandler.cpp" />
     <ClCompile Include="..\..\Archive\CramfsHandler.cpp" />
     <ClCompile Include="..\..\Archive\DeflateProps.cpp" />
@@ -1109,13 +1109,22 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </MASM>
     <MASM Include="..\..\..\..\Asm\x86\7zCrcOpt.asm">
-      <NoLogo Condition="'$(Platform)'=='x64'">false</NoLogo>
       <PreprocessorDefinitions Condition="'$(Platform)'=='x64'">x64</PreprocessorDefinitions>
     </MASM>
     <MASM Include="..\..\..\..\Asm\x86\AesOpt.asm">
       <PreprocessorDefinitions Condition="'$(Platform)'=='x64'">x64</PreprocessorDefinitions>
     </MASM>
     <MASM Include="..\..\..\..\Asm\x86\LzmaDecOpt.asm">
+      <PreprocessorDefinitions Condition="'$(Platform)'=='x64'">x64</PreprocessorDefinitions>
+      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
+    </MASM>
+    <MASM Include="..\..\..\..\Asm\x86\Sha1Opt.asm">
+      <PreprocessorDefinitions Condition="'$(Platform)'=='x64'">x64</PreprocessorDefinitions>
+    </MASM>
+    <MASM Include="..\..\..\..\Asm\x86\Sha256Opt.asm">
+      <PreprocessorDefinitions Condition="'$(Platform)'=='x64'">x64</PreprocessorDefinitions>
+    </MASM>
+    <MASM Include="..\..\..\..\Asm\x86\XzCrc64Opt.asm">
       <PreprocessorDefinitions Condition="'$(Platform)'=='x64'">x64</PreprocessorDefinitions>
       <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
     </MASM>

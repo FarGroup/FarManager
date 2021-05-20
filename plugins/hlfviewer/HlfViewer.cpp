@@ -3,20 +3,21 @@
 #include <DlgBuilder.hpp>
 #include "Lang.hpp"
 #include "version.hpp"
+
+#include "guid.hpp"
 #include <initguid.h>
 #include "guid.hpp"
 
 
-wchar_t *GetEditorFileName(void);
+wchar_t *GetEditorFileName();
 const wchar_t *FindTopic(bool ForwardDirect=false, bool RestorePos=true);
-BOOL IsHlf(void);
-void RestorePosition(struct EditorInfo *ei);
-BOOL CheckExtension(const wchar_t *ptrName);
+BOOL IsHlf();
+void RestorePosition(EditorInfo *ei);
 bool ShowHelp(const wchar_t *fullfilename,const wchar_t *topic, bool CmdLine=false, bool ShowError=true);
 const wchar_t *GetMsg(int MsgId);
 bool ShowCurrentHelpTopic();
 static void ShowHelpFromTempFile();
-void GetPluginConfig(void);
+void GetPluginConfig();
 static bool inputrecord_compare(const INPUT_RECORD &r1,const INPUT_RECORD &r2);
 bool FindPluginHelp(const wchar_t* Name,wchar_t* DestPath);
 
@@ -30,30 +31,25 @@ static struct Options
 	int Style;
 } Opt;
 
-static struct PluginStartupInfo Info;
-static struct FarStandardFunctions FSF;
-
-static struct EditorInfo ei={sizeof(EditorInfo)};
-static struct EditorGetString egs={sizeof(EditorGetString)};
-static struct EditorSetPosition esp={sizeof(EditorSetPosition)};
-
+static PluginStartupInfo PsInfo;
+static FarStandardFunctions FSF;
 
 static INPUT_RECORD _DefKey={KEY_EVENT,{{TRUE,1,VK_F1,0x3B,{0},0}}};
 
 
-BOOL FileExists(const wchar_t *Name)
+static bool FileExists(const wchar_t* Name)
 {
-	return GetFileAttributes(Name)!=0xFFFFFFFF;
+	return GetFileAttributes(Name) != INVALID_FILE_ATTRIBUTES;
 }
 
-bool StrToGuid(const wchar_t *Value,GUID *Guid)
+static bool StrToGuid(const wchar_t* Value,GUID* Guid)
 {
-	return UuidFromString(reinterpret_cast<unsigned short*>((void*)Value), Guid) == RPC_S_OK;
+	return UuidFromString(reinterpret_cast<unsigned short*>(const_cast<wchar_t*>(Value)), Guid) == RPC_S_OK;
 }
 
-BOOL CheckExtension(const wchar_t *ptrName)
+static bool CheckExtension(const wchar_t *ptrName)
 {
-	return (BOOL)(Opt.CheckMaskFile && *Opt.MaskFile?FSF.ProcessName(Opt.MaskFile, (wchar_t*)ptrName, 0, PN_CMPNAMELIST|PN_SKIPPATH):TRUE);
+	return !(Opt.CheckMaskFile && *Opt.MaskFile) || FSF.ProcessName(Opt.MaskFile, const_cast<wchar_t*>(ptrName), 0, PN_CMPNAMELIST | PN_SKIPPATH);
 }
 
 bool ShowHelp(const wchar_t *fullfilename,const wchar_t *topic, bool CmdLine, bool ShowError)
@@ -62,10 +58,10 @@ bool ShowHelp(const wchar_t *fullfilename,const wchar_t *topic, bool CmdLine, bo
 	{
 		const wchar_t *Topic=topic;
 
-		if (NULL == Topic)
+		if (!Topic)
 			Topic=GetMsg(MDefaultTopic);
 
-		return Info.ShowHelp(fullfilename,Topic,FHELP_CUSTOMFILE|(ShowError?0:FHELP_NOSHOWERROR))?true:false;
+		return PsInfo.ShowHelp(fullfilename,Topic,FHELP_CUSTOMFILE|(ShowError?0:FHELP_NOSHOWERROR))?true:false;
 	}
 
 	return false;
@@ -73,10 +69,10 @@ bool ShowHelp(const wchar_t *fullfilename,const wchar_t *topic, bool CmdLine, bo
 
 const wchar_t *GetMsg(int MsgId)
 {
-	return Info.GetMsg(&MainGuid,MsgId);
+	return PsInfo.GetMsg(&MainGuid,MsgId);
 }
 
-void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 {
 	Info->StructSize=sizeof(GlobalInfo);
 	Info->MinFarVersion=FARMANAGERVERSION;
@@ -87,17 +83,18 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 	Info->Author=PLUGIN_AUTHOR;
 }
 
-void WINAPI SetStartupInfoW(const struct PluginStartupInfo *PSInfo)
+void WINAPI SetStartupInfoW(const PluginStartupInfo *Info)
 {
-	Info=*PSInfo;
-	FSF=*PSInfo->FSF;
+	PsInfo=*Info;
+	FSF=*PsInfo.FSF;
+	PsInfo.FSF=&FSF;
 
 	GetPluginConfig();
 }
 
-HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
+HANDLE WINAPI OpenW(const OpenInfo *Info)
 {
-	if (OInfo->OpenFrom == OPEN_EDITOR || OInfo->OpenFrom==OPEN_FROMMACRO)
+	if (Info->OpenFrom == OPEN_EDITOR || Info->OpenFrom==OPEN_FROMMACRO)
 	{
 		HANDLE MacroResult=nullptr;
 		// в редакторе проверяем файл на принадлежность к системе помощи Far Manager
@@ -106,21 +103,21 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			if (ShowCurrentHelpTopic())
 				MacroResult=INVALID_HANDLE_VALUE;
 		}
-		else if (OInfo->OpenFrom!=OPEN_FROMMACRO)
+		else if (Info->OpenFrom!=OPEN_FROMMACRO)
 		{
 			const wchar_t *Items[] = { GetMsg(MTitle), GetMsg(MNotAnHLF), GetMsg(MOk) };
-			Info.Message(&MainGuid, nullptr, 0, NULL, Items, ARRAYSIZE(Items), 1);
+			PsInfo.Message(&MainGuid, nullptr, 0, {}, Items, ARRAYSIZE(Items), 1);
 		}
 
-		return (OInfo->OpenFrom==OPEN_FROMMACRO)?MacroResult:nullptr;
+		return (Info->OpenFrom==OPEN_FROMMACRO)?MacroResult:nullptr;
 	}
 
-	if (OInfo->OpenFrom==OPEN_COMMANDLINE)
+	if (Info->OpenFrom==OPEN_COMMANDLINE)
 	{
 		static wchar_t cmdbuf[1024], FileName[MAX_PATH], *ptrTopic, *ptrName;
 
 		// разбор "параметров ком.строки"
-		lstrcpyn(cmdbuf,((OpenCommandLineInfo*)OInfo->Data)->CommandLine,ARRAYSIZE(cmdbuf));
+		lstrcpyn(cmdbuf,((OpenCommandLineInfo*)Info->Data)->CommandLine,ARRAYSIZE(cmdbuf));
 
 		if (cmdbuf[0])
 		{
@@ -152,7 +149,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				if (lstrlen(ptrTopic))
 					FSF.Trim(ptrTopic);
 				else
-					ptrTopic=NULL;
+					ptrTopic={};
 			}
 			else
 			{
@@ -160,13 +157,13 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				{
 					ptrTopic=ptrName+1;
 					FSF.Trim(ptrTopic);
-					ptrName=NULL;
+					ptrName={};
 				}
 				else
-					ptrTopic = NULL;
+					ptrTopic = {};
 			}
 
-			wchar_t *ptrCurDir=NULL;
+			wchar_t *ptrCurDir={};
 
 			// Здесь: ptrName - тмя файла/GUID, ptrTopic - имя темы
 
@@ -184,7 +181,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			}
 
 			if (guidMode)
-				Info.ShowHelp((const wchar_t*)&FindGuid,ptrTopic,FHELP_GUID);
+				PsInfo.ShowHelp((const wchar_t*)&FindGuid,ptrTopic,FHELP_GUID);
 
 			// по GUID`у не найдено, пробуем имя файла
 			if (!guidMode)
@@ -197,7 +194,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				if (FSF.PointToName(ptrName) == ptrName)
 				{
 					// ...смотрим в текущем каталоге
-					size_t Size=FSF.GetCurrentDirectory(0,NULL);
+					size_t Size=FSF.GetCurrentDirectory(0,{});
 
 					if (Size)
 					{
@@ -241,21 +238,21 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				if (!ShowHelp(FileName,ptrTopic,true,(!ptrTopic || !*ptrTopic?false:true)))
 				{
 					// синтаксис hlf:topic_из_ФАР_хелпа ==> TempFileName
-					Info.ShowHelp(nullptr,TempFileName,FHELP_FARHELP);
+					PsInfo.ShowHelp(nullptr,TempFileName,FHELP_FARHELP);
 				}
 			}
 		}
 		else
 		{
 			// параметры не указаны, выводим подсказку по использованию плагина.
-			Info.ShowHelp(Info.ModuleName,L"cmd",FHELP_SELFHELP);
+			PsInfo.ShowHelp(PsInfo.ModuleName,L"cmd",FHELP_SELFHELP);
 		}
 	}
 
 	return nullptr;
 }
 
-void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+void WINAPI GetPluginInfoW(PluginInfo *Info)
 {
 	Info->StructSize=sizeof(*Info);
 	Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
@@ -286,7 +283,8 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 	{
 		if (InputInfo->Rec.EventType==KEY_EVENT && InputInfo->Rec.Event.KeyEvent.bKeyDown && inputrecord_compare(InputInfo->Rec,Opt.RecKey))
 		{
-			Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
+			EditorInfo ei = { sizeof(EditorInfo) };
+			PsInfo.EditorControl(-1,ECTL_GETINFO,0,&ei);
 			wchar_t *FileName=GetEditorFileName();
 
 			if (IsHlf() || (Opt.CheckMaskFile && CheckExtension(FileName)))
@@ -303,10 +301,10 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 	return Result;
 }
 
-wchar_t *GetEditorFileName(void)
+wchar_t *GetEditorFileName()
 {
 	wchar_t *FileName=nullptr;
-	size_t FileNameSize=Info.EditorControl(-1,ECTL_GETFILENAME,0,0);
+	size_t FileNameSize=PsInfo.EditorControl(-1,ECTL_GETFILENAME,0,{});
 
 	if (FileNameSize)
 	{
@@ -314,7 +312,7 @@ wchar_t *GetEditorFileName(void)
 
 		if (FileName)
 		{
-			Info.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName);
+			PsInfo.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName);
 		}
 	}
 
@@ -325,7 +323,8 @@ bool ShowCurrentHelpTopic()
 {
 	bool Result=true;
 	wchar_t *FileName=GetEditorFileName();
-	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
+	EditorInfo ei = { sizeof(EditorInfo) };
+	PsInfo.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
 	switch (Opt.Style)
 	{
@@ -348,8 +347,8 @@ bool ShowCurrentHelpTopic()
 		case 2:
 
 			if (!(ei.CurState&ECSTATE_SAVED))
-				Info.EditorControl(-1,ECTL_SAVEFILE, 0, 0);
-
+				PsInfo.EditorControl(-1,ECTL_SAVEFILE, 0, {});
+			[[fallthrough]];
 		default:
 			ShowHelp(FileName,FindTopic(),false);
 			break;
@@ -363,7 +362,7 @@ bool ShowCurrentHelpTopic()
 
 static void ShowHelpFromTempFile()
 {
-	struct EditorSaveFile esf={sizeof(EditorSaveFile)};
+	EditorSaveFile esf={sizeof(EditorSaveFile)};
 	wchar_t fname[MAX_PATH];
 	esf.FileName = fname;
 
@@ -371,30 +370,30 @@ static void ShowHelpFromTempFile()
 	{
 		lstrcat(fname,L".hlf");
 		/*
-		  esf.FileEOL=NULL;
-		  Info.EditorControl(ECTL_SAVEFILE, &esf);
+		  esf.FileEOL={};
+		  PsInfo.EditorControl(ECTL_SAVEFILE, &esf);
 		  ShowHelp(esf.FileName, FindTopic());
 		  DeleteFile(esf.FileName);
 		*/
-		struct EditorGetString egs={sizeof(EditorGetString)};
-		struct EditorInfo ei={sizeof(EditorInfo)};
+		EditorGetString egs={sizeof(EditorGetString)};
+		EditorInfo ei={sizeof(EditorInfo)};
 		DWORD Count;
 
 		HANDLE Handle=CreateFile(esf.FileName, GENERIC_WRITE, FILE_SHARE_READ,
-		                         NULL, CREATE_NEW, 0, NULL);
+		                         {}, CREATE_NEW, 0, {});
 
 		if (Handle != INVALID_HANDLE_VALUE)
 		{
-			Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
+			PsInfo.EditorControl(-1,ECTL_GETINFO,0,&ei);
 			#define SIGN_UNICODE    0xFEFF
 			WORD sign=SIGN_UNICODE;
-			WriteFile(Handle, &sign, 2, &Count, NULL);
+			WriteFile(Handle, &sign, 2, &Count, {});
 
 			for (egs.StringNumber=0; egs.StringNumber<ei.TotalLines; egs.StringNumber++)
 			{
-				Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
-				WriteFile(Handle, egs.StringText, (DWORD)(egs.StringLength*sizeof(wchar_t)), &Count, NULL);
-				WriteFile(Handle, L"\r\n", 2*sizeof(wchar_t), &Count, NULL);
+				PsInfo.EditorControl(-1,ECTL_GETSTRING,0,&egs);
+				WriteFile(Handle, egs.StringText, (DWORD)(egs.StringLength*sizeof(wchar_t)), &Count, {});
+				WriteFile(Handle, L"\r\n", 2*sizeof(wchar_t), &Count, {});
 			}
 
 			CloseHandle(Handle);
@@ -404,31 +403,27 @@ static void ShowHelpFromTempFile()
 			DeleteFile(esf.FileName);
 		}
 	}
-	else
-	{
-		; //??
-	}
 }
 
-void RestorePosition(struct EditorInfo *ei)
+void RestorePosition(EditorInfo *ei)
 {
-	struct EditorSetPosition esp={sizeof(EditorSetPosition)};
+	EditorSetPosition esp={sizeof(EditorSetPosition)};
 	esp.CurLine=ei->CurLine;
 	esp.CurPos=ei->CurPos;
 	esp.TopScreenLine=ei->TopScreenLine;
 	esp.LeftPos=ei->LeftPos;
 	esp.CurTabPos=-1;
 	esp.Overtype=-1;
-	Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+	PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 }
 
 // это HLF-файл?
 // первая строка hlf всегда начинается с ".Language="
-BOOL IsHlf(void)
+BOOL IsHlf()
 {
 	BOOL ret=FALSE;
-	struct EditorInfo ei={sizeof(EditorInfo)};
-	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
+	EditorInfo ei={sizeof(EditorInfo)};
+	PsInfo.EditorControl(-1,ECTL_GETINFO,0,&ei);
 	bool CheckedHlf=true;
 
 	if (Opt.CheckMaskFile)
@@ -444,7 +439,8 @@ BOOL IsHlf(void)
 
 	if (CheckedHlf)
 	{
-		memset(&esp,-1,sizeof(esp));
+		EditorSetPosition esp = { sizeof(EditorSetPosition) };
+		EditorGetString egs = { sizeof(EditorGetString) };
 		egs.StringNumber=-1;
 		intptr_t total=(ei.TotalLines<3)?ei.TotalLines:3;
 
@@ -452,8 +448,8 @@ BOOL IsHlf(void)
 		{
 			for (esp.CurLine=0; esp.CurLine<total; esp.CurLine++)
 			{
-				Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
-				Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
+				PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+				PsInfo.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
 				if (!FSF.LStrnicmp(L".Language=",egs.StringText,10))
 				{
@@ -474,21 +470,21 @@ BOOL IsHlf(void)
 // для "этой темы" ищем её имя (от позиции курсора вверх/вниз по файлу)
 const wchar_t *FindTopic(bool ForwardDirect, bool RestorePos)
 {
-	const wchar_t *ret=NULL;
-	const wchar_t *tmp;
-	struct EditorInfo ei={sizeof(EditorInfo)};
-	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
+	const wchar_t*ret{};
+	EditorInfo ei={sizeof(EditorInfo)};
+	PsInfo.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
-	memset(&esp,-1,sizeof(esp));
+	EditorSetPosition esp = { sizeof(EditorSetPosition) };
+	EditorGetString egs = { sizeof(EditorGetString) };
 	egs.StringNumber=-1;
 
 	intptr_t Direct=ForwardDirect?1:-1;
 
 	for (esp.CurLine=ei.CurLine; (ForwardDirect?esp.CurLine<ei.TotalLines:esp.CurLine>=0); esp.CurLine+=Direct)
 	{
-		Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
-		Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
-		tmp=egs.StringText;
+		PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+		PsInfo.EditorControl(-1,ECTL_GETSTRING,0,&egs);
+		auto tmp=egs.StringText;
 
 		// "Тема": начинается '@', дальше букво-цифры, не содержит '='
 		if (lstrlen(tmp)>1 && *tmp==L'@' && *(tmp+1)!=L'-' && *(tmp+1)!=L'+' && !wcschr(tmp,L'='))
@@ -531,7 +527,7 @@ static bool inputrecord_compare(const INPUT_RECORD &r1,const INPUT_RECORD &r2)
 
 // поиск hlf-файла Name в каталогах плагинов (первый найденный!)
 // в DestPath возвращает полный путь к найденному hlf-файлу
-static int WINAPI frsuserfunc(const struct PluginPanelItem *FData,const wchar_t *FullName,void *Param)
+static int WINAPI frsuserfunc(const PluginPanelItem *FData,const wchar_t *FullName,void *Param)
 {
 	lstrcpy((wchar_t*)Param,FullName);
 	return FALSE;
@@ -543,7 +539,7 @@ bool FindPluginHelp(const wchar_t* Name,wchar_t* DestPath)
 	DestPath[0]=0;
 
 	// 1. Получить количество плагинов в "этом сеансе" Far Manager
-	int CountPlugin = (int)Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_GETPLUGINS,0,NULL);
+	int CountPlugin = (int)PsInfo.PluginsControl(INVALID_HANDLE_VALUE,PCTL_GETPLUGINS,0,{});
 
 	if (CountPlugin > 0)
 	{
@@ -551,26 +547,26 @@ bool FindPluginHelp(const wchar_t* Name,wchar_t* DestPath)
 		if (hPlugins)
 		{
 			// 2. Получить хэндлы плагинов
-			Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_GETPLUGINS,CountPlugin,hPlugins);
+			PsInfo.PluginsControl(INVALID_HANDLE_VALUE,PCTL_GETPLUGINS,CountPlugin,hPlugins);
 
 			// 3. Посмотреть на эти плагины
 			for (int I=0; I < CountPlugin; ++I)
 			{
 				// 4. Для очередного плагина получить размер необходимой памяти по информационные структуры
-				int SizeMemory=(int)Info.PluginsControl(hPlugins[I],PCTL_GETPLUGININFORMATION,0,NULL);
+				int SizeMemory=(int)PsInfo.PluginsControl(hPlugins[I],PCTL_GETPLUGININFORMATION,0,{});
 				if (SizeMemory > 0)
 				{
-					FarGetPluginInformation *fgpi=(FarGetPluginInformation*)new BYTE[SizeMemory];
+					const auto fgpi=reinterpret_cast<FarGetPluginInformation*>(new BYTE[SizeMemory]);
 					if (fgpi)
 					{
 						wchar_t FoundPath[MAX_PATH];
 						// 5. Для очередного плагина получить информационные структуры
-						Info.PluginsControl(hPlugins[I],PCTL_GETPLUGININFORMATION,SizeMemory,fgpi);
+						PsInfo.PluginsControl(hPlugins[I],PCTL_GETPLUGININFORMATION,SizeMemory,fgpi);
 
 						// 6. Путь к плагину
 						wchar_t *ModuleName=new wchar_t[lstrlen(fgpi->ModuleName)+1];
 						lstrcpy(ModuleName,fgpi->ModuleName);
-						wchar_t *ptrModuleName=(wchar_t *)FSF.PointToName(ModuleName);
+						const auto ptrModuleName=const_cast<wchar_t*>(FSF.PointToName(ModuleName));
 						if (ptrModuleName)
 							*ptrModuleName=0;
 
@@ -607,7 +603,7 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 {
 	GetPluginConfig();
 
-	PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MConfig, L"Config");
+	PluginDialogBuilder Builder(PsInfo, MainGuid, DialogGuid, MConfig, L"Config");
 
 	Builder.StartColumns();
 	Builder.AddCheckbox(MProcessEditorInput, &Opt.ProcessEditorInput);
@@ -635,7 +631,7 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 			Opt.RecKey=_DefKey;
 		}
 
-		PluginSettings settings(MainGuid, Info.SettingsControl);
+		PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 		settings.Set(0,L"ProcessEditorInput",Opt.ProcessEditorInput);
 		settings.Set(0,L"Style",Opt.Style);
 		settings.Set(0,L"EditorKey",Opt.AssignKeyName);
@@ -646,9 +642,9 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 	return FALSE;
 }
 
-void GetPluginConfig(void)
+void GetPluginConfig()
 {
-	PluginSettings settings(MainGuid, Info.SettingsControl);
+	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 
 	settings.Get(0,L"EditorKey",Opt.AssignKeyName,ARRAYSIZE(Opt.AssignKeyName),L"F1");
 

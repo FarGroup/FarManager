@@ -1346,7 +1346,8 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				}
 				seInfo.lpFile = strFullName.c_str();
 				if (!IsWindowsVistaOrGreater() && ParsePath(seInfo.lpFile) == root_type::win32nt_drive_letter)
-				{	// "\\?\c:\..." fails on old windows
+				{
+					// "\\?\c:\..." fails on old windows
 					seInfo.lpFile += 4;
 				}
 				seInfo.lpVerb = L"properties";

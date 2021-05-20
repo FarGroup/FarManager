@@ -749,7 +749,7 @@ m1:
 					for (int I = static_cast<int>(strSplitLine.size()) - 1; I > 0; I--)
 					{
 						if (strSplitLine[I]==L'~' && strSplitLine[I - 1] == L'~')
-						 {
+						{
 							I--;
 							continue;
 						}
@@ -1047,12 +1047,12 @@ static bool FastParseLine(string_view Str, int* const pLen, const int x0, const 
 				continue;
 			}
 		}
-		else if (wc == L'@')	// skip topic link //??? is it valid without ~topic~
+		else if (wc == L'@') // skip topic link //??? is it valid without ~topic~
 		{
 			Str = SkipLink(Str, nullptr);
 			continue;
 		}
-		else if (wc == L'~')	// start/stop topic
+		else if (wc == L'~') // start/stop topic
 		{
 			if (start_topic < 0)
 				start_topic = x;

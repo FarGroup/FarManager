@@ -49,14 +49,14 @@ class NetResourceList
 		NETRESOURCE &operator[](int index) { return ResList [index]; }
 };
 
-typedef struct __NameAndPassInfo
+struct NameAndPassInfo
 {
 	wchar_t* Title;
 	wchar_t* Name;
 	wchar_t* Password;
 	LPBOOL pRemember;
 	wchar_t* szFavoritePath;
-} NameAndPassInfo;
+};
 
 class NetBrowser
 {
@@ -67,13 +67,13 @@ class NetBrowser
 		NetResourceList RootResources;         // stack of resources above the current level
 		// (used in non-MS Windows networks only)
 		NETRESOURCE CurResource;               // NETRESOURCE describing the current location
-		NETRESOURCE *PCurResource;             // points to CurResource or NULL (if at root)
+		NETRESOURCE *PCurResource;             // points to CurResource or nullptr (if at root)
 
 		BOOL ChangeDirSuccess;
 		BOOL OpenFromFilePanel;
 		int ReenterGetFindData;
 		wchar_t CmdLinePath [MAX_PATH];           // path passed when invoking us from command line
-		wchar_t PanelMode[2];                     // current start panel mode
+		wchar_t m_PanelMode[2];                     // current start panel mode
 
 #ifdef NETWORK_LOGGING
 		static FILE *LogFile;
@@ -117,9 +117,9 @@ class NetBrowser
 		void CreateFavSubFolder();
 		int GetFindData(PluginPanelItem **pPanelItem,size_t *pItemsNumber,OPERATION_MODES OpMode);
 		void FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber);
-		void GetOpenPanelInfo(struct OpenPanelInfo *Info);
+		void GetOpenPanelInfo(OpenPanelInfo *Info);
 		int SetDirectory(const wchar_t *Dir,OPERATION_MODES OpMode);
-		int DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,OPERATION_MODES OpMode);
+		int DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,OPERATION_MODES OpMode);
 		int ProcessKey(const INPUT_RECORD *Rec);
 		int ProcessEvent(intptr_t Event, void *Param);
 		void SetOpenFromCommandLine(wchar_t *ShareName);

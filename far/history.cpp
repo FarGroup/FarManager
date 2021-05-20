@@ -123,12 +123,11 @@ namespace
 	}
 }
 
-History::History(history_type TypeHistory, string_view const HistoryName, const Bool3Option& State, bool const CaseSensitive, bool const KeepSelectedPos):
+History::History(history_type TypeHistory, string_view const HistoryName, const Bool3Option& State, bool const KeepSelectedPos):
 	m_TypeHistory(TypeHistory),
 	m_HistoryName(HistoryName),
 	m_State(State),
-	m_KeepSelectedPos(KeepSelectedPos),
-	m_CaseSensitive(CaseSensitive)
+	m_KeepSelectedPos(KeepSelectedPos)
 {
 	// Initialise with the current time
 	history_white_list();
@@ -168,25 +167,29 @@ void History::AddToHistory(string_view const Str, history_record_type const Type
 
 	const bool ignore_data = m_TypeHistory == HISTORYTYPE_CMD;
 
-	const auto are_equal = m_CaseSensitive? equal : equal_icase;
-
 	for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName))
 	{
-		if (EqualType(Type, i.Type))
-		{
-			if (are_equal(Str, i.Name) &&
-				are_equal(strUuid, i.Uuid) &&
-				are_equal(File, i.File) &&
-				(ignore_data || are_equal(Data, i.Data)))
-			{
-				Lock = Lock || i.Lock;
-				DeleteId = i.Id;
+		if (!EqualType(Type, i.Type))
+			continue;
 
-				forget_record(i.Time);
+		if (!equal_icase(Str, i.Name))
+			continue;
 
-				break;
-			}
-		}
+		if (!equal_icase(strUuid, i.Uuid))
+			continue;
+
+		if (!equal_icase(File, i.File))
+			continue;
+
+		if (!ignore_data && !equal_icase(Data, i.Data))
+			continue;
+
+		Lock = Lock || i.Lock;
+		DeleteId = i.Id;
+
+		forget_record(i.Time);
+
+		break;
 	}
 
 	HistoryCfgRef()->DeleteAndAddAsync(DeleteId, m_TypeHistory, m_HistoryName, Str, Type, Lock, Time, strUuid, File, Data);  //Async - should never be used in a transaction

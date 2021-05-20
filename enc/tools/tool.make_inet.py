@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 
 """
 Make web suitable Encyclopedia
@@ -85,14 +85,14 @@ def make_inet_lang(lang):
 
 
 log("preparing INET build")
-log("-- cleaning build dir")
+log("-- cleaning build dir " + DEST)
 if isdir(DEST): shutil.rmtree(DEST)
 makedirs(DEST)
 logfile = logging.FileHandler(BUILD_INET_LOG, "w", encoding="utf-8")
 logging.getLogger().addHandler(logfile)
 
 
-log("-- making directory tree")
+log("-- output dir " + DEST_INET)
 makedirs(DEST_INET)
 makedirs(join(DEST_INET,"images"))
 makedirs(join(DEST_INET,"styles"))
@@ -101,8 +101,8 @@ make_inet_lang("rus")
 #make_inet_lang("eng")
 
 log("-- copying index files")
-shutil.copy("inet/index.html", DEST_INET)
-shutil.copy("inet/farenclogo.gif", join(DEST_INET,"images"))
-shutil.copy("inet/styles.css", join(DEST_INET,"styles"))
+shutil.copy(ROOT_DIR+"/tools/inet/index.html", DEST_INET)
+shutil.copy(ROOT_DIR+"/tools/inet/farenclogo.gif", join(DEST_INET,"images"))
+shutil.copy(ROOT_DIR+"/tools/inet/styles.css", join(DEST_INET,"styles"))
 
 log("-- done. check build log at %s" % BUILD_INET_LOG)

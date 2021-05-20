@@ -162,6 +162,8 @@ public:
 	void AddOKCancel(lng OKMessageId, lng CancelMessageId);
 	void AddButtons(span<lng const> Buttons, size_t OkIndex, size_t CancelIndex);
 	void SetDialogMode(DWORD Flags);
+	// BUGBUG
+	void SetScrObjFlags(DWORD Flags);
 	int AddTextWrap(lng_string Text, bool center = false, int width = 0);
 	void SetId(const UUID& Id);
 	const UUID& GetId() const;
@@ -212,6 +214,7 @@ private:
 	intptr_t m_ColumnMinWidth{};
 	string m_HelpTopic;
 	DWORD m_Mode{};
+	DWORD m_ScrObjFlags{};
 	UUID m_Id{};
 	bool m_IdExist{};
 	Dialog::dialog_handler m_handler;

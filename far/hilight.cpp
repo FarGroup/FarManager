@@ -75,6 +75,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+static const FarColor DefaultColor
+{
+	FCF_FG_4BIT | FCF_BG_4BIT | FCF_IGNORE_STYLE,
+	{colors::transparent(F_BLACK)},
+	{colors::transparent(F_BLACK)}
+};
+
 namespace names
 {
 #define STR_INIT(x) x = WSTRVIEW(x)
@@ -145,6 +152,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig& cfg)
 	{
 		auto Colour = colors::ConsoleColorToFarColor(ConsoleColour);
 		colors::make_transparent(Colour.BackgroundColor);
+		Colour.Flags |= FCF_IGNORE_STYLE;
 		return Colour;
 	};
 
@@ -191,16 +199,15 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig& cfg)
 
 		for (const auto& j: Default)
 		{
-			static const FarColor DefaultColor
-			{
-				FCF_FG_4BIT | FCF_BG_4BIT,
-				{colors::opaque(F_BLACK)},
-				{colors::transparent(F_BLACK)}
-			};
-
 			cfg.SetValue(Key, j, view_bytes(DefaultColor));
 		}
 	}
+}
+
+highlight::element::colors::colors():
+	FileColor(DefaultColor),
+	MarkColor(DefaultColor)
+{
 }
 
 highlight::configuration::configuration()
@@ -280,33 +287,19 @@ void highlight::configuration::ClearData()
 	FirstCount=UpperCount=LowerCount=LastCount=0;
 }
 
-static void ApplyDefaultStartingColors(highlight::element& Colors)
-{
-	for (auto& i: Colors.Color)
-	{
-		colors::make_opaque(i.FileColor.ForegroundColor);
-		colors::make_transparent(i.FileColor.BackgroundColor);
-		colors::make_opaque(i.MarkColor.ForegroundColor);
-		colors::make_transparent(i.MarkColor.BackgroundColor);
-	}
-
-	Colors.Mark.Transparent = true;
-	Colors.Mark.Char = 0;
-}
-
 static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type& Colors, DWORD PaletteColor)
 {
 	const auto InheritColor = [](FarColor& Color, const FarColor& Base)
 	{
-		if (!colors::color_value(Color.ForegroundColor) && !colors::color_value(Color.BackgroundColor))
-		{
-			Color.BackgroundColor = colors::alpha_value(Color.BackgroundColor) | colors::color_value(Base.BackgroundColor);
-			Color.ForegroundColor = colors::alpha_value(Color.ForegroundColor) | colors::color_value(Base.ForegroundColor);
-			Color.Flags &= FCF_EXTENDEDFLAGS;
-			Color.Flags |= Base.Flags;
-			Color.Reserved[0] = Base.Reserved[0];
-			Color.Reserved[1] = Base.Reserved[1];
-		}
+		if (colors::color_value(Color.ForegroundColor) || colors::color_value(Color.BackgroundColor))
+			return;
+
+		Color.BackgroundColor = colors::alpha_value(Color.BackgroundColor) | colors::color_value(Base.BackgroundColor);
+		Color.ForegroundColor = colors::alpha_value(Color.ForegroundColor) | colors::color_value(Base.ForegroundColor);
+		flags::copy(Color.Flags, FCF_4BITMASK, Base.Flags);
+
+		if (Color.Flags & FCF_IGNORE_STYLE)
+			flags::copy(Color.Flags, FCF_IGNORE_STYLE | FCF_STYLEMASK, Base.Flags);
 	};
 
 	//Применим black on black.
@@ -359,28 +352,8 @@ void highlight::configuration::ApplyFinalColor(element::colors_array::value_type
 	//Обработаем black on black чтоб после наследования были правильные цвета.
 	ApplyBlackOnBlackColor(Colors, PaletteColor);
 
-	const auto& PanelColor = Global->Opt->Palette[PaletteColor];
-
-	//Если какой то из текущих цветов (fore или back) прозрачный
-	//то унаследуем соответствующий цвет с панелей.
-	const auto ApplyColorPart = [&](FarColor& i, COLORREF FarColor::*ColorAccessor, const FARCOLORFLAGS Flag)
-	{
-		auto& ColorPart = std::invoke(ColorAccessor, i);
-		if(colors::is_transparent(ColorPart))
-		{
-			ColorPart = colors::transparent(std::invoke(ColorAccessor, PanelColor));
-			(PanelColor.Flags & Flag)? (i.Flags |= Flag) : (i.Flags &= ~Flag);
-		}
-	};
-
-	const auto ApplyColor = [&](FarColor& i)
-	{
-		ApplyColorPart(i, &FarColor::BackgroundColor, FCF_BG_4BIT);
-		ApplyColorPart(i, &FarColor::ForegroundColor, FCF_FG_4BIT);
-	};
-
-	ApplyColor(Colors.FileColor);
-	ApplyColor(Colors.MarkColor);
+	Colors.FileColor = colors::merge(Global->Opt->Palette[PaletteColor], Colors.FileColor);
+	Colors.MarkColor = colors::merge(Colors.FileColor, Colors.MarkColor);
 
 	//Паранойя но случится может:
 	//Обработаем black on black снова чтоб обработались унаследованные цвета.
@@ -396,9 +369,7 @@ const highlight::element* highlight::configuration::GetHiColor(const FileListIte
 {
 	SCOPED_ACTION(elevation::suppress);
 
-	element item = {};
-
-	ApplyDefaultStartingColors(item);
+	element item;
 
 	for (const auto& i: HiData)
 	{
@@ -421,7 +392,7 @@ const highlight::element* highlight::configuration::GetHiColor(const FileListIte
 	if (item.Mark.Transparent)
 		item.Mark.Char = 0;
 
-	return &*Colors.emplace(item).first;
+	return &*m_Colors.emplace(item).first;
 }
 
 int highlight::configuration::GetGroup(const FileListItem& Object, const FileList* Owner)

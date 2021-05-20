@@ -18,12 +18,7 @@
     <Property Id="ARPURLINFOABOUT" Value="https://farmanager.com/" />
     <Property Id="ARPURLUPDATEINFO" Value="https://farmanager.com/download.php" />
     <Media Id="1" Cabinet="far.cab" EmbedCab="yes" />
-    <Property Id="KERNEL32VERSION">
-        <DirectorySearch Id="Kernel32Version" Path="[SystemFolder]">
-            <FileSearch Name="kernel32.dll" MinVersion="5.0.2195.6740"/>
-        </DirectorySearch>
-    </Property>
-    <Condition Message="!(loc.LaunchCondition)"><![CDATA[NOT Version9X AND (VersionNT >= 501 OR (VersionNT = 500 AND ServicePackLevel >= 4 AND KERNEL32VERSION))]]></Condition>
+    <Condition Message="!(loc.LaunchCondition)"><![CDATA[NOT Version9X AND VersionNT >= 500)]]></Condition>
     <Binary Id="CustomActions.dll" SourceFile="customact.dll" />
     <CustomAction Id="UpdateFeatureState" BinaryKey="CustomActions.dll" DllEntry="UpdateFeatureState" />
     <CustomAction Id="SaveShortcutProps" BinaryKey="CustomActions.dll" DllEntry="SaveShortcutProps" Return="ignore" Impersonate="no" />
@@ -97,6 +92,6 @@
       <Custom Action="SetALLUSERS2" Before="ExecuteAction"><![CDATA[NOT ALLUSERS AND VersionMsi >= "5.00"]]></Custom>
     </InstallUISequence>
     <UIRef Id="WixUI_Mod" />
-    <Icon Id="Far.ico" SourceFile="rsrc\far.ico" />
+    <Icon Id="Far.ico" SourceFile="..\..\far\Far.ico" />
   </Product>
 </Wix>

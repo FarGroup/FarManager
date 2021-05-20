@@ -8,33 +8,33 @@
 
 namespace OleThread
 {
-  CHandle *hNeedInvoke=NULL;
-  CHandle *hInvokeDone=NULL;
-  CHandle *hStop=NULL;
-  CHandle *hShowMenu=NULL;
-  CHandle *hMenuDone=NULL;
-  CThreadTerminator *hTerminator;
+  static CHandle *hNeedInvoke{};
+  static CHandle *hInvokeDone{};
+  static CHandle *hStop{};
+  static CHandle *hShowMenu{};
+  static CHandle *hMenuDone{};
+  static CThreadTerminator *hTerminator;
 
   namespace OpenPluginArgs
   {
-    int nOpenFrom;
-    INT_PTR nItem;
-    CPlugin::EDoMenu enRes;
+    static int nOpenFrom;
+    static INT_PTR nItem;
+    static CPlugin::EDoMenu enRes;
   }
 
   namespace ShowMenuArgs
   {
-    CFarMenu *Menu;
-    LPCWSTR szTitle;
-    int nSelItem;
-    bool bAtCursorPos;
-    int Res;
+    static CFarMenu *Menu;
+    static LPCWSTR szTitle;
+    static int nSelItem;
+    static bool bAtCursorPos;
+    static int Res;
   }
 
-  DWORD WINAPI ThreadProc(LPVOID)
+  static DWORD WINAPI ThreadProc(LPVOID)
   {
     //HRESULT hr=CoInitializeEx(0, COINIT_MULTITHREADED);//! COINIT_APARTMENTTHREADED
-    if (FAILED(OleInitialize(NULL)))
+    if (FAILED(OleInitialize({})))
     {
       assert(0);
     }
@@ -61,9 +61,9 @@ namespace OleThread
       // , то FARу бедет послано сообщение и до тех пор пока оно
       // не обработается меню не покажется.
       MSG msg;
-      if (PeekMessage(&msg, (HWND)NULL, 0, 0, PM_NOREMOVE))
+      if (PeekMessage(&msg, {}, 0, 0, PM_NOREMOVE))
       {
-        GetMessage(&msg, (HWND)NULL, 0, 0);
+        GetMessage(&msg, {}, 0, 0);
         if (msg.message>=WM_USER)
         {
           DispatchMessage(&msg);
@@ -84,15 +84,15 @@ namespace OleThread
     return 0;
   }
 
-  HANDLE hThread=NULL;
+  static HANDLE hThread{};
 
-  bool EnsureThreadStarted()
+  static bool EnsureThreadStarted()
   {
-    if (!*hNeedInvoke) *hNeedInvoke=CreateEvent(NULL, FALSE, FALSE, NULL);
-    if (!*hInvokeDone) *hInvokeDone=CreateEvent(NULL, FALSE, FALSE, NULL);
-    if (!*hStop) *hStop=CreateEvent(NULL, FALSE, FALSE, NULL);
-    if (!*hShowMenu) *hShowMenu=CreateEvent(NULL, FALSE, FALSE, NULL);
-    if (!*hMenuDone) *hMenuDone=CreateEvent(NULL, FALSE, FALSE, NULL);
+    if (!*hNeedInvoke) *hNeedInvoke=CreateEvent({}, FALSE, FALSE, {});
+    if (!*hInvokeDone) *hInvokeDone=CreateEvent({}, FALSE, FALSE, {});
+    if (!*hStop) *hStop=CreateEvent({}, FALSE, FALSE, {});
+    if (!*hShowMenu) *hShowMenu=CreateEvent({}, FALSE, FALSE, {});
+    if (!*hMenuDone) *hMenuDone=CreateEvent({}, FALSE, FALSE, {});
     if (!*hNeedInvoke || !*hInvokeDone || !*hStop || !*hShowMenu || !*hMenuDone)
     {
       assert(0);
@@ -104,8 +104,8 @@ namespace OleThread
       if (STILL_ACTIVE==nStatus) return true;
     }
     DWORD nId;
-    hThread=CreateThread(NULL, 0, ThreadProc, 0, 0, &nId);
-    return (NULL!=hThread);
+    hThread=CreateThread({}, 0, ThreadProc, {}, 0, &nId);
+    return (hThread != nullptr);
   }
 
   CPlugin::EDoMenu OpenPlugin(int nOpenFrom, INT_PTR nItem)

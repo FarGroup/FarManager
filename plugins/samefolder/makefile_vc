@@ -8,4 +8,4 @@ LINK_OBJS = $(OBJDIR)\SameFolder.obj
 
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\SameFolder.obj: SameFolder.cpp SameFolder.hpp Lang.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp
+$(OBJDIR)\SameFolder.obj: SameFolder.cpp Lang.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp

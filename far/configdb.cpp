@@ -532,14 +532,15 @@ private:
 	static void Initialise(const db_initialiser& Db)
 	{
 		Db.EnableForeignKeysConstraints();
-		Db.CreateNumericCollation();
+
+		Db.add_numeric_collation();
 
 		static const std::string_view Schema[]
 		{
 			"CREATE TABLE IF NOT EXISTS table_keys(id INTEGER PRIMARY KEY, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"sv,
 			"CREATE TABLE IF NOT EXISTS table_values(key_id INTEGER NOT NULL, name TEXT NOT NULL, value BLOB, FOREIGN KEY(key_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (key_id, name), CHECK (key_id <> 0));"sv,
 			//root key (needs to be before the transaction start)
-			"INSERT OR IGNORE INTO table_keys VALUES (0,0,\"\",\"Root - do not edit\");"sv,
+			"INSERT OR IGNORE INTO table_keys VALUES (0,0,'','Root - do not edit');"sv,
 		};
 
 		Db.Exec(Schema);
@@ -837,13 +838,18 @@ private:
 	};
 };
 
-static const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[] =
+static const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]
 {
-	{FCF_FG_4BIT,      L"fg4bit"sv    },
-	{FCF_BG_4BIT,      L"bg4bit"sv    },
-	{FCF_FG_BOLD,      L"bold"sv      },
-	{FCF_FG_ITALIC,    L"italic"sv    },
-	{FCF_FG_UNDERLINE, L"underline"sv },
+	{ FCF_FG_4BIT,         L"fg4bit"sv       },
+	{ FCF_BG_4BIT,         L"bg4bit"sv       },
+	{ FCF_FG_BOLD,         L"bold"sv         },
+	{ FCF_FG_ITALIC,       L"italic"sv       },
+	{ FCF_FG_UNDERLINE,    L"underline"sv    },
+	{ FCF_FG_UNDERLINE2,   L"underline2"sv   },
+	{ FCF_FG_OVERLINE,     L"overline"sv     },
+	{ FCF_FG_STRIKEOUT,    L"strikeout"sv   },
+	{ FCF_FG_FAINT,        L"faint"sv        },
+	{ FCF_FG_BLINK,        L"blink"sv        },
 };
 
 class HighlightHierarchicalConfigDb: public HierarchicalConfigDb
@@ -1203,7 +1209,7 @@ private:
 			return;
 
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		Exec({ "DELETE FROM filetypes;"sv }); //delete all before importing
+		Exec("DELETE FROM filetypes;"sv); // delete all before importing
 		unsigned long long id = 0;
 		for (const auto& e: xml_enum(base, "filetype"))
 		{
@@ -1269,7 +1275,7 @@ public:
 	void DiscardCache() override
 	{
 		SCOPED_ACTION(auto)(ScopedTransaction());
-		Exec({ "DELETE FROM cachename;"sv });
+		Exec("DELETE FROM cachename;"sv);
 	}
 
 private:
@@ -1878,10 +1884,16 @@ private:
 		AsyncWork.set();
 	}
 
+	#define EDITORPOSITION_HISTORY_NAME "editorposition_history"
+	#define VIEWERPOSITION_HISTORY_NAME "viewerposition_history"
+	#define EDITORPOSITION_HISTORY_SCHEMA "(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE COLLATE NOCASE, time INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, codepage INTEGER NOT NULL);"
+	#define VIEWERPOSITION_HISTORY_SCHEMA "(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE COLLATE NOCASE, time INTEGER NOT NULL, filepos INTEGER NOT NULL, leftpos INTEGER NOT NULL, hex INTEGER NOT NULL, codepage INTEGER NOT NULL);"
+
 	static void Initialise(const db_initialiser& Db)
 	{
 		Db.SetWALJournalingMode();
-		Db.EnableForeignKeysConstraints();
+
+		Db.add_nocase_collation();
 
 		static const std::string_view Schema[]
 		{
@@ -1892,15 +1904,20 @@ private:
 			"CREATE INDEX IF NOT EXISTS history_idx3 ON history (kind, key, lock DESC, time DESC);"sv,
 			"CREATE INDEX IF NOT EXISTS history_idx4 ON history (kind, key, time DESC);"sv,
 			//view,edit file positions and bookmarks history
-			"CREATE TABLE IF NOT EXISTS editorposition_history(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE COLLATE NOCASE, time INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, codepage INTEGER NOT NULL);"sv,
+			"CREATE TABLE IF NOT EXISTS " EDITORPOSITION_HISTORY_NAME EDITORPOSITION_HISTORY_SCHEMA ""sv,
 			"CREATE TABLE IF NOT EXISTS editorbookmarks_history(pid INTEGER NOT NULL, num INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, FOREIGN KEY(pid) REFERENCES editorposition_history(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (pid, num));"sv,
 			"CREATE INDEX IF NOT EXISTS editorposition_history_idx1 ON editorposition_history (time DESC);"sv,
-			"CREATE TABLE IF NOT EXISTS viewerposition_history(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE COLLATE NOCASE, time INTEGER NOT NULL, filepos INTEGER NOT NULL, leftpos INTEGER NOT NULL, hex INTEGER NOT NULL, codepage INTEGER NOT NULL);"sv,
+			"CREATE TABLE IF NOT EXISTS " VIEWERPOSITION_HISTORY_NAME VIEWERPOSITION_HISTORY_SCHEMA ""sv,
 			"CREATE TABLE IF NOT EXISTS viewerbookmarks_history(pid INTEGER NOT NULL, num INTEGER NOT NULL, filepos INTEGER NOT NULL, leftpos INTEGER NOT NULL, FOREIGN KEY(pid) REFERENCES viewerposition_history(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (pid, num));"sv,
 			"CREATE INDEX IF NOT EXISTS viewerposition_history_idx1 ON viewerposition_history (time DESC);"sv,
 		};
 
 		Db.Exec(Schema);
+
+		reindex(Db);
+
+		// Must be after reindex
+		Db.EnableForeignKeysConstraints();
 
 		static const stmt_init<statement_id> Statements[]
 		{
@@ -1921,17 +1938,65 @@ private:
 			{ stmtGetNewest,             "SELECT id, name, time FROM history WHERE kind=?1 AND key=?2 ORDER BY time DESC LIMIT 1;"sv },
 			{ stmtSetEditorPos,          "REPLACE INTO editorposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7);"sv },
 			{ stmtSetEditorBookmark,     "REPLACE INTO editorbookmarks_history VALUES (?1,?2,?3,?4,?5,?6);"sv },
-			{ stmtGetEditorPos,          "SELECT id, line, linepos, screenline, leftpos, codepage FROM editorposition_history WHERE name=?1 COLLATE NOCASE;"sv },
+			{ stmtGetEditorPos,          "SELECT id, line, linepos, screenline, leftpos, codepage FROM editorposition_history WHERE name=?1;"sv },
 			{ stmtGetEditorBookmark,     "SELECT line, linepos, screenline, leftpos FROM editorbookmarks_history WHERE pid=?1 AND num=?2;"sv },
 			{ stmtSetViewerPos,          "REPLACE INTO viewerposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6);"sv },
 			{ stmtSetViewerBookmark,     "REPLACE INTO viewerbookmarks_history VALUES (?1,?2,?3,?4);"sv },
-			{ stmtGetViewerPos,          "SELECT id, filepos, leftpos, hex, codepage FROM viewerposition_history WHERE name=?1 COLLATE NOCASE;"sv },
+			{ stmtGetViewerPos,          "SELECT id, filepos, leftpos, hex, codepage FROM viewerposition_history WHERE name=?1;"sv },
 			{ stmtGetViewerBookmark,     "SELECT filepos, leftpos FROM viewerbookmarks_history WHERE pid=?1 AND num=?2;"sv },
 			{ stmtDeleteOldEditor,       "DELETE FROM editorposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM editorposition_history ORDER BY time DESC LIMIT ?2);"sv },
 			{ stmtDeleteOldViewer,       "DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);"sv },
 		};
 
 		Db.PrepareStatements(Statements);
+	}
+
+	static void reindex(db_initialiser const& Db)
+	{
+		static const std::pair<std::string_view, std::string_view> ReindexTables[]
+		{
+			{ EDITORPOSITION_HISTORY_NAME ""sv, EDITORPOSITION_HISTORY_SCHEMA ""sv },
+			{ VIEWERPOSITION_HISTORY_NAME ""sv, VIEWERPOSITION_HISTORY_SCHEMA ""sv },
+		};
+
+		for (const auto& [Name, Schema]: ReindexTables)
+		{
+			const auto reindex = [&, Name = Name]{ Db.Exec(format(FSTR("REINDEX {}"sv), Name)); };
+
+			try
+			{
+				reindex();
+			}
+			catch (far_sqlite_exception const& e)
+			{
+				if (!e.is_constaint_unique())
+					throw;
+
+				recreate_position_history(Db, Name, Schema);
+				reindex();
+			}
+		}
+	}
+
+	static void recreate_position_history(const db_initialiser& Db, std::string_view const Table, std::string_view const Schema)
+	{
+		LOGNOTICE(L"Recreating {}"sv, encoding::utf8::get_chars(Table));
+
+		SCOPED_ACTION(auto)(Db.ScopedTransaction());
+
+		// The order is important - https://sqlite.org/lang_altertable.html
+
+		// 1. Create new table
+		Db.Exec(format(FSTR("CREATE TABLE {}_new{}"sv), Table, Schema));
+
+		// 2. Copy data. "WHERE 1=1" is a dirty hack to prevent xfer optimization.
+		Db.Exec(format(FSTR("INSERT OR IGNORE INTO {0}_new SELECT * FROM {0} WHERE 1=1"sv), Table));
+
+		// 3. Drop old table
+		Db.Exec(format(FSTR("DROP TABLE {}"sv), Table));
+
+		// 4. Rename new into old
+		Db.Exec(format(FSTR("ALTER TABLE {0}_new RENAME TO {0}"sv), Table));
 	}
 
 	void Delete(unsigned long long id) override

@@ -204,7 +204,7 @@ private:
 	struct
 	{
 		highlight::element Colors;
-		int SortGroup{};
+		int SortGroup{ DEFAULT_SORT_GROUP };
 		bool bContinueProcessing{};
 	} FHighlight;
 

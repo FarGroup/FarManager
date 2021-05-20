@@ -563,14 +563,6 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			}
 			return Global->Opt->Palette.size();
 
-		/*
-			Param=FARColor{
-			DWORD Flags;
-			int StartIndex;
-			int ColorItem;
-			LPBYTE Colors;
-			};
-		*/
 		case ACTL_SETARRAYCOLOR:
 		{
 			const auto Pal = static_cast<const FarSetColors*>(Param2);
@@ -2967,7 +2959,7 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir, const wchar_t *Mask, FRSU
 		if (!FMask.assign(Mask, FMF_SILENT)) return;
 
 		Flags=Flags&0x000000FF; // только младший байт!
-		ScanTree ScTree((Flags & FRS_RETUPDIR)!=0, (Flags & FRS_RECUR)!=0, (Flags & FRS_SCANSYMLINK)!=0);
+		ScanTree ScTree((Flags & FRS_RETUPDIR)!=0, (Flags & FRS_RECUR)!=0, (Flags & FRS_SCANSYMLINK)!=0, true);
 		os::fs::find_data FindData;
 		string strFullName;
 		ScTree.SetFindPath(InitDir, L"*"sv);

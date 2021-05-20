@@ -343,6 +343,11 @@ void string_sort::adjust_comparer()
 	DefaultComparer = Comparers[CollationIdex][Global->Opt->Sort.DigitsAsNumbers][Global->Opt->Sort.CaseSensitive];
 }
 
+int string_sort::keyhole::compare_ordinal_icase(string_view const Str1, string_view const Str2)
+{
+	return ::compare_ordinal_icase(Str1, Str2);
+}
+
 int string_sort::keyhole::compare_ordinal_numeric(string_view const Str1, string_view const Str2)
 {
 	return ::compare_ordinal_numeric(Str1, Str2);

@@ -64,12 +64,14 @@ enum tree_flags
 	TREE_RETUPDIR      = 0_bit, // = FRS_RETUPDIR
 	TREE_RECUR         = 1_bit, // = FRS_RECUR
 	TREE_SCANSYMLINK   = 2_bit, // = FRS_SCANSYMLINK
-	TREE_SECONDDIRNAME = 3_bit, // set when FSCANTREE_RETUPDIR is enabled and directory scan is finished
+	TREE_FILESFIRST    = 3_bit, // Сканирование каталога за два прохода. Сначала файлы, затем каталоги
+	TREE_SECONDDIRNAME = 4_bit, // set when FSCANTREE_RETUPDIR is enabled and directory scan is finished
 };
 
 enum tree_item_flags
 {
-	TREE_ITEM_INSIDE_REPARSE_POINT = 0_bit, // For Copy: we don't want to delete anything from any reparse points
+	TREE_ITEM_SECONDPASS           = 0_bit, // то, что раньше было было SecondPass[]
+	TREE_ITEM_INSIDE_REPARSE_POINT = 1_bit, // For Copy: we don't want to delete anything from any reparse points
 };
 
 
@@ -88,11 +90,12 @@ public:
 	std::unordered_set<string> ActiveDirectories;
 };
 
-ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
+ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction, bool FilesFirst)
 {
 	Flags.Change(TREE_RETUPDIR, RetUpDir);
 	Flags.Change(TREE_RECUR, Recurse);
 	Flags.Change(TREE_SCANSYMLINK, ScanJunction == -1? Global->Opt->ScanJunction.Get() : ScanJunction != 0);
+	Flags.Change(TREE_FILESFIRST, FilesFirst);
 }
 
 ScanTree::~ScanTree() = default;
@@ -158,6 +161,27 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 				fdata = *ScanItems.back().Iterator;
 			}
 
+			if (Flags.Check(TREE_FILESFIRST))
+			{
+				if (LastItem.Flags.Check(TREE_ITEM_SECONDPASS))
+				{
+					if (!Done && !(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+						continue;
+				}
+				else
+				{
+					if (!Done && (fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+						continue;
+
+					if (Done)
+					{
+						LastItem.Find.reset();
+						LastItem.Flags.Set(TREE_ITEM_SECONDPASS);
+						continue;
+					}
+				}
+			}
+
 			break;
 		}
 	}
@@ -220,6 +244,7 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 
 				scantree_item Data;
 				Data.Flags = ScanItems.back().Flags; // наследуем флаг
+				Data.Flags.Clear(TREE_ITEM_SECONDPASS);
 				Data.RealPath = RealPath;
 				Data.ActiveDirectories = ScanItems.back().ActiveDirectories;
 				if (Flags.Check(TREE_SCANSYMLINK))

@@ -204,9 +204,22 @@ namespace flags
 	}
 
 	template<typename value_type, typename flags_type>
+	constexpr void invert(value_type& Value, flags_type Bits)
+	{
+		Value ^= Bits;
+	}
+
+	template<typename value_type, typename flags_type>
 	constexpr void change(value_type& Value, flags_type Bits, bool Set)
 	{
-		Set? bit_set(Value, Bits) : bit_clear(Value, Bits);
+		Set? set(Value, Bits) : clear(Value, Bits);
+	}
+
+	template<typename value_type, typename mask_type, typename flags_type>
+	constexpr void copy(value_type& Value, mask_type Mask, flags_type Bits)
+	{
+		clear(Value, Mask);
+		set(Value, Bits & Mask);
 	}
 }
 

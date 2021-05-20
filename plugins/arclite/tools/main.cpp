@@ -59,7 +59,7 @@ namespace Far { const ArclitePrivateInfo* get_system_functions() { return nullpt
   }
 
 #define CP_UTF16 1200
-std::wstring load_file(const std::wstring& file_name, unsigned* code_page = NULL) {
+std::wstring load_file(const std::wstring& file_name, unsigned* code_page = {}) {
   File file(get_full_path_name(file_name), GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
   Buffer<char> buffer(file.size());
   unsigned size = file.read(buffer.data(), buffer.size());

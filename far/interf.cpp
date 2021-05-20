@@ -473,6 +473,7 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 		InitialConsoleMode->Output |
 		ENABLE_PROCESSED_OUTPUT |
 		ENABLE_WRAP_AT_EOL_OUTPUT |
+		(::console.IsVtSupported()? ENABLE_LVB_GRID_WORLDWIDE : 0) |
 		(::console.IsVtSupported() && Global->Opt->VirtualTerminalRendering? ENABLE_VIRTUAL_TERMINAL_PROCESSING : 0);
 
 	ChangeConsoleMode(console.GetOutputHandle(), OutputMode);
@@ -960,11 +961,6 @@ void SetScreen(rectangle const Where, wchar_t Ch, const FarColor& Color)
 void MakeShadow(rectangle const Where)
 {
 	Global->ScrBuf->ApplyShadow(Where);
-}
-
-void ChangeBlockColor(rectangle const Where, const FarColor& Color)
-{
-	Global->ScrBuf->ApplyColor(Where, Color, true);
 }
 
 void SetColor(int Color)

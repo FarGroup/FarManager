@@ -70,8 +70,12 @@ private:
 	void init();
 	// (begin, end)
 	std::tuple<point&, point&> GetSelection();
+	std::tuple<point&, point&> GetSelectionXWise();
 	void CopyGrabbedArea(bool Append, bool VerticalBlock);
 	void Reset();
+
+	bool empty() const;
+	void clear();
 
 	struct
 	{

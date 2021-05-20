@@ -6,7 +6,13 @@
 TOOL = tools\tool
 FARSDK = ..\common\unicode
 
-CPPFLAGS = -nologo -W3 -Gy -GR -EHsc -MP -c
+!ifndef FARDIR
+FAR_DIRECTORY=../../far
+!else
+FAR_DIRECTORY=$(FARDIR)
+!endif
+
+CPPFLAGS = -nologo -W3 -Gy -GR -EHsc -MP -c -I"$(FAR_DIRECTORY)/common"
 DEFINES = -DWIN32_LEAN_AND_MEAN -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1 -D_WIN32_WINNT=0x0500 -DUNICODE -D_UNICODE
 LINKFLAGS = -nologo -incremental:no -map -manifest:no -dynamicbase -nxcompat -largeaddressaware -dll
 RCFLAGS = -nologo

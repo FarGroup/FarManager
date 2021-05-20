@@ -74,8 +74,10 @@ namespace highlight
 	private:
 		struct colors
 		{
-			FarColor FileColor{};
-			FarColor MarkColor{};
+			colors();
+
+			FarColor FileColor;
+			FarColor MarkColor;
 
 			bool operator ==(const colors& rhs) const
 			{
@@ -86,7 +88,7 @@ namespace highlight
 		struct mark
 		{
 			wchar_t Char{};
-			bool Transparent{};
+			bool Transparent{true};
 
 			bool operator ==(const mark& rhs) const
 			{
@@ -131,7 +133,7 @@ namespace highlight
 			size_t operator()(const element& item) const;
 		};
 
-		std::unordered_set<element, element_hash> Colors;
+		std::unordered_set<element, element_hash> m_Colors;
 		std::vector<FileFilterParams> HiData;
 
 		int FirstCount{}, UpperCount{}, LowerCount{}, LastCount{};

@@ -5,18 +5,20 @@
 #include "Brackets.hpp"
 #include "BrackLng.hpp"
 #include "version.hpp"
+
+#include "guid.hpp"
 #include <initguid.h>
 #include "guid.hpp"
 
-static struct Options Opt;
-static struct PluginStartupInfo Info;
+static Options Opt;
+static PluginStartupInfo PsInfo;
 
-const wchar_t *GetMsg(int MsgId)
+static const wchar_t *GetMsg(int MsgId)
 {
-	return Info.GetMsg(&MainGuid,MsgId);
+	return PsInfo.GetMsg(&MainGuid,MsgId);
 }
 
-void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 {
 	Info->StructSize=sizeof(GlobalInfo);
 	Info->MinFarVersion=FARMANAGERVERSION;
@@ -27,10 +29,10 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 	Info->Author=PLUGIN_AUTHOR;
 }
 
-void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
+void WINAPI SetStartupInfoW(const PluginStartupInfo *Info)
 {
-	::Info=*Info;
-	PluginSettings settings(MainGuid, ::Info.SettingsControl);
+	PsInfo=*Info;
+	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 	Opt.IgnoreQuotes=settings.Get(0,L"IgnoreQuotes",0);
 	Opt.IgnoreAfter=settings.Get(0,L"IgnoreAfter",0);
 	Opt.BracketPrior=settings.Get(0,L"BracketPrior",1);
@@ -41,7 +43,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 	settings.Get(0,L"Brackets2",Opt.Brackets2,ARRAYSIZE(Opt.Brackets2),L"/**/<\?\?><%%>");
 }
 
-void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+void WINAPI GetPluginInfoW(PluginInfo *Info)
 {
 	Info->StructSize=sizeof(*Info);
 	Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
@@ -55,9 +57,9 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	Info->PluginConfig.Count=ARRAYSIZE(PluginMenuStrings);
 }
 
-int Config()
+static int Config()
 {
-	PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MTitle, L"Config");
+	PluginDialogBuilder Builder(PsInfo, MainGuid, DialogGuid, MTitle, L"Config");
 	Builder.StartSingleBox(MRules, true);
 	Builder.AddCheckbox(MIgnoreQuotation, &Opt.IgnoreQuotes);
 	Builder.AddCheckbox(MIgnoreAfter, &Opt.IgnoreAfter);
@@ -77,7 +79,7 @@ int Config()
 
 	if(Builder.ShowDialog())
 	{
-		PluginSettings settings(MainGuid, Info.SettingsControl);
+		PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 		settings.Set(0,L"IgnoreQuotes",Opt.IgnoreQuotes);
 		settings.Set(0,L"IgnoreAfter",Opt.IgnoreAfter);
 		settings.Set(0,L"BracketPrior",Opt.BracketPrior);
@@ -97,9 +99,9 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* Info)
 	return Config();
 }
 
-int ShowMenu(int Type)
+static int ShowMenu(int Type)
 {
-	struct FarMenuItem shMenu[4]= {};
+	FarMenuItem shMenu[4]= {};
 	static const wchar_t *HelpTopic[2]= {L"Find",L"Direct"};
 	shMenu[0].Text = GetMsg((Type?MBForward:MBrackMath));
 	shMenu[1].Text = GetMsg((Type?MBBackward:MBrackSelect));
@@ -109,7 +111,7 @@ int ShowMenu(int Type)
 
 	while(1)
 	{
-		Ret=(int)Info.Menu(&MainGuid, nullptr,-1,-1,0,FMENU_WRAPMODE,GetMsg(MTitle),NULL,HelpTopic[Type&1],NULL,NULL,shMenu,ARRAYSIZE(shMenu));
+		Ret=(int)PsInfo.Menu(&MainGuid, {},-1,-1,0,FMENU_WRAPMODE,GetMsg(MTitle),{},HelpTopic[Type&1],{},{},shMenu,ARRAYSIZE(shMenu));
 
 		if(Ret == 3)
 			Config();
@@ -120,11 +122,11 @@ int ShowMenu(int Type)
 	return Ret;
 }
 
-HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
+HANDLE WINAPI OpenW(const OpenInfo *Info)
 {
-	struct EditorGetString egs={sizeof(EditorGetString)};
-	struct EditorSetPosition esp={sizeof(EditorSetPosition)},espo={sizeof(EditorSetPosition)};
-	struct EditorSelect es={sizeof(EditorSelect)};
+	EditorGetString egs={sizeof(EditorGetString)};
+	EditorSetPosition esp={sizeof(EditorSetPosition)},espo={sizeof(EditorSetPosition)};
+	EditorSelect es={sizeof(EditorSelect)};
 
 	wchar_t Bracket,Bracket1,Bracket_1;
 	wchar_t Ch,Ch1,Ch_1;
@@ -145,7 +147,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	int lenBrackets2=0;
 
 	EditorInfo ei={sizeof(EditorInfo)};
-	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
+	PsInfo.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
 	espo.CurTabPos=ei.CurTabPos;
 	espo.TopScreenLine=ei.TopScreenLine;
@@ -154,11 +156,11 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	espo.CurLine=ei.CurLine;
 	espo.CurPos=CurPos=ei.CurPos;
 	egs.StringNumber=-1;
-	Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
+	PsInfo.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
-	if (OInfo->OpenFrom==OPEN_FROMMACRO)
+	if (Info->OpenFrom==OPEN_FROMMACRO)
 	{
-		OpenMacroInfo* mi=(OpenMacroInfo*)OInfo->Data;
+		OpenMacroInfo* mi=(OpenMacroInfo*)Info->Data;
 		if (mi->Count)
 		{
 			int value=-1;
@@ -209,6 +211,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 					break;
 				case 4:
 					Config();
+					return nullptr;
 				default:
 					return nullptr;
 			}
@@ -401,8 +404,8 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			if(esp.CurLine >= ei.TotalLines || esp.CurLine < 0)
 				break;
 
-			Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
-			Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
+			PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+			PsInfo.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
 			if(cond_gt)
 				CurPos=0;
@@ -537,7 +540,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		}
 
 		if(!isSelect || (isSelect && Opt.JumpToPair))
-			Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+			PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 
 		if(Opt.Beep)
 			MessageBeep(0);
@@ -567,13 +570,13 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				}
 			}
 
-			Info.EditorControl(-1,ECTL_SELECT,0,&es);
+			PsInfo.EditorControl(-1,ECTL_SELECT,0,&es);
 		}
 	}
 	else
 	{
-		Info.EditorControl(-1,ECTL_SETPOSITION,0,&espo);
+		PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&espo);
 	}
 
-	return (OInfo->OpenFrom==OPEN_FROMMACRO)?INVALID_HANDLE_VALUE:nullptr;
+	return (Info->OpenFrom==OPEN_FROMMACRO)?INVALID_HANDLE_VALUE:nullptr;
 }

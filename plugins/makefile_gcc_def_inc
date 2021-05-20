@@ -8,7 +8,7 @@
 #            is a folder inside the default target folder.
 #            This is used in multiarc for building *.fmt.
 #
-#USERCPP - user defined switches for the compiler (added after the default
+#USERC, USERCPP - user defined switches for the compiler (added after the default
 #          ones).
 #
 #USERLIBS - specify additional libs you need in the form -llib
@@ -34,13 +34,18 @@
 
 .SILENT:
 
-DEP_FILTER := $(dir $(lastword $(MAKEFILE_LIST)))dep_filter.awk
+MAKEFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
+MAKEFILE_DIR := $(dir $(MAKEFILE_PATH))
 
-ifndef ANSI
+DEP_FILTER := $(MAKEFILE_DIR)dep_filter.awk
+
+include $(MAKEFILE_DIR)../far/makefile_gcc_common
+
 DIRSURF = W
-RCWIDE = -D UNICODE -D _UNICODE
-CXXWIDE = -D UNICODE -D _UNICODE
-CCWIDE = -D UNICODE -D _UNICODE
+
+ifdef ANSI
+DIRSURF =
+WIDE = -U UNICODE -U _UNICODE
 endif
 
 ifndef DEBUG
@@ -101,11 +106,10 @@ else
 COMMONLIB = 
 endif
 
-C_FLAGS  := -m$(DIRBIT) -Wall -funsigned-char $(C_DEBUG) -fstrict-aliasing
-CXXFLAGS := $(C_FLAGS) -std=c++1z -I $(COMMON) -I $(COMINC) $(CXXWIDE) $(USERCPP)
-CCFLAGS  := $(C_FLAGS) -I $(COMMON) -I $(COMINC) $(CCWIDE) $(USERCPP)
-LNKFLAGS := -m$(DIRBIT) $(L_DEBUG) $(NOSTART) $(NODEFLIBS) -static-libgcc -static $(USERLIBSFIRST) $(COMMONLIB) -luser32 -lkernel32 -ladvapi32 -lshell32 -lole32 $(USERLIBS)
-RCFLAGS  := -I $(COMINC) $(RCWIDE) $(USERRC)
+CFLAGS  += -I $(COMMON) -I $(COMINC) $(WIDE) $(USERC)
+CPPFLAGS += -Wno-old-style-cast $(USERCPP)
+LNKFLAGS += $(USERLIBS)
+RCFLAGS  += -I $(COMINC) $(WIDE) $(USERRC)
 
 C_OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS)))
 CPP_OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))

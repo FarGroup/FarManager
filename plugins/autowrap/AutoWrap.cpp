@@ -4,13 +4,15 @@
 #include <DlgBuilder.hpp>
 #include "WrapLng.hpp"
 #include "version.hpp"
+
+#include "guid.hpp"
 #include <initguid.h>
 #include "guid.hpp"
 
-static struct PluginStartupInfo Info;
-static struct FarStandardFunctions FSF;
+static PluginStartupInfo PsInfo;
+static FarStandardFunctions FSF;
 
-struct Options
+static struct Options
 {
 	wchar_t FileMasks[512];
 	wchar_t ExcludeFileMasks[512];
@@ -20,12 +22,12 @@ struct Options
 
 const wchar_t *GetCommaWord(const wchar_t *Src, wchar_t *Word);
 
-const wchar_t *GetMsg(int MsgId)
+static const wchar_t *GetMsg(int MsgId)
 {
-	return Info.GetMsg(&MainGuid, MsgId);
+	return PsInfo.GetMsg(&MainGuid, MsgId);
 }
 
-void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 {
 	Info->StructSize=sizeof(GlobalInfo);
 	Info->MinFarVersion=FARMANAGERVERSION;
@@ -36,19 +38,19 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 	Info->Author=PLUGIN_AUTHOR;
 }
 
-void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
+void WINAPI SetStartupInfoW(const PluginStartupInfo *Info)
 {
-	::Info=*Info;
-	FSF=*Info->FSF;
-	::Info.FSF=&FSF;
-	PluginSettings settings(MainGuid, ::Info.SettingsControl);
+	PsInfo=*Info;
+	FSF=*PsInfo.FSF;
+	PsInfo.FSF=&FSF;
+	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 	Opt.Wrap=settings.Get(0,L"Wrap",0);
 	Opt.RightMargin=settings.Get(0,L"RightMargin",75);
 	settings.Get(0,L"FileMasks",Opt.FileMasks,ARRAYSIZE(Opt.FileMasks),L"*.*");
 	settings.Get(0,L"ExcludeFileMasks",Opt.ExcludeFileMasks,ARRAYSIZE(Opt.ExcludeFileMasks),L"");
 }
 
-void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+void WINAPI GetPluginInfoW(PluginInfo *Info)
 {
 	Info->StructSize=sizeof(*Info);
 	Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
@@ -59,9 +61,9 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
 }
 
-HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
+HANDLE WINAPI OpenW(const OpenInfo *Info)
 {
-	PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MAutoWrap, nullptr);
+	PluginDialogBuilder Builder(PsInfo, MainGuid, DialogGuid, MAutoWrap, nullptr);
 	Builder.AddCheckbox(MEnableWrap, &Opt.Wrap);
 	FarDialogItem *RightMargin = Builder.AddIntEditField(&Opt.RightMargin, 3);
 	Builder.AddTextAfter(RightMargin, MRightMargin);
@@ -74,7 +76,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 	if(Builder.ShowDialog())
 	{
-		PluginSettings settings(MainGuid, Info.SettingsControl);
+		PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 		settings.Set(0,L"Wrap",Opt.Wrap);
 		settings.Set(0,L"RightMargin",Opt.RightMargin);
 		settings.Set(0,L"FileMasks",Opt.FileMasks);
@@ -95,21 +97,21 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 	if(Reenter || InputInfo->Rec.EventType!=KEY_EVENT || !InputInfo->Rec.Event.KeyEvent.bKeyDown || InputInfo->Rec.Event.KeyEvent.wVirtualKeyCode==VK_F1)
 		return FALSE;
 
-	struct EditorInfo startei= {sizeof(EditorInfo)};
-	Info.EditorControl(-1,ECTL_GETINFO,0,&startei);
-	struct EditorGetString prevegs= {sizeof(EditorGetString)};
+	EditorInfo startei= {sizeof(EditorInfo)};
+	PsInfo.EditorControl(-1,ECTL_GETINFO,0,&startei);
+	EditorGetString prevegs= {sizeof(EditorGetString)};
 	prevegs.StringNumber=-1;
-	Info.EditorControl(-1,ECTL_GETSTRING,0,&prevegs);
+	PsInfo.EditorControl(-1,ECTL_GETSTRING,0,&prevegs);
 	Reenter=TRUE;
-	Info.EditorControl(-1,ECTL_PROCESSINPUT,0,const_cast<INPUT_RECORD*>(&InputInfo->Rec));
+	PsInfo.EditorControl(-1,ECTL_PROCESSINPUT,0,const_cast<INPUT_RECORD*>(&InputInfo->Rec));
 	Reenter=FALSE;
 
 	for(int Pass=1;; Pass++)
 	{
 		EditorInfo ei= {sizeof(EditorInfo)};
-		Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
+		PsInfo.EditorControl(-1,ECTL_GETINFO,0,&ei);
 		LPWSTR FileName=nullptr;
-		size_t FileNameSize=Info.EditorControl(-1,ECTL_GETFILENAME,0,0);
+		size_t FileNameSize=PsInfo.EditorControl(-1,ECTL_GETFILENAME,0,{});
 
 		if(FileNameSize)
 		{
@@ -117,7 +119,7 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 
 			if(FileName)
 			{
-				Info.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName);
+				PsInfo.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName);
 			}
 		}
 
@@ -175,18 +177,18 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 		if(FileName)
 			delete[] FileName;
 
-		struct EditorGetString egs= {sizeof(EditorGetString)};
+		EditorGetString egs= {sizeof(EditorGetString)};
 		egs.StringNumber=ei.CurLine;
-		Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
+		PsInfo.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 		bool TabPresent=wmemchr(egs.StringText,L'\t',egs.StringLength)!=nullptr;
 		intptr_t TabLength=egs.StringLength;
 
 		if(TabPresent)
 		{
-			struct EditorConvertPos ecp= {sizeof(EditorConvertPos)};
+			EditorConvertPos ecp= {sizeof(EditorConvertPos)};
 			ecp.StringNumber=-1;
 			ecp.SrcPos=egs.StringLength;
-			Info.EditorControl(-1,ECTL_REALTOTAB,0,&ecp);
+			PsInfo.EditorControl(-1,ECTL_REALTOTAB,0,&ecp);
 			TabLength=ecp.DestPos;
 		}
 
@@ -204,10 +206,10 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 
 					if(TabPresent)
 					{
-						struct EditorConvertPos ecp= {sizeof(EditorConvertPos)};
+						EditorConvertPos ecp= {sizeof(EditorConvertPos)};
 						ecp.StringNumber=-1;
 						ecp.SrcPos=I;
-						Info.EditorControl(-1,ECTL_REALTOTAB,0,&ecp);
+						PsInfo.EditorControl(-1,ECTL_REALTOTAB,0,&ecp);
 						TabPos=ecp.DestPos;
 					}
 
@@ -233,30 +235,30 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 			if(SpaceOnly)
 				break;
 
-			struct EditorSetPosition esp= {sizeof(EditorSetPosition),-1,-1,-1,-1,-1,-1};
+			EditorSetPosition esp= {sizeof(EditorSetPosition),-1,-1,-1,-1,-1,-1};
 			esp.CurPos=SpacePos+1;
-			Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+			PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 			int Indent=TRUE;
 
-			if(!Info.EditorControl(-1,ECTL_INSERTSTRING,0,&Indent))
+			if(!PsInfo.EditorControl(-1,ECTL_INSERTSTRING,0,&Indent))
 				break;
 
 			if(ei.CurPos<SpacePos)
 			{
 				esp.CurLine=ei.CurLine;
 				esp.CurPos=ei.CurPos;
-				Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+				PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 			}
 			else
 			{
 				egs.StringNumber=ei.CurLine+1;
-				Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
+				PsInfo.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 				esp.CurLine=ei.CurLine+1;
 				esp.CurPos=egs.StringLength;
-				Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+				PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 			}
 
-			Info.EditorControl(-1,ECTL_REDRAW,0,0);
+			PsInfo.EditorControl(-1,ECTL_REDRAW,0,{});
 		}
 		else
 			break;

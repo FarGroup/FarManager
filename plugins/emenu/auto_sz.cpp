@@ -1,25 +1,12 @@
 ﻿#include "auto_sz.h"
 #include <cassert>
 
-auto_sz::auto_sz()
-  : m_sz(NULL)
-  , m_bDelete(false)
-  , m_nSize(0)
-{
-}
-
 auto_sz::auto_sz(LPCWSTR sz)
-  : m_sz(NULL)
-  , m_bDelete(false)
-  , m_nSize(0)
 {
   operator =(sz);
 }
 
 auto_sz::auto_sz(LPCWSTR szBuf, size_t nBufLen)
-  : m_sz(NULL)
-  , m_bDelete(false)
-  , m_nSize(0)
 {
   nBufLen++;
   Realloc(nBufLen);
@@ -27,17 +14,11 @@ auto_sz::auto_sz(LPCWSTR szBuf, size_t nBufLen)
 }
 
 auto_sz::auto_sz(auto_sz& str)
-  : m_sz(NULL)
-  , m_bDelete(false)
-  , m_nSize(0)
 {
   *this=str;
 }
 
 auto_sz::auto_sz(const STRRET& sr, LPCITEMIDLIST piid)
-  : m_sz(NULL)
-  , m_bDelete(false)
-  , m_nSize(0)
 {
   switch (sr.uType)
   {
@@ -52,7 +33,7 @@ auto_sz::auto_sz(const STRRET& sr, LPCITEMIDLIST piid)
     operator=(sr.pOleStr);
     break;
   case STRRET_OFFSET:
-    operator=((LPCWSTR)(&piid->mkid)+sr.uOffset);
+    operator=(reinterpret_cast<LPCWSTR>(reinterpret_cast<char const*>(&piid->mkid) + sr.uOffset));
     break;
   default:
     assert(0);
@@ -132,7 +113,7 @@ void auto_sz::Clear()
     delete[] m_sz;
   }
   m_bDelete=false;
-  m_sz=NULL;
+  m_sz={};
   m_nSize=0;
 }
 

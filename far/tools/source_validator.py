@@ -14,6 +14,8 @@ class StyleException(Exception):
 	def __str__(self):
 		return f"{self.file}({self.line}): {self.message}: {self.content}"
 
+NotTabRe = re.compile('[^\t]')
+
 def check(filename):
 	#print(filename)
 	with open(filename, encoding="utf-8") as f:
@@ -176,6 +178,11 @@ def check(filename):
 			LineNumber += 1
 
 		for i, line in enumerate(content):
+			TabEnd = NotTabRe.search(line)
+			if TabEnd and '\t' in line[TabEnd.start():]:
+				LineNumber = i
+				Raise("Tabs formatting")
+
 			if line.endswith(' ') or line.endswith('\t'):
 				LineNumber = i
 				Raise("Trailing whitespace")

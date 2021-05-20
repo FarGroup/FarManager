@@ -1,15 +1,17 @@
 ﻿#include <PluginSettings.hpp>
 #include "FileCase.hpp"
 #include "version.hpp"
-#include <initguid.h>
-#include "guid.hpp"
 #include "FileLng.hpp"
 
-PluginStartupInfo Info;
+#include "guid.hpp"
+#include <initguid.h>
+#include "guid.hpp"
+
+PluginStartupInfo PsInfo;
 FarStandardFunctions FSF;
 Options Opt;
 
-void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 {
 	Info->StructSize=sizeof(GlobalInfo);
 	Info->MinFarVersion=FARMANAGERVERSION;
@@ -20,12 +22,12 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 	Info->Author=PLUGIN_AUTHOR;
 }
 
-void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
+void WINAPI SetStartupInfoW(const PluginStartupInfo *Info)
 {
-	::Info=*Info;
-	::FSF=*Info->FSF;
-	::Info.FSF=&::FSF;
-	PluginSettings settings(MainGuid, ::Info.SettingsControl);
+	PsInfo=*Info;
+	FSF=*PsInfo.FSF;
+	PsInfo.FSF=&FSF;
+	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 	Opt.ConvertMode=settings.Get(0,L"ConvertMode",0);
 	Opt.ConvertModeExt=settings.Get(0,L"ConvertModeExt",0);
 	Opt.SkipMixedCase=settings.Get(0,L"SkipMixedCase",1);
@@ -36,14 +38,14 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 }
 
 
-HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
+HANDLE WINAPI OpenW(const OpenInfo *Info)
 {
 	CaseConvertion();
 	return nullptr;
 }
 
 
-void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+void WINAPI GetPluginInfoW(PluginInfo *Info)
 {
 	Info->StructSize=sizeof(*Info);
 	static const wchar_t *PluginMenuStrings[1];

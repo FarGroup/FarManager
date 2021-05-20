@@ -8,7 +8,7 @@
 #define MODE_LN_WORD  3
 #define MODE_NONE     4
 
-extern PluginStartupInfo Info;
+extern PluginStartupInfo PsInfo;
 extern FarStandardFunctions FSF;
 
 extern struct Options

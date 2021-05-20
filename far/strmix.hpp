@@ -70,7 +70,7 @@ namespace inplace
 }
 
 [[nodiscard]]
-inline string QuoteSpace(string Str) { inplace::QuoteOuterSpace(Str); return Str; }
+inline string QuoteSpace(string Str) { inplace::QuoteSpace(Str); return Str; }
 
 [[nodiscard]]
 inline string QuoteSpace(string_view const Str) { return QuoteSpace(string(Str)); }

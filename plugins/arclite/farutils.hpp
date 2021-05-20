@@ -13,13 +13,13 @@ extern std::wstring get_error_dlg_title();
         return_cancel; \
       } \
       else { \
-        if (!silent) \
+        if (!(silent)) \
           Far::error_dlg(get_error_dlg_title(), e); \
         return_error; \
       } \
     } \
     catch (const std::exception& e) { \
-      if (!silent) \
+      if (!(silent)) \
         Far::error_dlg(get_error_dlg_title(), e); \
       return_error; \
     } \
@@ -29,6 +29,8 @@ extern std::wstring get_error_dlg_title();
   }
 
 namespace Far {
+
+extern FarStandardFunctions g_fsf;
 
 void init(const PluginStartupInfo* psi);
 std::wstring get_plugin_module_path();
@@ -43,7 +45,7 @@ class MenuItems: public std::vector<std::wstring> {
 public:
   unsigned add(const std::wstring& item);
 };
-intptr_t menu(const GUID& id, const std::wstring& title, const MenuItems& items, const wchar_t* help = NULL);
+intptr_t menu(const GUID& id, const std::wstring& title, const MenuItems& items, const wchar_t* help = {});
 
 std::wstring get_progress_bar_str(unsigned width, uint64_t completed, uint64_t total);
 void set_progress_state(TBPFLAG state);
@@ -118,7 +120,7 @@ private:
   size_t x;
   size_t y;
   const wchar_t* help;
-  FARDIALOGFLAGS flags;
+  FARDIALOGFLAGS m_flags;
   std::vector<std::wstring> values;
   std::vector<DialogItem> items;
   HANDLE h_dlg;
@@ -156,6 +158,7 @@ protected:
   intptr_t send_message(intptr_t msg, intptr_t param1, void* param2 = nullptr);
 public:
   Dialog(const std::wstring& title,const GUID* guid,unsigned width=60,const wchar_t* help=nullptr,FARDIALOGFLAGS flags=0);
+  virtual ~Dialog() = default;
   // create different controls
   void new_line();
   void reset_line();

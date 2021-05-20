@@ -3,22 +3,41 @@
 #include <DlgBuilder.hpp>
 #include <PluginSettings.hpp>
 
-#include "SameFolder.hpp"
 #include "Lang.hpp"
 #include "version.hpp"
+
+#include "guid.hpp"
 #include <initguid.h>
 #include "guid.hpp"
 
-struct OptionsName OptName={
+static struct Options
+{
+	int Add2PlugMenu;
+	int Add2DisksMenu;
+	int SetMode;
+}
+Opt;
+
+static struct OptionsName
+{
+	const wchar_t *Add2PlugMenu;
+	const wchar_t *Add2DisksMenu;
+	const wchar_t *SetMode;
+}
+OptName
+{
 	L"Add2PlugMenu",
 	L"Add2DisksMenu",
 	L"SetMode",
 };
 
-struct PluginStartupInfo Info;
-struct FarStandardFunctions FSF;
+static PluginStartupInfo PsInfo;
+static FarStandardFunctions FSF;
 
-void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+bool ComparePPI(const PluginPanelItem* PPISrc,const PluginPanelItem* PPIDst);
+const wchar_t *GetMsg(int MsgId);
+
+void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 {
   Info->StructSize=sizeof(GlobalInfo);
   Info->MinFarVersion=FARMANAGERVERSION;
@@ -29,33 +48,33 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
   Info->Author=PLUGIN_AUTHOR;
 }
 
-void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psInfo)
+void WINAPI SetStartupInfoW(const PluginStartupInfo *Info)
 {
-	Info=*psInfo;
-	FSF=*psInfo->FSF;
-	Info.FSF=&FSF;
+	PsInfo=*Info;
+	FSF=*PsInfo.FSF;
+	PsInfo.FSF=&FSF;
 
-	PluginSettings settings(MainGuid, Info.SettingsControl);
+	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 	Opt.Add2PlugMenu=settings.Get(0,OptName.Add2PlugMenu,1);
 	Opt.Add2DisksMenu=settings.Get(0,OptName.Add2DisksMenu,0);
 	Opt.SetMode=settings.Get(0,OptName.SetMode,0);
 }
 
-HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
+HANDLE WINAPI OpenW(const OpenInfo *Info)
 {
 	HANDLE SrcPanel = PANEL_ACTIVE, DstPanel = PANEL_PASSIVE;
-	struct PanelInfo PInfo={};
+	PanelInfo PInfo={};
 	PInfo.StructSize = sizeof(PInfo);
-	Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);
+	PsInfo.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);
 
-	if (OInfo->OpenFrom==OPEN_COMMANDLINE) // prefix
+	if (Info->OpenFrom==OPEN_COMMANDLINE) // prefix
 	{
 		return nullptr;
 	}
 	else // Same Folder
 	{
-		if((OInfo->OpenFrom == OPEN_LEFTDISKMENU && (PInfo.Flags&PFLAGS_PANELLEFT)) ||
-		   (OInfo->OpenFrom == OPEN_RIGHTDISKMENU && !(PInfo.Flags&PFLAGS_PANELLEFT)))
+		if((Info->OpenFrom == OPEN_LEFTDISKMENU && (PInfo.Flags&PFLAGS_PANELLEFT)) ||
+		   (Info->OpenFrom == OPEN_RIGHTDISKMENU && !(PInfo.Flags&PFLAGS_PANELLEFT)))
 		{
 			SrcPanel = PANEL_PASSIVE;
 			DstPanel = PANEL_ACTIVE;
@@ -63,41 +82,41 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 
 		PInfo.StructSize = sizeof(PInfo);
-		Info.PanelControl(SrcPanel,FCTL_GETPANELINFO,0,&PInfo);
+		PsInfo.PanelControl(SrcPanel,FCTL_GETPANELINFO,0,&PInfo);
 
-		int dirSize=(int)Info.PanelControl(SrcPanel,FCTL_GETPANELDIRECTORY,0,0);
+		int dirSize=(int)PsInfo.PanelControl(SrcPanel,FCTL_GETPANELDIRECTORY,0,{});
 
 		FarPanelDirectory* dirInfo=(FarPanelDirectory*)malloc(dirSize);
 		if (dirInfo)
 		{
 			// 1. set dir
 			dirInfo->StructSize = sizeof(FarPanelDirectory);
-			Info.PanelControl(SrcPanel,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
-			Info.PanelControl(DstPanel,FCTL_SETPANELDIRECTORY,0,dirInfo);
+			PsInfo.PanelControl(SrcPanel,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
+			PsInfo.PanelControl(DstPanel,FCTL_SETPANELDIRECTORY,0,dirInfo);
 
-			struct PanelRedrawInfo PRI={sizeof(PanelRedrawInfo)};
+			PanelRedrawInfo PRI={sizeof(PanelRedrawInfo)};
 			PRI.CurrentItem=0;
 			PRI.TopPanelItem=0;
 
 			// 2. set position
-			size_t Size = Info.PanelControl(SrcPanel,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
-			PluginPanelItem* PPISrc=(PluginPanelItem*)malloc(Size);
+			size_t SrcSize = PsInfo.PanelControl(SrcPanel,FCTL_GETPANELITEM,PInfo.CurrentItem,{});
+			PluginPanelItem* PPISrc=(PluginPanelItem*)malloc(SrcSize);
 
 			if (PPISrc)
 			{
-				FarGetPluginPanelItem gpiSrc={sizeof(FarGetPluginPanelItem), Size, PPISrc};
-				Info.PanelControl(SrcPanel,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpiSrc);
+				FarGetPluginPanelItem gpiSrc={sizeof(FarGetPluginPanelItem), SrcSize, PPISrc};
+				PsInfo.PanelControl(SrcPanel,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpiSrc);
 
 				// find position
 				for (size_t J=0; J < PInfo.ItemsNumber; J++)
 				{
 					bool Equal=false;
-					size_t Size = Info.PanelControl(DstPanel,FCTL_GETPANELITEM,J,0);
-					PluginPanelItem* PPIDst=(PluginPanelItem*)malloc(Size);
+					size_t DstSize = PsInfo.PanelControl(DstPanel,FCTL_GETPANELITEM,J,{});
+					PluginPanelItem* PPIDst=(PluginPanelItem*)malloc(DstSize);
 					if (PPIDst)
 					{
-						FarGetPluginPanelItem gpiDst={sizeof(FarGetPluginPanelItem), Size, PPIDst};
-						Info.PanelControl(DstPanel,FCTL_GETPANELITEM,J,&gpiDst);
+						FarGetPluginPanelItem gpiDst={sizeof(FarGetPluginPanelItem), DstSize, PPIDst};
+						PsInfo.PanelControl(DstPanel,FCTL_GETPANELITEM,J,&gpiDst);
 						Equal=ComparePPI(PPISrc,PPIDst);
 						free(PPIDst);
 					}
@@ -116,10 +135,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			if (Opt.SetMode)
 			{
 				// TODO: сюда можно добавить установку визуальных настроек панели DstPanel, как у SrcPanel
-				;
 			}
 
-			Info.PanelControl(DstPanel,FCTL_REDRAWPANEL,0,&PRI);
+			PsInfo.PanelControl(DstPanel,FCTL_REDRAWPANEL,0,&PRI);
 
 			free(dirInfo);
 		}
@@ -129,7 +147,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 }
 
 
-void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+void WINAPI GetPluginInfoW(PluginInfo *Info)
 {
 	Info->StructSize=sizeof(*Info);
 	Info->Flags=PF_NONE; //PF_FULLCMDLINE;
@@ -148,7 +166,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 
 	if (Opt.Add2DisksMenu)
 	{
-		DiskMenuStrings[0]=(wchar_t*)GetMsg(MSetSameDir);
+		DiskMenuStrings[0]=GetMsg(MSetSameDir);
         Info->DiskMenu.Guids=&MenuGuid;
         Info->DiskMenu.Strings=DiskMenuStrings;
         Info->DiskMenu.Count=ARRAYSIZE(DiskMenuStrings);
@@ -164,7 +182,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 
 intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 {
-    PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MConfig, L"Config");
+    PluginDialogBuilder Builder(PsInfo, MainGuid, DialogGuid, MConfig, L"Config");
 
     Builder.AddCheckbox(MAddSetPassiveDir2PlugMenu, &Opt.Add2PlugMenu);
     Builder.AddCheckbox(MAddToDisksMenu, &Opt.Add2DisksMenu);
@@ -174,7 +192,7 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 
     if (Builder.ShowDialog())
 	{
-		PluginSettings settings(MainGuid, Info.SettingsControl);
+		PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 		settings.Set(0,OptName.Add2PlugMenu,Opt.Add2PlugMenu);
 		settings.Set(0,OptName.Add2DisksMenu,Opt.Add2DisksMenu);
 		settings.Set(0,OptName.SetMode,Opt.SetMode);
@@ -186,12 +204,12 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 
 const wchar_t *GetMsg(int MsgId)
 {
-	return Info.GetMsg(&MainGuid,MsgId);
+	return PsInfo.GetMsg(&MainGuid,MsgId);
 }
 
 inline uint64_t FileTimeToUI64(const FILETIME& ft)
 {
-	ULARGE_INTEGER t = {ft.dwLowDateTime, ft.dwHighDateTime};
+	ULARGE_INTEGER t = {{ft.dwLowDateTime, ft.dwHighDateTime}};
 	return t.QuadPart;
 }
 

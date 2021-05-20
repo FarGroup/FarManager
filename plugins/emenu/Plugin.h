@@ -19,7 +19,6 @@ class CPlugin : public PluginStartupInfo
 
 public:
   explicit CPlugin(const struct PluginStartupInfo *Info);
-  ~CPlugin(void);
   void GetPluginInfo(PluginInfo *Info);
   HANDLE OpenPlugin(int nOpenFrom, INT_PTR nItem);
   enum EDoMenu
@@ -53,8 +52,8 @@ protected:
     AI_VERB,
     AI_ITEM
   };
-  EDoMenu MenuForPanelOrCmdLine(LPWSTR szCmdLine=NULL, EAutoItem enAutoItem=AI_NONE);
-  EDoMenu DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids, LPCWSTR pFiles[], unsigned nFiles, unsigned nFolders, LPCWSTR szCommand=NULL, EAutoItem enAutoItem=AI_NONE);
+  EDoMenu MenuForPanelOrCmdLine(LPWSTR szCmdLine={}, EAutoItem enAutoItem=AI_NONE);
+  EDoMenu DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids, LPCWSTR pFiles[], unsigned nFiles, unsigned nFolders, LPCWSTR szCommand={}, EAutoItem enAutoItem=AI_NONE);
   bool ShowGuiMenu(HMENU hMenu, LPCONTEXTMENU pMenu1, LPCONTEXTMENU2 pMenu2, LPCONTEXTMENU3 pMenu, int* pnCmd);
   bool ShowTextMenu(HMENU hMenu, LPCONTEXTMENU pPreferredMenu, LPCONTEXTMENU2 pMenu2, LPCONTEXTMENU3 pMenu3, int* pnCmd, LPCWSTR szTitle, LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* ppiid, unsigned nPiidCnt);
   bool ShowFolder(LPSHELLFOLDER pParentFolder, LPCITEMIDLIST piid, int* pnCmd, LPCWSTR szTitle, LPDROPTARGET* ppDropTarget);
@@ -63,7 +62,7 @@ protected:
   bool GetFilesFromParams(LPWSTR szCmdLine, LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* pnFolders, auto_sz* pstrCurDir, bool bSkipFirst);
   bool GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* pnFolders, auto_sz* pstrCurDir);
   static bool IsSpace(wchar_t ch) {return L' '==ch || L'\t'==ch;}
-  unsigned ParseParams(LPWSTR szParams, LPCWSTR* pFiles=NULL);
+  unsigned ParseParams(LPWSTR szParams, LPCWSTR* pFiles={});
   void ReadRegValues();
   static intptr_t WINAPI CfgDlgProcStatic(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2);
   void CfgDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2);

@@ -7,7 +7,7 @@
 class CFarMenu
 {
 public:
-  CFarMenu(LPCWSTR szHelp=NULL, const GUID* MenuId = nullptr, unsigned nMaxItems=40);
+  CFarMenu(LPCWSTR szHelp={}, const GUID* MenuId = nullptr, unsigned nMaxItems=40);
   ~CFarMenu();
   enum ECheck {CHECKED, UNCHECKED, RADIO};
   unsigned AddItem(LPCWSTR szText, bool bHasSubMenu=false, ECheck enChecked=UNCHECKED, bool bDisabled=false);
@@ -23,7 +23,7 @@ protected:
   unsigned MenuItemLen(LPCWSTR szText);
 protected:
   LPCWSTR m_szHelp;
-  FarMenuItem* m_pfmi;
+  FarMenuItem* m_pfmi{};
   unsigned m_nItemCnt;
   LPCWSTR m_szArrow;
   bool m_bArrowsAdded;

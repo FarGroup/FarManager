@@ -645,6 +645,11 @@ void DialogBuilder::SetDialogMode(DWORD Flags)
 	m_Mode = Flags;
 }
 
+void DialogBuilder::SetScrObjFlags(DWORD const Flags)
+{
+	m_ScrObjFlags = Flags;
+}
+
 int DialogBuilder::AddTextWrap(lng_string const Text, bool center, int width)
 {
 	int LineCount = 0;
@@ -894,6 +899,10 @@ intptr_t DialogBuilder::DoShowDialog()
 	Dlg->SetPosition({ -1, -1, static_cast<int>(m_DialogItems[0].X2 + 4), static_cast<int>(m_DialogItems[0].Y2 + 2) });
 	if (m_Mode)
 		Dlg->SetDialogMode(m_Mode);
+
+	if (m_ScrObjFlags)
+		Dlg->SetFlags(m_ScrObjFlags);
+
 	if (m_IdExist)
 		Dlg->SetId(m_Id);
 	Dlg->Process();

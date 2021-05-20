@@ -8,6 +8,8 @@
 #include <PluginSettings.hpp>
 #include "EditLng.hpp"
 #include "version.hpp"
+
+#include "guid.hpp"
 #include <initguid.h>
 #include "guid.hpp"
 
@@ -19,7 +21,7 @@
 #include <values.h> //MAXINT
 #endif
 
-static struct PluginStartupInfo Info;
+static PluginStartupInfo PsInfo;
 static FARSTANDARDFUNCTIONS FSF;
 
 // Menu item numbers
@@ -44,7 +46,7 @@ bool MyIsAlpha(int c);
 int GetNextCCType(wchar_t *Str, intptr_t StrLen, intptr_t Start, intptr_t End);
 int ChangeCase(wchar_t *NewString, intptr_t Start, intptr_t End, int CCType);
 
-void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 {
 	Info->StructSize=sizeof(GlobalInfo);
 	Info->MinFarVersion=FARMANAGERVERSION;
@@ -55,20 +57,20 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 	Info->Author=PLUGIN_AUTHOR;
 }
 
-void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
+void WINAPI SetStartupInfoW(const PluginStartupInfo *Info)
 {
-	::Info=*Info;
-	::FSF=*Info->FSF;
-	::Info.FSF=&::FSF;
-	PluginSettings plugSettings(MainGuid, ::Info.SettingsControl);
+	PsInfo=*Info;
+	FSF=*PsInfo.FSF;
+	PsInfo.FSF=&FSF;
+	PluginSettings plugSettings(MainGuid, PsInfo.SettingsControl);
 	const wchar_t* AddWordDiv=plugSettings.Get(0,L"AddWordDiv",L"#");
 
 	FarSettingsCreate settings={sizeof(FarSettingsCreate),FarGuid,INVALID_HANDLE_VALUE};
-	HANDLE Settings=::Info.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:0;
+	HANDLE Settings=PsInfo.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:nullptr;
 	if(Settings)
 	{
 		FarSettingsItem item={sizeof(FarSettingsItem),FSSF_EDITOR,L"WordDiv",FST_UNKNOWN,{0}};
-		if(::Info.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_STRING==item.Type)
+		if(PsInfo.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_STRING==item.Type)
 		{
 			WordDivLen=lstrlen(item.String)+lstrlen(AddWordDiv)+ARRAYSIZE(L" \n\r\t");
 			WordDiv=(wchar_t*)malloc((WordDivLen+1)*sizeof(wchar_t));
@@ -79,17 +81,17 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 				lstrcat(WordDiv, L" \n\r\t");
 			}
 		}
-		::Info.SettingsControl(Settings,SCTL_FREE,0,0);
+		PsInfo.SettingsControl(Settings,SCTL_FREE,0,{});
 	}
 }
 
-HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
+HANDLE WINAPI OpenW(const OpenInfo *Info)
 {
 	int MenuCode=-1;
 
-	if (OInfo->OpenFrom==OPEN_FROMMACRO)
+	if (Info->OpenFrom==OPEN_FROMMACRO)
 	{
-		OpenMacroInfo* mi=(OpenMacroInfo*)OInfo->Data;
+		OpenMacroInfo* mi=(OpenMacroInfo*)Info->Data;
 		if (mi->Count)
  		{
  			if (FMVT_INTEGER == mi->Values[0].Type)
@@ -130,7 +132,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	if (MenuCode == -1)
 	{
 		size_t i;
-		struct FarMenuItem MenuItems[5] = {}, *MenuItem;
+		FarMenuItem MenuItems[5] = {}, *MenuItem;
 		int Msgs[]={MCaseLower, MCaseTitle, MCaseUpper, MCaseToggle, MCaseCyclic};
 
 		for (MenuItem=MenuItems,i=0; i < ARRAYSIZE(MenuItems); ++i, ++MenuItem)
@@ -141,9 +143,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		// First item is selected
 		MenuItems[0].Flags=MIF_SELECTED;
 		// Show menu
-		MenuCode=(int)Info.Menu(&MainGuid, nullptr,-1,-1,0,FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
-		                       GetMsg(MCaseConversion),NULL,L"Contents",NULL,NULL,
-		                       MenuItems,ARRAYSIZE(MenuItems));
+		MenuCode=(int)PsInfo.Menu(&MainGuid,{},-1,-1,0,FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,GetMsg(MCaseConversion),{},L"Contents",{},{}, MenuItems,ARRAYSIZE(MenuItems));
 	}
 
 	switch (MenuCode)
@@ -153,7 +153,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			break;
 		default:
 			EditorInfo ei={sizeof(EditorInfo)};
-			Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
+			PsInfo.EditorControl(-1,ECTL_GETINFO,0,&ei);
 			// Current line number
 			intptr_t CurLine=ei.CurLine;
 			// Is anything selected
@@ -169,7 +169,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			// Type of Case Change
 			int CCType=MenuCode;
 			// Temporary string
-			wchar_t *NewString=0;
+			wchar_t *NewString{};
 
 			// Forever :-) (Line processing loop)
 			for (;;)
@@ -179,16 +179,16 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 					if (CurLine >= ei.TotalLines)
 						break;
 
-					struct EditorSetPosition esp = {sizeof(EditorSetPosition),CurLine++,-1,-1,-1,-1,-1};
-					Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+					EditorSetPosition esp = {sizeof(EditorSetPosition),CurLine++,-1,-1,-1,-1,-1};
+					PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 				}
 
-				struct EditorGetString egs={sizeof(EditorGetString)};
+				EditorGetString egs={sizeof(EditorGetString)};
 
 				egs.StringNumber=-1;
 
 				// If can't get line
-				if (!Info.EditorControl(-1,ECTL_GETSTRING,0,&egs))
+				if (!PsInfo.EditorControl(-1,ECTL_GETSTRING,0,&egs))
 					break; // Exit
 
 				// If last selected line was processed or
@@ -243,25 +243,25 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 					// Do the conversion
 					ChangeCase(NewString, egs.SelStart, egs.SelEnd, CCType);
 					// Put converted string to editor
-					struct EditorSetString ess={sizeof(EditorSetString)};
+					EditorSetString ess={sizeof(EditorSetString)};
 					ess.StringNumber=-1;
 					ess.StringText=NewString;
-					ess.StringEOL=(wchar_t*)egs.StringEOL;
+					ess.StringEOL=const_cast<wchar_t*>(egs.StringEOL);
 					ess.StringLength=egs.StringLength;
-					Info.EditorControl(-1,ECTL_SETSTRING,0,&ess);
+					PsInfo.EditorControl(-1,ECTL_SETSTRING,0,&ess);
 				}
 
 #if 0
 
 				if (!IsBlock)
 				{
-					struct EditorSelect esel={EditorSelect};
+					EditorSelect esel={EditorSelect};
 					esel.BlockType=BTYPE_STREAM;
 					esel.BlockStartLine=-1;
 					esel.BlockStartPos=egs.SelStart;
 					esel.BlockWidth=egs.SelEnd-egs.SelStart;
 					esel.BlockHeight=1;
-					Info.EditorControl(-1,ECTL_SELECT,0,&esel);
+					PsInfo.EditorControl(-1,ECTL_SELECT,0,&esel);
 				}
 
 #endif
@@ -275,15 +275,15 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 			if (IsBlock)
 			{
-				struct EditorSetPosition esp = {sizeof(EditorSetPosition),ei.CurLine,ei.CurPos,-1,ei.TopScreenLine,ei.LeftPos,ei.Overtype};
-				Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+				EditorSetPosition esp = {sizeof(EditorSetPosition),ei.CurLine,ei.CurPos,-1,ei.TopScreenLine,ei.LeftPos,ei.Overtype};
+				PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 			}
 	} // switch
 
 	return nullptr;
 }
 
-void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+void WINAPI GetPluginInfoW(PluginInfo *Info)
 {
 	Info->StructSize=sizeof(*Info);
 	Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
@@ -294,20 +294,20 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
 }
 
-void WINAPI ExitFARW(const struct ExitInfo *Info)
+void WINAPI ExitFARW(const ExitInfo *Info)
 {
 	free(WordDiv);
 }
 
 const wchar_t *GetMsg(int MsgId)
 {
-	return Info.GetMsg(&MainGuid,MsgId);
+	return PsInfo.GetMsg(&MainGuid,MsgId);
 }
 
 // What we consider as letter
 bool MyIsAlpha(int c)
 {
-	return (WordDiv&&wmemchr(WordDiv, c, WordDivLen)==NULL) ? true : false;
+	return WordDiv && !wmemchr(WordDiv, c, WordDivLen);
 }
 
 // Finding word bounds (what'll be converted) (Str is in OEM)
@@ -481,11 +481,11 @@ int GetNextCCType(wchar_t *Str, intptr_t StrLen, intptr_t Start, intptr_t End)
 	SignalWordLen=SignalWordEnd-SignalWordStart;
 	wchar_t *SignalWord=(wchar_t *)malloc((SignalWordLen+1)*sizeof(wchar_t));
 
-	if (SignalWord != NULL)
+	if (SignalWord)
 	{
 		wchar_t *WrappedWord=(wchar_t *)malloc((SignalWordLen+1)*sizeof(wchar_t));
 
-		if (WrappedWord != NULL)
+		if (WrappedWord)
 		{
 			lstrcpyn(SignalWord, &Str[SignalWordStart], (int)(SignalWordLen+1) /* BUGBUG because of intptr_t */);
 			lstrcpy(WrappedWord, SignalWord);

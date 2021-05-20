@@ -5967,25 +5967,6 @@ be used.
  This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
-@System.FlagPosixSemantics
-$ #far:config System.FlagPosixSemantics#
- This Boolean parameter specifies whether inserting files into
-~view and edit history~@HistoryViews@ is case sensitive.
-
- If a file being added already exists in the history, it is not inserted
-again; instead, the existing history entry is moved to the most recent
-position.
-
- False - ^<wrap>Case insensitive comparison is used to search the
-history for duplicates.
- True  - Case sensitive comparison is used to search the history for
-duplicates.
-
- Default value: True (the search is case sensitive).
-
- This parameter can be changed via ~far:config~@FarConfig@ only.
-
-
 @System.ShowCheckingFile
 $ #far:config System.ShowCheckingFile#
  This Boolean parameter controls whether plugin’s name is displayed

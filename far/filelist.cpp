@@ -2092,7 +2092,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			   а тут мы вызываем перерисовку панелей
 			   потому что этот viewer, editor могут нам неверно восстановить
 			   */
-//			Parent()->Redraw();
+			//Parent()->Redraw();
 			return true;
 		}
 

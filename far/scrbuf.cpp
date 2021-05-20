@@ -197,40 +197,7 @@ void ScreenBuf::ApplyShadow(rectangle Where)
 
 /* Непосредственное изменение цветовых атрибутов
 */
-// used in block selection
-void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, bool PreserveExFlags)
-{
-	if (!is_visible(Where))
-		return;
-
-	SCOPED_ACTION(std::lock_guard)(CS);
-
-	fix_coordinates(Where);
-
-	if(PreserveExFlags)
-	{
-		for_submatrix(Buf, Where, [&Color](FAR_CHAR_INFO& Element)
-		{
-			const auto ExFlags = Element.Attributes.Flags&FCF_EXTENDEDFLAGS;
-			Element.Attributes = Color;
-			Element.Attributes.Flags = (Element.Attributes.Flags&~FCF_EXTENDEDFLAGS) | ExFlags;
-		});
-	}
-	else
-	{
-		for_submatrix(Buf, Where, [&Color](FAR_CHAR_INFO& Element)
-		{
-			Element.Attributes = Color;
-		});
-	}
-
-	debug_flush();
-}
-
-/* Непосредственное изменение цветовых атрибутов с заданным цветом исключением
-*/
-// used in stream selection
-void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, const FarColor& ExceptColor, bool ForceExFlags)
+void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, apply_mode const ApplyMode)
 {
 	if (!is_visible(Where))
 		return;
@@ -241,14 +208,7 @@ void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, const FarColo
 
 	for_submatrix(Buf, Where, [&](FAR_CHAR_INFO& Element)
 	{
-		if (Element.Attributes.ForegroundColor != ExceptColor.ForegroundColor || Element.Attributes.BackgroundColor != ExceptColor.BackgroundColor)
-		{
-			Element.Attributes = Color;
-		}
-		else if (ForceExFlags)
-		{
-			Element.Attributes.Flags = (Element.Attributes.Flags&~FCF_EXTENDEDFLAGS) | (Color.Flags&FCF_EXTENDEDFLAGS);
-		}
+		Element.Attributes = colors::merge(Element.Attributes, Color);
 	});
 
 	debug_flush();

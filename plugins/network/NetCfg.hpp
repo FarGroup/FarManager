@@ -16,6 +16,6 @@ extern const wchar_t *StrNoRootDoublePoint;
 extern const wchar_t *StrNavigateToDomains;
 extern const wchar_t *StrPanelMode;
 
-int Config(void);
+int Config();
 
 #endif // __NETCFG_HPP__

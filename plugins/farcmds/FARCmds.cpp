@@ -7,10 +7,13 @@
 #include "FARCmds.hpp"
 #include "Lang.hpp"
 #include "version.hpp"
+
+#include "guid.hpp"
 #include <initguid.h>
 #include "guid.hpp"
 
-struct OptionsName OptName={
+static struct OptionsName OptName
+{
 	L"ShowCmdOutput",
 	L"CatchMode",
 	L"ViewZeroFiles",
@@ -19,11 +22,11 @@ struct OptionsName OptName={
 	L"Separator",
 };
 
-struct PluginStartupInfo Info;
-struct FarStandardFunctions FSF;
-struct Options Opt;
+PluginStartupInfo PsInfo;
+FarStandardFunctions FSF;
+Options Opt;
 
-void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 {
 	Info->StructSize=sizeof(GlobalInfo);
 	Info->MinFarVersion=FARMANAGERVERSION;
@@ -34,13 +37,13 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 	Info->Author=PLUGIN_AUTHOR;
 }
 
-void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psInfo)
+void WINAPI SetStartupInfoW(const PluginStartupInfo *Info)
 {
-	Info=*psInfo;
-	FSF=*psInfo->FSF;
-	Info.FSF=&FSF;
+	PsInfo=*Info;
+	FSF=*PsInfo.FSF;
+	PsInfo.FSF=&FSF;
 
-	PluginSettings settings(MainGuid, Info.SettingsControl);
+	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 	settings.Get(0,OptName.Separator,Opt.Separator,ARRAYSIZE(Opt.Separator),L" ");
 	Opt.ShowCmdOutput=settings.Get(0,OptName.ShowCmdOutput,0);
 	Opt.CatchMode=settings.Get(0,OptName.CatchMode,0);
@@ -49,25 +52,25 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psInfo)
 	Opt.MaxDataSize=settings.Get(0,OptName.MaxDataSize,1048576);
 }
 
-HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
+HANDLE WINAPI OpenW(const OpenInfo *Info)
 {
 	HANDLE DstPanel = PANEL_PASSIVE;
-	struct PanelInfo PInfo={};
+	PanelInfo PInfo={};
 	PInfo.StructSize = sizeof(PInfo);
-	Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);
+	PsInfo.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);
 
 	wchar_t *pTemp=nullptr;
 
-	if (OInfo->OpenFrom==OPEN_COMMANDLINE) // prefix
+	if (Info->OpenFrom==OPEN_COMMANDLINE) // prefix
 	{
 		DstPanel = PANEL_ACTIVE;
-		pTemp=OpenFromCommandLine(((OpenCommandLineInfo *)OInfo->Data)->CommandLine);
+		pTemp=OpenFromCommandLine(((OpenCommandLineInfo *)Info->Data)->CommandLine);
 	}
 
 	// set cursor
 	if (pTemp && *pTemp)
 	{
-		static struct PanelRedrawInfo PRI={sizeof(PanelRedrawInfo)};
+		static PanelRedrawInfo PRI={sizeof(PanelRedrawInfo)};
 		int pathlen;
 		const wchar_t *pName=FSF.PointToName(pTemp);
 		wchar_t *Name=new wchar_t[lstrlen(pName)+1];
@@ -99,24 +102,24 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			FSF.Trim(Dir);
 			FSF.Unquote(Dir);
 
-			FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),Dir,NULL,{0},NULL};
-			Info.PanelControl(DstPanel,FCTL_SETPANELDIRECTORY,0,&dirInfo);
+			FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),Dir};
+			PsInfo.PanelControl(DstPanel,FCTL_SETPANELDIRECTORY,0,&dirInfo);
 		}
 
-		Info.PanelControl(DstPanel,FCTL_GETPANELINFO,0,&PInfo);
+		PsInfo.PanelControl(DstPanel,FCTL_GETPANELINFO,0,&PInfo);
 		PRI.CurrentItem=PInfo.CurrentItem;
 		PRI.TopPanelItem=PInfo.TopPanelItem;
 
 		for (size_t J=0; J < PInfo.ItemsNumber; J++)
 		{
 			bool Equal=false;
-			size_t Size = Info.PanelControl(DstPanel,FCTL_GETPANELITEM,J,0);
+			size_t Size = PsInfo.PanelControl(DstPanel,FCTL_GETPANELITEM,J,{});
 			PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 			if (PPI)
 			{
 				FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
-				Info.PanelControl(DstPanel,FCTL_GETPANELITEM,J,&gpi);
+				PsInfo.PanelControl(DstPanel,FCTL_GETPANELITEM,J,&gpi);
 				Equal=!FSF.LStricmp(Name,FSF.PointToName(PPI->FileName));
 				free(PPI);
 			}
@@ -129,7 +132,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			}
 		}
 
-		Info.PanelControl(DstPanel,FCTL_REDRAWPANEL,0,&PRI);
+		PsInfo.PanelControl(DstPanel,FCTL_REDRAWPANEL,0,&PRI);
 
 		if (Dir)
 			delete[] Dir;
@@ -137,7 +140,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 	else
 	{
-		Info.PanelControl(DstPanel,FCTL_REDRAWPANEL,0,0);
+		PsInfo.PanelControl(DstPanel,FCTL_REDRAWPANEL,0,{});
 	}
 
 	if (pTemp)
@@ -146,7 +149,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	return nullptr;
 }
 
-void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+void WINAPI GetPluginInfoW(PluginInfo *Info)
 {
 	Info->StructSize=sizeof(*Info);
 	Info->Flags=PF_FULLCMDLINE;
@@ -163,7 +166,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 
 intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 {
-	PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MConfig, L"Config");
+	PluginDialogBuilder Builder(PsInfo, MainGuid, DialogGuid, MConfig, L"Config");
 
 	const int CmdOutIDs[] = {MHideCmdOutput, MKeepCmdOutput, MEchoCmdOutput};
 	Builder.AddRadioButtons(&Opt.ShowCmdOutput, 3, CmdOutIDs);
@@ -187,15 +190,13 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 
 	if (Builder.ShowDialog())
 	{
-		PluginSettings settings(MainGuid, Info.SettingsControl);
+		PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 		settings.Set(0,OptName.ShowCmdOutput,Opt.ShowCmdOutput);
 		settings.Set(0,OptName.CatchMode,Opt.CatchMode);
 		settings.Set(0,OptName.ViewZeroFiles,Opt.ViewZeroFiles);
 		settings.Set(0,OptName.EditNewFiles,Opt.EditNewFiles);
 		if (!Opt.MaxDataSize)
 			Opt.MaxDataSize=1048576;
-		if (Opt.MaxDataSize > 0xFFFFFFFFU)
-			Opt.MaxDataSize=0xFFFFFFFFU;
 		settings.Set(0,OptName.MaxDataSize,Opt.MaxDataSize);
 		return TRUE;
 	}

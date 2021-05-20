@@ -100,7 +100,7 @@ public:
 
   // read archive contents from IInStream
   // return S_FALSE if format is not recognized
-  STDMETHODIMP Open(IInStream* stream, const UInt64* max_check_start_position, IArchiveOpenCallback* open_archive_callback) {
+  STDMETHODIMP Open(IInStream* stream, const UInt64* max_check_start_position, IArchiveOpenCallback* open_archive_callback) override {
     COM_ERROR_HANDLER_BEGIN
     in_stream = stream;
 
@@ -162,7 +162,7 @@ public:
   }
 
   // cleanup: free archive stream and other data
-  STDMETHODIMP Close() {
+  STDMETHODIMP Close() override {
     COM_ERROR_HANDLER_BEGIN
     files.clear();
     in_stream = nullptr;
@@ -171,7 +171,7 @@ public:
   }
 
   // number of items in archives
-  STDMETHODIMP GetNumberOfItems(UInt32* num_items) {
+  STDMETHODIMP GetNumberOfItems(UInt32* num_items) override {
     COM_ERROR_HANDLER_BEGIN
     *num_items = static_cast<UInt32>(files.size());
     return S_OK;
@@ -179,7 +179,7 @@ public:
   }
 
   // provide file property values (see PropID.h)
-  STDMETHODIMP GetProperty(UInt32 index, PROPID prop_id, PROPVARIANT* value) {
+  STDMETHODIMP GetProperty(UInt32 index, PROPID prop_id, PROPVARIANT* value) override {
     COM_ERROR_HANDLER_BEGIN
     PropVariant prop;
     if (index >= files.size())
@@ -201,7 +201,7 @@ public:
   }
 
   // report number of file properties supported by this format
-  STDMETHODIMP GetNumberOfProperties(UInt32* num_properties) {
+  STDMETHODIMP GetNumberOfProperties(UInt32* num_properties) override {
     COM_ERROR_HANDLER_BEGIN
     *num_properties = ARRAYSIZE(c_props);
     return S_OK;
@@ -209,7 +209,7 @@ public:
   }
 
   // file properties supported by this format
-  STDMETHODIMP GetPropertyInfo(UInt32 index, BSTR* name, PROPID* prop_id, VARTYPE* var_type) {
+  STDMETHODIMP GetPropertyInfo(UInt32 index, BSTR* name, PROPID* prop_id, VARTYPE* var_type) override {
     COM_ERROR_HANDLER_BEGIN
     if (index >= ARRAYSIZE(c_props))
       return E_INVALIDARG;
@@ -224,7 +224,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP Extract(const UInt32* indices, UInt32 num_items, Int32 test_mode, IArchiveExtractCallback* extract_callback) {
+  STDMETHODIMP Extract(const UInt32* indices, UInt32 num_items, Int32 test_mode, IArchiveExtractCallback* extract_callback) override {
     COM_ERROR_HANDLER_BEGIN
     Int32 ask_extract_mode = test_mode ? NArchive::NExtract::NAskMode::kTest : NArchive::NExtract::NAskMode::kExtract;
     // num_items == -1 means extract all items
@@ -275,7 +275,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP GetArchiveProperty(PROPID prop_id, PROPVARIANT* value) {
+  STDMETHODIMP GetArchiveProperty(PROPID prop_id, PROPVARIANT* value) override {
     COM_ERROR_HANDLER_BEGIN
     PropVariant prop;
     switch (prop_id) {
@@ -288,14 +288,14 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP GetNumberOfArchiveProperties(UInt32* num_properties) {
+  STDMETHODIMP GetNumberOfArchiveProperties(UInt32* num_properties) override {
     COM_ERROR_HANDLER_BEGIN
     *num_properties = ARRAYSIZE(c_arc_props);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP GetArchivePropertyInfo(UInt32 index, BSTR* name, PROPID* prop_id, VARTYPE* var_type) {
+  STDMETHODIMP GetArchivePropertyInfo(UInt32 index, BSTR* name, PROPID* prop_id, VARTYPE* var_type) override {
     COM_ERROR_HANDLER_BEGIN
     if (index >= ARRAYSIZE(c_arc_props))
       return E_INVALIDARG;
@@ -308,7 +308,7 @@ public:
 
   // *** IOutArchive ***
 
-  STDMETHODIMP UpdateItems(ISequentialOutStream* out_stream, UInt32 num_items, IArchiveUpdateCallback* update_callback) {
+  STDMETHODIMP UpdateItems(ISequentialOutStream* out_stream, UInt32 num_items, IArchiveUpdateCallback* update_callback) override {
     COM_ERROR_HANDLER_BEGIN
     PropVariant prop;
     UInt64 total_size = 0;
@@ -415,7 +415,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP GetFileTimeType(UInt32* type) {
+  STDMETHODIMP GetFileTimeType(UInt32* type) override {
     COM_ERROR_HANDLER_BEGIN
     *type = NFileTimeType::kWindows;
     return S_OK;
@@ -425,7 +425,7 @@ public:
   // *** ISetProperties ***
 
   // set compression properties
-  STDMETHODIMP SetProperties(const wchar_t*const* names, const PROPVARIANT* values, UInt32 num_properties) {
+  STDMETHODIMP SetProperties(const wchar_t*const* names, const PROPVARIANT* values, UInt32 num_properties) override {
     COM_ERROR_HANDLER_BEGIN
     for (Int32 i = 0; i < (int)num_properties; i++) {
       PropVariant prop = values[i];
@@ -466,7 +466,7 @@ public:
     UNKNOWN_IMPL_ITF(IInStream)
     UNKNOWN_IMPL_END
 
-    STDMETHODIMP Read(void* data, UInt32 size, UInt32* processed_size) {
+    STDMETHODIMP Read(void* data, UInt32 size, UInt32* processed_size) override {
       COM_ERROR_HANDLER_BEGIN
       if (pos > file_info.size)
         size = 0;
@@ -482,7 +482,7 @@ public:
       COM_ERROR_HANDLER_END
     }
 
-    STDMETHODIMP Seek(Int64 offset, UInt32 seek_origin, UInt64* new_position) {
+    STDMETHODIMP Seek(Int64 offset, UInt32 seek_origin, UInt64* new_position) override {
       COM_ERROR_HANDLER_BEGIN
       switch (seek_origin) {
       case STREAM_SEEK_SET:
@@ -505,7 +505,7 @@ public:
   };
 
   // client will request IInStream via QueryInterface if needed
-  STDMETHODIMP GetStream(UInt32 index, ISequentialInStream** stream) {
+  STDMETHODIMP GetStream(UInt32 index, ISequentialInStream** stream) override {
     COM_ERROR_HANDLER_BEGIN
     if (index >= files.size())
       return E_INVALIDARG;

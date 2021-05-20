@@ -2,10 +2,12 @@
 #include "OleThread.h"
 #include <cassert>
 #include "version.hpp"
+
+#include "guid.hpp"
 #include <initguid.h>
 #include "guid.hpp"
 
-CPlugin *thePlug=NULL;
+CPlugin *thePlug{};
 
 void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
@@ -30,9 +32,9 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
   thePlug->GetPluginInfo(Info);
 }
 
-HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
+HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 {
-  return thePlug->OpenPlugin(OInfo->OpenFrom, OInfo->Data);
+  return thePlug->OpenPlugin(Info->OpenFrom, Info->Data);
 }
 
 intptr_t WINAPI ConfigureW(const ConfigureInfo* Info)

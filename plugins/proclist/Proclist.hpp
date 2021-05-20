@@ -78,7 +78,7 @@ inline constexpr auto
 	MAX_DATETIME    = 50,
 	MAXCOLS = MAX_CUSTOM_COLS + 4;
 
-extern PluginStartupInfo Info;
+extern PluginStartupInfo PsInfo;
 extern FarStandardFunctions FSF;
 
 class PerfThread;
@@ -128,8 +128,8 @@ public:
 	bool Connect(const wchar_t* pMachine, const wchar_t* pUser = {}, const wchar_t* pPasw = {});
 	int GetFindData(PluginPanelItem*& pPanelItem, size_t& pItemsNumber, OPERATION_MODES OpMode);
 	static void FreeFindData(PluginPanelItem* PanelItem, size_t ItemsNumber);
-	void GetOpenPanelInfo(struct OpenPanelInfo* Info);
-	int GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, const wchar_t** DestPath, OPERATION_MODES OpMode, options& opt = ::Opt);
+	void GetOpenPanelInfo(OpenPanelInfo* Info);
+	int GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, const wchar_t** DestPath, OPERATION_MODES OpMode, options& LocalOpt = Opt);
 	int DeleteFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, OPERATION_MODES OpMode);
 	int ProcessEvent(intptr_t Event, void* Param);
 	int Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, unsigned int Mode) const;
@@ -146,7 +146,7 @@ private:
 	static void PrintVersionInfo(HANDLE InfoFile, const wchar_t* FullPath);
 	void Reread();
 	void PutToCmdLine(const wchar_t* tmp);
-	static int Menu(unsigned int Flags, const wchar_t* Title, const wchar_t* Bottom, const wchar_t* HelpTopic, const struct FarKey* BreakKeys, const FarMenuItem* Items, size_t ItemsNumber);
+	static int Menu(unsigned int Flags, const wchar_t* Title, const wchar_t* Bottom, const wchar_t* HelpTopic, const FarKey* BreakKeys, const FarMenuItem* Items, size_t ItemsNumber);
 	void PrintOwnerInfo(HANDLE InfoFile, DWORD dwPid);
 	bool ConnectWMI();
 	void DisconnectWMI();
@@ -251,7 +251,7 @@ enum
 extern wchar_t CustomColumns[10][10];
 
 void PrintNTCurDirAndEnv(HANDLE InfoFile, HANDLE hProcess, BOOL bExportEnvironment);
-void PrintModules(HANDLE InfoFile, DWORD dwPID, options& opt);
+void PrintModules(HANDLE InfoFile, DWORD dwPID, options& LocalOpt);
 bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread* pThread);
 struct ProcessPerfData;
 bool GetPData(ProcessData& pdata, const ProcessPerfData& pd);

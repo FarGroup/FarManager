@@ -116,6 +116,12 @@
     <ClInclude Include="options.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="rsrc.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sfx.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="SimpleXML.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

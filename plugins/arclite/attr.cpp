@@ -9,7 +9,7 @@
 #include "archive.hpp"
 #include "options.hpp"
 
-std::wstring uint_to_hex_str(UInt64 val, unsigned num_digits = 0) {
+static std::wstring uint_to_hex_str(UInt64 val, unsigned num_digits = 0) {
   wchar_t str[16];
   unsigned pos = 16;
   do {
@@ -28,7 +28,7 @@ std::wstring uint_to_hex_str(UInt64 val, unsigned num_digits = 0) {
   return std::wstring(str + pos, 16 - pos);
 }
 
-std::wstring format_str_prop(const PropVariant& prop) {
+static std::wstring format_str_prop(const PropVariant& prop) {
   std::wstring str = prop.get_str();
   for (unsigned i = 0; i < str.size(); i++)
     if (str[i] == L'\r' || str[i] == L'\n')
@@ -36,17 +36,17 @@ std::wstring format_str_prop(const PropVariant& prop) {
   return str;
 }
 
-std::wstring format_int_prop(const PropVariant& prop) {
+static std::wstring format_int_prop(const PropVariant& prop) {
   wchar_t buf[32];
   return std::wstring(_i64tow(prop.get_int(), buf, 10));
 }
 
-std::wstring format_uint_prop(const PropVariant& prop) {
+static std::wstring format_uint_prop(const PropVariant& prop) {
   wchar_t buf[32];
   return std::wstring(_ui64tow(prop.get_uint(), buf, 10));
 }
 
-std::wstring format_size_prop(const PropVariant& prop) {
+static std::wstring format_size_prop(const PropVariant& prop) {
   if (!prop.is_uint())
     return std::wstring();
   std::wstring short_size = format_data_size(prop.get_uint(), get_size_suffixes());
@@ -57,7 +57,7 @@ std::wstring format_size_prop(const PropVariant& prop) {
     return short_size + L" = " + long_size;
 }
 
-std::wstring format_filetime_prop(const PropVariant& prop) {
+static std::wstring format_filetime_prop(const PropVariant& prop) {
   if (!prop.is_filetime())
     return std::wstring();
   FILETIME prop_file_time = prop.get_filetime();
@@ -77,7 +77,7 @@ std::wstring format_filetime_prop(const PropVariant& prop) {
   return date_time;
 }
 
-std::wstring format_crc_prop(const PropVariant& prop) {
+static std::wstring format_crc_prop(const PropVariant& prop) {
   if (!prop.is_uint())
     return std::wstring();
   return uint_to_hex_str(prop.get_uint(), prop.get_int_size() * 2);
@@ -86,7 +86,7 @@ std::wstring format_crc_prop(const PropVariant& prop) {
 static const wchar_t kPosixTypes[16 + 1] = L"0pc3d5b7-9lBsDEF";
 #define ATTR_CHAR(a, n, c) (((a) & (1 << (n))) ? c : L'-')
 
-std::wstring format_posix_attrib_prop(const PropVariant& prop)
+static std::wstring format_posix_attrib_prop(const PropVariant& prop)
 {
   if (!prop.is_uint())
     return std::wstring();
@@ -138,7 +138,7 @@ static const wchar_t g_WinAttribChars[kNumWinAtrribFlags + 1] = L"RHS8DAdNTsLCOI
 22 RECALL_ON_DATA_ACCESS
 */
 
-std::wstring format_attrib_prop(const PropVariant& prop)
+static std::wstring format_attrib_prop(const PropVariant& prop)
 {
   if (!prop.is_uint())
     return std::wstring();
@@ -281,7 +281,7 @@ static PropInfo c_prop_info[] =
   { kpidCopyLink, MSG_KPID_COPYLINK, nullptr }
 };
 
-const PropInfo* find_prop_info(PROPID prop_id) {
+static const PropInfo* find_prop_info(PROPID prop_id) {
   static_assert(_countof(c_prop_info) == kpid_NUM_DEFINED-kpidPath, "Missed items in c_prop_info");
   if (prop_id < kpidPath || prop_id >= kpid_NUM_DEFINED)
     return nullptr;
@@ -291,7 +291,7 @@ const PropInfo* find_prop_info(PROPID prop_id) {
 
 AttrList Archive::get_attr_list(UInt32 item_index) {
   AttrList attr_list;
-  if (item_index >= num_indices) // fake index
+  if (item_index >= m_num_indices) // fake index
     return attr_list;
   UInt32 num_props;
   CHECK_COM(in_arc->GetNumberOfProperties(&num_props));
@@ -389,7 +389,7 @@ void Archive::load_arc_attr() {
   UInt64 total_packed_size = 0;
   unsigned file_count = 0;
   PropVariant prop;
-  for (UInt32 file_id = 0; file_id < num_indices && total_size_defined; file_id++) {
+  for (UInt32 file_id = 0; file_id < m_num_indices && total_size_defined; file_id++) {
     if (!file_list[file_id].is_dir) {
       if (in_arc->GetProperty(file_id, kpidSize, prop.ref()) == S_OK && prop.is_uint())
         total_size += prop.get_uint();
@@ -425,35 +425,35 @@ void Archive::load_arc_attr() {
   attr.value = int_to_str(file_count);
   arc_attr.push_back(attr);
   attr.name = Far::get_msg(MSG_PROPERTY_DIR_COUNT);
-  attr.value = int_to_str(num_indices - file_count);
+  attr.value = int_to_str(m_num_indices - file_count);
   arc_attr.push_back(attr);
 
   // archive files have CRC?
-  has_crc = true;
-  for (UInt32 file_id = 0; file_id < num_indices && has_crc; file_id++) {
+  m_has_crc = true;
+  for (UInt32 file_id = 0; file_id < m_num_indices && m_has_crc; file_id++) {
     if (!file_list[file_id].is_dir) {
       if (in_arc->GetProperty(file_id, kpidCRC, prop.ref()) != S_OK || !prop.is_uint())
-        has_crc = false;
+        m_has_crc = false;
     }
   }
 }
 
 void Archive::load_update_props() {
-  if (update_props_defined) return;
+  if (m_update_props_defined) return;
 
-  encrypted = false;
+  m_encrypted = false;
   PropVariant prop;
-  for (UInt32 i = 0; i < num_indices; i++) {
+  for (UInt32 i = 0; i < m_num_indices; i++) {
     if (in_arc->GetProperty(i, kpidEncrypted, prop.ref()) == S_OK && prop.is_bool() && prop.get_bool()) {
-      encrypted = true;
+      m_encrypted = true;
       break;
     }
   }
 
-  solid = in_arc->GetArchiveProperty(kpidSolid, prop.ref()) == S_OK && prop.is_bool() && prop.get_bool();
+  m_solid = in_arc->GetArchiveProperty(kpidSolid, prop.ref()) == S_OK && prop.is_bool() && prop.get_bool();
 
-  level = (unsigned)-1;
-  method.clear();
+  m_level = (unsigned)-1;
+  m_method.clear();
   if (in_arc->GetArchiveProperty(kpidMethod, prop.ref()) == S_OK && prop.is_str()) {
     std::list<std::wstring> m_list = split(prop.get_str(), L' ');
 
@@ -461,27 +461,27 @@ void Archive::load_update_props() {
 
     for (std::list<std::wstring>::const_iterator m_str = m_list.begin(); m_str != m_list.end(); m_str++) {
       if (_wcsicmp(m_str->c_str(), c_method_copy) == 0) {
-        level = 0;
-        method = c_method_lzma;
+        m_level = 0;
+        m_method = c_method_lzma;
         break;
       }
       for (const auto known : known_methods) {
         if (_wcsicmp(m_str->c_str(), known) == 0)
-        { method = known; break; }
+        { m_method = known; break; }
       }
-      for (const auto known : g_options.codecs) {
+      for (const auto& known : g_options.codecs) {
         if (_wcsicmp(m_str->c_str(), known.name.c_str()) == 0)
-        { method = known.name; break; }
+        { m_method = known.name; break; }
       }
-      if (!method.empty())
+      if (!m_method.empty())
         break;
     }
   }
 
-  if (level == (unsigned)-1)
-    level = 7; // maximum
-  if (method.empty())
-    method = c_method_lzma;
+  if (m_level == (unsigned)-1)
+    m_level = 7; // maximum
+  if (m_method.empty())
+    m_method = c_method_lzma;
 
-  update_props_defined = true;
+  m_update_props_defined = true;
 }

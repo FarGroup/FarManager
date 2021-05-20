@@ -3,10 +3,12 @@
 
 #define SZ_FAVORITES          L"Favorites"
 #define SZ_FAVORITES_SUBKEY   SZ_FAVORITES L"\\%s"
+#if 0
 #define SZ_USERNAME           L"UserName"
 #define SZ_USERPASS           L"Password"
+#endif
 
-wchar_t szFavProv[] = L"Far Favorites Provider";
+static wchar_t szFavProv[] = L"Far Favorites Provider";
 
 BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
 {
@@ -15,7 +17,7 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
 
 	if (!pNR)
 	{
-		tmp.lpRemoteName = NULL;
+		tmp.lpRemoteName = {};
 		tmp.lpProvider = szFavProv;
 		pList->Push(tmp);
 	}
@@ -79,7 +81,7 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
 
 					if (Opt.FavoritesFlags & FAVORITES_CHECK_RESOURCES)
 					{
-						tmp.lpProvider = NULL;
+						tmp.lpProvider = {};
 						tmp.lpRemoteName = szSrc;
 						tmp.dwDisplayType = RESOURCEDISPLAYTYPE_SERVER;
 						pList->Push(tmp);
@@ -109,17 +111,17 @@ BOOL CheckFavoriteItem(const LPNETRESOURCE pNR)
 	return pNR && !lstrcmp(pNR->lpProvider, szFavProv);
 }
 
-BOOL GetResourceKey(wchar_t* lpRemoteName, const wchar_t* rootKey, wchar_t* lpResourceKey, size_t *cSize)
+static BOOL GetResourceKey(wchar_t* lpRemoteName, const wchar_t* rootKey, wchar_t* lpResourceKey, size_t *cSize)
 {
 	return FALSE;
 #if 0
 	// We should be sure that "Favorites" is a folder
-	SetRegKey(HKEY_CURRENT_USER, SZ_FAVORITES, NULL, L"1");
+	SetRegKey(HKEY_CURRENT_USER, SZ_FAVORITES, {}, L"1");
 
 	if (!lpResourceKey || !cSize || !*cSize)
 		return FALSE;
 
-	wchar_t *p = NULL;
+	wchar_t *p{};
 	wchar_t szKey[MAX_PATH];
 
 	if (lpRemoteName)
@@ -229,7 +231,7 @@ BOOL GetResourceKey(wchar_t* lpRemoteName, const wchar_t* rootKey, wchar_t* lpRe
 #endif
 }
 
-void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, wchar_t* /*szFolder*/)
+void WriteFavoriteItem(FAVORITEITEM* lpFavItem, wchar_t* /*szFolder*/)
 {
 #if 0
 	wchar_t szResourceKey[MAX_PATH];
@@ -240,7 +242,7 @@ void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, wchar_t* /*szFolder*/)
 #endif
 }
 
-BOOL ReadFavoriteItem(LPFAVORITEITEM lpFavItem)
+BOOL ReadFavoriteItem(FAVORITEITEM* lpFavItem)
 {
 #if 0
 	wchar_t resKey[MAX_PATH];
@@ -268,7 +270,7 @@ BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
 
 	if (!lstrcmp(SrcRes.lpProvider, szFavProv))
 	{
-		p = (wchar_t*)FSF.PointToName(SrcRes.lpRemoteName);
+		p = const_cast<wchar_t*>(FSF.PointToName(SrcRes.lpRemoteName));
 
 		if (p && p != SrcRes.lpRemoteName)
 		{
@@ -300,7 +302,7 @@ BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
 
 	if (GetResourceKey(SrcRes.lpRemoteName, SZ_FAVORITES, szResourceKey, &cSize))
 	{
-		p = (wchar_t*)FSF.PointToName(szResourceKey);
+		p = const_cast<wchar_t*>(FSF.PointToName(szResourceKey));
 
 		if (!p || !*p)
 		{
@@ -363,7 +365,7 @@ BOOL GetFavoriteResource(const wchar_t *SrcName, LPNETRESOURCE DstNetResource)
 			return TRUE;
 		}
 
-		if (GetRegKey(HKEY_CURRENT_USER, szKey, NULL, (wchar_t*)&dwKey, L"0", sizeof(dwKey))
+		if (GetRegKey(HKEY_CURRENT_USER, szKey, {}, (wchar_t*)&dwKey, L"0", sizeof(dwKey))
 		        && dwKey == L'1')
 		{
 			p = wcschr(szKey, L'\\');
@@ -392,7 +394,7 @@ BOOL GetFavoriteResource(const wchar_t *SrcName, LPNETRESOURCE DstNetResource)
 			{
 				*(p1-1) = 0;
 
-				if (GetRegKey(HKEY_CURRENT_USER, szKey, NULL, (wchar_t*)&dwKey, L"0", sizeof(dwKey))
+				if (GetRegKey(HKEY_CURRENT_USER, szKey, {}, (wchar_t*)&dwKey, L"0", sizeof(dwKey))
 				        && dwKey == L'1')
 				{
 					p = p1;
@@ -406,7 +408,7 @@ BOOL GetFavoriteResource(const wchar_t *SrcName, LPNETRESOURCE DstNetResource)
 					{
 						*(p - 1) = 0;
 
-						if (!GetRegKey(HKEY_CURRENT_USER, szKey, NULL, (wchar_t*)&dwKey, L"0", sizeof(dwKey))
+						if (!GetRegKey(HKEY_CURRENT_USER, szKey, {}, (wchar_t*)&dwKey, L"0", sizeof(dwKey))
 						        || dwKey != L'1')
 							return FALSE;
 					}
@@ -494,9 +496,9 @@ EliminateSubKey(HKEY hkey, LPTSTR strSubKey)
 			                       , 0
 			                       , Buffer
 			                       , &dw
-			                       , NULL
-			                       , NULL
-			                       , NULL
+			                       , {}
+			                       , {}
+			                       , {}
 			                       , &ft);
 
 			if (ERROR_SUCCESS == lreturn)
@@ -533,8 +535,8 @@ BOOL RecursiveSetValue(HKEY hKey, wchar_t* lpSubKey)
 		{
 			HKEY hSubKey;
 
-			if (ERROR_SUCCESS != RegCreateKeyEx(hKey, lpSubKey, 0, NULL, REG_OPTION_NON_VOLATILE,
-			                                    KEY_ALL_ACCESS, NULL, &hSubKey, NULL))
+			if (ERROR_SUCCESS != RegCreateKeyEx(hKey, lpSubKey, 0, {}, REG_OPTION_NON_VOLATILE,
+			                                    KEY_ALL_ACCESS, {}, &hSubKey, {}))
 				return FALSE;
 
 			BOOL res = RecursiveSetValue(hSubKey, p);
@@ -549,7 +551,7 @@ BOOL RecursiveSetValue(HKEY hKey, wchar_t* lpSubKey)
 }
 #endif
 
-const wchar_t *g_szInvalidChars=L"\\/";
+static const wchar_t *g_szInvalidChars=L"\\/";
 
 BOOL ValidatePath(const wchar_t *szPath)
 {
@@ -614,7 +616,7 @@ class RegParser : public Unknown
 			if (m_parent)
 			{
 				m_parent->Release();
-				m_parent = NULL;
+				m_parent = {};
 			}
 
 			if (m_hKey)
@@ -629,11 +631,11 @@ class RegParser : public Unknown
 				{
 					DWORD dwDispositon;
 
-					if (ERROR_SUCCESS == RegCreateKeyEx(parentItem->m_hKey, subKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &m_hKey, &dwDispositon))
+					if (ERROR_SUCCESS == RegCreateKeyEx(parentItem->m_hKey, subKey, 0, {}, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, {}, &m_hKey, &dwDispositon))
 					{
 						if (dwDispositon == REG_CREATED_NEW_KEY)
 						{
-							RegSetValue(m_hKey, NULL, REG_SZ, L"1", 2);
+							RegSetValue(m_hKey, {}, REG_SZ, L"1", 2);
 						}
 					}
 				}
@@ -740,7 +742,7 @@ bool GetFavoriteRoot(RegParser** favoritesRoot)
 
 	RegParser* root = new RegParser;
 
-	if (!root->init(NULL, SZ_FAVORITES))
+	if (!root->init({}, SZ_FAVORITES))
 	{
 		root->Release();
 		return false;
@@ -782,7 +784,7 @@ BOOL CreateSubFolder(wchar_t *szRoot, wchar_t *szSubFolder)
 		return FALSE;
 
 	FSF.Unquote(szSubFolder);
-	res = currFolder->parsePath(szSubFolder, true, NULL);
+	res = currFolder->parsePath(szSubFolder, true, {});
 	currFolder->Release();
 	return res?TRUE:FALSE;
 #endif

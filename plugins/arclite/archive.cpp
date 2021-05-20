@@ -171,7 +171,7 @@ static bool GetCoderInfo(Func_GetMethodProperty getMethodProperty, UInt32 index,
   if (prop1.vt != VT_EMPTY) {
     if (prop1.vt != VT_BSTR || (size_t)SysStringByteLen(prop1.bstrVal) < sizeof(CLSID))
       return false;
-    info.Decoder = *(const GUID *)prop1.bstrVal;
+    info.Decoder = *reinterpret_cast<const GUID*>(prop1.bstrVal);
     info.DecoderIsAssigned = true;
   }
   if (S_OK != getMethodProperty(index, NMethodPropID::kEncoder, prop2.ref()))
@@ -179,7 +179,7 @@ static bool GetCoderInfo(Func_GetMethodProperty getMethodProperty, UInt32 index,
   if (prop2.vt != VT_EMPTY) {
     if (prop2.vt != VT_BSTR || (size_t)SysStringByteLen(prop2.bstrVal) < sizeof(CLSID))
       return false;
-    info.Encoder = *(const GUID *)prop2.bstrVal;
+    info.Encoder = *reinterpret_cast<const GUID*>(prop2.bstrVal);
     info.EncoderIsAssigned = true;
   }
   if (S_OK != getMethodProperty(index, NMethodPropID::kName, prop3.ref()) || !prop3.is_str())
@@ -237,35 +237,33 @@ public:
     }
   }
 
-  ~MyCompressCodecsInfo() {}
-
   UNKNOWN_IMPL_BEGIN
   UNKNOWN_IMPL_ITF(ICompressCodecsInfo)
   UNKNOWN_IMPL_ITF(IHashers)
   UNKNOWN_IMPL_END
 
-  STDMETHODIMP_(UInt32) GetNumHashers() {
+  STDMETHODIMP_(UInt32) GetNumHashers() noexcept override {
     return static_cast<UInt32>(hashers_.size());
   }
 
-  STDMETHODIMP GetHasherProp(UInt32 index, PROPID propID, PROPVARIANT *value) {
+  STDMETHODIMP GetHasherProp(UInt32 index, PROPID propID, PROPVARIANT *value) noexcept override {
     const CDllHasherInfo &hi = hashers_[index];
     const auto &lib = libs_[hi.LibIndex];
     return lib.ComHashers->GetHasherProp(hi.HasherIndex, propID, value);
   }
 
-  STDMETHODIMP CreateHasher(UInt32 index, IHasher **hasher) {
+  STDMETHODIMP CreateHasher(UInt32 index, IHasher **hasher) noexcept override {
     const CDllHasherInfo &hi = hashers_[index];
     const auto &lib = libs_[hi.LibIndex];
     return lib.ComHashers->CreateHasher(hi.HasherIndex, hasher);
   }
 
-  STDMETHODIMP GetNumMethods(UInt32 *numMethods) {
+  STDMETHODIMP GetNumMethods(UInt32 *numMethods) noexcept override {
     *numMethods = static_cast<UInt32>(codecs_.size());
     return S_OK;
   }
 
-  STDMETHODIMP GetProperty(UInt32 index, PROPID propID, PROPVARIANT *value) {
+  STDMETHODIMP GetProperty(UInt32 index, PROPID propID, PROPVARIANT *value) noexcept override {
     const CDllCodecInfo &ci = codecs_[index];
     if (propID == NMethodPropID::kDecoderIsAssigned || propID == NMethodPropID::kEncoderIsAssigned) {
       PropVariant prop;
@@ -277,7 +275,7 @@ public:
     return lib.GetMethodProperty(ci.CodecIndex, propID, value);
   }
 
-  STDMETHODIMP CreateDecoder(UInt32 index, const GUID *iid, void **coder) {
+  STDMETHODIMP CreateDecoder(UInt32 index, const GUID *iid, void **coder) noexcept override {
     const CDllCodecInfo &ci = codecs_[index];
     if (ci.DecoderIsAssigned) {
       const auto &lib = libs_[ci.LibIndex];
@@ -289,7 +287,7 @@ public:
     return S_OK;
   }
 
-  STDMETHODIMP CreateEncoder(UInt32 index, const GUID *iid, void **coder) {
+  STDMETHODIMP CreateEncoder(UInt32 index, const GUID *iid, void **coder) noexcept override {
     const CDllCodecInfo &ci = codecs_[index];
     if (ci.EncoderIsAssigned) {
       const auto &lib = libs_[ci.LibIndex];
@@ -336,19 +334,19 @@ void ArcAPI::load_libs(const std::wstring& path) {
     arc_lib.h_module = LoadLibraryW(arc_lib.module_path.c_str());
     if (arc_lib.h_module == nullptr)
       continue;
-    arc_lib.CreateObject = reinterpret_cast<Func_CreateObject>(GetProcAddress(arc_lib.h_module, "CreateObject"));
-    arc_lib.CreateDecoder = reinterpret_cast<Func_CreateDecoder>(GetProcAddress(arc_lib.h_module, "CreateDecoder"));
-    arc_lib.CreateEncoder = reinterpret_cast<Func_CreateEncoder>(GetProcAddress(arc_lib.h_module, "CreateEncoder"));
-    arc_lib.GetNumberOfMethods = reinterpret_cast<Func_GetNumberOfMethods>(GetProcAddress(arc_lib.h_module, "GetNumberOfMethods"));
-    arc_lib.GetMethodProperty = reinterpret_cast<Func_GetMethodProperty>(GetProcAddress(arc_lib.h_module, "GetMethodProperty"));
-    arc_lib.GetNumberOfFormats = reinterpret_cast<Func_GetNumberOfFormats>(GetProcAddress(arc_lib.h_module, "GetNumberOfFormats"));
-    arc_lib.GetHandlerProperty = reinterpret_cast<Func_GetHandlerProperty>(GetProcAddress(arc_lib.h_module, "GetHandlerProperty"));
-    arc_lib.GetHandlerProperty2 = reinterpret_cast<Func_GetHandlerProperty2>(GetProcAddress(arc_lib.h_module, "GetHandlerProperty2"));
-    arc_lib.GetIsArc = reinterpret_cast<Func_GetIsArc>(GetProcAddress(arc_lib.h_module, "GetIsArc"));
-    arc_lib.SetCodecs = reinterpret_cast<Func_SetCodecs>(GetProcAddress(arc_lib.h_module, "SetCodecs"));
+    arc_lib.CreateObject = reinterpret_cast<Func_CreateObject>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "CreateObject")));
+    arc_lib.CreateDecoder = reinterpret_cast<Func_CreateDecoder>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "CreateDecoder")));
+    arc_lib.CreateEncoder = reinterpret_cast<Func_CreateEncoder>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "CreateEncoder")));
+    arc_lib.GetNumberOfMethods = reinterpret_cast<Func_GetNumberOfMethods>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "GetNumberOfMethods")));
+    arc_lib.GetMethodProperty = reinterpret_cast<Func_GetMethodProperty>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "GetMethodProperty")));
+    arc_lib.GetNumberOfFormats = reinterpret_cast<Func_GetNumberOfFormats>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "GetNumberOfFormats")));
+    arc_lib.GetHandlerProperty = reinterpret_cast<Func_GetHandlerProperty>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "GetHandlerProperty")));
+    arc_lib.GetHandlerProperty2 = reinterpret_cast<Func_GetHandlerProperty2>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "GetHandlerProperty2")));
+    arc_lib.GetIsArc = reinterpret_cast<Func_GetIsArc>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "GetIsArc")));
+    arc_lib.SetCodecs = reinterpret_cast<Func_SetCodecs>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "SetCodecs")));
     if (arc_lib.CreateObject && ((arc_lib.GetNumberOfFormats && arc_lib.GetHandlerProperty2) || arc_lib.GetHandlerProperty)) {
       arc_lib.version = get_module_version(arc_lib.module_path);
-      Func_GetHashers getHashers = reinterpret_cast<Func_GetHashers>(GetProcAddress(arc_lib.h_module, "GetHashers"));
+      Func_GetHashers getHashers = reinterpret_cast<Func_GetHashers>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "GetHashers")));
       if (getHashers) {
         IHashers *hashers = nullptr;
         if (S_OK == getHashers(&hashers) && hashers)
@@ -412,11 +410,11 @@ void ArcAPI::load_codecs(const std::wstring& path) {
     arc_lib.h_module = LoadLibraryW(arc_lib.module_path.c_str());
     if (arc_lib.h_module == nullptr)
       continue;
-    arc_lib.CreateObject = reinterpret_cast<Func_CreateObject>(GetProcAddress(arc_lib.h_module, "CreateObject"));
-    arc_lib.CreateDecoder = reinterpret_cast<Func_CreateDecoder>(GetProcAddress(arc_lib.h_module, "CreateDecoder"));
-    arc_lib.CreateEncoder = reinterpret_cast<Func_CreateEncoder>(GetProcAddress(arc_lib.h_module, "CreateEncoder"));
-    arc_lib.GetNumberOfMethods = reinterpret_cast<Func_GetNumberOfMethods>(GetProcAddress(arc_lib.h_module, "GetNumberOfMethods"));
-    arc_lib.GetMethodProperty = reinterpret_cast<Func_GetMethodProperty>(GetProcAddress(arc_lib.h_module, "GetMethodProperty"));
+    arc_lib.CreateObject = reinterpret_cast<Func_CreateObject>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "CreateObject")));
+    arc_lib.CreateDecoder = reinterpret_cast<Func_CreateDecoder>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "CreateDecoder")));
+    arc_lib.CreateEncoder = reinterpret_cast<Func_CreateEncoder>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "CreateEncoder")));
+    arc_lib.GetNumberOfMethods = reinterpret_cast<Func_GetNumberOfMethods>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "GetNumberOfMethods")));
+    arc_lib.GetMethodProperty = reinterpret_cast<Func_GetMethodProperty>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "GetMethodProperty")));
     arc_lib.GetNumberOfFormats = nullptr;
     arc_lib.GetHandlerProperty = nullptr;
     arc_lib.GetHandlerProperty2 = nullptr;
@@ -426,7 +424,7 @@ void ArcAPI::load_codecs(const std::wstring& path) {
     auto n_start_codecs = arc_codecs.size();
     auto n_start_hashers = arc_hashers.size();
     add_codecs(arc_lib, arc_libs.size());
-    Func_GetHashers getHashers = reinterpret_cast<Func_GetHashers>(GetProcAddress(arc_lib.h_module, "GetHashers"));
+    Func_GetHashers getHashers = reinterpret_cast<Func_GetHashers>(reinterpret_cast<void*>(GetProcAddress(arc_lib.h_module, "GetHashers")));
     if (getHashers) {
       IHashers *hashers = nullptr;
       if (S_OK == getHashers(&hashers) && hashers) {
@@ -483,7 +481,7 @@ const SfxModuleInfo c_known_sfx_modules[] = {
   { L"7zS2con.sfx", MSG_SFX_DESCR_7ZS2CON, false, false },
 };
 
-const SfxModuleInfo* find(const std::wstring& path) {
+static const SfxModuleInfo* find(const std::wstring& path) {
   unsigned i = 0;
   for (; i < ARRAYSIZE(c_known_sfx_modules) && upcase(extract_file_name(path)) != upcase(c_known_sfx_modules[i].module_name); i++);
   if (i < ARRAYSIZE(c_known_sfx_modules))
@@ -715,10 +713,10 @@ bool ArcFileInfo::operator<(const ArcFileInfo& file_info) const {
 
 
 void Archive::make_index() {
-  num_indices = 0;
-  CHECK_COM(in_arc->GetNumberOfItems(&num_indices));
+  m_num_indices = 0;
+  CHECK_COM(in_arc->GetNumberOfItems(&m_num_indices));
   file_list.clear();
-  file_list.reserve(num_indices);
+  file_list.reserve(m_num_indices);
 
   struct DirInfo {
     UInt32 index;
@@ -740,7 +738,7 @@ void Archive::make_index() {
   ArcFileInfo file_info;
   std::wstring path;
   PropVariant prop;
-  for (UInt32 i = 0; i < num_indices; i++) {
+  for (UInt32 i = 0; i < m_num_indices; i++) {
     // is directory?
     file_info.is_dir = in_arc->GetProperty(i, kpidIsDir, prop.ref()) == S_OK && prop.is_bool() && prop.get_bool();
     file_info.is_altstream = get_isaltstream(i);
@@ -809,12 +807,12 @@ void Archive::make_index() {
 
   // add directories that not present in archive index
   file_list.reserve(file_list.size() + dir_list.size() - dir_index_map.size());
-  dir_index = num_indices;
-  std::for_each(dir_list.begin(), dir_list.end(), [&] (const DirInfo& dir_info) {
-    if (dir_index_map.count(dir_info.index) == 0) {
-      dir_index_map[dir_info.index] = dir_index;
-      file_info.parent = dir_info.parent;
-      file_info.name = dir_info.name;
+  dir_index = m_num_indices;
+  std::for_each(dir_list.begin(), dir_list.end(), [&] (const DirInfo& item) {
+    if (dir_index_map.count(item.index) == 0) {
+      dir_index_map[item.index] = dir_index;
+      file_info.parent = item.parent;
+      file_info.name = item.name;
       file_info.is_dir = true;
       file_info.is_altstream = false;
       dir_index++;
@@ -823,9 +821,9 @@ void Archive::make_index() {
   });
 
   // fix parent references
-  std::for_each(file_list.begin(), file_list.end(), [&] (ArcFileInfo& file_info) {
-    if (file_info.parent != c_root_index && file_info.parent != c_dup_index)
-      file_info.parent = dir_index_map[file_info.parent];
+  std::for_each(file_list.begin(), file_list.end(), [&] (ArcFileInfo& item) {
+    if (item.parent != c_root_index && item.parent != c_dup_index)
+      item.parent = dir_index_map[item.parent];
   });
 
   // create search index
@@ -888,10 +886,10 @@ std::wstring Archive::get_path(UInt32 index) {
     make_index();
 
   std::wstring file_path = file_list[index].name;
-  UInt32 parent = file_list[index].parent;
-  while (parent != c_root_index) {
-    file_path.insert(0, 1, L'\\').insert(0, file_list[parent].name);
-    parent = file_list[parent].parent;
+  UInt32 file_parent = file_list[index].parent;
+  while (file_parent != c_root_index) {
+    file_path.insert(0, 1, L'\\').insert(0, file_list[file_parent].name);
+    file_parent = file_list[file_parent].parent;
   }
   return file_path;
 }
@@ -922,7 +920,7 @@ DWORD Archive::get_attr(UInt32 index) const {
   PropVariant prop;
   DWORD attr = 0;
 
-  if (index >= num_indices)
+  if (index >= m_num_indices)
     return FILE_ATTRIBUTE_DIRECTORY;
 
   if (in_arc->GetProperty(index, kpidAttrib, prop.ref()) == S_OK && prop.is_uint())
@@ -936,7 +934,7 @@ DWORD Archive::get_attr(UInt32 index) const {
 
 UInt64 Archive::get_size(UInt32 index) const {
   PropVariant prop;
-  if (index >= num_indices)
+  if (index >= m_num_indices)
     return 0;
   else if (!file_list[index].is_dir && in_arc->GetProperty(index, kpidSize, prop.ref()) == S_OK && prop.is_uint())
     return prop.get_uint();
@@ -946,7 +944,7 @@ UInt64 Archive::get_size(UInt32 index) const {
 
 UInt64 Archive::get_psize(UInt32 index) const {
   PropVariant prop;
-  if (index >= num_indices)
+  if (index >= m_num_indices)
     return 0;
   else if (!file_list[index].is_dir && in_arc->GetProperty(index, kpidPackSize, prop.ref()) == S_OK && prop.is_uint())
     return prop.get_uint();
@@ -956,7 +954,7 @@ UInt64 Archive::get_psize(UInt32 index) const {
 
 FILETIME Archive::get_ctime(UInt32 index) const {
   PropVariant prop;
-  if (index >= num_indices)
+  if (index >= m_num_indices)
     return arc_info.ftCreationTime;
   else if (in_arc->GetProperty(index, kpidCTime, prop.ref()) == S_OK && prop.is_filetime())
     return prop.get_filetime();
@@ -966,7 +964,7 @@ FILETIME Archive::get_ctime(UInt32 index) const {
 
 FILETIME Archive::get_mtime(UInt32 index) const {
   PropVariant prop;
-  if (index >= num_indices)
+  if (index >= m_num_indices)
     return arc_info.ftLastWriteTime;
   else if (in_arc->GetProperty(index, kpidMTime, prop.ref()) == S_OK && prop.is_filetime())
     return prop.get_filetime();
@@ -976,7 +974,7 @@ FILETIME Archive::get_mtime(UInt32 index) const {
 
 FILETIME Archive::get_atime(UInt32 index) const {
   PropVariant prop;
-  if (index >= num_indices)
+  if (index >= m_num_indices)
     return arc_info.ftLastAccessTime;
   else if (in_arc->GetProperty(index, kpidATime, prop.ref()) == S_OK && prop.is_filetime())
     return prop.get_filetime();
@@ -986,7 +984,7 @@ FILETIME Archive::get_atime(UInt32 index) const {
 
 unsigned Archive::get_crc(UInt32 index) const {
   PropVariant prop;
-  if (index >= num_indices)
+  if (index >= m_num_indices)
     return 0;
   else if (in_arc->GetProperty(index, kpidCRC, prop.ref()) == S_OK && prop.is_uint())
     return static_cast<DWORD>(prop.get_uint());
@@ -996,7 +994,7 @@ unsigned Archive::get_crc(UInt32 index) const {
 
 bool Archive::get_anti(UInt32 index) const {
   PropVariant prop;
-  if (index >= num_indices)
+  if (index >= m_num_indices)
     return false;
   else if (in_arc->GetProperty(index, kpidIsAnti, prop.ref()) == S_OK && prop.is_bool())
     return prop.get_bool();
@@ -1006,7 +1004,7 @@ bool Archive::get_anti(UInt32 index) const {
 
 bool Archive::get_isaltstream(UInt32 index) const {
   PropVariant prop;
-  if (index >= num_indices)
+  if (index >= m_num_indices)
     return false;
   else if (in_arc->GetProperty(index, kpidIsAltStream, prop.ref()) == S_OK && prop.is_bool())
     return prop.get_bool();
