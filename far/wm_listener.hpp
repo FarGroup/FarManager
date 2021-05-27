@@ -55,10 +55,9 @@ public:
 private:
 	void WindowThreadRoutine(const os::event* ReadyEvent);
 
-	os::thread m_Thread;
-	HWND m_Hwnd;
-	os::event m_exitEvent;
+	HWND m_Hwnd{};
 	std::exception_ptr m_ExceptionPtr;
+	os::thread m_Thread;
 };
 
 #endif // WM_LISTENER_HPP_6C668719_5279_4CB7_81B0_448AC5165C00

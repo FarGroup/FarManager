@@ -221,7 +221,7 @@ private:
 
 	bool InsertKey(wchar_t Key);
 	bool RecurseProcessKey(int Key);
-	void ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos);
+	void ApplyColor(int XPos, int FocusedLeftPos);
 	int GetNextCursorPos(int Position,int Where) const;
 	static bool CharInMask(wchar_t Char, wchar_t Mask);
 	bool ProcessCtrlQ();

@@ -1,4 +1,20 @@
 --------------------------------------------------------------------------------
+drkns 27.05.2021 23:22:21 +0100 - build 5804
+
+1. Experimental: removed constant polling from the main thread.
+   This should noticeably reduce CPU consumption and make various idle events more predictable.
+
+2. Experimental: reworked Find File dialog updating.
+   This should make the search faster and make UI updates more predictable.
+
+3. Optimisation of message transfer between threads.
+   This should reduce the amount of locks and make things faster in various places.
+
+4. More logging.
+
+5. Minor refactoring.
+
+--------------------------------------------------------------------------------
 drkns 27.05.2021 17:18:25 +0100 - build 5803
 
 1. Workaround for gh-404: hangs on exit in Windows XP SP3.

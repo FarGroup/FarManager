@@ -61,6 +61,7 @@ enum
 };
 
 void ClearKeyQueue();
+void wake_main_loop();
 
 struct FarKeyboardState
 {

@@ -1811,12 +1811,11 @@ private:
 			bool bAddDelete=false, bCommit=false;
 
 			{
-				SCOPED_ACTION(auto)(WorkQueue.scoped_lock());
-
-				decltype(WorkQueue)::value_type item;
-				while (WorkQueue.try_pop(item))
+				for (auto Messages = WorkQueue.pop_all(); !Messages.empty(); Messages.pop())
 				{
 					SCOPE_EXIT{ SQLiteDb::EndTransaction(); };
+
+					auto& item = Messages.front();
 					if (item) //DeleteAndAddAsync
 					{
 						SQLiteDb::BeginTransaction();

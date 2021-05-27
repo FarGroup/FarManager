@@ -971,12 +971,7 @@ namespace os::fs
 		ObjName.Buffer = UNSAFE_CSTR(TargetPath);
 		OBJECT_ATTRIBUTES ObjAttrs;
 
-		WARNING_PUSH()
-		WARNING_DISABLE_CLANG("-Wextra-semi-stmt")
-
-		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr);
-
-		WARNING_POP()
+		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr)
 
 		HANDLE hSymLink;
 		if (imports.NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs) != STATUS_SUCCESS)

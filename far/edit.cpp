@@ -339,7 +339,7 @@ void Edit::FastShow(const ShowInfo* Info)
 	Text(fit_to_left(OutStr, EditLength));
 
 	if (m_Flags.Check(FEDITLINE_EDITORMODE))
-		ApplyColor(GetSelectedColor(), XPos, FocusedLeftPos);
+		ApplyColor(XPos, FocusedLeftPos);
 
 	if (TabSelStart==-1)
 	{
@@ -2073,7 +2073,7 @@ bool Edit::GetColor(ColorItem& col, size_t Item) const
 	return true;
 }
 
-void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
+void Edit::ApplyColor(int XPos, int FocusedLeftPos)
 {
 	// Для оптимизации сохраняем вычисленные позиции между итерациями цикла
 	int Pos = INT_MIN, TabPos = INT_MIN, TabEditorPos = INT_MIN;

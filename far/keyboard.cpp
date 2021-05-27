@@ -597,6 +597,17 @@ void ClearKeyQueue()
 	KeyQueue().clear();
 }
 
+static auto& wake_event()
+{
+	static os::concurrency::event Event(os::event::type::automatic, os::event::state::nonsignaled);
+	return Event;
+}
+
+void wake_main_loop()
+{
+	wake_event().set();
+}
+
 DWORD GetInputRecordNoMacroArea(INPUT_RECORD *rec,bool AllowSynchro)
 {
 	const auto SavedArea = Global->CtrlObject->Macro.GetArea();
@@ -863,18 +874,16 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 	auto FullscreenState = IsConsoleFullscreen();
 
-	DWORD LoopCount = 0;
 	for (;;)
 	{
 		WindowState.update();
 
-		if (!(LoopCount & 15))
+		if(Global->CtrlObject)
 		{
-			if(Global->CtrlObject)
-			{
-				SetFarConsoleMode();
-			}
+			SetFarConsoleMode();
+		}
 
+		{
 			const auto CurrentFullscreenState = IsConsoleFullscreen();
 			if(CurrentFullscreenState && !FullscreenState)
 			{
@@ -897,7 +906,6 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		}
 
 		Global->ScrBuf->Flush();
-		os::chrono::sleep_for(10ms);
 
 		static bool ExitInProcess = false;
 		if (Global->CloseFAR && !ExitInProcess)
@@ -907,7 +915,6 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			return KEY_NONE;
 		}
 
-		if (!(LoopCount & 15))
 		{
 			const auto CurTime = std::chrono::steady_clock::now();
 
@@ -916,19 +923,16 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 			if (Global->IsPanelsActive())
 			{
-				if (!(LoopCount & 63))
-				{
-					static bool UpdateReenter = false;
+				static bool UpdateReenter = false;
 
-					if (!UpdateReenter && CurTime - KeyPressedLastTime > 300ms)
+				if (!UpdateReenter && CurTime - KeyPressedLastTime > 300ms)
+				{
+					if (Global->WindowManager->IsPanelsActive())
 					{
-						if (Global->WindowManager->IsPanelsActive())
-						{
-							UpdateReenter = true;
-							Global->CtrlObject->Cp()->LeftPanel()->UpdateIfChanged(true);
-							Global->CtrlObject->Cp()->RightPanel()->UpdateIfChanged(true);
-							UpdateReenter = false;
-						}
+						UpdateReenter = true;
+						Global->CtrlObject->Cp()->LeftPanel()->UpdateIfChanged(true);
+						Global->CtrlObject->Cp()->RightPanel()->UpdateIfChanged(true);
+						UpdateReenter = false;
 					}
 				}
 			}
@@ -939,8 +943,17 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			{
 				ScreenSaver();
 			}
+		}
 
-			if (!Global->IsPanelsActive() && LoopCount==64)
+		if (message_manager::instance().dispatch())
+		{
+			*rec = {};
+			return KEY_NONE;
+		}
+
+		if (!os::handle::wait_any({ console.GetInputHandle(), wake_event().native_handle() }, 1s))
+		{
+			if (!Global->IsPanelsActive())
 			{
 				LastEventIdle = true;
 				*rec = {};
@@ -948,17 +961,6 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 				return KEY_IDLE;
 			}
 		}
-
-		if (!(LoopCount & 3))
-		{
-			if (message_manager::instance().dispatch())
-			{
-				*rec = {};
-				return KEY_NONE;
-			}
-		}
-
-		LoopCount++;
 	}
 
 

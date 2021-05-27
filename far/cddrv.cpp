@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cddrv.hpp"
 
 // Internal:
+#include "exception.hpp"
+#include "log.hpp"
 #include "pathmix.hpp"
 
 // Platform:
@@ -230,7 +232,10 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 	Spt.CdbLength = CDB10GENERIC_LENGTH;
 
 	if (!Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &Spt, sizeof(SCSI_PASS_THROUGH), &Spt, sizeof(Spt)) || Spt.ScsiStatus != SCSISTAT_GOOD)
+	{
+		LOGWARNING(L"SCSIOP_GET_CONFIGURATION: {}"sv, last_error());
 		return CAPABILITIES_NONE;
+	}
 
 	span const Buffer(Spt.DataBuf, Spt.DataTransferLength);
 
@@ -267,7 +272,10 @@ static auto capatibilities_from_scsi_mode_sense(const os::fs::file& Device)
 	Spt.CdbLength = CDB6GENERIC_LENGTH;
 
 	if (!Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &Spt, sizeof(SCSI_PASS_THROUGH), &Spt, sizeof(Spt)) || Spt.ScsiStatus != SCSISTAT_GOOD)
+	{
+		LOGWARNING(L"SCSIOP_MODE_SENSE: {}"sv, last_error());
 		return CAPABILITIES_NONE;
+	}
 
 	const auto& CapsPage = view_as<CDVD_CAPABILITIES_PAGE>(Spt.DataBuf + sizeof(MODE_PARAMETER_HEADER));
 
@@ -363,11 +371,17 @@ static auto capatibilities_from_product_id(const os::fs::file& Device)
 	STORAGE_PROPERTY_QUERY PropertyQuery{ StorageDeviceProperty, PropertyStandardQuery };
 
 	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &PropertyQuery, sizeof(PropertyQuery), &DescriptorHeader, sizeof(DescriptorHeader)) || !DescriptorHeader.Size)
+	{
+		LOGWARNING(L"IOCTL_STORAGE_QUERY_PROPERTY: {}"sv, last_error());
 		return CAPABILITIES_NONE;
+	}
 
 	const char_ptr_n<os::default_buffer_size> Buffer(DescriptorHeader.Size);
 	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &PropertyQuery, sizeof(PropertyQuery), Buffer.data(), static_cast<DWORD>(Buffer.size())))
+	{
+		LOGWARNING(L"IOCTL_STORAGE_QUERY_PROPERTY: {}"sv, last_error());
 		return CAPABILITIES_NONE;
+	}
 
 	const auto& DeviceDescriptor = view_as<STORAGE_DEVICE_DESCRIPTOR>(Buffer.data());
 
@@ -461,11 +475,17 @@ bool is_removable_usb(string_view RootDir)
 
 	const auto Device = os::fs::file(drive, STANDARD_RIGHTS_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
 	if (!Device)
+	{
+		LOGWARNING(L"CreateFile({}): {}"sv, drive, last_error());
 		return false;
+	}
 
 	DISK_GEOMETRY DiskGeometry;
 	if (!Device.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &DiskGeometry, sizeof(DiskGeometry)))
+	{
+		LOGWARNING(L"IOCTL_DISK_GET_DRIVE_GEOMETRY({}): {}"sv, drive, last_error());
 		return false;
+	}
 
 	return DiskGeometry.MediaType == FixedMedia || DiskGeometry.MediaType == RemovableMedia;
 }

@@ -41,6 +41,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "encoding.hpp"
 #include "eol.hpp"
+#include "exception.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.chrono.hpp"
@@ -119,7 +121,10 @@ public:
 			return true;
 
 		if (!CloseClipboard())
+		{
+			LOGWARNING(L"CloseClipboard(): {}"sv, last_error());
 			return false;
+		}
 
 		m_Opened = false;
 		return true;
@@ -147,7 +152,10 @@ private:
 		assert(m_Opened);
 
 		if (!SetClipboardData(Format, Data.get()))
+		{
+			LOGWARNING(L"SetClipboardData(): {}"sv, last_error());
 			return false;
+		}
 
 		// Owned by the OS now
 		(void)Data.release();
@@ -172,13 +180,17 @@ private:
 		if (!FormatId)
 		{
 			FormatId = RegisterClipboardFormat(FormatName);
+			if (!FormatId)
+			{
+				LOGWARNING(L"RegisterClipboardFormat(): {}"sv, last_error());
+			}
 		}
 		return FormatId;
 	}
 
 	bool IsFormatAvailable(unsigned Format) const override
 	{
-		return IsClipboardFormatAvailable(Format) != FALSE;
+		return Format && IsClipboardFormatAvailable(Format);
 	}
 };
 
@@ -307,7 +319,8 @@ bool clipboard::SetText(const string_view Str)
 
 	// 'Notepad++ binary text length'
 	// return value is ignored - non-critical feature
-	SetData(RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length), os::memory::global::copy(static_cast<uint32_t>(Str.size())));
+	if (const auto Format = RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length))
+		SetData(Format, os::memory::global::copy(static_cast<uint32_t>(Str.size())));
 
 	// return value is ignored - non-critical feature
 	if (auto Locale = os::memory::global::copy(GetUserDefaultLCID()))
@@ -322,7 +335,6 @@ bool clipboard::SetVText(const string_view Str)
 		return false;
 
 	const auto FarVerticalBlock = RegisterFormat(clipboard_format::vertical_block_unicode);
-
 	if (!FarVerticalBlock)
 		return false;
 
@@ -331,11 +343,13 @@ bool clipboard::SetVText(const string_view Str)
 
 	// 'Borland IDE Block Type'
 	// return value is ignored - non-critical feature
-	SetData(RegisterFormat(clipboard_format::borland_ide_dev_block), os::memory::global::copy('\x02'));
+	if (const auto Format = RegisterFormat(clipboard_format::borland_ide_dev_block))
+		SetData(Format, os::memory::global::copy('\x02'));
 
 	// 'MSDEVColumnSelect'
 	// return value is ignored - non-critical feature
-	SetData(RegisterFormat(clipboard_format::ms_dev_column_select), os::memory::global::copy(0));
+	if (const auto Format = RegisterFormat(clipboard_format::ms_dev_column_select))
+		SetData(Format, os::memory::global::copy(0));
 
 	return true;
 }
@@ -370,7 +384,10 @@ bool clipboard::SetHDROP(const string_view NamesData, const bool bMoved)
 	if (!hMemoryMove)
 		return false;
 
-	return SetData(RegisterFormat(clipboard_format::preferred_drop_effect), std::move(hMemoryMove));
+	if (const auto Format = RegisterFormat(clipboard_format::preferred_drop_effect))
+		return SetData(Format, std::move(hMemoryMove));
+
+	return false;
 }
 
 bool clipboard::GetText(string& Data) const
@@ -385,7 +402,11 @@ bool clipboard::GetText(string& Data) const
 
 	const auto GetBinaryTextLength = [this]
 	{
-		const auto hClipDataLen = GetData(RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length));
+		const auto Format = RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length);
+		if (!Format)
+			return string::npos;
+
+		const auto hClipDataLen = GetData(Format);
 		if (!hClipDataLen)
 			return string::npos;
 
@@ -435,7 +456,11 @@ bool clipboard::GetVText(string& Data) const
 {
 	const auto IsBorlandVerticalBlock = [this]
 	{
-		const auto hClipData = GetData(RegisterFormat(clipboard_format::borland_ide_dev_block));
+		const auto Format = RegisterFormat(clipboard_format::borland_ide_dev_block);
+		if (!Format)
+			return false;
+
+		const auto hClipData = GetData(Format);
 		if (!hClipData)
 			return false;
 
@@ -450,7 +475,11 @@ bool clipboard::GetVText(string& Data) const
 		return GetText(Data);
 	}
 
-	const auto hClipData = GetData(RegisterFormat(clipboard_format::vertical_block_oem));
+	const auto Format = RegisterFormat(clipboard_format::vertical_block_oem);
+	if (!Format)
+		return false;
+
+	const auto hClipData = GetData(Format);
 	if (!hClipData)
 		return false;
 

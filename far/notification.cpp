@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 
 // Internal:
+#include "keyboard.hpp"
 #include "wm_listener.hpp"
 
 // Platform:
@@ -97,11 +98,13 @@ void message_manager::unsubscribe(handlers_map::iterator HandlerIterator)
 void message_manager::notify(event_id EventId, std::any&& Payload)
 {
 	m_Messages.emplace(EventNames[EventId], std::move(Payload));
+	wake_main_loop();
 }
 
 void message_manager::notify(string_view const EventName, std::any&& Payload)
 {
 	m_Messages.emplace(EventName, std::move(Payload));
+	wake_main_loop();
 }
 
 bool message_manager::dispatch()
