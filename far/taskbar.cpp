@@ -137,7 +137,7 @@ private:
 		m_StateEvent{ os::event::type::automatic, os::event::state::nonsignaled },
 		m_ValueEvent{ os::event::type::automatic, os::event::state::nonsignaled };
 
-	os::thread m_ComThread{ os::thread::mode::join, &taskbar_impl::handler, this };
+	os::thread m_ComThread{ IsWindows7OrGreater()? os::thread{ os::thread::mode::join, &taskbar_impl::handler, this } : os::thread{} };
 };
 
 void taskbar::set_state(TBPFLAG const State)
