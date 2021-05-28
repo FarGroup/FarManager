@@ -1014,8 +1014,6 @@ void CommandLine::ExecString(execute_info& Info)
 				Global->CtrlObject->Cp()->GetKeybar().Show();
 			}
 		}
-		if (Global->Opt->Clock)
-			ShowTime();
 
 		if (Info.WaitMode != execute_info::wait_mode::no_wait)
 		{

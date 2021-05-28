@@ -2485,9 +2485,6 @@ $ #Okno ustawień: interfejs#
  #Zegar#
  Pokazuje zegar w prawym górnym rogu okna.
 
- #Zegar w podglądzie i edytorze#
- Pokazuje zegar w podglądzie i edytorze.
-
  #Mysz#
  Pozwala na używanie myszki w programie.
 

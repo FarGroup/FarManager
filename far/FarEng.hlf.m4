@@ -2483,11 +2483,8 @@ If turned off, to change the folder from the tree panel, you need to press #Ente
 
 @InterfSettings
 $ #Settings dialog: interface#
- #Clock in panels#
+ #Clock#
  Show clock at the right top corner of the screen.
-
- #Clock in viewer and editor#
- Show clock in viewer and editor.
 
  #Mouse#
  Use the mouse.

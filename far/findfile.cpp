@@ -1447,7 +1447,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			for (; !m_ExtractedMessages.empty(); m_ExtractedMessages.pop())
 			{
-				if (os::handle::wait_any({ console.GetInputHandle() }, 0s))
+				if (os::handle::is_signaled(console.GetInputHandle()))
 					break;
 
 				if (m_Searcher->Stopped())

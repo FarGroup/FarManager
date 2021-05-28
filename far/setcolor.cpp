@@ -89,9 +89,6 @@ static void ChangeColor(PaletteColors PaletteIndex, PaletteColors const* const B
 
 		Global->WindowManager->ResizeAllWindows(); // рефрешим
 		Global->WindowManager->PluginCommit(); // коммитим.
-
-		if (Global->Opt->Clock)
-			ShowTime();
 	}
 
 	Global->WindowManager->PluginCommit(); // коммитим.

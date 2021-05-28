@@ -2565,11 +2565,8 @@ mappát vált. Ha nincs engedélyezve, a fastruktúrán a mappaváltáshoz #Ente
 
 @InterfSettings
 $ #Beállítások: kezelőfelület beállítások#
- #Óra a paneleken#
+ #Óra#
  Megjeleníti az órát a képernyő jobb felső sarkában.
-
- #Óra a nézőkében és a szerkesztőben#
- Megjeleníti az órát a nézőkében és a szerkesztőben is.
 
  #Egér kezelése#
  A Far egérrel is vezérelhető.

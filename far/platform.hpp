@@ -182,7 +182,7 @@ namespace os
 			}
 
 			[[nodiscard]]
-			static bool is_signaled(HANDLE const Handle, std::chrono::milliseconds const Timeout)
+			static bool is_signaled(HANDLE const Handle, std::chrono::milliseconds const Timeout = 0ms)
 			{
 				return handle_implementation::wait(Handle, Timeout);
 			}

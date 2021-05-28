@@ -88,11 +88,11 @@ public:
 		far_clock();
 		const string& get() const;
 		size_t size() const;
-		void update();
+		void update(bool Force = false);
 
 	private:
 		string m_CurrentTime;
-
+		unsigned long long m_LastValue{};
 	};
 
 	far_clock CurrentTime;

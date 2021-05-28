@@ -781,9 +781,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 	auto LocalKey = Key;
 	if (LocalKey()==KEY_IDLE)
 	{
-		if (Global->Opt->ViewerEditorClock && HostFileEditor && HostFileEditor->IsFullScreen() && Global->Opt->EdOpt.ShowTitleBar)
-			ShowTime();
-
 		return true;
 	}
 

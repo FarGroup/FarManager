@@ -2561,9 +2561,6 @@ $ #Programmeinstellungen#
  #Uhr#
  Zeigt eine Uhr in der rechten oberen Ecke des Bildschirms.
 
- #Uhr in Betrachter und Editor#
- Zeigt die Uhr im (internen) Betrachter und Editor.
-
  #Maus#
  Erlaubt die Benutzung der Maus.
 

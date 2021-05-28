@@ -314,6 +314,10 @@ namespace detail
 	void locale::invalidate()
 	{
 		m_Valid = false;
+
+		if (Global)
+			Global->CurrentTime.update(true);
+
 		LOGINFO(L"Locale cache invalidated"sv);
 	}
 

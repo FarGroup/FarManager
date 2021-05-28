@@ -430,9 +430,6 @@ Dialog::~Dialog()
 	Dialog::Hide();
 	if (Global)
 	{
-		if (Global->Opt->Clock && Global->WindowManager->IsPanelsActive(true))
-			ShowTime();
-
 		if (!CheckDialogMode(DMODE_ISMENU))
 			Global->ScrBuf->Flush();
 	}
@@ -5690,7 +5687,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							EditLine->SetReadOnly(ReadOnly);
 
 							// не меняем clear-флаг, пока не проиницализировались
-							EditLine->SetClearFlag(DialogMode.Check(DMODE_OBJECTS_INITED)? true : IsUnchanged);
+							EditLine->SetClearFlag(DialogMode.Check(DMODE_OBJECTS_INITED)? false : IsUnchanged);
 						}
 
 						break;

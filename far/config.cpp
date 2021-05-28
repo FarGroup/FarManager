@@ -327,7 +327,6 @@ void Options::InterfaceSettings()
 	DialogBuilder Builder(lng::MConfigInterfaceTitle, L"InterfSettings"sv);
 
 	Builder.AddCheckbox(lng::MConfigClock, Clock);
-	Builder.AddCheckbox(lng::MConfigViewerEditorClock, ViewerEditorClock);
 	Builder.AddCheckbox(lng::MConfigMouse, Mouse);
 	Builder.AddCheckbox(lng::MConfigKeyBar, ShowKeyBar);
 	Builder.AddCheckbox(lng::MConfigMenuBar, ShowMenuBar);
@@ -1948,7 +1947,6 @@ void Options::InitConfigsData()
 		{FSSF_SCREEN,            NKeyScreen,                 L"KeyBar"sv,                        ShowKeyBar, true},
 		{FSSF_PRIVATE,           NKeyScreen,                 L"ScreenSaver"sv,                   ScreenSaver, false},
 		{FSSF_PRIVATE,           NKeyScreen,                 L"ScreenSaverTime"sv,               ScreenSaverTime, 5},
-		{FSSF_PRIVATE,           NKeyScreen,                 L"ViewerEditorClock"sv,             ViewerEditorClock, true},
 		{FSSF_PRIVATE,           NKeySystem,                 L"AllCtrlAltShiftRule"sv,           AllCtrlAltShiftRule, 0x0000FFFF},
 		{FSSF_PRIVATE,           NKeySystem,                 L"AutoSaveSetup"sv,                 AutoSaveSetup, false},
 		{FSSF_PRIVATE,           NKeySystem,                 L"AutoUpdateRemoteDrive"sv,         AutoUpdateRemoteDrive, true},

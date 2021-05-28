@@ -834,7 +834,6 @@ public:
 
 	BoolOption UseRegisteredTypes;
 
-	BoolOption ViewerEditorClock;
 	Bool3Option SaveViewHistory;
 	IntOption ViewHistoryCount;
 	IntOption ViewHistoryLifetime;

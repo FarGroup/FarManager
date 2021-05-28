@@ -2322,7 +2322,7 @@ void FileEditor::ShowStatus() const
 		CharCode);
 
 	// Explicitly signed types - it's too easy to screw it up on small console sizes otherwise
-	const int ClockSize = Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN)? static_cast<int>(Global->CurrentTime.size()) : 0;
+	const int ClockSize = Global->Opt->Clock && m_Flags.Check(FFILEEDIT_FULLSCREEN)? static_cast<int>(Global->CurrentTime.size()) : 0;
 	const int AvailableSpace = std::max(0, ObjWidth() - ClockSize - (ClockSize? 1 : 0));
 	inplace::cut_right(StatusLine, AvailableSpace);
 	const int NameWidth = std::max(0, AvailableSpace - static_cast<int>(StatusLine.size()));
@@ -2331,10 +2331,7 @@ void FileEditor::ShowStatus() const
 	Text(StatusLine);
 
 	if (ClockSize)
-	{
 		Text(L'│'); // Separator before the clock
-		ShowTime();
-	}
 }
 
 /* $ 13.02.2001

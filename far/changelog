@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 28.05.2021 17:18:19 +0100 - build 5805
+
+1. Correction of 4788.2: edit controls were incorrectly set to unchanged state after DM_SETTEXT.
+
+2. 1 second timeout before triggeting the screensaver with a mouse to avoid flickering.
+
+3. "[x] Clock in viewer and editor" removed. Clock is now displayed either everywhere or nowhere.
+
+--------------------------------------------------------------------------------
 drkns 27.05.2021 23:22:21 +0100 - build 5804
 
 1. Experimental: removed constant polling from the main thread.

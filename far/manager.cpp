@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrsaver.hpp"
 #include "global.hpp"
 #include "lockscrn.hpp"
+#include "console.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -811,7 +812,7 @@ bool Manager::ProcessMouse(const MOUSE_EVENT_RECORD* MouseEvent) const
 
 	if (!MouseEvent->dwMousePosition.Y && MouseEvent->dwMousePosition.X == ScrX)
 	{
-		if (Global->Opt->ScreenSaver && !(MouseEvent->dwButtonState & 3))
+		if (Global->Opt->ScreenSaver && !(MouseEvent->dwButtonState & 3) && !os::handle::is_signaled(console.GetInputHandle(), 1s))
 		{
 			ScreenSaver();
 			return true;
@@ -1041,15 +1042,6 @@ void Manager::RefreshCommit(const window_ptr& Param)
 		{
 			Global->WindowManager->RefreshAll();
 			break;
-		}
-		if
-		(
-			(Global->Opt->ViewerEditorClock && (i->GetType() == windowtype_editor || i->GetType() == windowtype_viewer))
-			||
-			(Global->IsPanelsActive() && Global->Opt->Clock)
-		)
-		{
-			ShowTime();
 		}
 	}
 }

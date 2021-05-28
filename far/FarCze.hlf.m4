@@ -2516,11 +2516,8 @@ Pokud není povolen, musíte pro změnu adresáře ze stromu stisknout #Enter#.
 
 @InterfSettings
 $ #Dialog nastavení rozhraní#
- #Hodiny v panelech#
+ #Hodiny#
  Ukazovat hodiny v pravém roku obrazovky.
-
- #Hodiny v prohlížeči a editoru#
- Ukazovat hodiny v prohlížeči a editoru.
 
  #Myš#
  Používat myš.

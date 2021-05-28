@@ -2480,9 +2480,6 @@ $ #Nastavenia prostredia#
  #Čas#
  Zobrazí v pravom hornom rohu obrazovky čas.
 
- #Zobrazovať čas aj prezerači a editore#
- Zobrazí čas aj v prezerači a editore.
-
  #Myš#
  Zapne používanie myši.
 

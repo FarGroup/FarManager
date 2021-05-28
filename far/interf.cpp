@@ -639,7 +639,7 @@ void UpdateScreenSize()
 
 void ShowTime()
 {
-	if (Global->SuppressClock)
+	if (!Global->Opt->Clock || Global->SuppressClock)
 		return;
 
 	Global->CurrentTime.update();

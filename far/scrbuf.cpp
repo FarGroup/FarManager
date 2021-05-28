@@ -265,6 +265,8 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 	if (FlushType & flush_type::screen)
 	{
+		ShowTime();
+
 		if (!Global->SuppressIndicators)
 		{
 			const auto SetMacroChar = [this](FAR_CHAR_INFO& Where, wchar_t Char, WORD Color)
@@ -300,11 +302,6 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 		if (!SBFlags.Check(SBFLAGS_FLUSHED))
 		{
-			if (Global->IsPanelsActive() && Global->Opt->Clock)
-			{
-				ShowTime();
-			}
-
 			std::vector<rectangle> WriteList;
 			bool Changes=false;
 
