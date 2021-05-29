@@ -326,42 +326,50 @@ void Edit::FastShow(const ShowInfo* Info)
 		}
 	}
 
+	// Basic color
 	SetColor(GetNormalColor());
 
 	Text(fit_to_left(OutStr, EditLength));
 
-	if (m_Flags.Check(FEDITLINE_EDITORMODE))
+	if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
 	{
-		ApplyColor(XPos, FocusedLeftPos);
-	}
-	else if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
-	{
+		// Combobox has neither highlight nor selection
 		Global->ScrBuf->ApplyColor(m_Where, m_Flags.Check(FEDITLINE_CLEARFLAG)? GetUnchangedColor() : GetSelectedColor());
-	}
-	else if (TabSelStart==-1)
-	{
-		if (m_Flags.Check(FEDITLINE_CLEARFLAG))
-		{
-			Global->ScrBuf->ApplyColor(m_Where, GetUnchangedColor());
-		}
 	}
 	else
 	{
-		TabSelStart = std::max(TabSelStart - LeftPos, 0);
+		if (m_Flags.Check(FEDITLINE_EDITORMODE))
+		{
+			// Editor highlight
+			ApplyColor(XPos, FocusedLeftPos);
+		}
 
-		TabSelEnd = TabSelEnd == -1?
-			static_cast<int>(EditLength) :
-			std::max(TabSelEnd - LeftPos, 0);
-
-		Global->ScrBuf->ApplyColor(
+		if (TabSelStart == -1)
+		{
+			if (m_Flags.Check(FEDITLINE_CLEARFLAG))
 			{
-				std::min(m_Where.left + TabSelStart, static_cast<int>(m_Where.right)),
-				m_Where.top,
-				std::min(m_Where.left + TabSelEnd - 1, static_cast<int>(m_Where.right)),
-				m_Where.top
-			},
-			GetSelectedColor()
-		);
+				Global->ScrBuf->ApplyColor(m_Where, GetUnchangedColor());
+			}
+		}
+		else
+		{
+			// Selection, on top of everything else
+			TabSelStart = std::max(TabSelStart - LeftPos, 0);
+
+			TabSelEnd = TabSelEnd == -1 ?
+				static_cast<int>(EditLength) :
+				std::max(TabSelEnd - LeftPos, 0);
+
+			Global->ScrBuf->ApplyColor(
+				{
+					std::min(m_Where.left + TabSelStart, static_cast<int>(m_Where.right)),
+					m_Where.top,
+					std::min(m_Where.left + TabSelEnd - 1, static_cast<int>(m_Where.right)),
+					m_Where.top
+				},
+				GetSelectedColor()
+			);
+		}
 	}
 }
 
