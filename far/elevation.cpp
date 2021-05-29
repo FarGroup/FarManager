@@ -1035,7 +1035,7 @@ public:
 
 		const auto OptinalPrivilegesCount = 2; // Backup, restore
 
-		SCOPED_ACTION(os::security::privilege)(span(Privileges).subspan(UsePrivileges? 0 : OptinalPrivilegesCount));
+		SCOPED_ACTION(os::security::privilege)((span(Privileges)).subspan(UsePrivileges? 0 : OptinalPrivilegesCount));
 
 		const auto PipeName = concat(L"\\\\.\\pipe\\"sv, Uuid);
 		WaitNamedPipe(PipeName.c_str(), NMPWAIT_WAIT_FOREVER);
