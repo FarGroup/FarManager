@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 29.05.2021 17:26:08 +0100 - build 5806
+
+1. 0003866: Elevation shouldn't need SeDebugPrivilege.
+
+2. Forum: "combobox looses unchanged state as soon as it becomes focused".
+
+--------------------------------------------------------------------------------
 drkns 28.05.2021 17:18:19 +0100 - build 5805
 
 1. Correction of 4788.2: edit controls were incorrectly set to unchanged state after DM_SETTEXT.

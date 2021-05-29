@@ -1478,7 +1478,7 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 					// Select
 					Color[1] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGEDITDISABLED : Focus? COL_WARNDIALOGEDITSELECTED : COL_WARNDIALOGEDIT);
 					// Unchanged
-					Color[2] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGEDITDISABLED : COL_WARNDIALOGEDITUNCHANGED); //???
+					Color[2] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGEDITDISABLED : Focus? COL_WARNDIALOGEDITSELECTED : COL_WARNDIALOGEDITUNCHANGED);
 					// History
 					Color[3] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGDISABLED : COL_WARNDIALOGTEXT);
 				}
@@ -1489,7 +1489,7 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 					// Select
 					Color[1] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED: Focus? COL_DIALOGEDITSELECTED : COL_DIALOGEDIT);
 					// Unchanged
-					Color[2] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED : COL_DIALOGEDITUNCHANGED); //???
+					Color[2] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED :  Focus? COL_DIALOGEDITSELECTED : COL_DIALOGEDITUNCHANGED);
 					// History
 					Color[3] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGDISABLED : COL_DIALOGTEXT);
 				}

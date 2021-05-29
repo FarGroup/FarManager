@@ -138,6 +138,7 @@ private:
 	bool m_AskApprove{true};
 	bool m_Elevation{};
 	bool m_DontAskAgain{};
+	bool m_DuplicateHandleGranted{};
 	int m_Recurse{};
 	os::critical_section m_CS;
 	string m_PipeName;

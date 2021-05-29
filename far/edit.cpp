@@ -96,14 +96,6 @@ Edit::Edit(window_ptr Owner):
 
 void Edit::DisplayObject()
 {
-	if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
-	{
-		m_Flags.Clear(FEDITLINE_CLEARFLAG);  // при дроп-даун нам не нужно никакого unchanged text
-		m_SelStart=0;
-		m_SelEnd = m_Str.size(); // а также считаем что все выделено -
-		//    надо же отличаться от обычных Edit
-	}
-
 	//   Вычисление нового положения курсора в строке с учётом Mask.
 	const auto Value = GetPrevCurPos() > m_CurPos? -1 : 1;
 	m_CurPos=GetNextCursorPos(m_CurPos,Value);
@@ -339,9 +331,14 @@ void Edit::FastShow(const ShowInfo* Info)
 	Text(fit_to_left(OutStr, EditLength));
 
 	if (m_Flags.Check(FEDITLINE_EDITORMODE))
+	{
 		ApplyColor(XPos, FocusedLeftPos);
-
-	if (TabSelStart==-1)
+	}
+	else if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
+	{
+		Global->ScrBuf->ApplyColor(m_Where, m_Flags.Check(FEDITLINE_CLEARFLAG)? GetUnchangedColor() : GetSelectedColor());
+	}
+	else if (TabSelStart==-1)
 	{
 		if (m_Flags.Check(FEDITLINE_CLEARFLAG))
 		{
@@ -356,22 +353,15 @@ void Edit::FastShow(const ShowInfo* Info)
 			static_cast<int>(EditLength) :
 			std::max(TabSelEnd - LeftPos, 0);
 
-		if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
-		{
-			Global->ScrBuf->ApplyColor(m_Where, GetSelectedColor());
-		}
-		else
-		{
-			Global->ScrBuf->ApplyColor(
-				{
-					std::min(m_Where.left + TabSelStart, static_cast<int>(m_Where.right)),
-					m_Where.top,
-					std::min(m_Where.left + TabSelEnd - 1, static_cast<int>(m_Where.right)),
-					m_Where.top
-				},
-				GetSelectedColor()
-			);
-		}
+		Global->ScrBuf->ApplyColor(
+			{
+				std::min(m_Where.left + TabSelStart, static_cast<int>(m_Where.right)),
+				m_Where.top,
+				std::min(m_Where.left + TabSelEnd - 1, static_cast<int>(m_Where.right)),
+				m_Where.top
+			},
+			GetSelectedColor()
+		);
 	}
 }
 
@@ -625,6 +615,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 	}
 
 	if (
+		!m_Flags.Check(FEDITLINE_READONLY | FEDITLINE_DROPDOWNBOX) &&
 		m_Flags.Check(FEDITLINE_CLEARFLAG) &&
 		(
 			(LocalKey <= 0xFFFF && LocalKey!=KEY_BS) ||
