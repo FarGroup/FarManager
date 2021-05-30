@@ -80,6 +80,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "file_io.hpp"
 #include "log.hpp"
+#include "elevation.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -896,6 +897,8 @@ long long FileEditor::VMProcess(int OpCode, void* vParam, long long iParam)
 
 bool FileEditor::ProcessKey(const Manager::Key& Key)
 {
+	elevation::instance().ResetApprove();
+
 	return ReProcessKey(Key, false);
 }
 
@@ -2068,6 +2071,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 
 bool FileEditor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
+	elevation::instance().ResetApprove();
+
 	F4KeyOnly = false;
 	if (!m_windowKeyBar->ProcessMouse(MouseEvent))
 	{
