@@ -107,6 +107,7 @@ LINK_OBJS = \
 	"$(INTDIR)\sqlite.obj" \
 	"$(INTDIR)\cache.obj" \
 	"$(INTDIR)\cddrv.obj" \
+	"$(INTDIR)\char_width.obj" \
 	"$(INTDIR)\clipboard.obj" \
 	"$(INTDIR)\cmdline.obj" \
 	"$(INTDIR)\codepage_selection.obj" \

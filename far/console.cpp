@@ -44,6 +44,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "exception.hpp"
 #include "palette.hpp"
+#include "encoding.hpp"
+#include "char_width.hpp"
 
 // Platform:
 #include "platform.version.hpp"
@@ -723,15 +725,46 @@ namespace console_detail
 
 	static void make_vt_sequence(span<const FAR_CHAR_INFO> Input, string& Str, std::optional<FarColor>& LastColor)
 	{
+		const auto CharWidthEnabled = char_width::is_enabled();
+
+		std::optional<wchar_t> LeadingChar;
+
 		for (const auto& i: Input)
 		{
-			if (!LastColor.has_value() || i.Attributes != *LastColor)
+			if (CharWidthEnabled)
 			{
-				make_vt_attributes(i.Attributes, Str, LastColor);
-				LastColor = i.Attributes;
+				if (LeadingChar&& i.Char == *LeadingChar && i.Attributes.Flags & COMMON_LVB_TRAILING_BYTE)
+				{
+					LeadingChar.reset();
+					continue;
+				}
+
+				LeadingChar.reset();
 			}
 
-			Str += ReplaceControlCharacter(i.Char);
+			auto Attributes = i.Attributes;
+
+			if (CharWidthEnabled && Attributes.Flags & COMMON_LVB_LEADING_BYTE)
+			{
+				LeadingChar = i.Char;
+				flags::clear(Attributes.Flags, COMMON_LVB_LEADING_BYTE);
+			}
+
+			if (!LastColor.has_value() || Attributes != *LastColor)
+			{
+				make_vt_attributes(Attributes, Str, LastColor);
+				LastColor = Attributes;
+			}
+
+			if (CharWidthEnabled && i.Char == encoding::replace_char && Attributes.Reserved[0] > std::numeric_limits<wchar_t>::max())
+			{
+				const auto Pair = encoding::utf16::to_surrogate(Attributes.Reserved[0]);
+				Str.append(ALL_CONST_RANGE(Pair));
+			}
+			else
+			{
+				Str += ReplaceControlCharacter(i.Char);
+			}
 		}
 	}
 
@@ -924,10 +957,7 @@ namespace console_detail
 			BufferCoord.y + WriteRegion.height() - 1
 		};
 
-		DWORD Mode = 0;
-		const auto IsVT = sEnableVirtualTerminal && GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-		return (IsVT? implementation::WriteOutputVT : implementation::WriteOutputNT)(Buffer, SubRect, WriteRegion);
+		return (IsVtEnabled()? implementation::WriteOutputVT : implementation::WriteOutputNT)(Buffer, SubRect, WriteRegion);
 	}
 
 	bool console::Read(string& Buffer, size_t& Size) const
@@ -1008,10 +1038,7 @@ namespace console_detail
 		if (ExternalConsole.Imports.pSetTextAttributes)
 			return ExternalConsole.Imports.pSetTextAttributes(&Attributes) != FALSE;
 
-		DWORD Mode;
-		const auto IsVT = sEnableVirtualTerminal && GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-		return (IsVT? implementation::SetTextAttributesVT : implementation::SetTextAttributesNT)(Attributes);
+		return (IsVtEnabled()? implementation::SetTextAttributesVT : implementation::SetTextAttributesNT)(Attributes);
 	}
 
 	bool console::GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const
@@ -1423,6 +1450,43 @@ namespace console_detail
 	bool console::IsScrollbackPresent() const
 	{
 		return GetDelta() != 0;
+	}
+
+	bool console::IsVtEnabled() const
+	{
+		DWORD Mode;
+		return sEnableVirtualTerminal && GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	}
+
+	bool console::IsWidePreciseExpensive(unsigned int const Codepoint, bool const ClearCacheOnly)
+	{
+		// It ain't stupid if it works
+
+		if (ClearCacheOnly)
+		{
+			m_WidthTestScreen = {};
+			return false;
+		}
+
+		if (!m_WidthTestScreen)
+		{
+			m_WidthTestScreen.reset(CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, {}, {}, CONSOLE_TEXTMODE_BUFFER, {}));
+			SetConsoleScreenBufferSize(m_WidthTestScreen.native_handle(), { 10, 1 });
+		}
+
+		if (!SetConsoleCursorPosition(m_WidthTestScreen.native_handle(), {}))
+			return false;
+
+		DWORD Written;
+		auto Pair = encoding::utf16::to_surrogate(Codepoint);
+		if (!WriteConsole(m_WidthTestScreen.native_handle(), Pair.data(), Pair[1]? 2 : 1, &Written, {}))
+			return false;
+
+		CONSOLE_SCREEN_BUFFER_INFO Info;
+		if (!GetConsoleScreenBufferInfo(m_WidthTestScreen.native_handle(), &Info))
+			return false;
+
+		return Info.dwCursorPosition.X > 1;
 	}
 
 	bool console::GetPalette(std::array<COLORREF, 16>& Palette) const

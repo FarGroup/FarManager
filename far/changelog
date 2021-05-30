@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 30.05.2021 22:44:55 +0100 - build 5809
+
+1. Rudimentary experimental support for fullwidth-aware rendering (weebs & East Asian users, FYI).
+
+--------------------------------------------------------------------------------
 drkns 30.05.2021 17:00:38 +0100 - build 5808
 
 1. gh-407: Rejecting elevation request when saving a file prevents from a further saving

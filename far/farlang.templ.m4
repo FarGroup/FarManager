@@ -2853,6 +2853,19 @@ upd:"Use Virtual Terminal for rendering"
 "Ужываць Virtual Terminal для рэндэра"
 upd:"Use &Virtual Terminal for rendering"
 
+MConfigFullWidthAwareRendering
+"Fullwidth-aware rendering"
+upd:"Fullwidth-aware rendering"
+upd:"Fullwidth-aware rendering"
+upd:"Fullwidth-aware rendering"
+upd:"Fullwidth-aware rendering"
+upd:"Fullwidth-aware rendering"
+upd:"Fullwidth-aware rendering"
+upd:"Fullwidth-aware rendering"
+upd:"Fullwidth-aware rendering"
+upd:"Fullwidth-aware rendering"
+upd:"Fullwidth-aware rendering"
+upd:"Fullwidth-aware rendering"
 
 MConfigClearType
 "Перер&исовка с поддержкой ClearType (может быть медленной)"

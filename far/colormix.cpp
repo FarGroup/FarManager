@@ -127,7 +127,11 @@ namespace colors
 		static FarColor LastResult, LastBottom, LastTop;
 
 		if (Bottom == LastBottom && Top == LastTop)
+		{
+			LastResult.Reserved[0] = Bottom.Reserved[0];
+			LastResult.Reserved[1] = Bottom.Reserved[1];
 			return LastResult;
+		}
 
 		auto Result = Bottom;
 

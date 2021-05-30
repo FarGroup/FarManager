@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 
 // Platform:
+#include "platform.hpp"
 
 // Common:
 #include "common/2d/matrix.hpp"
@@ -169,6 +170,12 @@ namespace console_detail
 		bool IsPositionVisible(point Position) const;
 		bool IsScrollbackPresent() const;
 
+		[[nodiscard]]
+		bool IsVtEnabled() const;
+
+		[[nodiscard]]
+		bool IsWidePreciseExpensive(unsigned int Codepoint, bool ClearCacheOnly = false);
+
 		bool GetPalette(std::array<COLORREF, 16>& Palette) const;
 
 		static void EnableWindowMode(bool Value);
@@ -190,6 +197,8 @@ namespace console_detail
 
 		class stream_buffers_overrider;
 		std::unique_ptr<stream_buffers_overrider> m_StreamBuffersOverrider;
+
+		os::handle m_WidthTestScreen;
 	};
 }
 

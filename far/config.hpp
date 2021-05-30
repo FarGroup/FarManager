@@ -975,6 +975,7 @@ public:
 
 	BoolOption VirtualTerminalRendering;
 	Bool3Option ClearType;
+	Bool3Option FullWidthAwareRendering;
 
 	Bool3Option PgUpChangeDisk;
 	BoolOption ShowDotsInRoot;

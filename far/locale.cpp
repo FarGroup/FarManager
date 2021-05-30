@@ -37,7 +37,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "config.hpp"
+#include "console.hpp"
 #include "global.hpp"
+#include "encoding.hpp"
 #include "exception.hpp"
 #include "log.hpp"
 
@@ -53,6 +55,28 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 NIFTY_DEFINE(detail::locale, locale);
+
+static auto is_cjk_codepage(uintptr_t const Codepage)
+{
+	enum
+	{
+		chinese_s = 936,
+		chinese_t = 950,
+		japanese  = 932,
+		korean    = 949,
+	};
+
+	return any_of(Codepage, chinese_s, chinese_t, japanese, korean);
+}
+
+static auto get_is_cjk()
+{
+	return
+		any_of(LOBYTE(GetUserDefaultLCID()), LANG_CHINESE, LANG_JAPANESE, LANG_KOREAN) ||
+		is_cjk_codepage(encoding::codepage::oem()) ||
+		is_cjk_codepage(encoding::codepage::ansi()) ||
+		is_cjk_codepage(console.GetOutputCodepage());
+}
 
 static auto get_date_format()
 {
@@ -257,6 +281,12 @@ static auto get_month_day_names(int Language, locale_names& Names)
 
 namespace detail
 {
+	bool locale::is_cjk() const
+	{
+		refresh();
+		return m_IsCJK;
+	}
+
 	date_type locale::date_format() const
 	{
 		refresh();
@@ -326,6 +356,7 @@ namespace detail
 		if (m_Valid)
 			return;
 
+		m_IsCJK = get_is_cjk();
 		m_DateFormat = get_date_format();
 		m_DigitsGrouping = get_digits_grouping();
 		m_DateSeparator = get_date_separator();

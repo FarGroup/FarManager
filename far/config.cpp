@@ -86,6 +86,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "scrbuf.hpp"
 #include "log.hpp"
+#include "char_width.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -341,6 +342,7 @@ void Options::InterfaceSettings()
 	Builder.AddCheckbox(lng::MConfigDeleteTotal, DelOpt.ShowTotal);
 	Builder.AddCheckbox(lng::MConfigPgUpChangeDisk, PgUpChangeDisk);
 	Builder.AddCheckbox(lng::MConfigUseVirtualTerminalForRendering, VirtualTerminalRendering);
+	Builder.AddCheckbox(lng::MConfigFullWidthAwareRendering, FullWidthAwareRendering);
 	Builder.AddCheckbox(lng::MConfigClearType, ClearType);
 	Builder.StartColumns();
 	const auto SetIconCheck = Builder.AddCheckbox(lng::MConfigSetConsoleIcon, SetIcon);
@@ -1725,6 +1727,11 @@ Options::Options():
 		console.EnableVirtualTerminal(Value);
 	}));
 
+	FullWidthAwareRendering.SetCallback(option::notifier([](long long const Value)
+	{
+		char_width::enable(static_cast<int>(Value));
+	}));
+
 	// По умолчанию - брать плагины из основного каталога
 	LoadPlug.MainPluginDir = true;
 	LoadPlug.PluginsPersonal = true;
@@ -1841,6 +1848,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyInterface,              L"CursorSize4"sv,                   CursorSize[3], 99},
 		{FSSF_PRIVATE,           NKeyInterface,              L"EditorTitleFormat"sv,             strEditorTitleFormat, L"%Lng %File"sv},
 		{FSSF_PRIVATE,           NKeyInterface,              L"FormatNumberSeparators"sv,        FormatNumberSeparators, L""sv},
+		{FSSF_PRIVATE,           NKeyInterface,              L"FullWidthAwareRendering"sv,       FullWidthAwareRendering, 0},
 		{FSSF_PRIVATE,           NKeyInterface,              L"Mouse"sv,                         Mouse, true},
 		{FSSF_PRIVATE,           NKeyInterface,              L"SetIcon"sv,                       SetIcon, false},
 		{FSSF_PRIVATE,           NKeyInterface,              L"IconIndex"sv,                     IconIndex, 0},

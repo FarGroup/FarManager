@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "taskbar.hpp"
 #include "global.hpp"
 #include "log.hpp"
+#include "char_width.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -727,14 +728,83 @@ void Text(point Where, const FarColor& Color, string_view const Str)
 	Text(Str);
 }
 
-void Text(string_view const Str)
+static void string_to_buffer_simple(string_view const Str, std::vector<FAR_CHAR_INFO>& Buffer)
+{
+	std::transform(ALL_CONST_RANGE(Str), std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, CurColor }; });
+}
+
+static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_CHAR_INFO>& Buffer)
+{
+	for (const auto MaxSize = Str.size(); !Str.empty(); )
+	{
+		wchar_t Char[]{ Str[0], 0 };
+
+		const auto Codepoint = encoding::utf16::extract_codepoint(Str);
+
+		if (Codepoint > std::numeric_limits<wchar_t>::max())
+		{
+			Char[1] = Str[1];
+			Str.remove_prefix(2);
+		}
+		else
+		{
+			Str.remove_prefix(1);
+		}
+
+		Buffer.push_back({ Char[0], CurColor });
+
+		if (char_width::is_wide(Codepoint))
+		{
+			if (Char[1])
+			{
+				// It's wide and it already occupies two cells - awesome
+				Buffer.push_back({ Char[1], CurColor });
+			}
+			else
+			{
+				// It's wide and we need to add a bogus cell
+				Buffer.back().Attributes.Flags |= COMMON_LVB_LEADING_BYTE;
+				Buffer.push_back({ Char[0], CurColor });
+				Buffer.back().Attributes.Flags |= COMMON_LVB_TRAILING_BYTE;
+			}
+		}
+		else
+		{
+			if (Char[1])
+			{
+				// It's a surrogate pair that occupies one cell only. Here be dragons.
+				if (console.IsVtEnabled())
+				{
+					// Put *one* fake character:
+					Buffer.back().Char = encoding::replace_char;
+					// Stash the actual codepoint. The drawing code will restore it from here:
+					Buffer.back().Attributes.Reserved[0] = Codepoint;
+				}
+				else
+				{
+					// Classic grid mode, nothing we can do :(
+				}
+			}
+			else
+			{
+				// It's not wide and not surrogate - the most common case, nothing to do
+			}
+		}
+
+		if (Buffer.size() == MaxSize)
+			break;
+	}
+}
+
+void Text(string_view Str)
 {
 	if (Str.empty())
 		return;
 
 	std::vector<FAR_CHAR_INFO> Buffer;
 	Buffer.reserve(Str.size());
-	std::transform(ALL_CONST_RANGE(Str), std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, CurColor }; });
+
+	(char_width::is_enabled()?string_to_buffer_full_width_aware : string_to_buffer_simple)(Str, Buffer);
 
 	Global->ScrBuf->Write(CurX, CurY, Buffer);
 	CurX += static_cast<int>(Buffer.size());

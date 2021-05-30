@@ -193,6 +193,12 @@ namespace encoding
 	inline constexpr wchar_t bom_char      = L'﻿'; // Zero Length Space
 	inline constexpr wchar_t replace_char  = L'�'; // Replacement
 	inline constexpr wchar_t continue_char = L'›'; // Single Right-Pointing Angle Quotation Mark
+
+	namespace utf16
+	{
+		unsigned int extract_codepoint(string_view Str);
+		std::array<wchar_t, 2> to_surrogate(unsigned int Codepoint);
+	}
 }
 
 void swap_bytes(const void* Src, void* Dst, size_t SizeInBytes);

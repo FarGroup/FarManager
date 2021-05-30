@@ -2523,6 +2523,15 @@ całkowitą liczbę plików.
 (i dysków sieciowych - jeżeli przełącznik znajduje się w trzecim stanie) zostanie
 wyświetlona lista współdzielonych zasobów serwera.
 
+ #Use Virtual Terminal for rendering#
+ Render the output using ANSI escape sequences.
+ This allows using 24-bit colors and may (or may not) work better (or worse) with some Unicode characters.
+ Requires Windows 10 and above.
+
+ #Fullwidth-aware rendering#
+ Take into account the fact that East Asian characters require two screen cells instead of one.
+ The support is rudimentary and experimental. It may work or not, depending on your OS, locale, terminal, font and other settings.
+
  #Rysowanie zgodne z ClearType#
  Przerysowuje okno w taki sposób, aby nie pojawiały się artefakty związane
 z technologią ClearType.

@@ -2584,6 +2584,15 @@ to calculate the total files count.
  If Network plugin is installed, for network folders (and network drives, if switch
 is in the third state) a list of server shared resources  will be shown.
 
+ #Use Virtual Terminal for rendering#
+ Render the output using ANSI escape sequences.
+ This allows using 24-bit colors and may (or may not) work better (or worse) with some Unicode characters.
+ Requires Windows 10 and above.
+
+ #Fullwidth-aware rendering#
+ Take into account the fact that East Asian characters require two screen cells instead of one.
+ The support is rudimentary and experimental. It may work or not, depending on your OS, locale, terminal, font and other settings.
+
  #ClearType friendly redraw#
  Redraw the window in such a way that ClearType related artifacts do not appear.
  #Attention!#: Enabling this option can considerably slow down the redraw speed.
