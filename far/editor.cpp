@@ -398,8 +398,8 @@ int Editor::BlockStart2NumLine(int *Pos)
 	{
 		if (Pos)
 		{
-			*Pos = m_it_AnyBlockStart->RealPosToTab(IsVerticalSelection()?
-				m_it_AnyBlockStart->TabPosToReal(VBlockX) :
+			*Pos = m_it_AnyBlockStart->RealPosToVisual(IsVerticalSelection()?
+				m_it_AnyBlockStart->VisualPosToReal(VBlockX) :
 				m_it_AnyBlockStart->m_SelStart);
 		}
 
@@ -422,7 +422,7 @@ int Editor::BlockEnd2NumLine(int *Pos)
 		{
 			for (int Line=VBlockSizeY; eLine != Lines.end() && Line > 0; --Line, ++eLine)
 			{
-				iPos=eLine->RealPosToTab(eLine->TabPosToReal(VBlockX+VBlockSizeX));
+				iPos=eLine->RealPosToVisual(eLine->VisualPosToReal(VBlockX+VBlockSizeX));
 				iLine++;
 			}
 
@@ -459,7 +459,7 @@ int Editor::BlockEnd2NumLine(int *Pos)
 				}
 				else
 				{
-					iPos=eLine->RealPosToTab(EndSel);
+					iPos=eLine->RealPosToVisual(EndSel);
 					iLine++;
 				}
 
@@ -622,12 +622,12 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 								const auto TabCurPos = m_it_CurLine->GetTabCurPos();
 
 								GoToLineAndShow(iLine);
-								m_it_CurLine->SetCurPos(m_it_CurLine->TabPosToReal(iPos));
+								m_it_CurLine->SetCurPos(m_it_CurLine->VisualPosToReal(iPos));
 
 								if (!EdOpt.CursorBeyondEOL && m_it_CurLine->GetCurPos() > m_it_CurLine->GetLength())
 								{
 									GoToLineAndShow(NumLine);
-									m_it_CurLine->SetCurPos(m_it_CurLine->TabPosToReal(TabCurPos));
+									m_it_CurLine->SetCurPos(m_it_CurLine->VisualPosToReal(TabCurPos));
 									return 0;
 								}
 								return 1;
@@ -1232,7 +1232,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			if (NextLine == Lines.end())
 				return true;
 
-			CurPos = m_it_CurLine->RealPosToTab(CurPos);
+			CurPos = m_it_CurLine->RealPosToVisual(CurPos);
 
 			if (SelAtBeginning)//Снимаем выделение
 			{
@@ -1249,10 +1249,10 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				NextLine->GetRealSelection(SelStart,SelEnd);
 
 				if (SelStart!=-1)
-					SelStart = NextLine->RealPosToTab(SelStart);
+					SelStart = NextLine->RealPosToVisual(SelStart);
 
 				if (SelEnd!=-1)
-					SelEnd = NextLine->RealPosToTab(SelEnd);
+					SelEnd = NextLine->RealPosToVisual(SelEnd);
 
 				if (SelStart==-1)
 				{
@@ -1273,16 +1273,16 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				}
 
 				if (SelStart!=-1)
-					SelStart = NextLine->TabPosToReal(SelStart);
+					SelStart = NextLine->VisualPosToReal(SelStart);
 
 				if (SelEnd!=-1)
-					SelEnd = NextLine->TabPosToReal(SelEnd);
+					SelEnd = NextLine->VisualPosToReal(SelEnd);
 			}
 			else //расширяем выделение
 			{
 				m_it_CurLine->Select(SelStart,-1);
-				SelStart = NextLine->TabPosToReal(0);
-				SelEnd = NextLine->TabPosToReal(CurPos);
+				SelStart = NextLine->VisualPosToReal(0);
+				SelEnd = NextLine->VisualPosToReal(CurPos);
 			}
 
 			if (!EdOpt.CursorBeyondEOL && SelEnd > NextLine->GetLength())
@@ -1308,20 +1308,20 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			if (SelAtBeginning || SelFirst) // расширяем выделение
 			{
 				m_it_CurLine->Select(0,SelEnd);
-				SelStart=m_it_CurLine->RealPosToTab(CurPos);
+				SelStart=m_it_CurLine->RealPosToVisual(CurPos);
 
-				if (!EdOpt.CursorBeyondEOL && PrevLine->TabPosToReal(SelStart) > PrevLine->GetLength())
+				if (!EdOpt.CursorBeyondEOL && PrevLine->VisualPosToReal(SelStart) > PrevLine->GetLength())
 				{
-					SelStart = PrevLine->RealPosToTab(PrevLine->GetLength());
+					SelStart = PrevLine->RealPosToVisual(PrevLine->GetLength());
 				}
 
-				SelStart = PrevLine->TabPosToReal(SelStart);
+				SelStart = PrevLine->VisualPosToReal(SelStart);
 				PrevLine->Select(SelStart, -1);
 				m_it_AnyBlockStart = PrevLine;
 			}
 			else // снимаем выделение
 			{
-				CurPos=m_it_CurLine->RealPosToTab(CurPos);
+				CurPos=m_it_CurLine->RealPosToVisual(CurPos);
 
 				if (!SelStart)
 				{
@@ -1335,15 +1335,15 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				PrevLine->GetRealSelection(SelStart, SelEnd);
 
 				if (SelStart != -1)
-					SelStart = PrevLine->RealPosToTab(SelStart);
+					SelStart = PrevLine->RealPosToVisual(SelStart);
 
 				if (SelEnd != -1)
-					SelEnd = PrevLine->RealPosToTab(SelEnd);
+					SelEnd = PrevLine->RealPosToVisual(SelEnd);
 
 				if (SelStart==-1)
 				{
 					m_it_AnyBlockStart = PrevLine;
-					SelStart = PrevLine->TabPosToReal(CurPos);
+					SelStart = PrevLine->VisualPosToReal(CurPos);
 					SelEnd=-1;
 				}
 				else
@@ -1358,8 +1358,8 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 						SelEnd=CurPos;
 					}
 
-					SelStart = PrevLine->TabPosToReal(SelStart);
-					SelEnd = PrevLine->TabPosToReal(SelEnd);
+					SelStart = PrevLine->VisualPosToReal(SelStart);
+					SelEnd = PrevLine->VisualPosToReal(SelEnd);
 
 					if (!EdOpt.CursorBeyondEOL && SelEnd > PrevLine->GetLength())
 					{
@@ -1437,8 +1437,8 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 					}
 					else
 					{
-						CurSelStart = m_it_CurLine->TabPosToReal(VBlockX);
-						CurSelEnd = m_it_CurLine->TabPosToReal(VBlockX + VBlockSizeX);
+						CurSelStart = m_it_CurLine->VisualPosToReal(VBlockX);
+						CurSelEnd = m_it_CurLine->VisualPosToReal(VBlockX + VBlockSizeX);
 					}
 				}
 
@@ -2048,7 +2048,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			Pasting++;
 			{
-				int Delta=m_it_CurLine->GetTabCurPos()-m_it_CurLine->RealPosToTab(CurPos-1);
+				int Delta=m_it_CurLine->GetTabCurPos()-m_it_CurLine->RealPosToVisual(CurPos-1);
 
 				if (m_it_CurLine->GetTabCurPos()>VBlockX)
 					VBlockSizeX-=Delta;
@@ -2094,8 +2094,8 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				     выделится блок шириной в 1 колонку, нажми еще alt-right
 				     выделение сбросится
 				*/
-				int VisPos=m_it_CurLine->RealPosToTab(CurPos),
-				           NextVisPos=m_it_CurLine->RealPosToTab(CurPos+1);
+				int VisPos=m_it_CurLine->RealPosToVisual(CurPos),
+				           NextVisPos=m_it_CurLine->RealPosToVisual(CurPos+1);
 				const auto Delta=NextVisPos-VisPos;
 
 				if (m_it_CurLine->GetTabCurPos()>=VBlockX+VBlockSizeX)
@@ -2208,7 +2208,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			ProcessVBlockMarking();
 
 			const auto PrevLine = std::prev(m_it_CurLine);
-			if (!EdOpt.CursorBeyondEOL && VBlockX >= PrevLine->RealPosToTab(PrevLine->GetLength()))
+			if (!EdOpt.CursorBeyondEOL && VBlockX >= PrevLine->RealPosToVisual(PrevLine->GetLength()))
 				return true;
 
 			Pasting++;
@@ -2239,7 +2239,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			ProcessVBlockMarking();
 
-			if (!EdOpt.CursorBeyondEOL && VBlockX >= NextLine->RealPosToTab(NextLine->GetLength()))
+			if (!EdOpt.CursorBeyondEOL && VBlockX >= NextLine->RealPosToVisual(NextLine->GetLength()))
 				return true;
 
 			Pasting++;
@@ -3171,7 +3171,7 @@ void Editor::InsertString()
 					Decrement++;
 				else
 				{
-					const auto TabPos = m_it_CurLine->RealPosToTab(static_cast<int>(I));
+					const auto TabPos = m_it_CurLine->RealPosToVisual(static_cast<int>(I));
 					Decrement+=EdOpt.TabSize - (TabPos % EdOpt.TabSize);
 				}
 			}
@@ -3362,8 +3362,8 @@ bool Editor::Search(bool Next)
 					}
 					else
 					{
-						const size_t TBlockX = m_it_AnyBlockStart->TabPosToReal(VBlockX);
-						const size_t TBlockSizeX = m_it_AnyBlockStart->TabPosToReal(VBlockX + VBlockSizeX) - TBlockX;
+						const size_t TBlockX = m_it_AnyBlockStart->VisualPosToReal(VBlockX);
+						const size_t TBlockSizeX = m_it_AnyBlockStart->VisualPosToReal(VBlockX + VBlockSizeX) - TBlockX;
 						const auto& Str = m_it_AnyBlockStart->GetString();
 						if (TBlockX <= Str.size())
 						{
@@ -4985,8 +4985,8 @@ void Editor::DeleteVBlock()
 	for (int Line = 0; CurPtr != Lines.end() && Line < VBlockSizeY; ++Line, ++CurPtr)
 	{
 		TextChanged(true);
-		const size_t TBlockX = CurPtr->TabPosToReal(VBlockX);
-		const size_t TBlockSizeX = CurPtr->TabPosToReal(VBlockX + VBlockSizeX) - CurPtr->TabPosToReal(VBlockX);
+		const size_t TBlockX = CurPtr->VisualPosToReal(VBlockX);
+		const size_t TBlockSizeX = CurPtr->VisualPosToReal(VBlockX + VBlockSizeX) - CurPtr->VisualPosToReal(VBlockX);
 		const auto& CurStr = CurPtr->GetString();
 
 		if (TBlockX >= CurStr.size())
@@ -5051,8 +5051,8 @@ string Editor::VBlock2Text()
 
 	for (int Line = 0; CurPtr != Lines.end() && Line < VBlockSizeY; ++Line, ++CurPtr)
 	{
-		const size_t TBlockX = CurPtr->TabPosToReal(VBlockX);
-		const size_t TBlockSizeX = CurPtr->TabPosToReal(VBlockX + VBlockSizeX) - TBlockX;
+		const size_t TBlockX = CurPtr->VisualPosToReal(VBlockX);
+		const size_t TBlockSizeX = CurPtr->VisualPosToReal(VBlockX + VBlockSizeX) - TBlockX;
 		const auto& CurStr = CurPtr->GetString();
 
 		if (CurStr.size() > TBlockX)
@@ -5187,8 +5187,8 @@ void Editor::VBlockShift(int Left)
 	for (int Line = 0; CurPtr != Lines.end() && Line < VBlockSizeY; ++Line, ++CurPtr)
 	{
 		TextChanged(true);
-		size_t TBlockX = CurPtr->TabPosToReal(VBlockX);
-		size_t TBlockSizeX = CurPtr->TabPosToReal(VBlockX + VBlockSizeX) - CurPtr->TabPosToReal(VBlockX);
+		size_t TBlockX = CurPtr->VisualPosToReal(VBlockX);
+		size_t TBlockSizeX = CurPtr->VisualPosToReal(VBlockX + VBlockSizeX) - CurPtr->VisualPosToReal(VBlockX);
 		{
 			const auto& CurStr = CurPtr->GetString();
 
@@ -5198,9 +5198,9 @@ void Editor::VBlockShift(int Left)
 			if ((Left && CurStr[TBlockX - 1] == L'\t') || (!Left && TBlockX + TBlockSizeX < CurStr.size() && CurStr[TBlockX + TBlockSizeX] == L'\t'))
 			{
 				CurPtr->ReplaceTabs();
-				TBlockX = CurPtr->TabPosToReal(VBlockX);
-				TBlockSizeX = CurPtr->TabPosToReal(VBlockX + VBlockSizeX) -
-					CurPtr->TabPosToReal(VBlockX);
+				TBlockX = CurPtr->VisualPosToReal(VBlockX);
+				TBlockSizeX = CurPtr->VisualPosToReal(VBlockX + VBlockSizeX) -
+					CurPtr->VisualPosToReal(VBlockX);
 			}
 		}
 
@@ -5268,10 +5268,10 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				}
 				else if (IsVerticalSelection() && DestLine >= m_it_AnyBlockStart.Number() && DestLine < m_it_AnyBlockStart.Number() + VBlockSizeY)
 				{
-					GetString->SelStart=CurPtr->TabPosToReal(VBlockX);
+					GetString->SelStart=CurPtr->VisualPosToReal(VBlockX);
 					GetString->SelEnd=GetString->SelStart+
-					                  CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-
-					                  CurPtr->TabPosToReal(VBlockX);
+					                  CurPtr->VisualPosToReal(VBlockX+VBlockSizeX)-
+					                  CurPtr->VisualPosToReal(VBlockX);
 				}
 
 				return TRUE;
@@ -5604,7 +5604,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					return FALSE;
 				}
 
-				ecp->DestPos=CurPtr->TabPosToReal(ecp->SrcPos);
+				ecp->DestPos=CurPtr->VisualPosToReal(ecp->SrcPos);
 				return TRUE;
 			}
 
@@ -5622,7 +5622,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					return FALSE;
 				}
 
-				ecp->DestPos=CurPtr->RealPosToTab(ecp->SrcPos);
+				ecp->DestPos=CurPtr->RealPosToVisual(ecp->SrcPos);
 				return TRUE;
 			}
 
@@ -6391,8 +6391,8 @@ void Editor::Xlat()
 
 		for (int Line = 0; CurPtr != Lines.end() && Line < VBlockSizeY; ++Line, ++CurPtr)
 		{
-			const size_t TBlockX = CurPtr->TabPosToReal(VBlockX);
-			const size_t TBlockSizeX = CurPtr->TabPosToReal(VBlockX + VBlockSizeX) - CurPtr->TabPosToReal(VBlockX);
+			const size_t TBlockX = CurPtr->VisualPosToReal(VBlockX);
+			const size_t TBlockSizeX = CurPtr->VisualPosToReal(VBlockX + VBlockSizeX) - CurPtr->VisualPosToReal(VBlockX);
 			size_t CopySize = CurPtr->GetLength() - TBlockX;
 
 			if (CopySize>TBlockSizeX)

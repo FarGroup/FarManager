@@ -735,7 +735,7 @@ static void string_to_buffer_simple(string_view const Str, std::vector<FAR_CHAR_
 
 static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_CHAR_INFO>& Buffer)
 {
-	for (const auto MaxSize = Str.size(); !Str.empty(); )
+	for (const auto MaxSize = Str.size(); !Str.empty() && Buffer.size() != MaxSize; )
 	{
 		wchar_t Char[]{ Str[0], 0 };
 
@@ -755,6 +755,13 @@ static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_C
 
 		if (char_width::is_wide(Codepoint))
 		{
+			if (Buffer.size() == MaxSize)
+			{
+				// No space left for the trailing char
+				Buffer.back().Char = L'…';
+				break;
+			}
+
 			if (Char[1])
 			{
 				// It's wide and it already occupies two cells - awesome
@@ -790,9 +797,6 @@ static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_C
 				// It's not wide and not surrogate - the most common case, nothing to do
 			}
 		}
-
-		if (Buffer.size() == MaxSize)
-			break;
 	}
 }
 
@@ -1097,6 +1101,41 @@ bool DoWeReallyHaveToScroll(short Rows)
 	Global->ScrBuf->Read(Region, BufferBlock);
 
 	return !std::all_of(ALL_CONST_RANGE(BufferBlock.vector()), [](const FAR_CHAR_INFO& i) { return i.Char == L' '; });
+}
+
+size_t string_length_to_visual(string_view Str)
+{
+	if (!char_width::is_enabled())
+		return Str.size();
+
+	size_t Result = 0;
+
+	while (!Str.empty())
+	{
+		const auto Codepoint = encoding::utf16::extract_codepoint(Str);
+		Str.remove_prefix(Codepoint > std::numeric_limits<wchar_t>::max()? 2 : 1);
+		Result += char_width::is_wide(Codepoint)? 2 : 1;
+	}
+
+	return Result;
+}
+
+size_t visual_pos_to_string_pos(string_view Str, size_t const Pos)
+{
+	if (!char_width::is_enabled())
+		return Pos;
+
+	const auto StrSize = Str.size();
+	size_t Size = 0;
+
+	while (!Str.empty() && Size < Pos)
+	{
+		const auto Codepoint = encoding::utf16::extract_codepoint(Str);
+		Str.remove_prefix(Codepoint > std::numeric_limits<wchar_t>::max() ? 2 : 1);
+		Size += char_width::is_wide(Codepoint)? 2 : 1;
+	}
+
+	return StrSize - Str.size() + (Pos > Size? Pos - Size : 0);
 }
 
 void GetText(rectangle Where, matrix<FAR_CHAR_INFO>& Dest)

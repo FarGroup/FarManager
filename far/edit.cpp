@@ -224,8 +224,8 @@ void Edit::FastShow(const ShowInfo* Info)
 	}
 
 	GotoXY(m_Where.left, m_Where.top);
-	int TabSelStart=(m_SelStart==-1) ? -1:RealPosToTab(m_SelStart);
-	int TabSelEnd=(m_SelEnd<0) ? -1:RealPosToTab(m_SelEnd);
+	int TabSelStart = m_SelStart == -1? -1 : RealPosToVisual(m_SelStart);
+	int TabSelEnd = m_SelEnd < 0? -1 : RealPosToVisual(m_SelEnd);
 
 	/* $ 17.08.2000 KM
 	   Если есть маска, сделаем подготовку строки, то есть
@@ -241,7 +241,7 @@ void Edit::FastShow(const ShowInfo* Info)
 	OutStrTmp.reserve(EditLength);
 
 	SetLineCursorPos(TabCurPos);
-	const auto RealLeftPos = TabPosToReal(LeftPos);
+	const auto RealLeftPos = VisualPosToReal(LeftPos);
 
 	if (m_Str.size() > RealLeftPos)
 	{
@@ -1736,7 +1736,7 @@ void Edit::InsertTab()
 		return;
 
 	const auto Pos = m_CurPos;
-	const auto S = static_cast<int>(GetTabSize() - (RealPosToTab(Pos) % GetTabSize()));
+	const auto S = static_cast<int>(GetTabSize() - (RealPosToVisual(Pos) % GetTabSize()));
 
 	if (m_SelStart!=-1)
 	{
@@ -1797,7 +1797,7 @@ bool Edit::ReplaceTabs()
 
 int Edit::GetTabCurPos() const
 {
-	return RealPosToTab(m_CurPos);
+	return RealPosToVisual(m_CurPos);
 }
 
 void Edit::SetTabCurPos(int NewPos)
@@ -1811,15 +1811,15 @@ void Edit::SetTabCurPos(int NewPos)
 			NewPos=Pos;
 	}
 
-	m_CurPos=TabPosToReal(NewPos);
+	m_CurPos = VisualPosToReal(NewPos);
 }
 
-int Edit::RealPosToTab(int Pos) const
+int Edit::RealPosToVisual(int Pos) const
 {
-	return RealPosToTab(0, 0, Pos);
+	return RealPosToVisual(0, 0, Pos);
 }
 
-static size_t real_pos_to_tab(string_view const Str, size_t const TabSize, size_t Pos, size_t const PrevLength, size_t const PrevPos, int* CorrectPos)
+static size_t real_pos_to_visual_tab(string_view const Str, size_t const TabSize, size_t Pos, size_t const PrevLength, size_t const PrevPos, int* CorrectPos)
 {
 	auto TabPos = PrevLength;
 
@@ -1860,18 +1860,22 @@ static size_t real_pos_to_tab(string_view const Str, size_t const TabSize, size_
 	return TabPos;
 }
 
-int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) const
+int Edit::RealPosToVisual(int PrevLength, int PrevPos, int Pos, int* CorrectPos) const
 {
+	const auto StringPart = string_view(m_Str).substr(0, Pos);
+	const auto WidthCorrection = static_cast<int>(string_length_to_visual(StringPart)) - static_cast<int>(StringPart.size());
+
 	if (CorrectPos)
 		*CorrectPos = 0;
 
-	if (GetTabExpandMode() == EXPAND_ALLTABS || PrevPos >= m_Str.size())
-		return PrevLength + Pos - PrevPos;
+	const auto Result = GetTabExpandMode() == EXPAND_ALLTABS || PrevPos >= m_Str.size()?
+		PrevLength + Pos - PrevPos :
+		static_cast<int>(real_pos_to_visual_tab(m_Str, GetTabSize(), Pos, PrevLength, PrevPos, CorrectPos));
 
-	return static_cast<int>(real_pos_to_tab(m_Str, GetTabSize(), Pos, PrevLength, PrevPos, CorrectPos));
+	return Result + WidthCorrection;
 }
 
-static size_t tab_pos_to_real(string_view const Str, size_t const TabSize, size_t const Pos)
+static size_t visual_tab_pos_to_real(string_view const Str, size_t const TabSize, size_t const Pos)
 {
 	size_t Index{};
 	const auto Size = Str.size();
@@ -1901,12 +1905,16 @@ static size_t tab_pos_to_real(string_view const Str, size_t const TabSize, size_
 	return Index;
 }
 
-int Edit::TabPosToReal(int Pos) const
+int Edit::VisualPosToReal(int Pos) const
 {
-	if (GetTabExpandMode() == EXPAND_ALLTABS)
-		return Pos;
+	const auto RealPos = visual_pos_to_string_pos(m_Str, Pos);
+	const auto WidthCorrection = static_cast<int>(Pos) - static_cast<int>(RealPos);
 
-	return static_cast<int>(tab_pos_to_real(m_Str, GetTabSize(), Pos));
+	const auto Result = GetTabExpandMode() == EXPAND_ALLTABS?
+		Pos :
+		static_cast<int>(visual_tab_pos_to_real(m_Str, GetTabSize(), Pos));
+
+	return Result - WidthCorrection;
 }
 
 void Edit::Select(int Start,int End)
@@ -2100,13 +2108,13 @@ void Edit::ApplyColor(int XPos, int FocusedLeftPos)
 		// то производим вычисление с начала строки
 		else if (Pos == INT_MIN || CurItem.StartPos < Pos)
 		{
-			RealStart = RealPosToTab(CurItem.StartPos);
+			RealStart = RealPosToVisual(CurItem.StartPos);
 			Start = RealStart-FocusedLeftPos;
 		}
 		// Для оптимизации делаем вычисление относительно предыдущей позиции
 		else
 		{
-			RealStart = RealPosToTab(TabPos, Pos, CurItem.StartPos);
+			RealStart = RealPosToVisual(TabPos, Pos, CurItem.StartPos);
 			Start = RealStart-FocusedLeftPos;
 		}
 
@@ -2137,7 +2145,7 @@ void Edit::ApplyColor(int XPos, int FocusedLeftPos)
 			// иначе ничего не вычисляем и берём старые значения
 			if (CorrectPos && EndPos < m_Str.size() && m_Str[EndPos] == L'\t')
 			{
-				RealEnd = RealPosToTab(TabPos, Pos, ++EndPos);
+				RealEnd = RealPosToVisual(TabPos, Pos, ++EndPos);
 				End = RealEnd-FocusedLeftPos;
 				TabMarkCurrent = (CurItem.Flags & ECF_TABMARKCURRENT) && XPos>=Start && XPos<End;
 			}
@@ -2153,7 +2161,7 @@ void Edit::ApplyColor(int XPos, int FocusedLeftPos)
 		else if (EndPos < Pos)
 		{
 			// TODO: возможно так же нужна коррекция с учетом табов (на предмет Mantis#0001718)
-			RealEnd = RealPosToTab(0, 0, EndPos, &CorrectPos);
+			RealEnd = RealPosToVisual(0, 0, EndPos, &CorrectPos);
 			EndPos += CorrectPos;
 			End = RealEnd-FocusedLeftPos;
 		}
@@ -2164,10 +2172,10 @@ void Edit::ApplyColor(int XPos, int FocusedLeftPos)
 			// Mantis#0001718: Отсутствие ECF_TABMARKFIRST не всегда корректно отрабатывает
 			// Коррекция с учетом последнего таба
 			if (CorrectPos && EndPos < m_Str.size() && m_Str[EndPos] == L'\t')
-				RealEnd = RealPosToTab(TabPos, Pos, ++EndPos);
+				RealEnd = RealPosToVisual(TabPos, Pos, ++EndPos);
 			else
 			{
-				RealEnd = RealPosToTab(TabPos, Pos, EndPos, &CorrectPos);
+				RealEnd = RealPosToVisual(TabPos, Pos, EndPos, &CorrectPos);
 				EndPos += CorrectPos;
 			}
 			End = RealEnd-FocusedLeftPos;
@@ -2302,8 +2310,13 @@ void Edit::SetDialogParent(DWORD Sets)
 void Edit::FixLeftPos(int TabCurPos)
 {
 	if (TabCurPos<0) TabCurPos=GetTabCurPos(); //оптимизация, чтобы два раза не дёргать
+
 	if (TabCurPos-LeftPos>ObjWidth()-1)
+	{
+		// BUGBUG slow
 		LeftPos=TabCurPos-ObjWidth()+1;
+		LeftPos = RealPosToVisual(VisualPosToReal(LeftPos));
+	}
 
 	if (TabCurPos<LeftPos)
 		LeftPos=TabCurPos;
@@ -2388,8 +2401,8 @@ TEST_CASE("tab_pos")
 
 	static const struct
 	{
-		size_t Str, TabSize, TabPos, RealPos;
-		bool TestRealToTab;
+		size_t Str, TabSize, VisualPos, RealPos;
+		bool TestRealToVisual;
 	}
 	Tests[]
 	{
@@ -2443,10 +2456,10 @@ TEST_CASE("tab_pos")
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(i.RealPos == tab_pos_to_real(Strs[i.Str], i.TabSize, i.TabPos));
+		REQUIRE(i.RealPos == visual_tab_pos_to_real(Strs[i.Str], i.TabSize, i.VisualPos));
 
-		if (i.TestRealToTab)
-			REQUIRE(i.TabPos == real_pos_to_tab(Strs[i.Str], i.TabSize, i.RealPos, 0, 0, {}));
+		if (i.TestRealToVisual)
+			REQUIRE(i.VisualPos == real_pos_to_visual_tab(Strs[i.Str], i.TabSize, i.RealPos, 0, 0, {}));
 	}
 }
 #endif

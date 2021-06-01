@@ -164,8 +164,8 @@ public:
 	void SetPasswordMode(bool Mode) {m_Flags.Change(FEDITLINE_PASSWORDMODE,Mode);}
 	void SetOvertypeMode(bool Mode) {m_Flags.Change(FEDITLINE_OVERTYPE, Mode);}
 	bool GetOvertypeMode() const {return m_Flags.Check(FEDITLINE_OVERTYPE);}
-	int RealPosToTab(int Pos) const;
-	int TabPosToReal(int Pos) const;
+	int RealPosToVisual(int Pos) const;
+	int VisualPosToReal(int Pos) const;
 	void Select(int Start,int End);
 	void RemoveSelection();
 	void AddSelect(int Start,int End);
@@ -226,7 +226,7 @@ private:
 	static bool CharInMask(wchar_t Char, wchar_t Mask);
 	bool ProcessCtrlQ();
 	bool ProcessInsPath(unsigned int Key,int PrevSelStart=-1,int PrevSelEnd=0);
-	int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos = {}) const;
+	int RealPosToVisual(int PrevLength, int PrevPos, int Pos, int* CorrectPos = {}) const;
 	void FixLeftPos(int TabCurPos=-1);
 	void SetRightCoord(int Value) { SetPosition({ m_Where.left, m_Where.top, Value, m_Where.bottom }); }
 	Editor* GetEditor() const;

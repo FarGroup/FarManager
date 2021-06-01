@@ -158,6 +158,9 @@ void MoveRealCursor(int X,int Y);
 void ScrollScreen(int Count);
 bool DoWeReallyHaveToScroll(short Rows);
 
+size_t string_length_to_visual(string_view Str);
+size_t visual_pos_to_string_pos(string_view Str, size_t Pos);
+
 void Text(point Where, const FarColor& Color, string_view Str);
 
 void Text(string_view Str);
