@@ -108,7 +108,7 @@ build_script:
   - copy /Y Far-NetBox\*.md ci\%configuration%.%platform%\Plugins\NetBox
   - copy /Y Far-NetBox\LICENSE.txt ci\%configuration%.%platform%\Plugins\NetBox
   #build FarColorer
-  - set COLORER_VERSION=1.4.2
+  - set COLORER_VERSION=1.4.3
   - set COLORER_PLATFORM=x86
   - if "%platform%" == "x64" set COLORER_PLATFORM=x64
   - set COLORER_FILE_NAME=FarColorer.%COLORER_PLATFORM%.v%COLORER_VERSION%.7z
