@@ -115,9 +115,11 @@ static bool FindObject(string_view const Command, string& strDest)
 		return std::pair(false, L""s);
 	};
 
-	if (IsAbsolutePath(Module))
+	const auto IsWithPath = ContainsSlash(Module);
+
+	if (IsWithPath)
 	{
-		// If absolute path has been specified it makes no sense to walk through the %PATH%.
+		// If a path has been specified it makes no sense to walk through the %PATH%.
 		// Just try all the extensions and we are done here:
 		const auto [Found, FoundName] = TryWithExtOrPathExt(Module, [](string_view const NameWithExt, bool)
 		{
@@ -146,6 +148,7 @@ static bool FindObject(string_view const Command, string& strDest)
 		}
 	}
 
+	if (!IsWithPath)
 	{
 		// Look in the %PATH%:
 		const auto PathEnv = os::env::get(L"PATH"sv);
@@ -168,9 +171,7 @@ static bool FindObject(string_view const Command, string& strDest)
 				}
 			}
 		}
-	}
 
-	{
 		// Use SearchPath:
 		const auto [Found, FoundName] = TryWithExtOrPathExt(Module, [](string_view const NameWithExt, bool const HasExt)
 		{

@@ -73,6 +73,7 @@ static wchar_t ReplaceControlCharacter(wchar_t const Char)
 {
 	switch (Char)
 	{
+	// C0
 	case 0x00: return L' '; // space
 	case 0x01: return L'☺'; // white smiling face
 	case 0x02: return L'☻'; // black smiling face
@@ -83,12 +84,12 @@ static wchar_t ReplaceControlCharacter(wchar_t const Char)
 	case 0x07: return L'•'; // bullet
 	case 0x08: return L'◘'; // inverse bullet
 	case 0x09: return L'○'; // white circle
-	case 0x0a: return L'◙'; // inverse white circle
-	case 0x0b: return L'♂'; // male sign
-	case 0x0c: return L'♀'; // female sign
-	case 0x0d: return L'♪'; // eighth note
-	case 0x0e: return L'♫'; // beamed eighth notes
-	case 0x0f: return L'☼'; // white sun with rays
+	case 0x0A: return L'◙'; // inverse white circle
+	case 0x0B: return L'♂'; // male sign
+	case 0x0C: return L'♀'; // female sign
+	case 0x0D: return L'♪'; // eighth note
+	case 0x0E: return L'♫'; // beamed eighth notes
+	case 0x0F: return L'☼'; // white sun with rays
 	case 0x10: return L'►'; // black right - pointing pointer
 	case 0x11: return L'◄'; // black left - pointing pointer
 	case 0x12: return L'↕'; // up down arrow
@@ -99,14 +100,50 @@ static wchar_t ReplaceControlCharacter(wchar_t const Char)
 	case 0x17: return L'↨'; // up down arrow with base
 	case 0x18: return L'↑'; // upwards arrow
 	case 0x19: return L'↓'; // downwards arrow
-	case 0x1a: return L'→'; // rightwards arrow
-	case 0x1b: return L'←'; // leftwards arrow
-	case 0x1c: return L'∟'; // right angle
-	case 0x1d: return L'↔'; // left right arrow
-	case 0x1e: return L'▲'; // black up - pointing triangle
-	case 0x1f: return L'▼'; // black down - pointing triangle
-	case 0x7f: return L'⌂'; // house
-	case 0x9b: return L'›'; // single right-pointing angle quotation mark
+	case 0x1A: return L'→'; // rightwards arrow
+	case 0x1B: return L'←'; // leftwards arrow
+	case 0x1C: return L'∟'; // right angle
+	case 0x1D: return L'↔'; // left right arrow
+	case 0x1E: return L'▲'; // black up - pointing triangle
+	case 0x1F: return L'▼'; // black down - pointing triangle
+	case 0x7F: return L'⌂'; // house
+
+	// C1
+	// These are considered control characters too now.
+	// Unlike C0, it is unclear what glyphs to use, so just remap to the private area for now.
+	case 0x80: return L'\xE080';
+	case 0x81: return L'\xE081';
+	case 0x82: return L'\xE082';
+	case 0x83: return L'\xE083';
+	case 0x84: return L'\xE084';
+	case 0x85: return L'\xE085';
+	case 0x86: return L'\xE086';
+	case 0x87: return L'\xE087';
+	case 0x88: return L'\xE088';
+	case 0x89: return L'\xE089';
+	case 0x8A: return L'\xE08A';
+	case 0x8B: return L'\xE08B';
+	case 0x8C: return L'\xE08C';
+	case 0x8D: return L'\xE08D';
+	case 0x8E: return L'\xE08E';
+	case 0x8F: return L'\xE08F';
+	case 0x90: return L'\xE090';
+	case 0x91: return L'\xE091';
+	case 0x92: return L'\xE092';
+	case 0x93: return L'\xE093';
+	case 0x94: return L'\xE094';
+	case 0x95: return L'\xE095';
+	case 0x96: return L'\xE096';
+	case 0x97: return L'\xE097';
+	case 0x98: return L'\xE098';
+	case 0x99: return L'\xE099';
+	case 0x9A: return L'\xE09A';
+	case 0x9B: return L'\xE09B';
+	case 0x9C: return L'\xE09C';
+	case 0x9D: return L'\xE09D';
+	case 0x9E: return L'\xE09E';
+	case 0x9F: return L'\xE09F';
+
 	default:   return Char;
 	}
 }

@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 02.06.2021 18:45:47 +0100 - build 5811
+
+1. Sanitise C1 control characters in output.
+
+2. Executor logic correction.
+
+--------------------------------------------------------------------------------
 drkns 02.06.2021 00:23:38 +0100 - build 5810
 
 1. Continuation of 5809. Selection and cursor movements should work now, more or less.
