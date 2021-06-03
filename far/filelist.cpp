@@ -2552,7 +2552,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			//вызовем EMenu если он есть
 			if (Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu.Id))
 			{
-				Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, ToPtr(1)); // EMenu Plugin :-)
+				Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, {}); // EMenu Plugin :-)
 			}
 			return true;
 		}
@@ -3132,7 +3132,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (delayedShowEMenu && MouseEvent->dwButtonState == 0)
 	{
 		delayedShowEMenu = false;
-		Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, nullptr);
+		Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, const_cast<COORD*>(&MouseEvent->dwMousePosition));
 	}
 
 	if (Panel::ProcessMouseDrag(MouseEvent))
@@ -3198,7 +3198,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 						delayedShowEMenu = GetAsyncKeyState(VK_RBUTTON)<0 || GetAsyncKeyState(VK_LBUTTON)<0 || GetAsyncKeyState(VK_MBUTTON)<0;
 						if (!delayedShowEMenu) // show immediately if all mouse buttons released
-							Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, nullptr);
+							Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, OPEN_FILEPANEL, const_cast<COORD*>(&MouseEvent->dwMousePosition));
 
 						return true;
 					}
