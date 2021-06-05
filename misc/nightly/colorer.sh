@@ -4,6 +4,11 @@ function bcolorer {
   BIT=$1
   PLUGIN=FarColorer
   COLORER_VERSION=$(curl -fsLJ 'https://raw.githubusercontent.com/colorer/FarColorer/master/version4far.txt')
+  if [ -z "$COLORER_VERSION" ]; then
+    echo "Failed to get Colorer version"
+    return 1
+  fi
+
   COLORER_PLATFORM=$2
   COLORER_FILE_NAME=FarColorer.${COLORER_PLATFORM}.v${COLORER_VERSION}.7z
   
