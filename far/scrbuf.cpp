@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "colormix.hpp"
 #include "global.hpp"
+#include "char_width.hpp"
 
 // Platform:
 
@@ -408,13 +409,19 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 			if (Changes)
 			{
+				// WriteOutput can make changes to the buffer to patch DBSC collisions,
+				// which means that the screen output will effectively be different from Shadow
+				// and certain areas won't be updated properly.
+				// To address this, we allow it to write into the buffer and pass Shadow instead:
+
+				Shadow = Buf;
+
 				for (const auto& i: WriteList)
 				{
-					console.WriteOutput(Buf, { i.left, i.top }, i);
+					console.WriteOutput(Shadow, { i.left, i.top }, i);
 				}
 
 				console.Commit();
-				Shadow = Buf;
 			}
 
 			if (MacroCharUsed)
@@ -471,14 +478,23 @@ void ScreenBuf::MoveCursor(point const Point)
 {
 	SCOPED_ACTION(std::lock_guard)(CS);
 
-	if (!is_visible(m_CurPos))
+	const auto IsNewPositionVisible = is_visible(Point);
+
+	auto CorrectedPoint = Point;
+	if (char_width::is_enabled() && IsNewPositionVisible && Point.x > 0 && Buf[Point.y][Point.x].Attributes.Flags & COMMON_LVB_TRAILING_BYTE)
 	{
-		CurVisible = false;
+		--CorrectedPoint.x;
 	}
 
-	if(Point != m_CurPos || !CurVisible)
+	if(Point != m_CurPos)
 	{
-		m_CurPos = Point;
+		m_CurPos = CorrectedPoint;
+
+		if (!IsNewPositionVisible)
+		{
+			CurVisible = false;
+		}
+
 		SBFlags.Clear(SBFLAGS_FLUSHEDCURPOS);
 	}
 }

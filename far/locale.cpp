@@ -60,13 +60,14 @@ static auto is_cjk_codepage(uintptr_t const Codepage)
 {
 	enum
 	{
-		chinese_s = 936,
-		chinese_t = 950,
-		japanese  = 932,
-		korean    = 949,
+		chinese_s     = 936,
+		chinese_t     = 950,
+		japanese      = 932,
+		korean_hangul = 949,
+		korean_johab  = 1361,
 	};
 
-	return any_of(Codepage, chinese_s, chinese_t, japanese, korean);
+	return any_of(Codepage, chinese_s, chinese_t, japanese, korean_hangul, korean_johab);
 }
 
 static auto get_is_cjk()

@@ -667,14 +667,14 @@ void Viewer::ShowPage(int nMode)
 			{
 				GotoXY(XX2,Y);
 				SetColor(COL_VIEWERARROWS);
-				BoxText(0xbb);
+				Text(L'»');
 			}
 
 			if (LeftPos>0 && !i.Data.empty() && ViOpt.ShowArrows)
 			{
 				GotoXY(m_Where.left, Y);
 				SetColor(COL_VIEWERARROWS);
-				BoxText(0xab);
+				Text(L'«');
 			}
 		}
 	}

@@ -74,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farversion.hpp"
 #include "global.hpp"
 #include "log.hpp"
+#include "char_width.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -1267,8 +1268,15 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 		if (!from_string(ChcpParams, cp))
 			return false;
 
+		const auto SavedOutputCp = console.GetOutputCodepage();
+
 		if (!console.SetInputCodepage(cp) || !console.SetOutputCodepage(cp))
 			return false;
+
+		if (SavedOutputCp != cp)
+		{
+			char_width::invalidate();
+		}
 
 		ConsoleActivatior(false);
 

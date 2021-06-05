@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/io.hpp"
 #include "common/range.hpp"
 #include "common/scope_exit.hpp"
+#include "common/view/enumerate.hpp"
 
 // External:
 #include "format.hpp"
@@ -69,7 +70,7 @@ static bool sWindowMode;
 static bool sEnableVirtualTerminal;
 
 
-static wchar_t ReplaceControlCharacter(wchar_t const Char)
+wchar_t ReplaceControlCharacter(wchar_t const Char)
 {
 	switch (Char)
 	{
@@ -146,6 +147,37 @@ static wchar_t ReplaceControlCharacter(wchar_t const Char)
 
 	default:   return Char;
 	}
+}
+
+static void sanitise_dbsc_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
+{
+	if (!(First.Attributes.Flags & COMMON_LVB_LEADING_BYTE) && !(Second.Attributes.Flags & COMMON_LVB_TRAILING_BYTE))
+	{
+		// Not DBSC, awesome
+		return;
+	}
+
+	const auto
+		IsFirst = flags::check_any(First.Attributes.Flags, COMMON_LVB_LEADING_BYTE),
+		IsSecond = flags::check_any(Second.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
+
+	flags::clear(First.Attributes.Flags, COMMON_LVB_LEADING_BYTE);
+	flags::clear(Second.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
+
+	if (First == Second)
+	{
+		// Valid DBSC, awesome
+		flags::set(First.Attributes.Flags, COMMON_LVB_LEADING_BYTE);
+		flags::set(Second.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
+
+		return;
+	}
+
+	if (IsFirst)
+		First.Char = L' ';
+
+	if (IsSecond)
+		Second.Char = L' ';
 }
 
 static COORD make_coord(point const& Point)
@@ -760,47 +792,65 @@ namespace console_detail
 		Str += L'm';
 	}
 
-	static void make_vt_sequence(span<const FAR_CHAR_INFO> Input, string& Str, std::optional<FarColor>& LastColor)
+	static void make_vt_sequence(span<FAR_CHAR_INFO> Input, string& Str, std::optional<FarColor>& LastColor)
 	{
 		const auto CharWidthEnabled = char_width::is_enabled();
 
 		std::optional<wchar_t> LeadingChar;
 
-		for (const auto& i: Input)
+		for (const auto& [Cell, n]: enumerate(Input))
 		{
 			if (CharWidthEnabled)
 			{
-				if (LeadingChar&& i.Char == *LeadingChar && i.Attributes.Flags & COMMON_LVB_TRAILING_BYTE)
+				if (n != Input.size() - 1)
 				{
-					LeadingChar.reset();
-					continue;
+					sanitise_dbsc_pair(Cell, Input[n + 1]);
+				}
+
+				if (Cell.Attributes.Flags & COMMON_LVB_TRAILING_BYTE)
+				{
+					if (!LeadingChar)
+					{
+						Cell.Char = L' ';
+						flags::clear(Cell.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
+					}
+					else if (Cell.Char == *LeadingChar)
+					{
+						LeadingChar.reset();
+						continue;
+					}
 				}
 
 				LeadingChar.reset();
+
+				if (Cell.Attributes.Flags & COMMON_LVB_LEADING_BYTE)
+				{
+					if (n == Input.size() - 1)
+					{
+						flags::clear(Cell.Attributes.Flags, COMMON_LVB_LEADING_BYTE);
+						Cell.Char = L' ';
+					}
+					else
+					{
+						LeadingChar = Cell.Char;
+					}
+				}
 			}
 
-			auto Attributes = i.Attributes;
-
-			if (CharWidthEnabled && Attributes.Flags & COMMON_LVB_LEADING_BYTE)
+			if (!LastColor.has_value() || Cell.Attributes != *LastColor)
 			{
-				LeadingChar = i.Char;
-				flags::clear(Attributes.Flags, COMMON_LVB_LEADING_BYTE);
+				make_vt_attributes(Cell.Attributes, Str, LastColor);
+				LastColor = Cell.Attributes;
 			}
 
-			if (!LastColor.has_value() || Attributes != *LastColor)
+			if (CharWidthEnabled && Cell.Char == encoding::replace_char && Cell.Attributes.Reserved[0] > std::numeric_limits<wchar_t>::max())
 			{
-				make_vt_attributes(Attributes, Str, LastColor);
-				LastColor = Attributes;
-			}
-
-			if (CharWidthEnabled && i.Char == encoding::replace_char && Attributes.Reserved[0] > std::numeric_limits<wchar_t>::max())
-			{
-				const auto Pair = encoding::utf16::to_surrogate(Attributes.Reserved[0]);
+				const auto Pair = encoding::utf16::to_surrogate(Cell.Attributes.Reserved[0]);
 				Str.append(ALL_CONST_RANGE(Pair));
 			}
 			else
 			{
-				Str += ReplaceControlCharacter(i.Char);
+				Str += ReplaceControlCharacter(Cell.Char);
 			}
 		}
 	}
@@ -808,7 +858,7 @@ namespace console_detail
 	class console::implementation
 	{
 	public:
-		static bool WriteOutputVT(const matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, rectangle const& WriteRegion)
+		static bool WriteOutputVT(matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, rectangle const& WriteRegion)
 		{
 			const auto Out = ::console.GetOutputHandle();
 
@@ -883,6 +933,30 @@ namespace console_detail
 
 		static bool WriteOutputNTImpl(CHAR_INFO const* const Buffer, point const BufferSize, rectangle const& WriteRegion)
 		{
+			point SavedCursorPosition;
+			if (!::console.GetCursorRealPosition(SavedCursorPosition))
+				return false;
+
+			CONSOLE_CURSOR_INFO SavedCursorInfo;
+			if (!::console.GetCursorInfo(SavedCursorInfo))
+				return false;
+
+			if (
+				// Hide cursor
+				!::console.SetCursorInfo({ 1 }) ||
+				// Move cursor to the top left corner to minimise its impact on rendering (yes)
+				!::console.SetCursorPosition({})
+			)
+				return false;
+
+			SCOPE_EXIT
+			{
+				// Restore cursor position
+				::console.SetCursorRealPosition(SavedCursorPosition);
+				// Restore cursor
+				::console.SetCursorInfo(SavedCursorInfo);
+			};
+
 			auto SysWriteRegion = make_rect(WriteRegion);
 			return WriteConsoleOutput(::console.GetOutputHandle(), Buffer, make_coord(BufferSize), {}, &SysWriteRegion) != FALSE;
 		}
@@ -911,15 +985,44 @@ namespace console_detail
 			return WriteOutputNTImpl(Buffer, BufferSize, WriteRegion) != FALSE;
 		}
 
-		static bool WriteOutputNT(const matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, rectangle const& WriteRegion)
+		static bool WriteOutputNT(matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, rectangle const& WriteRegion)
 		{
 			std::vector<CHAR_INFO> ConsoleBuffer;
 			ConsoleBuffer.reserve(SubRect.width() * SubRect.height());
 
-			for_submatrix(Buffer, SubRect, [&](const FAR_CHAR_INFO& i)
+			if (char_width::is_enabled())
 			{
-				ConsoleBuffer.emplace_back(CHAR_INFO{ { ReplaceControlCharacter(i.Char) }, colors::FarColorToConsoleColor(i.Attributes) });
-			});
+				for_submatrix(Buffer, SubRect, [&](FAR_CHAR_INFO& Cell, int const Row, int const Col)
+				{
+					if (!Col)
+					{
+						if (Cell.Attributes.Flags & COMMON_LVB_TRAILING_BYTE)
+						{
+							flags::clear(Cell.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
+							Cell.Char = L' ';
+						}
+					}
+
+					if (Col != SubRect.width() - 1)
+					{
+						sanitise_dbsc_pair(Cell, Buffer[SubRect.top + Row][SubRect.left + Col + 1]);
+					}
+					else if (Cell.Attributes.Flags & COMMON_LVB_LEADING_BYTE)
+					{
+						flags::clear(Cell.Attributes.Flags, COMMON_LVB_LEADING_BYTE);
+						Cell.Char = L' ';
+					}
+
+					ConsoleBuffer.emplace_back(CHAR_INFO{ { ReplaceControlCharacter(Cell.Char) }, colors::FarColorToConsoleColor(Cell.Attributes) });
+				});
+			}
+			else
+			{
+				for_submatrix(Buffer, SubRect, [&](const FAR_CHAR_INFO& i)
+				{
+					ConsoleBuffer.emplace_back(CHAR_INFO{ { ReplaceControlCharacter(i.Char) }, colors::FarColorToConsoleColor(i.Attributes) });
+				});
+			}
 
 			point const BufferSize{ static_cast<int>(SubRect.width()), static_cast<int>(SubRect.height()) };
 
@@ -972,7 +1075,7 @@ namespace console_detail
 		}
 	};
 
-	bool console::WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, point BufferCoord, const rectangle& WriteRegionRelative) const
+	bool console::WriteOutput(matrix<FAR_CHAR_INFO>& Buffer, point BufferCoord, const rectangle& WriteRegionRelative) const
 	{
 		if (ExternalConsole.Imports.pWriteOutput)
 		{

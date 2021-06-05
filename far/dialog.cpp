@@ -1722,6 +1722,10 @@ void Dialog::ShowDialog(size_t ID)
 
 				if (!(Item.Flags & DIF_WORDWRAP))
 				{
+					size_t MaxWidth = CX1 == -1?
+						m_Where.width() - (DialogMode.Check(DMODE_SMALLDIALOG)? 2 : 5) * 2 :
+						m_Where.width() - CX1 - (DialogMode.Check(DMODE_SMALLDIALOG)? 2 : 5);
+
 					if (Item.Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2))
 					{
 						if (!strStr.empty())
@@ -1734,12 +1738,14 @@ void Dialog::ShowDialog(size_t ID)
 					}
 					else if (CX1 != -1 && CX2 > CX1)
 					{
+						MaxWidth = CX2 - CX1 + 1;
+
 						if (Item.Flags & DIF_RIGHTTEXT)
-							inplace::fit_to_right(strStr, CX2 - CX1 + 1);
+							inplace::fit_to_right(strStr, MaxWidth);
 						if (Item.Flags & DIF_CENTERTEXT)
-							inplace::fit_to_center(strStr, CX2 - CX1 + 1);
+							inplace::fit_to_center(strStr, MaxWidth);
 						else
-							inplace::fit_to_left(strStr, CX2 - CX1 + 1);
+							inplace::fit_to_left(strStr, MaxWidth);
 					}
 
 					LenText = LenStrItem(I, strStr);
@@ -1800,9 +1806,9 @@ void Dialog::ShowDialog(size_t ID)
 					SetColor(ItemColor[0]);
 
 					if (Item.Flags & DIF_SHOWAMPERSAND)
-						Text(strStr);
+						Text(strStr, MaxWidth);
 					else
-						HiText(strStr,ItemColor[1]);
+						HiText(strStr,ItemColor[1], MaxWidth);
 				}
 				else
 				{

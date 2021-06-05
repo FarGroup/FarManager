@@ -7571,7 +7571,7 @@ void FileList::ShowFileList(bool Fast)
 
 		const auto DoubleLine = !((I + 1) % m_ColumnsInStripe);
 
-		BoxText(BoxSymbols[DoubleLine?BS_T_H2V2:BS_T_H2V1]);
+		Text(BoxSymbols[DoubleLine?BS_T_H2V2:BS_T_H2V1]);
 
 		if (Global->Opt->ShowColumnTitles)
 		{
@@ -7582,13 +7582,13 @@ void FileList::ShowFileList(bool Fast)
 			SetColor(Color);
 
 			GotoXY(static_cast<int>(ColumnPos), m_Where.top + 1);
-			BoxText(BoxSymbols[DoubleLine?BS_V2:BS_V1]);
+			Text(BoxSymbols[DoubleLine?BS_V2:BS_V1]);
 		}
 
 		if (!Global->Opt->ShowPanelStatus)
 		{
 			GotoXY(static_cast<int>(ColumnPos), m_Where.bottom);
-			BoxText(BoxSymbols[DoubleLine?BS_B_H2V2:BS_B_H2V1]);
+			Text(BoxSymbols[DoubleLine?BS_B_H2V2:BS_B_H2V1]);
 		}
 
 		ColumnPos++;
@@ -7851,7 +7851,7 @@ void FileList::ShowSelectedSize()
 			GotoXY(static_cast<int>(ColumnPos), m_Where.bottom - 2);
 
 			const auto DoubleLine = !((I + 1) % m_ColumnsInStripe);
-			BoxText(BoxSymbols[DoubleLine?BS_B_H1V2:BS_B_H1V1]);
+			Text(BoxSymbols[DoubleLine?BS_B_H1V2:BS_B_H1V1]);
 			ColumnPos++;
 		}
 	}
@@ -8308,7 +8308,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 				{
 					SetColor(COL_PANELBOX);
 					GotoXY(CurX-1,CurY);
-					BoxText(CurX - 1 == m_Where.right? BoxSymbols[BS_V2] : L' ');
+					Text(CurX - 1 == m_Where.right? BoxSymbols[BS_V2] : L' ');
 				}
 
 				continue;
@@ -8699,9 +8699,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 				GotoXY(CurX+ColumnWidth,CurY);
 
 				if (K==ColumnCount-1)
-					BoxText(CurX + ColumnWidth == m_Where.right? BoxSymbols[BS_V2] : L' ');
+					Text(CurX + ColumnWidth == m_Where.right? BoxSymbols[BS_V2] : L' ');
 				else
-					BoxText(ShowStatus? L' ' : BoxSymbols[Level == m_ColumnsInStripe? BS_V2 : BS_V1]);
+					Text(ShowStatus? L' ' : BoxSymbols[Level == m_ColumnsInStripe? BS_V2 : BS_V1]);
 
 				if (!ShowStatus)
 					SetColor(COL_PANELTEXT);

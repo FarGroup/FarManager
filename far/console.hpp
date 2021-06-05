@@ -58,6 +58,8 @@ enum CLEAR_REGION
 	CR_BOTH=CR_TOP|CR_RIGHT,
 };
 
+wchar_t ReplaceControlCharacter(wchar_t Char);
+
 namespace console_detail
 {
 	class console
@@ -115,8 +117,8 @@ namespace console_detail
 		bool WriteInput(span<INPUT_RECORD> Buffer, size_t& NumberOfEventsWritten) const;
 		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, point BufferCoord, rectangle const& ReadRegionRelative) const;
 		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, const rectangle& ReadRegion) const { return ReadOutput(Buffer, {}, ReadRegion); }
-		bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, point BufferCoord, rectangle const& WriteRegionRelative) const;
-		bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, rectangle const& WriteRegion) const { return WriteOutput(Buffer, {}, WriteRegion); }
+		bool WriteOutput(matrix<FAR_CHAR_INFO>& Buffer, point BufferCoord, rectangle const& WriteRegionRelative) const;
+		bool WriteOutput(matrix<FAR_CHAR_INFO>& Buffer, rectangle const& WriteRegion) const { return WriteOutput(Buffer, {}, WriteRegion); }
 		bool Read(string& Buffer, size_t& Size) const;
 		bool Write(string_view Str) const;
 		bool Commit() const;

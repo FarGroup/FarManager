@@ -92,6 +92,8 @@ namespace
 	// These mappings are based on src\types\CodepointWidthDetector.cpp from Windows Terminal.
 	// Generated on 10/25/2020 7:32:04 AM (UTC) from Unicode 13.0.0.
 
+	// Note: unlike Terminal, we don't use any overrides since we don't control any drawing code
+	// and have no other choice but to do as the Romans do.
 	using cpw = codepoint_width;
 	static constexpr unicode_range s_WideAndAmbiguousTable[]
 	{
@@ -226,7 +228,7 @@ namespace
 		{ 0x0023F3, 0x0023F3, cpw::wide      },
 		{ 0x002460, 0x0024E9, cpw::ambiguous },
 		{ 0x0024EB, 0x0024FF, cpw::ambiguous },
-		{ 0x002500, 0x00259F, cpw::narrow    }, // box-drawing and block elements require 1-cell alignment
+		{ 0x002500, 0x00259F, cpw::ambiguous },
 		{ 0x0025A0, 0x0025A1, cpw::ambiguous },
 		{ 0x0025A3, 0x0025A9, cpw::ambiguous },
 		{ 0x0025B2, 0x0025B3, cpw::ambiguous },
@@ -308,7 +310,7 @@ namespace
 		{ 0x003220, 0x003247, cpw::wide      },
 		{ 0x003248, 0x00324F, cpw::ambiguous },
 		{ 0x003250, 0x004DBF, cpw::wide      },
-		{ 0x004DC0, 0x004DFF, cpw::narrow    }, // hexagrams are historically narrow
+		{ 0x004DC0, 0x004DFF, cpw::ambiguous },
 		{ 0x004E00, 0x00A48C, cpw::wide      },
 		{ 0x00A490, 0x00A4C6, cpw::wide      },
 		{ 0x00A960, 0x00A97C, cpw::wide      },
@@ -317,7 +319,7 @@ namespace
 		{ 0x00F900, 0x00FAFF, cpw::wide      },
 		{ 0x00FE00, 0x00FE0F, cpw::ambiguous },
 		{ 0x00FE10, 0x00FE19, cpw::wide      },
-		{ 0x00FE20, 0x00FE2F, cpw::narrow    }, // narrow combining ligatures (split into left/right halves, which take 2 columns together)
+		{ 0x00FE20, 0x00FE2F, cpw::ambiguous },
 		{ 0x00FE30, 0x00FE52, cpw::wide      },
 		{ 0x00FE54, 0x00FE66, cpw::wide      },
 		{ 0x00FE68, 0x00FE6B, cpw::wide      },
@@ -447,14 +449,13 @@ namespace
 		return console.IsVtSupported() || locale.is_cjk();
 	}
 
-	static void clear_caches()
-	{
-		(void)device_width(0, true);
-	}
-
 	[[nodiscard]]
-	static auto get_width(char_width::codepoint const Codepoint)
+	static auto get_width(char_width::codepoint const RawCodepoint)
 	{
+		const auto Codepoint = RawCodepoint > std::numeric_limits<wchar_t>::max()?
+			RawCodepoint :
+			ReplaceControlCharacter(static_cast<wchar_t>(RawCodepoint));
+
 		if (const auto Width = quick_width(Codepoint); Width != codepoint_width::ambiguous)
 			return Width;
 
@@ -495,8 +496,8 @@ namespace char_width
 		switch (Value)
 		{
 		case BSTATE_UNCHECKED:
+			invalidate();
 			s_FullWidthState = full_width::off;
-			clear_caches();
 			break;
 
 		case BSTATE_CHECKED:
@@ -513,5 +514,11 @@ namespace char_width
 	bool is_enabled()
 	{
 		return s_FullWidthState != full_width::off;
+	}
+
+	void invalidate()
+	{
+		if (is_enabled())
+			(void)device_width(0, true);
 	}
 }

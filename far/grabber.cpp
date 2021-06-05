@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "colormix.hpp"
 #include "eol.hpp"
+#include "char_width.hpp"
 
 // Platform:
 
@@ -141,6 +142,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 
 	const auto& [SelectionBegin, SelectionEnd] = GetSelection();
 	const auto Eol = eol::system.str();
+	const auto CharWidthEnabled = char_width::is_enabled();
 
 	for (size_t i = 0; i != CharBuf.height(); ++i)
 	{
@@ -155,8 +157,35 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 			Begin += IsFirstLine? SelectionBegin.x : 0;
 			End -= IsLastLine? ScrX - SelectionEnd.x : 0;
 		}
+
 		Line.clear();
-		std::transform(Begin, End, std::back_inserter(Line), [](const FAR_CHAR_INFO& Char) { return Char.Char; });
+		std::optional<wchar_t> LeadingChar;
+
+		if (CharWidthEnabled)
+		{
+			for (const auto& Char: span(Begin, End))
+			{
+				if (LeadingChar && Char.Char == *LeadingChar && Char.Attributes.Flags & COMMON_LVB_TRAILING_BYTE)
+				{
+					LeadingChar.reset();
+					continue;
+				}
+
+				LeadingChar.reset();
+
+				if (Char.Attributes.Flags & COMMON_LVB_LEADING_BYTE)
+				{
+					LeadingChar = Char.Char;
+				}
+
+				Line.push_back(Char.Char);
+			}
+		}
+		else
+		{
+			std::transform(Begin, End, std::back_inserter(Line), [](const FAR_CHAR_INFO& Char){ return Char.Char; });
+		}
+
 		bool AddEol = !IsLastLine;
 		if (m_StreamSelection)
 		{

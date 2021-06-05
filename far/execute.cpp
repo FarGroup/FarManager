@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "keys.hpp"
 #include "log.hpp"
+#include "char_width.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -563,14 +564,21 @@ public:
 			console.SetInputCodepage(ConsoleCP);
 			console.SetOutputCodepage(ConsoleOutputCP);
 		}
+		else
+		{
+			if (console.GetOutputCodepage() != ConsoleOutputCP)
+			{
+				char_width::invalidate();
+			}
+		}
 
 		// Could be changed by the external program
 		Global->ScrBuf->Invalidate();
 	}
 
 private:
-	int ConsoleCP = console.GetInputCodepage();
-	int ConsoleOutputCP = console.GetOutputCodepage();
+	uintptr_t ConsoleCP = console.GetInputCodepage();
+	uintptr_t ConsoleOutputCP = console.GetOutputCodepage();
 };
 
 static bool execute_impl(

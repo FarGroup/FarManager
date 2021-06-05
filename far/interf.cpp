@@ -728,14 +728,14 @@ void Text(point Where, const FarColor& Color, string_view const Str)
 	Text(Str);
 }
 
-static void string_to_buffer_simple(string_view const Str, std::vector<FAR_CHAR_INFO>& Buffer)
+static void string_to_buffer_simple(string_view const Str, std::vector<FAR_CHAR_INFO>& Buffer, size_t)
 {
 	std::transform(ALL_CONST_RANGE(Str), std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, CurColor }; });
 }
 
-static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_CHAR_INFO>& Buffer)
+static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_CHAR_INFO>& Buffer, size_t const MaxSize)
 {
-	for (const auto MaxSize = Str.size(); !Str.empty() && Buffer.size() != MaxSize; )
+	while(!Str.empty() && Buffer.size() != MaxSize)
 	{
 		wchar_t Char[]{ Str[0], 0 };
 
@@ -758,7 +758,7 @@ static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_C
 			if (Buffer.size() == MaxSize)
 			{
 				// No space left for the trailing char
-				Buffer.back().Char = L'…';
+				Buffer.back().Char = char_width::is_wide(L'…')? L' ' : L'…';
 				break;
 			}
 
@@ -800,40 +800,71 @@ static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_C
 	}
 }
 
-void Text(string_view Str)
+size_t Text(string_view Str, size_t const MaxWidth)
 {
 	if (Str.empty())
-		return;
+		return 0;
 
 	std::vector<FAR_CHAR_INFO> Buffer;
 	Buffer.reserve(Str.size());
 
-	(char_width::is_enabled()?string_to_buffer_full_width_aware : string_to_buffer_simple)(Str, Buffer);
+	(char_width::is_enabled()?string_to_buffer_full_width_aware : string_to_buffer_simple)(Str, Buffer, MaxWidth);
 
 	Global->ScrBuf->Write(CurX, CurY, Buffer);
 	CurX += static_cast<int>(Buffer.size());
+
+	return Buffer.size();
 }
 
-
-void Text(lng MsgId)
+size_t Text(string_view Str)
 {
-	Text(msg(MsgId));
+	return Text(Str, Str.size());
 }
 
-void VText(string_view const Str)
+size_t Text(wchar_t const Char, size_t const MaxWidth)
+{
+	return Text({ &Char, 1 }, MaxWidth);
+}
+
+size_t Text(wchar_t const Char)
+{
+	return Text(Char, 1);
+}
+
+size_t Text(lng const MsgId, size_t const MaxWidth)
+{
+	return Text(msg(MsgId), MaxWidth);
+}
+
+size_t Text(lng const MsgId)
+{
+	const auto& Str = msg(MsgId);
+	return Text(Str, Str.size());
+}
+
+size_t VText(string_view const Str, size_t const MaxWidth)
 {
 	if (Str.empty())
-		return;
+		return 0;
+
+	size_t OccupiedWidth = 0;
 
 	const auto StartCurX = CurX;
 
 	for (const auto i: Str)
 	{
 		GotoXY(CurX, CurY);
-		Text(i);
+		OccupiedWidth = std::max(OccupiedWidth, Text(i, MaxWidth));
 		++CurY;
 		CurX = StartCurX;
 	}
+
+	return OccupiedWidth;
+}
+
+size_t VText(string_view const Str)
+{
+	return VText(Str, 1);
 }
 
 static void HiTextBase(string_view const Str, function_ref<void(string_view, bool)> const TextHandler, function_ref<void(wchar_t)> const HilightHandler)
@@ -926,7 +957,7 @@ static size_t unescape(string_view const Str, function_ref<bool(wchar_t)> const 
 class text_unescape
 {
 public:
-	explicit text_unescape(function_ref<void(string_view)> const PutString, function_ref<bool(wchar_t)> const PutChar, function_ref<void()> const Commit):
+	text_unescape(function_ref<void(string_view)> const PutString, function_ref<bool(wchar_t)> const PutChar, function_ref<void()> const Commit):
 		m_PutString(PutString),
 		m_PutChar(PutChar),
 		m_Commit(Commit)
@@ -948,23 +979,48 @@ private:
 	function_ref<void()> m_Commit;
 };
 
-void HiText(string_view const Str,const FarColor& HiColor, bool const isVertText)
+static size_t HiTextImpl(string_view const Str, const FarColor& HiColor, bool const Vertical, size_t MaxWidth)
 {
-	using text_func = void (*)(string_view);
+	using text_func = size_t(*)(string_view, size_t);
 	const text_func fText = Text, fVText = VText; //BUGBUG
-	const auto TextFunc  = isVertText ? fVText : fText;
+	const auto TextFunc  = Vertical? fVText : fText;
 
 	string Buffer;
-	const auto PutChar = [&](wchar_t const Ch){ Buffer.push_back(Ch); return true; };
-	const auto Commit = [&]{ TextFunc(Buffer); Buffer.clear(); };
+	size_t OccupiedWidth = 0;
 
-	HiTextBase(Str, text_unescape(TextFunc, PutChar, Commit), [&TextFunc, &HiColor](wchar_t c)
+	const auto PutString = [&](string_view const StrPart){ OccupiedWidth += TextFunc(StrPart, MaxWidth - OccupiedWidth); };
+	const auto PutChar = [&](wchar_t const Ch){ Buffer.push_back(Ch); return true; };
+	const auto Commit = [&]{ OccupiedWidth += TextFunc(Buffer, MaxWidth - OccupiedWidth); Buffer.clear(); };
+
+	HiTextBase(Str, text_unescape(PutString, PutChar, Commit), [&](wchar_t c)
 	{
 		const auto SaveColor = CurColor;
 		SetColor(HiColor);
-		TextFunc({ &c, 1 });
+		OccupiedWidth += TextFunc({ &c, 1 }, MaxWidth - OccupiedWidth);
 		SetColor(SaveColor);
 	});
+
+	return OccupiedWidth;
+}
+
+size_t HiText(string_view const Str, const FarColor& Color, size_t const MaxWidth)
+{
+	return HiTextImpl(Str, Color, false, MaxWidth);
+}
+
+size_t HiText(string_view const Str, const FarColor& Color)
+{
+	return HiText(Str, Color, Str.size());
+}
+
+size_t HiVText(string_view const Str, const FarColor& Color, size_t const MaxWidth)
+{
+	return HiTextImpl(Str, Color, true, MaxWidth);
+}
+
+size_t HiVText(string_view const Str, const FarColor& Color)
+{
+	return HiVText(Str, Color, Str.size());
 }
 
 string HiText2Str(string_view const Str, size_t* HotkeyVisualPos)
@@ -1148,11 +1204,6 @@ void PutText(rectangle Where, const FAR_CHAR_INFO *Src)
 	const size_t Width = Where.width();
 	for (int Y = Where.top; Y <= Where.bottom; ++Y, Src += Width)
 		Global->ScrBuf->Write(Where.left, Y, { Src, Width });
-}
-
-void BoxText(string_view const Str, bool const IsVert)
-{
-	IsVert? VText(Str) : Text(Str);
 }
 
 /*

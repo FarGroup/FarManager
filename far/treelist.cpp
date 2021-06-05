@@ -498,7 +498,7 @@ void TreeList::DisplayTree(bool Fast)
 				}
 
 				strOutStr+=TreeLineSymbol[CurPtr.Last[CurPtr.Depth-1]?2:3];
-				BoxText(strOutStr);
+				Text(strOutStr);
 
 				const auto pos = FindLastSlash(CurPtr.strName);
 				if (pos != string::npos)
