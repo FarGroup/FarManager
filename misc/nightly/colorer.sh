@@ -3,7 +3,7 @@
 function bcolorer {
   BIT=$1
   PLUGIN=FarColorer
-  COLORER_VERSION=1.4.4
+  COLORER_VERSION=$(curl -s https://raw.githubusercontent.com/colorer/FarColorer/master/version4far.txt)
   COLORER_PLATFORM=$2
   COLORER_FILE_NAME=FarColorer.${COLORER_PLATFORM}.v${COLORER_VERSION}.7z
   
