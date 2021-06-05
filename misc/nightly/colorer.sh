@@ -3,12 +3,12 @@
 function bcolorer {
   BIT=$1
   PLUGIN=FarColorer
-  COLORER_VERSION=$(curl -s https://raw.githubusercontent.com/colorer/FarColorer/master/version4far.txt)
+  COLORER_VERSION=$(curl -fsLJ 'https://raw.githubusercontent.com/colorer/FarColorer/master/version4far.txt')
   COLORER_PLATFORM=$2
   COLORER_FILE_NAME=FarColorer.${COLORER_PLATFORM}.v${COLORER_VERSION}.7z
   
   rm -f ${COLORER_FILE_NAME}
-  curl -fsLJO -o ${COLORER_FILE_NAME} https://github.com/colorer/FarColorer/releases/download/v${COLORER_VERSION}/${COLORER_FILE_NAME}
+  curl -fsLJO -o ${COLORER_FILE_NAME} 'https://github.com/colorer/FarColorer/releases/download/v${COLORER_VERSION}/${COLORER_FILE_NAME}'
   if [ ! -e ${COLORER_FILE_NAME} ]; then
     echo "Can't find ${COLORER_FILE_NAME}"
     return 1
