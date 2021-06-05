@@ -9,6 +9,7 @@ function bcolorer {
     return 1
   fi
 
+  echo "Download FarColorer ${COLORER_VERSION}"
   COLORER_PLATFORM=$2
   COLORER_FILE_NAME=FarColorer.${COLORER_PLATFORM}.v${COLORER_VERSION}.7z
   
