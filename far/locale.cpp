@@ -58,7 +58,7 @@ NIFTY_DEFINE(detail::locale, locale);
 
 static auto is_cjk_codepage(uintptr_t const Codepage)
 {
-	enum
+	enum: unsigned
 	{
 		chinese_s     = 936,
 		chinese_t     = 950,
