@@ -161,6 +161,9 @@ bool DoWeReallyHaveToScroll(short Rows);
 size_t string_length_to_visual(string_view Str);
 size_t visual_pos_to_string_pos(string_view Str, size_t Pos);
 
+bool is_valid_surrogate_pair(string_view Str);
+bool is_valid_surrogate_pair(wchar_t First, wchar_t Second);
+
 void Text(point Where, const FarColor& Color, string_view Str);
 
 size_t Text(string_view Str, size_t MaxWidth);

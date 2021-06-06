@@ -69,6 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static bool sWindowMode;
 static bool sEnableVirtualTerminal;
 
+constexpr auto bad_char_replacement = L' ';
 
 wchar_t ReplaceControlCharacter(wchar_t const Char)
 {
@@ -149,17 +150,17 @@ wchar_t ReplaceControlCharacter(wchar_t const Char)
 	}
 }
 
-static void sanitise_dbsc_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
+static bool sanitise_dbsc_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
 {
-	if (!(First.Attributes.Flags & COMMON_LVB_LEADING_BYTE) && !(Second.Attributes.Flags & COMMON_LVB_TRAILING_BYTE))
-	{
-		// Not DBSC, awesome
-		return;
-	}
-
 	const auto
 		IsFirst = flags::check_any(First.Attributes.Flags, COMMON_LVB_LEADING_BYTE),
 		IsSecond = flags::check_any(Second.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
+
+	if (!IsFirst && !IsSecond)
+	{
+		// Not DBSC, awesome
+		return false;
+	}
 
 	flags::clear(First.Attributes.Flags, COMMON_LVB_LEADING_BYTE);
 	flags::clear(Second.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
@@ -170,14 +171,48 @@ static void sanitise_dbsc_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
 		flags::set(First.Attributes.Flags, COMMON_LVB_LEADING_BYTE);
 		flags::set(Second.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
 
-		return;
+		return false;
 	}
 
 	if (IsFirst)
-		First.Char = L' ';
+		First.Char = bad_char_replacement;
 
 	if (IsSecond)
-		Second.Char = L' ';
+		Second.Char = bad_char_replacement;
+
+	return true;
+}
+
+static bool sanitise_surrogate_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
+{
+	const auto
+		IsFirst = encoding::utf16::is_high_surrogate(First.Char),
+		IsSecond = encoding::utf16::is_low_surrogate(Second.Char);
+
+	if (!IsFirst && !IsSecond)
+	{
+		// Not surrogate, awesome
+		return false;
+	}
+
+	if (encoding::utf16::is_valid_surrogate_pair(First.Char, Second.Char) && First.Attributes == Second.Attributes)
+	{
+		// Valid surrogate, awesome
+		return false;
+	}
+
+	if (IsFirst)
+		First.Char = bad_char_replacement;
+
+	if (IsSecond)
+		Second.Char = bad_char_replacement;
+
+	return true;
+}
+
+void sanitise_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
+{
+	sanitise_dbsc_pair(First, Second) || sanitise_surrogate_pair(First, Second);
 }
 
 static COORD make_coord(point const& Point)
@@ -804,14 +839,14 @@ namespace console_detail
 			{
 				if (n != Input.size() - 1)
 				{
-					sanitise_dbsc_pair(Cell, Input[n + 1]);
+					sanitise_pair(Cell, Input[n + 1]);
 				}
 
 				if (Cell.Attributes.Flags & COMMON_LVB_TRAILING_BYTE)
 				{
 					if (!LeadingChar)
 					{
-						Cell.Char = L' ';
+						Cell.Char = bad_char_replacement;
 						flags::clear(Cell.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
 					}
 					else if (Cell.Char == *LeadingChar)
@@ -819,6 +854,10 @@ namespace console_detail
 						LeadingChar.reset();
 						continue;
 					}
+				}
+				else if (!n && encoding::utf16::is_low_surrogate(Cell.Char))
+				{
+					Cell.Char = bad_char_replacement;
 				}
 
 				LeadingChar.reset();
@@ -828,12 +867,16 @@ namespace console_detail
 					if (n == Input.size() - 1)
 					{
 						flags::clear(Cell.Attributes.Flags, COMMON_LVB_LEADING_BYTE);
-						Cell.Char = L' ';
+						Cell.Char = bad_char_replacement;
 					}
 					else
 					{
 						LeadingChar = Cell.Char;
 					}
+				}
+				else if (n == Input.size() - 1 && encoding::utf16::is_high_surrogate(Cell.Char))
+				{
+					Cell.Char = bad_char_replacement;
 				}
 			}
 
@@ -846,7 +889,7 @@ namespace console_detail
 			if (CharWidthEnabled && Cell.Char == encoding::replace_char && Cell.Attributes.Reserved[0] > std::numeric_limits<wchar_t>::max())
 			{
 				const auto Pair = encoding::utf16::to_surrogate(Cell.Attributes.Reserved[0]);
-				Str.append(ALL_CONST_RANGE(Pair));
+				append(Str, Pair.first, Pair.second);
 			}
 			else
 			{
@@ -999,18 +1042,29 @@ namespace console_detail
 						if (Cell.Attributes.Flags & COMMON_LVB_TRAILING_BYTE)
 						{
 							flags::clear(Cell.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
-							Cell.Char = L' ';
+							Cell.Char = bad_char_replacement;
+						}
+						else if (encoding::utf16::is_low_surrogate(Cell.Char))
+						{
+							Cell.Char = bad_char_replacement;
 						}
 					}
 
 					if (Col != SubRect.width() - 1)
 					{
-						sanitise_dbsc_pair(Cell, Buffer[SubRect.top + Row][SubRect.left + Col + 1]);
+						sanitise_pair(Cell, Buffer[SubRect.top + Row][SubRect.left + Col + 1]);
 					}
-					else if (Cell.Attributes.Flags & COMMON_LVB_LEADING_BYTE)
+					else
 					{
-						flags::clear(Cell.Attributes.Flags, COMMON_LVB_LEADING_BYTE);
-						Cell.Char = L' ';
+						if (Cell.Attributes.Flags & COMMON_LVB_LEADING_BYTE)
+						{
+							flags::clear(Cell.Attributes.Flags, COMMON_LVB_LEADING_BYTE);
+							Cell.Char = bad_char_replacement;
+						}
+						else if (encoding::utf16::is_high_surrogate(Cell.Char))
+						{
+							Cell.Char = bad_char_replacement;
+						}
 					}
 
 					ConsoleBuffer.emplace_back(CHAR_INFO{ { ReplaceControlCharacter(Cell.Char) }, colors::FarColorToConsoleColor(Cell.Attributes) });
@@ -1618,8 +1672,9 @@ namespace console_detail
 			return false;
 
 		DWORD Written;
-		auto Pair = encoding::utf16::to_surrogate(Codepoint);
-		if (!WriteConsole(m_WidthTestScreen.native_handle(), Pair.data(), Pair[1]? 2 : 1, &Written, {}))
+		const auto Pair = encoding::utf16::to_surrogate(Codepoint);
+		std::array Chars = { Pair.first, Pair.second };
+		if (!WriteConsole(m_WidthTestScreen.native_handle(), Chars.data(), Pair.second? 2 : 1, &Written, {}))
 			return false;
 
 		CONSOLE_SCREEN_BUFFER_INFO Info;

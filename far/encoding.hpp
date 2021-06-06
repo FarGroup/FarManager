@@ -196,8 +196,12 @@ namespace encoding
 
 	namespace utf16
 	{
+		bool is_high_surrogate(wchar_t Char);
+		bool is_low_surrogate(wchar_t Char);
+		bool is_valid_surrogate_pair(wchar_t First, wchar_t Second);
+		unsigned int extract_codepoint(wchar_t First, wchar_t Second);
 		unsigned int extract_codepoint(string_view Str);
-		std::array<wchar_t, 2> to_surrogate(unsigned int Codepoint);
+		std::pair<wchar_t, wchar_t> to_surrogate(unsigned int Codepoint);
 	}
 }
 

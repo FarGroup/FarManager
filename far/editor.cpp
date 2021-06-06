@@ -1069,36 +1069,37 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			if (!CurPos && m_it_CurLine == Lines.begin())
 				return true;
 
-			if (!CurPos) //курсор в начале строки
+			const auto OldCur = m_it_CurLine;
+			Pasting++;
+			ProcessKeyInternal(Manager::Key(KEY_LEFT), Refresh);
+			Pasting--;
+
+			if (OldCur == m_it_CurLine)
 			{
-				const auto PrevLine = std::prev(m_it_CurLine);
-				if (SelAtBeginning) //курсор в начале блока
+				if (SelAtBeginning || SelFirst)
 				{
-					m_it_AnyBlockStart = PrevLine;
-					PrevLine->Select(PrevLine->GetLength(), -1);
+					m_it_CurLine->Select(m_it_CurLine->GetCurPos(), SelEnd);
 				}
-				else // курсор в конце блока
+				else
 				{
-					m_it_CurLine->RemoveSelection();
-					PrevLine->GetRealSelection(SelStart, SelEnd);
-					PrevLine->Select(SelStart, PrevLine->GetLength());
+					m_it_CurLine->Select(SelStart, m_it_CurLine->GetCurPos());
 				}
 			}
 			else
 			{
-				if (SelAtBeginning || SelFirst)
+				const auto PrevLine = std::prev(m_it_CurLine);
+				if (SelAtBeginning) //курсор в начале блока
 				{
-					m_it_CurLine->Select(SelStart-1,SelEnd);
+					m_it_AnyBlockStart = m_it_CurLine;
+					m_it_CurLine->Select(m_it_CurLine->GetLength(), -1);
 				}
-				else
+				else // курсор в конце блока
 				{
-					m_it_CurLine->Select(SelStart,SelEnd-1);
+					OldCur->RemoveSelection();
+					m_it_CurLine->GetRealSelection(SelStart, SelEnd);
+					m_it_CurLine->Select(SelStart, PrevLine->GetLength());
 				}
 			}
-
-			Pasting++;
-			ProcessKeyInternal(Manager::Key(KEY_LEFT), Refresh);
-			Pasting--;
 
 			Refresh = true;
 			return true;
@@ -1110,21 +1111,23 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				return true;
 			}
 
-			if (SelAtBeginning)
-			{
-				m_it_CurLine->Select(SelStart+1,SelEnd);
-			}
-			else
-			{
-				m_it_CurLine->Select(SelStart,SelEnd+1);
-			}
-
 			const auto OldCur = m_it_CurLine;
 			Pasting++;
 			ProcessKeyInternal(Manager::Key(KEY_RIGHT), Refresh);
 			Pasting--;
 
-			if (OldCur != m_it_CurLine)
+			if (OldCur == m_it_CurLine)
+			{
+				if (SelAtBeginning)
+				{
+					m_it_CurLine->Select(m_it_CurLine->GetCurPos(), SelEnd);
+				}
+				else
+				{
+					m_it_CurLine->Select(SelStart, m_it_CurLine->GetCurPos());
+				}
+			}
+			else
 			{
 				if (SelAtBeginning)
 				{

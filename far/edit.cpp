@@ -670,6 +670,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 			{
 				AdjustPersistentMark();
 
+				const auto SavedCurPos = m_CurPos;
 				RecurseProcessKey(KEY_LEFT);
 
 				if (!m_Flags.Check(FEDITLINE_MARKINGBLOCK))
@@ -682,7 +683,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 					Select(m_SelStart,m_CurPos);
 				else
 				{
-					int EndPos=m_CurPos+1;
+					int EndPos = SavedCurPos;
 					int NewStartPos=m_CurPos;
 
 					if (EndPos>m_Str.size())
@@ -703,23 +704,27 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 		{
 			AdjustPersistentMark();
 
+			const auto SavedCurPos = m_CurPos;
+			RecurseProcessKey(KEY_RIGHT);
+
 			if (!m_Flags.Check(FEDITLINE_MARKINGBLOCK))
 			{
 				RemoveSelection();
 				m_Flags.Set(FEDITLINE_MARKINGBLOCK);
 			}
 
-			if ((m_SelStart!=-1 && m_SelEnd==-1) || m_SelEnd>m_CurPos)
+			if ((m_SelStart != -1 && m_SelEnd == -1) || m_SelEnd > SavedCurPos)
 			{
-				if (m_CurPos+1==m_SelEnd)
+				if (m_CurPos == m_SelEnd)
 					RemoveSelection();
 				else
-					Select(m_CurPos+1,m_SelEnd);
+					Select(m_CurPos, m_SelEnd);
 			}
 			else
-				AddSelect(m_CurPos,m_CurPos+1);
+				AddSelect(SavedCurPos, m_CurPos);
 
-			RecurseProcessKey(KEY_RIGHT);
+			Show();
+
 			return true;
 		}
 		case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:
@@ -1044,6 +1049,10 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 			{
 				SetPrevCurPos(m_CurPos);
 				m_CurPos--;
+
+				if (m_CurPos && is_valid_surrogate_pair_at(m_CurPos - 1))
+					--m_CurPos;
+
 				Show();
 			}
 
@@ -1063,6 +1072,9 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 			}
 			else
 				m_CurPos++;
+
+			if (m_CurPos && is_valid_surrogate_pair_at(m_CurPos - 1))
+				++m_CurPos;
 
 			Show();
 			return true;
@@ -2384,6 +2396,12 @@ Editor* Edit::GetEditor() const
 		return owner->GetEditor();
 	}
 	return nullptr;
+}
+
+bool Edit::is_valid_surrogate_pair_at(size_t const Position) const
+{
+	string_view const Str(m_Str);
+	return Position < Str.size() && is_valid_surrogate_pair(Str.substr(Position));
 }
 
 #ifdef ENABLE_TESTS

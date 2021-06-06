@@ -231,6 +231,8 @@ private:
 	void SetRightCoord(int Value) { SetPosition({ m_Where.left, m_Where.top, Value, m_Where.bottom }); }
 	Editor* GetEditor() const;
 
+	bool is_valid_surrogate_pair_at(size_t Position) const;
+
 protected:
 	// BUGBUG: the whole purpose of this class is to avoid zillions of casts in existing code by returning size() as int
 	// Remove it after fixing all signed/unsigned mess

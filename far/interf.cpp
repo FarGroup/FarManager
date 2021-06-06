@@ -1194,6 +1194,19 @@ size_t visual_pos_to_string_pos(string_view Str, size_t const Pos)
 	return StrSize - Str.size() + (Pos > Size? Pos - Size : 0);
 }
 
+bool is_valid_surrogate_pair(string_view const Str)
+{
+	if (Str.size() < 2)
+		return false;
+
+	return encoding::utf16::is_valid_surrogate_pair(Str[0], Str[1]);
+}
+
+bool is_valid_surrogate_pair(wchar_t First, wchar_t Second)
+{
+	return encoding::utf16::is_valid_surrogate_pair(First, Second);
+}
+
 void GetText(rectangle Where, matrix<FAR_CHAR_INFO>& Dest)
 {
 	Global->ScrBuf->Read(Where, Dest);

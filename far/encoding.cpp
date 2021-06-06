@@ -1179,10 +1179,7 @@ size_t Utf8::get_char(std::string_view::const_iterator& StrIterator, std::string
 				else
 				{
 					// legal 4-byte (produces 2 WCHARs)
-					const auto FullChar = utf8::extract(c1, c2, c3, c4) - 0b1'00000000'00000000;
-
-					First  = utf16::surrogate_high_first + (FullChar >> 10);
-					Second = utf16::surrogate_low_first + (FullChar & 0b00000011'11111111);
+					std::tie(First, Second) = encoding::utf16::to_surrogate(utf8::extract(c1, c2, c3, c4));
 					NumberOfChars = 2;
 					StrIterator += 3;
 				}
@@ -1274,13 +1271,11 @@ static size_t utf8_get_bytes(string_view const Str, span<char> const Buffer)
 			BytesNumber = 1;
 			Char &= 0b11111111;
 		}
-		else if (StrIterator != StrEnd &&
-			in_closed_range(utf16::surrogate_high_first, Char, utf16::surrogate_high_last) &&
-			in_closed_range(utf16::surrogate_low_first, *StrIterator, utf16::surrogate_low_last))
+		else if (StrIterator != StrEnd && encoding::utf16::is_valid_surrogate_pair(Char, *StrIterator))
 		{
 			// valid surrogate pair
 			BytesNumber = 4;
-			Char = 0b1'00000000'00000000u + ((Char - utf16::surrogate_high_first) << 10) + (*StrIterator++ - utf16::surrogate_low_first);
+			Char = encoding::utf16::extract_codepoint(Char, *StrIterator++);
 		}
 		else
 		{
@@ -1313,27 +1308,40 @@ static size_t utf8_get_bytes(string_view const Str, span<char> const Buffer)
 	return RequiredCapacity;
 }
 
+bool encoding::utf16::is_high_surrogate(wchar_t const Char)
+{
+	return in_closed_range(::utf16::surrogate_high_first, Char, ::utf16::surrogate_high_last);
+}
+
+bool encoding::utf16::is_low_surrogate(wchar_t const Char)
+{
+	return in_closed_range(::utf16::surrogate_low_first, Char, ::utf16::surrogate_low_last);
+}
+
+bool encoding::utf16::is_valid_surrogate_pair(wchar_t const First, wchar_t const Second)
+{
+	return is_high_surrogate(First) && is_low_surrogate(Second);
+}
+
+unsigned int encoding::utf16::extract_codepoint(wchar_t const First, wchar_t const Second)
+{
+	static_assert(sizeof(wchar_t) == 2);
+	return 0b1'00000000'00000000u + ((First - ::utf16::surrogate_high_first) << 10) + (Second - ::utf16::surrogate_low_first);
+}
+
 unsigned int encoding::utf16::extract_codepoint(string_view const Str)
 {
 	static_assert(sizeof(wchar_t) == 2);
 
-	if (
-		Str.size() > 1 &&
-		in_closed_range(::utf16::surrogate_high_first, Str[0], ::utf16::surrogate_high_last) &&
-		in_closed_range(::utf16::surrogate_low_first, Str[1], ::utf16::surrogate_low_last)
-	)
-	{
-		// valid surrogate pair
-		return 0b1'00000000'00000000u + ((Str[0] - ::utf16::surrogate_high_first) << 10) + (Str[1] - ::utf16::surrogate_low_first);
-	}
-
-	return Str.front();
+	return Str.size() > 1 && is_valid_surrogate_pair(Str[0], Str[1])?
+		extract_codepoint(Str[0], Str[1]) :
+		Str.front();
 }
 
-std::array<wchar_t, 2> encoding::utf16::to_surrogate(unsigned int const Codepoint)
+std::pair<wchar_t, wchar_t> encoding::utf16::to_surrogate(unsigned int const Codepoint)
 {
 	if (Codepoint <= std::numeric_limits<wchar_t>::max())
-		return { static_cast<wchar_t>(Codepoint) };
+		return { static_cast<wchar_t>(Codepoint), 0 };
 
 	const auto TwentyBits = Codepoint - 0b1'00000000'00000000u;
 	const auto TenBitsMask = 0b11'11111111;
@@ -1826,7 +1834,8 @@ TEST_CASE("encoding.utf16.surrogate")
 		REQUIRE(i.Codepoint == Codepoint);
 
 		const auto Pair = encoding::utf16::to_surrogate(i.Codepoint);
-		REQUIRE(i.Pair == Pair);
+		REQUIRE(i.Pair[0] == Pair.first);
+		REQUIRE(i.Pair[1] == Pair.second);
 	}
 }
 

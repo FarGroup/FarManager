@@ -446,7 +446,20 @@ void ScreenBuf::Flush(flush_type FlushType)
 		// Skip setting cursor position if it's not in the viewport to prevent Windows from repositioning the console window
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS) && IsCursorInBuffer && console.IsPositionVisible(m_CurPos))
 		{
-			console.SetCursorPosition(m_CurPos);
+			auto CorrectedPosition = m_CurPos;
+
+			if (m_CurPos.x > 0)
+			{
+				const auto& Cell = Buf[m_CurPos.y][m_CurPos.x];
+				const auto& PrevCell = Buf[m_CurPos.y][m_CurPos.x - 1];
+
+				if (is_valid_surrogate_pair(PrevCell.Char, Cell.Char) || (char_width::is_enabled() && Cell.Attributes.Flags & COMMON_LVB_TRAILING_BYTE))
+				{
+					--CorrectedPosition.x;
+				}
+			}
+
+			console.SetCursorPosition(CorrectedPosition);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
 		}
 
@@ -478,25 +491,17 @@ void ScreenBuf::MoveCursor(point const Point)
 {
 	SCOPED_ACTION(std::lock_guard)(CS);
 
-	const auto IsNewPositionVisible = is_visible(Point);
+	if (Point == m_CurPos)
+		return;
 
-	auto CorrectedPoint = Point;
-	if (char_width::is_enabled() && IsNewPositionVisible && Point.x > 0 && Buf[Point.y][Point.x].Attributes.Flags & COMMON_LVB_TRAILING_BYTE)
+	m_CurPos = Point;
+
+	if (!is_visible(m_CurPos))
 	{
-		--CorrectedPoint.x;
+		CurVisible = false;
 	}
 
-	if(Point != m_CurPos)
-	{
-		m_CurPos = CorrectedPoint;
-
-		if (!IsNewPositionVisible)
-		{
-			CurVisible = false;
-		}
-
-		SBFlags.Clear(SBFLAGS_FLUSHEDCURPOS);
-	}
+	SBFlags.Clear(SBFLAGS_FLUSHEDCURPOS);
 }
 
 point ScreenBuf::GetCursorPos() const
