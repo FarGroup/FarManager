@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "global.hpp"
 #include "char_width.hpp"
+#include "encoding.hpp"
 
 // Platform:
 
@@ -75,6 +76,37 @@ static bool is_visible(point const& Where)
 static bool is_visible(rectangle const& Where)
 {
 	return Where.left <= ScrX && Where.top <= ScrY && Where.right >= 0 && Where.bottom >= 0;
+}
+
+void invalidate_broken_pairs_in_cache(matrix<FAR_CHAR_INFO>const& Buf, matrix<FAR_CHAR_INFO>& Shadow, rectangle const Where, point const Point)
+{
+	const auto
+		IsLeft = !Point.x && Where.left,
+		IsRight = Point.x == Where.width() - 1 && Where.right != ScrX;
+
+	if (!IsLeft && !IsRight)
+		return;
+
+	const auto X1X2 = IsLeft?
+		std::pair{ Where.left - 1, Where.left      } :
+		std::pair{ Where.right,    Where.right + 1 };
+
+	const auto
+		BufRowData = Buf[Where.top + Point.y],
+		ShadowRowData = Shadow[Where.top + Point.y];
+
+	const auto
+		&Buf0 = BufRowData[X1X2.first],
+		&Buf1 = BufRowData[X1X2.second];
+
+	std::array Pair{ Buf0, Buf1 };
+	sanitise_pair(Pair[0], Pair[1]);
+
+	if (Pair[0] != Buf0)
+		ShadowRowData[X1X2.first] = {};
+
+	if (Pair[1] != Buf1)
+		ShadowRowData[X1X2.second] = {};
 }
 
 ScreenBuf::ScreenBuf():
@@ -147,6 +179,13 @@ void ScreenBuf::Write(int X, int Y, span<const FAR_CHAR_INFO> Text)
 		Buf[Y][X + i] = Text[i];
 	}
 
+	if (char_width::is_enabled())
+	{
+		rectangle const Where = { X, Y, static_cast<int>(X + Text.size() - 1), Y };
+		invalidate_broken_pairs_in_cache(Buf, Shadow, Where, { 0, 0 });
+		invalidate_broken_pairs_in_cache(Buf, Shadow, Where, { Where.right - X, 0 });
+	}
+
 	SBFlags.Clear(SBFLAGS_FLUSHED);
 
 	debug_flush();
@@ -180,7 +219,9 @@ void ScreenBuf::ApplyShadow(rectangle Where)
 
 	fix_coordinates(Where);
 
-	for_submatrix(Buf, Where, [](FAR_CHAR_INFO& Element)
+	const auto CharWidthEnabled = char_width::is_enabled();
+
+	for_submatrix(Buf, Where, [&](FAR_CHAR_INFO& Element, point const Point)
 	{
 		Element.Attributes.BackgroundColor = 0;
 
@@ -191,6 +232,9 @@ void ScreenBuf::ApplyShadow(rectangle Where)
 		{
 			Element.Attributes.ForegroundColor = Mask;
 		}
+
+		if (CharWidthEnabled)
+			invalidate_broken_pairs_in_cache(Buf, Shadow, Where, Point);
 	});
 
 	debug_flush();
@@ -198,7 +242,7 @@ void ScreenBuf::ApplyShadow(rectangle Where)
 
 /* Непосредственное изменение цветовых атрибутов
 */
-void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, apply_mode const ApplyMode)
+void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color)
 {
 	if (!is_visible(Where))
 		return;
@@ -207,9 +251,14 @@ void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color, apply_mode co
 
 	fix_coordinates(Where);
 
-	for_submatrix(Buf, Where, [&](FAR_CHAR_INFO& Element)
+	const auto CharWidthEnabled = char_width::is_enabled();
+
+	for_submatrix(Buf, Where, [&](FAR_CHAR_INFO& Element, point const Point)
 	{
 		Element.Attributes = colors::merge(Element.Attributes, Color);
+
+		if (CharWidthEnabled)
+			invalidate_broken_pairs_in_cache(Buf, Shadow, Where, Point);
 	});
 
 	debug_flush();
@@ -226,9 +275,14 @@ void ScreenBuf::FillRect(rectangle Where, const FAR_CHAR_INFO& Info)
 
 	fix_coordinates(Where);
 
-	for_submatrix(Buf, Where, [&Info](FAR_CHAR_INFO& Element)
+	const auto CharWidthEnabled = char_width::is_enabled();
+
+	for_submatrix(Buf, Where, [&](FAR_CHAR_INFO& Element, point const Point)
 	{
 		Element = Info;
+
+		if (CharWidthEnabled)
+			invalidate_broken_pairs_in_cache(Buf, Shadow, Where, Point);
 	});
 
 	SBFlags.Clear(SBFLAGS_FLUSHED);
@@ -244,6 +298,63 @@ void ScreenBuf::Invalidate(flush_type const FlushType)
 		SBFlags.Clear(SBFLAGS_FLUSHEDCURPOS | SBFLAGS_FLUSHEDCURTYPE);
 	if (FlushType & flush_type::title)
 		SBFlags.Clear(SBFLAGS_FLUSHEDTITLE);
+}
+
+static void expand_write_region_if_needed(matrix<FAR_CHAR_INFO>& Buf, rectangle& WriteRegion)
+{
+	enum class border
+	{
+		unchecked,
+		expanded,
+		checked
+	};
+
+	auto
+		Left = border::unchecked,
+		Right = border::unchecked;
+
+	for (;;)
+	{
+		auto
+			LeftChanged = false,
+			RightChanged = false;
+
+		for (auto Row = WriteRegion.top; Row <= WriteRegion.bottom; ++Row)
+		{
+			const auto RowData = Buf[Row];
+
+			if (
+				const auto& First = RowData[WriteRegion.left];
+				Left != border::checked && WriteRegion.left && (First.Attributes.Flags & COMMON_LVB_TRAILING_BYTE || encoding::utf16::is_low_surrogate(First.Char))
+			)
+			{
+				--WriteRegion.left;
+				Left = border::expanded;
+				LeftChanged = true;
+				break;
+			}
+
+			if (
+				const auto& Last = RowData[WriteRegion.right];
+				Right != border::checked && WriteRegion.right != ScrX && (Last.Attributes.Flags & COMMON_LVB_LEADING_BYTE || encoding::utf16::is_high_surrogate(Last.Char))
+			)
+			{
+				++WriteRegion.right;
+				Right = border::expanded;
+				RightChanged = true;
+				break;
+			}
+		}
+
+		if (!LeftChanged && !RightChanged)
+			break;
+
+		if (!LeftChanged)
+			Left = border::checked;
+
+		if (!RightChanged)
+			Right = border::checked;
+	}
 }
 
 /* "Сбросить" виртуальный буфер на консоль
@@ -339,6 +450,8 @@ void ScreenBuf::Flush(flush_type FlushType)
 				bool Started=false;
 				rectangle WriteRegion = { static_cast<int>(Buf.width() - 1), static_cast<int>(Buf.height() - 1), 0, 0 };
 
+				const auto CharWidthEnabled = char_width::is_enabled();
+
 				auto PtrBuf = Buf.data(), PtrShadow = Shadow.data();
 				for (size_t I = 0, Height = Buf.height(); I < Height; ++I)
 				{
@@ -369,18 +482,31 @@ void ScreenBuf::Flush(flush_type FlushType)
 							if (!WriteList.empty())
 							{
 								auto& Last = WriteList.back();
-								const int MAX_DELTA = 5;
-								if (WriteRegion.top - 1 == Last.bottom && ((WriteRegion.left >= Last.left && WriteRegion.left - Last.left < MAX_DELTA) || (Last.right >= WriteRegion.right && Last.right - WriteRegion.right < MAX_DELTA)))
+								const int MAX_DELTA = 1;
+								if (
+									WriteRegion.top - Last.bottom < 1 + MAX_DELTA &&
+									std::abs(WriteRegion.left - Last.left) < MAX_DELTA &&
+									std::abs(WriteRegion.right - Last.right < MAX_DELTA)
+								)
 								{
 									Last.bottom = WriteRegion.bottom;
 									Last.left = std::min(Last.left, WriteRegion.left);
 									Last.right = std::max(Last.right, WriteRegion.right);
+
+									if (CharWidthEnabled)
+										expand_write_region_if_needed(Buf, Last);
+
 									Merge=true;
 								}
 							}
 
 							if (!Merge)
+							{
+								if (CharWidthEnabled)
+									expand_write_region_if_needed(Buf, WriteRegion);
+
 								WriteList.emplace_back(WriteRegion);
+							}
 
 							WriteRegion.left = static_cast<int>(Buf.width() - 1);
 							WriteRegion.top = static_cast<int>(Buf.height() - 1);
@@ -393,6 +519,9 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 				if (Started)
 				{
+					if (CharWidthEnabled)
+						expand_write_region_if_needed(Buf, WriteRegion);
+
 					WriteList.emplace_back(WriteRegion);
 				}
 			}

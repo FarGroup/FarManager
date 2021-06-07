@@ -226,12 +226,14 @@ private:
 	static bool CharInMask(wchar_t Char, wchar_t Mask);
 	bool ProcessCtrlQ();
 	bool ProcessInsPath(unsigned int Key,int PrevSelStart=-1,int PrevSelEnd=0);
-	int RealPosToVisual(int PrevLength, int PrevPos, int Pos, int* CorrectPos = {}) const;
+	int RealPosToVisual(int PrevVisualPos, int PrevRealPos, int Pos, int* CorrectPos = {}) const;
 	void FixLeftPos(int TabCurPos=-1);
 	void SetRightCoord(int Value) { SetPosition({ m_Where.left, m_Where.top, Value, m_Where.bottom }); }
 	Editor* GetEditor() const;
 
 	bool is_valid_surrogate_pair_at(size_t Position) const;
+	wchar_t tab_glyph() const;
+	wchar_t space_glyph() const;
 
 protected:
 	// BUGBUG: the whole purpose of this class is to avoid zillions of casts in existing code by returning size() as int

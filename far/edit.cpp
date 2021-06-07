@@ -1823,7 +1823,8 @@ void Edit::SetTabCurPos(int NewPos)
 			NewPos=Pos;
 	}
 
-	m_CurPos = VisualPosToReal(NewPos);
+	if (NewPos != RealPosToVisual(m_CurPos))
+		m_CurPos = VisualPosToReal(NewPos);
 }
 
 int Edit::RealPosToVisual(int Pos) const
@@ -1831,12 +1832,12 @@ int Edit::RealPosToVisual(int Pos) const
 	return RealPosToVisual(0, 0, Pos);
 }
 
-static size_t real_pos_to_visual_tab(string_view const Str, size_t const TabSize, size_t Pos, size_t const PrevLength, size_t const PrevPos, int* CorrectPos)
+static size_t real_pos_to_visual_tab(string_view const Str, size_t const TabSize, size_t Pos, size_t const PrevTabPos, size_t const PrevRealPos, int* CorrectPos)
 {
-	auto TabPos = PrevLength;
+	auto TabPos = PrevTabPos;
 
 	// Начинаем вычисление с предыдущей позиции
-	auto Index = PrevPos;
+	auto Index = PrevRealPos;
 	const auto Size = Str.size();
 
 	// Корректировка табов
@@ -1872,17 +1873,24 @@ static size_t real_pos_to_visual_tab(string_view const Str, size_t const TabSize
 	return TabPos;
 }
 
-int Edit::RealPosToVisual(int PrevLength, int PrevPos, int Pos, int* CorrectPos) const
+int Edit::RealPosToVisual(int const PrevVisualPos, int const PrevRealPos, int const Pos, int* const CorrectPos) const
 {
 	const auto StringPart = string_view(m_Str).substr(0, Pos);
-	const auto WidthCorrection = static_cast<int>(string_length_to_visual(StringPart)) - static_cast<int>(StringPart.size());
+	const auto WidthCorrection = static_cast<int>(string_length_to_visual(StringPart, space_glyph(), tab_glyph())) - static_cast<int>(StringPart.size());
 
 	if (CorrectPos)
 		*CorrectPos = 0;
 
-	const auto Result = GetTabExpandMode() == EXPAND_ALLTABS || PrevPos >= m_Str.size()?
-		PrevLength + Pos - PrevPos :
-		static_cast<int>(real_pos_to_visual_tab(m_Str, GetTabSize(), Pos, PrevLength, PrevPos, CorrectPos));
+	const auto Result = GetTabExpandMode() == EXPAND_ALLTABS || PrevRealPos >= m_Str.size()?
+		PrevVisualPos + Pos - PrevRealPos :
+		static_cast<int>(real_pos_to_visual_tab(
+			m_Str,
+			GetTabSize(),
+			Pos,
+			WidthCorrection? 0 : PrevVisualPos, // BUGBUG
+			WidthCorrection? 0 : PrevRealPos,   // BUGBUG
+			CorrectPos
+		));
 
 	return Result + WidthCorrection;
 }
@@ -1919,7 +1927,7 @@ static size_t visual_tab_pos_to_real(string_view const Str, size_t const TabSize
 
 int Edit::VisualPosToReal(int Pos) const
 {
-	const auto RealPos = visual_pos_to_string_pos(m_Str, Pos);
+	const auto RealPos = visual_pos_to_string_pos(m_Str, Pos, space_glyph(), tab_glyph());
 	const auto WidthCorrection = static_cast<int>(Pos) - static_cast<int>(RealPos);
 
 	const auto Result = GetTabExpandMode() == EXPAND_ALLTABS?
@@ -2094,8 +2102,12 @@ bool Edit::GetColor(ColorItem& col, size_t Item) const
 
 void Edit::ApplyColor(int XPos, int FocusedLeftPos)
 {
+	// BUGBUG optimise
+
+	const auto Width = ObjWidth();
+
 	// Для оптимизации сохраняем вычисленные позиции между итерациями цикла
-	int Pos = INT_MIN, TabPos = INT_MIN, TabEditorPos = INT_MIN;
+	int RealPos = INT_MIN, VisualPos = INT_MIN, TabEditorPos = INT_MIN;
 
 	// Обрабатываем элементы раскраски
 	for (const auto& CurItem: ColorList)
@@ -2104,39 +2116,37 @@ void Edit::ApplyColor(int XPos, int FocusedLeftPos)
 		if (CurItem.StartPos > CurItem.EndPos)
 			continue;
 
-		const auto Width = ObjWidth();
-
 		// Получаем начальную позицию
-		int RealStart, Start;
+		int AbsoluteVisualStart, VisualStart;
 
 		// Если предыдущая позиция равна текущей, то ничего не вычисляем
 		// и сразу берём ранее вычисленное значение
-		if (Pos == CurItem.StartPos)
+		if (RealPos == CurItem.StartPos)
 		{
-			RealStart = TabPos;
-			Start = TabEditorPos;
+			AbsoluteVisualStart = VisualPos;
+			VisualStart = TabEditorPos;
 		}
 		// Если вычисление идёт первый раз или предыдущая позиция больше текущей,
 		// то производим вычисление с начала строки
-		else if (Pos == INT_MIN || CurItem.StartPos < Pos)
+		else if (RealPos == INT_MIN || CurItem.StartPos < RealPos)
 		{
-			RealStart = RealPosToVisual(CurItem.StartPos);
-			Start = RealStart-FocusedLeftPos;
+			AbsoluteVisualStart = RealPosToVisual(CurItem.StartPos);
+			VisualStart = AbsoluteVisualStart - FocusedLeftPos;
 		}
 		// Для оптимизации делаем вычисление относительно предыдущей позиции
 		else
 		{
-			RealStart = RealPosToVisual(TabPos, Pos, CurItem.StartPos);
-			Start = RealStart-FocusedLeftPos;
+			AbsoluteVisualStart = RealPosToVisual(VisualPos, RealPos, CurItem.StartPos);
+			VisualStart = AbsoluteVisualStart -FocusedLeftPos;
 		}
 
 		// Запоминаем вычисленные значения для их дальнейшего повторного использования
-		Pos = CurItem.StartPos;
-		TabPos = RealStart;
-		TabEditorPos = Start;
+		RealPos = CurItem.StartPos;
+		VisualPos = AbsoluteVisualStart;
+		TabEditorPos = VisualStart;
 
 		// Пропускаем элементы раскраски у которых начальная позиция за экраном
-		if (Start >= Width)
+		if (VisualStart >= Width)
 			continue;
 
 		// Корректировка относительно табов (отключается, если присутствует флаг ECF_TABMARKFIRST)
@@ -2144,38 +2154,37 @@ void Edit::ApplyColor(int XPos, int FocusedLeftPos)
 
 		// Получаем конечную позицию
 		int EndPos = CurItem.EndPos;
-		int RealEnd, End;
+		int AbsoluteVisualEnd, VisualEnd;
 
 		bool TabMarkCurrent=false;
 
 		// Обрабатываем случай, когда предыдущая позиция равна текущей, то есть
 		// длина раскрашиваемой строки равна 1
-		if (Pos == EndPos)
+		if (RealPos == EndPos)
 		{
 			// Если необходимо делать корректировку относительно табов и единственный
 			// символ строки -- это таб, то делаем расчёт с учётом корректировки,
-			// иначе ничего не вычисляем и берём старые значения
 			if (CorrectPos && EndPos < m_Str.size() && m_Str[EndPos] == L'\t')
 			{
-				RealEnd = RealPosToVisual(TabPos, Pos, ++EndPos);
-				End = RealEnd-FocusedLeftPos;
-				TabMarkCurrent = (CurItem.Flags & ECF_TABMARKCURRENT) && XPos>=Start && XPos<End;
+				AbsoluteVisualEnd = RealPosToVisual(VisualPos, RealPos, ++EndPos);
+				VisualEnd = AbsoluteVisualEnd - FocusedLeftPos;
+				TabMarkCurrent = (CurItem.Flags & ECF_TABMARKCURRENT) && XPos >= VisualStart && XPos < VisualEnd;
 			}
 			else
 			{
-				RealEnd = TabPos;
+				AbsoluteVisualEnd = RealPosToVisual(VisualPos, RealPos, EndPos + 1) - 1;
+				VisualEnd = AbsoluteVisualEnd - FocusedLeftPos;
 				CorrectPos = 0;
-				End = TabEditorPos;
 			}
 		}
 		// Если предыдущая позиция больше текущей, то производим вычисление
 		// с начала строки (с учётом корректировки относительно табов)
-		else if (EndPos < Pos)
+		else if (EndPos < RealPos)
 		{
 			// TODO: возможно так же нужна коррекция с учетом табов (на предмет Mantis#0001718)
-			RealEnd = RealPosToVisual(0, 0, EndPos, &CorrectPos);
+			AbsoluteVisualEnd = RealPosToVisual(0, 0, EndPos, &CorrectPos);
 			EndPos += CorrectPos;
-			End = RealEnd-FocusedLeftPos;
+			VisualEnd = AbsoluteVisualEnd - FocusedLeftPos;
 		}
 		// Для оптимизации делаем вычисление относительно предыдущей позиции (с учётом
 		// корректировки относительно табов)
@@ -2184,45 +2193,45 @@ void Edit::ApplyColor(int XPos, int FocusedLeftPos)
 			// Mantis#0001718: Отсутствие ECF_TABMARKFIRST не всегда корректно отрабатывает
 			// Коррекция с учетом последнего таба
 			if (CorrectPos && EndPos < m_Str.size() && m_Str[EndPos] == L'\t')
-				RealEnd = RealPosToVisual(TabPos, Pos, ++EndPos);
+				AbsoluteVisualEnd = RealPosToVisual(VisualPos, RealPos, ++EndPos);
 			else
 			{
-				RealEnd = RealPosToVisual(TabPos, Pos, EndPos, &CorrectPos);
+				AbsoluteVisualEnd = RealPosToVisual(VisualPos, RealPos, EndPos, &CorrectPos);
 				EndPos += CorrectPos;
 			}
-			End = RealEnd-FocusedLeftPos;
+			VisualEnd = AbsoluteVisualEnd - FocusedLeftPos;
 		}
 
 		// Запоминаем вычисленные значения для их дальнейшего повторного использования
-		Pos = EndPos;
-		TabPos = RealEnd;
-		TabEditorPos = End;
+		RealPos = EndPos;
+		VisualPos = AbsoluteVisualEnd;
+		TabEditorPos = VisualEnd;
 
 		if(TabMarkCurrent)
 		{
-			Start = XPos;
-			End = XPos;
+			VisualStart = XPos;
+			VisualEnd = XPos;
 		}
 		else
 		{
 			// Пропускаем элементы раскраски у которых конечная позиция меньше левой границы экрана
-			if (End < 0)
+			if (VisualEnd < 0)
 				continue;
 
 			// Обрезаем раскраску элемента по экрану
-			if (Start < 0)
-				Start = 0;
+			if (VisualStart < 0)
+				VisualStart = 0;
 
-			if (End >= Width)
-				End = Width-1;
+			if (VisualEnd >= Width)
+				VisualEnd = Width-1;
 			else
-				End -= CorrectPos;
+				VisualEnd -= CorrectPos;
 		}
 
 		// Раскрашиваем элемент, если есть что раскрашивать
-		if (End >= Start)
+		if (VisualEnd >= VisualStart)
 		{
-			Global->ScrBuf->ApplyColor({ m_Where.left + Start, m_Where.top, m_Where.left + End, m_Where.top }, CurItem.GetColor());
+			Global->ScrBuf->ApplyColor({ m_Where.left + VisualStart, m_Where.top, m_Where.left + VisualEnd, m_Where.top }, CurItem.GetColor());
 		}
 	}
 }
@@ -2402,6 +2411,16 @@ bool Edit::is_valid_surrogate_pair_at(size_t const Position) const
 {
 	string_view const Str(m_Str);
 	return Position < Str.size() && is_valid_surrogate_pair(Str.substr(Position));
+}
+
+wchar_t Edit::tab_glyph() const
+{
+	return m_Flags.Check(FEDITLINE_SHOWWHITESPACE)? L'→' : L' ';
+}
+
+wchar_t Edit::space_glyph() const
+{
+	return m_Flags.Check(FEDITLINE_SHOWWHITESPACE)? L'·' : L' ';
 }
 
 #ifdef ENABLE_TESTS

@@ -1035,9 +1035,9 @@ namespace console_detail
 
 			if (char_width::is_enabled())
 			{
-				for_submatrix(Buffer, SubRect, [&](FAR_CHAR_INFO& Cell, int const Row, int const Col)
+				for_submatrix(Buffer, SubRect, [&](FAR_CHAR_INFO& Cell, point const Point)
 				{
-					if (!Col)
+					if (!Point.x)
 					{
 						if (Cell.Attributes.Flags & COMMON_LVB_TRAILING_BYTE)
 						{
@@ -1050,9 +1050,9 @@ namespace console_detail
 						}
 					}
 
-					if (Col != SubRect.width() - 1)
+					if (Point.x != SubRect.width() - 1)
 					{
-						sanitise_pair(Cell, Buffer[SubRect.top + Row][SubRect.left + Col + 1]);
+						sanitise_pair(Cell, Buffer[SubRect.top + Point.y][SubRect.left + Point.x + 1]);
 					}
 					else
 					{

@@ -158,8 +158,8 @@ void MoveRealCursor(int X,int Y);
 void ScrollScreen(int Count);
 bool DoWeReallyHaveToScroll(short Rows);
 
-size_t string_length_to_visual(string_view Str);
-size_t visual_pos_to_string_pos(string_view Str, size_t Pos);
+size_t string_length_to_visual(string_view Str, wchar_t SpaceGlyph, wchar_t TabGlyph);
+size_t visual_pos_to_string_pos(string_view Str, size_t Pos, wchar_t SpaceGlyph, wchar_t TabGlyph);
 
 bool is_valid_surrogate_pair(string_view Str);
 bool is_valid_surrogate_pair(wchar_t First, wchar_t Second);

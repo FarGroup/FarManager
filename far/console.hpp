@@ -59,6 +59,7 @@ enum CLEAR_REGION
 };
 
 wchar_t ReplaceControlCharacter(wchar_t Char);
+void sanitise_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second);
 
 namespace console_detail
 {

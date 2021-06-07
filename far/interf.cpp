@@ -1159,7 +1159,7 @@ bool DoWeReallyHaveToScroll(short Rows)
 	return !std::all_of(ALL_CONST_RANGE(BufferBlock.vector()), [](const FAR_CHAR_INFO& i) { return i.Char == L' '; });
 }
 
-size_t string_length_to_visual(string_view Str)
+size_t string_length_to_visual(string_view Str, wchar_t const SpaceGlyph, wchar_t const TabGlyph)
 {
 	if (!char_width::is_enabled())
 		return Str.size();
@@ -1170,13 +1170,13 @@ size_t string_length_to_visual(string_view Str)
 	{
 		const auto Codepoint = encoding::utf16::extract_codepoint(Str);
 		Str.remove_prefix(Codepoint > std::numeric_limits<wchar_t>::max()? 2 : 1);
-		Result += char_width::is_wide(Codepoint)? 2 : 1;
+		Result += char_width::is_wide(Codepoint == L'\t'? TabGlyph : Codepoint == ' '? SpaceGlyph : Codepoint)? 2 : 1;
 	}
 
 	return Result;
 }
 
-size_t visual_pos_to_string_pos(string_view Str, size_t const Pos)
+size_t visual_pos_to_string_pos(string_view Str, size_t const Pos, wchar_t const SpaceGlyph, wchar_t const TabGlyph)
 {
 	if (!char_width::is_enabled())
 		return Pos;
@@ -1188,7 +1188,7 @@ size_t visual_pos_to_string_pos(string_view Str, size_t const Pos)
 	{
 		const auto Codepoint = encoding::utf16::extract_codepoint(Str);
 		Str.remove_prefix(Codepoint > std::numeric_limits<wchar_t>::max() ? 2 : 1);
-		Size += char_width::is_wide(Codepoint)? 2 : 1;
+		Size += char_width::is_wide(Codepoint == L'\t'? TabGlyph : Codepoint == ' '? SpaceGlyph : Codepoint)? 2 : 1;
 	}
 
 	return StrSize - Str.size() + (Pos > Size? Pos - Size : 0);
