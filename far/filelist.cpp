@@ -662,7 +662,8 @@ public:
 		{
 			const auto& [a, b] = m_Reverse? std::tie(Item2, Item1) : std::tie(Item1, Item2);
 
-			PluginPanelItemHolder pi1, pi2;
+			// Direct access, no copy. It's its own panel anyways.
+			PluginPanelItemHolderRef pi1, pi2;
 			m_Owner->FileListToPluginItem(a, pi1);
 			m_Owner->FileListToPluginItem(b, pi2);
 			if (const auto Result = Global->CtrlObject->Plugins->Compare(m_SortPlugin, &pi1.Item, &pi2.Item, internal_sort_mode_to_plugin(m_ListSortMode)))
@@ -1876,7 +1877,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 					if (!NewFile)
 					{
-						PluginPanelItemHolder PanelItem;
+						PluginPanelItemHolderHeap PanelItem;
 						FileListToPluginItem(*CurPtr, PanelItem);
 
 						if (!Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), &PanelItem.Item, TemporaryDirectory, strFileName, OPM_SILENT | (Edit? OPM_EDIT : OPM_VIEW)))
@@ -1958,7 +1959,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 						if (PluginMode && UploadFile)
 						{
-							PluginPanelItemHolder PanelItem;
+							PluginPanelItemHolderHeap PanelItem;
 							const auto strSaveDir = os::fs::GetCurrentDirectory();
 
 							if (!os::fs::exists(strTempName))
@@ -2691,7 +2692,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				LOGWARNING(L"create_directory({}): {}"sv, strTempDir, last_error());
 			}
 
-			PluginPanelItemHolder PanelItem;
+			PluginPanelItemHolderHeap PanelItem;
 			FileListToPluginItem(CurItem, PanelItem);
 
 			if (!Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), &PanelItem.Item, strTempDir, strFileName, OPM_SILENT | OPM_EDIT))
@@ -2761,7 +2762,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		{
 			if (file_state::get(strFileName) != SavedState)
 			{
-				PluginPanelItemHolder PanelItem;
+				PluginPanelItemHolderHeap PanelItem;
 				if (FileNameToPluginItem(strFileName, PanelItem))
 				{
 					int PutCode = Global->CtrlObject->Plugins->PutFiles(GetPluginHandle(), { &PanelItem.Item, 1 }, false, OPM_EDIT);
@@ -4163,7 +4164,7 @@ void FileList::UpdateViewPanel()
 			LOGWARNING(L"create_directory({}): {}"sv, strTempDir, last_error());
 		}
 
-		PluginPanelItemHolder PanelItem;
+		PluginPanelItemHolderHeap PanelItem;
 		FileListToPluginItem(Current, PanelItem);
 		string strFileName;
 
@@ -5458,7 +5459,7 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 
 		if (CurPlugin->m_Modified)
 		{
-			PluginPanelItemHolder PanelItem={};
+			PluginPanelItemHolderHeap PanelItem={};
 			const auto strSaveDir = os::fs::GetCurrentDirectory();
 
 			if (FileNameToPluginItem(CurPlugin->m_HostFile, PanelItem))
@@ -5596,30 +5597,17 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 	FileListItemToPluginPanelItemBasic(fi, pi);
 	pi.NumberOfLinks = fi.IsNumberOfLinksRead() ? fi.NumberOfLinks(this) : 0;
 
-	const auto MakeCopy = [](string_view const Str)
-	{
-		auto Buffer = std::make_unique<wchar_t[]>(Str.size() + 1);
-		*copy_string(Str, Buffer.get()) = {};
-		return Buffer.release();
-	};
-
-	pi.FileName = MakeCopy(fi.FileName);
-	pi.AlternateFileName = MakeCopy(fi.AlternateFileName());
-
-	auto ColumnData = std::make_unique<const wchar_t*[]>(fi.CustomColumns.size());
-	for (size_t i = 0; i != fi.CustomColumns.size(); ++i)
-	{
-		ColumnData[i] = fi.CustomColumns[i]? MakeCopy(fi.CustomColumns[i]) : nullptr;
-	}
-	pi.CustomColumnData = ColumnData.release();
+	Holder.set_name(fi.FileName);
+	Holder.set_alt_name(fi.AlternateFileName());
+	Holder.set_columns(fi.CustomColumns);
 
 	if (fi.DizText)
-		pi.Description = MakeCopy(fi.DizText);
+		Holder.set_description(fi.DizText);
 
 	if (fi.IsOwnerRead())
 	{
 		if (const auto& Owner = fi.Owner(this); !Owner.empty())
-			pi.Owner = MakeCopy(Owner);
+			Holder.set_owner(Owner);
 	}
 }
 
@@ -5816,7 +5804,7 @@ plugin_item_list FileList::CreatePluginItemList()
 
 	const auto ConvertAndAddToList = [&](const FileListItem& What)
 	{
-		PluginPanelItemHolderNonOwning NewItem;
+		PluginPanelItemHolderHeapNonOwning NewItem;
 		FileListToPluginItem(What, NewItem);
 		ItemList.emplace_back(NewItem.Item);
 	};
@@ -5920,7 +5908,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 	if (Move)
 		SrcDiz->Flush({});
 
-	PluginPanelItemHolder PanelItem;
+	PluginPanelItemHolderHeap PanelItem;
 	if (FileNameToPluginItem(strDizName, PanelItem))
 	{
 		Global->CtrlObject->Plugins->PutFiles(DestPanel->GetPluginHandle(), { &PanelItem.Item, 1 }, false, OPM_SILENT | OPM_DESCR);

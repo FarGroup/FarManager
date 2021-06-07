@@ -60,18 +60,52 @@ void PluginPanelItemToFindDataEx(const PluginPanelItem& Src, os::fs::find_data& 
 class PluginPanelItemHolder
 {
 public:
-	NONCOPYABLE(PluginPanelItemHolder);
-
-	PluginPanelItemHolder() = default;
-	~PluginPanelItemHolder();
+	virtual void set_name(string_view Value) = 0;
+	virtual void set_alt_name(string_view Value) = 0;
+	virtual void set_description(string_view Value) = 0;
+	virtual void set_owner(string_view Value) = 0;
+	virtual void set_columns(span<const wchar_t* const> Value) = 0;
 
 	PluginPanelItem Item{};
+
+protected:
+	virtual ~PluginPanelItemHolder() = default;
 };
 
-class PluginPanelItemHolderNonOwning: public PluginPanelItemHolder
+class PluginPanelItemHolderRef: public PluginPanelItemHolder
 {
 public:
-	~PluginPanelItemHolderNonOwning()
+	~PluginPanelItemHolderRef() override = default;
+
+	void set_name(string_view Value) override;
+	void set_alt_name(string_view Value) override;
+	void set_description(string_view Value) override;
+	void set_owner(string_view Value) override;
+	void set_columns(span<const wchar_t* const> Value) override;
+};
+
+class PluginPanelItemHolderHeap: public PluginPanelItemHolder
+{
+public:
+	NONCOPYABLE(PluginPanelItemHolderHeap);
+
+	PluginPanelItemHolderHeap() = default;
+	~PluginPanelItemHolderHeap() override;
+
+	void set_name(string_view Value) override;
+	void set_alt_name(string_view Value) override;
+	void set_description(string_view Value) override;
+	void set_owner(string_view Value) override;
+	void set_columns(span<const wchar_t* const> Value) override;
+
+private:
+	static const wchar_t* make_copy(string_view Value);
+};
+
+class PluginPanelItemHolderHeapNonOwning: public PluginPanelItemHolderHeap
+{
+public:
+	~PluginPanelItemHolderHeapNonOwning() override
 	{
 		Item = {};
 	}

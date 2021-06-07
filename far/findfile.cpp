@@ -2766,7 +2766,7 @@ bool FindFiles::FindFilesProcess()
 							{
 								i.FindData.FileName = i.Arc->strArcName;
 							}
-							PluginPanelItemHolderNonOwning pi;
+							PluginPanelItemHolderHeapNonOwning pi;
 							FindDataExToPluginPanelItemHolder(i.FindData, pi);
 
 							if (IsArchive)

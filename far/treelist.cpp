@@ -1154,7 +1154,7 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 
 				if (ToPlugin)
 				{
-					PluginPanelItemHolder Item;
+					PluginPanelItemHolderHeap Item;
 					const auto hAnotherPlugin = AnotherPanel->GetPluginHandle();
 					if (FileList::FileNameToPluginItem(m_ListData[m_CurFile].strName, Item))
 					{

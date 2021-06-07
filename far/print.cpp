@@ -220,7 +220,7 @@ void PrintFiles(FileList* SrcPanel)
 				if (!ListItem)
 					throw MAKE_FAR_EXCEPTION(L"GetLastSelectedItem error"sv);
 
-				PluginPanelItemHolder PanelItem;
+				PluginPanelItemHolderHeap PanelItem;
 				SrcPanel->FileListToPluginItem(*ListItem, PanelItem);
 
 				if (!Global->CtrlObject->Plugins->GetFile(hPlugin, &PanelItem.Item, strTempDir, FileName, OPM_SILENT))
