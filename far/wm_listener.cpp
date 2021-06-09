@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "notification.hpp"
 #include "global.hpp"
+#include "exception.hpp"
 #include "exception_handler.hpp"
 #include "log.hpp"
 
@@ -141,49 +142,48 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 	return DefWindowProc(Hwnd, Msg, wParam, lParam);
 }
 
-wm_listener::wm_listener():
-	m_Hwnd(nullptr),
-	m_exitEvent(os::event::type::automatic, os::event::state::nonsignaled)
+wm_listener::wm_listener()
 {
-	Check();
+	os::event ReadyEvent(os::event::type::automatic, os::event::state::nonsignaled);
+	m_Thread = os::thread(os::thread::mode::join, &wm_listener::WindowThreadRoutine, this, &ReadyEvent);
+	ReadyEvent.wait();
 }
 
 wm_listener::~wm_listener()
 {
-	m_exitEvent.set();
 	if(m_Hwnd)
 	{
-		SendMessage(m_Hwnd,WM_CLOSE, 0, 0);
+		SendMessage(m_Hwnd, WM_CLOSE, 0, 0);
 	}
 }
 
 void wm_listener::Check()
 {
-	if (!m_Thread.joinable() || m_Thread.is_signaled())
-	{
-		rethrow_if(m_ExceptionPtr);
-		os::event ReadyEvent(os::event::type::automatic, os::event::state::nonsignaled);
-		m_Thread = os::thread(os::thread::mode::join, &wm_listener::WindowThreadRoutine, this, &ReadyEvent);
-		ReadyEvent.wait();
-	}
+	rethrow_if(m_ExceptionPtr);
 }
 
 void wm_listener::WindowThreadRoutine(const os::event* ReadyEvent)
 {
-	// TODO: SEH guard, try/catch, exception_ptr
 	WNDCLASSEX wc={sizeof(wc)};
 	wc.lpfnWndProc = WndProc;
 	wc.lpszClassName = L"FarHiddenWindowClass";
 	UnregisterClass(wc.lpszClassName, nullptr);
 	if (!RegisterClassEx(&wc))
+	{
+		LOGERROR(L"RegisterClassEx(): {}"sv, last_error());
+		ReadyEvent->set();
 		return;
+	}
 
 	SCOPE_EXIT{ UnregisterClass(wc.lpszClassName, nullptr); };
 
 	m_Hwnd = CreateWindowEx(0, wc.lpszClassName, nullptr, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, nullptr, nullptr);
-	ReadyEvent->set();
 	if (!m_Hwnd)
+	{
+		LOGERROR(L"CreateWindowEx(): {}"sv, last_error());
+		ReadyEvent->set();
 		return;
+	}
 
 	// for PBT_POWERSETTINGCHANGE
 	const auto hpn = imports.RegisterPowerSettingNotification?
@@ -194,8 +194,21 @@ void wm_listener::WindowThreadRoutine(const os::event* ReadyEvent)
 
 	MSG Msg;
 	WndProcExceptionPtr = &m_ExceptionPtr;
-	while(!m_exitEvent.is_signaled() && !m_ExceptionPtr && GetMessage(&Msg, nullptr, 0, 0) > 0)
+
+	ReadyEvent->set();
+
+	while (!m_ExceptionPtr)
 	{
+		const auto Result = GetMessage(&Msg, nullptr, 0, 0);
+		if (!Result)
+			return;
+
+		if (Result < 0)
+		{
+			LOGERROR(L"GetMessage(): {}"sv, last_error());
+			return;
+		}
+
 		TranslateMessage(&Msg);
 		DispatchMessage(&Msg);
 	}

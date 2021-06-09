@@ -70,6 +70,7 @@ namespace detail
 	public:
 		locale() = default;
 
+		bool is_cjk() const;
 		date_type date_format() const;
 		int digits_grouping() const;
 		wchar_t date_separator() const;
@@ -84,6 +85,7 @@ namespace detail
 	private:
 		void refresh() const;
 
+		mutable bool m_IsCJK{};
 		mutable date_type m_DateFormat{ date_type::mdy };
 		mutable int m_DigitsGrouping{};
 		mutable wchar_t m_DateSeparator{};

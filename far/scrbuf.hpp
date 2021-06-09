@@ -98,20 +98,7 @@ public:
 	void RestoreElevationChar();
 
 	void ApplyShadow(rectangle Where);
-
-	enum apply_mode
-	{
-		foreground = 0_bit,
-		background = 1_bit,
-
-		color      = foreground | background,
-
-		style      = 2_bit,
-
-		all        = color | style
-	};
-
-	void ApplyColor(rectangle Where, const FarColor& Color, apply_mode ApplyMode = apply_mode::all);
+	void ApplyColor(rectangle Where, const FarColor& Color);
 	void FillRect(rectangle Where, const FAR_CHAR_INFO& Info);
 
 	void Scroll(size_t Count);

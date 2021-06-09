@@ -1,14 +1,14 @@
-﻿#ifndef WM_LISTENER_HPP_6C668719_5279_4CB7_81B0_448AC5165C00
-#define WM_LISTENER_HPP_6C668719_5279_4CB7_81B0_448AC5165C00
+﻿#ifndef CHAR_WIDTH_HPP_D66C86AC_3415_4FD1_89DA_0AB843FFEEB8
+#define CHAR_WIDTH_HPP_D66C86AC_3415_4FD1_89DA_0AB843FFEEB8
 #pragma once
 
 /*
-wm_listener.hpp
+char_width.hpp
 
-Обработка оконных сообщений
+Fullwidth support
 */
 /*
-Copyright © 2010 Far Group
+Copyright © 2021 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Internal:
-#include "platform.concurrency.hpp"
 
 // Platform:
 
@@ -45,19 +44,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-class wm_listener: noncopyable
+namespace char_width
 {
-public:
-	wm_listener();
-	~wm_listener();
-	void Check();
+	using codepoint = unsigned int;
 
-private:
-	void WindowThreadRoutine(const os::event* ReadyEvent);
+	bool is_wide(codepoint Codepoint);
 
-	HWND m_Hwnd{};
-	std::exception_ptr m_ExceptionPtr;
-	os::thread m_Thread;
-};
+	void enable(int Value);
+	bool is_enabled();
 
-#endif // WM_LISTENER_HPP_6C668719_5279_4CB7_81B0_448AC5165C00
+	void invalidate();
+}
+
+#endif // CHAR_WIDTH_HPP_D66C86AC_3415_4FD1_89DA_0AB843FFEEB8

@@ -242,6 +242,15 @@ namespace os::concurrency
 		}
 
 		[[nodiscard]]
+		auto pop_all()
+		{
+			SCOPED_ACTION(guard_t)(m_QueueCS);
+			std::queue<T> All;
+			m_Queue.swap(All);
+			return All;
+		}
+
+		[[nodiscard]]
 		auto size() const
 		{
 			SCOPED_ACTION(guard_t)(m_QueueCS);

@@ -97,7 +97,7 @@ EditControl::EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_pr
 
 void EditControl::Show()
 {
-	if (m_Where.width() > m_Str.size())
+	if (m_Where.width() > RealPosToVisual(m_Str.size()))
 	{
 		SetLeftPos(0);
 	}

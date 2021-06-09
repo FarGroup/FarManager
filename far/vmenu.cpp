@@ -2028,25 +2028,26 @@ void VMenu::ShowMenu(bool IsParent)
 		MaxItemLength = std::max(MaxItemLength, CheckFlags(VMENU_SHOWAMPERSAND)? i.Name.size() : HiStrlen(i.Name));
 	}
 
-	MaxLineWidth = m_Where.width();
+	int CalcMaxLineWidth = m_Where.width();
 
 	if (m_BoxType != NO_BOX)
-		MaxLineWidth -= 2; // frame
+		CalcMaxLineWidth -= 2; // frame
 
-	MaxLineWidth -= 2; // check mark + left horz. scroll
+	CalcMaxLineWidth -= 2; // check mark + left horz. scroll
 
 	if (/*!CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX) && */ ItemSubMenusCount > 0)
-		MaxLineWidth -= 1; // sub menu arrow
+		CalcMaxLineWidth -= 1; // sub menu arrow
 
 	if ((CheckFlags(VMENU_LISTBOX | VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar) && m_BoxType == NO_BOX && ScrollBarRequired(m_Where.height(), GetShowItemCount()))
-		MaxLineWidth -= 1; // scrollbar
+		CalcMaxLineWidth -= 1; // scrollbar
 
-	if (MaxItemLength > MaxLineWidth)
+	if (static_cast<int>(MaxItemLength) > CalcMaxLineWidth)
 	{
-		MaxLineWidth -= 1; // right horz. scroll
+		CalcMaxLineWidth -= 1; // right horz. scroll
 	}
 
-	MaxLineWidth = std::max(MaxLineWidth, size_t(0));
+	CalcMaxLineWidth = std::max(CalcMaxLineWidth, 0);
+	MaxLineWidth = CalcMaxLineWidth;
 
 	if (m_Where.right <= m_Where.left || m_Where.bottom <= m_Where.top)
 	{
@@ -2188,7 +2189,7 @@ void VMenu::ShowMenu(bool IsParent)
 				}
 
 				SetColor(Colors[VMenuColorSeparator]);
-				BoxText(strTmpStr, false);
+				Text(strTmpStr);
 
 				if (!Items[I].Name.empty())
 				{
@@ -2206,9 +2207,9 @@ void VMenu::ShowMenu(bool IsParent)
 				if (m_BoxType!=NO_BOX)
 				{
 					SetColor(Colors[VMenuColorBox]);
-					BoxText(BoxChar);
+					Text(BoxChar);
 					GotoXY(m_Where.right, Y);
-					BoxText(BoxChar);
+					Text(BoxChar);
 				}
 
 				GotoXY(m_Where.left + (m_BoxType == NO_BOX? 0 : 1), Y);
@@ -2340,7 +2341,7 @@ void VMenu::ShowMenu(bool IsParent)
 				if (Items[I].Flags & MIF_SUBMENU)
 				{
 					GotoXY(static_cast<int>(m_Where.right - 1), Y);
-					BoxText(L'►');
+					Text(L'►');
 				}
 
 				SetColor(Colors[(Items[I].Flags&LIF_DISABLE)?VMenuColorArrowsDisabled:(Items[I].Flags&LIF_SELECTED?VMenuColorArrowsSelect:VMenuColorArrows)]);
@@ -2348,13 +2349,13 @@ void VMenu::ShowMenu(bool IsParent)
 				if (Items[I].ShowPos)
 				{
 					GotoXY(m_Where.left + (m_BoxType == NO_BOX? 0 : 1) + 1, Y);
-					BoxText(L'«');
+					Text(L'«');
 				}
 
 				if (ShowRightScroller)
 				{
 					GotoXY(static_cast<int>(m_Where.left + (m_BoxType == NO_BOX? 0 : 1) + 2 + MaxLineWidth), Y);
-					BoxText(L'»');
+					Text(L'»');
 				}
 			}
 		}
@@ -2363,9 +2364,9 @@ void VMenu::ShowMenu(bool IsParent)
 			if (m_BoxType!=NO_BOX)
 			{
 				SetColor(Colors[VMenuColorBox]);
-				BoxText(BoxChar);
+				Text(BoxChar);
 				GotoXY(m_Where.right, Y);
-				BoxText(BoxChar);
+				Text(BoxChar);
 				GotoXY(m_Where.left + 1, Y);
 			}
 			else
@@ -2949,4 +2950,14 @@ void VMenu::EnableFilter(bool const Enable)
 
 	if (!Enable)
 		RestoreFilteredItems();
+}
+
+size_t VMenu::Text(string_view const Str) const
+{
+	return ::Text(Str, m_Where.width() - (WhereX() - m_Where.left));
+}
+
+size_t VMenu::Text(wchar_t const Char) const
+{
+	return ::Text(Char, m_Where.width() - (WhereX() - m_Where.left));
 }

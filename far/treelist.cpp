@@ -498,7 +498,7 @@ void TreeList::DisplayTree(bool Fast)
 				}
 
 				strOutStr+=TreeLineSymbol[CurPtr.Last[CurPtr.Depth-1]?2:3];
-				BoxText(strOutStr);
+				Text(strOutStr);
 
 				const auto pos = FindLastSlash(CurPtr.strName);
 				if (pos != string::npos)
@@ -1154,7 +1154,7 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 
 				if (ToPlugin)
 				{
-					PluginPanelItemHolder Item;
+					PluginPanelItemHolderHeap Item;
 					const auto hAnotherPlugin = AnotherPanel->GetPluginHandle();
 					if (FileList::FileNameToPluginItem(m_ListData[m_CurFile].strName, Item))
 					{

@@ -2565,11 +2565,8 @@ mappát vált. Ha nincs engedélyezve, a fastruktúrán a mappaváltáshoz #Ente
 
 @InterfSettings
 $ #Beállítások: kezelőfelület beállítások#
- #Óra a paneleken#
+ #Óra#
  Megjeleníti az órát a képernyő jobb felső sarkában.
-
- #Óra a nézőkében és a szerkesztőben#
- Megjeleníti az órát a nézőkében és a szerkesztőben is.
 
  #Egér kezelése#
  A Far egérrel is vezérelhető.
@@ -2607,6 +2604,15 @@ to calculate the total files count.
  A #Ctrl+PgUp# leütése egy meghajtó gyökérmappájában: helyi meghajtónál megjeleníti a Meghajtók menüt.
  Hálózati meghajtónál elindítja a Hálózat plugint (ha lehetséges) vagy meghívja a Meghajtók menüt (ha a Hálózat plugin
 nem elérhető).
+
+ #Use Virtual Terminal for rendering#
+ Render the output using ANSI escape sequences.
+ This allows using 24-bit colors and may (or may not) work better (or worse) with some Unicode characters.
+ Requires Windows 10 and above.
+
+ #Fullwidth-aware rendering#
+ Take into account the fact that East Asian characters require two screen cells instead of one.
+ The support is rudimentary and experimental. It may work or not, depending on your OS, locale, terminal, font and other settings.
 
  #ClearType friendly redraw#
  Redraw the window in such a way that ClearType related artifacts do not appear.

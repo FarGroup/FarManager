@@ -98,6 +98,75 @@ namespace os::chrono
 		return Duration / 1_hns;
 	}
 
+	bool utc_to_local(time_point UtcTime, SYSTEMTIME& LocalTime)
+	{
+		const auto FileTime = nt_clock::to_filetime(UtcTime);
+		SYSTEMTIME SystemTime;
+		return FileTimeToSystemTime(&FileTime, &SystemTime) && SystemTimeToTzSpecificLocalTime(nullptr, &SystemTime, &LocalTime);
+	}
+
+	static bool local_to_utc(const SYSTEMTIME& lst, SYSTEMTIME& ust)
+	{
+		if (imports.TzSpecificLocalTimeToSystemTime && imports.TzSpecificLocalTimeToSystemTime(nullptr, &lst, &ust))
+			return true;
+
+		TIME_ZONE_INFORMATION Tz;
+		if (GetTimeZoneInformation(&Tz) != TIME_ZONE_ID_INVALID)
+		{
+			Tz.Bias = -Tz.Bias;
+			Tz.StandardBias = -Tz.StandardBias;
+			Tz.DaylightBias = -Tz.DaylightBias;
+			if (SystemTimeToTzSpecificLocalTime(&Tz, &lst, &ust))
+				return true;
+		}
+
+		std::tm ltm
+		{
+			lst.wSecond,
+			lst.wMinute,
+			lst.wHour,
+			lst.wDay,
+			lst.wMonth - 1,
+			lst.wYear - 1900,
+			lst.wDayOfWeek,
+			-1,
+			-1
+		};
+
+		if (const auto gtim = std::mktime(&ltm); gtim != static_cast<time_t>(-1))
+		{
+			if (const auto ptm = std::gmtime(&gtim))
+			{
+				ust.wYear = ptm->tm_year + 1900;
+				ust.wMonth = ptm->tm_mon + 1;
+				ust.wDay = ptm->tm_mday;
+				ust.wHour = ptm->tm_hour;
+				ust.wMinute = ptm->tm_min;
+				ust.wSecond = ptm->tm_sec;
+				ust.wDayOfWeek = ptm->tm_wday;
+				ust.wMilliseconds = lst.wMilliseconds;
+				return true;
+			}
+		}
+
+		FILETIME lft, uft;
+		return SystemTimeToFileTime(&lst, &lft) && LocalFileTimeToFileTime(&lft, &uft) && FileTimeToSystemTime(&uft, &ust);
+	}
+
+	bool local_to_utc(const SYSTEMTIME& LocalTime, time_point& UtcTime)
+	{
+		SYSTEMTIME SystemUtcTime;
+		if (!local_to_utc(LocalTime, SystemUtcTime))
+			return false;
+
+		FILETIME FileUtcTime;
+		if (!SystemTimeToFileTime(&SystemUtcTime, &FileUtcTime))
+			return false;
+
+		UtcTime = nt_clock::from_filetime(FileUtcTime);
+		return true;
+	}
+
 	void sleep_for(std::chrono::milliseconds const Duration)
 	{
 		Sleep(static_cast<DWORD>(Duration / 1ms));
@@ -113,13 +182,19 @@ namespace os::chrono
 		return true;
 	}
 
-	string format_time()
+	string format_time(time_point const Time)
 	{
+		SYSTEMTIME LocalTime;
+		if (!utc_to_local(Time, LocalTime))
+		{
+			return {};
+		}
+
 		string Value;
 		// BUGBUG check result
 		(void)os::detail::ApiDynamicErrorBasedStringReceiver(ERROR_INSUFFICIENT_BUFFER, Value, [&](span<wchar_t> Buffer)
 		{
-			const auto ReturnedSize = ::GetTimeFormat(LOCALE_USER_DEFAULT, TIME_NOSECONDS, nullptr, nullptr, Buffer.data(), static_cast<int>(Buffer.size()));
+			const auto ReturnedSize = ::GetTimeFormat(LOCALE_USER_DEFAULT, TIME_NOSECONDS, &LocalTime, nullptr, Buffer.data(), static_cast<int>(Buffer.size()));
 			return ReturnedSize? ReturnedSize - 1 : 0;
 		});
 		return Value;

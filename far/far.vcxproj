@@ -190,6 +190,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     </CustomBuild>
     <ClCompile Include="cache.cpp" />
     <ClCompile Include="cddrv.cpp" />
+    <ClCompile Include="char_width.cpp" />
     <ClCompile Include="clipboard.cpp" />
     <ClCompile Include="cmdline.cpp" />
     <ClCompile Include="codepage_selection.cpp" />
@@ -352,6 +353,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="bitflags.hpp" />
     <ClInclude Include="cache.hpp" />
     <ClInclude Include="cddrv.hpp" />
+    <ClInclude Include="char_width.hpp" />
     <ClInclude Include="clipboard.hpp" />
     <ClInclude Include="cmdline.hpp" />
     <ClInclude Include="codepage_selection.hpp" />

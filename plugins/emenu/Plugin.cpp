@@ -86,6 +86,8 @@ private:
 		m_Null{ CreateFile(L"nul", GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, {}, OPEN_EXISTING, 0, {}) };
 };
 
+static COORD MousePositionFromFar{};
+
 CPlugin::CPlugin(const PluginStartupInfo *Info)
 {
   m_hModule=(HINSTANCE)GetModuleHandle(Info->ModuleName);
@@ -314,16 +316,31 @@ CPlugin::EDoMenu CPlugin::OpenPluginBkg(int nOpenFrom, INT_PTR nItem)
     break;
 
   case OPEN_FILEPANEL:
-    Mode = nItem? CALL_APPS : CALL_RIGHTCLICK;
+    if (nItem)
+    {
+      Mode = CALL_RIGHTCLICK;
+      MousePositionFromFar = *reinterpret_cast<COORD const*>(nItem);
+    }
+    else
+    {
+      Mode = CALL_APPS;
+    }
     break;
 
   case OPEN_LEFTDISKMENU:
   case OPEN_RIGHTDISKMENU:
     {
-      struct DiskMenuParam {const wchar_t* CmdLine; BOOL Apps;} *p = reinterpret_cast<DiskMenuParam*>(nItem);
+      struct DiskMenuParam
+      {
+        const wchar_t* CmdLine;
+        BOOL Apps;
+        COORD MousePos;
+      }
+      *p = reinterpret_cast<DiskMenuParam*>(nItem);
       Mode = p->Apps? CALL_APPS : CALL_RIGHTCLICK;
       szCmdLine=new wchar_t[wcslen(p->CmdLine)+1];
       wcscpy(szCmdLine, p->CmdLine);
+      MousePositionFromFar = p->MousePos;
     }
     break;
 
@@ -397,7 +414,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPWSTR szCmdLine, CallMode Mode)
       return enDoMenu;
     }
   }
-  CFarMenu oMainMenu(g_szTopicMain);
+  CFarMenu oMainMenu(MousePositionFromFar, g_szTopicMain);
   oMainMenu.AddItem(GetMsg(LNG_CONTEXT_MENU));
   oMainMenu.AddItem(GetMsg(LNG_SELECT_DRIVE));
   int nSelItem=0;
@@ -444,7 +461,7 @@ CPlugin::EDoMenu CPlugin::SelectDrive()
   {
     return DOMNU_ERR_SHOW;
   }
-  CFarMenu oDrivesMenu(g_szTopicMyComp);
+  CFarMenu oDrivesMenu({}, g_szTopicMyComp);
   LPITEMIDLIST piid;
   ULONG nFetched;
   CPidl oPiids;
@@ -893,7 +910,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
   else
   {
     int nSelItem=0;
-    CFarMenu oTypeMenu(g_szTopicChooseMenuType, &GuiTextMenuGuid);
+    CFarMenu oTypeMenu({}, g_szTopicChooseMenuType, &GuiTextMenuGuid);
     oTypeMenu.AddItem(GetMsg(LNG_MNU_GUI));
     oTypeMenu.AddItem(GetMsg(LNG_MNU_TEXT));
     while (1)
@@ -1066,14 +1083,18 @@ bool CPlugin::ShowGuiMenu(HMENU hMenu, LPCONTEXTMENU pMenu1, LPCONTEXTMENU2 pMen
   {
     assert(0);
   }
-  HWND hFarWnd=(HWND)AdvControl(&MainGuid,ACTL_GETFARHWND, 0, {});
+
   if (m_GuiPos==1)
   {
+    const auto hFarWnd = reinterpret_cast<HWND>(AdvControl(&MainGuid, ACTL_GETFARHWND, 0, {}));
     RECT rc;
-    if (GetWindowRect(hFarWnd, &rc))
+    if (GetClientRect(hFarWnd, &rc))
     {
-      pt.x=(rc.left+rc.right)>>1;
-      pt.y=(rc.bottom+rc.top)>>1;
+      if (rc.left < rc.right && rc.top < rc.bottom)
+      {
+        pt.x = (rc.left + rc.right) / 2;
+        pt.y = (rc.bottom + rc.top) / 2;
+      }
     }
     else
     {
@@ -1140,7 +1161,7 @@ bool CPlugin::ShowTextMenu(HMENU hMenu, LPCONTEXTMENU pPreferredMenu, LPCONTEXTM
 {
   int nItems=GetMenuItemCount(hMenu);
   if (nItems<1) return false;
-  CFarMenu oFarMenu(g_szTopicContextMenu, nullptr, nItems);
+  CFarMenu oFarMenu(MousePositionFromFar, g_szTopicContextMenu, nullptr, nItems);
   for (int i=0; i<nItems; i++)
   {
     auto_sz szItem;

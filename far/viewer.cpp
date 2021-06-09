@@ -667,14 +667,14 @@ void Viewer::ShowPage(int nMode)
 			{
 				GotoXY(XX2,Y);
 				SetColor(COL_VIEWERARROWS);
-				BoxText(0xbb);
+				Text(L'»');
 			}
 
 			if (LeftPos>0 && !i.Data.empty() && ViOpt.ShowArrows)
 			{
 				GotoXY(m_Where.left, Y);
 				SetColor(COL_VIEWERARROWS);
-				BoxText(0xab);
+				Text(L'«');
 			}
 		}
 	}
@@ -1539,9 +1539,6 @@ bool Viewer::process_key(const Manager::Key& Key)
 		}
 		case KEY_IDLE:
 		{
-			if (Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() && Global->Opt->ViOpt.ShowTitleBar)
-				ShowTime();
-
 			if (ViewFile)
 			{
 				if (m_TimeCheck && !*m_TimeCheck)
@@ -2124,7 +2121,7 @@ bool Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		if (IntKeyState.MousePos.y != m_Where.top - 1)
 			return true;
 
-		const auto NameLen = std::max(20, ObjWidth() - 40 - (Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen()? 3 + static_cast<int>(Global->CurrentTime.size()) : 0));
+		const auto NameLen = std::max(20, ObjWidth() - 40 - (Global->Opt->Clock && HostFileViewer && HostFileViewer->IsFullScreen()? 3 + static_cast<int>(Global->CurrentTime.size()) : 0));
 		const auto cp_len = static_cast<int>(str(m_Codepage).size());
 		//                           ViewMode     CopdePage             Goto
 		static const int keys[]   = {KEY_SHIFTF4, KEY_SHIFTF8,          KEY_ALTF8   };

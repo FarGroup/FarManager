@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "console.hpp"
+#include "exception.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -96,11 +98,17 @@ private:
 		SCOPED_ACTION(os::com::initialize);
 
 		os::com::ptr<ITaskbarList3> TaskbarList;
-		if (FAILED(CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, IID_PPV_ARGS_Helper(&ptr_setter(TaskbarList)))))
+		if (const auto Result = CoCreateInstance(CLSID_TaskbarList, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskbarList3, IID_PPV_ARGS_Helper(&ptr_setter(TaskbarList))); FAILED(Result))
+		{
+			LOGWARNING(L"CoCreateInstance(CLSID_TaskbarList): {}"sv, os::format_error(Result));
 			return;
+		}
 
 		if (!TaskbarList)
+		{
+			LOGWARNING(L"!TaskbarList"sv);
 			return;
+		}
 
 		for (;;)
 		{
@@ -137,7 +145,7 @@ private:
 		m_StateEvent{ os::event::type::automatic, os::event::state::nonsignaled },
 		m_ValueEvent{ os::event::type::automatic, os::event::state::nonsignaled };
 
-	os::thread m_ComThread{ os::thread::mode::join, &taskbar_impl::handler, this };
+	os::thread m_ComThread{ IsWindows7OrGreater()? os::thread{ os::thread::mode::join, &taskbar_impl::handler, this } : os::thread{} };
 };
 
 void taskbar::set_state(TBPFLAG const State)
@@ -161,13 +169,19 @@ void taskbar::flash()
 	WINDOWINFO WindowInfo{ sizeof(WindowInfo)};
 
 	if (!GetWindowInfo(ConsoleWindow, &WindowInfo))
+	{
+		LOGWARNING(L"GetWindowInfo(ConsoleWindow): {}"sv, last_error());
 		return;
+	}
 
 	if (WindowInfo.dwWindowStatus == WS_ACTIVECAPTION)
 		return;
 
 	FLASHWINFO FlashInfo{sizeof(FlashInfo), ConsoleWindow, FLASHW_ALL | FLASHW_TIMERNOFG, 5, 0};
-	FlashWindowEx(&FlashInfo);
+	if (!FlashWindowEx(&FlashInfo))
+	{
+		LOGWARNING(L"FlashWindowEx(): {}"sv, last_error());
+	}
 }
 
 

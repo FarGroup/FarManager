@@ -101,7 +101,14 @@ size_t global::far_clock::size() const
 	return m_CurrentTime.size();
 }
 
-void global::far_clock::update()
+void global::far_clock::update(bool const Force)
 {
-	m_CurrentTime = os::chrono::format_time();
+	const auto Now = os::chrono::nt_clock::now();
+	const auto Value = Now.time_since_epoch() / 1min;
+
+	if (!Force && Value == m_LastValue)
+		return;
+
+	m_CurrentTime = os::chrono::format_time(Now);
+	m_LastValue = Value;
 }

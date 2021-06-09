@@ -835,7 +835,6 @@ public:
 
 	BoolOption UseRegisteredTypes;
 
-	BoolOption ViewerEditorClock;
 	Bool3Option SaveViewHistory;
 	IntOption ViewHistoryCount;
 	IntOption ViewHistoryLifetime;
@@ -977,6 +976,7 @@ public:
 
 	BoolOption VirtualTerminalRendering;
 	Bool3Option ClearType;
+	Bool3Option FullWidthAwareRendering;
 
 	Bool3Option PgUpChangeDisk;
 	BoolOption ShowDotsInRoot;

@@ -1,3 +1,7 @@
+drkns 03.06.2021 23:29:55 +0100 - build 67
+
+1. Workarounds for menu positioning in Windows Terminal.
+
 drkns 08.04.2021 19:42:42 +0100 - build 66
 
 1. Suppress stdout & stderr before calling IContextMenu methods.

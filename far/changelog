@@ -1,4 +1,101 @@
 --------------------------------------------------------------------------------
+drkns 07.06.2021 23:54:29 +0100 - build 5816
+
+1. Forum: sorting on plugin panels is too slow.
+
+--------------------------------------------------------------------------------
+drkns 07.06.2021 22:28:28 +0100 - build 5815
+
+1. Continue fullwidth-aware rendering.
+
+--------------------------------------------------------------------------------
+drkns 06.06.2021 21:01:06 +0100 - build 5814
+
+1. Basic support for UTF-16 surrogates.
+
+--------------------------------------------------------------------------------
+drkns 05.06.2021 23:26:24 +0100 - build 5813
+
+1. Continue fullwidth-aware rendering.
+
+--------------------------------------------------------------------------------
+drkns 03.06.2021 23:29:55 +0100 - build 5812
+
+1. Workarounds for EMenu positioning in Windows Terminal.
+
+--------------------------------------------------------------------------------
+drkns 02.06.2021 18:45:47 +0100 - build 5811
+
+1. Sanitise C1 control characters in output.
+
+2. Executor logic correction.
+
+--------------------------------------------------------------------------------
+drkns 02.06.2021 00:23:38 +0100 - build 5810
+
+1. Continuation of 5809. Selection and cursor movements should work now, more or less.
+
+2. gh-409: Far crashed when entering in shared folder (SMB).
+
+--------------------------------------------------------------------------------
+drkns 30.05.2021 22:44:55 +0100 - build 5809
+
+1. Rudimentary experimental support for fullwidth-aware rendering (weebs & East Asian users, FYI).
+
+--------------------------------------------------------------------------------
+drkns 30.05.2021 17:00:38 +0100 - build 5808
+
+1. gh-407: Rejecting elevation request when saving a file prevents from a further saving
+
+--------------------------------------------------------------------------------
+drkns 29.05.2021 20:07:34 +0100 - build 5807
+
+1. Correction of 5806.2.
+
+--------------------------------------------------------------------------------
+drkns 29.05.2021 17:26:08 +0100 - build 5806
+
+1. 0003866: Elevation shouldn't need SeDebugPrivilege.
+
+2. Forum: "combobox looses unchanged state as soon as it becomes focused".
+
+--------------------------------------------------------------------------------
+drkns 28.05.2021 17:18:19 +0100 - build 5805
+
+1. Correction of 4788.2: edit controls were incorrectly set to unchanged state after DM_SETTEXT.
+
+2. 1 second timeout before triggeting the screensaver with a mouse to avoid flickering.
+
+3. "[x] Clock in viewer and editor" removed. Clock is now displayed either everywhere or nowhere.
+
+--------------------------------------------------------------------------------
+drkns 27.05.2021 23:22:21 +0100 - build 5804
+
+1. Experimental: removed constant polling from the main thread.
+   This should noticeably reduce CPU consumption and make various idle events more predictable.
+
+2. Experimental: reworked Find File dialog updating.
+   This should make the search faster and make UI updates more predictable.
+
+3. Optimisation of message transfer between threads.
+   This should reduce the amount of locks and make things faster in various places.
+
+4. More logging.
+
+5. Minor refactoring.
+
+--------------------------------------------------------------------------------
+drkns 27.05.2021 17:18:25 +0100 - build 5803
+
+1. Workaround for gh-404: hangs on exit in Windows XP SP3.
+
+--------------------------------------------------------------------------------
+drkns 20.05.2021 23:33:22 +0100 - build 5802
+
+1. Two separate minidumps: normal (small) and full memory (huge).
+   To make it easier to report issues.
+
+--------------------------------------------------------------------------------
 drkns 19.05.2021 18:46:33 +0100 - build 5801
 
 1. Alpha blending performance optimisation.

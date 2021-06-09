@@ -28,6 +28,7 @@ SRCS = \
 	sqlite.c \
 	cache.cpp \
 	cddrv.cpp \
+	char_width.cpp \
 	clipboard.cpp \
 	cmdline.cpp \
 	codepage_selection.cpp \

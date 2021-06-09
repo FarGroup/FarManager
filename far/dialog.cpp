@@ -430,9 +430,6 @@ Dialog::~Dialog()
 	Dialog::Hide();
 	if (Global)
 	{
-		if (Global->Opt->Clock && Global->WindowManager->IsPanelsActive(true))
-			ShowTime();
-
 		if (!CheckDialogMode(DMODE_ISMENU))
 			Global->ScrBuf->Flush();
 	}
@@ -1481,7 +1478,7 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 					// Select
 					Color[1] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGEDITDISABLED : Focus? COL_WARNDIALOGEDITSELECTED : COL_WARNDIALOGEDIT);
 					// Unchanged
-					Color[2] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGEDITDISABLED : COL_WARNDIALOGEDITUNCHANGED); //???
+					Color[2] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGEDITDISABLED : Focus? COL_WARNDIALOGEDITSELECTED : COL_WARNDIALOGEDITUNCHANGED);
 					// History
 					Color[3] = colors::PaletteColorToFarColor(DisabledItem? COL_WARNDIALOGDISABLED : COL_WARNDIALOGTEXT);
 				}
@@ -1492,7 +1489,7 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 					// Select
 					Color[1] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED: Focus? COL_DIALOGEDITSELECTED : COL_DIALOGEDIT);
 					// Unchanged
-					Color[2] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED : COL_DIALOGEDITUNCHANGED); //???
+					Color[2] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGEDITDISABLED :  Focus? COL_DIALOGEDITSELECTED : COL_DIALOGEDITUNCHANGED);
 					// History
 					Color[3] = colors::PaletteColorToFarColor(DisabledItem? COL_DIALOGDISABLED : COL_DIALOGTEXT);
 				}
@@ -1725,6 +1722,10 @@ void Dialog::ShowDialog(size_t ID)
 
 				if (!(Item.Flags & DIF_WORDWRAP))
 				{
+					size_t MaxWidth = CX1 == -1?
+						m_Where.width() - (DialogMode.Check(DMODE_SMALLDIALOG)? 2 : 5) * 2 :
+						m_Where.width() - CX1 - (DialogMode.Check(DMODE_SMALLDIALOG)? 2 : 5);
+
 					if (Item.Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2))
 					{
 						if (!strStr.empty())
@@ -1737,12 +1738,14 @@ void Dialog::ShowDialog(size_t ID)
 					}
 					else if (CX1 != -1 && CX2 > CX1)
 					{
+						MaxWidth = CX2 - CX1 + 1;
+
 						if (Item.Flags & DIF_RIGHTTEXT)
-							inplace::fit_to_right(strStr, CX2 - CX1 + 1);
+							inplace::fit_to_right(strStr, MaxWidth);
 						if (Item.Flags & DIF_CENTERTEXT)
-							inplace::fit_to_center(strStr, CX2 - CX1 + 1);
+							inplace::fit_to_center(strStr, MaxWidth);
 						else
-							inplace::fit_to_left(strStr, CX2 - CX1 + 1);
+							inplace::fit_to_left(strStr, MaxWidth);
 					}
 
 					LenText = LenStrItem(I, strStr);
@@ -1803,9 +1806,9 @@ void Dialog::ShowDialog(size_t ID)
 					SetColor(ItemColor[0]);
 
 					if (Item.Flags & DIF_SHOWAMPERSAND)
-						Text(strStr);
+						Text(strStr, MaxWidth);
 					else
-						HiText(strStr,ItemColor[1]);
+						HiText(strStr,ItemColor[1], MaxWidth);
 				}
 				else
 				{
@@ -5690,7 +5693,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 							EditLine->SetReadOnly(ReadOnly);
 
 							// не меняем clear-флаг, пока не проиницализировались
-							EditLine->SetClearFlag(DialogMode.Check(DMODE_OBJECTS_INITED)? true : IsUnchanged);
+							EditLine->SetClearFlag(DialogMode.Check(DMODE_OBJECTS_INITED)? false : IsUnchanged);
 						}
 
 						break;

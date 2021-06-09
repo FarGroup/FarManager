@@ -44,6 +44,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "exception.hpp"
 #include "palette.hpp"
+#include "encoding.hpp"
+#include "char_width.hpp"
 
 // Platform:
 #include "platform.version.hpp"
@@ -57,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/io.hpp"
 #include "common/range.hpp"
 #include "common/scope_exit.hpp"
+#include "common/view/enumerate.hpp"
 
 // External:
 #include "format.hpp"
@@ -66,11 +69,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static bool sWindowMode;
 static bool sEnableVirtualTerminal;
 
+constexpr auto bad_char_replacement = L' ';
 
-static wchar_t ReplaceControlCharacter(wchar_t const Char)
+wchar_t ReplaceControlCharacter(wchar_t const Char)
 {
 	switch (Char)
 	{
+	// C0
 	case 0x00: return L' '; // space
 	case 0x01: return L'☺'; // white smiling face
 	case 0x02: return L'☻'; // black smiling face
@@ -81,12 +86,12 @@ static wchar_t ReplaceControlCharacter(wchar_t const Char)
 	case 0x07: return L'•'; // bullet
 	case 0x08: return L'◘'; // inverse bullet
 	case 0x09: return L'○'; // white circle
-	case 0x0a: return L'◙'; // inverse white circle
-	case 0x0b: return L'♂'; // male sign
-	case 0x0c: return L'♀'; // female sign
-	case 0x0d: return L'♪'; // eighth note
-	case 0x0e: return L'♫'; // beamed eighth notes
-	case 0x0f: return L'☼'; // white sun with rays
+	case 0x0A: return L'◙'; // inverse white circle
+	case 0x0B: return L'♂'; // male sign
+	case 0x0C: return L'♀'; // female sign
+	case 0x0D: return L'♪'; // eighth note
+	case 0x0E: return L'♫'; // beamed eighth notes
+	case 0x0F: return L'☼'; // white sun with rays
 	case 0x10: return L'►'; // black right - pointing pointer
 	case 0x11: return L'◄'; // black left - pointing pointer
 	case 0x12: return L'↕'; // up down arrow
@@ -97,16 +102,117 @@ static wchar_t ReplaceControlCharacter(wchar_t const Char)
 	case 0x17: return L'↨'; // up down arrow with base
 	case 0x18: return L'↑'; // upwards arrow
 	case 0x19: return L'↓'; // downwards arrow
-	case 0x1a: return L'→'; // rightwards arrow
-	case 0x1b: return L'←'; // leftwards arrow
-	case 0x1c: return L'∟'; // right angle
-	case 0x1d: return L'↔'; // left right arrow
-	case 0x1e: return L'▲'; // black up - pointing triangle
-	case 0x1f: return L'▼'; // black down - pointing triangle
-	case 0x7f: return L'⌂'; // house
-	case 0x9b: return L'›'; // single right-pointing angle quotation mark
+	case 0x1A: return L'→'; // rightwards arrow
+	case 0x1B: return L'←'; // leftwards arrow
+	case 0x1C: return L'∟'; // right angle
+	case 0x1D: return L'↔'; // left right arrow
+	case 0x1E: return L'▲'; // black up - pointing triangle
+	case 0x1F: return L'▼'; // black down - pointing triangle
+	case 0x7F: return L'⌂'; // house
+
+	// C1
+	// These are considered control characters too now.
+	// Unlike C0, it is unclear what glyphs to use, so just remap to the private area for now.
+	case 0x80: return L'\xE080';
+	case 0x81: return L'\xE081';
+	case 0x82: return L'\xE082';
+	case 0x83: return L'\xE083';
+	case 0x84: return L'\xE084';
+	case 0x85: return L'\xE085';
+	case 0x86: return L'\xE086';
+	case 0x87: return L'\xE087';
+	case 0x88: return L'\xE088';
+	case 0x89: return L'\xE089';
+	case 0x8A: return L'\xE08A';
+	case 0x8B: return L'\xE08B';
+	case 0x8C: return L'\xE08C';
+	case 0x8D: return L'\xE08D';
+	case 0x8E: return L'\xE08E';
+	case 0x8F: return L'\xE08F';
+	case 0x90: return L'\xE090';
+	case 0x91: return L'\xE091';
+	case 0x92: return L'\xE092';
+	case 0x93: return L'\xE093';
+	case 0x94: return L'\xE094';
+	case 0x95: return L'\xE095';
+	case 0x96: return L'\xE096';
+	case 0x97: return L'\xE097';
+	case 0x98: return L'\xE098';
+	case 0x99: return L'\xE099';
+	case 0x9A: return L'\xE09A';
+	case 0x9B: return L'\xE09B';
+	case 0x9C: return L'\xE09C';
+	case 0x9D: return L'\xE09D';
+	case 0x9E: return L'\xE09E';
+	case 0x9F: return L'\xE09F';
+
 	default:   return Char;
 	}
+}
+
+static bool sanitise_dbsc_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
+{
+	const auto
+		IsFirst = flags::check_any(First.Attributes.Flags, COMMON_LVB_LEADING_BYTE),
+		IsSecond = flags::check_any(Second.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
+
+	if (!IsFirst && !IsSecond)
+	{
+		// Not DBSC, awesome
+		return false;
+	}
+
+	flags::clear(First.Attributes.Flags, COMMON_LVB_LEADING_BYTE);
+	flags::clear(Second.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
+
+	if (First == Second)
+	{
+		// Valid DBSC, awesome
+		flags::set(First.Attributes.Flags, COMMON_LVB_LEADING_BYTE);
+		flags::set(Second.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
+
+		return false;
+	}
+
+	if (IsFirst)
+		First.Char = bad_char_replacement;
+
+	if (IsSecond)
+		Second.Char = bad_char_replacement;
+
+	return true;
+}
+
+static bool sanitise_surrogate_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
+{
+	const auto
+		IsFirst = encoding::utf16::is_high_surrogate(First.Char),
+		IsSecond = encoding::utf16::is_low_surrogate(Second.Char);
+
+	if (!IsFirst && !IsSecond)
+	{
+		// Not surrogate, awesome
+		return false;
+	}
+
+	if (encoding::utf16::is_valid_surrogate_pair(First.Char, Second.Char) && First.Attributes == Second.Attributes)
+	{
+		// Valid surrogate, awesome
+		return false;
+	}
+
+	if (IsFirst)
+		First.Char = bad_char_replacement;
+
+	if (IsSecond)
+		Second.Char = bad_char_replacement;
+
+	return true;
+}
+
+void sanitise_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
+{
+	sanitise_dbsc_pair(First, Second) || sanitise_surrogate_pair(First, Second);
 }
 
 static COORD make_coord(point const& Point)
@@ -721,24 +827,81 @@ namespace console_detail
 		Str += L'm';
 	}
 
-	static void make_vt_sequence(span<const FAR_CHAR_INFO> Input, string& Str, std::optional<FarColor>& LastColor)
+	static void make_vt_sequence(span<FAR_CHAR_INFO> Input, string& Str, std::optional<FarColor>& LastColor)
 	{
-		for (const auto& i: Input)
+		const auto CharWidthEnabled = char_width::is_enabled();
+
+		std::optional<wchar_t> LeadingChar;
+
+		for (const auto& [Cell, n]: enumerate(Input))
 		{
-			if (!LastColor.has_value() || i.Attributes != *LastColor)
+			if (CharWidthEnabled)
 			{
-				make_vt_attributes(i.Attributes, Str, LastColor);
-				LastColor = i.Attributes;
+				if (n != Input.size() - 1)
+				{
+					sanitise_pair(Cell, Input[n + 1]);
+				}
+
+				if (Cell.Attributes.Flags & COMMON_LVB_TRAILING_BYTE)
+				{
+					if (!LeadingChar)
+					{
+						Cell.Char = bad_char_replacement;
+						flags::clear(Cell.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
+					}
+					else if (Cell.Char == *LeadingChar)
+					{
+						LeadingChar.reset();
+						continue;
+					}
+				}
+				else if (!n && encoding::utf16::is_low_surrogate(Cell.Char))
+				{
+					Cell.Char = bad_char_replacement;
+				}
+
+				LeadingChar.reset();
+
+				if (Cell.Attributes.Flags & COMMON_LVB_LEADING_BYTE)
+				{
+					if (n == Input.size() - 1)
+					{
+						flags::clear(Cell.Attributes.Flags, COMMON_LVB_LEADING_BYTE);
+						Cell.Char = bad_char_replacement;
+					}
+					else
+					{
+						LeadingChar = Cell.Char;
+					}
+				}
+				else if (n == Input.size() - 1 && encoding::utf16::is_high_surrogate(Cell.Char))
+				{
+					Cell.Char = bad_char_replacement;
+				}
 			}
 
-			Str += ReplaceControlCharacter(i.Char);
+			if (!LastColor.has_value() || Cell.Attributes != *LastColor)
+			{
+				make_vt_attributes(Cell.Attributes, Str, LastColor);
+				LastColor = Cell.Attributes;
+			}
+
+			if (CharWidthEnabled && Cell.Char == encoding::replace_char && Cell.Attributes.Reserved[0] > std::numeric_limits<wchar_t>::max())
+			{
+				const auto Pair = encoding::utf16::to_surrogate(Cell.Attributes.Reserved[0]);
+				append(Str, Pair.first, Pair.second);
+			}
+			else
+			{
+				Str += ReplaceControlCharacter(Cell.Char);
+			}
 		}
 	}
 
 	class console::implementation
 	{
 	public:
-		static bool WriteOutputVT(const matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, rectangle const& WriteRegion)
+		static bool WriteOutputVT(matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, rectangle const& WriteRegion)
 		{
 			const auto Out = ::console.GetOutputHandle();
 
@@ -813,6 +976,30 @@ namespace console_detail
 
 		static bool WriteOutputNTImpl(CHAR_INFO const* const Buffer, point const BufferSize, rectangle const& WriteRegion)
 		{
+			point SavedCursorPosition;
+			if (!::console.GetCursorRealPosition(SavedCursorPosition))
+				return false;
+
+			CONSOLE_CURSOR_INFO SavedCursorInfo;
+			if (!::console.GetCursorInfo(SavedCursorInfo))
+				return false;
+
+			if (
+				// Hide cursor
+				!::console.SetCursorInfo({ 1 }) ||
+				// Move cursor to the top left corner to minimise its impact on rendering (yes)
+				!::console.SetCursorPosition({})
+			)
+				return false;
+
+			SCOPE_EXIT
+			{
+				// Restore cursor position
+				::console.SetCursorRealPosition(SavedCursorPosition);
+				// Restore cursor
+				::console.SetCursorInfo(SavedCursorInfo);
+			};
+
 			auto SysWriteRegion = make_rect(WriteRegion);
 			return WriteConsoleOutput(::console.GetOutputHandle(), Buffer, make_coord(BufferSize), {}, &SysWriteRegion) != FALSE;
 		}
@@ -841,15 +1028,55 @@ namespace console_detail
 			return WriteOutputNTImpl(Buffer, BufferSize, WriteRegion) != FALSE;
 		}
 
-		static bool WriteOutputNT(const matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, rectangle const& WriteRegion)
+		static bool WriteOutputNT(matrix<FAR_CHAR_INFO>& Buffer, rectangle const SubRect, rectangle const& WriteRegion)
 		{
 			std::vector<CHAR_INFO> ConsoleBuffer;
 			ConsoleBuffer.reserve(SubRect.width() * SubRect.height());
 
-			for_submatrix(Buffer, SubRect, [&](const FAR_CHAR_INFO& i)
+			if (char_width::is_enabled())
 			{
-				ConsoleBuffer.emplace_back(CHAR_INFO{ { ReplaceControlCharacter(i.Char) }, colors::FarColorToConsoleColor(i.Attributes) });
-			});
+				for_submatrix(Buffer, SubRect, [&](FAR_CHAR_INFO& Cell, point const Point)
+				{
+					if (!Point.x)
+					{
+						if (Cell.Attributes.Flags & COMMON_LVB_TRAILING_BYTE)
+						{
+							flags::clear(Cell.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
+							Cell.Char = bad_char_replacement;
+						}
+						else if (encoding::utf16::is_low_surrogate(Cell.Char))
+						{
+							Cell.Char = bad_char_replacement;
+						}
+					}
+
+					if (Point.x != SubRect.width() - 1)
+					{
+						sanitise_pair(Cell, Buffer[SubRect.top + Point.y][SubRect.left + Point.x + 1]);
+					}
+					else
+					{
+						if (Cell.Attributes.Flags & COMMON_LVB_LEADING_BYTE)
+						{
+							flags::clear(Cell.Attributes.Flags, COMMON_LVB_LEADING_BYTE);
+							Cell.Char = bad_char_replacement;
+						}
+						else if (encoding::utf16::is_high_surrogate(Cell.Char))
+						{
+							Cell.Char = bad_char_replacement;
+						}
+					}
+
+					ConsoleBuffer.emplace_back(CHAR_INFO{ { ReplaceControlCharacter(Cell.Char) }, colors::FarColorToConsoleColor(Cell.Attributes) });
+				});
+			}
+			else
+			{
+				for_submatrix(Buffer, SubRect, [&](const FAR_CHAR_INFO& i)
+				{
+					ConsoleBuffer.emplace_back(CHAR_INFO{ { ReplaceControlCharacter(i.Char) }, colors::FarColorToConsoleColor(i.Attributes) });
+				});
+			}
 
 			point const BufferSize{ static_cast<int>(SubRect.width()), static_cast<int>(SubRect.height()) };
 
@@ -902,7 +1129,7 @@ namespace console_detail
 		}
 	};
 
-	bool console::WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, point BufferCoord, const rectangle& WriteRegionRelative) const
+	bool console::WriteOutput(matrix<FAR_CHAR_INFO>& Buffer, point BufferCoord, const rectangle& WriteRegionRelative) const
 	{
 		if (ExternalConsole.Imports.pWriteOutput)
 		{
@@ -924,10 +1151,7 @@ namespace console_detail
 			BufferCoord.y + WriteRegion.height() - 1
 		};
 
-		DWORD Mode = 0;
-		const auto IsVT = sEnableVirtualTerminal && GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-		return (IsVT? implementation::WriteOutputVT : implementation::WriteOutputNT)(Buffer, SubRect, WriteRegion);
+		return (IsVtEnabled()? implementation::WriteOutputVT : implementation::WriteOutputNT)(Buffer, SubRect, WriteRegion);
 	}
 
 	bool console::Read(string& Buffer, size_t& Size) const
@@ -1008,10 +1232,7 @@ namespace console_detail
 		if (ExternalConsole.Imports.pSetTextAttributes)
 			return ExternalConsole.Imports.pSetTextAttributes(&Attributes) != FALSE;
 
-		DWORD Mode;
-		const auto IsVT = sEnableVirtualTerminal && GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-		return (IsVT? implementation::SetTextAttributesVT : implementation::SetTextAttributesNT)(Attributes);
+		return (IsVtEnabled()? implementation::SetTextAttributesVT : implementation::SetTextAttributesNT)(Attributes);
 	}
 
 	bool console::GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const
@@ -1423,6 +1644,44 @@ namespace console_detail
 	bool console::IsScrollbackPresent() const
 	{
 		return GetDelta() != 0;
+	}
+
+	bool console::IsVtEnabled() const
+	{
+		DWORD Mode;
+		return sEnableVirtualTerminal && GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	}
+
+	bool console::IsWidePreciseExpensive(unsigned int const Codepoint, bool const ClearCacheOnly)
+	{
+		// It ain't stupid if it works
+
+		if (ClearCacheOnly)
+		{
+			m_WidthTestScreen = {};
+			return false;
+		}
+
+		if (!m_WidthTestScreen)
+		{
+			m_WidthTestScreen.reset(CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, {}, {}, CONSOLE_TEXTMODE_BUFFER, {}));
+			SetConsoleScreenBufferSize(m_WidthTestScreen.native_handle(), { 10, 1 });
+		}
+
+		if (!SetConsoleCursorPosition(m_WidthTestScreen.native_handle(), {}))
+			return false;
+
+		DWORD Written;
+		const auto Pair = encoding::utf16::to_surrogate(Codepoint);
+		std::array Chars = { Pair.first, Pair.second };
+		if (!WriteConsole(m_WidthTestScreen.native_handle(), Chars.data(), Pair.second? 2 : 1, &Written, {}))
+			return false;
+
+		CONSOLE_SCREEN_BUFFER_INFO Info;
+		if (!GetConsoleScreenBufferInfo(m_WidthTestScreen.native_handle(), &Info))
+			return false;
+
+		return Info.dwCursorPosition.X > 1;
 	}
 
 	bool console::GetPalette(std::array<COLORREF, 16>& Palette) const

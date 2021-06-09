@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 
 // Platform:
+#include "platform.hpp"
 
 // Common:
 #include "common/2d/matrix.hpp"
@@ -56,6 +57,9 @@ enum CLEAR_REGION
 	CR_RIGHT=0x2,
 	CR_BOTH=CR_TOP|CR_RIGHT,
 };
+
+wchar_t ReplaceControlCharacter(wchar_t Char);
+void sanitise_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second);
 
 namespace console_detail
 {
@@ -114,8 +118,8 @@ namespace console_detail
 		bool WriteInput(span<INPUT_RECORD> Buffer, size_t& NumberOfEventsWritten) const;
 		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, point BufferCoord, rectangle const& ReadRegionRelative) const;
 		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, const rectangle& ReadRegion) const { return ReadOutput(Buffer, {}, ReadRegion); }
-		bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, point BufferCoord, rectangle const& WriteRegionRelative) const;
-		bool WriteOutput(const matrix<FAR_CHAR_INFO>& Buffer, rectangle const& WriteRegion) const { return WriteOutput(Buffer, {}, WriteRegion); }
+		bool WriteOutput(matrix<FAR_CHAR_INFO>& Buffer, point BufferCoord, rectangle const& WriteRegionRelative) const;
+		bool WriteOutput(matrix<FAR_CHAR_INFO>& Buffer, rectangle const& WriteRegion) const { return WriteOutput(Buffer, {}, WriteRegion); }
 		bool Read(string& Buffer, size_t& Size) const;
 		bool Write(string_view Str) const;
 		bool Commit() const;
@@ -169,6 +173,12 @@ namespace console_detail
 		bool IsPositionVisible(point Position) const;
 		bool IsScrollbackPresent() const;
 
+		[[nodiscard]]
+		bool IsVtEnabled() const;
+
+		[[nodiscard]]
+		bool IsWidePreciseExpensive(unsigned int Codepoint, bool ClearCacheOnly = false);
+
 		bool GetPalette(std::array<COLORREF, 16>& Palette) const;
 
 		static void EnableWindowMode(bool Value);
@@ -190,6 +200,8 @@ namespace console_detail
 
 		class stream_buffers_overrider;
 		std::unique_ptr<stream_buffers_overrider> m_StreamBuffersOverrider;
+
+		os::handle m_WidthTestScreen;
 	};
 }
 

@@ -1113,6 +1113,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			case KEY_APPS:
 			case KEY_SHIFTAPPS:
 			case KEY_MSRCLICK:
+			case KEY_SHIFT|KEY_MSRCLICK:
 				if (!MenuItem)
 					break;
 
@@ -1123,7 +1124,19 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 					//вызовем EMenu если он есть
 					null_terminated const RootDirectory(dos_drive_root_directory(item.Path));
-					struct DiskMenuParam { const wchar_t* CmdLine; BOOL Apps; } p = { RootDirectory.c_str(), Key != KEY_MSRCLICK };
+					struct DiskMenuParam
+					{
+						const wchar_t* CmdLine; BOOL Apps; COORD MousePos;
+					}
+					p
+					{
+						RootDirectory.c_str(),
+						any_of(Key, KEY_APPS, KEY_SHIFTAPPS),
+						{
+							static_cast<short>(IntKeyState.MousePos.x),
+							static_cast<short>(IntKeyState.MousePos.y)
+						},
+					};
 					Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu.Id, Owner->Parent()->IsLeft(Owner)? OPEN_LEFTDISKMENU : OPEN_RIGHTDISKMENU, &p); // EMenu Plugin :-)
 				},
 				[](plugin_item const&){}}, *MenuItem);

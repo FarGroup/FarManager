@@ -195,20 +195,20 @@ static string get_report_location()
 	return L"."s;
 }
 
-static bool write_report(string_view const Data, string_view const Directory)
+static bool write_report(string_view const Data, string_view const FullPath)
 {
-	os::fs::file const File(path::join(Directory, L"bug_report.txt"sv), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
+	os::fs::file const File(FullPath, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
 	if (!File)
 		return false;
 	return File.Write(Data.data(), Data.size() * sizeof(decltype(Data)::value_type));
 }
 
-static bool write_minidump(const exception_context& Context, string_view const Directory)
+static bool write_minidump(const exception_context& Context, string_view const FullPath, MINIDUMP_TYPE const Type)
 {
 	if (!imports.MiniDumpWriteDump)
 		return false;
 
-	const os::fs::file DumpFile(path::join(Directory, L"Far.mdmp"sv), GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
+	const os::fs::file DumpFile(FullPath, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
 	if (!DumpFile)
 		return false;
 
@@ -217,7 +217,7 @@ static bool write_minidump(const exception_context& Context, string_view const D
 	EXCEPTION_POINTERS Pointers{ &ExceptionRecord, &ContextRecord };
 	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.thread_id(), &Pointers };
 
-	return imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), MiniDumpWithFullMemory, &Mei, nullptr, nullptr) != FALSE;
+	return imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), Type, &Mei, nullptr, nullptr) != FALSE;
 }
 
 static string file_version(string_view const Name)
@@ -611,10 +611,11 @@ static bool ShowExceptionUI(
 	const auto CanUnload = PluginModule != nullptr;
 	const auto ReportLocation = get_report_location();
 	const auto BugReport = collect_information(Context, NestedStack, ModuleName, Labels, Values);
-	const auto ReportOnDisk = write_report(BugReport, ReportLocation);
+	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, L"bug_report.txt"sv));
 	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
-	const auto Minidump = write_minidump(Context, ReportLocation);
-	const auto AnythingOnDisk = ReportOnDisk || Minidump;
+	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, L"far.mdmp"sv), MiniDumpNormal);
+	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, L"far_full.mdmp"sv), MiniDumpWithFullMemory);
+	const auto AnythingOnDisk = ReportOnDisk || MinidumpNormal || MinidumpFull;
 
 	if (AnythingOnDisk)
 		OpenFolderInShell(ReportLocation);

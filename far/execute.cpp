@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "keys.hpp"
 #include "log.hpp"
+#include "char_width.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -115,9 +116,11 @@ static bool FindObject(string_view const Command, string& strDest)
 		return std::pair(false, L""s);
 	};
 
-	if (IsAbsolutePath(Module))
+	const auto IsWithPath = ContainsSlash(Module);
+
+	if (IsWithPath)
 	{
-		// If absolute path has been specified it makes no sense to walk through the %PATH%.
+		// If a path has been specified it makes no sense to walk through the %PATH%.
 		// Just try all the extensions and we are done here:
 		const auto [Found, FoundName] = TryWithExtOrPathExt(Module, [](string_view const NameWithExt, bool)
 		{
@@ -146,6 +149,7 @@ static bool FindObject(string_view const Command, string& strDest)
 		}
 	}
 
+	if (!IsWithPath)
 	{
 		// Look in the %PATH%:
 		const auto PathEnv = os::env::get(L"PATH"sv);
@@ -168,9 +172,7 @@ static bool FindObject(string_view const Command, string& strDest)
 				}
 			}
 		}
-	}
 
-	{
 		// Use SearchPath:
 		const auto [Found, FoundName] = TryWithExtOrPathExt(Module, [](string_view const NameWithExt, bool const HasExt)
 		{
@@ -562,14 +564,21 @@ public:
 			console.SetInputCodepage(ConsoleCP);
 			console.SetOutputCodepage(ConsoleOutputCP);
 		}
+		else
+		{
+			if (console.GetOutputCodepage() != ConsoleOutputCP)
+			{
+				char_width::invalidate();
+			}
+		}
 
 		// Could be changed by the external program
 		Global->ScrBuf->Invalidate();
 	}
 
 private:
-	int ConsoleCP = console.GetInputCodepage();
-	int ConsoleOutputCP = console.GetOutputCodepage();
+	uintptr_t ConsoleCP = console.GetInputCodepage();
+	uintptr_t ConsoleOutputCP = console.GetOutputCodepage();
 };
 
 static bool execute_impl(

@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "taskbar.hpp"
 #include "global.hpp"
 #include "log.hpp"
+#include "char_width.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -639,7 +640,7 @@ void UpdateScreenSize()
 
 void ShowTime()
 {
-	if (Global->SuppressClock)
+	if (!Global->Opt->Clock || Global->SuppressClock)
 		return;
 
 	Global->CurrentTime.update();
@@ -727,39 +728,143 @@ void Text(point Where, const FarColor& Color, string_view const Str)
 	Text(Str);
 }
 
-void Text(string_view const Str)
+static void string_to_buffer_simple(string_view const Str, std::vector<FAR_CHAR_INFO>& Buffer, size_t)
+{
+	std::transform(ALL_CONST_RANGE(Str), std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, CurColor }; });
+}
+
+static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_CHAR_INFO>& Buffer, size_t const MaxSize)
+{
+	while(!Str.empty() && Buffer.size() != MaxSize)
+	{
+		wchar_t Char[]{ Str[0], 0 };
+
+		const auto Codepoint = encoding::utf16::extract_codepoint(Str);
+
+		if (Codepoint > std::numeric_limits<wchar_t>::max())
+		{
+			Char[1] = Str[1];
+			Str.remove_prefix(2);
+		}
+		else
+		{
+			Str.remove_prefix(1);
+		}
+
+		Buffer.push_back({ Char[0], CurColor });
+
+		if (char_width::is_wide(Codepoint))
+		{
+			if (Buffer.size() == MaxSize)
+			{
+				// No space left for the trailing char
+				Buffer.back().Char = char_width::is_wide(L'…')? L' ' : L'…';
+				break;
+			}
+
+			if (Char[1])
+			{
+				// It's wide and it already occupies two cells - awesome
+				Buffer.push_back({ Char[1], CurColor });
+			}
+			else
+			{
+				// It's wide and we need to add a bogus cell
+				Buffer.back().Attributes.Flags |= COMMON_LVB_LEADING_BYTE;
+				Buffer.push_back({ Char[0], CurColor });
+				Buffer.back().Attributes.Flags |= COMMON_LVB_TRAILING_BYTE;
+			}
+		}
+		else
+		{
+			if (Char[1])
+			{
+				// It's a surrogate pair that occupies one cell only. Here be dragons.
+				if (console.IsVtEnabled())
+				{
+					// Put *one* fake character:
+					Buffer.back().Char = encoding::replace_char;
+					// Stash the actual codepoint. The drawing code will restore it from here:
+					Buffer.back().Attributes.Reserved[0] = Codepoint;
+				}
+				else
+				{
+					// Classic grid mode, nothing we can do :(
+				}
+			}
+			else
+			{
+				// It's not wide and not surrogate - the most common case, nothing to do
+			}
+		}
+	}
+}
+
+size_t Text(string_view Str, size_t const MaxWidth)
 {
 	if (Str.empty())
-		return;
+		return 0;
 
 	std::vector<FAR_CHAR_INFO> Buffer;
 	Buffer.reserve(Str.size());
-	std::transform(ALL_CONST_RANGE(Str), std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, CurColor }; });
+
+	(char_width::is_enabled()?string_to_buffer_full_width_aware : string_to_buffer_simple)(Str, Buffer, MaxWidth);
 
 	Global->ScrBuf->Write(CurX, CurY, Buffer);
 	CurX += static_cast<int>(Buffer.size());
+
+	return Buffer.size();
 }
 
-
-void Text(lng MsgId)
+size_t Text(string_view Str)
 {
-	Text(msg(MsgId));
+	return Text(Str, Str.size());
 }
 
-void VText(string_view const Str)
+size_t Text(wchar_t const Char, size_t const MaxWidth)
+{
+	return Text({ &Char, 1 }, MaxWidth);
+}
+
+size_t Text(wchar_t const Char)
+{
+	return Text(Char, 1);
+}
+
+size_t Text(lng const MsgId, size_t const MaxWidth)
+{
+	return Text(msg(MsgId), MaxWidth);
+}
+
+size_t Text(lng const MsgId)
+{
+	const auto& Str = msg(MsgId);
+	return Text(Str, Str.size());
+}
+
+size_t VText(string_view const Str, size_t const MaxWidth)
 {
 	if (Str.empty())
-		return;
+		return 0;
+
+	size_t OccupiedWidth = 0;
 
 	const auto StartCurX = CurX;
 
 	for (const auto i: Str)
 	{
 		GotoXY(CurX, CurY);
-		Text(i);
+		OccupiedWidth = std::max(OccupiedWidth, Text(i, MaxWidth));
 		++CurY;
 		CurX = StartCurX;
 	}
+
+	return OccupiedWidth;
+}
+
+size_t VText(string_view const Str)
+{
+	return VText(Str, 1);
 }
 
 static void HiTextBase(string_view const Str, function_ref<void(string_view, bool)> const TextHandler, function_ref<void(wchar_t)> const HilightHandler)
@@ -852,7 +957,7 @@ static size_t unescape(string_view const Str, function_ref<bool(wchar_t)> const 
 class text_unescape
 {
 public:
-	explicit text_unescape(function_ref<void(string_view)> const PutString, function_ref<bool(wchar_t)> const PutChar, function_ref<void()> const Commit):
+	text_unescape(function_ref<void(string_view)> const PutString, function_ref<bool(wchar_t)> const PutChar, function_ref<void()> const Commit):
 		m_PutString(PutString),
 		m_PutChar(PutChar),
 		m_Commit(Commit)
@@ -874,23 +979,48 @@ private:
 	function_ref<void()> m_Commit;
 };
 
-void HiText(string_view const Str,const FarColor& HiColor, bool const isVertText)
+static size_t HiTextImpl(string_view const Str, const FarColor& HiColor, bool const Vertical, size_t MaxWidth)
 {
-	using text_func = void (*)(string_view);
+	using text_func = size_t(*)(string_view, size_t);
 	const text_func fText = Text, fVText = VText; //BUGBUG
-	const auto TextFunc  = isVertText ? fVText : fText;
+	const auto TextFunc  = Vertical? fVText : fText;
 
 	string Buffer;
-	const auto PutChar = [&](wchar_t const Ch){ Buffer.push_back(Ch); return true; };
-	const auto Commit = [&]{ TextFunc(Buffer); Buffer.clear(); };
+	size_t OccupiedWidth = 0;
 
-	HiTextBase(Str, text_unescape(TextFunc, PutChar, Commit), [&TextFunc, &HiColor](wchar_t c)
+	const auto PutString = [&](string_view const StrPart){ OccupiedWidth += TextFunc(StrPart, MaxWidth - OccupiedWidth); };
+	const auto PutChar = [&](wchar_t const Ch){ Buffer.push_back(Ch); return true; };
+	const auto Commit = [&]{ OccupiedWidth += TextFunc(Buffer, MaxWidth - OccupiedWidth); Buffer.clear(); };
+
+	HiTextBase(Str, text_unescape(PutString, PutChar, Commit), [&](wchar_t c)
 	{
 		const auto SaveColor = CurColor;
 		SetColor(HiColor);
-		TextFunc({ &c, 1 });
+		OccupiedWidth += TextFunc({ &c, 1 }, MaxWidth - OccupiedWidth);
 		SetColor(SaveColor);
 	});
+
+	return OccupiedWidth;
+}
+
+size_t HiText(string_view const Str, const FarColor& Color, size_t const MaxWidth)
+{
+	return HiTextImpl(Str, Color, false, MaxWidth);
+}
+
+size_t HiText(string_view const Str, const FarColor& Color)
+{
+	return HiText(Str, Color, Str.size());
+}
+
+size_t HiVText(string_view const Str, const FarColor& Color, size_t const MaxWidth)
+{
+	return HiTextImpl(Str, Color, true, MaxWidth);
+}
+
+size_t HiVText(string_view const Str, const FarColor& Color)
+{
+	return HiVText(Str, Color, Str.size());
 }
 
 string HiText2Str(string_view const Str, size_t* HotkeyVisualPos)
@@ -1029,6 +1159,54 @@ bool DoWeReallyHaveToScroll(short Rows)
 	return !std::all_of(ALL_CONST_RANGE(BufferBlock.vector()), [](const FAR_CHAR_INFO& i) { return i.Char == L' '; });
 }
 
+size_t string_length_to_visual(string_view Str, wchar_t const SpaceGlyph, wchar_t const TabGlyph)
+{
+	if (!char_width::is_enabled())
+		return Str.size();
+
+	size_t Result = 0;
+
+	while (!Str.empty())
+	{
+		const auto Codepoint = encoding::utf16::extract_codepoint(Str);
+		Str.remove_prefix(Codepoint > std::numeric_limits<wchar_t>::max()? 2 : 1);
+		Result += char_width::is_wide(Codepoint == L'\t'? TabGlyph : Codepoint == ' '? SpaceGlyph : Codepoint)? 2 : 1;
+	}
+
+	return Result;
+}
+
+size_t visual_pos_to_string_pos(string_view Str, size_t const Pos, wchar_t const SpaceGlyph, wchar_t const TabGlyph)
+{
+	if (!char_width::is_enabled())
+		return Pos;
+
+	const auto StrSize = Str.size();
+	size_t Size = 0;
+
+	while (!Str.empty() && Size < Pos)
+	{
+		const auto Codepoint = encoding::utf16::extract_codepoint(Str);
+		Str.remove_prefix(Codepoint > std::numeric_limits<wchar_t>::max() ? 2 : 1);
+		Size += char_width::is_wide(Codepoint == L'\t'? TabGlyph : Codepoint == ' '? SpaceGlyph : Codepoint)? 2 : 1;
+	}
+
+	return StrSize - Str.size() + (Pos > Size? Pos - Size : 0);
+}
+
+bool is_valid_surrogate_pair(string_view const Str)
+{
+	if (Str.size() < 2)
+		return false;
+
+	return encoding::utf16::is_valid_surrogate_pair(Str[0], Str[1]);
+}
+
+bool is_valid_surrogate_pair(wchar_t First, wchar_t Second)
+{
+	return encoding::utf16::is_valid_surrogate_pair(First, Second);
+}
+
 void GetText(rectangle Where, matrix<FAR_CHAR_INFO>& Dest)
 {
 	Global->ScrBuf->Read(Where, Dest);
@@ -1039,11 +1217,6 @@ void PutText(rectangle Where, const FAR_CHAR_INFO *Src)
 	const size_t Width = Where.width();
 	for (int Y = Where.top; Y <= Where.bottom; ++Y, Src += Width)
 		Global->ScrBuf->Write(Where.left, Y, { Src, Width });
-}
-
-void BoxText(string_view const Str, bool const IsVert)
-{
-	IsVert? VText(Str) : Text(Str);
 }
 
 /*

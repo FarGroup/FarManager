@@ -96,14 +96,6 @@ Edit::Edit(window_ptr Owner):
 
 void Edit::DisplayObject()
 {
-	if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
-	{
-		m_Flags.Clear(FEDITLINE_CLEARFLAG);  // при дроп-даун нам не нужно никакого unchanged text
-		m_SelStart=0;
-		m_SelEnd = m_Str.size(); // а также считаем что все выделено -
-		//    надо же отличаться от обычных Edit
-	}
-
 	//   Вычисление нового положения курсора в строке с учётом Mask.
 	const auto Value = GetPrevCurPos() > m_CurPos? -1 : 1;
 	m_CurPos=GetNextCursorPos(m_CurPos,Value);
@@ -232,8 +224,8 @@ void Edit::FastShow(const ShowInfo* Info)
 	}
 
 	GotoXY(m_Where.left, m_Where.top);
-	int TabSelStart=(m_SelStart==-1) ? -1:RealPosToTab(m_SelStart);
-	int TabSelEnd=(m_SelEnd<0) ? -1:RealPosToTab(m_SelEnd);
+	int TabSelStart = m_SelStart == -1? -1 : RealPosToVisual(m_SelStart);
+	int TabSelEnd = m_SelEnd < 0? -1 : RealPosToVisual(m_SelEnd);
 
 	/* $ 17.08.2000 KM
 	   Если есть маска, сделаем подготовку строки, то есть
@@ -249,7 +241,7 @@ void Edit::FastShow(const ShowInfo* Info)
 	OutStrTmp.reserve(EditLength);
 
 	SetLineCursorPos(TabCurPos);
-	const auto RealLeftPos = TabPosToReal(LeftPos);
+	const auto RealLeftPos = VisualPosToReal(LeftPos);
 
 	if (m_Str.size() > RealLeftPos)
 	{
@@ -334,34 +326,40 @@ void Edit::FastShow(const ShowInfo* Info)
 		}
 	}
 
+	// Basic color
 	SetColor(GetNormalColor());
 
 	Text(fit_to_left(OutStr, EditLength));
 
-	if (m_Flags.Check(FEDITLINE_EDITORMODE))
-		ApplyColor(GetSelectedColor(), XPos, FocusedLeftPos);
-
-	if (TabSelStart==-1)
+	if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
 	{
-		if (m_Flags.Check(FEDITLINE_CLEARFLAG))
-		{
-			Global->ScrBuf->ApplyColor(m_Where, GetUnchangedColor());
-		}
+		// Combobox has neither highlight nor selection
+		Global->ScrBuf->ApplyColor(m_Where, m_Flags.Check(FEDITLINE_CLEARFLAG)? GetUnchangedColor() : GetSelectedColor());
 	}
 	else
 	{
-		TabSelStart = std::max(TabSelStart - LeftPos, 0);
-
-		TabSelEnd = TabSelEnd == -1?
-			static_cast<int>(EditLength) :
-			std::max(TabSelEnd - LeftPos, 0);
-
-		if (m_Flags.Check(FEDITLINE_DROPDOWNBOX))
+		if (m_Flags.Check(FEDITLINE_EDITORMODE))
 		{
-			Global->ScrBuf->ApplyColor(m_Where, GetSelectedColor());
+			// Editor highlight
+			ApplyColor(XPos, FocusedLeftPos);
+		}
+
+		if (TabSelStart == -1)
+		{
+			if (m_Flags.Check(FEDITLINE_CLEARFLAG))
+			{
+				Global->ScrBuf->ApplyColor(m_Where, GetUnchangedColor());
+			}
 		}
 		else
 		{
+			// Selection, on top of everything else
+			TabSelStart = std::max(TabSelStart - LeftPos, 0);
+
+			TabSelEnd = TabSelEnd == -1 ?
+				static_cast<int>(EditLength) :
+				std::max(TabSelEnd - LeftPos, 0);
+
 			Global->ScrBuf->ApplyColor(
 				{
 					std::min(m_Where.left + TabSelStart, static_cast<int>(m_Where.right)),
@@ -625,6 +623,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 	}
 
 	if (
+		!m_Flags.Check(FEDITLINE_READONLY | FEDITLINE_DROPDOWNBOX) &&
 		m_Flags.Check(FEDITLINE_CLEARFLAG) &&
 		(
 			(LocalKey <= 0xFFFF && LocalKey!=KEY_BS) ||
@@ -671,6 +670,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 			{
 				AdjustPersistentMark();
 
+				const auto SavedCurPos = m_CurPos;
 				RecurseProcessKey(KEY_LEFT);
 
 				if (!m_Flags.Check(FEDITLINE_MARKINGBLOCK))
@@ -683,7 +683,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 					Select(m_SelStart,m_CurPos);
 				else
 				{
-					int EndPos=m_CurPos+1;
+					int EndPos = SavedCurPos;
 					int NewStartPos=m_CurPos;
 
 					if (EndPos>m_Str.size())
@@ -704,23 +704,27 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 		{
 			AdjustPersistentMark();
 
+			const auto SavedCurPos = m_CurPos;
+			RecurseProcessKey(KEY_RIGHT);
+
 			if (!m_Flags.Check(FEDITLINE_MARKINGBLOCK))
 			{
 				RemoveSelection();
 				m_Flags.Set(FEDITLINE_MARKINGBLOCK);
 			}
 
-			if ((m_SelStart!=-1 && m_SelEnd==-1) || m_SelEnd>m_CurPos)
+			if ((m_SelStart != -1 && m_SelEnd == -1) || m_SelEnd > SavedCurPos)
 			{
-				if (m_CurPos+1==m_SelEnd)
+				if (m_CurPos == m_SelEnd)
 					RemoveSelection();
 				else
-					Select(m_CurPos+1,m_SelEnd);
+					Select(m_CurPos, m_SelEnd);
 			}
 			else
-				AddSelect(m_CurPos,m_CurPos+1);
+				AddSelect(SavedCurPos, m_CurPos);
 
-			RecurseProcessKey(KEY_RIGHT);
+			Show();
+
 			return true;
 		}
 		case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:
@@ -1045,6 +1049,10 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 			{
 				SetPrevCurPos(m_CurPos);
 				m_CurPos--;
+
+				if (m_CurPos && is_valid_surrogate_pair_at(m_CurPos - 1))
+					--m_CurPos;
+
 				Show();
 			}
 
@@ -1064,6 +1072,9 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 			}
 			else
 				m_CurPos++;
+
+			if (m_CurPos && is_valid_surrogate_pair_at(m_CurPos - 1))
+				++m_CurPos;
 
 			Show();
 			return true;
@@ -1737,7 +1748,7 @@ void Edit::InsertTab()
 		return;
 
 	const auto Pos = m_CurPos;
-	const auto S = static_cast<int>(GetTabSize() - (RealPosToTab(Pos) % GetTabSize()));
+	const auto S = static_cast<int>(GetTabSize() - (RealPosToVisual(Pos) % GetTabSize()));
 
 	if (m_SelStart!=-1)
 	{
@@ -1798,7 +1809,7 @@ bool Edit::ReplaceTabs()
 
 int Edit::GetTabCurPos() const
 {
-	return RealPosToTab(m_CurPos);
+	return RealPosToVisual(m_CurPos);
 }
 
 void Edit::SetTabCurPos(int NewPos)
@@ -1812,20 +1823,21 @@ void Edit::SetTabCurPos(int NewPos)
 			NewPos=Pos;
 	}
 
-	m_CurPos=TabPosToReal(NewPos);
+	if (NewPos != RealPosToVisual(m_CurPos))
+		m_CurPos = VisualPosToReal(NewPos);
 }
 
-int Edit::RealPosToTab(int Pos) const
+int Edit::RealPosToVisual(int Pos) const
 {
-	return RealPosToTab(0, 0, Pos);
+	return RealPosToVisual(0, 0, Pos);
 }
 
-static size_t real_pos_to_tab(string_view const Str, size_t const TabSize, size_t Pos, size_t const PrevLength, size_t const PrevPos, int* CorrectPos)
+static size_t real_pos_to_visual_tab(string_view const Str, size_t const TabSize, size_t Pos, size_t const PrevTabPos, size_t const PrevRealPos, int* CorrectPos)
 {
-	auto TabPos = PrevLength;
+	auto TabPos = PrevTabPos;
 
 	// Начинаем вычисление с предыдущей позиции
-	auto Index = PrevPos;
+	auto Index = PrevRealPos;
 	const auto Size = Str.size();
 
 	// Корректировка табов
@@ -1861,18 +1873,29 @@ static size_t real_pos_to_tab(string_view const Str, size_t const TabSize, size_
 	return TabPos;
 }
 
-int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos) const
+int Edit::RealPosToVisual(int const PrevVisualPos, int const PrevRealPos, int const Pos, int* const CorrectPos) const
 {
+	const auto StringPart = string_view(m_Str).substr(0, Pos);
+	const auto WidthCorrection = static_cast<int>(string_length_to_visual(StringPart, space_glyph(), tab_glyph())) - static_cast<int>(StringPart.size());
+
 	if (CorrectPos)
 		*CorrectPos = 0;
 
-	if (GetTabExpandMode() == EXPAND_ALLTABS || PrevPos >= m_Str.size())
-		return PrevLength + Pos - PrevPos;
+	const auto Result = GetTabExpandMode() == EXPAND_ALLTABS || PrevRealPos >= m_Str.size()?
+		PrevVisualPos + Pos - PrevRealPos :
+		static_cast<int>(real_pos_to_visual_tab(
+			m_Str,
+			GetTabSize(),
+			Pos,
+			WidthCorrection? 0 : PrevVisualPos, // BUGBUG
+			WidthCorrection? 0 : PrevRealPos,   // BUGBUG
+			CorrectPos
+		));
 
-	return static_cast<int>(real_pos_to_tab(m_Str, GetTabSize(), Pos, PrevLength, PrevPos, CorrectPos));
+	return Result + WidthCorrection;
 }
 
-static size_t tab_pos_to_real(string_view const Str, size_t const TabSize, size_t const Pos)
+static size_t visual_tab_pos_to_real(string_view const Str, size_t const TabSize, size_t const Pos)
 {
 	size_t Index{};
 	const auto Size = Str.size();
@@ -1902,12 +1925,16 @@ static size_t tab_pos_to_real(string_view const Str, size_t const TabSize, size_
 	return Index;
 }
 
-int Edit::TabPosToReal(int Pos) const
+int Edit::VisualPosToReal(int Pos) const
 {
-	if (GetTabExpandMode() == EXPAND_ALLTABS)
-		return Pos;
+	const auto RealPos = visual_pos_to_string_pos(m_Str, Pos, space_glyph(), tab_glyph());
+	const auto WidthCorrection = static_cast<int>(Pos) - static_cast<int>(RealPos);
 
-	return static_cast<int>(tab_pos_to_real(m_Str, GetTabSize(), Pos));
+	const auto Result = GetTabExpandMode() == EXPAND_ALLTABS?
+		Pos :
+		static_cast<int>(visual_tab_pos_to_real(m_Str, GetTabSize(), Pos));
+
+	return Result - WidthCorrection;
 }
 
 void Edit::Select(int Start,int End)
@@ -2073,10 +2100,14 @@ bool Edit::GetColor(ColorItem& col, size_t Item) const
 	return true;
 }
 
-void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
+void Edit::ApplyColor(int XPos, int FocusedLeftPos)
 {
+	// BUGBUG optimise
+
+	const auto Width = ObjWidth();
+
 	// Для оптимизации сохраняем вычисленные позиции между итерациями цикла
-	int Pos = INT_MIN, TabPos = INT_MIN, TabEditorPos = INT_MIN;
+	int RealPos = INT_MIN, VisualPos = INT_MIN, TabEditorPos = INT_MIN;
 
 	// Обрабатываем элементы раскраски
 	for (const auto& CurItem: ColorList)
@@ -2085,39 +2116,37 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 		if (CurItem.StartPos > CurItem.EndPos)
 			continue;
 
-		const auto Width = ObjWidth();
-
 		// Получаем начальную позицию
-		int RealStart, Start;
+		int AbsoluteVisualStart, VisualStart;
 
 		// Если предыдущая позиция равна текущей, то ничего не вычисляем
 		// и сразу берём ранее вычисленное значение
-		if (Pos == CurItem.StartPos)
+		if (RealPos == CurItem.StartPos)
 		{
-			RealStart = TabPos;
-			Start = TabEditorPos;
+			AbsoluteVisualStart = VisualPos;
+			VisualStart = TabEditorPos;
 		}
 		// Если вычисление идёт первый раз или предыдущая позиция больше текущей,
 		// то производим вычисление с начала строки
-		else if (Pos == INT_MIN || CurItem.StartPos < Pos)
+		else if (RealPos == INT_MIN || CurItem.StartPos < RealPos)
 		{
-			RealStart = RealPosToTab(CurItem.StartPos);
-			Start = RealStart-FocusedLeftPos;
+			AbsoluteVisualStart = RealPosToVisual(CurItem.StartPos);
+			VisualStart = AbsoluteVisualStart - FocusedLeftPos;
 		}
 		// Для оптимизации делаем вычисление относительно предыдущей позиции
 		else
 		{
-			RealStart = RealPosToTab(TabPos, Pos, CurItem.StartPos);
-			Start = RealStart-FocusedLeftPos;
+			AbsoluteVisualStart = RealPosToVisual(VisualPos, RealPos, CurItem.StartPos);
+			VisualStart = AbsoluteVisualStart -FocusedLeftPos;
 		}
 
 		// Запоминаем вычисленные значения для их дальнейшего повторного использования
-		Pos = CurItem.StartPos;
-		TabPos = RealStart;
-		TabEditorPos = Start;
+		RealPos = CurItem.StartPos;
+		VisualPos = AbsoluteVisualStart;
+		TabEditorPos = VisualStart;
 
 		// Пропускаем элементы раскраски у которых начальная позиция за экраном
-		if (Start >= Width)
+		if (VisualStart >= Width)
 			continue;
 
 		// Корректировка относительно табов (отключается, если присутствует флаг ECF_TABMARKFIRST)
@@ -2125,38 +2154,37 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 
 		// Получаем конечную позицию
 		int EndPos = CurItem.EndPos;
-		int RealEnd, End;
+		int AbsoluteVisualEnd, VisualEnd;
 
 		bool TabMarkCurrent=false;
 
 		// Обрабатываем случай, когда предыдущая позиция равна текущей, то есть
 		// длина раскрашиваемой строки равна 1
-		if (Pos == EndPos)
+		if (RealPos == EndPos)
 		{
 			// Если необходимо делать корректировку относительно табов и единственный
 			// символ строки -- это таб, то делаем расчёт с учётом корректировки,
-			// иначе ничего не вычисляем и берём старые значения
 			if (CorrectPos && EndPos < m_Str.size() && m_Str[EndPos] == L'\t')
 			{
-				RealEnd = RealPosToTab(TabPos, Pos, ++EndPos);
-				End = RealEnd-FocusedLeftPos;
-				TabMarkCurrent = (CurItem.Flags & ECF_TABMARKCURRENT) && XPos>=Start && XPos<End;
+				AbsoluteVisualEnd = RealPosToVisual(VisualPos, RealPos, ++EndPos);
+				VisualEnd = AbsoluteVisualEnd - FocusedLeftPos;
+				TabMarkCurrent = (CurItem.Flags & ECF_TABMARKCURRENT) && XPos >= VisualStart && XPos < VisualEnd;
 			}
 			else
 			{
-				RealEnd = TabPos;
+				AbsoluteVisualEnd = RealPosToVisual(VisualPos, RealPos, EndPos + 1) - 1;
+				VisualEnd = AbsoluteVisualEnd - FocusedLeftPos;
 				CorrectPos = 0;
-				End = TabEditorPos;
 			}
 		}
 		// Если предыдущая позиция больше текущей, то производим вычисление
 		// с начала строки (с учётом корректировки относительно табов)
-		else if (EndPos < Pos)
+		else if (EndPos < RealPos)
 		{
 			// TODO: возможно так же нужна коррекция с учетом табов (на предмет Mantis#0001718)
-			RealEnd = RealPosToTab(0, 0, EndPos, &CorrectPos);
+			AbsoluteVisualEnd = RealPosToVisual(0, 0, EndPos, &CorrectPos);
 			EndPos += CorrectPos;
-			End = RealEnd-FocusedLeftPos;
+			VisualEnd = AbsoluteVisualEnd - FocusedLeftPos;
 		}
 		// Для оптимизации делаем вычисление относительно предыдущей позиции (с учётом
 		// корректировки относительно табов)
@@ -2165,45 +2193,45 @@ void Edit::ApplyColor(const FarColor& SelColor, int XPos, int FocusedLeftPos)
 			// Mantis#0001718: Отсутствие ECF_TABMARKFIRST не всегда корректно отрабатывает
 			// Коррекция с учетом последнего таба
 			if (CorrectPos && EndPos < m_Str.size() && m_Str[EndPos] == L'\t')
-				RealEnd = RealPosToTab(TabPos, Pos, ++EndPos);
+				AbsoluteVisualEnd = RealPosToVisual(VisualPos, RealPos, ++EndPos);
 			else
 			{
-				RealEnd = RealPosToTab(TabPos, Pos, EndPos, &CorrectPos);
+				AbsoluteVisualEnd = RealPosToVisual(VisualPos, RealPos, EndPos, &CorrectPos);
 				EndPos += CorrectPos;
 			}
-			End = RealEnd-FocusedLeftPos;
+			VisualEnd = AbsoluteVisualEnd - FocusedLeftPos;
 		}
 
 		// Запоминаем вычисленные значения для их дальнейшего повторного использования
-		Pos = EndPos;
-		TabPos = RealEnd;
-		TabEditorPos = End;
+		RealPos = EndPos;
+		VisualPos = AbsoluteVisualEnd;
+		TabEditorPos = VisualEnd;
 
 		if(TabMarkCurrent)
 		{
-			Start = XPos;
-			End = XPos;
+			VisualStart = XPos;
+			VisualEnd = XPos;
 		}
 		else
 		{
 			// Пропускаем элементы раскраски у которых конечная позиция меньше левой границы экрана
-			if (End < 0)
+			if (VisualEnd < 0)
 				continue;
 
 			// Обрезаем раскраску элемента по экрану
-			if (Start < 0)
-				Start = 0;
+			if (VisualStart < 0)
+				VisualStart = 0;
 
-			if (End >= Width)
-				End = Width-1;
+			if (VisualEnd >= Width)
+				VisualEnd = Width-1;
 			else
-				End -= CorrectPos;
+				VisualEnd -= CorrectPos;
 		}
 
 		// Раскрашиваем элемент, если есть что раскрашивать
-		if (End >= Start)
+		if (VisualEnd >= VisualStart)
 		{
-			Global->ScrBuf->ApplyColor({ m_Where.left + Start, m_Where.top, m_Where.left + End, m_Where.top }, CurItem.GetColor());
+			Global->ScrBuf->ApplyColor({ m_Where.left + VisualStart, m_Where.top, m_Where.left + VisualEnd, m_Where.top }, CurItem.GetColor());
 		}
 	}
 }
@@ -2303,8 +2331,13 @@ void Edit::SetDialogParent(DWORD Sets)
 void Edit::FixLeftPos(int TabCurPos)
 {
 	if (TabCurPos<0) TabCurPos=GetTabCurPos(); //оптимизация, чтобы два раза не дёргать
+
 	if (TabCurPos-LeftPos>ObjWidth()-1)
+	{
+		// BUGBUG slow
 		LeftPos=TabCurPos-ObjWidth()+1;
+		LeftPos = RealPosToVisual(VisualPosToReal(LeftPos));
+	}
 
 	if (TabCurPos<LeftPos)
 		LeftPos=TabCurPos;
@@ -2374,6 +2407,22 @@ Editor* Edit::GetEditor() const
 	return nullptr;
 }
 
+bool Edit::is_valid_surrogate_pair_at(size_t const Position) const
+{
+	string_view const Str(m_Str);
+	return Position < Str.size() && is_valid_surrogate_pair(Str.substr(Position));
+}
+
+wchar_t Edit::tab_glyph() const
+{
+	return m_Flags.Check(FEDITLINE_SHOWWHITESPACE)? L'→' : L' ';
+}
+
+wchar_t Edit::space_glyph() const
+{
+	return m_Flags.Check(FEDITLINE_SHOWWHITESPACE)? L'·' : L' ';
+}
+
 #ifdef ENABLE_TESTS
 
 #include "testing.hpp"
@@ -2389,8 +2438,8 @@ TEST_CASE("tab_pos")
 
 	static const struct
 	{
-		size_t Str, TabSize, TabPos, RealPos;
-		bool TestRealToTab;
+		size_t Str, TabSize, VisualPos, RealPos;
+		bool TestRealToVisual;
 	}
 	Tests[]
 	{
@@ -2444,10 +2493,10 @@ TEST_CASE("tab_pos")
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(i.RealPos == tab_pos_to_real(Strs[i.Str], i.TabSize, i.TabPos));
+		REQUIRE(i.RealPos == visual_tab_pos_to_real(Strs[i.Str], i.TabSize, i.VisualPos));
 
-		if (i.TestRealToTab)
-			REQUIRE(i.TabPos == real_pos_to_tab(Strs[i.Str], i.TabSize, i.RealPos, 0, 0, {}));
+		if (i.TestRealToVisual)
+			REQUIRE(i.VisualPos == real_pos_to_visual_tab(Strs[i.Str], i.TabSize, i.RealPos, 0, 0, {}));
 	}
 }
 #endif

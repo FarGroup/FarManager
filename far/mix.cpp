@@ -188,20 +188,76 @@ void FindDataExToPluginPanelItemHolder(const os::fs::find_data& Src, PluginPanel
 	Dest.FileAttributes = Src.Attributes;
 	Dest.NumberOfLinks = 1;
 
-	const auto MakeCopy = [](string_view const Str)
-	{
-		auto Buffer = std::make_unique<wchar_t[]>(Str.size() + 1);
-		*copy_string(Str, Buffer.get()) = {};
-		return Buffer.release();
-	};
-
-	Dest.FileName = MakeCopy(Src.FileName);
-	Dest.AlternateFileName = MakeCopy(Src.AlternateFileName());
+	Holder.set_name(Src.FileName);
+	Holder.set_alt_name(Src.AlternateFileName());
 }
 
-PluginPanelItemHolder::~PluginPanelItemHolder()
+void PluginPanelItemHolderRef::set_name(string_view Value)
+{
+	Item.FileName = Value.data();
+}
+
+void PluginPanelItemHolderRef::set_alt_name(string_view Value)
+{
+	Item.AlternateFileName = Value.data();
+}
+
+void PluginPanelItemHolderRef::set_description(string_view Value)
+{
+	Item.Description = Value.data();
+}
+
+void PluginPanelItemHolderRef::set_owner(string_view Value)
+{
+	Item.Owner = Value.data();
+}
+
+void PluginPanelItemHolderRef::set_columns(span<const wchar_t* const> Value)
+{
+	Item.CustomColumnData = Value.data();
+}
+
+PluginPanelItemHolderHeap::~PluginPanelItemHolderHeap()
 {
 	FreePluginPanelItemData(Item);
+}
+
+void PluginPanelItemHolderHeap::set_name(string_view const Value)
+{
+	Item.FileName = make_copy(Value);
+}
+
+void PluginPanelItemHolderHeap::set_alt_name(string_view const Value)
+{
+	Item.AlternateFileName = make_copy(Value);
+}
+
+void PluginPanelItemHolderHeap::set_description(string_view const Value)
+{
+	Item.Description = make_copy(Value);
+}
+
+void PluginPanelItemHolderHeap::set_owner(string_view const Value)
+{
+	Item.Owner = make_copy(Value);
+}
+
+void PluginPanelItemHolderHeap::set_columns(span<const wchar_t* const> const Value)
+{
+	auto ColumnData = std::make_unique<const wchar_t* []>(Value.size());
+	for (size_t i = 0; i != Value.size(); ++i)
+	{
+		ColumnData[i] = Value[i]? make_copy(Value[i]) : nullptr;
+	}
+
+	Item.CustomColumnData = ColumnData.release();
+}
+
+const wchar_t* PluginPanelItemHolderHeap::make_copy(string_view const Value)
+{
+	auto Buffer = std::make_unique<wchar_t[]>(Value.size() + 1);
+	*copy_string(Value, Buffer.get()) = {};
+	return Buffer.release();
 }
 
 void FreePluginPanelItemData(const PluginPanelItem& Data)

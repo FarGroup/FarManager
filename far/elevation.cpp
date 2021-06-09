@@ -320,37 +320,87 @@ auto elevation::execute(lng Why, string_view const Object, T Fallback, const F1&
 	}
 }
 
-static os::handle create_named_pipe(string_view const Name)
+static auto make_admin_sid()
 {
 	SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
+	return os::security::make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+}
 
+static auto make_explicit_admin_access(os::security::sid_ptr const& AdminSid)
+{
+	EXPLICIT_ACCESS Access{};
+	Access.grfInheritance = NO_INHERITANCE;
+	Access.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+	Access.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
+	Access.Trustee.ptstrName = static_cast<wchar_t*>(AdminSid.get());
+	return Access;
+}
+
+static auto make_acl(PACL const OldAcl, EXPLICIT_ACCESS& Access)
+{
+	os::memory::local::ptr<ACL> Acl;
+	if (const auto Result = SetEntriesInAcl(1, &Access, OldAcl, &ptr_setter(Acl)); Result != ERROR_SUCCESS)
+	{
+		LOGWARNING(L"SetEntriesInAcl: {}"sv, os::format_error(Result));
+	}
+
+	return Acl;
+}
+
+static os::handle create_named_pipe(string_view const Name)
+{
 	SECURITY_DESCRIPTOR SD;
-
 	if (!InitializeSecurityDescriptor(&SD, SECURITY_DESCRIPTOR_REVISION))
 		return nullptr;
 
-	const auto AdminSID = os::security::make_sid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
-
-	if (!AdminSID)
+	const auto AdminSid = make_admin_sid();
+	if (!AdminSid)
 		return nullptr;
 
-	EXPLICIT_ACCESS ea{};
-	ea.grfAccessPermissions = GENERIC_READ | GENERIC_WRITE;
-	ea.grfAccessMode = SET_ACCESS;
-	ea.grfInheritance = NO_INHERITANCE;
-	ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-	ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
-	ea.Trustee.ptstrName = static_cast<wchar_t*>(AdminSID.get());
+	auto Access = make_explicit_admin_access(AdminSid);
+	Access.grfAccessPermissions = GENERIC_READ | GENERIC_WRITE;
+	Access.grfAccessMode = SET_ACCESS;
 
-	os::memory::local::ptr<ACL> pACL;
-	if (SetEntriesInAcl(1, &ea, nullptr, &ptr_setter(pACL)) != ERROR_SUCCESS)
+	const auto Acl = make_acl({}, Access);
+	if (!Acl)
 		return nullptr;
 
-	if (!SetSecurityDescriptorDacl(&SD, TRUE, pACL.get(), FALSE))
+	if (!SetSecurityDescriptorDacl(&SD, TRUE, Acl.get(), FALSE))
 		return nullptr;
 
 	SECURITY_ATTRIBUTES sa{ sizeof(sa), &SD };
 	return os::handle(CreateNamedPipe(concat(L"\\\\.\\pipe\\"sv, Name).c_str(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, 1, 0, 0, 0, &sa));
+}
+
+static bool grant_duplicate_handle()
+{
+	PACL Acl;
+	os::memory::local::ptr<std::remove_pointer_t<PSECURITY_DESCRIPTOR>> Descriptor;
+	if (const auto Result = GetSecurityInfo(GetCurrentProcess(), SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, {}, {}, &Acl, {}, &ptr_setter(Descriptor)); Result != ERROR_SUCCESS)
+	{
+		LOGWARNING(L"GetSecurityInfo: {}"sv, os::format_error(Result));
+		return false;
+	}
+
+	const auto AdminSid = make_admin_sid();
+	if (!AdminSid)
+		return false;
+
+	auto Access = make_explicit_admin_access(AdminSid);
+	Access.grfAccessPermissions = PROCESS_DUP_HANDLE;
+	Access.grfAccessMode = GRANT_ACCESS;
+
+	const auto NewAcl = make_acl(Acl, Access);
+	if (!NewAcl)
+		return false;
+
+	if (const auto Result = SetSecurityInfo(GetCurrentProcess(), SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, {}, {}, NewAcl.get(), {}); Result != ERROR_SUCCESS)
+	{
+		LOGWARNING(L"SetSecurityInfo: {}"sv, os::format_error(Result));
+		return false;
+	}
+
+	return true;
 }
 
 static os::handle create_job()
@@ -422,6 +472,11 @@ void elevation::TerminateChildProcess() const
 
 bool elevation::Initialize()
 {
+	if (!m_DuplicateHandleGranted)
+	{
+		m_DuplicateHandleGranted = grant_duplicate_handle();
+	}
+
 	if (m_Process && !m_Process.is_signaled())
 		return true;
 
@@ -969,14 +1024,18 @@ public:
 	{
 		os::set_error_mode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX);
 
-		std::vector Privileges{ SE_TAKE_OWNERSHIP_NAME, SE_DEBUG_NAME, SE_CREATE_SYMBOLIC_LINK_NAME };
-		if (UsePrivileges)
+		std::array const Privileges
 		{
-			Privileges.emplace_back(SE_BACKUP_NAME);
-			Privileges.emplace_back(SE_RESTORE_NAME);
-		}
+			SE_BACKUP_NAME,
+			SE_RESTORE_NAME,
 
-		SCOPED_ACTION(os::security::privilege)(Privileges);
+			SE_TAKE_OWNERSHIP_NAME,
+			SE_CREATE_SYMBOLIC_LINK_NAME
+		};
+
+		const auto OptinalPrivilegesCount = 2; // Backup, restore
+
+		SCOPED_ACTION(os::security::privilege)((span(Privileges)).subspan(UsePrivileges? 0 : OptinalPrivilegesCount));
 
 		const auto PipeName = concat(L"\\\\.\\pipe\\"sv, Uuid);
 		WaitNamedPipe(PipeName.c_str(), NMPWAIT_WAIT_FOREVER);

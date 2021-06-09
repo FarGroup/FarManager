@@ -968,6 +968,21 @@ static size_t utf7_get_chars(std::string_view const Str, span<wchar_t> const Buf
 	return BytesToUnicode(Str, Buffer, Utf7_GetChar, ErrorPosition);
 }
 
+namespace utf16
+{
+	const auto
+		surrogate_high_first = 0b11011000'00000000u, // D800 55296
+		surrogate_high_last  = 0b11011011'11111111u, // DBFF 56319
+		surrogate_low_first  = 0b11011100'00000000u, // DC00 56320
+		surrogate_low_last   = 0b11011111'11111111u, // DFFF 57343
+
+		surrogate_first      = surrogate_high_first,
+		surrogate_last       = surrogate_low_last,
+
+		invalid_first        = 0b11011100'10000000u, // DC80 56448
+		invalid_last         = 0b11011100'11111111u; // DCFF 56575
+}
+
 namespace utf8
 {
 	// https://en.wikipedia.org/wiki/UTF-8
@@ -986,18 +1001,6 @@ namespace utf8
 	static constexpr auto support_embedded_raw_bytes = true;
 
 	static_assert(support_unpaired_surrogates && support_embedded_raw_bytes);
-
-	const auto
-		surrogate_high_first = 0b11011000'00000000u, // D800 55296
-		surrogate_high_last  = 0b11011011'11111111u, // DBFF 56319
-		surrogate_low_first  = 0b11011100'00000000u, // DC00 56320
-		surrogate_low_last   = 0b11011111'11111111u, // DFFF 57343
-
-		surrogate_first      = surrogate_high_first,
-		surrogate_last       = surrogate_low_last,
-
-		invalid_first        = 0b11011100'10000000u, // DC80 56448
-		invalid_last         = 0b11011100'11111111u; // DCFF 56575
 
 	static constexpr bool is_ascii_byte(unsigned int c)
 	{
@@ -1078,7 +1081,7 @@ size_t Utf8::get_char(std::string_view::const_iterator& StrIterator, std::string
 	const auto InvalidChar = [](unsigned char c)
 	{
 		return utf8::support_embedded_raw_bytes?
-			utf8::surrogate_low_first | c :
+			utf16::surrogate_low_first | c :
 			encoding::replace_char;
 	};
 
@@ -1148,7 +1151,7 @@ size_t Utf8::get_char(std::string_view::const_iterator& StrIterator, std::string
 				}
 				else
 				{
-					if (in_closed_range(utf8::surrogate_first, First, utf8::surrogate_last))
+					if (in_closed_range(utf16::surrogate_first, First, utf16::surrogate_last))
 					{
 						// invalid: surrogate area code
 						First = InvalidChar(c1);
@@ -1176,10 +1179,7 @@ size_t Utf8::get_char(std::string_view::const_iterator& StrIterator, std::string
 				else
 				{
 					// legal 4-byte (produces 2 WCHARs)
-					const auto FullChar = utf8::extract(c1, c2, c3, c4) - 0b1'00000000'00000000;
-
-					First  = utf8::surrogate_high_first + (FullChar >> 10);
-					Second = utf8::surrogate_low_first + (FullChar & 0b00000011'11111111);
+					std::tie(First, Second) = encoding::utf16::to_surrogate(utf8::extract(c1, c2, c3, c4));
 					NumberOfChars = 2;
 					StrIterator += 3;
 				}
@@ -1260,24 +1260,22 @@ static size_t utf8_get_bytes(string_view const Str, span<char> const Buffer)
 		{
 			BytesNumber = 2;
 		}
-		else if (!in_closed_range(utf8::surrogate_first, Char, utf8::surrogate_last))
+		else if (!in_closed_range(utf16::surrogate_first, Char, utf16::surrogate_last))
 		{
 			// not surrogates
 			BytesNumber = 3;
 		}
-		else if (utf8::support_embedded_raw_bytes && in_closed_range(utf8::invalid_first, Char, utf8::invalid_last))
+		else if (utf8::support_embedded_raw_bytes && in_closed_range(utf16::invalid_first, Char, utf16::invalid_last))
 		{
 			// embedded raw byte
 			BytesNumber = 1;
 			Char &= 0b11111111;
 		}
-		else if (StrIterator != StrEnd &&
-			in_closed_range(utf8::surrogate_high_first, Char, utf8::surrogate_high_last) &&
-			in_closed_range(utf8::surrogate_low_first, *StrIterator, utf8::surrogate_low_last))
+		else if (StrIterator != StrEnd && encoding::utf16::is_valid_surrogate_pair(Char, *StrIterator))
 		{
 			// valid surrogate pair
 			BytesNumber = 4;
-			Char = 0b1'00000000'00000000u + ((Char - utf8::surrogate_high_first) << 10) + (*StrIterator++ - utf8::surrogate_low_first);
+			Char = encoding::utf16::extract_codepoint(Char, *StrIterator++);
 		}
 		else
 		{
@@ -1308,6 +1306,50 @@ static size_t utf8_get_bytes(string_view const Str, span<char> const Buffer)
 	}
 
 	return RequiredCapacity;
+}
+
+bool encoding::utf16::is_high_surrogate(wchar_t const Char)
+{
+	return in_closed_range(::utf16::surrogate_high_first, Char, ::utf16::surrogate_high_last);
+}
+
+bool encoding::utf16::is_low_surrogate(wchar_t const Char)
+{
+	return in_closed_range(::utf16::surrogate_low_first, Char, ::utf16::surrogate_low_last);
+}
+
+bool encoding::utf16::is_valid_surrogate_pair(wchar_t const First, wchar_t const Second)
+{
+	return is_high_surrogate(First) && is_low_surrogate(Second);
+}
+
+unsigned int encoding::utf16::extract_codepoint(wchar_t const First, wchar_t const Second)
+{
+	static_assert(sizeof(wchar_t) == 2);
+	return 0b1'00000000'00000000u + ((First - ::utf16::surrogate_high_first) << 10) + (Second - ::utf16::surrogate_low_first);
+}
+
+unsigned int encoding::utf16::extract_codepoint(string_view const Str)
+{
+	static_assert(sizeof(wchar_t) == 2);
+
+	return Str.size() > 1 && is_valid_surrogate_pair(Str[0], Str[1])?
+		extract_codepoint(Str[0], Str[1]) :
+		Str.front();
+}
+
+std::pair<wchar_t, wchar_t> encoding::utf16::to_surrogate(unsigned int const Codepoint)
+{
+	if (Codepoint <= std::numeric_limits<wchar_t>::max())
+		return { static_cast<wchar_t>(Codepoint), 0 };
+
+	const auto TwentyBits = Codepoint - 0b1'00000000'00000000u;
+	const auto TenBitsMask = 0b11'11111111;
+	return
+	{
+		static_cast<wchar_t>(::utf16::surrogate_high_first | ((TwentyBits >> 10) & TenBitsMask)),
+		static_cast<wchar_t>(::utf16::surrogate_low_first | (TwentyBits & TenBitsMask))
+	};
 }
 
 void swap_bytes(const void* const Src, void* const Dst, const size_t SizeInBytes)
@@ -1546,6 +1588,24 @@ TEST_CASE("encoding.utf8")
 )"sv },
 
 		{ true, false, R"(
+぀ ぁ あ ぃ い ぅ う ぇ え ぉ お か が き ぎ く
+ぐ け げ こ ご さ ざ し じ す ず せ ぜ そ ぞ た
+だ ち ぢ っ つ づ て で と ど な に ぬ ね の は
+ば ぱ ひ び ぴ ふ ぶ ぷ へ べ ぺ ほ ぼ ぽ ま み
+む め も ゃ や ゅ ゆ ょ よ ら り る れ ろ ゎ わ
+ゐ ゑ を ん ゔ ゕ ゖ ゗ ゘ ゙ ゚ ゛ ゜ ゝ ゞ ゟ
+)"sv },
+
+		{ true, false, R"(
+゠ ァ ア ィ イ ゥ ウ ェ エ ォ オ カ ガ キ ギ ク
+グ ケ ゲ コ ゴ サ ザ シ ジ ス ズ セ ゼ ソ ゾ タ
+ダ チ ヂ ッ ツ ヅ テ デ ト ド ナ ニ ヌ ネ ノ ハ
+バ パ ヒ ビ ピ フ ブ プ ヘ ベ ペ ホ ボ ポ マ ミ
+ム メ モ ャ ヤ ュ ユ ョ ヨ ラ リ ル レ ロ ヮ ワ
+ヰ ヱ ヲ ン ヴ ヵ ヶ ヷ ヸ ヹ ヺ ・ ー ヽ ヾ ヿ
+)"sv },
+
+		{ true, false, R"(
 𠜎 𠜱 𠝹 𠱓 𠱸 𠲖 𠳏 𠳕 𠴕 𠵼 𠵿 𠸎
 𠸏 𠹷 𠺝 𠺢 𠻗 𠻹 𠻺 𠼭 𠼮 𠽌 𠾴 𠾼
 𠿪 𡁜 𡁯 𡁵 𡁶 𡁻 𡃁 𡃉 𡇙 𢃇 𢞵 𢫕
@@ -1626,8 +1686,8 @@ TEST_CASE("encoding.ucs2-utf8.round-trip")
 		else
 		{
 			const auto
-				IsSurrogate = in_closed_range(utf8::surrogate_first, Char, utf8::surrogate_last),
-				IsInvalid = in_closed_range(utf8::invalid_first, Char, utf8::invalid_last);
+				IsSurrogate = in_closed_range(utf16::surrogate_first, Char, utf16::surrogate_last),
+				IsInvalid = in_closed_range(utf16::invalid_first, Char, utf16::invalid_last);
 
 			return Result == (!IsSurrogate || (utf8::support_embedded_raw_bytes && IsInvalid)? Char : encoding::replace_char);
 		}
@@ -1770,4 +1830,31 @@ TEST_CASE("encoding.raw_eol")
 		REQUIRE(Eol.lf<wchar_t>() == '\n');
 	}
 }
+
+TEST_CASE("encoding.utf16.surrogate")
+{
+	static const struct
+	{
+		unsigned Codepoint;
+		std::array<wchar_t, 2> Pair;
+	}
+	Tests[]
+	{
+		{ U'\x000000', {L'\x0000', L'\x0000'} },
+		{ U'\x010000', {L'\xD800', L'\xDC00'} },
+		{ U'\x02070E', {L'\xD841', L'\xDF0E'} },
+		{ U'\x10FFFF', {L'\xDBFF', L'\xDFFF'} },
+	};
+
+	for (const auto& i: Tests)
+	{
+		const auto Codepoint = encoding::utf16::extract_codepoint({ i.Pair.data(), i.Pair.size() });
+		REQUIRE(i.Codepoint == Codepoint);
+
+		const auto Pair = encoding::utf16::to_surrogate(i.Codepoint);
+		REQUIRE(i.Pair[0] == Pair.first);
+		REQUIRE(i.Pair[1] == Pair.second);
+	}
+}
+
 #endif

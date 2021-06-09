@@ -311,6 +311,9 @@ private:
 	void UpdateSelectPos();
 	void EnableFilter(bool Enable);
 
+	size_t Text(string_view Str) const;
+	size_t Text(wchar_t Char) const;
+
 	string strTitle;
 	string strBottomTitle;
 	int SelectPos{-1};

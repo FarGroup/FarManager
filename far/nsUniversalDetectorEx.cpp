@@ -41,12 +41,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "components.hpp"
 #include "encoding.hpp"
 #include "plugin.hpp"
+#include "locale.hpp"
 #include "log.hpp"
 
 // Platform:
 
 // Common:
-#include "common/algorithm.hpp"
 #include "common/preprocessor.hpp"
 
 // External:
@@ -153,16 +153,11 @@ static const auto& CJKCpMap()
 	return Map;
 }
 
-static bool is_cjk_locale()
-{
-	return any_of(LOBYTE(GetUserDefaultLCID()), LANG_CHINESE, LANG_JAPANESE, LANG_KOREAN);
-}
-
 class nsUniversalDetectorEx: public ucd::nsUniversalDetector
 {
 public:
 	nsUniversalDetectorEx():
-		nsUniversalDetector(is_cjk_locale()? NS_FILTER_ALL : NS_FILTER_NON_CJK)
+		nsUniversalDetector(locale.is_cjk()? NS_FILTER_ALL : NS_FILTER_NON_CJK)
 	{
 	}
 

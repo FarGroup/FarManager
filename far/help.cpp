@@ -1121,12 +1121,16 @@ int Help::StringLen(const string_view Str)
 
 void Help::OutString(string_view Str)
 {
-	wchar_t OutStr[512]; //BUGBUG
+	const auto MaxWidth = m_Where.width() - 4;
+
+	string OutStr;
+	OutStr.reserve(MaxWidth);
+
 	auto StartTopic = Str.data();
-	int OutPos=0,Highlight=0,Topic=0;
+	int Highlight = 0, Topic = 0;
 	const auto cColor = strCtrlColorChar.empty()? L'\0' : strCtrlColorChar[0];
 
-	while (OutPos < static_cast<int>(std::size(OutStr) - 10))
+	for (;;)
 	{
 		if (Str.size() > 1 && (
 		    (Str[0]==L'~' && Str[1]==L'~') ||
@@ -1135,15 +1139,13 @@ void Help::OutString(string_view Str)
 		    (cColor && Str[0]==cColor && Str[1]==cColor)
 		))
 		{
-			OutStr[OutPos++] = Str[0];
+			OutStr.push_back(Str[0]);
 			Str.remove_prefix(2);
 			continue;
 		}
 
 		if (Str.empty() /*|| *Str==HelpBeginLink*/ || Str[0] == L'~' || ((Str[0] == L'#' || Str[0] == cColor) && !Topic))
 		{
-			OutStr[OutPos]=0;
-
 			if (Topic)
 			{
 				const auto RealCurX = m_Where.left + StackData->CurX + 1;
@@ -1162,14 +1164,9 @@ void Help::OutString(string_view Str)
 				SetColor(Highlight ? colors::PaletteColorToFarColor(COL_HELPHIGHLIGHTTEXT) : CurColor);
 			}
 
-			/* $ 24.09.2001 VVM
-			  ! Обрежем длинные строки при показе. Такое будет только при длинных ссылках... */
-			if (static_cast<int>(wcslen(OutStr)) + WhereX() > m_Where.right)
-				OutStr[m_Where.right - WhereX()] = 0;
+			Text(OutStr, MaxWidth - (WhereX() - m_Where.left - 2));
 
-			Text(OutStr);
-
-			OutPos=0;
+			OutStr.clear();
 		}
 
 		if (Str.empty())
@@ -1195,7 +1192,7 @@ void Help::OutString(string_view Str)
 		}
 		else if (!GetHelpColor(Str, cColor, CurColor))
 		{
-			OutStr[OutPos++] = Str[0];
+			OutStr.push_back(Str[0]);
 			Str.remove_prefix(1);
 		}
 	}

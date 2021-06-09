@@ -154,6 +154,7 @@ public:
 
 	std::unique_ptr<InterThreadData> itd;
 	os::synced_queue<AddMenuData> m_Messages;
+	std::queue<AddMenuData> m_ExtractedMessages;
 
 	[[nodiscard]]
 	auto ScopedLock() { return make_raii_wrapper<&FindFiles::Lock, &FindFiles::Unlock>(this); }
@@ -204,7 +205,6 @@ private:
 
 	os::critical_section PluginCS;
 
-	time_check m_TimeCheck;
 	// BUGBUG
 	class background_searcher* m_Searcher{};
 	std::exception_ptr m_ExceptionPtr;
@@ -212,7 +212,6 @@ private:
 	string m_LastDirName;
 	Dialog* m_ResultsDialogPtr{};
 	bool m_EmptyArc{};
-	os::event m_MessageEvent;
 };
 
 
@@ -1409,14 +1408,12 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view 
 	return LookForString(strSearchFileName) ^ NotContaining;
 }
 
-static void clear_queue(os::synced_queue<FindFiles::AddMenuData>& Messages)
+static void clear_queue(std::queue<FindFiles::AddMenuData>&& Messages)
 {
-	SCOPED_ACTION(auto)(Messages.scoped_lock());
-
-	FindFiles::AddMenuData Data;
-	while (Messages.try_pop(Data))
+	for (; !Messages.empty(); Messages.pop())
 	{
-		FreePluginPanelItemUserData(Data.m_Arc? Data.m_Arc->hPlugin : nullptr, { Data.m_Data, Data.m_FreeData });
+		auto& Message = Messages.front();
+		FreePluginPanelItemUserData(Message.m_Arc? Message.m_Arc->hPlugin : nullptr, { Message.m_Data, Message.m_FreeData });
 	}
 }
 
@@ -1434,117 +1431,97 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	auto& ListBox = Dlg->GetAllItem()[FD_LISTBOX].ListPtr;
 
-	static int Recurse = 0;
-	static int Drawing = 0;
 	switch (Msg)
 	{
-	case DN_INITDIALOG:
-		Drawing = 0;
-		break;
-	case DN_DRAWDIALOG:
-		++Drawing;
-		break;
-	case DN_DRAWDIALOGDONE:
-		--Drawing;
-		break;
-	default:
-		if (!Finalized && !Recurse && !Drawing)
+	case DN_ENTERIDLE:
 		{
-			++Recurse;
-			SCOPE_EXIT{ --Recurse; };
+			if (Finalized)
+				break;
+
+			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
+			if (m_ExtractedMessages.empty())
+				m_ExtractedMessages = m_Messages.pop_all();
+
+			time_check const TimeCheck(time_check::mode::immediate, 1s);
+
+			for (; !m_ExtractedMessages.empty(); m_ExtractedMessages.pop())
 			{
-				size_t EventsCount = 0;
-				const time_check TimeCheck;
-				while (!m_Messages.empty() && 0 == EventsCount)
+				if (os::handle::is_signaled(console.GetInputHandle()))
+					break;
+
+				if (m_Searcher->Stopped())
 				{
-					if (m_Searcher->Stopped())
+					clear_queue(std::move(m_ExtractedMessages));
+
+					// The request to stop might arrive in the middle of something and searcher can still pump some messages
+					while (!m_Searcher->Finished())
+						clear_queue(m_Messages.pop_all());
+
+					break;
+				}
+
+				ProcessMessage(m_ExtractedMessages.front());
+
+				if (TimeCheck)
+				{
+					const auto strDataStr = format(msg(lng::MFindFound), m_FileCount, m_DirCount);
+					Dlg->SendMessage(DM_SETTEXTPTR, FD_SEPARATOR1, UNSAFE_CSTR(strDataStr));
+
+					string strSearchStr;
+
+					if (!strFindStr.empty())
 					{
-						// The request to stop might arrive in the middle of something and searcher can still pump some messages
-						while (!m_Searcher->Finished())
-						{
-							clear_queue(m_Messages);
-						}
+						strSearchStr = format(msg(lng::MFindSearchingIn), quote_unconditional(truncate_right(strFindStr, 10)));
 					}
 
-					if (TimeCheck)
+					auto strFM = itd->GetFindMessage();
+					SMALL_RECT Rect;
+					Dlg->SendMessage(DM_GETITEMPOSITION, FD_TEXT_STATUS, &Rect);
+
+					if (!strSearchStr.empty())
 					{
-						Global->WindowManager->CallbackWindow([]()
-						{
-							const auto f = Global->WindowManager->GetCurrentWindow();
-							if (windowtype_dialog == f->GetType())
-								std::static_pointer_cast<Dialog>(f)->SendMessage(DN_ENTERIDLE, 0, nullptr);
-						});
-						break;
+						strSearchStr += L' ';
 					}
-					AddMenuData Data;
-					if (m_Messages.try_pop(Data))
+
+					inplace::truncate_center(strFM, Rect.Right - Rect.Left + 1 - strSearchStr.size());
+					Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strSearchStr + strFM));
+					if (!strFindStr.empty())
 					{
-						ProcessMessage(Data);
+						Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(format(FSTR(L"{:3}%"sv), itd->GetPercent())));
 					}
-					console.GetNumberOfInputEvents(EventsCount);
+
+					if (m_LastFoundNumber)
+					{
+						m_LastFoundNumber = 0;
+
+						if (ListBox->UpdateRequired())
+							Dlg->SendMessage(DM_SHOWITEM, FD_LISTBOX, ToPtr(1));
+					}
+
+					Dlg->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
+					Dlg->SendMessage(DM_ENABLEREDRAW, 0, nullptr);
 				}
 			}
-		}
-	}
 
-	if(m_TimeCheck && !Finalized && !Recurse)
-	{
-		++Recurse;
-		SCOPE_EXIT{ --Recurse; };
-
-		if (!m_Searcher->Finished())
-		{
-			const auto strDataStr = format(msg(lng::MFindFound), m_FileCount, m_DirCount);
-			Dlg->SendMessage(DM_SETTEXTPTR,FD_SEPARATOR1, UNSAFE_CSTR(strDataStr));
-
-			string strSearchStr;
-
-			if (!strFindStr.empty())
+			if (m_Searcher->Finished() && m_Messages.empty())
 			{
-				strSearchStr = format(msg(lng::MFindSearchingIn), quote_unconditional(truncate_right(strFindStr, 10)));
-			}
+				Finalized = true;
 
-			auto strFM = itd->GetFindMessage();
-			SMALL_RECT Rect;
-			Dlg->SendMessage(DM_GETITEMPOSITION, FD_TEXT_STATUS, &Rect);
+				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+				const auto strMessage = format(msg(lng::MFindDone), m_FileCount, m_DirCount);
+				Dlg->SendMessage(DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
+				Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strMessage));
+				Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, nullptr);
+				Dlg->SendMessage(DM_SETTEXTPTR, FD_BUTTON_STOP, const_cast<wchar_t*>(msg(lng::MFindCancel).c_str()));
+				ConsoleTitle::SetFarTitle(strMessage);
 
-			if (!strSearchStr.empty())
-			{
-				strSearchStr += L' ';
-			}
-
-			inplace::truncate_center(strFM, Rect.Right - Rect.Left + 1 - strSearchStr.size());
-			Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strSearchStr + strFM));
-			if (!strFindStr.empty())
-			{
-				Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(format(FSTR(L"{:3}%"sv), itd->GetPercent())));
-			}
-
-			if (m_LastFoundNumber)
-			{
-				m_LastFoundNumber = 0;
-
-				if (ListBox->UpdateRequired())
-					Dlg->SendMessage(DM_SHOWITEM,FD_LISTBOX,ToPtr(1));
+				Dlg->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
+				Dlg->SendMessage(DM_ENABLEREDRAW, 0, nullptr);
 			}
 		}
-	}
+		break;
 
-	if(!Recurse && !Finalized && m_Searcher->Finished() && m_Messages.empty())
-	{
-		Finalized = true;
-
-		SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
-		const auto strMessage = format(msg(lng::MFindDone), m_FileCount, m_DirCount);
-		Dlg->SendMessage( DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
-		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strMessage));
-		Dlg->SendMessage( DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, nullptr);
-		Dlg->SendMessage( DM_SETTEXTPTR, FD_BUTTON_STOP, const_cast<wchar_t*>(msg(lng::MFindCancel).c_str()));
-		ConsoleTitle::SetFarTitle(strMessage);
-	}
-
-	switch (Msg)
-	{
 	case DN_INITDIALOG:
 		{
 			Dlg->GetAllItem()[FD_LISTBOX].ListPtr->SetMenuFlags(VMENU_NOMERGEBORDER);
@@ -2721,15 +2698,13 @@ bool FindFiles::FindFilesProcess()
 
 	m_ResultsDialogPtr = Dlg.get();
 
-	clear_queue(m_Messages);
+	clear_queue(m_Messages.pop_all());
 
 		{
 			background_searcher BC(this, strFindStr, SearchMode, CodePage, ConvertFileSizeString(Global->Opt->FindOpt.strSearchInFirstSize), CmpCase, WholeWords, SearchInArchives, SearchHex, NotContaining, UseFilter, PluginMode);
 
 			// BUGBUG
 			m_Searcher = &BC;
-
-			m_TimeCheck.reset();
 
 			// Надо бы показать диалог, а то инициализация элементов запаздывает
 			// иногда при поиске и первые элементы не добавляются
@@ -2791,7 +2766,7 @@ bool FindFiles::FindFilesProcess()
 							{
 								i.FindData.FileName = i.Arc->strArcName;
 							}
-							PluginPanelItemHolderNonOwning pi;
+							PluginPanelItemHolderHeapNonOwning pi;
 							FindDataExToPluginPanelItemHolder(i.FindData, pi);
 
 							if (IsArchive)
@@ -2958,9 +2933,7 @@ void FindFiles::ProcessMessage(const AddMenuData& Data)
 FindFiles::FindFiles():
 	itd(std::make_unique<InterThreadData>()),
 	FileMaskForFindFile(std::make_unique<filemasks>()),
-	Filter(std::make_unique<FileFilter>(Global->CtrlObject->Cp()->ActivePanel().get(), FFT_FINDFILE)),
-	m_TimeCheck(time_check::mode::immediate, GetRedrawTimeout()),
-	m_MessageEvent(os::event::type::manual, os::event::state::signaled)
+	Filter(std::make_unique<FileFilter>(Global->CtrlObject->Cp()->ActivePanel().get(), FFT_FINDFILE))
 {
 	static string strLastFindMask = L"*.*"s, strLastFindStr;
 

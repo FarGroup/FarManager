@@ -158,21 +158,34 @@ void MoveRealCursor(int X,int Y);
 void ScrollScreen(int Count);
 bool DoWeReallyHaveToScroll(short Rows);
 
+size_t string_length_to_visual(string_view Str, wchar_t SpaceGlyph, wchar_t TabGlyph);
+size_t visual_pos_to_string_pos(string_view Str, size_t Pos, wchar_t SpaceGlyph, wchar_t TabGlyph);
+
+bool is_valid_surrogate_pair(string_view Str);
+bool is_valid_surrogate_pair(wchar_t First, wchar_t Second);
+
 void Text(point Where, const FarColor& Color, string_view Str);
 
-void Text(string_view Str);
-inline void Text(wchar_t const c) { return Text({ &c, 1 }); }
+size_t Text(string_view Str, size_t MaxWidth);
+size_t Text(string_view Str);
 
-void Text(lng MsgId);
+size_t Text(wchar_t Char, size_t MaxWidth);
+size_t Text(wchar_t Char);
 
-void VText(string_view Str);
+size_t Text(lng MsgId, size_t MaxWidth);
+size_t Text(lng MsgId);
 
-void HiText(string_view Str,const FarColor& HiColor, bool isVertText = false);
+size_t VText(string_view Str, size_t MaxWidth);
+size_t VText(string_view Str);
+
+size_t HiText(string_view Str, const FarColor& Color, size_t MaxWidth);
+size_t HiText(string_view Str, const FarColor& Color);
+
+size_t HiVText(string_view Str, const FarColor& Color, size_t MaxWidth);
+size_t HiVText(string_view Str, const FarColor& Color);
+
 void PutText(rectangle Where, const FAR_CHAR_INFO* Src);
 void GetText(rectangle Where, matrix<FAR_CHAR_INFO>& Dest);
-
-void BoxText(string_view Str, bool IsVert = false);
-inline void BoxText(wchar_t const Chr) { return BoxText({ &Chr, 1 }, false); }
 
 void SetScreen(rectangle Where, wchar_t Ch,const FarColor& Color);
 void MakeShadow(rectangle Where);

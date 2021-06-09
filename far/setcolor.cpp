@@ -89,9 +89,6 @@ static void ChangeColor(PaletteColors PaletteIndex, PaletteColors const* const B
 
 		Global->WindowManager->ResizeAllWindows(); // рефрешим
 		Global->WindowManager->PluginCommit(); // коммитим.
-
-		if (Global->Opt->Clock)
-			ShowTime();
 	}
 
 	Global->WindowManager->PluginCommit(); // коммитим.
@@ -779,9 +776,9 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 	ColorDlg[cd_separator2].strMask = { BoxSymbols[BS_T_H2V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1] };
 	ColorDlg[cd_separator3].strMask = ColorDlg[cd_separator4].strMask = { BoxSymbols[BS_L_H1V2], BoxSymbols[BS_H1], BoxSymbols[BS_R_H1V1] };
 
-	const auto to_true_color_code = [](COLORREF const Color, bool const Is4Bit)
+	const auto to_true_color_code = [](COLORREF const ColorValue, bool const Is4Bit)
 	{
-		return color_code(Is4Bit? colors::ConsoleIndexToTrueColor(Color) : Color);
+		return color_code(Is4Bit? colors::ConsoleIndexToTrueColor(ColorValue) : ColorValue);
 	};
 
 	ColorDlg[cd_fg_colorcode].strData = to_true_color_code(Color.ForegroundColor, Color.IsFg4Bit());

@@ -34,8 +34,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "rectangle.hpp"
+#include "../type_traits.hpp"
 
 //----------------------------------------------------------------------------
+
+namespace detail
+{
+	template<typename P, typename T, typename I>
+	using try_2_args = decltype(std::declval<P&>()(std::declval<T&>(), std::declval<I&>()));
+
+	template<typename P, typename T, typename I>
+	inline constexpr bool has_2_args = is_detected_v<try_2_args, P, T, I>;
+}
 
 template<class T, class P>
 void for_submatrix(T& Matrix, rectangle Rect, P Predicate)
@@ -44,7 +54,10 @@ void for_submatrix(T& Matrix, rectangle Rect, P Predicate)
 	{
 		for (auto j = Rect.left; j <= Rect.right; ++j)
 		{
-			Predicate(Matrix[i][j]);
+			if constexpr (detail::has_2_args<P, decltype(Matrix[i][j]), point>)
+				Predicate(Matrix[i][j], point{ j - Rect.left, i - Rect.top });
+			else
+				Predicate(Matrix[i][j]);
 		}
 	}
 }

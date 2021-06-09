@@ -80,6 +80,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "file_io.hpp"
 #include "log.hpp"
+#include "elevation.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -896,6 +897,8 @@ long long FileEditor::VMProcess(int OpCode, void* vParam, long long iParam)
 
 bool FileEditor::ProcessKey(const Manager::Key& Key)
 {
+	elevation::instance().ResetApprove();
+
 	return ReProcessKey(Key, false);
 }
 
@@ -2068,6 +2071,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 
 bool FileEditor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
+	elevation::instance().ResetApprove();
+
 	F4KeyOnly = false;
 	if (!m_windowKeyBar->ProcessMouse(MouseEvent))
 	{
@@ -2322,7 +2327,7 @@ void FileEditor::ShowStatus() const
 		CharCode);
 
 	// Explicitly signed types - it's too easy to screw it up on small console sizes otherwise
-	const int ClockSize = Global->Opt->ViewerEditorClock && m_Flags.Check(FFILEEDIT_FULLSCREEN)? static_cast<int>(Global->CurrentTime.size()) : 0;
+	const int ClockSize = Global->Opt->Clock && m_Flags.Check(FFILEEDIT_FULLSCREEN)? static_cast<int>(Global->CurrentTime.size()) : 0;
 	const int AvailableSpace = std::max(0, ObjWidth() - ClockSize - (ClockSize? 1 : 0));
 	inplace::cut_right(StatusLine, AvailableSpace);
 	const int NameWidth = std::max(0, AvailableSpace - static_cast<int>(StatusLine.size()));
@@ -2331,10 +2336,7 @@ void FileEditor::ShowStatus() const
 	Text(StatusLine);
 
 	if (ClockSize)
-	{
 		Text(L'│'); // Separator before the clock
-		ShowTime();
-	}
 }
 
 /* $ 13.02.2001

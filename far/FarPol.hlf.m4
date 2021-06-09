@@ -2485,9 +2485,6 @@ $ #Okno ustawień: interfejs#
  #Zegar#
  Pokazuje zegar w prawym górnym rogu okna.
 
- #Zegar w podglądzie i edytorze#
- Pokazuje zegar w podglądzie i edytorze.
-
  #Mysz#
  Pozwala na używanie myszki w programie.
 
@@ -2525,6 +2522,15 @@ całkowitą liczbę plików.
  Jeżeli zainstalowana jest wtyczka "Przeglądarka sieci" to dla folderów sieciowych
 (i dysków sieciowych - jeżeli przełącznik znajduje się w trzecim stanie) zostanie
 wyświetlona lista współdzielonych zasobów serwera.
+
+ #Use Virtual Terminal for rendering#
+ Render the output using ANSI escape sequences.
+ This allows using 24-bit colors and may (or may not) work better (or worse) with some Unicode characters.
+ Requires Windows 10 and above.
+
+ #Fullwidth-aware rendering#
+ Take into account the fact that East Asian characters require two screen cells instead of one.
+ The support is rudimentary and experimental. It may work or not, depending on your OS, locale, terminal, font and other settings.
 
  #Rysowanie zgodne z ClearType#
  Przerysowuje okno w taki sposób, aby nie pojawiały się artefakty związane
