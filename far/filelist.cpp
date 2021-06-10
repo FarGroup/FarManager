@@ -658,7 +658,7 @@ public:
 		)
 			return Item1.SortGroup < Item2.SortGroup;
 
-		if (m_SortPlugin)
+		if (m_SortPlugin && m_ListSortMode != panel_sort::UNSORTED)
 		{
 			const auto& [a, b] = m_Reverse? std::tie(Item2, Item1) : std::tie(Item1, Item2);
 

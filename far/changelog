@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 09.06.2021 22:54:58 +0100 - build 5817
+
+1. Correction of 5630: no need to call the sorting plugin in the "Unsorted" mode.
+
+--------------------------------------------------------------------------------
 drkns 07.06.2021 23:54:29 +0100 - build 5816
 
 1. Forum: sorting on plugin panels is too slow.
