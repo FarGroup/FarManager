@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/2d/matrix.hpp"
 #include "common/2d/rectangle.hpp"
+#include "common/function_ref.hpp"
 #include "common/singleton.hpp"
 
 // External:
@@ -158,8 +159,16 @@ void MoveRealCursor(int X,int Y);
 void ScrollScreen(int Count);
 bool DoWeReallyHaveToScroll(short Rows);
 
-size_t string_length_to_visual(string_view Str, wchar_t SpaceGlyph, wchar_t TabGlyph);
-size_t visual_pos_to_string_pos(string_view Str, size_t Pos, wchar_t SpaceGlyph, wchar_t TabGlyph);
+struct position_parser_state
+{
+	size_t StringIndex{};
+	size_t VisualIndex{};
+
+	function_ref<void(size_t, size_t)> signal{nullptr};
+};
+
+size_t string_pos_to_visual_pos(string_view Str, size_t StringPos, size_t TabSize, position_parser_state* SavedState = {});
+size_t visual_pos_to_string_pos(string_view Str, size_t VisualPos, size_t TabSize, position_parser_state* SavedState = {});
 
 bool is_valid_surrogate_pair(string_view Str);
 bool is_valid_surrogate_pair(wchar_t First, wchar_t Second);

@@ -18831,6 +18831,20 @@ MSetColorStyle
 "Cтыль:"
 "Stilius:"
 
+MSetColorStyleInherit
+"Наследовать"
+"Inherit"
+"Zdědí"
+"Erben"
+"Örökölje"
+"Dziedziczyć"
+"Heredar"
+"Zdediť"
+"Eredita"
+"Успадковувати"
+"Спадчыну"
+"Paveldėti"
+
 MSetColorStyleBold
 "Жирный"
 "Bold"

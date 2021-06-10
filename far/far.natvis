@@ -179,7 +179,7 @@
 			<Synthetic Name="Flags">
 				<DisplayString>{Flags,h}</DisplayString>
 				<Expand>
-					<Item Name="ignore">bool(Flags &amp; FCF_IGNORE_STYLE)</Item>
+					<Item Name="inherit">bool(Flags &amp; FCF_INHERIT_STYLE)</Item>
 					<Item Name="bold">bool(Flags &amp; FCF_FG_BOLD)</Item>
 					<Item Name="italic">bool(Flags &amp; FCF_FG_ITALIC)</Item>
 					<Item Name="underline">bool(Flags &amp; FCF_FG_UNDERLINE)</Item>

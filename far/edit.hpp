@@ -55,6 +55,8 @@ struct FarColor;
 class RegExp;
 struct RegExpMatch;
 struct MatchHash;
+struct position_parser_state;
+class positions_cache;
 
 // Младший байт (маска 0xFF) юзается классом ScreenObject!!!
 enum FLAGS_CLASS_EDITLINE
@@ -76,7 +78,6 @@ enum FLAGS_CLASS_EDITLINE
 	// явно не в диалоге юзается.
 	FEDITLINE_PARENT_SINGLELINE    = 21_bit,  // обычная строка ввода в диалоге
 	FEDITLINE_PARENT_MULTILINE     = 22_bit,  // для будущего Memo-Edit (DI_EDITOR или DIF_MULTILINE)
-	FEDITLINE_PARENT_EDITOR        = 23_bit,  // "вверху" обычный редактор
 };
 
 struct ColorItem
@@ -164,8 +165,8 @@ public:
 	void SetPasswordMode(bool Mode) {m_Flags.Change(FEDITLINE_PASSWORDMODE,Mode);}
 	void SetOvertypeMode(bool Mode) {m_Flags.Change(FEDITLINE_OVERTYPE, Mode);}
 	bool GetOvertypeMode() const {return m_Flags.Check(FEDITLINE_OVERTYPE);}
-	int RealPosToVisual(int Pos) const;
-	int VisualPosToReal(int Pos) const;
+	int RealPosToVisual(int Pos, position_parser_state* State = {}) const;
+	int VisualPosToReal(int Pos, position_parser_state* State = {}) const;
 	void Select(int Start,int End);
 	void RemoveSelection();
 	void AddSelect(int Start,int End);
@@ -221,19 +222,16 @@ private:
 
 	bool InsertKey(wchar_t Key);
 	bool RecurseProcessKey(int Key);
-	void ApplyColor(int XPos, int FocusedLeftPos);
+	void ApplyColor(int XPos, int FocusedLeftPos, positions_cache& RealToVisual);
 	int GetNextCursorPos(int Position,int Where) const;
 	static bool CharInMask(wchar_t Char, wchar_t Mask);
 	bool ProcessCtrlQ();
 	bool ProcessInsPath(unsigned int Key,int PrevSelStart=-1,int PrevSelEnd=0);
-	int RealPosToVisual(int PrevVisualPos, int PrevRealPos, int Pos, int* CorrectPos = {}) const;
 	void FixLeftPos(int TabCurPos=-1);
 	void SetRightCoord(int Value) { SetPosition({ m_Where.left, m_Where.top, Value, m_Where.bottom }); }
 	Editor* GetEditor() const;
 
 	bool is_valid_surrogate_pair_at(size_t Position) const;
-	wchar_t tab_glyph() const;
-	wchar_t space_glyph() const;
 
 protected:
 	// BUGBUG: the whole purpose of this class is to avoid zillions of casts in existing code by returning size() as int

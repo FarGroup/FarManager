@@ -59,12 +59,20 @@ enum
 
 static auto to_rgba(COLORREF const Color)
 {
-	return *reinterpret_cast<rgba const*>(&Color);
+	rgba Rgba;
+	static_assert(sizeof(Rgba) == sizeof(Color));
+
+	std::memcpy(&Rgba, &Color, sizeof(Color));
+	return Rgba;
 }
 
 static auto to_color(rgba const Rgba)
 {
-	return *reinterpret_cast<COLORREF const*>(&Rgba);
+	COLORREF Color;
+	static_assert(sizeof(Color) == sizeof(Rgba));
+
+	std::memcpy(&Color, &Rgba, sizeof(Rgba));
+	return Color;
 }
 
 namespace colors
@@ -194,8 +202,15 @@ namespace colors
 		merge_part(&FarColor::BackgroundColor, FCF_BG_4BIT);
 		merge_part(&FarColor::ForegroundColor, FCF_FG_4BIT);
 
-		if (!(Top.Flags & FCF_IGNORE_STYLE))
+		if (Top.Flags & FCF_INHERIT_STYLE)
+		{
+			flags::set(Result.Flags, Top.Flags & FCF_STYLEMASK);
+		}
+		else
+		{
 			flags::copy(Result.Flags, FCF_STYLEMASK, Top.Flags);
+			flags::clear(Result.Flags, FCF_INHERIT_STYLE);
+		}
 
 		LastTop = Top;
 		LastBottom = Bottom;
@@ -347,7 +362,7 @@ FarColor ConsoleColorToFarColor(WORD Color)
 {
 	return
 	{
-		FCF_FG_4BIT | FCF_BG_4BIT | FCF_IGNORE_STYLE | (Color & FCF_RAWATTR_MASK),
+		FCF_FG_4BIT | FCF_BG_4BIT | FCF_INHERIT_STYLE | (Color & FCF_RAWATTR_MASK),
 		{ opaque((Color >> ConsoleFgShift) & ConsoleMask) },
 		{ opaque((Color >> ConsoleBgShift) & ConsoleMask) }
 	};
