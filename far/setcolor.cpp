@@ -473,9 +473,10 @@ enum color_dialog_items
 	cd_bg_colorcode,
 	cd_bg_advanced,
 
-	cd_style_active,
+	cd_style,
 	cd_style_first,
-	cd_style_bold = cd_style_first,
+	cd_style_inherit = cd_style_first,
+	cd_style_bold,
 	cd_style_italic,
 	cd_style_underline,
 	cd_style_underline2,
@@ -504,6 +505,7 @@ static bool IgnoreEditChange = false;
 
 static const std::pair<color_dialog_items, FARCOLORFLAGS> StyleMapping[]
 {
+	{ cd_style_inherit,     FCF_INHERIT_STYLE  },
 	{ cd_style_bold,        FCF_FG_BOLD        },
 	{ cd_style_italic,      FCF_FG_ITALIC      },
 	{ cd_style_underline,   FCF_FG_UNDERLINE   },
@@ -590,17 +592,6 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					Dlg->SendMessage(DM_UPDATECOLORCODE, IsFg? cd_fg_colorcode : cd_bg_colorcode, ToPtr(colors::ConsoleIndexToTrueColor(Component)));
 
 					return TRUE;
-				}
-				else if (Param1 == cd_style_active)
-				{
-					flags::change(CurColor.Flags, FCF_IGNORE_STYLE, Param2 == nullptr);
-
-					SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
-
-					for (int i = cd_style_first; i <= cd_style_last; ++i)
-					{
-						Dlg->SendMessage(DM_ENABLE, i, Param2);
-					}
 				}
 				else if (Param1 >= cd_style_first && Param1 <= cd_style_last)
 				{
@@ -755,15 +746,16 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 		{ DI_FIXEDIT,     {{30, 7 }, {37, 7 }}, DIF_MASKEDIT, },
 		{ DI_BUTTON,      {{30, 8 }, {37, 8 }}, DIF_NONE, msg(lng::MSetColorBackRGB), },
 
-		{ DI_CHECKBOX,    {{41, 2 }, {0,  2 }}, DIF_NONE, msg(lng::MSetColorStyle), },
-		{ DI_CHECKBOX,    {{41, 3 }, {0,  3 }}, DIF_NONE, msg(lng::MSetColorStyleBold), },
-		{ DI_CHECKBOX,    {{41, 4 }, {0,  4 }}, DIF_NONE, msg(lng::MSetColorStyleItalic), },
-		{ DI_CHECKBOX,    {{41, 5 }, {0,  5 }}, DIF_NONE, msg(lng::MSetColorStyleUnderline), },
-		{ DI_CHECKBOX,    {{41, 6 }, {0,  6 }}, DIF_NONE, msg(lng::MSetColorStyleUnderline2), },
-		{ DI_CHECKBOX,    {{41, 7 }, {0,  7 }}, DIF_NONE, msg(lng::MSetColorStyleOverline), },
-		{ DI_CHECKBOX,    {{41, 8 }, {0,  8 }}, DIF_NONE, msg(lng::MSetColorStyleStrikeout), },
-		{ DI_CHECKBOX,    {{41, 9 }, {0,  9 }}, DIF_NONE, msg(lng::MSetColorStyleFaint), },
-		{ DI_CHECKBOX,    {{41, 10}, {0,  10}}, DIF_NONE, msg(lng::MSetColorStyleBlink), },
+		{ DI_TEXT,        {{41, 2 }, {0,  2 }}, DIF_NONE, msg(lng::MSetColorStyle), },
+		{ DI_CHECKBOX,    {{41, 3 }, {0,  3 }}, DIF_NONE, msg(lng::MSetColorStyleInherit), },
+		{ DI_CHECKBOX,    {{41, 4 }, {0,  4 }}, DIF_NONE, msg(lng::MSetColorStyleBold), },
+		{ DI_CHECKBOX,    {{41, 5 }, {0,  5 }}, DIF_NONE, msg(lng::MSetColorStyleItalic), },
+		{ DI_CHECKBOX,    {{41, 6 }, {0,  6 }}, DIF_NONE, msg(lng::MSetColorStyleUnderline), },
+		{ DI_CHECKBOX,    {{41, 7 }, {0,  7 }}, DIF_NONE, msg(lng::MSetColorStyleUnderline2), },
+		{ DI_CHECKBOX,    {{41, 8 }, {0,  8 }}, DIF_NONE, msg(lng::MSetColorStyleOverline), },
+		{ DI_CHECKBOX,    {{41, 9 }, {0,  9 }}, DIF_NONE, msg(lng::MSetColorStyleStrikeout), },
+		{ DI_CHECKBOX,    {{41, 10}, {0,  10}}, DIF_NONE, msg(lng::MSetColorStyleFaint), },
+		{ DI_CHECKBOX,    {{41, 11}, {0,  11}}, DIF_NONE, msg(lng::MSetColorStyleBlink), },
 
 		{ DI_TEXT,        {{5,  10}, {37, 10}}, DIF_NONE, msg(lng::MSetColorSample), },
 		{ DI_TEXT,        {{5,  11}, {37, 11}}, DIF_NONE, msg(lng::MSetColorSample), },
@@ -828,14 +820,9 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 		ColorDlg[cd_fg_colorcode].Flags |= DIF_FOCUS;
 	}
 
-	const auto StyleStateFlag = Color.Flags & FCF_IGNORE_STYLE? DIF_DISABLE : DIF_NONE;
-
-	ColorDlg[cd_style_active].Selected = StyleStateFlag == DIF_NONE? BSTATE_CHECKED : BSTATE_UNCHECKED;
-
 	for (const auto& [Index, Flag]: StyleMapping)
 	{
 		ColorDlg[Index].Selected = Color.Flags & Flag? BSTATE_CHECKED : BSTATE_UNCHECKED;
-		ColorDlg[Index].Flags |= StyleStateFlag;
 	}
 
 	if (BaseColor)

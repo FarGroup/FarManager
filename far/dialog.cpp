@@ -1916,7 +1916,7 @@ void Dialog::ShowDialog(size_t ID)
 				if (Item.Flags & DIF_SHOWAMPERSAND)
 					VText(strStr);
 				else
-					HiText(strStr,ItemColor[1], TRUE);
+					HiVText(strStr,ItemColor[1]);
 
 				break;
 			}

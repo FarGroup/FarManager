@@ -84,6 +84,7 @@ static std::array<wchar_t, 512> VKeyToASCII;
 
 static unsigned int AltValue=0;
 static unsigned int KeyCodeForALT_LastPressed=0;
+static bool IsWindowFocused{};
 
 static MOUSE_EVENT_RECORD lastMOUSE_EVENT_RECORD;
 
@@ -597,15 +598,24 @@ void ClearKeyQueue()
 	KeyQueue().clear();
 }
 
-static auto& wake_event()
+class wake_event
 {
-	static os::concurrency::event Event(os::event::type::automatic, os::event::state::nonsignaled);
-	return Event;
-}
+public:
+	static auto& ref()
+	{
+		if (!s_WakeEvent)
+			s_WakeEvent = os::concurrency::event(os::event::type::automatic, os::event::state::nonsignaled);
 
-void wake_main_loop()
+		return s_WakeEvent;
+	}
+
+private:
+	static inline os::concurrency::event s_WakeEvent;
+};
+
+void main_loop_process_messages()
 {
-	wake_event().set();
+	wake_event::ref().set();
 }
 
 DWORD GetInputRecordNoMacroArea(INPUT_RECORD *rec,bool AllowSynchro)
@@ -691,6 +701,8 @@ static void UpdateIntKeyState(DWORD CtrlState)
 
 static DWORD ProcessFocusEvent(bool Got)
 {
+	IsWindowFocused = Got;
+
 	/* $ 28.04.2001 VVM
 	+ Не только обработаем сами смену фокуса, но и передадим дальше */
 	PressedLast.ClearAll();
@@ -929,7 +941,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 				}
 			}
 
-			if (Global->Opt->ScreenSaver &&
+			if (IsWindowFocused && Global->Opt->ScreenSaver &&
 				Global->Opt->ScreenSaverTime > 0 &&
 				CurTime - Global->StartIdleTime > std::chrono::minutes(Global->Opt->ScreenSaverTime))
 			{
@@ -943,7 +955,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			return KEY_NONE;
 		}
 
-		if (!os::handle::wait_any({ console.GetInputHandle(), wake_event().native_handle() }, 1s))
+		if (!os::handle::wait_any({ console.GetInputHandle(), wake_event::ref().native_handle() }, 1s))
 		{
 			if (!Global->IsPanelsActive())
 			{

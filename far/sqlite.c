@@ -55,6 +55,7 @@ WARNING_DISABLE_MSC(5105) // macro expansion producing 'defined' has undefined b
 WARNING_DISABLE_GCC("-Wcast-function-type")
 WARNING_DISABLE_GCC("-Wcast-qual")
 WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
+WARNING_DISABLE_GCC("-Wmisleading-indentation")
 WARNING_DISABLE_GCC("-Wmissing-declarations")
 WARNING_DISABLE_GCC("-Wredundant-decls")
 WARNING_DISABLE_GCC("-Wundef")

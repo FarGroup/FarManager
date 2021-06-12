@@ -148,7 +148,18 @@ void set_last_error_from_ntstatus(NTSTATUS const Status)
 static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 {
 	memory::local::ptr<wchar_t> Buffer;
-	const size_t Size = FormatMessage((Nt? FORMAT_MESSAGE_FROM_HMODULE : FORMAT_MESSAGE_FROM_SYSTEM) | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS, (Nt? GetModuleHandle(L"ntdll.dll") : nullptr), ErrorCode, 0, reinterpret_cast<wchar_t*>(&ptr_setter(Buffer)), 0, nullptr);
+	const size_t Size = FormatMessage(
+			(Nt? FORMAT_MESSAGE_FROM_HMODULE : FORMAT_MESSAGE_FROM_SYSTEM) |
+			FORMAT_MESSAGE_ALLOCATE_BUFFER |
+			FORMAT_MESSAGE_IGNORE_INSERTS |
+			FORMAT_MESSAGE_MAX_WIDTH_MASK,
+		(Nt? GetModuleHandle(L"ntdll.dll") : nullptr),
+		ErrorCode,
+		0,
+		reinterpret_cast<wchar_t*>(&ptr_setter(Buffer)),
+		0,
+		nullptr);
+
 	string Result(Buffer.get(), Size);
 	std::replace_if(ALL_RANGE(Result), IsEol, L' ');
 	inplace::trim_right(Result);

@@ -98,13 +98,13 @@ void message_manager::unsubscribe(handlers_map::iterator HandlerIterator)
 void message_manager::notify(event_id EventId, std::any&& Payload)
 {
 	m_Messages.emplace(EventNames[EventId], std::move(Payload));
-	wake_main_loop();
+	main_loop_process_messages();
 }
 
 void message_manager::notify(string_view const EventName, std::any&& Payload)
 {
 	m_Messages.emplace(EventName, std::move(Payload));
-	wake_main_loop();
+	main_loop_process_messages();
 }
 
 bool message_manager::dispatch()

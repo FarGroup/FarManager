@@ -786,10 +786,18 @@ static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_C
 					Buffer.back().Char = encoding::replace_char;
 					// Stash the actual codepoint. The drawing code will restore it from here:
 					Buffer.back().Attributes.Reserved[0] = Codepoint;
+
+					// As of 10 Jun 2021, neither Conhost nor Terminal can render these properly.
+					// Expect the broken UI
+
+					// Uncomment for testing:
+					// Buffer.back().Attributes.Reserved[0] = 0;
 				}
 				else
 				{
 					// Classic grid mode, nothing we can do :(
+					// Expect the broken UI
+					Buffer.push_back({ Char[1], CurColor });
 				}
 			}
 			else
@@ -1159,39 +1167,115 @@ bool DoWeReallyHaveToScroll(short Rows)
 	return !std::all_of(ALL_CONST_RANGE(BufferBlock.vector()), [](const FAR_CHAR_INFO& i) { return i.Char == L' '; });
 }
 
-size_t string_length_to_visual(string_view Str, wchar_t const SpaceGlyph, wchar_t const TabGlyph)
+size_t string_pos_to_visual_pos(string_view Str, size_t const StringPos, size_t const TabSize, position_parser_state* SavedState)
 {
-	if (!char_width::is_enabled())
-		return Str.size();
+	if (!StringPos || Str.empty())
+		return StringPos;
 
-	size_t Result = 0;
+	const auto CharWidthEnabled = char_width::is_enabled();
 
-	while (!Str.empty())
+	position_parser_state State;
+
+	if (SavedState && StringPos > SavedState->StringIndex)
+		State = *SavedState;
+
+	const auto nop_signal = [](size_t, size_t){};
+	const auto signal = State.signal? State.signal : nop_signal;
+
+	const auto End = std::min(Str.size(), StringPos);
+	while (State.StringIndex < End)
 	{
-		const auto Codepoint = encoding::utf16::extract_codepoint(Str);
-		Str.remove_prefix(Codepoint > std::numeric_limits<wchar_t>::max()? 2 : 1);
-		Result += char_width::is_wide(Codepoint == L'\t'? TabGlyph : Codepoint == ' '? SpaceGlyph : Codepoint)? 2 : 1;
+		size_t
+			CharStringIncrement,
+			CharVisualIncrement;
+
+		if (Str[State.StringIndex] == L'\t')
+		{
+			CharStringIncrement = 1;
+			CharVisualIncrement = TabSize - State.VisualIndex % TabSize;
+		}
+		else if (CharWidthEnabled)
+		{
+			const auto Codepoint = encoding::utf16::extract_codepoint(Str.substr(State.StringIndex));
+			CharStringIncrement = Codepoint > std::numeric_limits<wchar_t>::max()? 2 : 1;
+			CharVisualIncrement = char_width::is_wide(Codepoint)? 2 : 1;
+		}
+		else
+		{
+			CharStringIncrement = 1;
+			CharVisualIncrement = 1;
+		}
+
+		signal(State.StringIndex + CharStringIncrement, State.VisualIndex + CharVisualIncrement);
+
+		State.StringIndex += CharStringIncrement;
+
+		if (State.StringIndex > End)
+			break;
+
+		State.VisualIndex += CharVisualIncrement;
 	}
 
-	return Result;
+	if (SavedState)
+		*SavedState = State;
+
+	return State.VisualIndex + (StringPos > Str.size()? StringPos - Str.size() : 0);
 }
 
-size_t visual_pos_to_string_pos(string_view Str, size_t const Pos, wchar_t const SpaceGlyph, wchar_t const TabGlyph)
+size_t visual_pos_to_string_pos(string_view Str, size_t const VisualPos, size_t const TabSize, position_parser_state* SavedState)
 {
-	if (!char_width::is_enabled())
-		return Pos;
+	if (!VisualPos || Str.empty())
+		return VisualPos;
 
-	const auto StrSize = Str.size();
-	size_t Size = 0;
+	const auto CharWidthEnabled = char_width::is_enabled();
 
-	while (!Str.empty() && Size < Pos)
+	position_parser_state State;
+
+	if (SavedState && VisualPos > SavedState->VisualIndex)
+		State = *SavedState;
+
+	const auto nop_signal = [](size_t, size_t){};
+	const auto signal = State.signal? State.signal : nop_signal;
+
+	const auto End = Str.size();
+
+	while (State.VisualIndex < VisualPos && State.StringIndex != End)
 	{
-		const auto Codepoint = encoding::utf16::extract_codepoint(Str);
-		Str.remove_prefix(Codepoint > std::numeric_limits<wchar_t>::max() ? 2 : 1);
-		Size += char_width::is_wide(Codepoint == L'\t'? TabGlyph : Codepoint == ' '? SpaceGlyph : Codepoint)? 2 : 1;
+		size_t
+			CharVisualIncrement,
+			CharStringIncrement;
+
+		if (Str[State.StringIndex] == L'\t')
+		{
+			CharVisualIncrement = TabSize - State.VisualIndex % TabSize;
+			CharStringIncrement = 1;
+		}
+		else if (CharWidthEnabled)
+		{
+			const auto Codepoint = encoding::utf16::extract_codepoint(Str.substr(State.StringIndex));
+			CharVisualIncrement = char_width::is_wide(Codepoint)? 2 : 1;
+			CharStringIncrement = Codepoint > std::numeric_limits<wchar_t>::max()? 2 : 1;
+		}
+		else
+		{
+			CharVisualIncrement = 1;
+			CharStringIncrement = 1;
+		}
+
+		signal(State.StringIndex + CharStringIncrement, State.VisualIndex + CharVisualIncrement);
+
+		State.VisualIndex += CharVisualIncrement;
+
+		if (State.VisualIndex > VisualPos)
+			break;
+
+		State.StringIndex += CharStringIncrement;
 	}
 
-	return StrSize - Str.size() + (Pos > Size? Pos - Size : 0);
+	if (SavedState)
+		*SavedState = State;
+
+	return State.StringIndex + (State.VisualIndex < VisualPos? VisualPos - State.VisualIndex : 0);
 }
 
 bool is_valid_surrogate_pair(string_view const Str)
@@ -1593,4 +1677,157 @@ TEST_CASE("interf.highlight")
 		REQUIRE(HiFindRealPos(i.Input, i.PosVisual) == i.PosReal);
 	}
 }
+
+TEST_CASE("wide_chars")
+{
+	static const struct
+	{
+		string_view Str;
+		std::initializer_list<std::pair<size_t, int>>
+			StringToVisual,
+			VisualToString;
+	}
+	Tests[]
+	{
+		{
+			{}, // Baseline, half width
+			{ { 0, +0 }, { 1, +0 }, { 2, +0 }, { 3, +0 }, { 4, +0 }, },
+			{ { 0, +0 }, { 1, +0 }, { 2, +0 }, { 3, +0 }, { 4, +0 }, },
+		},
+		{
+			L"1"sv, // ANSI, half width
+			{ { 0, +0 }, { 1, +0 }, { 2, +0 }, { 3, +0 }, { 4, +0 }, },
+			{ { 0, +0 }, { 1, +0 }, { 2, +0 }, { 3, +0 }, { 4, +0 }, },
+		},
+		{
+			L"あ"sv, // Hiragana, full width
+			{ { 0, +0 }, { 1, +1 }, { 2, +1 }, { 3, +1 }, { 4, +1 }, },
+			{ { 0, +0 }, { 1, -1 }, { 2, -1 }, { 3, -1 }, { 4, -1 }, },
+		},
+		{
+			L"ああ"sv, // Hiragana, full width
+			{ { 0, +0 }, { 1, +1 }, { 2, +2 }, { 3, +2 }, { 4, +2 }, },
+			{ { 0, +0 }, { 1, -1 }, { 2, -1 }, { 3, -2 }, { 4, -2 }, },
+		},
+		{
+			L"𐀀"sv, // Surrogate, half width
+			{ { 0, +0 }, { 1, -1 }, { 2, -1 }, { 3, -1 }, { 4, -1 }, },
+			{ { 0, +0 }, { 1, +1 }, { 2, +1 }, { 3, +1 }, { 4, +1 }, },
+		},
+		{
+			L"𐀀𐀀"sv, // Surrogate, half width
+			{ { 0, +0 }, { 1, -1 }, { 2, -1 }, { 3, -2 }, { 4, -2 }, },
+			{ { 0, +0 }, { 1, +1 }, { 2, +2 }, { 3, +2 }, { 4, +2 }, },
+		},
+		{
+			L"𠲖"sv, // Surrogate, full width
+			{ { 0, +0 }, { 1, -1 }, { 2, +0 }, { 3, +0 }, { 4, +0 }, },
+			{ { 0, +0 }, { 1, -1 }, { 2, +0 }, { 3, +0 }, { 4, +0 }, },
+		},
+		{
+			L"𠲖𠲖"sv, // Surrogate, full width
+			{ { 0, +0 }, { 1, -1 }, { 2, +0 }, { 3, -1 }, { 4, +0 }, },
+			{ { 0, +0 }, { 1, -1 }, { 2, +0 }, { 3, -1 }, { 4, +0 }, },
+		},
+		{
+			L"残酷な天使のように少年よ神話になれ"sv,
+			{ {17, +17}, },
+			{ {34, -17} } },
+
+	};
+
+	char_width::enable(1);
+
+	for (const auto& i: Tests)
+	{
+		position_parser_state State[2];
+
+		for (const auto& [StringPos, VisualShift]: i.StringToVisual)
+		{
+			REQUIRE(string_pos_to_visual_pos(i.Str, StringPos, 1, &State[0]) == StringPos + VisualShift);
+		}
+
+		for (const auto& [VisualPos, StringShift] : i.VisualToString)
+		{
+			REQUIRE(visual_pos_to_string_pos(i.Str, VisualPos, 1, &State[1]) == VisualPos + StringShift);
+		}
+	}
+
+	char_width::enable(0);
+}
+
+TEST_CASE("tabs")
+{
+	static string_view const Strs[]
+	{
+		{},
+		L"1\t2"sv,
+		L"\t1\t12\t123\t1234\t"sv,
+		L"\t𐀀\t12\t𐀀天\t日本\t"sv,
+	};
+
+	static const struct
+	{
+		size_t Str, TabSize, VisualPos, RealPos;
+		bool TestRealToVisual;
+	}
+	Tests[]
+	{
+		{ 0, 0,  0,  0, true,  },
+		{ 0, 0,  1,  1, true,  },
+
+		{ 1, 0,  0,  0, true,  },
+
+		{ 1, 1,  0,  0, true,  },
+		{ 1, 1,  1,  1, true,  },
+		{ 1, 1,  2,  2, true,  },
+		{ 1, 1,  3,  3, true,  },
+
+		{ 1, 2,  0,  0, true,  },
+		{ 1, 2,  1,  1, true,  },
+		{ 1, 2,  2,  2, true,  },
+		{ 1, 2,  3,  3, true,  },
+
+		{ 1, 3,  0,  0, true,  },
+		{ 1, 3,  1,  1, true,  },
+		{ 1, 3,  2,  1, false, },
+		{ 1, 3,  3,  2, true,  },
+
+		{ 2, 4,  0,  0, true,  },
+		{ 2, 4,  1,  0, false, },
+		{ 2, 4,  2,  0, false, },
+		{ 2, 4,  3,  0, false, },
+		{ 2, 4,  4,  1, true,  },
+		{ 2, 4,  5,  2, true,  },
+		{ 2, 4,  6,  2, false, },
+		{ 2, 4,  7,  2, false, },
+		{ 2, 4,  8,  3, true,  },
+		{ 2, 4,  9,  4, true,  },
+		{ 2, 4, 10,  5, true,  },
+		{ 2, 4, 11,  5, false, },
+		{ 2, 4, 12,  6, true,  },
+		{ 2, 4, 13,  7, true,  },
+		{ 2, 4, 14,  8, true,  },
+		{ 2, 4, 15,  9, true,  },
+		{ 2, 4, 16, 10, true,  },
+		{ 2, 4, 17, 11, true,  },
+		{ 2, 4, 18, 12, true,  },
+		{ 2, 4, 19, 13, true,  },
+		{ 2, 4, 20, 14, true,  },
+		{ 2, 4, 21, 14, false, },
+		{ 2, 4, 22, 14, false, },
+		{ 2, 4, 23, 14, false, },
+		{ 2, 4, 24, 15, false, },
+		{ 2, 4, 25, 16, true,  },
+	};
+
+	for (const auto& i : Tests)
+	{
+		REQUIRE(i.RealPos == visual_pos_to_string_pos(Strs[i.Str], i.VisualPos, i.TabSize));
+
+		if (i.TestRealToVisual)
+			REQUIRE(i.VisualPos == string_pos_to_visual_pos(Strs[i.Str], i.RealPos, i.TabSize));
+	}
+}
+
 #endif

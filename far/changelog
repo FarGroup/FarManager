@@ -1,4 +1,24 @@
 --------------------------------------------------------------------------------
+drkns 12.06.2021 02:00:20 +0100 - build 5819
+
+1. Vertical separators were shown incorrectly in the last few builds.
+
+2. Trigger the screensaver only if the window is focused.
+
+--------------------------------------------------------------------------------
+drkns 10.06.2021 22:11:22 +0100 - build 5818
+
+1. Hightly experimental changes in editor color processing and text rendering.
+   Things should be simpler, saner and faster now. Hopefully.
+   Expect bugs. Report ASAP.
+
+2. Continue fullwidth-aware rendering.
+
+3. Corrections of text attributes merging.
+
+4. GCC warnings.
+
+--------------------------------------------------------------------------------
 drkns 09.06.2021 22:54:58 +0100 - build 5817
 
 1. Correction of 5630: no need to call the sorting plugin in the "Unsorted" mode.
