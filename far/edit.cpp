@@ -2080,7 +2080,7 @@ void Edit::ApplyColor(int XPos, int FocusedLeftPos, positions_cache& RealToVisua
 			continue;
 
 		auto First = RealToVisual.get(CurItem.StartPos);
-		auto LastFirst = RealToVisual.get(CurItem.EndPos);
+		const auto LastFirst = RealToVisual.get(CurItem.EndPos);
 		int LastLast = LastFirst;
 		for (int i = 0; i != 2; ++i)
 		{

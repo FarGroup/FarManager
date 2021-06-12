@@ -876,11 +876,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		break;
 	}
 
-	// Маска времени
-	const auto strTimeMask = format(FSTR(L"99{0}99{0}99{1}9999999"sv), TimeSeparator, DecimalSeparator);
-	const wchar_t VerticalLine[] = {BoxSymbols[BS_T_H1V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_V1],BoxSymbols[BS_B_H1V1],0};
-
-	std::pair<lng, string> NameLabels[] =
+	std::pair<lng, string> NameLabels[]
 	{
 		{lng::MHighlightFileName1, {}},
 		{lng::MHighlightFileName2, {}},
@@ -923,7 +919,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		{ DI_BUTTON,      {{0,  6 }, {0,  6 }}, DIF_BTNNOCLOSE, msg(lng::MFileFilterCurrent), },
 		{ DI_BUTTON,      {{0,  6 }, {74, 6 }}, DIF_BTNNOCLOSE, msg(lng::MFileFilterBlank), },
 		{ DI_TEXT,        {{-1, 9 }, {0,  9 }}, DIF_SEPARATOR, },
-		{ DI_VTEXT,       {{22, 5 }, {22, 9 }}, DIF_BOXCOLOR, VerticalLine },
+		{ DI_VTEXT,       {{22, 5 }, {22, 9 }}, DIF_SEPARATORUSER, },
 		{ DI_CHECKBOX,    {{5,  10}, {0,  10}}, DIF_AUTOMATION, msg(lng::MFileFilterAttr)},
 		{ DI_BUTTON,      {{5,  10}, {0,  10}}, DIF_AUTOMATION | DIF_BTNNOCLOSE, msg(lng::MFileFilterAttrChoose), },
 		{ DI_CHECKBOX,    {{41, 10}, {0,  10}}, DIF_NONE, msg(lng::MFileHardLinksCount), },
@@ -953,9 +949,11 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	FilterDlg[ID_FF_MASKEDIT].strHistory = L"FilterMasks"sv;
 
 	FilterDlg[ID_FF_DATEBEFOREEDIT].strMask = FilterDlg[ID_FF_DATEAFTEREDIT].strMask = strDateMask;
-	FilterDlg[ID_FF_TIMEBEFOREEDIT].strMask = FilterDlg[ID_FF_TIMEAFTEREDIT].strMask = strTimeMask;
+	FilterDlg[ID_FF_TIMEBEFOREEDIT].strMask = FilterDlg[ID_FF_TIMEAFTEREDIT].strMask = format(FSTR(L"99{0}99{0}99{1}9999999"sv), TimeSeparator, DecimalSeparator);
 	// Маска для ввода дней для относительной даты
 	FilterDlg[ID_FF_DAYSBEFOREEDIT].strMask = FilterDlg[ID_FF_DAYSAFTEREDIT].strMask = L"9999"sv;
+
+	FilterDlg[ID_FF_SEPARATOR4].strMask = { BoxSymbols[BS_T_H1V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1] };
 
 	if (!ColorConfig)
 	{

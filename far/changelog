@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 12.06.2021 02:00:20 +0100 - build 5819
+
+1. Vertical separators were shown incorrectly in the last few builds.
+
+2. Trigger the screensaver only if the window is focused.
+
+--------------------------------------------------------------------------------
 drkns 10.06.2021 22:11:22 +0100 - build 5818
 
 1. Hightly experimental changes in editor color processing and text rendering.
