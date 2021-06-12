@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 12.06.2021 12:39:43 +0100 - build 5820
+
+1. Show code point values for surrogate pairs in editor status line.
+
+--------------------------------------------------------------------------------
 drkns 12.06.2021 02:00:20 +0100 - build 5819
 
 1. Vertical separators were shown incorrectly in the last few builds.
