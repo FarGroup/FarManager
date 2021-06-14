@@ -5662,13 +5662,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				ColorItem newcol;
 				newcol.StartPos=col->StartPos;
 				newcol.EndPos=col->EndPos;
-
-				// BUGBUG Colorer sends transparent colors
-				auto OpaqueColor = col->Color;
-				colors::make_opaque(OpaqueColor.ForegroundColor);
-				colors::make_opaque(OpaqueColor.BackgroundColor);
-				newcol.SetColor(OpaqueColor);
-
+				newcol.SetColor(col->Color);
 				newcol.Flags=col->Flags;
 				newcol.SetOwner(col->Owner);
 				newcol.Priority=col->Priority;

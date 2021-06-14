@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 14.06.2021 19:10:39 +0100 - build 5821
+
+1. Removed the workaround for plugins that erroneously add transparent editor highlighting.
+   Transparency is now taken into account.
+   If your plugin/script suddenly stopped working - fill the colors properly.
+
+--------------------------------------------------------------------------------
 drkns 12.06.2021 12:39:43 +0100 - build 5820
 
 1. Show code point values for surrogate pairs in editor status line.
