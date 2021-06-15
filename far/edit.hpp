@@ -187,6 +187,7 @@ public:
 	bool GetReadOnly() const {return m_Flags.Check(FEDITLINE_READONLY);}
 	void SetReadOnly(bool NewReadOnly) {m_Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
 	void SetHorizontalPosition(int X1, int X2) { SetPosition({ X1, m_Where.top, X2, m_Where.bottom }); }
+	static bool is_clear_selection_key(unsigned Key);
 
 protected:
 	virtual void RefreshStrByMask(int InitMode=FALSE) {}

@@ -1,4 +1,14 @@
 --------------------------------------------------------------------------------
+drkns 15.06.2021 22:01:42 +0100 - build 5822
+
+1. Forum: selection in fixed size edit controls.
+
+2. Other selection-related fixes in edit controls and the editor.
+   Various service keys shouldn't stop selection / deselect anymore.
+
+3. Forum: extra echo when executing unknown commands in a new window.
+
+--------------------------------------------------------------------------------
 drkns 14.06.2021 19:10:39 +0100 - build 5821
 
 1. Removed the workaround for plugins that erroneously add transparent editor highlighting.

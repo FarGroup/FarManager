@@ -594,6 +594,7 @@ static bool execute_impl(
 	rectangle ConsoleWindowRect;
 	point ConsoleSize;
 	std::optional<external_execution_context> Context;
+	auto ConsoleActivatorInvoked = false;
 
 	const auto ExtendedActivator = [&](bool const Consolise)
 	{
@@ -607,7 +608,11 @@ static bool execute_impl(
 			Context.emplace();
 		}
 
-		ConsoleActivator(Consolise);
+		if (!ConsoleActivatorInvoked)
+		{
+			ConsoleActivator(Consolise);
+			ConsoleActivatorInvoked = true;
+		}
 	};
 
 	const auto execute_process = [&]

@@ -700,7 +700,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 	{
 		{ DI_DOUBLEBOX, {{ 3,      1     }, {DlgX-4,  DlgY-2}}, DIF_NONE, msg(lng::MSetAttrTitle), },
 		{ DI_TEXT,      {{-1,      2     }, {0,       2     }}, DIF_NONE, msg(lng::MSetAttrFor), },
-		{ DI_TEXT,      {{-1,      3     }, {0,       3     }}, DIF_SHOWAMPERSAND, },
+		{ DI_TEXT,      {{5,       3     }, {DlgX-6,  3     }}, DIF_CENTERTEXT | DIF_SHOWAMPERSAND, },
 		{ DI_COMBOBOX,  {{5,       3     }, {DlgX-6,  3     }}, DIF_SHOWAMPERSAND | DIF_DROPDOWNLIST | DIF_LISTWRAPMODE | DIF_HIDDEN, },
 		{ DI_TEXT,      {{5,       3     }, {17,      3     }}, DIF_HIDDEN, },
 		{ DI_EDIT,      {{18,      3     }, {DlgX-6,  3     }}, DIF_HIDDEN | DIF_EDITPATH, },
@@ -1045,7 +1045,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				}
 			}
 
-			AttrDlg[SA_TEXT_NAME].strData = truncate_left(QuoteOuterSpace(SingleSelFileName), DlgX - 10);
+			AttrDlg[SA_TEXT_NAME].strData = QuoteOuterSpace(SingleSelFileName);
 
 			const auto ComputerName = ExtractComputerName(SrcPanel?
 				SrcPanel->GetCurDir() :
