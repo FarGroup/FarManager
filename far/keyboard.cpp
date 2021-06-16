@@ -1881,7 +1881,7 @@ bool IsInternalKeyReal(unsigned int Key)
 
 bool IsCharKey(unsigned int Key)
 {
-	return Key < 0x1000 || in_closed_range(KEY_MULTIPLY, Key, KEY_DIVIDE);
+	return Key < 0x10000 || in_closed_range(KEY_MULTIPLY, Key, KEY_DIVIDE);
 }
 
 unsigned int ShieldCalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
