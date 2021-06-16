@@ -316,7 +316,7 @@ void Edit::FastShow(const ShowInfo* Info)
 		}
 
 		const auto Begin = OutStrTmp.cbegin() + std::min(static_cast<size_t>(RealLeftPos), OutStrTmp.size());
-		for(auto i = Begin, End = OutStrTmp.cend(); i != End; ++i)
+		for(auto i = Begin, End = OutStrTmp.cend(); i != End && static_cast<size_t>(i - Begin) < RealRight; ++i)
 		{
 			if (*i == L' ')
 			{
@@ -336,11 +336,6 @@ void Edit::FastShow(const ShowInfo* Info)
 			else
 			{
 				OutStr.push_back(!*i? L' ' : *i);
-			}
-
-			if (static_cast<size_t>(i - Begin) >= RealRight)
-			{
-				break;
 			}
 		}
 
