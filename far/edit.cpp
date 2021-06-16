@@ -648,7 +648,6 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 
 	if (
 		!IntKeyState.ShiftPressed() &&
-		!Global->CtrlObject->Macro.IsExecuting() &&
 		!Recurse &&
 		is_clear_selection_key(LocalKey)
 	)

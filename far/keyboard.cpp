@@ -257,8 +257,6 @@ static const TFKey ModifKeyName[]
 	{ KEY_ALT,      lng::MKeyAlt,    L"Alt"sv, },
 	{ KEY_RALT,     lng::MKeyRAlt,   L"RAlt"sv, },
 	{ KEY_SHIFT,    lng::MKeyShift,  L"Shift"sv, },
-	{ KEY_M_SPEC,   lng(-1),         L"Spec"sv, },
-	{ KEY_M_OEM,    lng(-1),         L"Oem"sv, },
 };
 
 static auto& Layout()
@@ -1382,19 +1380,21 @@ int KeyNameToKey(string_view Name)
 				if (Chr)
 					Name.remove_prefix(1);
 			}
-			else if (
-				Name.size() == 5 && any_of(Key, KEY_M_SPEC, KEY_M_OEM) &&
-				std::all_of(ALL_CONST_RANGE(Name), std::iswdigit)
-			) // Варианты (3) и (4)
+			else
 			{
-				const auto K = from_string<unsigned>(Name);
+				const auto
+					OemPrefix = L"Oem"sv,
+					SpecPrefix = L"Spec"sv;
 
-				if (Key == KEY_M_SPEC) // Вариант (3)
-					Key = (Key & ~KEY_M_SPEC) | (K + KEY_VK_0xFF_BEGIN);
-				else // Вариант (4)
-					Key = (Key & ~KEY_M_OEM) | (K + KEY_FKEY_BEGIN);
-
-				Name = {};
+				if (const auto IsOem = starts_with(Name, OemPrefix); IsOem || starts_with(Name, SpecPrefix))
+				{
+					const auto Tail = Name.substr(IsOem? OemPrefix.size() : SpecPrefix.size());
+					if (Tail.size() == 5 && std::all_of(ALL_CONST_RANGE(Tail), std::iswdigit)) // Варианты (3) и (4)
+					{
+						Key |= (IsOem? KEY_FKEY_BEGIN : KEY_VK_0xFF_BEGIN) | from_string<unsigned>(Tail);
+						Name = {};
+					}
+				}
 			}
 			// Вариант (5). Уже "собран".
 		}
@@ -1762,34 +1762,24 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 }
 
 
-int IsNavKey(DWORD Key)
+bool IsNavKey(DWORD const Key)
 {
-	static const std::pair<DWORD, DWORD> NavKeysMap[] =
+	static const DWORD Keys[]
 	{
-		{0,KEY_CTRLC},
-		{0,KEY_RCTRLC},
-		{0,KEY_INS},      {0,KEY_NUMPAD0},
-		{0,KEY_CTRLINS},  {0,KEY_CTRLNUMPAD0},
-		{0,KEY_RCTRLINS}, {0,KEY_RCTRLNUMPAD0},
-
-		{1,KEY_LEFT},     {1,KEY_NUMPAD4},
-		{1,KEY_RIGHT},    {1,KEY_NUMPAD6},
-		{1,KEY_HOME},     {1,KEY_NUMPAD7},
-		{1,KEY_END},      {1,KEY_NUMPAD1},
-		{1,KEY_UP},       {1,KEY_NUMPAD8},
-		{1,KEY_DOWN},     {1,KEY_NUMPAD2},
-		{1,KEY_PGUP},     {1,KEY_NUMPAD9},
-		{1,KEY_PGDN},     {1,KEY_NUMPAD3},
-		//!!!!!!!!!!!
+		KEY_LEFT,     KEY_NUMPAD4,
+		KEY_RIGHT,    KEY_NUMPAD6,
+		KEY_HOME,     KEY_NUMPAD7,
+		KEY_END,      KEY_NUMPAD1,
+		KEY_UP,       KEY_NUMPAD8,
+		KEY_DOWN,     KEY_NUMPAD2,
+		KEY_PGUP,     KEY_NUMPAD9,
+		KEY_PGDN,     KEY_NUMPAD3,
 	};
 
-	return std::any_of(CONST_RANGE(NavKeysMap, i)
-	{
-		return (!i.first && Key==i.second) || (i.first && (Key&0x00FFFFFF) == (i.second&0x00FFFFFF));
-	});
+	return contains(Keys, Key & ~KEY_CTRLMASK);
 }
 
-int IsShiftKey(DWORD Key)
+bool IsShiftKey(DWORD Key)
 {
 	static const DWORD ShiftKeys[] =
 	{

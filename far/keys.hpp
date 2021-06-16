@@ -49,27 +49,24 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-#define EXTENDED_KEY_BASE     0x00010000
-#define INTERNAL_KEY_BASE     0x00020000
-#define INTERNAL_KEY_BASE_2   0x00030000
-#define INTERNAL_MACRO_BASE   0x00080000
+constexpr unsigned int
+	KEY_CTRLMASK        = 0xFF000000,
+	EXTENDED_KEY_BASE   = 0x00010000,
+	INTERNAL_KEY_BASE   = 0x00020000,
+	INTERNAL_KEY_BASE_2 = 0x00030000,
+	INTERNAL_MACRO_BASE = 0x00080000;
 
 enum far_key_code: unsigned int
 {
 	NO_KEY = 0,
 
-	KEY_CTRLMASK             =0xFFF00000,
-	KEY_M_OEM                =0x00100000,
-	KEY_M_SPEC               =0x00200000,
-	//
-	//
 	KEY_CTRL                 =0x01000000,
 	KEY_ALT                  =0x02000000,
 	KEY_SHIFT                =0x04000000,
 	//
 	KEY_RCTRL                =0x10000000,
 	KEY_RALT                 =0x20000000,
-	KEY_RSHIFT               =0x80000000,
+	KEY_RSHIFT               =0x40000000,
 
 	KEY_BRACKET              ='[',
 	KEY_BACKBRACKET          =']',
@@ -89,6 +86,7 @@ enum far_key_code: unsigned int
 
 	KEY_MASKF                =0x0001FFFF,
 
+	                       // 0x00010000
 	KEY_FKEY_BEGIN           =EXTENDED_KEY_BASE,
 
 	KEY_BREAK                =EXTENDED_KEY_BASE+VK_CANCEL,
@@ -201,6 +199,7 @@ enum far_key_code: unsigned int
 
 	KEY_END_FKEY             =0x0001FFFF,
 
+	                       // 0x00020000
 	KEY_MSWHEEL_UP           =INTERNAL_KEY_BASE+3,
 	KEY_MSWHEEL_DOWN         =INTERNAL_KEY_BASE+4,
 
@@ -246,6 +245,7 @@ enum far_key_code: unsigned int
 	KEY_LAST_BASE            =KEY_END_SKEY,
 
 	// см macroopcode.hpp
+	                       // 0x00080000
 	KEY_MACRO_BASE           =INTERNAL_MACRO_BASE,
 	KEY_MACRO_C_BASE         =INTERNAL_MACRO_BASE+0x0400,     // булевые условия    0x00080400 - 0x000807FF
 	KEY_MACRO_V_BASE         =INTERNAL_MACRO_BASE+0x0800,     // разные переменные  0x00080800 - 0x00080BFF
