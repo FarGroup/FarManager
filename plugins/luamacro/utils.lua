@@ -583,6 +583,8 @@ local function AddContentColumns (srctable, FileName)
     and type(srctable.GetContentData) == "function"
   then
      if type(srctable.filemask)~="string" then srctable.filemask=nil; end
+     if type(srctable.description)~="string" then srctable.description=nil; end
+     if FileName then srctable.FileName=FileName; end
      table.insert(ContentColumns, srctable)
   end
 end
@@ -1226,6 +1228,60 @@ local function EditUnsavedMacro (index)
   end
 end
 
+local function GetAllScriptsCopy (types)
+  if types~=nil and type(types)~="table" then return nil end
+  local res = {}
+
+  if not types or types.Macro or types.Event then
+    for _,t in ipairs(LoadedMacros) do
+      if (not types or types.Macro) and t.area then
+        res[#res+1] = { ScriptType = "Macro", data = t.action and {} or nil }
+        for n,v in pairs(t) do if n~="data" then res[#res][n] = v end end
+        if t.action then for dn,dv in pairs(t.data) do res[#res].data[dn] = dv end end
+      end
+      if (not types or types.Event) and t.group then
+        res[#res+1] = { ScriptType = "Event" }
+        for n,v in pairs(t) do res[#res][n] = v end
+      end
+    end
+  end
+
+  if not types or types.MenuItem then
+    for _,t in ipairs(AddedMenuItems) do
+      res[#res+1] = { ScriptType = "MenuItem", flags = {} }
+      for n,v in pairs(t) do if n~="flags" then res[#res][n] = v end end
+      for fn,fv in pairs(t.flags) do res[#res].flags[fn] = fv end
+    end
+  end
+
+  if not types or types.CommandLine then
+    for i,t in pairs(AddedPrefixes) do
+      if i~=1 then
+        res[#res+1] = { ScriptType = "CommandLine" }
+        for n,v in pairs(t) do res[#res][n] = v end
+     end
+    end
+  end
+
+  if not types or types.PanelModule then
+    for _,t in ipairs(LoadedPanelModules) do
+      res[#res+1] = { ScriptType = "PanelModule", Info = {} }
+      for n,v in pairs(t) do if n~="Info" then res[#res][n] = v end end
+      for In,Iv in pairs(t.Info) do res[#res].Info[In] = Iv end
+    end
+  end
+
+  if not types or types.ContentColumns then
+    for _,t in pairs(ContentColumns) do
+      res[#res+1] = { ScriptType = "ContentColumns" }
+      for n,v in pairs(t) do res[#res][n] = v end
+    end
+  end
+
+  return res
+
+end
+
 return {
   AddMacroFromFAR = AddMacroFromFAR,
   CheckFileName = CheckFileName,
@@ -1237,6 +1293,7 @@ return {
   GetAreaCode = GetAreaCode,
   GetMacro = GetMacro,
   GetMacroCopy = GetMacroCopy,
+  GetAllScriptsCopy = GetAllScriptsCopy,
   GetMacroWrapper = GetMacroWrapper,
   GetMenuItems = function() return AddedMenuItems end,
   GetMoonscriptLineNumber = GetMoonscriptLineNumber,
