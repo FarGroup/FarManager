@@ -1,4 +1,48 @@
 --------------------------------------------------------------------------------
+drkns 17.06.2021 02:05:29 +0100 - build 5826
+
+1. Continue 5822.2. More experimental removals.
+
+--------------------------------------------------------------------------------
+drkns 16.06.2021 22:45:42 +0100 - build 5825
+
+1. Correction of 5818.1.
+
+--------------------------------------------------------------------------------
+drkns 16.06.2021 22:20:44 +0100 - build 5824
+
+1. Typo in 2201 (yes, 10 years ago).
+
+--------------------------------------------------------------------------------
+drkns 16.06.2021 18:22:16 +0100 - build 5823
+
+1. Correction of 5822.2.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
+drkns 15.06.2021 22:01:42 +0100 - build 5822
+
+1. Forum: selection in fixed size edit controls.
+
+2. Other selection-related fixes in edit controls and the editor.
+   Various service keys shouldn't stop selection / deselect anymore.
+
+3. Forum: extra echo when executing unknown commands in a new window.
+
+--------------------------------------------------------------------------------
+drkns 14.06.2021 19:10:39 +0100 - build 5821
+
+1. Removed the workaround for plugins that erroneously add transparent editor highlighting.
+   Transparency is now taken into account.
+   If your plugin/script suddenly stopped working - fill the colors properly.
+
+--------------------------------------------------------------------------------
+drkns 12.06.2021 12:39:43 +0100 - build 5820
+
+1. Show code point values for surrogate pairs in editor status line.
+
+--------------------------------------------------------------------------------
 drkns 12.06.2021 02:00:20 +0100 - build 5819
 
 1. Vertical separators were shown incorrectly in the last few builds.

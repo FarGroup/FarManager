@@ -423,7 +423,7 @@ namespace
 			return codepoint_width::ambiguous;
 		}
 
-		const auto IsBMP = Codepoint < 0x10000;
+		const auto IsBMP = Codepoint <= std::numeric_limits<wchar_t>::max();
 
 		if (IsBMP)
 		{

@@ -144,8 +144,6 @@ unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros = null
 DWORD WaitKey(DWORD KeyWait = static_cast<DWORD>(-1), DWORD delayMS = 0, bool ExcludeMacro = true);
 int SetFLockState(unsigned vkKey, int State);
 bool WriteInput(int Key);
-int IsNavKey(DWORD Key);
-int IsShiftKey(DWORD Key);
 bool IsModifKey(DWORD Key);
 bool IsInternalKeyReal(unsigned int Key);
 bool IsCharKey(unsigned int Key);

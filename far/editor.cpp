@@ -776,6 +776,25 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 	return 0;
 }
 
+static bool is_clear_selection_key(unsigned const Key)
+{
+	static const unsigned int Keys[]
+	{
+		KEY_UP,        KEY_NUMPAD8,
+		KEY_DOWN,      KEY_NUMPAD2,
+		KEY_PGUP,      KEY_NUMPAD9,
+		KEY_PGDN,      KEY_NUMPAD3,
+		KEY_CTRLPGUP,  KEY_RCTRLPGUP,  KEY_CTRLNUMPAD9,  KEY_RCTRLNUMPAD9,
+		KEY_CTRLPGDN,  KEY_RCTRLPGDN,  KEY_CTRLNUMPAD3,  KEY_RCTRLNUMPAD3,
+		KEY_CTRLUP,    KEY_RCTRLUP,    KEY_CTRLNUMPAD8,  KEY_RCTRLNUMPAD8,
+		KEY_CTRLDOWN,  KEY_RCTRLDOWN,  KEY_CTRLNUMPAD2,  KEY_RCTRLNUMPAD2,
+		KEY_CTRLN,     KEY_RCTRLN,
+		KEY_CTRLE,     KEY_RCTRLE,
+	};
+
+	return Edit::is_clear_selection_key(Key) || contains(Keys, Key);
+}
+
 bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 {
 	auto LocalKey = Key;
@@ -808,65 +827,13 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 	auto CurPos = m_it_CurLine->GetCurPos();
 	const auto CurVisPos = GetLineCurPos();
-	const auto isk = IsShiftKey(LocalKey());
-	const auto ick = any_of(LocalKey(), KEY_CTRLC, KEY_RCTRLC, KEY_CTRLINS, KEY_CTRLNUMPAD0, KEY_RCTRLINS, KEY_RCTRLNUMPAD0);
-	const auto imk = in_closed_range(KEY_MACRO_BASE, LocalKey(), KEY_MACRO_ENDBASE);
-	const auto ipk = in_closed_range(KEY_OP_BASE, LocalKey(), KEY_OP_ENDBASE);
 
-	//if ((!isk || Global->CtrlObject->Macro.IsExecuting()) && !isk && !Pasting)
-	if (!isk && !Pasting && !ick && !imk && !ipk )
+	if (!Pasting && IsAnySelection() && is_clear_selection_key(LocalKey()))
 	{
-		if (IsAnySelection())
-		{
-			TurnOffMarkingBlock();
-		}
+		TurnOffMarkingBlock();
 
-		if (IsAnySelection() && !EdOpt.PersistentBlocks)
-//    if (BlockStart || VBlockStart && !EdOpt.PersistentBlocks)
-		{
-			TurnOffMarkingBlock();
-
-			if (!EdOpt.PersistentBlocks)
-			{
-				static const unsigned int UnmarkKeys[]=
-				{
-					KEY_LEFT,      KEY_NUMPAD4,
-					KEY_RIGHT,     KEY_NUMPAD6,
-					KEY_HOME,      KEY_NUMPAD7,
-					KEY_END,       KEY_NUMPAD1,
-					KEY_UP,        KEY_NUMPAD8,
-					KEY_DOWN,      KEY_NUMPAD2,
-					KEY_PGUP,      KEY_NUMPAD9,
-					KEY_PGDN,      KEY_NUMPAD3,
-					KEY_CTRLHOME,  KEY_RCTRLHOME,  KEY_CTRLNUMPAD7,  KEY_RCTRLNUMPAD7,
-					KEY_CTRLPGUP,  KEY_RCTRLPGUP,  KEY_CTRLNUMPAD9,  KEY_RCTRLNUMPAD9,
-					KEY_CTRLEND,   KEY_RCTRLEND,   KEY_CTRLNUMPAD1,  KEY_RCTRLNUMPAD1,
-					KEY_CTRLPGDN,  KEY_RCTRLPGDN,  KEY_CTRLNUMPAD3,  KEY_RCTRLNUMPAD3,
-					KEY_CTRLLEFT,  KEY_RCTRLLEFT,  KEY_CTRLNUMPAD4,  KEY_RCTRLNUMPAD4,
-					KEY_CTRLRIGHT, KEY_RCTRLRIGHT, KEY_CTRLNUMPAD7,  KEY_RCTRLNUMPAD7,
-					KEY_CTRLUP,    KEY_RCTRLUP,    KEY_CTRLNUMPAD8,  KEY_RCTRLNUMPAD8,
-					KEY_CTRLDOWN,  KEY_RCTRLDOWN,  KEY_CTRLNUMPAD2,  KEY_RCTRLNUMPAD2,
-					KEY_CTRLN,     KEY_RCTRLN,
-					KEY_CTRLE,     KEY_RCTRLE,
-					KEY_CTRLS,     KEY_RCTRLS,
-				};
-
-				if (contains(UnmarkKeys, LocalKey()))
-				{
-					UnmarkBlock();
-				}
-			}
-			else
-			{
-				intptr_t StartSel,EndSel;
-//        Edit *BStart=!BlockStart?VBlockStart:BlockStart;
-//        BStart->GetRealSelection(StartSel,EndSel);
-				m_it_AnyBlockStart->GetRealSelection(StartSel,EndSel);
-
-				if (StartSel==-1 || StartSel==EndSel)
-					UnmarkBlock();
-			}
-		}
+		if (!EdOpt.PersistentBlocks)
+			UnmarkBlock();
 	}
 
 	if (any_of(LocalKey(), KEY_ALTD, KEY_RALTD))
@@ -5662,13 +5629,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				ColorItem newcol;
 				newcol.StartPos=col->StartPos;
 				newcol.EndPos=col->EndPos;
-
-				// BUGBUG Colorer sends transparent colors
-				auto OpaqueColor = col->Color;
-				colors::make_opaque(OpaqueColor.ForegroundColor);
-				colors::make_opaque(OpaqueColor.BackgroundColor);
-				newcol.SetColor(OpaqueColor);
-
+				newcol.SetColor(col->Color);
 				newcol.Flags=col->Flags;
 				newcol.SetOwner(col->Owner);
 				newcol.Priority=col->Priority;

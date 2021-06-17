@@ -257,8 +257,6 @@ static const TFKey ModifKeyName[]
 	{ KEY_ALT,      lng::MKeyAlt,    L"Alt"sv, },
 	{ KEY_RALT,     lng::MKeyRAlt,   L"RAlt"sv, },
 	{ KEY_SHIFT,    lng::MKeyShift,  L"Shift"sv, },
-	{ KEY_M_SPEC,   lng(-1),         L"Spec"sv, },
-	{ KEY_M_OEM,    lng(-1),         L"Oem"sv, },
 };
 
 static auto& Layout()
@@ -1382,19 +1380,21 @@ int KeyNameToKey(string_view Name)
 				if (Chr)
 					Name.remove_prefix(1);
 			}
-			else if (
-				Name.size() == 5 && any_of(Key, KEY_M_SPEC, KEY_M_OEM) &&
-				std::all_of(ALL_CONST_RANGE(Name), std::iswdigit)
-			) // Варианты (3) и (4)
+			else
 			{
-				const auto K = from_string<unsigned>(Name);
+				const auto
+					OemPrefix = L"Oem"sv,
+					SpecPrefix = L"Spec"sv;
 
-				if (Key == KEY_M_SPEC) // Вариант (3)
-					Key = (Key & ~KEY_M_SPEC) | (K + KEY_VK_0xFF_BEGIN);
-				else // Вариант (4)
-					Key = (Key & ~KEY_M_OEM) | (K + KEY_FKEY_BEGIN);
-
-				Name = {};
+				if (const auto IsOem = starts_with(Name, OemPrefix); IsOem || starts_with(Name, SpecPrefix))
+				{
+					const auto Tail = Name.substr(IsOem? OemPrefix.size() : SpecPrefix.size());
+					if (Tail.size() == 5 && std::all_of(ALL_CONST_RANGE(Tail), std::iswdigit)) // Варианты (3) и (4)
+					{
+						Key |= (IsOem? KEY_FKEY_BEGIN : KEY_VK_0xFF_BEGIN) | from_string<unsigned>(Tail);
+						Name = {};
+					}
+				}
 			}
 			// Вариант (5). Уже "собран".
 		}
@@ -1761,119 +1761,6 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 	return VirtKey;
 }
 
-
-int IsNavKey(DWORD Key)
-{
-	static const std::pair<DWORD, DWORD> NavKeysMap[] =
-	{
-		{0,KEY_CTRLC},
-		{0,KEY_RCTRLC},
-		{0,KEY_INS},      {0,KEY_NUMPAD0},
-		{0,KEY_CTRLINS},  {0,KEY_CTRLNUMPAD0},
-		{0,KEY_RCTRLINS}, {0,KEY_RCTRLNUMPAD0},
-
-		{1,KEY_LEFT},     {1,KEY_NUMPAD4},
-		{1,KEY_RIGHT},    {1,KEY_NUMPAD6},
-		{1,KEY_HOME},     {1,KEY_NUMPAD7},
-		{1,KEY_END},      {1,KEY_NUMPAD1},
-		{1,KEY_UP},       {1,KEY_NUMPAD8},
-		{1,KEY_DOWN},     {1,KEY_NUMPAD2},
-		{1,KEY_PGUP},     {1,KEY_NUMPAD9},
-		{1,KEY_PGDN},     {1,KEY_NUMPAD3},
-		//!!!!!!!!!!!
-	};
-
-	return std::any_of(CONST_RANGE(NavKeysMap, i)
-	{
-		return (!i.first && Key==i.second) || (i.first && (Key&0x00FFFFFF) == (i.second&0x00FFFFFF));
-	});
-}
-
-int IsShiftKey(DWORD Key)
-{
-	static const DWORD ShiftKeys[] =
-	{
-		KEY_SHIFTLEFT,          KEY_SHIFTNUMPAD4,
-		KEY_SHIFTRIGHT,         KEY_SHIFTNUMPAD6,
-		KEY_SHIFTHOME,          KEY_SHIFTNUMPAD7,
-		KEY_SHIFTEND,           KEY_SHIFTNUMPAD1,
-		KEY_SHIFTUP,            KEY_SHIFTNUMPAD8,
-		KEY_SHIFTDOWN,          KEY_SHIFTNUMPAD2,
-		KEY_SHIFTPGUP,          KEY_SHIFTNUMPAD9,
-		KEY_SHIFTPGDN,          KEY_SHIFTNUMPAD3,
-		KEY_CTRLSHIFTHOME,      KEY_CTRLSHIFTNUMPAD7,
-		KEY_RCTRLSHIFTHOME,     KEY_RCTRLSHIFTNUMPAD7,
-		KEY_CTRLSHIFTPGUP,      KEY_CTRLSHIFTNUMPAD9,
-		KEY_RCTRLSHIFTPGUP,     KEY_RCTRLSHIFTNUMPAD9,
-		KEY_CTRLSHIFTEND,       KEY_CTRLSHIFTNUMPAD1,
-		KEY_RCTRLSHIFTEND,      KEY_RCTRLSHIFTNUMPAD1,
-		KEY_CTRLSHIFTPGDN,      KEY_CTRLSHIFTNUMPAD3,
-		KEY_RCTRLSHIFTPGDN,     KEY_RCTRLSHIFTNUMPAD3,
-		KEY_CTRLSHIFTLEFT,      KEY_CTRLSHIFTNUMPAD4,
-		KEY_RCTRLSHIFTLEFT,     KEY_RCTRLSHIFTNUMPAD4,
-		KEY_CTRLSHIFTRIGHT,     KEY_CTRLSHIFTNUMPAD6,
-		KEY_RCTRLSHIFTRIGHT,    KEY_RCTRLSHIFTNUMPAD6,
-		KEY_ALTSHIFTDOWN,       KEY_ALTSHIFTNUMPAD2,
-		KEY_RALTSHIFTDOWN,      KEY_RALTSHIFTNUMPAD2,
-		KEY_ALTSHIFTLEFT,       KEY_ALTSHIFTNUMPAD4,
-		KEY_RALTSHIFTLEFT,      KEY_RALTSHIFTNUMPAD4,
-		KEY_ALTSHIFTRIGHT,      KEY_ALTSHIFTNUMPAD6,
-		KEY_RALTSHIFTRIGHT,     KEY_RALTSHIFTNUMPAD6,
-		KEY_ALTSHIFTUP,         KEY_ALTSHIFTNUMPAD8,
-		KEY_RALTSHIFTUP,        KEY_RALTSHIFTNUMPAD8,
-		KEY_ALTSHIFTEND,        KEY_ALTSHIFTNUMPAD1,
-		KEY_RALTSHIFTEND,       KEY_RALTSHIFTNUMPAD1,
-		KEY_ALTSHIFTHOME,       KEY_ALTSHIFTNUMPAD7,
-		KEY_RALTSHIFTHOME,      KEY_RALTSHIFTNUMPAD7,
-		KEY_ALTSHIFTPGDN,       KEY_ALTSHIFTNUMPAD3,
-		KEY_RALTSHIFTPGDN,      KEY_RALTSHIFTNUMPAD3,
-		KEY_ALTSHIFTPGUP,       KEY_ALTSHIFTNUMPAD9,
-		KEY_RALTSHIFTPGUP,      KEY_RALTSHIFTNUMPAD9,
-		KEY_CTRLALTPGUP,        KEY_CTRLALTNUMPAD9,
-		KEY_RCTRLRALTPGUP,      KEY_RCTRLRALTNUMPAD9,
-		KEY_CTRLRALTPGUP,       KEY_CTRLRALTNUMPAD9,
-		KEY_RCTRLALTPGUP,       KEY_RCTRLALTNUMPAD9,
-		KEY_CTRLALTHOME,        KEY_CTRLALTNUMPAD7,
-		KEY_RCTRLRALTHOME,      KEY_RCTRLRALTNUMPAD7,
-		KEY_CTRLRALTHOME,       KEY_CTRLRALTNUMPAD7,
-		KEY_RCTRLALTHOME,       KEY_RCTRLALTNUMPAD7,
-		KEY_CTRLALTPGDN,        KEY_CTRLALTNUMPAD2,
-		KEY_RCTRLRALTPGDN,      KEY_RCTRLRALTNUMPAD2,
-		KEY_CTRLRALTPGDN,       KEY_CTRLRALTNUMPAD2,
-		KEY_RCTRLALTPGDN,       KEY_RCTRLALTNUMPAD2,
-		KEY_CTRLALTEND,         KEY_CTRLALTNUMPAD1,
-		KEY_RCTRLRALTEND,       KEY_RCTRLRALTNUMPAD1,
-		KEY_CTRLRALTEND,        KEY_CTRLRALTNUMPAD1,
-		KEY_RCTRLALTEND,        KEY_RCTRLALTNUMPAD1,
-		KEY_CTRLALTLEFT,        KEY_CTRLALTNUMPAD4,
-		KEY_RCTRLRALTLEFT,      KEY_RCTRLRALTNUMPAD4,
-		KEY_CTRLRALTLEFT,       KEY_CTRLRALTNUMPAD4,
-		KEY_RCTRLALTLEFT,       KEY_RCTRLALTNUMPAD4,
-		KEY_CTRLALTRIGHT,       KEY_CTRLALTNUMPAD6,
-		KEY_RCTRLRALTRIGHT,     KEY_RCTRLRALTNUMPAD6,
-		KEY_CTRLRALTRIGHT,      KEY_CTRLRALTNUMPAD6,
-		KEY_RCTRLALTRIGHT,      KEY_RCTRLALTNUMPAD6,
-		KEY_ALTUP,
-		KEY_RALTUP,
-		KEY_ALTLEFT,
-		KEY_RALTLEFT,
-		KEY_ALTDOWN,
-		KEY_RALTDOWN,
-		KEY_ALTRIGHT,
-		KEY_RALTRIGHT,
-		KEY_ALTHOME,
-		KEY_RALTHOME,
-		KEY_ALTEND,
-		KEY_RALTEND,
-		KEY_ALTPGUP,
-		KEY_RALTPGUP,
-		KEY_ALTPGDN,
-		KEY_RALTPGDN,
-	};
-
-	return IsModifKey(Key) || contains(ShiftKeys, Key);
-}
-
 bool IsModifKey(DWORD const Key)
 {
 	return Key && (Key & (KEY_CTRL | KEY_ALT | KEY_SHIFT | KEY_RCTRL | KEY_RALT)) == Key;
@@ -1891,7 +1778,7 @@ bool IsInternalKeyReal(unsigned int Key)
 
 bool IsCharKey(unsigned int Key)
 {
-	return Key < 0x1000 || in_closed_range(KEY_MULTIPLY, Key, KEY_DIVIDE);
+	return Key < 0x10000 || in_closed_range(KEY_MULTIPLY, Key, KEY_DIVIDE);
 }
 
 unsigned int ShieldCalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)

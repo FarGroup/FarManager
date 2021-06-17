@@ -316,7 +316,7 @@ void Edit::FastShow(const ShowInfo* Info)
 		}
 
 		const auto Begin = OutStrTmp.cbegin() + std::min(static_cast<size_t>(RealLeftPos), OutStrTmp.size());
-		for(auto i = Begin, End = OutStrTmp.cend(); i != End; ++i)
+		for(auto i = Begin, End = OutStrTmp.cend(); i != End && static_cast<size_t>(i - Begin) < RealRight; ++i)
 		{
 			if (*i == L' ')
 			{
@@ -336,11 +336,6 @@ void Edit::FastShow(const ShowInfo* Info)
 			else
 			{
 				OutStr.push_back(!*i? L' ' : *i);
-			}
-
-			if (static_cast<size_t>(i - Begin) >= RealRight)
-			{
-				break;
 			}
 		}
 
@@ -648,25 +643,13 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 
 	if (
 		!IntKeyState.ShiftPressed() &&
-		(!Global->CtrlObject->Macro.IsExecuting() || IsNavKey(LocalKey)) &&
-		!IsShiftKey(LocalKey) &&
 		!Recurse &&
-		// No single ctrl, alt, shift key or their combination
-		LocalKey & ~KEY_CTRLMASK &&
-		none_of(LocalKey, KEY_NONE, KEY_INS, KEY_KILLFOCUS, KEY_GOTFOCUS) &&
-		none_of(LocalKey & ~KEY_CTRLMASK, KEY_LWIN, KEY_RWIN, KEY_APPS)
+		is_clear_selection_key(LocalKey)
 	)
 	{
 		m_Flags.Clear(FEDITLINE_MARKINGBLOCK);
 
-		if (
-			!m_Flags.CheckAny(FEDITLINE_PERSISTENTBLOCKS | FEDITLINE_EDITORMODE) &&
-			none_of(LocalKey,
-				KEY_CTRLINS, KEY_RCTRLINS, KEY_CTRLNUMPAD0, KEY_RCTRLNUMPAD0,
-				KEY_SHIFTDEL, KEY_SHIFTNUMDEL, KEY_SHIFTDECIMAL,
-				KEY_CTRLQ, KEY_RCTRLQ,
-				KEY_SHIFTINS, KEY_SHIFTNUMPAD0)
-			)
+		if (!m_Flags.CheckAny(FEDITLINE_PERSISTENTBLOCKS | FEDITLINE_EDITORMODE))
 		{
 			if (m_SelStart != -1 || m_SelEnd )
 			{
@@ -778,7 +761,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 				m_Flags.Set(FEDITLINE_MARKINGBLOCK);
 			}
 
-			if ((m_SelStart != -1 && m_SelEnd == -1) || m_SelEnd > SavedCurPos)
+			if ((m_SelStart != -1 && m_SelEnd == -1) || (SavedCurPos != m_CurPos && m_SelEnd > SavedCurPos))
 			{
 				if (m_CurPos == m_SelEnd)
 					RemoveSelection();
@@ -786,7 +769,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 					Select(m_CurPos, m_SelEnd);
 			}
 			else
-				AddSelect(SavedCurPos, m_CurPos);
+				AddSelect(SavedCurPos, m_CurPos == SavedCurPos && m_CurPos < m_Str.size()? m_Str.size() : m_CurPos);
 
 			Show();
 
@@ -2296,4 +2279,22 @@ bool Edit::is_valid_surrogate_pair_at(size_t const Position) const
 {
 	string_view const Str(m_Str);
 	return Position < Str.size() && is_valid_surrogate_pair(Str.substr(Position));
+}
+
+bool Edit::is_clear_selection_key(unsigned const Key)
+{
+	static const unsigned int Keys[]
+	{
+		KEY_LEFT,      KEY_NUMPAD4,
+		KEY_RIGHT,     KEY_NUMPAD6,
+		KEY_HOME,      KEY_NUMPAD7,
+		KEY_END,       KEY_NUMPAD1,
+		KEY_CTRLHOME,  KEY_RCTRLHOME,  KEY_CTRLNUMPAD7,  KEY_RCTRLNUMPAD7,
+		KEY_CTRLEND,   KEY_RCTRLEND,   KEY_CTRLNUMPAD1,  KEY_RCTRLNUMPAD1,
+		KEY_CTRLLEFT,  KEY_RCTRLLEFT,  KEY_CTRLNUMPAD4,  KEY_RCTRLNUMPAD4,
+		KEY_CTRLRIGHT, KEY_RCTRLRIGHT, KEY_CTRLNUMPAD7,  KEY_RCTRLNUMPAD7,
+		KEY_CTRLS,     KEY_RCTRLS,
+	};
+
+	return contains(Keys, Key);
 }

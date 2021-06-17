@@ -2213,11 +2213,13 @@ string FileEditor::GetTitle() const
 	return strLocalTitle;
 }
 
-static std::pair<string, size_t> char_code(std::optional<wchar_t> const& Char, int const Codebase)
+static std::pair<string, size_t> char_code(std::optional<unsigned> const& Char, int const Codebase)
 {
 	const auto process = [&](const auto& Format, string_view const Max)
 	{
-		return std::pair{ Char.has_value()? format(Format, static_cast<unsigned>(*Char)) : L""s, Max.size() };
+		auto Result = std::pair{ Char.has_value()? format(Format, *Char) : L""s, Max.size() };
+		Result.second = std::max(Result.first.size(), Result.second);
+		return Result;
 	};
 
 	switch (Codebase)
@@ -2234,7 +2236,7 @@ static std::pair<string, size_t> char_code(std::optional<wchar_t> const& Char, i
 	}
 }
 
-static std::pair<string, size_t> ansi_char_code(std::optional<wchar_t> const& Char, int const Codebase, uintptr_t const Codepage)
+static std::pair<string, size_t> ansi_char_code(std::optional<unsigned> const& Char, int const Codebase, uintptr_t const Codepage)
 {
 	const auto process = [&](const auto& Format, string_view const Max)
 	{
@@ -2242,12 +2244,16 @@ static std::pair<string, size_t> ansi_char_code(std::optional<wchar_t> const& Ch
 
 		char Buffer;
 		encoding::error_position ErrorPosition;
-		if (Char.has_value() && encoding::get_bytes(Codepage, { &*Char, 1 }, { &Buffer, 1 }, &ErrorPosition) == 1 && !ErrorPosition)
+		if (Char.has_value() && *Char <= std::numeric_limits<wchar_t>::max())
 		{
-			const unsigned AnsiCode = Buffer;
-			if (AnsiCode != *Char)
+			const auto Ch = static_cast<wchar_t>(*Char);
+			if (encoding::get_bytes(Codepage, { &Ch, 1 }, { &Buffer, 1 }, &ErrorPosition) == 1 && !ErrorPosition)
 			{
-				CharCode = AnsiCode;
+				const unsigned AnsiCode = Buffer;
+				if (AnsiCode != *Char)
+				{
+					CharCode = AnsiCode;
+				}
 			}
 		}
 
@@ -2284,8 +2290,11 @@ void FileEditor::ShowStatus() const
 	string CharCode;
 
 	{
-		std::optional<wchar_t> Char;
-		if (CurPos < Str.size())
+		std::optional<unsigned> Char;
+
+		if (CurPos + 1 < Str.size() && is_valid_surrogate_pair(Str[CurPos], Str[CurPos + 1]))
+			Char = encoding::utf16::extract_codepoint(Str[CurPos], Str[CurPos + 1]);
+		else if (CurPos < Str.size())
 			Char = Str[CurPos];
 
 		auto [UnicodeStr, UnicodeSize] = char_code(Char, m_editor->EdOpt.CharCodeBase);
