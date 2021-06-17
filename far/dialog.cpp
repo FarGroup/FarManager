@@ -3042,51 +3042,49 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 					return true;
 				}
 
-				if (!(Items[m_FocusPos].Flags & DIF_READONLY) || IsNavKey(LocalKey()))
+				if (!(Items[m_FocusPos].Flags & DIF_READONLY) && any_of(LocalKey(), KEY_CTRLSPACE, KEY_RCTRLSPACE))
 				{
-					if (any_of(LocalKey(), KEY_CTRLSPACE, KEY_RCTRLSPACE))
-					{
-						SCOPED_ACTION(SetAutocomplete)(edt, true);
-						edt->AutoComplete(true,false);
-						Redraw();
-						return true;
-					}
-
-					if (edt->ProcessKey(Key))
-					{
-						if (Items[m_FocusPos].Flags & DIF_READONLY)
-							return true;
-
-						if (any_of(LocalKey(), KEY_CTRLEND, KEY_RCTRLEND, KEY_CTRLNUMPAD1, KEY_RCTRLNUMPAD1) && edt->GetCurPos()==edt->GetLength())
-						{
-							if (edt->LastPartLength ==-1)
-								edt->strLastStr = edt->GetString();
-
-							auto strStr = edt->strLastStr;
-							int CurCmdPartLength=static_cast<int>(strStr.size());
-							edt->HistoryGetSimilar(strStr, edt->LastPartLength);
-
-							if (edt->LastPartLength == -1)
-							{
-								edt->strLastStr = edt->GetString();
-								edt->LastPartLength = CurCmdPartLength;
-							}
-							{
-								SCOPED_ACTION(SetAutocomplete)(edt);
-								edt->SetString(strStr);
-								edt->Select(edt->LastPartLength, static_cast<int>(strStr.size()));
-							}
-							Show();
-							return true;
-						}
-
-						edt->LastPartLength=-1;
-
-						Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
-						return true;
-					}
+					SCOPED_ACTION(SetAutocomplete)(edt, true);
+					edt->AutoComplete(true, false);
+					Redraw();
+					return true;
 				}
-				else if (!(LocalKey()&(KEY_ALT|KEY_RALT)))
+
+				if (edt->ProcessKey(Key))
+				{
+					if (Items[m_FocusPos].Flags & DIF_READONLY)
+						return true;
+
+					if (any_of(LocalKey(), KEY_CTRLEND, KEY_RCTRLEND, KEY_CTRLNUMPAD1, KEY_RCTRLNUMPAD1) && edt->GetCurPos()==edt->GetLength())
+					{
+						if (edt->LastPartLength ==-1)
+							edt->strLastStr = edt->GetString();
+
+						auto strStr = edt->strLastStr;
+						int CurCmdPartLength=static_cast<int>(strStr.size());
+						edt->HistoryGetSimilar(strStr, edt->LastPartLength);
+
+						if (edt->LastPartLength == -1)
+						{
+							edt->strLastStr = edt->GetString();
+							edt->LastPartLength = CurCmdPartLength;
+						}
+						{
+							SCOPED_ACTION(SetAutocomplete)(edt);
+							edt->SetString(strStr);
+							edt->Select(edt->LastPartLength, static_cast<int>(strStr.size()));
+						}
+						Show();
+						return true;
+					}
+
+					edt->LastPartLength=-1;
+
+					Redraw(); // Перерисовка должна идти после DN_EDITCHANGE (imho)
+					return true;
+				}
+
+				if (!(LocalKey() & (KEY_ALT | KEY_RALT)))
 					return true;
 			}
 
