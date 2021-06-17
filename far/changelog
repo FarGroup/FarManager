@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 18.06.2021 00:53:41 +0100 - build 5828
+
+1. Don't apply fullwidth-aware rendering workarounds when not needed.
+
+--------------------------------------------------------------------------------
 drkns 17.06.2021 21:25:13 +0100 - build 5827
 
 1. In far:config Alt+F4 edits integer values as binary.

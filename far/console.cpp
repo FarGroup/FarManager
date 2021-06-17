@@ -974,31 +974,54 @@ namespace console_detail
 			return ::console.Write(Str);
 		}
 
+		class cursor_suppressor
+		{
+		public:
+			NONCOPYABLE(cursor_suppressor);
+
+			cursor_suppressor()
+			{
+				CONSOLE_CURSOR_INFO Info;
+				if (!::console.GetCursorInfo(Info))
+					return;
+
+				if (!::console.SetCursorInfo({ 1 }))
+					return;
+
+				m_Info = Info;
+
+				point Position;
+				if (!::console.GetCursorRealPosition(Position))
+					return;
+
+				if (!::console.SetCursorPosition({}))
+					return;
+
+				m_Position = Position;
+			}
+
+			~cursor_suppressor()
+			{
+				if (m_Position)
+					::console.SetCursorRealPosition(*m_Position);
+
+				if (m_Info)
+					::console.SetCursorInfo(*m_Info);
+			}
+
+		private:
+			std::optional<point> m_Position;
+			std::optional<CONSOLE_CURSOR_INFO> m_Info;
+		};
+
 		static bool WriteOutputNTImpl(CHAR_INFO const* const Buffer, point const BufferSize, rectangle const& WriteRegion)
 		{
-			point SavedCursorPosition;
-			if (!::console.GetCursorRealPosition(SavedCursorPosition))
-				return false;
-
-			CONSOLE_CURSOR_INFO SavedCursorInfo;
-			if (!::console.GetCursorInfo(SavedCursorInfo))
-				return false;
-
-			if (
-				// Hide cursor
-				!::console.SetCursorInfo({ 1 }) ||
-				// Move cursor to the top left corner to minimise its impact on rendering (yes)
-				!::console.SetCursorPosition({})
-			)
-				return false;
-
-			SCOPE_EXIT
-			{
-				// Restore cursor position
-				::console.SetCursorRealPosition(SavedCursorPosition);
-				// Restore cursor
-				::console.SetCursorInfo(SavedCursorInfo);
-			};
+			// Move the cursor to the top left corner & hide it to minimise its impact on rendering (yes).
+			// The impact is visible in conhost + MS Gothic when wide characters in different rows occupy overlapping columns.
+			// TODO: report it to Microsoft/Terminal.
+			std::optional<cursor_suppressor> CursorSuppressor;
+			if (char_width::is_enabled())
+				CursorSuppressor.emplace();
 
 			auto SysWriteRegion = make_rect(WriteRegion);
 			return WriteConsoleOutput(::console.GetOutputHandle(), Buffer, make_coord(BufferSize), {}, &SysWriteRegion) != FALSE;
