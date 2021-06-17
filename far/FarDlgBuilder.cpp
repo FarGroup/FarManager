@@ -154,6 +154,32 @@ private:
 	wchar_t m_Mask[2 + sizeof(long long) * 2 + 1];
 };
 
+class EditFieldBinaryBinding: public DialogItemBinding
+{
+public:
+	explicit EditFieldBinaryBinding(IntOption* IntValue):
+		m_IntValue(IntValue)
+	{
+		std::fill(std::begin(m_Mask), std::end(m_Mask) - 1, L'\1');
+		*(std::end(m_Mask) - 1) = {};
+	}
+
+	void SaveValue(DialogItemEx const* const Item, int const RadioGroupIndex) override
+	{
+		// Must be converted to unsigned type first regardless of underlying type
+		*m_IntValue = from_string<unsigned long long>(Item->strData, nullptr, 2);
+	}
+
+	const wchar_t* GetMask() const
+	{
+		return m_Mask;
+	}
+
+private:
+	IntOption* m_IntValue;
+	wchar_t m_Mask[sizeof(long long) * 8 + 1];
+};
+
 template<typename int_type>
 class CheckBoxIntBinding: public DialogItemBinding
 {
@@ -420,6 +446,20 @@ DialogItemEx* DialogBuilder::AddHexEditField(IntOption& Value, int Width)
 	Item->X2 = Item->X1 + Width - 1;
 
 	auto Binding = std::make_unique<EditFieldHexBinding>(&Value);
+	Item->Flags |= DIF_MASKEDIT;
+	Item->strMask = Binding->GetMask();
+	SetLastItemBinding(std::move(Binding));
+	return Item;
+}
+
+DialogItemEx* DialogBuilder::AddBinaryEditField(IntOption& Value, int Width)
+{
+	const auto Item = AddDialogItem(DI_FIXEDIT, L"");
+	Item->strData = format(FSTR(L"{0:064b}"), as_unsigned(Value.Get()));
+	SetNextY(Item);
+	Item->X2 = Item->X1 + Width - 1;
+
+	auto Binding = std::make_unique<EditFieldBinaryBinding>(&Value);
 	Item->Flags |= DIF_MASKEDIT;
 	Item->strMask = Binding->GetMask();
 	SetLastItemBinding(std::move(Binding));

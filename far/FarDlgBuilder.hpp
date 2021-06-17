@@ -145,6 +145,7 @@ public:
 	DialogItemEx* AddButtonAfter(DialogItemEx* RelativeTo, lng_string Text);
 	DialogItemEx* AddIntEditField(IntOption& Value, int Width);
 	DialogItemEx* AddHexEditField(IntOption& Value, int Width);
+	DialogItemEx* AddBinaryEditField(IntOption& Value, int Width);
 	DialogItemEx* AddEditField(string& Value, int Width, string_view HistoryID = {}, FARDIALOGITEMFLAGS Flags = 0);
 	DialogItemEx* AddEditField(StringOption& Value, int Width, string_view HistoryID = {}, FARDIALOGITEMFLAGS Flags = 0);
 	DialogItemEx* AddFixEditField(string& Value, int Width, const wchar_t* Mask = nullptr);

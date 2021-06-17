@@ -174,7 +174,7 @@ public:
 	virtual bool IsDefault(const variant& Default) const = 0;
 	virtual void SetDefault(const variant& Default) = 0;
 	[[nodiscard]]
-	virtual bool Edit(class DialogBuilder* Builder, int Width, int Param) = 0;
+	virtual bool Edit(class DialogBuilder& Builder, int Param) = 0;
 	virtual void Export(FarSettingsItem& To) const = 0;
 
 	[[nodiscard]]
@@ -336,7 +336,7 @@ public:
 	[[nodiscard]]
 	string_view GetType() const override { return L"boolean"sv; }
 	[[nodiscard]]
-	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	bool Edit(class DialogBuilder& Builder, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 
 	[[nodiscard]]
@@ -356,7 +356,7 @@ public:
 	[[nodiscard]]
 	string_view GetType() const override { return L"3-state"sv; }
 	[[nodiscard]]
-	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	bool Edit(class DialogBuilder& Builder, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 
 	[[nodiscard]]
@@ -378,7 +378,7 @@ public:
 	[[nodiscard]]
 	string_view GetType() const override { return L"integer"sv; }
 	[[nodiscard]]
-	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	bool Edit(class DialogBuilder& Builder, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 
 	IntOption& operator|=(long long Value){Set(Get()|Value); return *this;}
@@ -405,7 +405,7 @@ public:
 	[[nodiscard]]
 	string_view GetType() const override { return L"string"sv; }
 	[[nodiscard]]
-	bool Edit(class DialogBuilder* Builder, int Width, int Param) override;
+	bool Edit(class DialogBuilder& Builder, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 
 	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}

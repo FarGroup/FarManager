@@ -116,9 +116,12 @@ static int Recurse=0;
 static const wchar_t EDMASK_ANY    = L'X'; // позволяет вводить в строку ввода любой символ;
 static const wchar_t EDMASK_DSS    = L'#'; // позволяет вводить в строку ввода цифры, пробел и знак минуса;
 static const wchar_t EDMASK_DIGIT  = L'9'; // позволяет вводить в строку ввода только цифры;
-static const wchar_t EDMASK_DIGITS = L'N'; // позволяет вводить в строку ввода только цифры и пробелы;
 static const wchar_t EDMASK_ALPHA  = L'A'; // позволяет вводить в строку ввода только буквы.
 static const wchar_t EDMASK_HEX    = L'H'; // позволяет вводить в строку ввода шестнадцатиричные символы.
+
+// Unofficial
+static const wchar_t EDMASK_DIGITS = L'N';  // позволяет вводить в строку ввода только цифры и пробелы;
+static const wchar_t EDMASK_BIN    = L'\1'; // 0 and 1 only
 
 Edit::Edit(window_ptr Owner):
 	SimpleScreenObject(std::move(Owner))
@@ -1159,24 +1162,31 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 
 			if (!Mask.empty())
 			{
-				const size_t MaskLen = Mask.size();
-				size_t j = m_CurPos;
-				for (size_t i = m_CurPos; i < MaskLen; ++i)
+				if (Mask[m_CurPos] == EDMASK_BIN)
 				{
-					if (i+1 < MaskLen && CheckCharMask(Mask[i+1]))
-					{
-						while (j < MaskLen && !CheckCharMask(Mask[j]))
-							j++;
-
-						if (!CharInMask(m_Str[i + 1], Mask[j]))
-							break;
-
-						m_Str[j]=m_Str[i+1];
-						j++;
-					}
+					m_Str[m_CurPos] = L'0';
 				}
+				else
+				{
+					const size_t MaskLen = Mask.size();
+					size_t j = m_CurPos;
+					for (size_t i = m_CurPos; i < MaskLen; ++i)
+					{
+						if (i + 1 < MaskLen && CheckCharMask(Mask[i + 1]))
+						{
+							while (j < MaskLen && !CheckCharMask(Mask[j]))
+								j++;
 
-				m_Str[j]=L' ';
+							if (!CharInMask(m_Str[i + 1], Mask[j]))
+								break;
+
+							m_Str[j] = m_Str[i + 1];
+							j++;
+						}
+					}
+
+					m_Str[j] = L' ';
+				}
 			}
 			else
 			{
@@ -1997,7 +2007,7 @@ void Edit::DeleteBlock()
 		{
 			if (CheckCharMask(Mask[i]))
 			{
-				m_Str[i] = L' ';
+				m_Str[i] = MaskDefaultChar(Mask[i]);
 			}
 		}
 		m_CurPos=m_SelStart;
@@ -2167,18 +2177,58 @@ void Edit::Xlat(bool All)
 
 bool Edit::CharInMask(wchar_t const Char, wchar_t const Mask)
 {
-	return
-		(Mask == EDMASK_ANY) ||
-		(Mask == EDMASK_DSS && (std::iswdigit(Char) || Char == L' ' || Char == L'-')) ||
-		(Mask == EDMASK_DIGITS && (std::iswdigit(Char) || Char == L' ')) ||
-		(Mask == EDMASK_DIGIT && (std::iswdigit(Char))) ||
-		(Mask == EDMASK_ALPHA && is_alpha(Char)) ||
-		(Mask == EDMASK_HEX && std::iswxdigit(Char));
+	switch (Mask)
+	{
+	case EDMASK_ANY:
+		return true;
+
+	case EDMASK_DSS:
+		return std::iswdigit(Char) || Char == L' ' || Char == L'-';
+
+	case EDMASK_DIGIT:
+		return std::iswdigit(Char) != 0;
+
+	case EDMASK_ALPHA:
+		return is_alpha(Char);
+
+	case EDMASK_HEX:
+		return std::iswxdigit(Char) != 0;
+
+	case EDMASK_DIGITS:
+		return std::iswdigit(Char) || Char == L' ';
+
+	case EDMASK_BIN:
+		return Char == L'0' || Char == L'1';
+
+	default:
+		return false;
+	}
 }
 
 int Edit::CheckCharMask(wchar_t Chr)
 {
-	return Chr==EDMASK_ANY || Chr==EDMASK_DIGIT || Chr==EDMASK_DIGITS || Chr==EDMASK_DSS || Chr==EDMASK_ALPHA || Chr==EDMASK_HEX;
+	return any_of(
+		Chr,
+		EDMASK_ANY,
+		EDMASK_DIGIT,
+		EDMASK_DSS,
+		EDMASK_ALPHA,
+		EDMASK_HEX,
+		EDMASK_DIGITS,
+		EDMASK_BIN
+	);
+}
+
+int Edit::MaskDefaultChar(wchar_t const Mask)
+{
+	switch (Mask)
+	{
+	case EDMASK_BIN:
+		return L'0';
+
+	default:
+		return L' ';
+	}
 }
 
 void Edit::SetDialogParent(DWORD Sets)
