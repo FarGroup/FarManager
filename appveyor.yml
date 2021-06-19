@@ -167,7 +167,7 @@ deploy:
   description: 'Far Manager $(appveyor_build_version) - $(APPVEYOR_REPO_COMMIT)'
   provider: GitHub
   auth_token:
-    secure: uQem/Z1RiWuohaCg2d+C+1wIcXkl/NOHwMMSX1anD2rFSwO4b9HZVBNBY2VswsaN
+    secure: HAUGtOhYJyo0hSoGV+PsM992ZIDTahXGHo7Bj5QyOXusNqYGERVyjsvBvIY8owTJ
   artifact: /.*\.(msi|7z)/
   draft: false
   prerelease: false
