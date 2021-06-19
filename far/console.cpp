@@ -1016,11 +1016,12 @@ namespace console_detail
 
 		static bool WriteOutputNTImpl(CHAR_INFO const* const Buffer, point const BufferSize, rectangle const& WriteRegion)
 		{
-			// Move the cursor to the top left corner & hide it to minimise its impact on rendering (yes).
-			// The impact is visible in conhost + MS Gothic when wide characters in different rows occupy overlapping columns.
-			// TODO: report it to Microsoft/Terminal.
+			// https://github.com/microsoft/terminal/issues/10456
+			// It looks like only a specific range of Windows 10 versions is affected.
+			static const auto IsCursorPositionWorkaroundNeeded = os::version::is_win10_build_or_later(19041) && !os::version::is_win10_build_or_later(21277);
+
 			std::optional<cursor_suppressor> CursorSuppressor;
-			if (char_width::is_enabled())
+			if (IsCursorPositionWorkaroundNeeded && char_width::is_enabled())
 				CursorSuppressor.emplace();
 
 			auto SysWriteRegion = make_rect(WriteRegion);
