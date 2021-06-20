@@ -246,7 +246,7 @@ Plugin* PluginManager::LoadPlugin(const string& FileName, const os::fs::find_dat
 {
 	std::unique_ptr<Plugin> pPlugin;
 
-	if (!std::any_of(CONST_RANGE(PluginFactories, i) { return (pPlugin = i->CreatePlugin(FileName, FindData.FileSize)) != nullptr; }))
+	if (!std::any_of(CONST_RANGE(PluginFactories, i) { return (pPlugin = i->CreatePlugin(FileName)) != nullptr; }))
 		return nullptr;
 
 	auto Result = LoadToMem? false : pPlugin->LoadFromCache(FindData);

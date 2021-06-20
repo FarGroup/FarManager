@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 20.06.2021 02:24:21 +0100 - build 5831
+
+1. Loading plugins from file symlinks didn't work.
+
+--------------------------------------------------------------------------------
 drkns 19.06.2021 16:54:09 +0100 - build 5830
 
 1. Limit the workaround for microsoft/terminal#10456 to specific Windows versions.

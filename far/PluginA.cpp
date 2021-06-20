@@ -203,7 +203,7 @@ public:
 		return Module;
 	}
 
-	std::unique_ptr<Plugin> CreatePlugin(const string& FileName, size_t FileSize) override;
+	std::unique_ptr<Plugin> CreatePlugin(const string& FileName) override;
 
 	const std::string& PluginsRootKey()
 	{
@@ -6023,9 +6023,9 @@ static const char* GetPluginMsg(const Plugin* PluginInstance, int MsgId)
 	return static_cast<const PluginA*>(PluginInstance)->GetMsgA(MsgId);
 }
 
-std::unique_ptr<Plugin> oem_plugin_factory::CreatePlugin(const string& FileName, size_t FileSize)
+std::unique_ptr<Plugin> oem_plugin_factory::CreatePlugin(const string& FileName)
 {
-	return IsPlugin(FileName, FileSize)? std::make_unique<PluginA>(this, FileName) : nullptr;
+	return IsPlugin(FileName)? std::make_unique<PluginA>(this, FileName) : nullptr;
 }
 
 #undef OLDFAR_TO_FAR_MAP
