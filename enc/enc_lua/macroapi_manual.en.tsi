@@ -957,7 +957,7 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3778310252
+mtime=3833370824
 <article>
 #_**Properties:** none.
 #_
@@ -973,24 +973,25 @@ mtime=3778310252
 #_  chr                `msave`
 #_  clip               msgbox
 #_  date               `postmacro`
-#_  `deserialize`        print           
-#_  env                `printconsole`
-#_  `eval`               prompt        
-#_  `exit`               replace         
-#_  fattr              rindex          
-#_  fexist             `serialize`
-#_  float              size2str  
-#_  flock              sleep     
-#_  fmatch             string    
-#_  fsplit             strpad    
-#_  `GetMacroCopy`       strwrap   
-#_  iif                substr  
-#_  index              testfolder
-#_  int                trim      
-#_  itoa               ucase     
-#_  key                `usermenu`
-#_  `Keys`               waitkey   
-#_  lcase              xlat    
+#_  `deserialize`        print
+#_  `EnumScrips`         `printconsole`
+#_  env                prompt
+#_  `eval`               replace
+#_  `exit`               rindex
+#_  fattr              `serialize`
+#_  fexist             size2str
+#_  float              sleep
+#_  flock              string
+#_  fmatch             strpad
+#_  fsplit             strwrap
+#_  `GetMacroCopy`       substr
+#_  iif                testfolder
+#_  index              trim
+#_  int                ucase
+#_  itoa               `usermenu`
+#_  key                waitkey
+#_  `Keys`               xlat
+#_  lcase
 #_
 #_@@@
 #_[acall]: 91.html
@@ -1167,6 +1168,48 @@ mtime=3778310982
 </article>
 </node>
 <node>
+id=106
+lv=3
+dt=Text
+nm=EnumScripts
+ctime=3833370836
+mtime=3833370836
+<article>
+#_next_script = mf.EnumScripts (ScriptType)
+#_
+#_**Parameters:**
+#_  ScriptType:  string
+#_
+#_**Returns:**
+#_  next_script:  function
+#_
+#_**Description:**
+#_  The *EnumScripts* function returns an iterator function *next_script* that allows
+#_  to traverse over all scripts of the specified *ScriptType* type, where *ScriptType* is one of the values:
+#_  "CommandLine", "ContentColumns", "Event", "Macro", "MenuItem", "PanelModule"
+#_  (by the name of the loader function).
+#_
+#_script, index = next_script()
+#_
+#_  Each subsequent call to *next_script* returns a copy of the next table
+#_  from loaded scripts, or nil if all scripts have already been traversed.
+#_  Thus, for convenient enumeration, you can use the construction:
+#_
+#_  for script,index in mf.EnumScripts(ScriptType) do *actions* end
+#_
+#_**Notes:**
+#_- The second returned value of *next_script* is script index in the corresponding internal array.
+#_- The behavior of *next_script* is undefined if further scripts are loaded while traversing.
+#_
+#_**See also:**
+#_  `GetMacroCopy` - for work with "Macro" and "Event" only.
+#_
+#_@@@
+#_[GetMacroCopy]: 72.html
+#_
+</article>
+</node>
+<node>
 id=79
 lv=3
 dt=Text
@@ -1223,7 +1266,7 @@ lv=3
 dt=Text
 nm=GetMacroCopy
 ctime=3578176338
-mtime=3607090687
+mtime=3833370856
 <article>
 #_macro = mf.GetMacroCopy (index)
 #_
@@ -1244,6 +1287,8 @@ mtime=3607090687
 #_  * To distinguish between macro table from event handler table: there is the field
 #_    "area" of type string that is present only in macro tables.
 #_
+#_**See also:**
+#_`EnumScripts` - allows to work with other types of scripts
 #_
 </article>
 </node>

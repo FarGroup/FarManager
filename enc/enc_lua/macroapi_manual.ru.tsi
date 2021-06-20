@@ -951,7 +951,7 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3778309747
+mtime=3833367888
 <article>
 #_**Свойства:** нет.
 #_
@@ -967,24 +967,25 @@ mtime=3778309747
 #_  chr                `msave`
 #_  clip               msgbox
 #_  date               `postmacro`
-#_  `deserialize`        print           
-#_  env                `printconsole`
-#_  `eval`               prompt        
-#_  `exit`               replace         
-#_  fattr              rindex          
-#_  fexist             `serialize`
-#_  float              size2str  
-#_  flock              sleep     
-#_  fmatch             string    
-#_  fsplit             strpad    
-#_  `GetMacroCopy`       strwrap   
-#_  iif                substr  
-#_  index              testfolder
-#_  int                trim      
-#_  itoa               ucase     
-#_  key                `usermenu`
-#_  `Keys`               waitkey   
-#_  lcase              xlat    
+#_  `deserialize`        print
+#_  `EnumScrips`         `printconsole`
+#_  env                prompt
+#_  `eval`               replace
+#_  `exit`               rindex
+#_  fattr              `serialize`
+#_  fexist             size2str
+#_  float              sleep
+#_  flock              string
+#_  fmatch             strpad
+#_  fsplit             strwrap
+#_  `GetMacroCopy`       substr
+#_  iif                testfolder
+#_  index              trim
+#_  int                ucase
+#_  itoa               `usermenu`
+#_  key                waitkey
+#_  `Keys`               xlat
+#_  lcase
 #_
 #_@@@
 #_[acall]: 91.html
@@ -1162,6 +1163,48 @@ mtime=3778309996
 </article>
 </node>
 <node>
+id=106
+lv=3
+dt=Text
+nm=EnumScripts
+ctime=3833367907
+mtime=3833370231
+<article>
+#_next_script = mf.EnumScripts (ScriptType)
+#_
+#_**Параметры:**
+#_  ScriptType:  string
+#_
+#_**Возвращает:**
+#_  next_script:  function
+#_
+#_**Описание:**
+#_  Функция *EnumScripts* возвращает функцию-итератор *next_script*, позволяющущую
+#_  перебирать все скрипты заданного *ScriptType* типа, где *ScriptType* - одно из значений:
+#_  "CommandLine", "ContentColumns", "Event", "Macro", "MenuItem", "PanelModule"
+#_  (по имени функции-загрузчика).
+#_
+#_script, index = next_script()
+#_
+#_  Каждый последующий вызов *next_script* возвращает копию таблицы следующего
+#_  из загруженных скриптов, или nil, если все скрипты уже перебраны.
+#_  Таким образом для удобного перебора можно использовать конструкцию:
+#_
+#_  for script,index in mf.EnumScripts(ScriptType) do *действия* end
+#_
+#_**Примечания:**
+#_- Вторым значением *next_script* возвращает индекс скрипта в соответствующем внутреннем массиве.
+#_- Поведение *next_script* неопределено, если во время просмотра происходит дальнейшая загрузка скриптов.
+#_
+#_**См. также:**
+#_`GetMacroCopy` - работает только с "Macro" и "Event".
+#_
+#_@@@
+#_[GetMacroCopy]: 72.html
+#_
+</article>
+</node>
+<node>
 id=79
 lv=3
 dt=Text
@@ -1215,7 +1258,7 @@ lv=3
 dt=Text
 nm=GetMacroCopy
 ctime=3578176338
-mtime=3607090697
+mtime=3833369950
 <article>
 #_macro = mf.GetMacroCopy (index)
 #_
@@ -1235,7 +1278,11 @@ mtime=3607090697
 #_  * Отличить таблицу макроса от таблицы события можно по полю "area" типа string,
 #_    которое присутствует только у макросов.
 #_
+#_**См. также:**
+#_`EnumScripts` - позволяет работать и с другими типами скриптов
 #_
+#_@@@
+#_[EnumScripts]: 106.html
 </article>
 </node>
 <node>
