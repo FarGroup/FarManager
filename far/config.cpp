@@ -1429,12 +1429,12 @@ struct FARConfigItem
 		return Item;
 	}
 
-	bool Edit(bool Hex) const
+	bool Edit(int Mode) const
 	{
 		DialogBuilder Builder;
 		Builder.AddText(concat(KeyName, L'.', ValName, L" ("sv, Value->GetType(), L"):"sv));
 		int Result = 0;
-		if (!Value->Edit(&Builder, 40, Hex))
+		if (!Value->Edit(Builder, Mode))
 		{
 			static const lng Buttons[] = { lng::MOk, lng::MReset, lng::MCancel };
 			Builder.AddSeparator();
@@ -1493,6 +1493,13 @@ static bool ParseIntValue(string_view const sValue, long long& iValue)
 	return false;
 }
 
+enum class edit_mode
+{
+	normal,
+	hex,
+	bin,
+	reset
+};
 
 template<class base_type, class derived>
 bool detail::OptionImpl<base_type, derived>::ReceiveValue(const GeneralConfig* Storage, string_view const KeyName, string_view const ValueName, const std::variant<long long, string, bool>& Default)
@@ -1521,7 +1528,7 @@ bool BoolOption::TryParse(const string& value)
 	return true;
 }
 
-bool BoolOption::Edit(DialogBuilder* Builder, int Width, int Param)
+bool BoolOption::Edit(DialogBuilder&, int)
 {
 	Set(!Get());
 	return true;
@@ -1544,7 +1551,7 @@ bool Bool3Option::TryParse(const string& value)
 	return true;
 }
 
-bool Bool3Option::Edit(DialogBuilder* Builder, int Width, int Param)
+bool Bool3Option::Edit(DialogBuilder&, int)
 {
 	Set((Get() + 1) % 3);
 	return true;
@@ -1572,12 +1579,43 @@ bool IntOption::TryParse(const string& value)
 	return true;
 }
 
-bool IntOption::Edit(DialogBuilder* Builder, int Width, int Param)
+bool IntOption::Edit(DialogBuilder& Builder, int const Param)
 {
-	if (Param)
-		Builder->AddHexEditField(*this, Width);
-	else
-		Builder->AddIntEditField(*this, Width);
+	switch (static_cast<edit_mode>(Param))
+	{
+	case edit_mode::normal:
+		Builder.AddIntEditField(*this, 20);
+		break;
+
+	case edit_mode::hex:
+		Builder.AddHexEditField(*this, 16 + 2);
+		break;
+
+	case edit_mode::bin:
+		{
+			Builder.AddBinaryEditField(*this, 64);
+			string High, Low;
+			const auto BitCount = 64;
+
+			High.reserve(BitCount);
+			Low.reserve(BitCount);
+
+			for (size_t i = 0; i != BitCount; ++i)
+			{
+				const auto Num = BitCount - 1 - i;
+				High.push_back(static_cast<wchar_t>(L'0' + Num / 10));
+				Low.push_back(static_cast<wchar_t>(L'0' + Num % 10));
+			}
+
+			Builder.AddText(High)->Flags |= DIF_DISABLE;
+			Builder.AddText(Low)->Flags |= DIF_DISABLE;
+		}
+		break;
+
+	default:
+		UNREACHABLE;
+	}
+
 	return false;
 }
 
@@ -1594,9 +1632,9 @@ string IntOption::ExInfo() const
 }
 
 
-bool StringOption::Edit(DialogBuilder* Builder, int Width, int Param)
+bool StringOption::Edit(DialogBuilder& Builder, int)
 {
-	Builder->AddEditField(*this, Width);
+	Builder.AddEditField(*this, 40);
 	return false;
 }
 
@@ -2443,13 +2481,6 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 			reinterpret_cast<const FARConfigItem*>(Dlg->GetListItemSimpleUserData(0, Index));
 	};
 
-	enum class edit_mode
-	{
-		normal,
-		hex,
-		reset
-	};
-
 	const auto EditItem = [&](edit_mode const EditMode)
 	{
 		FarListInfo ListInfo{ sizeof(ListInfo) };
@@ -2461,18 +2492,14 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 		switch (EditMode)
 		{
-		case edit_mode::normal:
-		case edit_mode::hex:
-			if (!CurrentItem->Edit(EditMode == edit_mode::hex))
-				return;
-			break;
-
 		case edit_mode::reset:
 			CurrentItem->reset();
 			break;
 
 		default:
-			return;
+			if (!CurrentItem->Edit(static_cast<int>(EditMode)))
+				return;
+			break;
 		}
 
 		SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
@@ -2493,7 +2520,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 			FarListTitles Titles{ sizeof(Titles) };
 
-			const auto BottomTitle = KeysToLocalizedText(KEY_SHIFTF1, KEY_F4, KEY_SHIFTF4, KEY_DEL, KEY_CTRLH);
+			const auto BottomTitle = KeysToLocalizedText(KEY_SHIFTF1, KEY_F4, KEY_SHIFTF4, KEY_ALTF4, KEY_DEL, KEY_CTRLH);
 			Titles.Title = msg(lng::MConfigEditor).c_str();
 			Titles.Bottom = BottomTitle.c_str();
 			Dlg->SendMessage(DM_LISTSETTITLES, ac_item_listbox, &Titles);
@@ -2541,6 +2568,10 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 				case KEY_SHIFTF4:
 					EditItem(edit_mode::hex);
+					break;
+
+				case KEY_ALTF4:
+					EditItem(edit_mode::bin);
 					break;
 
 				case KEY_DEL:

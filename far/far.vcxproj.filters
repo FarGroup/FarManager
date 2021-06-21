@@ -41,7 +41,7 @@
     <ClCompile Include="cddrv.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="char_wiidth.cpp">
+    <ClCompile Include="char_width.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="clipboard.cpp">

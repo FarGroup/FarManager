@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enum_tokens.hpp"
+#include "common/io.hpp"
 #include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
 #include "common/view/zip.hpp"
@@ -113,9 +114,9 @@ DECLARE_PLUGIN_FUNCTION(iFreeContentData,     void     (WINAPI*)(const GetConten
 
 #undef DECLARE_PLUGIN_FUNCTION
 
-std::unique_ptr<Plugin> plugin_factory::CreatePlugin(const string& FileName, size_t const FileSize)
+std::unique_ptr<Plugin> plugin_factory::CreatePlugin(const string& FileName)
 {
-	return IsPlugin(FileName, FileSize)? std::make_unique<Plugin>(this, FileName) : nullptr;
+	return IsPlugin(FileName)? std::make_unique<Plugin>(this, FileName) : nullptr;
 }
 
 plugin_factory::plugin_factory(PluginManager* owner):
@@ -203,7 +204,7 @@ bool native_plugin_factory::FindExport(const std::string_view ExportName) const
 	return ExportName == m_ExportsNames[iGetGlobalInfo].AName;
 }
 
-bool native_plugin_factory::IsPlugin(const string& FileName, size_t const FileSize) const
+bool native_plugin_factory::IsPlugin(const string& FileName) const
 {
 	if (!ends_with_icase(FileName, L".dll"sv))
 		return false;
@@ -215,41 +216,21 @@ bool native_plugin_factory::IsPlugin(const string& FileName, size_t const FileSi
 		return false;
 	}
 
-	const os::handle ModuleMapping(CreateFileMapping(ModuleFile.get().native_handle(), nullptr, PAGE_READONLY, 0, 0, nullptr));
-	if (!ModuleMapping)
-	{
-		LOGDEBUG(L"CreateFileMapping({}), {}"sv, FileName, last_error());
-		return false;
-	}
+	os::fs::filebuf StreamBuffer(ModuleFile, std::ios::in);
+	std::istream Stream(&StreamBuffer);
+	Stream.exceptions(Stream.badbit | Stream.failbit);
 
-	const os::fs::file_view Data(MapViewOfFile(ModuleMapping.native_handle(), FILE_MAP_READ, 0, 0, 0));
-	if (!Data)
-	{
-		LOGDEBUG(L"MapViewOfFile({}): {}"sv, FileName, last_error());
-		return false;
-	}
-
-	return seh_try_no_ui([&]
-	{
-		return IsPlugin(FileName, { static_cast<unsigned char const*>(Data.get()), FileSize });
-	},
-	[&](DWORD const ExceptionCode)
-	{
-		LOGERROR(L"IsPlugin({}): SEH exception {}"sv, FileName, ExceptionCode);
-		return false;
-	});
+	return IsPlugin(FileName, Stream);
 }
 
-bool native_plugin_factory::IsPlugin(string_view const FileName, span<unsigned char const> const Buffer) const
+bool native_plugin_factory::IsPlugin(string_view const FileName, std::istream& Stream) const
 {
-	const auto DosHeaderPtr = view_as_if<IMAGE_DOS_HEADER>(Buffer);
-	if (!DosHeaderPtr)
+	IMAGE_DOS_HEADER DosHeader;
+	if (io::read(Stream, edit_bytes(DosHeader)) != sizeof(DosHeader))
 	{
 		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 		return false;
 	}
-
-	const auto& DosHeader = *DosHeaderPtr;
 
 	if (DosHeader.e_magic != IMAGE_DOS_SIGNATURE)
 	{
@@ -257,14 +238,15 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, span<unsigned c
 		return false;
 	}
 
-	const auto NtHeadersPtr = view_as_if<IMAGE_NT_HEADERS>(Buffer, DosHeader.e_lfanew);
-	if (!NtHeadersPtr)
+	Stream.seekg(DosHeader.e_lfanew);
+
+	IMAGE_NT_HEADERS NtHeaders;
+	if (io::read(Stream, edit_bytes(NtHeaders)) != sizeof(NtHeaders))
 	{
 		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 		return false;
 	}
 
-	const auto& NtHeaders = *NtHeadersPtr;
 	if (NtHeaders.Signature != IMAGE_NT_SIGNATURE)
 	{
 		LOGDEBUG(L"Not a {} plugin: wrong NT signature 0x{:08X} in {}"sv, kind(), NtHeaders.Signature, FileName);
@@ -298,28 +280,25 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, span<unsigned c
 		return false;
 	}
 
-	const auto FirstSectionPtr = view_as_if<IMAGE_SECTION_HEADER>(Buffer, DosHeader.e_lfanew + offsetof(IMAGE_NT_HEADERS, OptionalHeader) + NtHeaders.FileHeader.SizeOfOptionalHeader);
-	if (!FirstSectionPtr)
-	{
-		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
-		return false;
-	}
+	Stream.seekg(DosHeader.e_lfanew + offsetof(IMAGE_NT_HEADERS, OptionalHeader) + NtHeaders.FileHeader.SizeOfOptionalHeader);
 
-	if (static_cast<unsigned char const*>(static_cast<void const*>(FirstSectionPtr + NtHeaders.FileHeader.NumberOfSections)) > Buffer.data() + Buffer.size())
-	{
-		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
-		return false;
-	}
+	IMAGE_SECTION_HEADER Section;
+	bool Found{};
 
-	const span Sections(FirstSectionPtr, NtHeaders.FileHeader.NumberOfSections);
-	const auto SectionIterator = std::find_if(ALL_CONST_RANGE(Sections), [&](IMAGE_SECTION_HEADER const& Section)
+	for (size_t i = 0; i != NtHeaders.FileHeader.NumberOfSections && !Found; ++i)
 	{
-		return
+		if (io::read(Stream, edit_bytes(Section)) != sizeof(Section))
+		{
+			LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
+			return false;
+		}
+
+		Found =
 			Section.VirtualAddress == ExportDirectoryAddress ||
 			(Section.VirtualAddress <= ExportDirectoryAddress && ExportDirectoryAddress < Section.VirtualAddress + Section.Misc.VirtualSize);
-	});
+	}
 
-	if (SectionIterator == Sections.cend())
+	if (!Found)
 	{
 		LOGDEBUG(L"Not a {} plugin: exports section not found in {}"sv, kind(), FileName);
 		return false;
@@ -330,52 +309,55 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, span<unsigned c
 		return VirtualAddress - Section.VirtualAddress + Section.PointerToRawData;
 	};
 
-	const auto ExportDirectoryPtr = view_as_if<IMAGE_EXPORT_DIRECTORY>(Buffer, section_address_to_real(ExportDirectoryAddress, *SectionIterator));
-	if (!ExportDirectoryPtr)
+	Stream.seekg(section_address_to_real(ExportDirectoryAddress, Section));
+
+	IMAGE_EXPORT_DIRECTORY ExportDirectory;
+	if (io::read(Stream, edit_bytes(ExportDirectory)) != sizeof(ExportDirectory))
 	{
 		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 		return false;
 	}
 
-	const auto& ExportDirectory = *ExportDirectoryPtr;
-
-	const auto FirstNamePtr = view_as_if<DWORD>(Buffer, section_address_to_real(ExportDirectory.AddressOfNames, *SectionIterator));
-	if (!FirstNamePtr)
+	std::string Name;
+	for (size_t i = 0; i != ExportDirectory.NumberOfNames; ++i)
 	{
-		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
-		return false;
-	}
+		Stream.seekg(section_address_to_real(ExportDirectory.AddressOfNames, Section) + sizeof(DWORD) * i);
 
-	if (static_cast<unsigned char const*>(static_cast<void const*>(FirstNamePtr + ExportDirectory.NumberOfNames)) > Buffer.data() + Buffer.size())
-	{
-		LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
-		return false;
-	}
-
-	const span Names(FirstNamePtr, ExportDirectory.NumberOfNames);
-
-	if (!std::any_of(ALL_CONST_RANGE(Names), [&](DWORD const NameAddress)
-	{
-		const auto StringPtr = view_as_if<char const>(Buffer, section_address_to_real(NameAddress, *SectionIterator));
-		if (!StringPtr)
+		DWORD NameAddress;
+		if (io::read(Stream, edit_bytes(NameAddress)) != sizeof(NameAddress))
 		{
 			LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
 			return false;
 		}
 
-		const auto StringEnd = std::find_if(StringPtr, static_cast<char const*>(static_cast<void const*>(Buffer.data() + Buffer.size())), [](char const Char)
-		{
-			return !Char;
-		});
+		Stream.seekg(section_address_to_real(NameAddress, Section));
 
-		return FindExport({ StringPtr, static_cast<size_t>(StringEnd - StringPtr) });
-	}))
-	{
-		LOGDEBUG(L"Not a {} plugin: no known exports found in {}"sv, kind(), FileName);
-		return false;
+		Name.clear();
+
+		for (;;)
+		{
+			char Ch;
+			if (!io::read(Stream, edit_bytes(Ch)))
+			{
+				LOGDEBUG(L"Not a {} plugin: not enough data in {}"sv, kind(), FileName);
+				return false;
+			}
+
+			if (!Ch)
+				break;
+
+			Name.push_back(Ch);
+		}
+
+		if (FindExport(Name))
+		{
+			LOGTRACE(L"Found a {} plugin: {}"sv, kind(), FileName);
+			return true;
+		}
 	}
 
-	return true;
+	LOGDEBUG(L"Not a {} plugin: no known exports found in {}"sv, kind(), FileName);
+	return false;
 }
 
 static void PrepareModulePath(string_view const ModuleName)
@@ -1310,7 +1292,7 @@ public:
 
 	bool Success() const { return m_Success; }
 
-	bool IsPlugin(const string& FileName, size_t const) const override
+	bool IsPlugin(const string& FileName) const override
 	{
 		const auto Result = m_Imports.pIsPlugin(FileName.c_str()) != FALSE;
 		ProcessError(m_Imports.pIsPlugin.name());

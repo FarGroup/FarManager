@@ -198,6 +198,7 @@ protected:
 	void DeleteBlock();
 
 	static int CheckCharMask(wchar_t Chr);
+	static int MaskDefaultChar(wchar_t Mask);
 
 private:
 	void DisplayObject() override;

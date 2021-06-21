@@ -5438,20 +5438,26 @@ If current value of an option is other than the default, the option is marked wi
 
  Besides the list navigation keys, the following key combinations are supported:
 
- #Enter# or #F4#   Change option value
-               boolean and 3-state are changed in place,
-               for integer and string a dialog is opened.
+ #Enter# or #F4#
+ Toggle or edit the value.
 
- #Shift+F4#      For the integer type, hexadecimal editor dialog is opened,
-               for other types works as #F4#.
+ #Shift+F4#
+ Edit the integer value as a hexadecimal number. For other types works as #F4#.
 
- #Del#           Reset the option to its default value.
+ #Alt+F4#
+ Edit the integer value as a binary number. For other types works as #F4#.
 
- #Ctrl+H#        Hide/show options having default values.
+ #Del#
+ Reset the option to its default value.
 
- #Shift+F1#      Show option help, if available.
+ #Ctrl+H#
+ Toggle display of unchanged options.
 
- #Ctrl+Alt+F#    Toggle quick filtering mode.
+ #Shift+F1#
+ Show the help for the current option, if available.
+
+ #Ctrl+Alt+F#
+ Toggle quick filtering mode.
 
 
 @Codepages.NoAutoDetectCP

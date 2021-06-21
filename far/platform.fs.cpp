@@ -150,11 +150,6 @@ namespace os::fs
 		{
 			FindCloseChangeNotification(Handle);
 		}
-
-		void file_unmapper::operator()(const void* Data) const noexcept
-		{
-			UnmapViewOfFile(Data);
-		}
 	}
 
 	namespace state

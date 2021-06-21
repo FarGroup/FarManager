@@ -934,7 +934,7 @@ void EditControl::RefreshStrByMask(int InitMode)
 		for (size_t i = 0; i != MaskLen; ++i)
 		{
 			if (InitMode)
-				m_Str[i]=L' ';
+				m_Str[i]= MaskDefaultChar(Mask[i]);
 
 			if (!CheckCharMask(Mask[i]))
 				m_Str[i]=Mask[i];
