@@ -329,6 +329,7 @@ return {
   SetCustomSortMode=SetCustomSortMode,
   CustomSortMenu=CustomSortMenu,
   GetSortModes=GetSortModes,
+  GetCustomSortModes=function() return CustomSortModes end,
   DeleteSortModes=function() CustomSortModes={} end,
   CanDoPanelSort=CanDoPanelSort,
 }

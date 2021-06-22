@@ -1187,7 +1187,7 @@ mtime=3833370836
 #_  The *EnumScripts* function returns an iterator function *next_script* that allows
 #_  to traverse over all scripts of the specified *ScriptType* type, where *ScriptType* is one of the values:
 #_  "CommandLine", "ContentColumns", "Event", "Macro", "MenuItem", "PanelModule"
-#_  (by the name of the loader function).
+#_  (by the name of the loader function), and also "CustomSortModes".
 #_
 #_script, index = next_script()
 #_
