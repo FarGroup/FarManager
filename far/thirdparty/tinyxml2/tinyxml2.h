@@ -79,6 +79,7 @@ distribution.
 #endif
 
 
+#if !defined(TIXMLASSERT)
 #if defined(TINYXML2_DEBUG)
 #   if defined(_MSC_VER)
 #       // "(void)0," is for suppressing C4127 warning in "assert(false)", "assert(true)" and the like
@@ -93,16 +94,16 @@ distribution.
 #else
 #   define TIXMLASSERT( x )               {}
 #endif
-
+#endif
 
 /* Versioning, past 1.0.14:
 	http://semver.org/
 */
-static const int TIXML2_MAJOR_VERSION = 8;
+static const int TIXML2_MAJOR_VERSION = 9;
 static const int TIXML2_MINOR_VERSION = 0;
 static const int TIXML2_PATCH_VERSION = 0;
 
-#define TINYXML2_MAJOR_VERSION 8
+#define TINYXML2_MAJOR_VERSION 9
 #define TINYXML2_MINOR_VERSION 0
 #define TINYXML2_PATCH_VERSION 0
 
@@ -135,7 +136,7 @@ class XMLPrinter;
 class TINYXML2_LIB StrPair
 {
 public:
-    enum {
+    enum Mode {
         NEEDS_ENTITY_PROCESSING			= 0x01,
         NEEDS_NEWLINE_NORMALIZATION		= 0x02,
         NEEDS_WHITESPACE_COLLAPSING     = 0x04,
@@ -1873,9 +1874,8 @@ public:
     */
     void DeleteNode( XMLNode* node );
 
-    void ClearError() {
-        SetError(XML_SUCCESS, 0, 0);
-    }
+    /// Clears the error flags.
+    void ClearError();
 
     /// Return true if there was an error parsing the document.
     bool Error() const {
