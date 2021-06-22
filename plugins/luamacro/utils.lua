@@ -583,6 +583,8 @@ local function AddContentColumns (srctable, FileName)
     and type(srctable.GetContentData) == "function"
   then
      if type(srctable.filemask)~="string" then srctable.filemask=nil; end
+     if type(srctable.description)~="string" then srctable.description=nil; end
+     if FileName then srctable.FileName=FileName; end
      table.insert(ContentColumns, srctable)
   end
 end

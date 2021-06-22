@@ -497,7 +497,7 @@ lv=2
 dt=Text
 nm=Контент-колонки
 ctime=3774015828
-mtime=3774016335
+mtime=3833535011
 <article>
 #_<markdown>
 #_
@@ -506,6 +506,7 @@ mtime=3774016335
 #_
 #_```
 #_ContentColumns {
+#_  description      = "Content column example";                -- string (опциональное поле)
 #_  filemask         = "*.txt";                                 -- string (опциональное поле)
 #_  GetContentFields = function(colnames) ...... end;           -- function
 #_  GetContentData   = function(filename, colnames) ...... end; -- function
