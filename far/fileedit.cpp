@@ -108,6 +108,23 @@ enum enumOpenEditor
 	ID_OE_COUNT
 };
 
+class FileEditor::f4_key_timer
+{
+public:
+	f4_key_timer():
+		m_Timer(500ms, {}, [this]{ m_Expired = true; })
+	{
+	}
+
+	bool expired() const
+	{
+		return m_Expired;
+	}
+
+private:
+	os::concurrency::timer m_Timer;
+	std::atomic_bool m_Expired{};
+};
 
 static intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 {
@@ -389,6 +406,10 @@ fileeditor_ptr FileEditor::create(const string_view Name, uintptr_t codepage, DW
 	string EmptyTitle;
 	FileEditorPtr->Init(Name, codepage, Title, StartLine, StartChar, &EmptyTitle, DeleteOnClose, Update, OpenModeExstFile);
 	return FileEditorPtr;
+}
+
+FileEditor::FileEditor(private_tag)
+{
 }
 
 /* $ 07.05.2001 DJ
@@ -749,8 +770,9 @@ void FileEditor::Init(
 
 	SetMacroMode(MACROAREA_EDITOR);
 
-	F4KeyOnly=true;
 	bLoaded = true;
+
+	m_F4Timer = std::make_unique<f4_key_timer>();
 
 	if (m_Flags.Check(FFILEEDIT_ENABLEF6))
 	{
@@ -904,9 +926,15 @@ bool FileEditor::ProcessKey(const Manager::Key& Key)
 
 bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 {
+	if (m_F4Timer)
+	{
+		if (Key() == KEY_F4 && !m_F4Timer->expired())
+			return false;
+
+		m_F4Timer.reset();
+	}
+
 	const auto LocalKey = Key();
-	if (none_of(LocalKey, KEY_F4, KEY_IDLE))
-		F4KeyOnly=false;
 
 	if (m_Flags.Check(FFILEEDIT_REDRAWTITLE) && ((LocalKey & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal(LocalKey & 0x00ffffff)))
 		ShowConsoleTitle();
@@ -1261,9 +1289,6 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 					return false;
 				[[fallthrough]];
 			case KEY_F4:
-				if (F4KeyOnly)
-					return true;
-				[[fallthrough]];
 			case KEY_ESC:
 			case KEY_F10:
 			{
@@ -1348,6 +1373,19 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 				m_editor->Show();
 				return true;
 			}
+
+			case KEY_CTRLL:
+			case KEY_RCTRLL:
+				{
+					if (m_editor->ProcessKey(Key))
+					{
+						ShowStatus();
+						if (!m_Flags.Check(FFILEEDIT_DISABLEHISTORY))
+							Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? HR_EDITOR_RO : HR_EDITOR);
+					}
+				}
+				return true;
+
 			default:
 			{
 				if (m_Flags.Check(FFILEEDIT_FULLSCREEN) && !Global->CtrlObject->Macro.IsExecuting())
@@ -2073,7 +2111,6 @@ bool FileEditor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	elevation::instance().ResetApprove();
 
-	F4KeyOnly = false;
 	if (!m_windowKeyBar->ProcessMouse(MouseEvent))
 	{
 		INPUT_RECORD mouse = { MOUSE_EVENT };
@@ -2662,7 +2699,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 					ProcessMouse(&rec.Event.MouseEvent);
 				else
 				{
-					const auto Key = ShieldCalcKeyCode(&rec, false);
+					const auto Key = InputRecordToKey(&rec);
 					ReProcessKey(Manager::Key(Key, rec));
 				}
 

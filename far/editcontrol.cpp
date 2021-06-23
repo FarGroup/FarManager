@@ -412,6 +412,8 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 	{
 		Reenter++;
 		const auto ComplMenu = VMenu2::create({}, {}, 0);
+		m_ComplMenu = ComplMenu;
+
 		ComplMenu->SetDialogMode(DMODE_NODRAWSHADOW);
 		ComplMenu->SetModeMoving(false);
 		string CurrentInput = m_Str;
@@ -541,7 +543,6 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				bool Visible;
 				size_t Size;
 				::GetCursorType(Visible, Size);
-				ComplMenu->Key(KEY_NONE);
 				bool IsChanged = false;
 				const auto ExitCode = ComplMenu->Run([&](const Manager::Key& RawKey)
 				{
@@ -559,9 +560,8 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 							Show();
 						}
 					}
-					if(MenuKey==KEY_CONSOLE_BUFFER_RESIZE)
-						SetMenuPos(*ComplMenu);
-					else if(MenuKey!=KEY_NONE)
+
+					if(MenuKey != KEY_NONE)
 					{
 						// ввод
 						if(in_closed_range(L' ', MenuKey, std::numeric_limits<wchar_t>::max()) || any_of(MenuKey, KEY_BS, KEY_DEL, KEY_NUMDEL))
@@ -747,6 +747,12 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 		Reenter--;
 	}
 	return Result;
+}
+
+void EditControl::ResizeConsole()
+{
+	if (const auto ComplMenu = m_ComplMenu.lock())
+		SetMenuPos(*ComplMenu);
 }
 
 void EditControl::AutoComplete(bool Manual,bool DelBlock)

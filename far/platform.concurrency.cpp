@@ -280,6 +280,27 @@ namespace os::concurrency
 			throw MAKE_FAR_FATAL_EXCEPTION(L"Event is not initialized properly"sv);
 		}
 	}
+
+	void CALLBACK timer::wrapper(void* const Parameter, BOOLEAN)
+	{
+		const auto& Callable = *static_cast<std::function<void()> const*>(Parameter);
+		Callable();
+	}
+
+	void timer::initialise_impl(std::chrono::milliseconds const DueTime, std::chrono::milliseconds Period)
+	{
+		if (!CreateTimerQueueTimer(&ptr_setter(m_Timer), {}, wrapper, m_Callable.get(), DueTime / 1ms, Period / 1ms, WT_EXECUTEINTIMERTHREAD))
+			throw MAKE_FAR_FATAL_EXCEPTION(L"CreateTimerQueueTimer failed"sv);
+	}
+
+	void timer::timer_closer::operator()(HANDLE const Handle) const
+	{
+		for (;;)
+		{
+			if (DeleteTimerQueueTimer({}, Handle, INVALID_HANDLE_VALUE) || GetLastError() == ERROR_IO_PENDING)
+				break;
+		}
+	}
 }
 
 #ifdef ENABLE_TESTS
@@ -300,5 +321,23 @@ TEST_CASE("platform.thread.forwarding")
 		);
 	}
 	REQUIRE(true);
+}
+
+TEST_CASE("platform.timer")
+{
+	size_t Count{};
+	size_t const Max = 3;
+	os::event const Event(os::event::type::manual, os::event::state::nonsignaled);
+
+	os::concurrency::timer const Timer({}, 1ms, [&]
+	{
+		if (Count != Max)
+			++Count;
+		else
+			Event.set();
+	});
+
+	Event.wait();
+	REQUIRE(Max == Count);
 }
 #endif

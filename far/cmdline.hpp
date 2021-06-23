@@ -72,6 +72,7 @@ public:
 	bool ProcessKey(const Manager::Key& Key) override;
 	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam=0) override;
+	void ResizeConsole() override;
 
 	const string& GetCurDir() const { return m_CurDir; }
 	void SetCurDir(string_view CurDir);

@@ -587,25 +587,16 @@ void ShowHotplugDevices()
 	HotPlugList->AssignHighlights();
 	HotPlugList->SetBottomTitle(KeysToLocalizedText(KEY_DEL, KEY_CTRLR));
 
-	bool NeedRefresh = false;
-
-	SCOPED_ACTION(listener)(update_devices, [&NeedRefresh]()
+	SCOPED_ACTION(listener)(update_devices, [&]
 	{
-		NeedRefresh = true;
+		HotPlugList->ProcessKey(Manager::Key(KEY_CTRLR));
 	});
 
 	HotPlugList->Run([&](const Manager::Key& RawKey)
 	{
-		auto Key=RawKey();
-		if(Key==KEY_NONE && NeedRefresh)
-		{
-			Key=KEY_CTRLR;
-			NeedRefresh = false;
-		}
-
 		int KeyProcessed = 1;
 
-		switch (Key)
+		switch (RawKey())
 		{
 			case KEY_F1:
 			{

@@ -402,6 +402,8 @@ int SetFLockState(unsigned const vkKey, int const State)
 	return oldState;
 }
 
+static unsigned int ShieldCalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros = {});
+
 unsigned int InputRecordToKey(const INPUT_RECORD* Rec)
 {
 	if (Rec)
@@ -829,6 +831,8 @@ static bool ProcessMouseEvent(const MOUSE_EVENT_RECORD& MouseEvent, bool Exclude
 	return false;
 }
 
+static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros = {});
+
 static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro)
 {
 	if (AllowSynchro)
@@ -953,7 +957,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			return KEY_NONE;
 		}
 
-		if (!os::handle::wait_any({ console.GetInputHandle(), wake_event::ref().native_handle() }, 1s))
+		if (!os::handle::wait_any({ console.GetInputHandle(), wake_event::ref().native_handle() }, till_next_minute()))
 		{
 			if (!Global->IsPanelsActive())
 			{
@@ -1169,39 +1173,34 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
  + Параметр у функции WaitKey - возможность ожидать конкретную клавишу
      Если KeyWait = -1 - как и раньше
 */
-DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
+DWORD WaitKey(DWORD KeyWait, std::optional<std::chrono::milliseconds> const Timeout, bool ExcludeMacro)
 {
-	const time_check TimeCheck(time_check::mode::delayed, std::chrono::milliseconds(delayMS));
-	DWORD Key;
-
 	for (;;)
 	{
-		INPUT_RECORD rec;
-		Key=KEY_NONE;
-
-		if (PeekInputRecord(&rec,ExcludeMacro))
+		if (Timeout)
 		{
-			Key=GetInputRecord(&rec,ExcludeMacro,true);
+			if (!os::handle::wait_any({ console.GetInputHandle() }, *Timeout))
+				return KEY_NONE;
 		}
+		else
+		{
+			(void)os::handle::wait_any({ console.GetInputHandle() });
+		}
+
+		INPUT_RECORD rec;
+		if (!PeekInputRecord(&rec, ExcludeMacro))
+			continue;
+
+		const auto Key = GetInputRecord(&rec, ExcludeMacro, true);
 
 		if (KeyWait == static_cast<DWORD>(-1))
 		{
 			if ((Key&~KEY_CTRLMASK) < KEY_END_FKEY || IsInternalKeyReal(Key&~KEY_CTRLMASK))
-				break;
+				return Key;
 		}
 		else if (Key == KeyWait)
-			break;
-
-		if (TimeCheck)
-		{
-			Key=KEY_NONE;
-			break;
-		}
-
-		os::chrono::sleep_for(1ms);
+			return Key;
 	}
-
-	return Key;
 }
 
 bool WriteInput(int Key)
@@ -1781,7 +1780,7 @@ bool IsCharKey(unsigned int Key)
 	return Key < 0x10000 || in_closed_range(KEY_MULTIPLY, Key, KEY_DIVIDE);
 }
 
-unsigned int ShieldCalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
+static unsigned int ShieldCalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 {
 	const auto SavedIntKeyState = IntKeyState; // нада! ибо CalcKeyCode "портит"... (Mantis#0001760)
 	IntKeyState = {};
@@ -1868,39 +1867,55 @@ static int GetNumpadKey(const int KeyCode, const int CtrlState, const int Modif)
 	{
 		int VCode;
 		int FarCodeNumpad;
-		int FarCodeEnhached;
+		int FarCodeEnhanced;
 		int FarCodeForNumLock;
 	}
-	NumpadMapping[] =
+	NumpadMapping[]
 	{
-		{ VK_NUMPAD0, KEY_NUMPAD0, KEY_INS, '0' },
-		{ VK_NUMPAD1, KEY_NUMPAD1, KEY_END, '1' },
-		{ VK_NUMPAD2, KEY_NUMPAD2, KEY_DOWN, '2' },
-		{ VK_NUMPAD3, KEY_NUMPAD3, KEY_PGDN, '3' },
-		{ VK_NUMPAD4, KEY_NUMPAD4, KEY_LEFT, '4' },
+		{ VK_NUMPAD0, KEY_NUMPAD0, KEY_INS,   '0' },
+		{ VK_NUMPAD1, KEY_NUMPAD1, KEY_END,   '1' },
+		{ VK_NUMPAD2, KEY_NUMPAD2, KEY_DOWN,  '2' },
+		{ VK_NUMPAD3, KEY_NUMPAD3, KEY_PGDN,  '3' },
+		{ VK_NUMPAD4, KEY_NUMPAD4, KEY_LEFT,  '4' },
 		{ VK_NUMPAD5, KEY_NUMPAD5, KEY_CLEAR, '5' },
 		{ VK_NUMPAD6, KEY_NUMPAD6, KEY_RIGHT, '6' },
-		{ VK_NUMPAD7, KEY_NUMPAD7, KEY_HOME, '7' },
-		{ VK_NUMPAD8, KEY_NUMPAD8, KEY_UP, '8' },
-		{ VK_NUMPAD9, KEY_NUMPAD9, KEY_PGUP, '9' },
-		{ VK_DECIMAL, KEY_NUMDEL, KEY_DEL, KEY_DECIMAL },
+		{ VK_NUMPAD7, KEY_NUMPAD7, KEY_HOME,  '7' },
+		{ VK_NUMPAD8, KEY_NUMPAD8, KEY_UP,    '8' },
+		{ VK_NUMPAD9, KEY_NUMPAD9, KEY_PGUP,  '9' },
+		{ VK_DECIMAL, KEY_NUMDEL,  KEY_DEL,   KEY_DECIMAL },
 	};
 
-	const auto GetMappingIndex = [KeyCode]
+	const auto
+		NumKey = 0x100;
+
+	const auto GetMappingIndex = [&]
 	{
 		switch (KeyCode)
 		{
-		case VK_INSERT: case VK_NUMPAD0: return 0;
-		case VK_END:    case VK_NUMPAD1: return 1;
-		case VK_DOWN:   case VK_NUMPAD2: return 2;
-		case VK_NEXT:   case VK_NUMPAD3: return 3;
-		case VK_LEFT:   case VK_NUMPAD4: return 4;
-		case VK_CLEAR:  case VK_NUMPAD5: return 5;
-		case VK_RIGHT:  case VK_NUMPAD6: return 6;
-		case VK_HOME:   case VK_NUMPAD7: return 7;
-		case VK_UP:     case VK_NUMPAD8: return 8;
-		case VK_PRIOR:  case VK_NUMPAD9: return 9;
-		case VK_DELETE: case VK_DECIMAL: return 10;
+		case VK_INSERT:   return 0;
+		case VK_END:      return 1;
+		case VK_DOWN:     return 2;
+		case VK_NEXT:     return 3;
+		case VK_LEFT:     return 4;
+		case VK_CLEAR:    return 5;
+		case VK_RIGHT:    return 6;
+		case VK_HOME:     return 7;
+		case VK_UP:       return 8;
+		case VK_PRIOR:    return 9;
+		case VK_DELETE:   return 10;
+
+		case VK_NUMPAD0:  return NumKey + 0;
+		case VK_NUMPAD1:  return NumKey + 1;
+		case VK_NUMPAD2:  return NumKey + 2;
+		case VK_NUMPAD3:  return NumKey + 3;
+		case VK_NUMPAD4:  return NumKey + 4;
+		case VK_NUMPAD5:  return NumKey + 5;
+		case VK_NUMPAD6:  return NumKey + 6;
+		case VK_NUMPAD7:  return NumKey + 7;
+		case VK_NUMPAD8:  return NumKey + 8;
+		case VK_NUMPAD9:  return NumKey + 9;
+		case VK_DECIMAL:  return NumKey + 10;
+
 		default:
 			return -1;
 		}
@@ -1910,14 +1925,16 @@ static int GetNumpadKey(const int KeyCode, const int CtrlState, const int Modif)
 	if (MappingIndex == -1)
 		return 0;
 
-	const auto& Mapping = NumpadMapping[MappingIndex];
+	const auto IsNumKey = (MappingIndex & NumKey) != 0;
+
+	const auto& Mapping = NumpadMapping[MappingIndex & ~NumKey];
 
 	if (CtrlState & ENHANCED_KEY)
 	{
-		return Modif | Mapping.FarCodeEnhached;
+		return Modif | Mapping.FarCodeEnhanced;
 	}
 
-	if ((CtrlState & NUMLOCK_ON) && !Modif && KeyCode == Mapping.VCode)
+	if (IsNumKey && !Modif && KeyCode == Mapping.VCode)
 	{
 		return Mapping.FarCodeForNumLock;
 	}
@@ -1954,7 +1971,7 @@ static int GetMouseKey(const MOUSE_EVENT_RECORD& MouseEvent)
 	return 0;
 }
 
-unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
+static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros)
 {
 	const auto CtrlState = rec->EventType==MOUSE_EVENT? rec->Event.MouseEvent.dwControlKeyState : rec->Event.KeyEvent.dwControlKeyState;
 	const auto ScanCode = rec->Event.KeyEvent.wVirtualScanCode;

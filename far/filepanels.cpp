@@ -1192,10 +1192,12 @@ void FilePanels::ShowConsoleTitle()
 void FilePanels::ResizeConsole()
 {
 	window::ResizeConsole();
+
+	SetScreenPosition();
+
 	CmdLine->ResizeConsole();
 	m_windowKeyBar->ResizeConsole();
 	TopMenuBar->ResizeConsole();
-	SetScreenPosition();
 }
 
 bool FilePanels::CanFastHide() const

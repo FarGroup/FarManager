@@ -746,6 +746,22 @@ std::pair<string, string> get_time()
 	};
 }
 
+static std::chrono::milliseconds till_next_unit(std::chrono::seconds const Unit)
+{
+	const auto Now = os::chrono::nt_clock::now().time_since_epoch();
+	return ((Now / Unit + 1) * Unit - Now) / 1ms * 1ms;
+}
+
+std::chrono::milliseconds till_next_second()
+{
+	return till_next_unit(1s);
+}
+
+std::chrono::milliseconds till_next_minute()
+{
+	return till_next_unit(1min);
+}
+
 #ifdef ENABLE_TESTS
 
 #include "testing.hpp"

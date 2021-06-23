@@ -202,6 +202,40 @@ namespace os::concurrency
 		void check_valid() const;
 	};
 
+	class timer
+	{
+	public:
+		NONCOPYABLE(timer);
+		MOVABLE(timer);
+
+		timer() = default;
+
+		template<typename callable, typename... args>
+		explicit timer(std::chrono::milliseconds const DueTime, std::chrono::milliseconds const Period, callable&& Callable, args&&... Args):
+			m_Callable(std::make_unique<std::function<void()>>([Callable = FWD(Callable), Args = std::make_tuple(FWD(Args)...)]() mutable // make_tuple for GCC 8.1
+			{
+				std::apply(FWD(Callable), FWD(Args));
+			}))
+		{
+			initialise_impl(DueTime, Period);
+		}
+
+	private:
+		void initialise_impl(std::chrono::milliseconds DueTime, std::chrono::milliseconds Period);
+
+		static void CALLBACK wrapper(void* Parameter, BOOLEAN);
+
+		// Indirection to have a permanent address for move
+		std::unique_ptr<std::function<void()>> m_Callable;
+
+		struct timer_closer
+		{
+			void operator()(HANDLE Handle) const;
+		};
+
+		os::detail::handle_t<timer_closer> m_Timer;
+	};
+
 	template<class T>
 	class synced_queue: noncopyable
 	{

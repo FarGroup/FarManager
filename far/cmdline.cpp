@@ -242,6 +242,12 @@ long long CommandLine::VMProcess(int OpCode, void* vParam, long long iParam)
 	return 0;
 }
 
+void CommandLine::ResizeConsole()
+{
+	CmdStr.SetPosition({ CmdStr.GetPosition().left, m_Where.top, m_Where.right, m_Where.bottom });
+	CmdStr.ResizeConsole();
+}
+
 bool CommandLine::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key;

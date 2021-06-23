@@ -1,4 +1,19 @@
 --------------------------------------------------------------------------------
+drkns 23.06.2021 23:34:45 +0100 - build 5833
+
+1. Since 5804.1 didn't crash and burn, let's go further and poll once per minute if nothing else happens.
+
+2. Remove polling from waitkey / ACTL_WAITKEY processing.
+
+3. Forum: closing viewer/editor with F3/F4 should be more predictable now.
+
+4. Forum: update edit history after changing the lock state.
+
+5. Numpad should work in Windows Terminal now.
+
+6. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 22.06.2021 02:19:01 +0100 - build 5832
 
 1. New versions of fmt, tinyxml2, Catch2.

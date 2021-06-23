@@ -175,6 +175,19 @@ private:
 
 	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 
+	void timer_start()
+	{
+		m_UpdateTimer = os::concurrency::timer(till_next_second(), 1s, []
+		{
+			message_manager::instance().notify(findfile_timer);
+		});
+	}
+
+	void timer_stop()
+	{
+		m_UpdateTimer = {};
+	}
+
 	// BUGBUG
 	bool AnySetFindList{};
 	bool CmpCase{};
@@ -212,6 +225,9 @@ private:
 	string m_LastDirName;
 	Dialog* m_ResultsDialogPtr{};
 	bool m_EmptyArc{};
+
+	static constexpr string_view findfile_timer = L"findfile_timer"sv;
+	os::concurrency::timer m_UpdateTimer;
 };
 
 
@@ -1506,6 +1522,8 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			if (m_Searcher->Finished() && m_Messages.empty())
 			{
+				timer_stop();
+
 				Finalized = true;
 
 				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
@@ -2720,6 +2738,13 @@ bool FindFiles::FindFilesProcess()
 				m_Searcher->Stop();
 				m_Searcher = nullptr;
 			};
+
+			// Deliberately empty. It doesn't have to do anything,
+			// its only purpose is waking up the main loop
+			// and generating KEY_NONE -> DN_ENTERIDLE to refresh the dialog.
+			SCOPED_ACTION(listener)(findfile_timer, []{});
+
+			timer_start();
 
 			Dlg->Process();
 

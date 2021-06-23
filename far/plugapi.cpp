@@ -533,7 +533,7 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			возвращает 0;
 		*/
 		case ACTL_WAITKEY:
-			WaitKey(Param2? InputRecordToKey(static_cast<const INPUT_RECORD*>(Param2)) : -1, 0, false);
+			WaitKey(Param2? InputRecordToKey(static_cast<const INPUT_RECORD*>(Param2)) : -1, {}, false);
 			return 0;
 
 		/* $ 04.12.2000 SVS

@@ -1869,9 +1869,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_RCTRLL:
 		{
 			m_Flags.Invert(FEDITOR_LOCKMODE);
-
-			if (HostFileEditor) HostFileEditor->ShowStatus();
-
 			return true;
 		}
 

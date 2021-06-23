@@ -416,14 +416,7 @@ bool HMenu::ProcessCurrentSubMenu()
 				auto& rec = *static_cast<INPUT_RECORD*>(param);
 				const auto Key = InputRecordToKey(&rec);
 
-				if (Key == KEY_CONSOLE_BUFFER_RESIZE)
-				{
-					SCOPED_ACTION(LockScreen);
-					ResizeConsole();
-					Show();
-					return 1;
-				}
-				else if (rec.EventType == MOUSE_EVENT)
+				if (rec.EventType == MOUSE_EVENT)
 				{
 					if (!TestMouse(&rec.Event.MouseEvent))
 					{
