@@ -40,35 +40,33 @@ local function GetItems (fcomp, sortmark, onlyactive)
     maxKeyW = max(4, ceil(farWidth-36)/2)
     maxKeyLen = 0
   end
-  for k=1,math.huge do
-    local m = utils.GetMacroCopy(k)
-    if not m then break end
-    m.LoadedMacrosIndex = k
-    if m.area then
-      if not m.disabled then
-        local ars,s = {},""
-        m.area:lower():gsub("[^ ]+", function(c) ars[c]=true end)
-        if ars[currArea] or ars.common then m.active=true end
-        if m.active or not onlyactive then
-          for i,v in ipairs(areaArr) do
-            s=s..(ars[v] and areaCodes[v] or ".")
-          end
-          m.codedArea=s
-          m.description=m.description and norm_utf8(m.description) or "index="..m.index
-          m.key=norm_utf8(m.key)
-          macros[#macros+1]=m
-          local keylen = m.key:len()
-          m.codedKey = keylen<=maxKeyW and m.key or m.key:sub(1,maxKeyW-3).."..."
-          maxKeyLen = max(maxKeyLen, m.codedKey:len())
+  for m,index in mf.EnumScripts("Macro") do
+    m.LoadedMacrosIndex = index
+    if not m.disabled then
+      local ars,s = {},""
+      m.area:lower():gsub("[^ ]+", function(c) ars[c]=true end)
+      if ars[currArea] or ars.common then m.active=true end
+      if m.active or not onlyactive then
+        for i,v in ipairs(areaArr) do
+          s=s..(ars[v] and areaCodes[v] or ".")
         end
+        m.codedArea=s
+        m.description=m.description and norm_utf8(m.description) or "index="..m.index
+        m.key=norm_utf8(m.key)
+        macros[#macros+1]=m
+        local keylen = m.key:len()
+        m.codedKey = keylen<=maxKeyW and m.key or m.key:sub(1,maxKeyW-3).."..."
+        maxKeyLen = max(maxKeyLen, m.codedKey:len())
       end
-    else
-      m.description=m.description and norm_utf8(m.description) or "index="..m.index
-      events[#events+1]=m
     end
   end
-
   table.sort(macros, fcomp)
+
+  for m,index in mf.EnumScripts("Event") do
+    m.LoadedMacrosIndex = index
+    m.description=m.description and norm_utf8(m.description) or "index="..m.index
+    events[#events+1]=m
+  end
   table.sort(events, function(a,b) return a.group < b.group end)
 
   items[#items+1] = {
