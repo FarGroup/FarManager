@@ -52,7 +52,7 @@ class FileSystemWatcher: noncopyable
 public:
 	FileSystemWatcher() = default;
 	~FileSystemWatcher();
-	void Set(string_view Directory, bool WatchSubtree);
+	void Set(string_view EventId, string_view Directory, bool WatchSubtree);
 	void Watch(bool got_focus=false, bool check_time=true);
 	void Release();
 	bool Signaled() const;
@@ -61,6 +61,7 @@ private:
 	void Register();
 	void PropagateException() const;
 
+	string m_EventId;
 	string m_Directory;
 	os::chrono::time_point m_PreviousLastWriteTime;
 	os::chrono::time_point m_CurrentLastWriteTime;

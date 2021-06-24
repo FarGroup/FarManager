@@ -66,7 +66,6 @@ public:
 
 	// BUGBUG
 
-	std::chrono::steady_clock::time_point StartIdleTime;
 	string g_strFarModuleName;
 	string g_strFarINI;
 	string g_strFarPath;

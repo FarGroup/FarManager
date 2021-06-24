@@ -4323,7 +4323,7 @@ int FarMacroApi::panelsetposFunc()
 				//SelPanel->Show();
 				// <Mantis#0000289> - грозно, но со вкусом :-)
 				//ShellUpdatePanels(SelPanel);
-				SelPanel->UpdateIfChanged(false);
+				SelPanel->UpdateIfChanged();
 				Global->WindowManager->RefreshWindow(Global->WindowManager->GetCurrentWindow());
 				// </Mantis#0000289>
 				Ret = static_cast<long long>(SelPanel->GetCurrentPos()) + 1;

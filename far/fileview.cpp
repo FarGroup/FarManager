@@ -117,9 +117,9 @@ public:
 
 		if (*m_UpdatePeriod != 0s)
 		{
-			m_ReloadTimer = os::concurrency::timer(*m_UpdatePeriod, *m_UpdatePeriod, []
+			m_ReloadTimer = os::concurrency::timer(*m_UpdatePeriod, *m_UpdatePeriod, [this]
 			{
-				message_manager::instance().notify(viewer_timer);
+				message_manager::instance().notify(m_Listener.GetEventName());
 			});
 		}
 	}
@@ -130,12 +130,10 @@ public:
 	}
 
 private:
-	static constexpr auto viewer_timer = L"viewer_timer"sv;
-
 	// Deliberately empty. It doesn't have to do anything,
 	// its only purpose is waking up the main loop
 	// and generating KEY_NONE to reload the file.
-	listener m_Listener{ viewer_timer, [] {} };
+	listener m_Listener{ []{} };
 
 	std::optional<std::chrono::milliseconds> m_UpdatePeriod;
 	os::concurrency::timer m_ReloadTimer;

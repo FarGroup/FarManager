@@ -874,13 +874,6 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 	Global->ScrBuf->Flush();
 
-	static auto LastEventIdle = false;
-
-	if (!LastEventIdle)
-		Global->StartIdleTime = std::chrono::steady_clock::now();
-
-	LastEventIdle = false;
-
 	auto FullscreenState = IsConsoleFullscreen();
 
 	for (;;)
@@ -924,48 +917,32 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			return KEY_NONE;
 		}
 
-		{
-			const auto CurTime = std::chrono::steady_clock::now();
-
-			if (Global->IsPanelsActive())
-			{
-				static bool UpdateReenter = false;
-
-				if (!UpdateReenter && CurTime - KeyPressedLastTime > 300ms)
-				{
-					if (Global->WindowManager->IsPanelsActive())
-					{
-						UpdateReenter = true;
-						Global->CtrlObject->Cp()->LeftPanel()->UpdateIfChanged(true);
-						Global->CtrlObject->Cp()->RightPanel()->UpdateIfChanged(true);
-						UpdateReenter = false;
-					}
-				}
-			}
-
-			if (IsWindowFocused && Global->Opt->ScreenSaver &&
-				Global->Opt->ScreenSaverTime > 0 &&
-				CurTime - Global->StartIdleTime > std::chrono::minutes(Global->Opt->ScreenSaverTime))
-			{
-				ScreenSaver();
-			}
-		}
-
 		if (message_manager::instance().dispatch())
 		{
 			*rec = {};
 			return KEY_NONE;
 		}
 
-		if (!os::handle::wait_any({ console.GetInputHandle(), wake_event::ref().native_handle() }, till_next_minute()))
+		static auto LastActivity = std::chrono::steady_clock::now();;
+
+		const auto Status = os::handle::wait_any({ console.GetInputHandle(), wake_event::ref().native_handle() }, till_next_minute());
+
+		if (!Status)
 		{
-			if (!Global->IsPanelsActive())
+			if (IsWindowFocused && Global->Opt->ScreenSaver &&
+				Global->Opt->ScreenSaverTime > 0 &&
+				std::chrono::steady_clock::now() - LastActivity >= std::chrono::minutes(Global->Opt->ScreenSaverTime))
 			{
-				LastEventIdle = true;
-				*rec = {};
-				rec->EventType=KEY_EVENT;
-				return KEY_IDLE;
+				ScreenSaver();
 			}
+
+			*rec = {};
+			rec->EventType=KEY_EVENT;
+			return KEY_IDLE;
+		}
+		else if (*Status == 0)
+		{
+			LastActivity = std::chrono::steady_clock::now();
 		}
 	}
 
@@ -1177,29 +1154,23 @@ DWORD WaitKey(DWORD KeyWait, std::optional<std::chrono::milliseconds> const Time
 {
 	for (;;)
 	{
-		if (Timeout)
-		{
-			if (!os::handle::wait_any({ console.GetInputHandle() }, *Timeout))
-				return KEY_NONE;
-		}
-		else
-		{
-			(void)os::handle::wait_any({ console.GetInputHandle() });
-		}
-
+		// Peek first to let it find queued macro keys that don't signal console input
 		INPUT_RECORD rec;
-		if (!PeekInputRecord(&rec, ExcludeMacro))
-			continue;
-
-		const auto Key = GetInputRecord(&rec, ExcludeMacro, true);
-
-		if (KeyWait == static_cast<DWORD>(-1))
+		if (PeekInputRecord(&rec, ExcludeMacro))
 		{
-			if ((Key&~KEY_CTRLMASK) < KEY_END_FKEY || IsInternalKeyReal(Key&~KEY_CTRLMASK))
+			const auto Key = GetInputRecord(&rec, ExcludeMacro, true);
+
+			if (KeyWait == static_cast<DWORD>(-1))
+			{
+				if ((Key & ~KEY_CTRLMASK) < KEY_END_FKEY || IsInternalKeyReal(Key & ~KEY_CTRLMASK))
+					return Key;
+			}
+			else if (Key == KeyWait)
 				return Key;
 		}
-		else if (Key == KeyWait)
-			return Key;
+
+		if (!os::handle::wait_any({ console.GetInputHandle() }, Timeout))
+			return KEY_NONE;
 	}
 }
 

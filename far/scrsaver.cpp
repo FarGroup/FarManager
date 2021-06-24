@@ -326,5 +326,4 @@ void ScreenSaver()
 	}
 
 	FlushInputBuffer();
-	Global->StartIdleTime = std::chrono::steady_clock::now();
 }

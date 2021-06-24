@@ -492,7 +492,8 @@ file_panel_ptr FileList::create(window_ptr Owner)
 }
 
 FileList::FileList(private_tag, window_ptr Owner):
-	Panel(std::move(Owner))
+	Panel(std::move(Owner)),
+	m_BackgroundUpdater(std::make_unique<background_updater>(this))
 {
 	if (const auto& data = msg(lng::MPanelBracketsForLongName); data.size() > 1)
 	{
@@ -1239,6 +1240,10 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 	switch (LocalKey)
 	{
+		case KEY_IDLE:
+			ProcessPluginEvent(FE_IDLE, nullptr);
+			break;
+
 		case KEY_GOTFOCUS:
 			if (Global->Opt->SmartFolderMonitor)
 			{
@@ -6986,19 +6991,13 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	FarChDir(strSaveDir); //???
 }
 
-/*$ 22.06.2001 SKV
-  Добавлен параметр для вызова после исполнения команды.
-*/
-void FileList::UpdateIfChanged(bool Idle)
+void FileList::UpdateIfChanged()
 {
 	if (Global->Opt->AutoUpdateLimit && m_ListData.size() > static_cast<size_t>(Global->Opt->AutoUpdateLimit))
 		return;
 
 	if (!IsVisible() || std::chrono::steady_clock::now() - LastUpdateTime < 2s)
 		return;
-
-	if (Idle)
-		ProcessPluginEvent(FE_IDLE, nullptr);
 
 	if (m_PanelMode != panel_mode::NORMAL_PANEL || !FSWatcher.Signaled())
 		return;
@@ -7013,6 +7012,28 @@ void FileList::UpdateIfChanged(bool Idle)
 	Redraw();
 }
 
+class FileList::background_updater
+{
+public:
+	explicit background_updater(FileList* const Owner):
+		m_Owner(Owner)
+	{
+	}
+
+	const auto& event_id() const
+	{
+		return m_Listener.GetEventName();
+	}
+
+private:
+	listener m_Listener{[this]
+	{
+		m_Owner->UpdateIfChanged();
+	}};
+
+	FileList* m_Owner;
+};
+
 void FileList::InitFSWatcher(bool CheckTree)
 {
 	DWORD DriveType=DRIVE_REMOTE;
@@ -7026,7 +7047,7 @@ void FileList::InitFSWatcher(bool CheckTree)
 
 	if (Global->Opt->AutoUpdateRemoteDrive || (!Global->Opt->AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE) || Type == root_type::volume)
 	{
-		FSWatcher.Set(m_CurDir, CheckTree);
+		FSWatcher.Set(m_BackgroundUpdater->event_id(), m_CurDir, CheckTree);
 		StartFSWatcher(false, false); //check_time=false, prevent reading file time twice (slow on network)
 	}
 }

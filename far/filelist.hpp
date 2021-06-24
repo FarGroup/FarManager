@@ -140,7 +140,7 @@ public:
 	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 	void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	void Update(int Mode) override;
-	void UpdateIfChanged(bool Idle) override;
+	void UpdateIfChanged() override;
 	void UpdateIfRequired() override;
 	bool SendKeyToPlugin(DWORD Key, bool Pred = false) override;
 	void StartFSWatcher(bool got_focus = false, bool check_time = true) override;
@@ -402,6 +402,9 @@ private:
 	int m_InsideGetFindData{};
 	std::unordered_set<string> m_FilteredExtensions;
 	std::weak_ptr<PluginsListItem> GetPluginItem() const;
+
+	class background_updater;
+	std::unique_ptr<background_updater> m_BackgroundUpdater;
 };
 
 #endif // FILELIST_HPP_825FE8AE_1E34_4DFD_B167_2D6A121B1777

@@ -188,7 +188,7 @@ namespace os
 			}
 
 			[[nodiscard]]
-			static auto wait_any(span<HANDLE const> const Handles, std::chrono::milliseconds const Timeout)
+			static auto wait_any(span<HANDLE const> const Handles, std::optional<std::chrono::milliseconds> const Timeout)
 			{
 				return handle_implementation::wait(Handles, false, Timeout);
 			}
@@ -200,7 +200,7 @@ namespace os
 			}
 
 			[[nodiscard]]
-			static bool wait_all(span<HANDLE const> const Handles, std::chrono::milliseconds const Timeout)
+			static bool wait_all(span<HANDLE const> const Handles, std::optional<std::chrono::milliseconds> const Timeout)
 			{
 				return handle_implementation::wait(Handles, true, Timeout).has_value();
 			}

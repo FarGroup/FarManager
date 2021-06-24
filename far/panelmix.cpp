@@ -139,7 +139,7 @@ void ShellUpdatePanels(panel_ptr SrcPanel, bool NeedSetUpADir)
 					AnotherFileList->ResetLastUpdateTime();
 				}
 
-				AnotherPanel->UpdateIfChanged(false);
+				AnotherPanel->UpdateIfChanged();
 			}
 		}
 	}

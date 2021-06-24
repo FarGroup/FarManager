@@ -200,6 +200,7 @@ static BOOL WINAPI CtrlHandler(DWORD CtrlType)
 	case CTRL_CLOSE_EVENT:
 		Global->CloseFAR = true;
 		Global->AllowCancelExit = false;
+		main_loop_process_messages();
 
 		LOGNOTICE(L"CTRL_CLOSE_EVENT: exiting the thread"sv);
 

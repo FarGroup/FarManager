@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "exception.hpp"
 #include "log.hpp"
+#include "notification.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -66,10 +67,11 @@ FileSystemWatcher::~FileSystemWatcher()
 	}
 }
 
-void FileSystemWatcher::Set(string_view const Directory, bool const WatchSubtree)
+void FileSystemWatcher::Set(string_view const EventId, string_view const Directory, bool const WatchSubtree)
 {
 	Release();
 
+	m_EventId = EventId;
 	m_Directory = NTPath(Directory);
 	m_WatchSubtree = WatchSubtree;
 
@@ -162,9 +164,15 @@ void FileSystemWatcher::Register()
 					FILE_NOTIFY_CHANGE_LAST_WRITE);
 
 				if (!m_Notification)
+				{
+					LOGWARNING(L"FindFirstChangeNotification {}"sv, last_error());
 					return;
+				}
 
-				(void)os::handle::wait_any({ m_Notification.native_handle(), m_Cancelled.native_handle() });
+				if (const auto Result = os::handle::wait_any({ m_Notification.native_handle(), m_Cancelled.native_handle() }); Result == 0)
+				{
+					message_manager::instance().notify(m_EventId);
+				}
 			}
 			catch(far_fatal_exception const& e)
 			{
