@@ -5353,11 +5353,6 @@ bool FileList::PluginPanelHelp(const plugin_panel* hPlugin) const
 	return true;
 }
 
-void FileList::ResetLastUpdateTime()
-{
-	LastUpdateTime = {};
-}
-
 /* $ 19.11.2001 IS
      для файловых панелей с реальными файлами никакого префикса не добавляем
 */
@@ -6563,8 +6558,6 @@ void FileList::Update(int Mode)
 			break;
 		}
 	}
-
-	LastUpdateTime = std::chrono::steady_clock::now();
 }
 
 void FileList::UpdateIfRequired()
@@ -6993,10 +6986,13 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 void FileList::UpdateIfChanged()
 {
+	if (!Global->IsPanelsActive())
+		return;
+
 	if (Global->Opt->AutoUpdateLimit && m_ListData.size() > static_cast<size_t>(Global->Opt->AutoUpdateLimit))
 		return;
 
-	if (!IsVisible() || std::chrono::steady_clock::now() - LastUpdateTime < 2s)
+	if (!IsVisible())
 		return;
 
 	if (m_PanelMode != panel_mode::NORMAL_PANEL || !FSWatcher.Signaled())

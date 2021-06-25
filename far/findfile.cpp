@@ -2600,6 +2600,8 @@ struct THREADPARAM
 
 void background_searcher::Search()
 {
+	os::debug::set_thread_name(L"Find file");
+
 	seh_try_thread(m_ExceptionPtr, [this]
 	{
 		cpp_try(

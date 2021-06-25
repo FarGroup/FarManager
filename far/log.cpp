@@ -531,6 +531,8 @@ namespace
 
 		void poll()
 		{
+			os::debug::set_thread_name(L"Log sink");
+
 			return seh_try_no_ui(
 				[&]
 				{

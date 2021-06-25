@@ -38,11 +38,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "keyboard.hpp"
 #include "wm_listener.hpp"
+#include "log.hpp"
 
 // Platform:
 
 // Common:
-#include "common/range.hpp"
+#include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
 
 // External:
@@ -67,32 +68,45 @@ message_manager::message_manager():
 
 message_manager::~message_manager() = default;
 
-void message_manager::suppress()
+void message_manager::commit_add()
 {
-	++m_suppressions;
+	handlers_map PendingHandlers;
+
+	{
+		SCOPED_ACTION(std::lock_guard)(m_PendingLock);
+		PendingHandlers = std::move(m_PendingHandlers);
+	}
+
+	{
+		SCOPED_ACTION(std::lock_guard)(m_ActiveLock);
+		m_ActiveHandlers.merge(PendingHandlers);
+	}
 }
 
-void message_manager::restore()
+void message_manager::commit_remove()
 {
-	--m_suppressions;
+	SCOPED_ACTION(std::lock_guard)(m_ActiveLock);
+	std::erase_if(m_ActiveHandlers, [](handlers_map::value_type const& Handler)
+	{
+		return !Handler.second.second;
+	});
 }
 
 message_manager::handlers_map::iterator message_manager::subscribe(event_id EventId, const detail::event_handler& EventHandler)
 {
-	SCOPED_ACTION(std::unique_lock)(m_RWLock);
-	return m_Handlers.emplace(EventNames[EventId], &EventHandler);
+	SCOPED_ACTION(std::lock_guard)(m_PendingLock);
+	return m_PendingHandlers.emplace(EventNames[EventId], handler_value{ &EventHandler, true });
 }
 
 message_manager::handlers_map::iterator message_manager::subscribe(string_view const EventName, const detail::event_handler& EventHandler)
 {
-	SCOPED_ACTION(std::unique_lock)(m_RWLock);
-	return m_Handlers.emplace(EventName, &EventHandler);
+	SCOPED_ACTION(std::lock_guard)(m_PendingLock);
+	return m_PendingHandlers.emplace(EventName, handler_value{ &EventHandler, true });
 }
 
 void message_manager::unsubscribe(handlers_map::iterator HandlerIterator)
 {
-	SCOPED_ACTION(std::unique_lock)(m_RWLock);
-	m_Handlers.erase(std::move(HandlerIterator));
+	HandlerIterator->second.second = false;
 }
 
 void message_manager::notify(event_id EventId, std::any&& Payload)
@@ -110,19 +124,79 @@ void message_manager::notify(string_view const EventName, std::any&& Payload)
 bool message_manager::dispatch()
 {
 	bool Result = false;
+
+	if (!m_DispatchInProgress)
+	{
+		commit_add();
+		commit_remove();
+	}
+
+	std::vector<std::pair<handlers_map::const_iterator, bool>> EligibleHandlers;
+
 	message_queue::value_type EventData;
 	while (m_Messages.try_pop(EventData))
 	{
-		SCOPED_ACTION(std::shared_lock)(m_RWLock);
-		const auto RelevantListeners = m_Handlers.equal_range(EventData.first);
 
-		for (const auto& [Name, Instance]: range(RelevantListeners.first, RelevantListeners.second))
+		SCOPED_ACTION(std::lock_guard)(m_ActiveLock);
+
+		const auto find_eligible = [&]
 		{
-			std::invoke(*Instance, EventData.second);
+			EligibleHandlers.clear();
+			const auto EqualRange = m_ActiveHandlers.equal_range(EventData.first);
+
+			for (auto i = EqualRange.first; i != EqualRange.second; ++i)
+			{
+				EligibleHandlers.emplace_back(i, false);
+			}
+		};
+
+		find_eligible();
+		auto HandlerIterator = EligibleHandlers.begin();
+
+		if (EligibleHandlers.empty())
+		{
+			LOGWARNING(L"No handlers for {}"sv, EventData.first);
 		}
 
-		Result = Result || RelevantListeners.first != RelevantListeners.second;
+		for (;;)
+		{
+			if (HandlerIterator == EligibleHandlers.cend())
+				break;
+
+			if (HandlerIterator->second)
+				continue; // Already processed
+
+			if (!HandlerIterator->first->second.second)
+				continue; // Pending remove
+
+			{
+				++m_DispatchInProgress;
+				SCOPE_EXIT{ --m_DispatchInProgress; };
+
+				std::invoke(*HandlerIterator->first->second.first, EventData.second);
+			}
+
+			HandlerIterator->second = true; // Mark as processed
+
+			if (m_PendingHandlers.empty())
+			{
+				++HandlerIterator;
+				continue;
+			}
+
+			// New handlers have been added by the callback.
+			// Them plugins can do dodgy things there.
+			// Commit, recalculate the eligibility and restart the loop.
+			// Already visited handlers will be ignored.
+			commit_add();
+			find_eligible();
+			HandlerIterator = EligibleHandlers.begin();
+		}
+
+
+		Result = Result || !EligibleHandlers.empty();
 	}
+
 	m_Window->Check();
 	return Result;
 }

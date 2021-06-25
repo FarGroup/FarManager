@@ -149,6 +149,8 @@ bool FileSystemWatcher::Signaled() const
 
 void FileSystemWatcher::Register()
 {
+	os::debug::set_thread_name(L"FS watcher");
+
 	seh_try_thread(m_ExceptionPtr, [this]
 	{
 		cpp_try(

@@ -572,8 +572,6 @@ struct EAData: noncopyable
 
 static void ElevationApproveDlgSync(const EAData& Data)
 {
-	SCOPED_ACTION(auto)(message_manager::instance().suppressor());
-
 	enum {DlgX=64,DlgY=12};
 
 	auto ElevationApproveDlg = MakeDialogItems<AAD_COUNT>(

@@ -352,6 +352,12 @@ int WINAPI imports::stub_CompareStringOrdinal(LPCWCH String1, int Count1, LPCWCH
 	return 0;
 }
 
+HRESULT WINAPI imports::stub_SetThreadDescription(HANDLE Thread, PCWSTR ThreadDescription)
+{
+	// TODO: log
+	return E_NOTIMPL;
+}
+
 // shell32
 HRESULT STDAPICALLTYPE imports::stub_SHCreateAssociationRegistration(REFIID riid, void ** ppv)
 {

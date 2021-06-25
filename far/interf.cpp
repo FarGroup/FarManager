@@ -161,6 +161,8 @@ static os::event& CancelIoInProgress()
 
 static void CancelSynchronousIoWrapper(void* Thread)
 {
+	os::debug::set_thread_name(L"CancelSynchronousIo caller");
+
 	if (!imports.CancelSynchronousIo)
 		return;
 

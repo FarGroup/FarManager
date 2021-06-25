@@ -461,6 +461,7 @@ namespace os
 		void breakpoint(bool Always = true);
 		void print(const wchar_t* Str);
 		void print(string const& Str);
+		void set_thread_name(const wchar_t* Name);
 		std::vector<uintptr_t> current_stack(size_t FramesToSkip = 0, size_t FramesToCapture = std::numeric_limits<size_t>::max());
 	}
 }

@@ -1801,6 +1801,8 @@ private:
 
 	void ThreadProc()
 	{
+		os::debug::set_thread_name(L"Async history config");
+
 		// TODO: SEH guard, try/catch, exception_ptr
 
 		for (;;)

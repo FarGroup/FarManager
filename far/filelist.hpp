@@ -217,7 +217,6 @@ public:
 	void PluginClearSelection(int SelectedItemNumber);
 	void PluginEndSelection();
 	bool PluginPanelHelp(const plugin_panel* hPlugin) const;
-	void ResetLastUpdateTime();
 	string GetPluginPrefix() const;
 
 	size_t FileListToPluginItem2(const FileListItem& fi, FarGetPluginPanelItem* gpi) const;
@@ -373,7 +372,6 @@ private:
 	unsigned long long SelFileSize{};
 	unsigned long long TotalFileSize{};
 	unsigned long long FreeDiskSize = -1;
-	std::chrono::steady_clock::time_point LastUpdateTime;
 	int m_Height{};
 	int m_Stripes{}; // Stripe is a logical column representing one list item == group of columns repeated across the list
 	int m_ColumnsInStripe{}; // number of columns (item attributes) in a stripe

@@ -97,7 +97,8 @@ class message_manager: public singleton<message_manager>
 	IMPLEMENTS_SINGLETON;
 
 public:
-	using handlers_map = std::unordered_multimap<string, const detail::event_handler*>;
+	using handler_value = std::pair<const detail::event_handler*, bool>;
+	using handlers_map = std::unordered_multimap<string, handler_value>;
 
 	handlers_map::iterator subscribe(event_id EventId, const detail::event_handler& EventHandler);
 	handlers_map::iterator subscribe(string_view EventName, const detail::event_handler& EventHandler);
@@ -106,28 +107,28 @@ public:
 	void notify(string_view EventName, std::any&& Payload = {});
 	bool dispatch();
 
-	[[nodiscard]]
-	auto suppressor()
-	{
-		return make_raii_wrapper<&message_manager::suppress, &message_manager::restore>(this);
-	}
-
 private:
 	using message_queue = os::synced_queue<std::pair<string, std::any>>;
 
 	message_manager();
 	~message_manager();
 
-	void suppress();
-	void restore();
+	void commit_add();
+	void commit_remove();
 
-	// Note: non-std - std is incompatible with Win2k
-	using mutex_type = os::concurrency::shared_mutex;
-	mutex_type m_RWLock;
+	os::concurrency::critical_section
+		m_PendingLock,
+		m_ActiveLock;
+
 	message_queue m_Messages;
-	handlers_map m_Handlers;
+
+	handlers_map
+		m_PendingHandlers,
+		m_ActiveHandlers;
+
 	std::unique_ptr<wm_listener> m_Window;
-	std::atomic_size_t m_suppressions{};
+
+	std::atomic_size_t m_DispatchInProgress{};
 };
 
 class listener: noncopyable

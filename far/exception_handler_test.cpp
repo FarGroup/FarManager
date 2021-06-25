@@ -115,18 +115,32 @@ namespace tests
 	static void cpp_std_nested_thread()
 	{
 		std::exception_ptr Ptr;
-		seh_try_thread(Ptr, [&Ptr]
+		os::thread Thread(os::thread::mode::join, [&]
 		{
-			cpp_try(
-			[]
+			os::debug::set_thread_name(L"Nested thread exception test");
+
+			seh_try_thread(Ptr, [&]
 			{
-				throw std::runtime_error("Test nested std error (thread)"s);
-			},
-			[&]
-			{
-				SAVE_EXCEPTION_TO(Ptr);
+				cpp_try(
+				[]
+				{
+					throw std::runtime_error("Test nested std error (thread)"s);
+				},
+				[&]
+				{
+					SAVE_EXCEPTION_TO(Ptr);
+				});
 			});
 		});
+
+		while (!Thread.is_signaled() && !Ptr)
+			;
+
+		if (Ptr)
+		{
+			// You're someone else's problem
+			Thread.detach();
+		}
 
 		rethrow_if(Ptr);
 	}
@@ -292,6 +306,8 @@ namespace tests
 		std::exception_ptr Ptr;
 		os::thread Thread(os::thread::mode::join, [&]
 		{
+			os::debug::set_thread_name(L"Divide by zero test");
+
 			seh_try_thread(Ptr, []
 			{
 				volatile const auto InvalidDenominator = 0;

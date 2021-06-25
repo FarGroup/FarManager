@@ -95,6 +95,8 @@ private:
 
 	void handler() const
 	{
+		os::debug::set_thread_name(L"Taskbar processor");
+
 		SCOPED_ACTION(os::com::initialize);
 
 		os::com::ptr<ITaskbarList3> TaskbarList;

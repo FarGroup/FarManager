@@ -399,8 +399,7 @@ static string collect_information(
 	exception_context const& Context,
 	span<uintptr_t const> NestedStack,
 	string_view const Module,
-	span<string_view const> const Labels,
-	span<string_view const> const Values
+	span<std::pair<string_view, string_view> const> const BasicInfo
 )
 {
 	string Strings;
@@ -408,7 +407,7 @@ static string collect_information(
 
 	const auto Eol = eol::system.str();
 
-	for (const auto& [Label, Value]: zip(Labels, Values))
+	for (const auto& [Label, Value]: BasicInfo)
 	{
 		format_to(Strings, FSTR(L"{} {}{}"sv), Label, Value, Eol);
 	}
@@ -512,7 +511,7 @@ static bool ShowExceptionUI(
 	string_view const Function,
 	string_view const Location,
 	string_view const ModuleName,
-	string_view const PluginInformation,
+	string_view const PluginInfo,
 	Plugin const* const PluginModule,
 	span<uintptr_t const> const NestedStack
 )
@@ -533,67 +532,28 @@ static bool ShowExceptionUI(
 	const auto OsVersion = os_version();
 	const auto KernelVersion = kernel_version();
 
-	std::array Labels
+	std::pair<string_view, string_view> const BasicInfo[]
 	{
-		L"Exception:"sv,
-		L"Details:  "sv,
-		L"errno:    "sv,
-		L"LastError:"sv,
-		L"NTSTATUS: "sv,
-		L"Address:  "sv,
-		L"Function: "sv,
-		L"Source:   "sv,
-		L"File:     "sv,
-		L"Plugin:   "sv,
-		L"Far:      "sv,
-		L"OS:       "sv,
-		L"Kernel:   "sv,
+		{ L"Exception:"sv, Exception,     },
+		{ L"Details:  "sv, Details,       },
+		{ L"errno:    "sv, Errors[0],     },
+		{ L"LastError:"sv, Errors[1],     },
+		{ L"NTSTATUS: "sv, Errors[2],     },
+		{ L"Address:  "sv, Address,       },
+		{ L"Function: "sv, Function,      },
+		{ L"Source:   "sv, Source,        },
+		{ L"File:     "sv, ModuleName,    },
+		{ L"Plugin:   "sv, PluginInfo,    },
+		{ L"Far:      "sv, Version,       },
+		{ L"OS:       "sv, OsVersion,     },
+		{ L"Kernel:   "sv, KernelVersion, },
 	};
-
-	if (far_language::instance().is_loaded())
-	{
-		Labels =
-		{
-			msg(lng::MExcException),
-			msg(lng::MExcDetails),
-			L"errno:"sv,
-			L"LastError:"sv,
-			L"NTSTATUS:"sv,
-			msg(lng::MExcAddress),
-			msg(lng::MExcFunction),
-			msg(lng::MExcSource),
-			msg(lng::MExcFileName),
-			msg(lng::MExcPlugin),
-			msg(lng::MExcFarVersion),
-			msg(lng::MExcOSVersion),
-			msg(lng::MExcKernelVersion),
-		};
-	}
-
-	const string_view Values[]
-	{
-		Exception,
-		Details,
-		Errors[0],
-		Errors[1],
-		Errors[2],
-		Address,
-		Function,
-		Source,
-		ModuleName,
-		PluginInformation,
-		Version,
-		OsVersion,
-		KernelVersion,
-	};
-
-	static_assert(std::size(Labels) == std::size(Values));
 
 	const auto log_message = [&]
 	{
-		auto Message = join(select(zip(Labels, Values), [](auto const& Pair)
+		auto Message = join(select(BasicInfo, [](auto const& Pair)
 		{
-			return format(FSTR(L"{} {}"sv), std::get<0>(Pair), std::get<1>(Pair));
+			return format(FSTR(L"{} {}"sv), Pair.first, Pair.second);
 		}), L"\n"sv);
 
 		Message += L"\n\n"sv;
@@ -610,7 +570,7 @@ static bool ShowExceptionUI(
 
 	const auto CanUnload = PluginModule != nullptr;
 	const auto ReportLocation = get_report_location();
-	const auto BugReport = collect_information(Context, NestedStack, ModuleName, Labels, Values);
+	const auto BugReport = collect_information(Context, NestedStack, ModuleName, BasicInfo);
 	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, L"bug_report.txt"sv));
 	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
 	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, L"far.mdmp"sv), MiniDumpNormal);
@@ -1413,7 +1373,11 @@ namespace detail
 			{
 				bool Result = false;
 				{
-					os::thread(os::thread::mode::join, [&]{ Result = handle_seh_exception(Context, Function, Module); });
+					os::thread(os::thread::mode::join, [&]
+					{
+						os::debug::set_thread_name(L"Stack overflow handler");
+						Result = handle_seh_exception(Context, Function, Module);
+					});
 				}
 
 				StackOverflowHappened = true;
