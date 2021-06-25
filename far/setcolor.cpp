@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common.hpp"
 #include "common/2d/point.hpp"
+#include "common/from_string.hpp"
 #include "common/null_iterator.hpp"
 #include "common/scope_exit.hpp"
 
@@ -495,13 +496,40 @@ enum color_dialog_items
 	cd_count
 };
 
-static string color_code(COLORREF Color)
+static string color_code(COLORREF const Color, bool const Is4Bit)
 {
-	return format(FSTR(L"{:08X}"sv), colors::ARGB2ABGR(Color));
+	return Is4Bit?
+		format(FSTR(L"{:02X}     {:X}"sv), colors::alpha_value(Color) >> 24, colors::index_value(Color)) :
+		format(FSTR(L"{:08X}"sv), colors::ARGB2ABGR(Color));
+}
+
+std::optional<COLORREF> parse_color(string_view const Str, bool const Is4Bit)
+{
+	if (Is4Bit)
+	{
+		unsigned Alpha;
+		if (!from_string(Str.substr(0, 2), Alpha, {}, 16))
+			return {};
+
+		unsigned Index;
+		if (!from_string(Str.substr(7, 1), Index, {}, 16))
+			return {};
+
+		return Alpha << 24 | Index;
+	}
+	else
+	{
+		unsigned Value;
+		if (!from_string(Str, Value, {}, 16))
+			return {};
+
+		return colors::ARGB2ABGR(Value);
+	}
 }
 
 // BUGBUG
 static bool IgnoreEditChange = false;
+static bool IgnoreColorIndexClick = false;
 
 static const std::pair<color_dialog_items, FARCOLORFLAGS> StyleMapping[]
 {
@@ -521,6 +549,10 @@ struct color_state
 	FarColor CurColor, BaseColor;
 	bool TransparencyEnabled;
 };
+
+constexpr auto
+	MaskIndex = L"HH     H"sv,
+	MaskARGB  = L"HHHHHHHH"sv;
 
 static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
@@ -548,6 +580,11 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	switch (Msg)
 	{
+		case DN_INITDIALOG:
+			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, cd_fg_colorcode, {});
+			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, cd_bg_colorcode, {});
+			break;
+
 		case DN_CTLCOLORDLGITEM:
 			{
 				const auto preview_or_disabled = [&](COLORREF const Color, size_t const Index)
@@ -581,6 +618,9 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				if (Param2 && ((Param1 >= cd_fg_color_first && Param1 <= cd_fg_color_last) || (Param1 >= cd_bg_color_first && Param1 <= cd_bg_color_last)))
 				{
+					if (IgnoreColorIndexClick)
+						return true;
+
 					const auto IsFg = Param1 >= cd_fg_color_first && Param1 <= cd_fg_color_last;
 					const auto First = IsFg? cd_fg_color_first : cd_bg_color_first;
 
@@ -589,7 +629,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 					CurColor.Flags |= Flag4Bit(IsFg);
 
-					Dlg->SendMessage(DM_UPDATECOLORCODE, IsFg? cd_fg_colorcode : cd_bg_colorcode, ToPtr(colors::ConsoleIndexToTrueColor(Component)));
+					Dlg->SendMessage(DM_UPDATECOLORCODE, IsFg? cd_fg_colorcode : cd_bg_colorcode, {});
 
 					return TRUE;
 				}
@@ -610,7 +650,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						Dlg->SendMessage(DM_ENABLE, i + Offset, Param2);
 					}
 
-					Dlg->SendMessage(DM_UPDATECOLORCODE, IsFg? cd_fg_colorcode : cd_bg_colorcode, ToPtr(Component));
+					Dlg->SendMessage(DM_UPDATECOLORCODE, IsFg? cd_fg_colorcode : cd_bg_colorcode, {});
 
 					Dlg->SendMessage(DM_ENABLE, IsFg? cd_fg_colorcode : cd_bg_colorcode, Param2);
 					Dlg->SendMessage(DM_ENABLE, IsFg? cd_fg_advanced : cd_bg_advanced, Param2);
@@ -639,7 +679,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						CurColor.Flags &= ~Flag4Bit(IsFg);
 
 						Dlg->SendMessage(DM_SETCHECK, IsFg? cd_fg_color_first : cd_bg_color_first, ToPtr(BSTATE_3STATE));
-						Dlg->SendMessage(DM_UPDATECOLORCODE, IsFg? cd_fg_colorcode : cd_bg_colorcode, ToPtr(Params.rgbResult));
+						Dlg->SendMessage(DM_UPDATECOLORCODE, IsFg? cd_fg_colorcode : cd_bg_colorcode, {});
 
 						Global->Opt->Palette.SetCustomColors(CustomColors);
 					}
@@ -657,11 +697,28 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				if (std::any_of(Iterator, Iterator.end(), std::iswxdigit))
 				{
 					const auto IsFg = Param1 == cd_fg_colorcode;
+					const auto Is4Bit = IsFg? CurColor.IsFg4Bit() : CurColor.IsBg4Bit();
 					auto& Component = IsFg? CurColor.ForegroundColor : CurColor.BackgroundColor;
-					Component = colors::ARGB2ABGR(std::wcstoul(Item.Data, nullptr, 16));
-					CurColor.Flags &= ~Flag4Bit(IsFg);
 
-					Dlg->SendMessage(DM_SETCHECK, IsFg? cd_fg_color_first : cd_bg_color_first, ToPtr(BSTATE_3STATE));
+					const auto ParsedColor = parse_color(Item.Data, Is4Bit);
+					if (!ParsedColor)
+						return false;
+
+					const auto OldColorIndex = colors::index_value(Component);
+					Component = *ParsedColor;
+
+					if (Is4Bit)
+					{
+						const auto NewColorIndex = colors::index_value(Component);
+
+						if (NewColorIndex != OldColorIndex)
+						{
+							IgnoreColorIndexClick = true;
+							SCOPE_EXIT{ IgnoreColorIndexClick = false; };
+							const auto ColorButtonIndex = NewColorIndex < 8? NewColorIndex * 2 : (NewColorIndex - 8) * 2 + 1;
+							Dlg->SendMessage(DM_SETCHECK, (IsFg? cd_fg_color_first : cd_bg_color_first) + ColorButtonIndex, ToPtr(BSTATE_CHECKED));
+						}
+					}
 
 					if (ColorState.TransparencyEnabled && colors::is_transparent(Component))
 					{
@@ -676,7 +733,31 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				IgnoreEditChange = true;
 				SCOPE_EXIT{ IgnoreEditChange = false; };
-				Dlg->SendMessage(DM_SETTEXTPTR, Param1, UNSAFE_CSTR(color_code(static_cast<int>(reinterpret_cast<intptr_t>(Param2)))));
+				const auto IsFg = Param1 == cd_fg_colorcode;
+
+				FarDialogItem Item;
+				if (!Dlg->SendMessage(DM_GETDLGITEMSHORT, Param1, &Item))
+					return false;
+
+				const auto Color = IsFg? CurColor.ForegroundColor : CurColor.BackgroundColor;
+				const auto Is4Bit = IsFg? CurColor.IsFg4Bit() : CurColor.IsBg4Bit();
+				const auto Value = color_code(Color, Is4Bit);
+
+				Item.Mask = (Is4Bit? MaskIndex :MaskARGB).data();
+				Item.Data = UNSAFE_CSTR(Value);
+
+				Dlg->SendMessage(DM_SETDLGITEM, Param1, &Item);
+
+				constexpr lng Titles[][2]
+				{
+					{ lng::MSetColorForeIndex, lng::MSetColorForeAARRGGBB },
+					{ lng::MSetColorBackIndex, lng::MSetColorBackAARRGGBB },
+				};
+
+				Dlg->SendMessage(DM_SETTEXTPTR,
+					IsFg? cd_fg_colorcode_title : cd_bg_colorcode_title,
+					UNSAFE_CSTR(msg(Titles[IsFg? 0 : 1][Is4Bit? 0 : 1]))
+				);
 			}
 			return TRUE;
 
@@ -718,7 +799,7 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 		{ DI_RADIOBUTTON, {{26, 3 }, {0,  3 }}, DIF_MOVESELECT, },
 		{ DI_RADIOBUTTON, {{26, 4 }, {0,  4 }}, DIF_MOVESELECT, },
 
-		{ DI_TEXT,        {{30, 2 }, {0,  2 }}, DIF_NONE, msg(lng::MSetColorForeAARRGGBB) },
+		{ DI_TEXT,        {{30, 2 }, {0,  2 }}, DIF_NONE, msg(Color.IsFg4Bit()? lng::MSetColorForeIndex : lng::MSetColorForeAARRGGBB) },
 		{ DI_FIXEDIT,     {{30, 3 }, {37, 3 }}, DIF_MASKEDIT, },
 		{ DI_BUTTON,      {{30, 4 }, {37, 4 }}, DIF_NONE, msg(lng::MSetColorForeRGB), },
 
@@ -742,7 +823,7 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 		{ DI_RADIOBUTTON, {{26, 7 }, {0,  7 }}, DIF_MOVESELECT, },
 		{ DI_RADIOBUTTON, {{26, 8 }, {0,  8 }}, DIF_MOVESELECT, },
 
-		{ DI_TEXT,        {{30, 6 }, {0,  6 }}, DIF_NONE, msg(lng::MSetColorBackAARRGGBB) },
+		{ DI_TEXT,        {{30, 6 }, {0,  6 }}, DIF_NONE, msg(Color.IsBg4Bit()? lng::MSetColorBackIndex : lng::MSetColorBackAARRGGBB) },
 		{ DI_FIXEDIT,     {{30, 7 }, {37, 7 }}, DIF_MASKEDIT, },
 		{ DI_BUTTON,      {{30, 8 }, {37, 8 }}, DIF_NONE, msg(lng::MSetColorBackRGB), },
 
@@ -768,14 +849,10 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 	ColorDlg[cd_separator2].strMask = { BoxSymbols[BS_T_H2V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1] };
 	ColorDlg[cd_separator3].strMask = ColorDlg[cd_separator4].strMask = { BoxSymbols[BS_L_H1V2], BoxSymbols[BS_H1], BoxSymbols[BS_R_H1V1] };
 
-	const auto to_true_color_code = [](COLORREF const ColorValue, bool const Is4Bit)
-	{
-		return color_code(Is4Bit? colors::ConsoleIndexToTrueColor(ColorValue) : ColorValue);
-	};
-
-	ColorDlg[cd_fg_colorcode].strData = to_true_color_code(Color.ForegroundColor, Color.IsFg4Bit());
-	ColorDlg[cd_bg_colorcode].strData = to_true_color_code(Color.BackgroundColor, Color.IsBg4Bit());
-	ColorDlg[cd_fg_colorcode].strMask = ColorDlg[cd_bg_colorcode].strMask = L"HHHHHHHH"sv;
+	ColorDlg[cd_fg_colorcode].strData = color_code(Color.ForegroundColor, Color.IsFg4Bit());
+	ColorDlg[cd_bg_colorcode].strData = color_code(Color.BackgroundColor, Color.IsBg4Bit());
+	ColorDlg[cd_fg_colorcode].strMask = Color.IsFg4Bit()? MaskIndex : MaskARGB;
+	ColorDlg[cd_bg_colorcode].strMask = Color.IsBg4Bit()? MaskIndex : MaskARGB;
 
 	color_state ColorState
 	{
