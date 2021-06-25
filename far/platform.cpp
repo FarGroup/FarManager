@@ -513,7 +513,7 @@ handle OpenConsoleActiveScreenBuffer()
 		void set_thread_name(const wchar_t* Name)
 		{
 			if (imports.SetThreadDescription)
-				SetThreadDescription(GetCurrentThread(), Name);
+				imports.SetThreadDescription(GetCurrentThread(), Name);
 		}
 
 		std::vector<uintptr_t> current_stack(size_t const FramesToSkip, size_t const FramesToCapture)
