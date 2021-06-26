@@ -26,6 +26,8 @@
 "Macro"
 "Macro Attive"
 "Eventi"
+"Items of Plugins menu"
+"Active items of Plugins menu"
 
 // macro browser messages
 "Nessun Nome File Disponibile"
@@ -34,6 +36,7 @@
 // macro browser F3 titles
 "Macro"
 "Gestore Evento"
+"Plugins menu item"
 
 // custom panel sort
 "Ordinamento "

@@ -26,6 +26,8 @@
 "Макрасы"
 "Актыўныя макрасы"
 "Апрацоўшчыкі падзеяў"
+"Items of Plugins menu"
+"Active items of Plugins menu"
 
 // macro browser messages
 "Імя файла недаступна"
@@ -34,6 +36,7 @@
 // macro browser F3 titles
 "Макрас"
 "Апрацоўшчык падзеі"
+"Plugins menu item"
 
 // custom panel sort
 "Рэжым парадкавання "

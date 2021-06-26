@@ -35,6 +35,22 @@ local function shorten (s, maxW)
   return s:len()<=maxW and s or s:sub(1,maxW-3).."..."
 end
 
+local function capitalize (str)
+  return str:gsub("^%l", utf8.upper)
+end
+
+local function evalMenuItemTitle (m)
+  for _,menu in ipairs({"plugins","config","disks"}) do
+    if m.flags[menu] then
+      local currArea = capitalize(areaArr[1+far.MacroGetArea()])
+      local ok,title = pcall(m.text, capitalize(menu), currArea)
+      if ok and type(title)=="string" then
+        return title, menu
+      end
+    end
+  end
+end
+
 local function GetItems (fcomp, sortmark, onlyactive)
   local currArea = areaArr[1+far.MacroGetArea()]
   local function codeArea (areas)
@@ -44,11 +60,12 @@ local function GetItems (fcomp, sortmark, onlyactive)
     end
     return s
   end
-  local events,macros,items={},{},{}
-  local maxKeyW, maxKeyLen do
+  local events,macros,menuitems,items={},{},{},{}
+  local maxKeyW, maxKeyLen, maxTitleW do
     local farRect = far.AdvControl("ACTL_GETFARRECT")
     local farWidth = farRect.Right - farRect.Left + 1
     maxKeyW = max(4, ceil(farWidth-36)/2)
+    maxTitleW = maxKeyW - 6 -- len of " │ %%s"
     maxKeyLen = 0
   end
   for m,index in mf.EnumScripts("Macro") do
@@ -76,17 +93,51 @@ local function GetItems (fcomp, sortmark, onlyactive)
   end
   table.sort(events, function(a,b) return a.group < b.group end)
 
+  for m,index in mf.EnumScripts("MenuItem") do
+    local areas = {}
+    for i,v in pairs(areaArr) do
+      if m.flags[i-1] then areas[v] = true end
+    end
+    if m.flags.common then areas.common=true end
+    m.active = areas[currArea] or areas.common or not m.flags.plugins
+    if m.active or not onlyactive then
+      m.codedArea = m.flags.plugins and codeArea(areas)
+      m.description = m.description and norm_utf8(m.description) or "index="..index
+      menuitems[#menuitems+1] = m
+      m.title = evalMenuItemTitle(m)
+      local title = m.title or "<"..m.FileName:match("[^%\\]+$")..">"
+      m.shortTitle = shorten(title, maxTitleW)
+      local s = ""
+      local codes = {"P","C","D"}
+      for i,v in ipairs({"plugins","config","disks"}) do
+        s = s .. (m.flags[v] and codes[i] or ".")
+      end
+      m.codedMenu = s
+    end
+  end
+  table.sort(menuitems, function(a,b) return (a.title or a.FileName) < (b.title or b.FileName) end)
+
   items[#items+1] = {
     separator=true,
     text=("%s [ %s ]"):format(onlyactive and Msg.MBSepActiveMacros or Msg.MBSepMacros, sortmark) }
-
   local fmt = ("%%s %%s │ %%-%ds │ %%s"):format(maxKeyLen)
   for i,m in ipairs(macros) do
     items[#items+1] = { text=fmt:format(m.active and "√" or " ", m.codedArea, m.codedKey, m.description), macro=m }
   end
 
-  items[#items+1] = { separator=true, text=Msg.MBSepEvents }
+  items[#items+1] = {
+    separator=true,
+    text=onlyactive and Msg.MBSepActiveMenuItems or Msg.MBSepMenuItems }
+  fmt = ("%%s %%s │ %%s │ %%-%ds │ %%s"):format(maxTitleW)
+  local NOAREA = string.rep(" ", 20)
+  for i,m in ipairs(menuitems) do
+    items[#items+1] = {
+      text=fmt:format(m.active and "√" or " ", m.codedArea or NOAREA, m.codedMenu, m.shortTitle, m.description),
+      macro=m
+    }
+  end
 
+  items[#items+1] = { separator=true, text=Msg.MBSepEvents }
   for i,m in ipairs(events) do
     items[#items+1] = { text=("%-19s │ %s"):format(
                         m.group, m.description), macro=m, }
@@ -142,7 +193,35 @@ local function ShowHelp()
 end
 
 local function ShowInfo (m)
-  if m.area then
+  if m.text then
+    local areas,menus={},{}
+    for i,v in ipairs(areaArr) do
+      if m.flags[i-1] then areas[#areas+1] = capitalize(v) end
+    end
+    if m.flags.common then areas[#areas+1] = "Common" end
+    for _,v in ipairs({"plugins", "config", "disks"}) do
+      if m.flags[v] then menus[#menus+1] = capitalize(v) end
+    end
+
+    local str = ([[
+description │ %s
+menu        │ %s
+area        │ %s
+guid        │ %s
+text        │ %s
+action      │ %s
+%s
+%s]]) :format(m.description or "",
+              m.flags.plugins and table.concat(menus, " ") or "N/A",
+              table.concat(areas, " "),
+              win.Uuid(m.guid):upper(),
+              tostring(m.text)..(m.title and '\n            │ "'..m.title..'" ' or ""),
+              tostring(m.action),
+              "\1",
+              m.FileName)
+    far.Message(str,Msg.MBTitleMenuItem,nil,"l")
+
+  elseif m.area then
     local code = m.code and m.code:gsub("\r?\n"," ") or ""
     code = shorten(code,50)
 
@@ -222,7 +301,37 @@ local function MenuLoop()
     ----------------------------------------------------------------------------
     if BrKey == nil then -- execute
       local m = item.macro
-      if m.area then
+      if m.text then
+        local function isMenuItemActive ()
+          if not m.active then return false end
+          local title, menu = evalMenuItemTitle(m)
+          if title then
+            local OpenFrom
+            if menu=="plugins" then
+              OpenFrom = F.OPEN_PLUGINSMENU
+            elseif menu=="disks" then
+              local info = far.AdvControl(F.ACTL_GETWINDOWINFO)
+              if info.Type==F.WTYPE_PANELS then
+                OpenFrom = F.OPEN_LEFTDISKMENU
+              else
+                return false
+              end
+            end
+            return true, OpenFrom
+          end
+        end
+        local active, OpenFrom = isMenuItemActive(m)
+        if active then
+          local ok, err = pcall(m.action, OpenFrom)
+          if not ok then
+            far.Message(err,"Error",nil,"w")
+          else
+            break
+          end
+        else
+          Message("attempt to execute item in wrong context")
+        end
+      elseif m.area then
         if m.active then
           local check = true
           local area = far.MacroGetArea()

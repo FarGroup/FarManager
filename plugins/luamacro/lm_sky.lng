@@ -26,6 +26,8 @@
 "Makrá"
 "Aktívne makrá"
 "Udalosti"
+"Items of Plugins menu"
+"Active items of Plugins menu"
 
 // macro browser messages
 "Názov súboru je nedostupný"
@@ -34,6 +36,7 @@
 // macro browser F3 titles
 "Macro"
 "Event handler"
+"Plugins menu item"
 
 // custom panel sort
 "Sort mode "

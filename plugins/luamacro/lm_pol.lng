@@ -26,6 +26,8 @@
 "Makra"
 "Aktywne makra"
 "Uchwyt zdarzenia"
+"Items of Plugins menu"
+"Active items of Plugins menu"
 
 // macro browser messages
 "Nie podano nazwy pliku"
@@ -34,6 +36,7 @@
 // macro browser F3 titles
 "Makro"
 "Uchwyt zdarzenia"
+"Plugins menu item"
 
 // custom panel sort
 "Sortowanie "
