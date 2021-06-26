@@ -54,15 +54,14 @@ local function GetItems (fcomp, sortmark, onlyactive)
   for m,index in mf.EnumScripts("Macro") do
     m.LoadedMacrosIndex = index
     if not m.disabled then
-      local ars = {}
-      m.area:lower():gsub("[^ ]+", function(c) ars[c]=true end)
-      if ars[currArea] or ars.common then m.active=true end
+      local areas = {}
+      m.area:lower():gsub("[^ ]+", function(c) areas[c]=true end)
+      if areas[currArea] or areas.common then m.active=true end
       if m.active or not onlyactive then
-        m.codedArea=codeArea(ars)
+        m.codedArea=codeArea(areas)
         m.description=m.description and norm_utf8(m.description) or "index="..m.index
         m.key=norm_utf8(m.key)
         macros[#macros+1]=m
-        local keylen = m.key:len()
         m.codedKey = shorten(m.key, maxKeyW)
         maxKeyLen = max(maxKeyLen, m.codedKey:len())
       end
