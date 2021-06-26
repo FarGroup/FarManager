@@ -51,10 +51,9 @@ WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
 
 WARNING_DISABLE_CLANG("-Weverything")
 
+#define FMT_STATIC_THOUSANDS_SEPARATOR
 #include "thirdparty/fmt/fmt/format.h"
 #include "thirdparty/fmt/fmt/xchar.h"
-
-#define FMT_STATIC_THOUSANDS_SEPARATOR
 #include "thirdparty/fmt/fmt/ostream.h"
 #undef FMT_STATIC_THOUSANDS_SEPARATOR
 

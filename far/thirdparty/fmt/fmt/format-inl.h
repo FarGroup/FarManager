@@ -117,7 +117,7 @@ template <typename Char> FMT_FUNC Char decimal_point_impl(locale_ref loc) {
 #else
 template <typename Char>
 FMT_FUNC auto thousands_sep_impl(locale_ref) -> thousands_sep_result<Char> {
-  return {"\03", static_cast<Char>(FMT_STATIC_THOUSANDS_SEPARATOR)};
+  return {"\03", FMT_STATIC_THOUSANDS_SEPARATOR};
 }
 template <typename Char> FMT_FUNC Char decimal_point_impl(locale_ref) {
   return '.';
