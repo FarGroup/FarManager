@@ -923,7 +923,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			return KEY_NONE;
 		}
 
-		static auto LastActivity = std::chrono::steady_clock::now();;
+		static auto LastActivity = std::chrono::steady_clock::now();
 
 		const auto Status = os::handle::wait_any({ console.GetInputHandle(), wake_event::ref().native_handle() }, till_next_minute());
 
@@ -1166,7 +1166,7 @@ DWORD WaitKey(DWORD KeyWait, std::optional<std::chrono::milliseconds> const Time
 		INPUT_RECORD rec;
 		const auto Key = PeekInputRecord(&rec, ExcludeMacro)?
 			GetInputRecord(&rec, ExcludeMacro, true) :
-			KEY_NONE;
+			static_cast<DWORD>(KEY_NONE);
 
 		if (KeyWait == static_cast<DWORD>(-1))
 		{

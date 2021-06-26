@@ -254,15 +254,21 @@ $(OBJDIR)%.o: %.c
 	@echo $<
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+ifndef NO_PCH
+CPPFLAGS_PCH = -include $(OBJDIR)headers
+endif
+
 $(OBJDIR)%.o: %.cpp
 	@echo $<
-	$(CXX) -c -include $(OBJDIR)headers $(CPPFLAGS) -o $@ $<
+	$(CXX) -c $(CPPFLAGS_PCH) $(CPPFLAGS) -o $@ $<
 
 $(OBJDIR)headers.gch: headers.cpp headers.hpp
 	@echo Making precompiled headers
 	$(CXX) -x c++-header -c $(CPPFLAGS) -o $@ $<
 
+ifndef NO_PCH
 $(OBJS): $(OBJDIR)headers.gch
+endif
 
 $(OBJDIR)far.rc.o: far.rc $(BOOTSTRAPDIR)far.rc.inc $(BOOTSTRAPDIR)Far.exe.manifest Far.ico Far.red.ico Far.black.ico Far.hack.ico Far.mono.ico Far.msg.ico
 	@echo $<

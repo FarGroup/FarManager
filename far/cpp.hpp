@@ -164,4 +164,11 @@ WARNING_POP()
 }
 #endif
 
+#if __cplusplus == 201703
+namespace std::chrono
+{
+	using days = duration<int, ratio_multiply<ratio<24>, hours::period>>;
+}
+#endif
+
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

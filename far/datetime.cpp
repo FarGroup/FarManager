@@ -534,7 +534,6 @@ os::chrono::duration ParseDuration(string_view const Date, string_view const Tim
 	ParseTimeComponents(Time, TimeRanges, TimeN, 0);
 
 	using namespace std::chrono;
-	using namespace chrono;
 
 	return days(DateN[0]) + hours(TimeN[0]) + minutes(TimeN[1]) + seconds(TimeN[2]) + os::chrono::hectonanoseconds(TimeN[3]);
 }
@@ -659,7 +658,6 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 std::tuple<string, string> ConvertDuration(os::chrono::duration Duration)
 {
 	using namespace std::chrono;
-	using namespace chrono;
 
 	const auto Result = split_duration<days, hours, minutes, seconds, os::chrono::hectonanoseconds>(Duration);
 

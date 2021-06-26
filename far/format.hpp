@@ -60,33 +60,38 @@ WARNING_DISABLE_CLANG("-Weverything")
 
 WARNING_POP()
 
+namespace detail
+{
+	template<typename F>
+	void validate_format()
+	{
+		static_assert(!std::is_array_v<F>, "Use FSTR or string_view instead of string literals");
+	}
+}
+
 template<typename F, typename... args>
 auto format(F&& Format, args&&... Args)
 {
+	detail::validate_format<F>();
+
 	return fmt::format(FWD(Format), FWD(Args)...);
 }
 
 template<typename I, typename F, typename... args>
 auto format_to(I&& Iterator, F&& Format, args&&... Args)
 {
+	detail::validate_format<F>();
+
 	return fmt::format_to(FWD(Iterator), FWD(Format), FWD(Args)...);
 }
 
 template<typename F, typename... args>
 auto format_to(string& Str, F&& Format, args&&... Args)
 {
+	detail::validate_format<F>();
+
 	return fmt::format_to(std::back_inserter(Str), FWD(Format), FWD(Args)...);
 }
-
-// use FSTR or string_view instead of string literals
-template<typename char_type, size_t N, typename... args>
-auto format(const char_type(&Format)[N], args&&...) = delete;
-
-template<typename I, typename char_type, size_t N, typename... args>
-auto format_to(I&&, const char_type(&Format)[N], args&&...) = delete;
-
-template<typename char_type, size_t N, typename... args>
-auto format_to(string&, const char_type(&Format)[N], args&&...) = delete;
 
 #define FSTR(str) FMT_STRING(str)
 

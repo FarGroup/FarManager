@@ -503,7 +503,7 @@ static string color_code(COLORREF const Color, bool const Is4Bit)
 		format(FSTR(L"{:08X}"sv), colors::ARGB2ABGR(Color));
 }
 
-std::optional<COLORREF> parse_color(string_view const Str, bool const Is4Bit)
+static std::optional<COLORREF> parse_color(string_view const Str, bool const Is4Bit)
 {
 	if (Is4Bit)
 	{

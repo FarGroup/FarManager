@@ -149,11 +149,13 @@ bool message_manager::dispatch()
 	{
 		const auto& [EventId, Payload] = EventData;
 
-		SCOPED_ACTION(std::lock_guard)(m_ActiveLock);
+		// For purist clang /o
+		// TODO: remove once we enable C++20
+		const auto& EventIdRef = EventId;
 
 		const auto find_eligible_from = [&](handlers_map const& Handlers)
 		{
-			const auto EqualRange = Handlers.equal_range(EventId);
+			const auto EqualRange = Handlers.equal_range(EventIdRef);
 			for (const auto& [Key, Value]: range(EqualRange.first, EqualRange.second))
 			{
 				EligibleHandlers.emplace(Value, false);
@@ -162,7 +164,11 @@ bool message_manager::dispatch()
 
 		EligibleHandlers.clear();
 
-		find_eligible_from(m_ActiveHandlers);
+		{
+			SCOPED_ACTION(std::lock_guard)(m_ActiveLock);
+			find_eligible_from(m_ActiveHandlers);
+		}
+
 		{
 			SCOPED_ACTION(std::lock_guard)(m_PendingLock);
 			find_eligible_from(m_PendingHandlers);
