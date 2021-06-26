@@ -31,6 +31,10 @@ local function norm_utf8 (s)
   return valid and s or "<Invalid UTF-8>"..s:sub(1,len)
 end
 
+local function shorten (s, maxW)
+  return s:len()<=maxW and s or s:sub(1,maxW-3).."..."
+end
+
 local function GetItems (fcomp, sortmark, onlyactive)
   local currArea = areaArr[1+far.MacroGetArea()]
   local events,macros,items={},{},{}
@@ -55,7 +59,7 @@ local function GetItems (fcomp, sortmark, onlyactive)
         m.key=norm_utf8(m.key)
         macros[#macros+1]=m
         local keylen = m.key:len()
-        m.codedKey = keylen<=maxKeyW and m.key or m.key:sub(1,maxKeyW-3).."..."
+        m.codedKey = shorten(m.key, maxKeyW)
         maxKeyLen = max(maxKeyLen, m.codedKey:len())
       end
     end
@@ -137,7 +141,7 @@ end
 local function ShowInfo (m)
   if m.area then
     local code = m.code and m.code:gsub("\r?\n"," ") or ""
-    if code:len() > 50 then code = code:sub(1,47).."..." end
+    code = shorten(code,50)
 
     local str = ([[
 description │ %s
