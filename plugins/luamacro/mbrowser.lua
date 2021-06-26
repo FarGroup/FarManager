@@ -37,6 +37,13 @@ end
 
 local function GetItems (fcomp, sortmark, onlyactive)
   local currArea = areaArr[1+far.MacroGetArea()]
+  local function codeArea (areas)
+    local s = ""
+    for _,v in ipairs(areaArr) do
+      s=s..(areas[v] and areaCodes[v] or ".")
+    end
+    return s
+  end
   local events,macros,items={},{},{}
   local maxKeyW, maxKeyLen do
     local farRect = far.AdvControl("ACTL_GETFARRECT")
@@ -47,14 +54,11 @@ local function GetItems (fcomp, sortmark, onlyactive)
   for m,index in mf.EnumScripts("Macro") do
     m.LoadedMacrosIndex = index
     if not m.disabled then
-      local ars,s = {},""
+      local ars = {}
       m.area:lower():gsub("[^ ]+", function(c) ars[c]=true end)
       if ars[currArea] or ars.common then m.active=true end
       if m.active or not onlyactive then
-        for i,v in ipairs(areaArr) do
-          s=s..(ars[v] and areaCodes[v] or ".")
-        end
-        m.codedArea=s
+        m.codedArea=codeArea(ars)
         m.description=m.description and norm_utf8(m.description) or "index="..m.index
         m.key=norm_utf8(m.key)
         macros[#macros+1]=m
