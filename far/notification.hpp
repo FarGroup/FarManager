@@ -53,8 +53,6 @@ enum event_id
 	update_devices,
 	update_environment,
 
-	plugin_synchro,
-
 	event_id_count
 };
 
@@ -97,14 +95,15 @@ class message_manager: public singleton<message_manager>
 	IMPLEMENTS_SINGLETON;
 
 public:
-	using handler_value = std::pair<const detail::event_handler*, bool>;
-	using handlers_map = std::unordered_multimap<string, handler_value>;
+	using handlers_map = std::unordered_multimap<string, const detail::event_handler*>;
 
+	handlers_map::iterator subscribe(UUID const& EventId, const detail::event_handler& EventHandler);
 	handlers_map::iterator subscribe(event_id EventId, const detail::event_handler& EventHandler);
 	handlers_map::iterator subscribe(string_view EventName, const detail::event_handler& EventHandler);
 	void unsubscribe(handlers_map::iterator HandlerIterator);
+	void notify(UUID const& EventId, std::any&& Payload = {});
 	void notify(event_id EventId, std::any&& Payload = {});
-	void notify(string_view EventName, std::any&& Payload = {});
+	void notify(string_view EventId, std::any&& Payload = {});
 	bool dispatch();
 
 private:
@@ -163,6 +162,5 @@ private:
 	detail::event_handler m_Handler;
 	message_manager::handlers_map::iterator m_Iterator;
 };
-
 
 #endif // NOTIFICATION_HPP_B0BB0D31_61E8_49C3_AA4F_E8C1D7D71A25

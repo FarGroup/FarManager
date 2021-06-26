@@ -56,7 +56,6 @@ static const string_view EventNames[]
 	WSTRVIEW(update_power),
 	WSTRVIEW(update_devices),
 	WSTRVIEW(update_environment),
-	WSTRVIEW(plugin_synchro),
 };
 
 static_assert(std::size(EventNames) == event_id_count);
@@ -88,36 +87,48 @@ void message_manager::commit_remove()
 	SCOPED_ACTION(std::lock_guard)(m_ActiveLock);
 	std::erase_if(m_ActiveHandlers, [](handlers_map::value_type const& Handler)
 	{
-		return !Handler.second.second;
+		return !Handler.second;
 	});
+}
+
+message_manager::handlers_map::iterator message_manager::subscribe(UUID const& EventId, const detail::event_handler& EventHandler)
+{
+	SCOPED_ACTION(std::lock_guard)(m_PendingLock);
+	return m_PendingHandlers.emplace(uuid::str(EventId), &EventHandler);
 }
 
 message_manager::handlers_map::iterator message_manager::subscribe(event_id EventId, const detail::event_handler& EventHandler)
 {
 	SCOPED_ACTION(std::lock_guard)(m_PendingLock);
-	return m_PendingHandlers.emplace(EventNames[EventId], handler_value{ &EventHandler, true });
+	return m_PendingHandlers.emplace(EventNames[EventId], &EventHandler);
 }
 
 message_manager::handlers_map::iterator message_manager::subscribe(string_view const EventName, const detail::event_handler& EventHandler)
 {
 	SCOPED_ACTION(std::lock_guard)(m_PendingLock);
-	return m_PendingHandlers.emplace(EventName, handler_value{ &EventHandler, true });
+	return m_PendingHandlers.emplace(EventName, &EventHandler);
 }
 
 void message_manager::unsubscribe(handlers_map::iterator HandlerIterator)
 {
-	HandlerIterator->second.second = false;
+	HandlerIterator->second = {};
 }
 
-void message_manager::notify(event_id EventId, std::any&& Payload)
+void message_manager::notify(UUID const& EventId, std::any&& Payload)
+{
+	m_Messages.emplace(uuid::str(EventId), std::move(Payload));
+	main_loop_process_messages();
+}
+
+void message_manager::notify(event_id const EventId, std::any&& Payload)
 {
 	m_Messages.emplace(EventNames[EventId], std::move(Payload));
 	main_loop_process_messages();
 }
 
-void message_manager::notify(string_view const EventName, std::any&& Payload)
+void message_manager::notify(string_view const EventId, std::any&& Payload)
 {
-	m_Messages.emplace(EventName, std::move(Payload));
+	m_Messages.emplace(EventId, std::move(Payload));
 	main_loop_process_messages();
 }
 
@@ -131,31 +142,37 @@ bool message_manager::dispatch()
 		commit_remove();
 	}
 
-	std::vector<std::pair<handlers_map::const_iterator, bool>> EligibleHandlers;
+	std::unordered_map<const detail::event_handler*, bool> EligibleHandlers;
 
 	message_queue::value_type EventData;
 	while (m_Messages.try_pop(EventData))
 	{
+		const auto& [EventId, Payload] = EventData;
 
 		SCOPED_ACTION(std::lock_guard)(m_ActiveLock);
 
-		const auto find_eligible = [&]
+		const auto find_eligible_from = [&](handlers_map const& Handlers)
 		{
-			EligibleHandlers.clear();
-			const auto EqualRange = m_ActiveHandlers.equal_range(EventData.first);
-
-			for (auto i = EqualRange.first; i != EqualRange.second; ++i)
+			const auto EqualRange = Handlers.equal_range(EventId);
+			for (const auto& [Key, Value]: range(EqualRange.first, EqualRange.second))
 			{
-				EligibleHandlers.emplace_back(i, false);
+				EligibleHandlers.emplace(Value, false);
 			}
 		};
 
-		find_eligible();
+		EligibleHandlers.clear();
+
+		find_eligible_from(m_ActiveHandlers);
+		{
+			SCOPED_ACTION(std::lock_guard)(m_PendingLock);
+			find_eligible_from(m_PendingHandlers);
+		}
+
 		auto HandlerIterator = EligibleHandlers.begin();
 
 		if (EligibleHandlers.empty())
 		{
-			LOGWARNING(L"No handlers for {}"sv, EventData.first);
+			LOGWARNING(L"No handlers for {}"sv, EventId);
 		}
 
 		for (;;)
@@ -163,33 +180,33 @@ bool message_manager::dispatch()
 			if (HandlerIterator == EligibleHandlers.cend())
 				break;
 
-			if (HandlerIterator->second)
-				continue; // Already processed
+			auto& [Handler, IsAlreadyProcessed] = *HandlerIterator;
+			++HandlerIterator;
 
-			if (!HandlerIterator->first->second.second)
+			if (!Handler)
 				continue; // Pending remove
+
+			if (IsAlreadyProcessed)
+				continue;
 
 			{
 				++m_DispatchInProgress;
 				SCOPE_EXIT{ --m_DispatchInProgress; };
 
-				std::invoke(*HandlerIterator->first->second.first, EventData.second);
+				std::invoke(*Handler, Payload);
 			}
 
-			HandlerIterator->second = true; // Mark as processed
+			IsAlreadyProcessed = true;
 
 			if (m_PendingHandlers.empty())
-			{
-				++HandlerIterator;
 				continue;
-			}
 
 			// New handlers have been added by the callback.
 			// Them plugins can do dodgy things there.
 			// Commit, recalculate the eligibility and restart the loop.
 			// Already visited handlers will be ignored.
 			commit_add();
-			find_eligible();
+			find_eligible_from(m_ActiveHandlers);
 			HandlerIterator = EligibleHandlers.begin();
 		}
 

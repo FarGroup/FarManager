@@ -755,6 +755,27 @@ bool Plugin::RemoveDialog(const window_ptr& Dlg)
 	return true;
 }
 
+void Plugin::SubscribeToSynchroEvents()
+{
+	// Already initialised
+	if (m_SynchroListenerCreated)
+		return;
+
+	// Being initialised by another thread
+	if (std::atomic_exchange(&m_SynchroListenerCreated, true))
+		return;
+
+	m_SynchroListener = std::make_unique<listener>(m_Uuid, [this](const std::any& Payload)
+	{
+		const auto Param = std::any_cast<void*>(Payload);
+
+		ProcessSynchroEventInfo Info = { sizeof(Info) };
+		Info.Event = SE_COMMONSYNCHRO;
+		Info.Param = Param;
+		ProcessSynchroEvent(&Info);
+	});
+}
+
 bool Plugin::IsPanelPlugin()
 {
 	static const int PanelExports[]

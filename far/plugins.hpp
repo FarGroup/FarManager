@@ -242,7 +242,6 @@ private:
 	std::unordered_map<UUID, std::unique_ptr<Plugin>> m_Plugins;
 	plugins_set SortedPlugins;
 	std::list<Plugin*> UnloadedPlugins;
-	listener m_PluginSynchro;
 
 #ifndef NO_WRAPPER
 	size_t OemPluginsCount;

@@ -715,7 +715,7 @@ bool time_check::is_time() const noexcept
 time_check::operator bool() const noexcept
 {
 	const auto Current = clock_type::now();
-	if (m_Interval != 0s && Current - m_Begin > m_Interval)
+	if (Current - m_Begin > m_Interval)
 	{
 		reset(Current);
 		return true;

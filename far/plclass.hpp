@@ -58,6 +58,7 @@ class PluginManager;
 class Plugin;
 class language;
 class PluginsCacheConfig;
+class listener;
 
 std::exception_ptr& GlobalExceptionPtr();
 
@@ -317,6 +318,8 @@ public:
 		return make_raii_wrapper<&Plugin::increase_activity, &Plugin::decrease_activity>(this);
 	}
 
+	void SubscribeToSynchroEvents();
+
 protected:
 	template<export_index Export, bool Native = true>
 	struct ExecuteStruct: detail::ExecuteStruct
@@ -391,6 +394,9 @@ private:
 	UUID m_Uuid;
 	string m_strUuid;
 	std::atomic_size_t m_Activity{};
+
+	std::atomic_bool m_SynchroListenerCreated{};
+	std::unique_ptr<listener> m_SynchroListener;
 };
 
 plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string& Filename);

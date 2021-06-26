@@ -1152,25 +1152,36 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 */
 DWORD WaitKey(DWORD KeyWait, std::optional<std::chrono::milliseconds> const Timeout, bool ExcludeMacro)
 {
+	// Don't wait for console input handle here.
+	// People expect strange things from this function, e.g. working with "keys" sent by macros.
+	// Yes, this means constant polling and high CPU load.
+	// And this is why we can't have nice things.
+
+	std::optional<time_check> TimeCheck;
+	if (Timeout)
+		TimeCheck.emplace(time_check::mode::delayed, *Timeout);
+
 	for (;;)
 	{
-		// Peek first to let it find queued macro keys that don't signal console input
 		INPUT_RECORD rec;
-		if (PeekInputRecord(&rec, ExcludeMacro))
-		{
-			const auto Key = GetInputRecord(&rec, ExcludeMacro, true);
+		const auto Key = PeekInputRecord(&rec, ExcludeMacro)?
+			GetInputRecord(&rec, ExcludeMacro, true) :
+			KEY_NONE;
 
-			if (KeyWait == static_cast<DWORD>(-1))
-			{
-				if ((Key & ~KEY_CTRLMASK) < KEY_END_FKEY || IsInternalKeyReal(Key & ~KEY_CTRLMASK))
-					return Key;
-			}
-			else if (Key == KeyWait)
+		if (KeyWait == static_cast<DWORD>(-1))
+		{
+			if ((Key & ~KEY_CTRLMASK) < KEY_END_FKEY || IsInternalKeyReal(Key & ~KEY_CTRLMASK))
 				return Key;
 		}
+		else if (Key == KeyWait)
+			return Key;
 
-		if (!os::handle::wait_any({ console.GetInputHandle() }, Timeout))
+		if (TimeCheck && *TimeCheck)
+		{
 			return KEY_NONE;
+		}
+
+		os::chrono::sleep_for(1ms);
 	}
 }
 

@@ -468,7 +468,13 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 	{
 		if (ACTL_SYNCHRO==Command) //must be first
 		{
-			message_manager::instance().notify(plugin_synchro, std::pair(*PluginId, Param2));
+			const auto Plugin = Global->CtrlObject->Plugins->FindPlugin(*PluginId);
+			if (!Plugin)
+				return false;
+
+			Plugin->SubscribeToSynchroEvents();
+
+			message_manager::instance().notify(*PluginId, Param2);
 			return 0;
 		}
 		if (ACTL_GETWINDOWTYPE==Command)
