@@ -164,7 +164,7 @@ WARNING_POP()
 }
 #endif
 
-#if __cplusplus == 201703
+#if (IS_MICROSOFT_SDK() && __cplusplus < 202004) || !defined __cpp_lib_bitops // Not related, just no better way to check
 namespace std::chrono
 {
 	using days = duration<int, ratio_multiply<ratio<24>, hours::period>>;
