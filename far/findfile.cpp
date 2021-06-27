@@ -2737,6 +2737,8 @@ bool FindFiles::FindFilesProcess()
 				message_manager::instance().notify(Listener.GetEventName());
 			});
 
+			SCOPE_EXIT{ m_UpdateTimer = {}; };
+
 			Dlg->Process();
 
 			if (!m_ExceptionPtr)
