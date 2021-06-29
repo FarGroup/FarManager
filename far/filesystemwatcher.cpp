@@ -155,32 +155,43 @@ void FileSystemWatcher::Register()
 		cpp_try(
 		[&]
 		{
+			LOGDEBUG(L"Start monitoring {}"sv, m_Directory);
+			const auto Notification = os::fs::find_first_change_notification(
+				m_Directory,
+				m_WatchSubtree,
+					FILE_NOTIFY_CHANGE_FILE_NAME |
+					FILE_NOTIFY_CHANGE_DIR_NAME |
+					FILE_NOTIFY_CHANGE_ATTRIBUTES |
+					FILE_NOTIFY_CHANGE_SIZE |
+					FILE_NOTIFY_CHANGE_LAST_WRITE
+			);
+
+			if (!Notification)
+			{
+				LOGWARNING(L"find_first_change_notification({}): {}"sv, m_Directory, last_error());
+				return;
+			}
+
 			for (;;)
 			{
-				os::fs::find_notification_handle Notification;
-
 				try
 				{
-					Notification = os::fs::FindFirstChangeNotification(m_Directory, m_WatchSubtree,
-						FILE_NOTIFY_CHANGE_FILE_NAME |
-						FILE_NOTIFY_CHANGE_DIR_NAME |
-						FILE_NOTIFY_CHANGE_ATTRIBUTES |
-						FILE_NOTIFY_CHANGE_SIZE |
-						FILE_NOTIFY_CHANGE_LAST_WRITE);
-
-					if (!Notification)
-					{
-						LOGWARNING(L"FindFirstChangeNotification {}"sv, last_error());
-						return;
-					}
-
 					switch (os::handle::wait_any({ Notification.native_handle(), m_Cancelled.native_handle() }))
 					{
 					case 0:
+						LOGDEBUG(L"Change event in {}"sv, m_Directory);
+
 						message_manager::instance().notify(m_EventId);
+
+						if (!os::fs::find_next_change_notification(Notification))
+						{
+							LOGWARNING(L"find_next_change_notification({}): {}"sv, m_Directory, last_error());
+							return;
+						}
 						break;
 
 					case 1:
+						LOGDEBUG(L"Stop monitoring {}"sv, m_Directory);
 						return;
 					}
 				}
@@ -193,9 +204,7 @@ void FileSystemWatcher::Register()
 						// For example, a function that attempts to use a handle to a file on a network might fail
 						// with ERROR_INVALID_HANDLE if the network connection is severed, because the file object
 						// is no longer available. In this case, the application should close the handle.
-						Notification.close();
-
-						LOGWARNING(L"handle::wait_any: {}"sv, e);
+						LOGWARNING(L"Wait for change in {} failed: {}"sv, m_Directory, e);
 						return;
 					}
 

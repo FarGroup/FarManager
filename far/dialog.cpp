@@ -2454,6 +2454,11 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 			return true;
 	}
 
+	if (LocalKey() == KEY_NONE)
+	{
+		return false;
+	}
+
 	if (ProcessMoveDialog(LocalKey()))
 		return true;
 

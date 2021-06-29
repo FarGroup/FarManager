@@ -506,7 +506,6 @@ FileList::FileList(private_tag, window_ptr Owner):
 	m_SortMode = panel_sort::BY_NAME;
 	m_ViewSettings = Global->Opt->ViewSettings[m_ViewMode].clone();
 	PreparePanelView();
-	InitFSWatcher(false);
 }
 
 
@@ -2779,6 +2778,8 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdated, bool const Silent)
 {
+	Panel::SetCurDir(NewDir, ClosePanel, IsUpdated, Silent);
+
 	UserDataItem UsedData{};
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
@@ -2828,6 +2829,8 @@ bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdat
 
 bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE OfpType, bool const Silent)
 {
+	bool IsPopPlugin = false;
+
 	SCOPE_EXIT
 	{
 		if (m_PanelMode == panel_mode::PLUGIN_PANEL)
@@ -2844,6 +2847,8 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		else
 		{
 			Global->CtrlObject->FolderHistory->AddToHistory(GetCurDir());
+			if (!IsPopPlugin)
+				InitFSWatcher(false);
 		}
 	};
 
@@ -2948,6 +2953,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 			Update(UPDATE_KEEP_SELECTION);
 
 		PopPrevData(strFindDir, PluginClosed, !GoToPanelFile, IsParent, SetDirectorySuccess);
+		IsPopPlugin = true;
 
 		return SetDirectorySuccess;
 	}
@@ -3019,9 +3025,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		SetDirectorySuccess=false;
 	}
 
-	StopFSWatcher();
 	m_CurDir = os::fs::GetCurrentDirectory();
-	InitFSWatcher(false);
 
 	if (!IsUpdated)
 		return SetDirectorySuccess;
@@ -3484,6 +3488,12 @@ void FileList::OnSortingChange()
 	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
 	if (IsVisible())
 		Show();
+}
+
+void FileList::InitCurDir(string_view CurDir)
+{
+	Panel::InitCurDir(CurDir);
+	InitFSWatcher(false);
 }
 
 bool FileList::GoToFile(long idxItem)
@@ -5154,7 +5164,7 @@ void FileList::CountDirSize(bool IsRealNames)
 	SortFileList(true);
 	ShowFileList();
 	Parent()->Redraw();
-	StopFSWatcher();
+
 	InitFSWatcher(true);
 }
 
@@ -6985,16 +6995,16 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 
 void FileList::UpdateIfChanged(bool Changed)
 {
-	if (!Global->IsPanelsActive())
-		return;
-
 	if (Global->Opt->AutoUpdateLimit && m_ListData.size() > static_cast<size_t>(Global->Opt->AutoUpdateLimit))
 		return;
 
 	if (!IsVisible())
 		return;
 
-	if (m_PanelMode != panel_mode::NORMAL_PANEL || (!Changed && !FSWatcher.TimeChanged()))
+	if (m_PanelMode != panel_mode::NORMAL_PANEL)
+		return;
+
+	if (!Changed && !FSWatcher.TimeChanged())
 		return;
 
 	if (const auto AnotherPanel = Parent()->GetAnotherPanel(this); AnotherPanel->GetType() == panel_type::INFO_PANEL)
@@ -7004,7 +7014,8 @@ void FileList::UpdateIfChanged(bool Changed)
 	}
 
 	Update(UPDATE_KEEP_SELECTION);
-	Redraw();
+
+	m_UpdatePending = false;
 }
 
 class FileList::background_updater
@@ -7023,7 +7034,15 @@ public:
 private:
 	listener m_Listener{[this]
 	{
-		m_Owner->UpdateIfChanged(true);
+		if (Global->IsPanelsActive())
+		{
+			m_Owner->UpdateIfChanged(true);
+			m_Owner->Redraw();
+		}
+		else
+		{
+			m_Owner->m_UpdatePending = true;
+		}
 	}};
 
 	FileList* m_Owner;
@@ -7031,6 +7050,11 @@ private:
 
 void FileList::InitFSWatcher(bool CheckTree)
 {
+	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
+		return;
+
+	StopFSWatcher();
+
 	DWORD DriveType=DRIVE_REMOTE;
 	const auto Type = ParsePath(m_CurDir);
 
@@ -7145,7 +7169,6 @@ void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
 	DizRead = false;
 	decltype(m_ListData) OldData;
 	std::optional<string> strCurName, strNextCurName;
-	StopFSWatcher();
 	LastCurFile=-1;
 
 	const auto Item = GetPluginItem();
@@ -7491,6 +7514,10 @@ void FileList::ShowFileList(bool Fast)
 
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
 		strInfoCurDir = NullToEmpty(m_CachedOpenPanelInfo.CurDir);
+	}
+	else
+	{
+		UpdateIfChanged(m_UpdatePending);
 	}
 
 	bool CurFullScreen=IsFullScreen();

@@ -152,6 +152,7 @@ public:
 	void ChangeSortOrder(bool Reverse) override;
 	void ChangeDirectoriesFirst(bool Mode) override;
 	void OnSortingChange() override;
+	void InitCurDir(string_view CurDir) override;
 	bool SetCurDir(string_view NewDir, bool ClosePanel, bool IsUpdated = true, bool Silent = false) override;
 	panel_sort GetPrevSortMode() const override;
 	bool GetPrevSortOrder() const override;
@@ -362,6 +363,7 @@ private:
 	std::list<std::shared_ptr<PluginsListItem>> PluginsList;
 	std::shared_ptr<PluginsListItem> m_ExpiringPluginPanel{};
 	FileSystemWatcher FSWatcher;
+	bool m_UpdatePending{};
 	long UpperFolderTopFile{}, LastCurFile{ -1 };
 	bool ReturnCurrentFile{};
 	size_t m_SelFileCount{}; // both files and directories
