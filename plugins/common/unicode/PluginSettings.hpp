@@ -22,7 +22,7 @@ public:
 
 	~PluginSettings()
 	{
-		SettingsControl(handle,SCTL_FREE,0,{});
+		SettingsControl(handle,SCTL_FREE,0,nullptr);
 	}
 
 	int CreateSubKey(size_t Root, const wchar_t *Name)
