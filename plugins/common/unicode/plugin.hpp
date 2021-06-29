@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0 build 5655
+Plugin API for Far Manager 3.0.5838.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 5655
+#define FARMANAGERVERSION_BUILD 5838
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -64,16 +64,22 @@ typedef unsigned long long FARCOLORFLAGS;
 static const FARCOLORFLAGS
 	FCF_FG_4BIT       = 0x0000000000000001ULL,
 	FCF_BG_4BIT       = 0x0000000000000002ULL,
-	FCF_4BITMASK      = 0x0000000000000003ULL, // FCF_FG_4BIT|FCF_BG_4BIT
+	FCF_4BITMASK      = 0x0000000000000003ULL, // FCF_FG_4BIT | FCF_BG_4BIT
+
+	FCF_INHERIT_STYLE = 0x0000000000000004ULL,
 
 	FCF_RAWATTR_MASK  = 0x000000000000FF00ULL, // stored console attributes
-
-	FCF_EXTENDEDFLAGS = 0xFFFFFFFFFFFFFFFCULL, // ~FCF_4BITMASK
 
 	FCF_FG_BOLD       = 0x1000000000000000ULL,
 	FCF_FG_ITALIC     = 0x2000000000000000ULL,
 	FCF_FG_UNDERLINE  = 0x4000000000000000ULL,
-	FCF_STYLEMASK     = 0x7000000000000000ULL, // FCF_FG_BOLD|FCF_FG_ITALIC|FCF_FG_UNDERLINE
+	FCF_FG_UNDERLINE2 = 0x8000000000000000ULL,
+	FCF_FG_OVERLINE   = 0x0100000000000000ULL,
+	FCF_FG_STRIKEOUT  = 0x0200000000000000ULL,
+	FCF_FG_FAINT      = 0x0400000000000000ULL,
+	FCF_FG_BLINK      = 0x0800000000000000ULL,
+
+	FCF_STYLEMASK     = 0xFF00000000000000ULL,
 
 	FCF_NONE          = 0;
 
@@ -159,7 +165,7 @@ static const COLORDIALOGFLAGS
 	CDF_NONE = 0;
 
 typedef BOOL (WINAPI *FARAPICOLORDIALOG)(
-	const GUID* PluginId,
+	const UUID* PluginId,
 	COLORDIALOGFLAGS Flags,
 	struct FarColor *Color
 );
@@ -180,8 +186,8 @@ static const FARMESSAGEFLAGS
 	FMSG_NONE                = 0;
 
 typedef intptr_t (WINAPI *FARAPIMESSAGE)(
-	const GUID* PluginId,
-	const GUID* Id,
+	const UUID* PluginId,
+	const UUID* Id,
 	FARMESSAGEFLAGS Flags,
 	const wchar_t *HelpTopic,
 	const wchar_t * const *Items,
@@ -364,7 +370,6 @@ enum FARMESSAGE
 	DN_DRAWDIALOG                   = 4101,
 	DN_DRAWDLGITEM                  = 4102,
 	DN_EDITCHANGE                   = 4103,
-	DN_ENTERIDLE                    = 4104,
 	DN_GOTFOCUS                     = 4105,
 	DN_HELP                         = 4106,
 	DN_HOTKEY                       = 4107,
@@ -524,7 +529,7 @@ struct FarDialogItemColors
 
 struct FAR_CHAR_INFO
 {
-	WCHAR Char;
+	wchar_t Char;
 	struct FarColor Attributes;
 
 #ifdef __cplusplus
@@ -590,8 +595,8 @@ struct OpenDlgPluginData
 struct DialogInfo
 {
 	size_t StructSize;
-	GUID Id;
-	GUID Owner;
+	UUID Id;
+	UUID Owner;
 };
 
 struct FarGetDialogItem
@@ -633,8 +638,8 @@ typedef intptr_t(WINAPI *FARAPIDEFDLGPROC)(
 );
 
 typedef HANDLE(WINAPI *FARAPIDIALOGINIT)(
-	const GUID*           PluginId,
-	const GUID*           Id,
+	const UUID*           PluginId,
+	const UUID*           Id,
 	intptr_t              X1,
 	intptr_t              Y1,
 	intptr_t              X2,
@@ -695,8 +700,8 @@ static const FARMENUFLAGS
 	FMENU_NONE                 = 0;
 
 typedef intptr_t (WINAPI *FARAPIMENU)(
-	const GUID*         PluginId,
-	const GUID*         Id,
+	const UUID*         PluginId,
+	const UUID*         Id,
 	intptr_t            X,
 	intptr_t            Y,
 	intptr_t            MaxHeight,
@@ -843,7 +848,7 @@ struct PanelInfo
 {
 	size_t StructSize;
 	HANDLE PluginHandle;
-	GUID OwnerGuid;
+	UUID OwnerGuid;
 	PANELINFOFLAGS Flags;
 	size_t ItemsNumber;
 	size_t SelectedItemsNumber;
@@ -875,7 +880,7 @@ struct FarPanelDirectory
 	size_t StructSize;
 	const wchar_t* Name;
 	const wchar_t* Param;
-	GUID PluginId;
+	UUID PluginId;
 	const wchar_t* File;
 };
 
@@ -943,7 +948,7 @@ typedef intptr_t (WINAPI *FARAPIGETDIRLIST)(
 );
 
 typedef intptr_t (WINAPI *FARAPIGETPLUGINDIRLIST)(
-	const GUID* PluginId,
+	const UUID* PluginId,
 	HANDLE hPanel,
 	const wchar_t *Dir,
 	struct PluginPanelItem **pPanelItem,
@@ -1015,7 +1020,7 @@ typedef intptr_t (WINAPI *FARAPIEDITOR)(
 );
 
 typedef const wchar_t*(WINAPI *FARAPIGETMSG)(
-	const GUID* PluginId,
+	const UUID* PluginId,
 	intptr_t MsgId
 );
 
@@ -1217,7 +1222,7 @@ struct FarMacroValue
 	FarMacroValue(double v)           { Type=FMVT_DOUBLE; Double=v; }
 	FarMacroValue(const wchar_t* v)   { Type=FMVT_STRING; String=v; }
 	FarMacroValue(void* v)            { Type=FMVT_POINTER; Pointer=v; }
-	FarMacroValue(const GUID& v)      { Type=FMVT_BINARY; Binary.Data=&const_cast<GUID&>(v); Binary.Size=sizeof(GUID); }
+	FarMacroValue(const UUID& v)      { Type=FMVT_BINARY; Binary.Data=&const_cast<UUID&>(v); Binary.Size=sizeof(UUID); }
 	FarMacroValue(FarMacroValue* arr,size_t count) { Type=FMVT_ARRAY; Array.Values=arr; Array.Count=count; }
 #endif
 };
@@ -1710,13 +1715,13 @@ struct EditorColor
 	uintptr_t Priority;
 	EDITORCOLORFLAGS Flags;
 	struct FarColor Color;
-	GUID Owner;
+	UUID Owner;
 };
 
 struct EditorDeleteColor
 {
 	size_t StructSize;
-	GUID Owner;
+	UUID Owner;
 	intptr_t StringNumber;
 	intptr_t StartPos;
 };
@@ -1748,7 +1753,7 @@ struct EditorChange
 struct EditorSubscribeChangeEvent
 {
 	size_t StructSize;
-	GUID PluginId;
+	UUID PluginId;
 };
 
 typedef unsigned long long INPUTBOXFLAGS;
@@ -1764,8 +1769,8 @@ static const INPUTBOXFLAGS
 	FIB_NONE             = 0;
 
 typedef intptr_t (WINAPI *FARAPIINPUTBOX)(
-	const GUID* PluginId,
-	const GUID* Id,
+	const UUID* PluginId,
+	const UUID* Id,
 	const wchar_t *Title,
 	const wchar_t *SubTitle,
 	const wchar_t *HistoryName,
@@ -1905,7 +1910,7 @@ enum FAR_PLUGIN_SETTINGS_LOCATION
 struct FarSettingsCreate
 {
 	size_t StructSize;
-	GUID Guid;
+	UUID Guid;
 	HANDLE Handle;
 };
 
@@ -1941,7 +1946,7 @@ struct FarSettingsHistory
 {
 	const wchar_t* Name;
 	const wchar_t* Param;
-	GUID PluginId;
+	UUID PluginId;
 	const wchar_t* File;
 	FILETIME Time;
 	BOOL Lock;
@@ -1978,7 +1983,7 @@ typedef intptr_t (WINAPI *FARAPIPANELCONTROL)(
 );
 
 typedef intptr_t(WINAPI *FARAPIADVCONTROL)(
-	const GUID* PluginId,
+	const UUID* PluginId,
 	enum ADVANCED_CONTROL_COMMANDS Command,
 	intptr_t Param1,
 	void* Param2
@@ -1999,7 +2004,7 @@ typedef intptr_t (WINAPI *FARAPIEDITORCONTROL)(
 );
 
 typedef intptr_t (WINAPI *FARAPIMACROCONTROL)(
-	const GUID* PluginId,
+	const UUID* PluginId,
 	enum FAR_MACRO_CONTROL_COMMANDS Command,
 	intptr_t Param1,
 	void* Param2
@@ -2075,7 +2080,7 @@ typedef void (WINAPI *FARSTDLOCALSTRUPR)(wchar_t *s1);
 typedef void (WINAPI *FARSTDLOCALSTRLWR)(wchar_t *s1);
 typedef int (WINAPI *FARSTDLOCALSTRICMP)(const wchar_t *s1,const wchar_t *s2); // Deprecated, don't use
 typedef int (WINAPI *FARSTDLOCALSTRNICMP)(const wchar_t *s1,const wchar_t *s2,intptr_t n); // Deprecated, don't use
-typedef unsigned long long (WINAPI *FARSTDFARCLOCK)();
+typedef unsigned long long (WINAPI *FARSTDFARCLOCK)(void);
 typedef int (WINAPI *FARSTDCOMPARESTRINGS)(const wchar_t*Str1, size_t Size1, const wchar_t* Str2, size_t Size2);
 
 typedef unsigned long long PROCESSNAME_FLAGS;
@@ -2332,7 +2337,7 @@ static const PLUGIN_FLAGS
 
 struct PluginMenuItem
 {
-	const GUID *Guids;
+	const UUID* Guids;
 	const wchar_t * const *Strings;
 	size_t Count;
 };
@@ -2361,8 +2366,8 @@ static __inline BOOL CheckVersion(const struct VersionInfo* Current, const struc
 	return
 		(Current->Major > Required->Major) ||
 		(Current->Major == Required->Major && Current->Minor > Required->Minor) ||
-		(Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision > Required->Revision) ||
-		(Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Revision == Required->Revision && Current->Build >= Required->Build);
+		(Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Build > Required->Build) ||
+		(Current->Major == Required->Major && Current->Minor == Required->Minor && Current->Build == Required->Build && Current->Revision >= Required->Revision);
 }
 
 static __inline struct VersionInfo MAKEFARVERSION(DWORD Major, DWORD Minor, DWORD Revision, DWORD Build, enum VERSION_STAGE Stage)
@@ -2378,7 +2383,7 @@ struct GlobalInfo
 	size_t StructSize;
 	struct VersionInfo MinFarVersion;
 	struct VersionInfo Version;
-	GUID Guid;
+	UUID Guid;
 	const wchar_t *Title;
 	const wchar_t *Description;
 	const wchar_t *Author;
@@ -2632,7 +2637,7 @@ struct OpenInfo
 {
 	size_t StructSize;
 	enum OPENFROM OpenFrom;
-	const GUID* Guid;
+	const UUID* Guid;
 	intptr_t Data;
 	void* Instance;
 };
@@ -2833,7 +2838,7 @@ struct CloseAnalyseInfo
 struct ConfigureInfo
 {
 	size_t StructSize;
-	const GUID* Guid;
+	const UUID* Guid;
 	void* Instance;
 };
 
@@ -2862,7 +2867,7 @@ struct ErrorInfo
 	const wchar_t* Description;
 };
 
-static const GUID FarGuid =
+static const UUID FarGuid =
 {0x00000000, 0x0000, 0x0000, {0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00}};
 
 #ifdef __cplusplus
