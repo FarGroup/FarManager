@@ -2734,8 +2734,7 @@ bool FindFiles::FindFilesProcess()
 
 			listener Listener([&]
 			{
-				if (!os::handle::is_signaled(console.GetInputHandle()))
-					Dlg->SendMessage(DM_REFRESH, 0, {});
+				Dlg->SendMessage(DM_REFRESH, 0, {});
 			});
 
 			m_UpdateTimer = os::concurrency::timer(till_next_second(), 1s, [&]
