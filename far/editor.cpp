@@ -798,10 +798,6 @@ static bool is_clear_selection_key(unsigned const Key)
 bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 {
 	auto LocalKey = Key;
-	if (LocalKey()==KEY_IDLE)
-	{
-		return true;
-	}
 
 	if (LocalKey()==KEY_NONE)
 		return true;

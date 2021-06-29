@@ -323,12 +323,12 @@ static string os_version_from_registry()
 	if (!Key)
 		return {};
 
-	string ReleaseId, CurrentBuild;
+	string DisplayVersion, CurrentBuild;
 	unsigned UBR;
-	if (!Key.get(L"ReleaseId"sv, ReleaseId) || !Key.get(L"CurrentBuild"sv, CurrentBuild) || !Key.get(L"UBR"sv, UBR))
+	if ((!Key.get(L"DisplayVersion"sv, DisplayVersion) && !Key.get(L"ReleaseId"sv, DisplayVersion)) || !Key.get(L"CurrentBuild"sv, CurrentBuild) || !Key.get(L"UBR"sv, UBR))
 		return {};
 
-	return format(FSTR(L" (version {}, OS build {}.{})"sv), ReleaseId, CurrentBuild, UBR);
+	return format(FSTR(L" (version {}, OS build {}.{})"sv), DisplayVersion, CurrentBuild, UBR);
 }
 
 static string os_version()

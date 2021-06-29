@@ -168,7 +168,6 @@ bool FastFind::ProcessKey(const Manager::Key& Key)
 		break;
 
 	case KEY_NONE:
-	case KEY_IDLE:
 		break;
 
 	default:

@@ -2454,12 +2454,6 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 			return true;
 	}
 
-	if (any_of(LocalKey(), KEY_NONE, KEY_IDLE))
-	{
-		DlgProc(DN_ENTERIDLE, 0, nullptr); // $ 28.07.2000 SVS Передадим этот факт в обработчик :-)
-		return false;
-	}
-
 	if (ProcessMoveDialog(LocalKey()))
 		return true;
 
@@ -4413,8 +4407,6 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 			return FALSE;
 		case DN_CTLCOLORDLGLIST:
 			return FALSE;
-		case DN_ENTERIDLE:
-			return 0;     // always 0
 		default:
 			break;
 	}

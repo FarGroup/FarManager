@@ -131,6 +131,18 @@ static struct window_state
 }
 WindowState;
 
+static bool s_WakeupForClock{};
+void wakeup_for_clock(bool Value)
+{
+	s_WakeupForClock = Value;
+}
+
+static bool s_WakeupForScreensaver{};
+void wakeup_for_screensaver(bool Value)
+{
+	s_WakeupForScreensaver = Value;
+}
+
 /* ----------------------------------------------------------------- */
 struct TFKey
 {
@@ -618,13 +630,13 @@ void main_loop_process_messages()
 	wake_event::ref().set();
 }
 
-DWORD GetInputRecordNoMacroArea(INPUT_RECORD *rec,bool AllowSynchro)
+DWORD GetInputRecordNoMacroArea(INPUT_RECORD *rec)
 {
 	const auto SavedArea = Global->CtrlObject->Macro.GetArea();
 	SCOPE_EXIT{ Global->CtrlObject->Macro.SetArea(SavedArea); };
 
 	Global->CtrlObject->Macro.SetArea(MACROAREA_LAST); // чтобы не срабатывали макросы :-)
-	return GetInputRecord(rec, false, false, AllowSynchro);
+	return GetInputRecord(rec, false, false);
 }
 
 static bool ProcessMacros(INPUT_RECORD* rec, DWORD& Result)
@@ -833,10 +845,8 @@ static bool ProcessMouseEvent(const MOUSE_EVENT_RECORD& MouseEvent, bool Exclude
 
 static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros = {});
 
-static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro)
+static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse)
 {
-	if (AllowSynchro)
-		message_manager::instance().dispatch();
 
 	DWORD CalcKey;
 
@@ -925,7 +935,11 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 
 		static auto LastActivity = std::chrono::steady_clock::now();
 
-		const auto Status = os::handle::wait_any({ console.GetInputHandle(), wake_event::ref().native_handle() }, till_next_minute());
+		std::optional<std::chrono::milliseconds> Timeout;
+		if (s_WakeupForClock || s_WakeupForScreensaver)
+			Timeout = till_next_minute();
+
+		const auto Status = os::handle::wait_any({ console.GetInputHandle(), wake_event::ref().native_handle() }, Timeout);
 
 		if (!Status)
 		{
@@ -935,10 +949,6 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 			{
 				ScreenSaver();
 			}
-
-			*rec = {};
-			rec->EventType=KEY_EVENT;
-			return KEY_IDLE;
 		}
 		else if (*Status == 0)
 		{
@@ -1092,11 +1102,11 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 	return ProcessMacroEvent();
 }
 
-DWORD GetInputRecord(INPUT_RECORD *rec, bool ExcludeMacro, bool ProcessMouse, bool AllowSynchro)
+DWORD GetInputRecord(INPUT_RECORD *rec, bool ExcludeMacro, bool ProcessMouse)
 {
 	*rec = {};
 
-	DWORD Key = GetInputRecordImpl(rec, ExcludeMacro, ProcessMouse, AllowSynchro);
+	DWORD Key = GetInputRecordImpl(rec, ExcludeMacro, ProcessMouse);
 
 	if (Key)
 	{
@@ -1217,7 +1227,7 @@ bool CheckForEscSilent()
 
 	if (Processed && PeekInputRecord(&rec))
 	{
-		switch (GetInputRecordNoMacroArea(&rec, false))
+		switch (GetInputRecordNoMacroArea(&rec))
 		{
 		case KEY_ESC:
 		case KEY_BREAK:
@@ -1581,7 +1591,6 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 					break;
 
 				case KEY_NONE:
-				case KEY_IDLE:
 					EventType=MENU_EVENT;
 					break;
 
@@ -1999,7 +2008,7 @@ static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros
 		if (!rec->Event.KeyEvent.bKeyDown && (CtrlState&(ENHANCED_KEY|NUMLOCK_ON)))
 			return Modif|(KEY_VK_0xFF_BEGIN+ScanCode);
 
-		return KEY_IDLE;
+		return KEY_NONE;
 	}
 
 	static const time_check TimeCheck(time_check::mode::delayed, 50ms);

@@ -506,6 +506,7 @@ FileList::FileList(private_tag, window_ptr Owner):
 	m_SortMode = panel_sort::BY_NAME;
 	m_ViewSettings = Global->Opt->ViewSettings[m_ViewMode].clone();
 	PreparePanelView();
+	InitFSWatcher(false);
 }
 
 
@@ -1240,10 +1241,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 	switch (LocalKey)
 	{
-		case KEY_IDLE:
-			ProcessPluginEvent(FE_IDLE, nullptr);
-			break;
-
 		case KEY_GOTFOCUS:
 			if (Global->Opt->SmartFolderMonitor)
 			{
@@ -3022,7 +3019,10 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		SetDirectorySuccess=false;
 	}
 
+	StopFSWatcher();
 	m_CurDir = os::fs::GetCurrentDirectory();
+	InitFSWatcher(false);
+
 	if (!IsUpdated)
 		return SetDirectorySuccess;
 
@@ -5154,6 +5154,7 @@ void FileList::CountDirSize(bool IsRealNames)
 	SortFileList(true);
 	ShowFileList();
 	Parent()->Redraw();
+	StopFSWatcher();
 	InitFSWatcher(true);
 }
 
@@ -6625,7 +6626,6 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	DizRead = false;
 	decltype(m_ListData) OldData;
 	string strCurName, strNextCurName;
-	StopFSWatcher();
 
 	// really?
 	if (!Parent()->IsLeft(this) && !Parent()->IsRight(this))
@@ -6938,7 +6938,6 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 		}
 	}
 
-	InitFSWatcher(false);
 	CorrectPosition();
 
 	string strLastSel, strGetSel;
@@ -6984,7 +6983,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	FarChDir(strSaveDir); //???
 }
 
-void FileList::UpdateIfChanged()
+void FileList::UpdateIfChanged(bool Changed)
 {
 	if (!Global->IsPanelsActive())
 		return;
@@ -6995,7 +6994,7 @@ void FileList::UpdateIfChanged()
 	if (!IsVisible())
 		return;
 
-	if (m_PanelMode != panel_mode::NORMAL_PANEL || !FSWatcher.Signaled())
+	if (m_PanelMode != panel_mode::NORMAL_PANEL || (!Changed && !FSWatcher.TimeChanged()))
 		return;
 
 	if (const auto AnotherPanel = Parent()->GetAnotherPanel(this); AnotherPanel->GetType() == panel_type::INFO_PANEL)
@@ -7024,7 +7023,7 @@ public:
 private:
 	listener m_Listener{[this]
 	{
-		m_Owner->UpdateIfChanged();
+		m_Owner->UpdateIfChanged(true);
 	}};
 
 	FileList* m_Owner;
@@ -7033,7 +7032,6 @@ private:
 void FileList::InitFSWatcher(bool CheckTree)
 {
 	DWORD DriveType=DRIVE_REMOTE;
-	StopFSWatcher();
 	const auto Type = ParsePath(m_CurDir);
 
 	if (Type == root_type::drive_letter || Type == root_type::win32nt_drive_letter)

@@ -1338,7 +1338,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 			[[fallthrough]];
 		default:
 		{
-			if (any_of(LocalKey, KEY_NONE, KEY_IDLE, KEY_ENTER, KEY_NUMENTER) || LocalKey >= 65536)
+			if (any_of(LocalKey, KEY_NONE, KEY_ENTER, KEY_NUMENTER) || LocalKey >= 65536)
 				break;
 
 			if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS))

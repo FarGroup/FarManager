@@ -68,7 +68,7 @@ private:
 	void Update(int Mode) override;
 	void CloseFile() override;
 	void QViewDelTempName() override;
-	void UpdateIfChanged() override;
+	void UpdateIfChanged(bool Changed = false) override;
 	void RefreshTitle() override;
 	string GetTitle() const override;
 	void UpdateKeyBar() override;

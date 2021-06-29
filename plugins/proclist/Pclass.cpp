@@ -123,7 +123,7 @@ Plist::Plist():
 
 	InitializePanelModes();
 
-	pPerfThread = std::make_unique<PerfThread>();
+	pPerfThread = std::make_unique<PerfThread>(this);
 }
 
 int Plist::Menu(unsigned int Flags, const wchar_t* Title, const wchar_t* Bottom, const wchar_t* HelpTopic, const FarKey* BreakKeys, const FarMenuItem* Items, size_t ItemsNumber)
@@ -1144,9 +1144,6 @@ int Plist::DeleteFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, OPERATION
 
 int Plist::ProcessEvent(intptr_t Event, void* Param)
 {
-	if (Event == FE_IDLE && (pPerfThread->Updated() /*|| !pPerfThread&&GetTickCount()-LastUpdateTime>1000*/))
-		Reread();
-
 	if (Event == FE_CLOSE)
 	{
 		PanelInfo pi = { sizeof(PanelInfo) };
@@ -1236,7 +1233,7 @@ bool Plist::Connect(const wchar_t* pMachine, const wchar_t* pUser, const wchar_t
 		}
 	}
 
-	auto pNewPerfThread = std::make_unique<PerfThread>(Machine.c_str(), pUser? pUser : nullptr, pUser? pPasw : nullptr);
+	auto pNewPerfThread = std::make_unique<PerfThread>(this, Machine.c_str(), pUser? pUser : nullptr, pUser? pPasw : nullptr);
 
 	if (!pNewPerfThread->IsOK())
 	{
@@ -1424,7 +1421,7 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 						//go to local computer
 						pPerfThread = {};
 						DisconnectWMI();
-						pPerfThread = std::make_unique<PerfThread>();
+						pPerfThread = std::make_unique<PerfThread>(this);
 						HostName.clear();
 						stop = true;
 					}
@@ -1447,7 +1444,7 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 		// go to local host
 		pPerfThread = {};
 		DisconnectWMI();
-		pPerfThread = std::make_unique<PerfThread>();
+		pPerfThread = std::make_unique<PerfThread>(this);
 		HostName.clear();
 		Reread();
 		return TRUE;
@@ -1779,6 +1776,11 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 	}
 
 	return FALSE;
+}
+
+void Plist::ProcessSynchroEvent()
+{
+	Reread();
 }
 
 std::wstring DurationToText(uint64_t Duration)

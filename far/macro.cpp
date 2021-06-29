@@ -635,7 +635,7 @@ static void LM_ProcessRecordedMacro(FARMACROAREA Area, const string& TextKey, co
 
 bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 {
-	if (m_InternalInput || any_of(Rec->IntKey, KEY_IDLE, KEY_NONE) || !Global->WindowManager->GetCurrentWindow()) //FIXME: избавиться от Rec->IntKey
+	if (m_InternalInput || Rec->IntKey == KEY_NONE || !Global->WindowManager->GetCurrentWindow()) //FIXME: избавиться от Rec->IntKey
 		return false;
 
 	const auto textKey = KeyToText(Rec->IntKey);

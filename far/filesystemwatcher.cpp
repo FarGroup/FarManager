@@ -136,15 +136,14 @@ void FileSystemWatcher::Release()
 	}
 
 	m_Cancelled.reset();
-	m_Notification = {};
 	m_PreviousLastWriteTime = m_CurrentLastWriteTime;
 }
 
-bool FileSystemWatcher::Signaled() const
+bool FileSystemWatcher::TimeChanged() const
 {
 	PropagateException();
 
-	return (m_Notification && m_Notification.is_signaled()) || m_PreviousLastWriteTime != m_CurrentLastWriteTime;
+	return m_PreviousLastWriteTime != m_CurrentLastWriteTime;
 }
 
 void FileSystemWatcher::Register()
@@ -156,42 +155,52 @@ void FileSystemWatcher::Register()
 		cpp_try(
 		[&]
 		{
-			try
+			for (;;)
 			{
-				m_Notification = os::fs::FindFirstChangeNotification(m_Directory, m_WatchSubtree,
-					FILE_NOTIFY_CHANGE_FILE_NAME |
-					FILE_NOTIFY_CHANGE_DIR_NAME |
-					FILE_NOTIFY_CHANGE_ATTRIBUTES |
-					FILE_NOTIFY_CHANGE_SIZE |
-					FILE_NOTIFY_CHANGE_LAST_WRITE);
+				os::fs::find_notification_handle Notification;
 
-				if (!m_Notification)
+				try
 				{
-					LOGWARNING(L"FindFirstChangeNotification {}"sv, last_error());
-					return;
-				}
+					Notification = os::fs::FindFirstChangeNotification(m_Directory, m_WatchSubtree,
+						FILE_NOTIFY_CHANGE_FILE_NAME |
+						FILE_NOTIFY_CHANGE_DIR_NAME |
+						FILE_NOTIFY_CHANGE_ATTRIBUTES |
+						FILE_NOTIFY_CHANGE_SIZE |
+						FILE_NOTIFY_CHANGE_LAST_WRITE);
 
-				if (const auto Result = os::handle::wait_any({ m_Notification.native_handle(), m_Cancelled.native_handle() }); Result == 0)
+					if (!Notification)
+					{
+						LOGWARNING(L"FindFirstChangeNotification {}"sv, last_error());
+						return;
+					}
+
+					switch (os::handle::wait_any({ Notification.native_handle(), m_Cancelled.native_handle() }))
+					{
+					case 0:
+						message_manager::instance().notify(m_EventId);
+						break;
+
+					case 1:
+						return;
+					}
+				}
+				catch(far_fatal_exception const& e)
 				{
-					message_manager::instance().notify(m_EventId);
-				}
-			}
-			catch(far_fatal_exception const& e)
-			{
-				if (e.Win32Error == ERROR_INVALID_HANDLE)
-				{
-					// https://docs.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-closehandle
-					// Some functions use ERROR_INVALID_HANDLE to indicate that the object itself is no longer valid.
-					// For example, a function that attempts to use a handle to a file on a network might fail
-					// with ERROR_INVALID_HANDLE if the network connection is severed, because the file object
-					// is no longer available. In this case, the application should close the handle.
-					m_Notification.close();
+					if (e.Win32Error == ERROR_INVALID_HANDLE)
+					{
+						// https://docs.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-closehandle
+						// Some functions use ERROR_INVALID_HANDLE to indicate that the object itself is no longer valid.
+						// For example, a function that attempts to use a handle to a file on a network might fail
+						// with ERROR_INVALID_HANDLE if the network connection is severed, because the file object
+						// is no longer available. In this case, the application should close the handle.
+						Notification.close();
 
-					LOGWARNING(L"handle::wait_any: {}"sv, e);
-					return;
-				}
+						LOGWARNING(L"handle::wait_any: {}"sv, e);
+						return;
+					}
 
-				throw;
+					throw;
+				}
 			}
 		},
 		[&]

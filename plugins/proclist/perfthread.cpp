@@ -6,6 +6,7 @@
 #include "Proclist.hpp"
 #include "Proclng.hpp"
 #include "perfthread.hpp"
+#include "guid.hpp"
 
 const counters Counters[]
 {
@@ -73,7 +74,8 @@ static bool Is64BitWindows()
 #endif
 }
 
-PerfThread::PerfThread(const wchar_t* hostname, const wchar_t* pUser, const wchar_t* pPasw) :
+PerfThread::PerfThread(Plist* const Owner, const wchar_t* hostname, const wchar_t* pUser, const wchar_t* pPasw) :
+	m_Owner(Owner),
 	DefaultBitness(Is64BitWindows()? 64 : 32)
 {
 	if (pUser && *pUser)
@@ -413,7 +415,6 @@ void PerfThread::Refresh()
 		pData = std::move(NewPData);
 	}
 
-	bUpdated = true;
 	dwLastRefreshTicks = GetTickCount() - dwTicksBeforeRefresh;
 	SetEvent(hEvtRefreshDone.get());
 }
@@ -480,6 +481,8 @@ void PerfThread::ThreadProc()
 
 		if (WaitForMultipleObjects(static_cast<DWORD>(std::size(handles)), handles, 0, dwRefreshMsec) == WAIT_OBJECT_0)
 			break;
+
+		PsInfo.AdvControl(&MainGuid, ACTL_SYNCHRO, 0, m_Owner);
 	}
 
 	WMI.Disconnect();

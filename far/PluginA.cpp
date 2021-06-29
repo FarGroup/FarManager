@@ -2737,7 +2737,6 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 			case DN_EDITCHANGE:
 				return CurrentDlgProc(hDlg, oldfar::DN_EDITCHANGE, Param1, UnicodeDialogItemToAnsi(*static_cast<FarDialogItem*>(Param2), hDlg, Param1));
 
-			case DN_ENTERIDLE: Msg=oldfar::DN_ENTERIDLE; break;
 			case DN_GOTFOCUS:  Msg=oldfar::DN_GOTFOCUS; break;
 			case DN_HELP:
 			{

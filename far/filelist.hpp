@@ -140,7 +140,7 @@ public:
 	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 	void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	void Update(int Mode) override;
-	void UpdateIfChanged() override;
+	void UpdateIfChanged(bool Changed = false) override;
 	void UpdateIfRequired() override;
 	bool SendKeyToPlugin(DWORD Key, bool Pred = false) override;
 	void StartFSWatcher(bool got_focus = false, bool check_time = true) override;

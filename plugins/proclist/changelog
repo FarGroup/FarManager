@@ -1,3 +1,7 @@
+drkns 29.06.2021 01:43:50 +0100 - build 202
+
+1. Refresh the panel using ACTL_SYNCHRO.
+
 drkns 25.10.2020 19:00:44 +0000 - build 201
 
 1. An attempt to fix M#0003823 - performance counters can't be read on localised OS.

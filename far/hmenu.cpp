@@ -293,7 +293,6 @@ bool HMenu::ProcessKey(const Manager::Key& Key)
 		break;
 
 	case KEY_NONE:
-	case KEY_IDLE:
 		return false;
 
 	case KEY_F1:

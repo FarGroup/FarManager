@@ -587,7 +587,7 @@ void QuickView::PrintText(string_view const Str) const
 }
 
 
-void QuickView::UpdateIfChanged()
+void QuickView::UpdateIfChanged(bool Changed)
 {
 	if (!IsVisible() || strCurFileName.empty() || m_DirectoryScanStatus != scan_status::real_fail)
 		return;

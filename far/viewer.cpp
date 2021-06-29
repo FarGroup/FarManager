@@ -1406,7 +1406,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 
 	if (!ViOpt.PersistentBlocks &&
 		none_of(LocalKey,
-			KEY_IDLE, KEY_NONE,
+			KEY_NONE,
 			KEY_CTRLINS, KEY_RCTRLINS,
 			KEY_CTRLNUMPAD0, KEY_RCTRLNUMPAD0,
 			KEY_CTRLC, KEY_RCTRLC,
@@ -1426,7 +1426,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 		UndoData.emplace_back(FilePos, LeftPos);
 	}
 
-	if (none_of(LocalKey, KEY_ALTBS, KEY_RALTBS, KEY_CTRLZ, KEY_RCTRLZ, KEY_NONE, KEY_IDLE))
+	if (none_of(LocalKey, KEY_ALTBS, KEY_RALTBS, KEY_CTRLZ, KEY_RCTRLZ, KEY_NONE))
 		LastKeyUndo=FALSE;
 
 	if (in_closed_range(KEY_CTRL0, LocalKey, KEY_CTRL9))
@@ -1498,7 +1498,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 			Show();
 			return true;
 		}
-		case KEY_IDLE:
+
 		case KEY_NONE:
 		{
 			if (ViewFile)

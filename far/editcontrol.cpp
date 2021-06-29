@@ -670,7 +670,6 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 							case KEY_NUMPAD7:
 							case KEY_END:
 							case KEY_NUMPAD1:
-							case KEY_IDLE:
 							case KEY_NONE:
 							case KEY_ESC:
 							case KEY_F10:

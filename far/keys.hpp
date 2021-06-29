@@ -226,7 +226,6 @@ enum far_key_code: unsigned int
 #endif
 
 	KEY_NONE                 =INTERNAL_KEY_BASE_2+1,
-	KEY_IDLE                 =INTERNAL_KEY_BASE_2+2,
 
 	KEY_DRAGCOPY             =INTERNAL_KEY_BASE_2+3,
 	KEY_DRAGMOVE             =INTERNAL_KEY_BASE_2+4,

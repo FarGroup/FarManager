@@ -1252,10 +1252,8 @@ bool Help::ProcessKey(const Manager::Key& Key)
 	switch (LocalKey)
 	{
 		case KEY_NONE:
-		case KEY_IDLE:
-		{
 			break;
-		}
+
 		case KEY_F5:
 		{
 			Global->Opt->FullScreenHelp=!Global->Opt->FullScreenHelp;

@@ -87,7 +87,7 @@ private:
 class PerfThread
 {
 public:
-	PerfThread(const wchar_t* hostname = {}, const wchar_t* pUser = {}, const wchar_t* pPasw = {});
+	PerfThread(Plist* Owner, const wchar_t* hostname = {}, const wchar_t* pUser = {}, const wchar_t* pPasw = {});
 	~PerfThread();
 
 	void lock();
@@ -101,7 +101,6 @@ public:
 	void SmartReread() { if (dwLastRefreshTicks > 1000) AsyncReread(); else SyncReread(); }
 	bool IsOK() const { return bOK; }
 	const auto& HostName() const { return m_HostName; }
-	bool Updated() { const auto Ret = bUpdated; bUpdated = false; return Ret; }
 	bool IsWMIConnected() const { return WMI.operator bool(); }
 	int GetDefaultBitness() const { return DefaultBitness; }
 	const auto& UserName() const { return m_UserName; }
@@ -112,6 +111,7 @@ private:
 	void Refresh();
 	void RefreshWMIData();
 
+	Plist* m_Owner;
 	int DefaultBitness;
 	handle hThread;
 	handle hEvtBreak, hEvtRefresh, hEvtRefreshDone;
@@ -121,12 +121,11 @@ private:
 	DWORD dwLastTickCount{};
 	bool bOK{};
 	HKEY hHKLM{}, hPerf{};
-	DWORD dwRefreshMsec{ 500 }, dwLastRefreshTicks{};
+	DWORD dwRefreshMsec{ 1000 }, dwLastRefreshTicks{};
 	std::wstring m_HostName;
 	handle hMutex;
 	WMIConnection WMI;
 	PerfLib pf;
-	bool bUpdated{};
 	bool bConnectAttempted{};
 	std::wstring m_UserName;
 	std::wstring m_Password;

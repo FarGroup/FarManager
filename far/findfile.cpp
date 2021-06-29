@@ -1419,6 +1419,8 @@ static void clear_queue(std::queue<FindFiles::AddMenuData>&& Messages)
 	}
 }
 
+const auto DM_REFRESH = DM_USER + 1;
+
 intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	if (!m_ExceptionPtr)
@@ -1435,7 +1437,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	switch (Msg)
 	{
-	case DN_ENTERIDLE:
+	case DM_REFRESH:
 		{
 			if (Finalized)
 				break;
@@ -1470,27 +1472,30 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					const auto strDataStr = format(msg(lng::MFindFound), m_FileCount, m_DirCount);
 					Dlg->SendMessage(DM_SETTEXTPTR, FD_SEPARATOR1, UNSAFE_CSTR(strDataStr));
 
-					string strSearchStr;
-
-					if (!strFindStr.empty())
+					if (m_Searcher->Finished())
 					{
-						strSearchStr = format(msg(lng::MFindSearchingIn), quote_unconditional(truncate_right(strFindStr, 10)));
+						Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, {});
 					}
-
-					auto strFM = itd->GetFindMessage();
-					SMALL_RECT Rect;
-					Dlg->SendMessage(DM_GETITEMPOSITION, FD_TEXT_STATUS, &Rect);
-
-					if (!strSearchStr.empty())
+					else
 					{
-						strSearchStr += L' ';
-					}
+						string strSearchStr;
 
-					inplace::truncate_center(strFM, Rect.Right - Rect.Left + 1 - strSearchStr.size());
-					Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strSearchStr + strFM));
-					if (!strFindStr.empty())
-					{
-						Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(format(FSTR(L"{:3}%"sv), itd->GetPercent())));
+						if (!strFindStr.empty())
+						{
+							strSearchStr = format(msg(lng::MFindSearchingIn), quote_unconditional(truncate_right(strFindStr, 10)));
+							Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(format(FSTR(L"{:3}%"sv), itd->GetPercent())));
+						}
+
+						SMALL_RECT Rect;
+						Dlg->SendMessage(DM_GETITEMPOSITION, FD_TEXT_STATUS, &Rect);
+
+						if (!strSearchStr.empty())
+						{
+							strSearchStr += L' ';
+						}
+						auto strFM = itd->GetFindMessage();
+						inplace::truncate_center(strFM, Rect.Right - Rect.Left + 1 - strSearchStr.size());
+						Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strSearchStr + strFM));
 					}
 
 					if (m_LastFoundNumber)
@@ -1506,7 +1511,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				}
 			}
 
-			if (m_Searcher->Finished() && m_Messages.empty())
+			if (m_Searcher->Finished() && m_Messages.empty() && m_ExtractedMessages.empty())
 			{
 				m_UpdateTimer = {};
 
@@ -2727,10 +2732,11 @@ bool FindFiles::FindFilesProcess()
 				m_Searcher = nullptr;
 			};
 
-			// Deliberately empty. It doesn't have to do anything,
-			// its only purpose is waking up the main loop
-			// and generating KEY_NONE -> DN_ENTERIDLE to refresh the dialog.
-			listener Listener([]{});
+			listener Listener([&]
+			{
+				if (!os::handle::is_signaled(console.GetInputHandle()))
+					Dlg->SendMessage(DM_REFRESH, 0, {});
+			});
 
 			m_UpdateTimer = os::concurrency::timer(till_next_second(), 1s, [&]
 			{

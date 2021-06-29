@@ -1770,6 +1770,16 @@ Options::Options():
 		char_width::enable(static_cast<int>(Value));
 	}));
 
+	Clock.SetCallback(option::notifier([](bool const Value)
+	{
+		wakeup_for_clock(Value);
+	}));
+
+	ScreenSaver.SetCallback(option::notifier([](bool const Value)
+	{
+		wakeup_for_screensaver(Value);
+	}));
+
 	// По умолчанию - брать плагины из основного каталога
 	LoadPlug.MainPluginDir = true;
 	LoadPlug.PluginsPersonal = true;
