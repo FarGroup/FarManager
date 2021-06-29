@@ -2778,8 +2778,6 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdated, bool const Silent)
 {
-	Panel::SetCurDir(NewDir, ClosePanel, IsUpdated, Silent);
-
 	UserDataItem UsedData{};
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
@@ -2821,6 +2819,7 @@ bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdat
 
 	if (!NewDir.empty())
 	{
+		Panel::SetCurDir(NewDir, ClosePanel, IsUpdated, Silent);
 		return ChangeDir(NewDir, NewDir == L".."sv, true, IsUpdated, &UsedData, OFP_NORMAL, Silent);
 	}
 
