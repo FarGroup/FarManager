@@ -6997,9 +6997,6 @@ void FileList::UpdateIfChanged(bool Changed)
 	if (Global->Opt->AutoUpdateLimit && m_ListData.size() > static_cast<size_t>(Global->Opt->AutoUpdateLimit))
 		return;
 
-	if (!IsVisible())
-		return;
-
 	if (m_PanelMode != panel_mode::NORMAL_PANEL)
 		return;
 
@@ -7033,7 +7030,7 @@ public:
 private:
 	listener m_Listener{[this]
 	{
-		if (Global->IsPanelsActive())
+		if (Global->IsPanelsActive() && m_Owner->IsVisible())
 		{
 			m_Owner->UpdateIfChanged(true);
 			m_Owner->Redraw();
