@@ -412,7 +412,7 @@ bool HMenu::ProcessCurrentSubMenu()
 				if (Msg != DN_INPUT)
 					return 0;
 
-				auto& rec = *static_cast<INPUT_RECORD*>(param);
+				const auto& rec = *static_cast<INPUT_RECORD const*>(param);
 				const auto Key = InputRecordToKey(&rec);
 
 				if (rec.EventType == MOUSE_EVENT)

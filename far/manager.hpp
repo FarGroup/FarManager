@@ -114,7 +114,7 @@ public:
 	*/
 	void PluginCommit();
 	int CountWindowsWithName(string_view Name, bool IgnoreCase = true);
-	bool IsPanelsActive(bool and_not_qview = false, bool or_autocomplete = false) const;
+	bool IsPanelsActive() const;
 	window_ptr FindWindowByFile(int ModalType, string_view FileName);
 	void EnterMainLoop();
 	void ProcessMainLoop();

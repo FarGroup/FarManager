@@ -855,17 +855,16 @@ void Manager::PluginsMenu() const
 	}
 }
 
-bool Manager::IsPanelsActive(bool and_not_qview, bool or_autocomplete) const
+bool Manager::IsPanelsActive() const
 {
-	if (!m_windows.empty() && GetCurrentWindow())
-	{
-		const auto fp = std::dynamic_pointer_cast<FilePanels>(GetCurrentWindow());
-		return (or_autocomplete && MACROAREA_SHELLAUTOCOMPLETION == GetCurrentWindow()->GetMacroArea()) || (fp && (!and_not_qview || fp->ActivePanel()->GetType() != panel_type::QVIEW_PANEL));
-	}
-	else
-	{
+	if (m_windows.empty())
 		return false;
-	}
+
+	const auto CurrentWindow = GetCurrentWindow();
+	if (!CurrentWindow)
+		return false;
+
+	return std::dynamic_pointer_cast<FilePanels>(CurrentWindow) != nullptr;
 }
 
 window_ptr Manager::GetWindow(size_t Index) const

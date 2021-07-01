@@ -7030,7 +7030,7 @@ public:
 private:
 	listener m_Listener{[this]
 	{
-		if (Global->IsPanelsActive() && m_Owner->IsVisible())
+		if (Global->WindowManager->IsPanelsActive() && m_Owner->IsVisible())
 		{
 			m_Owner->UpdateIfChanged(true);
 			m_Owner->Redraw();

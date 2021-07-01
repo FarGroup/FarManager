@@ -921,15 +921,15 @@ intptr_t WINAPI apiMenuFn(
 				if (Msg!=DN_INPUT || !BreakKeys)
 					return 0;
 
-				const auto ReadRec = static_cast<INPUT_RECORD*>(param);
-				const auto ReadKey = InputRecordToKey(ReadRec);
+				const auto& ReadRec = *static_cast<INPUT_RECORD const*>(param);
+				const auto ReadKey = InputRecordToKey(&ReadRec);
 
 				if (ReadKey==KEY_NONE)
 					return 0;
 
 				for (size_t i = 0; BreakKeys[i].VirtualKeyCode; ++i)
 				{
-					if (ReadRec->Event.KeyEvent.wVirtualKeyCode != BreakKeys[i].VirtualKeyCode)
+					if (ReadRec.Event.KeyEvent.wVirtualKeyCode != BreakKeys[i].VirtualKeyCode)
 						continue;
 
 					const auto NormalizeControlKeys = [](DWORD const Value)
@@ -941,7 +941,7 @@ intptr_t WINAPI apiMenuFn(
 							(Value & SHIFT_PRESSED);
 					};
 
-					if (NormalizeControlKeys(ReadRec->Event.KeyEvent.dwControlKeyState) == NormalizeControlKeys(BreakKeys[i].ControlKeyState))
+					if (NormalizeControlKeys(ReadRec.Event.KeyEvent.dwControlKeyState) == NormalizeControlKeys(BreakKeys[i].ControlKeyState))
 					{
 						if (BreakCode)
 							*BreakCode = i;
