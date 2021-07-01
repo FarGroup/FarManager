@@ -57,7 +57,20 @@ WARNING_DISABLE_GCC("-Wmissing-declarations")
 
 WARNING_DISABLE_CLANG("-Weverything")
 
-#define FMT_STATIC_THOUSANDS_SEPARATOR ::locale.thousand_separator()
+struct thousands_separator
+{
+	operator wchar_t() const
+	{
+		return ::locale.thousand_separator();
+	}
+
+	operator char() const
+	{
+		return static_cast<char>(operator wchar_t());
+	}
+};
+
+#define FMT_STATIC_THOUSANDS_SEPARATOR (thousands_separator{})
 
 #include "thirdparty/fmt/format.cc"
 

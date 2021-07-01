@@ -62,11 +62,9 @@ public:
 	const string& GetSearchString() const { return m_SearchString; }
 	bool GetSearchHex() const { return m_SearchHex; }
 	void StoreSearchString(string_view Str, bool Hex);
-	bool IsPanelsActive() const;
 
 	// BUGBUG
 
-	std::chrono::steady_clock::time_point StartIdleTime;
 	string g_strFarModuleName;
 	string g_strFarINI;
 	string g_strFarPath;

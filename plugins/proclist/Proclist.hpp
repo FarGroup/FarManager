@@ -134,6 +134,7 @@ public:
 	int ProcessEvent(intptr_t Event, void* Param);
 	int Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, unsigned int Mode) const;
 	int ProcessKey(const INPUT_RECORD* Rec);
+	void ProcessSynchroEvent();
 	PanelMode* PanelModes(size_t& nModes);
 
 	static bool GetVersionInfo(const wchar_t* pFullPath, std::unique_ptr<char[]>& Buffer, const wchar_t*& pVersion, const wchar_t*& pDesc);

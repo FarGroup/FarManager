@@ -1338,7 +1338,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 			[[fallthrough]];
 		default:
 		{
-			if (any_of(LocalKey, KEY_NONE, KEY_IDLE, KEY_ENTER, KEY_NUMENTER) || LocalKey >= 65536)
+			if (any_of(LocalKey, KEY_NONE, KEY_ENTER, KEY_NUMENTER) || LocalKey >= 65536)
 				break;
 
 			if (!m_Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
@@ -1371,24 +1371,16 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 // обработка Ctrl-Q
 bool Edit::ProcessCtrlQ()
 {
-	INPUT_RECORD rec;
 	for (;;)
 	{
+		INPUT_RECORD rec;
 		const auto Key = GetInputRecord(&rec);
+		if (Key == KEY_NONE)
+			continue;
 
-		if (none_of(Key, KEY_NONE, KEY_IDLE) && rec.Event.KeyEvent.uChar.UnicodeChar)
-			break;
-
-		if (Key==KEY_CONSOLE_BUFFER_RESIZE)
-		{
-			// BUGBUG currently GetInputRecord will never return anything but KEY_NONE if manager queue isn't empty,
-			// and it will be non-empty if we allow async resizing here.
-			// It's better to exit from Ctrl-Q mode at all than hang.
-			return false;
-		}
+		if (rec.Event.KeyEvent.uChar.UnicodeChar)
+			return InsertKey(rec.Event.KeyEvent.uChar.UnicodeChar);
 	}
-
-	return InsertKey(rec.Event.KeyEvent.uChar.UnicodeChar);
 }
 
 bool Edit::InsertKey(wchar_t const Key)

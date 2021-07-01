@@ -133,13 +133,7 @@ void ShellUpdatePanels(panel_ptr SrcPanel, bool NeedSetUpADir)
 			//  AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 			//else
 			{
-				// Сбросим время обновления панели. Если там есть нотификация - обновится сама.
-				if (const auto AnotherFileList = std::dynamic_pointer_cast<FileList>(AnotherPanel))
-				{
-					AnotherFileList->ResetLastUpdateTime();
-				}
-
-				AnotherPanel->UpdateIfChanged(false);
+				AnotherPanel->UpdateIfChanged();
 			}
 		}
 	}

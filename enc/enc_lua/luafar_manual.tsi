@@ -3365,7 +3365,6 @@ mtime=3746038169
 #_DN_DRAWDIALOG,
 #_DN_DRAWDIALOGDONE,
 #_DN_DROPDOWNOPENED,
-#_DN_ENTERIDLE:
 #_    Param2:  integer
 #_    Result:  integer
 #_
@@ -3452,7 +3451,6 @@ mtime=3746038169
 #_{dn_drawdialog}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdialog.html
 #_{dn_drawdialogdone}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_drawdialogdone.html
 #_{dn_dropdownopened}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_dropdownopened.html
-#_{dn_enteridle}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_enteridle.html
 #_{dn_controlinput}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_controlinput.html
 #_
 </article>
@@ -3968,34 +3966,6 @@ mtime=3602352502
 #_
 #_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
 #_{dn_editchange}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_editchange.html
-#_
-</article>
-</node>
-<node>
-id=304
-lv=2
-dt=Text
-nm=DN_ENTERIDLE
-ctime=3477111575
-mtime=3602352513
-<article>
-#_**Param1**
-#_    integer; according to Far API 
-#_
-#_**Param2**
-#_    integer; according to Far API 
-#_
-#_**Return**
-#_    default processing of the return value, see `description`.
-#_
-#_**Far API used:**
-#_  DlgProc, DN_ENTERIDLE
-#_
-#_@@@
-#_[description]: 285.html
-#_
-#_{dlgproc}: http://api.farmanager.com/ru/defs/dlgproc.html
-#_{dn_enteridle}: http://api.farmanager.com/ru/dialogapi/dmsg/dn_enteridle.html
 #_
 </article>
 </node>

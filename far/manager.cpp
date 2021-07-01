@@ -97,7 +97,7 @@ Manager::Key::Key(int Key): m_Event(), m_FarKey(), m_EventFilled(false)
 
 bool Manager::Key::IsReal() const
 {
-	return m_FarKey!=KEY_IDLE && m_Event.EventType!=0;
+	return m_Event.EventType != 0;
 }
 
 Manager::Key& Manager::Key::operator=(unsigned int Key)
@@ -614,29 +614,22 @@ void Manager::EnterMainLoop()
 
 void Manager::ProcessMainLoop()
 {
-	if ( GetCurrentWindow() && !GetCurrentWindow()->ProcessEvents() )
+	// Mantis#0000073: Не работает автоскролинг в QView
+	INPUT_RECORD rec;
+	const auto Key = GetInputRecord(&rec);
+
+	if (EndLoop)
+		return;
+
+	const auto BaseKey = Key & ~KEY_CTRLMASK;
+	if (rec.EventType==MOUSE_EVENT && none_of(BaseKey, KEY_MSWHEEL_UP, KEY_MSWHEEL_DOWN, KEY_MSWHEEL_RIGHT, KEY_MSWHEEL_LEFT))
 	{
-		ProcessKey(Key(KEY_IDLE));
+		// используем копию структуры, т.к. LastInputRecord может внезапно измениться во время выполнения ProcessMouse
+		auto mer = rec.Event.MouseEvent;
+		ProcessMouse(&mer);
 	}
 	else
-	{
-		// Mantis#0000073: Не работает автоскролинг в QView
-		INPUT_RECORD rec;
-		const auto Key = GetInputRecord(&rec);
-
-		if (EndLoop)
-			return;
-
-		const auto BaseKey = Key & ~KEY_CTRLMASK;
-		if (rec.EventType==MOUSE_EVENT && none_of(BaseKey, KEY_MSWHEEL_UP, KEY_MSWHEEL_DOWN, KEY_MSWHEEL_RIGHT, KEY_MSWHEEL_LEFT))
-		{
-			// используем копию структуры, т.к. LastInputRecord может внезапно измениться во время выполнения ProcessMouse
-			auto mer = rec.Event.MouseEvent;
-			ProcessMouse(&mer);
-		}
-		else
-			ProcessKey(Manager::Key(Key, rec));
-	}
+		ProcessKey(Manager::Key(Key, rec));
 
 	if(IsPanelsActive())
 	{
@@ -862,17 +855,16 @@ void Manager::PluginsMenu() const
 	}
 }
 
-bool Manager::IsPanelsActive(bool and_not_qview, bool or_autocomplete) const
+bool Manager::IsPanelsActive() const
 {
-	if (!m_windows.empty() && GetCurrentWindow())
-	{
-		const auto fp = std::dynamic_pointer_cast<FilePanels>(GetCurrentWindow());
-		return (or_autocomplete && MACROAREA_SHELLAUTOCOMPLETION == GetCurrentWindow()->GetMacroArea()) || (fp && (!and_not_qview || fp->ActivePanel()->GetType() != panel_type::QVIEW_PANEL));
-	}
-	else
-	{
+	if (m_windows.empty())
 		return false;
-	}
+
+	const auto CurrentWindow = GetCurrentWindow();
+	if (!CurrentWindow)
+		return false;
+
+	return std::dynamic_pointer_cast<FilePanels>(CurrentWindow) != nullptr;
 }
 
 window_ptr Manager::GetWindow(size_t Index) const

@@ -798,10 +798,6 @@ static bool is_clear_selection_key(unsigned const Key)
 bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 {
 	auto LocalKey = Key;
-	if (LocalKey()==KEY_IDLE)
-	{
-		return true;
-	}
 
 	if (LocalKey()==KEY_NONE)
 		return true;
@@ -1869,9 +1865,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_RCTRLL:
 		{
 			m_Flags.Invert(FEDITOR_LOCKMODE);
-
-			if (HostFileEditor) HostFileEditor->ShowStatus();
-
 			return true;
 		}
 

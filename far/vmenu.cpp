@@ -1107,7 +1107,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 			return true;
 	}
 
-	if (any_of(LocalKey, KEY_NONE, KEY_IDLE))
+	if (LocalKey == KEY_NONE)
 		return false;
 
 	if (IsComboBox() && CheckFlags(VMENU_COMBOBOXEVENTKEY))

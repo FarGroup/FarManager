@@ -330,18 +330,18 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 	      0,0 консоли.
 	  Не было учтено режима выполнения макроса.
 	*/
-	if (Global->CtrlObject->Macro.IsExecuting())
+	if (Global->CtrlObject->Macro.IsExecuting() && LocalKey != KEY_NONE)
 	{
-		if ((LocalKey&KEY_SHIFT) && LocalKey!=KEY_NONE && ResetArea)
+		if ((LocalKey & KEY_SHIFT) && ResetArea)
 			Reset();
-		else if (none_of(LocalKey, KEY_IDLE, KEY_NONE) && !(LocalKey&KEY_SHIFT) && !IntKeyState.ShiftPressed() && !IntKeyState.AltPressed())
+		else if (!(LocalKey & KEY_SHIFT) && !IntKeyState.ShiftPressed() && !IntKeyState.AltPressed())
 			ResetArea = true;
 	}
 	else
 	{
 		if ((IntKeyState.ShiftPressed() || LocalKey!=KEY_SHIFT) && (LocalKey&KEY_SHIFT) && none_of(LocalKey, KEY_NONE, KEY_CTRLA, KEY_RCTRLA) && !IntKeyState.AltPressed() && ResetArea)
 			Reset();
-		else if (none_of(LocalKey, KEY_IDLE, KEY_NONE, KEY_SHIFT, KEY_CTRLA, KEY_RCTRLA, KEY_F1, KEY_SPACE) && !IntKeyState.ShiftPressed() && !IntKeyState.AltPressed() && !(LocalKey&KEY_SHIFT))
+		else if (none_of(LocalKey, KEY_NONE, KEY_SHIFT, KEY_CTRLA, KEY_RCTRLA, KEY_F1, KEY_SPACE) && !IntKeyState.ShiftPressed() && !IntKeyState.AltPressed() && !(LocalKey&KEY_SHIFT))
 			ResetArea = true;
 	}
 

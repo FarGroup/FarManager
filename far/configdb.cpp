@@ -1801,6 +1801,8 @@ private:
 
 	void ThreadProc()
 	{
+		os::debug::set_thread_name(L"Async history config");
+
 		// TODO: SEH guard, try/catch, exception_ptr
 
 		for (;;)
@@ -2062,7 +2064,7 @@ private:
 	{
 		WaitAllAsync();
 
-		const auto older = os::chrono::nt_clock::to_hectonanoseconds(os::chrono::nt_clock::now() - chrono::days(DaysToKeep));
+		const auto older = os::chrono::nt_clock::to_hectonanoseconds(os::chrono::nt_clock::now() - std::chrono::days(DaysToKeep));
 		ExecuteStatement(stmtDeleteOldUnlocked, TypeHistory, HistoryName, older, MinimumEntries);
 	}
 
@@ -2261,7 +2263,7 @@ private:
 	void DeleteOldPositions(int DaysToKeep, int MinimumEntries) override
 	{
 		WaitCommitAsync();
-		const auto older = os::chrono::nt_clock::to_hectonanoseconds(os::chrono::nt_clock::now() - chrono::days(DaysToKeep));
+		const auto older = os::chrono::nt_clock::to_hectonanoseconds(os::chrono::nt_clock::now() - std::chrono::days(DaysToKeep));
 		ExecuteStatement(stmtDeleteOldEditor, older, MinimumEntries);
 		ExecuteStatement(stmtDeleteOldViewer, older, MinimumEntries);
 	}

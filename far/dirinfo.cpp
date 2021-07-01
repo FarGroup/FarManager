@@ -172,8 +172,7 @@ int GetDirInfo(string_view const DirName, DirInfoData& Data, FileFilter *Filter,
 
 			switch (PeekInputRecord(&rec))
 			{
-				case 0:
-				case KEY_IDLE:
+				case NO_KEY:
 					break;
 				case KEY_NONE:
 				case KEY_ALT:

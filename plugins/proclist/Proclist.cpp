@@ -315,3 +315,14 @@ intptr_t WINAPI CompareW(const CompareInfo* Info)
 	auto& Panel = *static_cast<Plist*>(Info->hPanel);
 	return Panel.Compare(Info->Item1, Info->Item2, Info->Mode);
 }
+
+intptr_t WINAPI ProcessSynchroEventW(const ProcessSynchroEventInfo* Info)
+{
+	if (Info->Event != SE_COMMONSYNCHRO)
+		return 0;
+
+	auto& Panel = *static_cast<Plist*>(Info->Param);
+	Panel.ProcessSynchroEvent();
+
+	return 0;
+}

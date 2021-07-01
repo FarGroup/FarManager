@@ -140,7 +140,7 @@ public:
 	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 	void MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
 	void Update(int Mode) override;
-	void UpdateIfChanged(bool Idle) override;
+	void UpdateIfChanged(bool Changed = false) override;
 	void UpdateIfRequired() override;
 	bool SendKeyToPlugin(DWORD Key, bool Pred = false) override;
 	void StartFSWatcher(bool got_focus = false, bool check_time = true) override;
@@ -152,6 +152,7 @@ public:
 	void ChangeSortOrder(bool Reverse) override;
 	void ChangeDirectoriesFirst(bool Mode) override;
 	void OnSortingChange() override;
+	void InitCurDir(string_view CurDir) override;
 	bool SetCurDir(string_view NewDir, bool ClosePanel, bool IsUpdated = true, bool Silent = false) override;
 	panel_sort GetPrevSortMode() const override;
 	bool GetPrevSortOrder() const override;
@@ -217,7 +218,6 @@ public:
 	void PluginClearSelection(int SelectedItemNumber);
 	void PluginEndSelection();
 	bool PluginPanelHelp(const plugin_panel* hPlugin) const;
-	void ResetLastUpdateTime();
 	string GetPluginPrefix() const;
 
 	size_t FileListToPluginItem2(const FileListItem& fi, FarGetPluginPanelItem* gpi) const;
@@ -363,6 +363,7 @@ private:
 	std::list<std::shared_ptr<PluginsListItem>> PluginsList;
 	std::shared_ptr<PluginsListItem> m_ExpiringPluginPanel{};
 	FileSystemWatcher FSWatcher;
+	bool m_UpdatePending{};
 	long UpperFolderTopFile{}, LastCurFile{ -1 };
 	bool ReturnCurrentFile{};
 	size_t m_SelFileCount{}; // both files and directories
@@ -373,7 +374,6 @@ private:
 	unsigned long long SelFileSize{};
 	unsigned long long TotalFileSize{};
 	unsigned long long FreeDiskSize = -1;
-	std::chrono::steady_clock::time_point LastUpdateTime;
 	int m_Height{};
 	int m_Stripes{}; // Stripe is a logical column representing one list item == group of columns repeated across the list
 	int m_ColumnsInStripe{}; // number of columns (item attributes) in a stripe
@@ -402,6 +402,9 @@ private:
 	int m_InsideGetFindData{};
 	std::unordered_set<string> m_FilteredExtensions;
 	std::weak_ptr<PluginsListItem> GetPluginItem() const;
+
+	class background_updater;
+	std::unique_ptr<background_updater> m_BackgroundUpdater;
 };
 
 #endif // FILELIST_HPP_825FE8AE_1E34_4DFD_B167_2D6A121B1777

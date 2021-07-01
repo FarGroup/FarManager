@@ -18753,6 +18753,22 @@ MSetColorBackground
 "&Фон:"
 "&Fonas:"
 
+MSetColorForeIndex
+l:
+l:// 8 characters max
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+
 MSetColorForeAARRGGBB
 l:
 l:// 8 characters max
@@ -18784,6 +18800,22 @@ l:// 3 characters max
 "&RGB…"
 "&RGB…"
 "&RGB…"
+
+MSetColorBackIndex
+l:
+l:// 8 characters max
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
+"AA     #"
 
 MSetColorBackAARRGGBB
 l:
@@ -22705,146 +22737,6 @@ MExceptionDialogClipboard
 "Буфер обміну"
 "Буфер абмену"
 "Mainų sritis"
-
-MExcException
-"Исключение:"
-"Exception:"
-"Výjimka:"
-"Ausnahmesituation:"
-"Kivétel:"
-"Wyjątek:"
-"Excepción:"
-"Výnimka:"
-"Eccezione:"
-"Виняток:"
-"Выключэнне:"
-"Išimtis:"
-
-MExcDetails
-"Подробности:"
-"Details:"
-"Detaily:"
-"Einzelheiten:"
-"Részletek:"
-"Szczegóły:"
-"Detalles:"
-"Detaily:"
-"Dettagli:"
-"Подробиці:"
-"Падрабязнасці:"
-"Detalės:"
-
-MExcAddress
-"Адрес:"
-"Address:"
-"Adresa:"
-"Adresse:"
-"Cím:"
-"Adres:"
-"Dirección:"
-"Adresa:"
-"Indirizzo:"
-"Адреса:"
-"Адрас:"
-"Adresas:"
-
-MExcSource
-"Источник:"
-"Source:"
-"Zdroj:"
-"Quelle:"
-"Forrás:"
-"Źródło:"
-"Origen:"
-"Zdroje:"
-"Origine:"
-"Джерело:"
-"Крыніца:"
-"Šaltinis:"
-
-MExcFunction
-"Функция:"
-"Function:"
-"Funkce:"
-"Funktion:"
-"Funkció:"
-"Funkcja:"
-"Función:"
-"Funkcia:"
-"Funzione:"
-"Функція:"
-"Функцыя:"
-"Funkcija:"
-
-MExcFileName
-"Файл:"
-"File:"
-"Soubor:"
-"Date:"
-"Fájl:"
-"Plik:"
-"Archivo:"
-"Súbor:"
-"File:"
-"Файл:"
-"Файл:"
-"Failas:"
-
-MExcPlugin
-"Плагин:"
-"Plugin:"
-"Modul:"
-"Plugin:"
-"Plugin:"
-"Wtyczka:"
-"Complemento:"
-"Modul:"
-"Plugin:"
-"Плагін:"
-"Дадатак:"
-"Plugin:"
-
-MExcFarVersion
-"Far:"
-"Far:"
-"Far:"
-"Far:"
-"Far:"
-"Far:"
-"Far:"
-"Far:"
-"Far:"
-"Far:"
-"Far:"
-"Far:"
-
-MExcOSVersion
-"ОС:"
-"OS:"
-upd:"OS:"
-upd:"OS:"
-upd:"OS:"
-"OS:"
-upd:"OS:"
-upd:"OS:"
-upd:"OS:"
-"ОС:"
-"ОС:"
-upd:"OS:"
-
-MExcKernelVersion
-"Ядро:"
-"Kernel:"
-upd:"Kernel:"
-upd:"Kernel:"
-upd:"Kernel:"
-"Jądro:"
-upd:"Kernel:"
-upd:"Kernel:"
-upd:"Kernel:"
-"Ядро:"
-"Ядро:"
-upd:"Kernel:"
 
 MExcTerminate
 "Завершить Far"

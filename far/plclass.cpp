@@ -304,12 +304,12 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, std::istream& S
 		return false;
 	}
 
-	const auto section_address_to_real = [](size_t const VirtualAddress, IMAGE_SECTION_HEADER const& Section)
+	const auto section_address_to_real = [&](size_t const VirtualAddress)
 	{
 		return VirtualAddress - Section.VirtualAddress + Section.PointerToRawData;
 	};
 
-	Stream.seekg(section_address_to_real(ExportDirectoryAddress, Section));
+	Stream.seekg(section_address_to_real(ExportDirectoryAddress));
 
 	IMAGE_EXPORT_DIRECTORY ExportDirectory;
 	if (io::read(Stream, edit_bytes(ExportDirectory)) != sizeof(ExportDirectory))
@@ -321,7 +321,7 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, std::istream& S
 	std::string Name;
 	for (size_t i = 0; i != ExportDirectory.NumberOfNames; ++i)
 	{
-		Stream.seekg(section_address_to_real(ExportDirectory.AddressOfNames, Section) + sizeof(DWORD) * i);
+		Stream.seekg(section_address_to_real(ExportDirectory.AddressOfNames) + sizeof(DWORD) * i);
 
 		DWORD NameAddress;
 		if (io::read(Stream, edit_bytes(NameAddress)) != sizeof(NameAddress))
@@ -330,7 +330,7 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, std::istream& S
 			return false;
 		}
 
-		Stream.seekg(section_address_to_real(NameAddress, Section));
+		Stream.seekg(section_address_to_real(NameAddress));
 
 		Name.clear();
 
@@ -753,6 +753,27 @@ bool Plugin::RemoveDialog(const window_ptr& Dlg)
 
 	m_dialogs.erase(ItemIterator);
 	return true;
+}
+
+void Plugin::SubscribeToSynchroEvents()
+{
+	// Already initialised
+	if (m_SynchroListenerCreated)
+		return;
+
+	// Being initialised by another thread
+	if (std::atomic_exchange(&m_SynchroListenerCreated, true))
+		return;
+
+	m_SynchroListener = std::make_unique<listener>(m_Uuid, [this](const std::any& Payload)
+	{
+		const auto Param = std::any_cast<void*>(Payload);
+
+		ProcessSynchroEventInfo Info = { sizeof(Info) };
+		Info.Event = SE_COMMONSYNCHRO;
+		Info.Param = Param;
+		ProcessSynchroEvent(&Info);
+	});
 }
 
 bool Plugin::IsPanelPlugin()

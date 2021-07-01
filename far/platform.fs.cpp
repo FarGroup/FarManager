@@ -2187,9 +2187,14 @@ namespace os::fs
 		return true;
 	}
 
-	find_notification_handle FindFirstChangeNotification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter)
+	find_notification_handle find_first_change_notification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter)
 	{
 		return find_notification_handle(::FindFirstChangeNotification(NTPath(PathName).c_str(), WatchSubtree, NotifyFilter));
+	}
+
+	bool find_next_change_notification(find_notification_handle const& Handle)
+	{
+		return FindNextChangeNotification(Handle.native_handle()) != FALSE;
 	}
 
 	bool IsDiskInDrive(string_view const Root)

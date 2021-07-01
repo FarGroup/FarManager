@@ -510,6 +510,12 @@ handle OpenConsoleActiveScreenBuffer()
 			print(Str.c_str());
 		}
 
+		void set_thread_name(const wchar_t* Name)
+		{
+			if (imports.SetThreadDescription)
+				imports.SetThreadDescription(GetCurrentThread(), Name);
+		}
+
 		std::vector<uintptr_t> current_stack(size_t const FramesToSkip, size_t const FramesToCapture)
 		{
 			if (!imports.RtlCaptureStackBackTrace)

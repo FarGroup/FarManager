@@ -486,7 +486,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 								if (
 									WriteRegion.top - Last.bottom < 1 + MAX_DELTA &&
 									std::abs(WriteRegion.left - Last.left) < MAX_DELTA &&
-									std::abs(WriteRegion.right - Last.right < MAX_DELTA)
+									std::abs(WriteRegion.right - Last.right) < MAX_DELTA
 								)
 								{
 									Last.bottom = WriteRegion.bottom;

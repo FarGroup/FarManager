@@ -57,7 +57,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class FileViewer;
 class KeyBar;
 class Dialog;
-class time_check;
 enum SEARCHER_RESULT: int;
 
 class Viewer:public SimpleScreenObject
@@ -240,9 +239,6 @@ private:
 	bool redraw_selection{};
 
 	bool m_bQuickView;
-
-	std::unique_ptr<time_check> m_TimeCheck;
-	std::unique_ptr<time_check> m_IdleCheck;
 
 	std::vector<char> vread_buffer;
 

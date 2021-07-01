@@ -188,7 +188,7 @@ namespace os
 			}
 
 			[[nodiscard]]
-			static auto wait_any(span<HANDLE const> const Handles, std::chrono::milliseconds const Timeout)
+			static auto wait_any(span<HANDLE const> const Handles, std::optional<std::chrono::milliseconds> const Timeout)
 			{
 				return handle_implementation::wait(Handles, false, Timeout);
 			}
@@ -200,7 +200,7 @@ namespace os
 			}
 
 			[[nodiscard]]
-			static bool wait_all(span<HANDLE const> const Handles, std::chrono::milliseconds const Timeout)
+			static bool wait_all(span<HANDLE const> const Handles, std::optional<std::chrono::milliseconds> const Timeout)
 			{
 				return handle_implementation::wait(Handles, true, Timeout).has_value();
 			}
@@ -461,6 +461,7 @@ namespace os
 		void breakpoint(bool Always = true);
 		void print(const wchar_t* Str);
 		void print(string const& Str);
+		void set_thread_name(const wchar_t* Name);
 		std::vector<uintptr_t> current_stack(size_t FramesToSkip = 0, size_t FramesToCapture = std::numeric_limits<size_t>::max());
 	}
 }

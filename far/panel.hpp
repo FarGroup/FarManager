@@ -181,7 +181,7 @@ public:
 	virtual bool IsFocused() const;
 	virtual void OnFocusChange(bool Get);
 	virtual void Update(int Mode) = 0;
-	virtual void UpdateIfChanged(bool Idle) {}
+	virtual void UpdateIfChanged(bool Changed = false) {}
 	virtual void UpdateIfRequired() {}
 	virtual void StartFSWatcher(bool got_focus=false, bool check_time=true) {}
 	virtual void StopFSWatcher() {}
@@ -212,6 +212,7 @@ public:
 	virtual Viewer* GetViewer() {return nullptr;}
 	virtual Viewer* GetById(int ID) { return nullptr;}
 	virtual void OnDestroy() {}
+	virtual void InitCurDir(string_view CurDir);
 
 	panel_mode GetMode() const { return m_PanelMode; }
 	void SetMode(panel_mode Mode) { m_PanelMode = Mode; }
@@ -227,7 +228,6 @@ public:
 	void SetSortGroups(bool Mode) {m_SortGroups=Mode;}
 	bool GetShowShortNamesMode() const { return m_ShowShortNames; }
 	void SetShowShortNamesMode(bool Mode) {m_ShowShortNames=Mode;}
-	void InitCurDir(string_view CurDir);
 	bool ExecShortcutFolder(int Pos);
 	bool ExecFolder(string_view Folder, const UUID& PluginUuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest, bool Silent);
 	bool SaveShortcutFolder(int Pos) const;

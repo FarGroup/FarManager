@@ -11,8 +11,11 @@ WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
 
 WARNING_DISABLE_CLANG("-Weverything")
 
+#define FMT_CONSTEVAL // Not yet
+
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#include <fmt/xchar.h>
 
 WARNING_POP()
 

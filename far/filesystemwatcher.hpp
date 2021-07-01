@@ -52,25 +52,25 @@ class FileSystemWatcher: noncopyable
 public:
 	FileSystemWatcher() = default;
 	~FileSystemWatcher();
-	void Set(string_view Directory, bool WatchSubtree);
+	void Set(string_view EventId, string_view Directory, bool WatchSubtree);
 	void Watch(bool got_focus=false, bool check_time=true);
 	void Release();
-	bool Signaled() const;
+	bool TimeChanged() const;
 
 private:
 	void Register();
 	void PropagateException() const;
 
+	string m_EventId;
 	string m_Directory;
 	os::chrono::time_point m_PreviousLastWriteTime;
 	os::chrono::time_point m_CurrentLastWriteTime;
 	bool m_WatchSubtree{};
-	mutable os::thread m_RegistrationThread;
-	os::fs::find_notification_handle m_Notification;
 	os::event m_Cancelled{ os::event::type::manual, os::event::state::nonsignaled };
 	std::optional<bool> m_IsFatFilesystem;
 	mutable std::exception_ptr m_ExceptionPtr;
 	bool m_IsRegularException{};
+	mutable os::thread m_RegistrationThread;
 };
 
 #endif // FILESYSTEMWATCHER_HPP_A4DC2834_A694_4E86_B8BA_FDA8DBF728CD

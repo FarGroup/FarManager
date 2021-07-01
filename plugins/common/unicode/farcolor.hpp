@@ -5,7 +5,7 @@
 /*
 farcolor.hpp
 
-Colors Index for FAR Manager 3.0 build 5655
+Colors Index for FAR Manager 3.0.5838.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -38,7 +38,6 @@ EXCEPTION:
 Far Manager plugins that use this header file can be distributed under any
 other possible license with no implications from the above license on them.
 */
-
 
 
 enum PaletteColors

@@ -105,4 +105,7 @@ private:
 
 std::pair<string, string> get_time();
 
+std::chrono::milliseconds till_next_second();
+std::chrono::milliseconds till_next_minute();
+
 #endif // DATETIME_HPP_58256A07_E483_4DB7_9DAC_DFA9D90D8A32

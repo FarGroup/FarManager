@@ -131,6 +131,7 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 			if(!Call(DN_INPUT, &rec))
 				Dlg->SendMessage( DM_KEY, 1, &rec);
 		}
+		Call(Msg, Param2);
 		break;
 
 	case DN_INPUT:
@@ -153,8 +154,7 @@ intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 	case DN_LISTCHANGE:
 		if (Dlg->CheckDialogMode(DMODE_ISMENU))
 			break;
-		[[fallthrough]];
-	case DN_ENTERIDLE:
+
 		if(!cancel)
 		{
 			if(Call(Msg, Param2))
@@ -590,12 +590,13 @@ intptr_t VMenu2::Run(const std::function<int(const Manager::Key& RawKey)>& fn)
 
 	return RunEx([&](int Msg, void *param)
 	{
-		const auto Key =
-			Msg == DN_INPUT?
-			Manager::Key(static_cast<const INPUT_RECORD*>(param)->EventType == WINDOW_BUFFER_SIZE_EVENT? KEY_CONSOLE_BUFFER_RESIZE : InputRecordToKey(static_cast<const INPUT_RECORD*>(param)), *static_cast<const INPUT_RECORD*>(param)) :
-			Manager::Key(KEY_NONE);
+		if (Msg == DN_INPUT)
+		{
+			const auto& Rec = *static_cast<const INPUT_RECORD*>(param);
+			return fn(Manager::Key(InputRecordToKey(&Rec), Rec));
+		}
 
-		return fn(Key);
+		return fn(Manager::Key(KEY_NONE));
 	});
 }
 

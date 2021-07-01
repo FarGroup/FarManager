@@ -63,6 +63,7 @@ public:
 	void Show() override;
 	void Changed(bool DelBlock=false) override;
 	int GetMaxLength() const override {return MaxLength;}
+	void ResizeConsole() override;
 
 	void AutoComplete(bool Manual,bool DelBlock);
 	void SetAutocomplete(bool State) {State? ECFlags.Set(EC_ENABLEAUTOCOMPLETE) : ECFlags.Clear(EC_ENABLEAUTOCOMPLETE);}
@@ -125,6 +126,7 @@ private:
 	string m_Mask;
 	History* pHistory;
 	FarList* pList;
+	std::weak_ptr<VMenu2> m_ComplMenu;
 
 	FarColor m_Color;
 	FarColor m_SelectedColor;

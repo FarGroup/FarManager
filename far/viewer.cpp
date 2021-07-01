@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "encoding.hpp"
 #include "macroopcode.hpp"
 #include "keyboard.hpp"
-#include "flink.hpp"
 #include "farcolor.hpp"
 #include "keys.hpp"
 #include "help.hpp"
@@ -52,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "taskbar.hpp"
-#include "cddrv.hpp"
 #include "drivemix.hpp"
 #include "interf.hpp"
 #include "message.hpp"
@@ -145,7 +143,6 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	m_DisplayMode(VMT_TEXT),
 	ViewerID(::ViewerID++),
 	m_bQuickView(bQuickView),
-	m_IdleCheck(std::make_unique<time_check>(time_check::mode::delayed, 500ms)),
 	vread_buffer(std::max(MaxViewLineBufferSize(), size_t(8192))),
 	lcache_lines(16*1000),
 	// dirty magic numbers, fix them!
@@ -426,26 +423,6 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 	ChangeViewKeyBar();
 	AdjustWidth();
 
-	const auto update_check_period = [&]
-	{
-		// media inserted here
-		const auto PathRoot = GetPathRoot(strFullFileName);
-		switch (os::fs::drive::get_type(PathRoot)) //??? make it configurable
-		{
-		case DRIVE_REMOVABLE: return is_removable_usb(PathRoot)? 500ms : 0ms;
-		case DRIVE_FIXED:     return 1ms;
-		case DRIVE_REMOTE:    return 500ms;
-		case DRIVE_CDROM:     return 0ms;
-		case DRIVE_RAMDISK:   return 1ms;
-		default:              return 0ms;
-		}
-	}();
-
-	if (update_check_period != 0s)
-	{
-		m_TimeCheck = std::make_unique<time_check>(time_check::mode::delayed, update_check_period);
-	}
-
 	if (!HostFileViewer) ReadEvent();
 
 	return true;
@@ -558,9 +535,6 @@ void Viewer::ShowPage(int nMode)
 			break;
 		case SHOW_RELOAD:
 			{
-				if (m_TimeCheck)
-					m_TimeCheck->reset();
-
 				CheckChanged();
 
 				Strings.clear();
@@ -1430,22 +1404,9 @@ bool Viewer::process_key(const Manager::Key& Key)
 {
 	unsigned int LocalKey = Key();
 
-	if ((LocalKey & ~KEY_SHIFT) == 0)
-		LocalKey = KEY_NONE;
-
-	if (LocalKey != KEY_NONE)
-		m_IdleCheck->reset();
-	else
-	{
-		if (*m_IdleCheck)
-			LocalKey = KEY_IDLE;
-		else
-			os::chrono::sleep_for(10ms);
-	}
-
 	if (!ViOpt.PersistentBlocks &&
 		none_of(LocalKey,
-			KEY_IDLE, KEY_NONE,
+			KEY_NONE,
 			KEY_CTRLINS, KEY_RCTRLINS,
 			KEY_CTRLNUMPAD0, KEY_RCTRLNUMPAD0,
 			KEY_CTRLC, KEY_RCTRLC,
@@ -1465,7 +1426,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 		UndoData.emplace_back(FilePos, LeftPos);
 	}
 
-	if (none_of(LocalKey, KEY_ALTBS, KEY_RALTBS, KEY_CTRLZ, KEY_RCTRLZ, KEY_NONE, KEY_IDLE))
+	if (none_of(LocalKey, KEY_ALTBS, KEY_RALTBS, KEY_CTRLZ, KEY_RCTRLZ, KEY_NONE))
 		LastKeyUndo=FALSE;
 
 	if (in_closed_range(KEY_CTRL0, LocalKey, KEY_CTRL9))
@@ -1537,13 +1498,11 @@ bool Viewer::process_key(const Manager::Key& Key)
 			Show();
 			return true;
 		}
-		case KEY_IDLE:
+
+		case KEY_NONE:
 		{
 			if (ViewFile)
 			{
-				if (m_TimeCheck && !*m_TimeCheck)
-					return true;
-
 				CheckChanged();
 
 				if (FilePos > FileSize)

@@ -1769,10 +1769,6 @@
                                 <param name="Local" value="html/dialogapi/dmsg/dn_editchange.html">
                                 </OBJECT>
                         <LI> <OBJECT type="text/sitemap">
-                                <param name="Name" value="DN_ENTERIDLE">
-                                <param name="Local" value="html/dialogapi/dmsg/dn_enteridle.html">
-                                </OBJECT>
-                        <LI> <OBJECT type="text/sitemap">
                                 <param name="Name" value="DN_GOTFOCUS">
                                 <param name="Local" value="html/dialogapi/dmsg/dn_gotfocus.html">
                                 </OBJECT>

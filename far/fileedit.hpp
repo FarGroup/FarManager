@@ -89,7 +89,7 @@ public:
 	static fileeditor_ptr create(string_view Name, uintptr_t codepage, DWORD InitFlags, int StartLine = -1, int StartChar = -1, const string* PluginData = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
 	static fileeditor_ptr create(string_view Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, rectangle Position, int DeleteOnClose = 0, const window_ptr& Update = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);
 
-	explicit FileEditor(private_tag) {}
+	explicit FileEditor(private_tag);
 	~FileEditor() override;
 
 	bool IsFileModified() const override { return m_editor->IsFileModified(); }
@@ -162,7 +162,6 @@ private:
 
 	std::unique_ptr<Editor> m_editor;
 	NamesList EditNamesList;
-	bool F4KeyOnly{};
 	string strFileName;
 	string strFullFileName;
 	string strStartDir;
@@ -180,6 +179,9 @@ private:
 	uintptr_t m_codepage{CP_DEFAULT}; //BUGBUG
 
 	F8CP f8cps;
+
+	class f4_key_timer;
+	std::unique_ptr<f4_key_timer> m_F4Timer;
 };
 
 bool dlgOpenEditor(string &strFileName, uintptr_t &codepage);

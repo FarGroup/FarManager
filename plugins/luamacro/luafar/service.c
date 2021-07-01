@@ -3067,7 +3067,6 @@ static int far_SendDlgMessage(lua_State *L)
 		case DN_DRAGGED:
 		case DN_DRAWDIALOG:
 		case DN_DRAWDIALOGDONE:
-		case DN_ENTERIDLE:
 			Param1 = luaL_optinteger(L,3,0);
 			break;
 		default: // dialog element position
@@ -3122,7 +3121,6 @@ static int far_SendDlgMessage(lua_State *L)
 		case DN_DRAWDIALOG:
 		case DN_DRAWDIALOGDONE:
 		case DN_DROPDOWNOPENED:
-		case DN_ENTERIDLE:
 			Param2 = (void*)(intptr_t)luaL_optint(L,4,0);
 			break;
 		case DM_LISTGETDATASIZE:
@@ -3562,7 +3560,6 @@ int PushDNParams (lua_State *L, intptr_t Msg, intptr_t Param1, void *Param2)
 		case DN_DRAGGED:
 		case DN_DRAWDIALOG:
 		case DN_DRAWDIALOGDONE:
-		case DN_ENTERIDLE:
 		case DN_INPUT:
 		case DN_RESIZECONSOLE:
 			break;

@@ -53,8 +53,6 @@ enum event_id
 	update_devices,
 	update_environment,
 
-	plugin_synchro,
-
 	event_id_count
 };
 
@@ -99,18 +97,14 @@ class message_manager: public singleton<message_manager>
 public:
 	using handlers_map = std::unordered_multimap<string, const detail::event_handler*>;
 
+	handlers_map::iterator subscribe(UUID const& EventId, const detail::event_handler& EventHandler);
 	handlers_map::iterator subscribe(event_id EventId, const detail::event_handler& EventHandler);
 	handlers_map::iterator subscribe(string_view EventName, const detail::event_handler& EventHandler);
 	void unsubscribe(handlers_map::iterator HandlerIterator);
+	void notify(UUID const& EventId, std::any&& Payload = {});
 	void notify(event_id EventId, std::any&& Payload = {});
-	void notify(string_view EventName, std::any&& Payload = {});
+	void notify(string_view EventId, std::any&& Payload = {});
 	bool dispatch();
-
-	[[nodiscard]]
-	auto suppressor()
-	{
-		return make_raii_wrapper<&message_manager::suppress, &message_manager::restore>(this);
-	}
 
 private:
 	using message_queue = os::synced_queue<std::pair<string, std::any>>;
@@ -118,16 +112,22 @@ private:
 	message_manager();
 	~message_manager();
 
-	void suppress();
-	void restore();
+	void commit_add();
+	void commit_remove();
 
-	// Note: non-std - std is incompatible with Win2k
-	using mutex_type = os::concurrency::shared_mutex;
-	mutex_type m_RWLock;
+	os::concurrency::critical_section
+		m_PendingLock,
+		m_ActiveLock;
+
 	message_queue m_Messages;
-	handlers_map m_Handlers;
+
+	handlers_map
+		m_PendingHandlers,
+		m_ActiveHandlers;
+
 	std::unique_ptr<wm_listener> m_Window;
-	std::atomic_size_t m_suppressions{};
+
+	std::atomic_size_t m_DispatchInProgress{};
 };
 
 class listener: noncopyable
@@ -162,6 +162,5 @@ private:
 	detail::event_handler m_Handler;
 	message_manager::handlers_map::iterator m_Iterator;
 };
-
 
 #endif // NOTIFICATION_HPP_B0BB0D31_61E8_49C3_AA4F_E8C1D7D71A25

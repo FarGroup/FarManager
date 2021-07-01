@@ -61,6 +61,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "global.hpp"
 #include "exception.hpp"
+#include "flink.hpp"
+#include "cddrv.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -72,9 +74,75 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+class FileViewer::f3_key_timer
+{
+public:
+	f3_key_timer():
+		m_Timer(500ms, {}, [this]{ m_Expired = true; })
+	{
+	}
+
+	bool expired() const
+	{
+		return m_Expired;
+	}
+
+private:
+	os::concurrency::timer m_Timer;
+	std::atomic_bool m_Expired{};
+};
+
+class FileViewer::reload_timer
+{
+public:
+	void start(string_view const FileName)
+	{
+		if (!m_UpdatePeriod)
+		{
+			m_UpdatePeriod = [&]
+			{
+				const auto PathRoot = GetPathRoot(FileName);
+
+				switch (os::fs::drive::get_type(PathRoot))
+				{
+				case DRIVE_REMOVABLE: return is_removable_usb(PathRoot)? 1s : 0s;
+				case DRIVE_FIXED:     return 1s;
+				case DRIVE_REMOTE:    return 1s;
+				case DRIVE_CDROM:     return 0s;
+				case DRIVE_RAMDISK:   return 1s;
+				default:              return 0s;
+				}
+			}();
+		}
+
+		if (*m_UpdatePeriod != 0s)
+		{
+			m_ReloadTimer = os::concurrency::timer(*m_UpdatePeriod, *m_UpdatePeriod, [this]
+			{
+				message_manager::instance().notify(m_Listener.GetEventName());
+			});
+		}
+	}
+
+	void stop()
+	{
+		m_ReloadTimer = {};
+	}
+
+private:
+	// Deliberately empty. It doesn't have to do anything,
+	// its only purpose is waking up the main loop
+	// and generating KEY_NONE to reload the file.
+	listener m_Listener{ []{} };
+
+	std::optional<std::chrono::milliseconds> m_UpdatePeriod;
+	os::concurrency::timer m_ReloadTimer;
+};
+
 FileViewer::FileViewer(private_tag, bool const DisableEdit, string_view const Title):
 	m_DisableEdit(DisableEdit),
-	m_StrTitle(Title)
+	m_StrTitle(Title),
+	m_ReloadTimer(std::make_unique<reload_timer>())
 {
 }
 
@@ -206,7 +274,9 @@ void FileViewer::Init(
 	}
 
 	ShowConsoleTitle();
-	m_F3KeyOnly=true;
+
+	m_F3Timer = std::make_unique<f3_key_timer>();
+	m_ReloadTimer->start(m_Name);
 
 	if (EnableSwitch)
 	{
@@ -308,12 +378,17 @@ long long FileViewer::VMProcess(int OpCode,void *vParam,long long iParam)
 
 bool FileViewer::ProcessKey(const Manager::Key& Key)
 {
+	if (m_F3Timer)
+	{
+		if (Key() == KEY_F3 && !m_F3Timer->expired())
+			return false;
+
+		m_F3Timer.reset();
+	}
+
 	const auto LocalKey = Key();
 	if (m_RedrawTitle && ((LocalKey & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal(LocalKey & 0x00ffffff)))
 		ShowConsoleTitle();
-
-	if (none_of(LocalKey, KEY_F3, KEY_IDLE))
-		m_F3KeyOnly=false;
 
 	switch (LocalKey)
 	{
@@ -377,9 +452,6 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 
 		case KEY_F3:
 		case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
-			if (m_F3KeyOnly)
-				return true;
-			[[fallthrough]];
 		case KEY_ESC:
 		case KEY_F10:
 			Global->WindowManager->DeleteWindow();
@@ -456,7 +528,6 @@ bool FileViewer::ProcessKey(const Manager::Key& Key)
 
 bool FileViewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	m_F3KeyOnly = false;
 	if (!m_View->ProcessMouse(MouseEvent))
 		if (!m_windowKeyBar->ProcessMouse(MouseEvent))
 			return false;
@@ -567,6 +638,12 @@ void FileViewer::ShowStatus() const
 void FileViewer::OnChangeFocus(bool focus)
 {
 	window::OnChangeFocus(focus);
+
+	if (focus)
+		m_ReloadTimer->start(m_Name);
+	else
+		m_ReloadTimer->stop();
+
 	if (!m_bClosing)
 	{
 		Global->CtrlObject->Plugins->ProcessViewerEvent(focus? VE_GOTFOCUS : VE_KILLFOCUS, nullptr, m_View.get());

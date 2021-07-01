@@ -67,6 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/algorithm.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/enum_substrings.hpp"
+#include "common/scope_exit.hpp"
 
 // External:
 
@@ -412,6 +413,8 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 	{
 		Reenter++;
 		const auto ComplMenu = VMenu2::create({}, {}, 0);
+		m_ComplMenu = ComplMenu;
+
 		ComplMenu->SetDialogMode(DMODE_NODRAWSHADOW);
 		ComplMenu->SetModeMoving(false);
 		string CurrentInput = m_Str;
@@ -541,15 +544,14 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 				bool Visible;
 				size_t Size;
 				::GetCursorType(Visible, Size);
-				ComplMenu->Key(KEY_NONE);
 				bool IsChanged = false;
-				const auto ExitCode = ComplMenu->Run([&](const Manager::Key& RawKey)
+				const auto ExitCode = ComplMenu->RunEx([&](int Msg, void* Param)
 				{
-					auto MenuKey = RawKey();
-					::SetCursorType(Visible, Size);
-
-					if(!Global->Opt->AutoComplete.ModalList)
+					if (Msg != DN_INPUT)
 					{
+						if (Global->Opt->AutoComplete.ModalList)
+							return 0;
+
 						const auto CurPos = ComplMenu->GetSelectPos();
 						if(CurPos>=0 && (PrevPos!=CurPos || IsChanged))
 						{
@@ -558,11 +560,18 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 							SetString(CurPos? ComplMenu->at(CurPos).Name : CurrentInput);
 							Show();
 						}
+
+						return 0;
 					}
-					if(MenuKey==KEY_CONSOLE_BUFFER_RESIZE)
-						SetMenuPos(*ComplMenu);
-					else if(MenuKey!=KEY_NONE)
-					{
+
+					const auto& ReadRec = *static_cast<INPUT_RECORD const*>(Param);
+					auto MenuKey = InputRecordToKey(&ReadRec);
+
+					::SetCursorType(Visible, Size);
+
+					if (MenuKey == KEY_NONE)
+						return 0;
+
 						// ввод
 						if(in_closed_range(L' ', MenuKey, std::numeric_limits<wchar_t>::max()) || any_of(MenuKey, KEY_BS, KEY_DEL, KEY_NUMDEL))
 						{
@@ -670,7 +679,6 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 							case KEY_NUMPAD7:
 							case KEY_END:
 							case KEY_NUMPAD1:
-							case KEY_IDLE:
 							case KEY_NONE:
 							case KEY_ESC:
 							case KEY_F10:
@@ -719,12 +727,12 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 							default:
 								{
 									ComplMenu->Close(-1);
-									BackKey=RawKey;
+									BackKey= Manager::Key(MenuKey, ReadRec);
 									Result=1;
 								}
 							}
 						}
-					}
+
 					return 0;
 				});
 				// mouse click
@@ -747,6 +755,12 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 		Reenter--;
 	}
 	return Result;
+}
+
+void EditControl::ResizeConsole()
+{
+	if (const auto ComplMenu = m_ComplMenu.lock())
+		SetMenuPos(*ComplMenu);
 }
 
 void EditControl::AutoComplete(bool Manual,bool DelBlock)

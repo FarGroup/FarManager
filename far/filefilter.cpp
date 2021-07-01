@@ -257,7 +257,7 @@ void FileFilter::FilterEdit()
 		if (Msg!=DN_INPUT)
 			return 0;
 
-		auto Key = InputRecordToKey(static_cast<INPUT_RECORD*>(param));
+		auto Key = InputRecordToKey(static_cast<INPUT_RECORD const*>(param));
 
 		if (Key==KEY_ADD)
 			Key=L'+';

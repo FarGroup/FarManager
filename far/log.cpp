@@ -222,7 +222,7 @@ namespace
 		{
 		}
 
-		static constexpr string_view name = L"null"sv;
+		static constexpr auto name = L"null"sv;
 	};
 
 	class sink_debug: public discardable<false>, public sink_boilerplate<sink_debug>
@@ -240,7 +240,7 @@ namespace
 			));
 		}
 
-		static constexpr string_view name = L"debug"sv;
+		static constexpr auto name = L"debug"sv;
 	};
 
 	class sink_console: public discardable<true>, public sink_boilerplate<sink_console>
@@ -333,7 +333,7 @@ namespace
 			}
 		}
 
-		static constexpr string_view name = L"console"sv;
+		static constexpr auto name = L"console"sv;
 
 	private:
 		os::handle m_Buffer;
@@ -384,7 +384,7 @@ namespace
 			}
 		}
 
-		static constexpr string_view name = L"file"sv;
+		static constexpr auto name = L"file"sv;
 
 	private:
 		static string make_filename()
@@ -486,7 +486,7 @@ namespace
 			}
 		}
 
-		static constexpr string_view name = L"pipe"sv;
+		static constexpr auto name = L"pipe"sv;
 
 	private:
 		string m_PipeName{ format(FSTR(L"\\\\.\\pipe\\far_{}.log"sv), GetCurrentProcessId()) };
@@ -531,6 +531,8 @@ namespace
 
 		void poll()
 		{
+			os::debug::set_thread_name(L"Log sink");
+
 			return seh_try_no_ui(
 				[&]
 				{

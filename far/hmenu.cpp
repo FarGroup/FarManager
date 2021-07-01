@@ -293,7 +293,6 @@ bool HMenu::ProcessKey(const Manager::Key& Key)
 		break;
 
 	case KEY_NONE:
-	case KEY_IDLE:
 		return false;
 
 	case KEY_F1:
@@ -413,17 +412,10 @@ bool HMenu::ProcessCurrentSubMenu()
 				if (Msg != DN_INPUT)
 					return 0;
 
-				auto& rec = *static_cast<INPUT_RECORD*>(param);
+				const auto& rec = *static_cast<INPUT_RECORD const*>(param);
 				const auto Key = InputRecordToKey(&rec);
 
-				if (Key == KEY_CONSOLE_BUFFER_RESIZE)
-				{
-					SCOPED_ACTION(LockScreen);
-					ResizeConsole();
-					Show();
-					return 1;
-				}
-				else if (rec.EventType == MOUSE_EVENT)
+				if (rec.EventType == MOUSE_EVENT)
 				{
 					if (!TestMouse(&rec.Event.MouseEvent))
 					{

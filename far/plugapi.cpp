@@ -468,7 +468,13 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 	{
 		if (ACTL_SYNCHRO==Command) //must be first
 		{
-			message_manager::instance().notify(plugin_synchro, std::pair(*PluginId, Param2));
+			const auto Plugin = Global->CtrlObject->Plugins->FindPlugin(*PluginId);
+			if (!Plugin)
+				return false;
+
+			Plugin->SubscribeToSynchroEvents();
+
+			message_manager::instance().notify(*PluginId, Param2);
 			return 0;
 		}
 		if (ACTL_GETWINDOWTYPE==Command)
@@ -533,7 +539,7 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			возвращает 0;
 		*/
 		case ACTL_WAITKEY:
-			WaitKey(Param2? InputRecordToKey(static_cast<const INPUT_RECORD*>(Param2)) : -1, 0, false);
+			WaitKey(Param2? InputRecordToKey(static_cast<const INPUT_RECORD*>(Param2)) : -1, {}, false);
 			return 0;
 
 		/* $ 04.12.2000 SVS
@@ -915,15 +921,15 @@ intptr_t WINAPI apiMenuFn(
 				if (Msg!=DN_INPUT || !BreakKeys)
 					return 0;
 
-				const auto ReadRec = static_cast<INPUT_RECORD*>(param);
-				const auto ReadKey = InputRecordToKey(ReadRec);
+				const auto& ReadRec = *static_cast<INPUT_RECORD const*>(param);
+				const auto ReadKey = InputRecordToKey(&ReadRec);
 
 				if (ReadKey==KEY_NONE)
 					return 0;
 
 				for (size_t i = 0; BreakKeys[i].VirtualKeyCode; ++i)
 				{
-					if (ReadRec->Event.KeyEvent.wVirtualKeyCode != BreakKeys[i].VirtualKeyCode)
+					if (ReadRec.Event.KeyEvent.wVirtualKeyCode != BreakKeys[i].VirtualKeyCode)
 						continue;
 
 					const auto NormalizeControlKeys = [](DWORD const Value)
@@ -935,7 +941,7 @@ intptr_t WINAPI apiMenuFn(
 							(Value & SHIFT_PRESSED);
 					};
 
-					if (NormalizeControlKeys(ReadRec->Event.KeyEvent.dwControlKeyState) == NormalizeControlKeys(BreakKeys[i].ControlKeyState))
+					if (NormalizeControlKeys(ReadRec.Event.KeyEvent.dwControlKeyState) == NormalizeControlKeys(BreakKeys[i].ControlKeyState))
 					{
 						if (BreakCode)
 							*BreakCode = i;

@@ -981,20 +981,15 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 		ChDisk->SetMacroMode(MACROAREA_DISKS);
 		int RetCode = -1;
 
-		bool NeedRefresh = false;
-
 		// TODO: position to a new drive?
-		SCOPED_ACTION(listener)(update_devices, [&NeedRefresh] { NeedRefresh = true; });
+		SCOPED_ACTION(listener)(update_devices, [&]
+		{
+			ChDisk->ProcessKey(Manager::Key(KEY_CTRLR));
+		});
 
 		ChDisk->Run([&](const Manager::Key& RawKey)
 		{
 			auto Key = RawKey();
-			if (Key == KEY_NONE && NeedRefresh)
-			{
-				Key = KEY_CTRLR;
-				NeedRefresh = false;
-			}
-
 			const auto SelPos = ChDisk->GetSelectPos();
 			const auto MenuItem = ChDisk->GetComplexUserDataPtr<disk_menu_item>();
 

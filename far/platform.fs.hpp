@@ -577,7 +577,10 @@ namespace os::fs
 	bool get_find_data(string_view FileName, find_data& FindData, bool ScanSymLink = true);
 
 	[[nodiscard]]
-	find_notification_handle FindFirstChangeNotification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter);
+	find_notification_handle find_first_change_notification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter);
+
+	[[nodiscard]]
+	bool find_next_change_notification(find_notification_handle const& Handle);
 
 	[[nodiscard]]
 	bool IsDiskInDrive(string_view Root);

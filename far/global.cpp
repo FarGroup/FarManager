@@ -81,11 +81,6 @@ void global::StoreSearchString(string_view const Str, bool Hex)
 	m_SearchString = Str;
 }
 
-bool global::IsPanelsActive() const
-{
-	return WindowManager && WindowManager->IsPanelsActive(true, true);
-}
-
 global::far_clock::far_clock()
 {
 	update();

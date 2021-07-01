@@ -47,12 +47,6 @@ int WINAPI ProcessEvent(
           Return FALSE to use the FAR redraw routine or TRUE to disable it. In the latter case the
           plugin must redraw the panel itself.</td></tr>
 
-        <tr class="cont"><td class="cont" width="40%"><a name="FE_IDLE" title="2">FE_IDLE</a></td>
-        <td class="cont" width="60%">Sent every few seconds. A plugin can use this event to request
-          panel updating and redrawing, if necessary.<br>
-          <i>Param</i> is equal to NULL.<br>
-          Return value must be FALSE.</td></tr>
-
         <tr class="cont"><td class="cont" width="40%"><a name="FE_CLOSE" title="3">FE_CLOSE</a></td>
         <td class="cont" width="60%">The panel is about to close.<br>
           <i>Param</i> is equal to NULL.<br>

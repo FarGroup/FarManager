@@ -12,4 +12,5 @@ EXPORTS
 	OpenW=OpenW@4
 	ProcessPanelEventW=ProcessPanelEventW@4
 	ProcessPanelInputW=ProcessPanelInputW@4
+	ProcessSynchroEventW=ProcessSynchroEventW@4
 	SetStartupInfoW=SetStartupInfoW@4

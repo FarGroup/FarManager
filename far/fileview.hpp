@@ -130,7 +130,6 @@ private:
 
 	std::unique_ptr<Viewer> m_View;
 	bool m_RedrawTitle{};
-	bool m_F3KeyOnly{};
 	bool m_bClosing{};
 	bool m_FullScreen{true};
 	bool m_DisableEdit;
@@ -139,6 +138,13 @@ private:
 	bool m_SaveToSaveAs{};
 	int m_DeleteOnClose{};
 	string m_StrTitle;
+
+	class f3_key_timer;
+	std::unique_ptr<f3_key_timer> m_F3Timer;
+
+	class reload_timer;
+	std::unique_ptr<reload_timer> m_ReloadTimer;
+
 };
 
 #endif // FILEVIEW_HPP_BC5E36F0_1E01_45AE_A121_A8D6EED6A14C

@@ -108,7 +108,7 @@ CFLAGS += \
 	-include $(FARDIR)disabled_warnings.hpp \
 
 CPPFLAGS = $(CFLAGS)\
-	-std=gnu++17 \
+	-std=gnu++2a \
 	-fvisibility=hidden \
 	-Werror=old-style-cast \
 	-Wctor-dtor-privacy \

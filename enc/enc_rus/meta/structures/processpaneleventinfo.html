@@ -45,10 +45,6 @@ struct ProcessPanelEventInfo
     <td class="cont" width="60%">Панель должна перерисоваться.<br>
     <code>Param</code> равен <code>NULL</code>.<br>
     Верните в <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> <code>FALSE</code>, чтобы использовать функцию перерисовки Far Manager'a, или <code>TRUE</code>, чтобы отключить её. В последнем случае плагин должен перерисовать панель сам.</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FE_IDLE">FE_IDLE</a></td>
-    <td class="cont" width="60%">Посылается с интервалом в несколько секунд. Плагин может использовать это событие, чтобы вызвать обновление панели и её перерисовку, если это необходимо.<br>
-    <code>Param</code> равен <code>NULL</code>.<br>
-    Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть <code>FALSE</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FE_CLOSE">FE_CLOSE</a></td>
     <td class="cont" width="60%">Панель закрывается.<br>
     <code>Param</code> равен <code>NULL</code>.<br>
