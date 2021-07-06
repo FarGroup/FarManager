@@ -442,12 +442,12 @@ static bool ExcDialog(string const& ReportLocation, bool const CanUnload)
 	if (CanUnload)
 	{
 		lng const MsgIDs[]{ lng::MExcTerminate, lng::MExcUnload, lng::MIgnore };
-		Builder.AddButtons(MsgIDs, 0, 2);
+		Builder.AddButtons(MsgIDs, 0, std::size(MsgIDs) - 1);
 	}
 	else
 	{
 		lng const MsgIDs[]{ lng::MExcTerminate, lng::MIgnore };
-		Builder.AddButtons(MsgIDs, 0, 1);
+		Builder.AddButtons(MsgIDs, 0, std::size(MsgIDs) - 1);
 	}
 
 	Builder.SetDialogMode(DMODE_WARNINGSTYLE | DMODE_NOPLUGINS);

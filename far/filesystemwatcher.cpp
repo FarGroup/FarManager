@@ -183,6 +183,21 @@ void FileSystemWatcher::Register()
 
 						message_manager::instance().notify(m_EventId);
 
+						// FS changes can occur at a high rate.
+						// We don't want to DoS ourselves here, so notifications are throttled down to one per second at most:
+						if (m_Cancelled.is_signaled(1s))
+						{
+							LOGDEBUG(L"Stop monitoring {}"sv, m_Directory);
+							return;
+						}
+
+						// https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findnextchangenotification
+						// If a change occurs after a call to FindFirstChangeNotification
+						// but before a call to FindNextChangeNotification, the operating system records the change.
+						// When FindNextChangeNotification is executed, the recorded change
+						// immediately satisfies a wait for the change notification.
+
+						// In other words, even with throttled notifications we shouldn't miss anything.
 						if (!os::fs::find_next_change_notification(Notification))
 						{
 							LOGWARNING(L"find_next_change_notification({}): {}"sv, m_Directory, last_error());

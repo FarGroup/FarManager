@@ -335,7 +335,7 @@ void Editor::ShowEditor()
 
 	if (Y != m_Where.bottom + 1)
 	{
-		SetScreen({ m_Where.left, Y, XX2, m_Where.bottom }, L' ', colors::PaletteColorToFarColor(COL_EDITORTEXT)); //Пустые строки после конца текста
+		SetScreen({ m_Where.left, Y, XX2, m_Where.bottom }, L' ', Color); //Пустые строки после конца текста
 	}
 
 	if (IsVerticalSelection() && VBlockSizeX > 0 && VBlockSizeY > 0)
@@ -360,7 +360,7 @@ void Editor::ShowEditor()
 						BlockX2=XX2;
 
 					if (BlockX1 <= XX2 && BlockX2 >= m_Where.left)
-						Global->ScrBuf->ApplyColor({ BlockX1, Y, BlockX2, Y }, colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT));
+						Global->ScrBuf->ApplyColor({ BlockX1, Y, BlockX2, Y }, SelColor);
 				}
 
 				++CurPtr;
@@ -3569,7 +3569,7 @@ bool Editor::Search(bool Next)
 							ColorItem newcol = {};
 							newcol.StartPos=m_FoundPos;
 							newcol.EndPos=m_FoundPos + m_FoundSize - 1;
-							newcol.SetColor(colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT));
+							newcol.SetColor(SelColor);
 							newcol.SetOwner(FarUuid);
 							newcol.Priority=EDITOR_COLOR_SELECTION_PRIORITY;
 							CurPtr->AddColor(newcol);

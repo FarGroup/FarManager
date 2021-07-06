@@ -2819,7 +2819,9 @@ bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdat
 
 	if (!NewDir.empty())
 	{
-		Panel::SetCurDir(NewDir, ClosePanel, IsUpdated, Silent);
+		if (m_PanelMode != panel_mode::PLUGIN_PANEL)
+			Panel::SetCurDir(NewDir, ClosePanel, IsUpdated, Silent);
+
 		return ChangeDir(NewDir, NewDir == L".."sv, true, IsUpdated, &UsedData, OFP_NORMAL, Silent);
 	}
 

@@ -1,4 +1,15 @@
 --------------------------------------------------------------------------------
+drkns 06.07.2021 17:17:17 +0100 - build 5844
+
+1. #0003877: Exit to archive root via cd \ breaks the panel title.
+
+2. #0003878: Incorrect selection when the block is beyond the screen border.
+
+3. Several fixes in 1.x plugin wrapper related to colors processing.
+
+4. Throttle down file panel updates on FS changes to one per second at most.
+
+--------------------------------------------------------------------------------
 drkns 01.07.2021 03:01:55 +0100 - build 5843
 
 1. Autocomplete-related fixes.
