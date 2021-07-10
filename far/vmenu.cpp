@@ -441,7 +441,7 @@ int VMenu::AddItem(MenuItemEx&& NewItem,int PosAdd)
 		SelectPos++;
 
 	if (CheckFlags(VMENU_SHOWAMPERSAND))
-		UpdateMaxLength(NewMenuItem.Name.size());
+		UpdateMaxLength(visual_string_length(NewMenuItem.Name));
 	else
 		UpdateMaxLength(HiStrlen(NewMenuItem.Name));
 
@@ -459,15 +459,22 @@ bool VMenu::UpdateItem(const FarListUpdate *NewItem)
 	if (!NewItem || static_cast<size_t>(NewItem->Index) >= Items.size())
 		return false;
 
+	auto& Item = Items[NewItem->Index];
+
 	// Освободим память... от ранее занятого ;-)
 	if (NewItem->Item.Flags&LIF_DELETEUSERDATA)
 	{
-		Items[NewItem->Index].ComplexUserData = {};
+		Item.ComplexUserData = {};
 	}
 
-	Items[NewItem->Index].Name = NullToEmpty(NewItem->Item.Text);
+	Item.Name = NullToEmpty(NewItem->Item.Text);
 	UpdateItemFlags(NewItem->Index, NewItem->Item.Flags);
-	Items[NewItem->Index].SimpleUserData = NewItem->Item.UserData;
+	Item.SimpleUserData = NewItem->Item.UserData;
+
+	if (CheckFlags(VMENU_SHOWAMPERSAND))
+		UpdateMaxLength(visual_string_length(Item.Name));
+	else
+		UpdateMaxLength(HiStrlen(Item.Name));
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED | (bFilterEnabled ? VMENU_REFILTERREQUIRED : VMENU_NONE));
 
@@ -536,7 +543,7 @@ void VMenu::clear()
 	ItemSubMenusCount=0;
 	SelectPos=-1;
 	TopPos=0;
-	m_MaxLength=0;
+	m_MaxItemLength = 0;
 	UpdateMaxLengthFromTitles();
 
 	SetMenuFlags(VMENU_UPDATEREQUIRED);
@@ -1277,7 +1284,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 
 				for (auto& i: Items)
 				{
-					const auto Len = CheckFlags(VMENU_SHOWAMPERSAND)? i.Name.size() : HiStrlen(i.Name);
+					const auto Len = CheckFlags(VMENU_SHOWAMPERSAND)? visual_string_length(i.Name) : HiStrlen(i.Name);
 					if (Len >= MaxLineWidth)
 						i.ShowPos = Len - MaxLineWidth;
 				}
@@ -1772,7 +1779,7 @@ bool VMenu::ShiftItemShowPos(int Pos, int Direct)
 {
 	auto ItemShowPos = Items[Pos].ShowPos;
 
-	const auto Len = VMFlags.Check(VMENU_SHOWAMPERSAND)? Items[Pos].Name.size() : HiStrlen(Items[Pos].Name);
+	const auto Len = VMFlags.Check(VMENU_SHOWAMPERSAND)? visual_string_length(Items[Pos].Name) : HiStrlen(Items[Pos].Name);
 
 	if (Len < MaxLineWidth || (Direct < 0 && !ItemShowPos) || (Direct > 0 && ItemShowPos > Len))
 		return false;
@@ -1802,17 +1809,7 @@ bool VMenu::ShiftItemShowPos(int Pos, int Direct)
 
 void VMenu::Show()
 {
-	if (CheckFlags(VMENU_LISTBOX))
-	{
-		if (CheckFlags(VMENU_LISTSINGLEBOX))
-			m_BoxType = SHORT_SINGLE_BOX;
-		else if (CheckFlags(VMENU_SHOWNOBOX))
-			m_BoxType = NO_BOX;
-		else if (CheckFlags(VMENU_LISTHASFOCUS))
-			m_BoxType = SHORT_DOUBLE_BOX;
-		else
-			m_BoxType = SHORT_SINGLE_BOX;
-	}
+	const auto ServiceAreaSize = GetServiceAreaSize();
 
 	if (!CheckFlags(VMENU_LISTBOX))
 	{
@@ -1820,12 +1817,14 @@ void VMenu::Show()
 
 		if (!CheckFlags(VMENU_COMBOBOX))
 		{
-			const auto HasSubMenus = ItemSubMenusCount > 0;
+			const auto VisibleMaxItemLength = std::min(static_cast<size_t>(ScrX) > ServiceAreaSize? ScrX - ServiceAreaSize : 0, m_MaxItemLength);
+			const auto MenuWidth = ServiceAreaSize + VisibleMaxItemLength;
+
 			bool AutoCenter = false;
 
 			if (m_Where.left == -1)
 			{
-				m_Where.left = static_cast<short>(ScrX - m_MaxLength - 4 - (HasSubMenus? 1 : 0)) / 2;
+				m_Where.left = static_cast<short>(ScrX - MenuWidth) / 2;
 				AutoCenter = true;
 			}
 
@@ -1833,7 +1832,7 @@ void VMenu::Show()
 				m_Where.left = 2;
 
 			if (m_Where.right <= 0)
-				m_Where.right = static_cast<short>(m_Where.left + m_MaxLength + 4 + (HasSubMenus? 1 : 0));
+				m_Where.right = static_cast<short>(m_Where.left + MenuWidth);
 
 			if (!AutoCenter && m_Where.right > ScrX-4+2*(m_BoxType==SHORT_DOUBLE_BOX || m_BoxType==SHORT_SINGLE_BOX))
 			{
@@ -2020,33 +2019,9 @@ void VMenu::DrawTitles() const
 
 void VMenu::ShowMenu(bool IsParent)
 {
-	size_t MaxItemLength = 0;
+	const auto ServiceAreaSize = GetServiceAreaSize();
+	const auto CalcMaxLineWidth = ServiceAreaSize > static_cast<size_t>(m_Where.width())? 0 : m_Where.width() - ServiceAreaSize;
 
-	//BUGBUG, this must be optimized
-	for (const auto& i: Items)
-	{
-		MaxItemLength = std::max(MaxItemLength, CheckFlags(VMENU_SHOWAMPERSAND)? i.Name.size() : HiStrlen(i.Name));
-	}
-
-	int CalcMaxLineWidth = m_Where.width();
-
-	if (m_BoxType != NO_BOX)
-		CalcMaxLineWidth -= 2; // frame
-
-	CalcMaxLineWidth -= 2; // check mark + left horz. scroll
-
-	if (/*!CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX) && */ ItemSubMenusCount > 0)
-		CalcMaxLineWidth -= 1; // sub menu arrow
-
-	if ((CheckFlags(VMENU_LISTBOX | VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar) && m_BoxType == NO_BOX && ScrollBarRequired(m_Where.height(), GetShowItemCount()))
-		CalcMaxLineWidth -= 1; // scrollbar
-
-	if (static_cast<int>(MaxItemLength) > CalcMaxLineWidth)
-	{
-		CalcMaxLineWidth -= 1; // right horz. scroll
-	}
-
-	CalcMaxLineWidth = std::max(CalcMaxLineWidth, 0);
 	MaxLineWidth = CalcMaxLineWidth;
 
 	if (m_Where.right <= m_Where.left || m_Where.bottom <= m_Where.top)
@@ -2057,15 +2032,6 @@ void VMenu::ShowMenu(bool IsParent)
 
 	if (CheckFlags(VMENU_LISTBOX))
 	{
-		if (CheckFlags(VMENU_LISTSINGLEBOX))
-			m_BoxType = SHORT_SINGLE_BOX;
-		else if (CheckFlags(VMENU_SHOWNOBOX))
-			m_BoxType = NO_BOX;
-		else if (CheckFlags(VMENU_LISTHASFOCUS))
-			m_BoxType = SHORT_DOUBLE_BOX;
-		else
-			m_BoxType = SHORT_SINGLE_BOX;
-
 		if (!IsParent || !GetShowItemCount())
 		{
 			if (GetShowItemCount())
@@ -2526,13 +2492,9 @@ void VMenu::UpdateMaxLengthFromTitles()
 	UpdateMaxLength(std::max(strTitle.size(), strBottomTitle.size()) + 2);
 }
 
-void VMenu::UpdateMaxLength(size_t Length)
+void VMenu::UpdateMaxLength(size_t const Length)
 {
-	if (Length > m_MaxLength)
-		m_MaxLength = Length;
-
-	if (m_MaxLength + 8 > static_cast<size_t>(ScrX))
-		m_MaxLength = std::max(0, ScrX - 8);
+	m_MaxItemLength = std::max(m_MaxItemLength, Length);
 }
 
 void VMenu::SetMaxHeight(int NewMaxHeight)
@@ -2764,7 +2726,12 @@ bool VMenu::GetVMenuInfo(FarListInfo* Info) const
 		Info->SelectPos = SelectPos;
 		Info->TopPos = TopPos;
 		Info->MaxHeight = MaxHeight;
-		Info->MaxLength = m_MaxLength + (ItemSubMenusCount > 0? 1 : 0);
+		// BUGBUG
+		const auto ServiceAreaSize = const_cast<VMenu*>(this)->GetServiceAreaSize();
+		if (static_cast<size_t>(m_Where.width()) > ServiceAreaSize)
+			Info->MaxLength = m_Where.width() - ServiceAreaSize;
+		else
+			Info->MaxLength = 0;
 		return true;
 	}
 
@@ -2942,6 +2909,11 @@ std::vector<string> VMenu::AddHotkeys(span<menu_item> const MenuItems)
 	return Result;
 }
 
+size_t VMenu::MaxItemLength() const
+{
+	return m_MaxItemLength;
+}
+
 void VMenu::EnableFilter(bool const Enable)
 {
 	bFilterEnabled = Enable;
@@ -2950,6 +2922,38 @@ void VMenu::EnableFilter(bool const Enable)
 
 	if (!Enable)
 		RestoreFilteredItems();
+}
+
+size_t VMenu::GetServiceAreaSize()
+{
+	if (CheckFlags(VMENU_LISTBOX))
+	{
+		if (CheckFlags(VMENU_LISTSINGLEBOX))
+			m_BoxType = SHORT_SINGLE_BOX;
+		else if (CheckFlags(VMENU_SHOWNOBOX))
+			m_BoxType = NO_BOX;
+		else if (CheckFlags(VMENU_LISTHASFOCUS))
+			m_BoxType = SHORT_DOUBLE_BOX;
+		else
+			m_BoxType = SHORT_SINGLE_BOX;
+	}
+
+	size_t ServiceAreaSize = 0;
+
+	if (m_BoxType != NO_BOX)
+		ServiceAreaSize += 2; // frame
+
+	++ServiceAreaSize; // check mark
+	++ServiceAreaSize; // left scroll indicator
+	++ServiceAreaSize; // right scroll indicator
+
+	if (ItemSubMenusCount > 0)
+		++ServiceAreaSize; // sub menu arrow
+
+	if ((CheckFlags(VMENU_LISTBOX | VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar) && m_BoxType == NO_BOX && ScrollBarRequired(m_Where.height(), GetShowItemCount()))
+		++ServiceAreaSize; // scrollbar
+
+	return ServiceAreaSize;
 }
 
 size_t VMenu::Text(string_view const Str) const

@@ -857,12 +857,12 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				}
 			}
 
-			TypeWidth = std::max(TypeWidth, NewItem.Type.size());
-			LabelWidth = std::max(LabelWidth, NewItem.Label.size());
-			FsWidth = std::max(FsWidth, NewItem.Fs.size());
-			TotalSizeWidth = std::max(TotalSizeWidth, NewItem.TotalSize.size());
-			FreeSizeWidth = std::max(FreeSizeWidth, NewItem.FreeSize.size());
-			PathWidth = std::max(PathWidth, NewItem.AssociatedPath.size());
+			TypeWidth = std::max(TypeWidth, visual_string_length(NewItem.Type));
+			LabelWidth = std::max(LabelWidth, visual_string_length(NewItem.Label));
+			FsWidth = std::max(FsWidth, visual_string_length(NewItem.Fs));
+			TotalSizeWidth = std::max(TotalSizeWidth, visual_string_length(NewItem.TotalSize));
+			FreeSizeWidth = std::max(FreeSizeWidth, visual_string_length(NewItem.FreeSize));
+			PathWidth = std::max(PathWidth, visual_string_length(NewItem.AssociatedPath));
 
 			Items.emplace_back(NewItem);
 		};

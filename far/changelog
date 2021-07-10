@@ -1,4 +1,19 @@
 --------------------------------------------------------------------------------
+drkns 10.07.2021 15:55:20 +0100 - build 5845
+
+1. Correctly show delete indicator if the directory scan before it was cancelled.
+
+2. A few more fullwidth-related improvements.
+
+3. Workaround for a conhost bug in DirectX mode.
+
+4. Properly update Find File status bar.
+
+5. Properly discard previous Find File results in all cases.
+
+6. Speed up Find File by removing a few quadratic algorithms from the listbox / menu implementation.
+
+--------------------------------------------------------------------------------
 drkns 06.07.2021 17:17:17 +0100 - build 5844
 
 1. #0003877: Exit to archive root via cd \ breaks the panel title.

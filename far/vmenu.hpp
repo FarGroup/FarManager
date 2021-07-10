@@ -292,6 +292,8 @@ public:
 	static FarListItem *MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem);
 	static std::vector<string> AddHotkeys(span<menu_item> MenuItems);
 
+	size_t MaxItemLength() const;
+
 private:
 	void init(span<menu_item const> Data, DWORD Flags);
 
@@ -310,6 +312,7 @@ private:
 	//корректировка текущей позиции и флагов SELECTED
 	void UpdateSelectPos();
 	void EnableFilter(bool Enable);
+	size_t GetServiceAreaSize();
 
 	size_t Text(string_view Str) const;
 	size_t Text(wchar_t Char) const;
@@ -321,7 +324,7 @@ private:
 	int TopPos{};
 	int MaxHeight;
 	bool WasAutoHeight{};
-	size_t m_MaxLength{};
+	size_t m_MaxItemLength{};
 	int m_BoxType;
 	window_ptr CurrentWindow;
 	bool PrevCursorVisible{};

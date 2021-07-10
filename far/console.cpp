@@ -557,7 +557,8 @@ namespace console_detail
 
 		// in XP FontInfo.dwFontSize contains something else than the size in pixels.
 		FontInfo.dwFontSize = GetConsoleFontSize(OutputHandle, FontInfo.nFont);
-		return true;
+
+		return FontInfo.dwFontSize.X && FontInfo.dwFontSize.Y;
 	}
 
 	// Workaround for a bug in the classic console: mouse position is screen-based

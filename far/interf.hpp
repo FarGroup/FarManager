@@ -170,6 +170,8 @@ struct position_parser_state
 size_t string_pos_to_visual_pos(string_view Str, size_t StringPos, size_t TabSize, position_parser_state* SavedState = {});
 size_t visual_pos_to_string_pos(string_view Str, size_t VisualPos, size_t TabSize, position_parser_state* SavedState = {});
 
+size_t visual_string_length(string_view Str);
+
 bool is_valid_surrogate_pair(string_view Str);
 bool is_valid_surrogate_pair(wchar_t First, wchar_t Second);
 

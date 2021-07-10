@@ -1281,6 +1281,14 @@ size_t visual_pos_to_string_pos(string_view Str, size_t const VisualPos, size_t 
 	return State.StringIndex + (State.VisualIndex < VisualPos? VisualPos - State.VisualIndex : 0);
 }
 
+size_t visual_string_length(string_view Str)
+{
+	// In theory, this function doesn't need to care about tabs:
+	// they're not allowed in file names and everywhere else
+	// we replace them with spaces for display purposes.
+	return string_pos_to_visual_pos(Str, Str.size(), 1, {});
+}
+
 bool is_valid_surrogate_pair(string_view const Str)
 {
 	if (Str.size() < 2)
@@ -1499,7 +1507,31 @@ string make_progressbar(size_t Size, size_t Percent, bool ShowPercent, bool Prop
 size_t HiStrlen(string_view const Str)
 {
 	size_t Result = 0;
-	unescape(Str, [&](wchar_t){ ++Result; return true; });
+	std::optional<wchar_t> First;
+
+	unescape(Str, [&](wchar_t const Char)
+	{
+		if (encoding::utf16::is_high_surrogate(Char))
+		{
+			First = Char;
+			return true;
+		}
+
+		const auto IsLow = encoding::utf16::is_low_surrogate(Char);
+		if (!IsLow)
+			First.reset();
+
+		const auto Codepoint = First && IsLow? encoding::utf16::extract_codepoint(*First, Char) : Char;
+
+		Result += char_width::is_wide(Codepoint)? 2 : 1;
+		return true;
+	});
+
+	if (First)
+	{
+		++Result;
+	}
+
 	return Result;
 }
 

@@ -156,6 +156,9 @@
 				<DisplayString Condition="is_f_index(0xd)">fuchsia</DisplayString>
 				<DisplayString Condition="is_f_index(0xe)">yellow</DisplayString>
 				<DisplayString Condition="is_f_index(0xf)">white</DisplayString>
+				<Expand>
+					<Item Name="alpha">short(ForegroundRGBA.a)</Item>
+				</Expand>
 			</Synthetic>
 			<Synthetic Name="Background">
 				<DisplayString Condition="is_b_rgb()">{BackgroundRGBA}</DisplayString>
@@ -175,6 +178,9 @@
 				<DisplayString Condition="is_b_index(0xd)">fuchsia</DisplayString>
 				<DisplayString Condition="is_b_index(0xe)">yellow</DisplayString>
 				<DisplayString Condition="is_b_index(0xf)">white</DisplayString>
+				<Expand>
+					<Item Name="alpha">short(BackgroundRGBA.a)</Item>
+				</Expand>
 			</Synthetic>
 			<Synthetic Name="Flags">
 				<DisplayString>{Flags,h}</DisplayString>
