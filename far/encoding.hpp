@@ -178,7 +178,7 @@ namespace encoding
 	public:
 		NONCOPYABLE(memory_writer);
 		explicit memory_writer(uintptr_t Codepage, bool AddSignature = true);
-		void write(string_view Str, const bool validate=true);
+		void write(string_view Str, bool validate = true);
 
 		void flush_to(std::ostream& Stream);
 

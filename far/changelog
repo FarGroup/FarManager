@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 11.07.2021 16:27:30 +0100 - build 5846
+
+1. Screen artefacts after updating QView panel.
+
+--------------------------------------------------------------------------------
 drkns 10.07.2021 15:55:20 +0100 - build 5845
 
 1. Correctly show delete indicator if the directory scan before it was cancelled.

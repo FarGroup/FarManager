@@ -530,6 +530,8 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 					AnotherPanel->Update(UPDATE_KEEP_SELECTION);
 
 					AnotherPanel->Show();
+
+					ActivePanel()->Show();
 				}
 			}
 			break;

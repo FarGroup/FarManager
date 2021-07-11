@@ -489,11 +489,6 @@ void QuickView::ShowFile(string_view const FileName, const UserDataItem* const U
 			const auto ExitCode = GetDirInfo(strCurFileName, Data, nullptr, DirInfoCallback, GETDIRINFO_ENHBREAK | GETDIRINFO_SCANSYMLINKDEF);
 			m_DirectoryScanStatus = ExitCode == -1? scan_status::real_fail : scan_status::real_ok; // ExitCode: 1=done; 0=Esc,CtrlBreak; -1=Other
 			uncomplete_dirscan = ExitCode != 1;
-
-			if (const auto Window = m_Owner.lock())
-			{
-				Window->Redraw();
-			}
 		}
 	}
 	else
