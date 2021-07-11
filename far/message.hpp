@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/2d/rectangle.hpp"
+#include "common/preprocessor.hpp"
 #include "common/range.hpp"
 
 // External:
@@ -64,9 +65,11 @@ enum
 class Plugin;
 class Dialog;
 
-class Message: noncopyable
+class Message
 {
 public:
+	NONCOPYABLE(Message);
+
 	Message(
 		unsigned Flags,
 		string_view Title,

@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.hpp"
 
 // Common:
+#include "common/preprocessor.hpp"
 
 // External:
 
@@ -49,9 +50,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum class lng;
 
-class global: noncopyable
+class global
 {
 public:
+	NONCOPYABLE(global);
+
 	global();
 	~global();
 

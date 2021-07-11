@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/bytes_view.hpp"
+#include "common/preprocessor.hpp"
 #include "common/range.hpp"
 
 // External:
@@ -70,9 +71,11 @@ private:
 	int m_ErrorCode;
 };
 
-class SQLiteDb: noncopyable, virtual protected transactional
+class SQLiteDb: virtual protected transactional
 {
 public:
+	NONCOPYABLE(SQLiteDb);
+
 	using busy_handler = int(*)(void*, int) noexcept;
 	static void library_load();
 	static void library_free();

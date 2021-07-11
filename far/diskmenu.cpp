@@ -68,10 +68,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_sort.hpp"
 #include "pathmix.hpp"
 #include "cvtname.hpp"
+#include "log.hpp"
 
 // Platform:
-#include "platform.reg.hpp"
+#include "platform.com.hpp"
 #include "platform.fs.hpp"
+#include "platform.reg.hpp"
 
 // Common:
 #include "common/view/enumerate.hpp"
@@ -656,40 +658,11 @@ static void RemoveHotplugDevice(panel_ptr Owner, const disk_item& item, VMenu2 &
 	}
 }
 
-static bool GetShellName(string_view const RootDirectory, string& Name)
+static string GetShellName(string_view const RootDirectory)
 {
-	// Q: Why not SHCreateItemFromParsingName + IShellItem::GetDisplayName?
-	// A: Not available in WinXP.
-
-	// Q: Why not SHParseDisplayName + SHCreateShellItem + IShellItem::GetDisplayName then?
-	// A: Not available in Win2k.
-
-	if (!is_disk(RootDirectory))
-		return false;
-
-	const auto Path = dos_drive_root_directory(RootDirectory);
-
-	SCOPED_ACTION(os::com::initialize);
-
-	os::com::ptr<IShellFolder> ShellFolder;
-	if (FAILED(SHGetDesktopFolder(&ptr_setter(ShellFolder))))
-		return false;
-
-	os::com::memory<PIDLIST_RELATIVE> IdList;
-	null_terminated const C_Path(Path);
-	if (FAILED(ShellFolder->ParseDisplayName(nullptr, nullptr, UNSAFE_CSTR(C_Path), nullptr, &ptr_setter(IdList), nullptr)))
-		return false;
-
-	STRRET StrRet;
-	if (FAILED(ShellFolder->GetDisplayNameOf(IdList.get(), SHGDN_FOREDITING, &StrRet)))
-		return false;
-
-	if (StrRet.uType != STRRET_WSTR)
-		return false;
-
-	const os::com::memory<wchar_t*> Str(StrRet.pOleStr);
-	Name = Str.get();
-	return true;
+	return is_disk(RootDirectory)?
+		os::com::get_shell_name(dos_drive_root_directory(RootDirectory)) :
+		L""s;
 }
 
 static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
@@ -808,7 +781,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 					if (TryReadLabel && DriveMode & DRIVE_SHOW_LABEL_USE_SHELL)
 					{
-						TryReadLabel = !GetShellName(RootDirectory, NewItem.Label);
+						NewItem.Label = GetShellName(RootDirectory);
+						TryReadLabel = !NewItem.Label.empty();
 					}
 
 					const auto LabelPtr = TryReadLabel? &NewItem.Label : nullptr;

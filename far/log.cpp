@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.concurrency.hpp"
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
+#include "platform.version.hpp"
 
 // Common:
 #include "common/from_string.hpp"
@@ -765,6 +766,7 @@ namespace logging
 				return;
 
 			LOGINFO(L"{}"sv, build::version_string());
+			LOGINFO(L"Windows {}", os::version::os_version());
 
 			configure_env();
 		}

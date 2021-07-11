@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/noncopyable.hpp"
 #include "common/smart_ptr.hpp"
 #include "common/utility.hpp"
 
@@ -358,9 +357,11 @@ namespace os
 		};
 
 		template<typename T>
-		class function_pointer: noncopyable
+		class function_pointer
 		{
 		public:
+			NONCOPYABLE(function_pointer);
+
 			function_pointer(const module& Module, const char* Name):
 				m_Module(&Module),
 				m_Name(Name)
@@ -411,42 +412,6 @@ namespace os
 
 		template<class T>
 		using ptr = std::unique_ptr<T, detail::deleter<T>>;
-	}
-
-	namespace com
-	{
-		class initialize: noncopyable
-		{
-		public:
-			initialize();
-			~initialize();
-
-		private:
-			const bool m_Initialised;
-		};
-
-		namespace detail
-		{
-			template<typename T>
-			struct releaser
-			{
-				void operator()(T* Object) const
-				{
-					Object->Release();
-				}
-			};
-
-			struct memory_releaser
-			{
-				void operator()(const void* Object) const;
-			};
-		}
-
-		template<typename T>
-		using ptr = std::unique_ptr<T, detail::releaser<T>>;
-
-		template<typename T>
-		using memory = std::unique_ptr<std::remove_pointer_t<T>, detail::memory_releaser>;
 	}
 
 	namespace uuid

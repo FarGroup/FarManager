@@ -203,6 +203,7 @@ LINK_OBJS = \
 	"$(INTDIR)\pipe.obj" \
 	"$(INTDIR)\platform.obj" \
 	"$(INTDIR)\platform.chrono.obj" \
+	"$(INTDIR)\platform.com.obj" \
 	"$(INTDIR)\platform.concurrency.obj" \
 	"$(INTDIR)\platform.env.obj" \
 	"$(INTDIR)\platform.fs.obj" \
