@@ -499,7 +499,7 @@ enum color_dialog_items
 static string color_code(COLORREF const Color, bool const Is4Bit)
 {
 	return Is4Bit?
-		format(FSTR(L"{:02X}     {:X}"sv), colors::alpha_value(Color) >> 24, colors::index_value(Color)) :
+		format(FSTR(L"{:02X}     {:X}"sv), colors::alpha_value(Color), colors::index_value(Color)) :
 		format(FSTR(L"{:08X}"sv), colors::ARGB2ABGR(Color));
 }
 
@@ -572,7 +572,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	const auto SetComponentColorValue = [&CurColor](bool IsFg, COLORREF const Value)
 	{
 		auto& Component = IsFg? CurColor.ForegroundColor : CurColor.BackgroundColor;
-		Component = colors::alpha_value(Component) | colors::color_value(Value);
+		Component = colors::alpha_bits(Component) | colors::color_bits(Value);
 	};
 
 

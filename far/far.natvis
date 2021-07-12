@@ -172,8 +172,8 @@
 				<DisplayString Condition="is_f_index(0xe)">yellow</DisplayString>
 				<DisplayString Condition="is_f_index(0xf)">white</DisplayString>
 				<Expand>
-					<Item Name="index">short(ForegroundColor &amp; 0xf),xb</Item>
-					<Item Name="alpha">short(ForegroundRGBA.a)</Item>
+					<Item Name="index">short(ForegroundIndex.i),xb</Item>
+					<Item Name="alpha">short(ForegroundIndex.a)</Item>
 				</Expand>
 			</Synthetic>
 			<Synthetic Name="Background">
@@ -195,8 +195,8 @@
 				<DisplayString Condition="is_b_index(0xe)">yellow</DisplayString>
 				<DisplayString Condition="is_b_index(0xf)">white</DisplayString>
 				<Expand>
-					<Item Name="index">short(BackgroundColor &amp; 0xf),xb</Item>
-					<Item Name="alpha">short(BackgroundRGBA.a)</Item>
+					<Item Name="index">short(BackgroundIndex.i),xb</Item>
+					<Item Name="alpha">short(BackgroundIndex.a)</Item>
 				</Expand>
 			</Synthetic>
 			<Synthetic Name="Flags">

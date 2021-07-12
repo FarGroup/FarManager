@@ -295,17 +295,8 @@ void Grabber::DisplayObject()
 					}
 				}
 
-				Destination.BackgroundColor = colors::alpha_value(CurColor.BackgroundColor) | (
-					CurColor.IsBg4Bit()?
-						colors::index_value(~colors::index_value(CurColor.BackgroundColor)) :
-						colors::color_value(~colors::color_value(CurColor.BackgroundColor))
-					);
-
-				Destination.ForegroundColor = colors::alpha_value(CurColor.ForegroundColor) | (
-					CurColor.IsFg4Bit()?
-						colors::index_value(~colors::index_value(CurColor.ForegroundColor)) :
-						colors::color_value(~colors::color_value(CurColor.ForegroundColor))
-					);
+				colors::make_invert(Destination.BackgroundColor, CurColor.IsBg4Bit());
+				colors::make_invert(Destination.ForegroundColor, CurColor.IsFg4Bit());
 			}
 		}
 

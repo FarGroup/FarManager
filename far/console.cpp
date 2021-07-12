@@ -1677,6 +1677,11 @@ namespace console_detail
 		return sEnableVirtualTerminal && GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 	}
 
+	bool console::ExternalRendererLoaded() const
+	{
+		return ExternalConsole.Imports.pWriteOutput.operator bool();
+	}
+
 	bool console::IsWidePreciseExpensive(unsigned int const Codepoint, bool const ClearCacheOnly)
 	{
 		// It ain't stupid if it works

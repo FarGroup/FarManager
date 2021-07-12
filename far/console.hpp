@@ -177,6 +177,9 @@ namespace console_detail
 		bool IsVtEnabled() const;
 
 		[[nodiscard]]
+		bool ExternalRendererLoaded() const;
+
+		[[nodiscard]]
 		bool IsWidePreciseExpensive(unsigned int Codepoint, bool ClearCacheOnly = false);
 
 		bool GetPalette(std::array<COLORREF, 16>& Palette) const;

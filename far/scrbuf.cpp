@@ -207,10 +207,39 @@ void ScreenBuf::Read(rectangle Where, matrix<FAR_CHAR_INFO>& Dest)
 	}
 }
 
-/* Изменить значение цветовых атрибутов в соответствии с маской
-   (применяется для "создания" тени)
-*/
-void ScreenBuf::ApplyShadow(rectangle Where)
+static COLORREF apply_index_shadow(COLORREF const Color)
+{
+	// If it's intense then remove the intensity.
+	if (Color & FOREGROUND_INTENSITY)
+		return Color & ~FOREGROUND_INTENSITY;
+
+	// 0x07 (silver) is technically "non-intense white", so it should become black as all the other non-intense colours.
+	// However, making it 0x08 (grey or "intense black") instead gives better results.
+	if (colors::color_value(Color) == 0x07)
+		return 0x08;
+
+	// Non-intense can't get any darker, so just return black.
+	return 0x00;
+}
+
+static void apply_shadow(FarColor& Color, COLORREF FarColor::* ColorAccessor, const FARCOLORFLAGS Flag, FarColor const& TrueShadow)
+{
+	if (Color.Flags & Flag)
+	{
+		// Reduce the intensity or make black.
+		// Technically the other branch can merge index colours too,
+		// but this should give more predictable results than the approximation.
+		auto& ColorPart = std::invoke(ColorAccessor, Color);
+		ColorPart = apply_index_shadow(ColorPart);
+	}
+	else
+	{
+		// Apply half-transparent black and hope that the approximation will yield something sensible.
+		Color = colors::merge(Color, TrueShadow);
+	}
+}
+
+void ScreenBuf::ApplyShadow(rectangle Where, bool IsLegacy)
 {
 	if (!is_visible(Where))
 		return;
@@ -220,17 +249,40 @@ void ScreenBuf::ApplyShadow(rectangle Where)
 	fix_coordinates(Where);
 
 	const auto CharWidthEnabled = char_width::is_enabled();
+	const auto TrueColorAvailable = console.IsVtEnabled() || console.ExternalRendererLoaded();
+
+	static constexpr FarColor
+		TrueShadowFull{ FCF_INHERIT_STYLE, 0x80'000000, 0x80'000000 },
+		TrueShadowFore{ FCF_INHERIT_STYLE, 0x80'000000, 0x00'000000 },
+		TrueShadowBack{ FCF_INHERIT_STYLE, 0x00'000000, 0x80'000000 };
 
 	for_submatrix(Buf, Where, [&](FAR_CHAR_INFO& Element, point const Point)
 	{
-		Element.Attributes.BackgroundColor = 0;
-
-		const auto Mask = Element.Attributes.IsFg4Bit()? FOREGROUND_INTENSITY : 0x808080;
-
-		Element.Attributes.ForegroundColor &= ~Mask;
-		if (!colors::color_value(Element.Attributes.ForegroundColor))
+		if (IsLegacy)
 		{
-			Element.Attributes.ForegroundColor = Mask;
+			// This piece is for usage with repeated Message() calls.
+			// It generates a stable shadow that does not fade to black when reapplied over and over.
+			// We really, really should ditch the Message pattern.
+
+			Element.Attributes.BackgroundColor = 0;
+
+			const auto Mask = Element.Attributes.IsFg4Bit()? FOREGROUND_INTENSITY : 0x808080;
+
+			Element.Attributes.ForegroundColor &= ~Mask;
+			if (!colors::color_value(Element.Attributes.ForegroundColor))
+			{
+				Element.Attributes.ForegroundColor = Mask;
+			}
+		}
+		else if (TrueColorAvailable)
+		{
+			// We have TrueColor, so just fill whatever is there with half-transparent black.
+			Element.Attributes = colors::merge(Element.Attributes, TrueShadowFull);
+		}
+		else
+		{
+			apply_shadow(Element.Attributes, &FarColor::ForegroundColor, FCF_FG_4BIT, TrueShadowFore);
+			apply_shadow(Element.Attributes, &FarColor::BackgroundColor, FCF_BG_4BIT, TrueShadowBack);
 		}
 
 		if (CharWidthEnabled)

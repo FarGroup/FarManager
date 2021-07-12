@@ -199,7 +199,8 @@ void PutText(rectangle Where, const FAR_CHAR_INFO* Src);
 void GetText(rectangle Where, matrix<FAR_CHAR_INFO>& Dest);
 
 void SetScreen(rectangle Where, wchar_t Ch,const FarColor& Color);
-void MakeShadow(rectangle Where);
+void MakeShadow(rectangle Where, bool IsLegacy = false);
+void DropShadow(rectangle Where, bool IsLegacy = false);
 void SetColor(int Color);
 void SetColor(PaletteColors Color);
 void SetColor(const FarColor& Color);

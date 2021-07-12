@@ -1934,16 +1934,12 @@ void VMenu::DisplayObject()
 
 	if (!CheckFlags(VMENU_DISABLEDRAWBACKGROUND) && !CheckFlags(VMENU_LISTBOX))
 	{
+		// BUGBUG, dead code
+
 		if (m_BoxType==SHORT_DOUBLE_BOX || m_BoxType==SHORT_SINGLE_BOX)
 		{
 			SetScreen(m_Where, L' ', Colors[VMenuColorBody]);
 			Box(m_Where, Colors[VMenuColorBox], m_BoxType);
-
-			if (!CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR))
-			{
-				MakeShadow({ m_Where.left + 2, m_Where.bottom + 1, m_Where.right + 1, m_Where.bottom + 1 });
-				MakeShadow({ m_Where.right + 1, m_Where.top + 1, m_Where.right + 2, m_Where.bottom + 1 });
-			}
 		}
 		else
 		{
@@ -1951,12 +1947,6 @@ void VMenu::DisplayObject()
 				SetScreen({ m_Where.left - 2, m_Where.top - 1, m_Where.right + 2, m_Where.bottom + 1 }, L' ', Colors[VMenuColorBody]);
 			else
 				SetScreen(m_Where, L' ', Colors[VMenuColorBody]);
-
-			if (!CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR))
-			{
-				MakeShadow({ m_Where.left, m_Where.bottom + 2, m_Where.right + 3, m_Where.bottom + 2 });
-				MakeShadow({ m_Where.right + 3, m_Where.top, m_Where.right + 4, m_Where.bottom + 2 });
-			}
 
 			if (m_BoxType!=NO_BOX)
 				Box(m_Where, Colors[VMenuColorBox], m_BoxType);

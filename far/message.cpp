@@ -454,8 +454,7 @@ void Message::Init(
 	if (!(Flags & MSG_KEEPBACKGROUND))
 	{
 		SetScreen(m_Position, L' ', colors::PaletteColorToFarColor((Flags & MSG_WARNING)? COL_WARNDIALOGTEXT : COL_DIALOGTEXT));
-		MakeShadow({ m_Position.left + 2, m_Position.bottom + 1, m_Position.right + 2, m_Position.bottom + 1 });
-		MakeShadow({ m_Position.right + 1, m_Position.top + 1, m_Position.right + 2, m_Position.bottom + 1 });
+		DropShadow(m_Position, true);
 		Box({ m_Position.left + 3, m_Position.top + 1, m_Position.right - 3, m_Position.bottom - 1 }, colors::PaletteColorToFarColor((Flags & MSG_WARNING)? COL_WARNDIALOGBOX : COL_DIALOGBOX), DOUBLE_BOX);
 	}
 
