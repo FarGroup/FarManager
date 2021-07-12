@@ -1030,7 +1030,14 @@ int VMenu::DeleteItem(int ID, int Count)
 		m_HorizontalTracker->remove_item(
 			I.HorizontalPosition, GetItemVisualLength(I), I.SafeGetFirstAnnotation());
 	}
-
+	// steell needs some fixup for histview
+	// для History ShiftDel - всё ещё не подходит
+	if (ID != 0
+		&& (Items[ID - 1].Flags == LIF_SEPARATOR)
+		&& ((ID + Count) == static_cast<int>(Items.size()) || (Items[ID + Count].Flags == LIF_SEPARATOR)))
+	{
+		ID--, Count++;
+	}
 	// а вот теперь перемещения
 	if (Items.size() > 1)
 	{
