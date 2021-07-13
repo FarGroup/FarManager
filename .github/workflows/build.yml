@@ -1,0 +1,231 @@
+name: Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+#------------------------------------------------------------------------------
+  code-style-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Run checks
+        working-directory: far
+        run: python tools/source_validator.py
+
+#------------------------------------------------------------------------------
+  hlf-checks:
+    runs-on: windows-2019
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
+
+      - name: Build and run HlfChecker
+        working-directory: misc/hlf-checker
+        run: dotnet run --project .\HlfChecker.csproj --configuration Release -- Verbose
+
+#------------------------------------------------------------------------------
+  build-msbuild:
+    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [
+                 msbuild_cl_x64_debug,
+                 msbuild_cl_x64_release,
+                 msbuild_cl_x86_debug,
+                 msbuild_cl_x86_release,
+               ]
+
+        include:
+          - { build: msbuild_cl_x64_debug,   compiler: msbuild_cl, arch: x64,   build_config: Debug }
+          - { build: msbuild_cl_x64_release, compiler: msbuild_cl, arch: x64,   build_config: Release }
+          - { build: msbuild_cl_x86_debug,   compiler: msbuild_cl, arch: Win32, build_config: Debug }
+          - { build: msbuild_cl_x86_release, compiler: msbuild_cl, arch: Win32, build_config: Release }
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Initialize CodeQL
+        if: matrix.build == 'msbuild_x64_debug'
+        uses: github/codeql-action/init@v1
+        with:
+          languages: cpp
+
+      - name: Set MSVC envrioment
+        uses: ilammy/msvc-dev-cmd@v1.6.0
+        with:
+          arch: ${{ matrix.arch }}
+
+      - name: Set environment for debug build
+        if: matrix.build_config  == 'Debug'
+        run: Add-Content -Path $env:GITHUB_ENV -Value "DEBUG=1"
+
+      - name: Build Far (cl)
+        working-directory: far
+        run: MSBuild.exe /property:Configuration=${{ matrix.build_config }} /property:Platform=${{ matrix.arch }} far.vcxproj
+
+      - name: Perform CodeQL Analysis
+        if: matrix.build == 'msbuild_x64_debug'
+        uses: github/codeql-action/analyze@v1
+
+#------------------------------------------------------------------------------
+  build-nmake:
+    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [
+                 nmake_cl_x64_debug,
+                 nmake_cl_x64_release,
+                 nmake_cl_x86_debug,
+                 nmake_cl_x86_release,
+                 nmake_clang_x64_debug,
+                 nmake_clang_x64_release,
+               ]
+
+        include:
+          - { build: nmake_cl_x64_debug,      compiler: nmake_cl,    arch: x64,   build_config: Debug }
+          - { build: nmake_cl_x64_release,    compiler: nmake_cl,    arch: x64,   build_config: Release }
+          - { build: nmake_cl_x86_debug,      compiler: nmake_cl,    arch: Win32, build_config: Debug }
+          - { build: nmake_cl_x86_release,    compiler: nmake_cl,    arch: Win32, build_config: Release }
+          - { build: nmake_clang_x64_debug,   compiler: nmake_clang, arch: x64,   build_config: Debug }
+          - { build: nmake_clang_x64_release, compiler: nmake_clang, arch: x64,   build_config: Release }
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Initialize CodeQL
+        if: matrix.build == 'nmake_cl_x64_debug'
+        uses: github/codeql-action/init@v1
+        with:
+          languages: cpp
+
+      - name: Set MSVC envrioment
+        uses: ilammy/msvc-dev-cmd@v1.6.0
+        with:
+          arch: ${{ matrix.arch }}
+
+      - name: Set environment for debug build
+        if: matrix.build_config  == 'Debug'
+        run: Add-Content -Path $env:GITHUB_ENV -Value "DEBUG=1"
+
+      - name: Build Far (cl)
+        if: matrix.compiler  == 'nmake_cl'
+        working-directory: far
+        run: |
+          cl.exe
+          nmake /f makefile_vc
+
+      - name: Build plugins (cl)
+        if: matrix.compiler  == 'nmake_cl'
+        working-directory: plugins
+        run: nmake /f makefile_all_vc
+
+      - name: Build Far (clang)
+        if: matrix.compiler  == 'nmake_clang'
+        working-directory: far
+        run: |
+          clang --version
+          nmake /f makefile_vc CLANG=1
+
+      - name: Perform CodeQL Analysis
+        if: matrix.build == 'nmake_cl_x64_debug'
+        uses: github/codeql-action/analyze@v1
+
+#------------------------------------------------------------------------------
+  build-mingw:
+    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [
+                 mingw_gcc_x64_debug,
+                 mingw_gcc_x64_release,
+                 mingw_clang_x64_debug,
+                 mingw_clang_x64_release
+               ]
+
+        include:
+          - { build: mingw_gcc_x64_debug,     compiler: mingw_gcc,   arch: x64, build_config: Debug }
+          - { build: mingw_gcc_x64_release,   compiler: mingw_gcc,   arch: x64, build_config: Release }
+          - { build: mingw_clang_x64_Debug,   compiler: mingw_clang, arch: x64, build_config: Debug }
+          - { build: mingw_clang_x64_Release, compiler: mingw_clang, arch: x64, build_config: Release }
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+
+      - name: Initialize CodeQL
+        if: matrix.build == 'mingw_gcc_x64_debug'
+        uses: github/codeql-action/init@v1
+        with:
+          languages: cpp
+
+      - name: Set environment for debug build
+        if: matrix.build_config  == 'Debug'
+        run: Add-Content -Path $env:GITHUB_ENV -Value "DEBUG=1"
+
+      - name: Install GCC x64
+        if: matrix.compiler  == 'mingw_gcc'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: make gcc mingw-w64-x86_64-toolchain
+
+      - name: Build Far (gcc)
+        if: matrix.compiler  == 'mingw_gcc'
+        working-directory: far
+        shell: msys2 {0}
+        run: |
+          gcc --version
+          make -j4 -f makefile_gcc
+
+      - name: Build plugins (gcc)
+        if: matrix.compiler  == 'mingw_gcc'
+        working-directory: plugins
+        shell: msys2 {0}
+        run: |
+          gcc --version
+          make -j4 -f makefile_all_gcc
+
+      - name: Install Clang x64
+        if: matrix.compiler  == 'mingw_clang'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: make mingw-w64-x86_64-clang mingw-w64-x86_64-lld mingw-w64-x86_64-toolchain
+
+      - name: Build Far (clang)
+        if: matrix.compiler  == 'mingw_clang'
+        working-directory: far
+        shell: msys2 {0}
+        run: |
+          clang --version
+          make -j4 CLANG=1 -f makefile_gcc
+
+      - name: Build plugins (clang)
+        if: matrix.compiler  == 'CLANG_MAKE'
+        working-directory: plugins
+        shell: msys2 {0}
+        run: |
+          clang --version
+          make -j4 CLANG=1 -f makefile_all_gcc
+
+      - name: Perform CodeQL Analysis
+        if: matrix.build == 'mingw_gcc_x64_debug'
+        uses: github/codeql-action/analyze@v1
