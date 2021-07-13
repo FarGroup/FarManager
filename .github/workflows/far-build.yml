@@ -50,6 +50,12 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v2
 
+      - name: Initialize CodeQL
+        if: matrix.build == 'MSVC_NMAKE_x64_Debug'
+        uses: github/codeql-action/init@v1
+        with:
+          languages: cpp
+
       - name: Set MSVC envrioment
         if: matrix.compiler == 'MSVC_PROJ' || matrix.compiler == 'MSVC_NMAKE' || matrix.compiler == 'CLANG_NMAKE'
         uses: ilammy/msvc-dev-cmd@v1.6.0
@@ -129,3 +135,7 @@ jobs:
         run: |
           clang --version
           make -j4 CLANG=1 -f makefile_all_gcc
+
+      - name: Perform CodeQL Analysis
+        if: matrix.build == 'MSVC_NMAKE_x64_Debug'
+        uses: github/codeql-action/analyze@v1
