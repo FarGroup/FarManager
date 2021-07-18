@@ -97,7 +97,7 @@ public:
 	void RestoreMacroChar();
 	void RestoreElevationChar();
 
-	void ApplyShadow(rectangle Where);
+	void ApplyShadow(rectangle Where, bool IsLegacy);
 	void ApplyColor(rectangle Where, const FarColor& Color);
 	void FillRect(rectangle Where, const FAR_CHAR_INFO& Info);
 

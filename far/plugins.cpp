@@ -626,7 +626,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 
 			if (hPlugin == PANEL_STOP)   //сразу на выход, плагин решил нагло обработать все сам (Autorun/PictureView)!!!
 			{
-				LOGDEBUG(L"OpenFilePlugin: {} accepted and asked to stop processing"sv, i->Title());
+				LOGINFO(L"OpenFilePlugin: {} accepted and asked to stop processing"sv, i->Title());
 
 				StopProcessing = true;
 				return nullptr;

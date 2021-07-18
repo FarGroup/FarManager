@@ -869,10 +869,11 @@ void CommandLine::ShowViewEditHistory()
 				case HR_EDITOR_RO:
 				{
 					// пусть файл создается
-					const auto FEdit = FileEditor::create(strStr, CP_DEFAULT, FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6);
-
-					if (Type == HR_EDITOR_RO)
-						FEdit->SetLockEditor(true);
+					const auto FEdit = FileEditor::create(
+						strStr,
+						CP_DEFAULT,
+						FFILEEDIT_CANNEWFILE | FFILEEDIT_ENABLEF6 | (Type == HR_EDITOR_RO? FFILEEDIT_LOCKED : 0)
+					);
 
 					break;
 				}

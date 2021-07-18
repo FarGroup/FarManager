@@ -58,13 +58,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 
 // Platform:
-#include "platform.fs.hpp"
+#include "platform.com.hpp"
+#include "platform.process.hpp"
 
 // Common:
 #include "common/from_string.hpp"
 #include "common/function_ref.hpp"
-#include "common/function_traits.hpp"
-#include "common/scope_exit.hpp"
 
 // External:
 #include "format.hpp"
@@ -466,117 +465,6 @@ bool GetNameAndPassword(
 	return true;
 }
 
-static os::com::ptr<IFileIsInUse> CreateIFileIsInUse(const string& File)
-{
-	os::com::ptr<IRunningObjectTable> RunningObjectTable;
-	if (FAILED(GetRunningObjectTable(0, &ptr_setter(RunningObjectTable))))
-		return nullptr;
-
-	os::com::ptr<IMoniker> FileMoniker;
-	if (FAILED(CreateFileMoniker(File.c_str(), &ptr_setter(FileMoniker))))
-		return nullptr;
-
-	os::com::ptr<IEnumMoniker> EnumMoniker;
-	if (FAILED(RunningObjectTable->EnumRunning(&ptr_setter(EnumMoniker))))
-		return nullptr;
-
-	for(;;)
-	{
-		os::com::ptr<IMoniker> Moniker;
-		if (EnumMoniker->Next(1, &ptr_setter(Moniker), nullptr) == S_FALSE)
-			return nullptr;
-
-		DWORD Type;
-		if (FAILED(Moniker->IsSystemMoniker(&Type)) || Type != MKSYS_FILEMONIKER)
-			continue;
-
-		os::com::ptr<IMoniker> PrefixMoniker;
-		if (FAILED(FileMoniker->CommonPrefixWith(Moniker.get(), &ptr_setter(PrefixMoniker))))
-			continue;
-
-		if (FileMoniker->IsEqual(PrefixMoniker.get()) == S_FALSE)
-			continue;
-
-		os::com::ptr<IUnknown> Unknown;
-		if (RunningObjectTable->GetObject(Moniker.get(), &ptr_setter(Unknown)) == S_FALSE)
-			continue;
-
-		FN_RETURN_TYPE(CreateIFileIsInUse) FileIsInUse;
-		if (SUCCEEDED(Unknown->QueryInterface(IID_IFileIsInUse, IID_PPV_ARGS_Helper(&ptr_setter(FileIsInUse)))))
-			return FileIsInUse;
-	}
-}
-
-static size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, function_ref<bool(string&&)> const Handler)
-{
-	if (!imports.RmStartSession)
-		return 0;
-
-	DWORD Session;
-	wchar_t SessionKey[CCH_RM_SESSION_KEY + 1] = {};
-	if (imports.RmStartSession(&Session, 0, SessionKey) != ERROR_SUCCESS)
-		return 0;
-
-	SCOPE_EXIT
-	{
-		if (imports.RmEndSession)
-			imports.RmEndSession(Session);
-	};
-
-	if (!imports.RmRegisterResources)
-		return 0;
-
-	auto FilenamePtr = Filename.c_str();
-	if (imports.RmRegisterResources(Session, 1, &FilenamePtr, 0, nullptr, 0, nullptr) != ERROR_SUCCESS)
-		return 0;
-
-	if (!imports.RmGetList)
-		return 0;
-
-	DWORD RmGetListResult;
-	unsigned ProceccInfoSizeNeeded = 0, ProcessInfoSize = 1;
-	std::vector<RM_PROCESS_INFO> ProcessInfos(ProcessInfoSize);
-	while ((RmGetListResult = imports.RmGetList(Session, &ProceccInfoSizeNeeded, &ProcessInfoSize, ProcessInfos.data(), &Reasons)) == ERROR_MORE_DATA)
-	{
-		ProcessInfoSize = ProceccInfoSizeNeeded;
-		ProcessInfos.resize(ProcessInfoSize);
-	}
-
-	if (RmGetListResult != ERROR_SUCCESS)
-		return 0;
-
-	for (const auto& Info : ProcessInfos)
-	{
-		auto Str = *Info.strAppName? Info.strAppName : L"Unknown"s;
-
-		if (*Info.strServiceShortName)
-			append(Str, L" ["sv, Info.strServiceShortName, L']');
-
-		append(Str, L" (PID: "sv, str(Info.Process.dwProcessId));
-
-		if (const auto Process = os::handle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, Info.Process.dwProcessId)))
-		{
-			os::chrono::time_point CreationTime;
-			if (os::chrono::get_process_creation_time(Process.native_handle(), CreationTime) &&
-				os::chrono::nt_clock::from_filetime(Info.Process.ProcessStartTime) == CreationTime)
-			{
-				string Name;
-				if (os::fs::get_module_file_name(Process.native_handle(), {}, Name))
-				{
-					append(Str, L", "sv, Name);
-				}
-			}
-		}
-
-		Str += L')';
-
-		if (!Handler(std::move(Str)))
-			break;
-	}
-
-	return ProcessInfos.size();
-}
-
 operation OperationFailed(const error_state_ex& ErrorState, string_view const Object, lng Title, string Description, bool AllowSkip, bool AllowSkipAll)
 {
 	std::vector<string> Msg;
@@ -586,21 +474,26 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 
 	auto Reason = lng::MObjectLockedReasonOpened;
 	bool SwitchBtn = false, CloseBtn = false;
-	const auto Error = ErrorState.Win32Error;
-	if(Error == ERROR_ACCESS_DENIED ||
-		Error == ERROR_SHARING_VIOLATION ||
-		Error == ERROR_LOCK_VIOLATION ||
-		Error == ERROR_DRIVE_LOCKED)
+
+	if(any_of(static_cast<long>(ErrorState.Win32Error),
+		ERROR_ACCESS_DENIED,
+		ERROR_SHARING_VIOLATION,
+		ERROR_LOCK_VIOLATION,
+		ERROR_DRIVE_LOCKED
+	))
 	{
 		const auto FullName = ConvertNameToFull(Object);
 
 		ComInitialiser.emplace();
-		FileIsInUse = CreateIFileIsInUse(FullName);
+		FileIsInUse = os::com::create_file_is_in_use(FullName);
 		if (FileIsInUse)
 		{
 			FILE_USAGE_TYPE UsageType;
-			if (FAILED(FileIsInUse->GetUsage(&UsageType)))
+			if (const auto Result = FileIsInUse->GetUsage(&UsageType); FAILED(Result))
+			{
+				LOGWARNING(L"GetUsage()"sv, os::format_error(Result));
 				UsageType = FUT_GENERIC;
+			}
 
 			switch (UsageType)
 			{
@@ -616,14 +509,22 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 			}
 
 			DWORD Capabilities;
-			if (SUCCEEDED(FileIsInUse->GetCapabilities(&Capabilities)))
+			if (const auto Result = FileIsInUse->GetCapabilities(&Capabilities); FAILED(Result))
+			{
+				LOGWARNING(L"GetCapabilities(): {}"sv, os::format_error(Result));
+			}
+			else
 			{
 				SwitchBtn = (Capabilities & OF_CAP_CANSWITCHTO) != 0;
 				CloseBtn = (Capabilities & OF_CAP_CANCLOSE) != 0;
 			}
 
 			wchar_t* AppName;
-			if(SUCCEEDED(FileIsInUse->GetAppName(&AppName)))
+			if (const auto Result = FileIsInUse->GetAppName(&AppName); FAILED(Result))
+			{
+				LOGWARNING(L"GetAppName(): {}"sv, os::format_error(Result));
+			}
+			else
 			{
 				Msg.emplace_back(AppName);
 			}
@@ -632,7 +533,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 		{
 			const size_t MaxRmProcesses = 5;
 			DWORD Reasons = RmRebootReasonNone;
-			const auto ProcessCount = enumerate_rm_processes(FullName, Reasons, [&](string&& Str)
+			const auto ProcessCount = os::process::enumerate_rm_processes(FullName, Reasons, [&](string&& Str)
 			{
 				Msg.emplace_back(std::move(Str));
 				return Msg.size() != MaxRmProcesses;
@@ -707,32 +608,39 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 		});
 	}
 
-	int Result;
+	int MsgResult;
 	for(;;)
 	{
-		Result = Message(MSG_WARNING, ErrorState,
+		MsgResult = Message(MSG_WARNING, ErrorState,
 			msg(Title),
 			Msgs,
 			Buttons);
 
 		if(SwitchBtn)
 		{
-			if(Result == Message::first_button)
+			if (MsgResult == Message::first_button)
 			{
 				HWND Window = nullptr;
-				if (FileIsInUse && SUCCEEDED(FileIsInUse->GetSwitchToHWND(&Window)))
+				if (FileIsInUse)
 				{
-					message_manager::instance().notify(Listener->GetEventName(), Window);
+					if (const auto Result = FileIsInUse->GetSwitchToHWND(&Window); FAILED(Result))
+					{
+						LOGWARNING(L"GetSwitchToHWND(): {}"sv, os::format_error(Result));
+					}
+					else
+					{
+						message_manager::instance().notify(Listener->GetEventName(), Window);
+					}
 				}
 				continue;
 			}
-			else if(Result > 0)
+			else if (MsgResult > 0)
 			{
-				--Result;
+				--MsgResult;
 			}
 		}
 
-		if(CloseBtn && Result == Message::first_button)
+		if(CloseBtn && MsgResult == Message::first_button)
 		{
 			// close & retry
 			if (FileIsInUse)
@@ -743,10 +651,10 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 		break;
 	}
 
-	if (Result < 0 || static_cast<size_t>(Result) == Buttons.size() - 1)
+	if (MsgResult < 0 || static_cast<size_t>(MsgResult) == Buttons.size() - 1)
 		return operation::cancel;
 
-	return static_cast<operation>(Result);
+	return static_cast<operation>(MsgResult);
 }
 
 bool retryable_ui_operation(function_ref<bool()> const Action, string_view const Name, lng const ErrorDescription, bool& SkipErrors)

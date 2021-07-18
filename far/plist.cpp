@@ -77,6 +77,21 @@ struct ProcInfo
 	std::exception_ptr ExceptionPtr;
 };
 
+static bool is_cloaked_window(HWND const Window)
+{
+	if (!imports.DwmGetWindowAttribute)
+		return false;
+
+	int Cloaked = 0;
+	if (const auto Result = imports.DwmGetWindowAttribute(Window, DWMWA_CLOAKED, &Cloaked, sizeof(Cloaked)); FAILED(Result))
+	{
+		LOGWARNING(L"DwmGetWindowAttribute"sv, os::format_error(Result));
+		return false;
+	}
+
+	return Cloaked != 0;
+}
+
 // https://blogs.msdn.microsoft.com/oldnewthing/20071008-00/?p=24863/
 static bool is_alttab_window(HWND const Window)
 {
@@ -99,14 +114,7 @@ static bool is_alttab_window(HWND const Window)
 	if (GetWindowLongPtr(Window, GWL_EXSTYLE) & WS_EX_TOOLWINDOW)
 		return false;
 
-	if (imports.DwmGetWindowAttribute)
-	{
-		int Cloaked = 0;
-		if (SUCCEEDED(imports.DwmGetWindowAttribute(Window, DWMWA_CLOAKED, &Cloaked, sizeof(Cloaked))) && Cloaked)
-			return false;
-	}
-
-	return true;
+	return !is_cloaked_window(Window);
 }
 
 static BOOL CALLBACK EnumWindowsProc(HWND const Window, LPARAM const Param)

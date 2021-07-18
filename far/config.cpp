@@ -3453,7 +3453,7 @@ int GetFarIniInt(string_view const AppName, string_view const KeyName, int Defau
 	return GetPrivateProfileInt(null_terminated(AppName).c_str(), null_terminated(KeyName).c_str(), Default, Global->g_strFarINI.c_str());
 }
 
-std::chrono::steady_clock::duration GetRedrawTimeout() noexcept
+std::chrono::milliseconds GetRedrawTimeout() noexcept
 {
 	return std::chrono::milliseconds(Global->Opt->RedrawTimeout);
 }

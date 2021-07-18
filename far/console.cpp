@@ -557,7 +557,8 @@ namespace console_detail
 
 		// in XP FontInfo.dwFontSize contains something else than the size in pixels.
 		FontInfo.dwFontSize = GetConsoleFontSize(OutputHandle, FontInfo.nFont);
-		return true;
+
+		return FontInfo.dwFontSize.X && FontInfo.dwFontSize.Y;
 	}
 
 	// Workaround for a bug in the classic console: mouse position is screen-based
@@ -1674,6 +1675,11 @@ namespace console_detail
 	{
 		DWORD Mode;
 		return sEnableVirtualTerminal && GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	}
+
+	bool console::ExternalRendererLoaded() const
+	{
+		return ExternalConsole.Imports.pWriteOutput.operator bool();
 	}
 
 	bool console::IsWidePreciseExpensive(unsigned int const Codepoint, bool const ClearCacheOnly)

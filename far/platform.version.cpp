@@ -36,8 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.version.hpp"
 
 // Internal:
+#include "imports.hpp"
 
 // Platform:
+#include "platform.reg.hpp"
 
 // Common:
 #include "common/string_utils.hpp"
@@ -99,11 +101,101 @@ namespace os::version
 	{
 		static const auto Result = [&]
 		{
-			OSVERSIONINFOEXW osvi{ sizeof(osvi), HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), Build };
-				const auto ConditionMask = condition_mask<VER_MAJORVERSION, VER_MINORVERSION, VER_BUILDNUMBER>(VER_GREATER_EQUAL);
-				return VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER, ConditionMask) != FALSE;
+			OSVERSIONINFOEXW osvi
+			{
+				sizeof(osvi),
+				HIBYTE(_WIN32_WINNT_WIN10),
+				LOBYTE(_WIN32_WINNT_WIN10),
+				Build
+			};
+
+			const auto ConditionMask = condition_mask<
+				VER_MAJORVERSION,
+				VER_MINORVERSION,
+				VER_BUILDNUMBER
+			>(VER_GREATER_EQUAL);
+
+			return VerifyVersionInfo(
+				&osvi,
+				VER_MAJORVERSION |
+				VER_MINORVERSION |
+				VER_BUILDNUMBER,
+				ConditionMask) != FALSE;
 		}();
 
 		return Result;
+	}
+
+	string get_file_version(string_view const Name)
+	{
+		file_version Version;
+		if (!Version.read(Name))
+			return L"Unknown"s;
+
+		if (const auto Str = Version.get_string(L"FileVersion"sv))
+			return Str;
+
+		const auto FixedInfo = Version.get_fixed_info();
+		if (!FixedInfo)
+			return L"Unknown"s;
+
+		return format(FSTR(L"{}.{}.{}.{}"sv),
+			HIWORD(FixedInfo->dwFileVersionMS),
+			LOWORD(FixedInfo->dwFileVersionMS),
+			HIWORD(FixedInfo->dwFileVersionLS),
+			LOWORD(FixedInfo->dwFileVersionLS)
+		);
+	}
+
+	static bool get_os_version(OSVERSIONINFOEX& Info)
+	{
+		const auto InfoPtr = static_cast<OSVERSIONINFO*>(static_cast<void*>(&Info));
+
+		if (imports.RtlGetVersion && imports.RtlGetVersion(InfoPtr) == STATUS_SUCCESS)
+			return true;
+
+WARNING_PUSH()
+WARNING_DISABLE_MSC(4996) // 'GetVersionExW': was declared deprecated. So helpful. :(
+WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
+		return GetVersionEx(InfoPtr) != FALSE;
+WARNING_POP()
+}
+
+	static string os_version_from_api()
+	{
+		OSVERSIONINFOEX Info{ sizeof(Info) };
+		if (!get_os_version(Info))
+			return L"Unknown"s;
+
+		return format(FSTR(L"{}.{}.{}.{}.{}.{}.{}.{}"sv),
+			Info.dwMajorVersion,
+			Info.dwMinorVersion,
+			Info.dwBuildNumber,
+			Info.dwPlatformId,
+			Info.wServicePackMajor,
+			Info.wServicePackMinor,
+			Info.wSuiteMask,
+			Info.wProductType
+		);
+	}
+
+	// Mental OS - mental methods *facepalm*
+	static string os_version_from_registry()
+	{
+		const auto Key = reg::key::open(reg::key::local_machine, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"sv, KEY_QUERY_VALUE);
+		if (!Key)
+			return {};
+
+		string DisplayVersion, CurrentBuild;
+		unsigned UBR;
+		if ((!Key.get(L"DisplayVersion"sv, DisplayVersion) && !Key.get(L"ReleaseId"sv, DisplayVersion)) || !Key.get(L"CurrentBuild"sv, CurrentBuild) || !Key.get(L"UBR"sv, UBR))
+			return {};
+
+		return format(FSTR(L" (version {}, OS build {}.{})"sv), DisplayVersion, CurrentBuild, UBR);
+	}
+
+	string os_version()
+	{
+		return os_version_from_api() + os_version_from_registry();
 	}
 }

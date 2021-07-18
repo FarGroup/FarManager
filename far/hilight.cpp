@@ -291,11 +291,11 @@ static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type&
 {
 	const auto InheritColor = [](FarColor& Color, const FarColor& Base)
 	{
-		if (colors::color_value(Color.ForegroundColor) || colors::color_value(Color.BackgroundColor))
+		if (colors::color_bits(Color.ForegroundColor) || colors::color_bits(Color.BackgroundColor))
 			return;
 
-		Color.BackgroundColor = colors::alpha_value(Color.BackgroundColor) | colors::color_value(Base.BackgroundColor);
-		Color.ForegroundColor = colors::alpha_value(Color.ForegroundColor) | colors::color_value(Base.ForegroundColor);
+		Color.BackgroundColor = colors::alpha_bits(Color.BackgroundColor) | colors::color_bits(Base.BackgroundColor);
+		Color.ForegroundColor = colors::alpha_bits(Color.ForegroundColor) | colors::color_bits(Base.ForegroundColor);
 		flags::copy(Color.Flags, FCF_4BITMASK, Base.Flags);
 
 		if (Color.Flags & FCF_INHERIT_STYLE)

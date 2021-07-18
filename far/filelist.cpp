@@ -2819,7 +2819,9 @@ bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdat
 
 	if (!NewDir.empty())
 	{
-		Panel::SetCurDir(NewDir, ClosePanel, IsUpdated, Silent);
+		if (m_PanelMode != panel_mode::PLUGIN_PANEL)
+			Panel::SetCurDir(NewDir, ClosePanel, IsUpdated, Silent);
+
 		return ChangeDir(NewDir, NewDir == L".."sv, true, IsUpdated, &UsedData, OFP_NORMAL, Silent);
 	}
 
@@ -7526,6 +7528,12 @@ void FileList::ShowFileList(bool Fast)
 		Parent()->GetAnotherPanel(this)->Update(UPDATE_KEEP_SELECTION | UPDATE_SECONDARY);
 	}
 
+	if (!ProcessingPluginCommand && LastCurFile != m_CurFile)
+	{
+		LastCurFile = m_CurFile;
+		UpdateViewPanel();
+	}
+
 	SetScreen({ m_Where.left + 1, m_Where.top + 1, m_Where.right - 1, m_Where.bottom - 1 }, L' ', colors::PaletteColorToFarColor(COL_PANELTEXT));
 	Box(m_Where, colors::PaletteColorToFarColor(COL_PANELBOX), DOUBLE_BOX);
 
@@ -7784,12 +7792,6 @@ void FileList::ShowFileList(bool Fast)
 	}
 
 	ShowScreensCount();
-
-	if (!ProcessingPluginCommand && LastCurFile!=m_CurFile)
-	{
-		LastCurFile=m_CurFile;
-		UpdateViewPanel();
-	}
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 		Parent()->RedrawKeyBar();

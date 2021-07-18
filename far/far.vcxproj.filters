@@ -329,6 +329,9 @@
     <ClCompile Include="platform.chrono.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="platform.com.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="platform.concurrency.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -935,6 +938,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platform.chrono.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="platform.com.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platform.concurrency.hpp">

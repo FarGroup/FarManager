@@ -186,17 +186,18 @@ void ScreenObjectWithShadow::Shadow(bool Full)
 		if(Full)
 		{
 			if (!ShadowSaveScr)
+			{
 				ShadowSaveScr = std::make_unique<SaveScreen>(rectangle{ 0, 0, ScrX, ScrY });
-
-			MakeShadow({ 0, 0, ScrX, ScrY });
+				MakeShadow({ 0, 0, ScrX, ScrY });
+			}
 		}
 		else
 		{
 			if (!ShadowSaveScr)
+			{
 				ShadowSaveScr = std::make_unique<SaveScreen>(rectangle{ m_Where.left, m_Where.top, m_Where.right + 2, m_Where.bottom + 1 });
-
-			MakeShadow({ m_Where.left + 2, m_Where.bottom + 1, m_Where.right + 1, m_Where.bottom + 1 });
-			MakeShadow({ m_Where.right + 1, m_Where.top + 1, m_Where.right + 2, m_Where.bottom + 1 });
+				DropShadow(m_Where);
+			}
 		}
 	}
 }

@@ -1,4 +1,52 @@
 --------------------------------------------------------------------------------
+drkns 13.07.2021 20:22:19 +0100 - build 5849
+
+4. Preserve the locked state when reopening editor from history.
+
+--------------------------------------------------------------------------------
+drkns 12.07.2021 20:53:26 +0100 - build 5848
+
+1. Render real shadows when possible.
+
+--------------------------------------------------------------------------------
+drkns 12.07.2021 00:21:06 +0100 - build 5847
+
+1. Refactoring.
+
+2. More logging.
+
+--------------------------------------------------------------------------------
+drkns 11.07.2021 16:27:30 +0100 - build 5846
+
+1. Screen artefacts after updating QView panel.
+
+--------------------------------------------------------------------------------
+drkns 10.07.2021 15:55:20 +0100 - build 5845
+
+1. Correctly show delete indicator if the directory scan before it was cancelled.
+
+2. A few more fullwidth-related improvements.
+
+3. Workaround for a conhost bug in DirectX mode.
+
+4. Properly update Find File status bar.
+
+5. Properly discard previous Find File results in all cases.
+
+6. Speed up Find File by removing a few quadratic algorithms from the listbox / menu implementation.
+
+--------------------------------------------------------------------------------
+drkns 06.07.2021 17:17:17 +0100 - build 5844
+
+1. #0003877: Exit to archive root via cd \ breaks the panel title.
+
+2. #0003878: Incorrect selection when the block is beyond the screen border.
+
+3. Several fixes in 1.x plugin wrapper related to colors processing.
+
+4. Throttle down file panel updates on FS changes to one per second at most.
+
+--------------------------------------------------------------------------------
 drkns 01.07.2021 03:01:55 +0100 - build 5843
 
 1. Autocomplete-related fixes.

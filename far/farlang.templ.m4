@@ -1,4 +1,8 @@
-﻿m4_include(`farversion.m4')m4_dnl
+﻿#
+# Note: https://www.microsoft.com/language is a good source of system- and UI-specific translations.
+#
+
+m4_include(`farversion.m4')m4_dnl
 #hpp file name
 lang.inc
 
@@ -22765,6 +22769,21 @@ upd:"Unload plugin"
 "Вивантажити плагін"
 "Выгрузіць дадатак"
 upd:"&Unload plugin"
+
+MExcFullDump
+"Полный дамп"
+"Full dump"
+"Úplný výpis"
+"Vollständiges Abbild"
+"Teljes memóriakép"
+"Pełny zrzut"
+"Volcado completo"
+"Úplný výpis"
+"Dump completo"
+"Повний дамп"
+"Поўны дамп"
+"Visa iškeltis"
+
 
 MNetUserName
 l:

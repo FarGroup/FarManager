@@ -172,6 +172,7 @@ private:
 	void ProcessMessage(const AddMenuData& Data);
 	void SetPluginDirectory(string_view DirName, const plugin_panel* hPlugin, bool UpdatePanel, const UserDataItem *UserData);
 	bool GetPluginFile(struct ArcListItem const* ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, const UserDataItem* UserData);
+	void stop_and_discard();
 
 	static intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 
@@ -213,6 +214,7 @@ private:
 	Dialog* m_ResultsDialogPtr{};
 	bool m_EmptyArc{};
 
+	time_check m_TimeCheck{ time_check::mode::immediate };
 	os::concurrency::timer m_UpdateTimer;
 };
 
@@ -1419,6 +1421,22 @@ static void clear_queue(std::queue<FindFiles::AddMenuData>&& Messages)
 	}
 }
 
+void FindFiles::stop_and_discard()
+{
+	if (Finalized)
+		return;
+
+	m_Searcher->Stop();
+	clear_queue(std::move(m_ExtractedMessages));
+
+	// The request to stop might arrive in the middle of something and searcher can still pump some messages
+	do
+	{
+		clear_queue(m_Messages.pop_all());
+	}
+	while (!m_Searcher->Finished());
+}
+
 const auto DM_REFRESH = DM_USER + 1;
 
 intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
@@ -1442,73 +1460,69 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			if (Finalized)
 				break;
 
+			if (os::handle::is_signaled(console.GetInputHandle()))
+				break;
+
+			const auto refresh_status = [&]
+			{
+				const auto strDataStr = format(msg(lng::MFindFound), m_FileCount, m_DirCount);
+				Dlg->SendMessage(DM_SETTEXTPTR, FD_SEPARATOR1, UNSAFE_CSTR(strDataStr));
+
+				if (m_Searcher->Finished())
+				{
+					Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, {});
+				}
+				else
+				{
+					string strSearchStr;
+
+					if (!strFindStr.empty())
+					{
+						strSearchStr = format(msg(lng::MFindSearchingIn), quote_unconditional(truncate_right(strFindStr, 10)));
+						Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(format(FSTR(L"{:3}%"sv), itd->GetPercent())));
+					}
+
+					SMALL_RECT Rect;
+					Dlg->SendMessage(DM_GETITEMPOSITION, FD_TEXT_STATUS, &Rect);
+
+					if (!strSearchStr.empty())
+					{
+						strSearchStr += L' ';
+					}
+
+					auto strFM = itd->GetFindMessage();
+					inplace::truncate_center(strFM, Rect.Right - Rect.Left + 1 - strSearchStr.size());
+					Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strSearchStr + strFM));
+				}
+
+				if (m_LastFoundNumber)
+				{
+					m_LastFoundNumber = 0;
+
+					if (ListBox->UpdateRequired())
+						Dlg->SendMessage(DM_SHOWITEM, FD_LISTBOX, ToPtr(1));
+				}
+
+				Dlg->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
+				Dlg->SendMessage(DM_ENABLEREDRAW, 0, nullptr);
+			};
+
 			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
+			refresh_status();
 
 			if (m_ExtractedMessages.empty())
 				m_ExtractedMessages = m_Messages.pop_all();
-
-			time_check const TimeCheck(time_check::mode::immediate, 1s);
 
 			for (; !m_ExtractedMessages.empty(); m_ExtractedMessages.pop())
 			{
 				if (os::handle::is_signaled(console.GetInputHandle()))
 					break;
 
-				if (m_Searcher->Stopped())
-				{
-					clear_queue(std::move(m_ExtractedMessages));
-
-					// The request to stop might arrive in the middle of something and searcher can still pump some messages
-					while (!m_Searcher->Finished())
-						clear_queue(m_Messages.pop_all());
-
-					break;
-				}
-
 				ProcessMessage(m_ExtractedMessages.front());
 
-				if (TimeCheck)
-				{
-					const auto strDataStr = format(msg(lng::MFindFound), m_FileCount, m_DirCount);
-					Dlg->SendMessage(DM_SETTEXTPTR, FD_SEPARATOR1, UNSAFE_CSTR(strDataStr));
-
-					if (m_Searcher->Finished())
-					{
-						Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, {});
-					}
-					else
-					{
-						string strSearchStr;
-
-						if (!strFindStr.empty())
-						{
-							strSearchStr = format(msg(lng::MFindSearchingIn), quote_unconditional(truncate_right(strFindStr, 10)));
-							Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(format(FSTR(L"{:3}%"sv), itd->GetPercent())));
-						}
-
-						SMALL_RECT Rect;
-						Dlg->SendMessage(DM_GETITEMPOSITION, FD_TEXT_STATUS, &Rect);
-
-						if (!strSearchStr.empty())
-						{
-							strSearchStr += L' ';
-						}
-						auto strFM = itd->GetFindMessage();
-						inplace::truncate_center(strFM, Rect.Right - Rect.Left + 1 - strSearchStr.size());
-						Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strSearchStr + strFM));
-					}
-
-					if (m_LastFoundNumber)
-					{
-						m_LastFoundNumber = 0;
-
-						if (ListBox->UpdateRequired())
-							Dlg->SendMessage(DM_SHOWITEM, FD_LISTBOX, ToPtr(1));
-					}
-
-					Dlg->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
-					Dlg->SendMessage(DM_ENABLEREDRAW, 0, nullptr);
-				}
+				if (m_TimeCheck)
+					refresh_status();
 			}
 
 			if (m_Searcher->Finished() && m_Messages.empty() && m_ExtractedMessages.empty())
@@ -1559,13 +1573,20 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			case KEY_ESC:
 			case KEY_F10:
 				{
-					if (!m_Searcher->Finished())
+					if (!Finalized)
 					{
-						m_Searcher->Pause();
+						if (!m_Searcher->Finished())
+							m_Searcher->Pause();
 
-						ConfirmAbortOp()?
-							m_Searcher->Stop() :
-							m_Searcher->Resume();
+						if (ConfirmAbortOp())
+						{
+							stop_and_discard();
+						}
+						else
+						{
+							if (!m_Searcher->Finished())
+								m_Searcher->Resume();
+						}
 
 						return TRUE;
 					}
@@ -1774,16 +1795,15 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			switch (Param1)
 			{
 			case FD_BUTTON_NEW:
-				m_Searcher->Stop();
+				stop_and_discard();
 				return FALSE;
 
 			case FD_BUTTON_STOP:
 				// As Stop
-				if (!m_Searcher->Finished())
+				if (!Finalized)
 				{
-					m_Searcher->Stop();
+					stop_and_discard();
 					return TRUE;
-
 				}
 				// As Cancel
 				return FALSE;
@@ -1830,7 +1850,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			}
 			if(Result)
 			{
-				m_Searcher->Stop();
+				stop_and_discard();
 			}
 			return Result;
 		}
@@ -2709,8 +2729,6 @@ bool FindFiles::FindFilesProcess()
 
 	m_ResultsDialogPtr = Dlg.get();
 
-	clear_queue(m_Messages.pop_all());
-
 		{
 			background_searcher BC(this, strFindStr, SearchMode, CodePage, ConvertFileSizeString(Global->Opt->FindOpt.strSearchInFirstSize), CmpCase, WholeWords, SearchInArchives, SearchHex, NotContaining, UseFilter, PluginMode);
 
@@ -2728,16 +2746,17 @@ bool FindFiles::FindFilesProcess()
 			SCOPE_EXIT
 			{
 				Dlg->CloseDialog();
-				m_Searcher->Stop();
+				stop_and_discard();
 				m_Searcher = nullptr;
 			};
 
 			listener Listener([&]
 			{
-				Dlg->SendMessage(DM_REFRESH, 0, {});
+				if (m_TimeCheck)
+					Dlg->SendMessage(DM_REFRESH, 0, {});
 			});
 
-			m_UpdateTimer = os::concurrency::timer(till_next_second(), 1s, [&]
+			m_UpdateTimer = os::concurrency::timer(till_next_second(), GetRedrawTimeout(), [&]
 			{
 				message_manager::instance().notify(Listener.GetEventName());
 			});

@@ -409,6 +409,12 @@ namespace
 	}
 
 	[[nodiscard]]
+	static auto is_bmp(char_width::codepoint const Codepoint)
+	{
+		return Codepoint <= std::numeric_limits<wchar_t>::max();
+	}
+
+	[[nodiscard]]
 	static auto device_width(char_width::codepoint const Codepoint, bool const ClearCacheOnly = false)
 	{
 		static_assert(sizeof(wchar_t) == 2, "4 GB for a cache is too much, rewrite it.");
@@ -423,7 +429,7 @@ namespace
 			return codepoint_width::ambiguous;
 		}
 
-		const auto IsBMP = Codepoint <= std::numeric_limits<wchar_t>::max();
+		const auto IsBMP = is_bmp(Codepoint);
 
 		if (IsBMP)
 		{
@@ -478,7 +484,7 @@ namespace char_width
 		{
 		default:
 		case full_width::off:
-			return false;
+			return !is_bmp(Codepoint);
 
 		case full_width::automatic:
 			if (!is_fullwidth_needed())

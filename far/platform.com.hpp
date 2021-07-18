@@ -1,13 +1,12 @@
-﻿#ifndef PLATFORM_VERSION_HPP_CC7E1536_485F_4A75_862F_E15DEF06C5C5
-#define PLATFORM_VERSION_HPP_CC7E1536_485F_4A75_862F_E15DEF06C5C5
+﻿#ifndef PLATFORM_COM_HPP_4E1C5B1E_3366_45BB_A55B_AD2B1357CA7D
+#define PLATFORM_COM_HPP_4E1C5B1E_3366_45BB_A55B_AD2B1357CA7D
 #pragma once
 
 /*
-platform.version.hpp
-
+platform.com.hpp
 */
 /*
-Copyright © 2020 Far Group
+Copyright © 2021 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,42 +37,54 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/preprocessor.hpp"
 
 // External:
 
 //----------------------------------------------------------------------------
 
-namespace os::version
+namespace os::com
 {
-	class file_version
+	class initialize
 	{
 	public:
-		bool read(string_view Filename);
-		wchar_t const* get_string(string_view Value) const;
-		VS_FIXEDFILEINFO const* get_fixed_info() const;
+		NONCOPYABLE(initialize);
+
+		initialize();
+		~initialize();
 
 	private:
-		string m_BlockPath;
-		std::vector<std::byte> m_Buffer;
+		const bool m_Initialised;
 	};
 
-	bool is_win10_build_or_later(DWORD Build);
-
-	// This versioning scheme is mental
-
-	inline bool is_win10_1607_or_later()
+	namespace detail
 	{
-		return is_win10_build_or_later(14393);
+		template<typename T>
+		struct releaser
+		{
+			void operator()(T* Object) const
+			{
+				Object->Release();
+			}
+		};
+
+		struct memory_releaser
+		{
+			void operator()(const void* Object) const;
+		};
 	}
 
-	inline bool is_win10_1703_or_later()
-	{
-		return is_win10_build_or_later(15063);
-	}
+	template<typename T>
+	using ptr = std::unique_ptr<T, detail::releaser<T>>;
 
-	string get_file_version(string_view Name);
+	template<typename T>
+	using memory = std::unique_ptr<std::remove_pointer_t<T>, detail::memory_releaser>;
 
-	string os_version();
+	string get_shell_name(string_view Path);
+
+	string get_shell_filetype_description(string_view FileName);
+
+	ptr<IFileIsInUse> create_file_is_in_use(const string& File);
 }
 
-#endif // PLATFORM_VERSION_HPP_CC7E1536_485F_4A75_862F_E15DEF06C5C5
+#endif // PLATFORM_COM_HPP_4E1C5B1E_3366_45BB_A55B_AD2B1357CA7D

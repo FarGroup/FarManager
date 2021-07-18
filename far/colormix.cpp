@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum
 {
-	ConsoleMask=0xf,
 	ConsoleBgShift=4,
 	ConsoleFgShift=0,
 };
@@ -77,29 +76,44 @@ static auto to_color(rgba const Rgba)
 
 namespace colors
 {
-	COLORREF index_value(COLORREF const Colour)
+	COLORREF index_bits(COLORREF const Colour)
 	{
 		return Colour & INDEXMASK;
 	}
 
-	COLORREF color_value(COLORREF const Colour)
+	COLORREF color_bits(COLORREF const Colour)
 	{
 		return Colour & COLORMASK;
 	}
 
-	COLORREF alpha_value(COLORREF const Colour)
+	COLORREF alpha_bits(COLORREF const Colour)
 	{
 		return Colour & ALPHAMASK;
 	}
 
+	COLORREF index_value(COLORREF const Colour)
+	{
+		return index_bits(Colour) >> 0;
+	}
+
+	COLORREF color_value(COLORREF const Colour)
+	{
+		return color_bits(Colour) >> 0;
+	}
+
+	COLORREF alpha_value(COLORREF const Colour)
+	{
+		return alpha_bits(Colour) >> 24;
+	}
+
 	bool is_opaque(COLORREF const Colour)
 	{
-		return alpha_value(Colour) == ALPHAMASK;
+		return alpha_bits(Colour) == ALPHAMASK;
 	}
 
 	bool is_transparent(COLORREF const Colour)
 	{
-		return !alpha_value(Colour);
+		return !alpha_bits(Colour);
 	}
 
 	COLORREF opaque(COLORREF const Colour)
@@ -120,6 +134,20 @@ namespace colors
 	void make_transparent(COLORREF& Colour)
 	{
 		Colour = transparent(Colour);
+	}
+
+	COLORREF invert(COLORREF Colour, bool const IsIndex)
+	{
+		return alpha_bits(Colour) | (
+			IsIndex?
+			index_bits(~index_bits(Colour)) :
+			color_bits(~color_bits(Colour))
+		);
+	}
+
+	void make_invert(COLORREF& Colour, bool const IsIndex)
+	{
+		Colour = invert(Colour, IsIndex);
 	}
 
 	size_t color_hash(const FarColor& Value)
@@ -319,7 +347,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 
 		if (Color.Flags & Flag)
 		{
-			IndexColor = Current & ConsoleMask;
+			IndexColor = index_value(Current);
 			return;
 		}
 
@@ -343,7 +371,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 
 	if (
 		FinalIndex.Foreground == FinalIndex.Background &&
-		color_value(Color.ForegroundColor) != color_value(Color.BackgroundColor)
+		color_bits(Color.ForegroundColor) != color_bits(Color.BackgroundColor)
 	)
 	{
 		// oops, unreadable
@@ -363,14 +391,14 @@ FarColor ConsoleColorToFarColor(WORD Color)
 	return
 	{
 		FCF_FG_4BIT | FCF_BG_4BIT | FCF_INHERIT_STYLE | (Color & FCF_RAWATTR_MASK),
-		{ opaque((Color >> ConsoleFgShift) & ConsoleMask) },
-		{ opaque((Color >> ConsoleBgShift) & ConsoleMask) }
+		{ opaque(index_bits(Color >> ConsoleFgShift)) },
+		{ opaque(index_bits(Color >> ConsoleBgShift)) }
 	};
 }
 
 COLORREF ConsoleIndexToTrueColor(COLORREF const Color)
 {
-	return alpha_value(Color) | console_palette()[Color & ConsoleMask];
+	return alpha_bits(Color) | console_palette()[index_value(Color)];
 }
 
 const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex)
@@ -467,9 +495,9 @@ TEST_CASE("colors.COLORREF")
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(colors::alpha_value(i.Src) == i.Alpha);
-		REQUIRE(colors::color_value(i.Src) == i.Color);
-		REQUIRE(colors::index_value(i.Src) == i.Index);
+		REQUIRE(colors::alpha_bits(i.Src) == i.Alpha);
+		REQUIRE(colors::color_bits(i.Src) == i.Color);
+		REQUIRE(colors::index_bits(i.Src) == i.Index);
 		REQUIRE(colors::is_opaque(i.Src) == i.Opaque);
 		REQUIRE(colors::is_transparent(i.Src) == i.Transparent);
 		REQUIRE(colors::is_opaque(colors::opaque(i.Src)));

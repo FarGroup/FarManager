@@ -476,14 +476,13 @@ static void show_confirmation(
 		cancel_operation();
 }
 
-static auto calculate_total(panel_ptr const SrcPanel)
+static total_items calculate_total(panel_ptr const SrcPanel)
 {
-	total_items Total;
-
 	if (!Global->Opt->DelOpt.ShowTotal)
-		return Total;
+		return {};
 
 	const time_check TimeCheck;
+	total_items Total;
 
 	const auto DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
 	{
@@ -501,7 +500,7 @@ static auto calculate_total(panel_ptr const SrcPanel)
 			DirInfoData Data = {};
 
 			if (GetDirInfo(i.FileName, Data, nullptr, DirInfoCallback, 0) <= 0)
-				continue;
+				return {};
 
 			Total.Items += Data.FileCount + Data.DirCount;
 			Total.Size += Data.FileSize;

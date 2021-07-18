@@ -38,6 +38,21 @@
 		</Expand>
 	</Type>
 
+	<Type Name="matrix_view&lt;*&gt;">
+		<Expand>
+			<CustomListItems>
+				<Variable Name="i" InitialValue="0"/>
+				<Loop>
+					<Item Name="row[{i}]">m_Data + i * m_Rows,[m_Cols]na</Item>
+					<Exec>++i</Exec>
+					<If Condition="i == m_Rows">
+						<Break/>
+					</If>
+				</Loop>
+			</CustomListItems>
+		</Expand>
+	</Type>
+
 	<Type Name="rectangle_t&lt;*&gt;">
 		<DisplayString>[{left} {top} {right} {bottom}]</DisplayString>
 		<Expand>
@@ -156,6 +171,10 @@
 				<DisplayString Condition="is_f_index(0xd)">fuchsia</DisplayString>
 				<DisplayString Condition="is_f_index(0xe)">yellow</DisplayString>
 				<DisplayString Condition="is_f_index(0xf)">white</DisplayString>
+				<Expand>
+					<Item Name="index">short(ForegroundIndex.i),xb</Item>
+					<Item Name="alpha">short(ForegroundIndex.a)</Item>
+				</Expand>
 			</Synthetic>
 			<Synthetic Name="Background">
 				<DisplayString Condition="is_b_rgb()">{BackgroundRGBA}</DisplayString>
@@ -175,6 +194,10 @@
 				<DisplayString Condition="is_b_index(0xd)">fuchsia</DisplayString>
 				<DisplayString Condition="is_b_index(0xe)">yellow</DisplayString>
 				<DisplayString Condition="is_b_index(0xf)">white</DisplayString>
+				<Expand>
+					<Item Name="index">short(BackgroundIndex.i),xb</Item>
+					<Item Name="alpha">short(BackgroundIndex.a)</Item>
+				</Expand>
 			</Synthetic>
 			<Synthetic Name="Flags">
 				<DisplayString>{Flags,h}</DisplayString>
@@ -188,13 +211,14 @@
 					<Item Name="strikeout">bool(Flags &amp; FCF_FG_STRIKEOUT)</Item>
 					<Item Name="faint">bool(Flags &amp; FCF_FG_FAINT)</Item>
 					<Item Name="blink">bool(Flags &amp; FCF_FG_BLINK)</Item>
+					<Item Name="raw">short((Flags &amp; FCF_RAWATTR_MASK) &gt;&gt; 8),h</Item>
 				</Expand>
 			</Synthetic>
 		</Expand>
 	</Type>
 
 	<Type Name="FAR_CHAR_INFO">
-		<DisplayString>{Char}</DisplayString>
+		<DisplayString>{&amp;Char,[1]sub}</DisplayString>
 	</Type>
 
 	<Type Name="std::chrono::duration&lt;*, std::ratio&lt;*,*&gt;&gt;">
