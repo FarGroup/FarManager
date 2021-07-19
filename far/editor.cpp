@@ -6975,4 +6975,3 @@ void editor_progress::update(size_t const Percent) const
 {
 	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_progress, UNSAFE_CSTR(make_progressbar(DlgW - 10, Percent, true, true)));
 }
-
