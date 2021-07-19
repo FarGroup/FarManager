@@ -1,7 +1,12 @@
 --------------------------------------------------------------------------------
+drkns 19.07.2021 22:08:39 +0100 - build 5850
+
+1. Experimental: removed fake dialogs and preredraw magic from editor load/save/find progress bars.
+
+--------------------------------------------------------------------------------
 drkns 13.07.2021 20:22:19 +0100 - build 5849
 
-4. Preserve the locked state when reopening editor from history.
+1. Preserve the locked state when reopening editor from history.
 
 --------------------------------------------------------------------------------
 drkns 12.07.2021 20:53:26 +0100 - build 5848

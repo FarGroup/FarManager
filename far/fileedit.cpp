@@ -1526,7 +1526,6 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 	try
 	{
 	// TODO: indentation
-	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<Editor::EditorPreRedrawItem>());
 	SCOPED_ACTION(taskbar::indeterminate);
 	SCOPED_ACTION(wakeful);
 
@@ -1641,6 +1640,8 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 			LOGWARNING(L"GetSize({}): {}"sv, EditFile.GetName(), last_error());
 		}
 
+		editor_progress const Progress(msg(lng::MEditTitle), format(msg(lng::MEditReading), Name), 0);
+
 		const time_check TimeCheck;
 
 		os::fs::filebuf StreamBuffer(EditFile, std::ios::in);
@@ -1687,7 +1688,8 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 
 					Percent = FileSize? std::min(CurPos * 100 / FileSize, 100ull) : 100;
 				}
-				Editor::EditorShowMsg(msg(lng::MEditTitle), msg(lng::MEditReading), Name, Percent);
+
+				Progress.update(Percent);
 			}
 
 			if (m_editor->GlobalEOL == eol::none && Str.Eol != eol::none)
@@ -2034,10 +2036,11 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 			m_editor->m_Flags.Clear(Editor::FEDITOR_UNDOSAVEPOSLOST);
 
 			SetCursorType(false, 0);
-			SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<Editor::EditorPreRedrawItem>());
 
 			if (!bSaveAs)
 				AddSignature = m_bAddSignature;
+
+			editor_progress const Progress(msg(lng::MEditTitle), format(msg(lng::MEditSaving), Name), 0);
 
 			const time_check TimeCheck;
 
@@ -2052,7 +2055,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 
 				if (TimeCheck)
 				{
-					Editor::EditorShowMsg(msg(lng::MEditTitle), msg(lng::MEditSaving), Name, LineNumber * 100 / m_editor->Lines.size());
+					Progress.update(LineNumber * 100 / m_editor->Lines.size());
 				}
 
 				const auto& SaveStr = Line.GetString();

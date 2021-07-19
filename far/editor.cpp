@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "fileedit.hpp"
 #include "scrbuf.hpp"
-#include "TPreRedrawFunc.hpp"
 #include "taskbar.hpp"
 #include "interf.hpp"
 #include "message.hpp"
@@ -3403,7 +3402,6 @@ bool Editor::Search(bool Next)
 	const auto FindAllList = VMenu2::create({}, {});
 	size_t AllRefLines{};
 	{
-		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<EditorPreRedrawItem>());
 		SetCursorType(false, -1);
 		Match = false;
 		UserBreak = false;
@@ -3461,6 +3459,7 @@ bool Editor::Search(bool Next)
 		const auto strSearchStrLower = Case? strSearchStr : lower(strSearchStr);
 
 		const time_check TimeCheck;
+		editor_progress const Progress(msg(lng::MEditSearchTitle), format(msg(lng::MEditSearchingFor), QuotedStr), 0);
 		int StartLine = m_it_CurLine.Number();
 		SCOPED_ACTION(taskbar::indeterminate);
 		SCOPED_ACTION(wakeful);
@@ -3482,7 +3481,7 @@ bool Editor::Search(bool Next)
 				SetCursorType(false, -1);
 				const auto Total = FindAllReferences? Lines.size() : ReverseSearch? StartLine : Lines.size() - StartLine;
 				const auto Current = abs(CurPtr.Number() - StartLine);
-				EditorShowMsg(msg(lng::MEditSearchTitle), msg(lng::MEditSearchingFor), QuotedStr, Total > 0? Current * 100 / Total : 100);
+				Progress.update(Total > 0? Current * 100 / Total : 100);
 				taskbar::set_value(Current,Total);
 			}
 
@@ -6556,48 +6555,6 @@ void Editor::SetSavePosMode(int SavePos, int SaveShortPos)
 		EdOpt.SaveShortPos = (0 != SaveShortPos);
 }
 
-static void EditorShowMsgImpl(string_view const Title, const string& Msg, const string& Name, size_t Percent)
-{
-	const auto strMsg = concat(Msg, L' ', Name);
-	const size_t Length = std::max(std::min(ScrX - 1 - 10, static_cast<int>(strMsg.size())), 40);
-	auto strProgress = make_progressbar(Length, Percent, true, true);
-
-	std::vector MsgItems{ strMsg };
-	if (!strProgress.empty())
-		MsgItems.emplace_back(strProgress);
-
-	Message(MSG_LEFTALIGN,
-		Title,
-		std::move(MsgItems),
-		{});
-}
-
-void Editor::EditorShowMsg(string_view const Title, const string& Msg, const string& Name, size_t Percent)
-{
-	EditorShowMsgImpl(Title, Msg, Name, Percent);
-
-	TPreRedrawFunc::instance()([&](EditorPreRedrawItem& Item)
-	{
-		Item.Title = Title;
-		Item.Msg = Msg;
-		Item.Name = Name;
-		Item.Percent = Percent;
-	});
-}
-
-void Editor::PR_EditorShowMsg()
-{
-	TPreRedrawFunc::instance()([](const EditorPreRedrawItem& Item)
-	{
-		EditorShowMsg(Item.Title, Item.Msg, Item.Name, Item.Percent);
-	});
-}
-
-Editor::EditorPreRedrawItem::EditorPreRedrawItem():
-	PreRedrawItem(PR_EditorShowMsg)
-{
-}
-
 Editor::numbered_iterator Editor::InsertString(const string_view Str, const numbered_iterator& Where)
 {
 	const auto Empty = Lines.empty();
@@ -6963,3 +6920,59 @@ void Editor::AutoDeleteColors()
 
 	m_AutoDeletedColors.clear();
 }
+
+namespace
+{
+	enum
+	{
+		DlgW = 76,
+		DlgH = 6,
+	};
+
+	enum progress_items
+	{
+		pr_doublebox,
+		pr_label,
+		pr_progress,
+
+		pr_count
+	};
+}
+
+editor_progress::editor_progress(string_view const Title, string_view const Msg, size_t const Percent)
+{
+
+	auto ProgressDlgItems = MakeDialogItems<progress_items::pr_count>(
+	{
+		{ DI_DOUBLEBOX, {{ 3, 1 }, { DlgW - 4, DlgH - 2 }}, DIF_NONE,       Title, },
+		{ DI_TEXT,      {{ 5, 2 }, { DlgW - 6,        2 }}, DIF_CENTERTEXT, Msg },
+		{ DI_TEXT,      {{ 5, 3 }, { DlgW - 6,        3 }}, DIF_NONE,       make_progressbar(DlgW - 10, Percent, true, true) },
+	});
+
+	m_Dialog = Dialog::create(ProgressDlgItems, [](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
+	{
+		if (Msg == DN_RESIZECONSOLE)
+		{
+			COORD Position{ -1, -1 };
+			Dlg->SendMessage(DM_MOVEDIALOG, 1, &Position);
+		}
+
+		return Dlg->DefProc(Msg, Param1, Param2);
+	});
+
+	m_Dialog->SetPosition({ -1, -1, DlgW, DlgH });
+	m_Dialog->SetCanLoseFocus(true);
+	m_Dialog->Process();
+}
+
+editor_progress::~editor_progress()
+{
+	if (m_Dialog)
+		m_Dialog->CloseDialog();
+}
+
+void editor_progress::update(size_t const Percent) const
+{
+	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_progress, UNSAFE_CSTR(make_progressbar(DlgW - 10, Percent, true, true)));
+}
+

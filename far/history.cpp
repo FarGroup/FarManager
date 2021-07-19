@@ -354,6 +354,8 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 			SetUpMenuPos=false;
 		}
 
+		HistoryMenu.Redraw();
+
 		MenuExitCode=HistoryMenu.Run([&](const Manager::Key& RawKey)
 		{
 			const auto Key=RawKey();

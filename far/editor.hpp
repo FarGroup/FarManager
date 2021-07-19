@@ -307,7 +307,6 @@ private:
 	bool IsLastLine(const iterator& Line) const;
 
 	static bool InitSessionBookmarksForPlugin(EditorBookmarks *Param, size_t Count, size_t& Size);
-	static void EditorShowMsg(string_view Title, const string& Msg, const string& Name, size_t Percent);
 
 	bool IsAnySelection() const { assert(Lines.end() == m_it_AnyBlockStart || m_BlockType != BTYPE_NONE); return Lines.end() != m_it_AnyBlockStart; }
 	bool IsStreamSelection() const { return IsAnySelection() && m_BlockType == BTYPE_STREAM; }
@@ -397,15 +396,6 @@ private:
 	int CursorPos{};
 	int m_InEERedraw{};
 	bool m_GotoHex{};
-
-	struct EditorPreRedrawItem : public PreRedrawItem
-	{
-		EditorPreRedrawItem();
-		string Title;
-		string Msg;
-		string Name;
-		size_t Percent{};
-	};
 };
 
 class EditorContainer
@@ -413,6 +403,18 @@ class EditorContainer
 public:
 	virtual ~EditorContainer() = default;
 	virtual Editor* GetEditor() = 0;
+};
+
+class editor_progress
+{
+public:
+	editor_progress(string_view Title, string_view Msg, size_t Percent);
+	~editor_progress();
+
+	void update(size_t Percent) const;
+
+private:
+	dialog_ptr m_Dialog;
 };
 
 #endif // EDITOR_HPP_79DE09D5_8F9C_467E_A3BF_8E1BB34E4BD3
