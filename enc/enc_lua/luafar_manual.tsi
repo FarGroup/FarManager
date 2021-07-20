@@ -3152,7 +3152,7 @@ id=71
 lv=2
 dt=Text
 nm=far.SendDlgMessage
-mtime=3746038169
+mtime=3835879532
 <article>
 #_Result = far.SendDlgMessage (hDlg, Msg, Param1, Param2)
 #_    or
@@ -3175,7 +3175,6 @@ mtime=3746038169
 #_DM_ENABLEREDRAW,
 #_DM_GETCHECK,
 #_DM_GETCURSORSIZE,
-#_DM_GETDLGDATA,
 #_DM_GETDROPDOWNOPENED,
 #_DM_GETFOCUS,
 #_DM_GETITEMDATA,
@@ -3184,7 +3183,6 @@ mtime=3746038169
 #_DM_REDRAW,
 #_DM_SET3STATE,
 #_DM_SETCURSORSIZE,
-#_DM_SETDLGDATA,
 #_DM_SETDROPDOWNOPENED,
 #_DM_SETFOCUS,
 #_DM_SETINPUTNOTIFY,
@@ -3364,13 +3362,18 @@ mtime=3746038169
 #_DN_DRAGGED,
 #_DN_DRAWDIALOG,
 #_DN_DRAWDIALOGDONE,
-#_DN_DROPDOWNOPENED,
+#_DN_DROPDOWNOPENED:
 #_    Param2:  integer
 #_    Result:  integer
 #_
 #_DN_CONTROLINPUT:
 #_    Param2:  `tInputRecord` or string
 #_    Result:  integer
+#_
+#_DM_GETDLGDATA,
+#_DM_SETDLGDATA:
+#_  These operations are not implemented as they are used internally by LuaFAR.
+#_  Param1 and Param2 are ignored; nil is returned.
 #_
 #_**Far API used:**
 #_  SendDlgMessage
