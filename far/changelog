@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 20.07.2021 02:38:36 +0100 - build 5851
+
+1. Rework and simplify Delete/Wipe/Recycle dialog localisation.
+
+--------------------------------------------------------------------------------
 drkns 19.07.2021 22:08:39 +0100 - build 5850
 
 1. Experimental: removed fake dialogs and preredraw magic from editor load/save/find progress bars.

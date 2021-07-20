@@ -70,6 +70,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/scope_exit.hpp"
+#include "common/view/enumerate.hpp"
 
 // External:
 #include "format.hpp"
@@ -304,95 +305,53 @@ static void show_confirmation(
 	if (!Global->Opt->Confirm.Delete)
 		return;
 
-	string strDeleteFilesMsg;
-
-	if (SelCount == 1)
-	{
-		strDeleteFilesMsg = QuoteOuterSpace(SingleSelData.FileName);
-	}
-	else
-	{
-		// в зависимости от числа ставим нужное окончание
-		auto StrItems = str(SelCount);
-		auto Ends = msg(lng::MAskDeleteItemsA);
-		if (const auto LenItems = StrItems.size())
-		{
-			if ((LenItems >= 2 && StrItems[LenItems - 2] == L'1') ||
-				StrItems[LenItems - 1] >= L'5' ||
-				StrItems[LenItems - 1] == L'0')
-				Ends = msg(lng::MAskDeleteItemsS);
-			else if (StrItems[LenItems - 1] == L'1')
-				Ends = msg(lng::MAskDeleteItems0);
-		}
-		strDeleteFilesMsg = format(msg(lng::MAskDeleteItems), SelCount, Ends);
-	}
-
-	lng mTitle, mDText, mDBttn;
+	lng TitleId, MessageId, ButtonId;
 	const UUID* Id;
 
 	if (DeleteType == delete_type::erase)
 	{
-		mTitle = lng::MDeleteWipeTitle;
-		mDBttn = lng::MDeleteWipe;
+		TitleId = lng::MDeleteWipeTitle;
+		MessageId = lng::MAskWipe;
+		ButtonId = lng::MDeleteWipe;
 		Id = &DeleteWipeId;
 	}
 	else if (DeleteType == delete_type::remove)
 	{
-		mTitle = lng::MDeleteTitle;
-		mDBttn = lng::MDelete;
+		TitleId = lng::MDeleteTitle;
+		MessageId = lng::MAskDelete;
+		ButtonId = lng::MDelete;
 		Id = &DeleteFileFolderId;
 	}
 	else if (DeleteType == delete_type::recycle)
 	{
-		mTitle = lng::MDeleteTitle;
-		mDBttn = lng::MDeleteRecycle;
+		TitleId = lng::MDeleteTitle;
+		MessageId = lng::MAskDeleteRecycle;
+		ButtonId = lng::MDeleteRecycle;
 		Id = &DeleteRecycleId;
 	}
 	else
 		UNREACHABLE;
 
-	std::vector items{ strDeleteFilesMsg };
+	std::vector<string> items;
 
-	string tText;
 	bool HighlightSelected = Global->Opt->DelOpt.HighlightSelected;
-	const size_t MaxItems = std::min(std::max(static_cast<int>(Global->Opt->DelOpt.ShowSelected), 1), ScrY / 2);
 
 	if (SelCount == 1)
 	{
-		const auto folder = (SingleSelData.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-
-		if (DeleteType == delete_type::erase)
-			mDText = folder? lng::MAskWipeFolder : lng::MAskWipeFile;
-		else if (DeleteType == delete_type::remove)
-			mDText = folder? lng::MAskDeleteFolder : lng::MAskDeleteFile;
-		else if (DeleteType == delete_type::recycle)
-			mDText = folder? lng::MAskDeleteRecycleFolder : lng::MAskDeleteRecycleFile;
-		else
-			UNREACHABLE;
+		const auto IsFolder = (SingleSelData.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+		items.emplace_back(format(msg(MessageId), msg(IsFolder? lng::MAskDeleteFolder : lng::MAskDeleteFile)));
+		items.emplace_back(QuoteOuterSpace(SingleSelData.FileName));
 
 		if (SingleSelData.Attributes & FILE_ATTRIBUTE_REPARSE_POINT)
 		{
-			if (DeleteType == delete_type::erase)
-			{
-				mDText = folder? lng::MAskDeleteFolder : lng::MAskDeleteFile;
-				mDBttn = lng::MDelete;
-			}
-
 			Id = &DeleteLinkId;
 
 			auto FullName = ConvertNameToFull(SingleSelData.FileName);
-			auto Str = msg(lng::MAskDeleteLink);
 
 			if (GetReparsePointInfo(FullName, FullName))
-			{
 				NormalizeSymlinkName(FullName);
 
-				const os::fs::file_status Status(FullName);
-				if (os::fs::exists(Status))
-					append(Str, L' ', msg(is_directory(Status) ? lng::MAskDeleteLinkFolder : lng::MAskDeleteLinkFile));
-			}
-
-			items.emplace_back(std::move(Str));
+			items.emplace_back(msg(lng::MAskDeleteLink));
 			items.emplace_back(std::move(FullName));
 		}
 
@@ -402,44 +361,36 @@ static void show_confirmation(
 			if (SrcPanel->GetCurName(name, sname))
 			{
 				inplace::QuoteOuterSpace(name);
-				HighlightSelected = strDeleteFilesMsg != name;
+				HighlightSelected = SingleSelData.FileName != name;
 			}
 		}
 	}
 	else
 	{
-		if (DeleteType == delete_type::erase)
-			mDText = lng::MAskWipe;
-		else if (DeleteType == delete_type::remove)
-			mDText = lng::MAskDelete;
-		else if (DeleteType == delete_type::recycle)
-			mDText = lng::MAskDeleteRecycle;
-		else
-			UNREACHABLE;
+		items.emplace_back(format(msg(MessageId), msg(lng::MAskDeleteObjects)));
 
-		if (MaxItems > 1)
+		const auto ItemsToShow = std::min(std::min(std::max(static_cast<size_t>(Global->Opt->DelOpt.ShowSelected), size_t{ 1 }), SelCount), size_t{ScrY / 2u});
+		const auto ItemsMore = SelCount - ItemsToShow;
+
+		for (const auto& i: SrcPanel->enum_selected())
 		{
-			tText = concat(msg(mDText), L' ', strDeleteFilesMsg);
-			items.clear();
+			items.emplace_back(QuoteOuterSpace(i.FileName));
 
-			for (const auto& i: SrcPanel->enum_selected())
+			if (items.size() - 1 == ItemsToShow)
 			{
-				items.emplace_back(QuoteOuterSpace(i.FileName));
+				if (ItemsMore)
+					items.emplace_back(format(msg(lng::MAskDeleteAndMore), ItemsMore));
 
-				if (items.size() + 1 == MaxItems && items.size() + 1 < SelCount)
-				{
-					items.emplace_back(L"…"sv);
-					break;
-				}
+				break;
 			}
 		}
 	}
 
-	intptr_t start_hilite = 0, end_hilite = 0;
+	intptr_t FirstHighlighted = 0, LastHighlighted = 0;
 
-	DialogBuilder Builder(mTitle, {}, [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
+	DialogBuilder Builder(TitleId, {}, [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 	{
-		if (HighlightSelected && Msg == DN_CTLCOLORDLGITEM && Param1 >= start_hilite && Param1 <= end_hilite)
+		if (HighlightSelected && Msg == DN_CTLCOLORDLGITEM && in_closed_range(FirstHighlighted, Param1, LastHighlighted))
 		{
 			auto& Colors = *static_cast<const FarDialogItemColors*>(Param2);
 			Colors.Colors[0] = Colors.Colors[1];
@@ -447,26 +398,36 @@ static void show_confirmation(
 		return Dlg->DefProc(Msg, Param1, Param2);
 	});
 
-	if (tText.empty())
-		tText = msg(mDText);
+	const auto MaxWidth = ScrX + 1 - 6 * 2;
 
-	Builder.AddText(tText)->Flags = DIF_CENTERTEXT;
-
-	if (MaxItems > 1 && SelCount > 1)
-		Builder.AddSeparator();
-
-	for (auto& i: items)
+	if (SelCount == 1)
 	{
-		inplace::truncate_center(i, ScrX + 1 - 6 * 2);
-		const auto dx = Builder.AddText(i);
-		dx->Flags = (SelCount <= 1 || MaxItems <= 1 ? DIF_CENTERTEXT : 0) | DIF_SHOWAMPERSAND;
-		size_t index = Builder.GetLastID();
-		end_hilite = index;
-		if (!start_hilite)
-			start_hilite = index;
+		for (const auto& [Item, Index]: enumerate(items))
+		{
+			inplace::truncate_center(Item, MaxWidth);
+			Builder.AddText(Item)->Flags = DIF_CENTERTEXT | DIF_SHOWAMPERSAND;
+			if (Index == 1)
+				FirstHighlighted = LastHighlighted = Builder.GetLastID();
+		}
+	}
+	else
+	{
+		for (const auto& [Item, Index]: enumerate(items))
+		{
+			if (Index == 1)
+				Builder.AddSeparator();
+
+			inplace::truncate_center(Item, MaxWidth);
+			Builder.AddText(Item)->Flags = DIF_SHOWAMPERSAND;
+
+			if (Index == 1)
+				FirstHighlighted = Builder.GetLastID();
+		}
+
+		LastHighlighted = Builder.GetLastID();
 	}
 
-	Builder.AddOKCancel(mDBttn, lng::MCancel);
+	Builder.AddOKCancel(ButtonId, lng::MCancel);
 	Builder.SetId(*Id);
 
 	if (DeleteType != delete_type::recycle)
