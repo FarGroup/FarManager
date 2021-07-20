@@ -431,9 +431,9 @@ void Message::Init(
 			Dlg->SetDialogMode(DMODE_WARNINGSTYLE);
 		}
 
-		Dlg->SetDialogMode(DMODE_MSGINTERNAL);
 		if (Flags & MSG_NOPLUGINS)
 			Dlg->SetDialogMode(DMODE_NOPLUGINS);
+
 		FlushInputBuffer();
 
 		if (Flags & MSG_KILLSAVESCREEN)

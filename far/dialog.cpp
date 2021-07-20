@@ -4231,19 +4231,17 @@ intptr_t Dialog::CloseDialog()
 	GetDialogObjectsData();
 
 	const auto result = DlgProc(DN_CLOSE, m_ExitCode, nullptr);
-	if (result)
-	{
-		GetDialogObjectsExpandData();
-		DialogMode.Set(DMODE_ENDLOOP);
-		Hide();
+	if (!result)
+		return 0;
 
-		if (DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || Global->WindowManager->ManagerStarted()))
-		{
-			DialogMode.Clear(DMODE_BEGINLOOP);
-			Global->WindowManager->DeleteWindow(shared_from_this());
-			Global->WindowManager->PluginCommit();
-		}
-	}
+	GetDialogObjectsExpandData();
+	DialogMode.Set(DMODE_ENDLOOP);
+	Hide();
+
+	DialogMode.Clear(DMODE_BEGINLOOP);
+	Global->WindowManager->DeleteWindow(shared_from_this());
+	Global->WindowManager->PluginCommit();
+
 	return result;
 }
 

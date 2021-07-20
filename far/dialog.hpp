@@ -81,7 +81,6 @@ enum DIALOG_MODES
 	DMODE_VISIBLE               = 25_bit, // отображать диалог на экране (DM_SHOWDIALOG)
 	DMODE_KEEPCONSOLETITLE      = 28_bit, // не изменять заголовок консоли
 	DMODE_CLICKOUTSIDE          = 29_bit, // было нажатие мыши вне диалога?
-	DMODE_MSGINTERNAL           = 30_bit, // Внутренняя Message?
 	DMODE_OLDSTYLE              = 31_bit, // Диалог в старом (до 1.70) стиле
 };
 

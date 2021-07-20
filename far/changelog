@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 20.07.2021 17:48:06 +0100 - build 5852
+
+1. gh-425 Incorrect file sizes shown/calculated for files compressed with LZX
+
+2. Continue 5850.
+
+--------------------------------------------------------------------------------
 drkns 20.07.2021 02:38:36 +0100 - build 5851
 
 1. Rework and simplify Delete/Wipe/Recycle dialog localisation.
