@@ -681,11 +681,11 @@ wywoływane jest ~powiązane polecenie~@FileAssoc@ lub otwierane jest archiwum.
 #Ctrl+Shift+PgDn# zawsze otwiera archiwum, niezależnie od powiązanego polecenia.
 
  Przejdź do folderu nadrzędnego                           #Ctrl+PgUp#
- Zachowanie w folderach głównych zależy od opcji "Użyj Ctrl+PgUp aby zmienić dysk~@InterfSettings@".
+ Zachowanie w folderach głównych zależy od opcji "~Użyj Ctrl+PgUp aby zmienić dysk~@InterfSettings@".
 
- Utwórz skrót do bieżącego folderu                  #Ctrl+Shift+0…9#
+ Utwórz skrót do bieżącego folderu                   #Ctrl+Shift+0…9#
 
- Użyj skrótu do folderu                              #RightCtrl+0…9#
+ Użyj skrótu do folderu                               #RightCtrl+0…9#
 
  Ustaw ~atrybuty pliku~@FileAttrDlg@                                        #Ctrl+A#
 

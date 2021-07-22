@@ -680,7 +680,7 @@ an ~associated command~@FileAssoc@ is executed or the archive is opened.
 command configuration.
 
  Zmena adresára na rodičovský (o stupeň vyššie)           #Ctrl+PgUp#
- The behavior in root folders depends on "Use Ctrl+PgUp to change drive~@InterfSettings@" option.
+ The behavior in root folders depends on "~Use Ctrl+PgUp to change drive~@InterfSettings@" option.
 
  Vytvorenie skratky k aktuálnemu adresáru            #Ctrl+Shift+0…9#
 

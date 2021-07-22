@@ -701,7 +701,7 @@ kurzor fájlon áll, a fájl típusához ~társított parancsot~@FileAssoc@ hajt
 végre, vagy belép a tömörítettbe.
 
  Visszalépés a szülőmappába                               #Ctrl+PgUp#
- The behavior in root folders depends on "Use Ctrl+PgUp to change drive~@InterfSettings@" option.
+ The behavior in root folders depends on "~Use Ctrl+PgUp to change drive~@InterfSettings@" option.
 
  Gyorsbillentyűt rendel az aktuális mappához         #Ctrl+Shift+0…9#
 

@@ -321,11 +321,11 @@ namespace
 			{
 				console.SetActiveScreenBuffer(m_Buffer.native_handle());
 
-				const time_check TimeCheck;
-
 				for (;;)
 				{
-					if (TimeCheck && CheckForEscSilent())
+					os::handle::wait_all({ console.GetInputHandle() });
+
+					if (CheckForEscSilent())
 					{
 						console.SetActiveScreenBuffer(console.GetOutputHandle());
 						return;

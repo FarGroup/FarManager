@@ -694,7 +694,7 @@ an ~associated command~@FileAssoc@ is executed or the archive is opened.
 command configuration.
 
  Ins übergeordnete verzeichnis wechseln                  #Strg+Bild↑#
- The behavior in root folders depends on "Use Ctrl+PgUp to change drive~@InterfSettings@" option.
+ The behavior in root folders depends on "~Use Ctrl+PgUp to change drive~@InterfSettings@" option.
 
  Kürzel <Nr> für aktuelles Verzeichnis anlegen       #Strg+Umsch+0…9#
 

@@ -683,11 +683,11 @@ an ~associated command~@FileAssoc@ is executed or the archive is opened.
 command configuration.
 
  Change to the parent folder                              #Ctrl+PgUp#
- The behavior in root folders depends on "Use Ctrl+PgUp to change drive~@InterfSettings@" option.
+ The behavior in root folders depends on "~Use Ctrl+PgUp to change drive~@InterfSettings@" option.
 
- Create shortcut to the current folder              #Ctrl+Shift+0…9#
+ Create shortcut to the current folder               #Ctrl+Shift+0…9#
 
- Use folder shortcut                                 #RightCtrl+0…9#
+ Use folder shortcut                                  #RightCtrl+0…9#
 
  Set ~file attributes~@FileAttrDlg@                                         #Ctrl+A#
 

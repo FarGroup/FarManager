@@ -695,11 +695,11 @@ vykonán ~přiřazený příkaz~@FileAssoc@, nebo je otevřen archív.
 command configuration.
 
  Změní na rodičovský adresář                              #Ctrl+PgUp#
- The behavior in root folders depends on "Use Ctrl+PgUp to change drive~@InterfSettings@" option.
+ The behavior in root folders depends on "~Use Ctrl+PgUp to change drive~@InterfSettings@" option.
 
- Vytvoří skratku na aktuální adresář                #Ctrl+Shift+0…9#
+ Vytvoří skratku na aktuální adresář                 #Ctrl+Shift+0…9#
 
- Použití adresářové skratky                          #RightCtrl+0…9#
+ Použití adresářové skratky                           #RightCtrl+0…9#
 
  Nastavení ~atributů souboru~@FileAttrDlg@                                  #Ctrl+A#
 
