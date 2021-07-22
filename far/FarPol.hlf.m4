@@ -46,7 +46,7 @@
 
 
 @Contents
-$^#File and archive manager#
+$^#Menedżer plików i archiwów#
 `$^#'FULLVERSION`#'
 $^#Copyright © 1996-2000 Eugene Roshal#
 `$^#Copyright © 2000-'COPYRIGHTYEAR` Far Group#'
@@ -1788,7 +1788,7 @@ wyszukiwania - należy zostawić puste pole "Typy kolumn".
 
 
 @FindFileResult
-$ #Znajdź plik - klawisze kontrolne#
+$ #Znajdź plik - sterowanie klawiszami#
  W trakcie ~wyszukiwania~@FindFile@ lub po jego zakończeniu, można użyć
 klawiszy strzałek, aby przewijać listę plików oraz przycisków do wykonania
 czynności.
@@ -2523,14 +2523,15 @@ całkowitą liczbę plików.
 (i dysków sieciowych - jeżeli przełącznik znajduje się w trzecim stanie) zostanie
 wyświetlona lista współdzielonych zasobów serwera.
 
- #Use Virtual Terminal for rendering#
- Render the output using ANSI escape sequences.
- This allows using 24-bit colors and may (or may not) work better (or worse) with some Unicode characters.
- Requires Windows 10 and above.
+ #Użyj Terminalu Wirtualnego do renderowania#
+ Renderuj dane wyjściowe za pomocą sekwencji ANSI escape.
+ Pozwala to na użycie 24-bitowych kolorów i pozwala (lub nie) pracować lepiej (lub gorzej) z niektórymi znakami Unicode.
+ Wymaga Windows 10 lub nowszego.
 
- #Fullwidth-aware rendering#
- Take into account the fact that East Asian characters require two screen cells instead of one.
- The support is rudimentary and experimental. It may work or not, depending on your OS, locale, terminal, font and other settings.
+ #Renderowanie na pełnej szerokości#
+ Należy wziąć pod uwagę fakt, że znaki wschodnioazjatyckie wymagają dwóch komórek ekranu zamiast jednej.
+ Wsparcie jest szczątkowe i eksperymentalne. Może działać lub nie, zależnie od Twojego systemu operacyjnego, zmiennych lokalnych,
+terminala, czcionki i innych ustawień.
 
  #Rysowanie zgodne z ClearType#
  Przerysowuje okno w taki sposób, aby nie pojawiały się artefakty związane
@@ -2719,7 +2720,7 @@ znak opisuje jedną zapisaną ścieżkę.
 
 
 @Viewer
-$ #Podgląd: klawisze kontroli#
+$ #Podgląd: sterowanie klawiszami#
  Klawisze nawigacyjne
 
  Zachowanie klawiszy nawigacyjnych zależy od ~trybu podglądu~@ViewerMode@.
@@ -3021,222 +3022,224 @@ Wyszukiwanie wielowierszowe nie jest obsługiwane.
 
 
 @Editor
-$ #Editor#
- To edit the file currently under the cursor you should press #F4#. This
-can be used to open the internal editor or any of the user defined external
-editors which are defined in the ~Editor settings~@EditorSettings@ dialog.
+$ #Edytor#
+ Aby edytować plik aktualnie znajdujący się pod kursorem należy nacisnąć klawisz
+#F4#. Skrót ten może być użyty do otwarcia wewnętrznego edytora lub dowolnego
+innego edytora zewnętrznego ustawionego przez użytkownika w oknie
+~Ustawień edytora~@EditorSettings@.
 
- #Creating files using the editor#
+ #Tworzenie plików za pomocą edytora#
 
- If a nonexistent file name is entered after pressing the #Shift+F4# hotkey
-then a ~new file~@FileOpenCreate@ will be created.
+ Jeżeli po wciśnięciu klawiszy #Shift+F4# podana zostanie nazwa nie istniejącego
+pliku, zostanie utworzony ~nowy plik~@FileOpenCreate@ o podanej nazwie.
 
- Remarks:
+ Uwagi:
 
- 1. ^<wrap>If a name of a nonexistent folder is entered when creating a new file
-then a "~Path to the file to edit does not exist~@WarnEditorPath@" warning will be shown.
- 2. ^<wrap>When trying to reload a file already opened in the editor the
-"~reloading a file~@EditorReload@" warning message will be shown.
- 3. ^<wrap>The ANSI code page is used by default when creating new files, this
-behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
+ 1. ^<wrap>Jeżeli podczas tworzenia nowego pliku podanie zostanie nazwa
+nie istniejącego folderu, zostanie wyświetlone ostrzeżenie 
+"~Ścieżka do edytowanego pliku nie istnieje~@WarnEditorPath@".
+ 2. ^<wrap>Przy próbie przeładowania pliku już otwartego w edytorze,
+zostanie wyświetlone ostrzeżenie o "~przeładowaniu pliku~@EditorReload@".
+ 3. ^<wrap>Podczas tworzenia nowych plików, domyślnie używana jest strona
+kodowa ANSI, ale można zmienić to ustawienie w oknie ~Ustawień edytora~@EditorSettings@.
 
- #Control keys#
+ #Sterowanie klawiszami#
 
- Cursor movement
+ Przesuwanie kursora
 
- #Left#                    ^<wrap>Character left
- #Ctrl+S#                  Move the cursor one character to the left, but don't move to the previous line if the line beginning is reached.
- #Right#                   Character right
- #Up#                      Line up
- #Down#                    Line down
- #Ctrl+Left#               Word left
- #Ctrl+Right#              Word right
- #Ctrl+Up#                 Scroll screen up
- #Ctrl+Down#               Scroll screen down
- #PgUp#                    Page up
- #PgDn#                    Page down
- #Home#                    Start of line
- #End#                     End of line
- #Ctrl+Home, Ctrl+PgUp#    Start of file
- #Ctrl+End, Ctrl+PgDn#     End of file
- #Ctrl+N#                  Start of screen
- #Ctrl+E#                  End of screen
+ #Lewo#                    ^<wrap>Poprzedni znak z lewej
+ #Ctrl+S#                  Przenosi kursor o jeden znak w lewo, ale nie zmienia linii na poprzednią jeżeli kursor osiągnie początek linii
+ #Prawo#                   Następny znak z prawej
+ #Góra#                    Linia powyżej
+ #Dół#                     Linia poniżej
+ #Ctrl+Lewo#               Poprzedni wyraz
+ #Ctrl+Prawo#              Następny wyraz
+ #Ctrl+Góra#               Przewija ekran do góry
+ #Ctrl+Dół#                Przewija ekran w dół
+ #PgUp#                    Poprzednia strona
+ #PgDn#                    Następna strona
+ #Home#                    Początek linii
+ #End#                     Koniec linii
+ #Ctrl+Home, Ctrl+PgUp#    Początek pliku
+ #Ctrl+End, Ctrl+PgDn#     Koniec pliku
+ #Ctrl+N#                  Pierwsza linia ekranu
+ #Ctrl+E#                  Ostatnia linia ekranu
 
- Delete operations
+ Operacje usuwania
 
- #Del#                     ^<wrap>Delete char (also can delete block, depending upon ~Editor settings~@EditorSettings@).
- #BS#                      Delete char left
- #Ctrl+Y#                  Delete line
- #Ctrl+K#                  Delete to end of line
- #Ctrl+BS#                 Delete word left
- #Ctrl+T, Ctrl+Del#        Delete word right
+ #Del#                     ^<wrap>Usuwa znak (może także usunąć blok, zależnie od ~Ustawień edytora~@EditorSettings@).
+ #BS#                      Usuwa znak po lewej
+ #Ctrl+Y#                  Usuwa linię
+ #Ctrl+K#                  Usuwa znaki do końca linii
+ #Ctrl+BS#                 Usuwa wyraz po lewej
+ #Ctrl+T, Ctrl+Del#        Usuwa wyraz po prawej
 
- Block operations
+ Operacje na blokach
 
- #Shift+Cursor keys#       ^<wrap>Select block
- #Ctrl+Shift+Cursor keys#  Select block
- #Alt+gray cursor keys#    Select vertical block
- #Alt+Shift+Cursor keys#   Select vertical block
- #Ctrl+Alt+gray keys#      Select vertical block
- #Ctrl+A#                  Select all text
- #Ctrl+U#                  Deselect block
- #Shift+Ins, Ctrl+V#       Paste block from clipboard
- #Shift+Del, Ctrl+X#       Cut block
- #Ctrl+Ins, Ctrl+C#        Copy block to clipboard
- #Ctrl+<Gray +>#           Append block to clipboard
- #Ctrl+D#                  Delete block
- #Ctrl+P#                  Copy block to current cursor position (in persistent blocks mode only)
- #Ctrl+M#                  Move block to current cursor position (in persistent blocks mode only)
- #Alt+U#                   Shift block left
- #Alt+I#                   Shift block right
+ #Shift+klaw. kursora#     ^<wrap>Zaznacza blok
+ #Ctrl+Shift+klaw. kursora#Zaznacza blok
+ #Alt+szare kursory#       Zaznacza blok pionowy
+ #Alt+Shift+klaw. kursora# Zaznacza blok pionowy
+ #Ctrl+Alt+szare kursory#  Zaznacza blok pionowy
+ #Ctrl+A#                  Zaznacza cały tekst
+ #Ctrl+U#                  Odznacza blok
+ #Shift+Ins, Ctrl+V#       Wkleja blok ze schowka
+ #Shift+Del, Ctrl+X#       Wycina blok
+ #Ctrl+Ins, Ctrl+C#        Kopiuje blok do schowka
+ #Ctrl+<Szary +>#          Dołącza blok do schowka
+ #Ctrl+D#                  Usuwa blok
+ #Ctrl+P#                  Kopiuje blok do bieżącej pozycji kursora (tylko w trybie trwałych bloków)
+ #Ctrl+M#                  Przenosi blok do bieżącej pozycji kursora (tylko w trybie trwałych bloków)
+ #Alt+U#                   Przesuwa blok w lewo
+ #Alt+I#                   Przesuwa blok w prawo
 
- Other operations
+ Pozostałe operacje
 
- #F1#                      ^<wrap>Help
- #F2#                      Save file
- #Shift+F2#                ~Save file as…~@FileSaveAs@
- #Shift+F4#                Edit ~new file~@FileOpenCreate@
- #F6#                      Switch to ~viewer~@Viewer@
- #F7#                      ~Search~@EditorSearch@
- #Ctrl+F7#                 ~Replace~@EditorSearch@
- #Shift+F7#                Continue search/replace
- #Alt+F7#                  Continue search/replace in "reverse" mode
- #F8#                      Toggle OEM/ANSI code page
- #Shift+F8#                Select code page
- #Alt+F8#                  ~Go to~@EditorGotoPos@ specified line and column
- #Alt+F9#                  Maximize or restore the size of the Far console window; see also ~Interface.AltF9~@Interface.AltF9@
- #Alt+Shift+F9#            Call ~Editor settings~@EditorSettings@ dialog
- #F10, F4, Esc#            Quit
- #Shift+F10#               Save and quit
- #Ctrl+F10#                Position to the current file
- #F11#                     Call "~Plugin commands~@Plugins@" menu
- #Alt+F11#                 Display ~file view and edit history~@HistoryViews@
- #Alt+BS, Ctrl+Z#          Undo
- #Ctrl+Shift+Z#            Redo
- #Ctrl+L#                  Disable edited text modification
- #Ctrl+O#                  Show user screen
- #Ctrl+Alt+Shift#          Temporarily show user screen (as long as these keys are held down)
- #Ctrl+Q#                  Treat the next key combination as a character code
- #RightCtrl+0…9#           Set a bookmark 0…9 at the current position
- #Ctrl+Shift+0…9#          Set a bookmark 0…9 at the current position
- #LeftCtrl+0…9#            Go to bookmark 0…9
- #Shift+Enter#             Insert the name of the current file on the active panel at the cursor position.
- #Ctrl+Shift+Enter#        Insert the name of the current file on the passive panel at the cursor position.
- #Ctrl+F#                  Insert the full name of the file being edited at the cursor position.
- #Ctrl+B#                  Show/Hide functional key bar at the bottom line.
- #Ctrl+Shift+B#            Show/Hide status line
+ #F1#                      ^<wrap>Pomoc
+ #F2#                      Zapisz plik
+ #Shift+F2#                ~Zapisz plik jako…~@FileSaveAs@
+ #Shift+F4#                Edytuj ~nowy plik~@FileOpenCreate@
+ #F6#                      Przełącz na ~podgląd~@Viewer@
+ #F7#                      ~Szukaj~@EditorSearch@
+ #Ctrl+F7#                 ~Zastąp~@EditorSearch@
+ #Shift+F7#                Kontynuuje szukanie/zastępowanie
+ #Alt+F7#                  Kontynuuje szukanie/zastępowanie "wstecz"
+ #F8#                      Przełącza strony kodowe OEM/ANSI
+ #Shift+F8#                Wybiera stronę kodową
+ #Alt+F8#                  ~Przechodzi do~@EditorGotoPos@ podanej linii i kolumny
+ #Alt+F9#                  Maksymalizuje lub przywraca wielkość okna konsoli Far; zobacz także ~Interface.AltF9~@Interface.AltF9@
+ #Alt+Shift+F9#            Wywołuje okno ~Ustawień edytora~@EditorSettings@
+ #F10, F4, Esc#            Wyjście z programu
+ #Shift+F10#               Zapisanie i wyjście
+ #Ctrl+F10#                Przeskakuje w oknie plików do bieżącego (edytowanego) pliku
+ #F11#                     Wywołuje menu "~Wtyczek~@Plugins@"
+ #Alt+F11#                 Pokazuje ~Historię podglądu i edycji plików~@HistoryViews@
+ #Alt+BS, Ctrl+Z#          Cofnięcie
+ #Ctrl+Shift+Z#            Ponowienie
+ #Ctrl+L#                  Wyłącza modyfikowanie edytowanego tekstu (blokada)
+ #Ctrl+O#                  Pokazuje ekran użytkownika
+ #Ctrl+Alt+Shift#          Tymczasowo pokazuje ekran użytkownika (dopóki te klawisze będą naciśnięte)
+ #Ctrl+Q#                  Traktuj następną kombinację klawiszy jako kod znaku
+ #PrawyCtrl+0…9#           Ustaw zakładkę 0…9 na bieżącej pozycji
+ #Ctrl+Shift+0…9#          Ustaw zakładkę 0…9 na bieżącej pozycji
+ #LewyCtrl+0…9#            Przechodzi do zakładki 0…9
+ #Shift+Enter#             W miejscu kursora wstawia nazwę bieżącego pliku z aktywnego panelu
+ #Ctrl+Shift+Enter#        W miejscu kursora wstawia nazwę bieżącego pliku z pasywnego panelu
+ #Ctrl+F#                  W miejscu kursora wstawia pełną nazwę (ze ścieżką) edytowanego pliku
+ #Ctrl+B#                  Pokazuje/ukrywa pasek klawiszy w dolnej linii
+ #Ctrl+Shift+B#            Pokazuje/ukrywa górną linię statusu
 
- See also the list of ~macro keys~@KeyMacroEditList@, available in the editor.
+ Zobacz także listę ~klawiszy makro~@KeyMacroEditList@, dostępnych w edytorze.
 
- Notes:
+ Uwagi:
 
- 1. ^<wrap>#Alt+U#/#Alt+I# indent the current line if no block is selected.
- 2. ^<wrap>Holding down #Alt# and typing a character code on the numeric
-keypad inserts the character that has the specified code (0-65535).
- 3. ^<wrap>If no block is selected, #Ctrl+Ins#/#Ctrl+C# marks the current
-line as a block and copies it to the clipboard.
+ 1. ^<wrap>#Alt+U#/#Alt+I# ustawiają wcięcie bieżącej linii jeżeli żaden blok nie jest zaznaczony.
+ 2. ^<wrap>Przytrzymanie klawisza #Alt# i wpisanie kodu znaku na klawiaturze numerycznej,
+wstawia znak o podanym kodzie (0-65535).
+ 3. ^<wrap>Jeżeli nie zaznaczono żadnego bliku, to klawisze #Ctrl+Ins#/#Ctrl+C# zaznaczają
+bieżącą linię i kopiują ją do schowka.
 
 
 @EditorSearch
-$ #Editor: search/replace#
- The following options are available for search and replace in the ~editor~@Editor@:
+$ #Edytor: szukaj/zastąp#
+ Następujące opcje są dostępne przy szukaniu lub zastępowaniu w ~edytorze~@Editor@:
 
- #Case sensitive#
- The case of the characters entered will be taken into account while searching (so, for example,
-#Text# will not be found when searching for #text#).
+ #Uwzględniaj wielkość liter#
+ Wielkość wprowadzonych znaków będzie brana pod uwagę podczas wyszukiwania (np. #Tekst# nie zostanie
+odnaleziony jeżeli wyszukiwane będzie słowo #tekst#).
 
- #Whole words#
- The given text will be found only if it occurs in the text as a whole word.
+ #Tylko całe słowa#
+ Poszukiwany tekst będzie odnaleziony, tylko gdy wprowadzony tekst będzie całym wyrazem.
 
- #Reverse search#
- Change the direction of search (from the end of file towards the beginning)
+ #Szukaj w odwrotnym kierunku#
+ Zmiana kierunku wyszukiwania (od końca pliku w kierunku początku).
 
- #Regular expressions#
- Treat input as Perl regular expression (~search~@RegExp@ and ~replace~@RegExpRepl@).
-Each line is processed individually, so multi-line expressions and line break characters will not be found.
+ #Wyrażenie regularne#
+ Traktuje wprowadzone dane jako wyrażenie regularne języka Perl (~wyszukiwanie~@RegExp@
+i ~zastępowanie~@RegExpRepl@).
+Każda linia jest dekodowana osobno, więc wprowadzanie wyrażeń wieloliniowych i znaki łamania
+linii nie zostaną odnalezione.
 
- ~Preserve style~@PreserveStyle@
- Preserve style (case and delimiters in program source code) of the replaced text.
+ ~Zachowaj styl~@PreserveStyle@
+ Zachowuje styl (wielkość znaków i ograniczniki w kodzie źródłowym) w zastąpionym tekście.
 
- The #All# button will show All matching entries ~menu~@FindAllMenu@.
+ Przycisk #Wszystko# pokaże WSZYSTKIE wystąpienia tekstu w postaci ~menu~@FindAllMenu@.
 
 
 @PreserveStyle
-$ #Editor: Replace mode - Preserve style#
- The #“Preserve style”# ~replace~@EditorSearch@ mode in the
-~Editor~@Editor@ preserves the style (case, delimiters) of the replaced
-text. This mode may be useful when editing program source code. Some
-examples are below. Note how the style of the replaced strings
-is preserved in each case.
+$ #Edytor: Tryb zastępowania - Zachowaj styl#
+ Tryb #"Zachowaj styl"# podczas ~zastępowania~@EditorSearch@ tekstu
+w oknie ~Edytora~@Editor@ zachowuje styl (wielkość znaków, ograniczniki)
+zastępowanego tekstu. Tryb ten może być przydatny podczas edycji kodu źródłowego.
+Poniżej kilka przykładów wykorzystania. Proszę zwrócić uwagę jak styl
+zastępowanych znaków jest zachowywany w każdym przypadku.
 
 @-
- ┌────────────────┬────────────────────┬──────────────────────┐
- │ Find / Replace │ Before             │ After                │
- ├────────────────┼────────────────────┼──────────────────────┤
- │ tu / to        │ #Tu# be or not #tu# be │ #To# be or not #to# be   │
- ├────────────────┼────────────────────┼──────────────────────┤
- │ UserName       │ writerUserName     │ writerPersonLogin    │
- │  /             │ user.NAME          │ person.LOGIN         │
- │ PersonLogin    │ DEFAULT_USER_NAME  │ DEFAULT_PERSON_LOGIN │
- │                │ default-User-name  │ default-Person-login │
- └────────────────┴────────────────────┴──────────────────────┘
+ ┌─────────────────┬─────────────────────┬──────────────────────┐
+ │ Znajdź / Zastąp │ Przed               │ Po zamianie          │
+ ├─────────────────┼─────────────────────┼──────────────────────┤
+ │ buć / być       │ #Buć# albo nie #buć#    │ #Być# albo nie #być#     │
+ ├─────────────────┼─────────────────────┼──────────────────────┤
+ │ UserName        │ writerUserName      │ writerPersonLogin    │
+ │  /              │ user.NAME           │ person.LOGIN         │
+ │ PersonLogin     │ DEFAULT_USER_NAME   │ DEFAULT_PERSON_LOGIN │
+ │                 │ default-User-name   │ default-Person-login │
+ └─────────────────┴─────────────────────┴──────────────────────┘
 @+
 
- #More formally.#
+ #Bardziej formalnie.#
 
- The main operation used in the algorithm is parsing a string into
-tokens. The tokens are divided at a single separator character
-or between a lowercase and an uppercase letter. Token separator
-characters are #underscore “_”#, #hyphen “-”#, and #dot “.”#. All tokens
-must be divided with the same separator. If the parse is ambiguous, the
-entire string is treated as a single token. For example:
+ Główną operacją używaną w algorytmie jest parsowanie ciągu na tokeny.
+Tokeny są rozdzielane pojedynczym znakiem separatora lub pomiędzy
+małymi i wielkimi literami. Separatorami mogą być znaki #podkreślenia “_”#,
+#myślnik “-”# i #kropka “.”#., Wszystkie tokeny należy podzielić tym samym
+separatorem. Jeżeli parsowanie nie jest jednoznaczne, to cały ciąg
+jest traktowany jako pojedynczy token, np.:
 
 @-
  ┌──────────────────────┬──────────────────────┬──────────────┐
- │ Search Pattern       │ Tokens               │ Comments     │
+ │ Szukany łańcuch      │ Tokeny               │ Komentarz    │
  ├──────────────────────┼──────────────────────┼──────────────┤
- │ testMe               │ test Me              │              │
- │ WhatIsIt             │ What Is It           │              │
+ │ testujMnie           │ testuj Mnie          │              │
+ │ CoToJest             │ Co To Jest           │              │
  │ far-manager          │ far manager          │              │
- │ Contact.Address.Type │ Contact Address Type │              │
- │ USER_FIRST_NAME      │ USER FIRST NAME      │              │
+ │ Typ.Adresu.Kontaktu  │ Typ Adresu Kontaktu  │              │
+ │ PIERWSZ_IMIE_OSOBY   │ PIERWSZE IMIE OSOBY  │              │
  ├──────────────────────┼──────────────────────┼──────────────┤
- │ test_userName        │ test_userName        │ Ambiguous    │
- │ one.two-three        │ one.two-three        │ separators   │
- │ aBc.dEf.gHi          │ aBc.dEf.gHi          │              │
+ │ test_nazwaUzytkownika│ test_nazwaUzytkownika│ Separatory   │
+ │ jeden.dwa-trzy       │ jeden.dwa-trzy       │ niejedno-    │
+ │ aBc.dEf.gHi          │ aBc.dEf.gHi          │ znaczne      │
  ├──────────────────────┼──────────────────────┼──────────────┤
- │ A..B                 │ A..B                 │ Adjacent     │
- │                      │                      │ separators   │
+ │ A..B                 │ A..B                 │ Sąsiednie    │
+ │                      │                      │ separatory   │
  └──────────────────────┴──────────────────────┴──────────────┘
 @+
 
- The parse also defines the common separator type and the style of
-each token. There are three token styles: #Title#case, #lower#case, and
-#UPPER#case. If a token has a mix of uppercase and lowercase letters
-or non-letter characters, its style is undefined. A token consisting
-of a single uppercase character is deemed to be both #Title#case and
-#UPPER#case.
+ Parsowanie definiuje również wspólny separator i styl każdego
+tokena. Istnieją trzy style tokenów: #Tytuł#, #małe# litery
+i #WIELKIE# litery. Jeżeli token jest kombinacją wielkich i małych
+liter lub znaków specjalnych, to jego styl jest nieoznaczony.
+Token składający się z jednej wielkiej litery jest rozpoznawany
+zarówno jako #Tytuł# jak i #WIELKIE# litery.
 
- #The following algorithm is used to replace preserving style.#
+ #Poniższy algorytm jest używany do zastąpienia istniejącego stylu.#
 
- The search pattern and the replace string are parsed into tokens
-according to the rules above. The text is searched for a string that can
-be parsed into the same tokens as the search pattern. The tokens are
-compared according to the #“Case sensitive”# and #“Whole words”# search
-modes.
+ Wzorzec wyszukiwania i ciąg zastępując są dzielone na tokeny zgodnie
+z powyższymi zasadami. Tekst jest przeszukiwany pod kątem ciągu, który
+może być podzielony na tokeny jak poszukiwany wzorzec. Tokeny są porównywane
+zgodnie z #"Uwzględnieniem wielkości liter"# i #"Tylko całe słowa"#.
 
- If the found string and the replace string have the same number
-of tokens and the found tokens have common style (#Title#case
-is preferred over the #UPPER#case), the replace tokens are transformed
-to this common style. If the common style cannot be defined, the replace
-tokens are transformed to the style of the corresponding found tokens.
-After the transformation, the replace tokens are joined with the
-separator of the parse of the found string. The result is used as the
-replace string. Some examples:
+ Jeżeli szukany i zastępowany ciąg znaków mają tę samą liczbę tokenów
+i znalezione tokeny mają wspólny styl (#Pierwsza wielka# jest ważniejsza
+niż #WSZYSTKIE WIELKIE#), tokeny zastępujące są przekształcane do tego
+wspólnego stylu. Jeżeli nie można ustalić wspólnego stylu, zastępowane
+tokeny są przekształcane do stylu odpowiadającemu szukanym tokenom.
+Po przekształceniu zastąpione tokeny są łączone za pomocą separatora
+z szukanego ciągu. Wynik jest użyty jako zastąpiony ciąg. Kilka przykładów:
 
 @-
  ┌────────────────┬────────────────────┬──────────────────────┐
- │ Find / Replace │ Before             │ After                │
+ │ Znajdź/Zastąp  │ Przed zamianą      │ Po zamianie          │
  ├────────────────┼────────────────────┼──────────────────────┤
  │ abc-def-ghi    │ AbcDefGhi          │ PqRstXyz             │
  │  /             │ ABC_DEF_GHI        │ PQ_RST_XYZ           │
@@ -3252,19 +3255,18 @@ replace string. Some examples:
  └────────────────┴────────────────────┴──────────────────────┘
 @+
 
- If the found string and the replace pattern have different number
-of tokens, the first token is processed separately from the rest of the
-tokens. The first replace token inherits the style of the first found
-token. The rest of the replace tokens are transformed to the common
-style of the rest of the found tokens. If the common style cannot
-be defined, the rest of the replace tokens are not changed. As in the
-previous case, the replace tokens are joined with the separator of the
-parse of the found string and the result is used as the replace string.
-Examples:
+ Jeżeli znaleziony ciąg i wzorzec zamiany mają różną liczbę tokenów,
+to pierwszy token jest przetwarzany oddzielnie od reszty tokenów.
+Pierwszy zastępowany token dziedziczy styl pierwszego znalezionego
+tokena. Reszta zastępowanych tokenów jest przekształcana na zwykły
+styl pozostałych znalezionych tokenów. Jeżeli wspólny styl nie może
+zostać określony, pozostałe tokeny nie są zastępowane. Tak jak
+w poprzednim przypadku, tokeny zastąpione są łączone za pomocą
+separatorów i wynik jest używany jako ciąg zastępujący. Przykłady:
 
 @-
  ┌────────────────┬────────────────────┬──────────────────────┐
- │ Find / Replace │ Before             │ After                │
+ │ Znajdź/Zastąp  │ Przed zamianą      │ Po zamianie          │
  ├────────────────┼────────────────────┼──────────────────────┤
  │ abc-def-ghi    │ Abc.def.ghi        │ Pq.rst.uvw.xyz       │
  │  /             │ ABC.Def.Ghi        │ PQ.Rst.Uvw.Xyz       │
@@ -3277,18 +3279,18 @@ Examples:
  └────────────────┴────────────────────┴──────────────────────┘
 @+
 
- In the special case when the found string consists of a single token
-but the replace string has several tokens, the first replace token
-inherits the style of the found token. The common style for the rest
-of the replace tokens and the separator type are deduced from the
-context of the found string. If this is not possible, the common style
-is the style of the (single) found token and the separator is empty.
-Again, the transformed replace tokens are joined and used as the replace
-string. More examples:
+ W specjalnym przypadku, gdy szukany ciąg składa się tylko z jednego
+tokenu, ale ciąg zastępujący ma kilka tokenów, to pierwszy zastępowany
+token dziedziczy styl po szukanym tokenie. Wspólny styl dla reszty
+zastępowanych tokenów jest dedukowany z kontekstu znalezionego ciągu.
+Jeżeli jest to niemożliwe, to wspólny styl będzie stylem (pierwszego)
+szukanego tokenu, a separator będzie pusty. Ponownie, przekształcone
+tokeny zastąpione są łączone i użyte do zastąpienia ciągu.
+Więcej przykładów:
 
 @-
  ┌────────────────┬────────────────────┬──────────────────────┐
- │ Find / Replace │ Before             │ After                │
+ │ Znajdź/Zastąp  │ Przed zamianą      │ Po zamianie          │
  ├────────────────┼────────────────────┼──────────────────────┤
  │ ijk            │ ijk.Zzz            │ mno.Pqr.Stu.Zzz      │
  │  /             │ AAA-ijk            │ AAA-mno-pqr-stu      │
@@ -3299,14 +3301,14 @@ string. More examples:
  └────────────────┴────────────────────┴──────────────────────┘
 @+
 
- If the search pattern is not found according to the rules above but
-found as an ordinary string, and both the found string and the replace
-string start with letters, the case of the first letter of the replace
-string is changed to that of the found string. For example:
+ Jeżeli wzorzec wyszukiwania nie zostanie odnaleziony zgodnie z powyższymi
+zasadami, ale znaleziono jako zwykły ciąg - a zarówno szukany jak i zastępowany
+ciąg zaczyna się od liter, wielkość pierwszej litery w zastępowanym łańcuchu
+jest zgodna z odnalezionym ciągiem. Na przykład:
 
 @-
  ┌────────────────┬────────────────────┬──────────────────────┐
- │ Find / Replace │ Before             │ After                │
+ │ Znajdź/Zastąp  │ Przed zamianą      │ Po zamianie          │
  ├────────────────┼────────────────────┼──────────────────────┤
  │ ab.cd / wx-yz  │ #A#b.cD              │ #W#x-yz                │
  └────────────────┴────────────────────┴──────────────────────┘
