@@ -881,6 +881,10 @@ namespace logging
 		console.SetTitle(concat(L"Far Log Viewer: "sv, PipeName));
 		console.SetTextAttributes(colors::ConsoleColorToFarColor(F_LIGHTGRAY | B_BLACK));
 
+		DWORD ConsoleMode = 0;
+		console.GetMode(console.GetInputHandle(), ConsoleMode);
+		console.SetMode(console.GetInputHandle(), ConsoleMode | ENABLE_EXTENDED_FLAGS | ENABLE_QUICK_EDIT_MODE);
+
 		os::fs::file PipeFile;
 
 		while (!PipeFile.Open(PipeName, GENERIC_READ, 0, {}, OPEN_EXISTING))
