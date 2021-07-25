@@ -347,6 +347,12 @@ namespace os::fs
 		if (FindData.AllocationSize)
 			return;
 
+		if (!FindData.FileSize)
+			return;
+
+		if (flags::check_any(FindData.Attributes, FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT))
+			return;
+
 		static const auto IsWeirdCompressionAvailable = IsWindows10OrGreater();
 		if (!IsWeirdCompressionAvailable && !flags::check_any(FindData.Attributes, FILE_ATTRIBUTE_COMPRESSED | FILE_ATTRIBUTE_SPARSE_FILE))
 			return;
