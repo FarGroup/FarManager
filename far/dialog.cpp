@@ -4238,10 +4238,12 @@ intptr_t Dialog::CloseDialog()
 	DialogMode.Set(DMODE_ENDLOOP);
 	Hide();
 
-	DialogMode.Clear(DMODE_BEGINLOOP);
-	Global->WindowManager->DeleteWindow(shared_from_this());
-	Global->WindowManager->PluginCommit();
-
+	if (DialogMode.Check(DMODE_BEGINLOOP))
+	{
+		DialogMode.Clear(DMODE_BEGINLOOP);
+		Global->WindowManager->DeleteWindow(shared_from_this());
+		Global->WindowManager->PluginCommit();
+	}
 	return result;
 }
 
