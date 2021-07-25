@@ -149,8 +149,7 @@ private:
 	void SetSecurity(const string& FileName, const os::security::descriptor& sd);
 	void ResetSecurity(const string& FileName);
 
-	// called by copy_selected_items
-	void CalcTotalSize() const;
+	std::pair<unsigned long long, unsigned long long> CalcTotalSize() const;
 
 	void ShellSetAttr(const string& Dest, os::fs::attributes Attr);
 	void SetDestDizPath(const string& DestPath);
@@ -206,7 +205,6 @@ private:
 	bool FilesPresent{};
 	bool AskRO{};
 	bool m_UseFilter{};
-	bool m_TotalSizeCalculated{};
 	HANDLE m_FileHandleForStreamSizeFix{};
 	size_t m_NumberOfTargets{};
 	std::list<created_folders> m_CreatedFolders;
@@ -1297,16 +1295,29 @@ ShellCopy::ShellCopy(
 		}
 
 		if (!CP)
+		{
+			unsigned long long
+				TotalFiles{},
+				TotalBytes{};
+
+			if (SelCount != 1 || FolderPresent)
+			{
+				// Не сканируем каталоги при создании линков
+				if (ShowTotalCopySize && !(Flags & FCOPY_LINK))
+					std::tie(TotalFiles, TotalBytes) = CalcTotalSize();
+			}
+			else
+			{
+				TotalFiles = 1;
+				TotalBytes = SingleSelectedFileSize;
+			}
+
 			CP = std::make_unique<copy_progress>(Move, ShowTotalCopySize, ShowCopyTime);
+			CP->set_total_files(TotalFiles);
+			CP->set_total_bytes(TotalBytes);
+		}
 
 		CP->reset_current();
-
-		if (SelCount == 1 && !FolderPresent)
-		{
-			CP->set_total_files(1);
-			CP->set_total_bytes(SingleSelectedFileSize);
-			CP->set_current_total(SingleSelectedFileSize);
-		}
 
 		// Обнулим инфу про дизы
 		strDestDizPath.clear();
@@ -1366,19 +1377,6 @@ void ShellCopy::copy_selected_items(const string& Dest)
 	const auto copy_to_null = (0 != (Flags & FCOPY_COPYTONUL));
 	const auto move_rename = (0 != (Flags & FCOPY_MOVE));
 	bool SameDisk = false;
-
-	if (!m_TotalSizeCalculated)
-	{
-		//  ! Не сканируем каталоги при создании линков
-		if (CP->IsTotalVisible() && !(Flags & FCOPY_LINK))
-			CalcTotalSize();
-
-		m_TotalSizeCalculated = true;
-	}
-	else
-	{
-		CP->reset_current();
-	}
 
 	// Основной цикл копирования одной порции.
 	//
@@ -3332,7 +3330,7 @@ DWORD ShellCopy::CopyProgressRoutine(unsigned long long TotalFileSize, unsigned 
 	return Abort?PROGRESS_CANCEL:PROGRESS_CONTINUE;
 }
 
-void ShellCopy::CalcTotalSize() const
+std::pair<unsigned long long, unsigned long long> ShellCopy::CalcTotalSize() const
 {
 	unsigned long long Files{}, Bytes{};
 
@@ -3373,8 +3371,11 @@ void ShellCopy::CalcTotalSize() const
 	}
 
 	// INFO: Это для варианта, когда "ВСЕГО = общий размер * количество целей"
-	CP->set_total_files(Files * m_NumberOfTargets);
-	CP->set_total_bytes(Bytes * m_NumberOfTargets);
+	return
+	{
+		Files * m_NumberOfTargets,
+		Bytes * m_NumberOfTargets
+	};
 }
 
 /*

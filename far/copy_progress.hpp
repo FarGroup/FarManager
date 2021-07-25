@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wakeful.hpp"
 #include "datetime.hpp"
 #include "plugin.hpp"
+#include "windowsfwd.hpp"
 
 // Platform:
 
@@ -53,6 +54,7 @@ class copy_progress: noncopyable
 {
 public:
 	copy_progress(bool Move, bool Total, bool Time);
+	~copy_progress();
 
 	bool IsCancelled() const { return m_IsCancelled; }
 	bool IsTotalVisible() const { return m_Total; }
@@ -80,7 +82,6 @@ public:
 private:
 	bool CheckEsc();
 	void Flush();
-	void CreateBackground();
 	void SetCurrentProgress(unsigned long long CompletedSize, unsigned long long TotalSize);
 	void SetTotalProgress(unsigned long long CompletedSize, unsigned long long TotalSize);
 	void UpdateTime(unsigned long long SizeDone, unsigned long long SizeToGo);
@@ -88,7 +89,6 @@ private:
 	std::chrono::steady_clock::time_point m_CopyStartTime;
 	taskbar::indeterminate m_TB;
 	wakeful m_Wakeful;
-	small_rectangle m_Rect{};
 
 	size_t m_CurrentBarSize;
 	int m_CurrentPercent{};
@@ -100,7 +100,6 @@ private:
 	bool m_Total;
 	bool m_ShowTime;
 	bool m_IsCancelled{};
-	FarColor m_Color;
 	time_check m_TimeCheck;
 	time_check m_SpeedUpdateCheck;
 	string m_Src, m_Dst;
@@ -125,6 +124,8 @@ private:
 		unsigned long long Total{};
 	}
 	m_BytesCurrent, m_BytesTotal;
+
+	dialog_ptr m_Dialog;
 };
 
 #endif // COPY_PROGRESS_HPP_3D1EAAD8_8353_459C_8826_33AAAE06D01F

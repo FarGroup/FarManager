@@ -930,7 +930,6 @@ void Manager::DeleteCommit(const window_ptr& Param)
 	Param->OnDestroy();
 
 	const auto WindowIndex=IndexOf(Param);
-	assert(-1!=WindowIndex);
 
 	if (-1!=WindowIndex)
 	{
@@ -969,9 +968,7 @@ void Manager::DeleteCommit(const window_ptr& Param)
 		m_Executed.erase(stop);
 	}
 
-	[[maybe_unused]]
-	const auto size = m_Added.erase(Param);
-	assert(size==1);
+	m_Added.erase(Param);
 }
 
 void Manager::ActivateCommit(const window_ptr& Param)

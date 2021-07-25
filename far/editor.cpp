@@ -6941,7 +6941,6 @@ namespace
 
 editor_progress::editor_progress(string_view const Title, string_view const Msg, size_t const Percent)
 {
-
 	auto ProgressDlgItems = MakeDialogItems<progress_items::pr_count>(
 	{
 		{ DI_DOUBLEBOX, {{ 3, 1 }, { DlgW - 4, DlgH - 2 }}, DIF_NONE,       Title, },

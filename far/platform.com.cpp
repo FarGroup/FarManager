@@ -191,7 +191,6 @@ namespace os::com
 		string Description;
 		if (!reg::key::classes_root.get(Type, {}, Description))
 		{
-			LOGWARNING(L"classes_root.get({}): {}"sv, Type, last_error());
 			return {};
 		}
 

@@ -286,7 +286,7 @@ void Message::Init(
 	int MessageWidth = static_cast<int>(MaxLength + 6 + 2 + 2); // 6 for frame, 2 for border, 2 for inner margin
 	if (MessageWidth < ScrX)
 	{
-		m_Position.left = (ScrX - MessageWidth) / 2 + 1;
+		m_Position.left = (ScrX + 1 - MessageWidth) / 2;
 	}
 	else
 	{
@@ -515,20 +515,11 @@ void Message::Init(
 	     макроса запретом отрисовки (bugz#533).
 	*/
 
-	if (!(Flags & MSG_NOFLUSH))
-	{
-		if (Global->ScrBuf->GetLockCount()>0 && !Global->CtrlObject->Macro.PeekKey())
-			Global->ScrBuf->SetLockCount(0);
+	if (Global->ScrBuf->GetLockCount()>0 && !Global->CtrlObject->Macro.PeekKey())
+		Global->ScrBuf->SetLockCount(0);
 
-		Global->ScrBuf->Flush();
+	Global->ScrBuf->Flush();
 	}
-	}
-}
-
-
-rectangle Message::GetPosition() const
-{
-	return m_Position;
 }
 
 /* $ 12.03.2002 VVM

@@ -445,7 +445,7 @@ void Dialog::CheckDialogCoord()
 	// X2 при этом = ширине диалога.
 	if (m_Where.left == -1)
 	{
-		m_Where.left = (ScrX - m_Where.right + 1) / 2;
+		m_Where.left = (ScrX + 1 - m_Where.right) / 2;
 		m_Where.right += m_Where.left - 1;
 	}
 
@@ -453,7 +453,7 @@ void Dialog::CheckDialogCoord()
 	// Y2 при этом = высоте диалога.
 	if (m_Where.top == -1)
 	{
-		m_Where.top = (ScrY - m_Where.bottom + 1) / 2;
+		m_Where.top = (ScrY + 1 - m_Where.bottom) / 2;
 		m_Where.bottom += m_Where.top - 1;
 	}
 }

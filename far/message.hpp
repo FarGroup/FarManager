@@ -59,7 +59,6 @@ enum
 
 	MSG_KILLSAVESCREEN = 28_bit,
 	MSG_NOPLUGINS      = 29_bit,
-	MSG_NOFLUSH        = 30_bit,
 };
 
 class Plugin;
@@ -111,7 +110,6 @@ public:
 	};
 
 	result GetExitCode() const {return static_cast<result>(m_ExitCode);}
-	rectangle GetPosition() const;
 	operator result() const { return GetExitCode(); }
 
 private:
