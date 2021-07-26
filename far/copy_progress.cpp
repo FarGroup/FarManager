@@ -67,6 +67,7 @@ namespace
 
 	enum progress_items
 	{
+		pr_console_title,
 		pr_doublebox,
 		pr_src_label,
 		pr_src_name,
@@ -95,6 +96,7 @@ copy_progress::copy_progress(bool Move, bool Total, bool Time):
 {
 	auto ProgressDlgItems = MakeDialogItems<progress_items::pr_count>(
 	{
+		{ DI_TEXT,      {{ 0, 0 }, { 0,               0 }}, DIF_HIDDEN,    {}, },
 		{ DI_DOUBLEBOX, {{ 3, 1 }, { DlgW - 4, DlgH - 2 }}, DIF_NONE,      msg(m_Move? lng::MMoveDlgTitle : lng::MCopyDlgTitle), },
 		{ DI_TEXT,      {{ 5, 2 }, { DlgW - 6,        2 }}, DIF_NONE,      msg(m_Move? lng::MCopyMoving :lng::MCopyCopying), },
 		{ DI_TEXT,      {{ 5, 3 }, { DlgW - 6,        3 }}, DIF_NONE,      {}, },
@@ -272,10 +274,10 @@ void copy_progress::Flush()
 
 	if (m_Total || (m_Files.Total == 1))
 	{
-		ConsoleTitle::SetFarTitle(concat(
+		m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_console_title, UNSAFE_CSTR(concat(
 			L'{', str(m_Total? ToPercent(m_BytesTotal.Copied, m_BytesTotal.Total) : m_CurrentPercent), L"%} "sv,
 			msg(m_Move? lng::MCopyMovingTitle : lng::MCopyCopyingTitle))
-		);
+		));
 	}
 }
 
