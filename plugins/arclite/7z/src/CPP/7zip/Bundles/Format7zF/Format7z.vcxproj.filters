@@ -948,6 +948,12 @@
     <ClCompile Include="..\..\..\Common\Sha256Prepare.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\C\LzFindOpt.c">
+      <Filter>C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Common\LzFindPrepare.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc">
@@ -1641,6 +1647,9 @@
       <Filter>Asm</Filter>
     </MASM>
     <MASM Include="..\..\..\..\Asm\x86\XzCrc64Opt.asm">
+      <Filter>Asm</Filter>
+    </MASM>
+    <MASM Include="..\..\..\..\Asm\x86\LzFindOpt.asm">
       <Filter>Asm</Filter>
     </MASM>
   </ItemGroup>
