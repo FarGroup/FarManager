@@ -167,12 +167,9 @@ void History::AddToHistory(string_view const Str, history_record_type const Type
 
 	const bool ignore_data = m_TypeHistory == HISTORYTYPE_CMD;
 
-	for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName))
+	for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName, Str))
 	{
 		if (!EqualType(Type, i.Type))
-			continue;
-
-		if (!equal_icase(Str, i.Name))
 			continue;
 
 		if (!equal_icase(strUuid, i.Uuid))
@@ -275,7 +272,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 				return L""s;
 			};
 
-			for (auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName, m_TypeHistory == HISTORYTYPE_DIALOG))
+			for (auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName, {}, m_TypeHistory == HISTORYTYPE_DIALOG))
 			{
 				if (!is_known_record(i.Time))
 					continue;
@@ -761,7 +758,7 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 
 void History::GetAllSimilar(string_view const Str, function_ref<void(string_view Name, unsigned long long Id, bool IsLocked)> const Callback) const
 {
-	for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName, true))
+	for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName, {}, true))
 	{
 		if (is_known_record(i.Time) && starts_with_icase(i.Name, Str))
 		{
