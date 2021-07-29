@@ -322,12 +322,14 @@ private:
 	{
 	public:
 		NONCOPYABLE(list_data);
-		MOVABLE(list_data);
+		MOVE_CONSTRUCTIBLE(list_data);
 
 		using value_type = FileListItem;
 
 		list_data() = default;
 		~list_data() { clear(); }
+
+		list_data& operator=(list_data&& rhs);
 
 		void initialise(plugin_panel* ph) { clear(); m_Plugin = ph; }
 

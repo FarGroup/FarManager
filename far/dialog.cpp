@@ -204,7 +204,10 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item,
 	auto offsetListItems = size;
 	vmenu_ptr ListBox;
 	size_t ListBoxSize = 0;
-	if (ConvertListbox && (ItemEx->Type==DI_LISTBOX || ItemEx->Type==DI_COMBOBOX))
+
+	const auto IsList = ItemEx->Type == DI_LISTBOX || ItemEx->Type == DI_COMBOBOX;
+
+	if (IsList && ConvertListbox)
 	{
 		ListBox=ItemEx->ListPtr;
 		if (ListBox)
@@ -230,26 +233,35 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item,
 		if(Item->Item && Item->Size >= size)
 		{
 			ConvertItemSmall(*ItemEx, *Item->Item);
-			if (ListBox)
+
+			if (IsList)
 			{
-				const auto list = static_cast<FarList*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetList));
-				const auto listItems = static_cast<FarListItem*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetListItems));
-				auto text = static_cast<wchar_t*>(static_cast<void*>(listItems + ListBoxSize));
-				for(size_t ii = 0; ii != ListBoxSize; ++ii)
+				if (ConvertListbox)
 				{
-					auto& item = ListBox->at(ii);
-					listItems[ii].Flags=item.Flags;
-					listItems[ii].Text=text;
-					text += item.Name.copy(text, item.Name.npos);
-					*text++ = {};
-					listItems[ii].UserData = item.SimpleUserData;
-					listItems[ii].Reserved = 0;
+					const auto list = static_cast<FarList*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetList));
+					const auto listItems = static_cast<FarListItem*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetListItems));
+					auto text = static_cast<wchar_t*>(static_cast<void*>(listItems + ListBoxSize));
+					for (size_t ii = 0; ii != ListBoxSize; ++ii)
+					{
+						auto& item = ListBox->at(ii);
+						listItems[ii].Flags = item.Flags;
+						listItems[ii].Text = text;
+						text += item.Name.copy(text, item.Name.npos);
+						*text++ = {};
+						listItems[ii].UserData = item.SimpleUserData;
+						listItems[ii].Reserved = 0;
+					}
+					list->StructSize = sizeof(*list);
+					list->ItemsNumber = ListBoxSize;
+					list->Items = listItems;
+					Item->Item->ListItems = list;
 				}
-				list->StructSize=sizeof(*list);
-				list->ItemsNumber=ListBoxSize;
-				list->Items=listItems;
-				Item->Item->ListItems=list;
+				else
+				{
+					Item->Item->ListItems = {};
+				}
 			}
+
 			auto p = static_cast<wchar_t*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetStrings));
 			Item->Item->Data = p;
 			p += str.copy(p, str.npos);

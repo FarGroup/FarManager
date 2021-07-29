@@ -523,6 +523,19 @@ FileList::~FileList()
 }
 
 
+FileList::list_data& FileList::list_data::operator=(FileList::list_data&& rhs)
+{
+	clear();
+
+	Items = std::move(rhs.Items);
+	rhs.Items.clear();
+
+	m_Plugin = std::move(rhs.m_Plugin);
+	rhs.m_Plugin = {};
+
+	return *this;
+}
+
 void FileList::list_data::clear()
 {
 	for (auto& i: Items)

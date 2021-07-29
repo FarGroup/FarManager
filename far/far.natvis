@@ -43,7 +43,7 @@
 			<CustomListItems>
 				<Variable Name="i" InitialValue="0"/>
 				<Loop>
-					<Item Name="row[{i}]">m_Data + i * m_Rows,[m_Cols]na</Item>
+					<Item Name="row[{i}]">m_Data + i * m_Cols,[m_Cols]na</Item>
 					<Exec>++i</Exec>
 					<If Condition="i == m_Rows">
 						<Break/>

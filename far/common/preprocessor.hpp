@@ -136,6 +136,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	Type& operator=(Type&&) = delete
 
 #define MOVABLE(Type) \
+	~Type() = default; \
 	MOVE_CONSTRUCTIBLE(Type); \
 	MOVE_ASSIGNABLE(Type)
 

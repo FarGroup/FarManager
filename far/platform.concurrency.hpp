@@ -81,7 +81,7 @@ namespace os::concurrency
 	{
 	public:
 		NONCOPYABLE(thread);
-		MOVABLE(thread);
+		MOVE_CONSTRUCTIBLE(thread);
 
 		enum class mode
 		{
@@ -102,6 +102,8 @@ namespace os::concurrency
 
 		~thread();
 
+		thread& operator=(thread&& rhs);
+
 		[[nodiscard]]
 		unsigned get_id() const;
 
@@ -113,6 +115,7 @@ namespace os::concurrency
 
 	private:
 		void check_joinable() const;
+		void finalise();
 
 		template<class T>
 		void starter(T&& f)
