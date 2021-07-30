@@ -241,7 +241,9 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 		CustomArea = Area;
 		ClearKeyTitles(true);
 
-		for (const auto& [Name, Value]: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(concat(L"KeyBarLabels."sv, strLanguage, L'.', Names[Area])))
+		const auto LabelsKey = concat(L"KeyBarLabels."sv, strLanguage, L'.', Names[Area]);
+
+		for (const auto& [Name, Value]: ConfigProvider().GeneralCfg()->ValuesEnumerator<string>(LabelsKey))
 		{
 			const auto Key = KeyNameToKey(Name);
 			if (!Key)

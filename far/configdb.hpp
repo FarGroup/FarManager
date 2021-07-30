@@ -44,8 +44,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/bytes_view.hpp"
 #include "common/enumerator.hpp"
-#include "common/keep_alive.hpp"
 #include "common/noncopyable.hpp"
+#include "common/string_utils.hpp"
 
 // External:
 
@@ -98,16 +98,14 @@ public:
 
 	virtual void DeleteValue(string_view Key, string_view Name) = 0;
 
-	template<typename T, typename key_type>
+	template<typename T>
 	[[nodiscard]]
-	auto ValuesEnumerator(key_type&& Key) const
+	auto ValuesEnumerator(lvalue_string_view const Key) const
 	{
-		static_assert(std::is_convertible_v<key_type, string_view>);
-
 		using value_type = std::pair<string, T>;
-		return make_inline_enumerator<value_type>([this, Key = keep_alive(FWD(Key))](const bool Reset, value_type& Value)
+		return make_inline_enumerator<value_type>([=, this](const bool Reset, value_type& Value)
 		{
-			return EnumValues(Key.get(), Reset, Value.first, Value.second);
+			return EnumValues(Key, Reset, Value.first, Value.second);
 		},
 		[this]
 		{
@@ -451,10 +449,10 @@ public:
 	};
 
 	[[nodiscard]]
-	auto Enumerator(unsigned int const HistoryType, string_view const HistoryName, string_view const ItemName = {}, bool const Reverse = false)
+	auto Enumerator(unsigned int const HistoryType, lvalue_string_view const HistoryName, lvalue_string_view const ItemName = {}, bool const Reverse = false)
 	{
 		using value_type = enum_data;
-		return make_inline_enumerator<value_type>([&](const bool Reset, value_type& Value)
+		return make_inline_enumerator<value_type>([=, this](const bool Reset, value_type& Value)
 		{
 			return Enum(Reset, HistoryType, HistoryName, ItemName, Value.Id, Value.Name, Value.Type, Value.Lock, Value.Time, Value.Uuid, Value.File, Value.Data, Reverse);
 		},

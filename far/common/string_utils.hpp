@@ -657,4 +657,29 @@ constexpr auto make_string_view(T const Begin, T const End) noexcept
 	return std::basic_string_view<char_type>{ Size ? &*Begin : nullptr, Size };
 }
 
+class lvalue_string_view
+{
+public:
+	lvalue_string_view() = default;
+
+	lvalue_string_view(string_view const Str):
+		m_Str(Str)
+	{
+	}
+
+	lvalue_string_view(string const& Str):
+		m_Str(Str)
+	{}
+
+	lvalue_string_view(string&& Str) = delete;
+
+	operator string_view() const
+	{
+		return m_Str;
+	}
+
+private:
+	string_view m_Str;
+};
+
 #endif // STRING_UTILS_HPP_DE39ECEB_2377_44CB_AF4B_FA5BEA09C8C8
