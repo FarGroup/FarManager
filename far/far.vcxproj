@@ -109,7 +109,7 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <ConformanceMode>true</ConformanceMode>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <UseFullPaths>false</UseFullPaths>
     </ClCompile>
     <ResourceCompile>

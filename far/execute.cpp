@@ -512,7 +512,7 @@ static bool execute_createprocess(string const& Command, string const& Parameter
 	return true;
 }
 
-static bool execute_shell(string const& Command, string const& Parameters, string const& Directory, bool const RunAs, bool const Wait, HANDLE& Process)
+static bool execute_shell(string const& Command, string const& Parameters, string const& Directory, bool const SourceIsKnown, bool const RunAs, bool const Wait, HANDLE& Process)
 {
 	SHELLEXECUTEINFO Info = { sizeof(Info) };
 	Info.lpFile = Command.c_str();
@@ -521,6 +521,23 @@ static bool execute_shell(string const& Command, string const& Parameters, strin
 	Info.nShow = SW_SHOWNORMAL;
 	Info.fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS | (Wait? SEE_MASK_NO_CONSOLE : 0);
 	Info.lpVerb = RunAs? L"runas" : nullptr;
+
+	if (SourceIsKnown)
+	{
+		assert(Parameters.empty());
+
+		// In this mode we know exactly what we're launching,
+		// but ShellExecuteEx might still resort to some AI
+		// and turn path\file_without_ext into path\file_without_ext.exe.
+		// To prevent that, we specify the extension explicitly.
+		auto Extension = name_ext(Command).second;
+		if (Extension.empty())
+			Extension = L"."sv;
+
+		// .data() is fine, the underlying string is in the outer scope and null-terminated.
+		Info.lpClass = Extension.data();
+		Info.fMask |= SEE_MASK_CLASSNAME;
+	}
 
 	if (!ShellExecuteEx(&Info))
 	{
@@ -637,7 +654,7 @@ static bool execute_impl(
 	const auto execute_shell = [&]
 	{
 		HANDLE Process;
-		if (!::execute_shell(Command, Parameters, CurrentDirectory, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, Process))
+		if (!::execute_shell(Command, Parameters, CurrentDirectory, Info.SourceMode == execute_info::source_mode::known, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, Process))
 			return false;
 
 		if (Process)

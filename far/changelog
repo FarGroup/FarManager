@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 31.07.2021 12:58:27 +0100 - build 5862
+
+1. gh-428: Security Issue: Execute the exe file when opening a file with same filename without file extension.
+
+2. Correctly show the shell type (if any) for files without extension.
+
+--------------------------------------------------------------------------------
 drkns 30.07.2021 02:27:00 +0100 - build 5861
 
 1. Correction of 5860.
