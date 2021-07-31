@@ -522,7 +522,7 @@ static bool execute_shell(string const& Command, string const& Parameters, strin
 	Info.fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS | (Wait? SEE_MASK_NO_CONSOLE : 0);
 	Info.lpVerb = RunAs? L"runas" : nullptr;
 
-	if (SourceIsKnown)
+	if (SourceIsKnown && !path::is_separator(Command.back()))
 	{
 		assert(Parameters.empty());
 
