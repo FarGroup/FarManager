@@ -5032,7 +5032,7 @@ bool FileList::ApplyCommand()
 		const auto ExecutionContext = Global->WindowManager->Desktop()->ConsoleSession().GetContext();
 		for (const auto& i: enum_selected())
 		{
-			if (CheckForEsc())
+			if (CheckForEscAndConfirmAbort())
 				break;
 
 			string strConvertedCommand = strCommand;
@@ -6567,19 +6567,23 @@ void FileList::Update(int Mode)
 {
 	if (m_EnableUpdate)
 	{
+		const auto
+			IsKeepSelection = (Mode & UPDATE_KEEP_SELECTION) != 0,
+			IsIgnoreVisible = (Mode & UPDATE_IGNORE_VISIBLE) != 0;
+
 		switch (m_PanelMode)
 		{
 		case panel_mode::NORMAL_PANEL:
-			ReadFileNames(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE, Mode & UPDATE_DRAW_MESSAGE);
+			ReadFileNames(IsKeepSelection, IsIgnoreVisible);
 			break;
 
 		case panel_mode::PLUGIN_PANEL:
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
 
 			if (m_PanelMode != panel_mode::PLUGIN_PANEL)
-				ReadFileNames(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE, Mode & UPDATE_DRAW_MESSAGE);
+				ReadFileNames(IsKeepSelection, IsIgnoreVisible);
 			else if ((m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES) || Parent()->GetAnotherPanel(this)->GetMode() == panel_mode::PLUGIN_PANEL || !(Mode & UPDATE_SECONDARY))
-				UpdatePlugin(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE);
+				UpdatePlugin(IsKeepSelection, IsIgnoreVisible);
 			break;
 		}
 	}
@@ -6591,49 +6595,11 @@ void FileList::UpdateIfRequired()
 		return;
 
 	UpdateRequired = false;
-	Update(UpdateRequiredMode | UPDATE_IGNORE_VISIBLE);
+	Update((m_KeepSelection? UPDATE_KEEP_SELECTION : 0) | UPDATE_IGNORE_VISIBLE);
 }
 
-static void PR_ReadFileNamesMsg();
-
-struct FileListPreRedrawItem : PreRedrawItem
+void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPanelInvisible)
 {
-	FileListPreRedrawItem() : PreRedrawItem(PR_ReadFileNamesMsg){}
-
-	string Msg;
-};
-
-static void ReadFileNamesMsgImpl(const string& Msg)
-{
-	Message(0,
-		msg(lng::MReadingTitleFiles),
-		{
-			Msg
-		},
-		{});
-}
-
-static void ReadFileNamesMsg(const string& Msg)
-{
-	ReadFileNamesMsgImpl(Msg);
-
-	TPreRedrawFunc::instance()([&](FileListPreRedrawItem& Item)
-	{
-		Item.Msg = Msg;
-	});
-}
-
-static void PR_ReadFileNamesMsg()
-{
-	TPreRedrawFunc::instance()([](const FileListPreRedrawItem& Item)
-	{
-		ReadFileNamesMsgImpl(Item.Msg);
-	});
-}
-
-void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage)
-{
-	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<FileListPreRedrawItem>());
 	SCOPED_ACTION(taskbar::indeterminate)(false);
 
 	strOriginalCurDir = m_CurDir;
@@ -6641,7 +6607,7 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	if (!IsVisible() && !UpdateEvenIfPanelInvisible)
 	{
 		UpdateRequired = true;
-		UpdateRequiredMode=KeepSelection;
+		m_KeepSelection = KeepSelection;
 		return;
 	}
 
@@ -6814,75 +6780,59 @@ void FileList::ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, 
 	{
 		ErrorState = last_error();
 
+		const auto IsDirectory = (fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+
 		if (fdata.Attributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM) && !Global->Opt->ShowHidden)
 			continue;
 
 		if (UseFilter && !m_Filter->FileInFilter(fdata, {}, fdata.FileName))
 		{
-			if (!(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+			if (!IsDirectory)
 				m_FilteredExtensions.emplace(name_ext(fdata.FileName).second);
 
 			continue;
 		}
 
+		{
+			FileListItem NewItem{};
+
+			static_cast<os::fs::find_data&>(NewItem) = fdata;
+
+			if (!IsDirectory)
 			{
-				FileListItem NewItem{};
+				TotalFileSize += NewItem.FileSize;
+			}
 
-				static_cast<os::fs::find_data&>(NewItem) = fdata;
+			NewItem.SortGroup = DEFAULT_SORT_GROUP;
+			NewItem.Position = m_ListData.size();
+			m_ListData.emplace_back(std::move(NewItem));
+		}
 
-			if (!(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+		++(IsDirectory? m_TotalDirCount : m_TotalFileCount);
+
+		if (TimeCheck)
+		{
+			if (IsVisible())
+			{
+				if (!IsShowTitle)
 				{
-					TotalFileSize += NewItem.FileSize;
+					Text({ m_Where.left + 1, m_Where.top }, colors::PaletteColorToFarColor(COL_PANELBOX), Title);
+					IsShowTitle = true;
+					SetColor(IsFocused()? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
 				}
 
-				NewItem.SortGroup = DEFAULT_SORT_GROUP;
-				NewItem.Position = m_ListData.size();
-				m_ListData.emplace_back(std::move(NewItem));
+				auto strReadMsg = format(msg(lng::MReadingFiles), m_ListData.size());
+				inplace::truncate_left(strReadMsg, Title.size() - 2);
+				GotoXY(m_Where.left + 1 + static_cast<int>(Title.size() - strReadMsg.size() - 1) / 2, m_Where.top);
+				Text(concat(L' ', strReadMsg, L' '));
 			}
 
-			if (fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY)
-			{
-				++m_TotalDirCount;
-			}
-			else
-			{
-				++m_TotalFileCount;
-			}
+			Global->CtrlObject->Macro.SuspendMacros(true);
+			SCOPE_EXIT{ Global->CtrlObject->Macro.SuspendMacros(false); };
 
-			if (TimeCheck)
-			{
-				if (IsVisible())
-				{
-					if (!IsShowTitle)
-					{
-						if (!DrawMessage)
-						{
-							Text({ m_Where.left + 1, m_Where.top }, colors::PaletteColorToFarColor(COL_PANELBOX), Title);
-							IsShowTitle = true;
-							SetColor(IsFocused()? COL_PANELSELECTEDTITLE:COL_PANELTITLE);
-						}
-					}
-
-					auto strReadMsg = format(msg(lng::MReadingFiles), m_ListData.size());
-
-					if (DrawMessage)
-					{
-						ReadFileNamesMsg(strReadMsg);
-					}
-					else
-					{
-						inplace::truncate_left(strReadMsg, Title.size() - 2);
-						GotoXY(m_Where.left + 1 + static_cast<int>(Title.size() - strReadMsg.size() - 1) / 2, m_Where.top);
-						Text(concat(L' ', strReadMsg, L' '));
-					}
-				}
-
-				Global->CtrlObject->Macro.SuspendMacros(true);
-				bool check = CheckForEsc();
-				Global->CtrlObject->Macro.SuspendMacros(false);
-				if (check)
-					break;
-			}
+			if (CheckForEscAndConfirmAbort())
+				break;
+		}
 	}
 
 	if (!ErrorState)
@@ -7168,12 +7118,12 @@ void FileList::MoveSelection(list_data& From, list_data& To)
 	From.clear();
 }
 
-void FileList::UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible)
+void FileList::UpdatePlugin(bool const KeepSelection, bool const UpdateEvenIfPanelInvisible)
 {
 	if (!IsVisible() && !UpdateEvenIfPanelInvisible)
 	{
 		UpdateRequired = true;
-		UpdateRequiredMode=KeepSelection;
+		m_KeepSelection = KeepSelection;
 		return;
 	}
 
@@ -7508,7 +7458,7 @@ void FileList::DisplayObject()
 	if (UpdateRequired)
 	{
 		UpdateRequired = false;
-		Update(UpdateRequiredMode);
+		Update(m_KeepSelection? UPDATE_KEEP_SELECTION : 0);
 	}
 	ShowFileList(false);
 }

@@ -265,8 +265,8 @@ private:
 	bool ChangeDir(string_view NewDir, bool IsParent, bool ResolvePath, bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE OfpType, bool Silent);
 	bool ChangeDir(string_view NewDir, bool IsParent);
 	void CountDirSize(bool IsRealNames);
-	void ReadFileNames(int KeepSelection, int UpdateEvenIfPanelInvisible, int DrawMessage);
-	void UpdatePlugin(int KeepSelection, int UpdateEvenIfPanelInvisible);
+	void ReadFileNames(bool KeepSelection, bool UpdateEvenIfPanelInvisible);
+	void UpdatePlugin(bool KeepSelection, bool UpdateEvenIfPanelInvisible);
 	void MoveSelection(list_data& From, list_data& To);
 	void PushPlugin(std::unique_ptr<plugin_panel>&& hPlugin, string_view HostFile);
 	bool PopPlugin(int EnableRestoreViewMode);
@@ -386,7 +386,7 @@ private:
 	bool empty{}; // указывает на полностью пустую колонку
 	bool AccessTimeUpdateRequired{};
 	bool UpdateRequired{};
-	int UpdateRequiredMode{};
+	bool m_KeepSelection{};
 	int UpdateDisabled{};
 	bool SortGroupsRead{};
 	int InternalProcessKey{};

@@ -181,7 +181,7 @@ static void ShellDeleteMsgImpl(string_view const Name, DEL_MODE Mode, ShellDelet
 
 static void ShellDeleteMsg(string_view const Name, DEL_MODE Mode, ShellDelete::progress Files, int WipePercent)
 {
-	if (CheckForEscSilent() && ConfirmAbortOp())
+	if (CheckForEscAndConfirmAbort())
 		cancel_operation();
 
 	ShellDeleteMsgImpl(Name, Mode, Files, WipePercent);

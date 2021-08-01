@@ -1277,7 +1277,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 						{
 							ShellSetFileAttributesMsg(SingleSelFileName);
 
-							if (CheckForEsc())
+							if (CheckForEscAndConfirmAbort())
 								break;
 						}
 
@@ -1308,7 +1308,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 								{
 									ShellSetFileAttributesMsg(strFullName);
 
-									if (CheckForEsc())
+									if (CheckForEscAndConfirmAbort())
 									{
 										return false;
 									}

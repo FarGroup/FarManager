@@ -1617,7 +1617,7 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 			{
 				if (TimeCheck)
 				{
-					if (CheckForEsc())
+					if (CheckForEscAndConfirmAbort())
 					{
 						FreePluginPanelItemsData(*Items);
 						return FALSE;

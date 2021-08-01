@@ -876,3 +876,67 @@ bool RetryAbort(std::vector<string>&& Messages)
 
 	return ConsoleYesNo(L"Retry"sv, false);
 }
+
+namespace
+{
+	enum
+	{
+		DlgW = 76,
+		DlgH = 6,
+	};
+
+	enum progress_items
+	{
+		pr_console_title,
+		pr_doublebox,
+		pr_message,
+		pr_progress,
+
+		pr_count
+	};
+}
+
+single_progress::single_progress(string_view const Title, string_view const Msg, size_t const Percent)
+{
+	auto ProgressDlgItems = MakeDialogItems<progress_items::pr_count>(
+	{
+		{ DI_TEXT,      {{ 0, 0 }, { 0,               0 }}, DIF_HIDDEN, {}, },
+		{ DI_DOUBLEBOX, {{ 3, 1 }, { DlgW - 4, DlgH - 2 }}, DIF_NONE,   Title, },
+		{ DI_TEXT,      {{ 5, 2 }, { DlgW - 6,        2 }}, DIF_NONE,   Msg },
+		{ DI_TEXT,      {{ 5, 3 }, { DlgW - 6,        3 }}, DIF_NONE,   make_progressbar(DlgW - 10, Percent, true, true) },
+	});
+
+	m_Dialog = Dialog::create(ProgressDlgItems, [](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
+	{
+		if (Msg == DN_RESIZECONSOLE)
+		{
+			COORD Position{ -1, -1 };
+			Dlg->SendMessage(DM_MOVEDIALOG, 1, &Position);
+		}
+
+		return Dlg->DefProc(Msg, Param1, Param2);
+	});
+
+	m_Dialog->SetPosition({ -1, -1, DlgW, DlgH });
+	m_Dialog->SetCanLoseFocus(true);
+	m_Dialog->Process();
+}
+
+single_progress::~single_progress()
+{
+	if (m_Dialog)
+		m_Dialog->CloseDialog();
+}
+
+void single_progress::update(string_view const Msg) const
+{
+	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_message, UNSAFE_CSTR(null_terminated(Msg)));
+}
+
+void single_progress::update(size_t const Percent) const
+{
+	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_progress, UNSAFE_CSTR(make_progressbar(DlgW - 10, Percent, true, true)));
+
+	const auto Title = reinterpret_cast<const wchar_t*>(m_Dialog->SendMessage(DM_GETCONSTTEXTPTR, pr_doublebox, {}));
+	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_console_title, UNSAFE_CSTR(concat(L'{', str(Percent), L"%} "sv, Title)));
+}

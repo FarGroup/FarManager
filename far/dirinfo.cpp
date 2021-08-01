@@ -326,10 +326,9 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, 
 
 	span<PluginPanelItem> PanelData;
 
-	if (CheckForEscSilent())
+	if (CheckForEscAndConfirmAbort())
 	{
-		if (ConfirmAbortOp())
-			StopSearch = true;
+		StopSearch = true;
 	}
 
 	if (StopSearch || !Global->CtrlObject->Plugins->GetFindData(hDirListPlugin, PanelData, OPM_FIND | OpMode))

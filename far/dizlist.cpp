@@ -122,7 +122,7 @@ void DizList::Read(string_view const Path, const string* DizName)
 				SetCursorType(false, 0);
 				PR_ReadingMsg();
 
-				if (CheckForEsc())
+				if (CheckForEscAndConfirmAbort())
 					break;
 			}
 

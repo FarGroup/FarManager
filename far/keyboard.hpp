@@ -145,9 +145,9 @@ bool WriteInput(int Key);
 bool IsModifKey(DWORD Key);
 bool IsInternalKeyReal(unsigned int Key);
 bool IsCharKey(unsigned int Key);
-bool CheckForEsc();
 bool CheckForEscSilent();
 bool ConfirmAbortOp();
+bool CheckForEscAndConfirmAbort();
 
 void wakeup_for_clock(bool Value);
 void wakeup_for_screensaver(bool Value);

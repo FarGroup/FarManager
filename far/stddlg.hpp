@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Internal:
+#include "windowsfwd.hpp"
 
 // Platform:
 
@@ -189,5 +190,19 @@ struct goto_coord
 bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view HelpTopic);
 
 bool RetryAbort(std::vector<string>&& Messages);
+
+class single_progress
+{
+public:
+	single_progress(string_view Title, string_view Msg, size_t Percent);
+	~single_progress();
+
+	void update(string_view Msg) const;
+	void update(size_t Percent) const;
+
+private:
+	dialog_ptr m_Dialog;
+};
+
 
 #endif // STDDLG_HPP_D7E3481D_D478_4F57_8C20_7E0A21FAE788

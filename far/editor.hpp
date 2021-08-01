@@ -405,16 +405,4 @@ public:
 	virtual Editor* GetEditor() = 0;
 };
 
-class editor_progress
-{
-public:
-	editor_progress(string_view Title, string_view Msg, size_t Percent);
-	~editor_progress();
-
-	void update(size_t Percent) const;
-
-private:
-	dialog_ptr m_Dialog;
-};
-
 #endif // EDITOR_HPP_79DE09D5_8F9C_467E_A3BF_8E1BB34E4BD3

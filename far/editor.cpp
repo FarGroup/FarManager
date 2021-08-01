@@ -3459,7 +3459,7 @@ bool Editor::Search(bool Next)
 		const auto strSearchStrLower = Case? strSearchStr : lower(strSearchStr);
 
 		const time_check TimeCheck;
-		editor_progress const Progress(msg(lng::MEditSearchTitle), format(msg(lng::MEditSearchingFor), QuotedStr), 0);
+		single_progress const Progress(msg(lng::MEditSearchTitle), format(msg(lng::MEditSearchingFor), QuotedStr), 0);
 		int StartLine = m_it_CurLine.Number();
 		SCOPED_ACTION(taskbar::indeterminate);
 		SCOPED_ACTION(wakeful);
@@ -3469,13 +3469,10 @@ bool Editor::Search(bool Next)
 		{
 			if (TimeCheck)
 			{
-				if (CheckForEscSilent())
+				if (CheckForEscAndConfirmAbort())
 				{
-					if (ConfirmAbortOp())
-					{
-						UserBreak = true;
-						break;
-					}
+					UserBreak = true;
+					break;
 				}
 
 				SetCursorType(false, -1);
@@ -6919,58 +6916,4 @@ void Editor::AutoDeleteColors()
 	}
 
 	m_AutoDeletedColors.clear();
-}
-
-namespace
-{
-	enum
-	{
-		DlgW = 76,
-		DlgH = 6,
-	};
-
-	enum progress_items
-	{
-		pr_doublebox,
-		pr_label,
-		pr_progress,
-
-		pr_count
-	};
-}
-
-editor_progress::editor_progress(string_view const Title, string_view const Msg, size_t const Percent)
-{
-	auto ProgressDlgItems = MakeDialogItems<progress_items::pr_count>(
-	{
-		{ DI_DOUBLEBOX, {{ 3, 1 }, { DlgW - 4, DlgH - 2 }}, DIF_NONE,       Title, },
-		{ DI_TEXT,      {{ 5, 2 }, { DlgW - 6,        2 }}, DIF_CENTERTEXT, Msg },
-		{ DI_TEXT,      {{ 5, 3 }, { DlgW - 6,        3 }}, DIF_NONE,       make_progressbar(DlgW - 10, Percent, true, true) },
-	});
-
-	m_Dialog = Dialog::create(ProgressDlgItems, [](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
-	{
-		if (Msg == DN_RESIZECONSOLE)
-		{
-			COORD Position{ -1, -1 };
-			Dlg->SendMessage(DM_MOVEDIALOG, 1, &Position);
-		}
-
-		return Dlg->DefProc(Msg, Param1, Param2);
-	});
-
-	m_Dialog->SetPosition({ -1, -1, DlgW, DlgH });
-	m_Dialog->SetCanLoseFocus(true);
-	m_Dialog->Process();
-}
-
-editor_progress::~editor_progress()
-{
-	if (m_Dialog)
-		m_Dialog->CloseDialog();
-}
-
-void editor_progress::update(size_t const Percent) const
-{
-	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_progress, UNSAFE_CSTR(make_progressbar(DlgW - 10, Percent, true, true)));
 }

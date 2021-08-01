@@ -57,7 +57,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "savescr.hpp"
 #include "filestr.hpp"
-#include "TPreRedrawFunc.hpp"
 #include "taskbar.hpp"
 #include "interf.hpp"
 #include "message.hpp"
@@ -1640,7 +1639,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 			LOGWARNING(L"GetSize({}): {}"sv, EditFile.GetName(), last_error());
 		}
 
-		editor_progress const Progress(msg(lng::MEditTitle), format(msg(lng::MEditReading), Name), 0);
+		single_progress const Progress(msg(lng::MEditTitle), format(msg(lng::MEditReading), Name), 0);
 
 		const time_check TimeCheck;
 
@@ -1663,14 +1662,11 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 
 			if (TimeCheck)
 			{
-				if (CheckForEscSilent())
+				if (CheckForEscAndConfirmAbort())
 				{
-					if (ConfirmAbortOp())
-					{
-						UserBreak = 1;
-						EditFile.Close();
-						return false;
-					}
+					UserBreak = 1;
+					EditFile.Close();
+					return false;
 				}
 
 				SetCursorType(false, 0);
@@ -2040,7 +2036,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 			if (!bSaveAs)
 				AddSignature = m_bAddSignature;
 
-			editor_progress const Progress(msg(lng::MEditTitle), format(msg(lng::MEditSaving), Name), 0);
+			single_progress const Progress(msg(lng::MEditTitle), format(msg(lng::MEditSaving), Name), 0);
 
 			const time_check TimeCheck;
 
@@ -2423,7 +2419,7 @@ bool FileEditor::UpdateFileList() const
 
 	if (strPanelPath == strFilePath)
 	{
-		ActivePanel->Update(UPDATE_KEEP_SELECTION|UPDATE_DRAW_MESSAGE);
+		ActivePanel->Update(UPDATE_KEEP_SELECTION);
 		return true;
 	}
 

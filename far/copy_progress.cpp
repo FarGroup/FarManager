@@ -198,13 +198,10 @@ unsigned long long copy_progress::get_total_bytes() const
 
 bool copy_progress::CheckEsc()
 {
-	if (!m_IsCancelled)
-	{
-		if (CheckForEscSilent())
-		{
-			m_IsCancelled = ConfirmAbortOp() != 0;
-		}
-	}
+	if (m_IsCancelled)
+		return m_IsCancelled;
+
+	m_IsCancelled = CheckForEscAndConfirmAbort();
 	return m_IsCancelled;
 }
 

@@ -44,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filelist.hpp"
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
-#include "TPreRedrawFunc.hpp"
+#include "keyboard.hpp"
 #include "interf.hpp"
 #include "message.hpp"
 #include "delete.hpp"
@@ -54,6 +54,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "global.hpp"
 #include "log.hpp"
+#include "stddlg.hpp"
+#include "datetime.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -177,19 +179,11 @@ void PrintFiles(FileList* SrcPanel)
 
 		SCOPED_ACTION(SaveScreen);
 
-		const auto PR_PrintMsg = []
-		{
-			Message(0,
-				msg(lng::MPrintTitle),
-				{
-					msg(lng::MPreparingForPrinting)
-				},
-				{});
-		};
+		single_progress const Progress(msg(lng::MPrintTitle), {}, 0);
+		time_check const TimeCheck;
 
-		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_PrintMsg));
 		SetCursorType(false, 0);
-		PR_PrintMsg();
+
 		const auto hPlugin = SrcPanel->GetPluginHandle();
 
 		const auto UseInternalCommand = [&]
@@ -201,10 +195,23 @@ void PrintFiles(FileList* SrcPanel)
 
 		const auto PluginMode = SrcPanel->GetMode() == panel_mode::PLUGIN_PANEL && !UseInternalCommand();
 
+		size_t PrintIndex{};
+
 		for (const auto& i: SrcPanel->enum_selected())
 		{
 			if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 				continue;
+
+			if (TimeCheck)
+			{
+				if (CheckForEscAndConfirmAbort())
+					break;
+
+				Progress.update(format(msg(lng::MPrintingFile), i.FileName));
+				Progress.update(ToPercent(PrintIndex, SelCount - DirsCount));
+			}
+
+			++PrintIndex;
 
 			delayed_deleter Deleter(true);
 

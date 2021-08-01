@@ -813,7 +813,7 @@ bool TreeList::ReadTree()
 
 	m_ListData.emplace_back(m_Root);
 
-	auto AscAbort = false;
+	auto Aborted = false;
 	TreeStartTime = std::chrono::steady_clock::now();
 	SCOPED_ACTION(RefreshWindowManager)(ScrX, ScrY);
 	ScTree.SetFindPath(m_Root, L"*"sv);
@@ -825,13 +825,11 @@ bool TreeList::ReadTree()
 	{
 		MsgReadTree(m_ListData.size());
 
-		if (CheckForEscSilent())
-		{
-			// BUGBUG, Dialog calls Commit, TreeList redraws and crashes.
-			AscAbort=ConfirmAbortOp();
-		}
+		// BUGBUG, Dialog calls Commit, TreeList redraws and crashes.
+		if (CheckForEscAndConfirmAbort())
+			Aborted = true;
 
-		if (AscAbort)
+		if (Aborted)
 			break;
 
 		if (!(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
@@ -840,7 +838,7 @@ bool TreeList::ReadTree()
 		m_ListData.emplace_back(strFullName);
 	}
 
-	if (AscAbort && m_ModalMode)
+	if (Aborted && m_ModalMode)
 	{
 		m_ListData.clear();
 		RestoreState();
@@ -852,7 +850,7 @@ bool TreeList::ReadTree()
 	if (!FillLastData())
 		return false;
 
-	if (!AscAbort)
+	if (!Aborted)
 		SaveTreeFile();
 
 	m_CurFile = PrevCurFile;
@@ -1873,7 +1871,6 @@ void TreeList::ReadSubTree(string_view const Path)
 
 	const auto strDirName = ConvertNameToFull(Path);
 	AddTreeName(strDirName);
-	auto AscAbort = false;
 	ScTree.SetFindPath(strDirName, L"*"sv);
 	LastScrX = ScrX;
 	LastScrY = ScrY;
@@ -1887,12 +1884,7 @@ void TreeList::ReadSubTree(string_view const Path)
 		{
 			MsgReadTree(Count + 1);
 
-			if (CheckForEscSilent())
-			{
-				AscAbort=ConfirmAbortOp();
-			}
-
-			if (AscAbort)
+			if (CheckForEscAndConfirmAbort())
 				break;
 
 			AddTreeName(strFullName);

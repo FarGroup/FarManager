@@ -21396,19 +21396,19 @@ MPrintFilesTo
 "Друк {0} файлаў на"
 "Spausdinti {0} failus su"
 
-MPreparingForPrinting
-"Подготовка файлов к печати"
-"Preparing files for printing"
-"Připravuji soubory pro tisk"
-"Vorbereiten der Druckaufträge"
-"Fájlok előkészítése nyomtatáshoz"
-"Przygotowuję plik(i) do drukowania"
-"Preparando archivos para imprimir"
-"Pripravujem súbory na tlač"
-"Preparazione Dei Files Per La Stampa"
-"Підготовка файлів до друку"
-"Падрыхтоўка файлаў да друку"
-"Ruošiu failus spausdinimui"
+MPrintingFile
+"Печать {0}"
+"Printing {0}"
+"Tisk {0}"
+"Drucken {0}"
+"Nyomtatás {0}"
+"Druk {0}"
+"Impresión {0}"
+"Tlač {0}"
+"Stampa {0}"
+"Друк {0}"
+"Друк {0}"
+"Spausdinimas {0}"
 
 MCannotEnumeratePrinters
 "Не удалось получить список доступных принтеров"

@@ -3481,13 +3481,10 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 
 			if (TimeCheck)
 			{
-				if (CheckForEscSilent())
+				if (CheckForEscAndConfirmAbort())
 				{
-					if (ConfirmAbortOp())
-					{
-						Redraw();
-						return;
-					}
+					Redraw();
+					return;
 				}
 
 				int percent = -1;
