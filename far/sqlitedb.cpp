@@ -585,6 +585,9 @@ static auto view(const void* const Data, int const Size)
 template<auto comparer>
 static int combined_comparer(void* const Param, int const Size1, const void* const Data1, int const Size2, const void* const Data2)
 {
+	if (view<char>(Data1, Size1) == view<char>(Data2, Size2))
+		return 0;
+
 	if (reinterpret_cast<intptr_t>(Param) == SQLITE_UTF16)
 	{
 		return comparer(

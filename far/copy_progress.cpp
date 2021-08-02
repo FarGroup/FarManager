@@ -149,12 +149,6 @@ copy_progress::copy_progress(bool Move, bool Total, bool Time):
 
 }
 
-copy_progress::~copy_progress()
-{
-	if (m_Dialog)
-		m_Dialog->CloseDialog();
-}
-
 size_t copy_progress::CanvasWidth()
 {
 	return DlgW - 10;

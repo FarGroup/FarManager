@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "language.hpp"
 #include "log.hpp"
+#include "copy_progress.hpp"
 
 // Platform:
 #include "platform.com.hpp"
@@ -877,7 +878,13 @@ bool RetryAbort(std::vector<string>&& Messages)
 	return ConsoleYesNo(L"Retry"sv, false);
 }
 
-namespace
+progress_impl::~progress_impl()
+{
+	if (m_Dialog)
+		m_Dialog->CloseDialog();
+}
+
+struct single_progress_detail
 {
 	enum
 	{
@@ -885,7 +892,7 @@ namespace
 		DlgH = 6,
 	};
 
-	enum progress_items
+	enum items
 	{
 		pr_console_title,
 		pr_doublebox,
@@ -894,11 +901,15 @@ namespace
 
 		pr_count
 	};
-}
+};
 
 single_progress::single_progress(string_view const Title, string_view const Msg, size_t const Percent)
 {
-	auto ProgressDlgItems = MakeDialogItems<progress_items::pr_count>(
+	const auto
+		DlgW = single_progress_detail::DlgW,
+		DlgH = single_progress_detail::DlgH;
+
+	auto ProgressDlgItems = MakeDialogItems<single_progress_detail::items::pr_count>(
 	{
 		{ DI_TEXT,      {{ 0, 0 }, { 0,               0 }}, DIF_HIDDEN, {}, },
 		{ DI_DOUBLEBOX, {{ 3, 1 }, { DlgW - 4, DlgH - 2 }}, DIF_NONE,   Title, },
@@ -919,24 +930,90 @@ single_progress::single_progress(string_view const Title, string_view const Msg,
 
 	m_Dialog->SetPosition({ -1, -1, DlgW, DlgH });
 	m_Dialog->SetCanLoseFocus(true);
+	m_Dialog->Hide();
 	m_Dialog->Process();
-}
-
-single_progress::~single_progress()
-{
-	if (m_Dialog)
-		m_Dialog->CloseDialog();
 }
 
 void single_progress::update(string_view const Msg) const
 {
-	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_message, UNSAFE_CSTR(null_terminated(Msg)));
+	m_Dialog->SendMessage(DM_SETTEXTPTR, single_progress_detail::items::pr_message, UNSAFE_CSTR(null_terminated(Msg)));
 }
 
 void single_progress::update(size_t const Percent) const
 {
-	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_progress, UNSAFE_CSTR(make_progressbar(DlgW - 10, Percent, true, true)));
+	m_Dialog->SendMessage(DM_SETTEXTPTR, single_progress_detail::items::pr_progress, UNSAFE_CSTR(make_progressbar(single_progress_detail::DlgW - 10, Percent, true, true)));
 
-	const auto Title = reinterpret_cast<const wchar_t*>(m_Dialog->SendMessage(DM_GETCONSTTEXTPTR, pr_doublebox, {}));
-	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_console_title, UNSAFE_CSTR(concat(L'{', str(Percent), L"%} "sv, Title)));
+	const auto Title = reinterpret_cast<const wchar_t*>(m_Dialog->SendMessage(DM_GETCONSTTEXTPTR, single_progress_detail::items::pr_doublebox, {}));
+	m_Dialog->SendMessage(DM_SETTEXTPTR, single_progress_detail::items::pr_console_title, UNSAFE_CSTR(concat(L'{', str(Percent), L"%} "sv, Title)));
+}
+
+struct dirinfo_progress_detail
+{
+	enum
+	{
+		DlgW = 76,
+		DlgH = 9,
+	};
+
+	enum items
+	{
+		pr_doublebox,
+		pr_scanning,
+		pr_message,
+		pr_separator,
+		pr_files,
+		pr_bytes,
+
+		pr_count
+	};
+};
+
+dirinfo_progress::dirinfo_progress(string_view const Title)
+{
+	const auto
+		DlgW = dirinfo_progress_detail::DlgW,
+		DlgH = dirinfo_progress_detail::DlgH;
+
+	auto ProgressDlgItems = MakeDialogItems<dirinfo_progress_detail::items::pr_count>(
+	{
+		{ DI_DOUBLEBOX, {{ 3, 1 }, { DlgW - 4, DlgH - 2 }}, DIF_NONE,      Title, },
+		{ DI_TEXT,      {{ 5, 2 }, { DlgW - 6,        2 }}, DIF_NONE,      msg(lng::MScanningFolder) },
+		{ DI_TEXT,      {{ 5, 3 }, { DlgW - 6,        3 }}, DIF_NONE,      {} },
+		{ DI_TEXT,      {{ 5, 4 }, { DlgW - 6,        4 }}, DIF_SEPARATOR, {} },
+		{ DI_TEXT,      {{ 5, 5 }, { DlgW - 6,        5 }}, DIF_NONE,      {} },
+		{ DI_TEXT,      {{ 5, 6 }, { DlgW - 6,        6 }}, DIF_NONE,      {} },
+	});
+
+	m_Dialog = Dialog::create(ProgressDlgItems, [](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
+	{
+		if (Msg == DN_RESIZECONSOLE)
+		{
+			COORD Position{ -1, -1 };
+			Dlg->SendMessage(DM_MOVEDIALOG, 1, &Position);
+		}
+
+		return Dlg->DefProc(Msg, Param1, Param2);
+	});
+
+	m_Dialog->SetPosition({ -1, -1, DlgW, DlgH });
+	m_Dialog->SetCanLoseFocus(true);
+	m_Dialog->Process();
+	m_Dialog->Hide();
+}
+
+void dirinfo_progress::set_name(string_view const Msg) const
+{
+	m_Dialog->SendMessage(DM_SETTEXTPTR, dirinfo_progress_detail::items::pr_message, UNSAFE_CSTR(null_terminated(Msg)));
+}
+
+void dirinfo_progress::set_count(unsigned long long const Count) const
+{
+	const auto Str = copy_progress::FormatCounter(lng::MCopyFilesTotalInfo, lng::MCopyBytesTotalInfo, Count, 0, false, copy_progress::CanvasWidth() - 5);
+	m_Dialog->SendMessage(DM_SETTEXTPTR, dirinfo_progress_detail::items::pr_files, UNSAFE_CSTR(Str));
+}
+
+void dirinfo_progress::set_size(unsigned long long const Size) const
+{
+	const auto Str = copy_progress::FormatCounter(lng::MCopyBytesTotalInfo, lng::MCopyFilesTotalInfo, Size, 0, false, copy_progress::CanvasWidth() - 5);
+	m_Dialog->SendMessage(DM_SETTEXTPTR, dirinfo_progress_detail::items::pr_bytes, UNSAFE_CSTR(Str));
 }

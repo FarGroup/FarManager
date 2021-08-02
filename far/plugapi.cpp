@@ -1664,11 +1664,16 @@ intptr_t WINAPI apiGetPluginDirList(const UUID* PluginId, HANDLE hPlugin, const 
 		// BUGBUG This is API, shouldn't the callback be empty?
 
 		const time_check TimeCheck;
+		dirinfo_progress const DirinfoProgress(msg(lng::MPreparingList));
 
 		const auto DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
 		{
-			if (TimeCheck)
-				DirInfoMsg(msg(lng::MPreparingList), Name, ItemsCount, Size);
+			if (!TimeCheck)
+				return;
+
+			DirinfoProgress.set_name(Name);
+			DirinfoProgress.set_count(ItemsCount);
+			DirinfoProgress.set_size(Size);
 		};
 
 		const auto Result = GetPluginDirList(UuidToPlugin(PluginId), hPlugin, Dir, nullptr, *Items, DirInfoCallback);

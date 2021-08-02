@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "poscache.hpp"
 #include "bitflags.hpp"
 #include "config.hpp"
-#include "TPreRedrawFunc.hpp"
 #include "mix.hpp"
 #include "eol.hpp"
 

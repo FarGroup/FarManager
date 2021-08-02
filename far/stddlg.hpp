@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/function_ref.hpp"
+#include "common/preprocessor.hpp"
 #include "common/utility.hpp"
 
 // External:
@@ -191,18 +192,34 @@ bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view HelpTop
 
 bool RetryAbort(std::vector<string>&& Messages);
 
-class single_progress
+class progress_impl
 {
-public:
-	single_progress(string_view Title, string_view Msg, size_t Percent);
-	~single_progress();
+protected:
+	NONCOPYABLE(progress_impl);
 
-	void update(string_view Msg) const;
-	void update(size_t Percent) const;
+	progress_impl() = default;
+	~progress_impl();
 
-private:
 	dialog_ptr m_Dialog;
 };
 
+class single_progress: progress_impl
+{
+public:
+	single_progress(string_view Title, string_view Msg, size_t Percent);
+
+	void update(string_view Msg) const;
+	void update(size_t Percent) const;
+};
+
+class dirinfo_progress: progress_impl
+{
+public:
+	explicit dirinfo_progress(string_view Title);
+
+	void set_name(string_view Msg) const;
+	void set_count(unsigned long long Count) const;
+	void set_size(unsigned long long Size) const;
+};
 
 #endif // STDDLG_HPP_D7E3481D_D478_4F57_8C20_7E0A21FAE788

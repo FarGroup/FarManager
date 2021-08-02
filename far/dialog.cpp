@@ -4204,34 +4204,33 @@ void Dialog::Process()
 		TBE.emplace(TBPF_ERROR);
 	}
 
-	if (m_ExitCode == -1)
+	if (m_ExitCode != -1)
+		return;
+
+	DialogMode.Set(DMODE_BEGINLOOP);
+
+	if(GetCanLoseFocus())
 	{
-		DialogMode.Set(DMODE_BEGINLOOP);
+		Global->WindowManager->InsertWindow(shared_from_this());
+		return;
+	}
 
-		if(GetCanLoseFocus())
-		{
-			Global->WindowManager->InsertWindow(shared_from_this());
-		}
-		else
-		{
-			static std::atomic_long DialogsCount(0);
-			std::chrono::steady_clock::time_point btm;
+	static std::atomic_long DialogsCount(0);
+	std::chrono::steady_clock::time_point btm;
 
-			if (!DialogsCount)
-			{
-				btm = std::chrono::steady_clock::now();
-			}
+	if (!DialogsCount)
+	{
+		btm = std::chrono::steady_clock::now();
+	}
 
-			++DialogsCount;
-			Global->WindowManager->ExecuteWindow(shared_from_this());
-			Global->WindowManager->ExecuteModal(shared_from_this());
-			--DialogsCount;
+	++DialogsCount;
+	Global->WindowManager->ExecuteWindow(shared_from_this());
+	Global->WindowManager->ExecuteModal(shared_from_this());
+	--DialogsCount;
 
-			if (!DialogsCount)
-			{
-				WaitUserTime += std::chrono::steady_clock::now() - btm;
-			}
-		}
+	if (!DialogsCount)
+	{
+		WaitUserTime += std::chrono::steady_clock::now() - btm;
 	}
 
 	if (SavedItems)

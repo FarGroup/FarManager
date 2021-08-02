@@ -3335,11 +3335,16 @@ std::pair<unsigned long long, unsigned long long> ShellCopy::CalcTotalSize() con
 	unsigned long long Files{}, Bytes{};
 
 	const time_check TimeCheck;
+	dirinfo_progress const DirinfoProgress(msg(Flags & FCOPY_MOVE? lng::MMoveDlgTitle : lng::MCopyDlgTitle));
 
 	const auto DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
 	{
-		if (TimeCheck)
-			DirInfoMsg(msg(Flags & FCOPY_MOVE? lng::MMoveDlgTitle : lng::MCopyDlgTitle), Name, Files + ItemsCount, Bytes + Size);
+		if (!TimeCheck)
+			return;
+
+		DirinfoProgress.set_name(Name);
+		DirinfoProgress.set_count(Files + ItemsCount);
+		DirinfoProgress.set_size(Bytes + Size);
 	};
 
 	for (const auto& i: SrcPanel->enum_selected())

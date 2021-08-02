@@ -47,7 +47,7 @@ class SQLiteDb;
 
 namespace string_sort
 {
-	// Default comparison enrty point.
+	// Default comparison entry point.
 	// Exact behaviour is controlled by the user settings.
 	[[nodiscard]]
 	int compare(string_view, string_view);

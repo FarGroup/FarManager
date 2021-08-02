@@ -36,13 +36,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "taskbar.hpp"
 #include "wakeful.hpp"
 #include "datetime.hpp"
-#include "plugin.hpp"
 #include "windowsfwd.hpp"
+#include "stddlg.hpp"
 
 // Platform:
 
 // Common:
-#include "common/2d/rectangle.hpp"
 
 // External:
 
@@ -50,11 +49,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum class lng;
 
-class copy_progress: noncopyable
+class copy_progress: progress_impl
 {
 public:
 	copy_progress(bool Move, bool Total, bool Time);
-	~copy_progress();
 
 	bool IsCancelled() const { return m_IsCancelled; }
 	bool IsTotalVisible() const { return m_Total; }
