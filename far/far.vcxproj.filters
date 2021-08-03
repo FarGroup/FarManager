@@ -1087,9 +1087,6 @@
     <ClInclude Include="tinyxml.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TPreRedrawFunc.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tracer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

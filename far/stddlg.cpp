@@ -884,6 +884,24 @@ progress_impl::~progress_impl()
 		m_Dialog->CloseDialog();
 }
 
+void progress_impl::init(span<DialogItemEx> const Items, rectangle const Position)
+{
+	m_Dialog = Dialog::create(Items, [](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
+	{
+		if (Msg == DN_RESIZECONSOLE)
+		{
+			COORD Position{ -1, -1 };
+			Dlg->SendMessage(DM_MOVEDIALOG, 1, &Position);
+		}
+
+		return Dlg->DefProc(Msg, Param1, Param2);
+	});
+
+	m_Dialog->SetPosition(Position);
+	m_Dialog->SetCanLoseFocus(true);
+	m_Dialog->Process();
+}
+
 struct single_progress_detail
 {
 	enum
@@ -917,21 +935,7 @@ single_progress::single_progress(string_view const Title, string_view const Msg,
 		{ DI_TEXT,      {{ 5, 3 }, { DlgW - 6,        3 }}, DIF_NONE,   make_progressbar(DlgW - 10, Percent, true, true) },
 	});
 
-	m_Dialog = Dialog::create(ProgressDlgItems, [](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
-	{
-		if (Msg == DN_RESIZECONSOLE)
-		{
-			COORD Position{ -1, -1 };
-			Dlg->SendMessage(DM_MOVEDIALOG, 1, &Position);
-		}
-
-		return Dlg->DefProc(Msg, Param1, Param2);
-	});
-
-	m_Dialog->SetPosition({ -1, -1, DlgW, DlgH });
-	m_Dialog->SetCanLoseFocus(true);
-	m_Dialog->Hide();
-	m_Dialog->Process();
+	init(ProgressDlgItems, { -1, -1, DlgW, DlgH });
 }
 
 void single_progress::update(string_view const Msg) const
@@ -984,21 +988,7 @@ dirinfo_progress::dirinfo_progress(string_view const Title)
 		{ DI_TEXT,      {{ 5, 6 }, { DlgW - 6,        6 }}, DIF_NONE,      {} },
 	});
 
-	m_Dialog = Dialog::create(ProgressDlgItems, [](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
-	{
-		if (Msg == DN_RESIZECONSOLE)
-		{
-			COORD Position{ -1, -1 };
-			Dlg->SendMessage(DM_MOVEDIALOG, 1, &Position);
-		}
-
-		return Dlg->DefProc(Msg, Param1, Param2);
-	});
-
-	m_Dialog->SetPosition({ -1, -1, DlgW, DlgH });
-	m_Dialog->SetCanLoseFocus(true);
-	m_Dialog->Process();
-	m_Dialog->Hide();
+	init(ProgressDlgItems, { -1, -1, DlgW, DlgH });
 }
 
 void dirinfo_progress::set_name(string_view const Msg) const

@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "lang.hpp"
-#include "TPreRedrawFunc.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "message.hpp"
@@ -75,26 +74,9 @@ void DizList::Reset()
 	m_CodePage.reset();
 }
 
-static void PR_ReadingMsg()
-{
-	Message(0,
-		{},
-		{
-			msg(lng::MReadingDiz)
-		},
-		{});
-}
-
 void DizList::Read(string_view const Path, const string* DizName)
 {
 	Reset();
-
-	struct DizPreRedrawItem : public PreRedrawItem
-	{
-		DizPreRedrawItem() : PreRedrawItem(PR_ReadingMsg) {}
-	};
-
-	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DizPreRedrawItem>());
 
 	const auto ReadDizFile = [this](const string_view Name)
 	{
@@ -120,10 +102,11 @@ void DizList::Read(string_view const Path, const string* DizName)
 			if (TimeCheck)
 			{
 				SetCursorType(false, 0);
-				PR_ReadingMsg();
 
 				if (CheckForEscAndConfirmAbort())
 					break;
+
+				// MReadingDiz unused
 			}
 
 			inplace::trim_right(DizText);

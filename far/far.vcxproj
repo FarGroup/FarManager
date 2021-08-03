@@ -549,7 +549,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="taskbar.hpp" />
     <ClInclude Include="testing.hpp" />
     <ClInclude Include="tinyxml.hpp" />
-    <ClInclude Include="TPreRedrawFunc.hpp" />
     <ClInclude Include="tracer.hpp" />
     <ClInclude Include="transactional.hpp" />
     <ClInclude Include="treelist.hpp" />

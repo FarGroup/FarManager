@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "savescr.hpp"
 #include "lockscrn.hpp"
-#include "TPreRedrawFunc.hpp"
 #include "interf.hpp"
 #include "message.hpp"
 #include "config.hpp"
@@ -761,11 +760,6 @@ static DWORD ProcessBufferSizeEvent(point const Size)
 
 		Global->WindowManager->ResizeAllWindows();
 		Global->WindowManager->GetCurrentWindow()->Show();
-
-		TPreRedrawFunc::instance()([](const PreRedrawItem& Item)
-		{
-			Item();
-		});
 	}
 
 	return KEY_CONSOLE_BUFFER_RESIZE;

@@ -131,22 +131,8 @@ copy_progress::copy_progress(bool Move, bool Total, bool Time):
 		ProgressDlgItems[progress_items::pr_doublebox].Y2 -= 2;
 	}
 
-	m_Dialog = Dialog::create(ProgressDlgItems, [](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
-	{
-		if (Msg == DN_RESIZECONSOLE)
-		{
-			COORD Position{ -1, -1 };
-			Dlg->SendMessage(DM_MOVEDIALOG, 1, &Position);
-		}
-
-		return Dlg->DefProc(Msg, Param1, Param2);
-	});
-
 	const int DialogHeight = ProgressDlgItems[progress_items::pr_doublebox].Y2 - ProgressDlgItems[progress_items::pr_doublebox].Y1 + 1 + 2;
-	m_Dialog->SetPosition({ -1, -1, DlgW, DialogHeight });
-	m_Dialog->SetCanLoseFocus(true);
-	m_Dialog->Process();
-
+	init(ProgressDlgItems, { -1, -1, DlgW, DialogHeight });
 }
 
 size_t copy_progress::CanvasWidth()

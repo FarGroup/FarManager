@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scantree.hpp"
 #include "treelist.hpp"
 #include "constitle.hpp"
-#include "TPreRedrawFunc.hpp"
 #include "taskbar.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
@@ -77,20 +76,99 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-enum DEL_MODE
-{
-	DEL_SCAN,
-	DEL_DEL,
-	DEL_WIPE,
-	DEL_WIPEPROCESS
-};
-
-static void PR_ShellDeleteMsg();
-
 struct total_items
 {
 	size_t Items{};
 	size_t Size{};
+};
+
+struct progress
+{
+	size_t Value;
+	size_t Total;
+};
+
+class delete_progress: progress_impl
+{
+	enum
+	{
+		DlgW = 76,
+		DlgH = 10,
+	};
+
+	enum items
+	{
+		pr_console_title,
+		pr_doublebox,
+		pr_message,
+		pr_file,
+		pr_wipe_progress,
+		pr_separator,
+		pr_total_files,
+		pr_total_progress,
+
+		pr_count
+	};
+
+public:
+	delete_progress(bool const Wipe, bool const Total)
+	{
+		auto ProgressDlgItems = MakeDialogItems<items::pr_count>(
+		{
+			{ DI_TEXT,      {{ 0, 0 }, { 0,               0 }}, DIF_HIDDEN,    {}, },
+			{ DI_DOUBLEBOX, {{ 3, 1 }, { DlgW - 4, DlgH - 2 }}, DIF_NONE,      msg(Wipe? lng::MDeleteWipeTitle : lng::MDeleteTitle), },
+			{ DI_TEXT,      {{ 5, 2 }, { DlgW - 6,        2 }}, DIF_NONE,      msg(Wipe? lng::MDeletingWiping : lng::MDeleting) },
+			{ DI_TEXT,      {{ 5, 3 }, { DlgW - 6,        3 }}, DIF_NONE,      {} },
+			{ DI_TEXT,      {{ 5, 4 }, { DlgW - 6,        4 }}, DIF_NONE,      {} },
+			{ DI_TEXT,      {{ 5, 5 }, { DlgW - 6,        5 }}, DIF_SEPARATOR, {} },
+			{ DI_TEXT,      {{ 5, 6 }, { DlgW - 6,        6 }}, DIF_NONE,      {} },
+			{ DI_TEXT,      {{ 5, 7 }, { DlgW - 6,        7 }}, DIF_NONE,      {} },
+		});
+
+		if (!Wipe)
+		{
+			ProgressDlgItems[items::pr_wipe_progress].Flags |= DIF_HIDDEN;
+
+			for (size_t i = pr_separator; i <= pr_total_progress; ++i)
+			{
+				--ProgressDlgItems[i].Y1;
+				--ProgressDlgItems[i].Y2;
+			}
+
+			--ProgressDlgItems[items::pr_doublebox].Y2;
+		}
+
+		if (!Total)
+		{
+			ProgressDlgItems[items::pr_total_progress].Flags |= DIF_HIDDEN;
+			--ProgressDlgItems[items::pr_doublebox].Y2;
+		}
+
+		const int DialogHeight = ProgressDlgItems[items::pr_doublebox].Y2 - ProgressDlgItems[items::pr_doublebox].Y1 + 1 + 2;
+
+		init(ProgressDlgItems, { -1, -1, DlgW, DialogHeight });
+	}
+
+	void set_wipe_percent(size_t const Percent) const
+	{
+		m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_wipe_progress, UNSAFE_CSTR(make_progressbar(DlgW - 10, Percent, true, true)));
+	}
+
+	void update(string_view const Name, progress const Files) const
+	{
+		m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_file, UNSAFE_CSTR(null_terminated(Name)));
+
+		if (Files.Total)
+		{
+			const auto Percent = ToPercent(Files.Value, Files.Total);
+			const auto Title = reinterpret_cast<const wchar_t*>(m_Dialog->SendMessage(DM_GETCONSTTEXTPTR, items::pr_doublebox, {}));
+			m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_console_title, UNSAFE_CSTR(concat(L'{', str(Percent), L"%} "sv, Title)));
+			m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_total_progress, UNSAFE_CSTR(make_progressbar(DlgW - 10, Percent, true, true)));
+		}
+
+		const auto Str = copy_progress::FormatCounter(lng::MCopyFilesTotalInfo, lng::MCopyBytesTotalInfo, Files.Value, Files.Total, Files.Total != 0, copy_progress::CanvasWidth() - 5);
+		m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_total_files, UNSAFE_CSTR(Str));
+	}
 };
 
 class ShellDelete : noncopyable
@@ -98,21 +176,16 @@ class ShellDelete : noncopyable
 public:
 	ShellDelete(panel_ptr SrcPanel, delete_type Type);
 
-	struct progress
-	{
-		size_t Value;
-		size_t Total;
-	};
-
 private:
 	bool ConfirmDeleteReadOnlyFile(string_view Name, os::fs::attributes Attr);
-	bool ShellRemoveFile(string_view Name, progress Files);
+	bool ShellRemoveFile(string_view Name, progress Files, delete_progress const& Progress);
 	bool ERemoveDirectory(string_view Name, delete_type Type, bool& RetryRecycleAsRemove);
 	bool RemoveToRecycleBin(string_view Name, bool dir, bool& RetryRecycleAsRemove, bool& Skip);
 	void process_item(
 		panel_ptr SrcPanel,
 		const os::fs::find_data& SelFindData,
 		const total_items& Total,
+		delete_progress const& Progress,
 		const time_check& TimeCheck,
 		bool CannotRecycleTryRemove = false
 	);
@@ -127,83 +200,7 @@ private:
 	delete_type m_DeleteType;
 };
 
-struct DelPreRedrawItem : public PreRedrawItem
-{
-	DelPreRedrawItem():
-		PreRedrawItem(PR_ShellDeleteMsg)
-	{}
-
-	string name;
-	DEL_MODE Mode{};
-	ShellDelete::progress Files{};
-	int WipePercent{};
-};
-
-static void ShellDeleteMsgImpl(string_view const Name, DEL_MODE Mode, ShellDelete::progress Files, int WipePercent)
-{
-	string strProgress, strWipeProgress;
-	const auto Width = copy_progress::CanvasWidth();
-
-	if(Mode==DEL_WIPEPROCESS || Mode==DEL_WIPE)
-	{
-		strWipeProgress = make_progressbar(Width, WipePercent, true, !Files.Total);
-	}
-
-	if (Mode!=DEL_SCAN && Files.Total)
-	{
-		const auto Percent = ToPercent(Files.Value, Files.Total);
-		strProgress = make_progressbar(Width, Percent, true, true);
-		ConsoleTitle::SetFarTitle(concat(L'{', str(Percent), L"%} "sv, msg(Mode == DEL_WIPE || Mode == DEL_WIPEPROCESS? lng::MDeleteWipeTitle : lng::MDeleteTitle)));
-	}
-
-	{
-		std::vector MsgItems
-		{
-			msg(Mode == DEL_SCAN ? lng::MScanningFolder : (Mode == DEL_WIPE || Mode == DEL_WIPEPROCESS) ? lng::MDeletingWiping : lng::MDeleting),
-			fit_to_left(truncate_path(Name, Width), Width)
-		};
-
-		if (!strWipeProgress.empty())
-			MsgItems.emplace_back(strWipeProgress);
-
-		MsgItems.emplace_back(L"\x1"sv);
-		MsgItems.emplace_back(copy_progress::FormatCounter(lng::MCopyFilesTotalInfo, lng::MCopyBytesTotalInfo, Files.Value, Files.Total, Files.Total != 0, copy_progress::CanvasWidth() - 5));
-
-		if (!strProgress.empty())
-			MsgItems.emplace_back(strProgress);
-
-		Message(MSG_LEFTALIGN,
-			msg((Mode == DEL_WIPE || Mode == DEL_WIPEPROCESS) ? lng::MDeleteWipeTitle : lng::MDeleteTitle),
-			std::move(MsgItems),
-			{});
-	}
-}
-
-static void ShellDeleteMsg(string_view const Name, DEL_MODE Mode, ShellDelete::progress Files, int WipePercent)
-{
-	if (CheckForEscAndConfirmAbort())
-		cancel_operation();
-
-	ShellDeleteMsgImpl(Name, Mode, Files, WipePercent);
-
-	TPreRedrawFunc::instance()([&](DelPreRedrawItem& Item)
-	{
-		Item.name = Name;
-		Item.Mode = Mode;
-		Item.Files = Files;
-		Item.WipePercent = WipePercent;
-	});
-}
-
-static void PR_ShellDeleteMsg()
-{
-	TPreRedrawFunc::instance()([](const DelPreRedrawItem& Item)
-	{
-		ShellDeleteMsgImpl(Item.name, Item.Mode, Item.Files, Item.WipePercent);
-	});
-}
-
-static bool EraseFileData(string_view const Name, ShellDelete::progress Files)
+static bool EraseFileData(string_view const Name, progress Files, delete_progress const& Progress)
 {
 	os::fs::file_walker File;
 	if (!File.Open(Name, FILE_READ_DATA | FILE_WRITE_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_WRITE_THROUGH | FILE_FLAG_SEQUENTIAL_SCAN))
@@ -247,7 +244,13 @@ static bool EraseFileData(string_view const Name, ShellDelete::progress Files)
 			return false;
 
 		if (TimeCheck)
-			ShellDeleteMsg(Name, DEL_WIPEPROCESS, Files, File.GetPercent());
+		{
+			if (CheckForEscAndConfirmAbort())
+				cancel_operation();
+
+			Progress.update(Name, Files);
+			Progress.set_wipe_percent(File.GetPercent());
+		}
 	}
 	while(File.Step());
 
@@ -260,12 +263,12 @@ static bool EraseFileData(string_view const Name, ShellDelete::progress Files)
 	return true;
 }
 
-static bool EraseFile(string_view const Name, ShellDelete::progress Files)
+static bool EraseFile(string_view const Name, progress Files, delete_progress const& Progress)
 {
 	if (!os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL))
 		return false;
 
-	if (!EraseFileData(Name, Files))
+	if (!EraseFileData(Name, Files, Progress))
 		return false;
 
 	const auto strTempName = MakeTemp({}, false);
@@ -439,9 +442,6 @@ static void show_confirmation(
 
 static total_items calculate_total(panel_ptr const SrcPanel)
 {
-	if (!Global->Opt->DelOpt.ShowTotal)
-		return {};
-
 	const time_check TimeCheck;
 	total_items Total;
 	dirinfo_progress const DirinfoProgress(msg(lng::MDeletingTitle));
@@ -480,6 +480,7 @@ void ShellDelete::process_item(
 	panel_ptr const SrcPanel,
 	const os::fs::find_data& SelFindData,
 	const total_items& Total,
+	delete_progress const& Progress,
 	const time_check& TimeCheck,
 	bool const CannotRecycleTryRemove
 )
@@ -491,13 +492,18 @@ void ShellDelete::process_item(
 		return;
 
 	if (TimeCheck)
-		ShellDeleteMsg(strSelName, m_DeleteType == delete_type::erase? DEL_WIPE : DEL_DEL, { ProcessedItems, Total.Items }, 0);
+	{
+		if (CheckForEscAndConfirmAbort())
+			cancel_operation();
+
+		Progress.update(strSelName, { ProcessedItems, Total.Items });
+	}
 
 	if (!(SelFindData.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 	{
 		if (ConfirmDeleteReadOnlyFile(strSelName, SelFindData.Attributes))
 		{
-			if (ShellRemoveFile(strSelName, { ProcessedItems, Total.Items }) && m_UpdateDiz)
+			if (ShellRemoveFile(strSelName, { ProcessedItems, Total.Items }, Progress) && m_UpdateDiz)
 				SrcPanel->DeleteDiz(strSelName, strSelShortName);
 		}
 
@@ -573,6 +579,7 @@ void ShellDelete::process_item(
 			path::join(SrcPanel->GetCurDir(), strSelName);
 
 		ScTree.SetFindPath(strSelFullName, L"*"sv);
+
 		const time_check TreeTimeCheck(time_check::mode::immediate);
 
 		os::fs::find_data FindData;
@@ -580,7 +587,12 @@ void ShellDelete::process_item(
 		while (ScTree.GetNextName(FindData,strFullName))
 		{
 			if (TreeTimeCheck)
-				ShellDeleteMsg(strFullName, m_DeleteType == delete_type::erase? DEL_WIPE : DEL_DEL, { ProcessedItems, Total.Items }, 0);
+			{
+				if (CheckForEscAndConfirmAbort())
+					cancel_operation();
+
+				Progress.update(strFullName, { ProcessedItems, Total.Items });
+			}
 
 			if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
@@ -658,7 +670,7 @@ void ShellDelete::process_item(
 				if (ConfirmDeleteReadOnlyFile(strFullName,FindData.Attributes))
 				{
 					// BUGBUG check result
-					ShellRemoveFile(strFullName, { ProcessedItems, Total.Items });
+					ShellRemoveFile(strFullName, { ProcessedItems, Total.Items }, Progress);
 				}
 			}
 		}
@@ -689,7 +701,7 @@ void ShellDelete::process_item(
 	{
 		--ProcessedItems;
 		m_DeleteType = delete_type::remove;
-		process_item(SrcPanel, SelFindData, Total, TimeCheck, true);
+		process_item(SrcPanel, SelFindData, Total, Progress, TimeCheck, true);
 		m_DeleteType = delete_type::recycle;
 	}
 
@@ -706,9 +718,6 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, delete_type const Type):
 	const auto strDizName = SrcPanel->GetDizName();
 	const auto CheckDiz = [&] { return !strDizName.empty() && os::fs::exists(strDizName); };
 	const auto DizPresent = CheckDiz();
-
-	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DelPreRedrawItem>());
-
 	const auto SelCount = SrcPanel->GetSelCount();
 	if (!SelCount)
 		return;
@@ -740,13 +749,13 @@ ShellDelete::ShellDelete(panel_ptr SrcPanel, delete_type const Type):
 	SCOPED_ACTION(wakeful);
 	SetCursorType(false, 0);
 
-	const auto Total = calculate_total(SrcPanel);
-
+	delete_progress const Progress(m_DeleteType == delete_type::erase, Global->Opt->DelOpt.ShowTotal);
+	const auto Total = Global->Opt->DelOpt.ShowTotal? calculate_total(SrcPanel) : total_items{};
 	const time_check TimeCheck(time_check::mode::immediate);
 
 	for (const auto& i: SrcPanel->enum_selected())
 	{
-		process_item(SrcPanel, i, Total, TimeCheck);
+		process_item(SrcPanel, i, Total, Progress, TimeCheck);
 	}
 }
 
@@ -843,11 +852,11 @@ static bool confirm_erase_file_with_hardlinks(string_view const File, int& WipeM
 	}
 }
 
-static bool erase_file_with_retry(string_view const Name, int& WipeMode, ShellDelete::progress Files, bool& SkipErrors)
+static bool erase_file_with_retry(string_view const Name, int& WipeMode, progress const Files, delete_progress const& Progress, bool& SkipErrors)
 {
 	return
 		confirm_erase_file_with_hardlinks(Name, WipeMode) &&
-		retryable_ui_operation([&]{ return EraseFile(Name, Files); }, Name, lng::MCannotDeleteFile, SkipErrors);
+		retryable_ui_operation([&]{ return EraseFile(Name, Files, Progress); }, Name, lng::MCannotDeleteFile, SkipErrors);
 }
 
 static bool delete_file_with_retry(string_view const Name, bool& SkipErrors)
@@ -855,7 +864,7 @@ static bool delete_file_with_retry(string_view const Name, bool& SkipErrors)
 	return retryable_ui_operation([&]{ return os::fs::delete_file(Name); }, Name, lng::MCannotDeleteFile, SkipErrors);
 }
 
-bool ShellDelete::ShellRemoveFile(string_view const Name, progress Files)
+bool ShellDelete::ShellRemoveFile(string_view const Name, progress Files, delete_progress const& Progress)
 {
 	ProcessedItems++;
 	const auto strFullName = ConvertNameToFull(Name);
@@ -863,7 +872,7 @@ bool ShellDelete::ShellRemoveFile(string_view const Name, progress Files)
 	switch (m_DeleteType)
 	{
 	case delete_type::erase:
-		return erase_file_with_retry(strFullName, SkipWipeMode, Files, m_SkipFileErrors);
+		return erase_file_with_retry(strFullName, SkipWipeMode, Files, Progress, m_SkipFileErrors);
 
 	case delete_type::remove:
 		return delete_file_with_retry(strFullName, m_SkipFileErrors);

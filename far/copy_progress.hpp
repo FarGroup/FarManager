@@ -122,8 +122,6 @@ private:
 		unsigned long long Total{};
 	}
 	m_BytesCurrent, m_BytesTotal;
-
-	dialog_ptr m_Dialog;
 };
 
 #endif // COPY_PROGRESS_HPP_3D1EAAD8_8353_459C_8826_33AAAE06D01F

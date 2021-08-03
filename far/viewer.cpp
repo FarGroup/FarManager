@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileview.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
-#include "TPreRedrawFunc.hpp"
 #include "taskbar.hpp"
 #include "drivemix.hpp"
 #include "interf.hpp"
@@ -2630,63 +2629,6 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-static void PR_ViewerSearchMsg();
-
-struct ViewerPreRedrawItem : public PreRedrawItem
-{
-	ViewerPreRedrawItem():
-		PreRedrawItem(PR_ViewerSearchMsg),
-		percent(),
-		hex()
-	{}
-
-	string name;
-	int percent;
-	int hex;
-};
-
-static void ViewerSearchMsgImpl(string_view const MsgStr, int Percent, int SearchHex)
-{
-	string strProgress;
-	const auto strMsg = concat(msg(SearchHex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', MsgStr);
-	if (Percent>=0)
-	{
-		const size_t Length = std::max(std::min(ScrX - 1 - 10, static_cast<int>(strMsg.size())), 40);
-		strProgress = make_progressbar(Length, Percent, true, true);
-	}
-
-	{
-		std::vector MsgItems{ strMsg };
-		if (!strProgress.empty())
-			MsgItems.emplace_back(strProgress);
-
-		Message(MSG_LEFTALIGN,
-			msg(lng::MViewSearchTitle),
-			std::move(MsgItems),
-			{});
-	}
-}
-
-static void ViewerSearchMsg(string_view const MsgStr, int Percent, int SearchHex)
-{
-	ViewerSearchMsgImpl(MsgStr, Percent, SearchHex);
-
-	TPreRedrawFunc::instance()([&](ViewerPreRedrawItem& Item)
-	{
-		Item.name = MsgStr;
-		Item.percent = Percent;
-		Item.hex = SearchHex;
-	});
-}
-
-static void PR_ViewerSearchMsg()
-{
-	TPreRedrawFunc::instance()([](const ViewerPreRedrawItem& Item)
-	{
-		ViewerSearchMsgImpl(Item.name, Item.percent, Item.hex);
-	});
-}
-
 static auto hex2ss(const string_view from, intptr_t * const pos = nullptr)
 {
 	if (pos)
@@ -3432,10 +3374,11 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 	sd.CurPos = LastSelectPos;
 	{
 		SCOPED_ACTION(taskbar::indeterminate);
-		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<ViewerPreRedrawItem>());
 		SetCursorType(false, 0);
 
+		single_progress const Progress(msg(lng::MViewSearchTitle), concat(msg(SearchHex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', strMsgStr), 0);
 		const time_check TimeCheck;
+
 		for (;;)
 		{
 			const auto found = std::invoke(searcher, this, &sd);
@@ -3487,7 +3430,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 					return;
 				}
 
-				int percent = -1;
+				int percent{};
 				long long total = FileSize;
 				if ( total > 0 )
 				{
@@ -3508,7 +3451,8 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 					}
 					percent = static_cast<int>(done*100/total);
 				}
-				ViewerSearchMsg(strMsgStr, percent, SearchHex);
+
+				Progress.update(percent);
 			}
 		}
 	}

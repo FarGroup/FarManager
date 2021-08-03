@@ -56,7 +56,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "window.hpp"
 #include "scrbuf.hpp"
-#include "TPreRedrawFunc.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "message.hpp"
@@ -90,7 +89,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "lockscrn.hpp"
 #include "exception_handler.hpp"
-#include "history.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -1600,7 +1598,6 @@ intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,si
 					{});
 			};
 
-			SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<PreRedrawItem>(PR_FarGetDirListMsg));
 			SCOPED_ACTION(SaveScreen);
 			os::fs::find_data FindData;
 			string strFullName;

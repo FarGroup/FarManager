@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "windowsfwd.hpp"
+#include "dialog.hpp"
 
 // Platform:
 
@@ -199,6 +200,8 @@ protected:
 
 	progress_impl() = default;
 	~progress_impl();
+
+	void init(span<DialogItemEx> Items, rectangle Position);
 
 	dialog_ptr m_Dialog;
 };

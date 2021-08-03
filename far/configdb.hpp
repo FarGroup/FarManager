@@ -103,9 +103,9 @@ public:
 	auto ValuesEnumerator(lvalue_string_view const Key) const
 	{
 		using value_type = std::pair<string, T>;
-		return make_inline_enumerator<value_type>([=, this](const bool Reset, value_type& Value)
+		return make_inline_enumerator<value_type>([=, Self = this](const bool Reset, value_type& Value)
 		{
-			return EnumValues(Key, Reset, Value.first, Value.second);
+			return Self->EnumValues(Key, Reset, Value.first, Value.second);
 		},
 		[this]
 		{
@@ -452,9 +452,9 @@ public:
 	auto Enumerator(unsigned int const HistoryType, lvalue_string_view const HistoryName, lvalue_string_view const ItemName = {}, bool const Reverse = false)
 	{
 		using value_type = enum_data;
-		return make_inline_enumerator<value_type>([=, this](const bool Reset, value_type& Value)
+		return make_inline_enumerator<value_type>([=, Self = this](const bool Reset, value_type& Value)
 		{
-			return Enum(Reset, HistoryType, HistoryName, ItemName, Value.Id, Value.Name, Value.Type, Value.Lock, Value.Time, Value.Uuid, Value.File, Value.Data, Reverse);
+			return Self->Enum(Reset, HistoryType, HistoryName, ItemName, Value.Id, Value.Name, Value.Type, Value.Lock, Value.Time, Value.Uuid, Value.File, Value.Data, Reverse);
 		},
 		[this, Reverse]
 		{

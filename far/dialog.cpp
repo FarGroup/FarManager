@@ -50,7 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "savescr.hpp"
 #include "constitle.hpp"
-#include "TPreRedrawFunc.hpp"
 #include "taskbar.hpp"
 #include "interf.hpp"
 #include "strmix.hpp"
@@ -509,14 +508,6 @@ void Dialog::Show()
 {
 	if (!DialogMode.Check(DMODE_OBJECTS_INITED) || !DialogMode.Check(DMODE_VISIBLE))
 		return;
-
-	if (DialogMode.Check(DMODE_RESIZED))
-	{
-		TPreRedrawFunc::instance()([](const PreRedrawItem& Item)
-		{
-			Item();
-		});
-	}
 
 	DialogMode.Clear(DMODE_RESIZED);
 
