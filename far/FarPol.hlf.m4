@@ -685,7 +685,7 @@ wywoływane jest ~powiązane polecenie~@FileAssoc@ lub otwierane jest archiwum.
 
  Utwórz skrót do bieżącego folderu                   #Ctrl+Shift+0…9#
 
- Użyj skrótu do folderu                               #RightCtrl+0…9#
+ Użyj skrótu do folderu                               #PrawyCtrl+0…9#
 
  Ustaw ~atrybuty pliku~@FileAttrDlg@                                        #Ctrl+A#
 
@@ -1380,7 +1380,7 @@ $ #Menu: Menu pliki#
 
  #Wymaż#              ^<wrap>Wymazuje pliki i foldery. Przed usunięciem pliku, jego
 dane zostają nadpisane wartością zero, po czym wielkość pliku jest obcinana i zmieniana
-na nazwę tymczasową
+na nazwę tymczasową.
 
  #Dodaj do archiwum#  Dodaje zaznaczone pliki do archiwum.
 
@@ -1584,15 +1584,15 @@ Aby ~podświetlić~@Highlight@ wszystkie archiwa za wyjątkiem "*.rar" - należy
 
  #Ctrl+R#      - ^<wrap>przywraca domyślnie zdefiniowane grupy ("arc", "temp" i "exec").
 
- #Ins#         - ^<wrap>dodaje nową grupę
+ #Ins#         - ^<wrap>dodaje nową grupę.
 
- #Del#         - ^<wrap>usuwa wybraną grupę
+ #Del#         - ^<wrap>usuwa wybraną grupę.
 
- #Enter#/#F4#  - ^<wrap>edytuje wybraną grupę
+ #Enter#/#F4#  - ^<wrap>edytuje wybraną grupę.
 
- #F7#          - ^<wrap>znajduje wszystkie grupy zawierające szukaną maskę
+ #F7#          - ^<wrap>znajduje wszystkie grupy zawierające szukaną maskę.
 
- Zobacz także: ~menu Opcje~@OptMenu@ i ~Polecenia kontroli menu~@MenuCmd@.
+ Zobacz także: ~menu Opcje~@OptMenu@ i ~polecenia menu~@MenuCmd@.
 
 
 @ChoosePluginMenu
@@ -2165,15 +2165,15 @@ różnych poleceń do uruchamiania, podglądu i edycji plików z podaną ~maską
 
  Następujące akcje są dostępne na liście powiązań:
 
- #Ins#        - ~dodaj~@FileAssocModify@ nowe przypisanie
+ #Ins#        - ~dodaj~@FileAssocModify@ nowe przypisanie.
 
- #F4#         - ~edytuj~@FileAssocModify@ bieżące przypisanie
+ #F4#         - ~edytuj~@FileAssocModify@ bieżące przypisanie.
 
- #Del#        - usuń bieżące przypisanie
+ #Del#        - usuń bieżące przypisanie.
 
- #Ctrl+Góra#  - przenieś przypisanie wyżej (na liście)
+ #Ctrl+Góra#  - przenieś przypisanie wyżej (na liście).
 
- #Ctrl+Dół#   - przenieś przypisanie niżej (na liście)
+ #Ctrl+Dół#   - przenieś przypisanie niżej (na liście).
 
  Zobacz także: polecenia ~menu~@MenuCmd@.
 
@@ -2183,22 +2183,22 @@ $ #Powiązania plików: edycja#
  Far pozwala określić sześć poleceń powiązanych z każdym typem plików
 określonym za pomocą ~maski~@FileMasks@:
 
- #Wykonaj polecenie#             Wykonywane po wciśnięciu klawisza #Enter#
+ #Wykonaj polecenie#             Wykonywane po wciśnięciu klawisza #Enter#.
  #(używane dla Enter)#
 
- #Wykonaj polecenie#             Wykonywane po wciśnięciu klawiszy #Ctrl+PgDn#
+ #Wykonaj polecenie#             Wykonywane po wciśnięciu klawiszy #Ctrl+PgDn#.
  #(używane dla Ctrl+PgDn)#
 
- #Podgląd pliku#                 Wykonywane po wciśnięciu klawisza #F3#
+ #Podgląd pliku#                 Wykonywane po wciśnięciu klawisza #F3#.
  #(używane dla F3)#
 
- #Podgląd pliku#                 Wykonywane po wciśnięciu klawiszy #Alt+F3#
+ #Podgląd pliku#                 Wykonywane po wciśnięciu klawiszy #Alt+F3#.
  #(używane dla Alt+F3)#
 
- #Edycja pliku#                  Wykonywane po wciśnięciu klawisza #F4#
+ #Edycja pliku#                  Wykonywane po wciśnięciu klawisza #F4#.
  #(używane dla F4)#
 
- #Edycja pliku#                  Wykonywane po wciśnięciu klawiszy #Alt+F4#
+ #Edycja pliku#                  Wykonywane po wciśnięciu klawiszy #Alt+F4#.
  #(używane dla Alt+F4)#
 
  Powiązanie można opisać w polu #Opis przypisania#.
@@ -2784,7 +2784,7 @@ zobacz także ~Interface.AltF9~@Interface.AltF9@
  #Alt+BS, Ctrl+Z#     Cofa ostatnią zmianę pozycji
  #PrawyCtrl+0…9#      Ustawia zakładkę nr 0…9 na bieżącej pozycji
  #Ctrl+Shift+0…9#     Ustawia zakładkę nr 0…9 na bieżącej pozycji
- #LeftCtrl+0…9#       Przechodzi do zakładki 0…9
+ #Lewy	Ctrl+0…9#       Przechodzi do zakładki 0…9
  #Ctrl+Ins, Ctrl+C#   Kopiuje zaznaczony tekst do schowka.
 Tekst może być zaznaczony ręcznie lub jako rezultat ~wyszukiwania~@ViewerSearch@.
  #Ctrl+U#             Odznacza tekst
@@ -3036,7 +3036,7 @@ pliku, zostanie utworzony ~nowy plik~@FileOpenCreate@ o podanej nazwie.
  Uwagi:
 
  1. ^<wrap>Jeżeli podczas tworzenia nowego pliku podanie zostanie nazwa
-nie istniejącego folderu, zostanie wyświetlone ostrzeżenie 
+nie istniejącego folderu, zostanie wyświetlone ostrzeżenie
 "~Ścieżka do edytowanego pliku nie istnieje~@WarnEditorPath@".
  2. ^<wrap>Przy próbie przeładowania pliku już otwartego w edytorze,
 zostanie wyświetlone ostrzeżenie o "~przeładowaniu pliku~@EditorReload@".
@@ -3316,285 +3316,289 @@ jest zgodna z odnalezionym ciągiem. Na przykład:
 
 
 @FindAllMenu
-$ #Editor: All matching entries menu#
- The following key combinations are available in this menu:
+$ #Edytor: Menu wszystkich znalezionych wystąpień#
+ Następujące kombinacje klawiszy są dostępne w tym menu:
 
  #F5#
- Toggle menu size.
+ Przełącza wielkość menu.
 
- #Ctrl+Up#, #Ctrl+Down#
- Scroll the text in the editor.
+ #Ctrl+Góra#, #Ctrl+Dół#
+ Przewija tekst w edytorze.
 
- #Ctrl+Enter#, #Ctrl+Left#, #mouse click#
- Go to the position of the found text.
+ #Ctrl+Enter#, #Ctrl+Lewo#, #kliknięcie myszką#
+ Przechodzi do pozycji znalezionego tekstu.
 
- #Gray +#
- Add session bookmark with the current position.
+ #Szary +#
+ Dodaje zakładkę sesji w bieżącej pozycji.
 
- #RightCtrl+0…9#, #Ctrl+Shift+0…9#
- Set bookmark 0…9 at the current position.
+ #PrawyCtrl+0…9#, #Ctrl+Shift+0…9#
+ Ustawia zakładkę 0…9 w bieżącej pozycji.
 
- #LeftCtrl+0…9#
- Go to the bookmark 0…9.
+ #LewyCtrl+0…9#
+ Przechodzi do zakładki 0…9.
 
 
 @FileOpenCreate
-$ #Editor: Open/Create file#
- The #Shift+F4# key combination opens an existing file or creates
-a new file.
+$ #Edytor: Otwórz/Utwórz plik#
+ Kombinacja klawiszy #Shift+F4# otwiera istniejący plik lub tworzy
+nowy plik.
 
- If the specified file does not exist, a new file will be created.
-The code page for the new file is specified in the #Code page# list.
-If #default# is selected in the list, the code page specified in the
-~Editor settings~@EditorSettings@ dialog is used.
+ Jeżeli podany plik nie istnieje, zostanie utworzony nowy plik.
+Strona kodowa dla nowego pliku jest ustawiana według listy #Strona kodowa#.
+Jeżeli na liście wybrana jest #Domyślna#, to użyta zostanie strona kodowa
+określona w ~Ustawieniach edytora~@EditorSettings@.
 
- The code page for an existing file is defined according to the
-#Code page# list selection.
+ Strona kodowa dla istniejącego pliku jest zdefiniowana zgodnie z wyborem
+z listy #Strona kodowa#.
 
- #Default#
- If the file has already been opened and its
-code page was saved (depends on the #Save file position# option of the
-~Editor settings~@EditorSettings@ dialog), the saved code page is used.
-Otherwise, if the file has the Byte Order Mark, the corresponding
-Unicode code page -- UTF-8, UTF-16 (Little endian), or UTF-16 (Big
-endian) -- is used. Otherwise, the code page is ~autodetected~@CodePageAuto@.
+ #Domyślna#
+ Jeżeli plik został już otwarty i jego strona kodowa została zapisana
+(zgodnie z opcję #Zapisz pozycję kursora w pliku#
+w ~Ustawieniach edytora~@EditorSettings@), to użyta zostanie tam ustawiona
+strona kodowa.
+W innym przypadku, jeżeli plik zawiera znacznik BOM (Byte Order Mark), to zostanie
+użyta odpowiednia strona kodowa Unicode -- UTF-8, UTF-16 (Little endian)
+lub UTF-16 (Big endian).
+W innym przypadku, strona kodowa zostania ~automatycznie wykryta~@CodePageAuto@.
 
- #Automatic detection#
- An attempt is made to ~autodetect~@CodePageAuto@ code page based on the file contents.
+ #Wykryj automatycznie#
+ Program spróbuje ~automatycznie wykryć~@CodePageAuto@ stronę kodową, bazując na
+zawartości pliku.
 
- #Specific code page#
- The selected code page is used.
+ #Wybór strony kodowej#
+ Zostanie użyta wybrana strona kodowa.
 
 
 @FileSaveAs
-$ #Editor: save file as…#
- To save edited file with another name press #Shift+F2# and specify
-new name, code page and End of Line characters format.
+$ #Edytor: zapisz plik jako…#
+ Aby zapisać edytowany plik pod inną nazwą należy nacisnąć klawisze #Shift+F2#
+i podać nową nazwę, stronę kodową i format znaków końca linii.
 
- If file has been edited in one of the following code pages: UTF-8,
-UTF-16 (Little endian) or UTF-16 (Big endian), then if the option #Add signature (BOM)# is on,
-the appropriate marker is inserted into the beginning of the file, which
-helps applications to identify the code page of this file.
+ Jeżeli edytowany plik używa jednej z następujących stron kodowych: UTF-8,
+UTF-16 (Little endian) lub UTF-16 (Big endian), to zostanie włączoną opcja #Dodaj znacznik BOM#,
+a odpowiedni znacznik zostanie dodany na początku pliku, aby pomóc innym aplikacjom
+poprawnie zidentyfikować stronę kodową tego pliku.
 
- You can also specify the format of the line break characters:
+ Można także ustawić format znaków końca linii:
 
- #Do not change#
- Do not change the line break characters.
+ #Nie zmieniaj#
+ Nie zmienia znaczników końca linii.
 
- #Dos/Windows format (CR LF)#
- Line breaks will be represented as a two-character sequence -
-Carriage Return and Line Feed (CR LF), as used in Dos/Windows.
+ #Format DOS/Windows (CR LF)#
+ Koniec linii będzie oznaczony sekwencją dwóch znaków -
+powrót karetki (CR) i przesunięciem linii (LF), domyślnie używanej
+w systemach DOS/Windows.
 
- #Unix format (LF)#
- Line breaks will be represented as a single character - Line
-Feed (LF), as used in Unix.
+ #Format UNIX (LF)#
+ Koniec linii będzie oznaczony pojedynczym znakiem - przesunięciem
+linii (LF), tak jak w systemach UNIX.
 
- #Mac format (CR)#
- Line breaks will be represented as a single character - Carriage
-Return (CR), as used in Mac OS.
+ #Format MAC (CR)#
+ Koniec linii będzie oznaczony pojedynczym znakiem - powrotem karetki
+(CR), używanym w systemach Mac OS.
 
 
 @EditorGotoPos
-$ #Editor: go to specified line and character#
- This dialog allows to change the position in the internal editor.
+$ #Edytor: przejdź do podanej linii i znaku#
+ Ta opcja pozwala zmienić pozycję w wewnętrznym edytorze.
 
- You can enter an absolute or relative value or percentage, in decimal or hexadecimal.
- For relative add #+# or #-# before the value.
- For percentage add #%# after the value.
- For decimal either add #m# after the value or uncheck the #Hex value#.
- For hexadecimal either add #0x# or #$# before the value, #h# after the value, or check the #Hex value#.
+ Można podać wartość bezwzględną, względną lub procentową - w formacie dziesiętnym
+lub szesnastkowym.
+ Dla wartości względnych należy dodać #+# lub #-# przed wartością.
+ Dla wartości procentowych należy dodać #%# po wartości.
+ Dla wartości dziesiętnych należy dodać #m# po wartości lub odznaczyć opcję #Szesnastkowo#.
+ Dla wartości szesnastkowych należy dodać #0x# lub #$# przed wartością, #h# po wartości,
+lub zaznaczyć opcję #Szesnastkowo#.
 
- The first value will be interpreted as a row number, the second as a character number.
-Values must be delimited by space or one of the following characters: #,.;:#.
-If a value is omitted the corresponding parameter will not be changed.
+ Pierwsza wartość zostanie uznana za numer wiersza, druga za numer znaku.
+Wartości należy rozdzielić spacją lub jednym z następujących znaków: #,.;:#.
+Jeżeli wartość zostanie pominięta, odpowiadający parametr nie zostanie zmieniony.
 
 
 @EditorReload
-$ #Editor: reloading a file#
- Far Manager tracks all attempts to repeatedly open for editing a file that
-is already being edited. The rules for reloading files are as follows:
+$ #Edytor: przeładowanie pliku#
+ Far Manager śledzi wszystkie próby wielokrotnego otwierania do edycji pliku,
+który jest aktualnie edytowany. Zasady ponownego wczytania pliku do edycji
+są następujące:
 
- 1. ^<wrap>If the file was not changed and the option "Reload edited file" in the
-~confirmations~@ConfirmDlg@ dialog is not enabled, Far switches to the open
-editor instance without further prompts.
+ 1. ^<wrap>Jeżeli plik nie został zmieniony, a opcja "Przeładuj edytowany plik"
+w oknie ~potwierdzeń~@ConfirmDlg@ nie jest włączona, Far przełącza się do otwartego
+okna edytora bez żadnych zapytań.
 
- 2. ^<wrap>If the file was changed or the option "Reload edited file" is enabled,
-there are three possible options:
+ 2. ^<wrap>Jeżeli plik został zmieniona, a opcja "Przeładuj edytowany plik"
+jest włączona, istnieją trzy możliwe opcje:
 
- #Current#
- Continue editing the same file
+ #Bieżący#
+ Kontynuuj edycję tego samego pliku
 
- #New instance#
- The file will be opened for editing in a new
-editor instance. In this case, be attentive: the
-contents of the file on the disk will correspond
-to the contents of the editor instance where the
-file was last saved.
+ #Nowa instancja#
+ Plik zostanie otworzony do edycji w nowej instancji edytora. W tym przypadku
+należy zwrócić uwagę: zawartość pliku na dysku będzie odpowiadać zawartości
+tej instancji edytora, która zostanie zapisana jako ostatnia.
 
- #Reload#
- The current changes are not saved and the
-contents of the file on the disk is reloaded into the editor.
+ #Przeładuj#
+ Bieżące zmiany nie zostaną zapisane, a zawartość pliku na dysku zostanie
+ponownie otwarta w edytorze.
 
 
 @WarnEditorPath
-$ #Warning: Path to the file to edit does not exist#
- When opening a new file for ~editing~@Editor@, you have entered the name of
-a folder that does not exist. Before saving the file, Far will create the
-folder, provided that the path is correct (for example, a path starting with a
-non-existing drive letter would not be correct) and that you have enough rights
-to create the folder.
+$ #Ostrzeżenie: Ścieżka do edytowanego pliku nie istnieje#
+ Przy otwarciu nowego pliku do ~edycji~@Editor@, została wprowadzona
+nazwa folderu, który nie istnieje. Przed zapisaniem pliku Far utworzy folder,
+pod warunkiem że ścieżka jest poprawna (np. ścieżka rozpoczynająca się z literą
+nie istniejącego dysku nie jest poprawna) i czy użytkownik ma wystarczające
+prawa do utworzenia folderu.
 
 
 @WarnEditorPluginName
-$ #Warning: The name of the file to edit cannot be empty#
- To create a new file on a plugin's panel you must specify a
-file name.
+$ #Ostrzeżenie: Nazwa pliku do edycji nie może być pusta#
+ Aby utworzyć nowy plik w panelu wtyczek, należy podać nazwę pliku.
 
 
 @WarnEditorSavedEx
-$ #Warning: The file was changed by an external program#
- The write date and time of the file on the disk are not the same as
-those saved by Far when the file was last accessed. This means that another
-program, another user (or even yourself in a different editor instance) changed
-the contents of the file on the disk.
+$ #Ostrzeżenie: Plik został zmieniony przez inny program#
+ Data i czas zapisu pliku na dysku nie jest taka sama, jak zanotowana
+przez Far przy ostatnim dostępie do pliku. Oznacza to, że inny program
+lub inny użytkownik (lub ten sam użytkownik, ale w innej instancji edytora)
+zamienił zawartość pliku na dysku.
 
- If you press "Save", the file will be overwritten and all changes made by
-the external program will be lost.
+ Jeżeli wybrano "Zapisz", plik zostanie zastąpiony i wszystkie zmiany
+dokonane przez zewnętrzny program zostaną utracone.
 
 
 @CodePagesMenu
-$ #Code pages menu#
- This menu allows to select code page in the editor and viewer.
+$ #Menu strony kodowe#
+ To menu pozwala wybrać stronę kodową w edytorze i podglądzie.
 
- The menu is divided into several sections:
+ Menu jest podzielona na kilka sekcji:
 
- #Automatic detection#
- Far will try to ~autodetect~@CodePageAuto@ the code page of the text.
+ #Wykryj automatycznie#
+ Far próbuje ~automatycznie wykryć~@CodePageAuto@ stronę kodową tekstu.
 
- #System#
- Main single-byte system code pages - ANSI and OEM.
+ #Systemowe#
+ Główne jedno-bajtowe strony kodowe - ANSI i OEM.
 
  #Unicode#
- Unicode code pages.
+ Strony kodowe Unicode (wielo-bajtowe).
 
- #Favorites#
- Code pages selected by the user.
+ #Ulubione#
+ Strony kodowe wybrane przez użytkownika.
 
- #Other#
- The rest of code pages installed in the system.
+ #Pozostałe#
+ Pozostałe strony kodowe zainstalowane w systemie.
 
- The following key combinations are available in this menu:
+ Następujące kombinacje klawiszy są dostępne w menu:
 
  #Ctrl+H#
- Shows or hides the #Other# menu section.
+ Pokazuje lub ukrywa sekcję #Pozostałe# w menu.
 
  #Ins#
- Moves the code page from the #Other# section to the #Favorites# section.
+ Przenosi stronę kodową z listy #Pozostałe# do sekcji #Ulubione#.
 
  #Del#
- Moves the code page from the #Favorites# section back to the #Other# section.
+ Usuwa stronę kodową z listy #Ulubione# z powrotem do sekcji #Pozostałe#.
 
  #F4#
- Opens the ~Rename the code page~@EditCodePageNameDlg@ dialog. Only #Favorites# and
-#Other# code pages can be renamed. The renamed code pages are indicated
-with the #*# character.
+ Otwiera okno ~Zmień nazwę strony kodowej~@EditCodePageNameDlg@. Nazwy można zmieniać
+tylko dla #Ulubionych# lub #Pozostałych# stron kodowych. Zmienione nazwy są oznaczone
+symbolem #*#.
 
- See also common ~menu keyboard commands~@MenuCmd@.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @EditCodePageNameDlg
-$ #Rename code page#
- This dialog allows to rename the #Favorites# and #Other# code pages.
-Far will display new code page names in the ~Code pages~@CodePagesMenu@ menu.
+$ #Zmień nazwę strony kodowej#
+ To okno pozwala na zmianę nazwy strony kodowej w sekcjach #Ulubione# i #Pozostałe#.
+Far wyświetli noną nazwę strony kodowej w menu ~Strony kodowe~@CodePagesMenu@.
 
- The #Reset# button sets the code page name to the default system
-name. Another way to reset the name is to leave it empty and press #OK#.
+ Przycisk #Rest# ustawia nazwę strony kodową na domyślną nazwę systemową.
+Innym sposobem zresetowania nazwy jest pozostawienie pustego pola i naciśnięcie #OK#.
 
 
 @DriveDlg
-$ #Change drive#
- This menu allows to change the current drive of a panel or open a new ~plugin~@Plugins@ panel.
+$ #Zmień dysk#
+ Menu to pozwala zmienić bieżący dysk w panelu lub otwiera nowy panel ~wtyczek~@Plugins@.
 
- Select the item with the corresponding drive letter to change the drive or
-the item with the plugin name to create a new plugin panel. If the panel type
-is not a ~file panel~@FilePanel@, it will be changed to the file panel.
+ Wybiera element z odpowiadającą literą dysku, aby zmienić dysk lub element z nazwą
+wtyczki, aby otworzyć nowy panel wtyczki. Jeżeli typ panelu nie jest
+~panelem plików~@FilePanel@, zostanie on zmieniony na panel plików.
 
- #Ctrl+A#, #F4# hotkeys invoke the ~file attributes~@FileAttrDlg@ for drives.
+ #Ctrl+A#, #F4# pozwalają ustawić ~atrybuty~@FileAttrDlg@ dla dysków.
 
- #Ctrl+A#, #F4# hotkeys can be used to assign a hotkey to plugin item.
+ #Ctrl+A#, #F4# mogą być użyte do przypisania klawisza skrótu do wtyczki.
 
- #F3# key shows plugin technical information.
+ #F3# pokazuje informacje techniczne o wtyczce.
 
- #Del# key can be used:
- - ^<wrap>to ~disconnect~@DisconnectDrive@ network drives;
- - to delete a substituted disk;
- - to detach a virtual disk;
- - to eject disks from CD-ROM and removable drives.
+ #Del# można użyć do:
+ - ^<wrap>~rozłączenia~@DisconnectDrive@ dysków sieciowych;
+ - usunięcia dysków podłączonych;
+ - odłączenia dysków wirtualnych;
+ - wysunięcia dysków z napędów optycznych i usunięcia dysków.
 
- Ejecting a disk from a ZIP-drive requires administrative privileges.
+ Wysunięcie dysku z napędu ZIP wymaga uprawnień administratora.
 
- A CD-ROM can be closed by pressing #Ins#.
+ Napęd optyczny można zamknąć wciskając #Ins#.
 
- The #Shift+Del# hotkey is used to prepare a USB storage device for safe
-removal. If the disk, for which the removal function is used, is a flash-card
-inserted into a card-reader that supports several flash-cards then the
-card-reader itself will be stopped.
+ Klawisze #Shift+Del# są użyte do przygotowania urządzenia USB (dyski, pendrive)
+do bezpiecznego usunięcia. Jeżeli dysk, dla którego użyto funkcji bezpiecznego
+usunięcia jest kartą typu flash (np. SD, microSD), to przy włożonej karcie
+do czytnika obsługującego kilka karta - zatrzymane zostanie całe urządzenie.
 
- #Ctrl+1# - #Ctrl+9# toggle displaying of various information:
+ #Ctrl+1# - #Ctrl+9# przełączanie wyświetlania różnych informacji:
 
- #Ctrl+1# - ^<wrap>disk type;
- #Ctrl+2# - ^<wrap>network name / path associated with a SUBST disk
-/ path to virtual disk container;
- #Ctrl+3# - ^<wrap>disk label;
- #Ctrl+4# - ^<wrap>file system;
- #Ctrl+5# - ^<wrap>disk size and free space (this option has two
-display modes, press twice to see);
- #Ctrl+6# - ^<wrap>removable disk parameters;
- #Ctrl+7# - ^<wrap>plugins;
- #Ctrl+8# - ^<wrap>CD parameters;
- #Ctrl+9# - ^<wrap>network parameters.
+ #Ctrl+1# - ^<wrap>typ dysku;
+ #Ctrl+2# - ^<wrap>nazwa sieciowa / ścieżka podłączenia dysku SUBST
+/ ścieżka do wirtualnego kontenera dysku;
+ #Ctrl+3# - ^<wrap>etykieta dysku;
+ #Ctrl+4# - ^<wrap>system plików;
+ #Ctrl+5# - ^<wrap>wielkość dysku i wolne miejsce (opcja ta ma dwa tryby
+wyświetlania, wybierz ponownie aby zobaczyć szczegóły);
+ #Ctrl+6# - ^<wrap>parametry dysku wyjmowalnego;
+ #Ctrl+7# - ^<wrap>wtyczki;
+ #Ctrl+8# - ^<wrap>parametry CD/DVD;
+ #Ctrl+9# - ^<wrap>parametry sieciowe.
 
- #Change drive# menu settings are saved in the Far configuration.
+ Ustawienia menu #Zmień dysk# są zapisywane w konfiguracji Far.
 
- #F9# shows the ~dialog~@ChangeDriveMode@ to control displaying
-of this information.
+ Klawisz #F9# pokazuje ~okno~@ChangeDriveMode@ opcji wyświetlanych informacji.
 
- If the option "~Use Ctrl+PgUp to change drive~@InterfSettings@" is enabled,
-pressing #Ctrl+PgUp# works the same as pressing #Esc# - cancels drive selection
-and closes the menu.
+ Jeżeli opcja "~Użyj Ctrl+PgUp do zmiany napędu~@InterfSettings@" jest włączona,
+wciśnięcie #Ctrl+PgUp# działa tak samo jak wciśnięcie #Esc# - anuluje wybór
+dysku i zamyka menu.
 
- Pressing #Shift+Enter# invokes the Windows Explorer showing the root
-directory of the selected drives (works only for disk drives and not for
-plugins).
+ Wciśnięcie #Shift+Enter# wywołuje Eksploratora Windows i otwiera w nim
+główny folder wybranego dysku (działa tylko dla dysków, a dla wtyczek).
 
- #Ctrl+R# allows to refresh the disk selection menu.
+ #Ctrl+R# pozwala odświeżyć menu wyboru dysku.
 
- If "#CD drive type#" mode is enabled (#Ctrl+8#), Far will attempt to
-determine the type of each of the CD drives available in the system. Known
-types are as follows: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW and DVD-RAM.
-This function is available only for users either with administrative privileges
-or all local users, when it's stated explicitly in the Local Policy Editor
-(to do this, run #secpol.msc# from the command prompt, and set the '#Local#
-#Policies/Security Options/Devices: Restrict CD-ROM access to locally logged-on#
-#user only#' setting to '#Enabled#').
+ Jeżeli tryb #Parametry CD/DVD# jest włączony (#Ctrl+8#), Far próbuje
+wykryć typ każdego napędu optycznego dostępnego w systemie. Znane typy to:
+CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW i DVD-RAM.
+Funkcja jest dostępna dla użytkowników posiadających prawa administratora
+lub wszystkich użytkowników lokalnych, jeżeli mają uprawnienie ustawione
+w Edytorze Polityk Lokalnych (aby je ustawić wpisz #secpol.msc# w wierszu
+poleceń, następnie przejdź do '#Zasady lokalne/Opcje zabezpieczeń/Urządzenia:#
+#ogranicz dostęp do stacji CD-ROM tylko do użytkownika zalogowanego lokalnie#'
+ustawionego na '#Włączone#' - w wersji angielskiej: '#Local Policies/#
+#Security Options/Devices: Restrict CD-ROM access to locally logged-on user only#'
+ustawione na '#Enabled#').
 
- #Alt+Shift+F9# allows you to ~configure plugins~@PluginsConfig@ (it works only if
-display of plugin items is enabled).
+ #Alt+Shift+F9# pozwala ~skonfigurować wtyczkę~@PluginsConfig@ (działa tylko
+jeżeli wyświetlana wtyczka jest włączona).
 
- #Shift+F9# in the plugins list opens the configuration dialog of the
-currently selected plugin.
+ #Shift+F9# na liście wtyczek otwiera okno konfiguracji wybranej wtyczki.
 
- #Shift+F1# in the plugins list displays the context-sensitive help of the
-currently selected plugin, if the plugin has a help file.
+ #Shift+F1# na liście wtyczek wyświetla pomoc kontekstową wybranej wtyczki,
+o ile dana wtyczka posiada plik pomocy.
 
- The #A# character in the leftmost menu column means that the corresponding plugin is
-written for Far 1.7x and it does not support all possibilities available in
-Far 3 (these are, in particular, Unicode characters in filenames and in editor).
+ Litera #A# w lewej kolumnie menu oznacza, że widoczna wtyczka jest napisana
+dla Far 1.7x i nie obsługuje wszystkich możliwości dostępnych w Far 3
+(jak np. znaki Unicode w nazwach plików i w edytorze).
 
- See also:
+ Zobacz także:
 
- The list of ~macro keys~@KeyMacroDisksList@, available in the disk menu.
- Common ~menu~@MenuCmd@ keyboard commands.
+ Lista ~klawiszy makro~@KeyMacroDisksList@, dostępnych w menu dysku.
+ Polecenia ~menu~@MenuCmd@.
 
 
 @ChangeDriveMode
