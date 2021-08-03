@@ -243,6 +243,7 @@ protected:
 	public:
 		using string::string;
 		int size() const { return static_cast<int>(string::size()); }
+		auto usize() const { return string::size(); }
 	};
 	edit_string m_Str;
 
