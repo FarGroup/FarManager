@@ -3459,7 +3459,7 @@ bool Editor::Search(bool Next)
 		const auto strSearchStrLower = Case? strSearchStr : lower(strSearchStr);
 
 		const time_check TimeCheck;
-		single_progress const Progress(msg(lng::MEditSearchTitle), format(msg(lng::MEditSearchingFor), QuotedStr), 0);
+		std::optional<single_progress> Progress;
 		int StartLine = m_it_CurLine.Number();
 		SCOPED_ACTION(taskbar::indeterminate);
 		SCOPED_ACTION(wakeful);
@@ -3475,10 +3475,13 @@ bool Editor::Search(bool Next)
 					break;
 				}
 
+				if (!Progress)
+					Progress.emplace(msg(lng::MEditSearchTitle), format(msg(lng::MEditSearchingFor), QuotedStr), 0);
+
 				SetCursorType(false, -1);
 				const auto Total = FindAllReferences? Lines.size() : ReverseSearch? StartLine : Lines.size() - StartLine;
 				const auto Current = abs(CurPtr.Number() - StartLine);
-				Progress.update(Total > 0? Current * 100 / Total : 100);
+				Progress->update(Total > 0? Current * 100 / Total : 100);
 				taskbar::set_value(Current,Total);
 			}
 

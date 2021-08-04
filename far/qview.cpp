@@ -401,16 +401,19 @@ void QuickView::ShowFile(string_view const FileName, const UserDataItem* const U
 	if (hDirPlugin || os::fs::is_directory(strCurFileName))
 	{
 		const time_check TimeCheck;
-		dirinfo_progress const DirinfoProgress(msg(lng::MQuickViewTitle));
+		std::optional<dirinfo_progress> DirinfoProgress;
 
 		const auto DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
 		{
 			if (!TimeCheck)
 				return;
 
-			DirinfoProgress.set_name(Name);
-			DirinfoProgress.set_count(ItemsCount);
-			DirinfoProgress.set_size(Size);
+			if (!DirinfoProgress)
+				DirinfoProgress.emplace(msg(lng::MQuickViewTitle));
+
+			DirinfoProgress->set_name(Name);
+			DirinfoProgress->set_count(ItemsCount);
+			DirinfoProgress->set_size(Size);
 		};
 
 		if (SameFile && !hDirPlugin)

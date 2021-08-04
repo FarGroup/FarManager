@@ -5074,8 +5074,6 @@ void FileList::CountDirSize(bool IsRealNames)
 	//Рефреш текущему времени для фильтра перед началом операции
 	m_Filter->UpdateCurrentTime();
 
-	time_check TimeCheck;
-
 	struct
 	{
 		unsigned long long Items;
@@ -5083,16 +5081,20 @@ void FileList::CountDirSize(bool IsRealNames)
 	}
 	Total{};
 
-	dirinfo_progress const DirinfoProgress(msg(lng::MDirInfoViewTitle));
+	time_check TimeCheck;
+	std::optional<dirinfo_progress> DirinfoProgress;
 
 	const auto DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
 	{
 		if (!TimeCheck)
 			return;
 
-		DirinfoProgress.set_name(Name);
-		DirinfoProgress.set_count(Total.Items + ItemsCount);
-		DirinfoProgress.set_size(Total.Size + Size);
+		if (!DirinfoProgress)
+			DirinfoProgress.emplace(msg(lng::MDirInfoViewTitle));
+
+		DirinfoProgress->set_name(Name);
+		DirinfoProgress->set_count(Total.Items + ItemsCount);
+		DirinfoProgress->set_size(Total.Size + Size);
 	};
 
 	for (auto& i: m_ListData)

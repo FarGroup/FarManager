@@ -1639,7 +1639,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 			LOGWARNING(L"GetSize({}): {}"sv, EditFile.GetName(), last_error());
 		}
 
-		single_progress const Progress(msg(lng::MEditTitle), format(msg(lng::MEditReading), Name), 0);
+		std::optional<single_progress> Progress;
 
 		const time_check TimeCheck;
 
@@ -1669,6 +1669,9 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 					return false;
 				}
 
+				if (!Progress)
+					Progress.emplace(msg(lng::MEditTitle), format(msg(lng::MEditReading), Name), 0);
+
 				SetCursorType(false, 0);
 				const auto CurPos = EditFile.GetPointer();
 				auto Percent = FileSize? CurPos * 100 / FileSize : 0;
@@ -1685,7 +1688,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 					Percent = FileSize? std::min(CurPos * 100 / FileSize, 100ull) : 100;
 				}
 
-				Progress.update(Percent);
+				Progress->update(Percent);
 			}
 
 			if (m_editor->GlobalEOL == eol::none && Str.Eol != eol::none)
@@ -2036,8 +2039,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 			if (!bSaveAs)
 				AddSignature = m_bAddSignature;
 
-			single_progress const Progress(msg(lng::MEditTitle), format(msg(lng::MEditSaving), Name), 0);
-
+			std::optional<single_progress> Progress;
 			const time_check TimeCheck;
 
 			// We've already validated the codepage above
@@ -2051,7 +2053,10 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 
 				if (TimeCheck)
 				{
-					Progress.update(LineNumber * 100 / m_editor->Lines.size());
+					if (!Progress)
+						Progress.emplace(msg(lng::MEditTitle), format(msg(lng::MEditSaving), Name), 0);
+
+					Progress->update(LineNumber * 100 / m_editor->Lines.size());
 				}
 
 				const auto& SaveStr = Line.GetString();

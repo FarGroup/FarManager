@@ -900,6 +900,8 @@ void progress_impl::init(span<DialogItemEx> const Items, rectangle const Positio
 	m_Dialog->SetPosition(Position);
 	m_Dialog->SetCanLoseFocus(true);
 	m_Dialog->Process();
+
+	Global->WindowManager->PluginCommit();
 }
 
 struct single_progress_detail

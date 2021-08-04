@@ -3376,7 +3376,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 		SCOPED_ACTION(taskbar::indeterminate);
 		SetCursorType(false, 0);
 
-		single_progress const Progress(msg(lng::MViewSearchTitle), concat(msg(SearchHex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', strMsgStr), 0);
+		std::optional<single_progress> Progress;
 		const time_check TimeCheck;
 
 		for (;;)
@@ -3452,7 +3452,10 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 					percent = static_cast<int>(done*100/total);
 				}
 
-				Progress.update(percent);
+				if (!Progress)
+					Progress.emplace(msg(lng::MViewSearchTitle), concat(msg(SearchHex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', strMsgStr), 0);
+
+				Progress->update(percent);
 			}
 		}
 	}

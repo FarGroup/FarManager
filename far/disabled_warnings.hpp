@@ -96,6 +96,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 5052) // Keyword 'char8_t' was introduced in C++20 and requires use of the '/std:c++latest' command-line option
 #endif
 
+#ifdef _DEBUG
+// Happens only after "Apply code changes"
+#pragma warning(disable: 4599) // command line argument number number does not match precompiled header
+#endif
+
 #endif
 
 
