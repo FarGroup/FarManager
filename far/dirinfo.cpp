@@ -361,7 +361,7 @@ static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, string_vi
 	const string strPrevDir = NullToEmpty(Info.CurDir);
 
 	if (!Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, string(Dir), OPM_SILENT | OpMode, UserData))
-		return false;
+		return true;
 
 	bool StopSearch = false;
 	ScanPluginDir(hDirListPlugin, OpMode, Dir, Dir, Items, StopSearch, Data, Callback);
