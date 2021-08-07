@@ -1234,6 +1234,15 @@ ShellCopy::ShellCopy(
 		Global->CtrlObject->Cp()->Redraw();
 	};
 
+	struct total_info
+	{
+		unsigned long long
+			TotalFiles{},
+			TotalBytes{};
+	};
+
+	std::optional<total_info> TotalInfo, TotalInfoWithCopySymlink;
+
 	for (const auto& i: m_DestList)
 	{
 		bool LastIteration = false;
@@ -1294,29 +1303,40 @@ ShellCopy::ShellCopy(
 			}
 		}
 
-		if (!CP)
+		const auto OldCopySymlinkContents = (Flags & FCOPY_COPYSYMLINKCONTENTS) != 0;
+		// собственно - один проход копирования
+		// Mantis#45: Необходимо привести копирование ссылок на папки с NTFS на FAT к более логичному виду
 		{
-			unsigned long long
-				TotalFiles{},
-				TotalBytes{};
+			DWORD FilesystemFlags;
+			if (os::fs::GetVolumeInformation(GetPathRoot(strNameTmp), {}, {}, {}, &FilesystemFlags, {}) && !(FilesystemFlags & FILE_SUPPORTS_REPARSE_POINTS))
+				Flags |= FCOPY_COPYSYMLINKCONTENTS;
+		}
+
+		auto& CurrentTotalInfo = Flags & FCOPY_COPYSYMLINKCONTENTS? TotalInfoWithCopySymlink : TotalInfo;
+		if (!CurrentTotalInfo)
+		{
+			CurrentTotalInfo.emplace();
 
 			if (SelCount != 1 || FolderPresent)
 			{
 				// Не сканируем каталоги при создании линков
 				if (ShowTotalCopySize && !(Flags & FCOPY_LINK))
-					std::tie(TotalFiles, TotalBytes) = CalcTotalSize();
+					std::tie(CurrentTotalInfo->TotalFiles, CurrentTotalInfo->TotalBytes) = CalcTotalSize();
 			}
 			else
 			{
-				TotalFiles = 1;
-				TotalBytes = SingleSelectedFileSize;
+				CurrentTotalInfo->TotalFiles = 1;
+				CurrentTotalInfo->TotalBytes = SingleSelectedFileSize;
 			}
-
-			CP = std::make_unique<copy_progress>(Move, ShowTotalCopySize, ShowCopyTime);
-			CP->set_total_files(TotalFiles);
-			CP->set_total_bytes(TotalBytes);
 		}
 
+		if (!CP)
+		{
+			CP = std::make_unique<copy_progress>(Move, ShowTotalCopySize, ShowCopyTime);
+		}
+
+		CP->set_total_files(CurrentTotalInfo->TotalFiles);
+		CP->set_total_bytes(CurrentTotalInfo->TotalBytes);
 		CP->reset_current();
 
 		// Обнулим инфу про дизы
@@ -1325,23 +1345,12 @@ ShellCopy::ShellCopy(
 		// сохраним выделение
 		SrcPanel->SaveSelection();
 		strDestFSName.clear();
-		int OldCopySymlinkContents=Flags&FCOPY_COPYSYMLINKCONTENTS;
-		// собственно - один проход копирования
-		// Mantis#45: Необходимо привести копирование ссылок на папки с NTFS на FAT к более логичному виду
-		{
-			DWORD FilesystemFlags;
-			if (os::fs::GetVolumeInformation(GetPathRoot(strNameTmp), nullptr, nullptr, nullptr, &FilesystemFlags, nullptr) && !(FilesystemFlags&FILE_SUPPORTS_REPARSE_POINTS))
-				Flags|=FCOPY_COPYSYMLINKCONTENTS;
-		}
 
 		NeedDizUpdate = true;
 
 		copy_selected_items(strNameTmp);
 
-		if (OldCopySymlinkContents)
-			Flags|=FCOPY_COPYSYMLINKCONTENTS;
-		else
-			Flags&=~FCOPY_COPYSYMLINKCONTENTS;
+		flags::change(Flags, FCOPY_COPYSYMLINKCONTENTS, OldCopySymlinkContents);
 
 		// если "есть порох в пороховницах" - восстановим выделение
 		if (!LastIteration)
