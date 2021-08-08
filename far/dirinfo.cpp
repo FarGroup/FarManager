@@ -281,7 +281,7 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, 
 		StopSearch = true;
 	}
 
-	if (StopSearch || !Global->CtrlObject->Plugins->GetFindData(hDirListPlugin, PanelData, OPM_FIND | OpMode))
+	if (StopSearch || !Global->CtrlObject->Plugins->GetFindData(hDirListPlugin, PanelData, OpMode))
 		return;
 
 	SCOPE_EXIT{ Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin, PanelData, true); };
@@ -312,11 +312,11 @@ static void ScanPluginDir(plugin_panel* hDirListPlugin, OPERATION_MODES OpMode, 
 		PushPluginDirItem(PluginDirList, &i, PluginSearchPath, Data);
 		const auto FileNameCopy = i.FileName;
 
-		if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, FileNameCopy, OPM_FIND | OpMode, &i.UserData))
+		if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, FileNameCopy, OpMode, &i.UserData))
 		{
 			ScanPluginDir(hDirListPlugin, OpMode, BaseDir, path::join(PluginSearchPath, i.FileName), PluginDirList, StopSearch, Data, Callback);
 
-			if (!Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, L".."s, OPM_FIND | OpMode))
+			if (!Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, L".."s, OpMode))
 				return;
 		}
 	}
@@ -329,9 +329,12 @@ static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, string_vi
 	std::unique_ptr<plugin_panel> DirListPlugin;
 	plugin_panel* hDirListPlugin;
 
-	OPERATION_MODES OpMode=0;
-	if (Global->CtrlObject->Cp()->PassivePanel()->GetType() == panel_type::QVIEW_PANEL || Global->CtrlObject->Cp()->ActivePanel()->GetType() == panel_type::QVIEW_PANEL)
-		OpMode|=OPM_QUICKVIEW;
+	const auto OpMode =
+		OPM_SILENT |
+		OPM_FIND |
+		(any_of(panel_type::QVIEW_PANEL, Global->CtrlObject->Cp()->PassivePanel()->GetType(), Global->CtrlObject->Cp()->ActivePanel()->GetType())?
+			OPM_QUICKVIEW : OPM_NONE
+		);
 
 	// А не хочет ли плагин посмотреть на текущую панель?
 	if (!hPlugin || hPlugin==PANEL_ACTIVE || hPlugin==PANEL_PASSIVE)
@@ -360,13 +363,13 @@ static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, string_vi
 	Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&Info);
 	const string strPrevDir = NullToEmpty(Info.CurDir);
 
-	if (!Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, string(Dir), OPM_SILENT | OpMode, UserData))
+	if (!Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, string(Dir), OpMode, UserData))
 		return true;
 
 	bool StopSearch = false;
 	ScanPluginDir(hDirListPlugin, OpMode, Dir, Dir, Items, StopSearch, Data, Callback);
 
-	Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, L".."s, OPM_SILENT | OpMode);
+	Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, L".."s, OpMode);
 
 	OpenPanelInfo NewInfo;
 	Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&NewInfo);
@@ -375,12 +378,12 @@ static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, string_vi
 	{
 		span<PluginPanelItem> PanelData;
 
-		if (Global->CtrlObject->Plugins->GetFindData(hDirListPlugin, PanelData, OPM_SILENT | OpMode))
+		if (Global->CtrlObject->Plugins->GetFindData(hDirListPlugin, PanelData, OpMode))
 		{
 			Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin, PanelData, true);
 		}
 
-		Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,strPrevDir,OPM_SILENT|OpMode,&Info.UserData);
+		Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin, strPrevDir, OpMode, &Info.UserData);
 	}
 
 	return !StopSearch;

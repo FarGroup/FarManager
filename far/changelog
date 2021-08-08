@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 08.08.2021 10:45:59 +0100 - build 5871
+
+1. Pass both OPM_FIND and OPM_SILENT to plugins during directory scans.
+
+--------------------------------------------------------------------------------
 drkns 07.08.2021 12:26:09 +0100 - build 5870
 
 1. Forum: Copy contents of symbolic links & total copy size.
