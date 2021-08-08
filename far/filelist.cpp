@@ -7759,7 +7759,18 @@ void FileList::ShowFileList(bool Fast)
 	if (Global->Opt->ShowPanelScrollbar)
 	{
 		SetColor(COL_PANELSCROLLBAR);
-		ScrollBar(m_Where.right, m_Where.top + 1 + Global->Opt->ShowColumnTitles, m_Height, Round(m_CurTopFile, m_Stripes), Round(static_cast<int>(m_ListData.size()), m_Stripes));
+
+		const auto per_stripe = [&](size_t const Value)
+		{
+			return Value / m_Stripes + (Value % m_Stripes != 0);
+		};
+
+		ScrollBar(
+			m_Where.right,
+			m_Where.top + 1 + Global->Opt->ShowColumnTitles,
+			m_Height,
+			per_stripe(m_CurTopFile),
+			per_stripe(m_ListData.size()));
 	}
 
 	ShowScreensCount();
