@@ -81,6 +81,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "cvtname.hpp"
 #include "log.hpp"
+#include "stddlg.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -1578,7 +1579,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						if (!m_Searcher->Finished())
 							m_Searcher->Pause();
 
-						if (ConfirmAbortOp())
+						if (ConfirmAbort())
 						{
 							stop_and_discard();
 						}

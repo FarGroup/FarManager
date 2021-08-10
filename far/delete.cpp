@@ -190,8 +190,9 @@ private:
 		bool CannotRecycleTryRemove = false
 	);
 
-	int ReadOnlyDeleteMode{-1};
-	int SkipWipeMode{-1};
+	std::optional<bool>
+		m_DeleteReadOnly,
+		m_SkipWipe;
 	bool m_SkipFileErrors{};
 	bool m_SkipFolderErrors{};
 	bool m_DeleteFolders{};
@@ -518,7 +519,7 @@ void ShellDelete::process_item(
 
 		if (os::fs::is_not_empty_directory(strFullName))
 		{
-			int MsgCode = 0; // для symlink не нужно подтверждение
+			auto MsgCode = message_result::first_button; // для symlink не нужно подтверждение
 			if (!DirSymLink)
 			{
 				auto Uuid = &DeleteFolderId;
@@ -551,15 +552,15 @@ void ShellDelete::process_item(
 					{}, Uuid);
 			}
 
-			if (MsgCode == Message::first_button)
+			if (MsgCode == message_result::first_button)
 			{
 				// Nop
 			}
-			else if (MsgCode == Message::second_button)
+			else if (MsgCode == message_result::second_button)
 			{
 				m_DeleteFolders = true;
 			}
-			else if (MsgCode == Message::third_button)
+			else if (MsgCode == message_result::third_button)
 			{
 				return;
 			}
@@ -629,15 +630,15 @@ void ShellDelete::process_item(
 						{ m_DeleteType == delete_type::erase? lng::MDeleteFileWipe : lng::MDeleteFileDelete, lng::MDeleteFileAll, lng::MDeleteFileSkip, lng::MDeleteFileCancel },
 						{}, m_DeleteType == delete_type::erase? &WipeFolderId : &DeleteFolderId); // ??? other UUID ???
 
-					if (MsgCode == Message::first_button)
+					if (MsgCode == message_result::first_button)
 					{
 						// Nop
 					}
-					else if (MsgCode == Message::second_button)
+					else if (MsgCode == message_result::second_button)
 					{
 						m_DeleteFolders = true;
 					}
-					else if (MsgCode == Message::third_button)
+					else if (MsgCode == message_result::third_button)
 					{
 						ScTree.SkipDir();
 						continue;
@@ -765,13 +766,13 @@ bool ShellDelete::ConfirmDeleteReadOnlyFile(string_view const Name, os::fs::attr
 		return true;
 
 	if (!Global->Opt->Confirm.RO)
-		ReadOnlyDeleteMode = Message::first_button;
+		m_DeleteReadOnly = true;
 
-	int MsgCode;
+	message_result MsgCode;
 
-	if (ReadOnlyDeleteMode != -1)
+	if (m_DeleteReadOnly)
 	{
-		MsgCode = ReadOnlyDeleteMode;
+		MsgCode = *m_DeleteReadOnly? message_result::first_button : message_result::third_button;
 	}
 	else
 	{
@@ -794,10 +795,10 @@ bool ShellDelete::ConfirmDeleteReadOnlyFile(string_view const Name, os::fs::attr
 
 	switch (MsgCode)
 	{
-	case Message::second_button:
-		ReadOnlyDeleteMode = Message::first_button;
+	case message_result::second_button:
+		m_DeleteReadOnly = true;
 		[[fallthrough]];
-	case Message::first_button:
+	case message_result::first_button:
 		if (!os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
 		{
 			LOGWARNING(L"set_file_attributes({}): {}"sv, Name, last_error());
@@ -805,10 +806,10 @@ bool ShellDelete::ConfirmDeleteReadOnlyFile(string_view const Name, os::fs::attr
 
 		return true;
 
-	case Message::fourth_button:
-		ReadOnlyDeleteMode = Message::third_button;
+	case message_result::fourth_button:
+		m_DeleteReadOnly = false;
 		[[fallthrough]];
-	case Message::third_button:
+	case message_result::third_button:
 		return false;
 
 	default:
@@ -816,14 +817,22 @@ bool ShellDelete::ConfirmDeleteReadOnlyFile(string_view const Name, os::fs::attr
 	}
 }
 
-static bool confirm_erase_file_with_hardlinks(string_view const File, int& WipeMode)
+static bool confirm_erase_file_with_hardlinks(string_view const File, std::optional<bool>& Wipe)
 {
-	switch (WipeMode != -1? WipeMode : [&]
+	message_result MsgCode;
+
+	if (Wipe)
 	{
-		const auto Hardlinks = GetNumberOfLinks(File);
-		return !Hardlinks || *Hardlinks < 2?
-			Message::first_button :
-			Message(MSG_WARNING,
+		MsgCode = *Wipe? message_result::first_button : message_result::third_button;
+	}
+	else
+	{
+		MsgCode = [&]
+		{
+			const auto Hardlinks = GetNumberOfLinks(File);
+			return !Hardlinks || *Hardlinks < 2?
+				message_result::first_button :
+				Message(MSG_WARNING,
 				msg(lng::MError),
 				{
 					string(File),
@@ -833,18 +842,21 @@ static bool confirm_erase_file_with_hardlinks(string_view const File, int& WipeM
 				},
 				{ lng::MDeleteFileWipe, lng::MDeleteFileAll, lng::MDeleteFileSkip, lng::MDeleteFileSkipAll, lng::MDeleteCancel },
 				{}, &WipeHardLinkId);
-	}())
+		}();
+	}
+
+	switch(MsgCode)
 	{
-	case Message::second_button:
-		WipeMode = Message::first_button;
+	case message_result::second_button:
+		Wipe = true;
 		[[fallthrough]];
-	case Message::first_button:
+	case message_result::first_button:
 		return true;
 
-	case Message::fourth_button:
-		WipeMode = Message::third_button;
+	case message_result::fourth_button:
+		Wipe = false;
 		[[fallthrough]];
-	case Message::third_button:
+	case message_result::third_button:
 		return false;
 
 	default:
@@ -852,10 +864,10 @@ static bool confirm_erase_file_with_hardlinks(string_view const File, int& WipeM
 	}
 }
 
-static bool erase_file_with_retry(string_view const Name, int& WipeMode, progress const Files, delete_progress const& Progress, bool& SkipErrors)
+static bool erase_file_with_retry(string_view const Name, std::optional<bool>& Wipe, progress const Files, delete_progress const& Progress, bool& SkipErrors)
 {
 	return
-		confirm_erase_file_with_hardlinks(Name, WipeMode) &&
+		confirm_erase_file_with_hardlinks(Name, Wipe) &&
 		retryable_ui_operation([&]{ return EraseFile(Name, Files, Progress); }, Name, lng::MCannotDeleteFile, SkipErrors);
 }
 
@@ -872,7 +884,7 @@ bool ShellDelete::ShellRemoveFile(string_view const Name, progress Files, delete
 	switch (m_DeleteType)
 	{
 	case delete_type::erase:
-		return erase_file_with_retry(strFullName, SkipWipeMode, Files, Progress, m_SkipFileErrors);
+		return erase_file_with_retry(strFullName, m_SkipWipe, Files, Progress, m_SkipFileErrors);
 
 	case delete_type::remove:
 		return delete_file_with_retry(strFullName, m_SkipFileErrors);
@@ -951,7 +963,7 @@ static void break_links_for_old_os(string_view const Name)
 				},
 				{ lng::MYes, lng::MCancel },
 				{}, &RecycleFolderConfirmDeleteLinkId
-			) != Message::first_button)
+			) != message_result::first_button)
 			{
 				cancel_operation();
 			}
@@ -976,7 +988,7 @@ bool ShellDelete::RemoveToRecycleBin(string_view const Name, bool dir, bool& Ret
 
 	const auto ErrorState = last_error();
 
-	const int MsgCode = Message(MSG_WARNING, ErrorState,
+	const auto MsgCode = Message(MSG_WARNING, ErrorState,
 		msg(lng::MError),
 		{
 			msg(dir? lng::MCannotRecycleFolder : lng::MCannotRecycleFile),
@@ -988,14 +1000,14 @@ bool ShellDelete::RemoveToRecycleBin(string_view const Name, bool dir, bool& Ret
 
 	switch (MsgCode)
 	{
-	case Message::first_button:     // {Delete}
+	case message_result::first_button:     // {Delete}
 		RetryRecycleAsRemove = true;
 		return false;
 
-	case Message::third_button:     // [Skip All]
+	case message_result::third_button:     // [Skip All]
 		(dir? m_SkipFolderErrors : m_SkipFileErrors) = true;
 		[[fallthrough]];
-	case Message::second_button:    // [Skip]
+	case message_result::second_button:    // [Skip]
 		Skip = true;
 		return false;
 

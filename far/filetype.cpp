@@ -480,7 +480,7 @@ static bool DeleteTypeRecord(unsigned long long DeletePos)
 			msg(lng::MAskDelAssoc),
 			strMask
 		},
-		{ lng::MDelete, lng::MCancel }) == Message::first_button)
+		{ lng::MDelete, lng::MCancel }) == message_result::first_button)
 	{
 		ConfigProvider().AssocConfig()->DelType(DeletePos);
 		return true;

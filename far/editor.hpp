@@ -73,11 +73,10 @@ public:
 	uintptr_t GetCodePage() const; //BUGBUG
 	void KeepInitParameters() const;
 	void SetStartPos(int LineNum, int CharNum);
-	bool IsFileModified() const;
-	bool IsFileChanged() const;
+	bool IsModified() const;
+	bool IsChanged() const;
 	long long GetCurPos(bool file_pos = false, bool add_bom = false) const;
 	int EditorControl(int Command, intptr_t Param1, void *Param2);
-	void SetHostFileEditor(FileEditor *Editor) { HostFileEditor = Editor; }
 	void SetOptions(const Options::EditorOptions& Options);
 	void SetTabSize(int NewSize);
 	size_t GetTabSize() const { return EdOpt.TabSize; }
@@ -143,7 +142,6 @@ public:
 	void AutoDeleteColors();
 	int GetId() const { return EditorID; }
 
-	static void PR_EditorShowMsg();
 	static void SetReplaceMode(bool Mode);
 	static eol GetDefaultEOL();
 
@@ -388,7 +386,6 @@ private:
 	bool LastSearchCase{}, LastSearchWholeWords{}, LastSearchReverse{}, LastSearchRegexp{}, LastSearchPreserveStyle{};
 
 	int EditorID{};
-	FileEditor *HostFileEditor{};
 	int EditorControlLock{};
 	FarColor Color;
 	FarColor SelColor;

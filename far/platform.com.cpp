@@ -126,7 +126,7 @@ namespace os::com
 		return !ProgID.empty() && reg::key::open(reg::key::classes_root, ProgID, KEY_QUERY_VALUE);
 	}
 
-	string get_shell_type(string_view const FileName)
+	static string get_shell_type(string_view const FileName)
 	{
 		auto [Name, Ext] = name_ext(FileName);
 		if (Ext.empty())

@@ -413,7 +413,7 @@ static bool ProcessDelDisk(panel_ptr Owner, string_view const Path, int DriveTyp
 						SubstitutedPath
 					},
 					{ lng::MYes, lng::MNo },
-					{}, &SUBSTDisconnectDriveId) != Message::first_button)
+					{}, &SUBSTDisconnectDriveId) != message_result::first_button)
 				{
 					return false;
 				}
@@ -439,7 +439,7 @@ static bool ProcessDelDisk(panel_ptr Owner, string_view const Path, int DriveTyp
 						msg(lng::MChangeDriveAskDisconnect)
 					},
 					{ lng::MOk, lng::MCancel },
-					{}, &SUBSTDisconnectDriveError1Id) == Message::first_button)
+					{}, &SUBSTDisconnectDriveError1Id) == message_result::first_button)
 				{
 					if (DelSubstDrive(DosDriveName))
 					{
@@ -499,7 +499,7 @@ static bool ProcessDelDisk(panel_ptr Owner, string_view const Path, int DriveTyp
 						msg(lng::MChangeDriveAskDisconnect)
 					},
 					{ lng::MOk, lng::MCancel },
-					{}, &RemoteDisconnectDriveError1Id) == Message::first_button)
+					{}, &RemoteDisconnectDriveError1Id) == message_result::first_button)
 				{
 					if (WNetCancelConnection2(C_DosDriveName.c_str(), UpdateProfile, TRUE) == NO_ERROR)
 					{
@@ -536,7 +536,7 @@ static bool ProcessDelDisk(panel_ptr Owner, string_view const Path, int DriveTyp
 						Question
 					},
 					{ lng::MYes, lng::MNo },
-					{}, &VHDDisconnectDriveId) != Message::first_button)
+					{}, &VHDDisconnectDriveId) != message_result::first_button)
 				{
 					return false;
 				}
@@ -653,7 +653,7 @@ static void RemoveHotplugDevice(panel_ptr Owner, const disk_item& item, VMenu2 &
 				format(msg(lng::MChangeCouldNotEjectHotPlugMedia), dos_drive_name(item.Path))
 			},
 			{ lng::MHRetry, lng::MHCancel },
-			{}, &EjectHotPlugMediaErrorId) != Message::first_button)
+			{}, &EjectHotPlugMediaErrorId) != message_result::first_button)
 			return;
 	}
 }

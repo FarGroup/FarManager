@@ -1245,19 +1245,6 @@ bool CheckForEscSilent()
 	return false;
 }
 
-bool ConfirmAbortOp()
-{
-	return !Global->Opt->Confirm.Esc || Global->CloseFAR || AbortMessage();
-}
-
-/* $ 09.02.2001 IS
-     Подтверждение нажатия Esc
-*/
-bool CheckForEscAndConfirmAbort()
-{
-	return CheckForEscSilent() && ConfirmAbortOp();
-}
-
 using tfkey_to_text = string_view(const TFKey&);
 using add_separator = void(string&);
 

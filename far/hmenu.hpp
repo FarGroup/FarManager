@@ -60,7 +60,7 @@ struct HMenuData
 
 class VMenu2;
 
-class HMenu: public SimpleModal
+class HMenu: public Modal
 {
 	struct private_tag {};
 

@@ -3416,7 +3416,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 						msg(lng::MViewSearchFromBegin + 2 * (found - Search_Eof)),
 						strMsgStr
 					},
-					{ lng::MYes, lng::MCancel }) != Message::first_button) // cancel search
+					{ lng::MYes, lng::MCancel }) != message_result::first_button) // cancel search
 				{
 					return;
 				}

@@ -287,7 +287,7 @@ void PrintFiles(FileList* SrcPanel)
 						msg(lng::MCannotPrint),
 						i.FileName
 					},
-					{ lng::MSkip, lng::MCancel }) != Message::first_button)
+					{ lng::MSkip, lng::MCancel }) != message_result::first_button)
 					break;
 			}
 		}

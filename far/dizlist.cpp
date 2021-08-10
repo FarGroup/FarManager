@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "file_io.hpp"
 #include "log.hpp"
+#include "stddlg.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -319,7 +320,7 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 					msg(lng::MEditRO),
 					msg(lng::MEditOvr)
 				},
-				{ lng::MYes, lng::MNo }) != Message::first_button)
+				{ lng::MYes, lng::MNo }) != message_result::first_button)
 			return false;
 
 		if (!os::fs::set_file_attributes(m_DizFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY)) //BUGBUG

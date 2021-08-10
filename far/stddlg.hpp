@@ -191,6 +191,8 @@ struct goto_coord
 
 bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view HelpTopic);
 
+bool ConfirmAbort();
+bool CheckForEscAndConfirmAbort();
 bool RetryAbort(std::vector<string>&& Messages);
 
 class progress_impl

@@ -538,7 +538,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 							{
 								msg(lng::MHistoryClear)
 							},
-							{ lng::MClear, lng::MCancel }) == Message::first_button))
+							{ lng::MClear, lng::MCancel }) == message_result::first_button))
 					{
 						HistoryCfgRef()->DeleteAllUnlocked(m_TypeHistory,m_HistoryName);
 
@@ -588,7 +588,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 							SelectedRecord.name,
 							msg(lng::MViewHistoryIsCreate)
 						},
-						{ lng::MHYes, lng::MHNo }) == Message::first_button)
+						{ lng::MHYes, lng::MHNo }) == message_result::first_button)
 						break;
 				}
 				else

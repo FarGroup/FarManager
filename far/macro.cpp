@@ -5037,7 +5037,7 @@ M1:
 				const std::array ChangeButtons{ lng::MYes, lng::MMacroEditKey, lng::MNo };
 				const std::array NoChangeButtons{ lng::MYes, lng::MNo };
 
-				const int Result = Message(MSG_WARNING,
+				const auto Result = Message(MSG_WARNING,
 					msg(lng::MWarning),
 					{
 						strBuf,
@@ -5047,14 +5047,14 @@ M1:
 					},
 					SetChange? span(ChangeButtons) : span(NoChangeButtons));
 
-				if (Result == Message::first_button)
+				if (Result == message_result::first_button)
 				{
 					// в любом случае - вываливаемся
 					Dlg->SendMessage(DM_CLOSE, 1, nullptr);
 					return TRUE;
 				}
 
-				if (SetChange && Result == Message::second_button)
+				if (SetChange && Result == message_result::second_button)
 				{
 					string strDescription;
 

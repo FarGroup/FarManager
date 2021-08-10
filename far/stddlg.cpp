@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "log.hpp"
 #include "copy_progress.hpp"
+#include "keyboard.hpp"
 
 // Platform:
 #include "platform.com.hpp"
@@ -609,7 +610,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 		});
 	}
 
-	int MsgResult;
+	message_result MsgResult;
 	for(;;)
 	{
 		MsgResult = Message(MSG_WARNING, ErrorState,
@@ -619,7 +620,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 
 		if(SwitchBtn)
 		{
-			if (MsgResult == Message::first_button)
+			if (MsgResult == message_result::first_button)
 			{
 				HWND Window = nullptr;
 				if (FileIsInUse)
@@ -635,13 +636,13 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 				}
 				continue;
 			}
-			else if (MsgResult > 0)
+			else if (MsgResult != message_result::cancelled)
 			{
-				--MsgResult;
+				MsgResult = static_cast<message_result>(static_cast<size_t>(MsgResult) - 1);
 			}
 		}
 
-		if(CloseBtn && MsgResult == Message::first_button)
+		if(CloseBtn && MsgResult == message_result::first_button)
 		{
 			// close & retry
 			if (FileIsInUse)
@@ -652,7 +653,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 		break;
 	}
 
-	if (MsgResult < 0 || static_cast<size_t>(MsgResult) == Buttons.size() - 1)
+	if (MsgResult == message_result::cancelled || static_cast<size_t>(MsgResult) == Buttons.size() - 1)
 		return operation::cancel;
 
 	return static_cast<operation>(MsgResult);
@@ -860,6 +861,31 @@ bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view const H
 	}
 }
 
+bool ConfirmAbort()
+{
+	if (!Global->Opt->Confirm.Esc)
+		return true;
+
+	if (Global->CloseFAR)
+		return true;
+
+	// BUGBUG MSG_WARNING overrides TBPF_PAUSED with TBPF_ERROR
+	SCOPED_ACTION(taskbar::state)(TBPF_PAUSED);
+	const auto Result = Message(MSG_WARNING | MSG_KILLSAVESCREEN,
+		msg(lng::MKeyESCWasPressed),
+		{
+			msg(Global->Opt->Confirm.EscTwiceToInterrupt? lng::MDoYouWantToContinue : lng::MDoYouWantToCancel)
+		},
+		{ lng::MYes, lng::MNo });
+
+	return Global->Opt->Confirm.EscTwiceToInterrupt.Get() == (Result != message_result::first_button);
+}
+
+bool CheckForEscAndConfirmAbort()
+{
+	return CheckForEscSilent() && ConfirmAbort();
+}
+
 bool RetryAbort(std::vector<string>&& Messages)
 {
 	if (Global->WindowManager && !Global->WindowManager->ManagerIsDown() && far_language::instance().is_loaded())
@@ -867,7 +893,7 @@ bool RetryAbort(std::vector<string>&& Messages)
 		return Message(FMSG_WARNING,
 			msg(lng::MError),
 			std::move(Messages),
-			{ lng::MRetry, lng::MAbort }) == Message::first_button;
+			{ lng::MRetry, lng::MAbort }) == message_result::first_button;
 	}
 
 	std::wcerr << L"\nError:\n\n"sv;
@@ -890,8 +916,8 @@ void progress_impl::init(span<DialogItemEx> const Items, rectangle const Positio
 	{
 		if (Msg == DN_RESIZECONSOLE)
 		{
-			COORD Position{ -1, -1 };
-			Dlg->SendMessage(DM_MOVEDIALOG, 1, &Position);
+			COORD CenterPosition{ -1, -1 };
+			Dlg->SendMessage(DM_MOVEDIALOG, 1, &CenterPosition);
 		}
 
 		return Dlg->DefProc(Msg, Param1, Param2);

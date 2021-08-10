@@ -307,7 +307,7 @@ void UserMenu::SaveMenu(string_view const MenuFileName) const
 				msg(lng::MEditRO),
 				msg(lng::MEditOvr)
 			},
-			{ lng::MYes, lng::MNo }) != Message::first_button)
+			{ lng::MYes, lng::MNo }) != message_result::first_button)
 			return;
 
 		if (!os::fs::set_file_attributes(MenuFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY)) //BUGBUG
@@ -349,27 +349,35 @@ void UserMenu::SaveMenu(string_view const MenuFileName) const
 void UserMenu::ProcessUserMenu(bool ChooseMenuType, string_view const MenuFileName)
 {
 	// Путь к текущему каталогу с файлом LocalMenuFileName
-	auto strMenuFilePath = Global->CtrlObject->Cp()->ActivePanel()->GetCurDir();
-	// по умолчанию меню - это FarMenu.ini
-	m_MenuMode = menu_mode::local;
+	string strMenuFilePath;
 	m_MenuModified = false;
 
 	if (ChooseMenuType)
 	{
-		const int EditChoice = Message(0,
+		switch(Message(0,
 			msg(lng::MUserMenuTitle),
 			{
 				msg(lng::MChooseMenuType)
 			},
-			{ lng::MChooseMenuMain, lng::MChooseMenuLocal, lng::MCancel });
-
-		if (EditChoice<0 || EditChoice==2)
-			return;
-
-		if (!EditChoice)
+			{ lng::MChooseMenuMain, lng::MChooseMenuLocal, lng::MCancel })
+		)
 		{
+		case message_result::first_button:
 			m_MenuMode = menu_mode::global;
 			strMenuFilePath = Global->Opt->GlobalUserMenuDir;
+			break;
+
+		case message_result::second_button:
+			m_MenuMode = menu_mode::local;
+			strMenuFilePath = Global->CtrlObject->Cp()->ActivePanel()->GetCurDir();
+			break;
+
+		case message_result::third_button:
+		case message_result::cancelled:
+			return;
+
+		default:
+			UNREACHABLE;
 		}
 	}
 
@@ -938,11 +946,11 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 					},
 					{ lng::MHYes, lng::MHNo, lng::MHCancel }))
 				{
-				case Message::first_button:
+				case message_result::first_button:
 					Dlg->SendMessage( DM_CLOSE, EM_BUTTON_OK, nullptr);
 					break;
 
-				case Message::second_button:
+				case message_result::second_button:
 					return true;
 
 				default:
@@ -975,11 +983,11 @@ bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::
 			{ lng::MMenuInsertCommand, lng::MMenuInsertMenu },
 			{}, &AskInsertMenuOrCommandId))
 		{
-		case Message::first_button:
+		case message_result::first_button:
 			SubMenu = false;
 			break;
 
-		case Message::second_button:
+		case message_result::second_button:
 			SubMenu = true;
 			break;
 
@@ -1118,7 +1126,7 @@ bool UserMenu::DeleteMenuRecord(std::list<UserMenuItem>& Menu, const std::list<U
 			msg(!MenuItem->Submenu ? lng::MAskDeleteMenuItem : lng::MAskDeleteSubMenuItem),
 			quote_unconditional(MenuItem->strLabel)
 		},
-		{ lng::MDelete, lng::MCancel }) != Message::first_button)
+		{ lng::MDelete, lng::MCancel }) != message_result::first_button)
 		return false;
 
 	m_MenuModified=true;

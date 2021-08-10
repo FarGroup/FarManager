@@ -2173,7 +2173,7 @@ static bool OpenURL(string_view const URLPath)
 				L"\x01"s,
 				msg(lng::MHelpActivatorQ)
 			},
-			{ lng::MYes, lng::MNo }) != Message::first_button)
+			{ lng::MYes, lng::MNo }) != message_result::first_button)
 			return false;
 	}
 

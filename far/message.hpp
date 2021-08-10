@@ -41,8 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/2d/rectangle.hpp"
-#include "common/preprocessor.hpp"
 #include "common/range.hpp"
 
 // External:
@@ -62,86 +60,47 @@ enum
 };
 
 class Plugin;
-class Dialog;
 
-class Message
+enum class message_result
 {
-public:
-	NONCOPYABLE(Message);
+	cancelled = -1,
 
-	Message(
-		unsigned Flags,
-		string_view Title,
-		std::vector<string> Strings,
-		span<lng const> Buttons,
-		string_view HelpTopic = {},
-		const UUID* Id = nullptr
-	);
-
-	Message(
-		unsigned Flags,
-		const error_state_ex& ErrorState,
-		string_view Title,
-		std::vector<string> Strings,
-		span<lng const> Buttons,
-		string_view HelpTopic = {},
-		const UUID* Id = nullptr,
-		span<string const> Inserts = {}
-	);
-
-	Message(
-		unsigned Flags,
-		const error_state_ex* ErrorState,
-		string_view Title,
-		std::vector<string> Strings,
-		std::vector<string> Buttons,
-		string_view HelpTopic,
-		const UUID* Id,
-		Plugin* PluginNumber
-	);
-
-	enum result
-	{
-		first_button,
-		second_button,
-		third_button,
-		fourth_button,
-		fifth_button,
-	};
-
-	result GetExitCode() const {return static_cast<result>(m_ExitCode);}
-	operator result() const { return GetExitCode(); }
-
-private:
-	void Init(
-		unsigned Flags,
-		string_view Title,
-		std::vector<string>&& Strings,
-		std::vector<string>&& Buttons,
-		const error_state_ex* ErrorState,
-		span<string const> Inserts,
-		string_view HelpTopic,
-		Plugin* PluginNumber,
-		const UUID* Id
-	);
-	intptr_t MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
-
-	int m_ExitCode{};
-	rectangle m_Position{};
-	int FirstButtonIndex{};
-	int LastButtonIndex{};
-	bool IsWarningStyle{};
-	bool IsErrorType{};
-	error_state_ex m_ErrorState;
+	first_button = 0,
+	second_button,
+	third_button,
+	fourth_button,
+	fifth_button,
 };
 
-/* $ 12.03.2002 VVM
-  Новая функция - пользователь попытался прервать операцию.
-  Зададим вопрос.
-  Возвращает:
-   FALSE - продолжить операцию
-   TRUE  - прервать операцию
-*/
-bool AbortMessage();
+message_result Message(
+	unsigned Flags,
+	string_view Title,
+	std::vector<string> Strings,
+	span<lng const> Buttons,
+	string_view HelpTopic = {},
+	const UUID* Id = nullptr
+);
+
+message_result Message(
+	unsigned Flags,
+	const error_state_ex& ErrorState,
+	string_view Title,
+	std::vector<string> Strings,
+	span<lng const> Buttons,
+	string_view HelpTopic = {},
+	const UUID* Id = nullptr,
+	span<string const> Inserts = {}
+);
+
+message_result Message(
+	unsigned Flags,
+	const error_state_ex* ErrorState,
+	string_view Title,
+	std::vector<string> Strings,
+	std::vector<string> Buttons,
+	string_view HelpTopic,
+	const UUID* Id,
+	Plugin* PluginNumber
+);
 
 #endif // MESSAGE_HPP_640AC104_875B_41AE_8EF5_8A99913A6896

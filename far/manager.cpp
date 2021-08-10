@@ -257,11 +257,11 @@ bool Manager::ExitAll()
 		{
 			ActivateWindow(CurrentWindow);
 			Commit();
-			const auto PrevWindoowCount = m_windows.size();
+			const auto PrevWindowCount = m_windows.size();
 			CurrentWindow->ProcessKey(Key(KEY_ESC));
 			Commit();
 
-			if (PrevWindoowCount == m_windows.size())
+			if (PrevWindowCount == m_windows.size())
 			{
 				return false;
 			}
@@ -653,7 +653,7 @@ void Manager::ExitMainLoop(int Ask)
 			msg(lng::MAskQuit)
 		},
 		{ lng::MYes, lng::MNo },
-		{}, &FarAskQuitId) == Message::first_button)
+		{}, &FarAskQuitId) == message_result::first_button)
 	{
 		/* $ 29.12.2000 IS
 		   + Проверяем, сохранены ли все измененные файлы. Если нет, то не выходим

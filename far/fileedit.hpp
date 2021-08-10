@@ -92,7 +92,7 @@ public:
 	explicit FileEditor(private_tag);
 	~FileEditor() override;
 
-	bool IsFileModified() const override { return m_editor->IsFileModified(); }
+	bool IsFileModified() const override { return m_editor->IsModified(); }
 	int GetTypeAndName(string &strType, string &strName) override;
 	long long VMProcess(int OpCode, void* vParam = nullptr, long long iParam = 0) override;
 	void Show() override;
@@ -109,7 +109,7 @@ public:
 	intptr_t EditorControl(int Command, intptr_t Param1, void *Param2);
 	bool SetCodePage(uintptr_t codepage);  //BUGBUG
 	bool SetCodePageEx(uintptr_t cp);
-	bool IsFileChanged() const { return m_editor->IsFileChanged(); }
+	bool IsFileChanged() const { return m_editor->IsChanged(); }
 	void GetEditorOptions(Options::EditorOptions& EdOpt) const;
 	void SetEditorOptions(const Options::EditorOptions& EdOpt) const;
 	void SetPluginTitle(const string* PluginTitle);

@@ -2635,7 +2635,7 @@ bool config_provider::ShowProblems() const
 	return Message(MSG_WARNING | MSG_LEFTALIGN,
 		msg(lng::MProblemDb),
 		std::move(m_Problems),
-		{ lng::MShowConfigFolders, lng::MIgnore }) == Message::first_button;
+		{ lng::MShowConfigFolders, lng::MIgnore }) == message_result::first_button;
 }
 
 void config_provider::AsyncCall(async_key, const std::function<void()>& Routine)

@@ -569,12 +569,11 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		return IsFg? FCF_FG_4BIT : FCF_BG_4BIT;
 	};
 
-	const auto SetComponentColorValue = [&CurColor](bool IsFg, COLORREF const Value)
+	const auto SetComponentColorValue = [&CurColor](bool const IsFg, COLORREF const Value)
 	{
 		auto& Component = IsFg? CurColor.ForegroundColor : CurColor.BackgroundColor;
-		Component = colors::alpha_bits(Component) | colors::color_bits(Value);
+		colors::set_color_value(Component, Value);
 	};
-
 
 	const auto DM_UPDATECOLORCODE = DM_USER + 1;
 

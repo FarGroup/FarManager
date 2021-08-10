@@ -1271,13 +1271,14 @@ intptr_t WINAPI apiMessageFn(const UUID* PluginId, const UUID* Id, unsigned long
 			((Flags & FMSG_KEEPBACKGROUND)? MSG_KEEPBACKGROUND : 0) |
 			((Flags & FMSG_LEFTALIGN)? MSG_LEFTALIGN : 0);
 
-		return Message(
+		return static_cast<intptr_t>(Message(
 			InternalFlags,
 			Flags & FMSG_ERRORTYPE? &ErrorState : nullptr,
 			Title,
 			std::move(MsgItems),
 			std::move(Buttons),
-			strTopic, Id, PluginNumber);
+			strTopic, Id, PluginNumber)
+		);
 	},
 	[]
 	{

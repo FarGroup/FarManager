@@ -1815,7 +1815,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 												msg(lng::MEditNewPath3)
 											},
 											{ lng::MHYes, lng::MHNo },
-											L"WarnEditorPath"sv) != Message::first_button)
+											L"WarnEditorPath"sv) != message_result::first_button)
 											return false;
 									}
 								}
@@ -1830,7 +1830,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 									msg(lng::MEditNewPath3)
 								},
 								{ lng::MCancel },
-								L"WarnEditorPluginName"sv) != Message::first_button)
+								L"WarnEditorPluginName"sv) != message_result::first_button)
 								return false;
 						}
 						else

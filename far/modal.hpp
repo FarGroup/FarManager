@@ -49,13 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Modal: public window
 {
-protected:
-	Modal() = default;
-	~Modal() override = default;
-};
-
-class SimpleModal: public Modal
-{
 public:
 	void SetExitCode(int Code) override;
 
@@ -66,7 +59,7 @@ public:
 	void ShowHelp() const;
 
 protected:
-	SimpleModal() = default;
+	Modal() = default;
 
 	void SetDone();
 	void Close(int Code);

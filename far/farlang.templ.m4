@@ -5673,20 +5673,6 @@ MCopyEncryptWarn2
 "Нельга капіяваць ці перанесці, не згубіўшы яго шыфраванне."
 upd:"cannot be copied or moved without losing its encryption."
 
-MCopyEncryptWarn3
-"Можно пропустить эту ошибку или отменить операцию."
-"You can choose to ignore this error and continue, or cancel."
-"Můžete tuto chybu ignorovat a pokračovat, nebo operaci ukončit."
-"Sie können dies ignorieren und fortfahren oder abbrechen."
-"Ennek ellenére folytathatja vagy felfüggesztheti."
-"Możesz zignorować błąd i kontynuować lub anulować operację."
-"Usted puede ignorar este error y continuar, o cancelar."
-"Môžete túto chybu ignorovať a pokračovať, alebo operáciu zrušiť."
-"Puoi Scegliere Di Ignorare Questo Errore E Continuare, O Annullare."
-"Можна пропустити цю помилку або скасувати операцію."
-"Можна прапусціць гэтую памылку, альбо адмяніць дзеянне."
-upd:"You can choose to ignore this error and continue, or cancel."
-
 MCopyReadError
 l:
 "Ошибка чтения данных из"
