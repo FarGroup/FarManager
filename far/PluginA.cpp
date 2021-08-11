@@ -5347,7 +5347,7 @@ WARNING_POP()
 
 	void GetOpenPanelInfo(OpenPanelInfo *Info) override
 	{
-		Info->StructSize = sizeof(OpenPanelInfo);
+		Info->StructSize = sizeof(*Info);
 
 		AnsiExecuteStruct<iGetOpenPanelInfo> es;
 		if (exception_handling_in_progress() || !has(es))

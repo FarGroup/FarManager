@@ -3336,7 +3336,10 @@ intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data) noexcept
 	return cpp_try(
 	[&]
 	{
-		return Global->CtrlObject? Global->CtrlObject->Macro.CallFar(CheckCode, Data) : 0;
+		if (Global->CtrlObject)
+			Global->CtrlObject->Macro.CallFar(CheckCode, Data);
+
+		return 0;
 	},
 	[]
 	{

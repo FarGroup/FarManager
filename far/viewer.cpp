@@ -248,7 +248,7 @@ void Viewer::SavePosition()
 		poscache.cur.LeftPos = LeftPos;
 
 		poscache.ViewModeAndWrapState = (m_DisplayMode.touched() || m_Wrap.touched() || m_WordWrap.touched())
-			? m_mode_changed | m_DisplayMode | (m_Wrap ? m_mode_wrap : 0) | (m_WordWrap ? m_mode_wrap_words : 0)
+			? m_mode_changed | static_cast<saved_modes>(m_DisplayMode.value()) | (m_Wrap ? m_mode_wrap : 0) | (m_WordWrap ? m_mode_wrap_words : 0)
 			: m_none;
 
 		poscache.CodePage = m_Codepage;

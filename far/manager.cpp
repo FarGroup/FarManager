@@ -72,6 +72,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/scope_exit.hpp"
+#include "common/view/reverse.hpp"
 
 // External:
 #include "format.hpp"
@@ -768,7 +769,7 @@ bool Manager::ProcessKey(Key key)
 				}
 				case KEY_F12:
 				{
-					if (!std::dynamic_pointer_cast<Modal>(Global->WindowManager->GetCurrentWindow()) || Global->WindowManager->GetCurrentWindow()->GetCanLoseFocus())
+					if (Global->WindowManager->GetCurrentWindow()->GetCanLoseFocus())
 					{
 						WindowMenu();
 						return true;
@@ -1196,15 +1197,6 @@ Manager::sorted_windows Manager::GetSortedWindows() const
 	return sorted_windows(m_windows.cbegin(),m_windows.cbegin() + m_NonModalSize);
 }
 
-void* Manager::GetCurrent(function_ref<void*(window_ptr const&)> const Check) const
-{
-	const auto Iterator = std::find_if(CONST_REVERSE_RANGE(m_windows, i) { return !std::dynamic_pointer_cast<Modal>(i) || GetCurrentWindow()->GetCanLoseFocus(); });
-	if (Iterator==m_windows.crend())
-		return nullptr;
-
-	return Check(*Iterator);
-}
-
 desktop* Manager::Desktop() const
 {
 	return m_Desktop.get();
@@ -1212,19 +1204,28 @@ desktop* Manager::Desktop() const
 
 Viewer* Manager::GetCurrentViewer() const
 {
-	return static_cast<Viewer*>(GetCurrent([](window_ptr const& Window)
+	for (const auto& i: reverse(m_windows))
 	{
-		const auto Result = std::dynamic_pointer_cast<ViewerContainer>(Window);
-		return Result? Result->GetViewer() : nullptr;
-	}));
+		if (const auto v = std::dynamic_pointer_cast<ViewerContainer>(i))
+		{
+			return v->GetViewer();
+		}
+	}
+
+	return nullptr;
 }
 
 FileEditor* Manager::GetCurrentEditor() const
 {
-	return static_cast<FileEditor*>(GetCurrent([](window_ptr const& Window)
+	for (const auto& i: reverse(m_windows))
 	{
-		return std::dynamic_pointer_cast<FileEditor>(Window).get();
-	}));
+		if (const auto e = std::dynamic_pointer_cast<FileEditor>(i))
+		{
+			return e.get();
+		}
+	}
+
+	return nullptr;
 }
 
 Manager::windows::const_iterator Manager::SpecialWindow()
