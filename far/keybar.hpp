@@ -84,7 +84,7 @@ enum KEYBARAREA
 	KBA_COUNT
 };
 
-class KeyBar: public SimpleScreenObject
+class KeyBar final: public SimpleScreenObject
 {
 public:
 	explicit KeyBar(window_ptr Owner);

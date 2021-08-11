@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-class FileViewer:public window,public ViewerContainer
+class FileViewer final: public window,public ViewerContainer
 {
 	struct private_tag {};
 public:

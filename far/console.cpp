@@ -1761,7 +1761,7 @@ enum
 	BufferSize = 8192
 };
 
-class consolebuf : public std::wstreambuf
+class consolebuf final: public std::wstreambuf
 {
 public:
 	NONCOPYABLE(consolebuf);

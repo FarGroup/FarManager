@@ -337,7 +337,7 @@ namespace os::fs
 		bool m_IsSparse{};
 	};
 
-	class filebuf : public std::streambuf
+	class filebuf final: public std::streambuf
 	{
 	public:
 		NONCOPYABLE(filebuf);

@@ -81,7 +81,7 @@ enum FFILEEDIT_FLAGS
 	FFILEEDIT_SERVICEREGION         = 29_bit,  // используется сервисная область
 };
 
-class FileEditor: public window,public EditorContainer
+class FileEditor final: public window,public EditorContainer
 {
 	struct private_tag {};
 

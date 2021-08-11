@@ -132,7 +132,7 @@ static int old_palette_to_palette(int const Color)
 	return Color < oldfar::COL_RESERVED0? Color : Color - 1;
 }
 
-class oem_plugin_module: public native_plugin_module
+class oem_plugin_module final: public native_plugin_module
 {
 public:
 	NONCOPYABLE(oem_plugin_module);
@@ -145,7 +145,7 @@ public:
 	os::version::file_version m_FileVersion;
 };
 
-class oem_plugin_factory: public native_plugin_factory
+class oem_plugin_factory final: public native_plugin_factory
 {
 public:
 	NONCOPYABLE(oem_plugin_factory);
@@ -277,29 +277,29 @@ static void LocalUpperInit()
 
 		for (size_t I = 0; I != std::size(LowerToUpper); ++I)
 		{
-			const auto Char = to_ansi(char(I));
+			const auto Char = to_ansi(static_cast<char>(I));
 
-			if (IsCharAlphaA(Char) && to_oem(Char) == char(I))
+			if (IsCharAlphaA(Char) && to_oem(Char) == static_cast<char>(I))
 			{
 				if (IsCharLowerA(Char))
 				{
 					UpperOrLower[I] = case_lower;
 					LowerToUpper[I] = to_oem(to_upper(Char));
-					UpperToLower[I] = char(I);
+					UpperToLower[I] = static_cast<char>(I);
 					continue;
 				}
 
 				if (IsCharUpperA(Char))
 				{
 					UpperOrLower[I] = case_upper;
-					LowerToUpper[I] = char(I);
+					LowerToUpper[I] = static_cast<char>(I);
 					UpperToLower[I] = to_oem(to_lower(Char));
 					continue;
 				}
 			}
 
 			UpperOrLower[I] = case_none;
-			LowerToUpper[I] = UpperToLower[I] = char(I);
+			LowerToUpper[I] = UpperToLower[I] = static_cast<char>(I);
 		}
 		return true;
 	}();
@@ -5015,7 +5015,7 @@ static void UpdatePluginPanelItemFlags(const oldfar::PluginPanelItem* From, Plug
 
 // TODO: PluginA class shouldn't be derived from Plugin.
 // All exports should be provided by oem_plugin_factory.
-class PluginA: public Plugin
+class PluginA final: public Plugin
 {
 public:
 	NONCOPYABLE(PluginA);

@@ -153,7 +153,7 @@ static const auto& CJKCpMap()
 	return Map;
 }
 
-class nsUniversalDetectorEx: public ucd::nsUniversalDetector
+class nsUniversalDetectorEx final: public ucd::nsUniversalDetector
 {
 public:
 	nsUniversalDetectorEx():

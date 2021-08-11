@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 enum class lng : int;
 class DizViewer;
 
-class InfoList:public Panel
+class InfoList final: public Panel
 {
 	struct private_tag {};
 

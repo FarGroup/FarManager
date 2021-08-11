@@ -312,7 +312,7 @@ private:
 	string strDragName;
 };
 
-class dummy_panel : public Panel
+class dummy_panel final: public Panel
 {
 public:
 	explicit dummy_panel(window_ptr Owner):

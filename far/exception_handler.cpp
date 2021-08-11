@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "dialog.hpp"
 #include "interf.hpp"
-#include "keyboard.hpp"
 #include "lang.hpp"
 #include "language.hpp"
 #include "message.hpp"
@@ -903,7 +902,7 @@ static EXCEPTION_POINTERS exception_information()
 	};
 }
 
-class far_wrapper_exception: public far_exception
+class far_wrapper_exception final: public far_exception
 {
 public:
 	far_wrapper_exception(std::string_view const Function, std::string_view const File, int const Line):
@@ -983,7 +982,7 @@ static std::pair<string, string> extract_nested_exceptions(EXCEPTION_RECORD cons
 	return Result;
 }
 
-class seh_exception: public far_exception
+class seh_exception final: public far_exception
 {
 public:
 	template<typename... args>

@@ -163,7 +163,7 @@ enum class operation
 
 operation OperationFailed(const error_state_ex& ErrorState, string_view Object, lng Title, string Description, bool AllowSkip = true, bool AllowSkipAll = true);
 
-class operation_cancelled: public std::exception
+class operation_cancelled final: public std::exception
 {
 };
 

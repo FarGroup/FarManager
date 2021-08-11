@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "window.hpp"
 #include "bitflags.hpp"
-#include "modal.hpp"
 
 // Platform:
 
@@ -153,7 +152,7 @@ class DlgEdit;
 class Plugin;
 class Dialog;
 
-class Dialog: public Modal
+class Dialog: public window
 {
 protected:
 	struct private_tag {};

@@ -38,11 +38,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "config.hpp"
 #include "keyboard.hpp"
-#include "constitle.hpp"
 #include "mix.hpp"
 #include "strmix.hpp"
 #include "interf.hpp"
-#include "message.hpp"
 #include "dialog.hpp"
 
 // Platform:

@@ -72,7 +72,7 @@ protected:
 	virtual ~PluginPanelItemHolder() = default;
 };
 
-class PluginPanelItemHolderRef: public PluginPanelItemHolder
+class PluginPanelItemHolderRef final: public PluginPanelItemHolder
 {
 public:
 	~PluginPanelItemHolderRef() override = default;
@@ -102,7 +102,7 @@ private:
 	static const wchar_t* make_copy(string_view Value);
 };
 
-class PluginPanelItemHolderHeapNonOwning: public PluginPanelItemHolderHeap
+class PluginPanelItemHolderHeapNonOwning final: public PluginPanelItemHolderHeap
 {
 public:
 	~PluginPanelItemHolderHeapNonOwning() override

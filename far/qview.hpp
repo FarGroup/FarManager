@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Viewer;
 
-class QuickView:public Panel
+class QuickView final: public Panel
 {
 	struct private_tag {};
 public:

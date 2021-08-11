@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/noncopyable.hpp"
+#include "common/preprocessor.hpp"
 
 // External:
 
@@ -51,6 +51,8 @@ namespace os::env
 		class strings
 		{
 		public:
+			NONCOPYABLE(strings);
+
 			strings();
 			~strings();
 
@@ -64,6 +66,8 @@ namespace os::env
 		class block
 		{
 		public:
+			NONCOPYABLE(block);
+
 			block();
 			~block();
 

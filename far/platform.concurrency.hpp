@@ -102,7 +102,7 @@ namespace os::concurrency
 
 		~thread();
 
-		thread& operator=(thread&& rhs);
+		thread& operator=(thread&& rhs) noexcept;
 
 		[[nodiscard]]
 		unsigned get_id() const;

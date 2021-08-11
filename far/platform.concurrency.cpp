@@ -107,7 +107,7 @@ namespace os::concurrency
 		}
 	}
 
-	thread& thread::operator=(thread&& rhs)
+	thread& thread::operator=(thread&& rhs) noexcept
 	{
 		finalise();
 

@@ -523,7 +523,7 @@ FileList::~FileList()
 }
 
 
-FileList::list_data& FileList::list_data::operator=(FileList::list_data&& rhs)
+FileList::list_data& FileList::list_data::operator=(FileList::list_data&& rhs) noexcept
 {
 	clear();
 

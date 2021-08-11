@@ -2115,7 +2115,7 @@ static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros
 	if (KeyCode==VK_MENU)
 		AltValue=0;
 
-	if (in_closed_range(unsigned(VK_F1), KeyCode, unsigned(VK_F24)))
+	if (in_closed_range(static_cast<unsigned>(VK_F1), KeyCode, static_cast<unsigned>(VK_F24)))
 		return Modif + KEY_F1 + (KeyCode - VK_F1);
 
 	if (IntKeyState.OnlyAltPressed())

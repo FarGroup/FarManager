@@ -71,7 +71,7 @@ namespace
 
 	i_find_file_handle_impl::~i_find_file_handle_impl() = default;
 
-	class far_find_file_handle_impl: public i_find_file_handle_impl
+	class far_find_file_handle_impl final: public i_find_file_handle_impl
 	{
 	public:
 		os::fs::file Object;
@@ -82,7 +82,7 @@ namespace
 		bool ReadDone{};
 	};
 
-	class os_find_file_handle_impl: public i_find_file_handle_impl, public os::fs::find_handle
+	class os_find_file_handle_impl final: public i_find_file_handle_impl, public os::fs::find_handle
 	{
 		using os::fs::find_handle::find_handle;
 	};

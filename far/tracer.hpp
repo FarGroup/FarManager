@@ -64,7 +64,7 @@ namespace tracer_detail
 		public:
 			NONCOPYABLE(with_symbols);
 
-			explicit with_symbols(string_view const Module);
+			explicit with_symbols(string_view Module);
 			~with_symbols();
 		};
 

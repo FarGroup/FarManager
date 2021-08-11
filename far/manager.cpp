@@ -90,7 +90,7 @@ void Manager::Key::Fill(unsigned int Key)
 	assert(m_EventFilled);
 }
 
-Manager::Key::Key(int Key): m_Event(), m_FarKey(), m_EventFilled(false)
+Manager::Key::Key(int Key)
 {
 	Fill(Key);
 }

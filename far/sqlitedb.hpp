@@ -55,7 +55,7 @@ namespace sqlite
 	struct sqlite3_stmt;
 }
 
-class far_sqlite_exception: public far_exception
+class far_sqlite_exception final: public far_exception
 {
 public:
 	template<typename... args>

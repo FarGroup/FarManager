@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Internal:
-#include "modal.hpp"
+#include "window.hpp"
 
 // Platform:
 
@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Panel;
 class EditControl;
 
-class FastFind: public Modal
+class FastFind final: public window
 {
 	struct private_tag {};
 

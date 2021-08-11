@@ -127,7 +127,7 @@ namespace detail
   I.e. we either don't really know what to do or doing anything will do more harm than good.
   It shouldn't be caught explicitly in general and fly straight to main().
 */
-class far_fatal_exception: private detail::break_into_debugger, public detail::far_std_exception
+class far_fatal_exception final: private detail::break_into_debugger, public detail::far_std_exception
 {
 	using far_std_exception::far_std_exception;
 };
@@ -144,7 +144,7 @@ class far_exception: public detail::far_std_exception
 /*
   For the cases where it is pretty clear what is wrong, no need to show the stack etc.
  */
-class far_known_exception: public far_exception
+class far_known_exception final: public far_exception
 {
 	using far_exception::far_exception;
 };

@@ -54,12 +54,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "plugins.hpp"
 #include "mix.hpp"
-#include "lang.hpp"
 #include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "copy_progress.hpp"
 #include "global.hpp"
-#include "dialog.hpp"
 
 // Platform:
 #include "platform.fs.hpp"

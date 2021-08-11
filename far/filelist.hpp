@@ -124,7 +124,7 @@ private:
 
 enum OPENFILEPLUGINTYPE: int;
 
-class FileList:public Panel
+class FileList final: public Panel
 {
 	struct private_tag
 	{
@@ -329,7 +329,7 @@ private:
 		list_data() = default;
 		~list_data() { clear(); }
 
-		list_data& operator=(list_data&& rhs);
+		list_data& operator=(list_data&& rhs) noexcept;
 
 		void initialise(plugin_panel* ph) { clear(); m_Plugin = ph; }
 

@@ -56,7 +56,7 @@ class FileEditor;
 class KeyBar;
 class Edit;
 
-class Editor: public SimpleScreenObject
+class Editor final: public SimpleScreenObject
 {
 public:
 	explicit Editor(window_ptr Owner, uintptr_t Codepage, bool DialogUsed = false);

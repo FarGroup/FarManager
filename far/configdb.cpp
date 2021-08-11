@@ -484,7 +484,7 @@ private:
 	};
 };
 
-class GeneralConfigDb: public iGeneralConfigDb
+class GeneralConfigDb final: public iGeneralConfigDb
 {
 public:
 	explicit GeneralConfigDb(string_view const Name):
@@ -496,7 +496,7 @@ private:
 	const char* GetKeyName() const override {return "generalconfig";}
 };
 
-class LocalGeneralConfigDb: public iGeneralConfigDb
+class LocalGeneralConfigDb final: public iGeneralConfigDb
 {
 public:
 	explicit LocalGeneralConfigDb(string_view const Name):
@@ -847,12 +847,12 @@ static const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]
 	{ FCF_FG_UNDERLINE,    L"underline"sv    },
 	{ FCF_FG_UNDERLINE2,   L"underline2"sv   },
 	{ FCF_FG_OVERLINE,     L"overline"sv     },
-	{ FCF_FG_STRIKEOUT,    L"strikeout"sv   },
+	{ FCF_FG_STRIKEOUT,    L"strikeout"sv    },
 	{ FCF_FG_FAINT,        L"faint"sv        },
 	{ FCF_FG_BLINK,        L"blink"sv        },
 };
 
-class HighlightHierarchicalConfigDb: public HierarchicalConfigDb
+class HighlightHierarchicalConfigDb final: public HierarchicalConfigDb
 {
 public:
 	using HierarchicalConfigDb::HierarchicalConfigDb;
@@ -908,7 +908,7 @@ private:
 	}
 };
 
-class ColorsConfigDb: public ColorsConfig, public sqlite_boilerplate
+class ColorsConfigDb final: public ColorsConfig, public sqlite_boilerplate
 {
 public:
 	explicit ColorsConfigDb(string_view const Name):
@@ -1010,7 +1010,7 @@ private:
 	};
 };
 
-class AssociationsConfigDb: public AssociationsConfig, public sqlite_boilerplate
+class AssociationsConfigDb final: public AssociationsConfig, public sqlite_boilerplate
 {
 public:
 	explicit AssociationsConfigDb(string_view const Name):
@@ -1264,7 +1264,7 @@ private:
 	};
 };
 
-class PluginsCacheConfigDb: public PluginsCacheConfig, public sqlite_boilerplate
+class PluginsCacheConfigDb final: public PluginsCacheConfig, public sqlite_boilerplate
 {
 public:
 	explicit PluginsCacheConfigDb(string_view const Name):
@@ -1604,7 +1604,7 @@ private:
 	};
 };
 
-class PluginsHotkeysConfigDb: public PluginsHotkeysConfig, public sqlite_boilerplate
+class PluginsHotkeysConfigDb final: public PluginsHotkeysConfig, public sqlite_boilerplate
 {
 public:
 	explicit PluginsHotkeysConfigDb(string_view const Name):
@@ -2300,7 +2300,7 @@ private:
 	};
 };
 
-class HistoryConfigDb: public HistoryConfigCustom
+class HistoryConfigDb final: public HistoryConfigCustom
 {
 public:
 	explicit HistoryConfigDb(string_view const Name):
@@ -2321,7 +2321,7 @@ private:
 	}
 };
 
-class HistoryConfigMemory: public HistoryConfigCustom
+class HistoryConfigMemory final: public HistoryConfigCustom
 {
 public:
 	explicit HistoryConfigMemory(string_view const Name):

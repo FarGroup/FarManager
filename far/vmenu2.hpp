@@ -51,7 +51,7 @@ struct menu_item;
 struct MenuItemEx;
 struct SortItemParam;
 
-class VMenu2 : public Dialog
+class VMenu2 final: public Dialog
 {
 	struct private_tag {};
 
