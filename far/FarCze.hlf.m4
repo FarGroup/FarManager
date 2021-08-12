@@ -3768,9 +3768,6 @@ Pokud si přejete používat implicitní barvu, nastavte "černou na černé";
  - volitelný znak pro označení souborů skupiny.
    Te může být použit spolu z barevným zvýrazněním, nebo místo něho.
 
- Pokud je volba "Souborová maska, nebo několik souborových masek" vypnuta,
-souborové masky nebudou analyzovány a v úvahu bude brán pouze atribut souboru.
-
  Soubory patří do zvýrazněné skupiny, pokud:
  - ^<wrap>je zapnutá analýza masek a název souboru je shodný s některou
 souborovou maskou (pokud je analýza masek vypnutá, nemá

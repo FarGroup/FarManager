@@ -3813,9 +3813,6 @@ die Farbkombination "Schwarz auf Schwarz";
  - optionales Zeichen, um Dateien der Gruppe zu markieren. Es
 kann mit oder anstelle farblicher Hervorhebung benutzt werden.
 
- If the option "A file mask or several file masks" is turned off, file masks
-will not be analyzed, and only file attributes will be taken into account.
-
  Eine Datei fällt in eine hervorgehobene Gruppe, wenn:
  - ^<wrap>ihr Name wenigstens einer der Dateimasken entspricht (if file mask analysis is disabled,
 the file name doesn't matter);

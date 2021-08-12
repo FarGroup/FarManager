@@ -3734,9 +3734,6 @@ If you wish to use the default color, set color to "Black on black";
  - an optional character to mark files from the group.
    It can be used both with or instead of color highlighting.
 
- If the option "A file mask or several file masks" is turned off, file masks
-will not be analyzed, and only file attributes will be taken into account.
-
  A file belongs to a highlighting group if:
  - ^<wrap>file mask analysis is enabled and the name of the file matches
 at least one file mask (if file mask analysis is disabled,

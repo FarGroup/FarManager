@@ -3730,9 +3730,6 @@ farby, nastavte "čiernu na čiernej";
  - akékoľvek voliteľné znaky, ktoré budú označovať súbory skupiny.
 Môžu byť použité tak s farebným zvýraznením ako i namiesto neho.
 
- If the option "A file mask or several file masks" is turned off, file masks
-will not be analyzed, and only file attributes will be taken into account.
-
  Súbor patrí do zvýrazňovanej skupiny ak:
  - ^<wrap>jeho meno zodpovedá aspoň jednej
 zo súborových masiek (if file mask analysis is disabled,

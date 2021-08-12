@@ -12295,9 +12295,9 @@ MHighlightMarkChar
 
 MHighlightTransparentMarkChar
 "прозра&чный"
-"tra&nsparent"
+"trans&parent"
 "průh&ledný"
-"tra&nsparent"
+"trans&parent"
 "át&látszó"
 "prze&zroczyste"
 "tra&nsparente"
@@ -12305,7 +12305,7 @@ MHighlightTransparentMarkChar
 "Traspare&nte"
 "прозор&ий"
 "празр&ысты"
-upd:"tra&nsparent"
+upd:"trans&parent"
 
 MHighlightColors
 "Цвета файлов (\"чёрный на чёрном\" - цвет по умолчанию)"

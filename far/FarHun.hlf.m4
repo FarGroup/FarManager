@@ -3827,9 +3827,6 @@ fekete", azaz fekete háttéren fekete szöveg színösszetételre;
  - ^<wrap>megadható fájljelölő karaktert. A jelölő karaktert használhatjuk
 színkiemeléssel együtt vagy helyette.
 
- Ha a "Maszk" opció ki van kapcsolva, a Far a maszkokat nem elemzi, csak a
-többi bekapcsolt analízis számít (méret, dátum/idő, attribútum).
-
  Egy fájl akkor tartozik egy kiemelési csoportba, ha:
  - ^<wrap>a fájlmaszkelemzés engedélyezve van és a fájl megfelel
 legalább egy maszknak (kikapcsolt maszkelemzésnél a fájlnév nem számít);
