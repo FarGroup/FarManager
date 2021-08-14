@@ -3783,80 +3783,77 @@ Windows Server 2012.
 
 @ViewerSettings
 $ #Nastavení Prohlížeče#
- Tento dialog umožňuje změnít nastavení interního, nebo externího
-~prohlížeče~@Viewer@.
+ Tento dialog umožňuje změnít nastavení interního, nebo externího ~prohlížeče~@Viewer@.
 
 @=
 ^#Prohlížeč#
 @=
- #Použít externí#          Start external viewer on #F3# key
- #prohlížeč pro F3#        and internal viewer on #Alt+F3#
- #namísto Alt+F3#          key combination.
+ #Použít externí prohlížeč pro F3#
+ Start external viewer on #F3# key and internal viewer on #Alt+F3# namísto Alt+F3# key combination.
 
- #Příkaz prohlížeče#       Příkaz pro spuštění externího prohlížeče.
-                         Pro zadání souboru pro prohlížení použijte
-                         ~speciální symboly~@MetaSymbols@.
+ #Příkaz prohlížeče#
+ Příkaz pro spuštění externího prohlížeče.
+Pro zadání souboru pro prohlížení použijte ~speciální symboly~@MetaSymbols@.
 
 @=
 ^#Interní prohlížeč#
 @=
- #Persistent selection#    Do not remove block selection after
-                         moving the cursor.
+ #Persistent selection#
+ Do not remove block selection after moving the cursor.
 
- #Search dialog#           Always returns focus to the search text field in
- #auto-focus#              the Viewer ~Search~@ViewerSearch@ dialog.
+ #Search dialog auto-focus#
+ Always returns focus to the search text field in the Viewer ~Search~@ViewerSearch@ dialog.
 
- #Velikost Tabulátoru#     Počet mezer ve znaku tabulátoru.
+ #Velikost Tabulátoru#
+ Počet mezer ve znaku tabulátoru.
 
- #Zobrazovat skrolovací#   Zobrazovat v prohlížeči skrolovací šipky,
- #šipky#                   pokud se text nevejde horizontálně do okna.
+ #Zobrazovat skrolovací šipky#
+ Zobrazovat v prohlížeči skrolovací šipky, pokud se text nevejde horizontálně do okna.
 
- #Visible '\0'#            Show a printable character instead of space for
-                         the character '\0'. The character to display can be
-                         set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
+ #Visible '\0'#
+ Show a printable character instead of space for the character '\0'.
+The character to display can be set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
 
- #Zobrazovat posuvník#     Zobrazovat posuvník v interním prohlížeči.
-                         Toto nastavení může být kdykoliv přepnuto
-                         stisknutím #Ctrl+S# v interním prohlížeči.
+ #Zobrazovat posuvník#
+ Zobrazovat posuvník v interním prohlížeči. Toto nastavení může být kdykoliv přepnuto stisknutím #Ctrl+S# v interním prohlížeči.
+
 @=
- #Ukládat pozici#          Uloží a potom obnoví pozici v nedávno
- #v souboru#               prohlížených souborech. Toto nastavení také
-                         obnoví znakovou sadu, pokud byla uživatelem
-                         manuálně zadána a ~mód~@ViewerMode@ prohlížení.
+ #Ukládat pozici v souboru#
+ Uloží a potom obnoví pozici v nedávno prohlížených souborech. Toto nastavení také
+obnoví znakovou sadu, pokud byla uživatelem manuálně zadána a ~mód~@ViewerMode@ prohlížení.
 
- #Save file code page#     Save and restore the code page selected for a file.
-                         This is automatically enabled if #Save file position#
-                         is enabled, as file position depends on the encoding.
+ #Save file code page#
+ Save and restore the code page selected for a file. This is automatically enabled if #Save file position#
+is enabled, as file position depends on the encoding.
 
- #Ukládat záložky#         Uloží a potom obnoví záložky (aktuální
-                         pozici) v nedávno prohlížených souborech
-                         (vytvořené #PravýCtrl+0…9#
-                         or #Ctrl+Shift+0…9# key combinations.)
+ #Ukládat záložky#
+ Uloží a potom obnoví záložky (aktuální pozici) v nedávno prohlížených souborech
+(vytvořené #PravýCtrl+0…9# or #Ctrl+Shift+0…9# key combinations.)
 
- #Maximum line width#      Maximum number of columns for text mode viewer.
-                         Min=100, Max=100,000, Default=10,000.
+ #Maximum line width#
+ Maximum number of columns for text mode viewer. Min=100, Max=100,000, Default=10,000.
 
- #Save view mode#          Save and restore ~view modes~@ViewerMode@
-                         of recently viewed files.
+ #Save view mode#
+ Save and restore ~view modes~@ViewerMode@ of recently viewed files.
 
- #Save wrap mode#          Save and restore #wrap# and #word wrap# ~modes~@ViewerMode@
-                         of recently viewed files.
+ #Save wrap mode#
+ Save and restore #wrap# and #word wrap# ~modes~@ViewerMode@ of recently viewed files.
 
- #Detect dump view mode#   If this option is on and Far considers the file binary,
-                         the #dump# ~mode~@ViewerMode@ is selected automatically
-                         at the first view. Otherwise, the #text# mode is selected.
+ #Detect dump view mode#
+ If this option is on and Far considers the file binary, the #dump# ~mode~@ViewerMode@ is selected automatically
+at the first view. Otherwise, the #text# mode is selected.
 
- #Autodetect#              ~Autodetect~@CodePageAuto@ the code page of
- #code page#               the file being viewed.
+ #Autodetect code page#
+ ~Autodetect~@CodePageAuto@ the code page of the file being viewed.
 
- #Default code page#       Allows to select the default code page.
+ #Default code page#
+ Allows to select the default code page.
+
 @=
-
  Pokud je klávesa #F3# nastavena pro externí prohlížeč, bude spuštěn
 pouze tehdy, pokud není pro daný typ souborů ~přiřazen~@FileAssoc@ jiný prohlížeč.
 
- Úpravy nastavení v tomto dialogu nemají vliv na dříve otevřená
-okna interního prohlížeče.
+ Úpravy nastavení v tomto dialogu nemají vliv na dříve otevřená okna interního prohlížeče.
 
  Dialog pro nastavení může být kdykoliv vyvolán z ~interního
 prohlížeče~@Viewer@ stisknutím #Alt+Shift+F9#. Změny nabydou platnosti
@@ -3865,90 +3862,88 @@ okamžitě, ale budou mít vliv pouze na aktuální relaci.
 
 @EditorSettings
 $ #Nastavení Editoru#
- Tento dialog umožňuje změnít nastavení ~interního~@Editor@, nebo externího
-editoru.
+ Tento dialog umožňuje změnít nastavení ~interního~@Editor@, nebo externího editoru.
 
- Externí editor
+@=
+^#Externí editor#
+@=
+ #Použít pro F4#
+ Run external editor using #F4# instead of #Alt+F4#.
 
- #Použít pro F4#           Run external editor using #F4# instead of
-                         #Alt+F4#.
+ #Příkaz editoru#
+ Příkaz pro spuštění externího editoru.
+ Pro zadání souboru pro editaci použijte ~speciální symboly~@MetaSymbols@.
 
- #Příkaz editoru#          Příkaz pro spuštění externího editoru.
-                         Pro zadání souboru pro editaci použijte
-                         ~speciální symboly~@MetaSymbols@.
+@=
+^#Interní editor#
+@=
+ #Do not expand tabs#
+ Do not convert tabs to spaces while editing the document.
 
- Interní editor
+ #Expand newly entered tabs to spaces#
+ While editing the document, convert each newly entered #Tab# into the appropriate number of spaces.
+Other tabs won't be converted.
 
- #Do not expand tabs#      Do not convert tabs to spaces while
-                         editing the document.
+ #Expand all tabs to spaces#
+ Upon opening the document, all tabs in the document will be automatically converted to spaces.
 
- #Expand newly entered#    While editing the document, convert each
- #tabs to spaces#          newly entered #Tab# into the appropriate
-                         number of spaces. Other tabs won't be
-                         converted.
+ #Trvalé bloky#
+ Nerušit výběr bloku po přesunutí kurzoru.
 
- #Expand all tabs to#      Upon opening the document, all tabs in
- #spaces#                  the document will be automatically
-                         converted to spaces.
+ #Del maže bloky#
+ Pokud je blok označen, stisk kávesy Del nesmaže znak pod kurzorem, ale smaže celý tento blok.
 
- #Trvalé bloky#            Nerušit výběr bloku po přesunutí kurzoru.
+ #Auto Odsazování#
+ Zapíná auto odsazovací mód při vkládání textu.
 
- #Del maže bloky#          Pokud je blok označen, stisk kávesy Del
-                         nesmaže znak pod kurzorem, ale smaže celý
-                         tento blok.
+ #Velikost Tabulátoru#
+ Počet mezer ve znaku tabulátoru.
 
- #Ukládat pozici#          Uloží a potom obnoví pozici v nedávno
- #v souboru#               upravených souborech. Toto nastavení také
-                         obnoví znakovou sadu, pokud byla uživatelem
-                         manuálně zadána.
+ #Show white space#
+ Make while space characters (spaces, tabulations, line breaks) visible.
 
- #Ukládat záložky#         Uloží a potom obnoví záložky (aktuální
-                         pozici) v nedávno upravených souborech
-                         (vytvořené #PravýCtrl+0…9# or
-                         #Ctrl+Shift+0…9#)
+ #Kurzor za koncem řádky#
+ Umožňuje přesunout kurzor za konec řádky.
 
- #Auto Odsazování#         Zapíná auto odsazovací mód při vkládání
-                         textu.
+ #Select found#
+ Found text is selected.
 
- #Kurzor za koncem řádky#  Umožňuje přesunout kurzor za konec řádky.
+ #Cursor at the end#
+ Place the cursor at the end of the found block.
 
- #Velikost Tabulátoru#     Počet mezer ve znaku tabulátoru.
+ #Show a scrollbar#
+ Show a scrollbar.
 
- #Show a scrollbar#        Show a scrollbar.
+@=
+ #Ukládat pozici v souboru#
+ Uloží a potom obnoví pozici v nedávno upravených souborech. Toto nastavení také
+obnoví znakovou sadu, pokud byla uživatelem manuálně zadána.
 
- #Show white space#        Make while space characters (spaces, tabulations,
-                         line breaks) visible.
+ #Ukládat záložky#
+ Uloží a potom obnoví záložky (aktuální pozici) v nedávno upravených souborech
+(vytvořené #PravýCtrl+0…9# or #Ctrl+Shift+0…9#)
 
- #Select found#            Found text is selected
+ #Allow editing files opened for writing#
+ Allows to edit files that are opened by other programs for writing. This mode is handy to edit
+a file opened for a long time, but it could be dangerous, if a file is being modified at the same time as editing.
 
- #Cursor at the end#       Place the cursor at the end of the found block.
+ #Zamknout úpravu souborů určených jen pro čtení#
+ Pokud je pro úpravu otevřen soubor s atributem jen pro čtení,
+editor vypne možnost editovat text, stejně, jako při stisku #Ctrl+L#.
 
- #Autodetect#              ~Autodetect~@CodePageAuto@ the code page of
- #code page#               the file being edited.
+ #Varovat při otev. soub. určených jen pro čtení#
+ Pokud je pro úpravu otevřen soubor s atributem jen pro čtení, je zobrazeno varování.
 
- #Edit files opened#       Allows to edit files that are opened
- #for writing#             by other programs for writing. This mode
-                         is handy to edit a file opened for a long
-                         time, but it could be dangerous, if a file
-                         is being modified at the same time as
-                         editing.
+ #Autodetect code page#
+ ~Autodetect~@CodePageAuto@ the code page of the file being edited.
 
- #Zamknout úpravu souborů# Pokud je pro úpravu otevřen soubor
- #určených jen pro čtení#  s atributem jen pro čtení, editor
-                         vypne možnost editovat text, stejně,
-                         jako při stisku #Ctrl+L#.
-
- #Varovat při otev. soub.# Pokud je pro úpravu otevřen soubor
- #určených jen pro čtení#  s atributem jen pro čtení, je zobrazeno
-                         varování.
-
- #Default code page#       Select the default code page.
+ #Default code page#
+ Select the default code page.
 
  Pokud je klávesa #F4# nastavena pro externí editor, bude spuštěn pouze
 tehdy, pokud není pro daný typ souborů ~přiřazen~@FileAssoc@ jiný editor.
 
- Úpravy nastavení v tomto dialogu nemají vliv na dříve otevřená
-okna interního editoru.
+ Úpravy nastavení v tomto dialogu nemají vliv na dříve otevřená okna interního editoru.
 
  Dialog pro nastavení může být kdykoliv vyvolán z ~interního
 editoru~@Editor@ stisknutím #Alt+Shift+F9#. Změny nabydou platnosti

@@ -3843,173 +3843,171 @@ Windows Server 2012.
 
 @ViewerSettings
 $ #Beállítások: nézőke beállítások#
- Ebben a párbeszédablakban a külső és ~belső nézőke~@Viewer@ alapértelmezett
-beállításait változtathatjuk meg.
+ Ebben a párbeszédablakban a külső és ~belső nézőke~@Viewer@ alapértelmezett beállításait változtathatjuk meg.
 
 @=
 ^#Nézőke#
 @=
- #Alt+F3 helyett F3 in-#   Az #Alt+F3# helyett #F3# hívja meg
- #dítja a külső nézőkét#   a külső nézőkét.
+ #Alt+F3 helyett F3 indítja a külső nézőkét#
+ Az #Alt+F3# helyett #F3# hívja meg a külső nézőkét.
 
- #Nézőke parancs#          A külső nézőkét elindító parancssor.
-                         ^<wrap>A parancssorban a megnézendő fájlnevek
-megadásához alkalmazhatunk ~különleges szimbólumokat~@MetaSymbols@ is.
+ #Nézőke parancs#
+ A külső nézőkét elindító parancssor.
+A parancssorban a megnézendő fájlnevek megadásához alkalmazhatunk ~különleges szimbólumokat~@MetaSymbols@ is.
 
 @=
 ^#Belső nézőke#
 @=
- #Maradó blokkok#          ^<wrap>Nem veszi le a kijelölést a blokkokról,
-ha megmozdítjuk a kurzort.
+ #Maradó blokkok#
+ Nem veszi le a kijelölést a blokkokról, ha megmozdítjuk a kurzort.
 
- #Search dialog#           Always returns focus to the search text field in
- #auto-focus#              the Viewer ~Search~@ViewerSearch@ dialog.
+ #Search dialog auto-focus#
+ Always returns focus to the search text field in the Viewer ~Search~@ViewerSearch@ dialog.
 
- #Tabulátor mérete#        A tabulátor szóközökben mért hossza.
+ #Tabulátor mérete#
+ A tabulátor szóközökben mért hossza.
 
- #Gördítőnyilak mutatva#   ^<wrap>Kikapcsolt sortörésnél a vízszintesen
-túlnyúló sorok végein gördítőnyilak jelennek meg.
+ #Gördítőnyilak mutatva#
+ Kikapcsolt sortörésnél a vízszintesen túlnyúló sorok végein gördítőnyilak jelennek meg.
 
- #Visible '\0'#            Show a printable character instead of space for
-                         the character '\0'. The character to diplay can be
-                         set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
+ #Visible '\0'#
+ Show a printable character instead of space for the character '\0'.
+The character to display can be set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
 
- #Gördítősáv mutatva#      ^<wrap>Az oldalsó gördítősáv megjelenítése a
-belső nézőkében. Ezt a lehetőséget a #Ctrl+S# leütésével is bekapcsolhatjuk.
+ #Gördítősáv mutatva#
+ Az oldalsó gördítősáv megjelenítése a belső nézőkében. Ezt a lehetőséget a #Ctrl+S# leütésével is bekapcsolhatjuk.
+
 @=
- #Fájlpozíció mentése#     ^<wrap>Elmenti és visszatölti a legutóbb
-megnézett fájlok szöveghelyzetét, vele a kódlapot is (ha "kézzel" választottuk
+ #Fájlpozíció mentése#
+ Elmenti és visszatölti a legutóbb megnézett fájlok szöveghelyzetét, vele a kódlapot is (ha "kézzel" választottuk
 ki), valamint a ~nézet módját~@ViewerMode@.
 
- #Save file code page#     Save and restore the code page selected for a file.
-                         This is automatically enabled if #Save file position#
-                         is enabled, as file position depends on the encoding.
+ #Save file code page#
+ Save and restore the code page selected for a file. This is automatically enabled if #Save file position#
+is enabled, as file position depends on the encoding.
 
- #Könyvjelzők mentése#     ^<wrap>Elmenti és visszatölti az utoljára
-megnézett fájlokban a #JobbCtrl+0…9# vagy a #Ctrl+Shift+0…9# leütésével
+ #Könyvjelzők mentése#
+ Elmenti és visszatölti az utoljára megnézett fájlokban a #JobbCtrl+0…9# vagy a #Ctrl+Shift+0…9# leütésével
 elhelyezett könyvjelzőinket.
 
- #Maximum line width#      Maximum number of columns for text mode viewer.
-                         Min=100, Max=100,000, Default=10,000.
+ #Maximum line width#
+ Maximum number of columns for text mode viewer. Min=100, Max=100,000, Default=10,000.
 
- #Save view mode#          Save and restore ~view modes~@ViewerMode@
-                         of recently viewed files.
+ #Save view mode#
+ Save and restore ~view modes~@ViewerMode@ of recently viewed files.
 
- #Save wrap mode#          Save and restore #wrap# and #word wrap# ~modes~@ViewerMode@
-                         of recently viewed files.
+ #Save wrap mode#
+ Save and restore #wrap# and #word wrap# ~modes~@ViewerMode@ of recently viewed files.
 
- #Detect dump view mode#   If this option is on and Far considers the file binary,
-                         the #dump# ~mode~@ViewerMode@ is selected automatically
-                         at the first view. Otherwise, the #text# mode is selected.
+ #Detect dump view mode#
+ If this option is on and Far considers the file binary, the #dump# ~mode~@ViewerMode@ is selected automatically
+at the first view. Otherwise, the #text# mode is selected.
 
- #Kódlap automatikus#      ~Automatikusan felismeri~@CodePageAuto@ a megnézett
- #felismerése#             szöveg kódlapját.
+ #Kódlap automatikus felismerése#
+ ~Automatikusan felismeri~@CodePageAuto@ a megnézett szöveg kódlapját.
 
- #Fájlok eredeti meg-#     A megnyitott fájlok alapértelmezett
- #nyitása ANSI kódlappal#  kódlapja OEM helyett ANSI lesz.
+ #Default code page#
+ Allows to select the default code page.
 
+@=
  Ha az #F3# billentyűhöz rendeltük a külső nézőkét, az csak akkor indul el,
 ha az aktuális fájltípushoz nincs ~társítva~@FileAssoc@ nézőke.
 
- A párbeszédablakban a beállítások módosítása nincs hatással az előzőleg
-megnyitott belső nézőke ablakokra.
+ A párbeszédablakban a beállítások módosítása nincs hatással az előzőleg megnyitott belső nézőke ablakokra.
 
  A nézőke beállításainak párbeszédablakát meghívhatjuk úgy is, ha a
 ~belső nézőkében~@Viewer@ #Alt+Shift+F9#-et ütünk. Ebben az esetben a
-változtatások rögtön életbe lépnek, de csak az aktuális munkafolyamatra
-érvényesek.
+változtatások rögtön életbe lépnek, de csak az aktuális munkafolyamatra érvényesek.
 
 
 @EditorSettings
 $ #Beállítások: szerkesztő beállítások#
- Ebben a párbeszédablakban a külső és ~belső szerkesztő~@Editor@
-alapértelmezett beállításait változtathatjuk meg.
+ Ebben a párbeszédablakban a külső és ~belső szerkesztő~@Editor@ alapértelmezett beállításait változtathatjuk meg.
 
- Külső szerkesztő
+@=
+^#Külső szerkesztő#
+@=
+ #Alt+F4 helyett F4 indítja a külső szerkesztőt#
+ Az #Alt+F4# helyett #F4# hívja meg a külső szerkesztőt.
 
- #Alt+F4 helyett F4#       Az #Alt+F4# helyett #F4# hívja meg a külső
- #indítja a külső#         szerkesztőt.
- #szerkesztőt#
+ #Szerkesztő parancs#
+ A külső szerkesztőt indító parancssor.
+~Különleges szimbólumokat~@MetaSymbols@ is használhatunk a szerkesztendő fájl megadásánál.
 
- #Szerkesztő parancs#      ^<wrap>A külső szerkesztőt indító parancssor.
-~Különleges szimbólumokat~@MetaSymbols@ is használhatunk a szerkesztendő fájl
-megadásánál. Ha nem szeretnénk, hogy a külső szerkesztő futtatása előtt a Far
-paneljei kikapcsolódjanak, kezdjük a parancssort #@@# karakterrel.
+@=
+^#Belső szerkesztő#
+@=
+ #Ne helyettesítse a tabulátorokat Újonnan beírt tabu#
+ A tabulátorokat nem konvertálja szóközzé a szerkesztés során. Szövegszerkesztés közben minden beírt.
 
- Belső szerkesztő
+ #látorokból szóközök#
+ #Tab# karaktert megfelelő számú szóközzel helyettesít.
+De a korábbi tabulátorokat nem konvertálja.
 
- #Ne helyettesítse a#    A tabulátorokat nem konvertálja szóközzé
- #tabulátorokat#         a szerkesztés során.
- #Újonnan beírt tabu-#   Szövegszerkesztés közben minden beírt
+ #Minden tabulátorból szóközök#
+ A szöveg megnyitásakor automatikusan minden tabulátort szóközzé alakít.
 
- #látorokból szóközök#   ^<wrap>#Tab# karaktert megfelelő számú szóközzel
-helyettesít, de a korábbi tabulátorokat nem konvertálja.
+ #Maradó blokkok#
+ Nem veszi le a blokkokról a ha megmozdítjuk a kurzort.
 
- #Minden tabulátorból#   A szöveg megnyitásakor automatikusan
- #szóközök#              minden tabulátort szóközzé alakít.
+ #A Del törli a blokkokat#
+ Ha van kijelölt blokk, a #Del# nem a kurzor alatti karaktert, hanem a blokkot törli.
 
- #Maradó blokkok#          ^<wrap>Nem veszi le a blokkokról a
-ha megmozdítjuk a kurzort.
+ #Automatikus behúzás#
+ Szöveg beírásánál engedélyezi az önműködő behúzást.
 
- #A Del törli#             Ha van kijelölt blokk, a #Del# nem a
- #a blokkokat#             ^<wrap>kurzor alatti karaktert, hanem a blokkot
-törli.
+ #Tabulátor mérete#
+ A tabulátor hossza, szóközökben.
 
- #Fájlpozíció mentése#     ^<wrap>Elmenti és visszatölti a legutóbb
-szerkesztett fájlok szöveghelyzetét és a kódlapot is, ha utóbbit kézzel
+ #Show white space#
+ Make while space characters (spaces, tabulations, line breaks) visible.
+
+ #Kurzor a sorvégjel után is#
+ A szerkesztőben a kurzor a sorvégjel mögé is vihető.
+
+ #Select found#
+ Found text is selected.
+
+ #Cursor at the end#
+ Place the cursor at the end of the found block.
+
+ #Gördítősáv mutatva#
+ Az oldalsó gördítősáv megjelenítése a belső szerkesztőben.
+
+@=
+ #Fájlpozíció mentése#
+ Elmenti és visszatölti a legutóbb szerkesztett fájlok szöveghelyzetét és a kódlapot is, ha utóbbit kézzel
 választottuk ki.
 
- #Könyvjelzők mentése#     ^<wrap>Elmenti és visszatölti az utoljára
-szerkesztett fájlokban a #JobbCtrl+0…9# vagy a #Ctrl+Shift+0…9# leütésével
+ #Könyvjelzők mentése#
+ Elmenti és visszatölti az utoljára szerkesztett fájlokban a #JobbCtrl+0…9# vagy a #Ctrl+Shift+0…9# leütésével
 elhelyezett könyvjelzőinket.
 
- #Automatikus behúzás#     ^<wrap>Szöveg beírásánál engedélyezi az
-önműködő behúzást.
+ #Írásra megnyitott fájlok szerkeszthetők#
+ Lehetővé teszi a más programokban írásra megnyitott fájlok szerkesztését. Ez a funkció praktikus,
+ha hosszú időre megnyitott fájlt szeretnénk szerkeszteni, de veszélyessé válhat, ha a fájl szerkesztés közben módosul.
 
- #Kurzor a sorvégjel#      A szerkesztőben a kurzor a sorvégjel
- #után is#                 mögé is vihető.
-
- #Tabulátor mérete#        A tabulátor hossza, szóközökben.
-
- #Gördítősáv mutatva#      ^<wrap>Az oldalsó gördítősáv megjelenítése a
-a belső szerkesztőben.
-
- #Show white space#        Make while space characters (spaces, tabulations,
-                         line breaks) visible.
-
- #Select found#            Found text is selected
-
- #Cursor at the end#       Place the cursor at the end of the found block.
-
- #Kódlap automatikus#      ~Automatikusan felismeri~@CodePageAuto@ a
- #felismerése#             szerkesztendő szöveg kódlapját.
-
- #Írásra megnyitott fáj-#  Lehetővé teszi a más programokban írásra
- #lok szerkeszthetők#      ^<wrap>megnyitott fájlok szerkesztését. Ez a
-funkció praktikus, ha hosszú időre megnyitott fájlt szeretnénk szerkeszteni,
-de veszélyessé válhat, ha a fájl szerkesztés közben módosul.
-
- #Csak olvasható fájlok#   Ha "csak olvasható" attribútumú fájlt
- #szerkesztése tiltva#     ^<wrap>nyitottunk meg szerkesztésre, a
+ #Csak olvasható fájlok szerkesztése tiltva#
+ Ha "csak olvasható" attribútumú fájlt nyitottunk meg szerkesztésre, a
 szerkesztő ugyanúgy letiltja a szöveg módosítását, mintha #Ctrl+L#-t ütnénk.
 
- #Figyelmeztet csak#       Ha "csak olvasható" attribútumú fájlt
- #olvasható fájl#          próbálunk megnyitni szerkesztésre,
- #megnyitásakor#           előtte figyelmeztető üzenetet kapunk.
+ #Figyelmeztet csak olvasható fájl megnyitásakor#
+ Ha "csak olvasható" attribútumú fájlt próbálunk megnyitni szerkesztésre, előtte figyelmeztető üzenetet kapunk.
 
- #Fájlok eredeti megnyi-#  A fájlokat OEM helyett ANSI kódlappal
- #tása ANSI kódlappal#     nyitja meg.
+ #Kódlap automatikus felismerése#
+ ~Automatikusan felismeri~@CodePageAuto@ a szerkesztendő szöveg kódlapját.
+
+ #Default code page#
+ Select the default code page.
 
  Ha külső szerkesztőt rendeltünk az #F4# billentyűhöz, csak akkor indul el,
 ha az aktuális fájltípushoz nincs ~társítva~@FileAssoc@ szerkesztő.
 
- A párbeszédablakban a beállítások módosítása nincs hatással az előzőleg
-megnyitott belső szerkesztő ablakokra.
+ A párbeszédablakban a beállítások módosítása nincs hatással az előzőleg megnyitott belső szerkesztő ablakokra.
 
  A szerkesztő beállításainak párbeszédablakát meghívhatjuk úgy is, hogy a
 ~belső szerkesztőben~@Editor@ #Alt+Shift+F9#-et ütünk. Ebben az esetben a
-változtatások rögtön életbe lépnek, de csak az aktuális munkafolyamatra
-érvényesek.
+változtatások rögtön életbe lépnek, de csak az aktuális munkafolyamatra érvényesek.
 
 
 @CodePageAuto

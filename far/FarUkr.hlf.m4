@@ -3813,88 +3813,77 @@ Windows Server 2012.
 
 @ViewerSettings
 $ #Конфігурація програми перегляду#
- У цьому діалозі можна змінити параметри зовнішньої і вбудованої
-~програми перегляду~@Viewer@.
+ У цьому діалозі можна змінити параметри зовнішньої і вбудованої ~програми перегляду~@Viewer@.
 
 @=
 ^#Програма перегляду#
 @=
- #Запускати по F3#         Запускати зовнішню програму перегляду
- #замість Alt+F3#          по #F3# і внутрішню по #Alt+F3#.
+ #Запускати по F3 замість Alt+F3#
+ Запускати зовнішню програму перегляду по #F3# і внутрішню по #Alt+F3#.
 
- #Команда перегляду#       Команда для запуску зовнішньої програми
-                         перегляду. Для вказівки імені файла,
-                         що переглядається використовуйте
-                         ~спеціальні символи~@MetaSymbols@.
+ #Команда перегляду#
+ Команда для запуску зовнішньої програми перегляду.
+Для вказівки імені файла, що переглядається використовуйте ~спеціальні символи~@MetaSymbols@.
 
 @=
 ^#Вбудована програма перегляду#
 @=
- #Persistent selection#    Do not remove block selection after
-                         moving the cursor.
+ #Persistent selection#
+ Do not remove block selection after moving the cursor.
 
- #Search dialog#           Always returns focus to the search text field in
- #auto-focus#              the Viewer ~Search~@ViewerSearch@ dialog.
+ #Search dialog auto-focus#
+ Always returns focus to the search text field in the Viewer ~Search~@ViewerSearch@ dialog.
 
- #Розмір табуляції#        Кількість пробілів при показі символа
-                         табуляції.
+ #Розмір табуляції#
+ Кількість пробілів при показі символа табуляції.
 
- #Показувати стрілки#      Якщо текст зсувається вліво або текст
- #зсуву#                   залишається праворуч, то у вікні перегляду
-                         збоку будуть показуватися стрілки, що
-                         вказують на це.
+ #Показувати стрілки зсуву#
+ Якщо текст зсувається вліво або текст залишається праворуч, то у вікні перегляду збоку будуть показуватися стрілки, що вказують на це.
 
- #Visible '\0'#            Show a printable character instead of space for
-                         the character '\0'. The character to display can be
-                         set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
+ #Visible '\0'#
+ Show a printable character instead of space for the character '\0'.
+The character to display can be set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
 
- #Показувати смугу#        Показувати смугу прокручування у внутрішній
- #прокручування#           програмі перегляду. Також ця опція може
-                         переключатися натисканням Ctrl+S у вікні
-                         перегляду.
+ #Показувати смугу прокручування#
+ Показувати смугу прокручування у внутрішній програмі перегляду. Також ця опція може переключатися натисканням Ctrl+S у вікні перегляду.
+
 @=
- #Зберігати позицію#       Зберігати й відновлювати позицію
- #файла#                   у недавно переглянутих файлах.
-                         Ця опція також викликає збереження
-                         кодової сторінки, що використовувалася
-                         при перегляді файла, у випадку якщо
-                         ця таблиця була встановлена користувачем
-                         вручну, а також ~режиму перегляду~@ViewerMode@ файла.
+ #Зберігати позицію файла#
+ Зберігати й відновлювати позицію у недавно переглянутих файлах. Ця опція також викликає збереження кодової сторінки, що використовувалася
+при перегляді файла, у випадку якщо ця таблиця була встановлена користувачем вручну, а також ~режиму перегляду~@ViewerMode@ файла.
 
- #Save file code page#     Save and restore the code page selected for a file.
-                         This is automatically enabled if #Save file position#
-                         is enabled, as file position depends on the encoding.
+ #Save file code page#
+ Save and restore the code page selected for a file. This is automatically enabled if #Save file position#
+is enabled, as file position depends on the encoding.
 
- #Зберігати закладки#      Зберігати і відновлювати закладки на поточні
-                         позиції у недавно переглянутих файлах,
-                         збережених з використанням ПравийCtrl+0…9
-                         або Ctrl+Shift+0…9
+ #Зберігати закладки#
+ Зберігати і відновлювати закладки на поточні позиції у недавно переглянутих файлах,
+збережених з використанням ПравийCtrl+0…9 або Ctrl+Shift+0…9
 
- #Maximum line width#      Maximum number of columns for text mode viewer.
-                         Min=100, Max=100,000, Default=10,000.
+ #Maximum line width#
+ Maximum number of columns for text mode viewer. Min=100, Max=100,000, Default=10,000.
 
- #Save view mode#          Save and restore ~view modes~@ViewerMode@
-                         of recently viewed files.
+ #Save view mode#
+ Save and restore ~view modes~@ViewerMode@ of recently viewed files.
 
- #Save wrap mode#          Save and restore #wrap# and #word wrap# ~modes~@ViewerMode@
-                         of recently viewed files.
+ #Save wrap mode#
+ Save and restore #wrap# and #word wrap# ~modes~@ViewerMode@ of recently viewed files.
 
- #Detect dump view mode#   If this option is on and Far considers the file binary,
-                         the #dump# ~mode~@ViewerMode@ is selected automatically
-                         at the first view. Otherwise, the #text# mode is selected.
+ #Detect dump view mode#
+ If this option is on and Far considers the file binary, the #dump# ~mode~@ViewerMode@ is selected automatically
+at the first view. Otherwise, the #text# mode is selected.
 
- #Авторозпізнавання#       ~Авторозпізнавання кодової сторінки~@CodePageAuto@
- #кодової сторінки#        файла, що редагується.
+ #Авторозпізнавання кодової сторінки#
+ ~Авторозпізнавання кодової сторінки~@CodePageAuto@ файла, що редагується.
 
- #Default code page#       Allows to select the default code page.
+ #Default code page#
+ Allows to select the default code page.
+
 @=
+ Якщо зовнішня програма перегляду призначена на клавішу #F3#, вона буде запускатися тільки у тому випадку,
+коли ~асоцiйована~@FileAssoc@ програма перегляду для даного типу файлів відсутня.
 
- Якщо зовнішня програма перегляду призначена на клавішу #F3#,
-вона буде запускатися тільки у тому випадку, коли ~асоцiйована~@FileAssoc@
-програма перегляду для даного типу файлів відсутня.
-
- Зміни конфігурації не впливають на раніше відкриті вікна
-вбудованої програми перегляду.
+ Зміни конфігурації не впливають на раніше відкриті вікна вбудованої програми перегляду.
 
  Діалог конфігурації можна також викликати з ~програми перегляду~@Viewer@,
 натиснувши #Alt+Shift+F9#. Зміни наберуть сили негайно, але діяти будуть
@@ -3903,93 +3892,86 @@ $ #Конфігурація програми перегляду#
 
 @EditorSettings
 $ #Конфігурація редактора#
- У цьому діалозі можна змінити параметри зовнішнього та
-~вбудованого редактора~@Editor@, що використовуються за замовчуванням.
+ У цьому діалозі можна змінити параметри зовнішнього та ~вбудованого редактора~@Editor@, що використовуються за замовчуванням.
 
- Зовнішній редактор
+@=
+^#Зовнішній редактор#
+@=
+ #Запускати по F4#
+ Запускати зовнішній редактор по #F4# замість #Alt+F4#.
 
- #Запускати по F4#         Запускати зовнішній редактор по #F4# замість #Alt+F4#.
+ #Команда редагування#
+ Команда для запуску зовнішнього редактора.
+Для вказівки імені файла, що редагується використовуйте ~спеціальні символи~@MetaSymbols@.
 
- #Команда#                 Команда для запуску зовнішнього редактора.
- #редагування#             Для вказівки імені файла, що редагується
-                         використовуйте ~спеціальні символи~@MetaSymbols@.
+@=
+^#Вбудований редактор#
+@=
+ #Do not expand tabs#
+ Do not convert tabs to spaces while editing the document.
 
- Вбудований редактор
+ #Expand newly entered tabs to spaces#
+ While editing the document, замінювати newly entered #Tab# на відповідну кількість пробілів.
+Other tabs won't be converted.
 
- #Do not expand tabs#      Do not convert tabs to spaces while
-                         editing the document.
+ #Expand all tabs to spaces#
+ Upon opening the document, all tabs in the document will be automatically converted to spaces.
 
- #Expand newly entered#    While editing the document, замінювати
- #tabs to spaces#          newly entered #Tab# на відповідну
-                         кількість пробілів. Other tabs won't be
-                         converted.
+ #Постійні блоки#
+ Не знімати позначення блоку при переміщенні курсору.
 
- #Expand all tabs to#      Upon opening the document, all tabs in
- #spaces#                  the document will be automatically
-                         converted to spaces.
+ #Del видаляє блоки#
+ Якщо є позначений блок, Del буде видаляти цей блок, а не символ під курсором.
 
- #Постійні блоки#          Не знімати позначення блоку при переміщенні
-                         курсору.
+ #Автовідступ#
+ Включає режим автовідступу при введенні тексту.
 
- #Del видаляє блоки#       Якщо є позначений блок, Del буде видаляти
-                         цей блок, а не символ під курсором.
+ #Розмір табуляції#
+ Кількість пробілів при показі символа табуляції.
 
- #Зберігати позицію#       Зберігати й відновлювати позицію
- #файла#                   у недавно відредагованих файлах.
-                         Ця опція також викликає збереження
-                         кодової сторінки, що використовувалася
-                         при редагуванні файла, у випадку якщо
-                         вона була встановлена користувачем
-                         вручну.
+ #Show white space#
+ Make while space characters (spaces, tabulations, line breaks) visible.
 
- #Зберігати закладки#      Зберігати і відновлювати закладки на поточні
-                         позиції у недавно відредагованих файлах,
-                         збережених з використанням #ПравийCtrl+0…9#
-                         або #Ctrl+Shift+0…9#
+ #Курсор за межами рядка#
+ Дозволити переміщення курсору за межі рядка.
 
- #Автовідступ#             Включає режим автовідступу при введенні
-                         тексту.
+ #Select found#
+ Found text is selected.
 
- #Курсор за межами#        Дозволити переміщення курсору за межі
- #рядка#                   рядка.
+ #Cursor at the end#
+ Place the cursor at the end of the found block.
 
- #Розмір табуляції#        Кількість пробілів при показі символа
-                         табуляції.
+ #Show a scrollbar#
+ Show a scrollbar.
 
- #Show a scrollbar#        Show a scrollbar.
+@=
+ #Зберігати позицію файла#
+ Зберігати й відновлювати позицію у недавно відредагованих файлах. Ця опція також викликає збереження кодової сторінки,
+що використовувалася при редагуванні файла, у випадку якщо вона була встановлена користувачем вручну.
 
- #Show white space#        Make while space characters (spaces, tabulations,
-                         line breaks) visible.
+ #Зберігати закладки#
+ Зберігати і відновлювати закладки на поточні позиції у недавно відредагованих файлах,
+збережених з використанням #ПравийCtrl+0…9# або #Ctrl+Shift+0…9#
 
- #Select found#            Found text is selected
+ #Allow editing files opened for writing#
+ Allows to edit files that are opened by other programs for writing. This mode is handy to edit
+a file opened for a long time, but it could be dangerous, if a file is being modified at the same time as editing.
 
- #Cursor at the end#       Place the cursor at the end of the found block.
+ #Блокувати редагуванння файлів з атрибутом R/O#
+ При відкриванні для редагування файла, який має атрибут "тільки для читання",
+редактор переходить у режим заборони модифікації умісту файла так, як коли б ви натиснули Ctrl+L.
 
- #Авторозпізнавання#       ~Авторозпізнавання кодової сторінки~@CodePageAuto@
- #кодової сторінки#        файла, що редагується.
+ #Попереджати при відкриванні файла з атрибутом R/O#
+ Перед відкриванням для редагування файла, який має атрибут "тільки для читання", буде видаватися попереджуюче повідомлення.
 
- #Edit files opened#       Allows to edit files that are opened
- #for writing#             by other programs for writing. This mode
-                         is handy to edit a file opened for a long
-                         time, but it could be dangerous, if a file
-                         is being modified at the same time as
-                         editing.
+ #Авторозпізнавання кодової сторінки#
+ ~Авторозпізнавання кодової сторінки~@CodePageAuto@ файла, що редагується.
 
- #Блокувати#               При відкриванні для редагування файла,
- #редагуванння файлів#     який має атрибут "тільки для читання",
- #з атрибутом R/O#         редактор переходить у режим заборони
-                         модифікації умісту файла так, як коли б
-                         ви натиснули Ctrl+L.
+ #Default code page#
+ Select the default code page.
 
- #Попереджати при#         Перед відкриванням для редагування файла,
- #відкриванні файла з#     який має атрибут "тільки для читання",
- #атрибутом R/O#           буде видаватися попереджуюче повідомлення.
-
- #Default code page#       Select the default code page.
-
- Якщо зовнішній редактор призначений на клавішу #F4#, він буде запускатися
-тільки у тому випадку, коли ~асоцiйований~@FileAssoc@ редактор
-для даного типу файлів відсутній.
+ Якщо зовнішній редактор призначений на клавішу #F4#, він буде запускатися тільки у тому випадку,
+коли ~асоцiйований~@FileAssoc@ редактор для даного типу файлів відсутній.
 
  Зміни конфігурації не впливають на раніше відкриті вікна редактора.
 

@@ -3749,75 +3749,75 @@ na partycjach ReFS począwszy od Windows Server 2012.
 
 @ViewerSettings
 $ #Okno ustawień: podgląd#
- To okno pozwala zmienić ustawienia wewnętrznego i zewnętrznego
-~podglądu~@Viewer@.
+ To okno pozwala zmienić ustawienia wewnętrznego i zewnętrznego ~podglądu~@Viewer@.
 
 @=
 ^#Podgląd#
 @=
- #Użyj zewnętrznego#       Uruchamia zewnętrzny podgląd po wciśnięciu klawisza #F3#,
- #podglądu pod klawiszem#  a wewnętrzny podgląd po wciśnięciu kombinacji #Alt+F3#.
- #F3 zamiast Alt+F3#
+ #Użyj zewnętrznego podglądu pod klawiszem F3 zamiast Alt+F3#
+ Uruchamia zewnętrzny podgląd po wciśnięciu klawisza #F3#, a wewnętrzny podgląd po wciśnięciu kombinacji #Alt+F3#.
 
- #Polecenie#               Polecenie do uruchomienia zewnętrznego podglądu.
-                         Można użyć ~symboli specjalnych~@MetaSymbols@ do wpisania
-                         nazwy pliku.
+ #Polecenie#
+ Polecenie do uruchomienia zewnętrznego podglądu.
+Można użyć ~symboli specjalnych~@MetaSymbols@ do wpisania nazwy pliku.
 
 @=
 ^#Podgląd wbudowany#
 @=
- #Trwałe zaznaczenie#      Nie usuwaj zaznaczonego bloku po przesunięciu kursora.
+ #Trwałe zaznaczenie#
+ Nie usuwaj zaznaczonego bloku po przesunięciu kursora.
 
- #Auto-focus#              Zawsze przywraca fokus do pola tekstowego wyszukiwania
- #okna szukania#           w oknie dialogowym ~Szukaj~@ViewerSearch@.
+ #Auto-focus okna szukania#
+ Zawsze przywraca fokus do pola tekstowego wyszukiwania w oknie dialogowym ~Szukaj~@ViewerSearch@.
 
- #Rozmiar tabulatora#      Liczba znaków spacji na pojedynczy znak tabulacji.
+ #Rozmiar tabulatora#
+ Liczba znaków spacji na pojedynczy znak tabulacji.
 
- #Pokaż strzałki#          Pokazuje pasek strzałki i pasek przewijania na krawędzi
- #przewijania#             okna przewijania, jeżeli tekst nie mieści się w poziomie.
+ #Pokaż strzałki przewijania#
+ Pokazuje pasek strzałki i pasek przewijania na krawędzi okna przewijania, jeżeli tekst nie mieści się w poziomie.
 
- #Widoczne '\0'#           Pokazuje drukowalny znak zamiast spacji dla znaku '\0'.
-                         Wyświetlany znak można ustawić w ~far:config~@FarConfig@ #Viewer.ZeroChar#.
+ #Widoczne '\0'#
+ Pokazuje drukowalny znak zamiast spacji dla znaku '\0'.
+Wyświetlany znak można ustawić w ~far:config~@FarConfig@ #Viewer.ZeroChar#.
 
- #Pokaż pasek przewijania# Pokazuje pasek przewijania w wewnętrznym podglądzie. Opcję można
-                         przełączyć naciskając klawisze #Ctrl+S# w wewnętrznej przeglądarce.
+ #Pokaż pasek przewijania#
+ Pokazuje pasek przewijania w wewnętrznym podglądzie. Opcję można przełączyć naciskając klawisze #Ctrl+S# w wewnętrznej przeglądarce.
 
 @=
- #Zapamiętaj pozycję#      Zapisuje i przywraca pozycję w ostatnio przeglądanych plikach.
- #w pliku#                 Opcja zapisuje także i przywraca stronę kodową (jeżeli wybrana
-                         była ręcznie) i ~tryb widoku~@ViewerMode@.
+ #Zapamiętaj pozycję w pliku#
+ Zapisuje i przywraca pozycję w ostatnio przeglądanych plikach. Opcja zapisuje także i przywraca stronę kodową
+(jeżeli wybrana była ręcznie) i ~tryb widoku~@ViewerMode@.
 
- #Zapisz stronę kodową#    Zapisuje i przywraca stroną kodową wybraną dla danego pliku.
- #pliku#                   Opcja automatycznie włączona, jeżeli włączona jest opcja
-                         #Zapamiętaj pozycję kursora w pliku#, jeżeli pozycja w pliku
-                         zależy od kodowania.
+ #Zapisz stronę kodową pliku#
+ Zapisuje i przywraca stroną kodową wybraną dla danego pliku. Opcja automatycznie włączona, jeżeli włączona jest opcja
+#Zapamiętaj pozycję kursora w pliku#, jeżeli pozycja w pliku zależy od kodowania.
 
- #Zapisz zakładki#         Zapisuje i przywraca zakładki w ostatnio przeglądanych plikach
-                         (zakładki można tworzyć kombinacjami klawiszy #PrawyCtrl+0…9#
-                         lub #Ctrl+Shift+0…9#).
+ #Zapisz zakładki#
+ Zapisuje i przywraca zakładki w ostatnio przeglądanych plikach (zakładki można tworzyć
+kombinacjami klawiszy #PrawyCtrl+0…9# lub #Ctrl+Shift+0…9#).
 
- #Maksymalna szerokość#    Maksymalna liczka kolumn przeglądarki w trybie tekstowym.
- #linii#                   Min=100, Maks=100,000, domyślnie=10,000.
+ #Maksymalna szerokość linii#
+ Maksymalna liczka kolumn przeglądarki w trybie tekstowym. Min=100, Maks=100,000, domyślnie=10,000.
 
- #Zapisz tryb podglądu#    Zapisuje i przywraca ~tryb widoku~@ViewerMode@
-                         ostatnio przeglądanych plików.
+ #Zapisz tryb podglądu#
+ Zapisuje i przywraca ~tryb widoku~@ViewerMode@ ostatnio przeglądanych plików.
 
- #Zapisz zawijanie#        Zapisuje i przywraca ~tryby~@ViewerMode@ #zawijania#
- #wierszy#                 i #dzielenia wyrazów# ostatnio przeglądanych plików.
+ #Zapisz zawijanie wierszy#
+ Zapisuje i przywraca ~tryby~@ViewerMode@ #zawijania# i #dzielenia wyrazów# ostatnio przeglądanych plików.
 
- #Wykryj sposób podglądu#  Jeżeli ta opcja jest włączona, a Far otwiera plik binarny,
-                         to automatycznie wybierany jest ~tryb~@ViewerMode@ #źródłowy# (ang. dump).
-                         W innych przypadkach wybierany jest tryb #tekstowy#.
+ #Wykryj sposób podglądu#
+ Jeżeli ta opcja jest włączona, a Far otwiera plik binarny, to automatycznie wybierany jest
+~tryb~@ViewerMode@ #źródłowy# (ang. dump). W innych przypadkach wybierany jest tryb #tekstowy#.
 
- #Rozpoznaj stronę kodową# ~Automatyczne wykrywanie~@CodePageAuto@ strony kodowej w przeglądanym pliku.
- #pliku#                   
+ #Rozpoznaj stronę kodową pliku#
+ ~Automatyczne wykrywanie~@CodePageAuto@ strony kodowej w przeglądanym pliku.
 
- #Domyślna strona kodowa#  Pozwala wybrać domyślną stronę kodową.
+ #Domyślna strona kodowa#
+ Pozwala wybrać domyślną stronę kodową.
+
 @=
-
- Jeżeli zewnętrzny podgląd jest przypisany do klawisza #F3#, to zostanie
-on uruchomiony tylko wtedy, gdy ~powiązana~@FileAssoc@ przeglądarka nie została
-zdefiniowana dla bieżącego typu pliku.
+ Jeżeli zewnętrzny podgląd jest przypisany do klawisza #F3#, to zostanie on uruchomiony tylko wtedy,
+gdy ~powiązana~@FileAssoc@ przeglądarka nie została zdefiniowana dla bieżącego typu pliku.
 
  Zmiany ustawień nie dotyczą aktualnie otwartego okna wewnętrznego podglądu.
 
@@ -3833,75 +3833,81 @@ $ #Okno ustawień: edytor#
 @=
 ^#Edytor zewnętrzny#
 @=
- #Użyj zewn. edytora#      Uruchom zewnętrzny edytor pod klawiszem #F4#
- #pod klawiszem F4#        zamiast #Alt+F4#.
+ #Użyj zewn. edytora pod klawiszem F4#
+ Uruchom zewnętrzny edytor pod klawiszem #F4# zamiast #Alt+F4#.
 
- #Polecenie#               Polecenie do uruchomienia zewnętrznego edytora.
+ #Polecenie#
+ Polecenie do uruchomienia zewnętrznego edytora.
+Use ~special symbols~@MetaSymbols@ to specify the name of the file to edit.
 
 @=
 ^#Edytor wewnętrzny#
 @=
- #Nie zamieniaj znaków#    Nie konwertuje znaków tabulacji na spacje podczas
- #tabulacji#               edycji dokumentu.
+ #Nie zamieniaj znaków tabulacji#
+ Nie konwertuje znaków tabulacji na spacje podczas edycji dokumentu.
 
- #Zamień nowo dodane znaki#Podczas edycji dokumentu, konwertuje każdy
- #tabulacji na spacje#     nowo wprowadzony znak #Tab# na zdefiniowaną liczę
-                         spacji. Wcześniej wprowadzone tabulacji nie zostaną
-                         przekonwertowane.
+ #Zamień nowo dodane znaki tabulacji na spacje#
+ Podczas edycji dokumentu, konwertuje każdy nowo wprowadzony znak #Tab# na zdefiniowaną liczę spacji.
+Wcześniej wprowadzone tabulacji nie zostaną przekonwertowane.
 
- #Zastap wszystkie tabul.# Po otwarciu dokumentu, wszystkie tabulatory w dokumencie
- #na spacje#               będą automatycznie przekonwertowane na spacje.
+ #Zastap wszystkie tabul. na spacje#
+ Po otwarciu dokumentu, wszystkie tabulatory w dokumencie będą automatycznie przekonwertowane na spacje.
 
- #Trwałe bloki#            Nie usuwaj zaznaczenia bloku po przesunięciu kursora.
+ #Trwałe bloki#
+ Nie usuwaj zaznaczenia bloku po przesunięciu kursora.
 
- #DEL usuwa bloki#         Jeżeli blok jest zaznaczony, naciśnięcie klawisza #Del#
-                         nie usunie znaku pod kursorem, ale ten blok.
+ #Del usuwa bloki#
+ Jeżeli blok jest zaznaczony, naciśnięcie klawisza #Del# nie usunie znaku pod kursorem, ale ten blok.
 
- #Automatyczne wcięcia#    Włącza opcję automatycznego wstawiania wcięć (tabulatory/spacje)
-                         w tekście.
+ #Automatyczne wcięcia#
+ Włącza opcję automatycznego wstawiania wcięć (tabulatory/spacje) w tekście.
 
- #Rozmiar tabulatora#      Liczba spacji przy zamianie klawisza tabulator.
+ #Rozmiar tabulatora#
+ Liczba spacji przy zamianie klawisza tabulator.
 
- #Pokaż białe znaki#       Włącza widoczność #białych# znaków (spacje, tabulatory,
-                         znaki łamania linii).
+ #Pokaż białe znaki#
+ Włącza widoczność #białych# znaków (spacje, tabulatory, znaki łamania linii).
 
- #Kursor za końcem linii#  Pozwala przesunać kursor poza koniec linii.
+ #Kursor za końcem linii#
+ Pozwala przesunać kursor poza koniec linii.
 
- #Zaznacz znalezione#      Oznacza znaleziony tekst.
+ #Zaznacz znalezione#
+ Oznacza znaleziony tekst.
 
- #Kursor na końcu bloku#   Umieszcza kursor na końcu znalezionego bloku.
+ #Kursor na końcu bloku#
+ Umieszcza kursor na końcu znalezionego bloku.
 
- #Pokaż pasek przewijania# Pokazuje pasek przewijania okna.
+ #Pokaż pasek przewijania#
+ Pokazuje pasek przewijania okna.
 
 @=
- #Zapamiętaj pozycję#      Zapisuje i przywraca pozycję w ostatnio edytorwanych
- #kursora w pliku#         plikach. Opcja wymusza także przywrócenie strony kodowej,
-                         jeżeli została ona ręcznie ustawiona przez użytkownika.
+ #Zapamiętaj pozycję kursora w pliku#
+ Zapisuje i przywraca pozycję w ostatnio edytorwanych plikach. Opcja wymusza także przywrócenie strony kodowej,
+jeżeli została ona ręcznie ustawiona przez użytkownika.
 
- #Zapisz zakładki#         Zapisuje i przywraca zakładki (bieżące pozycje)
-                         w ostatnio edytowanych plikach (tworzenie za pomocą
-                         kombinacji klawiszy #PrawyCtrl+0…9# lub #Ctrl+Shift+0…9#).
+ #Zapisz zakładki#
+ Zapisuje i przywraca zakładki (bieżące pozycje) w ostatnio edytowanych plikach (tworzenie za pomocą
+kombinacji klawiszy #PrawyCtrl+0…9# lub #Ctrl+Shift+0…9#).
 
- #Zezwól na edycję plików# Pozwala na edycję plików otwartych do zapisu
- #otwartych do zapisu#     przez inne aplikacje. Opcja jest przydatna do edycji
-                         plików otwartych na długi czas, ale może być niebezpieczna,
-                         jeżeli pliki zostaną zmodyfikwane w obu programach.
+ #Zezwól na edycję plików otwartych do zapisu#
+ Pozwala na edycję plików otwartych do zapisu przez inne aplikacje. Opcja jest przydatna do edycji
+plików otwartych na długi czas, ale może być niebezpieczna, jeżeli pliki zostaną zmodyfikwane w obu programach.
 
- #Nie edytuj plików#       Jeżeli plik z atrybutem Tylko-do-odczytu (Read only)
- #tylko do odczytu#        jest otwarty do edycji, to edytor wyłącza modyfikację
-                         edytowanego tekstu podobnie do wciśnięcia #Ctrl+L#.
+ #Nie edytuj plików tylko do odczytu#
+ Jeżeli plik z atrybutem Tylko-do-odczytu (Read only) jest otwarty do edycji, to edytor wyłącza modyfikację
+edytowanego tekstu podobnie do wciśnięcia #Ctrl+L#.
 
- #Ostrzeż przed otwier.#   Przy otwarciu plików z atrybutem Tylko-do-odczytu
- #plików tylko do odczytu# zostanie pokazane okno ostrzeżenia.
+ #Ostrzeż przed otwier. plików tylko do odczytu#
+ Przy otwarciu plików z atrybutem Tylko-do-odczytu zostanie pokazane okno ostrzeżenia.
 
- #Rozpoznaj stronę kodową# ~Automatyczne wykrywanie~@CodePageAuto@ strony kodowej
-                         edytowanego pliku.
+ #Rozpoznaj stronę kodową#
+ ~Automatyczne wykrywanie~@CodePageAuto@ strony kodowej edytowanego pliku.
 
- #Domyślna strona kodowa#  Ręczny wybór domyślnej strony kodowej pliku.
+ #Domyślna strona kodowa#
+ Ręczny wybór domyślnej strony kodowej pliku.
 
- Jeżeli zewnętrzny edytor jest przypisany do klawisza #F4#, to zostanie
-on uruchomiony tylko wtedy, gdy ~powiązany~@FileAssoc@ edytor nie został
-zdefiniowany dla bieżącego typu pliku.
+ Jeżeli zewnętrzny edytor jest przypisany do klawisza #F4#, to zostanie on uruchomiony tylko wtedy,
+gdy ~powiązany~@FileAssoc@ edytor nie został zdefiniowany dla bieżącego typu pliku.
 
  Zmiany ustawień nie dotyczą aktualnie otwartego okna wewnętrznego edytora.
 
