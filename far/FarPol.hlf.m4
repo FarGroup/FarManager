@@ -3602,324 +3602,312 @@ dla Far 1.7x i nie obsługuje wszystkich możliwości dostępnych w Far 3
 
 
 @ChangeDriveMode
-$ #Change Drive Menu Options#
- The dialog allows to control the information shown in the
-~Change drive~@DriveDlg@ menu.
+$ #Opcje menu zmiany dysku#
+ Dialog pozwala kontrolować informacje pokazywane w menu
+~Zmień dysk~@DriveDlg@.
 
- #Show disk type#
- Show disk type: “fixed”, “network”, etc.
- Key combination in #Change drive# menu: #Ctrl+1#.
+ #Pokaż typ dysku#
+ Pokazuje typ dysku: "stały", "sieciowy", "wyjmowalny", itp.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+1#.
 
- #Show disk label#
- Show disk label (if available).
- Key combination in #Change drive# menu: #Ctrl+3#.
+ #Pokaż etykietę dysku#
+ Pokazuje etykietę dysku (jeżeli jest dostępna).
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+3#.
 
- #Use shell name#
- Request the disk name from Windows Shell.
- Key combination in #Change drive# menu: #Ctrl+3# (press twice).
+ #Użyj nazwy z Windows#
+ Pobiera nazwę dysku z powłoki Windows.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+3# (należy nacisnąć dwukrotnie).
 
- #Show file system type#
- Show file system type: “NTFS”, “FAT”, etc.
- Key combination in #Change drive# menu: #Ctrl+4#.
+ #Pokaż system plików#
+ Pokazuje system plików: "NTFS", "FAT32", itp.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+4#.
 
- #Show size#
- Show disk size and free space.
- Key combination in #Change drive# menu: #Ctrl+5#.
+ #Pokaż pojemność#
+ Pokazuje wielkość dysku i wolne miejsce.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+5#.
 
- #Show size as a decimal fraction#
- Show disk size and free space as a decimal fraction with no more
-than three digits before decimal point. If this option is on, 1 GiB (2
-to the power of 30) will be shown as #1.00 G#, otherwise as #1024 M#.
- Key combination in #Change drive# menu: #Ctrl+5# (press twice).
+ #Wielkość w jednostkach dziesiętnych#
+ Pokazuje wielkość dysku i wolne miejsce w jednostkach dziesiętnych
+nie większych niż 3 cyfry przed przecinkiem. Jeżeli opcja jest włączona,
+1GB (2 do potęgi 30) będą pokazywane jako #1.00 G#, w przeciwnym
+razie jako #1024 M#.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+5# (należy nacisnąć dwukrotnie).
 
- #Show network name / SUBST path / VHD name#
- Show network name / path associated with a SUBST disk / path
-to virtual disk container.
- Key combination in #Change drive# menu: #Ctrl+2#.
+ #Pokaż dyski sieciowe / ścieżki SUBST / nazwy VHD#
+ Pokazuje nazwy sieciowe / ścieżki do podłączonego dysku SUBST /
+ścieżka do wirtualnego kontenera dysku.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+2#.
 
- #Show plugins#
- Show plugins.
- Key combination in #Change drive# menu: #Ctrl+7#.
+ #Pokaż wtyczki#
+ Pokazuje wtyczki.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+7#.
 
- #Sort plugins by hotkey#
- If this option is turned #off#, plugin list is sorted by name;
-otherwise by hotkey.
+ #Sortuj wtyczki wg skrótów#
+ Jeżeli opcja jest #wyłączona#, lista wtyczek jest sortowana wg nazw;
+w przeciwnym razie wg klawiszy skrótów.
 
- #Show removable drive parameters#
- Show removable drive parameters.
- Key combination in #Change drive# menu: #Ctrl+6#.
+ #Pokaż parametry dysków wyjmowalnych#
+ Pokazuje parametry dysków wyjmowalnych.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+6#.
 
- #Show CD drive parameters#
- If this option is turned on, Far will attempt to detect CD drive
-type: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW, DVD-RAM, HD DVD-ROM,
+ #Pokaż parametry napędów optycznych#
+ Jeżeli opcja jest włączona, Far spróbuje wykryć typ napędu optycznego:
+CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW, DVD-RAM, HD DVD-ROM,
 HD DVD-RW, Blue-ray Disk-ROM, Blue-ray Disk-RW.
- Key combination in #Change drive# menu: #Ctrl+8#.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+8#.
 
- #Show network drive parameters#
- Show network drive size and free space. Display format depends
-on the #Show size# option.
- Key combination in #Change drive# menu: #Ctrl+9#.
+ #Pokaż parametry dysków sieciowych#
+ Pokazuje wielkość i wolne miejsce dysku sieciowego. Format wyświetlania
+zależy od ustawień opcji #Pokaż pojemność#.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+9#.
 
- #Detect virtual disks#
- Detect virtual disks (VHD, VHDX). This could wake up sleeping hard drives.
+ #Wykrywaj dyski wirtualne#
+ Wykrywa dyski wirtualne (VHD, VHDX). Opcja ta może wybudzić uśpione dyski twarde.
 
 
 @DisconnectDrive
-$ #Disconnect network drive#
- You can disconnect a network drive by pressing #Del# in the
-~Change Drive menu~@DriveDlg@.
+$ #Rozłącz dysk sieciowy#
+ Można odłączyć dysk sieciowy wciskając klawisz #Del# w menu ~Zmień dysk~@DriveDlg@.
 
- The option #[x] Reconnect at logon# is enabled only for permanently
-connected network drives.
+ Opcja #[X] Podłącz przy logowaniu# jest włączona tylko dla dysków sieciowych
+podłączonych na stałe.
 
- The confirmation can be disabled in the ~confirmations~@ConfirmDlg@ dialog.
+ Potwierdzenie można wyłączyć w oknie ~potwierdzeń~@ConfirmDlg@.
 
 
 @Highlight
-$ #Files highlighting and sort groups#
- For more convenient and obvious display of files and directories in the
-panels, Far Manager has the possibility of color highlighting for file objects.
-You can group file objects by different criteria (~file masks~@FileMasks@, file
-attributes) and assign colors to those groups.
+$ #Wyróżnianie plików i sortowanie grup#
+ Dla wygodniejszego i bardziej czytelnego wyświetlania plików i folderów w panelach,
+Far Manager posiada możliwość wyróżniania kolorami obiektów plikowych.
+Można je grupować wg różnych kryteriów (~maski plików~@FileMasks@, atrybuty
+plików) i przypisywać kolory do tych grup.
 
- File highlighting can be enabled or disabled in the ~panel settings~@PanelSettings@
-dialog (menu item Options | Panel settings).
+ Wyróżnianie plików można włączyć lub wyłączyć w oknie ~ustawień panelu~@PanelSettings@
+(menu Opcje | Ustawienia panelu).
 
- You can ~edit~@HighlightEdit@ the parameters of any highlight group through
-the "~Options~@OptMenu@" menu (item "Files highlighting and sort groups").
+ Można ~edytować~@HighlightEdit@ parametry dowolnej grupy wyróżnień w menu ~Opcje~@OptMenu@
+(pozycja "Wyróżnianie plików i sortowanie grup").
 
 
 @HighlightList
-$ #Files highlighting and sort groups: control keys#
- The ~file highlighting and sort groups~@Highlight@ menu allows you to
-perform various operations with the list of the groups. The following key
-combinations are available:
+$ #Podświetlanie plików i sortowanie grup: sterowanie klawiszami#
+ Menu ~podświetlanie plików i sortowanie grup~@Highlight@ pozwala
+na przeprowadzenie różnych operacji z listą grup. Dostępne są następujące
+kombinacje klawiszy:
 
- #Ins#          - ^<wrap>Add a new highlighting group
+ #Ins#          - ^<wrap>Dodaje nową grupę podświetlania.
 
- #F5#           - ^<wrap>Duplicate the current group
+ #F5#           - ^<wrap>Duplikuje bieżącą grupę.
 
- #Del#          - ^<wrap>Delete the current group
+ #Del#          - ^<wrap>Usuwa bieżącą grupę.
 
- #Enter# or #F4#  - ^<wrap>~Edit~@HighlightEdit@ the current highlighting group
+ #Enter# lub #F4# - ^<wrap>~Edycja~@HighlightEdit@ bieżącej grupy podświetlania.
 
- #Ctrl+R#       - ^<wrap>Restore the default file highlighting groups
+ #Ctrl+R#       - ^<wrap>Przywrócenie domyślnych grup podświetlania.
 
- #Ctrl+Up#      - ^<wrap>Move a group up.
+ #Ctrl+Góra#    - ^<wrap>Przenosi grupę wyżej.
 
- #Ctrl+Down#    - ^<wrap>Move a group down.
+ #Ctrl+Dół#     - ^<wrap>Przenosi grupę niżej.
 
- The highlighting groups are checked from top to bottom. If it is detected
-that a file belongs to a group, no further groups are checked.
+ Podświetlane grupy są sprawdzane od góry do dołu. Jeżeli program wykryje,
+że plik należy do grupy, nie sprawdza kolejnych grup dla tego pliku.
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @HighlightEdit
-$ #Files highlighting and sort groups: editing#
- The #Files highlighting# dialog in the ~Options menu~@OptMenu@ allows to
-specify file highlighting groups. Each group definition ~includes~@Filter@:
+$ #Podświetlanie plików i sortowanie grup: edycja#
+ Okno #Podświetlanie plików# w menu ~Opcje~@OptMenu@ pozwala określić
+grupy podświetlenia plików. Każda definicja grupy ~zawiera~@Filter@:
 
- - one or more ~file masks~@FileMasks@;
+ - jedną lub więcej ~masek plików~@FileMasks@;
 
- - attributes to include or exclude:
-   #[x]# - ^<wrap>inclusion attribute - file must have this attribute.
-   #[ ]# - ^<wrap>exclusion attribute - file must not have this attribute.
-   #[?]# - ^<wrap>ignore this attribute;
+ - atrybuty do włączenia lub wyłączenia:
+   #[x]# - ^<wrap>atrybut włączenia - plik musi posiadać ten atrybut,
+   #[ ]# - ^<wrap>atrybut wyłączenia - plik nie może posiadać tego atrybutu,
+   #[?]# - ^<wrap>ignoruj ten atrybut;
 
- - normal name, selected name, name under cursor and
-selected name under cursor colors to display file names.
-If you wish to use the default color, set color to "Black on black";
+ - kolory do wyświetlania nazw plików - zwykła nazwa, zaznaczona nazwa,
+nazwa pod kursorem oraz zaznaczona nazwa pod kursorem.
+Jeżeli mają być użyte domyślne kolory, należy ustawić kolor "Czarny na czarnym";
 
- - an optional character to mark files from the group.
-   It can be used both with or instead of color highlighting.
+ - opcjonalny znak do oznaczania plików z grupy.
+   Mogą być użyte zarówno z lub zamiast kolorów podświetlania.
 
- A file belongs to a highlighting group if:
- - ^<wrap>file mask analysis is enabled and the name of the file matches
-at least one file mask (if file mask analysis is disabled,
-the file name doesn't matter);
- - it has all of the included attributes;
- - it has none of the excluded attributes.
+ Plik należy do grupy podświetlenia jeżeli:
+ - ^<wrap>analiza maski jest włączona i nazwa pliku jest zgodna przynajmniej
+jednej masce pliku (jeżeli analiza masek plików jest wyłączoną, to nazwa pliku
+nie ma znaczenia);
+ - posiada wszystkie atrybuty włączenia;
+ - nie posiada żadnego z wykluczonych atrybutów.
 
- The Compressed, Encrypted, Not indexed, Sparse, Temporary and Reparse point
-attributes are valid for NTFS drives only. The #Integrity stream# and
-#No scrub data# attributes are supported only on ReFS volumes starting from
-Windows Server 2012.
+ Atrybuty Skompresowany, Zaszyfrowany, Nie zindeksowany, Rzadki, Tymczasowy,
+i Punkt Analizy są obsługiwane tylko na dyskach NTFS. Atrybuty
+#Strumień integralności# i #Brak danych kontrolnych# są obsługiwane tylko
+na partycjach ReFS począwszy od Windows Server 2012.
 
 
 @ViewerSettings
-$ #Settings dialog: viewer#
- This dialog allows to change the settings of the internal
-and external ~viewer~@Viewer@.
+$ #Okno ustawień: podgląd#
+ To okno pozwala zmienić ustawienia wewnętrznego i zewnętrznego
+~podglądu~@Viewer@.
 
 @=
-^#Viewer#
+^#Podgląd#
 @=
- #Use external viewer#     Start external viewer on #F3# key
- #for F3 instead of#       and internal viewer on #Alt+F3#
- #Alt+F3#                  key combination.
+ #Użyj zewnętrznego#       Uruchamia zewnętrzny podgląd po wciśnięciu klawisza #F3#,
+ #podglądu pod klawiszem#  a wewnętrzny podgląd po wciśnięciu kombinacji #Alt+F3#.
+ #F3 zamiast Alt+F3#
 
- #Viewer command#          Command to launch the external viewer.
-                         Use ~special symbols~@MetaSymbols@ to specify the
-                         name of the file to view.
+ #Polecenie#               Polecenie do uruchomienia zewnętrznego podglądu.
+                         Można użyć ~symboli specjalnych~@MetaSymbols@ do wpisania
+                         nazwy pliku.
 
 @=
-^#Internal viewer#
+^#Podgląd wbudowany#
 @=
- #Persistent selection#    Do not remove block selection after
-                         moving the cursor.
+ #Trwałe zaznaczenie#      Nie usuwaj zaznaczonego bloku po przesunięciu kursora.
 
- #Search dialog#           Always returns focus to the search text field in
- #auto-focus#              the Viewer ~Search~@ViewerSearch@ dialog.
+ #Auto-focus#              Zawsze przywraca fokus do pola tekstowego wyszukiwania
+ #okna szukania#           w oknie dialogowym ~Szukaj~@ViewerSearch@.
 
- #Tab size#                Number of spaces per single tab position.
+ #Rozmiar tabulatora#      Liczba znaków spacji na pojedynczy znak tabulacji.
 
- #Show scrolling arrows#   Show scrolling arrows at the edges of the viewer
-                         window if the text does not fit horizontally.
+ #Pokaż strzałki#          Pokazuje pasek strzałki i pasek przewijania na krawędzi
+ #przewijania#             okna przewijania, jeżeli tekst nie mieści się w poziomie.
 
- #Visible '\0'#            Show a printable character instead of space for
-                         the character '\0'. The character to display can be
-                         set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
+ #Widoczne '\0'#           Pokazuje drukowalny znak zamiast spacji dla znaku '\0'.
+                         Wyświetlany znak można ustawić w ~far:config~@FarConfig@ #Viewer.ZeroChar#.
 
- #Show a scrollbar#        Show a scrollbar in the internal viewer. This
-                         option can also be toggled by pressing
-                         #Ctrl+S# in the internal viewer.
+ #Pokaż pasek przewijania# Pokazuje pasek przewijania w wewnętrznym podglądzie. Opcję można
+                         przełączyć naciskając klawisze #Ctrl+S# w wewnętrznej przeglądarce.
+
 @=
- #Save file position#      Save and restore positions in the recently
-                         viewed files. This option also saves and restores
-                         the code page (if it was selected manually) and
-                         ~view mode~@ViewerMode@.
+ #Zapamiętaj pozycję#      Zapisuje i przywraca pozycję w ostatnio przeglądanych plikach.
+ #w pliku#                 Opcja zapisuje także i przywraca stronę kodową (jeżeli wybrana
+                         była ręcznie) i ~tryb widoku~@ViewerMode@.
 
- #Save file code page#     Save and restore the code page selected for a file.
-                         This is automatically enabled if #Save file position#
-                         is enabled, as file position depends on the encoding.
+ #Zapisz stronę kodową#    Zapisuje i przywraca stroną kodową wybraną dla danego pliku.
+ #pliku#                   Opcja automatycznie włączona, jeżeli włączona jest opcja
+                         #Zapamiętaj pozycję kursora w pliku#, jeżeli pozycja w pliku
+                         zależy od kodowania.
 
- #Save bookmarks#          Save and restore bookmarks in the recently viewed
-                         files. (Bookmarks can be created with #RightCtrl+0…9#
-                         or #Ctrl+Shift+0…9# key combinations.)
+ #Zapisz zakładki#         Zapisuje i przywraca zakładki w ostatnio przeglądanych plikach
+                         (zakładki można tworzyć kombinacjami klawiszy #PrawyCtrl+0…9#
+                         lub #Ctrl+Shift+0…9#).
 
- #Maximum line width#      Maximum number of columns for text mode viewer.
-                         Min=100, Max=100,000, Default=10,000.
+ #Maksymalna szerokość#    Maksymalna liczka kolumn przeglądarki w trybie tekstowym.
+ #linii#                   Min=100, Maks=100,000, domyślnie=10,000.
 
- #Save view mode#          Save and restore ~view modes~@ViewerMode@
-                         of recently viewed files.
+ #Zapisz tryb podglądu#    Zapisuje i przywraca ~tryb widoku~@ViewerMode@
+                         ostatnio przeglądanych plików.
 
- #Save wrap mode#          Save and restore #wrap# and #word wrap# ~modes~@ViewerMode@
-                         of recently viewed files.
+ #Zapisz zawijanie#        Zapisuje i przywraca ~tryby~@ViewerMode@ #zawijania#
+ #wierszy#                 i #dzielenia wyrazów# ostatnio przeglądanych plików.
 
- #Detect dump view mode#   If this option is on and Far considers the file binary,
-                         the #dump# ~mode~@ViewerMode@ is selected automatically
-                         at the first view. Otherwise, the #text# mode is selected.
+ #Wykryj sposób podglądu#  Jeżeli ta opcja jest włączona, a Far otwiera plik binarny,
+                         to automatycznie wybierany jest ~tryb~@ViewerMode@ #źródłowy# (ang. dump).
+                         W innych przypadkach wybierany jest tryb #tekstowy#.
 
- #Autodetect#              ~Autodetect~@CodePageAuto@ the code page of
- #code page#               the file being viewed.
+ #Rozpoznaj stronę kodową# ~Automatyczne wykrywanie~@CodePageAuto@ strony kodowej w przeglądanym pliku.
+ #pliku#                   
 
- #Default code page#       Allows to select the default code page.
+ #Domyślna strona kodowa#  Pozwala wybrać domyślną stronę kodową.
 @=
 
- If the external viewer is assigned to #F3# key, it will be launched only if
-the ~associated~@FileAssoc@ viewer for the current file type is not defined.
+ Jeżeli zewnętrzny podgląd jest przypisany do klawisza #F3#, to zostanie
+on uruchomiony tylko wtedy, gdy ~powiązana~@FileAssoc@ przeglądarka nie została
+zdefiniowana dla bieżącego typu pliku.
 
- Changing of settings does not affect currently opened internal
-viewer windows.
+ Zmiany ustawień nie dotyczą aktualnie otwartego okna wewnętrznego podglądu.
 
- The settings dialog can also be invoked from the ~internal viewer~@Viewer@
-by pressing #Alt+Shift+F9#. The changes will come into effect immediately but
-will affect only the current session.
+ Okno dialogowe ustawień można także wywołać z poziomu ~wewnętrznej przeglądarki~@Viewer@
+po wciśnięciu klawiszy #Alt+Shift+F9#. Zmiany zostaną od razu wprowadzone, ale mają
+zastosowanie tylko do bieżącej sesji.
 
 
 @EditorSettings
-$ #Settings dialog: editor#
- This dialog allows to change the default external and
-~internal editor~@Editor@ settings.
+$ #Okno ustawień: edytor#
+ To okno pozwala zmienić ustawienia domyślnego zewnętrznego i ~wewnętrznego edytora~@Editor@.
 
- External editor
+@=
+^#Edytor zewnętrzny#
+@=
+ #Użyj zewn. edytora#      Uruchom zewnętrzny edytor pod klawiszem #F4#
+ #pod klawiszem F4#        zamiast #Alt+F4#.
 
- #Use for F4#              Run external editor using #F4# instead of
-                         #Alt+F4#.
+ #Polecenie#               Polecenie do uruchomienia zewnętrznego edytora.
 
- #Editor command#          Command to execute the external editor.
-                         Use ~special symbols~@MetaSymbols@ to specify the name
-                         of the file to edit.
+@=
+^#Edytor wewnętrzny#
+@=
+ #Nie zamieniaj znaków#    Nie konwertuje znaków tabulacji na spacje podczas
+ #tabulacji#               edycji dokumentu.
 
- Internal editor
+ #Zamień nowo dodane znaki#Podczas edycji dokumentu, konwertuje każdy
+ #tabulacji na spacje#     nowo wprowadzony znak #Tab# na zdefiniowaną liczę
+                         spacji. Wcześniej wprowadzone tabulacji nie zostaną
+                         przekonwertowane.
 
- #Do not expand tabs#      Do not convert tabs to spaces while
-                         editing the document.
+ #Zastap wszystkie tabul.# Po otwarciu dokumentu, wszystkie tabulatory w dokumencie
+ #na spacje#               będą automatycznie przekonwertowane na spacje.
 
- #Expand newly entered#    While editing the document, convert each
- #tabs to spaces#          newly entered #Tab# into the appropriate
-                         number of spaces. Other tabs won't be
-                         converted.
+ #Trwałe bloki#            Nie usuwaj zaznaczenia bloku po przesunięciu kursora.
 
- #Expand all tabs to#      Upon opening the document, all tabs in
- #spaces#                  the document will be automatically
-                         converted to spaces.
+ #DEL usuwa bloki#         Jeżeli blok jest zaznaczony, naciśnięcie klawisza #Del#
+                         nie usunie znaku pod kursorem, ale ten blok.
 
- #Persistent blocks#       Do not remove block selection after
-                         moving the cursor.
+ #Automatyczne wcięcia#    Włącza opcję automatycznego wstawiania wcięć (tabulatory/spacje)
+                         w tekście.
 
- #Del removes blocks#      If a block is selected, pressing #Del# will
-                         not remove the character under cursor, but
-                         this block.
+ #Rozmiar tabulatora#      Liczba spacji przy zamianie klawisza tabulator.
 
- #Save file position#      Save and restore positions in the recently
-                         edited files. This option also forces
-                         restoring of code page, if the page
-                         was manually selected by user.
+ #Pokaż białe znaki#       Włącza widoczność #białych# znaków (spacje, tabulatory,
+                         znaki łamania linii).
 
- #Save bookmarks#          Save and restore bookmarks (current
-                         positions) in recently edited files
-                         (created with #RightCtrl+0…9# or
-                         #Ctrl+Shift+0…9#)
+ #Kursor za końcem linii#  Pozwala przesunać kursor poza koniec linii.
 
- #Auto indent#             Enables auto indent mode when entering
-                         text.
+ #Zaznacz znalezione#      Oznacza znaleziony tekst.
 
- #Cursor beyond#           Allow moving cursor beyond the end of line.
- #end of line#
+ #Kursor na końcu bloku#   Umieszcza kursor na końcu znalezionego bloku.
 
- #Tab size#                Number of spaces in a tab character.
+ #Pokaż pasek przewijania# Pokazuje pasek przewijania okna.
 
- #Show a scrollbar#        Show a scrollbar.
+@=
+ #Zapamiętaj pozycję#      Zapisuje i przywraca pozycję w ostatnio edytorwanych
+ #kursora w pliku#         plikach. Opcja wymusza także przywrócenie strony kodowej,
+                         jeżeli została ona ręcznie ustawiona przez użytkownika.
 
- #Show white space#        Make while space characters (spaces, tabulations,
-                         line breaks) visible.
+ #Zapisz zakładki#         Zapisuje i przywraca zakładki (bieżące pozycje)
+                         w ostatnio edytowanych plikach (tworzenie za pomocą
+                         kombinacji klawiszy #PrawyCtrl+0…9# lub #Ctrl+Shift+0…9#).
 
- #Select found#            Found text is selected
+ #Zezwól na edycję plików# Pozwala na edycję plików otwartych do zapisu
+ #otwartych do zapisu#     przez inne aplikacje. Opcja jest przydatna do edycji
+                         plików otwartych na długi czas, ale może być niebezpieczna,
+                         jeżeli pliki zostaną zmodyfikwane w obu programach.
 
- #Cursor at the end#       Place the cursor at the end of the found block.
+ #Nie edytuj plików#       Jeżeli plik z atrybutem Tylko-do-odczytu (Read only)
+ #tylko do odczytu#        jest otwarty do edycji, to edytor wyłącza modyfikację
+                         edytowanego tekstu podobnie do wciśnięcia #Ctrl+L#.
 
- #Autodetect#              ~Autodetect~@CodePageAuto@ the code page of
- #code page#               the file being edited.
+ #Ostrzeż przed otwier.#   Przy otwarciu plików z atrybutem Tylko-do-odczytu
+ #plików tylko do odczytu# zostanie pokazane okno ostrzeżenia.
 
- #Edit files opened#       Allows to edit files that are opened
- #for writing#             by other programs for writing. This mode
-                         is handy to edit a file opened for a long
-                         time, but it could be dangerous, if a file
-                         is being modified at the same time as
-                         editing.
+ #Rozpoznaj stronę kodową# ~Automatyczne wykrywanie~@CodePageAuto@ strony kodowej
+                         edytowanego pliku.
 
- #Lock editing of#         When a file with the Read-only attribute
- #read-only files#         is opened for editing, the editor also
-                         disables the modification of the edited
-                         text, just as if #Ctrl+L# was pressed.
+ #Domyślna strona kodowa#  Ręczny wybór domyślnej strony kodowej pliku.
 
- #Warn when opening#       When a file with the Read-only attribute
- #read-only files#         is opened for editing, a warning message
-                         will be shown.
+ Jeżeli zewnętrzny edytor jest przypisany do klawisza #F4#, to zostanie
+on uruchomiony tylko wtedy, gdy ~powiązany~@FileAssoc@ edytor nie został
+zdefiniowany dla bieżącego typu pliku.
 
- #Default code page#       Select the default code page.
+ Zmiany ustawień nie dotyczą aktualnie otwartego okna wewnętrznego edytora.
 
- If the external editor is assigned to #F4# key, it will be executed only if
-~associated~@FileAssoc@ editor for the current file type is not defined.
-
- Modifications of settings in this dialog do not affect previously opened
-internal editor windows.
-
- The settings dialog can also be invoked from the ~internal editor~@Editor@
-by pressing #Alt+Shift+F9#. The changes will come into force immediately but
-will affect only the current session.
+ Okno dialogowe ustawień można także wywołać z poziomu ~wewnętrznego edytora~@Editor@
+po wciśnięciu klawiszy #Alt+Shift+F9#. Zmiany zostaną od razu wprowadzone, ale mają
+zastosowanie tylko do bieżącej sesji.
 
 
 @CodePageAuto
