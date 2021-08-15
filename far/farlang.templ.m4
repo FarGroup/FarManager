@@ -18743,7 +18743,7 @@ MSetColorStyle
 
 MSetColorStyleInherit
 "Наследовать"
-"Inherit"
+"&Inherit"
 "Zdědí"
 "Erben"
 "Örökölje"
@@ -18757,7 +18757,7 @@ MSetColorStyleInherit
 
 MSetColorStyleBold
 "Жирный"
-"Bold"
+"B&old"
 "Tučné"
 "Fett"
 "Félkövér"
@@ -18771,7 +18771,7 @@ MSetColorStyleBold
 
 MSetColorStyleItalic
 "Курсив"
-"Italic"
+"I&talic"
 "Kurzíva"
 "Kursiv"
 "Dőlt"
@@ -18785,7 +18785,7 @@ MSetColorStyleItalic
 
 MSetColorStyleUnderline
 "Подчёркнутый"
-"Underline"
+"&Underline"
 "Podtržené"
 "Unterstrichen"
 "Aláhúzott"
@@ -18799,7 +18799,7 @@ MSetColorStyleUnderline
 
 MSetColorStyleUnderline2
 "Двойное"
-"Double"
+"&Double"
 "Dvojitě"
 "Doppelt"
 "Dupla"
@@ -18813,7 +18813,7 @@ MSetColorStyleUnderline2
 
 MSetColorStyleOverline
 "Надчёркивание"
-"Overline"
+"O&verline"
 "Nadtržítko"
 "Überstrichen"
 "Föléhúzás"
@@ -18827,7 +18827,7 @@ MSetColorStyleOverline
 
 MSetColorStyleStrikeout
 "Зачёркнутый"
-"Strikeout"
+"&Strikeout"
 "Přeškrtnuté"
 "Durchgestrichen"
 "Áthúzás"
@@ -18841,7 +18841,7 @@ MSetColorStyleStrikeout
 
 MSetColorStyleFaint
 "Бледный"
-"Faint"
+"F&aint"
 "Tmavé"
 "Abblenden"
 "Sötét"
@@ -18855,7 +18855,7 @@ MSetColorStyleFaint
 
 MSetColorStyleBlink
 "Мерцающий"
-"Blink"
+"B&link"
 "Blikající"
 "Blinkend"
 "Villogás"

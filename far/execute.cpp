@@ -619,17 +619,17 @@ static bool execute_impl(
 		if (Context)
 			return;
 
+		if (!ConsoleActivatorInvoked)
+		{
+			ConsoleActivator(Consolise);
+			ConsoleActivatorInvoked = true;
+		}
+
 		if (Consolise)
 		{
 			console.GetWindowRect(ConsoleWindowRect);
 			console.GetSize(ConsoleSize);
 			Context.emplace();
-		}
-
-		if (!ConsoleActivatorInvoked)
-		{
-			ConsoleActivator(Consolise);
-			ConsoleActivatorInvoked = true;
 		}
 	};
 
