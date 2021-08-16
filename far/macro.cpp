@@ -4705,7 +4705,7 @@ void FarMacroApi::editorundoFunc()
 		return PassValue(0);
 
 	const auto CurrentEditor = Global->WindowManager->GetCurrentEditor();
-	if (!CurrentEditor || CurrentEditor->IsVisible())
+	if (!CurrentEditor || !CurrentEditor->IsVisible())
 		return PassValue(0);
 
 	auto Params = parseParams(1, mData);
@@ -4723,7 +4723,7 @@ void FarMacroApi::editorsettitleFunc()
 		return PassValue(0);
 
 	const auto CurrentEditor = Global->WindowManager->GetCurrentEditor();
-	if (!CurrentEditor || CurrentEditor->IsVisible())
+	if (!CurrentEditor || !CurrentEditor->IsVisible())
 		return PassValue(0);
 
 	auto Params = parseParams(1, mData);
@@ -4742,7 +4742,7 @@ void FarMacroApi::editordellineFunc()
 		return PassValue(0);
 
 	const auto CurrentEditor = Global->WindowManager->GetCurrentEditor();
-	if (!CurrentEditor || CurrentEditor->IsVisible())
+	if (!CurrentEditor || !CurrentEditor->IsVisible())
 		return PassValue(0);
 
 	auto Params = parseParams(1, mData);
@@ -4761,7 +4761,7 @@ void FarMacroApi::editorinsstrFunc()
 		return PassValue(0);
 
 	const auto CurrentEditor = Global->WindowManager->GetCurrentEditor();
-	if (!CurrentEditor || CurrentEditor->IsVisible())
+	if (!CurrentEditor || !CurrentEditor->IsVisible())
 		return PassValue(0);
 
 	auto Params = parseParams(2, mData);
@@ -4784,7 +4784,7 @@ void FarMacroApi::editorsetstrFunc()
 		return PassValue(0);
 
 	const auto CurrentEditor = Global->WindowManager->GetCurrentEditor();
-	if (!CurrentEditor || CurrentEditor->IsVisible())
+	if (!CurrentEditor || !CurrentEditor->IsVisible())
 		return PassValue(0);
 
 	auto Params = parseParams(2, mData);
