@@ -75,7 +75,7 @@ static void ChangeColor(PaletteColors PaletteIndex, PaletteColors const* const B
 	auto NewColor = Global->Opt->Palette[PaletteIndex];
 	const auto BottomColor = BottomPaletteIndex? &Global->Opt->Palette[*BottomPaletteIndex] : nullptr;
 
-	if (!console.GetColorDialog(NewColor, false, BottomColor))
+	if (!GetColorDialog(NewColor, false, BottomColor))
 		return;
 
 	Global->Opt->Palette.Set(PaletteIndex, { &NewColor, 1 });
@@ -768,7 +768,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
-bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColor* const BaseColor)
+bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const BaseColor)
 {
 	auto ColorDlg = MakeDialogItems<cd_count>(
 	{

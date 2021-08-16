@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 16.08.2021 17:34:55 +0100 - build 5876
+
+1. Forum: some visual distinction for the "Inherit" flag in the Color dialog & hotkeys.
+
+2. Minor executor correction.
+
+3. Stop looking for GetColorDialog in extendedconsole.dll.
+
+--------------------------------------------------------------------------------
 drkns 12.08.2021 00:11:15 +0100 - build 5875
 
 1. Refactoring.

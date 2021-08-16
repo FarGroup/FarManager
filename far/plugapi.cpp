@@ -89,6 +89,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "lockscrn.hpp"
 #include "exception_handler.hpp"
+#include "setcolor.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -3085,7 +3086,7 @@ BOOL WINAPI apiColorDialog(const UUID* PluginId, COLORDIALOGFLAGS Flags, FarColo
 	return cpp_try(
 	[&]
 	{
-		return !Global->WindowManager->ManagerIsDown() && console.GetColorDialog(*Color, true);
+		return !Global->WindowManager->ManagerIsDown() && GetColorDialog(*Color, true);
 	},
 	[]
 	{
