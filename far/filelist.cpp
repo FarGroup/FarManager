@@ -6976,6 +6976,8 @@ void FileList::UpdateIfChanged(bool Changed)
 	if (!Changed && !FSWatcher.TimeChanged())
 		return;
 
+	m_UpdatePending = false;
+
 	if (const auto AnotherPanel = Parent()->GetAnotherPanel(this); AnotherPanel->GetType() == panel_type::INFO_PANEL)
 	{
 		AnotherPanel->Update(UPDATE_KEEP_SELECTION);
@@ -6983,8 +6985,6 @@ void FileList::UpdateIfChanged(bool Changed)
 	}
 
 	Update(UPDATE_KEEP_SELECTION);
-
-	m_UpdatePending = false;
 }
 
 class FileList::background_updater
