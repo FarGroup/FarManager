@@ -265,7 +265,6 @@ namespace console_detail
 			DECLARE_IMPORT_FUNCTION(GetTextAttributes,    BOOL(WINAPI*)(FarColor* Attributes));
 			DECLARE_IMPORT_FUNCTION(SetTextAttributes,    BOOL(WINAPI*)(const FarColor* Attributes));
 			DECLARE_IMPORT_FUNCTION(ClearExtraRegions,    BOOL(WINAPI*)(const FarColor* Color, int Mode));
-			DECLARE_IMPORT_FUNCTION(GetColorDialog,       BOOL(WINAPI*)(FarColor* Color, BOOL Centered, BOOL AddTransparent));
 
 #undef DECLARE_IMPORT_FUNCTION
 		}
@@ -1564,14 +1563,6 @@ namespace console_detail
 			SetCursorPosition({ 0, static_cast<int>(WindowRect.height() - 1) });
 	}
 
-	bool console::GetColorDialog(FarColor& Color, bool const Centered, const FarColor* const BaseColor) const
-	{
-		if (ExternalConsole.Imports.pGetColorDialog)
-			return ExternalConsole.Imports.pGetColorDialog(&Color, Centered, BaseColor != nullptr) != FALSE;
-
-		return GetColorDialogInternal(Color, Centered, BaseColor);
-	}
-
 	short console::GetDelta() const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -1761,7 +1752,7 @@ enum
 	BufferSize = 8192
 };
 
-class consolebuf : public std::wstreambuf
+class consolebuf final: public std::wstreambuf
 {
 public:
 	NONCOPYABLE(consolebuf);

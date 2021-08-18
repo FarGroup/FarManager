@@ -700,8 +700,8 @@ bool Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		ResetArea = false;
 	}
 
-	GArea.Current.x = std::clamp(IntKeyState.MousePos.x, 0, int(ScrX));
-	GArea.Current.y = std::clamp(IntKeyState.MousePos.y, 0, int(ScrY));
+	GArea.Current.x = std::clamp(IntKeyState.MousePos.x, 0, static_cast<int>(ScrX));
+	GArea.Current.y = std::clamp(IntKeyState.MousePos.y, 0, static_cast<int>(ScrY));
 
 	if (MouseEvent->dwEventFlags == MOUSE_MOVED)
 	{

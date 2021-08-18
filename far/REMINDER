@@ -13,11 +13,6 @@ SetConsoleTitle & Macro
 
    svs 26.01.2007 16:02:00 +0300
 
-TPreRedrawFunc
-   2SVS: "надо бы описать сей чудный механизм автоматической отрисовки" :)
-
-   drkns 28.11.2008 18:34:19 +0200
-
 copy.cpp
    При вызовах apiGetDiskSize использовать не Root, а Dest (если Dest существует)
    drkns 20.04.2009 14:07:34 +0200

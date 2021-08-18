@@ -44,8 +44,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/bytes_view.hpp"
 #include "common/enumerator.hpp"
-#include "common/keep_alive.hpp"
 #include "common/noncopyable.hpp"
+#include "common/string_utils.hpp"
 
 // External:
 
@@ -98,16 +98,14 @@ public:
 
 	virtual void DeleteValue(string_view Key, string_view Name) = 0;
 
-	template<typename T, typename key_type>
+	template<typename T>
 	[[nodiscard]]
-	auto ValuesEnumerator(key_type&& Key) const
+	auto ValuesEnumerator(lvalue_string_view const Key) const
 	{
-		static_assert(std::is_convertible_v<key_type, string_view>);
-
 		using value_type = std::pair<string, T>;
-		return make_inline_enumerator<value_type>([this, Key = keep_alive(FWD(Key))](const bool Reset, value_type& Value)
+		return make_inline_enumerator<value_type>([=, Self = this](const bool Reset, value_type& Value)
 		{
-			return EnumValues(Key.get(), Reset, Value.first, Value.second);
+			return Self->EnumValues(Key, Reset, Value.first, Value.second);
 		},
 		[this]
 		{
@@ -450,16 +448,13 @@ public:
 		string Data;
 	};
 
-	template<typename type>
 	[[nodiscard]]
-	auto Enumerator(unsigned int HistoryType, type&& HistoryName, bool Reverse = false)
+	auto Enumerator(unsigned int const HistoryType, lvalue_string_view const HistoryName, lvalue_string_view const ItemName = {}, bool const Reverse = false)
 	{
-		static_assert(std::is_convertible_v<type, string_view>);
-
 		using value_type = enum_data;
-		return make_inline_enumerator<value_type>([this, HistoryType, HistoryName = keep_alive(FWD(HistoryName)), Reverse](const bool Reset, value_type& Value)
+		return make_inline_enumerator<value_type>([=, Self = this](const bool Reset, value_type& Value)
 		{
-			return Enum(Reset, HistoryType, HistoryName.get(), Value.Id, Value.Name, Value.Type, Value.Lock, Value.Time, Value.Uuid, Value.File, Value.Data, Reverse);
+			return Self->Enum(Reset, HistoryType, HistoryName, ItemName, Value.Id, Value.Name, Value.Type, Value.Lock, Value.Time, Value.Uuid, Value.File, Value.Data, Reverse);
 		},
 		[this, Reverse]
 		{
@@ -487,7 +482,7 @@ protected:
 private:
 	//command,view,edit,folder,dialog history
 	[[nodiscard]]
-	virtual bool Enum(bool Reset, unsigned int TypeHistory, string_view HistoryName, unsigned long long& id, string& strName, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strUuid, string& strFile, string& strData, bool Reverse) = 0;
+	virtual bool Enum(bool Reset, unsigned int TypeHistory, string_view HistoryName, string_view ItemName, unsigned long long& id, string& strName, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strUuid, string& strFile, string& strData, bool Reverse) = 0;
 	virtual void CloseEnum(bool Reverse) const = 0;
 	[[nodiscard]]
 	virtual bool EnumLargeHistories(bool Reset, unsigned int TypeHistory, int MinimumEntries, string& strHistoryName) = 0;

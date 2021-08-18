@@ -36,11 +36,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Internal:
+#include "windowsfwd.hpp"
+#include "dialog.hpp"
 
 // Platform:
 
 // Common:
 #include "common/function_ref.hpp"
+#include "common/preprocessor.hpp"
 #include "common/utility.hpp"
 
 // External:
@@ -160,7 +163,7 @@ enum class operation
 
 operation OperationFailed(const error_state_ex& ErrorState, string_view Object, lng Title, string Description, bool AllowSkip = true, bool AllowSkipAll = true);
 
-class operation_cancelled: public std::exception
+class operation_cancelled final: public std::exception
 {
 };
 
@@ -188,6 +191,40 @@ struct goto_coord
 
 bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view HelpTopic);
 
+bool ConfirmAbort();
+bool CheckForEscAndConfirmAbort();
 bool RetryAbort(std::vector<string>&& Messages);
+
+class progress_impl
+{
+protected:
+	NONCOPYABLE(progress_impl);
+
+	progress_impl() = default;
+	~progress_impl();
+
+	void init(span<DialogItemEx> Items, rectangle Position);
+
+	dialog_ptr m_Dialog;
+};
+
+class single_progress: progress_impl
+{
+public:
+	single_progress(string_view Title, string_view Msg, size_t Percent);
+
+	void update(string_view Msg) const;
+	void update(size_t Percent) const;
+};
+
+class dirinfo_progress: progress_impl
+{
+public:
+	explicit dirinfo_progress(string_view Title);
+
+	void set_name(string_view Msg) const;
+	void set_count(unsigned long long Count) const;
+	void set_size(unsigned long long Size) const;
+};
 
 #endif // STDDLG_HPP_D7E3481D_D478_4F57_8C20_7E0A21FAE788

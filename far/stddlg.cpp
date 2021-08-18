@@ -56,6 +56,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "language.hpp"
 #include "log.hpp"
+#include "copy_progress.hpp"
+#include "keyboard.hpp"
 
 // Platform:
 #include "platform.com.hpp"
@@ -608,7 +610,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 		});
 	}
 
-	int MsgResult;
+	message_result MsgResult;
 	for(;;)
 	{
 		MsgResult = Message(MSG_WARNING, ErrorState,
@@ -618,7 +620,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 
 		if(SwitchBtn)
 		{
-			if (MsgResult == Message::first_button)
+			if (MsgResult == message_result::first_button)
 			{
 				HWND Window = nullptr;
 				if (FileIsInUse)
@@ -634,13 +636,13 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 				}
 				continue;
 			}
-			else if (MsgResult > 0)
+			else if (MsgResult != message_result::cancelled)
 			{
-				--MsgResult;
+				MsgResult = static_cast<message_result>(static_cast<size_t>(MsgResult) - 1);
 			}
 		}
 
-		if(CloseBtn && MsgResult == Message::first_button)
+		if(CloseBtn && MsgResult == message_result::first_button)
 		{
 			// close & retry
 			if (FileIsInUse)
@@ -651,7 +653,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 		break;
 	}
 
-	if (MsgResult < 0 || static_cast<size_t>(MsgResult) == Buttons.size() - 1)
+	if (MsgResult == message_result::cancelled || static_cast<size_t>(MsgResult) == Buttons.size() - 1)
 		return operation::cancel;
 
 	return static_cast<operation>(MsgResult);
@@ -859,6 +861,31 @@ bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view const H
 	}
 }
 
+bool ConfirmAbort()
+{
+	if (!Global->Opt->Confirm.Esc)
+		return true;
+
+	if (Global->CloseFAR)
+		return true;
+
+	// BUGBUG MSG_WARNING overrides TBPF_PAUSED with TBPF_ERROR
+	SCOPED_ACTION(taskbar::state)(TBPF_PAUSED);
+	const auto Result = Message(MSG_WARNING | MSG_KILLSAVESCREEN,
+		msg(lng::MKeyESCWasPressed),
+		{
+			msg(Global->Opt->Confirm.EscTwiceToInterrupt? lng::MDoYouWantToContinue : lng::MDoYouWantToCancel)
+		},
+		{ lng::MYes, lng::MNo });
+
+	return Global->Opt->Confirm.EscTwiceToInterrupt.Get() == (Result != message_result::first_button);
+}
+
+bool CheckForEscAndConfirmAbort()
+{
+	return CheckForEscSilent() && ConfirmAbort();
+}
+
 bool RetryAbort(std::vector<string>&& Messages)
 {
 	if (Global->WindowManager && !Global->WindowManager->ManagerIsDown() && far_language::instance().is_loaded())
@@ -866,7 +893,7 @@ bool RetryAbort(std::vector<string>&& Messages)
 		return Message(FMSG_WARNING,
 			msg(lng::MError),
 			std::move(Messages),
-			{ lng::MRetry, lng::MAbort }) == Message::first_button;
+			{ lng::MRetry, lng::MAbort }) == message_result::first_button;
 	}
 
 	std::wcerr << L"\nError:\n\n"sv;
@@ -875,4 +902,136 @@ bool RetryAbort(std::vector<string>&& Messages)
 		std::wcerr << i << L'\n';
 
 	return ConsoleYesNo(L"Retry"sv, false);
+}
+
+progress_impl::~progress_impl()
+{
+	if (m_Dialog)
+		m_Dialog->CloseDialog();
+}
+
+void progress_impl::init(span<DialogItemEx> const Items, rectangle const Position)
+{
+	m_Dialog = Dialog::create(Items, [](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
+	{
+		if (Msg == DN_RESIZECONSOLE)
+		{
+			COORD CenterPosition{ -1, -1 };
+			Dlg->SendMessage(DM_MOVEDIALOG, 1, &CenterPosition);
+		}
+
+		return Dlg->DefProc(Msg, Param1, Param2);
+	});
+
+	m_Dialog->SetPosition(Position);
+	m_Dialog->SetCanLoseFocus(true);
+	m_Dialog->Process();
+
+	Global->WindowManager->PluginCommit();
+}
+
+struct single_progress_detail
+{
+	enum
+	{
+		DlgW = 76,
+		DlgH = 6,
+	};
+
+	enum items
+	{
+		pr_console_title,
+		pr_doublebox,
+		pr_message,
+		pr_progress,
+
+		pr_count
+	};
+};
+
+single_progress::single_progress(string_view const Title, string_view const Msg, size_t const Percent)
+{
+	const auto
+		DlgW = single_progress_detail::DlgW,
+		DlgH = single_progress_detail::DlgH;
+
+	auto ProgressDlgItems = MakeDialogItems<single_progress_detail::items::pr_count>(
+	{
+		{ DI_TEXT,      {{ 0, 0 }, { 0,               0 }}, DIF_HIDDEN, {}, },
+		{ DI_DOUBLEBOX, {{ 3, 1 }, { DlgW - 4, DlgH - 2 }}, DIF_NONE,   Title, },
+		{ DI_TEXT,      {{ 5, 2 }, { DlgW - 6,        2 }}, DIF_NONE,   Msg },
+		{ DI_TEXT,      {{ 5, 3 }, { DlgW - 6,        3 }}, DIF_NONE,   make_progressbar(DlgW - 10, Percent, true, true) },
+	});
+
+	init(ProgressDlgItems, { -1, -1, DlgW, DlgH });
+}
+
+void single_progress::update(string_view const Msg) const
+{
+	m_Dialog->SendMessage(DM_SETTEXTPTR, single_progress_detail::items::pr_message, UNSAFE_CSTR(null_terminated(Msg)));
+}
+
+void single_progress::update(size_t const Percent) const
+{
+	m_Dialog->SendMessage(DM_SETTEXTPTR, single_progress_detail::items::pr_progress, UNSAFE_CSTR(make_progressbar(single_progress_detail::DlgW - 10, Percent, true, true)));
+
+	const auto Title = reinterpret_cast<const wchar_t*>(m_Dialog->SendMessage(DM_GETCONSTTEXTPTR, single_progress_detail::items::pr_doublebox, {}));
+	m_Dialog->SendMessage(DM_SETTEXTPTR, single_progress_detail::items::pr_console_title, UNSAFE_CSTR(concat(L'{', str(Percent), L"%} "sv, Title)));
+}
+
+struct dirinfo_progress_detail
+{
+	enum
+	{
+		DlgW = 76,
+		DlgH = 9,
+	};
+
+	enum items
+	{
+		pr_doublebox,
+		pr_scanning,
+		pr_message,
+		pr_separator,
+		pr_files,
+		pr_bytes,
+
+		pr_count
+	};
+};
+
+dirinfo_progress::dirinfo_progress(string_view const Title)
+{
+	const auto
+		DlgW = dirinfo_progress_detail::DlgW,
+		DlgH = dirinfo_progress_detail::DlgH;
+
+	auto ProgressDlgItems = MakeDialogItems<dirinfo_progress_detail::items::pr_count>(
+	{
+		{ DI_DOUBLEBOX, {{ 3, 1 }, { DlgW - 4, DlgH - 2 }}, DIF_NONE,      Title, },
+		{ DI_TEXT,      {{ 5, 2 }, { DlgW - 6,        2 }}, DIF_NONE,      msg(lng::MScanningFolder) },
+		{ DI_TEXT,      {{ 5, 3 }, { DlgW - 6,        3 }}, DIF_NONE,      {} },
+		{ DI_TEXT,      {{ 5, 4 }, { DlgW - 6,        4 }}, DIF_SEPARATOR, {} },
+		{ DI_TEXT,      {{ 5, 5 }, { DlgW - 6,        5 }}, DIF_NONE,      {} },
+		{ DI_TEXT,      {{ 5, 6 }, { DlgW - 6,        6 }}, DIF_NONE,      {} },
+	});
+
+	init(ProgressDlgItems, { -1, -1, DlgW, DlgH });
+}
+
+void dirinfo_progress::set_name(string_view const Msg) const
+{
+	m_Dialog->SendMessage(DM_SETTEXTPTR, dirinfo_progress_detail::items::pr_message, UNSAFE_CSTR(null_terminated(Msg)));
+}
+
+void dirinfo_progress::set_count(unsigned long long const Count) const
+{
+	const auto Str = copy_progress::FormatCounter(lng::MCopyFilesTotalInfo, lng::MCopyBytesTotalInfo, Count, 0, false, copy_progress::CanvasWidth() - 5);
+	m_Dialog->SendMessage(DM_SETTEXTPTR, dirinfo_progress_detail::items::pr_files, UNSAFE_CSTR(Str));
+}
+
+void dirinfo_progress::set_size(unsigned long long const Size) const
+{
+	const auto Str = copy_progress::FormatCounter(lng::MCopyBytesTotalInfo, lng::MCopyFilesTotalInfo, Size, 0, false, copy_progress::CanvasWidth() - 5);
+	m_Dialog->SendMessage(DM_SETTEXTPTR, dirinfo_progress_detail::items::pr_bytes, UNSAFE_CSTR(Str));
 }

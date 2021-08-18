@@ -187,7 +187,6 @@ private:
 	void WindowsChanged() { std::fill(m_windows_changed.begin(), m_windows_changed.end(), true); }
 
 	using windows = std::vector<window_ptr>;
-	void* GetCurrent(function_ref<void*(window_ptr const&)> Check) const;
 	windows::const_iterator SpecialWindow();
 	windows m_windows;
 	size_t m_NonModalSize{};

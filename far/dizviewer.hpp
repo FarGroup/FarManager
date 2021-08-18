@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-class DizViewer: public Viewer
+class DizViewer final: public Viewer
 {
 public:
 	explicit DizViewer(window_ptr Owner):

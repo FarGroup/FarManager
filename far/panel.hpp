@@ -106,7 +106,6 @@ enum
 	UPDATE_KEEP_SELECTION = 0_bit,
 	UPDATE_SECONDARY      = 1_bit,
 	UPDATE_IGNORE_VISIBLE = 2_bit,
-	UPDATE_DRAW_MESSAGE   = 3_bit,
 };
 
 enum class panel_mode
@@ -313,7 +312,7 @@ private:
 	string strDragName;
 };
 
-class dummy_panel : public Panel
+class dummy_panel final: public Panel
 {
 public:
 	explicit dummy_panel(window_ptr Owner):

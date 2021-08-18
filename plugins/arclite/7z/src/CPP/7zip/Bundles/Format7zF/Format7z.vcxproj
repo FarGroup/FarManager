@@ -426,39 +426,26 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\LzFind.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\LzFindMt.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\LzFindOpt.c">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\Lzma2Dec.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\Lzma2DecMt.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\Lzma2Enc.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\LzmaDec.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
@@ -599,6 +586,7 @@
     <ClCompile Include="..\..\..\Common\CrcReg.cpp" />
     <ClCompile Include="..\..\..\Common\DynLimBuf.cpp" />
     <ClCompile Include="..\..\..\Common\IntToString.cpp" />
+    <ClCompile Include="..\..\..\Common\LzFindPrepare.cpp" />
     <ClCompile Include="..\..\..\Common\MyMap.cpp" />
     <ClCompile Include="..\..\..\Common\MyString.cpp" />
     <ClCompile Include="..\..\..\Common\MyVector.cpp" />
@@ -1113,6 +1101,10 @@
     </MASM>
     <MASM Include="..\..\..\..\Asm\x86\AesOpt.asm">
       <PreprocessorDefinitions Condition="'$(Platform)'=='x64'">x64</PreprocessorDefinitions>
+    </MASM>
+    <MASM Include="..\..\..\..\Asm\x86\LzFindOpt.asm">
+      <PreprocessorDefinitions Condition="'$(Platform)'=='x64'">x64</PreprocessorDefinitions>
+      <ExcludedFromBuild Condition="'$(Platform)'=='Win32'">true</ExcludedFromBuild>
     </MASM>
     <MASM Include="..\..\..\..\Asm\x86\LzmaDecOpt.asm">
       <PreprocessorDefinitions Condition="'$(Platform)'=='x64'">x64</PreprocessorDefinitions>

@@ -63,7 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "cmdline.hpp"
 #include "global.hpp"
-#include "modal.hpp"
+#include "window.hpp"
 #include "log.hpp"
 
 // Platform:
@@ -125,7 +125,7 @@ static bool OpenURL(string_view URLPath);
 static const auto HelpFormatLink = FSTR(L"<{}\\>{}"sv);
 static const auto HelpFormatLinkModule = FSTR(L"<{}>{}"sv);
 
-class Help :public Modal
+class Help final: public window
 {
 	struct private_tag {};
 
@@ -2173,7 +2173,7 @@ static bool OpenURL(string_view const URLPath)
 				L"\x01"s,
 				msg(lng::MHelpActivatorQ)
 			},
-			{ lng::MYes, lng::MNo }) != Message::first_button)
+			{ lng::MYes, lng::MNo }) != message_result::first_button)
 			return false;
 	}
 

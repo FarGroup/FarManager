@@ -55,7 +55,7 @@ enum
 };
 
 
-class TreeList: public Panel
+class TreeList final: public Panel
 {
 	struct private_tag {};
 

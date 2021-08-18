@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lockscrn.hpp"
 #include "macroopcode.hpp"
 #include "refreshwindowmanager.hpp"
-#include "TPreRedrawFunc.hpp"
 #include "taskbar.hpp"
 #include "interf.hpp"
 #include "message.hpp"
@@ -77,6 +76,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "global.hpp"
 #include "network.hpp"
+#include "dialog.hpp"
+#include "stddlg.hpp"
+#include "datetime.hpp"
 #if defined(TREEFILE_PROJECT)
 #include "drivemix.hpp"
 #endif
@@ -616,61 +618,41 @@ void TreeList::Update(int Mode)
 	}
 }
 
-static void PR_MsgReadTree();
-
-struct TreePreRedrawItem: public PreRedrawItem
+class tree_progress: progress_impl
 {
-	TreePreRedrawItem():
-		PreRedrawItem(PR_MsgReadTree),
-		TreeCount()
-	{}
+	enum
+	{
+		DlgW = 76,
+		DlgH = 6,
+	};
 
-	size_t TreeCount;
+	enum items
+	{
+		pr_doublebox,
+		pr_message,
+		pr_dirs,
+
+		pr_count
+	};
+
+public:
+	tree_progress()
+	{
+		auto ProgressDlgItems = MakeDialogItems<items::pr_count>(
+		{
+			{ DI_DOUBLEBOX, {{ 3, 1 }, { DlgW - 4, DlgH - 2 }}, DIF_NONE,      msg(lng::MTreeTitle), },
+			{ DI_TEXT,      {{ 5, 2 }, { DlgW - 6,        2 }}, DIF_NONE,      msg(lng::MReadingTree) },
+			{ DI_TEXT,      {{ 5, 3 }, { DlgW - 6,        3 }}, DIF_NONE,      {} },
+		});
+
+		init(ProgressDlgItems, { -1, -1, DlgW, DlgH });
+	}
+
+	void update(size_t const Count) const
+	{
+		m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_dirs, UNSAFE_CSTR(str(Count)));
+	}
 };
-
-static void MsgReadTreeImpl(size_t TreeCount)
-{
-	/* $ 24.09.2001 VVM
-	! Писать сообщение о чтении дерева только, если это заняло более 500 мсек. */
-	const auto IsChangeConsole = LastScrX != ScrX || LastScrY != ScrY;
-
-	if (IsChangeConsole)
-	{
-		LastScrX = ScrX;
-		LastScrY = ScrY;
-	}
-
-	if (IsChangeConsole || std::chrono::steady_clock::now() - TreeStartTime > 1s)
-	{
-		Message(0,
-			msg(lng::MTreeTitle),
-			{
-				msg(lng::MReadingTree),
-				str(TreeCount)
-			},
-			{});
-
-		TreeStartTime = std::chrono::steady_clock::now();
-	}
-}
-
-static void MsgReadTree(size_t TreeCount)
-{
-	MsgReadTreeImpl(TreeCount);
-
-	TPreRedrawFunc::instance()([&](TreePreRedrawItem& Item)
-	{
-		Item.TreeCount = TreeCount;
-	});
-}
-
-static void PR_MsgReadTree()
-{
-	TPreRedrawFunc::instance()([](const TreePreRedrawItem& Item)
-	{
-		MsgReadTreeImpl(Item.TreeCount);
-	});
-}
 
 static os::fs::file OpenTreeFile(string_view const Name, bool const Writable)
 {
@@ -798,7 +780,6 @@ bool TreeList::ReadTree()
 	m_ReadingTree = true;
 	SCOPE_EXIT{ m_ReadingTree = false; };
 
-	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
 	ScanTree ScTree(false, true, -1);
 	os::fs::find_data fdata;
 	string strFullName;
@@ -813,7 +794,7 @@ bool TreeList::ReadTree()
 
 	m_ListData.emplace_back(m_Root);
 
-	auto AscAbort = false;
+	auto Aborted = false;
 	TreeStartTime = std::chrono::steady_clock::now();
 	SCOPED_ACTION(RefreshWindowManager)(ScrX, ScrY);
 	ScTree.SetFindPath(m_Root, L"*"sv);
@@ -821,26 +802,30 @@ bool TreeList::ReadTree()
 	LastScrY = ScrY;
 	SCOPED_ACTION(taskbar::indeterminate);
 	SCOPED_ACTION(wakeful);
+	tree_progress const TreeProgress;
+	time_check TimeCheck;
+
 	while (ScTree.GetNextName(fdata,strFullName))
 	{
-		MsgReadTree(m_ListData.size());
-
-		if (CheckForEscSilent())
-		{
-			// BUGBUG, Dialog calls Commit, TreeList redraws and crashes.
-			AscAbort=ConfirmAbortOp();
-		}
-
-		if (AscAbort)
-			break;
-
 		if (!(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 			continue;
 
 		m_ListData.emplace_back(strFullName);
+
+		if (TimeCheck)
+		{
+			// BUGBUG, Dialog calls Commit, TreeList redraws and crashes.
+			if (CheckForEscAndConfirmAbort())
+			{
+				Aborted = true;
+				break;
+			}
+
+			TreeProgress.update(m_ListData.size());
+		}
 	}
 
-	if (AscAbort && m_ModalMode)
+	if (Aborted && m_ModalMode)
 	{
 		m_ListData.clear();
 		RestoreState();
@@ -852,7 +837,7 @@ bool TreeList::ReadTree()
 	if (!FillLastData())
 		return false;
 
-	if (!AscAbort)
+	if (!Aborted)
 		SaveTreeFile();
 
 	m_CurFile = PrevCurFile;
@@ -1868,12 +1853,10 @@ void TreeList::ReadSubTree(string_view const Path)
 	if (!os::fs::is_directory(Path))
 		return;
 
-	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<TreePreRedrawItem>());
 	ScanTree ScTree(false, true, -1);
 
 	const auto strDirName = ConvertNameToFull(Path);
 	AddTreeName(strDirName);
-	auto AscAbort = false;
 	ScTree.SetFindPath(strDirName, L"*"sv);
 	LastScrX = ScrX;
 	LastScrY = ScrY;
@@ -1881,22 +1864,24 @@ void TreeList::ReadSubTree(string_view const Path)
 	os::fs::find_data fdata;
 	string strFullName;
 	int Count = 0;
+
+	tree_progress const TreeProgress;
+	time_check TimeCheck;
+
 	while (ScTree.GetNextName(fdata, strFullName))
 	{
-		if (fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY)
+		if (!(fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+			continue;
+
+		AddTreeName(strFullName);
+		++Count;
+
+		if (TimeCheck)
 		{
-			MsgReadTree(Count + 1);
-
-			if (CheckForEscSilent())
-			{
-				AscAbort=ConfirmAbortOp();
-			}
-
-			if (AscAbort)
+			if (CheckForEscAndConfirmAbort())
 				break;
 
-			AddTreeName(strFullName);
-			++Count;
+			TreeProgress.update(Count);
 		}
 	}
 }

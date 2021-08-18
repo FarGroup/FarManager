@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "lang.hpp"
-#include "TPreRedrawFunc.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "message.hpp"
@@ -52,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "file_io.hpp"
 #include "log.hpp"
+#include "stddlg.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -75,26 +75,9 @@ void DizList::Reset()
 	m_CodePage.reset();
 }
 
-static void PR_ReadingMsg()
-{
-	Message(0,
-		{},
-		{
-			msg(lng::MReadingDiz)
-		},
-		{});
-}
-
 void DizList::Read(string_view const Path, const string* DizName)
 {
 	Reset();
-
-	struct DizPreRedrawItem : public PreRedrawItem
-	{
-		DizPreRedrawItem() : PreRedrawItem(PR_ReadingMsg) {}
-	};
-
-	SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<DizPreRedrawItem>());
 
 	const auto ReadDizFile = [this](const string_view Name)
 	{
@@ -120,10 +103,11 @@ void DizList::Read(string_view const Path, const string* DizName)
 			if (TimeCheck)
 			{
 				SetCursorType(false, 0);
-				PR_ReadingMsg();
 
-				if (CheckForEsc())
+				if (CheckForEscAndConfirmAbort())
 					break;
+
+				// MReadingDiz unused
 			}
 
 			inplace::trim_right(DizText);
@@ -336,7 +320,7 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 					msg(lng::MEditRO),
 					msg(lng::MEditOvr)
 				},
-				{ lng::MYes, lng::MNo }) != Message::first_button)
+				{ lng::MYes, lng::MNo }) != message_result::first_button)
 			return false;
 
 		if (!os::fs::set_file_attributes(m_DizFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY)) //BUGBUG

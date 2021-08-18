@@ -294,8 +294,8 @@ static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type&
 		if (colors::color_bits(Color.ForegroundColor) || colors::color_bits(Color.BackgroundColor))
 			return;
 
-		Color.BackgroundColor = colors::alpha_bits(Color.BackgroundColor) | colors::color_bits(Base.BackgroundColor);
-		Color.ForegroundColor = colors::alpha_bits(Color.ForegroundColor) | colors::color_bits(Base.ForegroundColor);
+		colors::set_color_value(Color.BackgroundColor, Base.BackgroundColor);
+		colors::set_color_value(Color.ForegroundColor, Base.ForegroundColor);
 		flags::copy(Color.Flags, FCF_4BITMASK, Base.Flags);
 
 		if (Color.Flags & FCF_INHERIT_STYLE)
@@ -556,7 +556,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 							msg(lng::MHighlightWarning),
 							msg(lng::MHighlightAskRestore)
 						},
-						{ lng::MYes, lng::MCancel }) != Message::first_button)
+						{ lng::MYes, lng::MCancel }) != message_result::first_button)
 					{
 						break;
 					}
@@ -585,7 +585,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 								msg(lng::MHighlightAskDel),
 								HiData[RealSelectPos].GetMask()
 							},
-							{ lng::MDelete, lng::MCancel }) != Message::first_button)
+							{ lng::MDelete, lng::MCancel }) != message_result::first_button)
 						{
 							break;
 						}

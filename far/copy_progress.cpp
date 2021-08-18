@@ -35,17 +35,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "copy_progress.hpp"
 
 // Internal:
-#include "colormix.hpp"
 #include "lang.hpp"
 #include "config.hpp"
 #include "keyboard.hpp"
-#include "constitle.hpp"
 #include "mix.hpp"
 #include "strmix.hpp"
 #include "interf.hpp"
-#include "message.hpp"
-#include "scrbuf.hpp"
-#include "global.hpp"
+#include "dialog.hpp"
 
 // Platform:
 
@@ -59,21 +55,87 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Общее время ожидания пользователя */
 extern std::chrono::steady_clock::duration WaitUserTime;
 
+namespace
+{
+	enum
+	{
+		DlgW = 76,
+		DlgH = 15,
+	};
+
+	enum progress_items
+	{
+		pr_console_title,
+		pr_doublebox,
+		pr_src_label,
+		pr_src_name,
+		pr_dst_label,
+		pr_dst_name,
+		pr_current_progress,
+		pr_separator1,
+		pr_total_files,
+		pr_total_bytes,
+		pr_total_progress,
+		pr_separator2,
+		pr_stats,
+
+		pr_count
+	};
+}
+
 copy_progress::copy_progress(bool Move, bool Total, bool Time):
 	m_CurrentBarSize(CanvasWidth()),
 	m_TotalBarSize(CanvasWidth()),
 	m_Move(Move),
 	m_Total(Total),
 	m_ShowTime(Time),
-	m_Color(colors::PaletteColorToFarColor(COL_DIALOGTEXT)),
 	m_TimeCheck(time_check::mode::immediate, GetRedrawTimeout()),
 	m_SpeedUpdateCheck(time_check::mode::immediate, 3s)
 {
+	auto ProgressDlgItems = MakeDialogItems<progress_items::pr_count>(
+	{
+		{ DI_TEXT,      {{ 0, 0 }, { 0,               0 }}, DIF_HIDDEN,    {}, },
+		{ DI_DOUBLEBOX, {{ 3, 1 }, { DlgW - 4, DlgH - 2 }}, DIF_NONE,      msg(m_Move? lng::MMoveDlgTitle : lng::MCopyDlgTitle), },
+		{ DI_TEXT,      {{ 5, 2 }, { DlgW - 6,        2 }}, DIF_NONE,      msg(m_Move? lng::MCopyMoving :lng::MCopyCopying), },
+		{ DI_TEXT,      {{ 5, 3 }, { DlgW - 6,        3 }}, DIF_NONE,      {}, },
+		{ DI_TEXT,      {{ 5, 4 }, { DlgW - 6,        4 }}, DIF_NONE,      msg(lng::MCopyTo), },
+		{ DI_TEXT,      {{ 5, 5 }, { DlgW - 6,        5 }}, DIF_NONE,      {}, },
+		{ DI_TEXT,      {{ 5, 6 }, { DlgW - 6,        6 }}, DIF_NONE,      make_progressbar(CanvasWidth(), 0, true, false) },
+		{ DI_TEXT,      {{-1, 7 }, { DlgW - 6,        7 }}, DIF_SEPARATOR, msg(lng::MCopyDlgTotal), },
+		{ DI_TEXT,      {{ 5, 8 }, { DlgW - 6,        8 }}, DIF_NONE,      {}, },
+		{ DI_TEXT,      {{ 5, 9 }, { DlgW - 6,        9 }}, DIF_NONE,      {}, },
+		{ DI_TEXT,      {{ 5, 10}, { DlgW - 6,        10}}, DIF_NONE,      make_progressbar(CanvasWidth(), 0, true, false), },
+		{ DI_TEXT,      {{-1, 11}, { DlgW - 6,        11}}, DIF_SEPARATOR, {}, },
+		{ DI_TEXT,      {{ 5, 12}, { DlgW - 6,        12}}, DIF_NONE,      {}, },
+	});
+
+	if (!m_Total)
+	{
+		ProgressDlgItems[progress_items::pr_total_progress].Flags |= DIF_HIDDEN;
+
+		for (size_t i = progress_items::pr_total_progress + 1; i != progress_items::pr_count; ++i)
+		{
+			--ProgressDlgItems[i].Y1;
+			--ProgressDlgItems[i].Y2;
+		}
+
+		--ProgressDlgItems[progress_items::pr_doublebox].Y2;
+	}
+
+	if (!m_ShowTime)
+	{
+		ProgressDlgItems[progress_items::pr_separator2].Flags |= DIF_HIDDEN;
+		ProgressDlgItems[progress_items::pr_stats].Flags |= DIF_HIDDEN;
+		ProgressDlgItems[progress_items::pr_doublebox].Y2 -= 2;
+	}
+
+	const int DialogHeight = ProgressDlgItems[progress_items::pr_doublebox].Y2 - ProgressDlgItems[progress_items::pr_doublebox].Y1 + 1 + 2;
+	init(ProgressDlgItems, { -1, -1, DlgW, DialogHeight });
 }
 
 size_t copy_progress::CanvasWidth()
 {
-	return 52;
+	return DlgW - 10;
 }
 
 void copy_progress::skip()
@@ -114,13 +176,10 @@ unsigned long long copy_progress::get_total_bytes() const
 
 bool copy_progress::CheckEsc()
 {
-	if (!m_IsCancelled)
-	{
-		if (CheckForEscSilent())
-		{
-			m_IsCancelled = ConfirmAbortOp() != 0;
-		}
-	}
+	if (m_IsCancelled)
+		return m_IsCancelled;
+
+	m_IsCancelled = CheckForEscAndConfirmAbort();
 	return m_IsCancelled;
 }
 
@@ -150,38 +209,51 @@ void copy_progress::Flush()
 	if (!m_TimeCheck || CheckEsc())
 		return;
 
-	CreateBackground();
+	SCOPED_ACTION(Dialog::suppress_redraw)(m_Dialog.get());
 
-	Text({ m_Rect.left + 5, m_Rect.top + 3 }, m_Color, m_Src);
-	Text({ m_Rect.left + 5, m_Rect.top + 5 }, m_Color, m_Dst);
-	Text({ m_Rect.left + 5, m_Rect.top + 8 }, m_Color, m_FilesCopied);
+	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_src_name, UNSAFE_CSTR(m_Src));
+	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_dst_name, UNSAFE_CSTR(m_Dst));
+
+	const auto CurrentProgress = make_progressbar(m_CurrentBarSize, m_CurrentPercent, true, !m_Total);
+	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_current_progress, UNSAFE_CSTR(CurrentProgress));
+
+	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_total_files, UNSAFE_CSTR(m_FilesCopied));
 
 	const auto Result = FormatCounter(lng::MCopyBytesTotalInfo, lng::MCopyFilesTotalInfo, m_BytesTotal.Copied, m_BytesTotal.Total, m_Total, CanvasWidth() - 5);
-	Text({ m_Rect.left + 5, m_Rect.top + 9 }, m_Color, Result);
+	m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_total_bytes, UNSAFE_CSTR(Result));
+
+	if (m_Total)
+	{
+		const auto TotalProgress = make_progressbar(m_TotalBarSize, m_TotalPercent, true, true);
+		m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_total_progress, UNSAFE_CSTR(TotalProgress));
+	}
 
 	if (!m_Time.empty())
 	{
-		const size_t Width = m_Rect.width() - 10;
-		const auto XPos = m_Rect.left + 5;
-		const auto YPos = m_Rect.top + (m_Total? 12 : 11);
-
+		const auto Width = CanvasWidth();
 		const auto ConsumedSpace = m_Time.size() + 1 + m_TimeLeft.size() + 1 + m_Speed.size();
-		const auto FillerWidth = ConsumedSpace >= Width? 0 : (Width - ConsumedSpace) / 2;
+		const auto RemainingSpace = ConsumedSpace > Width? 0 : Width - ConsumedSpace;
+		const auto FirstFillerWidth = RemainingSpace / 2;
+		const auto SecondFillerWidth = RemainingSpace - FirstFillerWidth;
 
-		Text({ XPos, YPos }, m_Color, m_Time);
-		Text({ static_cast<int>(XPos + m_Time.size() + 1 + FillerWidth), YPos }, m_Color, m_TimeLeft);
-		Text({ static_cast<int>(m_Rect.right + 1 - 5 - m_Speed.size()), YPos }, m_Color, m_Speed);
+		const auto Stat = cut_right(
+			concat(
+				fit_to_left(m_Time, m_Time.size() + 1 + FirstFillerWidth),
+				fit_to_left(m_TimeLeft, m_TimeLeft.size() + 1 + SecondFillerWidth),
+				m_Speed),
+			Width
+		);
+
+		m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_stats, UNSAFE_CSTR(Stat));
 	}
 
 	if (m_Total || (m_Files.Total == 1))
 	{
-		ConsoleTitle::SetFarTitle(concat(
+		m_Dialog->SendMessage(DM_SETTEXTPTR, progress_items::pr_console_title, UNSAFE_CSTR(concat(
 			L'{', str(m_Total? ToPercent(m_BytesTotal.Copied, m_BytesTotal.Total) : m_CurrentPercent), L"%} "sv,
 			msg(m_Move? lng::MCopyMovingTitle : lng::MCopyCopyingTitle))
-		);
+		));
 	}
-
-	Global->ScrBuf->Flush();
 }
 
 void copy_progress::reset_current()
@@ -233,41 +305,6 @@ void copy_progress::set_total_bytes(unsigned long long const Value)
 void copy_progress::add_total_bytes(unsigned long long const Value)
 {
 	m_BytesTotal.Total += Value;
-}
-
-void copy_progress::CreateBackground()
-{
-	const auto& Title = msg(m_Move? lng::MMoveDlgTitle : lng::MCopyDlgTitle);
-
-	std::vector<string> Items =
-	{
-		msg(m_Move? lng::MCopyMoving :lng::MCopyCopying),
-		{}, // source name
-		msg(lng::MCopyTo),
-		{}, // dest path
-		make_progressbar(m_CurrentBarSize, m_CurrentPercent, true, !m_Total),
-		L'\x1' + msg(lng::MCopyDlgTotal),
-		{}, // files [total] <processed>
-		{}  // bytes [total] <processed>
-	};
-
-	// total progress bar
-	if (m_Total)
-	{
-		Items.emplace_back(make_progressbar(m_TotalBarSize, m_TotalPercent, true, true));
-	}
-
-	// time & speed
-	if (m_ShowTime)
-	{
-		Items.emplace_back(L"\x1"sv);
-		Items.emplace_back();
-	}
-
-	m_Rect = Message(MSG_LEFTALIGN | MSG_NOFLUSH,
-		Title,
-		std::move(Items),
-		{}).GetPosition();
 }
 
 void copy_progress::SetNames(const string& Src, const string& Dst)

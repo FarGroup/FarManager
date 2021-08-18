@@ -238,7 +238,7 @@ bool CheckShortcutFolder(string& TestPath, bool TryClosest, bool Silent)
 			Target,
 			msg(lng::MNeedNearPath)
 		},
-		{ lng::MHYes, lng::MHNo }) == Message::first_button)
+		{ lng::MHYes, lng::MHNo }) == message_result::first_button)
 	{
 		auto TestPathTemp = TestPath;
 		for (;;)

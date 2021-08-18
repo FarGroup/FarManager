@@ -35,10 +35,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.com.hpp"
 
 // Internal:
-#include "exception.hpp"
 #include "imports.hpp"
 #include "log.hpp"
 #include "strmix.hpp"
+#include "pathmix.hpp"
 
 // Platform:
 #include "platform.reg.hpp"
@@ -126,42 +126,43 @@ namespace os::com
 		return !ProgID.empty() && reg::key::open(reg::key::classes_root, ProgID, KEY_QUERY_VALUE);
 	}
 
-	static bool get_shell_type(const string_view Ext, string& strType)
+	static string get_shell_type(string_view const FileName)
 	{
+		auto [Name, Ext] = name_ext(FileName);
+		if (Ext.empty())
+			Ext = L"."sv;
+
 		if (imports.SHCreateAssociationRegistration)
 		{
 			ptr<IApplicationAssociationRegistration> AAR;
 			if (const auto Result = imports.SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR))); FAILED(Result))
 			{
 				LOGWARNING(L"cSHCreateAssociationRegistration(): {}"sv, format_error(Result));
-				return false;
+				return {};
 			}
 
 			memory<wchar_t*> Association;
 			if (const auto Result = AAR->QueryCurrentDefault(null_terminated(Ext).c_str(), AT_FILEEXTENSION, AL_EFFECTIVE, &ptr_setter(Association)); FAILED(Result))
 			{
 				LOGDEBUG(L"QueryCurrentDefault({}): {}"sv, Ext, format_error(Result));
-				return false;
+				return {};
 			}
 
-			strType = Association.get();
-			return true;
+			return Association.get();
 		}
 
 		if (const auto UserKey = reg::key::open(reg::key::current_user, concat(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\"sv, Ext), KEY_QUERY_VALUE))
 		{
 			if (string Value; UserKey.get(L"ProgId"sv, Value) && is_proper_progid(Value))
 			{
-				strType = std::move(Value);
-				return true;
+				return Value;
 			}
 
 			if (string Value; UserKey.get(L"Application"sv, Value))
 			{
 				if (auto ProgId = L"Applications\\"sv + Value; is_proper_progid(ProgId))
 				{
-					strType = std::move(ProgId);
-					return true;
+					return ProgId;
 				}
 			}
 		}
@@ -170,28 +171,22 @@ namespace os::com
 		{
 			if (string Value; CRKey.get({}, Value) && is_proper_progid(Value))
 			{
-				strType = std::move(Value);
-				return true;
+				return Value;
 			}
 		}
 
-		return false;
+		return {};
 	}
 
 	string get_shell_filetype_description(string_view const FileName)
 	{
-		const auto pos = FileName.rfind(L'.');
-		if (pos == string::npos)
-			return {};
-
-		string Type;
-		if (!get_shell_type(FileName.substr(pos), Type))
+		const auto Type = get_shell_type(FileName);
+		if (Type.empty())
 			return {};
 
 		string Description;
 		if (!reg::key::classes_root.get(Type, {}, Description))
 		{
-			LOGWARNING(L"classes_root.get({}): {}"sv, Type, last_error());
 			return {};
 		}
 

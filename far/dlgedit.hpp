@@ -67,7 +67,7 @@ enum DLGEDITTYPE
 class Dialog;
 class Editor;
 
-class DlgEdit: public SimpleScreenObject
+class DlgEdit final: public SimpleScreenObject
 {
 public:
 	// for CtrlEnd

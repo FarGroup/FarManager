@@ -526,7 +526,7 @@ void Options::MaskGroupsSettings()
 						msg(lng::MMaskGroupAskDelete),
 						*Item
 					},
-					{ lng::MDelete, lng::MCancel }) == Message::first_button)
+					{ lng::MDelete, lng::MCancel }) == message_result::first_button)
 				{
 					ConfigProvider().GeneralCfg()->DeleteValue(L"Masks"sv, *Item);
 					Changed = true;
@@ -577,7 +577,7 @@ void Options::MaskGroupsSettings()
 						{
 							msg(lng::MMaskGroupRestore),
 						},
-						{ lng::MYes, lng::MCancel }) == Message::first_button)
+						{ lng::MYes, lng::MCancel }) == message_result::first_button)
 					{
 						ApplyDefaultMaskGroups();
 						Changed = true;
@@ -2423,7 +2423,7 @@ void Options::Save(bool Manual)
 			msg(lng::MSaveSetupAsk1),
 			msg(lng::MSaveSetupAsk2)
 		},
-		{ lng::MSaveSetup, lng::MCancel }) != Message::first_button)
+		{ lng::MSaveSetup, lng::MCancel }) != message_result::first_button)
 		return;
 
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */

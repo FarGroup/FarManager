@@ -329,7 +329,7 @@ static bool EditItemImpl(Shortcuts::shortcut& Item, bool raw)
 						NewItem.Folder,
 						msg(lng::MSaveThisShortcut)
 					},
-					{ lng::MYes, lng::MNo }) != Message::first_button)
+					{ lng::MYes, lng::MNo }) != message_result::first_button)
 				{
 					return false;
 				}

@@ -36,12 +36,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "taskbar.hpp"
 #include "wakeful.hpp"
 #include "datetime.hpp"
-#include "plugin.hpp"
+#include "windowsfwd.hpp"
+#include "stddlg.hpp"
 
 // Platform:
 
 // Common:
-#include "common/2d/rectangle.hpp"
 
 // External:
 
@@ -49,7 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum class lng;
 
-class copy_progress: noncopyable
+class copy_progress: progress_impl
 {
 public:
 	copy_progress(bool Move, bool Total, bool Time);
@@ -80,7 +80,6 @@ public:
 private:
 	bool CheckEsc();
 	void Flush();
-	void CreateBackground();
 	void SetCurrentProgress(unsigned long long CompletedSize, unsigned long long TotalSize);
 	void SetTotalProgress(unsigned long long CompletedSize, unsigned long long TotalSize);
 	void UpdateTime(unsigned long long SizeDone, unsigned long long SizeToGo);
@@ -88,7 +87,6 @@ private:
 	std::chrono::steady_clock::time_point m_CopyStartTime;
 	taskbar::indeterminate m_TB;
 	wakeful m_Wakeful;
-	small_rectangle m_Rect{};
 
 	size_t m_CurrentBarSize;
 	int m_CurrentPercent{};
@@ -100,7 +98,6 @@ private:
 	bool m_Total;
 	bool m_ShowTime;
 	bool m_IsCancelled{};
-	FarColor m_Color;
 	time_check m_TimeCheck;
 	time_check m_SpeedUpdateCheck;
 	string m_Src, m_Dst;

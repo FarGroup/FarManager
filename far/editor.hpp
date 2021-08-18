@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "poscache.hpp"
 #include "bitflags.hpp"
 #include "config.hpp"
-#include "TPreRedrawFunc.hpp"
 #include "mix.hpp"
 #include "eol.hpp"
 
@@ -57,7 +56,7 @@ class FileEditor;
 class KeyBar;
 class Edit;
 
-class Editor: public SimpleScreenObject
+class Editor final: public SimpleScreenObject
 {
 public:
 	explicit Editor(window_ptr Owner, uintptr_t Codepage, bool DialogUsed = false);
@@ -74,11 +73,10 @@ public:
 	uintptr_t GetCodePage() const; //BUGBUG
 	void KeepInitParameters() const;
 	void SetStartPos(int LineNum, int CharNum);
-	bool IsFileModified() const;
-	bool IsFileChanged() const;
+	bool IsModified() const;
+	bool IsChanged() const;
 	long long GetCurPos(bool file_pos = false, bool add_bom = false) const;
 	int EditorControl(int Command, intptr_t Param1, void *Param2);
-	void SetHostFileEditor(FileEditor *Editor) { HostFileEditor = Editor; }
 	void SetOptions(const Options::EditorOptions& Options);
 	void SetTabSize(int NewSize);
 	size_t GetTabSize() const { return EdOpt.TabSize; }
@@ -144,7 +142,6 @@ public:
 	void AutoDeleteColors();
 	int GetId() const { return EditorID; }
 
-	static void PR_EditorShowMsg();
 	static void SetReplaceMode(bool Mode);
 	static eol GetDefaultEOL();
 
@@ -307,7 +304,6 @@ private:
 	bool IsLastLine(const iterator& Line) const;
 
 	static bool InitSessionBookmarksForPlugin(EditorBookmarks *Param, size_t Count, size_t& Size);
-	static void EditorShowMsg(string_view Title, const string& Msg, const string& Name, size_t Percent);
 
 	bool IsAnySelection() const { assert(Lines.end() == m_it_AnyBlockStart || m_BlockType != BTYPE_NONE); return Lines.end() != m_it_AnyBlockStart; }
 	bool IsStreamSelection() const { return IsAnySelection() && m_BlockType == BTYPE_STREAM; }
@@ -390,22 +386,12 @@ private:
 	bool LastSearchCase{}, LastSearchWholeWords{}, LastSearchReverse{}, LastSearchRegexp{}, LastSearchPreserveStyle{};
 
 	int EditorID{};
-	FileEditor *HostFileEditor{};
 	int EditorControlLock{};
 	FarColor Color;
 	FarColor SelColor;
 	int CursorPos{};
 	int m_InEERedraw{};
 	bool m_GotoHex{};
-
-	struct EditorPreRedrawItem : public PreRedrawItem
-	{
-		EditorPreRedrawItem();
-		string Title;
-		string Msg;
-		string Name;
-		size_t Percent{};
-	};
 };
 
 class EditorContainer

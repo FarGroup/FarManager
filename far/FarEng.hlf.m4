@@ -683,11 +683,11 @@ an ~associated command~@FileAssoc@ is executed or the archive is opened.
 command configuration.
 
  Change to the parent folder                              #Ctrl+PgUp#
- The behavior in root folders depends on "Use Ctrl+PgUp to change drive~@InterfSettings@" option.
+ The behavior in root folders depends on "~Use Ctrl+PgUp to change drive~@InterfSettings@" option.
 
- Create shortcut to the current folder              #Ctrl+Shift+0…9#
+ Create shortcut to the current folder               #Ctrl+Shift+0…9#
 
- Use folder shortcut                                 #RightCtrl+0…9#
+ Use folder shortcut                                  #RightCtrl+0…9#
 
  Set ~file attributes~@FileAttrDlg@                                         #Ctrl+A#
 
@@ -3735,9 +3735,6 @@ If you wish to use the default color, set color to "Black on black";
  - an optional character to mark files from the group.
    It can be used both with or instead of color highlighting.
 
- If the option "A file mask or several file masks" is turned off, file masks
-will not be analyzed, and only file attributes will be taken into account.
-
  A file belongs to a highlighting group if:
  - ^<wrap>file mask analysis is enabled and the name of the file matches
 at least one file mask (if file mask analysis is disabled,
@@ -3753,79 +3750,77 @@ Windows Server 2012.
 
 @ViewerSettings
 $ #Settings dialog: viewer#
- This dialog allows to change the settings of the internal
-and external ~viewer~@Viewer@.
+ This dialog allows to change the settings of the internal and external ~viewer~@Viewer@.
 
 @=
 ^#Viewer#
 @=
- #Use external viewer#     Start external viewer on #F3# key
- #for F3 instead of#       and internal viewer on #Alt+F3#
- #Alt+F3#                  key combination.
+ #Use external viewer for F3 instead of Alt+F3#
+ Start external viewer on #F3# key and internal viewer on #Alt+F3# key combination.
 
- #Viewer command#          Command to launch the external viewer.
-                         Use ~special symbols~@MetaSymbols@ to specify the
-                         name of the file to view.
+ #Viewer command#
+ Command to launch the external viewer.
+Use ~special symbols~@MetaSymbols@ to specify the name of the file to view.
 
 @=
 ^#Internal viewer#
 @=
- #Persistent selection#    Do not remove block selection after
-                         moving the cursor.
+ #Persistent selection#
+ Do not remove block selection after moving the cursor.
 
- #Search dialog#           Always returns focus to the search text field in
- #auto-focus#              the Viewer ~Search~@ViewerSearch@ dialog.
+ #Search dialog auto-focus#
+ Always returns focus to the search text field in the Viewer ~Search~@ViewerSearch@ dialog.
 
- #Tab size#                Number of spaces per single tab position.
+ #Tab size#
+ Number of spaces per single tab position.
 
- #Show scrolling arrows#   Show scrolling arrows at the edges of the viewer
-                         window if the text does not fit horizontally.
+ #Show scrolling arrows#
+ Show scrolling arrows at the edges of the viewer window if the text does not fit horizontally.
 
- #Visible '\0'#            Show a printable character instead of space for
-                         the character '\0'. The character to display can be
-                         set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
+ #Visible '\0'#
+ Show a printable character instead of space for the character '\0'.
+The character to display can be set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
 
- #Show a scrollbar#        Show a scrollbar in the internal viewer. This
-                         option can also be toggled by pressing
-                         #Ctrl+S# in the internal viewer.
+ #Show a scrollbar#
+ Show a scrollbar in the internal viewer. This option can also be toggled by pressing #Ctrl+S# in the internal viewer.
+
 @=
- #Save file position#      Save and restore positions in the recently
-                         viewed files. This option also saves and restores
-                         the code page (if it was selected manually) and
-                         ~view mode~@ViewerMode@.
+ #Save file position#
+ Save and restore positions in the recently viewed files. This option also saves and restores
+the code page (if it was selected manually) and ~view mode~@ViewerMode@.
 
- #Save file code page#     Save and restore the code page selected for a file.
-                         This is automatically enabled if #Save file position#
-                         is enabled, as file position depends on the encoding.
+ #Save file code page#
+ Save and restore the code page selected for a file. This is automatically enabled if #Save file position#
+is enabled, as file position depends on the encoding.
 
- #Save bookmarks#          Save and restore bookmarks in the recently viewed
-                         files. (Bookmarks can be created with #RightCtrl+0…9#
-                         or #Ctrl+Shift+0…9# key combinations.)
+ #Save bookmarks#
+ Save and restore bookmarks in the recently viewed files (bookmarks can be created with #RightCtrl+0…9#
+or #Ctrl+Shift+0…9# key combinations.)
 
- #Maximum line width#      Maximum number of columns for text mode viewer.
-                         Min=100, Max=100,000, Default=10,000.
+ #Maximum line width#
+ Maximum number of columns for text mode viewer. Min=100, Max=100,000, Default=10,000.
 
- #Save view mode#          Save and restore ~view modes~@ViewerMode@
-                         of recently viewed files.
+ #Save view mode#
+ Save and restore ~view modes~@ViewerMode@ of recently viewed files.
 
- #Save wrap mode#          Save and restore #wrap# and #word wrap# ~modes~@ViewerMode@
-                         of recently viewed files.
+ #Save wrap mode#
+ Save and restore #wrap# and #word wrap# ~modes~@ViewerMode@ of recently viewed files.
 
- #Detect dump view mode#   If this option is on and Far considers the file binary,
-                         the #dump# ~mode~@ViewerMode@ is selected automatically
-                         at the first view. Otherwise, the #text# mode is selected.
+ #Detect dump view mode#
+ If this option is on and Far considers the file binary, the #dump# ~mode~@ViewerMode@ is selected automatically
+at the first view. Otherwise, the #text# mode is selected.
 
- #Autodetect#              ~Autodetect~@CodePageAuto@ the code page of
- #code page#               the file being viewed.
+ #Autodetect code page#
+ ~Autodetect~@CodePageAuto@ the code page of the file being viewed.
 
- #Default code page#       Allows to select the default code page.
+ #Default code page#
+ Allows to select the default code page.
+
 @=
-
  If the external viewer is assigned to #F3# key, it will be launched only if
 the ~associated~@FileAssoc@ viewer for the current file type is not defined.
 
- Changing of settings does not affect currently opened internal
-viewer windows.
+ Changing of settings does not affect currently opened internal viewer windows.
 
  The settings dialog can also be invoked from the ~internal viewer~@Viewer@
 by pressing #Alt+Shift+F9#. The changes will come into effect immediately but
@@ -3834,92 +3829,88 @@ will affect only the current session.
 
 @EditorSettings
 $ #Settings dialog: editor#
- This dialog allows to change the default external and
-~internal editor~@Editor@ settings.
+ This dialog allows to change the default external and ~internal editor~@Editor@ settings.
 
- External editor
+@=
+^#External editor#
+@=
+ #Use for F4#
+ Run external editor using #F4# instead of #Alt+F4#.
 
- #Use for F4#              Run external editor using #F4# instead of
-                         #Alt+F4#.
+ #Editor command#
+ Command to execute the external editor.
+Use ~special symbols~@MetaSymbols@ to specify the name of the file to edit.
 
- #Editor command#          Command to execute the external editor.
-                         Use ~special symbols~@MetaSymbols@ to specify the name
-                         of the file to edit.
+@=
+^#Internal editor#
+@=
+ #Do not expand tabs#
+ Do not convert tabs to spaces while editing the document.
 
- Internal editor
+ #Expand newly entered tabs to spaces#
+ While editing the document, convert each newly entered #Tab# into the appropriate number of spaces.
+Other tabs won't be converted.
 
- #Do not expand tabs#      Do not convert tabs to spaces while
-                         editing the document.
+ #Expand all tabs to spaces#
+ Upon opening the document, all tabs in the document will be automatically converted to spaces.
 
- #Expand newly entered#    While editing the document, convert each
- #tabs to spaces#          newly entered #Tab# into the appropriate
-                         number of spaces. Other tabs won't be
-                         converted.
+ #Persistent blocks#
+ Do not remove block selection after moving the cursor.
 
- #Expand all tabs to#      Upon opening the document, all tabs in
- #spaces#                  the document will be automatically
-                         converted to spaces.
+ #Del removes blocks#
+ If a block is selected, pressing #Del# will not remove the character under cursor, but this block.
 
- #Persistent blocks#       Do not remove block selection after
-                         moving the cursor.
+ #Auto indent#
+ Enables auto indent mode when entering text.
 
- #Del removes blocks#      If a block is selected, pressing #Del# will
-                         not remove the character under cursor, but
-                         this block.
+ #Tab size#
+ Number of spaces in a tab character.
 
- #Save file position#      Save and restore positions in the recently
-                         edited files. This option also forces
-                         restoring of code page, if the page
-                         was manually selected by user.
+ #Show white space#
+ Make while space characters (spaces, tabulations, line breaks) visible.
 
- #Save bookmarks#          Save and restore bookmarks (current
-                         positions) in recently edited files
-                         (created with #RightCtrl+0…9# or
-                         #Ctrl+Shift+0…9#)
+ #Cursor beyond end of line#
+ Allow moving cursor beyond the end of line.
 
- #Auto indent#             Enables auto indent mode when entering
-                         text.
+ #Select found#
+ Found text is selected.
 
- #Cursor beyond#           Allow moving cursor beyond the end of line.
- #end of line#
+ #Cursor at the end#
+ Place the cursor at the end of the found block.
 
- #Tab size#                Number of spaces in a tab character.
+ #Show a scrollbar#
+ Show a scrollbar.
 
- #Show a scrollbar#        Show a scrollbar.
+@=
+ #Save file position#
+ Save and restore positions in the recently edited files. This option also forces
+restoring of code page, if the page was manually selected by user.
 
- #Show white space#        Make while space characters (spaces, tabulations,
-                         line breaks) visible.
+ #Save bookmarks#
+ Save and restore bookmarks (current positions) in recently edited files
+(created with #RightCtrl+0…9# or #Ctrl+Shift+0…9#)
 
- #Select found#            Found text is selected
+ #Allow editing files opened for writing#
+ Allows to edit files that are opened by other programs for writing. This mode is handy to edit
+a file opened for a long time, but it could be dangerous, if a file is being modified at the same time as editing.
 
- #Cursor at the end#       Place the cursor at the end of the found block.
+ #Lock editing of read-only files#
+ When a file with the Read-only attribute is opened for editing, the editor also
+disables the modification of the edited text, just as if #Ctrl+L# was pressed.
 
- #Autodetect#              ~Autodetect~@CodePageAuto@ the code page of
- #code page#               the file being edited.
+ #Warn when opening read-only files#
+ When a file with the Read-only attribute is opened for editing, a warning message will be shown.
 
- #Edit files opened#       Allows to edit files that are opened
- #for writing#             by other programs for writing. This mode
-                         is handy to edit a file opened for a long
-                         time, but it could be dangerous, if a file
-                         is being modified at the same time as
-                         editing.
+ #Autodetect code page#
+ ~Autodetect~@CodePageAuto@ the code page of the file being edited.
 
- #Lock editing of#         When a file with the Read-only attribute
- #read-only files#         is opened for editing, the editor also
-                         disables the modification of the edited
-                         text, just as if #Ctrl+L# was pressed.
-
- #Warn when opening#       When a file with the Read-only attribute
- #read-only files#         is opened for editing, a warning message
-                         will be shown.
-
- #Default code page#       Select the default code page.
+ #Default code page#
+ Select the default code page.
 
  If the external editor is assigned to #F4# key, it will be executed only if
 ~associated~@FileAssoc@ editor for the current file type is not defined.
 
- Modifications of settings in this dialog do not affect previously opened
-internal editor windows.
+ Modifications of settings in this dialog do not affect previously opened internal editor windows.
 
  The settings dialog can also be invoked from the ~internal editor~@Editor@
 by pressing #Alt+Shift+F9#. The changes will come into force immediately but

@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-class Grabber: public SimpleModal
+class Grabber final: public Modal
 {
 	struct private_tag {};
 

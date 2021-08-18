@@ -178,7 +178,7 @@ struct SortItemParam
 
 class window;
 
-class VMenu: public SimpleModal
+class VMenu final: public Modal
 {
 	struct private_tag {};
 public:

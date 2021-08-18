@@ -46,7 +46,7 @@
 
 
 @Contents
-$^#File and archive manager#
+$^#Menedżer plików i archiwów#
 `$^#'FULLVERSION`#'
 $^#Copyright © 1996-2000 Eugene Roshal#
 `$^#Copyright © 2000-'COPYRIGHTYEAR` Far Group#'
@@ -681,11 +681,11 @@ wywoływane jest ~powiązane polecenie~@FileAssoc@ lub otwierane jest archiwum.
 #Ctrl+Shift+PgDn# zawsze otwiera archiwum, niezależnie od powiązanego polecenia.
 
  Przejdź do folderu nadrzędnego                           #Ctrl+PgUp#
- Zachowanie w folderach głównych zależy od opcji "Użyj Ctrl+PgUp aby zmienić dysk~@InterfSettings@".
+ Zachowanie w folderach głównych zależy od opcji "~Użyj Ctrl+PgUp aby zmienić dysk~@InterfSettings@".
 
- Utwórz skrót do bieżącego folderu                  #Ctrl+Shift+0…9#
+ Utwórz skrót do bieżącego folderu                   #Ctrl+Shift+0…9#
 
- Użyj skrótu do folderu                              #RightCtrl+0…9#
+ Użyj skrótu do folderu                               #PrawyCtrl+0…9#
 
  Ustaw ~atrybuty pliku~@FileAttrDlg@                                        #Ctrl+A#
 
@@ -1380,7 +1380,7 @@ $ #Menu: Menu pliki#
 
  #Wymaż#              ^<wrap>Wymazuje pliki i foldery. Przed usunięciem pliku, jego
 dane zostają nadpisane wartością zero, po czym wielkość pliku jest obcinana i zmieniana
-na nazwę tymczasową
+na nazwę tymczasową.
 
  #Dodaj do archiwum#  Dodaje zaznaczone pliki do archiwum.
 
@@ -1584,15 +1584,15 @@ Aby ~podświetlić~@Highlight@ wszystkie archiwa za wyjątkiem "*.rar" - należy
 
  #Ctrl+R#      - ^<wrap>przywraca domyślnie zdefiniowane grupy ("arc", "temp" i "exec").
 
- #Ins#         - ^<wrap>dodaje nową grupę
+ #Ins#         - ^<wrap>dodaje nową grupę.
 
- #Del#         - ^<wrap>usuwa wybraną grupę
+ #Del#         - ^<wrap>usuwa wybraną grupę.
 
- #Enter#/#F4#  - ^<wrap>edytuje wybraną grupę
+ #Enter#/#F4#  - ^<wrap>edytuje wybraną grupę.
 
- #F7#          - ^<wrap>znajduje wszystkie grupy zawierające szukaną maskę
+ #F7#          - ^<wrap>znajduje wszystkie grupy zawierające szukaną maskę.
 
- Zobacz także: ~menu Opcje~@OptMenu@ i ~Polecenia kontroli menu~@MenuCmd@.
+ Zobacz także: ~menu Opcje~@OptMenu@ i ~polecenia menu~@MenuCmd@.
 
 
 @ChoosePluginMenu
@@ -1788,7 +1788,7 @@ wyszukiwania - należy zostawić puste pole "Typy kolumn".
 
 
 @FindFileResult
-$ #Znajdź plik - klawisze kontrolne#
+$ #Znajdź plik - sterowanie klawiszami#
  W trakcie ~wyszukiwania~@FindFile@ lub po jego zakończeniu, można użyć
 klawiszy strzałek, aby przewijać listę plików oraz przycisków do wykonania
 czynności.
@@ -2165,15 +2165,15 @@ różnych poleceń do uruchamiania, podglądu i edycji plików z podaną ~maską
 
  Następujące akcje są dostępne na liście powiązań:
 
- #Ins#        - ~dodaj~@FileAssocModify@ nowe przypisanie
+ #Ins#        - ~dodaj~@FileAssocModify@ nowe przypisanie.
 
- #F4#         - ~edytuj~@FileAssocModify@ bieżące przypisanie
+ #F4#         - ~edytuj~@FileAssocModify@ bieżące przypisanie.
 
- #Del#        - usuń bieżące przypisanie
+ #Del#        - usuń bieżące przypisanie.
 
- #Ctrl+Góra#  - przenieś przypisanie wyżej (na liście)
+ #Ctrl+Góra#  - przenieś przypisanie wyżej (na liście).
 
- #Ctrl+Dół#   - przenieś przypisanie niżej (na liście)
+ #Ctrl+Dół#   - przenieś przypisanie niżej (na liście).
 
  Zobacz także: polecenia ~menu~@MenuCmd@.
 
@@ -2183,22 +2183,22 @@ $ #Powiązania plików: edycja#
  Far pozwala określić sześć poleceń powiązanych z każdym typem plików
 określonym za pomocą ~maski~@FileMasks@:
 
- #Wykonaj polecenie#             Wykonywane po wciśnięciu klawisza #Enter#
+ #Wykonaj polecenie#             Wykonywane po wciśnięciu klawisza #Enter#.
  #(używane dla Enter)#
 
- #Wykonaj polecenie#             Wykonywane po wciśnięciu klawiszy #Ctrl+PgDn#
+ #Wykonaj polecenie#             Wykonywane po wciśnięciu klawiszy #Ctrl+PgDn#.
  #(używane dla Ctrl+PgDn)#
 
- #Podgląd pliku#                 Wykonywane po wciśnięciu klawisza #F3#
+ #Podgląd pliku#                 Wykonywane po wciśnięciu klawisza #F3#.
  #(używane dla F3)#
 
- #Podgląd pliku#                 Wykonywane po wciśnięciu klawiszy #Alt+F3#
+ #Podgląd pliku#                 Wykonywane po wciśnięciu klawiszy #Alt+F3#.
  #(używane dla Alt+F3)#
 
- #Edycja pliku#                  Wykonywane po wciśnięciu klawisza #F4#
+ #Edycja pliku#                  Wykonywane po wciśnięciu klawisza #F4#.
  #(używane dla F4)#
 
- #Edycja pliku#                  Wykonywane po wciśnięciu klawiszy #Alt+F4#
+ #Edycja pliku#                  Wykonywane po wciśnięciu klawiszy #Alt+F4#.
  #(używane dla Alt+F4)#
 
  Powiązanie można opisać w polu #Opis przypisania#.
@@ -2523,14 +2523,15 @@ całkowitą liczbę plików.
 (i dysków sieciowych - jeżeli przełącznik znajduje się w trzecim stanie) zostanie
 wyświetlona lista współdzielonych zasobów serwera.
 
- #Use Virtual Terminal for rendering#
- Render the output using ANSI escape sequences.
- This allows using 24-bit colors and may (or may not) work better (or worse) with some Unicode characters.
- Requires Windows 10 and above.
+ #Użyj Terminalu Wirtualnego do renderowania#
+ Renderuj dane wyjściowe za pomocą sekwencji ANSI escape.
+ Pozwala to na użycie 24-bitowych kolorów i pozwala (lub nie) pracować lepiej (lub gorzej) z niektórymi znakami Unicode.
+ Wymaga Windows 10 lub nowszego.
 
- #Fullwidth-aware rendering#
- Take into account the fact that East Asian characters require two screen cells instead of one.
- The support is rudimentary and experimental. It may work or not, depending on your OS, locale, terminal, font and other settings.
+ #Renderowanie na pełnej szerokości#
+ Należy wziąć pod uwagę fakt, że znaki wschodnioazjatyckie wymagają dwóch komórek ekranu zamiast jednej.
+ Wsparcie jest szczątkowe i eksperymentalne. Może działać lub nie, zależnie od Twojego systemu operacyjnego, zmiennych lokalnych,
+terminala, czcionki i innych ustawień.
 
  #Rysowanie zgodne z ClearType#
  Przerysowuje okno w taki sposób, aby nie pojawiały się artefakty związane
@@ -2719,7 +2720,7 @@ znak opisuje jedną zapisaną ścieżkę.
 
 
 @Viewer
-$ #Podgląd: klawisze kontroli#
+$ #Podgląd: sterowanie klawiszami#
  Klawisze nawigacyjne
 
  Zachowanie klawiszy nawigacyjnych zależy od ~trybu podglądu~@ViewerMode@.
@@ -2783,7 +2784,7 @@ zobacz także ~Interface.AltF9~@Interface.AltF9@
  #Alt+BS, Ctrl+Z#     Cofa ostatnią zmianę pozycji
  #PrawyCtrl+0…9#      Ustawia zakładkę nr 0…9 na bieżącej pozycji
  #Ctrl+Shift+0…9#     Ustawia zakładkę nr 0…9 na bieżącej pozycji
- #LeftCtrl+0…9#       Przechodzi do zakładki 0…9
+ #Lewy	Ctrl+0…9#       Przechodzi do zakładki 0…9
  #Ctrl+Ins, Ctrl+C#   Kopiuje zaznaczony tekst do schowka.
 Tekst może być zaznaczony ręcznie lub jako rezultat ~wyszukiwania~@ViewerSearch@.
  #Ctrl+U#             Odznacza tekst
@@ -3021,222 +3022,224 @@ Wyszukiwanie wielowierszowe nie jest obsługiwane.
 
 
 @Editor
-$ #Editor#
- To edit the file currently under the cursor you should press #F4#. This
-can be used to open the internal editor or any of the user defined external
-editors which are defined in the ~Editor settings~@EditorSettings@ dialog.
+$ #Edytor#
+ Aby edytować plik aktualnie znajdujący się pod kursorem należy nacisnąć klawisz
+#F4#. Skrót ten może być użyty do otwarcia wewnętrznego edytora lub dowolnego
+innego edytora zewnętrznego ustawionego przez użytkownika w oknie
+~Ustawień edytora~@EditorSettings@.
 
- #Creating files using the editor#
+ #Tworzenie plików za pomocą edytora#
 
- If a nonexistent file name is entered after pressing the #Shift+F4# hotkey
-then a ~new file~@FileOpenCreate@ will be created.
+ Jeżeli po wciśnięciu klawiszy #Shift+F4# podana zostanie nazwa nie istniejącego
+pliku, zostanie utworzony ~nowy plik~@FileOpenCreate@ o podanej nazwie.
 
- Remarks:
+ Uwagi:
 
- 1. ^<wrap>If a name of a nonexistent folder is entered when creating a new file
-then a "~Path to the file to edit does not exist~@WarnEditorPath@" warning will be shown.
- 2. ^<wrap>When trying to reload a file already opened in the editor the
-"~reloading a file~@EditorReload@" warning message will be shown.
- 3. ^<wrap>The ANSI code page is used by default when creating new files, this
-behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
+ 1. ^<wrap>Jeżeli podczas tworzenia nowego pliku podanie zostanie nazwa
+nie istniejącego folderu, zostanie wyświetlone ostrzeżenie
+"~Ścieżka do edytowanego pliku nie istnieje~@WarnEditorPath@".
+ 2. ^<wrap>Przy próbie przeładowania pliku już otwartego w edytorze,
+zostanie wyświetlone ostrzeżenie o "~przeładowaniu pliku~@EditorReload@".
+ 3. ^<wrap>Podczas tworzenia nowych plików, domyślnie używana jest strona
+kodowa ANSI, ale można zmienić to ustawienie w oknie ~Ustawień edytora~@EditorSettings@.
 
- #Control keys#
+ #Sterowanie klawiszami#
 
- Cursor movement
+ Przesuwanie kursora
 
- #Left#                    ^<wrap>Character left
- #Ctrl+S#                  Move the cursor one character to the left, but don't move to the previous line if the line beginning is reached.
- #Right#                   Character right
- #Up#                      Line up
- #Down#                    Line down
- #Ctrl+Left#               Word left
- #Ctrl+Right#              Word right
- #Ctrl+Up#                 Scroll screen up
- #Ctrl+Down#               Scroll screen down
- #PgUp#                    Page up
- #PgDn#                    Page down
- #Home#                    Start of line
- #End#                     End of line
- #Ctrl+Home, Ctrl+PgUp#    Start of file
- #Ctrl+End, Ctrl+PgDn#     End of file
- #Ctrl+N#                  Start of screen
- #Ctrl+E#                  End of screen
+ #Lewo#                    ^<wrap>Poprzedni znak z lewej
+ #Ctrl+S#                  Przenosi kursor o jeden znak w lewo, ale nie zmienia linii na poprzednią jeżeli kursor osiągnie początek linii
+ #Prawo#                   Następny znak z prawej
+ #Góra#                    Linia powyżej
+ #Dół#                     Linia poniżej
+ #Ctrl+Lewo#               Poprzedni wyraz
+ #Ctrl+Prawo#              Następny wyraz
+ #Ctrl+Góra#               Przewija ekran do góry
+ #Ctrl+Dół#                Przewija ekran w dół
+ #PgUp#                    Poprzednia strona
+ #PgDn#                    Następna strona
+ #Home#                    Początek linii
+ #End#                     Koniec linii
+ #Ctrl+Home, Ctrl+PgUp#    Początek pliku
+ #Ctrl+End, Ctrl+PgDn#     Koniec pliku
+ #Ctrl+N#                  Pierwsza linia ekranu
+ #Ctrl+E#                  Ostatnia linia ekranu
 
- Delete operations
+ Operacje usuwania
 
- #Del#                     ^<wrap>Delete char (also can delete block, depending upon ~Editor settings~@EditorSettings@).
- #BS#                      Delete char left
- #Ctrl+Y#                  Delete line
- #Ctrl+K#                  Delete to end of line
- #Ctrl+BS#                 Delete word left
- #Ctrl+T, Ctrl+Del#        Delete word right
+ #Del#                     ^<wrap>Usuwa znak (może także usunąć blok, zależnie od ~Ustawień edytora~@EditorSettings@).
+ #BS#                      Usuwa znak po lewej
+ #Ctrl+Y#                  Usuwa linię
+ #Ctrl+K#                  Usuwa znaki do końca linii
+ #Ctrl+BS#                 Usuwa wyraz po lewej
+ #Ctrl+T, Ctrl+Del#        Usuwa wyraz po prawej
 
- Block operations
+ Operacje na blokach
 
- #Shift+Cursor keys#       ^<wrap>Select block
- #Ctrl+Shift+Cursor keys#  Select block
- #Alt+gray cursor keys#    Select vertical block
- #Alt+Shift+Cursor keys#   Select vertical block
- #Ctrl+Alt+gray keys#      Select vertical block
- #Ctrl+A#                  Select all text
- #Ctrl+U#                  Deselect block
- #Shift+Ins, Ctrl+V#       Paste block from clipboard
- #Shift+Del, Ctrl+X#       Cut block
- #Ctrl+Ins, Ctrl+C#        Copy block to clipboard
- #Ctrl+<Gray +>#           Append block to clipboard
- #Ctrl+D#                  Delete block
- #Ctrl+P#                  Copy block to current cursor position (in persistent blocks mode only)
- #Ctrl+M#                  Move block to current cursor position (in persistent blocks mode only)
- #Alt+U#                   Shift block left
- #Alt+I#                   Shift block right
+ #Shift+klaw. kursora#     ^<wrap>Zaznacza blok
+ #Ctrl+Shift+klaw. kursora#Zaznacza blok
+ #Alt+szare kursory#       Zaznacza blok pionowy
+ #Alt+Shift+klaw. kursora# Zaznacza blok pionowy
+ #Ctrl+Alt+szare kursory#  Zaznacza blok pionowy
+ #Ctrl+A#                  Zaznacza cały tekst
+ #Ctrl+U#                  Odznacza blok
+ #Shift+Ins, Ctrl+V#       Wkleja blok ze schowka
+ #Shift+Del, Ctrl+X#       Wycina blok
+ #Ctrl+Ins, Ctrl+C#        Kopiuje blok do schowka
+ #Ctrl+<Szary +>#          Dołącza blok do schowka
+ #Ctrl+D#                  Usuwa blok
+ #Ctrl+P#                  Kopiuje blok do bieżącej pozycji kursora (tylko w trybie trwałych bloków)
+ #Ctrl+M#                  Przenosi blok do bieżącej pozycji kursora (tylko w trybie trwałych bloków)
+ #Alt+U#                   Przesuwa blok w lewo
+ #Alt+I#                   Przesuwa blok w prawo
 
- Other operations
+ Pozostałe operacje
 
- #F1#                      ^<wrap>Help
- #F2#                      Save file
- #Shift+F2#                ~Save file as…~@FileSaveAs@
- #Shift+F4#                Edit ~new file~@FileOpenCreate@
- #F6#                      Switch to ~viewer~@Viewer@
- #F7#                      ~Search~@EditorSearch@
- #Ctrl+F7#                 ~Replace~@EditorSearch@
- #Shift+F7#                Continue search/replace
- #Alt+F7#                  Continue search/replace in "reverse" mode
- #F8#                      Toggle OEM/ANSI code page
- #Shift+F8#                Select code page
- #Alt+F8#                  ~Go to~@EditorGotoPos@ specified line and column
- #Alt+F9#                  Maximize or restore the size of the Far console window; see also ~Interface.AltF9~@Interface.AltF9@
- #Alt+Shift+F9#            Call ~Editor settings~@EditorSettings@ dialog
- #F10, F4, Esc#            Quit
- #Shift+F10#               Save and quit
- #Ctrl+F10#                Position to the current file
- #F11#                     Call "~Plugin commands~@Plugins@" menu
- #Alt+F11#                 Display ~file view and edit history~@HistoryViews@
- #Alt+BS, Ctrl+Z#          Undo
- #Ctrl+Shift+Z#            Redo
- #Ctrl+L#                  Disable edited text modification
- #Ctrl+O#                  Show user screen
- #Ctrl+Alt+Shift#          Temporarily show user screen (as long as these keys are held down)
- #Ctrl+Q#                  Treat the next key combination as a character code
- #RightCtrl+0…9#           Set a bookmark 0…9 at the current position
- #Ctrl+Shift+0…9#          Set a bookmark 0…9 at the current position
- #LeftCtrl+0…9#            Go to bookmark 0…9
- #Shift+Enter#             Insert the name of the current file on the active panel at the cursor position.
- #Ctrl+Shift+Enter#        Insert the name of the current file on the passive panel at the cursor position.
- #Ctrl+F#                  Insert the full name of the file being edited at the cursor position.
- #Ctrl+B#                  Show/Hide functional key bar at the bottom line.
- #Ctrl+Shift+B#            Show/Hide status line
+ #F1#                      ^<wrap>Pomoc
+ #F2#                      Zapisz plik
+ #Shift+F2#                ~Zapisz plik jako…~@FileSaveAs@
+ #Shift+F4#                Edytuj ~nowy plik~@FileOpenCreate@
+ #F6#                      Przełącz na ~podgląd~@Viewer@
+ #F7#                      ~Szukaj~@EditorSearch@
+ #Ctrl+F7#                 ~Zastąp~@EditorSearch@
+ #Shift+F7#                Kontynuuje szukanie/zastępowanie
+ #Alt+F7#                  Kontynuuje szukanie/zastępowanie "wstecz"
+ #F8#                      Przełącza strony kodowe OEM/ANSI
+ #Shift+F8#                Wybiera stronę kodową
+ #Alt+F8#                  ~Przechodzi do~@EditorGotoPos@ podanej linii i kolumny
+ #Alt+F9#                  Maksymalizuje lub przywraca wielkość okna konsoli Far; zobacz także ~Interface.AltF9~@Interface.AltF9@
+ #Alt+Shift+F9#            Wywołuje okno ~Ustawień edytora~@EditorSettings@
+ #F10, F4, Esc#            Wyjście z programu
+ #Shift+F10#               Zapisanie i wyjście
+ #Ctrl+F10#                Przeskakuje w oknie plików do bieżącego (edytowanego) pliku
+ #F11#                     Wywołuje menu "~Wtyczek~@Plugins@"
+ #Alt+F11#                 Pokazuje ~Historię podglądu i edycji plików~@HistoryViews@
+ #Alt+BS, Ctrl+Z#          Cofnięcie
+ #Ctrl+Shift+Z#            Ponowienie
+ #Ctrl+L#                  Wyłącza modyfikowanie edytowanego tekstu (blokada)
+ #Ctrl+O#                  Pokazuje ekran użytkownika
+ #Ctrl+Alt+Shift#          Tymczasowo pokazuje ekran użytkownika (dopóki te klawisze będą naciśnięte)
+ #Ctrl+Q#                  Traktuj następną kombinację klawiszy jako kod znaku
+ #PrawyCtrl+0…9#           Ustaw zakładkę 0…9 na bieżącej pozycji
+ #Ctrl+Shift+0…9#          Ustaw zakładkę 0…9 na bieżącej pozycji
+ #LewyCtrl+0…9#            Przechodzi do zakładki 0…9
+ #Shift+Enter#             W miejscu kursora wstawia nazwę bieżącego pliku z aktywnego panelu
+ #Ctrl+Shift+Enter#        W miejscu kursora wstawia nazwę bieżącego pliku z pasywnego panelu
+ #Ctrl+F#                  W miejscu kursora wstawia pełną nazwę (ze ścieżką) edytowanego pliku
+ #Ctrl+B#                  Pokazuje/ukrywa pasek klawiszy w dolnej linii
+ #Ctrl+Shift+B#            Pokazuje/ukrywa górną linię statusu
 
- See also the list of ~macro keys~@KeyMacroEditList@, available in the editor.
+ Zobacz także listę ~klawiszy makro~@KeyMacroEditList@, dostępnych w edytorze.
 
- Notes:
+ Uwagi:
 
- 1. ^<wrap>#Alt+U#/#Alt+I# indent the current line if no block is selected.
- 2. ^<wrap>Holding down #Alt# and typing a character code on the numeric
-keypad inserts the character that has the specified code (0-65535).
- 3. ^<wrap>If no block is selected, #Ctrl+Ins#/#Ctrl+C# marks the current
-line as a block and copies it to the clipboard.
+ 1. ^<wrap>#Alt+U#/#Alt+I# ustawiają wcięcie bieżącej linii jeżeli żaden blok nie jest zaznaczony.
+ 2. ^<wrap>Przytrzymanie klawisza #Alt# i wpisanie kodu znaku na klawiaturze numerycznej,
+wstawia znak o podanym kodzie (0-65535).
+ 3. ^<wrap>Jeżeli nie zaznaczono żadnego bliku, to klawisze #Ctrl+Ins#/#Ctrl+C# zaznaczają
+bieżącą linię i kopiują ją do schowka.
 
 
 @EditorSearch
-$ #Editor: search/replace#
- The following options are available for search and replace in the ~editor~@Editor@:
+$ #Edytor: szukaj/zastąp#
+ Następujące opcje są dostępne przy szukaniu lub zastępowaniu w ~edytorze~@Editor@:
 
- #Case sensitive#
- The case of the characters entered will be taken into account while searching (so, for example,
-#Text# will not be found when searching for #text#).
+ #Uwzględniaj wielkość liter#
+ Wielkość wprowadzonych znaków będzie brana pod uwagę podczas wyszukiwania (np. #Tekst# nie zostanie
+odnaleziony jeżeli wyszukiwane będzie słowo #tekst#).
 
- #Whole words#
- The given text will be found only if it occurs in the text as a whole word.
+ #Tylko całe słowa#
+ Poszukiwany tekst będzie odnaleziony, tylko gdy wprowadzony tekst będzie całym wyrazem.
 
- #Reverse search#
- Change the direction of search (from the end of file towards the beginning)
+ #Szukaj w odwrotnym kierunku#
+ Zmiana kierunku wyszukiwania (od końca pliku w kierunku początku).
 
- #Regular expressions#
- Treat input as Perl regular expression (~search~@RegExp@ and ~replace~@RegExpRepl@).
-Each line is processed individually, so multi-line expressions and line break characters will not be found.
+ #Wyrażenie regularne#
+ Traktuje wprowadzone dane jako wyrażenie regularne języka Perl (~wyszukiwanie~@RegExp@
+i ~zastępowanie~@RegExpRepl@).
+Każda linia jest dekodowana osobno, więc wprowadzanie wyrażeń wieloliniowych i znaki łamania
+linii nie zostaną odnalezione.
 
- ~Preserve style~@PreserveStyle@
- Preserve style (case and delimiters in program source code) of the replaced text.
+ ~Zachowaj styl~@PreserveStyle@
+ Zachowuje styl (wielkość znaków i ograniczniki w kodzie źródłowym) w zastąpionym tekście.
 
- The #All# button will show All matching entries ~menu~@FindAllMenu@.
+ Przycisk #Wszystko# pokaże WSZYSTKIE wystąpienia tekstu w postaci ~menu~@FindAllMenu@.
 
 
 @PreserveStyle
-$ #Editor: Replace mode - Preserve style#
- The #“Preserve style”# ~replace~@EditorSearch@ mode in the
-~Editor~@Editor@ preserves the style (case, delimiters) of the replaced
-text. This mode may be useful when editing program source code. Some
-examples are below. Note how the style of the replaced strings
-is preserved in each case.
+$ #Edytor: Tryb zastępowania - Zachowaj styl#
+ Tryb #"Zachowaj styl"# podczas ~zastępowania~@EditorSearch@ tekstu
+w oknie ~Edytora~@Editor@ zachowuje styl (wielkość znaków, ograniczniki)
+zastępowanego tekstu. Tryb ten może być przydatny podczas edycji kodu źródłowego.
+Poniżej kilka przykładów wykorzystania. Proszę zwrócić uwagę jak styl
+zastępowanych znaków jest zachowywany w każdym przypadku.
 
 @-
- ┌────────────────┬────────────────────┬──────────────────────┐
- │ Find / Replace │ Before             │ After                │
- ├────────────────┼────────────────────┼──────────────────────┤
- │ tu / to        │ #Tu# be or not #tu# be │ #To# be or not #to# be   │
- ├────────────────┼────────────────────┼──────────────────────┤
- │ UserName       │ writerUserName     │ writerPersonLogin    │
- │  /             │ user.NAME          │ person.LOGIN         │
- │ PersonLogin    │ DEFAULT_USER_NAME  │ DEFAULT_PERSON_LOGIN │
- │                │ default-User-name  │ default-Person-login │
- └────────────────┴────────────────────┴──────────────────────┘
+ ┌─────────────────┬─────────────────────┬──────────────────────┐
+ │ Znajdź / Zastąp │ Przed               │ Po zamianie          │
+ ├─────────────────┼─────────────────────┼──────────────────────┤
+ │ buć / być       │ #Buć# albo nie #buć#    │ #Być# albo nie #być#     │
+ ├─────────────────┼─────────────────────┼──────────────────────┤
+ │ UserName        │ writerUserName      │ writerPersonLogin    │
+ │  /              │ user.NAME           │ person.LOGIN         │
+ │ PersonLogin     │ DEFAULT_USER_NAME   │ DEFAULT_PERSON_LOGIN │
+ │                 │ default-User-name   │ default-Person-login │
+ └─────────────────┴─────────────────────┴──────────────────────┘
 @+
 
- #More formally.#
+ #Bardziej formalnie.#
 
- The main operation used in the algorithm is parsing a string into
-tokens. The tokens are divided at a single separator character
-or between a lowercase and an uppercase letter. Token separator
-characters are #underscore “_”#, #hyphen “-”#, and #dot “.”#. All tokens
-must be divided with the same separator. If the parse is ambiguous, the
-entire string is treated as a single token. For example:
+ Główną operacją używaną w algorytmie jest parsowanie ciągu na tokeny.
+Tokeny są rozdzielane pojedynczym znakiem separatora lub pomiędzy
+małymi i wielkimi literami. Separatorami mogą być znaki #podkreślenia “_”#,
+#myślnik “-”# i #kropka “.”#., Wszystkie tokeny należy podzielić tym samym
+separatorem. Jeżeli parsowanie nie jest jednoznaczne, to cały ciąg
+jest traktowany jako pojedynczy token, np.:
 
 @-
  ┌──────────────────────┬──────────────────────┬──────────────┐
- │ Search Pattern       │ Tokens               │ Comments     │
+ │ Szukany łańcuch      │ Tokeny               │ Komentarz    │
  ├──────────────────────┼──────────────────────┼──────────────┤
- │ testMe               │ test Me              │              │
- │ WhatIsIt             │ What Is It           │              │
+ │ testujMnie           │ testuj Mnie          │              │
+ │ CoToJest             │ Co To Jest           │              │
  │ far-manager          │ far manager          │              │
- │ Contact.Address.Type │ Contact Address Type │              │
- │ USER_FIRST_NAME      │ USER FIRST NAME      │              │
+ │ Typ.Adresu.Kontaktu  │ Typ Adresu Kontaktu  │              │
+ │ PIERWSZ_IMIE_OSOBY   │ PIERWSZE IMIE OSOBY  │              │
  ├──────────────────────┼──────────────────────┼──────────────┤
- │ test_userName        │ test_userName        │ Ambiguous    │
- │ one.two-three        │ one.two-three        │ separators   │
- │ aBc.dEf.gHi          │ aBc.dEf.gHi          │              │
+ │ test_nazwaUzytkownika│ test_nazwaUzytkownika│ Separatory   │
+ │ jeden.dwa-trzy       │ jeden.dwa-trzy       │ niejedno-    │
+ │ aBc.dEf.gHi          │ aBc.dEf.gHi          │ znaczne      │
  ├──────────────────────┼──────────────────────┼──────────────┤
- │ A..B                 │ A..B                 │ Adjacent     │
- │                      │                      │ separators   │
+ │ A..B                 │ A..B                 │ Sąsiednie    │
+ │                      │                      │ separatory   │
  └──────────────────────┴──────────────────────┴──────────────┘
 @+
 
- The parse also defines the common separator type and the style of
-each token. There are three token styles: #Title#case, #lower#case, and
-#UPPER#case. If a token has a mix of uppercase and lowercase letters
-or non-letter characters, its style is undefined. A token consisting
-of a single uppercase character is deemed to be both #Title#case and
-#UPPER#case.
+ Parsowanie definiuje również wspólny separator i styl każdego
+tokena. Istnieją trzy style tokenów: #Tytuł#, #małe# litery
+i #WIELKIE# litery. Jeżeli token jest kombinacją wielkich i małych
+liter lub znaków specjalnych, to jego styl jest nieoznaczony.
+Token składający się z jednej wielkiej litery jest rozpoznawany
+zarówno jako #Tytuł# jak i #WIELKIE# litery.
 
- #The following algorithm is used to replace preserving style.#
+ #Poniższy algorytm jest używany do zastąpienia istniejącego stylu.#
 
- The search pattern and the replace string are parsed into tokens
-according to the rules above. The text is searched for a string that can
-be parsed into the same tokens as the search pattern. The tokens are
-compared according to the #“Case sensitive”# and #“Whole words”# search
-modes.
+ Wzorzec wyszukiwania i ciąg zastępując są dzielone na tokeny zgodnie
+z powyższymi zasadami. Tekst jest przeszukiwany pod kątem ciągu, który
+może być podzielony na tokeny jak poszukiwany wzorzec. Tokeny są porównywane
+zgodnie z #"Uwzględnieniem wielkości liter"# i #"Tylko całe słowa"#.
 
- If the found string and the replace string have the same number
-of tokens and the found tokens have common style (#Title#case
-is preferred over the #UPPER#case), the replace tokens are transformed
-to this common style. If the common style cannot be defined, the replace
-tokens are transformed to the style of the corresponding found tokens.
-After the transformation, the replace tokens are joined with the
-separator of the parse of the found string. The result is used as the
-replace string. Some examples:
+ Jeżeli szukany i zastępowany ciąg znaków mają tę samą liczbę tokenów
+i znalezione tokeny mają wspólny styl (#Pierwsza wielka# jest ważniejsza
+niż #WSZYSTKIE WIELKIE#), tokeny zastępujące są przekształcane do tego
+wspólnego stylu. Jeżeli nie można ustalić wspólnego stylu, zastępowane
+tokeny są przekształcane do stylu odpowiadającemu szukanym tokenom.
+Po przekształceniu zastąpione tokeny są łączone za pomocą separatora
+z szukanego ciągu. Wynik jest użyty jako zastąpiony ciąg. Kilka przykładów:
 
 @-
  ┌────────────────┬────────────────────┬──────────────────────┐
- │ Find / Replace │ Before             │ After                │
+ │ Znajdź/Zastąp  │ Przed zamianą      │ Po zamianie          │
  ├────────────────┼────────────────────┼──────────────────────┤
  │ abc-def-ghi    │ AbcDefGhi          │ PqRstXyz             │
  │  /             │ ABC_DEF_GHI        │ PQ_RST_XYZ           │
@@ -3252,19 +3255,18 @@ replace string. Some examples:
  └────────────────┴────────────────────┴──────────────────────┘
 @+
 
- If the found string and the replace pattern have different number
-of tokens, the first token is processed separately from the rest of the
-tokens. The first replace token inherits the style of the first found
-token. The rest of the replace tokens are transformed to the common
-style of the rest of the found tokens. If the common style cannot
-be defined, the rest of the replace tokens are not changed. As in the
-previous case, the replace tokens are joined with the separator of the
-parse of the found string and the result is used as the replace string.
-Examples:
+ Jeżeli znaleziony ciąg i wzorzec zamiany mają różną liczbę tokenów,
+to pierwszy token jest przetwarzany oddzielnie od reszty tokenów.
+Pierwszy zastępowany token dziedziczy styl pierwszego znalezionego
+tokena. Reszta zastępowanych tokenów jest przekształcana na zwykły
+styl pozostałych znalezionych tokenów. Jeżeli wspólny styl nie może
+zostać określony, pozostałe tokeny nie są zastępowane. Tak jak
+w poprzednim przypadku, tokeny zastąpione są łączone za pomocą
+separatorów i wynik jest używany jako ciąg zastępujący. Przykłady:
 
 @-
  ┌────────────────┬────────────────────┬──────────────────────┐
- │ Find / Replace │ Before             │ After                │
+ │ Znajdź/Zastąp  │ Przed zamianą      │ Po zamianie          │
  ├────────────────┼────────────────────┼──────────────────────┤
  │ abc-def-ghi    │ Abc.def.ghi        │ Pq.rst.uvw.xyz       │
  │  /             │ ABC.Def.Ghi        │ PQ.Rst.Uvw.Xyz       │
@@ -3277,18 +3279,18 @@ Examples:
  └────────────────┴────────────────────┴──────────────────────┘
 @+
 
- In the special case when the found string consists of a single token
-but the replace string has several tokens, the first replace token
-inherits the style of the found token. The common style for the rest
-of the replace tokens and the separator type are deduced from the
-context of the found string. If this is not possible, the common style
-is the style of the (single) found token and the separator is empty.
-Again, the transformed replace tokens are joined and used as the replace
-string. More examples:
+ W specjalnym przypadku, gdy szukany ciąg składa się tylko z jednego
+tokenu, ale ciąg zastępujący ma kilka tokenów, to pierwszy zastępowany
+token dziedziczy styl po szukanym tokenie. Wspólny styl dla reszty
+zastępowanych tokenów jest dedukowany z kontekstu znalezionego ciągu.
+Jeżeli jest to niemożliwe, to wspólny styl będzie stylem (pierwszego)
+szukanego tokenu, a separator będzie pusty. Ponownie, przekształcone
+tokeny zastąpione są łączone i użyte do zastąpienia ciągu.
+Więcej przykładów:
 
 @-
  ┌────────────────┬────────────────────┬──────────────────────┐
- │ Find / Replace │ Before             │ After                │
+ │ Znajdź/Zastąp  │ Przed zamianą      │ Po zamianie          │
  ├────────────────┼────────────────────┼──────────────────────┤
  │ ijk            │ ijk.Zzz            │ mno.Pqr.Stu.Zzz      │
  │  /             │ AAA-ijk            │ AAA-mno-pqr-stu      │
@@ -3299,14 +3301,14 @@ string. More examples:
  └────────────────┴────────────────────┴──────────────────────┘
 @+
 
- If the search pattern is not found according to the rules above but
-found as an ordinary string, and both the found string and the replace
-string start with letters, the case of the first letter of the replace
-string is changed to that of the found string. For example:
+ Jeżeli wzorzec wyszukiwania nie zostanie odnaleziony zgodnie z powyższymi
+zasadami, ale znaleziono jako zwykły ciąg - a zarówno szukany jak i zastępowany
+ciąg zaczyna się od liter, wielkość pierwszej litery w zastępowanym łańcuchu
+jest zgodna z odnalezionym ciągiem. Na przykład:
 
 @-
  ┌────────────────┬────────────────────┬──────────────────────┐
- │ Find / Replace │ Before             │ After                │
+ │ Znajdź/Zastąp  │ Przed zamianą      │ Po zamianie          │
  ├────────────────┼────────────────────┼──────────────────────┤
  │ ab.cd / wx-yz  │ #A#b.cD              │ #W#x-yz                │
  └────────────────┴────────────────────┴──────────────────────┘
@@ -3314,609 +3316,604 @@ string is changed to that of the found string. For example:
 
 
 @FindAllMenu
-$ #Editor: All matching entries menu#
- The following key combinations are available in this menu:
+$ #Edytor: Menu wszystkich znalezionych wystąpień#
+ Następujące kombinacje klawiszy są dostępne w tym menu:
 
  #F5#
- Toggle menu size.
+ Przełącza wielkość menu.
 
- #Ctrl+Up#, #Ctrl+Down#
- Scroll the text in the editor.
+ #Ctrl+Góra#, #Ctrl+Dół#
+ Przewija tekst w edytorze.
 
- #Ctrl+Enter#, #Ctrl+Left#, #mouse click#
- Go to the position of the found text.
+ #Ctrl+Enter#, #Ctrl+Lewo#, #kliknięcie myszką#
+ Przechodzi do pozycji znalezionego tekstu.
 
- #Gray +#
- Add session bookmark with the current position.
+ #Szary +#
+ Dodaje zakładkę sesji w bieżącej pozycji.
 
- #RightCtrl+0…9#, #Ctrl+Shift+0…9#
- Set bookmark 0…9 at the current position.
+ #PrawyCtrl+0…9#, #Ctrl+Shift+0…9#
+ Ustawia zakładkę 0…9 w bieżącej pozycji.
 
- #LeftCtrl+0…9#
- Go to the bookmark 0…9.
+ #LewyCtrl+0…9#
+ Przechodzi do zakładki 0…9.
 
 
 @FileOpenCreate
-$ #Editor: Open/Create file#
- The #Shift+F4# key combination opens an existing file or creates
-a new file.
+$ #Edytor: Otwórz/Utwórz plik#
+ Kombinacja klawiszy #Shift+F4# otwiera istniejący plik lub tworzy
+nowy plik.
 
- If the specified file does not exist, a new file will be created.
-The code page for the new file is specified in the #Code page# list.
-If #default# is selected in the list, the code page specified in the
-~Editor settings~@EditorSettings@ dialog is used.
+ Jeżeli podany plik nie istnieje, zostanie utworzony nowy plik.
+Strona kodowa dla nowego pliku jest ustawiana według listy #Strona kodowa#.
+Jeżeli na liście wybrana jest #Domyślna#, to użyta zostanie strona kodowa
+określona w ~Ustawieniach edytora~@EditorSettings@.
 
- The code page for an existing file is defined according to the
-#Code page# list selection.
+ Strona kodowa dla istniejącego pliku jest zdefiniowana zgodnie z wyborem
+z listy #Strona kodowa#.
 
- #Default#
- If the file has already been opened and its
-code page was saved (depends on the #Save file position# option of the
-~Editor settings~@EditorSettings@ dialog), the saved code page is used.
-Otherwise, if the file has the Byte Order Mark, the corresponding
-Unicode code page -- UTF-8, UTF-16 (Little endian), or UTF-16 (Big
-endian) -- is used. Otherwise, the code page is ~autodetected~@CodePageAuto@.
+ #Domyślna#
+ Jeżeli plik został już otwarty i jego strona kodowa została zapisana
+(zgodnie z opcję #Zapisz pozycję kursora w pliku#
+w ~Ustawieniach edytora~@EditorSettings@), to użyta zostanie tam ustawiona
+strona kodowa.
+W innym przypadku, jeżeli plik zawiera znacznik BOM (Byte Order Mark), to zostanie
+użyta odpowiednia strona kodowa Unicode -- UTF-8, UTF-16 (Little endian)
+lub UTF-16 (Big endian).
+W innym przypadku, strona kodowa zostania ~automatycznie wykryta~@CodePageAuto@.
 
- #Automatic detection#
- An attempt is made to ~autodetect~@CodePageAuto@ code page based on the file contents.
+ #Wykryj automatycznie#
+ Program spróbuje ~automatycznie wykryć~@CodePageAuto@ stronę kodową, bazując na
+zawartości pliku.
 
- #Specific code page#
- The selected code page is used.
+ #Wybór strony kodowej#
+ Zostanie użyta wybrana strona kodowa.
 
 
 @FileSaveAs
-$ #Editor: save file as…#
- To save edited file with another name press #Shift+F2# and specify
-new name, code page and End of Line characters format.
+$ #Edytor: zapisz plik jako…#
+ Aby zapisać edytowany plik pod inną nazwą należy nacisnąć klawisze #Shift+F2#
+i podać nową nazwę, stronę kodową i format znaków końca linii.
 
- If file has been edited in one of the following code pages: UTF-8,
-UTF-16 (Little endian) or UTF-16 (Big endian), then if the option #Add signature (BOM)# is on,
-the appropriate marker is inserted into the beginning of the file, which
-helps applications to identify the code page of this file.
+ Jeżeli edytowany plik używa jednej z następujących stron kodowych: UTF-8,
+UTF-16 (Little endian) lub UTF-16 (Big endian), to zostanie włączoną opcja #Dodaj znacznik BOM#,
+a odpowiedni znacznik zostanie dodany na początku pliku, aby pomóc innym aplikacjom
+poprawnie zidentyfikować stronę kodową tego pliku.
 
- You can also specify the format of the line break characters:
+ Można także ustawić format znaków końca linii:
 
- #Do not change#
- Do not change the line break characters.
+ #Nie zmieniaj#
+ Nie zmienia znaczników końca linii.
 
- #Dos/Windows format (CR LF)#
- Line breaks will be represented as a two-character sequence -
-Carriage Return and Line Feed (CR LF), as used in Dos/Windows.
+ #Format DOS/Windows (CR LF)#
+ Koniec linii będzie oznaczony sekwencją dwóch znaków -
+powrót karetki (CR) i przesunięciem linii (LF), domyślnie używanej
+w systemach DOS/Windows.
 
- #Unix format (LF)#
- Line breaks will be represented as a single character - Line
-Feed (LF), as used in Unix.
+ #Format UNIX (LF)#
+ Koniec linii będzie oznaczony pojedynczym znakiem - przesunięciem
+linii (LF), tak jak w systemach UNIX.
 
- #Mac format (CR)#
- Line breaks will be represented as a single character - Carriage
-Return (CR), as used in Mac OS.
+ #Format MAC (CR)#
+ Koniec linii będzie oznaczony pojedynczym znakiem - powrotem karetki
+(CR), używanym w systemach Mac OS.
 
 
 @EditorGotoPos
-$ #Editor: go to specified line and character#
- This dialog allows to change the position in the internal editor.
+$ #Edytor: przejdź do podanej linii i znaku#
+ Ta opcja pozwala zmienić pozycję w wewnętrznym edytorze.
 
- You can enter an absolute or relative value or percentage, in decimal or hexadecimal.
- For relative add #+# or #-# before the value.
- For percentage add #%# after the value.
- For decimal either add #m# after the value or uncheck the #Hex value#.
- For hexadecimal either add #0x# or #$# before the value, #h# after the value, or check the #Hex value#.
+ Można podać wartość bezwzględną, względną lub procentową - w formacie dziesiętnym
+lub szesnastkowym.
+ Dla wartości względnych należy dodać #+# lub #-# przed wartością.
+ Dla wartości procentowych należy dodać #%# po wartości.
+ Dla wartości dziesiętnych należy dodać #m# po wartości lub odznaczyć opcję #Szesnastkowo#.
+ Dla wartości szesnastkowych należy dodać #0x# lub #$# przed wartością, #h# po wartości,
+lub zaznaczyć opcję #Szesnastkowo#.
 
- The first value will be interpreted as a row number, the second as a character number.
-Values must be delimited by space or one of the following characters: #,.;:#.
-If a value is omitted the corresponding parameter will not be changed.
+ Pierwsza wartość zostanie uznana za numer wiersza, druga za numer znaku.
+Wartości należy rozdzielić spacją lub jednym z następujących znaków: #,.;:#.
+Jeżeli wartość zostanie pominięta, odpowiadający parametr nie zostanie zmieniony.
 
 
 @EditorReload
-$ #Editor: reloading a file#
- Far Manager tracks all attempts to repeatedly open for editing a file that
-is already being edited. The rules for reloading files are as follows:
+$ #Edytor: przeładowanie pliku#
+ Far Manager śledzi wszystkie próby wielokrotnego otwierania do edycji pliku,
+który jest aktualnie edytowany. Zasady ponownego wczytania pliku do edycji
+są następujące:
 
- 1. ^<wrap>If the file was not changed and the option "Reload edited file" in the
-~confirmations~@ConfirmDlg@ dialog is not enabled, Far switches to the open
-editor instance without further prompts.
+ 1. ^<wrap>Jeżeli plik nie został zmieniony, a opcja "Przeładuj edytowany plik"
+w oknie ~potwierdzeń~@ConfirmDlg@ nie jest włączona, Far przełącza się do otwartego
+okna edytora bez żadnych zapytań.
 
- 2. ^<wrap>If the file was changed or the option "Reload edited file" is enabled,
-there are three possible options:
+ 2. ^<wrap>Jeżeli plik został zmieniona, a opcja "Przeładuj edytowany plik"
+jest włączona, istnieją trzy możliwe opcje:
 
- #Current#
- Continue editing the same file
+ #Bieżący#
+ Kontynuuj edycję tego samego pliku
 
- #New instance#
- The file will be opened for editing in a new
-editor instance. In this case, be attentive: the
-contents of the file on the disk will correspond
-to the contents of the editor instance where the
-file was last saved.
+ #Nowa instancja#
+ Plik zostanie otworzony do edycji w nowej instancji edytora. W tym przypadku
+należy zwrócić uwagę: zawartość pliku na dysku będzie odpowiadać zawartości
+tej instancji edytora, która zostanie zapisana jako ostatnia.
 
- #Reload#
- The current changes are not saved and the
-contents of the file on the disk is reloaded into the editor.
+ #Przeładuj#
+ Bieżące zmiany nie zostaną zapisane, a zawartość pliku na dysku zostanie
+ponownie otwarta w edytorze.
 
 
 @WarnEditorPath
-$ #Warning: Path to the file to edit does not exist#
- When opening a new file for ~editing~@Editor@, you have entered the name of
-a folder that does not exist. Before saving the file, Far will create the
-folder, provided that the path is correct (for example, a path starting with a
-non-existing drive letter would not be correct) and that you have enough rights
-to create the folder.
+$ #Ostrzeżenie: Ścieżka do edytowanego pliku nie istnieje#
+ Przy otwarciu nowego pliku do ~edycji~@Editor@, została wprowadzona
+nazwa folderu, który nie istnieje. Przed zapisaniem pliku Far utworzy folder,
+pod warunkiem że ścieżka jest poprawna (np. ścieżka rozpoczynająca się z literą
+nie istniejącego dysku nie jest poprawna) i czy użytkownik ma wystarczające
+prawa do utworzenia folderu.
 
 
 @WarnEditorPluginName
-$ #Warning: The name of the file to edit cannot be empty#
- To create a new file on a plugin's panel you must specify a
-file name.
+$ #Ostrzeżenie: Nazwa pliku do edycji nie może być pusta#
+ Aby utworzyć nowy plik w panelu wtyczek, należy podać nazwę pliku.
 
 
 @WarnEditorSavedEx
-$ #Warning: The file was changed by an external program#
- The write date and time of the file on the disk are not the same as
-those saved by Far when the file was last accessed. This means that another
-program, another user (or even yourself in a different editor instance) changed
-the contents of the file on the disk.
+$ #Ostrzeżenie: Plik został zmieniony przez inny program#
+ Data i czas zapisu pliku na dysku nie jest taka sama, jak zanotowana
+przez Far przy ostatnim dostępie do pliku. Oznacza to, że inny program
+lub inny użytkownik (lub ten sam użytkownik, ale w innej instancji edytora)
+zamienił zawartość pliku na dysku.
 
- If you press "Save", the file will be overwritten and all changes made by
-the external program will be lost.
+ Jeżeli wybrano "Zapisz", plik zostanie zastąpiony i wszystkie zmiany
+dokonane przez zewnętrzny program zostaną utracone.
 
 
 @CodePagesMenu
-$ #Code pages menu#
- This menu allows to select code page in the editor and viewer.
+$ #Menu strony kodowe#
+ To menu pozwala wybrać stronę kodową w edytorze i podglądzie.
 
- The menu is divided into several sections:
+ Menu jest podzielona na kilka sekcji:
 
- #Automatic detection#
- Far will try to ~autodetect~@CodePageAuto@ the code page of the text.
+ #Wykryj automatycznie#
+ Far próbuje ~automatycznie wykryć~@CodePageAuto@ stronę kodową tekstu.
 
- #System#
- Main single-byte system code pages - ANSI and OEM.
+ #Systemowe#
+ Główne jedno-bajtowe strony kodowe - ANSI i OEM.
 
  #Unicode#
- Unicode code pages.
+ Strony kodowe Unicode (wielo-bajtowe).
 
- #Favorites#
- Code pages selected by the user.
+ #Ulubione#
+ Strony kodowe wybrane przez użytkownika.
 
- #Other#
- The rest of code pages installed in the system.
+ #Pozostałe#
+ Pozostałe strony kodowe zainstalowane w systemie.
 
- The following key combinations are available in this menu:
+ Następujące kombinacje klawiszy są dostępne w menu:
 
  #Ctrl+H#
- Shows or hides the #Other# menu section.
+ Pokazuje lub ukrywa sekcję #Pozostałe# w menu.
 
  #Ins#
- Moves the code page from the #Other# section to the #Favorites# section.
+ Przenosi stronę kodową z listy #Pozostałe# do sekcji #Ulubione#.
 
  #Del#
- Moves the code page from the #Favorites# section back to the #Other# section.
+ Usuwa stronę kodową z listy #Ulubione# z powrotem do sekcji #Pozostałe#.
 
  #F4#
- Opens the ~Rename the code page~@EditCodePageNameDlg@ dialog. Only #Favorites# and
-#Other# code pages can be renamed. The renamed code pages are indicated
-with the #*# character.
+ Otwiera okno ~Zmień nazwę strony kodowej~@EditCodePageNameDlg@. Nazwy można zmieniać
+tylko dla #Ulubionych# lub #Pozostałych# stron kodowych. Zmienione nazwy są oznaczone
+symbolem #*#.
 
- See also common ~menu keyboard commands~@MenuCmd@.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @EditCodePageNameDlg
-$ #Rename code page#
- This dialog allows to rename the #Favorites# and #Other# code pages.
-Far will display new code page names in the ~Code pages~@CodePagesMenu@ menu.
+$ #Zmień nazwę strony kodowej#
+ To okno pozwala na zmianę nazwy strony kodowej w sekcjach #Ulubione# i #Pozostałe#.
+Far wyświetli noną nazwę strony kodowej w menu ~Strony kodowe~@CodePagesMenu@.
 
- The #Reset# button sets the code page name to the default system
-name. Another way to reset the name is to leave it empty and press #OK#.
+ Przycisk #Rest# ustawia nazwę strony kodową na domyślną nazwę systemową.
+Innym sposobem zresetowania nazwy jest pozostawienie pustego pola i naciśnięcie #OK#.
 
 
 @DriveDlg
-$ #Change drive#
- This menu allows to change the current drive of a panel or open a new ~plugin~@Plugins@ panel.
+$ #Zmień dysk#
+ Menu to pozwala zmienić bieżący dysk w panelu lub otwiera nowy panel ~wtyczek~@Plugins@.
 
- Select the item with the corresponding drive letter to change the drive or
-the item with the plugin name to create a new plugin panel. If the panel type
-is not a ~file panel~@FilePanel@, it will be changed to the file panel.
+ Wybiera element z odpowiadającą literą dysku, aby zmienić dysk lub element z nazwą
+wtyczki, aby otworzyć nowy panel wtyczki. Jeżeli typ panelu nie jest
+~panelem plików~@FilePanel@, zostanie on zmieniony na panel plików.
 
- #Ctrl+A#, #F4# hotkeys invoke the ~file attributes~@FileAttrDlg@ for drives.
+ #Ctrl+A#, #F4# pozwalają ustawić ~atrybuty~@FileAttrDlg@ dla dysków.
 
- #Ctrl+A#, #F4# hotkeys can be used to assign a hotkey to plugin item.
+ #Ctrl+A#, #F4# mogą być użyte do przypisania klawisza skrótu do wtyczki.
 
- #F3# key shows plugin technical information.
+ #F3# pokazuje informacje techniczne o wtyczce.
 
- #Del# key can be used:
- - ^<wrap>to ~disconnect~@DisconnectDrive@ network drives;
- - to delete a substituted disk;
- - to detach a virtual disk;
- - to eject disks from CD-ROM and removable drives.
+ #Del# można użyć do:
+ - ^<wrap>~rozłączenia~@DisconnectDrive@ dysków sieciowych;
+ - usunięcia dysków podłączonych;
+ - odłączenia dysków wirtualnych;
+ - wysunięcia dysków z napędów optycznych i usunięcia dysków.
 
- Ejecting a disk from a ZIP-drive requires administrative privileges.
+ Wysunięcie dysku z napędu ZIP wymaga uprawnień administratora.
 
- A CD-ROM can be closed by pressing #Ins#.
+ Napęd optyczny można zamknąć wciskając #Ins#.
 
- The #Shift+Del# hotkey is used to prepare a USB storage device for safe
-removal. If the disk, for which the removal function is used, is a flash-card
-inserted into a card-reader that supports several flash-cards then the
-card-reader itself will be stopped.
+ Klawisze #Shift+Del# są użyte do przygotowania urządzenia USB (dyski, pendrive)
+do bezpiecznego usunięcia. Jeżeli dysk, dla którego użyto funkcji bezpiecznego
+usunięcia jest kartą typu flash (np. SD, microSD), to przy włożonej karcie
+do czytnika obsługującego kilka karta - zatrzymane zostanie całe urządzenie.
 
- #Ctrl+1# - #Ctrl+9# toggle displaying of various information:
+ #Ctrl+1# - #Ctrl+9# przełączanie wyświetlania różnych informacji:
 
- #Ctrl+1# - ^<wrap>disk type;
- #Ctrl+2# - ^<wrap>network name / path associated with a SUBST disk
-/ path to virtual disk container;
- #Ctrl+3# - ^<wrap>disk label;
- #Ctrl+4# - ^<wrap>file system;
- #Ctrl+5# - ^<wrap>disk size and free space (this option has two
-display modes, press twice to see);
- #Ctrl+6# - ^<wrap>removable disk parameters;
- #Ctrl+7# - ^<wrap>plugins;
- #Ctrl+8# - ^<wrap>CD parameters;
- #Ctrl+9# - ^<wrap>network parameters.
+ #Ctrl+1# - ^<wrap>typ dysku;
+ #Ctrl+2# - ^<wrap>nazwa sieciowa / ścieżka podłączenia dysku SUBST
+/ ścieżka do wirtualnego kontenera dysku;
+ #Ctrl+3# - ^<wrap>etykieta dysku;
+ #Ctrl+4# - ^<wrap>system plików;
+ #Ctrl+5# - ^<wrap>wielkość dysku i wolne miejsce (opcja ta ma dwa tryby
+wyświetlania, wybierz ponownie aby zobaczyć szczegóły);
+ #Ctrl+6# - ^<wrap>parametry dysku wyjmowalnego;
+ #Ctrl+7# - ^<wrap>wtyczki;
+ #Ctrl+8# - ^<wrap>parametry CD/DVD;
+ #Ctrl+9# - ^<wrap>parametry sieciowe.
 
- #Change drive# menu settings are saved in the Far configuration.
+ Ustawienia menu #Zmień dysk# są zapisywane w konfiguracji Far.
 
- #F9# shows the ~dialog~@ChangeDriveMode@ to control displaying
-of this information.
+ Klawisz #F9# pokazuje ~okno~@ChangeDriveMode@ opcji wyświetlanych informacji.
 
- If the option "~Use Ctrl+PgUp to change drive~@InterfSettings@" is enabled,
-pressing #Ctrl+PgUp# works the same as pressing #Esc# - cancels drive selection
-and closes the menu.
+ Jeżeli opcja "~Użyj Ctrl+PgUp do zmiany napędu~@InterfSettings@" jest włączona,
+wciśnięcie #Ctrl+PgUp# działa tak samo jak wciśnięcie #Esc# - anuluje wybór
+dysku i zamyka menu.
 
- Pressing #Shift+Enter# invokes the Windows Explorer showing the root
-directory of the selected drives (works only for disk drives and not for
-plugins).
+ Wciśnięcie #Shift+Enter# wywołuje Eksploratora Windows i otwiera w nim
+główny folder wybranego dysku (działa tylko dla dysków, a dla wtyczek).
 
- #Ctrl+R# allows to refresh the disk selection menu.
+ #Ctrl+R# pozwala odświeżyć menu wyboru dysku.
 
- If "#CD drive type#" mode is enabled (#Ctrl+8#), Far will attempt to
-determine the type of each of the CD drives available in the system. Known
-types are as follows: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW and DVD-RAM.
-This function is available only for users either with administrative privileges
-or all local users, when it's stated explicitly in the Local Policy Editor
-(to do this, run #secpol.msc# from the command prompt, and set the '#Local#
-#Policies/Security Options/Devices: Restrict CD-ROM access to locally logged-on#
-#user only#' setting to '#Enabled#').
+ Jeżeli tryb #Parametry CD/DVD# jest włączony (#Ctrl+8#), Far próbuje
+wykryć typ każdego napędu optycznego dostępnego w systemie. Znane typy to:
+CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW i DVD-RAM.
+Funkcja jest dostępna dla użytkowników posiadających prawa administratora
+lub wszystkich użytkowników lokalnych, jeżeli mają uprawnienie ustawione
+w Edytorze Polityk Lokalnych (aby je ustawić wpisz #secpol.msc# w wierszu
+poleceń, następnie przejdź do '#Zasady lokalne/Opcje zabezpieczeń/Urządzenia:#
+#ogranicz dostęp do stacji CD-ROM tylko do użytkownika zalogowanego lokalnie#'
+ustawionego na '#Włączone#' - w wersji angielskiej: '#Local Policies/#
+#Security Options/Devices: Restrict CD-ROM access to locally logged-on user only#'
+ustawione na '#Enabled#').
 
- #Alt+Shift+F9# allows you to ~configure plugins~@PluginsConfig@ (it works only if
-display of plugin items is enabled).
+ #Alt+Shift+F9# pozwala ~skonfigurować wtyczkę~@PluginsConfig@ (działa tylko
+jeżeli wyświetlana wtyczka jest włączona).
 
- #Shift+F9# in the plugins list opens the configuration dialog of the
-currently selected plugin.
+ #Shift+F9# na liście wtyczek otwiera okno konfiguracji wybranej wtyczki.
 
- #Shift+F1# in the plugins list displays the context-sensitive help of the
-currently selected plugin, if the plugin has a help file.
+ #Shift+F1# na liście wtyczek wyświetla pomoc kontekstową wybranej wtyczki,
+o ile dana wtyczka posiada plik pomocy.
 
- The #A# character in the leftmost menu column means that the corresponding plugin is
-written for Far 1.7x and it does not support all possibilities available in
-Far 3 (these are, in particular, Unicode characters in filenames and in editor).
+ Litera #A# w lewej kolumnie menu oznacza, że widoczna wtyczka jest napisana
+dla Far 1.7x i nie obsługuje wszystkich możliwości dostępnych w Far 3
+(jak np. znaki Unicode w nazwach plików i w edytorze).
 
- See also:
+ Zobacz także:
 
- The list of ~macro keys~@KeyMacroDisksList@, available in the disk menu.
- Common ~menu~@MenuCmd@ keyboard commands.
+ Lista ~klawiszy makro~@KeyMacroDisksList@, dostępnych w menu dysku.
+ Polecenia ~menu~@MenuCmd@.
 
 
 @ChangeDriveMode
-$ #Change Drive Menu Options#
- The dialog allows to control the information shown in the
-~Change drive~@DriveDlg@ menu.
+$ #Opcje menu zmiany dysku#
+ Dialog pozwala kontrolować informacje pokazywane w menu
+~Zmień dysk~@DriveDlg@.
 
- #Show disk type#
- Show disk type: “fixed”, “network”, etc.
- Key combination in #Change drive# menu: #Ctrl+1#.
+ #Pokaż typ dysku#
+ Pokazuje typ dysku: "stały", "sieciowy", "wyjmowalny", itp.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+1#.
 
- #Show disk label#
- Show disk label (if available).
- Key combination in #Change drive# menu: #Ctrl+3#.
+ #Pokaż etykietę dysku#
+ Pokazuje etykietę dysku (jeżeli jest dostępna).
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+3#.
 
- #Use shell name#
- Request the disk name from Windows Shell.
- Key combination in #Change drive# menu: #Ctrl+3# (press twice).
+ #Użyj nazwy z Windows#
+ Pobiera nazwę dysku z powłoki Windows.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+3# (należy nacisnąć dwukrotnie).
 
- #Show file system type#
- Show file system type: “NTFS”, “FAT”, etc.
- Key combination in #Change drive# menu: #Ctrl+4#.
+ #Pokaż system plików#
+ Pokazuje system plików: "NTFS", "FAT32", itp.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+4#.
 
- #Show size#
- Show disk size and free space.
- Key combination in #Change drive# menu: #Ctrl+5#.
+ #Pokaż pojemność#
+ Pokazuje wielkość dysku i wolne miejsce.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+5#.
 
- #Show size as a decimal fraction#
- Show disk size and free space as a decimal fraction with no more
-than three digits before decimal point. If this option is on, 1 GiB (2
-to the power of 30) will be shown as #1.00 G#, otherwise as #1024 M#.
- Key combination in #Change drive# menu: #Ctrl+5# (press twice).
+ #Wielkość w jednostkach dziesiętnych#
+ Pokazuje wielkość dysku i wolne miejsce w jednostkach dziesiętnych
+nie większych niż 3 cyfry przed przecinkiem. Jeżeli opcja jest włączona,
+1GB (2 do potęgi 30) będą pokazywane jako #1.00 G#, w przeciwnym
+razie jako #1024 M#.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+5# (należy nacisnąć dwukrotnie).
 
- #Show network name / SUBST path / VHD name#
- Show network name / path associated with a SUBST disk / path
-to virtual disk container.
- Key combination in #Change drive# menu: #Ctrl+2#.
+ #Pokaż dyski sieciowe / ścieżki SUBST / nazwy VHD#
+ Pokazuje nazwy sieciowe / ścieżki do podłączonego dysku SUBST /
+ścieżka do wirtualnego kontenera dysku.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+2#.
 
- #Show plugins#
- Show plugins.
- Key combination in #Change drive# menu: #Ctrl+7#.
+ #Pokaż wtyczki#
+ Pokazuje wtyczki.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+7#.
 
- #Sort plugins by hotkey#
- If this option is turned #off#, plugin list is sorted by name;
-otherwise by hotkey.
+ #Sortuj wtyczki wg skrótów#
+ Jeżeli opcja jest #wyłączona#, lista wtyczek jest sortowana wg nazw;
+w przeciwnym razie wg klawiszy skrótów.
 
- #Show removable drive parameters#
- Show removable drive parameters.
- Key combination in #Change drive# menu: #Ctrl+6#.
+ #Pokaż parametry dysków wyjmowalnych#
+ Pokazuje parametry dysków wyjmowalnych.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+6#.
 
- #Show CD drive parameters#
- If this option is turned on, Far will attempt to detect CD drive
-type: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW, DVD-RAM, HD DVD-ROM,
+ #Pokaż parametry napędów optycznych#
+ Jeżeli opcja jest włączona, Far spróbuje wykryć typ napędu optycznego:
+CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW, DVD-RAM, HD DVD-ROM,
 HD DVD-RW, Blue-ray Disk-ROM, Blue-ray Disk-RW.
- Key combination in #Change drive# menu: #Ctrl+8#.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+8#.
 
- #Show network drive parameters#
- Show network drive size and free space. Display format depends
-on the #Show size# option.
- Key combination in #Change drive# menu: #Ctrl+9#.
+ #Pokaż parametry dysków sieciowych#
+ Pokazuje wielkość i wolne miejsce dysku sieciowego. Format wyświetlania
+zależy od ustawień opcji #Pokaż pojemność#.
+ Kombinacja klawiszy w menu #Zmień dysk#: #Ctrl+9#.
 
- #Detect virtual disks#
- Detect virtual disks (VHD, VHDX). This could wake up sleeping hard drives.
+ #Wykrywaj dyski wirtualne#
+ Wykrywa dyski wirtualne (VHD, VHDX). Opcja ta może wybudzić uśpione dyski twarde.
 
 
 @DisconnectDrive
-$ #Disconnect network drive#
- You can disconnect a network drive by pressing #Del# in the
-~Change Drive menu~@DriveDlg@.
+$ #Rozłącz dysk sieciowy#
+ Można odłączyć dysk sieciowy wciskając klawisz #Del# w menu ~Zmień dysk~@DriveDlg@.
 
- The option #[x] Reconnect at logon# is enabled only for permanently
-connected network drives.
+ Opcja #[X] Podłącz przy logowaniu# jest włączona tylko dla dysków sieciowych
+podłączonych na stałe.
 
- The confirmation can be disabled in the ~confirmations~@ConfirmDlg@ dialog.
+ Potwierdzenie można wyłączyć w oknie ~potwierdzeń~@ConfirmDlg@.
 
 
 @Highlight
-$ #Files highlighting and sort groups#
- For more convenient and obvious display of files and directories in the
-panels, Far Manager has the possibility of color highlighting for file objects.
-You can group file objects by different criteria (~file masks~@FileMasks@, file
-attributes) and assign colors to those groups.
+$ #Wyróżnianie plików i sortowanie grup#
+ Dla wygodniejszego i bardziej czytelnego wyświetlania plików i folderów w panelach,
+Far Manager posiada możliwość wyróżniania kolorami obiektów plikowych.
+Można je grupować wg różnych kryteriów (~maski plików~@FileMasks@, atrybuty
+plików) i przypisywać kolory do tych grup.
 
- File highlighting can be enabled or disabled in the ~panel settings~@PanelSettings@
-dialog (menu item Options | Panel settings).
+ Wyróżnianie plików można włączyć lub wyłączyć w oknie ~ustawień panelu~@PanelSettings@
+(menu Opcje | Ustawienia panelu).
 
- You can ~edit~@HighlightEdit@ the parameters of any highlight group through
-the "~Options~@OptMenu@" menu (item "Files highlighting and sort groups").
+ Można ~edytować~@HighlightEdit@ parametry dowolnej grupy wyróżnień w menu ~Opcje~@OptMenu@
+(pozycja "Wyróżnianie plików i sortowanie grup").
 
 
 @HighlightList
-$ #Files highlighting and sort groups: control keys#
- The ~file highlighting and sort groups~@Highlight@ menu allows you to
-perform various operations with the list of the groups. The following key
-combinations are available:
+$ #Podświetlanie plików i sortowanie grup: sterowanie klawiszami#
+ Menu ~podświetlanie plików i sortowanie grup~@Highlight@ pozwala
+na przeprowadzenie różnych operacji z listą grup. Dostępne są następujące
+kombinacje klawiszy:
 
- #Ins#          - ^<wrap>Add a new highlighting group
+ #Ins#          - ^<wrap>Dodaje nową grupę podświetlania.
 
- #F5#           - ^<wrap>Duplicate the current group
+ #F5#           - ^<wrap>Duplikuje bieżącą grupę.
 
- #Del#          - ^<wrap>Delete the current group
+ #Del#          - ^<wrap>Usuwa bieżącą grupę.
 
- #Enter# or #F4#  - ^<wrap>~Edit~@HighlightEdit@ the current highlighting group
+ #Enter# lub #F4# - ^<wrap>~Edycja~@HighlightEdit@ bieżącej grupy podświetlania.
 
- #Ctrl+R#       - ^<wrap>Restore the default file highlighting groups
+ #Ctrl+R#       - ^<wrap>Przywrócenie domyślnych grup podświetlania.
 
- #Ctrl+Up#      - ^<wrap>Move a group up.
+ #Ctrl+Góra#    - ^<wrap>Przenosi grupę wyżej.
 
- #Ctrl+Down#    - ^<wrap>Move a group down.
+ #Ctrl+Dół#     - ^<wrap>Przenosi grupę niżej.
 
- The highlighting groups are checked from top to bottom. If it is detected
-that a file belongs to a group, no further groups are checked.
+ Podświetlane grupy są sprawdzane od góry do dołu. Jeżeli program wykryje,
+że plik należy do grupy, nie sprawdza kolejnych grup dla tego pliku.
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @HighlightEdit
-$ #Files highlighting and sort groups: editing#
- The #Files highlighting# dialog in the ~Options menu~@OptMenu@ allows to
-specify file highlighting groups. Each group definition ~includes~@Filter@:
+$ #Podświetlanie plików i sortowanie grup: edycja#
+ Okno #Podświetlanie plików# w menu ~Opcje~@OptMenu@ pozwala określić
+grupy podświetlenia plików. Każda definicja grupy ~zawiera~@Filter@:
 
- - one or more ~file masks~@FileMasks@;
+ - jedną lub więcej ~masek plików~@FileMasks@;
 
- - attributes to include or exclude:
-   #[x]# - ^<wrap>inclusion attribute - file must have this attribute.
-   #[ ]# - ^<wrap>exclusion attribute - file must not have this attribute.
-   #[?]# - ^<wrap>ignore this attribute;
+ - atrybuty do włączenia lub wyłączenia:
+   #[x]# - ^<wrap>atrybut włączenia - plik musi posiadać ten atrybut,
+   #[ ]# - ^<wrap>atrybut wyłączenia - plik nie może posiadać tego atrybutu,
+   #[?]# - ^<wrap>ignoruj ten atrybut;
 
- - normal name, selected name, name under cursor and
-selected name under cursor colors to display file names.
-If you wish to use the default color, set color to "Black on black";
+ - kolory do wyświetlania nazw plików - zwykła nazwa, zaznaczona nazwa,
+nazwa pod kursorem oraz zaznaczona nazwa pod kursorem.
+Jeżeli mają być użyte domyślne kolory, należy ustawić kolor "Czarny na czarnym";
 
- - an optional character to mark files from the group.
-   It can be used both with or instead of color highlighting.
+ - opcjonalny znak do oznaczania plików z grupy.
+   Mogą być użyte zarówno z lub zamiast kolorów podświetlania.
 
- If the option "A file mask or several file masks" is turned off, file masks
-will not be analyzed, and only file attributes will be taken into account.
+ Plik należy do grupy podświetlenia jeżeli:
+ - ^<wrap>analiza maski jest włączona i nazwa pliku jest zgodna przynajmniej
+jednej masce pliku (jeżeli analiza masek plików jest wyłączoną, to nazwa pliku
+nie ma znaczenia);
+ - posiada wszystkie atrybuty włączenia;
+ - nie posiada żadnego z wykluczonych atrybutów.
 
- A file belongs to a highlighting group if:
- - ^<wrap>file mask analysis is enabled and the name of the file matches
-at least one file mask (if file mask analysis is disabled,
-the file name doesn't matter);
- - it has all of the included attributes;
- - it has none of the excluded attributes.
-
- The Compressed, Encrypted, Not indexed, Sparse, Temporary and Reparse point
-attributes are valid for NTFS drives only. The #Integrity stream# and
-#No scrub data# attributes are supported only on ReFS volumes starting from
-Windows Server 2012.
+ Atrybuty Skompresowany, Zaszyfrowany, Nie zindeksowany, Rzadki, Tymczasowy,
+i Punkt Analizy są obsługiwane tylko na dyskach NTFS. Atrybuty
+#Strumień integralności# i #Brak danych kontrolnych# są obsługiwane tylko
+na partycjach ReFS począwszy od Windows Server 2012.
 
 
 @ViewerSettings
-$ #Settings dialog: viewer#
- This dialog allows to change the settings of the internal
-and external ~viewer~@Viewer@.
+$ #Okno ustawień: podgląd#
+ To okno pozwala zmienić ustawienia wewnętrznego i zewnętrznego ~podglądu~@Viewer@.
 
 @=
-^#Viewer#
+^#Podgląd#
 @=
- #Use external viewer#     Start external viewer on #F3# key
- #for F3 instead of#       and internal viewer on #Alt+F3#
- #Alt+F3#                  key combination.
+ #Użyj zewnętrznego podglądu pod klawiszem F3 zamiast Alt+F3#
+ Uruchamia zewnętrzny podgląd po wciśnięciu klawisza #F3#, a wewnętrzny podgląd po wciśnięciu kombinacji #Alt+F3#.
 
- #Viewer command#          Command to launch the external viewer.
-                         Use ~special symbols~@MetaSymbols@ to specify the
-                         name of the file to view.
+ #Polecenie#
+ Polecenie do uruchomienia zewnętrznego podglądu.
+Można użyć ~symboli specjalnych~@MetaSymbols@ do wpisania nazwy pliku.
 
 @=
-^#Internal viewer#
+^#Podgląd wbudowany#
 @=
- #Persistent selection#    Do not remove block selection after
-                         moving the cursor.
+ #Trwałe zaznaczenie#
+ Nie usuwaj zaznaczonego bloku po przesunięciu kursora.
 
- #Search dialog#           Always returns focus to the search text field in
- #auto-focus#              the Viewer ~Search~@ViewerSearch@ dialog.
+ #Auto-focus okna szukania#
+ Zawsze przywraca fokus do pola tekstowego wyszukiwania w oknie dialogowym ~Szukaj~@ViewerSearch@.
 
- #Tab size#                Number of spaces per single tab position.
+ #Rozmiar tabulatora#
+ Liczba znaków spacji na pojedynczy znak tabulacji.
 
- #Show scrolling arrows#   Show scrolling arrows at the edges of the viewer
-                         window if the text does not fit horizontally.
+ #Pokaż strzałki przewijania#
+ Pokazuje pasek strzałki i pasek przewijania na krawędzi okna przewijania, jeżeli tekst nie mieści się w poziomie.
 
- #Visible '\0'#            Show a printable character instead of space for
-                         the character '\0'. The character to display can be
-                         set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
+ #Widoczne '\0'#
+ Pokazuje drukowalny znak zamiast spacji dla znaku '\0'.
+Wyświetlany znak można ustawić w ~far:config~@FarConfig@ #Viewer.ZeroChar#.
 
- #Show a scrollbar#        Show a scrollbar in the internal viewer. This
-                         option can also be toggled by pressing
-                         #Ctrl+S# in the internal viewer.
+ #Pokaż pasek przewijania#
+ Pokazuje pasek przewijania w wewnętrznym podglądzie. Opcję można przełączyć naciskając klawisze #Ctrl+S# w wewnętrznej przeglądarce.
+
 @=
- #Save file position#      Save and restore positions in the recently
-                         viewed files. This option also saves and restores
-                         the code page (if it was selected manually) and
-                         ~view mode~@ViewerMode@.
+ #Zapamiętaj pozycję w pliku#
+ Zapisuje i przywraca pozycję w ostatnio przeglądanych plikach. Opcja zapisuje także i przywraca stronę kodową
+(jeżeli wybrana była ręcznie) i ~tryb widoku~@ViewerMode@.
 
- #Save file code page#     Save and restore the code page selected for a file.
-                         This is automatically enabled if #Save file position#
-                         is enabled, as file position depends on the encoding.
+ #Zapisz stronę kodową pliku#
+ Zapisuje i przywraca stroną kodową wybraną dla danego pliku. Opcja automatycznie włączona, jeżeli włączona jest opcja
+#Zapamiętaj pozycję kursora w pliku#, jeżeli pozycja w pliku zależy od kodowania.
 
- #Save bookmarks#          Save and restore bookmarks in the recently viewed
-                         files. (Bookmarks can be created with #RightCtrl+0…9#
-                         or #Ctrl+Shift+0…9# key combinations.)
+ #Zapisz zakładki#
+ Zapisuje i przywraca zakładki w ostatnio przeglądanych plikach (zakładki można tworzyć
+kombinacjami klawiszy #PrawyCtrl+0…9# lub #Ctrl+Shift+0…9#).
 
- #Maximum line width#      Maximum number of columns for text mode viewer.
-                         Min=100, Max=100,000, Default=10,000.
+ #Maksymalna szerokość linii#
+ Maksymalna liczka kolumn przeglądarki w trybie tekstowym. Min=100, Maks=100,000, domyślnie=10,000.
 
- #Save view mode#          Save and restore ~view modes~@ViewerMode@
-                         of recently viewed files.
+ #Zapisz tryb podglądu#
+ Zapisuje i przywraca ~tryb widoku~@ViewerMode@ ostatnio przeglądanych plików.
 
- #Save wrap mode#          Save and restore #wrap# and #word wrap# ~modes~@ViewerMode@
-                         of recently viewed files.
+ #Zapisz zawijanie wierszy#
+ Zapisuje i przywraca ~tryby~@ViewerMode@ #zawijania# i #dzielenia wyrazów# ostatnio przeglądanych plików.
 
- #Detect dump view mode#   If this option is on and Far considers the file binary,
-                         the #dump# ~mode~@ViewerMode@ is selected automatically
-                         at the first view. Otherwise, the #text# mode is selected.
+ #Wykryj sposób podglądu#
+ Jeżeli ta opcja jest włączona, a Far otwiera plik binarny, to automatycznie wybierany jest
+~tryb~@ViewerMode@ #źródłowy# (ang. dump). W innych przypadkach wybierany jest tryb #tekstowy#.
 
- #Autodetect#              ~Autodetect~@CodePageAuto@ the code page of
- #code page#               the file being viewed.
+ #Rozpoznaj stronę kodową pliku#
+ ~Automatyczne wykrywanie~@CodePageAuto@ strony kodowej w przeglądanym pliku.
 
- #Default code page#       Allows to select the default code page.
+ #Domyślna strona kodowa#
+ Pozwala wybrać domyślną stronę kodową.
+
 @=
+ Jeżeli zewnętrzny podgląd jest przypisany do klawisza #F3#, to zostanie on uruchomiony tylko wtedy,
+gdy ~powiązana~@FileAssoc@ przeglądarka nie została zdefiniowana dla bieżącego typu pliku.
 
- If the external viewer is assigned to #F3# key, it will be launched only if
-the ~associated~@FileAssoc@ viewer for the current file type is not defined.
+ Zmiany ustawień nie dotyczą aktualnie otwartego okna wewnętrznego podglądu.
 
- Changing of settings does not affect currently opened internal
-viewer windows.
-
- The settings dialog can also be invoked from the ~internal viewer~@Viewer@
-by pressing #Alt+Shift+F9#. The changes will come into effect immediately but
-will affect only the current session.
+ Okno dialogowe ustawień można także wywołać z poziomu ~wewnętrznej przeglądarki~@Viewer@
+po wciśnięciu klawiszy #Alt+Shift+F9#. Zmiany zostaną od razu wprowadzone, ale mają
+zastosowanie tylko do bieżącej sesji.
 
 
 @EditorSettings
-$ #Settings dialog: editor#
- This dialog allows to change the default external and
-~internal editor~@Editor@ settings.
+$ #Okno ustawień: edytor#
+ To okno pozwala zmienić ustawienia domyślnego zewnętrznego i ~wewnętrznego edytora~@Editor@.
 
- External editor
+@=
+^#Edytor zewnętrzny#
+@=
+ #Użyj zewn. edytora pod klawiszem F4#
+ Uruchom zewnętrzny edytor pod klawiszem #F4# zamiast #Alt+F4#.
 
- #Use for F4#              Run external editor using #F4# instead of
-                         #Alt+F4#.
+ #Polecenie#
+ Polecenie do uruchomienia zewnętrznego edytora.
+Use ~special symbols~@MetaSymbols@ to specify the name of the file to edit.
 
- #Editor command#          Command to execute the external editor.
-                         Use ~special symbols~@MetaSymbols@ to specify the name
-                         of the file to edit.
+@=
+^#Edytor wewnętrzny#
+@=
+ #Nie zamieniaj znaków tabulacji#
+ Nie konwertuje znaków tabulacji na spacje podczas edycji dokumentu.
 
- Internal editor
+ #Zamień nowo dodane znaki tabulacji na spacje#
+ Podczas edycji dokumentu, konwertuje każdy nowo wprowadzony znak #Tab# na zdefiniowaną liczę spacji.
+Wcześniej wprowadzone tabulacji nie zostaną przekonwertowane.
 
- #Do not expand tabs#      Do not convert tabs to spaces while
-                         editing the document.
+ #Zastap wszystkie tabul. na spacje#
+ Po otwarciu dokumentu, wszystkie tabulatory w dokumencie będą automatycznie przekonwertowane na spacje.
 
- #Expand newly entered#    While editing the document, convert each
- #tabs to spaces#          newly entered #Tab# into the appropriate
-                         number of spaces. Other tabs won't be
-                         converted.
+ #Trwałe bloki#
+ Nie usuwaj zaznaczenia bloku po przesunięciu kursora.
 
- #Expand all tabs to#      Upon opening the document, all tabs in
- #spaces#                  the document will be automatically
-                         converted to spaces.
+ #Del usuwa bloki#
+ Jeżeli blok jest zaznaczony, naciśnięcie klawisza #Del# nie usunie znaku pod kursorem, ale ten blok.
 
- #Persistent blocks#       Do not remove block selection after
-                         moving the cursor.
+ #Automatyczne wcięcia#
+ Włącza opcję automatycznego wstawiania wcięć (tabulatory/spacje) w tekście.
 
- #Del removes blocks#      If a block is selected, pressing #Del# will
-                         not remove the character under cursor, but
-                         this block.
+ #Rozmiar tabulatora#
+ Liczba spacji przy zamianie klawisza tabulator.
 
- #Save file position#      Save and restore positions in the recently
-                         edited files. This option also forces
-                         restoring of code page, if the page
-                         was manually selected by user.
+ #Pokaż białe znaki#
+ Włącza widoczność #białych# znaków (spacje, tabulatory, znaki łamania linii).
 
- #Save bookmarks#          Save and restore bookmarks (current
-                         positions) in recently edited files
-                         (created with #RightCtrl+0…9# or
-                         #Ctrl+Shift+0…9#)
+ #Kursor za końcem linii#
+ Pozwala przesunać kursor poza koniec linii.
 
- #Auto indent#             Enables auto indent mode when entering
-                         text.
+ #Zaznacz znalezione#
+ Oznacza znaleziony tekst.
 
- #Cursor beyond#           Allow moving cursor beyond the end of line.
- #end of line#
+ #Kursor na końcu bloku#
+ Umieszcza kursor na końcu znalezionego bloku.
 
- #Tab size#                Number of spaces in a tab character.
+ #Pokaż pasek przewijania#
+ Pokazuje pasek przewijania okna.
 
- #Show a scrollbar#        Show a scrollbar.
+@=
+ #Zapamiętaj pozycję kursora w pliku#
+ Zapisuje i przywraca pozycję w ostatnio edytorwanych plikach. Opcja wymusza także przywrócenie strony kodowej,
+jeżeli została ona ręcznie ustawiona przez użytkownika.
 
- #Show white space#        Make while space characters (spaces, tabulations,
-                         line breaks) visible.
+ #Zapisz zakładki#
+ Zapisuje i przywraca zakładki (bieżące pozycje) w ostatnio edytowanych plikach (tworzenie za pomocą
+kombinacji klawiszy #PrawyCtrl+0…9# lub #Ctrl+Shift+0…9#).
 
- #Select found#            Found text is selected
+ #Zezwól na edycję plików otwartych do zapisu#
+ Pozwala na edycję plików otwartych do zapisu przez inne aplikacje. Opcja jest przydatna do edycji
+plików otwartych na długi czas, ale może być niebezpieczna, jeżeli pliki zostaną zmodyfikwane w obu programach.
 
- #Cursor at the end#       Place the cursor at the end of the found block.
+ #Nie edytuj plików tylko do odczytu#
+ Jeżeli plik z atrybutem Tylko-do-odczytu (Read only) jest otwarty do edycji, to edytor wyłącza modyfikację
+edytowanego tekstu podobnie do wciśnięcia #Ctrl+L#.
 
- #Autodetect#              ~Autodetect~@CodePageAuto@ the code page of
- #code page#               the file being edited.
+ #Ostrzeż przed otwier. plików tylko do odczytu#
+ Przy otwarciu plików z atrybutem Tylko-do-odczytu zostanie pokazane okno ostrzeżenia.
 
- #Edit files opened#       Allows to edit files that are opened
- #for writing#             by other programs for writing. This mode
-                         is handy to edit a file opened for a long
-                         time, but it could be dangerous, if a file
-                         is being modified at the same time as
-                         editing.
+ #Rozpoznaj stronę kodową#
+ ~Automatyczne wykrywanie~@CodePageAuto@ strony kodowej edytowanego pliku.
 
- #Lock editing of#         When a file with the Read-only attribute
- #read-only files#         is opened for editing, the editor also
-                         disables the modification of the edited
-                         text, just as if #Ctrl+L# was pressed.
+ #Domyślna strona kodowa#
+ Ręczny wybór domyślnej strony kodowej pliku.
 
- #Warn when opening#       When a file with the Read-only attribute
- #read-only files#         is opened for editing, a warning message
-                         will be shown.
+ Jeżeli zewnętrzny edytor jest przypisany do klawisza #F4#, to zostanie on uruchomiony tylko wtedy,
+gdy ~powiązany~@FileAssoc@ edytor nie został zdefiniowany dla bieżącego typu pliku.
 
- #Default code page#       Select the default code page.
+ Zmiany ustawień nie dotyczą aktualnie otwartego okna wewnętrznego edytora.
 
- If the external editor is assigned to #F4# key, it will be executed only if
-~associated~@FileAssoc@ editor for the current file type is not defined.
-
- Modifications of settings in this dialog do not affect previously opened
-internal editor windows.
-
- The settings dialog can also be invoked from the ~internal editor~@Editor@
-by pressing #Alt+Shift+F9#. The changes will come into force immediately but
-will affect only the current session.
+ Okno dialogowe ustawień można także wywołać z poziomu ~wewnętrznego edytora~@Editor@
+po wciśnięciu klawiszy #Alt+Shift+F9#. Zmiany zostaną od razu wprowadzone, ale mają
+zastosowanie tylko do bieżącej sesji.
 
 
 @CodePageAuto

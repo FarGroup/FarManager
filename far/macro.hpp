@@ -97,7 +97,7 @@ public:
 	static void SetMacroConst(int ConstIndex, long long Value);
 	static bool PostNewMacro(const wchar_t* Sequence, FARKEYMACROFLAGS InputFlags, DWORD AKey = 0);
 
-	intptr_t CallFar(intptr_t CheckCode, FarMacroCall* Data);
+	void CallFar(intptr_t CheckCode, FarMacroCall* Data);
 	bool CheckWaitKeyFunc() const;
 	int  GetState() const;
 	int  GetKey();

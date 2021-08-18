@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dialog.hpp"
 #include "fileedit.hpp"
 #include "scrbuf.hpp"
-#include "TPreRedrawFunc.hpp"
 #include "taskbar.hpp"
 #include "interf.hpp"
 #include "message.hpp"
@@ -369,7 +368,9 @@ void Editor::ShowEditor()
 		}
 	}
 
-	if (HostFileEditor) HostFileEditor->ShowStatus();
+	// BUGBUG
+	if (const auto HostFileEditor = std::dynamic_pointer_cast<FileEditor>(m_Owner.lock()))
+		HostFileEditor->ShowStatus();
 }
 
 
@@ -2359,7 +2360,9 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			{
 				m_Flags.Set(FEDITOR_PROCESSCTRLQ);
 
-				if (HostFileEditor) HostFileEditor->ShowStatus();
+				// BUGBUG
+				if (const auto HostFileEditor = std::dynamic_pointer_cast<FileEditor>(m_Owner.lock()))
+					HostFileEditor->ShowStatus();
 
 				Pasting++;
 				TextChanged(true);
@@ -2789,7 +2792,10 @@ bool Editor::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (m_it_CurLine->ProcessMouse(MouseEvent))
 	{
-		if (HostFileEditor) HostFileEditor->ShowStatus();
+		// BUGBUG
+		if (const auto HostFileEditor = std::dynamic_pointer_cast<FileEditor>(m_Owner.lock()))
+			HostFileEditor->ShowStatus();
+
 		Show();
 		return true;
 	}
@@ -3403,7 +3409,6 @@ bool Editor::Search(bool Next)
 	const auto FindAllList = VMenu2::create({}, {});
 	size_t AllRefLines{};
 	{
-		SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<EditorPreRedrawItem>());
 		SetCursorType(false, -1);
 		Match = false;
 		UserBreak = false;
@@ -3461,6 +3466,7 @@ bool Editor::Search(bool Next)
 		const auto strSearchStrLower = Case? strSearchStr : lower(strSearchStr);
 
 		const time_check TimeCheck;
+		std::optional<single_progress> Progress;
 		int StartLine = m_it_CurLine.Number();
 		SCOPED_ACTION(taskbar::indeterminate);
 		SCOPED_ACTION(wakeful);
@@ -3470,19 +3476,19 @@ bool Editor::Search(bool Next)
 		{
 			if (TimeCheck)
 			{
-				if (CheckForEscSilent())
+				if (CheckForEscAndConfirmAbort())
 				{
-					if (ConfirmAbortOp())
-					{
-						UserBreak = true;
-						break;
-					}
+					UserBreak = true;
+					break;
 				}
+
+				if (!Progress)
+					Progress.emplace(msg(lng::MEditSearchTitle), format(msg(lng::MEditSearchingFor), QuotedStr), 0);
 
 				SetCursorType(false, -1);
 				const auto Total = FindAllReferences? Lines.size() : ReverseSearch? StartLine : Lines.size() - StartLine;
 				const auto Current = abs(CurPtr.Number() - StartLine);
-				EditorShowMsg(msg(lng::MEditSearchTitle), msg(lng::MEditSearchingFor), QuotedStr, Total > 0? Current * 100 / Total : 100);
+				Progress->update(Total > 0? Current * 100 / Total : 100);
 				taskbar::set_value(Current,Total);
 			}
 
@@ -3562,7 +3568,7 @@ bool Editor::Search(bool Next)
 					}
 					else
 					{
-						int MsgCode=0;
+						auto MsgCode = message_result::first_button;
 
 						if (!ReplaceAll)
 						{
@@ -3589,13 +3595,13 @@ bool Editor::Search(bool Next)
 
 							CurPtr->DeleteColor([&](const ColorItem& Item) { return newcol.StartPos == Item.StartPos && newcol.GetOwner() == Item.GetOwner();});
 
-							if (MsgCode == 1)
+							if (MsgCode == message_result::second_button)
 								ReplaceAll = true;
 
-							if (MsgCode == 2)
+							if (MsgCode == message_result::third_button)
 								Skip = true;
 
-							if (MsgCode < 0 || MsgCode == 3)
+							if (MsgCode == message_result::cancelled || MsgCode == message_result::fourth_button)
 							{
 								CurPtr->SetCurPos(m_FoundPos + (EdOpt.SearchCursorAtEnd? SearchLength : 0));
 								UserBreak = true;
@@ -3606,7 +3612,7 @@ bool Editor::Search(bool Next)
 						if (ReplaceAll)
 							UndoBlock.emplace(this);
 
-						if (!MsgCode || MsgCode==1)
+						if (MsgCode == message_result::first_button || MsgCode == message_result::second_button)
 						{
 							Pasting++;
 							AddUndoData(UNDO_BEGIN);
@@ -4724,14 +4730,13 @@ void Editor::SetStartPos(int LineNum,int CharNum)
 	StartChar=CharNum? CharNum:1;
 }
 
-
-bool Editor::IsFileChanged() const
+bool Editor::IsChanged() const
 {
 	return m_Flags.Check(FEDITOR_MODIFIED|FEDITOR_WASCHANGED);
 }
 
 
-bool Editor::IsFileModified() const
+bool Editor::IsModified() const
 {
 	return m_Flags.Check(FEDITOR_MODIFIED);
 }
@@ -5198,496 +5203,451 @@ void Editor::VBlockShift(int Left)
 
 int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 {
-	if(EditorControlLocked()) return FALSE;
+	if(EditorControlLocked())
+		return FALSE;
+
 	switch (Command)
 	{
 		case ECTL_GETSTRING:
 		{
 			const auto GetString = static_cast<EditorGetString*>(Param2);
 
-			if (CheckStructSize(GetString))
+			if (!CheckStructSize(GetString))
+				return false;
+
+			const auto CurPtr = GetStringByNumber(GetString->StringNumber);
+
+			if (CurPtr == Lines.end())
+				return false;
+
+			const auto& Str = CurPtr->GetString();
+			GetString->StringText = Str.data();
+			GetString->StringEOL = CurPtr->GetEOL().str().data();
+			GetString->StringLength = Str.size();
+			GetString->SelStart = -1;
+			GetString->SelEnd = 0;
+
+			const auto DestLine = GetString->StringNumber != -1? GetString->StringNumber : m_it_CurLine.Number();
+			if (IsStreamSelection())
 			{
-				const auto CurPtr = GetStringByNumber(GetString->StringNumber);
-
-				if (CurPtr == Lines.end())
-				{
-					return FALSE;
-				}
-
-				const auto& Str = CurPtr->GetString();
-				GetString->StringText = Str.data();
-				GetString->StringEOL = CurPtr->GetEOL().str().data();
-				GetString->StringLength = Str.size();
-				GetString->SelStart=-1;
-				GetString->SelEnd=0;
-				int DestLine=GetString->StringNumber;
-
-				if (DestLine==-1)
-					DestLine = m_it_CurLine.Number();
-
-				if (IsStreamSelection())
-				{
-					CurPtr->GetRealSelection(GetString->SelStart,GetString->SelEnd);
-				}
-				else if (IsVerticalSelection() && DestLine >= m_it_AnyBlockStart.Number() && DestLine < m_it_AnyBlockStart.Number() + VBlockSizeY)
-				{
-					GetString->SelStart=CurPtr->VisualPosToReal(VBlockX);
-					GetString->SelEnd=GetString->SelStart+
-					                  CurPtr->VisualPosToReal(VBlockX+VBlockSizeX)-
-					                  CurPtr->VisualPosToReal(VBlockX);
-				}
-
-				return TRUE;
+				CurPtr->GetRealSelection(GetString->SelStart,GetString->SelEnd);
+			}
+			else if (IsVerticalSelection() && DestLine >= m_it_AnyBlockStart.Number() && DestLine < m_it_AnyBlockStart.Number() + VBlockSizeY)
+			{
+				GetString->SelStart = CurPtr->VisualPosToReal(VBlockX);
+				GetString->SelEnd = GetString->SelStart + CurPtr->VisualPosToReal(VBlockX + VBlockSizeX) - CurPtr->VisualPosToReal(VBlockX);
 			}
 
-			break;
+			return true;
 		}
+
 		case ECTL_INSERTSTRING:
 		{
 			if (m_Flags.Check(FEDITOR_LOCKMODE))
-			{
-				return FALSE;
-			}
-			else
-			{
-				TurnOffMarkingBlock();
-				const auto Indent = Param2 && *static_cast<int*>(Param2) != FALSE;
+				return false;
 
-				if (!Indent)
-					Pasting++;
+			TurnOffMarkingBlock();
+			const auto Indent = Param2 && *static_cast<int*>(Param2) != false;
 
-				m_Flags.Set(FEDITOR_NEWUNDO);
-				InsertString();
+			if (!Indent)
+				++Pasting;
 
-				if (!Indent)
-					Pasting--;
-			}
+			m_Flags.Set(FEDITOR_NEWUNDO);
+			InsertString();
 
-			return TRUE;
+			if (!Indent)
+				--Pasting;
+
+			return true;
 		}
+
 		case ECTL_INSERTTEXT:
 		{
 			if (!Param2)
-				return FALSE;
+				return false;
 
 			if (m_Flags.Check(FEDITOR_LOCKMODE))
-			{
-				return FALSE;
-			}
-			else
-			{
-				TurnOffMarkingBlock();
-				bool RefreshMe = false;
-				auto Str = static_cast<const wchar_t*>(Param2);
-				Pasting++;
-				while (*Str)
-				{
-					if(L'\n'==*Str)
-					{
-						--Pasting;
-						InsertString();
-						++Pasting;
-					}
-					else
-					{
-						ProcessKeyInternal(Manager::Key(*Str), RefreshMe);
-					}
-					++Str;
-				}
-				Pasting--;
-				Refresh();
-			}
+				return false;
 
-			return TRUE;
+			TurnOffMarkingBlock();
+			bool RefreshMe = false;
+			auto Str = static_cast<const wchar_t*>(Param2);
+			++Pasting;
+
+			while (*Str)
+			{
+				if (L'\n' == *Str)
+				{
+					--Pasting;
+					InsertString();
+					++Pasting;
+				}
+				else
+				{
+					ProcessKeyInternal(Manager::Key(*Str), RefreshMe);
+				}
+				++Str;
+			}
+			--Pasting;
+			Refresh();
+
+			return true;
 		}
+
 		case ECTL_SETSTRING:
 		{
 			const auto SetString = static_cast<const EditorSetString*>(Param2);
 			if (!CheckStructSize(SetString))
-				break;
+				return false;
 
 			if (m_Flags.Check(FEDITOR_LOCKMODE))
-			{
-				break;
-			}
-			else
-			{
-				const auto CurPtr = GetStringByNumber(SetString->StringNumber);
-				if (CurPtr == Lines.end())
-				{
-					return FALSE;
-				}
+				return false;
 
-				m_Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
-				int DestLine=SetString->StringNumber;
+			const auto CurPtr = GetStringByNumber(SetString->StringNumber);
+			if (CurPtr == Lines.end())
+				return false;
 
-				if (DestLine==-1)
-					DestLine = m_it_CurLine.Number();
+			m_Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+			const auto DestLine = SetString->StringNumber != -1? SetString->StringNumber : m_it_CurLine.Number();
 
-				AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), DestLine, CurPtr->GetCurPos());
-				const auto CurPos = CurPtr->GetCurPos();
-				CurPtr->SetString({ SetString->StringText, static_cast<size_t>(SetString->StringLength) }, true);
-				if (CurPtr->GetEOL() == eol::none)
-				{
-					CurPtr->SetEOL(SetString->StringEOL? eol::parse(SetString->StringEOL) : GlobalEOL);
-				}
-				CurPtr->SetCurPos(CurPos);
-				Change(ECTYPE_CHANGED,DestLine);
-				TextChanged(true);    // 10.08.2000 skv - Modified->TextChanged
-			}
+			AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), DestLine, CurPtr->GetCurPos());
+			const auto CurPos = CurPtr->GetCurPos();
+			CurPtr->SetString({ SetString->StringText, static_cast<size_t>(SetString->StringLength) }, true);
 
-			return TRUE;
+			if (CurPtr->GetEOL() == eol::none)
+				CurPtr->SetEOL(SetString->StringEOL? eol::parse(SetString->StringEOL) : GlobalEOL);
+
+			CurPtr->SetCurPos(CurPos);
+			Change(ECTYPE_CHANGED, DestLine);
+			TextChanged(true);
+
+			return true;
 		}
+
 		case ECTL_DELETESTRING:
 		{
 			if (m_Flags.Check(FEDITOR_LOCKMODE))
-			{
-				return FALSE;
-			}
+				return false;
 
 			TurnOffMarkingBlock();
 			DeleteString(m_it_CurLine, false);
 
-			return TRUE;
+			return true;
 		}
+
 		case ECTL_DELETECHAR:
 		{
 			if (m_Flags.Check(FEDITOR_LOCKMODE))
-			{
-				return FALSE;
-			}
+				return false;
 
 			TurnOffMarkingBlock();
-			Pasting++;
+			++Pasting;
 			ProcessKey(Manager::Key(KEY_DEL));
-			Pasting--;
-			return TRUE;
+			--Pasting;
+			return true;
 		}
+
 		case ECTL_GETINFO:
 		{
 			const auto Info = static_cast<EditorInfo*>(Param2);
+			if (!CheckStructSize(Info))
+				return false;
 
-			if (CheckStructSize(Info))
+			Info->EditorID = EditorID;
+			Info->WindowSizeX=ObjWidth();
+			Info->WindowSizeY = ObjHeight();
+			Info->TotalLines = Lines.size();
+			Info->CurLine = m_it_CurLine.Number();
+			Info->CurPos=m_it_CurLine->GetCurPos();
+			Info->CurTabPos=m_it_CurLine->GetTabCurPos();
+			Info->TopScreenLine = m_it_CurLine.Number() - CalcDistance(m_it_TopScreen, m_it_CurLine);
+			Info->LeftPos=m_it_CurLine->GetLeftPos();
+			Info->Overtype=m_Flags.Check(FEDITOR_OVERTYPE);
+			Info->BlockType = IsVerticalSelection()? BTYPE_COLUMN : IsStreamSelection()? BTYPE_STREAM : BTYPE_NONE;
+			Info->BlockStartLine = Info->BlockType == BTYPE_NONE? 0 : m_it_AnyBlockStart.Number();
+			Info->Options=0;
+
+			if (EdOpt.ExpandTabs == EXPAND_ALLTABS)
+				Info->Options|=EOPT_EXPANDALLTABS;
+
+			if (EdOpt.ExpandTabs == EXPAND_NEWTABS)
+				Info->Options|=EOPT_EXPANDONLYNEWTABS;
+
+			if (EdOpt.PersistentBlocks)
+				Info->Options|=EOPT_PERSISTENTBLOCKS;
+
+			if (EdOpt.DelRemovesBlocks)
+				Info->Options|=EOPT_DELREMOVESBLOCKS;
+
+			if (EdOpt.AutoIndent)
+				Info->Options|=EOPT_AUTOINDENT;
+
+			if (EdOpt.SavePos)
+				Info->Options|=EOPT_SAVEFILEPOSITION;
+
+			if (EdOpt.AutoDetectCodePage)
+				Info->Options|=EOPT_AUTODETECTCODEPAGE;
+
+			if (EdOpt.CursorBeyondEOL)
+				Info->Options|=EOPT_CURSORBEYONDEOL;
+
+			if (EdOpt.ShowWhiteSpace)
 			{
-				Info->EditorID = EditorID;
-				Info->WindowSizeX=ObjWidth();
-				Info->WindowSizeY = ObjHeight();
-				Info->TotalLines = Lines.size();
-				Info->CurLine = m_it_CurLine.Number();
-				Info->CurPos=m_it_CurLine->GetCurPos();
-				Info->CurTabPos=m_it_CurLine->GetTabCurPos();
-				Info->TopScreenLine = m_it_CurLine.Number() - CalcDistance(m_it_TopScreen, m_it_CurLine);
-				Info->LeftPos=m_it_CurLine->GetLeftPos();
-				Info->Overtype=m_Flags.Check(FEDITOR_OVERTYPE);
-				Info->BlockType = IsVerticalSelection()? BTYPE_COLUMN : IsStreamSelection()? BTYPE_STREAM : BTYPE_NONE;
-				Info->BlockStartLine = Info->BlockType == BTYPE_NONE? 0 : m_it_AnyBlockStart.Number();
-				Info->Options=0;
+				Info->Options|=EOPT_SHOWWHITESPACE;
 
-				if (EdOpt.ExpandTabs == EXPAND_ALLTABS)
-					Info->Options|=EOPT_EXPANDALLTABS;
-
-				if (EdOpt.ExpandTabs == EXPAND_NEWTABS)
-					Info->Options|=EOPT_EXPANDONLYNEWTABS;
-
-				if (EdOpt.PersistentBlocks)
-					Info->Options|=EOPT_PERSISTENTBLOCKS;
-
-				if (EdOpt.DelRemovesBlocks)
-					Info->Options|=EOPT_DELREMOVESBLOCKS;
-
-				if (EdOpt.AutoIndent)
-					Info->Options|=EOPT_AUTOINDENT;
-
-				if (EdOpt.SavePos)
-					Info->Options|=EOPT_SAVEFILEPOSITION;
-
-				if (EdOpt.AutoDetectCodePage)
-					Info->Options|=EOPT_AUTODETECTCODEPAGE;
-
-				if (EdOpt.CursorBeyondEOL)
-					Info->Options|=EOPT_CURSORBEYONDEOL;
-
-				if (EdOpt.ShowWhiteSpace)
-				{
-					Info->Options|=EOPT_SHOWWHITESPACE;
-
-					if (EdOpt.ShowWhiteSpace==1)
-						Info->Options|=EOPT_SHOWLINEBREAK;
-				}
-
-				if (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size()))
-					Info->Options |= EOPT_SHOWSCROLLBAR;
-
-				Info->TabSize=EdOpt.TabSize;
-				Info->BookmarkCount=BOOKMARK_COUNT;
-				Info->SessionBookmarkCount=GetSessionBookmarks(nullptr);
-				Info->CurState=m_Flags.Check(FEDITOR_LOCKMODE)?ECSTATE_LOCKED:0;
-				Info->CurState|=!m_Flags.Check(FEDITOR_MODIFIED)?ECSTATE_SAVED:0;
-				Info->CurState|=m_Flags.Check(FEDITOR_MODIFIED|FEDITOR_WASCHANGED)?ECSTATE_MODIFIED:0;
-				Info->CodePage=m_codepage;
-				return TRUE;
+				if (EdOpt.ShowWhiteSpace==1)
+					Info->Options|=EOPT_SHOWLINEBREAK;
 			}
 
-			return FALSE;
+			if (EdOpt.ShowScrollBar && ScrollBarRequired(ObjHeight(), Lines.size()))
+				Info->Options |= EOPT_SHOWSCROLLBAR;
+
+			Info->TabSize=EdOpt.TabSize;
+			Info->BookmarkCount=BOOKMARK_COUNT;
+			Info->SessionBookmarkCount=GetSessionBookmarks(nullptr);
+			Info->CurState=m_Flags.Check(FEDITOR_LOCKMODE)?ECSTATE_LOCKED:0;
+			Info->CurState|=!m_Flags.Check(FEDITOR_MODIFIED)?ECSTATE_SAVED:0;
+			Info->CurState|=m_Flags.Check(FEDITOR_MODIFIED|FEDITOR_WASCHANGED)?ECSTATE_MODIFIED:0;
+			Info->CodePage=m_codepage;
+
+			return true;
 		}
+
 		case ECTL_SETPOSITION:
 		{
 			const auto Pos = static_cast<const EditorSetPosition*>(Param2);
-			if (CheckStructSize(Pos))
+			if (!CheckStructSize(Pos))
+				return false;
+
+			// выставим флаг об изменении поз
+			m_Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+
+			if (Pos->CurLine >= 0) // поменяем строку
 			{
-				// выставим флаг об изменении поз
-				m_Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
-
-				if (Pos->CurLine >= 0) // поменяем строку
-				{
-					if (Pos->CurLine == m_it_CurLine.Number() - 1)
-						Up();
-					else if (Pos->CurLine == m_it_CurLine.Number() + 1)
-						Down();
-					else
-						GoToLine(Pos->CurLine);
-				}
-
-				if (Pos->TopScreenLine >= 0 && Pos->TopScreenLine <= m_it_CurLine.Number())
-				{
-					m_it_TopScreen=m_it_CurLine;
-
-					for (int I = m_it_CurLine.Number(); I > 0 && m_it_CurLine.Number() - I < m_Where.height() - 1 && I != Pos->TopScreenLine; --I)
-						--m_it_TopScreen;
-				}
-
-				if (Pos->CurPos >= 0)
-					m_it_CurLine->SetCurPos(Pos->CurPos);
-
-				if (Pos->CurTabPos >= 0)
-					m_it_CurLine->SetTabCurPos(Pos->CurTabPos);
-
-				if (Pos->LeftPos >= 0)
-					m_it_CurLine->SetLeftPos(Pos->LeftPos);
-
-				m_it_CurLine->SetRightCoord(XX2);
-				m_it_CurLine->FixLeftPos();
-
-				/* $ 30.08.2001 IS
-				   Изменение режима нужно выставлять сразу, в противном случае приходят
-				   глюки, т.к. плагинописатель думает, что режим изменен, и ведет себя
-				   соответственно, в результате чего получает неопределенное поведение.
-				*/
-				if (Pos->Overtype >= 0)
-				{
-					m_Flags.Change(FEDITOR_OVERTYPE,Pos->Overtype!=0);
-					m_it_CurLine->SetOvertypeMode(m_Flags.Check(FEDITOR_OVERTYPE));
-				}
-				return TRUE;
+				if (Pos->CurLine == m_it_CurLine.Number() - 1)
+					Up();
+				else if (Pos->CurLine == m_it_CurLine.Number() + 1)
+					Down();
+				else
+					GoToLine(Pos->CurLine);
 			}
 
-			break;
+			if (Pos->TopScreenLine >= 0 && Pos->TopScreenLine <= m_it_CurLine.Number())
+			{
+				m_it_TopScreen=m_it_CurLine;
+
+				for (int I = m_it_CurLine.Number(); I > 0 && m_it_CurLine.Number() - I < m_Where.height() - 1 && I != Pos->TopScreenLine; --I)
+					--m_it_TopScreen;
+			}
+
+			if (Pos->CurPos >= 0)
+				m_it_CurLine->SetCurPos(Pos->CurPos);
+
+			if (Pos->CurTabPos >= 0)
+				m_it_CurLine->SetTabCurPos(Pos->CurTabPos);
+
+			if (Pos->LeftPos >= 0)
+				m_it_CurLine->SetLeftPos(Pos->LeftPos);
+
+			m_it_CurLine->SetRightCoord(XX2);
+			m_it_CurLine->FixLeftPos();
+
+			/* $ 30.08.2001 IS
+			   Изменение режима нужно выставлять сразу, в противном случае приходят
+			   глюки, т.к. плагинописатель думает, что режим изменен, и ведет себя
+			   соответственно, в результате чего получает неопределенное поведение.
+			*/
+			if (Pos->Overtype >= 0)
+			{
+				m_Flags.Change(FEDITOR_OVERTYPE,Pos->Overtype!=0);
+				m_it_CurLine->SetOvertypeMode(m_Flags.Check(FEDITOR_OVERTYPE));
+			}
+
+			return true;
 		}
+
 		case ECTL_SELECT:
 		{
 			const auto Sel = static_cast<const EditorSelect*>(Param2);
-			if (CheckStructSize(Sel))
+			if (!CheckStructSize(Sel))
+				return false;
+
+			if (Sel->BlockType==BTYPE_NONE || Sel->BlockStartPos==-1)
 			{
-				if (Sel->BlockType==BTYPE_NONE || Sel->BlockStartPos==-1)
-				{
-					UnmarkBlock();
-					return TRUE;
-				}
-
-				if (Sel->BlockHeight < 1)
-				{
-					return FALSE;
-				}
-
-				auto CurPtr = GetStringByNumber(Sel->BlockStartLine);
-
-				if (CurPtr == Lines.end())
-				{
-					return FALSE;
-				}
-
 				UnmarkBlock();
-
-				m_Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
-
-				if (Sel->BlockType==BTYPE_STREAM)
-				{
-					BeginStreamMarking(CurPtr);
-
-					for (int i=0; i < Sel->BlockHeight; i++)
-					{
-						const auto SelStart = i? 0 : Sel->BlockStartPos;
-						const auto SelEnd = (i < Sel->BlockHeight - 1)? -1 : Sel->BlockStartPos + Sel->BlockWidth;
-						CurPtr->Select(SelStart,SelEnd);
-						++CurPtr;
-
-						if (CurPtr == Lines.end())
-							return TRUE; // ранее было FALSE
-					}
-				}
-				else if (Sel->BlockType==BTYPE_COLUMN)
-				{
-					BeginVBlockMarking(CurPtr);
-
-					VBlockX=Sel->BlockStartPos;
-
-					VBlockSizeX=Sel->BlockWidth;
-					VBlockSizeY=Sel->BlockHeight;
-
-					if (VBlockSizeX < 0)
-					{
-						VBlockSizeX=-VBlockSizeX;
-						VBlockX-=VBlockSizeX;
-
-						if (VBlockX < 0)
-							VBlockX=0;
-					}
-				}
-
-				return TRUE;
+				return true;
 			}
 
-			break;
+			if (Sel->BlockHeight < 1)
+				return false;
+
+			auto CurPtr = GetStringByNumber(Sel->BlockStartLine);
+			if (CurPtr == Lines.end())
+				return false;
+
+			UnmarkBlock();
+
+			m_Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+
+			if (Sel->BlockType == BTYPE_STREAM)
+			{
+				BeginStreamMarking(CurPtr);
+
+				for (int i = 0; i < Sel->BlockHeight; i++)
+				{
+					const auto SelStart = i? 0 : Sel->BlockStartPos;
+					const auto SelEnd = (i < Sel->BlockHeight - 1)? -1 : Sel->BlockStartPos + Sel->BlockWidth;
+					CurPtr->Select(SelStart, SelEnd);
+					++CurPtr;
+
+					if (CurPtr == Lines.end())
+						return true; // ранее было FALSE
+				}
+			}
+			else if (Sel->BlockType == BTYPE_COLUMN)
+			{
+				BeginVBlockMarking(CurPtr);
+
+				VBlockX = Sel->BlockStartPos;
+
+				VBlockSizeX = Sel->BlockWidth;
+				VBlockSizeY = Sel->BlockHeight;
+
+				if (VBlockSizeX < 0)
+				{
+					VBlockSizeX = -VBlockSizeX;
+					VBlockX -= VBlockSizeX;
+
+					if (VBlockX < 0)
+						VBlockX = 0;
+				}
+			}
+
+			return true;
 		}
+
 		case ECTL_REDRAW:
 		{
 			Show();
 			Global->ScrBuf->Flush();
-			return TRUE;
+			return true;
 		}
+
 		case ECTL_TABTOREAL:
 		{
 			const auto ecp = static_cast<EditorConvertPos*>(Param2);
-			if (CheckStructSize(ecp))
-			{
-				const auto CurPtr = GetStringByNumber(ecp->StringNumber);
+			if (!CheckStructSize(ecp))
+				return false;
 
-				if (CurPtr == Lines.end())
-				{
-					return FALSE;
-				}
+			const auto CurPtr = GetStringByNumber(ecp->StringNumber);
+			if (CurPtr == Lines.end())
+				return false;
 
-				ecp->DestPos=CurPtr->VisualPosToReal(ecp->SrcPos);
-				return TRUE;
-			}
-
-			break;
+			ecp->DestPos=CurPtr->VisualPosToReal(ecp->SrcPos);
+			return true;
 		}
+
 		case ECTL_REALTOTAB:
 		{
 			const auto ecp = static_cast<EditorConvertPos*>(Param2);
-			if (CheckStructSize(ecp))
-			{
-				const auto CurPtr = GetStringByNumber(ecp->StringNumber);
+			if (!CheckStructSize(ecp))
+				return false;
 
-				if (CurPtr == Lines.end())
-				{
-					return FALSE;
-				}
+			const auto CurPtr = GetStringByNumber(ecp->StringNumber);
+			if (CurPtr == Lines.end())
+				return false;
 
-				ecp->DestPos=CurPtr->RealPosToVisual(ecp->SrcPos);
-				return TRUE;
-			}
-
-			break;
+			ecp->DestPos = CurPtr->RealPosToVisual(ecp->SrcPos);
+			return true;
 		}
+
 		case ECTL_EXPANDTABS:
 		{
 			if (m_Flags.Check(FEDITOR_LOCKMODE))
-			{
-				return FALSE;
-			}
-			else
-			{
-				const auto StringNumber=*static_cast<intptr_t*>(Param2);
-				const auto CurPtr = GetStringByNumber(StringNumber);
+				return false;
 
-				if (CurPtr == Lines.end())
-				{
-					return FALSE;
-				}
+			const auto StringNumber = *static_cast<intptr_t*>(Param2);
+			const auto CurPtr = GetStringByNumber(StringNumber);
 
-				AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), StringNumber, CurPtr->GetCurPos());
-				if(CurPtr->ReplaceTabs()) Change(ECTYPE_CHANGED,StringNumber);
-			}
+			if (CurPtr == Lines.end())
+				return false;
 
-			return TRUE;
+			AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), StringNumber, CurPtr->GetCurPos());
+			if(CurPtr->ReplaceTabs())
+				Change(ECTYPE_CHANGED, StringNumber);
+
+			return true;
 		}
+
 		// TODO: Если DI_MEMOEDIT не будет юзать раскраску, то должно выполняется в FileEditor::EditorControl(), в диалоге - нафиг ненать
 		case ECTL_ADDCOLOR:
 		{
 			const auto col = static_cast<const EditorColor*>(Param2);
-			if (CheckStructSize(col))
-			{
-				ColorItem newcol;
-				newcol.StartPos=col->StartPos;
-				newcol.EndPos=col->EndPos;
-				newcol.SetColor(col->Color);
-				newcol.Flags=col->Flags;
-				newcol.SetOwner(col->Owner);
-				newcol.Priority=col->Priority;
-				const auto CurPtr = GetStringByNumber(col->StringNumber);
+			if (!CheckStructSize(col))
+				return false;
 
-				if (CurPtr == Lines.end())
-				{
-					return FALSE;
-				}
+			const auto CurPtr = GetStringByNumber(col->StringNumber);
+			if (CurPtr == Lines.end())
+				return false;
 
-				CurPtr->AddColor(newcol);
-				if (col->Flags&ECF_AUTODELETE) m_AutoDeletedColors.emplace(&*CurPtr);
-				return TRUE;
-			}
+			ColorItem newcol;
+			newcol.StartPos=col->StartPos;
+			newcol.EndPos=col->EndPos;
+			newcol.SetColor(col->Color);
+			newcol.Flags=col->Flags;
+			newcol.SetOwner(col->Owner);
+			newcol.Priority=col->Priority;
 
-			break;
+			CurPtr->AddColor(newcol);
+			if (col->Flags & ECF_AUTODELETE)
+				m_AutoDeletedColors.emplace(&*CurPtr);
+
+			return true;
 		}
+
 		// TODO: Если DI_MEMOEDIT не будет юзать раскраску, то должно выполняется в FileEditor::EditorControl(), в диалоге - нафиг ненать
 		case ECTL_GETCOLOR:
 		{
 			const auto col = static_cast<EditorColor*>(Param2);
-			if (CheckStructSize(col))
-			{
-				const auto CurPtr = GetStringByNumber(col->StringNumber);
+			if (!CheckStructSize(col))
+				return false;
 
-				if (CurPtr == Lines.end())
-				{
-					return FALSE;
-				}
+			const auto CurPtr = GetStringByNumber(col->StringNumber);
+			if (CurPtr == Lines.end())
+				return false;
 
-				ColorItem curcol;
+			ColorItem curcol;
+			if (!CurPtr->GetColor(curcol, col->ColorItem))
+				return false;
 
-				if (!CurPtr->GetColor(curcol,col->ColorItem))
-				{
-					return FALSE;
-				}
+			col->StartPos = curcol.StartPos;
+			col->EndPos = curcol.EndPos;
+			col->Color=curcol.GetColor();
+			col->Flags=curcol.Flags;
+			col->Owner=curcol.GetOwner();
+			col->Priority=curcol.Priority;
 
-				col->StartPos = curcol.StartPos;
-				col->EndPos = curcol.EndPos;
-				col->Color=curcol.GetColor();
-				col->Flags=curcol.Flags;
-				col->Owner=curcol.GetOwner();
-				col->Priority=curcol.Priority;
-				return TRUE;
-			}
-
-			break;
+			return true;
 		}
+
 		case ECTL_DELCOLOR:
 		{
 			const auto col = static_cast<const EditorDeleteColor*>(Param2);
-			if (CheckStructSize(col))
+			if (!CheckStructSize(col))
+				return false;
+
+			const auto CurPtr = GetStringByNumber(col->StringNumber);
+			if (CurPtr == Lines.end())
+				return false;
+
+			CurPtr->DeleteColor([&](const ColorItem& Item)
 			{
-				const auto CurPtr = GetStringByNumber(col->StringNumber);
+				return (col->StartPos == -1 || col->StartPos == Item.StartPos) && col->Owner == Item.GetOwner();
+			});
 
-				if (CurPtr == Lines.end())
-				{
-					return FALSE;
-				}
-				CurPtr->DeleteColor([&](const ColorItem& Item) { return (col->StartPos == -1 || col->StartPos == Item.StartPos) && col->Owner == Item.GetOwner();});
-				return TRUE;
-			}
-
-			break;
+			return true;
 		}
+
 		/* $ 16.02.2001 IS
 		     Изменение некоторых внутренних настроек редактора. Param2 указывает на
 		     структуру EditorSetParameter
@@ -5695,167 +5655,172 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		case ECTL_SETPARAM:
 		{
 			const auto espar = static_cast<const EditorSetParameter*>(Param2);
-			if (CheckStructSize(espar))
+			if (!CheckStructSize(espar))
+				return false;
+
+			switch (espar->Type)
 			{
-				int rc=TRUE;
+			case ESPT_GETWORDDIV:
+				if (espar->wszParam && espar->Size)
+					xwcsncpy(espar->wszParam,EdOpt.strWordDiv.c_str(), espar->Size);
+				return static_cast<int>(EdOpt.strWordDiv.Get().size()) + 1;
 
-				switch (espar->Type)
+			case ESPT_SETWORDDIV:
+				SetWordDiv((!espar->wszParam || !*espar->wszParam)? Global->Opt->EdOpt.strWordDiv.c_str() : espar->wszParam);
+				return true;
+
+			case ESPT_TABSIZE:
+				SetTabSize(espar->iParam);
+				return true;
+
+			case ESPT_EXPANDTABS:
+				SetConvertTabs(espar->iParam);
+				return true;
+
+			case ESPT_AUTOINDENT:
+				SetAutoIndent(espar->iParam != 0);
+				return true;
+
+			case ESPT_CURSORBEYONDEOL:
+				SetCursorBeyondEOL(espar->iParam != 0);
+				return true;
+
+			case ESPT_CHARCODEBASE:
+				SetCharCodeBase(espar->iParam);
+				return true;
+
+			case ESPT_CODEPAGE:
+			{
+				const uintptr_t cp = espar->iParam;
+				// BUGBUG
+				if (const auto HostFileEditor = std::dynamic_pointer_cast<FileEditor>(m_Owner.lock()))
 				{
-					case ESPT_GETWORDDIV:
-						if (espar->wszParam && espar->Size)
-							xwcsncpy(espar->wszParam,EdOpt.strWordDiv.c_str(), espar->Size);
-
-						rc = static_cast<int>(EdOpt.strWordDiv.Get().size()) + 1;
-						break;
-					case ESPT_SETWORDDIV:
-						SetWordDiv((!espar->wszParam || !*espar->wszParam)? Global->Opt->EdOpt.strWordDiv.c_str() : espar->wszParam);
-						break;
-					case ESPT_TABSIZE:
-						SetTabSize(espar->iParam);
-						break;
-					case ESPT_EXPANDTABS:
-						SetConvertTabs(espar->iParam);
-						break;
-					case ESPT_AUTOINDENT:
-						SetAutoIndent(espar->iParam != 0);
-						break;
-					case ESPT_CURSORBEYONDEOL:
-						SetCursorBeyondEOL(espar->iParam != 0);
-						break;
-					case ESPT_CHARCODEBASE:
-						SetCharCodeBase(espar->iParam);
-						break;
-					case ESPT_CODEPAGE:
-					{
-						const uintptr_t cp = espar->iParam;
-						if (HostFileEditor)
-						{
-							rc = HostFileEditor->SetCodePageEx(cp);
-						}
-						else
-						{
-							rc = cp != CP_DEFAULT && codepages::IsCodePageSupported(cp) && SetCodePage(cp);
-						}
-						if (rc)
-							Show();
-					}break;
-					/* $ 29.10.2001 IS изменение настройки "Сохранять позицию файла" */
-					case ESPT_SAVEFILEPOSITION:
-						SetSavePosMode(espar->iParam, -1);
-						break;
-						/* $ 23.03.2002 IS запретить/отменить изменение файла */
-					case ESPT_LOCKMODE:
-						m_Flags.Change(FEDITOR_LOCKMODE, espar->iParam!=0);
-						break;
-					case ESPT_SHOWWHITESPACE:
-						SetShowWhiteSpace(espar->iParam);
-						break;
-					default:
-						return FALSE;
+					if (!HostFileEditor->SetCodePageEx(cp))
+						return false;
 				}
-
-				return rc;
+				else
+				{
+					if (cp == CP_DEFAULT || !codepages::IsCodePageSupported(cp) || !SetCodePage(cp))
+						return false;
+				}
+				Show();
+				return true;
 			}
 
-			return  FALSE;
+			/* $ 29.10.2001 IS изменение настройки "Сохранять позицию файла" */
+			case ESPT_SAVEFILEPOSITION:
+				SetSavePosMode(espar->iParam, -1);
+				return true;
+
+				/* $ 23.03.2002 IS запретить/отменить изменение файла */
+			case ESPT_LOCKMODE:
+				m_Flags.Change(FEDITOR_LOCKMODE, espar->iParam!=0);
+				return true;
+
+			case ESPT_SHOWWHITESPACE:
+				SetShowWhiteSpace(espar->iParam);
+				return true;
+
+			default:
+				return false;
+			}
 		}
+
 		case ECTL_DELETEBLOCK:
 		{
 			if (m_Flags.Check(FEDITOR_LOCKMODE) || !IsAnySelection())
-			{
-				return FALSE;
-			}
+				return false;
+
 
 			TurnOffMarkingBlock();
 			DeleteBlock();
 			Show();
-			return TRUE;
+			return true;
 		}
+
 		case ECTL_UNDOREDO:
 		{
 			const auto eur = static_cast<const EditorUndoRedo*>(Param2);
-			if (CheckStructSize(eur))
-			{
-				switch (eur->Command)
-				{
-					case EUR_BEGIN:
-						AddUndoData(UNDO_BEGIN);
-						return TRUE;
-					case EUR_END:
-						AddUndoData(UNDO_END);
-						return TRUE;
-					case EUR_UNDO:
-					case EUR_REDO:
-						Undo(eur->Command==EUR_REDO);
-						Refresh();
-						return TRUE;
-				}
-			}
+			if (!CheckStructSize(eur))
+				return false;
 
-			return FALSE;
+			switch (eur->Command)
+			{
+			case EUR_BEGIN:
+				AddUndoData(UNDO_BEGIN);
+				return true;
+
+			case EUR_END:
+				AddUndoData(UNDO_END);
+				return true;
+
+			case EUR_UNDO:
+			case EUR_REDO:
+				Undo(eur->Command == EUR_REDO);
+				Refresh();
+				return true;
+
+			default:
+				return false;
+			}
 		}
+
 		case ECTL_SUBSCRIBECHANGEEVENT:
 		case ECTL_UNSUBSCRIBECHANGEEVENT:
 		{
 			const auto esce = static_cast<const EditorSubscribeChangeEvent*>(Param2);
-			if (CheckStructSize(esce))
-			{
-				if (Command == ECTL_UNSUBSCRIBECHANGEEVENT)
-				{
-					ChangeEventSubscribers.erase(esce->PluginId);
-					return TRUE;
-				}
+			if (!CheckStructSize(esce))
+				return false;
 
+			if (Command == ECTL_SUBSCRIBECHANGEEVENT)
 				ChangeEventSubscribers.emplace(esce->PluginId);
-				return TRUE;
-			}
-			break;
+			else
+				ChangeEventSubscribers.erase(esce->PluginId);
+
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 bool Editor::SetBookmark(int Pos)
 {
-	if (Pos < static_cast<int>(m_SavePos.size()))
-	{
-		auto& Bookmark = m_SavePos[Pos];
-		Bookmark.Line = m_it_CurLine.Number();
-		Bookmark.LinePos = m_it_CurLine->GetCurPos();
-		Bookmark.LeftPos = m_it_CurLine->GetLeftPos();
-		Bookmark.ScreenLine = CalcDistance(m_it_TopScreen, m_it_CurLine);
-		return true;
-	}
+	if (static_cast<size_t>(Pos) >= m_SavePos.size())
+		return false;
 
-	return false;
+	auto& Bookmark = m_SavePos[Pos];
+	Bookmark.Line = m_it_CurLine.Number();
+	Bookmark.LinePos = m_it_CurLine->GetCurPos();
+	Bookmark.LeftPos = m_it_CurLine->GetLeftPos();
+	Bookmark.ScreenLine = CalcDistance(m_it_TopScreen, m_it_CurLine);
+
+	return true;
 }
 
 bool Editor::GotoBookmark(int Pos)
 {
-	if (Pos < static_cast<int>(m_SavePos.size()))
-	{
-		auto& Bookmark = m_SavePos[Pos];
-		if (Bookmark.Line != POS_NONE)
-		{
-			GoToLine(Bookmark.Line);
-			m_it_CurLine->SetCurPos(Bookmark.LinePos);
-			m_it_CurLine->SetLeftPos(Bookmark.LeftPos);
-			m_it_TopScreen=m_it_CurLine;
+	if (static_cast<size_t>(Pos) >= m_SavePos.size())
+		return false;
 
-			for (int i = 0; i < Bookmark.ScreenLine && m_it_TopScreen != Lines.begin(); ++i)
-				--m_it_TopScreen;
-
-			if (!EdOpt.PersistentBlocks)
-				UnmarkBlock();
-
-			Show();
-		}
-
+	auto& Bookmark = m_SavePos[Pos];
+	if (Bookmark.Line == POS_NONE)
 		return true;
-	}
 
-	return false;
+	GoToLine(Bookmark.Line);
+	m_it_CurLine->SetCurPos(Bookmark.LinePos);
+	m_it_CurLine->SetLeftPos(Bookmark.LeftPos);
+	m_it_TopScreen=m_it_CurLine;
+
+	for (int i = 0; i < Bookmark.ScreenLine && m_it_TopScreen != Lines.begin(); ++i)
+		--m_it_TopScreen;
+
+	if (!EdOpt.PersistentBlocks)
+		UnmarkBlock();
+
+	Show();
+
+	return true;
 }
 
 void Editor::ClearSessionBookmarks()
@@ -5922,24 +5887,22 @@ bool Editor::RestoreSessionBookmark()
 {
 	NewSessionPos = false;
 	//only if the cursor is elsewhere
-	if (!SessionBookmarks.empty() && (static_cast<int>(SessionPos->Line) != m_it_CurLine.Number() || static_cast<int>(SessionPos->Cursor) != m_it_CurLine->GetCurPos()))
-	{
-		GoToLine(SessionPos->Line);
-		m_it_CurLine->SetCurPos(SessionPos->Cursor);
-		m_it_CurLine->SetLeftPos(SessionPos->LeftPos);
-		m_it_TopScreen=m_it_CurLine;
+	if (SessionBookmarks.empty() || (static_cast<int>(SessionPos->Line) == m_it_CurLine.Number() && static_cast<int>(SessionPos->Cursor) == m_it_CurLine->GetCurPos()))
+		return false;
 
-		for (DWORD I = 0; I < SessionPos->ScreenLine && m_it_TopScreen != Lines.begin(); ++I, --m_it_TopScreen)
-			;
+	GoToLine(SessionPos->Line);
+	m_it_CurLine->SetCurPos(SessionPos->Cursor);
+	m_it_CurLine->SetLeftPos(SessionPos->LeftPos);
+	m_it_TopScreen=m_it_CurLine;
 
-		if (!EdOpt.PersistentBlocks)
-			UnmarkBlock();
+	for (DWORD I = 0; I < SessionPos->ScreenLine && m_it_TopScreen != Lines.begin(); ++I, --m_it_TopScreen)
+		;
 
-		Show();
-		return true;
-	}
+	if (!EdOpt.PersistentBlocks)
+		UnmarkBlock();
 
-	return false;
+	Show();
+	return true;
 }
 
 void Editor::AddSessionBookmark(bool NewPos)
@@ -6017,59 +5980,46 @@ bool Editor::BackSessionBookmark()
 
 bool Editor::PrevSessionBookmark()
 {
-	if (!SessionBookmarks.empty())
-	{
-		if (SessionPos != SessionBookmarks.begin()) // If not first bookmark - go
-		{
-			--SessionPos;
-		}
+	if (SessionBookmarks.empty())
+		return false;
 
-		return RestoreSessionBookmark();
-	}
+	if (SessionPos != SessionBookmarks.begin()) // If not first bookmark - go
+		--SessionPos;
 
-	return false;
+	return RestoreSessionBookmark();
 }
 
 bool Editor::NextSessionBookmark()
 {
-	if (!SessionBookmarks.empty())
-	{
-		const auto Next = std::next(SessionPos);
-		if (Next != SessionBookmarks.end())
-		{
-			SessionPos = Next;
-		}
+	if (SessionBookmarks.empty())
+		return false;
 
-		return RestoreSessionBookmark();
-	}
+	if (const auto Next = std::next(SessionPos); Next != SessionBookmarks.end())
+		SessionPos = Next;
 
-	return false;
+	return RestoreSessionBookmark();
 }
 
 bool Editor::LastSessionBookmark()
 {
-	if (!SessionBookmarks.empty())
-	{
-		SessionPos = std::prev(SessionBookmarks.end());
-		return RestoreSessionBookmark();
-	}
+	if (SessionBookmarks.empty())
+		return false;
 
-	return false;
+	SessionPos = std::prev(SessionBookmarks.end());
+	return RestoreSessionBookmark();
 }
 
 bool Editor::GotoSessionBookmark(int iIdx)
 {
-	if (!SessionBookmarks.empty())
-	{
-		const auto sb_temp = PointerToSessionBookmark(iIdx);
-		if (sb_temp != SessionBookmarks.end())
-		{
-			SessionPos=sb_temp;
-			return RestoreSessionBookmark();
-		}
-	}
+	if (SessionBookmarks.empty())
+		return false;
 
-	return false;
+	const auto sb_temp = PointerToSessionBookmark(iIdx);
+	if (sb_temp == SessionBookmarks.end())
+		return false;
+
+	SessionPos = sb_temp;
+	return RestoreSessionBookmark();
 }
 
 void Editor::PushSessionBookMark()
@@ -6092,53 +6042,42 @@ int Editor::CurrentSessionBookmarkIdx()
 
 bool Editor::GetSessionBookmark(int iIdx, InternalEditorBookmark *Param)
 {
+	if (SessionBookmarks.empty() || !Param)
+		return false;
 
-	if (!SessionBookmarks.empty() && Param)
-	{
-		const auto sb_temp = PointerToSessionBookmark(iIdx);
-		Param->Line = sb_temp->Line;
-		Param->Cursor     =sb_temp->Cursor;
-		Param->LeftPos    =sb_temp->LeftPos;
-		Param->ScreenLine =sb_temp->ScreenLine;
+	const auto sb_temp = PointerToSessionBookmark(iIdx);
+	Param->Line = sb_temp->Line;
+	Param->Cursor = sb_temp->Cursor;
+	Param->LeftPos = sb_temp->LeftPos;
+	Param->ScreenLine = sb_temp->ScreenLine;
 
-		return true;
-	}
-
-	return false;
+	return true;
 }
 
 size_t Editor::GetSessionBookmarks(EditorBookmarks *Param)
 {
-	size_t Result = 0;
+	if (SessionBookmarks.empty())
+		return 0;
 
-	if (!SessionBookmarks.empty())
+	if (!Param)
+		return SessionBookmarks.size();
+
+	for (const auto& [i, index]: enumerate(SessionBookmarks))
 	{
-		Result = SessionBookmarks.size();
-		if (Param)
-		{
-			if (Param->Line || Param->Cursor || Param->LeftPos || Param->ScreenLine)
-			{
-				Result = SessionBookmarks.size();
-				for (const auto& [i, index]: enumerate(SessionBookmarks))
-				{
-					if (Param->Line)
-						Param->Line[index] = i.Line;
+		if (Param->Line)
+			Param->Line[index] = i.Line;
 
-					if (Param->Cursor)
-						Param->Cursor[index] = i.Cursor;
+		if (Param->Cursor)
+			Param->Cursor[index] = i.Cursor;
 
-					if (Param->LeftPos)
-						Param->LeftPos[index] = i.LeftPos;
+		if (Param->LeftPos)
+			Param->LeftPos[index] = i.LeftPos;
 
-					if (Param->ScreenLine)
-						Param->ScreenLine[index] = i.ScreenLine;
-				}
-			}
-			else
-				Result = 0;
-		}
+		if (Param->ScreenLine)
+			Param->ScreenLine[index] = i.ScreenLine;
 	}
-	return Result;
+
+	return SessionBookmarks.size();
 }
 
 size_t Editor::GetSessionBookmarksForPlugin(EditorBookmarks *Param)
@@ -6150,20 +6089,20 @@ size_t Editor::GetSessionBookmarksForPlugin(EditorBookmarks *Param)
 	return size;
 }
 
-bool Editor::InitSessionBookmarksForPlugin(EditorBookmarks *Param,size_t Count,size_t& Size)
+bool Editor::InitSessionBookmarksForPlugin(EditorBookmarks* Param, size_t Count, size_t& Size)
 {
-	Size=sizeof(EditorBookmarks)+sizeof(intptr_t)*4*Count;
-	if(Param&&Param->Size>=Size)
-	{
-		const auto data = reinterpret_cast<intptr_t*>(Param + 1);
-		Param->Count=Count;
-		Param->Line=data;
-		Param->Cursor=data+Count;
-		Param->ScreenLine=data+2*Count;
-		Param->LeftPos=data+3*Count;
-		return true;
-	}
-	return false;
+	Size = sizeof(EditorBookmarks) + sizeof(intptr_t) * 4 * Count;
+	if (!Param || Param->Size < Size)
+		return false;
+
+	const auto data = reinterpret_cast<intptr_t*>(Param + 1);
+	Param->Count=Count;
+	Param->Line=data;
+	Param->Cursor=data+Count;
+	Param->ScreenLine=data+2*Count;
+	Param->LeftPos=data+3*Count;
+
+	return true;
 }
 
 Editor::numbered_iterator Editor::GetStringByNumber(int DestLine)
@@ -6554,48 +6493,6 @@ void Editor::SetSavePosMode(int SavePos, int SaveShortPos)
 
 	if (SaveShortPos!=-1)
 		EdOpt.SaveShortPos = (0 != SaveShortPos);
-}
-
-static void EditorShowMsgImpl(string_view const Title, const string& Msg, const string& Name, size_t Percent)
-{
-	const auto strMsg = concat(Msg, L' ', Name);
-	const size_t Length = std::max(std::min(ScrX - 1 - 10, static_cast<int>(strMsg.size())), 40);
-	auto strProgress = make_progressbar(Length, Percent, true, true);
-
-	std::vector MsgItems{ strMsg };
-	if (!strProgress.empty())
-		MsgItems.emplace_back(strProgress);
-
-	Message(MSG_LEFTALIGN,
-		Title,
-		std::move(MsgItems),
-		{});
-}
-
-void Editor::EditorShowMsg(string_view const Title, const string& Msg, const string& Name, size_t Percent)
-{
-	EditorShowMsgImpl(Title, Msg, Name, Percent);
-
-	TPreRedrawFunc::instance()([&](EditorPreRedrawItem& Item)
-	{
-		Item.Title = Title;
-		Item.Msg = Msg;
-		Item.Name = Name;
-		Item.Percent = Percent;
-	});
-}
-
-void Editor::PR_EditorShowMsg()
-{
-	TPreRedrawFunc::instance()([](const EditorPreRedrawItem& Item)
-	{
-		EditorShowMsg(Item.Title, Item.Msg, Item.Name, Item.Percent);
-	});
-}
-
-Editor::EditorPreRedrawItem::EditorPreRedrawItem():
-	PreRedrawItem(PR_EditorShowMsg)
-{
 }
 
 Editor::numbered_iterator Editor::InsertString(const string_view Str, const numbered_iterator& Where)

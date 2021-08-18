@@ -50,7 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "savescr.hpp"
 #include "constitle.hpp"
-#include "TPreRedrawFunc.hpp"
 #include "taskbar.hpp"
 #include "interf.hpp"
 #include "strmix.hpp"
@@ -204,7 +203,10 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item,
 	auto offsetListItems = size;
 	vmenu_ptr ListBox;
 	size_t ListBoxSize = 0;
-	if (ConvertListbox && (ItemEx->Type==DI_LISTBOX || ItemEx->Type==DI_COMBOBOX))
+
+	const auto IsList = ItemEx->Type == DI_LISTBOX || ItemEx->Type == DI_COMBOBOX;
+
+	if (IsList && ConvertListbox)
 	{
 		ListBox=ItemEx->ListPtr;
 		if (ListBox)
@@ -230,26 +232,35 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item,
 		if(Item->Item && Item->Size >= size)
 		{
 			ConvertItemSmall(*ItemEx, *Item->Item);
-			if (ListBox)
+
+			if (IsList)
 			{
-				const auto list = static_cast<FarList*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetList));
-				const auto listItems = static_cast<FarListItem*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetListItems));
-				auto text = static_cast<wchar_t*>(static_cast<void*>(listItems + ListBoxSize));
-				for(size_t ii = 0; ii != ListBoxSize; ++ii)
+				if (ConvertListbox)
 				{
-					auto& item = ListBox->at(ii);
-					listItems[ii].Flags=item.Flags;
-					listItems[ii].Text=text;
-					text += item.Name.copy(text, item.Name.npos);
-					*text++ = {};
-					listItems[ii].UserData = item.SimpleUserData;
-					listItems[ii].Reserved = 0;
+					const auto list = static_cast<FarList*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetList));
+					const auto listItems = static_cast<FarListItem*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetListItems));
+					auto text = static_cast<wchar_t*>(static_cast<void*>(listItems + ListBoxSize));
+					for (size_t ii = 0; ii != ListBoxSize; ++ii)
+					{
+						auto& item = ListBox->at(ii);
+						listItems[ii].Flags = item.Flags;
+						listItems[ii].Text = text;
+						text += item.Name.copy(text, item.Name.npos);
+						*text++ = {};
+						listItems[ii].UserData = item.SimpleUserData;
+						listItems[ii].Reserved = 0;
+					}
+					list->StructSize = sizeof(*list);
+					list->ItemsNumber = ListBoxSize;
+					list->Items = listItems;
+					Item->Item->ListItems = list;
 				}
-				list->StructSize=sizeof(*list);
-				list->ItemsNumber=ListBoxSize;
-				list->Items=listItems;
-				Item->Item->ListItems=list;
+				else
+				{
+					Item->Item->ListItems = {};
+				}
 			}
+
 			auto p = static_cast<wchar_t*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetStrings));
 			Item->Item->Data = p;
 			p += str.copy(p, str.npos);
@@ -445,7 +456,7 @@ void Dialog::CheckDialogCoord()
 	// X2 при этом = ширине диалога.
 	if (m_Where.left == -1)
 	{
-		m_Where.left = (ScrX - m_Where.right + 1) / 2;
+		m_Where.left = (ScrX + 1 - m_Where.right) / 2;
 		m_Where.right += m_Where.left - 1;
 	}
 
@@ -453,7 +464,7 @@ void Dialog::CheckDialogCoord()
 	// Y2 при этом = высоте диалога.
 	if (m_Where.top == -1)
 	{
-		m_Where.top = (ScrY - m_Where.bottom + 1) / 2;
+		m_Where.top = (ScrY + 1 - m_Where.bottom) / 2;
 		m_Where.bottom += m_Where.top - 1;
 	}
 }
@@ -497,14 +508,6 @@ void Dialog::Show()
 {
 	if (!DialogMode.Check(DMODE_OBJECTS_INITED) || !DialogMode.Check(DMODE_VISIBLE))
 		return;
-
-	if (DialogMode.Check(DMODE_RESIZED))
-	{
-		TPreRedrawFunc::instance()([](const PreRedrawItem& Item)
-		{
-			Item();
-		});
-	}
 
 	DialogMode.Clear(DMODE_RESIZED);
 
@@ -4192,34 +4195,33 @@ void Dialog::Process()
 		TBE.emplace(TBPF_ERROR);
 	}
 
-	if (m_ExitCode == -1)
+	if (m_ExitCode != -1)
+		return;
+
+	DialogMode.Set(DMODE_BEGINLOOP);
+
+	if(GetCanLoseFocus())
 	{
-		DialogMode.Set(DMODE_BEGINLOOP);
+		Global->WindowManager->InsertWindow(shared_from_this());
+		return;
+	}
 
-		if(GetCanLoseFocus())
-		{
-			Global->WindowManager->InsertWindow(shared_from_this());
-		}
-		else
-		{
-			static std::atomic_long DialogsCount(0);
-			std::chrono::steady_clock::time_point btm;
+	static std::atomic_long DialogsCount(0);
+	std::chrono::steady_clock::time_point btm;
 
-			if (!DialogsCount)
-			{
-				btm = std::chrono::steady_clock::now();
-			}
+	if (!DialogsCount)
+	{
+		btm = std::chrono::steady_clock::now();
+	}
 
-			++DialogsCount;
-			Global->WindowManager->ExecuteWindow(shared_from_this());
-			Global->WindowManager->ExecuteModal(shared_from_this());
-			--DialogsCount;
+	++DialogsCount;
+	Global->WindowManager->ExecuteWindow(shared_from_this());
+	Global->WindowManager->ExecuteModal(shared_from_this());
+	--DialogsCount;
 
-			if (!DialogsCount)
-			{
-				WaitUserTime += std::chrono::steady_clock::now() - btm;
-			}
-		}
+	if (!DialogsCount)
+	{
+		WaitUserTime += std::chrono::steady_clock::now() - btm;
 	}
 
 	if (SavedItems)
@@ -4231,18 +4233,18 @@ intptr_t Dialog::CloseDialog()
 	GetDialogObjectsData();
 
 	const auto result = DlgProc(DN_CLOSE, m_ExitCode, nullptr);
-	if (result)
-	{
-		GetDialogObjectsExpandData();
-		DialogMode.Set(DMODE_ENDLOOP);
-		Hide();
+	if (!result)
+		return 0;
 
-		if (DialogMode.Check(DMODE_BEGINLOOP) && (DialogMode.Check(DMODE_MSGINTERNAL) || Global->WindowManager->ManagerStarted()))
-		{
-			DialogMode.Clear(DMODE_BEGINLOOP);
-			Global->WindowManager->DeleteWindow(shared_from_this());
-			Global->WindowManager->PluginCommit();
-		}
+	GetDialogObjectsExpandData();
+	DialogMode.Set(DMODE_ENDLOOP);
+	Hide();
+
+	if (DialogMode.Check(DMODE_BEGINLOOP))
+	{
+		DialogMode.Clear(DMODE_BEGINLOOP);
+		Global->WindowManager->DeleteWindow(shared_from_this());
+		Global->WindowManager->PluginCommit();
 	}
 	return result;
 }

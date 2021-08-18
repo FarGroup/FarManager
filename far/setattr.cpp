@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "ctrlobj.hpp"
 #include "constitle.hpp"
-#include "TPreRedrawFunc.hpp"
 #include "taskbar.hpp"
 #include "keyboard.hpp"
 #include "message.hpp"
@@ -58,7 +57,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileowner.hpp"
 #include "wakeful.hpp"
 #include "uuids.far.dialogs.hpp"
-#include "interf.hpp"
 #include "plugins.hpp"
 #include "imports.hpp"
 #include "lang.hpp"
@@ -69,6 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "cvtname.hpp"
 #include "log.hpp"
+#include "scrbuf.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -537,54 +536,41 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-static void PR_ShellSetFileAttributesMsg();
-
-struct AttrPreRedrawItem : public PreRedrawItem
+class setarttr_progress: progress_impl
 {
-	AttrPreRedrawItem() : PreRedrawItem(PR_ShellSetFileAttributesMsg){}
+	enum
+	{
+		DlgW = 76,
+		DlgH = 5,
+	};
 
-	string Name;
-};
+	enum items
+	{
+		pr_doublebox,
+		pr_label,
+		pr_message,
 
-static void ShellSetFileAttributesMsgImpl(string_view const Name)
-{
-	static int Width=54;
-	int WidthTemp;
+		pr_count
+	};
 
-	if (!Name.empty())
-		WidthTemp=std::max(static_cast<int>(Name.size()), 54);
-	else
-		Width=WidthTemp=54;
-
-	WidthTemp=std::min(WidthTemp, ScrX/2);
-	Width=std::max(Width,WidthTemp);
-
-	Message(0,
-		msg(lng::MSetAttrTitle),
+public:
+	setarttr_progress()
+	{
+		auto ProgressDlgItems = MakeDialogItems<items::pr_count>(
 		{
-			msg(lng::MSetAttrSetting),
-			fit_to_center(truncate_path(Name, Width), Width + 4)
-		},
-		{});
-}
+			{ DI_DOUBLEBOX, {{ 3, 1 }, { DlgW - 4, DlgH - 2 }}, DIF_NONE, msg(lng::MSetAttrTitle), },
+			{ DI_TEXT,      {{ 5, 2 }, { DlgW - 6,        2 }}, DIF_NONE, msg(lng::MSetAttrSetting) },
+			{ DI_TEXT,      {{ 5, 2 }, { DlgW - 6,        2 }}, DIF_NONE, {} },
+		});
 
-static void ShellSetFileAttributesMsg(string_view const Name)
-{
-	ShellSetFileAttributesMsgImpl(Name);
+		init(ProgressDlgItems, { -1, -1, DlgW, DlgH });
+	}
 
-	TPreRedrawFunc::instance()([&](AttrPreRedrawItem& Item)
+	void update(string_view const Msg) const
 	{
-		Item.Name = Name;
-	});
-}
-
-static void PR_ShellSetFileAttributesMsg()
-{
-	TPreRedrawFunc::instance()([](const AttrPreRedrawItem& Item)
-	{
-		ShellSetFileAttributesMsgImpl(Item.Name);
-	});
-}
+		m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_message, UNSAFE_CSTR(null_terminated(Msg)));
+	}
+};
 
 static bool construct_time(
 	os::chrono::time_point const OriginalFileTime,
@@ -1231,8 +1217,15 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 					AttrDlg[i.TimeId].strData[8] = locale.time_separator();
 				}
 
-				SCOPED_ACTION(TPreRedrawFuncGuard)(std::make_unique<AttrPreRedrawItem>());
-				ShellSetFileAttributesMsg(SelCount==1? SingleSelFileName : string{});
+				setarttr_progress const Progress;
+
+				if (SelCount == 1)
+				{
+					Progress.update(SingleSelFileName);
+
+					Global->WindowManager->PluginCommit();
+					Global->ScrBuf->Flush();
+				}
 
 				auto SkipErrors = false;
 
@@ -1275,10 +1268,10 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 					{
 						if (TimeCheck)
 						{
-							ShellSetFileAttributesMsg(SingleSelFileName);
-
-							if (CheckForEsc())
+							if (CheckForEscAndConfirmAbort())
 								break;
+
+							Progress.update(SingleSelFileName);
 						}
 
 						{
@@ -1306,9 +1299,9 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 							{
 								if (TreeTimeCheck)
 								{
-									ShellSetFileAttributesMsg(strFullName);
+									Progress.update(strFullName);
 
-									if (CheckForEsc())
+									if (CheckForEscAndConfirmAbort())
 									{
 										return false;
 									}

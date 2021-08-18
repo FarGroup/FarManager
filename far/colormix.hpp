@@ -60,6 +60,14 @@ namespace colors
 	bool is_opaque(COLORREF Colour);
 	bool is_transparent(COLORREF Colour);
 
+	void set_index_bits(COLORREF& Value, COLORREF Index);
+	void set_color_bits(COLORREF& Value, COLORREF Colour);
+	void set_alpha_bits(COLORREF& Value, COLORREF Alpha);
+
+	void set_index_value(COLORREF& Value, COLORREF Index);
+	void set_color_value(COLORREF& Value, COLORREF Colour);
+	void set_alpha_value(COLORREF& Value, COLORREF Alpha);
+
 	COLORREF opaque(COLORREF Colour);
 	COLORREF transparent(COLORREF Colour);
 

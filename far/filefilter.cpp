@@ -413,7 +413,7 @@ void FileFilter::FilterEdit()
 							msg(lng::MAskDeleteFilter),
 							quote_unconditional(FilterData()[SelPos].GetTitle())
 						},
-						{ lng::MDelete, lng::MCancel }) == Message::first_button)
+						{ lng::MDelete, lng::MCancel }) == message_result::first_button)
 					{
 						FilterData().erase(FilterData().begin() + SelPos);
 						FilterList->DeleteItem(SelPos);

@@ -466,7 +466,7 @@ bool i_language_data::validate(size_t MsgId) const
 			m_FileName,
 			format(msg(lng::MLanguageStringNotFound), MsgId)
 		},
-		{ lng::MOk, lng::MQuit }) == Message::second_button)
+		{ lng::MOk, lng::MQuit }) == message_result::second_button)
 	{
 		Global->WindowManager->ExitMainLoop(FALSE);
 	}

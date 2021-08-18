@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "exception.hpp"
 #include "log.hpp"
+#include "stddlg.hpp"
 
 
 // Platform:
@@ -400,11 +401,19 @@ void QuickView::ShowFile(string_view const FileName, const UserDataItem* const U
 	if (hDirPlugin || os::fs::is_directory(strCurFileName))
 	{
 		const time_check TimeCheck;
+		std::optional<dirinfo_progress> DirinfoProgress;
 
 		const auto DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
 		{
-			if (TimeCheck)
-				DirInfoMsg(msg(lng::MQuickViewTitle), Name, ItemsCount, Size);
+			if (!TimeCheck)
+				return;
+
+			if (!DirinfoProgress)
+				DirinfoProgress.emplace(msg(lng::MQuickViewTitle));
+
+			DirinfoProgress->set_name(Name);
+			DirinfoProgress->set_count(ItemsCount);
+			DirinfoProgress->set_size(Size);
 		};
 
 		if (SameFile && !hDirPlugin)

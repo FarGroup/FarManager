@@ -2786,7 +2786,7 @@ FARMACROAREA VMenu::GetMacroArea() const
 {
 	if (IsComboBox())
 		return MACROAREA_DIALOG;
-	return SimpleModal::GetMacroArea();
+	return Modal::GetMacroArea();
 }
 
 int VMenu::GetTypeAndName(string &strType, string &strName)

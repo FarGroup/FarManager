@@ -155,7 +155,7 @@ size_t hash_icase_t::operator()(string_view const Str) const
 
 bool equal_icase_t::operator()(wchar_t Chr1, wchar_t Chr2) const
 {
-	return upper(Chr1) == upper(Chr2);
+	return Chr1 == Chr2 || upper(Chr1) == upper(Chr2);
 }
 
 bool equal_icase_t::operator()(const string_view Str1, const string_view Str2) const
@@ -165,7 +165,7 @@ bool equal_icase_t::operator()(const string_view Str1, const string_view Str2) c
 
 bool equal_icase(const string_view Str1, const string_view Str2)
 {
-	return std::equal(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), equal_icase_t{});
+	return Str1 == Str2 || std::equal(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), equal_icase_t{});
 }
 
 bool starts_with_icase(const string_view Str, const string_view Prefix)

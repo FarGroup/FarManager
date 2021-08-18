@@ -484,7 +484,7 @@ private:
 	};
 };
 
-class GeneralConfigDb: public iGeneralConfigDb
+class GeneralConfigDb final: public iGeneralConfigDb
 {
 public:
 	explicit GeneralConfigDb(string_view const Name):
@@ -496,7 +496,7 @@ private:
 	const char* GetKeyName() const override {return "generalconfig";}
 };
 
-class LocalGeneralConfigDb: public iGeneralConfigDb
+class LocalGeneralConfigDb final: public iGeneralConfigDb
 {
 public:
 	explicit LocalGeneralConfigDb(string_view const Name):
@@ -847,12 +847,12 @@ static const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]
 	{ FCF_FG_UNDERLINE,    L"underline"sv    },
 	{ FCF_FG_UNDERLINE2,   L"underline2"sv   },
 	{ FCF_FG_OVERLINE,     L"overline"sv     },
-	{ FCF_FG_STRIKEOUT,    L"strikeout"sv   },
+	{ FCF_FG_STRIKEOUT,    L"strikeout"sv    },
 	{ FCF_FG_FAINT,        L"faint"sv        },
 	{ FCF_FG_BLINK,        L"blink"sv        },
 };
 
-class HighlightHierarchicalConfigDb: public HierarchicalConfigDb
+class HighlightHierarchicalConfigDb final: public HierarchicalConfigDb
 {
 public:
 	using HierarchicalConfigDb::HierarchicalConfigDb;
@@ -908,7 +908,7 @@ private:
 	}
 };
 
-class ColorsConfigDb: public ColorsConfig, public sqlite_boilerplate
+class ColorsConfigDb final: public ColorsConfig, public sqlite_boilerplate
 {
 public:
 	explicit ColorsConfigDb(string_view const Name):
@@ -1010,7 +1010,7 @@ private:
 	};
 };
 
-class AssociationsConfigDb: public AssociationsConfig, public sqlite_boilerplate
+class AssociationsConfigDb final: public AssociationsConfig, public sqlite_boilerplate
 {
 public:
 	explicit AssociationsConfigDb(string_view const Name):
@@ -1264,7 +1264,7 @@ private:
 	};
 };
 
-class PluginsCacheConfigDb: public PluginsCacheConfig, public sqlite_boilerplate
+class PluginsCacheConfigDb final: public PluginsCacheConfig, public sqlite_boilerplate
 {
 public:
 	explicit PluginsCacheConfigDb(string_view const Name):
@@ -1604,7 +1604,7 @@ private:
 	};
 };
 
-class PluginsHotkeysConfigDb: public PluginsHotkeysConfig, public sqlite_boilerplate
+class PluginsHotkeysConfigDb final: public PluginsHotkeysConfig, public sqlite_boilerplate
 {
 public:
 	explicit PluginsHotkeysConfigDb(string_view const Name):
@@ -1922,8 +1922,8 @@ private:
 
 		static const stmt_init<statement_id> Statements[]
 		{
-			{ stmtEnum,                  "SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY time;"sv },
-			{ stmtEnumDesc,              "SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;"sv },
+			{ stmtEnum,                  "SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 AND (?3 OR name COLLATE NOCASE =?4) ORDER BY time;"sv },
+			{ stmtEnumDesc,              "SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 AND (?3 OR name COLLATE NOCASE =?4) ORDER BY lock DESC, time DESC;"sv },
 			{ stmtDel,                   "DELETE FROM history WHERE id=?1;"sv },
 			{ stmtDeleteOldUnlocked,     "DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0 AND time<?3 AND id NOT IN (SELECT id FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT ?4);"sv },
 			{ stmtEnumLargeHistories,    "SELECT key FROM (SELECT key, num FROM (SELECT key, count(id) as num FROM history WHERE kind=?1 GROUP BY key)) WHERE num > ?2;"sv },
@@ -2011,13 +2011,13 @@ private:
 		return AutoStatement(Reverse? stmtEnumDesc : stmtEnum);
 	}
 
-	bool Enum(const bool Reset, const unsigned int TypeHistory, const string_view HistoryName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strUuid, string& strFile, string& strData, const bool Reverse) override
+	bool Enum(const bool Reset, const unsigned int TypeHistory, const string_view HistoryName, const string_view ItemName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strUuid, string& strFile, string& strData, const bool Reverse) override
 	{
 		WaitAllAsync();
 		auto Stmt = EnumStmt(Reverse);
 
 		if (Reset)
-			Stmt->Reset().Bind(TypeHistory, HistoryName);
+			Stmt->Reset().Bind(TypeHistory, HistoryName, ItemName.empty(), ItemName);
 
 		if (!Stmt->Step())
 			return false;
@@ -2300,7 +2300,7 @@ private:
 	};
 };
 
-class HistoryConfigDb: public HistoryConfigCustom
+class HistoryConfigDb final: public HistoryConfigCustom
 {
 public:
 	explicit HistoryConfigDb(string_view const Name):
@@ -2321,7 +2321,7 @@ private:
 	}
 };
 
-class HistoryConfigMemory: public HistoryConfigCustom
+class HistoryConfigMemory final: public HistoryConfigCustom
 {
 public:
 	explicit HistoryConfigMemory(string_view const Name):
@@ -2635,7 +2635,7 @@ bool config_provider::ShowProblems() const
 	return Message(MSG_WARNING | MSG_LEFTALIGN,
 		msg(lng::MProblemDb),
 		std::move(m_Problems),
-		{ lng::MShowConfigFolders, lng::MIgnore }) == Message::first_button;
+		{ lng::MShowConfigFolders, lng::MIgnore }) == message_result::first_button;
 }
 
 void config_provider::AsyncCall(async_key, const std::function<void()>& Routine)

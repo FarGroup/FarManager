@@ -75,7 +75,7 @@ static void ChangeColor(PaletteColors PaletteIndex, PaletteColors const* const B
 	auto NewColor = Global->Opt->Palette[PaletteIndex];
 	const auto BottomColor = BottomPaletteIndex? &Global->Opt->Palette[*BottomPaletteIndex] : nullptr;
 
-	if (!console.GetColorDialog(NewColor, false, BottomColor))
+	if (!GetColorDialog(NewColor, false, BottomColor))
 		return;
 
 	Global->Opt->Palette.Set(PaletteIndex, { &NewColor, 1 });
@@ -455,6 +455,7 @@ enum color_dialog_items
 	cd_separator2,
 	cd_separator3,
 	cd_separator4,
+	cd_separator5,
 
 	cd_fg_text,
 	cd_fg_active,
@@ -569,12 +570,11 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		return IsFg? FCF_FG_4BIT : FCF_BG_4BIT;
 	};
 
-	const auto SetComponentColorValue = [&CurColor](bool IsFg, COLORREF const Value)
+	const auto SetComponentColorValue = [&CurColor](bool const IsFg, COLORREF const Value)
 	{
 		auto& Component = IsFg? CurColor.ForegroundColor : CurColor.BackgroundColor;
-		Component = colors::alpha_bits(Component) | colors::color_bits(Value);
+		colors::set_color_value(Component, Value);
 	};
-
 
 	const auto DM_UPDATECOLORCODE = DM_USER + 1;
 
@@ -768,7 +768,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
-bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColor* const BaseColor)
+bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const BaseColor)
 {
 	auto ColorDlg = MakeDialogItems<cd_count>(
 	{
@@ -776,8 +776,9 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 
 		{ DI_TEXT,        {{-1, 13}, {0,  13}}, DIF_SEPARATOR, },
 		{ DI_VTEXT,       {{39, 1 }, {39, 13}}, DIF_SEPARATORUSER, },
-		{ DI_TEXT,        {{3,  5 }, {39,  5}}, DIF_SEPARATORUSER, },
+		{ DI_TEXT,        {{3,  5 }, {39, 5 }}, DIF_SEPARATORUSER, },
 		{ DI_TEXT,        {{3,  9 }, {39, 9 }}, DIF_SEPARATORUSER, },
+		{ DI_TEXT,        {{41, 4 }, {60, 4 }}, DIF_SEPARATORUSER, },
 
 		{ DI_TEXT,        {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MSetColorForeground), },
 		{ DI_CHECKBOX,    {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MSetColorForeground), },
@@ -829,14 +830,14 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 
 		{ DI_TEXT,        {{41, 2 }, {0,  2 }}, DIF_NONE, msg(lng::MSetColorStyle), },
 		{ DI_CHECKBOX,    {{41, 3 }, {0,  3 }}, DIF_NONE, msg(lng::MSetColorStyleInherit), },
-		{ DI_CHECKBOX,    {{41, 4 }, {0,  4 }}, DIF_NONE, msg(lng::MSetColorStyleBold), },
-		{ DI_CHECKBOX,    {{41, 5 }, {0,  5 }}, DIF_NONE, msg(lng::MSetColorStyleItalic), },
-		{ DI_CHECKBOX,    {{41, 6 }, {0,  6 }}, DIF_NONE, msg(lng::MSetColorStyleUnderline), },
-		{ DI_CHECKBOX,    {{41, 7 }, {0,  7 }}, DIF_NONE, msg(lng::MSetColorStyleUnderline2), },
-		{ DI_CHECKBOX,    {{41, 8 }, {0,  8 }}, DIF_NONE, msg(lng::MSetColorStyleOverline), },
-		{ DI_CHECKBOX,    {{41, 9 }, {0,  9 }}, DIF_NONE, msg(lng::MSetColorStyleStrikeout), },
-		{ DI_CHECKBOX,    {{41, 10}, {0,  10}}, DIF_NONE, msg(lng::MSetColorStyleFaint), },
-		{ DI_CHECKBOX,    {{41, 11}, {0,  11}}, DIF_NONE, msg(lng::MSetColorStyleBlink), },
+		{ DI_CHECKBOX,    {{41, 5 }, {0,  5 }}, DIF_NONE, msg(lng::MSetColorStyleBold), },
+		{ DI_CHECKBOX,    {{41, 6 }, {0,  6 }}, DIF_NONE, msg(lng::MSetColorStyleItalic), },
+		{ DI_CHECKBOX,    {{41, 7 }, {0,  7 }}, DIF_NONE, msg(lng::MSetColorStyleUnderline), },
+		{ DI_CHECKBOX,    {{41, 8 }, {0,  8 }}, DIF_NONE, msg(lng::MSetColorStyleUnderline2), },
+		{ DI_CHECKBOX,    {{41, 9 }, {0,  9 }}, DIF_NONE, msg(lng::MSetColorStyleOverline), },
+		{ DI_CHECKBOX,    {{41, 10}, {0,  10}}, DIF_NONE, msg(lng::MSetColorStyleStrikeout), },
+		{ DI_CHECKBOX,    {{41, 11}, {0,  11}}, DIF_NONE, msg(lng::MSetColorStyleFaint), },
+		{ DI_CHECKBOX,    {{41, 12}, {0,  12}}, DIF_NONE, msg(lng::MSetColorStyleBlink), },
 
 		{ DI_TEXT,        {{5,  10}, {37, 10}}, DIF_NONE, msg(lng::MSetColorSample), },
 		{ DI_TEXT,        {{5,  11}, {37, 11}}, DIF_NONE, msg(lng::MSetColorSample), },
@@ -848,6 +849,7 @@ bool GetColorDialogInternal(FarColor& Color, bool const bCentered, const FarColo
 
 	ColorDlg[cd_separator2].strMask = { BoxSymbols[BS_T_H2V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1] };
 	ColorDlg[cd_separator3].strMask = ColorDlg[cd_separator4].strMask = { BoxSymbols[BS_L_H1V2], BoxSymbols[BS_H1], BoxSymbols[BS_R_H1V1] };
+	ColorDlg[cd_separator5].strMask = { BoxSymbols[BS_H1], BoxSymbols[BS_H1], BoxSymbols[BS_H1] };
 
 	ColorDlg[cd_fg_colorcode].strData = color_code(Color.ForegroundColor, Color.IsFg4Bit());
 	ColorDlg[cd_bg_colorcode].strData = color_code(Color.BackgroundColor, Color.IsBg4Bit());

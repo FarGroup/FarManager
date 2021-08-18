@@ -321,11 +321,11 @@ namespace
 			{
 				console.SetActiveScreenBuffer(m_Buffer.native_handle());
 
-				const time_check TimeCheck;
-
 				for (;;)
 				{
-					if (TimeCheck && CheckForEscSilent())
+					os::handle::wait_all({ console.GetInputHandle() });
+
+					if (CheckForEscSilent())
 					{
 						console.SetActiveScreenBuffer(console.GetOutputHandle());
 						return;
@@ -880,6 +880,10 @@ namespace logging
 	{
 		console.SetTitle(concat(L"Far Log Viewer: "sv, PipeName));
 		console.SetTextAttributes(colors::ConsoleColorToFarColor(F_LIGHTGRAY | B_BLACK));
+
+		DWORD ConsoleMode = 0;
+		console.GetMode(console.GetInputHandle(), ConsoleMode);
+		console.SetMode(console.GetInputHandle(), ConsoleMode | ENABLE_EXTENDED_FLAGS | ENABLE_QUICK_EDIT_MODE);
 
 		os::fs::file PipeFile;
 

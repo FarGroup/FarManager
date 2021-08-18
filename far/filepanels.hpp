@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class CommandLine;
 class MenuBar;
 
-class FilePanels:public window, public ViewerContainer
+class FilePanels final: public window, public ViewerContainer
 {
 	struct private_tag {};
 

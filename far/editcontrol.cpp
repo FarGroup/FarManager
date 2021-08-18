@@ -569,8 +569,8 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 
 					::SetCursorType(Visible, Size);
 
-					if (MenuKey == KEY_NONE)
-						return 0;
+						if (MenuKey == KEY_NONE)
+							return 0;
 
 						// ввод
 						if(in_closed_range(L' ', MenuKey, std::numeric_limits<wchar_t>::max()) || any_of(MenuKey, KEY_BS, KEY_DEL, KEY_NUMDEL))

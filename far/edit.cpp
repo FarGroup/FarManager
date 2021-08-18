@@ -283,8 +283,6 @@ void Edit::FastShow(const ShowInfo* Info)
 
 	SetLineCursorPos(TabCurPos);
 
-	string_view OutStrTmp = m_Str;
-
 	auto RealLeftPos = VisualToReal.get(LeftPos);
 	const auto ReconstructedVisualLeftPos = RealToVisual.get(RealLeftPos);
 
@@ -293,7 +291,7 @@ void Edit::FastShow(const ShowInfo* Info)
 	const size_t RealRight = VisualToReal.get(static_cast<int>(EditLength) + LeftPos) - RealLeftPos;
 
 	string OutStr;
-	OutStr.reserve(RealRight);
+	OutStr.reserve(EditLength);
 
 	if (ReconstructedVisualLeftPos < LeftPos)
 	{
@@ -312,14 +310,14 @@ void Edit::FastShow(const ShowInfo* Info)
 	}
 
 	{
-		auto TrailingSpaces = OutStrTmp.cend();
-		if (m_Flags.Check(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE) && Mask.empty() && !OutStrTmp.empty())
+		auto TrailingSpaces = m_Str.cend();
+		if (m_Flags.Check(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE) && Mask.empty() && !m_Str.empty())
 		{
-			TrailingSpaces = std::find_if_not(OutStrTmp.crbegin(), OutStrTmp.crend(), [](wchar_t i) { return std::iswblank(i);}).base();
+			TrailingSpaces = std::find_if_not(m_Str.crbegin(), m_Str.crend(), [](wchar_t i) { return std::iswblank(i);}).base();
 		}
 
-		const auto Begin = OutStrTmp.cbegin() + std::min(static_cast<size_t>(RealLeftPos), OutStrTmp.size());
-		for(auto i = Begin, End = OutStrTmp.cend(); i != End && static_cast<size_t>(i - Begin) < RealRight; ++i)
+		const auto Begin = m_Str.cbegin() + std::min(static_cast<size_t>(RealLeftPos), m_Str.usize());
+		for(auto i = Begin, End = m_Str.cend(); i != End && OutStr.size() < EditLength; ++i)
 		{
 			if (*i == L' ')
 			{
@@ -330,8 +328,8 @@ void Edit::FastShow(const ShowInfo* Info)
 			}
 			else if (*i == L'\t')
 			{
-				const auto TabStart = RealToVisual.get(i - OutStrTmp.begin());
-				const auto TabEnd = RealToVisual.get(i + 1 - OutStrTmp.begin());
+				const auto TabStart = RealToVisual.get(i - m_Str.begin());
+				const auto TabEnd = RealToVisual.get(i + 1 - m_Str.begin());
 
 				OutStr.push_back(((m_Flags.Check(FEDITLINE_SHOWWHITESPACE) && m_Flags.Check(FEDITLINE_EDITORMODE)) || i >= TrailingSpaces)? L'→' : L' ');
 				OutStr.resize(OutStr.size() + TabEnd - TabStart - 1, L' ');
@@ -345,7 +343,7 @@ void Edit::FastShow(const ShowInfo* Info)
 		if (m_Flags.Check(FEDITLINE_PASSWORDMODE))
 			OutStr.assign(OutStr.size(), L'*');
 
-		if (m_Flags.Check(FEDITLINE_SHOWLINEBREAK) && m_Flags.Check(FEDITLINE_EDITORMODE) && (m_Str.size() >= RealLeftPos) && (OutStr.size() < RealRight))
+		if (m_Flags.Check(FEDITLINE_SHOWLINEBREAK) && m_Flags.Check(FEDITLINE_EDITORMODE) && (m_Str.size() >= RealLeftPos) && (OutStr.size() < EditLength))
 		{
 			const auto Cr = L'♪', Lf = L'◙';
 
@@ -360,7 +358,7 @@ void Edit::FastShow(const ShowInfo* Info)
 			else if (m_Eol == eol::win)
 			{
 				OutStr.push_back(Cr);
-				if(OutStr.size() < RealRight)
+				if(OutStr.size() < EditLength)
 				{
 					OutStr.push_back(Lf);
 				}
@@ -368,10 +366,10 @@ void Edit::FastShow(const ShowInfo* Info)
 			else if (m_Eol == eol::bad_win)
 			{
 				OutStr.push_back(Cr);
-				if(OutStr.size() < RealRight)
+				if(OutStr.size() < EditLength)
 				{
 					OutStr.push_back(Cr);
-					if(OutStr.size() < RealRight)
+					if(OutStr.size() < EditLength)
 					{
 						OutStr.push_back(Lf);
 					}
@@ -379,7 +377,7 @@ void Edit::FastShow(const ShowInfo* Info)
 			}
 		}
 
-		if (m_Flags.Check(FEDITLINE_SHOWWHITESPACE) && m_Flags.Check(FEDITLINE_EDITORMODE) && (m_Str.size() >= RealLeftPos) && (OutStr.size() < RealRight) && GetEditor()->IsLastLine(this))
+		if (m_Flags.Check(FEDITLINE_SHOWWHITESPACE) && m_Flags.Check(FEDITLINE_EDITORMODE) && (m_Str.size() >= RealLeftPos) && (OutStr.size() < EditLength) && GetEditor()->IsLastLine(this))
 		{
 			OutStr.push_back(L'□');
 		}

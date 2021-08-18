@@ -57,7 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-class context: noncopyable, public i_context
+class context final: noncopyable, public i_context
 {
 public:
 	void Activate() override

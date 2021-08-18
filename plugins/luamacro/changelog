@@ -1,3 +1,8 @@
+johnd0e 20.07.2021 12:00:00 +0200 - build 764
+
+1. LuaFAR: DM_GETDLGDATA / DM_SETDLGDATA are "no-ops" now: ignore parameters and return nil.
+   (patch from shmuel).
+
 johnd0e 30.04.2021 12:17:00 +0200 - build 763
 
 1. LuaFAR: fix file:seek() for files larger than 2 GB

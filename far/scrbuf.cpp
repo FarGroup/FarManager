@@ -215,11 +215,11 @@ static COLORREF apply_index_shadow(COLORREF const Color)
 
 	// 0x07 (silver) is technically "non-intense white", so it should become black as all the other non-intense colours.
 	// However, making it 0x08 (grey or "intense black") instead gives better results.
-	if (colors::color_value(Color) == 0x07)
-		return 0x08;
+	if (colors::color_value(Color) == F_LIGHTGRAY)
+		return F_DARKGRAY;
 
 	// Non-intense can't get any darker, so just return black.
-	return 0x00;
+	return F_BLACK;
 }
 
 static void apply_shadow(FarColor& Color, COLORREF FarColor::* ColorAccessor, const FARCOLORFLAGS Flag, FarColor const& TrueShadow)
@@ -239,7 +239,7 @@ static void apply_shadow(FarColor& Color, COLORREF FarColor::* ColorAccessor, co
 	}
 }
 
-void ScreenBuf::ApplyShadow(rectangle Where, bool IsLegacy)
+void ScreenBuf::ApplyShadow(rectangle Where, bool const IsLegacy)
 {
 	if (!is_visible(Where))
 		return;
@@ -252,9 +252,9 @@ void ScreenBuf::ApplyShadow(rectangle Where, bool IsLegacy)
 	const auto TrueColorAvailable = console.IsVtEnabled() || console.ExternalRendererLoaded();
 
 	static constexpr FarColor
-		TrueShadowFull{ FCF_INHERIT_STYLE, 0x80'000000, 0x80'000000 },
-		TrueShadowFore{ FCF_INHERIT_STYLE, 0x80'000000, 0x00'000000 },
-		TrueShadowBack{ FCF_INHERIT_STYLE, 0x00'000000, 0x80'000000 };
+		TrueShadowFull{ FCF_INHERIT_STYLE, { 0x80'000000 }, { 0x80'000000 } },
+		TrueShadowFore{ FCF_INHERIT_STYLE, { 0x80'000000 }, { 0x00'000000 } },
+		TrueShadowBack{ FCF_INHERIT_STYLE, { 0x00'000000 }, { 0x80'000000 } };
 
 	for_submatrix(Buf, Where, [&](FAR_CHAR_INFO& Element, point const Point)
 	{
@@ -263,15 +263,29 @@ void ScreenBuf::ApplyShadow(rectangle Where, bool IsLegacy)
 			// This piece is for usage with repeated Message() calls.
 			// It generates a stable shadow that does not fade to black when reapplied over and over.
 			// We really, really should ditch the Message pattern.
+			Element.Attributes.IsBg4Bit()?
+				colors::set_index_value(Element.Attributes.BackgroundColor, F_BLACK) :
+				colors::set_color_value(Element.Attributes.BackgroundColor, 0);
 
-			Element.Attributes.BackgroundColor = 0;
-
-			const auto Mask = Element.Attributes.IsFg4Bit()? FOREGROUND_INTENSITY : 0x808080;
-
-			Element.Attributes.ForegroundColor &= ~Mask;
-			if (!colors::color_value(Element.Attributes.ForegroundColor))
+			if (Element.Attributes.IsFg4Bit())
 			{
-				Element.Attributes.ForegroundColor = Mask;
+				const auto Mask = FOREGROUND_INTENSITY;
+				auto ForegroundColor = colors::index_value(Element.Attributes.ForegroundColor);
+
+				if (ForegroundColor != Mask)
+					ForegroundColor &= ~Mask;
+
+				colors::set_index_value(Element.Attributes.ForegroundColor, ForegroundColor);
+			}
+			else
+			{
+				const auto Mask = 0x808080;
+				auto ForegroundColor = colors::color_value(Element.Attributes.ForegroundColor);
+
+				if (ForegroundColor != Mask)
+					ForegroundColor &= ~Mask;
+
+				colors::set_color_value(Element.Attributes.ForegroundColor, ForegroundColor);
 			}
 		}
 		else if (TrueColorAvailable)

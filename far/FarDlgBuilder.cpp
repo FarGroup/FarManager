@@ -64,7 +64,7 @@ struct DialogItemBinding
 };
 
 template<class T>
-class EditFieldBinding: public DialogItemBinding
+class EditFieldBinding final: public DialogItemBinding
 {
 public:
 	explicit EditFieldBinding(T& TextValue):
@@ -81,7 +81,7 @@ private:
 	T& m_TextValue;
 };
 
-class EditFieldIntBinding: public DialogItemBinding
+class EditFieldIntBinding final: public DialogItemBinding
 {
 public:
 	EditFieldIntBinding(IntOption* IntValue, int Width):
@@ -126,7 +126,7 @@ private:
 	wchar_t m_Mask[32];
 };
 
-class EditFieldHexBinding: public DialogItemBinding
+class EditFieldHexBinding final: public DialogItemBinding
 {
 public:
 	explicit EditFieldHexBinding(IntOption* IntValue):
@@ -154,7 +154,7 @@ private:
 	wchar_t m_Mask[2 + sizeof(long long) * 2 + 1];
 };
 
-class EditFieldBinaryBinding: public DialogItemBinding
+class EditFieldBinaryBinding final: public DialogItemBinding
 {
 public:
 	explicit EditFieldBinaryBinding(IntOption* IntValue):
@@ -181,7 +181,7 @@ private:
 };
 
 template<typename int_type>
-class CheckBoxIntBinding: public DialogItemBinding
+class CheckBoxIntBinding final: public DialogItemBinding
 {
 public:
 	explicit CheckBoxIntBinding(int_type& Value, int Mask):
@@ -211,7 +211,7 @@ private:
 };
 
 template<class T>
-class CheckBoxBool3Binding: public DialogItemBinding
+class CheckBoxBool3Binding final: public DialogItemBinding
 {
 public:
 	explicit CheckBoxBool3Binding(T& Value):
@@ -229,7 +229,7 @@ private:
 };
 
 template<class T>
-class CheckBoxBoolBinding: public DialogItemBinding
+class CheckBoxBoolBinding final: public DialogItemBinding
 {
 public:
 	explicit CheckBoxBoolBinding(T& Value):
@@ -247,7 +247,7 @@ private:
 };
 
 template<class T>
-class RadioButtonBinding: public DialogItemBinding
+class RadioButtonBinding final: public DialogItemBinding
 {
 public:
 	explicit RadioButtonBinding(T* Value):

@@ -109,7 +109,6 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <ConformanceMode>true</ConformanceMode>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <UseFullPaths>false</UseFullPaths>
     </ClCompile>
     <ResourceCompile>
@@ -132,6 +131,7 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>true</WholeProgramOptimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -156,6 +156,7 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
       <PreprocessorDefinitions>_DEBUG;ENABLE_TESTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SupportJustMyCode>true</SupportJustMyCode>
       <SDLCheck>true</SDLCheck>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -548,7 +549,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="taskbar.hpp" />
     <ClInclude Include="testing.hpp" />
     <ClInclude Include="tinyxml.hpp" />
-    <ClInclude Include="TPreRedrawFunc.hpp" />
     <ClInclude Include="tracer.hpp" />
     <ClInclude Include="transactional.hpp" />
     <ClInclude Include="treelist.hpp" />

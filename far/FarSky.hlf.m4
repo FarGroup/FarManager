@@ -680,7 +680,7 @@ an ~associated command~@FileAssoc@ is executed or the archive is opened.
 command configuration.
 
  Zmena adresára na rodičovský (o stupeň vyššie)           #Ctrl+PgUp#
- The behavior in root folders depends on "Use Ctrl+PgUp to change drive~@InterfSettings@" option.
+ The behavior in root folders depends on "~Use Ctrl+PgUp to change drive~@InterfSettings@" option.
 
  Vytvorenie skratky k aktuálnemu adresáru            #Ctrl+Shift+0…9#
 
@@ -3730,9 +3730,6 @@ farby, nastavte "čiernu na čiernej";
  - akékoľvek voliteľné znaky, ktoré budú označovať súbory skupiny.
 Môžu byť použité tak s farebným zvýraznením ako i namiesto neho.
 
- If the option "A file mask or several file masks" is turned off, file masks
-will not be analyzed, and only file attributes will be taken into account.
-
  Súbor patrí do zvýrazňovanej skupiny ak:
  - ^<wrap>jeho meno zodpovedá aspoň jednej
 zo súborových masiek (if file mask analysis is disabled,
@@ -3748,78 +3745,77 @@ Windows Server 2012.
 
 @ViewerSettings
 $ #Nastavenie prezerača#
- Toto okno dovoľuje zmeniť základné nastavenie interneho
-a externého ~prezerača~@Viewer@.
+ Toto okno dovoľuje zmeniť základné nastavenie interneho a externého ~prezerača~@Viewer@.
 
 @=
 ^#Prezerač#
 @=
- #Použiť F3#               Spusti externý prezerač cez #F3#
- #namiesto Alt+F3#         a interný prezerač cez #Alt+F3#.
+ #Použiť F3 namiesto Alt+F3#
+ Spusti externý prezerač cez #F3# a interný prezerač cez #Alt+F3#.
 
- #Príkaz pre zobrazenie#   Príkaz, ktorý spustí externý viewer.
-                         Na špecifikáciu mena súboru, ktorý sa má
-                         prezrieť použite ~špeciálne symboly~@MetaSymbols@.
+ #Príkaz pre zobrazenie#
+ Príkaz, ktorý spustí externý viewer.
+Na špecifikáciu mena súboru, ktorý sa má prezrieť použite ~špeciálne symboly~@MetaSymbols@.
 
 @=
 ^#Interný prezerač#
 @=
- #Persistent selection#    Do not remove block selection after
-                         moving the cursor.
+ #Persistent selection#
+ Do not remove block selection after moving the cursor.
 
- #Search dialog#           Always returns focus to the search text field in
- #auto-focus#              the Viewer ~Search~@ViewerSearch@ dialog.
+ #Search dialog auto-focus#
+ Always returns focus to the search text field in the Viewer ~Search~@ViewerSearch@ dialog.
 
-  #Veľkosť tabulátora#     Počet medzier reprezentujúcich znak tabulátora.
+ #Veľkosť tabulátora#
+ Počet medzier reprezentujúcich znak tabulátora.
 
- #Show scrolling arrows#   Show scrolling arrows at the edges of the viewer
-                         window if the text does not fit horizontally.
+ #Show scrolling arrows#
+ Show scrolling arrows at the edges of the viewer window if the text does not fit horizontally.
 
- #Visible '\0'#            Show a printable character instead of space for
-                         the character '\0'. The character to display can be
-                         set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
+ #Visible '\0'#
+ Show a printable character instead of space for the character '\0'.
+The character to display can be set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
 
- #Show a scrollbar#        Show a scrollbar in the internal viewer. This
-                         option can also be switched by pressing
-                         #Ctrl+S# in the internal viewer.
+ #Show a scrollbar#
+ Show a scrollbar in the internal viewer. This option can also be toggled by pressing #Ctrl+S# in the internal viewer.
+
 @=
- #Uložiť pozíciu v súbore# Uloží pozíciu a vráti sa na ňu v naposledy
-                         prezeraných súboroch. This option also saves and restores
-                         the code page (if it was selected manually) and
-                         ~view mode~@ViewerMode@.
+ #Uložiť pozíciu v súbore#
+ Uloží pozíciu a vráti sa na ňu v naposledy  prezeraných súboroch. This option also saves and restores
+the code page (if it was selected manually) and ~view mode~@ViewerMode@.
 
- #Save file code page#     Save and restore the code page selected for a file.
-                         This is automatically enabled if #Save file position#
-                         is enabled, as file position depends on the encoding.
+ #Save file code page#
+ Save and restore the code page selected for a file. This is automatically enabled if #Save file position#
+is enabled, as file position depends on the encoding.
 
- #Save bookmarks#          Save and restore bookmarks in the recently viewed
-                         files. (Bookmarks can be created with #RightCtrl+0…9#
-                         or #Ctrl+Shift+0…9# key combinations.)
+ #Save bookmarks#
+ Save and restore bookmarks in the recently viewed files (bookmarks can be created with #RightCtrl+0…9#
+or #Ctrl+Shift+0…9# key combinations.)
 
- #Maximum line width#      Maximum number of columns for text mode viewer.
-                         Min=100, Max=100,000, Default=10,000.
+ #Maximum line width#
+ Maximum number of columns for text mode viewer. Min=100, Max=100,000, Default=10,000.
 
- #Save view mode#          Save and restore ~view modes~@ViewerMode@
-                         of recently viewed files.
+ #Save view mode#
+ Save and restore ~view modes~@ViewerMode@ of recently viewed files.
 
- #Save wrap mode#          Save and restore #wrap# and #word wrap# ~modes~@ViewerMode@
-                         of recently viewed files.
+ #Save wrap mode#
+ Save and restore #wrap# and #word wrap# ~modes~@ViewerMode@ of recently viewed files.
 
- #Detect dump view mode#   If this option is on and Far considers the file binary,
-                         the #dump# ~mode~@ViewerMode@ is selected automatically
-                         at the first view. Otherwise, the #text# mode is selected.
+ #Detect dump view mode#
+ If this option is on and Far considers the file binary, the #dump# ~mode~@ViewerMode@ is selected automatically
+at the first view. Otherwise, the #text# mode is selected.
 
- #Autodetect#              ~Autodetect~@CodePageAuto@ the code page of
- #code page#               the file being viewed.
+ #Autodetect code page#
+ ~Autodetect~@CodePageAuto@ the code page of the file being viewed.
 
- #Default code page#       Allows to select the default code page.
+ #Default code page#
+ Allows to select the default code page.
+
 @=
-
  Ak je externý prezerač priradený klávesu #F3#, bude spustený len
 ak danému ~typu súboru~@FileAssoc@ nie je priradný vlastný prezerač.
 
- Changing of settings does not affect currently opened internal
-viewer windows.
+ Changing of settings does not affect currently opened internal viewer windows.
 
  The settings dialog can also be invoked from the ~internal viewer~@Viewer@
 by pressing #Alt+Shift+F9#. The changes will come into effect immediately but
@@ -3828,93 +3824,88 @@ will affect only the current session.
 
 @EditorSettings
 $ #Nastavenie editora#
- Toto okno dovoľuje zmeniť základné nastavenie externého a
-~interného editora~@Editor@.
+ Toto okno dovoľuje zmeniť základné nastavenie externého a ~interného editora~@Editor@.
 
- Externý editor
+@=
+^#Externý editor#
+@=
+ #Použiť F4#
+ Spustí externý editor po stlačení #F4# namiesto #Alt+F4#.
 
- #Použiť F4#               Spustí externý editor po stlačení #F4# namiesto
-                         #Alt+F4#.
+ #Príkaz pre editovanie#
+ Príkaz, ktorý spustí externý editor.
+Na špecifikáciu mena súboru, ktorý sa má editovať použite ~špeciálne symboly~@MetaSymbols@.
 
- #Príkaz pre editovanie#   Príkaz, ktorý spustí externý editor.
-                         Na špecifikáciu mena súboru, ktorý sa má
-                         editovať použite ~špeciálne symboly~@MetaSymbols@.
+@=
+^#Interný editor#
+@=
+ #Do not expand tabs#
+ Do not convert tabs to spaces while editing the document.
 
- Interný editor
+ #Expand newly entered tabs to spaces#
+ While editing the document, convert each newly entered #Tab# into the appropriate number of spaces.
+Other tabs won't be converted.
 
- #Do not expand tabs#      Do not convert tabs to spaces while
-                         editing the document.
+ #Expand all tabs to spaces#
+ Upon opening the document, all tabs in the document will be automatically converted to spaces.
 
- #Expand newly entered#    While editing the document, convert each
- #tabs to spaces#          newly entered #Tab# into the appropriate
-                         number of spaces. Other tabs won't be
-                         converted.
+ #Trvalé bloky#
+ Neodstráni označenie bloku pri pohybe kurzora.
 
- #Expand all tabs to#      Upon opening the document, all tabs in
- #spaces#                  the document will be automatically
-                         converted to spaces.
+ #Del odstraňuje bloky#
+ Ak je označený blok, kláves Del neodstráni iba znak pod kurzorom, ale celý tento blok.
 
- #Trvalé bloky#            Neodstráni označenie bloku pri pohybe
-                         kurzora.
+ #Automatické odsadenie#
+ Zapne mód automatického odsadzovania pri zadávaní textu.
 
- #Del odstraňuje bloky#    Ak je označený blok, kláves Del
-                         neodstráni iba znak pod kurzorom, ale
-                         celý tento blok.
+ #Veľkosť tabulátora#
+ Počet medzier reprezentujúcich znak tabulátora.
 
- #Uložiť pozíciu v súbore# Uloží pozíciu a vráti sa na ňu
-                         v naposledy editovaných súboroch. Ak
-                         bola predtým užívateľom manuálne
-                         nastavená tabuľka znakov, táto sa
-                         tiež sa tiež uloží a znovu nastaví.
+ #Show white space#
+ Make while space characters (spaces, tabulations, line breaks) visible.
 
- #Save bookmarks#          Save and restore bookmarks (current
-                         positions) in recently edited files
-                         (created with #RightCtrl+0…9# or
-                         #Ctrl+Shift+0…9#)
+ #Kurzor za koncom riadku#
+ Dovolí presunúť kurzor aj za koniec riadku.
 
- #Automatické odsadenie#   Zapne mód automatického odsadzovania
-                         pri zadávaní textu.
+ #Select found#
+ Found text is selected.
 
- #Kurzor za koncom#        Dovolí presunúť kurzor aj za koniec riadku.
- #riadku#
+ #Cursor at the end#
+ Place the cursor at the end of the found block.
 
- #Veľkosť tabulátora#      Počet medzier reprezentujúcich znak tabulátora.
+ #Show a scrollbar#
+ Show a scrollbar.
 
- #Show a scrollbar#        Show a scrollbar.
+@=
+ #Uložiť pozíciu v súbore#
+ Uloží pozíciu a vráti sa na ňu v naposledy editovaných súboroch. Ak bola predtým užívateľom
+manuálne nastavená tabuľka znakov, táto sa tiež sa tiež uloží a znovu nastaví.
 
- #Show white space#        Make while space characters (spaces, tabulations,
-                         line breaks) visible.
+ #Save bookmarks#
+ Save and restore bookmarks (current positions) in recently edited files
+(created with #RightCtrl+0…9# or #Ctrl+Shift+0…9#)
 
- #Select found#            Found text is selected
+ #Allow editing files opened for writing#
+ Allows to edit files that are opened by other programs for writing. This mode is handy to edit
+a file opened for a long time, but it could be dangerous, if a file is being modified at the same time as editing.
 
- #Cursor at the end#       Place the cursor at the end of the found block.
+ #Lock editing of read-only files#
+ When a file with the Read-only attribute is opened for editing, the editor also
+disables the modification of the edited text, just as if #Ctrl+L# was pressed.
 
- #Autodetect#              ~Autodetect~@CodePageAuto@ the code page of
- #code page#               the file being edited.
+ #Warn when opening read-only files#
+ When a file with the Read-only attribute is opened for editing, a warning message will be shown.
 
- #Edit files opened#       Allows to edit files that are opened
- #for writing#             by other programs for writing. This mode
-                         is handy to edit a file opened for a long
-                         time, but it could be dangerous, if a file
-                         is being modified at the same time as
-                         editing.
+ #Autodetect code page#
+ ~Autodetect~@CodePageAuto@ the code page of the file being edited.
 
- #Lock editing of#         When a file with the Read-only attribute
- #read-only files#         is opened for editing, the editor also
-                         disables the modification of the edited
-                         text, just as if #Ctrl+L# was pressed.
-
- #Warn when opening#       When a file with the Read-only attribute
- #read-only files#         is opened for editing, a warning message
-                         will be shown.
-
- #Default code page#       Select the default code page.
+ #Default code page#
+ Select the default code page.
 
  Ak je externý editor priradený klávesu #F4#, bude spustený len
 ak danému ~typu súboru~@FileAssoc@ nie je priradný vlastný editor.
 
- Modifications of settings in this dialog do not affect previously opened
-internal editor windows.
+ Modifications of settings in this dialog do not affect previously opened internal editor windows.
 
  The settings dialog can also be invoked from the ~internal editor~@Editor@
 by pressing #Alt+Shift+F9#. The changes will come into force immediately but

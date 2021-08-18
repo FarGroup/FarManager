@@ -7,8 +7,7 @@ dialog.hpp
 
 Класс диалога Dialog.
 
-Предназначен для отображения модальных диалогов.
-Является производным от класса Modal.
+Предназначен для отображения диалогов.
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -41,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "window.hpp"
 #include "bitflags.hpp"
-#include "modal.hpp"
 
 // Platform:
 
@@ -81,7 +79,6 @@ enum DIALOG_MODES
 	DMODE_VISIBLE               = 25_bit, // отображать диалог на экране (DM_SHOWDIALOG)
 	DMODE_KEEPCONSOLETITLE      = 28_bit, // не изменять заголовок консоли
 	DMODE_CLICKOUTSIDE          = 29_bit, // было нажатие мыши вне диалога?
-	DMODE_MSGINTERNAL           = 30_bit, // Внутренняя Message?
 	DMODE_OLDSTYLE              = 31_bit, // Диалог в старом (до 1.70) стиле
 };
 
@@ -154,7 +151,7 @@ class DlgEdit;
 class Plugin;
 class Dialog;
 
-class Dialog: public Modal
+class Dialog: public window
 {
 protected:
 	struct private_tag {};

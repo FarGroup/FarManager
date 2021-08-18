@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class History;
 class VMenu2;
 
-class EditControl:public Edit
+class EditControl final: public Edit
 {
 	struct Callback;
 	using parent_processkey_t = std::function<int(const Manager::Key& Key)>;

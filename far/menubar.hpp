@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-class MenuBar: public SimpleScreenObject
+class MenuBar final: public SimpleScreenObject
 {
 public:
 	explicit MenuBar(window_ptr Owner):

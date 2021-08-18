@@ -694,7 +694,7 @@ an ~associated command~@FileAssoc@ is executed or the archive is opened.
 command configuration.
 
  Ins übergeordnete verzeichnis wechseln                  #Strg+Bild↑#
- The behavior in root folders depends on "Use Ctrl+PgUp to change drive~@InterfSettings@" option.
+ The behavior in root folders depends on "~Use Ctrl+PgUp to change drive~@InterfSettings@" option.
 
  Kürzel <Nr> für aktuelles Verzeichnis anlegen       #Strg+Umsch+0…9#
 
@@ -3813,9 +3813,6 @@ die Farbkombination "Schwarz auf Schwarz";
  - optionales Zeichen, um Dateien der Gruppe zu markieren. Es
 kann mit oder anstelle farblicher Hervorhebung benutzt werden.
 
- If the option "A file mask or several file masks" is turned off, file masks
-will not be analyzed, and only file attributes will be taken into account.
-
  Eine Datei fällt in eine hervorgehobene Gruppe, wenn:
  - ^<wrap>ihr Name wenigstens einer der Dateimasken entspricht (if file mask analysis is disabled,
 the file name doesn't matter);
@@ -3830,82 +3827,77 @@ Windows Server 2012.
 
 @ViewerSettings
 $ #Betrachter-Einstellungen#
- Dieser Dialog ermöglicht das Ändern der Standardeinstellungen
-für den internen und externen ~Betrachter~@Viewer@.
+ Dieser Dialog ermöglicht das Ändern der Standardeinstellungen für den internen und externen ~Betrachter~@Viewer@.
 
 @=
 ^#Betrachter#
 @=
- #Use external viewer#     Start external viewer on #F3# key
- #for F3 instead of#       and internal viewer on #Alt+F3#
- #Alt+F3#                  key combination.
+ #Use external viewer for F3 instead of Alt+F3#
+ Start external viewer on #F3# key and internal viewer on #Alt+F3# key combination.
 
- #Kommando zum Aufruf#     Das Kommando zum Aufruf des externen
- #des Betrachters#         Betrachters. Benutzen Sie die
-                         ~Spezialsymbole~@MetaSymbols@ um den Namen der
-                         anzuzeigenden Datei zu spezifizieren.
+ #Kommando zum Aufruf des Betrachters#
+ Das Kommando zum Aufruf des externen Betrachters.
+Benutzen Sie die ~Spezialsymbole~@MetaSymbols@ um den Namen der anzuzeigenden Datei zu spezifizieren.
 
 @=
 ^#Interner Betrachter#
 @=
- #Persistent selection#    Do not remove block selection after
-                         moving the cursor.
+ #Persistent selection#
+ Do not remove block selection after moving the cursor.
 
- #Search dialog#           Always returns focus to the search text field in
- #auto-focus#              the Viewer ~Search~@ViewerSearch@ dialog.
+ #Search dialog auto-focus#
+ Always returns focus to the search text field in the Viewer ~Search~@ViewerSearch@ dialog.
 
- #Tabulatorgröße#          Tab zeigt die entsprechende Anzahl Leerzeichen an.
+ #Tabulatorgröße#
+ Tab zeigt die entsprechende Anzahl Leerzeichen an.
 
- #Show scrolling arrows#   Show scrolling arrows at the edges of the viewer
-                         window if the text does not fit horizontally.
+ #Show scrolling arrows#
+ Show scrolling arrows at the edges of the viewer window if the text does not fit horizontally.
 
- #Visible '\0'#            Show a printable character instead of space for
-                         the character '\0'. The character to display can be
-                         set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
+ #Visible '\0'#
+ Show a printable character instead of space for the character '\0'.
+The character to display can be set in ~far:config~@FarConfig@ #Viewer.ZeroChar#.
 
- #Show a scrollbar#        Show a scrollbar in the internal viewer. This
-                         option can also be toggled by pressing
-                         #Ctrl+S# in the internal viewer.
+ #Show a scrollbar#
+ Show a scrollbar in the internal viewer. This option can also be toggled by pressing #Ctrl+S# in the internal viewer.
+
 @=
- #Dateiposition sichern#   Sichert und restauriert die Position in
-                         der zuletzt angezeigten Datei. Diese Option
-                         sichert und restauriert auch die Zeichen-
-                         satztabelle, wenn sie vom Benutzer von Hand
-                         ausgewählt wurde and ~view mode~@ViewerMode@.
+ #Dateiposition sichern#
+ Sichert und restauriert die Position in der zuletzt angezeigten Datei. Diese Option sichert und restauriert
+auch die Zeichensatztabelle, wenn sie vom Benutzer von Hand ausgewählt wurde and ~view mode~@ViewerMode@.
 
- #Save file code page#     Save and restore the code page selected for a file.
-                         This is automatically enabled if #Save file position#
-                         is enabled, as file position depends on the encoding.
+ #Save file code page#
+ Save and restore the code page selected for a file. This is automatically enabled if #Save file position#
+is enabled, as file position depends on the encoding.
 
- #Save bookmarks#          Save and restore bookmarks in the recently viewed
-                         files. (Bookmarks can be created with #RightCtrl+0…9#
-                         or #Ctrl+Shift+0…9# key combinations.)
+ #Save bookmarks#
+ Save and restore bookmarks in the recently viewed files (bookmarks can be created with #RightCtrl+0…9#
+or #Ctrl+Shift+0…9# key combinations.)
 
- #Maximum line width#      Maximum number of columns for text mode viewer.
-                         Min=100, Max=100,000, Default=10,000.
+ #Maximum line width#
+ Maximum number of columns for text mode viewer. Min=100, Max=100,000, Default=10,000.
 
- #Save view mode#          Save and restore ~view modes~@ViewerMode@
-                         of recently viewed files.
+ #Save view mode#
+ Save and restore ~view modes~@ViewerMode@ of recently viewed files.
 
- #Save wrap mode#          Save and restore #wrap# and #word wrap# ~modes~@ViewerMode@
-                         of recently viewed files.
+ #Save wrap mode#
+ Save and restore #wrap# and #word wrap# ~modes~@ViewerMode@ of recently viewed files.
 
- #Detect dump view mode#   If this option is on and Far considers the file binary,
-                         the #dump# ~mode~@ViewerMode@ is selected automatically
-                         at the first view. Otherwise, the #text# mode is selected.
+ #Detect dump view mode#
+ If this option is on and Far considers the file binary, the #dump# ~mode~@ViewerMode@ is selected automatically
+at the first view. Otherwise, the #text# mode is selected.
 
- #Autodetect#              ~Autodetect~@CodePageAuto@ the code page of
- #code page#               the file being viewed.
+ #Autodetect code page#
+ ~Autodetect~@CodePageAuto@ the code page of the file being viewed.
 
- #Default code page#       Allows to select the default code page.
+ #Default code page#
+ Allows to select the default code page.
+
 @=
+ Wenn der Aufruf des externen Betrachters der #F3#-Taste zugewiesen ist, wird dieser nur dann aufgerufen,
+wenn ein ~verknüpfter~@FileAssoc@ Betrachter für den aktuellen Dateityp nicht existiert.
 
- Wenn der Aufruf des externen Betrachters der #F3#-Taste zugewiesen
-ist, wird dieser nur dann aufgerufen, wenn ein ~verknüpfter~@FileAssoc@
-Betrachter für den aktuellen Dateityp nicht existiert.
-
- Changing of settings does not affect currently opened internal
-viewer windows.
+ Changing of settings does not affect currently opened internal viewer windows.
 
  The settings dialog can also be invoked from the ~internal viewer~@Viewer@
 by pressing #Alt+Shift+F9#. The changes will come into effect immediately but
@@ -3914,95 +3906,88 @@ will affect only the current session.
 
 @EditorSettings
 $ #Editor-Einstellungen#
- Dieser Dialog ermöglicht das Ändern der Standardeinstellungen
-für den ~internen~@Editor@ und externen Editor.
+ Dieser Dialog ermöglicht das Ändern der Standardeinstellungen für den ~internen~@Editor@ und externen Editor.
 
- Externer Editor
+@=
+^#Externer Editor#
+@=
+ #Aufruf mit F4#
+ Startet den externen Editor mit #F4# anstatt #Alt+F4#.
 
- #Aufruf mit F4#           Startet den externen Editor mit #F4# anstatt
-                         #Alt+F4#.
+ #Kommando zum Aufruf des Editors#
+ Das Kommando zum Aufruf des externen Betrachters.
+Benutzen Sie die ~Spezialsymbole~@MetaSymbols@ um den Namen der zu bearbeitenden Datei zu spezifizieren.
 
-  #Kommando zum Aufruf#     Das Kommando zum Aufruf des externen
-  #des Editors#             Betrachters. Benutzen Sie die
-                          ~Spezialsymbole~@MetaSymbols@ um den Namen der
-                          zu bearbeitenden Datei zu spezifizieren.
+@=
+^#Interner Editor#
+@=
+ #Do not expand tabs#
+ Do not convert tabs to spaces while editing the document.
 
- Interner Editor
+ #Expand newly entered tabs to spaces#
+ While editing the document, convert each newly entered #Tab# into the appropriate number of spaces.
+Other tabs won't be converted.
 
- #Do not expand tabs#      Do not convert tabs to spaces while
-                         editing the document.
+ #Tabs durch Leerzeichen ersetzen#
+ Ersetzt das Tabulator-Zeichen durch die Anzahl von Leerzeichen.
 
- #Expand newly entered#    While editing the document, convert each
- #tabs to spaces#          newly entered #Tab# into the appropriate
-                         number of spaces. Other tabs won't be
-                         converted.
+ #Blöcke beibehalten#
+ Entfernt die Blockmarkierung nach Bewegen des Cursors nicht.
 
- #Tabs durch Leerzeichen#  Ersetzt das Tabulator-Zeichen durch die
- #ersetzen#                Anzahl von Leerzeichen.
+ #Entf löscht Blöcke#
+ Wenn ein Block ausgewählt ist, löscht Entf nicht das Zeichen unter dem Cursor, sondern diesen Block.
 
- #Blöcke beibehalten#      Entfernt die Blockmarkierung nach
-                         Bewegen des Cursors nicht.
+ #Auto-Einfügemoduds#
+ Schaltet den Auto-Einfügemodus bei der Texteingabe ein.
 
- #Entf löscht Blöcke#      Wenn ein Block ausgewählt ist, löscht Entf
-                         nicht das Zeichen unter dem Cursor, sondern
-                         diesen Block.
+ #Tabulatorgröße#
+ Tab zeigt die entsprechende Anzahl Leerzeichen an.
 
- #Dateiposition sichern#   Sichert und restauriert die Position in
-                         der zuletzt bearbeiteten Datei. Diese
-                         Option sichert und restauriert auch die
-                         Zeichensatztabelle, wenn sie vom Benutzer
-                         von Hand ausgewählt wurde.
+ #Show white space#
+ Make while space characters (spaces, tabulations, line breaks) visible.
 
- #Save bookmarks#          Save and restore bookmarks (current
-                         positions) in recently edited files
-                         (created with #RightCtrl+0…9# or
-                         #Ctrl+Shift+0…9#)
+ #Cursor hinter Zeilenende#
+ Erlaubt das Bewegen des Cursors hinter das Zeilenende.
 
- #Auto-Einfügemoduds#      Schaltet den Auto-Einfügemodus bei der
-                         Texteingabe ein.
+ #Select found#
+ Found text is selected.
 
- #Cursor hinter#           Erlaubt das Bewegen des Cursors hinter
- #Zeilenende#              das Zeilenende.
+ #Cursor at the end#
+ Place the cursor at the end of the found block.
 
- #Tabulatorgröße#          Tab zeigt die entsprechende Anzahl
-                         Leerzeichen an.
+ #Show a scrollbar#
+ Show a scrollbar.
 
- #Show a scrollbar#        Show a scrollbar.
+@=
+ #Dateiposition sichern#
+ Sichert und restauriert die Position in der zuletzt bearbeiteten Datei. Diese Option sichert und restauriert auch die
+Zeichensatztabelle, wenn sie vom Benutzer von Hand ausgewählt wurde.
 
- #Show white space#        Make while space characters (spaces, tabulations,
-                         line breaks) visible.
+ #Save bookmarks#
+ Save and restore bookmarks (current positions) in recently edited files
+(created with #RightCtrl+0…9# or #Ctrl+Shift+0…9#)
 
- #Select found#            Found text is selected
+ #Allow editing files opened for writing#
+ Allows to edit files that are opened by other programs for writing. This mode is handy to edit
+a file opened for a long time, but it could be dangerous, if a file is being modified at the same time as editing.
 
- #Cursor at the end#       Place the cursor at the end of the found block.
+ #Lock editing of read-only files#
+ When a file with the Read-only attribute is opened for editing, the editor also
+disables the modification of the edited text, just as if #Ctrl+L# was pressed.
 
- #Autodetect#              ~Autodetect~@CodePageAuto@ the code page of
- #code page#               the file being edited.
+ #Warn when opening read-only files#
+ When a file with the Read-only attribute is opened for editing, a warning message will be shown.
 
- #Edit files opened#       Allows to edit files that are opened
- #for writing#             by other programs for writing. This mode
-                         is handy to edit a file opened for a long
-                         time, but it could be dangerous, if a file
-                         is being modified at the same time as
-                         editing.
+ #Autodetect code page#
+ ~Autodetect~@CodePageAuto@ the code page of the file being edited.
 
- #Lock editing of#         When a file with the Read-only attribute
- #read-only files#         is opened for editing, the editor also
-                         disables the modification of the edited
-                         text, just as if #Ctrl+L# was pressed.
+ #Default code page#
+ Select the default code page.
 
- #Warn when opening#       When a file with the Read-only attribute
- #read-only files#         is opened for editing, a warning message
-                         will be shown.
+ Wenn der Aufruf des externen Editors der #F4#-Taste zugewiesen ist, wird dieser nur dann aufgerufen,
+wenn ein ~verknüpfter~@FileAssoc@ Editor für den aktuellen Dateityp nicht existiert.
 
- #Default code page#       Select the default code page.
-
- Wenn der Aufruf des externen Editors der #F4#-Taste zugewiesen ist,
-wird dieser nur dann aufgerufen, wenn ein ~verknüpfter~@FileAssoc@
-Editor für den aktuellen Dateityp nicht existiert.
-
- Modifications of settings in this dialog do not affect previously opened
-internal editor windows.
+ Modifications of settings in this dialog do not affect previously opened internal editor windows.
 
  The settings dialog can also be invoked from the ~internal editor~@Editor@
 by pressing #Alt+Shift+F9#. The changes will come into force immediately but

@@ -80,7 +80,7 @@ enum class clipboard::clipboard_format
 };
 
 //-----------------------------------------------------------------------------
-class system_clipboard: public clipboard, public singleton<system_clipboard>
+class system_clipboard final: public clipboard, public singleton<system_clipboard>
 {
 	IMPLEMENTS_SINGLETON;
 
@@ -195,7 +195,7 @@ private:
 };
 
 //-----------------------------------------------------------------------------
-class internal_clipboard: public clipboard, public singleton<internal_clipboard>
+class internal_clipboard final: public clipboard, public singleton<internal_clipboard>
 {
 	IMPLEMENTS_SINGLETON;
 

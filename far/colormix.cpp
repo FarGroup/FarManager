@@ -116,6 +116,36 @@ namespace colors
 		return !alpha_bits(Colour);
 	}
 
+	void set_index_bits(COLORREF& Value, COLORREF const Index)
+	{
+		flags::copy(Value, INDEXMASK, Index);
+	}
+
+	void set_color_bits(COLORREF& Value, COLORREF const Colour)
+	{
+		flags::copy(Value, COLORMASK, Colour);
+	}
+
+	void set_alpha_bits(COLORREF& Value, COLORREF const Alpha)
+	{
+		flags::copy(Value, ALPHAMASK, alpha_value(Alpha) << 24);
+	}
+
+	void set_index_value(COLORREF& Value, COLORREF const Index)
+	{
+		set_index_bits(Value, Index);
+	}
+
+	void set_color_value(COLORREF& Value, COLORREF const Colour)
+	{
+		set_color_bits(Value, Colour);
+	}
+
+	void set_alpha_value(COLORREF& Value, COLORREF const Alpha)
+	{
+		set_alpha_bits(Value, (Alpha & 0xFF) << 24);
+	}
+
 	COLORREF opaque(COLORREF const Colour)
 	{
 		return Colour | ALPHAMASK;
@@ -504,6 +534,14 @@ TEST_CASE("colors.COLORREF")
 		REQUIRE(colors::is_transparent(colors::transparent(i.Src)));
 		REQUIRE(colors::ARGB2ABGR(i.Src) == i.ABGR);
 	}
+
+	COLORREF Color;
+	colors::set_index_value(Color = 0xffffffff, 0x7);
+	REQUIRE(Color == 0xfffffff7);
+	colors::set_color_value(Color = 0xffffffff, 0x42);
+	REQUIRE(Color == 0xff000042);
+	colors::set_alpha_value(Color = 0xffffffff, 0x42);
+	REQUIRE(Color == 0x42ffffff);
 }
 
 TEST_CASE("colors.merge")

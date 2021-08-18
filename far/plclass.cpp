@@ -1261,7 +1261,7 @@ void Plugin::ExecuteFunctionImpl(export_index const ExportId, function_ref<void(
 	m_Factory->ExportsNames()[ExportId].AName, this);
 }
 
-class custom_plugin_module: public i_plugin_module
+class custom_plugin_module final: public i_plugin_module
 {
 public:
 	NONCOPYABLE(custom_plugin_module);
@@ -1272,7 +1272,7 @@ private:
 	void* m_Opaque;
 };
 
-class custom_plugin_factory: public plugin_factory
+class custom_plugin_factory final: public plugin_factory
 {
 public:
 	NONCOPYABLE(custom_plugin_factory);

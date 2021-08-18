@@ -63,7 +63,7 @@ struct execute_info
 	bool UseAssociations{ true };
 };
 
-class CommandLine:public SimpleScreenObject
+class CommandLine final: public SimpleScreenObject
 {
 public:
 	explicit CommandLine(window_ptr Owner);

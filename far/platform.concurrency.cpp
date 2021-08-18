@@ -84,6 +84,11 @@ namespace os::concurrency
 
 	thread::~thread()
 	{
+		finalise();
+	}
+
+	void thread::finalise()
+	{
 		if (!joinable())
 			return;
 
@@ -100,6 +105,21 @@ namespace os::concurrency
 		default:
 			UNREACHABLE;
 		}
+	}
+
+	thread& thread::operator=(thread&& rhs) noexcept
+	{
+		finalise();
+
+		handle::operator=(std::move(rhs));
+
+		m_Mode = rhs.m_Mode;
+		rhs.m_Mode = {};
+
+		m_ThreadId = rhs.m_ThreadId;
+		rhs.m_ThreadId = {};
+
+		return *this;
 	}
 
 	unsigned thread::get_id() const

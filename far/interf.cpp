@@ -430,7 +430,11 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 {
 	// Inherit existing mode. We don't want to build these flags from scratch,
 	// as MS might introduce some new flags in future Windows versions.
-	auto InputMode = InitialConsoleMode->Input;
+	std::optional<DWORD> CurrentInputMode = 0;
+	if (!console.GetMode(console.GetInputHandle(), *CurrentInputMode))
+		CurrentInputMode.reset();
+
+	auto InputMode = CurrentInputMode? *CurrentInputMode : InitialConsoleMode->Input;
 
 	// We need this one unconditionally
 	InputMode |= ENABLE_WINDOW_INPUT;
@@ -463,12 +467,12 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 			)
 		)
 		{
-			InputMode &= ~ENABLE_MOUSE_INPUT;
 			InputMode |= ENABLE_EXTENDED_FLAGS | ENABLE_QUICK_EDIT_MODE;
 		}
 	}
 
-	ChangeConsoleMode(console.GetInputHandle(), InputMode);
+	if (InputMode != CurrentInputMode)
+		console.SetMode(console.GetInputHandle(), InputMode);
 
 	if (SetsActiveBuffer)
 		console.SetActiveScreenBuffer(console.GetOutputHandle());

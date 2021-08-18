@@ -79,7 +79,7 @@ void* AbstractSettings::Allocate(size_t Size)
 	return m_Data.back().data();
 }
 
-class PluginSettings: public AbstractSettings
+class PluginSettings final: public AbstractSettings
 {
 public:
 	PluginSettings(const Plugin* pPlugin, bool Local);
@@ -255,7 +255,7 @@ private:
 	std::forward_list<string> m_Strings;
 };
 
-class FarSettings: public AbstractSettings
+class FarSettings final: public AbstractSettings
 {
 public:
 	bool Set(const FarSettingsItem& Item) override;
