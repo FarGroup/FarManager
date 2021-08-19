@@ -4089,11 +4089,7 @@ bool Dialog::ProcessHighlighting(int Key, size_t FocusPos, bool Translate)
 				if (!DlgProc(DN_HOTKEY, I, &rec))
 					break; // сказали не продолжать обработку...
 
-				// ... если следующий контрол задизаблен или невидим, тогда выходим.
-				if ((Items[I + 1].Flags & (DIF_DISABLE | DIF_HIDDEN))) // и не задисаблен
-					break;
-
-				I = ChangeFocus(I, 1, false);
+				I = ChangeFocus(I, 1, true);
 				DisableSelect = true;
 			}
 		}
