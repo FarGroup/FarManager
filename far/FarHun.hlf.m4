@@ -4024,8 +4024,7 @@ garantálható, különösen, ha rövid vagy nem tipikus szövegfájlt nyitunk m
 $ #Fájl attribútumok párbeszédablak#
  A párbeszédablakban a fájlobjektumok attribútumait, valamint dátumát és
 idejét változtathatjuk meg. Használhatjuk egyetlen fájlra vagy fájlok
-csoportjára is. Ha nem szeretnénk, hogy a változtatások almappákban is
-végbemenjenek, "Az almappákon is" opciót ne kapcsoljuk be.
+csoportjára is.
 
  #Fájl attribútumok#
 

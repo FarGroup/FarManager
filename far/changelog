@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 19.08.2021 18:33:48 +0100 - build 5880
+
+1. Minor correction of moving dialog focus with hotkeys.
+
+2. gh-436: Difference between help file and dialog window.
+
+--------------------------------------------------------------------------------
 drkns 17.08.2021 20:16:51 +0100 - build 5879
 
 1. Forum: Stack overflow on panel update.

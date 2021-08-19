@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filelist.hpp"
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
-#include "keyboard.hpp"
 #include "interf.hpp"
 #include "message.hpp"
 #include "delete.hpp"

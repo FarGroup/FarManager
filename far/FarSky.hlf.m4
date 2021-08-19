@@ -3925,8 +3925,7 @@ non-typical text files.
 @FileAttrDlg
 $ #Atribúty súborov#
  S týmto príkazom je možné zmeniť atribúty súborov a ich čas.
-Možno pracovať s jedným ako i skupinou súborov. Ak nechcete zvolené nastavenia
-použiť pre súbory v podadresároch, zrušte voľbu "Prejdi podadresáre".
+Možno pracovať s jedným ako i skupinou súborov.
 
  #File attributes#
 

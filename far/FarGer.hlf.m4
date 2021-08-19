@@ -4008,9 +4008,7 @@ non-typical text files.
 $ #Dateiattribute#
  Mit diesem Befehl ist es möglich, Dateiattribute und -zeiten
 zu ändern. Es können entweder einzelne Dateien auch Dateigruppen
-bearbeitet werden. Wenn Sie keine Dateien in Unterverzeichnissen
-ändern wollen, schalten Sie die Option "Unterverzeichnisse
-einschließen" aus.
+bearbeitet werden.
 
  #File attributes#
 

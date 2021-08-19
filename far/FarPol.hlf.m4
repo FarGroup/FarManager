@@ -3929,8 +3929,7 @@ non-typical text files.
 @FileAttrDlg
 $ #File attributes dialog#
  With this command it is possible to change file attributes and file time.
-Either single file or group of files can be processed. If you do not want to
-process files in subfolders, clear the "Process subfolders" option.
+Either single file or group of files can be processed.
 
  #File attributes#
 

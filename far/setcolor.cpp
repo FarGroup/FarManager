@@ -906,8 +906,8 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 
 	if (BaseColor)
 	{
-		ColorDlg[cd_fg_text].Flags |= DIF_HIDDEN;
-		ColorDlg[cd_bg_text].Flags |= DIF_HIDDEN;
+		ColorDlg[cd_fg_text].Flags |= DIF_HIDDEN | DIF_DISABLE;
+		ColorDlg[cd_bg_text].Flags |= DIF_HIDDEN | DIF_DISABLE;
 
 		if (colors::is_transparent(Color.ForegroundColor))
 		{
@@ -942,8 +942,8 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 	}
 	else
 	{
-		ColorDlg[cd_fg_active].Flags|=DIF_HIDDEN;
-		ColorDlg[cd_bg_active].Flags|=DIF_HIDDEN;
+		ColorDlg[cd_fg_active].Flags |= DIF_HIDDEN | DIF_DISABLE;
+		ColorDlg[cd_bg_active].Flags |= DIF_HIDDEN | DIF_DISABLE;
 	}
 
 	const auto Dlg = Dialog::create(ColorDlg, GetColorDlgProc, &ColorState);
