@@ -100,7 +100,7 @@ public:
 	int GetReadOnlyLock() const { return EdOpt.ReadOnlyLock; }
 	void SetShowScrollBar(bool NewMode) { EdOpt.ShowScrollBar = NewMode; }
 	void SetSearchCursorAtEnd(bool NewMode) { EdOpt.SearchCursorAtEnd = NewMode; }
-	void SetWordDiv(const wchar_t *WordDiv) { EdOpt.strWordDiv = WordDiv; }
+	void SetWordDiv(string_view const WordDiv) { EdOpt.strWordDiv = string(WordDiv); }
 	const string& GetWordDiv() const { return EdOpt.strWordDiv; }
 	void SetAllowEmptySpaceAfterEof(bool NewMode) { EdOpt.AllowEmptySpaceAfterEof = NewMode; }
 	bool GetAllowEmptySpaceAfterEof() const { return EdOpt.AllowEmptySpaceAfterEof; }

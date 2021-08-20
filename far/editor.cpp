@@ -5666,7 +5666,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				return static_cast<int>(EdOpt.strWordDiv.Get().size()) + 1;
 
 			case ESPT_SETWORDDIV:
-				SetWordDiv((!espar->wszParam || !*espar->wszParam)? Global->Opt->EdOpt.strWordDiv.c_str() : espar->wszParam);
+				SetWordDiv(espar->wszParam && *espar->wszParam? string_view(espar->wszParam) : Global->Opt->EdOpt.strWordDiv);
 				return true;
 
 			case ESPT_TABSIZE:

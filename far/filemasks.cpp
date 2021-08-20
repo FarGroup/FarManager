@@ -337,7 +337,7 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 
 			if (Mask == L"*.*"sv)
 			{
-				MasksData.emplace_back(1, L'*');
+				MasksData.emplace_back(L"*"sv);
 			}
 			else if (contains(Mask, L"**"sv))
 			{

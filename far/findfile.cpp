@@ -2008,9 +2008,7 @@ void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, con
 		Dlg->SendMessage( DM_ENABLE, FD_LISTBOX, ToPtr(TRUE));
 	}
 
-	auto DisplayName = FindData.FileName.c_str();
-
-	string MenuText(1, L' ');
+	auto MenuText = L" "s;
 
 	for (auto& i: Global->Opt->FindOpt.OutColumns)
 	{
@@ -2059,23 +2057,28 @@ void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, con
 					}
 				}
 
-				const auto SizeToDisplay = (i.type == column_type::size)
-					? FindData.FileSize
-					: (i.type == column_type::size_compressed)
-					? FindData.AllocationSize
-					: (i.type == column_type::streams_size)
-					? Size
-					: Count; // ???
+				const auto SizeToDisplay =
+					i.type == column_type::size?
+						FindData.FileSize :
+						i.type == column_type::size_compressed?
+							FindData.AllocationSize :
+							i.type == column_type::streams_size?
+								Size :
+								Count; // ???
 
-				append(MenuText, FormatStr_Size(
-								SizeToDisplay,
-								DisplayName,
-								FindData.Attributes,
-								0,
-								FindData.ReparseTag,
-								(i.type == column_type::streams_number || i.type == column_type::links_number)? column_type::streams_size : i.type,
-								i.type_flags,
-								Width), BoxSymbols[BS_V1]);
+				append(MenuText,
+					FormatStr_Size(
+						SizeToDisplay,
+						FindData.FileName,
+						FindData.Attributes,
+						0,
+						FindData.ReparseTag,
+						any_of(i.type, column_type::streams_number, column_type::links_number)?
+							column_type::streams_size :
+							i.type,
+						i.type_flags,
+						Width),
+					BoxSymbols[BS_V1]);
 				break;
 			}
 
@@ -2122,8 +2125,7 @@ void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, con
 	// т.к. некоторые плагины возвращают имя вместе с полным путём,
 	// к примеру временная панель.
 
-	const auto DisplayName0 = Arc? PointToName(DisplayName) : DisplayName;
-	append(MenuText, DisplayName0);
+	append(MenuText, Arc? PointToName(FindData.FileName) : FindData.FileName);
 
 	string strPathName(FullName);
 	{
@@ -2317,13 +2319,24 @@ void background_searcher::DoScanTree(string_view const strRoot)
 
 			const auto ProcessStream = [&](string_view const FullStreamName)
 			{
-				filter_status FilterStatus;
-				if (UseFilter && !m_Owner->GetFilter()->FileInFilter(FindData, &FilterStatus, FullStreamName))
+				if (UseFilter)
 				{
-					// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
-					if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY && FilterStatus == filter_status::in_exclude)
-						ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
-					return !Stopped();
+					filter_status FilterStatus;
+					if (!m_Owner->GetFilter()->FileInFilter(FindData, &FilterStatus, FullStreamName))
+					{
+						// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
+						if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY && FilterStatus == filter_status::in_exclude)
+							ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
+						return !Stopped();
+					}
+					else
+					{
+						if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY && FilterStatus == filter_status::not_in_filter)
+						{
+							// This is a directory and the user has file filters only, no need to show it.
+							return !Stopped();
+						}
+					}
 				}
 
 				if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -2333,7 +2346,7 @@ void background_searcher::DoScanTree(string_view const strRoot)
 
 				if (IsFileIncluded(nullptr, FullStreamName, FindData.Attributes, strFullName))
 				{
-					m_Owner->m_Messages.emplace(messages::menu_data{ FullStreamName, FindData, UserDataItem{}, {} });
+					m_Owner->m_Messages.emplace(messages::menu_data{ FullStreamName, FindData, {}, {} });
 				}
 
 				if (SearchInArchives)

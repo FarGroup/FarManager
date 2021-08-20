@@ -1352,7 +1352,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			}
 
 			Builder.AddSeparator();
-			Builder.AddTextWrap(ErrorState.format_error().c_str(), true);
+			Builder.AddTextWrap(ErrorState.format_error(), true);
 			Builder.AddOKCancel(lng::MRetry, lng::MCancel);
 			Builder.SetDialogMode(DMODE_WARNINGSTYLE);
 			Builder.SetId(ChangeDriveCannotReadDiskErrorId);

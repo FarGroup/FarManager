@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 20.08.2021 19:42:31 +0100 - build 5881
+
+1. Adjust filters behavior in Find File.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 19.08.2021 18:33:48 +0100 - build 5880
 
 1. Minor correction of moving dialog focus with hotkeys.
