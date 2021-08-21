@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/noncopyable.hpp"
+#include "common/utility.hpp"
 
 // External:
 
@@ -56,14 +57,28 @@ class FileListItem;
 class VMenu2;
 class HierarchicalConfig;
 
-// почему FileInFilter вернул true или false
-enum class filter_status
+enum class filter_action
 {
-	not_in_filter,
-	in_include,
-	in_exclude,
+	include,
+	exclude,
+	ignore,
 };
 
+enum filter_state
+{
+	has_file_include    = 0_bit,
+	has_folder_include  = 1_bit,
+
+	has_include = has_file_include | has_folder_include,
+};
+
+struct filter_result
+{
+	filter_action Action{filter_action::ignore};
+	int State{};
+
+	operator bool() const;
+};
 
 class FileFilter: noncopyable
 {
@@ -72,9 +87,10 @@ public:
 
 	void FilterEdit();
 	void UpdateCurrentTime();
-	bool FileInFilter(const FileListItem* fli, filter_status* FilterStatus = nullptr);
-	bool FileInFilter(const os::fs::find_data& fde, filter_status* FilterStatus = nullptr, string_view FullName = {});
-	bool FileInFilter(const PluginPanelItem& fd, filter_status* FilterStatus = nullptr);
+	filter_result FileInFilterEx(const os::fs::find_data& fde, string_view FullName = {});
+	bool FileInFilter(const os::fs::find_data& fde, string_view FullName = {});
+	bool FileInFilter(const FileListItem* fli);
+	bool FileInFilter(const PluginPanelItem& fd);
 	bool IsEnabledOnPanel();
 
 	static void InitFilter();

@@ -160,7 +160,7 @@ int GetDirInfo(string_view const DirName, DirInfoData& Data, FileFilter *Filter,
 				// Если каталог не попадает под фильтр то его надо полностью
 				// пропустить - иначе при включенном подсчёте total
 				// он учтётся (mantis 551)
-				if (!Filter->FileInFilter(FindData, {}, strFullName))
+				if (!Filter->FileInFilter(FindData, strFullName))
 					ScTree.SkipDir();
 			}
 		}
@@ -171,7 +171,7 @@ int GetDirInfo(string_view const DirName, DirInfoData& Data, FileFilter *Filter,
 			*/
 			if ((Flags&GETDIRINFO_USEFILTER))
 			{
-				if (!Filter->FileInFilter(FindData, {}, strFullName))
+				if (!Filter->FileInFilter(FindData, strFullName))
 					continue;
 			}
 

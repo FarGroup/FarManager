@@ -146,6 +146,26 @@ static FileFilterParams *FoldersFilter;
 
 static bool Changed = false;
 
+filter_result::operator bool() const
+{
+	switch (Action)
+	{
+	case filter_action::include:
+		return true;
+
+	case filter_action::exclude:
+		return false;
+
+	case filter_action::ignore:
+		//Если элемент не попал ни под один фильтр то он будет включен
+		//только если не было ни одного Include фильтра (т.е. были только фильтры исключения).
+		return !(State & filter_state::has_include);
+
+	default:
+		UNREACHABLE;
+	}
+}
+
 FileFilter::FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType):
 	m_HostPanel(HostPanel),
 	m_FilterType(FilterType)
@@ -587,19 +607,12 @@ void FileFilter::UpdateCurrentTime()
 	CurrentTime = os::chrono::nt_clock::now();
 }
 
-bool FileFilter::FileInFilter(const FileListItem* fli, filter_status* FilterStatus)
+filter_result FileFilter::FileInFilterEx(const os::fs::find_data& fde, string_view const FullName)
 {
-	return FileInFilter(*fli, FilterStatus, fli->FileName);
-}
+	filter_result Result;
 
-bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* const FilterStatus, string_view const FullName)
-{
 	const auto FFFT = GetFFFT();
 	const auto IsFolder = (fde.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
-
-	std::optional<bool> Status;
-	auto IsAnyIncludeFound = false;
-	auto IsAnyFolderIncludeFound = false;
 
 	const auto Process = [&](FileFilterParams const& Filter, bool const FastPath)
 	{
@@ -608,16 +621,24 @@ bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* const
 			return true;
 
 		const auto IsStrong = (Flags & FFF_STRONG) != 0;
-		if (Status && !IsStrong)
+		if (Result.Action != filter_action::ignore && !IsStrong)
 			return true;
 
 		const auto IsInclude = (Flags & FFF_INCLUDE) != 0;
 		if (IsInclude)
 		{
-			IsAnyIncludeFound = true;
+			if (!flags::check_all(Result, filter_state::has_include))
+			{
+				os::fs::attributes ExcludeAttributes;
+				const auto AttrUsed = Filter.GetAttr(nullptr, &ExcludeAttributes);
+				const auto ExcludeFolders = (ExcludeAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 
-			os::fs::attributes AttrClear;
-			IsAnyFolderIncludeFound = IsAnyFolderIncludeFound || !Filter.GetAttr(nullptr, &AttrClear) || !(AttrClear & FILE_ATTRIBUTE_DIRECTORY);
+				if (!(Result.State & filter_state::has_file_include) && (!AttrUsed || ExcludeFolders))
+					Result.State |= filter_state::has_file_include;
+
+				if (!(Result.State & filter_state::has_folder_include) && (!AttrUsed || !ExcludeFolders))
+					Result.State |= filter_state::has_folder_include;
+			}
 		}
 
 		if (FastPath)
@@ -626,7 +647,7 @@ bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* const
 		if (!Filter.FileInFilter(fde, CurrentTime, FullName))
 			return true;
 
-		Status = IsInclude;
+		Result.Action = IsInclude? filter_action::include : filter_action::exclude;
 
 		return !IsStrong;
 	};
@@ -656,25 +677,30 @@ bool FileFilter::FileInFilter(const os::fs::find_data& fde, filter_status* const
 
 	(void)(ProcessFilters() && ProcessFoldersAutoFilter() && ProcessAutoFilters());
 
-	if (FilterStatus)
-		*FilterStatus = !Status? filter_status::not_in_filter : *Status? filter_status::in_include : filter_status::in_exclude;
-
-	//Если папка и она не попала ни под какой exclude фильтр то самое логичное
-	//будет сделать ей include если не было дугих include фильтров на папки.
-	//А вот Select логичней всего работать чисто по заданному фильтру.
-	if (!Status && IsFolder && !IsAnyFolderIncludeFound && m_FilterType != FFT_SELECT)
-		return true;
-
-	//Если элемент не попал ни под один фильтр то он будет включен
-	//только если не было ни одного Include фильтра (т.е. были только фильтры исключения).
-	return Status? *Status : !IsAnyIncludeFound;
+	return Result;
 }
 
-bool FileFilter::FileInFilter(const PluginPanelItem& fd, filter_status* FilterStatus)
+bool FileFilter::FileInFilter(const os::fs::find_data& fde, string_view const FullName)
+{
+	const auto Result = FileInFilterEx(fde, FullName);
+	return fde.Attributes & FILE_ATTRIBUTE_DIRECTORY?
+		//Если папка и она не попала ни под какой exclude фильтр то самое логичное
+		//будет сделать ей include если не было дугих include фильтров на папки.
+		//А вот Select логичней всего работать чисто по заданному фильтру.
+		Result.Action == filter_action::ignore && !(Result.State & filter_state::has_folder_include) && m_FilterType != FFT_SELECT :
+		Result;
+}
+
+bool FileFilter::FileInFilter(const FileListItem* fli)
+{
+	return FileInFilter(*fli, fli->FileName);
+}
+
+bool FileFilter::FileInFilter(const PluginPanelItem& fd)
 {
 	os::fs::find_data fde;
 	PluginPanelItemToFindDataEx(fd, fde);
-	return FileInFilter(fde, FilterStatus, fde.FileName);
+	return FileInFilter(fde, fde.FileName);
 }
 
 bool FileFilter::IsEnabledOnPanel()

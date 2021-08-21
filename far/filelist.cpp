@@ -6793,7 +6793,7 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 		if (fdata.Attributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM) && !Global->Opt->ShowHidden)
 			continue;
 
-		if (UseFilter && !m_Filter->FileInFilter(fdata, {}, fdata.FileName))
+		if (UseFilter && !m_Filter->FileInFilter(fdata, fdata.FileName))
 		{
 			if (!IsDirectory)
 				m_FilteredExtensions.emplace(name_ext(fdata.FileName).second);

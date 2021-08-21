@@ -100,6 +100,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace
 {
+	const auto DM_REFRESH = DM_USER + 1;
+
 	// Список архивов. Если файл найден в архиве, то FindList->ArcIndex указывает сюда.
 	struct ArcListItem
 	{
@@ -209,7 +211,7 @@ private:
 	void ProcessMessage(message& Message);
 	void SetPluginDirectory(string_view DirName, const plugin_panel* hPlugin, bool UpdatePanel, const UserDataItem *UserData);
 	bool GetPluginFile(struct ArcListItem const* ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, const UserDataItem* UserData);
-	void stop_and_discard();
+	void stop_and_discard(Dialog* Dlg);
 	FindListItem& AddFindListItem(const os::fs::find_data& FindData, UserDataItem const& UserData);
 	void ClearFindList();
 
@@ -1375,7 +1377,7 @@ static void clear_queue(std::queue<message>&& Messages)
 	}
 }
 
-void FindFiles::stop_and_discard()
+void FindFiles::stop_and_discard(Dialog* Dlg)
 {
 	if (Finalized)
 		return;
@@ -1389,6 +1391,8 @@ void FindFiles::stop_and_discard()
 		clear_queue(m_Messages.pop_all());
 	}
 	while (!m_Searcher->Finished());
+
+	Dlg->SendMessage(DM_REFRESH, 0, {});
 }
 
 FindListItem& FindFiles::AddFindListItem(const os::fs::find_data& FindData, UserDataItem const& UserData)
@@ -1413,8 +1417,6 @@ void FindFiles::ClearFindList()
 
 	m_FindList.clear();
 }
-
-const auto DM_REFRESH = DM_USER + 1;
 
 intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
@@ -1557,7 +1559,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 						if (ConfirmAbort())
 						{
-							stop_and_discard();
+							stop_and_discard(Dlg);
 						}
 						else
 						{
@@ -1772,14 +1774,14 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			switch (Param1)
 			{
 			case FD_BUTTON_NEW:
-				stop_and_discard();
+				stop_and_discard(Dlg);
 				return FALSE;
 
 			case FD_BUTTON_STOP:
 				// As Stop
 				if (!Finalized)
 				{
-					stop_and_discard();
+					stop_and_discard(Dlg);
 					return TRUE;
 				}
 				// As Cancel
@@ -1827,7 +1829,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			}
 			if(Result)
 			{
-				stop_and_discard();
+				stop_and_discard(Dlg);
 			}
 			return Result;
 		}
@@ -2321,21 +2323,21 @@ void background_searcher::DoScanTree(string_view const strRoot)
 			{
 				if (UseFilter)
 				{
-					filter_status FilterStatus;
-					if (!m_Owner->GetFilter()->FileInFilter(FindData, &FilterStatus, FullStreamName))
+					const auto FilterResult = m_Owner->GetFilter()->FileInFilterEx(FindData, FullStreamName);
+					switch (FilterResult.Action)
 					{
-						// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
-						if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY && FilterStatus == filter_status::in_exclude)
-							ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
+					case filter_action::include:
+						break;
+
+					case filter_action::exclude:
+						if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
+							ScTree.SkipDir();
 						return !Stopped();
-					}
-					else
-					{
-						if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY && FilterStatus == filter_status::not_in_filter)
-						{
-							// This is a directory and the user has file filters only, no need to show it.
+
+					case filter_action::ignore:
+						if (FilterResult.State & filter_state::has_include)
 							return !Stopped();
-						}
+						break;
 					}
 				}
 
@@ -2735,8 +2737,8 @@ bool FindFiles::FindFilesProcess()
 			// In case of an exception in the main thread
 			SCOPE_EXIT
 			{
+				stop_and_discard(Dlg.get());
 				Dlg->CloseDialog();
-				stop_and_discard();
 				m_Searcher = nullptr;
 			};
 

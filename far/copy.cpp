@@ -879,7 +879,7 @@ ShellCopy::ShellCopy(
 
 	for (const auto& i: SrcPanel->enum_selected())
 	{
-		if (m_UseFilter && !m_Filter->FileInFilter(i, {}, i.FileName))
+		if (m_UseFilter && !m_Filter->FileInFilter(i, i.FileName))
 			continue;
 
 		if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -1670,7 +1670,7 @@ void ShellCopy::copy_selected_items(const string& Dest)
 						// Просто пропустить каталог недостаточно - если каталог помечен в
 						// фильтре как некопируемый, то следует пропускать и его и всё его
 						// содержимое.
-						if (!m_Filter->FileInFilter(SrcData, {}, strFullName))
+						if (!m_Filter->FileInFilter(SrcData, strFullName))
 						{
 							ScTree.SkipDir();
 							continue;
@@ -1806,7 +1806,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	if (m_UseFilter)
 	{
-		if (!m_Filter->FileInFilter(SrcData, {}, Src))
+		if (!m_Filter->FileInFilter(SrcData, Src))
 			return COPY_SKIPPED;
 	}
 
@@ -3395,7 +3395,7 @@ std::pair<unsigned long long, unsigned long long> ShellCopy::CalcTotalSize() con
 		else
 		{
 			//  Подсчитаем количество файлов
-			if (m_UseFilter && !m_Filter->FileInFilter(i, {}, i.FileName))
+			if (m_UseFilter && !m_Filter->FileInFilter(i, i.FileName))
 				continue;
 
 			++Files;
