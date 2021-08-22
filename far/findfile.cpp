@@ -180,7 +180,7 @@ public:
 	~FindFiles();
 
 	const std::unique_ptr<filemasks>& GetFileMask() const { return FileMaskForFindFile; }
-	const std::unique_ptr<FileFilter>& GetFilter() const { return Filter; }
+	const std::unique_ptr<multifilter>& GetFilter() const { return Filter; }
 	static bool IsWordDiv(wchar_t symbol);
 	// BUGBUG
 	void AddMenuRecord(Dialog* Dlg, string_view FullName, const os::fs::find_data& FindData, UserDataItem const& UserData, ArcListItem* Arc);
@@ -237,7 +237,7 @@ private:
 	string strFindMask;
 	string strFindStr;
 	std::unique_ptr<filemasks> FileMaskForFindFile;
-	std::unique_ptr<FileFilter> Filter;
+	std::unique_ptr<multifilter> Filter;
 
 	std::unique_ptr<delayed_deleter> m_DelayedDeleter;
 
@@ -797,7 +797,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				}
 				break;
 				case FAD_BUTTON_FILTER:
-					Filter->FilterEdit();
+					filters::EditFilters(Filter->area(), Filter->panel());
 					break;
 				case FAD_BUTTON_ADVANCED:
 					AdvancedDialog();
@@ -2974,7 +2974,7 @@ void FindFiles::ProcessMessage(message& Message)
 FindFiles::FindFiles():
 	itd(std::make_unique<InterThreadData>()),
 	FileMaskForFindFile(std::make_unique<filemasks>()),
-	Filter(std::make_unique<FileFilter>(Global->CtrlObject->Cp()->ActivePanel().get(), FFT_FINDFILE))
+	Filter(std::make_unique<multifilter>(Global->CtrlObject->Cp()->ActivePanel().get(), FFT_FINDFILE))
 {
 	static string strLastFindMask = L"*.*"s, strLastFindStr;
 

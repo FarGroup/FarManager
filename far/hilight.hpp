@@ -117,12 +117,12 @@ namespace highlight
 		int GetGroup(const FileListItem& Object, const FileList* Owner);
 		void HiEdit(int MenuPos);
 		void UpdateHighlighting(bool RefreshMasks = false);
-		void Save(bool always);
+		void Save(bool Always);
 
 		static void ApplyFinalColor(element::colors_array::value_type& Colors, size_t PaletteIndex);
 
 	private:
-		void InitHighlightFiles(/*const*/ HierarchicalConfig& cfg);
+		void Load(/*const*/ HierarchicalConfig& cfg);
 		void ClearData();
 		int  MenuPosToRealPos(int MenuPos, int*& Count, bool Insert = false);
 		void FillMenu(VMenu2 *HiMenu, int MenuPos) const;

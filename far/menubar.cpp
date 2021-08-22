@@ -54,8 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 void MenuBar::DisplayObject()
 {
 	const auto strSpace = L"    "sv;
-	auto strMsg = concat(strSpace, msg(lng::MMenuLeftTitle), strSpace, msg(lng::MMenuFilesTitle), strSpace, msg(lng::MMenuCommandsTitle), strSpace, msg(lng::MMenuOptionsTitle), strSpace, msg(lng::MMenuRightTitle));
-	RemoveHighlights(strMsg);
+	const auto strMsg = remove_highlight(concat(strSpace, msg(lng::MMenuLeftTitle), strSpace, msg(lng::MMenuFilesTitle), strSpace, msg(lng::MMenuCommandsTitle), strSpace, msg(lng::MMenuOptionsTitle), strSpace, msg(lng::MMenuRightTitle)));
 	GotoXY(m_Where.left, m_Where.top);
 	SetColor(COL_HMENUTEXT);
 	Text(fit_to_left(strMsg, m_Where.width()));

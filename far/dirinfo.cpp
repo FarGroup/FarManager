@@ -69,7 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-int GetDirInfo(string_view const DirName, DirInfoData& Data, FileFilter *Filter, dirinfo_callback const Callback, DWORD Flags)
+int GetDirInfo(string_view const DirName, DirInfoData& Data, multifilter* Filter, dirinfo_callback const Callback, DWORD Flags)
 {
 	SCOPED_ACTION(taskbar::indeterminate)(false);
 	SCOPED_ACTION(wakeful);

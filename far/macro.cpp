@@ -3113,10 +3113,10 @@ void FarMacroApi::menushowFunc()
 			if (a.Flags & LIF_SEPARATOR || b.Flags & LIF_SEPARATOR)
 				return false;
 
-			string strName1(a.Name);
-			string strName2(b.Name);
-			RemoveHighlights(strName1);
-			RemoveHighlights(strName2);
+			const auto
+				strName1 = remove_highlight(a.Name),
+				strName2 = remove_highlight(b.Name);
+
 			const auto Less = string_sort::less(string_view(strName1).substr(Param.Offset), string_view(strName2).substr(Param.Offset));
 			return Param.Reverse? !Less : Less;
 		});

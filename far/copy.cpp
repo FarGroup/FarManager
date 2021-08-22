@@ -169,7 +169,7 @@ private:
 	};
 
 	std::unique_ptr<copy_progress> CP;
-	std::unique_ptr<FileFilter> m_Filter;
+	std::unique_ptr<multifilter> m_Filter;
 	DWORD Flags;
 	panel_ptr SrcPanel, DestPanel;
 	panel_mode SrcPanelMode, DestPanelMode;
@@ -436,7 +436,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			}
 			else if (Param1==ID_SC_BTNFILTER) // Filter
 			{
-				m_Filter->FilterEdit();
+				filters::EditFilters(m_Filter->area(), m_Filter->panel());
 				return TRUE;
 			}
 
@@ -608,7 +608,7 @@ ShellCopy::ShellCopy(
 	string* PluginDestPath,
 	bool ToSubdir
 ):
-	m_Filter(std::make_unique<FileFilter>(SrcPanel.get(), FFT_COPY)),
+	m_Filter(std::make_unique<multifilter>(SrcPanel.get(), FFT_COPY)),
 	Flags((Move? FCOPY_MOVE : FCOPY_NONE) | (Link? FCOPY_LINK : FCOPY_NONE) | (CurrentOnly? FCOPY_CURRENTONLY : FCOPY_NONE)),
 	SrcPanel(SrcPanel),
 	DestPanel(Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)),

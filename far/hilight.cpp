@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/2d/matrix.hpp"
 #include "common/bytes_view.hpp"
 #include "common/string_utils.hpp"
 #include "common/view/enumerate.hpp"
@@ -182,7 +183,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig& cfg)
 		Params.SetAttr(i.IncludeAttr != 0, i.IncludeAttr, 0);
 
 		const auto Key = cfg.CreateKey(root, names::Group + str(Index));
-		FileFilter::SaveFilter(cfg, Key.get(), Params);
+		filters::SaveFilter(cfg, Key.get(), Params);
 
 		cfg.SetValue(Key, names::NormalColor, view_bytes(i.NormalColor));
 		cfg.SetValue(Key, names::CursorColor, view_bytes(i.CursorColor));
@@ -214,15 +215,15 @@ highlight::configuration::configuration()
 {
 	const auto cfg = ConfigProvider().CreateHighlightConfig();
 	SetHighlighting(false, *cfg);
-	InitHighlightFiles(*cfg);
+	Load(*cfg);
 	UpdateCurrentTime();
 }
 
-static FileFilterParams LoadFilter(/*const*/ HierarchicalConfig& cfg, const HierarchicalConfig::key& key, int SortGroup)
+static FileFilterParams LoadHighlight(/*const*/ HierarchicalConfig& cfg, const HierarchicalConfig::key& key, int SortGroup)
 {
-	auto HData = FileFilter::LoadFilter(cfg, key.get());
+	auto Item = filters::LoadFilter(cfg, key.get());
 
-	HData.SetSortGroup(SortGroup);
+	Item.SetSortGroup(SortGroup);
 
 	highlight::element Colors{};
 
@@ -239,15 +240,15 @@ static FileFilterParams LoadFilter(/*const*/ HierarchicalConfig& cfg, const Hier
 		Colors.Mark.Char = LOWORD(MarkChar);
 		Colors.Mark.Transparent = LOBYTE(HIWORD(MarkChar)) == 0xff;
 	}
-	HData.SetColors(Colors);
+	Item.SetColors(Colors);
 
 	const auto ContinueProcessing = cfg.GetValue<bool>(key, names::ContinueProcessing);
-	HData.SetContinueProcessing(ContinueProcessing);
+	Item.SetContinueProcessing(ContinueProcessing);
 
-	return HData;
+	return Item;
 }
 
-void highlight::configuration::InitHighlightFiles(/*const*/ HierarchicalConfig& cfg)
+void highlight::configuration::Load(/*const*/ HierarchicalConfig& cfg)
 {
 	const struct
 	{
@@ -274,7 +275,7 @@ void highlight::configuration::InitHighlightFiles(/*const*/ HierarchicalConfig& 
 
 		for (const auto& Key: cfg.KeysEnumerator(root, Item.GroupName))
 		{
-			HiData.emplace_back(LoadFilter(cfg, Key, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : *Item.Count)));
+			HiData.emplace_back(LoadHighlight(cfg, Key, Item.Delta + (Item.Delta == DEFAULT_SORT_GROUP? 0 : *Item.Count)));
 			++*Item.Count;
 		}
 	}
@@ -521,6 +522,44 @@ void highlight::configuration::UpdateHighlighting(bool RefreshMasks)
 	Global->CtrlObject->Cp()->RightPanel()->Redraw();
 }
 
+//BUGBUG
+void HighlightDlgUpdateUserControl(matrix_view<FAR_CHAR_INFO> const& VBufColorExample, const highlight::element &Colors);
+
+void HighlightDlgUpdateUserControl(matrix_view<FAR_CHAR_INFO> const& VBufColorExample, const highlight::element &Colors)
+{
+	const size_t ColorIndices[]{ highlight::color::normal, highlight::color::selected, highlight::color::normal_current, highlight::color::selected_current };
+
+	int VBufRow = 0;
+	for (const auto& [ColorRef, Index, Row]: zip(Colors.Color, ColorIndices, VBufColorExample))
+	{
+		auto BakedColor = ColorRef;
+		highlight::configuration::ApplyFinalColor(BakedColor, Index);
+
+		Row.front() = { BoxSymbols[BS_V2], colors::PaletteColorToFarColor(COL_PANELBOX) };
+
+		auto Iterator = Row.begin() + 1;
+
+		if (Colors.Mark.Char)
+		{
+			Iterator->Char = Colors.Mark.Transparent? L' ' : Colors.Mark.Char;
+			Iterator->Attributes = BakedColor.MarkColor;
+			++Iterator;
+		}
+
+		const span FileArea(Iterator, Row.end() - 1);
+		const auto Str = fit_to_left(msg(lng::MHighlightExample), FileArea.size());
+
+		for (const auto& [Cell, Char]: zip(FileArea, Str))
+		{
+			Cell = { Char, BakedColor.FileColor };
+		}
+
+		Row.back() = { BoxSymbols[BS_V1], Row.front().Attributes };
+
+		++VBufRow;
+	}
+}
+
 void highlight::configuration::HiEdit(int MenuPos)
 {
 	const auto HiMenu = VMenu2::create(msg(lng::MHighlightTitle), {}, ScrY - 4);
@@ -564,7 +603,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 					const auto cfg = ConfigProvider().CreateHighlightConfig();
 					SetHighlighting(true, *cfg); //delete old settings
 
-					InitHighlightFiles(*cfg);
+					Load(*cfg);
 					FillMenu(HiMenu.get(), SelectPos);
 
 					NeedUpdate = true;
@@ -605,7 +644,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 					int *Count=nullptr;
 					const auto RealSelectPos = MenuPosToRealPos(SelectPos, Count);
 
-					if (Count && RealSelectPos < static_cast<int>(HiData.size()) && FileFilterConfig(&HiData[RealSelectPos], true))
+					if (Count && RealSelectPos < static_cast<int>(HiData.size()) && FileFilterConfig(HiData[RealSelectPos], true))
 					{
 						HiMenu->DeleteItem(SelectPos);
 						HiMenu->AddItem(MenuItemEx(MenuString(&HiData[RealSelectPos], true)), SelectPos);
@@ -630,7 +669,7 @@ void highlight::configuration::HiEdit(int MenuPos)
 						if (Key == KEY_F5)
 							NewHData = HiData[RealSelectPos].Clone();
 
-						if (FileFilterConfig(&NewHData, true))
+						if (FileFilterConfig(NewHData, true))
 						{
 							(*Count)++;
 							const auto Iterator = HiData.emplace(HiData.begin()+RealSelectPos, std::move(NewHData));
@@ -753,11 +792,11 @@ void highlight::configuration::HiEdit(int MenuPos)
 	}
 }
 
-static void SaveFilter(HierarchicalConfig& cfg, const HierarchicalConfig::key& key, const FileFilterParams* const CurHiData)
+static void SaveHighlight(HierarchicalConfig& cfg, const HierarchicalConfig::key& key, FileFilterParams const& Item)
 {
-	FileFilter::SaveFilter(cfg, key.get(), *CurHiData);
+	filters::SaveFilter(cfg, key.get(), Item);
 
-	const auto Colors = CurHiData->GetColors();
+	const auto Colors = Item.GetColors();
 
 	for (const auto& [Color, Index]: enumerate(Colors.Color))
 	{
@@ -766,12 +805,12 @@ static void SaveFilter(HierarchicalConfig& cfg, const HierarchicalConfig::key& k
 	}
 
 	cfg.SetValue(key, names::MarkChar, MAKELONG(Colors.Mark.Char, MAKEWORD(Colors.Mark.Transparent? 0xff : 0, 0)));
-	cfg.SetValue(key, names::ContinueProcessing, CurHiData->GetContinueProcessing());
+	cfg.SetValue(key, names::ContinueProcessing, Item.GetContinueProcessing());
 }
 
-void highlight::configuration::Save(bool always)
+void highlight::configuration::Save(bool Always)
 {
-	if (!always && !m_Changed)
+	if (!m_Changed && !Always)
 		return;
 
 	m_Changed = false;
@@ -807,7 +846,7 @@ void highlight::configuration::Save(bool always)
 
 		for (int j = i.from; j != i.to; ++j)
 		{
-			SaveFilter(*cfg, cfg->CreateKey(root, i.GroupName + str(j - i.from)), &HiData[j]);
+			SaveHighlight(*cfg, cfg->CreateKey(root, i.GroupName + str(j - i.from)), HiData[j]);
 		}
 	}
 }

@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-class FileFilter;
+class multifilter;
 struct PluginPanelItem;
 struct UserDataItem;
 
@@ -75,7 +75,7 @@ struct DirInfoData: public BasicDirInfoData
 };
 
 using dirinfo_callback = function_ref<void(string_view Name, unsigned long long Items, unsigned long long Size)>;
-int GetDirInfo(string_view DirName, DirInfoData& Data, FileFilter *Filter, dirinfo_callback Callback, DWORD Flags = GETDIRINFO_SCANSYMLINKDEF);
+int GetDirInfo(string_view DirName, DirInfoData& Data, multifilter* Filter, dirinfo_callback Callback, DWORD Flags = GETDIRINFO_SCANSYMLINKDEF);
 
 class plugin_panel;
 

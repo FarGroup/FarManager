@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-enum enumFileFilterFlagsType: int;
+enum class filter_area: int;
 class FileFilterParams;
 class FileListItem;
 class VMenu2;
@@ -80,34 +80,38 @@ struct filter_result
 	operator bool() const;
 };
 
-class FileFilter: noncopyable
+class multifilter: noncopyable
 {
 public:
-	FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType);
+	multifilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType);
 
-	void FilterEdit();
 	void UpdateCurrentTime();
 	filter_result FileInFilterEx(const os::fs::find_data& fde, string_view FullName = {});
 	bool FileInFilter(const os::fs::find_data& fde, string_view FullName = {});
-	bool FileInFilter(const FileListItem* fli);
+	bool FileInFilter(const FileListItem& fli);
 	bool FileInFilter(const PluginPanelItem& fd);
 	bool IsEnabledOnPanel();
-
-	static void InitFilter();
-	static FileFilterParams LoadFilter(/*const*/ HierarchicalConfig& cfg, unsigned long long KeyId);
-	static void SaveFilter(HierarchicalConfig& cfg, unsigned long long KeyId, const FileFilterParams& Item);
-	static void CloseFilter();
-	static void SwapFilter();
-	static void Save(bool always);
+	filter_area area() const;
+	Panel* panel() const;
 
 private:
-	void ProcessSelection(VMenu2 *FilterList) const;
-	enumFileFilterFlagsType GetFFFT() const;
-	wchar_t GetCheck(const FileFilterParams& FFP) const;
+	bool should_include_folders_by_default(filter_result const& Result) const;
 
 	Panel *m_HostPanel;
-	FAR_FILE_FILTER_TYPE m_FilterType;
+	filter_area m_Area;
 	os::chrono::time_point CurrentTime;
 };
+
+namespace filters
+{
+	FileFilterParams LoadFilter(/*const*/ HierarchicalConfig& cfg, unsigned long long KeyId);
+	void SaveFilter(HierarchicalConfig& cfg, unsigned long long KeyId, const FileFilterParams& Item);
+
+	void InitFilters();
+	void SwapPanelFilters();
+	void RefreshMasks();
+	void Save(bool always);
+	void EditFilters(filter_area Area, Panel* HostPanel);
+}
 
 #endif // FILEFILTER_HPP_DC322D87_FC69_401A_8EF8_9710B11909CB

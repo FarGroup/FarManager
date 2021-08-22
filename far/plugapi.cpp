@@ -2750,26 +2750,26 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 			if (!Param2)
 				return false;
 
-			*static_cast<FileFilter**>(Param2) = std::make_unique<FileFilter>(GetHostPanel(hHandle), static_cast<FAR_FILE_FILTER_TYPE>(Param1)).release();
+			*static_cast<multifilter**>(Param2) = std::make_unique<multifilter>(GetHostPanel(hHandle), static_cast<FAR_FILE_FILTER_TYPE>(Param1)).release();
 			return true;
 		}
 
 		case FFCTL_FREEFILEFILTER:
-			delete static_cast<FileFilter*>(hHandle);
+			delete static_cast<multifilter*>(hHandle);
 			return true;
 
 		case FFCTL_OPENFILTERSMENU:
-			static_cast<FileFilter*>(hHandle)->FilterEdit();
+			filters::EditFilters(static_cast<multifilter*>(hHandle)->area(), static_cast<multifilter*>(hHandle)->panel());
 			return true;
 
 		case FFCTL_STARTINGTOFILTER:
-			static_cast<FileFilter*>(hHandle)->UpdateCurrentTime();
+			static_cast<multifilter*>(hHandle)->UpdateCurrentTime();
 			return true;
 
 		case FFCTL_ISFILEINFILTER:
 			if (!Param2)
 				break;
-			return static_cast<FileFilter*>(hHandle)->FileInFilter(*static_cast<const PluginPanelItem*>(Param2));
+			return static_cast<multifilter*>(hHandle)->FileInFilter(*static_cast<const PluginPanelItem*>(Param2));
 		}
 		return false;
 	},

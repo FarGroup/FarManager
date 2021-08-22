@@ -74,14 +74,14 @@ ControlObject::ControlObject()
 
 	Global->WindowManager->InitDesktop();
 
+	filters::InitFilters();
+
 	HiFiles = std::make_unique<highlight::configuration>();
 	Plugins = std::make_unique<PluginManager>();
 
 	CmdHistory = std::make_unique<History>(HISTORYTYPE_CMD, string_view{}, Global->Opt->SaveHistory, false);
 	FolderHistory = std::make_unique<History>(HISTORYTYPE_FOLDER, string_view{}, Global->Opt->SaveFoldersHistory, true);
 	ViewHistory = std::make_unique<History>(HISTORYTYPE_VIEW, string_view{}, Global->Opt->SaveViewHistory, true);
-
-	FileFilter::InitFilter();
 }
 
 
@@ -134,7 +134,6 @@ void ControlObject::close()
 	}
 
 	Global->WindowManager->CloseAll();
-	FileFilter::CloseFilter();
 	History::CompactHistory();
 	FilePositionCache::CompactHistory();
 

@@ -3710,7 +3710,8 @@ kombinacje klawiszy:
  #Ctrl+Dół#     - ^<wrap>Przenosi grupę niżej.
 
  Podświetlane grupy są sprawdzane od góry do dołu. Jeżeli program wykryje,
-że plik należy do grupy, nie sprawdza kolejnych grup dla tego pliku.
+że plik należy do grupy, nie sprawdza kolejnych grup dla tego pliku,
+unless #[x] Continue processing# is set in the group.
 
  Zobacz także: polecenia ~menu~@MenuCmd@.
 

@@ -3744,7 +3744,8 @@ kombinace kláves:
  #Ctrl+Dolů#     - ^<wrap>Přesune skupinu níže.
 
  Zvýrazněné skupiny jsou kontrolovány z hora dolů. Pokud je zjištěno,
-že daný soubor patří do skupiny, nejsou další skupiny kontrolovány.
+že daný soubor patří do skupiny, nejsou další skupiny kontrolovány,
+unless #[x] Continue processing# is set in the group.
 
  See also: common ~menu~@MenuCmd@ keyboard commands.
 

@@ -364,7 +364,7 @@ int FilePanels::SwapPanels()
 
 	using std::swap;
 	swap(m_Panels[panel_left], m_Panels[panel_right]);
-	FileFilter::SwapFilter();
+	filters::SwapPanelFilters();
 	m_ActivePanelIndex = IsLeftActive()? panel_right : panel_left;
 
 	SetScreenPosition();
