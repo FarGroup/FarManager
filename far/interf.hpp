@@ -249,13 +249,16 @@ size_t HiStrlen(string_view Str);
 size_t HiFindRealPos(string_view Str, size_t Pos);
 string HiText2Str(string_view Str, size_t* HotkeyVisualPos = {});
 bool HiTextHotkey(string_view Str, wchar_t& Hotkey, size_t* HotkeyVisualPos = {});
-void RemoveHighlights(string& Str);
 
 namespace inplace
 {
+	void remove_highlight(string& Str);
 	void escape_ampersands(string& Str);
 }
 
+string remove_highlight(string Str);
+string remove_highlight(string_view Str);
+string escape_ampersands(string Str);
 string escape_ampersands(string_view Str);
 
 bool IsConsoleFullscreen();

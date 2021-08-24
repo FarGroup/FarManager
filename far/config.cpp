@@ -1311,7 +1311,7 @@ void Options::SetFilePanelModes()
 			{ DI_BUTTON,    {{0,  16}, {0,  16}}, DIF_CENTERGROUP, msg(lng::MCancel), },
 		});
 
-		RemoveHighlights(ModeDlg[MD_DOUBLEBOX].strData);
+		inplace::remove_highlight(ModeDlg[MD_DOUBLEBOX].strData);
 
 		static const std::pair<ModeItems, panel_view_settings_flags> ModesFlagsMapping[] =
 		{
@@ -2469,7 +2469,7 @@ void Options::Save(bool Manual)
 		}
 	}
 
-	FileFilter::Save(Manual);
+	filters::Save(Manual);
 	SavePanelModes(Manual);
 	SaveSortLayers(Manual);
 	Global->CtrlObject->Macro.SaveMacros(Manual);

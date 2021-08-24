@@ -67,7 +67,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/algorithm.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/enum_substrings.hpp"
-#include "common/scope_exit.hpp"
 
 // External:
 
@@ -412,7 +411,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && !m_Str.empty() && !Reenter && is_input_queue_empty() && (Global->CtrlObject->Macro.GetState() == MACROSTATE_NOMACRO || Manual))
 	{
 		Reenter++;
-		const auto ComplMenu = VMenu2::create({}, {}, 0);
+		const auto ComplMenu = VMenu2::create({}, {});
 		m_ComplMenu = ComplMenu;
 
 		ComplMenu->SetDialogMode(DMODE_NODRAWSHADOW);

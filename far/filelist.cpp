@@ -3580,7 +3580,7 @@ bool FileList::FilterIsEnabled()
 
 bool FileList::FileInFilter(size_t idxItem)
 {
-	return idxItem < m_ListData.size() && (!m_Filter || !m_Filter->IsEnabledOnPanel() || m_Filter->FileInFilter(&m_ListData[idxItem])); // BUGBUG, cast
+	return idxItem < m_ListData.size() && (!m_Filter || !m_Filter->IsEnabledOnPanel() || m_Filter->FileInFilter(m_ListData[idxItem])); // BUGBUG, cast
 }
 
 // $ 02.08.2000 IG  Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
@@ -3978,7 +3978,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 
 	SelectDlg[sf_edit].strHistory = L"Masks"sv;
 
-	FileFilter Filter(this, FFT_SELECT);
+	multifilter Filter(this, FFT_SELECT);
 	bool bUseFilter = false;
 	static auto strPrevMask = L"*.*"s;
 	/* $ 20.05.2002 IS
@@ -4058,7 +4058,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 
 						if (Dlg->GetExitCode() == sf_button_filter)
 						{
-							Filter.FilterEdit();
+							filters::EditFilters(Filter.area(), Filter.panel());
 							//Рефреш текущему времени для фильтра сразу после выхода из диалога
 							Filter.UpdateCurrentTime();
 							bUseFilter = true;
@@ -4116,7 +4116,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 				Mode != SELECT_INVERT &&
 				Mode != SELECT_INVERTALL &&
 				Mode != SELECT_INVERTFILES &&
-				!(bUseFilter? Filter.FileInFilter(&i) : FileMask.check(i.AlternateOrNormal(m_ShowShortNames)))
+				!(bUseFilter? Filter.FileInFilter(i) : FileMask.check(i.AlternateOrNormal(m_ShowShortNames)))
 			)
 				continue;
 
@@ -4521,9 +4521,9 @@ int FileList::GetCurrentPos() const
 void FileList::EditFilter()
 {
 	if (!m_Filter)
-		m_Filter = std::make_unique<FileFilter>(this, FFT_PANEL);
+		m_Filter = std::make_unique<multifilter>(this, FFT_PANEL);
 
-	m_Filter->FilterEdit();
+	filters::EditFilters(m_Filter->area(), m_Filter->panel());
 }
 
 static int select_sort_layer(std::vector<std::pair<panel_sort, sort_order>> const& SortLayers)
@@ -4546,7 +4546,7 @@ static int select_sort_layer(std::vector<std::pair<panel_sort, sort_order>> cons
 	if (!VisibleCount)
 		return -1;
 
-	const auto AvailableSortModesMenu = VMenu2::create({}, AvailableSortModesMenuItems, 0);
+	const auto AvailableSortModesMenu = VMenu2::create({}, AvailableSortModesMenuItems);
 	AvailableSortModesMenu->SetHelp(L"PanelCmdSort"sv);
 	AvailableSortModesMenu->SetPosition({ -1, -1, 0, 0 });
 	AvailableSortModesMenu->SetMenuFlags(VMENU_WRAPMODE);
@@ -4574,7 +4574,7 @@ static void edit_sort_layers(int MenuPos)
 
 	SortLayersMenuItems.front().Flags |= LIF_DISABLE;
 
-	const auto SortLayersMenu = VMenu2::create({}, SortLayersMenuItems, 0);
+	const auto SortLayersMenu = VMenu2::create({}, SortLayersMenuItems);
 
 	SortLayersMenu->SetHelp(L"PanelCmdSort"sv);
 	SortLayersMenu->SetPosition({ -1, -1, 0, 0 });
@@ -4786,7 +4786,7 @@ void FileList::SelectSortMode()
 	{
 		const auto MenuStrings = VMenu::AddHotkeys(SortMenu);
 
-		const auto SortModeMenu = VMenu2::create(msg(lng::MMenuSortTitle), SortMenu, 0);
+		const auto SortModeMenu = VMenu2::create(msg(lng::MMenuSortTitle), SortMenu);
 		SortModeMenu->SetHelp(L"PanelCmdSort"sv);
 		SortModeMenu->SetPosition({ m_Where.left + 4, -1, 0, 0 });
 		SortModeMenu->SetMenuFlags(VMENU_WRAPMODE);
@@ -6738,7 +6738,7 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 	bool IsShowTitle = false;
 
 	if (!m_Filter)
-		m_Filter = std::make_unique<FileFilter>(this, FFT_PANEL);
+		m_Filter = std::make_unique<multifilter>(this, FFT_PANEL);
 
 	//Рефреш текущему времени для фильтра перед началом операции
 	m_Filter->UpdateCurrentTime();
@@ -6793,7 +6793,7 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 		if (fdata.Attributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM) && !Global->Opt->ShowHidden)
 			continue;
 
-		if (UseFilter && !m_Filter->FileInFilter(fdata, {}, fdata.FileName))
+		if (UseFilter && !m_Filter->FileInFilter(fdata, fdata.FileName))
 		{
 			if (!IsDirectory)
 				m_FilteredExtensions.emplace(name_ext(fdata.FileName).second);
@@ -7225,7 +7225,7 @@ void FileList::UpdatePlugin(bool const KeepSelection, bool const UpdateEvenIfPan
 	m_FilteredExtensions.clear();
 
 	if (!m_Filter)
-		m_Filter = std::make_unique<FileFilter>(this, FFT_PANEL);
+		m_Filter = std::make_unique<multifilter>(this, FFT_PANEL);
 
 	//Рефреш текущему времени для фильтра перед началом операции
 	m_Filter->UpdateCurrentTime();

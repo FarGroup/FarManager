@@ -3802,7 +3802,8 @@ műveleteket hajthatunk végre a csoportok listáján, a következő billentyűk
  #Ctrl+Le#        - A csoportot lefelé mozgatja
 
  A Far a csoportkiemeléseket felülről lefelé haladva vizsgálja. Ha érzékeli,
-hogy a fájl valamelyik csoport tagja, további hovatartozását nem vizsgálja.
+hogy a fájl valamelyik csoport tagja, további hovatartozását nem vizsgálja,
+unless #[x] Continue processing# is set in the group.
 
  See also: common ~menu~@MenuCmd@ keyboard commands.
 

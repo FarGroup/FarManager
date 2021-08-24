@@ -534,7 +534,7 @@ bool RemoveHotplugDrive(string_view const Path, bool const Confirm, bool& Cancel
 
 void ShowHotplugDevices()
 {
-	const auto HotPlugList = VMenu2::create(msg(lng::MHotPlugListTitle), {}, 0);
+	const auto HotPlugList = VMenu2::create(msg(lng::MHotPlugListTitle), {});
 	std::vector<DeviceInfo> Info;
 
 	const auto FillMenu = [&]()

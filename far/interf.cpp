@@ -1079,7 +1079,7 @@ bool HiTextHotkey(string_view Str, wchar_t& Hotkey, size_t* HotkeyVisualPos)
 }
 
 // removes single '&', turns '&&' into '&'
-void RemoveHighlights(string& Str)
+void inplace::remove_highlight(string& Str)
 {
 	auto Iterator = Str.begin();
 	unescape(Str, [&](wchar_t Ch){ *Iterator = Ch; ++Iterator; return true; });
@@ -1091,11 +1091,26 @@ void inplace::escape_ampersands(string& Str)
 	replace(Str, L"&"sv, L"&&"sv);
 }
 
+string remove_highlight(string_view const Str)
+{
+	return remove_highlight(string(Str));
+}
+
+string remove_highlight(string Str)
+{
+	inplace::remove_highlight(Str);
+	return Str;
+}
+
+string escape_ampersands(string Str)
+{
+	inplace::escape_ampersands(Str);
+	return Str;
+}
+
 string escape_ampersands(string_view const Str)
 {
-	string Copy(Str);
-	inplace::escape_ampersands(Copy);
-	return Copy;
+	return escape_ampersands(string(Str));
 }
 
 void SetScreen(rectangle const Where, wchar_t Ch, const FarColor& Color)

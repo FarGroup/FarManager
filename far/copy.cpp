@@ -169,7 +169,7 @@ private:
 	};
 
 	std::unique_ptr<copy_progress> CP;
-	std::unique_ptr<FileFilter> m_Filter;
+	std::unique_ptr<multifilter> m_Filter;
 	DWORD Flags;
 	panel_ptr SrcPanel, DestPanel;
 	panel_mode SrcPanelMode, DestPanelMode;
@@ -440,7 +440,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			}
 			else if (Param1==ID_SC_BTNFILTER) // Filter
 			{
-				m_Filter->FilterEdit();
+				filters::EditFilters(m_Filter->area(), m_Filter->panel());
 				return TRUE;
 			}
 
@@ -612,7 +612,7 @@ ShellCopy::ShellCopy(
 	string* PluginDestPath,
 	bool ToSubdir
 ):
-	m_Filter(std::make_unique<FileFilter>(SrcPanel.get(), FFT_COPY)),
+	m_Filter(std::make_unique<multifilter>(SrcPanel.get(), FFT_COPY)),
 	Flags((Move? FCOPY_MOVE : FCOPY_NONE) | (Link? FCOPY_LINK : FCOPY_NONE) | (CurrentOnly? FCOPY_CURRENTONLY : FCOPY_NONE)),
 	SrcPanel(SrcPanel),
 	DestPanel(Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)),
@@ -883,7 +883,7 @@ ShellCopy::ShellCopy(
 
 	for (const auto& i: SrcPanel->enum_selected())
 	{
-		if (m_UseFilter && !m_Filter->FileInFilter(i, {}, i.FileName))
+		if (m_UseFilter && !m_Filter->FileInFilter(i, i.FileName))
 			continue;
 
 		if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -1674,7 +1674,7 @@ void ShellCopy::copy_selected_items(const string& Dest)
 						// Просто пропустить каталог недостаточно - если каталог помечен в
 						// фильтре как некопируемый, то следует пропускать и его и всё его
 						// содержимое.
-						if (!m_Filter->FileInFilter(SrcData, {}, strFullName))
+						if (!m_Filter->FileInFilter(SrcData, strFullName))
 						{
 							ScTree.SkipDir();
 							continue;
@@ -1810,7 +1810,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	if (m_UseFilter)
 	{
-		if (!m_Filter->FileInFilter(SrcData, {}, Src))
+		if (!m_Filter->FileInFilter(SrcData, Src))
 			return COPY_SKIPPED;
 	}
 
@@ -3399,7 +3399,7 @@ std::pair<unsigned long long, unsigned long long> ShellCopy::CalcTotalSize() con
 		else
 		{
 			//  Подсчитаем количество файлов
-			if (m_UseFilter && !m_Filter->FileInFilter(i, {}, i.FileName))
+			if (m_UseFilter && !m_Filter->FileInFilter(i, i.FileName))
 				continue;
 
 			++Files;

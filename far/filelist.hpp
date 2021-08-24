@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-class FileFilter;
+class multifilter;
 class Plugin;
 class plugin_item_list;
 
@@ -306,7 +306,7 @@ private:
 
 	static void FillParentPoint(FileListItem& Item);
 
-	std::unique_ptr<FileFilter> m_Filter;
+	std::unique_ptr<multifilter> m_Filter;
 	DizList Diz;
 	bool DizRead{};
 	/* $ 09.11.2001 IS

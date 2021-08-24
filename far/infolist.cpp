@@ -629,7 +629,7 @@ void InfoList::SelectShowMode()
 	int ShowMode=-1;
 
 	{
-		const auto ShowModeMenu = VMenu2::create(msg(lng::MMenuInfoShowModeTitle), std::as_const(ShowModeMenuItem), 0);
+		const auto ShowModeMenu = VMenu2::create(msg(lng::MMenuInfoShowModeTitle), std::as_const(ShowModeMenuItem));
 		ShowModeMenu->SetHelp(L"InfoPanelShowMode"sv);
 		ShowModeMenu->SetPosition({ m_Where.left + 4, -1, 0, 0 });
 		ShowModeMenu->SetMenuFlags(VMENU_WRAPMODE);

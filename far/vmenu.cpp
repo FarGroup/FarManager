@@ -663,9 +663,7 @@ void VMenu::FilterStringUpdated()
 		}
 		else
 		{
-			auto Text = trim(CurItem.Name);
-			RemoveHighlights(Text);
-			if(!contains_icase(Text, strFilter))
+			if(!contains_icase(remove_highlight(trim(CurItem.Name)), strFilter))
 			{
 				CurItem.Flags |= LIF_FILTERED;
 				ItemHiddenCount++;
@@ -1689,9 +1687,10 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				        if(!CheckFlags(VMENU_LISTBOX|VMENU_COMBOBOX) && MouseEvent->dwEventFlags==MOUSE_MOVED ||
 				            CheckFlags(VMENU_LISTBOX|VMENU_COMBOBOX) && MouseEvent->dwEventFlags!=MOUSE_MOVED)
 				*/
-				if ((CheckFlags(VMENU_MOUSEREACTION) && MouseEvent->dwEventFlags==MOUSE_MOVED)
-			        ||
-			        (!CheckFlags(VMENU_MOUSEREACTION) && MouseEvent->dwEventFlags!=MOUSE_MOVED)
+				const auto MouseTrackingEnabled = CheckFlags(VMENU_MOUSEREACTION);
+				const auto IsMouseMoved = MouseEvent->dwEventFlags == MOUSE_MOVED;
+
+				if ((MouseTrackingEnabled == IsMouseMoved)
 			        ||
 			        (MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED))
 				   )
@@ -2808,8 +2807,7 @@ int VMenu::FindItem(int StartIndex, string_view const Pattern, unsigned long lon
 	{
 		for (size_t I=StartIndex; I < Items.size(); I++)
 		{
-			string strTmpBuf(Items[I].Name);
-			RemoveHighlights(strTmpBuf);
+			const auto strTmpBuf = remove_highlight(Items[I].Name);
 
 			if (Flags&LIFIND_EXACTMATCH)
 			{
@@ -2833,10 +2831,10 @@ void VMenu::SortItems(bool Reverse, int Offset)
 {
 	SortItems([](const MenuItemEx& a, const MenuItemEx& b, const SortItemParam& Param)
 	{
-		string strName1(a.Name);
-		string strName2(b.Name);
-		RemoveHighlights(strName1);
-		RemoveHighlights(strName2);
+		const auto
+			strName1 = remove_highlight(a.Name),
+			strName2 = remove_highlight(b.Name);
+
 		const auto Less = string_sort::less(string_view(strName1).substr(Param.Offset), string_view(strName2).substr(Param.Offset));
 		return Param.Reverse? !Less : Less;
 	}, Reverse, Offset);

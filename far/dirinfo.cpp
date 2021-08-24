@@ -69,7 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-int GetDirInfo(string_view const DirName, DirInfoData& Data, FileFilter *Filter, dirinfo_callback const Callback, DWORD Flags)
+int GetDirInfo(string_view const DirName, DirInfoData& Data, multifilter* Filter, dirinfo_callback const Callback, DWORD Flags)
 {
 	SCOPED_ACTION(taskbar::indeterminate)(false);
 	SCOPED_ACTION(wakeful);
@@ -160,7 +160,7 @@ int GetDirInfo(string_view const DirName, DirInfoData& Data, FileFilter *Filter,
 				// Если каталог не попадает под фильтр то его надо полностью
 				// пропустить - иначе при включенном подсчёте total
 				// он учтётся (mantis 551)
-				if (!Filter->FileInFilter(FindData, {}, strFullName))
+				if (!Filter->FileInFilter(FindData, strFullName))
 					ScTree.SkipDir();
 			}
 		}
@@ -171,7 +171,7 @@ int GetDirInfo(string_view const DirName, DirInfoData& Data, FileFilter *Filter,
 			*/
 			if ((Flags&GETDIRINFO_USEFILTER))
 			{
-				if (!Filter->FileInFilter(FindData, {}, strFullName))
+				if (!Filter->FileInFilter(FindData, strFullName))
 					continue;
 			}
 

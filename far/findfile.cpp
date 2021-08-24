@@ -100,6 +100,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace
 {
+	const auto DM_REFRESH = DM_USER + 1;
+
 	// Список архивов. Если файл найден в архиве, то FindList->ArcIndex указывает сюда.
 	struct ArcListItem
 	{
@@ -178,7 +180,7 @@ public:
 	~FindFiles();
 
 	const std::unique_ptr<filemasks>& GetFileMask() const { return FileMaskForFindFile; }
-	const std::unique_ptr<FileFilter>& GetFilter() const { return Filter; }
+	const std::unique_ptr<multifilter>& GetFilter() const { return Filter; }
 	static bool IsWordDiv(wchar_t symbol);
 	// BUGBUG
 	void AddMenuRecord(Dialog* Dlg, string_view FullName, const os::fs::find_data& FindData, UserDataItem const& UserData, ArcListItem* Arc);
@@ -209,7 +211,7 @@ private:
 	void ProcessMessage(message& Message);
 	void SetPluginDirectory(string_view DirName, const plugin_panel* hPlugin, bool UpdatePanel, const UserDataItem *UserData);
 	bool GetPluginFile(struct ArcListItem const* ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, const UserDataItem* UserData);
-	void stop_and_discard();
+	void stop_and_discard(Dialog* Dlg);
 	FindListItem& AddFindListItem(const os::fs::find_data& FindData, UserDataItem const& UserData);
 	void ClearFindList();
 
@@ -235,7 +237,7 @@ private:
 	string strFindMask;
 	string strFindStr;
 	std::unique_ptr<filemasks> FileMaskForFindFile;
-	std::unique_ptr<FileFilter> Filter;
+	std::unique_ptr<multifilter> Filter;
 
 	std::unique_ptr<delayed_deleter> m_DelayedDeleter;
 
@@ -795,7 +797,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				}
 				break;
 				case FAD_BUTTON_FILTER:
-					Filter->FilterEdit();
+					filters::EditFilters(Filter->area(), Filter->panel());
 					break;
 				case FAD_BUTTON_ADVANCED:
 					AdvancedDialog();
@@ -1375,7 +1377,7 @@ static void clear_queue(std::queue<message>&& Messages)
 	}
 }
 
-void FindFiles::stop_and_discard()
+void FindFiles::stop_and_discard(Dialog* Dlg)
 {
 	if (Finalized)
 		return;
@@ -1389,6 +1391,8 @@ void FindFiles::stop_and_discard()
 		clear_queue(m_Messages.pop_all());
 	}
 	while (!m_Searcher->Finished());
+
+	Dlg->SendMessage(DM_REFRESH, 0, {});
 }
 
 FindListItem& FindFiles::AddFindListItem(const os::fs::find_data& FindData, UserDataItem const& UserData)
@@ -1413,8 +1417,6 @@ void FindFiles::ClearFindList()
 
 	m_FindList.clear();
 }
-
-const auto DM_REFRESH = DM_USER + 1;
 
 intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
@@ -1557,7 +1559,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 						if (ConfirmAbort())
 						{
-							stop_and_discard();
+							stop_and_discard(Dlg);
 						}
 						else
 						{
@@ -1772,14 +1774,14 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			switch (Param1)
 			{
 			case FD_BUTTON_NEW:
-				stop_and_discard();
+				stop_and_discard(Dlg);
 				return FALSE;
 
 			case FD_BUTTON_STOP:
 				// As Stop
 				if (!Finalized)
 				{
-					stop_and_discard();
+					stop_and_discard(Dlg);
 					return TRUE;
 				}
 				// As Cancel
@@ -1827,7 +1829,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			}
 			if(Result)
 			{
-				stop_and_discard();
+				stop_and_discard(Dlg);
 			}
 			return Result;
 		}
@@ -2008,9 +2010,7 @@ void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, con
 		Dlg->SendMessage( DM_ENABLE, FD_LISTBOX, ToPtr(TRUE));
 	}
 
-	auto DisplayName = FindData.FileName.c_str();
-
-	string MenuText(1, L' ');
+	auto MenuText = L" "s;
 
 	for (auto& i: Global->Opt->FindOpt.OutColumns)
 	{
@@ -2059,23 +2059,28 @@ void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, con
 					}
 				}
 
-				const auto SizeToDisplay = (i.type == column_type::size)
-					? FindData.FileSize
-					: (i.type == column_type::size_compressed)
-					? FindData.AllocationSize
-					: (i.type == column_type::streams_size)
-					? Size
-					: Count; // ???
+				const auto SizeToDisplay =
+					i.type == column_type::size?
+						FindData.FileSize :
+						i.type == column_type::size_compressed?
+							FindData.AllocationSize :
+							i.type == column_type::streams_size?
+								Size :
+								Count; // ???
 
-				append(MenuText, FormatStr_Size(
-								SizeToDisplay,
-								DisplayName,
-								FindData.Attributes,
-								0,
-								FindData.ReparseTag,
-								(i.type == column_type::streams_number || i.type == column_type::links_number)? column_type::streams_size : i.type,
-								i.type_flags,
-								Width), BoxSymbols[BS_V1]);
+				append(MenuText,
+					FormatStr_Size(
+						SizeToDisplay,
+						FindData.FileName,
+						FindData.Attributes,
+						0,
+						FindData.ReparseTag,
+						any_of(i.type, column_type::streams_number, column_type::links_number)?
+							column_type::streams_size :
+							i.type,
+						i.type_flags,
+						Width),
+					BoxSymbols[BS_V1]);
 				break;
 			}
 
@@ -2122,8 +2127,7 @@ void FindFiles::AddMenuRecord(Dialog* const Dlg, string_view const FullName, con
 	// т.к. некоторые плагины возвращают имя вместе с полным путём,
 	// к примеру временная панель.
 
-	const auto DisplayName0 = Arc? PointToName(DisplayName) : DisplayName;
-	append(MenuText, DisplayName0);
+	append(MenuText, Arc? PointToName(FindData.FileName) : FindData.FileName);
 
 	string strPathName(FullName);
 	{
@@ -2317,13 +2321,24 @@ void background_searcher::DoScanTree(string_view const strRoot)
 
 			const auto ProcessStream = [&](string_view const FullStreamName)
 			{
-				filter_status FilterStatus;
-				if (UseFilter && !m_Owner->GetFilter()->FileInFilter(FindData, &FilterStatus, FullStreamName))
+				if (UseFilter)
 				{
-					// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
-					if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY && FilterStatus == filter_status::in_exclude)
-						ScTree.SkipDir(); // скипаем только по Exclude-фильтру, т.к. глубже тоже нужно просмотреть
-					return !Stopped();
+					const auto FilterResult = m_Owner->GetFilter()->FileInFilterEx(FindData, FullStreamName);
+					switch (FilterResult.Action)
+					{
+					case filter_action::include:
+						break;
+
+					case filter_action::exclude:
+						if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
+							ScTree.SkipDir();
+						return !Stopped();
+
+					case filter_action::ignore:
+						if (FilterResult.State & filter_state::has_include)
+							return !Stopped();
+						break;
+					}
 				}
 
 				if (FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -2333,7 +2348,7 @@ void background_searcher::DoScanTree(string_view const strRoot)
 
 				if (IsFileIncluded(nullptr, FullStreamName, FindData.Attributes, strFullName))
 				{
-					m_Owner->m_Messages.emplace(messages::menu_data{ FullStreamName, FindData, UserDataItem{}, {} });
+					m_Owner->m_Messages.emplace(messages::menu_data{ FullStreamName, FindData, {}, {} });
 				}
 
 				if (SearchInArchives)
@@ -2722,8 +2737,8 @@ bool FindFiles::FindFilesProcess()
 			// In case of an exception in the main thread
 			SCOPE_EXIT
 			{
+				stop_and_discard(Dlg.get());
 				Dlg->CloseDialog();
-				stop_and_discard();
 				m_Searcher = nullptr;
 			};
 
@@ -2959,7 +2974,7 @@ void FindFiles::ProcessMessage(message& Message)
 FindFiles::FindFiles():
 	itd(std::make_unique<InterThreadData>()),
 	FileMaskForFindFile(std::make_unique<filemasks>()),
-	Filter(std::make_unique<FileFilter>(Global->CtrlObject->Cp()->ActivePanel().get(), FFT_FINDFILE))
+	Filter(std::make_unique<multifilter>(Global->CtrlObject->Cp()->ActivePanel().get(), FFT_FINDFILE))
 {
 	static string strLastFindMask = L"*.*"s, strLastFindStr;
 

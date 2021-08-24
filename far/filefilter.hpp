@@ -45,53 +45,73 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/noncopyable.hpp"
+#include "common/utility.hpp"
 
 // External:
 
 //----------------------------------------------------------------------------
 
-enum enumFileFilterFlagsType: int;
+enum class filter_area: int;
 class FileFilterParams;
 class FileListItem;
 class VMenu2;
 class HierarchicalConfig;
 
-// почему FileInFilter вернул true или false
-enum class filter_status
+enum class filter_action
 {
-	not_in_filter,
-	in_include,
-	in_exclude,
+	include,
+	exclude,
+	ignore,
 };
 
+enum filter_state
+{
+	has_file_include    = 0_bit,
+	has_folder_include  = 1_bit,
 
-class FileFilter: noncopyable
+	has_include = has_file_include | has_folder_include,
+};
+
+struct filter_result
+{
+	filter_action Action{filter_action::ignore};
+	int State{};
+
+	operator bool() const;
+};
+
+class multifilter: noncopyable
 {
 public:
-	FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType);
+	multifilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType);
 
-	void FilterEdit();
 	void UpdateCurrentTime();
-	bool FileInFilter(const FileListItem* fli, filter_status* FilterStatus = nullptr);
-	bool FileInFilter(const os::fs::find_data& fde, filter_status* FilterStatus = nullptr, string_view FullName = {});
-	bool FileInFilter(const PluginPanelItem& fd, filter_status* FilterStatus = nullptr);
+	filter_result FileInFilterEx(const os::fs::find_data& fde, string_view FullName = {});
+	bool FileInFilter(const os::fs::find_data& fde, string_view FullName = {});
+	bool FileInFilter(const FileListItem& fli);
+	bool FileInFilter(const PluginPanelItem& fd);
 	bool IsEnabledOnPanel();
-
-	static void InitFilter();
-	static FileFilterParams LoadFilter(/*const*/ HierarchicalConfig& cfg, unsigned long long KeyId);
-	static void SaveFilter(HierarchicalConfig& cfg, unsigned long long KeyId, const FileFilterParams& Item);
-	static void CloseFilter();
-	static void SwapFilter();
-	static void Save(bool always);
+	filter_area area() const;
+	Panel* panel() const;
 
 private:
-	void ProcessSelection(VMenu2 *FilterList) const;
-	enumFileFilterFlagsType GetFFFT() const;
-	wchar_t GetCheck(const FileFilterParams& FFP) const;
+	bool should_include_folders_by_default(filter_result const& Result) const;
 
 	Panel *m_HostPanel;
-	FAR_FILE_FILTER_TYPE m_FilterType;
+	filter_area m_Area;
 	os::chrono::time_point CurrentTime;
 };
+
+namespace filters
+{
+	FileFilterParams LoadFilter(/*const*/ HierarchicalConfig& cfg, unsigned long long KeyId);
+	void SaveFilter(HierarchicalConfig& cfg, unsigned long long KeyId, const FileFilterParams& Item);
+
+	void InitFilters();
+	void SwapPanelFilters();
+	void RefreshMasks();
+	void Save(bool always);
+	void EditFilters(filter_area Area, Panel* HostPanel);
+}
 
 #endif // FILEFILTER_HPP_DC322D87_FC69_401A_8EF8_9710B11909CB
