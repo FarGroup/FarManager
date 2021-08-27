@@ -101,7 +101,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
  ~Ustawienia menu~@VMenuSettings@
  ~Ustawienia wiersza poleceń~@CmdlineSettings@
 
- ~Podświetlanie plików i sortowanie grup~@Highlight@
+ ~Wyróżnianie plików i sortowanie grup~@Highlight@
  ~Opisy plików~@FileDiz@
  ~Ustawienia podglądu~@ViewerSettings@
  ~Ustawienia edytora~@EditorSettings@
@@ -1107,7 +1107,7 @@ $ #Panele: panel informacyjny#
  2. ^<wrap>Nazwa i typ #bieżącego dysku#, typ systemu plików, nazwa sieciowa,
 całkowita i wolna ilość wolnego miejsca, etykieta dysku i jego numer seryjny.
 
-    ^<wrap>Far spróbuje wykryć typ każdego napędy CD dostępnego w systemie.
+    ^<wrap>Far spróbuje wykryć typ każdego napędy optyczne dostępnego w systemie.
 Znane typy to: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW i DVD-RAM. Funkcja ta jest dostępna
 tylko dla użytkowników z prawami administratora lub wszystkich lokalnych użytkowników mających
 uprawnienia ustawione w Zasadach zabezpieczeń lokalnych (aby ustawić, uruchom #secpol.msc# z wiersza poleceń, przejdź do
@@ -1180,8 +1180,8 @@ $ #Ustawienia panelu informacyjnego#
  #Pokaż status zasilania#
  Jeżeli włączone, ~Panel informacyjny~@InfoPanel@ będzie zawierał sekcję ze szczegółami dot. zasilania komputera.
 
- #Pokaż parametry dysku CD#
- Jeżeli włączone, Far będzie próbował wykrywać typ dysku CD.
+ #Pokaż parametry dysku optycznego#
+ Jeżeli włączone, Far będzie próbował wykrywać typ dysku optycznego.
 Obsługiwane typy: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW i DVD-RAM.
 
  #Format nazwy komputera#
@@ -1468,7 +1468,7 @@ $ #Menu: menu polecenia#
 
 
 @OptMenu
-$ #Menus: menu opcje#
+$ #Menu: menu opcje#
  #Ustawienia systemowe#  Pokazuje okno ~Ustawień systemowych~@SystemSettings@.
 
  #Ustawienia panelu#     Pokazuje okno ~Ustawień panelu~@PanelSettings@.
@@ -1578,7 +1578,7 @@ $ #Grupy masek plików#
  Grupy mogą zawierać w sobie inne grupy.
 
  Np. grupa #<arc># zawiera m.in. maski "*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar".
-Aby ~podświetlić~@Highlight@ wszystkie archiwa za wyjątkiem "*.rar" - należy użyć składni: #<arc>|*.rar#.
+Aby ~wyróżnić~@Highlight@ wszystkie archiwa za wyjątkiem "*.rar" - należy użyć składni: #<arc>|*.rar#.
 
  Skróty klawiszowe:
 
@@ -2411,7 +2411,7 @@ $ #Okno ustawień: panel#
  Włącza wyświetlanie plików z atrybutem Ukryty lub Systemowy. Opcję można także przełączyć naciskając #Ctrl+H#.
 
  #Wyróżniaj pliki#
- Włącza ~podświetlanie plików~@Highlight@.
+ Włącza ~wyróżnianie plików~@Highlight@.
 
  #Zaznaczaj foldery#
  Włącza zaznaczanie folderów po naciśnięciu #Szary +# i #Szara *#. Jeżeli opcja jest wyłączona, to zaznaczane
@@ -2784,7 +2784,7 @@ zobacz także ~Interface.AltF9~@Interface.AltF9@
  #Alt+BS, Ctrl+Z#     Cofa ostatnią zmianę pozycji
  #PrawyCtrl+0…9#      Ustawia zakładkę nr 0…9 na bieżącej pozycji
  #Ctrl+Shift+0…9#     Ustawia zakładkę nr 0…9 na bieżącej pozycji
- #Lewy	Ctrl+0…9#       Przechodzi do zakładki 0…9
+ #LewyCtrl+0…9#       Przechodzi do zakładki 0…9
  #Ctrl+Ins, Ctrl+C#   Kopiuje zaznaczony tekst do schowka.
 Tekst może być zaznaczony ręcznie lub jako rezultat ~wyszukiwania~@ViewerSearch@.
  #Ctrl+U#             Odznacza tekst
@@ -3555,7 +3555,7 @@ do czytnika obsługującego kilka karta - zatrzymane zostanie całe urządzenie.
 wyświetlania, wybierz ponownie aby zobaczyć szczegóły);
  #Ctrl+6# - ^<wrap>parametry dysku wyjmowalnego;
  #Ctrl+7# - ^<wrap>wtyczki;
- #Ctrl+8# - ^<wrap>parametry CD/DVD;
+ #Ctrl+8# - ^<wrap>parametry napędu optycznego;
  #Ctrl+9# - ^<wrap>parametry sieciowe.
 
  Ustawienia menu #Zmień dysk# są zapisywane w konfiguracji Far.
@@ -3571,7 +3571,7 @@ główny folder wybranego dysku (działa tylko dla dysków, a dla wtyczek).
 
  #Ctrl+R# pozwala odświeżyć menu wyboru dysku.
 
- Jeżeli tryb #Parametry CD/DVD# jest włączony (#Ctrl+8#), Far próbuje
+ Jeżeli tryb #Parametry dysku optycznego# jest włączony (#Ctrl+8#), Far próbuje
 wykryć typ każdego napędu optycznego dostępnego w systemie. Znane typy to:
 CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW i DVD-RAM.
 Funkcja jest dostępna dla użytkowników posiadających prawa administratora
@@ -3711,7 +3711,7 @@ kombinacje klawiszy:
 
  Podświetlane grupy są sprawdzane od góry do dołu. Jeżeli program wykryje,
 że plik należy do grupy, nie sprawdza kolejnych grup dla tego pliku,
-unless #[x] Continue processing# is set in the group.
+chyba, że dla grupy włączona jest opcja #Kontynuuj przetwarzanie#.
 
  Zobacz także: polecenia ~menu~@MenuCmd@.
 
@@ -3839,7 +3839,7 @@ $ #Okno ustawień: edytor#
 
  #Polecenie#
  Polecenie do uruchomienia zewnętrznego edytora.
-Use ~special symbols~@MetaSymbols@ to specify the name of the file to edit.
+Można użyć ~symboli specjalnych~@MetaSymbols@ do wpisania nazwy pliku.
 
 @=
 ^#Edytor wewnętrzny#
@@ -3851,7 +3851,7 @@ Use ~special symbols~@MetaSymbols@ to specify the name of the file to edit.
  Podczas edycji dokumentu, konwertuje każdy nowo wprowadzony znak #Tab# na zdefiniowaną liczę spacji.
 Wcześniej wprowadzone tabulacji nie zostaną przekonwertowane.
 
- #Zastap wszystkie tabul. na spacje#
+ #Zastąp wszystkie tabulatory na spacje#
  Po otwarciu dokumentu, wszystkie tabulatory w dokumencie będą automatycznie przekonwertowane na spacje.
 
  #Trwałe bloki#
@@ -3870,7 +3870,7 @@ Wcześniej wprowadzone tabulacji nie zostaną przekonwertowane.
  Włącza widoczność #białych# znaków (spacje, tabulatory, znaki łamania linii).
 
  #Kursor za końcem linii#
- Pozwala przesunać kursor poza koniec linii.
+ Pozwala przesunąć kursor poza koniec linii.
 
  #Zaznacz znalezione#
  Oznacza znaleziony tekst.
@@ -3883,7 +3883,7 @@ Wcześniej wprowadzone tabulacji nie zostaną przekonwertowane.
 
 @=
  #Zapamiętaj pozycję kursora w pliku#
- Zapisuje i przywraca pozycję w ostatnio edytorwanych plikach. Opcja wymusza także przywrócenie strony kodowej,
+ Zapisuje i przywraca pozycję w ostatnio edytowanych plikach. Opcja wymusza także przywrócenie strony kodowej,
 jeżeli została ona ręcznie ustawiona przez użytkownika.
 
  #Zapisz zakładki#
@@ -3892,13 +3892,13 @@ kombinacji klawiszy #PrawyCtrl+0…9# lub #Ctrl+Shift+0…9#).
 
  #Zezwól na edycję plików otwartych do zapisu#
  Pozwala na edycję plików otwartych do zapisu przez inne aplikacje. Opcja jest przydatna do edycji
-plików otwartych na długi czas, ale może być niebezpieczna, jeżeli pliki zostaną zmodyfikwane w obu programach.
+plików otwartych na długi czas, ale może być niebezpieczna, jeżeli pliki zostaną zmodyfikowane w obu programach.
 
  #Nie edytuj plików tylko do odczytu#
  Jeżeli plik z atrybutem Tylko-do-odczytu (Read only) jest otwarty do edycji, to edytor wyłącza modyfikację
 edytowanego tekstu podobnie do wciśnięcia #Ctrl+L#.
 
- #Ostrzeż przed otwier. plików tylko do odczytu#
+ #Ostrzeż przed otwieraniem plików tylko do odczytu#
  Przy otwarciu plików z atrybutem Tylko-do-odczytu zostanie pokazane okno ostrzeżenia.
 
  #Rozpoznaj stronę kodową#
@@ -3918,149 +3918,146 @@ zastosowanie tylko do bieżącej sesji.
 
 
 @CodePageAuto
-$ #Autodetect code pages#
- Far will try to choose the correct code page for viewing/editing a file.
-Note that correct detection is not guaranteed, especially for small or
-non-typical text files.
+$ #Automatyczne wykrywanie strony kodowej#
+ Far próbuje wybrać prawidłową stronę kodową do podglądu/edycji pliku.
+Poprawne wykrycie nie jest gwarantowane - szczególnie dla małych
+lub nietypowych plików tekstowych.
 
- See also the ~Code pages~@CodePagesMenu@ menu and
-~far:config Codepages.NoAutoDetectCP~@Codepages.NoAutoDetectCP@
+ Zobacz także ~menu strony kodowe~@CodePagesMenu@
+oraz ~far:config Codepages.NoAutoDetectCP~@Codepages.NoAutoDetectCP@
 
 
 @FileAttrDlg
-$ #File attributes dialog#
- With this command it is possible to change file attributes and file time.
-Either single file or group of files can be processed.
+$ #Okno atrybutów plików#
+ Za pomocą tego polecenia można zmieniać atrybuty plików i datę/czas pliku.
+Można przetwarzać pojedyncze pliki lub grupy plików.
 
- #File attributes#
+ #Atrybuty pliku#
 
- Checkboxes used in the dialog can have the following 3 states:
+ Pola wyboru używane w tym oknie dialogowym mogą posiadać 3 stany:
 
- #[x]# - attribute is set for all selected items
-       (set the attribute for all items)
+ #[x]# - atrybut jest ustawiony dla wszystkich zaznaczonych pozycji
+       (ustaw atrybut dla wszystkich pozycji)
 
- #[ ]# - attribute is not set for all selected items
-       (clear the attribute for all items)
+ #[ ]# - atrybut nie jest ustawiony dla wszystkich zaznaczonych pozycji
+       (wyczyść atrybut dla wszystkich pozycji)
 
- #[?]# - attribute state is not the same for selected items
-       (don't change the attribute)
+ #[?]# - stan atrybutu nie jest taki sam dla zaznaczonych pozycji
+       (nie zmieniaj atrybutu)
 
- When all selected files have the same attribute value, the corresponding
-checkbox will be in 2-state mode - set/clear only. When there are selected
-folders, all checkboxes will always be 3-state.
+ Gdy wszystkie wybrane pliki mają tę samą wartość atrybutu, odpowiednie
+pola wyboru będą w trybie 2-stanowym - tylko ustawianie/kasowanie.
+Gdy są zaznaczone foldery, wszystkie pola wyboru zawsze będą miały 3 stany. 
 
- Only those attributes will be changed for which the state of the
-corresponding checkboxes was changed from the initial state.
+ Zmienione zostaną tylko te atrybuty, dla których stan
+odpowiednie pola wyboru został zmieniony ze stanu początkowego. 
 
- The #Compressed#, #Encrypted#, #Not indexed#, #Sparse#, #Temporary#,
-#Offline#, #Reparse point# attributes are available only on NTFS drives.
-The #Compressed# and #Encrypted# attributes are mutually exclusive, that is, you can set only
-one of them. You cannot clear the #Sparse# attribute in Windows 2000/XP/2003. The
-#Integrity stream# and #No scrub data# attributes are supported only on ReFS volumes starting from
-Windows Server 2012.
+ Atrybuty #Skompresowany#, #Zaszyfrowany#, #Nie zindeksowany#, #Rzadki#, #Tymczasowy#,
+#Offline# oraz #Punkt analizy# są dostępne tylko na dyskach NTFS.
+Atrybuty #Skompresowany# i #Zaszyfrowany# wzajemnie się wykluczają, co oznacza,
+że może być ustawiony tylko jeden z nich. Nie można wyczyścić atrybutu #Rzadki#
+w 2000/XP/2003. Atrybuty #Integralny strumień# i #Brak danych kontrolnych#
+są obsługiwane tylko na woluminach ReFS począwszy od Windows Server 2012.
 
- For ~symbolic links~@HardSymLink@ the dialog will display the path where it refers to.
-If this information is not available, then the "#(data not available)#" message will be shown.
+ W przypadku ~linków symbolicznych~@HardSymLink@ okno dialogowe wyświetli ścieżkę,
+do której ten link się odnosi. Jeżeli informacja ta nie będzie dostępna, zostanie
+wyświetlony komunikat #(dane niedostępne)#.
 
- #File date and time#
+ #Data i czas pliku#
 
- Four different file times are supported:
- - last write time;
- - creation time;
- - last access time;
- - change time.
+ Obsługiwane są cztery różne czasy plików:
+ - czas ostatniego zapisu;
+ - czas utworzenia;
+ - czas ostatniego dostępu;
+ - czas zmiany.
 
- On FAT drives the hours, minutes, seconds and milliseconds of the last access time are
-always equal to zero.
+ Na dyskach FAT godziny, minuty, sekundy i milisekundy czasu ostatniego dostępu
+są zawsze równe zeru.
 
- If you do not want to change the file time, leave the respective field
-empty. You can push the #Blank# button to clear all the date and time fields
-and then change an individual component of the date or time, for example, only
-month or only minutes. All the other date and time components will remain
-unchanged.
+ Jeżeli czas pliku nie ma być zmieniany, należy odpowiednie pole zostawić puste.
+Można nacisnąć przycisk #Wyczyść#, aby wyczyścić wszystkie pola daty i czasu pliku,
+a następnie zmienić pojedynczy składnik daty lub czasu - np. tylko miesiąc
+lub tylko minuty. Wszystkie pozostałe składniki daty i czasu pozostaną niezmienione.
 
- The #Current# button fills the file time fields with the current time.
- The #Original# button fills the file time fields with their original
-values. Available only when the dialog is invoked for a single file object.
+ Przycisk #Bieżący# wypełnia wszystkie pola bieżącą wartością daty i czasu.
+ Przycisk #Oryginalny# przywraca oryginalne wartości daty i czasu. Opcja dostępna
+tylko wtedy, gdy funkcja zmiany daty/czasu została wywołana dla pojedynczego pliku.
 
- The #System properties# button invoke the system properties dialog for
-selected objects.
+ Przycisk #Właściwości systemu# wywołuje systemowe okno właściwości systemu dla wybranego obiektu.
 
 
 @FolderShortcuts
-$ #Folder shortcuts#
- Folder shortcuts are designed to provide fast access to frequently used
-folders. Press #Ctrl+Shift+0…9#, to create a shortcut to the current folder.
-To change to the folder recorded in the shortcut, press #RightCtrl+0…9#. If
-#RightCtrl+0…9# pressed in edit line, it inserts the shortcut path into the
-line.
+$ #Skróty do folderów#
+ Skróty do folderów zapewniają szybki dostęp do często używanych folderów.
+Należy nacisnąć #Ctrl+Shift+0…9#, aby utworzyć skrót do aktualnego folderu.
+Aby przejść do folderu przypisanego do skrótu, należy nacisnąć #PrawyCtrl+0…9#.
+Jeżeli klawisze #PrawyCtrl+0…9# zostały naciśnięte w linii edycji, to do tej linii
+zostanie wstawiona ścieżka zapisana pod skrótem.
 
- The #Show folder shortcuts# item in the ~Commands menu~@CmdMenu@ can be
-used to view, set, edit and delete folder shortcuts.
+ Polecenie #Skróty folderów# w ~menu poleceń~@CmdMenu@ może być użyte do podglądu,
+ustawienia, edycji i usunięcia skrótu do folderu.
 
- When you are editing a shortcut (#F4#), you cannot create a shortcut to a
-plugin panel.
+ Podczas edycji skrótu (#F4#), nie można utworzyć skrótu do panelu wtyczek.
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @FiltersMenu
-$ #Filters menu#
- Using the #Filters menu# you can define a set of file types with user
-defined rules according to which files will be processed in the area of
-operation this menu was called from.
+$ #Menu filtry#
+ Używając menu #Filtry# można zdefiniować zestaw typów plików zdefiniowanych
+przez użytkownika, które odpowiadają za przetwarzanie plików w obszarze
+operacji, z której wywołano to menu.
 
- The filters menu consists of two parts. In the upper part custom #User#
-#filters# are shown, the lower part contains file masks of all the files that
-exist in the current panel (including file masks that are selected in the
-current area of operation the menu was called from even if there are no files
-that match those mask in the current panel).
+ Menu filtrów składa się z dwóch części. W górnej części są przedstawione
+#filtry użytkownika#, w dolna część zawiera maski wszystkich plików,
+które istnieją w bieżącym panelu (łącznie z maskami plików wybranymi w aktualnym
+obszarze działania, z którego wywołano menu, nawet jeśli nie ma żadnych plików
+pasujących do masek w bieżącym panelu).
 
- For the #User filters# the following commands are available:
+ Dla #Filtrów użytkownika# dostępne są następujące polecenia:
 
- #Ins#        Create a new filter, an empty ~filter~@Filter@ settings
-            dialog will open for you to set.
+ #Ins#        Tworzy nowy filtr, zostanie otwarte nowe puste okno dialogowe
+            ~filtru~@Filter@.
 
- #F4#         Edit an existing ~filter~@Filter@.
+ #F4#         Edycja istniejącego ~filtru~@Filter@.
 
- #F5#         Duplicate an existing ~filter~@Filter@.
+ #F5#         Powielenie istniejącego ~filtru~@Filter@.
 
- #Del#        Remove a filter.
+ #Del#        Usunięcie filtru.
 
- #Ctrl+Up#    Move a filter one position up.
+ #Ctrl+Góra#  Przeniesienie filtru o jedną pozycję wyżej.
 
- #Ctrl+Down#  Move a filter one position down.
+ #Ctrl+Dół#   Przeniesienie filtru o jedną pozycję niżej.
 
- To control the #User filters# and also the auto-generated filters (file
-masks) the following commands are available:
+ Aby kontrolować #Filtry użytkownika# oraz automatycznie generowane filtry
+(maski plików), można użyć następujących poleceń:
 
- #Space#,              Items selected using #Space# or ‘#+#’ are
- #Plus#                marked by ‘+’. If such items are present
-                     then only files that match them will be
-                     processed.
+ #Spacja#,             Pozycje zaznaczone przez naciśnięcie #Spacji#
+ #Plus#                lub #‘+’# będą oznaczone znakiem ‘+’. Jeżeli takie
+                     pozycje są widoczne, to tylko one będą uwzględnione
+                     przy przetwarzaniu.
 
- #Minus#               Items selected using ‘#-#’ are marked by ‘-’,
-                     and files that match then will not be
-                     processed.
+ #Minus#               Pozycje oznaczone wciśnięciem ‘#-#’ będą oznaczone
+                     znakiem ‘-’, i te pozycje nie będą przetwarzane.
 
- #I# and #X#             Similar to #Plus# and #Minus# respectively,
-                     but have higher priority when matching.
+ #I# i #X#               Odpowiednio podobne do znaków #Plus# i #Minus#,
+                     ale mają większy priorytet przy przetwarzaniu.
 
- #Backspace#           Clear selection from the current item.
+ #Backspace#           Wyczyszczenie zaznaczenia z bieżącej pozycji.
 
- #Shift+Backspace#     Clear selection from all items.
+ #Shift+Backspace#     Wyczyszczenie wszystkich zaznaczeń.
 
- Filters selection is stored in the Far configuration.
+ Wybór filtrów jest zapisywany w konfiguracji Far.
 
- When a filter is used in a panel, it is indicated by ‘*’ after the sort
-mode letter in the upper left corner of the panel.
+ Kiedy filtr jest używany w panelu, to jest on oznaczony przez ‘*’
+po sortowaniu w lewym górnym rogu panelu.
 
- Filters menu is used in the following areas:
- - ~File panel~@FilePanel@;
- - ~Copying, moving, renaming and creating links~@CopyFiles@;
- - ~Find file~@FindFile@.
+ Menu filtrów jest używane w następujących obszarach:
+ - ~Panel plików~@FilePanel@;
+ - ~Kopiowanie, przenoszenie, zmiana nazwy i tworzenie linków~@CopyFiles@;
+ - ~Wyszukiwanie plików~@FindFile@.
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @FolderDiz
