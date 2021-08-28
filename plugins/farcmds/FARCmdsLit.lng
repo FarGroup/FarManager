@@ -1,0 +1,24 @@
+﻿.Language=Lithuanian,Lithuanian (Lietuvių)
+
+"FAR Komandos"
+
+"Komandos ir objekto &skirtukas"
+
+"&Hide external command output"
+"&Keep external command output"
+"D&uplicate Intercepted output to screen"
+
+"Intercept &both stdout and stderr"
+"Intercept std&out only"
+"Intercept std&err only"
+"Intercept stdout &and stderr separately"
+"View/edit e&mpty files"
+
+"Edit &new files"
+
+"The &size of read data"
+"<stdout>:"
+"<stderr>:"
+
+"&Gerai"
+"&Atšaukti"

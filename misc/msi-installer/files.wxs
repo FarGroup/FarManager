@@ -1360,6 +1360,9 @@
           <Component Id="FARCmdsCze.lng" Guid="$(var.Guid.FARCmdsCze.lng)" Win64="$(var.Win64)">
             <File Id="FARCmdsCze.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmdsCze.lng" />
           </Component>
+          <Component Id="FARCmdsLit.lng" Guid="$(var.Guid.FARCmdsLit.lng)" Win64="$(var.Win64)">
+            <File Id="FARCmdsLit.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmdsLit.lng" />
+          </Component>
         </Directory>
         <Directory Id="SameFolder" Name="SameFolder">
           <Component Id="changelog_20" Guid="$(var.Guid.changelog_20)" Win64="$(var.Win64)">
@@ -1417,6 +1420,9 @@
           </Component>
           <Component Id="SameFolderCze.lng" Guid="$(var.Guid.SameFolderCze.lng)" Win64="$(var.Win64)">
             <File Id="SameFolderCze.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\SameFolderCze.lng" />
+          </Component>
+          <Component Id="SameFolderLit.lng" Guid="$(var.Guid.SameFolderLit.lng)" Win64="$(var.Win64)">
+            <File Id="SameFolderLit.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\SameFolder\SameFolderLit.lng" />
           </Component>
         </Directory>
         <Directory Id="FileCase" Name="FileCase">
@@ -1574,6 +1580,9 @@
           </Component>
           <Component Id="HlfViewerCze.lng" Guid="$(var.Guid.HlfViewerCze.lng)" Win64="$(var.Win64)">
             <File Id="HlfViewerCze.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerCze.lng" />
+          </Component>
+          <Component Id="HlfViewerLit.lng" Guid="$(var.Guid.HlfViewerLit.lng)" Win64="$(var.Win64)">
+            <File Id="HlfViewerLit.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerLit.lng" />
           </Component>
         </Directory>
         <Directory Id="LuaMacro" Name="LuaMacro">

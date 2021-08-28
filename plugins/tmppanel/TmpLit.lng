@@ -29,7 +29,7 @@
 "&Safe panel mode"
 "&Any elements in panel"
 
-"&Replace files with file list"
+""Už&rašymo" režimas"
 "&Menu from file list"
 "Copy folder c&ontents"
 
@@ -40,7 +40,7 @@
 "Status line column t&ypes"
 "Status l&ine column widths"
 
-"File masks for the file &lists:"
+"Failų maskuotės atskirtos kableliais fail&ų sąrašui:"
 "Command line pre&fix:"
 
 "Nauji nuostatai pradės veikti perkrovus FAR"

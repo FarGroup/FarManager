@@ -786,6 +786,9 @@
             <ComponentRef Id="FARCmdsCze.hlf" />
             <ComponentRef Id="FARCmdsCze.lng" />
           </Feature>
+          <Feature Id="FARCmds.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="FARCmdsLit.lng" />
+          </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="FARCmds.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="FarCmds.map" />
@@ -827,6 +830,9 @@
           <Feature Id="SameFolder.Czech" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="SameFolderCze.hlf" />
             <ComponentRef Id="SameFolderCze.lng" />
+          </Feature>
+          <Feature Id="SameFolder.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="SameFolderLit.lng" />
           </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="SameFolder.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -936,6 +942,9 @@
           <Feature Id="HlfViewer.Czech" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="HlfViewerCze.hlf" />
             <ComponentRef Id="HlfViewerCze.lng" />
+          </Feature>
+          <Feature Id="HlfViewer.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="HlfViewerLit.lng" />
           </Feature>
 <?if $(var.Platform) = x86 ?>
           <Feature Id="HlfViewer.FExcept" Level="1" Display="hidden" AllowAdvertise="no">

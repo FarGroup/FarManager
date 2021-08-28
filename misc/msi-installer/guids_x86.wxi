@@ -436,6 +436,7 @@
 <?define Guid.FARCmdsUkr.lng = "F5416520-F9B0-45CA-8D9E-3BC2CEED5074" ?>
 <?define Guid.FARCmdsCze.hlf = "6FD81AA9-CFE1-441E-97C8-650EE300DD09" ?>
 <?define Guid.FARCmdsCze.lng = "B435B2C3-2CDF-4322-A03A-AD47C94FFBA2" ?>
+<?define Guid.FARCmdsLit.lng = "7BAC8E3C-2439-4CCD-9C47-4803F4FED7F7" ?>
 
 <?define Guid.changelog_20      = "D67B16A3-2A20-427A-B84F-8C82E5751DE1" ?>
 <?define Guid.SameFolder.dll    = "C2120C1E-483C-4D58-BA92-AB96A3F52ADD" ?>
@@ -455,6 +456,7 @@
 <?define Guid.SameFolderUkr.lng = "86C1C87E-F1B2-408E-8919-AD4F564E7C9A" ?>
 <?define Guid.SameFolderCze.hlf = "9F99C485-6C34-42E2-9576-79FE6BA45ACA" ?>
 <?define Guid.SameFolderCze.lng = "B8B8906D-6B0B-42E0-A9D0-1B3545A85231" ?>
+<?define Guid.SameFolderLit.lng = "B5955066-E1CD-4686-AC6F-9F6FB523D83E" ?>
 
 <?define Guid.CaseEng.hlf = "FAE61049-FD8F-4E26-ADB5-F9CD98DF9EC0" ?>
 <?define Guid.CaseEng.lng = "B012A5C1-CB22-42AD-84C8-8D25AE2622EF" ?>
@@ -507,6 +509,7 @@
 <?define Guid.HlfViewerUkr.lng = "2C288146-00BB-4514-85FD-926BFB5C95FE" ?>
 <?define Guid.HlfViewerCze.hlf = "ADE739D7-7E69-4BEC-9DFF-535E320465FD" ?>
 <?define Guid.HlfViewerCze.lng = "0C48A4AA-4318-41A4-ABB3-85B5643905CA" ?>
+<?define Guid.HlfViewerLit.lng = "59BBBE19-771A-400C-91E6-548C19B9004D" ?>
 
 <?define Guid.changelog_15 = "28BD38F6-ED39-4252-8A46-C716F907BC16" ?>
 <?define Guid.NetEng.hlf = "D0EACCE4-F5E2-4BD0-A962-7936FADE0E77" ?>
