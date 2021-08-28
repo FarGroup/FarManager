@@ -262,7 +262,7 @@ string escape_ampersands(string Str);
 string escape_ampersands(string_view Str);
 
 bool IsConsoleFullscreen();
-bool IsConsoleSizeChanged();
+bool IsConsoleViewportSizeChanged();
 
 void SaveNonMaximisedBufferSize(point const& Size);
 point GetNonMaximisedBufferSize();

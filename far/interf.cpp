@@ -608,7 +608,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 	GenerateWINDOW_BUFFER_SIZE_EVENT();
 }
 
-bool IsConsoleSizeChanged()
+bool IsConsoleViewportSizeChanged()
 {
 	point ConSize;
 	console.GetSize(ConSize);

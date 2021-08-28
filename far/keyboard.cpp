@@ -1025,18 +1025,36 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		return ProcessFocusEvent(rec->Event.FocusEvent.bSetFocus != FALSE);
 	}
 
-	if (
-		// Legitimate event, but skip if the size isn't changed to filter out Windows 10 rubbish (see https://github.com/Microsoft/console/issues/281)
-		(rec->EventType == WINDOW_BUFFER_SIZE_EVENT && rec->Event.WindowBufferSizeEvent.dwSize.X && rec->Event.WindowBufferSizeEvent.dwSize.Y && IsConsoleSizeChanged()) ||
-		// Fake event, generated internally
-		(rec->EventType == WINDOW_BUFFER_SIZE_EVENT && !rec->Event.WindowBufferSizeEvent.dwSize.X && !rec->Event.WindowBufferSizeEvent.dwSize.Y) ||
-		// Size changed
-		IsConsoleSizeChanged()
-	)
+	if (rec->EventType == WINDOW_BUFFER_SIZE_EVENT)
 	{
-		// Do not use rec->Event.WindowBufferSizeEvent.dwSize here - we need a 'virtual' size
-		point Size;
-		return console.GetSize(Size)? ProcessBufferSizeEvent(Size) : static_cast<DWORD>(KEY_CONSOLE_BUFFER_RESIZE);
+		// Fake event, generated internally
+		const auto IsInternalEvent = !rec->Event.WindowBufferSizeEvent.dwSize.X && !rec->Event.WindowBufferSizeEvent.dwSize.Y;
+
+		static point LastBufferSize{};
+		SCOPE_EXIT
+		{
+			if (!IsInternalEvent)
+				LastBufferSize = rec->Event.WindowBufferSizeEvent.dwSize;
+		};
+
+		if (
+			// Skip if the size isn't changed to filter out Windows 10 rubbish (see https://github.com/Microsoft/console/issues/281)
+			IsInternalEvent || IsConsoleViewportSizeChanged()
+		)
+		{
+			// Do not use rec->Event.WindowBufferSizeEvent.dwSize here - we need a 'virtual' size
+			point Size;
+			return console.GetSize(Size)? ProcessBufferSizeEvent(Size) : static_cast<DWORD>(KEY_CONSOLE_BUFFER_RESIZE);
+		}
+
+		if (LastBufferSize != rec->Event.WindowBufferSizeEvent.dwSize)
+		{
+			// Buffer size changed, but the window size stayed the same.
+			// In window mode this means that the actual drawing area could now be dramatically different
+			console.ResetViewportPosition();
+			Global->ScrBuf->Invalidate();
+			Global->ScrBuf->Flush();
+		}
 	}
 
 	if (rec->EventType==KEY_EVENT)
