@@ -1,11 +1,11 @@
 ﻿.Language=Lithuanian,Lithuanian (Lietuvių)
 
 "Raidžių dydžio konvertavimas"
-"&L. mažąsias raides"
-"&T. Title Case"
-"&U. DIDŽIĄSIAS RAIDES"
-"&G. tOGGLE cASE"
-"&C. Cyclic change"
+"&mažosios raidės"
+"&Pavadinimo Tipo"
+"&DIDŽIOSIOS RAIDĖS"
+"a&TVIKŠČIOS rAIDĖS"
+"&Cikliškai keisti tipą"
 
-"&Ok"
-"&Cancel"
+"&Gerai"
+"&Atšaukti"

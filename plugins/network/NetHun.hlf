@@ -4,8 +4,8 @@
 
 @Contents
 $ #Hálózati tallózó plugin#
-    A hálózati tallózóval könnyedén navigálhatunk a hálózaton, csatolt
-vagy nem csatolt hálózati meghajtókon barangolhatunk, csatlakoztathatjuk
+    A hálózati tallózóval könnyedén navigálhatunk a hálózaton, csatlakoztatott
+vagy nem csatlakoztatott hálózati meghajtókon barangolhatunk, csatlakoztathatjuk
 és leválaszthatjuk a őket. Az #F5#-tel a kiválasztott hálózati lemezt
 csatlakoztathatjuk (map) a következő elérhető betűjelre, #F6#-tal
 magunk választhatjuk meg a csatolandó meghajtó betűjelét.

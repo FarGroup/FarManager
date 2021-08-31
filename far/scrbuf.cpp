@@ -359,9 +359,14 @@ void ScreenBuf::FillRect(rectangle Where, const FAR_CHAR_INFO& Info)
 void ScreenBuf::Invalidate(flush_type const FlushType)
 {
 	if (FlushType & flush_type::screen)
+	{
 		SBFlags.Clear(SBFLAGS_FLUSHED);
+		Shadow.vector().assign(Shadow.vector().size(), {});
+	}
+
 	if (FlushType & flush_type::cursor)
 		SBFlags.Clear(SBFLAGS_FLUSHEDCURPOS | SBFLAGS_FLUSHEDCURTYPE);
+
 	if (FlushType & flush_type::title)
 		SBFlags.Clear(SBFLAGS_FLUSHEDTITLE);
 }
@@ -594,7 +599,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 
 			if (Changes)
 			{
-				if (IsConsoleSizeChanged())
+				if (IsConsoleViewportSizeChanged())
 				{
 					// We must draw something, but canvas has been changed, drawing on it will make things only worse
 					Changes = false;

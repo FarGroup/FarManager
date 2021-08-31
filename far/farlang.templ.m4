@@ -1956,7 +1956,7 @@ l:
 "Configurazione"
 "Системні параметри"
 "Сістэмныя параметры"
-"Sisteminiai nuostatai"
+"Sisteminiai nustatymai"
 
 MConfigRecycleBin
 "Удалять в &Корзину"
@@ -2250,7 +2250,7 @@ MConfigAutoSave
 "Salvataggio A&utomatico Impostazioni"
 "Автозапис кон&фігурації"
 "А&ўтазапіс наладаў"
-"&Auto išsaugoti nuostatus"
+"&Automatiškai išsaugoti nustatymus"
 
 MConfigTreeTitle
 l:
@@ -2462,7 +2462,7 @@ MConfigHighlight
 "&Evidenzia Files"
 "&Розмальовка файлів"
 "&Размалёўка файлаў"
-"Par&yškinti failus"
+"S&palvinti failus"
 
 MConfigSelectFolders
 "Пометка &папок"
@@ -2634,7 +2634,7 @@ MConfigShowFree
 
 MConfigShowScrollbar
 "Показывать по&лосу прокрутки"
-"Show a scroll&bar"
+"Show scroll&bar"
 "Zobrazovat &posuvník"
 "Scroll&balken anzeigen"
 "Gördítősá&v mutatva"
@@ -2701,7 +2701,7 @@ l:
 "Impostazioni ► Interfaccia"
 "Налаштування інтерфейсу"
 "Налады знешняга выгляду"
-"Sąsajos nuostatai"
+"Sąsajos nustatymai"
 
 MConfigClock
 "&Часы"
@@ -2863,8 +2863,8 @@ upd:"Fullwidth-aware rendering"
 upd:"Fullwidth-aware rendering"
 upd:"Fullwidth-aware rendering"
 upd:"Fullwidth-aware rendering"
-upd:"Fullwidth-aware rendering"
 "R&enderowanie na pełnej szerokości"
+upd:"Fullwidth-aware rendering"
 upd:"Fullwidth-aware rendering"
 upd:"Fullwidth-aware rendering"
 upd:"Fullwidth-aware rendering"
@@ -3789,7 +3789,7 @@ MViewConfigSaveShortPos
 "Salva I &Bookmarks"
 "Зберігати &закладки"
 "Захоўваць &закладкі"
-upd:"Save &bookmarks"
+"Išsaugoti nu&orodas"
 
 MViewConfigSaveCodepage
 "Сохранять ко&довую страницу файла"
@@ -3882,13 +3882,13 @@ MViewConfigScrollbar
 "Zobrazovat posu&vník"
 "Scro&llbalken anzeigen"
 "Gör&dítősáv mutatva"
-"P&okaż pasek przewijania"
+"Wyświetl suwak"
 "Mostrar &barra de desplazamiento"
-"Zobraziť posu&vník"
+"Zobrazovať posu&vník"
 "Mostra Barre Di &Scorrimento"
 "Показувати &смужку прокручування"
 "Адлюстроўваць &працяжнік"
-upd:"Show scro&llbar"
+"Rodyti šlia&užiklį"
 
 MViewConfigArrows
 "Показывать стре&лки сдвига"
@@ -3902,7 +3902,7 @@ MViewConfigArrows
 "&Mostra Frecce Di Scorrimento"
 "Показувати стрі&лки зсуву"
 "Адлюстроўваць стрэ&лкі зруху"
-upd:"Show scrolling arro&ws"
+"Rodyti šliaužiklio rodykles"
 
 MViewConfigPersistentSelection
 "Постоянное &выделение"
@@ -4249,13 +4249,13 @@ MEditConfigScrollbar
 "Zobr&azovat posuvník"
 "Scro&llbalken anzeigen"
 "&Gördítősáv mutatva"
-"Pokaż pasek przewi&jania"
+"Wyświetl suwak"
 "Mostrar barra de despla&zamiento"
 "Zobr&azovať posuvník"
 "Mostra Barre Di &Scorrimento"
 "Показ&увати смужку прокручування"
 "Адлюстроўваць працяжн&ік"
-upd:"S&how scrollbar"
+"Rodyti šlia&užiklį"
 
 MEditShowWhiteSpace
 "Пробел&ьные символы"
@@ -4537,7 +4537,7 @@ MCopyOnlyNewerFiles
 "Solo File &Nuovo/i"
 "Лише &нові/оновлені файли"
 "Толькі &новыя файлы"
-upd:"Only ne&wer file(s)"
+"&Tik naujesnius failus"
 
 MLinkType
 "&Тип ссылки:"
@@ -6780,7 +6780,7 @@ MEditFileLong2
 "Che Eccede La Dimensione Massima Di {0}"
 "що перевищує задане обмеження {0}."
 "што перавышае зададзенае абмежаванне ў {0}."
-upd:"which exceeds the configured maximum size of {0}."
+"kuris viršyja sukonfigūruotą maksimalų dydį {0}."
 
 MEditROOpen
 "Вы хотите редактировать его?"
@@ -6794,7 +6794,7 @@ MEditROOpen
 "Vuoi Modificarlo?"
 "Ви бажаєте редагувати його?"
 "Вы жадаеце мяняць яго?"
-upd:"Do you wish to edit it?"
+"Ar norite jį redaguoti?"
 
 MEditCanNotEditDirectory
 l:
@@ -6894,7 +6894,7 @@ MEditSearchWholeWords
 "&Parole Intere"
 "Лише &цілі слова"
 "Толькі по&ўныя словы"
-upd:"&Whole words"
+"Visi ž&odžiai"
 
 MEditSearchReverse
 "Обратн&ый поиск"
@@ -10082,7 +10082,7 @@ MViewShiftF2
 "A Capo"
 "Слова"
 "Словы"
-upd:"WWrap"
+"Kelti"
 
 MViewShiftF3
 ""
@@ -11528,7 +11528,7 @@ MFindFileWholeWords
 "Parole &Esatte"
 "Лише &цілі слова"
 "Толькі по&ўныя словы"
-upd:"&Whole words"
+"Visi ž&odžiai"
 
 MFindFileAllCodePages
 "Все стандартные кодовые страницы"
@@ -12178,7 +12178,7 @@ l:
 "Evidenzia File"
 "Розмальовка файлів"
 "Разфарбоўка файлаў"
-"Failų paryškinimai"
+"Failų spalvos"
 
 MHighlightUpperSortGroup
 "Верхняя группа сортировки"
@@ -12234,7 +12234,7 @@ MHighlightAskDel
 "Vuoi Cancellare Le Informazioni Per"
 "Ви бажаєте видалити розмальовку для"
 "Вы жадаеце выдаліць разфарбоўку для"
-"Ar norite ištrinti paryškinimą failams"
+"Ar norite ištrinti spalvą failams"
 
 MHighlightWarning
 "Будут потеряны все Ваши настройки"
@@ -12248,7 +12248,7 @@ MHighlightWarning
 "Perderai Tutti I Cambiamenti!"
 "Будуть втрачені всі ваші налаштування"
 "Будуць згублены усе Налады"
-upd:"You will lose all changes"
+"Bus prarasti visi pakeitimai"
 
 MHighlightAskRestore
 "Вы хотите восстановить раскраску файлов по умолчанию?"
@@ -12262,7 +12262,7 @@ MHighlightAskRestore
 "Vuoi Ripristinare Le Informazioni?"
 "Ви бажаєте відновити розмальовку файлів за замовчуванням?"
 "Вы жадаеце узнавіць прадвызначаную разфарбоўку файлаў?"
-upd:"Do you wish to restore default highlighting?"
+"Ar norite grįžti į standartines spalvas?"
 
 MHighlightEditTitle
 l:
@@ -12277,7 +12277,7 @@ l:
 "Modifica Le Evidenziazioni"
 "Редагування розмальовки файлів"
 "Мяняць разфарбоўку файлаў"
-"Redaguoti failų paryškinimus"
+"Redaguoti failų spalvas"
 
 MHighlightMarkChar
 "Оп&циональный символ пометки,"
@@ -14385,7 +14385,7 @@ l:
 "► &Sistema"
 "Си&стемні параметри"
 "Сістэ&іныя налады"
-"Siste&miniai nuostatai"
+"Siste&miniai nustatymai"
 
 MMenuPanelSettings
 "Настройки па&нели"
@@ -14427,7 +14427,7 @@ MMenuInterface
 "► &Interfaccia"
 "Налаштування &інтерфейсу"
 "Налады знешняга в&ыгляду"
-"&Sąsajos nuostatai"
+"&Sąsajos nustatymai"
 
 MMenuLanguages
 "&Языки"
@@ -14623,7 +14623,7 @@ MMenuViewer
 "► Visuali&zzatore Interno"
 "Налаштування про&грами перегляду"
 "Налады пра&гляду"
-"Per&žiūros nuostatai"
+"Per&žiūros nustatymai"
 
 MMenuEditor
 "Настройки &редактора"
@@ -14637,7 +14637,7 @@ MMenuEditor
 "► Editor In&terno"
 "Налаштування &редактора"
 "Налады &змены"
-"&Redaktoriaus nuostatai"
+"&Redaktoriaus nustatymai"
 
 MMenuCodePages
 "Кодов&ые страницы"
@@ -16604,7 +16604,7 @@ MSetAttrTemporary
 "Dočasný"
 "Temporär"
 "&Átmeneti"
-"T&ymczasowy"
+"&Tymczasowy"
 "Temporal"
 "Dočasný"
 "&Temporaneo"
@@ -16618,7 +16618,7 @@ MSetAttrOffline
 "Offline"
 "Offline"
 "O&ffline"
-"Offline"
+"O&ffline"
 "Desconectado"
 "Offline"
 "Non In &Linea"
@@ -16632,7 +16632,7 @@ MSetAttrReparsePoint
 "Reparse point"
 "Analysepunkt"
 upd:"Reparse point"
-"Punkt analizy"
+"Punkt &analizy"
 "Punto de análisis"
 "Reparse point"
 "P&unto Di Reparse"
@@ -16646,7 +16646,7 @@ MSetAttrVirtual
 "Virtuální"
 "Virtuell"
 "&Virtuális"
-"Wirtualny"
+"&Wirtualny"
 "Virtual"
 "Virtuálny"
 "&Virtuale"
@@ -16660,7 +16660,7 @@ MSetAttrIntegrityStream
 "Integrity stream"
 "Integrität"
 upd:"Integrity stream"
-"Integralny strumień"
+"&Integralny strumień"
 "Cadena de integridad"
 "Integrita dát"
 "Integrità Flusso"
@@ -16674,7 +16674,7 @@ MSetAttrNoScrubData
 "No scrub data"
 "Keine Datenbereinigung"
 upd:"No scrub data"
-"Brak danych kontrolnych"
+"&Brak danych kontrolnych"
 "No hay datos depurados"
 "Žiadne dáta pre skener integrity dát"
 "Nessun Dato Scrub"
@@ -16688,7 +16688,7 @@ MSetAttrPinned
 "Připnuto"
 upd:"Pinned"
 upd:"Pinned"
-"Przypięty"
+"&Przypięty"
 "Anclado"
 upd:"Pinned"
 upd:"Pinned"
@@ -16702,7 +16702,7 @@ MSetAttrUnpinned
 "Odepnuto"
 upd:"Unpinned"
 upd:"Unpinned"
-"Odpiety"
+"&Odpięty"
 "Desanclado"
 upd:"Unpinned"
 upd:"Unpinned"
@@ -16716,7 +16716,7 @@ upd:"Recall on open"
 "Zavolat při otevření"
 upd:"Recall on open"
 upd:"Recall on open"
-"Przywołaj na otwarcie"
+"Przywołaj na otwar&cie"
 upd:"Recall on open"
 upd:"Recall on open"
 upd:"Recall on open"
@@ -16730,7 +16730,7 @@ upd:"Recall on data access"
 "Zavolat při přístupu k datům"
 upd:"Recall on data access"
 upd:"Recall on data access"
-"Przywołaj na dostęp danych"
+"Przywołaj na &dostęp danych"
 upd:"Recall on data access"
 upd:"Recall on data access"
 upd:"Recall on data access"
@@ -16744,7 +16744,7 @@ upd:"Strictly sequential"
 "Striktně sekvenční"
 upd:"Strictly sequential"
 upd:"Strictly sequential"
-"Czysto sekwencyjny"
+"&Sekwencyjny"
 upd:"Strictly sequential"
 upd:"Strictly sequential"
 upd:"Strictly sequential"
@@ -16758,7 +16758,7 @@ MSetAttrMore
 "Více"
 "Mehr"
 "Továbbiak"
-"Więcej"
+"Więce&j"
 "Más"
 "Viac"
 "Altro"
@@ -16842,7 +16842,7 @@ MSetAttrChange
 "Čas změny:"
 "Änderungsdatum:"
 upd:"Change time:"
-"Zmień czas:"
+"&Czas zmiany:"
 "Cambiar &hora:"
 "Čas zmeny:"
 "Cambia Data&/Ora:"
@@ -16884,7 +16884,7 @@ MSetAttrBlank
 "P&rázdný"
 "L&eer"
 "&Üres"
-"Wy&czyść"
+"Wycz&yść"
 "&Vaciar"
 "P&rázdny"
 "&Vuoto"
@@ -16969,7 +16969,7 @@ MSetAttrSystemDialog
 "Vlastnosti systému"
 "Systemeigenschaften"
 upd:"System properties"
-"Właściwości systemu"
+"Właściwości syste&mu"
 "Propiedades del sistema"
 "Vlastnosti systému"
 "Proprietà di Sistema"
@@ -17464,9 +17464,9 @@ MSetColorPanelScrollbar
 "Scrollbalken"
 "Gördítősáv"
 "Suwak"
-"Barra desplazamiento"
+"Barra de desplazamiento"
 "Posuvník"
-"Barre Di Scorrimento"
+"Barra Di Scorrimento"
 "Смужка прокручування"
 "Працяжнік"
 "Šliaužiklis"
@@ -17526,7 +17526,7 @@ MSetColorDialogDisabled
 "Testo Disabilitato"
 "Блокований текст"
 "Забаронены тэкст"
-upd:"Disabled text"
+"Atjungtas tekstas"
 
 MSetColorDialogBox
 "Рамка"
@@ -17624,7 +17624,7 @@ MSetColorDialogEditDisabled
 "Testo Di Input Disabilitato"
 "Блоковане поле введення"
 "Забаронены радок уводу"
-upd:"Disabled input line"
+"Atjungta įvedimo eilutė"
 
 MSetColorDialogButtons
 "Кнопки"
@@ -17900,10 +17900,10 @@ MSetColorDialogListScrollBar
 "Scrollbalken"
 "Gördítősáv"
 "Suwak"
-"Barra desplazamiento"
+"Barra de desplazamiento"
 "Posuvník"
-"Barre Di Scorrimento"
-"Смужка прокручув."
+"Barra Di Scorrimento"
+"Смужка прокручування"
 "Працяжнік"
 "Šliaužiklis"
 
@@ -18018,7 +18018,7 @@ upd:"Disabled text"
 "Testo Disabilitato"
 "Недоступний пункт"
 "Забаронены тэкст"
-upd:"Disabled text"
+"Atjungtas tekstas"
 
 MSetColorMenuGrayed
 "Серый текст"
@@ -18085,7 +18085,7 @@ MSetColorMenuScrollBar
 "Suwak"
 "Barra de desplazamiento"
 "Posuvník"
-"Barre Di Scorrimento"
+"Barra Di Scorrimento"
 "Смужка прокручування"
 "Працяжнік"
 "Šliaužiklis"
@@ -18273,7 +18273,7 @@ MSetColorCommandLinePrefix
 "Testo Prefisso"
 "Текст префікса"
 "Тэкст прыстаўкі"
-upd:"Prefix text"
+"Prefix tekstas"
 
 MSetColorCommandLineUserScreen
 "Пользовательский экран"
@@ -18387,7 +18387,7 @@ MSetColorViewerArrows
 "Frecce Di Scorrimento"
 "Стрілки зсуву екрану"
 "Стрэлкі зруху экрана"
-"Ekrano postūmio rodyklės"
+"Šliaužiklio rodyklės"
 
 MSetColorViewerScrollbar
 "Полоса прокрутки"
@@ -18595,7 +18595,7 @@ l:
 "Barva"
 "Farbe"
 "Színek"
-"Kolor"
+"Ustawienie kolorów"
 "Color"
 "Farba"
 "Colore"
@@ -18609,7 +18609,7 @@ MSetColorForeground
 "&Popředí:"
 "&Vordergrund:"
 "&Előtér:"
-"&Kolor:"
+"Ko&lor:"
 "&Caracteres:"
 "&Popredie:"
 "&PrimoPiano:"
@@ -18747,7 +18747,7 @@ MSetColorStyleInherit
 "Zdědí"
 "Erben"
 "Örökölje"
-"Dziedziczyć"
+"&Dziedziczenie"
 "Heredar"
 "Zdediť"
 "Eredita"
@@ -18761,7 +18761,7 @@ MSetColorStyleBold
 "Tučné"
 "Fett"
 "Félkövér"
-"Pogrubienie"
+"&Pogrubienie"
 "Negrita"
 "Tučné"
 "Grassetto"
@@ -18775,7 +18775,7 @@ MSetColorStyleItalic
 "Kurzíva"
 "Kursiv"
 "Dőlt"
-"Kursywa"
+"&Kursywa"
 "Cursiva"
 "Kurzíva"
 "Corsivo"
@@ -18789,7 +18789,7 @@ MSetColorStyleUnderline
 "Podtržené"
 "Unterstrichen"
 "Aláhúzott"
-"Podkreślenie"
+"Podkr&eślenie"
 "Subrayado"
 "Podčiarknuté"
 "Sottolineato"
@@ -18803,7 +18803,7 @@ MSetColorStyleUnderline2
 "Dvojitě"
 "Doppelt"
 "Dupla"
-"Podwójne"
+"Pod&wójne"
 "Doble"
 "Dvojité"
 "Doppia"
@@ -18817,7 +18817,7 @@ MSetColorStyleOverline
 "Nadtržítko"
 "Überstrichen"
 "Föléhúzás"
-"Nadkreślenie"
+"&Nadkreślenie"
 "Línea alta"
 "Horná čiara"
 "Linea sopra"
@@ -18831,7 +18831,7 @@ MSetColorStyleStrikeout
 "Přeškrtnuté"
 "Durchgestrichen"
 "Áthúzás"
-"Przekreślenie"
+"Pr&zekreślenie"
 "Tachado"
 "Prečiarknuté"
 "Barrato"
@@ -18845,7 +18845,7 @@ MSetColorStyleFaint
 "Tmavé"
 "Abblenden"
 "Sötét"
-"Przygaszone"
+"Przy&gaszenie"
 "Atenuado"
 "Temné"
 "Tenue"
@@ -18859,7 +18859,7 @@ MSetColorStyleBlink
 "Blikající"
 "Blinkend"
 "Villogás"
-"Miganie"
+"&Miganie"
 "Intermitente"
 "Blikanie"
 "Intermittente"
@@ -21136,7 +21136,7 @@ MViewSearchWholeWords
 "Parole Intere"
 "Только &целие слова"
 "Толькі по&ўныя словы"
-upd:"&Whole words"
+"Visi ž&odžiai"
 
 MViewSearchReverse
 "Обратн&ый поиск"
@@ -22642,7 +22642,7 @@ upd:"Unload plugin"
 "Scarica Plugin"
 "Вивантажити плагін"
 "Выгрузіць дадатак"
-upd:"&Unload plugin"
+"Iškrauti priedą"
 
 MExcFullDump
 "Полный дамп"
@@ -22701,7 +22701,7 @@ l:
 "Non Posso Leggere Il Contenuto Della Cartella"
 "Не вдалося прочитати вміст папки"
 "Немагчыма прачытаць змест каталогу"
-upd:"Cannot read folder contents"
+"Negaliu perskaityti katalogo"
 
 MPlgBadVers
 l:
@@ -22716,7 +22716,7 @@ l:
 "Questo Plugin Richiede Una Versione Maggiore Di Far"
 "Для роботи цього плагіна потрібна новіша версія Far"
 "Для працы дадатку патрабуецца больш новая версія Far"
-upd:"This plugin requires more recent version of Far"
+"Šis priedas veikia tik su vėlesne Far versija"
 
 MPlgRequired
 "Требуемая версия Far - {0},"
@@ -22730,7 +22730,7 @@ MPlgRequired
 "Richiesta La Versione {0} Di Far"
 "Потрібна версія Far - {0},"
 "Патрабуемая версія Far - {0},"
-upd:"Required Far version is {0},"
+"Reikalinga Far versija - {0},"
 
 MPlgRequired2
 "текущая версия Far - {0}."
@@ -22739,12 +22739,12 @@ MPlgRequired2
 "aktuelle Far-Version ist {0}."
 "a jelenlegi Far verzió: {0}."
 "bieżąca wersja Far: {0}."
-"La versión actual de Far es {0}."
+"la versión actual de Far es {0}."
 "terajšia verzia Faru je {0}."
 "Versione Attuale: {0}"
 "поточна версія Far - {0}."
 "бягучая версія Far - {0}."
-upd:"current Far version is {0}."
+"naudojama Far versija - {0}."
 
 MPlgLoadPluginError
 "Ошибка при загрузке плагина"
@@ -22758,7 +22758,7 @@ upd:"Plugin betöltési hiba"
 "Errore Di Caricamento Del Modulo Plugin"
 "Помилка при завантаженні плагіна"
 "Памылка пры запамоўцы дадатку"
-upd:"Error loading plugin"
+"Priedo pakrovimo klaida"
 
 MHelpTitle
 l:
@@ -22787,7 +22787,7 @@ MHelpActivatorURL
 "Questa Voce Avvia Una Applicazione Esterna"
 "Це посилання запускає зовнішній додаток"
 "Гэты спасылак запускае знешнюю праграму"
-upd:"This reference starts an external application"
+"Ši nuoroda paleis šorinę programą:"
 
 MHelpActivatorFormat
 "с параметром:"
@@ -22801,7 +22801,7 @@ MHelpActivatorFormat
 "Con Il Parametro:"
 "з параметром:"
 "з параметрамі:"
-upd:"with parameter:"
+"su parametrais:"
 
 MHelpActivatorQ
 "Желаете запустить?"
@@ -22815,7 +22815,7 @@ MHelpActivatorQ
 "Vuoi Avviarla?"
 "Бажаєте запустити?"
 "Вы жадаеце запусіць?"
-upd:"Do you wish to start it?"
+"Ar norite ją paleisti?"
 
 MCannotOpenHelp
 "Ошибка открытия файла"
@@ -24475,7 +24475,7 @@ MInfoShiftF2
 "A Capo"
 "Слова"
 "Словы"
-upd:"WWrap"
+"Kelti"
 
 MInfoShiftF3
 ""
@@ -24729,7 +24729,7 @@ MInfoAltF8
 "Vai A"
 "Рядок"
 "Радок"
-upd:"Goto"
+"Eiti"
 
 MInfoAltF9
 "Видео"
@@ -25835,7 +25835,7 @@ MQViewShiftF2
 "A Capo"
 "Слова"
 "Словы"
-upd:"WWrap"
+"Kelti"
 
 MQViewShiftF3
 ""
@@ -26089,7 +26089,7 @@ MQViewAltF8
 "Vai A"
 "Рядок"
 "Радок"
-upd:"Goto"
+"Eiti"
 
 MQViewAltF9
 "Видео"
