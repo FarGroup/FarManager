@@ -162,7 +162,6 @@ void copy_progress::next()
 void copy_progress::undo()
 {
 	m_BytesTotal.Copied -= m_BytesCurrent.Copied;
-	m_BytesTotal.Total -= m_BytesCurrent.Total;
 
 	m_BytesCurrent.Copied = 0;
 
