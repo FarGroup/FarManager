@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 01.09.2021 20:51:01 +0100 - build 5886
+
+1. gh-437: File list copy: Wrong number of total bytes on retry.
+
+2. Correction of 5860.
+
+--------------------------------------------------------------------------------
 drkns 29.08.2021 22:22:22 +0100 - build 5885
 
 1. Don't add Unicode BOM to file lists created with !@! (5740 again).

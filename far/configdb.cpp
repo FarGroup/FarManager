@@ -2011,13 +2011,13 @@ private:
 		return AutoStatement(Reverse? stmtEnumDesc : stmtEnum);
 	}
 
-	bool Enum(const bool Reset, const unsigned int TypeHistory, const string_view HistoryName, const string_view ItemName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strUuid, string& strFile, string& strData, const bool Reverse) override
+	bool Enum(const bool Reset, const unsigned int TypeHistory, const string_view HistoryName, const std::optional<string_view> ItemName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strUuid, string& strFile, string& strData, const bool Reverse) override
 	{
 		WaitAllAsync();
 		auto Stmt = EnumStmt(Reverse);
 
 		if (Reset)
-			Stmt->Reset().Bind(TypeHistory, HistoryName, ItemName.empty(), ItemName);
+			Stmt->Reset().Bind(TypeHistory, HistoryName, !ItemName, ItemName.value_or(L""sv));
 
 		if (!Stmt->Step())
 			return false;
