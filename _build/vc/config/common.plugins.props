@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup Label="UserMacros">
+    <ProjectSpecificOutDirName>plugins\$(ProjectName)</ProjectSpecificOutDirName>
+    <ProjectSpecificIntDirName>plugins\$(ProjectName)</ProjectSpecificIntDirName>
+  </PropertyGroup>
+
+  <Import Project="$(MSBuildThisFileDirectory)\common.props" />
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SrcRoot)plugins\common\unicode;$(SrcRoot)plugins\common;$(SrcRoot)\far\common;$(SrcRoot)\far\thirdparty\fmt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_NON_CONFORMING_WCSTOK;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4668</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SrcRoot)plugins\common;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ModuleDefinitionFile>$(ProjectName)W.vc.def</ModuleDefinitionFile>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SrcRoot)plugins\common\unicode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+
+  <ItemGroup>
+    <ClCompile Include="*.cpp" />
+    <ClCompile Include="*.c" />
+    <MASM Include="$(SrcRoot)plugins\common\vc_crt_fix.asm">
+      <Message>%(Identity)</Message>
+      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+    </MASM>
+    <ClCompile Include="$(SrcRoot)plugins\common\vc_crt_fix_impl.cpp">
+      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClInclude Include="*.hpp" />
+    <ResourceCompile Include="*.rc" />
+    <None Include="*.def" />
+    <None Include="changelog" />
+    <CustomBuild Include="*.lng">
+      <Message>%(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir) &gt; nul</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="*.hlf">
+      <Message>%(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir) &gt; nul</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="*.farconfig">
+      <Message>%(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir) &gt; nul</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="*.lua">
+      <Message>%(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir) &gt; nul</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="*.ini">
+      <Message>%(Identity)</Message>
+      <Command>copy %(Identity) $(OutDir) &gt; nul</Command>
+      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+
+</Project>

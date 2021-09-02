@@ -625,7 +625,8 @@ static wchar_t* __getContent(int outputtofile,wchar_t *pCmd)
 				lstrcpy(DestPath, Ptr+shift);
 				delete[] Ptr;
 
-				if (!(Ptr=wcschr(DestPath,L'\r')))
+				Ptr = wcschr(DestPath, L'\r');
+				if (!Ptr)
 					Ptr=wcschr(DestPath,L'\n');
 
 				if (Ptr)

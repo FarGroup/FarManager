@@ -1,12 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectName>compare</ProjectName>
+    <ProjectName>Compare</ProjectName>
     <ProjectGuid>{C4064D6C-AA3F-4C71-B78D-F406929EE036}</ProjectGuid>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <OutDir>plugins\$(ProjectName)</OutDir>
   </PropertyGroup>
   <ImportGroup Label="PropertySheets">
-    <Import Project="$(ProjectDir)..\..\_build\vc\config\common.props" />
+    <Import Project="$(ProjectDir)..\..\_build\vc\config\common.plugins.props" />
   </ImportGroup>
 </Project>

@@ -272,7 +272,6 @@ DEFINES=\
 	/D "UNICODE"\
 	/D "_UNICODE"\
 	/D "$(USEDEBUG)"\
-	/D "FAR_ALPHA_VERSION"\
 !ifdef ENABLE_TESTS
 	/D "ENABLE_TESTS"\
 !endif

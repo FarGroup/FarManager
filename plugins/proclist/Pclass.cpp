@@ -80,7 +80,7 @@ static std::wstring ui64toa_width(uint64_t value, unsigned width, bool bThousand
 
 	if (const auto NumDigits = Integral < 10? 2 : Integral < 100? 1 : 0)
 	{
-		const auto AjustedParts = [&]
+		const auto AdjustedParts = [&]
 		{
 			const auto Multiplier = static_cast<unsigned long long>(std::pow(10, NumDigits));
 			const auto Value = Parts[1] * Multiplier;
@@ -89,7 +89,7 @@ static std::wstring ui64toa_width(uint64_t value, unsigned width, bool bThousand
 			return Fractional == Multiplier? std::make_pair(Integral + 1, 0ull) : std::make_pair(Integral, Fractional);
 		}();
 
-		ValueStr = format(FSTR(L"{0}.{1:0{2}}"), AjustedParts.first, AjustedParts.second, NumDigits);
+		ValueStr = format(FSTR(L"{0}.{1:0{2}}"), AdjustedParts.first, AdjustedParts.second, NumDigits);
 	}
 	else
 	{
@@ -1695,7 +1695,7 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 		const auto cIndicator = Reversed? L'▼' : L'▲';
 		const auto KnownSortingSlot =
 			pi.SortMode == FarSortModeSlot ||
-			std::any_of(std::cbegin(StaticItems), std::cend(StaticItems), [&](const auto& i){ return pi.SortMode == i.SortMode; });
+			std::any_of(std::cbegin(StaticItems), std::cend(StaticItems), [&](const auto& i){ return static_cast<unsigned>(pi.SortMode) == i.SortMode; });
 
 		const auto CheckFlag = [&](size_t const Value)
 		{
@@ -1758,7 +1758,7 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 			PsInfo.PanelControl(this, FCTL_SETSORTMODE, FarSortMode, {});
 
 			const auto InvertByDefault = !IsStatic || StaticItems[rc].InvertByDefault;
-			const auto SameSelected = FarSortMode == LastFarSortMode && SortMode == LastInternalSortMode;
+			const auto SameSelected = static_cast<unsigned>(FarSortMode) == LastFarSortMode && SortMode == LastInternalSortMode;
 
 			PsInfo.PanelControl(this, FCTL_SETSORTORDER, SameSelected? !InvertByDefault : InvertByDefault, {});
 

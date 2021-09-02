@@ -1,85 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <!--
-    <ProjectConfiguration Include="Debug|ARM">
-      <Configuration>Debug</Configuration>
-      <Platform>ARM</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|ARM">
-      <Configuration>Release</Configuration>
-      <Platform>ARM</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|ARM64">
-      <Configuration>Debug</Configuration>
-      <Platform>ARM64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|ARM64">
-      <Configuration>Release</Configuration>
-      <Platform>ARM64</Platform>
-    </ProjectConfiguration>
-    -->
-  </ItemGroup>
+
   <PropertyGroup Label="Globals">
     <ProjectName>Far</ProjectName>
     <ProjectGuid>{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}</ProjectGuid>
     <RootNamespace>Far</RootNamespace>
-    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)'=='15.0'">10.0.16299.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)'=='16.0'">10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Label="Configuration">
-    <CharacterSet>Unicode</CharacterSet>
+
+  <PropertyGroup Label="UserMacros">
+    <ProjectSpecificOutDirName>.</ProjectSpecificOutDirName>
+    <ProjectSpecificIntDirName>$(ProjectName)</ProjectSpecificIntDirName>
   </PropertyGroup>
-  <PropertyGroup>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' &gt;= '16.0'">v142</PlatformToolset>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
-  </ImportGroup>
+
   <ImportGroup Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+    <Import Project="$(ProjectDir)..\_build\vc\config\common.props" />
   </ImportGroup>
-  <PropertyGroup>
-    <OutDir>$(Configuration).$(PlatformArchitecture).vc\</OutDir>
-    <IntDir>$(OutDir)obj\</IntDir>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <EmbedManifest>false</EmbedManifest>
-    <GenerateManifest>false</GenerateManifest>
-  </PropertyGroup>
+
   <PropertyGroup Label="UserMacros">
     <BootstrapDir>$(IntDir)include\bootstrap\</BootstrapDir>
-    <TargetOsVersion Condition="'$(Platform)'=='Win32'">5.0</TargetOsVersion>
-    <TargetOsVersion Condition="'$(Platform)'=='x64'">5.2</TargetOsVersion>
-    <NewOptions Condition="'$(VisualStudioVersion)'=='15.0'"></NewOptions>
-    <NewOptions Condition="'$(VisualStudioVersion)'&gt;='16.0'"></NewOptions>
     <M4Cmd>tools\m4.exe -P -DFARBIT=$(PlatformArchitecture) -DBUILD_TYPE=%25FARMANAGER_BUILD_TYPE%25 -DSCM_REVISION=%25FARMANAGER_SCM_REVISION%25</M4Cmd>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <LinkIncremental>false</LinkIncremental>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
+
   <ItemDefinitionGroup>
     <PreBuildEvent>
       <Message>Creating mandatory folders...</Message>
@@ -88,94 +29,24 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
     </PreBuildEvent>
     <ClCompile>
       <AdditionalIncludeDirectories>$(BootstrapDir)..</AdditionalIncludeDirectories>
-      <AdditionalOptions>/J /Zc:__cplusplus,externConstexpr,inline,throwingNew /volatile:iso /utf-8 $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>_ENABLE_EXTENDED_ALIGNED_STORAGE;_HAS_AUTO_PTR_ETC=0;_CRT_SECURE_NO_WARNINGS;FAR_ALPHA_VERSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>Sync</ExceptionHandling>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>headers.hpp</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)headers.pch</PrecompiledHeaderOutputFile>
-      <WarningLevel>EnableAllWarnings</WarningLevel>
-      <ExternalWarningLevel>Level4</ExternalWarningLevel>
-      <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
-      <StringPooling>true</StringPooling>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <Cpp0xSupport>true</Cpp0xSupport>
-      <DisableSpecificDiagnostics>869,3280</DisableSpecificDiagnostics>
-      <ForcedIncludeFiles>disabled_warnings.hpp;headers.hpp;memcheck.hpp</ForcedIncludeFiles>
-      <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
-      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
-      <DiagnosticsFormat>Caret</DiagnosticsFormat>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <ConformanceMode>true</ConformanceMode>
-      <UseFullPaths>false</UseFullPaths>
+      <ForcedIncludeFiles>%(ForcedIncludeFiles);headers.hpp;memcheck.hpp</ForcedIncludeFiles>
     </ClCompile>
-    <ResourceCompile>
-      <Culture>0x0409</Culture>
-    </ResourceCompile>
-    <Link>
-      <AdditionalDependencies>netapi32.lib;mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;version.lib;userenv.lib;comdlg32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <GenerateManifest>false</GenerateManifest>
-      <ModuleDefinitionFile>
-      </ModuleDefinitionFile>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <GenerateMapFile>true</GenerateMapFile>
-      <SubSystem>Console</SubSystem>
-      <LargeAddressAware>true</LargeAddressAware>
-    </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
-    <ClCompile>
-      <Optimization>MaxSpeed</Optimization>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-    </ClCompile>
-    <ResourceCompile>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ResourceCompile>
-    <Link>
-      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <SetChecksum>true</SetChecksum>
-      <Profile>true</Profile>
-    </Link>
-    <PostBuildEvent Condition="'$(Platform)'=='Win32' or '$(Platform)'=='x64'">
-      <Command>editbin /nologo /subsystem:console,$(TargetOsVersion) /osversion:$(TargetOsVersion) $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
-      <Message>Fixing subsystem version</Message>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
+
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
-      <Optimization>Disabled</Optimization>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <PreprocessorDefinitions>_DEBUG;ENABLE_TESTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SupportJustMyCode>true</SupportJustMyCode>
-      <SDLCheck>true</SDLCheck>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <PreprocessorDefinitions>ENABLE_TESTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ResourceCompile>
-      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ResourceCompile>
-    <Link>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-    </Link>
+
     <PostBuildEvent Condition="'$(Platform)'=='Win32' or '$(Platform)'=='x64'">
       <Command>$(OutDir)$(TargetName)$(TargetExt) /service:test</Command>
       <Message>Running unit tests</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
-    <ClCompile>
-      <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
-  </ItemDefinitionGroup>
+
   <ItemGroup>
     <CustomBuild Include="api_test.c">
       <Command>echo testing C plugin API
@@ -713,8 +584,4 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
   <ItemGroup>
     <Natvis Include="far.natvis" />
   </ItemGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
-  </ImportGroup>
 </Project>

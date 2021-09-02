@@ -15,9 +15,6 @@ ifdef DEBUG
 ENABLE_TESTS = 1
 endif
 
-CFLAGS += \
-	-D FAR_ALPHA_VERSION \
-
 ifdef ENABLE_TESTS
 CFLAGS += \
 	-D ENABLE_TESTS \

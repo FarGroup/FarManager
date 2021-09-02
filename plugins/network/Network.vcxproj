@@ -1,12 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectName>network</ProjectName>
+    <ProjectName>Network</ProjectName>
     <ProjectGuid>{731A85E7-6D1F-48BD-A520-4C8DFEC2F6F3}</ProjectGuid>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <OutDir>plugins\$(ProjectName)</OutDir>
   </PropertyGroup>
   <ImportGroup Label="PropertySheets">
-    <Import Project="$(ProjectDir)..\..\_build\vc\config\common.props" />
+    <Import Project="$(ProjectDir)..\..\_build\vc\config\common.plugins.props" />
   </ImportGroup>
 </Project>

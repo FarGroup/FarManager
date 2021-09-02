@@ -579,16 +579,16 @@ static int WINAPI PICompare(const void *el1, const void *el2, void*)
  ****************************************************************************/
 static bool BuildPanelIndex(const OwnPanelInfo *pInfo, FileIndex *pIndex, HANDLE Filter)
 {
-	bool bProcessSelected;
+	const auto bProcessSelected = Opt.ProcessSelected && pInfo->SelectedItemsNumber && pInfo->SelectedItems[0].Flags & PPIF_SELECTED;
+
 	pIndex->ppi = {};
-	pIndex->iCount = (int)((bProcessSelected = (Opt.ProcessSelected && pInfo->SelectedItemsNumber &&
-	                        (pInfo->SelectedItems[0].Flags & PPIF_SELECTED))) ? pInfo->SelectedItemsNumber :
-	                       pInfo->ItemsNumber);
+	pIndex->iCount = static_cast<int>(bProcessSelected? pInfo->SelectedItemsNumber : pInfo->ItemsNumber);
 
 	if (!pIndex->iCount)
 		return true;
 
-	if (!(pIndex->ppi = (PluginPanelItem **)malloc(pIndex->iCount*sizeof(pIndex->ppi[0]))))
+	pIndex->ppi = static_cast<PluginPanelItem**>(malloc(pIndex->iCount * sizeof(pIndex->ppi[0])));
+	if (!pIndex->ppi)
 		return false;
 
 	int j = 0;
@@ -663,9 +663,8 @@ static int GetDirList(OwnPanelInfo *PInfo, const wchar_t *Dir)
 		if ((wfdFindData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) && !Opt.ProcessHidden)
 			continue;
 
-		PluginPanelItem *pPPI;
-
-		if (!(pPPI = (PluginPanelItem *)realloc(*pPanelItem, (*pItemsNumber + 1) * sizeof(*pPPI))))
+		const auto pPPI = static_cast<PluginPanelItem*>(realloc(*pPanelItem, (*pItemsNumber + 1) * sizeof(PluginPanelItem)));
+		if (!pPPI)
 		{
 			iRet = FALSE;
 			break;
