@@ -1,12 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectName>emenu</ProjectName>
+    <ProjectName>EMenu</ProjectName>
     <ProjectGuid>{F49B5724-0420-46A9-A3F4-647C5722031C}</ProjectGuid>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <OutDir>plugins\$(ProjectName)</OutDir>
   </PropertyGroup>
   <ImportGroup Label="PropertySheets">
-    <Import Project="$(ProjectDir)..\..\_build\vc\config\common.props" />
+    <Import Project="$(ProjectDir)..\..\_build\vc\config\common.plugins.props" />
   </ImportGroup>
 </Project>

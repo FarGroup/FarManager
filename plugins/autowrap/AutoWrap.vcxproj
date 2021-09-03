@@ -1,12 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProjectName>autowrap</ProjectName>
+    <ProjectName>AutoWrap</ProjectName>
     <ProjectGuid>{370CE5BD-B4C8-4817-B3A1-5B461B4A408D}</ProjectGuid>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <OutDir>plugins\$(ProjectName)</OutDir>
   </PropertyGroup>
   <ImportGroup Label="PropertySheets">
-    <Import Project="$(ProjectDir)..\..\_build\vc\config\common.props" />
+    <Import Project="$(ProjectDir)..\..\_build\vc\config\common.plugins.props" />
   </ImportGroup>
 </Project>

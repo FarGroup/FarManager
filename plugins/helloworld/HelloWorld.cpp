@@ -7,15 +7,15 @@
 
 static struct PluginStartupInfo Info;
 
-void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+void WINAPI GetGlobalInfoW(struct GlobalInfo *GInfo)
 {
-	Info->StructSize=sizeof(struct GlobalInfo);
-	Info->MinFarVersion=FARMANAGERVERSION;
-	Info->Version=PLUGIN_VERSION;
-	Info->Guid=MainGuid;
-	Info->Title=PLUGIN_NAME;
-	Info->Description=PLUGIN_DESC;
-	Info->Author=PLUGIN_AUTHOR;
+	GInfo->StructSize=sizeof(struct GlobalInfo);
+	GInfo->MinFarVersion=FARMANAGERVERSION;
+	GInfo->Version=PLUGIN_VERSION;
+	GInfo->Guid=MainGuid;
+	GInfo->Title=PLUGIN_NAME;
+	GInfo->Description=PLUGIN_DESC;
+	GInfo->Author=PLUGIN_AUTHOR;
 }
 
 /*
@@ -40,15 +40,15 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psi)
 /*
 Функция GetPluginInfoW вызывается для получения информации о плагине
 */
-void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+void WINAPI GetPluginInfoW(struct PluginInfo *PInfo)
 {
-	Info->StructSize=sizeof(*Info);
-	Info->Flags=PF_EDITOR;
+	PInfo->StructSize=sizeof(*PInfo);
+	PInfo->Flags=PF_EDITOR;
 	static const wchar_t *PluginMenuStrings[1];
 	PluginMenuStrings[0]=GetMsg(MTitle);
-	Info->PluginMenu.Guids=&MenuGuid;
-	Info->PluginMenu.Strings=PluginMenuStrings;
-	Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
+	PInfo->PluginMenu.Guids=&MenuGuid;
+	PInfo->PluginMenu.Strings=PluginMenuStrings;
+	PInfo->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
 }
 
 /*

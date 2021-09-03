@@ -1240,7 +1240,8 @@ BOOL NetBrowser::GetResourceInfo(wchar_t *SrcName,LPNETRESOURCE DstNetResource)
 	//   call the LocalAlloc function to allocate a larger buffer.
 	if (dwError == ERROR_MORE_DATA)
 	{
-		if ((lpnrOut = (LPNETRESOURCE)LocalAlloc(LMEM_FIXED, cbBuffer)))
+		lpnrOut = static_cast<NETRESOURCE*>(LocalAlloc(LMEM_FIXED, cbBuffer));
+		if (lpnrOut)
 			dwError = WNetGetResourceInformation(&nr, lpnrOut, &cbBuffer, &pszSystem);
 	}
 
@@ -1308,7 +1309,8 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE &SrcRes, LPNETRESOURCE DstNetReso
 	//   call the LocalAlloc function to allocate a larger buffer.
 	if (dwError == ERROR_MORE_DATA)
 	{
-		if ((lpnrOut = (LPNETRESOURCE)LocalAlloc(LMEM_FIXED, cbBuffer)))
+		lpnrOut = static_cast<LPNETRESOURCE>(LocalAlloc(LMEM_FIXED, cbBuffer));
+		if (lpnrOut)
 			dwError = WNetGetResourceInformation(&nrSrc, lpnrOut, &cbBuffer, &pszSystem);
 	}
 

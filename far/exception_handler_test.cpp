@@ -55,8 +55,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-#if defined(FAR_ALPHA_VERSION)
-
 namespace tests
 {
 	[[noreturn]]
@@ -482,11 +480,8 @@ static bool ExceptionTestHook(Manager::Key const& key)
 
 	return true;
 }
-#endif
 
 void RegisterTestExceptionsHook()
 {
-#ifdef FAR_ALPHA_VERSION
 	Global->WindowManager->AddGlobalKeyHandler(ExceptionTestHook);
-#endif
 }

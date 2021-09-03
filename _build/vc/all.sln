@@ -1,53 +1,55 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "align", "..\..\plugins\align\align.vcxproj", "{D9387B45-34A6-4CB6-A1B0-563E3480CFF8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Far", "Far", "{B95007A5-F03D-4F39-BE31-AFE6AFB753D6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "autowrap", "..\..\plugins\autowrap\AutoWrap.vcxproj", "{370CE5BD-B4C8-4817-B3A1-5B461B4A408D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Far", "..\..\far\far.vcxproj", "{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "brackets", "..\..\plugins\brackets\Brackets.vcxproj", "{A0CB9F6A-2E43-45E0-B57F-0BF483A14160}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{27B75A0D-B6FD-443C-BC07-AB38A5493EA9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "compare", "..\..\plugins\compare\compare.vcxproj", "{C4064D6C-AA3F-4C71-B78D-F406929EE036}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Align", "..\..\plugins\align\align.vcxproj", "{D9387B45-34A6-4CB6-A1B0-563E3480CFF8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "drawline", "..\..\plugins\drawline\DrawLine.vcxproj", "{412F0B80-AB59-4D2A-90C8-16C06EE1B77C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoWrap", "..\..\plugins\autowrap\AutoWrap.vcxproj", "{370CE5BD-B4C8-4817-B3A1-5B461B4A408D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "editcase", "..\..\plugins\editcase\EditCase.vcxproj", "{56007C20-ADD8-4E2A-AB8F-BEB832F94802}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Brackets", "..\..\plugins\brackets\Brackets.vcxproj", "{A0CB9F6A-2E43-45E0-B57F-0BF483A14160}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "emenu", "..\..\plugins\emenu\EMenu.vcxproj", "{F49B5724-0420-46A9-A3F4-647C5722031C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Compare", "..\..\plugins\compare\compare.vcxproj", "{C4064D6C-AA3F-4C71-B78D-F406929EE036}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "farcmds", "..\..\plugins\farcmds\FARCmds.vcxproj", "{C87BBC63-9CA9-4421-8589-5FFDEB000361}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DrawLine", "..\..\plugins\drawline\DrawLine.vcxproj", "{412F0B80-AB59-4D2A-90C8-16C06EE1B77C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "filecase", "..\..\plugins\filecase\FileCase.vcxproj", "{CC7215CC-15E2-48CF-ABAB-294E9600B22E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EditCase", "..\..\plugins\editcase\EditCase.vcxproj", "{56007C20-ADD8-4E2A-AB8F-BEB832F94802}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hlfviewer", "..\..\plugins\hlfviewer\HlfViewer.vcxproj", "{5E4E3EE1-7D35-4BAE-BF4A-A68ABFFCF876}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EMenu", "..\..\plugins\emenu\EMenu.vcxproj", "{F49B5724-0420-46A9-A3F4-647C5722031C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "network", "..\..\plugins\network\Network.vcxproj", "{731A85E7-6D1F-48BD-A520-4C8DFEC2F6F3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FarCmds", "..\..\plugins\farcmds\FARCmds.vcxproj", "{C87BBC63-9CA9-4421-8589-5FFDEB000361}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "procList", "..\..\plugins\proclist\ProcList.vcxproj", "{1F12132B-4424-48C4-8B9C-B10E8AEDE9C7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileCase", "..\..\plugins\filecase\FileCase.vcxproj", "{CC7215CC-15E2-48CF-ABAB-294E9600B22E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "samefolder", "..\..\plugins\samefolder\SameFolder.vcxproj", "{090E1BF4-BF2A-42F6-9DCF-64603F62A1D3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HlfViewer", "..\..\plugins\hlfviewer\HlfViewer.vcxproj", "{5E4E3EE1-7D35-4BAE-BF4A-A68ABFFCF876}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tmppanel", "..\..\plugins\tmppanel\TmpPanel.vcxproj", "{B40A055F-5616-4001-B4C0-3DAF156B168C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Network", "..\..\plugins\network\Network.vcxproj", "{731A85E7-6D1F-48BD-A520-4C8DFEC2F6F3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "helloworld", "..\..\plugins\helloworld\HelloWorld.vcxproj", "{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProcList", "..\..\plugins\proclist\ProcList.vcxproj", "{1F12132B-4424-48C4-8B9C-B10E8AEDE9C7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SameFolder", "..\..\plugins\samefolder\SameFolder.vcxproj", "{090E1BF4-BF2A-42F6-9DCF-64603F62A1D3}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TmpPanel", "..\..\plugins\tmppanel\TmpPanel.vcxproj", "{B40A055F-5616-4001-B4C0-3DAF156B168C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloWorld", "..\..\plugins\helloworld\HelloWorld.vcxproj", "{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ArcLite", "ArcLite", "{49398389-E2E4-4E36-9F65-50417EAB8E59}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "arclite", "..\..\plugins\arclite\arclite.vcxproj", "{38CF1530-243C-4C81-9B0E-DCA51551AC81}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "arclite", "arclite", "{49398389-E2E4-4E36-9F65-50417EAB8E59}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example", "..\..\plugins\arclite\example\example.vcxproj", "{A39C2D17-4730-4C13-A2BE-8C012616E771}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LuaMacro", "LuaMacro", "{17A6D8F3-DFC2-41A4-8D41-DA317C081BE0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "luafar3", "..\..\plugins\luamacro\luafar3.vcxproj", "{9FF87075-F1E1-410B-818C-2823396FE24F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "luamacro", "..\..\plugins\luamacro\luamacro.vcxproj", "{06BE01E6-7DC0-4D83-877C-B7ADE32175F8}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "luamacro", "luamacro", "{17A6D8F3-DFC2-41A4-8D41-DA317C081BE0}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{27B75A0D-B6FD-443C-BC07-AB38A5493EA9}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "far", "far", "{B95007A5-F03D-4F39-BE31-AFE6AFB753D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,14 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}.Debug|Win32.Build.0 = Debug|Win32
+		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}.Debug|x64.ActiveCfg = Debug|x64
+		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}.Debug|x64.Build.0 = Debug|x64
+		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}.Release|Win32.ActiveCfg = Release|Win32
+		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}.Release|Win32.Build.0 = Release|Win32
+		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}.Release|x64.ActiveCfg = Release|x64
+		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}.Release|x64.Build.0 = Release|x64
 		{D9387B45-34A6-4CB6-A1B0-563E3480CFF8}.Debug|Win32.ActiveCfg = Debug|Win32
 		{D9387B45-34A6-4CB6-A1B0-563E3480CFF8}.Debug|Win32.Build.0 = Debug|Win32
 		{D9387B45-34A6-4CB6-A1B0-563E3480CFF8}.Debug|x64.ActiveCfg = Debug|x64
@@ -214,6 +224,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB} = {B95007A5-F03D-4F39-BE31-AFE6AFB753D6}
 		{D9387B45-34A6-4CB6-A1B0-563E3480CFF8} = {27B75A0D-B6FD-443C-BC07-AB38A5493EA9}
 		{370CE5BD-B4C8-4817-B3A1-5B461B4A408D} = {27B75A0D-B6FD-443C-BC07-AB38A5493EA9}
 		{A0CB9F6A-2E43-45E0-B57F-0BF483A14160} = {27B75A0D-B6FD-443C-BC07-AB38A5493EA9}
@@ -230,10 +241,13 @@ Global
 		{B40A055F-5616-4001-B4C0-3DAF156B168C} = {27B75A0D-B6FD-443C-BC07-AB38A5493EA9}
 		{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1} = {27B75A0D-B6FD-443C-BC07-AB38A5493EA9}
 		{49398389-E2E4-4E36-9F65-50417EAB8E59} = {27B75A0D-B6FD-443C-BC07-AB38A5493EA9}
-		{17A6D8F3-DFC2-41A4-8D41-DA317C081BE0} = {27B75A0D-B6FD-443C-BC07-AB38A5493EA9}
 		{38CF1530-243C-4C81-9B0E-DCA51551AC81} = {49398389-E2E4-4E36-9F65-50417EAB8E59}
 		{A39C2D17-4730-4C13-A2BE-8C012616E771} = {49398389-E2E4-4E36-9F65-50417EAB8E59}
-		{06BE01E6-7DC0-4D83-877C-B7ADE32175F8} = {17A6D8F3-DFC2-41A4-8D41-DA317C081BE0}
+		{17A6D8F3-DFC2-41A4-8D41-DA317C081BE0} = {27B75A0D-B6FD-443C-BC07-AB38A5493EA9}
 		{9FF87075-F1E1-410B-818C-2823396FE24F} = {17A6D8F3-DFC2-41A4-8D41-DA317C081BE0}
+		{06BE01E6-7DC0-4D83-877C-B7ADE32175F8} = {17A6D8F3-DFC2-41A4-8D41-DA317C081BE0}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E99A673F-EAA4-4D48-9912-98DC5B54343F}
 	EndGlobalSection
 EndGlobal

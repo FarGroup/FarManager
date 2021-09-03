@@ -255,7 +255,7 @@ void PerfThread::Refresh()
 		}
 
 		if (rc == ERROR_MORE_DATA)
-			buf.resize(static_cast<size_t>(buf.size() * 1.5));
+			buf.resize(buf.size() + buf.size() / 2);
 		else if (rc < 0x100000)  // ??? sometimes we receive garbage in rc
 		{
 			bOK = false;
