@@ -94,8 +94,10 @@ return 0
 }
 
 rm -fR far
+rm -fR _build
 ( \
 	cp -R far.git/far ./ && \
+	cp -R far.git/_build ./ && \
 	buildfar far \
 ) || exit 1
 
