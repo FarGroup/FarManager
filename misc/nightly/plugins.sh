@@ -50,7 +50,7 @@ wine cmd /c ../../../common.64.bat &> ../../../logs/CRT64
 
 cd ../..
 
-MASKS="*.dll *.hlf *.lng *.farconfig *.lua *.map"
+MASKS="*.dll *.hlf *.lng *.farconfig *.lua *.map *.pdb"
 
 ( \
 bplugin "align"      "Align"      "$MASKS" && \
