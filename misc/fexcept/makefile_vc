@@ -16,7 +16,7 @@ All: excdump
 excdump:
 	@cd execdump
 !ifndef INSTALL
-	$(MAKE) /f makefile_vc $(_MKDO_)COPYTO=..\$(WORKDIR) $(_MDEFS)
+	$(MAKE) /f makefile_vc $(_MKDO_)COPYTO=..\$(OUTDIR) $(_MDEFS)
 !else
 	$(MAKE) /f makefile_vc $(_MDEFS) $(_MKDO_)INSTALL=..\$(INSTALL)\$(NAME) $(_MKDO_)FARDIR=..\$(INSTALL)
 !endif

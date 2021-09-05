@@ -98,5 +98,5 @@ All: copyto
 
 .PHONY: copyto
 copyto:
-	@copy /Y $(WORKDIR)\$(NAME).dll $(COPYTO)
+	@copy /Y $(OUTDIR)\$(NAME).dll $(COPYTO)
 !endif

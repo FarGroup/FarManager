@@ -105,6 +105,7 @@
     #include <direct.h>             // _chdir
     #include <dos.h>                // _argv
     #include <io.h>                 // struct ftime, SEEK_xxx
+    #include <timeapi.h>
   #if !defined(__MSOFT) && !defined(__INTEL)
     #include <dir.h>                // file IO
   #endif

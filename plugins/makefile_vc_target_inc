@@ -63,9 +63,6 @@ $(INTDIR)\vc_crt_fix_impl.obj: $(COMMON)\vc_crt_fix_impl.cpp
 
 .PHONY: dirs
 dirs:
-!ifdef INSTALL
-	if not exist "$(WORKDIR)\$(NULL)" mkdir "$(WORKDIR)"
-!endif
-	if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
 	if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
+	if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
 	if not exist "$(OUTDIR)$(ADDOUTDIR)\$(NULL)" mkdir "$(OUTDIR)$(ADDOUTDIR)"
