@@ -79,5 +79,3 @@ bplugin "luamacro"   "LuaMacro"   "$MASKS *.ini" \
 ) || exit 1
 
 cd ..
-
-rm -f outfinalnew32/luafar3.exp outfinalnew32/luafar3.lib outfinalnew32/luafar3.pdb outfinalnew64/luafar3.exp outfinalnew64/luafar3.lib outfinalnew64/luafar3.pdb
