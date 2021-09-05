@@ -1,9 +1,9 @@
 !ifndef NODEFLIB
 !if "$(BUILD_PLATFORM)" =="X86"
 !ifndef ULINK
-LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc_crt_fix.obj $(OBJDIR)\vc_crt_fix_impl.obj
+LINK_OBJS = $(LINK_OBJS) $(INTDIR)\vc_crt_fix.obj $(INTDIR)\vc_crt_fix_impl.obj
 !else
-LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc_crt_fix_ulink.obj
+LINK_OBJS = $(LINK_OBJS) $(INTDIR)\vc_crt_fix_ulink.obj
 !endif
 !endif
 !endif
@@ -13,10 +13,10 @@ ALL: dirs $(INSTALL) $(DLLFULLNAME)
 $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
 !ifndef __MAKE__
 	$(LNK) @<<
-	$(LINK_FLAGS) $(LIBS) $(LINK_OBJS) $(RES)
+	$(LINKFLAGS) $(LIBS) $(LINK_OBJS) $(RES)
 <<
 !else
-	$(LNK) $(LINK_FLAGS) $(LIBS) $(LINK_OBJS) $(RES)
+	$(LNK) $(LINKFLAGS) $(LIBS) $(LINK_OBJS) $(RES)
 !endif
 
 !ifdef DOCS
@@ -28,36 +28,36 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
 !endif
 
 !ifndef __MAKE__
-.cpp{$(OBJDIR)}.obj::
+.cpp{$(INTDIR)}.obj::
 	$(CC) @<<
 	$(CPPFLAGS) $<
 <<
 
-{$(COMMON)}.cpp{$(OBJDIR)}.obj::
+{$(COMMON)}.cpp{$(INTDIR)}.obj::
 	$(CC) @<<
 	$(CPPFLAGS) $<
 <<
 !else
-.cpp{$(OBJDIR)}.obj:
+.cpp{$(INTDIR)}.obj:
 	$(CC) $(CPPFLAGS) { $< }
 
-{$(COMMON)}.cpp{$(OBJDIR)}.obj:
+{$(COMMON)}.cpp{$(INTDIR)}.obj:
 	$(CC) $(CPPFLAGS) { $< }
 !endif
 
-.asm{$(OBJDIR)}.obj:
-	$(AS) $(AFLAGS) $<
+.asm{$(INTDIR)}.obj:
+	$(MASM) $(AFLAGS) $<
 
-{$(COMMON)}.asm{$(OBJDIR)}.obj:
-	$(AS) $(AFLAGS) $<
+{$(COMMON)}.asm{$(INTDIR)}.obj:
+	$(MASM) $(AFLAGS) $<
 
 $(RES): $(RC_NAME).rc $(COMINC)\farversion.hpp $(COMINC)\plugin.hpp
 	$(RC) /nologo /I"$(COMINC)" $(ENV_INC_OPT) $(RC_WIDE) /fo"$(RES)" $(RC_NAME).rc
 
-$(OBJDIR)\vc_crt_fix.obj: $(COMMON)\vc_crt_fix.asm
-	$(AS) $(AFLAGS) $(COMMON)\vc_crt_fix.asm
+$(INTDIR)\vc_crt_fix.obj: $(COMMON)\vc_crt_fix.asm
+	$(MASM) $(AFLAGS) $(COMMON)\vc_crt_fix.asm
 
-$(OBJDIR)\vc_crt_fix_impl.obj: $(COMMON)\vc_crt_fix_impl.cpp
+$(INTDIR)\vc_crt_fix_impl.obj: $(COMMON)\vc_crt_fix_impl.cpp
 	$(CPP) $(CPPFLAGS) $(FIXCRT_CPPFLAGS) $(COMMON)\vc_crt_fix_impl.cpp
 
 
@@ -66,6 +66,6 @@ dirs:
 !ifdef INSTALL
 	if not exist "$(WORKDIR)\$(NULL)" mkdir "$(WORKDIR)"
 !endif
-	if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
+	if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
 	if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
 	if not exist "$(OUTDIR)$(ADDOUTDIR)\$(NULL)" mkdir "$(OUTDIR)$(ADDOUTDIR)"

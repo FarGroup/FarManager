@@ -3,6 +3,7 @@
 #include <DlgBuilder.hpp>
 #include "Lang.hpp"
 #include "version.hpp"
+#include <rpc.h>
 
 #include "guid.hpp"
 #include <initguid.h>

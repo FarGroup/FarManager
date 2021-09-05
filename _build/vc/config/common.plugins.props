@@ -28,12 +28,10 @@
     <ClCompile Include="*.cpp" />
     <ClCompile Include="*.c" />
     <MASM Include="$(SrcRoot)plugins\common\vc_crt_fix.asm">
-      <Message>%(Identity)</Message>
-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
+      <PreprocessorDefinitions>$(Platform)</PreprocessorDefinitions>
+      <ExcludedFromBuild Condition="'$(Platform)'!='Win32' and '$(Platform)'!='x64'">true</ExcludedFromBuild>
     </MASM>
-    <ClCompile Include="$(SrcRoot)plugins\common\vc_crt_fix_impl.cpp">
-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="$(SrcRoot)plugins\common\vc_crt_fix_impl.cpp" />
     <ClInclude Include="*.hpp" />
     <ResourceCompile Include="*.rc" />
     <None Include="*.def" />

@@ -1,6 +1,7 @@
 ﻿//---------------------------------------------------------------------------
 
 #include <windows.h>
+#include <rpc.h>
 #include <ctype.h>
 #include <math.h>
 #include "version.h"

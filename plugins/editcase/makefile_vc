@@ -1,11 +1,8 @@
-!include ../makefile_vc_base
-
 NAME = EditCase
 
-LINK_OBJS = $(OBJDIR)\EditCase.obj
+LINK_OBJS = $(INTDIR)\EditCase.obj
 
 !include ..\makefile_vc_def_inc
-
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\EditCase.obj: EditCase.cpp EditLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp
+$(INTDIR)\EditCase.obj: EditCase.cpp EditLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp

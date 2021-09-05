@@ -49,13 +49,13 @@ WIDE = -U UNICODE -U _UNICODE
 endif
 
 ifndef DEBUG
-DIRNAME := final
+DIRNAME := Release
 C_DEBUG := -O3 -fomit-frame-pointer -DNDEBUG
 ifndef USE_OBJDUMP_MAPS
 L_DEBUG := -s
 endif
 else
-DIRNAME := debug
+DIRNAME := Debug
 C_DEBUG := -g -D_DEBUG
 L_DEBUG :=
 endif

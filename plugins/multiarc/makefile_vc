@@ -1,19 +1,17 @@
-!include ../makefile_vc_base
-
 ANSI = 1
 NAME = MultiArc
 LINK_OBJS = \
-	$(OBJDIR)\MultiArc.obj \
-	$(OBJDIR)\ArcCfg.obj \
-	$(OBJDIR)\ArcCmd.obj \
-	$(OBJDIR)\ArcGet.obj \
-	$(OBJDIR)\ArcMix.obj \
-	$(OBJDIR)\ArcPlg.obj \
-	$(OBJDIR)\ArcProc.obj \
-	$(OBJDIR)\ArcPut.obj \
-	$(OBJDIR)\ArcRead.obj \
-	$(OBJDIR)\ArcReg.obj \
-	$(OBJDIR)\global.obj
+	$(INTDIR)\MultiArc.obj \
+	$(INTDIR)\ArcCfg.obj \
+	$(INTDIR)\ArcCmd.obj \
+	$(INTDIR)\ArcGet.obj \
+	$(INTDIR)\ArcMix.obj \
+	$(INTDIR)\ArcPlg.obj \
+	$(INTDIR)\ArcProc.obj \
+	$(INTDIR)\ArcPut.obj \
+	$(INTDIR)\ArcRead.obj \
+	$(INTDIR)\ArcReg.obj \
+	$(INTDIR)\global.obj
 
 DOCS = \
 	MultiArc.TryIfNoOther.reg
@@ -21,7 +19,6 @@ DOCS = \
 USERCPP=/wd4996
 
 !include ..\makefile_vc_def_inc
-
 !include ..\makefile_vc_target_inc
 
 ALL: dirs libpcre fmtdir fmts

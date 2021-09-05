@@ -60,6 +60,16 @@
 #GEN_IMPLIB - set when link with ulink and implib must be generated
 #
 
+!ifndef ROOTDIR
+ROOTDIR = ../..
+!endif
+
+!include $(ROOTDIR)/_build/vc/config/common.mak
+
+!if exists($(ROOTDIR)make_vc_defs)
+!include $(ROOTDIR)make_vc_defs
+!endif
+
 !ifndef RC_NAME
 RC_NAME=$(NAME)
 !endif
@@ -68,28 +78,15 @@ RC_NAME=$(NAME)
 DEF_NAME=$(NAME)
 !endif
 
-!ifndef DEBUG
-DIRNAME=final
-!else
-DIRNAME=debug
-!endif
-
-!ifndef ANSI
-DIRSUFF = W
-!endif
-
-WORKDIR = $(DIRNAME).$(DIRBIT)$(DIRSUFF).vc
 !ifdef INSTALL
 !ifndef FARDIR
 OUTDIR=$(INSTALL)\$(NAME)
 !else
 OUTDIR=$(INSTALL)
 !endif
-!else
-OUTDIR=$(WORKDIR)
 !endif
 
-OBJDIR = $(WORKDIR)\obj$(ADDOBJDIR)
+INTDIR = $(INTDIR)$(ADDOBJDIR)
 !ifndef COMMON
 COMMON = ..\common
 !endif
@@ -114,36 +111,12 @@ DEFFILE = $(DEF_NAME)W.vc$(ULN_DEF).def
 DEFOPT = /def:$(DEFFILE)
 !endif
 MAP = $(OUTDIR)$(ADDOUTDIR)\$(NAME).map
-RES = $(OBJDIR)\$(NAME).res
+RES = $(INTDIR)\$(NAME).res
 
+CPPFLAGS = $(CPPFLAGS) /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_NON_CONFORMING_WCSTOK /D_CRT_NONSTDC_NO_WARNINGS /D_CRT_NON_CONFORMING_SWPRINTFS $(USERCPP)
 
-AFLAGS = /nologo /c /Fo"$(OBJDIR)\\"
-CPPFLAGS = /nologo /MP /c /W3 /Gy /GF /J /GS- /GR- /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /DNOMINMAX /D_CRT_NON_CONFORMING_WCSTOK /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_CRT_NON_CONFORMING_SWPRINTFS /D_WIN32_WINNT=0x0502 $(USERCPP) /Fo"$(OBJDIR)\\" /Fd"$(OBJDIR)\\"
-!if $(VC) >= 15
-CPPFLAGS = $(CPPFLAGS) /std:c++17 /permissive-
-!endif
-
-!ifndef DEBUG
-CPPFLAGS=$(CPPFLAGS) /DNDEBUG /O2
-!else
-CPPFLAGS=$(CPPFLAGS) /DDEBUG /Od
-!endif
-
-!ifndef NO_RELEASE_PDB
-CPPFLAGS=$(CPPFLAGS) /Zi
-!endif
-
-!if $(VC) >= 11 && "$(BUILD_PLATFORM)" == "X86"
-CPPFLAGS=$(CPPFLAGS) /arch:IA32
-!endif
-
-!if $(VC) >= 14
 CPPFLAGS = $(CPPFLAGS) /Zc:threadSafeInit-
-!endif
-
-!if $(VC) >= 14
 FIXCRT_CPPFLAGS = /Zc:threadSafeInit-
-!endif
 
 !if "$(BUILD_PLATFORM)" == "AMD64"
 ULOUT=-Tpd+
@@ -163,7 +136,7 @@ COMMONLIB = $(COMMON)\libCRT.lib
 !endif
 !endif
 
-LIBS = $(COMMONLIB) chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib Netapi32.lib version.lib oleaut32.lib wbemuuid.lib psapi.lib $(USERLIBS)
+LIBS = $(COMMONLIB) $(LINK_LIBS) $(USERLIBS)
 
 !ifdef _BIN_PATH_
 !ifndef _ML_PATH_
@@ -189,17 +162,7 @@ NOENTRY_FLAG = /noentry
 !ifdef NODEFLIB
 NODEFLIB_FLAG = /nodefaultlib
 !endif
-
-!if "$(BUILD_PLATFORM)" == "X86" && $(VC) < 11
-SUBSYSTEM=/subsystem:windows,5.0
-!endif
-LINK_FLAGS=$(SUBSYSTEM) /nologo /dll /release /dynamicbase /merge:.rdata=.text $(NOENTRY_FLAG) $(NODEFLIB_FLAG) $(ENV_LIB_OPT) $(DEFOPT) /map:"$(MAP)" /out:"$(DLLFULLNAME)"
-!ifndef NO_RELEASE_PDB
-LINK_FLAGS=$(LINK_FLAGS) /debug
-!endif
-!ifndef DEBUG
-LINK_FLAGS=$(LINK_FLAGS) /incremental:no /OPT:REF /OPT:ICF
-!endif
+LINKFLAGS = $(LINKFLAGS) /dll /implib:$(INTDIR)/$(NAME).lib $(NOENTRY_FLAG) $(NODEFLIB_FLAG) $(ENV_LIB_OPT) $(DEFOPT) /map:"$(MAP)" /out:"$(DLLFULLNAME)"
 !else
 LNK=$(_ULINK_PATH_)ulink.exe +-
 !ifdef NOENTRY
@@ -214,11 +177,11 @@ LINK_DEF_OPT=/ZD:"$(DEFFILE)"
 !ifdef GEN_IMPLIB
 LINK_GEN_IMPLIB=-Gic
 !endif
-LINK_FLAGS=-q -V5.0 -W5.0 -b* $(ULOUT) $(ULN_DELAY) -Gz -m- -Gh -Gh- $(NOENTRY_FLAG) $(NODEFLIB_FLAG) $(LINK_DEF_OPT) /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(LINK_GEN_IMPLIB) $(ENV_LIB_OPT)
+LINKFLAGS=-q -V5.0 -W5.0 -b* $(ULOUT) $(ULN_DELAY) -Gz -m- -Gh -Gh- $(NOENTRY_FLAG) $(NODEFLIB_FLAG) $(LINK_DEF_OPT) /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(LINK_GEN_IMPLIB) $(ENV_LIB_OPT)
 !ifdef DEBUG
-LINK_FLAGS=$(LINK_FLAGS) -v
+LINKFLAGS=$(LINKFLAGS) -v
 !elseif !defined(NO_RELEASE_PDB)
-LINK_FLAGS=$(LINK_FLAGS) -vv -ZT.
+LINKFLAGS=$(LINKFLAGS) -vv -ZT.
 !endif
 !endif
 

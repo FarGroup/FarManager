@@ -1,4 +1,4 @@
-#include <all_lib.h>
+﻿#include <all_lib.h>
 #pragma hdrstop
 #if defined(__MYPACKAGE__)
 #pragma package(smart_init)
@@ -229,7 +229,7 @@ LPVOID  MYRTLEXP _Alloc( SIZE_T sz )
     nptr->free     = FALSE;
 
 #ifdef __NEW_DEBUG
-    printf( "� %8ld %8ld, My: %8ld, MyLeft: %8ld, Core: %8ld\n",
+    printf( "▓ %8ld %8ld, My: %8ld, MyLeft: %8ld, Core: %8ld\n",
             sz-sizeof(heapinfo)-sizeof(MemoryInfoStruct),
             __GlobalMemCounts,__GlobalMemNewCount,
             __GlobalMemTotalCount - __GlobalMemNewCount,

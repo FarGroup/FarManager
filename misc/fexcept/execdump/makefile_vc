@@ -1,15 +1,14 @@
-ROOT_PATH=../../../
-!include ../../../plugins/makefile_vc_base
+ROOTDIR = ../../..
 
 ANSI = 1
 
 NAME = ExcDump
-LINK_OBJS = $(OBJDIR)\ExcDump.obj
+LINK_OBJS = $(INTDIR)\ExcDump.obj
 
 COMMON = ..\..\..\plugins\common
 
-XXLIB=$(OBJDIR)\xxLib.lib
-OBJLIB=$(OBJDIR)\LibObj
+XXLIB=$(INTDIR)\xxLib.lib
+OBJLIB=$(INTDIR)\LibObj
 LIBSRC=xxlib\std
 
 LIB_OBJS = \

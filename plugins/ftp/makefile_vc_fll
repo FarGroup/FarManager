@@ -1,5 +1,3 @@
-!include ../makefile_vc_base
-
 # nmake makefile_vc_fll.mak FLL=name
 #!if "$(FLL)" == ""
 #!error An invalid FLL-target
@@ -33,18 +31,18 @@ USERCPP=/I.\lib\$(FLL) /I.\lib /I.\FstdLib /D__USE_TRAPLOGER__=1
 
 !include ..\makefile_vc_def_inc
 
-LIBS=$(OBJDIR)\..\FsdLib.lib $(LIBS) $(FLL_LIBS)
+LIBS=$(INTDIR)\..\FsdLib.lib $(LIBS) $(FLL_LIBS)
 
 !include ..\makefile_vc_target_inc
 
 $(RES): version.hpp
 
 !ifndef __MAKE__
-{lib/$(FLL)}.cpp{$(OBJDIR)}.obj::
+{lib/$(FLL)}.cpp{$(INTDIR)}.obj::
 	@$(CC) @<<
 	$(CPPFLAGS) $<
 <<
-{lib}.cpp{$(OBJDIR)}.obj::
+{lib}.cpp{$(INTDIR)}.obj::
 	@$(CC) @<<
 	$(CPPFLAGS) $<
 <<

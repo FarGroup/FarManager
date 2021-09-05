@@ -7,6 +7,7 @@ Temporary panel plugin class implementation
 
 
 #include <cwchar>
+#include <cstdlib>
 #include "plugin.hpp"
 
 #include "TmpLng.hpp"

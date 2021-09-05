@@ -1,27 +1,24 @@
-!include ../makefile_vc_base
-
 NAME = Network
 
 LINK_OBJS = \
-	$(OBJDIR)\Network.obj \
-	$(OBJDIR)\NetCfg.obj \
-	$(OBJDIR)\NetClass.obj \
-	$(OBJDIR)\NetCommon.obj \
-	$(OBJDIR)\NetFavorites.obj \
-	$(OBJDIR)\NetMix.obj
+	$(INTDIR)\Network.obj \
+	$(INTDIR)\NetCfg.obj \
+	$(INTDIR)\NetClass.obj \
+	$(INTDIR)\NetCommon.obj \
+	$(INTDIR)\NetFavorites.obj \
+	$(INTDIR)\NetMix.obj
 
 !if defined(DEBUG) && !defined(NO_LOG)
 USERCPP=/DNETWORK_LOGGING
 !endif
 
 !include ..\makefile_vc_def_inc
-
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\NetCfg.obj : NetCfg.cpp NetCfg.hpp NetCommon.hpp NetLng.hpp NetFavorites.hpp NetClass.hpp guid.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\NetClass.obj : NetClass.cpp NetClass.hpp NetFavorites.hpp NetCommon.hpp NetLng.hpp NetCfg.hpp guid.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\NetCommon.obj : NetCommon.cpp NetCommon.hpp NetLng.hpp NetCfg.hpp NetFavorites.hpp NetClass.hpp guid.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\NetFavorites.obj : NetFavorites.cpp NetFavorites.hpp NetClass.hpp NetCommon.hpp NetLng.hpp guid.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\NetMix.obj : NetMix.cpp NetCommon.hpp NetLng.hpp guid.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\NetNT.obj : NetNT.cpp NetClass.hpp NetCommon.hpp NetLng.hpp guid.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\Network.obj : Network.cpp Network.hpp NetCommon.hpp NetLng.hpp NetClass.hpp guid.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\NetCfg.obj : NetCfg.cpp NetCfg.hpp NetCommon.hpp NetLng.hpp NetFavorites.hpp NetClass.hpp guid.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\NetClass.obj : NetClass.cpp NetClass.hpp NetFavorites.hpp NetCommon.hpp NetLng.hpp NetCfg.hpp guid.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\NetCommon.obj : NetCommon.cpp NetCommon.hpp NetLng.hpp NetCfg.hpp NetFavorites.hpp NetClass.hpp guid.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\NetFavorites.obj : NetFavorites.cpp NetFavorites.hpp NetClass.hpp NetCommon.hpp NetLng.hpp guid.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\NetMix.obj : NetMix.cpp NetCommon.hpp NetLng.hpp guid.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\NetNT.obj : NetNT.cpp NetClass.hpp NetCommon.hpp NetLng.hpp guid.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\Network.obj : Network.cpp Network.hpp NetCommon.hpp NetLng.hpp NetClass.hpp guid.hpp $(COMINC)\plugin.hpp

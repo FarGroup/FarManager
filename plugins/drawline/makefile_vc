@@ -1,11 +1,8 @@
-!include ../makefile_vc_base
-
 NAME = DrawLine
 
-LINK_OBJS = $(OBJDIR)\DrawLine.obj
+LINK_OBJS = $(INTDIR)\DrawLine.obj
 
 !include ..\makefile_vc_def_inc
-
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\DrawLine.obj: DrawLine.cpp DrawLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\DrawLine.obj: DrawLine.cpp DrawLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp

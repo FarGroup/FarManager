@@ -19,11 +19,7 @@ BEGIN
     BEGIN
       VALUE "FileVersion", "<(VER_MAJOR)>.<(VER_MINOR)>.<(VER_BUILD)>\0"
       VALUE "ProductVersion", "<(FAR_VER_MAJOR)>.<(FAR_VER_MINOR)>.<(FAR_VER_BUILD)>\0"
-#ifdef x64
-      VALUE "FileDescription", "<(NAME)> for Far Manager <(FAR_VER_MAJOR)> x64\0"
-#else
       VALUE "FileDescription", "<(NAME)> for Far Manager <(FAR_VER_MAJOR)>\0"
-#endif
       VALUE "OriginalFilename", "<(MODULE)>.dll\0"
 #ifdef DEBUG
       VALUE "SpecialBuild", "Debug build.\0"

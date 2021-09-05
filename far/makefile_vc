@@ -19,11 +19,7 @@
 #
 #DEFFILE - name of user file to include
 #
-#NO_RELEASE_PDB - set to disable pdb generation in Release mode
-#
 #NO_RELEASE_LTCG - set to disable link-time code generation in Release mode
-#
-#ASM_LISTING - set to enable assembly, machine code and source listing generation
 #
 #LTCG_STATUS - specifies whether the linker displays a progress indicator that shows what percentage of the link is complete
 #
@@ -33,53 +29,18 @@
 #
 #DEFUSERFLAGS -
 
-.SILENT:
-
 #include for user defines if needed
 !ifdef DEFFILE
 !include $(DEFFILE)
 !endif
 
-!if defined(AMD64) || "$(CPU)" == "AMD64" || "$(PLATFORM)" == "X64" || "$(PLATFORM)" == "x64"
-!undef CPU
-AMD64=1
-DIRBIT=64
-!elseif defined(ARM64) || "$(CPU)" == "ARM64" || "$(PLATFORM)" == "arm64"
-!undef CPU
-ARM64=1
-DIRBIT=ARM64
-!elseif defined(ARM) || "$(CPU)" == "ARM" || "$(PLATFORM)" == "arm"
-!undef CPU
-ARM=1
-DIRBIT=ARM
-!else
-X86=1
-DIRBIT=32
-!endif
+ROOTDIR = ..
 
-!if !defined(VC) && defined(_NMAKE_VER)
+!include ../_build/vc/config/common.mak
 
-!if "$(_NMAKE_VER)">"14.20"
-VC=16
-!elseif "$(_NMAKE_VER)">"14.10"
-VC=15
-!else
-#default
-VC=15
-!endif
-
-!endif
-
-!ifndef DEBUG
-DIRNAME=Release
-USEDEBUG=NDEBUG
-!else
-DIRNAME=Debug
-USEDEBUG=_DEBUG
+!ifdef DEBUG
 ENABLE_TESTS=1
 !endif
-
-OUTDIR=$(DIRNAME).$(DIRBIT).vc
 
 !ifdef CLANG
 OUTDIR=$(OUTDIR).clang
@@ -87,21 +48,18 @@ OUTDIR=$(OUTDIR).clang
 
 FARINCLUDE=Include
 
-LINK=link.exe
-ULINK=ulink.exe
 M4=tools\m4 -P -DFARBIT=$(DIRBIT) -DBUILD_TYPE=$(FARMANAGER_BUILD_TYPE) -DSCM_REVISION=$(FARMANAGER_SCM_REVISION)
 GAWK=tools\gawk
 
-INTDIR=$(OUTDIR)/obj
 BOOTSTRAPDIR=$(INTDIR)/include/bootstrap/
-CODDIR=$(INTDIR)\cod
 
 DEPFILE=$(BOOTSTRAPDIR)far.vc.dep
 STATICDEPFILE=static.dep
 
 RES_FILE = "$(INTDIR)\far.res"
 
-PCH_FILE = "$(INTDIR)\headers.pch"
+PCH_NAME = headers
+PCH_FILE = "$(INTDIR)\$(PCH_NAME).pch"
 
 LINK_OBJS = \
 	"$(INTDIR)\sqlite.obj" \
@@ -252,11 +210,11 @@ LINK_OBJS = \
 	"$(INTDIR)\window.obj" \
 	"$(INTDIR)\wm_listener.obj" \
 	"$(INTDIR)\xlat.obj" \
-!if defined(X86) && !defined(DISABLE_WOW64_HOOK)
+!if "$(BUILD_PLATFORM)" == "X86" && !defined(DISABLE_WOW64_HOOK)
 	"$(INTDIR)\hook_wow64.obj" \
 !endif
 !ifndef LINK_ULINK
-!if defined(X86) || defined(AMD64)
+!if "$(BUILD_PLATFORM)" == "X86" || "$(BUILD_PLATFORM)" == "AMD64"
 	"$(INTDIR)\vc_crt_fix.obj" \
 !endif
 	"$(INTDIR)\vc_crt_fix_impl.obj" \
@@ -264,146 +222,17 @@ LINK_OBJS = \
 	"$(INTDIR)\vc_crt_fix_ulink.obj"
 !endif
 
-LINK_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib netapi32.lib mpr.lib ole32.lib psapi.lib secur32.lib setupapi.lib rpcrt4.lib version.lib userenv.lib comdlg32.lib
-
 TEST_OBJS = "$(INTDIR)\api_test_c.testobj" "$(INTDIR)\api_test_c++.testobj"
-
-DEFINES=\
-	/D "UNICODE"\
-	/D "_UNICODE"\
-	/D "$(USEDEBUG)"\
-!ifdef ENABLE_TESTS
-	/D "ENABLE_TESTS"\
-!endif
-	/D "_ENABLE_EXTENDED_ALIGNED_STORAGE"\
-	/D "_HAS_AUTO_PTR_ETC=0"\
-	/D "_CRT_SECURE_NO_WARNINGS"
-
-DISABLED_WARNINGS=/FI disabled_warnings.hpp
 
 ADDINCLUDE=/I $(BOOTSTRAPDIR)..
 
-# common
-CPPFLAGS=\
-	/c\
-	/J\
-	/EHsc\
-	/std:c++latest\
-	/permissive-\
-	/Zc:__cplusplus,externConstexpr,inline,throwingNew\
-	/volatile:iso\
-	/Wall\
-	/utf-8\
-	/Gy\
-	/GF\
-	/Fd"$(INTDIR)\\"\
-	/diagnostics:caret\
-	/nologo\
-	/MP$(MP_LIMIT)\
-	$(ADDINCLUDE)\
-	$(DISABLED_WARNINGS)\
-	$(DEFUSERFLAGS)\
-	$(DEFINES)\
+CPPFLAGS = $(CPPFLAGS) $(ADDINCLUDE)
+RFLAGS = $(RFLAGS) $(ADDINCLUDE) /fo"$(RES_FILE)"
+LINKFLAGS = $(LINKFLAGS) /out:"$(OUTDIR)\Far.exe"
 
-
-LINKFLAGS=\
-	/nologo\
-	/subsystem:console\
-	/release\
-	/nxcompat\
-	/largeaddressaware\
-	/dynamicbase\
-	/map\
-	/out:"$(OUTDIR)\Far.exe"\
-
-
-ULINKFLAGS=-q -m- -ap -Gz -O- -o- -Gh -Gh- -GF:LARGEADDRESSAWARE -d*kernel32
-RFLAGS=/nologo /l 0x409 /fo"$(RES_FILE)" $(ADDINCLUDE) /d $(USEDEBUG)
-
-# compiler-specific
-#!if "$(VC)">="15"
-#!endif
-
-!ifdef CLANG
-CPP = clang-cl
-CPPFLAGS =\
-	$(CPPFLAGS)\
-	-Qunused-arguments\
-	/clang:-fvisibility=hidden\
-	-Weverything\
-	-Werror=array-bounds\
-	-Werror=dangling\
-	-Werror=odr\
-	-Werror=old-style-cast\
-	-Werror=reorder\
-	-Werror=return-type\
-
-
-NOBATCH=1
-NO_RELEASE_LTCG=1
-!elseifdef ICL
-CPP = icl
-LINK = xilink
-CPPFLAGS = $(CPPFLAGS) /Qstd=c++11 /Qdiag-disable:672,869,2415,3280
+!ifdef ENABLE_TESTS
+CPPFLAGS = $(CPPFLAGS) /D "ENABLE_TESTS"
 !endif
-
-# config-specific
-!ifdef DEBUG
-CPPFLAGS=$(CPPFLAGS) /MTd /Od /Zi
-LINKFLAGS=$(LINKFLAGS) /debug
-ULINKFLAGS=$(ULINKFLAGS) -v
-!else
-CPPFLAGS=$(CPPFLAGS) /MT /O2
-!ifndef NO_RELEASE_LTCG
-!ifndef LINK_ULINK
-CPPFLAGS=$(CPPFLAGS) /GL /Gw
-!endif
-!endif
-!ifndef NO_RELEASE_PDB
-CPPFLAGS=$(CPPFLAGS) /Zi
-LINKFLAGS=$(LINKFLAGS) /debug
-!endif
-LINKFLAGS=$(LINKFLAGS) /incremental:no /OPT:REF /OPT:ICF
-!ifndef NO_RELEASE_LTCG
-LINKFLAGS=$(LINKFLAGS) /ltcg
-!ifdef LTCG_STATUS
-LINKFLAGS=$(LINKFLAGS) /ltcg:status
-!endif
-!endif
-!endif
-
-!ifdef ASM_LISTING
-CPPFLAGS=$(CPPFLAGS) /FAcs /Fa"$(CODDIR)\\"
-!endif
-
-!ifdef USE_ANALYZE
-CPPFLAGS=$(CPPFLAGS) /analyze
-!endif
-
-
-# platform-specific
-!ifdef X86
-CPPFLAGS=$(CPPFLAGS) /arch:IA32
-!ifndef DEBUG
-CPPFLAGS=$(CPPFLAGS) /Oy-
-!endif
-LINKFLAGS=$(LINKFLAGS) /machine:i386
-OS_VERSION=5.0
-MASM=ml
-MASM_DEFINES=
-!elseifdef AMD64
-LINKFLAGS=$(LINKFLAGS) /machine:amd64
-ULINKFLAGS=$(ULINKFLAGS) -Tpe+
-OS_VERSION=5.2
-MASM=ml64
-MASM_DEFINES=/D "X64"
-!elseifdef ARM
-LINKFLAGS=$(LINKFLAGS) /machine:ARM
-!elseifdef ARM64
-LINKFLAGS=$(LINKFLAGS) /machine:ARM64
-!endif
-
-CPPFLAGS = $(CPPFLAGS) /Fo"$(INTDIR)\\"
 
 ALL: AllDirs lng depfile include docs $(TEST_OBJS)
 	$(MAKE) /nologo /f makefile_vc build USEDEPS=1
@@ -454,9 +283,6 @@ AllDirs:
 	if not exist "$(FARINCLUDE)\" mkdir "$(FARINCLUDE)"
 	if not exist "$(INTDIR)\" mkdir "$(INTDIR)"
 	if not exist "$(BOOTSTRAPDIR)" mkdir "$(BOOTSTRAPDIR)"
-!ifdef ASM_LISTING
-	if not exist "$(CODDIR)\" mkdir "$(CODDIR)"
-!endif
 
 "$(OUTDIR)\Far.exe": $(PCH_FILE) $(LINK_OBJS) $(RES_FILE) $(BOOTSTRAPDIR)copyright.inc $(BOOTSTRAPDIR)farversion.inc
 	@echo Linking $@
@@ -472,7 +298,7 @@ AllDirs:
 	,far.def,"$(RES_FILE)"
 <<
 !endif
-!if defined(X86) || defined(AMD64)
+!if "$(BUILD_PLATFORM)" == "X86" || "$(BUILD_PLATFORM)" == "AMD64"
 	@echo Fixing subsystem version
 	editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\Far.exe > $(INTDIR)\version_fix.log
 !endif
@@ -481,9 +307,9 @@ AllDirs:
 	$(OUTDIR)\Far.exe /service:test
 !endif
 
-$(PCH_FILE): headers.cpp headers.hpp
+$(PCH_FILE): $(PCH_NAME).cpp $(PCH_NAME).hpp
 	@echo Making precompiled headers
-	$(CPP) $(CPPFLAGS) headers.cpp /Yc"headers.hpp" /Fp"$(PCH_FILE)"
+	$(CPP) $(CPPFLAGS) $(PCH_NAME).cpp /Yc$(PCH_NAME).hpp /Fp$(PCH_FILE)
 
 $(INTDIR)\vc_crt_fix_impl.obj: vc_crt_fix_impl.cpp
 	$(CPP) $(CPPFLAGS) /Zc:threadSafeInit- vc_crt_fix_impl.cpp
@@ -508,12 +334,12 @@ $(INTDIR)\vc_crt_fix_ulink.obj: vc_crt_fix_ulink.cpp
 .cpp{$(INTDIR)}.obj::
 !endif
 	$(CPP) @<<
-	$(CPPFLAGS) /Yuheaders.hpp /Fp"$(PCH_FILE)" /FI headers.hpp /FI memcheck.hpp $<
+	$(CPPFLAGS) /Yu$(PCH_NAME).hpp /Fp$(PCH_FILE) /FI $(PCH_NAME).hpp /FI memcheck.hpp $<
 <<
 
 #Do not use $(AS) here - nmake incorrectly substitutes ml64 when compiling in amd64_x86 environment
 .asm{$(INTDIR)}.obj:
-	$(MASM) /nologo /c $(MASM_DEFINES) /Fo$@ $<
+	$(MASM) $(AFLAGS) $<
 
 $(RES_FILE): far.rc $(BOOTSTRAPDIR)far.rc.inc $(BOOTSTRAPDIR)Far.exe.manifest Far.ico Far.red.ico Far.black.ico Far.hack.ico Far.mono.ico Far.msg.ico
 	@echo far.rc

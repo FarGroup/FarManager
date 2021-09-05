@@ -1,12 +1,12 @@
-#include <all_lib.h>
+ï»¿#include <all_lib.h>
 #pragma hdrstop
 #if defined(__MYPACKAGE__)
 #pragma package(smart_init)
 #endif
 
 #if !defined(__HWIN__)
-static char *lwrChars = "©æãª¥­£èé§åêäë¢ ¯à®«¤¦íïçá¬¨âì¡î";
-static char *uprChars = "‰–“Š…ƒ˜™‡•š”›‚€‹„†Ÿ—‘Œˆ’œ";
+static char *lwrChars = "Ğ¹Ñ†ÑƒĞºĞµĞ½Ğ³ÑˆÑ‰Ğ·Ñ…ÑŠÑ„Ñ‹Ğ²Ğ°Ğ¿Ñ€Ğ¾Ğ»Ğ´Ğ¶ÑÑÑ‡ÑĞ¼Ğ¸Ñ‚ÑŒĞ±Ñ";
+static char *uprChars = "Ğ™Ğ¦Ğ£ĞšĞ•ĞĞ“Ğ¨Ğ©Ğ—Ğ¥ĞªĞ¤Ğ«Ğ’ĞĞŸĞ ĞĞ›Ğ”Ğ–Ğ­Ğ¯Ğ§Ğ¡ĞœĞ˜Ğ¢Ğ¬Ğ‘Ğ®";
 
 char MYRTLEXP ToUpper( char ch )
   {

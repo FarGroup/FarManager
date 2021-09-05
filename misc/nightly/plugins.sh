@@ -15,8 +15,8 @@ pushd $PLUGIN || return 1
 
 unix2dos changelog
 
-mkdir -p execdump/final.32.vc/obj/LibObj
-#mkdir -p execdump/final.64.vc/obj/LibObj
+mkdir -p execdump/Release.32.vc/obj/LibObj
+#mkdir -p execdump/Release.64.vc/obj/LibObj
 
 MASKS_FEXCEPT="*.dll *.farconfig"
 

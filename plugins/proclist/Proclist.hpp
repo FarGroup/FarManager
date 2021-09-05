@@ -10,7 +10,10 @@
 #define WIN32_NO_STATUS //exclude ntstatus.h macros from winnt.h
 #include <windows.h>
 #undef WIN32_NO_STATUS
+
+#include <winternl.h>
 #include <ntstatus.h>
+#include <unknwn.h>
 
 #include <plugin.hpp>
 
@@ -258,14 +261,6 @@ struct ProcessPerfData;
 bool GetPData(ProcessData& pdata, const ProcessPerfData& pd);
 
 //------
-// dynamic binding
-typedef enum _PROCESSINFOCLASS
-{
-	ProcessBasicInformation = 0,
-	ProcessWow64Information = 26
-} PROCESSINFOCLASS;
-//
-
 #define DECLARE_IMPORT(Name, ...) \
 using  P ## Name = __VA_ARGS__; \
 extern P ## Name p ## Name

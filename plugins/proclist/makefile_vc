@@ -1,18 +1,17 @@
-!include ../makefile_vc_base
-
 NAME = ProcList
 
-LINK_OBJS = $(OBJDIR)\fileio.obj \
-	$(OBJDIR)\format.obj \
-	$(OBJDIR)\handles.obj \
-	$(OBJDIR)\Pcfg.obj \
-	$(OBJDIR)\Pclass.obj \
-	$(OBJDIR)\perfthread.obj \
-	$(OBJDIR)\Plist.obj \
-	$(OBJDIR)\Pmix.obj \
-	$(OBJDIR)\wmi.obj \
-	$(OBJDIR)\wmi_init.obj \
-	$(OBJDIR)\Proclist.obj
+LINK_OBJS = \
+	$(INTDIR)\fileio.obj \
+	$(INTDIR)\format.obj \
+	$(INTDIR)\handles.obj \
+	$(INTDIR)\Pcfg.obj \
+	$(INTDIR)\Pclass.obj \
+	$(INTDIR)\perfthread.obj \
+	$(INTDIR)\Plist.obj \
+	$(INTDIR)\Pmix.obj \
+	$(INTDIR)\wmi.obj \
+	$(INTDIR)\wmi_init.obj \
+	$(INTDIR)\Proclist.obj
 
 !ifndef FARDIR
 FAR_DIRECTORY=../../far
@@ -23,15 +22,14 @@ FAR_DIRECTORY=$(FARDIR)
 USERCPP = /EHsc -D"_WIN32_DCOM" -I"$(FAR_DIRECTORY)/common" -I"$(FAR_DIRECTORY)/thirdparty/fmt"
 
 !include ..\makefile_vc_def_inc
-
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\fileio.obj : fileio.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\handles.obj : handles.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\PCFG.obj : PCFG.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\Pclass.obj : Pclass.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\perfthread.obj : perfthread.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\Plist.obj : Plist.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\Pmix.obj : Pmix.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\Proclist.obj : Proclist.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\WMI.obj : WMI.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\fileio.obj : fileio.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\handles.obj : handles.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\PCFG.obj : PCFG.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\Pclass.obj : Pclass.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\perfthread.obj : perfthread.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\Plist.obj : Plist.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\Pmix.obj : Pmix.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\Proclist.obj : Proclist.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\WMI.obj : WMI.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\plugin.hpp

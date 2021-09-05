@@ -1,4 +1,5 @@
-﻿#include <cwchar>
+﻿#include <cstdlib>
+#include <cwchar>
 #include <plugin.hpp>
 #include "DrawLng.hpp"
 #include "version.hpp"

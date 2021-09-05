@@ -48,10 +48,10 @@
 
   <PropertyGroup>
     <LinkIncremental>false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">debug.32W.vc$(VisualStudioVersion)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug.64W.vc$(VisualStudioVersion)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">final.32W.vc$(VisualStudioVersion)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">final.64W.vc$(VisualStudioVersion)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Debug.32.vc$(VisualStudioVersion)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Debug.64.vc$(VisualStudioVersion)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release.32.vc$(VisualStudioVersion)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Release.64.vc$(VisualStudioVersion)\</OutDir>
     <IntDir>$(OutDir)\obj_luamacro\</IntDir>
     <EmbedManifest>false</EmbedManifest>
     <GenerateManifest>false</GenerateManifest>

@@ -49,7 +49,7 @@ else
 _7Z = 7z/src/CPP/7zip/Bundles/Format7zF/x64/Debug/7z.dll
 endif
 else
-_7Z = 7z/dll/final.$(DIRBIT)W.vc/7z.dll
+_7Z = 7z/dll/$(DIRBIT)/7z.dll
 endif
 
 $(OUTDIR)/arclite.xml: arclite.xml

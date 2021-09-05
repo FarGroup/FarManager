@@ -25,16 +25,11 @@ struct SYSTEM_HANDLE_TABLE_ENTRY_INFO
 	ULONG GrantedAccess;
 };
 
-struct SYSTEM_HANDLE_INFORMATION
+// Defined in GCC headers with different field names :(
+struct PROCLIST_SYSTEM_HANDLE_INFORMATION
 {
 	ULONG NumberOfHandles;
 	SYSTEM_HANDLE_TABLE_ENTRY_INFO Handles[1];
-};
-
-struct CLIENT_ID
-{
-	HANDLE UniqueProcess;
-	HANDLE UniqueThread;
 };
 
 struct THREAD_BASIC_INFORMATION
@@ -47,28 +42,9 @@ struct THREAD_BASIC_INFORMATION
 	LONG       BasePriority;
 };
 
-struct PROCESS_BASIC_INFORMATION
-{
-	PVOID Reserved1;
-	PVOID PebBaseAddress;
-	PVOID Reserved2[2];
-	ULONG_PTR UniqueProcessId;
-	PVOID Reserved3;
-};
-
-struct UNICODE_STRING
-{
-	WORD  Length;
-	WORD  MaximumLength;
-	PWSTR Buffer;
-};
-
-enum OBJECT_INFORMATION_CLASS
-{
-	ObjectBasicInformation,
-	ObjectNameInformation,
-	ObjectTypeInformation,
-};
+#ifdef _MSC_VER
+inline constexpr auto ObjectNameInformation = static_cast<OBJECT_INFORMATION_CLASS>(1);
+#endif
 
 static bool GetProcessId(HANDLE Handle, DWORD& Pid)
 {
@@ -402,7 +378,7 @@ auto make_virtual(size_t const Size)
 bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread* pThread)
 {
 	DWORD size = 0x2000;
-	auto pSysHandleInformation = make_virtual<SYSTEM_HANDLE_INFORMATION>(size);
+	auto pSysHandleInformation = make_virtual<PROCLIST_SYSTEM_HANDLE_INFORMATION>(size);
 	if (!pSysHandleInformation)
 		return false;
 
@@ -417,7 +393,7 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
 
 		// The size was not enough
 		size = needed + 256;
-		pSysHandleInformation = make_virtual<SYSTEM_HANDLE_INFORMATION>(size);
+		pSysHandleInformation = make_virtual<PROCLIST_SYSTEM_HANDLE_INFORMATION>(size);
 		if (!pSysHandleInformation)
 			return false;
 	}

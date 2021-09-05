@@ -1,9 +1,6 @@
-ROOT_PATH=../../
-!include ../../plugins/makefile_vc_base
-
 NAME = FExcept
 DOCS = demangle$(DIRBIT).dll
-LINK_OBJS = $(OBJDIR)\FExcept.obj
+LINK_OBJS = $(INTDIR)\FExcept.obj
 
 COMMON = ..\..\plugins\common
 

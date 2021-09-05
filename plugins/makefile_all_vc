@@ -19,10 +19,7 @@
 #############################################################################
 
 ALLDIRS = align arclite autowrap brackets compare drawline editcase emenu farcmds \
-          filecase hlfviewer network proclist tmppanel samefolder \
-!if "$(BUILD_PLATFORM)" != "IA64"
-          luamacro \
-!endif
+          filecase hlfviewer network proclist tmppanel samefolder luamacro \
 #ftp multiarc
 
 #############################################################################
@@ -33,7 +30,6 @@ ALLDIRS = align arclite autowrap brackets compare drawline editcase emenu farcmd
 INSTALL=$(DEFINSTALL)
 !endif
 
-!include ./makefile_vc_base
 !include ./makefile_vc_getmode
 
 ##########################
@@ -57,15 +53,13 @@ libcrt: $(FICTIVE)
 #######
 !ifndef DEBUG
 _ODF_=Release
-_ODN_=final
+_ODN_=Release
 !else
 _ODF_=Debug
-_ODN_=debug
+_ODN_=Debug
 !endif
 !if "$(BUILD_PLATFORM)" == "AMD64"
 _ODB_=64
-!elseif "$(BUILD_PLATFORM)" == "IA64"
-_ODB_=IA64
 !else
 _ODB_=32
 !endif

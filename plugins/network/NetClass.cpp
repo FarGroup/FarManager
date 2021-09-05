@@ -1,4 +1,5 @@
-﻿#include "NetCommon.hpp"
+﻿#include <cstdlib>
+#include "NetCommon.hpp"
 #include "NetCfg.hpp"
 #include "NetFavorites.hpp"
 #include "NetClass.hpp"
