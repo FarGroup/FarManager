@@ -11,7 +11,7 @@ FAR_DIRECTORY=../../far
 FAR_DIRECTORY=$(FARDIR)
 !endif
 
-CPPFLAGS = $(CPPFLAGS) -I"$(FAR_DIRECTORY)/common" -DWIN32_LEAN_AND_MEAN -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
+CPPFLAGS = $(CPPFLAGS) -I"$(FAR_DIRECTORY)/common"
 
 BOOTSTRAPDIR=$(INTDIR)\include\bootstrap\\
 
@@ -65,22 +65,22 @@ SFX = \
 
 
 LNGS = \
-	$(OUTDIR)\$(MODULE)_eng.lng \
-	$(OUTDIR)\$(MODULE)_rus.lng \
-	$(OUTDIR)\$(MODULE)_spa.lng \
-	$(OUTDIR)\$(MODULE)_ita.lng \
-	$(OUTDIR)\$(MODULE)_pol.lng \
-	$(OUTDIR)\$(MODULE)_bel.lng \
+	$(OUTDIR)\$(NAME)_eng.lng \
+	$(OUTDIR)\$(NAME)_rus.lng \
+	$(OUTDIR)\$(NAME)_spa.lng \
+	$(OUTDIR)\$(NAME)_ita.lng \
+	$(OUTDIR)\$(NAME)_pol.lng \
+	$(OUTDIR)\$(NAME)_bel.lng \
 
 
 HLFS = \
-	$(OUTDIR)\$(MODULE)_eng.hlf \
-	$(OUTDIR)\$(MODULE)_rus.hlf \
-	$(OUTDIR)\$(MODULE)_pol.hlf \
+	$(OUTDIR)\$(NAME)_eng.hlf \
+	$(OUTDIR)\$(NAME)_rus.hlf \
+	$(OUTDIR)\$(NAME)_pol.hlf \
 
 
 FILES = \
-	$(OUTDIR)\$(MODULE).dll \
+	$(OUTDIR)\$(NAME).dll \
 	$(LNGS) \
 	$(HLFS) \
 	$(OUTDIR)\7z.dll \
@@ -106,7 +106,7 @@ all: dirs $(INTDIR)\dep.mak $(BOOTSTRAPDIR)far.ini
 .PHONY: build_project
 build_project: $(FILES)
 
-$(OUTDIR)\$(MODULE).dll: plugin.def $(OBJS) $(INTDIR)\headers.pch $(INTDIR)\version.res project.ini
+$(OUTDIR)\$(NAME).dll: plugin.def $(OBJS) $(INTDIR)\headers.pch $(INTDIR)\version.res project.ini
   link $(LINKFLAGS) -def:plugin.def -out:$@ $(OBJS) $(INTDIR)\headers.obj $(INTDIR)\version.res $(LINK_LIBS)
 
 $(OBJS): $(INTDIR)\headers.pch

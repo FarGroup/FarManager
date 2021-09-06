@@ -22,7 +22,7 @@ BEGIN
 #else
       VALUE "FileDescription", "<(NAME)>\0"
 #endif
-      VALUE "OriginalFilename", "<(MODULE)>.dll\0"
+      VALUE "OriginalFilename", "<(NAME)>.dll\0"
 #ifdef DEBUG
       VALUE "SpecialBuild", "Debug build.\0"
 #endif

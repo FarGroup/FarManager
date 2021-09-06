@@ -65,7 +65,7 @@ enum {
 };
 
 const STATPROPSTG c_arc_props[] = {
-  { L"Compression level", kpidCompLevel, VT_UI4 },
+  { const_cast<wchar_t*>(L"Compression level"), kpidCompLevel, VT_UI4 },
 };
 
 // implement IInArchive to support archive extraction
@@ -100,7 +100,7 @@ public:
 
   // read archive contents from IInStream
   // return S_FALSE if format is not recognized
-  STDMETHODIMP Open(IInStream* stream, const UInt64* max_check_start_position, IArchiveOpenCallback* open_archive_callback) override {
+  STDMETHODIMP Open(IInStream* stream, const UInt64* max_check_start_position, IArchiveOpenCallback* open_archive_callback) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     in_stream = stream;
 
@@ -162,7 +162,7 @@ public:
   }
 
   // cleanup: free archive stream and other data
-  STDMETHODIMP Close() override {
+  STDMETHODIMP Close() noexcept override {
     COM_ERROR_HANDLER_BEGIN
     files.clear();
     in_stream = nullptr;
@@ -171,7 +171,7 @@ public:
   }
 
   // number of items in archives
-  STDMETHODIMP GetNumberOfItems(UInt32* num_items) override {
+  STDMETHODIMP GetNumberOfItems(UInt32* num_items) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     *num_items = static_cast<UInt32>(files.size());
     return S_OK;
@@ -179,7 +179,7 @@ public:
   }
 
   // provide file property values (see PropID.h)
-  STDMETHODIMP GetProperty(UInt32 index, PROPID prop_id, PROPVARIANT* value) override {
+  STDMETHODIMP GetProperty(UInt32 index, PROPID prop_id, PROPVARIANT* value) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     PropVariant prop;
     if (index >= files.size())
@@ -201,7 +201,7 @@ public:
   }
 
   // report number of file properties supported by this format
-  STDMETHODIMP GetNumberOfProperties(UInt32* num_properties) override {
+  STDMETHODIMP GetNumberOfProperties(UInt32* num_properties) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     *num_properties = ARRAYSIZE(c_props);
     return S_OK;
@@ -209,7 +209,7 @@ public:
   }
 
   // file properties supported by this format
-  STDMETHODIMP GetPropertyInfo(UInt32 index, BSTR* name, PROPID* prop_id, VARTYPE* var_type) override {
+  STDMETHODIMP GetPropertyInfo(UInt32 index, BSTR* name, PROPID* prop_id, VARTYPE* var_type) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     if (index >= ARRAYSIZE(c_props))
       return E_INVALIDARG;
@@ -224,7 +224,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP Extract(const UInt32* indices, UInt32 num_items, Int32 test_mode, IArchiveExtractCallback* extract_callback) override {
+  STDMETHODIMP Extract(const UInt32* indices, UInt32 num_items, Int32 test_mode, IArchiveExtractCallback* extract_callback) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     Int32 ask_extract_mode = test_mode ? NArchive::NExtract::NAskMode::kTest : NArchive::NExtract::NAskMode::kExtract;
     // num_items == -1 means extract all items
@@ -275,7 +275,7 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP GetArchiveProperty(PROPID prop_id, PROPVARIANT* value) override {
+  STDMETHODIMP GetArchiveProperty(PROPID prop_id, PROPVARIANT* value) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     PropVariant prop;
     switch (prop_id) {
@@ -288,14 +288,14 @@ public:
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP GetNumberOfArchiveProperties(UInt32* num_properties) override {
+  STDMETHODIMP GetNumberOfArchiveProperties(UInt32* num_properties) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     *num_properties = ARRAYSIZE(c_arc_props);
     return S_OK;
     COM_ERROR_HANDLER_END
   }
 
-  STDMETHODIMP GetArchivePropertyInfo(UInt32 index, BSTR* name, PROPID* prop_id, VARTYPE* var_type) override {
+  STDMETHODIMP GetArchivePropertyInfo(UInt32 index, BSTR* name, PROPID* prop_id, VARTYPE* var_type) noexcept override {
     COM_ERROR_HANDLER_BEGIN
     if (index >= ARRAYSIZE(c_arc_props))
       return E_INVALIDARG;
@@ -458,7 +458,7 @@ public:
     ComObject<IInStream> in_stream;
     UInt64 pos;
   public:
-    FileStream(IInStream* in_stream, const FileInfo& file_info): in_stream(in_stream), file_info(file_info), pos(0) {
+    FileStream(IInStream* in_stream, const FileInfo& file_info): file_info(file_info), in_stream(in_stream), pos(0) {
     }
 
     UNKNOWN_IMPL_BEGIN

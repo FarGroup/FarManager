@@ -43,25 +43,25 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <OutDir>debug.32.vc</OutDir>
+    <OutDir>Debug.32.vc</OutDir>
     <IntDir>$(OutDir)\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <OutDir>debug.64.vc</OutDir>
+    <OutDir>Debug.64.vc</OutDir>
     <IntDir>$(OutDir)\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <OutDir>final.32.vc</OutDir>
+    <OutDir>Release.32.vc</OutDir>
     <IntDir>$(OutDir)\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <OutDir>final.64.vc</OutDir>
+    <OutDir>Release.64.vc</OutDir>
     <IntDir>$(OutDir)\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup>

@@ -28,25 +28,25 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <OutDir>debug.32W.vc$(VisualStudioVersion)\</OutDir>
+    <OutDir>Debug.32.vc\</OutDir>
     <IntDir>$(OutDir)\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <OutDir>debug.64W.vc$(VisualStudioVersion)\</OutDir>
+    <OutDir>Debug.64.vc\</OutDir>
     <IntDir>$(OutDir)\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <OutDir>Release.32.vc$(VisualStudioVersion)\</OutDir>
+    <OutDir>Release.32.vc\</OutDir>
     <IntDir>$(OutDir)\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <OutDir>Release.64.vc$(VisualStudioVersion)\</OutDir>
+    <OutDir>Release.64.vc\</OutDir>
     <IntDir>$(OutDir)\obj\</IntDir>
   </PropertyGroup>
   <PropertyGroup>
@@ -69,7 +69,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <NMakeOutput />
-    <NMakePreprocessorDefinitions>WIN32;_DEBUG;DEBUG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WIN32_WINNT=0x0500;UNICODE;_UNICODE;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeBuildCommandLine>nmake -nologo -f makefile_vc DEBUG=1 CPU=AMD64 VisualStudioVersion=$(VisualStudioVersion)</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>nmake -nologo -f makefile_vc DEBUG=1 CPU=AMD64 VisualStudioVersion=$(VisualStudioVersion) clean</NMakeCleanCommandLine>
     <NMakeIncludeSearchPath>7z\h;..\common\unicode;bootstrap</NMakeIncludeSearchPath>
@@ -77,7 +76,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakeOutput />
-    <NMakePreprocessorDefinitions>WIN32;NDEBUG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WIN32_WINNT=0x0500;UNICODE;_UNICODE;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeBuildCommandLine>nmake -nologo -f makefile_vc VisualStudioVersion=$(VisualStudioVersion)</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>nmake -nologo -f makefile_vc VisualStudioVersion=$(VisualStudioVersion) clean</NMakeCleanCommandLine>
     <NMakeIncludeSearchPath>7z\h;..\common\unicode;bootstrap</NMakeIncludeSearchPath>
@@ -85,7 +83,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <NMakeOutput />
-    <NMakePreprocessorDefinitions>WIN32;NDEBUG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WIN32_WINNT=0x0500;UNICODE;_UNICODE;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeBuildCommandLine>nmake -nologo -f makefile_vc CPU=AMD64 VisualStudioVersion=$(VisualStudioVersion)</NMakeBuildCommandLine>
     <NMakeCleanCommandLine>nmake -nologo -f makefile_vc CPU=AMD64 VisualStudioVersion=$(VisualStudioVersion) clean</NMakeCleanCommandLine>
     <NMakeIncludeSearchPath>7z\h;..\common\unicode;bootstrap</NMakeIncludeSearchPath>

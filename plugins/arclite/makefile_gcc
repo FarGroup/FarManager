@@ -16,7 +16,7 @@ endif
 
 CPPFLAGS += -I $(BOOTSTRAPDIR) -I 7z/h -I "$(FAR_DIRECTORY)/common" -Wno-non-virtual-dtor
 
-DEPFILE = $(OBJDIR)/$(MODULE).dep
+DEPFILE = $(OBJDIR)/$(NAME).dep
 
 
 .PHONY: all
@@ -70,7 +70,7 @@ TOOL = $(WINE_CMD)$(strip $(call os_name, tools/tool.exe))
 
 MSGS = $(notdir $(wildcard *.msg))
 BOOTSTRAP_MSGS = $(addprefix $(BOOTSTRAPDIR), $(MSGS))
-LNGS = $(patsubst %.msg, $(OUTDIR)/$(MODULE)_%.lng, $(MSGS))
+LNGS = $(patsubst %.msg, $(OUTDIR)/$(NAME)_%.lng, $(MSGS))
 
 .PHONY: preproc
 preproc: $(BOOTSTRAPDIR)far.ini $(BOOTSTRAPDIR)version.rc $(BOOTSTRAPDIR)plugin.h $(BOOTSTRAPDIR)msg.h $(LNGS)
@@ -109,7 +109,7 @@ ifeq ($(MAKECMDGOALS),build)
 endif
 
 #------------------------------------------------------------------------------
-DLLFULLNAME := $(OUTDIR)/$(MODULE).$(EXT) # MODULE=arclite NAME=ArcLite
+DLLFULLNAME := $(OUTDIR)/$(NAME).$(EXT)
 MAPFULLNAME = $(patsubst %.$(EXT),%.map,$(DLLFULLNAME))
 
 .PHONY: build
