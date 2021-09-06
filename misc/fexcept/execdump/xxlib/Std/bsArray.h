@@ -73,7 +73,7 @@ template <class ValT> class MyValArray : public BaseArray {
     void   DeleteNum( int num )                                  { DeleteNumINT(num); }
     ValT   Item( int num )                                 const { ValT *p = (ValT*)ItemINT(num); return p ? (*p) : ((ValT)0); }
     ValT  *Items( void )                                   const { return (ValT*)ItemINT(0); }
-    ValT&  operator[]( int num )                           const { TraceAssert( ((UINT)num) < ((UINT)Count()) ); return *(ValT*)ItemINT(num); }
+    ValT&  operator[]( int num )                           const { /*TraceAssert( ((UINT)num) < ((UINT)Count()) );*/ return *(ValT*)ItemINT(num); }
     int    IndexOf( const ValT& v )                        const { return LSearch(v,NULL); }
     ValT   LastObject( void )                              const { return *(ValT*)LastObjectINT(); }
 
@@ -129,7 +129,7 @@ template <class ValT> class MyRefArray : public BaseArray {
     void   Delete( ValT *p )                                     { DeleteNum( IndexOf(p) ); }
     ValT  *Item( int num )                                 const { return (ValT*)ItemINT(num); }
     ValT  *Items( void )                                   const { return (ValT*)ItemINT(0); }
-    ValT  *operator[]( int num )                           const { TraceAssert( ((UINT)num) < ((UINT)Count()) ); return (ValT*)ItemINT(num); }
+    ValT  *operator[]( int num )                           const { /*TraceAssert( ((UINT)num) < ((UINT)Count()) );*/ return (ValT*)ItemINT(num); }
     int    IndexOf( ValT *p )                              const { return IndexOfINT( p ); }
     ValT  *LastObject( void )                              const { return (ValT*)LastObjectINT(); }
 
@@ -190,7 +190,7 @@ template <class ValT> class MyArray : public BaseArray {
     void  Delete( ValT p,BOOL del = TRUE )                   { DeleteNum(IndexOf(p),del); }
     ValT  Item( int num )                              const { ValT *p = (ValT*)ItemINT(num); return p ? (*p) : NULL; }
     ValT *Items( void )                                const { return (ValT*)ItemINT(0); }
-    ValT  operator[]( int num )                        const { TraceAssert( ((UINT)num) < ((UINT)Count()) ); return *(ValT*)ItemINT(num); }
+    ValT  operator[]( int num )                        const { /*TraceAssert( ((UINT)num) < ((UINT)Count()) );*/ return *(ValT*)ItemINT(num); }
     int   IndexOf( ValT p )                            const { return LSearch(p,0,NULL); }
     ValT  LastObject( void )                           const { return Item(Count()-1); }
 
