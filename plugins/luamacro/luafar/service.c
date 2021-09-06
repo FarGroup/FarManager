@@ -2,6 +2,7 @@
 
 #include <windows.h>
 #include <rpc.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
 #include "version.h"

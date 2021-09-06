@@ -1,5 +1,6 @@
 ﻿//---------------------------------------------------------------------------
 #include <windows.h>
+#include <stdlib.h>
 #include <signal.h>
 #include "luafar.h"
 #include "util.h"

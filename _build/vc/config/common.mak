@@ -51,6 +51,7 @@ CFLAGS = $(CFLAGS)\
 	/permissive-\
 	/volatile:iso\
 	/Wall\
+	/we4013\
 	/wd4464\
 	/wd4668\
 	/utf-8\
