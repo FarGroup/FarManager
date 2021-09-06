@@ -2,6 +2,8 @@
 #include "marclng.hpp"
 #include <dos.h>
 
+#include <cstdlib>
+
 BOOL FileExists(const char* Name)
 {
   return GetFileAttributes(Name)!=0xFFFFFFFF;

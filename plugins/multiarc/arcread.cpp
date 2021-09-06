@@ -1,6 +1,8 @@
 ﻿#include "MultiArc.hpp"
 #include "marclng.hpp"
 
+#include <cstdlib>
+
 PluginClass::PluginClass(int ArcPluginNumber)
 {
   *ArcName=0;

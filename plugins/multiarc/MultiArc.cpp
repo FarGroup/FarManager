@@ -1,6 +1,8 @@
 ﻿#include "MultiArc.hpp"
 #include "marclng.hpp"
 
+#include <cstdlib>
+
 int WINAPI _export GetMinFarVersion(void)
 {
   return FARMANAGERVERSION;

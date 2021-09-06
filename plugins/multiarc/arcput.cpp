@@ -2,6 +2,8 @@
 #include <farkeys.hpp>
 #include "marclng.hpp"
 
+#include <cstdlib>
+
 //#define MAX_PASSW_LEN 256
 
 struct PutDlgData
