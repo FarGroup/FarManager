@@ -1,4 +1,4 @@
-#ifndef __MY_DEFINES
+Ôªø#ifndef __MY_DEFINES
 #define __MY_DEFINES
 
 /********************************************************************
@@ -470,33 +470,33 @@ enum clColors {
 
 //- CONSOLE CHARACTERS
 #if defined(__QNX__) && defined( CONSOLE_ONLY )
-    #define SHADOW_CHAR                      '\xB0' //∞
-    #define FULL_CHAR                        '\xDB' //€
-    #define VERT_CHAR                        '\xB3' //≥
-    #define DVERT_CHAR                       '\xBA' //∫
-    #define HORZ_CHAR                        '\xC4' //ƒ
-    #define DHORZ_CHAR                       '\xCD' //Õ
-    #define CHECK_CHAR                       '\xFb' //˚
+    #define SHADOW_CHAR                      '\xB0' //‚ñë
+    #define FULL_CHAR                        '\xDB' //‚ñà
+    #define VERT_CHAR                        '\xB3' //‚îÇ
+    #define DVERT_CHAR                       '\xBA' //‚ïë
+    #define HORZ_CHAR                        '\xC4' //‚îÄ
+    #define DHORZ_CHAR                       '\xCD' //‚ïê
+    #define CHECK_CHAR                       '\xFb' //‚àö
     #define SBMENU_CHAR                      '\x10' //
     #define LEFT_CHAR                        '\x11' //
     #define RIGHT_CHAR                       SBMENU_CHAR
-    #define SPACE_CHAR                       '\xFA' //˙
-    #define TAB_CHAR                         '\xFE' //˛
+    #define SPACE_CHAR                       '\xFA' //¬∑
+    #define TAB_CHAR                         '\xFE' //‚ñ†
     #define DOWN_CHAR                        '\x19' //
     #define SKIP_CHAR                        '\x20' //' '
 #else
-    #define SHADOW_CHAR                      '\xB0' //∞
-    #define FULL_CHAR                        '\xDB' //€
-    #define VERT_CHAR                        '\xB3' //≥
-    #define DVERT_CHAR                       '\xBA' //∫
-    #define HORZ_CHAR                        '\xC4' //ƒ
-    #define DHORZ_CHAR                       '\xCD' //Õ
-    #define CHECK_CHAR                       '\xFb' //˚
+    #define SHADOW_CHAR                      '\xB0' //‚ñë
+    #define FULL_CHAR                        '\xDB' //‚ñà
+    #define VERT_CHAR                        '\xB3' //‚îÇ
+    #define DVERT_CHAR                       '\xBA' //‚ïë
+    #define HORZ_CHAR                        '\xC4' //‚îÄ
+    #define DHORZ_CHAR                       '\xCD' //‚ïê
+    #define CHECK_CHAR                       '\xFb' //‚àö
     #define SBMENU_CHAR                      '\x10' //
     #define LEFT_CHAR                        '\x11' //
     #define RIGHT_CHAR                       SBMENU_CHAR
-    #define SPACE_CHAR                       '\xFA' //˙
-    #define TAB_CHAR                         '\xFE' //˛
+    #define SPACE_CHAR                       '\xFA' //¬∑
+    #define TAB_CHAR                         '\xFE' //‚ñ†
     #define DOWN_CHAR                        '\x19' //
     #define SKIP_CHAR                        '\x20' //' '
 #endif

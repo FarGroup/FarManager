@@ -10,7 +10,7 @@ local band,bor = bit64.band,bit64.bor
 local MacroCallFar = Shared.MacroCallFar
 
 local function SetProperties (namespace, proptable)
-  local meta = { __metatable="access denied", __newindex=function() end }
+  local meta = {}
   meta.__index = function(tb,nm)
     local f = proptable[nm]
     if f then return f() end

@@ -1,4 +1,5 @@
-﻿#include <cwchar>
+﻿#include <cstdlib>
+#include <cwchar>
 #include <plugin.hpp>
 #include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>

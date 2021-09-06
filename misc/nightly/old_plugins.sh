@@ -21,8 +21,8 @@ ADDBUILDDIRS="{lib,obj/DirList,obj/LibObj,obj/Notify,obj/Progress}"
 ADDOUTDIR="lib"
 
 ( \
-	bplugin2 "$PLDIR" 32 0 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR && \
-	bplugin2 "$PLDIR" 64 0 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR \
+	bplugin2 "$PLDIR" 32 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR && \
+	bplugin2 "$PLDIR" 64 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR \
 ) || return 1
 
 popd
@@ -42,8 +42,8 @@ ADDBUILDDIRS="Formats"
 ADDOUTDIR="Formats"
 
 ( \
-	bplugin2 "$PLDIR" 32 0 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR && \
-	bplugin2 "$PLDIR" 64 0 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR \
+	bplugin2 "$PLDIR" 32 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR && \
+	bplugin2 "$PLDIR" 64 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR \
 ) || return 1
 
 popd

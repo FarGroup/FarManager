@@ -1,6 +1,16 @@
 LINK_OBJS=\
-$(OBJDIR)\All.obj $(OBJDIR)\Main.obj $(OBJDIR)\cms.obj \
-$(OBJDIR)\dos.obj $(OBJDIR)\eplf.obj $(OBJDIR)\netware.obj \
-$(OBJDIR)\os2.obj $(OBJDIR)\pctcp.obj $(OBJDIR)\skirdin.obj \
-$(OBJDIR)\tcpc.obj $(OBJDIR)\unix.obj $(OBJDIR)\vms.obj \
-$(OBJDIR)\vx.obj $(OBJDIR)\os400.obj $(OBJDIR)\mvs.obj
+	$(INTDIR)\All.obj \
+	$(INTDIR)\Main.obj \
+	$(INTDIR)\cms.obj \
+	$(INTDIR)\dos.obj \
+	$(INTDIR)\eplf.obj \
+	$(INTDIR)\netware.obj \
+	$(INTDIR)\os2.obj \
+	$(INTDIR)\pctcp.obj \
+	$(INTDIR)\skirdin.obj \
+	$(INTDIR)\tcpc.obj \
+	$(INTDIR)\unix.obj \
+	$(INTDIR)\vms.obj \
+	$(INTDIR)\vx.obj \
+	$(INTDIR)\os400.obj \
+	$(INTDIR)\mvs.obj

@@ -1,5 +1,3 @@
-!include ../makefile_vc_base
-
 NAME=LuaMacro
 USERCPP=/Iluasdk/include /DEXPORT_OPEN /DEXPORT_CONFIGURE \
         /DEXPORT_PROCESSEDITOREVENT /DEXPORT_PROCESSVIEWEREVENT \
@@ -11,7 +9,7 @@ USERCPP=/Iluasdk/include /DEXPORT_OPEN /DEXPORT_CONFIGURE \
         /DRUN_LUAFAR_INIT
 LUA_VER=51
 
-LUALIB=$(FAR_WORKDIR)\luafar3.lib
+LUALIB=$(INTDIR)\luafar3.lib
 
 DOCS = luamacro.example.ini
 
@@ -28,20 +26,20 @@ FAR_WORKDIR=..\..\far\$(FAR_DIRNAME).$(DIRBIT).vc
 
 ALL: lualib lualegacy
 
-LINK_OBJS = $(OBJDIR)\luaplug.obj
+LINK_OBJS = $(INTDIR)\luaplug.obj
 
-LIBS=$(LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib $(LUALIB)
+LINK_LIBS=$(LINK_LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib $(LUALIB)
 
 !include ..\makefile_vc_target_inc
 
 !ifndef __MAKE__
-{luafar}.c{$(OBJDIR)}.obj::
+{luafar}.c{$(INTDIR)}.obj::
 	$(CC) @<<
 	$(CPPFLAGS) $<
 <<
 !else
-{luafar}.c{$(OBJDIR)}.obj:
-	@$(CC) $(CPPFLAGS) /Fo$(OBJDIR)\ { $< }
+{luafar}.c{$(INTDIR)}.obj:
+	@$(CC) $(CPPFLAGS) /Fo$(INTDIR)\ { $< }
 !endif
 
 .PHONY: lualib lualegacy

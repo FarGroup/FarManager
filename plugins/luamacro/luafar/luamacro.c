@@ -1,4 +1,6 @@
 ﻿//---------------------------------------------------------------------------
+#include <stdlib.h>
+
 #include "luafar.h"
 #include "ustring.h"
 #include "util.h"

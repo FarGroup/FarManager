@@ -1,2 +1,3 @@
 LINK_OBJS=\
-$(OBJDIR)\All.obj $(OBJDIR)\Main.obj
+	$(INTDIR)\All.obj \
+	$(INTDIR)\Main.obj

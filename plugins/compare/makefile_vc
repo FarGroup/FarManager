@@ -1,11 +1,8 @@
-!include ../makefile_vc_base
-
 NAME = Compare
 
-LINK_OBJS = $(OBJDIR)\Compare.obj
+LINK_OBJS = $(INTDIR)\Compare.obj
 
 !include ..\makefile_vc_def_inc
-
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\Compare.obj: Compare.cpp CompareLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\SimpleString.hpp
+$(INTDIR)\Compare.obj: Compare.cpp CompareLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\SimpleString.hpp

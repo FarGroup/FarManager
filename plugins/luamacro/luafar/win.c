@@ -1,4 +1,6 @@
-﻿#include <windows.h>
+﻿#include <stdlib.h>
+#include <windows.h>
+#include <shellapi.h>
 #include <versionhelpers.h>
 #include "reg.h"
 #include "util.h"

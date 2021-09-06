@@ -20,7 +20,7 @@ CPPFLAGS = -nologo -D_WIN32_WINNT=0x0500 -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_W
 LINKFLAGS = -nologo -incremental:no -machine:$(PLATFORM)
 CANDLEFLAGS = -nologo -dSourceDir="$(SOURCE_DIR)" -dPlatform=$(PLATFORM) -dVerMajor=$(VER_MAJOR) -dVerMinor=$(VER_MINOR) -dVerBuild=$(VER_BUILD) -dLanguages=$(LANGUAGES)
 LIGHTFLAGS = -nologo -spdb -sval
-ASFLAGS = -nologo -c
+AFLAGS = -nologo -c
 
 !if "$(PLATFORM)" == "x86"
 CPPFLAGS=$(CPPFLAGS) /arch:IA32
@@ -46,7 +46,7 @@ LIGHTFLAGS = $(LIGHTFLAGS) -cc $(OUTDIR) -reusecab
 OUTDIR = $(OUTDIR).$(PLATFORM)
 CPPFLAGS = -Fo$(OUTDIR)\ $(CPPFLAGS)
 CANDLEFLAGS = -out $(OUTDIR)\ $(CANDLEFLAGS)
-ASFLAGS = $(ASFLAGS) -Fo$(OUTDIR)\\
+AFLAGS = $(AFLAGS) -Fo$(OUTDIR)\\
 
 WIXOBJ = $(OUTDIR)\installer.wixobj $(OUTDIR)\files.wixobj $(OUTDIR)\features.wixobj $(OUTDIR)\shortcuts.wixobj $(OUTDIR)\ui.wixobj
 
@@ -108,7 +108,7 @@ $(WIXOBJ): params.mak defines.wxi guids_$(PLATFORM).wxi
 
 $(OUTDIR)\vc_crt_fix.obj: ..\..\plugins\common\vc_crt_fix.asm
 	@echo $@
-	$(AS) $(ASFLAGS) $**
+	$(AS) $(AFLAGS) $**
 
 $(OUTDIR):
 	@echo $@

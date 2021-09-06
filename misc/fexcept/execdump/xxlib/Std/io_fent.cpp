@@ -1,4 +1,4 @@
-#include <all_lib.h>
+ï»¿#include <all_lib.h>
 #pragma hdrstop
 #if defined(__MYPACKAGE__)
 #pragma package(smart_init)
@@ -438,8 +438,8 @@ char FileEntry::GetTypeChar( void )
 #if defined(__HDOS__) || defined(__HWIN16__)
     if ( Executable()  ) return '*';
     if ( IS_FLAG(Attr(),FA_LABEL)  ) return '>';
-    if ( IS_FLAG(Attr(),FA_HIDDEN) ) return '°';
-    if ( IS_FLAG(Attr(),FA_RDONLY) ) return '²';
+    if ( IS_FLAG(Attr(),FA_HIDDEN) ) return 'â–‘';
+    if ( IS_FLAG(Attr(),FA_RDONLY) ) return 'â–“';
     if ( IS_FLAG(Attr(),FA_DIREC)  ) return '/';
     if ( IS_FLAG(Attr(),FA_SYSTEM) ) return '%';
     if ( IS_FLAG(Attr(),FA_ARCH)   ) return ' ';
@@ -447,8 +447,8 @@ char FileEntry::GetTypeChar( void )
 #else
 #if defined(__HWIN32__)
     if ( Executable()  ) return '*';
-    if ( IS_FLAG(Attr(),FILE_ATTRIBUTE_HIDDEN) )    return '°';
-    if ( IS_FLAG(Attr(),FILE_ATTRIBUTE_READONLY) )  return '²';
+    if ( IS_FLAG(Attr(),FILE_ATTRIBUTE_HIDDEN) )    return 'â–‘';
+    if ( IS_FLAG(Attr(),FILE_ATTRIBUTE_READONLY) )  return 'â–“';
     if ( IS_FLAG(Attr(),FILE_ATTRIBUTE_DIRECTORY) ) return '/';
     if ( IS_FLAG(Attr(),FILE_ATTRIBUTE_SYSTEM) )    return '%';
     if ( IS_FLAG(Attr(),FILE_ATTRIBUTE_ARCHIVE) )   return ' ';

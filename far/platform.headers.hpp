@@ -51,8 +51,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _WIN32_IE    0x0700
 #endif // __GNUC__
 
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
+
+#ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN
+#endif
+
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif

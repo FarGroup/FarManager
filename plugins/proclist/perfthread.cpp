@@ -8,6 +8,8 @@
 #include "perfthread.hpp"
 #include "guid.hpp"
 
+#include <winperf.h>
+
 const counters Counters[]
 {
 	{L"% Processor Time",        MProcessorTime     , MColProcessorTime     },

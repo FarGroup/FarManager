@@ -4,6 +4,7 @@ TMPPANEL.HPP
 Temporary panel header file
 
 */
+#include <cstdlib>
 
 #ifndef __TMPPANEL_HPP__
 #define __TMPPANEL_HPP__

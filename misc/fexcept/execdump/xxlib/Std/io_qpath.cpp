@@ -1,4 +1,4 @@
-#include <all_lib.h>
+ï»¿#include <all_lib.h>
 #pragma hdrstop
 #if defined(__MYPACKAGE__)
 #pragma package(smart_init)
@@ -35,7 +35,7 @@ void MYRTLEXP QueryHotPaths( PHotPathArray arr )
 
       PHotPathEntry pe = arr->Add( new HotPathEntry );
       pe->Path.printf( "//%s/", node_name );
-      pe->Label.printf( " ~%c~ ³",'A'+n-1 );
+      pe->Label.printf( " ~%c~ â”‚",'A'+n-1 );
       pe->Description = str;
     }
 #else
@@ -65,7 +65,7 @@ void MYRTLEXP QueryHotPaths( PHotPathArray arr )
      }
      if ( d ) {
        MyString s;
-       s.printf( " ~%s~ ¦", str );
+       s.printf( " ~%s~ â”‚", str );
        arr->Add( new HotPathEntry( astr, s, d ) );
      }
    }
@@ -95,7 +95,7 @@ void MYRTLEXP QueryHotPaths( PHotPathArray arr )
      }
      if ( d ) {
        MyString s;
-       s.printf( " ~%s~ ¦", str );
+       s.printf( " ~%s~ â”‚", str );
        arr->Add( new HotPathEntry( astr, s, d ) );
      }
    }
@@ -122,7 +122,7 @@ void MYRTLEXP QueryHotPaths( PHotPathArray arr )
      }
      if ( d ) {
        MyString s;
-       s.printf( " ~%s~ ¦", str );
+       s.printf( " ~%s~ â”‚", str );
        arr->Add( new HotPathEntry( astr, s, d ) );
      }
    }

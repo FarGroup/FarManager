@@ -15,14 +15,14 @@ pushd $PLUGIN || return 1
 
 unix2dos changelog
 
-mkdir -p execdump/final.32.vc/obj/LibObj
-#mkdir -p execdump/final.64.vc/obj/LibObj
+mkdir -p execdump/Release.32.vc/obj/LibObj
+#mkdir -p execdump/Release.64.vc/obj/LibObj
 
 MASKS_FEXCEPT="*.dll *.farconfig"
 
 ( \
-	bplugin2 "$PLDIR" 32 1 1 "$MASKS_FEXCEPT" \
-#	bplugin2 "$PLDIR" 64 1 1 "$MASKS_FEXCEPT" \
+	bplugin2 "$PLDIR" 32 1 "$MASKS_FEXCEPT" \
+#	bplugin2 "$PLDIR" 64 1 "$MASKS_FEXCEPT" \
 ) || return 1
 
 popd
@@ -50,7 +50,7 @@ wine cmd /c ../../../common.64.bat &> ../../../logs/CRT64
 
 cd ../..
 
-MASKS="*.dll *.hlf *.lng *.farconfig *.lua *.map"
+MASKS="*.dll *.hlf *.lng *.farconfig *.lua *.map *.pdb"
 
 ( \
 bplugin "align"      "Align"      "$MASKS" && \
@@ -79,5 +79,3 @@ bplugin "luamacro"   "LuaMacro"   "$MASKS *.ini" \
 ) || exit 1
 
 cd ..
-
-rm -f outfinalnew32/luafar3.exp outfinalnew32/luafar3.lib outfinalnew32/luafar3.pdb outfinalnew64/luafar3.exp outfinalnew64/luafar3.lib outfinalnew64/luafar3.pdb

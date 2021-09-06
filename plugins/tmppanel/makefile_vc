@@ -1,20 +1,18 @@
-!include ../makefile_vc_base
-
 NAME = TmpPanel
 
-LINK_OBJS = $(OBJDIR)\TmpPanel.obj \
-	$(OBJDIR)\TmpCfg.obj \
-	$(OBJDIR)\TmpClass.obj \
-	$(OBJDIR)\TmpMix.obj
+LINK_OBJS = \
+	$(INTDIR)\TmpPanel.obj \
+	$(INTDIR)\TmpCfg.obj \
+	$(INTDIR)\TmpClass.obj \
+	$(INTDIR)\TmpMix.obj
 
 DOCS = \
 	*.temp
 
 !include ..\makefile_vc_def_inc
-
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\TmpPanel.obj: TmpPanel.cpp guid.hpp TmpCfg.hpp TmpClass.hpp TmpLng.hpp TmpPanel.hpp version.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\TmpCfg.obj: TmpCfg.cpp guid.hpp TmpCfg.hpp TmpClass.hpp TmpLng.hpp TmpPanel.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp
-$(OBJDIR)\TmpClass.obj: TmpClass.cpp guid.hpp TmpCfg.hpp TmpClass.hpp TmpLng.hpp TmpPanel.hpp version.hpp $(COMINC)\plugin.hpp
-$(OBJDIR)\TmpMix.obj: TmpMix.cpp guid.hpp TmpPanel.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\TmpPanel.obj: TmpPanel.cpp guid.hpp TmpCfg.hpp TmpClass.hpp TmpLng.hpp TmpPanel.hpp version.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\TmpCfg.obj: TmpCfg.cpp guid.hpp TmpCfg.hpp TmpClass.hpp TmpLng.hpp TmpPanel.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp
+$(INTDIR)\TmpClass.obj: TmpClass.cpp guid.hpp TmpCfg.hpp TmpClass.hpp TmpLng.hpp TmpPanel.hpp version.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\TmpMix.obj: TmpMix.cpp guid.hpp TmpPanel.hpp $(COMINC)\plugin.hpp

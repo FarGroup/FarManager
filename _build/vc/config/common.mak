@@ -1,0 +1,194 @@
+.SILENT:
+
+!if !defined(VC)
+!if "$(_NMAKE_VER)">"14.20"
+VC = 16
+!elseif "$(_NMAKE_VER)">"14.10"
+VC = 15
+!else
+#default
+VC = 16
+!endif
+!endif
+
+# Toolchain setup
+LINK = link.exe
+# Toolchain setup end
+
+# Output directory setup
+!ifndef DEBUG
+DIRNAME = Release
+!else
+DIRNAME = Debug
+!endif
+
+!if defined(AMD64) || "$(CPU)" == "AMD64" || "$(PLATFORM)" == "X64" || "$(PLATFORM)" == "x64"
+!undef CPU
+BUILD_PLATFORM = AMD64
+DIRBIT = 64
+!elseif defined(ARM64) || "$(CPU)" == "ARM64" || "$(PLATFORM)" == "arm64"
+!undef CPU
+BUILD_PLATFORM = ARM64
+DIRBIT = ARM64
+!elseif defined(ARM) || "$(CPU)" == "ARM" || "$(PLATFORM)" == "arm"
+!undef CPU
+BUILD_PLATFORM = ARM
+DIRBIT = ARM
+!else
+BUILD_PLATFORM = X86
+DIRBIT = 32
+!endif
+
+OUTDIR=$(DIRNAME).$(DIRBIT).vc
+INTDIR=$(DIRNAME).$(DIRBIT).vc/obj
+# Output directory setup end
+
+# Main flags setup
+CFLAGS = $(CFLAGS)\
+	/nologo\
+	/c\
+	/J\
+	/permissive-\
+	/volatile:iso\
+	/Wall\
+	/we4013\
+	/wd4464\
+	/wd4668\
+	/utf-8\
+	/Gy\
+	/GF\
+	/Fd"$(INTDIR)/"\
+	/Fo"$(INTDIR)/"\
+	/diagnostics:caret\
+	/MP$(MP_LIMIT)\
+	/FI$(ROOTDIR)/far/disabled_warnings.hpp\
+	/Zi\
+	/D "NOMINMAX"\
+	/D "WIN32_LEAN_AND_MEAN"\
+	/D "VC_EXTRALEAN"\
+	/D "PSAPI_VERSION=1"\
+	/D "_ENABLE_EXTENDED_ALIGNED_STORAGE"\
+	/D "_CRT_SECURE_NO_WARNINGS"\
+
+!ifndef ANSI
+CFLAGS = $(CFLAGS)\
+	/D "UNICODE"\
+	/D "_UNICODE"\
+
+!endif
+
+CPPFLAGS = $(CPPFLAGS)\
+	$(CFLAGS)\
+	/EHsc\
+	/std:c++latest\
+	/Zc:__cplusplus,externConstexpr,inline,throwingNew\
+	/D "_HAS_AUTO_PTR_ETC=0"\
+
+AFLAGS =\
+	/nologo\
+	/c\
+	/Fo"$(INTDIR)/"\
+
+RFLAGS = $(RFLAGS)\
+	/nologo\
+	/l 0x409\
+
+LINKFLAGS = $(LINKFLAGS)\
+	/nologo\
+	/subsystem:console\
+	/release\
+	/debug\
+	/nxcompat\
+	/largeaddressaware\
+	/dynamicbase\
+	/map\
+
+ULINKFLAGS = $(ULINKFLAGS) -q -m- -ap -Gz -O- -o- -Gh -Gh- -GF:LARGEADDRESSAWARE -d*kernel32
+
+# Configuration-specific flags
+!ifdef DEBUG
+# Debug mode
+CPPFLAGS = $(CPPFLAGS) /MTd /Od /D "_DEBUG"
+RFLAGS = $(RFLAGS) /D "_DEBUG"
+LINKFLAGS = $(LINKFLAGS) /debug
+ULINKFLAGS = $(ULINKFLAGS) -v
+!else # DEBUG
+# Release mode
+CPPFLAGS = $(CPPFLAGS) /MT /O2 /D "NDEBUG"
+RFLAGS = $(RFLAGS) /D "NDEBUG"
+LINKFLAGS = $(LINKFLAGS) /incremental:no /OPT:REF /OPT:ICF
+
+!ifndef NO_RELEASE_LTCG
+CPPFLAGS = $(CPPFLAGS) /GL /Gw
+LINKFLAGS = $(LINKFLAGS) /ltcg
+!ifdef LTCG_STATUS
+LINKFLAGS = $(LINKFLAGS) /ltcg:status
+!endif
+!endif # NO_RELEASE_LTCG
+!endif # DEBUG
+
+!ifdef USE_ANALYZE
+CPPFLAGS = $(CPPFLAGS) /analyze
+!endif
+# Configuration-specific flags end
+
+# Platform-specific flags
+!if "$(BUILD_PLATFORM)" == "X86"
+CPPFLAGS = $(CPPFLAGS) /arch:IA32
+!ifndef DEBUG
+CPPFLAGS = $(CPPFLAGS) /Oy-
+!endif # DEBUG
+LINKFLAGS = $(LINKFLAGS) /machine:i386
+OS_VERSION = 5.0
+MASM = ml
+!elseif "$(BUILD_PLATFORM)" == "AMD64"
+LINKFLAGS = $(LINKFLAGS) /machine:amd64
+ULINKFLAGS = $(ULINKFLAGS) -Tpe+
+OS_VERSION = 5.2
+MASM = ml64
+AFLAGS=$(AFLAGS) /D "X64"
+!elseif "$(BUILD_PLATFORM)" == "ARM"
+LINKFLAGS=$(LINKFLAGS) /machine:ARM
+!elseifdef ARM64
+LINKFLAGS = $(LINKFLAGS) /machine:ARM64
+!endif
+# Platform-specific flags end
+
+# Compiler-specific flags
+!ifdef CLANG
+CPP = clang-cl
+CPPFLAGS = $(CPPFLAGS)\
+	-Qunused-arguments\
+	/clang:-fvisibility=hidden\
+	-Weverything\
+	-Werror=array-bounds\
+	-Werror=dangling\
+	-Werror=odr\
+	-Werror=old-style-cast\
+	-Werror=reorder\
+	-Werror=return-type\
+
+NOBATCH = 1
+NO_RELEASE_LTCG = 1
+!endif
+# Compiler-specific flags end
+
+LINK_LIBS =\
+	kernel32.lib\
+	advapi32.lib\
+	user32.lib\
+	shell32.lib\
+	netapi32.lib\
+	winspool.lib\
+	mpr.lib\
+	ole32.lib\
+	oleaut32.lib\
+	psapi.lib\
+	secur32.lib\
+	setupapi.lib\
+	rpcrt4.lib\
+	version.lib\
+	userenv.lib\
+	comdlg32.lib\
+	wbemuuid.lib\
+

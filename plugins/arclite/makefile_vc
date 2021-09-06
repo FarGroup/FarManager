@@ -1,7 +1,6 @@
-.SILENT:
 !include project.ini
 
-!include ../makefile_vc_base
+!include ../makefile_vc_def_inc
 
 TOOL = tools\tool
 FARSDK = ..\common\unicode
@@ -12,102 +11,49 @@ FAR_DIRECTORY=../../far
 FAR_DIRECTORY=$(FARDIR)
 !endif
 
-CPPFLAGS = -nologo -W3 -Gy -GR -EHsc -MP -c -I"$(FAR_DIRECTORY)/common"
-DEFINES = -DWIN32_LEAN_AND_MEAN -D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1 -D_WIN32_WINNT=0x0500 -DUNICODE -D_UNICODE
-LINKFLAGS = -nologo -incremental:no -map -manifest:no -dynamicbase -nxcompat -largeaddressaware -dll
-RCFLAGS = -nologo
-ASFLAGS = -nologo -c
+CPPFLAGS = $(CPPFLAGS) -I"$(FAR_DIRECTORY)/common" -DWIN32_LEAN_AND_MEAN -D_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
 
-!if "$(BUILD_PLATFORM)" == "AMD64"
-BITS = 64
-RCFLAGS = $(RCFLAGS) -Dx64
-OS_VERSION = 5.2
-!else
-BITS = 32
-LINKFLAGS = $(LINKFLAGS) -safeseh $(SUBSYSTEM)
-ASFLAGS = $(ASFLAGS) -safeseh
-OS_VERSION = 5.0
-!endif
-
-!ifdef DEBUG
-OUTDIR = debug
-DEFINES = $(DEFINES) -DDEBUG
-CPPFLAGS = $(CPPFLAGS) -Zi -Od -RTC1 -MTd
-LINKFLAGS = $(LINKFLAGS) -debug
-!else
-OUTDIR = final
-DEFINES = $(DEFINES) -DNDEBUG
-CPPFLAGS = $(CPPFLAGS) -O2 -GL -MT
-LINKFLAGS = $(LINKFLAGS) -opt:ref -opt:icf -LTCG
-!ifndef NO_RELEASE_PDB
-LINK_FLAGS=$(LINK_FLAGS) /debug
-!endif
-!ifndef NO_RELEASE_PDB
-CPPFLAGS=$(CPPFLAGS) /Zi
-!endif
-!endif
-
-OUTDIR = $(OUTDIR).$(BITS)W.vc$(VisualStudioVersion)
-OBJDIR = $(OUTDIR)\obj
-BOOTSTRAPDIR=$(OBJDIR)\include\bootstrap\\
+BOOTSTRAPDIR=$(INTDIR)\include\bootstrap\\
 
 INCLUDES = -I$(BOOTSTRAPDIR) -I7z\h -I$(FARSDK)
-CPPFLAGS = $(CPPFLAGS) -Fo$(OBJDIR)\ /Fd$(OUTDIR)\$(MODULE).pdb $(INCLUDES) $(DEFINES) $(USERCPP)
-RCFLAGS = $(RCFLAGS) $(INCLUDES) $(DEFINES)
-ASFLAGS = -Fo$(OBJDIR)\ $(ASFLAGS)
-
-!if $(VC) >= 11 && "$(BUILD_PLATFORM)" == "X86"
-CPPFLAGS=$(CPPFLAGS) /arch:IA32
-!endif
-
-!if $(VC) >= 14
-CPPFLAGS = $(CPPFLAGS) /Zc:threadSafeInit- /std:c++latest
-!endif
+CPPFLAGS = $(CPPFLAGS) $(INCLUDES) $(DEFINES) $(USERCPP)
+RFLAGS = $(RFLAGS) $(INCLUDES) $(DEFINES)
 
 OBJS = \
-	$(OBJDIR)\archive.obj \
-	$(OBJDIR)\plugin.obj \
-	$(OBJDIR)\ui.obj \
-	$(OBJDIR)\extract.obj \
-	$(OBJDIR)\open.obj \
-	$(OBJDIR)\update.obj \
-	$(OBJDIR)\delete.obj \
-	$(OBJDIR)\options.obj \
-	$(OBJDIR)\msearch.obj \
-	$(OBJDIR)\attr.obj \
-	$(OBJDIR)\test.obj \
-	$(OBJDIR)\common.obj \
-	$(OBJDIR)\sfx.obj \
-	$(OBJDIR)\cmdline.obj \
-	$(OBJDIR)\rsrc.obj \
-	$(OBJDIR)\farutils.obj \
-	$(OBJDIR)\pathutils.obj \
-	$(OBJDIR)\strutils.obj \
-	$(OBJDIR)\sysutils.obj \
-	$(OBJDIR)\Patch7zCP.obj \
-	$(OBJDIR)\SimpleXML.obj \
-!if "$(BITS)" == "32"
-	$(OBJDIR)\vc_crt_fix.obj \
-	$(OBJDIR)\vc_crt_fix_impl.obj \
+	$(INTDIR)\archive.obj \
+	$(INTDIR)\plugin.obj \
+	$(INTDIR)\ui.obj \
+	$(INTDIR)\extract.obj \
+	$(INTDIR)\open.obj \
+	$(INTDIR)\update.obj \
+	$(INTDIR)\delete.obj \
+	$(INTDIR)\options.obj \
+	$(INTDIR)\msearch.obj \
+	$(INTDIR)\attr.obj \
+	$(INTDIR)\test.obj \
+	$(INTDIR)\common.obj \
+	$(INTDIR)\sfx.obj \
+	$(INTDIR)\cmdline.obj \
+	$(INTDIR)\rsrc.obj \
+	$(INTDIR)\farutils.obj \
+	$(INTDIR)\pathutils.obj \
+	$(INTDIR)\strutils.obj \
+	$(INTDIR)\sysutils.obj \
+	$(INTDIR)\Patch7zCP.obj \
+	$(INTDIR)\SimpleXML.obj \
+!if "$(BUILD_PLATFORM)" == "X86"
+	$(INTDIR)\vc_crt_fix.obj \
+	$(INTDIR)\vc_crt_fix_impl.obj \
 !endif
 
-
-LIBS = \
-	user32.lib \
-	advapi32.lib \
-	ole32.lib \
-	oleaut32.lib \
-	version.lib \
-
-
 !ifdef DEBUG_7Z
-!if "$(BITS)" == "32"
+!if "$(BUILD_PLATFORM)" == "X86"
 _7Z = 7z\src\CPP\7zip\Bundles\Format7zF\Debug\7z.dll
 !else
 _7Z = 7z\src\CPP\7zip\Bundles\Format7zF\x64\Debug\7z.dll
 !endif
 !else
-_7Z = 7z\dll\final.$(DIRBIT)W.vc\7z.dll
+_7Z = 7z\dll\$(DIRBIT)\7z.dll
 !endif
 
 SFX = \
@@ -152,47 +98,36 @@ BOOTSTRAP_MSGS = \
 	$(BOOTSTRAPDIR)bel.msg \
 
 
-!ifdef INSTALL
-INSTALL=$(INSTALL)\$(NAME)
-target = install_project
-!else
 target = build_project
-!endif
 
-all: dirs $(OBJDIR)\dep.mak $(OBJDIR)\install.mak $(BOOTSTRAPDIR)far.ini
+all: dirs $(INTDIR)\dep.mak $(BOOTSTRAPDIR)far.ini
   $(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) $(target) VisualStudioVersion=$(VisualStudioVersion) BUILD=1
 
 .PHONY: build_project
 build_project: $(FILES)
 
-$(OUTDIR)\$(MODULE).dll: plugin.def $(OBJS) $(OBJDIR)\headers.pch $(OBJDIR)\version.res project.ini
-  link $(LINKFLAGS) -def:plugin.def -out:$@ $(OBJS) $(OBJDIR)\headers.obj $(OBJDIR)\version.res $(LIBS)
-  editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\$(MODULE).dll > nul
-  del /q $(OUTDIR)\$(MODULE).lib $(OUTDIR)\$(MODULE).exp
+$(OUTDIR)\$(MODULE).dll: plugin.def $(OBJS) $(INTDIR)\headers.pch $(INTDIR)\version.res project.ini
+  link $(LINKFLAGS) -def:plugin.def -out:$@ $(OBJS) $(INTDIR)\headers.obj $(INTDIR)\version.res $(LINK_LIBS)
 
-$(OBJS): $(OBJDIR)\headers.pch
+$(OBJS): $(INTDIR)\headers.pch
 
-.cpp{$(OBJDIR)}.obj::
-  $(CPP) $(CPPFLAGS) -Yuheaders.hpp -FIheaders.hpp -Fp$(OBJDIR)\headers.pch $<
+.cpp{$(INTDIR)}.obj::
+  $(CPP) $(CPPFLAGS) -Yuheaders.hpp -FIheaders.hpp -Fp$(INTDIR)\headers.pch $<
 
-$(OBJDIR)\headers.pch: headers.cpp headers.hpp
+$(INTDIR)\headers.pch: headers.cpp headers.hpp
   @echo Making precompiled headers
-  $(CPP) $(CPPFLAGS) headers.cpp -Ycheaders.hpp -Fp$(OBJDIR)\headers.pch
+  $(CPP) $(CPPFLAGS) headers.cpp -Ycheaders.hpp -Fp$(INTDIR)\headers.pch
 
-$(OBJDIR)\dep.mak: $(BOOTSTRAPDIR)msg.h $(BOOTSTRAPDIR)plugin.h
+$(INTDIR)\dep.mak: $(BOOTSTRAPDIR)msg.h $(BOOTSTRAPDIR)plugin.h
   @echo Generating $@
   $(TOOL) gendep $(INCLUDES) > $@
-
-$(OBJDIR)\install.mak:
-  @echo Generating $@
-  $(TOOL) geninst $(FILES) $(OUTDIR)\$(MODULE).map $(OUTDIR)\$(MODULE).pdb > $@
 
 $(BOOTSTRAPDIR)msg.h $(LNGS): $(BOOTSTRAP_MSGS)
   @echo Generating language files
   $(TOOL) msgc -in $(BOOTSTRAP_MSGS) -out $(BOOTSTRAPDIR)msg.h $(LNGS)
 
-$(OBJDIR)\version.res: $(BOOTSTRAPDIR)version.rc
-  $(RC) $(RCFLAGS) -fo$@ $**
+$(INTDIR)\version.res: $(BOOTSTRAPDIR)version.rc
+  $(RC) $(RFLAGS) -fo$@ $**
 
 PREPROC = $(TOOL) preproc $** $@
 
@@ -229,29 +164,25 @@ $(OUTDIR)\7z.dll: $(_7Z)
 $(BOOTSTRAPDIR)far.ini: $(FARSDK)\plugin.hpp
   $(TOOL) farver $(FARSDK)\plugin.hpp $@
 
-$(OBJDIR)\vc_crt_fix.obj: ..\common\vc_crt_fix.asm
-  $(AS) $(ASFLAGS) ..\common\vc_crt_fix.asm
+$(INTDIR)\vc_crt_fix.obj: ..\common\vc_crt_fix.asm
+  $(MASM) $(AFLAGS) ..\common\vc_crt_fix.asm
 
-$(OBJDIR)\vc_crt_fix_impl.obj: ..\common\vc_crt_fix_impl.cpp
+$(INTDIR)\vc_crt_fix_impl.obj: ..\common\vc_crt_fix_impl.cpp
   $(CPP) $(CPPFLAGS) ..\common\vc_crt_fix_impl.cpp
 
 .PHONY: dirs
 dirs:
   if not exist "$(OUTDIR)" mkdir "$(OUTDIR)"
-  if not exist "$(OBJDIR)" mkdir "$(OBJDIR)"
+  if not exist "$(INTDIR)" mkdir "$(INTDIR)"
   if not exist "$(BOOTSTRAPDIR)" mkdir "$(BOOTSTRAPDIR)"
 
 !ifdef BUILD
-!include $(OBJDIR)\dep.mak
-!ifdef INSTALL
-.PHONY: install_project
-!include $(OBJDIR)\install.mak
-!endif
+!include $(INTDIR)\dep.mak
 !endif
 
 .PHONY: clean
 clean:
   @echo Cleaning
   if exist "$(BOOTSTRAPDIR)" rd /s /q "$(BOOTSTRAPDIR)"
-  if exist "$(OBJDIR)" rd /s /q "$(OBJDIR)"
+  if exist "$(INTDIR)" rd /s /q "$(INTDIR)"
   if exist "$(OUTDIR)" rd /s /q "$(OUTDIR)"

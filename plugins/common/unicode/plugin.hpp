@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.5838.0
+Plugin API for Far Manager 3.0.5886.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 5838
+#define FARMANAGERVERSION_BUILD 5886
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -53,6 +53,8 @@ other possible license with no implications from the above license on them.
 #include <windows.h>
 
 #undef DefDlgProc
+
+typedef GUID UUID;
 
 
 #define CP_UNICODE    ((uintptr_t)1200)
@@ -83,7 +85,23 @@ static const FARCOLORFLAGS
 
 	FCF_NONE          = 0;
 
-struct rgba { unsigned char r, g, b, a; };
+struct rgba
+{
+	unsigned char
+		r,
+		g,
+		b,
+		a;
+};
+
+struct color_index
+{
+	unsigned char
+		i,
+		reserved0,
+		reserved1,
+		a;
+};
 
 struct FarColor
 {
@@ -91,6 +109,7 @@ struct FarColor
 	union
 	{
 		COLORREF ForegroundColor;
+		struct color_index ForegroundIndex;
 		struct rgba ForegroundRGBA;
 	}
 #ifndef __cplusplus
@@ -100,6 +119,7 @@ struct FarColor
 	union
 	{
 		COLORREF BackgroundColor;
+		struct color_index BackgroundIndex;
 		struct rgba BackgroundRGBA;
 	}
 #ifndef __cplusplus

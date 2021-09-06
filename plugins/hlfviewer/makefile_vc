@@ -1,13 +1,8 @@
-!include ../makefile_vc_base
-
 NAME = HlfViewer
 
-LINK_OBJS = $(OBJDIR)\HlfViewer.obj
-
-USERLIBS = rpcrt4.lib
+LINK_OBJS = $(INTDIR)\HlfViewer.obj
 
 !include ..\makefile_vc_def_inc
-
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\HlfViewer.obj: HlfViewer.cpp Lang.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\farversion.hpp
+$(INTDIR)\HlfViewer.obj: HlfViewer.cpp Lang.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\farversion.hpp

@@ -1,5 +1,3 @@
-!include ../makefile_vc_base
-
 ANSI = 1
 NAME = FarFtp
 
@@ -7,7 +5,7 @@ DOCS = \
 	*.reg \
 	*.txt
 
-FSTDLIB=$(OBJDIR)\FsdLib.lib
+FSTDLIB=$(INTDIR)\FsdLib.lib
 LIBSRC=FStdLib\FARStdLib
 
 LINK_DEP=$(FSTDLIB)
@@ -24,83 +22,83 @@ All: dirs
 ##########
 
 LINK_OBJS = \
-$(OBJDIR)\AskOver.obj \
-$(OBJDIR)\Cfg.obj \
-$(OBJDIR)\CmdLine.obj \
-$(OBJDIR)\cnDownload.obj \
-$(OBJDIR)\cnInit.obj \
-$(OBJDIR)\cnUpload.obj \
-$(OBJDIR)\Connect.obj \
-$(OBJDIR)\ConnectCmds.obj \
-$(OBJDIR)\ConnectIO.obj \
-$(OBJDIR)\ConnectMain.obj \
-$(OBJDIR)\ConnectNB.obj \
-$(OBJDIR)\ConnectSock.obj \
-$(OBJDIR)\DeleteFile.obj \
-$(OBJDIR)\EnumHost.obj \
-$(OBJDIR)\Event.obj \
-$(OBJDIR)\FAR.obj \
-$(OBJDIR)\FGet.obj \
-$(OBJDIR)\FileList.obj \
-$(OBJDIR)\FPut.obj \
-$(OBJDIR)\Ftp.obj \
-$(OBJDIR)\FtpAPI.obj \
-$(OBJDIR)\FTPBlock.obj \
-$(OBJDIR)\FTPConnect.obj \
-$(OBJDIR)\FtpDlg.obj \
-$(OBJDIR)\FTPHost.obj \
-$(OBJDIR)\fUtils.obj \
-$(OBJDIR)\GetOpenInfo.obj \
-$(OBJDIR)\HGet.obj \
-$(OBJDIR)\HPut.obj \
-$(OBJDIR)\JM.obj \
-$(OBJDIR)\Key.obj \
-$(OBJDIR)\MakeDir.obj \
-$(OBJDIR)\Mem.obj \
-$(OBJDIR)\Mix.obj \
-$(OBJDIR)\Plugin.obj \
-$(OBJDIR)\SetDir.obj \
-$(OBJDIR)\Shortcut.obj \
-$(OBJDIR)\sock.obj \
-$(OBJDIR)\Queque.obj \
-$(OBJDIR)\Url.obj
+$(INTDIR)\AskOver.obj \
+$(INTDIR)\Cfg.obj \
+$(INTDIR)\CmdLine.obj \
+$(INTDIR)\cnDownload.obj \
+$(INTDIR)\cnInit.obj \
+$(INTDIR)\cnUpload.obj \
+$(INTDIR)\Connect.obj \
+$(INTDIR)\ConnectCmds.obj \
+$(INTDIR)\ConnectIO.obj \
+$(INTDIR)\ConnectMain.obj \
+$(INTDIR)\ConnectNB.obj \
+$(INTDIR)\ConnectSock.obj \
+$(INTDIR)\DeleteFile.obj \
+$(INTDIR)\EnumHost.obj \
+$(INTDIR)\Event.obj \
+$(INTDIR)\FAR.obj \
+$(INTDIR)\FGet.obj \
+$(INTDIR)\FileList.obj \
+$(INTDIR)\FPut.obj \
+$(INTDIR)\Ftp.obj \
+$(INTDIR)\FtpAPI.obj \
+$(INTDIR)\FTPBlock.obj \
+$(INTDIR)\FTPConnect.obj \
+$(INTDIR)\FtpDlg.obj \
+$(INTDIR)\FTPHost.obj \
+$(INTDIR)\fUtils.obj \
+$(INTDIR)\GetOpenInfo.obj \
+$(INTDIR)\HGet.obj \
+$(INTDIR)\HPut.obj \
+$(INTDIR)\JM.obj \
+$(INTDIR)\Key.obj \
+$(INTDIR)\MakeDir.obj \
+$(INTDIR)\Mem.obj \
+$(INTDIR)\Mix.obj \
+$(INTDIR)\Plugin.obj \
+$(INTDIR)\SetDir.obj \
+$(INTDIR)\Shortcut.obj \
+$(INTDIR)\sock.obj \
+$(INTDIR)\Queque.obj \
+$(INTDIR)\Url.obj
 
 ##########
 
 LIB_OBJS = \
-$(OBJDIR)\fstd_Arg.obj \
-$(OBJDIR)\fstd_asrt.obj \
-$(OBJDIR)\fstd_ClpS.obj \
-$(OBJDIR)\fstd_crc32.obj \
-$(OBJDIR)\fstd_Dialog.obj \
-$(OBJDIR)\fstd_err.obj \
-$(OBJDIR)\fstd_exSCAT.obj \
-$(OBJDIR)\fstd_exSCMP.obj \
-$(OBJDIR)\fstd_exSCPY.obj \
-$(OBJDIR)\fstd_exSPCH.obj \
-$(OBJDIR)\fstd_exSPS.obj \
-$(OBJDIR)\fstd_ilist.obj \
-$(OBJDIR)\fstd_INProc.obj \
-$(OBJDIR)\fstd_log.obj \
-$(OBJDIR)\fstd_menu.obj \
-$(OBJDIR)\fstd_mesg.obj \
-$(OBJDIR)\fstd_mklog.obj \
-$(OBJDIR)\fstd_Msg.obj \
-$(OBJDIR)\fstd_Patt.obj \
-$(OBJDIR)\fstd_per.obj \
-$(OBJDIR)\fstd_plg.obj \
-$(OBJDIR)\fstd_Reg.obj \
-$(OBJDIR)\fstd_SCol.obj \
-$(OBJDIR)\fstd_scr.obj \
-$(OBJDIR)\fstd_String.obj \
-$(OBJDIR)\fstd_stdlibCS.obj \
-$(OBJDIR)\fstd_SText.obj \
-$(OBJDIR)\fstd_exit.obj \
-$(OBJDIR)\fstd_Con.obj \
-$(OBJDIR)\fstd_FMsg.obj \
-$(OBJDIR)\fstd_OEM.obj \
-$(OBJDIR)\fstd_Utils.obj \
-$(OBJDIR)\fstd_FUtils.obj \
+$(INTDIR)\fstd_Arg.obj \
+$(INTDIR)\fstd_asrt.obj \
+$(INTDIR)\fstd_ClpS.obj \
+$(INTDIR)\fstd_crc32.obj \
+$(INTDIR)\fstd_Dialog.obj \
+$(INTDIR)\fstd_err.obj \
+$(INTDIR)\fstd_exSCAT.obj \
+$(INTDIR)\fstd_exSCMP.obj \
+$(INTDIR)\fstd_exSCPY.obj \
+$(INTDIR)\fstd_exSPCH.obj \
+$(INTDIR)\fstd_exSPS.obj \
+$(INTDIR)\fstd_ilist.obj \
+$(INTDIR)\fstd_INProc.obj \
+$(INTDIR)\fstd_log.obj \
+$(INTDIR)\fstd_menu.obj \
+$(INTDIR)\fstd_mesg.obj \
+$(INTDIR)\fstd_mklog.obj \
+$(INTDIR)\fstd_Msg.obj \
+$(INTDIR)\fstd_Patt.obj \
+$(INTDIR)\fstd_per.obj \
+$(INTDIR)\fstd_plg.obj \
+$(INTDIR)\fstd_Reg.obj \
+$(INTDIR)\fstd_SCol.obj \
+$(INTDIR)\fstd_scr.obj \
+$(INTDIR)\fstd_String.obj \
+$(INTDIR)\fstd_stdlibCS.obj \
+$(INTDIR)\fstd_SText.obj \
+$(INTDIR)\fstd_exit.obj \
+$(INTDIR)\fstd_Con.obj \
+$(INTDIR)\fstd_FMsg.obj \
+$(INTDIR)\fstd_OEM.obj \
+$(INTDIR)\fstd_Utils.obj \
+$(INTDIR)\fstd_FUtils.obj \
 
 DEP_HDR=int.h FStdLib\fstdlib.h lib/Plugin.h Plugins.h Cfg.h \
 JM.h var.h Connect.h FtpAPI.h Ftp.h
@@ -137,16 +135,16 @@ $(LIB_OBJS)
 !endif
 
 !ifndef __MAKE__
-{$(LIBSRC)}.cpp{$(OBJDIR)}.obj::
+{$(LIBSRC)}.cpp{$(INTDIR)}.obj::
 	@$(CC) @<<
-	$(CPPFLAGS) /Fo$(OBJDIR)\ $<
+	$(CPPFLAGS) /Fo$(INTDIR)\ $<
 <<
 !else
-{$(LIBSRC)}.cpp{$(OBJDIR)}.obj:
-	@$(CC) $(CPPFLAGS) /Fo$(OBJDIR)\ { $< }
+{$(LIBSRC)}.cpp{$(INTDIR)}.obj:
+	@$(CC) $(CPPFLAGS) /Fo$(INTDIR)\ { $< }
 !endif
 
-{$(LIBSRC)}.asm{$(OBJDIR)}.obj:
+{$(LIBSRC)}.asm{$(INTDIR)}.obj:
 	@ml /nologo /c /Fo$@ $<
 
 $(RES): version.hpp

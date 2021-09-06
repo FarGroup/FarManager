@@ -60,6 +60,8 @@ other possible license with no implications from the above license on them.
 
 #undef DefDlgProc
 
+typedef GUID UUID;
+
 #ifdef FAR_USE_INTERNALS
 struct FAR_INPUT_RECORD
 {

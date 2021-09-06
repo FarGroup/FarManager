@@ -1,11 +1,8 @@
-!include ../makefile_vc_base
-
 NAME = Brackets
 
-LINK_OBJS = $(OBJDIR)\Brackets.obj
+LINK_OBJS = $(INTDIR)\Brackets.obj
 
 !include ..\makefile_vc_def_inc
-
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\Brackets.obj: Brackets.cpp Brackets.hpp BrackLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp
+$(INTDIR)\Brackets.obj: Brackets.cpp Brackets.hpp BrackLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp

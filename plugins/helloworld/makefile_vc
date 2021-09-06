@@ -1,10 +1,7 @@
-!include ../makefile_vc_base
-
 NAME = HelloWorld
-LINK_OBJS = $(OBJDIR)\HelloWorld.obj
+LINK_OBJS = $(INTDIR)\HelloWorld.obj
 
 !include ..\makefile_vc_def_inc
-
 !include ..\makefile_vc_target_inc
 
-$(OBJDIR)\HelloWorld.obj: HelloWorld.cpp HelloWorldLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp
+$(INTDIR)\HelloWorld.obj: HelloWorld.cpp HelloWorldLng.hpp guid.hpp version.hpp $(COMINC)\plugin.hpp

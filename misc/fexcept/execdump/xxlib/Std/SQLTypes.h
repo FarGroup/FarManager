@@ -1,46 +1,46 @@
-#ifndef __MY_SQLTYPES
+﻿#ifndef __MY_SQLTYPES
 #define __MY_SQLTYPES
 
 /*
- �����������������������������������������������������������������������������������������������������������������Ŀ
- �TYPE               �DIMENTIONS       � CAPACITY             � LENGTH     �  DEFAULT VALUE      � DEFAULT LENGTH  �
- �����������������������������������������������������������������������������������������������������������������Ĵ
- �char:              �                 �                      �            �                     �                 �
- �����������������������������������������������������������������������������������������������������������������Ĵ
- �  CHAR             �[ (maxlen) ]     �maxlen                �maxlen      � ""                  � 1               �
- �  CHARACTER        �--               �--                    �--          � ""                  � 1               �
- �  CHARACTER VARYING�--               �--                    �--          � ""                  � 1               �
- �  VARCHAR          �--               �--                    �--          � ""                  � 1               �
- �  LONG VARCHAR     �                 �2Gb                   �2Gb         � <NULL>              �                 �
- �����������������������������������������������������������������������������������������������������������������Ĵ
- �int:               �                 �                      �            �                     �                 �
- �����������������������������������������������������������������������������������������������������������������Ĵ
- �  DECIMAL          �[ (total[,var]) ]�value                 �total+1     � 0.0                 � 30.6            �
- �  NUMERIC          �--               �--                    �--          � 0.0                 � --              �
- �  DOUBLE           �                 �2.2e-308 - 1.7e+308   �8 byte      � 0.0                 � 8               �
- �  FLOAT            �[ (precs) ]      �!precs not support    �4 byte      � 0.0                 � 4               �
- �  INT              �                 �DWORD                 �4 byte      � 0                   � 4               �
- �  INTEGER          �--               �--                    �--          � 0                   � --              �
- �  REAL             �                 �1.17e-38 - 3.40e+38   �6 byte      � 0                   � 6               �
- �  SMALLINT         �                 �SHORT                 �2 byte      � 0                   � 2               �
- �  TINYINT          �                 �BYTE                  �1 byte      � 0                   � 1               �
- �����������������������������������������������������������������������������������������������������������������Ĵ
- �datetime:          �                 �                      �            �                     �                 �
- �����������������������������������������������������������������������������������������������������������������Ĵ
- �  DATE             �                 �r: 1600-02-28 23:59:59�4 byte      � dd-mm-yy            � 4               �
- �  TIME             �                 �o: 7911-01-01 00:00:00�8 byte      � hh:mm:ss:hh         � 8               �
- �  TIMESTAMP        �                 �                      �8 byte      � dd-mm-yy hh:mm:ss:hh� 8               �
- �����������������������������������������������������������������������������������������������������������������Ĵ
- �binary:            �                 �                      �            �                     �                 �
- �����������������������������������������������������������������������������������������������������������������Ĵ
- �  BINARY           �[ (maxlen) ]     �1..32767              �maxlen      � ""                  � 1               �
- �  LONG BINARY      �                 �2Gb                   �2Gb         � 2Gb                 �                 �
- �������������������������������������������������������������������������������������������������������������������
+ ┌───────────────────┬─────────────────┬──────────────────────┬────────────┬─────────────────────┬─────────────────┐
+ │TYPE               │DIMENTIONS       │ CAPACITY             │ LENGTH     │  DEFAULT VALUE      │ DEFAULT LENGTH  │
+ ├───────────────────┼─────────────────┼──────────────────────┼────────────┼─────────────────────┼─────────────────┤
+ │char:              │                 │                      │            │                     │                 │
+ ├───────────────────┼─────────────────┼──────────────────────┼────────────┼─────────────────────┼─────────────────┤
+ │  CHAR             │[ (maxlen) ]     │maxlen                │maxlen      │ ""                  │ 1               │
+ │  CHARACTER        │--               │--                    │--          │ ""                  │ 1               │
+ │  CHARACTER VARYING│--               │--                    │--          │ ""                  │ 1               │
+ │  VARCHAR          │--               │--                    │--          │ ""                  │ 1               │
+ │  LONG VARCHAR     │                 │2Gb                   │2Gb         │ <NULL>              │                 │
+ ├───────────────────┼─────────────────┼──────────────────────┼────────────┼─────────────────────┼─────────────────┤
+ │int:               │                 │                      │            │                     │                 │
+ ├───────────────────┼─────────────────┼──────────────────────┼────────────┼─────────────────────┼─────────────────┤
+ │  DECIMAL          │[ (total[,var]) ]│value                 │total+1     │ 0.0                 │ 30.6            │
+ │  NUMERIC          │--               │--                    │--          │ 0.0                 │ --              │
+ │  DOUBLE           │                 │2.2e-308 - 1.7e+308   │8 byte      │ 0.0                 │ 8               │
+ │  FLOAT            │[ (precs) ]      │!precs not support    │4 byte      │ 0.0                 │ 4               │
+ │  INT              │                 │DWORD                 │4 byte      │ 0                   │ 4               │
+ │  INTEGER          │--               │--                    │--          │ 0                   │ --              │
+ │  REAL             │                 │1.17e-38 - 3.40e+38   │6 byte      │ 0                   │ 6               │
+ │  SMALLINT         │                 │SHORT                 │2 byte      │ 0                   │ 2               │
+ │  TINYINT          │                 │BYTE                  │1 byte      │ 0                   │ 1               │
+ ├───────────────────┼─────────────────┼──────────────────────┼────────────┼─────────────────────┼─────────────────┤
+ │datetime:          │                 │                      │            │                     │                 │
+ ├───────────────────┼─────────────────┼──────────────────────┼────────────┼─────────────────────┼─────────────────┤
+ │  DATE             │                 │r: 1600-02-28 23:59:59│4 byte      │ dd-mm-yy            │ 4               │
+ │  TIME             │                 │o: 7911-01-01 00:00:00│8 byte      │ hh:mm:ss:hh         │ 8               │
+ │  TIMESTAMP        │                 │                      │8 byte      │ dd-mm-yy hh:mm:ss:hh│ 8               │
+ ├───────────────────┼─────────────────┼──────────────────────┼────────────┼─────────────────────┼─────────────────┤
+ │binary:            │                 │                      │            │                     │                 │
+ ├───────────────────┼─────────────────┼──────────────────────┼────────────┼─────────────────────┼─────────────────┤
+ │  BINARY           │[ (maxlen) ]     │1..32767              │maxlen      │ ""                  │ 1               │
+ │  LONG BINARY      │                 │2Gb                   │2Gb         │ 2Gb                 │                 │
+ └───────────────────┴─────────────────┴──────────────────────┴────────────┴─────────────────────┴─────────────────┘
 */
 
 #if !defined(_SQLDEF_H_INCLUDED)
-  #define SQL_MAX_NFIELDS             50   //���ᨬ��쭮� ������⢮ ����� � SQL �����
-  #define SQL_MAX_FIELDLEN            320  //���ᨬ��쭮� ���� � SQL �����
+  #define SQL_MAX_NFIELDS             50   //максимальное количество полей в SQL базах
+  #define SQL_MAX_FIELDLEN            320  //максимальное поле в SQL базах
   #define SQL_MAX_NAME_LEN            30
   #define DB_MAX_IDENTIFIER_LEN       128
 //Options
