@@ -2,8 +2,8 @@
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup Label="UserMacros">
-    <ProjectSpecificOutDirName Condition="'$(ProjectSpecificOutDirName)' == ''">plugins\$(ProjectName)</ProjectSpecificOutDirName>
-    <ProjectSpecificIntDirName Condition="'$(ProjectSpecificIntDirName)' == ''">plugins\$(ProjectName)</ProjectSpecificIntDirName>
+    <ProjectSpecificOutDirName Condition="'$(ProjectSpecificOutDirName)' == ''">Plugins\$(ProjectName)</ProjectSpecificOutDirName>
+    <ProjectSpecificIntDirName Condition="'$(ProjectSpecificIntDirName)' == ''">Plugins\$(ProjectName)</ProjectSpecificIntDirName>
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)\common.props" />

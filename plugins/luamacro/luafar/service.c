@@ -976,7 +976,7 @@ static void FillKeyBarTitles(lua_State *L, int src_pos, struct KeyBarTitles *kbt
 static int SetKeyBar(lua_State *L, BOOL editor)
 {
 	intptr_t result;
-	void* param;
+	void* param = NULL;
 	struct KeyBarTitles kbt;
 	struct FarSetKeyBarTitles skbt;
 	intptr_t Id = luaL_optinteger(L, 1, -1);
