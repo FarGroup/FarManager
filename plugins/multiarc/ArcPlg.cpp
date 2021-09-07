@@ -1,6 +1,8 @@
 ﻿#include "MultiArc.hpp"
 #include "marclng.hpp"
 
+#include <cstdlib>
+
 typedef int (__cdecl *FCMP)(const void *, const void *);
 
 ArcPlugins::ArcPlugins(const char *ModuleName)

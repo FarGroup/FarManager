@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="*.cpp" />
+    <ClCompile Include="*.c" />
+    <ClInclude Include="*.hpp" />
+    <ResourceCompile Include="*.rc" />
+    <None Include="*.def" />
+  </ItemGroup>
+  <Import Project="$(MSBuildThisFileDirectory)\common.plugins.rules.copy.props" />
+  <Import Project="$(MSBuildThisFileDirectory)\common.plugins.rules.crt_fix.props" />
+</Project>

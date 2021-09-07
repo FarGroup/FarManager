@@ -56,6 +56,7 @@ CFLAGS = $(CFLAGS)\
 	/wd4668\
 	/utf-8\
 	/Gy\
+	/Gw\
 	/GF\
 	/Fd"$(INTDIR)/"\
 	/Fo"$(INTDIR)/"\
@@ -67,7 +68,6 @@ CFLAGS = $(CFLAGS)\
 	/D "WIN32_LEAN_AND_MEAN"\
 	/D "VC_EXTRALEAN"\
 	/D "PSAPI_VERSION=1"\
-	/D "_ENABLE_EXTENDED_ALIGNED_STORAGE"\
 	/D "_CRT_SECURE_NO_WARNINGS"\
 
 !ifndef ANSI
@@ -83,6 +83,8 @@ CPPFLAGS = $(CPPFLAGS)\
 	/std:c++latest\
 	/Zc:__cplusplus,externConstexpr,inline,throwingNew\
 	/D "_HAS_AUTO_PTR_ETC=0"\
+	/D "_ENABLE_EXTENDED_ALIGNED_STORAGE"\
+	/D "_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1"\
 
 AFLAGS =\
 	/nologo\
@@ -119,7 +121,7 @@ RFLAGS = $(RFLAGS) /D "NDEBUG"
 LINKFLAGS = $(LINKFLAGS) /incremental:no /OPT:REF /OPT:ICF
 
 !ifndef NO_RELEASE_LTCG
-CPPFLAGS = $(CPPFLAGS) /GL /Gw
+CPPFLAGS = $(CPPFLAGS) /GL
 LINKFLAGS = $(LINKFLAGS) /ltcg
 !ifdef LTCG_STATUS
 LINKFLAGS = $(LINKFLAGS) /ltcg:status

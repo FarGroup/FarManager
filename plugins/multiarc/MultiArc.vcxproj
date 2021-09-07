@@ -1,135 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-  </ItemGroup>
-  <PropertyGroup Label="Globals">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
     <ProjectName>MultiArc</ProjectName>
     <ProjectGuid>{7EF4D5DD-4136-42AB-893B-BE75B63A2217}</ProjectGuid>
-    <RootNamespace>MultiArc</RootNamespace>
-    <Keyword>Win32Proj</Keyword>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-
-  <PropertyGroup Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '10.0'">v100</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '11.0'">v110</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</PlatformToolset>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
-  </ImportGroup>
   <ImportGroup Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(ProjectDir)..\..\_build\vc\config\common.plugins.main.props" />
+    <Import Project="$(ProjectDir)..\..\_build\vc\config\common.plugins.rules.copy.props" />
+    <Import Project="$(ProjectDir)..\..\_build\vc\config\common.plugins.rules.crt_fix.props" />
   </ImportGroup>
-  <PropertyGroup>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)debug.32.vc$(VisualStudioVersion)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)debug.64.vc$(VisualStudioVersion)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)final.32.vc$(VisualStudioVersion)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)final.64.vc$(VisualStudioVersion)\</OutDir>
-    <IntDir>$(OutDir)obj\</IntDir>
-    <LinkIncremental>false</LinkIncremental>
-    <GenerateManifest>false</GenerateManifest>
-  </PropertyGroup>
-
-  <ItemDefinitionGroup>
-    <ClCompile>
-      <Optimization Condition="'$(Configuration)'=='Debug'">Disabled</Optimization>
-      <Optimization Condition="'$(Configuration)'=='Release'">MinSpace</Optimization>
-      <IntrinsicFunctions Condition="'$(Configuration)'=='Release'">true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\common\ascii;..\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <ExceptionHandling />
-      <WarningLevel>Level3</WarningLevel>
-      <StringPooling>true</StringPooling>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <AdditionalOptions> /J</AdditionalOptions>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <CallingConvention>FastCall</CallingConvention>
-      <DisableSpecificWarnings>4985;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '14.0'">/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
-      <RuntimeLibrary Condition="'$(Configuration)'=='Debug'">MultiThreadedDebug</RuntimeLibrary>
-      <RuntimeLibrary Condition="'$(Configuration)'=='Release'">MultiThreaded</RuntimeLibrary>
-    </ClCompile>
-    <Link>
-      <ModuleDefinitionFile>$(ProjectName).vc.def</ModuleDefinitionFile>
-      <AdditionalDependencies>chkstk.obj;kernel32.lib;user32.lib;advapi32.lib</AdditionalDependencies>
-      <GenerateMapFile>true</GenerateMapFile>
-      <SubSystem>Console</SubSystem>
-      <TargetMachine Condition="'$(Platform)'=='Win32'">MachineX86</TargetMachine>
-      <TargetMachine Condition="'$(Platform)'=='x64'">MachineX64</TargetMachine>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-    </Link>
-  </ItemDefinitionGroup>
-
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)'!='10.0'">NoExtensions</EnableEnhancedInstructionSet>
-    </ClCompile>
-  </ItemDefinitionGroup>
-
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <PreprocessorDefinitions>DEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-    </ClCompile>
-  </ItemDefinitionGroup>
-
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DebugInformationFormat Condition="'$(VisualStudioVersion)'!='10.0'">None</DebugInformationFormat>
-      <EnableEnhancedInstructionSet Condition="'$(VisualStudioVersion)'!='10.0'">NoExtensions</EnableEnhancedInstructionSet>
-    </ClCompile>
-    <PostBuildEvent>
-      <Message>Fixing subsystem version</Message>
-      <Command>editbin /nologo /subsystem:console,5.0 /osversion:5.0 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <PreprocessorDefinitions>NDEBUG;CRT_SECURE_NO_WARNINGS;CRT_NONSTDC_NO_WARNINGS;_WIN32_WINNT=0x0600;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DebugInformationFormat Condition="'$(VisualStudioVersion)'!='10.0'">None</DebugInformationFormat>
-    </ClCompile>
-    <PostBuildEvent>
-      <Message>Fixing subsystem version</Message>
-      <Command>editbin /nologo /subsystem:console,5.2 /osversion:5.2 $(OutDir)$(TargetName)$(TargetExt) &gt; nul</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-
   <ItemGroup>
-    <MASM Include="..\common\vc_crt_fix.asm">
-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
-    </MASM>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\common\vc_crt_fix_impl.cpp">
-      <ExcludedFromBuild Condition="'$(Platform)'=='x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="$(ProjectName).cpp" />
     <ClCompile Include="arccfg.cpp" />
     <ClCompile Include="arccmd.cpp" />
@@ -144,47 +26,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="$(ProjectName).vc.def" />
-    <CustomBuild Include="arcbel.lng">
-      <Message>Converting %(Identity)</Message>
-      <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
-      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="arceng.lng">
-      <Message>Converting %(Identity)</Message>
-      <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
-      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="arcspa.lng">
-      <Message>Converting %(Identity)</Message>
-      <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
-      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="arcita.lng">
-      <Message>Converting %(Identity)</Message>
-      <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
-      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="arcrus.lng">
-      <Message>Converting %(Identity)</Message>
-      <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
-      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="arceng.hlf">
-      <Message>Converting %(Identity)</Message>
-      <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
-      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="arcrus.hlf">
-      <Message>Converting %(Identity)</Message>
-      <Command>copy /y "%(Identity)" "$(OutDir)"</Command>
-      <Outputs>$(OutDir)%(Identity);%(Outputs)</Outputs>
-    </CustomBuild>
-    <None Include="changelog" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="$(ProjectName).hpp" />
     <ClInclude Include="fmt.hpp" />
     <ClInclude Include="marclng.hpp" />
-    <ClInclude Include="$(ProjectName).hpp" />
     <ClInclude Include="multiarcversion.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -192,8 +38,5 @@
       <AdditionalIncludeDirectories>..\common\ascii;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
-  </ImportGroup>
+  <Import Project="$(ProjectDir)..\..\_build\vc\config\common.targets" />
 </Project>

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <MASM Include="$(SrcRoot)plugins\common\vc_crt_fix.asm">
+      <PreprocessorDefinitions>$(Platform)</PreprocessorDefinitions>
+      <ExcludedFromBuild Condition="'$(Platform)'!='Win32' and '$(Platform)'!='x64'">true</ExcludedFromBuild>
+    </MASM>
+    <ClCompile Include="$(SrcRoot)plugins\common\vc_crt_fix_impl.cpp" />
+  </ItemGroup>
+</Project>

@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <ImportGroup Label="PropertySheets">
-  </ImportGroup>
-
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -60,7 +57,7 @@
     <ReadOnlyProject>true</ReadOnlyProject>
     <RootNamespace>$(ProjectName)</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet Condition="'$(CharacterSet)' == ''">Unicode</CharacterSet>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' &gt;= '16.0'">v142</PlatformToolset>
     <OutDir>$(OutputsRoot)product\$(ConfigSpecificDirectoryName)\$(ProjectSpecificOutDirName)\</OutDir>
@@ -85,8 +82,8 @@
 
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalOptions>/J /Zc:__cplusplus,externConstexpr,inline,throwingNew /volatile:iso /utf-8 $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;VC_EXTRALEAN;PSAPI_VERSION=1;_ENABLE_EXTENDED_ALIGNED_STORAGE;_HAS_AUTO_PTR_ETC=0;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/J /Zc:__cplusplus,externConstexpr,inline,throwingNew /volatile:iso /utf-8 /Gw $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;VC_EXTRALEAN;PSAPI_VERSION=1;_CRT_SECURE_NO_WARNINGS;_HAS_AUTO_PTR_ETC=0;_ENABLE_EXTENDED_ALIGNED_STORAGE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <ExternalWarningLevel>Level4</ExternalWarningLevel>
@@ -168,8 +165,5 @@
 
   <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
   </ItemDefinitionGroup>
-
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
 
 </Project>

@@ -2,6 +2,8 @@
 #include "marclng.hpp"
 #include <dos.h>
 
+#include <cstdlib>
+
 BOOL FileExists(const char* Name)
 {
   return GetFileAttributes(Name)!=0xFFFFFFFF;
@@ -123,7 +125,7 @@ int Execute(HANDLE hPlugin,char *CmdStr,int HideOutput,int Silent,int ShowTitle,
   memset(&si,0,sizeof(si));
   si.cb=sizeof(si);
 
-  HANDLE hChildStdoutRd,hChildStdoutWr;
+  HANDLE hChildStdoutRd{}, hChildStdoutWr{};
   HANDLE StdInput=GetStdHandle(STD_INPUT_HANDLE);
   HANDLE StdOutput=GetStdHandle(STD_OUTPUT_HANDLE);
   HANDLE StdError=GetStdHandle(STD_ERROR_HANDLE);

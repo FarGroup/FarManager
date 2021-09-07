@@ -297,7 +297,6 @@ extern const char *SortModes[];
 
 extern DWORD PriorityProcessCode[];
 
-extern OSVERSIONINFO WinVer;
 /*
   Functions
 */

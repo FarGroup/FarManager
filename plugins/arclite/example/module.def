@@ -1,4 +1,4 @@
-LIBRARY <(MODULE)>
+LIBRARY <(NAME)>
 EXPORTS
   GetHandlerProperty
   CreateObject
