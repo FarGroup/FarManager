@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup Label="UserMacros">
+    <ProjectSpecificOutDirName Condition="'$(ProjectSpecificOutDirName)' == ''">plugins\$(ProjectName)</ProjectSpecificOutDirName>
+    <ProjectSpecificIntDirName Condition="'$(ProjectSpecificIntDirName)' == ''">plugins\$(ProjectName)</ProjectSpecificIntDirName>
+  </PropertyGroup>
+
+  <Import Project="$(MSBuildThisFileDirectory)\common.props" />
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SrcRoot)plugins\common;$(SrcRoot)\far\common;$(SrcRoot)\far\thirdparty\fmt;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(CharacterSet)' == 'Unicode'">$(SrcRoot)plugins\common\unicode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(CharacterSet)' == 'MultiByte'">$(SrcRoot)plugins\common\ascii;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_NON_CONFORMING_WCSTOK;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4668</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SrcRoot)plugins\common;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <!-- TODO: Remove W from defs -->
+      <ModuleDefinitionFile Condition="'$(CharacterSet)' == 'Unicode'">$(ProjectName)W.vc.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile Condition="'$(CharacterSet)' == 'MultiByte'">$(ProjectName).vc.def</ModuleDefinitionFile>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories Condition="'$(CharacterSet)' == 'Unicode'">$(SrcRoot)plugins\common\unicode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(CharacterSet)' == 'MultiByte'">$(SrcRoot)plugins\common\ascii;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+
+</Project>

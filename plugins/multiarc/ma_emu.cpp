@@ -14,19 +14,11 @@
 
 #include <plugin.hpp>
 
-#ifndef __STDIO_H
 #include <stdio.h>
-#endif
-#ifndef __STDLIB_H
 #include <stdlib.h>
-#endif
-#ifndef __STRING_H
 #include <string.h>
-#endif
-#ifndef __STDARG_H
 #include <stdarg.h>
-#endif
-
+#include <io.h>
 
 #include "fmt.hpp"
 

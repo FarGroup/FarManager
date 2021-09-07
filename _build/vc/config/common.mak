@@ -56,6 +56,7 @@ CFLAGS = $(CFLAGS)\
 	/wd4668\
 	/utf-8\
 	/Gy\
+	/Gw\
 	/GF\
 	/Fd"$(INTDIR)/"\
 	/Fo"$(INTDIR)/"\
@@ -120,7 +121,7 @@ RFLAGS = $(RFLAGS) /D "NDEBUG"
 LINKFLAGS = $(LINKFLAGS) /incremental:no /OPT:REF /OPT:ICF
 
 !ifndef NO_RELEASE_LTCG
-CPPFLAGS = $(CPPFLAGS) /GL /Gw
+CPPFLAGS = $(CPPFLAGS) /GL
 LINKFLAGS = $(LINKFLAGS) /ltcg
 !ifdef LTCG_STATUS
 LINKFLAGS = $(LINKFLAGS) /ltcg:status

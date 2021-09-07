@@ -524,11 +524,6 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
       lstrcpy(ListPriorItem[I].Text,GetMsg((int)(MIdle_Priority_Class+I)));
     }
     ListPriorItem[Opt.PriorityClass].Flags=LIF_SELECTED;
-    if(!(WinVer.dwPlatformId == VER_PLATFORM_WIN32_NT && WinVer.dwMajorVersion >= 5))
-    {
-      ListPriorItem[MBelow_Normal_Priority_Class-MIdle_Priority_Class].Flags=LIF_DISABLE;
-      ListPriorItem[MAbove_Normal_Priority_Class-MIdle_Priority_Class].Flags=LIF_DISABLE;
-    }
     FarList ListPrior;
     ListPrior.ItemsNumber=ARRAYSIZE(ListPriorItem);
     ListPrior.Items=&ListPriorItem[0];

@@ -60,11 +60,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <NMakePreprocessorDefinitions>WIN32;_DEBUG;DEBUG;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;_WIN32_WINNT=0x0500;UNICODE;_UNICODE;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeBuildCommandLine>nmake -nologo -f makefile_vc DEBUG=1 VisualStudioVersion=$(VisualStudioVersion)</NMakeBuildCommandLine>
-    <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
     <NMakeCleanCommandLine>nmake -nologo -f makefile_vc DEBUG=1 VisualStudioVersion=$(VisualStudioVersion) clean</NMakeCleanCommandLine>
     <NMakeIncludeSearchPath>7z\h;..\common\unicode;bootstrap</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
     <NMakeOutput />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

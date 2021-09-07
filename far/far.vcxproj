@@ -450,9 +450,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <AdditionalInputs>headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs>Include\%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
-    <CopyFileToFolders Include="Far.exe.example.ini">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
+    <CopyFileToFolders Include="Far.exe.example.ini" />
     <CustomBuild Include="copyright.inc.m4">
       <FileType>Document</FileType>
       <Message>Compiling %(Identity)...</Message>
@@ -562,9 +560,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <PreprocessorDefinitions>$(Platform)</PreprocessorDefinitions>
       <ExcludedFromBuild Condition="'$(Platform)'!='Win32' and '$(Platform)'!='x64'">true</ExcludedFromBuild>
     </MASM>
-    <CopyFileToFolders Include="changelog">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
+    <CopyFileToFolders Include="changelog" />
     <None Include="Far.ico" />
     <None Include="Far.black.ico" />
     <None Include="Far.hack.ico" />
@@ -584,4 +580,5 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
   <ItemGroup>
     <Natvis Include="far.natvis" />
   </ItemGroup>
+  <Import Project="$(ProjectDir)..\_build\vc\config\common.targets" />
 </Project>

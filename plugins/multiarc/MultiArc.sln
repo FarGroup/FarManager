@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiArc", "MultiArc.vcxproj", "{7EF4D5DD-4136-42AB-893B-BE75B63A2217}"
 EndProject
@@ -16,9 +16,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cab", "cab.vcxproj", "{797917B6-C8C8-4D0A-A417-407894FECC97}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "custom", "custom.vcxproj", "{9CF69DBB-650D-4423-8FD2-D291A71B6CC9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{50FCE411-DA6E-432A-8224-265D52D09058} = {50FCE411-DA6E-432A-8224-265D52D09058}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ha", "ha.vcxproj", "{F208D520-150C-4E92-8DFE-80D44E04162A}"
 EndProject
@@ -155,5 +152,8 @@ Global
 		{8E23ED24-ECD7-4950-8230-9FF7C6C684C4} = {F5691963-767A-4818-8C77-FA7AAA7C1915}
 		{6D8B1107-32F4-49BD-88E9-8331CC896EC4} = {F5691963-767A-4818-8C77-FA7AAA7C1915}
 		{50FCE411-DA6E-432A-8224-265D52D09058} = {6D8B1107-32F4-49BD-88E9-8331CC896EC4}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {44378FEE-1583-4C06-8057-04552B8414F6}
 	EndGlobalSection
 EndGlobal
