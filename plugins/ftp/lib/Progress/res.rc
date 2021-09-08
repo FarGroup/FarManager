@@ -2,10 +2,9 @@
 
 #include "version.hpp"
 
-#define PLUGIN_MAJOR 1
-#define PLUGIN_MINOR 1
+#define PLUGIN_BUILD 1
 #define PLUGIN_DESC "Copy progress dialog FTP plugin"
 #define PLUGIN_NAME "ftpProgress"
 #define PLUGIN_FILENAME "ftpProgress.fll"
 
-ftpgenericpluginrc(PLUGIN_MAJOR, PLUGIN_MINOR, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)
+#include <plugin_version.rc>

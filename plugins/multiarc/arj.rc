@@ -2,9 +2,9 @@
 
 #include "multiarcversion.hpp"
 
-#define PLUGIN_MAJOR 1
-#define PLUGIN_MINOR 21
+#define PLUGIN_BUILD 21
+#define PLUGIN_DESC FMTDESCRIPTION
 #define PLUGIN_NAME "arj"
 #define PLUGIN_FILENAME "arj.fmt"
 
-magenericpluginrc(PLUGIN_MAJOR, PLUGIN_MINOR, PLUGIN_NAME, PLUGIN_FILENAME)
+#include <plugin_version.rc>

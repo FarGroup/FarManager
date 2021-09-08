@@ -79,6 +79,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
   <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  <Import Project="$(MSBuildThisFileDirectory)user.props" Condition="exists('$(MSBuildThisFileDirectory)user.props')" />
 
   <ItemDefinitionGroup>
     <ClCompile>

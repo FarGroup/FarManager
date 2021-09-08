@@ -8,4 +8,4 @@
 #define PLUGIN_FILENAME "MultiArc.dll"
 #define PLUGIN_GUID "C5508DDB-5175-4736-9A10-C8F6EED7B32F"
 
-genericpluginrcwithguid(PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME, PLUGIN_GUID)
+#include <plugin_version.rc>

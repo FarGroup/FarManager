@@ -51,8 +51,8 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
 {$(COMMON)}.asm{$(INTDIR)}.obj:
 	$(MASM) $(AFLAGS) $<
 
-$(RES): $(RC_NAME).rc $(COMINC)\farversion.hpp $(COMINC)\plugin.hpp
-	$(RC) /nologo /I"$(COMINC)" $(ENV_INC_OPT) $(RC_WIDE) /fo"$(RES)" $(RC_NAME).rc
+$(RES): $(RC_NAME).rc $(COMMON)\farversion.hpp $(COMINC)\plugin.hpp
+	$(RC) $(RFLAGS) /fo"$(RES)" $(RC_NAME).rc
 
 $(INTDIR)\vc_crt_fix.obj: $(COMMON)\vc_crt_fix.asm
 	$(MASM) $(AFLAGS) $(COMMON)\vc_crt_fix.asm

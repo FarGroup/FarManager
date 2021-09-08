@@ -64,7 +64,7 @@ BASEDIR = ./$(DIRNAME).$(DIRBIT)$(DIRSURF).gcc
 OBJDIR := $(BASEDIR)/obj
 REOBJDIR = \.\/$(DIRNAME)\.$(DIRBIT)$(DIRSURF)\.gcc\/obj\/
 DLLDIR ?= $(BASEDIR)$(ADDOUTDIR)
-COMMON ?= ../common
+COMMON ?= $(MAKEFILE_DIR)/common
 COMINC = $(COMMON)/$(if $(ANSI),ascii,unicode)
 EXT ?= dll
 DLLNAME = $(NAME).$(EXT)
@@ -109,7 +109,7 @@ endif
 CFLAGS  += -I $(COMMON) -I $(COMINC) $(WIDE) $(USERC)
 CPPFLAGS += -Wno-old-style-cast $(USERCPP)
 LNKFLAGS += $(USERLIBS)
-RCFLAGS  += -I $(COMINC) $(WIDE) $(USERRC)
+RCFLAGS  += -I $(COMMON) -I $(COMINC) $(WIDE) $(USERRC)
 
 C_OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS)))
 CPP_OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))

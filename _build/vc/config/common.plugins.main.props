@@ -24,6 +24,7 @@
       <ModuleDefinitionFile Condition="'$(CharacterSet)' == 'MultiByte'">$(ProjectName).vc.def</ModuleDefinitionFile>
     </Link>
     <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SrcRoot)plugins\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(CharacterSet)' == 'Unicode'">$(SrcRoot)plugins\common\unicode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(CharacterSet)' == 'MultiByte'">$(SrcRoot)plugins\common\ascii;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>

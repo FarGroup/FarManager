@@ -2,10 +2,9 @@
 
 #include "version.hpp"
 
-#define PLUGIN_MAJOR 1
-#define PLUGIN_MINOR 0
+#define PLUGIN_BUILD 1
 #define PLUGIN_DESC "FTP IO Notify sub-plugin"
 #define PLUGIN_NAME "ftpNotify"
 #define PLUGIN_FILENAME "ftpNotify.fll"
 
-ftpgenericpluginrc(PLUGIN_MAJOR, PLUGIN_MINOR, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME)
+#include <plugin_version.rc>
