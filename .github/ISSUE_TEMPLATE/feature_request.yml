@@ -1,0 +1,22 @@
+name: "Feature request"
+labels: [enhancement]
+description: Suggest a new feature or improvement
+body:
+- type: markdown
+  attributes:
+    value: |
+      Please make sure to [search for existing issues](https://github.com/FarGroup/FarManager/issues) and [check the FAQ](https://forum.farmanager.com/viewtopic.php?t=5207) before filing a new one.
+
+- type: textarea
+  attributes:
+    label: Description of the new feature or improvement
+    placeholder:
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Proposed technical implementation details (optional)
+    placeholder:
+  validations:
+    required: false
