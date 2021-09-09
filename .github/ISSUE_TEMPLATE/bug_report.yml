@@ -1,0 +1,55 @@
+name: "Bug report"
+labels: [bug]
+description: Report errors or unexpected behavior
+body:
+- type: markdown
+  attributes:
+    value: |
+      Please make sure to [search for existing issues](https://github.com/FarGroup/FarManager/issues), [check the FAQ](https://forum.farmanager.com/viewtopic.php?t=5207) and [reporting guidelines](https://farmanager.com/problems.php?l=en) before filing a new one.
+
+- type: input
+  attributes:
+    label: Far Manager version
+    placeholder: "3.0.1234.0"
+    description: |
+      Run `far:about` to find out.
+  validations:
+    required: true
+
+- type: input
+  attributes:
+    label: OS version
+    placeholder: "10.0.1234.5678"
+    description: |
+      Run `ver` to find out.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Other software
+    description: If required to reproduce the issue.
+    placeholder:
+  validations:
+    required: false
+
+- type: textarea
+  attributes:
+    label: Steps to reproduce
+    placeholder: Steps to reproduce the issue.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Expected behavior
+    placeholder: What were you expecting?
+  validations:
+    required: false
+
+- type: textarea
+  attributes:
+    label: Actual behavior
+    placeholder: What happened instead?
+  validations:
+    required: true
