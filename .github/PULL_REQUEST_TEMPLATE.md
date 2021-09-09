@@ -1,21 +1,16 @@
-<!--
-	Thank you for contributing!
-	Please confirm this pull request meets the following requirements:
--->
+<!-- Thank you for contributing! Please follow the steps below -->
 
-- [ ] I followed the contributing guidelines: <https://github.com/FarGroup/FarManager/blob/master/CONTRIBUTING.md>.
+<!-- Enter a brief description of your PR here -->
+## Summary
 
-#### Which change are you proposing?
-> Please replace this text with an explanation of why you think these changes should be made.
+<!-- If this PR is relevant to any other issues or existing PRs, link them here --> 
+## References
 
-<!-- Example:
-> I added new functionality, fixed a bug, changed, etc...
+<!-- Please review the items on the PR checklist before submitting -->
+## Checklist
+- [ ] I have followed the [contributing guidelines](https://github.com/FarGroup/FarManager/blob/master/CONTRIBUTING.md).
+- [ ] I have discussed this with project maintainers: <!-- add a link to the corresponding issue / discussion / forum topic here --> <br/>
+If not checked, I accept that this work might be rejected in favor of a different grand plan.<br/>
 
-Bug/Issue number: #x
--->
-
-Bug/Issue number: 
-
----
-
-Please note: we will close your PR without comment if you do not check the boxes above and provide ALL requested information.
+<!-- Enter a more detailed description of the PR and any additional comments here -->
+## Details
