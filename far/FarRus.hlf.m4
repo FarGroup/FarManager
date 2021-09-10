@@ -4157,8 +4157,14 @@ $ #Описания файлов#
 файлов во вложенных папках, то для этих файлов описания не обновляются.
 
  #Использовать кодовую страницу ANSI по умолчанию#
+ By default Far uses the OEM codepage for file descriptions, both for reading and writing.
+This option changes it to ANSI.
 
- #Сохранять в UTF8#
+ #Сохранять в UTF-8#
+ If set, the description file will be read as OEM or ANSI, depending on the option above,
+but saved in UTF-8 after you add, remove or update the descriptions.
+
+ #Note#: these options are irrelevant when the file has the UTF-8 signature. In this case it is always read and written in UTF-8.
 
 
 @PanelViewModes
