@@ -26,7 +26,7 @@ $(OBJDIR)/%.o: %.c
 	@$(MKDIR) -p $(@D)
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
-$(RES): $(RC_NAME).rc $(COMINC)/farversion.hpp $(COMINC)/plugin.hpp
+$(RES): $(RC_NAME).rc $(COMMON)/farversion.hpp $(COMINC)/plugin.hpp
 	@echo $<
 	@$(MKDIR) -p $(@D)
 	@$(WINDRES) $(RCFLAGS) -i $< -o $@

@@ -6,6 +6,7 @@
 #define PLUGIN_DESC "Exception catcher for FAR manager"
 #define PLUGIN_NAME "FExcept"
 #define PLUGIN_FILENAME "FExcept.dll"
-#define PLUGIN_COPYRIGHT "Copyright © Jouri Mamaev 2002, " FARGROUPCOPYRIGHT("2008")
+#define PLUGIN_COPYRIGHT_INITIAL "Â© Jouri Mamaev, 2002. "
+#define PLUGIN_COPYRIGHT_CURRENT_FROM 2008
 
-fullgenericpluginrc(FAR_MAJOR_VER, FAR_MINOR_VER, PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME, PLUGIN_COPYRIGHT, FAR_MAJOR_VER, FAR_MINOR_VER, FAR_BUILD, FARPRODUCTNAME)
+#include <plugin_version.rc>

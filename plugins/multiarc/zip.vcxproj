@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <PropertyGroup Label="UserMacros">
-    <ProjectSpecificOutDirName>plugins\MultiArc\Formats</ProjectSpecificOutDirName>
-    <ProjectSpecificIntDirName>plugins\MultiArc\$(ProjectName)</ProjectSpecificIntDirName>
+    <ProjectSpecificOutDirName>Plugins\MultiArc\Formats</ProjectSpecificOutDirName>
+    <ProjectSpecificIntDirName>Plugins\MultiArc\$(ProjectName)</ProjectSpecificIntDirName>
   </PropertyGroup>
 
   <ImportGroup Label="PropertySheets">

@@ -88,7 +88,7 @@ OUTDIR=$(INSTALL)
 
 INTDIR = $(INTDIR)$(ADDOBJDIR)
 !ifndef COMMON
-COMMON = ..\common
+COMMON = $(ROOTDIR)\plugins\common
 !endif
 !ifdef ANSI
 COMINC = $(COMMON)\ascii
@@ -117,6 +117,8 @@ CPPFLAGS = $(CPPFLAGS) /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE
 
 CPPFLAGS = $(CPPFLAGS) /Zc:threadSafeInit-
 FIXCRT_CPPFLAGS = /Zc:threadSafeInit-
+
+RFLAGS = /nologo /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(RC_WIDE)
 
 !if "$(BUILD_PLATFORM)" == "AMD64"
 ULOUT=-Tpd+

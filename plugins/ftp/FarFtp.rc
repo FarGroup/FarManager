@@ -8,4 +8,4 @@
 #define PLUGIN_FILENAME "FarFtp.dll"
 #define PLUGIN_GUID "FEF98DD8-4360-4F41-BECC-399317FF1838"
 
-genericpluginrcwithguid(PLUGIN_BUILD, PLUGIN_DESC, PLUGIN_NAME, PLUGIN_FILENAME, PLUGIN_GUID)
+#include <plugin_version.rc>

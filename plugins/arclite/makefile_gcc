@@ -118,7 +118,7 @@ build: $(DLLFULLNAME)
 SRCS = $(wildcard *.cpp)
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(SRCS)) $(OBJDIR)/version.rc.o
 
-RCFLAGS = -I$(COMINC)
+RCFLAGS = -I$(COMMON) -I$(COMINC)
 ifeq (64,$(DIRBIT))
 RCFLAGS += -Dx64
 endif

@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="UserMacros">
-    <ProjectSpecificIntDirName>plugins\MultiArc\$(ProjectName)</ProjectSpecificIntDirName>
+    <ProjectSpecificIntDirName>Plugins\MultiArc\$(ProjectName)</ProjectSpecificIntDirName>
   </PropertyGroup>
 
   <ImportGroup Label="PropertySheets">
