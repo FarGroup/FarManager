@@ -34,3 +34,7 @@ _MDEFS=$(_MDEFS) $(_MKDO_)VC=$(VC)
 !ifdef SHOW
 _MDEFS=$(_MDEFS) $(_MKDO_)SHOW=1
 !endif
+
+!ifdef ROOTDIR
+_MDEFS=$(_MDEFS) $(_MKDO_)ROOTDIR=$(ROOTDIR)
+!endif

@@ -25,7 +25,7 @@ all: $(OUTPUTS)
 <<
 !else
 {libpcre}.c{$(INTDIR)}.obj:
-	$(CC) $(CFLAGS) { $< }
+	$(CC) $(CPPFLAGS) { $< }
 !endif
 
 $(OUTPUTS): $(OBJS)

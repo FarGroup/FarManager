@@ -105,7 +105,7 @@ JM.h var.h Connect.h FtpAPI.h Ftp.h
 
 ##########
 !if !defined(VC) || "$(VC)" >= "14"
-NOWRN15=/wd5033
+NOWRN15=/wd5033 /wd4062 /wd4191 /wd4459 /wd5204
 !endif
 USERCPP=/I.\FStdLib /D__NOMEM__=1 /D__USEASSERT__=1 /wd4996 $(NOWRN15)
 !ifdef DEBUG
@@ -137,11 +137,11 @@ $(LIB_OBJS)
 !ifndef __MAKE__
 {$(LIBSRC)}.cpp{$(INTDIR)}.obj::
 	@$(CC) @<<
-	$(CPPFLAGS) /Fo$(INTDIR)\ $<
+	$(CPPFLAGS) /Fo$(INTDIR)/ $<
 <<
 !else
 {$(LIBSRC)}.cpp{$(INTDIR)}.obj:
-	@$(CC) $(CPPFLAGS) /Fo$(INTDIR)\ { $< }
+	@$(CC) $(CPPFLAGS) /Fo$(INTDIR)/ { $< }
 !endif
 
 {$(LIBSRC)}.asm{$(INTDIR)}.obj:
