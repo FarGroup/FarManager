@@ -46,7 +46,7 @@ LINK_LIBS=$(LINK_LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib $(LUALIB)
 
 .PHONY: lualib
 lualib:
-	@$(MAKE) $(_MKHIDE) /f makefile_lib_vc INSTALL=$(FAR_WORKDIR) $(_MDEFS)
+	@$(MAKE) $(_MKHIDE) /f makefile_lib_vc INSTALL=$(FAR_WORKDIR) $(_MKDO_)INSTALL_TO_ROOT=1 $(_MDEFS)
 
 .PHONY: lualegacy
 lualegacy:
