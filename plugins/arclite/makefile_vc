@@ -1,188 +1,70 @@
-!include project.ini
+NAME = arclite
 
-!include ../makefile_vc_def_inc
+PRECOMPILED_HEADER=headers
 
-TOOL = tools\tool
-FARSDK = ..\common\unicode
-
-!ifndef FARDIR
-FAR_DIRECTORY=../../far
-!else
-FAR_DIRECTORY=$(FARDIR)
-!endif
-
-CPPFLAGS = $(CPPFLAGS) -I"$(FAR_DIRECTORY)/common"
-
-BOOTSTRAPDIR=$(INTDIR)\include\bootstrap\\
-
-INCLUDES = -I$(BOOTSTRAPDIR) -I7z\h -I$(FARSDK)
-CPPFLAGS = $(CPPFLAGS) $(INCLUDES) $(DEFINES) $(USERCPP)
-RFLAGS = $(RFLAGS) $(INCLUDES) $(DEFINES)
-
-OBJS = \
+LINK_OBJS = \
 	$(INTDIR)\archive.obj \
-	$(INTDIR)\plugin.obj \
-	$(INTDIR)\ui.obj \
-	$(INTDIR)\extract.obj \
-	$(INTDIR)\open.obj \
-	$(INTDIR)\update.obj \
-	$(INTDIR)\delete.obj \
-	$(INTDIR)\options.obj \
-	$(INTDIR)\msearch.obj \
 	$(INTDIR)\attr.obj \
-	$(INTDIR)\test.obj \
-	$(INTDIR)\common.obj \
-	$(INTDIR)\sfx.obj \
 	$(INTDIR)\cmdline.obj \
-	$(INTDIR)\rsrc.obj \
+	$(INTDIR)\common.obj \
+	$(INTDIR)\delete.obj \
+	$(INTDIR)\extract.obj \
 	$(INTDIR)\farutils.obj \
+	$(INTDIR)\msearch.obj \
+	$(INTDIR)\open.obj \
+	$(INTDIR)\options.obj \
+	$(INTDIR)\Patch7zCP.obj \
 	$(INTDIR)\pathutils.obj \
+	$(INTDIR)\plugin.obj \
+	$(INTDIR)\rsrc.obj \
+	$(INTDIR)\sfx.obj \
+	$(INTDIR)\SimpleXML.obj \
 	$(INTDIR)\strutils.obj \
 	$(INTDIR)\sysutils.obj \
-	$(INTDIR)\Patch7zCP.obj \
-	$(INTDIR)\SimpleXML.obj \
-!if "$(BUILD_PLATFORM)" == "X86"
-	$(INTDIR)\vc_crt_fix.obj \
-	$(INTDIR)\vc_crt_fix_impl.obj \
-!endif
+	$(INTDIR)\test.obj \
+	$(INTDIR)\ui.obj \
+	$(INTDIR)\update.obj \
 
 !ifdef DEBUG_7Z
 !if "$(BUILD_PLATFORM)" == "X86"
-_7Z = 7z\src\CPP\7zip\Bundles\Format7zF\Debug\7z.dll
+7ZDLL = 7z\src\CPP\7zip\Bundles\Format7zF\Debug\7z.dll
 !else
-_7Z = 7z\src\CPP\7zip\Bundles\Format7zF\x64\Debug\7z.dll
+7ZDLL = 7z\src\CPP\7zip\Bundles\Format7zF\x64\Debug\7z.dll
 !endif
 !else
-_7Z = 7z\dll\$(DIRBIT)\7z.dll
+7ZDLL = 7z\dll\$(DIRBIT)\7z.dll
 !endif
 
-SFX = \
-	$(OUTDIR)\7z.sfx \
-	$(OUTDIR)\7zCon.sfx \
-	$(OUTDIR)\7zS2.sfx \
-	$(OUTDIR)\7zS2con.sfx \
-	$(OUTDIR)\7zSD.sfx \
+DOCS = \
+	7z\sfx\*.sfx \
+	arclite.xml \
+	$(7ZDLL) \
 
+!include ..\makefile_vc_def_inc
 
-LNGS = \
-	$(OUTDIR)\$(NAME)_eng.lng \
-	$(OUTDIR)\$(NAME)_rus.lng \
-	$(OUTDIR)\$(NAME)_spa.lng \
-	$(OUTDIR)\$(NAME)_ita.lng \
-	$(OUTDIR)\$(NAME)_pol.lng \
-	$(OUTDIR)\$(NAME)_bel.lng \
+!ifndef BUILD
 
+.PHONY: all
+all: depfile
+	$(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) all BUILD=1 USEDEP=1
 
-HLFS = \
-	$(OUTDIR)\$(NAME)_eng.hlf \
-	$(OUTDIR)\$(NAME)_rus.hlf \
-	$(OUTDIR)\$(NAME)_pol.hlf \
+.PHONY: depfile
+depfile:
+	if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
+	@echo Rebuilding dependencies
+	dir /b *.cpp *.hpp *.rc | "$(FARDIR)\tools\gawk" -f $(FARDIR)\scripts\mkdep.awk - > $(INTDIR)\$(NAME).dep
 
-
-FILES = \
-	$(OUTDIR)\$(NAME).dll \
-	$(LNGS) \
-	$(HLFS) \
-	$(OUTDIR)\7z.dll \
-	$(SFX) \
-	$(OUTDIR)\arclite.xml \
-	$(OUTDIR)\changelog \
-
-
-BOOTSTRAP_MSGS = \
-	$(BOOTSTRAPDIR)eng.msg \
-	$(BOOTSTRAPDIR)rus.msg \
-	$(BOOTSTRAPDIR)spa.msg \
-	$(BOOTSTRAPDIR)ita.msg \
-	$(BOOTSTRAPDIR)pol.msg \
-	$(BOOTSTRAPDIR)bel.msg \
-
-
-target = build_project
-
-all: dirs $(INTDIR)\dep.mak $(BOOTSTRAPDIR)far.ini
-  $(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) $(target) VisualStudioVersion=$(VisualStudioVersion) BUILD=1
-
-.PHONY: build_project
-build_project: $(FILES)
-
-$(OUTDIR)\$(NAME).dll: plugin.def $(OBJS) $(INTDIR)\headers.pch $(INTDIR)\version.res project.ini
-  link $(LINKFLAGS) -def:plugin.def -out:$@ $(OBJS) $(INTDIR)\headers.obj $(INTDIR)\version.res $(LINK_LIBS)
-
-$(OBJS): $(INTDIR)\headers.pch
-
-.cpp{$(INTDIR)}.obj::
-  $(CPP) $(CPPFLAGS) -Yuheaders.hpp -FIheaders.hpp -Fp$(INTDIR)\headers.pch $<
-
-$(INTDIR)\headers.pch: headers.cpp headers.hpp
-  @echo Making precompiled headers
-  $(CPP) $(CPPFLAGS) headers.cpp -Ycheaders.hpp -Fp$(INTDIR)\headers.pch
-
-$(INTDIR)\dep.mak: $(BOOTSTRAPDIR)msg.h $(BOOTSTRAPDIR)plugin.h
-  @echo Generating $@
-  $(TOOL) gendep $(INCLUDES) > $@
-
-$(BOOTSTRAPDIR)msg.h $(LNGS): $(BOOTSTRAP_MSGS)
-  @echo Generating language files
-  $(TOOL) msgc -in $(BOOTSTRAP_MSGS) -out $(BOOTSTRAPDIR)msg.h $(LNGS)
-
-$(INTDIR)\version.res: $(BOOTSTRAPDIR)version.rc
-  $(RC) $(RFLAGS) -fo$@ $**
-
-PREPROC = $(TOOL) preproc $** $@
-
-$(BOOTSTRAPDIR)version.rc: project.ini $(BOOTSTRAPDIR)far.ini version.rc
-  @echo Preprocessing $(@F)
-  $(PREPROC)
-
-$(BOOTSTRAP_MSGS): project.ini $(@F)
-  @echo Preprocessing $(@F)
-  $(PREPROC)
-
-.hlf{$(OUTDIR)}.hlf:
-  $(COPY)
-
-$(BOOTSTRAPDIR)plugin.h: project.ini $(BOOTSTRAPDIR)far.ini plugin_h.h
-  $(TOOL) preproc project.ini $(BOOTSTRAPDIR)far.ini plugin_h.h $@
-
-COPY = copy /y $** $@
-
-$(OUTDIR)\arclite.xml: arclite.xml
-  $(COPY)
-
-$(OUTDIR)\changelog: changelog
-  $(COPY)
-
-$(OUTDIR)\7z.dll: $(_7Z)
-  $(COPY)
-
-{7z\sfx}.sfx{$(OUTDIR)}.sfx:
-  $(COPY)
-
-.SUFFIXES: .hlf .sfx
-
-$(BOOTSTRAPDIR)far.ini: $(FARSDK)\plugin.hpp
-  $(TOOL) farver $(FARSDK)\plugin.hpp $@
-
-$(INTDIR)\vc_crt_fix.obj: ..\common\vc_crt_fix.asm
-  $(MASM) $(AFLAGS) ..\common\vc_crt_fix.asm
-
-$(INTDIR)\vc_crt_fix_impl.obj: ..\common\vc_crt_fix_impl.cpp
-  $(CPP) $(CPPFLAGS) ..\common\vc_crt_fix_impl.cpp
-
-.PHONY: dirs
-dirs:
-  if not exist "$(OUTDIR)" mkdir "$(OUTDIR)"
-  if not exist "$(INTDIR)" mkdir "$(INTDIR)"
-  if not exist "$(BOOTSTRAPDIR)" mkdir "$(BOOTSTRAPDIR)"
-
-!ifdef BUILD
-!include $(INTDIR)\dep.mak
-!endif
-
-.PHONY: clean
 clean:
-  @echo Cleaning
-  if exist "$(BOOTSTRAPDIR)" rd /s /q "$(BOOTSTRAPDIR)"
-  if exist "$(INTDIR)" rd /s /q "$(INTDIR)"
-  if exist "$(OUTDIR)" rd /s /q "$(OUTDIR)"
+	$(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) clean BUILD=1
+
+!else
+
+!ifdef USEDEP
+!include $(INTDIR)\$(NAME).dep
+!endif
+
+CPPFLAGS = $(CPPFLAGS) -I"$(FARDIR)\common"
+
+!include ..\makefile_vc_target_inc
+
+!endif

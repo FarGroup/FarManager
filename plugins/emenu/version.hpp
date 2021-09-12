@@ -1,4 +1,4 @@
-#include "farversion.hpp"
+#include <farversion.hpp>
 
 #define PLUGIN_BUILD 67
 #define PLUGIN_DESC L"EMenu Plugin for Far Manager"

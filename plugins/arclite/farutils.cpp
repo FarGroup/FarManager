@@ -2,7 +2,7 @@
 #include "sysutils.hpp"
 #include "farutils.hpp"
 #include "guids.hpp"
-#include "msg.h"
+#include "msg.hpp"
 
 namespace Far {
 
@@ -800,10 +800,7 @@ bool panel_go_to_file(HANDLE h_panel, const std::wstring& file_path) {
 }
 
 DWORD get_lang_id() {
-  if (get_msg(MSG_LANG) == L"ru")
-    return MAKELANGID(LANG_RUSSIAN, SUBLANG_DEFAULT);
-  else
-    return MAKELANGID(LANG_ENGLISH, SUBLANG_DEFAULT);
+    return MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL);
 }
 
 void close_panel(HANDLE h_panel, const std::wstring& dir) {

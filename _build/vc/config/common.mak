@@ -44,7 +44,7 @@ INTDIR=$(DIRNAME).$(DIRBIT).vc/obj
 # Output directory setup end
 
 !ifndef FARDIR
-FARDIR=$(ROOTDIR)/far
+FARDIR=$(ROOTDIR)\far
 !endif
 
 # Main flags setup
@@ -66,7 +66,7 @@ CFLAGS = $(CFLAGS)\
 	/Fo"$(INTDIR)/"\
 	/diagnostics:caret\
 	/MP$(MP_LIMIT)\
-	/FI$(FARDIR)/disabled_warnings.hpp\
+	/FI$(FARDIR)\disabled_warnings.hpp\
 	/Zi\
 	/D "NOMINMAX"\
 	/D "WIN32_LEAN_AND_MEAN"\

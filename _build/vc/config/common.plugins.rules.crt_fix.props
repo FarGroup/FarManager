@@ -5,6 +5,9 @@
       <PreprocessorDefinitions>$(Platform)</PreprocessorDefinitions>
       <ExcludedFromBuild Condition="'$(Platform)'!='Win32' and '$(Platform)'!='x64'">true</ExcludedFromBuild>
     </MASM>
-    <ClCompile Include="$(SrcRoot)plugins\common\vc_crt_fix_impl.cpp" />
+    <ClCompile Include="$(SrcRoot)plugins\common\vc_crt_fix_impl.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles>$(SrcRoot)far\disabled_warnings.hpp</ForcedIncludeFiles>
+    </ClCompile>
   </ItemGroup>
 </Project>

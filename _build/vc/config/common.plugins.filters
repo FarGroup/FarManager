@@ -56,6 +56,9 @@
     <CopyFileToFolders Include="*.ini">
       <Filter>Configuration Files</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="*.xml">
+      <Filter>Configuration Files</Filter>
+    </CopyFileToFolders>
     <None Include="*.def">
       <Filter>Source Files</Filter>
     </None>

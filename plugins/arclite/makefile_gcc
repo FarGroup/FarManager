@@ -1,148 +1,71 @@
-.SILENT:
+NAME = arclite
 
-THIS_MAKE = $(TOP_MAKEFILE)
+PRECOMPILED_HEADER=headers
+DISABLEAUTODEPS = 1
 
-include project.ini
-USERLIBS = -loleaut32 -lversion -luuid
-include ../makefile_gcc_def_inc
-OUTDIR = $(BASEDIR)
-BOOTSTRAPDIR=$(OBJDIR)/include/bootstrap/
-
-ifndef FARDIR
-FAR_DIRECTORY=../../far
-else
-FAR_DIRECTORY=$(FARDIR)
-endif
-
-CPPFLAGS += -I $(BOOTSTRAPDIR) -I 7z/h -I "$(FAR_DIRECTORY)/common" -Wno-non-virtual-dtor
-
-DEPFILE = $(OBJDIR)/$(NAME).dep
-
-
-.PHONY: all
-all:
-	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) dirs
-	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) copy preproc $(DEPFILE)
-	$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) build
-
-.PHONY: clean
-clean:
-	@echo cleaning
-	@$(RM) -rf $(BOOTSTRAPDIR) $(OBJDIR) $(OUTDIR)
-
-.PHONY: dirs
-dirs:
-	$(MKDIR) $(OUTDIR) $(OBJDIR) $(BOOTSTRAPDIR)
-
-#------------------------------------------------------------------------------
-SFXDIR = 7z/sfx
-SFXFILES = $(addprefix $(OUTDIR)/,$(notdir $(wildcard $(SFXDIR)/*.sfx)))
-HLFS = $(addprefix $(OUTDIR)/,$(notdir $(wildcard *.hlf)))
-
-.PHONY: copy
-copy: $(OUTDIR)/7z.dll $(SFXFILES) $(OUTDIR)/arclite.xml $(OUTDIR)/changelog $(HLFS)
+SRCS = \
+	archive.cpp \
+	attr.cpp \
+	cmdline.cpp \
+	common.cpp \
+	delete.cpp \
+	extract.cpp \
+	farutils.cpp \
+	msearch.cpp \
+	open.cpp \
+	options.cpp \
+	Patch7zCP.cpp \
+	pathutils.cpp \
+	plugin.cpp \
+	rsrc.cpp \
+	sfx.cpp \
+	SimpleXML.cpp \
+	strutils.cpp \
+	sysutils.cpp \
+	test.cpp \
+	ui.cpp \
+	update.cpp
 
 ifdef DEBUG_7Z
 ifeq (32,$(DIRBIT))
-_7Z = 7z/src/CPP/7zip/Bundles/Format7zF/Debug/7z.dll
+7ZDLL = 7z/src/CPP/7zip/Bundles/Format7zF/Debug/7z.dll
 else
-_7Z = 7z/src/CPP/7zip/Bundles/Format7zF/x64/Debug/7z.dll
+7ZDLL = 7z/src/CPP/7zip/Bundles/Format7zF/x64/Debug/7z.dll
 endif
 else
-_7Z = 7z/dll/$(DIRBIT)/7z.dll
+7ZDLL = 7z/dll/$(DIRBIT)/7z.dll
 endif
 
-$(OUTDIR)/arclite.xml: arclite.xml
-	@$(CP) $< $(OUTDIR)
+DOCS = \
+	7z/sfx/*.sfx \
+	arclite.xml \
+	$(7ZDLL) \
 
-$(OUTDIR)/changelog: changelog
-	@$(CP) $< $(OUTDIR)
+include ../makefile_gcc_def_inc
 
-$(OUTDIR)/7z.dll: $(_7Z)
-	@$(CP) $< $(OUTDIR)
+ifndef BUILD
 
-vpath %.sfx $(SFXDIR)
-$(OUTDIR)/%.sfx: %.sfx
-	@$(CP) $< $(OUTDIR)
+.PHONY: all
+all: depfile
+	$(MAKE) -f makefile_gcc $(MK_FLAGS) all BUILD=1 USEDEP=1
 
-#------------------------------------------------------------------------------
-TOOL = $(WINE_CMD)$(strip $(call os_name, tools/tool.exe))
-
-MSGS = $(notdir $(wildcard *.msg))
-BOOTSTRAP_MSGS = $(addprefix $(BOOTSTRAPDIR), $(MSGS))
-LNGS = $(patsubst %.msg, $(OUTDIR)/$(NAME)_%.lng, $(MSGS))
-
-.PHONY: preproc
-preproc: $(BOOTSTRAPDIR)far.ini $(BOOTSTRAPDIR)version.rc $(BOOTSTRAPDIR)plugin.h $(BOOTSTRAPDIR)msg.h $(LNGS)
-
-$(BOOTSTRAPDIR)far.ini: $(COMINC)/plugin.hpp
-	@echo Preprocessing $(@F)
-	$(TOOL) farver $(call os_name,$^ $@)
-
-$(BOOTSTRAPDIR)version.rc: project.ini $(BOOTSTRAPDIR)far.ini version.rc
-	@echo Preprocessing $(@F)
-	$(TOOL) preproc $(call os_name,$^ $@)
-
-$(BOOTSTRAPDIR)plugin.h: project.ini $(BOOTSTRAPDIR)far.ini plugin_h.h
-	@echo Preprocessing $(@F)
-	$(TOOL) preproc $(call os_name,$^ $@)
-
-$(BOOTSTRAPDIR)%.msg: project.ini %.msg
-	@echo Preprocessing $(@F)
-	$(TOOL) preproc $(call os_name,$^ $@)
-
-$(BOOTSTRAPDIR)msg.h $(LNGS): $(BOOTSTRAP_MSGS)
-	@echo Generating language files
-	$(TOOL) msgc -in $(call os_name,$(BOOTSTRAP_MSGS)) -out $(call os_name, $(BOOTSTRAPDIR)msg.h $(LNGS))
-
-$(OUTDIR)/%.hlf: %.hlf
-	@$(CP) $< $(OUTDIR)
-
-#------------------------------------------------------------------------------
-
-$(DEPFILE):
+.PHONY: depfile
+depfile:
+	$(MKDIR) -p $(OBJDIR)
 	@echo Rebuilding dependencies
-	$(TOOL) gendep -gcc $(call os_name,-I7z/h -I$(COMINC) $(BOOTSTRAPDIR)) > $@
+	$(LS) *.cpp *.hpp *.rc | $(GAWK) -f $(FARDIR)/scripts/mkdep.awk -v compiler=gcc - > $(OBJDIR)/$(NAME).dep
 
-ifeq ($(MAKECMDGOALS),build)
- include $(DEPFILE)
-endif
+clean:
+	$(MAKE) -f makefile_gcc $(MK_FLAGS) clean BUILD=1
 
-#------------------------------------------------------------------------------
-DLLFULLNAME := $(OUTDIR)/$(NAME).$(EXT)
-MAPFULLNAME = $(patsubst %.$(EXT),%.map,$(DLLFULLNAME))
-
-.PHONY: build
-build: $(DLLFULLNAME)
-
-SRCS = $(wildcard *.cpp)
-OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(SRCS)) $(OBJDIR)/version.rc.o
-
-RCFLAGS = -I$(COMMON) -I$(COMINC)
-ifeq (64,$(DIRBIT))
-RCFLAGS += -Dx64
-endif
-$(OBJDIR)/version.rc.o: $(BOOTSTRAPDIR)version.rc
-	@echo Compiling resource file
-	$(WINDRES) -i $< $(RCFLAGS) -o $@
-
-$(OBJDIR)/%.o: %.cpp
-	@echo $<
-	$(CXX) -c -include $(OBJDIR)/headers -include headers.hpp $(CPPFLAGS) -o $@ $<
-
-$(OBJS): $(OBJDIR)/headers.gch
-
-$(OBJDIR)/headers.gch: headers.cpp headers.hpp
-	@echo Making precompiled headers
-	$(CXX) -x c++-header -c $(CPPFLAGS) -o $@ $<
-
-ifeq ($(DIRBIT),32)
-DEFFILE = plugin.gcc.def
 else
-#for x64 vc.def is good enough
-DEFFILE = plugin.def
+
+ifdef USEDEP
+include $(OBJDIR)/$(NAME).dep
 endif
 
-$(DLLFULLNAME): $(OBJS) $(DEFFILE)
-	@echo linking $@
-	$(CXX) -o $@ $(DEFFILE) $(OBJS) $(LNKFLAGS) -Wl,--kill-at -shared -Xlinker -Map=$(MAPFULLNAME)
+CPPFLAGS += -include headers.hpp -I"$(FARDIR)/common" -Wno-non-virtual-dtor
+
+include ../makefile_gcc_target_inc
+
+endif

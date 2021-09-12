@@ -40,14 +40,15 @@ WARNING_DISABLE_GCC("-Wsuggest-override")
 WARNING_DISABLE_CLANG("-Weverything")
 
 #include <basetyps.h>
-#include "CPP/7zip/Archive/IArchive.h"
-#include "CPP/7zip/IPassword.h"
-#include "CPP/7zip/ICoder.h"
+
+#include "7z/h/CPP/7zip/Archive/IArchive.h"
+#include "7z/h/CPP/7zip/IPassword.h"
+#include "7z/h/CPP/7zip/ICoder.h"
 
 WARNING_POP()
 
-#include "plugin.hpp"
-#include "farcolor.hpp"
+#include <plugin.hpp>
+#include <farcolor.hpp>
 
 inline namespace literals
 {

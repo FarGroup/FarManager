@@ -71,7 +71,7 @@ ROOTDIR = ..\..
 !ifndef TREEDIR
 TREEDIR=$(ROOTDIR)
 !endif
-!include $(TREEDIR)/_build/vc/config/common.mak
+!include $(TREEDIR)\_build\vc\config\common.mak
 
 !ifndef RC_NAME
 RC_NAME=$(NAME)
@@ -82,7 +82,7 @@ DEF_NAME=$(NAME)
 !endif
 
 !ifdef INSTALL
-!ifndef FARDIR
+!ifndef INSTALL_TO_ROOT
 OUTDIR=$(INSTALL)\$(NAME)
 !else
 OUTDIR=$(INSTALL)
@@ -106,11 +106,7 @@ EXT = dll
 DLLNAME = $(NAME).$(EXT)
 DLLFULLNAME = $(OUTDIR)$(ADDOUTDIR)\$(DLLNAME)
 !if "$(DEF_NAME)" != ""
-!ifdef ANSI
 DEFFILE = $(DEF_NAME).vc$(ULN_DEF).def
-!else
-DEFFILE = $(DEF_NAME)W.vc$(ULN_DEF).def
-!endif
 DEFOPT = /def:$(DEFFILE)
 !endif
 MAP = $(OUTDIR)$(ADDOUTDIR)\$(NAME).map

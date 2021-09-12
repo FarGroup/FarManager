@@ -14,14 +14,7 @@ LINK_OBJS = \
 	$(INTDIR)\Proclist.obj
 
 !include ..\makefile_vc_def_inc
-
-!ifndef FARDIR
-FAR_DIRECTORY=../../far
-!else
-FAR_DIRECTORY=$(FARDIR)
-!endif
-
-USERCPP = /EHsc -D"_WIN32_DCOM" -I"$(FAR_DIRECTORY)/common" -I"$(FAR_DIRECTORY)/thirdparty/fmt"
+CPPFLAGS = $(CPPFLAGS) -D"_WIN32_DCOM" -I"$(FARDIR)/common" -I"$(FARDIR)/thirdparty/fmt"
 
 !include ..\makefile_vc_target_inc
 

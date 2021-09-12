@@ -1,4 +1,4 @@
-#include "farversion.hpp"
+#include <farversion.hpp>
 
 #define PLUGIN_BUILD 26
 #define PLUGIN_DESC L"Text case conversion for Far Manager"

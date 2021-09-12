@@ -1,5 +1,5 @@
 ﻿#include "sfx.hpp"
-#include "msg.h"
+#include "msg.hpp"
 #include "guids.hpp"
 #include "utils.hpp"
 #include "farutils.hpp"

@@ -1,5 +1,5 @@
-ROOT_PATH=../../
-!include ../../makefile_vc_base
+ROOTDIR=..\..\..
+!include $(ROOTDIR)\_build\vc\config\common.mak
 
 CC=$(_BIN_PATH_)cl.exe
 LIBR=$(_BIN_PATH_)lib.exe

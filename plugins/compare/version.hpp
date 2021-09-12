@@ -1,4 +1,4 @@
-#include "farversion.hpp"
+#include <farversion.hpp>
 
 #define PLUGIN_BUILD 55
 #define PLUGIN_DESC L"Advanced File Compare for Far Manager"

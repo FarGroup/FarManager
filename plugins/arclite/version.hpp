@@ -1,8 +1,8 @@
 #include <farversion.hpp>
 
-#define PLUGIN_BUILD 37
-#define PLUGIN_DESC L"File names case conversion for Far Manager"
-#define PLUGIN_NAME L"FileCase"
-#define PLUGIN_FILENAME L"FileCase.dll"
+#define PLUGIN_BUILD 319
+#define PLUGIN_DESC L"Archive support for Far Manager (based on 7-Zip project)"
+#define PLUGIN_NAME L"ArcLite"
+#define PLUGIN_FILENAME L"arclite.dll"
 #define PLUGIN_AUTHOR FARCOMPANYNAME
 #define PLUGIN_VERSION MAKEFARVERSION(FARMANAGERVERSION_MAJOR,FARMANAGERVERSION_MINOR,FARMANAGERVERSION_REVISION,PLUGIN_BUILD,VS_RELEASE)

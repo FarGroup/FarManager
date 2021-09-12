@@ -1,4 +1,4 @@
-#include "farversion.hpp"
+#include <farversion.hpp>
 
 #define PLUGIN_BUILD 9
 #define PLUGIN_DESC L"Hello World Plugin for Far Manager"

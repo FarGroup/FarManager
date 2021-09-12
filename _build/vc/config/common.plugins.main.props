@@ -19,9 +19,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SrcRoot)plugins\common;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <!-- TODO: Remove W from defs -->
-      <ModuleDefinitionFile Condition="'$(CharacterSet)' == 'Unicode'">$(ProjectName)W.vc.def</ModuleDefinitionFile>
-      <ModuleDefinitionFile Condition="'$(CharacterSet)' == 'MultiByte'">$(ProjectName).vc.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>$(ProjectName).vc.def</ModuleDefinitionFile>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(SrcRoot)plugins\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

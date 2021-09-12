@@ -87,12 +87,10 @@ $(ALLDIRS): $(FICTIVE) $(OUTPATH)
 	@cd ..
 
 fdir=..\far\$(_ODF_).$(DIRBIT).vc
-adir=%d\$(_ODN_).$(DIRBIT).vc
-wdir=%d\$(_ODN_).$(DIRBIT)W.vc
-pdir=multiarc\libpcre\obj.$(DIRBIT).vc
+pdir=%d\$(_ODN_).$(DIRBIT).vc
+pcredir=multiarc\libpcre\obj.$(DIRBIT).vc
 
 clean:
 	@if exist $(fdir)\lua*.* echo del $(fdir)\lua*.*& del /q $(fdir)\lua*.* 1>nul
-	@for %d in (ftp multiarc multiarc\libpcre) do @if exist $(adir)\ echo del $(adir)\& rd /q /s $(adir) 1>nul
-	@if exist $(pdir)\ echo del $(pdir)\& rd /q /s $(pdir) 1>nul
-	@for %d in ($(ALLDIRS)) do @if not "%d" == "ftp" if not "%d" == "multiarc" @if exist $(wdir)\ echo del $(wdir)\& rd /q /s $(wdir) 1>nul
+	@if exist $(pcredir)\ echo del $(pcredir)\& rd /q /s $(pcredir) 1>nul
+	@for %d in ($(ALLDIRS)) do @if exist $(pdir)\ echo del $(pdir)\& rd /q /s $(pdir) 1>nul

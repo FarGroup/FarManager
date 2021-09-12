@@ -1,71 +1,36 @@
-!include project.ini
+ROOTDIR = ..\..\..
 
-ROOTDIR = ../../..
+NAME = example
 
-!include ../../makefile_vc_def_inc
+PRECOMPILED_HEADER=headers
 
-TOOLSDIR = ..\tools
+LINK_OBJS = \
+	$(INTDIR)\module.obj \
 
-INCLUDES = -I.. -I..\7z\h
-CPPFLAGS = $(CPPFLAGS) $(INCLUDES)
-RFLAGS = $(RFLAGS) $(INCLUDES) $(DEFINES)
+!include $(ROOTDIR)\makefile_vc_def_inc
 
-OBJS = $(INTDIR)\module.obj
-!if "$(BUILD_PLATFORM)" == "X86"
-OBJS = $(OBJS) $(INTDIR)\vc_crt_fix.obj $(INTDIR)\vc_crt_fix_impl.obj
-!endif
+!ifndef BUILD
 
-project: depfile
-  $(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) build_project BUILD=1
+.PHONY: all
+all: depfile
+	$(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) all BUILD=1
 
-build_project: $(OUTDIR)\$(NAME).dll
-
-$(OUTDIR)\$(NAME).dll: $(INTDIR)\module.def $(OBJS) $(INTDIR)\headers.pch $(INTDIR)\version.res project.ini
-  link $(LINKFLAGS) -def:$(INTDIR)\module.def -out:$@ $(OBJS) $(INTDIR)\headers.obj $(INTDIR)\version.res $(LINK_LIBS)
-
-$(OBJS): $(INTDIR)\headers.pch
-
-.cpp{$(INTDIR)}.obj::
-  $(CPP) $(CPPFLAGS) -Yuheaders.hpp -FIheaders.hpp -Fp$(INTDIR)\headers.pch $<
-
-$(INTDIR)\headers.pch: headers.cpp headers.hpp
-  $(CPP) $(CPPFLAGS) headers.cpp -Ycheaders.hpp -Fp$(INTDIR)\headers.pch
-
-$(INTDIR)\vc_crt_fix.obj: ..\..\common\vc_crt_fix.asm
-  $(AS) $(AFLAGS) ..\..\common\vc_crt_fix.asm
-
-$(INTDIR)\vc_crt_fix_impl.obj: ..\..\common\vc_crt_fix_impl.cpp
-  $(CPP) $(CPPFLAGS) $(FIXCRT_CPPFLAGS) ..\..\common\vc_crt_fix_impl.cpp
-
-depfile: $(INTDIR)
-  $(TOOLSDIR)\tool gendep $(INCLUDES) > $(INTDIR)\dep.mak
-
-$(INTDIR)\version.res: $(INTDIR)\version.rc
-  $(RC) $(RFLAGS) $**
-
-PREPROC = $(TOOLSDIR)\tool preproc $** $@
-
-$(INTDIR)\version.rc: project.ini version.rc
-  $(PREPROC)
-
-$(INTDIR)\module.def: project.ini module.def
-  $(PREPROC)
-
-COPY = copy /y $** $@
-
-$(OUTDIR):
-  if not exist $(OUTDIR) mkdir $(OUTDIR)
-
-$(INTDIR):
-  if not exist $(INTDIR) mkdir $(INTDIR)
-
-!ifdef BUILD
-!include $(INTDIR)\dep.mak
-!endif
-
+.PHONY: depfile
+depfile:
+	if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
+	@echo Rebuilding dependencies
+	dir /b *.cpp *.hpp *.rc | "$(FARDIR)\tools\gawk" -f $(FARDIR)\scripts\mkdep.awk - > $(INTDIR)\$(NAME).dep
 
 clean:
-  if exist $(OUTDIR) rd /s /q $(OUTDIR)
+	$(MAKE) -nologo -f makefile_vc -$(MAKEFLAGS) clean BUILD=1
+
+!else
+
+!include $(INTDIR)\$(NAME).dep
 
 
-.PHONY: project build_project depfile clean
+CPPFLAGS = $(CPPFLAGS)
+
+!include $(ROOTDIR)\makefile_vc_target_inc
+
+!endif

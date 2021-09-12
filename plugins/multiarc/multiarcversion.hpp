@@ -1,6 +1,7 @@
 #ifndef __MULTIARCVERSION_HPP__
 #define __MULTIARCVERSION_HPP__
-#include "farversion.hpp"
+
+#include <farversion.hpp>
 
 #define MA_BUILD 200
 #define MAPRODUCTNAME "MultiArc"

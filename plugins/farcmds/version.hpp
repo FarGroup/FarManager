@@ -1,4 +1,4 @@
-#include "farversion.hpp"
+#include <farversion.hpp>
 
 #define PLUGIN_BUILD 129
 #define PLUGIN_DESC L"FAR Commands Plugin for Far Manager"

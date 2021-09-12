@@ -1,10 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup>
+  <ItemGroup Condition="'$(PrecompiledHeaders)' == ''">
     <ClCompile Include="*.cpp" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(PrecompiledHeaders)' != ''">
+    <ClCompile Include="*.cpp" Exclude="$(PrecompiledHeaders).cpp" />
+    <ClCompile Include="$(PrecompiledHeaders).cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="*.c" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="*.hpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ResourceCompile Include="*.rc" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="*.def" />
   </ItemGroup>
   <Import Project="$(MSBuildThisFileDirectory)\common.plugins.rules.copy.props" />

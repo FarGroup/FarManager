@@ -9,7 +9,6 @@ export BOOTSTRAPDIR=$(OBJDIR)include/bootstrap/
 EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)$(EXENAME)
 DEPFILE = $(BOOTSTRAPDIR)far.gcc.dep
-STATICDEPFILE = static.dep
 
 ifdef DEBUG
 ENABLE_TESTS = 1
@@ -314,7 +313,6 @@ $(FARINCLUDE)vc_crt_fix_ulink.cpp: vc_crt_fix_ulink.cpp
 
 ifeq ($(MAKECMDGOALS),build)
  include $(DEPFILE)
- include $(STATICDEPFILE)
 endif
 
 .PHONY: clean

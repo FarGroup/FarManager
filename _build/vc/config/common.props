@@ -115,6 +115,15 @@
     </Link>
   </ItemDefinitionGroup>
 
+  <ItemDefinitionGroup Condition="'$(PrecompiledHeaders)' != ''">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>$(PrecompiledHeaders).hpp</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(PrecompiledHeaders).pch</PrecompiledHeaderOutputFile>
+      <ForcedIncludeFiles>%(ForcedIncludeFiles);$(PrecompiledHeaders).hpp</ForcedIncludeFiles>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <Optimization>Disabled</Optimization>

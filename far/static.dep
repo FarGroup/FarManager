@@ -1,5 +1,0 @@
-thirdparty/sqlite/sqlite3_unicode.c: thirdparty/sqlite/sqlite3.h
-
-thirdparty/tinyxml2/tinyxml2.cpp: thirdparty/tinyxml2/tinyxml2.h
-
-thirdparty/fmt/format.cc: thirdparty/fmt/fmt/format-inl.h

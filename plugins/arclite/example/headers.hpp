@@ -9,4 +9,4 @@
 using namespace std::literals;
 
 #include <initguid.h>
-#include "CPP/7zip/Archive/IArchive.h"
+#include "../7z/h/CPP/7zip/Archive/IArchive.h"

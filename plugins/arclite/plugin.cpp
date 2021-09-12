@@ -1,5 +1,5 @@
-﻿#include "msg.h"
-#include "plugin.h"
+﻿#include "msg.hpp"
+#include "version.hpp"
 #include "guids.hpp"
 #include "utils.hpp"
 #include "sysutils.hpp"
@@ -995,7 +995,7 @@ void WINAPI GetGlobalInfoW(GlobalInfo* info) {
   info->Version = PLUGIN_VERSION;
   info->Guid = c_plugin_guid;
   info->Title = PLUGIN_NAME;
-  info->Description = PLUGIN_DESCRIPTION;
+  info->Description = PLUGIN_DESC;
   info->Author = FARCOMPANYNAME;
 }
 

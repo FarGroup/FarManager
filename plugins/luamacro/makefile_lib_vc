@@ -3,9 +3,6 @@ LUA_VER=51
 LUA_PROXY=lua5.1.dll
 USERCPP=/Iluasdk/include /DBUILD_DLL /DWINVER=0x500 /DLUADLL=\"lua$(LUA_VER).dll\"
 LUA=luasdk\32\lua.exe
-!ifndef FARDIR
-FARDIR=..\..\far
-!endif
 
 GEN_IMPLIB=1
 

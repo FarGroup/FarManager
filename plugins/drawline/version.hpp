@@ -1,4 +1,4 @@
-#include "farversion.hpp"
+#include <farversion.hpp>
 
 #define PLUGIN_BUILD 27
 #define PLUGIN_DESC L"Draw lines for Far Manager"

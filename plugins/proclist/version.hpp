@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "farversion.hpp"
+#include <farversion.hpp>
 
 #define PLUGIN_BUILD 202
 #define PLUGIN_DESC L"Process List for FAR Manager"
