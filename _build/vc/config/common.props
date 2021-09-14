@@ -59,7 +59,8 @@
     <Keyword>Win32Proj</Keyword>
     <CharacterSet Condition="'$(CharacterSet)' == ''">Unicode</CharacterSet>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' &gt;= '16.0'">v142</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
+    <PlatformToolset Condition="'$(VisualStudioVersion)' &gt;= '17.0'">v143</PlatformToolset>
     <OutDir>$(OutputsRoot)product\$(ConfigSpecificDirectoryName)\$(ProjectSpecificOutDirName)\</OutDir>
     <IntDir>$(OutputsRoot)intermediate\$(ConfigSpecificDirectoryName)\$(ProjectSpecificIntDirName)\</IntDir>
     <GenerateManifest>false</GenerateManifest>

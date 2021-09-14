@@ -69,7 +69,7 @@ namespace path
 			}
 
 			explicit append_arg(const wchar_t& Char):
-				string_view(&Char, contains(separators, Char)? 0 : 1)
+				string_view(&Char, ::contains(separators, Char)? 0 : 1)
 			{
 			}
 
