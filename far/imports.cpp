@@ -537,6 +537,20 @@ DWORD64 WINAPI imports::stub_SymGetModuleBase64(HANDLE Process, DWORD64 Address)
 	return 0;
 }
 
+DWORD WINAPI imports::stub_UnDecorateSymbolName(PCSTR Name, PSTR OutputString, DWORD MaxStringLength, DWORD Flags)
+{
+	LOGWARNING(L"Stub call"sv);
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return 0;
+}
+
+DWORD WINAPI imports::stub_UnDecorateSymbolNameW(PCWSTR Name, PWSTR OutputString, DWORD MaxStringLength, DWORD Flags)
+{
+	LOGWARNING(L"Stub call"sv);
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return 0;
+}
+
 // dwmapi
 HRESULT WINAPI imports::stub_DwmGetWindowAttribute(HWND Hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute)
 {

@@ -152,19 +152,9 @@
         <ComponentRef Id="FarEncyclopedia.ru.chm" />
         <ComponentRef Id="macroapi_manual.ru.chm" />
       </Feature>
-<?if $(var.Platform) = x86 ?>
-      <Feature Id="FExcept" Level="1" Title="!(loc.Feature.Title.FExcept)" AllowAdvertise="no" Description="!(loc.Feature.Description.FExcept)">
-        <ComponentRef Id="demangle32.dll" />
-        <ComponentRef Id="ExcDump.dll" />
-        <ComponentRef Id="FExcept.dll" />
-        <ComponentRef Id="SetFarExceptionHandler.farconfig" />
-        <ComponentRef Id="FStd_trap.log" />
+      <Feature Id="MapFiles" Level="1" Title="!(loc.Feature.Title.MapFiles)" AllowAdvertise="no" Description="!(loc.Feature.Description.MapFiles)">
         <ComponentRef Id="Far.map" />
       </Feature>
-      <Feature Id="Changelogs.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-        <ComponentRef Id="changelog_1" />
-      </Feature>
-<?endif?>
       <Feature Id="Languages" Level="1" Title="!(loc.Feature.Title.Languages)" AllowAdvertise="no" Description="!(loc.Feature.Description.Languages)">
         <Feature Id="Belarusian" Level="1" Title="!(loc.Feature.Title.Belarusian)" AllowAdvertise="no">
           <ComponentRef Id="FarBel.lng" />
@@ -277,11 +267,9 @@
             <Feature Id="Align.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="AlignLit.lng" />
             </Feature>
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="Align.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="Align.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Align.map" />
             </Feature>
-<?endif?>
             <Feature Id="Align.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="changelog_2" />
             </Feature>
@@ -322,11 +310,9 @@
             <Feature Id="AutoWrap.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="WrapLit.lng" />
             </Feature>
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="AutoWrap.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="AutoWrap.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="AutoWrap.map" />
             </Feature>
-<?endif?>
             <Feature Id="AutoWrap.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="changelog_3" />
             </Feature>
@@ -373,11 +359,9 @@
             <Feature Id="Brackets.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="BrackLit.lng" />
             </Feature>
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="Brackets.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="Brackets.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="Brackets.map" />
             </Feature>
-<?endif?>
             <ComponentRef Id="Brackets.lua" />
             <Feature Id="Brackets.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="changelog_4" />
@@ -425,11 +409,9 @@
             <Feature Id="DrawLine.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="DrawLit.lng" />
             </Feature>
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="DrawLine.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="DrawLine.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="DrawLine.map" />
             </Feature>
-<?endif?>
             <Feature Id="DrawLine.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="changelog_6" />
             </Feature>
@@ -479,11 +461,9 @@
             <Feature Id="EditCase.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="ECaseLit.lng" />
             </Feature>
-<?if $(var.Platform) = x86 ?>
-            <Feature Id="EditCase.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <Feature Id="EditCase.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="EditCase.map" />
             </Feature>
-<?endif?>
             <Feature Id="EditCase.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="changelog_7" />
             </Feature>
@@ -531,11 +511,9 @@
               <ComponentRef Id="_7zS2con.sfx" />
             </Feature>
           </Feature>
-<?if $(var.Platform) = x86 ?>
-          <Feature Id="arclite.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="arclite.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="arclite.map" />
           </Feature>
-<?endif?>
           <Feature Id="arclite.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_18" />
           </Feature>
@@ -586,11 +564,9 @@
             <ComponentRef Id="CompLit.lng" />
           </Feature>
           <ComponentRef Id="AdvCompare.CompareBufferSize.farconfig" />
-<?if $(var.Platform) = x86 ?>
-          <Feature Id="Compare.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="Compare.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="Compare.map" />
           </Feature>
-<?endif?>
           <Feature Id="Compare.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_5" />
           </Feature>
@@ -632,11 +608,9 @@
           <ComponentRef Id="Hotkey.farconfig" />
           <ComponentRef Id="HotkeyClipboard.lua" />
           <ComponentRef Id="HotkeyProperties.lua" />
-<?if $(var.Platform) = x86 ?>
-          <Feature Id="EMenu.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="EMenu.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="EMenu.map" />
           </Feature>
-<?endif?>
           <Feature Id="EMenu.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_8" />
           </Feature>
@@ -743,11 +717,9 @@
             <ComponentRef Id="colorerr.hlf" />
             <ComponentRef Id="colorerr.lng" />
           </Feature>
-<?if $(var.Platform) = x86 ?>
-          <Feature Id="FarColorer.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="FarColorer.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="colorer.map" />
           </Feature>
-<?endif?>
           <Feature Id="FarColorer.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="history.ru.txt" />
             <ComponentRef Id="CHANGELOG_21" />
@@ -789,11 +761,9 @@
           <Feature Id="FARCmds.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="FARCmdsLit.lng" />
           </Feature>
-<?if $(var.Platform) = x86 ?>
-          <Feature Id="FARCmds.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="FARCmds.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="FarCmds.map" />
           </Feature>
-<?endif?>
           <Feature Id="FARCmds.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_9" />
           </Feature>
@@ -834,11 +804,9 @@
           <Feature Id="SameFolder.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="SameFolderLit.lng" />
           </Feature>
-<?if $(var.Platform) = x86 ?>
-          <Feature Id="SameFolder.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="SameFolder.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="SameFolder.map" />
           </Feature>
-<?endif?>
           <Feature Id="SameFolder.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_20" />
           </Feature>
@@ -888,11 +856,9 @@
           <Feature Id="FileCase.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CaseLit.lng" />
           </Feature>
-<?if $(var.Platform) = x86 ?>
-          <Feature Id="FileCase.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="FileCase.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="FileCase.map" />
           </Feature>
-<?endif?>
           <Feature Id="FileCase.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_10" />
           </Feature>
@@ -946,11 +912,9 @@
           <Feature Id="HlfViewer.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="HlfViewerLit.lng" />
           </Feature>
-<?if $(var.Platform) = x86 ?>
-          <Feature Id="HlfViewer.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="HlfViewer.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="HlfViewer.map" />
           </Feature>
-<?endif?>
           <Feature Id="HlfViewer.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_12" />
           </Feature>
@@ -996,12 +960,10 @@
           <Feature Id="LuaMacro.Polish" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="lm_pol.lng" />
           </Feature>
-<?if $(var.Platform) = x86 ?>
-          <Feature Id="LuaMacro.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="LuaMacro.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="LuaMacro.map" />
             <ComponentRef Id="luafar3.map" />
           </Feature>
-<?endif?>
           <Feature Id="LuaMacro.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_19" />
           </Feature>
@@ -1051,11 +1013,9 @@
           <Feature Id="Network.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="NetLit.lng" />
           </Feature>
-<?if $(var.Platform) = x86 ?>
-          <Feature Id="Network.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="Network.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="Network.map" />
           </Feature>
-<?endif?>
           <Feature Id="Network.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_15" />
           </Feature>
@@ -1102,11 +1062,9 @@
           <Feature Id="Proclist.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="ProcLit.lng" />
           </Feature>
-<?if $(var.Platform) = x86 ?>
-          <Feature Id="Proclist.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="Proclist.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="ProcList.map" />
           </Feature>
-<?endif?>
           <Feature Id="Proclist.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_16" />
           </Feature>
@@ -1168,11 +1126,9 @@
           <Feature Id="TmpPanel.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="TmpLit.lng" />
           </Feature>
-<?if $(var.Platform) = x86 ?>
-          <Feature Id="TmpPanel.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+          <Feature Id="TmpPanel.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="TmpPanel.map" />
           </Feature>
-<?endif?>
           <Feature Id="TmpPanel.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="changelog_17" />
           </Feature>

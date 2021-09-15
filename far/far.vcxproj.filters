@@ -278,6 +278,9 @@
     <ClCompile Include="manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="map_file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="memcheck.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -881,6 +884,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="manager.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="map_file.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="memcheck.hpp">

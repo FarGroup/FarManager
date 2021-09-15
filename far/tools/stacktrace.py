@@ -4,9 +4,22 @@ import re
 import sys
 
 def undecorate(name):
+	UNDNAME_NO_FUNCTION_RETURNS = 0x0004
+	UNDNAME_NO_ALLOCATION_MODEL = 0x0008
+	UNDNAME_NO_ALLOCATION_LANGUAGE = 0x0010
+	UNDNAME_NO_ACCESS_SPECIFIERS = 0x0080
+	UNDNAME_NO_MEMBER_TYPE = 0x0200
 	UNDNAME_32_BIT_DECODE = 0x800
 	UNDNAME_NAME_ONLY = 0x1000
-	flags = UNDNAME_32_BIT_DECODE | UNDNAME_NAME_ONLY
+
+	flags =\
+		UNDNAME_NO_FUNCTION_RETURNS |\
+		UNDNAME_NO_ALLOCATION_MODEL |\
+		UNDNAME_NO_ALLOCATION_LANGUAGE |\
+		UNDNAME_NO_ACCESS_SPECIFIERS |\
+		UNDNAME_NO_MEMBER_TYPE |\
+		UNDNAME_32_BIT_DECODE;
+
 	buffer_size = 2048
 	out = ctypes.create_string_buffer(buffer_size)
 	return str(out.value, "utf-8") if ctypes.windll.dbghelp.UnDecorateSymbolName(ctypes.create_string_buffer(bytes(name, "utf-8")), out, buffer_size, flags) != 0 else name
@@ -26,7 +39,10 @@ def parse_vc(map_file, map_data):
 
 		m = re_symbol.search(line)
 		if m is not None:
-			map_data[int(m.group(4), 16) - BaseAddress] = (m.group(3), m.group(5))
+			Address = int(m.group(4), 16);
+			if Address >= BaseAddress:
+				Address -= BaseAddress
+			map_data[Address] = (m.group(3), m.group(5))
 
 
 def parse_clang(map_file, map_data):
@@ -91,7 +107,7 @@ def show_stack():
 		if keys[key_index] > address:
 			key_index -= 1;
 		data = map_data[keys[key_index]]
-		print("{0}: {1:06X}+{2:04X} {3} ({4})".format(i, keys[key_index], address - keys[key_index], undecorate(data[0]), data[1]))
+		print("{0}: {1:04X}+{2} ({3})".format(i, address - keys[key_index], undecorate(data[0]), data[1]))
 
 
 if __name__ == "__main__":

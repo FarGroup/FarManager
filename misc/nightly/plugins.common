@@ -28,17 +28,7 @@ fi
 
 wine cmd /c ../../plugin.${BIT}.bat &> ../../logs/${PLUGIN}${BIT}
 
-if [ "$PLUGIN" == "FExcept" ]; then
-  mkdir -p ../../outfinalnew${BIT}/FExcept/
-  cp -f changelog ../../outfinalnew${BIT}/FExcept/
-  cd $FINAL || return 1
-  if [ $MASKS -eq 1 ]; then
-    FILES=`ls $FILES 2>/dev/null`
-  fi
-  cp -f $FILES ../../../outfinalnew${BIT}/FExcept/ || return 1
-  u2d_list "$FILES" ../../../outfinalnew${BIT}/FExcept/
-  cd ..
-elif [ $ADD -eq 1 ]; then
+if [ $ADD -eq 1 ]; then
   mkdir -p ../../outfinalnew${BIT}/Plugins/$PLUGIN
   mkdir -p ../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7
 

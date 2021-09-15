@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 15.09.2021 18:26:08 +0100 - build 5887
+
+1. Far now can use map files to enrich stack traces directly.
+
+2. FExcept is no longer used.
+
+--------------------------------------------------------------------------------
 drkns 01.09.2021 20:51:01 +0100 - build 5886
 
 1. gh-437: File list copy: Wrong number of total bytes on retry.

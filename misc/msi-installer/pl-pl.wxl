@@ -30,8 +30,8 @@
 <String Id="Feature.Description.Changelogs">Dziennik kompilacji programu.</String>
 <String Id="Feature.Title.Docs">Dokumentacja</String>
 <String Id="Feature.Description.Docs">Dokumentacja dotycząca pisana makr, wtyczek, informacje techniczne, FAQ, lista zmian, itp.</String>
-<String Id="Feature.Title.FExcept">FExcept</String>
-<String Id="Feature.Description.FExcept">Obsługa błędów z zapisywanie dokładnych informacji przy błędach programu (FStd_trap.log).</String>
+<String Id="Feature.Title.MapFiles">Map pliki</String>
+<String Id="Feature.Description.MapFiles">Zapisywanie dokładnych informacji przy błędach programu.</String>
 <String Id="Feature.Title.Languages">Języki</String>
 <String Id="Feature.Description.Languages">Obsługa dodatkowych języków menu programu.</String>
 <String Id="Feature.Title.Russian">Rosyjski</String>

@@ -495,11 +495,11 @@ static bool ShowExceptionUI(
 
 	const auto CanUnload = PluginModule != nullptr;
 	const auto ReportLocation = get_report_location();
+	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, L"far.mdmp"sv), MiniDumpNormal);
+	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, L"far_full.mdmp"sv), MiniDumpWithFullMemory);
 	const auto BugReport = collect_information(Context, NestedStack, ModuleName, BasicInfo);
 	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, L"bug_report.txt"sv));
 	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
-	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, L"far.mdmp"sv), MiniDumpNormal);
-	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, L"far_full.mdmp"sv), MiniDumpWithFullMemory);
 	const auto AnythingOnDisk = ReportOnDisk || MinidumpNormal || MinidumpFull;
 
 	if (AnythingOnDisk)
@@ -628,52 +628,6 @@ static string ExtractObjectType(EXCEPTION_RECORD const& xr)
 	return encoding::utf8::get_chars(*Iterator);
 }
 
-static bool ProcessExternally(EXCEPTION_POINTERS const& Pointers, Plugin const* const PluginModule)
-{
-	if (!Global || !Global->Opt->ExceptUsed || Global->Opt->strExceptEventSvc.empty())
-		return false;
-
-	const os::rtdl::module Module(Global->Opt->strExceptEventSvc);
-	if (!Module)
-		return false;
-
-	struct PLUGINRECORD       // информация о плагине
-	{
-		DWORD TypeRec;          // Тип записи = RTYPE_PLUGIN
-		DWORD SizeRec;          // Размер
-		DWORD Reserved1[4];
-		// DWORD SysID; UUID
-		const wchar_t *ModuleName;
-		DWORD Reserved2[2];    // резерв :-)
-		DWORD SizeModuleName;
-	};
-
-	os::rtdl::function_pointer<BOOL(WINAPI*)(EXCEPTION_POINTERS*, const PLUGINRECORD*, const PluginStartupInfo*, DWORD*)> Function(Module, "ExceptionProc");
-	if (!Function)
-		return false;
-
-	static PluginStartupInfo LocalStartupInfo;
-	LocalStartupInfo = {};
-	static FarStandardFunctions LocalStandardFunctions;
-	LocalStandardFunctions = {};
-	CreatePluginStartupInfo(&LocalStartupInfo, &LocalStandardFunctions);
-	LocalStartupInfo.ModuleName = Global->Opt->strExceptEventSvc.c_str();
-	static PLUGINRECORD PlugRec;
-
-	if (PluginModule)
-	{
-		PlugRec = {};
-		PlugRec.TypeRec = RTYPE_PLUGIN;
-		PlugRec.SizeRec = sizeof(PlugRec);
-		PlugRec.ModuleName = PluginModule->ModuleName().c_str();
-	}
-
-	DWORD dummy;
-	auto PointersCopy = Pointers;
-
-	return Function(&PointersCopy, PluginModule ? &PlugRec : nullptr, &LocalStartupInfo, &dummy) != FALSE;
-}
-
 static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_view const Type)
 {
 	static const std::pair<string_view, NTSTATUS> KnownExceptions[]
@@ -793,20 +747,6 @@ static bool handle_generic_exception(
 
 	++s_ExceptionHandlingInprogress;
 	SCOPE_EXIT{ --s_ExceptionHandlingInprogress; };
-
-	{
-		auto ExceptionRecord = Context.exception_record();
-		auto ContextRecord = Context.context_record();
-		EXCEPTION_POINTERS const Pointers{ &ExceptionRecord, &ContextRecord };
-
-		if (ProcessExternally(Pointers, PluginModule))
-		{
-			if (!PluginModule && Global)
-				Global->CriticalInternalError = true;
-
-			return true;
-		}
-	}
 
 	string strFileName;
 

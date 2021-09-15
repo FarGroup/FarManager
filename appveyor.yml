@@ -85,10 +85,6 @@ build_script:
   - cd plugins 
   - nmake /f makefile_all_vc %ADD_MAKE% INSTALL=..\ci\%configuration%.%platform%\Plugins FAR_WORKDIR=..\..\ci\%configuration%.%platform%
   - cd ..
-  #build fexcept if needed
-  - cd misc\fexcept
-  - if "%platform%" == "x86" nmake /f makefile_vc %ADD_MAKE% INSTALL=..\..\ci\%configuration%.%platform% FAR_WORKDIR=..\..\ci\%configuration%.%platform%
-  - cd ..\..
   #build netbox
   - set FAR_VERSION=Far3
   - set PROJECT_ROOT=%APPVEYOR_BUILD_FOLDER%\Far-NetBox
@@ -117,7 +113,6 @@ build_script:
   - mkdir ci\%configuration%.%platform%\Plugins\FarColorer
   - 7z x %COLORER_FILE_NAME% -oci\%configuration%.%platform%\Plugins\FarColorer
   #remove not needed build artifacts
-  - if "%platform%" == "x86" powershell "Get-ChildItem ci\${Env:configuration}`.${Env:platform}\FExcept -filter *.map -File | Remove-Item"
   - ps: Get-ChildItem ci\${Env:configuration}`.${Env:platform}\ -recurse -File | Where-Object { @(".lib", ".exp", ".ilk") -contains $_.extension } | Remove-Item
 
 test: off

@@ -200,6 +200,8 @@ public: const unique_function_pointer<name_##NAME, stub_##NAME> NAME{m_##MODULE}
 	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymGetModuleInfoW64, HANDLE Process, DWORD64 Addr, PIMAGEHLP_MODULEW64 ModuleInfo);
 	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, PVOID, SymFunctionTableAccess64, HANDLE Process, DWORD64 AddrBase);
 	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, DWORD64, SymGetModuleBase64, HANDLE Process, DWORD64 Address);
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, DWORD, UnDecorateSymbolName, PCSTR Name, PSTR OutputString, DWORD MaxStringLength, DWORD Flags);
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, DWORD, UnDecorateSymbolNameW, PCWSTR Name, PWSTR OutputString, DWORD MaxStringLength, DWORD Flags);
 
 	DECLARE_IMPORT_FUNCTION(dwmapi, WINAPI, HRESULT, DwmGetWindowAttribute, HWND Hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute);
 

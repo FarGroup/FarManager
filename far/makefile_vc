@@ -142,6 +142,7 @@ LINK_OBJS = \
 	"$(INTDIR)\macro.obj" \
 	"$(INTDIR)\main.obj" \
 	"$(INTDIR)\manager.obj" \
+	"$(INTDIR)\map_file.obj" \
 	"$(INTDIR)\memcheck.obj" \
 	"$(INTDIR)\menubar.obj" \
 	"$(INTDIR)\message.obj" \

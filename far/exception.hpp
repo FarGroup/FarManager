@@ -157,6 +157,5 @@ class far_known_exception final: public far_exception
 std::wostream& operator<<(std::wostream& Stream, error_state const& e);
 std::wostream& operator<<(std::wostream& Stream, error_state_ex const& e);
 std::wostream& operator<<(std::wostream& Stream, detail::far_base_exception const& e);
-std::wostream& operator<<(std::wostream& Stream, far_exception const& e);
 
 #endif // EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF

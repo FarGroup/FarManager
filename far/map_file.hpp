@@ -1,12 +1,12 @@
-﻿#ifndef TRACER_HPP_AD7B9307_ECFD_46FC_B001_E48C9B89DE64
-#define TRACER_HPP_AD7B9307_ECFD_46FC_B001_E48C9B89DE64
+﻿#ifndef MAP_FILE_HPP_29032DD0_A55A_4E8B_97AC_C991B24BBBFE
+#define MAP_FILE_HPP_29032DD0_A55A_4E8B_97AC_C991B24BBBFE
 #pragma once
 
 /*
-tracer.hpp
+map_file.hpp
 */
 /*
-Copyright © 2016 Far Group
+Copyright © 2021 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,52 +35,32 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 
 // Platform:
-#include "platform.concurrency.hpp"
 
 // Common:
-#include "common/function_ref.hpp"
-#include "common/nifty_counter.hpp"
-#include "common/range.hpp"
+#include "common/preprocessor.hpp"
 
 // External:
 
 //----------------------------------------------------------------------------
 
-class map_file;
-
-namespace tracer_detail
+class map_file
 {
-	class tracer
-	{
-	public:
-		NONCOPYABLE(tracer);
+public:
+	NONCOPYABLE(map_file);
 
-		tracer();
-		~tracer();
+	explicit map_file(string_view ModuleName);
+	~map_file();
 
-		std::vector<uintptr_t> get(string_view Module, CONTEXT const& ContextRecord, HANDLE ThreadHandle);
-		void get_symbols(string_view Module, span<uintptr_t const> Trace, function_ref<void(string&& Line)> Consumer);
-		void get_symbol(string_view Module, const void* Ptr, string& Address, string& Name, string& Source);
+	std::pair<string, string_view> get(uintptr_t Address) const;
 
-		class with_symbols
-		{
-		public:
-			NONCOPYABLE(with_symbols);
+private:
+	struct line;
 
-			explicit with_symbols(string_view Module);
-			~with_symbols();
-		};
+	void read(std::istream& Stream);
+	void read_vc(std::istream& Stream);
 
-	private:
-		void sym_initialise(string_view Module);
-		void sym_cleanup();
+	std::map<uintptr_t, line> m_Symbols;
+	std::unordered_set<string> m_Files;
+};
 
-		os::concurrency::critical_section m_CS;
-		std::unique_ptr<std::unordered_map<uintptr_t, map_file>> m_MapFiles;
-		size_t m_SymInitialised{};
-	};
-}
-
-NIFTY_DECLARE(tracer_detail::tracer, tracer);
-
-#endif // TRACER_HPP_AD7B9307_ECFD_46FC_B001_E48C9B89DE64
+#endif // MAP_FILE_HPP_29032DD0_A55A_4E8B_97AC_C991B24BBBFE

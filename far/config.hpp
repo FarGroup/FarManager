@@ -930,7 +930,6 @@ public:
 	BoolOption SetAttrFolderRules;
 
 	BoolOption ExceptUsed;
-	StringOption strExceptEventSvc;
 	IntOption CursorSize[4];
 
 	CodeXLAT XLat;

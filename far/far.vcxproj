@@ -145,6 +145,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="macro.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manager.cpp" />
+    <ClCompile Include="map_file.cpp" />
     <ClCompile Include="memcheck.cpp" />
     <ClCompile Include="menubar.cpp" />
     <ClCompile Include="message.cpp" />
@@ -352,6 +353,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="macro.hpp" />
     <ClInclude Include="macroopcode.hpp" />
     <ClInclude Include="manager.hpp" />
+    <ClInclude Include="map_file.hpp" />
     <ClInclude Include="memcheck.hpp" />
     <ClInclude Include="menubar.hpp" />
     <ClInclude Include="message.hpp" />

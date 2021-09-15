@@ -162,12 +162,6 @@
 <?define Guid.Plugins.Review.txt_1 = "CFA9F6CD-AC5D-4264-B525-F6082B354DF4" ?>
 <?define Guid.TechInfo.txt_1 = "CEB2F999-37E1-46FD-8C2E-843C701620C4" ?>
 
-<?define Guid.changelog_1 = "E2F524B8-FF43-4AC6-8E70-26DF22BC3DC8" ?>
-<?define Guid.demangle32.dll = "79CB8A6D-B835-4CD7-BB32-1F3E85132795" ?>
-<?define Guid.ExcDump.dll = "334F0502-1DCA-4207-BEC8-A2FD0C4B9989" ?>
-<?define Guid.FExcept.dll = "D07798A8-00EC-4C31-B7E1-12623A9C85D9" ?>
-<?define Guid.SetFarExceptionHandler.farconfig = "2B33E0C8-C069-48FB-B8F1-1FE410159779" ?>
-
 <?define Guid.Align.dll = "1593AC41-45B9-4263-A424-7048E90C8C67" ?>
 <?define Guid.Align.map = "1CBED501-4C14-4B35-B15E-DA4F773F8CA7" ?>
 <?define Guid.AlignEng.lng = "234A91C9-D3F4-4182-9F53-BEA198AD57C8" ?>

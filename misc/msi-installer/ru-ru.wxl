@@ -30,8 +30,8 @@
 <String Id="Feature.Description.Changelogs">Списки изменений от разработчиков.</String>
 <String Id="Feature.Title.Docs">Документация</String>
 <String Id="Feature.Description.Docs">Руководства по написанию макросов и плагинов, техническая информация, FAQ, прочие документы.</String>
-<String Id="Feature.Title.FExcept">FExcept</String>
-<String Id="Feature.Description.FExcept">Модуль для записи отладочной информации (FStd_trap.log) при критических ошибках программы.</String>
+<String Id="Feature.Title.MapFiles">Map файлы</String>
+<String Id="Feature.Description.MapFiles">Для записи отладочной информации при критических ошибках программы.</String>
 <String Id="Feature.Title.Languages">Языки</String>
 <String Id="Feature.Description.Languages">Поддержка различных языков интерфейса и справки.</String>
 <String Id="Feature.Title.Russian">Русский</String>
