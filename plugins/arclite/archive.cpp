@@ -155,7 +155,7 @@ std::wstring ArcChain::to_string() const {
   std::wstring result;
   std::for_each(begin(), end(), [&] (const ArcEntry& arc) {
     if (!result.empty())
-      result += L"\x2192";
+      result += L"→";
     result += ArcAPI::formats().at(arc.type).name;
   });
   return result;

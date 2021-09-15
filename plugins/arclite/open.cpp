@@ -482,7 +482,9 @@ ArcEntries Archive::detect(
   //
   std::for_each(arc_types.begin(), arc_types.end(), [&] (const ArcType& arc_type) {
     if (found_types.count(arc_type) == 0) {
-      arc_entries.push_back(ArcEntry(arc_type, 0));
+      const auto& format = ArcAPI::formats().at(arc_type);
+      if (!format.Flags_ByExtOnlyOpen())
+        arc_entries.push_back(ArcEntry(arc_type, 0));
     }
   });
 

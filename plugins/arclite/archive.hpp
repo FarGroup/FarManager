@@ -85,6 +85,7 @@ struct ArcFormat {
   bool Flags_BackwardOpen() const { return (Flags & NArcInfoFlags::kBackwardOpen) != 0; }
   bool Flags_PreArc() const { return (Flags & NArcInfoFlags::kPreArc) != 0; }
   bool Flags_PureStartOpen() const { return (Flags & NArcInfoFlags::kPureStartOpen) != 0; }
+  bool Flags_ByExtOnlyOpen() const { return (Flags & NArcInfoFlags::kByExtOnlyOpen) != 0; }
 
   ArcFormat() : updatable(false), Flags(0), NewInterface(false), lib_index(-1), FormatIndex(0), IsArc(nullptr) {}
 };
