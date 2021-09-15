@@ -43,7 +43,7 @@ https://groups.google.com/group/farcommits
 #### Source code
 https://github.com/FarGroup/FarManager
 
-[logo-img]: https://raw.githubusercontent.com/FarGroup/FarManager/master/far/Far.ico
+[logo-img]: ./logo.svg
 [logo-url]: https://www.farmanager.com
 [VS-AppVeyor-img]: https://ci.appveyor.com/api/projects/status/6pca73evwo3oxvr9?svg=true
 [VS-AppVeyor-url]: https://ci.appveyor.com/project/FarGroup/farmanager/history
