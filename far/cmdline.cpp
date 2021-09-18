@@ -1053,7 +1053,7 @@ void CommandLine::ExecString(execute_info& Info)
 
 	FarChDir(m_CurDir);
 
-	if (Info.SourceMode != execute_info::source_mode::known)
+	if (Info.SourceMode == execute_info::source_mode::unknown)
 	{
 		ProcessEcho(Info);
 		if (starts_with(Info.Command, L'@'))

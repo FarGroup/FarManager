@@ -2748,7 +2748,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 					execute_info Info;
 					Info.DisplayCommand = strFileName;
 					Info.WaitMode = PluginMode? execute_info::wait_mode::wait_finish : SeparateWindow? execute_info::wait_mode::no_wait : execute_info::wait_mode::if_needed;
-					Info.SourceMode = execute_info::source_mode::known;
+					Info.SourceMode = IsItExecutable? execute_info::source_mode::known_executable : execute_info::source_mode::known;
 					Info.RunAs = RunAs;
 
 					Info.Command = ConvertNameToFull(strFileName);

@@ -644,18 +644,25 @@ static bool execute_impl(
 
 	};
 
-	if (execute_process())
-		return true;
+	// Filter out the cases where the source is known, but is not a known executable (exe, com, bat, cmd, see IsExecutable in filelist.cpp)
+	// This should cover gh-449 and is usually pointless anyway.
+	if (
+		Info.SourceMode == execute_info::source_mode::known_executable ||
+		Info.SourceMode == execute_info::source_mode::unknown)
+	{
+		if (execute_process())
+			return true;
 
-	if (last_error().Win32Error == ERROR_EXE_MACHINE_TYPE_MISMATCH)
-		return false;
+		if (last_error().Win32Error == ERROR_EXE_MACHINE_TYPE_MISMATCH)
+			return false;
+	}
 
 	ExtendedActivator(Info.WaitMode != execute_info::wait_mode::no_wait);
 
 	const auto execute_shell = [&]
 	{
 		HANDLE Process;
-		if (!::execute_shell(Command, Parameters, CurrentDirectory, Info.SourceMode == execute_info::source_mode::known, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, Process))
+		if (!::execute_shell(Command, Parameters, CurrentDirectory, Info.SourceMode != execute_info::source_mode::unknown, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, Process))
 			return false;
 
 		if (Process)
@@ -690,7 +697,7 @@ void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator
 		Info.WaitMode = execute_info::wait_mode::no_wait;
 	}
 
-	if (Info.SourceMode == execute_info::source_mode::known)
+	if (Info.SourceMode != execute_info::source_mode::unknown)
 	{
 		FullCommand = Info.Command;
 		Command = short_name_if_too_long(Info.Command);
@@ -719,7 +726,7 @@ void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator
 
 	const auto IgnoreInternalAssociations =
 		!Info.UseAssociations ||
-		Info.SourceMode == execute_info::source_mode::known ||
+		Info.SourceMode != execute_info::source_mode::unknown ||
 		Info.WaitMode == execute_info::wait_mode::no_wait ||
 		UsingComspec ||
 		!Global->Opt->Exec.UseAssociations;
