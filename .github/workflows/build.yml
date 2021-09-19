@@ -60,7 +60,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Initialize CodeQL
-        if: matrix.build == 'msbuild_x64_debug'
+        if: matrix.build == 'msbuild_cl_x64_debug'
         uses: github/codeql-action/init@v1
         with:
           languages: cpp
@@ -74,13 +74,19 @@ jobs:
         if: matrix.build_config  == 'Debug'
         run: Add-Content -Path $env:GITHUB_ENV -Value "DEBUG=1"
 
-      - name: Build Far (cl)
-        working-directory: far
-        run: MSBuild.exe /property:Configuration=${{ matrix.build_config }} /property:Platform=${{ matrix.arch }} far.vcxproj
+      - name: Build (cl)
+        working-directory: _build/vc
+        run: msbuild -m /property:Configuration=${{ matrix.build_config }} /property:Platform=${{ matrix.arch }} all.sln
 
       - name: Perform CodeQL Analysis
-        if: matrix.build == 'msbuild_x64_debug'
+        if: matrix.build == 'msbuild_cl_x64_debug'
         uses: github/codeql-action/analyze@v1
+
+      - name: Publish
+        uses: actions/upload-artifact@v2
+        with:
+          name: Far.${{ matrix.build_config }}.${{ matrix.arch }}
+          path: _build/vc/_output/product/${{ matrix.build_config }}.${{ matrix.arch }}
 
 #------------------------------------------------------------------------------
   build-nmake:
