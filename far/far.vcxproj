@@ -404,6 +404,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="refreshwindowmanager.hpp" />
     <ClInclude Include="regex_helpers.hpp" />
     <ClInclude Include="RegExp.hpp" />
+    <ClInclude Include="reparse_tags.hpp" />
     <ClInclude Include="res.hpp" />
     <ClInclude Include="savescr.hpp" />
     <ClInclude Include="scantree.hpp" />

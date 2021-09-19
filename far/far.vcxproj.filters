@@ -1039,6 +1039,9 @@
     <ClInclude Include="RegExp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="reparse_tags.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="res.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

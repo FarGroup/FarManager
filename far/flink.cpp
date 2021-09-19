@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "cvtname.hpp"
 #include "global.hpp"
+#include "reparse_tags.hpp"
 #include "stddlg.hpp"
 #include "string_utils.hpp"
 #include "log.hpp"
@@ -783,7 +784,83 @@ static string_view reparse_tag_to_string(DWORD ReparseTag)
 	TAG_STR(APPXSTRM)
 	TAG_STR(DFM)
 
-	// TODO: there's almost a hundred of non-MS tags
+	// Non-MS tags:
+	TAG_STR(IFSTEST_CONGRUENT)
+	TAG_STR(MOONWALK_HSM)
+	TAG_STR(TSINGHUA_UNIVERSITY_RESEARCH)
+	TAG_STR(ARKIVIO)
+	TAG_STR(SOLUTIONSOFT)
+	TAG_STR(COMMVAULT)
+	TAG_STR(OVERTONE)
+	TAG_STR(SYMANTEC_HSM2)
+	TAG_STR(ENIGMA_HSM)
+	TAG_STR(SYMANTEC_HSM)
+	TAG_STR(INTERCOPE_HSM)
+	TAG_STR(KOM_NETWORKS_HSM)
+	TAG_STR(MEMORY_TECH_HSM)
+	TAG_STR(BRIDGEHEAD_HSM)
+	TAG_STR(OSR_SAMPLE)
+	TAG_STR(GLOBAL360_HSM)
+	TAG_STR(ALTIRIS_HSM)
+	TAG_STR(HERMES_HSM)
+	TAG_STR(POINTSOFT_HSM)
+	TAG_STR(GRAU_DATASTORAGE_HSM)
+	TAG_STR(COMMVAULT_HSM)
+	TAG_STR(DATASTOR_SIS)
+	TAG_STR(EDSI_HSM)
+	TAG_STR(HP_HSM)
+	TAG_STR(SER_HSM)
+	TAG_STR(DOUBLE_TAKE_HSM)
+	TAG_STR(WISDATA_HSM)
+	TAG_STR(MIMOSA_HSM)
+	TAG_STR(HSAG_HSM)
+	TAG_STR(ADA_HSM)
+	TAG_STR(AUTN_HSM)
+	TAG_STR(NEXSAN_HSM)
+	TAG_STR(DOUBLE_TAKE_SIS)
+	TAG_STR(SONY_HSM)
+	TAG_STR(ELTAN_HSM)
+	TAG_STR(UTIXO_HSM)
+	TAG_STR(QUEST_HSM)
+	TAG_STR(DATAGLOBAL_HSM)
+	TAG_STR(QI_TECH_HSM)
+	TAG_STR(DATAFIRST_HSM)
+	TAG_STR(C2CSYSTEMS_HSM)
+	TAG_STR(WATERFORD)
+	TAG_STR(RIVERBED_HSM)
+	TAG_STR(CARINGO_HSM)
+	TAG_STR(MAXISCALE_HSM)
+	TAG_STR(CITRIX_PM)
+	TAG_STR(OPENAFS_DFS)
+	TAG_STR(ZLTI_HSM)
+	TAG_STR(EMC_HSM)
+	TAG_STR(VMWARE_PM)
+	TAG_STR(ARCO_BACKUP)
+	TAG_STR(CARROLL_HSM)
+	TAG_STR(COMTRADE_HSM)
+	TAG_STR(EASEVAULT_HSM)
+	TAG_STR(HDS_HSM)
+	TAG_STR(MAGINATICS_RDR)
+	TAG_STR(GOOGLE_HSM)
+	TAG_STR(QUADDRA_HSM)
+	TAG_STR(HP_BACKUP)
+	TAG_STR(DROPBOX_HSM)
+	TAG_STR(ADOBE_HSM)
+	TAG_STR(HP_DATA_PROTECT)
+	TAG_STR(ACTIVISION_HSM)
+	TAG_STR(HDS_HCP_HSM)
+	TAG_STR(AURISTOR_FS)
+	TAG_STR(ITSTATION)
+	TAG_STR(SPHARSOFT)
+	TAG_STR(ALERTBOOT)
+	TAG_STR(MTALOS)
+	TAG_STR(CTERA_HSM)
+	TAG_STR(NIPPON_HSM)
+	TAG_STR(REDSTOR_HSM)
+	TAG_STR(NEUSHIELD)
+	TAG_STR(DOR_HSM)
+	TAG_STR(SHX_BACKUP)
+	TAG_STR(NVIDIA_UNIONFS)
 #undef TAG_STR
 	}
 }
@@ -887,6 +964,36 @@ TEST_CASE("flink.fill.reparse.buffer")
 		REQUIRE(Buffer->SymbolicLinkReparseBuffer.Flags == 0);
 
 		REQUIRE(std::equal(ALL_CONST_RANGE(ExpectedData), static_cast<char const*>(static_cast<void const*>(Buffer.data()))));
+	}
+}
+
+TEST_CASE("reparse_tag_to_string")
+{
+	static const struct
+	{
+		DWORD Tag;
+		bool Known;
+		string_view Str;
+	}
+	Tests[]
+	{
+		// Unknown
+		{ 0,                           false, L":00000000"sv },
+		{ 1,                           false, L":00000001"sv },
+		{ 0xFFFFFFFF,                  false, L":FFFFFFFF"sv },
+		// MS
+		{ IO_REPARSE_TAG_HSM,          true,  L"HSM"sv },
+		{ IO_REPARSE_TAG_SIS,          true,  L"SIS"sv },
+		// Non-MS
+		{ IO_REPARSE_TAG_MOONWALK_HSM, true,  L"MOONWALK_HSM"sv },
+		{ IO_REPARSE_TAG_NIPPON_HSM,   true,  L"NIPPON_HSM"sv },
+	};
+
+	string Str;
+	for (const auto& i: Tests)
+	{
+		REQUIRE(reparse_tag_to_string(i.Tag, Str) == i.Known);
+		REQUIRE(Str == i.Str);
 	}
 }
 #endif
