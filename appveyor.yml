@@ -108,10 +108,16 @@ build_script:
   - echo "Download FarColorer %COLORER_VERSION%"
   - set COLORER_PLATFORM=x86
   - if "%platform%" == "x64" set COLORER_PLATFORM=x64
-  - set COLORER_FILE_NAME=FarColorer.%COLORER_PLATFORM%.v%COLORER_VERSION%.7z
-  - curl -fsLJO https://github.com/colorer/FarColorer/releases/download/v%COLORER_VERSION%/%COLORER_FILE_NAME%
-  - mkdir ci\%configuration%.%platform%\Plugins\FarColorer
-  - 7z x %COLORER_FILE_NAME% -oci\%configuration%.%platform%\Plugins\FarColorer
+  - set COLORER_BASE_NAME=FarColorer.%COLORER_PLATFORM%.v%COLORER_VERSION%
+  - set COLORER_FILE_NAME=%COLORER_BASE_NAME%.7z
+  - set COLORER_PDB_NAME=%COLORER_BASE_NAME%.pdb.7z
+  - set COLORER_BASE_URL=https://github.com/colorer/FarColorer/releases/download/v%COLORER_VERSION%/
+  - curl -fsLJO %COLORER_BASE_URL%%COLORER_FILE_NAME%
+  - curl -fsLJO %COLORER_BASE_URL%%COLORER_PDB_NAME%
+  - set COLORER_DIR=ci\%configuration%.%platform%\Plugins\FarColorer
+  - mkdir %COLORER_DIR%
+  - 7z x %COLORER_FILE_NAME% -o%COLORER_DIR%
+  - 7z x %COLORER_PDB_NAME% -o%COLORER_DIR%\bin
   #remove not needed build artifacts
   - ps: Get-ChildItem ci\${Env:configuration}`.${Env:platform}\ -recurse -File | Where-Object { @(".lib", ".exp", ".ilk") -contains $_.extension } | Remove-Item
 
