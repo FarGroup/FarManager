@@ -26,7 +26,7 @@ function bcolorer {
     return 1
   fi
   if [ ! -e ${COLORER_PDB_NAME} ]; then
-    echo "Can't find ${COLORER_FILE_NAME}"
+    echo "Can't find ${COLORER_PDB_NAME}"
     return 1
   fi
   COLORER_DIR=outfinalnew${BIT}/Plugins/$PLUGIN
@@ -34,6 +34,7 @@ function bcolorer {
   7z x ${COLORER_FILE_NAME} -o${COLORER_DIR}
   7z x ${COLORER_PDB_NAME} -o${COLORER_DIR}/bin
   rm -f ${COLORER_FILE_NAME}
+  rm -f ${COLORER_PDB_NAME}
 
 }
 
