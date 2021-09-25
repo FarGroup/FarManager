@@ -82,13 +82,13 @@ bool is_lower(wchar_t Char)
 
 wchar_t upper(wchar_t Char)
 {
-	inplace::upper(&Char);
+	inplace::upper(Char);
 	return Char;
 }
 
 wchar_t lower(wchar_t Char)
 {
-	inplace::lower(&Char);
+	inplace::lower(Char);
 	return Char;
 }
 
