@@ -187,8 +187,7 @@ bool IsCaseMixed(string_view Str);
 bool SearchString(
 	string_view Haystack,
 	string_view Needle,
-	string_view NeedleUpper,
-	string_view NeedleLower,
+	i_searcher const& NeedleSearcher,
 	const RegExp& re,
 	RegExpMatch* pm,
 	MatchHash* hm,
@@ -205,8 +204,7 @@ bool SearchString(
 bool SearchAndReplaceString(
 	string_view Haystack,
 	string_view Needle,
-	string_view NeedleUpper,
-	string_view NeedleLower,
+	i_searcher const& NeedleSearcher,
 	const RegExp& re,
 	RegExpMatch* pm,
 	MatchHash* hm,

@@ -453,21 +453,11 @@ private:
 	std::exception_ptr m_ExceptionPtr;
 	bool m_IsRegularException{};
 
-	template<typename... args>
-	using searcher = std::boyer_moore_horspool_searcher<args...>;
+	searchers m_TextSearchers;
+	i_searcher const* m_TextSearcher;
 
-	using case_sensitive_searcher = searcher<string::const_iterator>;
-	using case_insensitive_searcher = searcher<string::const_iterator, hash_icase_t, equal_icase_t>;
-	using hex_searcher = searcher<bytes::const_iterator>;
-
-	std::variant
-	<
-		bool, // Just to make it default-constructible
-		case_sensitive_searcher,
-		case_insensitive_searcher,
-		hex_searcher
-	>
-	m_Searcher;
+	using hex_searcher = std::boyer_moore_horspool_searcher<bytes::const_iterator>;
+	std::optional<hex_searcher> m_HexSearcher;
 
 	std::optional<taskbar::indeterminate> m_TaskbarProgress{ std::in_place };
 };
@@ -509,17 +499,14 @@ void background_searcher::InitInFileSearch()
 		return;
 
 	// Инициализируем буферы чтения из файла
-	const size_t readBufferSize = 32768;
+	const size_t readBufferSize = 65536;
 
 	readBufferA.resize(readBufferSize);
 	readBuffer.resize(readBufferSize);
 
 	if (!SearchHex)
 	{
-		if (CmpCase)
-			m_Searcher.emplace<case_sensitive_searcher>(ALL_CONST_RANGE(strFindStr));
-		else
-			m_Searcher.emplace<case_insensitive_searcher>(ALL_CONST_RANGE(strFindStr));
+		m_TextSearcher = &init_searcher(m_TextSearchers, CmpCase, strFindStr);
 
 		// Формируем список кодовых страниц
 		if (CodePage == CP_ALL)
@@ -568,7 +555,7 @@ void background_searcher::InitInFileSearch()
 		hexFindString = HexStringToBlob(strFindStr, 0);
 
 		// Инициализируем данные для аглоритма поиска
-		m_Searcher.emplace<hex_searcher>(ALL_CONST_RANGE(hexFindString));
+		m_HexSearcher.emplace(ALL_CONST_RANGE(hexFindString));
 	}
 }
 
@@ -1081,7 +1068,7 @@ bool background_searcher::LookForString(string_view const FileName)
 
 			// Ищем
 			const auto Begin = readBufferA.data(), End = Begin + readBlockSize;
-			if (std::search(Begin, End, std::get<hex_searcher>(m_Searcher)) != End)
+			if (std::search(Begin, End, *m_HexSearcher) != End)
 				return true;
 		}
 		else
@@ -1161,13 +1148,22 @@ bool background_searcher::LookForString(string_view const FileName)
 				else
 				{
 					// Конвертируем буфер чтения из кодировки поиска в UTF-16
-					bufferCount = encoding::get_chars(i.CodePage, { readBufferA.data(), readBlockSize }, readBuffer);
+					encoding::diagnostics Diagnostics{ encoding::enabled_diagnostics::incomplete_bytes };
+					bufferCount = encoding::get_chars(i.CodePage, { readBufferA.data(), readBlockSize }, readBuffer, &Diagnostics);
 
 					// Выходим, если нам не удалось сконвертировать строку
 					if (!bufferCount)
 					{
 						ErrorState = true;
 						continue;
+					}
+
+					if (Diagnostics.IncompleteBytes)
+					{
+						--bufferCount;
+						readBlockSize -= Diagnostics.IncompleteBytes;
+						alreadyRead -= Diagnostics.IncompleteBytes;
+						File.SetPointer(-static_cast<int>(Diagnostics.IncompleteBytes), {}, FILE_CURRENT);
 					}
 
 					// Если у нас поиск по словам и в конце предыдущего блока было вхождение
@@ -1198,31 +1194,28 @@ bool background_searcher::LookForString(string_view const FileName)
 
 				i.WordFound = false;
 
-				auto Iterator = buffer;
-				const auto End = buffer + bufferCount;
+				size_t Position = 0;
 
 				do
 				{
 					// Ищем подстроку в буфере и возвращаем индекс её начала в случае успеха
-					const auto NewIterator = CmpCase?
-						std::search(Iterator, End, std::get<case_sensitive_searcher>(m_Searcher)):
-						std::search(Iterator, End, std::get<case_insensitive_searcher>(m_Searcher));
+					const auto NewPosition = m_TextSearcher->find_in({ buffer + Position, bufferCount });
 
 					// Если подстрока не найдена идём на следующий шаг
-					if (NewIterator == End)
+					if (!NewPosition)
 						break;
 
 					// Если подстрока найдена и отключен поиск по словам, то считаем что всё хорошо
 					if (!WholeWords)
 						return true;
 					// Устанавливаем позицию в исходном буфере
-					Iterator = NewIterator;
+					Position = NewPosition->first;
 
 					// Если идёт поиск по словам, то делаем соответствующие проверки
 					bool firstWordDiv = false;
 
 					// Если мы находимся вначале блока
-					if (Iterator == buffer)
+					if (Position == 0)
 					{
 						// Если мы находимся вначале файла, то считаем, что разделитель есть
 						// Если мы находимся вначале блока, то проверяем является
@@ -1233,7 +1226,7 @@ bool background_searcher::LookForString(string_view const FileName)
 					else
 					{
 						// Проверяем является или нет предыдущий найденному символ блока разделителем
-						i.LastSymbol = *std::prev(Iterator);
+						i.LastSymbol = buffer[Position - 1];
 
 						if (FindFiles::IsWordDiv(i.LastSymbol))
 							firstWordDiv = true;
@@ -1243,10 +1236,10 @@ bool background_searcher::LookForString(string_view const FileName)
 					if (firstWordDiv)
 					{
 						// Если блок выбран не до конца
-						if (Iterator + findStringCount != End)
+						if (Position + findStringCount != bufferCount)
 						{
 							// Проверяем является или нет последующий за найденным символ блока разделителем
-							i.LastSymbol = *std::next(Iterator, findStringCount);
+							i.LastSymbol = buffer[Position + findStringCount];
 
 							if (FindFiles::IsWordDiv(i.LastSymbol))
 								return true;
@@ -1255,7 +1248,7 @@ bool background_searcher::LookForString(string_view const FileName)
 							i.WordFound = true;
 					}
 				}
-				while (++Iterator != End - findStringCount);
+				while (++Position != bufferCount - findStringCount);
 
 				// Выходим, если мы вышли за пределы количества байт разрешённых для поиска
 				if (SearchInFirst && alreadyRead >= SearchInFirst)

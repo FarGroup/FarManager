@@ -837,8 +837,7 @@ static bool CanContainWholeWord(string_view const Haystack, size_t const Offset,
 bool SearchString(
 	string_view const Haystack,
 	string_view const Needle,
-	string_view const NeedleUpper,
-	string_view const NeedleLower,
+	i_searcher const& NeedleSearcher,
 	const RegExp& re,
 	RegExpMatch* const pm,
 	MatchHash* const hm,
@@ -854,8 +853,7 @@ bool SearchString(
 	return SearchAndReplaceString(
 		Haystack,
 		Needle,
-		NeedleUpper,
-		NeedleLower,
+		NeedleSearcher,
 		re,
 		pm,
 		hm,
@@ -874,8 +872,7 @@ bool SearchString(
 bool SearchAndReplaceString(
 	string_view const Haystack,
 	string_view const Needle,
-	string_view const NeedleUpper,
-	string_view const NeedleLower,
+	i_searcher const& NeedleSearcher,
 	const RegExp& re,
 	RegExpMatch* const pm,
 	MatchHash* const hm,
@@ -924,48 +921,49 @@ bool SearchAndReplaceString(
 	if (Position >= HaystackSize)
 		return false;
 
-	const auto NeedleSize = *SearchLength = static_cast<int>(Needle.size());
+	const auto NeedleSize = Needle.size();
 
-	for (int HaystackIndex = Position; HaystackIndex != -1 && HaystackIndex != HaystackSize; Reverse? --HaystackIndex : ++HaystackIndex)
+	auto Where = Reverse?
+		Haystack.substr(0, Position + 1) :
+		Haystack.substr(Position);
+
+	const auto Next = [&](size_t const Offset)
 	{
-		if (WholeWords && !CanContainWholeWord(Haystack, HaystackIndex, NeedleSize, WordDiv))
-			continue;
+		Where = Reverse?
+			Where.substr(0, Offset - NeedleSize + 1) :
+			Where.substr(Offset + NeedleSize);
+	};
 
-		for (size_t NeedleIndex = 0; ; ++NeedleIndex)
+	while (!Where.empty())
+	{
+		const auto FoundPosition = NeedleSearcher.find_in(Where, Reverse);
+		if (!FoundPosition)
+			return false;
+
+		const auto [Offset, Size] = *FoundPosition;
+
+		const auto AbsoluteOffset = Reverse? Offset : Haystack.size() - Where.size() + Offset;
+
+		if (WholeWords && !CanContainWholeWord(Haystack, AbsoluteOffset, Needle.size(), WordDiv))
 		{
-			if (NeedleIndex == Needle.size())
-			{
-				CurPos = HaystackIndex;
-
-				// В случае PreserveStyle: если не получилось сделать замену c помощью PreserveStyleReplaceString,
-				// то хотя бы сохранить регистр первой буквы.
-				if (PreserveStyle && !ReplaceStr.empty() && is_alpha(ReplaceStr.front()) && is_alpha(Haystack[HaystackIndex]))
-				{
-					if (is_upper(Haystack[HaystackIndex]))
-						ReplaceStr.front() = upper(ReplaceStr.front());
-					else if (is_lower(Haystack[HaystackIndex]))
-						ReplaceStr.front() = lower(ReplaceStr.front());
-				}
-
-				return true;
-			}
-
-			if (HaystackIndex + NeedleIndex == Haystack.size())
-				break;
-
-			const auto Ch = Haystack[HaystackIndex + NeedleIndex];
-
-			if (Case)
-			{
-				if (Ch != Needle[NeedleIndex])
-					break;
-			}
-			else
-			{
-				if (Ch != NeedleUpper[NeedleIndex] && Ch != NeedleLower[NeedleIndex])
-					break;
-			}
+			Next(Offset);
+			continue;
 		}
+
+		CurPos = static_cast<int>(AbsoluteOffset);
+		*SearchLength = static_cast<int>(Size);
+
+		// В случае PreserveStyle: если не получилось сделать замену c помощью PreserveStyleReplaceString,
+		// то хотя бы сохранить регистр первой буквы.
+		if (PreserveStyle && !ReplaceStr.empty() && is_alpha(ReplaceStr.front()) && is_alpha(Haystack[CurPos]))
+		{
+			if (is_upper(Haystack[CurPos]))
+				inplace::upper(ReplaceStr.front());
+			else if (is_lower(Haystack[CurPos]))
+				inplace::lower(ReplaceStr.front());
+		}
+
+		return true;
 	}
 
 	return false;

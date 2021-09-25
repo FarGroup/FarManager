@@ -1991,13 +1991,8 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 		m.resize(re.GetBracketsCount() * 2);
 	}
 
-	string strSearchStrUpper = strLastSearchStr;
-	string strSearchStrLower = strLastSearchStr;
-	if (!LastSearchCase)
-	{
-		inplace::upper(strSearchStrUpper);
-		inplace::lower(strSearchStrLower);
-	}
+	searchers Searchers;
+	const auto& Searcher = init_searcher(Searchers, LastSearchCase, strLastSearchStr);
 
 	os::fs::filebuf StreamBuffer(HelpFile, std::ios::in);
 	std::istream Stream(&StreamBuffer);
@@ -2034,8 +2029,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 			if (SearchString(
 				Str,
 				strLastSearchStr,
-				strSearchStrUpper,
-				strSearchStrLower,
+				Searcher,
 				re,
 				m.data(),
 				&hm,

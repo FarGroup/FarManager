@@ -73,6 +73,9 @@ namespace inplace
 	void upper(span<wchar_t> Str);
 	void lower(span<wchar_t> Str);
 
+	void upper(wchar_t& Char);
+	void lower(wchar_t& Char);
+
 	void upper(wchar_t* Str);
 	void lower(wchar_t* Str);
 
@@ -127,5 +130,62 @@ size_t find_icase(string_view Str, wchar_t What, size_t Pos = 0);
 bool contains_icase(string_view Str, string_view What);
 [[nodiscard]]
 bool contains_icase(string_view Str, wchar_t What);
+
+class i_searcher
+{
+public:
+	virtual ~i_searcher() = default;
+	virtual std::optional<std::pair<size_t, size_t>> find_in(string_view Haystack, bool Reverse = {}) const = 0;
+	virtual bool contains_in(string_view Haystack) const = 0;
+};
+
+class exact_searcher: public i_searcher
+{
+public:
+	NONCOPYABLE(exact_searcher);
+	explicit exact_searcher(string_view Needle);
+	std::optional<std::pair<size_t, size_t>> find_in(string_view Haystack, bool Reverse = {}) const override;
+	bool contains_in(string_view Haystack) const override;
+
+private:
+	template<typename... args>
+	using searcher = std::boyer_moore_horspool_searcher<args...>;
+
+	searcher<string_view::const_iterator> m_Searcher;
+	searcher<string_view::const_reverse_iterator> m_ReverseSearcher;
+	size_t m_NeedleSize;
+};
+
+class fuzzy_searcher: public i_searcher
+{
+public:
+	NONCOPYABLE(fuzzy_searcher);
+	explicit fuzzy_searcher(string_view Needle);
+	std::optional<std::pair<size_t, size_t>> find_in(string_view Haystack, bool Reverse = {}) const override;
+	bool contains_in(string_view Haystack) const override;
+
+private:
+	std::optional<std::pair<size_t, size_t>> find_in_uncorrected(string_view Haystack, bool Reverse = {}) const;
+
+	string m_Needle;
+	mutable string m_HayStack, m_Intermediate;
+	mutable std::vector<WORD> m_Types;
+
+	exact_searcher m_Searcher;
+};
+
+using searchers = std::variant
+<
+	bool, // Just to make it default-constructible
+	exact_searcher,
+	fuzzy_searcher
+>;
+
+inline i_searcher const& init_searcher(searchers& Searchers, bool const Exact, string_view const Needle)
+{
+	return Exact?
+		static_cast<i_searcher const&>(Searchers.emplace<exact_searcher>(Needle)) :
+		static_cast<i_searcher const&>(Searchers.emplace<fuzzy_searcher>(Needle));
+}
 
 #endif // STRING_UTILS_HPP_82ECD8BE_D484_4023_AB42_21D93B2DF8B9

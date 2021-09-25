@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+drkns 25.09.2021 03:00:00 +0100 - build 5890
+
+1. Experimental: fuzzy search in panels, editor and help: a can match àáâãäåāăą, еи - ёй, き- ぎ, Æ - ae, ß - ss and so on and vice versa.
+   Beware of bugs.
+
+2. Wrong files reading in certain rare scenarios, e.g. when a multibyte character or EOL falls on the read buffer boundary.
+
+--------------------------------------------------------------------------------
 drkns 19.09.2021 14:47:00 +0100 - build 5889
 
 1. Support more reparse tags.

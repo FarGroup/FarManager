@@ -2843,7 +2843,7 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 
 	const auto is_eof = (to1 >= FileSize ? 1 : 0), iLast = nw - slen - ww + ww*is_eof;
 	if ( !LastSearchCase )
-		CharUpperBuff(buff, nw);
+		inplace::upper({ buff, static_cast<size_t>(nw) });
 
 	for (int i = 0; i <= iLast; ++i)
 	{
@@ -2925,7 +2925,7 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 	vseek(cpos, FILE_BEGIN);
 	const auto nw = vread(buff, nb, t_buff);
 	if (!LastSearchCase)
-		CharUpperBuff(buff, nw);
+		inplace::upper({ buff, static_cast<size_t>(nw) });
 
 	const auto is_eof = (veof() ? 1 : 0), iFirst = ww * (cpos > 0 ? 1 : 0), iLast = nw - slen - ww + ww*is_eof;
 	for (int i = iLast; i >= iFirst; --i)
@@ -3736,7 +3736,8 @@ bool Viewer::vgetc(wchar_t* pCh)
 			wchar_t w[2];
 			std::string_view const View(VgetcCache.cbegin(), VgetcCache.size());
 			auto Iterator = View.cbegin();
-			const auto WideCharsNumber = Utf8::get_char(Iterator, View.cend(), w[0], w[1]);
+			auto FullyConsumedIterator = Iterator;
+			const auto WideCharsNumber = Utf8::get_char(Iterator, FullyConsumedIterator, View.cend(), w[0], w[1]);
 			VgetcCache.pop(Iterator - View.cbegin());
 			*pCh = w[0];
 			if (WideCharsNumber > 1)
