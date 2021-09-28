@@ -84,7 +84,7 @@ struct MEMINFO
 	}
 };
 
-static MEMINFO FirstMemBlock;
+static MEMINFO FirstMemBlock{ {}, sizeof(FirstMemBlock) };
 static MEMINFO* LastMemBlock = &FirstMemBlock;
 
 static auto to_real(void* address, std::align_val_t Alignment)
@@ -154,6 +154,33 @@ static string printable_ansi_string(void const* const Data, size_t const Size)
 	return printable_string(encoding::ansi::get_chars({ static_cast<const char*>(Data), Size }));
 }
 
+#ifdef __SANITIZE_ADDRESS__
+extern "C"
+{
+	void __asan_poison_memory_region(void const volatile* addr, size_t size);
+	void __asan_unpoison_memory_region(void const volatile* addr, size_t size);
+}
+
+#define ASAN_POISON_MEMORY_REGION(addr, size)   __asan_poison_memory_region((addr), (size))
+#define ASAN_UNPOISON_MEMORY_REGION(addr, size) __asan_unpoison_memory_region((addr), (size))
+#else
+#define ASAN_POISON_MEMORY_REGION(addr, size)   ((void)(addr), (void)(size))
+#define ASAN_UNPOISON_MEMORY_REGION(addr, size) ((void)(addr), (void)(size))
+#endif
+
+void poison_block(MEMINFO* Block)
+{
+	ASAN_POISON_MEMORY_REGION(&Block->end_marker(), sizeof(EndMarker));
+	ASAN_POISON_MEMORY_REGION(Block, Block->HeaderSize);
+}
+
+void unpoison_block(MEMINFO* Block)
+{
+	ASAN_UNPOISON_MEMORY_REGION(Block, sizeof(*Block));
+	ASAN_UNPOISON_MEMORY_REGION(Block + 1, Block->HeaderSize - sizeof(*Block));
+	ASAN_UNPOISON_MEMORY_REGION(&Block->end_marker(), sizeof(EndMarker));
+}
+
 class checker
 {
 public:
@@ -179,12 +206,14 @@ public:
 		if (!m_Enabled)
 			return;
 
-		SCOPED_ACTION(std::lock_guard)(m_CS);
 
 		block->prev = LastMemBlock;
 		block->next = nullptr;
 
+		unpoison_block(LastMemBlock);
 		LastMemBlock->next = block;
+		poison_block(LastMemBlock);
+
 		LastMemBlock = block;
 
 		check_chain();
@@ -201,12 +230,20 @@ public:
 		if (!m_Enabled)
 			return;
 
-		SCOPED_ACTION(std::lock_guard)(m_CS);
-
 		if (block->prev)
+		{
+			unpoison_block(block->prev);
 			block->prev->next = block->next;
+			poison_block(block->prev);
+		}
+
 		if (block->next)
+		{
+			unpoison_block(block->next);
 			block->next->prev = block->prev;
+			poison_block(block->next);
+		}
+
 		if (block == LastMemBlock)
 			LastMemBlock = LastMemBlock->prev;
 
@@ -218,6 +255,9 @@ public:
 		m_AllocatedMemorySize -= block->Size;
 		m_AllocatedPayloadSize -= block->Size - block->HeaderSize - sizeof(EndMarker);
 	}
+
+	void lock() { m_CS.lock(); }
+	void unlock() { m_CS.unlock(); }
 
 private:
 	void update_call_count(allocation_type type, bool increment)
@@ -270,6 +310,8 @@ private:
 
 		for (auto i = FirstMemBlock.next; i; i = i->next)
 		{
+			unpoison_block(i);
+
 			const auto BlockSize = i->Size - i->HeaderSize - sizeof(EndMarker);
 			const auto UserAddress = to_user(i);
 			const size_t Width = 80 - 7 - 1;
@@ -332,8 +374,16 @@ static void* debug_allocator(size_t const size, std::align_val_t Alignment, allo
 				Info->Stack[Captured] = {};
 
 			Info->end_marker() = EndMarker;
-			Checker.register_block(Info);
-			return to_user(Info);
+
+			const auto Address = to_user(Info);
+
+			{
+				SCOPED_ACTION(std::lock_guard)(Checker);
+				Checker.register_block(Info);
+				poison_block(Info);
+			}
+
+			return Address;
 		}
 
 		if (const auto Handler = std::get_new_handler())
@@ -354,10 +404,15 @@ static void debug_deallocator(void* const Block, std::align_val_t Alignment, all
 
 	const auto Info = to_real(Block, Alignment);
 
+	{
+		SCOPED_ACTION(std::lock_guard)(Checker);
+		unpoison_block(Info);
+		Checker.unregister_block(Info);
+	}
+
 	assert(Info->AllocationType == type);
 	assert(Info->end_marker() == EndMarker);
 
-	Checker.unregister_block(Info);
 	placement::destruct(*Info);
 	_aligned_free(Info);
 }

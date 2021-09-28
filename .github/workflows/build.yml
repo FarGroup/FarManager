@@ -50,9 +50,9 @@ jobs:
                ]
 
         include:
-          - { build: msbuild_cl_x64_debug,   compiler: msbuild_cl, arch: x64,   build_config: Debug }
+          - { build: msbuild_cl_x64_debug,   compiler: msbuild_cl, arch: x64,   build_config: Debug_ASAN }
           - { build: msbuild_cl_x64_release, compiler: msbuild_cl, arch: x64,   build_config: Release }
-          - { build: msbuild_cl_x86_debug,   compiler: msbuild_cl, arch: Win32, build_config: Debug }
+          - { build: msbuild_cl_x86_debug,   compiler: msbuild_cl, arch: Win32, build_config: Debug_ASAN }
           - { build: msbuild_cl_x86_release, compiler: msbuild_cl, arch: Win32, build_config: Release }
 
     steps:
@@ -71,7 +71,7 @@ jobs:
           arch: ${{ matrix.arch }}
 
       - name: Set environment for debug build
-        if: matrix.build_config  == 'Debug'
+        if: matrix.build_config  == 'Debug_ASAN'
         run: Add-Content -Path $env:GITHUB_ENV -Value "DEBUG=1"
 
       - name: Build (cl)

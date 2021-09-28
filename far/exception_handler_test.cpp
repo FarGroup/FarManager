@@ -403,6 +403,25 @@ namespace tests
 	{
 		RaiseException(-1, 0, 0, {});
 	}
+
+	static void debug_bounds_check()
+	{
+		std::vector<int> v(1);
+		v[1] = 42;
+	}
+
+	static void debug_bounds_check_as_stack()
+	{
+		int v[1];
+		const volatile size_t Index = 1;
+		v[Index] = 42;
+	}
+
+	static void debug_bounds_check_as_heap()
+	{
+		std::vector<int> v(1);
+		v.data()[1] = 42;
+	}
 }
 
 static bool ExceptionTestHook(Manager::Key const& key)
@@ -441,6 +460,9 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::seh_breakpoint,               L"SEH breakpoint"sv },
 		{ tests::seh_alignment_fault,          L"SEH alignment fault"sv },
 		{ tests::seh_unknown,                  L"SEH unknown"sv },
+		{ tests::debug_bounds_check,           L"Debug bounds check"sv },
+		{ tests::debug_bounds_check_as_stack,  L"Debug bounds check stack (ASAN)"sv },
+		{ tests::debug_bounds_check_as_heap,   L"Debug bounds check heap (ASAN)"sv },
 	};
 
 	const auto ModalMenu = VMenu2::create(L"Test Exceptions"s, {}, ScrY - 4);
