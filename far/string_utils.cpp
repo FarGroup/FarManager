@@ -301,7 +301,10 @@ static void normalize_for_search(string_view const Str, string& Result, string& 
 	const auto RemoveChar = L'´';
 	for (const auto& [Char, Type]: zip(Result, Types))
 	{
-		if (!(Type & C3_ALPHA) &&  Type & (C3_NONSPACING | C3_DIACRITIC | C3_VOWELMARK))
+		if (
+			!flags::check_any(Type, C3_ALPHA | C3_LEXICAL) &&
+			flags::check_any(Type, C3_NONSPACING | C3_DIACRITIC | C3_VOWELMARK)
+		)
 			Char = RemoveChar;
 	}
 
