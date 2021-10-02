@@ -8284,7 +8284,6 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 		}
 		else
 		{
-			SetShowColor(J);
 			GotoXY(m_Where.left + 1, I);
 		}
 
@@ -8304,6 +8303,10 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 				}
 				else
 					StatusLine=TRUE;
+			}
+			else
+			{
+				SetShowColor(ListPos);
 			}
 
 			int CurX=WhereX();
