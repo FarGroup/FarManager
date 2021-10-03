@@ -1199,7 +1199,7 @@ bool background_searcher::LookForString(string_view const FileName)
 				do
 				{
 					// Ищем подстроку в буфере и возвращаем индекс её начала в случае успеха
-					const auto NewPosition = m_TextSearcher->find_in({ buffer + Position, bufferCount });
+					const auto NewPosition = m_TextSearcher->find_in({ buffer + Position, bufferCount - Position });
 
 					// Если подстрока не найдена идём на следующий шаг
 					if (!NewPosition)
