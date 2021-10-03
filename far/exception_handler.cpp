@@ -353,18 +353,23 @@ static string collect_information(
 	return Strings;
 }
 
-static bool ExcDialog(string const& ReportLocation, bool const CanUnload)
+static bool ExcDialog(string const& ReportLocation, string const& PluginInformation)
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
 
 	DialogBuilder Builder(lng::MExceptionDialogTitle);
+	if (!PluginInformation.empty())
+	{
+		Builder.AddText(PluginInformation)->Flags |= DIF_SHOWAMPERSAND;
+		Builder.AddSeparator();
+	}
 	Builder.AddText(lng::MExceptionDialogMessage1);
 	Builder.AddText(lng::MExceptionDialogMessage2);
 	Builder.AddConstEditField(ReportLocation, 70);
 	Builder.AddSeparator();
 
-	if (CanUnload)
+	if (!PluginInformation.empty())
 	{
 		lng const MsgIDs[]{ lng::MExcTerminate, lng::MExcUnload, lng::MIgnore };
 		Builder.AddButtons(MsgIDs, 0, std::size(MsgIDs) - 1);
@@ -385,27 +390,27 @@ static bool ExcDialog(string const& ReportLocation, bool const CanUnload)
 		return true;
 
 	case 1: // Unload / Ignore
-		return CanUnload;
+		return !PluginInformation.empty();
 
 	default:
 		return false;
 	}
 }
 
-static bool ExcConsole(string const& ReportLocation, bool)
+static bool ExcConsole(string const& ReportLocation, string const& PluginInformation)
 {
 	const auto Eol = eol::std.str();
 
-	std::array Msgs
+	std::array LngMsgs
 	{
 		L"Oops"sv,
-		L"Something went wrong."sv,
+		L"Something went wrong in {}"sv,
 		L"Please send the bug report to the developers."sv,
 	};
 
 	if (far_language::instance().is_loaded())
 	{
-		Msgs =
+		LngMsgs =
 		{
 			msg(lng::MExceptionDialogTitle),
 			msg(lng::MExceptionDialogMessage1),
@@ -413,12 +418,27 @@ static bool ExcConsole(string const& ReportLocation, bool)
 		};
 	}
 
-	std::wcerr << Eol << Eol;
+	const auto Separator = L"----------------------------------------------------------------------"sv;
 
-	for (const auto& i: Msgs)
-		std::wcerr << i << Eol;
+	std::wcerr <<
+		Eol <<
+		Eol <<
+		LngMsgs[0] << Eol <<
+		Separator << Eol;
 
-	std::wcerr << ReportLocation << Eol;
+	if (!PluginInformation.empty())
+	{
+		std::wcerr <<
+			PluginInformation << Eol <<
+			Separator << Eol;
+	}
+
+	std::wcerr <<
+		LngMsgs[1] << Eol <<
+		LngMsgs[2] << Eol <<
+		Separator << Eol <<
+		ReportLocation << Eol <<
+		Separator << Eol;
 
 	if (!ConsoleYesNo(L"Terminate the process"sv, true))
 		return false;
@@ -436,7 +456,7 @@ static bool ShowExceptionUI(
 	string_view const Function,
 	string_view const Location,
 	string_view const ModuleName,
-	string_view const PluginInfo,
+	string const& PluginInfo,
 	Plugin const* const PluginModule,
 	span<uintptr_t const> const NestedStack
 )
@@ -493,7 +513,6 @@ static bool ShowExceptionUI(
 
 	LOG(PluginModule? logging::level::error : logging::level::fatal, L"\n{}\n"sv, log_message());
 
-	const auto CanUnload = PluginModule != nullptr;
 	const auto ReportLocation = get_report_location();
 	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, L"far.mdmp"sv), MiniDumpNormal);
 	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, L"far_full.mdmp"sv), MiniDumpWithFullMemory);
@@ -508,11 +527,11 @@ static bool ShowExceptionUI(
 	if (AnythingOnDisk || ReportInClipboard)
 		return (UseDialog? ExcDialog : ExcConsole)(
 			AnythingOnDisk? ReportLocation : msg(lng::MExceptionDialogClipboard),
-			CanUnload
+			PluginInfo
 		);
 
 	// Should never happen - neither the filesystem nor clipboard are writable, so just dump it to the screen:
-	return ExcConsole(BugReport, CanUnload);
+	return ExcConsole(BugReport, PluginInfo);
 }
 
 

@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 03.10.2021 21:55:37 +0100 - build 5894
+
+1. Include plugin info in exception dialog.
+
+--------------------------------------------------------------------------------
 drkns 02.10.2021 15:01:35 +0100 - build 5893
 
 1. 0003897: File marking character in status line disappears after invoking user menu.
