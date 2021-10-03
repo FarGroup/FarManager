@@ -402,7 +402,7 @@ public:
 	void Resume() const { PauseEvent.set(); }
 	void Stop() const { PauseEvent.set(); StopEvent.set(); }
 	bool Stopped() const { return StopEvent.is_signaled(); }
-	bool Finished() const { return m_Finished; }
+	bool Finished() const { return m_Finished || m_ExceptionPtr; }
 
 	auto ExceptionPtr() const { return m_ExceptionPtr; }
 	auto IsRegularException() const { return m_IsRegularException; }
