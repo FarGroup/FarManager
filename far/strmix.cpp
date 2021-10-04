@@ -921,17 +921,15 @@ bool SearchAndReplaceString(
 	if (Position >= HaystackSize)
 		return false;
 
-	const auto NeedleSize = Needle.size();
-
 	auto Where = Reverse?
 		Haystack.substr(0, Position + 1) :
 		Haystack.substr(Position);
 
-	const auto Next = [&](size_t const Offset)
+	const auto Next = [&](size_t const Offset, size_t const Size)
 	{
 		Where = Reverse?
-			Where.substr(0, Offset - NeedleSize + 1) :
-			Where.substr(Offset + NeedleSize);
+			Where.substr(0, Offset - Size + 1) :
+			Where.substr(Offset + Size);
 	};
 
 	while (!Where.empty())
@@ -940,18 +938,18 @@ bool SearchAndReplaceString(
 		if (!FoundPosition)
 			return false;
 
-		const auto [Offset, Size] = *FoundPosition;
+		const auto [FoundOffset, FoundSize] = *FoundPosition;
 
-		const auto AbsoluteOffset = Reverse? Offset : Haystack.size() - Where.size() + Offset;
+		const auto AbsoluteOffset = Reverse? FoundOffset : Haystack.size() - Where.size() + FoundOffset;
 
-		if (WholeWords && !CanContainWholeWord(Haystack, AbsoluteOffset, Needle.size(), WordDiv))
+		if (WholeWords && !CanContainWholeWord(Haystack, AbsoluteOffset, FoundSize, WordDiv))
 		{
-			Next(Offset);
+			Next(FoundOffset, FoundSize);
 			continue;
 		}
 
 		CurPos = static_cast<int>(AbsoluteOffset);
-		*SearchLength = static_cast<int>(Size);
+		*SearchLength = static_cast<int>(FoundSize);
 
 		// В случае PreserveStyle: если не получилось сделать замену c помощью PreserveStyleReplaceString,
 		// то хотя бы сохранить регистр первой буквы.

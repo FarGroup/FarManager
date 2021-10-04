@@ -437,6 +437,7 @@ private:
 	const FINDAREA SearchMode;
 	ArcListItem* m_FindFileArcItem;
 	const uintptr_t CodePage;
+	size_t m_MaxCharSize{};
 	const unsigned long long SearchInFirst;
 	const bool CmpCase;
 	const bool WholeWords;
@@ -506,7 +507,7 @@ void background_searcher::InitInFileSearch()
 
 	if (!SearchHex)
 	{
-		m_TextSearcher = &init_searcher(m_TextSearchers, CmpCase, strFindStr);
+		m_TextSearcher = &init_searcher(m_TextSearchers, CmpCase, strFindStr, false);
 
 		// Формируем список кодовых страниц
 		if (CodePage == CP_ALL)
@@ -547,6 +548,7 @@ void background_searcher::InitInFileSearch()
 		for (auto& i: m_CodePages)
 		{
 			i.initialize();
+			m_MaxCharSize = std::max(m_MaxCharSize, i.MaxCharSize);
 		}
 	}
 	else
@@ -1006,7 +1008,7 @@ bool FindFiles::GetPluginFile(ArcListItem const* const ArcItem, const os::fs::fi
 bool background_searcher::LookForString(string_view const FileName)
 {
 	// Длина строки поиска
-	const auto findStringCount = strFindStr.size();
+	std::optional<size_t> FoundStrSize;
 
 	// Открываем файл
 	const os::fs::file File(FileName, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
@@ -1019,6 +1021,7 @@ bool background_searcher::LookForString(string_view const FileName)
 	{
 		m_CodePages.front().CodePage = GetFileCodepage(File, encoding::codepage::ansi());
 		m_CodePages.front().initialize();
+		m_MaxCharSize = m_CodePages.front().MaxCharSize;
 	}
 
 	// Количество считанных из файла байт
@@ -1048,6 +1051,8 @@ bool background_searcher::LookForString(string_view const FileName)
 	// Основной цикл чтения из файла
 	while (!Stopped() && File.Read(readBufferA.data(), (!SearchInFirst || alreadyRead + readBufferA.size() <= SearchInFirst)? readBufferA.size() : SearchInFirst - alreadyRead, readBlockSize))
 	{
+		const auto IsLastBlock = readBlockSize < readBuffer.size();
+
 		const auto Percents = ToPercent(alreadyRead, FileSize);
 
 		if (Percents!=LastPercents)
@@ -1106,7 +1111,7 @@ bool background_searcher::LookForString(string_view const FileName)
 					// Выходим, если прочитали меньше размера строки поиска и нет поиска по словам
 				}
 
-				if (readBlockSize < findStringCount && !(WholeWords && i.WordFound))
+				if (readBlockSize < FoundStrSize && !(WholeWords && i.WordFound))
 				{
 					ErrorState = true;
 					continue;
@@ -1125,7 +1130,7 @@ bool background_searcher::LookForString(string_view const FileName)
 					bufferCount = readBlockSize/sizeof(wchar_t);
 
 					// Выходим, если размер буфера меньше длины строки поиска
-					if (bufferCount < findStringCount)
+					if (bufferCount < FoundStrSize)
 					{
 						ErrorState = true;
 						continue;
@@ -1158,7 +1163,7 @@ bool background_searcher::LookForString(string_view const FileName)
 						continue;
 					}
 
-					if (Diagnostics.IncompleteBytes)
+					if (Diagnostics.IncompleteBytes && !IsLastBlock)
 					{
 						--bufferCount;
 						readBlockSize -= Diagnostics.IncompleteBytes;
@@ -1170,18 +1175,18 @@ bool background_searcher::LookForString(string_view const FileName)
 					if (WholeWords && i.WordFound)
 					{
 						// Если конец файла, то считаем, что есть разделитель в конце
-						if (findStringCount-1>=bufferCount)
+						if (bufferCount < FoundStrSize)
 							return true;
 
 						// Проверяем первый символ текущего блока с учётом обратного смещения, которое делается
 						// при переходе между блоками
-						i.LastSymbol = readBuffer[findStringCount-1];
+						i.LastSymbol = readBuffer[*FoundStrSize - 1];
 
 						if (FindFiles::IsWordDiv(i.LastSymbol))
 							return true;
 
 						// Если размер буфера меньше размера слова, то выходим
-						if (readBlockSize < findStringCount)
+						if (readBlockSize < FoundStrSize)
 						{
 							ErrorState = true;
 							continue;
@@ -1194,28 +1199,32 @@ bool background_searcher::LookForString(string_view const FileName)
 
 				i.WordFound = false;
 
-				size_t Position = 0;
+				string_view Where{ buffer, bufferCount };
 
-				do
+				const auto Next = [&](size_t const Offset, size_t const Size)
 				{
-					// Ищем подстроку в буфере и возвращаем индекс её начала в случае успеха
-					const auto NewPosition = m_TextSearcher->find_in({ buffer + Position, bufferCount - Position });
+					Where.remove_prefix(Offset + Size);
+				};
 
-					// Если подстрока не найдена идём на следующий шаг
-					if (!NewPosition)
+				while (!Where.empty())
+				{
+					const auto FoundPosition = m_TextSearcher->find_in(Where);
+					if (!FoundPosition)
 						break;
 
-					// Если подстрока найдена и отключен поиск по словам, то считаем что всё хорошо
 					if (!WholeWords)
 						return true;
-					// Устанавливаем позицию в исходном буфере
-					Position = NewPosition->first;
+
+					const auto [FoundOffset, FoundSize] = *FoundPosition;
+					FoundStrSize = FoundSize;
+
+					const auto AbsoluteOffset = bufferCount - Where.size() + FoundOffset;
 
 					// Если идёт поиск по словам, то делаем соответствующие проверки
 					bool firstWordDiv = false;
 
 					// Если мы находимся вначале блока
-					if (Position == 0)
+					if (!AbsoluteOffset)
 					{
 						// Если мы находимся вначале файла, то считаем, что разделитель есть
 						// Если мы находимся вначале блока, то проверяем является
@@ -1226,7 +1235,8 @@ bool background_searcher::LookForString(string_view const FileName)
 					else
 					{
 						// Проверяем является или нет предыдущий найденному символ блока разделителем
-						i.LastSymbol = buffer[Position - 1];
+
+						i.LastSymbol = buffer[AbsoluteOffset - 1];
 
 						if (FindFiles::IsWordDiv(i.LastSymbol))
 							firstWordDiv = true;
@@ -1236,10 +1246,10 @@ bool background_searcher::LookForString(string_view const FileName)
 					if (firstWordDiv)
 					{
 						// Если блок выбран не до конца
-						if (Position + findStringCount != bufferCount)
+						if (AbsoluteOffset + FoundSize != bufferCount)
 						{
 							// Проверяем является или нет последующий за найденным символ блока разделителем
-							i.LastSymbol = buffer[Position + findStringCount];
+							i.LastSymbol = buffer[AbsoluteOffset + FoundSize];
 
 							if (FindFiles::IsWordDiv(i.LastSymbol))
 								return true;
@@ -1247,8 +1257,9 @@ bool background_searcher::LookForString(string_view const FileName)
 						else
 							i.WordFound = true;
 					}
+
+					Next(FoundOffset, FoundSize);
 				}
-				while (++Position != bufferCount - findStringCount);
 
 				// Выходим, если мы вышли за пределы количества байт разрешённых для поиска
 				if (SearchInFirst && alreadyRead >= SearchInFirst)
@@ -1264,11 +1275,11 @@ bool background_searcher::LookForString(string_view const FileName)
 				return false;
 
 			// Получаем смещение на которое мы отступили при переходе между блоками
-			offset = (CodePage == CP_ALL? sizeof(wchar_t) : m_CodePages.begin()->MaxCharSize) * (findStringCount - 1);
+			offset = m_MaxCharSize * (FoundStrSize.value_or(strFindStr.size()) - 1);
 		}
 
 		// Если мы потенциально прочитали не весь файл
-		if (readBlockSize == readBuffer.size())
+		if (!IsLastBlock)
 		{
 			// Отступаем назад на длину слова поиска минус 1
 			if (!File.SetPointer(-1ll*offset, nullptr, FILE_CURRENT))

@@ -143,7 +143,7 @@ class exact_searcher: public i_searcher
 {
 public:
 	NONCOPYABLE(exact_searcher);
-	explicit exact_searcher(string_view Needle);
+	explicit exact_searcher(string_view Needle, bool CanReverse = true);
 	std::optional<std::pair<size_t, size_t>> find_in(string_view Haystack, bool Reverse = {}) const override;
 	bool contains_in(string_view Haystack) const override;
 
@@ -152,7 +152,7 @@ private:
 	using searcher = std::boyer_moore_horspool_searcher<args...>;
 
 	searcher<string_view::const_iterator> m_Searcher;
-	searcher<string_view::const_reverse_iterator> m_ReverseSearcher;
+	std::optional<searcher<string_view::const_reverse_iterator>> m_ReverseSearcher;
 	size_t m_NeedleSize;
 };
 
@@ -160,7 +160,7 @@ class fuzzy_searcher: public i_searcher
 {
 public:
 	NONCOPYABLE(fuzzy_searcher);
-	explicit fuzzy_searcher(string_view Needle);
+	explicit fuzzy_searcher(string_view Needle, bool CanReverse = true);
 	std::optional<std::pair<size_t, size_t>> find_in(string_view Haystack, bool Reverse = {}) const override;
 	bool contains_in(string_view Haystack) const override;
 
@@ -181,11 +181,11 @@ using searchers = std::variant
 	fuzzy_searcher
 >;
 
-inline i_searcher const& init_searcher(searchers& Searchers, bool const Exact, string_view const Needle)
+inline i_searcher const& init_searcher(searchers& Searchers, bool const Exact, string_view const Needle, const bool CanReverse = true)
 {
 	return Exact?
-		static_cast<i_searcher const&>(Searchers.emplace<exact_searcher>(Needle)) :
-		static_cast<i_searcher const&>(Searchers.emplace<fuzzy_searcher>(Needle));
+		static_cast<i_searcher const&>(Searchers.emplace<exact_searcher>(Needle, CanReverse)) :
+		static_cast<i_searcher const&>(Searchers.emplace<fuzzy_searcher>(Needle, CanReverse));
 }
 
 #endif // STRING_UTILS_HPP_82ECD8BE_D484_4023_AB42_21D93B2DF8B9

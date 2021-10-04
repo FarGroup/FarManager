@@ -238,18 +238,20 @@ bool contains_icase(const string_view Str, wchar_t const What)
 	return find_icase(Str, What) != Str.npos;
 }
 
-exact_searcher::exact_searcher(string_view const Needle):
+exact_searcher::exact_searcher(string_view const Needle, bool const CanReverse):
 	m_Searcher(ALL_CONST_RANGE(Needle)),
-	m_ReverseSearcher(ALL_CONST_REVERSE_RANGE(Needle)),
 	m_NeedleSize(Needle.size())
 {
+	if (CanReverse)
+		m_ReverseSearcher.emplace(ALL_CONST_REVERSE_RANGE(Needle));
 }
 
 std::optional<std::pair<size_t, size_t>> exact_searcher::find_in(string_view const Haystack, bool const Reverse) const
 {
 	if (Reverse)
 	{
-		const auto ReverseIterator = std::search(ALL_CONST_REVERSE_RANGE(Haystack), m_ReverseSearcher);
+		assert(m_ReverseSearcher);
+		const auto ReverseIterator = std::search(ALL_CONST_REVERSE_RANGE(Haystack), *m_ReverseSearcher);
 		const auto Offset = Haystack.crend() - ReverseIterator;
 		if (!Offset)
 			return {};
@@ -311,8 +313,8 @@ static void normalize_for_search(string_view const Str, string& Result, string& 
 	Result.erase(std::remove(ALL_RANGE(Result), RemoveChar), Result.end());
 }
 
-fuzzy_searcher::fuzzy_searcher(string_view const Needle):
-	m_Searcher((normalize_for_search(Needle, m_Needle, m_Intermediate, m_Types), inplace::upper(m_Needle), m_Needle))
+fuzzy_searcher::fuzzy_searcher(string_view const Needle, bool const CanReverse):
+	m_Searcher((normalize_for_search(Needle, m_Needle, m_Intermediate, m_Types), inplace::upper(m_Needle), m_Needle), CanReverse)
 {
 }
 
