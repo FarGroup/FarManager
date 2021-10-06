@@ -1051,7 +1051,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			}
 			else
 			{
-				const auto PrevLine = std::prev(m_it_CurLine);
 				if (SelAtBeginning) //курсор в начале блока
 				{
 					m_it_AnyBlockStart = m_it_CurLine;
@@ -1061,7 +1060,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				{
 					OldCur->RemoveSelection();
 					m_it_CurLine->GetRealSelection(SelStart, SelEnd);
-					m_it_CurLine->Select(SelStart, PrevLine->GetLength());
+					m_it_CurLine->Select(SelStart, m_it_CurLine->GetLength());
 				}
 			}
 
