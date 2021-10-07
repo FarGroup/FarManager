@@ -3598,6 +3598,8 @@ bool Editor::Search(bool Next)
 							if (!SearchLength && strReplaceStrCurrent.empty())
 								ZeroLength = true;
 
+							Progress.reset();
+
 							MsgCode = Message(0,
 								msg(lng::MEditReplaceTitle),
 								{
