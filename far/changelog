@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 07.10.2021 01:38:53 +0100 - build 5900
+
+1. Partial revert to pre-5850 behaviour of progress dialogs. It's not ready yet.
+
+--------------------------------------------------------------------------------
 drkns 07.10.2021 00:35:33 +0100 - build 5899
 
 1. Potential crash in plugin panels.
