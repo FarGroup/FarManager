@@ -776,7 +776,7 @@ private:
     arc_path.replace(pos, ext.size(), new_ext);
     set_text(arc_path_ctrl_id, arc_path);
 
-    old_ext = new_ext;
+    old_ext = std::move(new_ext);
     return true;
   }
 
@@ -1285,7 +1285,7 @@ public:
         if (profile.options == m_options)
           profile_idx = static_cast<unsigned>(profile_names.size()) - 1;
       });
-      profile_names.push_back(std::wstring());
+      profile_names.emplace_back();
       label(Far::get_msg(MSG_UPDATE_DLG_PROFILE));
       profile_ctrl_id = combo_box(profile_names, profile_idx, 30, DIF_DROPDOWNLIST);
       spacer(1);
@@ -1512,7 +1512,7 @@ private:
       if (diff > window_ratio_diff)
         break;
       window_ratio_diff = diff;
-      prev_col_widths = col_widths;
+      prev_col_widths = std::move(col_widths);
     }
     return prev_col_widths;
   }

@@ -356,7 +356,7 @@ public:
     for (unsigned i = 0; i < profiles.size(); i++) {
       profile_names.push_back(profiles[i].name);
     }
-    profile_names.push_back(std::wstring());
+    profile_names.emplace_back();
     profile_ctrl_id = combo_box(profile_names, profiles.size(), 30, DIF_DROPDOWNLIST);
     new_line();
     separator();
@@ -373,7 +373,7 @@ public:
       if (name_width < name.size())
         name_width = name.size();
     });
-    module_names.push_back(std::wstring());
+    module_names.emplace_back();
     module_ctrl_id = combo_box(module_names, sfx_modules.find_by_name(m_options.name), name_width + 6, DIF_DROPDOWNLIST);
     new_line();
 
@@ -386,6 +386,7 @@ public:
 
     size_t label_len = 0;
     std::vector<std::wstring> labels;
+    labels.reserve(7);
     labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_PRODUCT_NAME));
     labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_VERSION));
     labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_COMPANY_NAME));

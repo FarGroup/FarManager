@@ -105,7 +105,7 @@ public:
       new_dir.clear();
 
     archive->find_dir(new_dir);
-    current_dir = new_dir;
+    current_dir = std::move(new_dir);
   }
 
   void list(PluginPanelItem** panel_items, size_t* items_number) {

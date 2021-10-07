@@ -28,7 +28,6 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 
 	if (Info->OpenFrom==OPEN_COMMANDLINE)
 	{
-		wchar_t Path[MAX_PATH] = L"\\\\";
 		int I=0;
 		auto cmd=const_cast<wchar_t*>(reinterpret_cast<OpenCommandLineInfo*>(Info->Data)->CommandLine); //BUGBUG
 		wchar_t *p=wcschr(cmd, L':');
@@ -70,6 +69,7 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 					I=2;
 			}
 
+			wchar_t Path[MAX_PATH] = L"\\\\";
 			lstrcpy(Path+I, cmd);
 			FSF.Unquote(Path);
 			// Expanding environment variables.
