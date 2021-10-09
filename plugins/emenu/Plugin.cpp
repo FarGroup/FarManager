@@ -1250,7 +1250,7 @@ bool CPlugin::ShowTextMenu(HMENU hMenu, LPCONTEXTMENU pPreferredMenu, LPCONTEXTM
               //if (szLeft.Len() > szRight.Len())
                 //szSub = szLeft;
               //else
-                szSub = szRight;
+                szSub = std::move(szRight);
             }
           }
 

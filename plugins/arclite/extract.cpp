@@ -159,9 +159,9 @@ private:
   std::shared_ptr<ExtractProgress> progress;
 
   size_t get_max_cache_size() const {
-    MEMORYSTATUS mem_st;
-    GlobalMemoryStatus(&mem_st);
-    size_t size = mem_st.dwAvailPhys;
+    MEMORYSTATUSEX mem_st{sizeof(mem_st)};
+    GlobalMemoryStatusEx(&mem_st);
+    auto size = static_cast<size_t>(mem_st.ullAvailPhys);
     if (size < c_min_cache_size)
       size = c_min_cache_size;
     if (size > c_max_cache_size)

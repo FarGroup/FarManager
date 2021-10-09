@@ -557,7 +557,7 @@ bool Key::enum_sub_keys_nt(std::vector<std::wstring>& names) noexcept {
       SetLastError(res);
       return false;
     }
-    names.push_back(std::wstring(name.data(), name_size));
+    names.emplace_back(name.data(), name_size);
     index++;
   }
   return true;
