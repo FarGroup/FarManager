@@ -30,8 +30,8 @@
 <String Id="Feature.Description.Changelogs">Спісы зменаў ад распрацоўшчыкаў.</String>
 <String Id="Feature.Title.Docs">Кіраўніцтва</String>
 <String Id="Feature.Description.Docs">Кіраўніцтва па напісанню макрасаў і дадаткаў, тэхнічная звестка, FAQ, іншыя дакументы.</String>
-<String Id="Feature.Title.FExcept">FExcept</String>
-<String Id="Feature.Description.FExcept">Модуль для запісу адладкавай звесткі (FStd_trap.log) пры крытычных памылках праграмы.</String>
+<String Id="Feature.Title.MapFiles">Map файлы</String>
+<String Id="Feature.Description.MapFiles">Для запісу адладкавай звесткі пры крытычных памылках праграмы.</String>
 <String Id="Feature.Title.Languages">Мовы</String>
 <String Id="Feature.Description.Languages">Падтрымка розных моў інтэрфейсу і даведкі.</String>
 <String Id="Feature.Title.Russian">Руская</String>

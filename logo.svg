@@ -1,0 +1,49 @@
+<svg width="320" height="320" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient id="b">
+      <stop offset="0" stop-opacity="0"/>
+      <stop offset="1" stop-opacity=".5"/>
+    </linearGradient>
+    <linearGradient id="a">
+      <stop offset="0" stop-opacity=".25"/>
+      <stop offset="1" stop-opacity=".33333334"/>
+    </linearGradient>
+    <linearGradient id="c">
+      <stop offset="0" stop-opacity="0"/>
+      <stop offset="1" stop-opacity=".5"/>
+    </linearGradient>
+    <linearGradient id="d">
+      <stop offset="0" stop-opacity="0"/>
+      <stop offset="1" stop-opacity=".4"/>
+    </linearGradient>
+    <linearGradient xlink:href="#a" id="h" gradientUnits="userSpaceOnUse" x1="15" y1="15" x2="30" y2="30"/>
+    <linearGradient xlink:href="#b" id="j" x1="0" y1="0" x2="30" y2="30" gradientUnits="userSpaceOnUse"/>
+    <linearGradient xlink:href="#c" id="l" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="30" y2="30"/>
+    <linearGradient xlink:href="#d" id="n" x1="10" y1="10" x2="30" y2="30" gradientUnits="userSpaceOnUse"/>
+    <linearGradient xlink:href="#d" id="p" x1="10" y1="10" x2="30" y2="30" gradientUnits="userSpaceOnUse"/>
+    <path id="g" d="M26 28h4v2h-4zm-5 0h4v2h-4zm-5 0h4v2h-4zm-5 0h4v2h-4zm-5 0h4v2H6Zm-5 0h4v2H1Z"/>
+    <path id="i" d="M1 26H0v2h2v-1H1Z"/>
+    <path id="m" d="M25 23h3v1h-3zm-2 0h1v1h-1zm-6 0h5v1h-5zm-6 0h3v1h-3m-3 0H2v-1h6m1 0v1h1v-1M26 9h2v1h-2Zm2-2v1h-2V7Zm-2-2h2v1h-2zm-9 4h6v1h-6zm0-2h6v1h-6zm0-2h6v1h-6zm-3 9v-1h-2v1m0-2h2v-1h-2m2-2v1h-2V9Zm0-2v1h-2V7Zm0-2v1h-2V5ZM2 13h7v1H2m7-3v1H2v-1m7-2v1H2V9ZM2 7h7v1H2Zm7-2v1H2V5ZM0 0v26h30V0Zm1 1h9v20H1Zm10 0h4v20h-4zm5 0h8v20h-8zm9 0h4v20h-4ZM1 22h14v3H1Zm15 0h13v3H16Z"/>
+    <path id="o" d="M26 2h2v1h-2ZM12 2h2v1h-2zm6 0h4v1h-4ZM3 2h5v1H3Z"/>
+    <path id="e" d="M0 0h30v30H0z"/>
+    <path id="k" d="M0 0h30v26H0z"/>
+    <filter id="f" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity=".5" flood-color="#000" result="flood"/>
+      <feComposite in="flood" in2="SourceGraphic" operator="in" result="composite1"/>
+      <feGaussianBlur in="composite1" stdDeviation=".25" result="blur"/>
+      <feOffset dx="1" dy="1" result="offset"/>
+      <feComposite in="SourceGraphic" in2="offset" result="composite2"/>
+    </filter>
+  </defs>
+  <use xlink:href="#e" filter="url(#f)"/>
+  <use xlink:href="#g" fill="#00c0c0"/>
+  <use xlink:href="#g" fill="url(#h)"/>
+  <use xlink:href="#i" fill="#fff"/>
+  <use xlink:href="#i" fill="url(#j)"/>
+  <use xlink:href="#k" fill="#00f"/>
+  <use xlink:href="#k" fill="url(#l)"/>
+  <use xlink:href="#m" fill="#0ff"/>
+  <use xlink:href="#m" fill="url(#n)"/>
+  <use xlink:href="#o" fill="#ff0"/>
+  <use xlink:href="#o" fill="url(#p)"/>
+</svg>

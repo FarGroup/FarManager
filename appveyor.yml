@@ -22,8 +22,6 @@ clone_depth: 1
 install:
   #update AppVeyor build number to match Far build number
   - cd far && for /f "tokens=1,2,4 delims=, " %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
-  #clone NetBox
-  - git clone https://github.com/FarGroup/Far-NetBox.git
 
 environment:
   matrix:
@@ -85,39 +83,37 @@ build_script:
   - cd plugins 
   - nmake /f makefile_all_vc %ADD_MAKE% INSTALL=..\ci\%configuration%.%platform%\Plugins FAR_WORKDIR=..\..\ci\%configuration%.%platform%
   - cd ..
-  #build fexcept if needed
-  - cd misc\fexcept
-  - if "%platform%" == "x86" nmake /f makefile_vc %ADD_MAKE% INSTALL=..\..\ci\%configuration%.%platform% FAR_WORKDIR=..\..\ci\%configuration%.%platform%
-  - cd ..\..
   #build netbox
-  - set FAR_VERSION=Far3
-  - set PROJECT_ROOT=%APPVEYOR_BUILD_FOLDER%\Far-NetBox
-  - set PROJECT_CONFIG=%configuration%
-  - set PROJECT_BUILD=Build
-  - set PROJECT_CONF=%platform%
-  - set PROJECT_PLATFORM=Win32
-  - if "%platform%" == "x64" set PROJECT_PLATFORM=x64
-  - cd Far-NetBox
-  - mkdir build\%configuration%\%platform%
-  - cd build\%configuration%\%platform%
-  - cmake -G "NMake Makefiles" -D PROJECT_ROOT=%PROJECT_ROOT% -D CMAKE_BUILD_TYPE=%PROJECT_CONFIG% -D CONF=%PROJECT_CONF% -D FAR_VERSION=%FAR_VERSION% %PROJECT_ROOT%\src\NetBox
-  - nmake
-  - cd ..\..\..\..
-  - xcopy /e /q /y /k Far-NetBox\%FAR_VERSION%_%platform%\Plugins\* ci\%configuration%.%platform%\Plugins
-  - copy /Y Far-NetBox\ChangeLog ci\%configuration%.%platform%\Plugins\NetBox
-  - copy /Y Far-NetBox\*.md ci\%configuration%.%platform%\Plugins\NetBox
-  - copy /Y Far-NetBox\LICENSE.txt ci\%configuration%.%platform%\Plugins\NetBox
+  - curl --silent "https://api.github.com/repos/FarGroup/Far-NetBox/releases/latest" | grep '"tag_name":' | sed -E 's/.*^"v([^^^"]+)^".*/\1/' > TEMP
+  - set /p NETBOX_VERSION=<TEMP
+  - echo "Download NetBox %NETBOX_VERSION%"
+  - set NETBOX_PLATFORM=x86
+  - if "%platform%" == "x64" set NETBOX_PLATFORM=x64
+  - set NETBOX_BASE_NAME=NetBox.%NETBOX_PLATFORM%.%NETBOX_VERSION%
+  - set NETBOX_FILE_NAME=%NETBOX_BASE_NAME%.7z
+  - set NETBOX_PDB_NAME=%NETBOX_BASE_NAME%.pdb.7z
+  - set NETBOX_BASE_URL=https://github.com/FarGroup/Far-NetBox/releases/download/v%NETBOX_VERSION%/
+  - curl -fsLJO %NETBOX_BASE_URL%%NETBOX_FILE_NAME%
+  - curl -fsLJO %NETBOX_BASE_URL%%NETBOX_PDB_NAME%
+  - set NETBOX_DIR=ci\%configuration%.%platform%\Plugins
+  - 7z x %NETBOX_FILE_NAME% -o%NETBOX_DIR%
+  - 7z x %NETBOX_PDB_NAME% -o%NETBOX_DIR%\NetBox 
   #build FarColorer
   - for /F "delims=" %%a in ('curl -fsLJ "https://raw.githubusercontent.com/colorer/FarColorer/master/version4far.txt"') do set COLORER_VERSION=%%a
   - echo "Download FarColorer %COLORER_VERSION%"
   - set COLORER_PLATFORM=x86
   - if "%platform%" == "x64" set COLORER_PLATFORM=x64
-  - set COLORER_FILE_NAME=FarColorer.%COLORER_PLATFORM%.v%COLORER_VERSION%.7z
-  - curl -fsLJO https://github.com/colorer/FarColorer/releases/download/v%COLORER_VERSION%/%COLORER_FILE_NAME%
-  - mkdir ci\%configuration%.%platform%\Plugins\FarColorer
-  - 7z x %COLORER_FILE_NAME% -oci\%configuration%.%platform%\Plugins\FarColorer
+  - set COLORER_BASE_NAME=FarColorer.%COLORER_PLATFORM%.v%COLORER_VERSION%
+  - set COLORER_FILE_NAME=%COLORER_BASE_NAME%.7z
+  - set COLORER_PDB_NAME=%COLORER_BASE_NAME%.pdb.7z
+  - set COLORER_BASE_URL=https://github.com/colorer/FarColorer/releases/download/v%COLORER_VERSION%/
+  - curl -fsLJO %COLORER_BASE_URL%%COLORER_FILE_NAME%
+  - curl -fsLJO %COLORER_BASE_URL%%COLORER_PDB_NAME%
+  - set COLORER_DIR=ci\%configuration%.%platform%\Plugins\FarColorer
+  - mkdir %COLORER_DIR%
+  - 7z x %COLORER_FILE_NAME% -o%COLORER_DIR%
+  - 7z x %COLORER_PDB_NAME% -o%COLORER_DIR%\bin
   #remove not needed build artifacts
-  - if "%platform%" == "x86" powershell "Get-ChildItem ci\${Env:configuration}`.${Env:platform}\FExcept -filter *.map -File | Remove-Item"
   - ps: Get-ChildItem ci\${Env:configuration}`.${Env:platform}\ -recurse -File | Where-Object { @(".lib", ".exp", ".ilk") -contains $_.extension } | Remove-Item
 
 test: off

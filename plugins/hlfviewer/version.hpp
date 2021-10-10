@@ -1,4 +1,4 @@
-#include "farversion.hpp"
+#include <farversion.hpp>
 
 #define PLUGIN_BUILD 49
 #define PLUGIN_DESC L"Hlf-file Viewer for Far Manager"

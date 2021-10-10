@@ -50,9 +50,9 @@ jobs:
                ]
 
         include:
-          - { build: msbuild_cl_x64_debug,   compiler: msbuild_cl, arch: x64,   build_config: Debug }
+          - { build: msbuild_cl_x64_debug,   compiler: msbuild_cl, arch: x64,   build_config: Debug_ASAN }
           - { build: msbuild_cl_x64_release, compiler: msbuild_cl, arch: x64,   build_config: Release }
-          - { build: msbuild_cl_x86_debug,   compiler: msbuild_cl, arch: Win32, build_config: Debug }
+          - { build: msbuild_cl_x86_debug,   compiler: msbuild_cl, arch: Win32, build_config: Debug_ASAN }
           - { build: msbuild_cl_x86_release, compiler: msbuild_cl, arch: Win32, build_config: Release }
 
     steps:
@@ -60,27 +60,33 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Initialize CodeQL
-        if: matrix.build == 'msbuild_x64_debug'
+        if: matrix.build == 'msbuild_cl_x64_debug'
         uses: github/codeql-action/init@v1
         with:
           languages: cpp
 
       - name: Set MSVC envrioment
-        uses: ilammy/msvc-dev-cmd@v1.6.0
+        uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.arch }}
 
       - name: Set environment for debug build
-        if: matrix.build_config  == 'Debug'
+        if: matrix.build_config  == 'Debug_ASAN'
         run: Add-Content -Path $env:GITHUB_ENV -Value "DEBUG=1"
 
-      - name: Build Far (cl)
-        working-directory: far
-        run: MSBuild.exe /property:Configuration=${{ matrix.build_config }} /property:Platform=${{ matrix.arch }} far.vcxproj
+      - name: Build (cl)
+        working-directory: _build/vc
+        run: msbuild -m /property:Configuration=${{ matrix.build_config }} /property:Platform=${{ matrix.arch }} all.sln
 
       - name: Perform CodeQL Analysis
-        if: matrix.build == 'msbuild_x64_debug'
+        if: matrix.build == 'msbuild_cl_x64_debug'
         uses: github/codeql-action/analyze@v1
+
+      - name: Publish
+        uses: actions/upload-artifact@v2
+        with:
+          name: Far.${{ matrix.build_config }}.${{ matrix.arch }}
+          path: _build/vc/_output/product/${{ matrix.build_config }}.${{ matrix.arch }}
 
 #------------------------------------------------------------------------------
   build-nmake:
@@ -116,7 +122,7 @@ jobs:
           languages: cpp
 
       - name: Set MSVC envrioment
-        uses: ilammy/msvc-dev-cmd@v1.6.0
+        uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: ${{ matrix.arch }}
 

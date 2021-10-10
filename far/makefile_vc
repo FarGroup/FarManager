@@ -36,7 +36,7 @@
 
 ROOTDIR = ..
 
-!include ../_build/vc/config/common.mak
+!include $(ROOTDIR)\_build\vc\config\common.mak
 
 !ifdef DEBUG
 ENABLE_TESTS=1
@@ -54,7 +54,6 @@ GAWK=tools\gawk
 BOOTSTRAPDIR=$(INTDIR)/include/bootstrap/
 
 DEPFILE=$(BOOTSTRAPDIR)far.vc.dep
-STATICDEPFILE=static.dep
 
 RES_FILE = "$(INTDIR)\far.res"
 
@@ -143,6 +142,7 @@ LINK_OBJS = \
 	"$(INTDIR)\macro.obj" \
 	"$(INTDIR)\main.obj" \
 	"$(INTDIR)\manager.obj" \
+	"$(INTDIR)\map_file.obj" \
 	"$(INTDIR)\memcheck.obj" \
 	"$(INTDIR)\menubar.obj" \
 	"$(INTDIR)\message.obj" \
@@ -347,7 +347,6 @@ $(RES_FILE): far.rc $(BOOTSTRAPDIR)far.rc.inc $(BOOTSTRAPDIR)Far.exe.manifest Fa
 
 !ifdef USEDEPS
 !include "$(DEPFILE)"
-!include "$(STATICDEPFILE)"
 !endif
 
 $(INTDIR)\api_test_c.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c

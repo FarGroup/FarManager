@@ -47,6 +47,8 @@ WARNING_DISABLE_MSC(5204) // 'class': class has virtual functions, but its trivi
 WARNING_DISABLE_CLANG("-Weverything")
 
 #define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS
+// It's rubbish
+#define CATCH_CONFIG_NO_WINDOWS_SEH
 
 #include "thirdparty/catch2/catch.hpp"
 

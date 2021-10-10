@@ -1,4 +1,4 @@
-#include "farversion.hpp"
+#include <farversion.hpp>
 
 #define PLUGIN_BUILD 29
 #define PLUGIN_DESC L"Align block for Far Manager"

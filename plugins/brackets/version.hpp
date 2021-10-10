@@ -1,4 +1,4 @@
-#include "farversion.hpp"
+#include <farversion.hpp>
 
 #define PLUGIN_BUILD 35
 #define PLUGIN_DESC L"Brackets matching for Far Manager"

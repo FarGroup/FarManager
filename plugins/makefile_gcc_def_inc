@@ -41,10 +41,7 @@ DEP_FILTER := $(MAKEFILE_DIR)dep_filter.awk
 
 include $(MAKEFILE_DIR)../far/makefile_gcc_common
 
-DIRSURF = W
-
 ifdef ANSI
-DIRSURF =
 WIDE = -U UNICODE -U _UNICODE
 endif
 
@@ -60,9 +57,9 @@ C_DEBUG := -g -D_DEBUG
 L_DEBUG :=
 endif
 
-BASEDIR = ./$(DIRNAME).$(DIRBIT)$(DIRSURF).gcc
+BASEDIR = ./$(DIRNAME).$(DIRBIT).gcc
 OBJDIR := $(BASEDIR)/obj
-REOBJDIR = \.\/$(DIRNAME)\.$(DIRBIT)$(DIRSURF)\.gcc\/obj\/
+REOBJDIR = \.\/$(DIRNAME)\.$(DIRBIT)\.gcc\/obj\/
 DLLDIR ?= $(BASEDIR)$(ADDOUTDIR)
 COMMON ?= $(MAKEFILE_DIR)/common
 COMINC = $(COMMON)/$(if $(ANSI),ascii,unicode)
@@ -71,11 +68,11 @@ DLLNAME = $(NAME).$(EXT)
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
 
 ifeq ($(DIRBIT),32)
-DEF_DEF = $(NAME)$(DIRSURF).gcc
+DEF_DEF = $(NAME).gcc
 DLLTOOL_M = i386
 else
 #for x64 vc.def is good enough
-DEF_DEF = $(NAME)$(DIRSURF).vc
+DEF_DEF = $(NAME).vc
 DLLTOOL_M = i386:x86-64
 endif
 

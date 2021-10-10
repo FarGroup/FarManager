@@ -1741,7 +1741,7 @@ Obsługiwane są następujące typy kolumn:
 
  F          - liczba alternatywnych strumieni
 
- Atrybuty plików są oznaczone jak poniżej:
+ Atrybuty plików są oznaczone w następujący sposób:
 
  #N# - Atrybuty nie są ustawione
  #R# - Tylko do odczytu
@@ -3947,10 +3947,10 @@ Można przetwarzać pojedyncze pliki lub grupy plików.
 
  Gdy wszystkie wybrane pliki mają tę samą wartość atrybutu, odpowiednie
 pola wyboru będą w trybie 2-stanowym - tylko ustawianie/kasowanie.
-Gdy są zaznaczone foldery, wszystkie pola wyboru zawsze będą miały 3 stany. 
+Gdy są zaznaczone foldery, wszystkie pola wyboru zawsze będą miały 3 stany.
 
  Zmienione zostaną tylko te atrybuty, dla których stan
-odpowiednie pola wyboru został zmieniony ze stanu początkowego. 
+odpowiednie pola wyboru został zmieniony ze stanu początkowego.
 
  Atrybuty #Skompresowany#, #Zaszyfrowany#, #Nie zindeksowany#, #Rzadki#, #Tymczasowy#,
 #Offline# oraz #Punkt analizy# są dostępne tylko na dyskach NTFS.
@@ -4061,194 +4061,200 @@ po sortowaniu w lewym górnym rogu panelu.
 
 
 @FolderDiz
-$ #Folder descriptions#
- Specify names (~wildcards~@FileMasks@ are allowed) of files displayed
-in the ~Info panel~@InfoPanel@ as folder descriptions.
+$ #Opisy folderów#
+ Określenie nazw (~maski~~@FileMasks@ są dozwolone) plików wyświetlanych
+w ~Panelu informacyjnym~@InfoPanel@ jako opisy folderów.
 
 
 @FileDiz
-$ #File descriptions#
- File descriptions can be used to associate text information with a file.
-Descriptions of the files in the current folder are stored in this folder in a
-description list file. The format of the description file is the file name
-followed by spaces and the description.
+$ #Opisy plików#
+ Opisy plików mogą służyć do kojarzenia informacji tekstowych z plikiem.
+Opisy plików w bieżącym folderze są przechowywane w tym folderze w pliku
+listy opisów. Format opisu pliku to nazwa pliku po którym następuje znak
+spacji i opis pliku.
 
- Descriptions can be viewed in the appropriate file panel
-~view modes~@PanelViewModes@. By default these modes are #Descriptions#
-and #Long descriptions#.
+ Opisy można oglądać w odpowiednim ~widoku~@PanelViewModes@ panelu plików.
+Domyślnie te tryby to #Opisy# i #Długie opisy#.
 
- The command #Describe# (#Ctrl+Z#) from the ~Files menu~@FilesMenu@ is used
-to describe selected files.
+ Polecenie #Opisz pliki# (#Ctrl+Z#) z menu ~Plik~@FilesMenu@ jest używane
+do opisywania zaznaczonych plików.
 
- Description list names can be changed using #File descriptions# dialog from
-the ~Options menu~@OptMenu@. In this dialog you can also set local descriptions
-update mode. Updating can be disabled, enabled only if panel current view mode
-displays descriptions or always enabled. By default Far sets "Hidden" attribute
-to created description lists, but you can disable it by switching off the
-option "Set "Hidden" attribute to new description lists" in this dialog. Also
-here you can specify the position to align new file descriptions in a
-description list.
+ Nazwy plików z opisami można zmienić w oknie dialogowym #Opisy plików#
+w menu ~Opcje~@OptMenu@. W tym oknie dialogowym można również ustawić
+sposób aktualizacji plików opisów. Aktualizacje można wyłączyć, włączyć
+tylko jeżeli w trybie bieżącego widoku widać opisy lub zawsze włączyć.
+Domyślnie Far ustawia dla tych plików atrybut "Ukryty", ale można tę opcję
+wyłączyć wyłączając pozycję "Ustaw atrybut "Ukryty" dla nowych plików z opisami".
+Można także określić pozycję do wyrównania nowych opisów plików na liście
+opisów - od której kolumny ma pojawiać się opis (widoczne przy edycji
+plików opisu).
 
- If a description file has the "read-only" attribute set, Far does not
-attempt to update descriptions, and after moving or deleting file objects, an
-error message is shown. If the option "#Update read only description file#" is
-enabled, Far will attempt to update the descriptions correctly.
+ Jeżeli plik opisu ma atrybut "tylko-do-odczytu", Far nie będzie próbował
+aktualizować opisów, a po przeniesieniu lub usunięciu pliku/folderu,
+zostanie pokazana informacja o błędzie. Jeżeli włączona będzie opcja
+"#Aktualizuj plik opisu tylko do odczytu#", Far podejmie próbę aktualizacji
+pliku opisów.
 
- If it is enabled in the configuration, Far updates file descriptions when
-copying, moving and deleting files. But if a command processes files from
-subfolders, descriptions in the subfolders are not updated.
+ Jeżeli jest to włączone w konfiguracji, Far aktualizuje opisy podczas
+kopiowania, przenoszeniu i usuwania plików. Ale jeśli polecenie przetwarza
+pliki z podfolderów, opisy w podfolderach nie są aktualizowane.
 
- Use ANSI code page by default
+ #Otwieraj pliki w kodowaniu Windows#
+ Domyślnie Far używa do opisywania plików stron kodowych OEM, zarówno do odczytu
+jak i do zapisu. Ta opcja wymusza zmianę na ANSI (kodowanie Windows).
 
- Save in UTF8
+ #Zapisz w UTF-8#
+ Jeżeli włączone, plik opisu zostanie odczytany jako OEM lub ANSI (zależnie
+od opcji powyżej), ale zostanie zapisany w stronie kodowej UTF-8 po dodaniu,
+usunięciu lub aktualizacji opisu.
+
+ #Uwaga#: opcje te nie są stosowane gdy plik posiada sygnaturę UTF-8 (BOM).
+W takim przypadku plik opisu zawsze jest odczytywani i zapisywany w UTF-8.
 
 
 @PanelViewModes
-$ #Customizing file panel view modes#
- The ~file panel~@FilePanel@ can represent information using 10 predefined
-modes: brief, medium, full, wide, detailed, descriptions, long descriptions,
-file owners, file links and alternative full. Usually it is enough, but if you
-wish, you can either customize its parameters or even replace them with
-completely new modes.
+$ #Dostosowywanie widoku paneli plików#
+ ~Panel plików~@FilePanel@ może prezentować informacje używając 10 predefiniowanych
+trybów: skrótowy, średni, pełny, szeroki, ze szczegółami, opisy, długie opisy,
+właściciele plików, dowiązania plików i widok alternatywny. Zazwyczaj jest ich
+wystarczająco, ale na życzenie można dostosować ich parametry lub nawet
+zastąpić całkowicie nowymi widokami.
 
- The command #File panel modes# from the ~Options menu~@OptMenu@ allows to
-change the view mode settings. First, it offers to select the desired mode from
-the list. In this list "Brief mode" item corresponds to brief panel mode
-(#LeftCtrl+1#), "Medium" corresponds to medium panel mode (#LeftCtrl+2#) and so
-on. The last item, "Alternative full", corresponds to view mode called with
-#LeftCtrl+0#. After selecting the mode, you can change the following settings:
+ Polecenie #Tryby wyświetlania paneli plików# z menu ~Opcje~@OptMenu@ pozwala
+na zmianę ustawień widoków. Najpierw, oferuje wybór żądanego trybu z listy.
+Na liście pozycja "Skrótowy" odpowiada "skrótowemu" trybowi panelu (#LewyCtrl+1#),
+"Średni" odpowiada" średniemu" trybowi plików (#LewyCtrl+2#), itd.
+Ostatnia pozycja "Alternatywny" odpowiada widokowi podpiętemu pod skrót #LewyCtrl+0#.
+Po wybraniu widoku, można w nim dokonać następujących zmian:
 
- #Column types# - a comma-separated list. Each column type starts with
-a file property character, such as name, size, etc. Some file properties
-may be followed by modifiers. Supported column types (properties and
-their modifiers) are listed below.
+ #Typy kolumn# - lista rozdzielana przecinkami. Każda kolumna rozpoczyna się
+od znaku oznaczającego właściwość, taką jak nazwa, wielkość, itd. Niektóre
+właściwości mogą mieć kilka znaków zmieniających ich właściwości. Obsługiwane
+typy kolumn (właściwości i ich dodatki) są podane poniżej.
 
- If the list of column types consists of two or more repeated groups,
-the files on the panel will be listed in “stripes”. Properties of each
-file will be displayed in the columns of a stripe, and the list of files
-will wrap from one stripe to the next like text of a newspaper article.
-If column type list cannot be properly split into the equal groups, the
-files will be listed on a single stripe.
+ Jeżeli lista typów kolumn składa się z dwóch lub więcej powtarzający się grup,
+pliki w panelu ustawione zostaną w kolumnach. Właściwości każdego pliku będą
+wyświetlane w kolumnie, a lista plików będzie kolejno wyświetlana w kolejnych
+kolumnach, podobnie jak tekst artykułu w gazecie.
+Jeżeli lista typów kolumn nie będzie mogła być podzielona na równe grupy,
+pliki zostaną wyświetlone tylko w jednej kolumnie.
 
- The following column types are supported:
+ Obsługiwane są następujące typy kolumn:
 
- N[M[D],O,R[F],N] - file name, where:
-                    M - ^<wrap>show selection marks where:
-                        D - dynamic selection marks;
-                    O - ^<wrap>show names without paths (intended mostly for ~plugins~@Plugins@);
-                    R - ^<wrap>right align names that do not fit in column, where:
-                        F - right align all names;
-                    N - ^<wrap>do not show extensions in name column;
+ N[M[D],O,R[F],N] - nazwa pliku, gdzie:
+                    M - ^<wrap>pokaż znaczniki wyboru, gdzie:
+                        D - dynamiczne znaczniki wyboru;
+                    O - ^<wrap>pokaż nazwy bez ścieżek (przeznaczone głównie dla ~wtyczek~@Plugins@);
+                    R - ^<wrap>wyrównaj do prawej nazwy, które nie mieszczą się w kolumnie, gdzie:
+                        F - wyrównaj do prawej wszystkie nazwy;
+                    N - ^<wrap>nie pokazuj rozszerzeń w kolumnie nazwy;
 
- These modifiers can be used in combination, for example NMR.
+ Modyfikatory te można używać łącznie, np.: NMR.
 
- X[R]       - file extension, where:
-              R - ^<wrap>right align file extension;
+ X[R]       - rozszerzenie pliku, gdzie:
+              R - ^<wrap>wyrównaj rozszerzenie pliku do prawej;
 
- S[C,T,F,E] - file size
- P[C,T,F,E] - allocation file size
- G[C,T,F,E] - size of file streams, where:
-              C - ^<wrap>group digits using the character from Windows settings;
-              T - ^<wrap>use decimal units instead of binary,
-i.e., to calculate kilobytes, the size will be divided by 1000 instead
-of by 1024; in this mode unit character is shown in lower case, e.g. #k#,
-#m#, #g# instead of #K#, #M#, #G#;
-              F - ^<wrap>show size as a decimal fraction with
-no more than three digits before decimal point, e.g. 999 bytes will
-be shown as #999#, while 1024 bytes as #1.00 K#; note that the behavior
-depends on whether the #T# modifier is used;
-              E - ^<wrap>economic mode, no space between the
-size and the unit character, e.g. #1.00k#;
+ S[C,T,F,E] - wielkość pliku
+ P[C,T,F,E] - zajętość pliku na dysku
+ G[C,T,F,E] - wielkość strumienia pliku, gdzie:
+              C - ^<wrap>grupuj cyfry używając znaków z ustawień Windows;
+              T - ^<wrap>użyj 1000 zamiast 1024 jako dzielnika (dziesiętny, nie binarny),
+np. aby obliczyć kilobajty wielkość będzie dzielona przez 1000 zamiast 1024; w tym trybie
+znak wielokrotności będzie oznaczany małą literą, np. #k#, #m#, #g#, zamiast #K#, #M#, #G#;
+              F - ^<wrap>pokazuj wielkość w dziesiętnych wielokrotnościach z jednostką, np. 999 bajtów
+zostanie pokazane jako #999#, ale 1024 bajtów jako #1.00 K#; zachowanie zależne jest od tego,
+czy używany jest modyfikator #T#;
+              E - ^<wrap>krótka forma, bez spacji między wielkością a jednostką, np. #1.00k#;
 
- D          - file last write date;
- T          - file last write time;
+ D          - data ostatniego zapisu pliku;
+ T          - czas ostatniego zapisu pliku;
 
- DM[B,M]    - file last write date and time;
- DC[B,M]    - file creation date and time;
- DA[B,M]    - file last access date and time;
- DE[B,M]    - file change date and time, where:
-              B - brief (Unix style) file time format;
-              M - use text month names;
+ DM[B,M]    - data i czas ostatniego zapisu pliku;
+ DC[B,M]    - data i czas utworzenia pliku;
+ DA[B,M]    - data i czas ostatniego dostępu do pliku;
+ DE[B,M]    - data i czas zmiany pliku, gdzie:
+              B - czas pliku w krótkiej formie (styl Unix);
+              M - nazwa miesiąca w formie słownej.
 
- A          - file attributes;
- Z          - file descriptions;
+ A          - atrybuty pliku;
+ Z          - opisy pliku;
 
- O[L]       - file owner, where:
-              L - show domain name;
+ O[L]       - właściciel pliku, gdzie:
+              L - nazwa domeny.
 
- LN         - number of hard links;
+ LN         - liczba linków do pliku;
 
- F          - number of streams.
+ F          - liczba strumieni.
 
- If the column types description contains more than one file name column,
-the file panel will be displayed in multicolumn form.
+ Jeżeli opis typów kolumn zawiera więcej niż jedną kolumnę nazw plików,
+panel plików zostanie wyświetlony w formie wielokolumnowej.
 
- File attributes are denoted as follows:
+ Atrybuty plików są oznaczone w następujący sposób:
 
- #N# - Attributes not set
- #R# - Read only
- #H# - Hidden
- #S# - System
- #D# - Directory
- #A# - Archive
- #T# - Temporary
- #$# - Sparse
- #L# - Reparse point
- #C# - Compressed
+ #N# - Atrybuty nie są ustawione
+ #R# - Tylko do odczytu
+ #H# - Ukryty
+ #S# - Systemowy
+ #D# - Folder
+ #A# - Archiwalny
+ #T# - Tymczasowy
+ #$# - Rzadki (sparse)
+ #L# - Punkt dowiązania
+ #C# - Skompresowany
  #O# - Offline
- #I# - Not content indexed
- #E# - Encrypted
- #V# - Integrity stream
- #?# - Virtual
- #X# - No scrub data
- #P# - Pinned
- #U# - Unpinned
+ #I# - Nie zindeksowano zawartości
+ #E# - Zaszyfrowany
+ #V# - Integralny strumień
+ #?# - Wirtualny
+ #X# - Brak danych kontrolnych
+ #P# - Przypięty
+ #U# - Odpięty
 
- By default the size of the attributes column is 6 characters. To display
-the additional attributes it is necessary to manually increase the size of the column.
+ Domyślnie rozmiar kolumny z atrybutami to 6 znaków. Aby wyświetlić
+dodatkowe atrybuty wymagane jest ręczne zwiększenie szerokości kolumny.
 
- #Column widths# - used to change width of panel columns.
-If the width is equal to 0, the default value will be used. If the width of
-the Name, Description or Owner column is 0, it will be calculated
-automatically, depending upon the panel width. For correct operation with
-different screen widths, it is highly recommended to have at least one column
-with automatically calculated width. Width can be also set as a percentage of
-remaining free space after the fixed width columns by adding the "%" character
-after the numerical value. If the total size of such columns exceeds 100%,
-their sizes are scaled.
+ #Szerokości kolumn# - służą do zmiany szerokości kolumn panelu.
+Jeżeli wartość jest ustawiona na 0, to zostanie używa domyślna wartość. Jeżeli
+szerokość kolumn Nazwa, Opis lub Właściciel ma wartość 0, zostaną one obliczone
+automatycznie, zależnie od szerokości panelu. Dla prawidłowej pracy z różnymi
+szerokościami ekranu, zaleca się posiadanie co najmniej jednej kolumny
+z automatycznie wyliczaną szerokością. Szerokość można także ustawić w procentach
+jako część pozostałego wolnego miejsca po kolumnach o stałej szerokości,
+poprzez dodanie znaku "%" po wartości liczbowej. Jeżeli całkowita szerokość
+wszystkich kolumn przekroczy 100%, to ich rozmiary zostaną przeskalowane.
 
- Incrementing the default width of the file time column or file date and
-time column by 1 will force a 12-hour time format. Further increase will lead
-to the display of seconds and milliseconds.
+ Zwiększenie domyślnej szerokości kolumny daty lub czasu pliku o 1, wymusi
+wyświetlanie czasu w formacie 12 godzinnym. Dalsze zwiększanie będzie prowadzić
+do wyświetlania sekund i milisekund.
 
- To display years in 4-digits format increase the date column width by 2.
+ Aby wyświetlić rok w formacie 4-cyfrowym, należy zwiększyć szerokość kolumny o 2.
 
- Enabling links, streams and owner columns (G, LN, F and O) can significantly
-slow down the directory reading.
+ Włączenie kolumn pokazujących linki, strumienie i właścicieli (G, LN, F i O)
+może znacząco spowolnić odczyt folderu.
 
- #Status line column types# and #Status line column widths# -
-similar to "Column types" and "Column widths", but for panel status line.
+ #Typy kolumn linii statusu# i #Szerokości kolumn linii statusu# -
+podobnie do "Typów kolumn" i "Szerokości kolumn", ale dotyczą linii statusu panelu.
 
- #Fullscreen view# - force fullscreen view instead of half-screen.
+ #Widok pełnoekranowy# - wymusza wyświetlanie na pełnym ekranie zamiast na połowie.
 
- #Align file extensions# - show file extensions aligned.
+ #Wyrównaj rozszerzenia plików# - pokazuje wyrównane rozszerzenia plików.
 
- #Align folder extensions# - show folder extensions aligned.
+ #Wyrównaj rozszerzenia folderów# - pokazuje wyrównane rozszerzenia folderów.
 
- #Show folders in uppercase# - display all folder names in upper
-case, ignoring the original case.
+ #Nazwy folderów WIELKIMI LITERAMI# - wyświetla wszystkie nazwy folderów wielkimi
+literami, ignorując oryginalne wielkości.
 
- #Show files in lowercase# - display all file names in lower case,
-ignoring the original case.
+ #Nazwy plików małymi literami# - wyświetla wszystkie nazwy plików małymi literami,
+ignorując oryginalne wielkości.
 
- #Show uppercase file names in lowercase# - display all uppercase
-file names in lower case. By default this option is on, but if you wish
-to always see the real files case, switch it, "Show folders in uppercase"
-and "Show files in lowercase" options off. All these settings only change
-the method of displaying files, when processing files Far always uses the
-real case.
+ #Wyświetl NAZWY_PLIKÓW jako nazwy_plików# - wyświetla wszystkie wielkie litery
+nazw plików jako małe litery. Domyślnie opcje jest włączona, ale jeżeli nazwy
+zawsze mają być widoczne jak oryginalne nazwy, należy ją przełączyć, a opcje
+"Nazwy folderów WIELKIMI LITERAMI" i "Nazwy plików małymi literami" należy
+wyłączyć. Wszystkie te ustawienia zmieniają tylko metodę wyświetlania plików,
+podczas przetwarzania plików Far zawsze używa oryginalnych wielkości znaków.
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @SortGroups

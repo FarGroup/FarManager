@@ -11,17 +11,30 @@ function bcolorer {
 
   echo "Download FarColorer ${COLORER_VERSION}"
   COLORER_PLATFORM=$2
-  COLORER_FILE_NAME=FarColorer.${COLORER_PLATFORM}.v${COLORER_VERSION}.7z
-  
+  COLORER_BASE_NAME=FarColorer.${COLORER_PLATFORM}.v${COLORER_VERSION}
+  COLORER_FILE_NAME=${COLORER_BASE_NAME}.7z
+  COLORER_PDB_NAME=${COLORER_BASE_NAME}.pdb.7z
+
   rm -f ${COLORER_FILE_NAME}
-  curl -fsLJO -o ${COLORER_FILE_NAME} "https://github.com/colorer/FarColorer/releases/download/v${COLORER_VERSION}/${COLORER_FILE_NAME}"
+  rm -f ${COLORER_PDB_NAME}
+
+  COLORER_BASE_URL=https://github.com/colorer/FarColorer/releases/download/v${COLORER_VERSION}/
+  curl -fsLJO ${COLORER_BASE_URL}${COLORER_FILE_NAME}
+  curl -fsLJO ${COLORER_BASE_URL}${COLORER_PDB_NAME}
   if [ ! -e ${COLORER_FILE_NAME} ]; then
     echo "Can't find ${COLORER_FILE_NAME}"
     return 1
   fi
-  mkdir outfinalnew${BIT}/Plugins/$PLUGIN
-  7z x ${COLORER_FILE_NAME} -ooutfinalnew${BIT}/Plugins/$PLUGIN
+  if [ ! -e ${COLORER_PDB_NAME} ]; then
+    echo "Can't find ${COLORER_PDB_NAME}"
+    return 1
+  fi
+  COLORER_DIR=outfinalnew${BIT}/Plugins/$PLUGIN
+  mkdir ${COLORER_DIR}
+  7z x ${COLORER_FILE_NAME} -o${COLORER_DIR}
+  7z x ${COLORER_PDB_NAME} -o${COLORER_DIR}/bin
   rm -f ${COLORER_FILE_NAME}
+  rm -f ${COLORER_PDB_NAME}
 
 }
 

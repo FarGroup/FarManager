@@ -43,7 +43,7 @@ exit 1
 
 rem =========================================
 :do_ls
-  for %%a in (%list% %last%) do dir /b %%a
+  for %%a in (%list% %last%) do echo %%a
 goto :EOF
 
 :do_cp

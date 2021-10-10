@@ -42,7 +42,6 @@ private:
 	mutable str_view saved;
 
 public:
-	~View() noexcept {}
 	View(const char *_Beg, const char *_End) noexcept : str_view(_Beg, _End), saved(_Beg) {}
 
 	void save_start(const int offset = 0) const noexcept { saved.ps = ps + offset; }

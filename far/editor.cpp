@@ -1051,7 +1051,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 			}
 			else
 			{
-				const auto PrevLine = std::prev(m_it_CurLine);
 				if (SelAtBeginning) //курсор в начале блока
 				{
 					m_it_AnyBlockStart = m_it_CurLine;
@@ -1061,7 +1060,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 				{
 					OldCur->RemoveSelection();
 					m_it_CurLine->GetRealSelection(SelStart, SelEnd);
-					m_it_CurLine->Select(SelStart, PrevLine->GetLength());
+					m_it_CurLine->Select(SelStart, m_it_CurLine->GetLength());
 				}
 			}
 
@@ -3462,8 +3461,8 @@ bool Editor::Search(bool Next)
 			QuotedStr = quote_unconditional(strSearchStr);
 		}
 
-		const auto strSearchStrUpper = Case? strSearchStr : upper(strSearchStr);
-		const auto strSearchStrLower = Case? strSearchStr : lower(strSearchStr);
+		searchers Searchers;
+		const auto& Searcher = init_searcher(Searchers, Case, strLastSearchStr);
 
 		const time_check TimeCheck;
 		std::optional<single_progress> Progress;
@@ -3495,7 +3494,23 @@ bool Editor::Search(bool Next)
 			auto strReplaceStrCurrent = ReplaceMode? strReplaceStr : L""s;
 
 			int SearchLength;
-			if (SearchAndReplaceString(CurPtr->GetString(), strSearchStr, strSearchStrUpper, strSearchStrLower, re, m.data(), &hm, strReplaceStrCurrent, CurPos, Case, WholeWords, ReverseSearch, Regexp, PreserveStyle, &SearchLength, GetWordDiv()))
+			if (SearchAndReplaceString(
+				CurPtr->GetString(),
+				strSearchStr,
+				Searcher,
+				re,
+				m.data(),
+				&hm,
+				strReplaceStrCurrent,
+				CurPos,
+				Case,
+				WholeWords,
+				ReverseSearch,
+				Regexp,
+				PreserveStyle,
+				&SearchLength,
+				GetWordDiv()
+			))
 			{
 				Match = true;
 
@@ -3582,6 +3597,8 @@ bool Editor::Search(bool Next)
 
 							if (!SearchLength && strReplaceStrCurrent.empty())
 								ZeroLength = true;
+
+							Progress.reset();
 
 							MsgCode = Message(0,
 								msg(lng::MEditReplaceTitle),
@@ -6630,11 +6647,11 @@ void Editor::GetCacheParams(EditorPosCache &pc) const
 	pc.bm=m_SavePos;
 }
 
-static std::string_view GetLineBytes(string_view const Str, std::vector<char>& Buffer, uintptr_t const Codepage, encoding::error_position* const ErrorPosition)
+static std::string_view GetLineBytes(string_view const Str, std::vector<char>& Buffer, uintptr_t const Codepage, encoding::diagnostics* const Diagnostics)
 {
 	for (;;)
 	{
-		auto const Length = encoding::get_bytes(Codepage, Str, Buffer, ErrorPosition);
+		auto const Length = encoding::get_bytes(Codepage, Str, Buffer, Diagnostics);
 
 		if (Length <= Buffer.size())
 			return { Buffer.data(), Length };
@@ -6648,11 +6665,11 @@ bool Editor::SetLineCodePage(iterator const& Iterator, uintptr_t const Codepage,
 	if (Codepage == m_codepage || Iterator->m_Str.empty())
 		return true;
 
-	encoding::error_position ErrorPosition;
-	const auto Bytes = GetLineBytes(Iterator->m_Str, decoded, m_codepage, Validate? &ErrorPosition : nullptr);
-	auto Result = !Bytes.empty() && !ErrorPosition;
-	encoding::get_chars(Codepage, Bytes, Iterator->m_Str, &ErrorPosition);
-	Result = Result && !Iterator->m_Str.empty() && !ErrorPosition;
+	encoding::diagnostics Diagnostics;
+	const auto Bytes = GetLineBytes(Iterator->m_Str, decoded, m_codepage, Validate? &Diagnostics : nullptr);
+	auto Result = !Bytes.empty() && !Diagnostics.ErrorPosition;
+	encoding::get_chars(Codepage, Bytes, Iterator->m_Str, &Diagnostics);
+	Result = Result && !Iterator->m_Str.empty() && !Diagnostics.ErrorPosition;
 	Iterator->Changed();
 
 	return Result;
@@ -6670,19 +6687,19 @@ bool Editor::TryCodePage(uintptr_t const Codepage, uintptr_t& ErrorCodepage, siz
 		if (i->m_Str.empty())
 			continue;
 
-		encoding::error_position ErrorPosition;
-		const auto Bytes = GetLineBytes(i->m_Str, decoded, m_codepage, &ErrorPosition);
+		encoding::diagnostics Diagnostics;
+		const auto Bytes = GetLineBytes(i->m_Str, decoded, m_codepage, &Diagnostics);
 
-		if (Bytes.empty() || ErrorPosition)
+		if (Bytes.empty() || Diagnostics.ErrorPosition)
 		{
 			ErrorCodepage = m_codepage;
 			ErrorLine = LineNumber;
-			ErrorPos = *ErrorPosition;
+			ErrorPos = *Diagnostics.ErrorPosition;
 			ErrorChar = i->m_Str[ErrorPos];
 			return false;
 		}
 
-		if (!encoding::get_chars_count(Codepage, Bytes, &ErrorPosition) || ErrorPosition)
+		if (!encoding::get_chars_count(Codepage, Bytes, &Diagnostics) || Diagnostics.ErrorPosition)
 		{
 			ErrorCodepage = Codepage;
 			ErrorLine = LineNumber;
@@ -6691,12 +6708,12 @@ bool Editor::TryCodePage(uintptr_t const Codepage, uintptr_t& ErrorCodepage, siz
 			const auto Info = GetCodePageInfo(m_codepage);
 			if (Info && Info->MaxCharSize == 1)
 			{
-				ErrorPos = *ErrorPosition;
+				ErrorPos = *Diagnostics.ErrorPosition;
 			}
 			else
 			{
-				const auto BytesCount = encoding::get_bytes(m_codepage, i->m_Str, decoded, &ErrorPosition);
-				ErrorPos = encoding::get_chars_count(m_codepage, { decoded.data(), std::min(*ErrorPosition, BytesCount) });
+				const auto BytesCount = encoding::get_bytes(m_codepage, i->m_Str, decoded, &Diagnostics);
+				ErrorPos = encoding::get_chars_count(m_codepage, { decoded.data(), std::min(*Diagnostics.ErrorPosition, BytesCount) });
 			}
 
 			ErrorChar = i->m_Str[ErrorPos];

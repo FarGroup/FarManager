@@ -306,7 +306,7 @@ bool PreserveStyleReplaceString(
 		--LastItem;
 		while (((j != LastItem) || (j == LastItem && T < j->Token.size())) && Source[Idx])
 		{
-			bool Sep = (static_cast<size_t>(I) < Idx && static_cast<size_t>(I + 1) != Source.size() && IsPreserveStyleTokenSeparator(Source[Idx])
+			bool Sep = (static_cast<size_t>(I) < Idx && static_cast<size_t>(I) + 1 != Source.size() && IsPreserveStyleTokenSeparator(Source[Idx])
 					&& !IsPreserveStyleTokenSeparator(Source[Idx-1])
 					&& !IsPreserveStyleTokenSeparator(Source[Idx+1]));
 

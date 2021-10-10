@@ -30,7 +30,7 @@ struct Error {
   : code(E_MESSAGE), file(__FILE__), line(__LINE__)
   {
     std::string message(std::string(typeid(e).name()) + ": " + e.what());
-    messages.push_back(std::wstring(message.begin(), message.end()));
+    messages.emplace_back(message.begin(), message.end());
   }
 
   void SetResults(std::list<std::wstring>&& errs, std::list<std::wstring>&& wrns) {

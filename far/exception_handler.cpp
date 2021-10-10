@@ -172,7 +172,7 @@ static string get_report_location()
 
 	const auto SubDir = format(L"Far.{}_{}_{}"sv, Date, Time, GetCurrentProcessId());
 
-	if (const auto CrashLogs = path::join(Global->Opt->LocalProfilePath, L"CrashLogs"); os::fs::is_directory(CrashLogs) || os::fs::create_directory(CrashLogs))
+	if (const auto CrashLogs = path::join(Global? Global->Opt->LocalProfilePath : L"."sv, L"CrashLogs"); os::fs::is_directory(CrashLogs) || os::fs::create_directory(CrashLogs))
 	{
 		if (const auto Path = path::join(CrashLogs, SubDir); os::fs::create_directory(Path))
 		{
@@ -353,18 +353,23 @@ static string collect_information(
 	return Strings;
 }
 
-static bool ExcDialog(string const& ReportLocation, bool const CanUnload)
+static bool ExcDialog(string const& ReportLocation, string const& PluginInformation)
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
 
 	DialogBuilder Builder(lng::MExceptionDialogTitle);
+	if (!PluginInformation.empty())
+	{
+		Builder.AddText(PluginInformation)->Flags |= DIF_SHOWAMPERSAND;
+		Builder.AddSeparator();
+	}
 	Builder.AddText(lng::MExceptionDialogMessage1);
 	Builder.AddText(lng::MExceptionDialogMessage2);
 	Builder.AddConstEditField(ReportLocation, 70);
 	Builder.AddSeparator();
 
-	if (CanUnload)
+	if (!PluginInformation.empty())
 	{
 		lng const MsgIDs[]{ lng::MExcTerminate, lng::MExcUnload, lng::MIgnore };
 		Builder.AddButtons(MsgIDs, 0, std::size(MsgIDs) - 1);
@@ -385,27 +390,27 @@ static bool ExcDialog(string const& ReportLocation, bool const CanUnload)
 		return true;
 
 	case 1: // Unload / Ignore
-		return CanUnload;
+		return !PluginInformation.empty();
 
 	default:
 		return false;
 	}
 }
 
-static bool ExcConsole(string const& ReportLocation, bool)
+static bool ExcConsole(string const& ReportLocation, string const& PluginInformation)
 {
 	const auto Eol = eol::std.str();
 
-	std::array Msgs
+	std::array LngMsgs
 	{
 		L"Oops"sv,
-		L"Something went wrong."sv,
+		L"Something went wrong in {}"sv,
 		L"Please send the bug report to the developers."sv,
 	};
 
 	if (far_language::instance().is_loaded())
 	{
-		Msgs =
+		LngMsgs =
 		{
 			msg(lng::MExceptionDialogTitle),
 			msg(lng::MExceptionDialogMessage1),
@@ -413,12 +418,27 @@ static bool ExcConsole(string const& ReportLocation, bool)
 		};
 	}
 
-	std::wcerr << Eol << Eol;
+	const auto Separator = L"----------------------------------------------------------------------"sv;
 
-	for (const auto& i: Msgs)
-		std::wcerr << i << Eol;
+	std::wcerr <<
+		Eol <<
+		Eol <<
+		LngMsgs[0] << Eol <<
+		Separator << Eol;
 
-	std::wcerr << ReportLocation << Eol;
+	if (!PluginInformation.empty())
+	{
+		std::wcerr <<
+			PluginInformation << Eol <<
+			Separator << Eol;
+	}
+
+	std::wcerr <<
+		LngMsgs[1] << Eol <<
+		LngMsgs[2] << Eol <<
+		Separator << Eol <<
+		ReportLocation << Eol <<
+		Separator << Eol;
 
 	if (!ConsoleYesNo(L"Terminate the process"sv, true))
 		return false;
@@ -436,7 +456,7 @@ static bool ShowExceptionUI(
 	string_view const Function,
 	string_view const Location,
 	string_view const ModuleName,
-	string_view const PluginInfo,
+	string const& PluginInfo,
 	Plugin const* const PluginModule,
 	span<uintptr_t const> const NestedStack
 )
@@ -493,13 +513,12 @@ static bool ShowExceptionUI(
 
 	LOG(PluginModule? logging::level::error : logging::level::fatal, L"\n{}\n"sv, log_message());
 
-	const auto CanUnload = PluginModule != nullptr;
 	const auto ReportLocation = get_report_location();
+	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, L"far.mdmp"sv), MiniDumpNormal);
+	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, L"far_full.mdmp"sv), MiniDumpWithFullMemory);
 	const auto BugReport = collect_information(Context, NestedStack, ModuleName, BasicInfo);
 	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, L"bug_report.txt"sv));
 	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
-	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, L"far.mdmp"sv), MiniDumpNormal);
-	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, L"far_full.mdmp"sv), MiniDumpWithFullMemory);
 	const auto AnythingOnDisk = ReportOnDisk || MinidumpNormal || MinidumpFull;
 
 	if (AnythingOnDisk)
@@ -508,11 +527,11 @@ static bool ShowExceptionUI(
 	if (AnythingOnDisk || ReportInClipboard)
 		return (UseDialog? ExcDialog : ExcConsole)(
 			AnythingOnDisk? ReportLocation : msg(lng::MExceptionDialogClipboard),
-			CanUnload
+			PluginInfo
 		);
 
 	// Should never happen - neither the filesystem nor clipboard are writable, so just dump it to the screen:
-	return ExcConsole(BugReport, CanUnload);
+	return ExcConsole(BugReport, PluginInfo);
 }
 
 
@@ -626,52 +645,6 @@ static string ExtractObjectType(EXCEPTION_RECORD const& xr)
 		return {};
 
 	return encoding::utf8::get_chars(*Iterator);
-}
-
-static bool ProcessExternally(EXCEPTION_POINTERS const& Pointers, Plugin const* const PluginModule)
-{
-	if (!Global || !Global->Opt->ExceptUsed || Global->Opt->strExceptEventSvc.empty())
-		return false;
-
-	const os::rtdl::module Module(Global->Opt->strExceptEventSvc);
-	if (!Module)
-		return false;
-
-	struct PLUGINRECORD       // информация о плагине
-	{
-		DWORD TypeRec;          // Тип записи = RTYPE_PLUGIN
-		DWORD SizeRec;          // Размер
-		DWORD Reserved1[4];
-		// DWORD SysID; UUID
-		const wchar_t *ModuleName;
-		DWORD Reserved2[2];    // резерв :-)
-		DWORD SizeModuleName;
-	};
-
-	os::rtdl::function_pointer<BOOL(WINAPI*)(EXCEPTION_POINTERS*, const PLUGINRECORD*, const PluginStartupInfo*, DWORD*)> Function(Module, "ExceptionProc");
-	if (!Function)
-		return false;
-
-	static PluginStartupInfo LocalStartupInfo;
-	LocalStartupInfo = {};
-	static FarStandardFunctions LocalStandardFunctions;
-	LocalStandardFunctions = {};
-	CreatePluginStartupInfo(&LocalStartupInfo, &LocalStandardFunctions);
-	LocalStartupInfo.ModuleName = Global->Opt->strExceptEventSvc.c_str();
-	static PLUGINRECORD PlugRec;
-
-	if (PluginModule)
-	{
-		PlugRec = {};
-		PlugRec.TypeRec = RTYPE_PLUGIN;
-		PlugRec.SizeRec = sizeof(PlugRec);
-		PlugRec.ModuleName = PluginModule->ModuleName().c_str();
-	}
-
-	DWORD dummy;
-	auto PointersCopy = Pointers;
-
-	return Function(&PointersCopy, PluginModule ? &PlugRec : nullptr, &LocalStartupInfo, &dummy) != FALSE;
 }
 
 static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_view const Type)
@@ -793,20 +766,6 @@ static bool handle_generic_exception(
 
 	++s_ExceptionHandlingInprogress;
 	SCOPE_EXIT{ --s_ExceptionHandlingInprogress; };
-
-	{
-		auto ExceptionRecord = Context.exception_record();
-		auto ContextRecord = Context.context_record();
-		EXCEPTION_POINTERS const Pointers{ &ExceptionRecord, &ContextRecord };
-
-		if (ProcessExternally(Pointers, PluginModule))
-		{
-			if (!PluginModule && Global)
-				Global->CriticalInternalError = true;
-
-			return true;
-		}
-	}
 
 	string strFileName;
 

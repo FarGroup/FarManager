@@ -135,18 +135,12 @@ std::wostream& operator<<(std::wostream& Stream, error_state const& e)
 
 std::wostream& operator<<(std::wostream& Stream, error_state_ex const& e)
 {
-	Stream << format(FSTR(L"Message: {}, {}"sv), e.What, e.to_string());
+	Stream << format(FSTR(L"Message: {}, Error: {}"sv), e.What, e.to_string());
 	return Stream;
 }
 
 std::wostream& operator<<(std::wostream& Stream, detail::far_base_exception const& e)
 {
-	Stream << format(FSTR(L"far_base_exception: {}"sv), e.full_message());
-	return Stream;
-}
-
-std::wostream& operator<<(std::wostream& Stream, far_exception const& e)
-{
-	Stream << format(FSTR(L"far_exception: {}"sv), e.full_message());
+	Stream << format(FSTR(L"far_base_exception: {}, Error: {}"sv), e.full_message(), e.to_string());
 	return Stream;
 }

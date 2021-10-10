@@ -1,158 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-  </ItemGroup>
-  <PropertyGroup Label="Globals">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
     <ProjectName>arclite</ProjectName>
     <ProjectGuid>{38CF1530-243C-4C81-9B0E-DCA51551AC81}</ProjectGuid>
-    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)'=='15.0'">10.0.16299.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)'=='16.0'">10.0</WindowsTargetPlatformVersion>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Makefile</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <OutDir>Debug.32.vc\</OutDir>
-    <IntDir>$(OutDir)\obj\</IntDir>
+  <PropertyGroup Label="UserMacros">
+    <PrecompiledHeaders>headers</PrecompiledHeaders>
+    <DirBit Condition="'$(Platform)'=='Win32'">32</DirBit>
+    <DirBit Condition="'$(Platform)'=='x64'">64</DirBit>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Makefile</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <OutDir>Debug.64.vc\</OutDir>
-    <IntDir>$(OutDir)\obj\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Makefile</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <OutDir>Release.32.vc\</OutDir>
-    <IntDir>$(OutDir)\obj\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Makefile</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <OutDir>Release.64.vc\</OutDir>
-    <IntDir>$(OutDir)\obj\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PlatformToolset Condition="'$(VisualStudioVersion)'=='15.0'">v141</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)'=='16.0'">v142</PlatformToolset>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(ProjectDir)..\..\_build\vc\config\common.plugins.props" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc DEBUG=1 VisualStudioVersion=$(VisualStudioVersion)</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc DEBUG=1 VisualStudioVersion=$(VisualStudioVersion) clean</NMakeCleanCommandLine>
-    <NMakeIncludeSearchPath>7z\h;..\common\unicode;bootstrap</NMakeIncludeSearchPath>
-    <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
-    <NMakeOutput />
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <NMakeOutput />
-    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc DEBUG=1 CPU=AMD64 VisualStudioVersion=$(VisualStudioVersion)</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc DEBUG=1 CPU=AMD64 VisualStudioVersion=$(VisualStudioVersion) clean</NMakeCleanCommandLine>
-    <NMakeIncludeSearchPath>7z\h;..\common\unicode;bootstrap</NMakeIncludeSearchPath>
-    <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <NMakeOutput />
-    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc VisualStudioVersion=$(VisualStudioVersion)</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc VisualStudioVersion=$(VisualStudioVersion) clean</NMakeCleanCommandLine>
-    <NMakeIncludeSearchPath>7z\h;..\common\unicode;bootstrap</NMakeIncludeSearchPath>
-    <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <NMakeOutput />
-    <NMakeBuildCommandLine>nmake -nologo -f makefile_vc CPU=AMD64 VisualStudioVersion=$(VisualStudioVersion)</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>nmake -nologo -f makefile_vc CPU=AMD64 VisualStudioVersion=$(VisualStudioVersion) clean</NMakeCleanCommandLine>
-    <NMakeIncludeSearchPath>7z\h;..\common\unicode;bootstrap</NMakeIncludeSearchPath>
-    <NMakeForcedIncludes>headers.hpp</NMakeForcedIncludes>
-  </PropertyGroup>
-  <ItemDefinitionGroup>
-  </ItemDefinitionGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets" />
   <ItemGroup>
-    <ClCompile Include="..\common\vc_crt_fix_impl.cpp" />
-    <ClCompile Include="archive.cpp" />
-    <ClCompile Include="attr.cpp" />
-    <ClCompile Include="cmdline.cpp" />
-    <ClCompile Include="common.cpp" />
-    <ClCompile Include="delete.cpp" />
-    <ClCompile Include="extract.cpp" />
-    <ClCompile Include="farutils.cpp" />
-    <ClCompile Include="headers.cpp" />
-    <ClCompile Include="msearch.cpp" />
-    <ClCompile Include="open.cpp" />
-    <ClCompile Include="options.cpp" />
-    <ClCompile Include="Patch7zCP.cpp" />
-    <ClCompile Include="pathutils.cpp" />
-    <ClCompile Include="plugin.cpp" />
-    <ClCompile Include="rsrc.cpp" />
-    <ClCompile Include="sfx.cpp" />
-    <ClCompile Include="SimpleXML.cpp" />
-    <ClCompile Include="strutils.cpp" />
-    <ClCompile Include="sysutils.cpp" />
-    <ClCompile Include="test.cpp" />
-    <ClCompile Include="ui.cpp" />
-    <ClCompile Include="update.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="archive.hpp" />
-    <ClInclude Include="cmdline.hpp" />
-    <ClInclude Include="common.hpp" />
-    <ClInclude Include="comutils.hpp" />
-    <ClInclude Include="error.hpp" />
-    <ClInclude Include="farutils.hpp" />
-    <ClInclude Include="guids.hpp" />
-    <ClInclude Include="headers.hpp" />
-    <ClInclude Include="msearch.hpp" />
-    <ClInclude Include="options.hpp" />
-    <ClInclude Include="plugin_h.h" />
-    <ClInclude Include="rsrc.hpp" />
-    <ClInclude Include="sfx.hpp" />
-    <ClInclude Include="SimpleXML.hpp" />
-    <ClInclude Include="sysutils.hpp" />
-    <ClInclude Include="ui.hpp" />
-    <ClInclude Include="utils.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\common\vc_crt_fix.asm" />
-    <None Include="arclite.xml" />
-    <None Include="arclite_eng.hlf" />
-    <None Include="arclite_rus.hlf" />
-    <None Include="arclite_pol.hlf" />
-    <None Include="changelog" />
-    <None Include="bel.msg" />
-    <None Include="eng.msg" />
-    <None Include="ita.msg" />
-    <None Include="pol.msg" />
-    <None Include="makefile_vc" />
-    <None Include="plugin.def" />
-    <None Include="project.ini" />
-    <None Include="rus.msg" />
-    <None Include="spa.msg" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="version.rc" />
+    <CopyFileToFolders Include="arclite.xml" />
+    <CopyFileToFolders Include="7z\dll\$(DirBit)\7z.dll" />
+    <CopyFileToFolders Include="7z\sfx\*.sfx" />
   </ItemGroup>
 </Project>

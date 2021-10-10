@@ -1,5 +1,5 @@
-﻿#include "msg.h"
-#include "plugin.h"
+﻿#include "msg.hpp"
+#include "version.hpp"
 #include "guids.hpp"
 #include "utils.hpp"
 #include "sysutils.hpp"
@@ -105,7 +105,7 @@ public:
       new_dir.clear();
 
     archive->find_dir(new_dir);
-    current_dir = new_dir;
+    current_dir = std::move(new_dir);
   }
 
   void list(PluginPanelItem** panel_items, size_t* items_number) {
@@ -995,7 +995,7 @@ void WINAPI GetGlobalInfoW(GlobalInfo* info) {
   info->Version = PLUGIN_VERSION;
   info->Guid = c_plugin_guid;
   info->Title = PLUGIN_NAME;
-  info->Description = PLUGIN_DESCRIPTION;
+  info->Description = PLUGIN_DESC;
   info->Author = FARCOMPANYNAME;
 }
 

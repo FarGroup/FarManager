@@ -36,7 +36,7 @@ if not exist $(BootstrapDir) mkdir $(BootstrapDir)</Command>
     </ClCompile>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug' or '$(Configuration)'=='Debug_ASAN'">
     <ClCompile>
       <PreprocessorDefinitions>ENABLE_TESTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -145,6 +145,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="macro.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manager.cpp" />
+    <ClCompile Include="map_file.cpp" />
     <ClCompile Include="memcheck.cpp" />
     <ClCompile Include="menubar.cpp" />
     <ClCompile Include="message.cpp" />
@@ -352,6 +353,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="macro.hpp" />
     <ClInclude Include="macroopcode.hpp" />
     <ClInclude Include="manager.hpp" />
+    <ClInclude Include="map_file.hpp" />
     <ClInclude Include="memcheck.hpp" />
     <ClInclude Include="menubar.hpp" />
     <ClInclude Include="message.hpp" />
@@ -402,6 +404,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="refreshwindowmanager.hpp" />
     <ClInclude Include="regex_helpers.hpp" />
     <ClInclude Include="RegExp.hpp" />
+    <ClInclude Include="reparse_tags.hpp" />
     <ClInclude Include="res.hpp" />
     <ClInclude Include="savescr.hpp" />
     <ClInclude Include="scantree.hpp" />

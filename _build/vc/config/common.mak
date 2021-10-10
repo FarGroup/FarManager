@@ -43,6 +43,10 @@ OUTDIR=$(DIRNAME).$(DIRBIT).vc
 INTDIR=$(DIRNAME).$(DIRBIT).vc/obj
 # Output directory setup end
 
+!ifndef FARDIR
+FARDIR=$(ROOTDIR)\far
+!endif
+
 # Main flags setup
 CFLAGS = $(CFLAGS)\
 	/nologo\
@@ -62,7 +66,7 @@ CFLAGS = $(CFLAGS)\
 	/Fo"$(INTDIR)/"\
 	/diagnostics:caret\
 	/MP$(MP_LIMIT)\
-	/FI$(ROOTDIR)/far/disabled_warnings.hpp\
+	/FI$(FARDIR)\disabled_warnings.hpp\
 	/Zi\
 	/D "NOMINMAX"\
 	/D "WIN32_LEAN_AND_MEAN"\
@@ -85,6 +89,7 @@ CPPFLAGS = $(CPPFLAGS)\
 	/D "_HAS_AUTO_PTR_ETC=0"\
 	/D "_ENABLE_EXTENDED_ALIGNED_STORAGE"\
 	/D "_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1"\
+	/D "_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1"\
 
 AFLAGS =\
 	/nologo\
@@ -151,7 +156,7 @@ MASM = ml64
 AFLAGS=$(AFLAGS) /D "X64"
 !elseif "$(BUILD_PLATFORM)" == "ARM"
 LINKFLAGS=$(LINKFLAGS) /machine:ARM
-!elseifdef ARM64
+!elseif defined(ARM64)
 LINKFLAGS = $(LINKFLAGS) /machine:ARM64
 !endif
 # Platform-specific flags end

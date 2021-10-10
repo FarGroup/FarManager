@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/bytes_view.hpp"
 #include "common/range.hpp"
+#include "common/utility.hpp"
 
 // External:
 
@@ -49,7 +50,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace encoding
 {
-	using error_position = std::optional<size_t>;
+	enum enabled_diagnostics: unsigned
+	{
+		error_position    = 0_bit,
+		incomplete_bytes  = 1_bit,
+
+		all = ~0u
+	};
+
+	struct diagnostics
+	{
+		unsigned EnabledDiagnostics{ enabled_diagnostics::all };
+		std::optional<size_t> ErrorPosition;
+		size_t IncompleteBytes{};
+	};
 
 	namespace codepage
 	{
@@ -59,23 +73,23 @@ namespace encoding
 		[[nodiscard]] uintptr_t normalise(uintptr_t Codepage);
 	}
 
-	[[nodiscard]] size_t get_bytes(uintptr_t Codepage, string_view Str, span<char> Buffer, error_position* ErrorPosition = {});
-	void get_bytes(uintptr_t Codepage, string_view Str, std::string& Buffer, error_position* ErrorPosition = {});
-	[[nodiscard]] std::string get_bytes(uintptr_t Codepage, string_view Str, error_position* ErrorPosition = {});
+	[[nodiscard]] size_t get_bytes(uintptr_t Codepage, string_view Str, span<char> Buffer, diagnostics* Diagnostics = {});
+	void get_bytes(uintptr_t Codepage, string_view Str, std::string& Buffer, diagnostics* Diagnostics = {});
+	[[nodiscard]] std::string get_bytes(uintptr_t Codepage, string_view Str, diagnostics* Diagnostics = {});
 
-	[[nodiscard]] size_t get_bytes_count(uintptr_t Codepage, string_view Str, error_position* ErrorPosition = {});
+	[[nodiscard]] size_t get_bytes_count(uintptr_t Codepage, string_view Str, diagnostics* Diagnostics = {});
 
 	//-------------------------------------------------------------------------
 
-	[[nodiscard]] size_t get_chars(uintptr_t Codepage, std::string_view Str, span<wchar_t> Buffer, error_position* ErrorPosition = {});
-	void get_chars(uintptr_t Codepage, std::string_view Str, string& Buffer, error_position* ErrorPosition = {});
-	[[nodiscard]] size_t get_chars(uintptr_t Codepage, bytes_view Str, span<wchar_t> Buffer, error_position* ErrorPosition = {});
-	void get_chars(uintptr_t Codepage, bytes_view Str, string& Buffer, error_position* ErrorPosition = {});
-	[[nodiscard]] string get_chars(uintptr_t Codepage, std::string_view Str, error_position* ErrorPosition = {});
-	[[nodiscard]] string get_chars(uintptr_t Codepage, bytes_view Str, error_position* ErrorPosition = {});
+	[[nodiscard]] size_t get_chars(uintptr_t Codepage, std::string_view Str, span<wchar_t> Buffer, diagnostics* Diagnostics = {});
+	void get_chars(uintptr_t Codepage, std::string_view Str, string& Buffer, diagnostics* Diagnostics = {});
+	[[nodiscard]] size_t get_chars(uintptr_t Codepage, bytes_view Str, span<wchar_t> Buffer, diagnostics* Diagnostics = {});
+	void get_chars(uintptr_t Codepage, bytes_view Str, string& Buffer, diagnostics* Diagnostics = {});
+	[[nodiscard]] string get_chars(uintptr_t Codepage, std::string_view Str, diagnostics* Diagnostics = {});
+	[[nodiscard]] string get_chars(uintptr_t Codepage, bytes_view Str, diagnostics* Diagnostics = {});
 
-	[[nodiscard]] size_t get_chars_count(uintptr_t Codepage, std::string_view Str, error_position* ErrorPosition = {});
-	[[nodiscard]] size_t get_chars_count(uintptr_t Codepage, bytes_view Str, error_position* ErrorPosition = {});
+	[[nodiscard]] size_t get_chars_count(uintptr_t Codepage, std::string_view Str, diagnostics* Diagnostics = {});
+	[[nodiscard]] size_t get_chars_count(uintptr_t Codepage, bytes_view Str, diagnostics* Diagnostics = {});
 
 	//-------------------------------------------------------------------------
 
@@ -90,64 +104,64 @@ namespace encoding
 		class codepage
 		{
 		public:
-			[[nodiscard]] static auto get_bytes(string_view const Str, span<char> const Buffer, error_position* const ErrorPosition = {})
+			[[nodiscard]] static auto get_bytes(string_view const Str, span<char> const Buffer, diagnostics* const Diagnostics = {})
 			{
-				return encoding::get_bytes(cp::normalise(Codepage), Str, Buffer, ErrorPosition);
+				return encoding::get_bytes(cp::normalise(Codepage), Str, Buffer, Diagnostics);
 			}
 
-			static auto get_bytes(string_view const Str, std::string& Buffer, error_position* const ErrorPosition = {})
+			static auto get_bytes(string_view const Str, std::string& Buffer, diagnostics* const Diagnostics = {})
 			{
-				return encoding::get_bytes(cp::normalise(Codepage), Str, Buffer, ErrorPosition);
+				return encoding::get_bytes(cp::normalise(Codepage), Str, Buffer, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_bytes(string_view const Str, error_position* const ErrorPosition = {})
+			[[nodiscard]] static auto get_bytes(string_view const Str, diagnostics* const Diagnostics = {})
 			{
-				return encoding::get_bytes(cp::normalise(Codepage), Str, ErrorPosition);
+				return encoding::get_bytes(cp::normalise(Codepage), Str, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_bytes_count(string_view const Str, error_position* const ErrorPosition = {})
+			[[nodiscard]] static auto get_bytes_count(string_view const Str, diagnostics* const Diagnostics = {})
 			{
-				return encoding::get_bytes_count(cp::normalise(Codepage), Str, ErrorPosition);
+				return encoding::get_bytes_count(cp::normalise(Codepage), Str, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_chars(std::string_view const Str, span<wchar_t> const Buffer, error_position* const ErrorPosition = {})
+			[[nodiscard]] static auto get_chars(std::string_view const Str, span<wchar_t> const Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars(cp::normalise(Codepage), Str, Buffer, ErrorPosition);
+				return encoding::get_chars(cp::normalise(Codepage), Str, Buffer, Diagnostics);
 			}
 
-			static auto get_chars(std::string_view const Str, string& Buffer, error_position* const ErrorPosition = {})
+			static auto get_chars(std::string_view const Str, string& Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars(cp::normalise(Codepage), Str, Buffer, ErrorPosition);
+				return encoding::get_chars(cp::normalise(Codepage), Str, Buffer, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_chars(bytes_view const Str, span<wchar_t> const Buffer, error_position* const ErrorPosition = {})
+			[[nodiscard]] static auto get_chars(bytes_view const Str, span<wchar_t> const Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars(cp::normalise(Codepage), Str, Buffer, ErrorPosition);
+				return encoding::get_chars(cp::normalise(Codepage), Str, Buffer, Diagnostics);
 			}
 
-			static auto get_chars(bytes_view const Str, string& Buffer, error_position* const ErrorPosition = {})
+			static auto get_chars(bytes_view const Str, string& Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars(cp::normalise(Codepage), Str, Buffer, ErrorPosition);
+				return encoding::get_chars(cp::normalise(Codepage), Str, Buffer, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_chars(std::string_view const Str, error_position* const ErrorPosition = {})
+			[[nodiscard]] static auto get_chars(std::string_view const Str, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars(cp::normalise(Codepage), Str, ErrorPosition);
+				return encoding::get_chars(cp::normalise(Codepage), Str, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_chars(bytes_view const Str, error_position* const ErrorPosition = {})
+			[[nodiscard]] static auto get_chars(bytes_view const Str, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars(cp::normalise(Codepage), Str, ErrorPosition);
+				return encoding::get_chars(cp::normalise(Codepage), Str, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_chars_count(std::string_view const Str, error_position* const ErrorPosition = {})
+			[[nodiscard]] static auto get_chars_count(std::string_view const Str, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars_count(cp::normalise(Codepage), Str, ErrorPosition);
+				return encoding::get_chars_count(cp::normalise(Codepage), Str, Diagnostics);
 			}
 
-			[[nodiscard]] static auto get_chars_count(bytes_view const Str, error_position* const ErrorPosition = {})
+			[[nodiscard]] static auto get_chars_count(bytes_view const Str, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars_count(cp::normalise(Codepage), Str, ErrorPosition);
+				return encoding::get_chars_count(cp::normalise(Codepage), Str, Diagnostics);
 			}
 		};
 	}
@@ -242,8 +256,16 @@ private:
 
 namespace Utf8
 {
-	// returns the number of decoded chars, 1 or 2. Moves the StrIterator forward as required.
-	[[nodiscard]] size_t get_char(std::string_view::const_iterator& StrIterator, std::string_view::const_iterator StrEnd, wchar_t& First, wchar_t& Second);
+	// returns the number of decoded chars, 1 or 2. Moves StrIterator and FullyConsumedIterator forward:
+	// StrIterator: including incomplete characters
+	// FullyConsumedIterator: only fully decoded characters. If it's not the same as StrIterator, you might want to drop the results and try again
+	[[nodiscard]] size_t get_char(
+		std::string_view::const_iterator& StrIterator,
+		std::string_view::const_iterator& FullyConsumedIterator,
+		std::string_view::const_iterator StrEnd,
+		wchar_t& First,
+		wchar_t& Second
+	);
 	// returns the number of decoded chars, up to Buffer.size(). Stops on buffer overflow. Tail contains the number of unprocessed bytes.
 	[[nodiscard]] size_t get_chars(std::string_view Str, span<wchar_t> Buffer, int& Tail);
 }

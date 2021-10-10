@@ -166,10 +166,11 @@ static bool is_retarded_error()
 	return Error == ERROR_INVALID_FLAGS || Error == ERROR_INVALID_PARAMETER;
 }
 
-static size_t widechar_to_multibyte_with_validation(uintptr_t const Codepage, string_view const Str, span<char> Buffer, encoding::error_position* const ErrorPosition)
+static size_t widechar_to_multibyte_with_validation(uintptr_t const Codepage, string_view const Str, span<char> Buffer, encoding::diagnostics* const Diagnostics)
 {
-	if (ErrorPosition)
-		ErrorPosition->reset();
+	const auto ErrorPositionEnabled = Diagnostics && Diagnostics->EnabledDiagnostics & encoding::enabled_diagnostics::error_position;
+	if (ErrorPositionEnabled)
+		Diagnostics->ErrorPosition.reset();
 
 	auto IsRetardedCodepage = IsNoFlagsCodepage(Codepage);
 	BOOL DefaultCharUsed = FALSE;
@@ -180,7 +181,7 @@ static size_t widechar_to_multibyte_with_validation(uintptr_t const Codepage, st
 		{
 			if (const auto Result = WideCharToMultiByte(
 				Codepage,
-				IsRetardedCodepage || !ErrorPosition ? 0 : WC_NO_BEST_FIT_CHARS,
+				IsRetardedCodepage || !ErrorPositionEnabled? 0 : WC_NO_BEST_FIT_CHARS,
 				Str.data(),
 				static_cast<int>(Str.size()),
 				To.data(),
@@ -210,7 +211,7 @@ static size_t widechar_to_multibyte_with_validation(uintptr_t const Codepage, st
 		return Result;
 
 	// They don't care, no point to go deeper
-	if (!ErrorPosition)
+	if (!ErrorPositionEnabled)
 		return Result;
 
 	std::string LocalBuffer;
@@ -226,16 +227,17 @@ static size_t widechar_to_multibyte_with_validation(uintptr_t const Codepage, st
 
 	if (const auto Pos = mismatch(Str, Roundtrip))
 	{
-		*ErrorPosition = *Pos;
+		Diagnostics->ErrorPosition = *Pos;
 	}
 
 	return Result;
 }
 
-static size_t multibyte_to_widechar_with_validation(uintptr_t const Codepage, std::string_view Str, span<wchar_t> Buffer, encoding::error_position* const ErrorPosition)
+static size_t multibyte_to_widechar_with_validation(uintptr_t const Codepage, std::string_view Str, span<wchar_t> Buffer, encoding::diagnostics* const Diagnostics)
 {
-	if (ErrorPosition)
-		ErrorPosition->reset();
+	const auto ErrorPositionEnabled = Diagnostics && Diagnostics->EnabledDiagnostics & encoding::enabled_diagnostics::error_position;
+	if (ErrorPositionEnabled)
+		Diagnostics->ErrorPosition.reset();
 
 	auto IsRetardedCodepage = IsNoFlagsCodepage(Codepage);
 	auto Strict = true;
@@ -287,7 +289,7 @@ static size_t multibyte_to_widechar_with_validation(uintptr_t const Codepage, st
 	}
 
 	// They don't care, no point to go deeper
-	if (!ErrorPosition)
+	if (!ErrorPositionEnabled)
 		return Result;
 
 	string LocalBuffer;
@@ -305,7 +307,7 @@ static size_t multibyte_to_widechar_with_validation(uintptr_t const Codepage, st
 
 	if (const auto Pos = mismatch(Str, Roundtrip))
 	{
-		*ErrorPosition = *Pos;
+		Diagnostics->ErrorPosition = *Pos;
 	}
 
 	return Result;
@@ -347,10 +349,10 @@ bool MultibyteCodepageDecoder::SetCP(uintptr_t Codepage)
 	size_t Size = 0;
 	for (size_t i = 0; i != 65536; ++i) // only UCS2 range
 	{
-		encoding::error_position ErrorPosition;
+		encoding::diagnostics Diagnostics;
 		const auto Char = static_cast<wchar_t>(i);
-		const auto CharSize = widechar_to_multibyte_with_validation(Codepage, { &Char, 1 }, u.Buffer, &ErrorPosition);
-		if (!CharSize || ErrorPosition)
+		const auto CharSize = widechar_to_multibyte_with_validation(Codepage, { &Char, 1 }, u.Buffer, &Diagnostics);
+		if (!CharSize || Diagnostics.ErrorPosition)
 			continue;
 
 		len_mask[u.b1] |= bit(CharSize - 1);
@@ -414,7 +416,7 @@ size_t MultibyteCodepageDecoder::GetChar(std::string_view const Str, wchar_t& Ch
 
 static size_t utf8_get_bytes(string_view Str, span<char> Buffer);
 
-static size_t get_bytes_impl(uintptr_t const Codepage, string_view const Str, span<char> Buffer, encoding::error_position* const ErrorPosition)
+static size_t get_bytes_impl(uintptr_t const Codepage, string_view const Str, span<char> Buffer, encoding::diagnostics* const Diagnostics)
 {
 	if (Str.empty())
 		return 0;
@@ -439,7 +441,7 @@ static size_t get_bytes_impl(uintptr_t const Codepage, string_view const Str, sp
 		}
 
 	default:
-		return widechar_to_multibyte_with_validation(Codepage, Str, Buffer, ErrorPosition);
+		return widechar_to_multibyte_with_validation(Codepage, Str, Buffer, Diagnostics);
 	}
 }
 
@@ -463,9 +465,9 @@ uintptr_t encoding::codepage::normalise(uintptr_t const Codepage)
 	}
 }
 
-size_t encoding::get_bytes(uintptr_t const Codepage, string_view const Str, span<char> const Buffer, error_position* const ErrorPosition)
+size_t encoding::get_bytes(uintptr_t const Codepage, string_view const Str, span<char> const Buffer, diagnostics* const Diagnostics)
 {
-	const auto Result = get_bytes_impl(Codepage, Str, Buffer, ErrorPosition);
+	const auto Result = get_bytes_impl(Codepage, Str, Buffer, Diagnostics);
 	if (Result < Buffer.size())
 	{
 		Buffer[Result] = '\0';
@@ -473,7 +475,7 @@ size_t encoding::get_bytes(uintptr_t const Codepage, string_view const Str, span
 	return Result;
 }
 
-void encoding::get_bytes(uintptr_t Codepage, string_view Str, std::string& Buffer, error_position* ErrorPosition)
+void encoding::get_bytes(uintptr_t Codepage, string_view Str, std::string& Buffer, diagnostics* const Diagnostics)
 {
 	if (Str.empty())
 	{
@@ -487,28 +489,28 @@ void encoding::get_bytes(uintptr_t Codepage, string_view Str, std::string& Buffe
 
 	for (auto Overflow = true; Overflow;)
 	{
-		const auto Size = get_bytes(Codepage, Str, span(Buffer), ErrorPosition);
+		const auto Size = get_bytes(Codepage, Str, span(Buffer), Diagnostics);
 		Overflow = Size > Buffer.size();
 		Buffer.resize(Size);
 	}
 }
 
-std::string encoding::get_bytes(uintptr_t const Codepage, string_view const Str, error_position* const ErrorPosition)
+std::string encoding::get_bytes(uintptr_t const Codepage, string_view const Str, diagnostics* const Diagnostics)
 {
 	std::string Result;
-	get_bytes(Codepage, Str, Result, ErrorPosition);
+	get_bytes(Codepage, Str, Result, Diagnostics);
 	return Result;
 }
 
-size_t encoding::get_bytes_count(uintptr_t const Codepage, string_view const Str, error_position* ErrorPosition)
+size_t encoding::get_bytes_count(uintptr_t const Codepage, string_view const Str, diagnostics* const Diagnostics)
 {
-	return get_bytes(Codepage, Str, {}, ErrorPosition);
+	return get_bytes(Codepage, Str, {}, Diagnostics);
 }
 
-static size_t utf8_get_chars(std::string_view Str, span<wchar_t> Buffer, encoding::error_position* ErrorPosition);
-static size_t utf7_get_chars(std::string_view Str, span<wchar_t> Buffer, encoding::error_position* ErrorPosition);
+static size_t utf8_get_chars(std::string_view Str, span<wchar_t> Buffer, encoding::diagnostics* Diagnostics);
+static size_t utf7_get_chars(std::string_view Str, span<wchar_t> Buffer, encoding::diagnostics* Diagnostics);
 
-static size_t get_chars_impl(uintptr_t const Codepage, std::string_view Str, span<wchar_t> const Buffer, encoding::error_position* const ErrorPosition)
+static size_t get_chars_impl(uintptr_t const Codepage, std::string_view Str, span<wchar_t> const Buffer, encoding::diagnostics* const Diagnostics)
 {
 	if (Str.empty())
 		return 0;
@@ -516,10 +518,10 @@ static size_t get_chars_impl(uintptr_t const Codepage, std::string_view Str, spa
 	switch (Codepage)
 	{
 	case CP_UTF8:
-		return utf8_get_chars(Str, Buffer, ErrorPosition);
+		return utf8_get_chars(Str, Buffer, Diagnostics);
 
 	case CP_UTF7:
-		return utf7_get_chars(Str, Buffer, ErrorPosition);
+		return utf7_get_chars(Str, Buffer, Diagnostics);
 
 	case CP_UNICODE:
 		copy_memory(Str.data(), Buffer.data(), std::min(Str.size(), Buffer.size() * sizeof(wchar_t)));
@@ -530,13 +532,13 @@ static size_t get_chars_impl(uintptr_t const Codepage, std::string_view Str, spa
 		return Str.size() / sizeof(wchar_t);
 
 	default:
-		return multibyte_to_widechar_with_validation(Codepage, Str, Buffer, ErrorPosition);
+		return multibyte_to_widechar_with_validation(Codepage, Str, Buffer, Diagnostics);
 	}
 }
 
-size_t encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, span<wchar_t> const Buffer, error_position* const ErrorPosition)
+size_t encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, span<wchar_t> const Buffer, diagnostics* const Diagnostics)
 {
-	const auto Result = get_chars_impl(Codepage, Str, Buffer, ErrorPosition);
+	const auto Result = get_chars_impl(Codepage, Str, Buffer, Diagnostics);
 	if (Result < Buffer.size())
 	{
 		Buffer[Result] = {};
@@ -544,7 +546,7 @@ size_t encoding::get_chars(uintptr_t const Codepage, std::string_view const Str,
 	return Result;
 }
 
-void encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, string& Buffer, error_position* const ErrorPosition)
+void encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, string& Buffer, diagnostics* const Diagnostics)
 {
 	if (Str.empty())
 	{
@@ -563,7 +565,7 @@ void encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, s
 		case CP_UTF7:
 		case CP_UTF8:
 			// Even though DataSize is always >= BufferSize for these guys, we can't use DataSize for estimation - it can be three times larger than necessary.
-			return get_chars_count(Codepage, Str, ErrorPosition);
+			return get_chars_count(Codepage, Str, Diagnostics);
 
 		default:
 			return Str.size();
@@ -575,42 +577,42 @@ void encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, s
 
 	for (auto Overflow = true; Overflow;)
 	{
-		const auto Size = get_chars(Codepage, Str, span(Buffer), ErrorPosition);
+		const auto Size = get_chars(Codepage, Str, span(Buffer), Diagnostics);
 		Overflow = Size > Buffer.size();
 		Buffer.resize(Size);
 	}
 }
 
-size_t encoding::get_chars(uintptr_t const Codepage, bytes_view const Str, span<wchar_t> Buffer, error_position* const ErrorPosition)
+size_t encoding::get_chars(uintptr_t const Codepage, bytes_view const Str, span<wchar_t> Buffer, diagnostics* const Diagnostics)
 {
-	return get_chars(Codepage, to_string_view(Str), Buffer, ErrorPosition);
+	return get_chars(Codepage, to_string_view(Str), Buffer, Diagnostics);
 }
 
-void encoding::get_chars(uintptr_t const Codepage, bytes_view const Str, string& Buffer, error_position* const ErrorPosition)
+void encoding::get_chars(uintptr_t const Codepage, bytes_view const Str, string& Buffer, diagnostics* const Diagnostics)
 {
-	return get_chars(Codepage, to_string_view(Str), Buffer, ErrorPosition);
+	return get_chars(Codepage, to_string_view(Str), Buffer, Diagnostics);
 }
 
-string encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, error_position* const ErrorPosition)
+string encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, diagnostics* const Diagnostics)
 {
 	string Result;
-	get_chars(Codepage, Str, Result, ErrorPosition);
+	get_chars(Codepage, Str, Result, Diagnostics);
 	return Result;
 }
 
-string encoding::get_chars(uintptr_t const Codepage, bytes_view const Str, error_position* const ErrorPosition)
+string encoding::get_chars(uintptr_t const Codepage, bytes_view const Str, diagnostics* const Diagnostics)
 {
-	return get_chars(Codepage, to_string_view(Str), ErrorPosition);
+	return get_chars(Codepage, to_string_view(Str), Diagnostics);
 }
 
-size_t encoding::get_chars_count(uintptr_t const Codepage, std::string_view const Str, error_position* const ErrorPosition)
+size_t encoding::get_chars_count(uintptr_t const Codepage, std::string_view const Str, diagnostics* const Diagnostics)
 {
-	return get_chars(Codepage, Str, {}, ErrorPosition);
+	return get_chars(Codepage, Str, {}, Diagnostics);
 }
 
-size_t encoding::get_chars_count(uintptr_t const Codepage, bytes_view const Str, error_position* const ErrorPosition)
+size_t encoding::get_chars_count(uintptr_t const Codepage, bytes_view const Str, diagnostics* const Diagnostics)
 {
-	return get_chars(Codepage, Str, {}, ErrorPosition);
+	return get_chars(Codepage, Str, {}, Diagnostics);
 }
 
 void encoding::raise_exception(uintptr_t const Codepage, string_view const Str, size_t const Position)
@@ -664,11 +666,11 @@ void encoding::writer::write(const string_view Str)
 		return io::write(*m_Stream, Str);
 
 
-	error_position ErrorPosition;
-	get_bytes(m_Codepage, Str, m_Buffer, m_IgnoreEncodingErrors? nullptr : &ErrorPosition);
+	diagnostics Diagnostics{ error_position };
+	get_bytes(m_Codepage, Str, m_Buffer, m_IgnoreEncodingErrors? nullptr : &Diagnostics);
 
-	if (ErrorPosition)
-		raise_exception(m_Codepage, Str, *ErrorPosition);
+	if (Diagnostics.ErrorPosition)
+		raise_exception(m_Codepage, Str, *Diagnostics.ErrorPosition);
 
 	io::write(*m_Stream, m_Buffer);
 }
@@ -691,11 +693,11 @@ void encoding::memory_writer::write(string_view Str, const bool validate)
 	if (Str.empty())
 		return;
 
-	error_position ErrorPosition;
-	m_Data.emplace_back(get_bytes(m_Codepage, Str, validate ? &ErrorPosition : nullptr));
+	diagnostics Diagnostics;
+	m_Data.emplace_back(get_bytes(m_Codepage, Str, validate ? &Diagnostics : nullptr));
 
-	if (ErrorPosition)
-		raise_exception(m_Codepage, Str, *ErrorPosition);
+	if (Diagnostics.ErrorPosition)
+		raise_exception(m_Codepage, Str, *Diagnostics.ErrorPosition);
 }
 
 void encoding::memory_writer::flush_to(std::ostream& Stream)
@@ -759,7 +761,14 @@ static const short m7[128] =
 
 // BUGBUG non-BMP range is not supported
 // TODO: Rewrite
-static size_t Utf7_GetChar(std::string_view::const_iterator const Iterator, std::string_view::const_iterator const End, wchar_t* const Buffer, bool& ConversionError, int& state)
+static size_t Utf7_GetChar(
+	std::string_view::const_iterator const Iterator,
+	std::string_view::const_iterator const End,
+	wchar_t* const Buffer,
+	bool& ConversionError,
+	int& state,
+	size_t* IncompleteBytes // BUGBUG not yet used
+)
 {
 	const size_t DataSize = End - Iterator;
 
@@ -909,8 +918,8 @@ static size_t Utf7_GetChar(std::string_view::const_iterator const Iterator, std:
 static size_t BytesToUnicode(
 	std::string_view const Str,
 	span<wchar_t> const Buffer,
-	function_ref<size_t(std::string_view::const_iterator, std::string_view::const_iterator, wchar_t*, bool&, int&)> const GetChar,
-	encoding::error_position* const ErrorPosition)
+	function_ref<size_t(std::string_view::const_iterator, std::string_view::const_iterator, wchar_t*, bool&, int&, size_t*)> const GetChar,
+	encoding::diagnostics* const Diagnostics)
 {
 	if (Str.empty())
 		return 0;
@@ -928,7 +937,8 @@ static size_t BytesToUnicode(
 	{
 		wchar_t TmpBuffer[2]{};
 		auto ConversionError = false;
-		const auto BytesConsumed = GetChar(StrIterator, StrEnd, TmpBuffer, ConversionError, State);
+		const auto IncompleteBytes = Diagnostics && Diagnostics->EnabledDiagnostics & encoding::enabled_diagnostics::incomplete_bytes? &Diagnostics->IncompleteBytes : nullptr;
+		const auto BytesConsumed = GetChar(StrIterator, StrEnd, TmpBuffer, ConversionError, State, IncompleteBytes);
 
 		if (!BytesConsumed)
 			break;
@@ -937,8 +947,8 @@ static size_t BytesToUnicode(
 		{
 			TmpBuffer[0] = encoding::replace_char;
 
-			if (ErrorPosition && !*ErrorPosition)
-				*ErrorPosition = StrIterator - Str.begin();
+			if (Diagnostics && Diagnostics->EnabledDiagnostics & encoding::enabled_diagnostics::error_position && !Diagnostics->ErrorPosition)
+				Diagnostics->ErrorPosition = StrIterator - Str.begin();
 		}
 
 		const auto StoreChar = [&](wchar_t Char)
@@ -963,9 +973,9 @@ static size_t BytesToUnicode(
 	return RequiredSize;
 }
 
-static size_t utf7_get_chars(std::string_view const Str, span<wchar_t> const Buffer, encoding::error_position* const ErrorPosition)
+static size_t utf7_get_chars(std::string_view const Str, span<wchar_t> const Buffer, encoding::diagnostics* const Diagnostics)
 {
-	return BytesToUnicode(Str, Buffer, Utf7_GetChar, ErrorPosition);
+	return BytesToUnicode(Str, Buffer, Utf7_GetChar, Diagnostics);
 }
 
 namespace utf16
@@ -1074,7 +1084,13 @@ namespace utf8
 	}
 }
 
-size_t Utf8::get_char(std::string_view::const_iterator& StrIterator, std::string_view::const_iterator const StrEnd, wchar_t& First, wchar_t& Second)
+size_t Utf8::get_char(
+	std::string_view::const_iterator& StrIterator,
+	std::string_view::const_iterator& FullyConsumedIterator,
+	std::string_view::const_iterator const StrEnd,
+	wchar_t& First,
+	wchar_t& Second
+)
 {
 	size_t NumberOfChars = 1;
 
@@ -1187,6 +1203,7 @@ size_t Utf8::get_char(std::string_view::const_iterator& StrIterator, std::string
 		}
 	}
 
+	FullyConsumedIterator = StrIterator;
 	return NumberOfChars;
 }
 
@@ -1211,7 +1228,8 @@ size_t Utf8::get_chars(std::string_view const Str, span<wchar_t> const Buffer, i
 	while (StrIterator != StrEnd)
 	{
 		wchar_t First, Second;
-		const auto NumberOfChars = get_char(StrIterator, StrEnd, First, Second);
+		auto FullyConsumedIterator = StrIterator;
+		const auto NumberOfChars = get_char(StrIterator, FullyConsumedIterator, StrEnd, First, Second);
 
 		if (!StoreChar(NumberOfChars == 1 || BufferIterator + 1 != BufferEnd? First : encoding::replace_char))
 			break;
@@ -1227,14 +1245,17 @@ size_t Utf8::get_chars(std::string_view const Str, span<wchar_t> const Buffer, i
 	return BufferIterator - Buffer.begin();
 }
 
-static size_t utf8_get_chars(std::string_view const Str, span<wchar_t> const Buffer, encoding::error_position* const ErrorPosition)
+static size_t utf8_get_chars(std::string_view const Str, span<wchar_t> const Buffer, encoding::diagnostics* const Diagnostics)
 {
-	return BytesToUnicode(Str, Buffer, [](std::string_view::const_iterator const Iterator, std::string_view::const_iterator const End, wchar_t* CharBuffer, bool&, int&)
+	return BytesToUnicode(Str, Buffer, [](std::string_view::const_iterator const Iterator, std::string_view::const_iterator const End, wchar_t* CharBuffer, bool&, int&, size_t* IncompleteBytes)
 	{
 		auto NextIterator = Iterator;
-		(void)Utf8::get_char(NextIterator, End, CharBuffer[0], CharBuffer[1]);
+		auto FullyConsumedIterator = Iterator;
+		(void)Utf8::get_char(NextIterator, FullyConsumedIterator, End, CharBuffer[0], CharBuffer[1]);
+		if (IncompleteBytes)
+			*IncompleteBytes = NextIterator - FullyConsumedIterator;
 		return static_cast<size_t>(NextIterator - Iterator);
-	}, ErrorPosition);
+	}, Diagnostics);
 }
 
 static size_t utf8_get_bytes(string_view const Str, span<char> const Buffer)
@@ -1765,10 +1786,9 @@ TEST_CASE("encoding.errors")
 
 	for (const auto& i: Tests)
 	{
-		encoding::error_position ErrorPosition;
-		REQUIRE(encoding::get_chars_count(i.Codepage, i.Bytes, &ErrorPosition));
-		REQUIRE(ErrorPosition);
-		REQUIRE(*ErrorPosition == i.Position);
+		encoding::diagnostics Diagnostics;
+		REQUIRE(encoding::get_chars_count(i.Codepage, i.Bytes, &Diagnostics));
+		REQUIRE(Diagnostics.ErrorPosition == i.Position);
 	}
 }
 

@@ -923,6 +923,12 @@ void progress_impl::init(span<DialogItemEx> const Items, rectangle const Positio
 		return Dlg->DefProc(Msg, Param1, Param2);
 	});
 
+	// BUGBUG This is so wrong
+	// It's here to prevent panels update, because currently,
+	// for some insane reason, "repaint" is actually "refresh",
+	// which degrades performance and break plugins.
+	m_Dialog->SetFlags(FSCROBJ_SPECIAL);
+
 	m_Dialog->SetPosition(Position);
 	m_Dialog->SetCanLoseFocus(true);
 	m_Dialog->Process();

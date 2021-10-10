@@ -1,4 +1,4 @@
-#include "farversion.hpp"
+#include <farversion.hpp>
 
 #define PLUGIN_BUILD 110
 #define PLUGIN_DESC L"Temporary Panel for Far Manager"

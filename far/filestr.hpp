@@ -62,7 +62,7 @@ class [[nodiscard]] enum_lines: public enumerator<enum_lines, file_line>
 public:
 	enum_lines(std::istream& Stream, uintptr_t CodePage);
 
-	bool conversion_error() const { return !!m_ErrorPosition; }
+	bool conversion_error() const { return m_Diagnostics.ErrorPosition.has_value(); }
 
 private:
 	[[nodiscard]]
@@ -96,8 +96,9 @@ private:
 
 	mutable std::variant<conversion_data, string> m_Data;
 
-	mutable bool m_CrCr{};
-	mutable encoding::error_position m_ErrorPosition{};
+	mutable size_t m_CrSeen{};
+	mutable bool m_EmitExtraCr{};
+	mutable encoding::diagnostics m_Diagnostics;
 };
 
 // If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)

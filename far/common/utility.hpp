@@ -45,23 +45,36 @@ protected:
 	using base_type = T;
 };
 
-inline size_t grow_exp_noshrink(size_t const Current, size_t const Desired)
+inline size_t grow_exp_noshrink(size_t const Current, std::optional<size_t> const Desired)
 {
 	// Unlike vector, string is allowed to shrink (another splendid design decision from the committee):
 	// "Calling reserve() with a res_arg argument less than capacity() is in effect a non-binding shrink request." (21.4.4 basic_string capacity)
 	// gcc decided to go mental and made that a _binding_ shrink request.
-	if (Desired < Current)
+	if (Desired && *Desired < Current)
 		return Current;
 
 	// For vector reserve typically allocates exactly the requested amount instead of exponential growth.
 	// This can be really bad if called in a loop.
-	return std::max(Current + Current / 2, Desired);
+	const auto LowerBound = Current + (Current + 1) / 2;
+	return Desired? std::max(LowerBound, *Desired) : LowerBound;
+}
+
+template<typename container>
+void reserve_exp_noshrink(container& Container)
+{
+	Container.reserve(grow_exp_noshrink(Container.capacity(), {}));
 }
 
 template<typename container>
 void reserve_exp_noshrink(container& Container, size_t const DesiredCapacity)
 {
 	Container.reserve(grow_exp_noshrink(Container.capacity(), DesiredCapacity));
+}
+
+template<typename container>
+void resize_exp_noshrink(container& Container)
+{
+	Container.resize(grow_exp_noshrink(Container.size(), {}), {});
 }
 
 template<typename container>

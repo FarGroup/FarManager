@@ -1,5 +1,13 @@
-ROOT_PATH=../../
-!include ../../makefile_vc_base
+!ifndef ROOTDIR
+ROOTDIR = ..\..\..
+!endif
+!if exists($(ROOTDIR)\make_vc_defs)
+!include $(ROOTDIR)\make_vc_defs
+!endif
+!ifndef TREEDIR
+TREEDIR=$(ROOTDIR)
+!endif
+!include $(TREEDIR)\_build\vc\config\common.mak
 
 CC=$(_BIN_PATH_)cl.exe
 LIBR=$(_BIN_PATH_)lib.exe

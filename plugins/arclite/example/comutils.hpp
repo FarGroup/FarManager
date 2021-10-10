@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "error.hpp"
+#include "../error.hpp"
 
 #define COM_ERROR_HANDLER_BEGIN \
   try {

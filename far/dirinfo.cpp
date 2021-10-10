@@ -248,6 +248,10 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 		}
 		NewItem.CustomColumnData = CustomColumnData.release();
 	}
+	else
+	{
+		NewItem.CustomColumnData = {};
+	}
 
 	// UserData is not used in PluginDirList
 	NewItem.UserData.Data=nullptr;

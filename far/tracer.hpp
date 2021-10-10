@@ -46,6 +46,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+class map_file;
+
 namespace tracer_detail
 {
 	class tracer
@@ -53,7 +55,8 @@ namespace tracer_detail
 	public:
 		NONCOPYABLE(tracer);
 
-		tracer() = default;
+		tracer();
+		~tracer();
 
 		std::vector<uintptr_t> get(string_view Module, CONTEXT const& ContextRecord, HANDLE ThreadHandle);
 		void get_symbols(string_view Module, span<uintptr_t const> Trace, function_ref<void(string&& Line)> Consumer);
@@ -73,6 +76,7 @@ namespace tracer_detail
 		void sym_cleanup();
 
 		os::concurrency::critical_section m_CS;
+		std::unique_ptr<std::unordered_map<uintptr_t, map_file>> m_MapFiles;
 		size_t m_SymInitialised{};
 	};
 }

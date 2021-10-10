@@ -7,12 +7,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Far", "far.vcxproj", "{62F7
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_ASAN|Win32 = Debug_ASAN|Win32
+		Debug_ASAN|x64 = Debug_ASAN|x64
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}.Debug_ASAN|Win32.ActiveCfg = Debug_ASAN|Win32
+		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}.Debug_ASAN|Win32.Build.0 = Debug_ASAN|Win32
+		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}.Debug_ASAN|x64.ActiveCfg = Debug_ASAN|x64
+		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}.Debug_ASAN|x64.Build.0 = Debug_ASAN|x64
 		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}.Debug|Win32.ActiveCfg = Debug|Win32
 		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}.Debug|Win32.Build.0 = Debug|Win32
 		{62F794C9-5F4C-40F6-B358-5DC1A9D6D2CB}.Debug|x64.ActiveCfg = Debug|x64

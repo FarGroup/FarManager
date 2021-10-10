@@ -7,27 +7,6 @@ fi
 #include common
 . plugins.common
 
-function bpluginfe {
-PLUGIN=fexcept
-PLDIR=FExcept
-
-pushd $PLUGIN || return 1
-
-unix2dos changelog
-
-mkdir -p execdump/Release.32.vc/obj/LibObj
-#mkdir -p execdump/Release.64.vc/obj/LibObj
-
-MASKS_FEXCEPT="*.dll *.farconfig"
-
-( \
-	bplugin2 "$PLDIR" 32 1 "$MASKS_FEXCEPT" \
-#	bplugin2 "$PLDIR" 64 1 "$MASKS_FEXCEPT" \
-) || return 1
-
-popd
-}
-
 rm -fR plugins
 rm -fR misc
 
@@ -70,12 +49,6 @@ bplugin "tmppanel"   "TmpPanel"   "$MASKS *.temp" && \
 bplugin "arclite"    "ArcLite"    "$MASKS *.sfx *.xml" && \
 bplugin "luamacro"   "LuaMacro"   "$MASKS *.ini" \
 
-) || exit 1
-
-( \
-	cd ../misc && \
-	bpluginfe && \
-	cd .. \
 ) || exit 1
 
 cd ..

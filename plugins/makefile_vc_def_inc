@@ -61,14 +61,17 @@
 #
 
 !ifndef ROOTDIR
-ROOTDIR = ../..
+ROOTDIR = ..\..
 !endif
 
-!include $(ROOTDIR)/_build/vc/config/common.mak
-
-!if exists($(ROOTDIR)make_vc_defs)
-!include $(ROOTDIR)make_vc_defs
+!if exists($(ROOTDIR)\make_vc_defs)
+!include $(ROOTDIR)\make_vc_defs
 !endif
+
+!ifndef TREEDIR
+TREEDIR=$(ROOTDIR)
+!endif
+!include $(TREEDIR)\_build\vc\config\common.mak
 
 !ifndef RC_NAME
 RC_NAME=$(NAME)
@@ -79,7 +82,7 @@ DEF_NAME=$(NAME)
 !endif
 
 !ifdef INSTALL
-!ifndef FARDIR
+!ifndef INSTALL_TO_ROOT
 OUTDIR=$(INSTALL)\$(NAME)
 !else
 OUTDIR=$(INSTALL)
@@ -103,11 +106,7 @@ EXT = dll
 DLLNAME = $(NAME).$(EXT)
 DLLFULLNAME = $(OUTDIR)$(ADDOUTDIR)\$(DLLNAME)
 !if "$(DEF_NAME)" != ""
-!ifdef ANSI
 DEFFILE = $(DEF_NAME).vc$(ULN_DEF).def
-!else
-DEFFILE = $(DEF_NAME)W.vc$(ULN_DEF).def
-!endif
 DEFOPT = /def:$(DEFFILE)
 !endif
 MAP = $(OUTDIR)$(ADDOUTDIR)\$(NAME).map
@@ -177,7 +176,7 @@ NODEFLIB_FLAG = -n
 LINK_DEF_OPT=/ZD:"$(DEFFILE)"
 !endif
 !ifdef GEN_IMPLIB
-LINK_GEN_IMPLIB=-Gic
+LINK_GEN_IMPLIB=-Gic -l$(INTDIR)
 !endif
 LINKFLAGS=-q -V5.0 -W5.0 -b* $(ULOUT) $(ULN_DELAY) -Gz -m- -Gh -Gh- $(NOENTRY_FLAG) $(NODEFLIB_FLAG) $(LINK_DEF_OPT) /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(LINK_GEN_IMPLIB) $(ENV_LIB_OPT)
 !ifdef DEBUG

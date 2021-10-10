@@ -1,0 +1,8 @@
+#pragma code_page(65001)
+
+#include "version.hpp"
+
+#define PLUGIN_COPYRIGHT_INITIAL
+#define PLUGIN_COPYRIGHT_CURRENT_FROM 2010
+
+#include <plugin_version.rc>

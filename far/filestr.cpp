@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "codepage_selection.hpp"
 #include "global.hpp"
-#include "log.hpp"
 
 // Platform:
 
@@ -57,7 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-const auto BufferSize = 4096;
+const auto BufferSize = 65536;
 static_assert(BufferSize % sizeof(wchar_t) == 0);
 
 enum_lines::enum_lines(std::istream& Stream, uintptr_t CodePage):
@@ -112,7 +111,7 @@ bool enum_lines::fill() const
 			// - If we pretend that the remaining bytes are \0, the worst thing that could happen is trailing \0 bytes after save.
 			std::fill_n(m_Buffer.begin() + Read, MissingBytes, '\0');
 			m_BufferView = { m_Buffer.data(), Read + MissingBytes };
-			m_ErrorPosition = 0;
+			m_Diagnostics.ErrorPosition = 0;
 		}
 
 		if (m_CodePage == CP_REVERSEBOM)
@@ -127,10 +126,10 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol& Eol, bool BigEndian) 
 {
 	To.clear();
 
-	if (m_CrCr)
+	if (m_EmitExtraCr)
 	{
 		Eol = eol::mac;
-		m_CrCr = false;
+		m_EmitExtraCr = false;
 		return true;
 	}
 
@@ -138,92 +137,78 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol& Eol, bool BigEndian) 
 		EolCr = m_Eol.cr<T>(),
 		EolLf = m_Eol.lf<T>();
 
-	const T AnyEolBuffer[]{ EolCr, EolLf };
-	const std::basic_string_view AnyEol(AnyEolBuffer, std::size(AnyEolBuffer));
-
-	const auto ProcessAfterCr = [&](std::basic_string_view<T> const Str)
-	{
-		if (Str.front() == EolLf)
-		{
-			Eol = eol::win;
-			return 2;
-		}
-
-		if (Str.front() != EolCr)
-		{
-			Eol = eol::mac;
-			return 1;
-		}
-
-		if (Str.size() == 1)
-		{
-			m_CrCr = true;
-			return 0;
-		}
-
-		if (Str[1] == EolLf)
-		{
-			Eol = eol::bad_win;
-			return 3;
-		}
-
-		Eol = eol::mac;
-		return 1;
-	};
-
-	const auto Cast = [&]
-	{
-		return std::basic_string_view{ view_as<T const*>(m_BufferView.data()), m_BufferView.size() / sizeof(T) };
-	};
-
 	for (;;)
 	{
-		if (m_BufferView.empty() && !fill())
+		const auto Char = !m_BufferView.empty() || fill()?
+			std::optional<T>{ std::basic_string_view{ view_as<T const*>(m_BufferView.data()), m_BufferView.size() / sizeof(T) }.front() } :
+			std::optional<T>{};
+
+		if (Char == EolLf)
+		{
+			m_BufferView.remove_prefix(sizeof(T));
+
+			switch (m_CrSeen)
+			{
+			case 0:
+				Eol = eol::unix;
+				return true;
+
+			case 1:
+				Eol = eol::win;
+				m_CrSeen = 0;
+				return true;
+
+			case 2:
+				Eol = eol::bad_win;
+				m_CrSeen = 0;
+				return true;
+
+			default:
+				UNREACHABLE;
+			}
+		}
+
+		if (Char == EolCr)
+		{
+			m_BufferView.remove_prefix(sizeof(T));
+
+			switch (m_CrSeen)
+			{
+			case 0:
+			case 1:
+				++m_CrSeen;
+				continue;
+
+			case 2:
+				Eol = eol::mac;
+				m_EmitExtraCr = true;
+				m_CrSeen = 1;
+				return true;
+
+			default:
+				UNREACHABLE;
+			}
+		}
+
+		if (m_CrSeen)
+		{
+			Eol = eol::mac;
+			if (m_CrSeen == 2)
+				m_EmitExtraCr = true;
+			m_CrSeen = 0;
+			return true;
+		}
+
+		if (Char)
+		{
+			m_BufferView.remove_prefix(sizeof(T));
+			To.push_back(*Char);
+		}
+		else
 		{
 			Eol = eol::none;
 			return !To.empty();
 		}
-
-		const auto StrData = Cast();
-		const auto EolPos = StrData.find_first_of(AnyEol);
-
-		To.append(StrData, 0, EolPos);
-
-		if (EolPos == StrData.npos)
-		{
-			m_BufferView = {};
-			continue;
-		}
-
-		m_BufferView.remove_prefix(EolPos * sizeof(T));
-
-		if (StrData[EolPos] == EolLf)
-		{
-			Eol = eol::unix;
-			m_BufferView.remove_prefix(sizeof(T));
-			return true;
-		}
-
-		if (EolPos + 1 != StrData.size())
-		{
-			if (const auto ToRemove = ProcessAfterCr(StrData.substr(EolPos + 1)))
-			{
-				m_BufferView.remove_prefix(ToRemove * sizeof(T));
-				return true;
-			}
-		}
-
-		// (('\r' or '\r\r') and DataEnd): inconclusive, get more
-		m_BufferView = {};
-
-		if (!fill())
-		{
-			Eol = eol::mac;
-			return true;
-		}
-
-		m_BufferView.remove_prefix((ProcessAfterCr(Cast()) - 1) * sizeof(T));
-		return true;
 	}
 }
 
@@ -256,7 +241,7 @@ bool enum_lines::GetString(string_view& Str, eol& Eol) const
 
 			for (;;)
 			{
-				const auto Size = encoding::get_chars(m_CodePage, Data.m_Bytes, Data.m_wBuffer, &m_ErrorPosition);
+				const auto Size = encoding::get_chars(m_CodePage, Data.m_Bytes, Data.m_wBuffer, &m_Diagnostics);
 				if (Size <= Data.m_wBuffer.size())
 				{
 					Data.m_Bytes.clear();

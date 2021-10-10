@@ -4134,9 +4134,15 @@ popísový soubor korektně updatovat.
 když kopíruje, přesouvá a maže soubory. Pokud se manipuluje se soubory
 v podadresářích, popisy v podadresářích nebudou updatovány.
 
- Use ANSI code page by default
+ #Use ANSI code page by default#
+ By default Far uses the OEM codepage for file descriptions, both for reading and writing.
+This option changes it to ANSI.
 
- Save in UTF8
+ #Save in UTF-8#
+ If set, the description file will be read as OEM or ANSI, depending on the option above,
+but saved in UTF-8 after you add, remove or update the descriptions.
+
+ #Note#: these options are irrelevant when the file has the UTF-8 signature. In this case it is always read and written in UTF-8.
 
 
 @PanelViewModes

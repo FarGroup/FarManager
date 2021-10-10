@@ -21,7 +21,7 @@ FAR_DIRNAME=Release
 !else
 FAR_DIRNAME=Debug
 !endif
-FAR_WORKDIR=..\..\far\$(FAR_DIRNAME).$(DIRBIT).vc
+FAR_WORKDIR=$(FARDIR)\$(FAR_DIRNAME).$(DIRBIT).vc
 !endif
 
 ALL: lualib lualegacy
@@ -42,13 +42,13 @@ LINK_LIBS=$(LINK_LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib $(LUALIB)
 	@$(CC) $(CPPFLAGS) /Fo$(INTDIR)\ { $< }
 !endif
 
-.PHONY: lualib lualegacy
-
 !include ../makefile_vc_getmode
 
+.PHONY: lualib
 lualib:
-	@$(MAKE) $(_MKHIDE) /f makefile_lib_vc INSTALL=$(FAR_WORKDIR) $(_MDEFS)
+	@$(MAKE) $(_MKHIDE) /f makefile_lib_vc INSTALL=$(FAR_WORKDIR) $(_MKDO_)INSTALL_TO_ROOT=1 $(_MDEFS)
 
+.PHONY: lualegacy
 lualegacy:
 !if "$(DIRBIT)" == "32"
 	@if not exist $(FAR_WORKDIR)\Legacy\$(NULL) mkdir $(FAR_WORKDIR)\Legacy

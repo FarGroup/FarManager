@@ -11,10 +11,7 @@ SRCS = $(NAME).cpp
 USERCPP = -I ./libpcre
 USERLIBS = -L $(OBJDIR) -lPCRE
 
-include ../../far/makefile_gcc_common
-
 include ../makefile_gcc_def_inc
-
 include ../makefile_gcc_target_inc
 
 ifeq ($(FMT),custom)

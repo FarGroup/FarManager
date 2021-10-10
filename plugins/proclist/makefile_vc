@@ -13,15 +13,9 @@ LINK_OBJS = \
 	$(INTDIR)\wmi_init.obj \
 	$(INTDIR)\Proclist.obj
 
-!ifndef FARDIR
-FAR_DIRECTORY=../../far
-!else
-FAR_DIRECTORY=$(FARDIR)
-!endif
-
-USERCPP = /EHsc -D"_WIN32_DCOM" -I"$(FAR_DIRECTORY)/common" -I"$(FAR_DIRECTORY)/thirdparty/fmt"
-
 !include ..\makefile_vc_def_inc
+CPPFLAGS = $(CPPFLAGS) -D"_WIN32_DCOM" -I"$(FARDIR)/common" -I"$(FARDIR)/thirdparty/fmt"
+
 !include ..\makefile_vc_target_inc
 
 $(INTDIR)\fileio.obj : fileio.cpp Proclist.hpp guid.hpp perfthread.hpp Proclng.hpp version.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp

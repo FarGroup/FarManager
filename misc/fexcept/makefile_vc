@@ -2,8 +2,6 @@ NAME = FExcept
 DOCS = demangle$(DIRBIT).dll
 LINK_OBJS = $(INTDIR)\FExcept.obj
 
-COMMON = ..\..\plugins\common
-
 All: dirs
 
 !include ..\..\plugins\makefile_vc_def_inc
@@ -18,6 +16,6 @@ excdump:
 !ifndef INSTALL
 	$(MAKE) /f makefile_vc $(_MKDO_)COPYTO=..\$(OUTDIR) $(_MDEFS)
 !else
-	$(MAKE) /f makefile_vc $(_MDEFS) $(_MKDO_)INSTALL=..\$(INSTALL)\$(NAME) $(_MKDO_)FARDIR=..\$(INSTALL)
+	$(MAKE) /f makefile_vc $(_MDEFS) $(_MKDO_)INSTALL=..\$(INSTALL)\$(NAME) $(_MKDO_)INSTALL_TO_ROOT=1
 !endif
 	@cd ..

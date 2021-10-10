@@ -125,6 +125,7 @@ LNKFLAGS += \
 	-lmpr \
 	-lwinspool \
 	-lole32 \
+	-loleaut32 \
 	-lsecur32 \
 	-lsetupapi \
 	-lpsapi \
