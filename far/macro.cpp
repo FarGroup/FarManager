@@ -3386,7 +3386,7 @@ void FarMacroApi::fattrFuncImpl(int Type)
 		if (const auto SelPanel = SelectPanel(Params[0].asInteger()))
 		{
 			Pos = (Str.find_first_of(L"*?"sv) == string::npos)?
-				SelPanel->FindFile(Str, Str.find_first_of(L"\\/:"sv) != string::npos) :
+				SelPanel->FindFile(Str, Str.find_first_of(L"\\/:"sv) == string::npos) :
 				SelPanel->FindFirst(Str);
 
 			if (Pos >= 0)
