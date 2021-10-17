@@ -29,12 +29,32 @@ function bcolorer {
     echo "Can't find ${COLORER_PDB_NAME}"
     return 1
   fi
+
+  COLORER_SCHEMES_VERSION=$(curl --silent "https://api.github.com/repos/colorer/Colorer-schemes/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
+  if [ -z "$COLORER_SCHEMES_VERSION" ]; then
+    echo "Failed to get Colorer schemes version"
+    return 1
+  fi
+  echo "Download Colorer schemes ${COLORER_VERSION}"
+  COLORER_SCHEMES_FILE_NAME=colorer-base.allpacked.${COLORER_BASE_NAME}.zip
+
+  rm -f ${COLORER_SCHEMES_FILE_NAME}
+
+  COLORER_SCHEMES_BASE_URL=https://github.com/colorer/Colorer-schemes/releases/download/v${COLORER_SCHEMES_VERSION}/
+  curl -fsLJO ${COLORER_SCHEMES_BASE_URL}${COLORER_SCHEMES_FILE_NAME}
+  if [ ! -e ${COLORER_SCHEMES_FILE_NAME} ]; then
+    echo "Can't find ${COLORER_SCHEMES_FILE_NAME}"
+    return 1
+  fi
+
   COLORER_DIR=outfinalnew${BIT}/Plugins/$PLUGIN
   mkdir ${COLORER_DIR}
   7z x ${COLORER_FILE_NAME} -o${COLORER_DIR}
   7z x ${COLORER_PDB_NAME} -o${COLORER_DIR}/bin
+  7z x ${COLORER_SCHEMES_FILE_NAME} -o${COLORER_DIR}/base
   rm -f ${COLORER_FILE_NAME}
   rm -f ${COLORER_PDB_NAME}
+  rm -f ${COLORER_SCHEMES_FILE_NAME}
 
 }
 
