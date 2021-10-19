@@ -86,6 +86,7 @@ public:
 	void SetCheck(int Position=-1);
 	void SetCustomCheck(wchar_t Char, int Position = -1);
 	void ClearCheck(int Position = -1);
+	void FlipCheck(int Position = -1);
 	void UpdateItemFlags(int Pos, unsigned long long NewFlags);
 	void SetMaxHeight(int NewMaxHeight){MaxHeight=NewMaxHeight; Resize();}
 	/*

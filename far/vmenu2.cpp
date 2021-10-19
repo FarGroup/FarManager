@@ -542,6 +542,12 @@ void VMenu2::ClearCheck(int Position)
 	UpdateItemFlags(Position, Flags & ~LIF_CHECKED);
 }
 
+void VMenu2::FlipCheck(int Position)
+{
+	const auto Flags = GetItemFlags(Position) & ~std::numeric_limits<wchar_t>::max();
+	UpdateItemFlags(Position, Flags & LIF_CHECKED? Flags & ~LIF_CHECKED : Flags | LIF_CHECKED);
+}
+
 void VMenu2::UpdateItemFlags(int Pos, unsigned long long NewFlags)
 {
 	if(Pos<0)

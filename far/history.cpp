@@ -167,7 +167,7 @@ void History::AddToHistory(string_view const Str, history_record_type const Type
 
 	const bool ignore_data = m_TypeHistory == HISTORYTYPE_CMD;
 
-	for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName, Str))
+	for (const auto& i: HistoryCfgRef()->Enumerator(m_TypeHistory, m_HistoryName, Str, true))
 	{
 		if (!EqualType(Type, i.Type))
 			continue;
@@ -503,10 +503,8 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 					if (CurrentRecord)
 					{
 						HistoryCfgRef()->FlipLock(CurrentRecord);
-						ResetPosition();
-						HistoryMenu.Close(Pos.SelectPos);
-						IsUpdate=true;
-						SetUpMenuPos=true;
+
+						HistoryMenu.FlipCheck(Pos.SelectPos);
 					}
 
 					break;
@@ -517,14 +515,12 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 					if (CurrentRecord && !HistoryCfgRef()->IsLocked(CurrentRecord))
 					{
 						HistoryCfgRef()->Delete(CurrentRecord);
+						ResetPosition();
 
 						if (os::chrono::time_point Time; HistoryCfgRef()->Get(CurrentRecord, {}, {}, &Time, {}, {}, {}))
 							forget_record(Time);
 
-						ResetPosition();
-						HistoryMenu.Close(Pos.SelectPos);
-						IsUpdate=true;
-						SetUpMenuPos=true;
+						HistoryMenu.DeleteItem(Pos.SelectPos);
 					}
 
 					break;

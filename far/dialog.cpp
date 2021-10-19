@@ -6032,15 +6032,23 @@ rectangle Dialog::CalcComboBoxPos(const DialogItemEx* CurItem, intptr_t ItemCoun
 	if (Rect.width() <= 20)
 		Rect.right = Rect.left + 20;
 
-	if (ScrY - Rect.top<std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(), static_cast<long long>(ItemCount)) + 2 && Rect.top > ScrY / 2)
+	const auto MaxVisibleItemsCount = std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(), static_cast<long long>(ItemCount));
+	const auto MaxMenuHeight = MaxVisibleItemsCount + 1 + 1;
+
+	const auto SpaceBelow = ScrY - Rect.bottom;
+	const auto SpaceAbove = Rect.top;
+
+	const auto GoDown = SpaceBelow >= MaxMenuHeight || SpaceBelow > SpaceAbove;
+
+	if (GoDown)
 	{
-		Rect.bottom = Rect.top - 1;
-		Rect.top = std::max(0ll, Rect.top - 1 - std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(), static_cast<long long>(ItemCount)) - 1);
+		++Rect.top;
+		Rect.bottom = std::min(Rect.top + static_cast<int>(MaxMenuHeight) - 1, ScrY);
 	}
 	else
 	{
-		++Rect.top;
-		Rect.bottom = 0;
+		Rect.bottom = Rect.top - 1;
+		Rect.top = std::max(0, Rect.bottom - static_cast<int>(MaxMenuHeight) + 1);
 	}
 
 	return Rect;
