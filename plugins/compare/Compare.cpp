@@ -144,12 +144,12 @@ static bool bOpenFail;
 /****************************************************************************
  * Показывает сообщение о сравнении двух файлов
  ****************************************************************************/
-static void ShowMessage(const wchar_t *Name1, const wchar_t *Name2)
+static void ShowMessage(const wchar_t *Name1, const wchar_t *Name2, bool Force = false)
 {
 	static DWORD dwTicks;
 	DWORD dwNewTicks = GetTickCount();
 
-	if (dwNewTicks - dwTicks < 500)
+	if (dwNewTicks - dwTicks < 500 && !Force)
 		return;
 
 	dwTicks = dwNewTicks;
@@ -461,8 +461,10 @@ static HANDLE hConInp = INVALID_HANDLE_VALUE;
 
 /****************************************************************************
  * Проверка на Esc. Возвращает true, если пользователь нажал Esc
+ * MessageWasShown устанавливается в true, если было показано диалоговое
+ * окно; не изменяется в остальных случаях.
  ****************************************************************************/
-static bool CheckForEsc()
+static bool CheckForEsc(bool& MessageWasShown)
 {
 	if (hConInp == INVALID_HANDLE_VALUE)
 		return false;
@@ -494,6 +496,8 @@ static bool CheckForEsc()
 					GetMsg(MYes),
 					GetMsg(MNo)
 				};
+
+				MessageWasShown = true;
 
 				if (!PsInfo.Message(&MainGuid, nullptr, FMSG_WARNING, {}, MsgItems, ARRAYSIZE(MsgItems), 2))
 					return bBrokenByEsc = true;
@@ -836,8 +840,8 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 		{
 			HANDLE hFileA, hFileP;
 
-			const wchar_t *cpFileA = FileA.BuildName(ACurDir, AData->FileName);
-			const wchar_t *cpFileP = FileP.BuildName(PCurDir, PData->FileName);
+			const wchar_t *const cpFileA = FileA.BuildName(ACurDir, AData->FileName);
+			const wchar_t *const cpFileP = FileP.BuildName(PCurDir, PData->FileName);
 
 			ShowMessage(cpFileA, cpFileP);
 
@@ -862,7 +866,8 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 			{
 				do
 				{
-					if (CheckForEsc()
+					bool CancelMessageShown = false;
+					if (CheckForEsc(CancelMessageShown)
 					        || !ReadFile(hFileA, ABuf, bufSize, &ReadSizeA, {})
 					        || !ReadFile(hFileP, PBuf, bufSize, &ReadSizeP, {})
 					        || ReadSizeA != ReadSizeP
@@ -871,6 +876,9 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 						bEqual = false;
 						break;
 					}
+
+					if (CancelMessageShown)
+						ShowMessage(cpFileA, cpFileP, true);
 				}
 				while (ReadSizeA == bufSize);
 			}
@@ -886,11 +894,15 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 				{
 					while (PtrA >= ABuf+ReadSizeA && ReadSizeA)
 					{
-						if (CheckForEsc() || !ReadFile(hFileA, ABuf, bufSize, &ReadSizeA, {}))
+						bool CancelMessageShown = false;
+						if (CheckForEsc(CancelMessageShown) || !ReadFile(hFileA, ABuf, bufSize, &ReadSizeA, {}))
 						{
 							bEqual = false;
 							break;
 						}
+
+						if (CancelMessageShown)
+							ShowMessage(cpFileA, cpFileP, true);
 
 						PtrA=ABuf;
 					}
@@ -900,11 +912,15 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 
 					while (PtrP >= PBuf+ReadSizeP && ReadSizeP)
 					{
-						if (CheckForEsc() || !ReadFile(hFileP, PBuf, bufSize, &ReadSizeP, {}))
+						bool CancelMessageShown = false;
+						if (CheckForEsc(CancelMessageShown) || !ReadFile(hFileP, PBuf, bufSize, &ReadSizeP, {}))
 						{
 							bEqual = false;
 							break;
 						}
+
+						if (CancelMessageShown)
+							ShowMessage(cpFileA, cpFileP, true);
 
 						PtrP=PBuf;
 					}
@@ -1051,7 +1067,8 @@ static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bo
 		{
 			iCounter = iMaxCounter;
 
-			if (CheckForEsc())
+			bool CancelMessageShown = false;
+			if (CheckForEsc(CancelMessageShown))
 				break;
 		}
 

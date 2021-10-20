@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "colormix.hpp"
 #include "interf.hpp"
-#include "setcolor.hpp"
 #include "strmix.hpp"
 #include "exception.hpp"
 #include "palette.hpp"

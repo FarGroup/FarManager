@@ -4802,13 +4802,10 @@ void FarMacroApi::editorsetstrFunc()
 void FarMacroApi::pluginexistFunc()
 {
 	if (!mData->Count || mData->Values[0].Type != FMVT_STRING)
-		PassBoolean(false);
+		return PassBoolean(false);
 
 	const auto Uuid = uuid::try_parse(string_view(mData->Values[0].String));
-	if (!Uuid)
-		PassBoolean(false);
-
-	PassBoolean(Global->CtrlObject->Plugins->FindPlugin(*Uuid) != nullptr);
+	PassBoolean(Uuid && Global->CtrlObject->Plugins->FindPlugin(*Uuid) != nullptr);
 }
 
 // N=Plugin.Load(DllPath[,ForceLoad])

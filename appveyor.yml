@@ -104,15 +104,23 @@ build_script:
   - set COLORER_PLATFORM=x86
   - if "%platform%" == "x64" set COLORER_PLATFORM=x64
   - set COLORER_BASE_NAME=FarColorer.%COLORER_PLATFORM%.v%COLORER_VERSION%
-  - set COLORER_FILE_NAME=%COLORER_BASE_NAME%.7z
+  - set COLORER_FILE_NAME=%COLORER_BASE_NAME%.wobase.7z
   - set COLORER_PDB_NAME=%COLORER_BASE_NAME%.pdb.7z
   - set COLORER_BASE_URL=https://github.com/colorer/FarColorer/releases/download/v%COLORER_VERSION%/
   - curl -fsLJO %COLORER_BASE_URL%%COLORER_FILE_NAME%
   - curl -fsLJO %COLORER_BASE_URL%%COLORER_PDB_NAME%
+  #download colorer schemes
+  - curl --silent "https://api.github.com/repos/colorer/Colorer-schemes/releases/latest" | grep '"tag_name":' | sed -E 's/.*^"v([^^^"]+)^".*/\1/' > TEMP
+  - set /p COLORER_SCHEMES_VERSION=<TEMP
+  - echo "Download colorer schemes %COLORER_SCHEMES_VERSION%"
+  - set COLORER_SCHEMES_FILE_NAME=colorer-base.allpacked.%COLORER_SCHEMES_VERSION%.zip
+  - set COLORER_SCHEMES_BASE_URL=https://github.com/colorer/Colorer-schemes/releases/download/v%COLORER_SCHEMES_VERSION%/
+  - curl -fsLJO %COLORER_SCHEMES_BASE_URL%%COLORER_SCHEMES_FILE_NAME%
   - set COLORER_DIR=ci\%configuration%.%platform%\Plugins\FarColorer
   - mkdir %COLORER_DIR%
   - 7z x %COLORER_FILE_NAME% -o%COLORER_DIR%
   - 7z x %COLORER_PDB_NAME% -o%COLORER_DIR%\bin
+  - 7z x %COLORER_SCHEMES_FILE_NAME% -o%COLORER_DIR%\base
   #remove not needed build artifacts
   - ps: Get-ChildItem ci\${Env:configuration}`.${Env:platform}\ -recurse -File | Where-Object { @(".lib", ".exp", ".ilk") -contains $_.extension } | Remove-Item
 
