@@ -147,7 +147,7 @@ FileViewer::FileViewer(private_tag, bool const DisableEdit, string_view const Ti
 }
 
 fileviewer_ptr FileViewer::create(
-	const string& Name,
+	string_view const Name,
 	bool EnableSwitch,
 	bool DisableHistory,
 	bool DisableEdit,
@@ -175,7 +175,7 @@ fileviewer_ptr FileViewer::create(
 
 
 fileviewer_ptr FileViewer::create(
-	const string& Name,
+	string_view const Name,
 	bool EnableSwitch,
 	bool DisableHistory,
 	string_view Title,
@@ -217,7 +217,7 @@ fileviewer_ptr FileViewer::create(
 
 
 void FileViewer::Init(
-	const string& Name,
+	string_view const Name,
 	bool const EnableSwitch,
 	bool const DisableHistory,
 	long long const ViewStartPos,

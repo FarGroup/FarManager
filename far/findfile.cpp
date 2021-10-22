@@ -206,7 +206,7 @@ private:
 	void AdvancedDialog() const;
 	intptr_t MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	intptr_t FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	void OpenFile(const string& strSearchFileName, int OpenKey, const FindListItem* FindItem, Dialog* Dlg) const;
+	void OpenFile(string_view SearchFileName, int OpenKey, const FindListItem* FindItem, Dialog* Dlg) const;
 	bool FindFilesProcess();
 	void ProcessMessage(message& Message);
 	void SetPluginDirectory(string_view DirName, const plugin_panel* hPlugin, bool UpdatePanel, const UserDataItem *UserData);
@@ -1911,9 +1911,9 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
-void FindFiles::OpenFile(const string& strSearchFileName, int OpenKey, const FindListItem* FindItem, Dialog* Dlg) const
+void FindFiles::OpenFile(string_view const SearchFileName, int OpenKey, const FindListItem* FindItem, Dialog* Dlg) const
 {
-	if (!os::fs::exists(strSearchFileName))
+	if (!os::fs::exists(SearchFileName))
 		return;
 
 	auto openMode = FILETYPE_VIEW;
@@ -1926,9 +1926,10 @@ void FindFiles::OpenFile(const string& strSearchFileName, int OpenKey, const Fin
 		return;
 
 	const auto strOldTitle = console.GetTitle();
-	const auto shortFileName = ExtractFileName(strSearchFileName);
+	const auto FileNameOnly = ExtractFileName(SearchFileName);
+	const auto PathOnly = SearchFileName.substr(0, SearchFileName.size() - FileNameOnly.size());
 
-	if (shouldForceInternal || !ProcessLocalFileTypes(strSearchFileName, shortFileName, openMode, PluginMode))
+	if (shouldForceInternal || !ProcessLocalFileTypes(SearchFileName, FileNameOnly, openMode, PluginMode))
 	{
 		if (openMode == FILETYPE_ALTVIEW && Global->Opt->strExternalViewer.empty())
 			openMode = FILETYPE_VIEW;
@@ -1952,7 +1953,7 @@ void FindFiles::OpenFile(const string& strSearchFileName, int OpenKey, const Fin
 			ViewList.SetCurName(FindItem->FindData.FileName);
 
 			const auto ShellViewer = FileViewer::create(
-				strSearchFileName,
+				SearchFileName,
 				false,
 				false,
 				false,
@@ -1972,7 +1973,7 @@ void FindFiles::OpenFile(const string& strSearchFileName, int OpenKey, const Fin
 
 		if (openMode == FILETYPE_EDIT)
 		{
-			const auto ShellEditor = FileEditor::create(strSearchFileName, CP_DEFAULT, 0);
+			const auto ShellEditor = FileEditor::create(SearchFileName, CP_DEFAULT, 0);
 			ShellEditor->SetEnableF6(true);
 
 			if (FindItem->Arc && !(FindItem->Arc->Flags & OPIF_REALNAMES))
@@ -1989,7 +1990,7 @@ void FindFiles::OpenFile(const string& strSearchFileName, int OpenKey, const Fin
 		if (openMode == FILETYPE_ALTEDIT || openMode == FILETYPE_ALTVIEW)
 		{
 			const auto& externalCommand = openMode == FILETYPE_ALTEDIT? Global->Opt->strExternalEditor : Global->Opt->strExternalViewer;
-			ProcessExternal(externalCommand, strSearchFileName, shortFileName, PluginMode);
+			ProcessExternal(externalCommand, SearchFileName, FileNameOnly, PluginMode, PathOnly);
 		}
 	}
 

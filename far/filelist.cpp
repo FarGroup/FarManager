@@ -1915,12 +1915,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 				if (!strFileName.empty())
 				{
-					std::optional<os::fs::current_directory_guard> Guard;
-
-					// We have to set it - users can have associations like !.! which will work funny without this
-					if (PluginMode)
-						Guard.emplace(TemporaryDirectory);
-
 					if (Edit)
 					{
 						const auto EnableExternal = ((any_of(LocalKey, KEY_F4, KEY_SHIFTF4) && Global->Opt->EdOpt.UseExternalEditor) ||
@@ -1938,7 +1932,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 						{
 							if (EnableExternal)
 							{
-								ProcessExternal(Global->Opt->strExternalEditor, strFileName, strShortFileName, PluginMode);
+								ProcessExternal(Global->Opt->strExternalEditor, strFileName, strShortFileName, PluginMode, TemporaryDirectory);
 								UploadFile = file_state::get(strFileName) != SavedState;
 								Modaling = PluginMode; // External editor from plugin panel is Modal!
 							}
@@ -2019,7 +2013,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 						if (!Processed || any_of(LocalKey, KEY_CTRLSHIFTF3, KEY_RCTRLSHIFTF3))
 						{
 							if (EnableExternal)
-								ProcessExternal(Global->Opt->strExternalViewer,strFileName,strShortFileName,PluginMode);
+								ProcessExternal(Global->Opt->strExternalViewer, strFileName, strShortFileName, PluginMode, TemporaryDirectory);
 							else
 							{
 								NamesList ViewList;

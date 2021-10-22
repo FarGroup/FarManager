@@ -262,7 +262,7 @@ bool GetFiletypeOpenMode(int keyPressed, FILETYPE_MODE& mode, bool& shouldForceI
 /*
   Используется для запуска внешнего редактора и вьювера
 */
-void ProcessExternal(string_view const Command, string_view const Name, string_view const ShortName, bool const AlwaysWaitFinish)
+void ProcessExternal(string_view const Command, string_view const Name, string_view const ShortName, bool const AlwaysWaitFinish, string_view const CurrentDirectory)
 {
 	string strExecStr(Command);
 	bool PreserveLFN = false;
@@ -277,6 +277,7 @@ void ProcessExternal(string_view const Command, string_view const Name, string_v
 	execute_info Info;
 	Info.DisplayCommand = strExecStr;
 	Info.Command = strExecStr;
+	Info.Directory = CurrentDirectory;
 	Info.WaitMode = AlwaysWaitFinish? execute_info::wait_mode::wait_finish : execute_info::wait_mode::if_needed;
 
 	Global->CtrlObject->CmdLine()->ExecString(Info);

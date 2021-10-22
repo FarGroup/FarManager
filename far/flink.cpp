@@ -355,7 +355,7 @@ bool GetReparsePointInfo(string_view const Object, string& DestBuffer, LPDWORD R
 
 	case IO_REPARSE_TAG_APPEXECLINK:
 		{
-			// Third string in the the list is the target filename
+			// Third string in the list is the target filename
 			constexpr size_t FilenameIndex = 2;
 
 			struct APPEXECLINK_REPARSE_DATA_BUFFER

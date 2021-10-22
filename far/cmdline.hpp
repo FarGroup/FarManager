@@ -56,6 +56,7 @@ struct execute_info
 
 	string Command;
 	string DisplayCommand;
+	string Directory;
 	wait_mode WaitMode{ wait_mode::if_needed };
 	source_mode SourceMode{ source_mode::unknown };
 	bool RunAs{};
