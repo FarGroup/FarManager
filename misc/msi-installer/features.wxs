@@ -637,6 +637,7 @@
           <Feature Id="FarColorer.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="history.ru.txt" />
             <ComponentRef Id="CHANGELOG.md" />
+            <ComponentRef Id="empty.hrc" />
           </Feature>
         </Feature>
         <Feature Id="FARCmds" Level="1" Title="!(loc.Feature.Title.FARCmds)" AllowAdvertise="no" Description="!(loc.Feature.Description.FARCmds)">
