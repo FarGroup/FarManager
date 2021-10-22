@@ -1045,7 +1045,12 @@
             </Component>
             <Component Id="common.zip" Guid="$(var.Guid.common.zip)" Win64="$(var.Win64)">
                <File Id="common.zip" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\common.zip" />
-            </Component>             
+            </Component>
+            <Directory Id="FarColorer.base.hrc.auto" Name="auto">
+               <Component Id="empty.hrc" Guid="$(var.Guid.empty.hrc)" Win64="$(var.Win64)">
+                  <File Id="empty.hrc" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarColorer\base\auto\empty.hrc" />
+               </Component>
+            </Directory>			
           </Directory>
         </Directory>
         <Directory Id="FarCmds" Name="FarCmds">

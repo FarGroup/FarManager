@@ -347,6 +347,7 @@
 <?define Guid.catalog.xml = "7E43B5CC-6F2B-1014-BBD1-8CF71224263B" ?>
 <?define Guid.CHANGELOG.md = "5394CA39-4CAD-41D0-9B4A-04DB1109647C" ?>
 <?define Guid.common.zip = "FF4D956D-B70D-49C6-87B9-1B01544AAD32" ?>
+<?define Guid.empty.hrc = "9DC1F353-AFB6-4D3B-9CF1-46402FEFD93B" ?>
 
 <?define Guid.changelog_9 = "727F8168-D248-480F-93A5-1FC57C42F82E" ?>
 <?define Guid.FARCmds.dll = "A67216D0-DCC8-4CAA-B645-57CFB17E5D61" ?>
