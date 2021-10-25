@@ -370,7 +370,7 @@ static string GenerateName(string_view const Name, string_view const Path)
 	const auto NameExt = name_ext(Name);
 
 	// file (2).ext, file (3).ext and so on
-	for (int i = 2; os::fs::exists(Result); ++i)
+	for (size_t i = 2; os::fs::exists(Result); ++i)
 	{
 		Result.resize(BaseSize);
 		append(Result, NameExt.first, L" ("sv, str(i), L')', NameExt.second);
@@ -902,12 +902,13 @@ ShellCopy::ShellCopy(
 		CopyDlg[ID_SC_SECURITY_INHERIT].Flags |= DIF_HIDDEN | DIF_DISABLE;
 		CopyDlg[ID_SC_SEPARATOR2].Flags       |= DIF_HIDDEN;
 
-		for(int i=ID_SC_SEPARATOR2;i<=ID_SC_COMBO;i++)
+		for (const auto& i: irange<size_t>(ID_SC_SEPARATOR2, ID_SC_COMBO + 1))
 		{
 			CopyDlg[i].Y1-=2;
 			CopyDlg[i].Y2-=2;
 		}
-		for(int i=ID_SC_MULTITARGET;i<=ID_SC_BTNCANCEL;i++)
+
+		for (const auto& i: irange<size_t>(ID_SC_MULTITARGET, ID_SC_BTNCANCEL + 1))
 		{
 			CopyDlg[i].Y1-=3;
 			CopyDlg[i].Y2-=3;

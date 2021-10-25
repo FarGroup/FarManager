@@ -998,8 +998,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 					}
 
 					// BUGBUG
-					for (int i = 0; i < ptr - m_CurPos; i++)
-						RecurseProcessKey(KEY_DEL);
+					repeat(ptr - m_CurPos, [&]{ RecurseProcessKey(KEY_DEL); });
 				}
 				else
 				{
@@ -1168,7 +1167,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 				{
 					const size_t MaskLen = Mask.size();
 					size_t j = m_CurPos;
-					for (size_t i = m_CurPos; i < MaskLen; ++i)
+					for (const auto& i: irange(static_cast<size_t>(m_CurPos), MaskLen))
 					{
 						if (i + 1 < MaskLen && CheckCharMask(Mask[i + 1]))
 						{
@@ -1301,7 +1300,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 				ClipText.resize(MaxLength);
 			}
 
-			for (size_t i=0; i < ClipText.size(); ++i)
+			for (const auto& i: irange(ClipText.size()))
 			{
 				if (IsEol(ClipText[i]))
 				{
@@ -1993,7 +1992,7 @@ void Edit::DeleteBlock()
 	const auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
-		for (auto i = m_SelStart; i != m_SelEnd; ++i)
+		for (const auto& i: irange(m_SelStart, m_SelEnd))
 		{
 			if (CheckCharMask(Mask[i]))
 			{
@@ -2065,7 +2064,8 @@ void Edit::ApplyColor(int XPos, int FocusedLeftPos, positions_cache& RealToVisua
 		auto First = RealToVisual.get(CurItem.StartPos);
 		const auto LastFirst = RealToVisual.get(CurItem.EndPos);
 		int LastLast = LastFirst;
-		for (int i = 0; i != 2; ++i)
+
+		for (const auto& i: irange(2))
 		{
 			LastLast = RealToVisual.get(CurItem.EndPos + 1 + i);
 			if (LastLast > LastFirst)

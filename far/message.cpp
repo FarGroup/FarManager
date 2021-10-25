@@ -57,9 +57,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/view/enumerate.hpp"
 
 // External:
 #include "format.hpp"
+
 
 //----------------------------------------------------------------------------
 
@@ -327,7 +329,7 @@ static message_result MessageImpl(
 
 		bool StrSeparator=false;
 
-		for (size_t i = 0; i != Strings.size(); ++i)
+		for (const auto& [Str, Index]: enumerate(Strings))
 		{
 			DialogItemEx Item;
 
@@ -335,19 +337,19 @@ static message_result MessageImpl(
 			Item.Flags |= DIF_SHOWAMPERSAND;
 
 			Item.X1 = (Flags & MSG_LEFTALIGN) ? 5 : -1;
-			Item.Y1 = i + 2;
+			Item.Y1 = Index + 2;
 
-			if (!Strings[i].empty() && any_of(Strings[i].front(), L'\1', L'\2'))
+			if (!Str.empty() && any_of(Str.front(), L'\1', L'\2'))
 			{
-				Item.Flags |= (Strings[i].front() == L'\2' ? DIF_SEPARATOR2 : DIF_SEPARATOR);
-				if(i == Strings.size() - 1)
+				Item.Flags |= (Str.front() == L'\2'? DIF_SEPARATOR2 : DIF_SEPARATOR);
+				if(Index == Strings.size() - 1)
 				{
 					StrSeparator=true;
 				}
 			}
 			else
 			{
-				if (Strings[i].size() + 6 + 2 + 2 > static_cast<size_t>(MessageWidth)) // 6 for frame, 2 for border, 2 for inner margin
+				if (Str.size() + 6 + 2 + 2 > static_cast<size_t>(MessageWidth)) // 6 for frame, 2 for border, 2 for inner margin
 				{
 					Item.Type = DI_EDIT;
 					Item.Flags |= DIF_READONLY | DIF_BTNNOCLOSE | DIF_SELECTONENTRY;
@@ -355,7 +357,7 @@ static message_result MessageImpl(
 					Item.X2 = Position.width() - 6;
 				}
 
-				Item.strData = std::move(Strings[i]);
+				Item.strData = std::move(Str);
 			}
 			MsgDlg.emplace_back(std::move(Item));
 		}
@@ -456,7 +458,7 @@ static message_result MessageImpl(
 		Text(concat(L' ', strTempTitle, L' '));
 	}
 
-	for (size_t i = 0; i != Strings.size(); ++i)
+	for (const auto& i: irange(Strings.size()))
 	{
 		const auto& SrcItem = Strings[i];
 

@@ -93,6 +93,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/enum_tokens.hpp"
 #include "common/function_ref.hpp"
 #include "common/scope_exit.hpp"
+#include "common/view/enumerate.hpp"
 
 // External:
 #include "format.hpp"
@@ -953,13 +954,14 @@ bool TreeList::FillLastData()
 			}
 		}
 
-		for (auto j = i; j != SubDirPos + 1; ++j)
+		for (auto& j: range(i, SubDirPos + 1))
 		{
-			if (Depth > j->Last.size())
+			if (Depth > j.Last.size())
 			{
-				j->Last.resize(j->Last.size() + MAX_PATH, 0);
+				j.Last.resize(j.Last.size() + MAX_PATH, 0);
 			}
-			j->Last[Depth-1]=Last;
+
+			j.Last[Depth - 1] = Last;
 		}
 	}
 	return true;
@@ -1224,10 +1226,7 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
 			const auto Roll = LocalKey & (KEY_ALT | KEY_RALT)? 1 : static_cast<int>(Global->Opt->MsHWheelDelta);
-
-			for (int i=0; i<Roll; i++)
-				ProcessKey(Manager::Key(KEY_LEFT));
-
+			repeat(Roll, [&]{ ProcessKey(Manager::Key(KEY_LEFT));});
 			return true;
 		}
 		case KEY_MSWHEEL_RIGHT:
@@ -1235,10 +1234,7 @@ bool TreeList::ProcessKey(const Manager::Key& Key)
 		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
 			const auto Roll = LocalKey & (KEY_ALT | KEY_RALT)? 1 : static_cast<int>(Global->Opt->MsHWheelDelta);
-
-			for (int i=0; i<Roll; i++)
-				ProcessKey(Manager::Key(KEY_RIGHT));
-
+			repeat(Roll, [&]{ ProcessKey(Manager::Key(KEY_RIGHT));});
 			return true;
 		}
 		case KEY_HOME:        case KEY_NUMPAD7:
@@ -1359,12 +1355,14 @@ int TreeList::GetNextNavPos() const
 	{
 		const auto CurDepth = m_ListData[m_CurFile].Depth;
 
-		for (size_t I=m_CurFile+1; I < m_ListData.size(); ++I)
+		for (const auto& I: irange(static_cast<size_t>(m_CurFile) + 1, m_ListData.size()))
+		{
 			if (m_ListData[I].Depth == CurDepth)
 			{
-				NextPos=static_cast<int>(I);
+				NextPos = static_cast<int>(I);
 				break;
 			}
+		}
 	}
 
 	return NextPos;
@@ -1474,16 +1472,16 @@ bool TreeList::SetCurDir(string_view const NewDir, bool const ClosePanel, bool c
 
 bool TreeList::SetDirPosition(string_view const NewDir)
 {
-	for (size_t i = 0; i < m_ListData.size(); ++i)
+	for (const auto& [Item, Index]: enumerate(m_ListData))
 	{
-		if (equal_icase(NewDir, m_ListData[i].strName))
-		{
-			m_WorkDir = i;
-			m_CurFile = static_cast<int>(i);
-			m_CurTopFile = m_CurFile - (m_Where.height() - 2) / 2;
-			CorrectPosition();
-			return true;
-		}
+		if (!equal_icase(NewDir, Item.strName))
+			continue;
+
+		m_WorkDir = Index;
+		m_CurFile = static_cast<int>(Index);
+		m_CurTopFile = m_CurFile - (m_Where.height() - 2) / 2;
+		CorrectPosition();
+		return true;
 	}
 
 	return false;

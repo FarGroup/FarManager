@@ -355,7 +355,7 @@ static string& UnitStr(size_t Unit, bool Binary)
 
 void PrepareUnitStr()
 {
-	for (size_t i = 0; i != std::size(BytesInUnit); ++i)
+	for (const auto& i: irange(std::size(BytesInUnit)))
 	{
 		UnitStr(i, true) = upper(msg(lng::MListBytes + i));
 		UnitStr(i, false) = lower(msg(lng::MListBytes + i));
@@ -1449,7 +1449,7 @@ TEST_CASE("xwcsncpy")
 
 	const auto MaxBufferSize = std::max_element(ALL_CONST_RANGE(Tests), [](const auto& a, const auto& b){ return a.Src.size() < b.Src.size(); })->Src.size() + 1;
 
-	for (size_t BufferSize = 0; BufferSize != MaxBufferSize + 1; ++BufferSize)
+	for (const auto& BufferSize: irange(MaxBufferSize + 1))
 	{
 		for (const auto& i: Tests)
 		{

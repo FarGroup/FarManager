@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common.hpp"
 #include "common/enum_substrings.hpp"
+#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
@@ -242,15 +243,16 @@ void PluginPanelItemHolderHeap::set_owner(string_view const Value)
 	Item.Owner = make_copy(Value);
 }
 
-void PluginPanelItemHolderHeap::set_columns(span<const wchar_t* const> const Value)
+void PluginPanelItemHolderHeap::set_columns(span<const wchar_t* const> const Values)
 {
-	auto ColumnData = std::make_unique<const wchar_t* []>(Value.size());
-	for (size_t i = 0; i != Value.size(); ++i)
+	auto Columns = std::make_unique<const wchar_t*[]>(Values.size());
+
+	for (const auto& [Column, Value]: zip(span(Columns.get(), Values.size()), Values))
 	{
-		ColumnData[i] = Value[i]? make_copy(Value[i]) : nullptr;
+		Column = Value? make_copy(Value) : nullptr;
 	}
 
-	Item.CustomColumnData = ColumnData.release();
+	Item.CustomColumnData = Columns.release();
 }
 
 const wchar_t* PluginPanelItemHolderHeap::make_copy(string_view const Value)

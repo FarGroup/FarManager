@@ -140,7 +140,7 @@ bool enum_lines::GetTString(std::basic_string<T>& To, eol& Eol, bool BigEndian) 
 	for (;;)
 	{
 		const auto Char = !m_BufferView.empty() || fill()?
-			std::optional<T>{ std::basic_string_view{ view_as<T const*>(m_BufferView.data()), m_BufferView.size() / sizeof(T) }.front() } :
+			std::optional<T>{ std::basic_string_view<T>{ view_as<T const*>(m_BufferView.data()), m_BufferView.size() / sizeof(T) }.front() } :
 			std::optional<T>{};
 
 		if (Char == EolLf)
@@ -527,7 +527,7 @@ TEST_CASE("enum_lines")
 			const auto Enumerator = enum_lines(Stream, Codepage);
 
 			// Twice to make sure that reset works as expected
-			for (size_t n = 0; n != 2; ++n)
+			repeat(2, [&]
 			{
 				auto Iterator = i.Result.begin();
 
@@ -541,7 +541,7 @@ TEST_CASE("enum_lines")
 
 				REQUIRE(Stream.eof());
 				REQUIRE(Iterator == i.Result.end());
-			}
+			});
 		}
 	}
 }

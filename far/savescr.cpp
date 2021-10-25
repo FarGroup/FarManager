@@ -118,18 +118,26 @@ void SaveScreen::SaveArea()
 	GetCursorType(CurVisible,CurSize);
 }
 
-void SaveScreen::AppendArea(const SaveScreen *NewArea)
+void SaveScreen::AppendArea(const SaveScreen& NewArea)
 {
-	const auto Offset = [](const SaveScreen* Ptr, int X, int Y)
+	const auto Offset = [](const SaveScreen& Scr, int X, int Y)
 	{
-		return X - Ptr->m_Where.left + Ptr->width() * (Y - Ptr->m_Where.top);
+		return X - Scr.m_Where.left + Scr.width() * (Y - Scr.m_Where.top);
 	};
 
-	for (int X = m_Where.left; X <= m_Where.right; ++X)
-		if (X >= NewArea->m_Where.left && X <= NewArea->m_Where.right)
-			for (int Y = m_Where.top; Y <= m_Where.bottom; ++Y)
-				if (Y >= NewArea->m_Where.top && Y <= NewArea->m_Where.bottom)
-					ScreenBuf.vector()[Offset(this, X, Y)] = NewArea->ScreenBuf.vector()[Offset(NewArea, X, Y)];
+	for (const auto& X: irange(m_Where.left, m_Where.right + 1))
+	{
+		if (!in_closed_range(NewArea.m_Where.left, X, NewArea.m_Where.right))
+			continue;
+
+		for (const auto& Y: irange(m_Where.top, m_Where.bottom + 1))
+		{
+			if(!in_closed_range(NewArea.m_Where.top, Y, NewArea.m_Where.bottom))
+				continue;
+
+			ScreenBuf.vector()[Offset(*this, X, Y)] = NewArea.ScreenBuf.vector()[Offset(NewArea, X, Y)];
+		}
+	}
 }
 
 void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsole)
@@ -153,7 +161,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 
 	if (DesiredHeight > OriginalHeight)
 	{
-		for (size_t i = 0; i != CopyHeight; ++i)
+		for (const auto& i: irange(CopyHeight))
 		{
 			const auto FromIndex = i * OriginalWidth;
 			const auto ToIndex = (i + DeltaY) * DesiredWidth;
@@ -162,7 +170,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 	}
 	else
 	{
-		for (size_t i = 0; i != CopyHeight; ++i)
+		for (const auto& i : irange(CopyHeight))
 		{
 			const auto FromIndex = (i + DeltaY) * OriginalWidth;
 			const auto ToIndex = i * DesiredWidth;
@@ -188,7 +196,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 					rectangle const ReadRegion{ 0, 0, DesiredWidth - 1, DesiredHeight - OriginalHeight - 1 };
 					if (console.ReadOutput(Tmp, ReadRegion))
 					{
-						for (size_t i = 0; i != Tmp.height(); ++i)
+						for (const auto& i: irange(Tmp.height()))
 						{
 							std::copy_n(Tmp[i].data(), Tmp.width(), NewBuf[i].data());
 						}
@@ -198,7 +206,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 			else
 			{
 				rectangle const WriteRegion{ 0, DesiredHeight - OriginalHeight, DesiredWidth - 1, -1 };
-				for (size_t i = 0; i != Tmp.height(); ++i)
+				for (const auto& i: irange(Tmp.height()))
 				{
 					std::copy_n(ScreenBuf[i].data(), Tmp.width(), Tmp[i].data());
 				}
@@ -216,7 +224,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 				{
 					rectangle const ReadRegion{ OriginalWidth, 0, DesiredWidth - 1, DesiredHeight - 1 };
 					console.ReadOutput(Tmp, ReadRegion);
-					for (size_t i = 0; i != NewBuf.height(); ++i)
+					for (const auto& i: irange(NewBuf.height()))
 					{
 						std::copy_n(Tmp[i].data(), Tmp.width(), &NewBuf[i][OriginalWidth]);
 					}
@@ -225,7 +233,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 			else
 			{
 				rectangle const WriteRegion{ DesiredWidth, DesiredHeight - OriginalHeight, OriginalWidth - 1, DesiredHeight - 1 };
-				for (size_t i = 0; i != Tmp.height(); ++i)
+				for (const auto& i: irange(Tmp.height()))
 				{
 					if (static_cast<int>(i) < OriginalHeight)
 						std::copy_n(&ScreenBuf[i][DesiredWidth], Tmp.width(), Tmp[i].data());

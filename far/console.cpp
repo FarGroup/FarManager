@@ -960,7 +960,7 @@ namespace console_detail
 
 			std::optional<FarColor> LastColor;
 
-			for (short i = SubRect.top; i <= SubRect.bottom; ++i)
+			for (const auto& i: irange(SubRect.top + 0, SubRect.bottom + 1))
 			{
 				if (i != SubRect.top)
 					format_to(Str, FSTR(L"\x9b""{};{}H"sv), CursorPosition.y + 1 + (i - SubRect.top), CursorPosition.x + 1);

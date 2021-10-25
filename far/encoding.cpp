@@ -347,7 +347,7 @@ bool MultibyteCodepageDecoder::SetCP(uintptr_t Codepage)
 
 	int CharsProcessed = 0;
 	size_t Size = 0;
-	for (size_t i = 0; i != 65536; ++i) // only UCS2 range
+	for (const auto& i: irange(65536)) // only UCS2 range
 	{
 		encoding::diagnostics Diagnostics;
 		const auto Char = static_cast<wchar_t>(i);

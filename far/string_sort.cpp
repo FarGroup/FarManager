@@ -196,7 +196,7 @@ static const auto& create_alt_sort_table()
 	});
 
 	int u_beg = 0, u_end = 0xffff;
-	for (int ic=0; ic < 0x10000; ++ic)
+	for (const auto& ic: irange(0x10000))
 	{
 		if (chars[ic] == L'a')
 		{
@@ -218,12 +218,13 @@ static const auto& create_alt_sort_table()
 	assert(u_beg > 0 && u_beg < u_end && u_end < 0xffff);
 
 	int cc = u_beg;
-	for (int ic=u_beg; ic <= u_end; ++ic) // uppercase first
+	for (const auto& ic: irange(u_beg, u_end + 1)) // uppercase first
 	{
 		if (is_upper(chars[ic]))
 			alt_sort_table[chars[ic]] = static_cast<wchar_t>(cc++);
 	}
-	for (int ic=u_beg; ic <= u_end; ++ic) // than not uppercase
+
+	for (const auto& ic: irange(u_beg, u_end + 1)) // than not uppercase
 	{
 		if (!is_upper(chars[ic]))
 			alt_sort_table[chars[ic]] = static_cast<wchar_t>(cc++);

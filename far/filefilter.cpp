@@ -331,7 +331,7 @@ void filters::EditFilters(filter_area const Area, Panel* const HostPanel)
 			}
 			case KEY_SHIFTBS:
 			{
-				for (size_t i = 0, size = FilterList->size(); i != size; ++i)
+				for (const auto& i: irange(FilterList->size()))
 				{
 					FilterList->ClearCheck(static_cast<int>(i));
 				}
@@ -510,7 +510,7 @@ void filters::EditFilters(filter_area const Area, Panel* const HostPanel)
 
 static void ProcessSelection(VMenu2* const FilterList, filter_area const Area)
 {
-	for (size_t i = 0, size = FilterList->size(); i != size; ++i)
+	for (const auto& i: irange(FilterList->size()))
 	{
 		const auto Check = FilterList->GetCheck(static_cast<int>(i));
 		FileFilterParams* CurFilterData = nullptr;
@@ -532,7 +532,7 @@ static void ProcessSelection(VMenu2* const FilterList, filter_area const Area)
 				{
 					bool bCheckedNowhere = true;
 
-					for (size_t n = 0; n != static_cast<size_t>(filter_area::count); ++n)
+					for (const auto& n: irange(static_cast<size_t>(filter_area::count)))
 					{
 						if (static_cast<filter_area>(n) != Area && Iterator->second.GetFlags(static_cast<filter_area>(n)))
 						{
@@ -854,9 +854,9 @@ static void SaveFlags(HierarchicalConfig& Cfg, HierarchicalConfig::key const Fil
 {
 	const auto FlagsKey = Cfg.CreateKey(FilterKey, names::Flags);
 
-	for (size_t i = 0; i != std::size(FilterFlagNames); ++i)
+	for (const auto& [Flag, Index]: enumerate(FilterFlagNames))
 	{
-		Cfg.SetValue(FlagsKey, FilterFlagNames[i], Item.GetFlags(static_cast<filter_area>(i)));
+		Cfg.SetValue(FlagsKey, Flag, Item.GetFlags(static_cast<filter_area>(Index)));
 	}
 }
 
@@ -868,7 +868,7 @@ static bool LoadAreaFlags(const HierarchicalConfig& Cfg, HierarchicalConfig::key
 
 	auto AnyLoaded = false;
 
-	for (size_t i = 0; i != std::size(FilterFlagNames); ++i)
+	for (const auto& i: irange(std::size(FilterFlagNames)))
 	{
 		unsigned long long Value;
 		if (Cfg.GetValue(FlagsKey, FilterFlagNames[i], Value))
@@ -892,7 +892,7 @@ static bool LoadLegacyAreaFlags(HierarchicalConfig& Cfg, HierarchicalConfig::key
 	if (bytes Blob; !Cfg.GetValue(Key, Name, Blob) || !deserialise(Blob, LegacyFlags))
 		return false;
 
-	for (int i = 0; i != LegacyCount; ++i)
+	for (const auto& i: irange(LegacyCount))
 		Item.SetFlags(static_cast<filter_area>(i), LegacyFlags[i]);
 
 	return true;
@@ -1027,7 +1027,7 @@ void filters::Save(bool always)
 
 	const auto root = cfg->CreateKey(cfg->root_key, names::Filters);
 
-	for (size_t i=0; i<FilterData().size(); ++i)
+	for (const auto& i: irange(FilterData().size()))
 	{
 		const auto Key = cfg->CreateKey(root, names::Filter + str(i));
 		const auto& CurFilterData = FilterData()[i];

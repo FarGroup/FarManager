@@ -113,7 +113,7 @@ copy_progress::copy_progress(bool Move, bool Total, bool Time):
 	{
 		ProgressDlgItems[progress_items::pr_total_progress].Flags |= DIF_HIDDEN;
 
-		for (size_t i = progress_items::pr_total_progress + 1; i != progress_items::pr_count; ++i)
+		for (const auto& i: irange<size_t>(progress_items::pr_total_progress + 1, progress_items::pr_count))
 		{
 			--ProgressDlgItems[i].Y1;
 			--ProgressDlgItems[i].Y2;

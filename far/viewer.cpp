@@ -538,7 +538,7 @@ void Viewer::ShowPage(int nMode)
 
 				Strings.clear();
 
-				for (int Y = m_Where.top; Y <= m_Where.bottom; ++Y)
+				for (const auto& Y: irange(static_cast<int>(m_Where.top), m_Where.bottom + 1))
 				{
 					ViewerString NewString;
 					NewString.nFilePos = vtell();
@@ -796,7 +796,7 @@ void Viewer::ShowDump()
 	int tail = 0;
 	string OutStr;
 
-	for (auto Y = m_Where.top; Y <= m_Where.bottom; ++Y)
+	for (const auto& Y: irange(m_Where.top + 0, m_Where.bottom + 1))
 	{
 		SetColor(COL_VIEWERTEXT);
 		GotoXY(m_Where.left, Y);
@@ -851,7 +851,7 @@ void Viewer::ShowHex()
 		}
 	}
 
-	for (auto Y = m_Where.top; Y <= m_Where.bottom; ++Y)
+	for (const auto& Y: irange(m_Where.top + 0, m_Where.bottom + 1))
 	{
 		bool bSelStartFound = false;
 		bool bSelEndFound = false;
@@ -921,7 +921,7 @@ void Viewer::ShowHex()
 				}
 			}
 
-			for (size_t X = 0; X != m_BytesPerLine; ++X)
+			for (const auto& X: irange(m_BytesPerLine))
 			{
 				if (X < BytesRead)
 					format_to(OutStr, FSTR(L"{:02X} "sv), static_cast<int>(RawBuffer[X]));
@@ -1685,10 +1685,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
 			const auto Roll = (LocalKey & (KEY_ALT | KEY_RALT))? 1 : static_cast<int>(Global->Opt->MsWheelDeltaView);
-
-			for (int i=0; i<Roll; i++)
-				ProcessKey(Manager::Key(KEY_UP));
-
+			repeat(Roll, [&]{ ProcessKey(Manager::Key(KEY_UP)); });
 			return true;
 		}
 		case KEY_MSWHEEL_DOWN:
@@ -1696,10 +1693,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
 			const auto Roll = (LocalKey & (KEY_ALT | KEY_RALT))? 1 : static_cast<int>(Global->Opt->MsWheelDeltaView);
-
-			for (int i=0; i<Roll; i++)
-				ProcessKey(Manager::Key(KEY_DOWN));
-
+			repeat(Roll, [&]{ ProcessKey(Manager::Key(KEY_DOWN)); });
 			return true;
 		}
 		case KEY_MSWHEEL_LEFT:
@@ -1707,10 +1701,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
 			const auto Roll = (LocalKey & (KEY_ALT | KEY_RALT))? 1 : static_cast<int>(Global->Opt->MsHWheelDeltaView);
-
-			for (int i=0; i<Roll; i++)
-				ProcessKey(Manager::Key(KEY_LEFT));
-
+			repeat(Roll, [&]{ ProcessKey(Manager::Key(KEY_LEFT)); });
 			return true;
 		}
 		case KEY_MSWHEEL_RIGHT:
@@ -1718,10 +1709,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
 			const auto Roll = (LocalKey & (KEY_ALT | KEY_RALT))? 1 : static_cast<int>(Global->Opt->MsHWheelDeltaView);
-
-			for (int i=0; i<Roll; i++)
-				ProcessKey(Manager::Key(KEY_RIGHT));
-
+			repeat(Roll, [&]{ ProcessKey(Manager::Key(KEY_RIGHT)); });
 			return true;
 		}
 		case KEY_UP: case KEY_NUMPAD8: case KEY_SHIFTNUMPAD8:
@@ -1782,11 +1770,11 @@ bool Viewer::process_key(const Manager::Key& Key)
 			if (any_of(LocalKey, KEY_CTRLDOWN, KEY_RCTRLDOWN))
 			{
 				vseek(vString.nFilePos = FilePos, FILE_BEGIN);
-				for (int i = m_Where.top; i <= m_Where.bottom; ++i)
+				repeat(m_Where.height(), [&]
 				{
 					ReadString(&vString,-1);
 					vString.nFilePos += vString.linesize;
-				}
+				});
 
 				if (LastPage)
 				{
@@ -2073,29 +2061,6 @@ bool Viewer::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return true;
 	}
 
-	if (IntKeyState.MousePos.y == m_Where.top - 1 && (HostFileViewer && HostFileViewer->IsTitleBarVisible()))
-	{
-		while (IsMouseButtonPressed()) {}
-		if (IntKeyState.MousePos.y != m_Where.top - 1)
-			return true;
-
-		const auto NameLen = std::max(20, ObjWidth() - 40 - (Global->Opt->Clock && HostFileViewer && HostFileViewer->IsFullScreen()? 3 + static_cast<int>(Global->CurrentTime.size()) : 0));
-		const auto cp_len = static_cast<int>(str(m_Codepage).size());
-		//                           ViewMode     CopdePage             Goto
-		static const int keys[]   = {KEY_SHIFTF4, KEY_SHIFTF8,          KEY_ALTF8   };
-		int xpos[std::size(keys)] = {NameLen,     NameLen+3+(5-cp_len), NameLen+40-4};
-		int xlen[std::size(keys)] = {3,           cp_len,                          4};
-
-		for (int i = 0; i < static_cast<int>(std::size(keys)); ++i)
-		{
-			if (IntKeyState.MousePos.x >= xpos[i] && IntKeyState.MousePos.x < xpos[i]+xlen[i])
-			{
-				ProcessKey(Manager::Key(keys[i]));
-				return true;
-			}
-		}
-	}
-
 	if (!m_Where.contains(IntKeyState.MousePos))
 		return false;
 
@@ -2344,7 +2309,7 @@ void Viewer::Up(int nlines, bool adjust)
 
 		// backward CR-LF search
 		//
-		for (int j = 0; j < max_backward_size/portion_size; ++j )
+		for (const auto& j: irange(max_backward_size / portion_size))
 		{
 			int buff_size = (fpos > static_cast<long long>(portion_size)? portion_size : static_cast<int>(fpos));
 			if ( buff_size <= 0 )
@@ -2845,7 +2810,7 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 	if ( !LastSearchCase )
 		inplace::upper({ buff, static_cast<size_t>(nw) });
 
-	for (int i = 0; i <= iLast; ++i)
+	for (const auto& i: irange(iLast + 1))
 	{
 		if (ww)
 		{
@@ -3850,7 +3815,7 @@ wchar_t Viewer::vgetc_prev()
 			else
 			{
 				assert(MB.GetCP() == m_Codepage);
-				for (size_t i = 0; i < BytesRead; ++i)
+				for (const auto& i: irange(BytesRead))
 				{
 					wchar_t Char;
 					if (MB.GetChar({ RawBuffer + i, BytesRead - i }, Char) == BytesRead - i)

@@ -264,7 +264,7 @@ bool CreatePath(string_view const InputPath, bool const AddToTreeCache)
 	size_t DirOffset = 0;
 	ParsePath(Path, &DirOffset);
 
-	for (size_t i = DirOffset; i <= Path.size(); ++i)
+	for (const auto& i: irange(DirOffset, Path.size() + 1))
 	{
 		if (i != Path.size() && !path::is_separator(Path[i]))
 			continue;

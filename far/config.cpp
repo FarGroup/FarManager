@@ -350,7 +350,7 @@ void Options::InterfaceSettings()
 	std::vector<DialogBuilderListItem> IconIndices;
 	IconIndices.reserve(consoleicons::instance().size());
 
-	for (size_t i = 0, size = consoleicons::instance().size(); i != size; ++i)
+	for (const auto& i: irange(consoleicons::instance().size()))
 	{
 		IconIndices.emplace_back(str(i), static_cast<int>(i));
 	}
@@ -503,7 +503,7 @@ void Options::MaskGroupsSettings()
 			if(Filter && any_of(Key, KEY_ESC, KEY_F10, KEY_ENTER, KEY_NUMENTER))
 			{
 				Filter = false;
-				for (size_t i = 0, size = MasksMenu->size(); i != size;  ++i)
+				for (const auto& i: irange(MasksMenu->size()))
 				{
 					MasksMenu->UpdateItemFlags(static_cast<int>(i), MasksMenu->at(i).Flags & ~MIF_HIDDEN);
 				}
@@ -593,7 +593,7 @@ void Options::MaskGroupsSettings()
 					Builder.AddOKCancel();
 					if(Builder.ShowDialog())
 					{
-						for (size_t i = 0, size = MasksMenu->size(); i != size; ++i)
+						for (const auto& i: irange(MasksMenu->size()))
 						{
 							filemasks Masks;
 							Masks.assign(ConfigProvider().GeneralCfg()->GetValue<string>(L"Masks"sv, *MasksMenu->GetComplexUserDataPtr<string>(i)));
@@ -1144,12 +1144,12 @@ void Options::SetFilePanelModes()
 		// +1 for separator
 		std::vector<menu_item> ModeListMenu(MenuCount > predefined_panel_modes_count? MenuCount + 1: MenuCount);
 
-		for (size_t i = 0; i < ViewSettings.size(); ++i)
+		for (const auto& i: irange(ViewSettings.size()))
 		{
 			ModeListMenu[RealModeToDisplay(i)].Name = ViewSettings[i].Name;
 		}
 
-		for (size_t i = 0; i < predefined_panel_modes_count; ++i)
+		for (const auto& i: irange(predefined_panel_modes_count))
 		{
 			if (ModeListMenu[i].Name.empty())
 				ModeListMenu[i].Name = msg(PredefinedNames[i]);
@@ -1599,7 +1599,7 @@ bool IntOption::Edit(DialogBuilder& Builder, int const Param)
 			High.reserve(BitCount);
 			Low.reserve(BitCount);
 
-			for (size_t i = 0; i != BitCount; ++i)
+			for (const auto& i: irange(BitCount))
 			{
 				const auto Num = BitCount - 1 - i;
 				High.push_back(static_cast<wchar_t>(L'0' + Num / 10));
@@ -2594,9 +2594,9 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 						FarListInfo ListInfo = {sizeof(ListInfo)};
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
-						for(int i = 0; i < static_cast<int>(ListInfo.ItemsNumber); ++i)
+						for (const auto& i: irange(ListInfo.ItemsNumber))
 						{
-							FarListGetItem Item={sizeof(FarListGetItem), i};
+							FarListGetItem Item={sizeof(FarListGetItem), static_cast<intptr_t>(i)};
 
 							// BUGBUG(?) DM_LISTGETITEM will return false if everything is filtered out
 							if (!Dlg->SendMessage(DM_LISTGETITEM, Param1, &Item))
@@ -2621,7 +2621,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 							}
 							if(NeedUpdate)
 							{
-								FarListUpdate UpdatedItem={sizeof(FarListGetItem), i, Item.Item};
+								FarListUpdate UpdatedItem={sizeof(FarListGetItem), static_cast<intptr_t>(i), Item.Item};
 								Dlg->SendMessage(DM_LISTUPDATE, Param1, &UpdatedItem);
 							}
 						}
@@ -2940,7 +2940,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 {
 	const auto ApplyViewModesNames = [this](menu_item* Menu)
 	{
-		for (size_t i = 0; i < predefined_panel_modes_count; ++i)
+		for (const auto& i: irange(predefined_panel_modes_count))
 		{
 			if (!ViewSettings[i].Name.empty())
 				Menu[RealModeToDisplay(i)].Name = ViewSettings[i].Name;

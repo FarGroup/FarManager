@@ -110,6 +110,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
 #include "common/utility.hpp"
+#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
@@ -2274,8 +2275,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_MSWHEEL_LEFT | KEY_RALT:
 		{
 			int Roll = LocalKey & (KEY_ALT | KEY_RALT)? 1 : static_cast<int>(Global->Opt->MsHWheelDelta);
-			for (int i=0; i<Roll; i++)
-				ProcessKey(Manager::Key(KEY_LEFT));
+			repeat(Roll, [&]{ ProcessKey(Manager::Key(KEY_LEFT)); });
 			return true;
 		}
 
@@ -2284,8 +2284,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_MSWHEEL_RIGHT | KEY_RALT:
 		{
 			int Roll = LocalKey & (KEY_ALT | KEY_RALT)? 1 : static_cast<int>(Global->Opt->MsHWheelDelta);
-			for (int i=0; i<Roll; i++)
-				ProcessKey(Manager::Key(KEY_RIGHT));
+			repeat(Roll, [&]{ ProcessKey(Manager::Key(KEY_RIGHT)); });
 			return true;
 		}
 
@@ -3522,15 +3521,15 @@ bool FileList::GoToFile(const string_view Name, const bool OnlyPartName)
 long FileList::FindFile(const string_view Name, const bool OnlyPartName)
 {
 	long II = -1;
-	for (long I = 0; I != static_cast<int>(m_ListData.size()); ++I)
+	for (const auto& I: irange(m_ListData.size()))
 	{
 		const auto CurPtrName = OnlyPartName? PointToName(m_ListData[I].FileName) : m_ListData[I].FileName;
 
 		if (Name == CurPtrName)
-			return I;
+			return static_cast<long>(I);
 
 		if (II < 0 && equal_icase(Name, CurPtrName))
-			II = I;
+			II = static_cast<long>(I);
 	}
 
 	return II;
@@ -3546,10 +3545,10 @@ long FileList::FindNext(int StartPos, string_view const Name)
 	if (static_cast<size_t>(StartPos) >= m_ListData.size())
 		return -1;
 
-	for (long I = StartPos; I != static_cast<int>(m_ListData.size()); ++I)
+	for (const auto& I: irange(static_cast<size_t>(StartPos), m_ListData.size()))
 	{
 		if (CmpName(Name, m_ListData[I].FileName, true) && !IsParentDirectory(m_ListData[I]))
-			return I;
+			return static_cast<long>(I);
 	}
 
 	return -1;
@@ -5032,7 +5031,7 @@ bool FileList::ApplyCommand()
 			string strConvertedCommand = strCommand;
 			bool PreserveLFN = false;
 
-			if (SubstFileName(strConvertedCommand, subst_context(i.FileName, i.AlternateFileName()), &PreserveLFN) && !strConvertedCommand.empty())
+			if (SubstFileName(strConvertedCommand, { i.FileName, i.AlternateFileName() }, &PreserveLFN) && !strConvertedCommand.empty())
 			{
 				SCOPED_ACTION(PreserveLongName)(i.FileName, PreserveLFN);
 
@@ -5714,17 +5713,17 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 			gpi->Item->CustomColumnData = {};
 			return size;
 		}
-		const auto ColumnData = const_cast<const wchar_t**>(gpi->Item->CustomColumnData);
-		for (size_t i = 0; i != fi.CustomColumns.size(); ++i)
+
+		for (const auto& [Column, Data]: zip(fi.CustomColumns, span(const_cast<const wchar_t**>(gpi->Item->CustomColumnData), fi.CustomColumns.size())))
 		{
-			if (!fi.CustomColumns[i])
+			if (!Column)
 			{
-				ColumnData[i] = {};
+				Data = {};
 				continue;
 			}
 
-			ColumnData[i] = CopyToBuffer(fi.CustomColumns[i]);
-			data += StringSizeInBytes(fi.CustomColumns[i]);
+			Data = CopyToBuffer(Column);
+			data += StringSizeInBytes(Column);
 		}
 
 		data = dataBegin + ColumnsDataSize;
@@ -5770,15 +5769,15 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 	{
 		CustomColumns.reserve(pi.CustomColumnNumber);
 
-		for (size_t i = 0; i != pi.CustomColumnNumber; ++i)
+		for (const auto& i: span(pi.CustomColumnData, pi.CustomColumnNumber))
 		{
-			if (!pi.CustomColumnData[i])
+			if (!i)
 			{
 				CustomColumns.emplace_back();
 				continue;
 			}
 
-			string_view const Data = pi.CustomColumnData[i];
+			string_view const Data = i;
 			auto Str = std::make_unique<wchar_t[]>(Data.size() + 1);
 			*copy_string(Data, Str.get()) = {};
 			CustomColumns.emplace_back(Str.release());
@@ -6429,11 +6428,11 @@ size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem
 		CacheSelIndex = -1;
 
 	int CurSel = CacheSelIndex;
-	const int StartValue = CacheSelIndex >= 0 ? CacheSelPos + 1 : 0;
+	const size_t StartValue = CacheSelIndex >= 0 ? CacheSelPos + 1 : 0;
 
 	size_t result = 0;
 
-	for (size_t i = StartValue; i < m_ListData.size(); i++)
+	for (const auto& i: irange(StartValue, m_ListData.size()))
 	{
 		if (m_ListData[i].Selected)
 			CurSel++;
@@ -6480,9 +6479,9 @@ void FileList::PluginClearSelection(int SelectedItemNumber)
 		CacheSelClearIndex=-1;
 
 	int CurSel = CacheSelClearIndex;
-	const auto StartValue = CacheSelClearIndex >= 0? CacheSelClearPos + 1 : 0;
+	const size_t StartValue = CacheSelClearIndex >= 0? CacheSelClearPos + 1 : 0;
 
-	for (size_t i = StartValue; i < m_ListData.size(); ++i)
+	for (const auto& i: irange(StartValue, m_ListData.size()))
 	{
 		if (m_ListData[i].Selected)
 		{
@@ -7370,34 +7369,36 @@ void FileList::ReadDiz(span<PluginPanelItem> const Items)
 
 		if (GetCode)
 		{
-			for (size_t I=0; I<m_CachedOpenPanelInfo.DescrFilesNumber; I++)
+			for (const auto& i: span(m_CachedOpenPanelInfo.DescrFiles, m_CachedOpenPanelInfo.DescrFilesNumber))
 			{
 				for (auto& CurPanelData: PanelData)
 				{
-					if (equal_icase(CurPanelData.FileName, m_CachedOpenPanelInfo.DescrFiles[I]))
+					if (!equal_icase(CurPanelData.FileName, i))
+						continue;
+
+					const auto strTempDir = MakeTemp();
+
+					if (!os::fs::create_directory(strTempDir))
 					{
-						const auto strTempDir = MakeTemp();
-
-						if (os::fs::create_directory(strTempDir))
-						{
-							string strDizName;
-							if (Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), &CurPanelData, strTempDir, strDizName, OPM_SILENT | OPM_VIEW | OPM_QUICKVIEW | OPM_DESCR))
-							{
-								strPluginDizName = m_CachedOpenPanelInfo.DescrFiles[I];
-								Diz.Read({}, &strDizName);
-								DeleteFileWithFolder(strDizName);
-								I = m_CachedOpenPanelInfo.DescrFilesNumber;
-								break;
-							}
-
-							// BUGBUG check result
-							if (!os::fs::remove_directory(strTempDir))
-							{
-								LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, last_error());
-							}
-							//ViewPanel->ShowFile(nullptr,FALSE,nullptr);
-						}
+						LOGWARNING(L"create_directory({}): {}"sv, strTempDir, last_error());
+						continue;
 					}
+
+					string strDizName;
+					if (Global->CtrlObject->Plugins->GetFile(GetPluginHandle(), &CurPanelData, strTempDir, strDizName, OPM_SILENT | OPM_VIEW | OPM_QUICKVIEW | OPM_DESCR))
+					{
+						strPluginDizName = i;
+						Diz.Read({}, &strDizName);
+						DeleteFileWithFolder(strDizName);
+						break;
+					}
+
+					// BUGBUG check result
+					if (!os::fs::remove_directory(strTempDir))
+					{
+						LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, last_error());
+					}
+					//ViewPanel->ShowFile(nullptr,FALSE,nullptr);
 				}
 			}
 
@@ -8229,7 +8230,7 @@ void FileList::PrepareStripes(const std::vector<column>& Columns)
 {
 	const auto ColumnsSize = static_cast<int>(Columns.size());
 
-	for (int StripeStride = 1; StripeStride <= ColumnsSize / 2; StripeStride++)
+	for (const auto& StripeStride: irange(1, ColumnsSize / 2 + 1))
 	{
 		if (CanMakeStripes(Columns, StripeStride))
 		{
@@ -8284,7 +8285,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 		int StatusLine=FALSE;
 		int Level = 1;
 
-		for (size_t K=0; K<ColumnCount; K++)
+		for (const auto& K: irange(ColumnCount))
 		{
 			int ListPos=J+CurColumn*m_Height;
 

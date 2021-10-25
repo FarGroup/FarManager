@@ -438,7 +438,7 @@ window_ptr Manager::WindowMenu()
 		ModalMenu->SetPosition({ -1, -1, 0, 0 });
 		ModalMenu->SetId(ScreensSwitchId);
 
-		for(size_t i = 0, Size = Data.size(); i != Size; ++i)
+		for (const auto& i: irange(Data.size()))
 		{
 			auto& [Type, Name, Window] = Data[i];
 

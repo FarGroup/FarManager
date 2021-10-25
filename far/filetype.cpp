@@ -266,7 +266,7 @@ void ProcessExternal(string_view const Command, string_view const Name, string_v
 {
 	string strExecStr(Command);
 	bool PreserveLFN = false;
-	if (!SubstFileName(strExecStr, subst_context(Name, ShortName), &PreserveLFN) || strExecStr.empty())
+	if (!SubstFileName(strExecStr, { Name, ShortName }, &PreserveLFN) || strExecStr.empty())
 		return;
 
 	// If you want your history to be usable - use full paths yourself. We cannot reliably substitute them.

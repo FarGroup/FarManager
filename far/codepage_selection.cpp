@@ -754,7 +754,7 @@ size_t codepages::FillCodePagesList(Dialog* Dlg, size_t controlId, uintptr_t cod
 		FarListInfo info = { sizeof(FarListInfo) };
 		Dlg->SendMessage(DM_LISTINFO, control, &info);
 
-		for (size_t i = 0; i != info.ItemsNumber; ++i)
+		for (const auto& i: irange(info.ItemsNumber))
 		{
 			if (GetListItemCodePage(i) == codePage)
 			{

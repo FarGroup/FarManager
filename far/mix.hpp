@@ -96,7 +96,7 @@ public:
 	void set_alt_name(string_view Value) override;
 	void set_description(string_view Value) override;
 	void set_owner(string_view Value) override;
-	void set_columns(span<const wchar_t* const> Value) override;
+	void set_columns(span<const wchar_t* const> Values) override;
 
 private:
 	static const wchar_t* make_copy(string_view Value);

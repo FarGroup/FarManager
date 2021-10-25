@@ -314,7 +314,7 @@ static void normalize_for_search(string_view const Str, string& Result, string& 
 }
 
 fuzzy_searcher::fuzzy_searcher(string_view const Needle, bool const CanReverse):
-	m_Searcher((normalize_for_search(Needle, m_Needle, m_Intermediate, m_Types), inplace::upper(m_Needle), m_Needle), CanReverse)
+	m_Searcher(((void)normalize_for_search(Needle, m_Needle, m_Intermediate, m_Types), (void)inplace::upper(m_Needle), m_Needle), CanReverse)
 {
 }
 
@@ -328,7 +328,7 @@ std::optional<std::pair<size_t, size_t>> fuzzy_searcher::find_in(string_view con
 	size_t TransformedSize{};
 	std::optional<size_t> CorrectedOffset;
 
-	for (size_t i = 0, HaystackSize = Haystack.size(); i != HaystackSize; ++i)
+	for (const auto& i: irange(Haystack.size()))
 	{
 		normalize_for_search(Haystack.substr(i, 1), m_HayStack, m_Intermediate, m_Types);
 		TransformedSize += m_HayStack.size();

@@ -1125,9 +1125,10 @@ intptr_t KeyMacro::ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 		case DN_BTNCLICK:
 
 			if (Param1==MS_CHECKBOX_A_PANEL || Param1==MS_CHECKBOX_P_PANEL)
-				for (int i=1; i<=3; i++)
+			{
+				for (const auto& i: irange(1, 4))
 					Dlg->SendMessage(DM_ENABLE,Param1+i,Param2);
-
+			}
 			break;
 		case DN_CLOSE:
 
@@ -3125,7 +3126,7 @@ void FarMacroApi::menushowFunc()
 
 	if ((bAutoNumbering) && (bSorting || bPacking))
 	{
-		for (int i = 0; i < Menu->GetShowItemCount(); i++)
+		for (const auto& i: irange(Menu->GetShowItemCount()))
 		{
 			auto& Item = Menu->at(i);
 			if (!(Item.Flags & LIF_SEPARATOR))
@@ -3185,7 +3186,7 @@ void FarMacroApi::menushowFunc()
 			case KEY_RCTRLMULTIPLY:
 				if (bMultiSelect)
 				{
-					for (size_t i = 0, size = Menu->size(); i != size; ++i)
+					for (const auto& i: irange(Menu->size()))
 					{
 						if (Menu->at(i).Flags & MIF_HIDDEN)
 							continue;
@@ -3236,7 +3237,7 @@ void FarMacroApi::menushowFunc()
 		{
 			string StrResult;
 
-			for (size_t i = 0, size = Menu->size(); i != size; ++i)
+			for (const auto& i: irange(Menu->size()))
 			{
 				if (Menu->GetCheck(static_cast<int>(i)))
 				{
@@ -4273,7 +4274,7 @@ void FarMacroApi::panelsetposidxFunc()
 				else
 				{
 					const auto CurPos = SelPanel->GetCurrentPos();
-					for (size_t I=0 ; I < EndPos ; I++ )
+					for (const auto& I: irange(EndPos))
 					{
 						if ( SelPanel->IsSelected(I) && SelPanel->FileInFilter(I) )
 						{
@@ -4513,7 +4514,7 @@ void FarMacroApi::strpadFunc()
 
 			const auto& pFill = Fill.asString();
 
-			for (int i = 0; i != FineLength; ++i)
+			for (const auto& i: irange(FineLength))
 			{
 				NewFill.push_back(pFill[i % LengthFill]);
 			}
@@ -5185,7 +5186,7 @@ TEST_CASE("macro.splitpath")
 
 	for (const auto& i: Tests)
 	{
-		for (int Flags = 1; Flags != 0b1111; ++Flags)
+		for (const auto& Flags: irange(1, 0b1111))
 		{
 			string Expected;
 

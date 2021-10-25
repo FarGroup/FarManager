@@ -129,7 +129,7 @@ public:
 		{
 			ProgressDlgItems[items::pr_wipe_progress].Flags |= DIF_HIDDEN;
 
-			for (size_t i = pr_separator; i <= pr_total_progress; ++i)
+			for (const auto& i: irange<size_t>(pr_separator, pr_total_progress + 1))
 			{
 				--ProgressDlgItems[i].Y1;
 				--ProgressDlgItems[i].Y2;

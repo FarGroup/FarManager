@@ -924,12 +924,12 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 
 	if (!ColorConfig)
 	{
-		for (int i = ID_HER_SEPARATOR1; i <= ID_HER_CONTINUEPROCESSING; ++i)
+		for (const auto& i: irange<size_t>(ID_HER_SEPARATOR1, ID_HER_CONTINUEPROCESSING + 1))
 			FilterDlg[i].Flags|=DIF_HIDDEN;
 
 		const auto YDelta = FilterDlg[ID_FF_SEPARATOR5].Y2 - FilterDlg[ID_HER_SEPARATOR1].Y2 + 1;
 
-		for (int i = ID_FF_SEPARATOR5; i <= ID_FF_CANCEL; ++i)
+		for (const auto& i: irange<size_t>(ID_FF_SEPARATOR5, ID_FF_CANCEL + 1))
 		{
 			FilterDlg[i].Y1 -= YDelta;
 			FilterDlg[i].Y2 -= YDelta;
@@ -983,9 +983,10 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 	FilterDlg[ID_FF_HARDLINKS].Selected = Filter.GetHardLinks(nullptr, nullptr)? 1 : 0; //пока что мы проверяем только флаг использования данного условия
 
 	if (!FilterDlg[ID_FF_MATCHSIZE].Selected)
-		for (int i=ID_FF_SIZEFROMSIGN; i <= ID_FF_SIZETOEDIT; i++)
-			FilterDlg[i].Flags|=DIF_DISABLE;
-
+	{
+		for (const auto& i: irange<size_t>(ID_FF_SIZEFROMSIGN, ID_FF_SIZETOEDIT + 1))
+			FilterDlg[i].Flags |= DIF_DISABLE;
+	}
 	// Лист для комбобокса времени файла
 	FarList DateList={sizeof(FarList)};
 	FarListItem TableItemDate[FDATE_COUNT]={};
@@ -993,7 +994,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 	DateList.Items=TableItemDate;
 	DateList.ItemsNumber=FDATE_COUNT;
 
-	for (int i=0; i < FDATE_COUNT; ++i)
+	for (const auto& i: irange<size_t>(FDATE_COUNT))
 		TableItemDate[i].Text = msg(lng::MFileFilterWrited+i).c_str();
 
 	DWORD DateType;
@@ -1029,8 +1030,10 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 	});
 
 	if (!FilterDlg[ID_FF_MATCHDATE].Selected)
-		for (int i=ID_FF_DATETYPE; i <= ID_FF_BLANK; i++)
-			FilterDlg[i].Flags|=DIF_DISABLE;
+	{
+		for (const auto& i: irange<size_t>(ID_FF_DATETYPE, ID_FF_BLANK + 1))
+			FilterDlg[i].Flags |= DIF_DISABLE;
+	}
 
 	attribute_map AttributeMapping[]
 	{

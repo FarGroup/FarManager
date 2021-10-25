@@ -70,16 +70,16 @@ static int GetPreserveCaseStyleMask(const string_view Str)
 	std::bitset<PreserveStyleType::COUNT> Result;
 	Result.set();
 
-	for (size_t i = 0; i != Str.size(); ++i)
+	for (const auto& i: Str)
 	{
-		const auto Upper = is_upper(Str[i]);
-		const auto Lower = !Upper && is_lower(Str[i]);
+		const auto Upper = is_upper(i);
+		const auto Lower = !Upper && is_lower(i);
 
 		if (!Upper)
 		{
 			Result[UPPERCASE_ALL] = false;
 
-			if (!i)
+			if (&i == &Str.front())
 				Result[UPPERCASE_FIRST] = false;
 		}
 
@@ -87,7 +87,7 @@ static int GetPreserveCaseStyleMask(const string_view Str)
 		{
 			Result[LOWERCASE_ALL] = false;
 
-			if (i > 0)
+			if (&i != &Str.front())
 				Result[UPPERCASE_FIRST] = false;
 		}
 	}

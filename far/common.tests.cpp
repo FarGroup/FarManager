@@ -757,6 +757,19 @@ TEST_CASE("range.dynamic")
 
 		REQUIRE(Iterator == Range.cend());
 	}
+
+	{
+		size_t const Total = 10;
+		size_t Count = 0;
+
+		for (const auto& i: irange(Total))
+		{
+			REQUIRE(i == Count);
+			++Count;
+		}
+
+		REQUIRE(Count == Total);
+	}
 }
 
 //----------------------------------------------------------------------------

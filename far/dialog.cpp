@@ -215,9 +215,9 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item,
 			offsetListItems=size;
 			ListBoxSize=ListBox->size();
 			size+=ListBoxSize*sizeof(FarListItem);
-			for(size_t ii=0;ii != ListBoxSize; ++ii)
+			for (const auto& i: irange(ListBoxSize))
 			{
-				size += (ListBox->at(ii).Name.size() + 1) * sizeof(wchar_t);
+				size += (ListBox->at(i).Name.size() + 1) * sizeof(wchar_t);
 			}
 		}
 	}
@@ -240,7 +240,7 @@ static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item,
 					const auto list = static_cast<FarList*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetList));
 					const auto listItems = static_cast<FarListItem*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetListItems));
 					auto text = static_cast<wchar_t*>(static_cast<void*>(listItems + ListBoxSize));
-					for (size_t ii = 0; ii != ListBoxSize; ++ii)
+					for (const auto& ii: irange(ListBoxSize))
 					{
 						auto& item = ListBox->at(ii);
 						listItems[ii].Flags = item.Flags;
@@ -578,11 +578,11 @@ void Dialog::ProcessCenterGroup()
 
 			int Length = 0;
 
-			for (auto j = FirstVisibleButton; j != ButtonsEnd; ++j)
+			for (auto& j: range(FirstVisibleButton, ButtonsEnd))
 			{
-				if (IsVisible(*j))
+				if (IsVisible(j))
 				{
-					Length += GetIncrement(*j);
+					Length += GetIncrement(j);
 				}
 			}
 
@@ -591,16 +591,16 @@ void Dialog::ProcessCenterGroup()
 
 			int StartX = std::max(0, (m_Where.width() - Length) / 2);
 
-			for (auto j = FirstVisibleButton; j != ButtonsEnd; ++j)
+			for (auto& j: range(FirstVisibleButton, ButtonsEnd))
 			{
-				if (IsVisible(*j))
+				if (IsVisible(j))
 				{
-					j->X1 = StartX;
-					StartX += GetIncrement(*j);
-					j->X2 = StartX;
-					if (j->X2 != j->X1)
+					j.X1 = StartX;
+					StartX += GetIncrement(j);
+					j.X2 = StartX;
+					if (j.X2 != j.X1)
 					{
-						--j->X2;
+						--j.X2;
 					}
 				}
 			}
@@ -659,7 +659,7 @@ void Dialog::InitDialogObjects(size_t ID)
 		m_FocusPos = static_cast<size_t>(-1); // будем искать сначала!
 
 	// предварительный цикл по поводу кнопок
-	for (size_t I = ID; I != InitItemCount; ++I)
+	for (const auto& I: irange(ID, InitItemCount))
 	{
 		auto& Item = Items[I];
 
@@ -735,7 +735,7 @@ void Dialog::InitDialogObjects(size_t ID)
 	// а теперь все сначала и по полной программе...
 	ProcessCenterGroup(); // сначала отцентрируем
 
-	for (size_t I = ID; I != InitItemCount; ++I)
+	for (const auto& I : irange(ID, InitItemCount))
 	{
 		auto& Item = Items[I];
 
@@ -1621,7 +1621,7 @@ void Dialog::ShowDialog(size_t ID)
 		SetCursorType(CursorVisible,CursorSize);
 	}
 
-	for (size_t I = ID; I < DrawItemCount; I++)
+	for (const auto& I : irange(ID, DrawItemCount))
 	{
 		const auto& Item = Items[I];
 
@@ -2162,13 +2162,15 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_LEFT:      case KEY_NUMPAD4:
 				Hide();
 
-				for (int i=0; i<rr; i++)
+				repeat(rr, [&]
+				{
 					if (m_Where.right > 0)
 					{
 						--m_Where.left;
 						--m_Where.right;
 						AdjustEditPos(-1,0);
 					}
+				});
 
 				Show();
 				break;
@@ -2183,13 +2185,15 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_RIGHT:     case KEY_NUMPAD6:
 				Hide();
 
-				for (int i=0; i<rr; i++)
+				repeat(rr, [&]
+				{
 					if (m_Where.left < ScrX)
 					{
 						++m_Where.left;
 						++m_Where.right;
 						AdjustEditPos(1,0);
 					}
+				});
 
 				Show();
 				break;
@@ -2204,13 +2208,15 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_UP:        case KEY_NUMPAD8:
 				Hide();
 
-				for (int i=0; i<rr; i++)
+				repeat(rr, [&]
+				{
 					if (m_Where.bottom > 0)
 					{
 						--m_Where.top;
 						--m_Where.bottom;
 						AdjustEditPos(0,-1);
 					}
+				});
 
 				Show();
 				break;
@@ -2225,13 +2231,15 @@ bool Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_DOWN:      case KEY_NUMPAD2:
 				Hide();
 
-				for (int i=0; i<rr; i++)
+				repeat(rr, [&]
+				{
 					if (m_Where.top < ScrY)
 					{
 						++m_Where.top;
 						++m_Where.bottom;
 						AdjustEditPos(0,1);
 					}
+				});
 
 				Show();
 				break;
@@ -4010,7 +4018,7 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 	if (StartPos < 0)
 		StartPos=0;
 
-	for (size_t I = StartPos; I < Items.size(); ++I)
+	for (const auto& I: irange(static_cast<size_t>(StartPos), Items.size()))
 	{
 		const auto& Item = Items[I];
 		const auto Type = Item.Type;
@@ -4650,7 +4658,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			const auto KeyArray = static_cast<const INPUT_RECORD*>(Param2);
 			DialogMode.Set(DMODE_KEY);
 
-			for (unsigned int I = 0; I < static_cast<size_t>(Param1); ++I)
+			for (const auto& I: irange(Param1))
 				ProcessKey(Manager::Key(InputRecordToKey(KeyArray+I)));
 
 			DialogMode.Clear(DMODE_KEY);

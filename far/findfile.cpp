@@ -1860,7 +1860,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			DlgWidth += IncX;
 			DlgHeight += IncY;
 
-			for (int i = 0; i < FD_SEPARATOR1; i++)
+			for (const auto& i: irange<size_t>(FD_SEPARATOR1))
 			{
 				SMALL_RECT rect;
 				Dlg->SendMessage( DM_GETITEMPOSITION, i, &rect);
@@ -1869,7 +1869,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				Dlg->SendMessage( DM_SETITEMPOSITION, i, &rect);
 			}
 
-			for (int i = FD_SEPARATOR1; i <= FD_BUTTON_STOP; i++)
+			for (const auto& i: irange<size_t>(FD_SEPARATOR1, FD_BUTTON_STOP + 1))
 			{
 				SMALL_RECT rect;
 				Dlg->SendMessage( DM_GETITEMPOSITION, i, &rect);

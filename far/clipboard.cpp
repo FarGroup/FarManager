@@ -100,7 +100,7 @@ public:
 		// Clipboard is a shared resource
 		const size_t Attempts = 5;
 
-		for (size_t i = 0; i != Attempts; ++i)
+		for (const auto& i: irange(Attempts))
 		{
 			if (OpenClipboard(console.GetWindow()))
 			{
