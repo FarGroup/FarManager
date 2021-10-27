@@ -278,17 +278,19 @@ private:
 	T m_value{};
 };
 
-template<class T, REQUIRES(std::is_integral_v<T>)>
-class [[nodiscard]] irange: public range<i_iterator<T>>
+template<typename T1, typename T2 = T1, REQUIRES(std::is_integral_v<std::common_type_t<sane_underlying_type<T1>, sane_underlying_type<T2>>>)>
+class [[nodiscard]] irange: public range<i_iterator<std::common_type_t<sane_underlying_type<T1>, sane_underlying_type<T2>>>>
 {
+	using integer_type = typename irange::value_type;
+
 public:
-	irange(T Begin, T End) noexcept:
-		range<i_iterator<T>>(i_iterator{Begin}, i_iterator{End})
+	irange(T1 Begin, T2 End) noexcept:
+		range<i_iterator<integer_type>>(i_iterator{static_cast<integer_type>(Begin)}, i_iterator{static_cast<integer_type>(End)})
 	{
 	}
 
-	explicit irange(T End) noexcept:
-		range<i_iterator<T>>(i_iterator{T{}}, i_iterator{End})
+	explicit irange(T1 End) noexcept:
+		range<i_iterator<integer_type>>(i_iterator{integer_type{}}, i_iterator{static_cast<integer_type>(End)})
 	{
 	}
 };

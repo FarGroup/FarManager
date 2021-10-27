@@ -1636,13 +1636,13 @@ private:
 	bool HotkeysPresent(hotkey_type HotKeyType) override
 	{
 		const auto Stmt = AutoStatement(stmtCheckForHotkeys);
-		return Stmt->Bind(as_underlying_type(HotKeyType)).Step() && Stmt->GetColInt(0);
+		return Stmt->Bind(std::to_underlying(HotKeyType)).Step() && Stmt->GetColInt(0);
 	}
 
 	string GetHotkey(const string_view PluginKey, const UUID& MenuUuid, const hotkey_type HotKeyType) override
 	{
 		const auto Stmt = AutoStatement(stmtGetHotkey);
-		if (!Stmt->Bind(PluginKey, uuid::str(MenuUuid), as_underlying_type(HotKeyType)).Step())
+		if (!Stmt->Bind(PluginKey, uuid::str(MenuUuid), std::to_underlying(HotKeyType)).Step())
 			return {};
 
 		return Stmt->GetColText(0);
@@ -1650,12 +1650,12 @@ private:
 
 	void SetHotkey(const string_view PluginKey, const UUID& MenuUuid, const hotkey_type HotKeyType, const string_view HotKey) override
 	{
-		ExecuteStatement(stmtSetHotkey, PluginKey, uuid::str(MenuUuid), as_underlying_type(HotKeyType), HotKey);
+		ExecuteStatement(stmtSetHotkey, PluginKey, uuid::str(MenuUuid), std::to_underlying(HotKeyType), HotKey);
 	}
 
 	void DelHotkey(const string_view PluginKey, const UUID& MenuUuid, const hotkey_type HotKeyType) override
 	{
-		ExecuteStatement(stmtDelHotkey, PluginKey, uuid::str(MenuUuid), as_underlying_type(HotKeyType));
+		ExecuteStatement(stmtDelHotkey, PluginKey, uuid::str(MenuUuid), std::to_underlying(HotKeyType));
 	}
 
 	void Export(representation_destination& Representation) const override

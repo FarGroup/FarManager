@@ -122,7 +122,7 @@ static_assert(static_cast<size_t>(panel_sort::BY_USER) == static_cast<size_t>(OP
 
 constexpr auto operator+(panel_sort const Value) noexcept
 {
-	return as_underlying_type(Value);
+	return std::to_underlying(Value);
 }
 
 static const struct
@@ -3545,7 +3545,7 @@ long FileList::FindNext(int StartPos, string_view const Name)
 	if (static_cast<size_t>(StartPos) >= m_ListData.size())
 		return -1;
 
-	for (const auto& I: irange(static_cast<size_t>(StartPos), m_ListData.size()))
+	for (const auto& I: irange(StartPos, m_ListData.size()))
 	{
 		if (CmpName(Name, m_ListData[I].FileName, true) && !IsParentDirectory(m_ListData[I]))
 			return static_cast<long>(I);

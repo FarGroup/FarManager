@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 template<class T>
 constexpr lng operator+(lng Id, T Shift)
 {
-	return static_cast<lng>(as_underlying_type(Id) + Shift);
+	return static_cast<lng>(std::to_underlying(Id) + Shift);
 }
 
 inline lng operator++(lng& Id, int)

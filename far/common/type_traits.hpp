@@ -82,5 +82,21 @@ using is_span = std::conjunction<is_detected<detail::try_data, type>, is_detecte
 template<class type>
 inline constexpr bool is_span_v = is_span<type>::value;
 
+namespace detail
+{
+	template<typename T>
+	auto sane_to_underlying(T Value)
+	{
+		static_assert(std::disjunction_v<std::is_integral<T>, std::is_enum<T>>);
+
+		if constexpr (std::is_enum_v<T>)
+			return static_cast<std::underlying_type_t<T>>(Value);
+		else
+			return Value;
+	}
+}
+
+template<typename T>
+using sane_underlying_type = decltype(detail::sane_to_underlying(std::declval<T&>()));
 
 #endif // TYPE_TRAITS_HPP_CC9B8497_9AF0_4882_A470_81FF9CBF6D7C

@@ -1355,7 +1355,7 @@ int TreeList::GetNextNavPos() const
 	{
 		const auto CurDepth = m_ListData[m_CurFile].Depth;
 
-		for (const auto& I: irange(static_cast<size_t>(m_CurFile) + 1, m_ListData.size()))
+		for (const auto& I: irange(m_CurFile + 1, m_ListData.size()))
 		{
 			if (m_ListData[I].Depth == CurDepth)
 			{

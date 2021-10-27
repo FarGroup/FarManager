@@ -79,7 +79,7 @@ enum cdrom_device_capabilities
 
 static auto operator | (cdrom_device_capabilities const This, cdrom_device_capabilities const Rhs)
 {
-	return static_cast<cdrom_device_capabilities>(as_underlying_type(This) | Rhs);
+	return static_cast<cdrom_device_capabilities>(std::to_underlying(This) | Rhs);
 }
 
 static auto& operator |= (cdrom_device_capabilities& This, cdrom_device_capabilities const Rhs)

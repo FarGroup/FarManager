@@ -171,4 +171,16 @@ namespace std::chrono
 }
 #endif
 
+#ifndef __cpp_lib_to_underlying
+namespace std
+{
+	template<class enum_type>
+	[[nodiscard]]
+	constexpr auto to_underlying(enum_type const Enum) noexcept
+	{
+		return static_cast<std::underlying_type_t<enum_type>>(Enum);
+	}
+}
+#endif
+
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

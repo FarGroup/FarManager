@@ -1165,9 +1165,9 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 				}
 				else
 				{
-					const size_t MaskLen = Mask.size();
+					const auto MaskLen = Mask.size();
 					size_t j = m_CurPos;
-					for (const auto& i: irange(static_cast<size_t>(m_CurPos), MaskLen))
+					for (const auto& i: irange(m_CurPos, MaskLen))
 					{
 						if (i + 1 < MaskLen && CheckCharMask(Mask[i + 1]))
 						{

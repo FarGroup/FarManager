@@ -300,17 +300,15 @@ static void normalize_for_search(string_view const Str, string& Result, string& 
 		return;
 	}
 
-	const auto RemoveChar = L'´';
-	for (const auto& [Char, Type]: zip(Result, Types))
+	zip const Zip(Result, Types);
+	const auto End = std::remove_if(ALL_RANGE(Zip), [](const auto& i)
 	{
-		if (
-			!flags::check_any(Type, C3_ALPHA | C3_LEXICAL) &&
-			flags::check_any(Type, C3_NONSPACING | C3_DIACRITIC | C3_VOWELMARK)
-		)
-			Char = RemoveChar;
-	}
+		return
+			!flags::check_any(std::get<1>(i), C3_ALPHA | C3_LEXICAL) &&
+			flags::check_any(std::get<1>(i), C3_NONSPACING | C3_DIACRITIC | C3_VOWELMARK);
+	});
 
-	Result.erase(std::remove(ALL_RANGE(Result), RemoveChar), Result.end());
+	Result.resize(End - Zip.begin());
 }
 
 fuzzy_searcher::fuzzy_searcher(string_view const Needle, bool const CanReverse):

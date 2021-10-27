@@ -532,7 +532,7 @@ static void ProcessSelection(VMenu2* const FilterList, filter_area const Area)
 				{
 					bool bCheckedNowhere = true;
 
-					for (const auto& n: irange(static_cast<size_t>(filter_area::count)))
+					for (const auto& n: irange(filter_area::count))
 					{
 						if (static_cast<filter_area>(n) != Area && Iterator->second.GetFlags(static_cast<filter_area>(n)))
 						{

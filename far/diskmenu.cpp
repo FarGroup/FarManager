@@ -744,9 +744,9 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 				{
 					if (NewItem.DriveType == DRIVE_CDROM)
 					{
-						static_assert(as_underlying_type(lng::MChangeDriveHDDVDRAM) - as_underlying_type(lng::MChangeDriveCDROM) == as_underlying_type(cd_type::hddvdram) - as_underlying_type(cd_type::cdrom));
+						static_assert(std::to_underlying(lng::MChangeDriveHDDVDRAM) - std::to_underlying(lng::MChangeDriveCDROM) == std::to_underlying(cd_type::hddvdram) - std::to_underlying(cd_type::cdrom));
 
-						NewItem.Type = msg(lng::MChangeDriveCDROM + ((DriveMode & DRIVE_SHOW_CDROM)? as_underlying_type(get_cdrom_type(RootDirectory)) - as_underlying_type(cd_type::cdrom) : 0));
+						NewItem.Type = msg(lng::MChangeDriveCDROM + ((DriveMode & DRIVE_SHOW_CDROM)? std::to_underlying(get_cdrom_type(RootDirectory)) - std::to_underlying(cd_type::cdrom) : 0));
 					}
 					else
 					{

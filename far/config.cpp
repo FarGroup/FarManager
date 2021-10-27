@@ -197,9 +197,9 @@ void Options::SystemSettings()
 
 	static const DialogBuilderListItem SortingMethods[] =
 	{
-		{ lng::MConfigSortingOrdinal, as_underlying_type(SortingOptions::collation::ordinal) },
-		{ lng::MConfigSortingInvariant, as_underlying_type(SortingOptions::collation::invariant) },
-		{ lng::MConfigSortingLinguistic, as_underlying_type(SortingOptions::collation::linguistic) },
+		{ lng::MConfigSortingOrdinal, std::to_underlying(SortingOptions::collation::ordinal) },
+		{ lng::MConfigSortingInvariant, std::to_underlying(SortingOptions::collation::invariant) },
+		{ lng::MConfigSortingLinguistic, std::to_underlying(SortingOptions::collation::linguistic) },
 	};
 
 	const auto SortingMethodsComboBox = Builder.AddComboBox(Sort.Collation, 20, SortingMethods);
@@ -2063,7 +2063,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeySystem,                 L"WindowMode.StickyY"sv,            WindowModeStickyY, false},
 		{FSSF_PRIVATE,           NKeySystem,                 L"WipeSymbol"sv,                    WipeSymbol, 0},
 		{FSSF_SYSTEM,            NKeySystem,                 L"WordDiv"sv,                       strWordDiv, WordDiv0},
-		{FSSF_PRIVATE,           NKeySystemSort,             L"Collation"sv,                     Sort.Collation, as_underlying_type(SortingOptions::collation::linguistic)},
+		{FSSF_PRIVATE,           NKeySystemSort,             L"Collation"sv,                     Sort.Collation, std::to_underlying(SortingOptions::collation::linguistic)},
 		{FSSF_PRIVATE,           NKeySystemSort,             L"DigitsAsNumbers"sv,               Sort.DigitsAsNumbers, IsWindows7OrGreater()},
 		{FSSF_PRIVATE,           NKeySystemSort,             L"CaseSensitive"sv,                 Sort.CaseSensitive, false},
 		{FSSF_PRIVATE,           NKeySystemKnownIDs,         L"EMenu"sv,                         KnownIDs.Emenu.StrId, KnownIDs.Emenu.Default},

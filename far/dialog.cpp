@@ -4018,7 +4018,7 @@ int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
 	if (StartPos < 0)
 		StartPos=0;
 
-	for (const auto& I: irange(static_cast<size_t>(StartPos), Items.size()))
+	for (const auto& I: irange(StartPos, Items.size()))
 	{
 		const auto& Item = Items[I];
 		const auto Type = Item.Type;

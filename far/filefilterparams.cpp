@@ -924,12 +924,12 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 
 	if (!ColorConfig)
 	{
-		for (const auto& i: irange<size_t>(ID_HER_SEPARATOR1, ID_HER_CONTINUEPROCESSING + 1))
+		for (const auto& i: irange(ID_HER_SEPARATOR1, ID_HER_CONTINUEPROCESSING + 1))
 			FilterDlg[i].Flags|=DIF_HIDDEN;
 
 		const auto YDelta = FilterDlg[ID_FF_SEPARATOR5].Y2 - FilterDlg[ID_HER_SEPARATOR1].Y2 + 1;
 
-		for (const auto& i: irange<size_t>(ID_FF_SEPARATOR5, ID_FF_CANCEL + 1))
+		for (const auto& i: irange(ID_FF_SEPARATOR5, ID_FF_CANCEL + 1))
 		{
 			FilterDlg[i].Y1 -= YDelta;
 			FilterDlg[i].Y2 -= YDelta;
@@ -984,7 +984,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 
 	if (!FilterDlg[ID_FF_MATCHSIZE].Selected)
 	{
-		for (const auto& i: irange<size_t>(ID_FF_SIZEFROMSIGN, ID_FF_SIZETOEDIT + 1))
+		for (const auto& i: irange(ID_FF_SIZEFROMSIGN, ID_FF_SIZETOEDIT + 1))
 			FilterDlg[i].Flags |= DIF_DISABLE;
 	}
 	// Лист для комбобокса времени файла
@@ -994,7 +994,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 	DateList.Items=TableItemDate;
 	DateList.ItemsNumber=FDATE_COUNT;
 
-	for (const auto& i: irange<size_t>(FDATE_COUNT))
+	for (const auto& i: irange(FDATE_COUNT))
 		TableItemDate[i].Text = msg(lng::MFileFilterWrited+i).c_str();
 
 	DWORD DateType;
@@ -1031,7 +1031,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 
 	if (!FilterDlg[ID_FF_MATCHDATE].Selected)
 	{
-		for (const auto& i: irange<size_t>(ID_FF_DATETYPE, ID_FF_BLANK + 1))
+		for (const auto& i: irange(ID_FF_DATETYPE, ID_FF_BLANK + 1))
 			FilterDlg[i].Flags |= DIF_DISABLE;
 	}
 

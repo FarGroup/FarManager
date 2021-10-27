@@ -495,7 +495,7 @@ std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Colum
 		case COLFLAGS_RIGHTALIGNFORCE: return L'F';
 		case COLFLAGS_MARK_DYNAMIC:    return L'D';
 		default:
-			throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"Unexpected mode {}"sv), as_underlying_type(Mode)));
+			throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"Unexpected mode {}"sv), std::to_underlying(Mode)));
 		}
 	};
 

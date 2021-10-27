@@ -343,9 +343,9 @@ void InfoList::DisplayObject()
 				case DRIVE_CDROM:
 					if (Global->Opt->InfoPanel.ShowCDInfo)
 					{
-						static_assert(as_underlying_type(lng::MInfoHDDVDRAM) - as_underlying_type(lng::MInfoCDROM) == as_underlying_type(cd_type::hddvdram) - as_underlying_type(cd_type::cdrom));
+						static_assert(std::to_underlying(lng::MInfoHDDVDRAM) - std::to_underlying(lng::MInfoCDROM) == std::to_underlying(cd_type::hddvdram) - std::to_underlying(cd_type::cdrom));
 
-						DiskTypeId = lng::MInfoCDROM + (as_underlying_type(get_cdrom_type(strDriveRoot)) - as_underlying_type(cd_type::cdrom));
+						DiskTypeId = lng::MInfoCDROM + (std::to_underlying(get_cdrom_type(strDriveRoot)) - std::to_underlying(cd_type::cdrom));
 					}
 					else
 					{

@@ -2352,7 +2352,7 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 	if (CheckSymbol)
 		CheckSymbol=upper(CheckSymbol);
 
-	for (const auto& I: irange(static_cast<size_t>(StartPos), Items.size()))
+	for (const auto& I: irange(StartPos, Items.size()))
 	{
 		if (!ItemIsVisible(Items[I]))
 			continue;
@@ -2805,7 +2805,7 @@ int VMenu::FindItem(int StartIndex, string_view const Pattern, unsigned long lon
 {
 	if (static_cast<size_t>(StartIndex) < Items.size())
 	{
-		for (const auto& I: irange(static_cast<size_t>(StartIndex), Items.size()))
+		for (const auto& I: irange(StartIndex, Items.size()))
 		{
 			const auto strTmpBuf = remove_highlight(Items[I].Name);
 

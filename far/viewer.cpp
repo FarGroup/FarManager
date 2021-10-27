@@ -538,7 +538,7 @@ void Viewer::ShowPage(int nMode)
 
 				Strings.clear();
 
-				for (const auto& Y: irange(static_cast<int>(m_Where.top), m_Where.bottom + 1))
+				for (const auto& Y: irange(m_Where.top, m_Where.bottom + 1))
 				{
 					ViewerString NewString;
 					NewString.nFilePos = vtell();

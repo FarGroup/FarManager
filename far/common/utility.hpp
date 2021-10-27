@@ -171,13 +171,6 @@ constexpr auto as_unsigned(T Value)
 	return static_cast<std::make_unsigned_t<T>>(Value);
 }
 
-template<typename T>
-[[nodiscard]]
-constexpr auto as_underlying_type(T Value)
-{
-	return static_cast<std::underlying_type_t<T>>(Value);
-}
-
 [[nodiscard]]
 constexpr auto bit(size_t const Number)
 {
@@ -255,7 +248,7 @@ namespace enum_helpers
 	[[nodiscard]]
 	constexpr auto operation(T a, T b)
 	{
-		return static_cast<std::conditional_t<std::is_same_v<R, void>, T, R>>(O()(as_underlying_type(a), as_underlying_type(b)));
+		return static_cast<std::conditional_t<std::is_same_v<R, void>, T, R>>(O()(std::to_underlying(a), std::to_underlying(b)));
 	}
 }
 
