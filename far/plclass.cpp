@@ -285,7 +285,7 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, std::istream& S
 	IMAGE_SECTION_HEADER Section;
 	bool Found{};
 
-	for ([[ maybe_unused ]] const auto& i: irange(NtHeaders.FileHeader.NumberOfSections))
+	for ([[maybe_unused]] const auto& i: irange(NtHeaders.FileHeader.NumberOfSections))
 	{
 		if (io::read(Stream, edit_bytes(Section)) != sizeof(Section))
 		{

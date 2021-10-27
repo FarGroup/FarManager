@@ -276,14 +276,9 @@ namespace inplace
 		Str.size() < Size? pad_left(Str, Size) : cut_right(Str, Size);
 	}
 
-	inline void erase_all(std::wstring& Str, wchar_t Char)
-	{
-		Str.erase(std::remove(ALL_RANGE(Str), Char), Str.end());
-	}
-
 	inline void unquote(std::wstring& Str)
 	{
-		erase_all(Str, L'"');
+		std::erase(Str, L'"');
 	}
 
 	inline void quote(std::wstring& Str)
@@ -417,13 +412,6 @@ inline auto fit_to_center(std::wstring Str, size_t Size)
 inline auto fit_to_right(std::wstring Str, size_t Size)
 {
 	inplace::fit_to_right(Str, Size);
-	return Str;
-}
-
-[[nodiscard]]
-inline auto erase_all(std::wstring Str, wchar_t Char)
-{
-	inplace::erase_all(Str, Char);
 	return Str;
 }
 

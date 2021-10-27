@@ -1056,7 +1056,7 @@ private:
 		return AutoStatement(stmtEnumMasks);
 	}
 
-	bool EnumMasks(const bool Reset, unsigned long long* const id, string& strMask) const override
+	bool EnumMasks(const bool Reset, primary_key& id, string& strMask) const override
 	{
 		auto Stmt = EnumMasksStmt();
 
@@ -1066,7 +1066,7 @@ private:
 		if (!Stmt->Step())
 			return false;
 
-		*id = Stmt->GetColInt64(0);
+		id = Stmt->GetColInt64(0);
 		strMask = Stmt->GetColText(1);
 		KeepStatement(Stmt);
 		return true;
@@ -1082,7 +1082,7 @@ private:
 		return AutoStatement(stmtEnumMasksForType);
 	}
 
-	bool EnumMasksForType(const bool Reset, const int Type, unsigned long long* const id, string& strMask) const override
+	bool EnumMasksForType(const bool Reset, const int Type, primary_key& id, string& strMask) const override
 	{
 		auto Stmt = EnumMasksForTypeStmt();
 
@@ -1092,7 +1092,7 @@ private:
 		if (!Stmt->Step())
 			return false;
 
-		*id = Stmt->GetColInt64(0);
+		id = Stmt->GetColInt64(0);
 		strMask = Stmt->GetColText(1);
 		KeepStatement(Stmt);
 		return true;
@@ -1103,7 +1103,7 @@ private:
 		(void)EnumMasksForTypeStmt();
 	}
 
-	bool GetMask(unsigned long long id, string &strMask) override
+	bool GetMask(primary_key const id, string &strMask) override
 	{
 		const auto Stmt = AutoStatement(stmtGetMask);
 		if (!Stmt->Bind(id).Step())
@@ -1113,7 +1113,7 @@ private:
 		return true;
 	}
 
-	bool GetDescription(unsigned long long id, string &strDescription) override
+	bool GetDescription(primary_key const id, string &strDescription) override
 	{
 		const auto Stmt = AutoStatement(stmtGetDescription);
 		if (!Stmt->Bind(id).Step())
@@ -1123,7 +1123,7 @@ private:
 		return true;
 	}
 
-	bool GetCommand(unsigned long long id, int Type, string &strCommand, bool *Enabled) override
+	bool GetCommand(primary_key const id, int Type, string &strCommand, bool *Enabled) override
 	{
 		const auto Stmt = AutoStatement(stmtGetCommand);
 		if (!Stmt->Bind(id, Type).Step())
@@ -1135,12 +1135,12 @@ private:
 		return true;
 	}
 
-	void SetCommand(const unsigned long long id, const int Type, const string_view Command, const bool Enabled) override
+	void SetCommand(primary_key const id, const int Type, const string_view Command, const bool Enabled) override
 	{
 		ExecuteStatement(stmtSetCommand, id, Type, Enabled, Command);
 	}
 
-	bool SwapPositions(unsigned long long id1, unsigned long long id2) override
+	bool SwapPositions(primary_key const id1, primary_key const id2) override
 	{
 		const auto Stmt = AutoStatement(stmtGetWeight);
 		if (!Stmt->Bind(id1).Step())
@@ -1158,19 +1158,19 @@ private:
 		return true;
 	}
 
-	unsigned long long AddType(const unsigned long long after_id, const string_view Mask, const string_view Description) override
+	primary_key AddType(primary_key after_id, const string_view Mask, const string_view Description) override
 	{
 		ExecuteStatement(stmtReorder, after_id);
 		ExecuteStatement(stmtAddType, after_id, Mask, Description);
 		return LastInsertRowID();
 	}
 
-	void UpdateType(const unsigned long long id, const string_view Mask, const string_view Description) override
+	void UpdateType(primary_key const id, const string_view Mask, const string_view Description) override
 	{
 		ExecuteStatement(stmtUpdateType, Mask, Description, id);
 	}
 
-	void DelType(unsigned long long id) override
+	void DelType(primary_key const id) override
 	{
 		ExecuteStatement(stmtDelType, id);
 	}
@@ -1210,7 +1210,7 @@ private:
 
 		SCOPED_ACTION(auto)(ScopedTransaction());
 		Exec("DELETE FROM filetypes;"sv); // delete all before importing
-		unsigned long long id = 0;
+		primary_key id{};
 		for (const auto& e: xml_enum(base, "filetype"))
 		{
 			const auto mask = e.Attribute("mask");
@@ -1342,7 +1342,7 @@ private:
 	void Import(const representation_source&) override {}
 	void Export(representation_destination&) const override {}
 
-	unsigned long long CreateCache(const string_view CacheName) override
+	primary_key CreateCache(const string_view CacheName) override
 	{
 		//All related entries are automatically deleted because of foreign key constraints
 		ExecuteStatement(stmtDelCache, CacheName);
@@ -1350,7 +1350,7 @@ private:
 		return LastInsertRowID();
 	}
 
-	unsigned long long GetCacheID(const string_view CacheName) const override
+	primary_key GetCacheID(const string_view CacheName) const override
 	{
 		const auto Stmt = AutoStatement(stmtFindCacheName);
 		return Stmt->Bind(CacheName).Step()?
@@ -1358,18 +1358,18 @@ private:
 		       0;
 	}
 
-	bool IsPreload(unsigned long long id) const override
+	bool IsPreload(primary_key const id) const override
 	{
 		const auto Stmt = AutoStatement(stmtGetPreloadState);
 		return Stmt->Bind(id).Step() && Stmt->GetColInt(0) != 0;
 	}
 
-	string GetSignature(unsigned long long id) const override
+	string GetSignature(primary_key const id) const override
 	{
 		return GetTextFromID(stmtGetSignature, id);
 	}
 
-	bool GetExportState(const unsigned long long id, const string_view ExportName) const override
+	bool GetExportState(primary_key const id, const string_view ExportName) const override
 	{
 		if (ExportName.empty())
 			return false;
@@ -1378,129 +1378,129 @@ private:
 		return Stmt->Bind(id, ExportName).Step() && Stmt->GetColInt(0);
 	}
 
-	string GetUuid(unsigned long long id) const override
+	string GetUuid(primary_key const id) const override
 	{
 		return GetTextFromID(stmtGetUuid, id);
 	}
 
-	string GetTitle(unsigned long long id) const override
+	string GetTitle(primary_key const id) const override
 	{
 		return GetTextFromID(stmtGetTitle, id);
 	}
 
-	string GetAuthor(unsigned long long id) const override
+	string GetAuthor(primary_key const id) const override
 	{
 		return GetTextFromID(stmtGetAuthor, id);
 	}
 
-	string GetDescription(unsigned long long id) const override
+	string GetDescription(primary_key const id) const override
 	{
 		return GetTextFromID(stmtGetDescription, id);
 	}
 
-	bool GetMinFarVersion(unsigned long long id, VersionInfo& Version) const override
+	bool GetMinFarVersion(primary_key const id, VersionInfo& Version) const override
 	{
 		return GetVersionImpl(stmtGetMinFarVersion, id, Version);
 	}
 
-	bool GetVersion(unsigned long long id, VersionInfo& Version) const override
+	bool GetVersion(primary_key const id, VersionInfo& Version) const override
 	{
 		return GetVersionImpl(stmtGetVersion, id, Version);
 	}
 
-	bool GetDiskMenuItem(unsigned long long id, size_t index, string &Text, UUID& Uuid) const override
+	bool GetDiskMenuItem(primary_key const id, size_t index, string &Text, UUID& Uuid) const override
 	{
 		return GetMenuItem(id, DRIVE_MENU, index, Text, Uuid);
 	}
 
-	bool GetPluginsMenuItem(unsigned long long id, size_t index, string &Text, UUID& Uuid) const override
+	bool GetPluginsMenuItem(primary_key const id, size_t index, string &Text, UUID& Uuid) const override
 	{
 		return GetMenuItem(id, PLUGINS_MENU, index, Text, Uuid);
 	}
 
-	bool GetPluginsConfigMenuItem(unsigned long long id, size_t index, string &Text, UUID& Uuid) const override
+	bool GetPluginsConfigMenuItem(primary_key const id, size_t index, string &Text, UUID& Uuid) const override
 	{
 		return GetMenuItem(id, CONFIG_MENU, index, Text, Uuid);
 	}
 
-	string GetCommandPrefix(unsigned long long id) const override
+	string GetCommandPrefix(primary_key const id) const override
 	{
 		return GetTextFromID(stmtGetPrefix, id);
 	}
 
-	unsigned long long GetFlags(unsigned long long id) const override
+	unsigned long long GetFlags(primary_key const id) const override
 	{
 		const auto Stmt = AutoStatement(stmtGetFlags);
 		return Stmt->Bind(id).Step()? Stmt->GetColInt64(0) : 0;
 	}
 
-	void SetPreload(unsigned long long id, bool Preload) override
+	void SetPreload(primary_key const id, bool Preload) override
 	{
 		ExecuteStatement(stmtSetPreloadState, id, Preload);
 	}
 
-	void SetSignature(const unsigned long long id, const string_view Signature) override
+	void SetSignature(primary_key const id, const string_view Signature) override
 	{
 		ExecuteStatement(stmtSetSignature, id, Signature);
 	}
 
-	void SetDiskMenuItem(const unsigned long long id, const size_t index, const string_view Text, const UUID& Uuid) override
+	void SetDiskMenuItem(primary_key const id, const size_t index, const string_view Text, const UUID& Uuid) override
 	{
 		SetMenuItem(id, DRIVE_MENU, index, Text, Uuid);
 	}
 
-	void SetPluginsMenuItem(const unsigned long long id, const size_t index, const string_view Text, const UUID& Uuid) override
+	void SetPluginsMenuItem(primary_key const id, const size_t index, const string_view Text, const UUID& Uuid) override
 	{
 		SetMenuItem(id, PLUGINS_MENU, index, Text, Uuid);
 	}
 
-	void SetPluginsConfigMenuItem(const unsigned long long id, const size_t index, const string_view Text, const UUID& Uuid) override
+	void SetPluginsConfigMenuItem(primary_key const id, const size_t index, const string_view Text, const UUID& Uuid) override
 	{
 		SetMenuItem(id, CONFIG_MENU, index, Text, Uuid);
 	}
 
-	void SetCommandPrefix(const unsigned long long id, const string_view Prefix) override
+	void SetCommandPrefix(primary_key const id, const string_view Prefix) override
 	{
 		ExecuteStatement(stmtSetPrefix, id, Prefix);
 	}
 
-	void SetFlags(unsigned long long id, unsigned long long Flags) override
+	void SetFlags(primary_key const id, unsigned long long Flags) override
 	{
 		ExecuteStatement(stmtSetFlags, id, Flags);
 	}
 
-	void SetExportState(const unsigned long long id, const string_view ExportName, const bool Exists) override
+	void SetExportState(primary_key const id, const string_view ExportName, const bool Exists) override
 	{
 		if (!ExportName.empty())
 			ExecuteStatement(stmtSetExportState, id, ExportName, Exists);
 	}
 
-	void SetMinFarVersion(unsigned long long id, const VersionInfo& Version) override
+	void SetMinFarVersion(primary_key const id, const VersionInfo& Version) override
 	{
 		ExecuteStatement(stmtSetMinFarVersion, id, view_bytes(Version));
 	}
 
-	void SetVersion(unsigned long long id, const VersionInfo& Version) override
+	void SetVersion(primary_key const id, const VersionInfo& Version) override
 	{
 		ExecuteStatement(stmtSetVersion, id, view_bytes(Version));
 	}
 
-	void SetUuid(const unsigned long long id, const string_view Uuid) override
+	void SetUuid(primary_key const id, const string_view Uuid) override
 	{
 		ExecuteStatement(stmtSetUuid, id, Uuid);
 	}
 
-	void SetTitle(const unsigned long long id, const string_view Title) override
+	void SetTitle(primary_key const id, const string_view Title) override
 	{
 		ExecuteStatement(stmtSetTitle, id, Title);
 	}
 
-	void SetAuthor(const unsigned long long id, const string_view Author) override
+	void SetAuthor(primary_key const id, const string_view Author) override
 	{
 		ExecuteStatement(stmtSetAuthor, id, Author);
 	}
 
-	void SetDescription(const unsigned long long id, const string_view Description) override
+	void SetDescription(primary_key const id, const string_view Description) override
 	{
 		ExecuteStatement(stmtSetDescription, id, Description);
 	}
@@ -1532,7 +1532,7 @@ private:
 		DRIVE_MENU
 	};
 
-	bool GetMenuItem(unsigned long long id, MenuItemTypeEnum type, size_t index, string &Text, UUID& Uuid) const
+	bool GetMenuItem(primary_key const id, MenuItemTypeEnum type, size_t index, string &Text, UUID& Uuid) const
 	{
 		const auto Stmt = AutoStatement(stmtGetMenuItem);
 		if (!Stmt->Bind(id, type, index).Step())
@@ -1548,18 +1548,18 @@ private:
 		return true;
 	}
 
-	void SetMenuItem(const unsigned long long id, const MenuItemTypeEnum type, const size_t index, const string_view Text, const UUID& Uuid) const
+	void SetMenuItem(primary_key const id, const MenuItemTypeEnum type, const size_t index, const string_view Text, const UUID& Uuid) const
 	{
 		ExecuteStatement(stmtSetMenuItem, id, type, index, uuid::str(Uuid), Text);
 	}
 
-	string GetTextFromID(size_t StatementIndex, unsigned long long id) const
+	string GetTextFromID(size_t StatementIndex, primary_key const id) const
 	{
 		auto Stmt = AutoStatement(StatementIndex);
 		return Stmt->Bind(id).Step()? Stmt->GetColText(0) : string{};
 	}
 
-	bool GetVersionImpl(size_t StatementIndex, unsigned long long id, VersionInfo& Version) const
+	bool GetVersionImpl(size_t StatementIndex, primary_key const id, VersionInfo& Version) const
 	{
 		const auto Stmt = AutoStatement(StatementIndex);
 		if (!Stmt->Bind(id).Step())
@@ -1775,7 +1775,7 @@ private:
 
 	struct AsyncWorkItem
 	{
-		unsigned long long DeleteId;
+		primary_key DeleteId;
 		unsigned int TypeHistory;
 		string HistoryName;
 		int Type;
@@ -1844,12 +1844,12 @@ private:
 		ExecuteStatement(stmtAdd, TypeHistory, HistoryName, Type, Lock, Name, os::chrono::nt_clock::to_hectonanoseconds(Time), Uuid, File, Data);
 	}
 
-	void DeleteInternal(unsigned long long id) const
+	void DeleteInternal(primary_key const id) const
 	{
 		ExecuteStatement(stmtDel, id);
 	}
 
-	unsigned long long GetPrevImpl(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name, os::chrono::time_point& Time, function_ref<unsigned long long()> const Fallback) const
+	primary_key GetPrevImpl(const unsigned int TypeHistory, const string_view HistoryName, primary_key const id, string& Name, os::chrono::time_point& Time, function_ref<primary_key()> const Fallback) const
 	{
 		WaitAllAsync();
 		Name.clear();
@@ -2000,7 +2000,7 @@ private:
 		Db.Exec(format(FSTR("ALTER TABLE {0}_new RENAME TO {0}"sv), Table));
 	}
 
-	void Delete(unsigned long long id) override
+	void Delete(primary_key const id) override
 	{
 		WaitAllAsync();
 		DeleteInternal(id);
@@ -2011,7 +2011,7 @@ private:
 		return AutoStatement(Reverse? stmtEnumDesc : stmtEnum);
 	}
 
-	bool Enum(const bool Reset, const unsigned int TypeHistory, const string_view HistoryName, const std::optional<string_view> ItemName, unsigned long long& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strUuid, string& strFile, string& strData, const bool Reverse) override
+	bool Enum(const bool Reset, const unsigned int TypeHistory, const string_view HistoryName, const std::optional<string_view> ItemName, primary_key& id, string& Name, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strUuid, string& strFile, string& strData, const bool Reverse) override
 	{
 		WaitAllAsync();
 		auto Stmt = EnumStmt(Reverse);
@@ -2039,7 +2039,7 @@ private:
 		(void)EnumStmt(Reverse);
 	}
 
-	void DeleteAndAddAsync(unsigned long long const DeleteId, unsigned int const TypeHistory, string_view const HistoryName, string_view const Name, int const Type, bool const Lock, os::chrono::time_point const Time, string_view const Uuid, string_view const File, string_view const Data) override
+	void DeleteAndAddAsync(primary_key const DeleteId, unsigned int const TypeHistory, string_view const HistoryName, string_view const Name, int const Type, bool const Lock, os::chrono::time_point const Time, string_view const Uuid, string_view const File, string_view const Data) override
 	{
 		auto item = std::make_unique<AsyncWorkItem>();
 		item->DeleteId=DeleteId;
@@ -2094,7 +2094,7 @@ private:
 		(void)EnumLargeHistoriesStmt();
 	}
 
-	bool Get(unsigned long long id, string* const Name = {}, history_record_type* const Type = {}, os::chrono::time_point* const Time = {}, string* const Uuid = {}, string* const File = {}, string* const Data = {}) override
+	bool Get(primary_key const id, string* const Name = {}, history_record_type* const Type = {}, os::chrono::time_point* const Time = {}, string* const Uuid = {}, string* const File = {}, string* const Data = {}) override
 	{
 		WaitAllAsync();
 
@@ -2132,13 +2132,13 @@ private:
 		return Stmt->Bind(TypeHistory, HistoryName).Step()? static_cast<DWORD>(Stmt-> GetColInt(0)) : 0;
 	}
 
-	void FlipLock(unsigned long long id) override
+	void FlipLock(primary_key const id) override
 	{
 		WaitAllAsync();
 		ExecuteStatement(stmtSetLock, !IsLocked(id), id);
 	}
 
-	bool IsLocked(unsigned long long id) override
+	bool IsLocked(primary_key const id) override
 	{
 		WaitAllAsync();
 		const auto Stmt = AutoStatement(stmtGetLock);
@@ -2151,7 +2151,7 @@ private:
 		ExecuteStatement(stmtDelUnlocked, TypeHistory, HistoryName);
 	}
 
-	unsigned long long GetNext(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name, os::chrono::time_point& Time) override
+	primary_key GetNext(const unsigned int TypeHistory, const string_view HistoryName, primary_key const id, string& Name, os::chrono::time_point& Time) override
 	{
 		WaitAllAsync();
 		Name.clear();
@@ -2168,17 +2168,17 @@ private:
 		return Stmt->GetColInt64(0);
 	}
 
-	unsigned long long GetPrev(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name, os::chrono::time_point& Time) override
+	primary_key GetPrev(const unsigned int TypeHistory, const string_view HistoryName, primary_key const id, string& Name, os::chrono::time_point& Time) override
 	{
 		return GetPrevImpl(TypeHistory, HistoryName, id, Name, Time, [&]{ return Get(id, &Name)? id : 0; });
 	}
 
-	unsigned long long CyclicGetPrev(const unsigned int TypeHistory, const string_view HistoryName, const unsigned long long id, string& Name, os::chrono::time_point& Time) override
+	primary_key CyclicGetPrev(const unsigned int TypeHistory, const string_view HistoryName, primary_key const id, string& Name, os::chrono::time_point& Time) override
 	{
 		return GetPrevImpl(TypeHistory, HistoryName, id, Name, Time, []{ return 0; });
 	}
 
-	unsigned long long SetEditorPos(const string_view Name, os::chrono::time_point const Time, const int Line, const int LinePos, const int ScreenLine, const int LeftPos, const uintptr_t CodePage) override
+	primary_key SetEditorPos(const string_view Name, os::chrono::time_point const Time, const int Line, const int LinePos, const int ScreenLine, const int LeftPos, const uintptr_t CodePage) override
 	{
 		WaitCommitAsync();
 		ExecuteStatement(stmtSetEditorPos, Name, os::chrono::nt_clock::to_hectonanoseconds(Time), Line, LinePos, ScreenLine, LeftPos, CodePage);
@@ -2200,13 +2200,13 @@ private:
 		return Stmt->GetColInt64(0);
 	}
 
-	void SetEditorBookmark(unsigned long long id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) override
+	void SetEditorBookmark(primary_key const id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) override
 	{
 		WaitCommitAsync();
 		ExecuteStatement(stmtSetEditorBookmark, id, i, Line, LinePos, ScreenLine, LeftPos);
 	}
 
-	bool GetEditorBookmark(unsigned long long id, size_t i, int& Line, int& LinePos, int& ScreenLine, int& LeftPos) override
+	bool GetEditorBookmark(primary_key const id, size_t i, int& Line, int& LinePos, int& ScreenLine, int& LeftPos) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetEditorBookmark);
@@ -2220,7 +2220,7 @@ private:
 		return true;
 	}
 
-	unsigned long long SetViewerPos(const string_view Name, os::chrono::time_point const Time, const long long FilePos, const long long LeftPos, const int Hex_Wrap, uintptr_t const CodePage) override
+	primary_key SetViewerPos(const string_view Name, os::chrono::time_point const Time, const long long FilePos, const long long LeftPos, const int Hex_Wrap, uintptr_t const CodePage) override
 	{
 		WaitCommitAsync();
 		ExecuteStatement(stmtSetViewerPos, Name, os::chrono::nt_clock::to_hectonanoseconds(Time), FilePos, LeftPos, Hex_Wrap, CodePage);
@@ -2242,13 +2242,13 @@ private:
 		return Stmt->GetColInt64(0);
 	}
 
-	void SetViewerBookmark(unsigned long long id, size_t i, long long FilePos, long long LeftPos) override
+	void SetViewerBookmark(primary_key const id, size_t i, long long FilePos, long long LeftPos) override
 	{
 		WaitCommitAsync();
 		ExecuteStatement(stmtSetViewerBookmark, id, i, FilePos, LeftPos);
 	}
 
-	bool GetViewerBookmark(unsigned long long id, size_t i, long long& FilePos, long long& LeftPos) override
+	bool GetViewerBookmark(primary_key const id, size_t i, long long& FilePos, long long& LeftPos) override
 	{
 		WaitCommitAsync();
 		const auto Stmt = AutoStatement(stmtGetViewerBookmark);
@@ -2640,7 +2640,7 @@ bool config_provider::ShowProblems() const
 
 void config_provider::AsyncCall(async_key, const std::function<void()>& Routine)
 {
-	m_Threads.erase(std::remove_if(ALL_RANGE(m_Threads), [](const os::thread& i){ return i.is_signaled(); }), m_Threads.end());
+	std::erase_if(m_Threads, [](const os::thread& i){ return i.is_signaled(); });
 	m_Threads.emplace_back(os::thread::mode::join, Routine);
 }
 

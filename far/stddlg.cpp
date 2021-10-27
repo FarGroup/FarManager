@@ -749,7 +749,7 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 {
 	const auto Parse = [Hex](string Part, goto_coord& Dest)
 	{
-		inplace::erase_all(Part, L' ');
+		std::erase(Part, L' ');
 
 		if (Part.empty())
 			return;

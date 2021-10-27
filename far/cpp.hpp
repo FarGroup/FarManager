@@ -102,6 +102,18 @@ namespace std
 	namespace detail
 	{
 		template<typename container, typename predicate>
+		void sequential_erase(container& Container, const predicate& Predicate)
+		{
+			Container.erase(std::remove(Container.begin(), Container.end(), Predicate), Container.end());
+		}
+
+		template<typename container, typename predicate>
+		void sequential_erase_if(container& Container, const predicate& Predicate)
+		{
+			Container.erase(std::remove_if(Container.begin(), Container.end(), Predicate), Container.end());
+		}
+
+		template<typename container, typename predicate>
 		void associative_erase_if(container& Container, const predicate& Predicate)
 		{
 			for (auto i = Container.begin(), End = Container.end(); i != End; )
@@ -117,6 +129,18 @@ namespace std
 			}
 		}
 	}
+
+	template <typename value, typename... traits>
+	void erase(std::basic_string<traits...>& Container, const value& Value) { detail::sequential_erase(Container, Value); }
+
+	template <typename predicate, typename... traits>
+	void erase_if(std::basic_string<traits...>& Container, predicate Predicate) { detail::sequential_erase_if(Container, Predicate); }
+
+	template <typename value, typename... traits>
+	void erase(std::vector<traits...>& Container, const value& Value) { detail::sequential_erase(Container, Value); }
+
+	template <typename predicate, typename... traits>
+	void erase_if(std::vector<traits...>& Container, predicate Predicate) { detail::sequential_erase_if(Container, Predicate); }
 
 	template <typename predicate, typename... traits>
 	void erase_if(std::set<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
