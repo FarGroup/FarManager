@@ -19,8 +19,23 @@ local patt = regex.new( [=[
 
 Macro {
   description="Open URL or UNC under cursor";
-  area="Editor"; key="CtrlEnter CtrlNumEnter";
+  area="Editor"; key="CtrlEnter CtrlNumEnter CtrlMsLClick";
+  condition=function(trigger)
+    mouseClick = trigger:match("Ms")
+    if not mouseClick then return true end
+    local info = editor.GetInfo()
+    local maxY = info.WindowSizeY - 1
+    minY = 0
+    if 0 ~= bit64.band(info.Options, far.Flags.EOPT_SHOWTITLEBAR) then
+      minY, maxY = 1, maxY + 1
+    end
+    return Mouse.Y >= minY and Mouse.Y <= maxY
+  end;
   action=function()
+    if mouseClick then
+      Editor.Pos(1, 3, Editor.Pos(0, 5)+Mouse.X)
+      Editor.Pos(1, 1, Editor.Pos(0, 4)+Mouse.Y-minY)
+   end
     local s=editor.GetStringW()
     if not s then return end
     local pos = editor.GetInfo().CurPos
