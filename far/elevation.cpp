@@ -545,10 +545,10 @@ static intptr_t ElevationApproveDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 		{
 			if(Param1==AAD_EDIT_OBJECT)
 			{
-				const auto Color = colors::PaletteColorToFarColor(COL_DIALOGTEXT);
-				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
-				Colors->Colors[0] = Color;
-				Colors->Colors[2] = Color;
+				const auto& Color = colors::PaletteColorToFarColor(COL_DIALOGTEXT);
+				const auto& Colors = *static_cast<FarDialogItemColors const*>(Param2);
+				Colors.Colors[0] = Color;
+				Colors.Colors[2] = Color;
 			}
 		}
 		break;

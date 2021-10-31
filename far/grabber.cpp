@@ -640,7 +640,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTHOME:
 			if (!empty())
 			{
-				GArea.Begin.x = GArea.Current.x = abs(GArea.Begin.x - GArea.End.x);
+				GArea.Begin.x = GArea.Current.x = std::abs(GArea.Begin.x - GArea.End.x);
 				GArea.End.x = 0;
 			}
 			break;
@@ -649,7 +649,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTEND:
 			if (!empty())
 			{
-				GArea.End.x = ScrX - abs(GArea.Begin.x - GArea.End.x);
+				GArea.End.x = ScrX - std::abs(GArea.Begin.x - GArea.End.x);
 				GArea.Begin.x = GArea.Current.x = ScrX;
 			}
 			break;
@@ -658,7 +658,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTPGUP:
 			if (!empty())
 			{
-				GArea.Begin.y = GArea.Current.y = abs(GArea.Begin.y - GArea.End.y);
+				GArea.Begin.y = GArea.Current.y = std::abs(GArea.Begin.y - GArea.End.y);
 				GArea.End.y = 0;
 			}
 			break;
@@ -667,7 +667,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_RALTPGDN:
 			if (!empty())
 			{
-				GArea.End.y = ScrY - abs(GArea.Begin.y - GArea.End.y);
+				GArea.End.y = ScrY - std::abs(GArea.Begin.y - GArea.End.y);
 				GArea.Begin.y = GArea.Current.y = ScrY;
 			}
 			break;

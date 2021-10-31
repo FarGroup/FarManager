@@ -753,7 +753,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 
 			//Color[0=file, 1=mark][0=normal,1=selected,2=undercursor,3=selectedundercursor]
 			static const PaletteColors BaseIndices[]{ COL_PANELTEXT, COL_PANELSELECTEDTEXT, COL_PANELCURSOR, COL_PANELSELECTEDCURSOR };
-			const auto BaseColor = colors::PaletteColorToFarColor(BaseIndices[(Param1 - ID_HER_NORMALFILE) / 2]);
+			const auto& BaseColor = colors::PaletteColorToFarColor(BaseIndices[(Param1 - ID_HER_NORMALFILE) / 2]);
 
 			if (GetColorDialog(((Param1-ID_HER_NORMALFILE)&1)? Context->Colors->Color[(Param1-ID_HER_NORMALFILE)/2].MarkColor : Context->Colors->Color[(Param1-ID_HER_NORMALFILE)/2].FileColor, true, &BaseColor))
 				Dlg->SendMessage(DM_REFRESHCOLORS, 0, nullptr);

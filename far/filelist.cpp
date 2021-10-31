@@ -7081,9 +7081,9 @@ void FileList::MoveSelection(list_data& From, list_data& To)
 
 	for (auto& i: To)
 	{
-		const auto EqualRange = std::equal_range(ALL_RANGE(From), make_hash(i.FileName), hash_less{});
-		const auto OldItemIterator = std::find_if(EqualRange.first, EqualRange.second, [&](FileListItem const& Item){ return Item.FileName == i.FileName;});
-		if (OldItemIterator == EqualRange.second)
+		const auto& [EqualBegin, EqualEnd] = std::equal_range(ALL_RANGE(From), make_hash(i.FileName), hash_less{});
+		const auto OldItemIterator = std::find_if(EqualBegin, EqualEnd, [&](FileListItem const& Item){ return Item.FileName == i.FileName;});
+		if (OldItemIterator == EqualEnd)
 		{
 			OldPositions.emplace_back(npos);
 			continue;
@@ -7575,7 +7575,7 @@ void FileList::ShowFileList(bool Fast)
 
 		if (Global->Opt->ShowColumnTitles)
 		{
-			const auto ColumnTitleColor = colors::PaletteColorToFarColor(COL_PANELCOLUMNTITLE);
+			const auto& ColumnTitleColor = colors::PaletteColorToFarColor(COL_PANELCOLUMNTITLE);
 			auto Color = colors::PaletteColorToFarColor(COL_PANELBOX);
 			Color.BackgroundColor = ColumnTitleColor.BackgroundColor;
 			Color.SetBg4Bit(ColumnTitleColor.IsBg4Bit());
@@ -8361,7 +8361,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 					if (!ShowStatus && LeftPos>0)
 					{
-						int Length = static_cast<int>(wcslen(ColumnData));
+						int Length = static_cast<int>(std::wcslen(ColumnData));
 						if (Length>ColumnWidth)
 						{
 							CurLeftPos = std::min(LeftPos, Length-ColumnWidth);
@@ -8617,7 +8617,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							if (!ShowStatus && LeftPos>0)
 							{
-								int Length = static_cast<int>(wcslen(NullToEmpty(m_ListData[ListPos].DizText)));
+								int Length = static_cast<int>(std::wcslen(NullToEmpty(m_ListData[ListPos].DizText)));
 								if (Length>ColumnWidth)
 								{
 									CurLeftPos = std::min(LeftPos, Length-ColumnWidth);

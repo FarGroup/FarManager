@@ -55,33 +55,38 @@ constexpr auto DebugTests = false;
 
 std::optional<int> testing_main(int const Argc, wchar_t const* const Argv[])
 {
-	if (Argc > 1 && Argv[1] == L"/service:test"sv)
+	const auto IsBuildStep = Argc > 1 && Argv[1] == L"/service:test"sv;
+
+	if constexpr (DebugTests)
 	{
-		if (DebugTests)
+		if (IsBuildStep)
 		{
 			std::wcout << L"Unit tests skipped"sv << std::endl;
 			return EXIT_SUCCESS;
 		}
+	}
+	else
+	{
+		if (!IsBuildStep)
+			return {};
+	}
 
-		std::vector<const wchar_t*> Args;
+	std::vector<const wchar_t*> Args;
+
+	if (IsBuildStep)
+	{
 		Args.reserve(Argc - 1);
 		Args.emplace_back(Argv[0]);
 		Args.insert(Args.end(), Argv + 2, Argv + Argc);
-
-		return Catch::Session().run(static_cast<int>(Args.size()), Args.data());
 	}
-
-	if (DebugTests)
+	else
 	{
-		std::vector<const wchar_t*> Args;
 		Args.reserve(Argc + 1);
 		Args.assign(Argv, Argv + Argc);
 		Args.emplace_back(L"--break");
-
-		return Catch::Session().run(static_cast<int>(Args.size()), Args.data());
 	}
 
-	return {};
+	return Catch::Session().run(static_cast<int>(Args.size()), Args.data());
 }
 
 namespace

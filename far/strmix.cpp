@@ -100,7 +100,7 @@ string GroupDigits(unsigned long long Value)
 wchar_t* legacy::InsertQuotes(wchar_t *Str)
 {
 	const auto QuoteChar = L'"';
-	size_t l = wcslen(Str);
+	size_t l = std::wcslen(Str);
 
 	if (*Str != QuoteChar)
 	{
@@ -168,7 +168,7 @@ static auto legacy_operation(wchar_t* Str, int MaxLength, function_ref<void(span
 	if (!Str || !*Str)
 		return Str;
 
-	const auto Size = wcslen(Str);
+	const auto Size = std::wcslen(Str);
 
 	if (Size <= Max)
 		return Str;
@@ -383,14 +383,14 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 	constexpr auto
 		binary_index = 0,
 		decimal_index = 1,
-		log2_of_2014 = 10,
+		log2_of_1024 = 10,
 		log10_of_1000 = 3;
 
 	constexpr std::pair
-		BinaryDivider(binary_index, log2_of_2014),
+		BinaryDivider(binary_index, log2_of_1024),
 		DecimalDivider(decimal_index, log10_of_1000);
 
-	const auto& Divider = ViewFlags & COLFLAGS_THOUSAND? DecimalDivider : BinaryDivider;
+	const auto& [BaseIndex, BasePower] = ViewFlags & COLFLAGS_THOUSAND? DecimalDivider : BinaryDivider;
 
 	const auto FormatSize = [&](string&& StrSize, size_t UnitIndex)
 	{
@@ -419,7 +419,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 	if (UseFloatSize)
 	{
 		const auto Numerator = FileSize? (ViewFlags & COLFLAGS_THOUSAND)? std::log10(FileSize) : std::log2(FileSize) : 0;
-		const size_t UnitIndex = Numerator / Divider.second;
+		const size_t UnitIndex = Numerator / BasePower;
 
 		string Str;
 
@@ -429,7 +429,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 		}
 		else
 		{
-			const auto Denominator = BytesInUnit[UnitIndex][Divider.first];
+			const auto Denominator = BytesInUnit[UnitIndex][BaseIndex];
 			const auto RawIntegral = FileSize / Denominator;
 			const auto RawFractional = static_cast<double>(FileSize % Denominator) / static_cast<double>(Denominator);
 
@@ -471,7 +471,7 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 
 	while ((UseUnit && UnitIndex < MinUnit) || (Width && Str.size() > MaxNumberWidth))
 	{
-		const auto Denominator = BytesInUnit[UnitIndex + 1][Divider.first];
+		const auto Denominator = BytesInUnit[UnitIndex + 1][BaseIndex];
 		const auto IntegralPart = FileSize / Denominator;
 		const auto FractionalPart = static_cast<double>(FileSize % Denominator) / static_cast<double>(Denominator);
 		const auto SizeInUnits = IntegralPart + static_cast<unsigned long long>(std::round(FractionalPart));

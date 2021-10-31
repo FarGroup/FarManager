@@ -207,8 +207,10 @@ static auto get_thousand_separator()
 	return Value.empty()? L',' : Value.front();
 }
 
-static auto get_month_day_names(int Language, locale_names& Names)
+static auto get_month_day_names(int const Language)
 {
+	locale_names Names;
+
 	const LCID CurLCID = MAKELCID(MAKELANGID(Language, SUBLANG_DEFAULT), SORT_DEFAULT);
 
 	struct init
@@ -278,6 +280,8 @@ static auto get_month_day_names(int Language, locale_names& Names)
 			LOGWARNING(L"get_locale_value({}): {}"sv, Init.AbbrIndex, last_error());
 		}
 	}
+
+	return Names;
 }
 
 namespace detail
@@ -365,8 +369,8 @@ namespace detail
 		m_DecimalSeparator = get_decimal_separator();
 		m_ThousandSeparator = get_thousand_separator();
 
-		get_month_day_names(LANG_NEUTRAL, m_LocalNames);
-		get_month_day_names(LANG_ENGLISH, m_EnglishNames);
+		m_LocalNames = get_month_day_names(LANG_NEUTRAL);
+		m_EnglishNames = get_month_day_names(LANG_ENGLISH);
 
 		m_Valid = true;
 	}

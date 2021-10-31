@@ -184,7 +184,7 @@ bool Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
 		{
-			if ((abs(MouseEvent->dwMousePosition.X-DragX)>15 || SrcDragPanel!=this) && !m_ModalMode)
+			if ((std::abs(MouseEvent->dwMousePosition.X - DragX) > 15 || SrcDragPanel != this) && !m_ModalMode)
 			{
 				if (SrcDragPanel->GetSelCount()==1 && !DragSaveScr)
 				{

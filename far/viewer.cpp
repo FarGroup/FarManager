@@ -2144,7 +2144,7 @@ void Viewer::CacheLine( long long start, int length, bool have_eol )
 		else
 		{
 			lcache_base = (lcache_base + 1) % lcache_lines.size(); // ++start
-			lcache_first = llabs(lcache_lines[lcache_base]);
+			lcache_first = std::abs(lcache_lines[lcache_base]);
 		}
 	}
 	else if (start+length == lcache_first)
@@ -2157,7 +2157,7 @@ void Viewer::CacheLine( long long start, int length, bool have_eol )
 		else
 		{
 			const auto i = (lcache_base + lcache_lines.size() - 1) % lcache_lines.size(); // i = start - 1
-			lcache_last = llabs(lcache_lines[i]);
+			lcache_last = std::abs(lcache_lines[i]);
 		}
 	}
 	else
@@ -2166,11 +2166,11 @@ void Viewer::CacheLine( long long start, int length, bool have_eol )
 		if ( reset )
 		{
 			const auto i = CacheFindUp(start+length);
-			reset = (i < 0 || llabs(lcache_lines[i]) != start);
+			reset = (i < 0 || std::abs(lcache_lines[i]) != start);
 			if ( !reset )
 			{
 				const auto j = (i + 1) % lcache_lines.size();
-				reset = (llabs(lcache_lines[j]) != start+length);
+				reset = std::abs(lcache_lines[j]) != start + length;
 			}
 		}
 #if defined(_DEBUG) && 0 // it is legal case if file changed...
@@ -2206,7 +2206,7 @@ int Viewer::CacheFindUp( long long start )
 
 		const auto i = (i1 + i2) / 2;
 		const auto j = (lcache_base + i) % lcache_lines.size();
-		if (llabs(lcache_lines[j]) < start)
+		if (std::abs(lcache_lines[j]) < start)
 			i1 = i;
 		else
 			i2 = i;
@@ -2281,7 +2281,7 @@ void Viewer::Up(int nlines, bool adjust)
 	{
 		for (;;)
 		{
-			fpos = llabs(lcache_lines[i]);
+			fpos = std::abs(lcache_lines[i]);
 			if (--nlines == 0)
 			{
 				FilePos = fpos;

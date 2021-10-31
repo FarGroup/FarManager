@@ -844,17 +844,21 @@ TEST_CASE("datetime.ConvertDuration")
 		{ 3_d + 25h + 81min + 120s + 123456789_hns,   L"4"sv, L"02:23:12.3456789"sv, L"98:23:12"sv,  },
 	};
 
+	const auto check_digits = [](string_view const Expected, string_view const Actual)
+	{
+		// Time & decimal separators are locale-specific, so let's compare digits only
+		REQUIRE(std::equal(ALL_CONST_RANGE(Expected), ALL_CONST_RANGE(Actual), [](wchar_t const a, wchar_t const b)
+		{
+			return a == b || !std::iswdigit(a);
+		}));
+	};
+
 	for (const auto& i: Tests)
 	{
 		const auto [Days, Timestamp] = ConvertDuration(i.Duration);
 		REQUIRE(i.Days == Days);
-		// Time & decimal separators are locale-specific, so let's compare numbers only
-		REQUIRE(std::equal(ALL_CONST_RANGE(i.Timestamp), ALL_CONST_RANGE(Timestamp), [](wchar_t const a, wchar_t const b)
-		{
-			return a == b || !std::iswdigit(a);
-		}));
-		const auto HMS = ConvertDurationToHMS(i.Duration);
-		REQUIRE(i.HMS == HMS);
+		check_digits(i.Timestamp, Timestamp);
+		check_digits(i.HMS, ConvertDurationToHMS(i.Duration));
 	}
 }
 #endif

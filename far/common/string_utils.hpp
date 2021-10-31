@@ -200,9 +200,9 @@ template<typename raw_string_type, REQUIRES(detail::is_supported_type<raw_string
 bool contains(raw_string_type const& Str, raw_string_type const& What)
 {
 	if constexpr (std::is_same_v<detail::char_type<raw_string_type>, wchar_t>)
-		return wcsstr(Str, What) != nullptr;
+		return std::wcsstr(Str, What) != nullptr;
 	else
-		return strstr(Str, What) != nullptr;
+		return std::strstr(Str, What) != nullptr;
 }
 
 template<typename raw_string_type, REQUIRES(detail::is_supported_type<raw_string_type>)>
@@ -210,9 +210,9 @@ template<typename raw_string_type, REQUIRES(detail::is_supported_type<raw_string
 bool contains(raw_string_type const& Str, detail::char_type<raw_string_type> const What)
 {
 	if constexpr (std::is_same_v<detail::char_type<raw_string_type>, wchar_t>)
-		return wcschr(Str, What) != nullptr;
+		return std::wcschr(Str, What) != nullptr;
 	else
-		return strchr(Str, What) != nullptr;
+		return std::strchr(Str, What) != nullptr;
 }
 
 namespace detail

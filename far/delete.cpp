@@ -409,7 +409,7 @@ static void show_confirmation(
 		for (const auto& [Item, Index]: enumerate(items))
 		{
 			inplace::truncate_center(Item, MaxWidth);
-			Builder.AddText(Item)->Flags = DIF_CENTERTEXT | DIF_SHOWAMPERSAND;
+			Builder.AddText(Item).Flags = DIF_CENTERTEXT | DIF_SHOWAMPERSAND;
 			if (Index == 1)
 				FirstHighlighted = LastHighlighted = Builder.GetLastID();
 		}
@@ -422,7 +422,7 @@ static void show_confirmation(
 				Builder.AddSeparator();
 
 			inplace::truncate_center(Item, MaxWidth);
-			Builder.AddText(Item)->Flags = DIF_SHOWAMPERSAND;
+			Builder.AddText(Item).Flags = DIF_SHOWAMPERSAND;
 
 			if (Index == 1)
 				FirstHighlighted = Builder.GetLastID();

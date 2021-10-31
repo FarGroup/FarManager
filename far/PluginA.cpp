@@ -222,16 +222,17 @@ public:
 
 	const std::string& PluginsRootKey()
 	{
-		if (m_userName.empty())
+		if (!m_PluginsRootKey.empty())
+			return m_PluginsRootKey;
+
+		m_PluginsRootKey = "Software\\Far Manager"sv;
+		if (!Global->strRegUser.empty())
 		{
-			m_userName = "Software\\Far Manager"sv;
-			if (!Global->strRegUser.empty())
-			{
-				m_userName.append("\\Users\\"sv).append(encoding::oem::get_bytes(Global->strRegUser));
-			}
-			m_userName += "\\Plugins"sv;
+			m_PluginsRootKey.append("\\Users\\"sv).append(encoding::oem::get_bytes(Global->strRegUser));
 		}
-		return m_userName;
+		m_PluginsRootKey += "\\Plugins"sv;
+
+		return m_PluginsRootKey;
 	}
 
 private:
@@ -243,7 +244,7 @@ private:
 
 	string_view kind() const override { return L"legacy"sv; }
 
-	std::string m_userName;
+	std::string m_PluginsRootKey;
 };
 
 plugin_factory_ptr CreateOemPluginFactory(PluginManager* Owner)
@@ -506,7 +507,7 @@ static DWORD KeyToOldKey(DWORD dKey)
 }
 
 template<class F1, class F2, class M>
-static void FirstFlagsToSecond(const F1& FirstFlags, F2& SecondFlags, M& Map)
+static void FirstFlagsToSecond(const F1& FirstFlags, F2& SecondFlags, const M& Map)
 {
 	for (const auto& [f1, f2]: Map)
 	{
@@ -518,7 +519,7 @@ static void FirstFlagsToSecond(const F1& FirstFlags, F2& SecondFlags, M& Map)
 }
 
 template<class F1, class F2, class M>
-static void SecondFlagsToFirst(const F2& SecondFlags, F1& FirstFlags, M& Map)
+static void SecondFlagsToFirst(const F2& SecondFlags, F1& FirstFlags, const M& Map)
 {
 	for (const auto& [f1, f2]: Map)
 	{
@@ -1297,7 +1298,7 @@ static oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di, HANDLE 
 	}
 	else if ((diA->Type == oldfar::DI_EDIT || diA->Type == oldfar::DI_COMBOBOX) && diA->Flags&oldfar::DIF_VAREDIT)
 	{
-		const auto Length = wcslen(di.Data);
+		const auto Length = std::wcslen(di.Data);
 		diA->Ptr.PtrLength = static_cast<int>(Length);
 		auto Data = std::make_unique<char[]>(Length + 1);
 		(void)encoding::oem::get_bytes({ di.Data, Length }, { Data.get(), Length });
@@ -3167,7 +3168,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 					newlid.Data=oldlid->Data;
 					if(0==newlid.DataSize)
 					{
-						newlid.DataSize = (wcslen(static_cast<wchar_t*>(oldlid->Data)) + 1) * sizeof(wchar_t);
+						newlid.DataSize = (std::wcslen(static_cast<wchar_t*>(oldlid->Data)) + 1) * sizeof(wchar_t);
 					}
 					else if(newlid.DataSize<=4)
 					{
@@ -3922,7 +3923,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 					FarSettingsItem item={sizeof(FarSettingsItem),FSSF_EDITOR,L"WordDiv",FST_UNKNOWN,{}};
 					if(pluginapi::apiSettingsControl(Settings,SCTL_GET,0,&item)&&FST_STRING==item.Type)
 					{
-						const auto Length = wcslen(item.String);
+						const auto Length = std::wcslen(item.String);
 						Result = Length + 1;
 						if (Param)
 							(void)encoding::oem::get_bytes({ item.String, Length }, { static_cast<char*>(Param), static_cast<size_t>(oldfar::NM) });
@@ -4776,9 +4777,10 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 			}
 			case oldfar::VCTL_SETPOSITION:
 			{
-				if (!Param) return FALSE;
+				if (!Param)
+					return FALSE;
 
-				const auto vspA = static_cast<oldfar::ViewerSetPosition*>(Param);
+				auto& vspA = *static_cast<oldfar::ViewerSetPosition*>(Param);
 				ViewerSetPosition vsp={sizeof(ViewerSetPosition)};
 
 				static const std::array PluginFlagsMap
@@ -4790,12 +4792,12 @@ static int WINAPI FarViewerControlA(int Command, void* Param) noexcept
 				};
 
 				vsp.Flags = VSP_NONE;
-				FirstFlagsToSecond(vspA->Flags, vsp.Flags, PluginFlagsMap);
+				FirstFlagsToSecond(vspA.Flags, vsp.Flags, PluginFlagsMap);
 
-				vsp.StartPos = vspA->StartPos;
-				vsp.LeftPos = vspA->LeftPos;
+				vsp.StartPos = vspA.StartPos;
+				vsp.LeftPos = vspA.LeftPos;
 				const auto ret = static_cast<int>(pluginapi::apiViewerControl(-1,VCTL_SETPOSITION,0, &vsp));
-				vspA->StartPos = vsp.StartPos;
+				vspA.StartPos = vsp.StartPos;
 				return ret;
 			}
 			case oldfar::VCTL_SELECT:
@@ -5091,7 +5093,7 @@ private:
 
 		if (!UuidFound)
 		{
-			int nb = std::min(static_cast<int>(wcslen(Info->Title)), 8);
+			int nb = std::min(static_cast<int>(std::wcslen(Info->Title)), 8);
 			while (nb > 0)
 			{
 				--nb;

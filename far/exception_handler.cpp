@@ -361,7 +361,7 @@ static bool ExcDialog(string const& ReportLocation, string const& PluginInformat
 	DialogBuilder Builder(lng::MExceptionDialogTitle);
 	if (!PluginInformation.empty())
 	{
-		Builder.AddText(PluginInformation)->Flags |= DIF_SHOWAMPERSAND;
+		Builder.AddText(PluginInformation).Flags |= DIF_SHOWAMPERSAND;
 		Builder.AddSeparator();
 	}
 	Builder.AddText(lng::MExceptionDialogMessage1);

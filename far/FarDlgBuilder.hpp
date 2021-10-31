@@ -132,32 +132,32 @@ class DialogBuilder
 public:
 	NONCOPYABLE(DialogBuilder);
 
-	explicit DialogBuilder(lng_string Title = L"", string_view HelpTopic = {}, Dialog::dialog_handler handler = nullptr);
+	explicit DialogBuilder(lng_string Title = L"", string_view HelpTopic = {}, Dialog::dialog_handler handler = {});
 	~DialogBuilder();
 
-	DialogItemEx* AddText(lng_string Text);
-	DialogItemEx* AddCheckbox(lng_string Text, int& Value, int Mask = 0, bool ThreeState = false);
-	DialogItemEx* AddCheckbox(lng_string Text, IntOption& Value, int Mask = 0, bool ThreeState = false);
-	DialogItemEx* AddCheckbox(lng_string Text, Bool3Option& Value);
-	DialogItemEx* AddCheckbox(lng_string Text, BoolOption& Value);
-	DialogItemEx* AddTextBefore(DialogItemEx* RelativeTo, lng_string Text);
-	DialogItemEx* AddTextAfter(DialogItemEx* RelativeTo, lng_string Text, int skip = 1);
-	DialogItemEx* AddButtonAfter(DialogItemEx* RelativeTo, lng_string Text);
-	DialogItemEx* AddIntEditField(IntOption& Value, int Width);
-	DialogItemEx* AddHexEditField(IntOption& Value, int Width);
-	DialogItemEx* AddBinaryEditField(IntOption& Value, int Width);
-	DialogItemEx* AddEditField(string& Value, int Width, string_view HistoryID = {}, FARDIALOGITEMFLAGS Flags = 0);
-	DialogItemEx* AddEditField(StringOption& Value, int Width, string_view HistoryID = {}, FARDIALOGITEMFLAGS Flags = 0);
-	DialogItemEx* AddFixEditField(string& Value, int Width, const wchar_t* Mask = nullptr);
-	DialogItemEx* AddFixEditField(StringOption& Value, int Width, const wchar_t* Mask = nullptr);
-	DialogItemEx* AddConstEditField(const string& Value, int Width, FARDIALOGITEMFLAGS Flags = 0);
-	DialogItemEx* AddComboBox(int& Value, int Width, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx* AddComboBox(IntOption& Value, int Width, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx* AddListBox(int& Value, int Width, int Height, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
-	DialogItemEx* AddListBox(IntOption& Value, int Width, int Height, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx& AddText(lng_string Text);
+	DialogItemEx& AddCheckbox(lng_string Text, int& Value, int Mask = 0, bool ThreeState = false);
+	DialogItemEx& AddCheckbox(lng_string Text, IntOption& Value, int Mask = 0, bool ThreeState = false);
+	DialogItemEx& AddCheckbox(lng_string Text, Bool3Option& Value);
+	DialogItemEx& AddCheckbox(lng_string Text, BoolOption& Value);
+	DialogItemEx& AddTextBefore(DialogItemEx& RelativeTo, lng_string Text);
+	DialogItemEx& AddTextAfter(DialogItemEx const& RelativeTo, lng_string Text, int skip = 1);
+	DialogItemEx& AddButtonAfter(DialogItemEx const& RelativeTo, lng_string Text);
+	DialogItemEx& AddIntEditField(IntOption& Value, int Width);
+	DialogItemEx& AddHexEditField(IntOption& Value, int Width);
+	DialogItemEx& AddBinaryEditField(IntOption& Value, int Width);
+	DialogItemEx& AddEditField(string& Value, int Width, string_view HistoryID = {}, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx& AddEditField(StringOption& Value, int Width, string_view HistoryID = {}, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx& AddFixEditField(string& Value, int Width, const wchar_t* Mask = {});
+	DialogItemEx& AddFixEditField(StringOption& Value, int Width, const wchar_t* Mask = {});
+	DialogItemEx& AddConstEditField(const string& Value, int Width, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx& AddComboBox(int& Value, int Width, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx& AddComboBox(IntOption& Value, int Width, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx& AddListBox(int& Value, int Width, int Height, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+	DialogItemEx& AddListBox(IntOption& Value, int Width, int Height, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags = DIF_NONE);
 	void AddRadioButtons(size_t& Value, span<lng const> Options, bool FocusOnSelected = false);
 	void AddRadioButtons(IntOption& Value, span<lng const> Options, bool FocusOnSelected = false);
-	void LinkFlags(DialogItemEx* Parent, DialogItemEx* Target, FARDIALOGITEMFLAGS Flags, bool LinkLabels = true);
+	void LinkFlags(DialogItemEx& Parent, DialogItemEx& Target, FARDIALOGITEMFLAGS Flags, bool LinkLabels = true);
 	void AddOK();
 	void AddOKCancel();
 	void AddOKCancel(lng OKMessageId, lng CancelMessageId);
@@ -180,23 +180,23 @@ public:
 	bool ShowDialog();
 
 private:
-	DialogItemEx* AddDialogItem(FARDIALOGITEMTYPES Type, const wchar_t* Text);
-	void SetNextY(DialogItemEx* Item);
+	DialogItemEx& AddDialogItem(FARDIALOGITEMTYPES Type, const wchar_t* Text);
+	void SetNextY(DialogItemEx& Item);
 	void AddBorder(const wchar_t* TitleText);
 	void UpdateBorderSize();
 	intptr_t MaxTextWidth();
 	void UpdateSecondColumnPosition();
 	void SetLastItemBinding(std::unique_ptr<DialogItemBinding>&& Binding);
-	int GetItemID(DialogItemEx* Item) const;
-	DialogItemBinding* FindBinding(DialogItemEx* Item);
+	int GetItemID(DialogItemEx const& Item) const;
+	DialogItemBinding& FindBinding(DialogItemEx const& Item) const;
 	void SaveValues();
 	intptr_t DoShowDialog();
 
 	template<typename value_type>
-	DialogItemEx* AddCheckboxImpl(lng_string Text, value_type& Value, int Mask, bool ThreeState);
+	DialogItemEx& AddCheckboxImpl(lng_string Text, value_type& Value, int Mask, bool ThreeState);
 
 	template<typename value_type>
-	DialogItemEx* AddListControlImpl(FARDIALOGITEMTYPES Type, value_type& Value, int Width, int Height, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags);
+	DialogItemEx& AddListControlImpl(FARDIALOGITEMTYPES Type, value_type& Value, int Width, int Height, span<DialogBuilderListItem const> Items, FARDIALOGITEMFLAGS Flags);
 
 	static const int SECOND_COLUMN = -2;
 	static constexpr size_t npos = -1;

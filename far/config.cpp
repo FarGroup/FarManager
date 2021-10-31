@@ -191,9 +191,9 @@ void Options::SystemSettings()
 	Builder.AddCheckbox(lng::MConfigRegisteredTypes, UseRegisteredTypes);
 	Builder.AddCheckbox(lng::MConfigUpdateEnvironment, UpdateEnvironment);
 	Builder.AddText(lng::MConfigElevation);
-	Builder.AddCheckbox(lng::MConfigElevationModify, StoredElevationMode, ELEVATION_MODIFY_REQUEST)->Indent(4);
-	Builder.AddCheckbox(lng::MConfigElevationRead, StoredElevationMode, ELEVATION_READ_REQUEST)->Indent(4);
-	Builder.AddCheckbox(lng::MConfigElevationUsePrivileges, StoredElevationMode, ELEVATION_USE_PRIVILEGES)->Indent(4);
+	Builder.AddCheckbox(lng::MConfigElevationModify, StoredElevationMode, ELEVATION_MODIFY_REQUEST).Indent(4);
+	Builder.AddCheckbox(lng::MConfigElevationRead, StoredElevationMode, ELEVATION_READ_REQUEST).Indent(4);
+	Builder.AddCheckbox(lng::MConfigElevationUsePrivileges, StoredElevationMode, ELEVATION_USE_PRIVILEGES).Indent(4);
 
 	static const DialogBuilderListItem SortingMethods[] =
 	{
@@ -202,10 +202,10 @@ void Options::SystemSettings()
 		{ lng::MConfigSortingLinguistic, std::to_underlying(SortingOptions::collation::linguistic) },
 	};
 
-	const auto SortingMethodsComboBox = Builder.AddComboBox(Sort.Collation, 20, SortingMethods);
+	auto& SortingMethodsComboBox = Builder.AddComboBox(Sort.Collation, 20, SortingMethods);
 	Builder.AddTextBefore(SortingMethodsComboBox, lng::MConfigSortingCollation);
-	Builder.AddCheckbox(lng::MConfigSortingDigitsAsNumbers, Sort.DigitsAsNumbers)->Indent(4);
-	Builder.AddCheckbox(lng::MConfigSortingCase, Sort.CaseSensitive)->Indent(4);
+	Builder.AddCheckbox(lng::MConfigSortingDigitsAsNumbers, Sort.DigitsAsNumbers).Indent(4);
+	Builder.AddCheckbox(lng::MConfigSortingCase, Sort.CaseSensitive).Indent(4);
 
 	Builder.AddCheckbox(lng::MConfigAutoSave, AutoSaveSetup);
 	Builder.AddOKCancel();
@@ -234,12 +234,11 @@ void Options::PanelSettings()
 	Builder.AddCheckbox(lng::MConfigSortFolderExt, SortFolderExt);
 	Builder.AddCheckbox(lng::MConfigAllowReverseSort, AllowReverseSort);
 
-	const auto AutoUpdateEnabled = Builder.AddCheckbox(lng::MConfigAutoUpdateLimit, AutoUpdate);
-	const auto AutoUpdateLimitItem = Builder.AddIntEditField(AutoUpdateLimit, 6);
+	auto& AutoUpdateEnabled = Builder.AddCheckbox(lng::MConfigAutoUpdateLimit, AutoUpdate);
+	auto& AutoUpdateLimitItem = Builder.AddIntEditField(AutoUpdateLimit, 6);
+	AutoUpdateLimitItem.Indent(4);
 	Builder.LinkFlags(AutoUpdateEnabled, AutoUpdateLimitItem, DIF_DISABLE, false);
-	const auto AutoUpdateTextItem = Builder.AddTextBefore(AutoUpdateLimitItem, lng::MConfigAutoUpdateLimit2);
-	AutoUpdateLimitItem->Indent(4);
-	AutoUpdateTextItem->Indent(4);
+	Builder.AddTextBefore(AutoUpdateLimitItem, lng::MConfigAutoUpdateLimit2).Indent(4);
 	Builder.AddCheckbox(lng::MConfigAutoUpdateRemoteDrive, AutoUpdateRemoteDrive);
 
 	Builder.AddSeparator();
@@ -271,7 +270,7 @@ void Options::TreeSettings()
 
 	Builder.AddCheckbox(lng::MConfigTreeAutoChange, Tree.AutoChangeFolder);
 
-	const auto TemplateEdit = Builder.AddIntEditField(Tree.MinTreeCount, 3);
+	auto& TemplateEdit = Builder.AddIntEditField(Tree.MinTreeCount, 3);
 	Builder.AddTextBefore(TemplateEdit, lng::MConfigTreeLabelMinFolder);
 
 #if defined(TREEFILE_PROJECT)
@@ -330,9 +329,9 @@ void Options::InterfaceSettings()
 	Builder.AddCheckbox(lng::MConfigMouse, Mouse);
 	Builder.AddCheckbox(lng::MConfigKeyBar, ShowKeyBar);
 	Builder.AddCheckbox(lng::MConfigMenuBar, ShowMenuBar);
-	const auto SaverCheckbox = Builder.AddCheckbox(lng::MConfigSaver, ScreenSaver);
-	const auto SaverEdit = Builder.AddIntEditField(ScreenSaverTime, 3);
-	SaverEdit->Indent(5);
+	auto& SaverCheckbox = Builder.AddCheckbox(lng::MConfigSaver, ScreenSaver);
+	auto& SaverEdit = Builder.AddIntEditField(ScreenSaverTime, 3);
+	SaverEdit.Indent(5);
 	Builder.AddTextAfter(SaverEdit, lng::MConfigSaverMinutes);
 	Builder.LinkFlags(SaverCheckbox, SaverEdit, DIF_DISABLE);
 
@@ -344,7 +343,7 @@ void Options::InterfaceSettings()
 	Builder.AddCheckbox(lng::MConfigFullWidthAwareRendering, FullWidthAwareRendering);
 	Builder.AddCheckbox(lng::MConfigClearType, ClearType);
 	Builder.StartColumns();
-	const auto SetIconCheck = Builder.AddCheckbox(lng::MConfigSetConsoleIcon, SetIcon);
+	auto& SetIconCheck = Builder.AddCheckbox(lng::MConfigSetConsoleIcon, SetIcon);
 	Builder.ColumnBreak();
 
 	std::vector<DialogBuilderListItem> IconIndices;
@@ -355,11 +354,11 @@ void Options::InterfaceSettings()
 		IconIndices.emplace_back(str(i), static_cast<int>(i));
 	}
 
-	const auto IconIndexEdit = Builder.AddComboBox(IconIndex, 0, IconIndices);
+	auto& IconIndexEdit = Builder.AddComboBox(IconIndex, 0, IconIndices);
 	Builder.EndColumns();
 	Builder.LinkFlags(SetIconCheck, IconIndexEdit, DIF_DISABLE);
-	const auto SetAdminIconCheck = Builder.AddCheckbox(lng::MConfigSetAdminConsoleIcon, SetAdminIcon);
-	SetAdminIconCheck->Indent(4);
+	auto& SetAdminIconCheck = Builder.AddCheckbox(lng::MConfigSetAdminConsoleIcon, SetAdminIcon);
+	SetAdminIconCheck.Indent(4);
 	Builder.LinkFlags(SetIconCheck, SetAdminIconCheck, DIF_DISABLE);
 	Builder.AddText(lng::MConfigTitleAddons);
 	Builder.AddEditField(strTitleAddons, 47);
@@ -385,9 +384,9 @@ void Options::InterfaceSettings()
 void Options::AutoCompleteSettings()
 {
 	DialogBuilder Builder(lng::MConfigAutoCompleteTitle, L"AutoCompleteSettings"sv);
-	const auto ListCheck=Builder.AddCheckbox(lng::MConfigAutoCompleteShowList, AutoComplete.ShowList);
-	const auto ModalModeCheck=Builder.AddCheckbox(lng::MConfigAutoCompleteModalList, AutoComplete.ModalList);
-	ModalModeCheck->Indent(4);
+	auto& ListCheck=Builder.AddCheckbox(lng::MConfigAutoCompleteShowList, AutoComplete.ShowList);
+	auto& ModalModeCheck=Builder.AddCheckbox(lng::MConfigAutoCompleteModalList, AutoComplete.ModalList);
+	ModalModeCheck.Indent(4);
 	Builder.AddCheckbox(lng::MConfigAutoCompleteAutoAppend, AutoComplete.AppendCompletion);
 	Builder.LinkFlags(ListCheck, ModalModeCheck, DIF_DISABLE);
 	Builder.AddOKCancel();
@@ -688,14 +687,14 @@ void Options::CmdlineSettings()
 	Builder.AddCheckbox(lng::MConfigCmdlineDelRemovesBlocks, CmdLine.DelRemovesBlocks);
 	Builder.AddCheckbox(lng::MConfigCmdlineAutoComplete, CmdLine.AutoComplete);
 
-	const auto UsePromptFormat = Builder.AddCheckbox(lng::MConfigCmdlineUsePromptFormat, CmdLine.UsePromptFormat);
-	const auto PromptFormat = Builder.AddEditField(CmdLine.strPromptFormat, 33);
-	PromptFormat->Indent(4);
+	auto& UsePromptFormat = Builder.AddCheckbox(lng::MConfigCmdlineUsePromptFormat, CmdLine.UsePromptFormat);
+	auto& PromptFormat = Builder.AddEditField(CmdLine.strPromptFormat, 33);
+	PromptFormat.Indent(4);
 	Builder.LinkFlags(UsePromptFormat, PromptFormat, DIF_DISABLE);
 
-	const auto UseHomeDir = Builder.AddCheckbox(lng::MConfigCmdlineUseHomeDir, Exec.UseHomeDir);
-	const auto HomeDir = Builder.AddEditField(Exec.strHomeDir, 33);
-	HomeDir->Indent(4);
+	auto& UseHomeDir = Builder.AddCheckbox(lng::MConfigCmdlineUseHomeDir, Exec.UseHomeDir);
+	auto& HomeDir = Builder.AddEditField(Exec.strHomeDir, 33);
+	HomeDir.Indent(4);
 	Builder.LinkFlags(UseHomeDir, HomeDir, DIF_DISABLE);
 
 	Builder.AddOKCancel();
@@ -740,11 +739,8 @@ void Options::PluginsManagerSettings()
 	Builder.AddCheckbox(lng::MPluginsManagerScanSymlinks, LoadPlug.ScanSymlinks);
 	Builder.AddSeparator(lng::MPluginConfirmationTitle);
 	Builder.AddCheckbox(lng::MPluginsManagerOFP, PluginConfirm.OpenFilePlugin);
-	const auto StandardAssoc = Builder.AddCheckbox(lng::MPluginsManagerStdAssoc, PluginConfirm.StandardAssociation);
-	const auto EvenIfOnlyOne = Builder.AddCheckbox(lng::MPluginsManagerEvenOne, PluginConfirm.EvenIfOnlyOnePlugin);
-	StandardAssoc->Indent(2);
-	EvenIfOnlyOne->Indent(4);
-
+	Builder.AddCheckbox(lng::MPluginsManagerStdAssoc, PluginConfirm.StandardAssociation).Indent(2);
+	Builder.AddCheckbox(lng::MPluginsManagerEvenOne, PluginConfirm.EvenIfOnlyOnePlugin).Indent(4);
 	Builder.AddCheckbox(lng::MPluginsManagerSFL, PluginConfirm.SetFindList);
 	Builder.AddCheckbox(lng::MPluginsManagerPF, PluginConfirm.Prefix);
 	Builder.AddOKCancel();
@@ -1606,8 +1602,8 @@ bool IntOption::Edit(DialogBuilder& Builder, int const Param)
 				Low.push_back(static_cast<wchar_t>(L'0' + Num % 10));
 			}
 
-			Builder.AddText(High)->Flags |= DIF_DISABLE;
-			Builder.AddText(Low)->Flags |= DIF_DISABLE;
+			Builder.AddText(High).Flags |= DIF_DISABLE;
+			Builder.AddText(Low).Flags |= DIF_DISABLE;
 		}
 		break;
 

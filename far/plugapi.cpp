@@ -301,7 +301,7 @@ wchar_t* WINAPI apiRemoveTrailingSpaces(wchar_t *Str) noexcept
 	[&]
 	{
 		const auto REnd = std::make_reverse_iterator(Str);
-		Str[REnd - std::find_if_not(REnd - wcslen(Str), REnd, std::iswspace)] = 0;
+		Str[REnd - std::find_if_not(REnd - std::wcslen(Str), REnd, std::iswspace)] = 0;
 		return Str;
 	},
 	[]

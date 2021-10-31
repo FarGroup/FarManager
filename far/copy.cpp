@@ -367,13 +367,13 @@ static string GenerateName(string_view const Name, string_view const Path)
 	auto Result = Path.empty()? string(Name) : path::join(Path, PointToName(Name));
 
 	const auto BaseSize = Result.size() - Name.size();
-	const auto NameExt = name_ext(Name);
+	const auto& [NamePart, ExtPart] = name_ext(Name);
 
 	// file (2).ext, file (3).ext and so on
 	for (size_t i = 2; os::fs::exists(Result); ++i)
 	{
 		Result.resize(BaseSize);
-		append(Result, NameExt.first, L" ("sv, str(i), L')', NameExt.second);
+		append(Result, NamePart, L" ("sv, str(i), L')', ExtPart);
 	}
 
 	return Result;
@@ -2842,10 +2842,10 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		{
 			if (Param1==WDLG_FILENAME)
 			{
-				const auto Color = colors::PaletteColorToFarColor(COL_WARNDIALOGTEXT);
-				const auto Colors = static_cast<FarDialogItemColors*>(Param2);
-				Colors->Colors[0] = Color;
-				Colors->Colors[2] = Color;
+				const auto& Color = colors::PaletteColorToFarColor(COL_WARNDIALOGTEXT);
+				const auto& Colors = *static_cast<FarDialogItemColors const*>(Param2);
+				Colors.Colors[0] = Color;
+				Colors.Colors[2] = Color;
 			}
 		}
 		break;
@@ -2859,8 +2859,8 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 					break;
 				case WDLG_RENAME:
 				{
-					const auto WFN = reinterpret_cast<const file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-					const auto strDestName = GenerateName(*WFN->Dest, *WFN->DestPath);
+					const auto& WFN = *reinterpret_cast<const file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+					const auto strDestName = GenerateName(*WFN.Dest, *WFN.DestPath);
 
 					if (Dlg->SendMessage(DM_GETCHECK, WDLG_CHECKBOX, nullptr) == BSTATE_UNCHECKED)
 					{
@@ -2871,7 +2871,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 							msg(lng::MCopyRenameText),
 							{},
 							strDestName,
-							*WFN->Dest,
+							*WFN.Dest,
 							L"CopyAskOverwrite"sv,
 							FIB_BUTTONS | FIB_NOAMPERSAND | FIB_EXPANDENV | FIB_CHECKBOX,
 							&All,
@@ -2879,8 +2879,8 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 						{
 							if (All!=BSTATE_UNCHECKED)
 							{
-								*WFN->DestPath = *WFN->Dest;
-								CutToSlash(*WFN->DestPath);
+								*WFN.DestPath = *WFN.Dest;
+								CutToSlash(*WFN.DestPath);
 							}
 
 							Dlg->SendMessage(DM_SETCHECK,WDLG_CHECKBOX,ToPtr(All));
@@ -2892,7 +2892,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 					}
 					else
 					{
-						*WFN->Dest=strDestName;
+						*WFN.Dest=strDestName;
 					}
 				}
 				break;

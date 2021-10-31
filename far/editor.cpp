@@ -3485,7 +3485,7 @@ bool Editor::Search(bool Next)
 
 				SetCursorType(false, -1);
 				const auto Total = FindAllReferences? Lines.size() : ReverseSearch? StartLine : Lines.size() - StartLine;
-				const auto Current = abs(CurPtr.Number() - StartLine);
+				const auto Current = std::abs(CurPtr.Number() - StartLine);
 				Progress->update(Total > 0? Current * 100 / Total : 100);
 				taskbar::set_value(Current,Total);
 			}
@@ -4556,7 +4556,7 @@ void Editor::AddUndoData(int Type, string_view const Str, eol Eol, int StrNum, i
 		case UNDO_EDIT:
 			{
 				if (!m_Flags.Check(FEDITOR_NEWUNDO) && PrevUndo->m_Type == UNDO_EDIT && StrNum == PrevUndo->m_StrNum &&
-						(abs(StrPos-PrevUndo->m_StrPos)<=1 || abs(StrPos-LastChangeStrPos)<=1))
+						(std::abs(StrPos-PrevUndo->m_StrPos)<=1 || abs(StrPos-LastChangeStrPos)<=1))
 				{
 					LastChangeStrPos=StrPos;
 					return;

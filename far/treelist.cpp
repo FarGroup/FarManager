@@ -655,7 +655,7 @@ public:
 	}
 };
 
-static os::fs::file OpenTreeFile(string_view const Name, bool const Writable)
+static auto OpenTreeFile(string_view const Name, bool const Writable)
 {
 	return os::fs::file(Name, Writable? FILE_WRITE_DATA : FILE_READ_DATA, FILE_SHARE_READ, nullptr, Writable? OPEN_ALWAYS : OPEN_EXISTING);
 }

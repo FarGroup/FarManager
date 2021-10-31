@@ -473,7 +473,7 @@ bool is_removable_usb(string_view RootDir)
 	string drive(HasPathPrefix(RootDir)? RootDir : L"\\\\?\\"sv + RootDir);
 	DeleteEndSlash(drive);
 
-	const auto Device = os::fs::file(drive, STANDARD_RIGHTS_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+	os::fs::file const Device(drive, STANDARD_RIGHTS_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
 	if (!Device)
 	{
 		LOGWARNING(L"CreateFile({}): {}"sv, drive, last_error());

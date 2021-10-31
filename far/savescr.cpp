@@ -155,7 +155,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 
 	const rectangle NewWhere = { m_Where.left, m_Where.top, m_Where.left + DesiredWidth - 1, m_Where.top + DesiredHeight - 1 };
 
-	const auto DeltaY = abs(DesiredHeight - OriginalHeight);
+	const auto DeltaY = std::abs(DesiredHeight - OriginalHeight);
 	const size_t CopyWidth = std::min(OriginalWidth, DesiredWidth);
 	const size_t CopyHeight = std::min(OriginalHeight, DesiredHeight);
 
@@ -188,7 +188,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 
 		if (DesiredHeight != OriginalHeight)
 		{
-			matrix<FAR_CHAR_INFO> Tmp(abs(OriginalHeight - DesiredHeight), std::max(DesiredWidth, OriginalWidth));
+			matrix<FAR_CHAR_INFO> Tmp(std::abs(OriginalHeight - DesiredHeight), std::max(DesiredWidth, OriginalWidth));
 			if (DesiredHeight > OriginalHeight)
 			{
 				if (IsExtraTop)
@@ -217,7 +217,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 
 		if (DesiredWidth != OriginalWidth)
 		{
-			matrix<FAR_CHAR_INFO> Tmp(std::max(DesiredHeight, OriginalHeight), abs(DesiredWidth - OriginalWidth));
+			matrix<FAR_CHAR_INFO> Tmp(std::max(DesiredHeight, OriginalHeight), std::abs(DesiredWidth - OriginalWidth));
 			if (DesiredWidth > OriginalWidth)
 			{
 				if (IsExtraRight)

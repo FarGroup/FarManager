@@ -311,7 +311,7 @@ bool AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
 	if (!Path)
 		return false;
 
-	auto len = path::is_separator(TypeSlash)? wcslen(Path) : SlashType(Path, nullptr, TypeSlash);
+	auto len = path::is_separator(TypeSlash)? std::wcslen(Path) : SlashType(Path, nullptr, TypeSlash);
 
 	if (len && path::is_separator(Path[len-1]))
 		--len;
@@ -360,7 +360,7 @@ void AddEndSlash(string &strPath)
 void DeleteEndSlash(wchar_t *Path)
 {
 	const auto REnd = std::make_reverse_iterator(Path);
-	Path[REnd - std::find_if_not(REnd - wcslen(Path), REnd, path::is_separator)] = 0;
+	Path[REnd - std::find_if_not(REnd - std::wcslen(Path), REnd, path::is_separator)] = 0;
 }
 
 void DeleteEndSlash(string &Path)

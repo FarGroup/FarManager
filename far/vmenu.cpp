@@ -2876,7 +2876,7 @@ const UUID& VMenu::Id() const
 
 std::vector<string> VMenu::AddHotkeys(span<menu_item> const MenuItems)
 {
-	FN_RETURN_TYPE(VMenu::AddHotkeys) Result(MenuItems.size());
+	std::vector<string> Result(MenuItems.size());
 
 	const size_t MaxLength = std::accumulate(ALL_CONST_RANGE(MenuItems), size_t(0), [](size_t Value, const auto& i)
 	{

@@ -316,7 +316,7 @@ std::vector<column> DeserialiseViewSettings(string_view const ColumnTitles, stri
 {
 	// BUGBUG, add error checking
 
-	FN_RETURN_TYPE(DeserialiseViewSettings) Columns;
+	std::vector<column> Columns;
 
 	for (const auto& Type: enum_tokens(ColumnTitles, L","sv))
 	{
@@ -430,8 +430,8 @@ std::vector<column> DeserialiseViewSettings(string_view const ColumnTitles, stri
 		Columns.emplace_back(NewColumn);
 	}
 
-	const auto EnumWidths = enum_tokens(ColumnWidths, L","sv);
-	auto EnumWidthsRange = range(EnumWidths);
+	enum_tokens const EnumWidths(ColumnWidths, L","sv);
+	range EnumWidthsRange(EnumWidths);
 
 	for (auto& i: Columns)
 	{
@@ -474,7 +474,7 @@ std::vector<column> DeserialiseViewSettings(string_view const ColumnTitles, stri
 
 std::pair<string, string> SerialiseViewSettings(const std::vector<column>& Columns)
 {
-	FN_RETURN_TYPE(SerialiseViewSettings) Result;
+	std::pair<string, string> Result;
 	auto& [strColumnTitles, strColumnWidths] = Result;
 
 	const auto GetModeSymbol = [](FILEPANEL_COLUMN_FLAGS Mode)

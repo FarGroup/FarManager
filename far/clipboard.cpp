@@ -415,7 +415,7 @@ bool clipboard::GetText(string& Data) const
 	};
 
 	const auto DataSize = GetBinaryTextLength();
-	Data.assign(ClipAddr.get(), DataSize == string::npos? wcslen(ClipAddr.get()) : DataSize);
+	Data.assign(ClipAddr.get(), DataSize == string::npos? std::wcslen(ClipAddr.get()) : DataSize);
 	return true;
 }
 
