@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+johnd0e 31.10.2021 17:45:00 +0200 - build 5910
+
+1. Panel API: ignore PluginId in GetPluginDirList
+   because hPanel is enough.
+   (patch by Shmuel)
+
+--------------------------------------------------------------------------------
 drkns 31.10.2021 13:56:15 +0000 - build 5909
 
 1. Refactoring.

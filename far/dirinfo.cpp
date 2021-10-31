@@ -354,8 +354,12 @@ static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, string_vi
 	}
 	else
 	{
-		DirListPlugin = std::make_unique<plugin_panel>(PluginNumber, hPlugin);
-		hDirListPlugin = DirListPlugin.get();
+		if (const auto aHandle = Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle(); aHandle->panel() == hPlugin)
+			hDirListPlugin = aHandle;
+		else if (const auto pHandle = Global->CtrlObject->Cp()->PassivePanel()->GetPluginHandle(); pHandle->panel() == hPlugin)
+			hDirListPlugin = pHandle;
+		else
+			return false;
 	}
 
 	const auto strDirName = fit_to_center(truncate_left(Dir, 30), 30);
