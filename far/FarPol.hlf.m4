@@ -1522,7 +1522,7 @@ $ #Menu: menu opcje#
  #Kolory#                Pozwala na wybór kolorów dla różnych elementów ekranu, pozwala zmienić
                        cały wygląd programu Far na czarno/biały lub ustawić domyślne kolory.
 
- #Wyróżnienia plików#    Pokazuje okno ~Wyróżniania plików~@Highlight@ i sortowania grup plików.
+ #Wyróżnianie plików#    Pokazuje okno ~Wyróżniania plików~@Highlight@ i sortowania grup plików.
  #i sortowanie grup#
 
  #Zapisz ustawienia#     Zapisuje bieżącą konfigurację, kolory i wygląd ekranu.
@@ -1927,7 +1927,7 @@ i #Punkt dowiązania# są dostępne tylko na dyskach z systemem NTFS.
 Atrybuty #Strumień integralności# i #Brak danych kontrolnych# są obsługiwane tylko na wolumenach ReFS
 począwszy od Windows Server 2012.
 
- #Ma więcej niż jeden twardy link#
+ #Ma więcej niż jeden link#
  Używany tylko na dyskach z systemem NTFS. Warunek jest prawdziwy, jeśli dane
 na które wskazuje bieżący plik jest również wskazany przez co najmniej jeden inny plik.
  #Uwaga#: Włączenie tej opcji może spowodować znaczne spowolnienie wyszukiwania.
@@ -4062,7 +4062,7 @@ po sortowaniu w lewym górnym rogu panelu.
 
 @FolderDiz
 $ #Opisy folderów#
- Określenie nazw (~maski~~@FileMasks@ są dozwolone) plików wyświetlanych
+ Określenie nazw (~maski~@FileMasks@ są dozwolone) plików wyświetlanych
 w ~Panelu informacyjnym~@InfoPanel@ jako opisy folderów.
 
 
@@ -4258,241 +4258,232 @@ podczas przetwarzania plików Far zawsze używa oryginalnych wielkości znaków.
 
 
 @SortGroups
-$ #Sort groups#
- File sort groups can be used in #by name# and #by extension#
-~file panel~@FilePanel@ sort modes. Sort groups are applied by
-pressing #Shift+F11# and allow to define additional file sorting rules,
-complementary to those already used.
+$ #Sortowanie grup#
+ Grupy sortowanie plików mogą być używane #według nazwy# i #według rozszerzenia#
+w trybach sortowania ~Panelu plików~ ~@FilePanel@. Grupy sortowania
+uruchamiane są skrótem #Shift+F11# i umożliwiają zdefiniowanie dodatkowych
+zasad sortowania plików, komplementarnie do już używanych.
 
- Each sort group contains one or more comma delimited
-~file masks~@FileMasks@. If one sort group position in the group list
-is higher than another and an ascending sort is performed, all files
-belonging to this group files will be higher than those belonging to
-following groups.
+ Każda grupa sortowania zawiera jedną lub więcej rozdzielonych przecinkami
+~Masek plików~@FileMasks@. Jeżeli jedna pozycja grup sortowania znajduje się
+wyżej niż inna i stosowane jest sortowanie rosnące, to wszystkie pliki należące
+do tej grupy będą umieszczone wyżej niż te należące do kolejnych grup.
 
- The command #Edit sort groups# from the ~Commands menu~@CmdMenu@ is used to
-delete, create and edit sort groups, using #Del#, #Ins# and #F4#. The groups
-above the menu separator are applicable to the file panel start, and included
-files will be placed higher than those not included to any group. The groups
-below the menu separator are applicable to the file panel end, and included
-files will be placed lower than those not included.
+ Polecenie #Edytuj grupy sortowania# dostępne w ~Menu poleceń~@CmdMenu@
+jest używane do usuwania, dodawania lub edycji grup sortowania, używając
+klawiszy #Del#, #Ins# i #F4#. Grupy powyżej separatora menu mają zastosowanie
+przy starcie panelu i pliki są umieszczane wyżej w panelu plików niże te,
+które nie zostały uwzględnione.
 
 
 @FileMasks
-$ #File masks#
- File masks are frequently used in Far commands to select single file or
-folder, or group of items. Masks can contain common valid file name characters,
-wildcards (‘*’ and ‘?’) and special expressions:
+$ #Maski plików#
+ Maski plików są często używane w poleceniach Far do zaznaczania pojedynczych plików
+lub folderów oraz ich grup. Maski mogą zawierać prawidłowe znaki nazw plików,
+symbole wieloznaczne (‘*’ and ‘?’) oraz wyrażenia specjalne:
 
- #*#           zero or more characters;
+ #*#           zero lub więcej znaków;
 
- #?#           any single character;
+ #?#           pojedynczy znak;
 
- #[cx-z]#      any character enclosed by the brackets.
-             Both separate characters and character intervals
-             are allowed.
+ #[cx-z]#      dowolny znak ujęty w nawiasy kwadratowe.
+             Zarówno oddzielne znaki jak i interwały pomiędzy znakami są dozwolone.
 
- For example, files ftp.exe, fc.exe and f.ext can be selected using mask
-f*.ex?, mask *co* will select both color.ini and edit.com, mask [c-ft]*.txt
-can select config.txt, demo.txt, faq.txt and tips.txt.
+ Dla przykładu pliki ftp.exe, fc.exe i f.ext można zaznaczyć za pomocą maski f*.ex?,
+maska *co* zaznaczy color.ini i edit.com, maska [c-ft]*.txt zaznaczy
+config.txt, demo.txt, faq.txt i tips.txt.
 
- In many Far commands you can enter several file masks separated with commas
-or semicolons. For example, to select all the documents, you can enter
-#*.doc,*.txt,*.wri# in the "Select" command.
+ W wielu poleceniach Far można zaznaczyć wiele masek plików, oddzielając
+je przecinkami lub średnikami. Np. aby zaznaczyć wszystkie dokumenty, można podać
+w poleceniu "Zaznacz": #*.doc,*.txt,*.wri#.
 
- It is allowed to put any of the masks in quotes but not the whole list. For
-example, you have to do this when a mask contains any of the delimiter
-characters (a comma or a semicolon), so that the mask doesn't get confused with
-a list.
+ Dozwolone jest umieszczanie dowolnych masek w cudzysłowie, ale nie całej listy.
+Np. należy tak zrobić, jeżeli maska zawiera dowolny znak ogranicznika (przecinek
+lub średnik), aby maska nie pomyliła list.
 
- File mask surrounded with slashes #/# is treated as ~Perl regular expression~@RegExp@.
+ Maska pliku otoczona ukośnikami #/# jest traktowana jako ~Wyrażenie regularne Perl~@RegExp@.
 
- Example:
- #/(eng|rus)/i# - any files with filenames containing string “eng” or “rus”,
-the character case is not taken into account.
+ Przykład:
+ #/(eng|pol)/i# - dowolne pliki zawierające tekst "eng" lub "pol", wielkość znaków
+nie ma znaczenia..
 
- An #exclude mask# is one or multiple file masks that must not be matched by the
-files matching the mask. The exclude mask is delimited from the main mask by
-the character ‘#|#’.
+ #Maska wykluczająca# jest jedną lub wieloma maskami, które nie mogą pasować do
+maski zaznaczającej pliki. Maska wykluczająca jest oddzielona od głównej maski
+za pomocą znaku ‘#|#’.
 
- Usage examples of exclude masks:
+ Przykłady wykluczenia masek:
 
  1. *.cpp
-    All files with the extension #cpp#.
+    Wszystkie pliki z rozszerzeniem #cpp#
  2. *.*|*.bak,*.tmp
-    All files except for the files with extensions #bak# and #tmp#.
+    Wszystkie pliki oprócz plików z rozszerzeniami #bak# i #tmp#
  3. *.*|
-    The character | is entered, but the mask itself is not specified,
-    expression treated as *.*
+    Znak | jest wprowadzony, ale maska nie jest podana,
+    wyrażenie jest traktowane jako *.*
  4. *.*|*.bak|*.tmp
-    The character | can be used in the mask only once,
-    expression treated as *.*|*.bak
+    Znak | można użyć w masce tylko raz,
+    wyrażenie jest traktowane jako *.*|*.bak
  5. |*.bak
-    The same as *|*.bak
+    Podobnie jak *|*.bak
  6. *.*|/^pict\d{1,3}\.gif$/i
-    All files except for pict0.gif — pict999.gif, disregard the character case.
+    Wszystkie pliki za wyjątkiem pict0.gif - pict999.gif, nie uwzględnia wielkości znaków.
 
- The comma (or semicolon) is used for separating file masks from each other,
-and the ‘|’ character separates include masks from exclude masks.
+ Przecinek (lub średnik) są używane do oddzielenia masek od siebie, a znak ‘|’
+oddziela maski zaznaczania od masek wykluczania.
 
- File masks can be joined into ~groups~@MaskGroupsSettings@.
+ Maski plików można łączyć w  ~grupy~@MaskGroupsSettings@.
 
 
 @SelectFiles
-$ #Selecting files#
- ~File panel~@FilePanel@ items (files and folders) can be selected
-for group processing. If no items are selected, only the item under
-cursor will be processed.
+$ #Zaznaczanie plików#
+ Pozycje ~Panelu plików~@FilePanel@ (pliki foldery) można zaznaczać,
+aby przetwarzać je grupowo. Jeżeli żadna pozycja nie będzie zaznaczona,
+to przetwarzana będzie tylko pozycja oznaczona kursorem.
 
- #Keyboard Selection#
+ #Zaznaczanie klawiaturą#
 
- #Ins# toggles selection on the item under cursor and moves the
-cursor down.
+ #Ins# przełącza zaznaczanie pozycji pod kursorem i przenosi kursor niżej.
 
- #Shift+Arrow keys# move the cursor while selecting or deselecting
-items along the way. The action (selection or deselection) depends
-on the state of the item under cursor before pressing the key
-combination.
+ #Shift+klawisze strzałek# przenoszą kursor podczas zaznaczania lub odznaczania
+pozycji w czasie przesuwania. Czynność (zaznaczania lub odznaczania) zależy
+od stanu pozycji pod kursorem przed naciśnięciem kombinacji klawiszy.
 
- #Gray +# selects, and #Gray -# deselects the items using one or more
-~File masks~@FileMasks@. #†#
+ #Szary +# zaznacza, a #Szary -# odznacza pozycje zaznaczone poprzez jedną
+lub więcej ~Masek plików~@FileMasks@. #†#
 
- #Gray *# inverts the current selection. #†#
+ #Szara *# odwraca bieżące zaznaczenie. #†#
 
- #Ctrl+<Gray +># selects, and #Ctrl+<Gray -># deselects all items
-with the same #extension# as that of the item under cursor. #†#
+ #Ctrl+<Szary +># zaznacza, a #Ctrl+<Szary -># odznacza wszystkie pozycje
+z tym samym #rozszerzeniem# jak pozycja pod kursorem. #†#
 
- #Alt+<Gray +># selects, and #Alt+<Gray -># deselects all items with
-the same #name# as that of the item under cursor. #†#
+ #Alt+<Szary +># zaznacza, a #Alt+<Szary -># odznacza wszystkie pozycje
+z tą samą #nazwą# jak pozycja pod kursorem. #†#
 
- #Shift+<Gray +># selects, and #Shift+<Gray -># deselects all items. #†#
+ #Shift+<Szary +># zaznacza, a #Shift+<Szary -># odznacza wszystkie pozycje. #†#
 
- #Ctrl+<Gray *># inverts the current selection on all items,
-including folders.
+ #Ctrl+<Szara *># odwraca bieżące zaznaczenie na wszystkich pozycjach,
+włączając foldery.
 
- #Alt+<Gray *># inverts the current selection on files only,
-folders are deselected.
+ #Alt+<Szary *># odwraca zaznaczenie tylko dla plików, foldery są odznaczane.
 
- #Ctrl+M# restores the last selection.
+ #Ctrl+M# przywraca ostatnie zaznaczenie.
 
- #Mouse Selection#
+ #Zaznaczanie myszką#
 
- #Right click# toggles selection on the clicked item and moves the
-cursor to it. See also #Right click selects files# option of the
-~Panel settings~@PanelSettings@ dialog.
+ #Prawy przycisk# przełącza zaznaczenie na klikniętej pozycji i przenosi
+kursor na tę pozycję. Zobacz także opcję #Prawy klik zaznacza pliki#
+w oknie ~Ustawień panelu~@PanelSettings@.
 
- #Right click and hold# on the #status line# or #column titles# moves
-the cursor forward or backward respectively, while selecting
-or deselecting items along the way. The action (selection
-or deselection) depends on the state of the item under cursor before the
-click.
+ #Prawy przycisk i przytrzymanie# na #linii statusu# lub #tytule kolumny#
+przenosi kursor odpowiednio do przodu lub do tyłu, jednocześnie zaznaczając
+lub odznaczając elementy po drodze. Akcja (zaznaczanie lub odznaczanie)
+zależy od stanu pozycji po kursorem przed kliknięciem.
 
  ────────────────
- #†# If the #Select folders# option of the
-~Panel settings~@PanelSettings@ dialog is off, only files are selected
-or deselected. Otherwise, the selection on the folders is changed as well.
+ #†# Jeżeli opcja #Zaznaczaj foldery# w ~Ustawieniach panelu~@PanelSettings@
+jest wyłączona, to tylko pliki są zaznaczane lub odznaczane. W innym przypadku
+foldery są przetwarzane tak samo jak pliki.
 
 
 @CopyFiles
-$ #Copying, moving, renaming and creating links#
- The following commands can be used to copy, move and rename files and folders:
+$ #Kopiowanie, przenoszenie, zmiana nazwy i tworzenie linków#
+ Następujące polecenia mogą być używane do kopiowania, przenoszenia lub zmiany
+nazw plików i folderów:
 
- Copy ~selected~@SelectFiles@ files                                           #F5#
+ Kopiuj ~zaznaczone~@SelectFiles@ pliki                                       #F5#
 
- Copy the file under cursor regardless of selection      #Shift+F5#
+ Kopiuj plik pod kursorem niezależnie od zaznaczenia     #Shift+F5#
 
- Rename or move selected files                                 #F6#
+ Zmień nazwę lub przenieś zaznaczone pliki                     #F6#
 
- Rename or move the file under the cursor                #Shift+F6#
- regardless of selection
+ Zmień nazwę lub przenieś plik pod kursorem              #Shift+F6#
+ niezależnie od zaznaczenia
 
- Create ~file links~@HardSymLink@                                         #Alt+F6#
+ Utwórz ~link do pliku~@HardSymLink@                                      #Alt+F6#
 
- For a folder: if the folder at the specified target path (relative
-or absolute) exists, the source folder will be copied / moved inside the
-target folder. Otherwise, a new folder will be created at the target
-path and the contents of the source folder will be copied / moved into
-the newly created folder.
+ Dla folderu: jeżeli folder w podanej ścieżce docelowej (względnej
+lub pełnej) już istnieje, folder źródłowy będzie skopiowany / przeniesiony
+do folderu docelowego. W innym przypadku zostanie utworzony nowy folder
+w ścieżce docelowej i zawartość folderu źródłowego zostanie skopiowana
+/ przeniesiona do nowo utworzonego folderu.
 
- For example, when moving #c:\folder1\# to #d:\folder2\#:
+ Na przykład, podczas przenoszenia #c:\folder1\# do #d:\folder2\#:
 
- - ^<wrap>if #d:\folder2\# exists, the contents of #c:\folder1\# will be moved into
-#d:\folder2\folder1\#. Otherwise, the contents of #c:\folder1\# will be moved into the newly
-created #d:\folder2\#.
+ - ^<wrap>jeżeli #d:\folder2\# istnieje, zawartość #c:\folder1\# zostanie przeniesiona
+do #d:\folder2\folder1\#. Jeżeli nie, zawartość #c:\folder1\# zostanie przeniesiona
+do noto utworzonego #d:\folder2\#.
 
- If the option “#Process multiple destinations#” is enabled, you can specify
-multiple copy or move targets on the input line. The targets should be separated
-with character “#;#” or “#,#”. If a target name contains these characters,
-enclose it in double quotes.
+ Jeżeli opcja “#Przetwarzaj wszystkie cele#” jest włączona, to w linii ścieżki
+można podać wiele folderów docelowych dla kopii lub przenoszenia danych.
+Miejsca docelowe powinny być rozdzielone znakami “#;#” or “#,#”. Jeżeli nazwa
+docelowa zawiera takie znaki, należy je ująć w cudzysłowy.
 
- If you want to create the destination folder before copying,
-append backslash to its name.
+ Jeżeli folder docelowy ma być utworzony przed kopiowaniem, należy dodać
+na końcu ścieżki znak backslash “#\#”.
 
- If ~Panel.Tree.TurnOffCompletely~@Panel.Tree.TurnOffCompletely@
-parameter in ~far:config~@FarConfig@ is set to “false,” you can use
-~Find folder~@FindFolder@ dialog to select the target path.
- The following shortcuts open the dialog with different pre-selected folders:
- - ^<wrap>#F10# selects the folder from the active panel.
- - ^<wrap>#Alt+F10# selects the folder from the passive panel.
- - ^<wrap>#Shift+F10# selects the specified target folder. If several
-paths are entered on the input line, only the first one is used.
+ Jeżeli parametr ~Panel.Tree.TurnOffCompletely~@Panel.Tree.TurnOffCompletely@
+w ~far:config~@FarConfig@ jest ustawiony na “fałsz”, to można użyć
+okna dialogowego ~Znajdź folder~@FindFolder@ aby wybrać ścieżkę docelową.
+Poniższe skróty otwierają okno z różnymi wcześniej ustalonymi folderami:
+ - ^<wrap>#F10# wybiera folder z aktywnego panelu.
+ - ^<wrap>#Alt+F10# wybiera folder z pasywnego panelu.
+ - ^<wrap>#Shift+F10# wybiera podany folder docelowy. Jeżeli w linii ścieżki
+podano kilka ścieżek, to użyta zostanie tylko pierwsza z nich.
 
- If the option “#Process multiple destinations#” is enabled, the folder
-selected in the tree is appended to the input line.
+ Jeżeli opcja “#Przetwarzaj wszystkie cele#” jest włączona, to folder
+zaznaczony w drzewku jest dopisywany do linii ścieżki.
 
- Whether copying, moving or renaming files works for a plugin depends
-upon the plugin functionality.
+ Możliwość kopiowania, przenoszenia lub zmiany nazwy plików podczas korzystania
+z wtyczek, zależy od funkcjonalności danej wtyczki.
 
- The #Access rights# parameter is valid only for the NTFS file system
-and controls how access rights of the created files and folders are set.
-The #Default# option leaves access rights processing to the operating system.
-The #Copy# option applies the access rights of the original objects. The
-#Inherit# option applies the inheritable access rights of the
-destination’s parent folder.
+ Parametr #Prawa dostępu# jest dostępny tylko dla systemu plików NTFS
+i kontroluje sposób ustawienia praw dostępu do tworzonych plików i folderów.
+Opcja #Domyślne# pozostawia przetwarzanie praw dostępu systemowi operacyjnemu.
+Opcja #Kopiuj# stosuje prawa dostępu zgodnie z oryginalnymi danymi.
+Opcja #Dziedzicz# stosuje prawa dostępu takie jak dla nadrzędnego folderu docelowego.
 
- The “#Already existing files#” parameter controls Far behavior
-if the target file with the same name already exists.
+ Parametr “#Dla już istniejących#” steruje zachowaniem Far, jeżeli plik docelowy
+posiada taką samą nazwę jak kopiowany.
 
- Possible values:
- - ^<wrap>#Ask# - a ~confirmation dialog~@CopyAskOverwrite@ will be shown;
- - #Overwrite# - all target files will be replaced;
- - #Skip# - target files will not be replaced;
- - #Rename# - existing target files will stay unchanged, copied files will be renamed;
- - #Append# - target file will be appended with the file being copied;
- - #Only newer file(s)# - only files with the newer write date and time
-will be copied;
- - #Also ask on R/O files# - controls whether an additional confirmation
-dialog should be displayed for the read-only files.
+ Możliwe wartości:
+ - ^<wrap>#Zapytaj# - zostanie wyświetlone ~Okno potwierdzenia~@CopyAskOverwrite@;
+ - #Zastąp# - wszystkie docelowe pliki zostaną zastąpione;
+ - #Pomiń# - pliki docelowe nie zostaną zastąpione;
+ - #Zmień nazwę# - istniejące pliki docelowe pozostaną nie zmienione,
+pliki kopiowane będą miały zmienioną nazwę;
+ - #Dołącz# - dołącza plik docelowy do już istniejącego pliku;
+ - #Tylko nowsze pliki# - skopiowane będą tylko pliki z nowszą datą i czasem;
+ - #Pytaj także o pliki tylko do odczytu# - kontroluje czy dla plików tylko do odczytu
+powinno być wyświetlone dodatkowe potwierdzenie.
 
- The “#Use system copy routine#” option of the ~System settings~@SystemSettings@
-dialog enables the use of Windows operating system function CopyFileEx. This may be useful
-on NTFS, because CopyFileEx copies extended file attributes. If this option is off, the internal
-implementation of the file copy routine is used. The internal
-function is also used if the source file is encrypted and is being
-copied to a different volume.
+ Opcja “#Używaj systemowej procedury kopiowania#” dostępna w ~Ustawieniach systemowych~@SystemSettings@
+włącza użycie funkcji CopyFileEx systemu Windows. Może ona być przydatna
+na dyskach NTFS, ponieważ funkcja CopyFileEx kopiuje rozszerzone atrybuty
+plików. Po jej wyłączeniu używana jest wewnętrzna procedura kopiowania.
+Wewnętrzna funkcja jest również używana, gdy plik źródłowy jest zaszyfrowany
+i jest kopiowany na inny wolumin.
 
- The “#Copy contents of symbolic links#” parameter controls the
-~logic~@CopyRule@ of ~symbolic links~@HardSymLink@ processing.
+ Parametr “#Kopiuj zawartość linków symbolicznych#” kontroluje
+~logikę~@CopyRule@ przetwarzania ~linków symbolicznych~@HardSymLink@.
 
- When moving files, to determine whether the operation should be performed
-as a copy with subsequent deletion or as a direct move (within the same physical
-drive), Far takes into account ~symbolic links~@HardSymLink@.
+ Podczas przenoszenia plików, aby określić, czy należy wykonać operacje
+jako kopia z późniejszym usunięciem lub bezpośrednie przeniesienie
+(na tym samym dysku fizycznym), Far uwzględnia ~linki symboliczne~@HardSymLink@.
 
- Far handles copying to #con# the same way as copying to #nul# or
-#\\\\.\\nul#, that is the file is read from the disk but not written
-anywhere.
+ Far obsługuje kopiowanie do #con# (konsola) w taki sam sposób,
+jak kopiowanie do #nul# (nic) lub #\\\\.\\nul#, czyli plik jest odczytywany
+z dysku, ale nigdzie nie jest zapisywany.
 
- When moving to #nul#, #\\\\.\\nul# or #con#, the files are not deleted
-from the disk.
+ Podczas przenoszenia do #nul#, #\\\\.\\nul# lub #con#, pliki nie są usuwane z dysku.
 
- The parameters “#Access rights#” and “#Only newer files#” affect only the current
-copy session.
+ Parametry “#Prawa dostępu#” i “#Tylko nowsze pliki#” uwzględniane są tylko w bieżącej
+sesji kopiowania.
 
- To copy only the files that match the user defined criteria, check
-the #Use filter# checkbox, then press the #Filter# button to open the
-~filters menu~@FiltersMenu@. Remember that if you copy a folder and none
-of the files in it match the criteria, the empty folder will #not# be
-created at the destination.
+ Aby skopiować tylko te pliki, które spełniają kryteria zdefiniowane
+przez użytkownika, należy zaznaczyć opcję #Użyj filtra#, a następnie
+nacisnąć przycisk #Filtr#, aby utworzyć ~Menu filtrów~@FiltersMenu@.
+Należy pamiętać, że przy kopiowaniu folderu i braku plików spełniających
+kryteria filtra, pusty folder docelowy #nie# zostanie utworzony.
 
 
 @CopyAskOverwrite
