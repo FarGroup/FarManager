@@ -88,9 +88,9 @@ enum DLGITEMINTERNALFLAGS
 
 struct DlgUserControl
 {
-	COORD CursorPos  {-1, -1};
-	bool CursorVisible {};
-	DWORD CursorSize {DWORD(-1)};
+	COORD CursorPos{-1, -1};
+	bool CursorVisible{};
+	DWORD CursorSize{static_cast<DWORD>(-1)};
 };
 
 //////////////////////////////////////////////////////////////////////////

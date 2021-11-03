@@ -339,7 +339,7 @@ void Editor::ShowEditor()
 
 	if (IsVerticalSelection() && VBlockSizeX > 0 && VBlockSizeY > 0)
 	{
-		int CurScreenLine = static_cast<int>(m_it_CurLine.Number() - CalcDistance(m_it_TopScreen,m_it_CurLine));
+		int CurScreenLine = m_it_CurLine.Number() - CalcDistance(m_it_TopScreen,m_it_CurLine);
 		LeftPos=m_it_CurLine->GetLeftPos();
 
 		Y = m_Where.top;
@@ -4009,7 +4009,7 @@ void Editor::Paste(string_view const Data)
 				{
 					const auto& Str = m_it_CurLine->GetString();
 					const auto CurPos = m_it_CurLine->GetCurPos();
-					AddUndoData(UNDO_EDIT, Str, m_it_CurLine->GetEOL(), m_it_CurLine.Number(), static_cast<int>(CurPos)); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+					AddUndoData(UNDO_EDIT, Str, m_it_CurLine->GetEOL(), m_it_CurLine.Number(), CurPos); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 					m_it_CurLine->InsertString(string_view(Data).substr(i, Pos - i));
 					Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 				}

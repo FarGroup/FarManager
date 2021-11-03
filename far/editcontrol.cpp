@@ -135,7 +135,7 @@ void EditControl::SetMenuPos(VMenu2& menu)
 	}
 	else
 	{
-		menu.SetPosition({ m_Where.left, m_Where.top + 1, NewX2, std::min(static_cast<int>(ScrY), m_Where.top + 1 + MaxHeight) });
+		menu.SetPosition({ m_Where.left, m_Where.top + 1, NewX2, std::min(ScrY, m_Where.top + 1 + MaxHeight) });
 	}
 }
 

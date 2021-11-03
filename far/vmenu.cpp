@@ -296,7 +296,7 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 // установить курсор и верхний элемент
 int VMenu::SetSelectPos(const FarListPos *ListPos, int Direct)
 {
-	const auto pos = std::clamp(ListPos->SelectPos, intptr_t(0), static_cast<intptr_t>(Items.size() - 1));
+	const auto pos = std::clamp(ListPos->SelectPos, intptr_t{}, static_cast<intptr_t>(Items.size() - 1));
 	const auto Ret = SetSelectPos(pos, Direct ? Direct : pos > SelectPos? 1 : -1);
 
 	if (Ret >= 0)
@@ -2295,7 +2295,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 				if (Items[I].Flags & MIF_SUBMENU)
 				{
-					GotoXY(static_cast<int>(m_Where.right - 1), Y);
+					GotoXY(m_Where.right - 1, Y);
 					Text(L'►');
 				}
 
@@ -2567,7 +2567,7 @@ void VMenu::SetColors(const FarDialogItemColors *ColorsIn)
 
 		if (CheckFlags(VMENU_DISABLED))
 		{
-			std::fill_n(Colors, size_t(VMENU_COLOR_COUNT), colors::PaletteColorToFarColor(StyleMenu? COL_WARNDIALOGDISABLED : COL_DIALOGDISABLED));
+			std::fill_n(Colors, size_t{ VMENU_COLOR_COUNT }, colors::PaletteColorToFarColor(StyleMenu? COL_WARNDIALOGDISABLED : COL_DIALOGDISABLED));
 		}
 		else
 		{
@@ -2878,7 +2878,7 @@ std::vector<string> VMenu::AddHotkeys(span<menu_item> const MenuItems)
 {
 	std::vector<string> Result(MenuItems.size());
 
-	const size_t MaxLength = std::accumulate(ALL_CONST_RANGE(MenuItems), size_t(0), [](size_t Value, const auto& i)
+	const size_t MaxLength = std::accumulate(ALL_CONST_RANGE(MenuItems), size_t{}, [](size_t Value, const auto& i)
 	{
 		return std::max(Value, i.Name.size());
 	});

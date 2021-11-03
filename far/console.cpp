@@ -711,11 +711,11 @@ namespace console_detail
 
 		std::vector<CHAR_INFO> ConsoleBuffer(SubRect.width() * SubRect.height());
 
-		point const BufferSize{ static_cast<int>(SubRect.width()), static_cast<int>(SubRect.height()) };
+		point const BufferSize{ SubRect.width(), SubRect.height() };
 
 		if (BufferSize.x * BufferSize.y * sizeof(CHAR_INFO) > MAXSIZE)
 		{
-			const auto HeightStep = std::max(MAXSIZE / (BufferSize.x * sizeof(CHAR_INFO)), size_t(1));
+			const auto HeightStep = std::max(MAXSIZE / (BufferSize.x * sizeof(CHAR_INFO)), size_t{ 1 });
 
 			const size_t Height = ReadRegion.bottom - ReadRegion.top + 1;
 
@@ -724,7 +724,7 @@ namespace console_detail
 				auto PartialReadRegion = ReadRegion;
 				PartialReadRegion.top += static_cast<int>(i);
 				PartialReadRegion.bottom = std::min(ReadRegion.bottom, static_cast<int>(PartialReadRegion.top + HeightStep - 1));
-				point const PartialBufferSize{ BufferSize.x, static_cast<int>(PartialReadRegion.height()) };
+				point const PartialBufferSize{ BufferSize.x, PartialReadRegion.height() };
 				if (!ReadOutputImpl(ConsoleBuffer.data() + i * PartialBufferSize.x, PartialBufferSize, PartialReadRegion))
 					return false;
 			}
@@ -1101,11 +1101,11 @@ namespace console_detail
 				});
 			}
 
-			point const BufferSize{ static_cast<int>(SubRect.width()), static_cast<int>(SubRect.height()) };
+			point const BufferSize{ SubRect.width(), SubRect.height() };
 
 			if (BufferSize.x * BufferSize.y * sizeof(CHAR_INFO) > MAXSIZE)
 			{
-				const auto HeightStep = std::max(MAXSIZE / (BufferSize.x * sizeof(CHAR_INFO)), size_t(1));
+				const auto HeightStep = std::max(MAXSIZE / (BufferSize.x * sizeof(CHAR_INFO)), size_t{ 1 });
 
 				for (size_t i = 0, Height = WriteRegion.height(); i < Height; i += HeightStep)
 				{
@@ -1120,7 +1120,7 @@ namespace console_detail
 					point const PartialBufferSize
 					{
 						BufferSize.x,
-						static_cast<int>(PartialWriteRegion.height())
+						PartialWriteRegion.height()
 					};
 
 					if (!WriteOutputNTImplDebug(ConsoleBuffer.data() + i * PartialBufferSize.x, PartialBufferSize, PartialWriteRegion))
@@ -1285,8 +1285,8 @@ namespace console_detail
 		{
 			point Size = {};
 			GetSize(Size);
-			Position.x = std::min(Position.x, static_cast<int>(Size.x - 1));
-			Position.y = std::max(static_cast<int>(0), Position.y);
+			Position.x = std::min(Position.x, Size.x - 1);
+			Position.y = std::max(0, Position.y);
 			Position.y += GetDelta();
 		}
 		return SetCursorRealPosition(Position);
@@ -1559,7 +1559,7 @@ namespace console_detail
 		return
 			GetWindowRect(WindowRect) &&
 			SetCursorPosition({}) &&
-			SetCursorPosition({ 0, static_cast<int>(WindowRect.height() - 1) });
+			SetCursorPosition({ 0, WindowRect.height() - 1 });
 	}
 
 	short console::GetDelta() const

@@ -79,7 +79,7 @@ namespace os::memory
 
 			const auto From = lock<std::byte const*>(Ptr);
 			const auto To = lock<std::byte*>(Memory);
-			std::copy(From.get(), From.get() + Size, To.get());
+			std::copy_n(From.get(), Size, To.get());
 
 			return Memory;
 		}

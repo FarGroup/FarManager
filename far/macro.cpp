@@ -476,13 +476,13 @@ static DWORD GetHistoryDisableMask()
 bool KeyMacro::IsHistoryDisabled(int TypeHistory)
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(OP_ISHISTORYDISABLE, static_cast<double>(TypeHistory), &Ret)? !!Ret.ReturnType : false;
+	return MacroPluginOp(OP_ISHISTORYDISABLE, TypeHistory, &Ret)? Ret.ReturnType != 0 : false;
 }
 
 static bool IsTopMacroOutputDisabled()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(OP_ISTOPMACROOUTPUTDISABLED,false,&Ret) ? !!Ret.ReturnType : false;
+	return MacroPluginOp(OP_ISTOPMACROOUTPUTDISABLED,false,&Ret) ? Ret.ReturnType != 0 : false;
 }
 
 static bool IsPostMacroEnabled()
@@ -1734,7 +1734,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					api.PassValue(0);
 
 			return IsStringType?
-				api.PassValue(reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(ActualWindow->VMProcess(CheckCode)))) :
+				api.PassValue(reinterpret_cast<const wchar_t*>(ActualWindow->VMProcess(CheckCode))) :
 				api.PassValue(ActualWindow->VMProcess(CheckCode));
 		}
 
@@ -1982,7 +1982,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (CheckCode == MCODE_V_MENUINFOID && CurrentWindow && CurrentWindow->GetType() == windowtype_menu)
 			{
-				return api.PassValue(reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(CurrentWindow->VMProcess(MCODE_V_DLGINFOID))));
+				return api.PassValue(reinterpret_cast<const wchar_t*>(CurrentWindow->VMProcess(MCODE_V_DLGINFOID)));
 			}
 
 			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
@@ -2002,7 +2002,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						break;
 
 					case MCODE_V_MENUINFOID:
-						return api.PassValue(reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(CurrentWindow->VMProcess(CheckCode))));
+						return api.PassValue(reinterpret_cast<const wchar_t*>(CurrentWindow->VMProcess(CheckCode)));
 					}
 				}
 			}
@@ -2417,7 +2417,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					{
 						if (tmpVar.isUnknown())
 							tmpVar = -1;
-						tmpVar = CurrentWindow->VMProcess(CheckCode, reinterpret_cast<void*>(static_cast<intptr_t>(tmpVar.toInteger())), tmpAction.toInteger());
+						tmpVar = CurrentWindow->VMProcess(CheckCode, reinterpret_cast<void*>(tmpVar.toInteger()), tmpAction.toInteger());
 						success=true;
 					}
 					else

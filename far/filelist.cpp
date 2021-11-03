@@ -4620,6 +4620,7 @@ static void edit_sort_layers(int MenuPos)
 				SortLayersMenu->at(Pos).Name = msg(SortModes[NewSortModeIndex].Label);
 				SortLayersMenu->at(Pos).SetCustomCheck(order_indicator(Order));
 				SortLayers[Pos] = { static_cast<panel_sort>(NewSortModeIndex), Order };
+				SortLayersMenu->Redraw();
 			}
 			break;
 
@@ -5649,7 +5650,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 		FilenameSize    = aligned_size(StringSizeInBytes(fi.FileName), alignof(wchar_t)),
 		AltNameSize     = aligned_size(StringSizeInBytes(fi.AlternateFileName()), alignof(wchar_t*)),
 		ColumnsSize     = aligned_size(fi.CustomColumns.size() * sizeof(wchar_t*), alignof(wchar_t)),
-		ColumnsDataSize = aligned_size(std::accumulate(ALL_CONST_RANGE(fi.CustomColumns), size_t(0), [&](size_t s, const wchar_t* i) { return s + (i? StringSizeInBytes(i) : 0); }), alignof(wchar_t)),
+		ColumnsDataSize = aligned_size(std::accumulate(ALL_CONST_RANGE(fi.CustomColumns), size_t{}, [&](size_t s, const wchar_t* i) { return s + (i? StringSizeInBytes(i) : 0); }), alignof(wchar_t)),
 		DescriptionSize = aligned_size(fi.DizText? StringSizeInBytes(fi.DizText) : 0, alignof(wchar_t)),
 		OwnerSize       = aligned_size(fi.IsOwnerRead() && !fi.Owner(this).empty()? StringSizeInBytes(fi.Owner(this)) : 0, alignof(wchar_t));
 
@@ -7072,12 +7073,12 @@ void FileList::MoveSelection(list_data& From, list_data& To)
 		i.Position = &i - From.data();
 	}
 
-	std::sort(From.begin(), From.end(), hash_less{});
+	std::sort(ALL_RANGE(From), hash_less{});
 
 	std::vector<size_t> OldPositions;
 	OldPositions.reserve(To.size());
 
-	const auto npos = size_t(-1);
+	const auto npos = static_cast<size_t>(-1);
 
 	for (auto& i: To)
 	{
@@ -7979,7 +7980,7 @@ bool FileList::ConvertName(const string_view SrcName, string& strDest, const int
 	{
 		Extension.remove_prefix(1);
 		auto Name = SrcName.substr(0, SrcName.size() - Extension.size());
-		const auto DotPos = std::max(MaxLength - std::max(Extension.size(), size_t(3)), Name.size());
+		const auto DotPos = std::max(MaxLength - std::max(Extension.size(), size_t{ 3 }), Name.size());
 
 		if (Name.size() > 1 && Name[Name.size() - 2] != L' ')
 			Name.remove_suffix(1);

@@ -171,7 +171,7 @@ void ScreenBuf::Write(int X, int Y, span<const FAR_CHAR_INFO> Text)
 	if (X >= static_cast<int>(Buf.width()) || Y >= static_cast<int>(Buf.height()) || Text.empty() || Y < 0)
 		return;
 
-	if (static_cast<size_t>(X + Text.size()) > Buf.width())
+	if (X + Text.size() > Buf.width())
 		Text.pop_back(Text.size() - (Buf.width() - X));
 
 	for (const auto& i: irange(Text.size()))
@@ -545,8 +545,8 @@ void ScreenBuf::Flush(flush_type FlushType)
 								// кстати, и при выключенном тоже (но реже).
 								// баг, конечно, не наш, но что делать.
 								// расширяем область прорисовки влево-вправо на 1 символ:
-								WriteRegion.left = std::max(static_cast<int>(0), static_cast<int>(WriteRegion.left - 1));
-								WriteRegion.right = std::min(static_cast<int>(WriteRegion.right + 1), static_cast<int>(Buf.width() - 1));
+								WriteRegion.left = std::max(0, WriteRegion.left - 1);
+								WriteRegion.right = std::min(WriteRegion.right + 1, static_cast<int>(Buf.width() - 1));
 							}
 
 							bool Merge=false;

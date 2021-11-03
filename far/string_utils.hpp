@@ -139,7 +139,7 @@ public:
 	virtual bool contains_in(string_view Haystack) const = 0;
 };
 
-class exact_searcher: public i_searcher
+class exact_searcher final: public i_searcher
 {
 public:
 	NONCOPYABLE(exact_searcher);
@@ -156,7 +156,7 @@ private:
 	size_t m_NeedleSize;
 };
 
-class fuzzy_searcher: public i_searcher
+class fuzzy_searcher final: public i_searcher
 {
 public:
 	NONCOPYABLE(fuzzy_searcher);

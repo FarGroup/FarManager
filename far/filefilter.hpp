@@ -77,7 +77,7 @@ struct filter_result
 	filter_action Action{filter_action::ignore};
 	int State{};
 
-	operator bool() const;
+	explicit operator bool() const;
 };
 
 class multifilter: noncopyable

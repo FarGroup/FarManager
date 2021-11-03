@@ -77,7 +77,7 @@ public:
 	size_t FillCodePagesList(Dialog* Dlg, size_t controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly);
 	void FillCodePagesList(std::vector<DialogBuilderListItem> &List, bool allowAuto, bool allowAll, bool allowDefault, bool allowChecked, bool bViewOnly);
 
-	static bool IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize = size_t(-1));
+	static bool IsCodePageSupported(uintptr_t CodePage, size_t MaxCharSize = static_cast<size_t>(-1));
 	static std::optional<cp_info> GetInfo(uintptr_t CodePage);
 	static string FormatName(uintptr_t CodePage);
 	static string UnsupportedCharacterMessage(wchar_t Char);

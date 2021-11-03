@@ -140,7 +140,7 @@ void codepages::AddCodePage(string_view codePageName, uintptr_t codePage, size_t
 	if (CallbackCallSource == CodePagesFill)
 	{
 		// Вычисляем позицию вставляемого элемента
-		if (position == size_t(-1))
+		if (position == static_cast<size_t>(-1))
 		{
 			FarListInfo info = { sizeof(FarListInfo) };
 			dialog->SendMessage(DM_LISTINFO, control, &info);
@@ -181,10 +181,10 @@ void codepages::AddCodePage(string_view codePageName, uintptr_t codePage, size_t
 			ItemFlags |= LIF_GRAYED;
 		}
 
-		DialogBuilderListItem item(FormatCodePageString(codePage, codePageName, IsCodePageNameCustom), static_cast<int>(codePage), ItemFlags);
+		DialogBuilderListItem item(FormatCodePageString(codePage, codePageName, IsCodePageNameCustom), codePage, ItemFlags);
 
 		// Вычисляем позицию вставляемого элемента
-		if (position == size_t(-1) || position >= DialogBuilderList->size())
+		if (position == static_cast<size_t>(-1) || position >= DialogBuilderList->size())
 		{
 			DialogBuilderList->emplace_back(item);
 		}
@@ -200,7 +200,7 @@ void codepages::AddCodePage(string_view codePageName, uintptr_t codePage, size_t
 		item.SimpleUserData = codePage;
 
 		// Добавляем новый элемент в меню
-		if (position == size_t(-1))
+		if (position == static_cast<size_t>(-1))
 			CodePagesMenu->AddItem(item);
 		else
 			CodePagesMenu->AddItem(item, static_cast<int>(position));
@@ -210,7 +210,7 @@ void codepages::AddCodePage(string_view codePageName, uintptr_t codePage, size_t
 		{
 			if ((CodePagesMenu->GetSelectPos() == -1 || GetMenuItemCodePage() != codePage))
 			{
-				CodePagesMenu->SetSelectPos(static_cast<int>(position == size_t(-1)? CodePagesMenu->size() - 1 : position), 1);
+				CodePagesMenu->SetSelectPos(static_cast<int>(position == static_cast<size_t>(-1)? CodePagesMenu->size() - 1 : position), 1);
 			}
 		}
 	}
@@ -235,7 +235,7 @@ void codepages::AddSeparator(const string& Label, size_t position) const
 {
 	if (CallbackCallSource == CodePagesFill)
 	{
-		if (position == size_t(-1))
+		if (position == static_cast<size_t>(-1))
 		{
 			FarListInfo info = { sizeof(FarListInfo) };
 			dialog->SendMessage(DM_LISTINFO, control, &info);
@@ -251,7 +251,7 @@ void codepages::AddSeparator(const string& Label, size_t position) const
 	else if (CallbackCallSource == CodePagesFill2)
 	{
 		// Вычисляем позицию вставляемого элемента
-		if (position == size_t(-1) || position >= DialogBuilderList->size())
+		if (position == static_cast<size_t>(-1) || position >= DialogBuilderList->size())
 		{
 			DialogBuilderList->emplace_back(Label, 0, LIF_SEPARATOR);
 		}
@@ -264,7 +264,7 @@ void codepages::AddSeparator(const string& Label, size_t position) const
 	{
 		const MenuItemEx item(Label, MIF_SEPARATOR);
 
-		if (position == size_t(-1))
+		if (position == static_cast<size_t>(-1))
 			CodePagesMenu->AddItem(item);
 		else
 			CodePagesMenu->AddItem(item, static_cast<int>(position));

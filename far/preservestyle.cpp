@@ -204,7 +204,7 @@ static auto ChoosePreserveStyleType(unsigned Mask)
 
 	for (int Style = COUNT; Style != UNKNOWN; --Style)
 		if (Mask & bit(Style))
-			return PreserveStyleType(Style);
+			return static_cast<PreserveStyleType>(Style);
 
 	return UNKNOWN;
 }

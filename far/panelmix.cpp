@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugins.hpp"
 #include "lang.hpp"
 #include "fileattr.hpp"
-#include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "global.hpp"
 #include "exception.hpp"
@@ -726,7 +725,7 @@ string FormatStr_Size(
 				// Directory Junction or Volume Mount Point
 				case IO_REPARSE_TAG_MOUNT_POINT:
 					{
-						lng ID_Msg = lng::MListJunction;
+						auto ID_Msg = lng::MListJunction;
 						if (Global->Opt->PanelDetailedJunction && !CurDir.empty())
 						{
 							string strLinkName;

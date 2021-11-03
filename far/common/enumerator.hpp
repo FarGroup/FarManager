@@ -125,7 +125,7 @@ public:
 			return m_Owner != nullptr;
 		}
 
-		static inline constexpr size_t invalid_index{ size_t(-1) };
+		static inline constexpr size_t invalid_index{ static_cast<size_t>(-1) };
 
 	private:
 		template<typename V>

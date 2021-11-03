@@ -2944,7 +2944,7 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 				if (!Param2) return length;
 
 				std::vector<wchar_t> text(length + 1);
-				FarDialogItemData item = {sizeof(FarDialogItemData), static_cast<size_t>(length), text.data()};
+				FarDialogItemData item = {sizeof(FarDialogItemData), length, text.data()};
 				length = pluginapi::apiSendDlgMessage(hDlg, DM_GETTEXT, Param1, &item);
 				(void)encoding::oem::get_bytes({ text.data(), length }, { static_cast<char*>(Param2), length + 1 });
 				return length;

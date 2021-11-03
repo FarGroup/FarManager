@@ -1754,7 +1754,7 @@ Options::Options():
 
 	strBoxSymbols.SetCallback(option::notifier([](const string& Value)
 	{
-		std::copy_n(Value.begin(), std::min(size_t(BS_COUNT), Value.size()), BoxSymbols);
+			std::copy_n(Value.begin(), std::min(size_t{ BS_COUNT }, Value.size()), BoxSymbols);
 	}));
 
 	VirtualTerminalRendering.SetCallback(option::notifier([](bool const Value)

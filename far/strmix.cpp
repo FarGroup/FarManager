@@ -1031,7 +1031,7 @@ bytes HexStringToBlob(const string_view Hex, const wchar_t Separator)
 	Blob.reserve(BlobSize);
 	for (size_t i = 0; i != AlignedSize; i += StepSize)
 	{
-		Blob.push_back(std::byte(HexToInt(Hex[i]) << 4 | HexToInt(Hex[i + 1])));
+		Blob.push_back(static_cast<std::byte>(HexToInt(Hex[i]) << 4 | HexToInt(Hex[i + 1])));
 	}
 
 	return Blob;

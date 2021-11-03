@@ -233,7 +233,7 @@ static message_result MessageImpl(
 	}
 
 	// should fit in the screen, unless buttons > screen width
-	const auto MAX_MESSAGE_WIDTH = std::max(size_t(ScrX - 10), BtnLength);
+	const auto MAX_MESSAGE_WIDTH = std::max(static_cast<size_t>(ScrX - 10), BtnLength);
 
 	MaxLength = std::min(MaxLength, MAX_MESSAGE_WIDTH);
 

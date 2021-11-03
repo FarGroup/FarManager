@@ -494,7 +494,7 @@ bool Grabber::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLDOWN:      case KEY_RCTRLNUMPAD2:
 		case KEY_CTRLSHIFTDOWN:  case KEY_CTRLSHIFTNUMPAD2:
 		case KEY_RCTRLSHIFTDOWN: case KEY_RCTRLSHIFTNUMPAD2:
-			GArea.Current.y = std::min(static_cast<int>(ScrY), GArea.Current.y + 5);
+			GArea.Current.y = std::min(ScrY, GArea.Current.y + 5);
 			if (any_of(LocalKey, KEY_CTRLSHIFTDOWN, KEY_RCTRLSHIFTDOWN, KEY_CTRLSHIFTNUMPAD2, KEY_RCTRLSHIFTNUMPAD2))
 				GArea.Begin.y = GArea.Current.y;
 			break;
@@ -700,8 +700,8 @@ bool Grabber::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		ResetArea = false;
 	}
 
-	GArea.Current.x = std::clamp(IntKeyState.MousePos.x, 0, static_cast<int>(ScrX));
-	GArea.Current.y = std::clamp(IntKeyState.MousePos.y, 0, static_cast<int>(ScrY));
+	GArea.Current.x = std::clamp(IntKeyState.MousePos.x, 0, ScrX);
+	GArea.Current.y = std::clamp(IntKeyState.MousePos.y, 0, ScrY);
 
 	if (MouseEvent->dwEventFlags == MOUSE_MOVED)
 	{

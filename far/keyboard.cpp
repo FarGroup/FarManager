@@ -1468,13 +1468,8 @@ string KeyToLocalizedText(unsigned int const Key)
 	return KeyToTextImpl(Key,
 		[](const TFKey& i)
 		{
-			if (i.LocalizedNameId != lng(-1))
-			{
-				const auto& Msg = msg(i.LocalizedNameId);
-				if (!Msg.empty())
-					return string_view(Msg);
-			}
-			return i.Name;
+			const auto& Msg = msg(i.LocalizedNameId);
+			return Msg.empty()? i.Name : Msg;
 		},
 		[](string& str)
 		{

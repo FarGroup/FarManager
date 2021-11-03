@@ -1014,7 +1014,7 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 	return cpp_try(
 	[&]
 	{
-		HANDLE hDlg=INVALID_HANDLE_VALUE;
+		auto hDlg = INVALID_HANDLE_VALUE;
 
 		if (Global->WindowManager->ManagerIsDown())
 			return hDlg;

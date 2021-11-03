@@ -116,9 +116,9 @@ int GetSearchReplaceString(
 	const auto& SelectionLabel = msg(lng::MEditSearchPickSelection);
 	const auto WordButtonSize = HiStrlen(WordLabel) + 4;
 	const auto SelectionButtonSize = HiStrlen(SelectionLabel) + 4;
-	const auto SelectionButtonX2 = static_cast<int>(DlgWidth - 4 - 1);
+	const auto SelectionButtonX2 = DlgWidth - 4 - 1;
 	const auto SelectionButtonX1 = static_cast<int>(SelectionButtonX2 - SelectionButtonSize);
-	const auto WordButtonX2 = static_cast<int>(SelectionButtonX1 - 1);
+	const auto WordButtonX2 = SelectionButtonX1 - 1;
 	const auto WordButtonX1 = static_cast<int>(WordButtonX2 - WordButtonSize);
 
 	const auto YFix = IsReplaceMode? 0 : 2;

@@ -142,12 +142,12 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	m_DisplayMode(VMT_TEXT),
 	ViewerID(::ViewerID++),
 	m_bQuickView(bQuickView),
-	vread_buffer(std::max(MaxViewLineBufferSize(), size_t(8192))),
+	vread_buffer(std::max(MaxViewLineBufferSize(), size_t{ 8192 })),
 	lcache_lines(16*1000),
 	// dirty magic numbers, fix them!
 	max_backward_size(std::min(Options::ViewerOptions::eMaxLineSize*3ll, std::max(Global->Opt->ViOpt.MaxLineSize*2, 1024ll) * 32)),
 	llengths(max_backward_size / 40),
-	Search_buffer(3 * std::max(MaxViewLineBufferSize(), size_t(8192))),
+	Search_buffer(3 * std::max(MaxViewLineBufferSize(), size_t{ 8192 })),
 	ReadBuffer(MaxViewLineBufferSize())
 {
 	if (m_DefCodepage != CP_DEFAULT)
@@ -737,7 +737,7 @@ int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& Out
 
 			OutStr.push_back(Buffer[iw] == encoding::bom_char? encoding::replace_char : Buffer[iw]); // BOM can be Zero Length
 			const auto clen = encoding::utf8::get_bytes_count({ Buffer.data() + iw, 1 });
-			const auto PaddingSize = std::min(clen - 1, static_cast<size_t>(ClientWidth) - OutStr.size());
+			const auto PaddingSize = std::min(clen - 1, ClientWidth - OutStr.size());
 			OutStr.append(PaddingSize, encoding::continue_char);
 			tail = static_cast<int>(clen - 1 - PaddingSize); // char continues on the next line?
 		}
@@ -1896,7 +1896,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 			// Перейти на конец строк
 			if (ViewFile)
 			{
-				const size_t MaxLen = std::accumulate(ALL_CONST_RANGE(Strings), size_t(0), [](size_t Value, const ViewerString& i)
+				const size_t MaxLen = std::accumulate(ALL_CONST_RANGE(Strings), size_t{}, [](size_t Value, const ViewerString& i)
 				{
 					return std::max(Value, i.Data.size());
 				});
