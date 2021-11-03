@@ -2323,7 +2323,7 @@ $ #Okno ustawień: system#
 tylko na lokalnych dyskach twardych.
 
  #Używaj systemowej procedury kopiowania#
- Użyj funkcji kopiowanie plików dostarczonych przez system operacyjny zamiast wewnętrznej
+ Użyj funkcji kopiowania plików dostarczonych przez system operacyjny zamiast wewnętrznej
 implementacji kopiowania plików. Może być ona przydatna w systemie NTFS, ponieważ
 funkcja systemowa (CopyFileEx) kopiuje rozszerzone atrybuty plików. Z drugiej strony podczas
 korzystanie z funkcji systemowej, niedostępna jest możliwość "inteligentnego" ~kopiowania~@CopyFiles@
@@ -4487,164 +4487,168 @@ kryteria filtra, pusty folder docelowy #nie# zostanie utworzony.
 
 
 @CopyAskOverwrite
-$ #Copying: confirmation dialog#
- If a file of the same name exists in the target folder the user will be
-prompted to select on of the following actions:
+$ #Kopiowanie: okno potwierdzenia#
+ Jeżeli plik o tej samej nazwie istnieje w folderze docelowym, użytkownik
+zostanie poproszony o wybranie jednej z możliwości:
 
- #Overwrite# - target file will be replaced;
+ #Zastąp# - plik docelowy zostanie zastąpiony;
 
- #Skip# - target file will not be replaced;
+ #Pomiń# - plik docelowy nie zostanie zastąpiony;
 
- #Rename# - existing file will not be changed, a new name will be given to
-the file being copied;
+ #Zmień nazwę# - istniejący plik nie zostanie zmieniony, a plikowi
+kopiowanemu zostanie nadana nowa nazwa;
 
- #Append# - target file will be appended with the file being copied;
+ #Dołącz# - plik kopiowany zostanie dołączony do pliku docelowego;
 
- If #Remember choice# is checked, the selected action will be applied to
-all existing files and the confirmation dialog will not be displayed again for
-the current copying session.
+ Po zaznaczeniu opcji #Zapamiętaj wybór#, wybrana możliwość zostanie
+zastosowana do wszystkich istniejących plików, a okno potwierdzenia
+nie zostanie już wyświetlone w bieżącej sesji kopiowania.
 
- If sizes and last modification dates are not enough for you to make a decision,
-you can try to inspect the content of the files with internal viewer by moving the cursor
-to any of them and pressing the F3 key.
+ Jeżeli wielkość i daty modyfikacji plików nie są wystarczające, aby podjąć
+decyzję, można podejrzeć ich zawartość w wewnętrznej przeglądarce plików
+przesuwając kursor na ich nazwy w oknie dialogowym i naciskając klawisz F3.
 
 
 @CopyRule
-$ #Copying: rules#
- When ~copying/moving~@CopyFiles@ folders and/or
-~symbolic links~@HardSymLink@ the following rules apply:
+$ #Kopiowanie: zasady#
+ Podczas ~kopiowania/przenoszenia~@CopyFiles@ folderów i/lub
+~linków symbolicznych~@HardSymLink@ stosowane są następujące zasady:
 
- #Copying of symbolic links#
+ #Kopiowanie linków symbolicznych#
 
- If the "Copy contents of symbolic links" option is on or the source or the
-destination are remote disks, then a folder will be created at the destination
-and the contents of the source symbolic link will be copied to it (recursively
-for enclosed links).
+ Jeżeli opcja "Kopiuj zawartość linków symbolicznych" jest włączona lub źródło
+lub miejsce docelowe są zdalnymi dyskami, wtedy folder zostanie utworzony w miejscu
+docelowym i zawartość źródła linków symbolicznych zostanie do niego skopiowana
+(rekursywnie dla załączonych linków).
 
- If the "Copy contents of symbolic links" option is off and the source and
-the destination are local disks, then a symbolic link pointing to the source
-symbolic link will be created at the destination.
+ Jeżeli opcja "Kopiuj zawartość linków symbolicznych" jest wyłączona i źródło
+oraz miejsce docelowe są dyskami lokalnymi, wtedy link symboliczny odwołujący się
+do źródła zostanie utworzony w miejscu docelowym.
 
- #Moving of symbolic links#
+ #Przenoszenie linków symbolicznych#
 
- If the "Copy contents of symbolic links" option is on or the source or the
-destination are remote disks, then a folder will be created at the destination
-and the contents of the source symbolic links will be copied to it (recursively
-for enclosed links). The source symbolic link is then deleted.
+ Jeżeli opcja "Kopiuj zawartość linków symbolicznych" jest włączona lub źródło
+lub miejsce docelowe są zdalnymi dyskami, wtedy folder zostanie utworzony w miejscu
+docelowym i zawartość linku symboliczne zostanie do niego skopiowana (rekursywnie
+dla załączonych linków). Po zakończeniu źródłowy link symboliczny zostanie usunięty.
 
- If the "Copy contents of symbolic links" option is off and the source and
-the destination are local disks, then the source symbolic link will be moved to
-the destination. Recursive descent of the tree will not be made.
+ Jeżeli opcja "Kopiuj zawartość linków symbolicznych" jest wyłączona i źródło
+oraz miejsce docelowe są dyskami lokalnymi, wtedy link symboliczny zostanie
+przeniesiony do miejsca docelowego. Rekursywne przechodzenie po drzewie folderów
+nie zostanie wykonane.
 
- #Moving of a folder, than contains symbolic links#
+ #Przenoszenie folderu, który zawiera linki symboliczne#
 
- If the source and the destination are local disk, then the folder will be
-moved as a normal folder.
+ Jeżeli źródło i miejsce docelowe są dyskami lokalnymi, wtedy folder zostanie
+przeniesiony jak normalny folder.
 
- If the source or the destination are remote disks, then with no regard to
-the "Copy contents of symbolic links" option a folder will be created in the
-destination and the contents of the source symbolic link will be copied to it
-(recursively for enclosed links). The source symbolic link is then deleted.
+ Jeżeli źródłem lub miejscem docelowym są dyskami zdalnymi, to bez względu
+na opcję "Kopiuj zawartość linków symbolicznych", zostanie utworzony folder
+w miejscu docelowym, a zawartość źródła linku symbolicznego zostanie do niego
+skopiowana (rekursywnie dla załączonych linków). Po zakończeniu źródłowy
+link symboliczny zostanie usunięty.
 
 
 @HardSymLink
-$ #Hard and Symbolic link#
- On NTFS volumes you can create #hard links# for files, #directory junctions# for
-folders and #symbolic links# for files and folders using the #Alt+F6# command.
+$ #Linki twarde i symboliczne#
+ Na wolumenach NTFS można tworzyć #twarde linki# dla plików, #dowiązania folderów#
+dla folderów oraz #linki symboliczne# dla plików i folderów za pomocą polecenia
+dostępnego za pomocą skrótu #Alt+F6#.
 
- #Hard links#
+ #Linki twarde#
 
- A #hard link# is an additional directory entry for the given file. When a
-hard link is created, the file is not copied itself, but receives one more name
-or location, while its previous name and location remain intact. Since the
-moment of its creation, a hard link is indistinguishable from the original
-entry. The only difference is that short file names are not created for hard
-links, and so they cannot be seen from DOS programs.
+ #Twardy link# jest dodatkowym wpisem folderu do podanego pliku. Podczas tworzenia
+twardego linku plik nie jest kopiowany, ale otrzymuje dodatkową nazwę
+lub lokalizację, podczas gdy poprzednia nazwa i lokalizacja pozostają niezmienione.
+Od momentu utworzenia, link twardy jest niemożliwy do odróżnienia od oryginalnego
+wpisu. Jedyna różnica polega na tym, że nie jest tworzona krótka nazwa pliku,
+przez co linki nie są widoczne w programach DOS.
 
- When the file size or date changes, all of the corresponding directory
-entries are updated automatically. When a file is deleted, it is not deleted
-physically until all the hard links pointing at it will be deleted. The
-deletion order doesn't matter. When a hard link is deleted into the recycle
-bin, the number of links of a file does not change.
+ Gdy zmieni się wielkość lub data pliku, wszystkie odpowiednie wpisy folderów
+zostaną automatycznie zaktualizowane. Po usunięciu pliku, nie jest on fizycznie
+usuwany dopóki wszystkie twarde linki, które na niego wskazują, nie zostaną usunięte.
+Kolejność usuwanie nie ma znaczenia. Jeżeli twardy link zostanie usunięty do kosza,
+liczka linków pliku nie zmienia się.
 
- Far can create hard links and can show the number of the file's hard links
-in a separate column (by default, it's the last column in the 9th panel mode)
-and sort the files by hard link number.
+ Far może tworzyć twarde linki i potrafi wyświetlić liczbę twardych linków pliku
+w osobnej kolumnie (domyślnie jest to ostatnia kolumna w dziewiątym trybie panelu
+- "Dowiązania").
 
- Hard links can only be created on the same partition as the source file.
+ Twarde linki mogą być tworzone tylko na tej samej partycji co plik źródłowy.
 
- #Directory junctions#
+ #Przyłączenie folderu#
 
- Directory junctions allows to access to any local folders as to any other
-local folders. For example, if the directory junction D:\\JUNCTION points to
-C:\\WINNT\\SYSTEM32, a program accessing D:\\JUNCTION\\DRIVERS will actually access
-C:\\WINNT\\SYSTEM32\\DRIVERS.
+ Przyłączenia folderów pozwalają na dostęp do dowolnego lokalnego folderu
+tak samo jak do innych lokalnych folderów. Np. jeżeli przyłącze D:\\PRZYLACZE
+wskazuje na C:\\WINNT\\SYSTEM32, program uzyskujący dostęp do folderu
+D:\\PRZYLACZE\\DRIVERS w rzeczywistości uzyska dostęp do C:\\WINNT\\SYSTEM32\\DRIVERS.
 
- Directory junctions can not point to network folders.
+ Przyłączenia folderów nie mogą wskazywać na foldery sieciowe.
 
- Under Windows 2000 it is not allowed to create directory junctions directly to
-CD-ROM folders, but this restriction can be overcome by mounting a CD-ROM
-as a folder on the NTFS partition.
+ Do systemów poniżej Windows 2000 nie jest możliwe tworzenie przyłączy bezpośrednio
+do folderów w napędach optycznych, ale ograniczenie to można ominąć montując
+napęd optyczny jako folder na partycji NTFS.
 
- #Symbolic links#
+ #Linki symboliczne#
 
- NTFS supports symbolic links starting from Windows Vista (NT 6.0). It's an
-improved version of directory junctions - symbolic links can also point to files
-and non-local folders, relative paths also supported.
+ NTFS obsługuje linki symboliczne począwszy od Windows Vista (NT 6.0).
+Jest to ulepszona wersja przyłączeń folderów - dowiązana symboliczne mogą również
+wskazywać pliki i foldery nie-lokalne, obsługiwane są także ścieżki względne.
 
- By default, only members of "Administrators" group can create symbolic links,
-this can be changed in the local security settings.
+ Domyślnie, tylko członkowie grupy "Administratorzy" mogą tworzyć linki symboliczne,
+ale można to zmienić w lokalnych ustawieniach bezpieczeństwa.
 
 
 @ErrCopyItSelf
-$ #Error: copy/move onto itself.#
- You cannot copy or move a file or folder onto itself.
+$ #Błąd: kopiowanie/przenoszenie na siebie#
+ Nie można kopiować lub przenosić pliku do siebie samego.
 
- This error can also happen if there are two directories, one of which is
-a ~symbolic link~@HardSymLink@ to another.
+ Ten błąd może wystąpić, gdy istnieją dwa foldery, a jeden z nich
+to ~link symboliczny~@HardSymLink@ do innego.
 
 
 @WarnCopyEncrypt
-$ #Warning: Losing file encryption#
- The source file is encrypted. Copying or moving it outside of the current
-disk is possible if in the destination the file will be decrypted.
+$ #Ostrzeżenie: utrata szyfrowania pliku#
+ Plik źródłowy jest zaszyfrowany. Kopiowanie lub przenoszenie poza bieżący dysk
+jest możliwe, jeżeli dysk docelowy będzie odszyfrowany.
 
- The "Ignore" (or "Ignore all") buttons ignore the given warning and copy
-the file unencrypted to the destination.
+ Przyciski "Ignoruj" (lub "Ignoruj wszystko") ignorują wyświetlane ostrzeżenie
+i kopiują niezaszyfrowany plik do miejsca docelowego.
 
- The internal copying mechanism will be used for copying encrypted files
-outside of the current disk with no regard to the "Use system copy routine"
-option.
+ Do kopiowania zaszyfrowanych plików poza bieżący dysk zostanie użyty mechanizm
+wewnętrzny, bez względu na ustawienie opcji "Używaj systemowej procedury kopiowania".
 
 
 @WarnCopyStream
-$ #Warning: copying or moving file with multiple streams#
- The source file contains more than one data stream or the destination file
-system does not support files with multiple streams.
+$ #Ostrzeżenie: kopiowanie lub przenoszenie pliku z wieloma strumieniami#
+ Plik źródłowy zawiera więcej niż jeden strumień danych lub plik docelowy
+nie obsługuje plików z wieloma strumieniami.
 
- Streams are a feature of the NTFS file system allowing to associate
-additional information with a file (for example, author's name, title, keywords
-and so on, or any other data). This information is stored together with the
-file and is invisible to programs that do not support streams. For example,
-streams are used by Windows Explorer to store additional file properties
-(summary). FAT/FAT32 file systems do not support streams.
+ Strumienie są funkcją systemu plików NTFS pozwalającą na skojarzenie dodatkowych
+informacji z plikiem (np. nazwisko autora, tytuł, słowa kluczowe, itd.
+lub dowolnych innych danych). Informacje te są przechowywane razem z plikiem
+i są one niewidoczne dla programów nie obsługujących strumieni.
+Np. strumienie używane są przez Eksploratora Windows do przechowywania dodatkowych
+właściwości plików (podsumowanie). Systemy plików FAT/FAT32 nie obsługują
+strumieni.
 
- To copy a file completely (together with all its streams), turn on the
-option "#Use system copy routine#" in the ~System settings~@SystemSettings@
-dialog.
+ Aby skopiować kompletny plik (razem ze strumieniami), należy włączyć opcję
+"#Używaj systemowej procedury kopiowania#" w ~Ustawieniach systemu~@SystemSettings@.
 
- If you are copying a file with multiple streams to a volume with a file
-system other than NTFS, you will also lose data - only the main stream will be
-copied.
+ Jeżeli plik z wieloma strumieniami kopiowany jest na wolumin z systemem innym
+niż NTFS, także nastąpi utrata danych - skopiowany zostanie wyłącznie strumień
+główny.
 
 
 @ErrLoadPlugin
-$ #Error: plugin not loaded#
- This error message can appear in the following cases:
+$ #Błąd: wtyczka nie załadowana#
+ Ten komunikat o błędzie może pojawić się w następujących przypadkach:
 
- 1. ^<wrap>A dynamic link library not present on your system is required for correct operation of the plugin.
- 2. ^<wrap>For some reason, the plugin returned an error code telling the system to abort plugin loading.
- 3. ^<wrap>The DLL file of the plugin is corrupt.
+ 1. ^<wrap>Do poprawnego działania wtyczki jest wymagana biblioteka dołączana dynamicznie,
+która nie jest obecna w systemie.
+ 2. ^<wrap>W niektórych przypadkach wtyczka zwraca kod błędu, informujący system
+o przerwaniu wczytywania wtyczki.
+ 3. ^<wrap>Uszkodzony jest plik DLL wtyczki.
 
 
 @ScrSwitch
