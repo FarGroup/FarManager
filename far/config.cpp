@@ -758,7 +758,7 @@ void Options::SetDizConfig()
 
 	Builder.AddCheckbox(lng::MCfgDizSetHidden, Diz.SetHidden);
 	Builder.AddCheckbox(lng::MCfgDizROUpdate, Diz.ROUpdate);
-	const auto StartPos = Builder.AddIntEditField(Diz.StartPos, 2);
+	auto& StartPos = Builder.AddIntEditField(Diz.StartPos, 2);
 	Builder.AddTextAfter(StartPos, lng::MCfgDizStartPos);
 	Builder.AddSeparator();
 
@@ -774,7 +774,7 @@ void Options::SetDizConfig()
 
 void Options::ViewerConfig(ViewerOptions &ViOptRef, bool Local)
 {
-	intptr_t save_pos = 0, save_cp = 0, id = 0;
+	intptr_t save_pos = 0, save_cp = 0;
 	bool prev_save_cp_value = ViOpt.SaveCodepage, inside = false;
 
 	DialogBuilder Builder(lng::MViewConfigTitle, L"ViewerSettings"sv, [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
@@ -808,31 +808,33 @@ void Options::ViewerConfig(ViewerOptions &ViOptRef, bool Local)
 
 	if (!Local)
 	{
-		++id; Builder.AddCheckbox(lng::MViewConfigExternalF3, ViOpt.UseExternalViewer);
-		++id; Builder.AddText(lng::MViewConfigExternalCommand);
-		++id; Builder.AddEditField(strExternalViewer, 64, L"ExternalViewer"sv, DIF_EDITPATH|DIF_EDITPATHEXEC);
-		++id; Builder.AddSeparator(lng::MViewConfigInternal);
+		Builder.AddCheckbox(lng::MViewConfigExternalF3, ViOpt.UseExternalViewer);
+		Builder.AddText(lng::MViewConfigExternalCommand);
+		Builder.AddEditField(strExternalViewer, 64, L"ExternalViewer"sv, DIF_EDITPATH|DIF_EDITPATHEXEC);
+		Builder.AddSeparator(lng::MViewConfigInternal);
 	}
 
 	Builder.StartColumns();
-	++id; Builder.AddCheckbox(lng::MViewConfigPersistentSelection, ViOptRef.PersistentBlocks);
-	++id; Builder.AddCheckbox(lng::MViewConfigEditAutofocus, ViOptRef.SearchEditFocus);
-	++id; const auto TabSize = Builder.AddIntEditField(ViOptRef.TabSize, 3);
-	++id; Builder.AddTextAfter(TabSize, lng::MViewConfigTabSize);
+	Builder.AddCheckbox(lng::MViewConfigPersistentSelection, ViOptRef.PersistentBlocks);
+	Builder.AddCheckbox(lng::MViewConfigEditAutofocus, ViOptRef.SearchEditFocus);
+	auto& TabSize = Builder.AddIntEditField(ViOptRef.TabSize, 3);
+	Builder.AddTextAfter(TabSize, lng::MViewConfigTabSize);
 	Builder.ColumnBreak();
-	++id; Builder.AddCheckbox(lng::MViewConfigArrows, ViOptRef.ShowArrows);
-	++id; Builder.AddCheckbox(lng::MViewConfigVisible0x00, ViOptRef.Visible0x00);
-	++id; Builder.AddCheckbox(lng::MViewConfigScrollbar, ViOptRef.ShowScrollbar);
+	Builder.AddCheckbox(lng::MViewConfigArrows, ViOptRef.ShowArrows);
+	Builder.AddCheckbox(lng::MViewConfigVisible0x00, ViOptRef.Visible0x00);
+	Builder.AddCheckbox(lng::MViewConfigScrollbar, ViOptRef.ShowScrollbar);
 	Builder.EndColumns();
 
 	if (!Local)
 	{
-		++id; Builder.AddSeparator();
+		Builder.AddSeparator();
 		Builder.StartColumns();
-		save_pos = ++id; Builder.AddCheckbox(lng::MViewConfigSavePos, ViOpt.SavePos);
-		save_cp = ++id; Builder.AddCheckbox(lng::MViewConfigSaveCodepage, ViOpt.SaveCodepage);
+		Builder.AddCheckbox(lng::MViewConfigSavePos, ViOpt.SavePos);
+		save_pos = Builder.GetLastID();
+		Builder.AddCheckbox(lng::MViewConfigSaveCodepage, ViOpt.SaveCodepage);
+		save_cp = Builder.GetLastID();
 		Builder.AddCheckbox(lng::MViewConfigSaveShortPos, ViOpt.SaveShortPos);
-		const auto MaxLineSize = Builder.AddIntEditField(ViOpt.MaxLineSize, 6);
+		auto& MaxLineSize = Builder.AddIntEditField(ViOpt.MaxLineSize, 6);
 		Builder.AddTextAfter(MaxLineSize, lng::MViewConfigMaxLineSize);
 		Builder.ColumnBreak();
 		Builder.AddCheckbox(lng::MViewConfigSaveViewMode, ViOpt.SaveViewMode);
@@ -877,7 +879,7 @@ void Options::EditorConfig(EditorOptions &EdOptRef, bool Local)
 	Builder.AddCheckbox(lng::MEditConfigPersistentBlocks, EdOptRef.PersistentBlocks);
 	Builder.AddCheckbox(lng::MEditConfigDelRemovesBlocks, EdOptRef.DelRemovesBlocks);
 	Builder.AddCheckbox(lng::MEditConfigAutoIndent, EdOptRef.AutoIndent);
-	const auto TabSize = Builder.AddIntEditField(EdOptRef.TabSize, 3);
+	auto& TabSize = Builder.AddIntEditField(EdOptRef.TabSize, 3);
 	Builder.AddTextAfter(TabSize, lng::MEditConfigTabSize);
 	Builder.AddCheckbox(lng::MEditShowWhiteSpace, EdOptRef.ShowWhiteSpace);
 	Builder.ColumnBreak();

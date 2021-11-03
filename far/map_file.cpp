@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "encoding.hpp"
-#include "exception.hpp"
 #include "filestr.hpp"
 #include "global.hpp"
 #include "imports.hpp"
