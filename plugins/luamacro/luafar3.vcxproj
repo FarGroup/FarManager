@@ -11,6 +11,7 @@
     <ProjectSpecificIntDirName>Plugins\luamacro\$(ProjectName)</ProjectSpecificIntDirName>
     <DirBit Condition="'$(Platform)'=='Win32'">32</DirBit>
     <DirBit Condition="'$(Platform)'=='x64'">64</DirBit>
+    <DirBit Condition="'$(Platform)'=='ARM64'">ARM64</DirBit>
     <LuaLib>lua51</LuaLib>
   </PropertyGroup>
 
@@ -65,7 +66,6 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="luasdk\$(DirBit)\$(LuaLib).dll" />
-    <CopyFileToFolders Include="luasdk\$(DirBit)\lua5.1.dll" />
     <CopyFileToFolders Include="luasdk\$(DirBit)\lpeg.dll" />
     <CopyFileToFolders Include="luasdk\32\legacy\$(LuaLib).dll">
       <ExcludedFromBuild Condition="'$(Platform)'!='Win32'">true</ExcludedFromBuild>

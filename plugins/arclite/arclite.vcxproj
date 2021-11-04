@@ -9,6 +9,7 @@
     <PrecompiledHeaders>headers</PrecompiledHeaders>
     <DirBit Condition="'$(Platform)'=='Win32'">32</DirBit>
     <DirBit Condition="'$(Platform)'=='x64'">64</DirBit>
+    <DirBit Condition="'$(Platform)'=='ARM64'">ARM64</DirBit>
   </PropertyGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(ProjectDir)..\..\_build\vc\config\common.plugins.props" />
