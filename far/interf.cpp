@@ -1642,7 +1642,7 @@ point GetNonMaximisedBufferSize()
 	return NonMaximisedBufferSize();
 }
 
-size_t ConsoleChoice(string_view const Message, string_view const Choices, size_t const Default)
+size_t ConsoleChoice(string_view const Message, string_view const Choices, size_t const Default, function_ref<void()> const MessagePrinter)
 {
 	{
 		// The output can be redirected
@@ -1660,6 +1660,8 @@ size_t ConsoleChoice(string_view const Message, string_view const Choices, size_
 
 	console.SetCursorInfo(InitialCursorInfo);
 
+	MessagePrinter();
+
 	for (;;)
 	{
 		std::wcout << format(FSTR(L"\n{} ({})? "sv), Message, join(Choices, L"/"sv)) << std::flush;
@@ -1673,9 +1675,9 @@ size_t ConsoleChoice(string_view const Message, string_view const Choices, size_
 	}
 }
 
-bool ConsoleYesNo(string_view const Message, bool const Default)
+bool ConsoleYesNo(string_view const Message, bool const Default, function_ref<void()> const MessagePrinter)
 {
-	return ConsoleChoice(Message, L"YN"sv, Default? 0 : 1) == 0;
+	return ConsoleChoice(Message, L"YN"sv, Default? 0 : 1, MessagePrinter) == 0;
 }
 
 #ifdef ENABLE_TESTS

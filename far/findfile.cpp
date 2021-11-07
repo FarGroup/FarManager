@@ -2614,11 +2614,6 @@ void background_searcher::DoPreparePluginList()
 	DoPreparePluginListImpl();
 }
 
-struct THREADPARAM
-{
-	bool PluginMode;
-};
-
 void background_searcher::Search()
 {
 	os::debug::set_thread_name(L"Find file");

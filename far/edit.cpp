@@ -336,7 +336,7 @@ void Edit::FastShow(const ShowInfo* Info)
 			}
 			else
 			{
-				OutStr.push_back(!*i? L' ' : *i);
+				OutStr.push_back(*i);
 			}
 		}
 

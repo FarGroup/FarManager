@@ -625,8 +625,7 @@ void DialogBuilder::LinkFlags(DialogItemEx& Parent, DialogItemEx& Target, FARDIA
 void DialogBuilder::AddOK()
 {
 	AddSeparator();
-	lng const MsgIDs[] = { lng::MOk };
-	AddButtons(MsgIDs, 0, 1);
+	AddButtons({ lng::MOk });
 }
 
 void DialogBuilder::AddOKCancel()
@@ -637,8 +636,12 @@ void DialogBuilder::AddOKCancel()
 void DialogBuilder::AddOKCancel(lng OKMessageId, lng CancelMessageId)
 {
 	AddSeparator();
-	lng const MsgIDs[] = { OKMessageId, CancelMessageId };
-	AddButtons(MsgIDs, 0, 1);
+	AddButtons({ OKMessageId, CancelMessageId });
+}
+
+void DialogBuilder::AddButtons(span<lng const> Buttons)
+{
+	AddButtons(Buttons, 0, Buttons.size() - 1);
 }
 
 void DialogBuilder::AddButtons(span<lng const> const Buttons, size_t const OkIndex, size_t const CancelIndex)

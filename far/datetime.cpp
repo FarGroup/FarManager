@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "strmix.hpp"
 #include "global.hpp"
-#include "imports.hpp"
 #include "locale.hpp"
 #include "encoding.hpp"
 
@@ -71,21 +70,21 @@ static unsigned full_year(unsigned const Year)
 	return (TwoDigitYearMax / 100 - (Year > TwoDigitYearMax % 100? 1 : 0)) * 100 + Year;
 }
 
-static string st_time(const tm* tmPtr, const locale_names& Names, bool const is_dd_mmm_yyyy)
+static string st_time(const tm& Time, const locale_names& Names, bool const is_dd_mmm_yyyy)
 {
 	const auto DateSeparator = locale.date_separator();
 
 	if (is_dd_mmm_yyyy)
 	{
 		return format(FSTR(L"{:2}-{:3.3}-{:4}"sv),
-			tmPtr->tm_mday,
-			upper(Names.Months[tmPtr->tm_mon].Short),
-			tmPtr->tm_year + 1900);
+			Time.tm_mday,
+			upper(Names.Months[Time.tm_mon].Short),
+			Time.tm_year + 1900);
 	}
 
 	const auto Format = [&](const auto FormatString)
 	{
-		return format(FormatString, DateSeparator, tmPtr->tm_mday, tmPtr->tm_mon + 1, tmPtr->tm_year + 1900);
+		return format(FormatString, DateSeparator, Time.tm_mday, Time.tm_mon + 1, Time.tm_year + 1900);
 	};
 
 	switch(locale.date_format())
@@ -123,7 +122,7 @@ static std::optional<time_zone_information> time_zone()
 	}
 }
 
-static string StrFTime(string_view const Format, const tm* Time)
+static string StrFTime(string_view const Format, const tm& Time)
 {
 	bool IsLocal = false;
 
@@ -154,26 +153,26 @@ static string StrFTime(string_view const Format, const tm* Time)
 		// Краткое имя дня недели (Sun,Mon,Tue,Wed,Thu,Fri,Sat)
 		// abbreviated weekday name
 		case L'a':
-			Result += locale.Names(IsLocal).Weekdays[Time->tm_wday].Short;
+			Result += locale.Names(IsLocal).Weekdays[Time.tm_wday].Short;
 			break;
 
 		// Полное имя дня недели
 		// full weekday name
 		case L'A':
-			Result += locale.Names(IsLocal).Weekdays[Time->tm_wday].Full;
+			Result += locale.Names(IsLocal).Weekdays[Time.tm_wday].Full;
 			break;
 
 		// Краткое имя месяца (Jan,Feb,...)
 		// abbreviated month name
 		case L'h':
 		case L'b':
-			Result += locale.Names(IsLocal).Months[Time->tm_mon].Short;
+			Result += locale.Names(IsLocal).Months[Time.tm_mon].Short;
 			break;
 
 		// Полное имя месяца
 		// full month name
 		case L'B':
-			Result += locale.Names(IsLocal).Months[Time->tm_mon].Full;
+			Result += locale.Names(IsLocal).Months[Time.tm_mon].Full;
 			break;
 
 		//Дата и время в формате WDay Mnt  Day HH:MM:SS yyyy
@@ -181,14 +180,14 @@ static string StrFTime(string_view const Format, const tm* Time)
 		case L'c':
 			// Thu Oct 07 12:37:32 1999
 			format_to(Result, FSTR(L"{} {} {:02} {:02}:{:02}:{:02} {:4}"sv),
-				locale.Names(IsLocal).Weekdays[Time->tm_wday].Short,
-				locale.Names(IsLocal).Months[Time->tm_mon].Short,
-				Time->tm_mday, Time->tm_hour, Time->tm_min, Time->tm_sec, Time->tm_year + 1900);
+				locale.Names(IsLocal).Weekdays[Time.tm_wday].Short,
+				locale.Names(IsLocal).Months[Time.tm_mon].Short,
+				Time.tm_mday, Time.tm_hour, Time.tm_min, Time.tm_sec, Time.tm_year + 1900);
 			break;
 
 		// Столетие как десятичное число (00 - 99). Например, 1992 => 19
 		case L'C':
-			format_to(Result, FSTR(L"{:02}"sv), (Time->tm_year + 1900) / 100);
+			format_to(Result, FSTR(L"{:02}"sv), (Time.tm_year + 1900) / 100);
 			break;
 
 		// day of month, blank padded
@@ -197,8 +196,8 @@ static string StrFTime(string_view const Format, const tm* Time)
 		// day of the month, 01 - 31
 		case L'd':
 			Result += *Iterator == L'e'?
-				format(FSTR(L"{:2}"sv), Time->tm_mday) :
-				format(FSTR(L"{:02}"sv), Time->tm_mday);
+				format(FSTR(L"{:2}"sv), Time.tm_mday) :
+				format(FSTR(L"{:02}"sv), Time.tm_mday);
 			break;
 
 		// hour, 24-hour clock, blank pad
@@ -207,8 +206,8 @@ static string StrFTime(string_view const Format, const tm* Time)
 		// hour, 24-hour clock, 00 - 23
 		case L'H':
 			Result += *Iterator == L'k'?
-				format(FSTR(L"{:2}"sv), Time->tm_hour) :
-				format(FSTR(L"{:02}"sv), Time->tm_hour);
+				format(FSTR(L"{:2}"sv), Time.tm_hour) :
+				format(FSTR(L"{:02}"sv), Time.tm_hour);
 			break;
 
 		// hour, 12-hour clock, 1 - 12, blank pad
@@ -217,7 +216,7 @@ static string StrFTime(string_view const Format, const tm* Time)
 		// hour, 12-hour clock, 01 - 12
 		case L'I':
 		{
-			int I = Time->tm_hour % 12;
+			int I = Time.tm_hour % 12;
 
 			if (!I)
 				I=12;
@@ -231,7 +230,7 @@ static string StrFTime(string_view const Format, const tm* Time)
 		// Три цифры дня в году (001 - 366)
 		// day of the year, 001 - 366
 		case L'j':
-			format_to(Result, FSTR(L"{:03}"sv), Time->tm_yday+1);
+			format_to(Result, FSTR(L"{:03}"sv), Time.tm_yday+1);
 			break;
 
 		// Две цифры месяца, как десятичное число (1 - 12)
@@ -245,17 +244,17 @@ static string StrFTime(string_view const Format, const tm* Time)
 			{
 			// %mh - Hex month digit
 			case L'h':
-				format_to(Result, FSTR(L"{:X}"sv), Time->tm_mon + 1);
+				format_to(Result, FSTR(L"{:X}"sv), Time.tm_mon + 1);
 				break;
 
 			// %m0 - ведущий 0
 			case L'0':
-				format_to(Result, FSTR(L"{:02}"sv), Time->tm_mon + 1);
+				format_to(Result, FSTR(L"{:02}"sv), Time.tm_mon + 1);
 				break;
 
 			default:
 				--Iterator;
-				format_to(Result, FSTR(L"{}"sv), Time->tm_mon + 1);
+				format_to(Result, FSTR(L"{}"sv), Time.tm_mon + 1);
 				break;
 			}
 			break;
@@ -263,25 +262,25 @@ static string StrFTime(string_view const Format, const tm* Time)
 		// Две цифры минут (00 - 59)
 		// minute, 00 - 59
 		case L'M':
-			format_to(Result, FSTR(L"{:02}"sv), Time->tm_min);
+			format_to(Result, FSTR(L"{:02}"sv), Time.tm_min);
 			break;
 
 		// AM или PM
 		// am or pm based on 12-hour clock
 		case L'p':
-			Result += Time->tm_hour / 12? L"PM"sv : L"AM"sv;
+			Result += Time.tm_hour / 12? L"PM"sv : L"AM"sv;
 			break;
 
 		// Две цифры секунд (00 - 59)
 		// second, 00 - 59
 		case L'S':
-			format_to(Result, FSTR(L"{:02}"sv), Time->tm_sec);
+			format_to(Result, FSTR(L"{:02}"sv), Time.tm_sec);
 			break;
 
 		// День недели где 0 - Воскресенье (Sunday) (0 - 6)
 		// weekday, Sunday == 0, 0 - 6
 		case L'w':
-			Result.push_back(L'0' + Time->tm_wday);
+			Result.push_back(L'0' + Time.tm_wday);
 			break;
 
 		// Две цифры номера недели, где Воскресенье (Sunday) является первым днем недели (00 - 53)
@@ -291,13 +290,13 @@ static string StrFTime(string_view const Format, const tm* Time)
 		// week of year, Monday is first day of week
 		case L'W':
 		{
-			int I = Time->tm_wday - (Time->tm_yday % 7);
+			int I = Time.tm_wday - (Time.tm_yday % 7);
 
 			//I = (chr == 'W'?(!WeekFirst?((t->tm_wday+6)%7):(t->tm_wday? t->tm_wday-1:6)):(t->tm_wday)) - (t->tm_yday % 7);
 			if (I<0)
 				I+=7;
 
-			format_to(Result, FSTR(L"{:02}"sv), (Time->tm_yday + I - (*Iterator == L'W')) / 7);
+			format_to(Result, FSTR(L"{:02}"sv), (Time.tm_yday + I - (*Iterator == L'W')) / 7);
 			break;
 		}
 
@@ -314,19 +313,19 @@ static string StrFTime(string_view const Format, const tm* Time)
 		// appropriate time representation
 		case L'T':
 		case L'X':
-			format_to(Result, FSTR(L"{1:02}{0}{2:02}{0}{3:02}"sv), locale.time_separator(), Time->tm_hour, Time->tm_min, Time->tm_sec);
+			format_to(Result, FSTR(L"{1:02}{0}{2:02}{0}{3:02}"sv), locale.time_separator(), Time.tm_hour, Time.tm_min, Time.tm_sec);
 			break;
 
 		// Две цифры года без столетия (00 to 99)
 		// year without a century, 00 - 99
 		case L'y':
-			format_to(Result, FSTR(L"{:02}"sv), Time->tm_year % 100);
+			format_to(Result, FSTR(L"{:02}"sv), Time.tm_year % 100);
 			break;
 
 		// Год со столетием (19yy-20yy)
 		// year with century
 		case L'Y':
-			Result += str(1900 + Time->tm_year);
+			Result += str(1900 + Time.tm_year);
 			break;
 
 		// ISO 8601 offset from UTC in timezone
@@ -380,7 +379,7 @@ static string StrFTime(string_view const Format, const tm* Time)
 			{
 				// [01,53]
 				wchar_t Buffer[3];
-				std::wcsftime(Buffer, std::size(Buffer), L"%V", Time);
+				std::wcsftime(Buffer, std::size(Buffer), L"%V", &Time);
 				Result += Buffer;
 			}
 			break;
@@ -398,7 +397,7 @@ string MkStrFTime(string_view const Format)
 	const auto Time = os::chrono::nt_clock::to_time_t(os::chrono::nt_clock::now());
 
 	_tzset();
-	return StrFTime(Format.empty()? Global->Opt->Macro.strDateFormat : Format, std::localtime(&Time));
+	return StrFTime(Format.empty()? Global->Opt->Macro.strDateFormat : Format, *std::localtime(&Time));
 }
 
 static void ParseTimeComponents(string_view const Src, span<const std::pair<size_t, size_t>> const Ranges, span<time_component> const Dst, time_component const Default)

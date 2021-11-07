@@ -896,12 +896,13 @@ bool RetryAbort(std::vector<string>&& Messages)
 			{ lng::MRetry, lng::MAbort }) == message_result::first_button;
 	}
 
-	std::wcerr << L"\nError:\n\n"sv;
+	return ConsoleYesNo(L"Retry"sv, false, [&]
+	{
+		std::wcerr << L"\nError:\n\n"sv;
 
-	for (const auto& i: Messages)
-		std::wcerr << i << L'\n';
-
-	return ConsoleYesNo(L"Retry"sv, false);
+		for (const auto& i: Messages)
+			std::wcerr << i << L'\n';
+	});
 }
 
 progress_impl::~progress_impl()

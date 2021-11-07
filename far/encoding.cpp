@@ -546,6 +546,11 @@ size_t encoding::get_chars(uintptr_t const Codepage, std::string_view const Str,
 	return Result;
 }
 
+namespace utf8
+{
+	static size_t wchars_count(std::string_view Str);
+}
+
 void encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, string& Buffer, diagnostics* const Diagnostics)
 {
 	if (Str.empty())
@@ -563,9 +568,12 @@ void encoding::get_chars(uintptr_t const Codepage, std::string_view const Str, s
 			return Str.size() / sizeof(wchar_t);
 
 		case CP_UTF7:
-		case CP_UTF8:
-			// Even though DataSize is always >= BufferSize for these guys, we can't use DataSize for estimation - it can be three times larger than necessary.
+			// Even though DataSize is always >= BufferSize, we can't use DataSize for estimation - it can be three times larger than necessary.
 			return get_chars_count(Codepage, Str, Diagnostics);
+
+		case CP_UTF8:
+			// This function assumes correct UTF-8, which is not always the case, but it will do for the size estimation.
+			return ::utf8::wchars_count(Str);
 
 		default:
 			return Str.size();
@@ -1081,6 +1089,20 @@ namespace utf8
 			*Iterator++ = detail::make_leading_byte<total>(Char);
 			detail::write_continuation_bytes(Char, Iterator, std::make_index_sequence<total - 1>{});
 		}
+	}
+
+	static size_t wchars_count(std::string_view const Str)
+	{
+		size_t Chars = 0;
+		size_t Pairs = 0;
+
+		for (const auto Char: Str)
+		{
+			Chars += static_cast<size_t>(!is_continuation_byte(Char));
+			Pairs += static_cast<size_t>((Char & 0b11111000) == 0b11110000);
+		}
+
+		return Chars + Pairs;
 	}
 }
 
@@ -1670,6 +1692,11 @@ ut labore et dolore magna aliqua.
 		REQUIRE(i.Ascii == PureAscii);
 
 		const auto Str = encoding::utf8::get_chars(i.Str);
+
+		if (i.Utf8)
+		{
+			REQUIRE(utf8::wchars_count(i.Str) == Str.size());
+		}
 
 		if (utf8::support_embedded_raw_bytes)
 		{

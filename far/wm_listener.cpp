@@ -113,6 +113,10 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 					LOGINFO(L"WM_SETTINGCHANGE(intl)"sv);
 					message_manager::instance().notify(update_intl);
 				}
+				else
+				{
+					LOGDEBUG(L"WM_SETTINGCHANGE({}) ignored"sv, Area);
+				}
 			}
 			break;
 
@@ -145,7 +149,7 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 wm_listener::wm_listener()
 {
 	os::event ReadyEvent(os::event::type::automatic, os::event::state::nonsignaled);
-	m_Thread = os::thread(os::thread::mode::join, &wm_listener::WindowThreadRoutine, this, &ReadyEvent);
+	m_Thread = os::thread(os::thread::mode::join, &wm_listener::WindowThreadRoutine, this, std::ref(ReadyEvent));
 	ReadyEvent.wait();
 }
 
@@ -162,7 +166,7 @@ void wm_listener::Check()
 	rethrow_if(m_ExceptionPtr);
 }
 
-void wm_listener::WindowThreadRoutine(const os::event* ReadyEvent)
+void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 {
 	os::debug::set_thread_name(L"Window messages processor");
 
@@ -173,7 +177,7 @@ void wm_listener::WindowThreadRoutine(const os::event* ReadyEvent)
 	if (!RegisterClassEx(&wc))
 	{
 		LOGERROR(L"RegisterClassEx(): {}"sv, last_error());
-		ReadyEvent->set();
+		ReadyEvent.set();
 		return;
 	}
 
@@ -183,7 +187,7 @@ void wm_listener::WindowThreadRoutine(const os::event* ReadyEvent)
 	if (!m_Hwnd)
 	{
 		LOGERROR(L"CreateWindowEx(): {}"sv, last_error());
-		ReadyEvent->set();
+		ReadyEvent.set();
 		return;
 	}
 
@@ -197,7 +201,7 @@ void wm_listener::WindowThreadRoutine(const os::event* ReadyEvent)
 	MSG Msg;
 	WndProcExceptionPtr = &m_ExceptionPtr;
 
-	ReadyEvent->set();
+	ReadyEvent.set();
 
 	while (!m_ExceptionPtr)
 	{

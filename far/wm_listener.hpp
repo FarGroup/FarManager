@@ -53,7 +53,7 @@ public:
 	void Check();
 
 private:
-	void WindowThreadRoutine(const os::event* ReadyEvent);
+	void WindowThreadRoutine(const os::event& ReadyEvent);
 
 	HWND m_Hwnd{};
 	std::exception_ptr m_ExceptionPtr;

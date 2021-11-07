@@ -1433,9 +1433,8 @@ struct FARConfigItem
 		int Result = 0;
 		if (!Value->Edit(Builder, Mode))
 		{
-			static const lng Buttons[] = { lng::MOk, lng::MReset, lng::MCancel };
 			Builder.AddSeparator();
-			Builder.AddButtons(Buttons, 0, 2);
+			Builder.AddButtons({ lng::MOk, lng::MReset, lng::MCancel });
 			Result = Builder.ShowDialogEx();
 		}
 		if(Result == 0 || Result == 1)

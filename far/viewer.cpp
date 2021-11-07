@@ -193,7 +193,7 @@ Viewer::~Viewer()
 
 wchar_t Viewer::ZeroChar() const
 {
-	return ViOpt.Visible0x00 && ViOpt.ZeroChar > 0 ? static_cast<wchar_t>(ViOpt.ZeroChar) : L' ';
+	return ViOpt.Visible0x00 && ViOpt.ZeroChar > 0 ? static_cast<wchar_t>(ViOpt.ZeroChar) : 0;
 }
 
 int Viewer::CalculateMaxBytesPerLineByScreenWidth() const
@@ -1170,7 +1170,6 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 	}
 
 	pString->eol_length = eol_len;
-	ReadBuffer[OutPtr]=0;
 	pString->linesize = static_cast<int>(vtell() - pString->nFilePos);
 
 	if ( update_cache )
@@ -1197,7 +1196,7 @@ void Viewer::ReadString(ViewerString *pString, int MaxSize, bool update_cache)
 	if (!eol_char && veof())
 		LastPage = true;
 
-	pString->Data = ReadBuffer.data();
+	pString->Data.assign(ReadBuffer.data(), OutPtr);
 }
 
 
