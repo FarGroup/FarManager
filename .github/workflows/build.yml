@@ -51,11 +51,11 @@ jobs:
                ]
 
         include:
-          - { build: msbuild_cl_x64_debug,     compiler: msbuild_cl, arch: amd64,       platform: x64,   build_config: Debug_ASAN }
-          - { build: msbuild_cl_x64_release,   compiler: msbuild_cl, arch: amd64,       platform: x64,   build_config: Release }
-          - { build: msbuild_cl_x86_debug,     compiler: msbuild_cl, arch: amd64_x86,   platform: Win32, build_config: Debug_ASAN }
-          - { build: msbuild_cl_x86_release,   compiler: msbuild_cl, arch: amd64_x86,   platform: Win32, build_config: Release }
-          - { build: msbuild_cl_ARM64_release, compiler: msbuild_cl, arch: amd64_arm64, platform: ARM64, build_config: Release }
+          - { build: msbuild_cl_x64_debug,     compiler: msbuild_cl, arch: amd64,       platform_sln: x64,   platform_name: x64,   build_config: Debug_ASAN }
+          - { build: msbuild_cl_x64_release,   compiler: msbuild_cl, arch: amd64,       platform_sln: x64,   platform_name: x64,   build_config: Release }
+          - { build: msbuild_cl_x86_debug,     compiler: msbuild_cl, arch: amd64_x86,   platform_sln: Win32, platform_name: x86,   build_config: Debug_ASAN }
+          - { build: msbuild_cl_x86_release,   compiler: msbuild_cl, arch: amd64_x86,   platform_sln: Win32, platform_name: x86,   build_config: Release }
+          - { build: msbuild_cl_ARM64_release, compiler: msbuild_cl, arch: amd64_arm64, platform_sln: ARM64, platform_name: ARM64, build_config: Release }
 
     steps:
       - name: Checkout source
@@ -78,7 +78,7 @@ jobs:
 
       - name: Build (cl)
         working-directory: _build/vc
-        run: msbuild -m /property:Configuration=${{ matrix.build_config }} /property:Platform=${{ matrix.platform }} all.sln
+        run: msbuild -m /property:Configuration=${{ matrix.build_config }} /property:Platform=${{ matrix.platform_sln }} all.sln
 
       - name: Perform CodeQL Analysis
         if: matrix.build == 'msbuild_cl_x64_debug'
@@ -87,8 +87,8 @@ jobs:
       - name: Publish
         uses: actions/upload-artifact@v2
         with:
-          name: Far.${{ matrix.build_config }}.${{ matrix.platform }}
-          path: _build/vc/_output/product/${{ matrix.build_config }}.${{ matrix.platform }}
+          name: Far.${{ matrix.build_config }}.${{ matrix.platform_name }}
+          path: _build/vc/_output/product/${{ matrix.build_config }}.${{ matrix.platform_sln }}
 
 #------------------------------------------------------------------------------
   build-nmake:
@@ -107,13 +107,13 @@ jobs:
                ]
 
         include:
-          - { build: nmake_cl_x64_debug,      compiler: nmake_cl,    arch: amd64,       platform: x64,   build_config: Debug }
-          - { build: nmake_cl_x64_release,    compiler: nmake_cl,    arch: amd64,       platform: x64,   build_config: Release }
-          - { build: nmake_cl_x86_debug,      compiler: nmake_cl,    arch: amd64_x86,   platform: Win32, build_config: Debug }
-          - { build: nmake_cl_x86_release,    compiler: nmake_cl,    arch: amd64_x86,   platform: Win32, build_config: Release }
-          - { build: nmake_cl_ARM64_release,  compiler: nmake_cl,    arch: amd64_arm64, platform: ARM64, build_config: Release }
-          - { build: nmake_clang_x64_debug,   compiler: nmake_clang, arch: amd64,       platform: x64,   build_config: Debug }
-          - { build: nmake_clang_x64_release, compiler: nmake_clang, arch: amd64,       platform: x64,   build_config: Release }
+          - { build: nmake_cl_x64_debug,      compiler: nmake_cl,    arch: amd64,       build_config: Debug }
+          - { build: nmake_cl_x64_release,    compiler: nmake_cl,    arch: amd64,       build_config: Release }
+          - { build: nmake_cl_x86_debug,      compiler: nmake_cl,    arch: amd64_x86,   build_config: Debug }
+          - { build: nmake_cl_x86_release,    compiler: nmake_cl,    arch: amd64_x86,   build_config: Release }
+          - { build: nmake_cl_ARM64_release,  compiler: nmake_cl,    arch: amd64_arm64, build_config: Release }
+          - { build: nmake_clang_x64_debug,   compiler: nmake_clang, arch: amd64,       build_config: Debug }
+          - { build: nmake_clang_x64_release, compiler: nmake_clang, arch: amd64,       build_config: Release }
 
     steps:
       - name: Checkout source

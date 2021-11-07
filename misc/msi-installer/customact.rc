@@ -1,0 +1,5 @@
+#pragma code_page(65001)
+
+#include "version.hpp"
+
+#include <plugin_version.rc>
