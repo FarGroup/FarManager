@@ -815,7 +815,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 		DialogItemEx Item;
 		Item.Type = DI_BUTTON;
 		Item.Flags = DIF_CENTERGROUP;
-		Item.Y1 = Item.Y2 = DlgData.size() + 1;
+		Item.Y1 = Item.Y2 = DlgData.size();
 		Item.strData = msg(lng::MCancel);
 		DlgData.emplace_back(std::move(Item));
 	}
