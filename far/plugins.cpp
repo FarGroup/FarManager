@@ -1712,17 +1712,17 @@ static void ItemsToBuf(PluginMenuItem& Menu, const std::vector<string>& NamesArr
 		Menu.Strings = Items;
 		Menu.Guids = Uuids;
 
-		for (size_t i = 0; i < Menu.Count; ++i)
+		for (const auto& [FromName, FromUuid, ToName, ToUuid]: zip(NamesArray, UuidsArray, span(Items, Menu.Count), span(Uuids, Menu.Count)))
 		{
-			wchar_t* pStr = StrToBuf(NamesArray[i], Buf, Rest, Size);
+			wchar_t* pStr = StrToBuf(FromName, Buf, Rest, Size);
 			if (Items)
 			{
-				Items[i] = pStr;
+				ToName = pStr;
 			}
 
 			if (Uuids)
 			{
-				Uuids[i] = UuidsArray[i];
+				ToUuid = FromUuid;
 			}
 		}
 	}
@@ -1769,10 +1769,10 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 
 			const auto CopyData = [](const PluginMenuItem& Item, menu_items& Items)
 			{
-				for (size_t i = 0; i < Item.Count; i++)
+				for (const auto& [Str, Guid]: zip(span(Item.Strings, Item.Count), span(Item.Guids, Item.Count)))
 				{
-					Items.first.emplace_back(Item.Strings[i]);
-					Items.second.emplace_back(Item.Guids[i]);
+					Items.first.emplace_back(Str);
+					Items.second.emplace_back(Guid);
 				}
 			};
 

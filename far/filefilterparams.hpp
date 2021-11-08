@@ -211,7 +211,7 @@ private:
 	std::array<DWORD, static_cast<size_t>(filter_area::count)> FFlags{};
 };
 
-bool FileFilterConfig(FileFilterParams& FF, bool ColorConfig = false);
+bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig = false);
 
 //Централизованная функция для создания строк меню различных фильтров.
 string MenuString(const FileFilterParams* FF, bool bHighlightType = false, wchar_t Hotkey = 0, bool bPanelType = false, string_view FMask = {}, string_view Title = {});

@@ -354,7 +354,7 @@ int WINAPI imports::stub_CompareStringOrdinal(LPCWCH String1, int Count1, LPCWCH
 
 HRESULT WINAPI imports::stub_SetThreadDescription(HANDLE Thread, PCWSTR ThreadDescription)
 {
-	// TODO: log
+	LOGWARNING(L"Stub call"sv);
 	return E_NOTIMPL;
 }
 

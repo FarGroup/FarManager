@@ -684,7 +684,7 @@ void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator
 {
 	// CreateProcess retardedly doesn't take into account CurrentDirectory when searching for the executable.
 	// SearchPath looks there as well and if it's set to something else we could get unexpected results.
-	const auto CurrentDirectory = short_name_if_too_long(os::fs::GetCurrentDirectory());
+	const auto CurrentDirectory = short_name_if_too_long(Info.Directory.empty()? os::fs::GetCurrentDirectory() : Info.Directory);
 	os::fs::process_current_directory_guard const Guard(CurrentDirectory);
 
 

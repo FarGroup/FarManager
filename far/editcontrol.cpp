@@ -67,6 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/algorithm.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/enum_substrings.hpp"
+#include "common/view/zip.hpp"
 
 // External:
 
@@ -134,14 +135,14 @@ void EditControl::SetMenuPos(VMenu2& menu)
 	}
 	else
 	{
-		menu.SetPosition({ m_Where.left, m_Where.top + 1, NewX2, std::min(static_cast<int>(ScrY), m_Where.top + 1 + MaxHeight) });
+		menu.SetPosition({ m_Where.left, m_Where.top + 1, NewX2, std::min(ScrY, m_Where.top + 1 + MaxHeight) });
 	}
 }
 
 static void AddSeparatorOrSetTitle(VMenu2& Menu, lng TitleId)
 {
 	bool Separator = false;
-	for (size_t i = 0; i != Menu.size(); ++i)
+	for (const auto& i: irange(Menu.size()))
 	{
 		if (Menu.at(i).Flags & LIF_SEPARATOR)
 		{
@@ -173,7 +174,7 @@ static bool ParseStringWithQuotes(string_view const Str, string& Start, string& 
 	{
 		auto WordDiv = GetSpaces() + Global->Opt->strWordDiv.Get();
 		static const auto NoQuote = L"\":\\/%.-"sv;
-		WordDiv.erase(std::remove_if(ALL_RANGE(WordDiv), [&](wchar_t i) { return contains(NoQuote, i); }), WordDiv.end());
+		std::erase_if(WordDiv, [&](wchar_t i){ return contains(NoQuote, i); });
 
 		for (Pos = Str.size() - 1; Pos != static_cast<size_t>(-1); Pos--)
 		{
@@ -291,69 +292,53 @@ static bool EnumModules(VMenu2& Menu, const string_view strStart, const string_v
 		}
 	}
 
+	if (const auto strPathEnv = os::env::get(L"PATH"sv); !strPathEnv.empty())
 	{
-		const auto strPathEnv(os::env::get(L"PATH"sv));
-		if (!strPathEnv.empty())
+		const auto PathExtList = enum_tokens(os::env::get_pathext(), L";"sv);
+		const auto Pattern = Token + L"*"sv;
+
+		for (const auto& Path: enum_tokens_with_quotes(strPathEnv, L";"sv))
 		{
-			const auto PathExtList = enum_tokens(os::env::get_pathext(), L";"sv);
+			if (Path.empty())
+				continue;
 
-			const auto Pattern = Token + L"*"sv;
-			for (const auto& Path: enum_tokens_with_quotes(strPathEnv, L";"sv))
+			for (const auto& FindData: os::fs::enum_files(path::join(Path, Pattern)))
 			{
-				if (Path.empty())
-					continue;
+				const auto FindExt = name_ext(FindData.FileName).second;
 
-				for (const auto& FindData: os::fs::enum_files(path::join(Path, Pattern)))
+				for (const auto& Ext: PathExtList)
 				{
-					const auto FindExt = name_ext(FindData.FileName).second;
-					for (const auto& Ext: PathExtList)
+					if (starts_with_icase(Ext, FindExt))
 					{
-						if (starts_with_icase(Ext, FindExt))
-						{
-							ResultStrings.emplace(FindData.FileName);
-						}
+						ResultStrings.emplace(FindData.FileName);
 					}
 				}
 			}
 		}
 	}
 
-	static const auto RegPath = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\"sv;
-	static const os::reg::key* RootFindKey[] = { &os::reg::key::current_user, &os::reg::key::local_machine, &os::reg::key::local_machine };
-
-	DWORD samDesired = KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE;
-
-	for (size_t i = 0; i != std::size(RootFindKey); ++i)
+	const auto enum_app_paths = [&](os::reg::key const& RootKey, DWORD const Flags = 0)
 	{
-		if (i == std::size(RootFindKey) - 1)
-		{
-			if (const auto RedirectionFlag = os::GetAppPathsRedirectionFlag())
-			{
-				samDesired |= RedirectionFlag;
-			}
-			else
-			{
-				break;
-			}
-		}
+		const auto SamDesired = KEY_ENUMERATE_SUB_KEYS | KEY_QUERY_VALUE | Flags;
 
-		if (const auto Key = os::reg::key::open(*RootFindKey[i], RegPath, samDesired))
+		const auto AppPathsKey = os::reg::key::open(RootKey, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\"sv, SamDesired);
+		if (!AppPathsKey)
+			return;
+
+		for (const auto& SubkeyName: os::reg::enum_key(AppPathsKey))
 		{
-			for (const auto& SubkeyName: os::reg::enum_key(Key))
+			if (const auto SubKey = os::reg::key::open(AppPathsKey, SubkeyName, SamDesired); SubKey.get({}) && starts_with_icase(SubkeyName, Token))
 			{
-				if (const auto SubKey = os::reg::key::open(Key, SubkeyName, samDesired))
-				{
-					if (SubKey.get({}))
-					{
-						if (starts_with_icase(SubkeyName, Token))
-						{
-							ResultStrings.emplace(SubkeyName);
-						}
-					}
-				}
+				ResultStrings.emplace(SubkeyName);
 			}
 		}
-	}
+	};
+
+	enum_app_paths(os::reg::key::current_user);
+	enum_app_paths(os::reg::key::local_machine);
+
+	if (const auto RedirectionFlag = os::GetAppPathsRedirectionFlag())
+		enum_app_paths(os::reg::key::local_machine, RedirectionFlag);
 
 	return EnumWithQuoutes(Menu, strStart, Token, StartQuote, lng::MCompletionFilesTitle, ResultStrings);
 }
@@ -939,19 +924,18 @@ void EditControl::SetInputMask(string_view const InputMask)
 void EditControl::RefreshStrByMask(int InitMode)
 {
 	const auto Mask = GetInputMask();
-	if (!Mask.empty())
+	if (Mask.empty())
+		return;
+
+	m_Str.resize(Mask.size(), L' ');
+
+	for (const auto& [Str, Msk]: zip(m_Str, Mask))
 	{
-		const auto MaskLen = Mask.size();
-		m_Str.resize(MaskLen, L' ');
+		if (InitMode)
+			Str = MaskDefaultChar(Msk);
 
-		for (size_t i = 0; i != MaskLen; ++i)
-		{
-			if (InitMode)
-				m_Str[i]= MaskDefaultChar(Mask[i]);
-
-			if (!CheckCharMask(Mask[i]))
-				m_Str[i]=Mask[i];
-		}
+		if (!CheckCharMask(Msk))
+			Str = Msk;
 	}
 }
 

@@ -34,7 +34,7 @@ intptr_t WINAPI GetPluginDirList(
   <div class=dfn>PluginId</div>
     <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
   <div class=dfn>hPanel</div>
-    <div class=dfndescr>Текущий описатель панели. Если описатель панели равен <code>PANEL_ACTIVE</code> (или <code>PANEL_PASSIVE</code>), то значение параметра <code>PluginId</code> игнорируется и используется GUID плагина, которому принадлежит активная (или пассивная) панель.</div>
+    <div class=dfndescr>Текущий описатель панели.</div>
   <div class=dfn>Dir</div>
     <div class=dfndescr>Имя обрабатываемой директории. Должно быть в форме, приемлемой для функции плагина <a href="../exported_functions/setdirectoryw.html">SetDirectoryW</a>.
     Плагинам обычно не требуется обработка полного пути функцией <code>SetDirectoryW</code>, поэтому чаще всего (нужно в этом убедиться), это просто имя обрабатываемого подкаталога текущего каталога.

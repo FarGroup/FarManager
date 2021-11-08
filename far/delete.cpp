@@ -129,7 +129,7 @@ public:
 		{
 			ProgressDlgItems[items::pr_wipe_progress].Flags |= DIF_HIDDEN;
 
-			for (size_t i = pr_separator; i <= pr_total_progress; ++i)
+			for (const auto& i: irange(pr_separator, pr_total_progress + 1))
 			{
 				--ProgressDlgItems[i].Y1;
 				--ProgressDlgItems[i].Y2;
@@ -409,7 +409,7 @@ static void show_confirmation(
 		for (const auto& [Item, Index]: enumerate(items))
 		{
 			inplace::truncate_center(Item, MaxWidth);
-			Builder.AddText(Item)->Flags = DIF_CENTERTEXT | DIF_SHOWAMPERSAND;
+			Builder.AddText(Item).Flags = DIF_CENTERTEXT | DIF_SHOWAMPERSAND;
 			if (Index == 1)
 				FirstHighlighted = LastHighlighted = Builder.GetLastID();
 		}
@@ -422,7 +422,7 @@ static void show_confirmation(
 				Builder.AddSeparator();
 
 			inplace::truncate_center(Item, MaxWidth);
-			Builder.AddText(Item)->Flags = DIF_SHOWAMPERSAND;
+			Builder.AddText(Item).Flags = DIF_SHOWAMPERSAND;
 
 			if (Index == 1)
 				FirstHighlighted = Builder.GetLastID();

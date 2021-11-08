@@ -4,6 +4,11 @@
 -- Confirm launching the URL under cursor. Change it to false if you want no confirmations.
 local Confirm = true
 
+-- Change this to true to use selection (if present)
+-- instead of a fragment matching the pattern as the target URL.
+-- WARNING: setting this to true may be unsafe if you select and open a random code instead of an URL.
+local UseSelection = false
+
 local patt = regex.new( [=[
 (?:
   (?<=  [`()[\]{}‘’‚‛‹›“”„‟«»"'<>]) (?: \b \i[\d\i+.-]*: | \\ | \b www)
@@ -19,25 +24,44 @@ local patt = regex.new( [=[
 
 Macro {
   description="Open URL or UNC under cursor";
-  area="Editor"; key="CtrlEnter CtrlNumEnter";
+  area="Editor"; key="CtrlEnter CtrlNumEnter CtrlMsLClick";
+  condition=function(trigger)
+    mouseClick = trigger:match("Ms")
+    if not mouseClick then return true end
+    local info = editor.GetInfo()
+    local maxY = info.WindowSizeY - 1
+    minY = 0
+    if 0 ~= bit64.band(info.Options, far.Flags.EOPT_SHOWTITLEBAR) then
+      minY, maxY = 1, maxY + 1
+    end
+    return Mouse.Y >= minY and Mouse.Y <= maxY
+  end;
   action=function()
-    local s=editor.GetStringW()
-    if not s then return end
-    local pos = editor.GetInfo().CurPos
-    if pos > s.StringLength+1 then return end
-    if pos == s.StringLength+1 then pos = pos-1 end
-    local text, start = s.StringText.."\0", 1
-    while true do
-      local b,e = patt:findW(text,start)
-      if b == nil or b > pos then break end
-      if e >= pos then
-        local url = win.Utf16ToUtf8(win.subW(text,b,e))
-        if not Confirm or 1==far.Message(url, "Do you want to run this?", ";YesNo") then
-          win.ShellExecute(nil, "open", url)
+    if mouseClick then
+      Editor.Pos(1, 3, Editor.Pos(0, 5)+Mouse.X)
+      Editor.Pos(1, 1, Editor.Pos(0, 4)+Mouse.Y-minY)
+    end
+    local pos,url = editor.GetInfo().CurPos
+    if UseSelection and Editor.Sel(0,4)==1 and Editor.Sel(0,0)==Editor.Sel(0,2) and pos>=Editor.Sel(0,1) and pos<=Editor.Sel(0,3) then
+      url = Editor.SelValue
+    else
+      local s=editor.GetStringW()
+      if not s then return end
+      if pos > s.StringLength+1 then return end
+      if pos == s.StringLength+1 then pos = pos-1 end
+      local text, start = s.StringText.."\0", 1
+      while true do
+        local b,e = patt:findW(text,start)
+        if b == nil or b > pos then break end
+        if e >= pos then
+          url = win.Utf16ToUtf8(win.subW(text,b,e))
+          break
         end
-        break
+        start = e + 1
       end
-      start = e+1
+    end
+    if url and (not Confirm or 1==far.Message(url, "Do you want to run this?", ";YesNo")) then
+      win.ShellExecute(nil, "open", url)
     end
   end;
 }

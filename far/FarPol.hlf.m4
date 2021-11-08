@@ -1522,7 +1522,7 @@ $ #Menu: menu opcje#
  #Kolory#                Pozwala na wybór kolorów dla różnych elementów ekranu, pozwala zmienić
                        cały wygląd programu Far na czarno/biały lub ustawić domyślne kolory.
 
- #Wyróżnienia plików#    Pokazuje okno ~Wyróżniania plików~@Highlight@ i sortowania grup plików.
+ #Wyróżnianie plików#    Pokazuje okno ~Wyróżniania plików~@Highlight@ i sortowania grup plików.
  #i sortowanie grup#
 
  #Zapisz ustawienia#     Zapisuje bieżącą konfigurację, kolory i wygląd ekranu.
@@ -1927,7 +1927,7 @@ i #Punkt dowiązania# są dostępne tylko na dyskach z systemem NTFS.
 Atrybuty #Strumień integralności# i #Brak danych kontrolnych# są obsługiwane tylko na wolumenach ReFS
 począwszy od Windows Server 2012.
 
- #Ma więcej niż jeden twardy link#
+ #Ma więcej niż jeden link#
  Używany tylko na dyskach z systemem NTFS. Warunek jest prawdziwy, jeśli dane
 na które wskazuje bieżący plik jest również wskazany przez co najmniej jeden inny plik.
  #Uwaga#: Włączenie tej opcji może spowodować znaczne spowolnienie wyszukiwania.
@@ -2323,7 +2323,7 @@ $ #Okno ustawień: system#
 tylko na lokalnych dyskach twardych.
 
  #Używaj systemowej procedury kopiowania#
- Użyj funkcji kopiowanie plików dostarczonych przez system operacyjny zamiast wewnętrznej
+ Użyj funkcji kopiowania plików dostarczonych przez system operacyjny zamiast wewnętrznej
 implementacji kopiowania plików. Może być ona przydatna w systemie NTFS, ponieważ
 funkcja systemowa (CopyFileEx) kopiuje rozszerzone atrybuty plików. Z drugiej strony podczas
 korzystanie z funkcji systemowej, niedostępna jest możliwość "inteligentnego" ~kopiowania~@CopyFiles@
@@ -4062,7 +4062,7 @@ po sortowaniu w lewym górnym rogu panelu.
 
 @FolderDiz
 $ #Opisy folderów#
- Określenie nazw (~maski~~@FileMasks@ są dozwolone) plików wyświetlanych
+ Określenie nazw (~maski~@FileMasks@ są dozwolone) plików wyświetlanych
 w ~Panelu informacyjnym~@InfoPanel@ jako opisy folderów.
 
 
@@ -4258,402 +4258,397 @@ podczas przetwarzania plików Far zawsze używa oryginalnych wielkości znaków.
 
 
 @SortGroups
-$ #Sort groups#
- File sort groups can be used in #by name# and #by extension#
-~file panel~@FilePanel@ sort modes. Sort groups are applied by
-pressing #Shift+F11# and allow to define additional file sorting rules,
-complementary to those already used.
+$ #Sortowanie grup#
+ Grupy sortowanie plików mogą być używane #według nazwy# i #według rozszerzenia#
+w trybach sortowania ~Panelu plików~ ~@FilePanel@. Grupy sortowania
+uruchamiane są skrótem #Shift+F11# i umożliwiają zdefiniowanie dodatkowych
+zasad sortowania plików, komplementarnie do już używanych.
 
- Each sort group contains one or more comma delimited
-~file masks~@FileMasks@. If one sort group position in the group list
-is higher than another and an ascending sort is performed, all files
-belonging to this group files will be higher than those belonging to
-following groups.
+ Każda grupa sortowania zawiera jedną lub więcej rozdzielonych przecinkami
+~Masek plików~@FileMasks@. Jeżeli jedna pozycja grup sortowania znajduje się
+wyżej niż inna i stosowane jest sortowanie rosnące, to wszystkie pliki należące
+do tej grupy będą umieszczone wyżej niż te należące do kolejnych grup.
 
- The command #Edit sort groups# from the ~Commands menu~@CmdMenu@ is used to
-delete, create and edit sort groups, using #Del#, #Ins# and #F4#. The groups
-above the menu separator are applicable to the file panel start, and included
-files will be placed higher than those not included to any group. The groups
-below the menu separator are applicable to the file panel end, and included
-files will be placed lower than those not included.
+ Polecenie #Edytuj grupy sortowania# dostępne w ~Menu poleceń~@CmdMenu@
+jest używane do usuwania, dodawania lub edycji grup sortowania, używając
+klawiszy #Del#, #Ins# i #F4#. Grupy powyżej separatora menu mają zastosowanie
+przy starcie panelu i pliki są umieszczane wyżej w panelu plików niże te,
+które nie zostały uwzględnione.
 
 
 @FileMasks
-$ #File masks#
- File masks are frequently used in Far commands to select single file or
-folder, or group of items. Masks can contain common valid file name characters,
-wildcards (‘*’ and ‘?’) and special expressions:
+$ #Maski plików#
+ Maski plików są często używane w poleceniach Far do zaznaczania pojedynczych plików
+lub folderów oraz ich grup. Maski mogą zawierać prawidłowe znaki nazw plików,
+symbole wieloznaczne (‘*’ and ‘?’) oraz wyrażenia specjalne:
 
- #*#           zero or more characters;
+ #*#           zero lub więcej znaków;
 
- #?#           any single character;
+ #?#           pojedynczy znak;
 
- #[cx-z]#      any character enclosed by the brackets.
-             Both separate characters and character intervals
-             are allowed.
+ #[cx-z]#      dowolny znak ujęty w nawiasy kwadratowe.
+             Zarówno oddzielne znaki jak i interwały pomiędzy znakami są dozwolone.
 
- For example, files ftp.exe, fc.exe and f.ext can be selected using mask
-f*.ex?, mask *co* will select both color.ini and edit.com, mask [c-ft]*.txt
-can select config.txt, demo.txt, faq.txt and tips.txt.
+ Dla przykładu pliki ftp.exe, fc.exe i f.ext można zaznaczyć za pomocą maski f*.ex?,
+maska *co* zaznaczy color.ini i edit.com, maska [c-ft]*.txt zaznaczy
+config.txt, demo.txt, faq.txt i tips.txt.
 
- In many Far commands you can enter several file masks separated with commas
-or semicolons. For example, to select all the documents, you can enter
-#*.doc,*.txt,*.wri# in the "Select" command.
+ W wielu poleceniach Far można zaznaczyć wiele masek plików, oddzielając
+je przecinkami lub średnikami. Np. aby zaznaczyć wszystkie dokumenty, można podać
+w poleceniu "Zaznacz": #*.doc,*.txt,*.wri#.
 
- It is allowed to put any of the masks in quotes but not the whole list. For
-example, you have to do this when a mask contains any of the delimiter
-characters (a comma or a semicolon), so that the mask doesn't get confused with
-a list.
+ Dozwolone jest umieszczanie dowolnych masek w cudzysłowie, ale nie całej listy.
+Np. należy tak zrobić, jeżeli maska zawiera dowolny znak ogranicznika (przecinek
+lub średnik), aby maska nie pomyliła list.
 
- File mask surrounded with slashes #/# is treated as ~Perl regular expression~@RegExp@.
+ Maska pliku otoczona ukośnikami #/# jest traktowana jako ~Wyrażenie regularne Perl~@RegExp@.
 
- Example:
- #/(eng|rus)/i# - any files with filenames containing string “eng” or “rus”,
-the character case is not taken into account.
+ Przykład:
+ #/(eng|pol)/i# - dowolne pliki zawierające tekst "eng" lub "pol", wielkość znaków
+nie ma znaczenia..
 
- An #exclude mask# is one or multiple file masks that must not be matched by the
-files matching the mask. The exclude mask is delimited from the main mask by
-the character ‘#|#’.
+ #Maska wykluczająca# jest jedną lub wieloma maskami, które nie mogą pasować do
+maski zaznaczającej pliki. Maska wykluczająca jest oddzielona od głównej maski
+za pomocą znaku ‘#|#’.
 
- Usage examples of exclude masks:
+ Przykłady wykluczenia masek:
 
  1. *.cpp
-    All files with the extension #cpp#.
+    Wszystkie pliki z rozszerzeniem #cpp#
  2. *.*|*.bak,*.tmp
-    All files except for the files with extensions #bak# and #tmp#.
+    Wszystkie pliki oprócz plików z rozszerzeniami #bak# i #tmp#
  3. *.*|
-    The character | is entered, but the mask itself is not specified,
-    expression treated as *.*
+    Znak | jest wprowadzony, ale maska nie jest podana,
+    wyrażenie jest traktowane jako *.*
  4. *.*|*.bak|*.tmp
-    The character | can be used in the mask only once,
-    expression treated as *.*|*.bak
+    Znak | można użyć w masce tylko raz,
+    wyrażenie jest traktowane jako *.*|*.bak
  5. |*.bak
-    The same as *|*.bak
+    Podobnie jak *|*.bak
  6. *.*|/^pict\d{1,3}\.gif$/i
-    All files except for pict0.gif — pict999.gif, disregard the character case.
+    Wszystkie pliki za wyjątkiem pict0.gif - pict999.gif, nie uwzględnia wielkości znaków.
 
- The comma (or semicolon) is used for separating file masks from each other,
-and the ‘|’ character separates include masks from exclude masks.
+ Przecinek (lub średnik) są używane do oddzielenia masek od siebie, a znak ‘|’
+oddziela maski zaznaczania od masek wykluczania.
 
- File masks can be joined into ~groups~@MaskGroupsSettings@.
+ Maski plików można łączyć w  ~grupy~@MaskGroupsSettings@.
 
 
 @SelectFiles
-$ #Selecting files#
- ~File panel~@FilePanel@ items (files and folders) can be selected
-for group processing. If no items are selected, only the item under
-cursor will be processed.
+$ #Zaznaczanie plików#
+ Pozycje ~Panelu plików~@FilePanel@ (pliki foldery) można zaznaczać,
+aby przetwarzać je grupowo. Jeżeli żadna pozycja nie będzie zaznaczona,
+to przetwarzana będzie tylko pozycja oznaczona kursorem.
 
- #Keyboard Selection#
+ #Zaznaczanie klawiaturą#
 
- #Ins# toggles selection on the item under cursor and moves the
-cursor down.
+ #Ins# przełącza zaznaczanie pozycji pod kursorem i przenosi kursor niżej.
 
- #Shift+Arrow keys# move the cursor while selecting or deselecting
-items along the way. The action (selection or deselection) depends
-on the state of the item under cursor before pressing the key
-combination.
+ #Shift+klawisze strzałek# przenoszą kursor podczas zaznaczania lub odznaczania
+pozycji w czasie przesuwania. Czynność (zaznaczania lub odznaczania) zależy
+od stanu pozycji pod kursorem przed naciśnięciem kombinacji klawiszy.
 
- #Gray +# selects, and #Gray -# deselects the items using one or more
-~File masks~@FileMasks@. #†#
+ #Szary +# zaznacza, a #Szary -# odznacza pozycje zaznaczone poprzez jedną
+lub więcej ~Masek plików~@FileMasks@. #†#
 
- #Gray *# inverts the current selection. #†#
+ #Szara *# odwraca bieżące zaznaczenie. #†#
 
- #Ctrl+<Gray +># selects, and #Ctrl+<Gray -># deselects all items
-with the same #extension# as that of the item under cursor. #†#
+ #Ctrl+<Szary +># zaznacza, a #Ctrl+<Szary -># odznacza wszystkie pozycje
+z tym samym #rozszerzeniem# jak pozycja pod kursorem. #†#
 
- #Alt+<Gray +># selects, and #Alt+<Gray -># deselects all items with
-the same #name# as that of the item under cursor. #†#
+ #Alt+<Szary +># zaznacza, a #Alt+<Szary -># odznacza wszystkie pozycje
+z tą samą #nazwą# jak pozycja pod kursorem. #†#
 
- #Shift+<Gray +># selects, and #Shift+<Gray -># deselects all items. #†#
+ #Shift+<Szary +># zaznacza, a #Shift+<Szary -># odznacza wszystkie pozycje. #†#
 
- #Ctrl+<Gray *># inverts the current selection on all items,
-including folders.
+ #Ctrl+<Szara *># odwraca bieżące zaznaczenie na wszystkich pozycjach,
+włączając foldery.
 
- #Alt+<Gray *># inverts the current selection on files only,
-folders are deselected.
+ #Alt+<Szary *># odwraca zaznaczenie tylko dla plików, foldery są odznaczane.
 
- #Ctrl+M# restores the last selection.
+ #Ctrl+M# przywraca ostatnie zaznaczenie.
 
- #Mouse Selection#
+ #Zaznaczanie myszką#
 
- #Right click# toggles selection on the clicked item and moves the
-cursor to it. See also #Right click selects files# option of the
-~Panel settings~@PanelSettings@ dialog.
+ #Prawy przycisk# przełącza zaznaczenie na klikniętej pozycji i przenosi
+kursor na tę pozycję. Zobacz także opcję #Prawy klik zaznacza pliki#
+w oknie ~Ustawień panelu~@PanelSettings@.
 
- #Right click and hold# on the #status line# or #column titles# moves
-the cursor forward or backward respectively, while selecting
-or deselecting items along the way. The action (selection
-or deselection) depends on the state of the item under cursor before the
-click.
+ #Prawy przycisk i przytrzymanie# na #linii statusu# lub #tytule kolumny#
+przenosi kursor odpowiednio do przodu lub do tyłu, jednocześnie zaznaczając
+lub odznaczając elementy po drodze. Akcja (zaznaczanie lub odznaczanie)
+zależy od stanu pozycji po kursorem przed kliknięciem.
 
  ────────────────
- #†# If the #Select folders# option of the
-~Panel settings~@PanelSettings@ dialog is off, only files are selected
-or deselected. Otherwise, the selection on the folders is changed as well.
+ #†# Jeżeli opcja #Zaznaczaj foldery# w ~Ustawieniach panelu~@PanelSettings@
+jest wyłączona, to tylko pliki są zaznaczane lub odznaczane. W innym przypadku
+foldery są przetwarzane tak samo jak pliki.
 
 
 @CopyFiles
-$ #Copying, moving, renaming and creating links#
- The following commands can be used to copy, move and rename files and folders:
+$ #Kopiowanie, przenoszenie, zmiana nazwy i tworzenie linków#
+ Następujące polecenia mogą być używane do kopiowania, przenoszenia lub zmiany
+nazw plików i folderów:
 
- Copy ~selected~@SelectFiles@ files                                           #F5#
+ Kopiuj ~zaznaczone~@SelectFiles@ pliki                                       #F5#
 
- Copy the file under cursor regardless of selection      #Shift+F5#
+ Kopiuj plik pod kursorem niezależnie od zaznaczenia     #Shift+F5#
 
- Rename or move selected files                                 #F6#
+ Zmień nazwę lub przenieś zaznaczone pliki                     #F6#
 
- Rename or move the file under the cursor                #Shift+F6#
- regardless of selection
+ Zmień nazwę lub przenieś plik pod kursorem              #Shift+F6#
+ niezależnie od zaznaczenia
 
- Create ~file links~@HardSymLink@                                         #Alt+F6#
+ Utwórz ~link do pliku~@HardSymLink@                                      #Alt+F6#
 
- For a folder: if the folder at the specified target path (relative
-or absolute) exists, the source folder will be copied / moved inside the
-target folder. Otherwise, a new folder will be created at the target
-path and the contents of the source folder will be copied / moved into
-the newly created folder.
+ Dla folderu: jeżeli folder w podanej ścieżce docelowej (względnej
+lub pełnej) już istnieje, folder źródłowy będzie skopiowany / przeniesiony
+do folderu docelowego. W innym przypadku zostanie utworzony nowy folder
+w ścieżce docelowej i zawartość folderu źródłowego zostanie skopiowana
+/ przeniesiona do nowo utworzonego folderu.
 
- For example, when moving #c:\folder1\# to #d:\folder2\#:
+ Na przykład, podczas przenoszenia #c:\folder1\# do #d:\folder2\#:
 
- - ^<wrap>if #d:\folder2\# exists, the contents of #c:\folder1\# will be moved into
-#d:\folder2\folder1\#. Otherwise, the contents of #c:\folder1\# will be moved into the newly
-created #d:\folder2\#.
+ - ^<wrap>jeżeli #d:\folder2\# istnieje, zawartość #c:\folder1\# zostanie przeniesiona
+do #d:\folder2\folder1\#. Jeżeli nie, zawartość #c:\folder1\# zostanie przeniesiona
+do noto utworzonego #d:\folder2\#.
 
- If the option “#Process multiple destinations#” is enabled, you can specify
-multiple copy or move targets on the input line. The targets should be separated
-with character “#;#” or “#,#”. If a target name contains these characters,
-enclose it in double quotes.
+ Jeżeli opcja “#Przetwarzaj wszystkie cele#” jest włączona, to w linii ścieżki
+można podać wiele folderów docelowych dla kopii lub przenoszenia danych.
+Miejsca docelowe powinny być rozdzielone znakami “#;#” or “#,#”. Jeżeli nazwa
+docelowa zawiera takie znaki, należy je ująć w cudzysłowy.
 
- If you want to create the destination folder before copying,
-append backslash to its name.
+ Jeżeli folder docelowy ma być utworzony przed kopiowaniem, należy dodać
+na końcu ścieżki znak backslash “#\#”.
 
- If ~Panel.Tree.TurnOffCompletely~@Panel.Tree.TurnOffCompletely@
-parameter in ~far:config~@FarConfig@ is set to “false,” you can use
-~Find folder~@FindFolder@ dialog to select the target path.
- The following shortcuts open the dialog with different pre-selected folders:
- - ^<wrap>#F10# selects the folder from the active panel.
- - ^<wrap>#Alt+F10# selects the folder from the passive panel.
- - ^<wrap>#Shift+F10# selects the specified target folder. If several
-paths are entered on the input line, only the first one is used.
+ Jeżeli parametr ~Panel.Tree.TurnOffCompletely~@Panel.Tree.TurnOffCompletely@
+w ~far:config~@FarConfig@ jest ustawiony na “fałsz”, to można użyć
+okna dialogowego ~Znajdź folder~@FindFolder@ aby wybrać ścieżkę docelową.
+Poniższe skróty otwierają okno z różnymi wcześniej ustalonymi folderami:
+ - ^<wrap>#F10# wybiera folder z aktywnego panelu.
+ - ^<wrap>#Alt+F10# wybiera folder z pasywnego panelu.
+ - ^<wrap>#Shift+F10# wybiera podany folder docelowy. Jeżeli w linii ścieżki
+podano kilka ścieżek, to użyta zostanie tylko pierwsza z nich.
 
- If the option “#Process multiple destinations#” is enabled, the folder
-selected in the tree is appended to the input line.
+ Jeżeli opcja “#Przetwarzaj wszystkie cele#” jest włączona, to folder
+zaznaczony w drzewku jest dopisywany do linii ścieżki.
 
- Whether copying, moving or renaming files works for a plugin depends
-upon the plugin functionality.
+ Możliwość kopiowania, przenoszenia lub zmiany nazwy plików podczas korzystania
+z wtyczek, zależy od funkcjonalności danej wtyczki.
 
- The #Access rights# parameter is valid only for the NTFS file system
-and controls how access rights of the created files and folders are set.
-The #Default# option leaves access rights processing to the operating system.
-The #Copy# option applies the access rights of the original objects. The
-#Inherit# option applies the inheritable access rights of the
-destination’s parent folder.
+ Parametr #Prawa dostępu# jest dostępny tylko dla systemu plików NTFS
+i kontroluje sposób ustawienia praw dostępu do tworzonych plików i folderów.
+Opcja #Domyślne# pozostawia przetwarzanie praw dostępu systemowi operacyjnemu.
+Opcja #Kopiuj# stosuje prawa dostępu zgodnie z oryginalnymi danymi.
+Opcja #Dziedzicz# stosuje prawa dostępu takie jak dla nadrzędnego folderu docelowego.
 
- The “#Already existing files#” parameter controls Far behavior
-if the target file with the same name already exists.
+ Parametr “#Dla już istniejących#” steruje zachowaniem Far, jeżeli plik docelowy
+posiada taką samą nazwę jak kopiowany.
 
- Possible values:
- - ^<wrap>#Ask# - a ~confirmation dialog~@CopyAskOverwrite@ will be shown;
- - #Overwrite# - all target files will be replaced;
- - #Skip# - target files will not be replaced;
- - #Rename# - existing target files will stay unchanged, copied files will be renamed;
- - #Append# - target file will be appended with the file being copied;
- - #Only newer file(s)# - only files with the newer write date and time
-will be copied;
- - #Also ask on R/O files# - controls whether an additional confirmation
-dialog should be displayed for the read-only files.
+ Możliwe wartości:
+ - ^<wrap>#Zapytaj# - zostanie wyświetlone ~Okno potwierdzenia~@CopyAskOverwrite@;
+ - #Zastąp# - wszystkie docelowe pliki zostaną zastąpione;
+ - #Pomiń# - pliki docelowe nie zostaną zastąpione;
+ - #Zmień nazwę# - istniejące pliki docelowe pozostaną nie zmienione,
+pliki kopiowane będą miały zmienioną nazwę;
+ - #Dołącz# - dołącza plik docelowy do już istniejącego pliku;
+ - #Tylko nowsze pliki# - skopiowane będą tylko pliki z nowszą datą i czasem;
+ - #Pytaj także o pliki tylko do odczytu# - kontroluje czy dla plików tylko do odczytu
+powinno być wyświetlone dodatkowe potwierdzenie.
 
- The “#Use system copy routine#” option of the ~System settings~@SystemSettings@
-dialog enables the use of Windows operating system function CopyFileEx. This may be useful
-on NTFS, because CopyFileEx copies extended file attributes. If this option is off, the internal
-implementation of the file copy routine is used. The internal
-function is also used if the source file is encrypted and is being
-copied to a different volume.
+ Opcja “#Używaj systemowej procedury kopiowania#” dostępna w ~Ustawieniach systemowych~@SystemSettings@
+włącza użycie funkcji CopyFileEx systemu Windows. Może ona być przydatna
+na dyskach NTFS, ponieważ funkcja CopyFileEx kopiuje rozszerzone atrybuty
+plików. Po jej wyłączeniu używana jest wewnętrzna procedura kopiowania.
+Wewnętrzna funkcja jest również używana, gdy plik źródłowy jest zaszyfrowany
+i jest kopiowany na inny wolumin.
 
- The “#Copy contents of symbolic links#” parameter controls the
-~logic~@CopyRule@ of ~symbolic links~@HardSymLink@ processing.
+ Parametr “#Kopiuj zawartość linków symbolicznych#” kontroluje
+~logikę~@CopyRule@ przetwarzania ~linków symbolicznych~@HardSymLink@.
 
- When moving files, to determine whether the operation should be performed
-as a copy with subsequent deletion or as a direct move (within the same physical
-drive), Far takes into account ~symbolic links~@HardSymLink@.
+ Podczas przenoszenia plików, aby określić, czy należy wykonać operacje
+jako kopia z późniejszym usunięciem lub bezpośrednie przeniesienie
+(na tym samym dysku fizycznym), Far uwzględnia ~linki symboliczne~@HardSymLink@.
 
- Far handles copying to #con# the same way as copying to #nul# or
-#\\\\.\\nul#, that is the file is read from the disk but not written
-anywhere.
+ Far obsługuje kopiowanie do #con# (konsola) w taki sam sposób,
+jak kopiowanie do #nul# (nic) lub #\\\\.\\nul#, czyli plik jest odczytywany
+z dysku, ale nigdzie nie jest zapisywany.
 
- When moving to #nul#, #\\\\.\\nul# or #con#, the files are not deleted
-from the disk.
+ Podczas przenoszenia do #nul#, #\\\\.\\nul# lub #con#, pliki nie są usuwane z dysku.
 
- The parameters “#Access rights#” and “#Only newer files#” affect only the current
-copy session.
+ Parametry “#Prawa dostępu#” i “#Tylko nowsze pliki#” uwzględniane są tylko w bieżącej
+sesji kopiowania.
 
- To copy only the files that match the user defined criteria, check
-the #Use filter# checkbox, then press the #Filter# button to open the
-~filters menu~@FiltersMenu@. Remember that if you copy a folder and none
-of the files in it match the criteria, the empty folder will #not# be
-created at the destination.
+ Aby skopiować tylko te pliki, które spełniają kryteria zdefiniowane
+przez użytkownika, należy zaznaczyć opcję #Użyj filtra#, a następnie
+nacisnąć przycisk #Filtr#, aby utworzyć ~Menu filtrów~@FiltersMenu@.
+Należy pamiętać, że przy kopiowaniu folderu i braku plików spełniających
+kryteria filtra, pusty folder docelowy #nie# zostanie utworzony.
 
 
 @CopyAskOverwrite
-$ #Copying: confirmation dialog#
- If a file of the same name exists in the target folder the user will be
-prompted to select on of the following actions:
+$ #Kopiowanie: okno potwierdzenia#
+ Jeżeli plik o tej samej nazwie istnieje w folderze docelowym, użytkownik
+zostanie poproszony o wybranie jednej z możliwości:
 
- #Overwrite# - target file will be replaced;
+ #Zastąp# - plik docelowy zostanie zastąpiony;
 
- #Skip# - target file will not be replaced;
+ #Pomiń# - plik docelowy nie zostanie zastąpiony;
 
- #Rename# - existing file will not be changed, a new name will be given to
-the file being copied;
+ #Zmień nazwę# - istniejący plik nie zostanie zmieniony, a plikowi
+kopiowanemu zostanie nadana nowa nazwa;
 
- #Append# - target file will be appended with the file being copied;
+ #Dołącz# - plik kopiowany zostanie dołączony do pliku docelowego;
 
- If #Remember choice# is checked, the selected action will be applied to
-all existing files and the confirmation dialog will not be displayed again for
-the current copying session.
+ Po zaznaczeniu opcji #Zapamiętaj wybór#, wybrana możliwość zostanie
+zastosowana do wszystkich istniejących plików, a okno potwierdzenia
+nie zostanie już wyświetlone w bieżącej sesji kopiowania.
 
- If sizes and last modification dates are not enough for you to make a decision,
-you can try to inspect the content of the files with internal viewer by moving the cursor
-to any of them and pressing the F3 key.
+ Jeżeli wielkość i daty modyfikacji plików nie są wystarczające, aby podjąć
+decyzję, można podejrzeć ich zawartość w wewnętrznej przeglądarce plików
+przesuwając kursor na ich nazwy w oknie dialogowym i naciskając klawisz F3.
 
 
 @CopyRule
-$ #Copying: rules#
- When ~copying/moving~@CopyFiles@ folders and/or
-~symbolic links~@HardSymLink@ the following rules apply:
+$ #Kopiowanie: zasady#
+ Podczas ~kopiowania/przenoszenia~@CopyFiles@ folderów i/lub
+~linków symbolicznych~@HardSymLink@ stosowane są następujące zasady:
 
- #Copying of symbolic links#
+ #Kopiowanie linków symbolicznych#
 
- If the "Copy contents of symbolic links" option is on or the source or the
-destination are remote disks, then a folder will be created at the destination
-and the contents of the source symbolic link will be copied to it (recursively
-for enclosed links).
+ Jeżeli opcja "Kopiuj zawartość linków symbolicznych" jest włączona lub źródło
+lub miejsce docelowe są zdalnymi dyskami, wtedy folder zostanie utworzony w miejscu
+docelowym i zawartość źródła linków symbolicznych zostanie do niego skopiowana
+(rekursywnie dla załączonych linków).
 
- If the "Copy contents of symbolic links" option is off and the source and
-the destination are local disks, then a symbolic link pointing to the source
-symbolic link will be created at the destination.
+ Jeżeli opcja "Kopiuj zawartość linków symbolicznych" jest wyłączona i źródło
+oraz miejsce docelowe są dyskami lokalnymi, wtedy link symboliczny odwołujący się
+do źródła zostanie utworzony w miejscu docelowym.
 
- #Moving of symbolic links#
+ #Przenoszenie linków symbolicznych#
 
- If the "Copy contents of symbolic links" option is on or the source or the
-destination are remote disks, then a folder will be created at the destination
-and the contents of the source symbolic links will be copied to it (recursively
-for enclosed links). The source symbolic link is then deleted.
+ Jeżeli opcja "Kopiuj zawartość linków symbolicznych" jest włączona lub źródło
+lub miejsce docelowe są zdalnymi dyskami, wtedy folder zostanie utworzony w miejscu
+docelowym i zawartość linku symboliczne zostanie do niego skopiowana (rekursywnie
+dla załączonych linków). Po zakończeniu źródłowy link symboliczny zostanie usunięty.
 
- If the "Copy contents of symbolic links" option is off and the source and
-the destination are local disks, then the source symbolic link will be moved to
-the destination. Recursive descent of the tree will not be made.
+ Jeżeli opcja "Kopiuj zawartość linków symbolicznych" jest wyłączona i źródło
+oraz miejsce docelowe są dyskami lokalnymi, wtedy link symboliczny zostanie
+przeniesiony do miejsca docelowego. Rekursywne przechodzenie po drzewie folderów
+nie zostanie wykonane.
 
- #Moving of a folder, than contains symbolic links#
+ #Przenoszenie folderu, który zawiera linki symboliczne#
 
- If the source and the destination are local disk, then the folder will be
-moved as a normal folder.
+ Jeżeli źródło i miejsce docelowe są dyskami lokalnymi, wtedy folder zostanie
+przeniesiony jak normalny folder.
 
- If the source or the destination are remote disks, then with no regard to
-the "Copy contents of symbolic links" option a folder will be created in the
-destination and the contents of the source symbolic link will be copied to it
-(recursively for enclosed links). The source symbolic link is then deleted.
+ Jeżeli źródłem lub miejscem docelowym są dyskami zdalnymi, to bez względu
+na opcję "Kopiuj zawartość linków symbolicznych", zostanie utworzony folder
+w miejscu docelowym, a zawartość źródła linku symbolicznego zostanie do niego
+skopiowana (rekursywnie dla załączonych linków). Po zakończeniu źródłowy
+link symboliczny zostanie usunięty.
 
 
 @HardSymLink
-$ #Hard and Symbolic link#
- On NTFS volumes you can create #hard links# for files, #directory junctions# for
-folders and #symbolic links# for files and folders using the #Alt+F6# command.
+$ #Linki twarde i symboliczne#
+ Na wolumenach NTFS można tworzyć #twarde linki# dla plików, #dowiązania folderów#
+dla folderów oraz #linki symboliczne# dla plików i folderów za pomocą polecenia
+dostępnego za pomocą skrótu #Alt+F6#.
 
- #Hard links#
+ #Linki twarde#
 
- A #hard link# is an additional directory entry for the given file. When a
-hard link is created, the file is not copied itself, but receives one more name
-or location, while its previous name and location remain intact. Since the
-moment of its creation, a hard link is indistinguishable from the original
-entry. The only difference is that short file names are not created for hard
-links, and so they cannot be seen from DOS programs.
+ #Twardy link# jest dodatkowym wpisem folderu do podanego pliku. Podczas tworzenia
+twardego linku plik nie jest kopiowany, ale otrzymuje dodatkową nazwę
+lub lokalizację, podczas gdy poprzednia nazwa i lokalizacja pozostają niezmienione.
+Od momentu utworzenia, link twardy jest niemożliwy do odróżnienia od oryginalnego
+wpisu. Jedyna różnica polega na tym, że nie jest tworzona krótka nazwa pliku,
+przez co linki nie są widoczne w programach DOS.
 
- When the file size or date changes, all of the corresponding directory
-entries are updated automatically. When a file is deleted, it is not deleted
-physically until all the hard links pointing at it will be deleted. The
-deletion order doesn't matter. When a hard link is deleted into the recycle
-bin, the number of links of a file does not change.
+ Gdy zmieni się wielkość lub data pliku, wszystkie odpowiednie wpisy folderów
+zostaną automatycznie zaktualizowane. Po usunięciu pliku, nie jest on fizycznie
+usuwany dopóki wszystkie twarde linki, które na niego wskazują, nie zostaną usunięte.
+Kolejność usuwanie nie ma znaczenia. Jeżeli twardy link zostanie usunięty do kosza,
+liczka linków pliku nie zmienia się.
 
- Far can create hard links and can show the number of the file's hard links
-in a separate column (by default, it's the last column in the 9th panel mode)
-and sort the files by hard link number.
+ Far może tworzyć twarde linki i potrafi wyświetlić liczbę twardych linków pliku
+w osobnej kolumnie (domyślnie jest to ostatnia kolumna w dziewiątym trybie panelu
+- "Dowiązania").
 
- Hard links can only be created on the same partition as the source file.
+ Twarde linki mogą być tworzone tylko na tej samej partycji co plik źródłowy.
 
- #Directory junctions#
+ #Przyłączenie folderu#
 
- Directory junctions allows to access to any local folders as to any other
-local folders. For example, if the directory junction D:\\JUNCTION points to
-C:\\WINNT\\SYSTEM32, a program accessing D:\\JUNCTION\\DRIVERS will actually access
-C:\\WINNT\\SYSTEM32\\DRIVERS.
+ Przyłączenia folderów pozwalają na dostęp do dowolnego lokalnego folderu
+tak samo jak do innych lokalnych folderów. Np. jeżeli przyłącze D:\\PRZYLACZE
+wskazuje na C:\\WINNT\\SYSTEM32, program uzyskujący dostęp do folderu
+D:\\PRZYLACZE\\DRIVERS w rzeczywistości uzyska dostęp do C:\\WINNT\\SYSTEM32\\DRIVERS.
 
- Directory junctions can not point to network folders.
+ Przyłączenia folderów nie mogą wskazywać na foldery sieciowe.
 
- Under Windows 2000 it is not allowed to create directory junctions directly to
-CD-ROM folders, but this restriction can be overcome by mounting a CD-ROM
-as a folder on the NTFS partition.
+ Do systemów poniżej Windows 2000 nie jest możliwe tworzenie przyłączy bezpośrednio
+do folderów w napędach optycznych, ale ograniczenie to można ominąć montując
+napęd optyczny jako folder na partycji NTFS.
 
- #Symbolic links#
+ #Linki symboliczne#
 
- NTFS supports symbolic links starting from Windows Vista (NT 6.0). It's an
-improved version of directory junctions - symbolic links can also point to files
-and non-local folders, relative paths also supported.
+ NTFS obsługuje linki symboliczne począwszy od Windows Vista (NT 6.0).
+Jest to ulepszona wersja przyłączeń folderów - dowiązana symboliczne mogą również
+wskazywać pliki i foldery nie-lokalne, obsługiwane są także ścieżki względne.
 
- By default, only members of "Administrators" group can create symbolic links,
-this can be changed in the local security settings.
+ Domyślnie, tylko członkowie grupy "Administratorzy" mogą tworzyć linki symboliczne,
+ale można to zmienić w lokalnych ustawieniach bezpieczeństwa.
 
 
 @ErrCopyItSelf
-$ #Error: copy/move onto itself.#
- You cannot copy or move a file or folder onto itself.
+$ #Błąd: kopiowanie/przenoszenie na siebie#
+ Nie można kopiować lub przenosić pliku do siebie samego.
 
- This error can also happen if there are two directories, one of which is
-a ~symbolic link~@HardSymLink@ to another.
+ Ten błąd może wystąpić, gdy istnieją dwa foldery, a jeden z nich
+to ~link symboliczny~@HardSymLink@ do innego.
 
 
 @WarnCopyEncrypt
-$ #Warning: Losing file encryption#
- The source file is encrypted. Copying or moving it outside of the current
-disk is possible if in the destination the file will be decrypted.
+$ #Ostrzeżenie: utrata szyfrowania pliku#
+ Plik źródłowy jest zaszyfrowany. Kopiowanie lub przenoszenie poza bieżący dysk
+jest możliwe, jeżeli dysk docelowy będzie odszyfrowany.
 
- The "Ignore" (or "Ignore all") buttons ignore the given warning and copy
-the file unencrypted to the destination.
+ Przyciski "Ignoruj" (lub "Ignoruj wszystko") ignorują wyświetlane ostrzeżenie
+i kopiują niezaszyfrowany plik do miejsca docelowego.
 
- The internal copying mechanism will be used for copying encrypted files
-outside of the current disk with no regard to the "Use system copy routine"
-option.
+ Do kopiowania zaszyfrowanych plików poza bieżący dysk zostanie użyty mechanizm
+wewnętrzny, bez względu na ustawienie opcji "Używaj systemowej procedury kopiowania".
 
 
 @WarnCopyStream
-$ #Warning: copying or moving file with multiple streams#
- The source file contains more than one data stream or the destination file
-system does not support files with multiple streams.
+$ #Ostrzeżenie: kopiowanie lub przenoszenie pliku z wieloma strumieniami#
+ Plik źródłowy zawiera więcej niż jeden strumień danych lub plik docelowy
+nie obsługuje plików z wieloma strumieniami.
 
- Streams are a feature of the NTFS file system allowing to associate
-additional information with a file (for example, author's name, title, keywords
-and so on, or any other data). This information is stored together with the
-file and is invisible to programs that do not support streams. For example,
-streams are used by Windows Explorer to store additional file properties
-(summary). FAT/FAT32 file systems do not support streams.
+ Strumienie są funkcją systemu plików NTFS pozwalającą na skojarzenie dodatkowych
+informacji z plikiem (np. nazwisko autora, tytuł, słowa kluczowe, itd.
+lub dowolnych innych danych). Informacje te są przechowywane razem z plikiem
+i są one niewidoczne dla programów nie obsługujących strumieni.
+Np. strumienie używane są przez Eksploratora Windows do przechowywania dodatkowych
+właściwości plików (podsumowanie). Systemy plików FAT/FAT32 nie obsługują
+strumieni.
 
- To copy a file completely (together with all its streams), turn on the
-option "#Use system copy routine#" in the ~System settings~@SystemSettings@
-dialog.
+ Aby skopiować kompletny plik (razem ze strumieniami), należy włączyć opcję
+"#Używaj systemowej procedury kopiowania#" w ~Ustawieniach systemu~@SystemSettings@.
 
- If you are copying a file with multiple streams to a volume with a file
-system other than NTFS, you will also lose data - only the main stream will be
-copied.
+ Jeżeli plik z wieloma strumieniami kopiowany jest na wolumin z systemem innym
+niż NTFS, także nastąpi utrata danych - skopiowany zostanie wyłącznie strumień
+główny.
 
 
 @ErrLoadPlugin
-$ #Error: plugin not loaded#
- This error message can appear in the following cases:
+$ #Błąd: wtyczka nie załadowana#
+ Ten komunikat o błędzie może pojawić się w następujących przypadkach:
 
- 1. ^<wrap>A dynamic link library not present on your system is required for correct operation of the plugin.
- 2. ^<wrap>For some reason, the plugin returned an error code telling the system to abort plugin loading.
- 3. ^<wrap>The DLL file of the plugin is corrupt.
+ 1. ^<wrap>Do poprawnego działania wtyczki jest wymagana biblioteka dołączana dynamicznie,
+która nie jest obecna w systemie.
+ 2. ^<wrap>W niektórych przypadkach wtyczka zwraca kod błędu, informujący system
+o przerwaniu wczytywania wtyczki.
+ 3. ^<wrap>Uszkodzony jest plik DLL wtyczki.
 
 
 @ScrSwitch

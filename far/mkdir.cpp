@@ -195,7 +195,7 @@ static void ShellMakeDirImpl(Panel *SrcPanel)
 		size_t DirOffset = 0;
 		ParsePath(strDirName, &DirOffset);
 
-		for (size_t i = DirOffset; i <= strDirName.size(); ++i)
+		for (const auto& i: irange(DirOffset, strDirName.size() + 1))
 		{
 			if (i != strDirName.size() && !path::is_separator(strDirName[i]))
 				continue;

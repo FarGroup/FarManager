@@ -895,7 +895,7 @@ void Help::FastShow()
 	*/
 	CurColor = colors::PaletteColorToFarColor(COL_HELPTEXT);
 
-	for (int i=0; i < CanvasHeight(); i++)
+	for (const auto& i: irange(CanvasHeight()))
 	{
 		int StrPos;
 

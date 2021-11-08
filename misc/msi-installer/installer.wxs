@@ -3,7 +3,7 @@
 <?include guids_$(var.Platform).wxi ?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="*" Language="!(loc.Language)" Codepage="UTF-8" Name="$(var.Product)" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.Guid.UpgradeCode)">
-    <Package Id="*" Platform="$(var.Platform)" Languages="$(var.Languages)" Compressed="yes" Manufacturer="$(var.Manufacturer)" Description="$(var.Product) $(var.Version)" InstallerVersion="200" SummaryCodepage="!(loc.Codepage)" />
+    <Package Id="*" Platform="$(var.Platform)" Languages="$(var.Languages)" Compressed="yes" Manufacturer="$(var.Manufacturer)" Description="$(var.Product) $(var.Version)" InstallerVersion="500" SummaryCodepage="!(loc.Codepage)" />
     <Property Id="MACHINEINSTALLDIR">
       <RegistrySearch Id="InstallDir" Root="HKLM" Key="Software\$(var.RegKey)" Name="$(var.InstallDirParam)" Type="directory" Win64="$(var.Win64)" />
     </Property>
@@ -52,11 +52,6 @@
             <RegistryValue Root="HKCR" Key="Drive\shell\$(var.Product)" Value="$(var.Product) Here" Type="string" />
             <RegistryValue Root="HKCR" Key="Drive\shell\$(var.Product)\command" Value="&quot;[#Far.exe]&quot; &quot;%1\&quot;" Type="string" />
           </Component>
-<?if $(var.Platform) = x86 ?>
-          <Component Id="FStd_trap.log" Guid="$(var.Guid.FStd_trap.log)" Win64="$(var.Win64)">
-            <RemoveFile Id="FStd_trap.log" Name="FStd_trap.log" On="uninstall" />
-          </Component>
-<?endif?>
         </Directory>
       </Directory>
     </Directory>

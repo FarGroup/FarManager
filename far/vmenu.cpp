@@ -296,7 +296,7 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 // установить курсор и верхний элемент
 int VMenu::SetSelectPos(const FarListPos *ListPos, int Direct)
 {
-	const auto pos = std::clamp(ListPos->SelectPos, intptr_t(0), static_cast<intptr_t>(Items.size() - 1));
+	const auto pos = std::clamp(ListPos->SelectPos, intptr_t{}, static_cast<intptr_t>(Items.size() - 1));
 	const auto Ret = SetSelectPos(pos, Direct ? Direct : pos > SelectPos? 1 : -1);
 
 	if (Ret >= 0)
@@ -338,26 +338,26 @@ void VMenu::UpdateSelectPos()
 	if (SelectPos >= 0 && !ItemCanHaveFocus(Items[SelectPos]))
 		SelectPos = -1;
 
-	for (size_t i=0; i<Items.size(); i++)
+	for (const auto& [Item, Index]: enumerate(Items))
 	{
-		if (!ItemCanHaveFocus(Items[i]))
+		if (!ItemCanHaveFocus(Item))
 		{
-			Items[i].SetSelect(false);
+			Item.SetSelect(false);
 		}
 		else
 		{
 			if (SelectPos == -1)
 			{
-				Items[i].SetSelect(true);
-				SelectPos = static_cast<int>(i);
+				Item.SetSelect(true);
+				SelectPos = static_cast<int>(Index);
 			}
-			else if (SelectPos != static_cast<int>(i))
+			else if (SelectPos != static_cast<int>(Index))
 			{
-				Items[i].SetSelect(false);
+				Item.SetSelect(false);
 			}
 			else
 			{
-				Items[i].SetSelect(true);
+				Item.SetSelect(true);
 			}
 		}
 	}
@@ -499,7 +499,7 @@ int VMenu::DeleteItem(int ID, int Count)
 		return static_cast<int>(Items.size());
 	}
 
-	for (int I=0; I < Count; ++I)
+	for (const auto& I: irange(Count))
 	{
 		if (Items[ID+I].Flags & MIF_SUBMENU)
 			--ItemSubMenusCount;
@@ -1298,7 +1298,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		{
 			bool NeedRedraw=false;
 
-			for (size_t I=0; I < Items.size(); ++I)
+			for (const auto& I: irange(Items.size()))
 				if (ShiftItemShowPos(static_cast<int>(I), any_of(LocalKey, KEY_ALTLEFT, KEY_RALTLEFT, KEY_ALT | KEY_NUMPAD4, KEY_RALT | KEY_NUMPAD4, KEY_MSWHEEL_LEFT)? -1 : 1))
 					NeedRedraw=true;
 
@@ -2115,7 +2115,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 				if (!CheckFlags(VMENU_NOMERGEBORDER) && SepWidth > 3)
 				{
-					for (size_t J = 0; J < strTmpStr.size() - 3; ++J)
+					for (const auto& J: irange(strTmpStr.size() - 3))
 					{
 						const auto AnyPrev = I > 0;
 						const auto AnyNext = I < static_cast<int>(Items.size() - 1);
@@ -2295,7 +2295,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 				if (Items[I].Flags & MIF_SUBMENU)
 				{
-					GotoXY(static_cast<int>(m_Where.right - 1), Y);
+					GotoXY(m_Where.right - 1, Y);
 					Text(L'►');
 				}
 
@@ -2352,7 +2352,7 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 	if (CheckSymbol)
 		CheckSymbol=upper(CheckSymbol);
 
-	for (size_t I=StartPos; I < Items.size(); I++)
+	for (const auto& I: irange(StartPos, Items.size()))
 	{
 		if (!ItemIsVisible(Items[I]))
 			continue;
@@ -2567,7 +2567,7 @@ void VMenu::SetColors(const FarDialogItemColors *ColorsIn)
 
 		if (CheckFlags(VMENU_DISABLED))
 		{
-			std::fill_n(Colors, size_t(VMENU_COLOR_COUNT), colors::PaletteColorToFarColor(StyleMenu? COL_WARNDIALOGDISABLED : COL_DIALOGDISABLED));
+			std::fill_n(Colors, size_t{ VMENU_COLOR_COUNT }, colors::PaletteColorToFarColor(StyleMenu? COL_WARNDIALOGDISABLED : COL_DIALOGDISABLED));
 		}
 		else
 		{
@@ -2805,7 +2805,7 @@ int VMenu::FindItem(int StartIndex, string_view const Pattern, unsigned long lon
 {
 	if (static_cast<size_t>(StartIndex) < Items.size())
 	{
-		for (size_t I=StartIndex; I < Items.size(); I++)
+		for (const auto& I: irange(StartIndex, Items.size()))
 		{
 			const auto strTmpBuf = remove_highlight(Items[I].Name);
 
@@ -2876,9 +2876,9 @@ const UUID& VMenu::Id() const
 
 std::vector<string> VMenu::AddHotkeys(span<menu_item> const MenuItems)
 {
-	FN_RETURN_TYPE(VMenu::AddHotkeys) Result(MenuItems.size());
+	std::vector<string> Result(MenuItems.size());
 
-	const size_t MaxLength = std::accumulate(ALL_CONST_RANGE(MenuItems), size_t(0), [](size_t Value, const auto& i)
+	const size_t MaxLength = std::accumulate(ALL_CONST_RANGE(MenuItems), size_t{}, [](size_t Value, const auto& i)
 	{
 		return std::max(Value, i.Name.size());
 	});

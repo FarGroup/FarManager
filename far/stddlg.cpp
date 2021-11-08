@@ -116,9 +116,9 @@ int GetSearchReplaceString(
 	const auto& SelectionLabel = msg(lng::MEditSearchPickSelection);
 	const auto WordButtonSize = HiStrlen(WordLabel) + 4;
 	const auto SelectionButtonSize = HiStrlen(SelectionLabel) + 4;
-	const auto SelectionButtonX2 = static_cast<int>(DlgWidth - 4 - 1);
+	const auto SelectionButtonX2 = DlgWidth - 4 - 1;
 	const auto SelectionButtonX1 = static_cast<int>(SelectionButtonX2 - SelectionButtonSize);
-	const auto WordButtonX2 = static_cast<int>(SelectionButtonX1 - 1);
+	const auto WordButtonX2 = SelectionButtonX1 - 1;
 	const auto WordButtonX1 = static_cast<int>(WordButtonX2 - WordButtonSize);
 
 	const auto YFix = IsReplaceMode? 0 : 2;
@@ -749,7 +749,7 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 {
 	const auto Parse = [Hex](string Part, goto_coord& Dest)
 	{
-		inplace::erase_all(Part, L' ');
+		std::erase(Part, L' ');
 
 		if (Part.empty())
 			return;
@@ -896,12 +896,13 @@ bool RetryAbort(std::vector<string>&& Messages)
 			{ lng::MRetry, lng::MAbort }) == message_result::first_button;
 	}
 
-	std::wcerr << L"\nError:\n\n"sv;
+	return ConsoleYesNo(L"Retry"sv, false, [&]
+	{
+		std::wcerr << L"\nError:\n\n"sv;
 
-	for (const auto& i: Messages)
-		std::wcerr << i << L'\n';
-
-	return ConsoleYesNo(L"Retry"sv, false);
+		for (const auto& i: Messages)
+			std::wcerr << i << L'\n';
+	});
 }
 
 progress_impl::~progress_impl()

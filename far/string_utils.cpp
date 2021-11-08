@@ -114,12 +114,12 @@ void inplace::lower(wchar_t& Char)
 
 void inplace::upper(wchar_t* Str)
 {
-	upper({ Str, wcslen(Str) });
+	upper({ Str, std::wcslen(Str) });
 }
 
 void inplace::lower(wchar_t* Str)
 {
-	lower({ Str, wcslen(Str) });
+	lower({ Str, std::wcslen(Str) });
 }
 
 void inplace::upper(string& Str, size_t Pos, size_t Count)
@@ -300,21 +300,19 @@ static void normalize_for_search(string_view const Str, string& Result, string& 
 		return;
 	}
 
-	const auto RemoveChar = L'´';
-	for (const auto& [Char, Type]: zip(Result, Types))
+	zip const Zip(Result, Types);
+	const auto End = std::remove_if(ALL_RANGE(Zip), [](const auto& i)
 	{
-		if (
-			!flags::check_any(Type, C3_ALPHA | C3_LEXICAL) &&
-			flags::check_any(Type, C3_NONSPACING | C3_DIACRITIC | C3_VOWELMARK)
-		)
-			Char = RemoveChar;
-	}
+		return
+			!flags::check_any(std::get<1>(i), C3_ALPHA | C3_LEXICAL) &&
+			flags::check_any(std::get<1>(i), C3_NONSPACING | C3_DIACRITIC | C3_VOWELMARK);
+	});
 
-	Result.erase(std::remove(ALL_RANGE(Result), RemoveChar), Result.end());
+	Result.resize(End - Zip.begin());
 }
 
 fuzzy_searcher::fuzzy_searcher(string_view const Needle, bool const CanReverse):
-	m_Searcher((normalize_for_search(Needle, m_Needle, m_Intermediate, m_Types), inplace::upper(m_Needle), m_Needle), CanReverse)
+	m_Searcher(((void)normalize_for_search(Needle, m_Needle, m_Intermediate, m_Types), (void)inplace::upper(m_Needle), m_Needle), CanReverse)
 {
 }
 
@@ -328,7 +326,7 @@ std::optional<std::pair<size_t, size_t>> fuzzy_searcher::find_in(string_view con
 	size_t TransformedSize{};
 	std::optional<size_t> CorrectedOffset;
 
-	for (size_t i = 0, HaystackSize = Haystack.size(); i != HaystackSize; ++i)
+	for (const auto& i: irange(Haystack.size()))
 	{
 		normalize_for_search(Haystack.substr(i, 1), m_HayStack, m_Intermediate, m_Types);
 		TransformedSize += m_HayStack.size();

@@ -625,7 +625,7 @@ TEST_CASE("null_iterator")
 	const auto Ptr = L"12345";
 	const null_iterator Iterator(Ptr);
 	const size_t Count = std::distance(Iterator, Iterator.end());
-	REQUIRE(Count == wcslen(Ptr));
+	REQUIRE(Count == std::wcslen(Ptr));
 }
 
 //----------------------------------------------------------------------------
@@ -756,6 +756,19 @@ TEST_CASE("range.dynamic")
 		}
 
 		REQUIRE(Iterator == Range.cend());
+	}
+
+	{
+		size_t const Total = 10;
+		size_t Count = 0;
+
+		for (const auto& i: irange(Total))
+		{
+			REQUIRE(i == Count);
+			++Count;
+		}
+
+		REQUIRE(Count == Total);
 	}
 }
 
@@ -1054,10 +1067,6 @@ TEST_CASE("string_utils.misc")
 
 	REQUIRE(concat(L'a', L"bc", L"def"sv, L"1234"s) == L"abcdef1234"sv);
 	REQUIRE(concat(L""sv, L""sv).empty());
-
-	REQUIRE(erase_all(L"1,2,3,4,5"s, L',') == L"12345"sv);
-	REQUIRE(erase_all(L"12345"s, L',') == L"12345"sv);
-	REQUIRE(erase_all(L""s, L',').empty());
 
 	REQUIRE(join(std::array{ L"123"sv, L"45"sv, L""sv, L"6"sv }, L","sv) == L"123,45,,6"sv);
 

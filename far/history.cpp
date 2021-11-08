@@ -153,7 +153,7 @@ void History::AddToHistory(string_view const Str, history_record_type const Type
 	if (m_SuppressAdd)
 		return;
 
-	if (Global->CtrlObject->Macro.IsExecuting() && Global->CtrlObject->Macro.IsHistoryDisabled(static_cast<int>(m_TypeHistory)))
+	if (Global->CtrlObject->Macro.IsExecuting() && Global->CtrlObject->Macro.IsHistoryDisabled(m_TypeHistory))
 		return;
 
 	if (m_TypeHistory!=HISTORYTYPE_DIALOG && (m_TypeHistory!=HISTORYTYPE_FOLDER || !Uuid || *Uuid == FarUuid) && Str.empty())

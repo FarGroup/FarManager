@@ -582,7 +582,7 @@ static int mainImpl(span<const wchar_t* const> const Args)
 					if (std::iswdigit(Arg[2]))
 					{
 						StartLine = static_cast<int>(std::wcstol(Arg + 2, nullptr, 10));
-						const wchar_t *ChPtr = wcschr(Arg + 2, L':');
+						const wchar_t *ChPtr = std::wcschr(Arg + 2, L':');
 
 						if (ChPtr)
 							StartChar = static_cast<int>(std::wcstol(ChPtr + 1, nullptr, 10));
@@ -630,7 +630,7 @@ static int mainImpl(span<const wchar_t* const> const Args)
 						constexpr auto SetParam = L"set:"sv;
 						if (starts_with_icase(Arg + 1, SetParam))
 						{
-							if (const auto EqualPtr = wcschr(Arg + 1, L'='))
+							if (const auto EqualPtr = std::wcschr(Arg + 1, L'='))
 							{
 								Overrides.emplace(string(Arg + 1 + SetParam.size(), EqualPtr), EqualPtr + 1);
 							}

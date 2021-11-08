@@ -406,20 +406,20 @@ namespace tests
 
 	static void debug_bounds_check()
 	{
-		std::vector<int> v(1);
+		[[maybe_unused]] std::vector<int> v(1);
 		v[1] = 42;
 	}
 
 	static void debug_bounds_check_as_stack()
 	{
-		int v[1];
+		[[maybe_unused]] int v[1];
 		const volatile size_t Index = 1;
 		v[Index] = 42;
 	}
 
 	static void debug_bounds_check_as_heap()
 	{
-		std::vector<int> v(1);
+		[[maybe_unused]] std::vector<int> v(1);
 		v.data()[1] = 42;
 	}
 }

@@ -21,45 +21,49 @@ clone_depth: 1
 
 install:
   #update AppVeyor build number to match Far build number
-  - cd far && for /f "tokens=1,2,4 delims=, " %%i in ('tools\m4 -P farversion.inc.m4') do appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
+  - cd far && for /f "tokens=1,2,4 delims=, " %%i in ('tools\m4 -P farversion.inc.m4') do set VER_MAJOR=%%i && set VER_MINOR=%%j && set VER_BUILD=%%k && appveyor UpdateBuild -Version %%i.%%j.%%k.%APPVEYOR_BUILD_NUMBER% && cd ..
 
 environment:
   matrix:
-  - platform: Win32
+  - id: Release.x64
     configuration: Release
-    CPU: i386
-    APPVER: 6.0
+    arch: amd64
+    platform_name: x64
     ADD_MAKE:
     ADD_MAKE_MSI: RELEASE=1
     NAME_ADD:
-    bit: 32
 
-  - platform: x64
+  - id: Release.x86
     configuration: Release
-    CPU: AMD64
-    APPVER: 6.0
+    arch: amd64_x86
+    platform_name: x86
     ADD_MAKE:
     ADD_MAKE_MSI: RELEASE=1
     NAME_ADD:
-    bit: 64
-    
-  - platform: Win32
-    configuration: Debug
-    CPU: i386
-    APPVER: 6.0
-    ADD_MAKE: DEBUG=1
-    ADD_MAKE_MSI:
-    NAME_ADD: .Debug
-    bit: 32
 
-  - platform: x64
+  - id: Release.ARM64
+    configuration: Release
+    arch: amd64_arm64
+    platform_name: ARM64
+    ADD_MAKE:
+    ADD_MAKE_MSI: RELEASE=1
+    NAME_ADD:
+
+  - id: Debug.x64
     configuration: Debug
-    CPU: AMD64
-    APPVER: 6.0
+    arch: amd64
+    platform_name: x64
     ADD_MAKE: DEBUG=1
-    NAME_ADD: .Debug
     ADD_MAKE_MSI:
-    bit: 64
+    NAME_ADD: .Debug
+
+  - id: Debug.x86
+    configuration: Debug
+    arch: amd64_x86
+    platform_name: x86
+    ADD_MAKE: DEBUG=1
+    ADD_MAKE_MSI:
+    NAME_ADD: .Debug
 
 build_script:
   #build Plugin SDK Encyclopedia
@@ -68,7 +72,7 @@ build_script:
   #build Lua MacroAPI docs
   - enc/tools/tool.make_lua_chm.bat
   #set vs environment variables
-  - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars%bit%.bat"
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" %arch%
   #print version
   - cl
   #build far
@@ -76,34 +80,30 @@ build_script:
   - set FARMANAGER_BUILD_TYPE=VS_RELEASE
   - set FARMANAGER_SCM_REVISION=%APPVEYOR_REPO_COMMIT%
   - nmake /f makefile_vc %ADD_MAKE%
-  - nmake /f makefile_vc install INSTALLDIR=..\ci\%configuration%.%platform% %ADD_MAKE%
+  - nmake /f makefile_vc install INSTALLDIR=..\ci\%configuration%.%platform_name% %ADD_MAKE%
   - update_headers.bat nocommit
   - cd ..
   #build plugins
   - cd plugins 
-  - nmake /f makefile_all_vc %ADD_MAKE% INSTALL=..\ci\%configuration%.%platform%\Plugins FAR_WORKDIR=..\..\ci\%configuration%.%platform%
+  - nmake /f makefile_all_vc %ADD_MAKE% INSTALL=..\ci\%configuration%.%platform_name%\Plugins FAR_WORKDIR=..\..\ci\%configuration%.%platform_name%
   - cd ..
   #build netbox
   - curl --silent "https://api.github.com/repos/FarGroup/Far-NetBox/releases/latest" | grep '"tag_name":' | sed -E 's/.*^"v([^^^"]+)^".*/\1/' > TEMP
   - set /p NETBOX_VERSION=<TEMP
   - echo "Download NetBox %NETBOX_VERSION%"
-  - set NETBOX_PLATFORM=x86
-  - if "%platform%" == "x64" set NETBOX_PLATFORM=x64
-  - set NETBOX_BASE_NAME=NetBox.%NETBOX_PLATFORM%.%NETBOX_VERSION%
+  - set NETBOX_BASE_NAME=NetBox.%platform_name%.%NETBOX_VERSION%
   - set NETBOX_FILE_NAME=%NETBOX_BASE_NAME%.7z
   - set NETBOX_PDB_NAME=%NETBOX_BASE_NAME%.pdb.7z
   - set NETBOX_BASE_URL=https://github.com/FarGroup/Far-NetBox/releases/download/v%NETBOX_VERSION%/
   - curl -fsLJO %NETBOX_BASE_URL%%NETBOX_FILE_NAME%
   - curl -fsLJO %NETBOX_BASE_URL%%NETBOX_PDB_NAME%
-  - set NETBOX_DIR=ci\%configuration%.%platform%\Plugins
+  - set NETBOX_DIR=ci\%configuration%.%platform_name%\Plugins
   - 7z x %NETBOX_FILE_NAME% -o%NETBOX_DIR%
   - 7z x %NETBOX_PDB_NAME% -o%NETBOX_DIR%\NetBox 
   #build FarColorer
   - for /F "delims=" %%a in ('curl -fsLJ "https://raw.githubusercontent.com/colorer/FarColorer/master/version4far.txt"') do set COLORER_VERSION=%%a
   - echo "Download FarColorer %COLORER_VERSION%"
-  - set COLORER_PLATFORM=x86
-  - if "%platform%" == "x64" set COLORER_PLATFORM=x64
-  - set COLORER_BASE_NAME=FarColorer.%COLORER_PLATFORM%.v%COLORER_VERSION%
+  - set COLORER_BASE_NAME=FarColorer.%platform_name%.v%COLORER_VERSION%
   - set COLORER_FILE_NAME=%COLORER_BASE_NAME%.wobase.7z
   - set COLORER_PDB_NAME=%COLORER_BASE_NAME%.pdb.7z
   - set COLORER_BASE_URL=https://github.com/colorer/FarColorer/releases/download/v%COLORER_VERSION%/
@@ -116,7 +116,7 @@ build_script:
   - set COLORER_SCHEMES_FILE_NAME=colorer-base.allpacked.%COLORER_SCHEMES_VERSION%.zip
   - set COLORER_SCHEMES_BASE_URL=https://github.com/colorer/Colorer-schemes/releases/download/v%COLORER_SCHEMES_VERSION%/
   - curl -fsLJO %COLORER_SCHEMES_BASE_URL%%COLORER_SCHEMES_FILE_NAME%
-  - set COLORER_DIR=ci\%configuration%.%platform%\Plugins\FarColorer
+  - set COLORER_DIR=ci\%configuration%.%platform_name%\Plugins\FarColorer
   - mkdir %COLORER_DIR%
   - 7z x %COLORER_FILE_NAME% -o%COLORER_DIR%
   - 7z x %COLORER_PDB_NAME% -o%COLORER_DIR%\bin
@@ -128,19 +128,19 @@ test: off
 
 after_build:
   #copy pregenerated CHM files
-  - mkdir ci\%configuration%.%platform%\Encyclopedia
-  - copy /Y enc\build\chm\ru\FarEncyclopedia.ru.chm ci\%configuration%.%platform%\Encyclopedia
-  - copy /Y enc\build\lua\luafar_manual\luafar_manual.chm ci\%configuration%.%platform%\Encyclopedia
-  - copy /Y enc\build\lua\macroapi_manual.en\macroapi_manual.en.chm ci\%configuration%.%platform%\Encyclopedia
-  - copy /Y enc\build\lua\macroapi_manual.ru\macroapi_manual.ru.chm ci\%configuration%.%platform%\Encyclopedia
+  - mkdir ci\%configuration%.%platform_name%\Encyclopedia
+  - copy /Y enc\build\chm\ru\FarEncyclopedia.ru.chm ci\%configuration%.%platform_name%\Encyclopedia
+  - copy /Y enc\build\lua\luafar_manual\luafar_manual.chm ci\%configuration%.%platform_name%\Encyclopedia
+  - copy /Y enc\build\lua\macroapi_manual.en\macroapi_manual.en.chm ci\%configuration%.%platform_name%\Encyclopedia
+  - copy /Y enc\build\lua\macroapi_manual.ru\macroapi_manual.ru.chm ci\%configuration%.%platform_name%\Encyclopedia
   #copy misc docs and addons
-  - xcopy /e /q /y /k extra\* ci\%configuration%.%platform%\
+  - xcopy /e /q /y /k extra\* ci\%configuration%.%platform_name%\
   #test & archive 
-  - cd ci\%configuration%.%platform%
+  - cd ci\%configuration%.%platform_name%
   #Run macrotest.lua, on failure %ERRORLEVEL% is non zero
-  - Far.exe "lua:far.MacroPost([=[R=win.GetEnv('FARHOME');R=R or os.exit(1); R=R..[[\Plugins\LuaMacro\macrotest.lua]]; R=loadfile(R);R=R or os.exit(2); OK,R=pcall(R);OK=OK or os.exit(3); OK,R=pcall(R.test_all);os.exit(OK and 0 or 4);]=],nil,'CtrlShiftF12')"
+  - if not "%platform_name%" == "ARM64" Far.exe "lua:far.MacroPost([=[R=win.GetEnv('FARHOME');R=R or os.exit(1); R=R..[[\Plugins\LuaMacro\macrotest.lua]]; R=loadfile(R);R=R or os.exit(2); OK,R=pcall(R);OK=OK or os.exit(3); OK,R=pcall(R.test_all);os.exit(OK and 0 or 4);]=],nil,'CtrlShiftF12')"
   #set NAME_PREFIX variable as otherwise it is not available when artifacts are collected
-  - set NAME_PREFIX="Far%NAME_ADD%.%platform%.%appveyor_build_version%.%APPVEYOR_REPO_COMMIT%"
+  - set NAME_PREFIX="Far%NAME_ADD%.%platform_name%.%appveyor_build_version%.%APPVEYOR_REPO_COMMIT%"
   - appveyor SetVariable -Name NAME_PREFIX -Value "%NAME_PREFIX%"
   #save artifacts only for release as we keep on reaching the appveyor limit
   #archive PDBs
@@ -150,12 +150,14 @@ after_build:
   - cd ..\..
   #create msi
   - cd misc\msi-installer
-  - set Path=%Path%;%WIX%\bin
-  - cl -nologo -EHsc -DNIGHTLY genparams.cpp
-  - genparams %APPVEYOR_BUILD_FOLDER%\ci\%configuration%.%platform% %platform%
+  - appveyor DownloadFile https://wixtoolset.org/downloads/v3.14.0.5722/wix314-binaries.zip
+  - 7z x wix314-binaries.zip -owix
+  - set PATH=%PATH%;wix
+  - set SOURCE_DIR=%APPVEYOR_BUILD_FOLDER%\ci\%configuration%.%platform_name%
+  - set NIGHTLY=1
   - nmake -nologo %ADD_MAKE_MSI%
   - cd ..\..
-  - if "%configuration%" == "Release" move ci\%configuration%.%platform%\final.msi "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.msi"
+  - if "%configuration%" == "Release" move ci\%configuration%.%platform_name%\final.msi "%APPVEYOR_BUILD_FOLDER%\%NAME_PREFIX%.msi"
 
 artifacts:
   - path: $(NAME_PREFIX).7z

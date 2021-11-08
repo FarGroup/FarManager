@@ -136,6 +136,7 @@ protected:
 
 class async_delete_impl;
 
+using primary_key = unsigned long long;
 
 class HierarchicalConfig: public representable, virtual public async_delete, virtual public transactional
 {
@@ -144,13 +145,13 @@ public:
 	{
 	public:
 		key() = default;
-		explicit key(unsigned long long Key): m_Key(Key) {}
+		explicit key(primary_key Key): m_Key(Key) {}
 
-		unsigned long long get() const noexcept { return m_Key; }
+		primary_key get() const noexcept { return m_Key; }
 		explicit operator bool() const noexcept { return m_Key != 0; }
 
 	private:
-		unsigned long long m_Key{};
+		primary_key m_Key{};
 	};
 
 	static inline const key root_key{0};
@@ -265,24 +266,24 @@ protected:
 class AssociationsConfig: public representable, virtual public transactional
 {
 public:
-	virtual bool GetMask(unsigned long long id, string &strMask) = 0;
-	virtual bool GetDescription(unsigned long long id, string &strDescription) = 0;
-	virtual bool GetCommand(unsigned long long id, int Type, string &strCommand, bool *Enabled=nullptr) = 0;
-	virtual void SetCommand(unsigned long long id, int Type, string_view Command, bool Enabled) = 0;
+	virtual bool GetMask(primary_key id, string &strMask) = 0;
+	virtual bool GetDescription(primary_key id, string &strDescription) = 0;
+	virtual bool GetCommand(primary_key id, int Type, string &strCommand, bool *Enabled=nullptr) = 0;
+	virtual void SetCommand(primary_key id, int Type, string_view Command, bool Enabled) = 0;
 	[[nodiscard]]
-	virtual bool SwapPositions(unsigned long long id1, unsigned long long id2) = 0;
+	virtual bool SwapPositions(primary_key id1, primary_key id2) = 0;
 	[[nodiscard]]
-	virtual unsigned long long AddType(unsigned long long after_id, string_view Mask, string_view Description) = 0;
-	virtual void UpdateType(unsigned long long id, string_view Mask, string_view Description) = 0;
-	virtual void DelType(unsigned long long id) = 0;
+	virtual primary_key AddType(primary_key after_id, string_view Mask, string_view Description) = 0;
+	virtual void UpdateType(primary_key id, string_view Mask, string_view Description) = 0;
+	virtual void DelType(primary_key id) = 0;
 
 	[[nodiscard]]
 	auto MasksEnumerator()
 	{
-		using value_type = std::pair<unsigned long long, string>;
+		using value_type = std::pair<primary_key, string>;
 		return make_inline_enumerator<value_type>([this](const bool Reset, value_type& Value)
 		{
-			return EnumMasks(Reset, &Value.first, Value.second);
+			return EnumMasks(Reset, Value.first, Value.second);
 		},
 		[this]
 		{
@@ -293,10 +294,10 @@ public:
 	[[nodiscard]]
 	auto TypedMasksEnumerator(int Type)
 	{
-		using value_type = std::pair<unsigned long long, string>;
+		using value_type = std::pair<primary_key, string>;
 		return make_inline_enumerator<value_type>([this, Type](const bool Reset, value_type& Value)
 		{
-			return EnumMasksForType(Reset, Type, &Value.first, Value.second);
+			return EnumMasksForType(Reset, Type, Value.first, Value.second);
 		},
 		[this]
 		{
@@ -306,10 +307,10 @@ public:
 
 private:
 	[[nodiscard]]
-	virtual bool EnumMasks(bool Reset, unsigned long long *id, string &strMask) const = 0;
+	virtual bool EnumMasks(bool Reset, primary_key& id, string& strMask) const = 0;
 	virtual void CloseEnumMasks() const = 0;
 	[[nodiscard]]
-	virtual bool EnumMasksForType(bool Reset, int Type, unsigned long long *id, string &strMask) const = 0;
+	virtual bool EnumMasksForType(bool Reset, int Type, primary_key& id, string& strMask) const = 0;
 	virtual void CloseEnumMasksForType() const = 0;
 
 protected:
@@ -320,51 +321,51 @@ class PluginsCacheConfig: public representable, virtual public transactional
 {
 public:
 	[[nodiscard]]
-	virtual unsigned long long CreateCache(string_view CacheName) = 0;
+	virtual primary_key CreateCache(string_view CacheName) = 0;
 	[[nodiscard]]
-	virtual unsigned long long GetCacheID(string_view CacheName) const = 0;
+	virtual primary_key GetCacheID(string_view CacheName) const = 0;
 	[[nodiscard]]
-	virtual bool IsPreload(unsigned long long id) const = 0;
+	virtual bool IsPreload(primary_key id) const = 0;
 	[[nodiscard]]
-	virtual string GetSignature(unsigned long long id) const = 0;
+	virtual string GetSignature(primary_key id) const = 0;
 	[[nodiscard]]
-	virtual bool GetExportState(unsigned long long id, string_view ExportName) const = 0;
+	virtual bool GetExportState(primary_key id, string_view ExportName) const = 0;
 	[[nodiscard]]
-	virtual string GetUuid(unsigned long long id) const = 0;
+	virtual string GetUuid(primary_key id) const = 0;
 	[[nodiscard]]
-	virtual string GetTitle(unsigned long long id) const = 0;
+	virtual string GetTitle(primary_key id) const = 0;
 	[[nodiscard]]
-	virtual string GetAuthor(unsigned long long id) const = 0;
+	virtual string GetAuthor(primary_key id) const = 0;
 	[[nodiscard]]
-	virtual string GetDescription(unsigned long long id) const = 0;
+	virtual string GetDescription(primary_key id) const = 0;
 	[[nodiscard]]
-	virtual bool GetMinFarVersion(unsigned long long id, VersionInfo& Version) const = 0;
+	virtual bool GetMinFarVersion(primary_key id, VersionInfo& Version) const = 0;
 	[[nodiscard]]
-	virtual bool GetVersion(unsigned long long id, VersionInfo& Version) const = 0;
+	virtual bool GetVersion(primary_key id, VersionInfo& Version) const = 0;
 	[[nodiscard]]
-	virtual bool GetDiskMenuItem(unsigned long long id, size_t index, string &Text, UUID& Uuid) const = 0;
+	virtual bool GetDiskMenuItem(primary_key id, size_t index, string &Text, UUID& Uuid) const = 0;
 	[[nodiscard]]
-	virtual bool GetPluginsMenuItem(unsigned long long id, size_t index, string &Text, UUID& Uuid) const = 0;
+	virtual bool GetPluginsMenuItem(primary_key id, size_t index, string &Text, UUID& Uuid) const = 0;
 	[[nodiscard]]
-	virtual bool GetPluginsConfigMenuItem(unsigned long long id, size_t index, string &Text, UUID& Uuid) const = 0;
+	virtual bool GetPluginsConfigMenuItem(primary_key id, size_t index, string &Text, UUID& Uuid) const = 0;
 	[[nodiscard]]
-	virtual string GetCommandPrefix(unsigned long long id) const = 0;
+	virtual string GetCommandPrefix(primary_key id) const = 0;
 	[[nodiscard]]
-	virtual unsigned long long GetFlags(unsigned long long id) const = 0;
-	virtual void SetPreload(unsigned long long id, bool Preload) = 0;
-	virtual void SetSignature(unsigned long long id, string_view Signature) = 0;
-	virtual void SetDiskMenuItem(unsigned long long id, size_t index, string_view Text, const UUID& Uuid) = 0;
-	virtual void SetPluginsMenuItem(unsigned long long id, size_t index, string_view Text, const UUID& Uuid) = 0;
-	virtual void SetPluginsConfigMenuItem(unsigned long long id, size_t index, string_view Text, const UUID& Uuid) = 0;
-	virtual void SetCommandPrefix(unsigned long long id, string_view Prefix) = 0;
-	virtual void SetFlags(unsigned long long id, unsigned long long Flags) = 0;
-	virtual void SetExportState(unsigned long long id, string_view ExportName, bool Exists) = 0;
-	virtual void SetMinFarVersion(unsigned long long id, const VersionInfo& Version) = 0;
-	virtual void SetVersion(unsigned long long id, const VersionInfo& Version) = 0;
-	virtual void SetUuid(unsigned long long id, string_view Uuid) = 0;
-	virtual void SetTitle(unsigned long long id, string_view Title) = 0;
-	virtual void SetAuthor(unsigned long long id, string_view Author) = 0;
-	virtual void SetDescription(unsigned long long id, string_view Description) = 0;
+	virtual unsigned long long GetFlags(primary_key id) const = 0;
+	virtual void SetPreload(primary_key id, bool Preload) = 0;
+	virtual void SetSignature(primary_key id, string_view Signature) = 0;
+	virtual void SetDiskMenuItem(primary_key id, size_t index, string_view Text, const UUID& Uuid) = 0;
+	virtual void SetPluginsMenuItem(primary_key id, size_t index, string_view Text, const UUID& Uuid) = 0;
+	virtual void SetPluginsConfigMenuItem(primary_key id, size_t index, string_view Text, const UUID& Uuid) = 0;
+	virtual void SetCommandPrefix(primary_key id, string_view Prefix) = 0;
+	virtual void SetFlags(primary_key id, unsigned long long Flags) = 0;
+	virtual void SetExportState(primary_key id, string_view ExportName, bool Exists) = 0;
+	virtual void SetMinFarVersion(primary_key id, const VersionInfo& Version) = 0;
+	virtual void SetVersion(primary_key id, const VersionInfo& Version) = 0;
+	virtual void SetUuid(primary_key id, string_view Uuid) = 0;
+	virtual void SetTitle(primary_key id, string_view Title) = 0;
+	virtual void SetAuthor(primary_key id, string_view Author) = 0;
+	virtual void SetDescription(primary_key id, string_view Description) = 0;
 	[[nodiscard]]
 	virtual bool EnumPlugins(size_t Index, string &CacheName) const = 0;
 	virtual void DiscardCache() = 0;
@@ -402,43 +403,43 @@ class HistoryConfig: public representable, virtual public transactional
 {
 public:
 	//command,view,edit,folder,dialog history
-	virtual void Delete(unsigned long long id) = 0;
+	virtual void Delete(primary_key id) = 0;
 
-	virtual void DeleteAndAddAsync(unsigned long long DeleteId, unsigned int TypeHistory, string_view HistoryName, string_view Name, int Type, bool Lock, os::chrono::time_point Time, string_view Uuid, string_view File, string_view Data) = 0;
+	virtual void DeleteAndAddAsync(primary_key DeleteId, unsigned int TypeHistory, string_view HistoryName, string_view Name, int Type, bool Lock, os::chrono::time_point Time, string_view Uuid, string_view File, string_view Data) = 0;
 	virtual void DeleteOldUnlocked(unsigned int TypeHistory, string_view HistoryName, int DaysToKeep, int MinimumEntries) = 0;
 	[[nodiscard]]
-	virtual bool Get(unsigned long long id, string* Name, history_record_type* Type, os::chrono::time_point* Time, string* Uuid, string* File, string* Data) = 0;
+	virtual bool Get(primary_key id, string* Name, history_record_type* Type, os::chrono::time_point* Time, string* Uuid, string* File, string* Data) = 0;
 	[[nodiscard]]
 	virtual DWORD Count(unsigned int TypeHistory, string_view HistoryName) = 0;
-	virtual void FlipLock(unsigned long long id) = 0;
+	virtual void FlipLock(primary_key id) = 0;
 	[[nodiscard]]
-	virtual bool IsLocked(unsigned long long id) = 0;
+	virtual bool IsLocked(primary_key id) = 0;
 	virtual void DeleteAllUnlocked(unsigned int TypeHistory, string_view HistoryName) = 0;
 	[[nodiscard]]
-	virtual unsigned long long GetNext(unsigned int TypeHistory, string_view HistoryName, unsigned long long id, string &strName, os::chrono::time_point& Time) = 0;
+	virtual primary_key GetNext(unsigned int TypeHistory, string_view HistoryName, primary_key id, string &strName, os::chrono::time_point& Time) = 0;
 	[[nodiscard]]
-	virtual unsigned long long GetPrev(unsigned int TypeHistory, string_view HistoryName, unsigned long long id, string &strName, os::chrono::time_point& Time) = 0;
+	virtual primary_key GetPrev(unsigned int TypeHistory, string_view HistoryName, primary_key id, string &strName, os::chrono::time_point& Time) = 0;
 	[[nodiscard]]
-	virtual unsigned long long CyclicGetPrev(unsigned int TypeHistory, string_view HistoryName, unsigned long long id, string &strName, os::chrono::time_point& Time) = 0;
+	virtual primary_key CyclicGetPrev(unsigned int TypeHistory, string_view HistoryName, primary_key id, string &strName, os::chrono::time_point& Time) = 0;
 
 	//view,edit file positions and bookmarks history
 	[[nodiscard]]
-	virtual unsigned long long SetEditorPos(string_view Name, os::chrono::time_point Time, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) = 0;
+	virtual primary_key SetEditorPos(string_view Name, os::chrono::time_point Time, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage) = 0;
 	[[nodiscard]]
 	virtual unsigned long long GetEditorPos(string_view Name, int& Line, int& LinePos, int& ScreenLine, int& LeftPos, uintptr_t& CodePage) = 0;
-	virtual void SetEditorBookmark(unsigned long long id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) = 0;
-	virtual bool GetEditorBookmark(unsigned long long id, size_t i, int& Line, int& LinePos, int& ScreenLine, int& LeftPos) = 0;
+	virtual void SetEditorBookmark(primary_key id, size_t i, int Line, int LinePos, int ScreenLine, int LeftPos) = 0;
+	virtual bool GetEditorBookmark(primary_key id, size_t i, int& Line, int& LinePos, int& ScreenLine, int& LeftPos) = 0;
 	[[nodiscard]]
-	virtual unsigned long long SetViewerPos(string_view Name, os::chrono::time_point Time, long long FilePos, long long LeftPos, int HexWrap, uintptr_t CodePage) = 0;
+	virtual primary_key SetViewerPos(string_view Name, os::chrono::time_point Time, long long FilePos, long long LeftPos, int HexWrap, uintptr_t CodePage) = 0;
 	[[nodiscard]]
 	virtual unsigned long long GetViewerPos(string_view Name, long long& FilePos, long long& LeftPos, int& HexWrap, uintptr_t& CodePage) = 0;
-	virtual void SetViewerBookmark(unsigned long long id, size_t i, long long FilePos, long long LeftPos) = 0;
-	virtual bool GetViewerBookmark(unsigned long long id, size_t i, long long& FilePos, long long& LeftPos) = 0;
+	virtual void SetViewerBookmark(primary_key id, size_t i, long long FilePos, long long LeftPos) = 0;
+	virtual bool GetViewerBookmark(primary_key id, size_t i, long long& FilePos, long long& LeftPos) = 0;
 	virtual void DeleteOldPositions(int DaysToKeep, int MinimumEntries) = 0;
 
 	struct enum_data
 	{
-		unsigned long long Id;
+		primary_key Id;
 		string Name;
 		history_record_type Type;
 		bool Lock;
@@ -482,7 +483,7 @@ protected:
 private:
 	//command,view,edit,folder,dialog history
 	[[nodiscard]]
-	virtual bool Enum(bool Reset, unsigned int TypeHistory, string_view HistoryName, std::optional<string_view> ItemName, unsigned long long& id, string& strName, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strUuid, string& strFile, string& strData, bool Reverse) = 0;
+	virtual bool Enum(bool Reset, unsigned int TypeHistory, string_view HistoryName, std::optional<string_view> ItemName, primary_key& id, string& strName, history_record_type& Type, bool& Lock, os::chrono::time_point& Time, string& strUuid, string& strFile, string& strData, bool Reverse) = 0;
 	virtual void CloseEnum(bool Reverse) const = 0;
 	[[nodiscard]]
 	virtual bool EnumLargeHistories(bool Reset, unsigned int TypeHistory, int MinimumEntries, string& strHistoryName) = 0;

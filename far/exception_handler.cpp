@@ -361,7 +361,7 @@ static bool ExcDialog(string const& ReportLocation, string const& PluginInformat
 	DialogBuilder Builder(lng::MExceptionDialogTitle);
 	if (!PluginInformation.empty())
 	{
-		Builder.AddText(PluginInformation)->Flags |= DIF_SHOWAMPERSAND;
+		Builder.AddText(PluginInformation).Flags |= DIF_SHOWAMPERSAND;
 		Builder.AddSeparator();
 	}
 	Builder.AddText(lng::MExceptionDialogMessage1);
@@ -371,13 +371,11 @@ static bool ExcDialog(string const& ReportLocation, string const& PluginInformat
 
 	if (!PluginInformation.empty())
 	{
-		lng const MsgIDs[]{ lng::MExcTerminate, lng::MExcUnload, lng::MIgnore };
-		Builder.AddButtons(MsgIDs, 0, std::size(MsgIDs) - 1);
+		Builder.AddButtons({ lng::MExcTerminate, lng::MExcUnload, lng::MIgnore });
 	}
 	else
 	{
-		lng const MsgIDs[]{ lng::MExcTerminate, lng::MIgnore };
-		Builder.AddButtons(MsgIDs, 0, std::size(MsgIDs) - 1);
+		Builder.AddButtons({ lng::MExcTerminate, lng::MIgnore });
 	}
 
 	Builder.SetDialogMode(DMODE_WARNINGSTYLE | DMODE_NOPLUGINS);
@@ -397,14 +395,14 @@ static bool ExcDialog(string const& ReportLocation, string const& PluginInformat
 	}
 }
 
-static bool ExcConsole(string const& ReportLocation, string const& PluginInformation)
+static void print_exception_message(string const& ReportLocation, string const& PluginInformation)
 {
 	const auto Eol = eol::std.str();
 
 	std::array LngMsgs
 	{
 		L"Oops"sv,
-		L"Something went wrong in {}"sv,
+		L"Something went wrong."sv,
 		L"Please send the bug report to the developers."sv,
 	};
 
@@ -439,8 +437,11 @@ static bool ExcConsole(string const& ReportLocation, string const& PluginInforma
 		Separator << Eol <<
 		ReportLocation << Eol <<
 		Separator << Eol;
+}
 
-	if (!ConsoleYesNo(L"Terminate the process"sv, true))
+static bool ExcConsole(string const& ReportLocation, string const& PluginInformation)
+{
+	if (!ConsoleYesNo(L"Terminate the process"sv, true, [&]{ print_exception_message(ReportLocation, PluginInformation); }))
 		return false;
 
 	UseTerminateHandler = true;

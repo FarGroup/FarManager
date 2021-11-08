@@ -476,13 +476,13 @@ static DWORD GetHistoryDisableMask()
 bool KeyMacro::IsHistoryDisabled(int TypeHistory)
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(OP_ISHISTORYDISABLE, static_cast<double>(TypeHistory), &Ret)? !!Ret.ReturnType : false;
+	return MacroPluginOp(OP_ISHISTORYDISABLE, TypeHistory, &Ret)? Ret.ReturnType != 0 : false;
 }
 
 static bool IsTopMacroOutputDisabled()
 {
 	MacroPluginReturn Ret;
-	return MacroPluginOp(OP_ISTOPMACROOUTPUTDISABLED,false,&Ret) ? !!Ret.ReturnType : false;
+	return MacroPluginOp(OP_ISTOPMACROOUTPUTDISABLED,false,&Ret) ? Ret.ReturnType != 0 : false;
 }
 
 static bool IsPostMacroEnabled()
@@ -1125,9 +1125,10 @@ intptr_t KeyMacro::ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 		case DN_BTNCLICK:
 
 			if (Param1==MS_CHECKBOX_A_PANEL || Param1==MS_CHECKBOX_P_PANEL)
-				for (int i=1; i<=3; i++)
+			{
+				for (const auto& i: irange(1, 4))
 					Dlg->SendMessage(DM_ENABLE,Param1+i,Param2);
-
+			}
 			break;
 		case DN_CLOSE:
 
@@ -1733,7 +1734,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					api.PassValue(0);
 
 			return IsStringType?
-				api.PassValue(reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(ActualWindow->VMProcess(CheckCode)))) :
+				api.PassValue(reinterpret_cast<const wchar_t*>(ActualWindow->VMProcess(CheckCode))) :
 				api.PassValue(ActualWindow->VMProcess(CheckCode));
 		}
 
@@ -1981,7 +1982,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (CheckCode == MCODE_V_MENUINFOID && CurrentWindow && CurrentWindow->GetType() == windowtype_menu)
 			{
-				return api.PassValue(reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(CurrentWindow->VMProcess(MCODE_V_DLGINFOID))));
+				return api.PassValue(reinterpret_cast<const wchar_t*>(CurrentWindow->VMProcess(MCODE_V_DLGINFOID)));
 			}
 
 			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
@@ -2001,7 +2002,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						break;
 
 					case MCODE_V_MENUINFOID:
-						return api.PassValue(reinterpret_cast<const wchar_t*>(static_cast<intptr_t>(CurrentWindow->VMProcess(CheckCode))));
+						return api.PassValue(reinterpret_cast<const wchar_t*>(CurrentWindow->VMProcess(CheckCode)));
 					}
 				}
 			}
@@ -2416,7 +2417,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					{
 						if (tmpVar.isUnknown())
 							tmpVar = -1;
-						tmpVar = CurrentWindow->VMProcess(CheckCode, reinterpret_cast<void*>(static_cast<intptr_t>(tmpVar.toInteger())), tmpAction.toInteger());
+						tmpVar = CurrentWindow->VMProcess(CheckCode, reinterpret_cast<void*>(tmpVar.toInteger()), tmpAction.toInteger());
 						success=true;
 					}
 					else
@@ -3125,7 +3126,7 @@ void FarMacroApi::menushowFunc()
 
 	if ((bAutoNumbering) && (bSorting || bPacking))
 	{
-		for (int i = 0; i < Menu->GetShowItemCount(); i++)
+		for (const auto& i: irange(Menu->GetShowItemCount()))
 		{
 			auto& Item = Menu->at(i);
 			if (!(Item.Flags & LIF_SEPARATOR))
@@ -3185,7 +3186,7 @@ void FarMacroApi::menushowFunc()
 			case KEY_RCTRLMULTIPLY:
 				if (bMultiSelect)
 				{
-					for (size_t i = 0, size = Menu->size(); i != size; ++i)
+					for (const auto& i: irange(Menu->size()))
 					{
 						if (Menu->at(i).Flags & MIF_HIDDEN)
 							continue;
@@ -3236,7 +3237,7 @@ void FarMacroApi::menushowFunc()
 		{
 			string StrResult;
 
-			for (size_t i = 0, size = Menu->size(); i != size; ++i)
+			for (const auto& i: irange(Menu->size()))
 			{
 				if (Menu->GetCheck(static_cast<int>(i)))
 				{
@@ -4273,7 +4274,7 @@ void FarMacroApi::panelsetposidxFunc()
 				else
 				{
 					const auto CurPos = SelPanel->GetCurrentPos();
-					for (size_t I=0 ; I < EndPos ; I++ )
+					for (const auto& I: irange(EndPos))
 					{
 						if ( SelPanel->IsSelected(I) && SelPanel->FileInFilter(I) )
 						{
@@ -4513,7 +4514,7 @@ void FarMacroApi::strpadFunc()
 
 			const auto& pFill = Fill.asString();
 
-			for (int i = 0; i != FineLength; ++i)
+			for (const auto& i: irange(FineLength))
 			{
 				NewFill.push_back(pFill[i % LengthFill]);
 			}
@@ -5185,7 +5186,7 @@ TEST_CASE("macro.splitpath")
 
 	for (const auto& i: Tests)
 	{
-		for (int Flags = 1; Flags != 0b1111; ++Flags)
+		for (const auto& Flags: irange(1, 0b1111))
 		{
 			string Expected;
 

@@ -563,7 +563,7 @@ TEST_CASE("platform.string.receiver")
 
 	const auto validate = [](string const& Data)
 	{
-		for (size_t i = 0, size = Data.size(); i != size; ++i)
+		for (const auto& i: irange(Data.size()))
 		{
 			if (Data[i] != i + 1)
 				return false;

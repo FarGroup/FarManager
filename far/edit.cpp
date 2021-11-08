@@ -336,7 +336,7 @@ void Edit::FastShow(const ShowInfo* Info)
 			}
 			else
 			{
-				OutStr.push_back(!*i? L' ' : *i);
+				OutStr.push_back(*i);
 			}
 		}
 
@@ -423,9 +423,9 @@ void Edit::FastShow(const ShowInfo* Info)
 
 			Global->ScrBuf->ApplyColor(
 				{
-					std::min(m_Where.left + TabSelStart, static_cast<int>(m_Where.right + 1)),
+					std::min(m_Where.left + TabSelStart, m_Where.right + 1),
 					m_Where.top,
-					std::min(m_Where.left + TabSelEnd - 1, static_cast<int>(m_Where.right + 1)),
+					std::min(m_Where.left + TabSelEnd - 1, m_Where.right + 1),
 					m_Where.top
 				},
 				GetSelectedColor()
@@ -998,8 +998,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 					}
 
 					// BUGBUG
-					for (int i = 0; i < ptr - m_CurPos; i++)
-						RecurseProcessKey(KEY_DEL);
+					repeat(ptr - m_CurPos, [&]{ RecurseProcessKey(KEY_DEL); });
 				}
 				else
 				{
@@ -1166,9 +1165,9 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 				}
 				else
 				{
-					const size_t MaskLen = Mask.size();
+					const auto MaskLen = Mask.size();
 					size_t j = m_CurPos;
-					for (size_t i = m_CurPos; i < MaskLen; ++i)
+					for (const auto& i: irange(m_CurPos, MaskLen))
 					{
 						if (i + 1 < MaskLen && CheckCharMask(Mask[i + 1]))
 						{
@@ -1301,7 +1300,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 				ClipText.resize(MaxLength);
 			}
 
-			for (size_t i=0; i < ClipText.size(); ++i)
+			for (const auto& i: irange(ClipText.size()))
 			{
 				if (IsEol(ClipText[i]))
 				{
@@ -1993,7 +1992,7 @@ void Edit::DeleteBlock()
 	const auto Mask = GetInputMask();
 	if (!Mask.empty())
 	{
-		for (auto i = m_SelStart; i != m_SelEnd; ++i)
+		for (const auto& i: irange(m_SelStart, m_SelEnd))
 		{
 			if (CheckCharMask(Mask[i]))
 			{
@@ -2065,7 +2064,8 @@ void Edit::ApplyColor(int XPos, int FocusedLeftPos, positions_cache& RealToVisua
 		auto First = RealToVisual.get(CurItem.StartPos);
 		const auto LastFirst = RealToVisual.get(CurItem.EndPos);
 		int LastLast = LastFirst;
-		for (int i = 0; i != 2; ++i)
+
+		for (const auto& i: irange(2))
 		{
 			LastLast = RealToVisual.get(CurItem.EndPos + 1 + i);
 			if (LastLast > LastFirst)

@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/scope_exit.hpp"
+#include "common/view/zip.hpp"
 
 // External:
 
@@ -241,10 +242,10 @@ static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const
 	if (NewItem.CustomColumnNumber>0)
 	{
 		auto CustomColumnData = std::make_unique<wchar_t*[]>(NewItem.CustomColumnNumber);
-		for (size_t ii = 0; ii < NewItem.CustomColumnNumber; ii++)
+		for (const auto& [Column, ColData]: zip(span(CurPanelItem->CustomColumnData, NewItem.CustomColumnNumber), span(CustomColumnData.get(), NewItem.CustomColumnNumber)))
 		{
-			if (CurPanelItem->CustomColumnData[ii])
-				CustomColumnData[ii] = MakeCopy(CurPanelItem->CustomColumnData[ii]);
+			if (Column)
+				ColData = MakeCopy(Column);
 		}
 		NewItem.CustomColumnData = CustomColumnData.release();
 	}
@@ -353,8 +354,12 @@ static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, string_vi
 	}
 	else
 	{
-		DirListPlugin = std::make_unique<plugin_panel>(PluginNumber, hPlugin);
-		hDirListPlugin = DirListPlugin.get();
+		if (const auto aHandle = Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle(); aHandle->panel() == hPlugin)
+			hDirListPlugin = aHandle;
+		else if (const auto pHandle = Global->CtrlObject->Cp()->PassivePanel()->GetPluginHandle(); pHandle->panel() == hPlugin)
+			hDirListPlugin = pHandle;
+		else
+			return false;
 	}
 
 	const auto strDirName = fit_to_center(truncate_left(Dir, 30), 30);

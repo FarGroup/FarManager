@@ -168,13 +168,13 @@ extern "C"
 #define ASAN_UNPOISON_MEMORY_REGION(addr, size) ((void)(addr), (void)(size))
 #endif
 
-void poison_block(MEMINFO* Block)
+static void poison_block(MEMINFO* Block)
 {
 	ASAN_POISON_MEMORY_REGION(&Block->end_marker(), sizeof(EndMarker));
 	ASAN_POISON_MEMORY_REGION(Block, Block->HeaderSize);
 }
 
-void unpoison_block(MEMINFO* Block)
+static void unpoison_block(MEMINFO* Block)
 {
 	ASAN_UNPOISON_MEMORY_REGION(Block, sizeof(*Block));
 	ASAN_UNPOISON_MEMORY_REGION(Block + 1, Block->HeaderSize - sizeof(*Block));

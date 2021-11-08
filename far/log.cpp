@@ -890,9 +890,8 @@ namespace logging
 		while (!PipeFile.Open(PipeName, GENERIC_READ, 0, {}, OPEN_EXISTING))
 		{
 			const auto ErrorState = last_error();
-			std::wcerr << format(FSTR(L"Can't open pipe {}: {}"sv), PipeName, ErrorState.Win32ErrorStr()) << std::endl;
 
-			if (!ConsoleYesNo(L"Retry"sv, false))
+			if (!ConsoleYesNo(L"Retry"sv, false, [&]{ std::wcerr << format(FSTR(L"Can't open pipe {}: {}"sv), PipeName, ErrorState.Win32ErrorStr()) << std::endl; }))
 				return EXIT_FAILURE;
 		}
 

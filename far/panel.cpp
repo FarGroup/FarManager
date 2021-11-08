@@ -184,7 +184,7 @@ bool Panel::ProcessMouseDrag(const MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
 		{
-			if ((abs(MouseEvent->dwMousePosition.X-DragX)>15 || SrcDragPanel!=this) && !m_ModalMode)
+			if ((std::abs(MouseEvent->dwMousePosition.X - DragX) > 15 || SrcDragPanel != this) && !m_ModalMode)
 			{
 				if (SrcDragPanel->GetSelCount()==1 && !DragSaveScr)
 				{
@@ -424,7 +424,7 @@ void Panel::Show()
 		{
 			if (SaveScr)
 			{
-				SaveScr->AppendArea(AnotherPanel->SaveScr.get());
+				SaveScr->AppendArea(*AnotherPanel->SaveScr);
 			}
 
 			if (AnotherPanel->IsFocused())
@@ -542,7 +542,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 			if ((Mode>SM_DEFAULT) && (Mode < SM_COUNT))
 			{
-				SetSortMode(panel_sort(Mode - 1)); // Уменьшим на 1 из-за SM_DEFAULT
+				SetSortMode(panel_sort{ Mode - 1 }); // Уменьшим на 1 из-за SM_DEFAULT
 				Result=TRUE;
 			}
 			break;

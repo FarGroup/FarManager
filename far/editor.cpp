@@ -339,7 +339,7 @@ void Editor::ShowEditor()
 
 	if (IsVerticalSelection() && VBlockSizeX > 0 && VBlockSizeY > 0)
 	{
-		int CurScreenLine = static_cast<int>(m_it_CurLine.Number() - CalcDistance(m_it_TopScreen,m_it_CurLine));
+		int CurScreenLine = m_it_CurLine.Number() - CalcDistance(m_it_TopScreen,m_it_CurLine);
 		LeftPos=m_it_CurLine->GetLeftPos();
 
 		Y = m_Where.top;
@@ -1741,8 +1741,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		{
 			m_Flags.Set(FEDITOR_NEWUNDO);
 
-			for (int I = m_Where.top; I < m_Where.bottom; ++I)
-				ScrollUp();
+			repeat(m_Where.bottom - m_Where.top, [&]{ ScrollUp(); });
 
 			Refresh = true;
 			return true;
@@ -1752,8 +1751,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		{
 			m_Flags.Set(FEDITOR_NEWUNDO);
 
-			for (int I = m_Where.top; I < m_Where.bottom; ++I)
-				ScrollDown();
+			repeat(m_Where.bottom - m_Where.top, [&] { ScrollDown(); });
 
 			Refresh = true;
 			return true;
@@ -2259,8 +2257,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_RALTPGUP:
 		{
 			Pasting++;
-			for (int I = m_Where.top; I < m_Where.bottom; ++I)
-				ProcessKeyInternal(Manager::Key(KEY_ALTSHIFTUP), Refresh);
+			repeat(m_Where.bottom - m_Where.top, [&]{ ProcessKeyInternal(Manager::Key(KEY_ALTSHIFTUP), Refresh); });
 			Pasting--;
 			Refresh = true;
 			return true;
@@ -2272,8 +2269,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_RALTPGDN:
 		{
 			Pasting++;
-			for (int I = m_Where.top; I < m_Where.bottom; ++I)
-				ProcessKeyInternal(Manager::Key(KEY_ALTSHIFTDOWN), Refresh);
+			repeat(m_Where.bottom - m_Where.top, [&]{ ProcessKeyInternal(Manager::Key(KEY_ALTSHIFTDOWN), Refresh); });
 			Pasting--;
 			Refresh = true;
 			return true;
@@ -2542,8 +2538,11 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 						m_it_CurLine->SetCurPos(0);
 						const auto PrevStr = PrevLine->GetString();
 
-						for (size_t I = 0; I != PrevStr.size() && std::iswblank(PrevStr[I]); ++I)
+						for (const auto& i: PrevStr)
 						{
+							if (!std::iswblank(i))
+								break;
+
 							int NewTabPos=m_it_CurLine->GetTabCurPos();
 
 							if (NewTabPos==TabPos)
@@ -2560,7 +2559,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 							}
 
 							if (NewTabPos<TabPos)
-								m_it_CurLine->ProcessKey(Manager::Key(PrevStr[I]));
+								m_it_CurLine->ProcessKey(Manager::Key(i));
 						}
 
 						m_it_CurLine->SetTabCurPos(TabPos);
@@ -3172,7 +3171,7 @@ void Editor::InsertString()
 				}
 				else
 				{
-					for (size_t I = 0; m_it_CurLine->GetTabCurPos() < IndentPos; ++I)
+					while (m_it_CurLine->GetTabCurPos() < IndentPos)
 					{
 						m_it_CurLine->ProcessKey(Manager::Key(KEY_SPACE));
 					}
@@ -3466,7 +3465,7 @@ bool Editor::Search(bool Next)
 
 		const time_check TimeCheck;
 		std::optional<single_progress> Progress;
-		int StartLine = m_it_CurLine.Number();
+		const auto StartLine = CurPtr.Number();
 		SCOPED_ACTION(taskbar::indeterminate);
 		SCOPED_ACTION(wakeful);
 		int LastCheckedLine = -1;
@@ -3486,7 +3485,7 @@ bool Editor::Search(bool Next)
 
 				SetCursorType(false, -1);
 				const auto Total = FindAllReferences? Lines.size() : ReverseSearch? StartLine : Lines.size() - StartLine;
-				const auto Current = abs(CurPtr.Number() - StartLine);
+				const auto Current = std::abs(CurPtr.Number() - StartLine);
 				Progress->update(Total > 0? Current * 100 / Total : 100);
 				taskbar::set_value(Current,Total);
 			}
@@ -3561,7 +3560,7 @@ bool Editor::Search(bool Next)
 
 					TmpPtr=m_it_CurLine=CurPtr;
 
-					for (int i=0; i<FromTop; i++)
+					for ([[maybe_unused]] const auto& i: irange(FromTop))
 					{
 						if (TmpPtr != Lines.begin())
 							--TmpPtr;
@@ -4010,7 +4009,7 @@ void Editor::Paste(string_view const Data)
 				{
 					const auto& Str = m_it_CurLine->GetString();
 					const auto CurPos = m_it_CurLine->GetCurPos();
-					AddUndoData(UNDO_EDIT, Str, m_it_CurLine->GetEOL(), m_it_CurLine.Number(), static_cast<int>(CurPos)); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+					AddUndoData(UNDO_EDIT, Str, m_it_CurLine->GetEOL(), m_it_CurLine.Number(), CurPos); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 					m_it_CurLine->InsertString(string_view(Data).substr(i, Pos - i));
 					Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 				}
@@ -4557,7 +4556,7 @@ void Editor::AddUndoData(int Type, string_view const Str, eol Eol, int StrNum, i
 		case UNDO_EDIT:
 			{
 				if (!m_Flags.Check(FEDITOR_NEWUNDO) && PrevUndo->m_Type == UNDO_EDIT && StrNum == PrevUndo->m_StrNum &&
-						(abs(StrPos-PrevUndo->m_StrPos)<=1 || abs(StrPos-LastChangeStrPos)<=1))
+						(std::abs(StrPos-PrevUndo->m_StrPos)<=1 || abs(StrPos-LastChangeStrPos)<=1))
 				{
 					LastChangeStrPos=StrPos;
 					return;
@@ -5510,7 +5509,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			{
 				BeginStreamMarking(CurPtr);
 
-				for (int i = 0; i < Sel->BlockHeight; i++)
+				for (const auto& i: irange(Sel->BlockHeight))
 				{
 					const auto SelStart = i? 0 : Sel->BlockStartPos;
 					const auto SelEnd = (i < Sel->BlockHeight - 1)? -1 : Sel->BlockStartPos + Sel->BlockWidth;
@@ -6174,7 +6173,7 @@ Editor::numbered_iterator Editor::GetStringByNumber(int DestLine)
 
 	if(Forward)
 	{
-		for (int Line = CurPtr.Number(); Line != DestLine; ++Line)
+		for ([[maybe_unused]] const auto& Line: irange(DestLine - CurPtr.Number()))
 		{
 			++CurPtr;
 			if (CurPtr == Lines.end())
@@ -6186,7 +6185,7 @@ Editor::numbered_iterator Editor::GetStringByNumber(int DestLine)
 	}
 	else
 	{
-		for (int Line = CurPtr.Number(); Line != DestLine; --Line)
+		for ([[maybe_unused]] const auto& Line: irange(CurPtr.Number() - DestLine))
 		{
 			if (CurPtr == Lines.begin())
 				CurPtr = EndIterator();

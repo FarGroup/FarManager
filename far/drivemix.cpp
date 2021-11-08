@@ -62,12 +62,7 @@ void UpdateSavedDrives(const std::any& Payload)
 	if (Message.Media)
 		return;
 
-	const os::fs::drives_set Drives(Message.Drives);
-
-	if (Message.Arrival)
-		*SavedLogicalDrives |= Drives;
-	else
-		*SavedLogicalDrives &= ~Drives;
+	flags::change(*SavedLogicalDrives, Message.Drives, Message.Arrival);
 }
 
 os::fs::drives_set allowed_drives_mask()

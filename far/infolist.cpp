@@ -343,9 +343,9 @@ void InfoList::DisplayObject()
 				case DRIVE_CDROM:
 					if (Global->Opt->InfoPanel.ShowCDInfo)
 					{
-						static_assert(as_underlying_type(lng::MInfoHDDVDRAM) - as_underlying_type(lng::MInfoCDROM) == as_underlying_type(cd_type::hddvdram) - as_underlying_type(cd_type::cdrom));
+						static_assert(std::to_underlying(lng::MInfoHDDVDRAM) - std::to_underlying(lng::MInfoCDROM) == std::to_underlying(cd_type::hddvdram) - std::to_underlying(cd_type::cdrom));
 
-						DiskTypeId = lng::MInfoCDROM + (as_underlying_type(get_cdrom_type(strDriveRoot)) - as_underlying_type(cd_type::cdrom));
+						DiskTypeId = lng::MInfoCDROM + (std::to_underlying(get_cdrom_type(strDriveRoot)) - std::to_underlying(cd_type::cdrom));
 					}
 					else
 					{
@@ -963,12 +963,11 @@ bool InfoList::ShowPluginDescription(int YPos) const
 	AnotherPanel->GetOpenPanelInfo(&Info);
 
 	int Y=YPos;
-	for (size_t I=0; I<Info.InfoLinesNumber; I++, Y++)
+	for (const auto& InfoLine: span(Info.InfoLines, Info.InfoLinesNumber))
 	{
 		if (Y >= m_Where.bottom)
 			break;
 
-		const InfoPanelLine *InfoLine=&Info.InfoLines[I];
 		GotoXY(m_Where.left, Y);
 		SetColor(COL_PANELBOX);
 		Text(VertcalLine);
@@ -978,12 +977,12 @@ bool InfoList::ShowPluginDescription(int YPos) const
 		Text(VertcalLine);
 		GotoXY(m_Where.left + 2, Y);
 
-		if (InfoLine->Flags&IPLFLAGS_SEPARATOR)
+		if (InfoLine.Flags & IPLFLAGS_SEPARATOR)
 		{
 			string strTitle;
 
-			if (InfoLine->Text && *InfoLine->Text)
-				strTitle = concat(L' ', InfoLine->Text, L' ');
+			if (InfoLine.Text && *InfoLine.Text)
+				strTitle = concat(L' ', InfoLine.Text, L' ');
 
 			DrawSeparator(Y);
 			inplace::truncate_left(strTitle, std::max(0, m_Where.width() - 4));
@@ -994,9 +993,11 @@ bool InfoList::ShowPluginDescription(int YPos) const
 		else
 		{
 			SetColor(COL_PANELTEXT);
-			PrintText(NullToEmpty(InfoLine->Text));
-			PrintInfo(NullToEmpty(InfoLine->Data));
+			PrintText(NullToEmpty(InfoLine.Text));
+			PrintInfo(NullToEmpty(InfoLine.Data));
 		}
+
+		++Y;
 	}
 	return true;
 }

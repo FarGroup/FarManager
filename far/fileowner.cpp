@@ -218,7 +218,7 @@ bool GetFileOwner(const string& Computer, string_view const Object, string& Owne
 	});
 }
 
-static sid get_sid(const string& Name)
+static auto get_sid(const string& Name)
 {
 	os::memory::local::ptr<void> SidFromString;
 	if (ConvertStringSidToSid(Name.c_str(), &ptr_setter(SidFromString)))
@@ -226,7 +226,7 @@ static sid get_sid(const string& Name)
 		return sid{ SidFromString.get() };
 	}
 
-	FN_RETURN_TYPE(get_sid) Sid(os::default_buffer_size);
+	sid Sid(os::default_buffer_size);
 	auto ReferencedDomainName = os::buffer<wchar_t>();
 	auto SidSize = static_cast<DWORD>(Sid.size());
 	auto ReferencedDomainNameSize = static_cast<DWORD>(ReferencedDomainName.size());
@@ -243,7 +243,7 @@ static sid get_sid(const string& Name)
 		}
 		else
 		{
-			return nullptr;
+			return sid{};
 		}
 	}
 

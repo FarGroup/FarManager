@@ -3,6 +3,7 @@
 #include <typeinfo>
 
 #include <windows.h>
+#include <shellapi.h>
 #include <shlobj.h>
 #include <msiquery.h>
 #include <rpc.h>
@@ -97,8 +98,8 @@ public:
 
 template<class CharType>
 static basic_string<CharType> strip(const basic_string<CharType>& str) {
-  basic_string<CharType>::size_type hp = 0;
-  basic_string<CharType>::size_type tp = str.size();
+  typename basic_string<CharType>::size_type hp = 0;
+  typename basic_string<CharType>::size_type tp = str.size();
   while ((hp < str.size()) && ((static_cast<unsigned>(str[hp]) <= 0x20) || (str[hp] == 0x7F)))
     hp++;
   if (hp < str.size())

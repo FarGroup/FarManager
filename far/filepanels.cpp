@@ -85,8 +85,8 @@ filepanels_ptr FilePanels::create(bool CreateRealPanels, int DirCount)
 
 	if (CreateRealPanels)
 	{
-		FilePanelsPtr->m_Panels[panel_left].m_Panel = FilePanelsPtr->CreatePanel(panel_type(Global->Opt->LeftPanel.m_Type.Get()));
-		FilePanelsPtr->m_Panels[panel_right].m_Panel = FilePanelsPtr->CreatePanel(panel_type(Global->Opt->RightPanel.m_Type.Get()));
+		FilePanelsPtr->m_Panels[panel_left].m_Panel = FilePanelsPtr->CreatePanel(static_cast<panel_type>(Global->Opt->LeftPanel.m_Type.Get()));
+		FilePanelsPtr->m_Panels[panel_right].m_Panel = FilePanelsPtr->CreatePanel(static_cast<panel_type>(Global->Opt->RightPanel.m_Type.Get()));
 		FilePanelsPtr->Init(DirCount);
 	}
 	else
@@ -149,7 +149,7 @@ void FilePanels::Init(int DirCount)
 		Params.first->SetViewMode(Params.second.ViewMode);
 
 		if (static_cast<panel_sort>(Params.second.SortMode.Get()) < panel_sort::COUNT)
-			Params.first->SetSortMode(panel_sort(Params.second.SortMode.Get()));
+			Params.first->SetSortMode(static_cast<panel_sort>(Params.second.SortMode.Get()));
 
 		Params.first->SetSortOrder(Params.second.ReverseSortOrder);
 		Params.first->SetSortGroups(Params.second.SortGroups);

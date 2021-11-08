@@ -52,7 +52,7 @@ class FileViewer final: public window,public ViewerContainer
 	struct private_tag {};
 public:
 	static fileviewer_ptr create(
-		const string& Name,
+		string_view Name,
 		bool EnableSwitch = false,
 		bool DisableHistory = false,
 		bool DisableEdit = false,
@@ -66,7 +66,7 @@ public:
 		window_ptr Update = nullptr);
 
 	static fileviewer_ptr create(
-		const string& Name,
+		string_view Name,
 		bool EnableSwitch,
 		bool DisableHistory,
 		string_view Title,
@@ -118,7 +118,7 @@ private:
 	void DisplayObject() override;
 
 	void Init(
-		const string& Name,
+		string_view Name,
 		bool EnableSwitch,
 		bool DisableHistory,
 		long long ViewStartPos,

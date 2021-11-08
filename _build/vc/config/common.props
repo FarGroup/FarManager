@@ -27,6 +27,10 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <!--
+    <ProjectConfiguration Include="Debug_ASAN|ARM">
+      <Configuration>Debug_ASAN</Configuration>
+      <Platform>ARM</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|ARM">
       <Configuration>Debug</Configuration>
       <Platform>ARM</Platform>
@@ -34,6 +38,11 @@
     <ProjectConfiguration Include="Release|ARM">
       <Configuration>Release</Configuration>
       <Platform>ARM</Platform>
+    </ProjectConfiguration>
+    -->
+    <ProjectConfiguration Include="Debug_ASAN|ARM64">
+      <Configuration>Debug_ASAN</Configuration>
+      <Platform>ARM64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|ARM64">
       <Configuration>Debug</Configuration>
@@ -43,7 +52,6 @@
       <Configuration>Release</Configuration>
       <Platform>ARM64</Platform>
     </ProjectConfiguration>
-    -->
   </ItemGroup>
 
   <PropertyGroup Label="Globals">
@@ -164,7 +172,8 @@
     <ClCompile>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat Condition="'$(Platform)'=='Win32' or '$(Platform)'=='x64'">EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat Condition="'$(Platform)'!='Win32' and '$(Platform)'!='x64'">ProgramDatabase</DebugInformationFormat>
     </ClCompile>
   </ItemDefinitionGroup>
 

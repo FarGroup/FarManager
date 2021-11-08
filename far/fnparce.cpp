@@ -698,7 +698,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 		Item.Y1 = 1;
 		Item.X2 = DlgWidth - 4;
 		Item.strData = DlgTitle;
-		DlgData.emplace_back(Item);
+		DlgData.emplace_back(std::move(Item));
 	}
 
 	string_view Range(strStr);
@@ -726,7 +726,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 			Item.X1 = 5;
 			Item.Y1 = Item.Y2 = DlgData.size() + 1;
 			Item.X2 = DlgWidth - 6;
-			DlgData.emplace_back(Item);
+			DlgData.emplace_back(std::move(Item));
 		}
 
 		{
@@ -737,7 +737,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 			Item.Y1 = Item.Y2 = DlgData.size() + 1;
 			Item.Flags = DIF_HISTORY | DIF_USELASTHISTORY;
 			Item.strHistory = GenerateHistoryName((DlgData.size() - 1) / 2);
-			DlgData.emplace_back(Item);
+			DlgData.emplace_back(std::move(Item));
 		}
 
 		if (!Strings.Title.All.empty())
@@ -797,7 +797,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 		Item.Type = DI_TEXT;
 		Item.Flags = DIF_SEPARATOR;
 		Item.Y1 = Item.Y2 = DlgData.size() + 1;
-		DlgData.emplace_back(Item);
+		DlgData.emplace_back(std::move(Item));
 	}
 
 	const auto OkButtonId = static_cast<int>(DlgData.size());
@@ -808,11 +808,16 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 		Item.Flags = DIF_DEFAULTBUTTON|DIF_CENTERGROUP;
 		Item.Y1 = Item.Y2 = DlgData.size() + 1;
 		Item.strData = msg(lng::MOk);
-		DlgData.emplace_back(Item);
+		DlgData.emplace_back(std::move(Item));
+	}
 
+	{
+		DialogItemEx Item;
+		Item.Type = DI_BUTTON;
+		Item.Flags = DIF_CENTERGROUP;
+		Item.Y1 = Item.Y2 = DlgData.size();
 		Item.strData = msg(lng::MCancel);
-		Item.Flags &= ~DIF_DEFAULTBUTTON;
-		DlgData.emplace_back(Item);
+		DlgData.emplace_back(std::move(Item));
 	}
 
 	// correct Dlg Title

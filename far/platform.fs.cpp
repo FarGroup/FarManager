@@ -1169,7 +1169,7 @@ namespace os::fs
 
 		for (;;)
 		{
-			FILE_ALLOCATED_RANGE_BUFFER Ranges[1024];
+			FILE_ALLOCATED_RANGE_BUFFER Ranges[512];
 			DWORD BytesReturned;
 			const auto QueryResult = IoControl(FSCTL_QUERY_ALLOCATED_RANGES, &QueryRange, sizeof(QueryRange), Ranges, sizeof(Ranges), &BytesReturned);
 			if ((!QueryResult && GetLastError() != ERROR_MORE_DATA) || !BytesReturned)
@@ -2173,7 +2173,7 @@ namespace os::fs
 
 	bool get_find_data(string_view const FileName, find_data& FindData, bool ScanSymLink)
 	{
-		const auto Find = enum_files(FileName, ScanSymLink);
+		auto Find = enum_files(FileName, ScanSymLink);
 		auto ItemIterator = Find.begin();
 		if (ItemIterator != Find.end())
 		{

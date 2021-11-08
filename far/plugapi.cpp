@@ -301,7 +301,7 @@ wchar_t* WINAPI apiRemoveTrailingSpaces(wchar_t *Str) noexcept
 	[&]
 	{
 		const auto REnd = std::make_reverse_iterator(Str);
-		Str[REnd - std::find_if_not(REnd - wcslen(Str), REnd, std::iswspace)] = 0;
+		Str[REnd - std::find_if_not(REnd - std::wcslen(Str), REnd, std::iswspace)] = 0;
 		return Str;
 	},
 	[]
@@ -867,10 +867,10 @@ intptr_t WINAPI apiMenuFn(
 
 			size_t Selected=0;
 
-			for (size_t i=0; i < ItemsNumber; i++)
+			for (const auto& i: span(Item, ItemsNumber))
 			{
 				MenuItemEx CurItem;
-				CurItem.Flags=Item[i].Flags;
+				CurItem.Flags = i.Flags;
 				CurItem.Name.clear();
 				// исключаем MultiSelected, т.к. у нас сейчас движок к этому не приспособлен, оставляем только первый
 				const auto SelCurItem = CurItem.Flags&LIF_SELECTED;
@@ -882,7 +882,7 @@ intptr_t WINAPI apiMenuFn(
 					Selected++;
 				}
 
-				CurItem.Name = NullToEmpty(Item[i].Text);
+				CurItem.Name = NullToEmpty(i.Text);
 				if(CurItem.Flags&LIF_SEPARATOR)
 				{
 					CurItem.AccelKey=0;
@@ -890,7 +890,7 @@ intptr_t WINAPI apiMenuFn(
 				else
 				{
 					INPUT_RECORD input = {};
-					FarKeyToInputRecord(Item[i].AccelKey,&input);
+					FarKeyToInputRecord(i.AccelKey,&input);
 					CurItem.AccelKey=InputRecordToKey(&input);
 				}
 				FarMenu->AddItem(CurItem);
@@ -1014,7 +1014,7 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 	return cpp_try(
 	[&]
 	{
-		HANDLE hDlg=INVALID_HANDLE_VALUE;
+		auto hDlg = INVALID_HANDLE_VALUE;
 
 		if (Global->WindowManager->ManagerIsDown())
 			return hDlg;
@@ -2029,10 +2029,9 @@ static intptr_t apiTControl(intptr_t Id, command_type Command, intptr_t Param1, 
 	}
 	else
 	{
-		const size_t count = Global->WindowManager->GetWindowCount();
-		for (size_t ii = 0; ii < count; ++ii)
+		for (const auto& i: irange(Global->WindowManager->GetWindowCount()))
 		{
-			if (const auto CurrentWindow = std::dynamic_pointer_cast<window_type>(Global->WindowManager->GetWindow(ii)))
+			if (const auto CurrentWindow = std::dynamic_pointer_cast<window_type>(Global->WindowManager->GetWindow(i)))
 			{
 				if (const auto CurrentControlWindow = CurrentWindow->GetById(Id))
 				{

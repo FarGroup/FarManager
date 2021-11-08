@@ -184,9 +184,9 @@ static bool dlgBadEditorCodepage(uintptr_t& codepage)
 {
 	DialogBuilder Builder(lng::MWarning);
 
-	Builder.AddText(lng::MEditorLoadCPWarn1)->Flags = DIF_CENTERTEXT;
-	Builder.AddText(lng::MEditorLoadCPWarn2)->Flags = DIF_CENTERTEXT;
-	Builder.AddText(lng::MEditorSaveNotRecommended)->Flags = DIF_CENTERTEXT;
+	Builder.AddText(lng::MEditorLoadCPWarn1).Flags = DIF_CENTERTEXT;
+	Builder.AddText(lng::MEditorLoadCPWarn2).Flags = DIF_CENTERTEXT;
+	Builder.AddText(lng::MEditorSaveNotRecommended).Flags = DIF_CENTERTEXT;
 	Builder.AddSeparator();
 
 	IntOption cp_val;

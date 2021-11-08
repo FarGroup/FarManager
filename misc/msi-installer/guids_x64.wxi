@@ -347,6 +347,7 @@
 <?define Guid.catalog.xml = "7E43B5CC-6F2B-1014-BBD1-8CF71224263B" ?>
 <?define Guid.CHANGELOG.md = "5394CA39-4CAD-41D0-9B4A-04DB1109647C" ?>
 <?define Guid.common.zip = "FF4D956D-B70D-49C6-87B9-1B01544AAD32" ?>
+<?define Guid.empty.hrc = "9DC1F353-AFB6-4D3B-9CF1-46402FEFD93B" ?>
 
 <?define Guid.changelog_9 = "727F8168-D248-480F-93A5-1FC57C42F82E" ?>
 <?define Guid.FARCmds.dll = "A67216D0-DCC8-4CAA-B645-57CFB17E5D61" ?>
@@ -550,7 +551,6 @@
 <?define Guid.lm_bel.lng = "9E993BE5-95BE-489A-943A-ECBC833E0208" ?>
 <?define Guid.lm_pol.lng = "C3069057-FDB6-491D-B012-A29886A4B628" ?>
 <?define Guid.luamacro.example.ini = "E782F2C0-4B28-49A5-83FF-31E1FD086862" ?>
-<?define Guid.lua5.1.dll = "4429E363-97A3-4EB4-9BAB-BAC973A23D42" ?>
 <?define Guid.lua51.dll = "31F36739-E199-4FA9-BD95-E08D99C54F27" ?>
  
 <?define Guid.lpeg.dll = "924E63FA-359B-4E4B-98B3-D04502466DEF" ?>

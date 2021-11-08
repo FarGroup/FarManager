@@ -1,11 +1,23 @@
-.SILENT:
+ROOTDIR = ..\..
+NAME = customact
 
-!include params.mak
+LINK_OBJS = \
+	$(INTDIR)\customact.obj \
 
-!if defined(AMD64) || "$(CPU)" == "AMD64" || "$(PLATFORM)" == "X64" || "$(PLATFORM)" == "x64"
-PLATFORM=x64
+USERLIBS = \
+	msi.lib \
+
+!include $(ROOTDIR)\plugins\makefile_vc_def_inc
+!include $(ROOTDIR)\plugins\makefile_vc_target_inc
+
+$(INTDIR)\customact.obj : customact.cpp
+
+!if "$(BUILD_PLATFORM)" == "AMD64"
+WIX_PLATFORM=x64
+!elseif "$(BUILD_PLATFORM)" == "ARM64"
+WIX_PLATFORM=arm64
 !else
-PLATFORM=x86
+WIX_PLATFORM=x86
 !endif
 
 !ifdef NO_LOCALISED_MSI
@@ -16,39 +28,25 @@ TRANSFORMS = $(OUTDIR)\1045 $(OUTDIR)\1049 $(OUTDIR)\1059
 LANGUAGES=1033,1045,1049,1059
 !endif
 
-CPPFLAGS = -nologo -D_WIN32_WINNT=0x0500 -DUNICODE -D_UNICODE -D_CRT_SECURE_NO_WARNINGS /Zc:threadSafeInit- /W4
-LINKFLAGS = -nologo -incremental:no -machine:$(PLATFORM)
-CANDLEFLAGS = -nologo -dSourceDir="$(SOURCE_DIR)" -dPlatform=$(PLATFORM) -dVerMajor=$(VER_MAJOR) -dVerMinor=$(VER_MINOR) -dVerBuild=$(VER_BUILD) -dLanguages=$(LANGUAGES)
+CANDLEFLAGS = -nologo -out $(OUTDIR)\ -dSourceDir="$(SOURCE_DIR)" -dPlatform=$(WIX_PLATFORM) -dVerMajor=$(VER_MAJOR) -dVerMinor=$(VER_MINOR) -dVerBuild=$(VER_BUILD) -dLanguages=$(LANGUAGES)
+
 LIGHTFLAGS = -nologo -spdb -sval
+
 AFLAGS = -nologo -c
 
-!if "$(PLATFORM)" == "x86"
-CPPFLAGS=$(CPPFLAGS) /arch:IA32
-!endif
-
-!if "$(PLATFORM)" == "x86"
-OS_VERSION=5.0
-!else
-OS_VERSION=5.2
-!endif
-
-!ifdef RELEASE
-OUTDIR = Release
-CPPFLAGS = $(CPPFLAGS) -O2 -DNDEBUG
-LIGHTFLAGS = $(LIGHTFLAGS) -dcl:high
-!else
-OUTDIR = Debug
-CPPFLAGS = $(CPPFLAGS) -Fd$(OUTDIR)\ -Zi
-LINKFLAGS = $(LINKFLAGS) -debug
+!ifdef DEBUG
 LIGHTFLAGS = $(LIGHTFLAGS) -cc $(OUTDIR) -reusecab
+!else
+LIGHTFLAGS = $(LIGHTFLAGS) -dcl:high
 !endif
 
-OUTDIR = $(OUTDIR).$(PLATFORM)
-CPPFLAGS = -Fo$(OUTDIR)\ $(CPPFLAGS)
-CANDLEFLAGS = -out $(OUTDIR)\ $(CANDLEFLAGS)
-AFLAGS = $(AFLAGS) -Fo$(OUTDIR)\\
+WIXOBJ =\
+	$(OUTDIR)\installer.wixobj\
+	$(OUTDIR)\files.wixobj\
+	$(OUTDIR)\features.wixobj\
+	$(OUTDIR)\shortcuts.wixobj\
+	$(OUTDIR)\ui.wixobj\
 
-WIXOBJ = $(OUTDIR)\installer.wixobj $(OUTDIR)\files.wixobj $(OUTDIR)\features.wixobj $(OUTDIR)\shortcuts.wixobj $(OUTDIR)\ui.wixobj
 
 !ifdef NIGHTLY
 MSI_NAME = $(SOURCE_DIR)\final.msi
@@ -56,12 +54,9 @@ MSI_NAME = $(SOURCE_DIR)\final.msi
 MSI_NAME = $(OUTDIR)\far.msi
 !endif
 
-!if "$(PLATFORM)" == "x86"
-VC10OBJ = $(OUTDIR)\vc_crt_fix.obj
-VC10CPP = ..\..\plugins\common\vc_crt_fix_impl.cpp
-!endif
+ALL: $(MSI_NAME)
 
-$(MSI_NAME): $(OUTDIR) $(OUTDIR)\1033.msi $(TRANSFORMS)
+$(MSI_NAME): $(OUTDIR) $(INTDIR) $(OUTDIR)\1033.msi $(TRANSFORMS)
 	@echo $@
 	copy /y $(OUTDIR)\1033.msi $(MSI_NAME)
 
@@ -96,24 +91,18 @@ $(OUTDIR)\1059: $(OUTDIR)\1033.msi $(OUTDIR)\1059.msi
 	torch -nologo -t language $(OUTDIR)\1033.msi $(OUTDIR)\1059.msi -out $@
 	wisubstg.vbs $(OUTDIR)\1033.msi $(OUTDIR)\1059 1059
 
-$(OUTDIR)\customact.dll: customact.cpp $(VC10CPP) customact.def $(VC10OBJ)
-	@echo $@
-	cl $(CPPFLAGS) -EHsc customact.cpp $(VC10CPP) -link $(LINKFLAGS) $(WINSUBSYSTEM) -dll -out:$@ -def:customact.def $(VC10OBJ) msi.lib shell32.lib rpcrt4.lib
-	editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\customact.dll > nul
-
-$(WIXOBJ): params.mak defines.wxi guids_$(PLATFORM).wxi
+$(WIXOBJ): defines.wxi guids_$(WIX_PLATFORM).wxi
 
 .wxs{$(OUTDIR)}.wixobj::
 	candle $(CANDLEFLAGS) $<
 
-$(OUTDIR)\vc_crt_fix.obj: ..\..\plugins\common\vc_crt_fix.asm
-	@echo $@
-	$(AS) $(AFLAGS) $**
-
 $(OUTDIR):
 	@echo $@
-	if not exist $(OUTDIR) mkdir $(OUTDIR)
+	if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
 
+$(INTDIR):
+	@echo $@
+	if not exist "$(INTDIR)\$(NULL)" mkdir "$(INTDIR)"
 
 clean:
 	if exist $(OUTDIR) rd /s /q $(OUTDIR)

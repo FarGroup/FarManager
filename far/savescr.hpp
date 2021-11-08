@@ -61,7 +61,7 @@ public:
 	void SaveArea();
 	void RestoreArea(int RestoreCursor = TRUE);
 	void Discard();
-	void AppendArea(const SaveScreen *NewArea);
+	void AppendArea(const SaveScreen& NewArea);
 	void Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsole);
 
 private:

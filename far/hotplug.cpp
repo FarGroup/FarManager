@@ -419,7 +419,7 @@ static bool RemoveHotplugDriveDevice(const DeviceInfo& Info, bool const Confirm,
 	{
 		string DisksStr;
 		const auto Separator = L", "sv;
-		for (size_t i = 0; i < Info.DevicePaths.Disks.size(); ++i)
+		for (const auto& i: irange(Info.DevicePaths.Disks.size()))
 		{
 			if (Info.DevicePaths.Disks[i])
 				append(DisksStr, os::fs::drive::get_device_path(i), Separator);

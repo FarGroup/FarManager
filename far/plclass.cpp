@@ -285,7 +285,7 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, std::istream& S
 	IMAGE_SECTION_HEADER Section;
 	bool Found{};
 
-	for (size_t i = 0; i != NtHeaders.FileHeader.NumberOfSections && !Found; ++i)
+	for ([[maybe_unused]] const auto& i: irange(NtHeaders.FileHeader.NumberOfSections))
 	{
 		if (io::read(Stream, edit_bytes(Section)) != sizeof(Section))
 		{
@@ -293,9 +293,14 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, std::istream& S
 			return false;
 		}
 
-		Found =
+		if (
 			Section.VirtualAddress == ExportDirectoryAddress ||
-			(Section.VirtualAddress <= ExportDirectoryAddress && ExportDirectoryAddress < Section.VirtualAddress + Section.Misc.VirtualSize);
+			(Section.VirtualAddress <= ExportDirectoryAddress && ExportDirectoryAddress < Section.VirtualAddress + Section.Misc.VirtualSize)
+		)
+		{
+			Found = true;
+			break;
+		}
 	}
 
 	if (!Found)
@@ -319,7 +324,7 @@ bool native_plugin_factory::IsPlugin(string_view const FileName, std::istream& S
 	}
 
 	std::string Name;
-	for (size_t i = 0; i != ExportDirectory.NumberOfNames; ++i)
+	for (const auto& i : irange(ExportDirectory.NumberOfNames))
 	{
 		Stream.seekg(section_address_to_real(ExportDirectory.AddressOfNames) + sizeof(DWORD) * i);
 
@@ -468,7 +473,7 @@ bool Plugin::SaveToCache()
 
 	const auto SaveItems = [&PlCache, &id](const auto& Setter, const PluginMenuItem& Item)
 	{
-		for (size_t i = 0; i != Item.Count; ++i)
+		for (const auto& i: irange(Item.Count))
 		{
 			std::invoke(Setter, PlCache, id, i, Item.Strings[i], Item.Guids[i]);
 		}

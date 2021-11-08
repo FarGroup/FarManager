@@ -477,7 +477,7 @@ size_t HMenu::CheckHighlights(WORD CheckSymbol, int StartPos) const
 	if (StartPos < 0)
 		StartPos=0;
 
-	for (size_t I = StartPos; I < m_Item.size(); I++)
+	for (const auto& I: irange(StartPos, m_Item.size()))
 	{
 		const auto Ch = GetHighlights(m_Item[I]);
 

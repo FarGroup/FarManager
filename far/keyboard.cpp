@@ -329,13 +329,13 @@ void InitKeysArray()
 		//если разные VK мапятся в тот же юникод символ то мапирование будет только для первой
 		//раскладки которая вернула этот символ
 		//
-		for (BYTE j=0; j<2; j++)
+		for (const auto& j: irange(2))
 		{
 			KeyState[VK_SHIFT]=j*0x80;
 
 			for (const auto& i: Layout())
 			{
-				for (int VK = 0; VK != 256; ++VK)
+				for (const auto& VK: irange(256))
 				{
 					wchar_t idx;
 					if (ToUnicodeEx(VK, 0, KeyState, &idx, 1, 0, i) > 0)
@@ -351,7 +351,7 @@ void InitKeysArray()
 		//***********
 		//Имея мапирование юникод -> VK строим обратное мапирование
 		//VK -> символы с кодом меньше 0x80, т.е. только US-ASCII символы
-		for (wchar_t i = 1; i < 0x80; i++)
+		for (const auto& i: irange(1, 0x80))
 		{
 			const auto x = KeyToVKey[i];
 
@@ -1468,13 +1468,8 @@ string KeyToLocalizedText(unsigned int const Key)
 	return KeyToTextImpl(Key,
 		[](const TFKey& i)
 		{
-			if (i.LocalizedNameId != lng(-1))
-			{
-				const auto& Msg = msg(i.LocalizedNameId);
-				if (!Msg.empty())
-					return string_view(Msg);
-			}
-			return i.Name;
+			const auto& Msg = msg(i.LocalizedNameId);
+			return Msg.empty()? i.Name : Msg;
 		},
 		[](string& str)
 		{
@@ -2142,19 +2137,19 @@ static unsigned int CalcKeyCode(INPUT_RECORD* rec, bool RealKey, bool* NotMacros
 		{
 			static unsigned int const ScanCodes[]{ 82, 79, 80, 81, 75, 76, 77, 71, 72, 73 };
 
-			for (size_t i = 0; i != std::size(ScanCodes); ++i)
+			for (const auto& i: irange(std::size(ScanCodes)))
 			{
-				if (ScanCodes[i]==ScanCode)
-				{
-					if (RealKey && KeyCodeForALT_LastPressed != KeyCode)
-					{
-						AltValue = AltValue * 10 + static_cast<int>(i);
-						KeyCodeForALT_LastPressed=KeyCode;
-					}
+				if (ScanCodes[i] != ScanCode)
+					continue;
 
-					if (AltValue)
-						return KEY_NONE;
+				if (RealKey && KeyCodeForALT_LastPressed != KeyCode)
+				{
+					AltValue = AltValue * 10 + static_cast<int>(i);
+					KeyCodeForALT_LastPressed=KeyCode;
 				}
+
+				if (AltValue)
+					return KEY_NONE;
 			}
 		}
 	}
