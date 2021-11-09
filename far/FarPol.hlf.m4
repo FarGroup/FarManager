@@ -116,7 +116,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
 
 
 @Help
-$ #Far: jak używać pomocy#
+$ #Far: Jak używać pomocy#
  Ekrany pomocy mogą zawierać elementy referencyjne, które prowadzą do innych
 ekranów pomocy. Dodatkowo, na stronie głównej dostępy jest "~Indeks pomocy~@Index@",
 który zawiera listę wszystkich tematów dostępnych w pliku pomocy, a w niektórych
@@ -144,7 +144,7 @@ do poprzedniej wielkości.
 
 
 @About
-$ #Far: o programie#
+$ #Far: O programie#
  #Far# jest menedżerem plików i archiwów dla Windows, działającym w trybie tekstowym.
 Wspiera długie nazwy plików i umożliwia wykonywanie wielu operacji na plikach
 i folderach.
@@ -189,7 +189,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 @CmdLine
-$ #Far: przełączniki wiersza poleceń#
+$ #Far: Przełączniki wiersza poleceń#
  W wierszu poleceń mogą być użyte następujące przełączniki:
 
  #-e[<linia>[:<poz>]] <nazwa_pliku>#
@@ -818,7 +818,7 @@ $ #Polecenia specjalne#
 
 
 @MsWheel
-$ #Myszka: obsługa rolki#
+$ #Myszka: Obsługa rolki#
  #Panele#
  Obracanie rolki przewija listę plików bez zmiany pozycji kursora na ekranie.
  Wciśnięcie #środkowego przycisku# działa tak samo jak klawisz #Enter#.
@@ -1030,7 +1030,7 @@ lub użyć ~skrótów klawiszowych~@KeyRef@.
 
 
 @FilePanel
-$ #Panele: panel plików#
+$ #Panele: Panel plików#
  Panel plików wyświetla bieżący folder. Można zaznaczać lub odznaczać
 pliki lub foldery, przeprowadzać różne operacje na plikach i archiwach.
 Przeczytaj ~Skróty klawiszowe~@KeyRef@, aby sprawdzić listę poleceń.
@@ -1076,7 +1076,7 @@ plików po pierwszej literze jego nazwy.
 
 
 @TreePanel
-$ #Panele: drzewo plików#
+$ #Panele: Drzewo plików#
  Panel drzewa wyświetla strukturę folderu bieżącego dysku jako drzewo.
 Wewnątrz drzewa można szybko zmieniać foldery lub przeprowadzać operacje na folderach.
 
@@ -1099,7 +1099,7 @@ tego samego poziomu.
 
 
 @InfoPanel
-$ #Panele: panel informacyjny#
+$ #Panele: Panel informacyjny#
  Panel informacyjny zawiera następujące dane:
 
  1. ^<wrap>#Sieciowa# nazwa komputera i bieżący użytkownik (zobacz ~Ustawienia panelu informacyjnego~@InfoPanelSettings@).
@@ -1251,7 +1251,7 @@ Obsługiwane typy: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW i DVD-RAM.
 
 
 @QViewPanel
-$ #Panele: szybki podgląd#
+$ #Panele: Szybki podgląd#
  Panel szybkiego podglądu jest używany do pokazania informacji o wybranej
 pozycji z ~panelu plików~@FilePanel@ lub ~panelu drzewa~@TreePanel@.
 
@@ -1279,7 +1279,7 @@ Bieżący tryb - far:config #Panel.ShowBytes# (domyślnie=fałsz).
 
 
 @DragAndDrop
-$ #Kopiowanie: przeciąganie plików#
+$ #Kopiowanie: Przeciąganie plików#
  Istnieje możliwość przeprowadzenia #Kopiowania# i #Przenoszenia# plików
 używając #przeciągania (drag and drop)#. Wystarczy nacisnąć lewy przycisk
 myszy na pliku źródłowym, przeciągnąć go do drugiego panelu i zwolnić przycisk.
@@ -1317,7 +1317,7 @@ do menu pasywnego panelu.
 
 
 @LeftRightMenu
-$ #Menu: lewe i prawe menu#
+$ #Menu: Lewe i prawe menu#
  #Lewe# i #Prawe# menu pozwalają na zmianę odpowiednio lewego i prawego panelu.
 Menu zawiera następujące pozycje:
 
@@ -1411,7 +1411,7 @@ na nazwę tymczasową.
 
 
 @CmdMenu
-$ #Menu: menu polecenia#
+$ #Menu: Menu polecenia#
  #Znajdź plik#          Wyszukuje pliki w drzewie folderów,
                       mogą być używane maski.
                       Więcej informacji: ~Znajdź plik~@FindFile@.
@@ -1468,7 +1468,7 @@ $ #Menu: menu polecenia#
 
 
 @OptMenu
-$ #Menu: menu opcje#
+$ #Menu: Menu opcje#
  #Ustawienia systemowe#  Pokazuje okno ~Ustawień systemowych~@SystemSettings@.
 
  #Ustawienia panelu#     Pokazuje okno ~Ustawień panelu~@PanelSettings@.
@@ -1606,7 +1606,7 @@ plik może przetworzyć kilka wtyczek.
 @MakeFolder
 $ #Utwórz folder#
  Funkcja pozwala tworzyć foldery. W linii edycji można użyć zmiennych
-środowiskowych, które zostaną rozwinięte w pełną ścieżkę przed utworzeniem
+systemowych, które zostaną rozwinięte w pełną ścieżkę przed utworzeniem
 folderu. Można utworzyć całą ścieżkę w jednym czasie: wystarczy użyć znaku ukośnika
 wstecznego (backslash). Na przykład:
 
@@ -1692,7 +1692,7 @@ gdzie można rozszerzyć zakres szukania i prezentacji wyników wyszukiwania.
 
 
 @FindFileAdvanced
-$ #Znajdź plik - zaawansowane opcje#
+$ #Znajdź plik: Zaawansowane opcje#
  #Szukaj wyłącznie w pierwszych# - dane wpisane w pole #Zawierający tekst#
 (lub #Zawierająca wartość szesnastkową#) mogą być wyszukiwane nie tylko
 w całym pliku, ale także w podanym zakresie od początku pliku.
@@ -1788,7 +1788,7 @@ wyszukiwania - należy zostawić puste pole "Typy kolumn".
 
 
 @FindFileResult
-$ #Znajdź plik - sterowanie klawiszami#
+$ #Znajdź plik: Sterowanie klawiszami#
  W trakcie ~wyszukiwania~@FindFile@ lub po jego zakończeniu, można użyć
 klawiszy strzałek, aby przewijać listę plików oraz przycisków do wykonania
 czynności.
@@ -1973,7 +1973,7 @@ odpowiednią opcję w ~Ustawieniach systemowych~@SystemSettings@ programu.
 
 
 @HistoryViews
-$ #Historia: podgląd i edycja plików#
+$ #Historia: Podgląd i edycja plików#
  Plik historii zawiera listy plików, które zostały ostatnio otwarte
 do podglądu lub edycji. Po liście można poruszać się za pomocą klawiszy
 kursorów, dodatkowo dostępne są poniższe skróty klawiszowe:
@@ -2013,7 +2013,7 @@ jest zablokowany lub nie jest dostępny zasób zewnętrzny.
 
 
 @HistoryFolders
-$ #Historia: foldery#
+$ #Historia: Foldery#
  Historia folderów pokazuje listę folderów, które zostały odwiedzone. Po liście można
 poruszać się za pomocą klawiszy kursorów, dodatkowo dostępne są poniższe skróty klawiszowe:
 
@@ -2179,7 +2179,7 @@ różnych poleceń do uruchamiania, podglądu i edycji plików z podaną ~maską
 
 
 @FileAssocModify
-$ #Powiązania plików: edycja#
+$ #Powiązania plików: Edycja#
  Far pozwala określić sześć poleceń powiązanych z każdym typem plików
 określonym za pomocą ~maski~@FileMasks@:
 
@@ -2317,7 +2317,7 @@ należy go ująć w cudzysłów, np. #"!"\#
 
 
 @SystemSettings
-$ #Okno ustawień: system#
+$ #Okno ustawień: System#
  #Usuwaj do kosza#
  Włącza usuwanie pliku do Kosza Windows. Operacja usuwania do kosza może być przeprowadzona
 tylko na lokalnych dyskach twardych.
@@ -2406,7 +2406,7 @@ Opcji tej należy używać z uwagą i ostrożnością.
 
 
 @PanelSettings
-$ #Okno ustawień: panel#
+$ #Okno ustawień: Panel#
  #Pokazuj pliki ukryte i systemowe#
  Włącza wyświetlanie plików z atrybutem Ukryty lub Systemowy. Opcję można także przełączyć naciskając #Ctrl+H#.
 
@@ -2481,7 +2481,7 @@ Jeżeli jest wyłączona, to aby zmienić folder w drugim panelu należy nacisn�
 
 
 @InterfSettings
-$ #Okno ustawień: interfejs#
+$ #Okno ustawień: Interfejs#
  #Zegar#
  Pokazuje zegar w prawym górnym rogu okna.
 
@@ -2547,7 +2547,7 @@ z technologią ClearType.
 
  #Okno tytułowe Far#
  Dodatkowe informacje, wyświetlane w tytule okna.
-Może zawierać dowolny tekst, w tym zmienne środowiskowe (np. "%USERDOMAIN%\%USERNAME%") i następujące specjalne zmienne:
+Może zawierać dowolny tekst, w tym zmienne systemowe (np. "%USERDOMAIN%\%USERNAME%") i następujące specjalne zmienne:
  - #%Ver# - Wersja Far;
  - #%Platform# - platforma Far;
  - #%Admin# - ^<wrap>"Administrator" jeżeli program działa w trybie administratora, w innym przypadku łańcuch jest pusty.
@@ -2555,7 +2555,7 @@ Może zawierać dowolny tekst, w tym zmienne środowiskowe (np. "%USERDOMAIN%\%U
 
 
 @DialogSettings
-$ #Okno ustawień: okna#
+$ #Okno ustawień: Okna#
  #Historia w polach#       Zachowaj historię kontrolek edycji niektórych
  #edycyjnych#              okien dialogowych Far. Listę historii poprzednich
                          wpisów można aktywować za pomocą myszki lub skrótów
@@ -2595,7 +2595,7 @@ $ #Ustawienia menu#
 
 
 @CmdlineSettings
-$ #Okno ustawień: wiersz poleceń#
+$ #Okno ustawień: Wiersz poleceń#
  #Trwałe bloki#
  Nie usuwaj zaznaczenia bloku po przesunięciu kursora w wierszu poleceń.
 
@@ -2646,7 +2646,7 @@ specjalnych w pole #Format zachęty wiersza poleceń# w oknie dialogowym
 ~Ustawienia wiersza poleceń~@CmdlineSettings@, pozwoli to na wyświetlenie
 dodatkowych informacji w wierszu poleceń.
 
- Dozwolone jest używanie zmiennych środowiskowych i następujących kodów specjalnych:
+ Dozwolone jest używanie zmiennych systemowych i następujących kodów specjalnych:
 
  $a - ^<wrap>znak & (and)
  $b - znak |
@@ -2720,7 +2720,7 @@ znak opisuje jedną zapisaną ścieżkę.
 
 
 @Viewer
-$ #Podgląd: sterowanie klawiszami#
+$ #Podgląd: Sterowanie klawiszami#
  Klawisze nawigacyjne
 
  Zachowanie klawiszy nawigacyjnych zależy od ~trybu podglądu~@ViewerMode@.
@@ -2821,7 +2821,7 @@ proces (podobnie jak polecenie Linux "tail"), należy przejść na koniec pliku
 
 
 @ViewerMode
-$ #Podgląd: tryby widoku#
+$ #Podgląd: Tryby widoku#
  Podgląd plików może działać w trzech trybach:
 #tekstowy#, #hex# (szesnastkowy) oraz #źródło# (ang. dump). Wybrany tryb
 jest wskazywany za pomocą znaku w górnej linii statusu, na lewo od informacji
@@ -2977,7 +2977,7 @@ o 16 jednocześnie.
 
 
 @ViewerGotoPos
-$ #Podgląd: idź do wybranej pozycji#
+$ #Podgląd: Idź do wybranej pozycji#
  To okno dialogowe umożliwia zmianę pozycji w wewnętrznej przeglądarce.
 
  Można wprowadzić wartość bezwzględną lub procentową w formacie dziesiętnym
@@ -2996,7 +2996,7 @@ Jeżeli wartość zostanie pominięta, to odpowiadający jej parametr nie zostan
 
 
 @ViewerSearch
-$ #Podgląd: wyszukiwanie#
+$ #Podgląd: Wyszukiwanie#
  Do wyszukiwania w ~Podglądzie~@Viewer@ dostępne są następujące tryby i opcje:
 
  #Szukaj tekstu#
@@ -3141,7 +3141,7 @@ bieżącą linię i kopiują ją do schowka.
 
 
 @EditorSearch
-$ #Edytor: szukaj/zastąp#
+$ #Edytor: Szukaj/zastąp#
  Następujące opcje są dostępne przy szukaniu lub zastępowaniu w ~edytorze~@Editor@:
 
  #Uwzględniaj wielkość liter#
@@ -3370,7 +3370,7 @@ zawartości pliku.
 
 
 @FileSaveAs
-$ #Edytor: zapisz plik jako…#
+$ #Edytor: Zapisz plik jako…#
  Aby zapisać edytowany plik pod inną nazwą należy nacisnąć klawisze #Shift+F2#
 i podać nową nazwę, stronę kodową i format znaków końca linii.
 
@@ -3399,7 +3399,7 @@ linii (LF), tak jak w systemach UNIX.
 
 
 @EditorGotoPos
-$ #Edytor: przejdź do podanej linii i znaku#
+$ #Edytor: Przejdź do podanej linii i znaku#
  Ta opcja pozwala zmienić pozycję w wewnętrznym edytorze.
 
  Można podać wartość bezwzględną, względną lub procentową - w formacie dziesiętnym
@@ -3416,7 +3416,7 @@ Jeżeli wartość zostanie pominięta, odpowiadający parametr nie zostanie zmie
 
 
 @EditorReload
-$ #Edytor: przeładowanie pliku#
+$ #Edytor: Przeładowanie pliku#
  Far Manager śledzi wszystkie próby wielokrotnego otwierania do edycji pliku,
 który jest aktualnie edytowany. Zasady ponownego wczytania pliku do edycji
 są następujące:
@@ -3749,7 +3749,7 @@ na partycjach ReFS począwszy od Windows Server 2012.
 
 
 @ViewerSettings
-$ #Okno ustawień: podgląd#
+$ #Okno ustawień: Podgląd#
  To okno pozwala zmienić ustawienia wewnętrznego i zewnętrznego ~podglądu~@Viewer@.
 
 @=
@@ -3828,7 +3828,7 @@ zastosowanie tylko do bieżącej sesji.
 
 
 @EditorSettings
-$ #Okno ustawień: edytor#
+$ #Okno ustawień: Edytor#
  To okno pozwala zmienić ustawienia domyślnego zewnętrznego i ~wewnętrznego edytora~@Editor@.
 
 @=
@@ -4487,7 +4487,7 @@ kryteria filtra, pusty folder docelowy #nie# zostanie utworzony.
 
 
 @CopyAskOverwrite
-$ #Kopiowanie: okno potwierdzenia#
+$ #Kopiowanie: Okno potwierdzenia#
  Jeżeli plik o tej samej nazwie istnieje w folderze docelowym, użytkownik
 zostanie poproszony o wybranie jednej z możliwości:
 
@@ -4510,7 +4510,7 @@ przesuwając kursor na ich nazwy w oknie dialogowym i naciskając klawisz F3.
 
 
 @CopyRule
-$ #Kopiowanie: zasady#
+$ #Kopiowanie: Zasady#
  Podczas ~kopiowania/przenoszenia~@CopyFiles@ folderów i/lub
 ~linków symbolicznych~@HardSymLink@ stosowane są następujące zasady:
 
@@ -4600,7 +4600,7 @@ ale można to zmienić w lokalnych ustawieniach bezpieczeństwa.
 
 
 @ErrCopyItSelf
-$ #Błąd: kopiowanie/przenoszenie na siebie#
+$ #Błąd: Kopiowanie/przenoszenie na siebie#
  Nie można kopiować lub przenosić pliku do siebie samego.
 
  Ten błąd może wystąpić, gdy istnieją dwa foldery, a jeden z nich
@@ -4608,7 +4608,7 @@ to ~link symboliczny~@HardSymLink@ do innego.
 
 
 @WarnCopyEncrypt
-$ #Ostrzeżenie: utrata szyfrowania pliku#
+$ #Ostrzeżenie: Utrata szyfrowania pliku#
  Plik źródłowy jest zaszyfrowany. Kopiowanie lub przenoszenie poza bieżący dysk
 jest możliwe, jeżeli dysk docelowy będzie odszyfrowany.
 
@@ -4620,7 +4620,7 @@ wewnętrzny, bez względu na ustawienie opcji "Używaj systemowej procedury kopi
 
 
 @WarnCopyStream
-$ #Ostrzeżenie: kopiowanie lub przenoszenie pliku z wieloma strumieniami#
+$ #Ostrzeżenie: Kopiowanie lub przenoszenie pliku z wieloma strumieniami#
  Plik źródłowy zawiera więcej niż jeden strumień danych lub plik docelowy
 nie obsługuje plików z wieloma strumieniami.
 
@@ -4641,7 +4641,7 @@ główny.
 
 
 @ErrLoadPlugin
-$ #Błąd: wtyczka nie załadowana#
+$ #Błąd: Wtyczka nie załadowana#
  Ten komunikat o błędzie może pojawić się w następujących przypadkach:
 
  1. ^<wrap>Do poprawnego działania wtyczki jest wymagana biblioteka dołączana dynamicznie,
