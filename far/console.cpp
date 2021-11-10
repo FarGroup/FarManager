@@ -111,39 +111,39 @@ wchar_t ReplaceControlCharacter(wchar_t const Char)
 
 	// C1
 	// These are considered control characters too now.
-	// Unlike C0, it is unclear what glyphs to use, so just remap to the private area for now.
-	case 0x80: return L'\xE080';
-	case 0x81: return L'\xE081';
-	case 0x82: return L'\xE082';
-	case 0x83: return L'\xE083';
-	case 0x84: return L'\xE084';
-	case 0x85: return L'\xE085';
-	case 0x86: return L'\xE086';
-	case 0x87: return L'\xE087';
-	case 0x88: return L'\xE088';
-	case 0x89: return L'\xE089';
-	case 0x8A: return L'\xE08A';
-	case 0x8B: return L'\xE08B';
-	case 0x8C: return L'\xE08C';
-	case 0x8D: return L'\xE08D';
-	case 0x8E: return L'\xE08E';
-	case 0x8F: return L'\xE08F';
-	case 0x90: return L'\xE090';
-	case 0x91: return L'\xE091';
-	case 0x92: return L'\xE092';
-	case 0x93: return L'\xE093';
-	case 0x94: return L'\xE094';
-	case 0x95: return L'\xE095';
-	case 0x96: return L'\xE096';
-	case 0x97: return L'\xE097';
-	case 0x98: return L'\xE098';
-	case 0x99: return L'\xE099';
-	case 0x9A: return L'\xE09A';
-	case 0x9B: return L'\xE09B';
-	case 0x9C: return L'\xE09C';
-	case 0x9D: return L'\xE09D';
-	case 0x9E: return L'\xE09E';
-	case 0x9F: return L'\xE09F';
+	// Unlike C0, it is unclear what glyphs to use, so just replace with FFFD for now.
+	case 0x80:
+	case 0x81:
+	case 0x82:
+	case 0x83:
+	case 0x84:
+	case 0x85:
+	case 0x86:
+	case 0x87:
+	case 0x88:
+	case 0x89:
+	case 0x8A:
+	case 0x8B:
+	case 0x8C:
+	case 0x8D:
+	case 0x8E:
+	case 0x8F:
+	case 0x90:
+	case 0x91:
+	case 0x92:
+	case 0x93:
+	case 0x94:
+	case 0x95:
+	case 0x96:
+	case 0x97:
+	case 0x98:
+	case 0x99:
+	case 0x9A:
+	case 0x9B:
+	case 0x9C:
+	case 0x9D:
+	case 0x9E:
+	case 0x9F: return L'�'; // replacement character
 
 	default:   return Char;
 	}
