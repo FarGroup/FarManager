@@ -372,6 +372,17 @@ static string GenerateName(string_view const Name, string_view const Path)
 	auto GenNameFormat = Global->Opt->CMOpt.GenNameFormat.toString();
 	if (!contains(GenNameFormat, L"{0}"s))
 		GenNameFormat = Global->GenNameFormat;
+	else
+	{
+		try
+		{
+			format(GenNameFormat, 1, NamePart, ExtPart);
+		}
+		catch (fmt::format_error const&)
+		{
+			GenNameFormat = Global->GenNameFormat;
+		}
+	}
 
 	// file (2).ext, file (3).ext and so on
 	for (size_t i = 2; os::fs::exists(Result); ++i)
