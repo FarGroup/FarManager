@@ -278,7 +278,9 @@ static PropInfo c_prop_info[] =
   { kpidStreamId, MSG_KPID_STREAMID, nullptr },
   { kpidReadOnly, MSG_KPID_READONLY, nullptr },
   { kpidOutName, MSG_KPID_OUTNAME, nullptr },
-  { kpidCopyLink, MSG_KPID_COPYLINK, nullptr }
+  { kpidCopyLink, MSG_KPID_COPYLINK, nullptr },
+  { kpidArcFileName, MSG_KPID_ARCFILENAME, nullptr },
+  { kpidIsHash, MSG_KPID_ISHASH, nullptr }
 };
 
 static const PropInfo* find_prop_info(PROPID prop_id) {

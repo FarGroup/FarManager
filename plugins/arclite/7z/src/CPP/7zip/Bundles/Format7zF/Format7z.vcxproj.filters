@@ -34,9 +34,6 @@
     <Filter Include="Crypto">
       <UniqueIdentifier>{57a5ced9-e091-4942-a527-f2413fc400bb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="7zip Common">
-      <UniqueIdentifier>{89e660b0-201f-4044-bda0-47a583670926}</UniqueIdentifier>
-    </Filter>
     <Filter Include="C">
       <UniqueIdentifier>{bb346c43-bd91-4037-beb7-474f6582aa7b}</UniqueIdentifier>
     </Filter>
@@ -87,6 +84,9 @@
     </Filter>
     <Filter Include="Asm">
       <UniqueIdentifier>{0a46f86e-b3d3-4e99-8c26-129218e8f194}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vc_crt_fix">
+      <UniqueIdentifier>{b31c02f5-02b1-4dfd-849f-06c7df10fb58}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -177,9 +177,6 @@
       <Filter>Spec</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Archive\DllExports2.cpp">
-      <Filter>Spec</Filter>
-    </ClCompile>
-    <ClCompile Include="StdAfx.cpp">
       <Filter>Spec</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Common\CRC.cpp">
@@ -415,66 +412,6 @@
     </ClCompile>
     <ClCompile Include="..\..\Crypto\ZipStrong.cpp">
       <Filter>Crypto</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\CreateCoder.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\CWrappers.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\FilterCoder.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\InBuffer.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\InOutTempBuffer.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\LimitedStreams.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\MemBlocks.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\MethodId.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\MethodProps.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\OffsetStream.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\OutBuffer.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\OutMemStream.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\ProgressMt.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\ProgressUtils.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\PropId.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\StreamBinder.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\StreamObjects.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\StreamUtils.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\UniqBlocks.cpp">
-      <Filter>7zip Common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Common\VirtThread.cpp">
-      <Filter>7zip Common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\C\Xz.c">
       <Filter>C\xz</Filter>
@@ -920,7 +857,6 @@
     <ClCompile Include="..\..\..\Windows\TimeUtils.cpp">
       <Filter>Windows</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\common\vc_crt_fix_impl.cpp" />
     <ClCompile Include="..\..\..\Common\XzCrc64Init.cpp">
       <Filter>Common</Filter>
     </ClCompile>
@@ -953,6 +889,81 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Common\LzFindPrepare.cpp">
       <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\common\vc_crt_fix_impl.cpp">
+      <Filter>vc_crt_fix</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\CreateCoder.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\CWrappers.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\FilterCoder.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\InBuffer.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\InOutTempBuffer.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\LimitedStreams.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\MemBlocks.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\MethodId.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\MethodProps.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\OffsetStream.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\OutBuffer.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\OutMemStream.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\ProgressMt.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\ProgressUtils.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\PropId.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\StreamBinder.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\StreamObjects.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\StreamUtils.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\UniqBlocks.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Common\VirtThread.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\7zCrcOpt.c">
+      <Filter>C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\AesOpt.c">
+      <Filter>C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\Sha1Opt.c">
+      <Filter>C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\C\Sha256Opt.c">
+      <Filter>C</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1194,69 +1205,6 @@
     </ClInclude>
     <ClInclude Include="..\..\Crypto\ZipStrong.h">
       <Filter>Crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\CreateCoder.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\CWrappers.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\FilterCoder.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\InBuffer.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\InOutTempBuffer.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\LimitedStreams.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\MemBlocks.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\MethodId.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\MethodProps.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\OffsetStream.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\OutBuffer.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\OutMemStream.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\ProgressMt.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\ProgressUtils.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\RegisterArc.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\RegisterCodec.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\StreamBinder.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\StreamObjects.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\StreamUtils.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\UniqBlocks.h">
-      <Filter>7zip Common</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Common\VirtThread.h">
-      <Filter>7zip Common</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\C\Xz.h">
       <Filter>C\xz</Filter>
@@ -1618,6 +1566,69 @@
     <ClInclude Include="..\..\..\..\C\MtDec.h">
       <Filter>C</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Common\CreateCoder.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\CWrappers.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\FilterCoder.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\InBuffer.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\InOutTempBuffer.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\LimitedStreams.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\MemBlocks.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\MethodId.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\MethodProps.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\OffsetStream.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\OutBuffer.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\OutMemStream.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\ProgressMt.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\ProgressUtils.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\RegisterArc.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\RegisterCodec.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\StreamBinder.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\StreamObjects.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\StreamUtils.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\UniqBlocks.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Common\VirtThread.h">
+      <Filter>7zip</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\Archive\Archive2.def">
@@ -1632,9 +1643,6 @@
       <Filter>Asm</Filter>
     </MASM>
     <MASM Include="..\..\..\..\Asm\x86\7zCrcOpt.asm">
-      <Filter>Asm</Filter>
-    </MASM>
-    <MASM Include="..\..\..\..\..\common\vc_crt_fix.asm">
       <Filter>Asm</Filter>
     </MASM>
     <MASM Include="..\..\..\..\Asm\x86\LzmaDecOpt.asm">
@@ -1652,5 +1660,13 @@
     <MASM Include="..\..\..\..\Asm\x86\LzFindOpt.asm">
       <Filter>Asm</Filter>
     </MASM>
+    <MASM Include="..\..\..\..\..\common\vc_crt_fix.asm">
+      <Filter>vc_crt_fix</Filter>
+    </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <MARMASM Include="..\..\..\..\Asm\arm64\LzmaDecOpt.S">
+      <Filter>Asm</Filter>
+    </MARMASM>
   </ItemGroup>
 </Project>
