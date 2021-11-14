@@ -1,6 +1,8 @@
 ﻿#include "NetCfg.hpp"
+#include "Network.hpp"
 #include "NetCommon.hpp"
 #include "NetFavorites.hpp"
+#include "NetLng.hpp"
 #include "guid.hpp"
 #include <DlgBuilder.hpp>
 #include <PluginSettings.hpp>
@@ -41,20 +43,12 @@ int Config()
 
 	Builder.AddSeparator(MFavorites);
 	Builder.AddCheckbox(MUpbrowseToFavorites, &Opt.FavoritesFlags, FAVORITES_UPBROWSE_TO_FAVORITES);
+	// TODO restore ?
 	//	Builder.AddCheckbox(MCheckResource, &Opt.FavoritesFlags, FAVORITES_CHECK_RESOURCES);
 	Builder.AddOKCancel(MOk, MCancel);
 
 	if (Builder.ShowDialog())
 	{
-		PluginSettings settings(MainGuid, PsInfo.SettingsControl);
-		settings.Set(0, StrAddToDisksMenu, Opt.AddToDisksMenu);
-		settings.Set(0, StrAddToPluginsMenu, Opt.AddToPluginsMenu);
-		settings.Set(0, StrLocalNetwork, Opt.LocalNetwork);
-		settings.Set(0, StrShowPrinters, Opt.ShowPrinters);
-		settings.Set(0, StrFullPathShares, Opt.FullPathShares);
-		settings.Set(0, StrFavoritesFlags, Opt.FavoritesFlags);
-		settings.Set(0, StrNoRootDoublePoint, Opt.RootDoublePoint);
-
 		switch (HiddenSharesState)
 		{
 		case 0: // never show
@@ -70,8 +64,8 @@ int Config()
 			Opt.HiddenSharesAsHidden = FALSE;
 			break;
 		}
-		settings.Set(0, StrHiddenShares, Opt.HiddenShares);
-		settings.Set(0, StrHiddenSharesAsHidden, Opt.HiddenSharesAsHidden);
+
+		Opt.Write();
 
 		return TRUE;
 	}
@@ -79,32 +73,53 @@ int Config()
 	return FALSE;
 }
 
-void WINAPI GetPluginInfoW(PluginInfo* Info)
+void Options::Read()
 {
-	Info->StructSize = sizeof(*Info);
-	Info->Flags = PF_FULLCMDLINE;
-	static const wchar_t* PluginMenuStrings[1];
-	static const wchar_t* DiskMenuStrings[1];
+	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 
-	if (Opt.AddToDisksMenu)
+	Opt.AddToDisksMenu = settings.Get(0, StrAddToDisksMenu, 1);
+	Opt.AddToPluginsMenu = settings.Get(0, StrAddToPluginsMenu, 1);
+	Opt.LocalNetwork = settings.Get(0, StrLocalNetwork, TRUE);
+	Opt.HiddenShares = settings.Get(0, StrHiddenShares, 1);
+	Opt.ShowPrinters = settings.Get(0, StrShowPrinters, 0);
+	Opt.FullPathShares = settings.Get(0, StrFullPathShares, TRUE);
+	Opt.FavoritesFlags = settings.Get(0, StrFavoritesFlags, static_cast<int>(FAVORITES_DEFAULTS));
+	Opt.RootDoublePoint = settings.Get(0, StrNoRootDoublePoint, TRUE);
+	Opt.DisconnectMode = settings.Get(0, StrDisconnectMode, FALSE);
+	Opt.HiddenSharesAsHidden = settings.Get(0, StrHiddenSharesAsHidden, TRUE);
+	Opt.NavigateToDomains = settings.Get(0, StrNavigateToDomains, FALSE);
+}
+
+void Options::Write()
+{
+	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
+
+	settings.Set(0, StrAddToDisksMenu, Opt.AddToDisksMenu);
+	settings.Set(0, StrAddToPluginsMenu, Opt.AddToPluginsMenu);
+	settings.Set(0, StrLocalNetwork, Opt.LocalNetwork);
+	settings.Set(0, StrHiddenShares, Opt.HiddenShares);
+	settings.Set(0, StrShowPrinters, Opt.ShowPrinters);
+	settings.Set(0, StrFullPathShares, Opt.FullPathShares);
+	settings.Set(0, StrFavoritesFlags, Opt.FavoritesFlags);
+	settings.Set(0, StrNoRootDoublePoint, Opt.RootDoublePoint);
+	settings.Set(0, StrHiddenSharesAsHidden, Opt.HiddenSharesAsHidden);
+}
+
+__int64 GetSetting(FARSETTINGS_SUBFOLDERS Root, const wchar_t* Name)
+{
+	__int64 result = 0;
+	FarSettingsCreate settings = {sizeof(FarSettingsCreate), FarGuid, INVALID_HANDLE_VALUE};
+	HANDLE Settings = PsInfo.SettingsControl(INVALID_HANDLE_VALUE, SCTL_CREATE, 0, &settings)?
+		                  settings.Handle :
+		                  nullptr;
+	if (Settings)
 	{
-		DiskMenuStrings[0] = GetMsg(MDiskMenuString);
-		Info->DiskMenu.Guids = &MenuGuid;
-		Info->DiskMenu.Strings = DiskMenuStrings;
-		Info->DiskMenu.Count = ARRAYSIZE(DiskMenuStrings);
+		FarSettingsItem item = {sizeof(FarSettingsItem), static_cast<size_t>(Root), Name, FST_UNKNOWN, {}};
+		if (PsInfo.SettingsControl(Settings, SCTL_GET, 0, &item) && FST_QWORD == item.Type)
+		{
+			result = item.Number;
+		}
+		PsInfo.SettingsControl(Settings, SCTL_FREE, 0, {});
 	}
-
-	PluginMenuStrings[0] = GetMsg(MNetMenu);
-
-	if (Opt.AddToPluginsMenu)
-	{
-		Info->PluginMenu.Guids = &MenuGuid;
-		Info->PluginMenu.Strings = PluginMenuStrings;
-		Info->PluginMenu.Count = ARRAYSIZE(PluginMenuStrings);
-	}
-
-	Info->PluginConfig.Guids = &MenuGuid;
-	Info->PluginConfig.Strings = PluginMenuStrings;
-	Info->PluginConfig.Count = ARRAYSIZE(PluginMenuStrings);
-	Info->CommandPrefix = L"net:netg";
+	return result;
 }

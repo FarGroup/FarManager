@@ -1,23 +1,9 @@
 ﻿#ifndef __NETCLASS_HPP__
 #define __NETCLASS_HPP__
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4121)
-#endif // _MSC_VER
-
 #include <plugin.hpp>
 #ifdef NETWORK_LOGGING
 #include <stdio.h>
-#endif
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
-// winnt.h
-#ifndef FILE_ATTRIBUTE_VIRTUAL
-#define FILE_ATTRIBUTE_VIRTUAL 0x00010000
 #endif
 
 class NetResourceList
@@ -34,7 +20,6 @@ public:
 	NetResourceList& operator=(NetResourceList& other);
 	static wchar_t* CopyText(const wchar_t* Text);
 
-	static void InitNetResource(NETRESOURCE& Res);
 	static void DeleteNetResource(NETRESOURCE& Res);
 	static void CopyNetResource(NETRESOURCE& Dest, const NETRESOURCE& Src);
 
@@ -67,28 +52,16 @@ private:
 	NetResourceList ConnectedList; // list of resources mapped to local drives
 	NetResourceList RootResources; // stack of resources above the current level
 	// (used in non-MS Windows networks only)
-	NETRESOURCE CurResource; // NETRESOURCE describing the current location
+	NETRESOURCE CurResource = {}; // NETRESOURCE describing the current location
 	NETRESOURCE* PCurResource; // points to CurResource or nullptr (if at root)
 
-	BOOL ChangeDirSuccess;
-	BOOL OpenFromFilePanel;
-	int ReenterGetFindData;
+	BOOL ChangeDirSuccess = TRUE;
+	BOOL OpenFromFilePanel = FALSE;
+	int ReenterGetFindData = 0;
 	wchar_t CmdLinePath[MAX_PATH]; // path passed when invoking us from command line
 	wchar_t m_PanelMode[2]; // current start panel mode
 
-#ifdef NETWORK_LOGGING
-		static FILE *LogFile;
-		static int LogFileRef;
-		static void LogNetResource(NETRESOURCE &Res);
-		static void OpenLogFile(const wchar_t *lpFileName);
-		static void CloseLogfile();
-#endif
-
-private:
 	void RemoveItems();
-#ifdef NETWORK_LOGGING
-		void LogData(const wchar_t* Data);
-#endif
 	static void DisconnectFromServer(NETRESOURCE* nr);
 	BOOL ChangeToDirectory(const wchar_t* Dir, OPERATION_MODES opmodes, bool IsExplicit);
 	void ManualConnect();
@@ -110,17 +83,25 @@ private:
 	BOOL AskMapDrive(wchar_t* NewLocalName, BOOL& Permanent);
 	void FileNames2Clipboard(BOOL ToCommandLine);
 
+#ifdef NETWORK_LOGGING
+	static FILE* LogFile;
+	static int LogFileRef;
+	static void LogNetResource(NETRESOURCE& Res);
+	static void OpenLogFile(const wchar_t* lpFileName);
+	static void CloseLogfile();
+	void LogData(const wchar_t* Data);
+#endif
+
 public:
 	NetBrowser();
 	~NetBrowser();
 
-public:
 	void CreateFavSubFolder();
 	int GetFindData(PluginPanelItem** pPanelItem, size_t* pItemsNumber, OPERATION_MODES OpMode);
-	void FreeFindData(PluginPanelItem* PanelItem, int ItemsNumber);
+	void FreeFindData(PluginPanelItem* PanelItem, size_t ItemsNumber);
 	void GetOpenPanelInfo(OpenPanelInfo* Info);
 	int SetDirectory(const wchar_t* Dir, OPERATION_MODES OpMode);
-	int DeleteFiles(PluginPanelItem* PanelItem, int ItemsNumber, OPERATION_MODES OpMode);
+	int DeleteFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, OPERATION_MODES OpMode);
 	int ProcessKey(const INPUT_RECORD* Rec);
 	int ProcessEvent(intptr_t Event, void* Param);
 	void SetOpenFromCommandLine(wchar_t* ShareName);

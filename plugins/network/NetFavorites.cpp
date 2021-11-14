@@ -1,5 +1,7 @@
 ﻿#include "NetFavorites.hpp"
+#include "Network.hpp"
 #include "NetCommon.hpp"
+#include "NetLng.hpp"
 
 #define SZ_FAVORITES          L"Favorites"
 #define SZ_FAVORITES_SUBKEY   SZ_FAVORITES L"\\%s"

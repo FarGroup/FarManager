@@ -1,9 +1,14 @@
 ﻿#include "Network.hpp"
 #include "version.hpp"
+#include "guid.hpp"
+#include "NetCfg.hpp"
+#include "NetFavorites.hpp"
+#include "NetLng.hpp"
+#include "NetCommon.hpp"
 
-#include "guid.hpp"
-#include <initguid.h>
-#include "guid.hpp"
+PluginStartupInfo PsInfo;
+FarStandardFunctions FSF;
+BOOL IsFirstRun = TRUE;
 
 void WINAPI GetGlobalInfoW(GlobalInfo* Info)
 {
@@ -16,15 +21,50 @@ void WINAPI GetGlobalInfoW(GlobalInfo* Info)
 	Info->Author = PLUGIN_AUTHOR;
 }
 
-//-----------------------------------------------------------------------------
+void WINAPI SetStartupInfoW(const PluginStartupInfo* Info)
+{
+	PsInfo = *Info;
+	FSF = *PsInfo.FSF;
+	PsInfo.FSF = &FSF;
+
+	Opt.Read();
+	CommonRootResources = new NetResourceList{};
+}
+
+void WINAPI GetPluginInfoW(PluginInfo* Info)
+{
+	Info->StructSize = sizeof(*Info);
+	Info->Flags = PF_FULLCMDLINE;
+
+	if (Opt.AddToDisksMenu)
+	{
+		static const wchar_t* DiskMenuStrings[1];
+		DiskMenuStrings[0] = GetMsg(MDiskMenuString);
+		Info->DiskMenu.Guids = &MenuGuid;
+		Info->DiskMenu.Strings = DiskMenuStrings;
+		Info->DiskMenu.Count = std::size(DiskMenuStrings);
+	}
+
+	static const wchar_t* PluginMenuStrings[1];
+	PluginMenuStrings[0] = GetMsg(MNetMenu);
+
+	if (Opt.AddToPluginsMenu)
+	{
+		Info->PluginMenu.Guids = &MenuGuid;
+		Info->PluginMenu.Strings = PluginMenuStrings;
+		Info->PluginMenu.Count = std::size(PluginMenuStrings);
+	}
+
+	Info->PluginConfig.Guids = &MenuGuid;
+	Info->PluginConfig.Strings = PluginMenuStrings;
+	Info->PluginConfig.Count = std::size(PluginMenuStrings);
+	Info->CommandPrefix = L"net:netg";
+}
+
+
 HANDLE WINAPI OpenW(const OpenInfo* Info)
 {
-	HANDLE hPlugin = new NetBrowser;
-
-	if (!hPlugin)
-		return nullptr;
-
-	NetBrowser* Browser = (NetBrowser*)hPlugin;
+	auto hPlugin = std::make_unique<NetBrowser>();
 
 	if (Info->OpenFrom == OPEN_COMMANDLINE)
 	{
@@ -34,7 +74,6 @@ HANDLE WINAPI OpenW(const OpenInfo* Info)
 
 		if (!p || !*p)
 		{
-			delete Browser;
 			return nullptr;
 		}
 
@@ -47,7 +86,6 @@ HANDLE WINAPI OpenW(const OpenInfo* Info)
 			netg = false;
 		else
 		{
-			delete Browser;
 			return nullptr;
 		}
 
@@ -76,98 +114,95 @@ HANDLE WINAPI OpenW(const OpenInfo* Info)
 			{
 				wchar_t PathCopy[MAX_PATH];
 				lstrcpy(PathCopy, Path);
-				ExpandEnvironmentStrings(PathCopy, Path, ARRAYSIZE(Path));
+				ExpandEnvironmentStrings(PathCopy, Path, static_cast<DWORD>(std::size(Path)));
 			}
-			Browser->SetOpenFromCommandLine(Path);
+			hPlugin->SetOpenFromCommandLine(Path);
 		}
 	}
-		/* The line below is an UNDOCUMENTED and UNSUPPORTED EXPERIMENTAL
-			mechanism supported ONLY in FAR 1.70 beta 3. It will NOT be supported
-			in later versions. Please DON'T use it in your plugins. */
 	else if (Info->OpenFrom == OPEN_FILEPANEL)
 	{
-		if (!Browser->SetOpenFromFilePanel((wchar_t*)Info->Data))
+		if (!hPlugin->SetOpenFromFilePanel(reinterpret_cast<wchar_t*>(Info->Data)))
 		{
 			// we don't support upwards browsing from NetWare shares -
 			// it doesn't work correctly
-			delete Browser;
 			return nullptr;
 		}
 	}
 	else
 	{
 		if (IsFirstRun && Opt.LocalNetwork)
-			Browser->GotoLocalNetwork();
+			hPlugin->GotoLocalNetwork();
 	}
 
 	IsFirstRun = FALSE;
 	wchar_t szCurrDir[MAX_PATH];
 
-	if (GetCurrentDirectory(ARRAYSIZE(szCurrDir), szCurrDir))
+	if (GetCurrentDirectory(static_cast<DWORD>(std::size(szCurrDir)), szCurrDir))
 	{
-		if (*szCurrDir == L'\\' && GetSystemDirectory(szCurrDir, ARRAYSIZE(szCurrDir)))
+		if (*szCurrDir == L'\\' && GetSystemDirectory(szCurrDir, static_cast<DWORD>(std::size(szCurrDir))))
 		{
 			szCurrDir[2] = L'\0';
 			SetCurrentDirectory(szCurrDir);
 		}
 	}
 
-	return (hPlugin);
+	return hPlugin.release();
 }
 
-//-----------------------------------------------------------------------------
 void WINAPI ClosePanelW(const ClosePanelInfo* Info)
 {
-	delete(NetBrowser*)Info->hPanel;
+	std::unique_ptr<NetBrowser>(static_cast<NetBrowser*>(Info->hPanel));
 }
 
-//-----------------------------------------------------------------------------
 intptr_t WINAPI GetFindDataW(GetFindDataInfo* Info)
 {
-	NetBrowser* Browser = (NetBrowser*)Info->hPanel;
-	return (Browser->GetFindData(&Info->PanelItem, &Info->ItemsNumber, Info->OpMode));
+	auto& Browser = *static_cast<NetBrowser*>(Info->hPanel);
+	return (Browser.GetFindData(&Info->PanelItem, &Info->ItemsNumber, Info->OpMode));
 }
 
-//-----------------------------------------------------------------------------
 void WINAPI FreeFindDataW(const FreeFindDataInfo* Info)
 {
-	NetBrowser* Browser = (NetBrowser*)Info->hPanel;
-	Browser->FreeFindData(Info->PanelItem, (int)Info->ItemsNumber);
+	auto& Browser = *static_cast<NetBrowser*>(Info->hPanel);
+	Browser.FreeFindData(Info->PanelItem, Info->ItemsNumber);
 }
 
-//-----------------------------------------------------------------------------
 void WINAPI GetOpenPanelInfoW(OpenPanelInfo* Info)
 {
-	NetBrowser* Browser = (NetBrowser*)Info->hPanel;
-	Browser->GetOpenPanelInfo(Info);
+	auto& Browser = *static_cast<NetBrowser*>(Info->hPanel);
+	Browser.GetOpenPanelInfo(Info);
 }
 
-//-----------------------------------------------------------------------------
 intptr_t WINAPI SetDirectoryW(const SetDirectoryInfo* Info)
 {
-	NetBrowser* Browser = (NetBrowser*)Info->hPanel;
-	return (Browser->SetDirectory(Info->Dir, Info->OpMode));
+	auto& Browser = *static_cast<NetBrowser*>(Info->hPanel);
+	return Browser.SetDirectory(Info->Dir, Info->OpMode);
 }
 
-//-----------------------------------------------------------------------------
 intptr_t WINAPI DeleteFilesW(const DeleteFilesInfo* Info)
 {
-	NetBrowser* Browser = (NetBrowser*)Info->hPanel;
-	return (Browser->DeleteFiles(Info->PanelItem, (int)Info->ItemsNumber, Info->OpMode));
+	auto& Browser = *static_cast<NetBrowser*>(Info->hPanel);
+	return Browser.DeleteFiles(Info->PanelItem, Info->ItemsNumber, Info->OpMode);
 }
 
-//-----------------------------------------------------------------------------
 intptr_t WINAPI ProcessPanelInputW(const ProcessPanelInputInfo* Info)
 {
-	NetBrowser* Browser = (NetBrowser*)Info->hPanel;
-	return (Browser->ProcessKey(&Info->Rec));
+	auto& Browser = *static_cast<NetBrowser*>(Info->hPanel);
+	return Browser.ProcessKey(&Info->Rec);
 }
 
-//-----------------------------------------------------------------------------
 intptr_t WINAPI ProcessPanelEventW(const ProcessPanelEventInfo* Info)
 {
-	NetBrowser* Browser = (NetBrowser*)Info->hPanel;
-	return Browser->ProcessEvent(Info->Event, Info->Param);
+	auto& Browser = *static_cast<NetBrowser*>(Info->hPanel);
+	return Browser.ProcessEvent(Info->Event, Info->Param);
 }
 
-//-----------------------------------------------------------------------------
+intptr_t WINAPI ConfigureW(const ConfigureInfo* Info)
+{
+	return Config();
+}
+
+void WINAPI ExitFARW(const ExitInfo* Info)
+{
+	delete CommonRootResources;
+	NetResourceList::DeleteNetResource(CommonCurResource);
+}

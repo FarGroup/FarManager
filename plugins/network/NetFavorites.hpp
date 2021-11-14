@@ -1,17 +1,7 @@
 ﻿#ifndef __NETFAVORITES_HPP__
 #define __NETFAVORITES_HPP__
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4121)
-#endif
-
 #include <windows.h>
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
 #include "NetClass.hpp"
 
 struct FAVORITEITEM
