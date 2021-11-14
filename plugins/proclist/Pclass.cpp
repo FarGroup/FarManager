@@ -435,6 +435,8 @@ PanelMode* Plist::PanelModes(size_t& nModes)
 
 void Plist::GetOpenPanelInfo(OpenPanelInfo* Info)
 {
+	const std::scoped_lock b(m_RefreshLock);
+
 	Info->StructSize = sizeof(*Info);
 	Info->Flags = OPIF_ADDDOTS | OPIF_SHOWNAMESONLY | OPIF_USEATTRHIGHLIGHTING;
 	Info->CurDir = L"";
@@ -538,6 +540,7 @@ private:
 
 int Plist::GetFindData(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, OPERATION_MODES OpMode)
 {
+	const std::scoped_lock b(m_RefreshLock);
 	const std::scoped_lock l(*pPerfThread);
 
 	if (!GetList(pPanelItem, ItemsNumber, *pPerfThread))
@@ -861,6 +864,8 @@ static void DumpNTCounters(HANDLE InfoFile, PerfThread& Thread, DWORD dwPid, DWO
 
 int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, const wchar_t** DestPath, OPERATION_MODES OpMode, options& LocalOpt)
 {
+	const std::scoped_lock b(m_RefreshLock);
+
 	static const wchar_t invalid_chars[] = L":*?\\/\"<>;|";
 
 	if (ItemsNumber == 0)
@@ -1037,6 +1042,8 @@ int Plist::GetFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, int Move, co
 
 int Plist::DeleteFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, OPERATION_MODES OpMode)
 {
+	const std::scoped_lock b(m_RefreshLock);
+
 	if (ItemsNumber == 0)
 		return false;
 
@@ -1146,6 +1153,8 @@ int Plist::DeleteFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, OPERATION
 
 int Plist::ProcessEvent(intptr_t Event, void* Param)
 {
+	const std::scoped_lock b(m_RefreshLock);
+
 	if (Event == FE_CLOSE)
 	{
 		PanelInfo pi = { sizeof(PanelInfo) };
@@ -1288,6 +1297,8 @@ static bool is_alttab_window(HWND const Window)
 
 int Plist::ProcessKey(const INPUT_RECORD* Rec)
 {
+	const std::scoped_lock b(m_RefreshLock);
+
 	if (Rec->EventType != KEY_EVENT)
 		return FALSE;
 
@@ -1782,6 +1793,9 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 
 void Plist::ProcessSynchroEvent()
 {
+	if (m_RefreshLock.is_busy())
+		return;
+
 	Reread();
 }
 
@@ -1932,6 +1946,8 @@ auto compare_numbers(T const First, T const Second)
 
 int Plist::Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, unsigned int Mode) const
 {
+	const std::scoped_lock b(m_RefreshLock);
+
 	if (Mode != FarSortModeSlot || SortMode < SM_PROCLIST_CUSTOM)
 		return -2;
 

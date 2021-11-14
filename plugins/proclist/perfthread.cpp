@@ -156,13 +156,15 @@ PerfThread::PerfThread(Plist* const Owner, const wchar_t* hostname, const wchar_
 	hEvtRefresh.reset(CreateEvent({}, 0, 0, {}));
 	hEvtRefreshDone.reset(CreateEvent({}, 0, 0, {}));
 	Refresh();
-	hThread.reset(CreateThread({}, 0, ThreadProc, this, 0, &dwThreadId));
+	hThread.reset(CreateThread({}, 0, ThreadProc, this, 0, {}));
+	hWmiThread.reset(CreateThread({}, 0, WmiThreadProc, this, 0, {}));
 	bOK = true;
 }
 PerfThread::~PerfThread()
 {
 	SetEvent(hEvtBreak.get());
 	WaitForSingleObject(hThread.get(), INFINITE);
+	WaitForSingleObject(hWmiThread.get(), INFINITE);
 
 	if (hHKLM)
 		RegCloseKey(hHKLM);
@@ -186,26 +188,15 @@ ProcessPerfData* PerfThread::GetProcessData(DWORD dwPid, DWORD dwThreads)
 	std::pair<ProcessPerfData*, size_t> ZeroPid[10];
 	auto ZeroPidIterator = std::begin(ZeroPid);
 
-	for (auto& i: pData)
-	{
-		if (i.dwProcessId == dwPid)
-		{
-			if (dwPid)
-				return &i;
-
-			if (ZeroPidIterator == std::end(ZeroPid))
-			{
-				assert(false);
-				continue;
-			}
-
-			ZeroPidIterator->first = &i;
-			++ZeroPidIterator;
-		}
-	}
-
 	if (dwPid)
+	{
+		if (const auto Iterator = m_ProcessesData.find(dwPid); Iterator != m_ProcessesData.end())
+		{
+			return &Iterator->second;
+		}
+
 		return {};
+	}
 
 	if (ZeroPidIterator == ZeroPid + 1)
 		return ZeroPidIterator->first;
@@ -303,7 +294,9 @@ void PerfThread::Refresh()
 					dwCounterOffsets[ii] = Def.CounterOffset;
 	}
 
-	std::vector<ProcessPerfData> NewPData(pObj->NumInstances);
+	decltype(m_ProcessesData) NewPData;
+	NewPData.reserve(pObj->NumInstances);
+
 	auto pInst = view_as<PERF_INSTANCE_DEFINITION>(pObj, pObj->DefinitionLength);
 
 	// loop thru the performance instance data extracting each process name
@@ -311,10 +304,14 @@ void PerfThread::Refresh()
 	//
 	for (size_t i = 0; i != static_cast<size_t>(pObj->NumInstances); ++i)
 	{
-		auto& Task = NewPData[i];
 		// get the process id
 		const auto pCounter = view_as<PERF_COUNTER_BLOCK>(pInst, pInst->ByteLength);
 
+		const auto ProcessId = *view_as<DWORD>(pCounter, dwProcessIdCounter);
+
+		auto& Task = NewPData.emplace(ProcessId, ProcessPerfData{})->second;
+
+		Task.dwProcessId = ProcessId;
 		Task.Bitness = DefaultBitness;
 
 		Task.dwProcessId = *view_as<DWORD>(pCounter, dwProcessIdCounter);
@@ -322,7 +319,7 @@ void PerfThread::Refresh()
 			Task.dwThreads = *view_as<DWORD>(pCounter, dwThreadCounter);
 
 		ProcessPerfData* pOldTask = {};
-		if (!pData.empty())  // Use prev data if any
+		if (!m_ProcessesData.empty())  // Use prev data if any
 		{
 			//Get the pointer to the previous instance of this process
 			pOldTask = GetProcessData(Task.dwProcessId, Task.dwThreads);
@@ -414,7 +411,7 @@ void PerfThread::Refresh()
 	dwLastTickCount += dwDeltaTickCount;
 	{
 		const std::scoped_lock l(*this);
-		pData = std::move(NewPData);
+		m_ProcessesData = std::move(NewPData);
 	}
 
 	dwLastRefreshTicks = GetTickCount() - dwTicksBeforeRefresh;
@@ -423,15 +420,26 @@ void PerfThread::Refresh()
 
 void PerfThread::RefreshWMIData()
 {
-	for (auto& i: pData)
+	std::vector<ProcessPerfData> DataCopy;
+	DataCopy.reserve(m_ProcessesData.size());
+
+	{
+		const std::scoped_lock l(*this);
+		std::transform(m_ProcessesData.cbegin(), m_ProcessesData.cend(), std::back_inserter(DataCopy), [](const auto& i) { return i.second; });
+	}
+
+	for (auto& i: DataCopy)
 	{
 		if (WaitForSingleObject(hEvtBreak.get(), 0) == WAIT_OBJECT_0)
 			break;
+
+		auto AnythingRead = false;
 
 		if (!m_HostName.empty() && !i.FullPathRead)
 		{
 			i.FullPath = WMI.GetProcessExecutablePath(i.dwProcessId);
 			i.FullPathRead = true;
+			AnythingRead = true;
 		}
 
 		if (!i.OwnerRead)
@@ -445,12 +453,22 @@ void PerfThread::RefreshWMIData()
 			}
 
 			i.OwnerRead = true;
+			AnythingRead = true;
 		}
 
 		if (!i.CommandLineRead)
 		{
 			i.CommandLine = WMI.GetProcessCommandLine(i.dwProcessId);
 			i.CommandLineRead = true;
+			AnythingRead = true;
+		}
+
+		if (AnythingRead)
+		{
+			const std::scoped_lock l(*this);
+
+			if (auto* Data = GetProcessData(i.dwProcessId, i.dwThreads))
+				*Data = i;
 		}
 	}
 }
@@ -462,12 +480,28 @@ void PerfThread::ThreadProc()
 		hEvtBreak.get(), hEvtRefresh.get()
 	};
 
-	const auto CoInited = SUCCEEDED(CoInitialize({}));
-
 	for (;;)
 	{
 		Refresh();
 
+		if (WaitForMultipleObjects(static_cast<DWORD>(std::size(handles)), handles, 0, dwRefreshMsec) == WAIT_OBJECT_0)
+			break;
+
+		PsInfo.AdvControl(&MainGuid, ACTL_SYNCHRO, 0, m_Owner);
+	}
+}
+
+void PerfThread::WmiThreadProc()
+{
+	const HANDLE handles[]
+	{
+		hEvtBreak.get(), hEvtRefresh.get()
+	};
+
+	const auto CoInited = SUCCEEDED(CoInitialize({}));
+
+	for (;;)
+	{
 		if (!bConnectAttempted && Opt.EnableWMI)
 		{
 			WMI.Connect(
@@ -493,9 +527,15 @@ void PerfThread::ThreadProc()
 		CoUninitialize();
 }
 
-DWORD WINAPI PerfThread::ThreadProc(void* Parm)
+DWORD WINAPI PerfThread::ThreadProc(void* Param)
 {
-	static_cast<PerfThread*>(Parm)->ThreadProc();
+	static_cast<PerfThread*>(Param)->ThreadProc();
+	return 0;
+}
+
+DWORD WINAPI PerfThread::WmiThreadProc(void* Param)
+{
+	static_cast<PerfThread*>(Param)->WmiThreadProc();
 	return 0;
 }
 

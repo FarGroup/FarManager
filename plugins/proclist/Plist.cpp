@@ -63,13 +63,15 @@ bool GetList(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, PerfThread& Thre
 		return false;
 
 	pPanelItem = new PluginPanelItem[pData.size()]{};
+	auto PanelItemIterator = pPanelItem;
 	ItemsNumber = pData.size();
 
-	for (size_t i = 0; i != pData.size(); ++i)
+	for (auto& i: pData)
 	{
-		auto& CurItem = pPanelItem[i];
-		auto& pd = pData[i];
-		CurItem.UserData.FreeData = FreeUserData;
+		auto& CurItem = *PanelItemIterator;
+		++PanelItemIterator;
+
+		auto& pd = i.second;
 		//delete CurItem.FileName;  // ???
 		CurItem.FileName = new wchar_t[pd.ProcessName.size() + 1];
 		*std::copy(pd.ProcessName.cbegin(), pd.ProcessName.cend(), const_cast<wchar_t*>(CurItem.FileName)) = L'\0';
@@ -81,6 +83,7 @@ bool GetList(PluginPanelItem*& pPanelItem, size_t& ItemsNumber, PerfThread& Thre
 		}
 
 		CurItem.UserData.Data = new ProcessData();
+		CurItem.UserData.FreeData = FreeUserData;
 
 		if (!pd.ftCreation.dwHighDateTime && pd.dwElapsedTime)
 		{
