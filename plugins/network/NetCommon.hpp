@@ -35,15 +35,15 @@ extern BOOL IsFirstRun;
 
 class TSaveScreen
 {
-	private:
-		HANDLE hScreen;
+private:
+	HANDLE hScreen;
 
-	public:
-		TSaveScreen();
-		~TSaveScreen();
+public:
+	TSaveScreen();
+	~TSaveScreen();
 };
 
-const wchar_t *GetMsg(int MsgId);
+const wchar_t* GetMsg(int MsgId);
 
 BOOL DlgCreateFolder(wchar_t* lpBuffer, int nBufferSize);
 

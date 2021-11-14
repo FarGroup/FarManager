@@ -5,32 +5,32 @@
 #include <initguid.h>
 #include "guid.hpp"
 
-void WINAPI GetGlobalInfoW(GlobalInfo *Info)
+void WINAPI GetGlobalInfoW(GlobalInfo* Info)
 {
-	Info->StructSize=sizeof(GlobalInfo);
-	Info->MinFarVersion=FARMANAGERVERSION;
-	Info->Version=PLUGIN_VERSION;
-	Info->Guid=MainGuid;
-	Info->Title=PLUGIN_NAME;
-	Info->Description=PLUGIN_DESC;
-	Info->Author=PLUGIN_AUTHOR;
+	Info->StructSize = sizeof(GlobalInfo);
+	Info->MinFarVersion = FARMANAGERVERSION;
+	Info->Version = PLUGIN_VERSION;
+	Info->Guid = MainGuid;
+	Info->Title = PLUGIN_NAME;
+	Info->Description = PLUGIN_DESC;
+	Info->Author = PLUGIN_AUTHOR;
 }
 
 //-----------------------------------------------------------------------------
-HANDLE WINAPI OpenW(const OpenInfo *Info)
+HANDLE WINAPI OpenW(const OpenInfo* Info)
 {
-	HANDLE hPlugin=new NetBrowser;
+	HANDLE hPlugin = new NetBrowser;
 
 	if (!hPlugin)
 		return nullptr;
 
-	NetBrowser *Browser=(NetBrowser *)hPlugin;
+	NetBrowser* Browser = (NetBrowser*)hPlugin;
 
-	if (Info->OpenFrom==OPEN_COMMANDLINE)
+	if (Info->OpenFrom == OPEN_COMMANDLINE)
 	{
-		int I=0;
-		auto cmd=const_cast<wchar_t*>(reinterpret_cast<OpenCommandLineInfo*>(Info->Data)->CommandLine); //BUGBUG
-		wchar_t *p=wcschr(cmd, L':');
+		int I = 0;
+		auto cmd = const_cast<wchar_t*>(reinterpret_cast<OpenCommandLineInfo*>(Info->Data)->CommandLine); //BUGBUG
+		wchar_t* p = wcschr(cmd, L':');
 
 		if (!p || !*p)
 		{
@@ -55,22 +55,22 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 
 		if (lstrlen(FSF.Trim(cmd)))
 		{
-			if (cmd [0] == L'/')
-				cmd [0] = L'\\';
+			if (cmd[0] == L'/')
+				cmd[0] = L'\\';
 
-			if (cmd [1] == L'/')
-				cmd [1] = L'\\';
+			if (cmd[1] == L'/')
+				cmd[1] = L'\\';
 
 			if (!netg && !Opt.NavigateToDomains)
 			{
 				if (cmd[0] == L'\\' && cmd[1] != L'\\')
-					I=1;
+					I = 1;
 				else if (cmd[0] != L'\\' && cmd[1] != L'\\')
-					I=2;
+					I = 2;
 			}
 
 			wchar_t Path[MAX_PATH] = L"\\\\";
-			lstrcpy(Path+I, cmd);
+			lstrcpy(Path + I, cmd);
 			FSF.Unquote(Path);
 			// Expanding environment variables.
 			{
@@ -81,12 +81,12 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 			Browser->SetOpenFromCommandLine(Path);
 		}
 	}
-	/* The line below is an UNDOCUMENTED and UNSUPPORTED EXPERIMENTAL
-	    mechanism supported ONLY in FAR 1.70 beta 3. It will NOT be supported
-	    in later versions. Please DON'T use it in your plugins. */
+		/* The line below is an UNDOCUMENTED and UNSUPPORTED EXPERIMENTAL
+			mechanism supported ONLY in FAR 1.70 beta 3. It will NOT be supported
+			in later versions. Please DON'T use it in your plugins. */
 	else if (Info->OpenFrom == OPEN_FILEPANEL)
 	{
-		if (!Browser->SetOpenFromFilePanel((wchar_t *) Info->Data))
+		if (!Browser->SetOpenFromFilePanel((wchar_t*)Info->Data))
 		{
 			// we don't support upwards browsing from NetWare shares -
 			// it doesn't work correctly
@@ -112,61 +112,61 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 		}
 	}
 
-	return(hPlugin);
+	return (hPlugin);
 }
 
 //-----------------------------------------------------------------------------
 void WINAPI ClosePanelW(const ClosePanelInfo* Info)
 {
-	delete(NetBrowser *)Info->hPanel;
+	delete(NetBrowser*)Info->hPanel;
 }
 
 //-----------------------------------------------------------------------------
-intptr_t WINAPI GetFindDataW(GetFindDataInfo *Info)
+intptr_t WINAPI GetFindDataW(GetFindDataInfo* Info)
 {
-	NetBrowser *Browser=(NetBrowser *)Info->hPanel;
-	return(Browser->GetFindData(&Info->PanelItem,&Info->ItemsNumber,Info->OpMode));
+	NetBrowser* Browser = (NetBrowser*)Info->hPanel;
+	return (Browser->GetFindData(&Info->PanelItem, &Info->ItemsNumber, Info->OpMode));
 }
 
 //-----------------------------------------------------------------------------
-void WINAPI FreeFindDataW(const FreeFindDataInfo *Info)
+void WINAPI FreeFindDataW(const FreeFindDataInfo* Info)
 {
-	NetBrowser *Browser=(NetBrowser *)Info->hPanel;
-	Browser->FreeFindData(Info->PanelItem,(int)Info->ItemsNumber);
+	NetBrowser* Browser = (NetBrowser*)Info->hPanel;
+	Browser->FreeFindData(Info->PanelItem, (int)Info->ItemsNumber);
 }
 
 //-----------------------------------------------------------------------------
-void WINAPI GetOpenPanelInfoW(OpenPanelInfo *Info)
+void WINAPI GetOpenPanelInfoW(OpenPanelInfo* Info)
 {
-	NetBrowser *Browser=(NetBrowser *)Info->hPanel;
+	NetBrowser* Browser = (NetBrowser*)Info->hPanel;
 	Browser->GetOpenPanelInfo(Info);
 }
 
 //-----------------------------------------------------------------------------
-intptr_t WINAPI SetDirectoryW(const SetDirectoryInfo *Info)
+intptr_t WINAPI SetDirectoryW(const SetDirectoryInfo* Info)
 {
-	NetBrowser *Browser=(NetBrowser *)Info->hPanel;
-	return(Browser->SetDirectory(Info->Dir,Info->OpMode));
+	NetBrowser* Browser = (NetBrowser*)Info->hPanel;
+	return (Browser->SetDirectory(Info->Dir, Info->OpMode));
 }
 
 //-----------------------------------------------------------------------------
-intptr_t WINAPI DeleteFilesW(const DeleteFilesInfo *Info)
+intptr_t WINAPI DeleteFilesW(const DeleteFilesInfo* Info)
 {
-	NetBrowser *Browser=(NetBrowser *)Info->hPanel;
-	return(Browser->DeleteFiles(Info->PanelItem,(int)Info->ItemsNumber,Info->OpMode));
+	NetBrowser* Browser = (NetBrowser*)Info->hPanel;
+	return (Browser->DeleteFiles(Info->PanelItem, (int)Info->ItemsNumber, Info->OpMode));
 }
 
 //-----------------------------------------------------------------------------
-intptr_t WINAPI ProcessPanelInputW(const ProcessPanelInputInfo *Info)
+intptr_t WINAPI ProcessPanelInputW(const ProcessPanelInputInfo* Info)
 {
-	NetBrowser *Browser=(NetBrowser *)Info->hPanel;
-	return(Browser->ProcessKey(&Info->Rec));
+	NetBrowser* Browser = (NetBrowser*)Info->hPanel;
+	return (Browser->ProcessKey(&Info->Rec));
 }
 
 //-----------------------------------------------------------------------------
-intptr_t WINAPI ProcessPanelEventW(const ProcessPanelEventInfo *Info)
+intptr_t WINAPI ProcessPanelEventW(const ProcessPanelEventInfo* Info)
 {
-	NetBrowser *Browser=(NetBrowser *)Info->hPanel;
+	NetBrowser* Browser = (NetBrowser*)Info->hPanel;
 	return Browser->ProcessEvent(Info->Event, Info->Param);
 }
 
