@@ -93,7 +93,7 @@ public:
 	void lock();
 	void unlock();
 
-	auto& ProcessData() { return pData; }
+	auto& ProcessData() { return m_ProcessesData; }
 	ProcessPerfData* GetProcessData(DWORD dwPid, DWORD dwThreads);
 	const PerfLib* GetPerfLib() const { return &pf; }
 	void AsyncReread() const { SetEvent(hEvtRefresh.get()); }
@@ -107,16 +107,18 @@ public:
 	const auto& Password() const { return m_Password; }
 private:
 	static DWORD WINAPI ThreadProc(void* Param);
+	static DWORD WINAPI WmiThreadProc(void* Param);
 	void ThreadProc();
+	void WmiThreadProc();
 	void Refresh();
 	void RefreshWMIData();
 
 	Plist* m_Owner;
 	int DefaultBitness;
-	handle hThread;
+	handle hThread, hWmiThread;
 	handle hEvtBreak, hEvtRefresh, hEvtRefreshDone;
-	DWORD dwThreadId{};
-	std::vector<ProcessPerfData> pData;
+
+	std::unordered_multimap<DWORD, ProcessPerfData> m_ProcessesData;
 
 	DWORD dwLastTickCount{};
 	bool bOK{};

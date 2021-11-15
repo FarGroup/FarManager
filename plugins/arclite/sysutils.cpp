@@ -624,7 +624,8 @@ bool FileEnum::next_nt(bool& more) noexcept {
   for (;;) {
     if (h_find == INVALID_HANDLE_VALUE) {
       if (n_far_items >= 0) {
-        if (!(more = n_far_items > 0))
+        more = (n_far_items > 0);
+        if (!more)
           return true;
         find_data = far_items.front();
         far_items.pop_front();

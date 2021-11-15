@@ -2602,7 +2602,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 						if (CmpStr != NewCmpStr)
 						{
-							AddUndoData(UNDO_EDIT, CmpStr, m_it_CurLine->GetEOL(), m_it_CurLine.Number(), CurPos); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+							AddUndoData(UNDO_EDIT, CmpStr, m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos()); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 							Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 							TextChanged(true);
 						}
@@ -4158,7 +4158,10 @@ void Editor::DeleteBlock()
 		size_t Length = CurPtr->GetLength();
 
 		if (StartSel || EndSel)
+		{
 			AddUndoData(UNDO_EDIT, CurPtr->GetString(), CurPtr->GetEOL(), m_it_AnyBlockStart.Number(), CurPtr->GetCurPos());
+			LastChangeStrPos = StartSel;
+		}
 
 		/* $ 17.09.2002 SKV
 		  опять про выделение за концом строки.

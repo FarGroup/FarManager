@@ -335,6 +335,8 @@
 "Read-only"
 "Out Name"
 "Copy Link"
+"Arc FileName"
+"Is Hash"
 
 // Property values
 "Si"

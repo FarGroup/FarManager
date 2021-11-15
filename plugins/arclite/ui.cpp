@@ -1486,7 +1486,7 @@ private:
   int ok_ctrl_id;
   int cancel_ctrl_id;
 
-  std::vector<size_t> estimate_column_widths(const std::vector<std::wstring>& items) {
+  std::vector<size_t> estimate_column_widths(const std::vector<std::wstring>& dialog_items) {
     SMALL_RECT console_rect;
     double window_ratio;
     if (Far::adv_control(ACTL_GETFARRECT, 0, &console_rect)) {
@@ -1497,17 +1497,17 @@ private:
     }
     double window_ratio_diff = std::numeric_limits<double>::max();
     std::vector<size_t> prev_col_widths;
-    for (unsigned num_cols = 1; num_cols <= items.size(); ++num_cols) {
+    for (unsigned num_cols = 1; num_cols <= dialog_items.size(); ++num_cols) {
       std::vector<size_t> col_widths(num_cols, 0);
-      for (size_t i = 0; i < items.size(); ++i) {
+      for (size_t i = 0; i < dialog_items.size(); ++i) {
         size_t col_index = i % num_cols;
-        if (col_widths[col_index] < items[i].size())
-          col_widths[col_index] = items[i].size();
+        if (col_widths[col_index] < dialog_items[i].size())
+          col_widths[col_index] = dialog_items[i].size();
       }
       size_t width = accumulate(col_widths.cbegin(), col_widths.cend(), size_t(0));
       width += num_cols * 4 + (num_cols - 1);
-      size_t height = items.size() / num_cols + (items.size() % num_cols ? 1 : 0);
-      double ratio = static_cast<double>(width) / height;
+      size_t height = dialog_items.size() / num_cols + (dialog_items.size() % num_cols ? 1 : 0);
+      double ratio = static_cast<double>(width) / static_cast<double>(height);
       double diff = fabs(ratio - window_ratio);
       if (diff > window_ratio_diff)
         break;

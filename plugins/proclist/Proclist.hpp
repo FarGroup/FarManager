@@ -165,6 +165,24 @@ private:
 	DWORD dwPluginThread;
 
 	static inline std::vector<mode> m_PanelModesDataLocal, m_PanelModesDataRemote;
+
+	mutable class refresh_lock
+	{
+	public:
+		refresh_lock(const refresh_lock&) = delete;
+		refresh_lock& operator=(const refresh_lock&) = delete;
+
+		refresh_lock() = default;
+
+		void lock() { ++m_Busy; }
+		void unlock() { --m_Busy;}
+
+		bool is_busy() const { return m_Busy != 0; }
+
+	private:
+		size_t m_Busy{};
+	}
+	m_RefreshLock;
 };
 
 struct InitDialogItem

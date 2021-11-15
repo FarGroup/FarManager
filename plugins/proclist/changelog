@@ -1,3 +1,9 @@
+drkns 14.11.2021 18:48:42 +0000 - build 203
+
+1. Move WMI refresh to a separate thread.
+
+2. Fix other refresh-related issues.
+
 drkns 29.06.2021 01:43:50 +0100 - build 202
 
 1. Refresh the panel using ACTL_SYNCHRO.

@@ -142,6 +142,7 @@ public:
 		{
 			ProgressDlgItems[items::pr_total_progress].Flags |= DIF_HIDDEN;
 			--ProgressDlgItems[items::pr_doublebox].Y2;
+			ProgressDlgItems[items::pr_console_title].strData = ProgressDlgItems[items::pr_doublebox].strData;
 		}
 
 		const int DialogHeight = ProgressDlgItems[items::pr_doublebox].Y2 - ProgressDlgItems[items::pr_doublebox].Y1 + 1 + 2;
