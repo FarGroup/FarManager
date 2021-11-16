@@ -474,6 +474,7 @@ struct background_searcher::CodePageInfo
 	size_t MaxCharSize{};
 	wchar_t LastSymbol{};
 	bool WordFound{};
+	size_t BytesToSkip{};
 
 	void initialize()
 	{
@@ -1007,10 +1008,6 @@ bool FindFiles::GetPluginFile(ArcListItem const* const ArcItem, const os::fs::fi
 
 bool background_searcher::LookForString(string_view const FileName)
 {
-	// Длина строки поиска
-	std::optional<size_t> FoundStrSize;
-
-	// Открываем файл
 	const os::fs::file File(FileName, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	if(!File)
 	{
@@ -1028,11 +1025,15 @@ bool background_searcher::LookForString(string_view const FileName)
 	size_t readBlockSize = 0;
 	// Количество прочитанных из файла байт
 	unsigned long long alreadyRead = 0;
-	// Смещение на которое мы отступили при переходе между блоками
-	size_t offset = 0;
 
-	if (SearchHex)
-		offset = hexFindString.size() - 1;
+	// Step back a little more just in case (lengths of the pattern and the actually found string could be different)
+	const auto ArbitraryOverlapBytesCountJustInCase = 128;
+	static_assert(!(ArbitraryOverlapBytesCountJustInCase & 1));
+
+	// Смещение на которое мы отступили при переходе между блоками
+	const intptr_t StepBackOffset = SearchHex?
+		hexFindString.size() - 1 :
+		(m_MaxCharSize * strFindStr.size()) + ArbitraryOverlapBytesCountJustInCase;
 
 	unsigned long long FileSize = 0;
 	// BUGBUG check result
@@ -1072,7 +1073,7 @@ bool background_searcher::LookForString(string_view const FileName)
 				return false;
 
 			// Ищем
-			const auto Begin = readBufferA.data(), End = Begin + readBlockSize;
+			const auto Begin = readBufferA.cbegin(), End = Begin + readBlockSize;
 			if (std::search(Begin, End, *m_HexSearcher) != End)
 				return true;
 		}
@@ -1081,6 +1082,9 @@ bool background_searcher::LookForString(string_view const FileName)
 			bool ErrorState = false;
 			for (auto& i: m_CodePages)
 			{
+				if (alreadyRead == readBlockSize)
+					i.BytesToSkip = 0;
+
 				ErrorState = false;
 				// Пропускаем ошибочные кодовые страницы
 				if (!i.MaxCharSize)
@@ -1111,7 +1115,7 @@ bool background_searcher::LookForString(string_view const FileName)
 					// Выходим, если прочитали меньше размера строки поиска и нет поиска по словам
 				}
 
-				if (readBlockSize < FoundStrSize && !(WholeWords && i.WordFound))
+				if (readBlockSize < strFindStr.size() && !(WholeWords && i.WordFound))
 				{
 					ErrorState = true;
 					continue;
@@ -1130,7 +1134,7 @@ bool background_searcher::LookForString(string_view const FileName)
 					bufferCount = readBlockSize/sizeof(wchar_t);
 
 					// Выходим, если размер буфера меньше длины строки поиска
-					if (bufferCount < FoundStrSize)
+					if (bufferCount < strFindStr.size())
 					{
 						ErrorState = true;
 						continue;
@@ -1154,7 +1158,7 @@ bool background_searcher::LookForString(string_view const FileName)
 				{
 					// Конвертируем буфер чтения из кодировки поиска в UTF-16
 					encoding::diagnostics Diagnostics{ encoding::enabled_diagnostics::incomplete_bytes };
-					bufferCount = encoding::get_chars(i.CodePage, { readBufferA.data(), readBlockSize }, readBuffer, &Diagnostics);
+					bufferCount = encoding::get_chars(i.CodePage, { readBufferA.data() + i.BytesToSkip, readBufferA.data() + readBlockSize }, readBuffer, &Diagnostics);
 
 					// Выходим, если нам не удалось сконвертировать строку
 					if (!bufferCount)
@@ -1164,29 +1168,24 @@ bool background_searcher::LookForString(string_view const FileName)
 					}
 
 					if (Diagnostics.IncompleteBytes && !IsLastBlock)
-					{
 						--bufferCount;
-						readBlockSize -= Diagnostics.IncompleteBytes;
-						alreadyRead -= Diagnostics.IncompleteBytes;
-						File.SetPointer(-static_cast<int>(Diagnostics.IncompleteBytes), {}, FILE_CURRENT);
-					}
 
 					// Если у нас поиск по словам и в конце предыдущего блока было вхождение
 					if (WholeWords && i.WordFound)
 					{
 						// Если конец файла, то считаем, что есть разделитель в конце
-						if (bufferCount < FoundStrSize)
+						if (bufferCount < strFindStr.size())
 							return true;
 
 						// Проверяем первый символ текущего блока с учётом обратного смещения, которое делается
 						// при переходе между блоками
-						i.LastSymbol = readBuffer[*FoundStrSize - 1];
+						i.LastSymbol = readBuffer[strFindStr.size() - 1];
 
 						if (FindFiles::IsWordDiv(i.LastSymbol))
 							return true;
 
 						// Если размер буфера меньше размера слова, то выходим
-						if (readBlockSize < FoundStrSize)
+						if (readBlockSize < strFindStr.size())
 						{
 							ErrorState = true;
 							continue;
@@ -1216,7 +1215,6 @@ bool background_searcher::LookForString(string_view const FileName)
 						return true;
 
 					const auto [FoundOffset, FoundSize] = *FoundPosition;
-					FoundStrSize = FoundSize;
 
 					const auto AbsoluteOffset = bufferCount - Where.size() + FoundOffset;
 
@@ -1267,24 +1265,50 @@ bool background_searcher::LookForString(string_view const FileName)
 					ErrorState = true;
 					continue;
 				}
-				// Запоминаем последний символ блока
-				i.LastSymbol = buffer[bufferCount-1];
+
+				if (!IsLastBlock)
+				{
+					if (IsUnicodeCodePage(i.CodePage))
+					{
+						i.LastSymbol = readBuffer[bufferCount - StepBackOffset / sizeof(wchar_t) - 1];
+					}
+					else
+					{
+						// HERE BE DRAGONS
+
+						// We can't just go back an arbitrary number of bytes in case of UTF-8, because we might land in the middle of a character.
+						// Decoding it will succeed, but will produce something completely unrelated to the original character.
+						// This could lead to rare false positives in search (if the user looks for such invalid characters for any reason)
+						// and have other undesirable effects. In particular, such characters break the current FoldString-based implementation of fuzzy search.
+
+						// To address this, we take a few bytes and decode them. The diagnostics will report the number of undecoded bytes,
+						// so everything else is the number of decoded bytes which can be safely skipped on the next iteration.
+
+						// * 2 To make sure that we can decode at least one
+						bytes_view const TestStr(readBufferA.data() + readBlockSize - StepBackOffset, m_MaxCharSize * 2);
+
+						encoding::diagnostics Diagnostics{ encoding::enabled_diagnostics::incomplete_bytes };
+						const auto TestStrChars = encoding::get_chars(i.CodePage, TestStr, readBuffer, &Diagnostics);
+
+						i.BytesToSkip = TestStr.size() - Diagnostics.IncompleteBytes;
+
+						// Запоминаем последний символ блока
+						i.LastSymbol = readBuffer[TestStrChars - (Diagnostics.IncompleteBytes != 0)];
+					}
+				}
 			}
 
 			if (ErrorState)
 				return false;
-
-			// Получаем смещение на которое мы отступили при переходе между блоками
-			offset = m_MaxCharSize * (FoundStrSize.value_or(strFindStr.size()) - 1);
 		}
 
 		// Если мы потенциально прочитали не весь файл
 		if (!IsLastBlock)
 		{
 			// Отступаем назад на длину слова поиска минус 1
-			if (!File.SetPointer(-1ll*offset, nullptr, FILE_CURRENT))
+			if (!File.SetPointer(-StepBackOffset, nullptr, FILE_CURRENT))
 				return false;
-			alreadyRead -= offset;
+			alreadyRead -= StepBackOffset;
 		}
 	}
 
