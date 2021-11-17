@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 17.11.2021 22:46:07 +0000 - build 5919
+
+1. Make search dialog more mouse-friendly.
+
+--------------------------------------------------------------------------------
 drkns 16.11.2021 21:51:24 +0000 - build 5918
 
 1. Another fix for search in UTF-8 files. Multibyte code pages are Pure Evil.
