@@ -1158,7 +1158,7 @@ bool background_searcher::LookForString(string_view const FileName)
 				{
 					// Конвертируем буфер чтения из кодировки поиска в UTF-16
 					encoding::diagnostics Diagnostics{ encoding::enabled_diagnostics::incomplete_bytes };
-					bufferCount = encoding::get_chars(i.CodePage, { readBufferA.data() + i.BytesToSkip, readBufferA.data() + readBlockSize }, readBuffer, &Diagnostics);
+					bufferCount = encoding::get_chars(i.CodePage, { readBufferA.data() + i.BytesToSkip, readBlockSize - i.BytesToSkip }, readBuffer, &Diagnostics);
 
 					// Выходим, если нам не удалось сконвертировать строку
 					if (!bufferCount)
