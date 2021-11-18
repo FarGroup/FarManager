@@ -5,7 +5,7 @@
 
 char *WINAPI StrCpy(char *dest,LPCSTR src,int dest_sz)
 {
-	if(dest <= 0)    return NULL;
+	if(dest == NULL)    return NULL;
 
 	if(dest_sz == 0) return dest;
 
