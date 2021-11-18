@@ -3,7 +3,7 @@ AltScreens.lua Use Alt+<digit> to switch between screens
 AltSearch.lua Use Alt to toggle fast find mode
 AltX.lua Use Alt+X to close Editor/Viewer, exit FAR
 CtrlDel.lua Ctrl+Del removes selected editor block
-CtrlF10.lua Quit from editor/viewer and position to the current file
+CtrlF10.lua Quit from Editor/Viewer and position to the current file
 Descript.ion File descriptions
 Dialog.AltDown.lua Open combobox and history list (as Ctrl-Down pressed)
 Edit.Notepad.lua Editor: like Notepad
