@@ -1,5 +1,9 @@
 Macro {
-  area="Editor"; key="CtrlDel CtrlNumDel"; flags="EVSelection"; description="Ctrl-Del removes selected editor block"; action = function()
-Keys('CtrlD')
+  description="Ctrl+Del removes selected editor block";
+  area="Editor";
+  key="CtrlDel CtrlNumDel";
+  flags="EVSelection";
+  action=function()
+    Keys("CtrlD")
   end;
 }
