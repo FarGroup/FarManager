@@ -1,11 +1,17 @@
 Macro {
-  area="Shell"; key="Alt"; description="Use Alt to activate menu"; action = function()
-Keys('F9')
+  description="Use Alt to activate menu";
+  area="Shell QView Tree Info Search";
+  key="Alt RAlt";
+  action=function()
+    Keys("F9")
   end;
 }
 
 Macro {
-  area="MainMenu"; key="Alt"; description="Use Alt to deactivate menu"; action = function()
-Keys('Esc')
+  description="Use Alt to deactivate menu";
+  area="MainMenu";
+  key="Alt RAlt";
+  action=function()
+    Keys("Esc")
   end;
 }
