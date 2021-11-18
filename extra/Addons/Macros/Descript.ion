@@ -1,5 +1,5 @@
 AltMenu.lua Use Alt to toggle menu
-AltScreens.lua Use Alt-<digit> to switch between screens
+AltScreens.lua Use Alt+<digit> to switch between screens
 AltSearch.lua Use Alt for search by name
 AltX.lua Alt-X - Close Viewer&Editor, Exit FAR
 CtrlDel.lua Ctrl-Del removes selected editor block
