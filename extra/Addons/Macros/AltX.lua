@@ -1,11 +1,8 @@
 Macro {
-  area="Editor Viewer"; key="AltX"; description="Close editor or viewer"; action = function()
-Keys('F10')
-  end;
-}
-
-Macro {
-  area="Search Shell"; key="AltX"; description="Exit FAR"; action = function()
-Keys('F10')
+  description="Quit (F10: close editor/viewer, or exit far if in panels)";
+  area="Editor Viewer Shell QView Tree Info Desktop";
+  key="AltX";
+  action=function()
+    Keys("F10")
   end;
 }
