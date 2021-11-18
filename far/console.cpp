@@ -779,7 +779,7 @@ namespace console_detail
 
 	static void make_vt_attributes(const FarColor& Attributes, string& Str, std::optional<FarColor> const& LastColor)
 	{
-		append(Str, L"\x9b"sv);
+		append(Str, L"\033["sv);
 
 		for (const auto& i: ColorsMapping)
 		{
@@ -963,12 +963,12 @@ namespace console_detail
 			for (const auto& i: irange(SubRect.top + 0, SubRect.bottom + 1))
 			{
 				if (i != SubRect.top)
-					format_to(Str, FSTR(L"\x9b""{};{}H"sv), CursorPosition.y + 1 + (i - SubRect.top), CursorPosition.x + 1);
+					format_to(Str, FSTR(L"\033[{};{}H"sv), CursorPosition.y + 1 + (i - SubRect.top), CursorPosition.x + 1);
 
 				make_vt_sequence(Buffer[i].subspan(SubRect.left, SubRect.width()), Str, LastColor);
 			}
 
-			append(Str, L"\x9b""0m"sv);
+			append(Str, L"\033[0m"sv);
 
 			return ::console.Write(Str);
 		}
