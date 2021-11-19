@@ -16,7 +16,7 @@ F9DeactivateMenu.lua Use F9 to deactivate main menu
 F9Table.lua Use F9 to change current table in viewer and editor
 OpeningLastFile.lua Opening last view/edit of a file
 Panel.AltBS.lua Panel: Use Alt-BS to undo folder changes
-Panel.Apps.lua Panel: Apps - Change drive in current panel
+Panel.Apps.lua Panel: Use Apps to Change drive in current panel
 Panel.BS.lua Panel: Use BS to go to upper folder
 Panel.CtrlIns...lua Panel: If CtrlIns was pressed while on . and command line is empty then copy to clipboard the path of the current folder
 Panel.CtrlLeft.lua Panel: Use Ctrl-Left to change current drive to the previous

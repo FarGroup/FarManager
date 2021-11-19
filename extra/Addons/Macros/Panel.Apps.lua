@@ -1,6 +1,8 @@
 Macro {
-  area="Shell"; key="Apps"; description="Apps - Open Change drive in current panel"; action = function()
-Keys('F9 Enter Up Enter')
+  description="Open 'Change drive' menu for current panel";
+  area="Shell QView Tree Info Search";
+  key="Apps";
+  action=function()
+    Keys("F9 Enter Up Enter")
   end;
 }
-
