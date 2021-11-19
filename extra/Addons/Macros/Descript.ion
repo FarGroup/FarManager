@@ -21,7 +21,7 @@ Panel.BS.lua Panel: Use BS to go to upper folder
 Panel.CtrlIns...lua Panel: Use CtrlIns to copy current path when pressed on '..'
 Panel.CtrlLeftRight.lua Panel: Use Ctrl-Left/Right to change current drive
 Panel.CtrlQ.lua Toggle 'maximized' Quick view panel
-Panel.CtrlShiftBackSlash.lua Panel: Activate the same folder in the passive panel as in the active panel
+Panel.CtrlShiftBackSlash.lua Activate the same folder in the passive panel as in the active panel
 Panel.CtrlShiftPgUpDn.lua Panel: Jump to the previous/next folder on the same level
 Panel.Del.lua Panel: Use Del to remove files
 Panel.Esc.lua Panel: Use Esc to toggle panels on/off
