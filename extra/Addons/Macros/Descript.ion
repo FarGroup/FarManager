@@ -18,7 +18,7 @@ OpeningLastFile.lua Opening last view/edit of a file
 Panel.AltBS.lua Panel: Use Alt-BS to undo folder changes
 Panel.Apps.lua Panel: Use Apps to Change drive in current panel
 Panel.BS.lua Panel: Use BS to go to upper folder
-Panel.CtrlIns...lua Panel: If CtrlIns was pressed while on . and command line is empty then copy to clipboard the path of the current folder
+Panel.CtrlIns...lua Panel: Use CtrlIns to copy current path when pressed on '..'
 Panel.CtrlLeft.lua Panel: Use Ctrl-Left to change current drive to the previous
 Panel.CtrlQ.lua Panel: Toggle quick view panel
 Panel.CtrlRight.lua Panel: Use Ctrl-Right to change current drive to the next
