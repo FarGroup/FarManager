@@ -19,9 +19,8 @@ Panel.AltBS.lua Panel: Use Alt-BS to undo folder changes
 Panel.Apps.lua Panel: Use Apps to Change drive in current panel
 Panel.BS.lua Panel: Use BS to go to upper folder
 Panel.CtrlIns...lua Panel: Use CtrlIns to copy current path when pressed on '..'
-Panel.CtrlLeft.lua Panel: Use Ctrl-Left to change current drive to the previous
+Panel.CtrlLeftRight.lua Panel: Use Ctrl-Left/Right to change current drive
 Panel.CtrlQ.lua Panel: Toggle quick view panel
-Panel.CtrlRight.lua Panel: Use Ctrl-Right to change current drive to the next
 Panel.CtrlShiftBackSlash.lua Panel: Activate the same folder in the passive panel as in the active panel
 Panel.CtrlShiftPgUpDn.lua Panel: Jump to the previous/next folder on the same level
 Panel.Del.lua Panel: Use Del to remove files
