@@ -1,12 +1,19 @@
 Macro {
-  area="Shell"; key="Left"; flags="EmptyCommandLine"; description="LYNX-style motion"; action = function()
-Keys('CtrlPgUp')
+  description="LYNX-style motion";
+  area="Shell";
+  key="Left";
+  flags="EmptyCommandLine";
+  action = function()
+    Keys("CtrlPgUp")
   end;
 }
 
 Macro {
-  area="Shell"; key="Right"; flags="EmptyCommandLine"; description="LYNX-style motion"; action = function()
-Keys('CtrlPgDn')
+  description="LYNX-style motion";
+  area="Shell";
+  key="Right";
+  flags="EmptyCommandLine";
+  action = function()
+    Keys("CtrlPgDn")
   end;
 }
-
