@@ -6,13 +6,13 @@
 $ #Wtyczka - przeglądarka sieci#
  Używając wtyczki "Przeglądarka sieci" można poruszać się w zasobach
 sieciowych, przechodzić do zamapowanych i nie zamapowanych dysków sieciowych,
-mapować i odmapować je.
-Wciśnij #F5#, aby zamapować wybrany zasób na dowolną wolną literę dysku
+oraz je mapować i odmapować.
+Należy wcisnąć #F5#, aby zamapować wybrany zasób na pierwszą wolną literę dysku
 lub #F6#, aby wybrać literę dysku. #Shift-F5# i #Shift-F6# działają tak samo
 jak #F5# i #F6#, ale tworzą połączenia tymczasowe.
 Istnieje możliwość przełączenia typu połączenia po najechaniu na wybraną literę
 w menu dysków i wciśnięciu #F6# lub #Shift-F6#.
-Użyj klawisza #F8#, aby ~odłączyć mapowany dysk~@DisconnectDrive@.
+Aby ~odłączyć mapowany dysk~@DisconnectDrive@, należy wcisnąć #F8#.
 
  Możesz otworzyć przeglądarkę sieci z menu dysków,
 wtyczkę można też uruchomić z linii poleceń:
@@ -20,66 +20,66 @@ wtyczkę można też uruchomić z linii poleceń:
  #net:nazwa_serwera#
  #net:\\nazwa_serwera#
 
- If you specify the name of the server when opening the plugin
-from the command line, the list of shares of that server will be shown.
-This feature works only for Microsoft Windows networks.
+ Jeśli nazwa serwera zostanie określona przy otwieraniu wtyczki z wiersza poleceń,
+to zostanie wyświetlona lista udziałów tego serwera.
+Opcja ta działa tylko w sieciach Microsoft Windows.
 
- Within the plugin, you can move between servers by entering a
-command in the command line:
+ We wtyczce można poruszać się pomiędzy serwerami wpisując polecenie w wierszu
+poleceń:
 
- #cd \\nazwa_serwrera#
+ #cd \\nazwa_serwera#
 
- This feature also works only for Microsoft Windows networks.
+Opcja ta działa tylko w sieciach Microsoft Windows.
 
- You can use different credentials to open remote shares. To open resource
-specifying login information explicitly use F4 key.
+ Można podać różne dane uwierzytelniające. Aby otworzyć zasoby podając
+inne dane logowania, należy wcisnąć klawisz #F4#.
 
- ~Konfiguracja przeglądarki sieci~@Config@
+   ~Konfiguracja przeglądarki sieci~@Config@
 
 
 @Config
 $ #Konfiguracja przeglądarki sieci#
- W tym dialogu można zmieniać następujące opcje:
+ W tym oknie dialogowym można zmieniać następujące opcje:
 
  #Dodaj do menu dysków#
- Dodaje "Sieć" do listy w menu wyboru dysków.
+  Dodaje "Sieć" do listy w menu wyboru dysków.
 
  #Dodaj do menu wtyczek#
- Dodaje "Sieć" do listy w menu wyboru wtyczek.
+  Dodaje "Sieć" do listy w menu wyboru wtyczek.
 
- #Выводить ".." в списке провайдеров#
- Показывать ".." на панели в списке провайдеров.
+ #Pokaż ".." na liście dostępów#
+  Pokazuje ".." na liście dostępnych zasobów.
 
  #Pokaż sieć lokalną#
- If this option is enabled, then, when the Network Browser is first opened, it will show
-the network neighborhood of the current computer (computers in the same domain or
-workgroup). The option works only for Microsoft Windows networks.
+  Jeżeli opcja jest włączona, to po pierwszym otwarciu przeglądarki
+sieciowej wyświetli się otoczenie sieciowe bieżącego komputera
+(komputery w tej samej domenie lub grupie roboczej). Opcja działa
+tylko w sieciach Microsoft Windows.
 
- #Показывать принтеры#
- Показывать предоставляемые хостом общие принтеры.
+ #Pokaż drukarki#
+  Pokazuje drukarki udostępnione przez serwery.
 
- #Показывать полные пути к общим ресурсам#
- ...
+ #Pokaż pełną nazwę udziału#
+  ...
 
- #Pokaż ukryte zasoby#
- If this option is enabled, hidden (administrative) shares are shown in the plugin.
+ #Pokaż ukryte zasoby - zawsze pokazuj#
+  Jeżeli opcja jest włączona, widoczne są zasoby ukryte (administracyjne).
 
- #Показывать скрытые ресурсы атрибутом Hidden#
- Если включена эта опция, плагин для скрытых административных ресурсов ставит атрибут Hidden.
+ #Pokaż ukryte zasoby - jako ukryte#
+  Jeżeli opcja jest włączona, dla ukrytych zasobów administracyjnych wtyczka ustawia atrybut Ukryty (Hidden).
 
- #Возврат в Избранное, если ресурс в избранном#
- ...
-
+ #Przeglądaj do Ulubionych, jeżeli możliwe#
+  ...
 
 @DisconnectDrive
 $ #Odłącz dysk sieciowy#
- You can disconnect a network drive by pressing #Del# or #F8# in the
-list of shares of a computer.
+ Można odłączyć dysk sieciowy wciskając klawisz #Del# lub #F8#
+na liście udziałów komputera.
 
- If the option #[x] Odłącz dysk sieciowy# is enabled in the
-~Confirmations dialog~@:ConfirmDlg@ of the Far configuration, a dialog
-will appear allowing you to confirm the disconnection and to choose
-whether you want to disconnect permanently or temporarily.
+ Jeżeli opcja #[x] Odłącz dysk sieciowy# jest włączona w konfiguracji
+Far w oknie ~Potwierdzeń~@:ConfirmDlg@, wyświetlone zostanie okno
+umożliwiające potwierdzenie rozłączenia i możliwości wyboru,
+czy rozłączenie ma być na stałe czy tymczasowo.
 
- The option #[x] Podłącz po zalogowaniu# is enabled only for permanently
-connected network drives.
+ Opcja #[x] Podłącz po zalogowaniu# jest włączona tylko dla dysków sieciowych
+podłączonych na stałe (permanentnie).
