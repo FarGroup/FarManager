@@ -31,7 +31,7 @@ Panel.JumpToSelectedFile.lua Panel: Navigate through selected files
 Panel.Lynx-mot.lua Panel: LYNX-style motion
 Panel.MouseWheelTilt.lua Panel: Use CtrlPgUp/CtrlPgDn via extended buttons mouse
 Panel.Numpad.lua Panel: Use numpad keys in command line
-Panel.SelectFromClipboard.lua Panel: Use Ctrl-S for select files from Clipboard
+Panel.SelectFromClipboard.lua Panel: Use Ctrl+S for select files from Clipboard
 Panel.SpaceToSelect.lua Panel: Use Space to select files
 Search.CtrlIns.lua Fast find: CtrlIns in fast search
 ShiftBS.lua Converts the word before cursor using XLat function.
