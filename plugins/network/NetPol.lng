@@ -5,7 +5,7 @@
 "Błąd"
 "&Tak"
 
-"Przeglądrka sieciowa"
+"Przeglądarka sieci"
 
 "network"
 
@@ -18,7 +18,7 @@
 "PodRęcz"
 
 "Proszę czekać"
-"Skanuowanie sieci..."
+"Skanowanie sieci..."
 
 "Nie można przeglądać sieci"
 "Nie można połączyć \"%.40s\" do %s"
@@ -51,12 +51,12 @@
 "Pokaż &pełną nazwę udziału"
 "Udziały ukryte"
 "&Nigdy nie pokazuj"
-"Pokaż jako &ukryte"
-"Z&awsze pokazuj"
-"Pokaż &drukarki"
-"Show \"&..\" in the providers"
-"Przeglądaj do &Ulubionych, jeżeli możliwe"
-"Check resource &reachability"
+"Pokaż &jako ukryte"
+"&Zawsze pokazuj"
+"Pokaż d&rukarki"
+"Pokaż \"&..\" na liście dostępów"
+"Przeglądaj &Ulubione, jeśli to możliwe"
+"&Sprawdź dostępność zasobów"
 
 "Rozłącz dysk sieciowy"
 "Chcesz rozłączyć się z dyskiem %s?"
