@@ -40,7 +40,7 @@ Symlink.lua Alternative way to create symbolic links
 UppercaseFolders.lua Restore the option "Create folders in uppercase" that was removed in Far 3.0.4184
 View.CtrlUpDown.lua Viewer: Scroll screen (using keys like in editor)
 View.NextPrevFile.lua Viewer: update panel position when navigating through files
-View.PgDn.lua Viewer: PgDn at the end of file works as in Far Manager 1.70 beta 4 and earlier
+View.PgDn.lua Viewer: PgDn: never scroll beyond EOF (like in FAR 1.70 beta 4 and earlier)
 View.ShiftInsSearch.lua Viewer: Use Shift-Ins to search text from clipboard in internal viewer
 View.Space.lua Viewer: Use Space for listing in the viewer (like in Outlook Express or The Bat!)
 WheelScreenSwitch.lua Use Shift-MsWheel to switch between screens
