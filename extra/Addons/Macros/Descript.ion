@@ -35,7 +35,6 @@ Panel.SelectFromClipboard.lua Panel: Use Ctrl+S for select files from Clipboard
 Panel.SpaceToSelect.lua Panel: Use Space to select files
 Search.CtrlIns.lua Close Fast find and send key to panel
 ShiftBS.lua Converts the word before cursor using XLat function.
-ShiftF1.lua Select archive format
 ShiftTab.lua Shift-Tab = Ctrl-Shift-Tab
 Symlink.lua Alternative way to create symbolic links
 UppercaseFolders.lua Restore the option "Create folders in uppercase" that was removed in Far 3.0.4184
