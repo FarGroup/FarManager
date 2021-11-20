@@ -1,12 +1,7 @@
 Macro {
-  area="Viewer"; key="CtrlDown"; description="Scroll Down text in internal viewer"; action = function()
-Keys('Down')
+  description="Scroll screen (using keys like in editor)";
+  area="Viewer"; key="CtrlUp CtrlDown";
+  action=function()
+    Keys(mf.akey(1,1):match(".%l+$"))
   end;
 }
-
-Macro {
-  area="Viewer"; key="CtrlUp"; description="Scroll Up text in internal viewer"; action = function()
-Keys('Up')
-  end;
-}
-
