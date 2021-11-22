@@ -204,18 +204,18 @@ od której edytor ma rozpocząć pracę.
  Przykład: #far -p%USERPROFILE%\\Far\\Plugins#
 
  #-co#
- Wymusza na programie Far wczytanie wtyczek z folderu cache. Wtyczki są dzięki
-temu wczytywane szybciej, ale nowe lub zaktualizowane wtyczki nie będą rozpoznane.
-Opcja powinna być używana #tylko# dla stabilnej listy wtyczek. Po dodaniu,
-zastąpieniu lub usunięciu wtyczki opcja ta nie powinna być użyta. Jeżeli cache
-jest pusty, żadna wtyczka nie zostanie wczytana.
+ Wymusza na programie Far wczytanie wtyczek z folderu pamięci podręcznej (cache).
+Wtyczki są dzięki temu wczytywane szybciej, ale nowe lub zaktualizowane wtyczki
+nie będą rozpoznane. Opcja powinna być używana #tylko# dla stabilnej listy wtyczek.
+Po dodaniu, zastąpieniu lub usunięciu wtyczki opcja ta nie powinna być użyta.
+Jeżeli cache jest pusty, żadna wtyczka nie zostanie wczytana.
 
  Uwagi dotyczące przełączników -p i -co:
  - ^<wrap>jeżeli -p jest pusty, Far nie załaduje żadnych wtyczek;
  - ^<wrap>jeżeli -p jest podany ze <ścieżką>, to wczytane zostaną tylko wtyczki
 ze <ścieżki>;
  - ^<wrap>jeżeli podany jest tylko -co i cache wtyczek nie jest pusty, to wtyczki
-zostaną załadowane z cache;;
+zostaną załadowane z cache;
  - ^<wrap>-co jest ignorowane, jeżeli podano -p;
  - ^<wrap>jeżeli nie podano -p i -co, wtyczki zostaną załadowane z folderu
 'Plugins', który znajduje się w tym samym folderze co plik Far.exe oraz z folderu
@@ -286,7 +286,7 @@ panelu aktywnego, druga - panelu pasywnego:
 i podświetli plik, jeżeli ten istnieje;
  - ^<wrap>jeżeli podano przedrostek (dozwolone jest korzystanie ze wspólnych ścieżek)
 polecenie z pasywnego okna zostanie wykonane pierwsze (tymczasowa aktywacja panelu pasywnego).
-Pojedyncze litery przedrostów A-Z lub błędy liter dysków będą ignorowane.
+Pojedyncze litery przedrostków A-Z lub błędy liter dysków będą ignorowane.
  Przykład: far arc:c:\\Far20.7z "lua:msgbox('Far Manager','Pomyślnie uruchomiony')"
 
 
@@ -4652,138 +4652,140 @@ o przerwaniu wczytywania wtyczki.
 
 
 @ScrSwitch
-$ #Screens switching#
- Far allows to open several instances of the internal viewer and editor at
-the same time. Use #Ctrl+Tab#, #Ctrl+Shift+Tab# or #F12# to switch between
-panels and screens with these instances. #Ctrl+Tab# switches to the next
-screen, #Ctrl+Shift+Tab# to the previous, #F12# shows a list of all available
-screens.
+$ #Przełączanie ekranów#
+ Far pozwala na otwarcie kilku instancji wewnętrznego podglądu i edytora
+w tym samym czasie. Przełączanie pomiędzy panelami i ekranami z tymi instancjami
+można wykonać za pomocą klawiszy #Ctrl+Tab#, #Ctrl+Shift+Tab# lub #F12#.
+Klawisze #Ctrl+Tab# przełączają na następny ekran, #Ctrl+Shift+Tab# na poprzedni
+a klawisz #F12# pokazuje listę wszystkich dostępnych ekranów.
 
- The number of background viewers and editors is displayed in the left panel
-upper left corner. This can be disabled in ~Panel settings~@PanelSettings@.
+ Liczba podglądów i edytorów pracujących w tle wyświetlana jest w lewym górnym
+narożniku okna. Można ją wyłączyć w ~Ustawieniach panelu~@PanelSettings@.
 
- See also: common ~menu~@MenuCmd@ keyboard commands.
+ Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
 @ApplyCmd
-$ #Apply command#
- With #Apply command# item in ~Files menu~@FilesMenu@ it is possible to
-apply a command to each selected file. The same ~special symbols~@MetaSymbols@
-as in ~File associations~@FileAssoc@ should be used to denote the file name.
+$ #Zastosuj polecenie#
+ Za pomocą polecenia #Zastosuj polecenie# z ~Menu pliki~@FilesMenu@ można uruchomić
+polecenia dla każdego zaznaczonego pliku. Należy użyć takich samych ~symboli specjalnych~@MetaSymbols@
+jak w ~Przypisaniach plików~@FileAssoc@, aby oznaczyć nazwy plików.
 
- For example, 'type !.!' will output to the screen all selected files, one
-at a time, and the command 'rar32 m !.!.rar !.!' will move all selected files
-into RAR archives with the same names. The command 'explorer /select,!.!' will
-start the Windows Explorer and set the cursor to the current file or directory.
+ Na przykład, 'type !.!' wyświetli na ekranie zawartość wszystkich zaznaczonych
+plików jeden po drugim, a polecenie 'rar32 m !.!.rar !.!' przeniesie wszystkie
+zaznaczone pliki do archiwów RAR o tych samych nazwa. Polecenie 'explorer /select,!.!'
+uruchomi Eksplorator Windows i ustawi kursor na bieżącym pliku lub folderze.
 
- See also ~"Operating system commands"~@OSCommands@
+ Zobacz także ~"Polecenia systemu operacyjnego"~@OSCommands@
 
 
 @OSCommands
-$ #Operating system commands#
- Far Manager executes the following operating system commands
-internally, without invoking operating system command processor:
+$ #Polecenia systemu operacyjnego#
+ Far Manager wykonuje następujące polecenia systemu operacyjnego
+wewnętrznie, bez wywoływania poleceń systemu operacyjnego:
 
  #CLS#
- Clears the screen.
+ Czyści ekran.
 
- #disk:#
- Changes the current drive on the active panel to the specified “disk”.
+ #dysk:#
+ Zmienia bieżący dysk w aktywnym panelu na określony “dysk”.
 
- #CD [disk:]path# or #CHDIR [disk:]path#
- Changes the current path on the active panel to the specified
-“path”. If the drive letter is specified, the current drive is also
-changed. If the active panel shows a ~plugin~@Plugins@ emulated file
-system, the “CD” command changes the folder in the plugin file system.
-Unlike “CD”, the “CHDIR” command treats its parameter as a path name
-in the disk file system, regardless of the file panel type.
- The #CD ~~# command changes to the home directory (if there is no
-real “~~” file or directory in the current directory). The home
-directory is specified in the #Use home dir# option of the
-~Command line settings~@CmdlineSettings@ dialog. By default, it is the
-string “%FARHOME%” denoting the Far Manager home directory.
+ #CD [dysk:]ścieżka# or #CHDIR [dysk:]ścieżka#
+ Zmienia bieżącą ścieżkę w aktywnym panelu na określoną “ścieżkę”.
+Jeżeli określono literę dysku, bieżący dysk jest także zmieniany.
+Jeżeli aktywny panel pokazuje ~wtyczkę~@Plugins@ emulującą system
+plików, polecenie “CD” zmienia folder w systemie plików wtyczki.
+W przeciwieństwie do “CD”, polecenie “CHDIR” traktuje parametr
+jako nazwę ścieżki w systemie plików, niezależnie od typu panelu
+plików.
+ Polecenie #CD ~~# przechodzi do folderu domowego (jeżeli nie istnieje
+prawdziwy plik lub folder “~~” w bieżącym folderze). Folder domowy
+jest określony w opcji #Użyj folderu domowego# w oknie
+~Ustawienia wiersza poleceń~@CmdlineSettings@. Domyślnie, jest to
+tekst “%FARHOME%”, oznaczający folder domowy Far Manager.
 
  #CHCP [nnn]#
- Displays or sets the active code page number. Parameter “nnn”
-specifies the code page number to set. “CHCP” without a parameter
-displays the active code page number.
+ Wyświetla lub zmienia numer aktywnej strony kodowej. Parametr
+“nnn” określa numer strony kodowej do ustawienia.
+“CHCP” bez parametru wyświetla numer aktywnej strony kodowej.
 
- #SET variable=[string]#
- Sets environment “variable” to the value “string”. If “string”
-is not specified, the environment “variable” is removed. On startup, Far
-Manager sets several ~environment variables~@FAREnv@.
+ #SET zmienna=[łańcuch]#
+ Ustawia “zmienną” systemową na wartość “łańcuch”. Jeżeli “łańcuch”
+nie jest określony, to “zmienna” jest usuwana. Przy starcie,
+Far Manager ustawia kilka ~zmiennych systemowych~@FAREnv@.
 
- #IF [NOT] EXIST filename command#
- Executes the “command” if the “filename” exists, or does not exist
-(if used with “NOT”).
+ #IF [NOT] EXIST nazwa_pliku polecenie#
+ Wykonuje “polecenie” jeżeli “nazwa_pliku” istnieje, lub nie istnieje
+(jeżeli jest używane z “NOT”).
 
- #IF [NOT] DEFINED variable command#
- Executes the “command” if the environment “variable” is defined,
-or not defined (if used with “NOT”).
- “IF” commands can be nested. In the following example the “command”
-will be executed if “file1” exists, “file2” does not exist, and the
-environment “variable” is defined:
- #if exist file1 if not exist file2 if defined variable command#
+ #IF [NOT] DEFINED zmienna polecenie#
+ Wykonuje “polecenie” jeżeli “zmienna” jest zdefiniowana lub nie jest
+zdefiniowana (jeżeli dodano warunek “NOT”).
+ Polecenie “IF” może być zagnieżdżone. W poniższym przykładzie
+“polecenie” będzie wykonane jeżeli istnieje “plik1”, “plik2” nie istnieje
+a “zmienna” jest zdefiniowana:
+ #if exist plik1 if not exist plik2 if defined zmienna polecenie#
 
- #PUSHD path#
- Stores the current path for use by the “POPD” command, then changes
-the current path on the active panel to the specified “path”.
+ #PUSHD ścieżka#
+ Zachowuje bieżącą ścieżkę do użycia przez polecenie “POPD”,
+następnie zmienia na ścieżkę z aktywnego panelu plików.
 
  #POPD#
- Changes the current path on the active panel to that stored by the “PUSHD” command.
+ Zmienia bieżącą ścieżkę w aktywnym panelu na ścieżkę zachowaną poleceniem “PUSHD”.
 
  #CLRD#
- Clears the stack of paths stored by the “PUSHD” command.
+ Czyści listę ścieżek zapisanych przez polecenie “PUSHD”.
 
- #TITLE [string]#
- Sets the “string” as the permanent title of the Far Manager console
-window. The title will not change with switching between panels, nor
-with the commands being executed, nor with the #Far window title# option
-of the ~Interface settings~@InterfSettings@ dialog. The “string” preset
-will be used until the end of the current session or until the default
-behavior is restored by the “TITLE” command with no parameters.
+ #TITLE [łańcuch]#
+ Ustawia “łańcuch” jako tytuł okna konsoli Far Manager. Tytuł nie zmieni
+się się po przełączeniu paneli, a także po uruchomieniu polecenia,
+a także po ustawieniu #Okna tytułowego Far# w oknie ~Opcji interfejsu~@InterfSettings@.
+Ustawiony “łańcuch” będzie używany do końca bieżącej sesji lub dopóki
+nie zostanie przywrócone domyślny tytuł za pomocą polecenia “TITLE”
+bez podawania parametrów.
 
  #EXIT#
- Exits Far Manager.
+ Wychodzi z Far Manager.
 
- Notes:
+ Uwagi:
 
- 1. ^<wrap>If the command syntax does not match one of the listed
-above, Far Manager will invoke the operating system command processor to execute the command.
- 2. ^<wrap>Far Manager executes the commands listed above in the following contexts:
- - ~Command line~@CmdLineCmd@
- - ~Apply command~@ApplyCmd@
- - ~User menu~@UserMenu@
- - ~File associations~@FileAssoc@
+ 1. ^<wrap>Jeżeli składnia polecenia nie pasuje do żadnej z wymienionych
+powyżej, Far Manager wywoła procesor poleceń systemu operacyjnego w celu
+wykonania polecenia.
+ 2. ^<wrap>Far Manager wykonuje powyższe polecenia w następujących kontekstach:
+ - ~Wiersz poleceń~@CmdLineCmd@
+ - ~Zastosuj polecenie~@ApplyCmd@
+ - ~Menu użytkownika~@UserMenu@
+ - ~Powiązania plików~@FileAssoc@
 
 
 @FAREnv
-$ #Environment variables#
- On startup, Far Manager sets the following environment variables available
-to child processes:
+$ #Zmienne systemowe#
+ Podczas uruchamiania, Far Manager ustawia następujące zmienne systemowe
+dla procesów potomnych:
 
- #FARHOME#            ^<wrap>path to the folder containing main Far executable module.
+ #FARHOME#            ^<wrap>ścieżka do folderu zawierającego główny moduł wykonywalny Far.
 
- #FARPROFILE#         ^<wrap>path to the folder containing roaming user data (Far & plugins settings, additional plugins etc.)
+ #FARPROFILE#         ^<wrap>ścieżka do folderu zawierającego mobilne dane użytkownika (roaming) - (ustawienia Far i wtyczek, dodatkowe wtyczki, itp.).
 
- #FARLOCALPROFILE#    ^<wrap>path to the folder containing local user data (histories, plugin cache etc.)
+ #FARLOCALPROFILE#    ^<wrap>ścieżka do folderu zawierającego lokalne dane użytkownika (historie, cache wtyczek, itp.).
 
- #FARLANG#            ^<wrap>the name of the current interface language.
+ #FARLANG#            ^<wrap>nazwa bieżącego języka programu (po angielsku).
 
- #FARUSER#            ^<wrap>the name of the current user given by the /u ~command line~@CmdLine@ option.
+ #FARUSER#            ^<wrap>nazwa bieżącego użytkownika ustawiona przez opcję -u ~linii poleceń~@CmdLine@.
 
- #FARDIRSTACK#        ^<wrap>the contents of directories stack top (the stack is managed with #pushd# and #popd# commands)
+ #FARDIRSTACK#        ^<wrap>zawartość stosu folderów (stos zarządzany jest poleceniami #pushd# i #popd#).
 
- #FARADMINMODE#       ^<wrap>equals "1" if Far Manager is running under an administrator account.
+ #FARADMINMODE#       ^<wrap>równe "1" jeżeli Far Manager jest uruchomiony z konta administratora.
 
 
 @RegExp
-$ #Regular expressions#
- The regular expressions syntax is almost equal to Perl regexps.
+$ #Wyrażenia regularne#
+ Składnia wyrażeń regularnych jest prawie zgodna z wyrażeniami języka Perl.
 
- General form: #regexp# or /#regexp#/#options#.
+ Ogólna forma: #wyrażenie# lub /#wyrażenie#/#opcje#.
 
- #Options#:
+ #Opcje#:
  #i# - ignore character case;
  #s# - ^<wrap>consider the whole text as one line, ‘.’ matches any character;
  #m# - ^<wrap>consider the whole text as multiple lines. ‘#^#’ and ‘#$#’ match the
@@ -4926,7 +4928,7 @@ have a number (in the order of appearance).
 
 
 @RegExpRepl
-$ #Regular expressions in replace#
+$ #Wyrażenia regularne w zastępowaniu#
  In "Replace with" line one can use special replace string regular
 expressions:
 
@@ -4940,7 +4942,7 @@ sequence in regular expression. #$0# means the whole found sequence.
 
 
 @ElevationDlg
-$ #Request administrative rights#
+$ #Wymagane uprawnienia administratora#
  The current user may not have enough rights for certain file system
 operations. In this case Far asks permission to retry the operation with
 the elevated (administrative) rights.
