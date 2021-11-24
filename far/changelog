@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 24.11.2021 22:49:22 +0000 - build 5922
+
+1. 0003915: Redundant environment expansion in Folders History.
+
+2. gh-481: Issue with navigation if dir structure was deleted outside of far.
+
+--------------------------------------------------------------------------------
 drkns 24.11.2021 17:10:25 +0000 - build 5921
 
 1. Incorrect console title while copying files.

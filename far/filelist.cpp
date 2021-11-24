@@ -3008,28 +3008,23 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 	   если не удалось
 	*/
 	int UpdateFlags = 0;
-	bool SetDirectorySuccess = true;
 
 	if (m_PanelMode != panel_mode::PLUGIN_PANEL && IsRelativeRoot(strSetDir))
 	{
 		strSetDir = extract_root_directory(m_CurDir);
 	}
 
-	if (!FarChDir(strSetDir))
+	auto SetDirectorySuccess = FarChDir(strSetDir);
+	if (!SetDirectorySuccess)
 	{
-		if (!Silent && Global->WindowManager->ManagerStarted())
+		if (CheckShortcutFolder(strSetDir, !Silent, Silent || !Global->WindowManager->ManagerStarted()))
 		{
-			/* $ 03.11.2001 IS Укажем имя неудачного каталога */
-			Message(MSG_WARNING, last_error(),
-				msg(lng::MError),
-				{
-					IsParent? L".."s : strSetDir
-				},
-				{ lng::MOk });
+			SetDirectorySuccess = FarChDir(strSetDir);
+		}
+		else
+		{
 			UpdateFlags = UPDATE_KEEP_SELECTION;
 		}
-
-		SetDirectorySuccess=false;
 	}
 
 	m_CurDir = os::fs::GetCurrentDirectory();

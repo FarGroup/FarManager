@@ -1004,7 +1004,12 @@ bool Panel::SetPluginDirectory(string_view const Directory, bool Silent)
 bool Panel::ExecShortcutFolder(int Pos)
 {
 	Shortcuts::data Data;
-	return Shortcuts(Pos).Get(Data) && ExecFolder(std::move(Data.Folder), Data.PluginUuid, Data.PluginFile, Data.PluginData, true, true, false);
+	if (!Shortcuts(Pos).Get(Data))
+		return false;
+
+	Data.Folder = os::env::expand(Data.Folder);
+
+	return ExecFolder(Data.Folder, Data.PluginUuid, Data.PluginFile, Data.PluginData, true, true, false);
 }
 
 bool Panel::ExecFolder(string_view const Folder, const UUID& PluginUuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest, bool Silent)
@@ -1083,14 +1088,14 @@ bool Panel::ExecFolder(string_view const Folder, const UUID& PluginUuid, const s
 		return Result;
 	}
 
-	auto ExpandedFolder = os::env::expand(Folder);
+	string ActualFolder(Folder);
 
-	if ((TryClosest && !CheckShortcutFolder(ExpandedFolder, TryClosest, Silent)) || ProcessPluginEvent(FE_CLOSE, nullptr))
+	if ((TryClosest && !CheckShortcutFolder(ActualFolder, TryClosest, Silent)) || ProcessPluginEvent(FE_CLOSE, nullptr))
 	{
 		return false;
 	}
 
-	if (!SrcPanel->SetCurDir(ExpandedFolder, true, true, Silent))
+	if (!SrcPanel->SetCurDir(ActualFolder, true, true, Silent))
 		return false;
 
 	if (CheckFullScreen!=SrcPanel->IsFullScreen())
