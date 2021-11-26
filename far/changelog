@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 26.11.2021 01:22:00 +0000 - build 5923
+
+1. 0003918: Manual non-Persistent selection in Viewer broken since build 5833.
+
+--------------------------------------------------------------------------------
 drkns 24.11.2021 22:49:22 +0000 - build 5922
 
 1. 0003915: Redundant environment expansion in Folders History.
