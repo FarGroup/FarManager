@@ -80,11 +80,11 @@
           <ComponentRef Id="Panel.Apps.lua" />
           <ComponentRef Id="Panel.BS.lua" />
           <ComponentRef Id="Panel.CtrlIns...lua" />
-          <ComponentRef Id="Panel.CtrlLeft.lua" />
+          <ComponentRef Id="Panel.CtrlLeftRight.lua" />
           <ComponentRef Id="Panel.CtrlQ.lua" />
-          <ComponentRef Id="Panel.CtrlRight.lua" />
           <ComponentRef Id="Panel.CtrlShiftBackSlash.lua" />
           <ComponentRef Id="Panel.CtrlShiftPgUpDn.lua" />
+          <ComponentRef Id="Panel.CtrlShiftPgUpDn_api.lua" />
           <ComponentRef Id="Panel.Del.lua" />
           <ComponentRef Id="Panel.Esc.lua" />
           <ComponentRef Id="Panel.EscKeyBar.lua" />
@@ -96,7 +96,6 @@
           <ComponentRef Id="Panel.SpaceToSelect.lua" />
           <ComponentRef Id="Search.CtrlIns.lua" />
           <ComponentRef Id="ShiftBS.lua" />
-          <ComponentRef Id="ShiftF1.lua" />
           <ComponentRef Id="ShiftTab.lua" />
           <ComponentRef Id="Symlink.lua" />
           <ComponentRef Id="UppercaseFolders.lua" />

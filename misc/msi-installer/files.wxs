@@ -302,20 +302,20 @@
           <Component Id="Panel.CtrlIns...lua" Guid="$(var.Guid.Panel.CtrlIns...lua)" Win64="$(var.Win64)">
             <File Id="Panel.CtrlIns...lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlIns...lua" />
           </Component>
-          <Component Id="Panel.CtrlLeft.lua" Guid="$(var.Guid.Panel.CtrlLeft.lua)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlLeft.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlLeft.lua" />
+          <Component Id="Panel.CtrlLeftRight.lua" Guid="$(var.Guid.Panel.CtrlLeftRight.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlLeftRight.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlLeftRight.lua" />
           </Component>
           <Component Id="Panel.CtrlQ.lua" Guid="$(var.Guid.Panel.CtrlQ.lua)" Win64="$(var.Win64)">
             <File Id="Panel.CtrlQ.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlQ.lua" />
-          </Component>
-          <Component Id="Panel.CtrlRight.lua" Guid="$(var.Guid.Panel.CtrlRight.lua)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlRight.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlRight.lua" />
           </Component>
           <Component Id="Panel.CtrlShiftBackSlash.lua" Guid="$(var.Guid.Panel.CtrlShiftBackSlash.lua)" Win64="$(var.Win64)">
             <File Id="Panel.CtrlShiftBackSlash.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftBackSlash.lua" />
           </Component>
           <Component Id="Panel.CtrlShiftPgUpDn.lua" Guid="$(var.Guid.Panel.CtrlShiftPgUpDn.lua)" Win64="$(var.Win64)">
             <File Id="Panel.CtrlShiftPgUpDn.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftPgUpDn.lua" />
+          </Component>
+          <Component Id="Panel.CtrlShiftPgUpDn_api.lua" Guid="$(var.Guid.Panel.CtrlShiftPgUpDn_api.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlShiftPgUpDn_api.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftPgUpDn_api.lua" />
           </Component>
           <Component Id="Panel.Del.lua" Guid="$(var.Guid.Panel.Del.lua)" Win64="$(var.Win64)">
             <File Id="Panel.Del.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Del.lua" />
@@ -349,9 +349,6 @@
           </Component>
           <Component Id="ShiftBS.lua" Guid="$(var.Guid.ShiftBS.lua)" Win64="$(var.Win64)">
             <File Id="ShiftBS.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftBS.lua" />
-          </Component>
-          <Component Id="ShiftF1.lua" Guid="$(var.Guid.ShiftF1.lua)" Win64="$(var.Win64)">
-            <File Id="ShiftF1.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftF1.lua" />
           </Component>
           <Component Id="ShiftTab.lua" Guid="$(var.Guid.ShiftTab.lua)" Win64="$(var.Win64)">
             <File Id="ShiftTab.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftTab.lua" />

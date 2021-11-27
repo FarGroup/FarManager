@@ -108,11 +108,11 @@
 <?define Guid.Panel.Apps.lua = "7C4ADC42-5DC1-4E3B-9A45-968BC3522F1D" ?>
 <?define Guid.Panel.BS.lua = "2CB58389-ECDF-4B2B-B859-4875AE8CA629" ?>
 <?define Guid.Panel.CtrlIns...lua = "01611EFE-A250-4EB7-8F02-BC1500F72E4F" ?>
-<?define Guid.Panel.CtrlLeft.lua = "266AD0E0-8964-45E0-BE59-5BB99E22ABCB" ?>
+<?define Guid.Panel.CtrlLeftRight.lua = "D097C5AE-B7F8-4798-AF7B-7484F2380690" ?>
 <?define Guid.Panel.CtrlQ.lua = "7E5BD2D7-CCBF-45D1-9A17-880DD1F7EF88" ?>
-<?define Guid.Panel.CtrlRight.lua = "2BE42FAA-63A6-4B6D-9AC2-B6C712069BC0" ?>
 <?define Guid.Panel.CtrlShiftBackSlash.lua = "C8DDA769-D471-4DF5-A23C-160AE636A446" ?>
 <?define Guid.Panel.CtrlShiftPgUpDn.lua = "30D0F228-449E-476D-98F9-5E1186694B46" ?>
+<?define Guid.Panel.CtrlShiftPgUpDn_api.lua = "7AAB33FC-6951-4FAF-9F15-3B9DA1E13937" ?>
 <?define Guid.Panel.Del.lua = "219850D3-85AD-47F1-8529-39AA7BC9C716" ?>
 <?define Guid.Panel.Esc.lua = "A6B3699A-A2FF-4853-BF66-A3A2BB833AD4" ?>
 <?define Guid.Panel.EscKeyBar.lua = "F8606709-A394-46FD-AB71-CC6E1B655BA9" ?>
@@ -124,7 +124,6 @@
 <?define Guid.Panel.SpaceToSelect.lua = "6DE6BAD0-D509-4BEB-B2F8-CB79B9CECEFB" ?>
 <?define Guid.Panel.Search.CtrlIns.lua = "B9CBBDC4-B167-49CB-953C-B0B08042C93E" ?>
 <?define Guid.ShiftBS.lua = "0B71229B-261D-4127-A0D0-6419D8442899" ?>
-<?define Guid.ShiftF1.lua = "258ED2C0-4E28-4DED-ABB4-37318C4D6C02" ?>
 <?define Guid.ShiftTab.lua = "A9B2DE85-138B-4CDE-B2A8-215CBBBF7BC6" ?>
 <?define Guid.Symlink.lua = "D9B253AB-303A-4261-AB14-29C6A61E3C74" ?>
 <?define Guid.UppercaseFolders.lua = "67D059B3-6345-4A0E-A364-D9DF274D311E" ?>
