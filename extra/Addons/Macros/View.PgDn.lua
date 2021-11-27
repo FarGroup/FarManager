@@ -1,6 +1,11 @@
 Macro {
-  area="Viewer"; key="PgDn"; description="PgDn at the end of file works as in Far Manager 1.70 beta 4 and earlier"; action = function()
-if Object.Eof then Keys('End') else Keys('PgDn') end
+  description="PgDn: never scroll beyond EOF (like in FAR 1.70 beta 4 and earlier)";
+  area="Viewer";
+  key="PgDn Num3";
+  action=function()
+    Keys("AKey")
+    if Object.Eof then
+      Keys("End")
+    end
   end;
 }
-

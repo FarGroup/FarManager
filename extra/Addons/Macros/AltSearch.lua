@@ -1,11 +1,18 @@
 Macro {
-  area="Shell"; key="Alt"; description="Use Alt for search by name (activate)"; action = function()
-Keys('Alt<')
+  description="Use Alt to toggle fast find mode";
+  area="Shell";
+  key="Alt";
+  flags="NoSendKeysToPlugins";
+  action=function()
+    Keys("Alt<")
   end;
 }
 
 Macro {
-  area="Search"; key="Alt"; description="Use Alt for search by name (deactivate)"; action = function()
-Keys('Esc')
+  description="Use Alt to toggle fast find mode";
+  area="Search";
+  key="Alt";
+  action=function()
+    Keys("Esc")
   end;
 }

@@ -1,12 +1,19 @@
-Macro {
-  area="Shell"; key="CtrlIns"; flags="EmptyCommandLine NoPluginPanels"; description="If CtrlIns was pressed while on .. and command line is empty then copy to clipboard the path of the current folder"; action = function()
+-- if Ctrl+Ins pressed on '..' and command line is empty and no selected items
+-- then copy full path of the current folder to clipboard
 
-if APanel.Bof and not APanel.Selected and not APanel.Root then
-  Keys('F7 CtrlShift[ CtrlIns Esc')
-else
-  Keys('CtrlIns')
+local function not_empty(str)
+  return str~="" and str
 end
 
+Macro {
+  description="Copy current path when pressed on '..'";
+  area="Shell";
+  key="CtrlIns";
+  condition=function()
+    return APanel.Visible and APanel.Folder and APanel.Current==".."
+       and CmdLine.Empty and not APanel.Selected
   end;
+  action=function()
+    far.CopyToClipboard(not_empty(APanel.UNCPath) or not_empty(APanel.Format) or APanel.Path0)
+  end
 }
-

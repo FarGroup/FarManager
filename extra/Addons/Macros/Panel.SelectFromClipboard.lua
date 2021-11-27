@@ -1,6 +1,11 @@
+local ACTIVE, SELECT, BYNAME = 0, 1, 2
+
 Macro {
-  area="Shell"; key="CtrlS"; description="Panel: Use Ctrl-S to select files from Clipboard"; action = function()
-Panel.Select(0,1,2,mf.clip(0))
+  description="Panel: Use Ctrl+S to select files from Clipboard";
+  area="Shell";
+  key="CtrlS";
+  action=function()
+    Panel.Select(ACTIVE,SELECT,BYNAME,far.PasteFromClipboard())
   end;
 }
 
