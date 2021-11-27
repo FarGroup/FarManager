@@ -1,6 +1,6 @@
 local WIF_MODAL = far.Flags.WIF_MODAL
 Macro {
-  description="Use Shift-MsWheel to switch between screens";
+  description="Use Shift+MsWheel to switch between screens";
   area="Common";
   key="/ShiftMsWheel(Up|Down)/";
   condition=function()

@@ -1,6 +1,6 @@
 local WIF_MODAL = far.Flags.WIF_MODAL
 Macro {
-  description="^Ctrl-Tab";
+  description="^Ctrl+Tab";
   area="Common";
   key="ShiftTab";
   condition=function()
