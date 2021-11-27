@@ -11,6 +11,7 @@
 #include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>
 #include <SimpleString.hpp>
+#include <string>
 
 NetResourceList* CommonRootResources;
 BOOL SavedCommonRootResources = FALSE;
@@ -141,7 +142,7 @@ BOOL NetResourceList::Enumerate(
 {
 	Clear();
 
-	if (GetFavorites(lpNetResource, this))
+	if (EnumFavorites(lpNetResource, this))
 		return TRUE;
 
 	HANDLE hEnum;
@@ -475,6 +476,8 @@ int NetBrowser::ProcessEvent(intptr_t Event, void* /*Param*/)
 
 int NetBrowser::DeleteFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, OPERATION_MODES /*OpMode*/)
 {
+	if (ItemsNumber == 0)
+		return (TRUE);
 	if (CheckFavoriteItem(PCurResource))
 	{
 		//Deleting from favorites
@@ -482,6 +485,7 @@ int NetBrowser::DeleteFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, OPER
 	}
 	else
 	{
+		// unmap disks if exists
 		for (size_t I = 0; I < ItemsNumber; I++)
 			if (PanelItem[I].CustomColumnNumber == 2 && PanelItem[I].CustomColumnData)
 			{
@@ -1394,10 +1398,6 @@ BOOL NetBrowser::EditFavorites()
 	PsInfo.PanelControl(this, FCTL_GETPANELDIRECTORY, Size, dir);
 	Path = dir->Name;
 	free(dir);
-	if (Path.At(Path.Len() - 1) != L'\\')
-	{
-		Path += L"\\";
-	}
 	Size = PsInfo.PanelControl(this, FCTL_GETPANELITEM, PInfo.CurrentItem, {});
 	PluginPanelItem* PPI = (PluginPanelItem*)malloc(Size);
 
@@ -1414,39 +1414,27 @@ BOOL NetBrowser::EditFavorites()
 	if (GetFavoriteResource(Path, &nr))
 	{
 		Path = nr.lpRemoteName;
+		std::wstring message{L"Info\n"};
 
 		switch (nr.dwDisplayType)
 		{
 		case RESOURCEDISPLAYTYPE_DOMAIN:
-			PsInfo.Message(
-				&MainGuid,
-				nullptr,
-				FMSG_ALLINONE,
-				L"Data",
-				reinterpret_cast<const wchar_t* const *>(L"This is a domain"),
-				0,
-				1);
+			message.append(L"This is a domain");
 			break;
 		case RESOURCEDISPLAYTYPE_SERVER:
-			PsInfo.Message(
-				&MainGuid,
-				nullptr,
-				FMSG_ALLINONE,
-				L"Data",
-				reinterpret_cast<const wchar_t* const *>(L"This is a SERVER"),
-				0,
-				1);
+			message.append(L"This is a SERVER");
 			break;
 		default:
-			PsInfo.Message(
-				&MainGuid,
-				nullptr,
-				FMSG_ALLINONE,
-				L"Data",
-				reinterpret_cast<const wchar_t* const *>(Path.CPtr()),
-				0,
-				1);
+			message.append(Path.CPtr());
 		}
+		PsInfo.Message(
+			&MainGuid,
+			nullptr,
+			FMSG_ALLINONE,
+			L"Data",
+			reinterpret_cast<const wchar_t* const *>(message.c_str()),
+			0,
+			1);
 
 		NetResourceList::DeleteNetResource(nr);
 		return TRUE;
@@ -1560,11 +1548,6 @@ int NetBrowser::ProcessKey(const INPUT_RECORD* Rec)
 	else if (Key == VK_F4 && Shift)
 	{
 		EditFavorites();
-		return TRUE;
-	}
-	else if (Key == VK_F7 && !Alt && !Ctrl && !Shift)
-	{
-		CreateFavSubFolder();
 		return TRUE;
 	}
 		// disable processing of F3 - avoid unnecessary slowdown
@@ -1794,11 +1777,11 @@ int NetBrowser::AddConnectionExplicit(NETRESOURCE* nr, int Remember)
 	{
 		if (bSelected)
 		{
-			FAVORITEITEM Item;
+			FAVORITEITEM Item{};
 			Item.lpRemoteName = connectnr.lpRemoteName;
 			Item.lpUserName = Name;
 			Item.lpPassword = Password;
-			WriteFavoriteItem(&Item, passInfo.szFavoritePath);
+			WriteFavoriteItem(&Item);
 		}
 
 		return TRUE;
@@ -1879,11 +1862,8 @@ int NetBrowser::AddConnectionFromFavorites(NETRESOURCE* nr, int Remember)
 		FAVORITEITEM Item =
 		{
 			nr->lpRemoteName,
-			lstrlen(nr->lpRemoteName),
 			Name,
-			ARRAYSIZE(Name),
-			Pass,
-			ARRAYSIZE(Pass)
+			Pass
 		};
 
 		if (ReadFavoriteItem(&Item))
@@ -2332,7 +2312,6 @@ void NetBrowser::GotoLocalNetwork()
 	PCurResource = &CurResource;
 }
 
-
 void NetBrowser::SetCursorToShare(wchar_t* Share)
 {
 	PanelInfo PInfo = {sizeof(PanelInfo)};
@@ -2368,7 +2347,6 @@ void NetBrowser::SetCursorToShare(wchar_t* Share)
 	}
 }
 
-
 void NetBrowser::RemoveItems()
 {
 	if (!CheckFavoriteItem(PCurResource))
@@ -2378,17 +2356,12 @@ void NetBrowser::RemoveItems()
 	PanelInfo PInfo = {sizeof(PanelInfo)};
 	PsInfo.PanelControl(this, FCTL_GETPANELINFO, 0, &PInfo);
 
-	if (PInfo.SelectedItemsNumber <= 0) // Something strange is happen
-	{
-		return;
-	}
-
 	wchar_t szConfirmation[MAX_PATH * 2];
 
 	if (PInfo.SelectedItemsNumber == 1)
 	{
-		size_t Size = PsInfo.PanelControl(this, FCTL_GETSELECTEDPANELITEM, 0, {});
-		PluginPanelItem* PPI = (PluginPanelItem*)malloc(Size);
+		size_t Size = PsInfo.PanelControl(this, FCTL_GETSELECTEDPANELITEM, 0, nullptr);
+		auto* PPI = (PluginPanelItem*)malloc(Size);
 
 		if (PPI)
 		{
@@ -2407,62 +2380,23 @@ void NetBrowser::RemoveItems()
 	Msg[2] = GetMsg(MOk);
 	Msg[3] = GetMsg(MCancel);
 
-	if (0 != PsInfo.Message(
-		&MainGuid,
-		nullptr,
-		FMSG_WARNING,
-		L"RemoveItemFav",
-		Msg,
-		ARRAYSIZE(Msg),
-		2))
+	if (0 != PsInfo.Message(&MainGuid, nullptr, FMSG_WARNING, L"RemoveItemFav", Msg, std::size(Msg), 2))
 	{
 		return; // User canceled deletion
 	}
 
-	wchar_t szName[MAX_PATH * 2] = {0};
-	lstrcpy(szName, PCurResource->lpRemoteName);
-	wchar_t* p = szName + lstrlen(szName);
-
-	if ((p > szName) && (p[-1] != L'\\'))
-		*p++ = L'\\';
-
 	for (size_t i = 0; i < PInfo.SelectedItemsNumber; i++)
 	{
 		size_t Size = PsInfo.PanelControl(this, FCTL_GETSELECTEDPANELITEM, i, {});
-		PluginPanelItem* PPI = (PluginPanelItem*)malloc(Size);
+		auto* PPI = (PluginPanelItem*)malloc(Size);
 
 		if (PPI)
 		{
 			FarGetPluginPanelItem gpi = {sizeof(FarGetPluginPanelItem), Size, PPI};
 			PsInfo.PanelControl(this, FCTL_GETSELECTEDPANELITEM, i, &gpi);
-			lstrcpy(p, PPI->FileName);
+            RemoveFromFavorites(PPI->FileName);
 			free(PPI);
 		}
-
-		RemoveFromFavorites(szName, {}, {});
-	}
-
-	PsInfo.PanelControl(this, FCTL_UPDATEPANEL, 0, {});
-	PsInfo.PanelControl(this, FCTL_REDRAWPANEL, 0, {});
-}
-
-void NetBrowser::CreateFavSubFolder()
-{
-	if (!CheckFavoriteItem(PCurResource))
-		return;
-
-	wchar_t buff[MAX_PATH];
-
-	if (DlgCreateFolder(buff, std::size(buff)))
-	{
-		if (!CreateSubFolder(PCurResource->lpRemoteName, buff))
-		{
-			ShowMessage(L"Failed to create folder");
-			return;
-		}
-
-		PsInfo.PanelControl(this, FCTL_UPDATEPANEL, 0, {});
-		PsInfo.PanelControl(this, FCTL_REDRAWPANEL, 0, {});
 	}
 }
 

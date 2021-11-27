@@ -96,7 +96,6 @@ public:
 	NetBrowser();
 	~NetBrowser();
 
-	void CreateFavSubFolder();
 	int GetFindData(PluginPanelItem** pPanelItem, size_t* pItemsNumber, OPERATION_MODES OpMode);
 	void FreeFindData(PluginPanelItem* PanelItem, size_t ItemsNumber);
 	void GetOpenPanelInfo(OpenPanelInfo* Info);

@@ -7,30 +7,22 @@
 struct FAVORITEITEM
 {
 	wchar_t* lpRemoteName;
-	int ccRemoteName;
 	wchar_t* lpUserName;
-	int ccUserName;
 	wchar_t* lpPassword;
-	int ccPassword;
 };
 
 #define FAVORITES_UPBROWSE_TO_FAVORITES 0x01L
 #define FAVORITES_CHECK_RESOURCES       0x02L
 
-#define FAVORITES_DEFAULTS FAVORITES_UPBROWSE_TO_FAVORITES|FAVORITES_CHECK_RESOURCES
+#define FAVORITES_DEFAULTS (FAVORITES_UPBROWSE_TO_FAVORITES|FAVORITES_CHECK_RESOURCES)
 
-BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList* pList);
-BOOL CheckFavoriteItem(const LPNETRESOURCE pNR);
-void WriteFavoriteItem(FAVORITEITEM* lpFavItem, wchar_t* szFolderName = {});
-BOOL ReadFavoriteItem(FAVORITEITEM* lpFavItem);
-BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent);
-BOOL GetFavoriteResource(const wchar_t* SrcName, LPNETRESOURCE DstNetResource);
-
-typedef DWORD (WINAPI * LPREMOVEFROMFAVCB)(wchar_t* SrcName, LPVOID pUserData);
-
-BOOL RemoveFromFavorites(wchar_t* SrcName, LPREMOVEFROMFAVCB pUserCallBack, LPVOID pUserData);
-BOOL ValidatePath(const wchar_t* szPath);
-BOOL CreateSubFolder(wchar_t* szRoot, wchar_t* szSubFolder);
-
+bool EnumFavorites(LPNETRESOURCE pNR, NetResourceList* pList);
+bool CheckFavoriteItem(LPNETRESOURCE pNR);
+bool InFavoriteExists(const wchar_t *lpRemoteName);
+void WriteFavoriteItem(FAVORITEITEM* lpFavItem);
+bool ReadFavoriteItem(FAVORITEITEM* lpFavItem);
+bool GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent);
+bool GetFavoriteResource(const wchar_t* SrcName, LPNETRESOURCE DstNetResource);
+bool RemoveFromFavorites(const wchar_t *SrcName);
 
 #endif //__NETFAVORITES_HPP__
