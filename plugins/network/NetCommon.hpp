@@ -28,6 +28,16 @@ extern LPNETRESOURCE PCommonCurResource;
 
 const wchar_t* GetMsg(int MsgId);
 
+class TSaveScreen
+{
+private:
+	HANDLE hScreen;
+
+public:
+	TSaveScreen();
+	~TSaveScreen();
+};
+
 BOOL DlgCreateFolder(wchar_t* lpBuffer, size_t nBufferSize);
 
 #define ShowMessage(x) PsInfo.Message(&MainGuid, nullptr, FMSG_ALLINONE|FMSG_MB_OK, L"", reinterpret_cast<const wchar_t* const*>(x), 0,{})
