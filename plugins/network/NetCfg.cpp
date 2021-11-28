@@ -14,12 +14,12 @@ const wchar_t* StrHiddenShares = L"HiddenShares";
 const wchar_t* StrShowPrinters = L"ShowPrinters";
 const wchar_t* StrLocalNetwork = L"LocalNetwork";
 const wchar_t* StrDisconnectMode = L"DisconnectMode";
-const wchar_t* StrRemoveConnection = L"RemoveConnection";
 const wchar_t* StrHiddenSharesAsHidden = L"HiddenSharesAsHidden";
 const wchar_t* StrFullPathShares = L"FullPathShares";
 const wchar_t* StrFavoritesFlags = L"FavoritesFlags";
 const wchar_t* StrNoRootDoublePoint = L"NoRootDoublePoint";
 const wchar_t* StrNavigateToDomains = L"NavigateToDomains";
+const wchar_t* StrScanNetwork = L"ScanNetwork";
 const wchar_t* StrPanelMode = L"PanelMode";
 
 int Config()
@@ -30,6 +30,7 @@ int Config()
 	Builder.AddCheckbox(MNoRootDoublePoint, &Opt.RootDoublePoint);
 	Builder.AddCheckbox(MConfigLocalNetwork, &Opt.LocalNetwork);
 	Builder.AddCheckbox(MConfigShowPrinters, &Opt.ShowPrinters);
+	Builder.AddCheckbox(MConfigScanNetwork, &Opt.ScanNetwork);
 	Builder.AddSeparator(MConfigShares);
 	Builder.AddCheckbox(MConfigSharesFullPath, &Opt.FullPathShares);
 
@@ -52,16 +53,16 @@ int Config()
 		switch (HiddenSharesState)
 		{
 		case 0: // never show
-			Opt.HiddenShares = FALSE;
-			Opt.HiddenSharesAsHidden = FALSE;
+			Opt.HiddenShares = false;
+			Opt.HiddenSharesAsHidden = false;
 			break;
 		case 1: // make hidden
-			Opt.HiddenShares = TRUE;
-			Opt.HiddenSharesAsHidden = TRUE;
+			Opt.HiddenShares = true;
+			Opt.HiddenSharesAsHidden = true;
 			break;
 		case 2: // always show
-			Opt.HiddenShares = TRUE;
-			Opt.HiddenSharesAsHidden = FALSE;
+			Opt.HiddenShares = true;
+			Opt.HiddenSharesAsHidden = false;
 			break;
 		}
 
@@ -77,17 +78,18 @@ void Options::Read()
 {
 	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 
-	Opt.AddToDisksMenu = settings.Get(0, StrAddToDisksMenu, 1);
-	Opt.AddToPluginsMenu = settings.Get(0, StrAddToPluginsMenu, 1);
-	Opt.LocalNetwork = settings.Get(0, StrLocalNetwork, TRUE);
-	Opt.HiddenShares = settings.Get(0, StrHiddenShares, 1);
-	Opt.ShowPrinters = settings.Get(0, StrShowPrinters, 0);
-	Opt.FullPathShares = settings.Get(0, StrFullPathShares, TRUE);
+	Opt.AddToDisksMenu = settings.Get(0, StrAddToDisksMenu, true);
+	Opt.AddToPluginsMenu = settings.Get(0, StrAddToPluginsMenu, true);
+	Opt.LocalNetwork = settings.Get(0, StrLocalNetwork, true);
+	Opt.HiddenShares = settings.Get(0, StrHiddenShares, true);
+	Opt.ShowPrinters = settings.Get(0, StrShowPrinters, false);
+	Opt.FullPathShares = settings.Get(0, StrFullPathShares, true);
 	Opt.FavoritesFlags = settings.Get(0, StrFavoritesFlags, static_cast<int>(FAVORITES_DEFAULTS));
-	Opt.RootDoublePoint = settings.Get(0, StrNoRootDoublePoint, TRUE);
-	Opt.DisconnectMode = settings.Get(0, StrDisconnectMode, FALSE);
-	Opt.HiddenSharesAsHidden = settings.Get(0, StrHiddenSharesAsHidden, TRUE);
-	Opt.NavigateToDomains = settings.Get(0, StrNavigateToDomains, FALSE);
+	Opt.RootDoublePoint = settings.Get(0, StrNoRootDoublePoint, true);
+	Opt.DisconnectMode = settings.Get(0, StrDisconnectMode, false);
+	Opt.HiddenSharesAsHidden = settings.Get(0, StrHiddenSharesAsHidden, true);
+	Opt.NavigateToDomains = settings.Get(0, StrNavigateToDomains, false);
+	Opt.ScanNetwork = settings.Get(0, StrScanNetwork, true);
 }
 
 void Options::Write()
@@ -103,6 +105,7 @@ void Options::Write()
 	settings.Set(0, StrFavoritesFlags, Opt.FavoritesFlags);
 	settings.Set(0, StrNoRootDoublePoint, Opt.RootDoublePoint);
 	settings.Set(0, StrHiddenSharesAsHidden, Opt.HiddenSharesAsHidden);
+	settings.Set(0, StrScanNetwork, Opt.ScanNetwork);
 }
 
 __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root, const wchar_t* Name)

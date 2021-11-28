@@ -10,16 +10,16 @@ extern struct Options
 	int HiddenShares;
 	int ShowPrinters;
 	int LocalNetwork;
-	int DisconnectMode;
-	int ConfirmRemoveConnection;
+	int DisconnectMode; // not configurable
 	int HiddenSharesAsHidden;
 	int FullPathShares;
-	int FavoritesFlags;
+	int FavoritesFlags; // not configurable
 	int RootDoublePoint;
-	int NavigateToDomains;
+	int NavigateToDomains; // not configurable
+	int ScanNetwork;
 
-	void Read();
-	void Write();
+	static void Read();
+	static void Write();
 } Opt;
 
 
@@ -39,7 +39,5 @@ public:
 };
 
 BOOL DlgCreateFolder(wchar_t* lpBuffer, size_t nBufferSize);
-
-#define ShowMessage(x) PsInfo.Message(&MainGuid, nullptr, FMSG_ALLINONE|FMSG_MB_OK, L"", reinterpret_cast<const wchar_t* const*>(x), 0,{})
 
 #endif // __NETCOMMON_HPP__

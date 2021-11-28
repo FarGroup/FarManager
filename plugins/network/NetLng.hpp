@@ -54,6 +54,7 @@
 	MConfigHiddenSharesMakeHidden,
 	MConfigHiddenSharesAlwaysShow,
 	MConfigShowPrinters,
+	MConfigScanNetwork,
 	MNoRootDoublePoint,
 	MUpbrowseToFavorites,
 	MCheckResource,

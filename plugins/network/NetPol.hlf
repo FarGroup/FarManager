@@ -60,16 +60,20 @@ tylko w sieciach Microsoft Windows.
   Pokazuje drukarki udostępnione przez serwery.
 
  #Pokaż pełną nazwę udziału#
-  ...
+ When the option is enabled, \\Server1 and \\Server1\Share1 are displayed, when disabled - Server1 and Share1
 
  #Pokaż ukryte zasoby - zawsze pokazuj#
   Jeżeli opcja jest włączona, widoczne są zasoby ukryte (administracyjne).
 
- #Pokaż ukryte zasoby - jako ukryte#
-  Jeżeli opcja jest włączona, dla ukrytych zasobów administracyjnych wtyczka ustawia atrybut Ukryty (Hidden).
+ - #Never show#
+   Don't show hidden shares.
+ - #Show as hidden#
+   Hidden shares are displayed in the panel with the attribute 'Hidden'.
+ - #Always show#
+   Hidden shares appear in the panel as normal.
 
  #Przeglądaj do Ulubionych, jeżeli możliwe#
-  ...
+ If the computer you are viewing has been added to favorites, then when you go up level "..", Favorites will open.
 
 @DisconnectDrive
 $ #Odłącz dysk sieciowy#
