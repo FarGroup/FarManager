@@ -1,6 +1,8 @@
 Macro {
-  area="Editor"; key="CtrlS"; description="Editor: Save File"; action = function()
-Keys('F2')
+  description="Editor: Save File";
+  area="Editor";
+  key="CtrlS";
+  action=function()
+    Keys("F2")
   end;
 }
-

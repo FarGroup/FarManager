@@ -31,7 +31,7 @@ z menu wtyczek (#F11#).
 	#Ignoruj błędy# - Nie przerywa rozpakowania po wystąpieniu błędów, omija uszkodzone pliki.
 Dziennik błędów zostanie pokazany na ekranie po zakończeniu rozpakowania archiwum.
 
-	#Jeżeli docelowy istnieje# - Akcja do wykonania gdy rozpakowywany plik już istnieje na dysku:
+	#Jeżeli plik docelowy istnieje# - Akcja do wykonania gdy rozpakowywany plik już istnieje na dysku:
 zapytaj użytkownika, zastąp, omiń, automatycznie zmień nazwę lub dołącz do istniejącego pliku.
 
 	#Usuń pliki z archiwum po rozpakowaniu# - Usuwa pliki z archiwum po pomyślnym rozpakowaniu.
@@ -39,9 +39,9 @@ zapytaj użytkownika, zastąp, omiń, automatycznie zmień nazwę lub dołącz d
 	#Hasło# - Podaj hasło dla zaszyfrowanych plików.
 Jeżeli pole zostanie puste, program automatycznie zapyta o hasło w razie potrzeby.
 
-	#Extract archive into separate directory# - Create a subdirectory inside target directory
-and extract archive into it. If option value is undefined then subdirectory is created only when
-unpacking entire archive and archive's root directory contains more than one element.
+	#Rozpakuj archiwa do osobnych folderów# - Utwórz podfoldery w folderze docelowym i do nich rozpakuj
+archiwa. Jeżeli opcja nie będzie ustawiona, to podfolder zostanie utworzony tylko wtedy, gdy będzie rozpakowane
+całe archiwum i będzie zawierało więcej niż jeden element.
 
 	#Usuń archiwum po rozpakowaniu# - Usuwa plik archiwum (także wszystkie woluminy) z dysku po poprawnie
 zakończonym rozpakowaniu.
@@ -49,116 +49,117 @@ zakończonym rozpakowaniu.
 
 @Update
 $ #Tworzenie i aktualizacja archiwów#
-	In order to create an archive select files and press #Shift-F1# or select #Create archive#
-from plugin menu (#F11#).
-	In order to add files to existing archive open it using #Ctrl-PgDn#,
-selected needed files on disk and press #F5#.
+	Aby utworzyć archiwum, należy zaznaczyć pliki i nacisnąć #Shift-F1# lub wybrać z menu wtyczek (#F11#)
+opcję #Utwórz archiwum#.
+	Aby dodać pliki do istniejącego archiwum, należy je otworzyć używając skrótu #Ctrl-PgDn#, zaznaczyć
+potrzebne pliki i wcisnąć #F5# (kopiowanie).
 
-	Archival process can be interrupted by pressing #Escape#, set to low priority by
-pressing #B# and paused by pressing #P#.
+	Proces archiwizacji można przerwać wciskając #Esc#, ustawić niższy priorytet procesu wciskając #B#
+lub wstrzymać wciskając #P#.
 
-	"Create archive" dialog allows you to specify archive path and various archival parameters.
-Reduced version of this dialog is used when updating existing archives.
+	Okno dialogowe "Utwórz archiwum" pozwala ustawić ścieżkę do pliku archiwum oraz parametry archiwizacji.
+Uproszczona wersja okna jest używana przy aktualizacji istniejących archiwów.
 
-	#Profile# - Select named collection of archival settings. #Save# button saves profile using current settings.
-#Delete# button deletes selected profile.
+	#Profil# - Wybierz nazwę profilu ustawień z ustawień wtyczki. Przycisk #Zapisz# zapisuje profil z aktualnie
+ustawionymi opcjami. Przycisk #Usuń# usuwa zaznaczony profil.
 
-	#Archive path# - Full or relative archive path. Far's macro sequences can be used to form path by enclosing them inside
-question marks. Example #archive-?mf.date("%x")?.7z# puts current date into archive name. #Evaluate# button displays final archive path.
+	#Ścieżka archiwum# - Pełna lub względna ścieżka do archiwum. Można użyć makr Far do ustawienia nazw archiwów i ścieżek,
+ale należy pamiętać, aby ująć je w cudzysłowy. Np. #archiwum-?mf.date("%x")?.7z# dodaje aktualną datę do nazwy archiwum.
+Przycisk #Pokaż# wyświetla docelową ścieżkę i nazwę archiwum (w przykładzie - pokazuje rzeczywistą datę).
 
-	#Append extension# - Archive extension will be added automatically when not entered by user.
+	#Dołącz rozszerzenie# - Rozszerzenie pliku archiwum zostanie automatycznie dodane, jeżeli użytkownik go nie dodał.
 
-	#Select archiver# - Select one of the available archive formats.
+	#Wybierz archiwizator# - Wybór jednego z dostępnych formatów archiwów.
 
-	#Compression level# - Compression level determines resulting archive size, processing time, memory consumption during compression
-and number of processor cores used.
-	#Store# - Put files into archive without compression.
-	#Fastest# - Lowest compression level, high speed and low memory consumption.
-	#Normal# - Balanced compression settings.
-	#Maximum# - High compression level, low speed and high memory consumption.
-	#Ultra# - Highest compression level. Note that a large contiguous block of memory is allocated when this level is activated.
-When using 32-bit version it is possible that process address space does not have such block available.
-Compression will stop with "out of memory" error in this case.
+	#Poziom kompresji# - Poziom kompresji określa wynikową wielkość archiwum, czas przetwarzania, zużycie pamięci podczas kompresji
+oraz liczbę użytych rdzeni procesora.
+	#Zapisz# - Umieszcza pliki w archiwum bez kompresji.
+	#Najszybsza# - Najniższy stopień kompresji, największa prędkość i najmniejsze zużycie pamięci.
+	#Normalna# - Zrównoważone ustawienia kompresji.
+	#Maksymalna# - Wysoki poziom kompresji, niska prędkość i wysokie zużycie pamięci.
+	#Ultra# - Najwyższy poziom kompresji. Należy zwrócić uwagę, że po wybraniu tego poziomu, przydzielany jest duży ciągły blok pamięci.
+W przypadku wersji 32-bitowej możliwe jest, że przestrzeń adresowa procesu nie będzie posiadała takiego bloku.
+W takim przypadku kompresja zostanie zatrzymana z błędem "brak pamięci".
 
-	#Compression method# - Data compression algorithm.
-	#LZMA# - standard algorithm for old 7z archives.
-	#LZMA2# - improved version able to use multicore processors more efficienlty, standard algorithm for new 7z archives.
-Older versions of 7-Zip (4.65) cannot open archives created using this algorithm.
-	#PPMD# - this algorithm is recommended for use with text files. Keep in mind that
-it uses equal amounts of memory for compression and decompression.
+	#Metoda kompresji# - Algorytm kompresji danych.
+	#LZMA# - standardowy algorytm dla starych archiwów 7z.
+	#LZMA2# - ulepszona wersja umożliwiające wydajniesze korzystanie z procesorów wielordzeniowych,
+standardowy algorytm dla nowych archiwów 7z. Starsze wersje 7-Zip (4.65) nie potrafią otwierać archiwów
+utworzonych za pomocą tego algorytmu.
+	#PPMD# - ten algorytm jeste zalecany do plików tekstowych. Należy wziąć pod uwagę, że używa
+tej samej ilości pamięci do kompresji i do dekompresji.
 
-	#Solid archive# - This option can improve compression ratio by storing all files as one data stream.
-It also makes more difficult to access individual files because when extracting single file
-all preceding files must be extracted too.
+	#Solidne archiwum# - Opcja ta może poprawić współczynnik kompresji, przechowując wszystkie pliki
+jako jeden strumień danych. Utrudnia to dostęp do poszczególnych plików, ponieważ podczas wyodrębniania pojedynczego pliku
+wszystkie poprzednie pliki również muszą zostać wyodrębnione.
 
-	#Advanced parameters# - Additional compression settings described in 7-Zip documentation for -m switch.
-Example: #0=delta:1 1=lzma2:pb0# - enable delta filter (for bitmap compression).
+	#Zaawansowane parametry# - Dodatkowe ustawienia kompresji opisane w dokumentacji 7-Zip przełącznika -m.
+Przykład: #0=delta:1 1=lzma2:pb0# - włącza filtr delta (do kompresji bitmap).
 
-	#Encrypt archive# - Encrypt archived files with password.
-#Encrypt header# option can be used to encrypt archived file names too.
+	#Zaszyfruj archiwum# - Szyfruje archiwum podanym hasłem.
+Opcja #Zaszyfruj nagłówek# może być użyta do zaszyfrowania nazw plików.
 
-	#Create self-extracting archive# - Attach executable module to archive that is able to extract files.
-Plugin searches for modules with SFX extension inside its directory and inside 7-Zip directory.
-Standard SFX modules can unpack 7z archives only.
+	#Utwórz archiwum SFX# - Dołącza do archiwum moduł wykonywalny, który umożliwia rozpakowywanie plików.
+Wtyczka wyszukuje moduły z rozszerzeniem SFX w swoim folderze oraz w folderze 7-Zip.
+Standardowe moduły SFX mogą rozpakowywać tylko archiwa 7z.
 
-	#Split into volumes# - Create multi-volume archive. #Volume size# can have K, M or G suffix.
+	#Podziel na wolumeny# - Tworzy wieloczęściowe archiwa. #Wielkość wolumenu# może posiadać przyrostek K (kilo), M (mega) lub G (giga).
 
-	#Delete files after archiving# - Delete files from disk after successful archival.
+	#Usuń pliki po spakowaniu# - Usuwa pliki z dysku po poprawnym utworzeniu archiwum.
 
-	#Archive files open for writing# - This option value is taken from ~Far system settings~@:SystemSettings@
+	#Pakuj pliki otwarte do zapisu# - Wartość tej opcji jest pobierana z ~Ustawień systemowych Far~@:SystemSettings@
 
-	#Ignore errors# - Do not interrupt archival when unable to open input files.
-Error log will be shown after archival process is complete.
+	#Ignoruj błędy# - Nie przerywa archiwizacji, gdy nie można otworzyć plików źródłowych.
+Dziennik błędów zostanie wyświetlony po zakończeniu archiwizacji.
 
-	#When destination file exists# - Action to perform when file already present in archive:
-ask user, overwrite or skip file.
+	#Jeżeli plik docelowy istnieje# - Czynność do wykonania, gdy plik znajduje się już w archiwum:
+zapytaj użytkownika, zastąp lub pomiń plik.
 
-	#Use filter# - Archive files matching file filter. See ~filters menu~@:FiltersMenu@ for more details.
-Empty directories are not archived when filter is active.
+	#Użyj filtra# - Archiwizuje pliki zgodne z ustawionym filtrem. Więcej informacji w ~Menu filtrów~@:FiltersMenu@.
+Puste foldery nie są archiwizowane, gdy filtry są aktywne.
 
 
 @Config
 $ #Ustawienia wtyczki#
-	Press #Alt-Shift-F9# to open Settings dialog.
+	Naciśnięcie #Alt-Shift-F9# otwiera okno ustawień.
 
-	The following settings are available:
+	Dostępne są następujące ustawienia:
 
-   #Handle archive creation (Shift-F1)# - Plugin handles archive creation command.
+   #Przejmij tworzenie archiwów (Shift-F1)# - Wtyczka przejmuje polecenie tworzenia archiwum.
 
-   #Handle archive commands (Ctrl-PgDn, Shift-F2)# - Plugin handles alternative archive open command
-(#Ctrl-PgDn# files matching masks usually ignored here), extraction (#Shift-F2#) and test (#ShiftF3#) operations.
+   #Przejmij obsługę archiwów (Ctrl-PgDn, Shift-F2)# - Wtyczka przejmuje alternatywne polecenie otwierania
+archiwum (#Ctrl-PgDn# pasujące do masek plików jest tutaj ignorowane), rozpakowania (#Shift-F2#) i testowania (#Shift-F3#) archiwów.
 
-   #Use own panel view mode# - Plugin uses its own panel mode configuration settings.
+   #Użyj własnego trybu podglądu# - Wtyczka używa własnych ustawień konfiguracji trybu panelu.
 
-   #OEM Codepage# - Allows to set 7z.dll OEM codepage (return value of the Win32 API #GetOEMCP# function).
-7z.dll uses that codepage when opening old archives with not detectable filelist codepage settings.
-You need to set this parameter only if current system OEM codepage is not suitable for stored file names.
+   #Strona kodowa OEM# - Umożliwia ustawienie strony kodowej OEM dla 7z.dll (zwracana wartość funkcji Win32 API #GetOEMCP#).
+7z.dll używa tej strony kodowej podczas otwierania starych archiwów z niewykrywalnymi ustawieniami strony kodowej listy plików.
+Należy ustawić ten parametr tylko wtedy, gdy bieżąca strona kodowa OEM systemu nie jest odpowiednia dla zapisanych nazw plików.
 
-   #ANSI Codepage# - Same as previous parameter but for ANSI codepage (#GetACP#).
+   #Strona kodowa ANSI# - Tak samo jak poprzedni parametr ale dla strony kodowej ANSI (#GetACP#).
 
-   #Save Codepages# - If set codepage settings will be stored in the plugin configuration database. Otherwise it
-will be applied to the current far manager process only.
+   #Zapisz stronę kodową# - Po zaznaczeniu ustawienia strony kodowej wtyczki zostaną zapisane w bazie konfiguracji wtyczki.
+Jeżeli nie, ustawienia zostaną zastosowane tylko do bieżącego procesu Far.
 
-	#Open files matching masks# - Plugin can be configured to open only those files matching list of file ~masks~@:FileMasks@.
-This option is not considered when calling plugin from F11 menu.
+	#Otwieraj pliki z maskami# - Wtyczkę można skonfigurować tak, aby otwierała tylko te pliki, które pasują
+do ~masek~@:FileMasks@ list plików.
+Opcja nie jest brana pod uwagę podczas wywoływania wtyczki z menu F11.
 
-	#Exclude files matching masks# - Do not open files matching list of ~masks~@:FileMasks@.
+	#Wyklucz pliki z maskami# - Nie otwieraj plików pasujących do listy ~masek~@:FileMasks@.
 
-   #Mask settings apply to Ctrl-PgDn# - files matching masks will be used when opening archive with Ctrl-PgDn.
+   #Użyj masek dla Ctrl-PgDn# - Pliki pasujące do masek będą użyte podczas otwierania archiwów przy pomocy Ctrl-PgDn.
 
-	#Generate masks# - Create standard list of masks for #Open files matching masks# field based on
-information from 7z.dll.
+	#Generuj maski# - Tworzy standardową listę masek dla pola #Otwieraj pliki z maskami# bazując na informacji z pliku 7z.dll.
 
-	#Default masks# - Output built-in list of masks (equivalent to standard highlight group for archives).
+	#Domyślne maski# - Przywrócenie wbudowanej listy masek (odpowiedniki standardowego podświetlenia grup dla archiwów).
 
-	#Enable archive formats# & #Disable archive formats# - Comma separated lists of archive format names that
-will be enabled or disabled when detecting archive format. These options are not active when using plugin menu.
-See #Available Formats# for full list of archive format names you can use.
+	#Włącz formaty archiwów# i #Wyłącz formaty archiwów# - Oddzielana przecinkami lista nazw formatów archiwów, które zostaną
+włączone lub wyłączone po wykryciu formatu archiwum. Opcje nie są aktywne podczas korzystania z menu wtyczek.
+Zobacz #Dostępne formaty#, aby uzyskać informacje o pełnej liście możliwych nazw formatów archiwów.
 
-	#Format settings apply to Ctrl-PgDn# - enabled and disabled format lists will be consulted when opening archive
-with Ctrl-PgDn.
+	#Użyj formatów dla Ctrl-PgDn# - Włącza lub wyłącza listy formatów sprawdzanych przy otwieraniu archiwów za pomocą klawiszy Ctrl-PgDn.
 
-   #7z library info# - Shows 7z.dll location and version information.
+   #Info o bibliotece 7z# - Pokazuje położenie pliku 7z.dll i informacje o wersji.
 
 
 @Prefix
@@ -175,89 +176,89 @@ $ #Format przedrostków w linii poleceń#
 [-mf[:(y|n)]] [-ie[:(y|n)]] [-adv:<zaawansowane>] <archiwum> (<plik> | @@<lista_plików>) ...
 	arc:u [-l:<poziom>] [-m:<metoda>] [-s[:(y|n)]] [-p:<hasło>] [-eh[:(y|n)]]
 [-mf[:(y|n)]] [-ie[:(y|n)]] [-o[:(o|s)]] [-adv:<zaawansowane>] <archiwum> (<plik> | @@<lista_plików>) ...
-	-pr = nazwa profilue (inne parametry zastępują ustawienia profilu)
+	-pr = nazwa profilu (inne parametry zastępują ustawienia profilu)
 	-t = typ archiwum (7z, zip, itp.)
 	-l = poziom kompresji (0|1|3|5|7|9)
 	-m = metoda kompresji (lzma|lzma2|ppmd)
 	-s = archiwum solidne
 	-p = zakoduj archiwum za pomocą hasła
 	-eh = zakoduj nagłówki archiwum (nazwy spakowanych plików)
-	-sfx = utwórz archiwum samo-rozpakowujące się, używając modułu SFX (domyślnie: 7z.sfx)
+	-sfx = utwórz archiwum samorozpakowujące się, używając modułu SFX (domyślnie: 7z.sfx)
 	-v = podziel archiwa na wiele woluminów (przykład: -v:700M)
 	-mf = usuń pliki po poprawnych utworzeniu archiwum
 	-ie = ignoruj błędy (omiń pliki z błędami)
 	-o = zastąp istniejące pliki (o = zastąp, s = pomiń)
 	-adv = ustawienia zaawansowane (zobacz dokumentację programu 7-Zip, dla przełącznika -m)
 	<archiwum> = nazwa pliku archiwum
-	<plik> ... = lista plików do archwiwizacji (maski są dozwolone)
+	<plik> ... = lista plików do archiwizacji (maski są dozwolone)
 	@@<lista_plików> ... = pliki zawierające listę plików do archiwizacji (po jednym w każdej linii)
 
-	#Rozpakowanie archiwów#
+#Rozpakowanie archiwów#
 	arc:x [-ie[:(y|n)]] [-o[:(o|s|r|a)]] [-mf[:(y|n)]] [-p:<hasło>] [-sd[:(a|y|n)]] [-da[:(y|n)]] <archiwum> ... <ścieżka>
 	-ie = ignoruj błędy (omiń błędne pliki)
-	-o = overwrite existing files (o = overwrite, s = skip, r = rename, a = append)
-	-mf = delete files from archive after successful extraction
-	-p = specify password for encrypted archive
-	-sd = extract archive into separate directory (a = decide automatically)
-	-da = delete archive after successful extraction
-	<archive> ... = list of archives
-	<path> = target path
+	-o = zastąp istniejące pliki (o = zastąp, s = pomiń, r = zmień nazwę, a = dołącz)
+	-mf = usuń pliki z archiwum po poprawnym rozpakowaniu
+	-p = użyj hasła do odkodowania archiwum
+	-sd = rozpakuj archiwa do osobnych folderów (a = decyduj automatycznie)
+	-da = usuń archiwum po poprawnym rozpakowaniu
+	<archiwum> ... = lista archiwów
+	<ścieżka> = ścieżka docelowa
 
-	#Extract archive item(s)#
-	arc:e [-ie[:(y|n)]] [-o[:(o|s|r|a)]] [-mf[:(y|n)]] [-p:<password>] [-out:<path>] <archive> <item> ...
-	-ie -o -mf -p <path> = same as for arc:x command
-	<archive> = source archive
-	<item> ... = listpath of extracted archive elements
+#Rozpakuj plik(i) z archiwum#
+	arc:e [-ie[:(y|n)]] [-o[:(o|s|r|a)]] [-mf[:(y|n)]] [-p:<hasło>] [-out:<ścieżka>] <archiwum> <plik> ...
+	-ie -o -mf -p <ścieżka> = takie same jak dla polecenia arc:x
+	<archiwum> = nazwa pliku archiwum
+	<plik> ... = lista plików do rozpakowania
 
-	#Delete archive item(s)#
-	arc:d [-ie[:(y|n)]] [-p:<password>] [-out:<path>] <archive> <item> ...
-	-ie -p = same as for arc:e command
-	<archive> = modified archive name
-	<item> ... = listpath of deleted archive elements
+#Usuń plik(i) z archiwum#
+	arc:d [-ie[:(y|n)]] [-p:<hasło>] [-out:<ścieżka>] <archiwum> <plik> ...
+	-ie -p = takie same jak dla polecenia arc:e
+	<archiwum> = nazwa modyfikowanego pliku archiwum
+	<plik> ... = lista usuwanych plików z archiwum
 
-	#Test archive#
-	arc:t <archive> ...
-	<archive> ... = list of archives
+#Testuj archiwum#
+	arc:t <archiwum> ...
+	<archiwum> ... = lista archiwów
 
 
 @SfxOptions
 $ #Opcje archiwów samorozpakowujących się (SFX)#
 	#Nazwa modułu# - Wybierz jeden z dostępnych modułów SFX:
 
-		#Standard GUI (7z.sfx)# - Standard GUI SFX module. It supports 7z archives created with the
-following set of codecs: LZMA, LZMA2, PPMD, BCJ, BCJ2, ARM, Copy, AES.
+		#Standard GUI (7z.sfx)# - Standardowy moduł GUI SFX. Obsługuje archiwa 7z utworzone
+za pomocą kodeków: LZMA, LZMA2, PPMD, BCJ, BCJ2, ARM, kopia, AES.
 
-		#Standard console (7zCon.sfx)# - Console equivalent of the above.
+		#Standardowa konsola (7zCon.sfx)# - Konsolowy odpowiednik powyższej opcji.
 
-		#Installer GUI (7zSD.sfx)# - This module is used to create simple setup programs.
-It extracts archive into temporary directory and then runs specified program and removes
-temporary files after program termination. Additional parameters can be specified under
-#Install configuration# group. Module supports 7z archives created with the
-following set of codecs: LZMA, LZMA2, BCJ, BCJ2, ARM, Copy i.e. encryption and PPMD compression
-are not supported.
+		#Instalator GUI (7zSD.sfx)# - Moduł używany do utworzenia prostego programu instalacyjnego.
+Rozpakowuje archiwa do folderu tymczasowego, uruchamia podany program, a po zakończeniu programu
+usuwa pliki tymczasowe. Można podać dodatkowe parametry w grupie #Konfiguracja instalatora#.
+Moduł obsługuje archiwa 7z utworzone za pomocą zestawów kodeków LZMA, LZMA2, BCJ, BCJ2, ARM, kopia, itp.
+Szyfrowanie i kompresja PPMD nie są obsługiwane.
 
-		#Small installer GUI (7zS2.sfx)# - Alternative installer module. It features much smaller size,
-has no progress window and does not support installer configuration. It also has higher memory
-requirements because entire solid block is decompressed into RAM (that is entire archive in simplest case).
-		Small SFX uses 3 levels of priorities to select file to execute:
-		1) Files in root directory have higher priority than files in subdirectories.
-		2) File extension priorities (from high to low priority order): bat, exe, inf, msi, html, htm.
-		3) File name priorities (from high to low priority order): setup, install, run, start.
+		#Mały instalator GUI (7zS2.sfx)# - Alternatywny moduł instalatora, nie zawiera okna z paskiem postępu
+i nie obsługuje konfiguracji instalatora. Ma także większe zapotrzebowanie pamięci, ponieważ cały blok
+jest dekompresowany w pamięci RAM (w najprostszym przypadku - całe archiwum).
+	Mały SFX używa 3 poziomów priorytetów aby wybrać pliki do uruchomienia:
+	1) Pliki w głównym folderze mają większy priorytet niż pliki w podfolderach.
+	2) Priorytety rozszerzenia plików (w kolejności od najważniejszych): bat, exe, inf, msi, html, htm.
+	3) Priorytety nazw plików (w kolejności od najważniejszych): setup, install, run, start.
 
-		#Small installer console (7zS2con.sfx)# - Same as above but runs as console application.
+	#Mały instalator konsoli (7zS2con.sfx)# - Tak samo jak powyżej, ale uruchamiane w konsoli.
 
-	#Replace icon# - Place custom icon (*.ico file) into created executable.
+	#Zastąp ikonę# - Umieść własną ikonę (plik *.ico) w utworzonym instalatorze.
 	
-	#Replace version# - Specify custom version information for created executable.
-#Version# string should be like 1.2.3.4
+	#Zastąp wersję# - Można podać własne informacje o wersji dla utworzonego pliku wykonywalnego.
+#Wersja#  - Łańcuch powinien być w formacie 1.2.3.4
 
-	#Install configuration# - Configuration for installer module.
+	#Konfiguracja instalatora# - Konfiguracja modułu instalatora.
 
-		#Title# - Window title.
-		#Begin prompt# - Prompt shown by installer before unpacking archive.
-		#Progress meter# - Show or hide progress indicator.
-		#Run program# - Program from archive to execute after extraction is complete. Default value is setup.exe.
-Special marker %%T will be replaced by path to temporary directory with extracted files.
-		#Execute file# - Name of file to execute. This could be a program or a document from archive
-or any system program.
-		#Execute parameters# - Parameters for #Execute file#.
+		#Tytuł# - Tytuł okna.
+		#Tekst zachęty# - Monit wyświetlany przez instalatora przed rozpakowaniem archiwum.
+		#Pasek postępu# - Pokazuje lub ukrywa pasek postępu.
+		#Uruchom program# - Program z archiwum do uruchomienia po zakończeniu rozpakowania.
+Domyślna wartość to setup.exe. Specjalny znacznik %%T zostanie zastąpiony ścieżką do folderu
+tymczasowego z rozpakowanymi plikami.
+		#Uruchom plik# - Nazwa pliku do uruchomienia. Może to być program lub dokument z archiwum
+lub dowolny program systemowy.
+		#Parametry uruchomienia# - Parametry dla #Uruchom plik#.

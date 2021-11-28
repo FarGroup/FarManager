@@ -22,6 +22,7 @@ local patt = regex.new( [=[
 )
 ]=], "ix")
 
+local mouseClick,minY
 Macro {
   description="Open URL or UNC under cursor";
   area="Editor"; key="CtrlEnter CtrlNumEnter CtrlMsLClick";

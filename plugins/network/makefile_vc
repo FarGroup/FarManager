@@ -5,8 +5,7 @@ LINK_OBJS = \
 	$(INTDIR)\NetCfg.obj \
 	$(INTDIR)\NetClass.obj \
 	$(INTDIR)\NetCommon.obj \
-	$(INTDIR)\NetFavorites.obj \
-	$(INTDIR)\NetMix.obj
+	$(INTDIR)\NetFavorites.obj
 
 !if defined(DEBUG) && !defined(NO_LOG)
 USERCPP=/DNETWORK_LOGGING
@@ -19,6 +18,5 @@ $(INTDIR)\NetCfg.obj : NetCfg.cpp NetCfg.hpp NetCommon.hpp NetLng.hpp NetFavorit
 $(INTDIR)\NetClass.obj : NetClass.cpp NetClass.hpp NetFavorites.hpp NetCommon.hpp NetLng.hpp NetCfg.hpp guid.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\DlgBuilder.hpp $(COMINC)\plugin.hpp
 $(INTDIR)\NetCommon.obj : NetCommon.cpp NetCommon.hpp NetLng.hpp NetCfg.hpp NetFavorites.hpp NetClass.hpp guid.hpp $(COMINC)\PluginSettings.hpp $(COMINC)\plugin.hpp
 $(INTDIR)\NetFavorites.obj : NetFavorites.cpp NetFavorites.hpp NetClass.hpp NetCommon.hpp NetLng.hpp guid.hpp $(COMINC)\plugin.hpp
-$(INTDIR)\NetMix.obj : NetMix.cpp NetCommon.hpp NetLng.hpp guid.hpp $(COMINC)\plugin.hpp
 $(INTDIR)\NetNT.obj : NetNT.cpp NetClass.hpp NetCommon.hpp NetLng.hpp guid.hpp $(COMINC)\plugin.hpp
 $(INTDIR)\Network.obj : Network.cpp Network.hpp NetCommon.hpp NetLng.hpp NetClass.hpp guid.hpp $(COMINC)\plugin.hpp

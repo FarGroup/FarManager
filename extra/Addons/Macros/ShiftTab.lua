@@ -1,5 +1,13 @@
+local WIF_MODAL = far.Flags.WIF_MODAL
 Macro {
-  area="Editor Shell Viewer"; key="ShiftTab"; description="^Ctrl-Tab"; action = function()
-Keys('CtrlShiftTab')
+  description="^Ctrl+Tab";
+  area="Common";
+  key="ShiftTab";
+  condition=function()
+    local wi = far.AdvControl("ACTL_GETWINDOWINFO")
+    return wi and band(wi.Flags,WIF_MODAL)==0
+  end;
+  action=function()
+    Keys("CtrlShiftTab")
   end;
 }

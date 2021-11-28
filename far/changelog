@@ -1,4 +1,36 @@
 --------------------------------------------------------------------------------
+drkns 26.11.2021 01:22:00 +0000 - build 5923
+
+1. 0003918: Manual non-Persistent selection in Viewer broken since build 5833.
+
+--------------------------------------------------------------------------------
+drkns 24.11.2021 22:49:22 +0000 - build 5922
+
+1. 0003915: Redundant environment expansion in Folders History.
+
+2. gh-481: Issue with navigation if dir structure was deleted outside of far.
+
+--------------------------------------------------------------------------------
+drkns 24.11.2021 17:10:25 +0000 - build 5921
+
+1. Incorrect console title while copying files.
+
+--------------------------------------------------------------------------------
+drkns 18.11.2021 17:21:33 +0000 - build 5920
+
+1. microsoft/terminal#11780: don't use C1 CSI for rendering.
+
+--------------------------------------------------------------------------------
+drkns 17.11.2021 22:46:07 +0000 - build 5919
+
+1. Make search dialog more mouse-friendly.
+
+--------------------------------------------------------------------------------
+drkns 16.11.2021 21:51:24 +0000 - build 5918
+
+1. Another fix for search in UTF-8 files. Multibyte code pages are Pure Evil.
+
+--------------------------------------------------------------------------------
 drkns 14.11.2021 22:07:29 +0000 - build 5917
 
 1. Incorrect console title while deleting files.

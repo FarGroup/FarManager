@@ -1,5 +1,7 @@
 ﻿#include "NetFavorites.hpp"
+#include "Network.hpp"
 #include "NetCommon.hpp"
+#include "NetLng.hpp"
 
 #define SZ_FAVORITES          L"Favorites"
 #define SZ_FAVORITES_SUBKEY   SZ_FAVORITES L"\\%s"
@@ -10,7 +12,7 @@
 
 static wchar_t szFavProv[] = L"Far Favorites Provider";
 
-BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
+BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList* pList)
 {
 	NETRESOURCE tmp = {0};
 	tmp.dwDisplayType = RESOURCEDISPLAYTYPE_DOMAIN;
@@ -23,12 +25,12 @@ BOOL GetFavorites(LPNETRESOURCE pNR, NetResourceList *pList)
 	}
 	else if (!lstrcmp(pNR->lpProvider, szFavProv))
 	{
-		wchar_t szKey[MAX_PATH*2];
+		wchar_t szKey[MAX_PATH * 2];
 		szKey[0] = 0;
 
 		if (pNR->lpRemoteName)
 		{
-			wchar_t *p = wcschr(pNR->lpRemoteName, L'\\');
+			wchar_t* p = wcschr(pNR->lpRemoteName, L'\\');
 
 			if (p)
 				p++;
@@ -111,7 +113,7 @@ BOOL CheckFavoriteItem(const LPNETRESOURCE pNR)
 	return pNR && !lstrcmp(pNR->lpProvider, szFavProv);
 }
 
-static BOOL GetResourceKey(wchar_t* lpRemoteName, const wchar_t* rootKey, wchar_t* lpResourceKey, size_t *cSize)
+static BOOL GetResourceKey(wchar_t* lpRemoteName, const wchar_t* rootKey, wchar_t* lpResourceKey, size_t* cSize)
 {
 	return FALSE;
 #if 0
@@ -338,7 +340,7 @@ STDAPI
 EliminateSubKey(HKEY hkey, LPTSTR strSubKey);
 #endif
 
-BOOL GetFavoriteResource(const wchar_t *SrcName, LPNETRESOURCE DstNetResource)
+BOOL GetFavoriteResource(const wchar_t* SrcName, LPNETRESOURCE DstNetResource)
 {
 #if 0
 	NETRESOURCE nr = {0};
@@ -432,7 +434,7 @@ BOOL GetFavoriteResource(const wchar_t *SrcName, LPNETRESOURCE DstNetResource)
 	return FALSE;
 }
 
-BOOL RemoveFromFavorites(wchar_t *SrcName, LPREMOVEFROMFAVCB /*pUserCallBack*/, LPVOID /*pUserData*/)
+BOOL RemoveFromFavorites(wchar_t* SrcName, LPREMOVEFROMFAVCB /*pUserCallBack*/, LPVOID /*pUserData*/)
 {
 	return FALSE;
 #if 0
@@ -551,16 +553,16 @@ BOOL RecursiveSetValue(HKEY hKey, wchar_t* lpSubKey)
 }
 #endif
 
-static const wchar_t *g_szInvalidChars=L"\\/";
+static const wchar_t* g_szInvalidChars = L"\\/";
 
-BOOL ValidatePath(const wchar_t *szPath)
+BOOL ValidatePath(const wchar_t* szPath)
 {
-	if (!szPath||!*szPath)
+	if (!szPath || !*szPath)
 		return FALSE;
 
-	for (const wchar_t *p=szPath; *p; p++)
-		for (const wchar_t *p1=g_szInvalidChars; *p1; p1++)
-			if (*p1==*p)
+	for (const wchar_t* p = szPath; *p; p++)
+		for (const wchar_t* p1 = g_szInvalidChars; *p1; p1++)
+			if (*p1 == *p)
 				return FALSE;
 
 	return TRUE;
@@ -753,7 +755,7 @@ bool GetFavoriteRoot(RegParser** favoritesRoot)
 }
 #endif
 
-BOOL CreateSubFolder(wchar_t *szRoot, wchar_t *szSubFolder)
+BOOL CreateSubFolder(wchar_t* szRoot, wchar_t* szSubFolder)
 {
 	return FALSE;
 #if 0

@@ -1,4 +1,4 @@
-#include <farversion.hpp>
+﻿#include <farversion.hpp>
 
 #define PLUGIN_BUILD 99
 #define PLUGIN_DESC L"Network Plugin for Far Manager"

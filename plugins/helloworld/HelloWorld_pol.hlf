@@ -14,10 +14,10 @@ Podobnie działa ta wtyczka.
 
   Podstawowe warunki to:
 
-   "...It would be desired to see a source code, which when executed
-   shows on the screen the dialog box with the text and OK button.
-   Would be better in C. Whether I want too much? Well, I don't know
-   C++ and do not want to learn it. And, as far as I have understood,
-   plugins.hpp can be used with the C compiler..."
+   "...Marzeniem byłoby zobaczyć kod źródłowy, który po uruchomieniu
+   pokaże na ekranie okno dialogowe z tekstem i przyciskiem OK.
+   Najlepiej w języku C. Czy to za dużo? Cóż, nie znam C++ i nie chcę
+   się go uczyć. A o ile rozumiem, plugins.hpp można używać z kompilatorem
+   języka C..."
 
   I tak rodzi się historia :-)

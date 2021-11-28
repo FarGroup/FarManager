@@ -1,11 +1,13 @@
+local WIF_MODAL = far.Flags.WIF_MODAL
 Macro {
-  area="Editor Shell Viewer"; key="ShiftMsWheelUp"; description="Use Shift-MsWheel to switch between screens"; action = function()
-Keys('F12 Up Enter')
+  description="Use Shift+MsWheel to switch between screens";
+  area="Common";
+  key="/ShiftMsWheel(Up|Down)/";
+  condition=function()
+    local wi = far.AdvControl("ACTL_GETWINDOWINFO")
+    return wi and band(wi.Flags,WIF_MODAL)==0
   end;
-}
-
-Macro {
-  area="Editor Shell Viewer"; key="ShiftMsWheelDown"; description="Use Shift-MsWheel to switch between screens"; action = function()
-Keys('F12 Down Enter')
+  action=function()
+    Keys("F12",mf.akey(1,1):match(".%l+$"),"Enter")
   end;
 }
