@@ -14,13 +14,13 @@
 "F3          pokazuje info o makrze/uchwycie zdarzenia"
 "F4          otwiera plik w edytorze"
 "Alt+F4      otwiera plik w edytorze modalnym"
-"Ctrl+PgUp   znajdzuje plik w aktywnym panelu"
+"Ctrl+PgUp   znajduje plik w aktywnym panelu"
 "Ctrl+F1     sortuje makra wg lokalizacji"
 "Ctrl+F2     sortuje makra wg klucza"
 "Ctrl+F3     sortuje makra wg opisu"
 "Enter       wykonuje zaznaczone makro"
 "Ctrl+H      ukrywa/pokazuje nieaktywne makra"
-"Ctrl+R      reload macros"
+"Ctrl+R      odśwież (przeładuj) makra"
 
 // macro browser separators
 "Makra"

@@ -8,34 +8,32 @@ $ #Lista procesów#
 zaznaczony proces, Enter aby przełączyć się do okna procesu lub F3 aby zobaczyć
 dodatkowe informacje o procesie.
 
-    Należy zachować ostrożność podczas zabijania procesu. Zabicie procesu
-powoduje utratę wszystkich niezapisanych danych w tym procesie, dlatego należy
-tego używać tylko w ostateczności.
+   Proszę ostrożnie postępować z zabijaniem procesów. Zostaną one zatrzymane
+natychmiastowo i każda nie zapisana informacja zostanie utracona, więc należy
+tej opcji używać, gdy użytkownik będzie absolutnie pewien.
 
-   Special keys used by this plugin:
+   Klawisze specjalne używane przez tę wtyczkę:
 
- #F6#            View processes on a remote machine over the network
+  #F6#            Oglądanie procesów na zdalnym komputerze w sieci.
 
- #Shift-F6#      Return to the local machine
+ #Shift-F6#      Powrót do komputera lokalnego.
 
- #Shift-F1#      Lower the priority class of the current process
-               (local only)
- #Shift-F2#      Raise the priority class of the current process
-               (local only)
- #Shift-F3#      View process info with default options overridden
+ #Shift-F1#      Obniżenie priorytetu danego procesu (tylko lokalnie).
+ #Shift-F2#      Podniesienie priorytetu danego procesu (tylko lokalnie).
+ #Shift-F3#      Podgląd informacji o procesie z domyślnymi opcjami.
 
- #Alt-Shift-F9#  Call the ~Configuration~@Config@ dialog.
+ #Alt-Shift-F9#  Wywołanie okna ~Konfiguracji~@Config@.
 
- See also: ~Performance Counters~@PerfCounters@ help
-           ~Special Column Types~@Columns@ help
+ Zobacz także: ~Liczniki wydajności~@PerfCounters@
+               ~Specjalne typy kolumn~@Columns@
 
 
 @PerfCounters
 $ #Dane liczników wydajności#
-   The following descriptions were taken from the system registry value
+   Poniższe opisy zostały wzięte z wartości rejestru systemowego
    #HKLM\Software\Microsoft\Windows NT\CurrentVersion\Perflib\009\Help#
 
-   #Process#
+   #Proces#
 
    The performance object consists of counters that monitor running
 application program and system processes. All the threads in a process
