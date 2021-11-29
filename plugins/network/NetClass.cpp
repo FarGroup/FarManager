@@ -145,6 +145,10 @@ BOOL NetResourceList::Enumerate(
 	if (EnumFavorites(lpNetResource, this))
 		return TRUE;
 
+	if (!Opt.ScanNetwork && lpNetResource && (lpNetResource->dwDisplayType == RESOURCEDISPLAYTYPE_DOMAIN
+		|| lpNetResource->dwDisplayType == RESOURCEDISPLAYTYPE_NETWORK))
+		return TRUE;
+
 	HANDLE hEnum;
 
 	if (WNetOpenEnum(dwScope, dwType, dwUsage, lpNetResource, &hEnum) != NO_ERROR)
@@ -273,17 +277,17 @@ BOOL NetBrowser::EnumerateNetList()
 		if (!Opt.HiddenSharesAsHidden || (PInfo.Flags & PFLAGS_SHOWHIDDEN))
 		{
 			// Check whether we need to get the hidden shares.
+
+			if (PCurResource)
+			{
+				// If the parent of the current folder is not a server
+				if (PCurResource->dwDisplayType != RESOURCEDISPLAYTYPE_SERVER)
+				{
+					return TRUE;
+				}
+			}
 			if (NetList.Count() > 0)
 			{
-				if (PCurResource)
-				{
-					// If the parent of the current folder is not a server
-					if (PCurResource->dwDisplayType != RESOURCEDISPLAYTYPE_SERVER)
-					{
-						return TRUE;
-					}
-				}
-
 				// If there are elements, check the first element
 				if ((NetList[NetList.Count() - 1].dwDisplayType) != RESOURCEDISPLAYTYPE_SHARE)
 				{
@@ -1163,6 +1167,10 @@ BOOL NetBrowser::IsResourceReadable(NETRESOURCE& Res)
 	if (CheckFavoriteItem(&Res))
 		return TRUE;
 
+	if (!Opt.ScanNetwork && (Res.dwDisplayType == RESOURCEDISPLAYTYPE_DOMAIN || Res.dwDisplayType ==
+		RESOURCEDISPLAYTYPE_NETWORK))
+		return TRUE;
+
 	HANDLE hEnum = INVALID_HANDLE_VALUE;
 	DWORD result = WNetOpenEnum(RESOURCE_GLOBALNET, RESOURCETYPE_ANY, 0, &Res, &hEnum);
 
@@ -1260,7 +1268,6 @@ BOOL NetBrowser::GetResourceInfo(wchar_t* SrcName, LPNETRESOURCE DstNetResource)
 		fwprintf(LogFile, L"GetResourceInfo %s\n", SrcName);
 
 #endif
-	TSaveScreen SS;
 	NETRESOURCE nrOut[32]; // provide buffer space
 	NETRESOURCE* lpnrOut = &nrOut[0];
 	DWORD cbBuffer = sizeof(nrOut);
@@ -1321,6 +1328,8 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE& SrcRes, LPNETRESOURCE DstNetReso
 		if (GetFavoritesParent(SrcRes, DstNetResource))
 			return TRUE;
 	}
+	if (!Opt.ScanNetwork)
+		return FALSE;
 
 #ifdef NETWORK_LOGGING
 
@@ -1329,6 +1338,7 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE& SrcRes, LPNETRESOURCE DstNetReso
 
 	LogNetResource(SrcRes);
 #endif
+	TSaveScreen ss;
 	BOOL Ret = FALSE;
 	NETRESOURCE nrOut[32]; // provide buffer space
 	NETRESOURCE* lpnrOut = &nrOut[0];
