@@ -1607,8 +1607,8 @@ plik może przetworzyć kilka wtyczek.
 $ #Utwórz folder#
  Funkcja pozwala tworzyć foldery. W linii edycji można użyć zmiennych
 systemowych, które zostaną rozwinięte w pełną ścieżkę przed utworzeniem
-folderu. Można utworzyć całą ścieżkę w jednym czasie: wystarczy użyć znaku ukośnika
-wstecznego (backslash). Na przykład:
+folderu. Można utworzyć całą ścieżkę w jednym czasie: wystarczy użyć znaku
+odwrotnego ukośnika (backslash). Na przykład:
 
  #%USERDOMAIN%\\%USERNAME%\\Folder3#
 

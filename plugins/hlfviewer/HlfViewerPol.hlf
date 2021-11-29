@@ -5,7 +5,7 @@
 
 @Contents
 $ #HlfViewer - podgląd plików pomocy#
-   Wtyczka HlfViewer została utworzeona aby pomóc osobom, które tworzą lub edytują pliki pomocy
+   Wtyczka HlfViewer została utworzona, aby pomóc osobom które tworzą lub edytują pliki pomocy
 (HLF) lub chcą obejrzeć pliki HLF.
 
    ~Używanie HlfViewer w edytorze~@editor@
@@ -21,14 +21,14 @@ $ #HlfViewer: składnia linii poleceń
    #hlf:temat#
 
    #GUID#        - ^<wrap>GUID wtyczki w bieżącej sesji Far Manager, której należy wyświetlić plik pomocy.
-                 ^<wrap>Aby pokazać temat Чтобы показать тему из собственной справки Far, można podać GUID
+                 ^<wrap>Aby pokazać temat z własnej pomocy Far, można podać GUID
 #00000000-0000-0000-0000-000000000000#
 
    #nazwa_pliku# - ^<wrap>Nazwa pliku HLF.
-                 ^<wrap>Если имя файла содержит пробелы, то оно должно заключаться в кавычки.
-                 ^<wrap>Если имя файла указано без пути, то порядок поиска следущий:
+                 ^<wrap>Jeśli nazwa pliku zawiera spacje, to musi być ujęta w cudzysłów.
+                 ^<wrap>Jeśli nazwa pliku jest określona bez ścieżki, kolejność wyszukiwania jest następująca:
                - bieżący folder
-               - %FARHOME%
+               - folder %FARHOME%
                - ścieżki wtyczek w bieżącej sesji Far Manager
 
    #temat#       - ^<wrap>показать топик с именем "topic", если этот параметр не

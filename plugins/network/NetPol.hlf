@@ -42,38 +42,39 @@ $ #Konfiguracja przeglądarki sieci#
  W tym oknie dialogowym można zmieniać następujące opcje:
 
  #Dodaj do menu dysków#
-  Dodaje "Sieć" do listy w menu wyboru dysków.
+ Dodaje "Sieć" do listy w menu wyboru dysków.
 
  #Dodaj do menu wtyczek#
-  Dodaje "Sieć" do listy w menu wyboru wtyczek.
+ Dodaje "Sieć" do listy w menu wyboru wtyczek.
 
  #Pokaż ".." na liście dostępów#
-  Pokazuje ".." na liście dostępnych zasobów.
+ Pokazuje ".." na liście dostępnych zasobów.
 
  #Pokaż sieć lokalną#
-  Jeżeli opcja jest włączona, to po pierwszym otwarciu przeglądarki
+ Jeżeli opcja jest włączona, to po pierwszym otwarciu przeglądarki
 sieciowej wyświetli się otoczenie sieciowe bieżącego komputera
 (komputery w tej samej domenie lub grupie roboczej). Opcja działa
 tylko w sieciach Microsoft Windows.
 
  #Pokaż drukarki#
-  Pokazuje drukarki udostępnione przez serwery.
+ Pokazuje drukarki udostępnione przez serwery.
 
  #Pokaż pełną nazwę udziału#
- When the option is enabled, \\Server1 and \\Server1\Share1 are displayed, when disabled - Server1 and Share1
+ Jeżeli opcja jest włączona, wyświetlane są nazwy: \\Serwer1 i \\Serwer2, jeżeli wyłączona: Serwer1 i Serwer2.
 
- #Pokaż ukryte zasoby - zawsze pokazuj#
-  Jeżeli opcja jest włączona, widoczne są zasoby ukryte (administracyjne).
+ #Udziały ukryte#
+ Zasady widoczności ukrytych udziałów (administracyjnych) na serwerze.
 
- - #Never show#
-   Don't show hidden shares.
- - #Show as hidden#
-   Hidden shares are displayed in the panel with the attribute 'Hidden'.
- - #Always show#
-   Hidden shares appear in the panel as normal.
+ - #Nigdy nie pokazuj#
+   Nie pokazuje ukrytych udziałów.
+ - #Pokazuj jako ukryte#
+   Udziały ukryte są widoczne w panelu z atrybutem 'Ukryte'.
+ - #Zawsze pokazuj#
+   Udziały ukryte są w pełni widoczne w panelu.
 
- #Przeglądaj do Ulubionych, jeżeli możliwe#
- If the computer you are viewing has been added to favorites, then when you go up level "..", Favorites will open.
+ #Przeglądaj do Ulubionych, jeśli to możliwe#
+ Jeżeli przeglądany (przez sieć) komputer został dodany do ulubionych, wtedy przejście na poziom ".." otwiera listę Ulubionych.
+
 
 @DisconnectDrive
 $ #Odłącz dysk sieciowy#
