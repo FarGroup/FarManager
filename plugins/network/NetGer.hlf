@@ -54,6 +54,9 @@ workgroup). The option works only for Microsoft Windows networks.
  #Show printers#
  Show shared printers.
 
+ #Scan network#
+ If this option is disabled, the plugin does not scan the network in search of devices.
+
  #Show full share name#
  When the option is enabled, \\Server1 and \\Server1\Share1 are displayed, when disabled - Server1 and Share1
 

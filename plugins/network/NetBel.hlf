@@ -58,6 +58,9 @@ $ #Канфігурацыя модуля прагляду сеткі#
  #Показывать принтеры#
  Показывать предоставляемые хостом общие принтеры.
 
+ #Scan network#
+ If this option is disabled, the plugin does not scan the network in search of devices.
+
  #Показывать полные пути к общим ресурсам#
  When the option is enabled, \\Server1 and \\Server1\Share1 are displayed, when disabled - Server1 and Share1
 
