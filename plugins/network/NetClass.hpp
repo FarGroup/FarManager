@@ -103,7 +103,7 @@ public:
 	int DeleteFiles(PluginPanelItem* PanelItem, size_t ItemsNumber, OPERATION_MODES OpMode);
 	int ProcessKey(const INPUT_RECORD* Rec);
 	int ProcessEvent(intptr_t Event, void* Param);
-	void SetOpenFromCommandLine(wchar_t* ShareName);
+	bool SetOpenFromCommandLine(wchar_t* cmd);
 	BOOL SetOpenFromFilePanel(wchar_t* ShareName);
 	void GotoLocalNetwork();
 
