@@ -450,7 +450,7 @@ void NetBrowser::FreeFindData(PluginPanelItem* PanelItem, size_t ItemsNumber)
 }
 
 
-int NetBrowser::ProcessEvent(intptr_t Event, void* /*Param*/)
+int NetBrowser::ProcessEvent(intptr_t Event, void* Param)
 {
 	if (Event == FE_CLOSE)
 	{
@@ -473,6 +473,13 @@ int NetBrowser::ProcessEvent(intptr_t Event, void* /*Param*/)
 			*CommonRootResources = RootResources;
 			SavedCommonRootResources = true;
 		}
+	}
+	if (Event == FE_COMMAND)
+	{
+		SetOpenFromCommandLine(static_cast<wchar_t*>(Param));
+		PsInfo.PanelControl(this, FCTL_SETCMDLINE, 0, (void*)"");
+		PsInfo.PanelControl(this, FCTL_UPDATEPANEL, 0, nullptr);
+		return TRUE;
 	}
 
 	return FALSE;
@@ -2193,16 +2200,66 @@ BOOL NetBrowser::IsReadable(const wchar_t* Remote)
 	return (FindHandle != INVALID_HANDLE_VALUE);
 }
 
-void NetBrowser::SetOpenFromCommandLine(wchar_t* ShareName)
+bool NetBrowser::SetOpenFromCommandLine(wchar_t* cmd)
 {
-	//lstrcpy (CmdLinePath, ShareName);
 #ifdef NETWORK_LOGGING
-	LogData(L"SetOpenFromCommandLine ShareName is");
-	LogData(ShareName);
+	LogData(L"SetOpenFromCommandLine cmd is");
+	LogData(cmd);
 #endif
-	lstrcpy(CmdLinePath, ShareName);
-	/*if(!GotoFavorite(ShareName))
-	  GotoComputer(ShareName);*/
+	int I = 0;
+	wchar_t* p = wcschr(cmd, L':');
+
+	if (!p || !*p)
+	{
+		return false;
+	}
+
+	*p++ = L'\0';
+	bool netg;
+
+	if (!lstrcmpi(cmd, L"netg"))
+		netg = true;
+	else if (!lstrcmpi(cmd, L"net"))
+		netg = false;
+	else
+	{
+		return false;
+	}
+
+	cmd = p;
+
+	if (lstrlen(FSF.Trim(cmd)))
+	{
+		if (cmd[0] == L'/')
+			cmd[0] = L'\\';
+
+		if (cmd[1] == L'/')
+			cmd[1] = L'\\';
+
+		if (!netg && !Opt.NavigateToDomains)
+		{
+			if (cmd[0] == L'\\' && cmd[1] != L'\\')
+				I = 1;
+			else if (cmd[0] != L'\\' && cmd[1] != L'\\')
+				I = 2;
+		}
+
+		wchar_t Path[MAX_PATH] = L"\\\\";
+		lstrcpy(Path + I, cmd);
+		FSF.Unquote(Path);
+		// Expanding environment variables.
+		{
+			wchar_t PathCopy[MAX_PATH];
+			lstrcpy(PathCopy, Path);
+			ExpandEnvironmentStrings(PathCopy, Path, static_cast<DWORD>(std::size(Path)));
+		}
+		lstrcpy(CmdLinePath, cmd);
+		if (!GotoFavorite(cmd))
+			GotoComputer(cmd);
+		return true;
+	}
+
+	return false;
 }
 
 BOOL NetBrowser::SetOpenFromFilePanel(wchar_t* ShareName)

@@ -68,56 +68,10 @@ HANDLE WINAPI OpenW(const OpenInfo* Info)
 
 	if (Info->OpenFrom == OPEN_COMMANDLINE)
 	{
-		int I = 0;
 		auto cmd = const_cast<wchar_t*>(reinterpret_cast<OpenCommandLineInfo*>(Info->Data)->CommandLine); //BUGBUG
-		wchar_t* p = wcschr(cmd, L':');
-
-		if (!p || !*p)
-		{
+		auto result = hPlugin->SetOpenFromCommandLine(cmd);
+		if (!result)
 			return nullptr;
-		}
-
-		*p++ = L'\0';
-		bool netg;
-
-		if (!lstrcmpi(cmd, L"netg"))
-			netg = true;
-		else if (!lstrcmpi(cmd, L"net"))
-			netg = false;
-		else
-		{
-			return nullptr;
-		}
-
-		cmd = p;
-
-		if (lstrlen(FSF.Trim(cmd)))
-		{
-			if (cmd[0] == L'/')
-				cmd[0] = L'\\';
-
-			if (cmd[1] == L'/')
-				cmd[1] = L'\\';
-
-			if (!netg && !Opt.NavigateToDomains)
-			{
-				if (cmd[0] == L'\\' && cmd[1] != L'\\')
-					I = 1;
-				else if (cmd[0] != L'\\' && cmd[1] != L'\\')
-					I = 2;
-			}
-
-			wchar_t Path[MAX_PATH] = L"\\\\";
-			lstrcpy(Path + I, cmd);
-			FSF.Unquote(Path);
-			// Expanding environment variables.
-			{
-				wchar_t PathCopy[MAX_PATH];
-				lstrcpy(PathCopy, Path);
-				ExpandEnvironmentStrings(PathCopy, Path, static_cast<DWORD>(std::size(Path)));
-			}
-			hPlugin->SetOpenFromCommandLine(Path);
-		}
 	}
 	else if (Info->OpenFrom == OPEN_FILEPANEL)
 	{
