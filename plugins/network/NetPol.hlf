@@ -59,8 +59,8 @@ tylko w sieciach Microsoft Windows.
  #Pokaż drukarki#
  Pokazuje drukarki udostępnione przez serwery.
 
- #Scan network#
- If this option is disabled, the plugin does not scan the network in search of devices.
+ #Skanuj sieć#
+ Jeżeli opcja jest wyłączona, wtyczka nie skanuje sieci w poszukiwaniu urządzeń.
 
  #Pokaż pełną nazwę udziału#
  Jeżeli opcja jest włączona, wyświetlane są nazwy: \\Serwer1 i \\Serwer2, jeżeli wyłączona: Serwer1 i Serwer2.
