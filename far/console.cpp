@@ -331,10 +331,16 @@ namespace console_detail
 
 		if (sWindowMode)
 		{
+			const auto& Window = ConsoleScreenBufferInfo.srWindow;
+
+			// Mantis#3919: Windows 10 is a PITA
+			if (Window.Left > Window.Right || Window.Top > Window.Bottom)
+				return false;
+
 			Size =
 			{
-				ConsoleScreenBufferInfo.srWindow.Right - ConsoleScreenBufferInfo.srWindow.Left + 1,
-				ConsoleScreenBufferInfo.srWindow.Bottom - ConsoleScreenBufferInfo.srWindow.Top + 1
+				Window.Right - Window.Left + 1,
+				Window.Bottom - Window.Top + 1
 			};
 		}
 		else
@@ -601,18 +607,24 @@ namespace console_detail
 
 	static void AdjustMouseEvents(span<INPUT_RECORD> const Buffer, short Delta)
 	{
-		point Size;
-		::console.GetSize(Size);
+		std::optional<point> Size;
 
 		for (auto& i: Buffer)
 		{
 			if (i.EventType != MOUSE_EVENT)
 				continue;
 
+			if (!Size)
+			{
+				Size.emplace();
+				if (!::console.GetSize(*Size))
+					return;
+			}
+
 			fix_wheel_coordinates(i.Event.MouseEvent);
 
 			i.Event.MouseEvent.dwMousePosition.Y = std::max(0, i.Event.MouseEvent.dwMousePosition.Y - Delta);
-			i.Event.MouseEvent.dwMousePosition.X = std::min(i.Event.MouseEvent.dwMousePosition.X, static_cast<short>(Size.x - 1));
+			i.Event.MouseEvent.dwMousePosition.X = std::min(i.Event.MouseEvent.dwMousePosition.X, static_cast<short>(Size->x - 1));
 		}
 	}
 
