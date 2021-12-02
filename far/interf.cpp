@@ -462,7 +462,7 @@ void SetFarConsoleMode(bool SetsActiveBuffer)
 		if (const auto Buffer = console.GetActiveScreenBuffer(); (Buffer && Buffer != console.GetOutputHandle()) ||
 			(
 				Global->Opt->WindowMode &&
-				GetConsoleScreenBufferInfo(console.GetOutputHandle(), &csbi) &&
+				get_console_screen_buffer_info(console.GetOutputHandle(), &csbi) &&
 				(csbi.srWindow.Bottom != csbi.dwSize.Y - 1 || csbi.srWindow.Left)
 			)
 		)
@@ -1605,7 +1605,7 @@ void AdjustConsoleScreenBufferSize()
 		// TODO: Do not use console functions directly
 		// Add a way to bypass console buffer abstraction layer
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		if (GetConsoleScreenBufferInfo(console.GetOutputHandle(), &csbi))
+		if (get_console_screen_buffer_info(console.GetOutputHandle(), &csbi))
 		{
 			if (!Global->Opt->WindowModeStickyX)
 			{

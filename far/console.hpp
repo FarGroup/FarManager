@@ -60,6 +60,7 @@ enum CLEAR_REGION
 
 wchar_t ReplaceControlCharacter(wchar_t Char);
 void sanitise_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second);
+bool get_console_screen_buffer_info(HANDLE ConsoleOutput, CONSOLE_SCREEN_BUFFER_INFO* ConsoleScreenBufferInfo);
 
 namespace console_detail
 {
@@ -161,7 +162,7 @@ namespace console_detail
 
 		bool IsFullscreenSupported() const;
 
-		bool ResetPosition() const;
+		void ResetPosition() const;
 		bool ResetViewportPosition() const;
 
 		bool ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill) const;

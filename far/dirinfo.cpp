@@ -202,7 +202,7 @@ int GetDirInfo(string_view const DirName, DirInfoData& Data, multifilter* Filter
 				{
 					if(FindData.AllocationSize >= Data.ClusterSize)
 					{
-					Data.FilesSlack += FindData.AllocationSize - FindData.FileSize;
+						Data.FilesSlack += FindData.AllocationSize - FindData.FileSize;
 					}
 					else
 					{

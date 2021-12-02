@@ -265,7 +265,7 @@ namespace
 					m_Buffer(Buffer)
 				{
 					CONSOLE_SCREEN_BUFFER_INFO csbi;
-					if (!GetConsoleScreenBufferInfo(Buffer, &csbi))
+					if (!get_console_screen_buffer_info(Buffer, &csbi))
 						return;
 
 					m_SavedAttributes = csbi.wAttributes;

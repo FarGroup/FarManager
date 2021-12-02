@@ -214,6 +214,29 @@ void sanitise_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
 	sanitise_dbsc_pair(First, Second) || sanitise_surrogate_pair(First, Second);
 }
 
+bool get_console_screen_buffer_info(HANDLE ConsoleOutput, CONSOLE_SCREEN_BUFFER_INFO* ConsoleScreenBufferInfo)
+{
+	if (!GetConsoleScreenBufferInfo(ConsoleOutput, ConsoleScreenBufferInfo))
+		return false;
+
+	const auto& Window = ConsoleScreenBufferInfo->srWindow;
+
+	// Mantis#3919: Windows 10 is a PITA
+	if (Window.Left > Window.Right)
+	{
+		auto NewWindow = Window;
+		NewWindow.Left = 0;
+		NewWindow.Right = ConsoleScreenBufferInfo->dwSize.X - 1;
+
+		SetConsoleWindowInfo(ConsoleOutput, true, &NewWindow);
+
+		if (!GetConsoleScreenBufferInfo(ConsoleOutput, ConsoleScreenBufferInfo))
+			return false;
+	}
+
+	return true;
+}
+
 static COORD make_coord(point const& Point)
 {
 	return
@@ -326,16 +349,12 @@ namespace console_detail
 	bool console::GetSize(point& Size) const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
-		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &ConsoleScreenBufferInfo))
 			return false;
 
 		if (sWindowMode)
 		{
 			const auto& Window = ConsoleScreenBufferInfo.srWindow;
-
-			// Mantis#3919: Windows 10 is a PITA
-			if (Window.Left > Window.Right || Window.Top > Window.Bottom)
-				return false;
 
 			Size =
 			{
@@ -357,7 +376,9 @@ namespace console_detail
 			return SetScreenBufferSize(Size);
 
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &csbi))
+			return false;
+
 		csbi.srWindow.Left = 0;
 		csbi.srWindow.Right = Size.x - 1;
 		csbi.srWindow.Bottom = csbi.dwSize.Y - 1;
@@ -390,7 +411,7 @@ namespace console_detail
 		if (IsVtSupported())
 		{
 			CONSOLE_SCREEN_BUFFER_INFO Info;
-			if (GetConsoleScreenBufferInfo(Out, &Info))
+			if (get_console_screen_buffer_info(Out, &Info))
 			{
 				// Make sure the cursor is within the new buffer
 				if (!(Info.dwCursorPosition.X < Size.x && Info.dwCursorPosition.Y < Size.y))
@@ -425,7 +446,7 @@ namespace console_detail
 		if (IsVtSupported())
 		{
 			CONSOLE_SCREEN_BUFFER_INFO Info;
-			if (GetConsoleScreenBufferInfo(Out, &Info))
+			if (get_console_screen_buffer_info(Out, &Info))
 			{
 				SetWindowRect(Info.srWindow);
 			}
@@ -437,7 +458,7 @@ namespace console_detail
 	bool console::GetWindowRect(rectangle& ConsoleWindow) const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
-		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &ConsoleScreenBufferInfo))
 			return false;
 
 		ConsoleWindow = ConsoleScreenBufferInfo.srWindow;
@@ -453,7 +474,7 @@ namespace console_detail
 	bool console::GetWorkingRect(rectangle& WorkingRect) const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &csbi))
 			return false;
 
 		WorkingRect.bottom = csbi.dwSize.Y - 1;
@@ -593,7 +614,7 @@ namespace console_detail
 			return;
 
 		CONSOLE_SCREEN_BUFFER_INFO Csbi;
-		if (!GetConsoleScreenBufferInfo(OutputHandle, &Csbi))
+		if (!get_console_screen_buffer_info(OutputHandle, &Csbi))
 			return;
 
 		const auto Set = [&](auto Coord, auto Point, auto SmallRect)
@@ -917,7 +938,7 @@ namespace console_detail
 			const auto Out = ::console.GetOutputHandle();
 
 			CONSOLE_SCREEN_BUFFER_INFO csbi;
-			if (!GetConsoleScreenBufferInfo(Out, &csbi))
+			if (!get_console_screen_buffer_info(Out, &csbi))
 				return false;
 
 			point SavedCursorPosition;
@@ -1255,7 +1276,7 @@ namespace console_detail
 			return ExternalConsole.Imports.pGetTextAttributes(&Attributes) != FALSE;
 
 		CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
-		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &ConsoleScreenBufferInfo))
 			return false;
 
 		Attributes = colors::ConsoleColorToFarColor(ConsoleScreenBufferInfo.wAttributes);
@@ -1403,8 +1424,7 @@ namespace console_detail
 	{
 		point Result = GetLargestConsoleWindowSize(GetOutputHandle());
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
-		if (csbi.dwSize.Y > Result.y)
+		if (get_console_screen_buffer_info(GetOutputHandle(), &csbi) && csbi.dwSize.Y > Result.y)
 		{
 			CONSOLE_FONT_INFO FontInfo;
 			if (get_current_console_font(GetOutputHandle(), FontInfo))
@@ -1435,7 +1455,9 @@ namespace console_detail
 			return ExternalConsole.Imports.pClearExtraRegions(&Color, Mode) != FALSE;
 
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &csbi))
+			return false;
+
 		DWORD CharsWritten;
 		const auto ConColor = colors::FarColorToConsoleColor(Color);
 
@@ -1464,7 +1486,8 @@ namespace console_detail
 	{
 		bool process = false;
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &csbi))
+			return false;
 
 		if ((Lines < 0 && csbi.srWindow.Top) || (Lines > 0 && csbi.srWindow.Bottom != csbi.dwSize.Y - 1))
 		{
@@ -1510,31 +1533,28 @@ namespace console_detail
 	bool console::ScrollWindowToBegin() const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &csbi))
+			return false;
 
-		if (csbi.srWindow.Top > 0)
-		{
-			csbi.srWindow.Bottom -= csbi.srWindow.Top;
-			csbi.srWindow.Top = 0;
-			return SetWindowRect(csbi.srWindow);
-		}
+		if (!csbi.srWindow.Top)
+			return false;
 
-		return false;
+		csbi.srWindow.Bottom -= csbi.srWindow.Top;
+		csbi.srWindow.Top = 0;
+		return SetWindowRect(csbi.srWindow);
 	}
 
 	bool console::ScrollWindowToEnd() const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &csbi))
 
-		if (csbi.srWindow.Bottom < csbi.dwSize.Y - 1)
-		{
-			csbi.srWindow.Top += csbi.dwSize.Y - 1 - csbi.srWindow.Bottom;
-			csbi.srWindow.Bottom = csbi.dwSize.Y - 1;
-			return SetWindowRect(csbi.srWindow);
-		}
+		if (csbi.srWindow.Bottom == csbi.dwSize.Y - 1)
+			return false;
 
-		return false;
+		csbi.srWindow.Top += csbi.dwSize.Y - 1 - csbi.srWindow.Bottom;
+		csbi.srWindow.Bottom = csbi.dwSize.Y - 1;
+		return SetWindowRect(csbi.srWindow);
 	}
 
 	bool console::IsFullscreenSupported() const
@@ -1550,19 +1570,20 @@ namespace console_detail
 #endif
 	}
 
-	bool console::ResetPosition() const
+	void console::ResetPosition() const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
-		if (csbi.srWindow.Left || csbi.srWindow.Bottom != csbi.dwSize.Y - 1)
-		{
-			csbi.srWindow.Right -= csbi.srWindow.Left;
-			csbi.srWindow.Left = 0;
-			csbi.srWindow.Top += csbi.dwSize.Y - 1 - csbi.srWindow.Bottom;
-			csbi.srWindow.Bottom = csbi.dwSize.Y - 1;
-			SetWindowRect(csbi.srWindow);
-		}
-		return true;
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &csbi))
+			return;
+
+		if (!csbi.srWindow.Left && csbi.srWindow.Bottom == csbi.dwSize.Y - 1)
+			return;
+
+		csbi.srWindow.Right -= csbi.srWindow.Left;
+		csbi.srWindow.Left = 0;
+		csbi.srWindow.Top += csbi.dwSize.Y - 1 - csbi.srWindow.Bottom;
+		csbi.srWindow.Bottom = csbi.dwSize.Y - 1;
+		SetWindowRect(csbi.srWindow);
 	}
 
 	bool console::ResetViewportPosition() const
@@ -1577,7 +1598,9 @@ namespace console_detail
 	short console::GetDelta() const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &csbi))
+			return 0;
+
 		return ::GetDelta(csbi);
 	}
 
@@ -1591,7 +1614,7 @@ namespace console_detail
 	bool console::ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill) const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &csbi))
 			return false;
 
 		const auto Scroll = [&](rectangle const& Rect)
@@ -1634,7 +1657,7 @@ namespace console_detail
 	bool console::IsViewportVisible() const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &csbi))
 			return false;
 
 		const auto Height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
@@ -1649,7 +1672,7 @@ namespace console_detail
 			return false;
 
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &csbi))
 			return false;
 
 		return csbi.srWindow.Left || csbi.srWindow.Bottom + 1 != csbi.dwSize.Y;
@@ -1658,7 +1681,7 @@ namespace console_detail
 	bool console::IsPositionVisible(point const Position) const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi))
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &csbi))
 			return false;
 
 		if (!in_closed_range(csbi.srWindow.Left, Position.x, csbi.srWindow.Right))
@@ -1710,7 +1733,7 @@ namespace console_detail
 			return false;
 
 		CONSOLE_SCREEN_BUFFER_INFO Info;
-		if (!GetConsoleScreenBufferInfo(m_WidthTestScreen.native_handle(), &Info))
+		if (!get_console_screen_buffer_info(m_WidthTestScreen.native_handle(), &Info))
 			return false;
 
 		return Info.dwCursorPosition.X > 1;
@@ -1743,7 +1766,7 @@ namespace console_detail
 	bool console::GetCursorRealPosition(point& Position) const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
-		if (!GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
+		if (!get_console_screen_buffer_info(GetOutputHandle(), &ConsoleScreenBufferInfo))
 			return false;
 
 		Position = ConsoleScreenBufferInfo.dwCursorPosition;
