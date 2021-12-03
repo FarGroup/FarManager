@@ -73,7 +73,7 @@ static auto is_cjk_codepage(uintptr_t const Codepage)
 static auto get_is_cjk()
 {
 	return
-		any_of(LOBYTE(GetUserDefaultLCID()), LANG_CHINESE, LANG_JAPANESE, LANG_KOREAN) ||
+		any_of(extract_integer<BYTE, 0>(GetUserDefaultLCID()), LANG_CHINESE, LANG_JAPANESE, LANG_KOREAN) ||
 		is_cjk_codepage(encoding::codepage::oem()) ||
 		is_cjk_codepage(encoding::codepage::ansi()) ||
 		is_cjk_codepage(console.GetOutputCodepage());

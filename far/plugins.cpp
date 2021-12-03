@@ -801,7 +801,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(span<const Plugi
 
 void PluginManager::ClosePanel(std::unique_ptr<plugin_panel>&& hPlugin)
 {
-	ClosePanelInfo Info = {sizeof(Info)};
+	ClosePanelInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	hPlugin->plugin()->ClosePanel(&Info);
 }
@@ -809,7 +809,7 @@ void PluginManager::ClosePanel(std::unique_ptr<plugin_panel>&& hPlugin)
 
 intptr_t PluginManager::ProcessEditorInput(const INPUT_RECORD *Rec) const
 {
-	ProcessEditorInputInfo Info={sizeof(Info)};
+	ProcessEditorInputInfo Info{ sizeof(Info) };
 	Info.Rec=*Rec;
 
 	for (const auto& i: SortedPlugins)
@@ -837,7 +837,7 @@ intptr_t PluginManager::ProcessEditorEvent(int Event, void *Param, const Editor*
 			FED->AutoDeleteColors();
 		}
 
-		ProcessEditorEventInfo Info = {sizeof(Info)};
+		ProcessEditorEventInfo Info{ sizeof(Info) };
 		Info.Event = Event;
 		Info.Param = Param;
 		Info.EditorID = EditorInstance->GetId();
@@ -862,7 +862,7 @@ intptr_t PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, con
 {
 	if (const auto Container = EditorInstance->GetOwner())
 	{
-		ProcessEditorEventInfo Info = {sizeof(Info)};
+		ProcessEditorEventInfo Info{ sizeof(Info) };
 		Info.Event = Event;
 		Info.Param = Param;
 		Info.EditorID = EditorInstance->GetId();
@@ -887,7 +887,7 @@ intptr_t PluginManager::ProcessViewerEvent(int Event, void *Param, const Viewer*
 {
 	if (const auto Container = ViewerInstance->GetOwner())
 	{
-		ProcessViewerEventInfo Info = {sizeof(Info)};
+		ProcessViewerEventInfo Info{ sizeof(Info) };
 		Info.Event = Event;
 		Info.Param = Param;
 		Info.ViewerID = ViewerInstance->GetId();
@@ -909,7 +909,7 @@ intptr_t PluginManager::ProcessViewerEvent(int Event, void *Param, const Viewer*
 
 intptr_t PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param) const
 {
-	ProcessDialogEventInfo Info = {sizeof(Info)};
+	ProcessDialogEventInfo Info{ sizeof(Info) };
 	Info.Event = Event;
 	Info.Param = Param;
 
@@ -953,7 +953,7 @@ intptr_t PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info) const
 
 intptr_t PluginManager::GetFindData(const plugin_panel* hPlugin, span<PluginPanelItem>& PanelItems, int OpMode)
 {
-	GetFindDataInfo Info = {sizeof(Info)};
+	GetFindDataInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	Info.OpMode = OpMode;
 	const auto Result = hPlugin->plugin()->GetFindData(&Info);
@@ -973,7 +973,7 @@ void PluginManager::FreeFindData(const plugin_panel* hPlugin, span<PluginPanelIt
 		}
 	}
 
-	FreeFindDataInfo Info = {sizeof(Info)};
+	FreeFindDataInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItems.data();
 	Info.ItemsNumber = PanelItems.size();
@@ -983,7 +983,7 @@ void PluginManager::FreeFindData(const plugin_panel* hPlugin, span<PluginPanelIt
 
 intptr_t PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, span<PluginPanelItem>& PanelItems, const string& Path)
 {
-	GetVirtualFindDataInfo Info = {sizeof(Info)};
+	GetVirtualFindDataInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	Info.Path = Path.c_str();
 	const auto Result = hPlugin->plugin()->GetVirtualFindData(&Info);
@@ -995,7 +995,7 @@ intptr_t PluginManager::GetVirtualFindData(const plugin_panel* hPlugin, span<Plu
 
 void PluginManager::FreeVirtualFindData(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems)
 {
-	FreeFindDataInfo Info = {sizeof(Info)};
+	FreeFindDataInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItems.data();
 	Info.ItemsNumber = PanelItems.size();
@@ -1006,7 +1006,7 @@ void PluginManager::FreeVirtualFindData(const plugin_panel* hPlugin, span<Plugin
 
 intptr_t PluginManager::SetDirectory(const plugin_panel* hPlugin, const string& Dir, int OpMode, const UserDataItem *UserData)
 {
-	SetDirectoryInfo Info = {sizeof(Info)};
+	SetDirectoryInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	Info.Dir = Dir.c_str();
 	Info.OpMode = OpMode;
@@ -1022,7 +1022,7 @@ intptr_t PluginManager::SetDirectory(const plugin_panel* hPlugin, const string& 
 bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelItem, const string& DestPath, string &strResultName, int OpMode)
 {
 	bool Found = false;
-	GetFilesInfo Info = {sizeof(Info)};
+	GetFilesInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItem;
 	Info.ItemsNumber = 1;
@@ -1065,7 +1065,7 @@ bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 
 intptr_t PluginManager::DeleteFiles(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, int OpMode)
 {
-	DeleteFilesInfo Info = {sizeof(Info)};
+	DeleteFilesInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItems.data();
 	Info.ItemsNumber = PanelItems.size();
@@ -1077,7 +1077,7 @@ intptr_t PluginManager::DeleteFiles(const plugin_panel* hPlugin, span<PluginPane
 
 intptr_t PluginManager::MakeDirectory(const plugin_panel* hPlugin, const wchar_t **Name, int OpMode)
 {
-	MakeDirectoryInfo Info = {sizeof(Info)};
+	MakeDirectoryInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	Info.Name = *Name;
 	Info.OpMode = OpMode;
@@ -1090,7 +1090,7 @@ intptr_t PluginManager::MakeDirectory(const plugin_panel* hPlugin, const wchar_t
 
 intptr_t PluginManager::ProcessHostFile(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, int OpMode)
 {
-	ProcessHostFileInfo Info = {sizeof(Info)};
+	ProcessHostFileInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItems.data();
 	Info.ItemsNumber = PanelItems.size();
@@ -1102,7 +1102,7 @@ intptr_t PluginManager::ProcessHostFile(const plugin_panel* hPlugin, span<Plugin
 
 intptr_t PluginManager::GetFiles(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, bool Move, const wchar_t **DestPath, int OpMode)
 {
-	GetFilesInfo Info = {sizeof(Info)};
+	GetFilesInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItems.data();
 	Info.ItemsNumber = PanelItems.size();
@@ -1120,7 +1120,7 @@ intptr_t PluginManager::PutFiles(const plugin_panel* hPlugin, span<PluginPanelIt
 {
 	static string strCurrentDirectory;
 	strCurrentDirectory = os::fs::GetCurrentDirectory();
-	PutFilesInfo Info = {sizeof(Info)};
+	PutFilesInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItems.data();
 	Info.ItemsNumber = PanelItems.size();
@@ -1149,7 +1149,7 @@ void PluginManager::GetOpenPanelInfo(const plugin_panel* hPlugin, OpenPanelInfo 
 
 intptr_t PluginManager::ProcessKey(const plugin_panel* hPlugin,const INPUT_RECORD *Rec, bool Pred)
 {
-	ProcessPanelInputInfo Info={sizeof(Info)};
+	ProcessPanelInputInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	Info.Rec=*Rec;
 
@@ -1163,7 +1163,7 @@ intptr_t PluginManager::ProcessKey(const plugin_panel* hPlugin,const INPUT_RECOR
 
 intptr_t PluginManager::ProcessEvent(const plugin_panel* hPlugin, int Event, void *Param)
 {
-	ProcessPanelEventInfo Info = {sizeof(Info)};
+	ProcessPanelEventInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	Info.Event = Event;
 	Info.Param = Param;
@@ -1174,7 +1174,7 @@ intptr_t PluginManager::ProcessEvent(const plugin_panel* hPlugin, int Event, voi
 
 intptr_t PluginManager::Compare(const plugin_panel* hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned int Mode)
 {
-	CompareInfo Info = {sizeof(Info)};
+	CompareInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	Info.Item1 = Item1;
 	Info.Item2 = Item2;
@@ -1185,7 +1185,7 @@ intptr_t PluginManager::Compare(const plugin_panel* hPlugin, const PluginPanelIt
 
 void PluginManager::ConfigureCurrent(Plugin *pPlugin, const UUID& Uuid)
 {
-	ConfigureInfo Info = {sizeof(Info)};
+	ConfigureInfo Info{ sizeof(Info) };
 	Info.Guid = &Uuid;
 
 	if (pPlugin->Configure(&Info))
@@ -1250,7 +1250,7 @@ void PluginManager::Configure(int StartPos)
 				bool bCached = i->CheckWorkFlags(PIWF_CACHED);
 				unsigned long long id = 0;
 
-				PluginInfo Info = {sizeof(Info)};
+				PluginInfo Info{ sizeof(Info) };
 				if (bCached)
 				{
 					id = ConfigProvider().PlCacheCfg()->GetCacheID(i->CacheName());
@@ -1288,7 +1288,7 @@ void PluginManager::Configure(int StartPos)
 					else
 						ListItem.Name = AddHotkey(strName, Hotkey);
 
-					PluginMenuItemData item = { i, Uuid };
+					PluginMenuItemData item{ i, Uuid };
 
 					ListItem.ComplexUserData = item;
 
@@ -1407,7 +1407,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					unsigned long long IFlags;
 					unsigned long long id = 0;
 
-					PluginInfo Info = {sizeof(Info)};
+					PluginInfo Info{ sizeof(Info) };
 					if (bCached)
 					{
 						id = ConfigProvider().PlCacheCfg()->GetCacheID(i->CacheName());
@@ -1556,7 +1556,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 	int OpenCode=OPEN_PLUGINSMENU;
 	intptr_t Item=0;
-	OpenDlgPluginData pd={sizeof(OpenDlgPluginData)};
+	OpenDlgPluginData pd{ sizeof(pd) };
 
 	if (Editor)
 	{
@@ -1634,7 +1634,7 @@ void PluginManager::ShowPluginInfo(Plugin* pPlugin, const UUID& Uuid)
 	}
 	else
 	{
-		PluginInfo Info = {sizeof(Info)};
+		PluginInfo Info{ sizeof(Info) };
 		if (GetPluginInfo(pPlugin, &Info))
 		{
 			strPluginPrefix = NullToEmpty(Info.CommandPrefix);
@@ -1761,7 +1761,7 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 	}
 	else
 	{
-		PluginInfo Info = {sizeof(Info)};
+		PluginInfo Info{ sizeof(Info) };
 		if (GetPluginInfo(pPlugin, &Info))
 		{
 			Flags = Info.Flags;
@@ -1850,7 +1850,7 @@ bool PluginManager::GetDiskMenuItem(Plugin* pPlugin, size_t PluginItem, bool& It
 	}
 	else
 	{
-		PluginInfo Info = {sizeof(Info)};
+		PluginInfo Info{ sizeof(Info) };
 
 		if (!GetPluginInfo(pPlugin, &Info) || Info.DiskMenu.Count <= PluginItem)
 		{
@@ -2065,7 +2065,7 @@ bool PluginManager::CallPlugin(const UUID& SysID,int OpenFrom, void *Data,void *
 		{
 			if (Data && *static_cast<const wchar_t *>(Data))
 			{
-				UserDataItem UserData = {};  // !!! NEED CHECK !!!
+				const UserDataItem UserData{};  // !!! NEED CHECK !!!
 				SetDirectory(PluginPanelCopy, static_cast<const wchar_t *>(Data), 0, &UserData);
 			}
 		}
@@ -2312,7 +2312,7 @@ Plugin *PluginManager::FindPlugin(const UUID& SysID) const
 
 std::unique_ptr<plugin_panel> PluginManager::Open(Plugin* pPlugin, int OpenFrom, const UUID& Uuid, intptr_t Item) const
 {
-	OpenInfo Info = {sizeof(Info)};
+	OpenInfo Info{ sizeof(Info) };
 	Info.OpenFrom = static_cast<OPENFROM>(OpenFrom);
 	Info.Guid = &Uuid;
 	Info.Data = Item;
@@ -2326,7 +2326,7 @@ std::unique_ptr<plugin_panel> PluginManager::Open(Plugin* pPlugin, int OpenFrom,
 
 std::vector<Plugin*> PluginManager::GetContentPlugins(const std::vector<const wchar_t*>& ColNames) const
 {
-	GetContentFieldsInfo Info = { sizeof(GetContentFieldsInfo), ColNames.size(), ColNames.data() };
+	GetContentFieldsInfo Info{ sizeof(Info), ColNames.size(), ColNames.data() };
 	std::vector<Plugin*> Plugins;
 	std::copy_if(ALL_CONST_RANGE(SortedPlugins), std::back_inserter(Plugins), [&Info](Plugin* p)
 	{

@@ -889,7 +889,7 @@ intptr_t WINAPI apiMenuFn(
 				}
 				else
 				{
-					INPUT_RECORD input = {};
+					INPUT_RECORD input{};
 					FarKeyToInputRecord(i.AccelKey,&input);
 					CurItem.AccelKey=InputRecordToKey(&input);
 				}
@@ -2687,7 +2687,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 		case PCTL_GETPLUGININFORMATION:
 			{
 				const auto Info = static_cast<FarGetPluginInformation*>(Param2);
-				if (Handle && (!Info || (CheckStructSize(Info) && static_cast<size_t>(Param1) > sizeof(FarGetPluginInformation))))
+				if (Handle && (!Info || (CheckStructSize(Info) && static_cast<size_t>(Param1) > sizeof(*Info))))
 				{
 					return Global->CtrlObject->Plugins->GetPluginInformation(static_cast<Plugin*>(Handle), Info, Param1);
 				}

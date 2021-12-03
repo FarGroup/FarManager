@@ -54,7 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static void CleanupBuffer(FAR_CHAR_INFO* Buffer, size_t BufSize)
 {
-	const FAR_CHAR_INFO Value = { L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
+	const FAR_CHAR_INFO Value{ L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
 	std::fill_n(Buffer, BufSize, Value);
 }
 
@@ -153,7 +153,7 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 	matrix<FAR_CHAR_INFO> NewBuf(DesiredHeight, DesiredWidth);
 	CleanupBuffer(NewBuf.data(), NewBuf.size());
 
-	const rectangle NewWhere = { m_Where.left, m_Where.top, m_Where.left + DesiredWidth - 1, m_Where.top + DesiredHeight - 1 };
+	const rectangle NewWhere{ m_Where.left, m_Where.top, m_Where.left + DesiredWidth - 1, m_Where.top + DesiredHeight - 1 };
 
 	const auto DeltaY = std::abs(DesiredHeight - OriginalHeight);
 	const size_t CopyWidth = std::min(OriginalWidth, DesiredWidth);

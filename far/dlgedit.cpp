@@ -67,7 +67,7 @@ DlgEdit::DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type):
 			break;
 		case DLGEDIT_SINGLELINE:
 		{
-			EditControl::Callback callback={true,EditChange,this};
+			EditControl::Callback callback{ true, EditChange, this };
 
 			FarList* iList = nullptr;
 			DWORD iFlags=0;

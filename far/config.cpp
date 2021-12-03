@@ -758,11 +758,11 @@ void Options::SetDizConfig()
 
 	Builder.AddCheckbox(lng::MCfgDizSetHidden, Diz.SetHidden);
 	Builder.AddCheckbox(lng::MCfgDizROUpdate, Diz.ROUpdate);
-	auto& StartPos = Builder.AddIntEditField(Diz.StartPos, 2);
+	const auto& StartPos = Builder.AddIntEditField(Diz.StartPos, 2);
 	Builder.AddTextAfter(StartPos, lng::MCfgDizStartPos);
 	Builder.AddSeparator();
 
-	static const lng DizOptions[] = { lng::MCfgDizNotUpdate, lng::MCfgDizUpdateIfDisplayed, lng::MCfgDizAlwaysUpdate };
+	static const lng DizOptions[]{ lng::MCfgDizNotUpdate, lng::MCfgDizUpdateIfDisplayed, lng::MCfgDizAlwaysUpdate };
 	Builder.AddRadioButtons(Diz.UpdateMode, DizOptions);
 	Builder.AddSeparator();
 
@@ -2552,7 +2552,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 				{
 				case KEY_SHIFTF1:
 					{
-						FarListInfo ListInfo = {sizeof(ListInfo)};
+						FarListInfo ListInfo{ sizeof(ListInfo) };
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 
 						if (const auto CurrentItem = GetConfigItem(ListInfo.SelectPos))
@@ -2589,11 +2589,11 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 						static bool HideUnchanged = true;
 
-						FarListInfo ListInfo = {sizeof(ListInfo)};
+						FarListInfo ListInfo{ sizeof(ListInfo) };
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 						for (const auto& i: irange(ListInfo.ItemsNumber))
 						{
-							FarListGetItem Item={sizeof(FarListGetItem), static_cast<intptr_t>(i)};
+							FarListGetItem Item{ sizeof(Item), static_cast<intptr_t>(i) };
 
 							// BUGBUG(?) DM_LISTGETITEM will return false if everything is filtered out
 							if (!Dlg->SendMessage(DM_LISTGETITEM, Param1, &Item))
@@ -2618,7 +2618,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 							}
 							if(NeedUpdate)
 							{
-								FarListUpdate UpdatedItem={sizeof(FarListGetItem), static_cast<intptr_t>(i), Item.Item};
+								FarListUpdate UpdatedItem{ sizeof(UpdatedItem), static_cast<intptr_t>(i), Item.Item };
 								Dlg->SendMessage(DM_LISTUPDATE, Param1, &UpdatedItem);
 							}
 						}
@@ -2662,7 +2662,7 @@ bool Options::AdvancedConfig(config_type Mode)
 	const auto ConfigData = zip(CurrentConfig, Strings);
 	std::transform(ALL_CONST_RANGE(ConfigData), std::back_inserter(items), [](const auto& i) { return std::get<0>(i).MakeListItem(std::get<1>(i)); });
 
-	FarList Items={sizeof(FarList), items.size(), items.data()};
+	FarList Items{ sizeof(Items), items.size(), items.data() };
 
 	AdvancedConfigDlg[ac_item_listbox].ListItems = &Items;
 

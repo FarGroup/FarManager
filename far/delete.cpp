@@ -465,7 +465,7 @@ static total_items calculate_total(panel_ptr const SrcPanel)
 
 		if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY && !os::fs::is_directory_symbolic_link(i))
 		{
-			DirInfoData Data = {};
+			DirInfoData Data{};
 
 			if (GetDirInfo(i.FileName, Data, nullptr, DirInfoCallback, 0) <= 0)
 				return {};

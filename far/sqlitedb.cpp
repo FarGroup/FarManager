@@ -153,7 +153,7 @@ static void sqlite_log(void*, int const Code, const char* const Message)
 {
 	const auto Level = [](int const SqliteCode)
 	{
-		switch (LOBYTE(SqliteCode))
+		switch (extract_integer<uint8_t, 0>(SqliteCode))
 		{
 		case SQLITE_NOTICE:  return logging::level::notice;
 		case SQLITE_WARNING: return logging::level::warning;

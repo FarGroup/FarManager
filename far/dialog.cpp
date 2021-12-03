@@ -1020,9 +1020,7 @@ void Dialog::ProcessLastHistory(DialogItemEx& CurItem, int MsgIndex)
 
 	// обработка DM_SETHISTORY => надо пропустить изменение текста через
 	// диалоговую функцию
-	FarDialogItemData IData{sizeof(FarDialogItemData)};
-	IData.PtrData = UNSAFE_CSTR(strData);
-	IData.PtrLength = strData.size();
+	FarDialogItemData IData{sizeof(IData), strData.size(), UNSAFE_CSTR(strData) };
 	SendMessage(DM_SETTEXT, MsgIndex, &IData);
 }
 
@@ -1525,9 +1523,7 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4], size_t ItemPos, FARDIALOGITE
 			break;
 		}
 	}
-	FarDialogItemColors ItemColors = {sizeof(FarDialogItemColors)};
-	ItemColors.ColorsCount=4;
-	ItemColors.Colors=Color;
+	FarDialogItemColors ItemColors{ sizeof(ItemColors), 0, 4, Color };
 	return DlgProc(DN_CTLCOLORDLGITEM, ItemPos, &ItemColors);
 }
 
@@ -1540,7 +1536,7 @@ void Dialog::ShowDialog(size_t ID)
 	string strStr;
 	int X,Y;
 	size_t DrawItemCount;
-	FarColor ItemColor[4] = {};
+	FarColor ItemColor[4]{};
 	bool DrawFullDialog = false;
 
 	//   Если не разрешена отрисовка, то вываливаем.
@@ -2040,10 +2036,8 @@ void Dialog::ShowDialog(size_t ID)
 				if (Item.ListPtr)
 				{
 					//   Перед отрисовкой спросим об изменении цветовых атрибутов
-					FarColor RealColors[VMENU_COLOR_COUNT] = {};
-					FarDialogItemColors ListColors={sizeof(FarDialogItemColors)};
-					ListColors.ColorsCount=VMENU_COLOR_COUNT;
-					ListColors.Colors=RealColors;
+					FarColor RealColors[VMENU_COLOR_COUNT]{};
+					FarDialogItemColors ListColors{ sizeof(ListColors), 0, VMENU_COLOR_COUNT, RealColors };
 					Item.ListPtr->GetColors(&ListColors);
 
 					if (DlgProc(DN_CTLCOLORDLGLIST,I,&ListColors))
@@ -2404,7 +2398,7 @@ long long Dialog::VMProcess(int OpCode,void *vParam,long long iParam)
 					return 0;
 			}
 
-			FarGetValue fgv={sizeof(FarGetValue),OpCode==MCODE_V_ITEMCOUNT?11:7,Ret};
+			FarGetValue fgv{ sizeof(fgv), OpCode == MCODE_V_ITEMCOUNT?11:7, Ret };
 
 			if (SendMessage(DN_GETVALUE,m_FocusPos,&fgv))
 			{
@@ -2470,7 +2464,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 		{
 			int n = -1;
 
-			FarGetValue fgv = {sizeof(FarGetValue),11, -1}; // Item Count
+			FarGetValue fgv{ sizeof(fgv), 11, -1 }; // Item Count
 			if (SendMessage(DN_GETVALUE,m_FocusPos,&fgv) && fgv.Value.Type==FMVT_INTEGER)
 				n = static_cast<int>(fgv.Value.Integer);
 
@@ -3117,9 +3111,7 @@ void Dialog::ProcessKey(int Key, size_t ItemPos)
 */
 bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	SMALL_RECT Rect;
-	INPUT_RECORD mouse = {};
-	mouse.EventType=MOUSE_EVENT;
+	INPUT_RECORD mouse{ MOUSE_EVENT };
 	mouse.Event.MouseEvent=*MouseEvent;
 	MOUSE_EVENT_RECORD &MouseRecord=mouse.Event.MouseEvent;
 
@@ -3267,6 +3259,7 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			if (Item.Flags&(DIF_DISABLE|DIF_HIDDEN))
 				continue;
 
+			SMALL_RECT Rect{};
 			GetItemRect(I,Rect);
 			Rect.Left += m_Where.left;
 			Rect.Top += m_Where.top;
@@ -3325,6 +3318,7 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 				if (Item.Flags&(DIF_DISABLE|DIF_HIDDEN))
 					continue;
 
+				SMALL_RECT Rect{};
 				GetItemRect(I,Rect);
 				Rect.Left += m_Where.left;
 				Rect.Top += m_Where.top;
@@ -3877,10 +3871,8 @@ int Dialog::SelectFromComboBox(DialogItemEx& CurItem, DlgEdit& EditLine)
 		DlgProc(DN_DROPDOWNOPENED, m_FocusPos, ToPtr(1));
 		SetComboBoxPos(&CurItem);
 		// Перед отрисовкой спросим об изменении цветовых атрибутов
-		FarColor RealColors[VMENU_COLOR_COUNT] = {};
-		FarDialogItemColors ListColors={sizeof(FarDialogItemColors)};
-		ListColors.ColorsCount=VMENU_COLOR_COUNT;
-		ListColors.Colors=RealColors;
+		FarColor RealColors[VMENU_COLOR_COUNT]{};
+		FarDialogItemColors ListColors{ sizeof(ListColors), 0, VMENU_COLOR_COUNT, RealColors };
 		ComboBox->SetColors(nullptr);
 		ComboBox->GetColors(&ListColors);
 
@@ -4297,7 +4289,7 @@ void Dialog::ResizeConsole()
 		Hide();
 	}
 
-	COORD c = {static_cast<short>(ScrX+1), static_cast<short>(ScrY+1)};
+	COORD c{ static_cast<short>(ScrX + 1), static_cast<short>(ScrY + 1) };
 	SendMessage(DN_RESIZECONSOLE, 0, &c);
 
 	const auto Rect = GetPosition();
@@ -4317,7 +4309,7 @@ intptr_t Dialog::DlgProc(intptr_t Msg,intptr_t Param1,void* Param2)
 	if (DialogMode.Check(DMODE_ENDLOOP))
 		return 0;
 
-	FarDialogEvent de={sizeof(FarDialogEvent),this,Msg,Param1,Param2,0};
+	FarDialogEvent de{ sizeof(de), this, Msg, Param1, Param2 };
 
 	if(!CheckDialogMode(DMODE_NOPLUGINS))
 	{
@@ -4344,7 +4336,7 @@ intptr_t Dialog::DlgProc(intptr_t Msg,intptr_t Param1,void* Param2)
 */
 intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	FarDialogEvent de={sizeof(FarDialogEvent),this,Msg,Param1,Param2,0};
+	FarDialogEvent de{ sizeof(de), this, Msg, Param1, Param2 };
 
 	if(!CheckDialogMode(DMODE_NOPLUGINS))
 	{
@@ -5241,11 +5233,11 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 				bool Visible{};
 				size_t Size{};
 				static_cast<DlgEdit*>(CurItem.ObjPtr)->GetCursorType(Visible,Size);
-				return MAKELONG(Visible,Size);
+				return make_integer<DWORD>(static_cast<WORD>(Visible), static_cast<WORD>(Size));
 			}
 			else if (Type == DI_USERCONTROL && CurItem.UCData)
 			{
-				return MAKELONG(CurItem.UCData->CursorVisible,CurItem.UCData->CursorSize);
+				return make_integer<DWORD, WORD>(CurItem.UCData->CursorVisible, CurItem.UCData->CursorSize);
 			}
 
 			return FALSE;
@@ -5261,14 +5253,17 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 			if (IsEdit(Type) && CurItem.ObjPtr)
 			{
 				static_cast<DlgEdit*>(CurItem.ObjPtr)->GetCursorType(Visible, Size);
-				static_cast<DlgEdit*>(CurItem.ObjPtr)->SetCursorType(LOWORD(Param2) !=0, HIWORD(Param2));
+				static_cast<DlgEdit*>(CurItem.ObjPtr)->SetCursorType(
+					extract_integer<WORD, 0>(reinterpret_cast<uintptr_t>(Param2)) != 0,
+					extract_integer<WORD, 1>(reinterpret_cast<uintptr_t>(Param2))
+				);
 			}
 			else if (Type == DI_USERCONTROL && CurItem.UCData)
 			{
 				Visible = CurItem.UCData->CursorVisible;
 				Size = CurItem.UCData->CursorSize;
-				CurItem.UCData->CursorVisible = LOWORD(Param2) != 0;
-				CurItem.UCData->CursorSize = HIWORD(Param2);
+				CurItem.UCData->CursorVisible = extract_integer<WORD, 0>(reinterpret_cast<uintptr_t>(Param2)) != 0;
+				CurItem.UCData->CursorSize = extract_integer<WORD, 1>(reinterpret_cast<uintptr_t>(Param2));
 				int CCX = CurItem.UCData->CursorPos.X;
 				int CCY = CurItem.UCData->CursorPos.Y;
 
@@ -5278,7 +5273,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					SetCursorType(CurItem.UCData->CursorVisible, CurItem.UCData->CursorSize);
 			}
 
-			return MAKELONG(Visible,Size);
+			return make_integer<DWORD>(static_cast<WORD>(Visible), static_cast<WORD>(Size));
 		}
 		/*****************************************************************/
 		case DN_LISTCHANGE:
@@ -5288,7 +5283,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		/*****************************************************************/
 		case DN_EDITCHANGE:
 		{
-			FarGetDialogItem Item={sizeof(FarGetDialogItem),0,nullptr};
+			FarGetDialogItem Item{ sizeof(Item) };
 			Item.Size = ConvertItemEx2(CurItem, nullptr, false);
 			block_ptr<FarDialogItem> Buffer(Item.Size);
 			Item.Item = Buffer.data();
@@ -5409,7 +5404,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		/*****************************************************************/
 		case DN_DRAWDLGITEM:
 		{
-			FarGetDialogItem Item={sizeof(FarGetDialogItem),0,nullptr};
+			FarGetDialogItem Item{ sizeof(Item) };
 			Item.Size = ConvertItemEx2(CurItem, nullptr, false);
 			block_ptr<FarDialogItem> Buffer(Item.Size);
 			Item.Item = Buffer.data();
@@ -5593,7 +5588,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		case DM_SETTEXTPTR:
 		{
 			wchar_t* Text = Param2?static_cast<wchar_t*>(Param2):const_cast<wchar_t*>(L"");
-			FarDialogItemData IData = { sizeof(FarDialogItemData), std::wcslen(Text), Text };
+			FarDialogItemData IData{ sizeof(IData), std::wcslen(Text), Text };
 			return SendMessage(DM_SETTEXT,Param1,&IData);
 		}
 		/*****************************************************************/
@@ -5684,7 +5679,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 
 						if (ListBox && !ListBox->empty())
 						{
-							FarListUpdate LUpdate={sizeof(FarListUpdate)};
+							FarListUpdate LUpdate{ sizeof(LUpdate) };
 							LUpdate.Index=ListBox->GetSelectPos();
 							auto& ListMenuItem = ListBox->at(LUpdate.Index);
 							LUpdate.Item.Flags = ListMenuItem.Flags;

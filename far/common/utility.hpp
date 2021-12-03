@@ -316,4 +316,32 @@ auto view_as_if(container const& Buffer, size_t const Offset = 0)
 	return Buffer.size() >= Offset + sizeof(T)? view_as<T const*>(Buffer.data() + Offset) : nullptr;
 }
 
+template<typename large_type, typename small_type>
+constexpr large_type make_integer(small_type const LowPart, small_type const HighPart)
+{
+	static_assert(sizeof(large_type) == sizeof(small_type) * 2);
+
+	return static_cast<large_type>(HighPart) << (sizeof(large_type) / 2 * CHAR_BIT) | static_cast<large_type>(LowPart);
+}
+
+template<typename large_type, size_t LowPart, size_t HighPart>
+constexpr large_type make_integer()
+{
+	constexpr auto Shift = (sizeof(large_type) / 2 * CHAR_BIT);
+	constexpr auto Max = std::numeric_limits<large_type>::max() >> Shift;
+	static_assert(LowPart <= Max);
+	static_assert(HighPart <= Max);
+
+	return static_cast<large_type>(HighPart) << Shift | static_cast<large_type>(LowPart);
+}
+
+template<typename small_type, size_t Index, typename large_type>
+constexpr small_type extract_integer(large_type const Value)
+{
+	static_assert(sizeof(small_type) < sizeof(large_type));
+	static_assert(sizeof(small_type) * Index < sizeof(large_type));
+
+	return Value >> sizeof(small_type) * Index * CHAR_BIT;
+}
+
 #endif // UTILITY_HPP_D8E934C7_BF30_4CEB_B80C_6E508DF7A1BC

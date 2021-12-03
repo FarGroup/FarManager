@@ -142,7 +142,7 @@ string ConvertTemplateTreeName(string_view const strTemplate, string_view const 
 	string Str(strTemplate);
 
 	replace(Str, L"%D"sv, D);
-	replace(Str, L"%SN"sv, format(FSTR(L"{:04X}-{:04X}"sv), HIWORD(SN), LOWORD(SN)));
+	replace(Str, L"%SN"sv, format(FSTR(L"{:04X}-{:04X}"sv), extract_integer<WORD, 1>(SN), extract_integer<WORD, 0>(SN)));
 	replace(Str, L"%L"sv, L);
 	replace(Str, L"%SR"sv, SR);
 	replace(Str, L"%SH"sv, SH);

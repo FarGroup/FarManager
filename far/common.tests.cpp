@@ -354,7 +354,7 @@ TEST_CASE("chrono")
 
 TEST_CASE("enum_substrings")
 {
-	const std::array Baseline = { L"abc"sv, L"def"sv, L"q"sv };
+	const std::array Baseline{ L"abc"sv, L"def"sv, L"q"sv };
 	auto BaselineIterator = Baseline.begin();
 
 	for (const auto& i : enum_substrings(L"abc\0def\0q\0"sv.data()))
@@ -372,7 +372,7 @@ TEST_CASE("enum_substrings")
 TEST_CASE("enum_tokens")
 {
 	{
-		const std::array Baseline = { L"abc"sv, L""sv, L"def"sv, L" q "sv, L"123"sv };
+		const std::array Baseline{ L"abc"sv, L""sv, L"def"sv, L" q "sv, L"123"sv };
 		auto BaselineIterator = Baseline.begin();
 
 		for (const auto& i: enum_tokens(L"abc;,def; q ,123;"sv, L",;"sv))
@@ -384,7 +384,7 @@ TEST_CASE("enum_tokens")
 	}
 
 	{
-		const std::array Baseline = { L"abc;"sv, L"de;,f"sv, L"123"sv, L""sv };
+		const std::array Baseline{ L"abc;"sv, L"de;,f"sv, L"123"sv, L""sv };
 		auto BaselineIterator = Baseline.begin();
 
 		for (const auto& i: enum_tokens_with_quotes(L"\"abc;\",\"de;,f\";123;;"sv, L",;"sv))
@@ -396,7 +396,7 @@ TEST_CASE("enum_tokens")
 	}
 
 	{
-		const std::array Baseline = { L"abc"sv, L"def"sv, L""sv };
+		const std::array Baseline{ L"abc"sv, L"def"sv, L""sv };
 		auto BaselineIterator = Baseline.begin();
 
 		for (const auto& i: enum_tokens_custom_t<with_trim>(L"  abc|   def  |  "sv, L"|"sv))
@@ -1240,6 +1240,100 @@ TEST_CASE("utility.aligned_size")
 	}
 }
 
+namespace utility_integers_detail
+{
+	template<const auto& LargeValues, size_t Index, const auto& SmallValues>
+	static void check_make_integer()
+	{
+		using L = std::remove_reference_t<decltype(LargeValues[0])>;
+		constexpr auto Offset = sizeof(LargeValues[0]) / sizeof(SmallValues[0]) * Index;
+		static_assert(make_integer<L>(SmallValues[Offset + 0], SmallValues[Offset + 1]) == LargeValues[Index]);
+	}
+
+	template<const auto& LargeValues, const auto& SmallValues, size_t... LargeI>
+	static void check_make_integers_impl(std::index_sequence<LargeI...>)
+	{
+		(check_make_integer<LargeValues, LargeI, SmallValues>(), ...);
+	}
+
+	template<const auto& LargeValues, const auto& SmallValues>
+	static void check_make_integers()
+	{
+		check_make_integers_impl<LargeValues, SmallValues>(std::make_index_sequence<std::size(LargeValues)>{});
+	}
+
+
+	template<const auto& LargeValues, size_t Index, const auto& SmallValues, size_t... SmallI>
+	static void check_extract_integer(std::index_sequence<SmallI...>)
+	{
+		using S = std::remove_reference_t<decltype(SmallValues[0])>;
+		static_assert(((extract_integer<S, SmallI>(LargeValues[Index]) == SmallValues[sizeof...(SmallI) * Index + SmallI]) && ...));
+	}
+
+	template<const auto& LargeValues, const auto& SmallValues, size_t... LargeI>
+	static void check_extract_integers_impl(std::index_sequence<LargeI...>)
+	{
+		(check_extract_integer<LargeValues, LargeI, SmallValues>(std::make_index_sequence<sizeof(LargeValues[0]) / sizeof(SmallValues[0])>{}), ...);
+	}
+
+	template<const auto& LargeValues, const auto& SmallValues>
+	static void check_extract_integers()
+	{
+		check_extract_integers_impl<LargeValues, SmallValues>(std::make_index_sequence<std::size(LargeValues)>{});
+	}
+
+	static constexpr uint64_t u64[]
+	{
+		0xFEDCBA9876543210,
+	};
+
+	static constexpr uint32_t u32[]
+	{
+		0x76543210,
+		0xFEDCBA98,
+	};
+
+	static constexpr uint16_t u16[]
+	{
+		0x3210,
+		0x7654,
+		0xBA98,
+		0xFEDC,
+	};
+
+	static constexpr uint8_t u8[]
+	{
+		0x10,
+		0x32,
+		0x54,
+		0x76,
+		0x98,
+		0xBA,
+		0xDC,
+		0xFE,
+	};
+}
+
+TEST_CASE("utility.integers")
+{
+	using namespace utility_integers_detail;
+
+	check_make_integers<u64, u32>();
+	check_make_integers<u32, u16>();
+	check_make_integers<u16, u8>();
+
+	check_extract_integers<u64, u32>();
+	check_extract_integers<u64, u16>();
+	check_extract_integers<u64, u8>();
+
+	check_extract_integers<u32, u16>();
+	check_extract_integers<u32, u8>();
+
+	check_extract_integers<u16, u8>();
+
+	REQUIRE(true);
+}
+
 //----------------------------------------------------------------------------
 
 #include "common/uuid.hpp"
@@ -1319,8 +1413,8 @@ TEST_CASE("view.enumerate")
 
 TEST_CASE("view.reverse")
 {
-	const std::array Data     = { 1, 2, 3, 4, 5 };
-	const std::array Reversed = { 5, 4, 3, 2, 1 };
+	const std::array Data    { 1, 2, 3, 4, 5 };
+	const std::array Reversed{ 5, 4, 3, 2, 1 };
 
 	auto Iterator = std::cbegin(Reversed);
 

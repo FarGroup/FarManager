@@ -980,7 +980,7 @@ DialogItemEx& DialogBuilder::AddListControlImpl(FARDIALOGITEMTYPES Type, value_t
 
 	std::transform(ALL_CONST_RANGE(Items), std::back_inserter(ListItems), [&Value](const DialogBuilderListItem& i)
 	{
-		FarListItem NewItem = {};
+		FarListItem NewItem{};
 		NewItem.Text = i.str().c_str();
 		NewItem.Flags = (Value == i.value()? LIF_SELECTED : 0) | i.flags();
 		NewItem.UserData = i.value();

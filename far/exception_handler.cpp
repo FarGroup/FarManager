@@ -214,7 +214,7 @@ static bool write_minidump(const exception_context& Context, string_view const F
 	auto ExceptionRecord = Context.exception_record();
 	auto ContextRecord = Context.context_record();
 	EXCEPTION_POINTERS Pointers{ &ExceptionRecord, &ContextRecord };
-	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.thread_id(), &Pointers };
+	MINIDUMP_EXCEPTION_INFORMATION Mei{ Context.thread_id(), &Pointers };
 
 	return imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), Type, &Mei, nullptr, nullptr) != FALSE;
 }

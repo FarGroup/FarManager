@@ -257,9 +257,9 @@ struct SetAttrDlgParam
 	Owner;
 };
 
-static void convert_date(os::chrono::time_point const TimePoint, string& Date, string& Time)
+static auto convert_date(os::chrono::time_point const TimePoint)
 {
-	ConvertDate(TimePoint, Date, Time, 16, 2);
+	return ConvertDate(TimePoint, 16, 2);
 }
 
 static void set_date_or_time(Dialog* const Dlg, int const Id, string const& Value, bool const MakeUnchanged)
@@ -274,7 +274,7 @@ static void set_dates_and_times(Dialog* const Dlg, const time_map& TimeMapEntry,
 
 	if (TimePoint)
 	{
-		convert_date(*TimePoint, Date, Time);
+		std::tie(Date, Time) = convert_date(*TimePoint);
 	}
 
 	set_date_or_time(Dlg, TimeMapEntry.DateId, Date, MakeUnchanged);
@@ -477,7 +477,7 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 				{
 					SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-					FarListInfo li{ sizeof(FarListInfo) };
+					FarListInfo li{ sizeof(li) };
 					Dlg->SendMessage(DM_LISTINFO, Param1, &li);
 					const auto m = Param1 == SA_COMBO_HARDLINK ? lng::MSetAttrHardLinks : lng::MSetAttrDfsTargets;
 					Dlg->SendMessage(DM_SETTEXTPTR, Param1, UNSAFE_CSTR(concat(msg(m), L" ("sv, str(li.ItemsNumber), L')')));
@@ -732,7 +732,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 		{ DI_BUTTON,    {{0,       DlgY-3}, {0,       DlgY-3}}, DIF_CENTERGROUP, msg(lng::MCancel), },
 	});
 
-	SetAttrDlgParam DlgParam={};
+	SetAttrDlgParam DlgParam{};
 	const size_t SelCount = SrcPanel? SrcPanel->GetSelCount() : 1;
 
 	if (!SelCount)
@@ -765,7 +765,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 		}
 	}
 
-	FarList NameList={sizeof(FarList)};
+	FarList NameList{ sizeof(NameList) };
 	std::vector<string> Links;
 	std::vector<FarListItem> ListItems;
 
@@ -874,7 +874,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 				for (const auto& [i, State]: zip(TimeMap, DlgParam.Times))
 				{
-					convert_date(std::invoke(i.Accessor, SingleSelFindData), State.Date.InitialValue, State.Time.InitialValue);
+					std::tie(State.Date.InitialValue, State.Time.InitialValue) = convert_date(std::invoke(i.Accessor, SingleSelFindData));
 
 					AttrDlg[i.DateId].strData = State.Date.InitialValue;
 					AttrDlg[i.TimeId].strData = State.Time.InitialValue;
@@ -1130,7 +1130,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				if (!Time)
 					continue;
 
-				convert_date(*Time, State.Date.InitialValue, State.Time.InitialValue);
+				std::tie(State.Date.InitialValue, State.Time.InitialValue) = convert_date(*Time);
 
 				AttrDlg[i.DateId].strData = State.Date.InitialValue;
 				AttrDlg[i.TimeId].strData = State.Time.InitialValue;
@@ -1329,7 +1329,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			break;
 		case SA_BUTTON_SYSTEMDLG:
 			{
-				SHELLEXECUTEINFOW seInfo={sizeof(seInfo)};
+				SHELLEXECUTEINFOW seInfo{ sizeof(seInfo) };
 				seInfo.nShow = SW_SHOW;
 				seInfo.fMask = SEE_MASK_INVOKEIDLIST;
 				NTPath strFullName(SingleSelFileName);

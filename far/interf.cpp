@@ -397,7 +397,7 @@ void CloseConsole()
 	console.SetTitle(Global->strInitTitle);
 	console.SetSize(InitialSize);
 
-	point CursorPos = {};
+	point CursorPos{};
 	console.GetCursorPosition(CursorPos);
 
 	const auto Height = InitWindowRect.bottom - InitWindowRect.top;
@@ -573,7 +573,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 	srWindowRect.bottom = ySize - 1;
 	srWindowRect.left = srWindowRect.top = 0;
 
-	point const coordScreen = { xSize, ySize };
+	point const coordScreen{ xSize, ySize };
 
 	if (xSize > Size.x || ySize > Size.y)
 	{

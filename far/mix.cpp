@@ -276,7 +276,7 @@ void FreePluginPanelItemUserData(HANDLE hPlugin, const UserDataItem& Data)
 	if (!Data.FreeData)
 		return;
 
-	FarPanelItemFreeInfo info{ sizeof(FarPanelItemFreeInfo), hPlugin };
+	const FarPanelItemFreeInfo info{ sizeof(info), hPlugin };
 	Data.FreeData(Data.Data, &info);
 }
 

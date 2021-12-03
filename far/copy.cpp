@@ -405,7 +405,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			break;
 		case DM_SWITCHRO:
 		{
-			FarListGetItem LGI={sizeof(FarListGetItem),CM_ASKRO};
+			FarListGetItem LGI{ sizeof(LGI), CM_ASKRO };
 			Dlg->SendMessage(DM_LISTGETITEM,ID_SC_COMBO,&LGI);
 
 			if (LGI.Item.Flags&LIF_CHECKED)
@@ -485,7 +485,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 				if (Index == CM_ASKRO)
 				{
 					Dlg->SendMessage(DM_SWITCHRO, 0, nullptr);
-					FarListPos flp = { sizeof(flp), Index, -1 };
+					FarListPos flp{ sizeof(flp), Index, -1 };
 					Dlg->SendMessage(DM_LISTSETCURPOS, Param1, &flp);
 					return TRUE;
 				}
@@ -582,7 +582,7 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		{
 			if (Param1==ID_SC_BTNCOPY)
 			{
-				FarListGetItem LGI={sizeof(FarListGetItem),CM_ASKRO};
+				FarListGetItem LGI{ sizeof(LGI), CM_ASKRO };
 				Dlg->SendMessage(DM_LISTGETITEM,ID_SC_COMBO,&LGI);
 
 				if (LGI.Item.Flags&LIF_CHECKED)
@@ -933,8 +933,8 @@ ShellCopy::ShellCopy(
 		// ***********************************************************************
 		// *** Вывод и обработка диалога
 		// ***********************************************************************
-		FarList ComboList={sizeof(FarList)};
-		FarListItem LinkTypeItems[5]={},CopyModeItems[8]={};
+		FarList ComboList{ sizeof(ComboList) };
+		FarListItem LinkTypeItems[5]{}, CopyModeItems[8]{};
 
 		if (Link)
 		{
@@ -2007,7 +2007,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 			const auto sd = GetSecurity(Src);
 
-			SECURITY_ATTRIBUTES SecAttr = { sizeof(SecAttr), sd? sd.data() : nullptr };
+			SECURITY_ATTRIBUTES SecAttr{ sizeof(SecAttr), sd? sd.data() : nullptr };
 			if (RPT!=RP_SYMLINKFILE && SrcData.Attributes&FILE_ATTRIBUTE_DIRECTORY)
 			{
 				while (!os::fs::create_directory(
@@ -2540,7 +2540,7 @@ bool ShellCopy::ShellCopyFile(
 	{
 		//if (DestAttr!=INVALID_FILE_ATTRIBUTES && !Append) //вот это портит копирование поверх хардлинков
 		//api::DeleteFile(DestName);
-		SECURITY_ATTRIBUTES SecAttr = { sizeof(SecAttr), sd? sd.data() : nullptr };
+		SECURITY_ATTRIBUTES SecAttr{ sizeof(SecAttr), sd? sd.data() : nullptr };
 
 		const auto attrs = SrcData.Attributes & ~(Flags & FCOPY_DECRYPTED_DESTINATION? FILE_ATTRIBUTE_ENCRYPTED : 0);
 		const auto IsSystemEncrypted = flags::check_all(attrs, FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_ENCRYPTED);
@@ -2967,7 +2967,11 @@ bool ShellCopy::AskOverwrite(
 	if (DestAttr & FILE_ATTRIBUTE_DIRECTORY)
 		return true;
 
-	const auto Format = FSTR(L"{:26} {:20} {} {}"sv);
+	const auto FormatLine = [&](const os::chrono::time_point TimePoint, lng Label, unsigned long long Size)
+	{
+		const auto [Date, Time] = ConvertDate(TimePoint, 8, 1);
+		return format(FSTR(L"{:26} {:20} {} {}"sv), msg(Label), Size, Date, Time);
+	};
 
 	string strDestName = DestName;
 
@@ -3010,12 +3014,8 @@ bool ShellCopy::AskOverwrite(
 						}
 					}
 
-					string strDateText, strTimeText;
-					ConvertDate(SrcLastWriteTime, strDateText, strTimeText, 8, 1);
-					WarnCopyDlg[WDLG_SRCFILEBTN].strData = format(Format, msg(lng::MCopySource), SrcSize, strDateText, strTimeText);
-
-					ConvertDate(DestData.LastWriteTime, strDateText, strTimeText, 8, 1);
-					WarnCopyDlg[WDLG_DSTFILEBTN].strData = format(Format, msg(lng::MCopyDest), DestData.FileSize, strDateText, strTimeText);
+					WarnCopyDlg[WDLG_SRCFILEBTN].strData = FormatLine(SrcLastWriteTime, lng::MCopySource, SrcSize);
+					WarnCopyDlg[WDLG_DSTFILEBTN].strData = FormatLine(DestData.LastWriteTime, lng::MCopyDest, DestData.FileSize);
 
 					const auto strFullSrcName = ConvertNameToFull(SrcName);
 					file_names_for_overwrite_dialog WFN{ &strFullSrcName, &strDestName, &strRenamedFilesPath };
@@ -3110,13 +3110,8 @@ bool ShellCopy::AskOverwrite(
 						}
 					}
 
-					string strDateText, strTimeText;
-					ConvertDate(SrcData.LastWriteTime, strDateText, strTimeText, 8, 1);
-					WarnCopyDlg[WDLG_SRCFILEBTN].strData = format(Format, msg(lng::MCopySource), SrcData.FileSize, strDateText, strTimeText);
-
-					ConvertDate(DestData.LastWriteTime, strDateText, strTimeText, 8, 1);
-					WarnCopyDlg[WDLG_DSTFILEBTN].strData = format(Format, msg(lng::MCopyDest), DestData.FileSize, strDateText, strTimeText);
-
+					WarnCopyDlg[WDLG_SRCFILEBTN].strData = FormatLine(SrcData.LastWriteTime, lng::MCopySource, SrcData.FileSize);
+					WarnCopyDlg[WDLG_DSTFILEBTN].strData = FormatLine(DestData.LastWriteTime, lng::MCopyDest, DestData.FileSize);
 					WarnCopyDlg[WDLG_TEXT].strData = msg(lng::MCopyFileRO);
 					WarnCopyDlg[WDLG_OVERWRITE].strData = msg(Append? lng::MCopyAppend : lng::MCopyOverwrite);
 					WarnCopyDlg[WDLG_RENAME].Type = DI_TEXT;

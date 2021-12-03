@@ -87,7 +87,7 @@ intptr_t message_context::DlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void*
 			{
 				if (di.Type==DI_EDIT)
 				{
-					COORD pos={};
+					COORD pos{};
 					Dlg->SendMessage(DM_SETCURSORPOS,i,&pos);
 				}
 			}

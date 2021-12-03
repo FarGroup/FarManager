@@ -310,7 +310,7 @@ void Editor::ShowEditor()
 	DrawScrollbar();
 
 	auto LeftPos = m_it_CurLine->GetLeftPos();
-	Edit::ShowInfo info={LeftPos,CurPos};
+	Edit::ShowInfo info{ LeftPos, CurPos };
 	auto Y = m_Where.top;
 
 	for (auto CurPtr = m_it_TopScreen; CurPtr != Lines.end() && Y <= m_Where.bottom; ++CurPtr, ++Y)
@@ -543,7 +543,7 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 		case MCODE_F_BM_GET:                   // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=1...)
 		{
 			long long Ret=-1;
-			InternalEditorBookmark ebm = {};
+			InternalEditorBookmark ebm{};
 			const auto iMode = reinterpret_cast<intptr_t>(vParam);
 
 			if (iMode >= 0 && iMode <= 3 && GetSessionBookmark(static_cast<int>(iParam - 1), &ebm))
@@ -657,7 +657,7 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 
 							if (m_it_MBlockStart != Lines.end())
 							{
-								EditorSelect eSel={sizeof(EditorSelect)};
+								EditorSelect eSel{ sizeof(eSel) };
 								eSel.BlockType=(Action == 2)?BTYPE_STREAM:BTYPE_COLUMN;
 								eSel.BlockStartPos=MBlockStartX;
 								eSel.BlockWidth=m_it_CurLine->GetCurPos()-MBlockStartX;
@@ -3586,7 +3586,7 @@ bool Editor::Search(bool Next)
 
 						if (!ReplaceAll)
 						{
-							ColorItem newcol = {};
+							ColorItem newcol{};
 							newcol.StartPos=m_FoundPos;
 							newcol.EndPos=m_FoundPos + m_FoundSize - 1;
 							newcol.SetColor(SelColor);
@@ -6110,7 +6110,7 @@ size_t Editor::GetSessionBookmarksForPlugin(EditorBookmarks *Param)
 
 bool Editor::InitSessionBookmarksForPlugin(EditorBookmarks* Param, size_t Count, size_t& Size)
 {
-	Size = sizeof(EditorBookmarks) + sizeof(intptr_t) * 4 * Count;
+	Size = sizeof(*Param) + sizeof(intptr_t) * 4 * Count;
 	if (!Param || Param->Size < Size)
 		return false;
 
@@ -6819,7 +6819,7 @@ void Editor::Change(EDITOR_CHANGETYPE Type,int StrNum)
 		return;
 	if (StrNum==-1)
 		StrNum = m_it_CurLine.Number();
-	EditorChange ec={sizeof(EditorChange),Type,StrNum};
+	EditorChange ec{ sizeof(ec), Type, StrNum };
 	++EditorControlLock;
 	Global->CtrlObject->Plugins->ProcessSubscribedEditorEvent(EE_CHANGE, &ec, this, ChangeEventSubscribers);
 	--EditorControlLock;

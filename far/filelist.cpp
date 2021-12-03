@@ -280,9 +280,9 @@ struct CustomSort
 
 static bool SortFileList(CustomSort* cs, wchar_t* indicator)
 {
-	FarMacroValue values[]={cs};
-	FarMacroCall fmc={sizeof(FarMacroCall),std::size(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={MCT_PANELSORT,&fmc};
+	FarMacroValue values[]{ cs };
+	FarMacroCall fmc{ sizeof(fmc), std::size(values), values };
+	OpenMacroPluginInfo info{ MCT_PANELSORT, &fmc };
 	void *ptr;
 
 	if (!Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, &info, &ptr) || !ptr)
@@ -295,9 +295,9 @@ static bool SortFileList(CustomSort* cs, wchar_t* indicator)
 
 static bool CanSort(int SortMode)
 {
-	FarMacroValue values[] = {static_cast<double>(SortMode)};
-	FarMacroCall fmc = {sizeof(FarMacroCall),std::size(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info = {MCT_CANPANELSORT,&fmc};
+	FarMacroValue values[]{ static_cast<double>(SortMode) };
+	FarMacroCall fmc{ sizeof(fmc), std::size(values), values };
+	OpenMacroPluginInfo info{ MCT_CANPANELSORT, &fmc };
 	void *ptr;
 
 	return Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Luamacro.Id, OPEN_LUAMACRO, &info, &ptr) && ptr;
@@ -4694,10 +4694,10 @@ void FileList::SelectSortMode()
 		Item.AccelKey = i.MenuKey;
 	}
 
-	static const menu_item MenuSeparator = { {}, LIF_SEPARATOR };
+	static const menu_item MenuSeparator{ {}, LIF_SEPARATOR };
 
-	OpenMacroPluginInfo ompInfo = { MCT_GETCUSTOMSORTMODES,nullptr };
-	MacroPluginReturn* mpr = nullptr;
+	OpenMacroPluginInfo ompInfo{ MCT_GETCUSTOMSORTMODES };
+	MacroPluginReturn* mpr{};
 	size_t extra = 0; // number of additional menu items due to custom sort modes
 	{
 		void *ptr;
@@ -5058,7 +5058,7 @@ bool FileList::ApplyCommand()
 void FileList::CountDirSize(bool IsRealNames)
 {
 	unsigned long SelDirCount=0;
-	DirInfoData Data = {};
+	DirInfoData Data{};
 
 	//Рефреш текущему времени для фильтра перед началом операции
 	m_Filter->UpdateCurrentTime();
@@ -5387,7 +5387,7 @@ string FileList::GetPluginPrefix() const
 
 	if (!(m_CachedOpenPanelInfo.Flags & OPIF_REALNAMES))
 	{
-		PluginInfo PInfo = {sizeof(PInfo)};
+		PluginInfo PInfo{ sizeof(PInfo) };
 		if (Global->CtrlObject->Plugins->GetPluginInfo(GetPluginHandle()->plugin(), &PInfo) && PInfo.CommandPrefix && *PInfo.CommandPrefix)
 		{
 			const string_view Prefix = PInfo.CommandPrefix;
@@ -5481,7 +5481,7 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 
 		if (CurPlugin->m_Modified)
 		{
-			PluginPanelItemHolderHeap PanelItem={};
+			PluginPanelItemHolderHeap PanelItem{};
 			const auto strSaveDir = os::fs::GetCurrentDirectory();
 
 			if (FileNameToPluginItem(CurPlugin->m_HostFile, PanelItem))
@@ -5937,7 +5937,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 	}
 	else if (Delete)
 	{
-		PluginPanelItem pi={};
+		PluginPanelItem pi{};
 		pi.FileName = DestPanel->strPluginDizName.c_str();
 		Global->CtrlObject->Plugins->DeleteFiles(DestPanel->GetPluginHandle(), { &pi,1 }, OPM_SILENT);
 	}
@@ -7806,7 +7806,14 @@ FarColor FileList::GetShowColor(int Position, bool FileColor) const
 
 	if (!HighlightingEnabled || (!ColorAttr.ForegroundColor && !ColorAttr.BackgroundColor)) // black on black, default
 	{
-		static const PaletteColors PalColor[] = {COL_PANELTEXT, COL_PANELSELECTEDTEXT, COL_PANELCURSOR, COL_PANELSELECTEDCURSOR};
+		static const PaletteColors PalColor[]
+		{
+			COL_PANELTEXT,
+			COL_PANELSELECTEDTEXT,
+			COL_PANELCURSOR,
+			COL_PANELSELECTEDCURSOR
+		};
+
 		ColorAttr=colors::PaletteColorToFarColor(PalColor[Pos]);
 	}
 

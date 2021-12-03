@@ -651,12 +651,9 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			}
 			else if (Param1==ID_FF_CURRENT || Param1==ID_FF_BLANK)
 			{
-				string Date, Time;
-
-				if (Param1==ID_FF_CURRENT)
-				{
-					ConvertDate(os::chrono::nt_clock::now(), Date, Time, 16, 2);
-				}
+				const auto& [Date, Time] = Param1==ID_FF_CURRENT?
+					ConvertDate(os::chrono::nt_clock::now(), 16, 2) :
+					std::tuple<string, string>{};
 
 				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
@@ -696,7 +693,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 						BSTATE_3STATE;
 				}
 
-				FarListPos LPos={sizeof(FarListPos)};
+				FarListPos LPos{ sizeof(LPos) };
 				Dlg->SendMessage(DM_LISTSETCURPOS,ID_FF_DATETYPE,&LPos);
 				Dlg->SendMessage(DM_SETCHECK,ID_FF_MATCHMASK,ToPtr(BSTATE_CHECKED));
 				Dlg->SendMessage(DM_SETCHECK,ID_FF_MATCHSIZE,ToPtr(BSTATE_UNCHECKED));
@@ -766,11 +763,11 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			const auto Context = reinterpret_cast<const context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 			const size_t Size = Dlg->SendMessage(DM_GETDLGITEM, ID_HER_COLOREXAMPLE, nullptr);
 			const block_ptr<FarDialogItem> Buffer(Size);
-			FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.data()};
+			FarGetDialogItem gdi{ sizeof(gdi), Size, Buffer.data() };
 			Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,&gdi);
 			//MarkChar это FIXEDIT размером в 1 символ
 			wchar_t MarkChar[2];
-			FarDialogItemData item={sizeof(FarDialogItemData),1,MarkChar};
+			FarDialogItemData item{ sizeof(item), 1, MarkChar };
 			Dlg->SendMessage(DM_GETTEXT,ID_HER_MARKEDIT,&item);
 			Context->Colors->Mark.Char = *MarkChar;
 			Context->Colors->Mark.Transparent = Dlg->SendMessage(DM_GETCHECK, ID_HER_MARKTRANSPARENT, nullptr) == BST_CHECKED;
@@ -988,8 +985,8 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 			FilterDlg[i].Flags |= DIF_DISABLE;
 	}
 	// Лист для комбобокса времени файла
-	FarList DateList={sizeof(FarList)};
-	FarListItem TableItemDate[FDATE_COUNT]={};
+	FarList DateList{ sizeof(DateList) };
+	FarListItem TableItemDate[FDATE_COUNT]{};
 	// Настройка списка типов дат файла
 	DateList.Items=TableItemDate;
 	DateList.ItemsNumber=FDATE_COUNT;
@@ -1012,7 +1009,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 	const auto ProcessPoint = [&](auto Point, auto DateId, auto TimeId)
 	{
 		FilterDlg[ID_FF_DATERELATIVE].Selected = BSTATE_UNCHECKED;
-		ConvertDate(Point, FilterDlg[DateId].strData, FilterDlg[TimeId].strData, 16, 2);
+		std::tie(FilterDlg[DateId].strData, FilterDlg[TimeId].strData) = ConvertDate(Point, 16, 2);
 	};
 
 	Dates.visit(overload

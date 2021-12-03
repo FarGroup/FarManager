@@ -377,7 +377,11 @@ void InfoList::DisplayObject()
 			if (UseAssocPath)
 				append(SectionTitle, L' ', strAssocPath);
 
-			strDiskNumber = format(FSTR(L"{:04X}-{:04X}"sv), HIWORD(VolumeNumber), LOWORD(VolumeNumber));
+			strDiskNumber = format(
+				FSTR(L"{:04X}-{:04X}"sv),
+				extract_integer<WORD, 1>(VolumeNumber),
+				extract_integer<WORD, 0>(VolumeNumber)
+			);
 		}
 		else // Error!
 			SectionTitle = strDriveRoot;
@@ -435,7 +439,7 @@ void InfoList::DisplayObject()
 
 	if (SectionState[ILSS_MEMORYINFO].Show)
 	{
-		MEMORYSTATUSEX ms={sizeof(ms)};
+		MEMORYSTATUSEX ms{ sizeof(ms) };
 		if (GlobalMemoryStatusEx(&ms))
 		{
 			if (!ms.dwMemoryLoad)
@@ -957,7 +961,7 @@ bool InfoList::ShowPluginDescription(int YPos) const
 {
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
-	static wchar_t VertcalLine[2]={BoxSymbols[BS_V2],0};
+	static wchar_t VertcalLine[]{ BoxSymbols[BS_V2], 0 };
 
 	OpenPanelInfo Info;
 	AnotherPanel->GetOpenPanelInfo(&Info);

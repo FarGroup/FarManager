@@ -654,25 +654,26 @@ string FormatStr_DateTime(os::chrono::time_point FileTime, column_type const Col
 			break;
 	}
 
-	string strDateStr,strTimeStr;
+	const auto& [Date, Time] = ConvertDate(FileTime, ColumnWidth, FullYear, Brief, TextMonth);
 
-	ConvertDate(FileTime, strDateStr, strTimeStr, ColumnWidth, FullYear, Brief, TextMonth);
+	string OutStr;
 
-	string strOutStr;
 	switch(ColumnType)
 	{
 		case column_type::date:
-			strOutStr=strDateStr;
+			OutStr = Date;
 			break;
+
 		case column_type::time:
-			strOutStr=strTimeStr;
+			OutStr = Time;
 			break;
+
 		default:
-			strOutStr = concat(strDateStr, L' ', strTimeStr);
+			OutStr = concat(Date, L' ', Time);
 			break;
 	}
 
-	return fit_to_right(strOutStr, Width);
+	return fit_to_right(OutStr, Width);
 }
 
 string FormatStr_Size(

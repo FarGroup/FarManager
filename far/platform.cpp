@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/algorithm.hpp"
+#include "common/from_string.hpp"
 #include "common/range.hpp"
 #include "common/string_utils.hpp"
 
@@ -431,7 +432,22 @@ handle OpenConsoleActiveScreenBuffer()
 	return handle(fs::low::create_file(L"CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr));
 }
 
-	namespace rtdl
+HKL make_hkl(uint32_t const Layout)
+{
+	return reinterpret_cast<HKL>(static_cast<uintptr_t>(extract_integer<WORD, 1>(Layout)? Layout : make_integer<uint32_t, uint16_t>(Layout, Layout)));
+}
+
+HKL make_hkl(string_view const LayoutStr)
+{
+	if (uint32_t Layout; from_string(LayoutStr, Layout, nullptr, 16) && Layout)
+	{
+		return make_hkl(Layout);
+	}
+
+	return {};
+}
+
+namespace rtdl
 	{
 		void module::module_deleter::operator()(HMODULE Module) const
 		{

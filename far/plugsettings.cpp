@@ -483,7 +483,7 @@ static const auto& HistoryRef(int Type)
 
 bool FarSettings::FillHistory(int Type, string_view const HistoryName, FarSettingsEnum& Enum, function_ref<bool(history_record_type)> const Filter)
 {
-	FarSettingsHistory item = {};
+	FarSettingsHistory item{};
 	FarSettingsHistoryItems NewEnumItem;
 
 	for(auto& i: HistoryRef(Type)->Enumerator(Type, HistoryName))

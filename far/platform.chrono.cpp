@@ -80,7 +80,7 @@ namespace os::chrono
 
 	time_point nt_clock::from_filetime(FILETIME const Time) noexcept
 	{
-		return from_hectonanoseconds(static_cast<unsigned long long>(Time.dwHighDateTime) << 32 | Time.dwLowDateTime);
+		return from_hectonanoseconds(make_integer<unsigned long long>(Time.dwLowDateTime, Time.dwHighDateTime));
 	}
 
 	time_point nt_clock::from_hectonanoseconds(int64_t const Time) noexcept

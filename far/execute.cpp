@@ -514,7 +514,7 @@ static bool execute_createprocess(string const& Command, string const& Parameter
 
 static bool execute_shell(string const& Command, string const& Parameters, string const& Directory, bool const SourceIsKnown, bool const RunAs, bool const Wait, HANDLE& Process)
 {
-	SHELLEXECUTEINFO Info = { sizeof(Info) };
+	SHELLEXECUTEINFO Info{ sizeof(Info) };
 	Info.lpFile = Command.c_str();
 	Info.lpParameters = EmptyToNull(Parameters);
 	Info.lpDirectory = Directory.c_str();

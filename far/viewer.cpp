@@ -1012,7 +1012,7 @@ void Viewer::SetStatusMode(int Mode)
 
 static bool is_word_div(const wchar_t ch)
 {
-	static const wchar_t extra_div[] = { encoding::bom_char, encoding::replace_char };
+	static const wchar_t extra_div[]{ encoding::bom_char, encoding::replace_char };
 	return !ch || std::iswspace(ch) || contains(Global->Opt->strWordDiv.Get(), ch) || contains(extra_div, ch);
 }
 
@@ -2249,7 +2249,7 @@ static int process_back(int BufferSize, int pos, long long& fpos, const F& Reade
 		}
 	}
 
-	const T crlf[] = { eol.cr<T>(), eol.lf<T>() };
+	const T crlf[]{ eol.cr<T>(), eol.lf<T>() };
 	const auto REnd = std::make_reverse_iterator(Buffer);
 	const auto RBegin = REnd - nr;
 	const auto Iterator = std::find_first_of(RBegin, REnd, ALL_CONST_RANGE(crlf));
@@ -2519,10 +2519,10 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 					const auto sd_dst = new_hex? SD_EDIT_HEX : SD_EDIT_TEXT;
 					const auto sd_src = new_hex? SD_EDIT_TEXT : SD_EDIT_HEX;
 
-					EditorSetPosition esp={sizeof(EditorSetPosition)};
+					EditorSetPosition esp{ sizeof(esp) };
 					esp.CurPos = -1;
 					Dlg->SendMessage(DM_GETEDITPOSITION, sd_src, &esp);
-					FarDialogItemData item = {sizeof(FarDialogItemData)};
+					FarDialogItemData item{ sizeof(item) };
 					Dlg->SendMessage(DM_GETTEXT, sd_src, &item);
 					const string Src(reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, sd_src, nullptr)), item.PtrLength);
 					const auto strTo = ConvertHexString(Src, m_Codepage, !new_hex);
@@ -3684,20 +3684,19 @@ bool Viewer::vgetc(wchar_t* pCh)
 	case CP_UNICODE:
 	case CP_REVERSEBOM:
 		{
-			auto First = VgetcCache.pop();
+			const auto First = VgetcCache.pop();
+
 			if (VgetcCache.empty())
 			{
 				*pCh = encoding::replace_char;
 			}
 			else
 			{
-				auto Second = VgetcCache.pop();
-				if (m_Codepage == CP_REVERSEBOM)
-				{
-					using std::swap;
-					swap(First, Second);
-				}
-				*pCh = MAKEWORD(First, Second);
+				const auto Second = VgetcCache.pop();
+
+				*pCh = m_Codepage == CP_UNICODE?
+					make_integer<wchar_t>(First, Second) :
+					make_integer<wchar_t>(Second, First);
 			}
 		}
 		break;
@@ -3778,7 +3777,7 @@ wchar_t Viewer::vgetc_prev()
 	}
 
 	size_t BytesRead = 0;
-	char RawBuffer[4] = {};
+	char RawBuffer[4]{};
 	if (vseek(-static_cast<int>(BytesToRead), FILE_CURRENT))
 		Reader.Read(RawBuffer, BytesToRead, &BytesRead);
 
@@ -3790,11 +3789,11 @@ wchar_t Viewer::vgetc_prev()
 		switch (m_Codepage)
 		{
 		case CP_REVERSEBOM:
-			Result = MAKEWORD(RawBuffer[1], RawBuffer[0]);
+			Result = make_integer<wchar_t>(RawBuffer[1], RawBuffer[0]);
 			break;
 
 		case CP_UNICODE:
-			Result = MAKEWORD(RawBuffer[0], RawBuffer[1]);
+			Result = make_integer<wchar_t>(RawBuffer[0], RawBuffer[1]);
 			break;
 
 		case CP_UTF8:

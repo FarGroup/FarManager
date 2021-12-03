@@ -285,7 +285,7 @@ namespace os::process
 			return 0;
 
 		DWORD Session;
-		wchar_t SessionKey[CCH_RM_SESSION_KEY + 1] = {};
+		wchar_t SessionKey[CCH_RM_SESSION_KEY + 1]{};
 		if (const auto Result = imports.RmStartSession(&Session, 0, SessionKey); Result != ERROR_SUCCESS)
 		{
 			LOGWARNING(L"RmStartSession(): {}"sv, format_error(Result));

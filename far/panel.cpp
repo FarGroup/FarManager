@@ -581,8 +581,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			if(!CheckStructSize(Info))
 				break;
 
-			*Info = {};
-			Info->StructSize = sizeof(PanelInfo);
+			*Info = { sizeof(*Info) };
 
 			UpdateIfRequired();
 			Info->OwnerGuid = FarUuid;
@@ -670,7 +669,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 			if (GetType() == panel_type::FILE_PANEL && GetMode() == panel_mode::PLUGIN_PANEL)
 			{
-				PluginInfo PInfo = {sizeof(PInfo)};
+				PluginInfo PInfo{ sizeof(PInfo) };
 				const auto DestPanel = static_cast<const FileList*>(this);
 				if (DestPanel->GetPluginInfo(&PInfo))
 					strTemp = NullToEmpty(PInfo.CommandPrefix);
@@ -738,8 +737,8 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				const auto dirInfo = static_cast<FarPanelDirectory*>(Param2);
 				if(Param1>=Result && CheckStructSize(dirInfo))
 				{
-					dirInfo->StructSize=sizeof(FarPanelDirectory);
-					dirInfo->PluginId=Info.PluginUuid;
+					dirInfo->StructSize = sizeof(*dirInfo);
+					dirInfo->PluginId = Info.PluginUuid;
 					dirInfo->Name = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + folderOffset));
 					dirInfo->Param = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + pluginDataOffset));
 					dirInfo->File = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + pluginFileOffset));
@@ -994,7 +993,7 @@ int Panel::ProcessShortcutFolder(int Key,bool ProcTreePanel)
 
 bool Panel::SetPluginDirectory(string_view const Directory, bool Silent)
 {
-	UserDataItem UserData = {}; //????
+	const UserDataItem UserData{}; //????
 	const auto Result = Global->CtrlObject->Plugins->SetDirectory(GetPluginHandle(), string(Directory), Silent?OPM_SILENT:0, &UserData) != 0;
 	Update(0);
 	Show();

@@ -537,13 +537,11 @@ os::chrono::duration ParseDuration(string_view const Date, string_view const Tim
 	return days(DateN[0]) + hours(TimeN[0]) + minutes(TimeN[1]) + seconds(TimeN[2]) + os::chrono::hectonanoseconds(TimeN[3]);
 }
 
-void ConvertDate(os::chrono::time_point const Point, string& strDateText, string& strTimeText, int const TimeLength, int const FullYear, bool const Brief, bool const TextMonth)
+std::tuple<string, string> ConvertDate(os::chrono::time_point const Point, int const TimeLength, int const FullYear, bool const Brief, bool const TextMonth)
 {
 	if (Point == os::chrono::time_point{})
 	{
-		strDateText.clear();
-		strTimeText.clear();
-		return;
+		return {};
 	}
 
 	const auto DateFormat = locale.date_format();
@@ -555,7 +553,7 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 
 	SYSTEMTIME st;
 	if (!utc_to_local(Point, st))
-		return;
+		return {};
 
 	auto Letter = L""sv;
 
@@ -570,13 +568,9 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 			st.wHour = 12;
 	}
 
-	if (TimeLength < 7)
-	{
-		strTimeText = format(FSTR(L"{:02}{}{:02}{}"sv), st.wHour, TimeSeparator, st.wMinute, Letter);
-	}
-	else
-	{
-		strTimeText = cut_right(
+	auto TimeText = TimeLength < 7?
+		format(FSTR(L"{:02}{}{:02}{}"sv), st.wHour, TimeSeparator, st.wMinute, Letter) :
+		cut_right(
 			format(
 				FSTR(L"{0:02}{1}{2:02}{1}{3:02}{4}{5:07}"sv),
 				st.wHour,
@@ -586,16 +580,18 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 				DecimalSeparator,
 				(std::chrono::milliseconds(st.wMilliseconds) + Point.time_since_epoch() % 1ms) / 1_hns
 			),
-			TimeLength);
-	}
+			TimeLength
+		);
 
 	const auto Year = FullYear? st.wYear : st.wYear % 100;
+
+	string DateText;
 
 	if (TextMonth)
 	{
 		const auto Format = [&](const auto FormatString)
 		{
-			strDateText = format(FormatString, st.wDay, locale.LocalNames().Months[st.wMonth - 1].Short, Year);
+			DateText = format(FormatString, st.wDay, locale.LocalNames().Months[st.wMonth - 1].Short, Year);
 		};
 
 		switch (CurDateFormat)
@@ -641,17 +637,19 @@ void ConvertDate(os::chrono::time_point const Point, string& strDateText, string
 		wchar_t Format[] = L"{0: >{1}}{6}{2:0>{3}}{6}{4: >{5}}";
 		Format[3] = f1;
 		Format[27] = f3;
-		strDateText = format(Format, p1, w1, p2, 2, p3, w3, DateSeparator);
+		DateText = format(Format, p1, w1, p2, 2, p3, w3, DateSeparator);
 	}
 
 	if (Brief)
 	{
-		strDateText.resize(TextMonth? 6 : 5);
+		DateText.resize(TextMonth? 6 : 5);
 
 		SYSTEMTIME Now;
 		if (utc_to_local(os::chrono::nt_clock::now(), Now) && Now.wYear != st.wYear)
-			strTimeText = format(FSTR(L"{:5}"sv), st.wYear);
+			TimeText = format(FSTR(L"{:5}"sv), st.wYear);
 	}
+
+	return { std::move(DateText), std::move(TimeText) };
 }
 
 std::tuple<string, string> ConvertDuration(os::chrono::duration Duration)

@@ -987,7 +987,7 @@ private:
 
 			if(background && foreground && flags)
 			{
-				FarColor Color = {};
+				FarColor Color{};
 				Color.BackgroundColor = std::strtoul(background, nullptr, 16);
 				Color.ForegroundColor = std::strtoul(foreground, nullptr, 16);
 				Color.Flags = StringToFlags(encoding::utf8::get_chars(flags), ColorFlagNames);

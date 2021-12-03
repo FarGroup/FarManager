@@ -200,10 +200,10 @@ void VMenu::UpdateItemFlags(int Pos, unsigned long long NewFlags)
 	if (SelectPos < 0)
 		SetSelectPos(0,1);
 
-	if(LOWORD(Items[Pos].Flags))
+	if(const auto Value = extract_integer<WORD, 0>(Items[Pos].Flags))
 	{
 		Items[Pos].Flags|=LIF_CHECKED;
-		if(LOWORD(Items[Pos].Flags)==1)
+		if (Value == 1)
 		{
 			Items[Pos].Flags&=0xFFFF0000;
 		}
@@ -408,7 +408,7 @@ int VMenu::AddItem(const FarList* List)
 
 int VMenu::AddItem(const wchar_t *NewStrItem)
 {
-	FarListItem FarListItem0={};
+	FarListItem FarListItem0{};
 
 	if (!NewStrItem || NewStrItem[0] == 0x1)
 	{
@@ -421,9 +421,9 @@ int VMenu::AddItem(const wchar_t *NewStrItem)
 		FarListItem0.Text=NewStrItem;
 	}
 
-	FarList FarList0={sizeof(FarList),1,&FarListItem0};
+	const FarList List{ sizeof(List), 1, &FarListItem0 };
 
-	return AddItem(&FarList0)-1; //-1 потому что AddItem(FarList) возвращает количество элементов
+	return AddItem(&List) - 1; //-1 потому что AddItem(FarList) возвращает количество элементов
 }
 
 int VMenu::AddItem(MenuItemEx&& NewItem,int PosAdd)
@@ -609,7 +609,7 @@ void VMenu::RestoreFilteredItems()
 	FilterUpdateHeight();
 
 	// Подровнять, а то в нижней части списка может оставаться куча пустых строк
-	FarListPos pos={sizeof(FarListPos),SelectPos < 0 ? 0 : SelectPos,-1};
+	const FarListPos pos{ sizeof(pos), SelectPos < 0? 0 : SelectPos, -1 };
 	SetSelectPos(&pos);
 }
 
@@ -706,7 +706,7 @@ void VMenu::FilterStringUpdated()
 	if (GetShowItemCount()>0)
 	{
 		// Подровнять, а то в нижней части списка может оставаться куча пустых строк
-		FarListPos pos={sizeof(FarListPos),SelectPos,-1};
+		FarListPos pos{ sizeof(pos), SelectPos, -1 };
 		if (SelectPos<0)
 		{
 			pos.SelectPos = bBottomMode ? ((LowerVisible>0) ? LowerVisible : UpperVisible) : UpperVisible;
@@ -900,14 +900,20 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 			else if (iParam >= static_cast<int>(size()) || iParam <= -1LL)
 				return -1;
 
-			auto& menuEx = at(iParam);
+			const auto& menuEx = at(iParam);
 
 			auto RetValue = menuEx.Flags;
 
 			if (iParam == SelectPos)
 				RetValue |= LIF_SELECTED;
 
-			return MAKELONG(HIWORD(RetValue),LOWORD(RetValue));
+			// Yes, it flips words.
+			// Yes, it is intentional.
+			// No, no idea why /o
+			return make_integer<uint32_t>(
+				extract_integer<WORD, 1>(RetValue),
+				extract_integer<WORD, 0>(RetValue)
+			);
 		}
 
 		case MCODE_V_MENU_VALUE: // Menu.Value
@@ -1219,7 +1225,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
 		case KEY_RCTRLPGUP:    case KEY_RCTRLNUMPAD9:
 		{
-			FarListPos pos={sizeof(FarListPos),0,-1};
+			FarListPos pos{ sizeof(pos), 0, -1 };
 			SetSelectPos(&pos, 1);
 			ShowMenu(true);
 			break;
@@ -1231,7 +1237,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLPGDN:    case KEY_RCTRLNUMPAD3:
 		{
 			int p = static_cast<int>(Items.size())-1;
-			FarListPos pos={sizeof(FarListPos),p,std::max(0,p-MaxHeight+1)};
+			FarListPos pos{ sizeof(pos), p, std::max(0, p - MaxHeight + 1) };
 			SetSelectPos(&pos, -1);
 			ShowMenu(true);
 			break;
@@ -1245,7 +1251,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 			if (p < 0)
 				p = 0;
 
-			FarListPos pos={sizeof(FarListPos),p,p};
+			FarListPos pos{ sizeof(pos), p, p };
 			SetSelectPos(&pos, 1);
 			ShowMenu(true);
 			break;
@@ -1260,7 +1266,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 			pSel = std::min(pSel, static_cast<int>(Items.size())-1);
 			pTop = std::min(pTop, static_cast<int>(Items.size())-1);
 
-			FarListPos pos={sizeof(FarListPos),pSel,pTop};
+			FarListPos pos{ sizeof(pos), pSel, pTop };
 			SetSelectPos(&pos, -1);
 			ShowMenu(true);
 			break;
@@ -1321,7 +1327,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		{
 			if(SelectPos)
 			{
-				FarListPos Pos = {sizeof(Pos), SelectPos-1, TopPos-1};
+				FarListPos Pos{ sizeof(Pos), SelectPos - 1, TopPos - 1 };
 				SetSelectPos(&Pos);
 				ShowMenu(true);
 			}
@@ -1331,7 +1337,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 		{
 			if(SelectPos < static_cast<int>(Items.size()-1))
 			{
-				FarListPos Pos = { sizeof(Pos), SelectPos + 1, TopPos };
+				FarListPos Pos{ sizeof(Pos), SelectPos + 1, TopPos };
 				const auto ItemsSize = static_cast<int>(Items.size());
 				const auto HeightSize = std::max(0, m_Where.height() - (m_BoxType == NO_BOX? 0 : 2));
 				if (!(ItemsSize - TopPos <= HeightSize || ItemsSize <= HeightSize))
@@ -1505,8 +1511,7 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 	if (IsComboBox() && CheckFlags(VMENU_COMBOBOXEVENTMOUSE))
 	{
-		INPUT_RECORD Event = {};
-		Event.EventType = MOUSE_EVENT;
+		INPUT_RECORD Event{ MOUSE_EVENT };
 		Event.Event.MouseEvent = *MouseEvent;
 		if (!Parent->DlgProc(DN_INPUT, 0, &Event))
 			return true;
@@ -2035,7 +2040,7 @@ void VMenu::ShowMenu(bool IsParent)
 		DrawTitles();
 	}
 
-	wchar_t BoxChar[2]={};
+	wchar_t BoxChar[2]{};
 
 	switch (m_BoxType)
 	{

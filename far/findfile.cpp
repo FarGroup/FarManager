@@ -523,9 +523,29 @@ void background_searcher::InitInFileSearch()
 			}
 			else
 			{
-				// Добавляем стандартные таблицы символов
-				const uintptr_t Predefined[] = { encoding::codepage::oem(), encoding::codepage::ansi(), CP_UTF8, CP_UNICODE, CP_REVERSEBOM };
-				m_CodePages.insert(m_CodePages.end(), ALL_CONST_RANGE(Predefined));
+				// system codepages
+
+				// Windows 10-specific madness
+				const auto AnsiCp = encoding::codepage::ansi();
+				if (AnsiCp != CP_UTF8)
+				{
+					m_CodePages.emplace_back(AnsiCp);
+				}
+
+				const auto OemCp = encoding::codepage::oem();
+				if (OemCp != AnsiCp && OemCp != CP_UTF8)
+				{
+					m_CodePages.emplace_back(OemCp);
+				}
+
+				const uintptr_t UnicodeCodepages[]
+				{
+					CP_UTF8,
+					CP_UNICODE,
+					CP_REVERSEBOM
+				};
+
+				m_CodePages.insert(m_CodePages.end(), ALL_CONST_RANGE(UnicodeCodepages));
 			}
 
 			// Добавляем избранные таблицы символов
@@ -699,7 +719,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		const auto CpEnum = codepages::GetFavoritesEnumerator();
 		const auto Title = msg(std::any_of(CONST_RANGE(CpEnum, i) { return i.second & CPST_FIND; })? lng::MFindFileSelectedCodePages : lng::MFindFileAllCodePages);
 		Dlg->GetAllItem()[FAD_COMBOBOX_CP].ListPtr->at(TitlePosition).Name = Title;
-		FarListPos Position = { sizeof(FarListPos) };
+		FarListPos Position{ sizeof(Position) };
 		Dlg->SendMessage(DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
 		if (Position.SelectPos == TitlePosition)
 			Dlg->SendMessage(DM_SETTEXTPTR, FAD_COMBOBOX_CP, UNSAFE_CSTR(Title));
@@ -723,7 +743,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_CP,const_cast<wchar_t*>(msg(lng::MFindFileCodePage).c_str()));
 			Dlg->SendMessage(DM_SETCOMBOBOXEVENT,FAD_COMBOBOX_CP,ToPtr(CBET_KEY));
 			const auto BottomLine = KeysToLocalizedText(KEY_SPACE, KEY_INS);
-			FarListTitles Titles{ sizeof(FarListTitles), 0, nullptr, 0, BottomLine.c_str() };
+			FarListTitles Titles{ sizeof(Titles), 0, nullptr, 0, BottomLine.c_str() };
 			Dlg->SendMessage(DM_LISTSETTITLES,FAD_COMBOBOX_CP,&Titles);
 			// Установка запомненных ранее параметров
 			CodePage = Global->Opt->FindCodePage;
@@ -732,9 +752,9 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			// Текущее значение в списке выбора кодовых страниц в общем случае может не совпадать с CodePage,
 			// так что получаем CodePage из списка выбора
-			FarListPos Position={sizeof(FarListPos)};
+			FarListPos Position{ sizeof(Position) };
 			Dlg->SendMessage( DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
-			FarListGetItem Item = { sizeof(FarListGetItem), Position.SelectPos };
+			FarListGetItem Item{ sizeof(Item), Position.SelectPos };
 			Dlg->SendMessage( DM_LISTGETITEM, FAD_COMBOBOX_CP, &Item);
 			CodePage = Item.Item.UserData;
 			return TRUE;
@@ -760,7 +780,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					Global->WindowManager->ResizeAllWindows();
 					string strSearchFromRoot;
 					PrepareDriveNameStr(strSearchFromRoot);
-					FarListGetItem item{ sizeof(FarListGetItem), FINDAREA_ROOT };
+					FarListGetItem item{ sizeof(item), FINDAREA_ROOT };
 					Dlg->SendMessage(DM_LISTGETITEM,FAD_COMBOBOX_WHERE,&item);
 					item.Item.Text=strSearchFromRoot.c_str();
 					Dlg->SendMessage(DM_LISTUPDATE,FAD_COMBOBOX_WHERE,&item);
@@ -855,10 +875,10 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						{
 							// Обработка установки/снятия флажков для стандартных и избранных таблиц символов
 							// Получаем текущую позицию в выпадающем списке таблиц символов
-							FarListPos Position={sizeof(FarListPos)};
+							FarListPos Position{ sizeof(Position) };
 							Dlg->SendMessage( DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
 							// Получаем номер выбранной таблицы символов
-							FarListGetItem Item = { sizeof(FarListGetItem), Position.SelectPos };
+							FarListGetItem Item{ sizeof(Item), Position.SelectPos };
 							Dlg->SendMessage( DM_LISTGETITEM, FAD_COMBOBOX_CP, &Item);
 							const auto SelectedCodePage = Item.Item.UserData;
 							// Разрешаем отмечать только стандартные и избранные таблицы символов
@@ -892,7 +912,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								// Обновляем текущий элемент в выпадающем списке
 								Dlg->SendMessage( DM_LISTUPDATE, FAD_COMBOBOX_CP, &Item);
 
-								FarListPos Pos={sizeof(FarListPos),Position.SelectPos+1,Position.TopPos};
+								FarListPos Pos{ sizeof(Pos), Position.SelectPos + 1, Position.TopPos };
 								Dlg->SendMessage( DM_LISTSETCURPOS, FAD_COMBOBOX_CP,&Pos);
 
 								// Обрабатываем случай, когда таблица символов может присутствовать, как в стандартных, так и в избранных,
@@ -902,7 +922,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								for (int Index = bStandardCodePage ? FavoritesIndex : 0; Index < (bStandardCodePage ? FavoritesIndex + favoriteCodePages : FavoritesIndex); Index++)
 								{
 									// Получаем элемент таблицы символов
-									FarListGetItem CheckItem = { sizeof(FarListGetItem), Index };
+									FarListGetItem CheckItem{ sizeof(CheckItem), Index };
 									Dlg->SendMessage( DM_LISTGETITEM, FAD_COMBOBOX_CP, &CheckItem);
 
 									// Обрабатываем только таблицы символов
@@ -3089,7 +3109,7 @@ FindFiles::FindFiles():
 		static_assert(std::size(li) == FINDAREA_COUNT);
 
 		li[FINDAREA_ALL + SearchMode].Flags|=LIF_SELECTED;
-		FarList l={sizeof(FarList),std::size(li),li};
+		FarList l{ sizeof(l), std::size(li), li };
 		FindAskDlg[FAD_COMBOBOX_WHERE].ListItems=&l;
 
 		if (PluginMode)

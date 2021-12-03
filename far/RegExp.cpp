@@ -850,7 +850,7 @@ bool RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 	code[0].op=opOpenBracket;
 	code[0].bracket.index = 0;
 	MatchHash h;
-	RegExpMatch m = {};
+	RegExpMatch m{};
 	int pos=1;
 	brackets[0]=code.data();
 #ifdef RE_DEBUG
@@ -1744,7 +1744,7 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 	if (bracketscount<matchcount)matchcount=bracketscount;
 
-	static const RegExpMatch def_match = { -1, -1 };
+	static const RegExpMatch def_match{ -1, -1 };
 	std::fill_n(match, matchcount, def_match);
 
 	for(const auto* op = code.data(), *end = op + code.size(); op != end; ++op)
@@ -3869,7 +3869,7 @@ TEST_CASE("regex")
 		RegExp re;
 		REQUIRE(re.Compile(L"/a*?ca/"sv));
 
-		RegExpMatch m = { -1, -1 };
+		RegExpMatch m{ -1, -1 };
 		intptr_t n = 1;
 		REQUIRE(re.Search(L"abca", &m, n));
 		REQUIRE(n == 1);
@@ -3881,7 +3881,7 @@ TEST_CASE("regex")
 		RegExp re;
 		REQUIRE(re.Compile(L"/^\\[([\\w.]+)\\]:\\s*\\[(.*)\\]$/"sv, OP_PERLSTYLE));
 
-		RegExpMatch m = { -1, -1 };
+		RegExpMatch m{ -1, -1 };
 		intptr_t n = 1;
 		REQUIRE(re.Search(L"[init.svc.imsdatadaemon]: [running]", &m, n));
 		REQUIRE(n == 1);

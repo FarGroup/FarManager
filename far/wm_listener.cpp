@@ -170,7 +170,7 @@ void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 {
 	os::debug::set_thread_name(L"Window messages processor");
 
-	WNDCLASSEX wc={sizeof(wc)};
+	WNDCLASSEX wc{ sizeof(wc) };
 	wc.lpfnWndProc = WndProc;
 	wc.lpszClassName = L"FarHiddenWindowClass";
 	UnregisterClass(wc.lpszClassName, nullptr);

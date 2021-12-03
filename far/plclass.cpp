@@ -447,7 +447,7 @@ static auto MakeSignature(const os::fs::find_data& Data)
 
 bool Plugin::SaveToCache()
 {
-	PluginInfo Info = {sizeof(Info)};
+	PluginInfo Info{ sizeof(Info) };
 	GetPluginInfo(&Info);
 
 	auto& PlCache = ConfigProvider().PlCacheCfg();
@@ -579,7 +579,7 @@ bool Plugin::LoadData()
 	}
 	InitExports();
 
-	GlobalInfo Info={sizeof(Info)};
+	GlobalInfo Info{ sizeof(Info) };
 
 	if(GetGlobalInfo(&Info) &&
 		Info.StructSize &&
@@ -720,7 +720,7 @@ bool Plugin::Unload(bool bExitFAR)
 
 	if (bExitFAR)
 	{
-		ExitInfo Info={sizeof(Info)};
+		ExitInfo Info{ sizeof(Info) };
 		ExitFAR(&Info);
 	}
 
@@ -774,9 +774,7 @@ void Plugin::SubscribeToSynchroEvents()
 	{
 		const auto Param = std::any_cast<void*>(Payload);
 
-		ProcessSynchroEventInfo Info = { sizeof(Info) };
-		Info.Event = SE_COMMONSYNCHRO;
-		Info.Param = Param;
+		ProcessSynchroEventInfo Info{ sizeof(Info), SE_COMMONSYNCHRO, Param };
 		ProcessSynchroEvent(&Info);
 	});
 }
@@ -1285,7 +1283,7 @@ public:
 		plugin_factory(Owner),
 		m_Imports(Filename)
 	{
-		GlobalInfo Info = { sizeof(Info) };
+		GlobalInfo Info{ sizeof(Info) };
 
 		if (m_Imports.IsValid() &&
 			m_Imports.pInitialize(&Info) &&
@@ -1311,7 +1309,7 @@ public:
 		if (!m_Success)
 			return;
 
-		ExitInfo Info = { sizeof(Info) };
+		ExitInfo Info{ sizeof(Info) };
 		m_Imports.pFree(&Info);
 		custom_plugin_factory::ProcessError(m_Imports.pFree.name());
 	}
@@ -1358,7 +1356,7 @@ public:
 		if (!m_Imports.pGetError)
 			return;
 
-		ErrorInfo Info = { sizeof(Info) };
+		ErrorInfo Info{ sizeof(Info) };
 		if (!m_Imports.pGetError(&Info))
 			return;
 

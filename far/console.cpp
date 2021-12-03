@@ -383,7 +383,7 @@ namespace console_detail
 		csbi.srWindow.Right = Size.x - 1;
 		csbi.srWindow.Bottom = csbi.dwSize.Y - 1;
 		csbi.srWindow.Top = csbi.srWindow.Bottom - (Size.y - 1);
-		point WindowCoord = { csbi.srWindow.Right - csbi.srWindow.Left + 1, csbi.srWindow.Bottom - csbi.srWindow.Top + 1 };
+		point WindowCoord{ csbi.srWindow.Right - csbi.srWindow.Left + 1, csbi.srWindow.Bottom - csbi.srWindow.Top + 1 };
 		if (WindowCoord.x > csbi.dwSize.X || WindowCoord.y > csbi.dwSize.Y)
 		{
 			WindowCoord.x = std::max(WindowCoord.x, static_cast<int>(csbi.dwSize.X));
@@ -724,7 +724,7 @@ namespace console_detail
 	{
 		if (ExternalConsole.Imports.pReadOutput)
 		{
-			const COORD BufferSize = { static_cast<short>(Buffer.width()), static_cast<short>(Buffer.height()) };
+			const COORD BufferSize{ static_cast<short>(Buffer.width()), static_cast<short>(Buffer.height()) };
 			auto ReadRegion = make_rect(ReadRegionRelative);
 			return ExternalConsole.Imports.pReadOutput(Buffer.data(), BufferSize, make_coord(BufferCoord), &ReadRegion) != FALSE;
 		}
@@ -1070,7 +1070,7 @@ namespace console_detail
 				const auto invert_colors = [&]
 				{
 					for (auto& i: span(Buffer, BufferSize.x* BufferSize.y))
-						i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | LOBYTE(~i.Attributes);
+						i.Attributes = (i.Attributes & FCF_RAWATTR_MASK) | extract_integer<BYTE, 0>(~i.Attributes);
 				};
 
 				invert_colors();
@@ -1189,7 +1189,7 @@ namespace console_detail
 	{
 		if (ExternalConsole.Imports.pWriteOutput)
 		{
-			const COORD BufferSize = { static_cast<short>(Buffer.width()), static_cast<short>(Buffer.height()) };
+			const COORD BufferSize{ static_cast<short>(Buffer.width()), static_cast<short>(Buffer.height()) };
 			auto WriteRegion = make_rect(WriteRegionRelative);
 			return ExternalConsole.Imports.pWriteOutput(Buffer.data(), BufferSize, make_coord(BufferCoord), &WriteRegion) != FALSE;
 		}
@@ -1316,7 +1316,7 @@ namespace console_detail
 	{
 		if (sWindowMode)
 		{
-			point Size = {};
+			point Size{};
 			GetSize(Size);
 			Position.x = std::min(Position.x, Size.x - 1);
 			Position.y = std::max(0, Position.y);
@@ -1464,7 +1464,7 @@ namespace console_detail
 		if (Mode&CR_TOP)
 		{
 			const DWORD TopSize = csbi.dwSize.X * csbi.srWindow.Top;
-			const COORD TopCoord = {};
+			const COORD TopCoord{};
 			FillConsoleOutputCharacter(GetOutputHandle(), L' ', TopSize, TopCoord, &CharsWritten);
 			FillConsoleOutputAttribute(GetOutputHandle(), ConColor, TopSize, TopCoord, &CharsWritten);
 		}
@@ -1472,7 +1472,7 @@ namespace console_detail
 		if (Mode&CR_RIGHT)
 		{
 			const DWORD RightSize = csbi.dwSize.X - csbi.srWindow.Right;
-			COORD RightCoord = { csbi.srWindow.Right, ::GetDelta(csbi) };
+			COORD RightCoord{ csbi.srWindow.Right, ::GetDelta(csbi) };
 			for (; RightCoord.Y < csbi.dwSize.Y; RightCoord.Y++)
 			{
 				FillConsoleOutputCharacter(GetOutputHandle(), L' ', RightSize, RightCoord, &CharsWritten);
@@ -1728,7 +1728,7 @@ namespace console_detail
 
 		DWORD Written;
 		const auto Pair = encoding::utf16::to_surrogate(Codepoint);
-		std::array Chars = { Pair.first, Pair.second };
+		const std::array Chars{ Pair.first, Pair.second };
 		if (!WriteConsole(m_WidthTestScreen.native_handle(), Chars.data(), Pair.second? 2 : 1, &Written, {}))
 			return false;
 
