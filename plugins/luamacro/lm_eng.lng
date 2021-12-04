@@ -30,6 +30,7 @@
 "Active items of Plugins menu"
 "Prefixes"
 "Panel modules"
+"Content columns"
 
 // macro browser messages
 "No file name available"
@@ -41,6 +42,7 @@
 "Plugins menu item"
 "Prefix"
 "Panel module"
+"Content column"
 
 // custom panel sort
 "Sort mode "

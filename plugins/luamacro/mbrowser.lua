@@ -60,7 +60,7 @@ local function GetItems (fcomp, sortmark, onlyactive)
     end
     return s
   end
-  local events,macros,menuitems,prefixes,panels,items={},{},{},{},{},{}
+  local events,macros,menuitems,prefixes,panels,columns,items={},{},{},{},{},{},{}
   local maxKeyW, maxKeyLen, maxTitleW do
     local farRect = far.AdvControl("ACTL_GETFARRECT")
     local farWidth = farRect.Right - farRect.Left + 1
@@ -128,6 +128,11 @@ local function GetItems (fcomp, sortmark, onlyactive)
   end
   table.sort(panels, function(a,b) return a.title < b.title end)
 
+  for m in mf.EnumScripts("ContentColumns") do
+    columns[#columns+1] = m
+  end
+  table.sort(columns, function(a,b) return (a.filemask or "*") < (b.filemask or "*") end)
+
   items[#items+1] = {
     separator=true,
     text=("%s [ %s ]"):format(onlyactive and Msg.MBSepActiveMacros or Msg.MBSepMacros, sortmark) }
@@ -158,6 +163,12 @@ local function GetItems (fcomp, sortmark, onlyactive)
   for i,m in ipairs(panels) do
     items[#items+1] = { text=("%-22s │ %s"):format(
                         m.title, m.Info.Description or ""), macro=m }
+  end
+
+  items[#items+1] = { separator=true, text=Msg.MBSepColumns }
+  for i,m in ipairs(columns) do
+    items[#items+1] = { text=("%-22s │ %s"):format(
+                        m.filemask or "*", m.description or ""), macro=m }
   end
 
   items[#items+1] = { separator=true, text=Msg.MBSepEvents }
@@ -330,6 +341,20 @@ Author      │ %s
               "\1",
               m.FileName)
     far.Message(str,Msg.MBTitlePanel,nil,"l")
+  elseif m.GetContentFields then
+    local str = ([[
+description      │ %s
+filemask         │ %s
+GetContentFields │ %s
+GetContentData   │ %s
+%s
+%s]]) :format(m.description or "",
+              m.filemask or "",
+              tostring(m.GetContentFields),
+              tostring(m.GetContentData),
+              "\1",
+              m.FileName)
+    far.Message(str,Msg.MBTitleColumn,nil,"l")
   else
     local str = ([[
 description │ %s
@@ -451,6 +476,7 @@ local function MenuLoop()
         else
           Message("attempt to execute prefix in wrong context")
         end
+      elseif m.GetContentFields then Message("attempt to execute content column")
       elseif m.Info then Message("attempt to execute panel module")
       else Message("attempt to execute event")
       end
