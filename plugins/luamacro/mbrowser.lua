@@ -60,7 +60,7 @@ local function GetItems (fcomp, sortmark, onlyactive)
     end
     return s
   end
-  local events,macros,menuitems,prefixes,items={},{},{},{},{}
+  local events,macros,menuitems,prefixes,panels,items={},{},{},{},{},{}
   local maxKeyW, maxKeyLen, maxTitleW do
     local farRect = far.AdvControl("ACTL_GETFARRECT")
     local farWidth = farRect.Right - farRect.Left + 1
@@ -122,6 +122,12 @@ local function GetItems (fcomp, sortmark, onlyactive)
   end
   table.sort(prefixes, function(a,b) return a.prefix < b.prefix end)
 
+  for m in mf.EnumScripts("PanelModule") do
+    m.title = m.Info.Title or m.FileName:match("[^\\/]+$")
+    panels[#panels+1] = m
+  end
+  table.sort(panels, function(a,b) return a.title < b.title end)
+
   items[#items+1] = {
     separator=true,
     text=("%s [ %s ]"):format(onlyactive and Msg.MBSepActiveMacros or Msg.MBSepMacros, sortmark) }
@@ -146,6 +152,12 @@ local function GetItems (fcomp, sortmark, onlyactive)
   for i,m in ipairs(prefixes) do
     items[#items+1] = { text=("%-22s │ %s"):format(
                         m.prefix, m.description), macro=m }
+  end
+
+  items[#items+1] = { separator=true, text=Msg.MBSepPanels }
+  for i,m in ipairs(panels) do
+    items[#items+1] = { text=("%-22s │ %s"):format(
+                        m.title, m.Info.Description or ""), macro=m }
   end
 
   items[#items+1] = { separator=true, text=Msg.MBSepEvents }
@@ -201,6 +213,31 @@ local function ShowHelp()
       Msg.MBHelpLine6, Msg.MBHelpLine7, Msg.MBHelpLine8, Msg.MBHelpLine9, Msg.MBHelpLine10,
       Msg.MBHelpLine11),
     Title, nil, "l")
+end
+
+local function fmtPanelFuncs(m)
+  local funcs = {
+    "Analyse",
+    "ClosePanel",
+    "Compare",
+    "DeleteFiles",
+    "GetFiles",
+    "GetFindData",
+    "GetOpenPanelInfo",
+    "MakeDirectory",
+    "Open",
+    "ProcessHostFile",
+    "ProcessPanelEvent",
+    "ProcessPanelInput",
+    "PutFiles",
+    "SetDirectory",
+    "SetFindList"
+  }
+  local list = {}
+  for i,v in ipairs(funcs) do
+    list[i] = ("%-17s │ %s"):format(v, m[v] and tostring(m[v]) or "")
+  end
+  return table.concat(list, "\n")
 end
 
 local function ShowInfo (m)
@@ -273,6 +310,26 @@ action      │ %s
               "\1",
               m.FileName)
     far.Message(str,Msg.MBTitlePrefix,nil,"l")
+  elseif m.Info then
+    local str = ([[
+Guid        │ win.Uuid("%s")
+Version     │ %s
+Title       │ %s
+Description │ %s
+Author      │ %s
+%s
+%s
+%s
+%s]]) :format(win.Uuid(m.Info.Guid):upper(),
+              m.Info.Version or "",
+              m.Info.Title or "",
+              m.Info.Description or "",
+              m.Info.Author or "",
+              "\1",
+              fmtPanelFuncs(m),
+              "\1",
+              m.FileName)
+    far.Message(str,Msg.MBTitlePanel,nil,"l")
   else
     local str = ([[
 description │ %s
@@ -394,6 +451,7 @@ local function MenuLoop()
         else
           Message("attempt to execute prefix in wrong context")
         end
+      elseif m.Info then Message("attempt to execute panel module")
       else Message("attempt to execute event")
       end
     ----------------------------------------------------------------------------

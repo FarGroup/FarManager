@@ -29,6 +29,7 @@
 "Items of Plugins menu"
 "Active items of Plugins menu"
 "Prefixes"
+"Panel modules"
 
 // macro browser messages
 "Nie podano nazwy pliku"
@@ -39,6 +40,7 @@
 "Uchwyt zdarzenia"
 "Plugins menu item"
 "Prefix"
+"Panel module"
 
 // custom panel sort
 "Sortowanie "

@@ -29,6 +29,7 @@
 "Items of Plugins menu"
 "Active items of Plugins menu"
 "Prefixes"
+"Panel modules"
 
 // macro browser messages
 "Názov súboru je nedostupný"
@@ -39,6 +40,7 @@
 "Event handler"
 "Plugins menu item"
 "Prefix"
+"Panel module"
 
 // custom panel sort
 "Sort mode "
