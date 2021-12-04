@@ -246,7 +246,7 @@ lng: $(BOOTSTRAPDIR)farlang.templ
 depfile:
 	@echo Rebuilding dependencies...
 	set BOOTSTRAPDIR=$(BOOTSTRAPDIR)
-	dir /b *.cpp *.hpp *.c *.rc | $(GAWK) -f scripts\mkdep.awk - > $(DEPFILE)
+	scripts\list_deps.cmd | $(GAWK) -f scripts\mkdep.awk - > $(DEPFILE)
 
 .PHONY: include
 include: \
