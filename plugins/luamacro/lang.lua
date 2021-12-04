@@ -30,6 +30,7 @@ local list = {
   "MBSepPrefixes",
   "MBSepPanels",
   "MBSepColumns",
+  "MBSepSortModes",
 
   -- macro browser messages
   "MBNoFileNameAvail",
@@ -42,6 +43,7 @@ local list = {
   "MBTitlePrefix",
   "MBTitlePanel",
   "MBTitleColumn",
+  "MBTitleSortMode",
 
   -- custom panel sort
   "PSDefaultMenuItemText",

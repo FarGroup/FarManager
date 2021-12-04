@@ -60,7 +60,7 @@ local function GetItems (fcomp, sortmark, onlyactive)
     end
     return s
   end
-  local events,macros,menuitems,prefixes,panels,columns,items={},{},{},{},{},{},{}
+  local events,macros,menuitems,prefixes,panels,columns,sortmodes,items={},{},{},{},{},{},{},{}
   local maxKeyW, maxKeyLen, maxTitleW do
     local farRect = far.AdvControl("ACTL_GETFARRECT")
     local farWidth = farRect.Right - farRect.Left + 1
@@ -133,6 +133,14 @@ local function GetItems (fcomp, sortmark, onlyactive)
   end
   table.sort(columns, function(a,b) return (a.filemask or "*") < (b.filemask or "*") end)
 
+  for m,mode in mf.EnumScripts("CustomSortModes") do
+    m.mode = mode
+    local source = debug.getinfo(m.Compare,"S").source
+    m.FileName = source:match"^@(.+)"
+    sortmodes[#sortmodes+1] = m
+  end
+  table.sort(panels, function(a,b) return (a.Description or "") < (b.Description or "") end)
+
   items[#items+1] = {
     separator=true,
     text=("%s [ %s ]"):format(onlyactive and Msg.MBSepActiveMacros or Msg.MBSepMacros, sortmark) }
@@ -169,6 +177,12 @@ local function GetItems (fcomp, sortmark, onlyactive)
   for i,m in ipairs(columns) do
     items[#items+1] = { text=("%-22s │ %s"):format(
                         m.filemask or "*", m.description or ""), macro=m }
+  end
+
+  items[#items+1] = { separator=true, text=Msg.MBSepSortModes }
+  for i,m in ipairs(sortmodes) do
+    items[#items+1] = { text=("%-22s │ %s"):format(
+                        m.mode, m.Description or ""), macro=m }
   end
 
   items[#items+1] = { separator=true, text=Msg.MBSepEvents }
@@ -247,6 +261,29 @@ local function fmtPanelFuncs(m)
   local list = {}
   for i,v in ipairs(funcs) do
     list[i] = ("%-17s │ %s"):format(v, m[v] and tostring(m[v]) or "")
+  end
+  return table.concat(list, "\n")
+end
+
+local function fmtSortModes(m)
+  local funcs = {
+    "Condition",
+    "Compare",
+    "DirectoriesFirst",
+    "SelectedFirst",
+    "RevertSorting",
+    "SortGroups",
+    "InvertByDefault",
+    "Indicator",
+    "NoSortEqualsByName",
+    "Description",
+    "SortFunction",
+    "InitSort",
+    "EndSort"
+  }
+  local list = {}
+  for i,v in ipairs(funcs) do
+    list[i] = ("%-18s │ %s"):format(v, m[v] and tostring(m[v]) or "")
   end
   return table.concat(list, "\n")
 end
@@ -355,6 +392,14 @@ GetContentData   │ %s
               "\1",
               m.FileName)
     far.Message(str,Msg.MBTitleColumn,nil,"l")
+  elseif m.Compare then
+    local str = ([[
+%s
+%s
+%s]]) :format(fmtSortModes(m),
+              "\1",
+              m.FileName)
+    far.Message(str,Msg.MBTitleSortMode,nil,"l")
   else
     local str = ([[
 description │ %s
@@ -477,6 +522,12 @@ local function MenuLoop()
           Message("attempt to execute prefix in wrong context")
         end
       elseif m.GetContentFields then Message("attempt to execute content column")
+      elseif m.Compare then
+        if Area.Shell then
+          Panel.SetCustomSortMode(m.mode,0)
+          break
+        end
+        Message("attempt to set custom mode in wrong context")
       elseif m.Info then Message("attempt to execute panel module")
       else Message("attempt to execute event")
       end

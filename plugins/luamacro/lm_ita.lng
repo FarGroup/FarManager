@@ -31,6 +31,7 @@
 "Prefixes"
 "Panel modules"
 "Content columns"
+"Custom sort modes"
 
 // macro browser messages
 "Nessun Nome File Disponibile"
@@ -43,6 +44,7 @@
 "Prefix"
 "Panel module"
 "Content column"
+"Custom sort mode"
 
 // custom panel sort
 "Ordinamento "
