@@ -2256,9 +2256,9 @@ bool NetBrowser::SetOpenFromCommandLine(wchar_t* cmd)
 			lstrcpy(PathCopy, Path);
 			ExpandEnvironmentStrings(PathCopy, Path, static_cast<DWORD>(std::size(Path)));
 		}
-		lstrcpy(CmdLinePath, cmd);
-		if (!GotoFavorite(cmd))
-			GotoComputer(cmd);
+		lstrcpy(CmdLinePath, Path);
+		if (!GotoFavorite(CmdLinePath))
+			GotoComputer(CmdLinePath);
 		return true;
 	}
 
