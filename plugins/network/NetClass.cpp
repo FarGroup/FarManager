@@ -476,10 +476,13 @@ int NetBrowser::ProcessEvent(intptr_t Event, void* Param)
 	}
 	if (Event == FE_COMMAND)
 	{
-		SetOpenFromCommandLine(static_cast<wchar_t*>(Param));
-		PsInfo.PanelControl(this, FCTL_SETCMDLINE, 0, (void*)"");
-		PsInfo.PanelControl(this, FCTL_UPDATEPANEL, 0, nullptr);
-		return TRUE;
+		if (SetOpenFromCommandLine(static_cast<wchar_t*>(Param)))
+		{
+			PsInfo.PanelControl(this, FCTL_SETCMDLINE, 0, (void*)"");
+			PsInfo.PanelControl(this, FCTL_UPDATEPANEL, 0, nullptr);
+			return TRUE;
+		}
+		return FALSE;
 	}
 
 	return FALSE;
