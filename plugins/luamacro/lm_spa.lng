@@ -28,6 +28,7 @@
 "Eventos"
 "Items of Plugins menu"
 "Active items of Plugins menu"
+"Prefixes"
 
 // macro browser messages
 "No hay nombre de archivo disponible"
@@ -37,6 +38,7 @@
 "Macro"
 "Gestor de eventos"
 "Plugins menu item"
+"Prefix"
 
 // custom panel sort
 "Modo de ordenamiento"

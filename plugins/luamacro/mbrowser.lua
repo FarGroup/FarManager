@@ -60,7 +60,7 @@ local function GetItems (fcomp, sortmark, onlyactive)
     end
     return s
   end
-  local events,macros,menuitems,items={},{},{},{}
+  local events,macros,menuitems,prefixes,items={},{},{},{},{}
   local maxKeyW, maxKeyLen, maxTitleW do
     local farRect = far.AdvControl("ACTL_GETFARRECT")
     local farWidth = farRect.Right - farRect.Left + 1
@@ -117,6 +117,11 @@ local function GetItems (fcomp, sortmark, onlyactive)
   end
   table.sort(menuitems, function(a,b) return (a.title or a.FileName) < (b.title or b.FileName) end)
 
+  for m in mf.EnumScripts("CommandLine") do
+    prefixes[#prefixes+1] = m
+  end
+  table.sort(prefixes, function(a,b) return a.prefix < b.prefix end)
+
   items[#items+1] = {
     separator=true,
     text=("%s [ %s ]"):format(onlyactive and Msg.MBSepActiveMacros or Msg.MBSepMacros, sortmark) }
@@ -135,6 +140,12 @@ local function GetItems (fcomp, sortmark, onlyactive)
       text=fmt:format(m.active and "√" or " ", m.codedArea or NOAREA, m.codedMenu, m.shortTitle, m.description),
       macro=m
     }
+  end
+
+  items[#items+1] = { separator=true, text=Msg.MBSepPrefixes }
+  for i,m in ipairs(prefixes) do
+    items[#items+1] = { text=("%-22s │ %s"):format(
+                        m.prefix, m.description), macro=m }
   end
 
   items[#items+1] = { separator=true, text=Msg.MBSepEvents }
@@ -250,6 +261,18 @@ id          │ %s
               "\1",
               m.FileName or "<"..Msg.MBNoFileNameAvail..">")
     far.Message(str,Msg.MBTitleMacro,nil,"l")
+  elseif m.prefix then
+    local str = ([[
+description │ %s
+prefix      │ %s
+action      │ %s
+%s
+%s]]) :format(m.description or "",
+              m.prefix,
+              tostring(m.action),
+              "\1",
+              m.FileName)
+    far.Message(str,Msg.MBTitlePrefix,nil,"l")
   else
     local str = ([[
 description │ %s
@@ -358,6 +381,18 @@ local function MenuLoop()
           else Message("filemask check failed")
           end
         else Message("attempt to execute macro from wrong area")
+        end
+      elseif m.prefix then
+        local wi = far.AdvControl(F.ACTL_GETWINDOWINFO,0)
+        if wi and wi.Type==F.WTYPE_PANELS then
+          local ok, err = pcall(m.action, m.prefix, "")
+          if not ok then
+            far.Message(err,"Error",nil,"w")
+          else
+            break
+          end
+        else
+          Message("attempt to execute prefix in wrong context")
         end
       else Message("attempt to execute event")
       end
