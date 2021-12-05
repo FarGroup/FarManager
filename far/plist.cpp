@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.fs.hpp"
+#include "platform.process.hpp"
 
 // Common:
 #include "common/scope_exit.hpp"
@@ -149,14 +150,7 @@ static void AddMenuItem(HWND const Window, DWORD const Pid, size_t const PidWidt
 
 	if (ShowImage)
 	{
-		if (const auto Process = os::handle(OpenProcess(imports.QueryFullProcessImageNameW ? PROCESS_QUERY_LIMITED_INFORMATION : PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, Pid)))
-		{
-			// BUGBUG check result
-			if (!os::fs::get_module_file_name(Process.native_handle(), {}, MenuItem))
-			{
-				LOGWARNING(L"GetModuleFileName({}): {}"sv, Pid, last_error());
-			}
-		}
+		MenuItem = os::process::get_process_name(Pid);
 
 		if (MenuItem.empty())
 			MenuItem = L"???"sv;

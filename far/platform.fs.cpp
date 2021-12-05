@@ -626,7 +626,7 @@ namespace os::fs
 			// BUGBUG check result
 			(void)Handle->Object.NtQueryInformationFile(Handle->BufferBase.data(), Handle->BufferBase.size(), FileStreamInformation, &Result);
 		}
-		while (Result == STATUS_BUFFER_OVERFLOW || Result == STATUS_BUFFER_TOO_SMALL);
+		while (any_of(Result, STATUS_INFO_LENGTH_MISMATCH, STATUS_BUFFER_OVERFLOW, STATUS_BUFFER_TOO_SMALL));
 
 		if (Result != STATUS_SUCCESS)
 			return nullptr;
@@ -966,7 +966,7 @@ namespace os::fs
 		};
 
 		auto Result = QueryObject();
-		if (Result == STATUS_BUFFER_OVERFLOW || Result == STATUS_BUFFER_TOO_SMALL)
+		if (any_of(Result, STATUS_INFO_LENGTH_MISMATCH, STATUS_BUFFER_OVERFLOW, STATUS_BUFFER_TOO_SMALL))
 		{
 			oni.reset(ReturnLength);
 			Result = QueryObject();

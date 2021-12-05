@@ -535,11 +535,20 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 		{
 			const size_t MaxRmProcesses = 5;
 			DWORD Reasons = RmRebootReasonNone;
-			const auto ProcessCount = os::process::enumerate_rm_processes(FullName, Reasons, [&](string&& Str)
+			auto ProcessCount = os::process::enumerate_rm_processes(FullName, Reasons, [&](string&& Str)
 			{
 				Msg.emplace_back(std::move(Str));
 				return Msg.size() != MaxRmProcesses;
 			});
+
+			if (!ProcessCount)
+			{
+				ProcessCount = os::process::enumerate_nt_processes(FullName, [&](string&& Str)
+				{
+					Msg.emplace_back(std::move(Str));
+					return Msg.size() != MaxRmProcesses;
+				});
+			}
 
 			if (ProcessCount > MaxRmProcesses)
 			{
