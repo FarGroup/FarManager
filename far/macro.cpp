@@ -2869,28 +2869,26 @@ void FarMacroApi::kbdLayoutFunc() const
 
 	if (hWnd && dwLayout)
 	{
-		HKL Layout;
-		WPARAM wParam;
+		WPARAM WParam;
+		LPARAM LParam;
 
-		if (static_cast<long>(dwLayout) == -1)
+		if (as_signed(dwLayout) == -1)
 		{
-			wParam=INPUTLANGCHANGE_BACKWARD;
-			const uintptr_t Hkl = HKL_PREV;
-			Layout = reinterpret_cast<HKL>(Hkl);
+			WParam = INPUTLANGCHANGE_BACKWARD;
+			LParam = HKL_PREV;
 		}
 		else if (dwLayout == 1)
 		{
-			wParam=INPUTLANGCHANGE_FORWARD;
-			const uintptr_t Hkl = HKL_NEXT;
-			Layout = reinterpret_cast<HKL>(Hkl);
+			WParam = INPUTLANGCHANGE_FORWARD;
+			LParam = HKL_NEXT;
 		}
 		else
 		{
-			wParam=0;
-			Layout = os::make_hkl(dwLayout);
+			WParam = 0;
+			LParam = reinterpret_cast<LPARAM>(os::make_hkl(dwLayout));
 		}
 
-		Ret = PostMessage(hWnd, WM_INPUTLANGCHANGEREQUEST, wParam, reinterpret_cast<LPARAM>(Layout)) != FALSE;
+		Ret = PostMessage(hWnd, WM_INPUTLANGCHANGEREQUEST, WParam, LParam) != FALSE;
 	}
 
 	PassValue(Ret? reinterpret_cast<intptr_t>(RetLayout) : 0);
