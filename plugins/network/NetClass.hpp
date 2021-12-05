@@ -2,37 +2,108 @@
 #define __NETCLASS_HPP__
 
 #include <plugin.hpp>
+#include <memory>
+#include <string>
+#include <vector>
+
 #ifdef NETWORK_LOGGING
 #include <stdio.h>
 #endif
 
+class NetResource
+{
+public:
+	DWORD dwScope{};
+	DWORD dwType{};
+	DWORD dwDisplayType{};
+	DWORD dwUsage{};
+	std::unique_ptr<std::wstring> lpLocalName{};
+	std::unique_ptr<std::wstring> lpRemoteName{};
+	std::unique_ptr<std::wstring> lpComment{};
+	std::unique_ptr<std::wstring> lpProvider{};
+
+private:
+	void copy(const NetResource& other)
+	{
+		dwScope = other.dwScope;
+		dwType = other.dwType;
+		dwDisplayType = other.dwDisplayType;
+		dwUsage = other.dwUsage;
+		lpLocalName = other.lpLocalName? std::make_unique<std::wstring>(*other.lpLocalName) : nullptr;
+		lpRemoteName = other.lpRemoteName? std::make_unique<std::wstring>(*other.lpRemoteName) : nullptr;
+		lpComment = other.lpComment? std::make_unique<std::wstring>(*other.lpComment) : nullptr;
+		lpProvider = other.lpProvider? std::make_unique<std::wstring>(*other.lpProvider) : nullptr;
+	}
+
+public:
+	NetResource() = default;
+
+	NetResource(const NetResource& other)
+	{
+		copy(other);
+	}
+
+	NetResource& operator=(const NetResource& other)
+	{
+		if (this == &other)
+			return *this;
+
+		copy(other);
+
+		return *this;
+	}
+
+	NetResource(NetResource&& other) noexcept = default;
+	NetResource& operator=(NetResource&& other) noexcept = default;
+
+	explicit NetResource(NETRESOURCE& other)
+	{
+		dwScope = other.dwScope;
+		dwType = other.dwType;
+		dwDisplayType = other.dwDisplayType;
+		dwUsage = other.dwUsage;
+		lpLocalName = other.lpLocalName? std::make_unique<std::wstring>(other.lpLocalName) : nullptr;
+		lpRemoteName = other.lpRemoteName? std::make_unique<std::wstring>(other.lpRemoteName) : nullptr;
+		lpComment = other.lpComment? std::make_unique<std::wstring>(other.lpComment) : nullptr;
+		lpProvider = other.lpProvider? std::make_unique<std::wstring>(other.lpProvider) : nullptr;
+	}
+
+	static NETRESOURCE getNETRESOURCE(const NetResource* resource)
+	{
+		NETRESOURCE tmp{};
+		if (resource)
+		{
+			tmp.dwScope = resource->dwScope;
+			tmp.dwType = resource->dwType;
+			tmp.dwDisplayType = resource->dwDisplayType;
+			tmp.dwUsage = resource->dwUsage;
+			tmp.lpLocalName = resource->lpLocalName? resource->lpLocalName->data() : nullptr;
+			tmp.lpRemoteName = resource->lpRemoteName? resource->lpRemoteName->data() : nullptr;
+			tmp.lpComment = resource->lpComment? resource->lpComment->data() : nullptr;
+			tmp.lpProvider = resource->lpProvider? resource->lpProvider->data() : nullptr;
+		}
+		return tmp;
+	}
+};
+
 class NetResourceList
 {
 private:
-	NETRESOURCE* ResList;
-	unsigned int ResCount;
+	std::vector<NetResource> ResList;
 
 public:
-	NetResourceList();
-	~NetResourceList();
-
-public:
-	NetResourceList& operator=(NetResourceList& other);
-	static wchar_t* CopyText(const wchar_t* Text);
-
-	static void DeleteNetResource(NETRESOURCE& Res);
-	static void CopyNetResource(NETRESOURCE& Dest, const NETRESOURCE& Src);
+	NetResourceList() = default;
 
 	void Clear();
-	BOOL Enumerate(DWORD dwScope, DWORD dwType, DWORD dwUsage, LPNETRESOURCE lpNetResource);
+	bool Enumerate(DWORD dwScope, DWORD dwType, DWORD dwUsage, NetResource* lpNetResource);
 
-	void Push(NETRESOURCE& Res);
-	NETRESOURCE* Top();
+	void Push(NetResource& Res);
+	NetResource* Top();
 	void Pop();
 
-	unsigned int Count() { return ResCount; }
+	size_t Count() { return ResList.size(); }
 
-	NETRESOURCE& operator[](int index) { return ResList[index]; }
+	NetResource& operator[](size_t index) { return ResList[index]; }
 };
 
 struct NameAndPassInfo
@@ -52,8 +123,8 @@ private:
 	NetResourceList ConnectedList; // list of resources mapped to local drives
 	NetResourceList RootResources; // stack of resources above the current level
 	// (used in non-MS Windows networks only)
-	NETRESOURCE CurResource = {}; // NETRESOURCE describing the current location
-	NETRESOURCE* PCurResource; // points to CurResource or nullptr (if at root)
+	NetResource CurResource; // NETRESOURCE describing the current location
+	NetResource* PCurResource; // points to CurResource or nullptr (if at root)
 
 	BOOL ChangeDirSuccess = TRUE;
 	BOOL OpenFromFilePanel = FALSE;
@@ -62,7 +133,7 @@ private:
 	wchar_t m_PanelMode[2]; // current start panel mode
 
 	void RemoveItems();
-	static void DisconnectFromServer(NETRESOURCE* nr);
+	static void DisconnectFromServer(const NetResource* nr);
 	BOOL ChangeToDirectory(const wchar_t* Dir, OPERATION_MODES opmodes, bool IsExplicit);
 	void ManualConnect();
 	BOOL CancelConnection(const wchar_t* RemoteName);
@@ -70,13 +141,13 @@ private:
 	BOOL ConfirmCancelConnection(wchar_t* LocalName, wchar_t* RemoteName, int& UpdateProfile);
 	BOOL NeedConfirmCancelConnection();
 	BOOL HandsOffDisconnectDrive(const wchar_t* LocalName);
-	void GetLocalName(wchar_t* RemoteName, wchar_t* LocalName);
+	void GetLocalName(const std::wstring* RemoteName, wchar_t* LocalName);
 	static int GetNameAndPassword(NameAndPassInfo* passInfo);
-	void GetRemoteName(NETRESOURCE* NetRes, wchar_t* RemoteName);
+	static void GetRemoteName(NetResource* NetRes, wchar_t* RemoteName);
 	BOOL EnumerateNetList();
 	void GetHiddenShares();
 	void GetFreeLetter(DWORD& DriveMask, wchar_t* DiskName);
-	BOOL IsReadable(const wchar_t* Remote);
+	static BOOL IsReadable(const wchar_t* Remote);
 	int GotoComputer(const wchar_t* Dir);
 	void SetCursorToShare(wchar_t* Share);
 	BOOL MapNetworkDrive(const wchar_t* RemoteName, BOOL AskDrive, BOOL Permanent);
@@ -86,7 +157,7 @@ private:
 #ifdef NETWORK_LOGGING
 	static FILE* LogFile;
 	static int LogFileRef;
-	static void LogNetResource(NETRESOURCE& Res);
+	static void LogNetResource(const NetResource& Res);
 	static void OpenLogFile(const wchar_t* lpFileName);
 	static void CloseLogfile();
 	void LogData(const wchar_t* Data);
@@ -110,15 +181,15 @@ public:
 	BOOL GotoFavorite(wchar_t* lpPath);
 	BOOL EditFavorites();
 
-	static int AddConnection(NETRESOURCE* nr, int Remember = TRUE);
-	static int AddConnectionExplicit(NETRESOURCE* nr, int Remember = TRUE);
-	static int AddConnectionWithLogon(NETRESOURCE* nr, wchar_t* Name, wchar_t* Password, int Remember = TRUE);
-	static int AddConnectionFromFavorites(NETRESOURCE* nr, int Remember = TRUE);
+	static int AddConnection(const NetResource& nr, int Remember = TRUE);
+	static int AddConnectionExplicit(const NetResource* connectnr, int Remember = TRUE);
+	static int AddConnectionWithLogon(const NetResource* nr, wchar_t* Name, wchar_t* Password, int Remember = TRUE);
+	static int AddConnectionFromFavorites(const NetResource* nr, int Remember = TRUE);
 
-	static BOOL GetResourceInfo(wchar_t* SrcName, LPNETRESOURCE DstNetResource);
-	static BOOL GetResourceParent(NETRESOURCE& SrcRes, LPNETRESOURCE DstNetResource);
-	static BOOL IsMSNetResource(const NETRESOURCE& Res);
-	static BOOL IsResourceReadable(NETRESOURCE& Res);
+	static BOOL GetResourceInfo(wchar_t* SrcName, NetResource& DstNetResource);
+	static BOOL GetResourceParent(const NetResource& SrcRes, NetResource* DstNetResource);
+	static BOOL IsMSNetResource(const NetResource& Res);
+	static BOOL IsResourceReadable(const NetResource& Res);
 	//static BOOL GetDfsParent(const NETRESOURCE &SrcRes, NETRESOURCE &Parent);
 };
 

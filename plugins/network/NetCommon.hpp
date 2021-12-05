@@ -2,6 +2,7 @@
 #define __NETCOMMON_HPP__
 
 #include <plugin.hpp>
+#include "NetClass.hpp"
 
 extern struct Options
 {
@@ -23,8 +24,8 @@ extern struct Options
 } Opt;
 
 
-extern NETRESOURCE CommonCurResource;
-extern LPNETRESOURCE PCommonCurResource;
+extern NetResource CommonCurResource;
+extern NetResource* PCommonCurResource;
 
 const wchar_t* GetMsg(int MsgId);
 

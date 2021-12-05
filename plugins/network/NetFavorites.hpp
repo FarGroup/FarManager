@@ -6,9 +6,9 @@
 
 struct FAVORITEITEM
 {
-	wchar_t* lpRemoteName;
-	wchar_t* lpUserName;
-	wchar_t* lpPassword;
+	const wchar_t* lpRemoteName;
+	const wchar_t* lpUserName;
+	const wchar_t* lpPassword;
 };
 
 #define FAVORITES_UPBROWSE_TO_FAVORITES 0x01L
@@ -16,13 +16,13 @@ struct FAVORITEITEM
 
 #define FAVORITES_DEFAULTS (FAVORITES_UPBROWSE_TO_FAVORITES|FAVORITES_CHECK_RESOURCES)
 
-bool EnumFavorites(LPNETRESOURCE pNR, NetResourceList* pList);
-bool CheckFavoriteItem(LPNETRESOURCE pNR);
-bool InFavoriteExists(const wchar_t *lpRemoteName);
-void WriteFavoriteItem(FAVORITEITEM* lpFavItem);
+bool EnumFavorites(const NetResource* pNR, NetResourceList* pList);
+bool CheckFavoriteItem(const NetResource* pNR);
+bool InFavoriteExists(const wchar_t* lpRemoteName);
+void WriteFavoriteItem(const FAVORITEITEM* lpFavItem);
 bool ReadFavoriteItem(FAVORITEITEM* lpFavItem);
-bool GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent);
-bool GetFavoriteResource(const wchar_t* SrcName, LPNETRESOURCE DstNetResource);
-bool RemoveFromFavorites(const wchar_t *SrcName);
+bool GetFavoritesParent(const NetResource& SrcRes, NetResource* lpParent);
+bool GetFavoriteResource(const wchar_t* SrcName, NetResource* DstNetResource);
+bool RemoveFromFavorites(const wchar_t* SrcName);
 
 #endif //__NETFAVORITES_HPP__

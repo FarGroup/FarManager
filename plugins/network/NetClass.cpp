@@ -51,110 +51,54 @@ void NetBrowser::LogData(const wchar_t * Data)
 }
 #endif
 
-NetResourceList::NetResourceList()
-	: ResList(),
-	ResCount(0)
-{
-}
-
-NetResourceList::~NetResourceList()
-{
-	Clear();
-}
-
-NetResourceList& NetResourceList::operator=(NetResourceList& other)
-{
-	Clear();
-
-	for (unsigned I = 0; I < other.Count(); I++)
-		Push(other[I]);
-
-	return *this;
-}
-
 void NetResourceList::Clear()
 {
-	for (unsigned i = 0; i < ResCount; i++)
-		DeleteNetResource(ResList[i]);
-
-	free(ResList);
-	ResList = {};
-	ResCount = 0;
+	ResList.clear();
 }
 
-void NetResourceList::DeleteNetResource(NETRESOURCE& Res)
+void NetResourceList::Push(NetResource& Res)
 {
-	free(Res.lpRemoteName);
-	free(Res.lpLocalName);
-	free(Res.lpComment);
-	free(Res.lpProvider);
+	ResList.emplace_back(Res);
 }
 
-wchar_t* NetResourceList::CopyText(const wchar_t* Text)
+NetResource* NetResourceList::Top()
 {
-	return Text? _wcsdup(Text) : nullptr;
-}
-
-void NetResourceList::CopyNetResource(NETRESOURCE& Dest, const NETRESOURCE& Src)
-{
-	free(Dest.lpRemoteName);
-	free(Dest.lpLocalName);
-	free(Dest.lpComment);
-	free(Dest.lpProvider);
-	memcpy(&Dest, &Src, sizeof(NETRESOURCE));
-	Dest.lpRemoteName = CopyText(Src.lpRemoteName);
-	Dest.lpLocalName = CopyText(Src.lpLocalName);
-	Dest.lpComment = CopyText(Src.lpComment);
-	Dest.lpProvider = CopyText(Src.lpProvider);
-}
-
-void NetResourceList::Push(NETRESOURCE& Res)
-{
-	ResList = (NETRESOURCE*)realloc(ResList, (ResCount + 1) * sizeof(*ResList));
-	ZeroMemory(&ResList [ResCount], sizeof(*ResList));
-	CopyNetResource(ResList[ResCount], Res);
-	ResCount++;
-}
-
-NETRESOURCE* NetResourceList::Top()
-{
-	if (ResCount == 0)
+	if (ResList.empty())
 		return {};
 
-	return &ResList[ResCount - 1];
+	return &ResList.back();
 }
 
 void NetResourceList::Pop()
 {
-	if (ResCount > 0)
+	if (!ResList.empty())
 	{
-		DeleteNetResource(ResList[ResCount - 1]);
-		ResList = (NETRESOURCE*)realloc(ResList, (ResCount - 1) * sizeof(*ResList));
-		ResCount--;
+		ResList.pop_back();
 	}
 }
 
-BOOL NetResourceList::Enumerate(
+bool NetResourceList::Enumerate(
 	DWORD dwScope,
 	DWORD dwType,
 	DWORD dwUsage,
-	LPNETRESOURCE lpNetResource)
+	NetResource* lpNetResource)
 {
 	Clear();
 
 	if (EnumFavorites(lpNetResource, this))
-		return TRUE;
+		return true;
 
 	if (!Opt.ScanNetwork && lpNetResource && (lpNetResource->dwDisplayType == RESOURCEDISPLAYTYPE_DOMAIN
 		|| lpNetResource->dwDisplayType == RESOURCEDISPLAYTYPE_NETWORK))
-		return TRUE;
+		return true;
 
 	HANDLE hEnum;
 
-	if (WNetOpenEnum(dwScope, dwType, dwUsage, lpNetResource, &hEnum) != NO_ERROR)
-		return FALSE;
+	auto net_res = NetResource::getNETRESOURCE(lpNetResource);
+	if (WNetOpenEnum(dwScope, dwType, dwUsage, &net_res, &hEnum) != NO_ERROR)
+		return false;
 
-	BOOL EnumFailed = FALSE;
+	bool EnumFailed = false;
 
 	for (;;)
 	{
@@ -167,7 +111,7 @@ BOOL NetResourceList::Enumerate(
 			if (EnumCode != ERROR_NO_MORE_ITEMS)
 			{
 				Clear();
-				EnumFailed = TRUE;
+				EnumFailed = true;
 			}
 
 			break;
@@ -175,13 +119,10 @@ BOOL NetResourceList::Enumerate(
 
 		if (NetCount > 0)
 		{
-			ResList = (NETRESOURCE*)realloc(ResList, (ResCount + NetCount) * sizeof(*ResList));
-			ZeroMemory(&ResList [ResCount], sizeof(*ResList)*NetCount);
+			ResList.reserve(ResList.size() + NetCount);
 
-			for (unsigned I = 0; I < NetCount; I++)
-				CopyNetResource(ResList[ResCount + I], nr[I]);
-
-			ResCount += NetCount;
+			for (size_t i = 0; i < NetCount; i++)
+				ResList.emplace_back(NetResource(nr[i]));
 		}
 	}
 
@@ -205,7 +146,7 @@ NetBrowser::NetBrowser()
 	}
 	else
 	{
-		NetResourceList::CopyNetResource(CurResource, CommonCurResource);
+		CurResource = CommonCurResource;
 
 		if (PCommonCurResource)
 			PCurResource = &CurResource;
@@ -233,12 +174,12 @@ NetBrowser::~NetBrowser()
 
 #ifdef NETWORK_LOGGING
 
-void NetBrowser::LogNetResource(NETRESOURCE &Res)
+void NetBrowser::LogNetResource(const NetResource& Res)
 {
 	if (LogFile)
 	{
 		fwprintf(LogFile, L"dwScope = %u\ndwType = %u\ndwDisplayType = %u\ndwUsage = %u\n", Res.dwScope, Res.dwType, Res.dwDisplayType, Res.dwUsage);
-		fwprintf(LogFile, L"lpLocalName = %s\nlpRemoteName = %s\nlpComment = %s\nlpProvider = %s\n\n", Res.lpLocalName, Res.lpRemoteName, Res.lpComment, Res.lpProvider);
+		fwprintf(LogFile, L"lpLocalName = %s\nlpRemoteName = %s\nlpComment = %s\nlpProvider = %s\n\n", Res.lpLocalName->c_str(), Res.lpRemoteName->c_str(), Res.lpComment->c_str(), Res.lpProvider->c_str());
 	}
 }
 
@@ -247,7 +188,7 @@ void NetBrowser::LogNetResource(NETRESOURCE &Res)
 BOOL NetBrowser::EnumerateNetList()
 {
 	if (PCurResource && PCurResource->lpRemoteName)
-		lstrcpy(NetListRemoteName, PCurResource->lpRemoteName);
+		lstrcpy(NetListRemoteName, PCurResource->lpRemoteName->c_str());
 	else
 		NetListRemoteName[0] = L'\0';
 
@@ -262,7 +203,7 @@ BOOL NetBrowser::EnumerateNetList()
 		else
 		{
 			// try again with connection
-			AddConnection(PCurResource);
+			AddConnection(*PCurResource);
 
 			if (!NetList.Enumerate(RESOURCE_GLOBALNET,RESOURCETYPE_ANY, 0, PCurResource))
 				NetList.Clear();
@@ -315,7 +256,7 @@ BOOL NetBrowser::GotoFavorite(wchar_t* lpPath)
 #ifdef NEWTWORK_LOGGING
 	LogData(L"Entered NetBrowser::GotoFavorite")
 #endif
-	NETRESOURCE nr = {0};
+	NetResource nr;
 
 	if (GetFavoriteResource(lpPath, &nr))
 	{
@@ -323,8 +264,7 @@ BOOL NetBrowser::GotoFavorite(wchar_t* lpPath)
 		LogData(L"GetFavoriteResource SUCCEEDED");
 		LogNetResource(nr);
 #endif
-		NetResourceList::CopyNetResource(CurResource, nr);
-		NetResourceList::DeleteNetResource(nr);
+		CurResource = nr;
 		PCurResource = &CurResource;
 		PsInfo.PanelControl(this, FCTL_UPDATEPANEL, 0, {});
 		PsInfo.PanelControl(this, FCTL_REDRAWPANEL, 0, {});
@@ -407,10 +347,10 @@ int NetBrowser::GetFindData(PluginPanelItem** pPanelItem, size_t* pItemsNumber, 
 		if (!NetList[I].lpComment)
 			*Comment = 0;
 		else
-			lstrcpy(Comment, NetList[I].lpComment);
+			lstrcpy(Comment, NetList[I].lpComment->c_str());
 
 		memset(&NewPanelItem[CurItemPos], 0, sizeof(PluginPanelItem));
-		GetLocalName(NetList[I].lpRemoteName, LocalName);
+		GetLocalName(NetList[I].lpRemoteName.get(), LocalName);
 		LPTSTR* CustomColumnData = (LPTSTR*)malloc(sizeof(LPTSTR) * 2);
 		CustomColumnData[0] = _wcsdup(LocalName);
 		CustomColumnData[1] = _wcsdup(Comment);
@@ -464,7 +404,7 @@ int NetBrowser::ProcessEvent(intptr_t Event, void* Param)
 
 		if (!PCurResource || IsMSNetResource(*PCurResource))
 		{
-			NetResourceList::CopyNetResource(CommonCurResource, CurResource);
+			CommonCurResource = CurResource;
 			PCommonCurResource = PCurResource? &CommonCurResource : nullptr;
 			SavedCommonRootResources = false;
 		}
@@ -522,7 +462,7 @@ BOOL NetBrowser::CancelConnection(const wchar_t* RemoteName)
 	if (Opt.FullPathShares)
 		lstrcpy(szFullName, RemoteName);
 	else if (PCurResource && PCurResource->lpRemoteName)
-		FSF.sprintf(szFullName, L"%s\\%s", PCurResource->lpRemoteName, RemoteName);
+		FSF.sprintf(szFullName, L"%s\\%s", PCurResource->lpRemoteName->c_str(), RemoteName);
 	else
 		return FALSE;
 
@@ -590,15 +530,15 @@ BOOL NetBrowser::GetDriveToDisconnect(const wchar_t* RemoteName, wchar_t* LocalN
 
 	for (i = 0; i < ConnectedList.Count(); i++)
 	{
-		NETRESOURCE& connRes = ConnectedList[i];
+		NetResource& connRes = ConnectedList[i];
 
 		if (connRes.lpRemoteName && connRes.lpLocalName &&
-			*connRes.lpLocalName && lstrcmpi(connRes.lpRemoteName, RemoteName) == 0)
+			!connRes.lpLocalName->empty() && lstrcmpi(connRes.lpRemoteName->c_str(), RemoteName) == 0)
 		{
 			if (connRes.dwScope == RESOURCE_CONNECTED ||
 				connRes.dwScope == RESOURCE_REMEMBERED)
 			{
-				lstrcpy(LocalNames[LocalNameCount++], connRes.lpLocalName);
+				lstrcpy(LocalNames[LocalNameCount++], connRes.lpLocalName->c_str());
 
 				if (LocalNameCount == 10)
 					break;
@@ -745,11 +685,11 @@ void NetBrowser::GetOpenPanelInfo(OpenPanelInfo* Info)
 			if (CheckFavoriteItem(PCurResource))
 				lstrcpy(CurDir, GetMsg(MFavorites));
 			else
-				lstrcpy(CurDir, PCurResource->lpProvider);
+				lstrcpy(CurDir, PCurResource->lpProvider->c_str());
 		}
 		else
 		{
-			lstrcpy(CurDir, PCurResource->lpRemoteName);
+			lstrcpy(CurDir, PCurResource->lpRemoteName->c_str());
 		}
 
 		Info->CurDir = CurDir;
@@ -921,7 +861,7 @@ int NetBrowser::SetDirectory(const wchar_t* Dir, OPERATION_MODES OpMode)
 
 		if (IsMSNetResource(*PCurResource))
 		{
-			NETRESOURCE nrParent{};
+			NetResource nrParent;
 
 			if (!GetResourceParent(*PCurResource, &nrParent))
 				PCurResource = {};
@@ -1003,7 +943,7 @@ BOOL NetBrowser::ChangeToDirectory(const wchar_t* Dir, OPERATION_MODES opmodes, 
 	// if we already have the resource list for the current directory,
 	// do not scan it again
 	if (!PCurResource || !PCurResource->lpRemoteName ||
-		lstrcmp(PCurResource->lpRemoteName, NetListRemoteName) != 0)
+		lstrcmp(PCurResource->lpRemoteName->c_str(), NetListRemoteName) != 0)
 		EnumerateNetList();
 
 	wchar_t AnsiDir[MAX_PATH];
@@ -1015,7 +955,7 @@ BOOL NetBrowser::ChangeToDirectory(const wchar_t* Dir, OPERATION_MODES opmodes, 
 	if (AnsiDir[1] == L'/')
 		AnsiDir[1] = L'\\';
 
-	for (unsigned I = 0; I < NetList.Count(); I++)
+	for (size_t I = 0; I < NetList.Count(); I++)
 	{
 		wchar_t RemoteName[MAX_PATH];
 		GetRemoteName(&NetList[I], RemoteName);
@@ -1024,9 +964,8 @@ BOOL NetBrowser::ChangeToDirectory(const wchar_t* Dir, OPERATION_MODES opmodes, 
 		{
 			if (CheckFavoriteItem(&NetList[I]))
 			{
-				NetResourceList::CopyNetResource(CurResource, NetList[I]);
+				CurResource = NetList[I];
 				PCurResource = &CurResource;
-				//RootResources.Push (CurResource);
 				return TRUE;
 			}
 
@@ -1038,7 +977,7 @@ BOOL NetBrowser::ChangeToDirectory(const wchar_t* Dir, OPERATION_MODES opmodes, 
 					return (FALSE);
 
 				wchar_t NewDir[MAX_PATH], LocalName[MAX_PATH];
-				GetLocalName(NetList[I].lpRemoteName, LocalName);
+				GetLocalName(NetList[I].lpRemoteName.get(), LocalName);
 
 				if (IsPgDn && *LocalName)
 					if (IsReadable(LocalName))
@@ -1058,7 +997,7 @@ BOOL NetBrowser::ChangeToDirectory(const wchar_t* Dir, OPERATION_MODES opmodes, 
 				else
 				{
 					BOOL ConnectError = FALSE;
-					lstrcpy(NewDir, NetList[I].lpRemoteName);
+					lstrcpy(NewDir, NetList[I].lpRemoteName->c_str());
 
 					if (IsExplicit)
 					{
@@ -1068,7 +1007,7 @@ BOOL NetBrowser::ChangeToDirectory(const wchar_t* Dir, OPERATION_MODES opmodes, 
 					else
 					{
 						if (!IsReadable(NewDir))
-							if (!AddConnection(&NetList[I]) || !IsReadable(NewDir))
+							if (!AddConnection(NetList[I]) || !IsReadable(NewDir))
 								ConnectError = TRUE;
 					}
 
@@ -1134,7 +1073,7 @@ BOOL NetBrowser::ChangeToDirectory(const wchar_t* Dir, OPERATION_MODES opmodes, 
 				}
 			}
 
-			NetResourceList::CopyNetResource(CurResource, NetList[I]);
+			CurResource = NetList[I];
 			PCurResource = &CurResource;
 
 			if (!IsMSNetResource(CurResource))
@@ -1162,17 +1101,17 @@ BOOL NetBrowser::ChangeToDirectory(const wchar_t* Dir, OPERATION_MODES opmodes, 
 }
 
 
-BOOL NetBrowser::IsMSNetResource(const NETRESOURCE& Res)
+BOOL NetBrowser::IsMSNetResource(const NetResource& Res)
 {
 	if (!Res.lpProvider)
 		return TRUE;
 
-	return wcsstr(Res.lpProvider, L"Microsoft") ||
-		CheckFavoriteItem(const_cast<LPNETRESOURCE>(&Res));
+	return wcsstr(Res.lpProvider->c_str(), L"Microsoft") ||
+		CheckFavoriteItem(&Res);
 }
 
 
-BOOL NetBrowser::IsResourceReadable(NETRESOURCE& Res)
+BOOL NetBrowser::IsResourceReadable(const NetResource& Res)
 {
 	if (CheckFavoriteItem(&Res))
 		return TRUE;
@@ -1182,14 +1121,15 @@ BOOL NetBrowser::IsResourceReadable(NETRESOURCE& Res)
 		return TRUE;
 
 	HANDLE hEnum = INVALID_HANDLE_VALUE;
-	DWORD result = WNetOpenEnum(RESOURCE_GLOBALNET, RESOURCETYPE_ANY, 0, &Res, &hEnum);
+	auto net_res = NetResource::getNETRESOURCE(&Res);
+	DWORD result = WNetOpenEnum(RESOURCE_GLOBALNET, RESOURCETYPE_ANY, 0, &net_res, &hEnum);
 
 	if (result != NO_ERROR)
 	{
-		if (!AddConnection(&Res))
+		if (!AddConnection(Res))
 			return FALSE;
 
-		result = WNetOpenEnum(RESOURCE_GLOBALNET, RESOURCETYPE_ANY, 0, &Res, &hEnum);
+		result = WNetOpenEnum(RESOURCE_GLOBALNET, RESOURCETYPE_ANY, 0, &net_res, &hEnum);
 
 		if (result != NO_ERROR)
 			return FALSE;
@@ -1270,7 +1210,7 @@ BOOL NetBrowser::GetDfsParent(const NETRESOURCE &SrcRes, NETRESOURCE &Parent)
 */
 
 
-BOOL NetBrowser::GetResourceInfo(wchar_t* SrcName, LPNETRESOURCE DstNetResource)
+BOOL NetBrowser::GetResourceInfo(wchar_t* SrcName, NetResource& DstNetResource)
 {
 #ifdef NETWORK_LOGGING
 
@@ -1301,15 +1241,14 @@ BOOL NetBrowser::GetResourceInfo(wchar_t* SrcName, LPNETRESOURCE DstNetResource)
 
 	if (dwError == NO_ERROR)
 	{
-		if (DstNetResource)
-			NetResourceList::CopyNetResource(*DstNetResource, *lpnrOut);
+		DstNetResource = NetResource(*lpnrOut);
 
 #ifdef NETWORK_LOGGING
 
 		if (LogFile)
 			fwprintf(LogFile, L"Result:\n");
 
-		LogNetResource(*DstNetResource);
+		LogNetResource(DstNetResource);
 #endif
 
 		if (lpnrOut != &nrOut[0])
@@ -1330,7 +1269,7 @@ BOOL NetBrowser::GetResourceInfo(wchar_t* SrcName, LPNETRESOURCE DstNetResource)
 }
 
 
-BOOL NetBrowser::GetResourceParent(NETRESOURCE& SrcRes, LPNETRESOURCE DstNetResource)
+BOOL NetBrowser::GetResourceParent(const NetResource& SrcRes, NetResource* DstNetResource)
 {
 	if (CheckFavoriteItem(&SrcRes) ||
 		Opt.FavoritesFlags & FAVORITES_UPBROWSE_TO_FAVORITES)
@@ -1354,7 +1293,7 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE& SrcRes, LPNETRESOURCE DstNetReso
 	NETRESOURCE* lpnrOut = &nrOut[0];
 	DWORD cbBuffer = sizeof(nrOut);
 	LPTSTR pszSystem{}; // pointer to variable-length strings
-	NETRESOURCE nrSrc = SrcRes;
+	NETRESOURCE nrSrc = NetResource::getNETRESOURCE(&SrcRes);
 	nrSrc.dwDisplayType = RESOURCEDISPLAYTYPE_GENERIC;
 	nrSrc.dwScope = RESOURCE_GLOBALNET;
 	nrSrc.dwUsage = 0;
@@ -1377,14 +1316,16 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE& SrcRes, LPNETRESOURCE DstNetReso
 		if (LogFile)
 			fwprintf(LogFile, L"WNetGetResourceInformation() returned:\n");
 
-		LogNetResource(*lpnrOut);
+		LogNetResource(NetResource(*lpnrOut));
 #endif
 		nrSrc.lpProvider = lpnrOut->lpProvider;
 
 		if (WNetGetResourceParent(&nrSrc, lpnrOut, &cbBuffer) == NO_ERROR)
 		{
 			if (DstNetResource)
-				NetResourceList::CopyNetResource(*DstNetResource, *lpnrOut);
+			{
+				*DstNetResource = NetResource(*lpnrOut);
+			}
 
 #ifdef NETWORK_LOGGING
 
@@ -1431,11 +1372,11 @@ BOOL NetBrowser::EditFavorites()
 		free(PPI);
 	}
 
-	NETRESOURCE nr = {0};
+	NetResource nr;
 
 	if (GetFavoriteResource(Path, &nr))
 	{
-		Path = nr.lpRemoteName;
+		Path = nr.lpRemoteName->c_str();
 		std::wstring message{L"Info\n"};
 
 		switch (nr.dwDisplayType)
@@ -1458,7 +1399,6 @@ BOOL NetBrowser::EditFavorites()
 			0,
 			1);
 
-		NetResourceList::DeleteNetResource(nr);
 		return TRUE;
 	}
 
@@ -1503,7 +1443,7 @@ int NetBrowser::ProcessKey(const INPUT_RECORD* Rec)
 
 							if (FSF.LStricmp(PPI->FileName, RemoteName) == 0)
 							{
-								pRemoteName = NetList[J].lpRemoteName;
+								pRemoteName = NetList[J].lpRemoteName->c_str();
 								break;
 							}
 						}
@@ -1604,22 +1544,21 @@ BOOL NetBrowser::MapNetworkDrive(const wchar_t* RemoteName, BOOL AskDrive, BOOL 
 
 	if (*NewLocalName)
 	{
-		NETRESOURCE newnr;
+		NetResource newnr;
 		// wchar_t LocalName[10];
 		newnr.dwType = RESOURCETYPE_DISK;
-		newnr.lpLocalName = NewLocalName;
-		newnr.lpRemoteName = AnsiRemoteName;
-		newnr.lpProvider = {};
+		newnr.lpLocalName = std::make_unique<std::wstring>(NewLocalName);
+		newnr.lpRemoteName = std::make_unique<std::wstring>(AnsiRemoteName);
 
 		for (;;)
 		{
 			if (IsReadable(AnsiRemoteName))
 			{
-				if (AddConnection(&newnr, Permanent))
+				if (AddConnection(newnr, Permanent))
 					break;
 			}
 			else if ((AddConnectionFromFavorites(&newnr, Permanent) || AddConnectionExplicit(&newnr, Permanent)) &&
-				IsReadable(newnr.lpLocalName))
+				IsReadable(newnr.lpLocalName->c_str()))
 				break;
 			else if (ERROR_CANCELLED == GetLastError())
 				break;
@@ -1767,10 +1706,10 @@ void NetBrowser::GetFreeLetter(DWORD& DriveMask, wchar_t* DiskName)
 }
 
 
-int NetBrowser::AddConnection(NETRESOURCE* nr, int Remember)
+int NetBrowser::AddConnection(const NetResource& nr, int Remember)
 {
-	NETRESOURCE connectnr = *nr;
-	DWORD lastErrDebug = WNetAddConnection2(&connectnr, {}, {}, (Remember? CONNECT_UPDATE_PROFILE : 0));
+	auto net_res = NetResource::getNETRESOURCE(&nr);
+	DWORD lastErrDebug = WNetAddConnection2(&net_res, {}, {}, (Remember? CONNECT_UPDATE_PROFILE : 0));
 
 	if (lastErrDebug == NO_ERROR)
 	{
@@ -1781,13 +1720,12 @@ int NetBrowser::AddConnection(NETRESOURCE* nr, int Remember)
 	return (FALSE);
 }
 
-int NetBrowser::AddConnectionExplicit(NETRESOURCE* nr, int Remember)
+int NetBrowser::AddConnectionExplicit(const NetResource* connectnr, int Remember)
 {
 	wchar_t Name[256], Password[256];
-	NETRESOURCE connectnr = *nr;
 	/*static*/
 	BOOL bSelected = FALSE;
-	NameAndPassInfo passInfo = {connectnr.lpRemoteName, Name, Password, &bSelected};
+	NameAndPassInfo passInfo = {connectnr->lpRemoteName->data(), Name, Password, &bSelected};
 
 	if (!GetNameAndPassword(&passInfo))
 	{
@@ -1795,12 +1733,12 @@ int NetBrowser::AddConnectionExplicit(NETRESOURCE* nr, int Remember)
 		return (FALSE);
 	}
 
-	if (AddConnectionWithLogon(&connectnr, Name, Password, Remember))
+	if (AddConnectionWithLogon(connectnr, Name, Password, Remember))
 	{
 		if (bSelected)
 		{
 			FAVORITEITEM Item{};
-			Item.lpRemoteName = connectnr.lpRemoteName;
+			Item.lpRemoteName = connectnr->lpRemoteName->c_str();
 			Item.lpUserName = Name;
 			Item.lpPassword = Password;
 			WriteFavoriteItem(&Item);
@@ -1812,11 +1750,16 @@ int NetBrowser::AddConnectionExplicit(NETRESOURCE* nr, int Remember)
 	return FALSE;
 }
 
-int NetBrowser::AddConnectionWithLogon(NETRESOURCE* nr, wchar_t* Name, wchar_t* Password, int Remember)
+int NetBrowser::AddConnectionWithLogon(const NetResource* nr, wchar_t* Name, wchar_t* Password, int Remember)
 {
+	auto net_res = NetResource::getNETRESOURCE(nr);
 	for (;;)
 	{
-		if (NO_ERROR == WNetAddConnection2(nr, Password, *Name? Name : nullptr, (Remember? CONNECT_UPDATE_PROFILE : 0)))
+		if (NO_ERROR == WNetAddConnection2(
+			&net_res,
+			Password,
+			*Name? Name : nullptr,
+			(Remember? CONNECT_UPDATE_PROFILE : 0)))
 		{
 			return TRUE;
 		}
@@ -1828,7 +1771,7 @@ int NetBrowser::AddConnectionWithLogon(NETRESOURCE* nr, wchar_t* Name, wchar_t* 
 				DisconnectFromServer(nr);
 
 				if (NO_ERROR == WNetAddConnection2(
-					nr,
+					&net_res,
 					Password,
 					*Name? Name : nullptr,
 					(Remember? CONNECT_UPDATE_PROFILE : 0)))
@@ -1848,7 +1791,7 @@ int NetBrowser::AddConnectionWithLogon(NETRESOURCE* nr, wchar_t* Name, wchar_t* 
 			wchar_t szNameCopy[MAX_PATH];
 			//make copy of Name
 			lstrcpy(szNameCopy, Name);
-			wchar_t* p = nr->lpRemoteName;
+			wchar_t* p = nr->lpRemoteName->data();
 			int n = (int)(FSF.PointToName(p) - p);
 
 			if (n <= 2)
@@ -1873,7 +1816,7 @@ int NetBrowser::AddConnectionWithLogon(NETRESOURCE* nr, wchar_t* Name, wchar_t* 
 	}
 }
 
-int NetBrowser::AddConnectionFromFavorites(NETRESOURCE* nr, int Remember)
+int NetBrowser::AddConnectionFromFavorites(const NetResource* nr, int Remember)
 {
 	//Try to search login info in registry
 	if (nr)
@@ -1883,7 +1826,7 @@ int NetBrowser::AddConnectionFromFavorites(NETRESOURCE* nr, int Remember)
 		Name[0] = Pass[0] = 0;
 		FAVORITEITEM Item =
 		{
-			nr->lpRemoteName,
+			nr->lpRemoteName->c_str(),
 			Name,
 			Pass
 		};
@@ -1897,13 +1840,13 @@ int NetBrowser::AddConnectionFromFavorites(NETRESOURCE* nr, int Remember)
 	return FALSE;
 }
 
-void NetBrowser::DisconnectFromServer(NETRESOURCE* nr)
+void NetBrowser::DisconnectFromServer(const NetResource* nr)
 {
 	//First we should know a name of the server
-	int n = (int)(FSF.PointToName(nr->lpRemoteName) - nr->lpRemoteName);
+	int n = (int)(FSF.PointToName(nr->lpRemoteName->c_str()) - nr->lpRemoteName->c_str());
 
 	if (n <= 2)
-		n = lstrlen(nr->lpRemoteName) + 1;
+		n = lstrlen(nr->lpRemoteName->c_str()) + 1;
 
 	wchar_t* szServer = (wchar_t*)malloc((n + 1) * sizeof(wchar_t));
 
@@ -1913,7 +1856,7 @@ void NetBrowser::DisconnectFromServer(NETRESOURCE* nr)
 
 		if (szBuff)
 		{
-			lstrcpyn(szServer, nr->lpRemoteName, n);
+			lstrcpyn(szServer, nr->lpRemoteName->c_str(), n);
 			NETRESOURCE* lpBuff{};
 			HANDLE hEnum;
 
@@ -1977,19 +1920,19 @@ void NetBrowser::DisconnectFromServer(NETRESOURCE* nr)
 }
 
 
-void NetBrowser::GetLocalName(wchar_t* RemoteName, wchar_t* LocalName)
+void NetBrowser::GetLocalName(const std::wstring* RemoteName, wchar_t* LocalName)
 {
 	*LocalName = 0;
 
-	if (RemoteName && *RemoteName)
-		for (int I = ConnectedList.Count() - 1; I >= 0; I--)
-			if (ConnectedList[I].lpRemoteName && ConnectedList[I].lpLocalName &&
-				*ConnectedList[I].lpLocalName &&
-				lstrcmpi(ConnectedList[I].lpRemoteName, RemoteName) == 0)
+	if (RemoteName && !RemoteName->empty())
+		for (size_t i = 0; i < ConnectedList.Count(); i++)
+			if (ConnectedList[i].lpRemoteName && ConnectedList[i].lpLocalName &&
+				!ConnectedList[i].lpLocalName->empty() &&
+				*ConnectedList[i].lpRemoteName == *RemoteName)
 			{
-				if (ConnectedList[I].dwScope == RESOURCE_CONNECTED ||
-					ConnectedList[I].dwScope == RESOURCE_REMEMBERED)
-					lstrcpy(LocalName, ConnectedList[I].lpLocalName);
+				if (ConnectedList[i].dwScope == RESOURCE_CONNECTED ||
+					ConnectedList[i].dwScope == RESOURCE_REMEMBERED)
+					lstrcpy(LocalName, ConnectedList[i].lpLocalName->c_str());
 
 				break;
 			}
@@ -2059,7 +2002,7 @@ void NetBrowser::FileNames2Clipboard(BOOL ToCommandLine)
 				if (!PCurResource)
 					lstrcpy(CurFile, L".\\");
 				else
-					lstrcpy(CurFile, PCurResource->lpRemoteName);
+					lstrcpy(CurFile, PCurResource->lpRemoteName->c_str());
 			}
 
 			FSF.QuoteSpaceOnly(CurFile);
@@ -2094,7 +2037,7 @@ void NetBrowser::FileNames2Clipboard(BOOL ToCommandLine)
 				if (!PCurResource)
 					lstrcpy(CurFile, L".\\");
 				else
-					lstrcpy(CurFile, PCurResource->lpRemoteName);
+					lstrcpy(CurFile, PCurResource->lpRemoteName->c_str());
 			}
 			FSF.QuoteSpaceOnly(CurFile);
 			int Length = lstrlen(CurFile);
@@ -2151,7 +2094,7 @@ void NetBrowser::ManualConnect()
 }
 
 
-void NetBrowser::GetRemoteName(NETRESOURCE* NetRes, wchar_t* RemoteName)
+void NetBrowser::GetRemoteName(NetResource* NetRes, wchar_t* RemoteName)
 {
 	if (CheckFavoriteItem(NetRes))
 	{
@@ -2161,20 +2104,27 @@ void NetBrowser::GetRemoteName(NETRESOURCE* NetRes, wchar_t* RemoteName)
 		}
 		else
 		{
-			free(NetRes->lpComment);
-			NetRes->lpComment = NetResourceList::CopyText(GetMsg(MFavoritesFolder));
-			lstrcpy(RemoteName, FSF.PointToName(NetRes->lpRemoteName));
+			NetRes->lpComment = std::make_unique<std::wstring>(GetMsg(MFavoritesFolder));
+			lstrcpy(RemoteName, FSF.PointToName(NetRes->lpRemoteName->c_str()));
 		}
 	}
 	else if (NetRes->lpProvider && (!NetRes->lpRemoteName ||
 		NetRes->dwDisplayType == RESOURCEDISPLAYTYPE_NETWORK))
-		lstrcpy(RemoteName, NetRes->lpProvider);
+	{
+		lstrcpy(RemoteName, NetRes->lpProvider->c_str());
+	}
 	else if (!NetRes->lpRemoteName)
+	{
 		*RemoteName = 0;
+	}
 	else if (Opt.FullPathShares)
-		lstrcpy(RemoteName, NetRes->lpRemoteName);
+	{
+		lstrcpy(RemoteName, NetRes->lpRemoteName->c_str());
+	}
 	else
-		lstrcpy(RemoteName, FSF.PointToName(NetRes->lpRemoteName));
+	{
+		lstrcpy(RemoteName, FSF.PointToName(NetRes->lpRemoteName->c_str()));
+	}
 }
 
 
@@ -2267,9 +2217,9 @@ bool NetBrowser::SetOpenFromCommandLine(wchar_t* cmd)
 
 BOOL NetBrowser::SetOpenFromFilePanel(wchar_t* ShareName)
 {
-	NETRESOURCE nr{};
+	NetResource nr{};
 
-	if (!GetResourceInfo(ShareName, &nr))
+	if (!GetResourceInfo(ShareName, nr))
 		return FALSE;
 
 	if (!IsMSNetResource(nr))
@@ -2307,9 +2257,9 @@ int NetBrowser::GotoComputer(const wchar_t* Dir)
 	}
 
 	CharUpper(ComputerName);
-	NETRESOURCE res{};
+	NetResource res{};
 
-	if (!GetResourceInfo(ComputerName, &res))
+	if (!GetResourceInfo(ComputerName, res))
 		return FALSE;
 
 	/*
@@ -2371,17 +2321,17 @@ void NetBrowser::GotoLocalNetwork()
 	if (!GetComputerName(ComputerName + 2, &ComputerNameLength))
 		return;
 
-	NETRESOURCE res{};
+	NetResource res{};
 
-	if (!GetResourceInfo(ComputerName, &res) || !IsMSNetResource(res))
+	if (!GetResourceInfo(ComputerName, res) || !IsMSNetResource(res))
 		return;
 
-	NETRESOURCE parent{};
+	NetResource parent{};
 
 	if (!GetResourceParent(res, &parent))
 		return;
 
-	NetResourceList::CopyNetResource(CurResource, parent);
+	CurResource = parent;
 	PCurResource = &CurResource;
 }
 
@@ -2482,7 +2432,7 @@ void NetBrowser::GetHiddenShares()
 	if (!PCurResource)
 		return;
 
-	LPTSTR lpszServer = PCurResource->lpRemoteName;
+	LPTSTR lpszServer = PCurResource->lpRemoteName->data();
 	wchar_t szResPath[MAX_PATH];
 	LPTSTR pszSystem;
 	NETRESOURCE pri;
@@ -2519,6 +2469,7 @@ void NetBrowser::GetHiddenShares()
 					pri.lpProvider = {};
 					rrsiz = sizeof(nr);
 					// we need to provide buffer space for WNetGetResourceInformation
+
 					int rc = WNetGetResourceInformation(&pri, (void*)&nr[0], &rrsiz, &pszSystem);
 
 					if (rc != NO_ERROR)
@@ -2539,7 +2490,8 @@ void NetBrowser::GetHiddenShares()
 						break;
 					}
 
-					NetList.Push(nr[0]);
+					auto r = NetResource(nr[0]);
+					NetList.Push(r);
 				}
 
 				p++;

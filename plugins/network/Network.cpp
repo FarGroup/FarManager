@@ -158,5 +158,4 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* Info)
 void WINAPI ExitFARW(const ExitInfo* Info)
 {
 	delete CommonRootResources;
-	NetResourceList::DeleteNetResource(CommonCurResource);
 }

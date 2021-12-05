@@ -51,18 +51,17 @@ std::vector<std::wstring> SplitPath(const wchar_t* lpRemoteName)
 	return result;
 }
 
-bool EnumFavorites(const LPNETRESOURCE pNR, NetResourceList* pList)
+bool EnumFavorites(const NetResource* pNR, NetResourceList* pList)
 {
 	if (!pNR)
 	{
-		NETRESOURCE tmp{};
+		NetResource tmp{};
 		tmp.dwDisplayType = RESOURCEDISPLAYTYPE_DOMAIN;
-		tmp.lpRemoteName = {};
-		tmp.lpProvider = szFavProv;
+		tmp.lpProvider = std::make_unique<std::wstring>(szFavProv);
 		pList->Push(tmp);
 		return false;
 	}
-	else if (lstrcmp(pNR->lpProvider, szFavProv) == 0)
+	else if (pNR->lpProvider && *pNR->lpProvider == szFavProv)
 	{
 		PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 		size_t favorites_root = settings.CreateSubKey(0, SZ_FAVORITES);
@@ -76,19 +75,17 @@ bool EnumFavorites(const LPNETRESOURCE pNR, NetResourceList* pList)
 				{
 					wchar_t szSrc[MAX_PATH] = L"\\\\";
 					lstrcat(szSrc, fse.Items[i].Name);
-					NETRESOURCE tmp{};
+					NetResource tmp{};
 
 					if (Opt.FavoritesFlags & FAVORITES_CHECK_RESOURCES)
 					{
-						tmp.lpProvider = {};
-						tmp.lpRemoteName = szSrc;
+						tmp.lpRemoteName = std::make_unique<std::wstring>(szSrc);
 						tmp.dwDisplayType = RESOURCEDISPLAYTYPE_SERVER;
 						pList->Push(tmp);
 					}
-					else if (NetBrowser::GetResourceInfo(szSrc, &tmp))
+					else if (NetBrowser::GetResourceInfo(szSrc, tmp))
 					{
 						pList->Push(tmp);
-						NetResourceList::DeleteNetResource(tmp);
 					}
 				}
 			}
@@ -98,9 +95,9 @@ bool EnumFavorites(const LPNETRESOURCE pNR, NetResourceList* pList)
 	return false;
 }
 
-bool CheckFavoriteItem(const LPNETRESOURCE pNR)
+bool CheckFavoriteItem(const NetResource* pNR)
 {
-	return pNR && lstrcmp(pNR->lpProvider, szFavProv) == 0;
+	return pNR && pNR->lpProvider && *pNR->lpProvider == szFavProv;
 }
 
 bool InFavoriteExists(const wchar_t* lpRemoteName)
@@ -122,7 +119,7 @@ bool InFavoriteExists(const wchar_t* lpRemoteName)
 	return true;
 }
 
-void WriteFavoriteItem(FAVORITEITEM* lpFavItem)
+void WriteFavoriteItem(const FAVORITEITEM* lpFavItem)
 {
 	auto split_path = SplitPath(lpFavItem->lpRemoteName);
 	PluginSettings settings(MainGuid, PsInfo.SettingsControl);
@@ -158,7 +155,7 @@ bool ReadFavoriteItem(FAVORITEITEM* lpFavItem)
 	return false;
 }
 
-bool GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
+bool GetFavoritesParent(const NetResource& SrcRes, NetResource* lpParent)
 {
 	if (!lpParent)
 		return false;
@@ -166,21 +163,20 @@ bool GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
 	if (SrcRes.dwDisplayType == RESOURCEDISPLAYTYPE_SHARE)
 		return false;
 
-	if (lstrcmp(SrcRes.lpProvider, szFavProv) == 0)
+	if (SrcRes.lpProvider && *SrcRes.lpProvider == szFavProv)
 	{
 		return false;
 	}
 
-	if (InFavoriteExists(SrcRes.lpRemoteName))
+	if (InFavoriteExists(SrcRes.lpRemoteName->c_str()))
 	{
 		wchar_t res[MAX_PATH];
 		lstrcpy(res, GetMsg(MFavorites));
 
-		NETRESOURCE nr{};
-		nr.lpProvider = szFavProv;
-		nr.dwDisplayType = RESOURCEDISPLAYTYPE_DOMAIN;
-		nr.lpRemoteName = res;
-		NetResourceList::CopyNetResource(*lpParent, nr);
+		*lpParent = {};
+		lpParent->lpProvider = std::make_unique<std::wstring>(szFavProv);
+		lpParent->dwDisplayType = RESOURCEDISPLAYTYPE_DOMAIN;
+		lpParent->lpRemoteName = std::make_unique<std::wstring>(res);
 
 		return true;
 	}
@@ -188,10 +184,8 @@ bool GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent)
 	return false;
 }
 
-bool GetFavoriteResource(const wchar_t* SrcName, LPNETRESOURCE DstNetResource)
+bool GetFavoriteResource(const wchar_t* SrcName, NetResource* DstNetResource)
 {
-	NETRESOURCE nr = {0};
-
 	wchar_t szKey[MAX_PATH];
 	if (InFavoriteExists(SrcName))
 	{
@@ -200,9 +194,9 @@ bool GetFavoriteResource(const wchar_t* SrcName, LPNETRESOURCE DstNetResource)
 		{
 			lstrcpy(szKey, L"\\\\");
 			lstrcat(szKey, p1);
-			nr.lpRemoteName = CharUpper(szKey);
-			nr.dwDisplayType = RESOURCEDISPLAYTYPE_SERVER;
-			NetResourceList::CopyNetResource(*DstNetResource, nr);
+			*DstNetResource = {};
+			DstNetResource->lpRemoteName = std::make_unique<std::wstring>(CharUpper(szKey));
+			DstNetResource->dwDisplayType = RESOURCEDISPLAYTYPE_SERVER;
 		}
 
 		return true;
