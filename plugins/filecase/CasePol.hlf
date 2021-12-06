@@ -4,32 +4,29 @@
 
 @Contents
 $ #Konwersja wielkości znaków w nazwach plików#
-    This command allows to change the case of selected file
-names to any of several available formats.
+    Polecenie pozwala zmienić wielkość znaków w nazwach zaznaczonych
+plików na jeden z dostępnych formatów.
 
-   Choose the needed case conversion for the #Nazwa# and the #Rozszerzenie#
-correspondingly. If the #Brak# option is selected, the plugin will not process
-the corresponding file name part.
+   Należy wybrać odpowiedni rodzaj konwersji dla #Nazwy# i #Rozszerzenia#.
+Jeżeli wybrana opcję #Brak#, to wtyczka nie będzie przetwarzała odpowiadającej
+części nazwy pliku.
 
- #Do not process#              The plugin will not process files and
- #mixed case files#            folders with mixed case names.
+ #Omiń mieszane#               Wtyczka nie będzie przetwarzać plików
+ #nazwy plików#                i folderów z mieszanymi wielkościami znaków.
 
- #Przetwarzaj podfoldery#      If the selected file objects include
-                             folders, the plugin will also process
-                             the files and subfolders in the selected
-                             directories.
+ #Przetwarzaj podfoldery#      Jeżeli zaznaczone obiekty plików obejmują foldery,
+                             to wtyczka będzie przetwarzać także pliki i podfoldery
+                             w wybranym folderze.
 
- #Przetwarzaj nazwy folderów#  If the cursor is positioned on a folder
-                             and the option "#Przetwarzaj podfolderys#" is
-                             turned on, the plugin will also process
-                             the name of that folder and all
-                             subfolders.
+ #Przetwarzaj nazwy folderów#  Jeżeli kursor znajduje się na folderze, a opcja
+                             #Przetwarzaj podfoldery# jest włączona, wtyczka
+                             będzie przetwarzała także nazwę tego folderu
+                             i wszystkich podfolderów.
 
- #Tylko bieżące uruchomienie#  Use the options specified in the dialog
-                             only for the current conversion session.
+ #Tylko bieżące uruchomienie#  Stosuje opcje określone w oknie dialogowym
+                             wyłącznie do bieżącej sesji konwersji.
 
- #Rozdzeielenie słów#          Characters used to delimit words for the
-                             title case conversion.
-                             The "#Resetuj#" button will reset the word
-                             delimiters to the default value: "# _#"
+ #Rozdzielenie słów#           Znaki użyte do oddzielania słów do konwersji
+                             wielkości liter. Przycisk #Resetuj# przywraca
+                             ogranicznikom wartości domyślne:"# _#"
                              (spacja i podkreślenie).
