@@ -57,11 +57,11 @@ bool EnumFavorites(const NetResource* pNR, NetResourceList* pList)
 	{
 		NetResource tmp{};
 		tmp.dwDisplayType = RESOURCEDISPLAYTYPE_DOMAIN;
-		tmp.lpProvider = std::make_unique<std::wstring>(szFavProv);
+		tmp.lpProvider = szFavProv;
 		pList->Push(tmp);
 		return false;
 	}
-	else if (pNR->lpProvider && *pNR->lpProvider == szFavProv)
+	else if (pNR->lpProvider == szFavProv)
 	{
 		PluginSettings settings(MainGuid, PsInfo.SettingsControl);
 		size_t favorites_root = settings.CreateSubKey(0, SZ_FAVORITES);
@@ -79,7 +79,7 @@ bool EnumFavorites(const NetResource* pNR, NetResourceList* pList)
 
 					if (Opt.FavoritesFlags & FAVORITES_CHECK_RESOURCES)
 					{
-						tmp.lpRemoteName = std::make_unique<std::wstring>(szSrc);
+						tmp.lpRemoteName = szSrc;
 						tmp.dwDisplayType = RESOURCEDISPLAYTYPE_SERVER;
 						pList->Push(tmp);
 					}
@@ -97,7 +97,7 @@ bool EnumFavorites(const NetResource* pNR, NetResourceList* pList)
 
 bool CheckFavoriteItem(const NetResource* pNR)
 {
-	return pNR && pNR->lpProvider && *pNR->lpProvider == szFavProv;
+	return pNR && pNR->lpProvider == szFavProv;
 }
 
 bool InFavoriteExists(const wchar_t* lpRemoteName)
@@ -163,20 +163,20 @@ bool GetFavoritesParent(const NetResource& SrcRes, NetResource* lpParent)
 	if (SrcRes.dwDisplayType == RESOURCEDISPLAYTYPE_SHARE)
 		return false;
 
-	if (SrcRes.lpProvider && *SrcRes.lpProvider == szFavProv)
+	if (SrcRes.lpProvider == szFavProv)
 	{
 		return false;
 	}
 
-	if (InFavoriteExists(SrcRes.lpRemoteName->c_str()))
+	if (InFavoriteExists(SrcRes.lpRemoteName.c_str()))
 	{
 		wchar_t res[MAX_PATH];
 		lstrcpy(res, GetMsg(MFavorites));
 
 		*lpParent = {};
-		lpParent->lpProvider = std::make_unique<std::wstring>(szFavProv);
+		lpParent->lpProvider = szFavProv;
 		lpParent->dwDisplayType = RESOURCEDISPLAYTYPE_DOMAIN;
-		lpParent->lpRemoteName = std::make_unique<std::wstring>(res);
+		lpParent->lpRemoteName = res;
 
 		return true;
 	}
@@ -195,7 +195,7 @@ bool GetFavoriteResource(const wchar_t* SrcName, NetResource* DstNetResource)
 			lstrcpy(szKey, L"\\\\");
 			lstrcat(szKey, p1);
 			*DstNetResource = {};
-			DstNetResource->lpRemoteName = std::make_unique<std::wstring>(CharUpper(szKey));
+			DstNetResource->lpRemoteName = CharUpper(szKey);
 			DstNetResource->dwDisplayType = RESOURCEDISPLAYTYPE_SERVER;
 		}
 
