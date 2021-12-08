@@ -12,8 +12,8 @@
   rem   build.bat 32
   rem ---------------------------------------------------------------
 
-  set "ccomp=vc gcc"
-  set "nbits=32 64"
+  set "ccomp=vc"
+  set "nbits=32 64" rem ARM64 -- it's arch really
   set "deb_b=N"
   set "clean=N"& set "cleanonly=N"
   set "vcbld=msbuild"
@@ -39,6 +39,7 @@ goto :EOF
   for %%p in (gcc gnu) do if /i "%%p" == "%~1" set "ccomp=gcc"
   for %%p in (32 x86 win32) do if /i "%%p" == "%~1" set "nbits=32"
   for %%p in (64 x64 win64) do if /i "%%p" == "%~1" set "nbits=64"
+  for %%p in (arm64 arm) do if /i "%%p" == "%~1" set "nbits=arm64"  rem now: ONLY vc 16 msbuild
   for %%p in (32/64 32-64 32x64) do if /i "%%p" == "%~1" set "nbits=32/64"
   for %%p in (64/32 64-32 64x32) do if /i "%%p" == "%~1" set "nbits=64/32"
   for %%p in (rebuild clean) do if /i "%%p" == "%~1" set "clean=Y"
@@ -52,7 +53,7 @@ goto :EOF
 
 :init
   set dirbit=%2
-  set dirbit=%dirbit:~0,2%
+  if not "%2" == "arm64" set dirbit=%dirbit:~0,2%
   if "%1"=="vc" (set "cver=%vcver%") else (set "cver=")
   echo.
   echo build far-%2 %1%cver% [clean=%clean% debug=%deb_b%]
@@ -78,6 +79,7 @@ goto :do_make
   if /i "Y"  == "%clean%"  (set b=Rebuild) else (set b=Build)
   if /i "Y"  == "%cleanonly%"                    set b=Clean
   if /i "64" == "%dirbit%" (set p=x64)    else  (set p=Win32)
+  if /i "arm64" == "%dirbit%" (set p=ARM64)
   if /i "Y"  == "%deb_b%"  (set c=Debug) else (set c=Release)
   msbuild arclite.vcxproj /nologo /t:%b% /p:Configuration=%c%;Platform=%p%
 goto :EOF
@@ -87,6 +89,7 @@ goto :EOF
   set "VisualStudioVersion=%vcver%.0"
   set "vcmod=32"
   if "%~1" == "64" set "vcmod=64"
+  if "%~1" == "arm64" set "vcmod=amd64_arm64"
   if "%vcver%" == "15" call "%VS150COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars%vcmod%.bat"
   if "%vcver%" == "16" call "%VS160COMNTOOLS%\..\..\VC\Auxiliary\Build\vcvars%vcmod%.bat"
 goto :EOF

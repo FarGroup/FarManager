@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+w17 08.12.2021 15:59:17 +0300 - build 323
+
+1. workaround for 7z 21.xx zip backslash purism
+   https://forum.farmanager.com/viewtopic.php?p=169196#p169196
+
 w17 30.11.2021 18:00:17 +0300 - build 322
 
 1. 7z.dll 21.06

@@ -733,6 +733,11 @@ void Archive::make_index() {
   std::map<UInt32, unsigned> dir_index_map;
   DirList dir_list;
 
+  const auto is_dir_split = [](const wchar_t ch)
+  {
+	  return ch == wchar_t(0xF05C) || is_slash(ch);
+  };
+
   DirInfo dir_info;
   UInt32 dir_index = 0;
   ArcFileInfo file_info;
@@ -749,9 +754,9 @@ void Archive::make_index() {
     else
       path.assign(get_default_name());
     size_t name_end_pos = path.size();
-    while (name_end_pos && is_slash(path[name_end_pos - 1])) name_end_pos--;
+    while (name_end_pos && is_dir_split(path[name_end_pos - 1])) name_end_pos--;
     size_t name_pos = name_end_pos;
-    while (name_pos && !is_slash(path[name_pos - 1])) name_pos--;
+    while (name_pos && !is_dir_split(path[name_pos - 1])) name_pos--;
     file_info.name.assign(path.data() + name_pos, name_end_pos - name_pos);
 
     // split path into individual directories and put them into DirList
@@ -761,7 +766,7 @@ void Archive::make_index() {
     while (begin_pos < name_pos) {
       dir_info.index = dir_index;
       size_t end_pos = begin_pos;
-      while (end_pos < name_pos && !is_slash(path[end_pos])) end_pos++;
+      while (end_pos < name_pos && !is_dir_split(path[end_pos])) end_pos++;
       if (end_pos != begin_pos) {
         dir_info.name=path.substr(begin_pos, end_pos - begin_pos);
         if(dir_info.name == L"..")
