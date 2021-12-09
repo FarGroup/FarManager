@@ -149,20 +149,20 @@ using char_ptr = char_ptr_n<1>;
 
 
 template<typename T, size_t Size = 1, REQUIRES(std::is_trivially_copyable_v<T>)>
-class block_ptr: public char_ptr_n<Size>
+class block_ptr: public array_ptr<std::byte, Size>
 {
 public:
 	NONCOPYABLE(block_ptr);
 	MOVABLE(block_ptr);
 
-	using char_ptr_n<Size>::char_ptr_n;
+	using array_ptr<std::byte, Size>::array_ptr;
 	block_ptr() noexcept = default;
 
 	[[nodiscard]]
 	decltype(auto) data() const noexcept
 	{
 		assert(this->size() >= sizeof(T));
-		return reinterpret_cast<T*>(char_ptr_n<Size>::data());
+		return static_cast<T*>(static_cast<void*>((array_ptr<std::byte, Size>::data())));
 	}
 
 	[[nodiscard]]

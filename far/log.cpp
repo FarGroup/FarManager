@@ -359,21 +359,23 @@ namespace
 
 			try
 			{
-				m_Writer.write(L"["sv);
-				m_Writer.write(Message.m_Date);
-				m_Writer.write(L" "sv);
-				m_Writer.write(Message.m_Time);
-				m_Writer.write(L"]["sv);
-				m_Writer.write(Message.m_ThreadId);
-				m_Writer.write(L"]["sv);
-				m_Writer.write(Message.m_LevelString);
-				m_Writer.write(L"] "sv);
-				m_Writer.write(Message.m_Data);
-				m_Writer.write(L" "sv);
-				m_Writer.write(L"["sv);
-				m_Writer.write(Message.m_Location);
-				m_Writer.write(L"]"sv);
-				m_Writer.write(m_Eol);
+				m_Writer.write(
+					L"["sv,
+					Message.m_Date,
+					L" "sv,
+					Message.m_Time,
+					L"]["sv,
+					Message.m_ThreadId,
+					L"]["sv,
+					Message.m_LevelString,
+					L"] "sv,
+					Message.m_Data,
+					L" "sv,
+					L"["sv,
+					Message.m_Location,
+					L"]"sv,
+					m_Eol
+				);
 
 				m_Stream.flush();
 			}
@@ -501,9 +503,9 @@ namespace
 	protected:
 		template<typename... args>
 		explicit async_impl(bool const IsDiscardable):
-			m_IsDiscardable(IsDiscardable)
+			m_IsDiscardable(IsDiscardable),
+			m_Thread(os::thread::mode::join, &async_impl::poll, this)
 		{
-			m_Thread = os::thread(os::thread::mode::join, &async_impl::poll, this);
 		}
 
 		virtual ~async_impl()

@@ -1329,7 +1329,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			break;
 		case SA_BUTTON_SYSTEMDLG:
 			{
-				SHELLEXECUTEINFOW seInfo{ sizeof(seInfo) };
+				SHELLEXECUTEINFO seInfo{ sizeof(seInfo) };
 				seInfo.nShow = SW_SHOW;
 				seInfo.fMask = SEE_MASK_INVOKEIDLIST;
 				NTPath strFullName(SingleSelFileName);
@@ -1346,7 +1346,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				seInfo.lpVerb = L"properties";
 				const auto strCurDir = os::fs::GetCurrentDirectory();
 				seInfo.lpDirectory=strCurDir.c_str();
-				ShellExecuteExW(&seInfo);
+				ShellExecuteEx(&seInfo);
 			}
 			return false;
 

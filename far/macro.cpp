@@ -1307,7 +1307,7 @@ bool KeyMacro::GetMacroSettings(int Key, unsigned long long& Flags, string_view 
 
 bool KeyMacro::ParseMacroString(const wchar_t* Sequence, FARKEYMACROFLAGS Flags, bool skipFile) const
 {
-	const wchar_t* lang = GetMacroLanguage(Flags);
+	const auto lang = GetMacroLanguage(Flags);
 	const auto onlyCheck = (Flags&KMFLAGS_SILENTCHECK) != 0;
 
 	// Перекладываем вывод сообщения об ошибке на плагин, т.к. штатный Message()
@@ -3440,7 +3440,7 @@ void FarMacroApi::panelfexistFunc() const
 */
 void FarMacroApi::flockFunc() const
 {
-	auto Params = parseParams(2, mData);
+	const auto Params = parseParams(2, mData);
 	int Ret = -1;
 	const auto stateFLock = static_cast<int>(Params[1].asInteger());
 	auto vkKey = static_cast<unsigned>(Params[0].asInteger());
@@ -3470,7 +3470,7 @@ void FarMacroApi::flockFunc() const
 // N=Dlg->SetFocus([ID])
 void FarMacroApi::dlgsetfocusFunc() const
 {
-	auto Params = parseParams(1, mData);
+	const auto Params = parseParams(1, mData);
 
 	const auto Index = static_cast<unsigned>(Params[0].asInteger()) - 1;
 

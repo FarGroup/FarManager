@@ -288,7 +288,7 @@ namespace os::process
 		return get_process_name(Pid, {});
 	}
 
-	static string format_process_name(const DWORD Pid, os::chrono::time_point ProcessStartTime, const wchar_t* AppName, const wchar_t* ServiceShortName)
+	static string format_process_name(const DWORD Pid, chrono::time_point ProcessStartTime, const wchar_t* AppName, const wchar_t* ServiceShortName)
 	{
 		auto Str = AppName && *AppName? AppName : L"Unknown"s;
 

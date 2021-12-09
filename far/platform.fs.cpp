@@ -537,7 +537,7 @@ namespace os::fs
 		if (!imports.FindFirstFileNameW)
 			return {};
 
-		NTPath NtFileName(FileName);
+		const NTPath NtFileName(FileName);
 		find_handle Handle;
 		// BUGBUG check result
 		(void)os::detail::ApiDynamicStringReceiver(LinkName, [&](span<wchar_t> Buffer)
@@ -1744,7 +1744,7 @@ namespace os::fs
 
 	bool create_directory(const string_view TemplateDirectory, const string_view NewDirectory, SECURITY_ATTRIBUTES* SecurityAttributes)
 	{
-		NTPath NtNewDirectory(NewDirectory);
+		const NTPath NtNewDirectory(NewDirectory);
 
 		const auto Create = [&](const string& Template)
 		{
@@ -1797,7 +1797,7 @@ namespace os::fs
 
 	handle create_file(const string_view Object, const DWORD DesiredAccess, const DWORD ShareMode, SECURITY_ATTRIBUTES* SecurityAttributes, const DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile, const bool ForceElevation)
 	{
-		NTPath strObject(Object);
+		const NTPath strObject(Object);
 		FlagsAndAttributes |= FILE_FLAG_BACKUP_SEMANTICS;
 		if (CreationDistribution == OPEN_EXISTING || CreationDistribution == TRUNCATE_EXISTING)
 		{

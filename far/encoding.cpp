@@ -168,7 +168,7 @@ static bool is_retarded_error()
 
 static size_t widechar_to_multibyte_with_validation(uintptr_t const Codepage, string_view const Str, span<char> Buffer, encoding::diagnostics* const Diagnostics)
 {
-	const auto ErrorPositionEnabled = Diagnostics && Diagnostics->EnabledDiagnostics & encoding::enabled_diagnostics::error_position;
+	const auto ErrorPositionEnabled = Diagnostics && Diagnostics->EnabledDiagnostics & encoding::diagnostics::error_position;
 	if (ErrorPositionEnabled)
 		Diagnostics->ErrorPosition.reset();
 
@@ -235,7 +235,7 @@ static size_t widechar_to_multibyte_with_validation(uintptr_t const Codepage, st
 
 static size_t multibyte_to_widechar_with_validation(uintptr_t const Codepage, std::string_view Str, span<wchar_t> Buffer, encoding::diagnostics* const Diagnostics)
 {
-	const auto ErrorPositionEnabled = Diagnostics && Diagnostics->EnabledDiagnostics & encoding::enabled_diagnostics::error_position;
+	const auto ErrorPositionEnabled = Diagnostics && Diagnostics->EnabledDiagnostics & encoding::diagnostics::error_position;
 	if (ErrorPositionEnabled)
 		Diagnostics->ErrorPosition.reset();
 
@@ -657,7 +657,7 @@ encoding::writer::writer(std::ostream& Stream, uintptr_t Codepage, bool AddSigna
 {
 }
 
-void encoding::writer::write(const string_view Str)
+void encoding::writer::write_impl(const string_view Str)
 {
 	if (m_AddSignature)
 	{
@@ -673,47 +673,13 @@ void encoding::writer::write(const string_view Str)
 	if (m_Codepage == CP_UNICODE)
 		return io::write(*m_Stream, Str);
 
-
-	diagnostics Diagnostics{ error_position };
+	diagnostics Diagnostics{ diagnostics::error_position };
 	get_bytes(m_Codepage, Str, m_Buffer, m_IgnoreEncodingErrors? nullptr : &Diagnostics);
 
 	if (Diagnostics.ErrorPosition)
 		raise_exception(m_Codepage, Str, *Diagnostics.ErrorPosition);
 
 	io::write(*m_Stream, m_Buffer);
-}
-
-encoding::memory_writer::memory_writer(uintptr_t const Codepage, bool const AddSignature):
-	m_Codepage(Codepage),
-	m_AddSignature(AddSignature)
-{
-}
-
-void encoding::memory_writer::write(string_view Str, const bool validate)
-{
-	if (m_AddSignature)
-	{
-		m_Data.emplace_back(get_signature_bytes(m_Codepage));
-		m_AddSignature = false;
-	}
-
-	// Nothing to do here
-	if (Str.empty())
-		return;
-
-	diagnostics Diagnostics;
-	m_Data.emplace_back(get_bytes(m_Codepage, Str, validate ? &Diagnostics : nullptr));
-
-	if (Diagnostics.ErrorPosition)
-		raise_exception(m_Codepage, Str, *Diagnostics.ErrorPosition);
-}
-
-void encoding::memory_writer::flush_to(std::ostream& Stream)
-{
-	for (const auto& i: m_Data)
-	{
-		io::write(Stream, i);
-	}
 }
 
 //################################################################################################
@@ -945,7 +911,7 @@ static size_t BytesToUnicode(
 	{
 		wchar_t TmpBuffer[2]{};
 		auto ConversionError = false;
-		const auto IncompleteBytes = Diagnostics && Diagnostics->EnabledDiagnostics & encoding::enabled_diagnostics::incomplete_bytes? &Diagnostics->IncompleteBytes : nullptr;
+		const auto IncompleteBytes = Diagnostics && Diagnostics->EnabledDiagnostics & encoding::diagnostics::incomplete_bytes? &Diagnostics->IncompleteBytes : nullptr;
 		const auto BytesConsumed = GetChar(StrIterator, StrEnd, TmpBuffer, ConversionError, State, IncompleteBytes);
 
 		if (!BytesConsumed)
@@ -955,7 +921,7 @@ static size_t BytesToUnicode(
 		{
 			TmpBuffer[0] = encoding::replace_char;
 
-			if (Diagnostics && Diagnostics->EnabledDiagnostics & encoding::enabled_diagnostics::error_position && !Diagnostics->ErrorPosition)
+			if (Diagnostics && Diagnostics->EnabledDiagnostics & encoding::diagnostics::error_position && !Diagnostics->ErrorPosition)
 				Diagnostics->ErrorPosition = StrIterator - Str.begin();
 		}
 

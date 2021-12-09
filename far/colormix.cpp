@@ -61,7 +61,7 @@ static auto to_rgba(COLORREF const Color)
 	rgba Rgba;
 	static_assert(sizeof(Rgba) == sizeof(Color));
 
-	std::memcpy(&Rgba, &Color, sizeof(Color));
+	copy_memory(&Color, &Rgba, sizeof(Color));
 	return Rgba;
 }
 
@@ -70,7 +70,7 @@ static auto to_color(rgba const Rgba)
 	COLORREF Color;
 	static_assert(sizeof(Color) == sizeof(Rgba));
 
-	std::memcpy(&Color, &Rgba, sizeof(Rgba));
+	copy_memory(&Rgba, &Color, sizeof(Rgba));
 	return Color;
 }
 

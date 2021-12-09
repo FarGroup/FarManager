@@ -372,8 +372,7 @@ static void MakeListFile(panel_ptr const& Panel, string& ListFileName, bool cons
 
 		transform(Name);
 
-		Writer.write(Name);
-		Writer.write(Eol);
+		Writer.write(Name, Eol);
 	}
 
 	Stream.flush();

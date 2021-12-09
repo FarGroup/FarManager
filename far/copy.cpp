@@ -2930,6 +2930,15 @@ bool ShellCopy::AskOverwrite(
 	if (Flags & FCOPY_COPYTONUL)
 		return true;
 
+	Append = FALSE;
+
+	if (DestAttr == INVALID_FILE_ATTRIBUTES)
+		if ((DestAttr = os::fs::get_file_attributes(DestName)) == INVALID_FILE_ATTRIBUTES)
+			return true;
+
+	if (DestAttr & FILE_ATTRIBUTE_DIRECTORY)
+		return true;
+
 	enum
 	{
 		DlgH = 13,
@@ -2958,14 +2967,6 @@ bool ShellCopy::AskOverwrite(
 
 	os::fs::find_data DestData;
 	int DestDataFilled=FALSE;
-	Append=FALSE;
-
-	if (DestAttr==INVALID_FILE_ATTRIBUTES)
-		if ((DestAttr = os::fs::get_file_attributes(DestName)) == INVALID_FILE_ATTRIBUTES)
-			return true;
-
-	if (DestAttr & FILE_ATTRIBUTE_DIRECTORY)
-		return true;
 
 	const auto FormatLine = [&](const os::chrono::time_point TimePoint, lng Label, unsigned long long Size)
 	{
@@ -3072,7 +3073,7 @@ bool ShellCopy::AskOverwrite(
 		case overwrite::rename:
 			RetCode = COPY_RETRY;
 			strNewName = strDestName;
-			break;
+			return true;
 
 		case overwrite::append_all:
 			OvrMode = overwrite::append;
@@ -3086,8 +3087,6 @@ bool ShellCopy::AskOverwrite(
 		}
 	}
 
-	if (RetCode!=COPY_RETRY)
-	{
 		if (DestAttr & FILE_ATTRIBUTE_READONLY)
 		{
 			auto MsgCode = message_result::first_button;
@@ -3174,7 +3173,6 @@ bool ShellCopy::AskOverwrite(
 		{
 			LOGWARNING(L"set_file_attributes({}): {}"sv, DestName, last_error());
 		}
-	}
 
 	return true;
 }

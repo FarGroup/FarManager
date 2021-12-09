@@ -734,8 +734,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 
 			for (const auto& i: Container)
 			{
-				Writer.write(string_view(i).substr(offset));
-				Writer.write(Eol);
+				Writer.write(string_view(i).substr(offset), Eol);
 			}
 
 			Stream.flush();

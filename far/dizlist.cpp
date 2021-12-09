@@ -350,23 +350,24 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 		}
 
 		// Encoding could fail, so we need to prepare the data before touching the file
-		encoding::memory_writer Writer(*m_CodePage);
+		std::stringstream StrStream;
+		StrStream.exceptions(StrStream.badbit | StrStream.failbit);
+		encoding::writer Writer(StrStream, *m_CodePage, !Global->Opt->Diz.ValidateConversion);
 		const auto Eol = eol::win.str();
 
 		for (const auto& i_ptr: m_OrderForWrite)
 		{
 			const auto& [Name, Lines] = *i_ptr;
-			Writer.write(quote_space(Name), Global->Opt->Diz.ValidateConversion);
+			Writer.write(quote_space(Name));
 			for (const auto& Description: Lines)
 			{
-				Writer.write(Description, Global->Opt->Diz.ValidateConversion);
-				Writer.write(Eol);
+				Writer.write(Description, Eol);
 			}
 		}
 
 		save_file_with_replace(m_DizFileName, FileAttr, Global->Opt->Diz.SetHidden? FILE_ATTRIBUTE_HIDDEN : 0, false, [&](std::ostream& Stream)
 		{
-			Writer.flush_to(Stream);
+			Stream << StrStream.rdbuf();
 		});
 	}
 	catch (const far_exception& e)

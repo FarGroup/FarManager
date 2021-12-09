@@ -2065,8 +2065,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 					Line.SetEOL(LineEol);
 				}
 
-				Writer.write(SaveStr);
-				Writer.write(LineEol.str());
+				Writer.write(SaveStr, LineEol.str());
 			}
 		});
 	}

@@ -394,7 +394,7 @@ static auto GetHotplugDevicesInfo(bool const IncludeSafeToRemove)
 	std::vector<DeviceInfo> Result;
 
 	DEVNODE Root;
-	if (CM_Locate_DevNodeW(&Root, nullptr, CM_LOCATE_DEVNODE_NORMAL) == CR_SUCCESS)
+	if (CM_Locate_DevNode(&Root, nullptr, CM_LOCATE_DEVNODE_NORMAL) == CR_SUCCESS)
 	{
 		GetHotplugDevicesInfo(Root, Result, IncludeSafeToRemove);
 	}
