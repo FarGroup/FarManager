@@ -130,7 +130,7 @@ bool filemasks::assign(string_view Str, DWORD const Flags)
 	clear();
 
 	string ExpandedGroups(Str);
-	std::unordered_set<string> UsedGroups;
+	unordered_string_set UsedGroups;
 	size_t LBPos, RBPos;
 	string MaskGroupValue;
 

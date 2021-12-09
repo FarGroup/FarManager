@@ -330,7 +330,7 @@ private:
 	std::vector<string> m_Messages;
 };
 
-static void LoadCustomStrings(string_view const FileName, std::unordered_map<string, string>& Strings)
+static void LoadCustomStrings(string_view const FileName, unordered_string_map<string>& Strings)
 {
 	const os::fs::file CustomFile(FileName, FILE_READ_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 	if (!CustomFile)
@@ -392,7 +392,7 @@ void language::load(string_view const Path, string_view const Language, int Coun
 	}
 
 	// try to load Far<LNG>.lng.custom file(s)
-	std::unordered_map<string, string> CustomStrings;
+	unordered_string_map<string> CustomStrings;
 
 	const auto CustomLngInSameDir = Data->m_FileName + L".custom"sv;
 	const auto CustomLngInProfileDir = path::join(Global->Opt->ProfilePath, ExtractFileName(CustomLngInSameDir));

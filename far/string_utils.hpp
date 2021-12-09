@@ -98,23 +98,38 @@ string upper(string_view Str);
 [[nodiscard]]
 string lower(string_view Str);
 
-struct [[nodiscard]] hash_icase_t
+struct [[nodiscard]] string_comparer_icase
 {
+#ifdef __cpp_lib_generic_unordered_lookup
+	using is_transparent = void;
+	using transparent_key_equal = std::equal_to<>;
+	using generic_key = string_view;
+#else
+	using generic_key = string;
+#endif
+
 	[[nodiscard]]
 	size_t operator()(wchar_t Char) const;
 
 	[[nodiscard]]
 	size_t operator()(string_view Str) const;
-};
 
-struct [[nodiscard]] equal_icase_t
-{
 	[[nodiscard]]
 	bool operator()(wchar_t Chr1, wchar_t Chr2) const;
 
 	[[nodiscard]]
 	bool operator()(string_view Str1, string_view Str2) const;
 };
+
+using unordered_string_set_icase = std::unordered_set<string, string_comparer_icase, string_comparer_icase>;
+using unordered_string_multiset_icase = std::unordered_multiset<string, string_comparer_icase, string_comparer_icase>;
+
+template<typename T>
+using unordered_string_map_icase = std::unordered_map<string, T, string_comparer_icase, string_comparer_icase>;
+
+template<typename T>
+using unordered_string_multimap_icase = std::unordered_multimap<string, T, string_comparer_icase, string_comparer_icase>;
+
 
 [[nodiscard]]
 bool equal_icase(string_view Str1, string_view Str2);

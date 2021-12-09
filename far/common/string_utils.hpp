@@ -670,4 +670,36 @@ private:
 	string_view m_Str;
 };
 
+struct string_comparer
+{
+#ifdef __cpp_lib_generic_unordered_lookup
+	using is_transparent = void;
+	using transparent_key_equal = std::equal_to<>;
+	using generic_key = string_view;
+#else
+	using generic_key = string;
+#endif
+
+	[[nodiscard]]
+	size_t operator()(const string_view Str) const
+	{
+		return make_hash(Str);
+	}
+
+	[[nodiscard]]
+	bool operator()(const string_view Str1, const string_view Str2) const
+	{
+		return Str1 == Str2;
+	}
+};
+
+using unordered_string_set = std::unordered_set<string, string_comparer, string_comparer>;
+using unordered_string_multiset = std::unordered_multiset<string, string_comparer, string_comparer>;
+
+template<typename T>
+using unordered_string_map = std::unordered_map<string, T, string_comparer, string_comparer>;
+
+template<typename T>
+using unordered_string_multimap = std::unordered_multimap<string, T, string_comparer, string_comparer>;
+
 #endif // STRING_UTILS_HPP_DE39ECEB_2377_44CB_AF4B_FA5BEA09C8C8

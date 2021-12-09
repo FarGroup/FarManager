@@ -87,7 +87,7 @@ public:
 	std::unique_ptr<os::fs::enum_files> Find;
 	os::fs::enum_files::iterator Iterator;
 	string RealPath;
-	std::unordered_set<string> ActiveDirectories;
+	unordered_string_set ActiveDirectories;
 };
 
 ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction, bool FilesFirst)

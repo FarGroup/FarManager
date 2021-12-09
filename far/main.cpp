@@ -632,7 +632,9 @@ static int mainImpl(span<const wchar_t* const> const Args)
 						{
 							if (const auto EqualPtr = std::wcschr(Arg + 1, L'='))
 							{
-								Overrides.emplace(string(Arg + 1 + SetParam.size(), EqualPtr), EqualPtr + 1);
+								const auto NameData = Arg + 1 + SetParam.size();
+								const size_t NameSize = EqualPtr - NameData;
+								Overrides.emplace(string_view{ NameData, NameSize }, EqualPtr + 1);
 							}
 						}
 						else if (Iter + 1 != Args.end())

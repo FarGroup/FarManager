@@ -2340,7 +2340,7 @@ void PluginManager::GetContentData(
 	string_view const FilePath,
 	const std::vector<const wchar_t*>& ColNames,
 	std::vector<const wchar_t*>& ColValues,
-	std::unordered_map<string,string>& ContentData
+	unordered_string_map<string>& ContentData
 ) const
 {
 	const NTPath Path(FilePath);

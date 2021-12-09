@@ -38,12 +38,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "palette.hpp"
 #include "plugin.hpp"
+#include "string_utils.hpp"
 
 // Platform:
 
 // Common:
 #include "common/multifunction.hpp"
 #include "common/monitored.hpp"
+#include "common/string_utils.hpp"
 #include "common/utility.hpp"
 
 // External:
@@ -54,8 +56,6 @@ struct FarSettingsItem;
 class GeneralConfig;
 class RegExp;
 struct PanelViewSettings;
-struct hash_icase_t;
-struct equal_icase_t;
 struct column;
 struct FARConfigItem;
 
@@ -165,7 +165,7 @@ public:
 	[[nodiscard]]
 	virtual string toString() const = 0;
 	[[nodiscard]]
-	virtual bool TryParse(const string& value) = 0;
+	virtual bool TryParse(string_view value) = 0;
 	[[nodiscard]]
 	virtual string ExInfo() const = 0;
 	[[nodiscard]]
@@ -332,7 +332,7 @@ public:
 	[[nodiscard]]
 	string toString() const override { return Get() ? L"true"s : L"false"s; }
 	[[nodiscard]]
-	bool TryParse(const string& value) override;
+	bool TryParse(string_view value) override;
 	[[nodiscard]]
 	string_view GetType() const override { return L"boolean"sv; }
 	[[nodiscard]]
@@ -352,7 +352,7 @@ public:
 	[[nodiscard]]
 	string toString() const override { const auto v = Get(); return v == BSTATE_CHECKED? L"true"s : v == BSTATE_UNCHECKED? L"false"s : L"other"s; }
 	[[nodiscard]]
-	bool TryParse(const string& value) override;
+	bool TryParse(string_view value) override;
 	[[nodiscard]]
 	string_view GetType() const override { return L"3-state"sv; }
 	[[nodiscard]]
@@ -372,7 +372,7 @@ public:
 	[[nodiscard]]
 	string toString() const override;
 	[[nodiscard]]
-	bool TryParse(const string& value) override;
+	bool TryParse(string_view value) override;
 	[[nodiscard]]
 	string ExInfo() const override;
 	[[nodiscard]]
@@ -401,7 +401,7 @@ public:
 	[[nodiscard]]
 	string toString() const override { return Get(); }
 	[[nodiscard]]
-	bool TryParse(const string& value) override { Set(value); return true; }
+	bool TryParse(string_view value) override { Set(string(value)); return true; }
 	[[nodiscard]]
 	string_view GetType() const override { return L"string"sv; }
 	[[nodiscard]]
@@ -440,7 +440,7 @@ public:
 	Options();
 	~Options();
 	void ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent);
-	using overrides = std::unordered_map<string, string, hash_icase_t, equal_icase_t>;
+	using overrides = unordered_string_map_icase<string_view>;
 	void Load(overrides&& Overrides);
 	void Save(bool Manual);
 	const Option* GetConfigValue(string_view Key, string_view Name) const;

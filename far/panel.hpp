@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/enumerator.hpp"
 #include "common/range.hpp"
+#include "common/string_utils.hpp"
 
 // External:
 
@@ -175,7 +176,7 @@ public:
 	virtual bool GetCurName(string &strName, string &strShortName) const;
 	virtual bool GetCurBaseName(string &strName, string &strShortName) const;
 	virtual bool GetFileName(string& strName, int Pos, os::fs::attributes& FileAttr) const { return false; }
-	virtual const std::unordered_set<string>* GetFilteredExtensions() const { return {}; }
+	virtual const unordered_string_set* GetFilteredExtensions() const { return {}; }
 	virtual int GetCurrentPos() const {return 0;}
 	virtual bool IsFocused() const;
 	virtual void OnFocusChange(bool Get);

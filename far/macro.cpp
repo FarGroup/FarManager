@@ -2778,7 +2778,7 @@ void FarMacroApi::indexFunc() const
 	const auto& p = Params[1].toString();
 
 	const auto StrStr = [](const string& Str1, const string& Str2) { return std::search(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2)); };
-	const auto StrStrI = [](const string& Str1, const string& Str2) { return std::search(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), equal_icase_t{}); };
+	const auto StrStrI = [](const string& Str1, const string& Str2) { return std::search(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), string_comparer_icase{}); };
 
 	const auto i = Params[2].asInteger()? StrStr(s, p) : StrStrI(s, p);
 	const auto Position = i != s.cend() ? i - s.cbegin() : -1;
@@ -2793,7 +2793,7 @@ void FarMacroApi::rindexFunc() const
 	const auto& p = Params[1].toString();
 
 	const auto RevStrStr = [](const string& Str1, const string& Str2) { return std::find_end(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2)); };
-	const auto RevStrStrI = [](const string& Str1, const string& Str2) { return std::find_end(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), equal_icase_t{}); };
+	const auto RevStrStrI = [](const string& Str1, const string& Str2) { return std::find_end(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), string_comparer_icase{}); };
 
 	const auto i = Params[2].asInteger()? RevStrStr(s, p) : RevStrStrI(s, p);
 	const auto Position = i != s.cend()? i - s.cbegin() : -1;

@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/function_ref.hpp"
+#include "common/string_utils.hpp"
 
 // External:
 
@@ -59,7 +60,7 @@ namespace highlight
 	class element;
 }
 
-using content_data = std::unordered_map<string, string>;
+using content_data = unordered_string_map<string>;
 
 class FileListItem: public os::fs::find_data
 {
@@ -159,7 +160,7 @@ public:
 	int GetPrevViewMode() const override;
 	bool GetPrevDirectoriesFirst() const override;
 	bool GetFileName(string &strName, int Pos, os::fs::attributes& FileAttr) const override;
-	const std::unordered_set<string>* GetFilteredExtensions() const override;
+	const unordered_string_set* GetFilteredExtensions() const override;
 	int GetCurrentPos() const override;
 	bool FindPartName(string_view Name, int Next, int Direct = 1) override;
 	bool GetPlainString(string& Dest, int ListPos) const override;
@@ -182,7 +183,7 @@ public:
 	void DeleteDiz(const string& Name, const string& ShortName) override;
 	void FlushDiz() override;
 	string GetDizName() const override;
-	string_view GetDescription(const string& Name, const string& ShortName, long long FileSize) const;
+	string_view GetDescription(string_view Name, string_view ShortName, long long FileSize) const;
 	void CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList *DestDiz) override;
 	bool IsDizDisplayed() const override;
 	bool IsColumnDisplayed(column_type Type) const override;
@@ -402,7 +403,7 @@ private:
 	mutable std::vector<const wchar_t*> m_ContentValues;
 	std::vector<Plugin*> m_ContentPlugins;
 	int m_InsideGetFindData{};
-	std::unordered_set<string> m_FilteredExtensions;
+	unordered_string_set m_FilteredExtensions;
 	std::weak_ptr<PluginsListItem> GetPluginItem() const;
 
 	class background_updater;

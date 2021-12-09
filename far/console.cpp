@@ -1368,17 +1368,27 @@ namespace console_detail
 		});
 	}
 
-	std::unordered_map<string, std::unordered_map<string, string>> console::GetAllAliases() const
-	{
-		FN_RETURN_TYPE(console::GetAllAliases) Result;
+	console::console_aliases::console_aliases() = default;
+	console::console_aliases::~console_aliases() = default;
 
+	struct console::console_aliases::data
+	{
+		// We only use it to bulk copy the aliases from one console to another,
+		// so no need to care about case insensitivity and fancy lookup.
+		std::vector<std::pair<string, std::vector<std::pair<string, string>>>> Aliases;
+	};
+
+	console::console_aliases console::GetAllAliases() const
+	{
 		const auto ExeLength = GetConsoleAliasExesLength();
 		if (!ExeLength)
-			return Result;
+			return {};
 
 		std::vector<wchar_t> ExeBuffer(ExeLength / sizeof(wchar_t) + 1); // +1 for double \0
 		if (!GetConsoleAliasExes(ExeBuffer.data(), ExeLength))
-			return Result;
+			return {};
+
+		auto Aliases = std::make_unique<console_aliases::data>();
 
 		std::vector<wchar_t> AliasesBuffer;
 		for (const auto& ExeToken : enum_substrings(ExeBuffer.data()))
@@ -1390,19 +1400,25 @@ namespace console_detail
 			if (!GetConsoleAliases(AliasesBuffer.data(), AliasesLength, ExeNamePtr))
 				continue;
 
-			auto& ExeMap = Result[ExeNamePtr];
-			for (const auto& AliasToken : enum_substrings(AliasesBuffer.data()))
+			std::pair<string, std::vector<std::pair<string, string>>> ExeData;
+			ExeData.first = ExeNamePtr;
+			for (const auto& AliasToken: enum_substrings(AliasesBuffer.data()))
 			{
-				ExeMap.emplace(split(AliasToken));
+				ExeData.second.emplace_back(split(AliasToken));
 			}
+
+			Aliases->Aliases.emplace_back(std::move(ExeData));
 		}
+
+		console_aliases Result;
+		Result.m_Data = std::move(Aliases);
 
 		return Result;
 	}
 
-	void console::SetAllAliases(const std::unordered_map<string, std::unordered_map<string, string>>& Aliases) const
+	void console::SetAllAliases(console_aliases&& Aliases) const
 	{
-		for (const auto& [ExeName, ExeAliases]: Aliases)
+		for (const auto& [ExeName, ExeAliases]: Aliases.m_Data->Aliases)
 		{
 			for (const auto& [Alias, Value]: ExeAliases)
 			{

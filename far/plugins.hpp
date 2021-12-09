@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/function_traits.hpp"
 #include "common/range.hpp"
 #include "common/smart_ptr.hpp"
+#include "common/string_utils.hpp"
 
 // External:
 
@@ -165,7 +166,7 @@ public:
 	intptr_t ProcessDialogEvent(int Event,FarDialogEvent *Param) const;
 	intptr_t ProcessConsoleInput(ProcessConsoleInputInfo *Info) const;
 	std::vector<Plugin*> GetContentPlugins(const std::vector<const wchar_t*>& ColNames) const;
-	void GetContentData(const std::vector<Plugin*>& Plugins, string_view FilePath, const std::vector<const wchar_t*>& ColNames, std::vector<const wchar_t*>& ColValues, std::unordered_map<string,string>& ContentData) const;
+	void GetContentData(const std::vector<Plugin*>& Plugins, string_view FilePath, const std::vector<const wchar_t*>& ColNames, std::vector<const wchar_t*>& ColValues, unordered_string_map<string>& ContentData) const;
 	Plugin* LoadPluginExternal(const string& ModuleName, bool LoadToMem);
 	bool UnloadPluginExternal(Plugin* pPlugin);
 	bool IsPluginUnloaded(const Plugin* pPlugin) const;

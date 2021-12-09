@@ -1514,7 +1514,7 @@ void detail::OptionImpl<base_type, derived>::StoreValue(GeneralConfig* Storage, 
 }
 
 
-bool BoolOption::TryParse(const string& value)
+bool BoolOption::TryParse(const string_view value)
 {
 	long long iValue;
 	if (!ParseIntValue(value, iValue))
@@ -1537,7 +1537,7 @@ void BoolOption::Export(FarSettingsItem& To) const
 }
 
 
-bool Bool3Option::TryParse(const string& value)
+bool Bool3Option::TryParse(const string_view value)
 {
 	long long iValue;
 	if (!ParseIntValue(value, iValue))
@@ -1565,7 +1565,7 @@ string IntOption::toString() const
 	return str(Get());
 }
 
-bool IntOption::TryParse(const string& value)
+bool IntOption::TryParse(const string_view value)
 {
 	long long iValue;
 	if (!ParseIntValue(value, iValue))

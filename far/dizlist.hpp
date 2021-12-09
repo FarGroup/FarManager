@@ -52,23 +52,23 @@ class DizList: noncopyable
 public:
 	void Read(string_view Path, const string* DizName = nullptr);
 
-	void Set(const string& Name, const string& ShortName, const string& DizText);
-	bool Erase(const string& Name, const string& ShortName);
+	void Set(string_view Name, string_view ShortName, string_view DizText);
+	bool Erase(string_view Name, string_view ShortName);
 
-	string_view Get(const string& Name, const string& ShortName, long long FileSize) const;
+	string_view Get(string_view Name, string_view ShortName, long long FileSize) const;
 
 	void Reset();
 	bool Flush(string_view Path, const string* DizName = nullptr);
-	bool CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName,DizList *DestDiz) const;
+	bool CopyDiz(string_view Name, string_view ShortName, string_view DestName, string_view DestShortName,DizList *DestDiz) const;
 	const string& GetDizName() const { return m_DizFileName; }
 
 private:
 	using description_data = std::list<string>;
-	using desc_map = std::unordered_multimap<string, description_data, hash_icase_t, equal_icase_t>;
+	using desc_map = unordered_string_multimap_icase<description_data>;
 
 	desc_map::iterator Insert(string_view Name);
-	desc_map::iterator Find(const string& Name, const string& ShortName);
-	desc_map::const_iterator Find(const string& Name, const string& ShortName) const;
+	desc_map::iterator Find(string_view Name, string_view ShortName);
+	desc_map::const_iterator Find(string_view Name, string_view ShortName) const;
 
 	desc_map m_DizData;
 	std::list<description_data> m_RemovedEntries;

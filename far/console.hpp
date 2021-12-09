@@ -140,9 +140,20 @@ namespace console_detail
 
 		bool GetAlias(string_view Name, string& Value, string_view ExeName) const;
 
-		std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() const;
+		struct console_aliases
+		{
+			console_aliases();
+			~console_aliases();
 
-		void SetAllAliases(const std::unordered_map<string, std::unordered_map<string, string>>& Aliases) const;
+			MOVE_CONSTRUCTIBLE(console_aliases);
+
+			struct data;
+			std::unique_ptr<data> m_Data;
+		};
+
+		console_aliases GetAllAliases() const;
+
+		void SetAllAliases(console_aliases&& Aliases) const;
 
 		bool GetDisplayMode(DWORD& Mode) const;
 

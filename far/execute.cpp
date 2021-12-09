@@ -368,7 +368,7 @@ static void wait_for_process_or_detach(os::handle const& Process, int const Cons
 		if (std::none_of(Buffer.cbegin(), Buffer.cbegin() + EventsRead, is_detach_key))
 			continue;
 
-		const auto Aliases = console.GetAllAliases();
+		auto Aliases = console.GetAllAliases();
 
 		consoleicons::instance().restore_icon();
 
@@ -398,7 +398,7 @@ static void wait_for_process_or_detach(os::handle const& Process, int const Cons
 		InitConsole();
 
 		consoleicons::instance().set_icon();
-		console.SetAllAliases(Aliases);
+		console.SetAllAliases(std::move(Aliases));
 
 		return;
 	}

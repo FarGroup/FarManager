@@ -343,7 +343,7 @@ bool Panel::SetCurPath()
 	{
 		// Propagate passive panel curent directory to the environment
 		// (only if it won't be overwritten by the active)
-		if (!AnotherPanel->m_CurDir.empty() && (m_CurDir.empty() || !equal_icase_t{}(AnotherPanel->m_CurDir[0], m_CurDir[0])))
+		if (!AnotherPanel->m_CurDir.empty() && (m_CurDir.empty() || !string_comparer_icase{}(AnotherPanel->m_CurDir[0], m_CurDir[0])))
 		{
 			set_drive_env_curdir(AnotherPanel->m_CurDir);
 		}

@@ -184,7 +184,7 @@ void DizList::Read(string_view const Path, const string* DizName)
 	}
 }
 
-string_view DizList::Get(const string& Name, const string& ShortName, const long long FileSize) const
+string_view DizList::Get(const string_view Name, const string_view ShortName, const long long FileSize) const
 {
 	const auto Iterator = Find(Name, ShortName);
 
@@ -231,11 +231,12 @@ string_view DizList::Get(const string& Name, const string& ShortName, const long
 	return string_view(Description).substr(Begin - Description.begin());
 }
 
-DizList::desc_map::iterator DizList::Find(const string& Name, const string& ShortName)
+DizList::desc_map::iterator DizList::Find(const string_view Name, const string_view ShortName)
 {
-	auto Iterator = m_DizData.find(Name);
+	auto Iterator = m_DizData.find(string_comparer::generic_key{ Name });
+
 	if (Iterator == m_DizData.end())
-		Iterator = m_DizData.find(ShortName);
+		Iterator = m_DizData.find(string_comparer::generic_key{ ShortName });
 
 	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
 	if (Iterator == m_DizData.end() && m_CodePage && !IsUnicodeOrUtfCodePage(*m_CodePage))
@@ -251,7 +252,7 @@ DizList::desc_map::iterator DizList::Find(const string& Name, const string& Shor
 	return Iterator;
 }
 
-DizList::desc_map::const_iterator DizList::Find(const string& Name, const string& ShortName) const
+DizList::desc_map::const_iterator DizList::Find(const string_view Name, const string_view ShortName) const
 {
 	return const_cast<DizList&>(*this).Find(Name, ShortName);
 }
@@ -263,7 +264,7 @@ DizList::desc_map::iterator DizList::Insert(string_view const Name)
 	return Iterator;
 }
 
-bool DizList::Erase(const string& Name,const string& ShortName)
+bool DizList::Erase(const string_view Name, const string_view ShortName)
 {
 	const auto Iterator = Find(Name, ShortName);
 	if (Iterator == m_DizData.end())
@@ -352,7 +353,7 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 		// Encoding could fail, so we need to prepare the data before touching the file
 		std::stringstream StrStream;
 		StrStream.exceptions(StrStream.badbit | StrStream.failbit);
-		encoding::writer Writer(StrStream, *m_CodePage, !Global->Opt->Diz.ValidateConversion);
+		encoding::writer Writer(StrStream, *m_CodePage, true, !Global->Opt->Diz.ValidateConversion);
 		const auto Eol = eol::win.str();
 
 		for (const auto& i_ptr: m_OrderForWrite)
@@ -385,7 +386,7 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 	return true;
 }
 
-void DizList::Set(const string& Name,const string& ShortName,const string& DizText)
+void DizList::Set(const string_view Name, const string_view ShortName, const string_view DizText)
 {
 	auto Iterator = Find(Name, ShortName);
 	if (Iterator == m_DizData.end())
@@ -405,7 +406,7 @@ void DizList::Set(const string& Name,const string& ShortName,const string& DizTe
 	m_Modified = true;
 }
 
-bool DizList::CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList* DestDiz) const
+bool DizList::CopyDiz(const string_view Name, const string_view ShortName, const string_view DestName, const string_view DestShortName, DizList* DestDiz) const
 {
 	const auto Iterator = Find(Name, ShortName);
 	if (Iterator == m_DizData.end())

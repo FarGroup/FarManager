@@ -518,7 +518,7 @@ bool ReplaceStrings(string& strStr, const string_view FindStr, const string_view
 void remove_duplicates(string& Str, wchar_t const Char, bool const IgnoreCase)
 {
 	const auto NewEnd = IgnoreCase?
-		std::unique(ALL_RANGE(Str), [Char, Eq = equal_icase_t{}](wchar_t const First, wchar_t const Second){ return Eq(First, Char) && Eq(Second, Char); }) :
+		std::unique(ALL_RANGE(Str), [Char, Eq = string_comparer_icase{}](wchar_t const First, wchar_t const Second){ return Eq(First, Char) && Eq(Second, Char); }) :
 		std::unique(ALL_RANGE(Str), [Char](wchar_t const First, wchar_t const Second){ return First == Char && Second == Char; });
 
 	Str.resize(NewEnd - Str.begin());
@@ -728,7 +728,7 @@ namespace
 							ShiftLength = CMatch[0].length();
 							if (HMatch)
 							{
-								const auto Iterator = HMatch->Matches.find(string(CMatch[1].first, CMatch[1].second));
+								const auto Iterator = HMatch->Matches.find(string_comparer::generic_key{ CMatch[1].first, CMatch[1].second });
 								if (Iterator != HMatch->Matches.cend())
 								{
 									Success = true;

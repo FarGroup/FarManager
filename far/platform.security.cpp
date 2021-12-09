@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.concurrency.hpp"
 
 // Common:
+#include "common/string_utils.hpp"
 
 // External:
 
@@ -53,7 +54,7 @@ namespace
 {
 	static const auto& lookup_privilege_value(const wchar_t* Name)
 	{
-		static std::unordered_map<string, std::optional<LUID>> s_Cache;
+		static unordered_string_map<std::optional<LUID>> s_Cache;
 		static os::critical_section s_CS;
 
 		SCOPED_ACTION(std::lock_guard)(s_CS);

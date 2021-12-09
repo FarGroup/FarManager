@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/singleton.hpp"
+#include "common/string_utils.hpp"
 #include "common/type_traits.hpp"
 
 // External:
@@ -95,7 +96,7 @@ class message_manager: public singleton<message_manager>
 	IMPLEMENTS_SINGLETON;
 
 public:
-	using handlers_map = std::unordered_multimap<string, const detail::event_handler*>;
+	using handlers_map = unordered_string_multimap<const detail::event_handler*>;
 
 	handlers_map::iterator subscribe(UUID const& EventId, const detail::event_handler& EventHandler);
 	handlers_map::iterator subscribe(event_id EventId, const detail::event_handler& EventHandler);

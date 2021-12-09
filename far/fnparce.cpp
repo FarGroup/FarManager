@@ -109,7 +109,7 @@ struct subst_data
 				{
 					FList->ReadDiz();
 					// BUGBUG size
-					m_Description = FList->GetDescription(string(Normal.Name), string(Short.Name), 0);
+					m_Description = FList->GetDescription(Normal.Name, Short.Name, 0);
 				}
 				else
 				{
@@ -134,7 +134,7 @@ struct subst_data
 	bool PassivePanel{};
 	bool EscapeAmpersands{};
 
-	std::unordered_map<string, string>* Variables;
+	unordered_string_map<string>* Variables;
 };
 
 

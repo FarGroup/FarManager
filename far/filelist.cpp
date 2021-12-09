@@ -4496,7 +4496,7 @@ bool FileList::GetFileName(string& strName, int Pos, os::fs::attributes& FileAtt
 	return true;
 }
 
-const std::unordered_set<string>* FileList::GetFilteredExtensions() const
+const unordered_string_set* FileList::GetFilteredExtensions() const
 {
 	return &m_FilteredExtensions;
 }
@@ -4905,7 +4905,7 @@ string FileList::GetDizName() const
 	return m_PanelMode == panel_mode::NORMAL_PANEL? Diz.GetDizName() : string();
 }
 
-string_view FileList::GetDescription(const string& Name, const string& ShortName, long long const FileSize) const
+string_view FileList::GetDescription(const string_view Name, const string_view ShortName, long long const FileSize) const
 {
 	return Diz.Get(Name, ShortName, FileSize);
 }
@@ -6745,7 +6745,7 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 		m_ContentNamesPtrs.clear();
 		m_ContentValues.clear();
 
-		std::unordered_set<string> ColumnsSet;
+		unordered_string_set ColumnsSet;
 
 		for (const auto& ColumnsContainer: { &m_ViewSettings.PanelColumns, &m_ViewSettings.StatusColumns })
 		{

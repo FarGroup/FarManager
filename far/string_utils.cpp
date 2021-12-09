@@ -175,29 +175,29 @@ string lower(string_view const Str)
 	return lower(string(Str));
 }
 
-size_t hash_icase_t::operator()(wchar_t const Char) const
+size_t string_comparer_icase::operator()(wchar_t const Char) const
 {
 	return make_hash(upper(Char));
 }
 
-size_t hash_icase_t::operator()(string_view const Str) const
+size_t string_comparer_icase::operator()(string_view const Str) const
 {
 	return make_hash(upper(Str));
 }
 
-bool equal_icase_t::operator()(wchar_t Chr1, wchar_t Chr2) const
+bool string_comparer_icase::operator()(wchar_t Chr1, wchar_t Chr2) const
 {
 	return Chr1 == Chr2 || upper(Chr1) == upper(Chr2);
 }
 
-bool equal_icase_t::operator()(const string_view Str1, const string_view Str2) const
+bool string_comparer_icase::operator()(const string_view Str1, const string_view Str2) const
 {
 	return equal_icase(Str1, Str2);
 }
 
 bool equal_icase(const string_view Str1, const string_view Str2)
 {
-	return Str1 == Str2 || std::equal(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), equal_icase_t{});
+	return Str1 == Str2 || std::equal(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), string_comparer_icase{});
 }
 
 bool starts_with_icase(const string_view Str, const string_view Prefix)
@@ -215,7 +215,7 @@ size_t find_icase(string_view const Str, string_view const What, size_t Pos)
 	if (Pos >= Str.size())
 		return Str.npos;
 
-	const auto It = std::search(Str.cbegin() + Pos, Str.cend(), ALL_CONST_RANGE(What), equal_icase_t{});
+	const auto It = std::search(Str.cbegin() + Pos, Str.cend(), ALL_CONST_RANGE(What), string_comparer_icase{});
 	return It == Str.cend()? Str.npos : It - Str.cbegin();
 }
 
@@ -224,7 +224,7 @@ size_t find_icase(string_view const Str, wchar_t const What, size_t Pos)
 	if (Pos >= Str.size())
 		return Str.npos;
 
-	const auto It = std::find_if(Str.cbegin() + Pos, Str.cend(), [&](wchar_t const Char) { return equal_icase_t{}(What, Char); });
+	const auto It = std::find_if(Str.cbegin() + Pos, Str.cend(), [&](wchar_t const Char) { return string_comparer_icase{}(What, Char); });
 	return It == Str.cend() ? Str.npos : It - Str.cbegin();
 }
 
@@ -420,14 +420,27 @@ TEST_CASE("string.utils")
 	}
 }
 
-TEST_CASE("string.utils.hash")
+TEST_CASE("string.utils.hash_icase")
 {
-	const hash_icase_t hash;
+	const string_comparer_icase hash;
 	REQUIRE(hash(L'A') == hash(L'a'));
 	REQUIRE(hash(L'A') != hash(L'B'));
 	REQUIRE(hash(L"fooBAR"sv) == hash(L"FOObar"sv));
 	REQUIRE(hash(L"fooBAR"sv) != hash(L"Banana"sv));
 }
+
+#ifdef __cpp_lib_generic_unordered_lookup
+TEST_CASE("string_utils.generic_lookup_icase")
+{
+	const unordered_string_map_icase<int> Map
+	{
+		{ L"ABC"s, 123 },
+	};
+
+	REQUIRE(Map.find(L"AbC"sv) != Map.cend());
+	REQUIRE(Map.find(L"aBc") != Map.cend());
+}
+#endif
 
 TEST_CASE("string.utils.icase")
 {

@@ -1078,6 +1078,19 @@ TEST_CASE("string_utils.misc")
 	REQUIRE(make_string_view(Str.begin() + 1, Str.end() - 1) == L"234"sv);
 }
 
+#ifdef __cpp_lib_generic_unordered_lookup
+TEST_CASE("string_utils.generic_lookup")
+{
+	const unordered_string_map<int> Map
+	{
+		{ L"123"s, 123 },
+	};
+
+	REQUIRE(Map.find(L"123"sv) != Map.cend());
+	REQUIRE(Map.find(L"123") != Map.cend());
+}
+#endif
+
 //----------------------------------------------------------------------------
 
 #include "common/utility.hpp"

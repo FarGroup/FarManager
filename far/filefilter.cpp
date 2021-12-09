@@ -139,7 +139,7 @@ static auto& FilterData()
 
 static auto& TempFilterData()
 {
-	static std::unordered_map<string, FileFilterParams, hash_icase_t, equal_icase_t> sTempFilterData;
+	static unordered_string_map_icase<FileFilterParams> sTempFilterData;
 	return sTempFilterData;
 }
 

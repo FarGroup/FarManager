@@ -88,7 +88,7 @@ namespace
 
 		using level = logging::level;
 
-		static std::unordered_map<string_view, level, hash_icase_t, equal_icase_t> LevelMap
+		static std::unordered_map<string_view, level, string_comparer_icase, string_comparer_icase> LevelMap
 		{
 #define STRLEVEL(x) { WSTRVIEW(x), level::x }
 			STRLEVEL(off),
