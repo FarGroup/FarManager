@@ -186,9 +186,7 @@ void InfoList::DisplayObject()
 
 	m_Flags.Set(FSCROBJ_ISREDRAWING);
 
-	string strOutStr;
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
-	string strDriveRoot;
 	string strVolumeName, strFileSystemName;
 	DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
 	string strDiskNumber;
@@ -296,6 +294,7 @@ void InfoList::DisplayObject()
 			Корректно отображать инфу при заходе в Juction каталог
 			Рут-диск может быть другим
 		*/
+		string strDriveRoot;
 		if (os::fs::file_status(m_CurDir).check(FILE_ATTRIBUTE_REPARSE_POINT))
 		{
 			string strJuncName;
@@ -508,27 +507,24 @@ void InfoList::DisplayObject()
 			GotoXY(m_Where.left + 2, CurY++);
 			PrintText(lng::MInfoPowerStatusBCLifePercent);
 			if (PowerStatus.BatteryLifePercent > 100)
-				strOutStr = msg(lng::MInfoPowerStatusBCLifePercentUnknown);
+				PrintInfo(msg(lng::MInfoPowerStatusBCLifePercentUnknown));
 			else
-				strOutStr = str(PowerStatus.BatteryLifePercent) + L'%';
-			PrintInfo(strOutStr);
+				PrintInfo(str(PowerStatus.BatteryLifePercent) + L'%');
 
 			GotoXY(m_Where.left + 2, CurY++);
 			PrintText(lng::MInfoPowerStatusBC);
-			strOutStr.clear();
 			// PowerStatus.BatteryFlag == 0: The value is zero if the battery is not being charged and the battery capacity is between low and high.
 			if (!PowerStatus.BatteryFlag || PowerStatus.BatteryFlag == BATTERY_FLAG_UNKNOWN)
-				strOutStr=msg(lng::MInfoPowerStatusBCUnknown);
+				PrintInfo(msg(lng::MInfoPowerStatusBCUnknown));
 			else if (PowerStatus.BatteryFlag & BATTERY_FLAG_NO_BATTERY)
-				strOutStr=msg(lng::MInfoPowerStatusBCNoSysBat);
+				PrintInfo(msg(lng::MInfoPowerStatusBCNoSysBat));
 			else
 			{
-				if (PowerStatus.BatteryFlag & BATTERY_FLAG_HIGH)
-					strOutStr = msg(lng::MInfoPowerStatusBCHigh);
-				else if (PowerStatus.BatteryFlag & BATTERY_FLAG_LOW)
-					strOutStr = msg(lng::MInfoPowerStatusBCLow);
-				else if (PowerStatus.BatteryFlag & BATTERY_FLAG_CRITICAL)
-					strOutStr = msg(lng::MInfoPowerStatusBCCritical);
+				auto strOutStr =
+					PowerStatus.BatteryFlag & BATTERY_FLAG_HIGH? msg(lng::MInfoPowerStatusBCHigh) :
+					PowerStatus.BatteryFlag & BATTERY_FLAG_LOW? msg(lng::MInfoPowerStatusBCLow) :
+					PowerStatus.BatteryFlag & BATTERY_FLAG_CRITICAL? msg(lng::MInfoPowerStatusBCCritical) :
+					L""s;
 
 				if (PowerStatus.BatteryFlag & BATTERY_FLAG_CHARGING)
 				{
@@ -536,8 +532,8 @@ void InfoList::DisplayObject()
 						strOutStr += L' ';
 					strOutStr += msg(lng::MInfoPowerStatusBCCharging);
 				}
+				PrintInfo(strOutStr);
 			}
-			PrintInfo(strOutStr);
 
 			const auto GetBatteryTime = [](size_t SecondsCount)
 			{
@@ -686,7 +682,7 @@ void InfoList::SelectShowMode()
 	}
 	Global->Opt->InfoPanel.strShowStatusInfo.clear();
 
-	for (auto& i: SectionState)
+	for (const auto& i: SectionState)
 	{
 		Global->Opt->InfoPanel.strShowStatusInfo += i.Show? L"1"s : L"0"s;
 	}

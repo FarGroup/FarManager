@@ -107,13 +107,13 @@ static string GetHotKeyPluginKey(Plugin const* const pPlugin)
 	return PluginKey;
 }
 
-static wchar_t GetPluginHotKey(Plugin *pPlugin, const UUID& Uuid, hotkey_type HotKeyType)
+static wchar_t GetPluginHotKey(const Plugin* pPlugin, const UUID& Uuid, hotkey_type HotKeyType)
 {
 	const auto strHotKey = ConfigProvider().PlHotkeyCfg()->GetHotkey(GetHotKeyPluginKey(pPlugin), Uuid, HotKeyType);
 	return strHotKey.empty()? L'\0' : strHotKey.front();
 }
 
-bool PluginManager::plugin_less::operator()(const Plugin* a, const Plugin *b) const
+bool PluginManager::plugin_less::operator()(const Plugin* a, const Plugin* b) const
 {
 	return string_sort::less(PointToName(a->ModuleName()), PointToName(b->ModuleName()));
 }
@@ -141,7 +141,7 @@ PluginManager::PluginManager():
 
 void PluginManager::UnloadPlugins()
 {
-	Plugin *Luamacro=nullptr; // обеспечить выгрузку данного плагина последним.
+	Plugin* Luamacro=nullptr; // обеспечить выгрузку данного плагина последним.
 
 	for (const auto& i: SortedPlugins)
 	{
@@ -192,7 +192,7 @@ Plugin* PluginManager::AddPlugin(std::unique_ptr<Plugin>&& pPlugin)
 	return PluginPtr;
 }
 
-bool PluginManager::UpdateId(Plugin *pPlugin, const UUID& Id)
+bool PluginManager::UpdateId(Plugin* pPlugin, const UUID& Id)
 {
 	const auto Iterator = m_Plugins.find(pPlugin->Id());
 	// important, do not delete Plugin instance
@@ -208,7 +208,7 @@ bool PluginManager::UpdateId(Plugin *pPlugin, const UUID& Id)
 	return true;
 }
 
-bool PluginManager::RemovePlugin(Plugin *pPlugin)
+bool PluginManager::RemovePlugin(const Plugin* pPlugin)
 {
 #ifndef NO_WRAPPER
 	if(pPlugin->IsOemPlugin())
@@ -288,7 +288,7 @@ Plugin* PluginManager::LoadPluginExternal(const string& ModuleName, bool LoadToM
 	return pPlugin;
 }
 
-int PluginManager::UnloadPlugin(Plugin *pPlugin, int From)
+int PluginManager::UnloadPlugin(Plugin* pPlugin, int From)
 {
 	int nResult = FALSE;
 
@@ -350,7 +350,7 @@ bool PluginManager::UnloadPluginExternal(Plugin* pPlugin)
 	return Result;
 }
 
-Plugin *PluginManager::FindPlugin(const string& ModuleName) const
+Plugin* PluginManager::FindPlugin(const string& ModuleName) const
 {
 	const auto ItemIterator = std::find_if(CONST_RANGE(SortedPlugins, i)
 	{
@@ -481,7 +481,7 @@ void PluginManager::LoadPluginsFromCache()
 	}
 }
 
-std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type, bool* StopProcessingPtr)
+std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, OPERATION_MODES OpMode, OPENFILEPLUGINTYPE Type, bool* StopProcessingPtr) const
 {
 	bool StopProcessing_Unused;
 	auto& StopProcessing = StopProcessingPtr? *StopProcessingPtr : StopProcessing_Unused;
@@ -716,7 +716,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 	return std::make_unique<plugin_panel>(std::move(*PluginIterator));
 }
 
-std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(span<const PluginPanelItem> const PanelItems)
+std::unique_ptr<plugin_panel> PluginManager::OpenFindListPlugin(span<const PluginPanelItem> const PanelItems) const
 {
 	class plugin_panel_holder: public plugin_panel
 	{
@@ -871,7 +871,7 @@ intptr_t PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, con
 
 		for (const auto& i: SortedPlugins)
 		{
-			if (!i->has(iProcessEditorEvent) || !PluginIds.count(i->Id()))
+			if (!i->has(iProcessEditorEvent) || !contains(PluginIds, i->Id()))
 				continue;
 
 			// The return value is currently ignored
@@ -1183,7 +1183,7 @@ intptr_t PluginManager::Compare(const plugin_panel* hPlugin, const PluginPanelIt
 	return hPlugin->plugin()->Compare(&Info);
 }
 
-void PluginManager::ConfigureCurrent(Plugin *pPlugin, const UUID& Uuid)
+void PluginManager::ConfigureCurrent(Plugin* pPlugin, const UUID& Uuid)
 {
 	ConfigureInfo Info{ sizeof(Info) };
 	Info.Guid = &Uuid;
@@ -1212,7 +1212,7 @@ void PluginManager::ConfigureCurrent(Plugin *pPlugin, const UUID& Uuid)
 
 struct PluginMenuItemData
 {
-	Plugin *pPlugin;
+	Plugin* pPlugin;
 	UUID Uuid;
 };
 
@@ -1225,7 +1225,7 @@ static string AddHotkey(const string& Item, wchar_t Hotkey)
    ! При настройке "параметров внешних модулей" закрывать окно с их
      списком только при нажатии на ESC
 */
-void PluginManager::Configure(int StartPos)
+void PluginManager::Configure(int StartPos) const
 {
 	const auto PluginList = VMenu2::create(msg(lng::MPluginConfigTitle), {}, ScrY - 4);
 	PluginList->SetMenuFlags(VMENU_WRAPMODE);
@@ -1367,7 +1367,7 @@ void PluginManager::Configure(int StartPos)
 	}
 }
 
-int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName)
+int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName) const
 {
 	if (ModalType == windowtype_dialog || ModalType == windowtype_menu)
 	{
@@ -1602,7 +1602,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	return TRUE;
 }
 
-bool PluginManager::SetHotKeyDialog(Plugin* const pPlugin, const UUID& Uuid, const hotkey_type HotKeyType, const string_view DlgPluginTitle)
+bool PluginManager::SetHotKeyDialog(const Plugin* const pPlugin, const UUID& Uuid, const hotkey_type HotKeyType, const string_view DlgPluginTitle)
 {
 	const auto strPluginKey = GetHotKeyPluginKey(pPlugin);
 	auto strHotKey = ConfigProvider().PlHotkeyCfg()->GetHotkey(strPluginKey, Uuid, HotKeyType);
@@ -1728,7 +1728,7 @@ static void ItemsToBuf(PluginMenuItem& Menu, const std::vector<string>& NamesArr
 	}
 }
 
-size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize)
+size_t PluginManager::GetPluginInformation(Plugin* pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize)
 {
 	if(IsPluginUnloaded(pPlugin)) return 0;
 	string Prefix;
@@ -2156,7 +2156,7 @@ bool PluginManager::CallPluginItem(const UUID& Uuid, CallPluginInfo *Data) const
 			return false;
 
 		const auto IFlags = Info.Flags;
-		PluginMenuItem* MenuItems = nullptr;
+		const PluginMenuItem* MenuItems = nullptr;
 
 		// Разрешен ли вызов данного типа в текущей области
 		switch (Data->CallFlags & CPT_MASK)
@@ -2304,7 +2304,7 @@ bool PluginManager::CallPluginItem(const UUID& Uuid, CallPluginInfo *Data) const
 	return Result;
 }
 
-Plugin *PluginManager::FindPlugin(const UUID& SysID) const
+Plugin* PluginManager::FindPlugin(const UUID& SysID) const
 {
 	const auto Iterator = m_Plugins.find(SysID);
 	return Iterator == m_Plugins.cend()? nullptr : Iterator->second.get();
@@ -2389,14 +2389,14 @@ void PluginManager::RefreshPluginsList()
 	}
 }
 
-void PluginManager::UndoRemove(Plugin* plugin)
+void PluginManager::UndoRemove(const Plugin* plugin)
 {
 	const auto i = std::find(UnloadedPlugins.begin(), UnloadedPlugins.end(), plugin);
 	if(i != UnloadedPlugins.end())
 		UnloadedPlugins.erase(i);
 }
 
-bool PluginManager::GetPluginInfo(Plugin *pPlugin, PluginInfo* Info)
+bool PluginManager::GetPluginInfo(Plugin* pPlugin, PluginInfo* Info)
 {
 	return pPlugin->GetPluginInfo(Info);
 }

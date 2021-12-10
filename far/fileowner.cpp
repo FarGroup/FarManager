@@ -63,11 +63,8 @@ static bool SidToName(PSID Sid, string& Name, const string& Computer)
 	auto DomainLength = static_cast<DWORD>(DomainName.size());
 	SID_NAME_USE snu;
 
-	for (;;)
+	while (!LookupAccountSid(EmptyToNull(Computer), Sid, AccountName.data(), &AccountLength, DomainName.data(), &DomainLength, &snu))
 	{
-		if (LookupAccountSid(EmptyToNull(Computer), Sid, AccountName.data(), &AccountLength, DomainName.data(), &DomainLength, &snu))
-			break;
-
 		if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 		{
 			AccountName.reset(AccountLength);
@@ -263,11 +260,8 @@ static auto get_sid(const string& Name)
 	auto SidSize = static_cast<DWORD>(Sid.size());
 	auto ReferencedDomainNameSize = static_cast<DWORD>(ReferencedDomainName.size());
 	SID_NAME_USE Use;
-	for (;;)
+	while (!LookupAccountName(nullptr, Name.c_str(), Sid.get(), &SidSize, ReferencedDomainName.data(), &ReferencedDomainNameSize, &Use))
 	{
-		if (LookupAccountName(nullptr, Name.c_str(), Sid.get(), &SidSize, ReferencedDomainName.data(), &ReferencedDomainNameSize, &Use))
-			break;
-
 		if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 		{
 			Sid.reset(SidSize);

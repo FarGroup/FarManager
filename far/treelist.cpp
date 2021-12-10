@@ -444,12 +444,12 @@ string TreeList::GetTitle() const
 
 void TreeList::DisplayTree(bool Fast)
 {
-	wchar_t TreeLineSymbol[4][3]=
+	const wchar_t TreeLineSymbol[][3]
 	{
-		{L' ',                  L' ',             0},
-		{BoxSymbols[BS_V1],     L' ',             0},
-		{BoxSymbols[BS_LB_H1V1],BoxSymbols[BS_H1],0},
-		{BoxSymbols[BS_L_H1V1], BoxSymbols[BS_H1],0},
+		{ L' ',                   L' ',              0 },
+		{ BoxSymbols[BS_V1],      L' ',              0 },
+		{ BoxSymbols[BS_LB_H1V1], BoxSymbols[BS_H1], 0 },
+		{ BoxSymbols[BS_L_H1V1],  BoxSymbols[BS_H1], 0 },
 	};
 
 	std::optional<LockScreen> LckScreen;
@@ -597,7 +597,7 @@ void TreeList::Update(int Mode)
 	if (RetFromReadTree && !m_ListData.empty() && (!(Mode & UPDATE_KEEP_SELECTION) || LastTreeCount != m_ListData.size()))
 	{
 		SyncDir();
-		auto& CurPtr=m_ListData[m_CurFile];
+		const auto& CurPtr = m_ListData[m_CurFile];
 
 		if (!os::fs::exists(CurPtr.strName))
 		{
@@ -844,7 +844,7 @@ bool TreeList::ReadTree()
 	return true;
 }
 
-void TreeList::SaveTreeFile()
+void TreeList::SaveTreeFile() const
 {
 	if (m_ListData.size() < static_cast<size_t>(Global->Opt->Tree.MinTreeCount))
 		return;
@@ -1638,7 +1638,8 @@ void TreeList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void TreeList::ProcessEnter()
 {
-	auto& CurPtr=m_ListData[m_CurFile];
+	const auto& CurPtr = m_ListData[m_CurFile];
+
 	if (os::fs::is_directory(CurPtr.strName))
 	{
 		if (!m_ModalMode && FarChDir(CurPtr.strName))
@@ -1663,7 +1664,7 @@ bool TreeList::ReadTreeFile()
 	m_ReadingTree = true;
 	SCOPE_EXIT{ m_ReadingTree = false; };
 
-	size_t RootLength=m_Root.empty()?0:m_Root.size()-1;
+	const size_t RootLength = m_Root.empty()? 0 : m_Root.size() - 1;
 	//SaveState();
 	FlushCache();
 	auto strName = MkTreeFileName(m_Root);

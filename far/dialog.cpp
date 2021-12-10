@@ -610,7 +610,7 @@ void Dialog::SetListItemComplexUserData(size_t ListId, size_t ItemId, const std:
 	Items[ListId].ListPtr->SetComplexUserData(Data, static_cast<int>(ItemId));
 }
 
-std::any* Dialog::GetListItemComplexUserData(size_t ListId, size_t ItemId)
+std::any* Dialog::GetListItemComplexUserData(size_t ListId, size_t ItemId) const
 {
 	return Items[ListId].ListPtr->GetComplexUserData(static_cast<int>(ItemId));
 }
@@ -738,7 +738,7 @@ void Dialog::InitDialogObjects(size_t ID)
 				Item.ListPtr = VMenu::create({}, {}, Item.Y2 - Item.Y1 + 1, VMENU_ALWAYSSCROLLBAR | VMENU_LISTBOX, std::static_pointer_cast<Dialog>(shared_from_this()));
 			}
 
-				auto& ListPtr = Item.ListPtr;
+				const auto& ListPtr = Item.ListPtr;
 				ListPtr->SetVDialogItemID(I);
 				/* $ 13.09.2000 SVS
 				   + Флаг DIF_LISTNOAMPERSAND. По умолчанию для DI_LISTBOX &
@@ -803,9 +803,8 @@ void Dialog::InitDialogObjects(size_t ID)
 
 			if (Item.Type == DI_COMBOBOX)
 			{
-				if (Item.ListPtr)
+				if (const auto& ListPtr = Item.ListPtr)
 				{
-					auto& ListPtr = Item.ListPtr;
 					ListPtr->SetBoxType(SHORT_SINGLE_BOX);
 					DialogEdit->SetDropDownBox((Item.Flags& DIF_DROPDOWNLIST) != 0);
 					ListPtr->ChangeFlags(VMENU_WRAPMODE, (Item.Flags& DIF_LISTWRAPMODE) != 0);
@@ -1083,7 +1082,7 @@ bool Dialog::SetItemRect(DialogItemEx& Item, const SMALL_RECT& Rect)
 	return true;
 }
 
-bool Dialog::GetItemRect(size_t I, SMALL_RECT& Rect)
+bool Dialog::GetItemRect(size_t I, SMALL_RECT& Rect) const
 {
 	if (I >= Items.size())
 		return false;
@@ -1621,7 +1620,6 @@ void Dialog::ShowDialog(size_t ID)
 		if (!SendMessage(DN_DRAWDLGITEM, I, nullptr))
 			continue;
 
-		int LenText;
 		short CX1=Item.X1;
 		short CY1=Item.Y1;
 		short CX2=Item.X2;
@@ -1677,7 +1675,7 @@ void Dialog::ShowDialog(size_t ID)
 				{
 					//  ! Пусть диалог сам заботится о ширине собственного заголовка.
 					strStr = truncate_right(Item.strData, CW - 2); // 5 ???
-					LenText=LenStrItem(I,strStr);
+					auto LenText = LenStrItem(I, strStr);
 
 					if (LenText < CW-2)
 					{
@@ -1737,7 +1735,7 @@ void Dialog::ShowDialog(size_t ID)
 							inplace::fit_to_left(strStr, MaxWidth);
 					}
 
-					LenText = LenStrItem(I, strStr);
+					auto LenText = LenStrItem(I, strStr);
 
 					if ((CX2 <= 0) || (CX2 < CX1))
 						CW = LenText;
@@ -1816,7 +1814,7 @@ void Dialog::ShowDialog(size_t ID)
 						else
 							inplace::fit_to_left(strResult, CW);
 
-						LenText=LenStrItem(I,strResult);
+						auto LenText = LenStrItem(I, strResult);
 						X=(CX1==-1 || (Item.Flags & DIF_CENTERTEXT))?(CW-LenText)/2:CX1;
 						if (X < CX1)
 							X=CX1;
@@ -1839,7 +1837,7 @@ void Dialog::ShowDialog(size_t ID)
 			case DI_VTEXT:
 			{
 				strStr = Item.strData;
-				LenText=LenStrItem(I,strStr);
+				auto LenText = LenStrItem(I, strStr);
 
 				if (!(Item.Flags & (DIF_SEPARATORUSER | DIF_SEPARATOR | DIF_SEPARATOR2)) && (Item.Flags & DIF_CENTERTEXT) && CY1 != -1 && CY2 > CY1)
 				{
@@ -1942,7 +1940,7 @@ void Dialog::ShowDialog(size_t ID)
 				}
 
 				strStr += Item.strData;
-				LenText=LenStrItem(I, strStr);
+				auto LenText = LenStrItem(I, strStr);
 
 				if (CX1 + LenText >= m_Where.width())
 					strStr.resize(ObjWidth()-1);
@@ -3987,7 +3985,7 @@ bool Dialog::AddToEditHistory(DialogItemEx const& CurItem, string_view const Add
 	return true;
 }
 
-int Dialog::CheckHighlights(WORD CheckSymbol,int StartPos)
+int Dialog::CheckHighlights(WORD CheckSymbol, int StartPos) const
 {
 	if (StartPos < 0)
 		StartPos=0;
@@ -4804,9 +4802,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 		{
 			if (Type==DI_LISTBOX || Type==DI_COMBOBOX)
 			{
-				auto& ListBox = CurItem.ListPtr;
-
-				if (ListBox)
+				if (const auto& ListBox = CurItem.ListPtr)
 				{
 					intptr_t Ret=TRUE;
 
@@ -5481,8 +5477,7 @@ intptr_t Dialog::SendMessage(intptr_t Msg,intptr_t Param1,void* Param2)
 					case DI_PSWEDIT:
 					case DI_FIXEDIT:
 					{
-						const auto edit = static_cast<const DlgEdit*>(CurItem.ObjPtr);
-						if (edit)
+						if (const auto edit = static_cast<const DlgEdit*>(CurItem.ObjPtr))
 						{
 							Ptr = edit->GetString().data();
 							Len = edit->GetLength();

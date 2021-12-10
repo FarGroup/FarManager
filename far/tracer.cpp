@@ -311,7 +311,7 @@ std::vector<uintptr_t> tracer_detail::tracer::get(string_view const Module, CONT
 	return GetBackTrace(ContextRecord, ThreadHandle);
 }
 
-void tracer_detail::tracer::get_symbols(string_view const Module, span<uintptr_t const> const Trace, function_ref<void(string&& Line)> const Consumer)
+void tracer_detail::tracer::get_symbols(string_view const Module, span<uintptr_t const> const Trace, function_ref<void(string&& Line)> const Consumer) const
 {
 	SCOPED_ACTION(with_symbols)(Module);
 
@@ -327,7 +327,7 @@ void tracer_detail::tracer::get_symbols(string_view const Module, span<uintptr_t
 	});
 }
 
-void tracer_detail::tracer::get_symbol(string_view const Module, const void* Ptr, string& Address, string& Name, string& Source)
+void tracer_detail::tracer::get_symbol(string_view const Module, const void* Ptr, string& Address, string& Name, string& Source) const
 {
 	SCOPED_ACTION(with_symbols)(Module);
 

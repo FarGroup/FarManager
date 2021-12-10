@@ -71,7 +71,7 @@ MenuItemEx& VMenu2::current()
 	return ListBox().current();
 }
 
-int VMenu2::GetShowItemCount()
+int VMenu2::GetShowItemCount() const
 {
 	return ListBox().GetShowItemCount();
 }

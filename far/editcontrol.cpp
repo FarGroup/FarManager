@@ -441,13 +441,13 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 					if (i.Text == Str.data() || !starts_with_icase(i.Text, Str))
 						continue;
 
-					MenuItemEx Item;
+					MenuItemEx Item(i.Text);
 					// Preserve the case of the already entered part
 					if (Global->Opt->AutoComplete.AppendCompletion)
 					{
 						Item.ComplexUserData = cmp_user_data{ Str + (i.Text + Str.size()) };
 					}
-					ComplMenu->AddItem(i.Text);
+					ComplMenu->AddItem(Item);
 				}
 			}
 

@@ -69,7 +69,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common.hpp"
-#include "common/function_traits.hpp"
 #include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
 #include "common/view/enumerate.hpp"
@@ -277,11 +276,14 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 	if (stop_on_edge && CheckFlags(VMENU_WRAPMODE) && ((Direct > 0 && Pos < SelectPos) || (Direct<0 && Pos>SelectPos)))
 		Pos = SelectPos;
 
-	auto Parent = GetDialog();
-	if (Pos != SelectPos && CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX) && Parent && Parent->IsInited() && !Parent->SendMessage(DN_LISTCHANGE, DialogItemID, ToPtr(Pos)))
+
+	if (Pos != SelectPos && CheckFlags(VMENU_COMBOBOX | VMENU_LISTBOX))
 	{
-		UpdateItemFlags(SelectPos, Items[SelectPos].Flags|LIF_SELECTED);
-		return -1;
+		if (const auto Parent = GetDialog(); Parent && Parent->IsInited() && !Parent->SendMessage(DN_LISTCHANGE, DialogItemID, ToPtr(Pos)))
+		{
+			UpdateItemFlags(SelectPos, Items[SelectPos].Flags | LIF_SELECTED);
+			return -1;
+		}
 	}
 
 	if (Pos >= 0)
@@ -719,7 +721,7 @@ void VMenu::FilterStringUpdated()
 
 void VMenu::FilterUpdateHeight(bool bShrink)
 {
-	auto Parent = std::dynamic_pointer_cast<VMenu2>(GetDialog());
+	const auto Parent = std::dynamic_pointer_cast<VMenu2>(GetDialog());
 
 	if (WasAutoHeight || Parent)
 	{
@@ -878,10 +880,10 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 
 			if (Param>=0 && Param<static_cast<intptr_t>(Items.size()))
 			{
-				auto& menuEx = at(Param);
+				const auto& menuEx = at(Param);
 				if (OpCode == MCODE_F_MENU_GETVALUE)
 				{
-					*static_cast<string *>(vParam) = menuEx.Name;
+					*static_cast<string*>(vParam) = menuEx.Name;
 					return 1;
 				}
 				else
@@ -1500,7 +1502,7 @@ bool VMenu::ProcessKey(const Manager::Key& Key)
 
 bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
-	auto Parent = GetDialog();
+	const auto Parent = GetDialog();
 	if (IsComboBox() && !Parent->GetDropDownOpened())
 	{
 		Close(-1);
@@ -1524,8 +1526,8 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return false;
 	}
 
-	int MsX=MouseEvent->dwMousePosition.X;
-	int MsY=MouseEvent->dwMousePosition.Y;
+	const int MsX = MouseEvent->dwMousePosition.X;
+	const int MsY = MouseEvent->dwMousePosition.Y;
 
 	// необходимо знать, что RBtn был нажат ПОСЛЕ появления VMenu, а не до
 	if (MouseEvent->dwButtonState&RIGHTMOST_BUTTON_PRESSED && MouseEvent->dwEventFlags==0)
@@ -1750,7 +1752,7 @@ bool VMenu::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	return false;
 }
 
-int VMenu::GetVisualPos(int Pos)
+int VMenu::GetVisualPos(int Pos) const
 {
 	if (!ItemHiddenCount)
 		return Pos;
@@ -1764,7 +1766,7 @@ int VMenu::GetVisualPos(int Pos)
 	return std::count_if(Items.cbegin(), Items.cbegin() + Pos, [](const auto& Item) { return ItemIsVisible(Item); });
 }
 
-int VMenu::VisualPosToReal(int VPos)
+int VMenu::VisualPosToReal(int VPos) const
 {
 	if (!ItemHiddenCount)
 		return VPos;
@@ -2244,13 +2246,13 @@ void VMenu::ShowMenu(bool IsParent)
 
 				if (!Items[I].Annotations.empty())
 				{
-						int StartOffset = 1; // 1 is '<<' placeholder size
 						size_t Pos = 0;
 						FarColor InvColor = CurColor;
 						using std::swap;
 						swap(InvColor.ForegroundColor, InvColor.BackgroundColor);
 						for (const auto& [AnnPos, AnnSize]: Items[I].Annotations)
 						{
+							const int StartOffset = 1; // 1 is '<<' placeholder size
 							const size_t pre_len = AnnPos - Items[I].ShowPos + StartOffset - Pos + 1;
 							if (Pos < strMenuLine.size())
 							{
@@ -2352,7 +2354,7 @@ void VMenu::ShowMenu(bool IsParent)
 	}
 }
 
-int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
+int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos) const
 {
 	if (CheckSymbol)
 		CheckSymbol=upper(CheckSymbol);
@@ -2362,9 +2364,7 @@ int VMenu::CheckHighlights(wchar_t CheckSymbol, int StartPos)
 		if (!ItemIsVisible(Items[I]))
 			continue;
 
-		const auto Ch = GetHighlights(&Items[I]);
-
-		if (Ch)
+		if (const auto Ch = GetHighlights(&Items[I]))
 		{
 			if (CheckSymbol == upper(Ch) || CheckSymbol == upper(KeyToKeyLayout(Ch)))
 				return static_cast<int>(I);
@@ -2801,12 +2801,12 @@ int VMenu::GetTypeAndName(string &strType, string &strName)
 }
 
 // return Pos || -1
-int VMenu::FindItem(const FarListFind *FItem)
+int VMenu::FindItem(const FarListFind *FItem) const
 {
 	return FindItem(FItem->StartIndex,FItem->Pattern,FItem->Flags);
 }
 
-int VMenu::FindItem(int StartIndex, string_view const Pattern, unsigned long long Flags)
+int VMenu::FindItem(int StartIndex, string_view const Pattern, unsigned long long Flags) const
 {
 	if (static_cast<size_t>(StartIndex) < Items.size())
 	{

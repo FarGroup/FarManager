@@ -58,7 +58,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common.hpp"
 #include "common/base64.hpp"
 #include "common/bytes_view.hpp"
-#include "common/chrono.hpp"
 #include "common/function_ref.hpp"
 #include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
@@ -1555,7 +1554,7 @@ private:
 
 	string GetTextFromID(size_t StatementIndex, primary_key const id) const
 	{
-		auto Stmt = AutoStatement(StatementIndex);
+		const auto Stmt = AutoStatement(StatementIndex);
 		return Stmt->Bind(id).Step()? Stmt->GetColText(0) : string{};
 	}
 
@@ -1805,35 +1804,31 @@ private:
 
 		// TODO: SEH guard, try/catch, exception_ptr
 
-		for (;;)
+		while (os::handle::wait_any({ AsyncWork.native_handle(), StopEvent.native_handle() }) != 1)
 		{
-			if (os::handle::wait_any({ AsyncWork.native_handle(), StopEvent.native_handle() }) == 1)
-				break;
-
 			bool bAddDelete=false, bCommit=false;
 
+			for (auto Messages = WorkQueue.pop_all(); !Messages.empty(); Messages.pop())
 			{
-				for (auto Messages = WorkQueue.pop_all(); !Messages.empty(); Messages.pop())
-				{
-					SCOPE_EXIT{ SQLiteDb::EndTransaction(); };
+				SCOPE_EXIT{ SQLiteDb::EndTransaction(); };
 
-					auto& item = Messages.front();
-					if (item) //DeleteAndAddAsync
-					{
-						SQLiteDb::BeginTransaction();
-						if (item->DeleteId)
-							DeleteInternal(item->DeleteId);
-						AddInternal(item->TypeHistory, item->HistoryName, item->Type, item->Lock, item->strName, item->Time, item->strUuid, item->strFile, item->strData);
-						bAddDelete = true;
-					}
-					else // EndTransaction
-					{
-						bCommit = true;
-					}
+				if (const auto& item = Messages.front()) //DeleteAndAddAsync
+				{
+					SQLiteDb::BeginTransaction();
+					if (item->DeleteId)
+						DeleteInternal(item->DeleteId);
+					AddInternal(item->TypeHistory, item->HistoryName, item->Type, item->Lock, item->strName, item->Time, item->strUuid, item->strFile, item->strData);
+					bAddDelete = true;
+				}
+				else // EndTransaction
+				{
+					bCommit = true;
 				}
 			}
+
 			if (bAddDelete)
 				AsyncDeleteAddDone.set();
+
 			if (bCommit)
 				AsyncCommitDone.set();
 		}

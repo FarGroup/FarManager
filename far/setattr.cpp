@@ -860,9 +860,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				}
 			}
 
-			const auto FolderPresent = os::fs::is_directory(SingleSelFindData.Attributes);
-
-			if (FolderPresent)
+			if (os::fs::is_directory(SingleSelFindData.Attributes))
 				EnableSubfolders();
 
 			if (SingleSelFindData.Attributes != INVALID_FILE_ATTRIBUTES)

@@ -57,7 +57,7 @@ public:
 	[[nodiscard]] auto rend()    const { return std::end(m_Container); }
 	[[nodiscard]] auto crbegin() const { return std::cbegin(m_Container); }
 	[[nodiscard]] auto crend()   const { return std::cend(m_Container); }
-	
+
 private:
 	container m_Container;
 };

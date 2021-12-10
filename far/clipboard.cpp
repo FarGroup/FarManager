@@ -272,7 +272,7 @@ private:
 
 	bool IsFormatAvailable(unsigned Format) const override
 	{
-		return Format && m_InternalData.count(Format);
+		return Format && contains(m_InternalData, Format);
 	}
 
 	std::unordered_map<unsigned, os::memory::global::ptr> m_InternalData;
@@ -494,37 +494,37 @@ bool clipboard::GetVText(string& Data) const
 //-----------------------------------------------------------------------------
 bool SetClipboardText(const string_view Str)
 {
-	clipboard_accessor Clip;
+	const clipboard_accessor Clip;
 	return Clip->Open() && Clip->SetText(Str);
 }
 
 bool SetClipboardVText(const string_view Str)
 {
-	clipboard_accessor Clip;
+	const clipboard_accessor Clip;
 	return Clip->Open() && Clip->SetVText(Str);
 }
 
 bool GetClipboardText(string& data)
 {
-	clipboard_accessor Clip;
+	const clipboard_accessor Clip;
 	return Clip->Open() && Clip->GetText(data);
 }
 
 bool GetClipboardVText(string& data)
 {
-	clipboard_accessor Clip;
+	const clipboard_accessor Clip;
 	return Clip->Open() && Clip->GetVText(data);
 }
 
 bool ClearClipboard()
 {
-	clipboard_accessor Clip;
+	const clipboard_accessor Clip;
 	return Clip->Open() && Clip->Clear();
 }
 
 bool ClearInternalClipboard()
 {
-	clipboard_accessor Clip(clipboard_mode::internal);
+	const clipboard_accessor Clip(clipboard_mode::internal);
 	return Clip->Open() && Clip->Clear();
 }
 

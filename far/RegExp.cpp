@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/algorithm.hpp"
 #include "common/function_ref.hpp"
 #include "common/movable.hpp"
 #include "common/string_utils.hpp"
@@ -939,7 +940,7 @@ bool RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 						const auto Name = new wchar_t[len + 1];
 						std::memcpy(Name, src + i, len*sizeof(wchar_t));
 						Name[len] = 0;
-						if (!h.Matches.count(Name))
+						if (!contains(h.Matches, Name))
 						{
 							delete[] Name;
 							return SetError(errReferenceToUndefinedNamedBracket, i + (src - start));
@@ -2021,7 +2022,7 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				{
 					if (hmatch)
 					{
-						if (!hmatch->Matches.count(op->nbracket.name))
+						if (!contains(hmatch->Matches, op->nbracket.name))
 						{
 							RegExpMatch sm;
 							sm.start = -1;
@@ -2384,7 +2385,8 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 					}
 					else
 					{
-						if (!hmatch || !hmatch->Matches.count(op->refname))break;
+						if (!hmatch || !contains(hmatch->Matches, op->refname))
+							break;
 						m = &hmatch->Matches[op->refname];
 					}
 

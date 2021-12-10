@@ -160,10 +160,10 @@ private:
 	void FastShow();
 	void DrawWindowFrame() const;
 	void OutString(string_view Str);
-	int  StringLen(string_view Str);
+	int  StringLen(string_view Str) const;
 	void CorrectPosition() const;
-	bool IsReferencePresent();
-	bool GetTopic(int realX, int realY, string& strTopic);
+	bool IsReferencePresent() const;
+	bool GetTopic(int realX, int realY, string& strTopic) const;
 	void MoveToReference(int Forward, int CurScreen);
 	void ReadDocumentsHelp(int TypeIndex);
 	void Search(const os::fs::file& HelpFile, uintptr_t nCodePage);
@@ -1078,7 +1078,7 @@ static bool FastParseLine(string_view Str, int* const pLen, const int x0, const 
 	return found;
 }
 
-bool Help::GetTopic(int realX, int realY, string& strTopic)
+bool Help::GetTopic(int realX, int realY, string& strTopic) const
 {
 	strTopic.clear();
 	if (realY <= m_Where.top || realY >= m_Where.bottom || realX <= m_Where.left || realX >= m_Where.right)
@@ -1112,7 +1112,7 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
 }
 
-int Help::StringLen(const string_view Str)
+int Help::StringLen(const string_view Str) const
 {
 	int len = 0;
 	FastParseLine(Str, &len, 0, -1, nullptr, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
@@ -1876,7 +1876,7 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	return true;
 }
 
-bool Help::IsReferencePresent()
+bool Help::IsReferencePresent() const
 {
 	CorrectPosition();
 	const auto StrPos = FixCount + StackData->TopStr + StackData->CurY;

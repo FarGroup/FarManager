@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "lockscrn.hpp"
 #include "interf.hpp"
-#include "message.hpp"
 #include "config.hpp"
 #include "scrsaver.hpp"
 #include "console.hpp"

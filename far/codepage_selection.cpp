@@ -286,7 +286,7 @@ size_t codepages::size() const
 }
 
 // Получаем позицию для вставки таблицы с учётом сортировки по номеру кодовой страницы
-size_t codepages::GetCodePageInsertPosition(uintptr_t codePage, size_t start, size_t length)
+size_t codepages::GetCodePageInsertPosition(uintptr_t codePage, size_t start, size_t length) const
 {
 	const auto GetCodePage = [this](size_t position) -> uintptr_t
 	{
@@ -320,19 +320,18 @@ void codepages::AddCodePages(DWORD codePages)
 	if (codePages & SearchAll)
 		AddStandardCodePage(msg(lng::MFindFileAllCodePages), CP_ALL);
 
-	const auto GetSystemCodepageName = [](uintptr_t const Cp, string_view const SystemName)
+	// system codepages
 	{
-		const auto Info = GetCodePageInfo(Cp);
-		if (!Info)
-			return str(Cp);
-		if (starts_with(Info->Name, SystemName))
-			return Info->Name;
-		return concat(SystemName, L" - "sv, Info->Name);
-	};
+		const auto GetSystemCodepageName = [](uintptr_t const Cp, string_view const SystemName)
+		{
+			const auto Info = GetCodePageInfo(Cp);
+			if (!Info)
+				return str(Cp);
+			if (starts_with(Info->Name, SystemName))
+				return Info->Name;
+			return concat(SystemName, L" - "sv, Info->Name);
+		};
 
-	{
-		// system codepages
-		//
 		const auto AnsiCp = encoding::codepage::ansi();
 
 		bool SeparatorAdded = false;
@@ -359,6 +358,7 @@ void codepages::AddCodePages(DWORD codePages)
 			AddStandardCodePage(GetSystemCodepageName(OemCp, L"OEM"sv), OemCp);
 		}
 	}
+
 	// unicode codepages
 	//
 	AddSeparator(msg(lng::MGetCodePageUnicode));

@@ -310,7 +310,7 @@ void Editor::ShowEditor()
 	DrawScrollbar();
 
 	auto LeftPos = m_it_CurLine->GetLeftPos();
-	Edit::ShowInfo info{ LeftPos, CurPos };
+	const Edit::ShowInfo info{ LeftPos, CurPos };
 	auto Y = m_Where.top;
 
 	for (auto CurPtr = m_it_TopScreen; CurPtr != Lines.end() && Y <= m_Where.bottom; ++CurPtr, ++Y)
@@ -566,9 +566,7 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 		case MCODE_F_EDITOR_SEL:
 		{
 			int iPos;
-			const auto Action = reinterpret_cast<intptr_t>(vParam);
-
-			switch (Action)
+			switch (const auto Action = reinterpret_cast<intptr_t>(vParam))
 			{
 				case 0:  // Get Param
 				{
@@ -3294,7 +3292,7 @@ private:
 bool Editor::Search(bool Next)
 {
 	static string strLastReplaceStr;
-	bool Match,UserBreak,RefreshMe = false;
+	bool Match,UserBreak;
 	std::optional<undo_block> UndoBlock;
 
 	if (Next && strLastSearchStr.empty())
@@ -3643,6 +3641,8 @@ bool Editor::Search(bool Next)
 								m_it_CurLine->SetOvertypeMode(true);
 
 								int I=0;
+								auto RefreshMe = false;
+
 								for (; SearchLength && I<static_cast<int>(strReplaceStrCurrent.size()); ++I, --SearchLength)
 								{
 									const auto Ch = strReplaceStrCurrent[I];
@@ -3907,7 +3907,7 @@ void Editor::PasteFromClipboard()
 	if (m_Flags.Check(FEDITOR_LOCKMODE))
 		return;
 
-	clipboard_accessor Clip;
+	const clipboard_accessor Clip;
 
 	if (Clip->Open())
 	{
@@ -4056,7 +4056,7 @@ void Editor::Copy(int Append)
 		return;
 	}
 
-	clipboard_accessor Clip;
+	const clipboard_accessor Clip;
 
 	if (Clip->Open())
 	{
@@ -5009,7 +5009,7 @@ void Editor::DeleteVBlock()
 
 void Editor::VCopy(int Append)
 {
-	clipboard_accessor Clip;
+	const clipboard_accessor Clip;
 
 	if (Clip->Open())
 	{
@@ -5822,7 +5822,7 @@ bool Editor::GotoBookmark(int Pos)
 	if (static_cast<size_t>(Pos) >= m_SavePos.size())
 		return false;
 
-	auto& Bookmark = m_SavePos[Pos];
+	const auto& Bookmark = m_SavePos[Pos];
 	if (Bookmark.Line == POS_NONE)
 		return true;
 

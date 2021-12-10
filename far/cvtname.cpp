@@ -277,11 +277,8 @@ string ConvertNameToReal(string_view const Object)
 	string Path = FullPath;
 	os::fs::file File;
 
-	for (;;)
+	while (!File.Open(Path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 	{
-		if (File.Open(Path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
-			break;
-
 		if (IsRootPath(Path))
 			break;
 

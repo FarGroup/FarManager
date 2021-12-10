@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "macroopcode.hpp"
 #include "savescr.hpp"
-#include "lockscrn.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "colormix.hpp"
@@ -96,7 +95,7 @@ void HMenu::DisplayObject()
 }
 
 
-void HMenu::ShowMenu()
+void HMenu::ShowMenu() const
 {
 	GotoXY(m_Where.left + 2, m_Where.top);
 
@@ -278,7 +277,7 @@ bool HMenu::ProcessPositioningKey(unsigned LocalKey)
 
 bool HMenu::ProcessKey(const Manager::Key& Key)
 {
-	auto LocalKey = Key();
+	const auto LocalKey = Key();
 
 	UpdateSelectPos();
 
@@ -479,9 +478,7 @@ size_t HMenu::CheckHighlights(WORD CheckSymbol, int StartPos) const
 
 	for (const auto& I: irange(StartPos, m_Item.size()))
 	{
-		const auto Ch = GetHighlights(m_Item[I]);
-
-		if (Ch)
+		if (const auto Ch = GetHighlights(m_Item[I]))
 		{
 			if (upper(CheckSymbol) == upper(Ch))
 				return I;

@@ -1428,8 +1428,7 @@ void ShellCopy::copy_selected_items(const string& Dest)
 			}
 			else
 			{
-				const auto SlashPos = FindLastSlash(i.FileName);
-				if (SlashPos)
+				if (const auto SlashPos = FindLastSlash(i.FileName))
 				{
 					tpath.assign(i.FileName, 0, SlashPos + 1);
 				}
@@ -1940,11 +1939,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				const auto strSrcFullName = ConvertNameToFull(Src);
 
 				// Пытаемся переименовать, пока не отменят
-				for (;;)
+				while (!os::fs::move_file(Src, strDestPath))
 				{
-					if (os::fs::move_file(Src, strDestPath))
-						break;
-
 					const auto ErrorState = last_error();
 					switch (OperationFailed(ErrorState, Src, lng::MError, msg(lng::MCopyCannotRenameFolder), true, false))
 					{
@@ -1957,11 +1953,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 						SECURITY_ATTRIBUTES TmpSecAttr{ sizeof(TmpSecAttr), tmpsd? tmpsd.data() : nullptr };
 
-						for (;;)
+						while (!os::fs::create_directory(strDestPath, tmpsd? &TmpSecAttr : nullptr))
 						{
-							if (os::fs::create_directory(strDestPath, tmpsd? &TmpSecAttr : nullptr))
-								break;
-
 							const auto CreateDirectoryErrorState = last_error();
 							switch (OperationFailed(CreateDirectoryErrorState, strDestPath, lng::MError, msg(lng::MCopyCannotCreateFolder), true, false))
 							{
@@ -2813,9 +2806,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 	{
 		case DM_OPENVIEWER:
 		{
-			const auto WFN = reinterpret_cast<const file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
-
-			if (WFN)
+			if (const auto WFN = reinterpret_cast<const file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr)))
 			{
 				NamesList List;
 				List.AddName(*WFN->Src);

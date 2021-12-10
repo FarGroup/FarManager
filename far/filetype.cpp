@@ -85,7 +85,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, FILETYPE_MODE Mode, bool AlwaysWaitFinish, bool AddToHistory, bool RunAs, function_ref<void(execute_info&)> const Launcher)
 {
-	string strCommand, strDescription;
+	string strCommand;
 
 	const subst_context Context(Name, ShortName);
 
@@ -96,10 +96,12 @@ bool ProcessLocalFileTypes(string_view const Name, string_view const ShortName, 
 		int CommandCount=0;
 
 		std::vector<MenuItemEx> MenuItems;
+		string strDescription;
 
 		for(const auto& [Id, Mask]: ConfigProvider().AssocConfig()->TypedMasksEnumerator(Mode))
 		{
 			strCommand.clear();
+			strDescription.clear();
 
 			if (FMask.assign(Mask, FMF_SILENT))
 			{

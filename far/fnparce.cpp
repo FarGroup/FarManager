@@ -619,7 +619,7 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 	return CurStr;
 }
 
-static string_view ProcessVariable(string_view const CurStr, subst_data& SubstData, string& Out)
+static string_view ProcessVariable(string_view const CurStr, const subst_data& SubstData, string& Out)
 {
 	const auto Str = CurStr.substr(1);
 

@@ -591,7 +591,7 @@ TEST_CASE("lazy")
 
 TEST_CASE("monitored")
 {
-	monitored<int> a(42);
+	monitored a(42);
 	REQUIRE(!a.touched());
 	a = 33;
 	REQUIRE(a.touched());
@@ -608,7 +608,7 @@ TEST_CASE("monitored")
 TEST_CASE("movable")
 {
 	const auto Value = 42;
-	movable<int> m1 = Value;
+	movable m1 = Value;
 	REQUIRE(m1 == Value);
 
 	const auto m2 = std::move(m1);
@@ -823,9 +823,9 @@ TEST_CASE("scope_exit")
 
 TEST_CASE("smart_ptr")
 {
-	char_ptr_n<1> Ptr;
+	const char_ptr_n<1> Ptr;
 	constexpr auto ActualStaticSize = sizeof(std::unique_ptr<char[]>) / sizeof(char);
-	char_ptr_n<ActualStaticSize> Ptr2;
+	const char_ptr_n<ActualStaticSize> Ptr2;
 
 	static_assert(sizeof(Ptr) == sizeof(Ptr2));
 	REQUIRE(Ptr.size() == Ptr2.size());

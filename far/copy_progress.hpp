@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "taskbar.hpp"
 #include "wakeful.hpp"
 #include "datetime.hpp"
-#include "windowsfwd.hpp"
 #include "stddlg.hpp"
 
 // Platform:
@@ -108,7 +107,6 @@ private:
 	string m_FilesCopied;
 	std::chrono::steady_clock::duration m_CalcTime{};
 
-private:
 	struct
 	{
 		size_t Copied{};

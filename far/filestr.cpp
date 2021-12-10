@@ -225,7 +225,7 @@ bool enum_lines::GetString(string_view& Str, eol& Eol) const
 			return true;
 
 		},
-		[&](conversion_data& Data)
+		[&](const conversion_data& Data)
 		{
 			if (!GetTString(Data.m_Bytes, Eol))
 				return false;

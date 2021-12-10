@@ -2279,7 +2279,7 @@ void background_searcher::ArchiveSearch(string_view const ArcName)
 	{
 		const auto SavePluginsOutput = std::exchange(Global->DisablePluginsOutput, true);
 
-		string strArcName(ArcName);
+		const string strArcName(ArcName);
 		{
 			SCOPED_ACTION(auto)(m_Owner->ScopedLock());
 			hArc = Global->CtrlObject->Plugins->OpenFilePlugin(&strArcName, OPM_FIND, OFP_SEARCH);

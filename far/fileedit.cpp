@@ -402,7 +402,7 @@ fileeditor_ptr FileEditor::create(const string_view Name, uintptr_t codepage, DW
 
 	FileEditorPtr->SetPosition(Position);
 	FileEditorPtr->m_Flags.Change(FFILEEDIT_FULLSCREEN, (!Position.left && !Position.top && Position.right == ScrX && Position.bottom == ScrY));
-	string EmptyTitle;
+	const string EmptyTitle;
 	FileEditorPtr->Init(Name, codepage, Title, StartLine, StartChar, &EmptyTitle, DeleteOnClose, Update, OpenModeExstFile);
 	return FileEditorPtr;
 }
@@ -1145,9 +1145,8 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 							return false;
 
 						strSaveAsName = unquote(os::env::expand(strSaveAsName));
-						const auto NameChanged = !equal_icase(strSaveAsName, m_Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName);
 
-						if (NameChanged)
+						if (!equal_icase(strSaveAsName, m_Flags.Check(FFILEEDIT_SAVETOSAVEAS)? strFullFileName : strFileName))
 						{
 							if (!AskOverwrite(strSaveAsName))
 							{
@@ -2690,7 +2689,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			if (Param2)
 			{
-				auto& rec = *static_cast<INPUT_RECORD*>(Param2);
+				const auto& rec = *static_cast<const INPUT_RECORD*>(Param2);
 
 				if (ProcessEditorInput(rec))
 					return TRUE;
@@ -2784,16 +2783,15 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 	wchar_t ErrorChar;
 	if (!m_editor->TryCodePage(codepage, ErrorCodepage, ErrorLine, ErrorPos, ErrorChar))
 	{
-		const auto Result = Message(MSG_WARNING,
+		switch (Message(MSG_WARNING,
 			msg(lng::MWarning),
 			{
 				codepages::UnsupportedCharacterMessage(ErrorChar),
 				codepages::FormatName(ErrorCodepage),
 				msg(lng::MEditorSwitchCPConfirm)
 			},
-			{ lng::MCancel, lng::MEditorSaveCPWarnShow, lng::MOk });
-
-		switch (Result)
+			{ lng::MCancel, lng::MEditorSaveCPWarnShow, lng::MOk })
+		)
 		{
 		default:
 		case message_result::first_button:

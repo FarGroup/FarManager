@@ -664,7 +664,7 @@ namespace logging
 				configure_env();
 			}
 
-			for (auto& i: m_Sinks)
+			for (const auto& i: m_Sinks)
 			{
 				i->configure(Parameters);
 			}
@@ -827,7 +827,7 @@ namespace logging
 			(..., configure_sink<args>(SinkNames, AllowAdd));
 		}
 
-		void submit(message const& Message)
+		void submit(message const& Message) const
 		{
 			for (const auto& i: m_Sinks)
 				i->handle(Message);

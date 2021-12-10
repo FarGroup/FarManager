@@ -4241,7 +4241,7 @@ void FileList::CompareDir()
 	select_files(*this);
 	select_files(*Another);
 
-	const auto use_fat_time = [&](FileList& Panel)
+	const auto use_fat_time = [&](const FileList& Panel)
 	{
 		if (Panel.m_PanelMode == panel_mode::PLUGIN_PANEL)
 		{
@@ -4334,7 +4334,7 @@ void FileList::CopyFiles(bool bMoved)
 
 		if(!CopyData.empty())
 		{
-			clipboard_accessor Clip;
+			const clipboard_accessor Clip;
 			if(Clip->Open())
 			{
 				Clip->SetHDROP(CopyData, bMoved);
@@ -5070,7 +5070,7 @@ void FileList::CountDirSize(bool IsRealNames)
 	}
 	Total{};
 
-	time_check TimeCheck;
+	const time_check TimeCheck;
 	std::optional<dirinfo_progress> DirinfoProgress;
 
 	const auto DirInfoCallback = [&](string_view const Name, unsigned long long const ItemsCount, unsigned long long const Size)
@@ -5456,7 +5456,7 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 		return false;
 	}
 
-	auto CurPlugin = std::move(PluginsList.back());
+	const auto CurPlugin = std::move(PluginsList.back());
 	PluginsList.pop_back();
 	--Global->PluginPanelsCount;
 
@@ -6147,7 +6147,7 @@ void FileList::PluginPutFilesToNew()
 	if (!hNewPlugin)
 		return;
 
-	auto TmpPanel = create(nullptr);
+	const auto TmpPanel = create(nullptr);
 	TmpPanel->SetPluginMode(std::move(hNewPlugin), {});  // SendOnFocus??? true???
 	TmpPanel->m_ModalMode = TRUE;
 	const auto PrevFileCount = m_ListData.size();
@@ -7544,9 +7544,7 @@ void FileList::ShowFileList(bool Fast)
 			        m_ViewMode<static_cast<int>(m_CachedOpenPanelInfo.PanelModesNumber) &&
 			        m_CachedOpenPanelInfo.PanelModesArray[m_ViewMode].ColumnTitles)
 			{
-				const wchar_t *NewTitle = m_CachedOpenPanelInfo.PanelModesArray[m_ViewMode].ColumnTitles[I];
-
-				if (NewTitle)
+				if (const auto& NewTitle = m_CachedOpenPanelInfo.PanelModesArray[m_ViewMode].ColumnTitles[I])
 					strTitle=NewTitle;
 			}
 

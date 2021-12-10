@@ -310,11 +310,8 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 	}
 	else
 	{
-		for (;;)
+		while (!ViewFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 		{
-			if (ViewFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
-				break;
-
 			/* $ 04.07.2000 tran
 			   + 'warning' flag processing, in QuickView it is FALSE
 				 so don't show red message box */
@@ -975,7 +972,7 @@ void Viewer::DrawScrollbar()
 		{
 			total = static_cast<unsigned long long>(FileSize);
 			start = static_cast<unsigned long long>(FilePos);
-			auto& last_line = Strings.back();
+			const auto& last_line = Strings.back();
 			end = last_line.nFilePos + last_line.linesize;
 			if ( end == static_cast<unsigned long long>(FileSize) && last_line.linesize > 0 && last_line.eol_length != 0 )
 				++total;
@@ -1214,10 +1211,8 @@ long long Viewer::EndOfScreen(int line)
 			int col = 0;
 			const auto rmargin = static_cast<int>(LeftPos) + Width;
 			wchar_t ch;
-			for (;;)
+			while (vgetc(&ch))
 			{
-				if ( !vgetc(&ch) )
-					break;
 				if (IsEol(ch))
 					break;
 				if ( ch == L'\t' )
@@ -1304,7 +1299,7 @@ long long Viewer::XYfilepos(int col, int row)
 		break;
 
 	case VMT_TEXT:
-		for (auto& i: Strings)
+		for (const auto& i: Strings)
 		{
 			if (i.linesize <= 0)
 			{
@@ -1727,7 +1722,7 @@ bool Viewer::process_key(const Manager::Key& Key)
 				if (m_DisplayMode == VMT_TEXT)
 				{
 					ShowPage(SHOW_UP);
-					ViewerString& end = Strings.back();
+					const auto& end = Strings.back();
 					LastPage = end.nFilePos >= FileSize || (end.eol_length == 0 && end.nFilePos + end.linesize >= FileSize);
 				}
 				else
@@ -2588,8 +2583,7 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 		}
 		case DN_DRAWDIALOGDONE:
 		{
-			auto FirstChar = reinterpret_cast<const Manager::Key*>(Dlg->SendMessage(DM_SETDLGDATA, 0, nullptr));
-			if (FirstChar)
+			if (const auto FirstChar = reinterpret_cast<const Manager::Key*>(Dlg->SendMessage(DM_SETDLGDATA, 0, nullptr)))
 				Global->WindowManager->CallbackWindow([Dlg, FirstChar]() { Dlg->ProcessKey(*FirstChar); });
 			break;
 		}
@@ -3113,7 +3107,6 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 		}
 
 		off = m[0].start + 1; // skip
-		continue;
 	}
 
 	if (prev_len >= 0)
@@ -3578,8 +3571,7 @@ int Viewer::vread(wchar_t *Buf, int Count, wchar_t *Buf2)
 			for (size_t i = 0; i < ConvertSize; )
 			{
 				bool EndOfData = false;
-				const auto clen = MB.GetChar({ TmpBuf + i, ConvertSize - i }, Buf[ReadSize], &EndOfData);
-				if (clen)
+				if (const auto clen = MB.GetChar({ TmpBuf + i, ConvertSize - i }, Buf[ReadSize], &EndOfData))
 				{
 					if (Buf2)
 						Buf2[ReadSize] = Buf[ReadSize];
@@ -3719,8 +3711,7 @@ bool Viewer::vgetc(wchar_t* pCh)
 		if (m_Codepage == MB.GetCP())
 		{
 			bool DataEnd = false;
-			const auto clen = MB.GetChar({ VgetcCache.cbegin(), VgetcCache.size() }, *pCh, &DataEnd);
-			if (clen)
+			if (const auto clen = MB.GetChar({ VgetcCache.cbegin(), VgetcCache.size() }, *pCh, &DataEnd))
 			{
 				VgetcCache.pop(clen);
 			}

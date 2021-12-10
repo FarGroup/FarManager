@@ -600,7 +600,7 @@ private:
 };
 
 static bool execute_impl(
-	execute_info& Info,
+	const execute_info& Info,
 	function_ref<void(bool)> const ConsoleActivator,
 	string& FullCommand,
 	string& Command,

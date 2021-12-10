@@ -963,13 +963,12 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 		ChDisk->Run([&](const Manager::Key& RawKey)
 		{
-			auto Key = RawKey();
 			const auto SelPos = ChDisk->GetSelectPos();
 			const auto MenuItem = ChDisk->GetComplexUserDataPtr<disk_menu_item>();
 
 			int KeyProcessed = 1;
 
-			switch (Key)
+			switch (const auto& Key = RawKey())
 			{
 			// Shift-Enter в меню выбора дисков вызывает проводник для данного диска
 			case KEY_SHIFTNUMENTER:
@@ -1329,11 +1328,8 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 
 		const auto IsDisk = is_disk(item.Path);
 
-		for (;;)
+		while (!(FarChDir(dos_drive_name(item.Path)) || (IsDisk && FarChDir(dos_drive_root_directory(item.Path)))))
 		{
-			if (FarChDir(dos_drive_name(item.Path)) || (IsDisk && FarChDir(dos_drive_root_directory(item.Path))))
-				break;
-
 			error_state_ex const ErrorState = last_error();
 
 			DialogBuilder Builder(lng::MError);
@@ -1402,17 +1398,17 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			item.Uuid,
 			0);
 
-		if (hPlugin)
-		{
-			const auto IsActive = Owner->IsFocused();
-			const auto NewPanel = Owner->Parent()->ChangePanel(Owner, panel_type::FILE_PANEL, TRUE, TRUE);
-			NewPanel->SetPluginMode(std::move(hPlugin), {}, IsActive || !NewPanel->Parent()->GetAnotherPanel(NewPanel)->IsVisible());
-			NewPanel->Update(0);
-			NewPanel->Show();
+		if (!hPlugin)
+			return -1;
 
-			if (!IsActive && NewPanel->Parent()->GetAnotherPanel(NewPanel)->GetType() == panel_type::INFO_PANEL)
-				NewPanel->Parent()->GetAnotherPanel(NewPanel)->UpdateKeyBar();
-		}
+		const auto IsActive = Owner->IsFocused();
+		const auto NewPanel = Owner->Parent()->ChangePanel(Owner, panel_type::FILE_PANEL, TRUE, TRUE);
+		NewPanel->SetPluginMode(std::move(hPlugin), {}, IsActive || !NewPanel->Parent()->GetAnotherPanel(NewPanel)->IsVisible());
+		NewPanel->Update(0);
+		NewPanel->Show();
+
+		if (!IsActive && NewPanel->Parent()->GetAnotherPanel(NewPanel)->GetType() == panel_type::INFO_PANEL)
+			NewPanel->Parent()->GetAnotherPanel(NewPanel)->UpdateKeyBar();
 	}
 
 	return -1;

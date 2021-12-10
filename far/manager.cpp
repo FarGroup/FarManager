@@ -386,7 +386,7 @@ int Manager::GetModalExitCode() const
 /* $ 11.10.2001 IS
    Подсчитать количество окон с указанным именем.
 */
-int Manager::CountWindowsWithName(string_view const Name, bool IgnoreCase)
+int Manager::CountWindowsWithName(string_view const Name, bool IgnoreCase) const
 {
 	const auto AreEqual = IgnoreCase? equal_icase : equal;
 
@@ -478,7 +478,7 @@ window_ptr Manager::WindowMenu()
 }
 
 
-int Manager::GetWindowCountByType(int Type)
+int Manager::GetWindowCountByType(int Type) const
 {
 	return std::count_if(CONST_RANGE(m_windows, i)
 	{
@@ -487,15 +487,14 @@ int Manager::GetWindowCountByType(int Type)
 }
 
 /*$ 11.05.2001 OT Теперь можно искать файл не только по полному имени, но и отдельно - путь, отдельно имя */
-window_ptr Manager::FindWindowByFile(int const ModalType, string_view const FileName)
+window_ptr Manager::FindWindowByFile(int const ModalType, string_view const FileName) const
 {
 	const auto ItemIterator = std::find_if(CONST_RANGE(m_windows, i)
 	{
-		string strType, strName;
-
 		// Mantis#0000469 - получать Name будем только при совпадении ModalType
 		if (!i->IsDeleting() && i->GetType() == ModalType)
 		{
+			string strType, strName;
 			i->GetTypeAndName(strType, strName);
 
 			if (equal_icase(strName, FileName))
@@ -626,7 +625,7 @@ void Manager::ProcessMainLoop()
 	if (rec.EventType==MOUSE_EVENT && none_of(BaseKey, KEY_MSWHEEL_UP, KEY_MSWHEEL_DOWN, KEY_MSWHEEL_RIGHT, KEY_MSWHEEL_LEFT))
 	{
 		// используем копию структуры, т.к. LastInputRecord может внезапно измениться во время выполнения ProcessMouse
-		auto mer = rec.Event.MouseEvent;
+		const auto mer = rec.Event.MouseEvent;
 		ProcessMouse(&mer);
 	}
 	else
@@ -1013,7 +1012,7 @@ void Manager::RefreshCommit(const window_ptr& Param)
 	if (!Param)
 		return;
 
-	const auto SpecialWindowIterator = SpecialWindow();
+	const auto SpecialWindowIterator = IsSpecialWindow();
 	const auto IsSpecialWindow = m_windows.cend() != SpecialWindowIterator;
 	const auto WindowIndex = std::min(IndexOf(Param), static_cast<int>(SpecialWindowIterator - m_windows.cbegin()));
 
@@ -1021,7 +1020,7 @@ void Manager::RefreshCommit(const window_ptr& Param)
 		return;
 
 	m_windows_changed.push_back(false);
-	auto ChangedIndex = m_windows_changed.size();
+	const auto ChangedIndex = m_windows_changed.size();
 	SCOPE_EXIT
 	{
 		assert(ChangedIndex == m_windows_changed.size());
@@ -1109,7 +1108,7 @@ void Manager::RefreshAllCommit()
 {
 	if (!m_windows.empty())
 	{
-		const auto ItemIterator = SpecialWindow();
+		const auto ItemIterator = IsSpecialWindow();
 		const auto PtrCopy = m_DesktopModalled == 0 ? ((ItemIterator == m_windows.cend()) ? m_windows.front() : *ItemIterator) : m_windows.back();
 		RefreshCommit(PtrCopy);
 	}
@@ -1228,7 +1227,7 @@ FileEditor* Manager::GetCurrentEditor() const
 	return nullptr;
 }
 
-Manager::windows::const_iterator Manager::SpecialWindow()
+Manager::windows::const_iterator Manager::IsSpecialWindow() const
 {
 	return std::find_if(CONST_RANGE(m_windows, i) { return i->IsSpecial(); });
 }

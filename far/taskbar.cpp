@@ -115,14 +115,12 @@ private:
 
 		for (;;)
 		{
-			const auto WaitResult = os::handle::wait_any(
+			switch (os::handle::wait_any(
 			{
 				m_ExitEvent.native_handle(),
 				m_StateEvent.native_handle(),
 				m_ValueEvent.native_handle(),
-			});
-
-			switch (WaitResult)
+			}))
 			{
 			case 0:
 				return;

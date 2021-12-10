@@ -124,7 +124,7 @@ namespace os::security
 		if (Names.empty())
 			return;
 
-		block_ptr<TOKEN_PRIVILEGES> NewState(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (Names.size() - 1));
+		const block_ptr<TOKEN_PRIVILEGES> NewState(sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * (Names.size() - 1));
 		NewState->PrivilegeCount = 0;
 
 		for (const auto& i: Names)

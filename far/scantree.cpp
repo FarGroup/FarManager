@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
+#include "common/algorithm.hpp"
 #include "common/string_utils.hpp"
 
 // External:
@@ -231,7 +232,7 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 				RealPath = NTPath(ConvertNameToReal(RealPath));
 
 			//recursive symlinks guard
-			if (!ScanItems.back().ActiveDirectories.count(RealPath))
+			if (!contains(ScanItems.back().ActiveDirectories, RealPath))
 			{
 				CutToSlash(strFindPath);
 				path::append(strFindPath, fdata.FileName, strFindMask);

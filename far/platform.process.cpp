@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/algorithm.hpp"
 #include "common/bytes_view.hpp"
 #include "common/io.hpp"
+#include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
 
 // External:

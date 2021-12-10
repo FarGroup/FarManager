@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/io.hpp"
 #include "common/range.hpp"
+#include "common/scope_exit.hpp"
 
 // External:
 #include "format.hpp"
@@ -118,19 +119,16 @@ void PrintFiles(FileList* SrcPanel)
 
 		DWORD Needed = 0, PrintersCount = 0;
 
-		for (;;)
+		while (!EnumPrinters(
+			PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS,
+			nullptr,
+			4,
+			static_cast<BYTE*>(static_cast<void*>(pi.data())),
+			static_cast<DWORD>(pi.size()),
+			&Needed,
+			&PrintersCount
+		))
 		{
-			if (EnumPrinters(
-				PRINTER_ENUM_LOCAL | PRINTER_ENUM_CONNECTIONS,
-				nullptr,
-				4,
-				static_cast<BYTE*>(static_cast<void*>(pi.data())),
-				static_cast<DWORD>(pi.size()),
-				&Needed,
-				&PrintersCount
-			))
-				break;
-
 			if (Needed > pi.size())
 			{
 				pi.reset(Needed);

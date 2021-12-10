@@ -84,7 +84,7 @@ private:
 	void DisplayObject() override;
 	string GetTitle() const override { return {}; }
 
-	void ShowMenu();
+	void ShowMenu() const;
 	bool ProcessCurrentSubMenu();
 	bool ProcessPositioningKey(unsigned LocalKey);
 	static wchar_t GetHighlights(const HMenuData& Item);

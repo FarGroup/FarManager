@@ -65,7 +65,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/scope_exit.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
@@ -946,7 +945,7 @@ class seh_exception final: public far_exception
 {
 public:
 	template<typename... args>
-	explicit seh_exception(EXCEPTION_POINTERS& Pointers, args&&... Args):
+	explicit seh_exception(EXCEPTION_POINTERS const& Pointers, args&&... Args):
 		far_exception(FWD(Args)...),
 		m_Context(std::make_shared<seh_exception_context>(Pointers))
 	{}
@@ -1283,7 +1282,7 @@ namespace detail
 		return EXCEPTION_CONTINUE_SEARCH;
 	}
 
-	int seh_thread_filter(std::exception_ptr& Ptr, EXCEPTION_POINTERS* const Info)
+	int seh_thread_filter(std::exception_ptr& Ptr, EXCEPTION_POINTERS const* const Info)
 	{
 		// SEH transport between threads is currenly implemented in terms of C++ exceptions, so it requires both
 		if (!(HandleSehExceptions && HandleCppExceptions))

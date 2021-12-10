@@ -582,9 +582,8 @@ static int mainImpl(span<const wchar_t* const> const Args)
 					if (std::iswdigit(Arg[2]))
 					{
 						StartLine = static_cast<int>(std::wcstol(Arg + 2, nullptr, 10));
-						const wchar_t *ChPtr = std::wcschr(Arg + 2, L':');
 
-						if (ChPtr)
+						if (const wchar_t* ChPtr = std::wcschr(Arg + 2, L':'))
 							StartChar = static_cast<int>(std::wcstol(ChPtr + 1, nullptr, 10));
 					}
 

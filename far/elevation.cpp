@@ -1071,10 +1071,8 @@ public:
 		for (;;)
 		{
 			if (!Process(Read<int>()))
-				break;
+				return EXIT_SUCCESS;
 		}
-
-		return EXIT_SUCCESS;
 	}
 
 private:

@@ -172,7 +172,7 @@ public:
 		SetupDiGetDeviceInterfaceDetail(m_info.native_handle(), &DeviceInterfaceData, nullptr, 0, &RequiredSize, nullptr);
 		if(RequiredSize)
 		{
-			block_ptr<SP_DEVICE_INTERFACE_DETAIL_DATA> DData(RequiredSize);
+			const block_ptr<SP_DEVICE_INTERFACE_DETAIL_DATA> DData(RequiredSize);
 			DData->cbSize = sizeof(*DData);
 			if(SetupDiGetDeviceInterfaceDetail(m_info.native_handle(), &DeviceInterfaceData, DData.data(), RequiredSize, nullptr, nullptr))
 			{
@@ -205,7 +205,7 @@ static bool GetDevicePropertyImpl(DEVINST hDevInst, const receiver& Receiver)
 [[nodiscard]]
 static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, DWORD& Value)
 {
-	return GetDevicePropertyImpl(hDevInst, [&](dev_info& Info, SP_DEVINFO_DATA& DeviceInfoData)
+	return GetDevicePropertyImpl(hDevInst, [&](const dev_info& Info, SP_DEVINFO_DATA& DeviceInfoData)
 	{
 		return Info.GetDeviceRegistryProperty(DeviceInfoData, Property, nullptr, reinterpret_cast<PBYTE>(&Value), sizeof(Value), nullptr);
 	});
@@ -214,7 +214,7 @@ static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, DWORD& Value)
 [[nodiscard]]
 static bool GetDeviceProperty(DEVINST hDevInst, DWORD Property, string& Value)
 {
-	return GetDevicePropertyImpl(hDevInst, [&](dev_info& Info, SP_DEVINFO_DATA& DeviceInfoData)
+	return GetDevicePropertyImpl(hDevInst, [&](const dev_info& Info, SP_DEVINFO_DATA& DeviceInfoData)
 	{
 		return os::detail::ApiDynamicStringReceiver(Value, [&](span<wchar_t> Buffer)
 		{

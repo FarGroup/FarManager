@@ -684,15 +684,14 @@ void ShellDelete::process_item(
 	}
 
 	bool RetryRecycleAsRemove = false;
-	const auto Removed = ERemoveDirectory(
+
+	if (ERemoveDirectory(
 		strSelName,
 		m_DeleteType == delete_type::recycle && DirSymLink && !IsWindowsVistaOrGreater()?
-			delete_type::remove :
-			m_DeleteType,
+		delete_type::remove :
+		m_DeleteType,
 		RetryRecycleAsRemove
-	);
-
-	if (Removed)
+	))
 	{
 		TreeList::DelTreeName(strSelName);
 
@@ -706,7 +705,6 @@ void ShellDelete::process_item(
 		process_item(SrcPanel, SelFindData, Total, Progress, TimeCheck, true);
 		m_DeleteType = delete_type::recycle;
 	}
-
 }
 
 ShellDelete::ShellDelete(panel_ptr SrcPanel, delete_type const Type):
@@ -989,7 +987,7 @@ bool ShellDelete::RemoveToRecycleBin(string_view const Name, bool dir, bool& Ret
 
 	const auto ErrorState = last_error();
 
-	const auto MsgCode = Message(MSG_WARNING, ErrorState,
+	switch (Message(MSG_WARNING, ErrorState,
 		msg(lng::MError),
 		{
 			msg(dir? lng::MCannotRecycleFolder : lng::MCannotRecycleFile),
@@ -997,9 +995,7 @@ bool ShellDelete::RemoveToRecycleBin(string_view const Name, bool dir, bool& Ret
 			msg(lng::MTryToDeletePermanently)
 		},
 		{ lng::MDeleteFileDelete, lng::MDeleteSkip, lng::MDeleteSkipAll, lng::MDeleteCancel },
-		{}, dir? &CannotRecycleFolderId : &CannotRecycleFileId);
-
-	switch (MsgCode)
+		{}, dir? &CannotRecycleFolderId : &CannotRecycleFileId))
 	{
 	case message_result::first_button:     // {Delete}
 		RetryRecycleAsRemove = true;

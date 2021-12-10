@@ -817,7 +817,7 @@ void Options::ViewerConfig(ViewerOptions &ViOptRef, bool Local)
 	Builder.StartColumns();
 	Builder.AddCheckbox(lng::MViewConfigPersistentSelection, ViOptRef.PersistentBlocks);
 	Builder.AddCheckbox(lng::MViewConfigEditAutofocus, ViOptRef.SearchEditFocus);
-	auto& TabSize = Builder.AddIntEditField(ViOptRef.TabSize, 3);
+	const auto& TabSize = Builder.AddIntEditField(ViOptRef.TabSize, 3);
 	Builder.AddTextAfter(TabSize, lng::MViewConfigTabSize);
 	Builder.ColumnBreak();
 	Builder.AddCheckbox(lng::MViewConfigArrows, ViOptRef.ShowArrows);
@@ -834,7 +834,7 @@ void Options::ViewerConfig(ViewerOptions &ViOptRef, bool Local)
 		Builder.AddCheckbox(lng::MViewConfigSaveCodepage, ViOpt.SaveCodepage);
 		save_cp = Builder.GetLastID();
 		Builder.AddCheckbox(lng::MViewConfigSaveShortPos, ViOpt.SaveShortPos);
-		auto& MaxLineSize = Builder.AddIntEditField(ViOpt.MaxLineSize, 6);
+		const auto& MaxLineSize = Builder.AddIntEditField(ViOpt.MaxLineSize, 6);
 		Builder.AddTextAfter(MaxLineSize, lng::MViewConfigMaxLineSize);
 		Builder.ColumnBreak();
 		Builder.AddCheckbox(lng::MViewConfigSaveViewMode, ViOpt.SaveViewMode);
@@ -879,7 +879,7 @@ void Options::EditorConfig(EditorOptions &EdOptRef, bool Local)
 	Builder.AddCheckbox(lng::MEditConfigPersistentBlocks, EdOptRef.PersistentBlocks);
 	Builder.AddCheckbox(lng::MEditConfigDelRemovesBlocks, EdOptRef.DelRemovesBlocks);
 	Builder.AddCheckbox(lng::MEditConfigAutoIndent, EdOptRef.AutoIndent);
-	auto& TabSize = Builder.AddIntEditField(EdOptRef.TabSize, 3);
+	const auto& TabSize = Builder.AddIntEditField(EdOptRef.TabSize, 3);
 	Builder.AddTextAfter(TabSize, lng::MEditConfigTabSize);
 	Builder.AddCheckbox(lng::MEditShowWhiteSpace, EdOptRef.ShowWhiteSpace);
 	Builder.ColumnBreak();
@@ -1174,8 +1174,7 @@ void Options::SetFilePanelModes()
 
 			ModeNumber=ModeList->Run([&](const Manager::Key& RawKey)
 			{
-				const auto Key=RawKey();
-				switch (Key)
+				switch (const auto Key = RawKey())
 				{
 				case KEY_CTRLENTER:
 				case KEY_CTRLNUMENTER:

@@ -59,8 +59,8 @@ namespace tracer_detail
 		~tracer();
 
 		std::vector<uintptr_t> get(string_view Module, CONTEXT const& ContextRecord, HANDLE ThreadHandle);
-		void get_symbols(string_view Module, span<uintptr_t const> Trace, function_ref<void(string&& Line)> Consumer);
-		void get_symbol(string_view Module, const void* Ptr, string& Address, string& Name, string& Source);
+		void get_symbols(string_view Module, span<uintptr_t const> Trace, function_ref<void(string&& Line)> Consumer) const;
+		void get_symbol(string_view Module, const void* Ptr, string& Address, string& Name, string& Source) const;
 
 		class with_symbols
 		{

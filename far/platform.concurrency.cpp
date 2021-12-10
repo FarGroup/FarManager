@@ -315,10 +315,8 @@ namespace os::concurrency
 
 	void timer::timer_closer::operator()(HANDLE const Handle) const
 	{
-		for (;;)
+		while (!(DeleteTimerQueueTimer({}, Handle, INVALID_HANDLE_VALUE) || GetLastError() == ERROR_IO_PENDING))
 		{
-			if (DeleteTimerQueueTimer({}, Handle, INVALID_HANDLE_VALUE) || GetLastError() == ERROR_IO_PENDING)
-				break;
 		}
 	}
 }

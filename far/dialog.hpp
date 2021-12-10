@@ -241,7 +241,7 @@ public:
 	intptr_t GetListItemSimpleUserData(size_t ListId, size_t ItemId) const;
 
 	void SetListItemComplexUserData(size_t ListId, size_t ItemId, const std::any& Data);
-	std::any* GetListItemComplexUserData(size_t ListId, size_t ItemId);
+	std::any* GetListItemComplexUserData(size_t ListId, size_t ItemId) const;
 
 	template<class T>
 	const T* GetListItemComplexUserDataPtr(size_t ListId, size_t ItemId)
@@ -294,10 +294,10 @@ private:
 	bool AddToEditHistory(DialogItemEx const& CurItem, string_view AddStr) const;
 	void ProcessLastHistory(DialogItemEx& CurItem, int MsgIndex);  // обработка DIF_USELASTHISTORY
 	bool ProcessHighlighting(int Key, size_t FocusPos, bool Translate);
-	int CheckHighlights(WORD CheckSymbol, int StartPos = 0);
+	int CheckHighlights(WORD CheckSymbol, int StartPos = 0) const;
 	void SelectOnEntry(size_t Pos, bool Selected);
 	void CheckDialogCoord();
-	bool GetItemRect(size_t I,SMALL_RECT& Rect);
+	bool GetItemRect(size_t I,SMALL_RECT& Rect) const;
 	bool SetItemRect(size_t ID, const SMALL_RECT& Rect);
 	bool SetItemRect(DialogItemEx& Item, const SMALL_RECT& Rect);
 	void SetDropDownOpened(int Status) { DropDownOpened=Status; }

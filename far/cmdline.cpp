@@ -409,9 +409,8 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 			history_record_type Type;
 			UUID Uuid;
 			string strFile, strData, strStr;
-			const auto SelectType = Global->CtrlObject->FolderHistory->Select(msg(lng::MFolderHistoryTitle), L"HistoryFolders"sv, strStr, Type, &Uuid, &strFile, &strData);
 
-			switch(SelectType)
+			switch(const auto SelectType = Global->CtrlObject->FolderHistory->Select(msg(lng::MFolderHistoryTitle), L"HistoryFolders"sv, strStr, Type, &Uuid, &strFile, &strData))
 			{
 			case HRT_ENTER:
 			case HRT_SHIFTETNER:
@@ -846,9 +845,8 @@ void CommandLine::ShowViewEditHistory()
 {
 	string strStr;
 	history_record_type Type;
-	const auto SelectType = Global->CtrlObject->ViewHistory->Select(msg(lng::MViewHistoryTitle), L"HistoryViews"sv, strStr, Type);
 
-	switch(SelectType)
+	switch(const auto SelectType = Global->CtrlObject->ViewHistory->Select(msg(lng::MViewHistoryTitle), L"HistoryViews"sv, strStr, Type))
 	{
 	case HRT_ENTER:
 	case HRT_SHIFTETNER:

@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.chrono.hpp"
 #include "platform.concurrency.hpp"
-#include "platform.fs.hpp"
 
 // Common:
 

@@ -1958,8 +1958,7 @@ static void WINAPI GetPathRootA(const char *Path, char *Root) noexcept
 	[&]
 	{
 		wchar_t Buffer[MAX_PATH];
-		const auto Size = pluginapi::apiGetPathRoot(encoding::oem::get_chars(Path).c_str(), Buffer, std::size(Buffer));
-		if (Size)
+		if (const auto Size = pluginapi::apiGetPathRoot(encoding::oem::get_chars(Path).c_str(), Buffer, std::size(Buffer)))
 			(void)encoding::oem::get_bytes({ Buffer, Size - 1 }, { Root, std::size(Buffer) });
 	},
 	[]
@@ -2107,8 +2106,7 @@ static char* WINAPI FarMkTempA(char *Dest, const char *Prefix) noexcept
 	[&]
 	{
 		wchar_t D[oldfar::NM]{};
-		const auto Size = pluginapi::apiMkTemp(D, std::size(D), encoding::oem::get_chars(Prefix).c_str());
-		if (Size)
+		if (const auto Size = pluginapi::apiMkTemp(D, std::size(D), encoding::oem::get_chars(Prefix).c_str()))
 			(void)encoding::oem::get_bytes({ D, Size - 1 }, { Dest, std::size(D) });
 		return Dest;
 	},
@@ -2624,7 +2622,7 @@ static intptr_t WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Pa
 	return cpp_try(
 	[&]
 	{
-		auto& TopEvent = OriginalEvents().top();
+		const auto& TopEvent = OriginalEvents().top();
 		auto Result = pluginapi::apiDefDlgProc(TopEvent.hDlg, TopEvent.Msg, TopEvent.Param1, TopEvent.Param2);
 		switch (Msg)
 		{
@@ -2842,12 +2840,10 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			case oldfar::DM_GETDLGDATA:   Msg = DM_GETDLGDATA; break;
 			case oldfar::DM_GETDLGITEM:
 			{
-				size_t item_size = pluginapi::apiSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, nullptr);
-
-				if (item_size)
+				if (const size_t ItemSize = pluginapi::apiSendDlgMessage(hDlg, DM_GETDLGITEM, Param1, nullptr))
 				{
-					block_ptr<FarDialogItem> Buffer(item_size);
-					FarGetDialogItem gdi{ sizeof(gdi), item_size, Buffer.data() };
+					const block_ptr<FarDialogItem> Buffer(ItemSize);
+					FarGetDialogItem gdi{ sizeof(gdi), ItemSize, Buffer.data() };
 
 					if (gdi.Item)
 					{
@@ -3606,10 +3602,9 @@ static int WINAPI FarPanelControlA(HANDLE hPlugin, int Command, void *Param) noe
 				if (ret)
 				{
 					ConvertUnicodePanelInfoToAnsi(PI, OldPI);
-					size_t const dirSize = pluginapi::apiPanelControl(hPlugin, FCTL_GETPANELDIRECTORY, 0, nullptr);
-					if(dirSize)
+					if(const size_t dirSize = pluginapi::apiPanelControl(hPlugin, FCTL_GETPANELDIRECTORY, 0, nullptr))
 					{
-						block_ptr<FarPanelDirectory> dirInfo(dirSize);
+						const block_ptr<FarPanelDirectory> dirInfo(dirSize);
 						dirInfo->StructSize = sizeof(*dirInfo);
 						pluginapi::apiPanelControl(hPlugin, FCTL_GETPANELDIRECTORY, dirSize, dirInfo.data());
 						(void)encoding::oem::get_bytes(dirInfo->Name, OldPI.CurDir);

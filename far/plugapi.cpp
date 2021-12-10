@@ -481,8 +481,7 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			const auto info = static_cast<WindowType*>(Param2);
 			if (CheckStructSize(info))
 			{
-				const auto type = WindowTypeToPluginWindowType(Manager::GetCurrentWindowType());
-				switch(type)
+				switch(const auto type = WindowTypeToPluginWindowType(Manager::GetCurrentWindowType()))
 				{
 				case WTYPE_DESKTOP:
 				case WTYPE_PANELS:
@@ -1862,7 +1861,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 		}
 
 		auto ExitCode = EEC_OPEN_ERROR;
-		string strTitle(NullToEmpty(Title));
+		const string strTitle = NullToEmpty(Title);
 
 		if (Flags & EF_NONMODAL)
 		{
@@ -1942,10 +1941,8 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 				{ static_cast<int>(X1), static_cast<int>(Y1), static_cast<int>(X2), static_cast<int>(Y2) },
 				DeleteOnClose, nullptr, OpMode);
 
-			const auto editorExitCode = Editor->GetExitCode();
-
 			// выполним предпроверку (ошибки разные могут быть)
-			switch (editorExitCode)
+			switch (const auto editorExitCode = Editor->GetExitCode())
 			{
 				case XC_OPEN_ERROR:
 					return EEC_OPEN_ERROR;
@@ -3022,9 +3019,8 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 		// 0xFFFFFFFFFF000000 - flags
 
 		const PROCESSNAME_FLAGS Flags = flags&0xFFFFFFFFFF000000;
-		const PROCESSNAME_FLAGS Mode = flags&0xFF0000;
 
-		switch(Mode)
+		switch(const PROCESSNAME_FLAGS Mode = flags & 0xFF0000)
 		{
 		case PN_CMPNAME:
 			return CmpName(param1, param2, (Flags&PN_SKIPPATH)!=0);

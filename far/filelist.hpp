@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 
 // Platform:
+#include "platform.fs.hpp"
 
 // Common:
 #include "common/function_ref.hpp"
