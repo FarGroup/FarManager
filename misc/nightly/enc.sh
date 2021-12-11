@@ -10,7 +10,7 @@ wine "../../../tools/hh_compiler/hh_compiler.exe" ${CP} plugins${L}.hhp
 
 ( \
 	cp -f FarEncyclopedia.${LNG}.chm ../../../../outfinalnew32/Encyclopedia/ && \
-	cp -f FarEncyclopedia.${LNG}.chm ../../../../outfinalnew64/Encyclopedia/ \
+	cp -f FarEncyclopedia.${LNG}.chm ../../../../outfinalnew64/Encyclopedia/ && \
 	cp -f FarEncyclopedia.${LNG}.chm ../../../../outfinalnewARM64/Encyclopedia/ \
 ) || return 1
 
@@ -29,7 +29,7 @@ wine "../../../tools/hh_compiler/hh_compiler.exe" ${3} ${1}.hhp
 
 ( \
 	cp -f ${1}.chm ../../../../outfinalnew32/Encyclopedia/ && \
-	cp -f ${1}.chm ../../../../outfinalnew64/Encyclopedia/ \
+	cp -f ${1}.chm ../../../../outfinalnew64/Encyclopedia/ && \
 	cp -f ${1}.chm ../../../../outfinalnewARM64/Encyclopedia/ \
 ) || return 1
 

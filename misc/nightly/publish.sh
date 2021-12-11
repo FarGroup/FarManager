@@ -35,7 +35,7 @@ cd far || exit 1
 LASTCHANGE=`head -2 changelog | tail -1 | dos2unix`
 ( \
 	processFarBuild 32 && \
-	processFarBuild 64 \
+	processFarBuild 64 && \
 	processFarBuild ARM64 \
 ) || exit 1
 cd ..
