@@ -40,6 +40,7 @@ function bnetbox {
 ( \
 	bnetbox 32 x86 && \
 	bnetbox 64 x64 \
+	bnetbox ARM64 ARM64 \
 ) || exit 1
 
 cd ..

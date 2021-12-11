@@ -11,6 +11,7 @@ wine "../../../tools/hh_compiler/hh_compiler.exe" ${CP} plugins${L}.hhp
 ( \
 	cp -f FarEncyclopedia.${LNG}.chm ../../../../outfinalnew32/Encyclopedia/ && \
 	cp -f FarEncyclopedia.${LNG}.chm ../../../../outfinalnew64/Encyclopedia/ \
+	cp -f FarEncyclopedia.${LNG}.chm ../../../../outfinalnewARM64/Encyclopedia/ \
 ) || return 1
 
 cd ..
@@ -29,6 +30,7 @@ wine "../../../tools/hh_compiler/hh_compiler.exe" ${3} ${1}.hhp
 ( \
 	cp -f ${1}.chm ../../../../outfinalnew32/Encyclopedia/ && \
 	cp -f ${1}.chm ../../../../outfinalnew64/Encyclopedia/ \
+	cp -f ${1}.chm ../../../../outfinalnewARM64/Encyclopedia/ \
 ) || return 1
 
 cd ..
@@ -41,6 +43,7 @@ cp -R far.git/enc ./ || exit 1
 
 mkdir -p outfinalnew32/Encyclopedia
 mkdir -p outfinalnew64/Encyclopedia
+mkdir -p outfinalnewARM64/Encyclopedia
 
 pushd enc/tools || exit 1
 python tool.make_chm.py

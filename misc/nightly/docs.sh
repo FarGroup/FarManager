@@ -11,4 +11,4 @@ unix2dos $1/SaveOldPluginSettings.cmd
 
 }
 
-( makedocs2 outfinalnew32 && makedocs2 outfinalnew64 ) || exit 1	
+( makedocs2 outfinalnew32 && makedocs2 outfinalnew64 && makedocs2 outfinalnewARM64 ) || exit 1

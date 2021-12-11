@@ -19,13 +19,16 @@ cp -f far/Include/*.hpp plugins/common/unicode/
 
 mkdir -p outfinalnew32/Plugins
 mkdir -p outfinalnew64/Plugins
+mkdir -p outfinalnewARM64/Plugins
 
 #cd plugins/common/CRT || exit 1
 #
 #mkdir -p obj.32.vc/wide
 #mkdir -p obj.64.vc/wide
+#mkdir -p obj.ARM64.vc/wide
 #wine cmd /c ../../../common.32.bat &> ../../../logs/CRT32
 #wine cmd /c ../../../common.64.bat &> ../../../logs/CRT64
+#wine cmd /c ../../../common.64.bat &> ../../../logs/CRTARM64
 #
 #cd ../../..
 

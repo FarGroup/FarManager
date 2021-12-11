@@ -23,6 +23,7 @@ ADDOUTDIR="lib"
 ( \
 	bplugin2 "$PLDIR" 32 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR && \
 	bplugin2 "$PLDIR" 64 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR \
+	bplugin2 "$PLDIR" ARM64 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR \
 ) || return 1
 
 popd
@@ -44,6 +45,7 @@ ADDOUTDIR="Formats"
 ( \
 	bplugin2 "$PLDIR" 32 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR && \
 	bplugin2 "$PLDIR" 64 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR \
+	bplugin2 "$PLDIR" ARM64 0 "$FILES" "$ADDFILES" $ADDBUILDDIRS $ADDOUTDIR \
 ) || return 1
 
 popd
@@ -51,19 +53,23 @@ popd
 
 rm -fR outfinalnew32
 rm -fR outfinalnew64
+rm -fR outfinalnewARM64
 rm -fR plugins
 
 cp -R far.git/plugins ./ || exit 1
 
 mkdir -p outfinalnew32/Plugins
 mkdir -p outfinalnew64/Plugins
+mkdir -p outfinalnewARM64/Plugins
 
 cd plugins/common/CRT || exit 1
 
 mkdir -p obj.32.vc/wide
 mkdir -p obj.64.vc/wide
+mkdir -p obj.ARM64.vc/wide
 wine cmd /c ../../../common.32.bat &> ../../../logs/CRT32
 wine cmd /c ../../../common.64.bat &> ../../../logs/CRT64
+wine cmd /c ../../../common.ARM64.bat &> ../../../logs/CRTARM64
 
 cd ../..
 
@@ -80,9 +86,16 @@ cd FTP || exit 1
 7z a ../../../FarFtp.x86.7z
 cd ../MultiArc || exit 1
 7z a ../../../MultiArc.x86.7z
-cd ../../../outfinalnew64/Plugins || exit 1
+cd ../../../
+cd outfinalnew64/Plugins || exit 1
 cd FTP || exit 1
 7z a ../../../FarFtp.x64.7z
 cd ../MultiArc || exit 1
 7z a ../../../MultiArc.x64.7z
+cd ../../../
+cd outfinalnewARM64/Plugins || exit 1
+cd FTP || exit 1
+7z a ../../../FarFtp.ARM64.7z
+cd ../MultiArc || exit 1
+7z a ../../../MultiArc.ARM64.7z
 cd ../../../
