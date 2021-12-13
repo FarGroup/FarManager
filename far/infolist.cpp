@@ -220,7 +220,7 @@ void InfoList::DisplayObject()
 		PrintInfo(strComputerName);
 
 		os::netapi::ptr<SERVER_INFO_101> ServerInfo;
-		if (NetServerGetInfo(nullptr, 101, edit_as<BYTE**>(*&ptr_setter(ServerInfo))) == NERR_Success)
+		if (NetServerGetInfo(nullptr, 101, edit_as<BYTE**>(&ptr_setter(ServerInfo))) == NERR_Success)
 		{
 			if(ServerInfo->sv101_comment && *ServerInfo->sv101_comment)
 			{
