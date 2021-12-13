@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "exception.hpp"
 #include "exception_handler.hpp"
+#include "mix.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -1228,7 +1229,7 @@ namespace os::fs
 
 	int file_walker::GetPercent() const
 	{
-		return m_AllocSize? (m_ProcessedSize) * 100 / m_AllocSize : 0;
+		return ToPercent(m_ProcessedSize, m_AllocSize);
 	}
 
 	//-------------------------------------------------------------------------

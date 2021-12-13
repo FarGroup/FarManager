@@ -1670,7 +1670,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 
 				SetCursorType(false, 0);
 				const auto CurPos = EditFile.GetPointer();
-				auto Percent = FileSize? CurPos * 100 / FileSize : 0;
+				auto Percent = ToPercent(CurPos, FileSize);
 				// В случае если во время загрузки файл увеличивается размере, то количество
 				// процентов может быть больше 100. Обрабатываем эту ситуацию.
 				if (Percent > 100)
@@ -1681,7 +1681,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 						LOGWARNING(L"GetSize({}): {}"sv, EditFile.GetName(), last_error());
 					}
 
-					Percent = FileSize? std::min(CurPos * 100 / FileSize, 100ull) : 100;
+					Percent = FileSize? std::min(ToPercent(CurPos, FileSize), 100u) : 100;
 				}
 
 				Progress->update(Percent);
@@ -2052,7 +2052,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 					if (!Progress)
 						Progress.emplace(msg(lng::MEditTitle), format(msg(lng::MEditSaving), Name), 0);
 
-					Progress->update(LineNumber * 100 / m_editor->Lines.size());
+					Progress->update(ToPercent(LineNumber, m_editor->Lines.size()));
 				}
 
 				const auto& SaveStr = Line.GetString();

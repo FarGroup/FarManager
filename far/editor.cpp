@@ -3484,7 +3484,7 @@ bool Editor::Search(bool Next)
 				SetCursorType(false, -1);
 				const auto Total = FindAllReferences? Lines.size() : ReverseSearch? StartLine : Lines.size() - StartLine;
 				const auto Current = std::abs(CurPtr.Number() - StartLine);
-				Progress->update(Total > 0? Current * 100 / Total : 100);
+				Progress->update(ToPercent(Current, Total));
 				taskbar::set_value(Current,Total);
 			}
 

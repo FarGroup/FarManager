@@ -3413,7 +3413,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 						else
 							done = StartSearchPos + (FileSize - sd.CurPos);
 					}
-					percent = static_cast<int>(done*100/total);
+					percent = ToPercent(done, total);
 				}
 
 				if (!Progress)
