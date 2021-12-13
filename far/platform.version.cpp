@@ -154,7 +154,7 @@ namespace os::version
 
 	static bool get_os_version(OSVERSIONINFOEX& Info)
 	{
-		const auto InfoPtr = static_cast<OSVERSIONINFO*>(static_cast<void*>(&Info));
+		const auto InfoPtr = edit_as<OSVERSIONINFO*>(&Info);
 
 		if (imports.RtlGetVersion && imports.RtlGetVersion(InfoPtr) == STATUS_SUCCESS)
 			return true;

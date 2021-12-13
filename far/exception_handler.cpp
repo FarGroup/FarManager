@@ -610,8 +610,8 @@ public:
 			return;
 
 		m_BaseAddress = Record.NumberParameters == 4? Record.ExceptionInformation[3] : 0;
-		const auto& ThrowInfoRef = *reinterpret_cast<detail::ThrowInfo const*>(Record.ExceptionInformation[2]);
-		const auto& CatchableTypeArrayRef = *reinterpret_cast<detail::CatchableTypeArray const*>(m_BaseAddress + ThrowInfoRef.pCatchableTypeArray);
+		const auto& ThrowInfoRef = *view_as<detail::ThrowInfo const*>(Record.ExceptionInformation[2]);
+		const auto& CatchableTypeArrayRef = *view_as<detail::CatchableTypeArray const*>(m_BaseAddress + ThrowInfoRef.pCatchableTypeArray);
 		m_CatchableTypesRVAs = { &CatchableTypeArrayRef.arrayOfCatchableTypes, static_cast<size_t>(CatchableTypeArrayRef.nCatchableTypes) };
 	}
 
@@ -625,8 +625,8 @@ private:
 		if (m_Index == m_CatchableTypesRVAs.size())
 			return false;
 
-		const auto& CatchableTypeRef = *reinterpret_cast<detail::CatchableType const*>(m_BaseAddress + m_CatchableTypesRVAs[m_Index++]);
-		const auto& TypeInfoRef = *reinterpret_cast<std::type_info const*>(m_BaseAddress + CatchableTypeRef.pType);
+		const auto& CatchableTypeRef = *view_as<detail::CatchableType const*>(m_BaseAddress + m_CatchableTypesRVAs[m_Index++]);
+		const auto& TypeInfoRef = *view_as<std::type_info const*>(m_BaseAddress + CatchableTypeRef.pType);
 
 		Name = TypeInfoRef.name();
 		return true;
@@ -1010,7 +1010,7 @@ static bool handle_seh_exception(
 	for (const auto& i : enum_catchable_objects(Context.exception_record()))
 	{
 		if (strstr(i, "std::exception"))
-			return handle_std_exception(Context, *reinterpret_cast<std::exception const*>(Context.exception_record().ExceptionInformation[1]), Function, PluginModule);
+			return handle_std_exception(Context, *view_as<std::exception const*>(Context.exception_record().ExceptionInformation[1]), Function, PluginModule);
 	}
 
 	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {});

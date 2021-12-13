@@ -5664,15 +5664,15 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 	FileListItemToPluginPanelItemBasic(fi, *gpi->Item);
 	gpi->Item->NumberOfLinks = fi.IsNumberOfLinksRead()? fi.NumberOfLinks(this) : 0;
 
-	auto data = reinterpret_cast<char*>(gpi->Item);
+	auto data = edit_as<std::byte*>(gpi->Item);
 	const auto end = data + gpi->Size;
 
 	data += StaticSize;
 
 	const auto CopyToBuffer = [&](string_view const Str)
 	{
-		const auto Result = reinterpret_cast<const wchar_t*>(data);
-		*copy_string(Str, reinterpret_cast<wchar_t*>(data)) = {};
+		const auto Result = edit_as<wchar_t*>(data);
+		*copy_string(Str, Result) = {};
 		return Result;
 	};
 
@@ -5696,7 +5696,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 	{
 		if (not_enough_for(ColumnsSize))
 			return size;
-		gpi->Item->CustomColumnData = reinterpret_cast<const wchar_t* const*>(data);
+		gpi->Item->CustomColumnData = view_as<const wchar_t* const*>(data);
 		data += ColumnsSize;
 	}
 

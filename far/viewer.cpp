@@ -439,7 +439,7 @@ bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for '\0' in f
 
 	if (IsUnicodeCodePage(cp))
 	{
-		return contains(span(reinterpret_cast<const wchar_t*>(Buffer), BytesRead / sizeof(wchar_t)), L'\0');
+		return contains(span(view_as<const wchar_t*>(Buffer), BytesRead / sizeof(wchar_t)), L'\0');
 	}
 	else
 	{
@@ -708,7 +708,7 @@ int Viewer::txt_dump(std::string_view const Str, size_t ClientWidth, string& Out
 
 	if (IsUnicodeCodePage(m_Codepage))
 	{
-		OutStr.assign(reinterpret_cast<const wchar_t*>(Str.data()), Str.size() / sizeof(wchar_t));
+		OutStr.assign(view_as<const wchar_t*>(Str.data()), Str.size() / sizeof(wchar_t));
 		if (m_Codepage == CP_REVERSEBOM)
 		{
 			swap_bytes(OutStr.data(), OutStr.data(), OutStr.size() * sizeof(wchar_t));
@@ -2492,16 +2492,16 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 		{
 			if (SD_EDIT_TEXT == Param1 || SD_EDIT_HEX == Param1)
 			{
-				const auto Data = reinterpret_cast<ViewerDialogData*>(Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr));
-				Data->hex_mode = (SD_EDIT_HEX == Param1);
+				auto& Data = edit_as<ViewerDialogData>(Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr));
+				Data.hex_mode = (SD_EDIT_HEX == Param1);
 			}
 			break;
 		}
 		case DN_BTNCLICK:
 		{
 			bool need_focus = false;
-			const auto Data = reinterpret_cast<ViewerDialogData*>(Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr));
-			const auto cradio = (Data->hex_mode ? SD_RADIO_HEX : SD_RADIO_TEXT);
+			auto& Data = edit_as<ViewerDialogData>(Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr));
+			const auto cradio = (Data.hex_mode? SD_RADIO_HEX : SD_RADIO_TEXT);
 
 			if ((Param1 == SD_RADIO_TEXT || Param1 == SD_RADIO_HEX) && Param2)
 			{
@@ -2519,7 +2519,7 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 					Dlg->SendMessage(DM_GETEDITPOSITION, sd_src, &esp);
 					FarDialogItemData item{ sizeof(item) };
 					Dlg->SendMessage(DM_GETTEXT, sd_src, &item);
-					const string Src(reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, sd_src, nullptr)), item.PtrLength);
+					const string Src(view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, sd_src, nullptr)), item.PtrLength);
 					const auto strTo = ConvertHexString(Src, m_Codepage, !new_hex);
 					item.PtrLength = strTo.size();
 					item.PtrData = UNSAFE_CSTR(strTo);
@@ -2542,17 +2542,17 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 						Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, sd_dst, ToPtr(changed));
 					}
 
-					Data->hex_mode = new_hex;
-					if (!Data->edit_autofocus)
+					Data.hex_mode = new_hex;
+					if (!Data.edit_autofocus)
 						return TRUE;
 				}
 			}
 			else if (Param1 == SD_CHECKBOX_REGEXP)
 			{
-				Dlg->SendMessage(DM_SDSETVISIBILITY, Data->hex_mode, nullptr);
+				Dlg->SendMessage(DM_SDSETVISIBILITY, Data.hex_mode, nullptr);
 			}
 
-			if (Data->edit_autofocus && !Data->recursive)
+			if (Data.edit_autofocus && !Data.recursive)
 			{
 				if ( need_focus
 				  || Param1 == SD_CHECKBOX_CASE
@@ -2560,9 +2560,9 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 				  || Param1 == SD_CHECKBOX_REVERSE
 				  || Param1 == SD_CHECKBOX_REGEXP
 				){
-					Data->recursive = true;
-					Dlg->SendMessage(DM_SETFOCUS, Data->hex_mode? SD_EDIT_HEX : SD_EDIT_TEXT, nullptr);
-					Data->recursive = false;
+					Data.recursive = true;
+					Dlg->SendMessage(DM_SETFOCUS, Data.hex_mode? SD_EDIT_HEX : SD_EDIT_TEXT, nullptr);
+					Data.recursive = false;
 				}
 			}
 
@@ -2575,7 +2575,7 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 		{
 			if (Param1==SD_TEXT_SEARCH)
 			{
-				const auto Data = reinterpret_cast<const ViewerDialogData*>(Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr));
+				const auto Data = view_as<const ViewerDialogData*>(Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr));
 				Dlg->SendMessage(DM_SETFOCUS, (Data->hex_mode? SD_EDIT_HEX : SD_EDIT_TEXT), nullptr);
 				return FALSE;
 			}
@@ -2583,7 +2583,7 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 		}
 		case DN_DRAWDIALOGDONE:
 		{
-			if (const auto FirstChar = reinterpret_cast<const Manager::Key*>(Dlg->SendMessage(DM_SETDLGDATA, 0, nullptr)))
+			if (const auto FirstChar = view_as<const Manager::Key*>(Dlg->SendMessage(DM_SETDLGDATA, 0, nullptr)))
 				Global->WindowManager->CallbackWindow([Dlg, FirstChar]() { Dlg->ProcessKey(*FirstChar); });
 			break;
 		}
@@ -2638,7 +2638,7 @@ constexpr auto
 
 SEARCHER_RESULT Viewer::search_hex_forward(search_data* sd)
 {
-	const auto buff = reinterpret_cast<std::byte*>(Search_buffer.data());
+	const auto buff = edit_as<std::byte*>(Search_buffer.data());
 	const auto bsize = static_cast<int>(Search_buffer.size() * sizeof(wchar_t)), slen = sd->search_len;
 	long long to;
 	const auto cpos = sd->CurPos;
@@ -2706,7 +2706,7 @@ SEARCHER_RESULT Viewer::search_hex_forward(search_data* sd)
 
 SEARCHER_RESULT Viewer::search_hex_backward(search_data* sd)
 {
-	const auto buff = reinterpret_cast<std::byte*>(Search_buffer.data());
+	const auto buff = edit_as<std::byte*>(Search_buffer.data());
 	const auto bsize = static_cast<int>(Search_buffer.size() * sizeof(wchar_t)), slen = sd->search_len;
 	long long to, cpos = sd->CurPos;
 	const auto swrap = ViOpt.SearchWrapStop;

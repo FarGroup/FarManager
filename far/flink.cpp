@@ -364,7 +364,7 @@ bool GetReparsePointInfo(string_view const Object, string& DestBuffer, LPDWORD R
 				WCHAR StringList[1];
 			};
 
-			const auto& AppExecLinkReparseBuffer = *static_cast<APPEXECLINK_REPARSE_DATA_BUFFER const*>(static_cast<void const*>(&rdb->GenericReparseBuffer));
+			const auto& AppExecLinkReparseBuffer = view_as<APPEXECLINK_REPARSE_DATA_BUFFER>(&rdb->GenericReparseBuffer);
 			if (AppExecLinkReparseBuffer.StringCount <= FilenameIndex)
 				return false;
 
@@ -921,7 +921,7 @@ TEST_CASE("flink.fill.reparse.buffer")
 		REQUIRE(Buffer->MountPointReparseBuffer.PrintNameOffset == 30);
 		REQUIRE(Buffer->MountPointReparseBuffer.PrintNameLength == 20);
 
-		REQUIRE(std::equal(ALL_CONST_RANGE(ExpectedData), static_cast<char const*>(static_cast<void const*>(Buffer.data()))));
+		REQUIRE(std::equal(ALL_CONST_RANGE(ExpectedData), view_as<char const*>(Buffer.data())));
 	}
 
 	{
@@ -963,7 +963,7 @@ TEST_CASE("flink.fill.reparse.buffer")
 		REQUIRE(Buffer->SymbolicLinkReparseBuffer.PrintNameLength == 20);
 		REQUIRE(Buffer->SymbolicLinkReparseBuffer.Flags == 0);
 
-		REQUIRE(std::equal(ALL_CONST_RANGE(ExpectedData), static_cast<char const*>(static_cast<void const*>(Buffer.data()))));
+		REQUIRE(std::equal(ALL_CONST_RANGE(ExpectedData), view_as<char const*>(Buffer.data())));
 	}
 }
 

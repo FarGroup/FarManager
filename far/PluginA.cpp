@@ -711,7 +711,7 @@ static PluginPanelItem* ConvertAnsiPanelItemsToUnicode(span<const oldfar::Plugin
 
 		if (Src.Flags&oldfar::PPIF_USERDATA)
 		{
-			const auto UserData = reinterpret_cast<const void*>(Src.UserData);
+			const auto UserData = view_as<const void*>(Src.UserData);
 			const auto Size = *static_cast<const DWORD*>(UserData);
 			Dst.UserData.Data = new char[Size];
 			copy_memory(UserData, Dst.UserData.Data, Size);
@@ -810,7 +810,7 @@ static void FreePanelItemA(span<const oldfar::PluginPanelItem> const PanelItem)
 
 		if (Item.Flags & oldfar::PPIF_USERDATA)
 		{
-			delete[] reinterpret_cast<char*>(Item.UserData);
+			delete[] edit_as<char*>(Item.UserData);
 		}
 	}
 
@@ -838,7 +838,7 @@ static char *InsertQuoteA(char *Str)
 
 static auto GetPluginUuid(intptr_t n)
 {
-	return &reinterpret_cast<Plugin*>(n)->Id();
+	return &view_as<Plugin>(n).Id();
 }
 
 struct DialogData
@@ -892,12 +892,12 @@ static size_t GetAnsiVBufSize(const oldfar::FarDialogItem &diA)
 
 static auto GetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, size_t Size)
 {
-	return VBuf? *reinterpret_cast<PCHAR_INFO*>(&VBuf[Size]) : nullptr;
+	return VBuf? *edit_as<PCHAR_INFO*>(&VBuf[Size]) : nullptr;
 }
 
 static void SetAnsiVBufPtr(FAR_CHAR_INFO* VBuf, CHAR_INFO* VBufA, size_t Size)
 {
-	*reinterpret_cast<PCHAR_INFO*>(&VBuf[Size]) = VBufA;
+	*edit_as<PCHAR_INFO*>(&VBuf[Size]) = VBufA;
 }
 
 static void AnsiVBufToUnicode(CHAR_INFO* VBufA, FAR_CHAR_INFO* VBuf, size_t Size, bool NoCvt)
@@ -1508,7 +1508,7 @@ struct FAR_SEARCH_A_CALLBACK_PARAM
 	void *Param;
 };
 
-static const char* GetPluginMsg(const Plugin* PluginInstance, int MsgId);
+static const char* GetPluginMsg(const Plugin& PluginInstance, int MsgId);
 
 namespace oldpluginapi
 {
@@ -2402,7 +2402,7 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 
 		if (Flags&oldfar::FMSG_ALLINONE)
 		{
-			AllInOneAnsiItem.reset(AnsiToUnicode(reinterpret_cast<const char*>(Items)));
+			AllInOneAnsiItem.reset(AnsiToUnicode(view_as<const char*>(Items)));
 		}
 		else
 		{
@@ -2449,7 +2449,7 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 			&FarUuid,
 			NewFlags,
 			HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr,
-			AnsiItems.empty()? reinterpret_cast<const wchar_t* const *>(AllInOneAnsiItem.get()) : reinterpret_cast<const wchar_t* const *>(AnsiItems.data()),
+			view_as<const wchar_t* const*>(AnsiItems.empty()? AllInOneAnsiItem.get() : AnsiItems.data()->get()),
 			ItemsNumber,
 			ButtonsNumber
 		);
@@ -2461,17 +2461,17 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 	});
 }
 
-static const char * WINAPI FarGetMsgFnA(intptr_t PluginHandle, int MsgId) noexcept
+static const char* WINAPI FarGetMsgFnA(intptr_t PluginHandle, int MsgId) noexcept
 {
 	return cpp_try(
 	[&]
 	{
 		//BUGBUG, надо проверять, что PluginHandle - плагин
-		const auto pPlugin = reinterpret_cast<Plugin*>(PluginHandle);
-		string_view Path = pPlugin->ModuleName();
+		auto& pPlugin = edit_as<Plugin>(PluginHandle);
+		string_view Path = pPlugin.ModuleName();
 		CutToSlash(Path);
 
-		if (pPlugin->InitLang(Path, Global->Opt->strLanguage))
+		if (pPlugin.InitLang(Path, Global->Opt->strLanguage))
 			return GetPluginMsg(pPlugin, MsgId);
 
 		return "";
@@ -2516,7 +2516,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 				OLDFAR_TO_FAR_MAP(MIF_HIDDEN),
 			};
 
-			for (const auto& [Item, AnsiItem]: zip(mi, span(reinterpret_cast<const oldfar::FarMenuItemEx*>(Items), ItemsNumber)))
+			for (const auto& [Item, AnsiItem]: zip(mi, span(view_as<const oldfar::FarMenuItemEx*>(Items), ItemsNumber)))
 			{
 				Item.Flags = MIF_NONE;
 				FirstFlagsToSecond(AnsiItem.Flags, Item.Flags, ItemFlagsMap);
@@ -2544,7 +2544,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 					Item.Flags |= MIF_CHECKED;
 
 					if (AnsiItem.Checked > 1)
-						AnsiToUnicodeBin({ reinterpret_cast<const char*>(&AnsiItem.Checked), 1 }, reinterpret_cast<wchar_t*>(&Item.Flags));
+						AnsiToUnicodeBin({ view_as<const char*>(&AnsiItem.Checked), 1 }, edit_as<wchar_t*>(&Item.Flags));
 				}
 
 				if (AnsiItem.Separator)
@@ -2752,7 +2752,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 				if (ret && ret != reinterpret_cast<intptr_t>(Param2)) // changed
 				{
 					static std::unique_ptr<wchar_t[]> HelpTopic;
-					HelpTopic.reset(AnsiToUnicode(reinterpret_cast<const char*>(ret)));
+					HelpTopic.reset(AnsiToUnicode(view_as<const char*>(ret)));
 					ret = reinterpret_cast<intptr_t>(HelpTopic.get());
 				}
 				return ret;
@@ -3149,7 +3149,8 @@ static intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, v
 			{
 				intptr_t Size = pluginapi::apiSendDlgMessage(hDlg, DM_LISTGETDATASIZE, Param1, Param2);
 				intptr_t Data = pluginapi::apiSendDlgMessage(hDlg, DM_LISTGETDATA, Param1, Param2);
-				if(Size<=4) Data=Data?*reinterpret_cast<unsigned*>(Data):0;
+				if (Size <= 4)
+					Data = Data? view_as<unsigned>(Data) : 0;
 				return Data;
 			}
 			case oldfar::DM_LISTSETDATA:
@@ -4843,15 +4844,15 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 			if (BufferSize != static_cast<int>(sizeof(oldfar::CharTableSet)))
 				return -1;
 
-			const auto TableSet = reinterpret_cast<oldfar::CharTableSet*>(Buffer);
+			auto& TableSet = edit_as<oldfar::CharTableSet>(Buffer);
 			//Preset. Also if Command != FCT_DETECT and failed, buffer must be filled by OEM data.
-			strcpy(TableSet->TableName,"<failed>");
+			strcpy(TableSet.TableName,"<failed>");
 
 			for (const auto& i: irange(256u))
 			{
-				TableSet->EncodeTable[i] = TableSet->DecodeTable[i] = i;
-				TableSet->UpperTable[i] = LocalUpper(i);
-				TableSet->LowerTable[i] = LocalLower(i);
+				TableSet.EncodeTable[i] = TableSet.DecodeTable[i] = i;
+				TableSet.UpperTable[i] = LocalUpper(i);
+				TableSet.LowerTable[i] = LocalLower(i);
 			}
 
 			const auto nCP = ConvertCharTableToCodePage(Command);
@@ -4864,17 +4865,17 @@ static int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize) noexc
 
 			auto sTableName = pad_right(str(nCP), 5);
 			append(sTableName, BoxSymbols[BS_V1], L' ', Info->Name);
-			(void)encoding::oem::get_bytes(sTableName, TableSet->TableName);
-			std::unique_ptr<wchar_t[]> const us(AnsiToUnicodeBin({ reinterpret_cast<char*>(TableSet->DecodeTable), std::size(TableSet->DecodeTable) }, nCP));
+			(void)encoding::oem::get_bytes(sTableName, TableSet.TableName);
+			std::unique_ptr<wchar_t[]> const us(AnsiToUnicodeBin({ edit_as<char*>(TableSet.DecodeTable), std::size(TableSet.DecodeTable) }, nCP));
 
-			inplace::lower({ us.get(), std::size(TableSet->DecodeTable) });
-			(void)encoding::get_bytes(nCP, { us.get(), std::size(TableSet->DecodeTable) }, { reinterpret_cast<char*>(TableSet->LowerTable), std::size(TableSet->DecodeTable) });
+			inplace::lower({ us.get(), std::size(TableSet.DecodeTable) });
+			(void)encoding::get_bytes(nCP, { us.get(), std::size(TableSet.DecodeTable) }, { edit_as<char*>(TableSet.LowerTable), std::size(TableSet.DecodeTable) });
 
-			inplace::upper({ us.get(), std::size(TableSet->DecodeTable) });
-			(void)encoding::get_bytes(nCP, { us.get(), std::size(TableSet->DecodeTable) }, { reinterpret_cast<char*>(TableSet->UpperTable), std::size(TableSet->DecodeTable) });
+			inplace::upper({ us.get(), std::size(TableSet.DecodeTable) });
+			(void)encoding::get_bytes(nCP, { us.get(), std::size(TableSet.DecodeTable) }, { edit_as<char*>(TableSet.UpperTable), std::size(TableSet.DecodeTable) });
 
-			MultiByteRecode(nCP, encoding::codepage::oem(), { reinterpret_cast<char*>(TableSet->DecodeTable), std::size(TableSet->DecodeTable) });
-			MultiByteRecode(encoding::codepage::oem(), nCP, { reinterpret_cast<char*>(TableSet->EncodeTable), std::size(TableSet->EncodeTable) });
+			MultiByteRecode(nCP, encoding::codepage::oem(), { edit_as<char*>(TableSet.DecodeTable), std::size(TableSet.DecodeTable) });
+			MultiByteRecode(encoding::codepage::oem(), nCP, { edit_as<char*>(TableSet.EncodeTable), std::size(TableSet.EncodeTable) });
 			return Command;
 		}
 		return -1;
@@ -5091,7 +5092,7 @@ private:
 			while (nb > 0)
 			{
 				--nb;
-				reinterpret_cast<char*>(&Info->Guid)[8 + nb] = static_cast<char>(Info->Title[nb]);
+				edit_as<char*>(&Info->Guid)[8 + nb] = static_cast<char>(Info->Title[nb]);
 			}
 		}
 
@@ -5238,7 +5239,7 @@ WARNING_POP()
 			OpenFromA = oldfar::OPEN_COMMANDLINE;
 			if (Info->Data)
 			{
-				Buffer.reset(UnicodeToAnsi(reinterpret_cast<const OpenCommandLineInfo*>(Info->Data)->CommandLine));
+				Buffer.reset(UnicodeToAnsi(view_as<OpenCommandLineInfo>(Info->Data).CommandLine));
 				Ptr = reinterpret_cast<intptr_t>(Buffer.get());
 			}
 			break;
@@ -5247,8 +5248,8 @@ WARNING_POP()
 			OpenFromA = oldfar::OPEN_SHORTCUT;
 			if (Info->Data)
 			{
-				const auto SInfo = reinterpret_cast<const OpenShortcutInfo*>(Info->Data);
-				const auto shortcutdata = SInfo->ShortcutData ? SInfo->ShortcutData : SInfo->HostFile;
+				const auto& SInfo = view_as<OpenShortcutInfo>(Info->Data);
+				const auto shortcutdata = SInfo.ShortcutData? SInfo.ShortcutData : SInfo.HostFile;
 				Buffer.reset(UnicodeToAnsi(shortcutdata));
 				Ptr = reinterpret_cast<intptr_t>(Buffer.get());
 			}
@@ -5292,14 +5293,14 @@ WARNING_POP()
 		case OPEN_FROMMACRO:
 			// BUGBUG this is not how it worked in 1.7
 			OpenFromA = static_cast<int>(oldfar::OPEN_FROMMACRO) | static_cast<int>(Global->CtrlObject->Macro.GetArea());
-			Buffer.reset(UnicodeToAnsi(reinterpret_cast<OpenMacroInfo*>(Info->Data)->Count ? reinterpret_cast<OpenMacroInfo*>(Info->Data)->Values[0].String : L""));
+			Buffer.reset(UnicodeToAnsi(view_as<OpenMacroInfo>(Info->Data).Count? view_as<OpenMacroInfo>(Info->Data).Values[0].String : L""));
 			Ptr = reinterpret_cast<intptr_t>(Buffer.get());
 			break;
 
 		case OPEN_DIALOG:
 			OpenFromA = oldfar::OPEN_DIALOG;
 			DlgData.ItemNumber = Info->Guid->Data1;
-			DlgData.hDlg = reinterpret_cast<OpenDlgPluginData*>(Info->Data)->hDlg;
+			DlgData.hDlg = view_as<OpenDlgPluginData>(Info->Data).hDlg;
 			Ptr = reinterpret_cast<intptr_t>(&DlgData);
 			break;
 
@@ -6022,9 +6023,9 @@ WARNING_POP()
 	bool opif_shortcut{};
 };
 
-static const char* GetPluginMsg(const Plugin* PluginInstance, int MsgId)
+static const char* GetPluginMsg(const Plugin& PluginInstance, int MsgId)
 {
-	return static_cast<const PluginA*>(PluginInstance)->GetMsgA(MsgId);
+	return static_cast<const PluginA&>(PluginInstance).GetMsgA(MsgId);
 }
 
 std::unique_ptr<Plugin> oem_plugin_factory::CreatePlugin(const string& FileName)

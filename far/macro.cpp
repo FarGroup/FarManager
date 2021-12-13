@@ -925,7 +925,9 @@ bool KeyMacro::AddMacro(const UUID& PluginId, const MacroAddMacroV1* Data)
 	if (Data->Flags & KMFLAGS_NOSENDKEYSTOPLUGINS) Flags |= MFLAGS_NOSENDKEYSTOPLUGINS;
 
 	intptr_t Priority = 50;
-	if (Data->StructSize >= sizeof(MacroAddMacro)) Priority = reinterpret_cast<const MacroAddMacro*>(Data)->Priority;
+	if (Data->StructSize >= sizeof(MacroAddMacro))
+		Priority = view_as<const MacroAddMacro*>(Data)->Priority;
+
 	FarMacroValue values[]
 	{
 		static_cast<double>(Data->Area),
@@ -1134,13 +1136,13 @@ intptr_t KeyMacro::ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 
 			if (Param1==MS_BUTTON_OK)
 			{
-				const auto Sequence = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, MS_EDIT_SEQUENCE, nullptr));
+				const auto Sequence = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, MS_EDIT_SEQUENCE, nullptr));
 				if (*Sequence)
 				{
 					if (ParseMacroString(Sequence,KMFLAGS_LUA,true))
 					{
 						m_RecCode=Sequence;
-						m_RecDescription = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, MS_EDIT_DESCR, nullptr));
+						m_RecDescription = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, MS_EDIT_DESCR, nullptr));
 						return TRUE;
 					}
 				}
@@ -1734,7 +1736,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					api.PassValue(0);
 
 			return IsStringType?
-				api.PassValue(reinterpret_cast<const wchar_t*>(ActualWindow->VMProcess(CheckCode))) :
+				api.PassValue(view_as<const wchar_t*>(ActualWindow->VMProcess(CheckCode))) :
 				api.PassValue(ActualWindow->VMProcess(CheckCode));
 		}
 
@@ -1982,7 +1984,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (CheckCode == MCODE_V_MENUINFOID && CurrentWindow && CurrentWindow->GetType() == windowtype_menu)
 			{
-				return api.PassValue(reinterpret_cast<const wchar_t*>(CurrentWindow->VMProcess(MCODE_V_DLGINFOID)));
+				return api.PassValue(view_as<const wchar_t*>(CurrentWindow->VMProcess(MCODE_V_DLGINFOID)));
 			}
 
 			if (IsMenuArea(CurArea) || CurArea == MACROAREA_DIALOG)
@@ -2002,7 +2004,7 @@ void KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						break;
 
 					case MCODE_V_MENUINFOID:
-						return api.PassValue(reinterpret_cast<const wchar_t*>(CurrentWindow->VMProcess(CheckCode)));
+						return api.PassValue(view_as<const wchar_t*>(CurrentWindow->VMProcess(CheckCode)));
 					}
 				}
 			}
@@ -2958,7 +2960,7 @@ void FarMacroApi::msgBoxFunc() const
 		Flags|=FMSG_MB_OK;
 
 	const auto TempBuf = concat(title, L'\n', text);
-	const auto Result = pluginapi::apiMessageFn(&FarUuid, &FarUuid, Flags, nullptr, reinterpret_cast<const wchar_t* const*>(TempBuf.c_str()), 0, 0) + 1;
+	const auto Result = pluginapi::apiMessageFn(&FarUuid, &FarUuid, Flags, nullptr, view_as<const wchar_t* const*>(TempBuf.c_str()), 0, 0) + 1;
 	PassValue(Result);
 }
 

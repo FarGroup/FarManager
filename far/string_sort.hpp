@@ -62,6 +62,8 @@ namespace string_sort
 
 	struct [[nodiscard]] less_t
 	{
+		using is_transparent = void;
+
 		[[nodiscard]]
 		bool operator()(string_view Str1, string_view Str2) const
 		{

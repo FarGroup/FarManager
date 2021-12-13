@@ -137,10 +137,10 @@ static intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* 
 	{
 		if (param1 == ID_OE_OK)
 		{
-			const auto param = reinterpret_cast<uintptr_t*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+			auto& param = edit_as<uintptr_t>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 			FarListPos pos{ sizeof(pos) };
 			Dlg->SendMessage(DM_LISTGETCURPOS, ID_OE_CODEPAGE, &pos);
-			*param = Dlg->GetListItemSimpleUserData(ID_OE_CODEPAGE, pos.SelectPos);
+			param = Dlg->GetListItemSimpleUserData(ID_OE_CODEPAGE, pos.SelectPos);
 			return TRUE;
 		}
 	}
@@ -237,7 +237,7 @@ static intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* 
 	{
 		case DN_INITDIALOG:
 		{
-			CurrentCodepage = *reinterpret_cast<uintptr_t*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+			CurrentCodepage = view_as<uintptr_t>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 			codepages::instance().FillCodePagesList(Dlg, ID_SF_CODEPAGE, CurrentCodepage, false, false, false, false, false);
 			break;
 		}
@@ -245,10 +245,10 @@ static intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* 
 		{
 			if (param1 == ID_SF_OK)
 			{
-				const auto CodepagePtr = reinterpret_cast<uintptr_t*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				auto& Codepage = edit_as<uintptr_t>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				FarListPos pos{ sizeof(pos) };
 				Dlg->SendMessage(DM_LISTGETCURPOS, ID_SF_CODEPAGE, &pos);
-				*CodepagePtr = Dlg->GetListItemSimpleUserData(ID_SF_CODEPAGE, pos.SelectPos);
+				Codepage = Dlg->GetListItemSimpleUserData(ID_SF_CODEPAGE, pos.SelectPos);
 				return TRUE;
 			}
 

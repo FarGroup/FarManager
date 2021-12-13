@@ -158,7 +158,7 @@ namespace os::reg
 		if (!query_value(native_handle(), Name, Type, Buffer) || !is_string_type(Type))
 			return false;
 
-		Value.assign(reinterpret_cast<const wchar_t*>(Buffer.data()), Buffer.size() / sizeof(wchar_t));
+		Value.assign(view_as<const wchar_t*>(Buffer.data()), Buffer.size() / sizeof(wchar_t));
 		if (ends_with(Value, L'\0'))
 		{
 			Value.pop_back();

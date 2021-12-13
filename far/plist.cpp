@@ -119,7 +119,7 @@ static bool is_alttab_window(HWND const Window)
 
 static BOOL CALLBACK EnumWindowsProc(HWND const Window, LPARAM const Param)
 {
-	auto& Info = *reinterpret_cast<ProcInfo*>(Param);
+	auto& Info = edit_as<ProcInfo>(Param);
 
 	return cpp_try(
 	[&]

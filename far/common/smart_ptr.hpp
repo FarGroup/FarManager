@@ -161,7 +161,7 @@ public:
 	decltype(auto) data() const noexcept
 	{
 		assert(this->size() >= sizeof(T));
-		return static_cast<T*>(static_cast<void*>((array_ptr<std::byte, Size>::data())));
+		return edit_as<T*>(array_ptr<std::byte, Size>::data());
 	}
 
 	[[nodiscard]]

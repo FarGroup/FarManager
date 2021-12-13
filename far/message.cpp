@@ -162,7 +162,7 @@ intptr_t message_context::DlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void*
 				case KEY_CTRLNUMPAD0:
 				case KEY_RCTRLNUMPAD0:
 					{
-						SetClipboardText(*reinterpret_cast<string*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr)));
+						SetClipboardText(*view_as<string const*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr)));
 					}
 					break;
 				}

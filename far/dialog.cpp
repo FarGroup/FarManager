@@ -229,9 +229,10 @@ static size_t ConvertItemEx2(const DialogItemEx& ItemEx, FarGetDialogItem *Item,
 			{
 				if (ConvertListbox)
 				{
-					const auto list = static_cast<FarList*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetList));
-					const auto listItems = static_cast<FarListItem*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetListItems));
-					auto text = static_cast<wchar_t*>(static_cast<void*>(listItems + ListBoxSize));
+					const auto list = edit_as<FarList*>(Item->Item, offsetList);
+					const auto listItems = edit_as<FarListItem*>(Item->Item, offsetListItems);
+					auto text = edit_as<wchar_t*>(listItems, ListBoxSize);
+
 					for (const auto& ii: irange(ListBoxSize))
 					{
 						auto& item = ListBox->at(ii);
@@ -253,7 +254,7 @@ static size_t ConvertItemEx2(const DialogItemEx& ItemEx, FarGetDialogItem *Item,
 				}
 			}
 
-			auto p = static_cast<wchar_t*>(static_cast<void*>(reinterpret_cast<char*>(Item->Item) + offsetStrings));
+			auto p = edit_as<wchar_t*>(Item->Item, offsetStrings);
 			Item->Item->Data = p;
 			p += str.copy(p, str.npos);
 			*p++ = {};
@@ -2568,7 +2569,7 @@ bool Dialog::ProcessKey(const Manager::Key& Key)
 			// Перед выводом диалога посылаем сообщение в обработчик
 			//   и если вернули что надо, то выводим подсказку
 			{
-				const auto Topic = help::make_topic(PluginOwner, NullToEmpty(reinterpret_cast<const wchar_t*>(DlgProc(DN_HELP, m_FocusPos, const_cast<wchar_t*>(EmptyToNull(HelpTopic))))));
+				const auto Topic = help::make_topic(PluginOwner, NullToEmpty(view_as<const wchar_t*>(DlgProc(DN_HELP, m_FocusPos, const_cast<wchar_t*>(EmptyToNull(HelpTopic))))));
 				if (!Topic.empty())
 				{
 					help::show(Topic);

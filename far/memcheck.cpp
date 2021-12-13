@@ -80,7 +80,7 @@ struct MEMINFO
 
 	int& end_marker()
 	{
-		return *reinterpret_cast<int*>(reinterpret_cast<char*>(this) + Size - sizeof(EndMarker));
+		return *edit_as<int*>(this, Size - sizeof(EndMarker));
 	}
 };
 
@@ -89,12 +89,12 @@ static MEMINFO* LastMemBlock = &FirstMemBlock;
 
 static auto to_real(void* address, std::align_val_t Alignment)
 {
-	return static_cast<MEMINFO*>(static_cast<void*>(static_cast<char*>(address) - aligned_size(sizeof(MEMINFO), static_cast<size_t>(Alignment))));
+	return edit_as<MEMINFO*>(address, 0 - aligned_size(sizeof(MEMINFO), static_cast<size_t>(Alignment)));
 }
 
 static void* to_user(MEMINFO* address)
 {
-	return static_cast<char*>(static_cast<void*>(address)) + address->HeaderSize;
+	return edit_as<char*>(address, address->HeaderSize);
 }
 
 static void check_chain()

@@ -506,7 +506,7 @@ static void log_hook_wow64_status()
 		{
 			if (const auto LdrLoadDll = GetProcAddress(NtDll, "LdrLoadDll"))
 			{
-				const auto FunctionData = reinterpret_cast<std::byte const*>(LdrLoadDll);
+				const auto FunctionData = view_as<std::byte const*>(LdrLoadDll);
 				LOGWARNING(L"LdrLoadDll: {}"sv, BlobToHexString({ FunctionData, 32 }));
 			}
 		}

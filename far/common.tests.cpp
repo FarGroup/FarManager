@@ -651,7 +651,7 @@ TEST_CASE("placement")
 	};
 
 	std::aligned_storage_t<sizeof(raii), alignof(raii)> Data;
-	auto& Object = reinterpret_cast<raii&>(Data);
+	auto& Object = edit_as<raii>(&Data);
 
 	int Value = 0;
 	placement::construct(Object, Value);

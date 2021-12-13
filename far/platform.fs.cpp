@@ -336,7 +336,7 @@ namespace os::fs
 		else
 		{
 			FindData.FileId = 0;
-			CopyNames(reinterpret_cast<const FILE_BOTH_DIR_INFORMATION&>(DirectoryInfo));
+			CopyNames(view_as<FILE_BOTH_DIR_INFORMATION>(&DirectoryInfo));
 		}
 	}
 
@@ -431,7 +431,7 @@ namespace os::fs
 		if (!QueryResult)
 			return nullptr;
 
-		const auto DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.data());
+		const auto DirectoryInfo = view_as<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.data());
 		DirectoryInfoToFindData(*DirectoryInfo, FindData, Handle->Extended);
 		fill_allocation_size_alternative(FindData, Directory);
 		Handle->NextOffset = DirectoryInfo->NextEntryOffset;
@@ -443,10 +443,10 @@ namespace os::fs
 		bool Result = false;
 		auto& Handle = *static_cast<far_find_file_handle_impl*>(Find.native_handle());
 		bool Status = true, set_errcode = true;
-		auto DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle.BufferBase.data());
+		auto DirectoryInfo = view_as<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle.BufferBase.data());
 		if (Handle.NextOffset)
 		{
-			DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(reinterpret_cast<const char*>(DirectoryInfo) + Handle.NextOffset);
+			DirectoryInfo = view_as<const FILE_ID_BOTH_DIR_INFORMATION*>(DirectoryInfo, Handle.NextOffset);
 		}
 		else
 		{
@@ -459,7 +459,7 @@ namespace os::fs
 				if (Handle.Buffer2)
 				{
 					Handle.BufferBase = std::move(Handle.Buffer2);
-					DirectoryInfo = reinterpret_cast<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle.BufferBase.data());
+					DirectoryInfo = view_as<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle.BufferBase.data());
 				}
 				else
 				{
@@ -621,8 +621,8 @@ namespace os::fs
 			BufferSize *= 2;
 			Handle->BufferBase.reset(BufferSize);
 			// sometimes for directories NtQueryInformationFile returns STATUS_SUCCESS but doesn't fill the buffer
-			const auto StreamInfo = reinterpret_cast<FILE_STREAM_INFORMATION*>(Handle->BufferBase.data());
-			StreamInfo->StreamNameLength = 0;
+			auto& StreamInfo = edit_as<FILE_STREAM_INFORMATION>(Handle->BufferBase.data());
+			StreamInfo.StreamNameLength = 0;
 			// BUGBUG check result
 			(void)Handle->Object.NtQueryInformationFile(Handle->BufferBase.data(), Handle->BufferBase.size(), FileStreamInformation, &Result);
 		}
@@ -631,11 +631,11 @@ namespace os::fs
 		if (Result != STATUS_SUCCESS)
 			return nullptr;
 
-		const auto StreamInfo = reinterpret_cast<const FILE_STREAM_INFORMATION*>(Handle->BufferBase.data());
-		Handle->NextOffset = StreamInfo->NextEntryOffset;
+		const auto& StreamInfo = view_as<FILE_STREAM_INFORMATION>(Handle->BufferBase.data());
+		Handle->NextOffset = StreamInfo.NextEntryOffset;
 		const auto StreamData = static_cast<WIN32_FIND_STREAM_DATA*>(FindStreamData);
 
-		if (!FileStreamInformationToFindStreamData(*StreamInfo, *StreamData))
+		if (!FileStreamInformationToFindStreamData(StreamInfo, *StreamData))
 			return nullptr;
 
 		return find_file_handle(Handle.release());
@@ -653,7 +653,7 @@ namespace os::fs
 		if (!Handle->NextOffset)
 			return false;
 
-		const auto StreamInfo = reinterpret_cast<const FILE_STREAM_INFORMATION*>(Handle->BufferBase.data() + Handle->NextOffset);
+		const auto StreamInfo = view_as<const FILE_STREAM_INFORMATION*>(Handle->BufferBase.data() + Handle->NextOffset);
 		Handle->NextOffset = StreamInfo->NextEntryOffset? Handle->NextOffset + StreamInfo->NextEntryOffset : 0;
 		const auto StreamData = static_cast<WIN32_FIND_STREAM_DATA*>(FindStreamData);
 

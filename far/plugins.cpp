@@ -1690,12 +1690,13 @@ static char* BufReserve(char*& Buf, size_t Count, size_t& Rest, size_t& Size)
 static wchar_t* StrToBuf(const string& Str, char*& Buf, size_t& Rest, size_t& Size)
 {
 	const auto Count = (Str.size() + 1) * sizeof(wchar_t);
-	const auto Res = reinterpret_cast<wchar_t*>(BufReserve(Buf, Count, Rest, Size));
-	if (Res)
-	{
-		*copy_string(Str, Res) = {};
-	}
-	return Res;
+	const auto BufPtr = BufReserve(Buf, Count, Rest, Size);
+	if (!BufPtr)
+		return {};
+
+	const auto StrPtr = edit_as<wchar_t*>(BufPtr);
+	*copy_string(Str, StrPtr) = {};
+	return StrPtr;
 }
 
 
@@ -1707,8 +1708,8 @@ static void ItemsToBuf(PluginMenuItem& Menu, const std::vector<string>& NamesArr
 
 	if (Menu.Count)
 	{
-		const auto Items = reinterpret_cast<wchar_t**>(BufReserve(Buf, Menu.Count * sizeof(wchar_t*), Rest, Size));
-		const auto Uuids = reinterpret_cast<UUID*>(BufReserve(Buf, Menu.Count * sizeof(UUID), Rest, Size));
+		const auto Items = edit_as<wchar_t**>(BufReserve(Buf, Menu.Count * sizeof(wchar_t*), Rest, Size));
+		const auto Uuids = edit_as<UUID*>(BufReserve(Buf, Menu.Count * sizeof(UUID), Rest, Size));
 		Menu.Strings = Items;
 		Menu.Guids = Uuids;
 
@@ -1795,15 +1796,15 @@ size_t PluginManager::GetPluginInformation(Plugin* pPlugin, FarGetPluginInformat
 	if (pInfo)
 	{
 		Rest = BufferSize - Size;
-		Buffer = reinterpret_cast<char*>(pInfo) + Size;
+		Buffer = edit_as<char*>(pInfo, Size);
 	}
 	else
 	{
 		pInfo = &Temp.fgpi;
 	}
 
-	pInfo->PInfo = reinterpret_cast<PluginInfo*>(pInfo+1);
-	pInfo->GInfo = reinterpret_cast<GlobalInfo*>(pInfo->PInfo+1);
+	pInfo->PInfo = edit_as<PluginInfo*>(pInfo + 1);
+	pInfo->GInfo = edit_as<GlobalInfo*>(pInfo->PInfo + 1);
 	pInfo->ModuleName = StrToBuf(pPlugin->ModuleName(), Buffer, Rest, Size);
 
 	pInfo->Flags = 0;

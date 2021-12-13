@@ -285,35 +285,51 @@ void copy_memory(const src_type* Source, dst_type* Destination, size_t const Siz
 		std::memmove(Destination, Source, Size);
 }
 
-template<typename T>
-decltype(auto) view_as(void const* const BaseAddress, size_t const Offset = 0)
+namespace detail
 {
-	static_assert(std::is_trivially_copyable_v<T>);
-
-	const auto Ptr = static_cast<void const*>(static_cast<char const*>(BaseAddress) + Offset);
-
-	if constexpr (std::is_pointer_v<T>)
+	template<typename T, typename void_type>
+	decltype(auto) cast_as(void_type* const BaseAddress, intptr_t const Offset)
 	{
-		return static_cast<T>(Ptr);
+		static_assert(std::is_same_v<std::remove_const_t<void_type>, void>);
+
+		constexpr auto IsConst = std::is_const_v<void_type>;
+
+		const auto Ptr = static_cast<void_type*>(static_cast<std::conditional_t<IsConst, const std::byte, std::byte>*>(BaseAddress) + Offset);
+
+		if constexpr (std::is_pointer_v<T>)
+		{
+			return static_cast<T>(Ptr);
+		}
+		else
+		{
+			assert(Ptr);
+			return *static_cast<std::conditional_t<IsConst, const T, T>*>(Ptr);
+		}
 	}
-	else
-	{
-		return *static_cast<T const*>(Ptr);
-	}
+
+}
+template<typename T>
+decltype(auto) view_as(void const* const BaseAddress, intptr_t const Offset = 0)
+{
+	return detail::cast_as<T>(BaseAddress, Offset);
 }
 
 template<typename T>
 decltype(auto) view_as(unsigned long long const Address)
 {
-	return view_as<T>(reinterpret_cast<void const*>(Address));
+	return view_as<T>(nullptr, Address);
 }
 
-template<typename T, typename container>
-auto view_as_if(container const& Buffer, size_t const Offset = 0)
+template<typename T>
+decltype(auto) edit_as(void* const BaseAddress, intptr_t const Offset = 0)
 {
-	static_assert(std::is_trivially_copyable_v<T>);
+	return detail::cast_as<T>(BaseAddress, Offset);
+}
 
-	return Buffer.size() >= Offset + sizeof(T)? view_as<T const*>(Buffer.data() + Offset) : nullptr;
+template<typename T>
+decltype(auto) edit_as(unsigned long long const Address)
+{
+	return edit_as<T>(nullptr, Address);
 }
 
 template<typename large_type, typename small_type>

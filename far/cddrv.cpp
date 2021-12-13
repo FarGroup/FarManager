@@ -112,14 +112,6 @@ static auto read_value_from_big_endian(unsigned char const (&Src)[N])
 	return read_value_from_big_endian_impl<T>(Src, std::make_index_sequence<N>{});
 }
 
-template<typename T>
-static auto& edit_as(void* const Buffer)
-{
-	static_assert(std::is_trivially_copyable_v<T>);
-
-	return *static_cast<T*>(Buffer);
-}
-
 struct SCSI_PASS_THROUGH_WITH_BUFFERS: SCSI_PASS_THROUGH
 {
 	UCHAR SenseBuf[32];
@@ -193,6 +185,14 @@ WARNING_DISABLE_CLANG("-Wswitch")
 	}
 
 WARNING_POP()
+}
+
+template<typename T, typename container>
+static auto view_as_if(container const& Buffer, intptr_t const Offset = 0)
+{
+	static_assert(std::is_trivially_copyable_v<T>);
+
+	return Buffer.size() >= Offset + sizeof(T)? view_as<T const*>(Buffer.data() + Offset) : nullptr;
 }
 
 static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)

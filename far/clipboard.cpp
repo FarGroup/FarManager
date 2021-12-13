@@ -372,7 +372,7 @@ bool clipboard::SetHDROP(const string_view NamesData, const bool bMoved)
 	Drop->pt.y = 0;
 	Drop->fNC = TRUE;
 	Drop->fWide = TRUE;
-	*copy_string(NamesData, static_cast<wchar_t*>(static_cast<void*>(Drop.get() + 1))) = {};
+	*copy_string(NamesData, edit_as<wchar_t*>(Drop.get() + 1)) = {};
 
 	if (!Clear() || !SetData(CF_HDROP, std::move(Memory)))
 		return false;
@@ -429,12 +429,12 @@ bool clipboard::GetHDROPAsText(string& data) const
 	if (!Files)
 		return false;
 
-	const auto StartA=reinterpret_cast<const char*>(Files.get()) + Files->pFiles;
+	const auto StartA = view_as<const char*>(Files.get(), Files->pFiles);
 
 	const auto Eol = eol::system.str();
 	if (Files->fWide)
 	{
-		const auto Start = reinterpret_cast<const wchar_t*>(StartA);
+		const auto Start = view_as<const wchar_t*>(StartA);
 
 		for (const auto& i: enum_substrings(Start))
 		{

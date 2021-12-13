@@ -739,9 +739,9 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				{
 					dirInfo->StructSize = sizeof(*dirInfo);
 					dirInfo->PluginId = Info.PluginUuid;
-					dirInfo->Name = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + folderOffset));
-					dirInfo->Param = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + pluginDataOffset));
-					dirInfo->File = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + pluginFileOffset));
+					dirInfo->Name = view_as<const wchar_t*>(Param2, folderOffset);
+					dirInfo->Param = view_as<const wchar_t*>(Param2, pluginDataOffset);
+					dirInfo->File = view_as<const wchar_t*>(Param2, pluginFileOffset);
 					*copy_string(Info.ShortcutFolder, const_cast<wchar_t*>(dirInfo->Name)) = {};
 					*copy_string(Info.PluginData, const_cast<wchar_t*>(dirInfo->Param)) = {};
 					*copy_string(Info.PluginFile, const_cast<wchar_t*>(dirInfo->File)) = {};
