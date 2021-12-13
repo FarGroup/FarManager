@@ -316,7 +316,7 @@ $ #Polecenia kontroli menu#
  Menu filtru lub pozycje listy                      #Ctrl+Alt+F,RAlt#
  Zablokuj filtr                                          #Ctrl+Alt+L#
 
- Zobacz także listę ~klawiszy makro~@KeyMacroMenuList@, dostępnych w menu.
+ Zobacz także listę ~klawiszy makr~@KeyMacroMenuList@, dostępnych w menu.
 
 
 @PanelCmd
@@ -424,7 +424,7 @@ lecz w pasywnym oknie panelu.
 
  Pliki, skopiowane lub cięcie z paneli, mogą być kopiowane do innej aplikacji, np. Explorer.
 
- Zobacz także listę ~klawiszy makro~@KeyMacroShellList@, dostępnych w panelach.
+ Zobacz także listę ~klawiszy makr~@KeyMacroShellList@, dostępnych w panelach.
 
  Uwaga:
 
@@ -488,7 +488,7 @@ do pola wyszukiwania. Jeżeli wprowadzony tekst będzie transliterowany, to będ
 wyszukiwany jako nowy tekst. Zobacz flagę ~XLat.Flags~@XLat.Flags@ jak ustawić
 klawisz skrótu dla transliteracji.
 
- Zobacz także listę ~klawiszy makro~@KeyMacroSearchList@, dostępnych w szybkim szukaniu.
+ Zobacz także listę ~klawiszy makr~@KeyMacroSearchList@, dostępnych w szybkim szukaniu.
 
 
 @CmdLineCmd
@@ -1072,7 +1072,7 @@ automatycznie ustawiony na panel plików.
  Operacja ~szybkiego szukania~@FastFind@ może być użyta jako odnośnik do żądanego
 plików po pierwszej literze jego nazwy.
 
- Zobacz także listę ~klawiszy makro~@KeyMacroShellList@, dostępnych w panelach.
+ Zobacz także listę ~klawiszy makr~@KeyMacroShellList@, dostępnych w panelach.
 
 
 @TreePanel
@@ -1095,7 +1095,7 @@ Wciśnięcie #Ctrl+Enter# przeniesie do następnego folderu o takim samym począ
  Klawisze #Szary +# i #Szary -# przesuwają przesuwają w górę i w dół do następnej gałęzi
 tego samego poziomu.
 
- Zobacz także listę ~klawiszy makro~@KeyMacroTreeList@, dostępną dla panelu drzewa.
+ Zobacz także listę ~klawiszy makr~@KeyMacroTreeList@, dostępnych dla panelu drzewa.
 
 
 @InfoPanel
@@ -1275,7 +1275,7 @@ klastra na dysku, rzeczywistą wielkość pliku z ilością utraconej pojemnośc
 Dotyczy to także ~Panelu informacyjnego~@InfoPanel@ i linii statusu w ~Panelu plików~@FilePanel@.
 Bieżący tryb - far:config #Panel.ShowBytes# (domyślnie=fałsz).
 
- Zobacz także listę ~klawiszy makro~@KeyMacroQViewList@, dostępnych w panelu szybkiego poglądu.
+ Zobacz także listę ~klawiszy makr~@KeyMacroQViewList@, dostępnych w panelu szybkiego poglądu.
 
 
 @DragAndDrop
@@ -1313,7 +1313,7 @@ do menu pasywnego panelu.
  ~Menu Polecenia~@CmdMenu@
  ~Menu Opcje~@OptMenu@
 
- Zobacz także listę ~klawiszy makro~@KeyMacroMainMenuList@, dostępną w głównym menu.
+ Zobacz także listę ~klawiszy makr~@KeyMacroMainMenuList@, dostępną w głównym menu.
 
 
 @LeftRightMenu
@@ -1851,7 +1851,7 @@ do poprzedniej wielkości.
  Wciśnięcie #Ctrl+Enter# pozwala na przejście do następnego folderu z wprowadzoną
 wcześniej nazwą. #Ctrl+Shift+Enter# przechodzi do poprzedniego folderu.
 
- Zobacz także listę ~klawiszy makro~@KeyMacroFindFolderList@, dostępnych w oknie
+ Zobacz także listę ~klawiszy makr~@KeyMacroFindFolderList@, dostępnych w oknie
 dialogowym szukania.
 
 
@@ -2148,7 +2148,7 @@ Jeżeli istnieje plik globalny zastępuje on menu specyficzne dla użytkownika.
 
  Zobacz także:
 
- Lista ~klawiszy makro~@KeyMacroUserMenuList@, dostępne w menu użytkownika.
+ Lista ~klawiszy makr~@KeyMacroUserMenuList@, dostępnych w menu użytkownika.
  Wspólne ~polecenia menu~@MenuCmd@.
 
 
@@ -2577,7 +2577,7 @@ $ #Okno ustawień: Okna#
  #poza oknem zamyka je#    dialogowym, zamyka to okno (zobacz ~Polecenia sterowania~@MiscCmd@).
                          Opcja ta pozwala na wyłączenie tej funkcjonalności.
 
- Zobacz także listę ~klawiszy makro~@KeyMacroDialogList@, dostępną w oknach dialogowych.
+ Zobacz także listę ~klawiszy makr~@KeyMacroDialogList@, dostępnych w oknach dialogowych.
 
 
 @VMenuSettings
@@ -2598,7 +2598,7 @@ $ #Okno ustawień: Wiersz poleceń#
  #AutoUzupełnianie#
  Pozwala na użycie funkcji AutoUzupełniania w wierszu poleceń. Gdy opcja jest wyłączona,
 możesz użyć skrótu #Ctrl+Spacja# aby uzupełnić wiersz. AutoUzupełnianie jest wyłączona
-automatycznie podczas nagrywania lub wykonywania makro.
+automatycznie podczas nagrywania lub wykonywania makr.
 
  #Wygląd znaku zachęty wiersza poleceń#
  Ta opcja pozwala ustawić domyślny ~format zachęty~@CommandPrompt@ wiersza poleceń Far.
@@ -2787,7 +2787,7 @@ Użyj klawiszy nawigacyjnych po pierwszym kliknięciu, aby przesunąć pozycję
 końcową na ekran. Koniec zaznaczonego obszaru może być przed lub za tekstem
 początkowym.
 
- Zobacz także listę ~klawiszy makro~@KeyMacroViewerList@ dostępnych w podglądzie.
+ Zobacz także listę ~klawiszy makr~@KeyMacroViewerList@, dostępnych w podglądzie.
 
  Uwagi:
 
@@ -3122,7 +3122,7 @@ kodowa ANSI, ale można zmienić to ustawienie w oknie ~Ustawień edytora~@Edito
  #Ctrl+B#                  Pokazuje/ukrywa pasek klawiszy w dolnej linii
  #Ctrl+Shift+B#            Pokazuje/ukrywa górną linię statusu
 
- Zobacz także listę ~klawiszy makro~@KeyMacroEditList@, dostępnych w edytorze.
+ Zobacz także listę ~klawiszy makr~@KeyMacroEditList@, dostępnych w edytorze.
 
  Uwagi:
 
@@ -3590,7 +3590,7 @@ dla Far 1.7x i nie obsługuje wszystkich możliwości dostępnych w Far 3
 
  Zobacz także:
 
- Lista ~klawiszy makro~@KeyMacroDisksList@, dostępnych w menu dysku.
+ Lista ~klawiszy makr~@KeyMacroDisksList@, dostępnych w menu dysku.
  Polecenia ~menu~@MenuCmd@.
 
 
@@ -4779,159 +4779,158 @@ $ #Wyrażenia regularne#
  Ogólna forma: #wyrażenie# lub /#wyrażenie#/#opcje#.
 
  #Opcje#:
- #i# - ignore character case;
- #s# - ^<wrap>consider the whole text as one line, ‘#.#’ matches any character;
- #m# - ^<wrap>consider the whole text as multiple lines. ‘#^#’ and ‘#$#’ match the
-beginning and the end of any "inner" string;
- #x# - ^<wrap>ignore space characters (unescaped ones, i.e. without backslash before).
-This is useful to outline the complex expressions.
+ #i# - ignoruje wielkość znaków;
+ #s# - ^<wrap>traktuje cały tekst jako jedną linię, ‘.’ oznacza dowolny znak;
+ #m# - ^<wrap>traktuje cały tekst jako wiele linii. ‘#^#’ i ‘#$#’ wyznaczają
+początek i koniec dowolnego "wewnętrznego" ciągu.
+ #x# - ^<wrap>ignoruje znaki spacji (bez kodu specjalnego, np. bez poprzedzenia
+znakiem backslash). Przydatne do zaznaczania złożonych wyrażeń.
 
- #regexp# - the sequence of characters and metacharacters. The characters are
-letters and digits, any other character is used verbatim when escaped, i.e.
-prepended by the backslash ‘#\#’.
+ #wyrażenie# - sekwencja znaków i metaznaków. Znaki to litery i cyfry, wszystkie
+inne znaki są używane w dosłownym brzmieniu jeżeli są poprzedzone znakiem
+sterującym, np. odwrotnym ukośnikiem (backslash) ‘#\#’.
 
- Pay attention that all slashes and backslashes in a regular expression must
-be escaped (prepended by the ‘#\#’ character) to be treated literally
-rather than escape other characters themselves or mark
-the end of expression. An example: the string "big\white/scary" looks in the
-form of regular expression like "big\\\\white\/scary".
+ Należy zwrócić uwagę, że wszystkie ukośniki i odwrotne ukośniki w wyrażeniu
+regularnym muszą być poprzedzone znakiem sterującym (‘#\#’), aby były traktowane
+dosłownie, a nie jako wstęp do innego znaku lub oznaczały koniec wyrażenia.
+Np. łańcuch "duży\biały/straszny" w formie wyrażenia regularnego wygląda jak
+"duży\\\\biały\/straszny".
 
- #Metacharacters#
+ #Metaznaki#
 
- #\#  - ^<wrap>the next character is treated verbatim, not a metacharacter;
- #^#  - ^<wrap>the beginning of string;
- #$#  - ^<wrap>the end of string;
- #|#  - ^<wrap>the alternative. Either expression before or after ‘#|#’ has to match.
-      Example: "\d+\w+|Hello\d+" means "(\d+\w+)|(Hello\d+)", not "\d+(\w+|H)ello\d+".
- #()# - ^<wrap>grouping - it is used for references or when replacing matched text.
- #[]# - ^<wrap>character class - the metacharacter which matches any character
-or range of characters enumerated in #[]#. Ranges are defined as [a-z].
-Metacharacters are not taken into account in character classes. If the first
-character inside the brackets is ‘#^#’ then this is a negative class. If the ‘#^#’ character itself
-needs to be added to a class, then it must be either not the first one or escaped by a ‘#\#’.
+ #\#  - ^<wrap>następny znak będzie traktowany dosłownie, nie jako metaznak;
+ #^#  - ^<wrap>początek łańcucha;
+ #$#  - ^<wrap>koniec łańcucha;
+ #|#  - ^<wrap>alternatywa. Każde wyrażenie przed lub po ‘#|#’ musi pasować.
+      Przykład: "\d+\w+|Witaj\d+" means "(\d+\w+)|(Witaj\d+)", a nie "\d+(\w+|W)itaj\d+";
+ #()# - ^<wrap>grupowanie - używane do odwołań lub przy zastępowaniu pasującego tekstu;
+ #[]# - ^<wrap>klasa znaków - metaznak, który pasuje do dowolnego znaku lub zakresu znaków
+objętych #[]#. Zakresy są zdefiniowane jako [a-z].
+Metaznaki nie są brane pod uwagę w klasach znaków. Jeżeli pierwszym znakiem wewnątrz
+nawiasów jest ‘#^#’, to jest to klasa zanegowana. Jeżeli sam znak ‘#^#’ ma być dodany
+do klasy, to nie może on być pierwszym znakiem lub musi być poprzedzony znakiem ‘#\#’.
 
- Except grouping, the parentheses are used for the following operations:
- #(?:pattern)#  - ^<wrap>usual grouping, but it does not get a number.
- #(?=pattern)#  - ^<wrap>the forward lookup. The matching continues from
-the same place, but only if the pattern in these parentheses has matched. For
-example, #\w+(?=\s)# matches the word followed by space character, and the space
-is not included into the search result.
- #(?!pattern)#  - ^<wrap>the negation of forward lookup. The matching
-continues from the same place if the pattern does not match. For example,
-#foo(?!bar)# matches any "foo" without following "bar". Remember that this
-expression has zero size, which means that #a(?!b)d# matches #ad# because #a#
-is followed by the character which is not #b# (but #d#), and #d# follows the
-zero-size expression.
- #(?<=pattern)# - ^<wrap>the backward lookup. Unfortunately, the pattern must have fixed length.
- #(?<!pattern)# - ^<wrap>the negation of backward lookup. The same restriction.
+ Poza grupowaniem, nawiasy są używane także do następujących operacji:
+ #(?:wzorzec)#  - ^<wrap>zwykłe grupowanie, ale nie obejmuje liczb.
+ #(?=wzorzec)#  - ^<wrap>przeszukiwanie do przodu. Dopasowanie rozpoczyna się od tego
+samego miejsca, ale tylko gdy zgadza się wzorzec w nawiasach. Np. #\w+(?=\s)#
+dopasowuje słowo, po którym następuje spacja, a spacja nie jest uwzględniana w wynikach
+szukania.
+ #(?!pattern)#  - ^<wrap>negacja wyszukiwania do przodu. Dopasowanie kontynuuje od tego
+samego miejsca, jeżeli wzorzec się nie zgadza. Np. #foo(?!bar)# dopasowuje dowolne
+"foo" bez następującego "bar". Należy pamiętać że wyrażenie ma wielkość zero, co oznacza
+że #a(?!b)d# pasuje do #ad#, ponieważ po #a# następuje znak który nie jest #b# (lecz #d#),
+a #d# następuje po wyrażeniu o zerowym rozmiarze.
+ #(?<=pattern)# - ^<wrap>wyszukiwanie wstecz. Niestety, wzorzec musi mieć określoną długość.
+ #(?<!pattern)# - ^<wrap>negacja wyszukiwania wstecz. Takie same ograniczenia jak przy negacji
+wyszukiwania do przodu.
 
  #(?{name}pattern)# - group with a name. The name can be empty (in such case you
 cannot refer to this group) or must contain only word characters (#\w#) and spaces (#\s#).
 
- #Quantifiers#
+ #Kwantyfikatory#
 
- Any character, group or class can be followed by a quantifier:
+ Dowolny znak, grupa lub klasa może być poprzedzona kwantyfikatorem:
 
- #?#      - ^<wrap>Match 0 or 1 time, greedily.
- #??#     - ^<wrap>Match 0 or 1 time, not greedily.
- #*#      - ^<wrap>Match 0 or more times, greedily.
- #*?#     - ^<wrap>Match 0 or more times, not greedily.
- #+#      - ^<wrap>Match 1 or more times, greedily.
- #+?#     - ^<wrap>Match 1 or more times, not greedily
- #{n}#    - ^<wrap>Match exactly n times.
- #{n,}#   - ^<wrap>Match at least n times, greedily.
- #{n,}?#  - ^<wrap>Match at least n times, not greedily.
- #{n,m}#  - ^<wrap>Match at least n but not more than m times, greedily.
- #{n,m}?# - ^<wrap>Match at least n but not more than m times, not greedily.
- #{,m}#   - ^<wrap>equals to {0,m}
- #{,m}?#  - ^<wrap>equals to {0,m}?
+ #?#      - ^<wrap>Dopasowuje 0 lub 1 razy, chciwy (greedily).
+ #??#     - ^<wrap>Dopasowuje 0 lub 1 razy, leniwy (not greedily).
+ #*#      - ^<wrap>Dopasowuje 0 lub więcej razy, chciwy (greedily).
+ #*?#     - ^<wrap>Dopasowuje 0 lub więcej razy, leniwy (not greedily).
+ #+#      - ^<wrap>Dopasowuje 1 lub więcej razy, chciwy (greedily).
+ #+?#     - ^<wrap>Dopasowuje 1 lub więcej razy, leniwy (not greedily).
+ #{n}#    - ^<wrap>Dopasowuje dokładnie n razy.
+ #{n,}#   - ^<wrap>Dopasowuje co najmniej n razy, chciwy (greedily).
+ #{n,}?#  - ^<wrap>Dopasowuje co najmniej n razy, leniwy (not greedily).
+ #{n,m}#  - ^<wrap>Dopasowuje co najmniej n ale nie więcej niż m razy, chciwy (greedily).
+ #{n,m}?# - ^<wrap>Dopasowuje co najmniej n ale nie więcej niż m razy, leniwy (not greedily).
+ #{,m}#   - ^<wrap>równe do {0,m}
+ #{,m}?#  - ^<wrap>równe do {0,m}?
 
- #"Greedy" and "not greedy" quantifiers#
+ #Kwantyfikatory "chciwy (greedy)" i "leniwy (not greedy)"#
 
- Greedy quantifier captures as many characters as possible, and only if
-further match fails, it "returns" the captured string (the rollback
-happens, which is rather expensive).
- When expression "A.*Z" is matched to string
-"AZXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", #.*# captures the whole string, and then
-rolls back character by character until it finds Z. On the opposite, if the expression
-is "A.*?Z" then Z is found at once. Not greedy quantifier is also known as
-#minimizing#, it captures as few characters as possible, and only if
-further match fails it captures more.
+ Kwantyfikator chciwy (greedy) przechwytuje jak najwięcej znaków i, tylko
+gdy dalsze dopasowanie kończy się niepowodzeniem, "zwraca" przechwycony
+ciąg (zdarza się także wycofywanie, które jest raczej rzadkie).
+ Gdy wyrażenie "A.*Z" jest dopasowywane do łańcucha "AZXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+#.*# przechwytuje cały ciąg, a następnie cofa znak po znaku aż znajdzie znak Z.
+Z drugiej strony, jeżeli wyrażeniem jest "A.*?Z", to znak Z jest znajdowane od razu.
+Leniwy kwantyfikator jest także znany jako #minimalistyczny#, przechwytuje jak najmniej
+znaków i tylko wtedy gdy dopasowanie kończy się niepowodzeniem, przechwytuje dalej.
 
- #Special characters#
+ #Znaki specjalne#
 
- Non-letter and non-digit character can be prepended by ‘#\#’ in most cases,
-but in case of letters and digits this must be done with care because this is
-the way the special characters are written:
+ Znaki, które nie są literami ani cyframi mogą być poprzedzone w większości
+przypadków znakiem ‘#\#’, ale w przypadku liter i cyfr należy to robić ostrożnie,
+ponieważ jest to sposób opisywania znaków specjalnych:
 
- #.#    - ^<wrap>any character except carriage return. If there is “#s#” among
-the options then dot matches any character.
- #\t#   - tab (0x09)
- #\n#   - new line (LF, 0x0a)
- #\r#   - carriage return (CR, 0x0d)
- #\f#   - form feed (0x0c)
- #\a#   - bell (0x07)
+ #.#    - ^<wrap>dowolny znak za wyjątkiem powrotu karetki. Jeśli wśród opcji znajduje się
+“#s#”, to wtedy kropka dopasowuje dowolny znak.
+ #\t#   - tabulator (0x09)
+ #\n#   - nowa linia (LF, 0x0a)
+ #\r#   - powrót karetki (CR, 0x0d)
+ #\f#   - wysunięcie strony (0x0c)
+ #\a#   - dzwonek (0x07)
  #\e#   - escape (0x1b)
- #\xNNNN# - hex character, where N - [0-9A-Fa-f].
- #\Q#   - ^<wrap>the beginning of metacharacters quoting - the whole quoted
-text is treated as text itself, not the regular expression
- #\E#   - the end of metacharacters quoting
- #\w#   - letter, digit or underscore (‘_’).
- #\W#   - not \w
- #\s#   - space character (tab/space/LF/CR).
- #\S#   - not \s
- #\d#   - digit
- #\D#   - not digit
- #\i#   - letter
- #\I#   - not letter
- #\l#   - lower case character
- #\L#   - not lower case character
- #\u#   - upper case character
- #\U#   - not upper case character
- #\b#   - ^<wrap>the word boundary - means that there is a word character to either left or right
- from the current position, and to the right or left, accordingly, there is a non-word character.
- #\B#   - not \b
- #\A#   - the beginning of the text, disregard the option “m”
- #\Z#   - the end of the text, disregard the option “m”
- #\O#   - ^<wrap>the no-return point. If the matching has passed by this character,
-it won't roll back and and will return "no match". It can be used in complex expressions
-after mandatory fragment with quantifier. This special character can be used when
-big amounts of data are processed.
-        Example:
-        /.*?name\O=(['"])(.*?)\1\O.*?value\O=(['"])(.*?)\3/
-        ^<wrap>Strings containing "name=", but not containing "value=", are processed (in fact, skipped) faster.
+ #\xNNNN# - znak szesnastkowy (hex), gdzie N - [0-9A-Fa-f].
+ #\Q#   - ^<wrap>początek cytowania metaznaków - cały cytowany tekst
+jest traktowany jako tekst, a nie jako wyrażenie regularne
+ #\E#   - koniec cytowania metaznaków
+ #\w#   - litera, cyfra lub podkreślenie (‘_’).
+ #\W#   - przeciwieństwo \w
+ #\s#   - znak odstępu (tabulator/spacja/nowa linia/powrót karetki).
+ #\S#   - przeciwieństwo \s
+ #\d#   - cyfra
+ #\D#   - nie cyfra
+ #\i#   - litera
+ #\I#   - nie litera
+ #\l#   - znak pisany małą literą
+ #\L#   - znak nie pisany małą literą
+ #\u#   - znak pisany wielką literą
+ #\U#   - znak pisany nie wielką literą
+ #\b#   - ^<wrap>granica słowa - oznacza, że po lewej lub prawej stronie od bieżącej pozycji
+znajduje się litera i odpowiednio po prawej i lewej stronie znajduje się znak nie będący literą.
+ #\B#   - przeciwieństwo \b
+ #\A#   - początek tekstu, ignoruje opcję “m”
+ #\Z#   - koniec tekstu, ignoruje opcję “m”
+ #\O#   - ^<wrap>punkt bez powrotu. Jeżeli dopasowanie przekroczyło ten znak, nie będzie mogło
+się cofnąć i zwróci komunikat "brak dopasowania". Może być używane w złożonych wyrażeniach
+po obowiązkowym fragmencie z kwantyfikatorem. Ten znak specjalny może być użyty przy przetwarzaniu
+dużej ilości danych.
+        Na przykład:
+        /.*?nazwa\O=(['"])(.*?)\1\O.*?wartosc\O=(['"])(.*?)\3/
+        ^<wrap>Łańcuchy zawierające "nazwa=", ale nie zawierające "wartosc", są przetwarzane
+(w rzeczywistości - omijane) szybciej.
 
- #\NN#  - ^<wrap>reference to earlier matched parentheses. NN is a positive integer.
-Each parentheses except (?:pattern), (?=pattern), (?!pattern), (?<=pattern), (?<!pattern) and (?{name}pattern)
-have a number (in the order of appearance).
-        Example:
-        "(['"])hello\1" matches to "hello" or 'hello'.
+ #\NN#  - ^<wrap>odniesienie do wcześniej dopasowanych nawiasów. NN jest liczbą całkowitą dodatnią.
+Wszystkie nawiasy oprócz (?:wzorzec), (?=wzorzec), (?!wzorzec), (?<=wzorzec), (?<!wzorzec) i (?{nazwa}wzorzec)
+posiadają numer (w kolejności występowania).
+        Przykład:
+        "(['"])witaj\1" pasuje do "witaj" lub 'witaj'.
 
- #\p{name}# - ^<wrap>inner regexp reference to it's parsed bracket with specified #name#.
+ #\p{nazwa}# - ^<wrap>wewnętrzne odwołanie regexp do jego sparsowanego nawiasu o podanej #nazwie#.
 
- #Examples:#
+ #Przykłady:#
 
- #/foobar/# matches to "foobar", but not to "FOOBAR"
- #/ FOO bar /ix# matches to "foobar" and "FOOBAR"
- #/(foo)?bar/# matches to "foobar" and "bar"
- #/^foobar$/# matches to "foobar" only, but not to "foofoofoobarfoobar"
- #/[\d\.]+/# matches to any number with decimal point
- #/(foo|bar)+/# matches to "foofoofoobarfoobar" and "bar"
- #/\Q.)))$\E/# equals to "\.\)\)\)\$"
+ #/foobar/# pasuje do "foobar", ale nie do "FOOBAR"
+ #/ FOO bar /ix# pasuje do "foobar" i "FOOBAR"
+ #/(foo)?bar/# pasuje do "foobar" i "bar"
+ #/^foobar$/# pasuje tylko do "foobar" ale nie do "foofoofoobarfoobar"
+ #/[\d\.]+/# pasuje do dowolnej liczby z przecinkiem dziesiętnym
+ #/(foo|bar)+/# pasuje do "foofoofoobarfoobar" i "bar"
+ #/\Q.)))$\E/# odpowiada do "\.\)\)\)\$"
 
 
 @RegExpRepl
 $ #Wyrażenia regularne w zastępowaniu#
- In "Replace with" line one can use special replace string regular
-expressions:
+ W linii "Zamień na" można użyć specjalnych wyrażeń regularnych zastępujących łańcuchy:
 
  #$0#…#$N#
 
- The found group numbers, they are replaced with appropriate groups.
-The numbers are assigned to the groups in order of opening parentheses
-sequence in regular expression. #$0# means the whole found sequence.
+ Znalezione numery grup, są zastępowane odpowiednimi grupami.
+Numery są przypisywane do grup w kolejności sekwencji otwartych nawiasów
+w wyrażeniu regularnym. #$0# oznacza całą znalezioną sekwencję.
 
- $#{#name#}#     Found pattern with specified #name#.
+ $#{#nazwa#}#     Znaleziono wzór o podanej #nazwie#.
 
 
 @ElevationDlg

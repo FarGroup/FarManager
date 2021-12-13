@@ -26,25 +26,25 @@
 "Makra"
 "Aktywne makra"
 "Uchwyt zdarzenia"
-"Items of Plugins menu"
-"Active items of Plugins menu"
-"Prefixes"
-"Panel modules"
-"Content columns"
-"Custom sort modes"
+"Menu pozycji lub wtyczek
+"Aktywne pozycje menu wtyczek
+"Przedrostki"
+"Moduły panelu"
+"Zawartość kolumn"
+"Tryby sortowania użytkownika
 
 // macro browser messages
 "Nie podano nazwy pliku"
 "Brak pliku"
 
 // macro browser F3 titles
-"Makro"
+"Makra"
 "Uchwyt zdarzenia"
-"Plugins menu item"
-"Prefix"
-"Panel module"
-"Content column"
-"Custom sort mode"
+"Pozycje menu wtyczek
+"Przedrostek"
+"Moduł panelu"
+"Zawartość kolumn"
+"Tryb sortowania użytkownika"
 
 // custom panel sort
 "Sortowanie "
