@@ -231,7 +231,7 @@ static size_t ConvertItemEx2(const DialogItemEx& ItemEx, FarGetDialogItem *Item,
 				{
 					const auto list = edit_as<FarList*>(Item->Item, offsetList);
 					const auto listItems = edit_as<FarListItem*>(Item->Item, offsetListItems);
-					auto text = edit_as<wchar_t*>(listItems, ListBoxSize);
+					auto text = edit_as<wchar_t*>(listItems + ListBoxSize);
 
 					for (const auto& ii: irange(ListBoxSize))
 					{
