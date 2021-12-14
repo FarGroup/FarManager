@@ -1,6 +1,7 @@
 BEGIN{
   ORS=""
   bootstrap = ENVIRON["BOOTSTRAPDIR"]
+  split(ENVIRON["FORCEINCLUDELIST"], force_include, " ")
   if (compiler=="gcc")
   {
     out="$(OBJDIR)";
@@ -28,6 +29,8 @@ BEGIN{
     path_part = a[1]
   }
 
+  is_cpp = ext == "cpp"
+
   if(ext == "cpp" || ext == "c")
     ext=obj;
   if(ext == "rc")
@@ -37,6 +40,12 @@ BEGIN{
   {
     print out dirsep filename "." ext ":";
     print " " $0;
+
+    if (is_cpp)
+    {
+      for (i in force_include)
+        print " " force_include[i];
+    }
   }
   else
   {
