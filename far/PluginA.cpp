@@ -2397,17 +2397,20 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 	{
 		Flags &= ~oldfar::FMSG_DOWN;
 
-		std::unique_ptr<wchar_t[]> AllInOneAnsiItem;
-		std::vector<std::unique_ptr<wchar_t[]>> AnsiItems;
+		string AllInOneAnsiItem;
+		std::vector<string> AnsiItems;
+		std::vector<const wchar_t*> AnsiItemsPtrs;
 
 		if (Flags&oldfar::FMSG_ALLINONE)
 		{
-			AllInOneAnsiItem.reset(AnsiToUnicode(view_as<const char*>(Items)));
+			AllInOneAnsiItem = encoding::oem::get_chars(view_as<const char*>(Items));
 		}
 		else
 		{
 			AnsiItems.reserve(ItemsNumber);
-			std::transform(Items, Items + ItemsNumber, std::back_inserter(AnsiItems), [](const char* Item){ return std::unique_ptr<wchar_t[]>(AnsiToUnicode(Item)); });
+			AnsiItemsPtrs.reserve(ItemsNumber);
+			std::transform(Items, Items + ItemsNumber, std::back_inserter(AnsiItems), [](const char* Item){ return encoding::oem::get_chars(Item); });
+			std::transform(ALL_CONST_RANGE(AnsiItems), std::back_inserter(AnsiItemsPtrs), [](const string& Item){ return Item.c_str(); });
 		}
 
 		static const std::array FlagsMap
@@ -2449,7 +2452,7 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 			&FarUuid,
 			NewFlags,
 			HelpTopic? encoding::oem::get_chars(HelpTopic).c_str() : nullptr,
-			view_as<const wchar_t* const*>(AnsiItems.empty()? AllInOneAnsiItem.get() : AnsiItems.data()->get()),
+			AnsiItems.empty()? view_as<const wchar_t* const*>(AllInOneAnsiItem.data()) : AnsiItemsPtrs.data(),
 			ItemsNumber,
 			ButtonsNumber
 		);
