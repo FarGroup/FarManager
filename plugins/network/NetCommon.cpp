@@ -5,8 +5,8 @@
 
 Options Opt;
 
-NETRESOURCE CommonCurResource;
-NETRESOURCE* PCommonCurResource{};
+NetResource CommonCurResource;
+NetResource* PCommonCurResource{};
 
 
 BOOL DlgCreateFolder(wchar_t* lpBuffer, size_t nBufferSize)
