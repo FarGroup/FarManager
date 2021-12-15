@@ -2603,7 +2603,7 @@ intptr_t WINAPI apiMacroControl(const UUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 				const auto ErrCode = Macro.GetMacroParseError(ErrPos, ErrSrc);
 
-				auto Size = static_cast<int>(aligned_sizeof<MacroParseResult>());
+				auto Size = static_cast<int>(aligned_sizeof<MacroParseResult, alignof(wchar_t)>);
 				const size_t stringOffset = Size;
 				Size += static_cast<int>((ErrSrc.size() + 1)*sizeof(wchar_t));
 
@@ -2615,6 +2615,7 @@ intptr_t WINAPI apiMacroControl(const UUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 					Result->ErrCode = ErrCode;
 					Result->ErrPos = { static_cast<short>(ErrPos.x), static_cast<short>(ErrPos.y) };
 					Result->ErrSrc = view_as<const wchar_t*>(Param2, stringOffset);
+					assert(is_aligned(*Result->ErrSrc));
 					*copy_string(ErrSrc, const_cast<wchar_t*>(Result->ErrSrc)) = {};
 				}
 

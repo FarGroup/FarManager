@@ -190,7 +190,7 @@ static string_view ItemString(const DialogItemEx& Data)
 
 static size_t ConvertItemEx2(const DialogItemEx& ItemEx, FarGetDialogItem *Item, bool const ConvertListbox)
 {
-	auto size = aligned_sizeof<FarDialogItem>();
+	auto size = aligned_sizeof<FarDialogItem, std::max(alignof(FarList), alignof(wchar_t))>;
 	const auto offsetList = size;
 	auto offsetListItems = size;
 	vmenu_ptr ListBox;
@@ -203,7 +203,7 @@ static size_t ConvertItemEx2(const DialogItemEx& ItemEx, FarGetDialogItem *Item,
 		ListBox=ItemEx.ListPtr;
 		if (ListBox)
 		{
-			size += aligned_sizeof<FarList>();
+			size += aligned_sizeof<FarList>;
 			offsetListItems=size;
 			ListBoxSize=ListBox->size();
 			size+=ListBoxSize*sizeof(FarListItem);
@@ -230,8 +230,11 @@ static size_t ConvertItemEx2(const DialogItemEx& ItemEx, FarGetDialogItem *Item,
 				if (ConvertListbox)
 				{
 					const auto list = edit_as<FarList*>(Item->Item, offsetList);
+					assert(is_aligned(*list));
 					const auto listItems = edit_as<FarListItem*>(Item->Item, offsetListItems);
+					assert(is_aligned(*listItems));
 					auto text = edit_as<wchar_t*>(listItems + ListBoxSize);
+					assert(is_aligned(*text));
 
 					for (const auto& ii: irange(ListBoxSize))
 					{
@@ -255,6 +258,7 @@ static size_t ConvertItemEx2(const DialogItemEx& ItemEx, FarGetDialogItem *Item,
 			}
 
 			auto p = edit_as<wchar_t*>(Item->Item, offsetStrings);
+			assert(is_aligned(*p));
 			Item->Item->Data = p;
 			p += str.copy(p, str.npos);
 			*p++ = {};

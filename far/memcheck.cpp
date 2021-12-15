@@ -377,6 +377,8 @@ static void* debug_allocator(size_t const size, std::align_val_t Alignment, allo
 
 			const auto Address = to_user(Info);
 
+			assert(is_aligned(Address, static_cast<size_t>(Alignment)));
+
 			{
 				SCOPED_ACTION(std::lock_guard)(Checker);
 				Checker.register_block(Info);

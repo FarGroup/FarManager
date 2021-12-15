@@ -5641,7 +5641,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 	};
 
 	const auto
-		StaticSize      = aligned_sizeof<PluginPanelItem, sizeof(wchar_t)>(),
+		StaticSize      = aligned_sizeof<PluginPanelItem, sizeof(wchar_t)>,
 		FilenameSize    = aligned_size(StringSizeInBytes(fi.FileName), alignof(wchar_t)),
 		AltNameSize     = aligned_size(StringSizeInBytes(fi.AlternateFileName()), alignof(wchar_t*)),
 		ColumnsSize     = aligned_size(fi.CustomColumns.size() * sizeof(wchar_t*), alignof(wchar_t)),
@@ -5672,6 +5672,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 	const auto CopyToBuffer = [&](string_view const Str)
 	{
 		const auto Result = edit_as<wchar_t*>(data);
+		assert(is_aligned(*Result));
 		*copy_string(Str, Result) = {};
 		return Result;
 	};
@@ -5697,6 +5698,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 		if (not_enough_for(ColumnsSize))
 			return size;
 		gpi->Item->CustomColumnData = view_as<const wchar_t* const*>(data);
+		assert(is_aligned(*gpi->Item->CustomColumnData));
 		data += ColumnsSize;
 	}
 

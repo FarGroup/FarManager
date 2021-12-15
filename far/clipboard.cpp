@@ -367,12 +367,14 @@ bool clipboard::SetHDROP(const string_view NamesData, const bool bMoved)
 	if (!Drop)
 		return false;
 
-	Drop->pFiles = sizeof(DROPFILES);
+	Drop->pFiles = static_cast<DWORD>(aligned_sizeof<DROPFILES, sizeof(wchar_t)>);
 	Drop->pt.x = 0;
 	Drop->pt.y = 0;
 	Drop->fNC = TRUE;
 	Drop->fWide = TRUE;
-	*copy_string(NamesData, edit_as<wchar_t*>(Drop.get() + 1)) = {};
+	const auto NamesPtr = edit_as<wchar_t*>(Drop.get(), Drop->pFiles);
+	assert(is_aligned(*NamesPtr));
+	*copy_string(NamesData, NamesPtr) = {};
 
 	if (!Clear() || !SetData(CF_HDROP, std::move(Memory)))
 		return false;

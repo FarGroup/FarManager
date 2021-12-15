@@ -727,7 +727,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				Reenter++;
 				ShortcutInfo Info;
 				GetShortcutInfo(Info);
-				Result = static_cast<int>(aligned_sizeof<FarPanelDirectory>());
+				Result = static_cast<int>(aligned_sizeof<FarPanelDirectory, sizeof(wchar_t)>);
 				const auto folderOffset = Result;
 				Result+=static_cast<int>(sizeof(wchar_t)*(Info.ShortcutFolder.size()+1));
 				const auto pluginFileOffset = Result;
@@ -739,11 +739,17 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				{
 					dirInfo->StructSize = sizeof(*dirInfo);
 					dirInfo->PluginId = Info.PluginUuid;
+
 					dirInfo->Name = view_as<const wchar_t*>(Param2, folderOffset);
-					dirInfo->Param = view_as<const wchar_t*>(Param2, pluginDataOffset);
-					dirInfo->File = view_as<const wchar_t*>(Param2, pluginFileOffset);
+					assert(is_aligned(*dirInfo->Name));
 					*copy_string(Info.ShortcutFolder, const_cast<wchar_t*>(dirInfo->Name)) = {};
+
+					dirInfo->Param = view_as<const wchar_t*>(Param2, pluginDataOffset);
+					assert(is_aligned(*dirInfo->Param));
 					*copy_string(Info.PluginData, const_cast<wchar_t*>(dirInfo->Param)) = {};
+
+					dirInfo->File = view_as<const wchar_t*>(Param2, pluginFileOffset);
+					assert(is_aligned(*dirInfo->File));
 					*copy_string(Info.PluginFile, const_cast<wchar_t*>(dirInfo->File)) = {};
 				}
 				Reenter--;

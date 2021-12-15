@@ -236,10 +236,19 @@ constexpr size_t aligned_size(size_t Size, size_t Alignment = alignof(std::max_a
 }
 
 template<typename T, size_t Alignment = alignof(std::max_align_t)>
+constexpr inline auto aligned_sizeof = aligned_size(sizeof(T), Alignment);
+
 [[nodiscard]]
-constexpr auto aligned_sizeof()
+inline bool is_aligned(const void* Address, const size_t Alignment)
 {
-	return aligned_size(sizeof(T), Alignment);
+	return !(reinterpret_cast<uintptr_t>(Address) % Alignment);
+}
+
+template<typename T>
+[[nodiscard]]
+bool is_aligned(const T& Object)
+{
+	return is_aligned(&Object, alignof(T));
 }
 
 namespace enum_helpers

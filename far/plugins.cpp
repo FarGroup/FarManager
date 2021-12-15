@@ -1663,12 +1663,20 @@ void PluginManager::ShowPluginInfo(Plugin* pPlugin, const UUID& Uuid)
 	Builder.ShowDialog();
 }
 
-static char* BufReserve(char*& Buf, size_t Count, size_t& Rest, size_t& Size)
+static char* BufReserve(char*& Buf, size_t Count, size_t Alignment, size_t& Rest, size_t& Size)
 {
 	char* Res = nullptr;
 
+	const auto AlignmentFix = aligned_size(Size, Alignment) - Size;
+
 	if (Buf)
 	{
+		if (Rest >= AlignmentFix)
+		{
+			Buf += AlignmentFix;
+			Rest -= AlignmentFix;
+		}
+
 		if (Rest >= Count)
 		{
 			Res = Buf;
@@ -1682,7 +1690,7 @@ static char* BufReserve(char*& Buf, size_t Count, size_t& Rest, size_t& Size)
 		}
 	}
 
-	Size += Count;
+	Size += AlignmentFix + Count;
 	return Res;
 }
 
@@ -1690,7 +1698,7 @@ static char* BufReserve(char*& Buf, size_t Count, size_t& Rest, size_t& Size)
 static wchar_t* StrToBuf(const string& Str, char*& Buf, size_t& Rest, size_t& Size)
 {
 	const auto Count = (Str.size() + 1) * sizeof(wchar_t);
-	const auto BufPtr = BufReserve(Buf, Count, Rest, Size);
+	const auto BufPtr = BufReserve(Buf, Count, alignof(wchar_t), Rest, Size);
 	if (!BufPtr)
 		return {};
 
@@ -1708,9 +1716,14 @@ static void ItemsToBuf(PluginMenuItem& Menu, const std::vector<string>& NamesArr
 
 	if (Menu.Count)
 	{
-		const auto Items = edit_as<wchar_t**>(BufReserve(Buf, Menu.Count * sizeof(wchar_t*), Rest, Size));
-		const auto Uuids = edit_as<UUID*>(BufReserve(Buf, Menu.Count * sizeof(UUID), Rest, Size));
+		const auto Items = edit_as<wchar_t**>(BufReserve(Buf, Menu.Count * sizeof(wchar_t*), alignof(wchar_t*), Rest, Size));
+		assert(is_aligned(Items));
+		assert(is_aligned(*Items));
 		Menu.Strings = Items;
+
+		const auto Uuids = edit_as<UUID*>(BufReserve(Buf, Menu.Count * sizeof(UUID), alignof(UUID), Rest, Size));
+		assert(is_aligned(Uuids));
+		assert(is_aligned(*Uuids));
 		Menu.Guids = Uuids;
 
 		for (const auto& [FromName, FromUuid, ToName, ToUuid]: zip(NamesArray, UuidsArray, span(Items, Menu.Count), span(Uuids, Menu.Count)))
@@ -1783,29 +1796,32 @@ size_t PluginManager::GetPluginInformation(Plugin* pPlugin, FarGetPluginInformat
 		}
 	}
 
-	struct
+	struct layout
 	{
 		FarGetPluginInformation fgpi;
 		PluginInfo PInfo;
 		GlobalInfo GInfo;
-	} Temp;
+	}
+	Temp;
+
 	char* Buffer = nullptr;
 	size_t Rest = 0;
-	size_t Size = sizeof(Temp);
+	size_t RequiredSize = sizeof(Temp);
 
 	if (pInfo)
 	{
-		Rest = BufferSize - Size;
-		Buffer = edit_as<char*>(pInfo, Size);
+		Rest = BufferSize - RequiredSize;
+		Buffer = edit_as<char*>(pInfo, RequiredSize);
 	}
 	else
 	{
 		pInfo = &Temp.fgpi;
 	}
 
-	pInfo->PInfo = edit_as<PluginInfo*>(pInfo + 1);
-	pInfo->GInfo = edit_as<GlobalInfo*>(pInfo->PInfo + 1);
-	pInfo->ModuleName = StrToBuf(pPlugin->ModuleName(), Buffer, Rest, Size);
+	pInfo->PInfo = edit_as<PluginInfo*>(pInfo, offsetof(layout, PInfo));
+	pInfo->GInfo = edit_as<GlobalInfo*>(pInfo, offsetof(layout, GInfo));
+
+	pInfo->ModuleName = StrToBuf(pPlugin->ModuleName(), Buffer, Rest, RequiredSize);
 
 	pInfo->Flags = 0;
 
@@ -1824,19 +1840,19 @@ size_t PluginManager::GetPluginInformation(Plugin* pPlugin, FarGetPluginInformat
 	pInfo->GInfo->Guid = pPlugin->Id();
 	pInfo->GInfo->Version = pPlugin->version();
 	pInfo->GInfo->MinFarVersion = pPlugin->MinFarVersion();
-	pInfo->GInfo->Title = StrToBuf(pPlugin->strTitle, Buffer, Rest, Size);
-	pInfo->GInfo->Description = StrToBuf(pPlugin->strDescription, Buffer, Rest, Size);
-	pInfo->GInfo->Author = StrToBuf(pPlugin->strAuthor, Buffer, Rest, Size);
+	pInfo->GInfo->Title = StrToBuf(pPlugin->strTitle, Buffer, Rest, RequiredSize);
+	pInfo->GInfo->Description = StrToBuf(pPlugin->strDescription, Buffer, Rest, RequiredSize);
+	pInfo->GInfo->Author = StrToBuf(pPlugin->strAuthor, Buffer, Rest, RequiredSize);
 
 	pInfo->PInfo->StructSize = sizeof(PluginInfo);
 	pInfo->PInfo->Flags = Flags;
-	pInfo->PInfo->CommandPrefix = StrToBuf(Prefix, Buffer, Rest, Size);
+	pInfo->PInfo->CommandPrefix = StrToBuf(Prefix, Buffer, Rest, RequiredSize);
 
-	ItemsToBuf(pInfo->PInfo->DiskMenu, DiskItems.first, DiskItems.second, Buffer, Rest, Size);
-	ItemsToBuf(pInfo->PInfo->PluginMenu, MenuItems.first, MenuItems.second, Buffer, Rest, Size);
-	ItemsToBuf(pInfo->PInfo->PluginConfig, ConfItems.first, ConfItems.second, Buffer, Rest, Size);
+	ItemsToBuf(pInfo->PInfo->DiskMenu, DiskItems.first, DiskItems.second, Buffer, Rest, RequiredSize);
+	ItemsToBuf(pInfo->PInfo->PluginMenu, MenuItems.first, MenuItems.second, Buffer, Rest, RequiredSize);
+	ItemsToBuf(pInfo->PInfo->PluginConfig, ConfItems.first, ConfItems.second, Buffer, Rest, RequiredSize);
 
-	return Size;
+	return RequiredSize;
 }
 
 bool PluginManager::GetDiskMenuItem(Plugin* pPlugin, size_t PluginItem, bool& ItemPresent, wchar_t& PluginHotkey, string& strPluginText, UUID& Uuid) const
