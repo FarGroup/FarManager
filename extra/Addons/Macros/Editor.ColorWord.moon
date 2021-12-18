@@ -45,6 +45,19 @@ Event
     if event==F.EE_REDRAW
       if lines[id]
         ei=editor.GetInfo id
+
+        if selTypes[id]== nil
+          start,finish=ei.TopScreenLine,math.min ei.TopScreenLine+ei.WindowSizeY,ei.TotalLines
+          for ii=start,finish
+            line,pos=editor.GetString(id,ii).StringText,1
+            while true
+              jj,kk,curr=line\cfind("([%w_]+)",pos)
+              if not jj then break
+              if not OptCaseSensitive then curr=curr\lower!
+              if curr==lines[id][1] then editor.AddColor id,ii,jj,kk,F.ECF_AUTODELETE,color,100,colorguid
+              pos=kk+1
+          return
+
         minY=ei.TopScreenLine-#lines[id]+1
         maxY=math.min ei.TopScreenLine+ei.WindowSizeY-1,ei.TotalLines-#lines[id]+1
         for y=minY,maxY
