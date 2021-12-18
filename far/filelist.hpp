@@ -145,7 +145,7 @@ public:
 	void UpdateIfChanged(bool Changed = false) override;
 	void UpdateIfRequired() override;
 	bool SendKeyToPlugin(DWORD Key, bool Pred = false) override;
-	void StartFSWatcher(bool got_focus = false, bool check_time = true) override;
+	void StartFSWatcher() override;
 	void StopFSWatcher() override;
 	void SortFileList(bool KeepPosition) override;
 	void SetViewMode(int Mode) override;

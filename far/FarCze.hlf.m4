@@ -2375,12 +2375,6 @@ nebezpečné, pokud je soubor upravován ve stejnou dobu, kdy je kopírován.
  Scan ~symbolic links~@HardSymLink@ along with normal sub-folders when building the folder tree,
 determining the total file size in the sub-folders.
 
- #Update panels only when Far is active#
- If enabled, file panels will be monitored only when Far is active, i.e. panels will not be updated until Far window is focused.
-This allows to avoid blocking the directories opened on panels.
-However, sometimes the update is not triggered after receiving focus,
-so this option is disabled by default and directories are always monitored.
-
  #Ukládat historii příkazů#
  Způsobí uložení ~historie příkazů~@History@ před ukončením a obnovení po startu Faru.
 

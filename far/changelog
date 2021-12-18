@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+drkns 18.12.2021 01:09:04 +0000 - build 5938
+
+1. FS monitoring rework (again).
+   "System settings - Update panels only when Far is active" is no longer needed and removed.
+
+--------------------------------------------------------------------------------
 drkns 15.12.2021 16:24:56 +0000 - build 5937
 
 1. Data alignment corrections.

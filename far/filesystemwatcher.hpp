@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 
 // Platform:
-#include "platform.chrono.hpp"
 #include "platform.concurrency.hpp"
 
 // Common:
@@ -52,9 +51,8 @@ public:
 	FileSystemWatcher() = default;
 	~FileSystemWatcher();
 	void Set(string_view EventId, string_view Directory, bool WatchSubtree);
-	void Watch(bool got_focus=false, bool check_time=true);
+	void Watch();
 	void Release();
-	bool TimeChanged() const;
 
 private:
 	void Register();
@@ -62,11 +60,8 @@ private:
 
 	string m_EventId;
 	string m_Directory;
-	os::chrono::time_point m_PreviousLastWriteTime;
-	os::chrono::time_point m_CurrentLastWriteTime;
 	bool m_WatchSubtree{};
 	os::event m_Cancelled{ os::event::type::manual, os::event::state::nonsignaled };
-	std::optional<bool> m_IsFatFilesystem;
 	mutable std::exception_ptr m_ExceptionPtr;
 	bool m_IsRegularException{};
 	mutable os::thread m_RegistrationThread;

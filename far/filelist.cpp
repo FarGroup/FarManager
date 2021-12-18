@@ -1254,22 +1254,6 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 	switch (LocalKey)
 	{
-		case KEY_GOTFOCUS:
-			if (Global->Opt->SmartFolderMonitor)
-			{
-				StartFSWatcher(true);
-				Parent()->GetAnotherPanel(this)->StartFSWatcher(true);
-			}
-			break;
-
-		case KEY_KILLFOCUS:
-			if (Global->Opt->SmartFolderMonitor)
-			{
-				StopFSWatcher();
-				Parent()->GetAnotherPanel(this)->StopFSWatcher();
-			}
-			break;
-
 		case KEY_F1:
 			{
 				return m_PanelMode == panel_mode::PLUGIN_PANEL && PluginPanelHelp(GetPluginHandle());
@@ -6964,7 +6948,7 @@ void FileList::UpdateIfChanged(bool Changed)
 	if (m_PanelMode != panel_mode::NORMAL_PANEL)
 		return;
 
-	if (!Changed && !FSWatcher.TimeChanged())
+	if (!Changed)
 		return;
 
 	m_UpdatePending = false;
@@ -7026,13 +7010,13 @@ void FileList::InitFSWatcher(bool CheckTree)
 	if (Global->Opt->AutoUpdateRemoteDrive || (!Global->Opt->AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE) || Type == root_type::volume)
 	{
 		FSWatcher.Set(m_BackgroundUpdater->event_id(), m_CurDir, CheckTree);
-		StartFSWatcher(false, false); //check_time=false, prevent reading file time twice (slow on network)
+		StartFSWatcher();
 	}
 }
 
-void FileList::StartFSWatcher(bool got_focus, bool check_time)
+void FileList::StartFSWatcher()
 {
-	FSWatcher.Watch(got_focus, check_time);
+	FSWatcher.Watch();
 }
 
 void FileList::StopFSWatcher()

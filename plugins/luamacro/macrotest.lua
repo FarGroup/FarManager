@@ -970,7 +970,6 @@ local function test_Far_GetConfig()
     "System.ShowCheckingFile", "boolean",
     "System.ShowStatusInfo", "string",
     "System.SilentLoadPlugin", "boolean",
-    "System.SmartFolderMonitor", "boolean",
     "System.SubstNameRule", "integer",
     "System.SubstPluginPrefix", "boolean",
     "System.UpdateEnvironment", "boolean",

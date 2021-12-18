@@ -2338,13 +2338,6 @@ modyfikowany w tym samym czasie co kopiowanie.
  Skanuje ~linki symboliczne~@HardSymLink@ łącznie z podfolderami podczas tworzenia drzewa folderów,
 określania całkowitej wielkości plików w podfolderach.
 
- #Aktualizuj panele tylko gdy Far jest aktywny#
- Jeżeli opcja jest włączona, to panele plików będą monitorowały zmiany tylko gdy okno Far jest aktywne, panele nie będą
-aktualizowane gdy okno Far będzie przysłonięte.
-Pozwala to uniknąć blokowania folderów otwartych w panelach.
-Jednak, czasami aktualizacja paneli nie jest poprawnie wykonywana po uzyskaniu fokusu okna Far, więc ta opcja jest domyślnie
-wyłączona, a foldery są zawsze monitorowane.
-
  #Zapisz historię poleceń#
  Wymusza zapisywanie ~historii poleceń~@History@ przed zamknięciem i jest przywracana po uruchomieniu Far.
 

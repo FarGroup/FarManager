@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filesystemwatcher.hpp"
 
 // Internal:
-#include "flink.hpp"
+#include "datetime.hpp"
 #include "elevation.hpp"
 #include "exception_handler.hpp"
 #include "pathmix.hpp"
@@ -74,14 +74,9 @@ void FileSystemWatcher::Set(string_view const EventId, string_view const Directo
 	m_EventId = EventId;
 	m_Directory = NTPath(Directory);
 	m_WatchSubtree = WatchSubtree;
-
-	if (os::fs::GetFileTimeSimple(Directory, nullptr, nullptr, &m_PreviousLastWriteTime, nullptr))
-		m_CurrentLastWriteTime = m_PreviousLastWriteTime;
-
-	m_IsFatFilesystem.reset();
 }
 
-void FileSystemWatcher::Watch(bool got_focus, bool check_time)
+void FileSystemWatcher::Watch()
 {
 	PropagateException();
 
@@ -89,40 +84,6 @@ void FileSystemWatcher::Watch(bool got_focus, bool check_time)
 
 	if(!m_RegistrationThread)
 		m_RegistrationThread = os::thread(os::thread::mode::join, &FileSystemWatcher::Register, this);
-
-	if (got_focus)
-	{
-		if (!m_IsFatFilesystem.has_value())
-		{
-			m_IsFatFilesystem = false;
-
-			const auto strRoot = GetPathRoot(m_Directory);
-			if (!strRoot.empty())
-			{
-				string strFileSystem;
-				if (os::fs::GetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
-					m_IsFatFilesystem = starts_with(strFileSystem, L"FAT"sv);
-			}
-		}
-
-		if (*m_IsFatFilesystem)
-		{
-			// emulate FAT folder time change
-			// otherwise changes missed (FAT folder time is NOT modified)
-			// the price is directory reload on each GOT_FOCUS event
-			check_time = false;
-			m_PreviousLastWriteTime = m_CurrentLastWriteTime - 1s;
-		}
-	}
-
-	if (check_time)
-	{
-		if (!os::fs::GetFileTimeSimple(m_Directory, nullptr, nullptr, &m_CurrentLastWriteTime, nullptr))
-		{
-			m_PreviousLastWriteTime = {};
-			m_CurrentLastWriteTime = {};
-		}
-	}
 }
 
 void FileSystemWatcher::Release()
@@ -136,14 +97,6 @@ void FileSystemWatcher::Release()
 	}
 
 	m_Cancelled.reset();
-	m_PreviousLastWriteTime = m_CurrentLastWriteTime;
-}
-
-bool FileSystemWatcher::TimeChanged() const
-{
-	PropagateException();
-
-	return m_PreviousLastWriteTime != m_CurrentLastWriteTime;
 }
 
 void FileSystemWatcher::Register()
@@ -156,74 +109,101 @@ void FileSystemWatcher::Register()
 		[&]
 		{
 			LOGDEBUG(L"Start monitoring {}"sv, m_Directory);
-			const auto Notification = os::fs::find_first_change_notification(
+
+			const auto DirectoryHandle = os::fs::create_file(
 				m_Directory,
-				m_WatchSubtree,
-					FILE_NOTIFY_CHANGE_FILE_NAME |
-					FILE_NOTIFY_CHANGE_DIR_NAME |
-					FILE_NOTIFY_CHANGE_ATTRIBUTES |
-					FILE_NOTIFY_CHANGE_SIZE |
-					FILE_NOTIFY_CHANGE_LAST_WRITE
+				FILE_LIST_DIRECTORY,
+				FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+				{},
+				OPEN_EXISTING,
+				FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED
 			);
 
-			if (!Notification)
+			if (!DirectoryHandle)
 			{
-				LOGWARNING(L"find_first_change_notification({}): {}"sv, m_Directory, last_error());
+				LOGWARNING(L"create_file({}): {}"sv, m_Directory, last_error());
 				return;
 			}
 
+			// https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesw
+			// If the buffer overflows, ReadDirectoryChangesW will still return true, but the entire contents
+			// of the buffer are discarded and the BytesReturned parameter will be zero, which indicates
+			// that your buffer was too small to hold all of the changes that occurred.
+
+			// We don't care about individual changes, so the buffer is intentionally small.
+			FILE_NOTIFY_INFORMATION Buffer;
+			const os::event Event(os::event::type::automatic, os::event::state::nonsignaled);
+			OVERLAPPED Overlapped{};
+			Overlapped.hEvent = Event.native_handle();
+
+			const time_check TimeCheck(time_check::mode::immediate, 1s);
+
 			for (;;)
 			{
-				try
+				if (!ReadDirectoryChangesW(
+					DirectoryHandle.native_handle(),
+					&Buffer,
+					sizeof(Buffer),
+					m_WatchSubtree,
+						FILE_NOTIFY_CHANGE_FILE_NAME |
+						FILE_NOTIFY_CHANGE_DIR_NAME |
+						FILE_NOTIFY_CHANGE_ATTRIBUTES |
+						FILE_NOTIFY_CHANGE_SIZE |
+						FILE_NOTIFY_CHANGE_LAST_WRITE,
+					{},
+					&Overlapped,
+					{}
+				))
 				{
-					switch (os::handle::wait_any({ Notification.native_handle(), m_Cancelled.native_handle() }))
+					LOGWARNING(L"ReadDirectoryChangesW({}): {}"sv, m_Directory, last_error());
+					return;
+				}
+
+				switch (os::handle::wait_any({ Event.native_handle(), m_Cancelled.native_handle() }))
+				{
+				case 0:
+					if (DWORD BytesReturned = 0; !GetOverlappedResult(DirectoryHandle.native_handle(), &Overlapped, &BytesReturned, false))
 					{
-					case 0:
-						LOGDEBUG(L"Change event in {}"sv, m_Directory);
-
-						message_manager::instance().notify(m_EventId);
-
-						// FS changes can occur at a high rate.
-						// We don't want to DoS ourselves here, so notifications are throttled down to one per second at most:
-						if (m_Cancelled.is_signaled(1s))
+						const auto LastError = last_error();
+						if (!(LastError.Win32Error == ERROR_ACCESS_DENIED && LastError.NtError == STATUS_DELETE_PENDING))
 						{
-							LOGDEBUG(L"Stop monitoring {}"sv, m_Directory);
-							return;
+							LOGWARNING(L"GetOverlappedResult({}): {}"sv, m_Directory, LastError);
 						}
 
-						// https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findnextchangenotification
-						// If a change occurs after a call to FindFirstChangeNotification
-						// but before a call to FindNextChangeNotification, the operating system records the change.
-						// When FindNextChangeNotification is executed, the recorded change
-						// immediately satisfies a wait for the change notification.
-
-						// In other words, even with throttled notifications we shouldn't miss anything.
-						if (!os::fs::find_next_change_notification(Notification))
-						{
-							LOGWARNING(L"find_next_change_notification({}): {}"sv, m_Directory, last_error());
-							return;
-						}
-						break;
-
-					case 1:
 						LOGDEBUG(L"Stop monitoring {}"sv, m_Directory);
 						return;
 					}
-				}
-				catch(far_fatal_exception const& e)
-				{
-					if (e.Win32Error == ERROR_INVALID_HANDLE)
+
+					LOGDEBUG(L"Change event in {}"sv, m_Directory);
+
+					// FS changes can occur at a high rate.
+					// We don't want to DoS the listener, so notifications are throttled down to one per second at most:
+					if (TimeCheck)
 					{
-						// https://docs.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-closehandle
-						// Some functions use ERROR_INVALID_HANDLE to indicate that the object itself is no longer valid.
-						// For example, a function that attempts to use a handle to a file on a network might fail
-						// with ERROR_INVALID_HANDLE if the network connection is severed, because the file object
-						// is no longer available. In this case, the application should close the handle.
-						LOGWARNING(L"Wait for change in {} failed: {}"sv, m_Directory, e);
+						LOGDEBUG(L"Notifying the listener {}"sv, m_EventId);
+						message_manager::instance().notify(m_EventId);
+					}
+					else
+					{
+						LOGDEBUG(L"Notification throttled"sv);
+					}
+
+					// FS changes can occur at a high rate.
+					// We don't want to receive them one by one, since we're throttling them anyway (see above),
+					// so wait a little to let them collapse:
+					if (m_Cancelled.is_signaled(1s))
+					{
+						LOGDEBUG(L"Stop monitoring {}"sv, m_Directory);
 						return;
 					}
 
-					throw;
+					LOGDEBUG(L"Continue monitoring {}"sv, m_Directory);
+					TimeCheck.reset();
+					break;
+
+				case 1:
+					LOGDEBUG(L"Stop monitoring {}"sv, m_Directory);
+					return;
 				}
 			}
 		},

@@ -1030,8 +1030,6 @@ public:
 
 	StringOption strBoxSymbols;
 
-	BoolOption SmartFolderMonitor; // def: 0=always monitor panel folder(s), 1=only when FAR has input focus
-
 	int ReadOnlyConfig{-1};
 	int UseExceptionHandler{};
 	long long ElevationMode{};

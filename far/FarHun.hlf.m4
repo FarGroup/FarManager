@@ -2421,12 +2421,6 @@ megnyitott fájlok másolására, de veszélyessé is válhat, ha a fájl a más
 során a normál mappák mérete, valamint a ~szimbolikus linkjeik~@HardSymLink@
 mérete együttesen fogják meghatározni a mappákban található fájlok méretének összegét.
 
- #Update panels only when Far is active#
- If enabled, file panels will be monitored only when Far is active, i.e. panels will not be updated until Far window is focused.
-This allows to avoid blocking the directories opened on panels.
-However, sometimes the update is not triggered after receiving focus,
-so this option is disabled by default and directories are always monitored.
-
  #Parancs előzmények mentése#
  A Far kilépés előtt elmenti, indításnál visszatölti a ~parancs előzményeket~@History@.
 
