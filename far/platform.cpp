@@ -132,7 +132,20 @@ namespace os
 
 NTSTATUS get_last_nt_status()
 {
-	return imports.RtlGetLastNtStatus? imports.RtlGetLastNtStatus() : STATUS_SUCCESS;
+	if (imports.RtlGetLastNtStatus)
+		return imports.RtlGetLastNtStatus();
+
+	const auto Teb = NtCurrentTeb();
+
+	constexpr auto Offset =
+#ifdef _WIN64
+		0x1250
+#else
+		0x0BF4
+#endif
+		;
+
+	return view_as<NTSTATUS>(Teb, Offset);
 }
 
 void set_last_nt_status(NTSTATUS const Status)
