@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filesystemwatcher.hpp"
 
 // Internal:
-#include "datetime.hpp"
 #include "elevation.hpp"
 #include "exception_handler.hpp"
 #include "pathmix.hpp"
@@ -136,8 +135,6 @@ void FileSystemWatcher::Register()
 			OVERLAPPED Overlapped{};
 			Overlapped.hEvent = Event.native_handle();
 
-			const time_check TimeCheck(time_check::mode::immediate, 1s);
-
 			for (;;)
 			{
 				if (!ReadDirectoryChangesW(
@@ -149,7 +146,10 @@ void FileSystemWatcher::Register()
 						FILE_NOTIFY_CHANGE_DIR_NAME |
 						FILE_NOTIFY_CHANGE_ATTRIBUTES |
 						FILE_NOTIFY_CHANGE_SIZE |
-						FILE_NOTIFY_CHANGE_LAST_WRITE,
+						FILE_NOTIFY_CHANGE_LAST_WRITE |
+						FILE_NOTIFY_CHANGE_LAST_ACCESS |
+						FILE_NOTIFY_CHANGE_CREATION |
+						FILE_NOTIFY_CHANGE_SECURITY,
 					{},
 					&Overlapped,
 					{}
@@ -176,21 +176,11 @@ void FileSystemWatcher::Register()
 
 					LOGDEBUG(L"Change event in {}"sv, m_Directory);
 
-					// FS changes can occur at a high rate.
-					// We don't want to DoS the listener, so notifications are throttled down to one per second at most:
-					if (TimeCheck)
-					{
-						LOGDEBUG(L"Notifying the listener {}"sv, m_EventId);
-						message_manager::instance().notify(m_EventId);
-					}
-					else
-					{
-						LOGDEBUG(L"Notification throttled"sv);
-					}
+					LOGDEBUG(L"Notifying the listener {}"sv, m_EventId);
+					message_manager::instance().notify(m_EventId);
 
 					// FS changes can occur at a high rate.
-					// We don't want to receive them one by one, since we're throttling them anyway (see above),
-					// so wait a little to let them collapse:
+					// We don't care about individual events, so we wait a little here to let them collapse to one event per sec at most:
 					if (m_Cancelled.is_signaled(1s))
 					{
 						LOGDEBUG(L"Stop monitoring {}"sv, m_Directory);
@@ -198,7 +188,6 @@ void FileSystemWatcher::Register()
 					}
 
 					LOGDEBUG(L"Continue monitoring {}"sv, m_Directory);
-					TimeCheck.reset();
 					break;
 
 				case 1:
