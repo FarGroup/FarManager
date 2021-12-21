@@ -591,9 +591,9 @@ static int win_MoveFile(lua_State *L)
 	if(sFlags)
 	{
 		if(strchr(sFlags, 'c')) flags |= MOVEFILE_COPY_ALLOWED;
-		else if(strchr(sFlags, 'd')) flags |= MOVEFILE_DELAY_UNTIL_REBOOT;
-		else if(strchr(sFlags, 'r')) flags |= MOVEFILE_REPLACE_EXISTING;
-		else if(strchr(sFlags, 'w')) flags |= MOVEFILE_WRITE_THROUGH;
+		if(strchr(sFlags, 'd')) flags |= MOVEFILE_DELAY_UNTIL_REBOOT;
+		if(strchr(sFlags, 'r')) flags |= MOVEFILE_REPLACE_EXISTING;
+		if(strchr(sFlags, 'w')) flags |= MOVEFILE_WRITE_THROUGH;
 	}
 
 	if(MoveFileExW(src, trg, flags))
