@@ -502,7 +502,7 @@ FileList::FileList(private_tag, window_ptr Owner):
 		*closeBracket = data[1];
 	}
 
-	m_CurDir = os::fs::GetCurrentDirectory();
+	m_CurDir = os::fs::get_current_directory();
 	strOriginalCurDir = m_CurDir;
 	m_SortMode = panel_sort::BY_NAME;
 	m_ViewSettings = Global->Opt->ViewSettings[m_ViewMode].clone();
@@ -1953,7 +1953,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 						if (PluginMode && UploadFile)
 						{
 							PluginPanelItemHolderHeap PanelItem;
-							const auto strSaveDir = os::fs::GetCurrentDirectory();
+							const auto strSaveDir = os::fs::get_current_directory();
 
 							if (!os::fs::exists(strTempName))
 							{
@@ -2843,7 +2843,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		}
 	};
 
-	if (m_PanelMode != panel_mode::PLUGIN_PANEL && !IsAbsolutePath(NewDir) && !equal_icase(os::fs::GetCurrentDirectory(), m_CurDir))
+	if (m_PanelMode != panel_mode::PLUGIN_PANEL && !IsAbsolutePath(NewDir) && !equal_icase(os::fs::get_current_directory(), m_CurDir))
 		FarChDir(m_CurDir);
 
 	string strFindDir;
@@ -3011,7 +3011,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		}
 	}
 
-	m_CurDir = os::fs::GetCurrentDirectory();
+	m_CurDir = os::fs::get_current_directory();
 
 	if (!IsUpdated)
 		return SetDirectorySuccess;
@@ -3980,33 +3980,27 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 
 	if (Mode==SELECT_ADDEXT || Mode==SELECT_REMOVEEXT)
 	{
-		const auto pos = strCurName.rfind(L'.');
+		const auto [Name, Ext] = name_ext(strCurName);
 
-		if (pos != string::npos)
+		if (!Ext.empty())
 		{
 			// Учтем тот момент, что расширение может содержать символы-разделители
-			strRawMask = concat(L'"', L"*."sv, string_view(strCurName).substr(pos + 1), L'"');
+			strRawMask = format(FSTR(L"\"*{}\""sv), Ext);
 			WrapBrackets=true;
 		}
 		else
 		{
 			strMask = L"*."sv;
 		}
-
-		Mode=(Mode==SELECT_ADDEXT) ? SELECT_ADD:SELECT_REMOVE;
+		Mode=(Mode==SELECT_ADDEXT)? SELECT_ADD:SELECT_REMOVE;
 	}
 	else
 	{
 		if (Mode==SELECT_ADDNAME || Mode==SELECT_REMOVENAME)
 		{
 			// Учтем тот момент, что имя может содержать символы-разделители
-			strRawMask = concat(L"\""sv, strCurName);
-			const auto pos = strRawMask.rfind(L'.');
-
-			if (pos != string::npos && pos!=strRawMask.size()-1)
-				strRawMask.resize(pos);
-
-			append(strRawMask, L".*\""sv);
+			const auto [Name, Ext] = name_ext(strCurName);
+			strRawMask = format(FSTR(L"\"{}.*\""sv), Name);
 			WrapBrackets=true;
 			Mode=(Mode==SELECT_ADDNAME) ? SELECT_ADD:SELECT_REMOVE;
 		}
@@ -4548,7 +4542,7 @@ static void edit_sort_layers(int MenuPos)
 
 	const auto SortLayersMenu = VMenu2::create({}, SortLayersMenuItems);
 
-	SortLayersMenu->SetHelp(L"PanelCmdSort"sv);
+	SortLayersMenu->SetHelp(L"PanelSortCriteria"sv);
 	SortLayersMenu->SetPosition({ -1, -1, 0, 0 });
 	SortLayersMenu->SetMenuFlags(VMENU_WRAPMODE);
 	SortLayersMenu->SetBottomTitle(KeysToLocalizedText(KEY_INS, KEY_DEL, KEY_F4, L'+', L'-', L'*', L'=', KEY_CTRLUP, KEY_CTRLDOWN, KEY_CTRLR));
@@ -4870,7 +4864,7 @@ void FileList::SelectSortMode()
 }
 
 
-void FileList::DeleteDiz(const string& Name, const string& ShortName)
+void FileList::DeleteDiz(const string_view Name, const string_view ShortName)
 {
 	if (m_PanelMode == panel_mode::NORMAL_PANEL)
 		Diz.Erase(Name,ShortName);
@@ -4894,12 +4888,15 @@ string_view FileList::GetDescription(const string_view Name, const string_view S
 	return Diz.Get(Name, ShortName, FileSize);
 }
 
-void FileList::CopyDiz(const string& Name, const string& ShortName,const string& DestName,
-                       const string& DestShortName,DizList *DestDiz)
+void FileList::CopyDiz(
+	const string_view Name,
+	const string_view ShortName,
+	const string_view DestName,
+	const string_view DestShortName,
+	DizList* const DestDiz)
 {
 	Diz.CopyDiz(Name, ShortName, DestName, DestShortName, DestDiz);
 }
-
 
 void FileList::DescribeFiles()
 {
@@ -5466,7 +5463,7 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 		if (CurPlugin->m_Modified)
 		{
 			PluginPanelItemHolderHeap PanelItem{};
-			const auto strSaveDir = os::fs::GetCurrentDirectory();
+			const auto strSaveDir = os::fs::get_current_directory();
 
 			if (FileNameToPluginItem(CurPlugin->m_HostFile, PanelItem))
 			{
@@ -5909,7 +5906,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanel
 	if (!os::fs::create_directory(strTempDir))
 		return;
 
-	const auto strSaveDir = os::fs::GetCurrentDirectory();
+	const auto strSaveDir = os::fs::get_current_directory();
 	const auto strDizName = path::join(strTempDir, DestPanel->strPluginDizName);
 	DestPanel->Diz.Flush({}, &strDizName);
 
@@ -6022,7 +6019,7 @@ void FileList::PluginToPluginFiles(bool Move)
 
 		if (PutCode==1 || PutCode==2)
 		{
-			const auto strSaveDir = os::fs::GetCurrentDirectory();
+			const auto strSaveDir = os::fs::get_current_directory();
 			FarChDir(strTempDir);
 			PutCode = Global->CtrlObject->Plugins->PutFiles(AnotherFilePanel->GetPluginHandle(), ItemList, false, 0);
 
@@ -6604,7 +6601,7 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 	if (!Parent()->IsLeft(this) && !Parent()->IsRight(this))
 		return;
 
-	const auto strSaveDir = os::fs::GetCurrentDirectory();
+	const auto strSaveDir = os::fs::get_current_directory();
 	{
 		string strOldCurDir(m_CurDir);
 
@@ -8772,7 +8769,7 @@ bool FileList::GetSelectedFirstMode() const
 	return SelectedFirst;
 }
 
-std::unique_ptr<content_data> FileList::GetContentData(const string& Item) const
+std::unique_ptr<content_data> FileList::GetContentData(const string_view Item) const
 {
 	if (m_ContentPlugins.empty())
 		return {};

@@ -408,7 +408,7 @@ namespace os::fs
 	public:
 		NONCOPYABLE(current_directory_guard);
 
-		explicit current_directory_guard(const string& Directory);
+		explicit current_directory_guard(string_view Directory);
 		~current_directory_guard();
 
 	private:
@@ -421,13 +421,15 @@ namespace os::fs
 	public:
 		NONCOPYABLE(process_current_directory_guard);
 
-		explicit process_current_directory_guard(const string& Directory);
+		explicit process_current_directory_guard(string_view Directory);
 		~process_current_directory_guard();
 
 	private:
 		string m_Directory;
 		bool m_Active;
 	};
+
+	constexpr DWORD file_share_all = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
 
 	namespace low
 	{
@@ -486,14 +488,14 @@ namespace os::fs
 	[[nodiscard]]
 	bool GetProcessRealCurrentDirectory(string& Directory);
 
-	bool SetProcessRealCurrentDirectory(const string& Directory);
+	bool SetProcessRealCurrentDirectory(string_view Directory);
 
 	void InitCurrentDirectory();
 
 	[[nodiscard]]
-	string GetCurrentDirectory();
+	const string& get_current_directory();
 
-	bool SetCurrentDirectory(const string& PathName, bool Validate = true);
+	bool set_current_directory(string_view PathName, bool Validate = true);
 
 	[[nodiscard]]
 	bool create_directory(string_view PathName, SECURITY_ATTRIBUTES* SecurityAttributes = nullptr);
@@ -577,7 +579,7 @@ namespace os::fs
 	bool get_find_data(string_view FileName, find_data& FindData, bool ScanSymLink = true);
 
 	[[nodiscard]]
-	find_notification_handle find_first_change_notification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter);
+	find_notification_handle find_first_change_notification(string_view PathName, bool WatchSubtree, DWORD NotifyFilter);
 
 	[[nodiscard]]
 	bool find_next_change_notification(find_notification_handle const& Handle);

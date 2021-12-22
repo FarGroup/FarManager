@@ -138,7 +138,7 @@ class oem_plugin_module final: public native_plugin_module
 public:
 	NONCOPYABLE(oem_plugin_module);
 
-	explicit oem_plugin_module(const string& Name):
+	explicit oem_plugin_module(const string_view Name):
 		native_plugin_module(Name)
 	{
 	}
@@ -204,16 +204,17 @@ public:
 		{
 			const auto ErrorState = last_error();
 
+			Module.reset();
+
 			Message(MSG_WARNING | MSG_NOPLUGINS, ErrorState,
 				msg(lng::MError),
 				{
 					msg(lng::MPlgLoadPluginError),
-					filename
+					string(filename)
 				},
 				{ lng::MOk },
 				L"ErrLoadPlugin"sv);
 
-			Module.reset();
 		}
 		return Module;
 	}
@@ -5017,7 +5018,7 @@ class PluginA final: public Plugin
 {
 public:
 	NONCOPYABLE(PluginA);
-	PluginA(plugin_factory* Factory, const string& ModuleName):
+	PluginA(plugin_factory* Factory, const string_view ModuleName):
 		Plugin(Factory, ModuleName)
 	{
 		LocalUpperInit();

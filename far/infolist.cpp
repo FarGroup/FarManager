@@ -288,7 +288,7 @@ void InfoList::DisplayObject()
 		m_CurDir = AnotherPanel->GetCurDir();
 
 		if (m_CurDir.empty())
-			m_CurDir = os::fs::GetCurrentDirectory();
+			m_CurDir = os::fs::get_current_directory();
 
 		/*
 			Корректно отображать инфу при заходе в Juction каталог

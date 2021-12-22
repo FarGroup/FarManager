@@ -390,7 +390,7 @@ bool GetReparsePointInfo(string_view const Object, string& DestBuffer, LPDWORD R
 
 std::optional<size_t> GetNumberOfLinks(string_view const Name)
 {
-	const os::fs::file File(Name, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
+	const os::fs::file File(Name, 0, os::fs::file_share_all, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
 	if (!File)
 		return {};
 
@@ -494,7 +494,7 @@ bool GetSubstName(int DriveType, string_view const Path, string &strTargetPath)
 
 bool GetVHDInfo(string_view const RootDirectory, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType)
 {
-	const os::fs::file Root(RootDirectory, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+	const os::fs::file Root(RootDirectory, FILE_READ_ATTRIBUTES, os::fs::file_share_all, nullptr, OPEN_EXISTING);
 	if (!Root)
 		return false;
 

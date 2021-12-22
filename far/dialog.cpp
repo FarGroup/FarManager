@@ -544,12 +544,12 @@ void Dialog::ProcessCenterGroup()
 		// Их координаты X не важны. Удобно использовать для центрирования
 		// групп кнопок.
 
-		const auto IsNotSuitableItem = [](const DialogItemEx& Item, int Y) { return !(Item.Flags & DIF_CENTERGROUP && Item.Y1 == Y); };
+		const auto IsSuitableItem = [](const DialogItemEx& Item, int Y) { return Item.Flags & DIF_CENTERGROUP && Item.Y1 == Y; };
 		const auto IsVisible = [](const DialogItemEx& Item) { return !(Item.Flags & DIF_HIDDEN); };
 
-		if ((i->Flags & DIF_CENTERGROUP) && (i == Items.begin() || IsNotSuitableItem(*(i - 1), i->Y1)))
+		if ((i->Flags & DIF_CENTERGROUP) && (i == Items.begin() || !IsSuitableItem(*(i - 1), i->Y1)))
 		{
-			const auto ButtonsEnd = std::find_if(i, Items.end(), [&](const DialogItemEx& Item) { return IsNotSuitableItem(Item, i->Y1); });
+			const auto ButtonsEnd = std::find_if_not(i, Items.end(), [&](const DialogItemEx& Item) { return IsSuitableItem(Item, i->Y1); });
 			const auto FirstVisibleButton = std::find_if(i, ButtonsEnd, IsVisible);
 
 			const auto GetIncrement = [this](const DialogItemEx& Item)

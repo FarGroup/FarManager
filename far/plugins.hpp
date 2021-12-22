@@ -201,7 +201,7 @@ public:
 		UUID FoundUuid;
 	};
 
-	Plugin* FindPlugin(const string& ModuleName) const;
+	Plugin* FindPlugin(string_view ModuleName) const;
 	Plugin* FindPlugin(const UUID& SysID) const;
 
 #ifndef NO_WRAPPER
@@ -212,7 +212,7 @@ public:
 	int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr) const;
 	bool GetDiskMenuItem(Plugin* pPlugin, size_t PluginItem, bool& ItemPresent, wchar_t& PluginHotkey, string& strPluginText, UUID& Uuid) const;
 	void ReloadLanguage() const;
-	bool ProcessCommandLine(const string& Command);
+	bool ProcessCommandLine(string_view Command);
 	size_t GetPluginInformation(Plugin* pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
 	// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
 	bool CallPlugin(const UUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr) const;

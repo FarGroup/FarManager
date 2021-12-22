@@ -466,7 +466,46 @@ $ #Tryby sortowania#
  Użyj sortowania grup                                     #Shift+F11#
  Pokaż najpierw zaznaczone pliki                          #Shift+F12#
 
+ You can ~fine-tune~@PanelSortCriteria@ sort modes by pressing #F4#.
+
  Zobacz także: ogólne polecenia ~menu~@MenuCmd@.
+
+
+@PanelSortCriteria
+$ #Sort criteria#
+ When files are considered equivalent using the selected sort mode, additional sort criteria are taken into account.
+ For example, if files are sorted by size and both "a.txt" and "b.txt" have the same size, "a.txt" will come first, as if they were sorted by name.
+ In this menu you can adjust the set of criteria associated with the selected sort mode.
+
+ #Ins#
+ Add a criterion to the set
+
+ #Del#
+ Remove the selected criterion
+
+ #F4#
+ Replace the selected criterion
+
+ #+#
+ Use ascending order
+
+ #-#
+ Use descending order
+
+ #*#
+ Change the order
+
+ #=#
+ Inherit the order from the corresponding sort mode.
+
+ #Ctrl+Up#
+ Move the criterion up.
+
+ #Ctrl+Down#
+ Move the criterion down.
+
+ #Ctrl+R#
+ Reset the set of criteria to detault.
 
 
 @FastFind

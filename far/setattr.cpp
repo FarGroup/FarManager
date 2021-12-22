@@ -1342,7 +1342,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 					seInfo.lpFile += 4;
 				}
 				seInfo.lpVerb = L"properties";
-				const auto strCurDir = os::fs::GetCurrentDirectory();
+				const auto strCurDir = os::fs::get_current_directory();
 				seInfo.lpDirectory=strCurDir.c_str();
 				ShellExecuteEx(&seInfo);
 			}

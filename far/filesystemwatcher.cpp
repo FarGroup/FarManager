@@ -112,7 +112,7 @@ void FileSystemWatcher::Register()
 			const auto DirectoryHandle = os::fs::create_file(
 				m_Directory,
 				FILE_LIST_DIRECTORY,
-				FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+				os::fs::file_share_all,
 				{},
 				OPEN_EXISTING,
 				FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED

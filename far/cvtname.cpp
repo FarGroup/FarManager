@@ -209,7 +209,7 @@ static void MixToFullPath(const string_view stPath, string& Dest, const string_v
 string ConvertNameToFull(string_view const Object)
 {
 	string strDest;
-	MixToFullPath(Object, strDest, os::fs::GetCurrentDirectory());
+	MixToFullPath(Object, strDest, os::fs::get_current_directory());
 	return strDest;
 }
 
@@ -277,7 +277,7 @@ string ConvertNameToReal(string_view const Object)
 	string Path = FullPath;
 	os::fs::file File;
 
-	while (!File.Open(Path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
+	while (!File.Open(Path, 0, os::fs::file_share_all, nullptr, OPEN_EXISTING))
 	{
 		if (IsRootPath(Path))
 			break;

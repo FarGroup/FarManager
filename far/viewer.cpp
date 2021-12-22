@@ -287,7 +287,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 	if (Global->OnlyEditorViewerUsed && strFileName == L"-"sv)
 	{
 		const auto strTempName = MakeTemp();
-		if (!ViewFile.Open(strTempName,GENERIC_READ|GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,CREATE_ALWAYS,FILE_ATTRIBUTE_TEMPORARY|FILE_FLAG_DELETE_ON_CLOSE))
+		if (!ViewFile.Open(strTempName, GENERIC_READ | GENERIC_WRITE, os::fs::file_share_all, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE))
 		{
 			OpenFailed = true;
 			return false;
@@ -310,7 +310,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 	}
 	else
 	{
-		while (!ViewFile.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
+		while (!ViewFile.Open(strFileName, FILE_READ_DATA, os::fs::file_share_all, nullptr, OPEN_EXISTING))
 		{
 			/* $ 04.07.2000 tran
 			   + 'warning' flag processing, in QuickView it is FALSE

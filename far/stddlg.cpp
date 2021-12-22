@@ -754,12 +754,10 @@ void ReMatchErrorMessage(const RegExp& re)
 	}
 }
 
-static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& Col)
+static void GetRowCol(const string_view Str, bool Hex, goto_coord& Row, goto_coord& Col)
 {
-	const auto Parse = [Hex](string Part, goto_coord& Dest)
+	const auto Parse = [Hex](string_view Part, goto_coord& Dest)
 	{
-		std::erase(Part, L' ');
-
 		if (Part.empty())
 			return;
 
@@ -767,12 +765,12 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 		switch (Part.front())
 		{
 		case L'-':
-			Part.erase(0, 1);
+			Part.remove_prefix(1);
 			Dest.relative = -1;
 			break;
 
 		case L'+':
-			Part.erase(0, 1);
+			Part.remove_prefix(1);
 			Dest.relative = +1;
 			break;
 
@@ -786,7 +784,7 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 		// он хочет процентов
 		if (Part.back() == L'%')
 		{
-			Part.pop_back();
+			Part.remove_suffix(1);
 			Dest.percent = true;
 		}
 
@@ -798,22 +796,22 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 		// он умный - hex код ввел!
 		if (starts_with(Part, L"0x"sv))
 		{
-			Part.erase(0, 2);
+			Part.remove_prefix(2);
 			Radix = 16;
 		}
 		else if (starts_with(Part, L"$"sv))
 		{
-			Part.erase(0, 1);
+			Part.remove_prefix(1);
 			Radix = 16;
 		}
 		else if (ends_with(Part, L"h"sv))
 		{
-			Part.pop_back();
+			Part.remove_suffix(1);
 			Radix = 16;
 		}
 		else if (ends_with(Part, L"m"sv))
 		{
-			Part.pop_back();
+			Part.remove_suffix(1);
 			Radix = 10;
 		}
 
@@ -827,7 +825,7 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 		Dest.exist = true;
 	};
 
-	const auto SeparatorPos = Str.find_first_of(L".,;:"sv);
+	const auto SeparatorPos = Str.find_first_of(L" .,;:"sv);
 
 	if (SeparatorPos == Str.npos)
 	{

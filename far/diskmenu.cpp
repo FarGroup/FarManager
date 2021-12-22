@@ -1364,7 +1364,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			}
 		}
 
-		const auto strNewCurDir = os::fs::GetCurrentDirectory();
+		const auto strNewCurDir = os::fs::get_current_directory();
 
 		if ((Owner->GetMode() == panel_mode::NORMAL_PANEL) &&
 			(Owner->GetType() == panel_type::FILE_PANEL) &&

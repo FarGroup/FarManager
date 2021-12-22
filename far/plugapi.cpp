@@ -2909,7 +2909,7 @@ size_t WINAPI apiGetCurrentDirectory(size_t Size, wchar_t* Buffer) noexcept
 	return cpp_try(
 	[&]
 	{
-		const auto strCurDir = os::fs::GetCurrentDirectory();
+		const auto strCurDir = os::fs::get_current_directory();
 
 		if (Buffer && Size)
 		{

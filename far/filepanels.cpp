@@ -525,7 +525,7 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 
 					if (ActivePanel() == AnotherPanel && (AnotherPanel->GetType() == panel_type::FILE_PANEL || AnotherPanel->GetType() == panel_type::TREE_PANEL))
 					{
-						os::fs::SetCurrentDirectory(AnotherPanel->GetCurDir());
+						os::fs::set_current_directory(AnotherPanel->GetCurDir());
 					}
 					AnotherPanel->Update(UPDATE_KEEP_SELECTION);
 

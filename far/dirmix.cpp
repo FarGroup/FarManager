@@ -116,7 +116,7 @@ bool FarChDir(string_view const NewDir)
 	if (IsNetworkPath)
 		NoElevation.emplace();
 
-	if (os::fs::SetCurrentDirectory(Directory))
+	if (os::fs::set_current_directory(Directory))
 	{
 		set_drive_env_curdir(Directory);
 		return true;
@@ -138,7 +138,7 @@ bool FarChDir(string_view const NewDir)
 
 	ConnectToNetworkResource(Directory);
 
-	if (os::fs::SetCurrentDirectory(Directory))
+	if (os::fs::set_current_directory(Directory))
 	{
 		set_drive_env_curdir(Directory);
 		return true;

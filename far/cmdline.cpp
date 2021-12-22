@@ -584,7 +584,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 
 void CommandLine::SetCurDir(string_view const CurDir)
 {
-	if (!equal_icase(m_CurDir, CurDir) || !equal_icase(os::fs::GetCurrentDirectory(), CurDir))
+	if (!equal_icase(m_CurDir, CurDir) || !equal_icase(os::fs::get_current_directory(), CurDir))
 	{
 		m_CurDir = CurDir;
 
@@ -1153,8 +1153,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 		if (SetParams.empty() || ((pos = SetParams.find(L'=')) == string::npos) || !pos)
 		{
 			//forward "set [prefix]| command" and "set [prefix]> file" to COMSPEC
-			static const auto CharsToFind = L"|>"sv;
-			if (std::find_first_of(ALL_CONST_RANGE(SetParams), ALL_CONST_RANGE(CharsToFind)) != SetParams.cend())
+			if (SetParams.find_first_of(L"|>"sv) != SetParams.npos)
 				return false;
 
 			const auto UnquotedSetParams = unquote(SetParams);

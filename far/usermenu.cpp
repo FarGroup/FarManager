@@ -399,7 +399,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, string_view const MenuFileNa
 		{
 			try
 			{
-				if (const auto MenuFile = os::fs::file(strMenuFileFullPath, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+				if (const auto MenuFile = os::fs::file(strMenuFileFullPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 					DeserializeMenu(m_Menu, MenuFile, m_MenuCP);
 			}
 			catch (std::exception const& e)
@@ -576,8 +576,6 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		const auto& strShortName = Names[1];
 		const subst_context Context(strName, strShortName);
 
-		/* $ 24.07.2000 VVM + При показе главного меню в заголовок добавляет тип - FAR/Registry */
-
 		const auto UserMenu = VMenu2::create(Title, {}, ScrY - 4);
 		UserMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_NOMERGEBORDER);
 		UserMenu->SetHelp(L"UserMenu"sv);
@@ -706,7 +704,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						if (!ShellEditor->IsFileChanged())
 							break;
 					}
-					if (const auto MenuFile = os::fs::file(MenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+					if (const auto MenuFile = os::fs::file(MenuFileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 					{
 						MenuRoot.clear();
 						try

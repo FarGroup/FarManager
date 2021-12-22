@@ -456,7 +456,7 @@ cd_type get_cdrom_type(string_view RootDir)
 		VolumePath.insert(0, L"\\\\.\\"sv);
 	}
 
-	if (const auto Device = os::fs::file(VolumePath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+	if (const auto Device = os::fs::file(VolumePath, GENERIC_READ | GENERIC_WRITE, os::fs::file_share_all, nullptr, OPEN_EXISTING))
 	{
 		if (const auto Capabilities = get_device_capabilities(Device); Capabilities != CAPABILITIES_NONE)
 			return get_cd_type(Capabilities);
@@ -473,7 +473,7 @@ bool is_removable_usb(string_view RootDir)
 	string drive(HasPathPrefix(RootDir)? RootDir : L"\\\\?\\"sv + RootDir);
 	DeleteEndSlash(drive);
 
-	os::fs::file const Device(drive, STANDARD_RIGHTS_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+	os::fs::file const Device(drive, STANDARD_RIGHTS_READ, os::fs::file_share_all, nullptr, OPEN_EXISTING);
 	if (!Device)
 	{
 		LOGWARNING(L"CreateFile({}): {}"sv, drive, last_error());

@@ -83,10 +83,15 @@ std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(string_view const Path,
 
 		CurrentCodepage = GetFileCodepage(CurrentFile, encoding::codepage::oem(), nullptr, false);
 
-		if (GetLangParam(CurrentFile, L"Language"sv, CurrentLngName, nullptr, CurrentCodepage) && equal_icase(CurrentLngName, Language))
-		{
+		if (!GetLangParam(CurrentFile, L"Language"sv, CurrentLngName, CurrentCodepage))
+			continue;
+
+		const auto [LngName, LngDescription] = split(CurrentLngName, L',');
+		if (!LngDescription.empty())
+			CurrentLngName.resize(LngName.size());
+
+		if (equal_icase(CurrentLngName, Language))
 			return CurrentFileData;
-		}
 
 		if (equal_icase(CurrentLngName, L"English"sv))
 		{
@@ -101,7 +106,7 @@ std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(string_view const Path,
 }
 
 
-bool GetLangParam(const os::fs::file& LangFile, string_view const ParamName, string& strParam1, string* strParam2, uintptr_t CodePage)
+bool GetLangParam(const os::fs::file& LangFile, string_view const ParamName, string& Param, uintptr_t CodePage)
 {
 	const auto strFullParamName = concat(L'.', ParamName);
 	const auto CurFilePos = LangFile.GetPointer();
@@ -115,24 +120,12 @@ bool GetLangParam(const os::fs::file& LangFile, string_view const ParamName, str
 	{
 		if (starts_with_icase(i.Str, strFullParamName))
 		{
-			const auto EqPos = i.Str.find(L'=');
+			const auto EqPos = i.Str.find(L'=', strFullParamName.size());
 			if (EqPos == string::npos)
 				continue;
 
-			strParam1 = i.Str.substr(EqPos + 1);
-
-			if (strParam2)
-				strParam2->clear();
-
-			if (const auto pos = strParam1.find(L','); pos != string::npos)
-			{
-				if (strParam2)
-					*strParam2 = trim_right(strParam1.substr(pos + 1));
-
-				strParam1.resize(pos);
-			}
-
-			inplace::trim_right(strParam1);
+			Param = i.Str.substr(EqPos + 1);
+			inplace::trim_right(Param);
 			return true;
 		}
 
@@ -175,27 +168,26 @@ static bool SelectLanguage(bool HelpLanguage, string& Dest)
 
 		const auto Codepage = GetFileCodepage(LangFile, encoding::codepage::oem(), nullptr, false);
 
-		string strLangName, strLangDescr;
-
-		if (!GetLangParam(LangFile, L"Language"sv, strLangName, &strLangDescr, Codepage))
+		string LangParamValue;
+		if (!GetLangParam(LangFile, L"Language"sv, LangParamValue, Codepage))
 			continue;
 
 		string strEntryName;
-
 		if (HelpLanguage && (
-			GetLangParam(LangFile, L"PluginContents"sv, strEntryName, nullptr, Codepage) ||
-			GetLangParam(LangFile, L"DocumentContents"sv, strEntryName, nullptr, Codepage)
+			GetLangParam(LangFile, L"PluginContents"sv, strEntryName, Codepage) ||
+			GetLangParam(LangFile, L"DocumentContents"sv, strEntryName, Codepage)
 		))
 			continue;
 
-		MenuItemEx LangMenuItem(!strLangDescr.empty()? strLangDescr : strLangName);
+		const auto [LangName, LangDescription] = split(LangParamValue, L',');
+		MenuItemEx LangMenuItem(!LangDescription.empty()? LangDescription : LangName);
 
 		// No duplicate languages
 		if (LangMenu->FindItem(0, LangMenuItem.Name, LIFIND_EXACTMATCH) != -1)
 			continue;
 
-		LangMenuItem.SetSelect(equal_icase(Dest, strLangName));
-		LangMenuItem.ComplexUserData = strLangName;
+		LangMenuItem.SetSelect(equal_icase(Dest, LangName));
+		LangMenuItem.ComplexUserData = string(LangName);
 		LangMenu->AddItem(LangMenuItem);
 	}
 

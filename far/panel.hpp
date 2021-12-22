@@ -149,10 +149,10 @@ public:
 	virtual bool FileInFilter(size_t idxItem) {return true;}
 	virtual bool FilterIsEnabled() {return false;}
 	virtual void ReadDiz(span<PluginPanelItem> Items = {}) {}
-	virtual void DeleteDiz(const string& Name,const string& ShortName) {}
+	virtual void DeleteDiz(string_view Name, string_view ShortName) {}
 	virtual string GetDizName() const { return {}; }
 	virtual void FlushDiz() {}
-	virtual void CopyDiz(const string& Name,const string& ShortName,const string& DestName, const string& DestShortName,DizList *DestDiz) {}
+	virtual void CopyDiz(string_view Name, string_view ShortName, string_view DestName, string_view DestShortName, DizList* DestDiz) {}
 	virtual bool IsDizDisplayed() const { return false; }
 	virtual bool IsColumnDisplayed(column_type Type) const {return false;}
 	virtual int GetColumnsCount() const { return 1;}

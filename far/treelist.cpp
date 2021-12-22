@@ -657,7 +657,7 @@ public:
 
 static auto OpenTreeFile(string_view const Name, bool const Writable)
 {
-	return os::fs::file(Name, Writable? FILE_WRITE_DATA : FILE_READ_DATA, FILE_SHARE_READ, nullptr, Writable? OPEN_ALWAYS : OPEN_EXISTING);
+	return os::fs::file(Name, Writable? FILE_WRITE_DATA : FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_DELETE, nullptr, Writable? OPEN_ALWAYS : OPEN_EXISTING);
 }
 
 static bool MustBeCached(string_view const Root)
@@ -918,7 +918,7 @@ void TreeList::SyncDir()
 
 bool TreeList::FillLastData()
 {
-	const auto CountSlash = [](const string& Str, size_t Offset)
+	const auto CountSlash = [](const string_view Str, size_t Offset)
 	{
 		return static_cast<size_t>(std::count_if(Str.cbegin() + Offset, Str.cend(), path::is_separator));
 	};
@@ -1932,7 +1932,7 @@ void TreeList::FlushCache()
 
 	if (!TreeCache().GetTreeName().empty())
 	{
-		const auto Opener = [&](const string& Name) { return OpenTreeFile(Name, true); };
+		const auto Opener = [&](const string_view Name) { return OpenTreeFile(Name, true); };
 
 		WriteTree(TreeCache().GetTreeName(), TreeCache(), Opener, 0);
 	}

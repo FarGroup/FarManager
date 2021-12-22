@@ -370,9 +370,9 @@ namespace os::process
 
 	}
 
-	size_t enumerate_nt_processes(const string& Filename, function_ref<bool(string&&)> const Handler)
+	size_t enumerate_nt_processes(const string_view Filename, function_ref<bool(string&&)> const Handler)
 	{
-		const fs::file File(Filename, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+		const fs::file File(Filename, FILE_READ_ATTRIBUTES, fs::file_share_all, nullptr, OPEN_EXISTING);
 		if (!File)
 			return 0;
 

@@ -489,7 +489,7 @@ void FileEditor::Init(
 
 	SetPluginData(PluginData);
 	SetCanLoseFocus(m_Flags.Check(FFILEEDIT_ENABLEF6));
-	strStartDir = os::fs::GetCurrentDirectory();
+	strStartDir = os::fs::get_current_directory();
 
 	if (!SetFileName(Name))
 	{
@@ -1407,7 +1407,7 @@ bool FileEditor::SetCodePageEx(uintptr_t cp)
 	}
 	else if (cp == CP_REDETECT)
 	{
-		const os::fs::file EditFile(strFileName, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+		const os::fs::file EditFile(strFileName, FILE_READ_DATA, os::fs::file_share_all, nullptr, OPEN_EXISTING);
 		const auto DefaultCodepage = GetDefaultCodePage();
 		cp = EditFile? GetFileCodepage(EditFile, DefaultCodepage) : DefaultCodepage;
 	}
@@ -1516,7 +1516,7 @@ bool FileEditor::ProcessQuitKey(int FirstSave, bool NeedQuestion, bool DeleteWin
 	return GetExitCode() == XC_QUIT;
 }
 
-bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& ErrorState)
+bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex& ErrorState)
 {
 	try
 	{
@@ -1526,7 +1526,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 
 	EditorPosCache pc;
 	UserBreak = 0;
-	os::fs::file EditFile(Name, FILE_READ_DATA, FILE_SHARE_READ | (Global->Opt->EdOpt.EditOpenedForWrite? (FILE_SHARE_WRITE | FILE_SHARE_DELETE) : 0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
+	os::fs::file EditFile(Name, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_DELETE | (Global->Opt->EdOpt.EditOpenedForWrite? FILE_SHARE_WRITE : 0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	if(!EditFile)
 	{
 		ErrorState = last_error();
@@ -1549,7 +1549,7 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 				if (Message(MSG_WARNING,
 					msg(lng::MEditTitle),
 					{
-						Name,
+						string(Name),
 						// Ширина = 8 - это будет... в Kb и выше...
 						format(msg(lng::MEditFileLong), trim(FileSizeToStr(FileSize, 8))),
 						format(msg(lng::MEditFileLong2), trim(FileSizeToStr(Global->Opt->EdOpt.FileSizeLimit, 8))),
@@ -1572,7 +1572,8 @@ bool FileEditor::LoadFile(const string& Name,int &UserBreak, error_state_ex& Err
 			if (Message(MSG_WARNING,
 				msg(lng::MEditTitle),
 				{
-					Name, msg(lng::MEditFileGetSizeError),
+					string(Name),
+					msg(lng::MEditFileGetSizeError),
 					msg(lng::MEditROOpen)
 				},
 				{ lng::MYes, lng::MNo },
@@ -1804,7 +1805,7 @@ bool FileEditor::ReloadFile(uintptr_t codepage)
 }
 
 //TextFormat и codepage используются ТОЛЬКО, если bSaveAs = true!
-int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_ex& ErrorState, eol Eol, uintptr_t Codepage, bool AddSignature)
+int FileEditor::SaveFile(const string_view Name, int Ask, bool bSaveAs, error_state_ex& ErrorState, eol Eol, uintptr_t Codepage, bool AddSignature)
 {
 	if (!bSaveAs)
 	{
@@ -1902,7 +1903,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 			if (Message(MSG_WARNING,
 				msg(lng::MEditTitle),
 				{
-					Name,
+					string(Name),
 					msg(lng::MEditRO),
 					msg(lng::MEditOvr)
 				},
@@ -1919,15 +1920,15 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 	else
 	{
 		// проверим путь к файлу, может его уже снесли...
-		string strCreatedPath = Name;
-		if (CutToParent(strCreatedPath))
+		auto CreatedPath = Name;
+		if (CutToParent(CreatedPath))
 		{
-			if (!os::fs::exists(strCreatedPath))
+			if (!os::fs::exists(CreatedPath))
 			{
 				// и попробуем создать.
 				// Раз уж
-				CreatePath(strCreatedPath);
-				if (!os::fs::exists(strCreatedPath))
+				CreatePath(CreatedPath);
+				if (!os::fs::exists(CreatedPath))
 				{
 					ErrorState = last_error();
 					return SAVEFILE_ERROR;
@@ -2020,7 +2021,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, error_state_e
 		}
 	}
 
-	EditorSaveFile esf{ sizeof(esf), Name.c_str(), m_editor->GlobalEOL.str().data(), Codepage };
+	const string NameForPlugin(Name);
+	EditorSaveFile esf{ sizeof(esf), NameForPlugin.c_str(), m_editor->GlobalEOL.str().data(), Codepage };
 	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_SAVE, &esf, m_editor.get());
 
 	try
@@ -2210,7 +2212,7 @@ bool FileEditor::SetFileName(const string_view NewFileName)
 
 		if (CutToParent(strFilePath))
 		{
-			if (equal_icase(strFilePath, os::fs::GetCurrentDirectory()))
+			if (equal_icase(strFilePath, os::fs::get_current_directory()))
 				strFileName = PointToName(strFullFileName);
 		}
 
@@ -2813,7 +2815,7 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 	return true;
 }
 
-bool FileEditor::AskOverwrite(const string& FileName)
+bool FileEditor::AskOverwrite(const string_view FileName)
 {
 	bool result=true;
 	if (os::fs::exists(FileName))
@@ -2821,7 +2823,7 @@ bool FileEditor::AskOverwrite(const string& FileName)
 		if (Message(MSG_WARNING,
 			msg(lng::MEditTitle),
 			{
-				FileName,
+				string(FileName),
 				msg(lng::MEditExists),
 				msg(lng::MEditOvr)
 			},

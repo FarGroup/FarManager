@@ -1400,46 +1400,47 @@ static string KeyToTextImpl(unsigned int const Key0, tfkey_to_text ToText, add_s
 
 	auto strKeyText = GetShiftKeyName(Key, ToText, AddSeparator);
 
-	const auto FKeys1Iterator = std::find(ALL_CONST_RANGE(FKeys1), FKey);
-	if (FKeys1Iterator != std::cend(FKeys1))
+	if (const auto FKeys1Iterator = std::find(ALL_CONST_RANGE(FKeys1), FKey); FKeys1Iterator != std::cend(FKeys1))
 	{
 		AddSeparator(strKeyText);
 		append(strKeyText, ToText(*FKeys1Iterator));
+		return strKeyText;
+	}
+
+	if (FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
+	{
+		AddSeparator(strKeyText);
+		format_to(strKeyText, FSTR(L"Spec{:0>5}"sv), FKey - KEY_VK_0xFF_BEGIN);
+		return strKeyText;
+
+	}
+
+	if (FKey > KEY_VK_0xFF_END && FKey <= KEY_END_FKEY)
+	{
+		AddSeparator(strKeyText);
+		format_to(strKeyText, FSTR(L"Oem{:0>5}"sv), FKey - KEY_FKEY_BEGIN);
+		return strKeyText;
+
+	}
+
+	FKey = upper(static_cast<wchar_t>(Key & 0xFFFF));
+
+	wchar_t KeyText;
+
+	if (FKey >= L'A' && FKey <= L'Z')
+	{
+		if (Key&(KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALT)) // ??? а если есть другие модификаторы ???
+			KeyText = static_cast<wchar_t>(FKey); // для клавиш с модификаторами подставляем "латиницу" в верхнем регистре
+		else
+			KeyText = static_cast<wchar_t>(Key & 0xFFFF);
 	}
 	else
+		KeyText = static_cast<wchar_t>(Key & 0xFFFF);
+
+	if (KeyText)
 	{
-		if (FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
-		{
-			AddSeparator(strKeyText);
-			format_to(strKeyText, FSTR(L"Spec{:0>5}"sv), FKey - KEY_VK_0xFF_BEGIN);
-		}
-		else if (FKey > KEY_VK_0xFF_END && FKey <= KEY_END_FKEY)
-		{
-			AddSeparator(strKeyText);
-			format_to(strKeyText, FSTR(L"Oem{:0>5}"sv), FKey - KEY_FKEY_BEGIN);
-		}
-		else
-		{
-			FKey=upper(static_cast<wchar_t>(Key & 0xFFFF));
-
-			wchar_t KeyText;
-
-			if (FKey >= L'A' && FKey <= L'Z')
-			{
-				if (Key&(KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALT)) // ??? а если есть другие модификаторы ???
-					KeyText = static_cast<wchar_t>(FKey); // для клавиш с модификаторами подставляем "латиницу" в верхнем регистре
-				else
-					KeyText = static_cast<wchar_t>(Key & 0xFFFF);
-			}
-			else
-				KeyText = static_cast<wchar_t>(Key & 0xFFFF);
-
-			if (KeyText)
-			{
-				AddSeparator(strKeyText);
-				strKeyText += KeyText;
-			}
-		}
+		AddSeparator(strKeyText);
+		strKeyText += KeyText;
 	}
 
 	return strKeyText;

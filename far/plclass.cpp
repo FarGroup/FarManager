@@ -509,7 +509,7 @@ void Plugin::InitExports()
 	}
 }
 
-Plugin::Plugin(plugin_factory* Factory, const string& ModuleName):
+Plugin::Plugin(plugin_factory* Factory, const string_view ModuleName):
 	m_Factory(Factory),
 	m_strModuleName(ModuleName),
 	m_strCacheName(ModuleName)
@@ -548,7 +548,7 @@ bool Plugin::LoadData()
 
 	string strCurPlugDiskPath;
 	wchar_t Drive[]{ L'=', 0, L':', 0 };
-	const auto strCurPath = os::fs::GetCurrentDirectory();
+	const auto strCurPath = os::fs::get_current_directory();
 
 	if (ParsePath(m_strModuleName) == root_type::drive_letter)  // если указан локальный путь, то...
 	{
@@ -1279,7 +1279,7 @@ class custom_plugin_factory final: public plugin_factory
 {
 public:
 	NONCOPYABLE(custom_plugin_factory);
-	custom_plugin_factory(PluginManager* Owner, const string& Filename):
+	custom_plugin_factory(PluginManager* Owner, const string_view Filename):
 		plugin_factory(Owner),
 		m_Imports(Filename)
 	{
@@ -1404,7 +1404,7 @@ private:
 
 #undef DECLARE_IMPORT_FUNCTION
 
-		explicit ModuleImports(const string& Filename):
+		explicit ModuleImports(const string_view Filename):
 			m_Module(Filename),
 			m_IsValid(pInitialize && pIsPlugin && pCreateInstance && pGetFunctionAddress && pGetError && pDestroyInstance && pFree)
 		{
@@ -1421,7 +1421,7 @@ private:
 	bool m_Success{};
 };
 
-plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string& Filename)
+plugin_factory_ptr CreateCustomPluginFactory(PluginManager* const Owner, const string_view Filename)
 {
 	auto Model = std::make_unique<custom_plugin_factory>(Owner, Filename);
 	if (!Model->Success())

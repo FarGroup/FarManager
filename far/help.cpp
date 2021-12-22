@@ -216,7 +216,7 @@ struct Help::StackHelpData
 
 static bool GetOptionsParam(const os::fs::file& LangFile, string_view const KeyName, string& Value, unsigned CodePage)
 {
-	return GetLangParam(LangFile, L"Options "sv + KeyName, Value, nullptr, CodePage);
+	return GetLangParam(LangFile, L"Options "sv + KeyName, Value, CodePage);
 }
 
 Help::Help(private_tag):
@@ -392,7 +392,7 @@ bool Help::ReadHelp(string_view const Mask)
 	/* $ 29.11.2001 DJ
 	   запомним, чего там написано в PluginContents
 	*/
-	if (!GetLangParam(HelpFile, L"PluginContents"sv, strCurPluginContents, nullptr, HelpFileCodePage))
+	if (!GetLangParam(HelpFile, L"PluginContents"sv, strCurPluginContents,  HelpFileCodePage))
 		strCurPluginContents.clear();
 
 	string strTabSpace(CtrlTabSize, L' ');
@@ -2091,22 +2091,14 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 				string_view Path = i->ModuleName();
 				CutToSlash(Path);
 				const auto [HelpFile, HelpLangName, HelpFileCodePage] = OpenLangFile(Path, Global->HelpFileMask, Global->Opt->strHelpLanguage);
-				if (HelpFile)
-				{
-					string strEntryName, strSecondParam;
+				if (!HelpFile)
+					continue;
 
-					if (GetLangParam(HelpFile, ContentsName, strEntryName, &strSecondParam, HelpFileCodePage))
-					{
-						string strHelpLine = concat(L"   ~"sv, strEntryName);
-						if (!strSecondParam.empty())
-						{
-							append(strHelpLine, L',', strSecondParam);
-						}
-						append(strHelpLine, L"~@"sv, help::make_link(Path, HelpContents), L'@');
+				string strEntryName;
+				if (!GetLangParam(HelpFile, ContentsName, strEntryName, HelpFileCodePage))
+					continue;
 
-						AddLine(strHelpLine);
-					}
-				}
+				AddLine(format(FSTR(L"   ~{}~@{}@"sv), strEntryName, help::make_link(Path, HelpContents)));
 			}
 
 			break;

@@ -162,7 +162,7 @@ class native_plugin_module: public i_plugin_module
 {
 public:
 	NONCOPYABLE(native_plugin_module);
-	explicit native_plugin_module(const string& Name): m_Module(Name, true) {}
+	explicit native_plugin_module(const string_view Name): m_Module(Name, true) {}
 
 	void* opaque() const override
 	{
@@ -231,7 +231,7 @@ class Plugin
 public:
 	NONCOPYABLE(Plugin);
 
-	Plugin(plugin_factory* Factory, const string& ModuleName);
+	Plugin(plugin_factory* Factory, string_view ModuleName);
 	virtual ~Plugin();
 
 	virtual bool GetGlobalInfo(GlobalInfo *Info);
@@ -399,7 +399,7 @@ private:
 	std::unique_ptr<listener> m_SynchroListener;
 };
 
-plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string& Filename);
+plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, string_view Filename);
 
 #define DECLARE_GEN_PLUGIN_FUNCTION(name, is_native, signature) template<> struct export_type<name, is_native>  { using type = signature; };
 #define WA(string) { L##string##sv, string##sv }

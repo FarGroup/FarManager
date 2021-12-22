@@ -101,7 +101,7 @@ void Panel::SetViewMode(int Mode)
 
 void Panel::ChangeDirToCurrent()
 {
-	SetCurDir(os::fs::GetCurrentDirectory(), true);
+	SetCurDir(os::fs::get_current_directory(), true);
 }
 
 long long Panel::VMProcess(int OpCode, void* vParam, long long iParam)
@@ -300,7 +300,7 @@ bool Panel::SetCurDir(string_view const NewDir, bool const ClosePanel, bool cons
 
 void Panel::InitCurDir(string_view const CurDir)
 {
-	if (!equal_icase(m_CurDir, CurDir) || !equal_icase(os::fs::GetCurrentDirectory(), CurDir))
+	if (!equal_icase(m_CurDir, CurDir) || !equal_icase(os::fs::get_current_directory(), CurDir))
 	{
 		m_CurDir = CurDir;
 

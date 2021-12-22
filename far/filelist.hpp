@@ -181,11 +181,11 @@ public:
 	bool FileInFilter(size_t idxItem) override;
 	bool FilterIsEnabled() override;
 	void ReadDiz(span<PluginPanelItem> Items = {}) override;
-	void DeleteDiz(const string& Name, const string& ShortName) override;
+	void DeleteDiz(string_view Name, string_view ShortName) override;
 	void FlushDiz() override;
 	string GetDizName() const override;
 	string_view GetDescription(string_view Name, string_view ShortName, long long FileSize) const;
-	void CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList *DestDiz) override;
+	void CopyDiz(string_view Name, string_view ShortName, string_view DestName, string_view DestShortName, DizList *DestDiz) override;
 	bool IsDizDisplayed() const override;
 	bool IsColumnDisplayed(column_type Type) const override;
 	int GetColumnsCount() const override;
@@ -245,7 +245,7 @@ private:
 	bool HardlinksSupported() const;
 	bool StreamsSupported() const;
 	const string& GetComputerName() const;
-	std::unique_ptr<content_data> GetContentData(const string& Item) const;
+	std::unique_ptr<content_data> GetContentData(string_view Item) const;
 	void ApplySortMode(panel_sort Mode);
 	void ToBegin();
 	void ToEnd();

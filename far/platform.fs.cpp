@@ -234,7 +234,7 @@ namespace os::fs
 				return GetDriveType(get_root_directory(PathType == root_type::drive_letter? Path[0] : Path[4]).c_str());
 			}
 
-			NTPath NtPath(Path.empty()? os::fs::GetCurrentDirectory() : Path);
+			NTPath NtPath(Path.empty()? os::fs::get_current_directory() : Path);
 			AddEndSlash(NtPath);
 
 			return GetDriveType(NtPath.c_str());
@@ -383,7 +383,7 @@ namespace os::fs
 
 		const auto OpenDirectory = [&]
 		{
-			return Handle->Object.Open(Directory, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+			return Handle->Object.Open(Directory, FILE_LIST_DIRECTORY, file_share_all, nullptr, OPEN_EXISTING);
 		};
 
 		if (!OpenDirectory())
@@ -610,7 +610,7 @@ namespace os::fs
 
 		auto Handle = std::make_unique<far_find_file_handle_impl>();
 
-		if (!Handle->Object.Open(FileName, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
+		if (!Handle->Object.Open(FileName, 0, file_share_all, nullptr, OPEN_EXISTING))
 			return nullptr;
 
 		// for network paths buffer size must be <= 64k
@@ -980,7 +980,7 @@ namespace os::fs
 		return true;
 	}
 
-	static int MatchNtPathRoot(string_view const NtPath, const string& DeviceName)
+	static int MatchNtPathRoot(string_view const NtPath, const string_view DeviceName)
 	{
 		string TargetPath;
 		if (!os::fs::QueryDosDevice(DeviceName, TargetPath))
@@ -1452,9 +1452,9 @@ namespace os::fs
 
 	//-------------------------------------------------------------------------
 
-	current_directory_guard::current_directory_guard(const string& Directory):
-		m_Directory(GetCurrentDirectory()),
-		m_Active(SetCurrentDirectory(Directory))
+	current_directory_guard::current_directory_guard(const string_view Directory):
+		m_Directory(get_current_directory()),
+		m_Active(set_current_directory(Directory))
 	{
 	}
 
@@ -1462,10 +1462,10 @@ namespace os::fs
 	{
 		// No need to validate, we can trust ourselves
 		if (m_Active)
-			SetCurrentDirectory(m_Directory, false);
+			set_current_directory(m_Directory, false);
 	}
 
-	process_current_directory_guard::process_current_directory_guard(const string& Directory):
+	process_current_directory_guard::process_current_directory_guard(const string_view Directory):
 		m_Active(GetProcessRealCurrentDirectory(m_Directory) && SetProcessRealCurrentDirectory(Directory))
 	{
 	}
@@ -1645,7 +1645,7 @@ namespace os::fs
 		});
 	}
 
-	bool SetProcessRealCurrentDirectory(const string& Directory)
+	bool SetProcessRealCurrentDirectory(const string_view Directory)
 	{
 		if constexpr (features::win10_curdir)
 		{
@@ -1654,13 +1654,13 @@ namespace os::fs
 			https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-setcurrentdirectory
 			It seems that "it will be added for you" doesn't work for funny names with trailing dots or spaces, so we add it ourselves.
 			 */
-			auto DirectoryWithSlash = Directory;
+			string DirectoryWithSlash(Directory);
 			AddEndSlash(DirectoryWithSlash);
 			return ::SetCurrentDirectory(DirectoryWithSlash.c_str()) != FALSE;
 		}
 		else
 		{
-			return ::SetCurrentDirectory(Directory.c_str()) != FALSE;
+			return ::SetCurrentDirectory(null_terminated(Directory).c_str()) != FALSE;
 		}
 	}
 
@@ -1669,7 +1669,7 @@ namespace os::fs
 		string InitCurDir;
 		if (GetProcessRealCurrentDirectory(InitCurDir))
 		{
-			SetCurrentDirectory(InitCurDir);
+			set_current_directory(InitCurDir);
 		}
 	}
 
@@ -1679,17 +1679,15 @@ namespace os::fs
 		return sCurrentDirectory;
 	}
 
-	string GetCurrentDirectory()
+	const string& get_current_directory()
 	{
-		//never give outside world a direct pointer to our internal string
-		//who knows what they gonna do
 		return CurrentDirectory();
 	}
 
-	bool SetCurrentDirectory(const string& PathName, bool Validate)
+	bool set_current_directory(const string_view PathName, const bool Validate)
 	{
 		// correct path to our standard
-		string strDir = PathName;
+		string strDir(PathName);
 		ReplaceSlashToBackslash(strDir);
 		bool Root = false;
 		ParsePath(strDir, nullptr, &Root);
@@ -2169,7 +2167,7 @@ namespace os::fs
 	bool GetFileTimeSimple(const string_view FileName, chrono::time_point* const CreationTime, chrono::time_point* const LastAccessTime, chrono::time_point* const LastWriteTime, chrono::time_point* const ChangeTime)
 	{
 		file File;
-		return File.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING) && File.GetTime(CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
+		return File.Open(FileName, FILE_READ_ATTRIBUTES, file_share_all, nullptr, OPEN_EXISTING) && File.GetTime(CreationTime, LastAccessTime, LastWriteTime, ChangeTime);
 	}
 
 	bool get_find_data(string_view const FileName, find_data& FindData, bool ScanSymLink)
@@ -2194,7 +2192,7 @@ namespace os::fs
 			return false;
 
 		// Ага, значит файл таки есть. Заполним структуру ручками.
-		if (const auto File = file(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
+		if (const auto File = file(FileName, FILE_READ_ATTRIBUTES, file_share_all, nullptr, OPEN_EXISTING))
 		{
 			if (!File.GetTime(&FindData.CreationTime, &FindData.LastAccessTime, &FindData.LastWriteTime, &FindData.ChangeTime))
 				return false;
@@ -2216,7 +2214,7 @@ namespace os::fs
 		return true;
 	}
 
-	find_notification_handle find_first_change_notification(const string& PathName, bool WatchSubtree, DWORD NotifyFilter)
+	find_notification_handle find_first_change_notification(const string_view PathName, bool WatchSubtree, DWORD NotifyFilter)
 	{
 		return find_notification_handle(::FindFirstChangeNotification(NTPath(PathName).c_str(), WatchSubtree, NotifyFilter));
 	}
@@ -2307,7 +2305,7 @@ namespace os::fs
 
 	bool can_create_file(string_view const Name)
 	{
-		return file(Name, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE)? true : false;
+		return file(Name, GENERIC_WRITE, file_share_all, nullptr, CREATE_ALWAYS, FILE_FLAG_DELETE_ON_CLOSE)? true : false;
 	}
 
 	bool CreateSymbolicLinkInternal(string_view const Object, string_view const Target, DWORD Flags)

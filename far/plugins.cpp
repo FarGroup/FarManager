@@ -350,7 +350,7 @@ bool PluginManager::UnloadPluginExternal(Plugin* pPlugin)
 	return Result;
 }
 
-Plugin* PluginManager::FindPlugin(const string& ModuleName) const
+Plugin* PluginManager::FindPlugin(const string_view ModuleName) const
 {
 	const auto ItemIterator = std::find_if(CONST_RANGE(SortedPlugins, i)
 	{
@@ -576,7 +576,7 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 		{
 			LOGDEBUG(L"Reading {} bytes from {}"sv, Buffer.size(), *Name);
 
-			os::fs::file const File(*Name, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
+			os::fs::file const File(*Name, FILE_READ_DATA, os::fs::file_share_all, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 			if (!File)
 			{
 				LOGWARNING(L"create_file({}): {}"sv, *Name, last_error());
@@ -1119,7 +1119,7 @@ intptr_t PluginManager::GetFiles(const plugin_panel* hPlugin, span<PluginPanelIt
 intptr_t PluginManager::PutFiles(const plugin_panel* hPlugin, span<PluginPanelItem> const PanelItems, bool Move, int OpMode)
 {
 	static string strCurrentDirectory;
-	strCurrentDirectory = os::fs::GetCurrentDirectory();
+	strCurrentDirectory = os::fs::get_current_directory();
 	PutFilesInfo Info{ sizeof(Info) };
 	Info.hPanel = hPlugin->panel();
 	Info.PanelItem = PanelItems.data();
@@ -1143,7 +1143,7 @@ void PluginManager::GetOpenPanelInfo(const plugin_panel* hPlugin, OpenPanelInfo 
 	hPlugin->plugin()->GetOpenPanelInfo(Info);
 
 	if (Info->CurDir && *Info->CurDir && (Info->Flags & OPIF_REALNAMES) && (Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle() == hPlugin) && ParsePath(Info->CurDir)!=root_type::unknown)
-		os::fs::SetCurrentDirectory(Info->CurDir, false);
+		os::fs::set_current_directory(Info->CurDir, false);
 }
 
 
@@ -1216,7 +1216,7 @@ struct PluginMenuItemData
 	UUID Uuid;
 };
 
-static string AddHotkey(const string& Item, wchar_t Hotkey)
+static string AddHotkey(const string_view Item, wchar_t Hotkey)
 {
 	return concat(!Hotkey?  L" "s : Hotkey == L'&'? L"&&&"s : L"&"s + Hotkey, L"  "sv, Item);
 }
@@ -1695,7 +1695,7 @@ static char* BufReserve(char*& Buf, size_t Count, size_t Alignment, size_t& Rest
 }
 
 
-static wchar_t* StrToBuf(const string& Str, char*& Buf, size_t& Rest, size_t& Size)
+static wchar_t* StrToBuf(const string_view Str, char*& Buf, size_t& Rest, size_t& Size)
 {
 	const auto Count = (Str.size() + 1) * sizeof(wchar_t);
 	const auto BufPtr = BufReserve(Buf, Count, alignof(wchar_t), Rest, Size);
@@ -1940,13 +1940,13 @@ struct PluginData
 	unsigned long long PluginFlags;
 };
 
-bool PluginManager::ProcessCommandLine(const string& Command)
+bool PluginManager::ProcessCommandLine(const string_view Command)
 {
-	if (!IsPluginPrefixPath(Command))
+	const auto Prefix = GetPluginPrefixPath(Command);
+	if (!Prefix)
 		return false;
 
 	LoadIfCacheAbsent();
-	const auto Prefix = string_view(Command).substr(0, Command.find(L':'));
 	std::vector<PluginData> items;
 
 	for (const auto& i: SortedPlugins)
@@ -1974,7 +1974,7 @@ bool PluginManager::ProcessCommandLine(const string& Command)
 			continue;
 
 		const auto Enumerator = enum_tokens(PluginPrefixes, L":"sv);
-		if (!std::any_of(ALL_CONST_RANGE(Enumerator), [&](const auto& p) { return equal_icase(p, Prefix); }))
+		if (!std::any_of(ALL_CONST_RANGE(Enumerator), [&](const auto& p) { return equal_icase(p, *Prefix); }))
 			continue;
 
 		if (!i->Load() || !i->has(iOpen))
@@ -2015,7 +2015,7 @@ bool PluginManager::ProcessCommandLine(const string& Command)
 	}
 
 	// Copy instead of string_view as it goes into the wild
-	const auto PluginCommand = Command.substr(PluginIterator->PluginFlags & PF_FULLCMDLINE? 0 : Prefix.size() + 1);
+	const string PluginCommand(Command.substr(PluginIterator->PluginFlags & PF_FULLCMDLINE? 0 : Prefix->size() + 1));
 	const OpenCommandLineInfo info{ sizeof(OpenCommandLineInfo), PluginCommand.c_str() };
 	if (auto hPlugin = Global->CtrlObject->Plugins->Open(PluginIterator->pPlugin, OPEN_COMMANDLINE, FarUuid, reinterpret_cast<intptr_t>(&info)))
 	{

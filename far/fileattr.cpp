@@ -90,7 +90,7 @@ void ESetFileAttributes(string_view const Name, os::fs::attributes Attributes, b
 
 static bool set_file_compression(string_view const Name, bool const State)
 {
-	const os::fs::file File(Name, FILE_READ_DATA | FILE_WRITE_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
+	const os::fs::file File(Name, FILE_READ_DATA | FILE_WRITE_DATA, os::fs::file_share_all, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	if (!File)
 		return false;
 
@@ -146,7 +146,7 @@ void ESetFileTime(
 
 	const auto Implementation = [&]
 	{
-		const os::fs::file File(Name, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
+		const os::fs::file File(Name, GENERIC_WRITE, os::fs::file_share_all, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
 		if (!File)
 			return false;
 
@@ -160,7 +160,7 @@ void ESetFileTime(
 
 static bool set_file_sparse(string_view const Name, bool const State)
 {
-	const os::fs::file File(Name, FILE_WRITE_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+	const os::fs::file File(Name, FILE_WRITE_DATA, os::fs::file_share_all, nullptr, OPEN_EXISTING);
 	if (!File)
 		return false;
 

@@ -210,7 +210,7 @@ private:
 	bool FindFilesProcess();
 	void ProcessMessage(message& Message);
 	void SetPluginDirectory(string_view DirName, const plugin_panel* hPlugin, bool UpdatePanel, const UserDataItem *UserData);
-	bool GetPluginFile(struct ArcListItem const* ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, const UserDataItem* UserData);
+	bool GetPluginFile(ArcListItem const* ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, const UserDataItem* UserData);
 	void stop_and_discard(Dialog* Dlg);
 	FindListItem& AddFindListItem(const os::fs::find_data& FindData, UserDataItem const& UserData);
 	void ClearFindList();
@@ -1028,7 +1028,7 @@ bool FindFiles::GetPluginFile(ArcListItem const* const ArcItem, const os::fs::fi
 
 bool background_searcher::LookForString(string_view const FileName)
 {
-	const os::fs::file File(FileName, FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
+	const os::fs::file File(FileName, FILE_READ_DATA, os::fs::file_share_all, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 	if(!File)
 	{
 		return false;
@@ -2419,10 +2419,8 @@ void background_searcher::DoScanTree(string_view const strRoot)
 
 				for(const auto& StreamData: os::fs::enum_streams(strFullName))
 				{
-					string_view StreamName(StreamData.cStreamName + 1);
-					const auto NameEnd = StreamName.rfind(L':');
-					if (NameEnd != StreamName.npos)
-						StreamName = StreamName.substr(0, NameEnd);
+					const string_view StreamFullName(StreamData.cStreamName + 1);
+					const auto [StreamName, StreamType] = split(StreamFullName, L':');
 
 					if (StreamName.empty()) // default stream has already been processed
 						continue;

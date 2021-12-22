@@ -125,10 +125,10 @@ void disable_exception_handling()
 	LOGWARNING(L"Exception handling disabled"sv);
 }
 
-static std::atomic_size_t s_ExceptionHandlingInprogress;
+static std::atomic_bool s_ExceptionHandlingInprogress{};
 bool exception_handling_in_progress()
 {
-	return s_ExceptionHandlingInprogress != 0;
+	return s_ExceptionHandlingInprogress;
 }
 
 void force_stderr_exception_ui(bool const Force)
@@ -761,11 +761,11 @@ static bool handle_generic_exception(
 	if (ExceptionHandlingIgnored)
 		return false;
 
-	if (exception_handling_in_progress())
+	if (s_ExceptionHandlingInprogress)
 		return true;
 
-	++s_ExceptionHandlingInprogress;
-	SCOPE_EXIT{ --s_ExceptionHandlingInprogress; };
+	s_ExceptionHandlingInprogress = true;
+	SCOPE_EXIT{ s_ExceptionHandlingInprogress = false; };
 
 	string strFileName;
 

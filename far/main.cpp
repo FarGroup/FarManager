@@ -152,12 +152,12 @@ static void show_help()
 }
 
 static int MainProcess(
-    const string& EditName,
-    const string& ViewName,
-    const string& DestName1,
-    const string& DestName2,
-    int StartLine,
-    int StartChar
+	const string_view EditName,
+	const string_view ViewName,
+	const string_view DestName1,
+	const string_view DestName2,
+	int StartLine,
+	int StartChar
 )
 {
 		FarColor InitAttributes;
@@ -263,7 +263,7 @@ static int MainProcess(
 				{
 					FarChDir(AnotherPanel->GetCurDir());
 
-					if (IsPluginPrefixPath(ppanel))
+					if (GetPluginPrefixPath(ppanel))
 					{
 						AnotherPanel->Parent()->SetActivePanel(AnotherPanel);
 
@@ -288,7 +288,7 @@ static int MainProcess(
 
 				FarChDir(ActivePanel->GetCurDir());
 
-				if (IsPluginPrefixPath(apanel))
+				if (GetPluginPrefixPath(apanel))
 				{
 					execute_info Info;
 					Info.DisplayCommand = apanel;
@@ -737,7 +737,7 @@ static int mainImpl(span<const wchar_t* const> const Args)
 		{
 			if (CntDestName < 2)
 			{
-				if (IsPluginPrefixPath(Arg))
+				if (GetPluginPrefixPath(Arg))
 				{
 					DestNames[CntDestName++] = Arg;
 				}
