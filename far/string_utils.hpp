@@ -151,7 +151,6 @@ class i_searcher
 public:
 	virtual ~i_searcher() = default;
 	virtual std::optional<std::pair<size_t, size_t>> find_in(string_view Haystack, bool Reverse = {}) const = 0;
-	virtual bool contains_in(string_view Haystack) const = 0;
 };
 
 class exact_searcher final: public i_searcher
@@ -160,15 +159,26 @@ public:
 	NONCOPYABLE(exact_searcher);
 	explicit exact_searcher(string_view Needle, bool CanReverse = true);
 	std::optional<std::pair<size_t, size_t>> find_in(string_view Haystack, bool Reverse = {}) const override;
-	bool contains_in(string_view Haystack) const override;
 
 private:
 	template<typename... args>
 	using searcher = std::boyer_moore_horspool_searcher<args...>;
 
-	searcher<string_view::const_iterator> m_Searcher;
-	std::optional<searcher<string_view::const_reverse_iterator>> m_ReverseSearcher;
-	size_t m_NeedleSize;
+	string m_Needle;
+	searcher<string::const_iterator> m_Searcher;
+	std::optional<searcher<string::const_reverse_iterator>> m_ReverseSearcher;
+};
+
+class icase_searcher final: public i_searcher
+{
+public:
+	NONCOPYABLE(icase_searcher);
+	explicit icase_searcher(string_view Needle, bool CanReverse = true);
+	std::optional<std::pair<size_t, size_t>> find_in(string_view Haystack, bool Reverse = {}) const override;
+
+private:
+	mutable string m_HayStack;
+	exact_searcher m_Searcher;
 };
 
 class fuzzy_searcher final: public i_searcher
@@ -177,30 +187,40 @@ public:
 	NONCOPYABLE(fuzzy_searcher);
 	explicit fuzzy_searcher(string_view Needle, bool CanReverse = true);
 	std::optional<std::pair<size_t, size_t>> find_in(string_view Haystack, bool Reverse = {}) const override;
-	bool contains_in(string_view Haystack) const override;
 
 private:
 	std::optional<std::pair<size_t, size_t>> find_in_uncorrected(string_view Haystack, bool Reverse = {}) const;
 
-	string m_Needle;
 	mutable string m_HayStack, m_Intermediate;
 	mutable std::vector<WORD> m_Types;
 
-	exact_searcher m_Searcher;
+	icase_searcher m_Searcher;
 };
 
 using searchers = std::variant
 <
 	bool, // Just to make it default-constructible
 	exact_searcher,
+	icase_searcher,
 	fuzzy_searcher
 >;
 
-inline i_searcher const& init_searcher(searchers& Searchers, bool const Exact, string_view const Needle, const bool CanReverse = true)
+enum class search_case_fold
 {
-	return Exact?
-		static_cast<i_searcher const&>(Searchers.emplace<exact_searcher>(Needle, CanReverse)) :
-		static_cast<i_searcher const&>(Searchers.emplace<fuzzy_searcher>(Needle, CanReverse));
+	exact,
+	icase,
+	fuzzy
+};
+
+inline i_searcher const& init_searcher(searchers& Searchers, search_case_fold const Mode, string_view const Needle, const bool CanReverse = true)
+{
+	switch (Mode)
+	{
+	case search_case_fold::exact: return Searchers.emplace<exact_searcher>(Needle, CanReverse);
+	case search_case_fold::icase: return Searchers.emplace<icase_searcher>(Needle, CanReverse);
+	case search_case_fold::fuzzy: return Searchers.emplace<fuzzy_searcher>(Needle, CanReverse);
+	default: UNREACHABLE;
+	}
 }
 
 #endif // STRING_UTILS_HPP_82ECD8BE_D484_4023_AB42_21D93B2DF8B9

@@ -383,7 +383,8 @@ private:
 	int Pasting{};
 	int XX2{}; //scrollbar
 	string strLastSearchStr;
-	bool LastSearchCase{}, LastSearchWholeWords{}, LastSearchReverse{}, LastSearchRegexp{}, LastSearchPreserveStyle{};
+	search_case_fold LastSearchCaseFold;
+	bool LastSearchWholeWords{}, LastSearchReverse{}, LastSearchRegexp{}, LastSearchPreserveStyle{};
 
 	int EditorID{};
 	int EditorControlLock{};

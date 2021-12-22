@@ -125,7 +125,7 @@ Editor::Editor(window_ptr Owner, uintptr_t Codepage, bool DialogUsed):
 	GlobalEOL(GetDefaultEOL()),
 	m_codepage(Codepage),
 	EdOpt(Global->Opt->EdOpt),
-	LastSearchCase(Global->GlobalSearchCase),
+	LastSearchCaseFold(Global->GlobalSearchCaseFold),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
 	LastSearchReverse(Global->GlobalSearchReverse),
 	LastSearchRegexp(Global->Opt->EdOpt.SearchRegexp),
@@ -218,7 +218,7 @@ void Editor::KeepInitParameters() const
 	{
 		Global->StoreSearchString(strLastSearchStr, false);
 	}
-	Global->GlobalSearchCase=LastSearchCase;
+	Global->GlobalSearchCaseFold = LastSearchCaseFold;
 	Global->GlobalSearchWholeWords=LastSearchWholeWords;
 	Global->GlobalSearchReverse=LastSearchReverse;
 	Global->Opt->EdOpt.SearchRegexp=LastSearchRegexp;
@@ -3300,7 +3300,7 @@ bool Editor::Search(bool Next)
 
 	auto strSearchStr = strLastSearchStr;
 	auto strReplaceStr = strLastReplaceStr;
-	auto Case = LastSearchCase;
+	auto SearchCaseFold = LastSearchCaseFold;
 	auto WholeWords = LastSearchWholeWords;
 	auto ReverseSearch = LastSearchReverse;
 	auto PreserveStyle = LastSearchPreserveStyle;
@@ -3362,7 +3362,7 @@ bool Editor::Search(bool Next)
 			strReplaceStr,
 			{},
 			{},
-			&Case,
+			&SearchCaseFold,
 			&WholeWords,
 			&ReverseSearch,
 			&Regexp,
@@ -3386,7 +3386,7 @@ bool Editor::Search(bool Next)
 
 	strLastSearchStr = strSearchStr;
 	strLastReplaceStr = strReplaceStr;
-	LastSearchCase=Case;
+	LastSearchCaseFold = SearchCaseFold;
 	LastSearchWholeWords=WholeWords;
 	LastSearchReverse=ReverseSearch;
 	LastSearchRegexp=Regexp;
@@ -3446,7 +3446,7 @@ bool Editor::Search(bool Next)
 			QuotedStr = strSlash;
 
 			// Q: что важнее: опция диалога или опция RegExp`а?
-			if (!re.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (Case? 0 : OP_IGNORECASE)))
+			if (!re.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (SearchCaseFold == search_case_fold::exact? 0 : OP_IGNORECASE)))
 			{
 				ReCompileErrorMessage(re, strSlash);
 				return false; //BUGBUG
@@ -3459,7 +3459,7 @@ bool Editor::Search(bool Next)
 		}
 
 		searchers Searchers;
-		const auto& Searcher = init_searcher(Searchers, Case, strLastSearchStr);
+		const auto& Searcher = init_searcher(Searchers, SearchCaseFold, strLastSearchStr);
 
 		const time_check TimeCheck;
 		std::optional<single_progress> Progress;
@@ -3500,7 +3500,7 @@ bool Editor::Search(bool Next)
 				&hm,
 				strReplaceStrCurrent,
 				CurPos,
-				Case,
+				SearchCaseFold,
 				WholeWords,
 				ReverseSearch,
 				Regexp,

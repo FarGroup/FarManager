@@ -120,7 +120,7 @@ int GetSearchReplaceString(
 	string& ReplaceStr,
 	string_view TextHistoryName,
 	string_view ReplaceHistoryName,
-	bool* pCase,
+	enum class search_case_fold* pCaseFold,
 	bool* pWholeWords,
 	bool* pReverse,
 	bool* pRegexp,

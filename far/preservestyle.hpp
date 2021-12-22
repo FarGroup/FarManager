@@ -48,7 +48,7 @@ bool PreserveStyleReplaceString(
 	string_view Str,
 	string& ReplaceStr,
 	int& CurPos,
-	bool Case,
+	enum class search_case_fold CaseFold,
 	bool WholeWords,
 	string_view WordDiv,
 	bool Reverse,

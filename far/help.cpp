@@ -199,7 +199,8 @@ private:
 	bool IsNewTopic{true};
 	bool m_TopicFound{};
 	bool ErrorHelp{true};
-	bool LastSearchCase, LastSearchWholeWords, LastSearchRegexp;
+	search_case_fold LastSearchCaseFold;
+	bool LastSearchWholeWords, LastSearchRegexp;
 };
 
 struct Help::StackHelpData
@@ -223,7 +224,7 @@ Help::Help(private_tag):
 	StackData(std::make_unique<StackHelpData>()),
 	CurColor(colors::PaletteColorToFarColor(COL_HELPTEXT)),
 	CtrlTabSize(Global->Opt->HelpTabSize),
-	LastSearchCase(Global->GlobalSearchCase),
+	LastSearchCaseFold(Global->GlobalSearchCaseFold),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
 	LastSearchRegexp(Global->Opt->HelpSearchRegexp)
 {
@@ -1446,7 +1447,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 			if (!equal_icase(StackData->strHelpTopic, FoundContents))
 			{
 				string strLastSearchStr0=strLastSearchStr;
-				bool Case=LastSearchCase;
+				auto SearchCaseFold = LastSearchCaseFold;
 				bool WholeWords=LastSearchWholeWords;
 				bool Regexp=LastSearchRegexp;
 
@@ -1460,7 +1461,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 					strTempStr,
 					L"HelpSearch"sv,
 					{},
-					&Case,
+					&SearchCaseFold,
 					&WholeWords,
 					{},
 					&Regexp,
@@ -1473,7 +1474,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 					return true;
 
 				strLastSearchStr=strLastSearchStr0;
-				LastSearchCase=Case;
+				LastSearchCaseFold = SearchCaseFold;
 				LastSearchWholeWords=WholeWords;
 				LastSearchRegexp=Regexp;
 
@@ -1982,7 +1983,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 		const auto strSlash = InsertRegexpQuote(strLastSearchStr);
 
 		// Q: что важнее: опция диалога или опция RegExp`а?
-		if (!re.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (LastSearchCase? 0 : OP_IGNORECASE)))
+		if (!re.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (LastSearchCaseFold == search_case_fold::exact? 0 : OP_IGNORECASE)))
 		{
 			ReCompileErrorMessage(re, strSlash);
 			return; //BUGBUG
@@ -1992,7 +1993,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	}
 
 	searchers Searchers;
-	const auto& Searcher = init_searcher(Searchers, LastSearchCase, strLastSearchStr);
+	const auto& Searcher = init_searcher(Searchers, LastSearchCaseFold, strLastSearchStr);
 
 	os::fs::filebuf StreamBuffer(HelpFile, std::ios::in);
 	std::istream Stream(&StreamBuffer);
@@ -2034,7 +2035,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 				m.data(),
 				&hm,
 				CurPos,
-				LastSearchCase,
+				LastSearchCaseFold,
 				LastSearchWholeWords,
 				LastSearchRegexp,
 				false,

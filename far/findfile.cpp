@@ -219,7 +219,7 @@ private:
 
 	// BUGBUG
 	bool AnySetFindList{};
-	bool CmpCase{};
+	search_case_fold SearchCaseFold{};
 	bool WholeWords{};
 	bool SearchInArchives{};
 	bool SearchHex{};
@@ -388,7 +388,7 @@ public:
 		ArcListItem* FindFileArcItem,
 		uintptr_t CodePage,
 		unsigned long long SearchInFirst,
-		bool CmpCase,
+		search_case_fold SearchCaseFold,
 		bool WholeWords,
 		bool SearchInArchives,
 		bool SearchHex,
@@ -439,7 +439,7 @@ private:
 	const uintptr_t CodePage;
 	size_t m_MaxCharSize{};
 	const unsigned long long SearchInFirst;
-	const bool CmpCase;
+	const search_case_fold SearchCaseFold;
 	const bool WholeWords;
 	const bool SearchInArchives;
 	const bool SearchHex;
@@ -508,7 +508,7 @@ void background_searcher::InitInFileSearch()
 
 	if (!SearchHex)
 	{
-		m_TextSearcher = &init_searcher(m_TextSearchers, CmpCase, strFindStr, false);
+		m_TextSearcher = &init_searcher(m_TextSearchers, SearchCaseFold, strFindStr, false);
 
 		// Формируем список кодовых страниц
 		if (CodePage == CP_ALL)
@@ -2766,7 +2766,7 @@ bool FindFiles::FindFilesProcess()
 	m_ResultsDialogPtr = Dlg.get();
 
 		{
-			background_searcher BC(this, strFindStr, SearchMode, FindFileArcItem, CodePage, ConvertFileSizeString(Global->Opt->FindOpt.strSearchInFirstSize), CmpCase, WholeWords, SearchInArchives, SearchHex, NotContaining, UseFilter, PluginMode);
+			background_searcher BC(this, strFindStr, SearchMode, FindFileArcItem, CodePage, ConvertFileSizeString(Global->Opt->FindOpt.strSearchInFirstSize), SearchCaseFold, WholeWords, SearchInArchives, SearchHex, NotContaining, UseFilter, PluginMode);
 
 			// BUGBUG
 			m_Searcher = &BC;
@@ -3025,9 +3025,10 @@ FindFiles::FindFiles():
 	static string strSearchFromRoot;
 	strSearchFromRoot = msg(lng::MSearchFromRootFolder);
 
-	static bool LastCmpCase = false, LastWholeWords = false, LastSearchInArchives = false, LastSearchHex = false, LastNotContaining = false;
+	static auto LastSearchCaseFold = search_case_fold::icase;
+	static bool LastWholeWords = false, LastSearchInArchives = false, LastSearchHex = false, LastNotContaining = false;
 
-	CmpCase=LastCmpCase;
+	SearchCaseFold = LastSearchCaseFold;
 	WholeWords=LastWholeWords;
 	SearchInArchives=LastSearchInArchives;
 	SearchHex=LastSearchHex;
@@ -3062,7 +3063,7 @@ FindFiles::FindFiles():
 			{ DI_TEXT,        {{5,  7 }, {0,  7 }}, DIF_NONE, },
 			{ DI_COMBOBOX,    {{5,  8 }, {74, 8 }}, DIF_DROPDOWNLIST, },
 			{ DI_TEXT,        {{-1, 9 }, {0,  9 }}, DIF_SEPARATOR, },
-			{ DI_CHECKBOX,    {{5,  10}, {0,  10}}, DIF_NONE, msg(lng::MFindFileCase), },
+			{ DI_CHECKBOX,    {{5,  10}, {0,  10}}, DIF_3STATE, msg(lng::MFindFileCase), },
 			{ DI_CHECKBOX,    {{5,  11}, {0,  11}}, DIF_NONE, msg(lng::MFindFileWholeWords), },
 			{ DI_CHECKBOX,    {{5,  12}, {0,  12}}, DIF_NONE, msg(lng::MSearchForHex), },
 			{ DI_CHECKBOX,    {{5,  13}, {0,  13}}, DIF_NONE, msg(lng::MSearchNotContaining), },
@@ -3148,7 +3149,10 @@ FindFiles::FindFiles():
 		else
 			FindAskDlg[FAD_EDIT_TEXT].strData = strFindStr;
 
-		FindAskDlg[FAD_CHECKBOX_CASE].Selected=CmpCase;
+		FindAskDlg[FAD_CHECKBOX_CASE].Selected =
+			SearchCaseFold == search_case_fold::exact? BSTATE_CHECKED :
+			SearchCaseFold == search_case_fold::icase? BSTATE_UNCHECKED :
+			BSTATE_3STATE;
 		FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected=WholeWords;
 		FindAskDlg[FAD_CHECKBOX_HEX].Selected=SearchHex;
 		const auto Dlg = Dialog::create(FindAskDlg, &FindFiles::MainDlgProc, this);
@@ -3167,7 +3171,11 @@ FindFiles::FindFiles():
 		}
 
 		Global->Opt->FindCodePage = CodePage;
-		CmpCase=FindAskDlg[FAD_CHECKBOX_CASE].Selected == BSTATE_CHECKED;
+		SearchCaseFold =
+			FindAskDlg[FAD_CHECKBOX_CASE].Selected == BSTATE_CHECKED? search_case_fold::exact :
+			FindAskDlg[FAD_CHECKBOX_CASE].Selected == BSTATE_UNCHECKED? search_case_fold::icase :
+			search_case_fold::fuzzy;
+
 		WholeWords=FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected == BSTATE_CHECKED;
 		SearchHex=FindAskDlg[FAD_CHECKBOX_HEX].Selected == BSTATE_CHECKED;
 		SearchInArchives=FindAskDlg[FAD_CHECKBOX_ARC].Selected == BSTATE_CHECKED;
@@ -3198,7 +3206,7 @@ FindFiles::FindFiles():
 		if (!strFindStr.empty())
 		{
 			Global->StoreSearchString(strFindStr, SearchHex);
-			Global->GlobalSearchCase=CmpCase;
+			Global->GlobalSearchCaseFold = SearchCaseFold;
 			Global->GlobalSearchWholeWords=WholeWords;
 		}
 
@@ -3209,7 +3217,7 @@ FindFiles::FindFiles():
 			Global->Opt->FindOpt.FileSearchMode=SearchMode;
 		}
 
-		LastCmpCase=CmpCase;
+		LastSearchCaseFold = SearchCaseFold;
 		LastWholeWords=WholeWords;
 		LastSearchHex=SearchHex;
 		LastSearchInArchives=SearchInArchives;
@@ -3238,7 +3246,7 @@ background_searcher::background_searcher(
 	ArcListItem* FindFileArcItem,
 	uintptr_t CodePage,
 	unsigned long long SearchInFirst,
-	bool CmpCase,
+	search_case_fold SearchCaseFold,
 	bool WholeWords,
 	bool SearchInArchives,
 	bool SearchHex,
@@ -3253,7 +3261,7 @@ background_searcher::background_searcher(
 	m_FindFileArcItem(FindFileArcItem),
 	CodePage(CodePage),
 	SearchInFirst(SearchInFirst),
-	CmpCase(CmpCase),
+	SearchCaseFold(SearchCaseFold),
 	WholeWords(WholeWords),
 	SearchInArchives(SearchInArchives),
 	SearchHex(SearchHex),

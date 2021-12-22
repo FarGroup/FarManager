@@ -842,7 +842,7 @@ bool SearchString(
 	RegExpMatch* const pm,
 	MatchHash* const hm,
 	int& CurPos,
-	bool const Case,
+	search_case_fold const CaseFold,
 	bool const WholeWords,
 	bool const Reverse,
 	bool const Regexp,
@@ -859,7 +859,7 @@ bool SearchString(
 		hm,
 		Dummy,
 		CurPos,
-		Case,
+		CaseFold,
 		WholeWords,
 		Reverse,
 		Regexp,
@@ -878,7 +878,7 @@ bool SearchAndReplaceString(
 	MatchHash* const hm,
 	string& ReplaceStr,
 	int& CurPos,
-	bool const Case,
+	search_case_fold const CaseFold,
 	bool const WholeWords,
 	bool const Reverse,
 	bool const Regexp,
@@ -891,7 +891,7 @@ bool SearchAndReplaceString(
 	if (WordDiv.empty())
 		WordDiv = Global->Opt->strWordDiv;
 
-	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Haystack, Needle, ReplaceStr, CurPos, Case, WholeWords, WordDiv, Reverse, *SearchLength))
+	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Haystack, Needle, ReplaceStr, CurPos, CaseFold, WholeWords, WordDiv, Reverse, *SearchLength))
 		return true;
 
 	if (Needle.empty())

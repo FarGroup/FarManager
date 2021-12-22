@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+drkns 22.12.2021 02:14:35 +0000 - build 5942
+
+1. Continue 5890: fuzzy search is now optional.
+   It can be activated with the third state of the "Case sensitive" option in dialogs.
+
+--------------------------------------------------------------------------------
 drkns 22.12.2021 00:17:17 +0000 - build 5941
 
 1. Refactoring.

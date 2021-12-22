@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 enum class lng;
+enum class search_case_fold;
 
 class global
 {
@@ -72,7 +73,7 @@ public:
 	string g_strFarINI;
 	string g_strFarPath;
 	string strInitTitle;
-	bool GlobalSearchCase{};
+	search_case_fold GlobalSearchCaseFold;
 	bool GlobalSearchWholeWords{}; // значение "Whole words" для поиска
 	bool GlobalSearchReverse{};
 	std::atomic_size_t SuppressClock{};

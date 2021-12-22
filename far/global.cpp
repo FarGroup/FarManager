@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 global::global() :
 	g_strFarModuleName(os::fs::get_current_process_file_name()),
+	GlobalSearchCaseFold(search_case_fold::icase),
 	ErrorMode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX),
 	m_MainThreadId(GetCurrentThreadId()),
 	m_MainThreadHandle(os::OpenCurrentThread()),
