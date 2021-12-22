@@ -2512,14 +2512,14 @@ static auto pluginscache_db_name()
 
 config_provider::config_provider(mode Mode):
 	m_Mode(Mode),
-	m_GeneralCfg(CreateDatabase<GeneralConfigDb>(L"generalconfig.db"sv, false)),
-	m_LocalGeneralCfg(CreateDatabase<LocalGeneralConfigDb>(L"localconfig.db"sv, true)),
-	m_ColorsCfg(CreateDatabase<ColorsConfigDb>(L"colors.db"sv, false)),
-	m_AssocConfig(CreateDatabase<AssociationsConfigDb>(L"associations.db"sv, false)),
-	m_PlCacheCfg(CreateDatabase<PluginsCacheConfigDb>(pluginscache_db_name(), true)),
-	m_PlHotkeyCfg(CreateDatabase<PluginsHotkeysConfigDb>(L"pluginhotkeys.db"sv, false)),
-	m_HistoryCfg(CreateDatabase<HistoryConfigDb>(L"history.db"sv, true)),
-	m_HistoryCfgMem(CreateDatabase<HistoryConfigMemory>(SQLiteDb::memory_db_name, true))
+	m_GeneralCfg([this]{ return CreateDatabase<GeneralConfigDb>(L"generalconfig.db"sv, false); }),
+	m_LocalGeneralCfg([this]{ return CreateDatabase<LocalGeneralConfigDb>(L"localconfig.db"sv, true); }),
+	m_ColorsCfg([this]{ return CreateDatabase<ColorsConfigDb>(L"colors.db"sv, false); }),
+	m_AssocConfig([this]{ return CreateDatabase<AssociationsConfigDb>(L"associations.db"sv, false); }),
+	m_PlCacheCfg([this]{ return CreateDatabase<PluginsCacheConfigDb>(pluginscache_db_name(), true); }),
+	m_PlHotkeyCfg([this]{ return CreateDatabase<PluginsHotkeysConfigDb>(L"pluginhotkeys.db"sv, false); }),
+	m_HistoryCfg([this]{ return CreateDatabase<HistoryConfigDb>(L"history.db"sv, true); }),
+	m_HistoryCfgMem([this]{ return CreateDatabase<HistoryConfigMemory>(SQLiteDb::memory_db_name, true); })
 {
 }
 

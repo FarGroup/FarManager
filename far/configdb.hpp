@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/bytes_view.hpp"
 #include "common/enumerator.hpp"
+#include "common/lazy.hpp"
 #include "common/noncopyable.hpp"
 #include "common/string_utils.hpp"
 
@@ -514,21 +515,21 @@ public:
 	void AsyncCall(async_key, const std::function<void()>& Routine);
 
 	[[nodiscard]]
-	const auto& GeneralCfg() const { return m_GeneralCfg; }
+	const auto& GeneralCfg() const { return *m_GeneralCfg; }
 	[[nodiscard]]
-	const auto& LocalGeneralCfg() const { return m_LocalGeneralCfg; }
+	const auto& LocalGeneralCfg() const { return *m_LocalGeneralCfg; }
 	[[nodiscard]]
-	const auto& ColorsCfg() const { return m_ColorsCfg; }
+	const auto& ColorsCfg() const { return *m_ColorsCfg; }
 	[[nodiscard]]
-	const auto& AssocConfig() const { return m_AssocConfig; }
+	const auto& AssocConfig() const { return *m_AssocConfig; }
 	[[nodiscard]]
-	const auto& PlCacheCfg() const { return m_PlCacheCfg; }
+	const auto& PlCacheCfg() const { return *m_PlCacheCfg; }
 	[[nodiscard]]
-	const auto& PlHotkeyCfg() const { return m_PlHotkeyCfg; }
+	const auto& PlHotkeyCfg() const { return *m_PlHotkeyCfg; }
 	[[nodiscard]]
-	const auto& HistoryCfg() const { return m_HistoryCfg; }
+	const auto& HistoryCfg() const { return *m_HistoryCfg; }
 	[[nodiscard]]
-	const auto& HistoryCfgMem() const { return m_HistoryCfgMem; }
+	const auto& HistoryCfgMem() const { return *m_HistoryCfgMem; }
 
 	HierarchicalConfigUniquePtr CreatePluginsConfig(string_view Uuid, bool Local = false, bool UseFallback = true);
 	HierarchicalConfigUniquePtr CreateFiltersConfig();
@@ -570,14 +571,17 @@ private:
 	std::unique_ptr<representation_source> m_TemplateSource;
 	mode m_Mode{ mode::m_default };
 
-	std::unique_ptr<GeneralConfig> m_GeneralCfg;
-	std::unique_ptr<GeneralConfig> m_LocalGeneralCfg;
-	std::unique_ptr<ColorsConfig> m_ColorsCfg;
-	std::unique_ptr<AssociationsConfig> m_AssocConfig;
-	std::unique_ptr<PluginsCacheConfig> m_PlCacheCfg;
-	std::unique_ptr<PluginsHotkeysConfig> m_PlHotkeyCfg;
-	std::unique_ptr<HistoryConfig> m_HistoryCfg;
-	std::unique_ptr<HistoryConfig> m_HistoryCfgMem;
+	template<typename T>
+	using lazy_ptr = lazy<std::unique_ptr<T>>;
+
+	lazy_ptr<GeneralConfig> m_GeneralCfg{ nullptr };
+	lazy_ptr<GeneralConfig> m_LocalGeneralCfg{ nullptr };
+	lazy_ptr<ColorsConfig> m_ColorsCfg{ nullptr };
+	lazy_ptr<AssociationsConfig> m_AssocConfig{ nullptr };
+	lazy_ptr<PluginsCacheConfig> m_PlCacheCfg{ nullptr };
+	lazy_ptr<PluginsHotkeysConfig> m_PlHotkeyCfg{ nullptr };
+	lazy_ptr<HistoryConfig> m_HistoryCfg{ nullptr };
+	lazy_ptr<HistoryConfig> m_HistoryCfgMem{ nullptr };
 
 	BitFlags m_CheckedDb;
 };
