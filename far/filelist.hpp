@@ -145,7 +145,6 @@ public:
 	void UpdateIfChanged(bool Changed = false) override;
 	void UpdateIfRequired() override;
 	bool SendKeyToPlugin(DWORD Key, bool Pred = false) override;
-	void StartFSWatcher() override;
 	void StopFSWatcher() override;
 	void SortFileList(bool KeepPosition) override;
 	void SetViewMode(int Mode) override;
@@ -366,7 +365,7 @@ private:
 	struct PluginsListItem;
 	std::list<std::shared_ptr<PluginsListItem>> PluginsList;
 	std::shared_ptr<PluginsListItem> m_ExpiringPluginPanel{};
-	FileSystemWatcher FSWatcher;
+	std::optional<FileSystemWatcher> FSWatcher;
 	bool m_UpdatePending{};
 	long UpperFolderTopFile{}, LastCurFile{ -1 };
 	bool ReturnCurrentFile{};

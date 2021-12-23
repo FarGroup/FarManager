@@ -7006,19 +7006,13 @@ void FileList::InitFSWatcher(bool CheckTree)
 
 	if (Global->Opt->AutoUpdateRemoteDrive || (!Global->Opt->AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE) || Type == root_type::volume)
 	{
-		FSWatcher.Set(m_BackgroundUpdater->event_id(), m_CurDir, CheckTree);
-		StartFSWatcher();
+		FSWatcher.emplace(m_BackgroundUpdater->event_id(), m_CurDir, CheckTree);
 	}
-}
-
-void FileList::StartFSWatcher()
-{
-	FSWatcher.Watch();
 }
 
 void FileList::StopFSWatcher()
 {
-	FSWatcher.Release();
+	FSWatcher.reset();
 }
 
 struct hash_less

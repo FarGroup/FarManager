@@ -183,7 +183,6 @@ public:
 	virtual void Update(int Mode) = 0;
 	virtual void UpdateIfChanged(bool Changed = false) {}
 	virtual void UpdateIfRequired() {}
-	virtual void StartFSWatcher() {}
 	virtual void StopFSWatcher() {}
 	virtual bool FindPartName(string_view Name,int Next,int Direct=1) {return false;}
 	virtual bool GetPlainString(string& Dest, int ListPos) const { return false; }
