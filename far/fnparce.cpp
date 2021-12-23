@@ -207,52 +207,52 @@ struct subst_strings
 
 struct brackets
 {
-	int BracketsCount;
-	bool Bracket;
-	const wchar_t* BeginBracket;
-	const wchar_t* EndBracket;
+	const wchar_t* BeginBracket{};
+	const wchar_t* EndBracket{};
 
 	string_view str() const
 	{
-		if (!Bracket)
+		if (!BeginBracket || !EndBracket)
 			return {};
 
 		return { BeginBracket + 1, static_cast<size_t>(EndBracket - BeginBracket - 1) };
 	}
 };
 
-static int ProcessBrackets(string_view const Str, wchar_t const EndMark, brackets& Brackets)
+static size_t ProcessBrackets(string_view const Str, wchar_t const EndMark, brackets& Brackets)
 {
+	int BracketsCount = 0;
+
 	for (auto Iterator = Str.begin(); Iterator != Str.end(); ++Iterator)
 	{
-		if (*Iterator == L'(')
+		if (!Brackets.EndBracket)
 		{
-			if (!Brackets.Bracket)
+			if (*Iterator == L'(')
 			{
-				Brackets.Bracket = true;
-				Brackets.BeginBracket = &*Iterator;
+				if (!Brackets.BeginBracket)
+					Brackets.BeginBracket = &*Iterator;
+
+				++BracketsCount;
+				continue;
 			}
 
-			++Brackets.BracketsCount;
-		}
-		else if (*Iterator == L')')
-		{
-			if (!Brackets.BracketsCount)
-				return 0;
-
-			--Brackets.BracketsCount;
-
-			if (!Brackets.BracketsCount)
+			if (*Iterator == L')')
 			{
-				if (!Brackets.EndBracket)
-					Brackets.EndBracket = &*Iterator;
+				if (!BracketsCount)
+					continue;
+
+				--BracketsCount;
+
+				if (BracketsCount)
+					continue;
+
+				Brackets.EndBracket = &*Iterator;
+				continue;
 			}
 		}
-		else if (*Iterator == EndMark && !!Brackets.BeginBracket == !!Brackets.EndBracket)
-		{
-			if (Brackets.BracketsCount)
-				return 0;
 
+		if (!BracketsCount && *Iterator == EndMark)
+		{
 			return Iterator - Str.begin() + 1;
 		}
 	}
@@ -963,3 +963,45 @@ bool SubstFileName(
 
 	return Result;
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("ProcessBrackets")
+{
+	static const struct
+	{
+		string_view Src;
+		size_t ExpectedSize;
+		std::pair<intptr_t, intptr_t> ExpectedBracketPositions;
+	}
+	Tests[]
+	{
+		{ {},                       0, { -1, -1 } },
+		{ L"!"sv,                   1, { -1, -1 } },
+		{ L"Meow!"sv,               5, { -1, -1 } },
+		{ L"()!"sv,                 3, {  0,  1 } },
+		{ L"()()!"sv,               5, {  0,  1 } },
+		{ L"(())!"sv,               5, {  0,  3 } },
+		{ L"((boo))!"sv,            8, {  0,  6 } },
+		{ L"((!.!))!"sv,            8, {  0,  6 } },
+		{ L"(!.!)(text)!"sv,       12, {  0,  4 } },
+		{ L"(text)(!.!)!"sv,        8, {  0,  5 } },
+	};
+
+	for (const auto& i: Tests)
+	{
+		brackets Brackets;
+		const auto Size = ProcessBrackets(i.Src, L'!', Brackets);
+		const std::pair BracketPositions
+		{
+			Brackets.BeginBracket? Brackets.BeginBracket - i.Src.data() : -1,
+			Brackets.EndBracket? Brackets.EndBracket - i.Src.data() : -1,
+		};
+
+		REQUIRE(i.ExpectedSize == Size);
+		REQUIRE(i.ExpectedBracketPositions == BracketPositions);
+	}
+}
+#endif
