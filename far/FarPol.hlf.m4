@@ -466,46 +466,47 @@ $ #Tryby sortowania#
  Użyj sortowania grup                                     #Shift+F11#
  Pokaż najpierw zaznaczone pliki                          #Shift+F12#
 
- You can ~fine-tune~@PanelSortCriteria@ sort modes by pressing #F4#.
+ Można także ~dostroić~@PanelSortCriteria@ tryby sortowania wciskając klawisz #F4#.
 
  Zobacz także: ogólne polecenia ~menu~@MenuCmd@.
 
 
 @PanelSortCriteria
-$ #Sort criteria#
- When files are considered equivalent using the selected sort mode, additional sort criteria are taken into account.
- For example, if files are sorted by size and both "a.txt" and "b.txt" have the same size, "a.txt" will come first, as if they were sorted by name.
- In this menu you can adjust the set of criteria associated with the selected sort mode.
+$ #Kryteria softowania#
+ Kiedy pliki są traktowane równoważnie używając wybranego trybu sortowania, pod uwagę brane są dodatkowe ktyteria sortowania.
+ Na przykład, jeżeli pliki są sortowane wg wielkości i zarówno "a.txt" i "b.txt" mają tę samą wielkość, "a.txt"
+ będzie wyświetlane pierwszy, tak jakby były posortowane według nazw.
+	W tym menu można dostosować zestawy kryteriów związanych z wybranym trybem sortowania.
 
  #Ins#
- Add a criterion to the set
+ Dodaj kryterium do zestawu.
 
  #Del#
- Remove the selected criterion
+ Usuń zaznaczone kryterium.
 
  #F4#
- Replace the selected criterion
+ Edytuj/zastąp wybrane kryterium.
 
  #+#
- Use ascending order
+ Użyj kolejności rosnąco.
 
  #-#
- Use descending order
+ Użyj kolejności malejąco.
 
  #*#
- Change the order
+ Zmiana kolejności.
 
  #=#
- Inherit the order from the corresponding sort mode.
+ Przejmij kolejność z odpowiedniego trybu sortowania.
 
- #Ctrl+Up#
- Move the criterion up.
+ #Ctrl+Góra#
+ Przenieś kryterium wyżej.
 
- #Ctrl+Down#
- Move the criterion down.
+ #Ctrl+Dół#
+ Przenieś kryterium niżej.
 
  #Ctrl+R#
- Reset the set of criteria to detault.
+ Przywrócenie domyślnych kryteriów.
 
 
 @FastFind
