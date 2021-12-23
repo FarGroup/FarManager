@@ -2382,4 +2382,3 @@ TEST_CASE("flatten_string")
 	}
 }
 #endif
-
