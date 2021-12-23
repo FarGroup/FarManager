@@ -183,7 +183,7 @@ namespace tokens
 
 struct subst_strings
 {
-	struct
+	struct item
 	{
 		string_view
 			All,
@@ -663,6 +663,18 @@ static string ProcessMetasymbols(string_view Str, subst_data& Data)
 	return Result;
 }
 
+static string process_subexpression(const subst_strings::item& Item, subst_data& SubstData)
+{
+	if (Item.Sub.empty())
+		return string(Item.All);
+
+	// Something between '(' and ')'
+	const auto Processed = ProcessMetasymbols(Item.Sub, SubstData);
+	return Processed == Item.Sub?
+		string(Item.All) :
+		concat(Item.prefix(), Processed, Item.suffix());
+};
+
 static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_view const DlgTitle)
 {
 	// TODO: use DialogBuilder
@@ -758,15 +770,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 
 			auto& LatelItem = DlgData[DlgData.size() - 2];
 
-			if (!Strings.Title.Sub.empty())
-			{
-				// Something between '(' and ')'
-				LatelItem.strData = os::env::expand(concat(Strings.Title.prefix(), ProcessMetasymbols(Strings.Title.Sub, SubstData), Strings.Title.suffix()));
-			}
-			else
-			{
-				LatelItem.strData = os::env::expand(Strings.Title.All);
-			}
+			LatelItem.strData = os::env::expand(process_subexpression(Strings.Title, SubstData));
 
 			inplace::truncate_right(LatelItem.strData, LatelItem.X2 - LatelItem.X1 + 1);
 		}
@@ -774,15 +778,7 @@ static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_v
 		if (!Strings.Text.All.empty())
 		{
 			// Something between '?' and '!'
-			if (!Strings.Text.Sub.empty())
-			{
-				// Something between '(' and ')'
-				DlgData.back().strData = concat(Strings.Text.prefix(), ProcessMetasymbols(Strings.Text.Sub, SubstData), Strings.Text.suffix());
-			}
-			else
-			{
-				DlgData.back().strData = Strings.Text.All;
-			}
+			DlgData.back().strData = process_subexpression(Strings.Text, SubstData);
 		}
 
 		Range.remove_prefix(SkipSize);

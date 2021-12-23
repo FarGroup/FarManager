@@ -475,22 +475,22 @@ $ #Sort criteria#
  In this menu you can adjust the set of criteria associated with the selected sort mode.
 
  #Ins#
- Add a criterion to the set
+ Add a criterion to the set.
 
  #Del#
- Remove the selected criterion
+ Remove the selected criterion.
 
  #F4#
- Replace the selected criterion
+ Replace the selected criterion.
 
  #+#
- Use ascending order
+ Use ascending order.
 
  #-#
- Use descending order
+ Use descending order.
 
  #*#
- Change the order
+ Change the order.
 
  #=#
  Inherit the order from the corresponding sort mode.

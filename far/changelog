@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 23.12.2021 17:28:03 +0000 - build 5945
+
+1. gh-502: Removal of Parenthesis from a User Variable Initial Value in F2 User Command.
+
+2. Minor refactoring & tests.
+
+--------------------------------------------------------------------------------
 drkns 23.12.2021 02:14:27 +0000 - build 5944
 
 1. FS monitoring rework (again).
