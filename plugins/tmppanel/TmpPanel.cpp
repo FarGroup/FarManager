@@ -111,10 +111,6 @@ static HANDLE OpenPanelFromOutput(wchar_t *argv)
 		else
 		{
 			hPlugin=new TmpPanel();
-
-			if (!hPlugin)
-				return nullptr;
-
 			ProcessList(hPlugin, tempfilename, Opt.Mode);
 		}
 	}
@@ -291,7 +287,7 @@ static void ProcessList(HANDLE hPlugin, wchar_t *Name, int Mode)
 
 	TmpPanel *Panel=(TmpPanel*)hPlugin;
 	int argc;
-	wchar_t **argv;
+	wchar_t** argv{};
 	ReadFileList(Name, &argc, &argv);
 	HANDLE hScreen = Panel->BeginPutFiles();
 
@@ -300,8 +296,7 @@ static void ProcessList(HANDLE hPlugin, wchar_t *Name, int Mode)
 
 	Panel->CommitPutFiles(hScreen, TRUE);
 
-	if (argv)
-		free(argv);
+	free(argv);
 }
 
 
@@ -322,8 +317,8 @@ static void ShowMenuFromList(wchar_t *Name)
 			ExpandEnvStrs(argv[i],TMP);
 			param=ParseParam(p);
 			FSF.TruncStr(param?param:p,67);
-			fmi[i].Flags = !lstrcmp(param,L"-")?MIF_SEPARATOR:0;
-			fmi[i].Text = wcsdup(param?fmi[i].Flags & MIF_SEPARATOR?L"":param:p);
+			fmi[i].Flags = param && !lstrcmp(param,L"-")? MIF_SEPARATOR : 0;
+			fmi[i].Text = wcsdup(fmi[i].Flags & MIF_SEPARATOR?L"":param?param:p);
 		}
 
 //    fmi[0].Selected=TRUE;
@@ -375,8 +370,7 @@ static void ShowMenuFromList(wchar_t *Name)
 		}
 	}
 
-	if (argv)
-		free(argv);
+	free(argv);
 }
 
 
@@ -489,10 +483,6 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 					else
 					{
 						hPlugin=new TmpPanel(TmpOut);
-
-						if (!hPlugin)
-							return nullptr;
-
 						ProcessList(hPlugin, TmpOut, Opt.Mode);
 					}
 				}
@@ -517,10 +507,6 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 			if (!Opt.MenuForFilelist)
 			{
 				HANDLE Plugin=new TmpPanel(pName);
-
-				if (!Plugin)
-					return nullptr;
-
 				ProcessList(Plugin, pName, Opt.Mode);
 				return Plugin;
 			}
@@ -534,12 +520,7 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 	}
 
 	if (hPlugin==nullptr)
-	{
 		hPlugin=new TmpPanel();
-
-		if (!hPlugin)
-			return nullptr;
-	}
 
 	return hPlugin;
 }

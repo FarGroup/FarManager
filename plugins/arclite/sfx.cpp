@@ -152,27 +152,27 @@ private:
   SfxOptions& m_options;
   SfxProfiles profiles;
 
-  int profile_ctrl_id;
-  int module_ctrl_id;
-  int replace_icon_ctrl_id;
-  int icon_path_ctrl_id;
-  int replace_version_ctrl_id;
-  int ver_info_version_ctrl_id;
-  int ver_info_comments_ctrl_id;
-  int ver_info_company_name_ctrl_id;
-  int ver_info_file_description_ctrl_id;
-  int ver_info_legal_copyright_ctrl_id;
-  int ver_info_product_name_ctrl_id;
-  int append_install_config_ctrl_id;
-  int install_config_title_ctrl_id;
-  int install_config_begin_prompt_ctrl_id;
-  int install_config_progress_ctrl_id;
-  int install_config_run_program_ctrl_id;
-  int install_config_directory_ctrl_id;
-  int install_config_execute_file_ctrl_id;
-  int install_config_execute_parameters_ctrl_id;
-  int ok_ctrl_id;
-  int cancel_ctrl_id;
+  int profile_ctrl_id{};
+  int module_ctrl_id{};
+  int replace_icon_ctrl_id{};
+  int icon_path_ctrl_id{};
+  int replace_version_ctrl_id{};
+  int ver_info_version_ctrl_id{};
+  int ver_info_comments_ctrl_id{};
+  int ver_info_company_name_ctrl_id{};
+  int ver_info_file_description_ctrl_id{};
+  int ver_info_legal_copyright_ctrl_id{};
+  int ver_info_product_name_ctrl_id{};
+  int append_install_config_ctrl_id{};
+  int install_config_title_ctrl_id{};
+  int install_config_begin_prompt_ctrl_id{};
+  int install_config_progress_ctrl_id{};
+  int install_config_run_program_ctrl_id{};
+  int install_config_directory_ctrl_id{};
+  int install_config_execute_file_ctrl_id{};
+  int install_config_execute_parameters_ctrl_id{};
+  int ok_ctrl_id{};
+  int cancel_ctrl_id{};
 
   void set_control_state() {
     DisableEvents de(*this);
@@ -387,12 +387,12 @@ public:
     size_t label_len = 0;
     std::vector<std::wstring> labels;
     labels.reserve(7);
-    labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_PRODUCT_NAME));
-    labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_VERSION));
-    labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_COMPANY_NAME));
-    labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_FILE_DESCRIPTION));
-    labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_COMMENTS));
-    labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_LEGAL_COPYRIGHT));
+    labels.emplace_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_PRODUCT_NAME));
+    labels.emplace_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_VERSION));
+    labels.emplace_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_COMPANY_NAME));
+    labels.emplace_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_FILE_DESCRIPTION));
+    labels.emplace_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_COMMENTS));
+    labels.emplace_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_LEGAL_COPYRIGHT));
     for (unsigned i = 0; i < labels.size(); i++)
       if (label_len < labels[i].size())
         label_len = labels[i].size();
@@ -433,13 +433,13 @@ public:
 
     label_len = 0;
     labels.clear();
-    labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_INSTALL_CONFIG_TITLE));
-    labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_INSTALL_CONFIG_BEGIN_PROMPT));
-    labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_INSTALL_CONFIG_PROGRESS));
-    labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_INSTALL_CONFIG_RUN_PROGRAM));
-    labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_INSTALL_CONFIG_DIRECTORY));
-    labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_INSTALL_CONFIG_EXECUTE_FILE));
-    labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_INSTALL_CONFIG_EXECUTE_PARAMETERS));
+    labels.emplace_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_INSTALL_CONFIG_TITLE));
+    labels.emplace_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_INSTALL_CONFIG_BEGIN_PROMPT));
+    labels.emplace_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_INSTALL_CONFIG_PROGRESS));
+    labels.emplace_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_INSTALL_CONFIG_RUN_PROGRAM));
+    labels.emplace_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_INSTALL_CONFIG_DIRECTORY));
+    labels.emplace_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_INSTALL_CONFIG_EXECUTE_FILE));
+    labels.emplace_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_INSTALL_CONFIG_EXECUTE_PARAMETERS));
     for (unsigned i = 0; i < labels.size(); i++)
       if (label_len < labels[i].size())
         label_len = labels[i].size();

@@ -159,8 +159,6 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 			lua_pop(L,2);
 			return (HANDLE)1;
 		}
-
-		lua_pop(L,2);
 	}
 
 	return NULL;

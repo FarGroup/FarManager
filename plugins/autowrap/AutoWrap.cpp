@@ -116,20 +116,14 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 		if(FileNameSize)
 		{
 			FileName=new wchar_t[FileNameSize];
-
-			if(FileName)
-			{
-				PsInfo.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName);
-			}
+			PsInfo.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName);
 		}
 
 		if(Pass==1 && *Opt.FileMasks)
 		{
 			if(ei.CurLine!=startei.CurLine)
 			{
-				if(FileName)
-					delete[] FileName;
-
+				delete[] FileName;
 				return TRUE;
 			}
 
@@ -148,9 +142,7 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 
 			if(!Found)
 			{
-				if(FileName)
-					delete[] FileName;
-
+				delete[] FileName;
 				return TRUE;
 			}
 
@@ -167,15 +159,12 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 
 			if(!Found)
 			{
-				if(FileName)
-					delete[] FileName;
-
+				delete[] FileName;
 				return TRUE;
 			}
 		}
 
-		if(FileName)
-			delete[] FileName;
+		delete[] FileName;
 
 		EditorGetString egs= {sizeof(EditorGetString)};
 		egs.StringNumber=ei.CurLine;

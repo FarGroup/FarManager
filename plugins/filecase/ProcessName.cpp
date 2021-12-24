@@ -7,9 +7,6 @@
 void ProcessName(const wchar_t *OldFullName, DWORD FileAttributes)
 {
 	wchar_t *NewFullName=new wchar_t[lstrlen(OldFullName)+8];
-	if (!NewFullName)
-		return;
-
 	lstrcpy(NewFullName, OldFullName);
 
 	wchar_t *ExtPtr;
@@ -25,11 +22,6 @@ void ProcessName(const wchar_t *OldFullName, DWORD FileAttributes)
 	//Name
 	ExtPtr=const_cast<wchar_t*>(FSF.PointToName(OldFullName));
 	wchar_t *NewName=new wchar_t[lstrlen(ExtPtr)+1];
-	if (!NewName)
-	{
-		delete[] NewFullName;
-		return;
-	}
 	lstrcpy(NewName,ExtPtr);
 
 	//Ext
@@ -41,12 +33,6 @@ void ProcessName(const wchar_t *OldFullName, DWORD FileAttributes)
 	{
 		ExtPtr[0] = 0; //delete extension from name
 		NewExt=new wchar_t[lstrlen(ExtPtr+1)+1];
-		if (!NewExt)
-		{
-			delete[] NewName;
-			delete[] NewFullName;
-			return;
-		}
 		lstrcpy(NewExt,ExtPtr+1);
 	}
 	else

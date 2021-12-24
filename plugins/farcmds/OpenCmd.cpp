@@ -150,41 +150,35 @@ static bool validForView(const wchar_t *FileName, bool viewEmpty, bool editNew)
 	wchar_t *ptrFileName=new wchar_t[lstrlen(FileName)+1];
 	wchar_t *ptrCurDir=nullptr;
 
-	if (ptrFileName)
+	lstrcpy(ptrFileName,FileName);
+
+	if (*ptrFileName && FSF.PointToName(ptrFileName) == ptrFileName)
 	{
-		lstrcpy(ptrFileName,FileName);
+		int dirSize=(int)PsInfo.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,{});
 
-		if (*ptrFileName && FSF.PointToName(ptrFileName) == ptrFileName)
+		if (dirSize)
 		{
-			int dirSize=(int)PsInfo.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,{});
+			const auto dirInfo=reinterpret_cast<FarPanelDirectory*>(new char[dirSize]);
 
-			if (dirSize)
-			{
-			    const auto dirInfo=reinterpret_cast<FarPanelDirectory*>(new char[dirSize]);
-			    if (dirInfo)
-			    {
-				    dirInfo->StructSize = sizeof(FarPanelDirectory);
-					PsInfo.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
+			dirInfo->StructSize = sizeof(FarPanelDirectory);
+			PsInfo.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
 
-					int Size=lstrlen(dirInfo->Name)+1;
-					ptrCurDir=new wchar_t[Size+lstrlen(FileName)+8];
-					if (ptrCurDir)
-					{
-						lstrcpy(ptrCurDir,dirInfo->Name);
-						lstrcat(ptrCurDir,L"\\");
-						lstrcat(ptrCurDir,ptrFileName);
+			int Size=lstrlen(dirInfo->Name)+1;
+			ptrCurDir=new wchar_t[Size+lstrlen(FileName)+8];
 
-						delete[] ptrFileName;
-						ptrFileName=ptrCurDir;
-					}
+			lstrcpy(ptrCurDir,dirInfo->Name);
+			lstrcat(ptrCurDir,L"\\");
+			lstrcat(ptrCurDir,ptrFileName);
 
-					delete[](char*)dirInfo;
-				}
-			}
+			delete[] ptrFileName;
+			ptrFileName=ptrCurDir;
+
+			delete[](char*)dirInfo;
 		}
 	}
 
-	if (ptrFileName && *ptrFileName && FileExists(ptrFileName))
+
+	if (*ptrFileName && FileExists(ptrFileName))
 	{
 		if (viewEmpty)
 			Ret = true;
@@ -204,11 +198,8 @@ static bool validForView(const wchar_t *FileName, bool viewEmpty, bool editNew)
 	else if (editNew)
 		Ret=true;
 
-	if (ptrCurDir)
-		delete[] ptrCurDir;
-
-	if (ptrFileName)
-		delete[] ptrFileName;
+	delete[] ptrCurDir;
+	delete[] ptrFileName;
 
 	return Ret;
 }
@@ -222,27 +213,25 @@ static DWORD showPartOfOutput(TShowOutputStreamData *sd, bool mainProc)
 	{
 		#define READBUFSIZE 4096
 		wchar_t *ReadBuf=new wchar_t[READBUFSIZE+1];
-		if (ReadBuf)
+
+		DWORD BytesRead = 0;
+		if (ReadFile(sd->hRead, ReadBuf, READBUFSIZE, &BytesRead, {}))
 		{
-			DWORD BytesRead = 0;
-			if (ReadFile(sd->hRead, ReadBuf, READBUFSIZE, &BytesRead, {}))
+			if (BytesRead)
 			{
-				if (BytesRead)
-				{
-					DWORD dummy;
-					size_t shift=0;
-					ReadBuf[BytesRead] = 0;
-					bool unicode=false;
-					ReadBuf=ConvertBuffer(ReadBuf,BytesRead/sizeof(wchar_t),TRUE,shift,&unicode);
+				DWORD dummy;
+				size_t shift=0;
+				ReadBuf[BytesRead] = 0;
+				bool unicode=false;
+				ReadBuf=ConvertBuffer(ReadBuf,BytesRead/sizeof(wchar_t),TRUE,shift,&unicode);
 
-					WriteConsole(sd->hConsole, ReadBuf+shift, unicode?BytesRead/sizeof(wchar_t):lstrlen(ReadBuf+shift), &dummy, {});
+				WriteConsole(sd->hConsole, ReadBuf+shift, unicode?BytesRead/sizeof(wchar_t):lstrlen(ReadBuf+shift), &dummy, {});
 
-					Res = BytesRead;
-				}
+				Res = BytesRead;
 			}
-
-			delete[] ReadBuf;
 		}
+
+		delete[] ReadBuf;
 	}
 
 	return Res;
@@ -329,73 +318,67 @@ static bool MakeTempNames(wchar_t** FileName1, wchar_t** FileName2)
 	// create temp-dir
 	size_t sizeTempName=FSF.MkTemp(nullptr,0,tmpPrefix);
 	wchar_t *NameDir=new wchar_t[sizeTempName+1];
-	if (NameDir)
+
+	FSF.MkTemp(NameDir,sizeTempName,tmpPrefix);
+
+	DeleteFile(NameDir);
+
+	if (CreateDirectory(NameDir, {}))
 	{
-		FSF.MkTemp(NameDir,sizeTempName,tmpPrefix);
+		bool ok = false;
 
-		DeleteFile(NameDir);
+		wchar_t *tempFileName1=nullptr;
+		wchar_t *tempFileName2=nullptr;
 
-		if (CreateDirectory(NameDir, {}))
+		wchar_t fullcmd[MAX_PATH*2]; // ????
+
+		// create temp-file1
+		if (GetTempFileName(NameDir, tmpPrefix, 0, fullcmd))
 		{
-			bool ok = false;
+			tempFileName1=new wchar_t[lstrlen(fullcmd)+1];
 
-			wchar_t *tempFileName1=nullptr;
-			wchar_t *tempFileName2=nullptr;
+			lstrcpy(tempFileName1, fullcmd);
 
-			wchar_t fullcmd[MAX_PATH*2]; // ????
-
-			// create temp-file1
+			// create temp-file2
 			if (GetTempFileName(NameDir, tmpPrefix, 0, fullcmd))
 			{
-				tempFileName1=new wchar_t[lstrlen(fullcmd)+1];
-				if (tempFileName1)
-				{
-					lstrcpy(tempFileName1, fullcmd);
+				tempFileName2=new wchar_t[lstrlen(fullcmd)+1];
 
-					// create temp-file2
-					if (GetTempFileName(NameDir, tmpPrefix, 0, fullcmd))
-					{
-						tempFileName2=new wchar_t[lstrlen(fullcmd)+1];
-						if (tempFileName2)
-						{
-							lstrcpy(tempFileName2, fullcmd);
-							ok=true;
-						}
-					}
-				}
+				lstrcpy(tempFileName2, fullcmd);
+				ok=true;
 			}
-
-			if (ok)
-			{
-				if (FileName1)
-					*FileName1=tempFileName1;
-
-				if (FileName2)
-					*FileName2=tempFileName2;
-
-				delete[] NameDir;
-				return true;
-			}
-
-			if (tempFileName1)
-			{
-				DeleteFile(tempFileName1);
-				delete[] tempFileName1;
-				tempFileName1=nullptr;
-			}
-
-			if (tempFileName2)
-			{
-				DeleteFile(tempFileName2);
-				delete[] tempFileName2;
-				tempFileName2=nullptr;
-			}
-
-			RemoveDirectory(NameDir);
 		}
 
-		delete[] NameDir;
+		if (ok)
+		{
+			if (FileName1)
+				*FileName1=tempFileName1;
+
+			if (FileName2)
+				*FileName2=tempFileName2;
+
+			delete[] NameDir;
+			return true;
+		}
+
+		if (tempFileName1)
+		{
+			DeleteFile(tempFileName1);
+			delete[] tempFileName1;
+			tempFileName1=nullptr;
+		}
+
+		if (tempFileName2)
+		{
+			DeleteFile(tempFileName2);
+			delete[] tempFileName2;
+			tempFileName2=nullptr;
+		}
+
+		RemoveDirectory(NameDir);
 	}
+
+	delete[] NameDir;
 
 	return false;
 
@@ -441,38 +424,33 @@ static const wchar_t* MakeExecuteString(const wchar_t *Cmd)
 		8
 	];
 
-	if (temp)
+	lstrcpy(temp,COMSPEC);
+
+	if(quoted_par)
+		lstrcat(temp,L"\"");
+
+	if (NewCmdStr)
 	{
-		lstrcpy(temp,COMSPEC);
-
-		if(quoted_par)
+		if(quote_cmd)
 			lstrcat(temp,L"\"");
-
-		if (NewCmdStr)
-		{
-			if(quote_cmd)
-				lstrcat(temp,L"\"");
-			lstrcat(temp,NewCmdStr);
-			if(quote_cmd)
-				lstrcat(temp,L"\"");
-		}
-       	if (NewCmdPar)
-       	{
-			lstrcat(temp,L" ");
-			lstrcat(temp,FSF.Trim(NewCmdPar));
-		}
-
-		if(quoted_par)
+		lstrcat(temp,NewCmdStr);
+		if(quote_cmd)
 			lstrcat(temp,L"\"");
-
-		wchar_t *fullcmd=ExpandEnv(temp,nullptr);
-
-		delete[] temp;
-
-		return fullcmd;
+	}
+    if (NewCmdPar)
+    {
+		lstrcat(temp,L" ");
+		lstrcat(temp,FSF.Trim(NewCmdPar));
 	}
 
-	return nullptr;
+	if(quoted_par)
+		lstrcat(temp,L"\"");
+
+	wchar_t *fullcmd=ExpandEnv(temp,nullptr);
+
+	delete[] temp;
+
+	return fullcmd;
 }
 
 /*
@@ -498,11 +476,6 @@ static wchar_t *loadFile(const wchar_t *fn, DWORD maxSize, BOOL outputtofile, si
 
 	size_t SizeNativePath=FSF.ConvertPath(CPM_NATIVE, Temp, nullptr, 0);
 	wchar_t *FileName=new wchar_t[SizeNativePath+1];
-	if (!FileName)
-	{
-		delete[] Temp;
-		return nullptr;
-	}
 	FSF.ConvertPath(CPM_NATIVE, Temp, FileName, SizeNativePath);
 	delete[] Temp;
 
@@ -527,22 +500,19 @@ static wchar_t *loadFile(const wchar_t *fn, DWORD maxSize, BOOL outputtofile, si
 			{
 				wchar_t *buff = new wchar_t[size+1];
 
-				if (buff)
+				if (ReadFile(Handle, buff, size, &read, {}) && (read >= sizeof(wchar_t) || (read == 1 && sizeFile == 1)))
 				{
-					if (ReadFile(Handle, buff, size, &read, {}) && (read >= sizeof(wchar_t) || (read == 1 && sizeFile == 1)))
+					if (read&1)
 					{
-						if (read&1)
-						{
-							buff[read/sizeof(wchar_t)]=buff[read/sizeof(wchar_t)]&0xff;
-							read++;
-						}
-
-						buff[read/sizeof(wchar_t)] = 0;
-						Ptr = buff;
+						buff[read/sizeof(wchar_t)]=buff[read/sizeof(wchar_t)]&0xff;
+						read++;
 					}
-					else
-						delete[] buff;
+
+					buff[read/sizeof(wchar_t)] = 0;
+					Ptr = buff;
 				}
+				else
+					delete[] buff;
 			}
 
 			CloseHandle(Handle);
@@ -620,31 +590,23 @@ static wchar_t* __getContent(int outputtofile,wchar_t *pCmd)
 		if (Ptr)
 		{
 			wchar_t *DestPath=new wchar_t[lstrlen(Ptr+shift)+1];
-			if (DestPath)
-			{
-				lstrcpy(DestPath, Ptr+shift);
-				delete[] Ptr;
 
-				Ptr = wcschr(DestPath, L'\r');
-				if (!Ptr)
-					Ptr=wcschr(DestPath,L'\n');
+			lstrcpy(DestPath, Ptr+shift);
+			delete[] Ptr;
 
-				if (Ptr)
-					*Ptr=0;
-				Ptr=DestPath;
-			}
-			else
-			{
-				delete[] Ptr;
-				Ptr=nullptr;
-			}
+			Ptr = wcschr(DestPath, L'\r');
+			if (!Ptr)
+				Ptr=wcschr(DestPath,L'\n');
+
+			if (Ptr)
+				*Ptr=0;
+			Ptr=DestPath;
 		}
 	}
 	else
 	{
 		Ptr=new wchar_t[lstrlen(pCmd)+1];
-		if (Ptr)
-			lstrcpy(Ptr,pCmd);
+		lstrcpy(Ptr,pCmd);
 	}
 
 	return Ptr;
@@ -766,205 +728,162 @@ wchar_t* __proc_WhereIs(int outputtofile,wchar_t *pCmd,bool Dir)
 	wchar_t *DestPath=nullptr;
 	wchar_t *Ptr=__getContent(outputtofile,pCmd);
 
-	if (Ptr)
+	if (!Ptr)
+		return Ptr;
+
+	FSF.Unquote(Ptr);
+
+	wchar_t *temp=ExpandEnv(Ptr,nullptr);
+
+	wchar_t *Path = nullptr, *FARHOMEPath = nullptr;
+
+	size_t CurDirLength=FSF.GetCurrentDirectory(0,nullptr);
+	int    FARHOMELength=GetEnvironmentVariable(L"FARHOME", FARHOMEPath, 0);
+	int    PathLength=GetEnvironmentVariable(L"PATH", Path, 0);
+
+	int PathExtLength=GetEnvironmentVariable(L"PATHEXT", nullptr, 0);
+	const auto PathExt=new wchar_t[PathExtLength+1];
+
+	GetEnvironmentVariable(L"PATHEXT", PathExt, PathExtLength);
+
+	for (wchar_t* i = PathExt; *i; ++i)
 	{
-		FSF.Unquote(Ptr);
-
-		wchar_t *temp=ExpandEnv(Ptr,nullptr);
-		if (temp)
-		{
-			wchar_t *Path = nullptr, *FARHOMEPath = nullptr;
-
-			size_t CurDirLength=FSF.GetCurrentDirectory(0,nullptr);
-			int    FARHOMELength=GetEnvironmentVariable(L"FARHOME", FARHOMEPath, 0);
-			int    PathLength=GetEnvironmentVariable(L"PATH", Path, 0);
-
-			wchar_t *PathExt = nullptr;
-			int PathExtLength=GetEnvironmentVariable(L"PATHEXT", PathExt, 0);
-			PathExt=new wchar_t[PathExtLength+1];
-			if (PathExt)
-			{
-				GetEnvironmentVariable(L"PATHEXT", PathExt, PathExtLength);
-				wchar_t *pPathExt=PathExt;
-				while(*pPathExt)
-				{
-					if (*pPathExt == L';')
-						*pPathExt=0;
-					pPathExt++;
-				}
-				PathExt[PathExtLength]=0;
-			}
-
-			wchar_t *AllPath=new wchar_t[CurDirLength+FARHOMELength+PathLength+8];
-			if (AllPath)
-			{
-				wchar_t *ptrAllPath=AllPath;
-
-				// 1. Current folder
-				FSF.GetCurrentDirectory(CurDirLength,ptrAllPath);
-				lstrcat(ptrAllPath,L";");
-				ptrAllPath+=lstrlen(ptrAllPath);
-
-				// 2. The directory pointed to by the environment variable %FARHOME%
-				GetEnvironmentVariable(L"FARHOME", ptrAllPath, FARHOMELength);
-				lstrcat(ptrAllPath,L";");
-				ptrAllPath+=lstrlen(ptrAllPath);
-
-				// 3. Folders in the system environment variable #PATH#
-				GetEnvironmentVariable(L"PATH", ptrAllPath, PathLength);
-
-
-				wchar_t *pPathExt=PathExt;
-				wchar_t *ptempFind=nullptr;
-				wchar_t *tempFind=new wchar_t[lstrlen(temp)+(pPathExt?PathExtLength:0)+1];
-
-				if (tempFind)
-				{
-					lstrcpy(tempFind,temp);
-					ptempFind=tempFind+lstrlen(tempFind);
-				}
-
-				for (;;)
-				{
-					DWORD DestPathSize = SearchPath(AllPath,(tempFind?tempFind:temp),nullptr,0,nullptr,nullptr);
-					DestPath=new wchar_t[DestPathSize+1];
-					if (DestPath)
-					{
-						*DestPath=0;
-
-						wchar_t *pFile;
-						SearchPath(AllPath, (tempFind?tempFind:temp), {}, DestPathSize, DestPath, &pFile);
-
-						if (*DestPath==0) // 4..6
-							SearchPath({}, (tempFind?tempFind:temp), {}, DestPathSize, DestPath, &pFile);
-
-						if (*DestPath)
-						{
-							DWORD FTAttr=GetFileAttributes(DestPath);
-							if (FTAttr != 0xFFFFFFFF)
-							{
-								if ((FTAttr&FILE_ATTRIBUTE_DIRECTORY))
-								{
-									if (Dir)
-										break;
-								}
-								else
-								{
-									break;
-								}
-							}
-						}
-					}
-
-					if (pPathExt)
-					{
-						pPathExt+=lstrlen(pPathExt)+1;
-						if (!*pPathExt)
-							break;
-						if (ptempFind)
-							lstrcpy(ptempFind,pPathExt);
-					}
-					else
-						break;
-				}
-
-				if (tempFind)
-					delete[] tempFind;
-
-				delete[] AllPath;
-			}
-
-			// 7..8 Contents of the registry key
-			if (!DestPath || !*DestPath)
-			{
-				if (DestPath)
-					delete[] DestPath;
-				DestPath=nullptr;
-
-				wchar_t *pPathExt=PathExt;
-				wchar_t *ptempFind=nullptr;
-				wchar_t *tempFind=new wchar_t[lstrlen(Ptr)+(pPathExt?PathExtLength:0)+1];
-
-				if (tempFind)
-				{
-					lstrcpy(tempFind,Ptr);
-					ptempFind=tempFind+lstrlen(tempFind);
-				}
-
-				const wchar_t RegPath[]=L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
-
-				bool found=false;
-				while (!found)
-				{
-					wchar_t *FullKeyName=new wchar_t[lstrlen(RegPath)+lstrlen(tempFind?tempFind:Ptr)+1];
-					if (FullKeyName)
-					{
-						lstrcpy(FullKeyName,RegPath);
-						lstrcat(FullKeyName,(tempFind?tempFind:Ptr));
-
-						HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE},hKey;
-						for (size_t I=0; I < ARRAYSIZE(RootFindKey); ++I)
-						{
-							if (RegOpenKeyEx(RootFindKey[I], FullKeyName, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
-							{
-								DWORD Type, DestPathSize=0;
-								if (RegQueryValueEx(hKey,L"", nullptr, nullptr, nullptr, &DestPathSize) == ERROR_SUCCESS)
-								{
-									DestPath=new wchar_t[DestPathSize+1];
-									if (DestPath)
-									{
-										RegQueryValueEx(hKey, L"", {}, & Type, (LPBYTE)DestPath, & DestPathSize);
-										delete[] Ptr;
-										Ptr=ExpandEnv(DestPath,nullptr);
-										delete[] DestPath;
-										found=true;
-									}
-								}
-								RegCloseKey(hKey);
-								break;
-							}
-						}
-
-						delete[] FullKeyName;
-					}
-					else
-					{
-						delete[] Ptr;
-						Ptr=nullptr;
-					}
-
-					if (pPathExt)
-					{
-						pPathExt+=lstrlen(pPathExt)+1;
-						if (!*pPathExt)
-							break;
-						if (ptempFind)
-							lstrcpy(ptempFind,pPathExt);
-					}
-					else
-						break;
-				}
-				if (tempFind)
-					delete[] tempFind;
-			}
-			else
-			{
-				delete[] Ptr;
-				Ptr=DestPath;
-			}
-
-			if (PathExt)
-				delete[] PathExt;
-
-			delete[] temp;
-		}
-		else
-		{
-			delete[] Ptr;
-			Ptr=nullptr;
-		}
+		if (*i == L';')
+			*i = 0;
 	}
 
+	PathExt[PathExtLength]=0;
+
+	wchar_t *AllPath=new wchar_t[CurDirLength+FARHOMELength+PathLength+8];
+
+	wchar_t *ptrAllPath=AllPath;
+
+	// 1. Current folder
+	FSF.GetCurrentDirectory(CurDirLength,ptrAllPath);
+	lstrcat(ptrAllPath,L";");
+	ptrAllPath+=lstrlen(ptrAllPath);
+
+	// 2. The directory pointed to by the environment variable %FARHOME%
+	GetEnvironmentVariable(L"FARHOME", ptrAllPath, FARHOMELength);
+	lstrcat(ptrAllPath,L";");
+	ptrAllPath+=lstrlen(ptrAllPath);
+
+	// 3. Folders in the system environment variable #PATH#
+	GetEnvironmentVariable(L"PATH", ptrAllPath, PathLength);
+
+
+	wchar_t *pPathExt=PathExt;
+	wchar_t* tempFind = new wchar_t[lstrlen(temp) + PathExtLength + 1];
+
+	lstrcpy(tempFind,temp);
+	const auto ptempFind=tempFind+lstrlen(tempFind);
+
+	for (;;)
+	{
+		DWORD DestPathSize = SearchPath(AllPath, tempFind, nullptr, 0, nullptr, nullptr);
+		DestPath=new wchar_t[DestPathSize+1];
+
+		*DestPath=0;
+
+		wchar_t *pFile;
+		SearchPath(AllPath, tempFind, {}, DestPathSize, DestPath, &pFile);
+
+		if (*DestPath==0) // 4..6
+			SearchPath({}, tempFind, {}, DestPathSize, DestPath, &pFile);
+
+		if (*DestPath)
+		{
+			DWORD FTAttr=GetFileAttributes(DestPath);
+			if (FTAttr != 0xFFFFFFFF)
+			{
+				if ((FTAttr&FILE_ATTRIBUTE_DIRECTORY))
+				{
+					if (Dir)
+						break;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+
+		pPathExt+=lstrlen(pPathExt)+1;
+		if (!*pPathExt)
+			break;
+		lstrcpy(ptempFind,pPathExt);
+	}
+
+	delete[] tempFind;
+	delete[] AllPath;
+
+	// 7..8 Contents of the registry key
+	if (!DestPath || !*DestPath)
+	{
+		delete[] DestPath;
+		DestPath=nullptr;
+
+		wchar_t *pPathExt=PathExt;
+		wchar_t* tempFind = new wchar_t[lstrlen(Ptr) + PathExtLength + 1];
+
+		lstrcpy(tempFind,Ptr);
+		const auto ptempFind=tempFind+lstrlen(tempFind);
+
+		const wchar_t RegPath[]=L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
+		const auto RegPathLength = lstrlen(RegPath);
+
+		bool found=false;
+		while (!found)
+		{
+			wchar_t *FullKeyName = new wchar_t[RegPathLength + lstrlen(tempFind) + 1];
+
+			lstrcpy(FullKeyName,RegPath);
+			lstrcat(FullKeyName, tempFind);
+
+			HKEY RootFindKey[2]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE},hKey;
+			for (size_t I=0; I < ARRAYSIZE(RootFindKey); ++I)
+			{
+				if (RegOpenKeyEx(RootFindKey[I], FullKeyName, 0, KEY_QUERY_VALUE, &hKey) == ERROR_SUCCESS)
+				{
+					DWORD Type, DestPathSize=0;
+					if (RegQueryValueEx(hKey,L"", nullptr, nullptr, nullptr, &DestPathSize) == ERROR_SUCCESS)
+					{
+						DestPath=new wchar_t[DestPathSize+1];
+
+						RegQueryValueEx(hKey, L"", {}, & Type, (LPBYTE)DestPath, & DestPathSize);
+						delete[] Ptr;
+						Ptr=ExpandEnv(DestPath,nullptr);
+						delete[] DestPath;
+						found=true;
+					}
+					RegCloseKey(hKey);
+					break;
+				}
+			}
+
+			delete[] FullKeyName;
+
+			if (pPathExt)
+			{
+				pPathExt+=lstrlen(pPathExt)+1;
+				if (!*pPathExt)
+					break;
+				lstrcpy(ptempFind,pPathExt);
+			}
+			else
+				break;
+		}
+
+		delete[] tempFind;
+	}
+	else
+	{
+		delete[] Ptr;
+		Ptr=DestPath;
+	}
+
+	delete[] PathExt;
+	delete[] temp;
 
 	return Ptr;
 }
@@ -1047,12 +966,9 @@ bool __proc_Link(int /*outputtofile*/,wchar_t *pCmd)
 	{
 		size_t tempSize=FSF.ConvertPath(CPM_FULL, pCmd, nullptr, 0);
 		wchar_t *temp=new wchar_t[tempSize+1];
-		if (temp)
-		{
-			FSF.ConvertPath(CPM_FULL, pCmd, temp, tempSize);
-			FTAttr=GetFileAttributes(temp);
-			delete[] temp;
-		}
+		FSF.ConvertPath(CPM_FULL, pCmd, temp, tempSize);
+		FTAttr=GetFileAttributes(temp);
+		delete[] temp;
 	}
 
 	if (Arg2)
@@ -1097,7 +1013,7 @@ static wchar_t *GetEditParam(wchar_t *farcmd, int &StartLine, int &StartChar, bo
 		wchar_t *oBracket=farcmd;
 		wchar_t *cBracket=wcschr(oBracket,L']');
 		wchar_t *ptrSep=wcsstr(oBracket,Opt.Separator);
-		if (cBracket && (!ptrSep || (ptrSep && cBracket<ptrSep)))
+		if (cBracket && (!ptrSep || cBracket < ptrSep))
 		{
 			wchar_t *comma=wcschr(oBracket,L',');
 			if (comma)
@@ -1231,11 +1147,9 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 					//     ^pCmd
 					*pCmd = 0;
 					runFile=new wchar_t[lstrlen(farcmd)+1];
-					if (runFile)
-					{
-						lstrcpy(runFile, farcmd);
-						FSF.Trim(runFile);
-					}
+
+					lstrcpy(runFile, farcmd);
+					FSF.Trim(runFile);
 					*pCmd = L'<';
 					farcmd = pCmd;
 					// <command
@@ -1368,22 +1282,17 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 							wchar_t* cmd = nullptr;
 
 							wchar_t *temp=new wchar_t[lstrlen(pCmd)+1];
-							if (temp)
+
+							lstrcpy(temp,pCmd);
+
+							if (!outputtofile)
+								FSF.Unquote(temp);
+
+							wchar_t *EpxTemp=ExpandEnv(temp,nullptr);
+							if (EpxTemp)
 							{
-								lstrcpy(temp,pCmd);
-
-								if (!outputtofile)
-									FSF.Unquote(temp);
-
-								if (temp)
-								{
-									wchar_t *EpxTemp=ExpandEnv(temp,nullptr);
-									if (EpxTemp)
-									{
-										delete[] temp;
-										temp=EpxTemp;
-									}
-								}
+								delete[] temp;
+								temp=EpxTemp;
 							}
 
 							const wchar_t *titleOut=L"", *titleErr=L"";
@@ -1392,12 +1301,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 							{
 								size_t SizeFullPath=FSF.ConvertPath(CPM_FULL, temp, nullptr, 0);
 								pTempFileNameOut=new wchar_t[SizeFullPath+1];
-								if (pTempFileNameOut)
-								{
-									FSF.ConvertPath(CPM_FULL, temp, pTempFileNameOut, SizeFullPath);
-								}
-								else
-									allOK = FALSE;
+								FSF.ConvertPath(CPM_FULL, temp, pTempFileNameOut, SizeFullPath);
 							}
 							else // <Start process>
 							{
@@ -1429,17 +1333,14 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 											size_t sizeRunFile=FSF.ConvertPath(CPM_FULL,pTempFileNameErrExp,nullptr,0);
 
 											pTempFileNameErr=new wchar_t[sizeRunFile+1];
-											if (pTempFileNameErr)
-											{
-												FSF.ConvertPath(CPM_FULL,pTempFileNameErrExp,pTempFileNameErr,sizeRunFile);
 
-												pTempFileNameOut=new wchar_t[lstrlen(pTempFileNameErr)+1];
-												if (pTempFileNameOut)
-												{
-													lstrcpy(pTempFileNameOut,pTempFileNameErr);
-													allOK = TRUE;
-												}
-											}
+											FSF.ConvertPath(CPM_FULL,pTempFileNameErrExp,pTempFileNameErr,sizeRunFile);
+
+											pTempFileNameOut=new wchar_t[lstrlen(pTempFileNameErr)+1];
+
+											lstrcpy(pTempFileNameOut,pTempFileNameErr);
+											allOK = TRUE;
+
 											delete[] pTempFileNameErrExp;
 
 										}
@@ -1527,22 +1428,19 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 											// данные для нитки параллельного вывода
 											td = new TThreadData;
 
-											if (td)
+											td->type = enThreadShowOutput;
+
+											for (int i = 0 ; i < enStreamMAX ; i++)
 											{
-												td->type = enThreadShowOutput;
-
-												for (int i = 0 ; i < enStreamMAX ; i++)
-												{
-													TShowOutputStreamData *sd = &(td->stream[i]);
-													sd->hRead = sd->hWrite = sd->hConsole = INVALID_HANDLE_VALUE;
-												}
-
-												if (catchStdError && pTempFileNameErr)
-													createFileStream(pTempFileNameErr,FileHandleErr,&(td->stream[enStreamErr]),StdOutput);
-
-												if (catchStdOutput && pTempFileNameOut)
-													createFileStream(pTempFileNameOut,FileHandleOut,&(td->stream[enStreamOut]),StdOutput);
+												TShowOutputStreamData *sd = &(td->stream[i]);
+												sd->hRead = sd->hWrite = sd->hConsole = INVALID_HANDLE_VALUE;
 											}
+
+											if (catchStdError && pTempFileNameErr)
+												createFileStream(pTempFileNameErr,FileHandleErr,&(td->stream[enStreamErr]),StdOutput);
+
+											if (catchStdOutput && pTempFileNameOut)
+												createFileStream(pTempFileNameOut,FileHandleOut,&(td->stream[enStreamOut]),StdOutput);
 										}
 
 										wchar_t *SaveDir=nullptr;
@@ -1566,8 +1464,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 										BOOL Created=CreateProcess({},const_cast<LPWSTR>(fullcmd),{},{},TRUE,0,{},CurDir,&si,&pi);
 
-										if (CurDir)
-											delete[] CurDir;
+										delete[] CurDir;
 
 										if (Created)
 										{
@@ -1602,7 +1499,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 												{
 													td->type = enThreadHideOutput;
 													lstrcpyn(td->title, GetMsg(MConfig), ARRAYSIZE(td->title)-1);
-													lstrcpyn(td->cmd, cmd?cmd:L"", ARRAYSIZE(td->cmd)-1);
+													lstrcpyn(td->cmd, cmd, ARRAYSIZE(td->cmd)-1);
 													td->stream[enStreamOut].hWrite = FileHandleOut;
 													td->stream[enStreamErr].hWrite = FileHandleErr;
 
@@ -1652,8 +1549,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 									}
 
-									if (fullcmd)
-										delete[] fullcmd;
+									delete[] fullcmd;
 
 									SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), OutMode);
 									SetConsoleMode(GetStdHandle(STD_ERROR_HANDLE), ErrMode);
@@ -1662,7 +1558,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 
 								if (PrefIdx == prefView || PrefIdx == prefEdit)
 								{
-									if (catchStdError && ((catchStdOutput && catchSeparate) || !catchStdOutput))
+									if (catchStdError && (!catchStdOutput || catchSeparate))
 										titleErr = GetMsg(MStdErr);
 
 									if (catchStdError && catchStdOutput && catchSeparate)
@@ -1752,8 +1648,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 										wchar_t *Ptr = loadFile(pTempFileNameOut, Opt.MaxDataSize/sizeof(wchar_t), outputtofile, shift, foundFile);
 
 										FSF.CopyToClipboard(FCT_STREAM,Ptr?Ptr+shift:nullptr);
-										if (Ptr)
-											delete[] Ptr;
+										delete[] Ptr;
 
 										break;
 									}
@@ -1789,8 +1684,7 @@ wchar_t* OpenFromCommandLine(const wchar_t *_farcmd)
 								delete[] pTempFileNameErr;
 							}
 
-							if (temp)
-								delete[] temp;
+							delete[] temp;
 						} // default:
 
 					} // </switch (PrefIdx)>

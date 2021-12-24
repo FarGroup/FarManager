@@ -158,7 +158,7 @@ static int f_new(lua_State *L)
 		if(s[0]=='-')
 			i++;
 
-		if(len-i > 2 && len-i <= 18 && s[i]=='0' && (s[i+1]=='x' || s[i+1]=='X'))
+		if(len > i + 2 && len <= i + 18 && s[i]=='0' && (s[i+1]=='x' || s[i+1]=='X'))
 		{
 			i += 2;
 
@@ -177,7 +177,7 @@ static int f_new(lua_State *L)
 			if(i == len)
 				return bit64_pushuserdata(L, s[0] == '-' ? -v : v);
 		}
-		else if(len-i > 0)
+		else if(len > i)
 		{
 			for(; i<len; i++)
 			{

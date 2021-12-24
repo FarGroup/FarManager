@@ -188,7 +188,7 @@ void Archive::delete_files(const std::vector<UInt32>& src_indices) {
     ComObject<IOutArchive> out_arc;
     CHECK_COM(in_arc->QueryInterface(IID_IOutArchive, reinterpret_cast<void**>(&out_arc)));
 
-    std::shared_ptr<ArchiveFileDeleterProgress> progress(new ArchiveFileDeleterProgress());
+    const auto progress = std::make_shared<ArchiveFileDeleterProgress>();
     ComObject<IArchiveUpdateCallback> deleter(new ArchiveFileDeleter(new_indices, progress));
     ComObject<IOutStream> update_stream(new ArchiveFileDeleterStream(temp_arc_name, progress));
 

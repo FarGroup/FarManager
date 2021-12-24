@@ -39,8 +39,7 @@ TmpPanel::~TmpPanel()
 {
 	if (!StartupOptCommonPanel)
 		FreePanelItems(TmpPanelItem, TmpItemsNumber);
-	if (HostFile)
-		free(HostFile);
+	free(HostFile);
 }
 
 int TmpPanel::GetFindData(PluginPanelItem **pPanelItem,size_t *pItemsNumber,const OPERATION_MODES OpMode)
@@ -451,9 +450,6 @@ void TmpPanel::RemoveEmptyItems()
 		}
 
 	TmpItemsNumber-=EmptyCount;
-
-	if (EmptyCount>1)
-		TmpPanelItem=(PluginPanelItem *)realloc(TmpPanelItem,sizeof(*TmpPanelItem)*(TmpItemsNumber+1));
 
 	if (StartupOptCommonPanel)
 	{

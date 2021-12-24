@@ -180,9 +180,9 @@ private:
   std::wstring arc_path;
   std::wstring& password;
 
-  int password_ctrl_id;
-  int ok_ctrl_id;
-  int cancel_ctrl_id;
+  int password_ctrl_id{};
+  int ok_ctrl_id{};
+  int cancel_ctrl_id{};
 
   intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) override {
     if ((msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
@@ -234,12 +234,12 @@ private:
   OverwriteDialogKind kind;
   OverwriteOptions& options;
 
-  int all_ctrl_id;
-  int overwrite_ctrl_id;
-  int skip_ctrl_id;
-  int rename_ctrl_id;
-  int append_ctrl_id;
-  int cancel_ctrl_id;
+  int all_ctrl_id{};
+  int overwrite_ctrl_id{};
+  int skip_ctrl_id{};
+  int rename_ctrl_id{};
+  int append_ctrl_id{};
+  int cancel_ctrl_id{};
 
   intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) override {
     if (msg == DN_CLOSE && param1 >= 0 && param1 != cancel_ctrl_id) {
@@ -347,21 +347,21 @@ private:
 
   ExtractOptions& m_options;
 
-  int dst_dir_ctrl_id;
-  int ignore_errors_ctrl_id;
-  int oa_ask_ctrl_id;
-  int oa_overwrite_ctrl_id;
-  int oa_skip_ctrl_id;
-  int oa_rename_ctrl_id;
-  int oa_append_ctrl_id;
-  int move_files_ctrl_id;
-  int password_ctrl_id;
-  int separate_dir_ctrl_id;
-  int delete_archive_ctrl_id;
-  int open_dir_ctrl_id;
-  int ok_ctrl_id;
-  int cancel_ctrl_id;
-  int save_params_ctrl_id;
+  int dst_dir_ctrl_id{};
+  int ignore_errors_ctrl_id{};
+  int oa_ask_ctrl_id{};
+  int oa_overwrite_ctrl_id{};
+  int oa_skip_ctrl_id{};
+  int oa_rename_ctrl_id{};
+  int oa_append_ctrl_id{};
+  int move_files_ctrl_id{};
+  int password_ctrl_id{};
+  int separate_dir_ctrl_id{};
+  int delete_archive_ctrl_id{};
+  int open_dir_ctrl_id{};
+  int ok_ctrl_id{};
+  int cancel_ctrl_id{};
+  int save_params_ctrl_id{};
 
   void read_controls(ExtractOptions& options) {
     auto dst = search_and_replace(strip(get_text(dst_dir_ctrl_id)), L"\"", std::wstring());
@@ -477,8 +477,8 @@ void retry_or_ignore_error(const Error& error, bool& ignore, bool& ignore_errors
       if (!sys_msg.empty())
         st << word_wrap(sys_msg, Far::get_optimal_msg_width()) << L'\n';
     }
-    for (std::list<std::wstring>::const_iterator msg = error.messages.begin(); msg != error.messages.end(); msg++) {
-      st << word_wrap(*msg, Far::get_optimal_msg_width()) << L'\n';
+    for (const auto& msg: error.messages) {
+      st << word_wrap(msg, Far::get_optimal_msg_width()) << L'\n';
     }
     st << extract_file_name(widen(error.file)) << L':' << error.line << L'\n';
     unsigned button_cnt = 0;
@@ -530,25 +530,25 @@ void show_error_log(const ErrorLog& error_log) {
   const wchar_t sig = 0xFEFF;
   file.write(&sig, sizeof(sig));
   std::wstring line;
-  for (ErrorLog::const_iterator error = error_log.begin(); error != error_log.end(); error++) {
+  for (const auto& error: error_log) {
     line.clear();
-    if (error->code != E_MESSAGE && error->code != S_FALSE) {
-      std::wstring sys_msg = get_system_message(error->code, Far::get_lang_id());
+    if (error.code != E_MESSAGE && error.code != S_FALSE) {
+      std::wstring sys_msg = get_system_message(error.code, Far::get_lang_id());
       if (!sys_msg.empty())
         line.append(sys_msg).append(1, L'\n');
     }
-    for (const auto& o : error->objects)
+    for (const auto& o : error.objects)
        line.append(o).append(1, L'\n');
     std::wstring indent;
-    if (!error->messages.empty() && (!error->objects.empty() || !error->warnings.empty())) {
+    if (!error.messages.empty() && (!error.objects.empty() || !error.warnings.empty())) {
        line.append(Far::get_msg(MSG_KPID_ERRORFLAGS)).append(L":\n");
        indent = L"  ";
     }
-    for (const auto& e : error->messages)
+    for (const auto& e : error.messages)
        line.append(indent).append(e).append(1, L'\n');
-    if (!error->warnings.empty())
+    if (!error.warnings.empty())
        line.append(Far::get_msg(MSG_KPID_WARNINGFLAGS)).append(L":\n");
-    for (const auto& w : error->warnings)
+    for (const auto& w : error.warnings)
        line.append(L"  ").append(w).append(1, L'\n');
     line.append(1, L'\n');
     file.write(line.data(), static_cast<unsigned>(line.size()) * sizeof(wchar_t));
@@ -701,38 +701,38 @@ private:
   UpdateOptions& m_options;
   UpdateProfiles& profiles;
 
-  int profile_ctrl_id;
-  int save_profile_ctrl_id;
-  int delete_profile_ctrl_id;
-  int arc_path_ctrl_id;
-  int arc_path_eval_ctrl_id;
-  int append_ext_ctrl_id;
-  int main_formats_ctrl_id;
-  int other_formats_ctrl_id;
-  int level_ctrl_id;
-  int method_ctrl_id;
-  int solid_ctrl_id;
-  int advanced_ctrl_id;
-  int encrypt_ctrl_id;
-  int encrypt_header_ctrl_id;
-  int show_password_ctrl_id;
-  int password_ctrl_id;
-  int password_verify_ctrl_id;
-  int password_visible_ctrl_id;
-  int create_sfx_ctrl_id;
-  int sfx_options_ctrl_id;
-  int move_files_ctrl_id;
-  int open_shared_ctrl_id;
-  int ignore_errors_ctrl_id;
-  int enable_volumes_ctrl_id;
-  int volume_size_ctrl_id;
-  int oa_ask_ctrl_id;
-  int oa_overwrite_ctrl_id;
-  int oa_skip_ctrl_id;
-  int enable_filter_ctrl_id;
-  int ok_ctrl_id;
-  int cancel_ctrl_id;
-  int save_params_ctrl_id;
+  int profile_ctrl_id{};
+  int save_profile_ctrl_id{};
+  int delete_profile_ctrl_id{};
+  int arc_path_ctrl_id{};
+  int arc_path_eval_ctrl_id{};
+  int append_ext_ctrl_id{};
+  int main_formats_ctrl_id{};
+  int other_formats_ctrl_id{};
+  int level_ctrl_id{};
+  int method_ctrl_id{};
+  int solid_ctrl_id{};
+  int advanced_ctrl_id{};
+  int encrypt_ctrl_id{};
+  int encrypt_header_ctrl_id{};
+  int show_password_ctrl_id{};
+  int password_ctrl_id{};
+  int password_verify_ctrl_id{};
+  int password_visible_ctrl_id{};
+  int create_sfx_ctrl_id{};
+  int sfx_options_ctrl_id{};
+  int move_files_ctrl_id{};
+  int open_shared_ctrl_id{};
+  int ignore_errors_ctrl_id{};
+  int enable_volumes_ctrl_id{};
+  int volume_size_ctrl_id{};
+  int oa_ask_ctrl_id{};
+  int oa_overwrite_ctrl_id{};
+  int oa_skip_ctrl_id{};
+  int enable_filter_ctrl_id{};
+  int ok_ctrl_id{};
+  int cancel_ctrl_id{};
+  int save_params_ctrl_id{};
 
   std::wstring old_ext;
   ArcType arc_type;
@@ -1325,12 +1325,12 @@ public:
         }
       }
 
-      for (ArcFormats::const_iterator arc_iter = arc_formats.begin(); arc_iter != arc_formats.end(); arc_iter++) {
-        if (arc_iter->second.updatable && (!multifile || !ArcAPI::is_single_file_format(arc_iter->first))) {
-          if (!multifile && arc_iter->first == c_SWFc && !is_SWFu(m_options.arc_path))
+      for (const auto& [key, value]: arc_formats) {
+        if (value.updatable && (!multifile || !ArcAPI::is_single_file_format(key))) {
+          if (!multifile && key == c_SWFc && !is_SWFu(m_options.arc_path))
             continue;
-          if (std::find(main_formats.begin(), main_formats.end(), arc_iter->first) == main_formats.end()) {
-            other_formats.push_back(arc_iter->first);
+          if (std::find(main_formats.begin(), main_formats.end(), key) == main_formats.end()) {
+            other_formats.push_back(key);
           }
         }
       }
@@ -1366,7 +1366,7 @@ public:
     std::vector<std::wstring> level_names;
     unsigned level_sel = 0;
     for (unsigned i = 0; i < ARRAYSIZE(c_levels); i++) {
-      level_names.push_back(Far::get_msg(c_levels[i].name_id));
+      level_names.emplace_back(Far::get_msg(c_levels[i].name_id));
       if (m_options.level == c_levels[i].value)
         level_sel = i;
     }
@@ -1476,15 +1476,15 @@ bool update_dialog(bool new_arc, bool multifile, UpdateOptions& options, UpdateP
 
 class MultiSelectDialog: public Far::Dialog {
 private:
-  bool read_only;
+  bool read_only{};
   std::wstring items_str;
   std::wstring& selected_str;
 
   std::vector<std::wstring> m_items;
-  int first_item_ctrl_id;
+  int first_item_ctrl_id{};
 
-  int ok_ctrl_id;
-  int cancel_ctrl_id;
+  int ok_ctrl_id{};
+  int cancel_ctrl_id{};
 
   std::vector<size_t> estimate_column_widths(const std::vector<std::wstring>& dialog_items) {
     SMALL_RECT console_rect;
@@ -1545,7 +1545,6 @@ private:
 public:
   MultiSelectDialog(const std::wstring& title, const std::wstring& items_str, std::wstring& selected_str) :
     Far::Dialog(title, &c_multi_select_dialog_guid, 1),
-    read_only(false),
     items_str(items_str),
     selected_str(selected_str)
   {}
@@ -1729,31 +1728,31 @@ private:
 
   PluginSettings& settings;
 
-  int handle_create_ctrl_id;
-  int handle_commands_ctrl_id;
-  int own_panel_view_mode_ctrl_id;
-  int oemCP_ctrl_id;
-  int ansiCP_ctrl_id;
-  int saveCPs_ctrl_id;
-  int use_include_masks_ctrl_id;
-  int edit_include_masks_ctrl_id;
-  int include_masks_ctrl_id;
-  int use_exclude_masks_ctrl_id;
-  int edit_exclude_masks_ctrl_id;
-  int pgdn_masks_ctrl_id;
-  int exclude_masks_ctrl_id;
-  int generate_masks_ctrl_id;
-  int default_masks_ctrl_id;
-  int use_enabled_formats_ctrl_id;
-  int edit_enabled_formats_ctrl_id;
-  int enabled_formats_ctrl_id;
-  int use_disabled_formats_ctrl_id;
-  int edit_disabled_formats_ctrl_id;
-  int disabled_formats_ctrl_id;
-  int pgdn_formats_ctrl_id;
-  int lib_info_ctrl_id;
-  int ok_ctrl_id;
-  int cancel_ctrl_id;
+  int handle_create_ctrl_id{};
+  int handle_commands_ctrl_id{};
+  int own_panel_view_mode_ctrl_id{};
+  int oemCP_ctrl_id{};
+  int ansiCP_ctrl_id{};
+  int saveCPs_ctrl_id{};
+  int use_include_masks_ctrl_id{};
+  int edit_include_masks_ctrl_id{};
+  int include_masks_ctrl_id{};
+  int use_exclude_masks_ctrl_id{};
+  int edit_exclude_masks_ctrl_id{};
+  int pgdn_masks_ctrl_id{};
+  int exclude_masks_ctrl_id{};
+  int generate_masks_ctrl_id{};
+  int default_masks_ctrl_id{};
+  int use_enabled_formats_ctrl_id{};
+  int edit_enabled_formats_ctrl_id{};
+  int enabled_formats_ctrl_id{};
+  int use_disabled_formats_ctrl_id{};
+  int edit_disabled_formats_ctrl_id{};
+  int disabled_formats_ctrl_id{};
+  int pgdn_formats_ctrl_id{};
+  int lib_info_ctrl_id{};
+  int ok_ctrl_id{};
+  int cancel_ctrl_id{};
 
   intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) override {
     if ((msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {

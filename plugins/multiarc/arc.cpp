@@ -285,9 +285,7 @@ int WINAPI _export GetArcItem(PluginPanelItem *Item, ArcItemInfo *Info)
   LocalFileTimeToFileTime(&lft,&Item->FindData.ftLastWriteTime);
 
   int Ver=6*256;
-  if(Header.Type == 1)
-    Ver=1*256;
-  else if(Header.Type == 2)
+  if(Header.Type == 2)
     Ver=3*256+1;
   else if(Header.Type <= 5)
     Ver=4*256;

@@ -48,7 +48,7 @@ public:
         FAIL(E_ABORT);
     }
 
-    std::unique_ptr<Plugin> plugin(new Plugin(real_file));
+    auto plugin = std::make_unique<Plugin>(real_file);
     plugin->archive = archives[format_idx];
     return plugin.release();
   }
@@ -114,7 +114,7 @@ public:
     UInt32 dir_index = archive->find_dir(current_dir);
     FileIndexRange dir_list = archive->get_dir_list(dir_index);
     size_t size = dir_list.second - dir_list.first;
-    std::unique_ptr<PluginPanelItem[]> items(new PluginPanelItem[size]);
+    auto items = std::make_unique<PluginPanelItem[]>(size);
     memset(items.get(), 0, size * sizeof(PluginPanelItem));
     unsigned idx = 0;
     std::for_each(dir_list.first, dir_list.second, [&] (UInt32 file_index) {
@@ -217,7 +217,7 @@ public:
       indices.push_back(static_cast<UInt32>(reinterpret_cast<size_t>(panel_items.get(i)->UserData.Data)));
     }
 
-    std::shared_ptr<ErrorLog> error_log(new ErrorLog());
+    const auto error_log = std::make_shared<ErrorLog>();
     std::vector<UInt32> extracted_indices;
     archive->extract(src_dir_index, indices, options, error_log, options.move_files == triTrue ? &extracted_indices : nullptr);
 
@@ -297,7 +297,7 @@ public:
   static void extract(const std::vector<std::wstring>& arc_list, ExtractOptions options) {
     std::wstring dst_dir = options.dst_dir;
     std::wstring dst_file_name;
-    std::shared_ptr<ErrorLog> error_log(new ErrorLog());
+    const auto error_log = std::make_shared<ErrorLog>();
     for (unsigned i = 0; i < arc_list.size(); i++) {
       std::unique_ptr<Archives> archives;
       try {
@@ -393,7 +393,7 @@ public:
     std::vector<std::wstring> arc_list;
     arc_list.reserve(cmd.arc_list.size());
     std::for_each(cmd.arc_list.begin(), cmd.arc_list.end(), [&] (const std::wstring& arc_name) {
-      arc_list.push_back(Far::get_absolute_path(arc_name));
+      arc_list.emplace_back(Far::get_absolute_path(arc_name));
     });
     ExtractOptions options = cmd.options;
     options.dst_dir = Far::get_absolute_path(cmd.options.dst_dir);
@@ -461,9 +461,9 @@ public:
     }
     if (!matched_indices.empty()) {
         std::sort(matched_indices.begin(), matched_indices.end(), [&](const auto&a, const auto& b) { // group by parent
-        return static_cast<Int32>(archive->file_list[a].parent) < static_cast<Int32>(archive->file_list[a].parent);
+        return static_cast<Int32>(archive->file_list[a].parent) < static_cast<Int32>(archive->file_list[b].parent);
       });
-      std::shared_ptr<ErrorLog> error_log(new ErrorLog());
+      const auto error_log = std::make_shared<ErrorLog>();
       size_t im = 0, nm = matched_indices.size();
       while (im < nm) {
         std::vector<UInt32> indices;
@@ -530,7 +530,7 @@ public:
   }
 
   static void bulk_test(const std::vector<std::wstring>& arc_list) {
-    std::shared_ptr<ErrorLog> error_log(new ErrorLog());
+    const auto error_log = std::make_shared<ErrorLog>();
     for (unsigned i = 0; i < arc_list.size(); i++) {
       std::unique_ptr<Archives> archives;
       Error err;
@@ -589,7 +589,7 @@ public:
     std::vector<std::wstring> arc_list;
     arc_list.reserve(cmd.arc_list.size());
     std::for_each(cmd.arc_list.begin(), cmd.arc_list.end(), [&] (const std::wstring& arc_name) {
-      arc_list.push_back(Far::get_absolute_path(arc_name));
+      arc_list.emplace_back(Far::get_absolute_path(arc_name));
     });
     Plugin::bulk_test(arc_list);
   }
@@ -719,7 +719,7 @@ public:
       }
     }
 
-    std::shared_ptr<ErrorLog> error_log(new ErrorLog());
+    const auto error_log = std::make_shared<ErrorLog>();
     if (new_arc)
       archive->create(common_src_path, file_names, options, error_log);
     else
@@ -799,8 +799,8 @@ public:
         FAIL(E_ABORT);
     }
 
-    std::shared_ptr<ErrorLog> error_log(new ErrorLog());
-    std::shared_ptr<Archive>(new Archive())->create(src_path, file_list, options, error_log);
+    const auto error_log = std::make_shared<ErrorLog>();
+    std::make_shared<Archive>()->create(src_path, file_list, options, error_log);
 
     if (!error_log->empty()) {
       show_error_log(*error_log);
@@ -822,7 +822,7 @@ public:
     std::vector<std::wstring> files;
     files.reserve(cmd.files.size());
     std::for_each(cmd.files.begin(), cmd.files.end(), [&] (const std::wstring& file) {
-      files.push_back(Far::get_absolute_path(file));
+      files.emplace_back(Far::get_absolute_path(file));
     });
 
     // load listfiles
@@ -831,7 +831,7 @@ public:
       std::list<std::wstring> fl = parse_listfile(str);
       files.reserve(files.size() + fl.size());
       std::for_each(fl.begin(), fl.end(), [&] (const std::wstring& file) {
-        files.push_back(Far::get_absolute_path(file));
+        files.emplace_back(Far::get_absolute_path(file));
       });
     });
 
@@ -862,9 +862,9 @@ public:
 
     CHECK(get_app_option(FSSF_SYSTEM, c_copy_opened_files_option, options.open_shared));
 
-    std::shared_ptr<ErrorLog> error_log(new ErrorLog());
+    const auto error_log = std::make_shared<ErrorLog>();
     if (cmd.new_arc) {
-      std::shared_ptr<Archive>(new Archive())->create(src_path, files, options, error_log);
+      std::make_shared<Archive>()->create(src_path, files, options, error_log);
 
       if (upcase(Far::get_panel_dir(PANEL_ACTIVE)) == upcase(extract_file_path(options.arc_path)))
         Far::panel_go_to_file(PANEL_ACTIVE, options.arc_path);
@@ -877,11 +877,11 @@ public:
       open_options.detect = false;
       open_options.password = options.password;
       open_options.arc_types = ArcAPI::formats().get_arc_types();
-      std::unique_ptr<Archives> archives(Archive::open(open_options));
+      const auto archives = Archive::open(open_options);
       if (archives->empty())
         throw Error(Far::get_msg(MSG_ERROR_NOT_ARCHIVE), options.arc_path, __FILE__, __LINE__);
 
-      std::shared_ptr<Archive> archive = (*archives)[0];
+      const auto archive = (*archives)[0];
       if (!archive->updatable())
         throw Error(Far::get_msg(MSG_ERROR_NOT_UPDATABLE), options.arc_path, __FILE__, __LINE__);
 
@@ -1065,7 +1065,7 @@ static HANDLE analyse_open(const AnalyseInfo* info, bool from_analyse) {
         else if (g_options.use_disabled_formats && disabled_formats.count(arc_name) != 0)
           arc_type = options.arc_types.erase(arc_type);
         else
-          arc_type++;
+          ++arc_type;
       }
       if (options.arc_types.empty())
         FAIL(E_INVALIDARG);

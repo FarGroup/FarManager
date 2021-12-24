@@ -129,17 +129,17 @@ std::list<std::wstring> split(const std::wstring& str, wchar_t sep) {
 
 std::wstring combine(const std::list<std::wstring>& lst, wchar_t sep) {
   size_t size = 0;
-  for (std::list<std::wstring>::const_iterator str = lst.begin(); str != lst.end(); str++) {
+  for (const auto& str: lst) {
     if (size)
       size++;
-    size += str->size();
+    size += str.size();
   }
   std::wstring result;
   result.reserve(size);
-  for (std::list<std::wstring>::const_iterator str = lst.begin(); str != lst.end(); str++) {
+  for (const auto& str: lst) {
     if (!result.empty())
       result.append(1, sep);
-    result.append(*str);
+    result.append(str);
   }
   return result;
 }

@@ -17,19 +17,13 @@ const wchar_t *GetMsg(int MsgId)
 
 void FreePanelItems(PluginPanelItem *Items, size_t Total)
 {
-	if (Items)
+	for (size_t I=0; I<Total; I++)
 	{
-		for (size_t I=0; I<Total; I++)
-		{
-			if (Items[I].Owner)
-				free(const_cast<wchar_t*>(Items[I].Owner));
-
-			if (Items[I].FileName)
-				free(const_cast<wchar_t*>(Items[I].FileName));
-		}
-
-		free(Items);
+		free(const_cast<wchar_t*>(Items[I].Owner));
+		free(const_cast<wchar_t*>(Items[I].FileName));
 	}
+
+	free(Items);
 }
 
 wchar_t *ParseParam(wchar_t *& str)

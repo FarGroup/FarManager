@@ -116,14 +116,14 @@ struct DialogItem {
 class Dialog {
 private:
   size_t client_xs;
-  size_t client_ys;
+  size_t client_ys{};
   size_t x;
   size_t y;
   const wchar_t* help;
   FARDIALOGFLAGS m_flags;
   std::vector<std::wstring> values;
   std::vector<DialogItem> items;
-  HANDLE h_dlg;
+  HANDLE h_dlg{};
   const GUID* guid;
   unsigned new_value(const std::wstring& text);
   const wchar_t* get_value(unsigned idx) const;

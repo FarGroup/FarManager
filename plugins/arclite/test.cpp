@@ -87,15 +87,15 @@ public:
     Error error;
     error.code = E_MESSAGE;
     if (resultEOperationResult == NArchive::NExtract::NOperationResult::kUnsupportedMethod)
-      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNSUPPORTED_METHOD));
+      error.messages.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_UNSUPPORTED_METHOD));
     else if (resultEOperationResult == NArchive::NExtract::NOperationResult::kDataError)
-      error.messages.push_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_DATA_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_DATA_ERROR));
+      error.messages.emplace_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_DATA_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_DATA_ERROR));
     else if (resultEOperationResult == NArchive::NExtract::NOperationResult::kCRCError)
-      error.messages.push_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_CRC_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_CRC_ERROR));
+      error.messages.emplace_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_CRC_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_CRC_ERROR));
     else
-      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNKNOWN));
-    error.messages.push_back(file_path);
-    error.messages.push_back(archive->arc_path);
+      error.messages.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_UNKNOWN));
+    error.messages.emplace_back(file_path);
+    error.messages.emplace_back(archive->arc_path);
     throw error;
     COM_ERROR_HANDLER_END
   }

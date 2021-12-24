@@ -867,6 +867,7 @@ int NetBrowser::SetDirectory(const wchar_t* Dir, OPERATION_MODES OpMode)
 	}
 	else
 	{
+		// BUGBUG already true
 		ChangeDirSuccess = true;
 
 		if (ChangeToDirectory(Dir, OpMode, false))
@@ -1691,15 +1692,8 @@ void NetBrowser::GetFreeLetter(DWORD& DriveMask, wchar_t* DiskName)
 bool NetBrowser::AddConnection(const NetResource& nr, bool Remember)
 {
 	auto net_res = nr.getNETRESOURCE();
-	DWORD lastErrDebug = WNetAddConnection2(&net_res, {}, {}, (Remember? CONNECT_UPDATE_PROFILE : 0));
 
-	if (lastErrDebug == NO_ERROR)
-	{
-		lastErrDebug = GetLastError();
-		return true;
-	}
-
-	return false;
+	return WNetAddConnection2(&net_res, {}, {}, (Remember? CONNECT_UPDATE_PROFILE : 0)) == NO_ERROR;
 }
 
 bool NetBrowser::AddConnectionExplicit(const NetResource* connectnr, bool Remember)
@@ -1732,7 +1726,7 @@ bool NetBrowser::AddConnectionExplicit(const NetResource* connectnr, bool Rememb
 	return false;
 }
 
-bool NetBrowser::AddConnectionWithLogon(const NetResource* nr, wchar_t* Name, wchar_t* Password, bool Remember)
+bool NetBrowser::AddConnectionWithLogon(const NetResource* nr, wchar_t* Name, const wchar_t* Password, bool Remember)
 {
 	auto net_res = nr->getNETRESOURCE();
 	for (;;)
@@ -1763,7 +1757,7 @@ bool NetBrowser::AddConnectionWithLogon(const NetResource* nr, wchar_t* Name, wc
 			}
 		}
 
-		if (ERROR_SUCCESS != GetLastError() && Name? (!wcsstr(Name, L"\\") && !wcsstr(Name, L"@")) : false)
+		if (ERROR_SUCCESS != GetLastError() && *Name? (!wcschr(Name, L'\\') && !wcschr(Name, L'@')) : false)
 		{
 			//If the specified user name does not look like "ComputerName\UserName" nor "User@Domain"
 			//and the plug-in failed to log on to the remote machine, the specified user name can be
@@ -1968,7 +1962,7 @@ void NetBrowser::FileNames2Clipboard(bool ToCommandLine)
 	{
 		if (PInfo.ItemsNumber > 0)
 		{
-			wchar_t CurFile[MAX_PATH];
+			wchar_t CurFile[MAX_PATH]{};
 			size_t Size = PsInfo.PanelControl(this, FCTL_GETPANELITEM, static_cast<intptr_t>(PInfo.CurrentItem), {});
 			auto* PPI = (PluginPanelItem*)malloc(Size);
 
@@ -2223,18 +2217,15 @@ bool NetBrowser::GotoComputer(const wchar_t* Dir)
 	wchar_t ComputerName[MAX_PATH];
 	lstrcpy(ComputerName, Dir);
 	bool IsShare{false};
-	wchar_t* p = wcschr(ComputerName + 2, L'\\'); // skip past leading backslashes
 
-	if (p)
+	if (auto p = wcschr(ComputerName + 2, L'\\')) // skip past leading backslashes)
 	{
 		IsShare = true;
 		*p = L'\0';
 	}
 	else
 	{
-		p = wcschr(ComputerName + 2, L'/');
-
-		if (p)
+		if (p = wcschr(ComputerName + 2, L'/'); p)
 		{
 			IsShare = true;
 			*p = L'\0';
@@ -2284,7 +2275,7 @@ bool NetBrowser::GotoComputer(const wchar_t* Dir)
 		lstrcpy(ShareName, Dir);
 
 		// replace forward slashes with backslashes
-		for (p = ShareName; *p; p++)
+		for (auto p = ShareName; *p; ++p)
 			if (*p == L'/')
 				*p = L'\\';
 
@@ -2331,7 +2322,7 @@ void NetBrowser::SetCursorToShare(wchar_t* Share)
 		// prevent recursion
 		for (size_t i = 0; i < PInfo.ItemsNumber; i++)
 		{
-			wchar_t szAnsiName[MAX_PATH];
+			wchar_t szAnsiName[MAX_PATH]{};
 			size_t Size = PsInfo.PanelControl(this, FCTL_GETPANELITEM, static_cast<intptr_t>(i), {});
 			auto* PPI = (PluginPanelItem*)malloc(Size);
 
@@ -2453,7 +2444,7 @@ void NetBrowser::GetHiddenShares()
 					rrsiz = sizeof(nr);
 					// we need to provide buffer space for WNetGetResourceInformation
 
-					int rc = WNetGetResourceInformation(&pri, (void*)&nr[0], &rrsiz, &pszSystem);
+					int rc = WNetGetResourceInformation(&pri, nr, &rrsiz, &pszSystem);
 
 					if (rc != NO_ERROR)
 					{

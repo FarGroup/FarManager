@@ -74,12 +74,6 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 		int pathlen;
 		const wchar_t *pName=FSF.PointToName(pTemp);
 		wchar_t *Name=new wchar_t[lstrlen(pName)+1];
-
-		if (!Name)
-		{
-			delete [] pTemp;
-			return nullptr;
-		}
 		lstrcpy(Name,pName);
 		FSF.Trim(Name);
 		FSF.Unquote(Name);
@@ -91,12 +85,6 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 		if (pathlen > 0 && *pTemp)
 		{
 			Dir=new wchar_t[pathlen+1];
-			if (!Dir)
-			{
-				delete[] Name;
-				delete [] pTemp;
-				return nullptr;
-			}
 			wmemcpy(Dir,pTemp,pathlen);
 			Dir[pathlen]=0;
 			FSF.Trim(Dir);
@@ -134,8 +122,7 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 
 		PsInfo.PanelControl(DstPanel,FCTL_REDRAWPANEL,0,&PRI);
 
-		if (Dir)
-			delete[] Dir;
+		delete[] Dir;
 		delete[] Name;
 	}
 	else
@@ -143,8 +130,7 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 		PsInfo.PanelControl(DstPanel,FCTL_REDRAWPANEL,0,{});
 	}
 
-	if (pTemp)
-		delete [] pTemp;
+	delete [] pTemp;
 
 	return nullptr;
 }

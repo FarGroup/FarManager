@@ -233,8 +233,7 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 
 				GetFullPathName(ptrName,MAX_PATH,FileName,&ptrName);
 
-				if (ptrCurDir)
-					delete[] ptrCurDir;
+				delete[] ptrCurDir;
 
 				if (!ShowHelp(FileName,ptrTopic,true,(!ptrTopic || !*ptrTopic?false:true)))
 				{
@@ -294,8 +293,7 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 					Result=TRUE;
 			}
 
-			if (FileName)
-				delete[] FileName;
+			delete[] FileName;
 		}
 	}
 
@@ -310,11 +308,7 @@ wchar_t *GetEditorFileName()
 	if (FileNameSize)
 	{
 		FileName=new wchar_t[FileNameSize];
-
-		if (FileName)
-		{
-			PsInfo.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName);
-		}
+		PsInfo.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName);
 	}
 
 	return FileName;
@@ -355,8 +349,7 @@ bool ShowCurrentHelpTopic()
 			break;
 	}
 
-	if (FileName)
-		delete[] FileName;
+	delete[] FileName;
 
 	return Result;
 }
@@ -544,9 +537,8 @@ bool FindPluginHelp(const wchar_t* Name,wchar_t* DestPath)
 
 	if (CountPlugin > 0)
 	{
-		HANDLE *hPlugins=new HANDLE[CountPlugin];
-		if (hPlugins)
-		{
+			HANDLE *hPlugins=new HANDLE[CountPlugin];
+
 			// 2. Получить хэндлы плагинов
 			PsInfo.PluginsControl(INVALID_HANDLE_VALUE,PCTL_GETPLUGINS,CountPlugin,hPlugins);
 
@@ -557,9 +549,8 @@ bool FindPluginHelp(const wchar_t* Name,wchar_t* DestPath)
 				int SizeMemory=(int)PsInfo.PluginsControl(hPlugins[I],PCTL_GETPLUGININFORMATION,0,{});
 				if (SizeMemory > 0)
 				{
-					const auto fgpi=reinterpret_cast<FarGetPluginInformation*>(new BYTE[SizeMemory]);
-					if (fgpi)
-					{
+						const auto fgpi=reinterpret_cast<FarGetPluginInformation*>(new BYTE[SizeMemory]);
+
 						wchar_t FoundPath[MAX_PATH];
 						// 5. Для очередного плагина получить информационные структуры
 						PsInfo.PluginsControl(hPlugins[I],PCTL_GETPLUGININFORMATION,SizeMemory,fgpi);
@@ -587,13 +578,10 @@ bool FindPluginHelp(const wchar_t* Name,wchar_t* DestPath)
 
 						if (Result)
 							break;
-					}
 				}
 			}
 
 			delete[] hPlugins;
-		}
-
 	}
 
 	return Result;

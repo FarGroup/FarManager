@@ -138,22 +138,22 @@ private:
 
   struct CacheRecord {
     std::wstring file_path;
-    UInt32 file_id;
-    OverwriteAction overwrite;
-    size_t buffer_pos;
-    size_t buffer_size;
+    UInt32 file_id{};
+    OverwriteAction overwrite{ OverwriteAction::oaAsk };
+    size_t buffer_pos{};
+    size_t buffer_size{};
   };
 
   std::shared_ptr<Archive> archive;
   unsigned char* buffer;
   size_t buffer_size;
-  size_t commit_size;
-  size_t buffer_pos;
+  size_t commit_size{};
+  size_t buffer_pos{};
   std::list<CacheRecord> cache_records;
   File file;
   CacheRecord current_rec;
-  bool continue_file;
-  bool error_state;
+  bool continue_file{};
+  bool error_state{};
   std::shared_ptr<bool> ignore_errors;
   std::shared_ptr<ErrorLog> error_log;
   std::shared_ptr<ExtractProgress> progress;
@@ -292,7 +292,13 @@ private:
     progress->update_cache_stored(size);
   }
 public:
-  FileWriteCache(std::shared_ptr<Archive> archive, std::shared_ptr<bool> ignore_errors, std::shared_ptr<ErrorLog> error_log, std::shared_ptr<ExtractProgress> progress): archive(archive), buffer_size(get_max_cache_size()), commit_size(0), buffer_pos(0), continue_file(false), error_state(false), ignore_errors(ignore_errors), error_log(error_log), progress(progress) {
+  FileWriteCache(std::shared_ptr<Archive> archive, std::shared_ptr<bool> ignore_errors, std::shared_ptr<ErrorLog> error_log, std::shared_ptr<ExtractProgress> progress):
+    archive(archive),
+    buffer_size(get_max_cache_size()),
+    ignore_errors(ignore_errors),
+    error_log(error_log),
+    progress(progress)
+  {
     progress->set_cache_total(buffer_size);
     buffer = reinterpret_cast<unsigned char*>(VirtualAlloc(nullptr, buffer_size, MEM_RESERVE, PAGE_NOACCESS));
     CHECK_SYS(buffer);
@@ -500,41 +506,41 @@ public:
     case NArchive::NExtract::NOperationResult::kDataAfterEnd:
       return S_OK;
     case NArchive::NExtract::NOperationResult::kUnsupportedMethod:
-      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNSUPPORTED_METHOD));
+      error.messages.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_UNSUPPORTED_METHOD));
       break;
     case NArchive::NExtract::NOperationResult::kDataError:
       archive->m_password.clear();
-      error.messages.push_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_DATA_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_DATA_ERROR));
+      error.messages.emplace_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_DATA_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_DATA_ERROR));
       break;
     case NArchive::NExtract::NOperationResult::kCRCError:
       archive->m_password.clear();
-      error.messages.push_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_CRC_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_CRC_ERROR));
+      error.messages.emplace_back(Far::get_msg(encrypted ? MSG_ERROR_EXTRACT_CRC_ERROR_ENCRYPTED : MSG_ERROR_EXTRACT_CRC_ERROR));
       break;
     case NArchive::NExtract::NOperationResult::kUnavailable:
-      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNAVAILABLE_DATA));
+      error.messages.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_UNAVAILABLE_DATA));
       break;
     case NArchive::NExtract::NOperationResult::kUnexpectedEnd:
-      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNEXPECTED_END_DATA));
+      error.messages.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_UNEXPECTED_END_DATA));
       break;
     //case NArchive::NExtract::NOperationResult::kDataAfterEnd:
-    //  error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_DATA_AFTER_END));
+    //  error.messages.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_DATA_AFTER_END));
     //  break;
     case NArchive::NExtract::NOperationResult::kIsNotArc:
-      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_IS_NOT_ARCHIVE));
+      error.messages.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_IS_NOT_ARCHIVE));
       break;
     case NArchive::NExtract::NOperationResult::kHeadersError:
-      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_HEADERS_ERROR));
+      error.messages.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_HEADERS_ERROR));
       break;
     case NArchive::NExtract::NOperationResult::kWrongPassword:
-      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_WRONG_PASSWORD));
+      error.messages.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_WRONG_PASSWORD));
       break;
     default:
-      error.messages.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNKNOWN));
+      error.messages.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_UNKNOWN));
       break;
     }
     error.code = E_MESSAGE;
-    error.messages.push_back(file_path);
-    error.messages.push_back(archive->arc_path);
+    error.messages.emplace_back(file_path);
+    error.messages.emplace_back(archive->arc_path);
     throw error;
     IGNORE_END(*ignore_errors, *error_log, *progress)
     COM_ERROR_HANDLER_END
@@ -567,7 +573,7 @@ private:
   std::list<UInt32>& indices;
   bool& ignore_errors;
   ErrorLog& error_log;
-  const std::wstring* file_path;
+  const std::wstring* file_path{};
 
   void do_update_ui() override {
     const unsigned c_width = 60;
@@ -621,7 +627,7 @@ private:
   Archive& archive;
   bool& ignore_errors;
   ErrorLog& error_log;
-  const std::wstring* m_file_path;
+  const std::wstring* m_file_path{};
 
   void do_update_ui() override {
     const unsigned c_width = 60;
@@ -672,8 +678,8 @@ public:
 void Archive::extract(UInt32 src_dir_index, const std::vector<UInt32>& src_indices, const ExtractOptions& options, std::shared_ptr<ErrorLog> error_log, std::vector<UInt32>* extracted_indices) {
   DisableSleepMode dsm;
 
-  std::shared_ptr<bool> ignore_errors(new bool(options.ignore_errors));
-  std::shared_ptr<OverwriteAction> overwrite_action(new OverwriteAction(options.overwrite));
+  const auto ignore_errors = std::make_shared<bool>(options.ignore_errors);
+  const auto overwrite_action = std::make_shared<OverwriteAction>(options.overwrite);
 
   prepare_dst_dir(options.dst_dir);
 
@@ -685,11 +691,9 @@ void Archive::extract(UInt32 src_dir_index, const std::vector<UInt32>& src_indic
   std::copy(file_indices.begin(), file_indices.end(), std::back_insert_iterator<std::vector<UInt32>>(indices));
   std::sort(indices.begin(), indices.end());
 
-  std::shared_ptr<ExtractProgress> progress(new ExtractProgress(arc_path));
-  std::shared_ptr<FileWriteCache> cache(new FileWriteCache(shared_from_this(), ignore_errors, error_log, progress));
-  std::shared_ptr<std::set<UInt32>> skipped_indices;
-  if (extracted_indices)
-    skipped_indices.reset(new std::set<UInt32>());
+  const auto progress = std::make_shared<ExtractProgress>(arc_path);
+  const auto cache = std::make_shared<FileWriteCache>(shared_from_this(), ignore_errors, error_log, progress);
+  const auto skipped_indices = extracted_indices? std::make_shared<std::set<UInt32>>() : nullptr;
   ComObject<IArchiveExtractCallback> extractor(new ArchiveExtractor(src_dir_index, options.dst_dir, shared_from_this(), overwrite_action, ignore_errors, error_log, cache, progress, skipped_indices));
   COM_ERROR_CHECK(in_arc->Extract(indices.data(), static_cast<UInt32>(indices.size()), 0, extractor));
   cache->finalize();

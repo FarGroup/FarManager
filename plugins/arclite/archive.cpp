@@ -109,8 +109,8 @@ std::wstring ArcFormat::default_extension() const {
 
 ArcTypes ArcFormats::get_arc_types() const {
   ArcTypes types;
-  for (const_iterator fmt = begin(); fmt != end(); fmt++) {
-    types.push_back(fmt->first);
+  for (const auto& [type, fmt]: *this) {
+    types.push_back(type);
   }
   return types;
 }
@@ -118,9 +118,9 @@ ArcTypes ArcFormats::get_arc_types() const {
 ArcTypes ArcFormats::find_by_name(const std::wstring& name) const {
   ArcTypes types;
   std::wstring uc_name = upcase(name);
-  for (const_iterator fmt = begin(); fmt != end(); fmt++) {
-    if (upcase(fmt->second.name) == uc_name)
-      types.push_back(fmt->first);
+  for (const auto& [type, fmt]: *this) {
+    if (upcase(fmt.name) == uc_name)
+      types.push_back(type);
   }
   return types;
 }
@@ -130,10 +130,10 @@ ArcTypes ArcFormats::find_by_ext(const std::wstring& ext) const {
   if (ext.empty())
     return types;
   std::wstring uc_ext = upcase(ext);
-  for (const_iterator fmt = begin(); fmt != end(); fmt++) {
-    for (auto ext_iter = fmt->second.extension_list.cbegin(); ext_iter != fmt->second.extension_list.cend(); ext_iter++) {
-      if (upcase(*ext_iter) == uc_ext) {
-        types.push_back(fmt->first);
+  for (const auto& [type, fmt]: *this) {
+    for (const auto& e: fmt.extension_list) {
+      if (upcase(e) == uc_ext) {
+        types.push_back(type);
         break;
       }
     }
@@ -792,7 +792,6 @@ void Archive::make_index() {
 
     if (file_info.is_dir) {
       dir_info.index = dir_index;
-      dir_info.parent = file_info.parent;
       dir_info.name = file_info.name;
       std::pair<DirList::iterator, bool> ins_pos = dir_list.insert(dir_info);
       if (ins_pos.second) {
@@ -1059,48 +1058,48 @@ static std::list<std::wstring> flags2texts(UInt32 flags)
   std::list<std::wstring> texts;
   if (flags != 0) {
     if ((flags & kpv_ErrorFlags_IsNotArc) == kpv_ErrorFlags_IsNotArc) { // 1
-      texts.push_back(Far::get_msg(MSG_ERROR_EXTRACT_IS_NOT_ARCHIVE));
+      texts.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_IS_NOT_ARCHIVE));
       flags &= ~kpv_ErrorFlags_IsNotArc;
     }
     if ((flags & kpv_ErrorFlags_HeadersError) == kpv_ErrorFlags_HeadersError) { // 2
-      texts.push_back(Far::get_msg(MSG_ERROR_EXTRACT_HEADERS_ERROR));
+      texts.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_HEADERS_ERROR));
       flags &= ~kpv_ErrorFlags_HeadersError;
     }
     if ((flags & kpv_ErrorFlags_EncryptedHeadersError) == kpv_ErrorFlags_EncryptedHeadersError) { // 4
-      texts.push_back(L"EncryptedHeadersError"); // TODO: localize
+      texts.emplace_back(L"EncryptedHeadersError"); // TODO: localize
       flags &= ~kpv_ErrorFlags_EncryptedHeadersError;
     }
     if ((flags & kpv_ErrorFlags_UnavailableStart) == kpv_ErrorFlags_UnavailableStart) { // 8
-      //errors.push_back(L"UnavailableStart"); // TODO: localize
-      texts.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNAVAILABLE_DATA));
+      //errors.emplace_back(L"UnavailableStart"); // TODO: localize
+      texts.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_UNAVAILABLE_DATA));
       flags &= ~kpv_ErrorFlags_UnavailableStart;
     }
     if ((flags & kpv_ErrorFlags_UnconfirmedStart) == kpv_ErrorFlags_UnconfirmedStart) { // 16
-      texts.push_back(L"UnconfirmedStart"); // TODO: localize
+      texts.emplace_back(L"UnconfirmedStart"); // TODO: localize
       flags &= ~kpv_ErrorFlags_UnconfirmedStart;
     }
     if ((flags & kpv_ErrorFlags_UnexpectedEnd) == kpv_ErrorFlags_UnexpectedEnd) { // 32
-      texts.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNEXPECTED_END_DATA));
+      texts.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_UNEXPECTED_END_DATA));
       flags &= ~kpv_ErrorFlags_UnexpectedEnd;
     }
     if ((flags & kpv_ErrorFlags_DataAfterEnd) == kpv_ErrorFlags_DataAfterEnd) { // 64
-      texts.push_back(Far::get_msg(MSG_ERROR_EXTRACT_DATA_AFTER_END));
+      texts.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_DATA_AFTER_END));
       flags &= ~kpv_ErrorFlags_DataAfterEnd;
     }
     if ((flags & kpv_ErrorFlags_UnsupportedMethod) == kpv_ErrorFlags_UnsupportedMethod) { // 128
-      texts.push_back(Far::get_msg(MSG_ERROR_EXTRACT_UNSUPPORTED_METHOD));
+      texts.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_UNSUPPORTED_METHOD));
       flags &= ~kpv_ErrorFlags_UnsupportedMethod;
     }
     if ((flags & kpv_ErrorFlags_UnsupportedFeature) == kpv_ErrorFlags_UnsupportedFeature) { // 256
-      texts.push_back(L"UnsupportedFeature"); // TODO: localize
+      texts.emplace_back(L"UnsupportedFeature"); // TODO: localize
       flags &= ~kpv_ErrorFlags_UnsupportedFeature;
     }
     if ((flags & kpv_ErrorFlags_DataError) == kpv_ErrorFlags_DataError) { // 512
-      texts.push_back(Far::get_msg(MSG_ERROR_EXTRACT_DATA_ERROR));
+      texts.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_DATA_ERROR));
       flags &= ~kpv_ErrorFlags_DataError;
     }
     if ((flags & kpv_ErrorFlags_CrcError) == kpv_ErrorFlags_CrcError) { // 1024
-      texts.push_back(Far::get_msg(MSG_ERROR_EXTRACT_CRC_ERROR));
+      texts.emplace_back(Far::get_msg(MSG_ERROR_EXTRACT_CRC_ERROR));
       flags &= ~kpv_ErrorFlags_CrcError;
     }
     if (flags != 0) {

@@ -168,12 +168,12 @@ bool is_real_file_panel(const PanelInfo& panel_info) {
 
 std::wstring get_panel_dir(HANDLE h_panel) {
   size_t buf_size = 512;
-  std::unique_ptr<unsigned char[]> buf(new unsigned char[buf_size]);
+  auto buf = std::make_unique<unsigned char[]>(buf_size);
   reinterpret_cast<FarPanelDirectory*>(buf.get())->StructSize = sizeof(FarPanelDirectory);
   size_t size = g_far.PanelControl(h_panel, FCTL_GETPANELDIRECTORY, buf_size, buf.get());
   if (size > buf_size) {
     buf_size = size;
-    buf.reset(new unsigned char[buf_size]);
+    buf = std::make_unique<unsigned char[]>(buf_size);
     reinterpret_cast<FarPanelDirectory*>(buf.get())->StructSize = sizeof(FarPanelDirectory);
     size = g_far.PanelControl(h_panel, FCTL_GETPANELDIRECTORY, buf_size, buf.get());
   }
@@ -845,9 +845,9 @@ bool Settings::set_dir(const std::wstring& path) {
   FarSettingsValue fsv = { sizeof(FarSettingsValue) };
   size_t dir_id_value = 0;
   std::list<std::wstring> dir_list = split(path, L'\\');
-  for(std::list<std::wstring>::const_iterator dir = dir_list.cbegin(); dir != dir_list.cend(); dir++) {
+  for(const auto& dir: dir_list) {
     fsv.Root = dir_id_value;
-    fsv.Value = dir->c_str();
+    fsv.Value = dir.c_str();
     dir_id_value = control(SCTL_CREATESUBKEY, &fsv);
     if (dir_id_value == 0)
       return false;

@@ -246,7 +246,7 @@ void replace_icon(const std::wstring& pe_path, const std::wstring& ico_path) {
   std::for_each(group_ids.cbegin(), group_ids.cend(), [&] (const RsrcId& id) {
     std::list<WORD> lang_ids = enum_rsrc_langs(module.handle(), RT_GROUP_ICON, id);
     std::for_each(lang_ids.cbegin(), lang_ids.cend(), [&] (WORD lang_id) {
-      icons.push_back(load_icon_rsrc(module.handle(), id, lang_id));
+      icons.emplace_back(load_icon_rsrc(module.handle(), id, lang_id));
     });
   });
   module.close();
@@ -367,22 +367,22 @@ void replace_ver_info(const std::wstring& pe_path, const SfxVersionInfo& ver_inf
   // numeric version
   std::list<std::wstring> ver_parts = split(ver_info.version, L'.');
   DWORD ver_hi = 0, ver_lo = 0;
-  std::list<std::wstring>::const_iterator ver_part = ver_parts.cbegin();
+  auto ver_part = ver_parts.cbegin();
   if (ver_part != ver_parts.end()) {
     ver_hi |= (str_to_int(*ver_part) & 0xFFFF) << 16;
-    ver_part++;
+    ++ver_part;
   }
   if (ver_part != ver_parts.end()) {
     ver_hi |= str_to_int(*ver_part) & 0xFFFF;
-    ver_part++;
+    ++ver_part;
   }
   if (ver_part != ver_parts.end()) {
     ver_lo |= (str_to_int(*ver_part) & 0xFFFF) << 16;
-    ver_part++;
+    ++ver_part;
   }
   if (ver_part != ver_parts.end()) {
     ver_lo |= str_to_int(*ver_part) & 0xFFFF;
-    ver_part++;
+    ++ver_part;
   }
 
   // existing version info list

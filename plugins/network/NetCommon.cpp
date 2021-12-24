@@ -11,7 +11,7 @@ NetResource* PCommonCurResource{};
 
 BOOL DlgCreateFolder(wchar_t* lpBuffer, size_t nBufferSize)
 {
-	BOOL res = static_cast<BOOL>(PsInfo.InputBox(
+	return PsInfo.InputBox(
 		&MainGuid,
 		nullptr,
 		L"Make Folder",
@@ -22,8 +22,7 @@ BOOL DlgCreateFolder(wchar_t* lpBuffer, size_t nBufferSize)
 		nBufferSize,
 		{},
 		FIB_BUTTONS
-	));
-	return res;
+	) != FALSE;
 }
 
 const wchar_t* GetMsg(int MsgId)

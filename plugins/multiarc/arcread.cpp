@@ -28,8 +28,7 @@ void PluginClass::FreeArcData()
   {
     for (int I=0;I<ArcDataCount;I++)
     {
-      if (ArcData[I].Description!=NULL)
-        delete[] ArcData[I].Description;
+      delete[] ArcData[I].Description;
 
       if(ArcData[I].UserData && (ArcData[I].Flags & PPIF_USERDATA))
       {
@@ -129,8 +128,7 @@ int PluginClass::ReadArchive(char *Name)
     if (*CurItemInfo.Description)
     {
       CurArcData.Description=new char[lstrlen(CurItemInfo.Description)+1];
-      if (CurArcData.Description)
-        lstrcpy(CurArcData.Description,CurItemInfo.Description);
+      lstrcpy(CurArcData.Description,CurItemInfo.Description);
       DizPresent=TRUE;
     }
 
@@ -213,7 +211,7 @@ int PluginClass::ReadArchive(char *Name)
 
     if (ArcDataCount>=AllocatedCount)
     {
-      AllocatedCount=AllocatedCount+256+AllocatedCount/4;
+      AllocatedCount = AllocatedCount + (AllocatedCount + 1) / 2;
       NewArcData=(PluginPanelItem *)realloc(ArcData,AllocatedCount*sizeof(*ArcData));
     }
 
@@ -231,9 +229,6 @@ int PluginClass::ReadArchive(char *Name)
 
   Info.RestoreScreen(NULL);
   Info.RestoreScreen(hScreen);
-
-  if (ArcDataCount>0)
-    ArcData=(PluginPanelItem *)realloc(ArcData,ArcDataCount*sizeof(*ArcData));
 
   ArcPlugin->CloseArchive(ArcPluginNumber,&CurArcInfo);
 
@@ -289,7 +284,7 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
       DWORD read;
       int ret = ReadFile(h, Data, size, &read, 0);
       CloseHandle(h);
-      if (Data && ret)
+      if (ret)
       {
         DWORD SFXSize;
         if (ArcPlugin->IsArchive(ArcPluginNumber, ArcName, Data, read, &SFXSize))
@@ -350,7 +345,7 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
       PluginPanelItem *NewPanelItem=*pPanelItem;
       if (*pItemsNumber>=AlocatedItemsNumber)
       {
-        AlocatedItemsNumber=AlocatedItemsNumber+256+AlocatedItemsNumber/4;
+        AlocatedItemsNumber = AlocatedItemsNumber + (AlocatedItemsNumber + 1) / 2;
         NewPanelItem=(PluginPanelItem *)realloc(*pPanelItem,AlocatedItemsNumber*sizeof(PluginPanelItem));
 
         if (NewPanelItem==NULL)
@@ -362,15 +357,13 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
       (*pItemsNumber)++;
     }
   }
-  if (*pItemsNumber>0)
-    *pPanelItem=(PluginPanelItem *)realloc(*pPanelItem,*pItemsNumber*sizeof(PluginPanelItem));
   return TRUE;
 }
 
 
 void PluginClass::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
 {
-  if(PanelItem) free(PanelItem);
+	free(PanelItem);
 }
 
 

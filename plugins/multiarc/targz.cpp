@@ -535,7 +535,7 @@ int IsTarHeader(const BYTE *Data,int DataSize)
   else
     TarArchiveFormat = V7_FORMAT;
 
-  for (I=0; Header->name[I] && I < sizeof(Header->name); I++)
+  for (I=0; I < sizeof(Header->name) && Header->name[I]; I++)
     if (Header->name[I] < ' ')
       return FALSE;
 
@@ -547,7 +547,7 @@ int IsTarHeader(const BYTE *Data,int DataSize)
       return FALSE;
   }
 
-  for (I=0; Header->mtime[I] && I < sizeof(Header->mtime); I++)
+  for (I=0; I < sizeof(Header->mtime) && Header->mtime[I]; I++)
     if (Header->mtime[I] < ' ')
       return FALSE;
 

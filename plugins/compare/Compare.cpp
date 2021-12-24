@@ -654,7 +654,6 @@ static bool BuildPanelIndex(const OwnPanelInfo *pInfo, FileIndex *pIndex, HANDLE
 	{
 		free(pIndex->ppi);
 		pIndex->ppi = {};
-		pIndex->iCount = 0;
 	}
 
 	return true;
@@ -665,8 +664,7 @@ static bool BuildPanelIndex(const OwnPanelInfo *pInfo, FileIndex *pIndex, HANDLE
  ****************************************************************************/
 static void FreePanelIndex(FileIndex *pIndex)
 {
-	if (pIndex->ppi)
-		free(pIndex->ppi);
+	free(pIndex->ppi);
 
 	pIndex->ppi = {};
 	pIndex->iCount = 0;

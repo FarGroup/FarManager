@@ -122,7 +122,7 @@ public:
     UInt64 file_count = 0;
     std::list<FileInfo> file_list;
     size_t path_buf_size = MAX_PATH;
-	std::unique_ptr<wchar_t[]> path_buf(new wchar_t[path_buf_size]);
+    std::wstring path_buf(path_buf_size, 0);
     while (true) {
       FileInfo file_info;
       UInt32 path_size;
@@ -135,11 +135,11 @@ public:
         return S_FALSE;
       if (path_size > path_buf_size) {
         path_buf_size = path_size;
-        path_buf.reset(new wchar_t[path_buf_size]);
+        path_buf.resize(path_buf_size);
       }
-      if (read_stream(in_stream, path_buf.get(), path_size * sizeof(wchar_t)) != path_size * sizeof(wchar_t))
+      if (read_stream(in_stream, path_buf.data(), path_size * sizeof(wchar_t)) != path_size * sizeof(wchar_t))
         return S_FALSE;
-      file_info.path.assign(path_buf.get(), path_size);
+      file_info.path.assign(path_buf.data(), path_size);
 
       if (read_stream(in_stream, &file_info.size, sizeof(file_info.size)) != sizeof(file_info.size))
         return S_FALSE;
@@ -250,7 +250,7 @@ public:
       CHECK_COM(extract_callback->PrepareOperation(ask_extract_mode)); //???
       const FileInfo& file_info = files[file_index];
       const UInt32 c_buffer_size = 1024 * 1024;
-      std::unique_ptr<unsigned char[]> buffer(new unsigned char[c_buffer_size]);
+      const auto buffer = std::make_unique<unsigned char[]>(c_buffer_size);
       UInt64 total_size_read = 0;
       CHECK_COM(in_stream->Seek(file_info.offset, STREAM_SEEK_SET, nullptr));
       while (true) {
@@ -376,7 +376,7 @@ public:
       write_stream(out_stream, file_info.path.data(), static_cast<UInt32>(file_info.path.size() * sizeof(wchar_t)));
 
       const UInt32 c_buffer_size = 1024 * 1024;
-      std::unique_ptr<unsigned char[]> buffer(new unsigned char[c_buffer_size]);
+      const auto buffer = std::make_unique<unsigned char[]>(c_buffer_size);
       UInt64 total_size_read = 0;
       write_stream(out_stream, &file_info.size, sizeof(file_info.size));
       if (file_info.offset == 0) {
@@ -431,7 +431,7 @@ public:
       PropVariant prop = values[i];
 
       size_t buf_size = wcslen(names[i]) + 1;
-      std::unique_ptr<wchar_t[]> buf(new wchar_t[buf_size]);
+      const auto buf = std::make_unique<wchar_t[]>(buf_size);
       std::wcscpy(buf.get(), names[i]);
       _wcsupr_s(buf.get(), buf_size);
       std::wstring name(buf.get(), buf_size - 1);

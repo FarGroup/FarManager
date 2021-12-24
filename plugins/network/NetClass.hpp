@@ -155,7 +155,7 @@ public:
 
 	static bool AddConnection(const NetResource& nr, bool Remember = true);
 	static bool AddConnectionExplicit(const NetResource* connectnr, bool Remember = true);
-	static bool AddConnectionWithLogon(const NetResource* nr, wchar_t* Name, wchar_t* Password, bool Remember = true);
+	static bool AddConnectionWithLogon(const NetResource* nr, wchar_t* Name, const wchar_t* Password, bool Remember = true);
 	static bool AddConnectionFromFavorites(const NetResource* nr, bool Remember = true);
 
 	static bool GetResourceInfo(wchar_t* SrcName, NetResource& DstNetResource);
