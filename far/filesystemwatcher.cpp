@@ -65,7 +65,7 @@ public:
 
 		m_Clients.emplace_back(Client);
 
-		if (!m_Thread.joinable())
+		if (!m_Thread.joinable() || m_Thread.is_signaled())
 			m_Thread = os::thread{ os::thread::mode::join, &background_watcher::process, this };
 
 		m_Update.set();
@@ -111,6 +111,8 @@ private:
 			// We don't care about individual events, so we wait a little here to let them collapse to one event per sec at most:
 			(void)m_Update.is_signaled(1s);
 		}
+
+		LOGDEBUG(L"FS Watcher exit"sv);
 	}
 
 private:

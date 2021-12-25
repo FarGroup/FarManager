@@ -2943,8 +2943,8 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		else
 			Update(UPDATE_KEEP_SELECTION);
 
+		IsPopPlugin = !PrevDataList.empty();
 		PopPrevData(strFindDir, PluginClosed, !GoToPanelFile, IsParent, SetDirectorySuccess);
-		IsPopPlugin = true;
 
 		return SetDirectorySuccess;
 	}
