@@ -512,7 +512,7 @@ static bool execute_createprocess(string const& Command, string const& Parameter
 	return true;
 }
 
-static bool execute_shell(string const& Command, string const& Parameters, string const& Directory, bool const SourceIsKnown, bool const RunAs, bool const Wait, HANDLE& Process)
+static bool execute_shell(string const& Command, string const& Parameters, string const& Directory, execute_info::source_mode const SourceMode, bool const RunAs, bool const Wait, HANDLE& Process)
 {
 	SHELLEXECUTEINFO Info{ sizeof(Info) };
 	Info.lpFile = Command.c_str();
@@ -522,7 +522,7 @@ static bool execute_shell(string const& Command, string const& Parameters, strin
 	Info.fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS | (Wait? SEE_MASK_NO_CONSOLE : 0);
 	Info.lpVerb = RunAs? L"runas" : nullptr;
 
-	if (SourceIsKnown && !path::is_separator(Command.back()))
+	if (any_of(SourceMode, execute_info::source_mode::known, execute_info::source_mode::known_executable) && !path::is_separator(Command.back()))
 	{
 		assert(Parameters.empty());
 
@@ -662,7 +662,7 @@ static bool execute_impl(
 	const auto execute_shell = [&]
 	{
 		HANDLE Process;
-		if (!::execute_shell(Command, Parameters, CurrentDirectory, Info.SourceMode != execute_info::source_mode::unknown, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, Process))
+		if (!::execute_shell(Command, Parameters, CurrentDirectory, Info.SourceMode, Info.RunAs, Info.WaitMode != execute_info::wait_mode::no_wait, Process))
 			return false;
 
 		if (Process)

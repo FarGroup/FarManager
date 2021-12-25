@@ -50,12 +50,12 @@ inline size_t grow_exp_noshrink(size_t const Current, std::optional<size_t> cons
 	// Unlike vector, string is allowed to shrink (another splendid design decision from the committee):
 	// "Calling reserve() with a res_arg argument less than capacity() is in effect a non-binding shrink request." (21.4.4 basic_string capacity)
 	// gcc decided to go mental and made that a _binding_ shrink request.
-	if (Desired && *Desired < Current)
+	if (Desired && *Desired <= Current)
 		return Current;
 
 	// For vector reserve typically allocates exactly the requested amount instead of exponential growth.
 	// This can be really bad if called in a loop.
-	const auto LowerBound = Current + (Current + 1) / 2;
+	const auto LowerBound = Current + (Current + 2) / 2;
 	return Desired? std::max(LowerBound, *Desired) : LowerBound;
 }
 

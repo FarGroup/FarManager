@@ -1095,6 +1095,28 @@ TEST_CASE("string_utils.generic_lookup")
 
 #include "common/utility.hpp"
 
+TEST_CASE("utility.grow_exp_noshrink")
+{
+	static const struct
+	{
+		size_t Current, Desired, Expected;
+	}
+	Tests[]
+	{
+		{ 0, 1, 1 },
+		{ 1, 1, 1 },
+		{ 1, 0, 1 },
+		{ 0, 2, 2 },
+		{ 1, 2, 2 },
+		{ 2, 2, 2 },
+	};
+
+	for (const auto& i : Tests)
+	{
+		REQUIRE(grow_exp_noshrink(i.Current, i.Desired) == i.Expected);
+	}
+}
+
 TEMPLATE_TEST_CASE("utility.reserve_exp_noshrink", "", string, std::vector<int>)
 {
 	TestType Container;

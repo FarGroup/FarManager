@@ -2167,7 +2167,7 @@ static bool OpenURL(string_view const URLPath)
 	execute_info Info;
 	Info.DisplayCommand = FilteredURLPath;
 	Info.Command = FilteredURLPath;
-	Info.SourceMode = execute_info::source_mode::known; // skip plugin prefixes processing
+	Info.SourceMode = execute_info::source_mode::known_external; // skip plugin prefixes processing
 	Global->CtrlObject->CmdLine()->ExecString(Info);
 	return true;
 }
