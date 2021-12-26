@@ -34,6 +34,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "preprocessor.hpp"
 
+#include <utility>
+
+#include <cstddef>
+#include <cstring>
+
+#ifndef __cpp_lib_to_underlying
+#include "cpp.hpp"
+#endif
+
 //----------------------------------------------------------------------------
 
 template<typename T>

@@ -36,6 +36,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "range.hpp"
 #include "utility.hpp"
 
+#include <array>
+#include <functional>
+#include <memory>
+#include <variant>
+
+#include <cassert>
+
 //----------------------------------------------------------------------------
 
 template<typename T, size_t MinStaticSize, REQUIRES(std::is_trivially_copyable_v<T>)>

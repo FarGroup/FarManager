@@ -37,6 +37,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "type_traits.hpp"
 #include "utility.hpp"
 
+#include <numeric>
+#include <unordered_map>
+#include <unordered_set>
+#include <variant>
+
 //----------------------------------------------------------------------------
 
 template<typename string_type>

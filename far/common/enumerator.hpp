@@ -35,6 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "preprocessor.hpp"
 #include "rel_ops.hpp"
 
+#include <cassert>
+
 //----------------------------------------------------------------------------
 
 template<typename Derived, typename T, bool Dereference = false>

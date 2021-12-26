@@ -559,6 +559,9 @@
     <ClInclude Include="common\compiler.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
+    <ClInclude Include="common\cpp.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="common\enum_substrings.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
@@ -659,9 +662,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="copy_progress.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cpp.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ctrlobj.hpp">

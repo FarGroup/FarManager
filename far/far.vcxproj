@@ -247,6 +247,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\bytes_view.hpp" />
     <ClInclude Include="common\chrono.hpp" />
     <ClInclude Include="common\compiler.hpp" />
+    <ClInclude Include="common\cpp.hpp" />
     <ClInclude Include="common\enum_substrings.hpp" />
     <ClInclude Include="common\enum_tokens.hpp" />
     <ClInclude Include="common\enumerator.hpp" />
@@ -281,7 +282,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="constitle.hpp" />
     <ClInclude Include="copy.hpp" />
     <ClInclude Include="copy_progress.hpp" />
-    <ClInclude Include="cpp.hpp" />
     <ClInclude Include="ctrlobj.hpp" />
     <ClInclude Include="cvtname.hpp" />
     <ClInclude Include="datetime.hpp" />
