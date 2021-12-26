@@ -291,7 +291,7 @@ void OpenFolderInShell(string_view const Folder)
 	// To avoid collisions with bat/cmd/etc.
 	AddEndSlash(Info.Command);
 	Info.WaitMode = execute_info::wait_mode::no_wait;
-	Info.SourceMode = execute_info::source_mode::known;
+	Info.SourceMode = execute_info::source_mode::known_external;
 
 	Execute(Info);
 }
@@ -522,7 +522,7 @@ static bool execute_shell(string const& Command, string const& Parameters, strin
 	Info.fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS | (Wait? SEE_MASK_NO_CONSOLE : 0);
 	Info.lpVerb = RunAs? L"runas" : nullptr;
 
-	if (any_of(SourceMode, execute_info::source_mode::known, execute_info::source_mode::known_executable) && !path::is_separator(Command.back()))
+	if (any_of(SourceMode, execute_info::source_mode::known, execute_info::source_mode::known_executable))
 	{
 		assert(Parameters.empty());
 

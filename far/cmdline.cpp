@@ -1003,11 +1003,12 @@ void CommandLine::ExecString(execute_info& Info)
 {
 	bool IsUpdateNeeded = false;
 
-	const auto ExecutionContext = Global->WindowManager->Desktop()->ConsoleSession().GetContext();
+	std::shared_ptr<i_context> ExecutionContext;
 
 	SCOPE_EXIT
 	{
-		ExecutionContext->DoEpilogue(Info.Echo && !Info.Command.empty());
+		if (ExecutionContext)
+			ExecutionContext->DoEpilogue(Info.Echo && !Info.Command.empty());
 
 		if (!IsUpdateNeeded)
 			return;
@@ -1029,6 +1030,9 @@ void CommandLine::ExecString(execute_info& Info)
 
 	const auto Activator = [&](bool DoConsolise)
 	{
+		if (!ExecutionContext)
+			ExecutionContext = Global->WindowManager->Desktop()->ConsoleSession().GetContext();
+
 		ExecutionContext->Activate();
 
 		if (Info.Echo)
