@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #error C++ only
 #endif
 
+#include <string>
+
 #include "plugin.hpp"
 
 class DialogAPIBinding
@@ -68,10 +70,15 @@ class PluginCheckBoxBinding: public DialogAPIBinding
 public:
 	PluginCheckBoxBinding(const PluginStartupInfo& aInfo, HANDLE* aHandle, int aID, int* aValue, int aMask):
 		DialogAPIBinding(aInfo, aHandle, aID),
-		Value(aValue),
+		IntValue(aValue),
 		Mask(aMask)
 	{
 	}
+
+	PluginCheckBoxBinding(const PluginStartupInfo& aInfo, HANDLE* aHandle, int aID, bool* aValue):
+		DialogAPIBinding(aInfo, aHandle, aID),
+		BoolValue(aValue)
+	{}
 
 	void SaveValue(FarDialogItem const* Item, int RadioGroupIndex) override
 	{
@@ -81,20 +88,24 @@ public:
 		const int Selected = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, nullptr));
 		if (!Mask)
 		{
-			*Value = Selected;
+			if (IntValue)
+				*IntValue = Selected;
+			else
+				*BoolValue = Selected != 0;
 		}
 		else
 		{
 			if (Selected)
-				*Value |= Mask;
+				*IntValue |= Mask;
 			else
-				*Value &= ~Mask;
+				*IntValue &= ~Mask;
 		}
 	}
 
 private:
-	int* Value;
-	int Mask;
+	int* IntValue{};
+	bool* BoolValue{};
+	int Mask{};
 };
 
 class PluginRadioButtonBinding: public DialogAPIBinding
@@ -120,6 +131,12 @@ private:
 class PluginEditFieldBinding: public DialogAPIBinding
 {
 public:
+	PluginEditFieldBinding(const PluginStartupInfo& aInfo, HANDLE* aHandle, int aID, std::wstring* aValue):
+		DialogAPIBinding(aInfo, aHandle, aID),
+		StrValue(aValue)
+	{
+	}
+
 	PluginEditFieldBinding(const PluginStartupInfo& aInfo, HANDLE* aHandle, int aID, wchar_t* aValue, int aMaxSize):
 		DialogAPIBinding(aInfo, aHandle, aID),
 		Value(aValue),
@@ -132,12 +149,16 @@ public:
 		(void)RadioGroupIndex;
 		(void)Item;
 		const auto DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
-		lstrcpynW(Value, DataPtr, MaxSize);
+		if (StrValue)
+			*StrValue = DataPtr;
+		else
+			lstrcpynW(Value, DataPtr, MaxSize);
 	}
 
 private:
-	wchar_t* Value;
-	int MaxSize;
+	std::wstring* StrValue{};
+	wchar_t* Value{};
+	int MaxSize{};
 };
 
 class PluginIntEditFieldBinding: public DialogAPIBinding
@@ -381,9 +402,26 @@ public:
 	}
 
 	// Добавляет чекбокс.
+	FarDialogItem* AddCheckbox(const wchar_t* TextMessage, bool* Value)
+	{
+		const auto Item = AddDialogItem(DI_CHECKBOX, TextMessage);
+		SetNextY(Item);
+		Item->X2 = Item->X1 + ItemWidth(*Item);
+		Item->Selected = *Value;
+		SetLastItemBinding(new PluginCheckBoxBinding(Info, &DialogHandle, m_DialogItemsCount - 1, Value));
+		return Item;
+	}
+
+	// Добавляет чекбокс.
 	FarDialogItem* AddCheckbox(int TextMessageId, int* Value, int Mask = 0, bool ThreeState = false)
 	{
 		return AddCheckbox(GetLangString(TextMessageId), Value, Mask, ThreeState);
+	}
+
+	// Добавляет чекбокс.
+	FarDialogItem* AddCheckbox(int TextMessageId, bool* Value)
+	{
+		return AddCheckbox(GetLangString(TextMessageId), Value);
 	}
 
 	// Добавляет группу радиокнопок.
@@ -513,6 +551,23 @@ public:
 		}
 
 		SetLastItemBinding(new PluginEditFieldBinding(Info, &DialogHandle, m_DialogItemsCount - 1, Value, MaxSize));
+		return Item;
+	}
+
+	FarDialogItem* AddEditField(std::wstring& Value, int Width, const wchar_t* HistoryID = nullptr, bool UseLastHistory = false)
+	{
+		const auto Item = AddDialogItem(DI_EDIT, Value.c_str());
+		SetNextY(Item);
+		Item->X2 = Item->X1 + Width - 1;
+		if (HistoryID)
+		{
+			Item->History = HistoryID;
+			Item->Flags |= DIF_HISTORY;
+			if (UseLastHistory)
+				Item->Flags |= DIF_USELASTHISTORY;
+		}
+
+		SetLastItemBinding(new PluginEditFieldBinding(Info, &DialogHandle, m_DialogItemsCount - 1, &Value));
 		return Item;
 	}
 

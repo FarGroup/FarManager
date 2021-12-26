@@ -1,5 +1,6 @@
-﻿#ifndef __TMPLNG_HPP__
-#define __TMPLNG_HPP__
+﻿#ifndef TMPLNG_HPP_2B858950_FF18_45CA_9D8A_015805FA2EC8
+#define TMPLNG_HPP_2B858950_FF18_45CA_9D8A_015805FA2EC8
+#pragma once
 
 enum
 {
@@ -9,8 +10,6 @@ enum
 	MWarning,
 
 	MTempPanel,
-	MTempPanelTitleNum,
-
 	MDiskMenuString,
 
 	MF7,
@@ -46,11 +45,11 @@ enum
 	MMask,
 	MPrefix,
 
-	MConfigNewOption,
 	MNewPanelForSearchResults,
 	MListFilePath,
 
 	MCopyContensMsg
 };
 
-#endif /* __TMPLNG_HPP__ */
+#endif // TMPLNG_HPP_2B858950_FF18_45CA_9D8A_015805FA2EC8
+

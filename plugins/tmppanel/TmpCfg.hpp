@@ -1,29 +1,34 @@
-﻿#ifndef __TMPCFG_HPP__
-#define __TMPCFG_HPP__
+﻿#ifndef TMPCFG_HPP_25F4A642_C5AE_4888_B059_831752D782CF
+#define TMPCFG_HPP_25F4A642_C5AE_4888_B059_831752D782CF
+#pragma once
 
-typedef struct options_s
+struct options_t
 {
-	int AddToDisksMenu;
-	int AddToPluginsMenu;
-	int CommonPanel;
-	int SafeModePanel;
-	int AnyInPanel;
-	int CopyContents;
-	int Mode;
-	int MenuForFilelist;
-	int NewPanelForSearchResults;
-	int FullScreenPanel;
-	int LastSearchResultsPanel;
-	int SelectedCopyContents;
-	int ListUTF8;
-	wchar_t ColumnTypes[64];
-	wchar_t ColumnWidths[64];
-	wchar_t StatusColumnTypes[64];
-	wchar_t StatusColumnWidths[64];
-	wchar_t Mask[512];
-	wchar_t Prefix[16];
-} options_t;
+	bool AddToDisksMenu{};
+	bool AddToPluginsMenu{};
+	bool CommonPanel{};
+	bool SafeModePanel{};
+	bool AnyInPanel{};
+	int CopyContents{};
+	bool Replace{};
+	bool MenuForFilelist{};
+	bool NewPanelForSearchResults{};
+	bool FullScreenPanel{};
+	bool ListUTF8{};
+	string ColumnTypes;
+	string ColumnWidths;
+	string StatusColumnTypes;
+	string StatusColumnWidths;
+	string Mask;
+	string Prefix;
 
-extern options_t Opt;
+	size_t LastSearchResultsPanel{};
+	int SelectedCopyContents{};
+};
 
-#endif /* __TMPCFG_HPP__ */
+inline options_t Opt;
+
+void GetOptions();
+bool Config();
+
+#endif // TMPCFG_HPP_25F4A642_C5AE_4888_B059_831752D782CF

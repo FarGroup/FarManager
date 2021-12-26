@@ -1,3 +1,9 @@
+drkns 26.12.2021 23:48:07 +0000 - build 111
+
+1. Refactoring.
+   After seeing "realloc(N + 1)" and other wonders of this plugin there was no other way but to rewrite it.
+   Maybe it will even work better. Or maybe not. Beware of bugs.
+
 shmuel 14.07.2020 07:11:56 +0300 - build 110
 
 1. Исправление 107.1 для общего случая (когда текущий элемент не "..").

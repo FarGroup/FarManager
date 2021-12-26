@@ -6,9 +6,7 @@
 "Warnung"
 
 "Temporäres Fenster"
-" %sTemporäres Fenster [%d] "
-
-"Temporär"
+"Temporäres Fenster"
 
 "Entfernen"
 "Switch"
@@ -43,7 +41,6 @@
 "File masks for the file &lists:"
 "Command line pre&fix:"
 
-"Die neuen Einstellungen werden erst nach einem Neustart von FAR aktiv"
 "Ne&w panel for search results"
 "Save file list as"
 

@@ -6,9 +6,7 @@
 "Uwaga"
 
 "Panel tymczasowy"
-" %sPanel tymczasowy [%d] "
-
-"tymczasowy"
+"Panel tymczasowy"
 
 "Usuń"
 "Przeł."
@@ -43,7 +41,6 @@
 "M&aska plików dla listy plików:"
 "Przedrostek &linii poleceń:"
 
-"Nowe ustawienia będą aktywne po restarcie programu Far"
 "&Nowy panel dla wyników wyszukiwania"
 "Zapisz listę plików jako"
 
