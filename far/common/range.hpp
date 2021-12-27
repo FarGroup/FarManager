@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "rel_ops.hpp"
 #include "type_traits.hpp"
 
+#include <limits>
+
 //----------------------------------------------------------------------------
 
 template<typename iterator_type, typename const_iterator_type = iterator_type>
