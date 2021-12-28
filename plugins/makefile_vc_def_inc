@@ -194,6 +194,10 @@ AS=$(_ML_PATH_)ml.exe
 CC=$(_CL_PATH_)cl.exe
 !endif
 
+!ifndef CPP
+CPP=$(CC)
+!endif
+
 !ifndef LIBR
 LIBR=$(_LINK_PATH_)lib.exe
 !endif
