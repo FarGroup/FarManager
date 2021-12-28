@@ -12,7 +12,7 @@ DOCS = \
 	*.temp
 
 !include ..\makefile_vc_def_inc
-CPPFLAGS = $(CPPFLAGS) -I"$(FARDIR)/common"
+CPPFLAGS = -I"$(FARDIR)/common" $(CPPFLAGS)
 
 !include ..\makefile_vc_target_inc
 
