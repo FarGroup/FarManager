@@ -1418,6 +1418,9 @@ namespace console_detail
 
 	void console::SetAllAliases(console_aliases&& Aliases) const
 	{
+		if (!Aliases.m_Data)
+			return;
+
 		for (const auto& [ExeName, ExeAliases]: Aliases.m_Data->Aliases)
 		{
 			for (const auto& [Alias, Value]: ExeAliases)

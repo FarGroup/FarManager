@@ -298,10 +298,6 @@ void OpenFolderInShell(string_view const Folder)
 
 static void wait_for_process_or_detach(os::handle const& Process, int const ConsoleDetachKey, point const& ConsoleSize, rectangle const& ConsoleWindowRect)
 {
-	const auto
-		hInput = console.GetInputHandle(),
-		hOutput = console.GetOutputHandle();
-
 	const auto ConfigVKey = TranslateKeyToVK(ConsoleDetachKey);
 
 	enum class dual_key_t
@@ -358,7 +354,7 @@ static void wait_for_process_or_detach(os::handle const& Process, int const Cons
 			Buffer.resize(NumberOfEvents + NumberOfEvents / 2);
 		}
 
-		if (!os::handle::is_signaled(hInput, 100ms))
+		if (!os::handle::is_signaled(console.GetInputHandle(), 100ms))
 			continue;
 
 		size_t EventsRead;
@@ -380,9 +376,6 @@ static void wait_for_process_or_detach(os::handle const& Process, int const Cons
 		  ConsoleMode на тот, что был до запуска Far'а,
 		  чего работающее приложение могло и не ожидать.
 		*/
-
-		os::handle{ hInput };
-		os::handle{ hOutput };
 
 		console.Free();
 		console.Allocate();
