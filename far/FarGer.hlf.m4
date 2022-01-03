@@ -5219,7 +5219,7 @@ previously recorded macros.
 combinations. Because a macro command can be additionally
 configured there are two such combinations: #Ctrl+<.># (#Ctrl#
 and a period pressed together) and #Ctrl+Shift+<.># (#Ctrl#,
-Shift and a period pressed together). Pressing the first
+#Shift# and a period pressed together). Pressing the first
 combination will end the recording of the macro command
 and will use the default settings for its playback. Pressing
 the second combination will end the recording of the macro
