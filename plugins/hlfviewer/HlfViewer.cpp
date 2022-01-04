@@ -564,7 +564,7 @@ bool FindPluginHelp(const wchar_t* Name,wchar_t* DestPath)
 
 						// 7. Поиск hlf-файла в "этом каталоге"
 						FoundPath[0]=0;
-						FSF.FarRecursiveSearch(ModuleName,Name,(FRSUSERFUNC)frsuserfunc,FRS_RETUPDIR|FRS_RECUR|FRS_SCANSYMLINK,FoundPath);
+						FSF.FarRecursiveSearch(ModuleName,Name,(FRSUSERFUNC)frsuserfunc,FRS_RECUR|FRS_SCANSYMLINK,FoundPath);
 
 						if (*FoundPath)
 						{
