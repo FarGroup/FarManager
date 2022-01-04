@@ -272,7 +272,7 @@ private:
 	void PushPlugin(std::unique_ptr<plugin_panel>&& hPlugin, string_view HostFile);
 	bool PopPlugin(int EnableRestoreViewMode);
 	void PopPrevData(string_view DefaultName, bool Closed, bool UsePrev, bool Position, bool SetDirectorySuccess);
-	void CopyFiles(bool bMoved);
+	void CopyFiles(bool Move);
 	void CopyNames(bool FillPathName, bool UNC);
 	void SelectSortMode();
 	bool ApplyCommand();

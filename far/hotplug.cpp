@@ -337,8 +337,7 @@ static device_paths get_relation_device_paths(DEVINST hDevInst)
 		return {};
 
 	device_paths DevicePaths;
-	const auto DeviceIdListPtr = DeviceIdList.data();
-	for (const auto& i: enum_substrings(DeviceIdListPtr))
+	for (const auto& i: enum_substrings(DeviceIdList))
 	{
 		DEVINST hRelationDevInst;
 		if (CM_Locate_DevNode(&hRelationDevInst, const_cast<DEVINSTID_W>(i.data()), 0) == CR_SUCCESS)

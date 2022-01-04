@@ -351,6 +351,20 @@ decltype(auto) edit_as(unsigned long long const Address)
 	return edit_as<T>(nullptr, Address);
 }
 
+template<typename T>
+static auto view_as_opt(void const* const Buffer, size_t const Size, size_t const Offset = 0)
+{
+	static_assert(std::is_trivially_copyable_v<T>);
+
+	return Size >= Offset + sizeof(T)? view_as<T const*>(Buffer, Offset) : nullptr;
+}
+
+template<typename T, typename container, REQUIRES(is_range_v<container>)>
+static auto view_as_opt(container const& Buffer, size_t const Offset = 0)
+{
+	return view_as_opt<T>(Buffer.data(), Buffer.size(), Offset);
+}
+
 template<typename large_type, typename small_type>
 constexpr large_type make_integer(small_type const LowPart, small_type const HighPart)
 {

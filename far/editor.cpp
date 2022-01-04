@@ -4048,7 +4048,7 @@ void Editor::ProcessChar(wchar_t Char)
 	}
 }
 
-void Editor::Copy(int Append)
+void Editor::Copy(const bool Append)
 {
 	if (IsVerticalSelection())
 	{

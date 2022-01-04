@@ -4121,11 +4121,7 @@ void FarMacroApi::clipFunc() const
 	case 1: // Put "S" into Clipboard
 		{
 			const auto& Str = Val.asString();
-			if (!Str.empty())
-				return PassValue(SetClipboardText(Str));
-
-			const clipboard_accessor Clip;
-			return PassValue(Clip->Open() && Clip->Clear());
+			return PassValue(Str.empty()? ClearClipboard() : SetClipboardText(Str));
 		}
 
 	case 2: // Add "S" into Clipboard

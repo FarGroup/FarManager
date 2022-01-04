@@ -222,7 +222,7 @@ std::optional<wchar_t> get_volume_drive(string_view const VolumePath)
 		string VolumePathNames;
 		if (os::fs::GetVolumePathNamesForVolumeName(SrcVolumeName, VolumePathNames))
 		{
-			for (const auto& i : enum_substrings(VolumePathNames.c_str()))
+			for (const auto& i: enum_substrings(VolumePathNames))
 			{
 				if (IsRootPath(i))
 					return upper(i.front());

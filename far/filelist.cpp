@@ -4288,7 +4288,7 @@ void FileList::CompareDir()
 			{ lng::MOk });
 }
 
-void FileList::CopyFiles(bool bMoved)
+void FileList::CopyFiles(const bool Move)
 {
 	bool RealNames=false;
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
@@ -4315,7 +4315,7 @@ void FileList::CopyFiles(bool bMoved)
 			const clipboard_accessor Clip;
 			if(Clip->Open())
 			{
-				Clip->SetHDROP(CopyData, bMoved);
+				Clip->SetHDROP(CopyData, Move);
 			}
 		}
 	}

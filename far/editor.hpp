@@ -219,7 +219,7 @@ private:
 	void PasteFromClipboard();
 	void Paste(string_view Data);
 	void ProcessChar(wchar_t Char);
-	void Copy(int Append);
+	void Copy(bool Append);
 	void DeleteBlock();
 	void UnmarkBlock();
 	void UnmarkEmptyBlock();

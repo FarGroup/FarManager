@@ -1391,7 +1391,7 @@ namespace console_detail
 		auto Aliases = std::make_unique<console_aliases::data>();
 
 		std::vector<wchar_t> AliasesBuffer;
-		for (const auto& ExeToken : enum_substrings(ExeBuffer.data()))
+		for (const auto& ExeToken: enum_substrings(ExeBuffer))
 		{
 			// It's ok, ExeToken is guaranteed to be null-terminated
 			const auto ExeNamePtr = const_cast<wchar_t*>(ExeToken.data());
@@ -1402,7 +1402,7 @@ namespace console_detail
 
 			std::pair<string, std::vector<std::pair<string, string>>> ExeData;
 			ExeData.first = ExeNamePtr;
-			for (const auto& AliasToken: enum_substrings(AliasesBuffer.data()))
+			for (const auto& AliasToken: enum_substrings(AliasesBuffer))
 			{
 				ExeData.second.emplace_back(split(AliasToken));
 			}

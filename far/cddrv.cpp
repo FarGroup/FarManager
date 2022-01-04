@@ -187,14 +187,6 @@ WARNING_DISABLE_CLANG("-Wswitch")
 WARNING_POP()
 }
 
-template<typename T, typename container>
-static auto view_as_if(container const& Buffer, intptr_t const Offset = 0)
-{
-	static_assert(std::is_trivially_copyable_v<T>);
-
-	return Buffer.size() >= Offset + sizeof(T)? view_as<T const*>(Buffer.data() + Offset) : nullptr;
-}
-
 static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 {
 	SCSI_PASS_THROUGH_WITH_BUFFERS Spt;
@@ -239,11 +231,11 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 
 	span const Buffer(Spt.DataBuf, Spt.DataTransferLength);
 
-	const auto ConfigurationHeader = view_as_if<GET_CONFIGURATION_HEADER>(Buffer);
+	const auto ConfigurationHeader = view_as_opt<GET_CONFIGURATION_HEADER>(Buffer);
 	if (!ConfigurationHeader || Buffer.size() < sizeof(ConfigurationHeader->DataLength) + read_value_from_big_endian<size_t>(ConfigurationHeader->DataLength))
 		return CAPABILITIES_NONE;
 
-	const auto FeatureList = view_as_if<FEATURE_DATA_PROFILE_LIST>(Buffer, sizeof(*ConfigurationHeader));
+	const auto FeatureList = view_as_opt<FEATURE_DATA_PROFILE_LIST>(Buffer, sizeof(*ConfigurationHeader));
 	if (!FeatureList)
 		return CAPABILITIES_NONE;
 

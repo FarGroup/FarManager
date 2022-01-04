@@ -357,7 +357,18 @@ TEST_CASE("enum_substrings")
 	const std::array Baseline{ L"abc"sv, L"def"sv, L"q"sv };
 	auto BaselineIterator = Baseline.begin();
 
-	for (const auto& i : enum_substrings(L"abc\0def\0q\0"sv.data()))
+	for (const auto& i: enum_substrings(L"abc\0def\0q\0"sv.data()))
+	{
+		REQUIRE(i == *BaselineIterator++);
+	}
+
+	REQUIRE(BaselineIterator == Baseline.end());
+
+	BaselineIterator = Baseline.begin();
+
+	auto DataNoLastNulls = L"abc\0def\0q_"sv;
+	DataNoLastNulls.remove_suffix(1);
+	for (const auto& i: enum_substrings(DataNoLastNulls))
 	{
 		REQUIRE(i == *BaselineIterator++);
 	}
@@ -467,11 +478,22 @@ TEST_CASE("from_string")
 	}
 
 	REQUIRE(from_string<int>(L"-1"sv) == -1);
-	REQUIRE(from_string<unsigned int>(L"4294967295"sv) == 4294967295u);
-	REQUIRE(from_string<unsigned long long>(L"18446744073709551615"sv) == 18446744073709551615ull);
+	REQUIRE(from_string<int32_t>(L"-2147483648"sv) == std::numeric_limits<int32_t>::min());
+	REQUIRE(from_string<int32_t>(L"2147483647"sv) == std::numeric_limits<int32_t>::max());
+	REQUIRE(from_string<uint32_t>(L"4294967295"sv) == std::numeric_limits<uint32_t>::max());
+	REQUIRE(from_string<int64_t>(L"-9223372036854775808"sv) == std::numeric_limits<int64_t>::min());
+	REQUIRE(from_string<int64_t>(L"9223372036854775807"sv) == std::numeric_limits<int64_t>::max());
+	REQUIRE(from_string<uint64_t>(L"18446744073709551615"sv) == std::numeric_limits<uint64_t>::max());
 
-	REQUIRE_THROWS_AS(from_string<short>(L"32768"sv), std::out_of_range);
-	REQUIRE_THROWS_AS(from_string<unsigned int>(L"4294967296"sv), std::out_of_range);
+	REQUIRE_THROWS_AS(from_string<uint64_t>(L"18446744073709551616"sv), std::out_of_range);
+	REQUIRE_THROWS_AS(from_string<int64_t>(L"-9223372036854775809"sv), std::out_of_range);
+	REQUIRE_THROWS_AS(from_string<int64_t>(L"9223372036854775808"sv), std::out_of_range);
+	REQUIRE_THROWS_AS(from_string<uint32_t>(L"4294967296"sv), std::out_of_range);
+	REQUIRE_THROWS_AS(from_string<int32_t>(L"-2147483649"sv), std::out_of_range);
+	REQUIRE_THROWS_AS(from_string<int32_t>(L"2147483648"sv), std::out_of_range);
+	REQUIRE_THROWS_AS(from_string<uint16_t>(L"65536"sv), std::out_of_range);
+	REQUIRE_THROWS_AS(from_string<int16_t>(L"-32769"sv), std::out_of_range);
+	REQUIRE_THROWS_AS(from_string<int16_t>(L"32768"sv), std::out_of_range);
 	REQUIRE_THROWS_AS(from_string<unsigned int>(L"-42"sv), std::out_of_range);
 	REQUIRE_THROWS_AS(from_string<int>(L"fubar"sv), std::invalid_argument);
 	REQUIRE_THROWS_AS(from_string<int>({}), std::invalid_argument);

@@ -40,20 +40,28 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 // Enumerator for string1\0string2\0string3\0...stringN\0\0
+// Stops on \0\0 or once Str + Size is reached.
 
 template<class char_type>
 [[nodiscard]]
-auto enum_substrings(const char_type* Str)
+auto enum_substrings(char_type const* const Str, std::optional<size_t> const Size = {})
 {
 	using value_type = std::basic_string_view<char_type>;
-	return make_inline_enumerator<value_type>([Iterator = Str, Str](const bool Reset, value_type& Value) mutable
+	return make_inline_enumerator<value_type>([Iterator = Str, Str, Size](const bool Reset, value_type& Value) mutable
 	{
 		if (Reset)
 			Iterator = Str;
 		else
-			++Iterator;
+		{
+			if (Size && Iterator == Str + *Size)
+				return false;
 
-		const auto NewIterator = Iterator + std::char_traits<char_type>::length(Iterator);
+			++Iterator;
+		}
+
+		const auto NewIterator = Size?
+			std::find(Iterator, Str + *Size, char_type{}) :
+			Iterator + std::char_traits<char_type>::length(Iterator);
 
 		if (NewIterator == Iterator)
 			return false;
@@ -62,6 +70,13 @@ auto enum_substrings(const char_type* Str)
 		Iterator = NewIterator;
 		return true;
 	});
+}
+
+template<class string_type, REQUIRES(!std::is_pointer_v<string_type> && !std::is_rvalue_reference_v<string_type>)>
+[[nodiscard]]
+auto enum_substrings(string_type&& Str)
+{
+	return enum_substrings(Str.data(), Str.size());
 }
 
 #endif // ENUM_SUBSTRINGS_HPP_AD490DED_6C5F_4C74_82ED_F858919C4277

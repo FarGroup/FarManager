@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/noncopyable.hpp"
+#include "common/preprocessor.hpp"
 
 // External:
 
@@ -73,30 +73,22 @@ public:
 	virtual bool Close() noexcept = 0;
 	virtual bool Clear() = 0;
 
-	bool SetText(string_view Str);
-	bool SetVText(string_view Str);
-	bool SetHDROP(string_view NamesData, bool bMoved);
+	virtual bool SetText(string_view Str) = 0;
+	virtual bool SetVText(string_view Str) = 0;
+	virtual bool SetHDROP(string_view NamesData, bool Move) = 0;
 
-	bool GetText(string& Data) const;
-	bool GetVText(string& Data) const;
+	virtual bool GetText(string& Data) const = 0;
+	virtual bool GetVText(string& Data) const = 0;
 
 protected:
-	enum class clipboard_format;
-
-	bool m_Opened {};
-
-private:
-	virtual bool SetData(unsigned uFormat, os::memory::global::ptr&& hMem) = 0;
-	virtual HANDLE GetData(unsigned uFormat) const = 0;
-	virtual unsigned RegisterFormat(clipboard_format Format) const = 0;
-	virtual bool IsFormatAvailable(unsigned Format) const = 0;
-
-	bool GetHDROPAsText(string& data) const;
+	bool m_Opened{};
 };
 
-class clipboard_accessor:noncopyable
+class clipboard_accessor
 {
 public:
+	NONCOPYABLE(clipboard_accessor);
+
 	explicit clipboard_accessor(clipboard_mode Mode = default_clipboard_mode::get()): m_Clipboard(clipboard::GetInstance(Mode)) {}
 	~clipboard_accessor() { m_Clipboard.Close(); }
 	auto operator->() const noexcept { return &m_Clipboard; }
