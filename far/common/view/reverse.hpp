@@ -34,6 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../keep_alive.hpp"
 
+#include <iterator>
+
 //----------------------------------------------------------------------------
 
 template<typename container, typename container_ref>

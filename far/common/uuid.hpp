@@ -32,12 +32,20 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <optional>
+#include <stdexcept>
+#include <string_view>
+
+#include <rpc.h>
+
 //----------------------------------------------------------------------------
 
 namespace uuid
 {
 	namespace detail
 	{
+		using namespace std::literals;
+
 		constexpr auto uuid_length = "00000000-0000-0000-0000-000000000000"sv.size();
 
 		[[noreturn]]

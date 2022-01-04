@@ -34,6 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "noncopyable.hpp"
 
+#include <type_traits>
+
 //----------------------------------------------------------------------------
 
 template<typename type>

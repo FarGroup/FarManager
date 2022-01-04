@@ -34,6 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "enumerator.hpp"
 
+#include <optional>
+#include <string_view>
+
 //----------------------------------------------------------------------------
 
 // Enumerator for string1\0string2\0string3\0...stringN\0\0

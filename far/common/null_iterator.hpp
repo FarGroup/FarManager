@@ -34,6 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "rel_ops.hpp"
 
+#include <iterator>
+
 //----------------------------------------------------------------------------
 
 template <class T>

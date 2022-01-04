@@ -34,6 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "range.hpp"
+#include "utility.hpp"
+
+#include <streambuf>
 
 //----------------------------------------------------------------------------
 
