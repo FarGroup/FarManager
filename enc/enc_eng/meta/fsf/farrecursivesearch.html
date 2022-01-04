@@ -53,11 +53,7 @@ void WINAPI FarRecursiveSearch(
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Flag</th><th class="cont" width="60%">Description</th></tr>
   <tr class="cont"><td class="cont" width="40%"><a name="FRS_RETUPDIR">FRS_RETUPDIR</a></td>
-  <td class="cont" width="60%">
-     When the search is stopped, the <dfn>FullName</dfn> parameter of the
-     <a href="../defs/frsuserfunc.html">UserFunc</a> function will contain the directory
-     name where the file is found, instead of the name of the file.
-    </td></tr>
+  <td class="cont" width="60%">Invoke the callback twice for each found directory: on entering it and on returning to the parent directory.</td></tr>
 
   <tr class="cont"><td class="cont" width="40%"><a name="FRS_RECUR">FRS_RECUR</a></td>
   <td class="cont" width="60%">Recurse the directory tree while searching for the specified file.</td></tr>
