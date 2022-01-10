@@ -471,11 +471,7 @@
     <ClCompile Include="..\..\Archive\Nsis\NsisRegister.cpp" />
     <ClCompile Include="..\..\Archive\NtfsHandler.cpp" />
     <ClCompile Include="..\..\Archive\PeHandler.cpp" />
-    <ClCompile Include="..\..\Archive\PpmdHandler.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="..\..\Archive\PpmdHandler.cpp" />
     <ClCompile Include="..\..\Archive\QcowHandler.cpp" />
     <ClCompile Include="..\..\Archive\Rar\Rar5Handler.cpp" />
     <ClCompile Include="..\..\Archive\Rar\RarHandler.cpp" />
@@ -495,6 +491,7 @@
     <ClCompile Include="..\..\Archive\UefiHandler.cpp" />
     <ClCompile Include="..\..\Archive\VdiHandler.cpp" />
     <ClCompile Include="..\..\Archive\VhdHandler.cpp" />
+    <ClCompile Include="..\..\Archive\VhdxHandler.cpp" />
     <ClCompile Include="..\..\Archive\VmdkHandler.cpp" />
     <ClCompile Include="..\..\Archive\Wim\WimHandler.cpp" />
     <ClCompile Include="..\..\Archive\Wim\WimHandlerOut.cpp" />

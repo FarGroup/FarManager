@@ -733,10 +733,8 @@ void Archive::make_index() {
   std::map<UInt32, unsigned> dir_index_map;
   DirList dir_list;
 
-  const auto is_dir_split = [](const wchar_t ch)
-  {
-	  return ch == wchar_t(0xF05C) || is_slash(ch);
-  };
+  // https://forum.farmanager.com/viewtopic.php?p=169196#p169196
+  const auto is_dir_split = [](const wchar_t ch) { return ch == wchar_t(0xf05c) || is_slash(ch); };
 
   DirInfo dir_info;
   UInt32 dir_index = 0;
