@@ -136,6 +136,7 @@ namespace uuids::far::dialogs
 		AskInsertMenuOrCommandId         = "57209AD5-51F6-4257-BAB6-837462BBCE74"_uuid,
 		EditUserMenuId                   = "73BC6E3E-4CC3-4FE3-8709-545FF72B49B4"_uuid,
 		PluginInformationId              = "FC4FD19A-43D2-4987-AC31-0F7A94901692"_uuid,
+		MaskGroupsId                     = "C57682CA-8DC9-4D62-B3F5-9ED37CD207B9"_uuid,
 		ViewerSearchId                   = "03B6C098-A3D6-4DFB-AED4-EB32D711D9AA"_uuid;
 }
 

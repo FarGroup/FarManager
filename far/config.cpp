@@ -548,6 +548,7 @@ void Options::MaskGroupsSettings()
 							Value = ConfigProvider().GeneralCfg()->GetValue<string>(L"Masks"sv, Name);
 						}
 						DialogBuilder Builder(lng::MMaskGroupTitle, L"MaskGroupsSettings"sv);
+						Builder.SetId(MaskGroupsId);
 						Builder.AddText(lng::MMaskGroupName);
 						Builder.AddEditField(Name, 60);
 						Builder.AddText(lng::MMaskGroupMasks);
@@ -1743,9 +1744,9 @@ Options::Options():
 		Global->ScrBuf->SetClearTypeFix(Value);
 	}));
 
-	Sort.Collation.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));
-	Sort.DigitsAsNumbers.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));
-	Sort.CaseSensitive.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));
+	Sort.Collation.SetCallback(option::notifier([this](auto) { string_sort::adjust_comparer(Sort.Collation, Sort.CaseSensitive, Sort.DigitsAsNumbers); }));
+	Sort.DigitsAsNumbers.SetCallback(option::notifier([this](auto) { string_sort::adjust_comparer(Sort.Collation, Sort.CaseSensitive, Sort.DigitsAsNumbers); }));
+	Sort.CaseSensitive.SetCallback(option::notifier([this](auto) { string_sort::adjust_comparer(Sort.Collation, Sort.CaseSensitive, Sort.DigitsAsNumbers); }));
 
 	FormatNumberSeparators.SetCallback(option::notifier([](auto) { locale.invalidate(); }));
 

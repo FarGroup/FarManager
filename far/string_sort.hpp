@@ -52,7 +52,7 @@ namespace string_sort
 	[[nodiscard]]
 	int compare(string_view, string_view);
 
-	void adjust_comparer();
+	void adjust_comparer(size_t Collation, bool CaseSensitive, bool DigitsAsNumbers);
 
 	[[nodiscard]]
 	inline bool less(string_view Str1, string_view Str2)

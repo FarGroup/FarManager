@@ -37,8 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "string_utils.hpp"
-#include "config.hpp"
-#include "global.hpp"
 #include "imports.hpp"
 
 // Platform:
@@ -347,7 +345,7 @@ int string_sort::compare(const string_view Str1, const string_view Str2)
 	return DefaultComparer(Str1, Str2);
 }
 
-void string_sort::adjust_comparer()
+void string_sort::adjust_comparer(size_t const Collation, bool const CaseSensitive, bool const DigitsAsNumbers)
 {
 	static const decltype(&compare) Comparers[][2][2]
 	{
@@ -365,9 +363,9 @@ void string_sort::adjust_comparer()
 		},
 	};
 
-	const auto CollationIdex = std::clamp<size_t>(0, Global->Opt->Sort.Collation, std::size(Comparers) - 1);
+	const auto CollationIdex = std::clamp<size_t>(0, Collation, std::size(Comparers) - 1);
 
-	DefaultComparer = Comparers[CollationIdex][Global->Opt->Sort.DigitsAsNumbers][Global->Opt->Sort.CaseSensitive];
+	DefaultComparer = Comparers[CollationIdex][DigitsAsNumbers][CaseSensitive];
 }
 
 int string_sort::keyhole::compare_ordinal_icase(string_view const Str1, string_view const Str2)

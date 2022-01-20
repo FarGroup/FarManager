@@ -124,6 +124,22 @@ static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 	return Result;
 }
 
+static constexpr auto BitsPerHexChar = 4;
+
+template<typename T>
+static constexpr auto width_in_hex_chars = std::numeric_limits<T>::digits / BitsPerHexChar;
+
+static string FormatAddress(uintptr_t const Value)
+{
+	// It is unlikely that RVAs will be above 4 GiB,
+	// so we can save some screen space here.
+	const auto Width = Value > std::numeric_limits<uint32_t>::max()?
+		width_in_hex_chars<decltype(Value)> :
+		width_in_hex_chars<uint32_t>;
+
+	return format(FSTR(L"{:0{}X}"sv), Value, Width);
+};
+
 // SYMBOL_INFO_PACKAGEW not defined in GCC headers :(
 namespace
 {
@@ -144,21 +160,6 @@ static void get_symbols_impl(
 )
 {
 	const auto Process = GetCurrentProcess();
-
-	const auto FormatAddress = [](uintptr_t const Value)
-	{
-		// It is unlikely that RVAs will be above 4 GiB,
-		// so we can save some screen space here.
-		const auto Width =
-#ifdef _WIN64
-			Value & 0xffffffff00000000? 16 : 8
-#else
-			8
-#endif
-			;
-
-		return format(FSTR(L"{:0{}X}"sv), Value, Width);
-	};
 
 	std::variant
 	<

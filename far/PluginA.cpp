@@ -773,10 +773,10 @@ static void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::Plu
 	PanelItemA.FindData.ftCreationTime = PanelItem.CreationTime;
 	PanelItemA.FindData.ftLastAccessTime = PanelItem.LastAccessTime;
 	PanelItemA.FindData.ftLastWriteTime = PanelItem.LastWriteTime;
-	PanelItemA.FindData.nFileSizeLow = static_cast<DWORD>(PanelItem.FileSize & 0xFFFFFFFF);
-	PanelItemA.FindData.nFileSizeHigh = static_cast<DWORD>(PanelItem.FileSize >> 32);
-	PanelItemA.PackSize = static_cast<DWORD>(PanelItem.AllocationSize & 0xFFFFFFFF);
-	PanelItemA.PackSizeHigh = static_cast<DWORD>(PanelItem.AllocationSize >> 32);
+	PanelItemA.FindData.nFileSizeLow = extract_integer<DWORD, 0>(PanelItem.FileSize);
+	PanelItemA.FindData.nFileSizeHigh = extract_integer<DWORD, 1>(PanelItem.FileSize);
+	PanelItemA.PackSize = extract_integer<DWORD, 0>(PanelItem.AllocationSize);
+	PanelItemA.PackSizeHigh = extract_integer<DWORD, 1>(PanelItem.AllocationSize);
 	(void)encoding::oem::get_bytes(PanelItem.FileName + PathOffset, PanelItemA.FindData.cFileName);
 	(void)encoding::oem::get_bytes(PanelItem.AlternateFileName, PanelItemA.FindData.cAlternateFileName);
 }
@@ -2225,8 +2225,8 @@ static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData, con
 		FindData.ftCreationTime = FData->CreationTime;
 		FindData.ftLastAccessTime = FData->LastAccessTime;
 		FindData.ftLastWriteTime = FData->LastWriteTime;
-		FindData.nFileSizeLow = static_cast<DWORD>(FData->FileSize);
-		FindData.nFileSizeHigh = static_cast<DWORD>(FData->FileSize >> 32);
+		FindData.nFileSizeLow = extract_integer<DWORD, 0>(FData->FileSize);
+		FindData.nFileSizeHigh = extract_integer<DWORD, 1>(FData->FileSize);
 		(void)encoding::oem::get_bytes(FData->FileName, FindData.cFileName);
 		(void)encoding::oem::get_bytes(FData->AlternateFileName, FindData.cAlternateFileName);
 		char FullNameA[oldfar::NM];
@@ -2583,7 +2583,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 					FarKey NewItem;
 					NewItem.VirtualKeyCode = i & 0xffff;
 					NewItem.ControlKeyState = 0;
-					const auto ItemFlags = i >> 16;
+					const auto ItemFlags = extract_integer<uint16_t, 0>(i);
 					if (ItemFlags & oldfar::PKF_CONTROL) NewItem.ControlKeyState |= LEFT_CTRL_PRESSED;
 					if (ItemFlags & oldfar::PKF_ALT) NewItem.ControlKeyState |= LEFT_ALT_PRESSED;
 					if (ItemFlags & oldfar::PKF_SHIFT) NewItem.ControlKeyState |= SHIFT_PRESSED;

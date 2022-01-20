@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "platform.concurrency.hpp"
+#include "common/scope_exit.hpp"
 #include "common/singleton.hpp"
 #include "common/string_utils.hpp"
 
@@ -73,11 +74,17 @@ public:
 
 	void remove(const FileSystemWatcher* Client)
 	{
-		SCOPED_ACTION(std::lock_guard)(m_CS);
+		{
+			SCOPED_ACTION(std::lock_guard)(m_CS);
 
-		std::erase(m_Clients, Client);
+			std::erase(m_Clients, Client);
+		}
 
+		m_UpdateDone.reset();
 		m_Update.set();
+
+		// We have to ensure that the client event handle is no longer used by the watcher before letting the client go
+		(void)os::handle::wait_any({ m_UpdateDone.native_handle(), m_Thread.native_handle()});
 	}
 
 private:
@@ -85,13 +92,24 @@ private:
 	{
 		os::debug::set_thread_name(L"FS watcher");
 
-		while (!m_Clients.empty())
+		for (;;)
 		{
 			{
-				SCOPED_ACTION(std::lock_guard)(m_CS);
+				m_UpdateDone.reset();
+				SCOPE_EXIT{ m_UpdateDone.set(); };
 
-				m_Handles.resize(1);
-				std::transform(ALL_CONST_RANGE(m_Clients), std::back_inserter(m_Handles), [](const FileSystemWatcher* const Client) { return Client->m_Event.native_handle(); });
+				{
+					SCOPED_ACTION(std::lock_guard)(m_CS);
+
+					if (m_Clients.empty())
+					{
+						LOGDEBUG(L"FS Watcher exit"sv);
+						return;
+					}
+
+					m_Handles.resize(1);
+					std::transform(ALL_CONST_RANGE(m_Clients), std::back_inserter(m_Handles), [](const FileSystemWatcher* const Client) { return Client->m_Event.native_handle(); });
+				}
 			}
 
 			const auto Result = os::handle::wait_any(m_Handles);
@@ -99,27 +117,30 @@ private:
 			if (Result == 0)
 				continue;
 
-			m_Clients[Result - 1]->callback_notify();
-
-			for (const auto& Client: m_Clients)
 			{
-				if (Client != m_Clients[Result - 1] && Client->m_Event.is_signaled())
-					Client->callback_notify();
+				SCOPED_ACTION(std::lock_guard)(m_CS);
+
+				m_Clients[Result - 1]->callback_notify();
+
+				for (const auto& Client : m_Clients)
+				{
+					if (Client != m_Clients[Result - 1] && Client->m_Event.is_signaled())
+						Client->callback_notify();
+				}
 			}
 
 			// FS changes can occur at a high rate.
 			// We don't care about individual events, so we wait a little here to let them collapse to one event per sec at most:
 			(void)m_Update.is_signaled(1s);
 		}
-
-		LOGDEBUG(L"FS Watcher exit"sv);
 	}
 
-private:
 	os::critical_section m_CS;
-	os::event m_Update{ os::event::type::automatic, os::event::state::nonsignaled };
+	os::event
+		m_Update{ os::event::type::automatic, os::event::state::nonsignaled },
+		m_UpdateDone{ os::event::type::automatic, os::event::state::nonsignaled };
 	std::vector<const FileSystemWatcher*> m_Clients;
-	std::vector<HANDLE> m_Handles{ m_Update.native_handle()};
+	std::vector<HANDLE> m_Handles{ m_Update.native_handle() };
 	os::thread m_Thread;
 };
 
