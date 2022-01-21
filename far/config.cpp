@@ -548,7 +548,7 @@ void Options::MaskGroupsSettings()
 							Value = ConfigProvider().GeneralCfg()->GetValue<string>(L"Masks"sv, Name);
 						}
 						DialogBuilder Builder(lng::MMaskGroupTitle, L"MaskGroupsSettings"sv);
-						Builder.SetId(MaskGroupsId);
+						Builder.SetId(EditMaskGroupId);
 						Builder.AddText(lng::MMaskGroupName);
 						Builder.AddEditField(Name, 60);
 						Builder.AddText(lng::MMaskGroupMasks);
