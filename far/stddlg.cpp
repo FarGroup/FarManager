@@ -80,7 +80,7 @@ int GetSearchReplaceString(
 	string& ReplaceStr,
 	string_view TextHistoryName,
 	string_view ReplaceHistoryName,
-	bool* pCase,
+	search_case_fold* pCaseFold,
 	bool* pWholeWords,
 	bool* pReverse,
 	bool* pRegexp,
@@ -105,7 +105,7 @@ int GetSearchReplaceString(
 		SubTitle = msg(lng::MEditSearchFor);
 
 
-	bool Case=pCase?*pCase:false;
+	auto CaseFold = pCaseFold? *pCaseFold : search_case_fold::icase;
 	bool WholeWords=pWholeWords?*pWholeWords:false;
 	bool Reverse=pReverse?*pReverse:false;
 	bool Regexp=pRegexp?*pRegexp:false;
@@ -156,7 +156,7 @@ int GetSearchReplaceString(
 		{ DI_TEXT,      {{5,                 4      }, {0,                 4      }}, DIF_NONE, msg(lng::MEditReplaceWith), },
 		{ DI_EDIT,      {{5,                 5      }, {70,                5      }}, DIF_USELASTHISTORY | DIF_HISTORY, ReplaceStr, },
 		{ DI_TEXT,      {{-1,                6-YFix }, {0,                 6-YFix }}, DIF_SEPARATOR, },
-		{ DI_CHECKBOX,  {{5,                 7-YFix }, {0,                 7-YFix }}, DIF_NONE, msg(lng::MEditSearchCase), },
+		{ DI_CHECKBOX,  {{5,                 7-YFix }, {0,                 7-YFix }}, DIF_3STATE, msg(lng::MEditSearchCase), },
 		{ DI_CHECKBOX,  {{5,                 8-YFix }, {0,                 8-YFix }}, DIF_NONE, msg(lng::MEditSearchWholeWords), },
 		{ DI_CHECKBOX,  {{5,                 9-YFix }, {0,                 9-YFix }}, DIF_NONE, msg(lng::MEditSearchReverse), },
 		{ DI_CHECKBOX,  {{40,                7-YFix }, {0,                 7-YFix }}, DIF_NONE, msg(lng::MEditSearchRegexp), },
@@ -169,7 +169,10 @@ int GetSearchReplaceString(
 
 	ReplaceDlg[dlg_edit_search].strHistory = TextHistoryName;
 	ReplaceDlg[dlg_edit_replace].strHistory = ReplaceHistoryName;
-	ReplaceDlg[dlg_checkbox_case].Selected = Case;
+	ReplaceDlg[dlg_checkbox_case].Selected =
+		CaseFold == search_case_fold::exact? BSTATE_CHECKED :
+		CaseFold == search_case_fold::icase? BSTATE_UNCHECKED :
+		BSTATE_3STATE;
 	ReplaceDlg[dlg_checkbox_words].Selected = WholeWords;
 	ReplaceDlg[dlg_checkbox_reverse].Selected = Reverse;
 	ReplaceDlg[dlg_checkbox_regex].Selected = Regexp;
@@ -194,7 +197,7 @@ int GetSearchReplaceString(
 		ReplaceDlg[dlg_button_selection].Flags |= DIF_HIDDEN;
 	}
 
-	if (!pCase)
+	if (!pCaseFold)
 		ReplaceDlg[dlg_checkbox_case].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 	if (!pWholeWords)
 		ReplaceDlg[dlg_checkbox_words].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
@@ -234,15 +237,18 @@ int GetSearchReplaceString(
 		Result = ExitCode == dlg_button_action ? 1 : 2;
 		SearchStr = ReplaceDlg[dlg_edit_search].strData;
 		ReplaceStr = ReplaceDlg[dlg_edit_replace].strData;
-		Case=ReplaceDlg[dlg_checkbox_case].Selected == BSTATE_CHECKED;
+		CaseFold =
+			ReplaceDlg[dlg_checkbox_case].Selected == BSTATE_CHECKED? search_case_fold::exact :
+			ReplaceDlg[dlg_checkbox_case].Selected == BSTATE_UNCHECKED? search_case_fold::icase :
+			search_case_fold::fuzzy;
 		WholeWords=ReplaceDlg[dlg_checkbox_words].Selected == BSTATE_CHECKED;
 		Reverse=ReplaceDlg[dlg_checkbox_reverse].Selected == BSTATE_CHECKED;
 		Regexp=ReplaceDlg[dlg_checkbox_regex].Selected == BSTATE_CHECKED;
 		PreserveStyle=ReplaceDlg[dlg_checkbox_style].Selected == BSTATE_CHECKED;
 	}
 
-	if (pCase)
-		*pCase=Case;
+	if (pCaseFold)
+		*pCaseFold = CaseFold;
 	if (pWholeWords)
 		*pWholeWords=WholeWords;
 	if (pReverse)
@@ -535,11 +541,20 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 		{
 			const size_t MaxRmProcesses = 5;
 			DWORD Reasons = RmRebootReasonNone;
-			const auto ProcessCount = os::process::enumerate_rm_processes(FullName, Reasons, [&](string&& Str)
+			auto ProcessCount = os::process::enumerate_rm_processes(FullName, Reasons, [&](string&& Str)
 			{
 				Msg.emplace_back(std::move(Str));
 				return Msg.size() != MaxRmProcesses;
 			});
+
+			if (!ProcessCount)
+			{
+				ProcessCount = os::process::enumerate_nt_processes(FullName, [&](string&& Str)
+				{
+					Msg.emplace_back(std::move(Str));
+					return Msg.size() != MaxRmProcesses;
+				});
+			}
 
 			if (ProcessCount > MaxRmProcesses)
 			{
@@ -745,12 +760,10 @@ void ReMatchErrorMessage(const RegExp& re)
 	}
 }
 
-static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& Col)
+static void GetRowCol(const string_view Str, bool Hex, goto_coord& Row, goto_coord& Col)
 {
-	const auto Parse = [Hex](string Part, goto_coord& Dest)
+	const auto Parse = [Hex](string_view Part, goto_coord& Dest)
 	{
-		std::erase(Part, L' ');
-
 		if (Part.empty())
 			return;
 
@@ -758,12 +771,12 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 		switch (Part.front())
 		{
 		case L'-':
-			Part.erase(0, 1);
+			Part.remove_prefix(1);
 			Dest.relative = -1;
 			break;
 
 		case L'+':
-			Part.erase(0, 1);
+			Part.remove_prefix(1);
 			Dest.relative = +1;
 			break;
 
@@ -777,7 +790,7 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 		// он хочет процентов
 		if (Part.back() == L'%')
 		{
-			Part.pop_back();
+			Part.remove_suffix(1);
 			Dest.percent = true;
 		}
 
@@ -789,22 +802,22 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 		// он умный - hex код ввел!
 		if (starts_with(Part, L"0x"sv))
 		{
-			Part.erase(0, 2);
+			Part.remove_prefix(2);
 			Radix = 16;
 		}
 		else if (starts_with(Part, L"$"sv))
 		{
-			Part.erase(0, 1);
+			Part.remove_prefix(1);
 			Radix = 16;
 		}
 		else if (ends_with(Part, L"h"sv))
 		{
-			Part.pop_back();
+			Part.remove_suffix(1);
 			Radix = 16;
 		}
 		else if (ends_with(Part, L"m"sv))
 		{
-			Part.pop_back();
+			Part.remove_suffix(1);
 			Radix = 10;
 		}
 
@@ -818,7 +831,7 @@ static void GetRowCol(const string& Str, bool Hex, goto_coord& Row, goto_coord& 
 		Dest.exist = true;
 	};
 
-	const auto SeparatorPos = Str.find_first_of(L".,;:"sv);
+	const auto SeparatorPos = Str.find_first_of(L" .,;:"sv);
 
 	if (SeparatorPos == Str.npos)
 	{
@@ -982,7 +995,7 @@ void single_progress::update(size_t const Percent) const
 {
 	m_Dialog->SendMessage(DM_SETTEXTPTR, single_progress_detail::items::pr_progress, UNSAFE_CSTR(make_progressbar(single_progress_detail::DlgW - 10, Percent, true, true)));
 
-	const auto Title = reinterpret_cast<const wchar_t*>(m_Dialog->SendMessage(DM_GETCONSTTEXTPTR, single_progress_detail::items::pr_doublebox, {}));
+	const auto Title = view_as<const wchar_t*>(m_Dialog->SendMessage(DM_GETCONSTTEXTPTR, single_progress_detail::items::pr_doublebox, {}));
 	m_Dialog->SendMessage(DM_SETTEXTPTR, single_progress_detail::items::pr_console_title, UNSAFE_CSTR(concat(L'{', str(Percent), L"%} "sv, Title)));
 }
 

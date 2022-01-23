@@ -6,9 +6,7 @@
 "Warning"
 
 "Temporary panel"
-" %sTemporary panel [%d] "
-
-"temporary"
+"Temporary panel"
 
 "Remove"
 "Switch"
@@ -43,7 +41,6 @@
 "File masks for the file &lists:"
 "Command line pre&fix:"
 
-"New settings will become active after FAR restart"
 "Ne&w panel for search results"
 "Save file list as"
 

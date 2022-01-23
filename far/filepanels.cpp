@@ -98,7 +98,7 @@ filepanels_ptr FilePanels::create(bool CreateRealPanels, int DirCount)
 	return FilePanelsPtr;
 }
 
-static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
+static void PrepareOptFolder(string &strSrc, bool IsLocalPath_FarPath)
 {
 	if (strSrc.empty())
 	{
@@ -166,7 +166,7 @@ void FilePanels::Init(int DirCount)
 	SetActivePanelInternal(ActivePanel());
 
 	// пытаемся избавится от зависания при запуске
-	int IsLocalPath_FarPath = ParsePath(Global->g_strFarPath)==root_type::drive_letter;
+	const auto IsLocalPath_FarPath = ParsePath(Global->g_strFarPath) == root_type::drive_letter;
 
 	const auto SetFolder = [&](const std::pair<panel_ptr, Options::PanelOptions&>& Params)
 	{
@@ -525,7 +525,7 @@ bool FilePanels::ProcessKey(const Manager::Key& Key)
 
 					if (ActivePanel() == AnotherPanel && (AnotherPanel->GetType() == panel_type::FILE_PANEL || AnotherPanel->GetType() == panel_type::TREE_PANEL))
 					{
-						os::fs::SetCurrentDirectory(AnotherPanel->GetCurDir());
+						os::fs::set_current_directory(AnotherPanel->GetCurDir());
 					}
 					AnotherPanel->Update(UPDATE_KEEP_SELECTION);
 

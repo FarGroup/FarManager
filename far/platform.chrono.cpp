@@ -75,12 +75,16 @@ namespace os::chrono
 	FILETIME nt_clock::to_filetime(time_point const Time) noexcept
 	{
 		const auto Count = to_hectonanoseconds(Time);
-		return { static_cast<DWORD>(Count), static_cast<DWORD>(Count >> 32) };
+		return
+		{
+			extract_integer<DWORD, 0>(Count),
+			extract_integer<DWORD, 1>(Count)
+		};
 	}
 
 	time_point nt_clock::from_filetime(FILETIME const Time) noexcept
 	{
-		return from_hectonanoseconds(static_cast<unsigned long long>(Time.dwHighDateTime) << 32 | Time.dwLowDateTime);
+		return from_hectonanoseconds(make_integer<unsigned long long>(Time.dwLowDateTime, Time.dwHighDateTime));
 	}
 
 	time_point nt_clock::from_hectonanoseconds(int64_t const Time) noexcept

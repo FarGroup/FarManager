@@ -43,7 +43,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "clipboard.hpp"
 #include "config.hpp"
-#include "strmix.hpp"
 #include "dialog.hpp"
 #include "interf.hpp"
 #include "ctrlobj.hpp"
@@ -238,7 +237,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 	}
 	SelectedRecord;
 
-	FarListPos Pos={sizeof(FarListPos)};
+	FarListPos Pos{ sizeof(Pos) };
 	int MenuExitCode=-1;
 	history_return_type RetCode = HRT_ENTER;
 	bool Done=false;
@@ -302,8 +301,8 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 					LastYear = SavedTime.wYear;
 					MenuItemEx Separator;
 					Separator.Flags = LIF_SEPARATOR;
-					string strTime;
-					ConvertDate(i.Time, Separator.Name, strTime, 8, 1);
+					string Time;
+					std::tie(Separator.Name, Time) = ConvertDate(i.Time, 8, 1);
 					HistoryMenu.AddItem(Separator);
 				}
 				strRecord += i.Name;
@@ -326,9 +325,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 
 			if (!SetUpMenuPos && !bSelected && m_TypeHistory!=HISTORYTYPE_DIALOG && !HistoryMenu.empty())
 			{
-				FarListPos p={sizeof(FarListPos)};
-				p.SelectPos = HistoryMenu.size() - 1;
-				p.TopPos = 0;
+				FarListPos p{ sizeof(p), static_cast<intptr_t>(HistoryMenu.size() - 1) };
 				HistoryMenu.SetSelectPos(&p);
 			}
 		}

@@ -1,65 +1,60 @@
-﻿/*
+﻿#ifndef TMPCLASS_HPP_691D4071_CABF_4159_B82A_BE97B4C8DB04
+#define TMPCLASS_HPP_691D4071_CABF_4159_B82A_BE97B4C8DB04
+#pragma once
+
+/*
 TMPCLASS.HPP
 
 Temporary panel plugin class header file
 
 */
 
-#ifndef __TMPCLASS_HPP__
-#define __TMPCLASS_HPP__
+#include "TmpPanel.hpp"
 
-#define REMOVE_FLAG 1
+#include <range.hpp>
 
 class TmpPanel
 {
-	private:
-		PluginPanelItem *TmpPanelItem;
-		size_t TmpItemsNumber;
-		int LastOwnersRead;
-		int LastLinksRead;
-		int UpdateNotNeeded;
-		wchar_t* HostFile;
+public:
+	NONCOPYABLE(TmpPanel);
 
-	private:
-		void RemoveDups();
-		void RemoveEmptyItems();
-		void UpdateItems(int ShowOwners,int ShowLinks);
-		int IsOwnersDisplayed(LPCTSTR ColumnTypes);
-		int IsLinksDisplayed(LPCTSTR ColumnTypes);
-		void ProcessRemoveKey();
-		void ProcessSaveListKey();
-		void ProcessPanelSwitchMenu();
-		void SwitchToPanel(int NewPanelIndex);
-		void FindSearchResultsPanel();
-		void SaveListFile(const wchar_t *Path);
-		bool IsCurrentFileCorrect(wchar_t **pCurFileName);
+	explicit TmpPanel(string_view HostFile = {});
 
-	public:
-		TmpPanel(const wchar_t *pHostFile=nullptr);
-		~TmpPanel();
+	int GetFindData(PluginPanelItem*& pPanelItem, size_t& pItemsNumber, OPERATION_MODES OpMode);
+	void GetOpenPanelInfo(OpenPanelInfo& Info);
+	int SetDirectory(const wchar_t* Dir, OPERATION_MODES OpMode);
 
-	public:
-		int PanelIndex;
-		//int OpenFrom;
+	bool PutFiles(span<const PluginPanelItem> Files, const wchar_t* SrcPath, OPERATION_MODES OpMode);
+	HANDLE BeginPutFiles();
+	void CommitPutFiles(HANDLE RestoreScreen, bool Success);
+	bool PutDirectoryContents(const wchar_t* Path);
+	bool PutOneFile(const string& SrcPath, const PluginPanelItem& PanelItem);
+	bool PutOneFile(const string& FilePath);
 
-	public:
-		int GetFindData(PluginPanelItem **pPanelItem,size_t *pItemsNumber,const OPERATION_MODES OpMode);
-		void GetOpenPanelInfo(struct OpenPanelInfo *Info);
-		int SetDirectory(const wchar_t *Dir,const OPERATION_MODES OpMode);
+	int SetFindList(span<const PluginPanelItem> Files);
+	int ProcessEvent(intptr_t Event, void* Param);
+	bool ProcessKey(const INPUT_RECORD* Rec);
+	void IfOptCommonPanel();
+	void clear();
 
-		int PutFiles(struct PluginPanelItem *PanelItem,size_t ItemsNumber,int Move,const wchar_t *SrcPath,const OPERATION_MODES OpMode);
-		HANDLE BeginPutFiles();
-		void CommitPutFiles(HANDLE hRestoreScreen, int Success);
-		int PutDirectoryContents(const wchar_t* Path);
-		int PutOneFile(const wchar_t* SrcPath, PluginPanelItem &PanelItem);
-		int PutOneFile(const wchar_t* FilePath);
+private:
+	void RemoveDups();
+	void RemoveEmptyItems();
+	void UpdateItems(bool ShowOwners, bool ShowLinks);
+	void ProcessRemoveKey();
+	void ProcessSaveListKey();
+	void ProcessPanelSwitchMenu();
+	void SwitchToPanel(size_t NewPanelIndex);
+	void FindSearchResultsPanel();
+	void SaveListFile(const string& Path);
+	string IsCurrentFileCorrect();
 
-		int SetFindList(const struct PluginPanelItem *PanelItem,size_t ItemsNumber);
-		int ProcessEvent(intptr_t Event,void *Param);
-		int ProcessKey(const INPUT_RECORD *Rec);
-		void IfOptCommonPanel();
-
-		static bool GetFileInfoAndValidate(const wchar_t *FilePath, PluginPanelItem* FindData, int Any);
+	PluginPanel m_LocalPanel, * m_Panel{ &m_LocalPanel };
+	string m_HostFile, m_Title;
+	bool
+		m_LastOwnersRead{},
+		m_LastLinksRead{};
+	bool m_UpdateNotNeeded{};
 };
 
-#endif /* __TMPCLASS_HPP__ */
+#endif // TMPCLASS_HPP_691D4071_CABF_4159_B82A_BE97B4C8DB04

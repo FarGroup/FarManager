@@ -818,6 +818,9 @@
     <ClCompile Include="..\..\Archive\VhdHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Archive\VhdxHandler.cpp">
+      <Filter>Archive</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Archive\VmdkHandler.cpp">
       <Filter>Archive</Filter>
     </ClCompile>

@@ -283,7 +283,7 @@ PACK_CHECK(ARJHd2, 1);
 
   SetFilePointer(ArcHandle,ArjHeader.FirstHeadSize+NextPosition+4,NULL,FILE_BEGIN);
 
-  char Name[NM+1];
+  char Name[NM];
   if (!ReadFile(ArcHandle,Name,sizeof(Name),&ReadSize,NULL) || ReadSize==0)
     return(GETARC_READERROR);
   Name[sizeof(Name)-1]=0;

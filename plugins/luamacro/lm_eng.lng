@@ -26,6 +26,12 @@
 "Macros"
 "Active macros"
 "Event handlers"
+"Items of Plugins menu"
+"Active items of Plugins menu"
+"Prefixes"
+"Panel modules"
+"Content columns"
+"Custom sort modes"
 
 // macro browser messages
 "No file name available"
@@ -34,6 +40,11 @@
 // macro browser F3 titles
 "Macro"
 "Event handler"
+"Plugins menu item"
+"Prefix"
+"Panel module"
+"Content column"
+"Custom sort mode"
 
 // custom panel sort
 "Sort mode "

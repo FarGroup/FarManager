@@ -56,10 +56,15 @@ PRODUCTVERSION RC_MAJOR, RC_MINOR, RC_BUILD, RC_REVISION
 			VALUE "ProductVersion", RC_FULLVERSION
 #if RC_SPECIAL
 			VALUE "SpecialBuild", RC_SPECIAL_STRING
+			VALUE "Comments", RC_SPECIAL_STRING
 #endif
 
 #if RC_PRIVATE
-			VALUE "PrivateBuild", "Unofficial private build"
+
+#define RC_PRIVATE_STRING "Unofficial private build"
+
+			VALUE "PrivateBuild", RC_PRIVATE_STRING
+			VALUE "Comments", RC_PRIVATE_STRING
 #endif
 		}
 	}

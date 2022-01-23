@@ -3,6 +3,36 @@
 
 #include <cstdlib>
 
+static size_t grow_exp_noshrink(size_t Current, size_t Desired)
+{
+	if (Desired <= Current)
+		return Current;
+
+	const auto LowerBound = Current + (Current + 2) / 2;
+	return LowerBound > Desired? LowerBound : Desired;
+}
+
+static bool grow(PluginPanelItem*& Data, size_t& AllocatedSize, const size_t DesiredSize)
+{
+	auto NewAllocatedSize = grow_exp_noshrink(AllocatedSize, DesiredSize);
+
+	if (NewAllocatedSize > AllocatedSize)
+	{
+		const auto LowerBound = size_t{ 1024 };
+		if (NewAllocatedSize < LowerBound)
+			NewAllocatedSize = LowerBound;
+
+		const auto NewPanelItem = static_cast<PluginPanelItem*>(realloc(Data, sizeof(*Data) * NewAllocatedSize));
+		if (!NewPanelItem)
+			return false;
+
+		Data = NewPanelItem;
+		AllocatedSize = NewAllocatedSize;
+	}
+
+	return true;
+}
+
 PluginClass::PluginClass(int ArcPluginNumber)
 {
   *ArcName=0;
@@ -28,8 +58,7 @@ void PluginClass::FreeArcData()
   {
     for (int I=0;I<ArcDataCount;I++)
     {
-      if (ArcData[I].Description!=NULL)
-        delete[] ArcData[I].Description;
+      delete[] ArcData[I].Description;
 
       if(ArcData[I].UserData && (ArcData[I].Flags & PPIF_USERDATA))
       {
@@ -88,7 +117,7 @@ int PluginClass::ReadArchive(char *Name)
 
   DWORD StartTime=GetTickCount();//clock();
   int WaitMessage=FALSE;
-  int AllocatedCount=0;
+  size_t AllocatedCount = 0;
   int GetItemCode;
 
   while (1)
@@ -129,8 +158,7 @@ int PluginClass::ReadArchive(char *Name)
     if (*CurItemInfo.Description)
     {
       CurArcData.Description=new char[lstrlen(CurItemInfo.Description)+1];
-      if (CurArcData.Description)
-        lstrcpy(CurArcData.Description,CurItemInfo.Description);
+      lstrcpy(CurArcData.Description,CurItemInfo.Description);
       DizPresent=TRUE;
     }
 
@@ -209,31 +237,18 @@ int PluginClass::ReadArchive(char *Name)
       CurArcData.FindData.dwFileAttributes|=FILE_ATTRIBUTE_DIRECTORY;
     }
 
-    struct PluginPanelItem *NewArcData=ArcData;
-
-    if (ArcDataCount>=AllocatedCount)
-    {
-      AllocatedCount=AllocatedCount+256+AllocatedCount/4;
-      NewArcData=(PluginPanelItem *)realloc(ArcData,AllocatedCount*sizeof(*ArcData));
-    }
-
-    if (NewArcData==NULL)
+    if (!grow(ArcData, AllocatedCount, ArcDataCount + 1))
       break;
 
     TotalSize+=(((__int64)CurArcData.FindData.nFileSizeHigh)<<32)|(__int64)CurArcData.FindData.nFileSizeLow;
     PackedSize+=(((__int64)CurArcData.PackSizeHigh)<<32)|(__int64)CurArcData.PackSize;
 
-
-    ArcData=NewArcData;
     ArcData[ArcDataCount]=CurArcData;
     ArcDataCount++;
   }
 
   Info.RestoreScreen(NULL);
   Info.RestoreScreen(hScreen);
-
-  if (ArcDataCount>0)
-    ArcData=(PluginPanelItem *)realloc(ArcData,ArcDataCount*sizeof(*ArcData));
 
   ArcPlugin->CloseArchive(ArcPluginNumber,&CurArcInfo);
 
@@ -289,7 +304,7 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
       DWORD read;
       int ret = ReadFile(h, Data, size, &read, 0);
       CloseHandle(h);
-      if (Data && ret)
+      if (ret)
       {
         DWORD SFXSize;
         if (ArcPlugin->IsArchive(ArcPluginNumber, ArcName, Data, read, &SFXSize))
@@ -304,7 +319,7 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
   int CurDirLength=lstrlen(CurDir);
   *pPanelItem=NULL;
   *pItemsNumber=0;
-  int AlocatedItemsNumber=0;
+  size_t AlocatedItemsNumber = 0;
   for (int I=0;I<ArcDataCount;I++)
   {
     char Name[NM];
@@ -347,30 +362,20 @@ int PluginClass::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int 
 
     if (Append)
     {
-      PluginPanelItem *NewPanelItem=*pPanelItem;
-      if (*pItemsNumber>=AlocatedItemsNumber)
-      {
-        AlocatedItemsNumber=AlocatedItemsNumber+256+AlocatedItemsNumber/4;
-        NewPanelItem=(PluginPanelItem *)realloc(*pPanelItem,AlocatedItemsNumber*sizeof(PluginPanelItem));
+      if (!grow(*pPanelItem, AlocatedItemsNumber, *pItemsNumber + 1))
+        break;
 
-        if (NewPanelItem==NULL)
-          break;
-
-        *pPanelItem=NewPanelItem;
-      }
-      NewPanelItem[*pItemsNumber]=CurItem;
+      (*pPanelItem)[*pItemsNumber]=CurItem;
       (*pItemsNumber)++;
     }
   }
-  if (*pItemsNumber>0)
-    *pPanelItem=(PluginPanelItem *)realloc(*pPanelItem,*pItemsNumber*sizeof(PluginPanelItem));
   return TRUE;
 }
 
 
 void PluginClass::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
 {
-  if(PanelItem) free(PanelItem);
+	free(PanelItem);
 }
 
 

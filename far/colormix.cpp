@@ -61,7 +61,7 @@ static auto to_rgba(COLORREF const Color)
 	rgba Rgba;
 	static_assert(sizeof(Rgba) == sizeof(Color));
 
-	std::memcpy(&Rgba, &Color, sizeof(Color));
+	copy_memory(&Color, &Rgba, sizeof(Color));
 	return Rgba;
 }
 
@@ -70,7 +70,7 @@ static auto to_color(rgba const Rgba)
 	COLORREF Color;
 	static_assert(sizeof(Color) == sizeof(Rgba));
 
-	std::memcpy(&Color, &Rgba, sizeof(Rgba));
+	copy_memory(&Rgba, &Color, sizeof(Rgba));
 	return Color;
 }
 
@@ -474,26 +474,25 @@ string_view ExtractColorInNewFormat(string_view const Str, FarColor& Color, bool
 	if (!starts_with(Str, L'('))
 		return Str;
 
-	const auto FgColorBegin = Str.cbegin() + 1;
-	const auto ColorEnd = std::find(FgColorBegin, Str.cend(), L')');
-	if (ColorEnd == Str.cend())
+	const auto Token = Str.substr(1, Str.substr(1).find(L')'));
+
+	if (Token.size() + 1 == Str.size())
 	{
 		Stop = true;
 		return Str;
 	}
 
-	const auto FgColorEnd = std::find(FgColorBegin, ColorEnd, L':');
-	const auto BgColorBegin = FgColorEnd == ColorEnd? ColorEnd : FgColorEnd + 1;
-	const auto BgColorEnd = ColorEnd;
+	const auto [FgColor, BgColor] = split(Token, L':');
 
 	auto NewColor = Color;
+
 	if (
-		(FgColorBegin == FgColorEnd || ExtractColor(make_string_view(FgColorBegin, FgColorEnd), NewColor.ForegroundColor, NewColor.Flags, FCF_FG_4BIT)) &&
-		(BgColorBegin == BgColorEnd || ExtractColor(make_string_view(BgColorBegin, BgColorEnd), NewColor.BackgroundColor, NewColor.Flags, FCF_BG_4BIT))
+		(FgColor.empty() || ExtractColor(FgColor, NewColor.ForegroundColor, NewColor.Flags, FCF_FG_4BIT)) &&
+		(BgColor.empty() || ExtractColor(BgColor, NewColor.BackgroundColor, NewColor.Flags, FCF_BG_4BIT))
 	)
 	{
 		Color = NewColor;
-		return make_string_view(ColorEnd + 1, Str.cend());
+		return Str.substr(Token.size() + 2);
 	}
 
 	return Str;

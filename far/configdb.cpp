@@ -58,7 +58,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common.hpp"
 #include "common/base64.hpp"
 #include "common/bytes_view.hpp"
-#include "common/chrono.hpp"
 #include "common/function_ref.hpp"
 #include "common/scope_exit.hpp"
 #include "common/uuid.hpp"
@@ -987,7 +986,7 @@ private:
 
 			if(background && foreground && flags)
 			{
-				FarColor Color = {};
+				FarColor Color{};
 				Color.BackgroundColor = std::strtoul(background, nullptr, 16);
 				Color.ForegroundColor = std::strtoul(foreground, nullptr, 16);
 				Color.Flags = StringToFlags(encoding::utf8::get_chars(flags), ColorFlagNames);
@@ -1555,7 +1554,7 @@ private:
 
 	string GetTextFromID(size_t StatementIndex, primary_key const id) const
 	{
-		auto Stmt = AutoStatement(StatementIndex);
+		const auto Stmt = AutoStatement(StatementIndex);
 		return Stmt->Bind(id).Step()? Stmt->GetColText(0) : string{};
 	}
 
@@ -1805,35 +1804,31 @@ private:
 
 		// TODO: SEH guard, try/catch, exception_ptr
 
-		for (;;)
+		while (os::handle::wait_any({ AsyncWork.native_handle(), StopEvent.native_handle() }) != 1)
 		{
-			if (os::handle::wait_any({ AsyncWork.native_handle(), StopEvent.native_handle() }) == 1)
-				break;
-
 			bool bAddDelete=false, bCommit=false;
 
+			for (auto Messages = WorkQueue.pop_all(); !Messages.empty(); Messages.pop())
 			{
-				for (auto Messages = WorkQueue.pop_all(); !Messages.empty(); Messages.pop())
-				{
-					SCOPE_EXIT{ SQLiteDb::EndTransaction(); };
+				SCOPE_EXIT{ SQLiteDb::EndTransaction(); };
 
-					auto& item = Messages.front();
-					if (item) //DeleteAndAddAsync
-					{
-						SQLiteDb::BeginTransaction();
-						if (item->DeleteId)
-							DeleteInternal(item->DeleteId);
-						AddInternal(item->TypeHistory, item->HistoryName, item->Type, item->Lock, item->strName, item->Time, item->strUuid, item->strFile, item->strData);
-						bAddDelete = true;
-					}
-					else // EndTransaction
-					{
-						bCommit = true;
-					}
+				if (const auto& item = Messages.front()) //DeleteAndAddAsync
+				{
+					SQLiteDb::BeginTransaction();
+					if (item->DeleteId)
+						DeleteInternal(item->DeleteId);
+					AddInternal(item->TypeHistory, item->HistoryName, item->Type, item->Lock, item->strName, item->Time, item->strUuid, item->strFile, item->strData);
+					bAddDelete = true;
+				}
+				else // EndTransaction
+				{
+					bCommit = true;
 				}
 			}
+
 			if (bAddDelete)
 				AsyncDeleteAddDone.set();
+
 			if (bCommit)
 				AsyncCommitDone.set();
 		}
@@ -2517,14 +2512,14 @@ static auto pluginscache_db_name()
 
 config_provider::config_provider(mode Mode):
 	m_Mode(Mode),
-	m_GeneralCfg(CreateDatabase<GeneralConfigDb>(L"generalconfig.db"sv, false)),
-	m_LocalGeneralCfg(CreateDatabase<LocalGeneralConfigDb>(L"localconfig.db"sv, true)),
-	m_ColorsCfg(CreateDatabase<ColorsConfigDb>(L"colors.db"sv, false)),
-	m_AssocConfig(CreateDatabase<AssociationsConfigDb>(L"associations.db"sv, false)),
-	m_PlCacheCfg(CreateDatabase<PluginsCacheConfigDb>(pluginscache_db_name(), true)),
-	m_PlHotkeyCfg(CreateDatabase<PluginsHotkeysConfigDb>(L"pluginhotkeys.db"sv, false)),
-	m_HistoryCfg(CreateDatabase<HistoryConfigDb>(L"history.db"sv, true)),
-	m_HistoryCfgMem(CreateDatabase<HistoryConfigMemory>(SQLiteDb::memory_db_name, true))
+	m_GeneralCfg([this]{ return CreateDatabase<GeneralConfigDb>(L"generalconfig.db"sv, false); }),
+	m_LocalGeneralCfg([this]{ return CreateDatabase<LocalGeneralConfigDb>(L"localconfig.db"sv, true); }),
+	m_ColorsCfg([this]{ return CreateDatabase<ColorsConfigDb>(L"colors.db"sv, false); }),
+	m_AssocConfig([this]{ return CreateDatabase<AssociationsConfigDb>(L"associations.db"sv, false); }),
+	m_PlCacheCfg([this]{ return CreateDatabase<PluginsCacheConfigDb>(pluginscache_db_name(), true); }),
+	m_PlHotkeyCfg([this]{ return CreateDatabase<PluginsHotkeysConfigDb>(L"pluginhotkeys.db"sv, false); }),
+	m_HistoryCfg([this]{ return CreateDatabase<HistoryConfigDb>(L"history.db"sv, true); }),
+	m_HistoryCfgMem([this]{ return CreateDatabase<HistoryConfigMemory>(SQLiteDb::memory_db_name, true); })
 {
 }
 

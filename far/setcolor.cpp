@@ -557,7 +557,7 @@ constexpr auto
 
 static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	auto& ColorState = *reinterpret_cast<color_state*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+	auto& ColorState = edit_as<color_state>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 	auto& CurColor = ColorState.CurColor;
 
 	const auto GetColor = [Param1](size_t const Offset)
@@ -666,7 +666,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					Params.Flags = CC_ANYCOLOR | CC_FULLOPEN | CC_RGBINIT;
 					Params.lpCustColors = CustomColors.data();
 
-					auto& Component = IsFg? CurColor.ForegroundColor : CurColor.BackgroundColor;
+					const auto& Component = IsFg? CurColor.ForegroundColor : CurColor.BackgroundColor;
 
 					Params.rgbResult = colors::color_value(CurColor.Flags & Flag4Bit(IsFg)?
 						colors::ConsoleIndexToTrueColor(Component) :

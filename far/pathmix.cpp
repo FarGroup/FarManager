@@ -201,28 +201,27 @@ bool PathCanHoldRegularFile(string_view const Path)
 	return ParsePath(Path) != root_type::unknown;
 }
 
-bool IsPluginPrefixPath(string_view const Path) //Max:
+std::optional<string_view> GetPluginPrefixPath(string_view const Path) //Max:
 {
 	if (Path.empty() || path::is_separator(Path[0]))
-		return false;
+		return {};
 
 	const auto pos = Path.find(L':');
 
 	if (pos == string::npos || !pos)
-		return false;
+		return {};
 
 	if (pos == 1) // односимвольный префикс
 	{
-		if ((Path[0] >= L'a' && Path[0] <= L'z') || (Path[0] >= L'A' && Path[0] <= L'Z'))
-			return false;
+		if (os::fs::drive::is_standard_letter(Path[0]))
+			return {};
 
 		string dev;
 		if (os::fs::QueryDosDevice(Path.substr(0,2), dev))
-			return false;
+			return {};
 	}
 
-	const auto SlashPos = FindSlash(Path);
-	return SlashPos == string::npos || SlashPos > pos;
+	return Path.substr(0, pos);
 }
 
 bool IsParentDirectory(string_view const Str)

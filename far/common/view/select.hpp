@@ -35,6 +35,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../keep_alive.hpp"
 #include "../rel_ops.hpp"
 
+#include <iterator>
+
 //----------------------------------------------------------------------------
 
 namespace detail

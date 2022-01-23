@@ -409,9 +409,8 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 			history_record_type Type;
 			UUID Uuid;
 			string strFile, strData, strStr;
-			const auto SelectType = Global->CtrlObject->FolderHistory->Select(msg(lng::MFolderHistoryTitle), L"HistoryFolders"sv, strStr, Type, &Uuid, &strFile, &strData);
 
-			switch(SelectType)
+			switch(const auto SelectType = Global->CtrlObject->FolderHistory->Select(msg(lng::MFolderHistoryTitle), L"HistoryFolders"sv, strStr, Type, &Uuid, &strFile, &strData))
 			{
 			case HRT_ENTER:
 			case HRT_SHIFTETNER:
@@ -585,7 +584,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 
 void CommandLine::SetCurDir(string_view const CurDir)
 {
-	if (!equal_icase(m_CurDir, CurDir) || !equal_icase(os::fs::GetCurrentDirectory(), CurDir))
+	if (!equal_icase(m_CurDir, CurDir) || !equal_icase(os::fs::get_current_directory(), CurDir))
 	{
 		m_CurDir = CurDir;
 
@@ -846,9 +845,8 @@ void CommandLine::ShowViewEditHistory()
 {
 	string strStr;
 	history_record_type Type;
-	const auto SelectType = Global->CtrlObject->ViewHistory->Select(msg(lng::MViewHistoryTitle), L"HistoryViews"sv, strStr, Type);
 
-	switch(SelectType)
+	switch(const auto SelectType = Global->CtrlObject->ViewHistory->Select(msg(lng::MViewHistoryTitle), L"HistoryViews"sv, strStr, Type))
 	{
 	case HRT_ENTER:
 	case HRT_SHIFTETNER:
@@ -1005,11 +1003,12 @@ void CommandLine::ExecString(execute_info& Info)
 {
 	bool IsUpdateNeeded = false;
 
-	const auto ExecutionContext = Global->WindowManager->Desktop()->ConsoleSession().GetContext();
+	std::shared_ptr<i_context> ExecutionContext;
 
 	SCOPE_EXIT
 	{
-		ExecutionContext->DoEpilogue(Info.Echo && !Info.Command.empty());
+		if (ExecutionContext)
+			ExecutionContext->DoEpilogue(Info.Echo && !Info.Command.empty());
 
 		if (!IsUpdateNeeded)
 			return;
@@ -1031,6 +1030,9 @@ void CommandLine::ExecString(execute_info& Info)
 
 	const auto Activator = [&](bool DoConsolise)
 	{
+		if (!ExecutionContext)
+			ExecutionContext = Global->WindowManager->Desktop()->ConsoleSession().GetContext();
+
 		ExecutionContext->Activate();
 
 		if (Info.Echo)
@@ -1155,8 +1157,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 		if (SetParams.empty() || ((pos = SetParams.find(L'=')) == string::npos) || !pos)
 		{
 			//forward "set [prefix]| command" and "set [prefix]> file" to COMSPEC
-			static const auto CharsToFind = L"|>"sv;
-			if (std::find_first_of(ALL_CONST_RANGE(SetParams), ALL_CONST_RANGE(CharsToFind)) != SetParams.cend())
+			if (SetParams.find_first_of(L"|>"sv) != SetParams.npos)
 				return false;
 
 			const auto UnquotedSetParams = unquote(SetParams);

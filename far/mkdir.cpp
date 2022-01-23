@@ -115,8 +115,8 @@ static bool add_reparse_point(string_view const Directory, string_view const Tar
 
 static void ShellMakeDirImpl(Panel *SrcPanel)
 {
-	FarList ComboList={sizeof(FarList)};
-	FarListItem LinkTypeItems[3]={};
+	FarList ComboList{ sizeof(ComboList) };
+	FarListItem LinkTypeItems[3]{};
 	ComboList.ItemsNumber=std::size(LinkTypeItems);
 	ComboList.Items=LinkTypeItems;
 	ComboList.Items[0].Text=msg(lng::MMakeFolderLinkNone).c_str();

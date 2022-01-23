@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/function_ref.hpp"
 #include "common/noncopyable.hpp"
 
 // External:
@@ -108,14 +107,14 @@ public:
 	*/
 	bool ExitAll();
 	size_t GetWindowCount() const { return m_windows.size(); }
-	int  GetWindowCountByType(int Type);
+	int  GetWindowCountByType(int Type) const;
 	/*
 	This method can execute any far or plugins code. Never call from non-reentrant code.
 	*/
 	void PluginCommit();
-	int CountWindowsWithName(string_view Name, bool IgnoreCase = true);
+	int CountWindowsWithName(string_view Name, bool IgnoreCase = true) const;
 	bool IsPanelsActive() const;
-	window_ptr FindWindowByFile(int ModalType, string_view FileName);
+	window_ptr FindWindowByFile(int ModalType, string_view FileName) const;
 	void EnterMainLoop();
 	void ProcessMainLoop();
 	void ExitMainLoop(int Ask);
@@ -187,7 +186,7 @@ private:
 	void WindowsChanged() { std::fill(m_windows_changed.begin(), m_windows_changed.end(), true); }
 
 	using windows = std::vector<window_ptr>;
-	windows::const_iterator SpecialWindow();
+	windows::const_iterator IsSpecialWindow() const;
 	windows m_windows;
 	size_t m_NonModalSize{};
 	bool EndLoop{};            // Признак выхода из цикла

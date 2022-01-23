@@ -183,7 +183,6 @@ void Options::SystemSettings()
 	Builder.AddCheckbox(lng::MConfigSystemCopy, CMOpt.UseSystemCopy);
 	Builder.AddCheckbox(lng::MConfigCopySharing, CMOpt.CopyOpened);
 	Builder.AddCheckbox(lng::MConfigScanJunction, ScanJunction);
-	Builder.AddCheckbox(lng::MConfigSmartFolderMonitor, SmartFolderMonitor);
 
 	Builder.AddCheckbox(lng::MConfigSaveHistory, SaveHistory);
 	Builder.AddCheckbox(lng::MConfigSaveFoldersHistory, SaveFoldersHistory);
@@ -549,6 +548,7 @@ void Options::MaskGroupsSettings()
 							Value = ConfigProvider().GeneralCfg()->GetValue<string>(L"Masks"sv, Name);
 						}
 						DialogBuilder Builder(lng::MMaskGroupTitle, L"MaskGroupsSettings"sv);
+						Builder.SetId(EditMaskGroupId);
 						Builder.AddText(lng::MMaskGroupName);
 						Builder.AddEditField(Name, 60);
 						Builder.AddText(lng::MMaskGroupMasks);
@@ -758,11 +758,11 @@ void Options::SetDizConfig()
 
 	Builder.AddCheckbox(lng::MCfgDizSetHidden, Diz.SetHidden);
 	Builder.AddCheckbox(lng::MCfgDizROUpdate, Diz.ROUpdate);
-	auto& StartPos = Builder.AddIntEditField(Diz.StartPos, 2);
+	const auto& StartPos = Builder.AddIntEditField(Diz.StartPos, 2);
 	Builder.AddTextAfter(StartPos, lng::MCfgDizStartPos);
 	Builder.AddSeparator();
 
-	static const lng DizOptions[] = { lng::MCfgDizNotUpdate, lng::MCfgDizUpdateIfDisplayed, lng::MCfgDizAlwaysUpdate };
+	static const lng DizOptions[]{ lng::MCfgDizNotUpdate, lng::MCfgDizUpdateIfDisplayed, lng::MCfgDizAlwaysUpdate };
 	Builder.AddRadioButtons(Diz.UpdateMode, DizOptions);
 	Builder.AddSeparator();
 
@@ -817,7 +817,7 @@ void Options::ViewerConfig(ViewerOptions &ViOptRef, bool Local)
 	Builder.StartColumns();
 	Builder.AddCheckbox(lng::MViewConfigPersistentSelection, ViOptRef.PersistentBlocks);
 	Builder.AddCheckbox(lng::MViewConfigEditAutofocus, ViOptRef.SearchEditFocus);
-	auto& TabSize = Builder.AddIntEditField(ViOptRef.TabSize, 3);
+	const auto& TabSize = Builder.AddIntEditField(ViOptRef.TabSize, 3);
 	Builder.AddTextAfter(TabSize, lng::MViewConfigTabSize);
 	Builder.ColumnBreak();
 	Builder.AddCheckbox(lng::MViewConfigArrows, ViOptRef.ShowArrows);
@@ -834,7 +834,7 @@ void Options::ViewerConfig(ViewerOptions &ViOptRef, bool Local)
 		Builder.AddCheckbox(lng::MViewConfigSaveCodepage, ViOpt.SaveCodepage);
 		save_cp = Builder.GetLastID();
 		Builder.AddCheckbox(lng::MViewConfigSaveShortPos, ViOpt.SaveShortPos);
-		auto& MaxLineSize = Builder.AddIntEditField(ViOpt.MaxLineSize, 6);
+		const auto& MaxLineSize = Builder.AddIntEditField(ViOpt.MaxLineSize, 6);
 		Builder.AddTextAfter(MaxLineSize, lng::MViewConfigMaxLineSize);
 		Builder.ColumnBreak();
 		Builder.AddCheckbox(lng::MViewConfigSaveViewMode, ViOpt.SaveViewMode);
@@ -879,7 +879,7 @@ void Options::EditorConfig(EditorOptions &EdOptRef, bool Local)
 	Builder.AddCheckbox(lng::MEditConfigPersistentBlocks, EdOptRef.PersistentBlocks);
 	Builder.AddCheckbox(lng::MEditConfigDelRemovesBlocks, EdOptRef.DelRemovesBlocks);
 	Builder.AddCheckbox(lng::MEditConfigAutoIndent, EdOptRef.AutoIndent);
-	auto& TabSize = Builder.AddIntEditField(EdOptRef.TabSize, 3);
+	const auto& TabSize = Builder.AddIntEditField(EdOptRef.TabSize, 3);
 	Builder.AddTextAfter(TabSize, lng::MEditConfigTabSize);
 	Builder.AddCheckbox(lng::MEditShowWhiteSpace, EdOptRef.ShowWhiteSpace);
 	Builder.ColumnBreak();
@@ -1174,8 +1174,7 @@ void Options::SetFilePanelModes()
 
 			ModeNumber=ModeList->Run([&](const Manager::Key& RawKey)
 			{
-				const auto Key=RawKey();
-				switch (Key)
+				switch (const auto Key = RawKey())
 				{
 				case KEY_CTRLENTER:
 				case KEY_CTRLNUMENTER:
@@ -1514,7 +1513,7 @@ void detail::OptionImpl<base_type, derived>::StoreValue(GeneralConfig* Storage, 
 }
 
 
-bool BoolOption::TryParse(const string& value)
+bool BoolOption::TryParse(const string_view value)
 {
 	long long iValue;
 	if (!ParseIntValue(value, iValue))
@@ -1537,7 +1536,7 @@ void BoolOption::Export(FarSettingsItem& To) const
 }
 
 
-bool Bool3Option::TryParse(const string& value)
+bool Bool3Option::TryParse(const string_view value)
 {
 	long long iValue;
 	if (!ParseIntValue(value, iValue))
@@ -1565,7 +1564,7 @@ string IntOption::toString() const
 	return str(Get());
 }
 
-bool IntOption::TryParse(const string& value)
+bool IntOption::TryParse(const string_view value)
 {
 	long long iValue;
 	if (!ParseIntValue(value, iValue))
@@ -1745,9 +1744,9 @@ Options::Options():
 		Global->ScrBuf->SetClearTypeFix(Value);
 	}));
 
-	Sort.Collation.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));
-	Sort.DigitsAsNumbers.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));
-	Sort.CaseSensitive.SetCallback(option::notifier([](auto) { string_sort::adjust_comparer(); }));
+	Sort.Collation.SetCallback(option::notifier([this](auto) { string_sort::adjust_comparer(Sort.Collation, Sort.CaseSensitive, Sort.DigitsAsNumbers); }));
+	Sort.DigitsAsNumbers.SetCallback(option::notifier([this](auto) { string_sort::adjust_comparer(Sort.Collation, Sort.CaseSensitive, Sort.DigitsAsNumbers); }));
+	Sort.CaseSensitive.SetCallback(option::notifier([this](auto) { string_sort::adjust_comparer(Sort.Collation, Sort.CaseSensitive, Sort.DigitsAsNumbers); }));
 
 	FormatNumberSeparators.SetCallback(option::notifier([](auto) { locale.invalidate(); }));
 
@@ -2049,7 +2048,6 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeySystem,                 L"SetAttrFolderRules"sv,            SetAttrFolderRules, true},
 		{FSSF_PRIVATE,           NKeySystem,                 L"ShowCheckingFile"sv,              ShowCheckingFile, false},
 		{FSSF_PRIVATE,           NKeySystem,                 L"ShowStatusInfo"sv,                InfoPanel.strShowStatusInfo, L""sv},
-		{FSSF_PRIVATE,           NKeySystem,                 L"SmartFolderMonitor"sv,            SmartFolderMonitor, false},
 		{FSSF_PRIVATE,           NKeySystem,                 L"SubstNameRule"sv,                 SubstNameRule, 2},
 		{FSSF_PRIVATE,           NKeySystem,                 L"SubstPluginPrefix"sv,             SubstPluginPrefix, false},
 		{FSSF_PRIVATE,           NKeySystem,                 L"UpdateEnvironment"sv,             UpdateEnvironment, false},
@@ -2482,7 +2480,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 	{
 		return Index == -1 ?
 			nullptr : // Everything is filtered out
-			reinterpret_cast<const FARConfigItem*>(Dlg->GetListItemSimpleUserData(0, Index));
+			view_as<const FARConfigItem*>(Dlg->GetListItemSimpleUserData(0, Index));
 	};
 
 	const auto EditItem = [&](edit_mode const EditMode)
@@ -2553,7 +2551,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 				{
 				case KEY_SHIFTF1:
 					{
-						FarListInfo ListInfo = {sizeof(ListInfo)};
+						FarListInfo ListInfo{ sizeof(ListInfo) };
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 
 						if (const auto CurrentItem = GetConfigItem(ListInfo.SelectPos))
@@ -2590,11 +2588,11 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 						static bool HideUnchanged = true;
 
-						FarListInfo ListInfo = {sizeof(ListInfo)};
+						FarListInfo ListInfo{ sizeof(ListInfo) };
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 						for (const auto& i: irange(ListInfo.ItemsNumber))
 						{
-							FarListGetItem Item={sizeof(FarListGetItem), static_cast<intptr_t>(i)};
+							FarListGetItem Item{ sizeof(Item), static_cast<intptr_t>(i) };
 
 							// BUGBUG(?) DM_LISTGETITEM will return false if everything is filtered out
 							if (!Dlg->SendMessage(DM_LISTGETITEM, Param1, &Item))
@@ -2619,7 +2617,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 							}
 							if(NeedUpdate)
 							{
-								FarListUpdate UpdatedItem={sizeof(FarListGetItem), static_cast<intptr_t>(i), Item.Item};
+								FarListUpdate UpdatedItem{ sizeof(UpdatedItem), static_cast<intptr_t>(i), Item.Item };
 								Dlg->SendMessage(DM_LISTUPDATE, Param1, &UpdatedItem);
 							}
 						}
@@ -2663,7 +2661,7 @@ bool Options::AdvancedConfig(config_type Mode)
 	const auto ConfigData = zip(CurrentConfig, Strings);
 	std::transform(ALL_CONST_RANGE(ConfigData), std::back_inserter(items), [](const auto& i) { return std::get<0>(i).MakeListItem(std::get<1>(i)); });
 
-	FarList Items={sizeof(FarList), items.size(), items.data()};
+	FarList Items{ sizeof(Items), items.size(), items.data() };
 
 	AdvancedConfigDlg[ac_item_listbox].ListItems = &Items;
 

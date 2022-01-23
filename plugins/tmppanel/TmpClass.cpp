@@ -5,9 +5,6 @@ Temporary panel plugin class implementation
 
 */
 
-
-#include <cwchar>
-#include <cstdlib>
 #include "plugin.hpp"
 
 #include "TmpLng.hpp"
@@ -15,113 +12,122 @@ Temporary panel plugin class implementation
 #include "TmpClass.hpp"
 #include "TmpPanel.hpp"
 #include "guid.hpp"
-#include <SimpleString.hpp>
 
-TmpPanel::TmpPanel(const wchar_t* pHostFile)
+#include <algorithm.hpp>
+#include <enum_tokens.hpp>
+#include <scope_exit.hpp>
+#include <smart_ptr.hpp>
+#include <string_utils.hpp>
+#include <view/zip.hpp>
+
+constexpr auto REMOVE_FLAG = 1;
+
+static bool IsLinksDisplayed(const string_view ColumnTypes)
 {
-	LastOwnersRead=FALSE;
-	LastLinksRead=FALSE;
-	UpdateNotNeeded=FALSE;
-	TmpPanelItem={};
-	TmpItemsNumber=0;
-	PanelIndex=CurrentCommonPanel;
+	return contains(enum_tokens(ColumnTypes, L","), L"LN"sv);
+}
+
+static bool IsOwnersDisplayed(const string_view ColumnTypes)
+{
+	return contains(enum_tokens(ColumnTypes, L","), L"O"sv);
+}
+
+static const wchar_t* NullToEmpty(const wchar_t* Str)
+{
+	return Str? Str : L"";
+}
+
+TmpPanel::TmpPanel(const string_view HostFile):
+	m_HostFile(HostFile)
+{
 	IfOptCommonPanel();
-	HostFile=nullptr;
-	if (pHostFile)
+}
+
+int TmpPanel::GetFindData(PluginPanelItem*& pPanelItem, size_t& pItemsNumber, const OPERATION_MODES OpMode)
+{
+	IfOptCommonPanel();
+	string ColumnTypes(MAX_PATH, 0);
+	for (;;)
 	{
-		HostFile = (wchar_t*)malloc((lstrlen(pHostFile)+1)*sizeof(wchar_t));
-		lstrcpy(HostFile, pHostFile);
+		const size_t Size = PsInfo.PanelControl(this, FCTL_GETCOLUMNTYPES, ColumnTypes.size(), ColumnTypes.data());
+		const auto CurrentSize = ColumnTypes.size();
+		ColumnTypes.resize(Size - 1);
+		if (Size - 1 <= CurrentSize)
+			break;
 	}
+	UpdateItems(IsOwnersDisplayed(ColumnTypes), IsLinksDisplayed(ColumnTypes));
+	pPanelItem = m_Panel->Items.data();
+	pItemsNumber = m_Panel->Items.size();
+	return true;
 }
 
-
-TmpPanel::~TmpPanel()
+void TmpPanel::GetOpenPanelInfo(OpenPanelInfo& Info)
 {
-	if (!StartupOptCommonPanel)
-		FreePanelItems(TmpPanelItem, TmpItemsNumber);
-	if (HostFile)
-		free(HostFile);
-}
+	Info.StructSize = sizeof(Info);
+	Info.Flags = OPIF_ADDDOTS | OPIF_SHOWNAMESONLY;
 
-int TmpPanel::GetFindData(PluginPanelItem **pPanelItem,size_t *pItemsNumber,const OPERATION_MODES OpMode)
-{
-	IfOptCommonPanel();
-	size_t Size=PsInfo.PanelControl(this,FCTL_GETCOLUMNTYPES,0,{});
-	wchar_t* ColumnTypes=new wchar_t[Size];
-	PsInfo.PanelControl(this,FCTL_GETCOLUMNTYPES,static_cast<int>(Size),ColumnTypes);
-	UpdateItems(IsOwnersDisplayed(ColumnTypes),IsLinksDisplayed(ColumnTypes));
-	delete[] ColumnTypes;
-	*pPanelItem=TmpPanelItem;
-	*pItemsNumber=TmpItemsNumber;
-	return(TRUE);
-}
+	if (!Opt.SafeModePanel)
+		Info.Flags |= OPIF_REALNAMES;
 
+	Info.HostFile = {};
 
-void TmpPanel::GetOpenPanelInfo(OpenPanelInfo *opInfo)
-{
-	opInfo->StructSize=sizeof(*opInfo);
-	opInfo->Flags=OPIF_ADDDOTS|OPIF_SHOWNAMESONLY;
-
-	if (!Opt.SafeModePanel) opInfo->Flags|=OPIF_REALNAMES;
-
-	opInfo->HostFile={};
-	if (HostFile)
+	if (!m_HostFile.empty())
 	{
-		FarGetPluginPanelItem fgppi = { sizeof(FarGetPluginPanelItem)};
-		if (0 != (fgppi.Size=PsInfo.PanelControl(PANEL_ACTIVE,FCTL_GETCURRENTPANELITEM,0,&fgppi)))
+		if (const size_t Size = PsInfo.PanelControl(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, {}))
 		{
-			fgppi.Item=(PluginPanelItem*)malloc(fgppi.Size);
-			if (fgppi.Item)
-			{
-				if (PsInfo.PanelControl(PANEL_ACTIVE,FCTL_GETCURRENTPANELITEM,0,&fgppi) && !wcscmp(fgppi.Item->FileName,L".."))
-					opInfo->HostFile = HostFile;
-				free(fgppi.Item);
-			}
+			const block_ptr<PluginPanelItem> ppi(Size);
+			FarGetPluginPanelItem gpi{ sizeof(gpi), Size, ppi.data() };
+			PsInfo.PanelControl(this, FCTL_GETCURRENTPANELITEM, 0, &gpi);
+
+			if (ppi->FileName == L".."sv)
+				Info.HostFile = m_HostFile.c_str();
 		}
 	}
 
-	opInfo->CurDir=L"";
-	opInfo->Format=GetMsg(MTempPanel);
-	static wchar_t Title[100];
+	Info.CurDir = L"";
+	Info.Format = GetMsg(MTempPanel);
 
-	if (StartupOptCommonPanel)
-		FSF.sprintf(Title,GetMsg(MTempPanelTitleNum),(Opt.SafeModePanel ? L"(R) " : L""),PanelIndex);
-	else
-		FSF.sprintf(Title,L" %s%s ",(Opt.SafeModePanel ? L"(R) " : L""),GetMsg(MTempPanel));
+	m_Title = concat(Opt.SafeModePanel? L"(R) "sv : L""sv, GetMsg(MTempPanel));
+	if (Opt.CommonPanel)
+		append(m_Title, L" ["sv, std::to_wstring(SharedData->CurrentCommonPanel), L"]"sv);
 
-	opInfo->PanelTitle=Title;
+	Info.PanelTitle = m_Title.c_str();
+
 	static PanelMode PanelModesArray[10];
-	PanelModesArray[4].Flags=PMFLAGS_CASECONVERSION;
-	if ((StartupOpenFrom==OPEN_COMMANDLINE)?Opt.FullScreenPanel:StartupOptFullScreenPanel)
-		PanelModesArray[4].Flags|=PMFLAGS_FULLSCREEN;
-	PanelModesArray[4].ColumnTypes=Opt.ColumnTypes;
-	PanelModesArray[4].ColumnWidths=Opt.ColumnWidths;
-	PanelModesArray[4].StatusColumnTypes=Opt.StatusColumnTypes;
-	PanelModesArray[4].StatusColumnWidths=Opt.StatusColumnWidths;
-	opInfo->PanelModesArray=PanelModesArray;
-	opInfo->PanelModesNumber=ARRAYSIZE(PanelModesArray);
-	opInfo->StartPanelMode=L'4';
+	const auto StartModeIndex = 4;
+	auto& StartMode = PanelModesArray[StartModeIndex];
 
-	static WORD FKeys[]=
+	StartMode.Flags = PMFLAGS_CASECONVERSION;
+	if (Opt.FullScreenPanel)
+		StartMode.Flags |= PMFLAGS_FULLSCREEN;
+	StartMode.ColumnTypes = Opt.ColumnTypes.c_str();
+	StartMode.ColumnWidths = Opt.ColumnWidths.c_str();
+	StartMode.StatusColumnTypes = Opt.StatusColumnTypes.c_str();
+	StartMode.StatusColumnWidths = Opt.StatusColumnWidths.c_str();
+	Info.PanelModesArray = PanelModesArray;
+	Info.PanelModesNumber = std::size(PanelModesArray);
+	Info.StartPanelMode = L'0' + StartModeIndex;
+
+	static WORD FKeys[]
 	{
-		VK_F7,0,MF7,
-		VK_F2,SHIFT_PRESSED|LEFT_ALT_PRESSED,MAltShiftF2,
-		VK_F3,SHIFT_PRESSED|LEFT_ALT_PRESSED,MAltShiftF3,
-		VK_F12,SHIFT_PRESSED|LEFT_ALT_PRESSED,MAltShiftF12,
+		VK_F7, 0, MF7,
+		VK_F2, SHIFT_PRESSED | LEFT_ALT_PRESSED, MAltShiftF2,
+		VK_F3, SHIFT_PRESSED | LEFT_ALT_PRESSED, MAltShiftF3,
+		VK_F12, SHIFT_PRESSED | LEFT_ALT_PRESSED, MAltShiftF12,
 	};
 
-	static KeyBarLabel kbl[ARRAYSIZE(FKeys)/3];
-	static KeyBarTitles kbt = {ARRAYSIZE(kbl), kbl};
+	static KeyBarLabel kbl[std::size(FKeys) / 3];
+	static KeyBarTitles kbt{ std::size(kbl), kbl };
 
-	for (size_t j=0,i=0; i < ARRAYSIZE(FKeys); i+=3, ++j)
+	for (size_t j = 0, i = 0; i < std::size(FKeys); i += 3, ++j)
 	{
 		kbl[j].Key.VirtualKeyCode = FKeys[i];
-		kbl[j].Key.ControlKeyState = FKeys[i+1];
+		kbl[j].Key.ControlKeyState = FKeys[i + 1];
 
-		if (FKeys[i+2])
+		if (FKeys[i + 2])
 		{
-			kbl[j].Text = kbl[j].LongText = GetMsg(FKeys[i+2]);
-			if (!StartupOptCommonPanel && kbl[j].Key.VirtualKeyCode == VK_F12 && kbl[j].Key.ControlKeyState == (SHIFT_PRESSED|LEFT_ALT_PRESSED))
+			kbl[j].Text = kbl[j].LongText = GetMsg(FKeys[i + 2]);
+			if (!Opt.CommonPanel && kbl[j].Key.VirtualKeyCode == VK_F12 && kbl[j].Key.ControlKeyState == (SHIFT_PRESSED | LEFT_ALT_PRESSED))
 				kbl[j].Text = kbl[j].LongText = L"";
 		}
 		else
@@ -130,380 +136,270 @@ void TmpPanel::GetOpenPanelInfo(OpenPanelInfo *opInfo)
 		}
 	}
 
-	opInfo->KeyBar=&kbt;
+	Info.KeyBar = &kbt;
 }
 
 
-int TmpPanel::SetDirectory(const wchar_t *Dir,const OPERATION_MODES OpMode)
+int TmpPanel::SetDirectory(const wchar_t* Dir, const OPERATION_MODES OpMode)
 {
 	if ((OpMode & OPM_FIND)/* || lstrcmp(Dir,L"\\")==0*/)
 		return(FALSE);
 
-	if (lstrcmp(Dir,L"\\")==0)
-		PsInfo.PanelControl(this,FCTL_CLOSEPANEL,0,{});
+	if (lstrcmp(Dir, L"\\") == 0)
+		PsInfo.PanelControl(this, FCTL_CLOSEPANEL, 0, {});
 	else
-		PsInfo.PanelControl(this,FCTL_CLOSEPANEL,0,const_cast<wchar_t*>(Dir));
+		PsInfo.PanelControl(this, FCTL_CLOSEPANEL, 0, const_cast<wchar_t*>(Dir));
 	return(TRUE);
 }
 
 
-int TmpPanel::PutFiles(PluginPanelItem *PanelItem,size_t ItemsNumber,int,const wchar_t *SrcPath,const OPERATION_MODES)
+bool TmpPanel::PutFiles(const span<const PluginPanelItem> Files, const wchar_t* const SrcPath, const OPERATION_MODES)
 {
-	UpdateNotNeeded=FALSE;
-	HANDLE hScreen = BeginPutFiles();
+	m_UpdateNotNeeded = false;
+	const auto Screen = BeginPutFiles();
 
-	for (size_t i=0; i<ItemsNumber; i++)
+	for (const auto& i: Files)
 	{
-		if (!PutOneFile(SrcPath, PanelItem[i]))
+		if (!PutOneFile(SrcPath, i))
 		{
-			CommitPutFiles(hScreen, FALSE);
-			return FALSE;
+			CommitPutFiles(Screen, false);
+			return false;
 		}
 	}
 
-	CommitPutFiles(hScreen, TRUE);
-	return(1);
+	CommitPutFiles(Screen, true);
+	return true;
 }
 
 HANDLE TmpPanel::BeginPutFiles()
 {
 	IfOptCommonPanel();
 	Opt.SelectedCopyContents = Opt.CopyContents;
-	HANDLE hScreen=PsInfo.SaveScreen(0,0,-1,-1);
-	const wchar_t *MsgItems[]={GetMsg(MTempPanel),GetMsg(MTempSendFiles)};
-	PsInfo.Message(&MainGuid, nullptr,0,{},MsgItems,ARRAYSIZE(MsgItems),0);
-	return hScreen;
-}
-
-static inline int cmp_names(const WIN32_FIND_DATA &wfd, const PluginPanelItem &ffd)
-{
-	return lstrcmp(wfd.cFileName, FSF.PointToName(ffd.FileName));
-}
-
-int TmpPanel::PutDirectoryContents(const wchar_t* Path)
-{
-	if (Opt.SelectedCopyContents==2)
+	const auto Screen = PsInfo.SaveScreen(0, 0, -1, -1);
+	const wchar_t* MsgItems[]
 	{
-		const wchar_t *MsgItems[]={GetMsg(MWarning),GetMsg(MCopyContensMsg)};
-		Opt.SelectedCopyContents=!PsInfo.Message(&MainGuid, nullptr,FMSG_MB_YESNO,L"Config",MsgItems,ARRAYSIZE(MsgItems),0);
+		GetMsg(MTempPanel),
+		GetMsg(MTempSendFiles),
+	};
+	PsInfo.Message(&MainGuid, {}, 0, {}, MsgItems, std::size(MsgItems), 0);
+	return Screen;
+}
+
+bool TmpPanel::PutDirectoryContents(const wchar_t* Path)
+{
+	if (Opt.SelectedCopyContents == BSTATE_3STATE)
+	{
+		const wchar_t* MsgItems[]{ GetMsg(MWarning), GetMsg(MCopyContensMsg) };
+		Opt.SelectedCopyContents = !PsInfo.Message(&MainGuid, {}, FMSG_MB_YESNO, L"Config", MsgItems, std::size(MsgItems), 0);
 	}
 
-	if (Opt.SelectedCopyContents)
+	if (!Opt.SelectedCopyContents)
+		return true;
+
+	PluginPanelItem* DirItems;
+	size_t DirItemsNumber;
+
+	if (!PsInfo.GetDirList(Path, &DirItems, &DirItemsNumber))
+		return false;
+
+	SCOPE_EXIT{ PsInfo.FreeDirList(DirItems, DirItemsNumber); };
+
+	for (const auto& i: span(DirItems, DirItemsNumber))
 	{
-		PluginPanelItem *DirItems;
-		size_t DirItemsNumber;
-
-		if (!PsInfo.GetDirList(Path, &DirItems, &DirItemsNumber))
-		{
-			FreePanelItems(TmpPanelItem, TmpItemsNumber);
-			TmpPanelItem={};
-			TmpItemsNumber=0;
-			return FALSE;
-		}
-
-		PluginPanelItem *NewPanelItem=(PluginPanelItem *)realloc(TmpPanelItem,sizeof(*TmpPanelItem)*(TmpItemsNumber+DirItemsNumber));
-
-		if (!NewPanelItem)
-			return FALSE;
-
-		TmpPanelItem=NewPanelItem;
-		memset(&TmpPanelItem[TmpItemsNumber],0,sizeof(*TmpPanelItem)*DirItemsNumber);
-
-		for (size_t i=0; i<DirItemsNumber; i++)
-		{
-			PluginPanelItem *CurPanelItem=&TmpPanelItem[TmpItemsNumber];
-			CurPanelItem->UserData.Data = (void*)TmpItemsNumber;
-			TmpItemsNumber++;
-			CurPanelItem->FileAttributes=DirItems[i].FileAttributes;
-			CurPanelItem->CreationTime=DirItems[i].CreationTime;
-			CurPanelItem->LastAccessTime=DirItems[i].LastAccessTime;
-			CurPanelItem->LastWriteTime=DirItems[i].LastWriteTime;
-			CurPanelItem->ChangeTime=DirItems[i].ChangeTime;
-			CurPanelItem->FileSize=DirItems[i].FileSize;
-			CurPanelItem->AllocationSize=DirItems[i].AllocationSize;
-
-			CurPanelItem->FileName = wcsdup(DirItems[i].FileName);
-			CurPanelItem->AlternateFileName = {};
-		}
-
-		PsInfo.FreeDirList(DirItems, DirItemsNumber);
+		auto& NewItem = m_Panel->Items.emplace_back(i);
+		NewItem.FileName = m_Panel->StringData.emplace_back(NewItem.FileName).c_str();
+		NewItem.Owner = m_Panel->OwnerData.emplace_back(NullToEmpty(NewItem.Owner)).c_str();
+		NewItem.UserData.Data = reinterpret_cast<void*>(m_Panel->Items.size() - 1);
 	}
 
-	return TRUE;
+	return true;
 }
 
-int TmpPanel::PutOneFile(const wchar_t* SrcPath, PluginPanelItem &PanelItem)
+bool TmpPanel::PutOneFile(const string& SrcPath, const PluginPanelItem& PanelItem)
 {
-	PluginPanelItem *NewPanelItem=(PluginPanelItem *)realloc(TmpPanelItem,sizeof(*TmpPanelItem)*(TmpItemsNumber+1));
+	auto& NewItem = m_Panel->Items.emplace_back(PanelItem);
+	auto& NewStr = m_Panel->StringData.emplace_back(NewItem.FileName);
+	if (!SrcPath.empty() && !contains(PanelItem.FileName, L'\\'))
+		NewStr = concat(SrcPath, SrcPath.back() == L'\\'? L""sv : L"\\"sv, PanelItem.FileName);
 
-	if (!NewPanelItem)
-		return FALSE;
+	NewItem.FileName = NewStr.c_str();
+	NewItem.Owner = m_Panel->OwnerData.emplace_back(NullToEmpty(NewItem.Owner)).c_str();
+	NewItem.UserData.Data = reinterpret_cast<void*>(m_Panel->Items.size() - 1);
 
-	TmpPanelItem=NewPanelItem;
-	PluginPanelItem *CurPanelItem=&TmpPanelItem[TmpItemsNumber];
-	memset(CurPanelItem,0,sizeof(*CurPanelItem));
-	CurPanelItem->FileAttributes=PanelItem.FileAttributes;
-	CurPanelItem->CreationTime=PanelItem.CreationTime;
-	CurPanelItem->LastAccessTime=PanelItem.LastAccessTime;
-	CurPanelItem->LastWriteTime=PanelItem.LastWriteTime;
-	CurPanelItem->ChangeTime=PanelItem.ChangeTime;
-	CurPanelItem->FileSize=PanelItem.FileSize;
-	CurPanelItem->AllocationSize=PanelItem.AllocationSize;
-	CurPanelItem->UserData.Data = reinterpret_cast<void*>(TmpItemsNumber);
-	CurPanelItem->FileName = static_cast<wchar_t*>(malloc((lstrlen(SrcPath)+1+lstrlen(PanelItem.FileName)+1)*sizeof(wchar_t)));
+	if (NewItem.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		return PutDirectoryContents(NewItem.FileName);
 
-	if (!CurPanelItem->FileName)
-		return FALSE;
-
-	*const_cast<wchar_t*>(CurPanelItem->FileName) = L'\0';
-	CurPanelItem->AlternateFileName = {};
-
-	if (*SrcPath && !wcschr(PanelItem.FileName, L'\\'))
-	{
-		lstrcpy(const_cast<wchar_t*>(CurPanelItem->FileName), SrcPath);
-		FSF.AddEndSlash(const_cast<wchar_t*>(CurPanelItem->FileName));
-	}
-
-	lstrcat(const_cast<wchar_t*>(CurPanelItem->FileName), PanelItem.FileName);
-	TmpItemsNumber++;
-
-	if (Opt.SelectedCopyContents && (CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-		return PutDirectoryContents(CurPanelItem->FileName);
-
-	return TRUE;
+	return true;
 }
 
-int TmpPanel::PutOneFile(const wchar_t* FilePath)
+bool TmpPanel::PutOneFile(const string& FilePath)
 {
-	PluginPanelItem *NewPanelItem=(PluginPanelItem *)realloc(TmpPanelItem,sizeof(*TmpPanelItem)*(TmpItemsNumber+1));
+	auto& NewItem = m_Panel->Items.emplace_back();
+	auto& NewStr = m_Panel->StringData.emplace_back(FilePath);
+	NewItem.FileName = NewStr.c_str();
+	NewItem.Owner = m_Panel->OwnerData.emplace_back(NullToEmpty(NewItem.Owner)).c_str();
+	NewItem.UserData.Data = reinterpret_cast<void*>(m_Panel->Items.size() - 1);
 
-	if (!NewPanelItem)
-		return FALSE;
+	if (GetFileInfoAndValidate(FilePath, NewItem, NewStr, Opt.AnyInPanel) && NewItem.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		return PutDirectoryContents(NewItem.FileName);
 
-	TmpPanelItem=NewPanelItem;
-	PluginPanelItem *CurPanelItem=&TmpPanelItem[TmpItemsNumber];
-	memset(CurPanelItem,0,sizeof(*CurPanelItem));
-	CurPanelItem->UserData.Data = (void*)TmpItemsNumber;
-
-	if (GetFileInfoAndValidate(FilePath, CurPanelItem, Opt.AnyInPanel))
-	{
-		TmpItemsNumber++;
-
-		if (Opt.SelectedCopyContents && (CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-			return PutDirectoryContents(CurPanelItem->FileName);
-	}
-
-	return TRUE;
+	return true;
 }
 
-void TmpPanel::CommitPutFiles(HANDLE hRestoreScreen, int Success)
+void TmpPanel::CommitPutFiles(const HANDLE RestoreScreen, const bool Success)
 {
 	if (Success)
 		RemoveDups();
 
-	PsInfo.RestoreScreen(hRestoreScreen);
+	PsInfo.RestoreScreen(RestoreScreen);
 }
 
 
-int TmpPanel::SetFindList(const PluginPanelItem *PanelItem,size_t ItemsNumber)
+int TmpPanel::SetFindList(const span<const PluginPanelItem> Files)
 {
-	HANDLE hScreen = BeginPutFiles();
+	const auto Screen = BeginPutFiles();
 	FindSearchResultsPanel();
-	FreePanelItems(TmpPanelItem, TmpItemsNumber);
-	TmpItemsNumber=0;
-	TmpPanelItem=(PluginPanelItem*)malloc(sizeof(PluginPanelItem)*ItemsNumber);
+	clear();
 
-	if (TmpPanelItem)
+	for (const auto& i: Files)
 	{
-		TmpItemsNumber=ItemsNumber;
-		memset(TmpPanelItem,0,TmpItemsNumber*sizeof(*TmpPanelItem));
-
-		for (size_t i=0; i<ItemsNumber; ++i)
-		{
-			TmpPanelItem[i].UserData.Data = (void*)i;
-
-			TmpPanelItem[i].FileAttributes=PanelItem[i].FileAttributes;
-			TmpPanelItem[i].CreationTime=PanelItem[i].CreationTime;
-			TmpPanelItem[i].LastAccessTime=PanelItem[i].LastAccessTime;
-			TmpPanelItem[i].LastWriteTime=PanelItem[i].LastWriteTime;
-			TmpPanelItem[i].ChangeTime=PanelItem[i].ChangeTime;
-			TmpPanelItem[i].FileSize=PanelItem[i].FileSize;
-			TmpPanelItem[i].AllocationSize=PanelItem[i].AllocationSize;
-
-			if (PanelItem[i].FileName)
-				TmpPanelItem[i].FileName = wcsdup(PanelItem[i].FileName);
-
-			TmpPanelItem[i].AlternateFileName = {};
-		}
+		auto& NewItem = m_Panel->Items.emplace_back(i);
+		NewItem.FileName = m_Panel->StringData.emplace_back(NewItem.FileName).c_str();
+		NewItem.Owner = m_Panel->OwnerData.emplace_back(NullToEmpty(NewItem.Owner)).c_str();
+		NewItem.UserData.Data = reinterpret_cast<void*>(m_Panel->Items.size() - 1);
 	}
 
-	CommitPutFiles(hScreen, TRUE);
-	UpdateNotNeeded=TRUE;
-	return(TRUE);
+	CommitPutFiles(Screen, true);
+	m_UpdateNotNeeded = true;
+	return true;
 }
 
 
 void TmpPanel::FindSearchResultsPanel()
 {
-	if (StartupOptCommonPanel)
+	if (!Opt.CommonPanel)
+		return;
+
+	if (Opt.NewPanelForSearchResults)
 	{
-		if (!Opt.NewPanelForSearchResults)
-			IfOptCommonPanel();
-		else
+		std::optional<size_t> SearchResultsPanel = -1;
+
+		for (size_t i = 0; i != std::size(SharedData->CommonPanels); i++)
 		{
-			int SearchResultsPanel = -1;
-
-			for (int i=0; i<COMMONPANELSNUMBER; i++)
+			if (SharedData->CommonPanels[i].Items.empty())
 			{
-				if (CommonPanels [i].ItemsNumber == 0)
-				{
-					SearchResultsPanel = i;
-					break;
-				}
+				SearchResultsPanel = i;
+				break;
 			}
-
-			if (SearchResultsPanel < 0)
-			{
-				// all panels are full - use least recently used panel
-				SearchResultsPanel = Opt.LastSearchResultsPanel++;
-
-				if (Opt.LastSearchResultsPanel >= COMMONPANELSNUMBER)
-					Opt.LastSearchResultsPanel = 0;
-			}
-
-			if (PanelIndex != SearchResultsPanel)
-			{
-				CommonPanels[PanelIndex].Items = TmpPanelItem;
-				CommonPanels[PanelIndex].ItemsNumber = (UINT)TmpItemsNumber;
-				PanelIndex = SearchResultsPanel;
-				TmpPanelItem = CommonPanels[PanelIndex].Items;
-				TmpItemsNumber = CommonPanels[PanelIndex].ItemsNumber;
-			}
-
-			CurrentCommonPanel = PanelIndex;
 		}
-	}
-}
 
-static int WINAPI SortListCmp(const void *el1, const void *el2, void *userparam)
-{
-	PluginPanelItem* TmpPanelItem = reinterpret_cast<PluginPanelItem*>(userparam);
-	size_t idx1 = *reinterpret_cast<const size_t*>(el1);
-	size_t idx2 = *reinterpret_cast<const size_t*>(el2);
-	int res = lstrcmp(TmpPanelItem[idx1].FileName, TmpPanelItem[idx2].FileName);
+		if (!SearchResultsPanel)
+		{
+			// all panels are full - use least recently used panel
+			SearchResultsPanel = Opt.LastSearchResultsPanel++;
 
-	if (res == 0)
-	{
-		if (idx1 < idx2) return -1;
-		else if (idx1 == idx2) return 0;
-		else return 1;
+			if (Opt.LastSearchResultsPanel >= std::size(SharedData->CommonPanels))
+				Opt.LastSearchResultsPanel = 0;
+		}
+
+		SharedData->CurrentCommonPanel = *SearchResultsPanel;
 	}
-	else
-		return res;
+
+	IfOptCommonPanel();
 }
 
 void TmpPanel::RemoveDups()
 {
-	size_t* indices = reinterpret_cast<size_t*>(malloc(TmpItemsNumber*sizeof(size_t)));
-
-	if (!indices)
+	if (m_Panel->Items.size() < 2)
 		return;
 
-	for (size_t i = 0; i < TmpItemsNumber; i++)
-		indices[i] = i;
+	std::vector<PluginPanelItem*> ItemPtrs;
+	ItemPtrs.reserve(m_Panel->Items.size());
+	std::transform(ALL_RANGE(m_Panel->Items), std::back_inserter(ItemPtrs), [](PluginPanelItem& Item) { return &Item; });
+	std::sort(ALL_RANGE(ItemPtrs), [](const PluginPanelItem* a, const PluginPanelItem* b)
+	{
+		return string_view(a->FileName) < string_view(b->FileName);
+	});
 
-	FSF.qsort(indices, TmpItemsNumber, sizeof(*indices), SortListCmp, TmpPanelItem);
+	for (auto i = ItemPtrs.begin(), end = ItemPtrs.end() - 1; i != end; ++i)
+	{
+		if (string_view{(*i)->FileName} == string_view{ (*(i + 1))->FileName })
+			(*(i + 1))->Flags |= REMOVE_FLAG;
+	}
 
-	for (size_t i = 0; i + 1 < TmpItemsNumber; i++)
-		if (lstrcmp(TmpPanelItem[indices[i]].FileName, TmpPanelItem[indices[i + 1]].FileName) == 0)
-			TmpPanelItem[indices[i + 1]].Flags |= REMOVE_FLAG;
-
-	free(indices);
 	RemoveEmptyItems();
 }
 
 void TmpPanel::RemoveEmptyItems()
 {
-	int EmptyCount=0;
-	PluginPanelItem *CurItem=TmpPanelItem;
+	size_t EmptyCount{};
+	auto StrIterator = m_Panel->StringData.begin();
+	auto OwnerIterator = m_Panel->OwnerData.begin();
 
-	for (size_t i=0; i<TmpItemsNumber; i++,CurItem++)
-		if (CurItem->Flags & REMOVE_FLAG)
-		{
-			if (CurItem->Owner)
-			{
-				free(const_cast<wchar_t*>(CurItem->Owner));
-				CurItem->Owner = {};
-			}
-
-			if (CurItem->FileName)
-			{
-				free(const_cast<wchar_t*>(CurItem->FileName));
-				CurItem->FileName = {};
-			}
-			EmptyCount++;
-		}
-		else if (EmptyCount)
-		{
-			CurItem->UserData.Data = (void*)((intptr_t)CurItem->UserData.Data - EmptyCount);
-			*(CurItem-EmptyCount)=*CurItem;
-			memset(CurItem, 0, sizeof(*CurItem));
-		}
-
-	TmpItemsNumber-=EmptyCount;
-
-	if (EmptyCount>1)
-		TmpPanelItem=(PluginPanelItem *)realloc(TmpPanelItem,sizeof(*TmpPanelItem)*(TmpItemsNumber+1));
-
-	if (StartupOptCommonPanel)
+	for (auto& i: m_Panel->Items)
 	{
-		CommonPanels[PanelIndex].Items=TmpPanelItem;
-		CommonPanels[PanelIndex].ItemsNumber=(UINT)TmpItemsNumber;
+		if (i.Flags & REMOVE_FLAG)
+		{
+			++EmptyCount;
+			StrIterator = m_Panel->StringData.erase(StrIterator);
+			OwnerIterator = m_Panel->OwnerData.erase(OwnerIterator);
+			continue;
+		}
+
+		if (EmptyCount)
+		{
+			i.UserData.Data = reinterpret_cast<void*>(reinterpret_cast<intptr_t>(i.UserData.Data) - EmptyCount);
+			*(&i - EmptyCount) = i;
+		}
+
+		++StrIterator;
+		++OwnerIterator;
 	}
+
+	m_Panel->Items.resize(m_Panel->Items.size() - EmptyCount);
 }
 
-
-void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
+static bool same_name(const WIN32_FIND_DATA& wfd, const PluginPanelItem& ffd)
 {
-	if (UpdateNotNeeded || TmpItemsNumber == 0)
+	return !lstrcmp(wfd.cFileName, FSF.PointToName(ffd.FileName));
+}
+
+void TmpPanel::UpdateItems(const bool ShowOwners, const bool ShowLinks)
+{
+	if (m_UpdateNotNeeded || m_Panel->Items.empty())
 	{
-		UpdateNotNeeded=FALSE;
+		m_UpdateNotNeeded = false;
 		return;
 	}
 
-	HANDLE hScreen=PsInfo.SaveScreen(0,0,-1,-1);
-	const wchar_t *MsgItems[]={GetMsg(MTempPanel),GetMsg(MTempUpdate)};
-	PsInfo.Message(&MainGuid, nullptr,0,{},MsgItems,ARRAYSIZE(MsgItems),0);
-	LastOwnersRead=ShowOwners;
-	LastLinksRead=ShowLinks;
+	const auto Screen = PsInfo.SaveScreen(0, 0, -1, -1);
+	const wchar_t* MsgItems[]{ GetMsg(MTempPanel), GetMsg(MTempUpdate) };
+	PsInfo.Message(&MainGuid, {}, 0, {}, MsgItems, std::size(MsgItems), 0);
+	m_LastOwnersRead = ShowOwners;
+	m_LastLinksRead = ShowLinks;
 
-
-	for (auto CurItem = TmpPanelItem; CurItem < TmpPanelItem + TmpItemsNumber; ++CurItem)
+	auto NameDataIterator = m_Panel->StringData.begin();
+	for (auto CurItem = m_Panel->Items.begin(), end = m_Panel->Items.end(); CurItem != end; ++CurItem, ++NameDataIterator)
 	{
-		HANDLE FindHandle;
-		const wchar_t *lpFullName = CurItem->FileName;
-		const wchar_t *lpSlash = wcsrchr(lpFullName,L'\\');
-		int Length=lpSlash ? (int)(lpSlash-lpFullName+1):0;
-		int SameFolderItems=1;
+		const string_view FullName(CurItem->FileName);
+		const auto SlashPos = FullName.rfind(L'\\');
+		const auto Dir = FullName.substr(0, SlashPos == FullName.npos? 0 : SlashPos);
+		size_t SameFolderItems = 1;
 
 		/* $ 23.12.2001 DJ
 		   если FullName - это каталог, то FindFirstFile (FullName+"*.*")
 		   этот каталог не найдет. Поэтому для каталогов оптимизацию с
 		   SameFolderItems пропускаем.
 		*/
-		if (Length>0 && Length > (int)lstrlen(lpFullName))    /* DJ $ */
+		if (!Dir.empty() && Dir.size() < FullName.size())
 		{
-			for (auto Next = CurItem + 1; Next != TmpPanelItem + TmpItemsNumber; ++Next)
+			for (auto Next = CurItem + 1; Next != end; ++Next)
 			{
-				if (memcmp(lpFullName, Next->FileName,Length*sizeof(wchar_t))==0 &&
-					!wcschr(Next->FileName+Length,L'\\'))
-				{
+				const string_view NextName = Next->FileName;
+				if (starts_with(NextName, Dir) && !contains(NextName.substr(Dir.size()), L'\\'))
 					SameFolderItems++;
-				}
 				else
-				{
 					break;
-				}
 			}
 		}
 
@@ -511,45 +407,41 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
 		// несколько файлов из одного и того же каталога. При этом
 		// FindFirstFile() делается один раз на каталог, а не отдельно для
 		// каждого файла.
-		if (SameFolderItems>2)
+		if (SameFolderItems > 2)
 		{
 			WIN32_FIND_DATA FindData;
-			StrBuf FindFile((int)(lpSlash-lpFullName)+1+1+1);
-			lstrcpyn(FindFile, lpFullName, (int)(lpSlash-lpFullName)+1);
-			lstrcpy(FindFile+(lpSlash+1-lpFullName),L"*");
-			StrBuf NtPath;
-			FormNtPath(FindFile, NtPath);
+			const auto FindFile = Dir + L"*"sv;
+			const auto NtPath = FormNtPath(FindFile);
 
-			for (int J=0; J<SameFolderItems; J++)
-				CurItem[J].Flags|=REMOVE_FLAG;
+			for (auto& j: range(CurItem, SameFolderItems))
+				j.Flags |= REMOVE_FLAG;
 
-			int Done=(FindHandle=FindFirstFile(NtPath,&FindData))==INVALID_HANDLE_VALUE;
-
-			while (!Done)
+			if (const auto FindHandle = FindFirstFile(NtPath.c_str(), &FindData); FindHandle != INVALID_HANDLE_VALUE)
 			{
-				for (int J=0; J<SameFolderItems; J++)
+				SCOPE_EXIT{ FindClose(FindHandle); };
+
+				do
 				{
-					if ((CurItem[J].Flags & 1) && cmp_names(FindData, CurItem[J])==0)
+					for (auto& j: range(CurItem, SameFolderItems))
 					{
-						CurItem[J].Flags&=~REMOVE_FLAG;
-						const wchar_t *save = CurItem[J].FileName;
-						WFD2FFD(FindData,CurItem[J]);
-						free(const_cast<wchar_t*>(CurItem[J].FileName));
-						CurItem[J].FileName = save;
-						break;
+						if ((j.Flags & REMOVE_FLAG) && same_name(FindData, j))
+						{
+							j.Flags &= ~REMOVE_FLAG;
+							WFD2FFD(FindData, j, {});
+							break;
+						}
 					}
 				}
-
-				Done=!FindNextFile(FindHandle,&FindData);
+				while (FindNextFile(FindHandle, &FindData));
 			}
 
-			FindClose(FindHandle);
-			CurItem+=SameFolderItems-1;
+			CurItem += SameFolderItems - 1;
+			std::advance(NameDataIterator, SameFolderItems - 1);
 		}
 		else
 		{
-			if (!GetFileInfoAndValidate(lpFullName,CurItem,Opt.AnyInPanel))
-				CurItem->Flags|=REMOVE_FLAG;
+			if (!GetFileInfoAndValidate(FullName, *CurItem, *NameDataIterator, Opt.AnyInPanel))
+				CurItem->Flags |= REMOVE_FLAG;
 		}
 	}
 
@@ -557,134 +449,101 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
 
 	if (ShowOwners || ShowLinks)
 	{
-		for (auto CurItem = TmpPanelItem; CurItem < TmpPanelItem + TmpItemsNumber; ++CurItem)
+		for (const auto& [CurItem, OwnerData]: zip(m_Panel->Items, m_Panel->OwnerData))
 		{
 			if (ShowOwners)
 			{
-				wchar_t Owner[80];
-
-				if (CurItem->Owner)
+				OwnerData.resize(80);
+				for (;;)
 				{
-					free(const_cast<wchar_t*>(CurItem->Owner));
-					CurItem->Owner={};
+					const auto Size = FSF.GetFileOwner({}, CurItem.FileName, OwnerData.data(), OwnerData.size());
+					const auto CurrentSize = OwnerData.size();
+					OwnerData.resize(Size - 1);
+					if (Size - 1 <= CurrentSize)
+						break;
 				}
-
-				if (FSF.GetFileOwner({},CurItem->FileName,Owner,80))
-					CurItem->Owner=wcsdup(Owner);
+				CurItem.Owner = OwnerData.c_str();
 			}
 
 			if (ShowLinks)
-				CurItem->NumberOfLinks=FSF.GetNumberOfLinks(CurItem->FileName);
+				CurItem.NumberOfLinks = FSF.GetNumberOfLinks(CurItem.FileName);
 		}
 	}
 
-	PsInfo.RestoreScreen(hScreen);
+	PsInfo.RestoreScreen(Screen);
 }
 
-
-int TmpPanel::ProcessEvent(intptr_t Event,void *)
+int TmpPanel::ProcessEvent(intptr_t Event, void*)
 {
-	if (Event==FE_CHANGEVIEWMODE)
+	if (Event == FE_CHANGEVIEWMODE)
 	{
 		IfOptCommonPanel();
-		size_t Size=PsInfo.PanelControl(this,FCTL_GETCOLUMNTYPES,0,{});
-		wchar_t* ColumnTypes=new wchar_t[Size];
-		PsInfo.PanelControl(this,FCTL_GETCOLUMNTYPES,static_cast<int>(Size),ColumnTypes);
-		int UpdateOwners=IsOwnersDisplayed(ColumnTypes) && !LastOwnersRead;
-		int UpdateLinks=IsLinksDisplayed(ColumnTypes) && !LastLinksRead;
-		delete[] ColumnTypes;
+		const size_t Size = PsInfo.PanelControl(this, FCTL_GETCOLUMNTYPES, 0, {});
+		string ColumnTypes(Size, 0);
+		PsInfo.PanelControl(this, FCTL_GETCOLUMNTYPES, static_cast<int>(Size), ColumnTypes.data());
+		const auto UpdateOwners = IsOwnersDisplayed(ColumnTypes) && !m_LastOwnersRead;
+		const auto UpdateLinks = IsLinksDisplayed(ColumnTypes) && !m_LastLinksRead;
 
 		if (UpdateOwners || UpdateLinks)
 		{
-			UpdateItems(UpdateOwners,UpdateLinks);
-			PsInfo.PanelControl(this,FCTL_UPDATEPANEL,TRUE,{});
-			PsInfo.PanelControl(this,FCTL_REDRAWPANEL,0,{});
+			UpdateItems(UpdateOwners, UpdateLinks);
+			PsInfo.PanelControl(this, FCTL_UPDATEPANEL, TRUE, {});
+			PsInfo.PanelControl(this, FCTL_REDRAWPANEL, 0, {});
 		}
 	}
 
-	return(FALSE);
+	return false;
 }
 
 
-bool TmpPanel::IsCurrentFileCorrect(wchar_t **pCurFileName)
+string TmpPanel::IsCurrentFileCorrect()
 {
-	PanelInfo PInfo = {sizeof(PanelInfo)};
-	const wchar_t *CurFileName{};
+	PanelInfo PInfo{ sizeof(PanelInfo) };
+	PsInfo.PanelControl(this, FCTL_GETPANELINFO, 0, &PInfo);
+	const size_t Size = PsInfo.PanelControl(this, FCTL_GETPANELITEM, PInfo.CurrentItem, {});
+	if (!Size)
+		return {};
+	const block_ptr<PluginPanelItem> ppi(Size);
+	FarGetPluginPanelItem gpi{ sizeof(gpi), Size, ppi.data() };
+	PsInfo.PanelControl(this, FCTL_GETPANELITEM, PInfo.CurrentItem, &gpi);
 
-	if (pCurFileName)
-		*pCurFileName = {};
-
-	PsInfo.PanelControl(this,FCTL_GETPANELINFO,0,&PInfo);
-	size_t Size=PsInfo.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,{});
-	PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
-
-	if (PPI)
-	{
-		FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
-		PsInfo.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
-		CurFileName = PPI->FileName;
-	}
-	else
-	{
-		return false;
-	}
-
-	bool IsCorrectFile = false;
-
-	if (lstrcmp(CurFileName, L"..") == 0)
-	{
-		IsCorrectFile = true;
-	}
-	else
+	if (lstrcmp(ppi->FileName, L".."))
 	{
 		PluginPanelItem TempFindData;
-		IsCorrectFile=GetFileInfoAndValidate(CurFileName,&TempFindData,FALSE);
+		string NameData;
+		if (!GetFileInfoAndValidate(ppi->FileName, TempFindData, NameData, false))
+			return {};
 	}
 
-	if (pCurFileName)
-	{
-		*pCurFileName = (wchar_t *) malloc((lstrlen(CurFileName)+1)*sizeof(wchar_t));
-		lstrcpy(*pCurFileName, CurFileName);
-	}
-
-	free(PPI);
-	return IsCorrectFile;
+	return ppi->FileName;
 }
 
-int TmpPanel::ProcessKey(const INPUT_RECORD *Rec)
+bool TmpPanel::ProcessKey(const INPUT_RECORD* Rec)
 {
 	if (Rec->EventType != KEY_EVENT)
-		return FALSE;
+		return false;
 
-	int Key=Rec->Event.KeyEvent.wVirtualKeyCode;
-	unsigned int ControlState=Rec->Event.KeyEvent.dwControlKeyState;
+	const auto Key = Rec->Event.KeyEvent.wVirtualKeyCode;
+	const auto ControlState = Rec->Event.KeyEvent.dwControlKeyState;
 
-	if (ControlState==(SHIFT_PRESSED|LEFT_ALT_PRESSED) && Key==VK_F3)
+	if (ControlState == (SHIFT_PRESSED | LEFT_ALT_PRESSED) && Key == VK_F3)
 	{
-		PtrGuard CurFileName;
-
-		if (IsCurrentFileCorrect(CurFileName.PtrPtr()))
+		if (const auto CurFileName = IsCurrentFileCorrect(); !CurFileName.empty())
 		{
-			PanelInfo PInfo = {sizeof(PanelInfo)};
-			PsInfo.PanelControl(this,FCTL_GETPANELINFO,0,&PInfo);
+			PanelInfo PInfo{ sizeof(PanelInfo) };
+			PsInfo.PanelControl(this, FCTL_GETPANELINFO, 0, &PInfo);
 
-			if (lstrcmp(CurFileName,L"..")!=0)
+			if (CurFileName != L".."sv)
 			{
-				size_t Size=PsInfo.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,{});
-				PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
-				DWORD attributes=0;
+				const size_t Size = PsInfo.PanelControl(this, FCTL_GETPANELITEM, PInfo.CurrentItem, {});
+				const block_ptr<PluginPanelItem> ppi(Size);
 
-				if (PPI)
-				{
-					FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
-					PsInfo.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
-					attributes=(DWORD)PPI->FileAttributes;
-					free(PPI);
-				}
+				FarGetPluginPanelItem gpi{ sizeof(gpi), Size, ppi.data() };
+				PsInfo.PanelControl(this, FCTL_GETPANELITEM, PInfo.CurrentItem, &gpi);
 
-				if (attributes&FILE_ATTRIBUTE_DIRECTORY)
+				if (const auto Attributes = static_cast<DWORD>(ppi->FileAttributes); Attributes & FILE_ATTRIBUTE_DIRECTORY)
 				{
-					FarPanelDirectory dirInfo = {sizeof(dirInfo), CurFileName, nullptr, {}, nullptr};
+					FarPanelDirectory dirInfo{ sizeof(dirInfo), CurFileName.c_str() };
 					PsInfo.PanelControl(PANEL_PASSIVE, FCTL_SETPANELDIRECTORY, 0, &dirInfo);
 				}
 				else
@@ -692,114 +551,94 @@ int TmpPanel::ProcessKey(const INPUT_RECORD *Rec)
 					GoToFile(CurFileName, true);
 				}
 
-				PsInfo.PanelControl(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,{});
-				return(TRUE);
+				PsInfo.PanelControl(PANEL_PASSIVE, FCTL_REDRAWPANEL, 0, {});
+				return true;
 			}
 		}
 	}
 
-	if (ControlState!=LEFT_CTRL_PRESSED && Key>=VK_F3 && Key<=VK_F8 && Key!=VK_F7)
+	if (ControlState != LEFT_CTRL_PRESSED && Key >= VK_F3 && Key <= VK_F8 && Key != VK_F7)
 	{
-		if (!IsCurrentFileCorrect({}))
-			return(TRUE);
+		if (IsCurrentFileCorrect().empty())
+			return true;
 	}
 
-	if (ControlState==0 && Key==VK_RETURN && Opt.AnyInPanel)
+	if (ControlState == 0 && Key == VK_RETURN && Opt.AnyInPanel)
 	{
-		PtrGuard CurFileName;
-
-		if (!IsCurrentFileCorrect(CurFileName.PtrPtr()))
+		if (const auto CurFileName = IsCurrentFileCorrect(); CurFileName.empty())
 		{
-			PsInfo.PanelControl(this,FCTL_SETCMDLINE,0,CurFileName.Ptr());
-			return(TRUE);
+			PsInfo.PanelControl(this, FCTL_SETCMDLINE, 0, const_cast<wchar_t*>(CurFileName.c_str()));
+			return true;
 		}
 	}
 
 	if (Opt.SafeModePanel && ControlState == LEFT_CTRL_PRESSED && Key == VK_PRIOR)
 	{
-		PtrGuard CurFileName;
-
-		if (IsCurrentFileCorrect(CurFileName.PtrPtr()))
+		if (const auto CurFileName = IsCurrentFileCorrect(); !CurFileName.empty())
 		{
-			if (lstrcmp(CurFileName,L".."))
-			{
+			if (CurFileName == L".."sv)
+				SetDirectory(L".", 0);
+			else
 				GoToFile(CurFileName, false);
-				return TRUE;
-			}
-		}
 
-		if (CurFileName.Ptr() && !lstrcmp(CurFileName,L".."))
-		{
-			SetDirectory(L".",0);
-			return TRUE;
+			return true;
 		}
 	}
 
-	if (ControlState==0 && Key==VK_F7)
+	if (ControlState == 0 && Key == VK_F7)
 	{
 		ProcessRemoveKey();
-		return TRUE;
+		return true;
 	}
-	else if (ControlState == (SHIFT_PRESSED|LEFT_ALT_PRESSED) && Key == VK_F2)
+	else if (ControlState == (SHIFT_PRESSED | LEFT_ALT_PRESSED) && Key == VK_F2)
 	{
 		ProcessSaveListKey();
-		return TRUE;
+		return true;
 	}
 	else
 	{
-		if (StartupOptCommonPanel && ControlState==(SHIFT_PRESSED|LEFT_ALT_PRESSED))
+		if (Opt.CommonPanel && ControlState == (SHIFT_PRESSED | LEFT_ALT_PRESSED))
 		{
-			if (Key==VK_F12)
+			if (Key == VK_F12)
 			{
 				ProcessPanelSwitchMenu();
-				return(TRUE);
+				return true;
 			}
 			else if (Key >= L'0' && Key <= L'9')
 			{
 				SwitchToPanel(Key - L'0');
-				return TRUE;
+				return true;
 			}
 		}
 	}
 
-	return(FALSE);
+	return false;
 }
-
 
 void TmpPanel::ProcessRemoveKey()
 {
 	IfOptCommonPanel();
-	PanelInfo PInfo = {sizeof(PanelInfo)};
-	PsInfo.PanelControl(this,FCTL_GETPANELINFO,0,&PInfo);
+	PanelInfo PInfo{ sizeof(PanelInfo) };
+	PsInfo.PanelControl(this, FCTL_GETPANELINFO, 0, &PInfo);
 
-	for (size_t i=0; i<PInfo.SelectedItemsNumber; i++)
+	for (size_t i = 0; i != PInfo.SelectedItemsNumber; ++i)
 	{
-		PluginPanelItem *RemovedItem{};
-		size_t Size=PsInfo.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,{});
-		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
-
-		if (PPI)
-		{
-			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
-			PsInfo.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,&gpi);
-			RemovedItem = TmpPanelItem + (size_t)PPI->UserData.Data;
-		}
-
-		if (RemovedItem)
-			RemovedItem->Flags|=REMOVE_FLAG;
-
-		free(PPI);
+		const size_t Size = PsInfo.PanelControl(this, FCTL_GETSELECTEDPANELITEM, i, {});
+		const block_ptr<PluginPanelItem> ppi(Size);
+		FarGetPluginPanelItem gpi{ sizeof(gpi), Size, ppi.data() };
+		PsInfo.PanelControl(this, FCTL_GETSELECTEDPANELITEM, i, &gpi);
+		m_Panel->Items[reinterpret_cast<size_t>(ppi->UserData.Data)].Flags |= REMOVE_FLAG;
 	}
 
 	RemoveEmptyItems();
-	PsInfo.PanelControl(this,FCTL_UPDATEPANEL,0,{});
-	PsInfo.PanelControl(this,FCTL_REDRAWPANEL,0,{});
-	PsInfo.PanelControl(PANEL_PASSIVE,FCTL_GETPANELINFO,0,&PInfo);
+	PsInfo.PanelControl(this, FCTL_UPDATEPANEL, 0, {});
+	PsInfo.PanelControl(this, FCTL_REDRAWPANEL, 0, {});
+	PsInfo.PanelControl(PANEL_PASSIVE, FCTL_GETPANELINFO, 0, &PInfo);
 
-	if (PInfo.PanelType==PTYPE_QVIEWPANEL)
+	if (PInfo.PanelType == PTYPE_QVIEWPANEL)
 	{
-		PsInfo.PanelControl(PANEL_PASSIVE,FCTL_UPDATEPANEL,0,{});
-		PsInfo.PanelControl(PANEL_PASSIVE,FCTL_REDRAWPANEL,0,{});
+		PsInfo.PanelControl(PANEL_PASSIVE, FCTL_UPDATEPANEL, 0, {});
+		PsInfo.PanelControl(PANEL_PASSIVE, FCTL_REDRAWPANEL, 0, {});
 	}
 }
 
@@ -807,289 +646,157 @@ void TmpPanel::ProcessSaveListKey()
 {
 	IfOptCommonPanel();
 
-	if (TmpItemsNumber == 0)
+	if (m_Panel->Items.empty())
 		return;
 
 	// default path: opposite panel directory\panel<index>.<mask extension>
-	string ListPath;
-	size_t Size = PsInfo.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY, 0, nullptr);
-	FarPanelDirectory* dir = static_cast<FarPanelDirectory*>(malloc(Size));
-	dir->StructSize = sizeof(FarPanelDirectory);
-	PsInfo.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY, Size, dir);
-	ListPath = dir->Name;
-	free(dir);
-	if(ListPath.At(ListPath.Len()-1) != L'\\')
-	{
-		ListPath+=L"\\";
-	}
-	ListPath += L"panel";
+	const size_t Size = PsInfo.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY, 0, {});
+	const block_ptr<FarPanelDirectory> Dir(Size);
+	Dir->StructSize = sizeof(*Dir);
+	PsInfo.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY, Size, Dir.data());
+	string ListPath = Dir->Name;
+
+	if (ListPath.back() != L'\\')
+		ListPath.push_back(L'\\');
+
+	ListPath += L"panel"sv;
 
 	if (Opt.CommonPanel)
+		ListPath += std::to_wstring(SharedData->CurrentCommonPanel);
+
+	const auto MaskPart = string_view(Opt.Mask).substr(0, Opt.Mask.find(L','));
+	if (const auto [Name, Ext] = split(MaskPart, L'.'); !Ext.empty() && Ext.find_first_of(L"*?") == Ext.npos)
+		append(ListPath, L'.', Ext);
+
+	string Buffer(NT_MAX_PATH, 0);
+	if (PsInfo.InputBox(&MainGuid, {}, GetMsg(MTempPanel), GetMsg(MListFilePath), L"TmpPanel.SaveList", ListPath.c_str(), Buffer.data(), Buffer.size(), {}, FIB_BUTTONS))
 	{
-		wchar_t Index[32];
-		FSF.itoa(PanelIndex, Index, 10);
-		ListPath += Index;
-	}
-
-	wchar_t ExtBuf [512];
-	lstrcpy(ExtBuf, Opt.Mask);
-	wchar_t *comma = wcschr(ExtBuf, L',');
-
-	if (comma)
-		*comma = L'\0';
-
-	wchar_t *ext = wcschr(ExtBuf, L'.');
-
-	if (ext && !wcschr(ext, L'*') && !wcschr(ext, L'?'))
-	{
-		ListPath += ext;
-	}
-
-	wchar_t* Buffer = new wchar_t[NT_MAX_PATH];
-	if (PsInfo.InputBox(&MainGuid, nullptr, GetMsg(MTempPanel), GetMsg(MListFilePath),
-	                  L"TmpPanel.SaveList", ListPath, Buffer, NT_MAX_PATH,
-	                  {}, FIB_BUTTONS))
-	{
-		ListPath = Buffer;
+		ListPath = Buffer.c_str(); // REQUIRED, we don't know the size
 		SaveListFile(ListPath);
-		PsInfo.PanelControl(PANEL_PASSIVE, FCTL_UPDATEPANEL,0,{});
-		PsInfo.PanelControl(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,{});
+		PsInfo.PanelControl(PANEL_PASSIVE, FCTL_UPDATEPANEL, 0, {});
+		PsInfo.PanelControl(PANEL_PASSIVE, FCTL_REDRAWPANEL, 0, {});
 	}
-	delete[] Buffer;
-
-#undef _HANDLE
-#undef _UPDATE
-#undef _REDRAW
-#undef _GET
 }
 
-void TmpPanel::SaveListFile(const wchar_t *Path)
+void TmpPanel::SaveListFile(const string& Path)
 {
 	IfOptCommonPanel();
 
-	if (!TmpItemsNumber)
+	if (m_Panel->Items.empty())
 		return;
 
-	StrBuf FullPath;
-	GetFullPath(Path, FullPath);
-	StrBuf NtPath;
-	FormNtPath(FullPath, NtPath);
-	HANDLE hFile = CreateFile(NtPath, GENERIC_WRITE, 0, {},
-	                          CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, {});
+	const auto NtPath = FormNtPath(GetFullPath(Path));
 
-	if (hFile == INVALID_HANDLE_VALUE)
+	const auto File = CreateFile(NtPath.c_str(), GENERIC_WRITE, 0, {}, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, {});
+	if (File == INVALID_HANDLE_VALUE)
 	{
-		const wchar_t *Items[] = { GetMsg(MError) };
-		PsInfo.Message(&MainGuid, nullptr, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK, {}, Items, 1, 0);
+		const wchar_t* Items[]{ GetMsg(MError) };
+		PsInfo.Message(&MainGuid, {}, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK, {}, Items, std::size(Items), 0);
 		return;
 	}
+	SCOPE_EXIT{ CloseHandle(File); };
 
 	DWORD BytesWritten;
 
-	if (!Opt.ListUTF8)
-	{
-		static const unsigned short bom = SIGN_UNICODE;
-		WriteFile(hFile, &bom, sizeof(bom), &BytesWritten, {});
-	}
-	else
+	if (Opt.ListUTF8)
 	{
 		static const unsigned char bomhi = SIGN_UTF8_HI;
 		static const unsigned short bomlo = SIGN_UTF8_LO;
-		WriteFile(hFile, &bomlo, sizeof(bomlo), &BytesWritten, {});
-		WriteFile(hFile, &bomhi, sizeof(bomhi), &BytesWritten, {});
+		WriteFile(File, &bomlo, sizeof(bomlo), &BytesWritten, {});
+		WriteFile(File, &bomhi, sizeof(bomhi), &BytesWritten, {});
+	}
+	else
+	{
+		static const unsigned short bom = SIGN_UNICODE;
+		WriteFile(File, &bom, sizeof(bom), &BytesWritten, {});
 	}
 
-	size_t i = 0;
-
-	do
+	for (const auto& i: m_Panel->Items)
 	{
-		const wchar_t *FName = TmpPanelItem[i].FileName;
+		const string_view FName = i.FileName;
 
 		if (!Opt.ListUTF8)
 		{
-			static const wchar_t *CRLF = L"\r\n";
-			WriteFile(hFile, FName, sizeof(wchar_t)*lstrlen(FName), &BytesWritten, {});
-			WriteFile(hFile, CRLF, 2*sizeof(wchar_t), &BytesWritten, {});
+			const auto CRLF = L"\r\n"sv;
+			WriteFile(File, FName.data(), static_cast<DWORD>(FName.size() * sizeof(wchar_t)), &BytesWritten, {});
+			WriteFile(File, CRLF.data(), static_cast<DWORD>(CRLF.size() * sizeof(wchar_t)), &BytesWritten, {});
 		}
 		else
 		{
-			static const char *CRLF = "\r\n";
-			char *dest=new char[lstrlen(FName)*3+1];
-			WideCharToMultiByte(CP_UTF8, 0, FName, -1, dest, (int) lstrlen(FName)*3+1, nullptr, nullptr);
-			WriteFile(hFile, dest, (DWORD)strlen(dest), &BytesWritten, {});
-			delete[] dest;
-			WriteFile(hFile, CRLF, 2*sizeof(char), &BytesWritten, {});
+			const auto CRLF = "\r\n";
+			std::string Dest;
+			const auto Required = WideCharToMultiByte(CP_UTF8, 0, FName.data(), -1, {}, 0, {}, {});
+			Dest.resize(Required);
+			Dest.resize(WideCharToMultiByte(CP_UTF8, 0, FName.data(), -1, Dest.data(), static_cast<int>(Dest.size()), {}, {}));
+			WriteFile(File, Dest.data(), static_cast<DWORD>(Dest.size()), &BytesWritten, {});
+			WriteFile(File, CRLF, 2 * sizeof(char), &BytesWritten, {});
 		}
 	}
-	while (++i < TmpItemsNumber);
-
-	CloseHandle(hFile);
 }
 
-void TmpPanel::SwitchToPanel(int NewPanelIndex)
+void TmpPanel::SwitchToPanel(const size_t NewPanelIndex)
 {
-	if ((unsigned)NewPanelIndex<COMMONPANELSNUMBER && NewPanelIndex!=(int)PanelIndex)
-	{
-		CommonPanels[PanelIndex].Items=TmpPanelItem;
-		CommonPanels[PanelIndex].ItemsNumber=(UINT)TmpItemsNumber;
+	if (NewPanelIndex == SharedData->CurrentCommonPanel)
+		return;
 
-		if (!CommonPanels[NewPanelIndex].Items)
-		{
-			CommonPanels[NewPanelIndex].ItemsNumber=0;
-			CommonPanels[NewPanelIndex].Items=(PluginPanelItem*)calloc(1,sizeof(PluginPanelItem));
-		}
-
-		if (CommonPanels[NewPanelIndex].Items)
-		{
-			CurrentCommonPanel = PanelIndex = NewPanelIndex;
-			PsInfo.PanelControl(this,FCTL_UPDATEPANEL,0,{});
-			PsInfo.PanelControl(this,FCTL_REDRAWPANEL,0,{});
-		}
-	}
+	SharedData->CurrentCommonPanel = NewPanelIndex;
+	PsInfo.PanelControl(this, FCTL_UPDATEPANEL, 0, {});
+	PsInfo.PanelControl(this, FCTL_REDRAWPANEL, 0, {});
 }
-
 
 void TmpPanel::ProcessPanelSwitchMenu()
 {
-	FarMenuItem fmi[COMMONPANELSNUMBER];
-	memset(&fmi,0,sizeof(FarMenuItem)*COMMONPANELSNUMBER);
-	const wchar_t *txt=GetMsg(MSwitchMenuTxt);
-	wchar_t tmpstr[COMMONPANELSNUMBER][128];
-	static const wchar_t fmt1[]=L"&%c. %s %d";
+	FarMenuItem fmi[ARRAYSIZE(SharedData->CommonPanels)]{};
+	const string_view Txt = GetMsg(MSwitchMenuTxt);
+	string StrData[ARRAYSIZE(SharedData->CommonPanels)];
 
-	for (unsigned int i=0; i<COMMONPANELSNUMBER; ++i)
+	for (unsigned int i = 0; i != std::size(SharedData->CommonPanels); ++i)
 	{
-		fmi[i].Text = tmpstr[i];
+		auto& Str = StrData[i];
+		const auto Size = std::to_wstring(SharedData->CommonPanels[i].Items.size());
 
-		if (i<10)
-			FSF.sprintf(tmpstr[i],fmt1,L'0'+i,txt,CommonPanels[i].ItemsNumber);
-		else if (i<36)
-			FSF.sprintf(tmpstr[i],fmt1,L'A'-10+i,txt,CommonPanels[i].ItemsNumber);
+		wchar_t Hotkey[5]{ L'&', 0, L'.', L' ', 0 };
+
+		if (i < 10)
+			Hotkey[1] = L'0' + i;
+		else if (i < 36)
+			Hotkey[1] = L'A' - 10 + i;
 		else
-			FSF.sprintf(tmpstr[i],L"   %s %d",txt,CommonPanels[i].ItemsNumber);
+			Hotkey[0] = Hotkey[1] = Hotkey[2] = L' ';
 
+		Str = concat(Hotkey, Txt, L' ', Size);
+		fmi[i].Text = StrData[i].c_str();
 	}
 
-	fmi[PanelIndex].Flags|=MIF_SELECTED;
-	int ExitCode=(int)PsInfo.Menu(&MainGuid, nullptr,-1,-1,0,
-	                       FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
-	                       GetMsg(MSwitchMenuTitle),{},{},
-	                       {},{},fmi,COMMONPANELSNUMBER);
+	fmi[SharedData->CurrentCommonPanel].Flags |= MIF_SELECTED;
+
+	const auto ExitCode = PsInfo.Menu(
+		&MainGuid,
+		{},
+		-1,
+		-1,
+		0,
+		FMENU_AUTOHIGHLIGHT | FMENU_WRAPMODE,
+		GetMsg(MSwitchMenuTitle),
+		{},
+		{},
+		{},
+		{},
+		fmi,
+		std::size(fmi));
+
+	if (ExitCode < 0)
+		return;
+
 	SwitchToPanel(ExitCode);
 }
 
-int TmpPanel::IsOwnersDisplayed(LPCTSTR ColumnTypes)
-{
-	for (int i=0; ColumnTypes[i]; i++)
-		if (ColumnTypes[i]==L'O' && (i==0 || ColumnTypes[i-1]==L',') &&
-		        (ColumnTypes[i+1]==L',' || ColumnTypes[i+1]==0))
-			return(TRUE);
-
-	return(FALSE);
-}
-
-
-int TmpPanel::IsLinksDisplayed(LPCTSTR ColumnTypes)
-{
-	for (int i=0; ColumnTypes[i]; i++)
-		if (ColumnTypes[i]==L'L' && ColumnTypes[i+1]==L'N' &&
-		        (i==0 || ColumnTypes[i-1]==L',') &&
-		        (ColumnTypes[i+2]==L',' || ColumnTypes[i+2]==0))
-			return(TRUE);
-
-	return(FALSE);
-}
-
-inline bool isDevice(const wchar_t* FileName, const wchar_t* dev_begin)
-{
-	const int len=(int)lstrlen(dev_begin);
-
-	if (FSF.LStrnicmp(FileName, dev_begin, len)) return false;
-
-	FileName+=len;
-
-	if (!*FileName) return false;
-
-	while (*FileName>=L'0' && *FileName<=L'9') FileName++;
-
-	return !*FileName;
-}
-
-bool TmpPanel::GetFileInfoAndValidate(const wchar_t *FilePath, /*FAR_FIND_DATA*/PluginPanelItem* FindData, int Any)
-{
-	StrBuf ExpFilePath;
-	ExpandEnvStrs(FilePath,ExpFilePath);
-	wchar_t* FileName = ExpFilePath;
-	ParseParam(FileName);
-	StrBuf FullPath;
-	GetFullPath(FileName, FullPath);
-	StrBuf NtPath;
-	FormNtPath(FullPath, NtPath);
-
-	if (!FSF.LStrnicmp(FileName, L"\\\\.\\", 4) && FSF.LIsAlpha(FileName[4]) && FileName[5]==L':' && FileName[6]==0)
-	{
-copy_name_set_attr:
-		FindData->FileAttributes = FILE_ATTRIBUTE_ARCHIVE;
-copy_name:
-		if (FindData->FileName)
-			free(const_cast<wchar_t*>(FindData->FileName));
-
-		FindData->FileName = wcsdup(FileName);
-		return(TRUE);
-	}
-
-	if (isDevice(FileName, L"\\\\.\\PhysicalDrive") || isDevice(FileName, L"\\\\.\\cdrom"))
-		goto copy_name_set_attr;
-
-	if (lstrlen(FileName))
-	{
-		DWORD dwAttr=GetFileAttributes(NtPath);
-
-		if (dwAttr!=INVALID_FILE_ATTRIBUTES)
-		{
-			WIN32_FIND_DATA wfd;
-			HANDLE fff=FindFirstFile(NtPath, &wfd);
-
-			if (fff != INVALID_HANDLE_VALUE)
-			{
-				WFD2FFD(wfd,*FindData);
-				FindClose(fff);
-				FileName = FullPath;
-				goto copy_name;
-			}
-			else
-			{
-				wfd.dwFileAttributes=dwAttr;
-				HANDLE hFile=CreateFile(NtPath,FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,{},OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_POSIX_SEMANTICS,{});
-
-				if (hFile!=INVALID_HANDLE_VALUE)
-				{
-					GetFileTime(hFile, &wfd.ftCreationTime, &wfd.ftLastAccessTime, &wfd.ftLastWriteTime);
-					wfd.nFileSizeLow = GetFileSize(hFile, &wfd.nFileSizeHigh);
-					CloseHandle(hFile);
-				}
-
-				wfd.dwReserved0=0;
-				wfd.dwReserved1=0;
-				WFD2FFD(wfd, *FindData);
-				FileName = FullPath;
-				goto copy_name;
-			}
-		}
-
-		if (Any)
-			goto copy_name_set_attr;
-	}
-
-	return(FALSE);
-}
-
-
 void TmpPanel::IfOptCommonPanel()
 {
-	if (StartupOptCommonPanel)
-	{
-		TmpPanelItem=CommonPanels[PanelIndex].Items;
-		TmpItemsNumber=CommonPanels[PanelIndex].ItemsNumber;
-	}
+	m_Panel = Opt.CommonPanel? &SharedData->CommonPanels[SharedData->CurrentCommonPanel] : &m_LocalPanel;
+}
+
+void TmpPanel::clear()
+{
+	m_Panel->clear();
 }

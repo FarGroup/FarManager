@@ -29,11 +29,8 @@ class ConsoleTitle{
 			if (Length)
 			{
 				OldTitle=new wchar_t[Length+1];
-				if (OldTitle)
-				{
-					GetWindowText(GetConsoleWindow(), OldTitle, Length + 1);
-					SetConsoleTitle(NewTitle);
-				}
+				GetWindowText(GetConsoleWindow(), OldTitle, Length + 1);
+				SetConsoleTitle(NewTitle);
 			}
 		}
 		~ConsoleTitle()
@@ -55,16 +52,12 @@ class MakeVETitle{
 		MakeVETitle(const wchar_t *Pref, const wchar_t *Cmd)
 		{
 			Title=new wchar_t[lstrlen(Pref)+(Cmd?lstrlen(Cmd):0)+1];
-			if (Title)
-			{
-				lstrcpy(Title,Pref);
-				if (Cmd) lstrcat(Title,Cmd);
-			}
+			lstrcpy(Title,Pref);
+			if (Cmd) lstrcat(Title,Cmd);
 		}
 		~MakeVETitle()
 		{
-			if (Title)
-				delete[] Title;
+			delete[] Title;
 		}
 		const wchar_t *Get() {return Title;}
 };

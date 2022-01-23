@@ -6,9 +6,7 @@
 "Varování"
 
 "Dočasný panel"
-" %sDočasný panel [%d] "
-
-"dočasný"
+"Dočasný panel"
 
 "Odstranit"
 "Přepínač"
@@ -43,7 +41,6 @@
 "Souboro&vé masky pro seznamy soub:"
 "&Předpona příkazové řádky:"
 
-"Nová nastavení budou aktivována po restartu FARu"
 "&Nový panel pro výsledky hledání"
 "Uložit seznam souborů jako"
 

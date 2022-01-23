@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/algorithm.hpp"
+#include "common/from_string.hpp"
 #include "common/range.hpp"
 #include "common/string_utils.hpp"
 
@@ -131,7 +132,20 @@ namespace os
 
 NTSTATUS get_last_nt_status()
 {
-	return imports.RtlGetLastNtStatus? imports.RtlGetLastNtStatus() : STATUS_SUCCESS;
+	if (imports.RtlGetLastNtStatus)
+		return imports.RtlGetLastNtStatus();
+
+	const auto Teb = NtCurrentTeb();
+
+	constexpr auto Offset =
+#ifdef _WIN64
+		0x1250
+#else
+		0x0BF4
+#endif
+		;
+
+	return view_as<NTSTATUS>(Teb, Offset);
 }
 
 void set_last_nt_status(NTSTATUS const Status)
@@ -157,7 +171,7 @@ static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 		(Nt? GetModuleHandle(L"ntdll.dll") : nullptr),
 		ErrorCode,
 		0,
-		reinterpret_cast<wchar_t*>(&ptr_setter(Buffer)),
+		edit_as<wchar_t*>(&ptr_setter(Buffer)),
 		0,
 		nullptr);
 
@@ -271,7 +285,7 @@ bool get_locale_value(LCID const LcId, LCTYPE const Id, string& Value)
 
 bool get_locale_value(LCID const LcId, LCTYPE const Id, int& Value)
 {
-	return GetLocaleInfo(LcId, Id | LOCALE_RETURN_NUMBER, reinterpret_cast<wchar_t*>(&Value), sizeof(Value) / sizeof(wchar_t)) != 0;
+	return GetLocaleInfo(LcId, Id | LOCALE_RETURN_NUMBER, edit_as<wchar_t*>(&Value), sizeof(Value) / sizeof(wchar_t)) != 0;
 }
 
 string GetPrivateProfileString(string_view const AppName, string_view const KeyName, string_view const Default, string_view const FileName)
@@ -431,7 +445,22 @@ handle OpenConsoleActiveScreenBuffer()
 	return handle(fs::low::create_file(L"CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr));
 }
 
-	namespace rtdl
+HKL make_hkl(uint32_t const Layout)
+{
+	return reinterpret_cast<HKL>(static_cast<uintptr_t>(extract_integer<WORD, 1>(Layout)? Layout : make_integer<uint32_t, uint16_t>(Layout, Layout)));
+}
+
+HKL make_hkl(string_view const LayoutStr)
+{
+	if (uint32_t Layout; from_string(LayoutStr, Layout, nullptr, 16) && Layout)
+	{
+		return make_hkl(Layout);
+	}
+
+	return {};
+}
+
+namespace rtdl
 	{
 		void module::module_deleter::operator()(HMODULE Module) const
 		{

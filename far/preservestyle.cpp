@@ -263,7 +263,7 @@ bool PreserveStyleReplaceString(
 	string_view const Str,
 	string& ReplaceStr,
 	int& CurPos,
-	bool Case,
+	search_case_fold CaseFold,
 	bool WholeWords,
 	string_view const WordDiv,
 	bool Reverse,
@@ -351,13 +351,13 @@ bool PreserveStyleReplaceString(
 				break;
 			}
 
-			if (Case && Source[Idx] != j->Token[T])
+			if (CaseFold == search_case_fold::exact && Source[Idx] != j->Token[T])
 			{
 				Matched = false;
 				break;
 			}
 
-			if (!Case && upper(Source[Idx]) != upper(j->Token[T]))
+			if (CaseFold != search_case_fold::exact && upper(Source[Idx]) != upper(j->Token[T]))
 			{
 				Matched = false;
 				break;
@@ -544,7 +544,7 @@ TEST_CASE("PreserveStyleReplaceString")
 		int Position = 0;
 		int Size;
 		ResultStr = Patterns[i.PatternIndex].Replace;
-		REQUIRE(i.Result == PreserveStyleReplaceString(i.Src, Patterns[i.PatternIndex].Find, ResultStr, Position, false, false, {}, false, Size));
+		REQUIRE(i.Result == PreserveStyleReplaceString(i.Src, Patterns[i.PatternIndex].Find, ResultStr, Position, search_case_fold::icase, false, {}, false, Size));
 		if (i.Result)
 		{
 			REQUIRE(i.ResultStr == ResultStr);

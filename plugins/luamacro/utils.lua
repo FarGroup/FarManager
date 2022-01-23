@@ -583,6 +583,8 @@ local function AddContentColumns (srctable, FileName)
     and type(srctable.GetContentData) == "function"
   then
      if type(srctable.filemask)~="string" then srctable.filemask=nil; end
+     if type(srctable.description)~="string" then srctable.description=nil; end
+     if FileName then srctable.FileName=FileName; end
      table.insert(ContentColumns, srctable)
   end
 end
@@ -1216,6 +1218,54 @@ local function GetMacroCopy (index)
   return nil
 end
 
+
+local function EnumScripts (ScriptType)
+  local ScriptOrigin = {
+    CustomSortModes = Shared.panelsort.GetCustomSortModes(),
+    Event = LoadedMacros,
+    Macro = LoadedMacros,
+    MenuItem = AddedMenuItems,
+    CommandLine = AddedPrefixes,
+    PanelModule = LoadedPanelModules,
+    ContentColumns = ContentColumns,
+  }
+
+  local ScriptFilter = {
+    Event = function (index) return LoadedMacros[index].group end,
+    Macro = function (index) return LoadedMacros[index].area end,
+    MenuItem = function (index) return type(index) == "number" end,
+    CommandLine =  function (index) return index ~= 1 end,
+    PanelModule =  function (index) return type(index) == "number" end,
+  }
+
+  local function copy(source)
+    local t={}
+    for k,v in pairs(source) do
+      if type(v) == "table" and k ~= "data" then
+        v = copy(v)
+      end
+      t[k]=v
+    end
+    return t
+  end
+
+  local origin = ScriptOrigin[ScriptType]
+  if not origin then
+    error("Wrong argument: " .. tostring(ScriptType))
+  end
+  local index
+  return function()
+    while true do
+      index = next(origin, index)
+      if not index then return nil end
+      local filter = ScriptFilter[ScriptType]
+      if not filter or filter(index) then
+        return copy(origin[index]), index
+      end
+    end
+  end
+end
+
 local function EditUnsavedMacro (index)
   local m = LoadedMacros[index]
   if m and m.code then
@@ -1232,6 +1282,7 @@ return {
   DelMacro = DelMacro,
   EditUnsavedMacro = EditUnsavedMacro,
   EnumMacros = EnumMacros,
+  EnumScripts = EnumScripts,
   FixInitialModules = FixInitialModules,
   FlagsToString = FlagsToString,
   GetAreaCode = GetAreaCode,

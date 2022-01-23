@@ -33,6 +33,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "preprocessor.hpp"
+#include "type_traits.hpp"
+
+#include <utility>
+
+#include <cstddef>
+#include <cstring>
+
+#ifndef __cpp_lib_to_underlying
+#include "cpp.hpp"
+#endif
 
 //----------------------------------------------------------------------------
 
@@ -50,12 +60,12 @@ inline size_t grow_exp_noshrink(size_t const Current, std::optional<size_t> cons
 	// Unlike vector, string is allowed to shrink (another splendid design decision from the committee):
 	// "Calling reserve() with a res_arg argument less than capacity() is in effect a non-binding shrink request." (21.4.4 basic_string capacity)
 	// gcc decided to go mental and made that a _binding_ shrink request.
-	if (Desired && *Desired < Current)
+	if (Desired && *Desired <= Current)
 		return Current;
 
 	// For vector reserve typically allocates exactly the requested amount instead of exponential growth.
 	// This can be really bad if called in a loop.
-	const auto LowerBound = Current + (Current + 1) / 2;
+	const auto LowerBound = Current + (Current + 2) / 2;
 	return Desired? std::max(LowerBound, *Desired) : LowerBound;
 }
 
@@ -236,10 +246,19 @@ constexpr size_t aligned_size(size_t Size, size_t Alignment = alignof(std::max_a
 }
 
 template<typename T, size_t Alignment = alignof(std::max_align_t)>
+constexpr inline auto aligned_sizeof = aligned_size(sizeof(T), Alignment);
+
 [[nodiscard]]
-constexpr auto aligned_sizeof()
+inline bool is_aligned(const void* Address, const size_t Alignment)
 {
-	return aligned_size(sizeof(T), Alignment);
+	return !(reinterpret_cast<uintptr_t>(Address) % Alignment);
+}
+
+template<typename T>
+[[nodiscard]]
+bool is_aligned(const T& Object)
+{
+	return is_aligned(&Object, alignof(T));
 }
 
 namespace enum_helpers
@@ -285,35 +304,93 @@ void copy_memory(const src_type* Source, dst_type* Destination, size_t const Siz
 		std::memmove(Destination, Source, Size);
 }
 
-template<typename T>
-decltype(auto) view_as(void const* const BaseAddress, size_t const Offset = 0)
+namespace detail
 {
-	static_assert(std::is_trivially_copyable_v<T>);
-
-	const auto Ptr = static_cast<void const*>(static_cast<char const*>(BaseAddress) + Offset);
-
-	if constexpr (std::is_pointer_v<T>)
+	template<typename T, typename void_type>
+	decltype(auto) cast_as(void_type* const BaseAddress, intptr_t const Offset)
 	{
-		return static_cast<T>(Ptr);
+		static_assert(std::is_same_v<std::remove_const_t<void_type>, void>);
+
+		constexpr auto IsConst = std::is_const_v<void_type>;
+
+		const auto Ptr = static_cast<void_type*>(static_cast<std::conditional_t<IsConst, const std::byte, std::byte>*>(BaseAddress) + Offset);
+
+		if constexpr (std::is_pointer_v<T>)
+		{
+			return static_cast<T>(Ptr);
+		}
+		else
+		{
+			assert(Ptr);
+			return *static_cast<std::conditional_t<IsConst, const T, T>*>(Ptr);
+		}
 	}
-	else
-	{
-		return *static_cast<T const*>(Ptr);
-	}
+
+}
+template<typename T>
+decltype(auto) view_as(void const* const BaseAddress, intptr_t const Offset = 0)
+{
+	return detail::cast_as<T>(BaseAddress, Offset);
 }
 
 template<typename T>
 decltype(auto) view_as(unsigned long long const Address)
 {
-	return view_as<T>(reinterpret_cast<void const*>(Address));
+	return view_as<T>(nullptr, Address);
 }
 
-template<typename T, typename container>
-auto view_as_if(container const& Buffer, size_t const Offset = 0)
+template<typename T>
+decltype(auto) edit_as(void* const BaseAddress, intptr_t const Offset = 0)
+{
+	return detail::cast_as<T>(BaseAddress, Offset);
+}
+
+template<typename T>
+decltype(auto) edit_as(unsigned long long const Address)
+{
+	return edit_as<T>(nullptr, Address);
+}
+
+template<typename T>
+static auto view_as_opt(void const* const Buffer, size_t const Size, size_t const Offset = 0)
 {
 	static_assert(std::is_trivially_copyable_v<T>);
 
-	return Buffer.size() >= Offset + sizeof(T)? view_as<T const*>(Buffer.data() + Offset) : nullptr;
+	return Size >= Offset + sizeof(T)? view_as<T const*>(Buffer, Offset) : nullptr;
+}
+
+template<typename T, typename container, REQUIRES(is_range_v<container>)>
+static auto view_as_opt(container const& Buffer, size_t const Offset = 0)
+{
+	return view_as_opt<T>(Buffer.data(), Buffer.size(), Offset);
+}
+
+template<typename large_type, typename small_type>
+constexpr large_type make_integer(small_type const LowPart, small_type const HighPart)
+{
+	static_assert(sizeof(large_type) == sizeof(small_type) * 2);
+
+	return static_cast<large_type>(HighPart) << (sizeof(large_type) / 2 * CHAR_BIT) | static_cast<large_type>(LowPart);
+}
+
+template<typename large_type, size_t LowPart, size_t HighPart>
+constexpr large_type make_integer()
+{
+	constexpr auto Shift = (sizeof(large_type) / 2 * CHAR_BIT);
+	constexpr auto Max = std::numeric_limits<large_type>::max() >> Shift;
+	static_assert(LowPart <= Max);
+	static_assert(HighPart <= Max);
+
+	return static_cast<large_type>(HighPart) << Shift | static_cast<large_type>(LowPart);
+}
+
+template<typename small_type, size_t Index, typename large_type>
+constexpr small_type extract_integer(large_type const Value)
+{
+	static_assert(sizeof(small_type) < sizeof(large_type));
+	static_assert(sizeof(small_type) * Index < sizeof(large_type));
+
+	return Value >> sizeof(small_type) * Index * CHAR_BIT;
 }
 
 #endif // UTILITY_HPP_D8E934C7_BF30_4CEB_B80C_6E508DF7A1BC

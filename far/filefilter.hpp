@@ -86,11 +86,11 @@ public:
 	multifilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType);
 
 	void UpdateCurrentTime();
-	filter_result FileInFilterEx(const os::fs::find_data& fde, string_view FullName = {});
-	bool FileInFilter(const os::fs::find_data& fde, string_view FullName = {});
-	bool FileInFilter(const FileListItem& fli);
-	bool FileInFilter(const PluginPanelItem& fd);
-	bool IsEnabledOnPanel();
+	filter_result FileInFilterEx(const os::fs::find_data& fde, string_view FullName = {}) const;
+	bool FileInFilter(const os::fs::find_data& fde, string_view FullName = {}) const;
+	bool FileInFilter(const FileListItem& fli) const;
+	bool FileInFilter(const PluginPanelItem& fd) const;
+	bool IsEnabledOnPanel() const;
 	filter_area area() const;
 	Panel* panel() const;
 

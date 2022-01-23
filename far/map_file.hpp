@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/preprocessor.hpp"
+#include "common/string_utils.hpp"
 
 // External:
 
@@ -60,7 +61,7 @@ private:
 	void read_vc(std::istream& Stream);
 
 	std::map<uintptr_t, line> m_Symbols;
-	std::unordered_set<string> m_Files;
+	unordered_string_set m_Files;
 };
 
 #endif // MAP_FILE_HPP_29032DD0_A55A_4E8B_97AC_C991B24BBBFE

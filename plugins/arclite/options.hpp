@@ -2,9 +2,9 @@
 
 struct ExternalCodec {
   std::wstring name;
-  unsigned minL, maxL,  mod0L;
-  unsigned L1, L3, L5, L7, L9;
-  bool bcj_only;
+  unsigned minL{}, maxL{},  mod0L{};
+  unsigned L1{}, L3{}, L5{}, L7{}, L9{};
+  bool bcj_only{};
   std::wstring adv;
   void reset() {
     name.clear();

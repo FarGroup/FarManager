@@ -11,7 +11,7 @@ struct PutDlgData
   PluginClass *Self;
   char ArcFormat[NM];
   //char OriginalName[512];   //$ AA 26.11.2001
-  char Password1[256];
+  char Password1[512];
   //char Password2[256];      //$ AA 28.11.2001
   char DefExt[NM];
   BOOL DefaultPluginNotFound; //$ AA 2?.11.2001
@@ -20,12 +20,12 @@ struct PutDlgData
   //BOOL ArcNameChanged;        //$ AA 27.11.2001
 };
 
-#define MAM_SETDISABLE   DM_USER+1
-#define MAM_ARCSWITCHES  DM_USER+2
-//#define MAM_SETNAME      DM_USER+3
-#define MAM_SELARC       DM_USER+4
-#define MAM_ADDDEFEXT    DM_USER+5
-#define MAM_DELDEFEXT    DM_USER+6
+#define MAM_SETDISABLE   (DM_USER+1)
+#define MAM_ARCSWITCHES  (DM_USER+2)
+//#define MAM_SETNAME      (DM_USER+3)
+#define MAM_SELARC       (DM_USER+4)
+#define MAM_ADDDEFEXT    (DM_USER+5)
+#define MAM_DELDEFEXT    (DM_USER+6)
 
 //номера элементов диалога PutFiles
 #define PDI_DOUBLEBOX       0
@@ -220,7 +220,7 @@ LONG_PTR WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
       case PDI_ADDBTN:
       {
         /*// проверка совпадения введенного пароля и подтверждения
-        char Password1[256],Password2[256];
+        char Password1[512],Password2[512];
         Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS0WEDT, (long)Password1);
         Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS1WEDT, (long)Password2);
         if (lstrcmp(Password1,Password2))
@@ -262,14 +262,14 @@ LONG_PTR WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
       case PDI_EXACTNAMECHECK:
         if(Param2)
         {
-          BOOL UnChanged=(BOOL)Info.SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, PDI_ARCNAMEEDT, -1);
+          BOOL UnChanged = Info.SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, PDI_ARCNAMEEDT, -1) != FALSE;
           if(!pdd->OldExactState && /*!pdd->ArcNameChanged*/UnChanged) // 0->1
             Info.SendDlgMessage(hDlg, MAM_ADDDEFEXT, 0, 0);
         }
         else
           if(pdd->OldExactState)  // 1->0
             Info.SendDlgMessage(hDlg, MAM_DELDEFEXT, 0, 0);
-        pdd->OldExactState=(BOOL)Param2;
+        pdd->OldExactState = Param2 != FALSE;
         return TRUE;
     }
   }
@@ -278,7 +278,7 @@ LONG_PTR WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
     if(Param1==PDI_ADDBTN && Info.SendDlgMessage(hDlg, DM_ENABLE, PDI_ADDBTN, -1))
     {
       // проверка совпадения введенного пароля и подтверждения
-      char Password1[256],Password2[256];
+      char Password1[512],Password2[512];
       Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS0WEDT, (LONG_PTR)Password1);
       Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, PDI_PASS1WEDT, (LONG_PTR)Password2);
       if(lstrcmp(Password1,Password2))
@@ -330,7 +330,7 @@ LONG_PTR WINAPI PluginClass::PutDlgProc(HANDLE hDlg,int Msg,int Param1,LONG_PTR 
 
     pdd->Self->FormatToPlugin(pdd->ArcFormat,pdd->Self->ArcPluginNumber,pdd->Self->ArcPluginType);
 
-    BOOL IsDelOldDefExt=(BOOL)Info.SendDlgMessage(hDlg, MAM_DELDEFEXT, 0, 0);
+    BOOL IsDelOldDefExt = Info.SendDlgMessage(hDlg, MAM_DELDEFEXT, 0, 0) != FALSE;
     IsDelOldDefExt=IsDelOldDefExt && Info.SendDlgMessage(hDlg, DM_GETCHECK, PDI_EXACTNAMECHECK, 0);
 
     GetRegKey(pdd->ArcFormat,"DefExt",Buffer,"",sizeof(Buffer));
@@ -559,9 +559,9 @@ int PluginClass::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,
 #ifdef _GROUP_NAME_
         if (ItemsNumber==1 && pi.SelectedItemsNumber==1 && (pi.SelectedItems[0].Flags&PPIF_SELECTED))
         {
-          char CurDir[NM];
-          GetCurrentDirectory(sizeof(CurDir),CurDir);
-          lstrcpy(DialogItems[PDI_ARCNAMEEDT].Data, FSF.PointToName(CurDir));
+          char CurDirBuffer[NM];
+          GetCurrentDirectory(sizeof(CurDirBuffer), CurDirBuffer);
+          lstrcpy(DialogItems[PDI_ARCNAMEEDT].Data, FSF.PointToName(CurDirBuffer));
         }
         else
         {
@@ -790,7 +790,7 @@ void PluginClass::GetGroupName(PluginPanelItem *Items, int Count, char *ArcName)
 {
   BOOL NoGroup=!/*GetRegKey(HKEY_CURRENT_USER,"","GroupName",0)*/Opt.AdvFlags.GroupName;
 
-  char *Name=Items->FindData.cFileName;
+  char *Name=Items[0].FindData.cFileName;
   char *Dot=strrchr(Name, '.');
   int Len=(Dot && !(Items->FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
           ?((int)(Dot-Name)):lstrlen(Name);
@@ -799,9 +799,9 @@ void PluginClass::GetGroupName(PluginPanelItem *Items, int Count, char *ArcName)
 //    if(FSF.LStrnicmp(Name, Items[i].FindData.cFileName, Len))
     {
       //взять имя папки
-      char CurDir[NM];
-      GetCurrentDirectory(sizeof(CurDir), CurDir);
-      lstrcpy(ArcName, FSF.PointToName(CurDir));
+      char CurDirBuffer[NM];
+      GetCurrentDirectory(sizeof(CurDirBuffer), CurDirBuffer);
+      lstrcpy(ArcName, FSF.PointToName(CurDirBuffer));
       return;
     }
   lstrcpyn(ArcName, Name, Len+1);

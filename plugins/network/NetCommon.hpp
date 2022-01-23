@@ -2,6 +2,7 @@
 #define __NETCOMMON_HPP__
 
 #include <plugin.hpp>
+#include "NetClass.hpp"
 
 extern struct Options
 {
@@ -10,26 +11,34 @@ extern struct Options
 	int HiddenShares;
 	int ShowPrinters;
 	int LocalNetwork;
-	int DisconnectMode;
-	int ConfirmRemoveConnection;
+	int DisconnectMode; // not configurable
 	int HiddenSharesAsHidden;
 	int FullPathShares;
-	int FavoritesFlags;
+	int FavoritesFlags; // not configurable
 	int RootDoublePoint;
-	int NavigateToDomains;
+	int NavigateToDomains; // not configurable
+	int ScanNetwork;
 
-	void Read();
-	void Write();
+	static void Read();
+	static void Write();
 } Opt;
 
 
-extern NETRESOURCE CommonCurResource;
-extern LPNETRESOURCE PCommonCurResource;
+extern NetResource CommonCurResource;
+extern NetResource* PCommonCurResource;
 
 const wchar_t* GetMsg(int MsgId);
 
-BOOL DlgCreateFolder(wchar_t* lpBuffer, size_t nBufferSize);
+class TSaveScreen
+{
+private:
+	HANDLE hScreen;
 
-#define ShowMessage(x) PsInfo.Message(&MainGuid, nullptr, FMSG_ALLINONE|FMSG_MB_OK, L"", reinterpret_cast<const wchar_t* const*>(x), 0,{})
+public:
+	TSaveScreen();
+	~TSaveScreen();
+};
+
+BOOL DlgCreateFolder(wchar_t* lpBuffer, size_t nBufferSize);
 
 #endif // __NETCOMMON_HPP__

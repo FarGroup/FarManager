@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/string_utils.hpp"
 
 // External:
 
@@ -108,7 +109,7 @@ enum
 //! Hash table with match info
 struct MatchHash
 {
-	std::unordered_map<std::wstring, RegExpMatch> Matches;
+	unordered_string_map<RegExpMatch> Matches;
 };
 
 /*! Regular expressions support class.

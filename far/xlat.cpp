@@ -49,7 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enum_tokens.hpp"
-#include "common/from_string.hpp"
 
 // External:
 
@@ -65,18 +64,18 @@ void xlat_initialize()
 	size_t I = 0;
 	for (const auto& i: enum_tokens(XLat.strLayouts.Get(), L";"sv))
 	{
-		unsigned long res;
-		if (!from_string(i, res, nullptr, 16))
+		if (const auto Hkl = os::make_hkl(i); Hkl)
+		{
+			XLat.Layouts[I] = Hkl;
+			++I;
+
+			if (I >= std::size(XLat.Layouts))
+				break;
+		}
+		else
 		{
 			LOGWARNING(L"Unsupported layout: {}"sv, i);
-			continue;
 		}
-
-		XLat.Layouts[I] = reinterpret_cast<HKL>(static_cast<intptr_t>(HIWORD(res)? res : MAKELONG(res, res)));
-		++I;
-
-		if (I >= std::size(XLat.Layouts))
-			break;
 	}
 
 	if (I < 2) // если указано меньше двух - "отключаем" эту
@@ -88,7 +87,7 @@ void Xlat(span<wchar_t> const Data, unsigned long long const Flags)
 	const auto& XLat = Global->Opt->XLat;
 
 	int CurLang=2; // unknown
-	size_t LangCount[2]={};
+	size_t LangCount[2]{};
 
 	if (Data.empty())
 		return;

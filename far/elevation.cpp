@@ -1004,13 +1004,12 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 	if (!Global || !Global->Opt || !(Global->Opt->ElevationMode & Mode))
 		return false;
 
-	if(UseNtStatus && imports.RtlGetLastNtStatus)
+	if(UseNtStatus)
 	{
 		const auto LastNtStatus = os::get_last_nt_status();
 		return LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD || LastNtStatus == STATUS_INVALID_OWNER;
 	}
 
-	// RtlGetLastNtStatus not implemented in w2k.
 	const auto LastWin32Error = GetLastError();
 	return LastWin32Error == ERROR_ACCESS_DENIED || LastWin32Error == ERROR_PRIVILEGE_NOT_HELD || LastWin32Error == ERROR_INVALID_OWNER;
 }
@@ -1071,10 +1070,8 @@ public:
 		for (;;)
 		{
 			if (!Process(Read<int>()))
-				break;
+				return EXIT_SUCCESS;
 		}
-
-		return EXIT_SUCCESS;
 	}
 
 private:

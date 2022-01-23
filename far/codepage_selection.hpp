@@ -111,7 +111,7 @@ private:
 	void AddStandardCodePage(string_view codePageName, uintptr_t codePage, int position = -1, bool enabled = true) const;
 	void AddSeparator(const string& Label, size_t position = -1) const;
 	size_t size() const;
-	size_t GetCodePageInsertPosition(uintptr_t codePage, size_t start, size_t length);
+	size_t GetCodePageInsertPosition(uintptr_t codePage, size_t start, size_t length) const;
 	void AddCodePages(DWORD codePages);
 	void SetFavorite(bool State);
 	void FillCodePagesVMenu(bool bViewOnly, bool bShowAutoDetect);

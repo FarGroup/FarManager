@@ -539,7 +539,7 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 			esp.TopScreenLine=-1;
 		}
 
-		if(!isSelect || (isSelect && Opt.JumpToPair))
+		if(!isSelect || Opt.JumpToPair)
 			PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 
 		if(Opt.Beep)

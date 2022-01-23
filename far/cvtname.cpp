@@ -209,7 +209,7 @@ static void MixToFullPath(const string_view stPath, string& Dest, const string_v
 string ConvertNameToFull(string_view const Object)
 {
 	string strDest;
-	MixToFullPath(Object, strDest, os::fs::GetCurrentDirectory());
+	MixToFullPath(Object, strDest, os::fs::get_current_directory());
 	return strDest;
 }
 
@@ -222,7 +222,7 @@ std::optional<wchar_t> get_volume_drive(string_view const VolumePath)
 		string VolumePathNames;
 		if (os::fs::GetVolumePathNamesForVolumeName(SrcVolumeName, VolumePathNames))
 		{
-			for (const auto& i : enum_substrings(VolumePathNames.c_str()))
+			for (const auto& i: enum_substrings(VolumePathNames))
 			{
 				if (IsRootPath(i))
 					return upper(i.front());
@@ -277,11 +277,8 @@ string ConvertNameToReal(string_view const Object)
 	string Path = FullPath;
 	os::fs::file File;
 
-	for (;;)
+	while (!File.Open(Path, 0, os::fs::file_share_all, nullptr, OPEN_EXISTING))
 	{
-		if (File.Open(Path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
-			break;
-
 		if (IsRootPath(Path))
 			break;
 

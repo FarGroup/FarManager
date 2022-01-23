@@ -142,7 +142,7 @@ string ConvertTemplateTreeName(string_view const strTemplate, string_view const 
 	string Str(strTemplate);
 
 	replace(Str, L"%D"sv, D);
-	replace(Str, L"%SN"sv, format(FSTR(L"{:04X}-{:04X}"sv), HIWORD(SN), LOWORD(SN)));
+	replace(Str, L"%SN"sv, format(FSTR(L"{:04X}-{:04X}"sv), extract_integer<WORD, 1>(SN), extract_integer<WORD, 0>(SN)));
 	replace(Str, L"%L"sv, L);
 	replace(Str, L"%SR"sv, SR);
 	replace(Str, L"%SH"sv, SH);
@@ -444,12 +444,12 @@ string TreeList::GetTitle() const
 
 void TreeList::DisplayTree(bool Fast)
 {
-	wchar_t TreeLineSymbol[4][3]=
+	const wchar_t TreeLineSymbol[][3]
 	{
-		{L' ',                  L' ',             0},
-		{BoxSymbols[BS_V1],     L' ',             0},
-		{BoxSymbols[BS_LB_H1V1],BoxSymbols[BS_H1],0},
-		{BoxSymbols[BS_L_H1V1], BoxSymbols[BS_H1],0},
+		{ L' ',                   L' ',              0 },
+		{ BoxSymbols[BS_V1],      L' ',              0 },
+		{ BoxSymbols[BS_LB_H1V1], BoxSymbols[BS_H1], 0 },
+		{ BoxSymbols[BS_L_H1V1],  BoxSymbols[BS_H1], 0 },
 	};
 
 	std::optional<LockScreen> LckScreen;
@@ -597,7 +597,7 @@ void TreeList::Update(int Mode)
 	if (RetFromReadTree && !m_ListData.empty() && (!(Mode & UPDATE_KEEP_SELECTION) || LastTreeCount != m_ListData.size()))
 	{
 		SyncDir();
-		auto& CurPtr=m_ListData[m_CurFile];
+		const auto& CurPtr = m_ListData[m_CurFile];
 
 		if (!os::fs::exists(CurPtr.strName))
 		{
@@ -657,7 +657,7 @@ public:
 
 static auto OpenTreeFile(string_view const Name, bool const Writable)
 {
-	return os::fs::file(Name, Writable? FILE_WRITE_DATA : FILE_READ_DATA, FILE_SHARE_READ, nullptr, Writable? OPEN_ALWAYS : OPEN_EXISTING);
+	return os::fs::file(Name, Writable? FILE_WRITE_DATA : FILE_READ_DATA, FILE_SHARE_READ | FILE_SHARE_DELETE, nullptr, Writable? OPEN_ALWAYS : OPEN_EXISTING);
 }
 
 static bool MustBeCached(string_view const Root)
@@ -734,8 +734,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 
 			for (const auto& i: Container)
 			{
-				Writer.write(string_view(i).substr(offset));
-				Writer.write(Eol);
+				Writer.write(string_view(i).substr(offset), Eol);
 			}
 
 			Stream.flush();
@@ -845,7 +844,7 @@ bool TreeList::ReadTree()
 	return true;
 }
 
-void TreeList::SaveTreeFile()
+void TreeList::SaveTreeFile() const
 {
 	if (m_ListData.size() < static_cast<size_t>(Global->Opt->Tree.MinTreeCount))
 		return;
@@ -919,7 +918,7 @@ void TreeList::SyncDir()
 
 bool TreeList::FillLastData()
 {
-	const auto CountSlash = [](const string& Str, size_t Offset)
+	const auto CountSlash = [](const string_view Str, size_t Offset)
 	{
 		return static_cast<size_t>(std::count_if(Str.cbegin() + Offset, Str.cend(), path::is_separator));
 	};
@@ -1639,7 +1638,8 @@ void TreeList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 
 void TreeList::ProcessEnter()
 {
-	auto& CurPtr=m_ListData[m_CurFile];
+	const auto& CurPtr = m_ListData[m_CurFile];
+
 	if (os::fs::is_directory(CurPtr.strName))
 	{
 		if (!m_ModalMode && FarChDir(CurPtr.strName))
@@ -1664,7 +1664,7 @@ bool TreeList::ReadTreeFile()
 	m_ReadingTree = true;
 	SCOPE_EXIT{ m_ReadingTree = false; };
 
-	size_t RootLength=m_Root.empty()?0:m_Root.size()-1;
+	const size_t RootLength = m_Root.empty()? 0 : m_Root.size() - 1;
 	//SaveState();
 	FlushCache();
 	auto strName = MkTreeFileName(m_Root);
@@ -1932,7 +1932,7 @@ void TreeList::FlushCache()
 
 	if (!TreeCache().GetTreeName().empty())
 	{
-		const auto Opener = [&](const string& Name) { return OpenTreeFile(Name, true); };
+		const auto Opener = [&](const string_view Name) { return OpenTreeFile(Name, true); };
 
 		WriteTree(TreeCache().GetTreeName(), TreeCache(), Opener, 0);
 	}

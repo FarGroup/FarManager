@@ -119,6 +119,13 @@ public:
 		item.Data.Data=Value;
 		return SettingsControl(handle,SCTL_SET,0,&item)!=FALSE;
 	}
+
+	bool Enum(size_t Root, FarSettingsEnum* fse)
+	{
+		fse->Root=Root;
+		fse->StructSize=sizeof(FarSettingsEnum);
+		return SettingsControl(handle, SCTL_ENUM, 0, fse)!=FALSE;
+	}
 };
 
 #endif

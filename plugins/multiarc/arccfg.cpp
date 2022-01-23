@@ -81,7 +81,7 @@ int ConfigGeneral()
 }
 
 
-#define DM_INITCONFIG DM_USER+1
+#define DM_INITCONFIG (DM_USER+1)
 typedef struct
 {
   char *ArcFormat;

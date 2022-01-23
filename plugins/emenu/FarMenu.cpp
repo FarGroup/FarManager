@@ -103,13 +103,16 @@ void CFarMenu::AddArrows()
       unsigned nLen=MenuItemLen(m_pfmi[i].Text);
       if (nLen>nMaxLen) nMaxLen=nLen;
     }
+
+    const auto ArrowLength = lstrlen(m_szArrow);
+
     for (i=0; i<m_nItemCnt; i++)
     {
       unsigned nLen=MenuItemLen(m_pfmi[i].Text);
       if (m_pbHasSubMenu[i])
       {
         {
-          size_t  len=lstrlen(m_pfmi[i].Text)+lstrlen(m_szArrow)+(nMaxLen-nLen);
+          size_t len = lstrlen(m_pfmi[i].Text) + ArrowLength + (nMaxLen - nLen);
           wchar_t *pn = new wchar_t[len+1];
           wcscpy(pn, m_pfmi[i].Text);
           if (m_pfmi[i].Text != empty_wstr)  // paranoya
@@ -173,7 +176,7 @@ static bool GetCursorXY(int* pnX, int* pnY)
 		console_rect.Bottom - console_rect.Top + 1,
 	};
 
-	if (pt.x < rc.left || pt.x > rc.right || pt.y < rc.top && pt.y > rc.bottom)
+	if (pt.x < rc.left || pt.x > rc.right || pt.y < rc.top || pt.y > rc.bottom)
 		return false;
 
 	*pnX = static_cast<int>(console_size.X * pt.x / (rc.right - rc.left));
@@ -213,11 +216,11 @@ int CFarMenu::Show(LPCWSTR szTitle, int nSelItem/*=0*/, bool bAtCursorPos/*=fals
     SetSelectedItem(nSelItem);
     nSelItem=(int)thePlug->Menu(&MainGuid, m_Id, nX, nY, MAX_HEIGHT, FMENU_WRAPMODE, szTitle, {}, m_szHelp, pBreakKeys, &nBreakCode, m_pfmi, m_nItemCnt);
     if (-1==nBreakCode) return nSelItem;
-    assert(-1!=nSelItem);
     switch (pBreakKeys[nBreakCode].VirtualKeyCode)
     {
     case VK_RIGHT:
     case VK_NEXT:
+      assert(-1!=nSelItem);
       if (m_pbHasSubMenu[nSelItem]) return nSelItem;
       break;
     case VK_BACK:

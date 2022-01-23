@@ -36,12 +36,12 @@ public:
   }
 };
 
-static StateMatrix* create_state_matrix(const std::vector<SigData>& str_list) {
+static std::unique_ptr<StateMatrix> create_state_matrix(const std::vector<SigData>& str_list) {
   size_t max_states = 0;
   for (unsigned i = 0; i < str_list.size(); i++) {
     max_states += str_list[i].signature.size();
   }
-  StateMatrix* matrix = new StateMatrix(max_states);
+  auto matrix = std::make_unique<StateMatrix>(max_states);
   State current_state = 0;
   for (StrIndex i = 0; i < str_list.size(); i++) {
     const ByteVector& str = str_list[i].signature;
@@ -70,7 +70,7 @@ std::vector<StrPos> msearch(unsigned char* data, size_t size, const std::vector<
   if (str_list.empty())
     return result;
   result.reserve(str_list.size());
-  std::unique_ptr<StateMatrix> matrix(create_state_matrix(str_list));
+  const auto matrix = create_state_matrix(str_list);
   std::vector<bool> found(str_list.size(), false);
   for (size_t i = 0; i < size; i++) {
     State state = 0;

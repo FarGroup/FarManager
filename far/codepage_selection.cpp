@@ -142,13 +142,13 @@ void codepages::AddCodePage(string_view codePageName, uintptr_t codePage, size_t
 		// Вычисляем позицию вставляемого элемента
 		if (position == static_cast<size_t>(-1))
 		{
-			FarListInfo info = { sizeof(FarListInfo) };
+			FarListInfo info{ sizeof(info) };
 			dialog->SendMessage(DM_LISTINFO, control, &info);
 			position = info.ItemsNumber;
 		}
 
 		// Вставляем элемент
-		FarListInsert item = { sizeof(FarListInsert), static_cast<intptr_t>(position) };
+		FarListInsert item{ sizeof(item), static_cast<intptr_t>(position) };
 
 		const auto name = FormatCodePageString(codePage, codePageName, IsCodePageNameCustom);
 		item.Item.Text = name.c_str();
@@ -237,12 +237,12 @@ void codepages::AddSeparator(const string& Label, size_t position) const
 	{
 		if (position == static_cast<size_t>(-1))
 		{
-			FarListInfo info = { sizeof(FarListInfo) };
+			FarListInfo info{ sizeof(info) };
 			dialog->SendMessage(DM_LISTINFO, control, &info);
 			position = info.ItemsNumber;
 		}
 
-		FarListInsert item = { sizeof(FarListInsert), static_cast<intptr_t>(position) };
+		FarListInsert item{ sizeof(item), static_cast<intptr_t>(position) };
 		item.Item = {};
 		item.Item.Text = Label.c_str();
 		item.Item.Flags = LIF_SEPARATOR;
@@ -280,13 +280,13 @@ size_t codepages::size() const
 	if (CallbackCallSource == CodePagesFill2)
 		return DialogBuilderList->size();
 
-	FarListInfo info = { sizeof(FarListInfo) };
+	FarListInfo info{ sizeof(info) };
 	dialog->SendMessage(DM_LISTINFO, control, &info);
 	return info.ItemsNumber;
 }
 
 // Получаем позицию для вставки таблицы с учётом сортировки по номеру кодовой страницы
-size_t codepages::GetCodePageInsertPosition(uintptr_t codePage, size_t start, size_t length)
+size_t codepages::GetCodePageInsertPosition(uintptr_t codePage, size_t start, size_t length) const
 {
 	const auto GetCodePage = [this](size_t position) -> uintptr_t
 	{
@@ -320,19 +320,18 @@ void codepages::AddCodePages(DWORD codePages)
 	if (codePages & SearchAll)
 		AddStandardCodePage(msg(lng::MFindFileAllCodePages), CP_ALL);
 
-	const auto GetSystemCodepageName = [](uintptr_t const Cp, string_view const SystemName)
+	// system codepages
 	{
-		const auto Info = GetCodePageInfo(Cp);
-		if (!Info)
-			return str(Cp);
-		if (starts_with(Info->Name, SystemName))
-			return Info->Name;
-		return concat(SystemName, L" - "sv, Info->Name);
-	};
+		const auto GetSystemCodepageName = [](uintptr_t const Cp, string_view const SystemName)
+		{
+			const auto Info = GetCodePageInfo(Cp);
+			if (!Info)
+				return str(Cp);
+			if (starts_with(Info->Name, SystemName))
+				return Info->Name;
+			return concat(SystemName, L" - "sv, Info->Name);
+		};
 
-	{
-		// system codepages
-		//
 		const auto AnsiCp = encoding::codepage::ansi();
 
 		bool SeparatorAdded = false;
@@ -359,6 +358,7 @@ void codepages::AddCodePages(DWORD codePages)
 			AddStandardCodePage(GetSystemCodepageName(OemCp, L"OEM"sv), OemCp);
 		}
 	}
+
 	// unicode codepages
 	//
 	AddSeparator(msg(lng::MGetCodePageUnicode));
@@ -592,7 +592,7 @@ intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 
 			if (Param1 == EDITCP_OK)
 			{
-				strCodePageName = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EDITCP_EDIT, nullptr));
+				strCodePageName = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EDITCP_EDIT, nullptr));
 			}
 			// Если имя кодовой страницы пустое, то считаем, что имя не задано
 			if (strCodePageName.empty())
@@ -751,17 +751,17 @@ size_t codepages::FillCodePagesList(Dialog* Dlg, size_t controlId, uintptr_t cod
 	if (CallbackCallSource == CodePagesFill)
 	{
 		// Если надо выбираем элемент
-		FarListInfo info = { sizeof(FarListInfo) };
+		FarListInfo info{ sizeof(info) };
 		Dlg->SendMessage(DM_LISTINFO, control, &info);
 
 		for (const auto& i: irange(info.ItemsNumber))
 		{
 			if (GetListItemCodePage(i) == codePage)
 			{
-				FarListGetItem Item = { sizeof(FarListGetItem), static_cast<intptr_t>(i) };
+				FarListGetItem Item{ sizeof(Item), static_cast<intptr_t>(i) };
 				dialog->SendMessage(DM_LISTGETITEM, control, &Item);
 				dialog->SendMessage(DM_SETTEXTPTR, control, const_cast<wchar_t*>(Item.Item.Text));
-				FarListPos Pos = { sizeof(FarListPos), static_cast<intptr_t>(i), -1 };
+				FarListPos Pos{ sizeof(Pos), static_cast<intptr_t>(i), -1 };
 				dialog->SendMessage(DM_LISTSETCURPOS, control, &Pos);
 				break;
 			}

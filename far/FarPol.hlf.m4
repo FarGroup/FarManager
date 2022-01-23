@@ -112,7 +112,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
  ~Wewnętrzny edytor~@Editor@
 
  ~Maski plików~@FileMasks@
- ~Polecenia makro (sterowanie klawiaturą)~@KeyMacro@
+ ~Makropolecenia (sterowanie klawiaturą)~@KeyMacro@
 
 
 @Help
@@ -316,7 +316,7 @@ $ #Polecenia kontroli menu#
  Menu filtru lub pozycje listy                      #Ctrl+Alt+F,RAlt#
  Zablokuj filtr                                          #Ctrl+Alt+L#
 
- Zobacz także listę ~klawiszy makro~@KeyMacroMenuList@, dostępnych w menu.
+ Zobacz także listę ~klawiszy makr~@KeyMacroMenuList@, dostępnych w menu.
 
 
 @PanelCmd
@@ -424,7 +424,7 @@ lecz w pasywnym oknie panelu.
 
  Pliki, skopiowane lub cięcie z paneli, mogą być kopiowane do innej aplikacji, np. Explorer.
 
- Zobacz także listę ~klawiszy makro~@KeyMacroShellList@, dostępnych w panelach.
+ Zobacz także listę ~klawiszy makr~@KeyMacroShellList@, dostępnych w panelach.
 
  Uwaga:
 
@@ -466,7 +466,47 @@ $ #Tryby sortowania#
  Użyj sortowania grup                                     #Shift+F11#
  Pokaż najpierw zaznaczone pliki                          #Shift+F12#
 
+ Można także ~dostroić~@PanelSortCriteria@ tryby sortowania wciskając klawisz #F4#.
+
  Zobacz także: ogólne polecenia ~menu~@MenuCmd@.
+
+
+@PanelSortCriteria
+$ #Kryteria softowania#
+ Kiedy pliki są traktowane równoważnie używając wybranego trybu sortowania, pod uwagę brane są dodatkowe ktyteria sortowania.
+ Na przykład, jeżeli pliki są sortowane wg wielkości i zarówno "a.txt" i "b.txt" mają tę samą wielkość, "a.txt"
+ będzie wyświetlane pierwszy, tak jakby były posortowane według nazw.
+	W tym menu można dostosować zestawy kryteriów związanych z wybranym trybem sortowania.
+
+ #Ins#
+ Dodaj kryterium do zestawu.
+
+ #Del#
+ Usuń zaznaczone kryterium.
+
+ #F4#
+ Edytuj/zastąp wybrane kryterium.
+
+ #+#
+ Użyj kolejności rosnąco.
+
+ #-#
+ Użyj kolejności malejąco.
+
+ #*#
+ Zmiana kolejności.
+
+ #=#
+ Przejmij kolejność z odpowiedniego trybu sortowania.
+
+ #Ctrl+Góra#
+ Przenieś kryterium wyżej.
+
+ #Ctrl+Dół#
+ Przenieś kryterium niżej.
+
+ #Ctrl+R#
+ Przywrócenie domyślnych kryteriów.
 
 
 @FastFind
@@ -488,7 +528,7 @@ do pola wyszukiwania. Jeżeli wprowadzony tekst będzie transliterowany, to będ
 wyszukiwany jako nowy tekst. Zobacz flagę ~XLat.Flags~@XLat.Flags@ jak ustawić
 klawisz skrótu dla transliteracji.
 
- Zobacz także listę ~klawiszy makro~@KeyMacroSearchList@, dostępnych w szybkim szukaniu.
+ Zobacz także listę ~klawiszy makr~@KeyMacroSearchList@, dostępnych w szybkim szukaniu.
 
 
 @CmdLineCmd
@@ -753,7 +793,7 @@ zaznaczony tekst do schowka, #Ctrl+<Szary +># dołączają tekst do zawartości 
 $ #Polecenia sterowania programem#
  #Makra klawiatury#
 
- Nagraj ~makro klawiatury~@KeyMacro@                                   #Ctrl+<.>#
+ Nagraj ~makropolecenie~@KeyMacro@                                     #Ctrl+<.>#
 
  #Menu i listy rozwijane#
 
@@ -859,7 +899,7 @@ Ale jeżeli któraś wtyczka nie będzie już potrzebna, można ją usunąć osz
 
  Wtyczki mogą być wywołane z menu ~Zmień dysk~@DriveDlg@ lub ~Listy wtyczek~@PluginCommands@ włączanej klawiszem
 #F11# lub odpowiadającemu menu ~Polecenia~@CmdMenu@. Wciśnięcie #F4# na ~"Liście wtyczek"~@PluginCommands@
-pozwala przypisać klawisz skrótu do menu (ułatwia to wywoływanie wtyczek w ~makrach klawiatury~@KeyMacro@).
+pozwala przypisać klawisz skrótu do menu (ułatwia to wywoływanie wtyczek w ~makropoleceniach~@KeyMacro@).
 Menu to jest dostępne w panelu plików, oknach dialogowych oraz (tylko po wciśnięciu klawisza #F11#)
 w oknie podglądu i edycji. Tylko specjalnie przygotowane wtyczki będą wywoływane w oknach dialogowych,
 przeglądarce lub edytorze.
@@ -902,7 +942,7 @@ są tylko wtyczki potrafiące pracować w panelu plików;
 z przeglądarką lub edytorem plików.
 
  Każdej wtyczce w menu konfiguracyjnym można przypisać klawisz skrótu za pomocą
-klawisza #F4#, możliwość ta jest stosowane w ~makrach~@KeyMacro@. Przypisany klawisz
+klawisza #F4#, możliwość ta jest stosowane w ~makropoleceniach~@KeyMacro@. Przypisany klawisz
 skrótu będzie wyświetlany po lewej stronie listy. Znak #A# w kolumnie po lewej stronie
 oznacza, że wtyczka została napisana dla Far 1.7x i nie obsługuje w pełni możliwości
 zawartych w Far 3 (np. znaki Unicode w nazwach plików i edytorze).
@@ -947,10 +987,10 @@ nie zawiera plików pomocy, pomoc kontekstowa nie zostanie wyświetlona.
 zostanie główny temat z pliku.
 
  Każdej wtyczce w menu konfiguracyjnym można przypisać klawisz skrótu za pomocą
-klawisza #F4#, możliwość ta jest stosowane w ~makrach~@KeyMacro@. Przypisany klawisz
-skrótu będzie wyświetlany po lewej stronie listy. Znak #A# w kolumnie po lewej stronie
-oznacza, że wtyczka została napisana dla Far 1.7x i nie obsługuje w pełni możliwości
-zawartych w Far 3 (np. znaki Unicode w nazwach plików i edytorze).
+klawisza #F4#, możliwość ta jest stosowane w ~makropoleceniach~@KeyMacro@. Przypisany
+klawisz skrótu będzie wyświetlany po lewej stronie listy. Znak #A# w kolumnie po lewej
+stronie oznacza, że wtyczka została napisana dla Far 1.7x i nie obsługuje w pełni
+możliwości zawartych w Far 3 (np. znaki Unicode w nazwach plików i edytorze).
 
  Wciśnięcie #F3# pokaże informacje techniczne o wskazanej wtyczce.
 
@@ -1072,7 +1112,7 @@ automatycznie ustawiony na panel plików.
  Operacja ~szybkiego szukania~@FastFind@ może być użyta jako odnośnik do żądanego
 plików po pierwszej literze jego nazwy.
 
- Zobacz także listę ~klawiszy makro~@KeyMacroShellList@, dostępnych w panelach.
+ Zobacz także listę ~klawiszy makr~@KeyMacroShellList@, dostępnych w panelach.
 
 
 @TreePanel
@@ -1095,7 +1135,7 @@ Wciśnięcie #Ctrl+Enter# przeniesie do następnego folderu o takim samym począ
  Klawisze #Szary +# i #Szary -# przesuwają przesuwają w górę i w dół do następnej gałęzi
 tego samego poziomu.
 
- Zobacz także listę ~klawiszy makro~@KeyMacroTreeList@, dostępną dla panelu drzewa.
+ Zobacz także listę ~klawiszy makr~@KeyMacroTreeList@, dostępnych dla panelu drzewa.
 
 
 @InfoPanel
@@ -1275,7 +1315,7 @@ klastra na dysku, rzeczywistą wielkość pliku z ilością utraconej pojemnośc
 Dotyczy to także ~Panelu informacyjnego~@InfoPanel@ i linii statusu w ~Panelu plików~@FilePanel@.
 Bieżący tryb - far:config #Panel.ShowBytes# (domyślnie=fałsz).
 
- Zobacz także listę ~klawiszy makro~@KeyMacroQViewList@, dostępnych w panelu szybkiego poglądu.
+ Zobacz także listę ~klawiszy makr~@KeyMacroQViewList@, dostępnych w panelu szybkiego poglądu.
 
 
 @DragAndDrop
@@ -1313,7 +1353,7 @@ do menu pasywnego panelu.
  ~Menu Polecenia~@CmdMenu@
  ~Menu Opcje~@OptMenu@
 
- Zobacz także listę ~klawiszy makro~@KeyMacroMainMenuList@, dostępną w głównym menu.
+ Zobacz także listę ~klawiszy makr~@KeyMacroMainMenuList@, dostępną w głównym menu.
 
 
 @LeftRightMenu
@@ -1607,8 +1647,8 @@ plik może przetworzyć kilka wtyczek.
 $ #Utwórz folder#
  Funkcja pozwala tworzyć foldery. W linii edycji można użyć zmiennych
 systemowych, które zostaną rozwinięte w pełną ścieżkę przed utworzeniem
-folderu. Można utworzyć całą ścieżkę w jednym czasie: wystarczy użyć znaku ukośnika
-wstecznego (backslash). Na przykład:
+folderu. Można utworzyć całą ścieżkę w jednym czasie: wystarczy użyć znaku
+odwrotnego ukośnika (backslash). Na przykład:
 
  #%USERDOMAIN%\\%USERNAME%\\Folder3#
 
@@ -1851,7 +1891,7 @@ do poprzedniej wielkości.
  Wciśnięcie #Ctrl+Enter# pozwala na przejście do następnego folderu z wprowadzoną
 wcześniej nazwą. #Ctrl+Shift+Enter# przechodzi do poprzedniego folderu.
 
- Zobacz także listę ~klawiszy makro~@KeyMacroFindFolderList@, dostępnych w oknie
+ Zobacz także listę ~klawiszy makr~@KeyMacroFindFolderList@, dostępnych w oknie
 dialogowym szukania.
 
 
@@ -2148,7 +2188,7 @@ Jeżeli istnieje plik globalny zastępuje on menu specyficzne dla użytkownika.
 
  Zobacz także:
 
- Lista ~klawiszy makro~@KeyMacroUserMenuList@, dostępne w menu użytkownika.
+ Lista ~klawiszy makr~@KeyMacroUserMenuList@, dostępnych w menu użytkownika.
  Wspólne ~polecenia menu~@MenuCmd@.
 
 
@@ -2337,13 +2377,6 @@ modyfikowany w tym samym czasie co kopiowanie.
  #Skanuj linki symboliczne#
  Skanuje ~linki symboliczne~@HardSymLink@ łącznie z podfolderami podczas tworzenia drzewa folderów,
 określania całkowitej wielkości plików w podfolderach.
-
- #Aktualizuj panele tylko gdy Far jest aktywny#
- Jeżeli opcja jest włączona, to panele plików będą monitorowały zmiany tylko gdy okno Far jest aktywne, panele nie będą
-aktualizowane gdy okno Far będzie przysłonięte.
-Pozwala to uniknąć blokowania folderów otwartych w panelach.
-Jednak, czasami aktualizacja paneli nie jest poprawnie wykonywana po uzyskaniu fokusu okna Far, więc ta opcja jest domyślnie
-wyłączona, a foldery są zawsze monitorowane.
 
  #Zapisz historię poleceń#
  Wymusza zapisywanie ~historii poleceń~@History@ przed zamknięciem i jest przywracana po uruchomieniu Far.
@@ -2584,7 +2617,7 @@ $ #Okno ustawień: Okna#
  #poza oknem zamyka je#    dialogowym, zamyka to okno (zobacz ~Polecenia sterowania~@MiscCmd@).
                          Opcja ta pozwala na wyłączenie tej funkcjonalności.
 
- Zobacz także listę ~klawiszy makro~@KeyMacroDialogList@, dostępną w oknach dialogowych.
+ Zobacz także listę ~klawiszy makr~@KeyMacroDialogList@, dostępnych w oknach dialogowych.
 
 
 @VMenuSettings
@@ -2605,7 +2638,7 @@ $ #Okno ustawień: Wiersz poleceń#
  #AutoUzupełnianie#
  Pozwala na użycie funkcji AutoUzupełniania w wierszu poleceń. Gdy opcja jest wyłączona,
 możesz użyć skrótu #Ctrl+Spacja# aby uzupełnić wiersz. AutoUzupełnianie jest wyłączona
-automatycznie podczas nagrywania lub wykonywania makro.
+automatycznie podczas nagrywania lub wykonywania makr.
 
  #Wygląd znaku zachęty wiersza poleceń#
  Ta opcja pozwala ustawić domyślny ~format zachęty~@CommandPrompt@ wiersza poleceń Far.
@@ -2794,7 +2827,7 @@ Użyj klawiszy nawigacyjnych po pierwszym kliknięciu, aby przesunąć pozycję
 końcową na ekran. Koniec zaznaczonego obszaru może być przed lub za tekstem
 początkowym.
 
- Zobacz także listę ~klawiszy makro~@KeyMacroViewerList@ dostępnych w podglądzie.
+ Zobacz także listę ~klawiszy makr~@KeyMacroViewerList@, dostępnych w podglądzie.
 
  Uwagi:
 
@@ -3129,7 +3162,7 @@ kodowa ANSI, ale można zmienić to ustawienie w oknie ~Ustawień edytora~@Edito
  #Ctrl+B#                  Pokazuje/ukrywa pasek klawiszy w dolnej linii
  #Ctrl+Shift+B#            Pokazuje/ukrywa górną linię statusu
 
- Zobacz także listę ~klawiszy makro~@KeyMacroEditList@, dostępnych w edytorze.
+ Zobacz także listę ~klawiszy makr~@KeyMacroEditList@, dostępnych w edytorze.
 
  Uwagi:
 
@@ -3597,7 +3630,7 @@ dla Far 1.7x i nie obsługuje wszystkich możliwości dostępnych w Far 3
 
  Zobacz także:
 
- Lista ~klawiszy makro~@KeyMacroDisksList@, dostępnych w menu dysku.
+ Lista ~klawiszy makr~@KeyMacroDisksList@, dostępnych w menu dysku.
  Polecenia ~menu~@MenuCmd@.
 
 
@@ -4786,641 +4819,639 @@ $ #Wyrażenia regularne#
  Ogólna forma: #wyrażenie# lub /#wyrażenie#/#opcje#.
 
  #Opcje#:
- #i# - ignore character case;
- #s# - ^<wrap>consider the whole text as one line, ‘.’ matches any character;
- #m# - ^<wrap>consider the whole text as multiple lines. ‘#^#’ and ‘#$#’ match the
-beginning and the end of any "inner" string;
- #x# - ^<wrap>ignore space characters (unescaped ones, i.e. without backslash before).
-This is useful to outline the complex expressions.
+ #i# - ignoruje wielkość znaków;
+ #s# - ^<wrap>traktuje cały tekst jako jedną linię, ‘.’ oznacza dowolny znak;
+ #m# - ^<wrap>traktuje cały tekst jako wiele linii. ‘#^#’ i ‘#$#’ wyznaczają
+początek i koniec dowolnego "wewnętrznego" ciągu.
+ #x# - ^<wrap>ignoruje znaki spacji (bez kodu specjalnego, np. bez poprzedzenia
+znakiem backslash). Przydatne do zaznaczania złożonych wyrażeń.
 
- #regexp# - the sequence of characters and metacharacters. The characters are
-letters and digits, any other character is used verbatim when escaped, i.e.
-prepended by the backslash ‘#\#’.
+ #wyrażenie# - sekwencja znaków i metaznaków. Znaki to litery i cyfry, wszystkie
+inne znaki są używane w dosłownym brzmieniu jeżeli są poprzedzone znakiem
+sterującym, np. odwrotnym ukośnikiem (backslash) ‘#\#’.
 
- Pay attention that all slashes and backslashes in a regular expression must
-be escaped (prepended by the ‘#\#’ character) to be treated literally
-rather than escape other characters themselves or mark
-the end of expression. An example: the string "big\white/scary" looks in the
-form of regular expression like "big\\\\white\/scary".
+ Należy zwrócić uwagę, że wszystkie ukośniki i odwrotne ukośniki w wyrażeniu
+regularnym muszą być poprzedzone znakiem sterującym (‘#\#’), aby były traktowane
+dosłownie, a nie jako wstęp do innego znaku lub oznaczały koniec wyrażenia.
+Np. łańcuch "duży\biały/straszny" w formie wyrażenia regularnego wygląda jak
+"duży\\\\biały\/straszny".
 
- #Metacharacters#
+ #Metaznaki#
 
- #\#  - ^<wrap>the next character is treated verbatim, not a metacharacter;
- #^#  - ^<wrap>the beginning of string;
- #$#  - ^<wrap>the end of string;
- #|#  - ^<wrap>the alternative. Either expression before or after ‘#|#’ has to match.
-      Example: "\d+\w+|Hello\d+" means "(\d+\w+)|(Hello\d+)", not "\d+(\w+|H)ello\d+".
- #()# - ^<wrap>grouping - it is used for references or when replacing matched text.
- #[]# - ^<wrap>character class - the metacharacter which matches any character
-or range of characters enumerated in #[]#. Ranges are defined as [a-z].
-Metacharacters are not taken into account in character classes. If the first
-character inside the brackets is ‘#^#’ then this is a negative class. If the ‘#^#’ character itself
-needs to be added to a class, then it must be either not the first one or escaped by a ‘#\#’.
+ #\#  - ^<wrap>następny znak będzie traktowany dosłownie, nie jako metaznak;
+ #^#  - ^<wrap>początek łańcucha;
+ #$#  - ^<wrap>koniec łańcucha;
+ #|#  - ^<wrap>alternatywa. Każde wyrażenie przed lub po ‘#|#’ musi pasować.
+      Przykład: "\d+\w+|Witaj\d+" means "(\d+\w+)|(Witaj\d+)", a nie "\d+(\w+|W)itaj\d+";
+ #()# - ^<wrap>grupowanie - używane do odwołań lub przy zastępowaniu pasującego tekstu;
+ #[]# - ^<wrap>klasa znaków - metaznak, który pasuje do dowolnego znaku lub zakresu znaków
+objętych #[]#. Zakresy są zdefiniowane jako [a-z].
+Metaznaki nie są brane pod uwagę w klasach znaków. Jeżeli pierwszym znakiem wewnątrz
+nawiasów jest ‘#^#’, to jest to klasa zanegowana. Jeżeli sam znak ‘#^#’ ma być dodany
+do klasy, to nie może on być pierwszym znakiem lub musi być poprzedzony znakiem ‘#\#’.
 
- Except grouping, the parentheses are used for the following operations:
- #(?:pattern)#  - ^<wrap>usual grouping, but it does not get a number.
- #(?=pattern)#  - ^<wrap>the forward lookup. The matching continues from
-the same place, but only if the pattern in these parentheses has matched. For
-example, #\w+(?=\s)# matches the word followed by space character, and the space
-is not included into the search result.
- #(?!pattern)#  - ^<wrap>the negation of forward lookup. The matching
-continues from the same place if the pattern does not match. For example,
-#foo(?!bar)# matches any "foo" without following "bar". Remember that this
-expression has zero size, which means that #a(?!b)d# matches #ad# because #a#
-is followed by the character which is not #b# (but #d#), and #d# follows the
-zero-size expression.
- #(?<=pattern)# - ^<wrap>the backward lookup. Unfortunately, the pattern must have fixed length.
- #(?<!pattern)# - ^<wrap>the negation of backward lookup. The same restriction.
+ Poza grupowaniem, nawiasy są używane także do następujących operacji:
+ #(?:wzorzec)#  - ^<wrap>zwykłe grupowanie, ale nie obejmuje liczb.
+ #(?=wzorzec)#  - ^<wrap>przeszukiwanie do przodu. Dopasowanie rozpoczyna się od tego
+samego miejsca, ale tylko gdy zgadza się wzorzec w nawiasach. Np. #\w+(?=\s)#
+dopasowuje słowo, po którym następuje spacja, a spacja nie jest uwzględniana w wynikach
+szukania.
+ #(?!pattern)#  - ^<wrap>negacja wyszukiwania do przodu. Dopasowanie kontynuuje od tego
+samego miejsca, jeżeli wzorzec się nie zgadza. Np. #foo(?!bar)# dopasowuje dowolne
+"foo" bez następującego "bar". Należy pamiętać że wyrażenie ma wielkość zero, co oznacza
+że #a(?!b)d# pasuje do #ad#, ponieważ po #a# następuje znak który nie jest #b# (lecz #d#),
+a #d# następuje po wyrażeniu o zerowym rozmiarze.
+ #(?<=pattern)# - ^<wrap>wyszukiwanie wstecz. Niestety, wzorzec musi mieć określoną długość.
+ #(?<!pattern)# - ^<wrap>negacja wyszukiwania wstecz. Takie same ograniczenia jak przy negacji
+wyszukiwania do przodu.
 
  #(?{name}pattern)# - group with a name. The name can be empty (in such case you
 cannot refer to this group) or must contain only word characters (#\w#) and spaces (#\s#).
 
- #Quantifiers#
+ #Kwantyfikatory#
 
- Any character, group or class can be followed by a quantifier:
+ Dowolny znak, grupa lub klasa może być poprzedzona kwantyfikatorem:
 
- #?#      - ^<wrap>Match 0 or 1 time, greedily.
- #??#     - ^<wrap>Match 0 or 1 time, not greedily.
- #*#      - ^<wrap>Match 0 or more times, greedily.
- #*?#     - ^<wrap>Match 0 or more times, not greedily.
- #+#      - ^<wrap>Match 1 or more times, greedily.
- #+?#     - ^<wrap>Match 1 or more times, not greedily
- #{n}#    - ^<wrap>Match exactly n times.
- #{n,}#   - ^<wrap>Match at least n times, greedily.
- #{n,}?#  - ^<wrap>Match at least n times, not greedily.
- #{n,m}#  - ^<wrap>Match at least n but not more than m times, greedily.
- #{n,m}?# - ^<wrap>Match at least n but not more than m times, not greedily.
- #{,m}#   - ^<wrap>equals to {0,m}
- #{,m}?#  - ^<wrap>equals to {0,m}?
+ #?#      - ^<wrap>Dopasowuje 0 lub 1 razy, chciwy (greedily).
+ #??#     - ^<wrap>Dopasowuje 0 lub 1 razy, leniwy (not greedily).
+ #*#      - ^<wrap>Dopasowuje 0 lub więcej razy, chciwy (greedily).
+ #*?#     - ^<wrap>Dopasowuje 0 lub więcej razy, leniwy (not greedily).
+ #+#      - ^<wrap>Dopasowuje 1 lub więcej razy, chciwy (greedily).
+ #+?#     - ^<wrap>Dopasowuje 1 lub więcej razy, leniwy (not greedily).
+ #{n}#    - ^<wrap>Dopasowuje dokładnie n razy.
+ #{n,}#   - ^<wrap>Dopasowuje co najmniej n razy, chciwy (greedily).
+ #{n,}?#  - ^<wrap>Dopasowuje co najmniej n razy, leniwy (not greedily).
+ #{n,m}#  - ^<wrap>Dopasowuje co najmniej n ale nie więcej niż m razy, chciwy (greedily).
+ #{n,m}?# - ^<wrap>Dopasowuje co najmniej n ale nie więcej niż m razy, leniwy (not greedily).
+ #{,m}#   - ^<wrap>równe do {0,m}
+ #{,m}?#  - ^<wrap>równe do {0,m}?
 
- #"Greedy" and "not greedy" quantifiers#
+ #Kwantyfikatory "chciwy (greedy)" i "leniwy (not greedy)"#
 
- Greedy quantifier captures as many characters as possible, and only if
-further match fails, it "returns" the captured string (the rollback
-happens, which is rather expensive).
- When expression "A.*Z" is matched to string
-"AZXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", #.*# captures the whole string, and then
-rolls back character by character until it finds Z. On the opposite, if the expression
-is "A.*?Z" then Z is found at once. Not greedy quantifier is also known as
-#minimizing#, it captures as few characters as possible, and only if
-further match fails it captures more.
+ Kwantyfikator chciwy (greedy) przechwytuje jak najwięcej znaków i, tylko
+gdy dalsze dopasowanie kończy się niepowodzeniem, "zwraca" przechwycony
+ciąg (zdarza się także wycofywanie, które jest raczej rzadkie).
+ Gdy wyrażenie "A.*Z" jest dopasowywane do łańcucha "AZXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+#.*# przechwytuje cały ciąg, a następnie cofa znak po znaku aż znajdzie znak Z.
+Z drugiej strony, jeżeli wyrażeniem jest "A.*?Z", to znak Z jest znajdowane od razu.
+Leniwy kwantyfikator jest także znany jako #minimalistyczny#, przechwytuje jak najmniej
+znaków i tylko wtedy gdy dopasowanie kończy się niepowodzeniem, przechwytuje dalej.
 
- #Special characters#
+ #Znaki specjalne#
 
- Non-letter and non-digit character can be prepended by ‘#\#’ in most cases,
-but in case of letters and digits this must be done with care because this is
-the way the special characters are written:
+ Znaki, które nie są literami ani cyframi mogą być poprzedzone w większości
+przypadków znakiem ‘#\#’, ale w przypadku liter i cyfr należy to robić ostrożnie,
+ponieważ jest to sposób opisywania znaków specjalnych:
 
- #.#    - ^<wrap>any character except carriage return. If there is “#s#” among
-the options then dot matches any character.
- #\t#   - tab (0x09)
- #\n#   - new line (LF, 0x0a)
- #\r#   - carriage return (CR, 0x0d)
- #\f#   - form feed (0x0c)
- #\a#   - bell (0x07)
+ #.#    - ^<wrap>dowolny znak za wyjątkiem powrotu karetki. Jeśli wśród opcji znajduje się
+“#s#”, to wtedy kropka dopasowuje dowolny znak.
+ #\t#   - tabulator (0x09)
+ #\n#   - nowa linia (LF, 0x0a)
+ #\r#   - powrót karetki (CR, 0x0d)
+ #\f#   - wysunięcie strony (0x0c)
+ #\a#   - dzwonek (0x07)
  #\e#   - escape (0x1b)
- #\xNNNN# - hex character, where N - [0-9A-Fa-f].
- #\Q#   - ^<wrap>the beginning of metacharacters quoting - the whole quoted
-text is treated as text itself, not the regular expression
- #\E#   - the end of metacharacters quoting
- #\w#   - letter, digit or underscore (‘_’).
- #\W#   - not \w
- #\s#   - space character (tab/space/LF/CR).
- #\S#   - not \s
- #\d#   - digit
- #\D#   - not digit
- #\i#   - letter
- #\I#   - not letter
- #\l#   - lower case character
- #\L#   - not lower case character
- #\u#   - upper case character
- #\U#   - not upper case character
- #\b#   - ^<wrap>the word boundary - means that there is a word character to either left or right
- from the current position, and to the right or left, accordingly, there is a non-word character.
- #\B#   - not \b
- #\A#   - the beginning of the text, disregard the option “m”
- #\Z#   - the end of the text, disregard the option “m”
- #\O#   - ^<wrap>the no-return point. If the matching has passed by this character,
-it won't roll back and and will return "no match". It can be used in complex expressions
-after mandatory fragment with quantifier. This special character can be used when
-big amounts of data are processed.
-        Example:
-        /.*?name\O=(['"])(.*?)\1\O.*?value\O=(['"])(.*?)\3/
-        ^<wrap>Strings containing "name=", but not containing "value=", are processed (in fact, skipped) faster.
+ #\xNNNN# - znak szesnastkowy (hex), gdzie N - [0-9A-Fa-f].
+ #\Q#   - ^<wrap>początek cytowania metaznaków - cały cytowany tekst
+jest traktowany jako tekst, a nie jako wyrażenie regularne
+ #\E#   - koniec cytowania metaznaków
+ #\w#   - litera, cyfra lub podkreślenie (‘_’).
+ #\W#   - przeciwieństwo \w
+ #\s#   - znak odstępu (tabulator/spacja/nowa linia/powrót karetki).
+ #\S#   - przeciwieństwo \s
+ #\d#   - cyfra
+ #\D#   - nie cyfra
+ #\i#   - litera
+ #\I#   - nie litera
+ #\l#   - znak pisany małą literą
+ #\L#   - znak nie pisany małą literą
+ #\u#   - znak pisany wielką literą
+ #\U#   - znak pisany nie wielką literą
+ #\b#   - ^<wrap>granica słowa - oznacza, że po lewej lub prawej stronie od bieżącej pozycji
+znajduje się litera i odpowiednio po prawej i lewej stronie znajduje się znak nie będący literą.
+ #\B#   - przeciwieństwo \b
+ #\A#   - początek tekstu, ignoruje opcję “m”
+ #\Z#   - koniec tekstu, ignoruje opcję “m”
+ #\O#   - ^<wrap>punkt bez powrotu. Jeżeli dopasowanie przekroczyło ten znak, nie będzie mogło
+się cofnąć i zwróci komunikat "brak dopasowania". Może być używane w złożonych wyrażeniach
+po obowiązkowym fragmencie z kwantyfikatorem. Ten znak specjalny może być użyty przy przetwarzaniu
+dużej ilości danych.
+        Na przykład:
+        /.*?nazwa\O=(['"])(.*?)\1\O.*?wartosc\O=(['"])(.*?)\3/
+        ^<wrap>Łańcuchy zawierające "nazwa=", ale nie zawierające "wartosc", są przetwarzane
+(w rzeczywistości - omijane) szybciej.
 
- #\NN#  - ^<wrap>reference to earlier matched parentheses. NN is a positive integer.
-Each parentheses except (?:pattern), (?=pattern), (?!pattern), (?<=pattern), (?<!pattern) and (?{name}pattern)
-have a number (in the order of appearance).
-        Example:
-        "(['"])hello\1" matches to "hello" or 'hello'.
+ #\NN#  - ^<wrap>odniesienie do wcześniej dopasowanych nawiasów. NN jest liczbą całkowitą dodatnią.
+Wszystkie nawiasy oprócz (?:wzorzec), (?=wzorzec), (?!wzorzec), (?<=wzorzec), (?<!wzorzec) i (?{nazwa}wzorzec)
+posiadają numer (w kolejności występowania).
+        Przykład:
+        "(['"])witaj\1" pasuje do "witaj" lub 'witaj'.
 
- #\p{name}# - ^<wrap>inner regexp reference to it's parsed bracket with specified #name#.
+ #\p{nazwa}# - ^<wrap>wewnętrzne odwołanie regexp do jego sparsowanego nawiasu o podanej #nazwie#.
 
- #Examples:#
+ #Przykłady:#
 
- #/foobar/# matches to "foobar", but not to "FOOBAR"
- #/ FOO bar /ix# matches to "foobar" and "FOOBAR"
- #/(foo)?bar/# matches to "foobar" and "bar"
- #/^foobar$/# matches to "foobar" only, but not to "foofoofoobarfoobar"
- #/[\d\.]+/# matches to any number with decimal point
- #/(foo|bar)+/# matches to "foofoofoobarfoobar" and "bar"
- #/\Q.)))$\E/# equals to "\.\)\)\)\$"
+ #/foobar/# pasuje do "foobar", ale nie do "FOOBAR"
+ #/ FOO bar /ix# pasuje do "foobar" i "FOOBAR"
+ #/(foo)?bar/# pasuje do "foobar" i "bar"
+ #/^foobar$/# pasuje tylko do "foobar" ale nie do "foofoofoobarfoobar"
+ #/[\d\.]+/# pasuje do dowolnej liczby z przecinkiem dziesiętnym
+ #/(foo|bar)+/# pasuje do "foofoofoobarfoobar" i "bar"
+ #/\Q.)))$\E/# odpowiada do "\.\)\)\)\$"
 
 
 @RegExpRepl
 $ #Wyrażenia regularne w zastępowaniu#
- In "Replace with" line one can use special replace string regular
-expressions:
+ W linii "Zamień na" można użyć specjalnych wyrażeń regularnych zastępujących łańcuchy:
 
  #$0#…#$N#
 
- The found group numbers, they are replaced with appropriate groups.
-The numbers are assigned to the groups in order of opening parentheses
-sequence in regular expression. #$0# means the whole found sequence.
+ Znalezione numery grup, są zastępowane odpowiednimi grupami.
+Numery są przypisywane do grup w kolejności sekwencji otwartych nawiasów
+w wyrażeniu regularnym. #$0# oznacza całą znalezioną sekwencję.
 
- $#{#name#}#     Found pattern with specified #name#.
+ $#{#nazwa#}#     Znaleziono wzór o podanej #nazwie#.
 
 
 @ElevationDlg
 $ #Wymagane uprawnienia administratora#
- The current user may not have enough rights for certain file system
-operations. In this case Far asks permission to retry the operation with
-the elevated (administrative) rights.
+ Bieżący użytkownik może nie mieć wystarczających uprawnień do niektórych
+operacji systemu plików. W takim przypadku Far prosi o pozwolenie
+na wykonanie operacji za pomocą podwyższonych uprawnień (administracyjnych).
 
- Available options:
+ Dostępne opcje:
 
- #Do this for all current objects#
- Do not ask for elevated rights during the current file system
-operation.
+ #Wykonaj dla wszystkich obiektów#
+ Nie pytaj o podniesienie uprawnień dla operacji w bieżącym
+systemie plików.
 
- #Do not ask again in the current session#
- During the current session Far will elevate rights without asking
-the user.
+ #Nie pytaj ponownie dla tej sesji#
+ Podczas bieżącej sesji Far będzie podnosił uprawnienia bez pytania
+użytkownika.
 
- See also #Request administrator rights# option in the
-~System settings~@SystemSettings@ dialog.
+ Zobacz także opcję #Wymagane uprawnienia administratora# w oknie
+~Ustawień systemowych~@SystemSettings@.
 
 
 @KeyMacro
-$ #Macro commands#
- By default macros are loaded from files with #.lua# and #.moon# extensions residing in folder
-#%FARPROFILE%\\Macros\\scripts#. See more details in #%FARHOME%\\Encyclopedia\\macroapi_manual.en.chm#.
+$ #Makropolecenia#
+ Domyślnie makra są wczytywanie z plików z rozszerzeniami #.lua# i #.moon# zapisanych w folderze
+#%FARPROFILE%\\Macros\\scripts#. Więcej szczegółów w pliku #%FARHOME%\\Encyclopedia\\macroapi_manual.en.chm#.
 
- Keyboard macro commands or macro commands - are recorded sequences of key
-presses that can be used to perform repetitive task unlimited number of times
-by pressing a single hotkey.
+ Makropolecenia klawiaturowe lub makropolecenia - są to nagrywane sekwencje
+klawiszy, które można wykorzystać do wykonania powtarzalnych zadań
+nieograniczoną ilość razy naciskając pojedynczy klawisz skrótu.
 
- Each macro command has the following parameters:
- - ^<wrap>a hotkey, that will execute the recorded sequence when pressed;
- - additional ~settings~@KeyMacroSetting@, that influence the method and
-   the area of execution of the recorded sequence.
+ Każde makropolecenie ma następujący parametry:
+ - ^<wrap>klawisz skrótu, po naciśnięciu którego wykonana zostanie nagrana sekwencja;
+ - dodatkowe ~ustawienia~@KeyMacroSetting@, które mają wpływ na metodę i obszar
+   wykonania nagrywanej sekwencji.
 
- Macro commands are mostly used for:
- - ^<wrap>Performing repetitive task unlimited number of times by
-pressing a single hotkey.
- - Execution of special functions, which are represented by
-special commands in the text of the macro command.
- - Redefine standard hotkeys, which are used by Far for
-execution of internal commands.
+ Makropolecenia są najczęściej używane do:
+ - ^<wrap>Wykonywania powtarzalnych zadań nieograniczoną liczbę razy
+poprzez naciśnięcie jednej kombinacji klawiszy.
+ - Wykonywanie funkcji specjalnych, które są reprezentowane przez polecenia
+specjalne w tekście makropolecenia.
+ - Przedefiniowanie standardowych skrótów klawiszowych, które są używane
+w Far do wykonywania poleceń wewnętrznych.
 
- The main usage of macro commands is assignment of hotkeys for calling
-external plugins and for overloading Far actions.
+ Głównym zastosowaniem makropoleceń jest przypisanie klawiszy skrótów
+do wywoływanie zewnętrznych wtyczek i przeciążania akcji Far.
 
- See also:
+ Zobacz także:
 
- ~Macro command areas of execution~@KeyMacroArea@
- ~Hotkeys~@KeyMacroAssign@
- ~Recording and playing-back macro commands~@KeyMacroRecPlay@
- ~Deleting a macro command~@KeyMacroDelete@
- ~Macro command settings~@KeyMacroSetting@
- ~The list of installed macros~@KeyMacroList@
+ ~Obszary wykonywań makropoleceń~@KeyMacroArea@
+ ~Klawisze skrótów~@KeyMacroAssign@
+ ~Nagrywanie i odtwarzanie poleceń makr~@KeyMacroRecPlay@
+ ~Usuwanie makr~@KeyMacroDelete@
+ ~Ustawienia makr~@KeyMacroSetting@
+ ~Lista zainstalowanych makr~@KeyMacroList@
 
 
 @KeyMacroArea
-$ #Macro command: areas of execution#
- Far allows the creation of independent ~macro commands~@KeyMacro@ (commands with
-identical hotkeys) for different areas of execution.
+$ #Obszary wykonywań makropoleceń#
+ Far umożliwia tworzenie niezależnych ~makropoleceń~@KeyMacro@ (poleceń
+z identycznymi skrótami klawiszowymi) dla różnych obszarów wykonywań.
 
- #Attention#: The area of execution, to which the macro command will
-belong, is determined by the location in which the
-recording of the macro command has been #started#.
+ #Uwaga#: Obszary wykonania, do których makropolecenie
+zostanie skierowane, należy do lokalizacji w której
+#rozpoczęte# zostało nagrywanie makropolecenia.
 
- Currently those are the available independent areas:
- - file panels;
- - internal viewer;
- - internal editor;
- - dialogs;
- - quick file search;
- - select drive menu;
- - main menu;
- - other menus;
- - help window;
- - info panel;
- - quick view panel;
- - tree panel;
- - user menu;
- - screen grabber, vertical menus.
+ Obecnie dostępne są następujące niezależne obszary:
+ - panele plików;
+ - wewnętrzny podgląd;
+ - wewnętrzny edytor;
+ - okna dialogowe;
+ - szybkie wyszukiwania pliku;
+ - menu wyboru dysku;
+ - menu główne;
+ - pozostałe menu;
+ - okno pomocy;
+ - panel informacyjny;
+ - panel szybkiego podglądu;
+ - panel drzewka;
+ - menu użytkownika;
+ - zrzuty ekranu, pionowe menu.
 
- It is impossible to assign a macro command to an already used hotkey. When
-such an attempt is made, a warning message will appear telling that the macro
-command that is assigned to this hotkey will be deleted.
+ Nie można przypisać makropolecenia do już użytego skrótu.
+Przy próbie takiego przypisania, zostanie wyświetlony komunikat ostzegawczy
+informujący, że makropolecenie przypisane do tego skrótu zostanie usunięte.
 
- This way you can have identical hotkeys for different macro commands only
-in different areas of execution.
+ W taki sposób można mieć identyczne skróty dla różnych makropoleceń,
+ale przypisanych do różnych obszarów wykonań.
 
 
 @KeyMacroAssign
-$ #Macro command: hotkeys#
- A ~macro command~@KeyMacro@ can be assigned to:
- - ^<wrap>any key;
- - any key combination with #Ctrl#, #Alt# and #Shift# modifiers;
- - any key combination with two modifiers.
-   Far allows to use the following double modifiers:
-   #Ctrl+Shift+<key>#, #Ctrl+Alt+<key># and #Alt+Shift+<key>#
+$ #Makropolecenia: klawisze skrótów#
+ ~Makropolecenie~@KeyMacro@ może być przypisane do:
+ - ^<wrap>dowolnego znaku;
+ - dowolnej kombinacji klawiszy z modyfikatorami #Ctrl#, #Alt# i #Shift#;
+ - dowolnej kombinacji klawiszy z dwoma modyfikatorami.
+   Far pozwala na użycie następujących podwójnych modyfikatorów:
+   #Ctrl+Shift+<klawisz>#, #Ctrl+Alt+<klawisz># and #Alt+Shift+<klawisz>#
 
- A macro command #can't# be assigned to the following key combinations:
+ Makropolecenie #nie może# być przypisane do następujących kombinacji klawiszy:
 #Alt+Ins#, #Ctrl+<.>#, #Ctrl+Shift+<.>#, #Ctrl+Alt#, #Ctrl+Shift#, #Shift+Alt#,
-#Shift+<character>#.
+#Shift+<znak>#.
 
- It is impossible to enter some key combinations (in particular #Enter#,
-#Esc#, #F1#, #Ctrl+F5#, #MsWheelUp# and #MsWheelDown# with #Ctrl#, #Shift#,
-#Alt#) in the hotkey assignment dialog because of their special meanings. To
-assign a macro command to such key combination, select it from the dropdown
-list.
+ Nie jest możliwe wprowadzenie niektórych kombinacji klawiszy (w szczególności
+#Enter#, #Esc#, #F1#, #Ctrl+F5#, #RolkaDoGóry# and #RolkaWDół# razem z #Ctrl#,
+#Shift#, #Alt#) ze względu na ich specjalne przeznaczenie. Aby przypisać
+makropolecenie do takiej kombinacji klawiszy, należy ją wybrać z rozwijanej listy.
 
 
 @KeyMacroRecPlay
-$ #Macro command: recording and playing-back#
- A ~macro command~@KeyMacro@ can be played-back in one of the two following modes:
+$ #Makropolecenia: nagrywanie i odtwarzanie#
+ ~Makropolecenie~@KeyMacro@ może zostać odtworzone w jednym z dwóch trybów:
 
- 1. ^<wrap>General mode: keys pressed during the recording or the
-playing-back #will be# sent to plugins.
- 2. ^<wrap>Special mode: keys pressed during the recording or the
-playing-back #will not be# sent to plugins that intercept editor events.
+ 1. ^<wrap>Tryb ogólny: klawisze wciśnięte podczas nagrywania
+lub odtwarzania #zostaną# wysłane do wtyczek.
+ 2. ^<wrap>Tryb specjalny: klawisze wciśnięte podczas nagrywania
+lub odtwarzanie #nie zostaną# wysłane do wtyczek, które przechwytują
+zdarzenia edytora.
 
- For example, if some plugin processes the key combination - #Ctrl+A#, then
-in the special mode this plugin will not receive focus and will not do what it
-usually does as a reaction to this combination.
+ Przykładowo, jeżeli jakaś wtyczka przetwarza kombinację klawiszy - #Ctrl+A#,
+to w trybie specjalnym wtyczka ta nie uzyska fokusu i nie wykona tego,
+co zwykle wykonuje po wciśnięciu takiej kombinacji klawiszy.
 
- Creation of a macro command is achieved by the following actions:
+ Tworzenie makropoleceń można wywołać następującymi czynnościami:
 
- #Start recording a macro command#
- Press #Ctrl+<.># (#Ctrl# and a period pressed together) to record
-a macro in the general mode or #Ctrl+Shift+<.># (#Ctrl#, #Shift# and
-a period pressed together) to record a macro in the special mode.
- As the recording begins, the '\CFR\-' character will appear in the
-upper left corner of the screen.
+ #Rozpoczęcie nagrywania makropoleceń#
+ Naciśnięcie #Ctrl+<.># (#Ctrl# i kropka wciśnięte razem), aby nagrać
+makro w trybie ogólnym lub #Ctrl+Shift+<.># (#Ctrl#, #Shift# i kropka
+wciśnięte razem), aby nagrać makro w trybie specjalnym.
+ Po rozpoczęciu nagrywania, znak '\CFR\-' będzie widoczny w lewym
+górnym rogu ekranu.
 
- #Enter Contents of the macro command#
- All keys pressed during the recording will be saved with the following exceptions:
- - ^<wrap>only keys processed by Far will be saved. Meaning that if
-during the macro recording process an external program is
-run inside the current console then only the keys pressed
-before the execution and after completion of that program
-will be saved.
+ #Wprowadzenie zawartości makropolecenia#
+ Wszystkie klawisze wciskane podczas nagrywania zostaną zapisane z następującymi wyjątkami:
+ - ^<wrap>zapisane będą tylko klawisze wciskane w Far. Oznacza to,
+że jeżeli podczas nagrywania makropolecenia zostanie uruchomiony
+program zewnętrzny z poziomu bieżącej konsoli, to nagrane będą
+wciśnięcia wykonane przed uruchomieniem i po zakończeniu tego
+programu.
 
- #Note#: During macro recording, all other macros are disabled. Thus,
-it is impossible to create a “multilevel” macro which would call
-previously recorded macros.
+ #Uwaga#: Podczas nagrywania makra, wszystkie inne makra są wyłączone.
+Przez to nie możliwe jest tworzenie “wielopoziomowych” makr,
+które wywołują poprzednio nagrane makropolecenia.
 
- #Finish recording the macro command#
- To finish a macro recording there are special key
-combinations. Because a macro command can be additionally
-configured there are two such combinations: #Ctrl+<.># (#Ctrl#
-and a period pressed together) and #Ctrl+Shift+<.># (#Ctrl#,
-Shift and a period pressed together). Pressing the first
-combination will end the recording of the macro command
-and will use the default settings for its playback. Pressing
-the second combination will end the recording of the macro
-command and a dialog showing macro command ~options~@KeyMacroSetting@
-will appear.
+ #Zakończenie nagrywania makropolecenia#
+ Do zakończenia nagrywania makropoleceń służą specjalne
+kombinacje klawiszy. Ponieważ makropolecenia można dodatkowo
+skonfigurować, istnieją dwie kombinacje klawiszy: #Ctrl+<.># (#Ctrl#
+i kropka wciśnięte razem) oraz #Ctrl+Shift+<.># (#Ctrl#, #Shift#
+i kropka naciśnięte razem). Wciśnięcie pierwszej kombinacji kończy
+nagrywanie makra, a przy odtwarzaniu zastosowane zostaną domyślne
+ustawienia. Wciśnięcie drugiej kombinacji kończy nagrywanie
+makropoleceń i wyświetla okno ~ustawień~@KeyMacroSetting@ makropolecenia.
 
- #Assign a hotkey to the macro command#
- When the macro recording is finished and all the options are set the
-~hotkey assignment~@KeyMacroSetting@ dialog will appear, where the hotkey that
-will be used to execute the recorded sequence can be set.
+ #Przypisane skrótu do makropolecenia#
+ Po zakończeniu nagrywania makra i ustawieniu wszystkich opcji, wyświetlone
+zostanie okno ~przypisania klawiszy skrótu ~@KeyMacroSetting@, gdzie można
+ustawić klawisz szybkiego dostępu, który będzie użyty do wykonania nagranej
+sekwencji.
 
- Playing back a macro is indicated by showing the '\2FP\-' character in the upper-left screen corner.
-See also "~Macros.ShowPlayIndicator~@Macros.ShowPlayIndicator@" for turning that indication on/off.
+ Odtworzenie makra jest sygnalizowane przez wyświetlenie znaku '\2FP\-' w lewym górnym
+rogu ekranu. Zobacz także "~Macros.ShowPlayIndicator~@Macros.ShowPlayIndicator@"
+aby włączyć/wyłączyć ten znacznik.
 
 
 @KeyMacroDelete
-$ #Macro command: deleting a macro command#
- To delete a ~macro command~@KeyMacro@ an empty (containing no commands)
-macro should be recorded and assigned the hotkey of the macro command that
-needs to be deleted.
+$ #Makropolecenia: usuwanie makr#
+ Aby usunąć ~makropolecenie~@KeyMacro@ należy nagrać puste (nie zawierające
+poleceń) makro i przypisać ten sam klawisz skrótu, jak makro do usunięcia.
 
- This can be achieved by the following steps:
- 1. ^<wrap>Start recording a macro command (#Ctrl+<.>#)
- 2. Stop recording a macro command (#Ctrl+<.>#)
- 3. Enter or select in the hotkey assignment
-dialog the hotkey of the macro command that
-needs to be deleted.
+ Można to osiągnąć poprzez następujące kroki:
+ 1. ^<wrap>Rozpoczęcie nagrywania makropolecenia (#Ctrl+<.>#)
+ 2. Zatrzymanie nagrywania (#Ctrl+<.>#)
+ 3. Wprowadzenie lub wybranie w oknie dialogowym przypisania
+klawisz skrótu makropolecenia, które ma zostać usunięte.
 
- #Attention#: after deleting a macro command, the key combination
-(hotkey) that was used for its execution will begin
-to function as it was meant to, originally. That is
-if that key combination was somehow processed by Far
-or some plugin then after deleting the macro command
-the key combination would be processed by them as in
-the past.
+ #Uwaga#: po usunięciu makropolecenia, kombinacja
+klawiszy (skrót), który został użyty do jego wykonania
+zacznie funkcjonować tak, jak to było pierwotnie zamierzone.
+Oznacza to, że jeśli jakaś kombinacja była obsługiwana
+przez Far lub jakąś wtyczkę, to po usunięciu makropolecenia
+kombinacja klawiszy będzie przetwarzania jak w przeszłości.
 
 
 @KeyMacroSetting
-$ #Macro command: settings#
- To specify additional ~macro command~@KeyMacro@ settings, start or finish
-macro recording with #Ctrl+Shift+<.># instead of #Ctrl+<.># and select the
-desired options in the dialog:
+$ #Makropolecenia: ustawienia#
+ Aby określić dodatkowe ustawienia ~makropolecenia~@KeyMacro@, należy
+rozpocząć lub zakończyć nagrywanie za pomocą klawiszy #Ctrl+Shift+<.>#
+zamiast #Ctrl+<.># i wybrać żądane opcje w oknie dialogowym:
 
- #Sequence:#
- Allows to edit the recorded key sequence.
+ #Sekwencja:#
+ Pozwala na edycję nagranej sekwencji klawiszy.
 
- #Description:#
- Allows to edit the description of key sequence.
+ #Opis:#
+ Pozwala na edycję opisu sekwencji klawiszy.
 
- #Allow screen output while executing macro#
- If this option is not set during the macro command execution Far Manager
-does not redraw the screen. All the updates will be displayed when the macro
-command playback is finished.
+ #Zezwalaj na zapis na ekranie podczas wykonywania#
+ Jeżeli opcja nie jest włączona to podczas uruchomienia makropolecenia
+Far Manager nie przerysowuje ekranu. Wszystkie aktualizacje zostaną wyświetlone
+po zakończeniu odtwarzania poleceń.
 
- #Execute after Far start#
- Allows to execute the macro command immediately after the Far Manager is started.
+ #Wykonaj po starcie Far#
+ Pozwala na wykonanie makropolecenia bezpośrednio po uruchomieniu Far Manager.
 
- The following execution conditions can be applied for the active and passive panels:
+ Poniższe warunki uruchamiania można zastosować dla aktywnego i pasywnego panelu:
 
- #Plugin panel#
- [x] - ^<wrap>execute only if the current panel is a plugin panel
- [ ] - execute only if the current panel is a file panel
- [?] - ignore the panel type
+ #Panel wtyczek#
+ [x] - ^<wrap>wykonaj tylko wtedy, gdy bieżący panel jest panelem wtyczki
+ [ ] - wykonaj tylko wtedy, gdy bieżący panel to panel plików
+ [?] - ignoruj typ panelu
 
- #Execute for folders#
- [x] - ^<wrap>execute only if a folder is under the panel cursor
- [ ] - execute only if a file is under the panel cursor
- [?] - execute for both folders and files
+ #Wykonaj dla folderów#
+ [x] - ^<wrap>wykonaj tylko wtedy, gdy pod kursorem znajduje się folder
+ [ ] - wykonaj tylko wtedy, gdy pod kursorem znajduje się plik
+ [?] - wykonaj zarówno dla folderów jak i plików
 
- #Selection exists#
- [x] - ^<wrap>execute only if there are marked files/directories on the panel
- [ ] - execute only if there are no marked files/directories on the panel
- [?] - ignore the file selection state
+ #Aktualne zaznaczenie#
+ [x] - ^<wrap>wykonaj tylko wtedy, gdy w panelu zaznaczone są pliki/foldery
+ [ ] - wykonaj tylko wtedy, gdy w panelu nic nie jest zaznaczone
+ [?] - ignoruj stan zaznaczania plików/folderów
 
- Other execution conditions:
+ Pozostałe warunki wykonywania:
 
- #Empty command line#
- [x] - ^<wrap>execute only if the command line is empty
- [ ] - execute only if the command line is not empty
- [?] - ignore the command line state
+ #Pusta linia poleceń#
+ [x] - ^<wrap>wykonaj tylko wtedy, gdy linia poleceń jest pusta
+ [ ] - wykonaj tylko wtedy, gdy linia poleceń nie jest pusta
+ [?] - ignoruj stan linii poleceń
 
- #Selection block present#
- [x] - ^<wrap>execute only if there is a selection block present in the editor, viewer, command line or dialog input line
- [ ] - execute only if there is no selection present
- [?] - ignore selection state
+ #Obecny blok zaznaczenia#
+ [x] - ^<wrap>wykonaj tylko wtedy, gdy w edytorze, podglądzie, linii poleceń lub linii wejściowej okna dialogowego
+znajduje się zaznaczony blok
+ [ ] - wykonaj tylko wtedy, gdy nie ma zaznaczenia
+ [?] - ignoruj stan zaznaczenia
 
- Notes:
+ Uwagi:
 
- 1. ^<wrap>Before executing a macro command, all of the above conditions are checked.
+ 1. ^<wrap>Przed uruchomieniem makropolecenia, sprawdzane są wszystkie powyższe warunki.
 
- 2. ^<wrap>Some key combinations (including #Enter#, #Esc#, #F1# and #Ctrl+F5#,
-#MsWheelUp#, #MsWheelDown# and other mouse keys combined with #Ctrl#, #Shift#, #Alt#) cannot be entered
-directly because they have special functions in the dialog. To ~assign a macro~@KeyMacroAssign@
-to one of those key combinations, select it from the drop-down list.
+ 2. ^<wrap>Niektóre kombinacje klawiszy (w tym #Enter#, #Esc#, #F1# i #Ctrl+F5#, #RolkaDoGóry#, #RolkaWDół#
+oraz inne klawisze myszy w kombinacji z #Ctrl#, #Shift#, #Alt#) nie mogą być wprowadzone
+bezpośrednio, ponieważ mają one przypisane funkcje specjalne w oknach dialogowych.
+Aby ~przypisać makro~@KeyMacroAssign@ do jednego z tych kombinacji klawiszy, należy wybrać ją
+z rozwijanej listy.
 
 
 @KeyMacroList
-$ #Macros: The list of installed macros#
- The following is a list of topics where you can find out which ~macros~@KeyMacro@
-are available in the current Far Manager session.
+$ #Makropolecenia: lista zainstalowanych makropoleceń#
+ Poniżej znajduje się lista tematów, gdzie można dowiedzieć się które ~makropolecenia~@KeyMacro@
+są dostępne w bieżącej sesji Far Manager.
 
- ~Common macros#~@KeyMacroCommonList@
+ ~Makra ogólne#~@KeyMacroCommonList@
 
- ~File panels~@KeyMacroShellList@
- ~Quick View panel~@KeyMacroQViewList@
- ~Tree panel~@KeyMacroTreeList@
- ~Info panel~@KeyMacroInfoList@
- ~Autocompletion in panels~@KeyMacroShellAutoCompletionList@
+ ~Panele plików~@KeyMacroShellList@
+ ~Panel szybkiego podglądu~@KeyMacroQViewList@
+ ~Panel drzewa~@KeyMacroTreeList@
+ ~Panel informacyjny~@KeyMacroInfoList@
+ ~Autouzupełnianie w panelach~@KeyMacroShellAutoCompletionList@
 
- ~Fast Find in panels~@KeyMacroSearchList@
- ~Find Folder~@KeyMacroFindFolderList@
+ ~Szybkie wyszukiwanie w panelach~@KeyMacroSearchList@
+ ~Znajdź folder~@KeyMacroFindFolderList@
 
- ~Dialogs~@KeyMacroDialogList@
- ~Autocompletion in dialogs~@KeyMacroDialogAutoCompletionList@
+ ~Okna dialogowe~@KeyMacroDialogList@
+ ~Autouzupełnianie w oknach dialogowych~@KeyMacroDialogAutoCompletionList@
 
- ~Main menu~@KeyMacroMainMenuList@
- ~Change drive menu~@KeyMacroDisksList@
- ~User menu~@KeyMacroUserMenuList@
- ~Other menus~@KeyMacroMenuList@
+ ~Menu główne~@KeyMacroMainMenuList@
+ ~Menu zmiany dysku~@KeyMacroDisksList@
+ ~Menu użytkownika~@KeyMacroUserMenuList@
+ ~Inne menu~@KeyMacroMenuList@
 
- ~Viewer~@KeyMacroViewerList@
- ~Editor~@KeyMacroEditList@
+ ~Podgląd~@KeyMacroViewerList@
+ ~Edytor~@KeyMacroEditList@
 
- ~Help window#~@KeyMacroHelpList@
+ ~Okno pomocy~@KeyMacroHelpList@
 
- ~Other areas~@KeyMacroOtherList@
+ ~Inne obszary~@KeyMacroOtherList@
 
 
 @KeyMacroCommonList
-$ #Macros: Common macros#
- The following macro keys are available in all areas.
+$ #Makropolecenia: makra ogólne#
+ Następujące makropolecenia są dostępne we wszystkich obszarach.
 
 <!Macro:Common!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroQViewList
-$ #Macros: Quick View panel#
- The following macro keys are available in Quick View panel.
+$ #Makropolecenia: panel szybkiego podglądu#
+ Następujące makropolecenia są dostępne w panelu szybkiego podglądu.
 
 <!Macro:Common!>
 
 <!Macro:Qview!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroMainMenuList
-$ #Macros: Main Menu#
- The following macro keys are available in Main Menu.
+$ #Makropolecenia: menu główne#
+ Następujące makropolecenia są dostępne w głównym menu.
 
 <!Macro:Common!>
 
 <!Macro:MainMenu!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroTreeList
-$ #Macros: Tree Panel#
- The following macro keys are available in Tree Panel.
+$ #Makropolecenia: panel drzewa#
+ Następujące makropolecenia są dostępne w panelu drzewka.
 
 <!Macro:Common!>
 
 <!Macro:Tree!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroDialogList
-$ #Macros: Dialogs#
- The following macro keys are available in dialogs.
+$ #Makropolecenia: okna dialogowe#
+ Następujące makropolecenia są dostępne w oknach dialogowych.
 
 <!Macro:Common!>
 
 <!Macro:Dialog!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroInfoList
-$ #Macros: Info Panel#
- The following macro keys are available in Info Panel.
+$ #Makropolecenia: panel informacyjny#
+ Następujące makropolecenia są dostępne w Panelu informacyjnym.
 
 <!Macro:Common!>
 
 <!Macro:Info!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroDisksList
-$ #Macros: Change Drive menu#
- The following macro keys are available in Change Drive menu.
+$ #Makropolecenia: menu zmiany dysku#
+ Następujące makropolecenia są dostępne w menu Zmień dysk.
 
 <!Macro:Common!>
 
 <!Macro:Disks!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroUserMenuList
-$ #Macros: User Menu#
- The following macro keys are available in User Menu.
+$ #Makropolecenia: menu użytkownika#
+ Następujące makropolecenia są dostępne w Menu użytkownika.
 
 <!Macro:Common!>
 
 <!Macro:UserMenu!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroShellList
-$ #Macros: File panels#
- The following macro keys are available in file panels.
+$ #Makropolecenia: panele plików#
+ Następujące makropolecenia są dostępne w panelach plików.
 
 <!Macro:Common!>
 
 <!Macro:Shell!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroSearchList
-$ #Macros: Fast Find in panels#
- The following macro keys are available in Fast Find dialog.
+$ #Makropolecenia: szybkie wyszukiwanie w panelach#
+ Następujące makropolecenia są dostępne w oknie Szybkiego wyszukiwania.
 
 <!Macro:Common!>
 
 <!Macro:Search!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroFindFolderList
-$ #Macros: Find Folder#
- The following macro keys are available in Find Folder window.
+$ #Makropolecenia: znajdź folder#
+ Następujące makropolecenia są dostępne w oknie Znajdź folder.
 
 <!Macro:Common!>
 
 <!Macro:FindFolder!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroEditList
-$ #Macros: Editor#
- Macro-commands available in the editor are listed below.
+$ #Makropolecenia: edytor#
+ Makropolecenia dostępne w edytorze są dostępne poniżej.
 
 <!Macro:Common!>
 
 <!Macro:Editor!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroViewerList
-$ #Macros: Viewer#
- Macro-commands available in the viewer are listed below.
+$ #Makropolecenia: podgląd#
+ Makropolecenia dostępne w podglądzie są dostępne poniżej.
 
 <!Macro:Common!>
 
 <!Macro:Viewer!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroMenuList
-$ #Macros: Other menus#
- The following macro keys are available in other menus.
+$ #Makropolecenia: inne menu#
+ Następujące makropolecenia są dostępne w innych menu.
 
 <!Macro:Common!>
 
 <!Macro:Menu!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroHelpList
-$ #Macros: Help window#
- The following macro keys are available in Help window.
+$ #Makropolecenia: okno pomocy#
+ Następujące makropolecenia są dostępne w oknie Pomocy.
 
 <!Macro:Common!>
 
 <!Macro:Help!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroOtherList
-$ #Macros: Other areas#
- The following macro keys are available in other areas: screen grabber, vertical menus.
+$ #Makropolecenia: Inne obszary#
+ Następujące makropolecenia są dostępne w innych obszarach: zrzuty ekranu, menu pionowe.
 
 <!Macro:Common!>
 
 <!Macro:Other!>
 
- See also ~"The list of installed macros"~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroShellAutoCompletionList
-$ #Macros: Autocompletion in panels#
- The following macro keys are available in Autocompletion in panels.
+$ #Makropolecenia: autouzupełnianie w panelach#
+ Następujące makropolecenia są dostępne w autouzupełnianiu paneli.
 
 <!Macro:Common!>
 
 <!Macro:ShellAutoCompletion!>
 
- See also ~«The list of installed macros»~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @KeyMacroDialogAutoCompletionList
-$ #Macros: Autocompletion in dialogs#
- The following macro keys are available in Autocompletion in dialogs.
+$ #Makropolecenia: autouzupełnianie w oknach dialogowych#
+ Następujące makropolecenia są dostępne w autouzupełnianiu okien dialogowych.
 
 <!Macro:Common!>
 
 <!Macro:DialogAutoCompletion!>
 
- See also ~«The list of installed macros»~@KeyMacroList@
+ Zobacz także ~"Lista zainstalowanych makropoleceń"~@KeyMacroList@
 
 
 @FarAbout
-$ #Version information#
- Starts with the command #far:about#
+$ #Informacja o wersji#
+ Wywoływana poleceniem #far:about#
 
- Displays:
- - Far Manager version and bitness
- - versions of the third-party libraries used in the project
- - names and versions of the active plugins
+ Wyświetla:
+ - wersję i kompilację Far Manager;
+ - wersję dodatkowych bibliotek użytych w projekcie;
+ - nazwy i wersje aktywnych wtyczek.
 
 
 @FarConfig

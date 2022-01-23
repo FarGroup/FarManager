@@ -8,10 +8,10 @@ noncopyable.hpp
 
 Пример использования:
 
-#include "noncopyable.hpp"
-class YourClass:noncopyable
-{
-};
+	#include "noncopyable.hpp"
+	class YourClass:noncopyable
+	{
+	};
 
 */
 /*

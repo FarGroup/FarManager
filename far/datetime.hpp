@@ -76,7 +76,8 @@ FullYear:
 
    Windows supports years 1601 through 30827.
 */
-void ConvertDate(os::chrono::time_point Point, string& strDateText, string& strTimeText, int TimeLength, int FullYear, bool Brief = false, bool TextMonth = false);
+// (date, time)
+std::tuple<string, string> ConvertDate(os::chrono::time_point Point, int TimeLength, int FullYear, bool Brief = false, bool TextMonth = false);
 
 // (days, time)
 std::tuple<string, string> ConvertDuration(os::chrono::duration Duration);

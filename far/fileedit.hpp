@@ -140,12 +140,12 @@ private:
 	*/
 	void SetDeleteOnClose(int NewMode);
 	bool ReProcessKey(const Manager::Key& Key, bool CalledFromControl = true);
-	bool AskOverwrite(const string& FileName);
+	bool AskOverwrite(string_view FileName);
 	void Init(string_view Name, uintptr_t codepage, const string* Title, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, const window_ptr& Update, EDITOR_FLAGS OpenModeExstFile);
-	bool LoadFile(const string& Name, int &UserBreak, error_state_ex& ErrorState);
+	bool LoadFile(string_view Name, int &UserBreak, error_state_ex& ErrorState);
 	bool ReloadFile(uintptr_t codepage);
 	//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
-	int SaveFile(const string& Name, int Ask, bool bSaveAs, error_state_ex& ErrorState, eol Eol = eol::none, uintptr_t Codepage = CP_UNICODE, bool AddSignature = false);
+	int SaveFile(string_view Name, int Ask, bool bSaveAs, error_state_ex& ErrorState, eol Eol = eol::none, uintptr_t Codepage = CP_UNICODE, bool AddSignature = false);
 	void SetTitle(const string* Title);
 	bool SetFileName(string_view NewFileName);
 	int ProcessEditorInput(const INPUT_RECORD& Rec);

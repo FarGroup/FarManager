@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "savescr.hpp"
 #include "lockscrn.hpp"
 #include "interf.hpp"
-#include "message.hpp"
 #include "config.hpp"
 #include "scrsaver.hpp"
 #include "console.hpp"
@@ -74,7 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* start Глобальные переменные */
 
-FarKeyboardState IntKeyState={};
+FarKeyboardState IntKeyState{};
 
 /* end Глобальные переменные */
 
@@ -296,20 +295,11 @@ void InitKeysArray()
 			if (i.type() == REG_SZ && std::iswdigit(i.name().front()))
 			{
 				const auto Value = i.get_string();
-				if (!Value.empty() && std::iswxdigit(Value.front()))
-				{
-					uintptr_t KbLayout;
-					if (from_string(Value, KbLayout, nullptr, 16) && KbLayout)
-					{
-						if (KbLayout <= 0xffff)
-							KbLayout |= KbLayout << 16;
-						Layout().emplace_back(reinterpret_cast<HKL>(KbLayout));
-					}
-					else
-					{
-						LOGWARNING(L"Unsupported layout: {}"sv, Value);
-					}
-				}
+
+				if (const auto Hkl = os::make_hkl(Value); Hkl)
+					Layout().emplace_back(Hkl);
+				else
+					LOGWARNING(L"Unsupported layout: {}"sv, Value);
 			}
 		}
 	}
@@ -319,7 +309,7 @@ void InitKeysArray()
 
 	if (!Layout().empty())
 	{
-		BYTE KeyState[0x100]={};
+		BYTE KeyState[0x100]{};
 		//KeyToVKey - используется чтоб проверить если два символа это одна и та же кнопка на клаве
 		//*********
 		//Так как сделать полноценное мапирование между всеми раскладками не реально,
@@ -812,7 +802,7 @@ static bool ProcessMouseEvent(const MOUSE_EVENT_RECORD& MouseEvent, bool Exclude
 	if (IntKeyState.MouseEventFlags == MOUSE_WHEELED || IntKeyState.MouseEventFlags == MOUSE_HWHEELED)
 	{
 		const auto& WheelKeysPair = WheelKeys[IntKeyState.MouseEventFlags == MOUSE_HWHEELED? 1 : 0];
-		const auto Key = WheelKeysPair[static_cast<short>(HIWORD(MouseEvent.dwButtonState)) > 0? 1 : 0];
+		const auto Key = WheelKeysPair[static_cast<short>(extract_integer<WORD, 1>(MouseEvent.dwButtonState)) > 0? 1 : 0];
 		CalcKey = Key | GetModifiers();
 		return false;
 	}
@@ -861,7 +851,7 @@ static DWORD GetInputRecordImpl(INPUT_RECORD *rec,bool ExcludeMacro,bool Process
 		if (NotMacros || ExcludeMacro)
 			return CalcKey;
 
-		FAR_INPUT_RECORD irec = { CalcKey, *rec };
+		const FAR_INPUT_RECORD irec{ CalcKey, *rec };
 		if (!Global->CtrlObject || !Global->CtrlObject->Macro.ProcessEvent(&irec))
 			return CalcKey;
 
@@ -1126,7 +1116,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec, bool ExcludeMacro, bool ProcessMouse)
 	{
 		if (Global->CtrlObject)
 		{
-			ProcessConsoleInputInfo Info = { sizeof(Info), PCIF_NONE, *rec };
+			ProcessConsoleInputInfo Info{ sizeof(Info), PCIF_NONE, *rec };
 
 			switch (Global->CtrlObject->Plugins->ProcessConsoleInput(&Info))
 			{
@@ -1410,46 +1400,47 @@ static string KeyToTextImpl(unsigned int const Key0, tfkey_to_text ToText, add_s
 
 	auto strKeyText = GetShiftKeyName(Key, ToText, AddSeparator);
 
-	const auto FKeys1Iterator = std::find(ALL_CONST_RANGE(FKeys1), FKey);
-	if (FKeys1Iterator != std::cend(FKeys1))
+	if (const auto FKeys1Iterator = std::find(ALL_CONST_RANGE(FKeys1), FKey); FKeys1Iterator != std::cend(FKeys1))
 	{
 		AddSeparator(strKeyText);
 		append(strKeyText, ToText(*FKeys1Iterator));
+		return strKeyText;
+	}
+
+	if (FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
+	{
+		AddSeparator(strKeyText);
+		format_to(strKeyText, FSTR(L"Spec{:0>5}"sv), FKey - KEY_VK_0xFF_BEGIN);
+		return strKeyText;
+
+	}
+
+	if (FKey > KEY_VK_0xFF_END && FKey <= KEY_END_FKEY)
+	{
+		AddSeparator(strKeyText);
+		format_to(strKeyText, FSTR(L"Oem{:0>5}"sv), FKey - KEY_FKEY_BEGIN);
+		return strKeyText;
+
+	}
+
+	FKey = upper(static_cast<wchar_t>(Key & 0xFFFF));
+
+	wchar_t KeyText;
+
+	if (FKey >= L'A' && FKey <= L'Z')
+	{
+		if (Key&(KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALT)) // ??? а если есть другие модификаторы ???
+			KeyText = static_cast<wchar_t>(FKey); // для клавиш с модификаторами подставляем "латиницу" в верхнем регистре
+		else
+			KeyText = static_cast<wchar_t>(Key & 0xFFFF);
 	}
 	else
+		KeyText = static_cast<wchar_t>(Key & 0xFFFF);
+
+	if (KeyText)
 	{
-		if (FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
-		{
-			AddSeparator(strKeyText);
-			format_to(strKeyText, FSTR(L"Spec{:0>5}"sv), FKey - KEY_VK_0xFF_BEGIN);
-		}
-		else if (FKey > KEY_VK_0xFF_END && FKey <= KEY_END_FKEY)
-		{
-			AddSeparator(strKeyText);
-			format_to(strKeyText, FSTR(L"Oem{:0>5}"sv), FKey - KEY_FKEY_BEGIN);
-		}
-		else
-		{
-			FKey=upper(static_cast<wchar_t>(Key & 0xFFFF));
-
-			wchar_t KeyText;
-
-			if (FKey >= L'A' && FKey <= L'Z')
-			{
-				if (Key&(KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALT)) // ??? а если есть другие модификаторы ???
-					KeyText = static_cast<wchar_t>(FKey); // для клавиш с модификаторами подставляем "латиницу" в верхнем регистре
-				else
-					KeyText = static_cast<wchar_t>(Key & 0xFFFF);
-			}
-			else
-				KeyText = static_cast<wchar_t>(Key & 0xFFFF);
-
-			if (KeyText)
-			{
-				AddSeparator(strKeyText);
-				strKeyText += KeyText;
-			}
-		}
+		AddSeparator(strKeyText);
+		strKeyText += KeyText;
 	}
 
 	return strKeyText;
@@ -1547,12 +1538,14 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 				if (IsCharUpper(FKey) && !(FShift&0xFF000000))
 					FShift |= KEY_SHIFT;
 
-				VirtKey = Vk&0xFF;
-				if (HIBYTE(Vk)&&(HIBYTE(Vk)&6)!=6) //RAlt-E в немецкой раскладке это евро, а не CtrlRAltЕвро
+				VirtKey = extract_integer<BYTE, 0>(Vk);
+				const auto CtrlState = extract_integer<BYTE, 1>(Vk);
+				if (CtrlState && (CtrlState & 6) != 6) //RAlt-E в немецкой раскладке это евро, а не CtrlRAltЕвро
 				{
-					FShift|=(HIBYTE(Vk)&1?KEY_SHIFT:NO_KEY)|
-					        (HIBYTE(Vk)&2?KEY_CTRL:NO_KEY)|
-					        (HIBYTE(Vk)&4?KEY_ALT:NO_KEY);
+					FShift |=
+						(CtrlState & 1? KEY_SHIFT : NO_KEY) |
+						(CtrlState & 2? KEY_CTRL  : NO_KEY) |
+						(CtrlState & 4? KEY_ALT   : NO_KEY);
 				}
 			}
 
@@ -1680,7 +1673,21 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 					    (FShift&KEY_RCTRL?RIGHT_CTRL_PRESSED:0)|
 					    (FKey==KEY_DECIMAL?NUMLOCK_ON:0);
 
-					static const DWORD ExtKey[] = {KEY_PGUP, KEY_PGDN, KEY_END, KEY_HOME, KEY_LEFT, KEY_UP, KEY_RIGHT, KEY_DOWN, KEY_INS, KEY_DEL, KEY_NUMENTER};
+					static const DWORD ExtKey[]
+					{
+						KEY_PGUP,
+						KEY_PGDN,
+						KEY_END,
+						KEY_HOME,
+						KEY_LEFT,
+						KEY_UP,
+						KEY_RIGHT,
+						KEY_DOWN,
+						KEY_INS,
+						KEY_DEL,
+						KEY_NUMENTER
+					};
+
 					if (contains(ExtKey, FKey))
 						Rec->Event.KeyEvent.dwControlKeyState|=ENHANCED_KEY;
 				}
@@ -1695,19 +1702,19 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 				switch (FKey)
 				{
 					case KEY_MSWHEEL_UP:
-						ButtonState=MAKELONG(0,120);
+						ButtonState = make_integer<DWORD, 0, 120>();
 						EventFlags|=MOUSE_WHEELED;
 						break;
 					case KEY_MSWHEEL_DOWN:
-						ButtonState = MAKELONG(0, static_cast<WORD>(static_cast<short>(-120)));
+						ButtonState = make_integer<DWORD, 0, static_cast<unsigned short>(-120)>();
 						EventFlags|=MOUSE_WHEELED;
 						break;
 					case KEY_MSWHEEL_RIGHT:
-						ButtonState=MAKELONG(0,120);
+						ButtonState = make_integer<DWORD, 0, 120>();
 						EventFlags|=MOUSE_HWHEELED;
 						break;
 					case KEY_MSWHEEL_LEFT:
-						ButtonState = MAKELONG(0, static_cast<WORD>(static_cast<short>(-120)));
+						ButtonState = make_integer<DWORD, 0, static_cast<unsigned short>(-120)>();
 						EventFlags|=MOUSE_HWHEELED;
 						break;
 
@@ -1947,7 +1954,7 @@ static int GetMouseKey(const MOUSE_EVENT_RECORD& MouseEvent)
 	case MOUSE_HWHEELED:
 	{
 		const auto& WheelKeysPair = WheelKeys[MouseEvent.dwEventFlags == MOUSE_HWHEELED? 1 : 0];
-		const auto Key = WheelKeysPair[static_cast<short>(HIWORD(MouseEvent.dwButtonState)) > 0? 1 : 0];
+		const auto Key = WheelKeysPair[static_cast<short>(extract_integer<WORD, 1>(MouseEvent.dwButtonState)) > 0? 1 : 0];
 		return Key;
 	}
 

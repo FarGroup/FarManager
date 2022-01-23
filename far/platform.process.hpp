@@ -54,8 +54,10 @@ namespace os::process
 	};
 
 	image_type get_process_subsystem(HANDLE Process);
+	string get_process_name(DWORD Pid);
 
 	size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, function_ref<bool(string&&)> Handler);
+	size_t enumerate_nt_processes(string_view Filename, function_ref<bool(string&&)> Handler);
 }
 
 #endif // PLATFORM_PROCESS_HPP_234140CB_C857_40CF_901D_A10C5EBEA85B

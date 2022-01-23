@@ -101,7 +101,7 @@ void Panel::SetViewMode(int Mode)
 
 void Panel::ChangeDirToCurrent()
 {
-	SetCurDir(os::fs::GetCurrentDirectory(), true);
+	SetCurDir(os::fs::get_current_directory(), true);
 }
 
 long long Panel::VMProcess(int OpCode, void* vParam, long long iParam)
@@ -300,7 +300,7 @@ bool Panel::SetCurDir(string_view const NewDir, bool const ClosePanel, bool cons
 
 void Panel::InitCurDir(string_view const CurDir)
 {
-	if (!equal_icase(m_CurDir, CurDir) || !equal_icase(os::fs::GetCurrentDirectory(), CurDir))
+	if (!equal_icase(m_CurDir, CurDir) || !equal_icase(os::fs::get_current_directory(), CurDir))
 	{
 		m_CurDir = CurDir;
 
@@ -343,7 +343,7 @@ bool Panel::SetCurPath()
 	{
 		// Propagate passive panel curent directory to the environment
 		// (only if it won't be overwritten by the active)
-		if (!AnotherPanel->m_CurDir.empty() && (m_CurDir.empty() || !equal_icase_t{}(AnotherPanel->m_CurDir[0], m_CurDir[0])))
+		if (!AnotherPanel->m_CurDir.empty() && (m_CurDir.empty() || !string_comparer_icase{}(AnotherPanel->m_CurDir[0], m_CurDir[0])))
 		{
 			set_drive_env_curdir(AnotherPanel->m_CurDir);
 		}
@@ -581,8 +581,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			if(!CheckStructSize(Info))
 				break;
 
-			*Info = {};
-			Info->StructSize = sizeof(PanelInfo);
+			*Info = { sizeof(*Info) };
 
 			UpdateIfRequired();
 			Info->OwnerGuid = FarUuid;
@@ -670,7 +669,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 			if (GetType() == panel_type::FILE_PANEL && GetMode() == panel_mode::PLUGIN_PANEL)
 			{
-				PluginInfo PInfo = {sizeof(PInfo)};
+				PluginInfo PInfo{ sizeof(PInfo) };
 				const auto DestPanel = static_cast<const FileList*>(this);
 				if (DestPanel->GetPluginInfo(&PInfo))
 					strTemp = NullToEmpty(PInfo.CommandPrefix);
@@ -728,7 +727,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				Reenter++;
 				ShortcutInfo Info;
 				GetShortcutInfo(Info);
-				Result = static_cast<int>(aligned_sizeof<FarPanelDirectory>());
+				Result = static_cast<int>(aligned_sizeof<FarPanelDirectory, sizeof(wchar_t)>);
 				const auto folderOffset = Result;
 				Result+=static_cast<int>(sizeof(wchar_t)*(Info.ShortcutFolder.size()+1));
 				const auto pluginFileOffset = Result;
@@ -738,13 +737,19 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				const auto dirInfo = static_cast<FarPanelDirectory*>(Param2);
 				if(Param1>=Result && CheckStructSize(dirInfo))
 				{
-					dirInfo->StructSize=sizeof(FarPanelDirectory);
-					dirInfo->PluginId=Info.PluginUuid;
-					dirInfo->Name = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + folderOffset));
-					dirInfo->Param = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + pluginDataOffset));
-					dirInfo->File = static_cast<wchar_t*>(static_cast<void*>(static_cast<char*>(Param2) + pluginFileOffset));
+					dirInfo->StructSize = sizeof(*dirInfo);
+					dirInfo->PluginId = Info.PluginUuid;
+
+					dirInfo->Name = view_as<const wchar_t*>(Param2, folderOffset);
+					assert(is_aligned(*dirInfo->Name));
 					*copy_string(Info.ShortcutFolder, const_cast<wchar_t*>(dirInfo->Name)) = {};
+
+					dirInfo->Param = view_as<const wchar_t*>(Param2, pluginDataOffset);
+					assert(is_aligned(*dirInfo->Param));
 					*copy_string(Info.PluginData, const_cast<wchar_t*>(dirInfo->Param)) = {};
+
+					dirInfo->File = view_as<const wchar_t*>(Param2, pluginFileOffset);
+					assert(is_aligned(*dirInfo->File));
 					*copy_string(Info.PluginFile, const_cast<wchar_t*>(dirInfo->File)) = {};
 				}
 				Reenter--;
@@ -994,7 +999,7 @@ int Panel::ProcessShortcutFolder(int Key,bool ProcTreePanel)
 
 bool Panel::SetPluginDirectory(string_view const Directory, bool Silent)
 {
-	UserDataItem UserData = {}; //????
+	const UserDataItem UserData{}; //????
 	const auto Result = Global->CtrlObject->Plugins->SetDirectory(GetPluginHandle(), string(Directory), Silent?OPM_SILENT:0, &UserData) != 0;
 	Update(0);
 	Show();

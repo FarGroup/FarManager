@@ -43,12 +43,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+enum class search_case_fold;
+
 bool PreserveStyleReplaceString(
 	string_view Source,
 	string_view Str,
 	string& ReplaceStr,
 	int& CurPos,
-	bool Case,
+	search_case_fold CaseFold,
 	bool WholeWords,
 	string_view WordDiv,
 	bool Reverse,

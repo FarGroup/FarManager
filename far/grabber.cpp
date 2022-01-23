@@ -209,7 +209,7 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 		}
 	}
 
-	clipboard_accessor Clip;
+	const clipboard_accessor Clip;
 
 	if (Clip->Open())
 	{

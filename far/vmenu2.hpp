@@ -125,7 +125,7 @@ public:
 	void Pack();
 	MenuItemEx& at(size_t n);
 	MenuItemEx& current();
-	int GetShowItemCount();
+	int GetShowItemCount() const;
 
 private:
 	intptr_t VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);

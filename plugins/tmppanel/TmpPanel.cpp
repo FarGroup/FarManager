@@ -5,163 +5,78 @@ Temporary panel main plugin code
 
 */
 
-#include <memory>
-
+#include "TmpPanel.hpp"
 #include "plugin.hpp"
 #include <shellapi.h>
-#include <PluginSettings.hpp>
-#include <DlgBuilder.hpp>
 
 #include "TmpLng.hpp"
 #include "TmpCfg.hpp"
 #include "TmpClass.hpp"
-#include "TmpPanel.hpp"
 #include "version.hpp"
+
+#include <algorithm.hpp>
+#include <scope_exit.hpp>
+#include <string_utils.hpp>
 
 #include "guid.hpp"
 #include <initguid.h>
 #include "guid.hpp"
 
-//wchar_t *PluginRootKey;
-unsigned int CurrentCommonPanel;
-PluginStartupInfo PsInfo;
-FarStandardFunctions FSF;
-
-PluginPanels CommonPanels[COMMONPANELSNUMBER];
-
-static void ProcessList(HANDLE hPlugin, wchar_t *Name, int Mode);
-static void ShowMenuFromList(wchar_t *Name);
-static HANDLE OpenPanelFromOutput(wchar_t *argv);
-
-static HANDLE OpenPanelFromOutput(wchar_t *argv)
+static bool get_console_title(string& Title)
 {
-	wchar_t *tempDir=ParseParam(argv);
-	BOOL allOK=FALSE;
-	StrBuf tempfilename(NT_MAX_PATH); //BUGBUG
-	StrBuf cmdparams(NT_MAX_PATH); //BUGBUG
-	StrBuf fullcmd;
-	FSF.MkTemp(tempfilename,tempfilename.Size(),L"FARTMP");
-	lstrcpy(cmdparams,L"%COMSPEC% /c ");
-	lstrcat(cmdparams,argv);
-	ExpandEnvStrs(cmdparams,fullcmd);
-	SECURITY_ATTRIBUTES sa;
-	memset(&sa, 0, sizeof(sa));
-	sa.nLength=sizeof(sa);
-	sa.bInheritHandle=TRUE;
-	HANDLE FileHandle;
-	FileHandle=CreateFile(tempfilename,GENERIC_WRITE,FILE_SHARE_READ,
-	                      &sa,CREATE_ALWAYS,FILE_FLAG_SEQUENTIAL_SCAN,{});
+	const auto ConsoleWindow = GetConsoleWindow();
 
-	if (FileHandle!=INVALID_HANDLE_VALUE)
-	{
-		STARTUPINFO si;
-		memset(&si,0,sizeof(si));
-		si.cb=sizeof(si);
-		si.dwFlags=STARTF_USESTDHANDLES;
-		si.hStdInput=GetStdHandle(STD_INPUT_HANDLE);
-		si.hStdOutput=FileHandle;
-		si.hStdError=FileHandle;
-		PROCESS_INFORMATION pi;
-		memset(&pi,0,sizeof(pi));
-		StrBuf workDir(1); //make empty string just in case
+	const size_t Length = GetWindowTextLength(ConsoleWindow);
 
-		if (tempDir)
-		{
-			workDir.Reset(NT_MAX_PATH);  //BUGBUG
-			ExpandEnvStrs(tempDir,workDir);
-		}
-		else
-		{
-			size_t Size=FSF.GetCurrentDirectory(0,{});
+	if (!Length)
+		return GetLastError() == ERROR_SUCCESS;
 
-			if (Size)
-			{
-				workDir.Reset((int)Size);
-				FSF.GetCurrentDirectory(Size,workDir);
-			}
-		}
-
-		wchar_t consoleTitle[255];
-		DWORD tlen = GetConsoleTitle(consoleTitle, ARRAYSIZE(consoleTitle));
-		SetConsoleTitle(argv);
-		BOOL Created=CreateProcess({},fullcmd,{},{},TRUE,0,{},workDir,&si,&pi);
-
-		if (Created)
-		{
-			WaitForSingleObject(pi.hProcess,INFINITE);
-			CloseHandle(pi.hThread);
-			CloseHandle(pi.hProcess);
-			allOK=TRUE;
-		}
-
-		CloseHandle(FileHandle);
-
-		if (tlen)
-			SetConsoleTitle(consoleTitle);
-	}
-
-	HANDLE hPlugin = nullptr;
-
-	if (allOK)
-	{
-		if (Opt.MenuForFilelist)
-		{
-			ShowMenuFromList(tempfilename);
-		}
-		else
-		{
-			hPlugin=new TmpPanel();
-
-			if (!hPlugin)
-				return nullptr;
-
-			ProcessList(hPlugin, tempfilename, Opt.Mode);
-		}
-	}
-
-	DeleteFile(tempfilename);
-	return hPlugin;
+	Title.resize(Length + 1);
+	Title.resize(GetWindowText(ConsoleWindow, Title.data(), static_cast<int>(Title.size())));
+	return true;
 }
 
-static void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, wchar_t **argv, wchar_t *args,
-                   UINT *numargs, UINT *numchars)
+[[nodiscard]]
+constexpr bool IsEol(wchar_t x) noexcept { return x == L'\r' || x == L'\n'; }
+
+static std::vector<string> ReadFileLines(const HANDLE FileMapping, const DWORD FileSizeLow)
 {
-	*numchars = 0;
-	*numargs = 0;
-	char *FileData=(char *)MapViewOfFile(hFileMapping,FILE_MAP_READ,0,0,FileSizeLow);
+	const auto FileData = static_cast<char*>(MapViewOfFile(FileMapping, FILE_MAP_READ, 0, 0, FileSizeLow));
 
 	if (!FileData)
-		return;
+		return {};
 
-	StrBuf TMP(NT_MAX_PATH); //BUGBUG
-	DWORD Len,Pos=0,Size=FileSizeLow;
-	UINT cp=CP_OEMCP;
+	string Line;
 
-	#define CP_UNICODE    ((uintptr_t)1200)
-	#define CP_REVERSEBOM ((uintptr_t)1201)
+#define CP_UNICODE    ((uintptr_t)1200)
+#define CP_REVERSEBOM ((uintptr_t)1201)
 
 	const auto Ptr = reinterpret_cast<wchar_t*>(FileData);
 
-	if (Ptr[0]==SIGN_UNICODE)
+	auto cp = CP_OEMCP;
+	DWORD Pos = 0;
+	DWORD Size = FileSizeLow;
+
+	if (Ptr[0] == SIGN_UNICODE)
 	{
 		Pos += 2;
-		cp=CP_UNICODE;
+		cp = CP_UNICODE;
 	}
-	else if (Ptr[0]==SIGN_REVERSEBOM)
+	else if (Ptr[0] == SIGN_REVERSEBOM)
 	{
 		Pos += 2;
-		cp=CP_REVERSEBOM;
+		cp = CP_REVERSEBOM;
 	}
-	else if (Ptr[0]==SIGN_UTF8_LO&&(Ptr[1]&0xff)==SIGN_UTF8_HI)
+	else if (Ptr[0] == SIGN_UTF8_LO && (Ptr[1] & 0xff) == SIGN_UTF8_HI)
 	{
 		Pos += 3;
-		cp=CP_UTF8;
+		cp = CP_UTF8;
 	}
 	else
 	{
-		if (IsTextUTF8(FileData,Size))
+		if (IsTextUTF8(FileData, Size))
 		{
-			cp=CP_UTF8;
+			cp = CP_UTF8;
 		}
 		else
 		{
@@ -172,475 +87,449 @@ static void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, wchar_t **argv
 			{
 				if (test & IS_TEXT_UNICODE_STATISTICS) // !!! допускаем возможность, что это Unicode
 				{
-					cp=CP_UNICODE;
+					cp = CP_UNICODE;
 				}
 			}
 		}
 	}
 
-	while (Pos<Size)
+	std::vector<string> Lines;
+
+	while (Pos < Size)
 	{
-		#if 0
+#if 0
 		if (cp == CP_REVERSEBOM)
 		{
-			swab((char*)&FileData[Off],(char*)TMP.Ptr(),Len*sizeof(wchar_t));
+			swab((char*)&FileData[Off], (char*)TMP.Ptr(), Len * sizeof(wchar_t));
 			cp = CP_UNICODE;
 		}
-		#endif
+#endif
 		if (cp == CP_UNICODE)
 		{
-			wchar_t c;
 			--Size;
 
-			while (Pos<Size && ((c = *reinterpret_cast<wchar_t*>(FileData + Pos)) == L'\r' || c == L'\n'))
+			while (Pos < Size && IsEol(*reinterpret_cast<wchar_t*>(FileData + Pos)))
 				Pos += sizeof(wchar_t);
 
-			DWORD Off = Pos;
+			const auto Off = Pos;
 
-			while (Pos<Size && (c = *reinterpret_cast<wchar_t*>(FileData + Pos)) != L'\r' && c != L'\n')
+			while (Pos < Size && !IsEol(*reinterpret_cast<wchar_t*>(FileData + Pos)))
 				Pos += sizeof(wchar_t);
 
 			if (Pos < Size)
 				++Size;
 
-			Len = (Pos-Off)/sizeof(wchar_t);
-
-			if (Len >= (DWORD)TMP.Size())
-				Len = (DWORD)(TMP.Size()-1);
-
-			memcpy(TMP.Ptr(), &FileData[Off], Len*sizeof(wchar_t));
+			Line.assign(reinterpret_cast<const wchar_t*>(FileData + Off), (Pos - Off) / sizeof(wchar_t));
 		}
 		else
 		{
-			char c;
-
-			while (Pos<Size && ((c = FileData[Pos]) == '\r' || c == '\n'))
+			while (Pos < Size && IsEol(FileData[Pos]))
 				Pos++;
 
-			DWORD Off = Pos;
+			const auto Off = Pos;
 
-			while (Pos<Size && (c = FileData[Pos]) != '\r' && c != '\n')
+			while (Pos < Size && !IsEol(FileData[Pos]))
 				Pos++;
 
-			Len = Pos - Off;
-			Len = MultiByteToWideChar(cp, 0, &FileData[Off], Len, TMP, (DWORD)(TMP.Size()-1));
+			const auto Required = MultiByteToWideChar(cp, 0, FileData + Off, Pos - Off, {}, 0);
+			Line.resize(Required);
+			Line.resize(MultiByteToWideChar(cp, 0, FileData + Off, Pos - Off, Line.data(), static_cast<DWORD>(Line.size())));
 		}
 
-		if (!Len)
+		if (Line.empty())
 			continue;
 
-		TMP.Ptr()[Len]=0;
-		Len = lstrlen(TMP);
-
-		if (!Len)
-			continue;
-
-		if (argv)
-			*argv++ = args;
-
-		if (args)
-		{
-			lstrcpy(args,TMP);
-			args+=Len+1;
-		}
-
-		(*numchars)+=Len+1;
-		++*numargs;
+		Lines.emplace_back(std::move(Line));
 	}
 
 	UnmapViewOfFile(FileData);
+
+	return Lines;
 }
 
-static void ReadFileList(wchar_t *filename, int *argc, wchar_t ***argv)
+static std::vector<string> ReadFileList(const string_view Filename)
 {
-	*argc = 0;
-	*argv = {};
-	StrBuf FullPath;
-	GetFullPath(filename, FullPath);
-	StrBuf NtPath;
-	FormNtPath(FullPath, NtPath);
-	HANDLE hFile=CreateFile(NtPath,GENERIC_READ,FILE_SHARE_READ,{},
-	                        OPEN_EXISTING,0,{});
+	const auto NtPath = FormNtPath(GetFullPath(Filename));
+	const auto File = CreateFile(NtPath.c_str(), GENERIC_READ, FILE_SHARE_READ, {}, OPEN_EXISTING, 0, {});
+	if (File == INVALID_HANDLE_VALUE)
+		return {};
+	SCOPE_EXIT{ CloseHandle(File); };
 
-	if (hFile != INVALID_HANDLE_VALUE)
-	{
-		DWORD FileSizeLow=GetFileSize(hFile,{});
-		HANDLE hFileMapping=CreateFileMapping(hFile,{},PAGE_READONLY,0,0,{});
-		CloseHandle(hFile);
+	const auto FileMapping = CreateFileMapping(File, {}, PAGE_READONLY, 0, 0, {});
+	if (!FileMapping)
+		return {};
+	SCOPE_EXIT{ CloseHandle(FileMapping); };
 
-		if (hFileMapping)
-		{
-			UINT i;
-			ReadFileLines(hFileMapping, FileSizeLow, {}, {}, (UINT*)argc, &i);
-			*argv = (wchar_t**)malloc(*argc*sizeof(wchar_t*) + i*sizeof(wchar_t));
-			ReadFileLines(hFileMapping, FileSizeLow, *argv, (wchar_t*)&(*argv)[*argc], (UINT*)argc, &i);
-			CloseHandle(hFileMapping);
-		}
-	}
+	const auto FileSizeLow = GetFileSize(File, {});
+	return ReadFileLines(FileMapping, FileSizeLow);
 }
 
-static void ProcessList(HANDLE hPlugin, wchar_t *Name, int Mode)
+static void ShowMenuFromList(const string& Name)
 {
-	if (Mode)
+	const auto Args = ReadFileList(Name);
+	std::vector<FarMenuItem> fmi(Args.size());
+	std::vector<string> MenuStrings, Commands;
+	MenuStrings.reserve(Args.size());
+	Commands.reserve(Args.size());
+
+	for (size_t i = 0, size = Args.size(); i != size; ++i)
 	{
-		FreePanelItems(CommonPanels[CurrentCommonPanel].Items,
-		               CommonPanels[CurrentCommonPanel].ItemsNumber);
-		CommonPanels[CurrentCommonPanel].Items=(PluginPanelItem*)calloc(1,sizeof(PluginPanelItem));
-		CommonPanels[CurrentCommonPanel].ItemsNumber=0;
-	}
+		const auto Tmp = ExpandEnvStrs(Args[i]);
+		const auto [Param, Cmd] = ParseParam(Tmp);
 
-	TmpPanel *Panel=(TmpPanel*)hPlugin;
-	int argc;
-	wchar_t **argv;
-	ReadFileList(Name, &argc, &argv);
-	HANDLE hScreen = Panel->BeginPutFiles();
-
-	for (UINT i=0; (int)i<argc; i++)
-		Panel->PutOneFile(argv[i]);
-
-	Panel->CommitPutFiles(hScreen, TRUE);
-
-	if (argv)
-		free(argv);
-}
-
-
-static void ShowMenuFromList(wchar_t *Name)
-{
-	int argc;
-	wchar_t **argv;
-	ReadFileList(Name, &argc, &argv);
-	FarMenuItem *fmi=(FarMenuItem*)malloc(argc*sizeof(FarMenuItem));
-
-	if (fmi)
-	{
-		StrBuf TMP(NT_MAX_PATH); //BUGBUG
-
-		for (int i=0; i<argc; ++i)
-		{
-			wchar_t *param,*p=TMP;
-			ExpandEnvStrs(argv[i],TMP);
-			param=ParseParam(p);
-			FSF.TruncStr(param?param:p,67);
-			fmi[i].Flags = !lstrcmp(param,L"-")?MIF_SEPARATOR:0;
-			fmi[i].Text = wcsdup(param?fmi[i].Flags & MIF_SEPARATOR?L"":param:p);
-		}
-
-//    fmi[0].Selected=TRUE;
-		wchar_t Title[128]; //BUGBUG
-		FSF.ProcessName(FSF.PointToName(Name),lstrcpy(Title,L"*."),ARRAYSIZE(Title),PN_GENERATENAME);
-		FSF.TruncPathStr(Title,64);
-		FarKey BreakKeys[]={{VK_RETURN,SHIFT_PRESSED}, {0,0}};
-		intptr_t BreakCode;
-		int ExitCode=(int)PsInfo.Menu(&MainGuid, nullptr, -1, -1, 0,
-		                       FMENU_WRAPMODE, Title, {}, L"Contents",
-		                       &BreakKeys[0], &BreakCode, fmi, argc);
-
-		for (int i=0; i<argc; ++i)
-			if (fmi[i].Text)
-				free(const_cast<wchar_t*>(fmi[i].Text));
-
-		free(fmi);
-
-		if ((unsigned)ExitCode<(unsigned)argc)
-		{
-			ExpandEnvStrs(argv[ExitCode],TMP);
-			wchar_t *p=TMP;
-			ParseParam(p);
-			PluginPanelItem FindData;
-			int bShellExecute=BreakCode!=-1;
-
-			if (!bShellExecute)
-			{
-				if (TmpPanel::GetFileInfoAndValidate(p,&FindData,FALSE))
-				{
-					if (FindData.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-					{
-						FarPanelDirectory dirInfo = {sizeof(dirInfo), p, nullptr, {}, nullptr};
-						PsInfo.PanelControl(PANEL_ACTIVE, FCTL_SETPANELDIRECTORY, 0, &dirInfo);
-					}
-					else
-					{
-						bShellExecute=TRUE;
-					}
-				}
-				else
-				{
-					PsInfo.PanelControl(PANEL_ACTIVE,FCTL_SETCMDLINE,0,p);
-				}
-			}
-
-			if (bShellExecute)
-				ShellExecute({},L"open",p,{},{},SW_SHOW);
-		}
+		fmi[i].Flags = Param == L"-"sv? MIF_SEPARATOR : 0;
+		fmi[i].Text = MenuStrings.emplace_back(fmi[i].Flags & MIF_SEPARATOR? L""sv : Param.empty()? Tmp : Param).c_str();
+		Commands.emplace_back(Cmd.empty()? Tmp : Cmd);
 	}
 
-	if (argv)
-		free(argv);
-}
-
-
-
-void WINAPI GetGlobalInfoW(GlobalInfo *Info)
-{
-	Info->StructSize=sizeof(GlobalInfo);
-	Info->MinFarVersion=FARMANAGERVERSION;
-	Info->Version=PLUGIN_VERSION;
-	Info->Guid=MainGuid;
-	Info->Title=PLUGIN_NAME;
-	Info->Description=PLUGIN_DESC;
-	Info->Author=PLUGIN_AUTHOR;
-}
-
-void WINAPI SetStartupInfoW(const PluginStartupInfo *Info)
-{
-	PsInfo=*Info;
-	FSF=*PsInfo.FSF;
-	PsInfo.FSF=&FSF;
-	GetOptions();
-	StartupOptFullScreenPanel=Opt.FullScreenPanel;
-	StartupOptCommonPanel=Opt.CommonPanel;
-	CurrentCommonPanel=0;
-	memset(CommonPanels, 0, sizeof(CommonPanels));
-	CommonPanels[0].Items=(PluginPanelItem*)calloc(1,sizeof(PluginPanelItem));
-	Opt.LastSearchResultsPanel = 0;
-}
-
-HANDLE WINAPI OpenW(const OpenInfo *Info)
-{
-	HANDLE hPlugin=nullptr;
-	GetOptions();
-	StartupOpenFrom=Info->OpenFrom;
-
-	if (Info->OpenFrom==OPEN_COMMANDLINE)
+	string Title = FSF.PointToName(Name.c_str());
+	if (const auto DotPos = Title.rfind(L'.'); DotPos != Title.npos)
 	{
-		const auto CommandLine = reinterpret_cast<const OpenCommandLineInfo*>(Info->Data)->CommandLine;
-		const auto CommandLineSize = wcslen(CommandLine);
-		const auto Buffer = std::make_unique<wchar_t[]>(CommandLineSize + 1);
-		auto argv = Buffer.get();
-		wcscpy(argv, CommandLine);
+		Title.resize(DotPos);
+	}
 
-		#define OPT_COUNT 5
-		static const wchar_t ParamsStr[OPT_COUNT][8]=
+	FarKey BreakKeys[]{ { VK_RETURN, SHIFT_PRESSED }, {} };
+	intptr_t BreakCode;
+
+	const auto ExitCode = PsInfo.Menu(&MainGuid, {}, -1, -1, 0, FMENU_WRAPMODE, Title.c_str(), {}, L"Contents", &BreakKeys[0], &BreakCode, fmi.data(), fmi.size());
+	if (ExitCode < 0)
+		return;
+
+	PluginPanelItem FindData;
+	string NameData;
+	auto UseShellExecute = BreakCode != -1;
+
+	if (!UseShellExecute)
+	{
+		if (GetFileInfoAndValidate(Commands[ExitCode], FindData, NameData, false))
 		{
-			L"safe",L"any",L"replace",L"menu",L"full"
-		};
-
-		int* ParamsOpt[OPT_COUNT]
-		{
-			&Opt.SafeModePanel,&Opt.AnyInPanel,&Opt.Mode,
-			&Opt.MenuForFilelist,&Opt.FullScreenPanel
-		};
-
-		while (*argv==L' ')
-			argv++;
-
-		while (lstrlen(argv)>1 && (*argv==L'+' || *argv==L'-'))
-		{
-			int k=0;
-
-			while (*argv && *argv!=L' ' && *argv!=L'<')
+			if (FindData.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
-				k++;
-				argv++;
-			}
-
-			StrBuf tmpTMP(k+1);
-			wchar_t *TMP=tmpTMP;
-			lstrcpyn(TMP,argv-k,k+1);
-
-			for (int i=0; i<OPT_COUNT; i++)
-				if (lstrcmpi(TMP+1,ParamsStr[i])==0)
-					*(int*)ParamsOpt[i] = *TMP==L'+';
-
-			if (*(TMP+1)>=L'0' && *(TMP+1)<=L'9')
-				CurrentCommonPanel=*(TMP+1)-L'0';
-
-			while (*argv==L' ')
-				argv++;
-		}
-
-		FSF.Trim(argv);
-
-		if (*argv)
-		{
-			if (*argv==L'<')
-			{
-				argv++;
-				hPlugin = OpenPanelFromOutput(argv);
-
-				if (Opt.MenuForFilelist)
-					return nullptr;
+				FarPanelDirectory DirInfo{ sizeof(DirInfo), Commands[ExitCode].c_str() };
+				PsInfo.PanelControl(PANEL_ACTIVE, FCTL_SETPANELDIRECTORY, 0, &DirInfo);
 			}
 			else
 			{
-				FSF.Unquote(argv);
-				StrBuf TmpIn;
-				ExpandEnvStrs(argv,TmpIn);
-				StrBuf TmpOut;
+				UseShellExecute = true;
+			}
+		}
+		else
+		{
+			PsInfo.PanelControl(PANEL_ACTIVE, FCTL_SETCMDLINE, 0, const_cast<wchar_t*>(Commands[ExitCode].c_str()));
+		}
+	}
 
-				if (FindListFile(TmpIn,TmpOut))
+	if (UseShellExecute)
+		ShellExecute({}, L"open", Commands[ExitCode].c_str(), {}, {}, SW_SHOW);
+}
+
+static void ProcessList(TmpPanel& Panel, const string_view Name, const bool Replace)
+{
+	if (Replace)
+		Panel.clear();
+
+	const auto Args = ReadFileList(Name);
+	const auto Screen = Panel.BeginPutFiles();
+
+	for (const auto& i: Args)
+		Panel.PutOneFile(i);
+
+	Panel.CommitPutFiles(Screen, true);
+}
+
+static string run_command(const string& Command)
+{
+	string TempFilename(MAX_PATH, 0);
+
+	for (;;)
+	{
+		const auto Size = FSF.MkTemp(TempFilename.data(), TempFilename.size(), {});
+		if (!Size)
+			return {};
+
+		const auto CurrentSize = TempFilename.size();
+		TempFilename.resize(Size - 1);
+		if (Size - 1 <= CurrentSize)
+			break;
+	}
+
+	SECURITY_ATTRIBUTES sa{ sizeof(sa), {}, TRUE };
+	const auto FileHandle = CreateFile(TempFilename.c_str(), GENERIC_WRITE, FILE_SHARE_READ, &sa, CREATE_ALWAYS, FILE_FLAG_SEQUENTIAL_SCAN, {});
+	if (FileHandle == INVALID_HANDLE_VALUE)
+		return {};
+
+	SCOPE_EXIT{ CloseHandle(FileHandle); };
+
+	STARTUPINFO si{ sizeof(si) };
+	si.dwFlags = STARTF_USESTDHANDLES;
+	si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+	si.hStdOutput = FileHandle;
+	si.hStdError = FileHandle;
+
+	PROCESS_INFORMATION pi{};
+	string WorkDir; //make empty string just in case
+
+	if (const auto [TempDir, _] = ParseParam(Command); !TempDir.empty())
+	{
+		WorkDir = ExpandEnvStrs(TempDir);
+	}
+	else
+	{
+		WorkDir.resize(MAX_PATH);
+		for (;;)
+		{
+			const size_t Size = FSF.GetCurrentDirectory(WorkDir.size(), WorkDir.data());
+			if (!Size)
+				return {};
+
+			const auto CurrentSize = WorkDir.size();
+			WorkDir.resize(Size - 1);
+			if (Size - 1 <= CurrentSize)
+				break;
+		}
+	}
+
+	string ConsoleTitle;
+	const auto NeedRestoreTitle = get_console_title(ConsoleTitle) && SetConsoleTitle(Command.c_str());
+	SCOPE_EXIT{ if (NeedRestoreTitle) SetConsoleTitle(ConsoleTitle.c_str()); };
+
+	const auto FullCmd = ExpandEnvStrs(L"%COMSPEC% /c "sv + Command);
+	if (!CreateProcess({}, const_cast<wchar_t*>(FullCmd.c_str()), {}, {}, true, 0, {}, WorkDir.c_str(), &si, &pi))
+		return {};
+
+	WaitForSingleObject(pi.hProcess, INFINITE);
+	CloseHandle(pi.hThread);
+	CloseHandle(pi.hProcess);
+
+	return TempFilename;
+}
+
+static std::unique_ptr<TmpPanel> OpenPanelFromOutput(const string& Command)
+{
+	const auto TempFilename = run_command(Command);
+	if (TempFilename.empty())
+		return {};
+
+	SCOPE_EXIT{ DeleteFile(TempFilename.c_str()); };
+
+	if (Opt.MenuForFilelist)
+	{
+		ShowMenuFromList(TempFilename);
+		return {};
+	}
+
+	auto Plugin = std::make_unique<TmpPanel>();
+	ProcessList(*Plugin, TempFilename, Opt.Replace);
+	return Plugin;
+}
+
+void WINAPI GetGlobalInfoW(GlobalInfo* Info)
+{
+	Info->StructSize = sizeof(GlobalInfo);
+	Info->MinFarVersion = FARMANAGERVERSION;
+	Info->Version = PLUGIN_VERSION;
+	Info->Guid = MainGuid;
+	Info->Title = PLUGIN_NAME;
+	Info->Description = PLUGIN_DESC;
+	Info->Author = PLUGIN_AUTHOR;
+}
+
+void WINAPI SetStartupInfoW(const PluginStartupInfo* Info)
+{
+	PsInfo = *Info;
+	FSF = *PsInfo.FSF;
+	PsInfo.FSF = &FSF;
+
+	GetOptions();
+
+	Opt.LastSearchResultsPanel = 0;
+	SharedData = std::make_unique<shared_data>().release();
+}
+
+HANDLE WINAPI OpenW(const OpenInfo* Info)
+{
+	GetOptions();
+
+	if (Info->OpenFrom == OPEN_COMMANDLINE)
+	{
+		const std::pair<string_view, bool*> Params[]
+		{
+			{ L"safe"sv,    &Opt.SafeModePanel, },
+			{ L"any"sv,     &Opt.AnyInPanel, },
+			{ L"replace"sv, &Opt.Replace, },
+			{ L"menu"sv,    &Opt.MenuForFilelist, },
+			{ L"full"sv,    &Opt.FullScreenPanel, },
+		};
+
+		string_view CommandLine = reinterpret_cast<const OpenCommandLineInfo*>(Info->Data)->CommandLine;
+		inplace::trim_left(CommandLine);
+
+		while (CommandLine.size() > 1 && any_of(CommandLine.front(), L'+', L'-'))
+		{
+			const auto Mode = CommandLine.front();
+			CommandLine.remove_prefix(1);
+			const auto Cmd = CommandLine.substr(0, CommandLine.find_first_of(L" <"));
+			CommandLine.remove_prefix(Cmd.size());
+
+			for (const auto& [Name, Value]: Params)
+			{
+				if (Cmd == Name)
 				{
-					if (Opt.MenuForFilelist)
-					{
-						ShowMenuFromList(TmpOut);
-						return nullptr;
-					}
-					else
-					{
-						hPlugin=new TmpPanel(TmpOut);
-
-						if (!hPlugin)
-							return nullptr;
-
-						ProcessList(hPlugin, TmpOut, Opt.Mode);
-					}
-				}
-				else
-				{
-					return nullptr;
+					*Value = Mode == L'+';
+					break;
 				}
 			}
+
+			if (Mode == L'+' && Cmd.size() == 1 && in_closed_range(L'0', Cmd.front(), L'9'))
+			{
+				SharedData->CurrentCommonPanel = Cmd.front() - L'0';
+			}
+
+			inplace::trim_left(CommandLine);
+		}
+
+		inplace::trim(CommandLine);
+
+		if (!CommandLine.empty())
+		{
+			if (starts_with(CommandLine, L'<'))
+			{
+				CommandLine.remove_prefix(1);
+				auto Plugin = OpenPanelFromOutput(string(CommandLine));
+				return Opt.MenuForFilelist? nullptr : Plugin.release();
+			}
+
+			const auto TmpOut = FindListFile(unquote(ExpandEnvStrs(CommandLine)));
+			if (TmpOut.empty())
+				return {};
+
+			if (Opt.MenuForFilelist)
+			{
+				ShowMenuFromList(TmpOut);
+				return {};
+			}
+
+			auto Plugin = std::make_unique<TmpPanel>(TmpOut);
+			ProcessList(*Plugin, TmpOut, Opt.Replace);
+			return Plugin.release();
 		}
 	}
 	else if (Info->OpenFrom == OPEN_ANALYSE)
 	{
-		const wchar_t *AnalyseFileName=reinterpret_cast<OpenAnalyseInfo*>(Info->Data)->Info->FileName;
+		const auto AnalyseFileName = reinterpret_cast<OpenAnalyseInfo*>(Info->Data)->Info->FileName;
+
 		if (AnalyseFileName && *AnalyseFileName)
 		{
-			StrBuf pName(NT_MAX_PATH); //BUGBUG
-			lstrcpy(pName, AnalyseFileName);
+			string Name(AnalyseFileName);
 
-			if (!FSF.ProcessName(Opt.Mask,pName, pName.Size(),PN_CMPNAMELIST))
-				return nullptr;
+			if (!FSF.ProcessName(Opt.Mask.c_str(), const_cast<wchar_t*>(Name.c_str()), 0, PN_CMPNAMELIST))
+				return {};
 
 			if (!Opt.MenuForFilelist)
 			{
-				HANDLE Plugin=new TmpPanel(pName);
-
-				if (!Plugin)
-					return nullptr;
-
-				ProcessList(Plugin, pName, Opt.Mode);
-				return Plugin;
+				auto Plugin = std::make_unique<TmpPanel>(Name);
+				ProcessList(*Plugin, Name, Opt.Replace);
+				return Plugin.release();
 			}
-			else
-			{
-				ShowMenuFromList(pName);
-				return PANEL_STOP;
-			}
+
+			ShowMenuFromList(Name);
+			return PANEL_STOP;
 		}
-		return nullptr;
+
+		return {};
 	}
 
-	if (hPlugin==nullptr)
-	{
-		hPlugin=new TmpPanel();
-
-		if (!hPlugin)
-			return nullptr;
-	}
-
-	return hPlugin;
+	return std::make_unique<TmpPanel>().release();
 }
 
-HANDLE WINAPI AnalyseW(const AnalyseInfo *Info)
+HANDLE WINAPI AnalyseW(const AnalyseInfo* Info)
 {
-	if (Info->FileName == nullptr || !Info->BufferSize)
-		return nullptr;
+	if (!Info->FileName || !Info->BufferSize)
+		return {};
 
-	if (!FSF.ProcessName(Opt.Mask, const_cast<wchar_t*>(Info->FileName), lstrlen(Info->FileName),PN_CMPNAMELIST))
-		return nullptr;
+	if (!FSF.ProcessName(Opt.Mask.c_str(), const_cast<wchar_t*>(Info->FileName), lstrlen(Info->FileName), PN_CMPNAMELIST))
+		return {};
 
-	return HANDLE(1);
+	return reinterpret_cast<HANDLE>(1);
 }
 
-void WINAPI ClosePanelW(const ClosePanelInfo *Info)
+void WINAPI ClosePanelW(const ClosePanelInfo* Info)
 {
-	delete(TmpPanel *)Info->hPanel;
+	std::unique_ptr<TmpPanel>{static_cast<TmpPanel*>(Info->hPanel)};
 }
 
-void WINAPI ExitFARW(const ExitInfo *Info)
+void WINAPI ExitFARW(const ExitInfo* Info)
 {
-	for (int i=0; i<COMMONPANELSNUMBER; ++i)
-		FreePanelItems(CommonPanels[i].Items, CommonPanels[i].ItemsNumber);
+	std::unique_ptr<shared_data>{SharedData};
 }
 
-
-intptr_t WINAPI GetFindDataW(GetFindDataInfo *Info)
+intptr_t WINAPI GetFindDataW(GetFindDataInfo* Info)
 {
-	TmpPanel *Panel=(TmpPanel *)Info->hPanel;
-	return Panel->GetFindData(&Info->PanelItem,&Info->ItemsNumber,Info->OpMode);
+	return static_cast<TmpPanel*>(Info->hPanel)->GetFindData(Info->PanelItem, Info->ItemsNumber, Info->OpMode);
 }
 
-
-void WINAPI GetPluginInfoW(PluginInfo *Info)
+void WINAPI GetPluginInfoW(PluginInfo* Info)
 {
-	Info->StructSize=sizeof(*Info);
-	Info->Flags=PF_PRELOAD;
+	Info->StructSize = sizeof(*Info);
+	Info->Flags = PF_PRELOAD;
 
 	if (Opt.AddToDisksMenu)
 	{
-		static const wchar_t *DiskMenuStrings[1];
-		DiskMenuStrings[0]=GetMsg(MDiskMenuString);
-    	Info->DiskMenu.Guids=&MenuGuid;
-    	Info->DiskMenu.Strings=DiskMenuStrings;
-    	Info->DiskMenu.Count=ARRAYSIZE(DiskMenuStrings);
+		static const wchar_t* DiskMenuStrings[1];
+		DiskMenuStrings[0] = GetMsg(MDiskMenuString);
+		Info->DiskMenu.Guids = &MenuGuid;
+		Info->DiskMenu.Strings = DiskMenuStrings;
+		Info->DiskMenu.Count = std::size(DiskMenuStrings);
 	}
 
 	if (Opt.AddToPluginsMenu)
 	{
-		static const wchar_t *PluginMenuStrings[1];
-		PluginMenuStrings[0]=GetMsg(MTempPanel);
-		Info->PluginMenu.Guids=&MenuGuid;
-		Info->PluginMenu.Strings=PluginMenuStrings;
-		Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
+		static const wchar_t* PluginMenuStrings[1];
+		PluginMenuStrings[0] = GetMsg(MTempPanel);
+		Info->PluginMenu.Guids = &MenuGuid;
+		Info->PluginMenu.Strings = PluginMenuStrings;
+		Info->PluginMenu.Count = std::size(PluginMenuStrings);
 	}
 
-	static const wchar_t *PluginCfgStrings[1];
-	PluginCfgStrings[0]=GetMsg(MTempPanel);
-	Info->PluginConfig.Guids=&MenuGuid;
-	Info->PluginConfig.Strings=PluginCfgStrings;
-	Info->PluginConfig.Count=ARRAYSIZE(PluginCfgStrings);
-	Info->CommandPrefix=Opt.Prefix;
+	static const wchar_t* PluginCfgStrings[1];
+	PluginCfgStrings[0] = GetMsg(MTempPanel);
+	Info->PluginConfig.Guids = &MenuGuid;
+	Info->PluginConfig.Strings = PluginCfgStrings;
+	Info->PluginConfig.Count = std::size(PluginCfgStrings);
+	Info->CommandPrefix = Opt.Prefix.c_str();
 }
 
-void WINAPI GetOpenPanelInfoW(OpenPanelInfo *Info)
+void WINAPI GetOpenPanelInfoW(OpenPanelInfo* Info)
 {
-	TmpPanel *Panel=(TmpPanel *)Info->hPanel;
-	Panel->GetOpenPanelInfo(Info);
+	return static_cast<TmpPanel*>(Info->hPanel)->GetOpenPanelInfo(*Info);
 }
 
-intptr_t WINAPI SetDirectoryW(const SetDirectoryInfo *Info)
+intptr_t WINAPI SetDirectoryW(const SetDirectoryInfo* Info)
 {
-	TmpPanel *Panel=(TmpPanel *)Info->hPanel;
-	return(Panel->SetDirectory(Info->Dir,Info->OpMode));
+	return static_cast<TmpPanel*>(Info->hPanel)->SetDirectory(Info->Dir, Info->OpMode);
 }
 
-intptr_t WINAPI PutFilesW(const PutFilesInfo *Info)
+intptr_t WINAPI PutFilesW(const PutFilesInfo* Info)
 {
-	TmpPanel *Panel=(TmpPanel *)Info->hPanel;
-	return Panel->PutFiles(Info->PanelItem,Info->ItemsNumber,Info->Move,Info->SrcPath,Info->OpMode);
+	return static_cast<TmpPanel*>(Info->hPanel)->PutFiles({ Info->PanelItem, Info->ItemsNumber }, Info->SrcPath, Info->OpMode);
 }
 
-intptr_t WINAPI SetFindListW(const SetFindListInfo *Info)
+intptr_t WINAPI SetFindListW(const SetFindListInfo* Info)
 {
-	TmpPanel *Panel=(TmpPanel *)Info->hPanel;
-	return(Panel->SetFindList(Info->PanelItem,Info->ItemsNumber));
+	return static_cast<TmpPanel*>(Info->hPanel)->SetFindList({ Info->PanelItem, Info->ItemsNumber });
 }
 
-
-intptr_t WINAPI ProcessPanelEventW(const ProcessPanelEventInfo *Info)
+intptr_t WINAPI ProcessPanelEventW(const ProcessPanelEventInfo* Info)
 {
-	return ((TmpPanel *)Info->hPanel)->ProcessEvent(Info->Event,Info->Param);
+	return static_cast<TmpPanel*>(Info->hPanel)->ProcessEvent(Info->Event, Info->Param);
 }
 
-intptr_t WINAPI ProcessPanelInputW(const ProcessPanelInputInfo *Info)
+intptr_t WINAPI ProcessPanelInputW(const ProcessPanelInputInfo* Info)
 {
-	return ((TmpPanel *)Info->hPanel)->ProcessKey(&Info->Rec);
+	return static_cast<TmpPanel*>(Info->hPanel)->ProcessKey(&Info->Rec);
 }
 
-intptr_t WINAPI ConfigureW(const ConfigureInfo *Info)
+intptr_t WINAPI ConfigureW(const ConfigureInfo* Info)
 {
 	return Config();
 }

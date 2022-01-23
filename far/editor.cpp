@@ -125,7 +125,7 @@ Editor::Editor(window_ptr Owner, uintptr_t Codepage, bool DialogUsed):
 	GlobalEOL(GetDefaultEOL()),
 	m_codepage(Codepage),
 	EdOpt(Global->Opt->EdOpt),
-	LastSearchCase(Global->GlobalSearchCase),
+	LastSearchCaseFold(Global->GlobalSearchCaseFold),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
 	LastSearchReverse(Global->GlobalSearchReverse),
 	LastSearchRegexp(Global->Opt->EdOpt.SearchRegexp),
@@ -218,7 +218,7 @@ void Editor::KeepInitParameters() const
 	{
 		Global->StoreSearchString(strLastSearchStr, false);
 	}
-	Global->GlobalSearchCase=LastSearchCase;
+	Global->GlobalSearchCaseFold = LastSearchCaseFold;
 	Global->GlobalSearchWholeWords=LastSearchWholeWords;
 	Global->GlobalSearchReverse=LastSearchReverse;
 	Global->Opt->EdOpt.SearchRegexp=LastSearchRegexp;
@@ -310,7 +310,7 @@ void Editor::ShowEditor()
 	DrawScrollbar();
 
 	auto LeftPos = m_it_CurLine->GetLeftPos();
-	Edit::ShowInfo info={LeftPos,CurPos};
+	const Edit::ShowInfo info{ LeftPos, CurPos };
 	auto Y = m_Where.top;
 
 	for (auto CurPtr = m_it_TopScreen; CurPtr != Lines.end() && Y <= m_Where.bottom; ++CurPtr, ++Y)
@@ -543,7 +543,7 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 		case MCODE_F_BM_GET:                   // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=1...)
 		{
 			long long Ret=-1;
-			InternalEditorBookmark ebm = {};
+			InternalEditorBookmark ebm{};
 			const auto iMode = reinterpret_cast<intptr_t>(vParam);
 
 			if (iMode >= 0 && iMode <= 3 && GetSessionBookmark(static_cast<int>(iParam - 1), &ebm))
@@ -566,9 +566,7 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 		case MCODE_F_EDITOR_SEL:
 		{
 			int iPos;
-			const auto Action = reinterpret_cast<intptr_t>(vParam);
-
-			switch (Action)
+			switch (const auto Action = reinterpret_cast<intptr_t>(vParam))
 			{
 				case 0:  // Get Param
 				{
@@ -657,7 +655,7 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 
 							if (m_it_MBlockStart != Lines.end())
 							{
-								EditorSelect eSel={sizeof(EditorSelect)};
+								EditorSelect eSel{ sizeof(eSel) };
 								eSel.BlockType=(Action == 2)?BTYPE_STREAM:BTYPE_COLUMN;
 								eSel.BlockStartPos=MBlockStartX;
 								eSel.BlockWidth=m_it_CurLine->GetCurPos()-MBlockStartX;
@@ -3294,7 +3292,7 @@ private:
 bool Editor::Search(bool Next)
 {
 	static string strLastReplaceStr;
-	bool Match,UserBreak,RefreshMe = false;
+	bool Match,UserBreak;
 	std::optional<undo_block> UndoBlock;
 
 	if (Next && strLastSearchStr.empty())
@@ -3302,7 +3300,7 @@ bool Editor::Search(bool Next)
 
 	auto strSearchStr = strLastSearchStr;
 	auto strReplaceStr = strLastReplaceStr;
-	auto Case = LastSearchCase;
+	auto SearchCaseFold = LastSearchCaseFold;
 	auto WholeWords = LastSearchWholeWords;
 	auto ReverseSearch = LastSearchReverse;
 	auto PreserveStyle = LastSearchPreserveStyle;
@@ -3364,7 +3362,7 @@ bool Editor::Search(bool Next)
 			strReplaceStr,
 			{},
 			{},
-			&Case,
+			&SearchCaseFold,
 			&WholeWords,
 			&ReverseSearch,
 			&Regexp,
@@ -3388,7 +3386,7 @@ bool Editor::Search(bool Next)
 
 	strLastSearchStr = strSearchStr;
 	strLastReplaceStr = strReplaceStr;
-	LastSearchCase=Case;
+	LastSearchCaseFold = SearchCaseFold;
 	LastSearchWholeWords=WholeWords;
 	LastSearchReverse=ReverseSearch;
 	LastSearchRegexp=Regexp;
@@ -3448,7 +3446,7 @@ bool Editor::Search(bool Next)
 			QuotedStr = strSlash;
 
 			// Q: что важнее: опция диалога или опция RegExp`а?
-			if (!re.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (Case? 0 : OP_IGNORECASE)))
+			if (!re.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (SearchCaseFold == search_case_fold::exact? 0 : OP_IGNORECASE)))
 			{
 				ReCompileErrorMessage(re, strSlash);
 				return false; //BUGBUG
@@ -3461,7 +3459,7 @@ bool Editor::Search(bool Next)
 		}
 
 		searchers Searchers;
-		const auto& Searcher = init_searcher(Searchers, Case, strLastSearchStr);
+		const auto& Searcher = init_searcher(Searchers, SearchCaseFold, strLastSearchStr);
 
 		const time_check TimeCheck;
 		std::optional<single_progress> Progress;
@@ -3486,7 +3484,7 @@ bool Editor::Search(bool Next)
 				SetCursorType(false, -1);
 				const auto Total = FindAllReferences? Lines.size() : ReverseSearch? StartLine : Lines.size() - StartLine;
 				const auto Current = std::abs(CurPtr.Number() - StartLine);
-				Progress->update(Total > 0? Current * 100 / Total : 100);
+				Progress->update(ToPercent(Current, Total));
 				taskbar::set_value(Current,Total);
 			}
 
@@ -3502,7 +3500,7 @@ bool Editor::Search(bool Next)
 				&hm,
 				strReplaceStrCurrent,
 				CurPos,
-				Case,
+				SearchCaseFold,
 				WholeWords,
 				ReverseSearch,
 				Regexp,
@@ -3586,7 +3584,7 @@ bool Editor::Search(bool Next)
 
 						if (!ReplaceAll)
 						{
-							ColorItem newcol = {};
+							ColorItem newcol{};
 							newcol.StartPos=m_FoundPos;
 							newcol.EndPos=m_FoundPos + m_FoundSize - 1;
 							newcol.SetColor(SelColor);
@@ -3643,6 +3641,8 @@ bool Editor::Search(bool Next)
 								m_it_CurLine->SetOvertypeMode(true);
 
 								int I=0;
+								auto RefreshMe = false;
+
 								for (; SearchLength && I<static_cast<int>(strReplaceStrCurrent.size()); ++I, --SearchLength)
 								{
 									const auto Ch = strReplaceStrCurrent[I];
@@ -3907,7 +3907,7 @@ void Editor::PasteFromClipboard()
 	if (m_Flags.Check(FEDITOR_LOCKMODE))
 		return;
 
-	clipboard_accessor Clip;
+	const clipboard_accessor Clip;
 
 	if (Clip->Open())
 	{
@@ -4048,7 +4048,7 @@ void Editor::ProcessChar(wchar_t Char)
 	}
 }
 
-void Editor::Copy(int Append)
+void Editor::Copy(const bool Append)
 {
 	if (IsVerticalSelection())
 	{
@@ -4056,7 +4056,7 @@ void Editor::Copy(int Append)
 		return;
 	}
 
-	clipboard_accessor Clip;
+	const clipboard_accessor Clip;
 
 	if (Clip->Open())
 	{
@@ -5009,7 +5009,7 @@ void Editor::DeleteVBlock()
 
 void Editor::VCopy(int Append)
 {
-	clipboard_accessor Clip;
+	const clipboard_accessor Clip;
 
 	if (Clip->Open())
 	{
@@ -5822,7 +5822,7 @@ bool Editor::GotoBookmark(int Pos)
 	if (static_cast<size_t>(Pos) >= m_SavePos.size())
 		return false;
 
-	auto& Bookmark = m_SavePos[Pos];
+	const auto& Bookmark = m_SavePos[Pos];
 	if (Bookmark.Line == POS_NONE)
 		return true;
 
@@ -6110,11 +6110,11 @@ size_t Editor::GetSessionBookmarksForPlugin(EditorBookmarks *Param)
 
 bool Editor::InitSessionBookmarksForPlugin(EditorBookmarks* Param, size_t Count, size_t& Size)
 {
-	Size = sizeof(EditorBookmarks) + sizeof(intptr_t) * 4 * Count;
+	Size = sizeof(*Param) + sizeof(intptr_t) * 4 * Count;
 	if (!Param || Param->Size < Size)
 		return false;
 
-	const auto data = reinterpret_cast<intptr_t*>(Param + 1);
+	const auto data = edit_as<intptr_t*>(Param + 1);
 	Param->Count=Count;
 	Param->Line=data;
 	Param->Cursor=data+Count;
@@ -6819,7 +6819,7 @@ void Editor::Change(EDITOR_CHANGETYPE Type,int StrNum)
 		return;
 	if (StrNum==-1)
 		StrNum = m_it_CurLine.Number();
-	EditorChange ec={sizeof(EditorChange),Type,StrNum};
+	EditorChange ec{ sizeof(ec), Type, StrNum };
 	++EditorControlLock;
 	Global->CtrlObject->Plugins->ProcessSubscribedEditorEvent(EE_CHANGE, &ec, this, ChangeEventSubscribers);
 	--EditorControlLock;

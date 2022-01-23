@@ -145,7 +145,7 @@ private:
 	void GetRoot();
 	panel_ptr GetRootPanel();
 	void SyncDir();
-	void SaveTreeFile();
+	void SaveTreeFile() const;
 	bool ReadTreeFile();
 	int GetNextNavPos() const;
 	int GetPrevNavPos() const;

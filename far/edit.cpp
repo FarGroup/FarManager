@@ -574,6 +574,31 @@ long long Edit::VMProcess(int OpCode, void* vParam, long long iParam)
 	return 0;
 }
 
+static void flatten_string(string& Str)
+{
+	for (auto i = Str.begin(); i != Str.end();)
+	{
+		if (!IsEol(*i))
+		{
+			++i;
+			continue;
+		}
+
+		const auto NotEol = std::find_if_not(i + 1, Str.end(), IsEol);
+
+		if (i == Str.begin() || i + 1 == Str.end() || NotEol == Str.end())
+		{
+			i = Str.erase(i, NotEol);
+			continue;
+		}
+
+		*i = L' ';
+		i = Str.erase(i + 1, NotEol);
+
+		++i;
+	}
+}
+
 bool Edit::ProcessKey(const Manager::Key& Key)
 {
 	auto LocalKey = Key();
@@ -1300,20 +1325,7 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 				ClipText.resize(MaxLength);
 			}
 
-			for (const auto& i: irange(ClipText.size()))
-			{
-				if (IsEol(ClipText[i]))
-				{
-					if (i + 1 < ClipText.size() && IsEol(ClipText[i + 1]))
-						ClipText.erase(i, 1);
-
-					if (i+1 == ClipText.size())
-						ClipText.resize(i);
-					else
-						ClipText[i] = L' ';
-				}
-			}
-
+			flatten_string(ClipText);
 			InsertString(ClipText);
 			Show();
 			return true;
@@ -2338,3 +2350,35 @@ bool Edit::is_clear_selection_key(unsigned const Key)
 
 	return contains(Keys, Key);
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("flatten_string")
+{
+	static const struct
+	{
+		string_view Src, Expected;
+	}
+	Tests[]
+	{
+		{ {},                         {} },
+		{ L"\r"sv,                    {} },
+		{ L"\n"sv,                    {} },
+		{ L"\r\n"sv,                  {} },
+		{ L"\r\r\n"sv,                {} },
+		{ L"\n1\n2\n"sv,              L"1 2"sv },
+		{ L"1\r2\n3"sv,               L"1 2 3"sv },
+		{ L"\n\n12\n\n\n34\n\n\n"sv,  L"12 34"sv },
+	};
+
+	string Buffer;
+	for (const auto& i: Tests)
+	{
+		Buffer = i.Src;
+		flatten_string(Buffer);
+		REQUIRE(i.Expected == Buffer);
+	}
+}
+#endif

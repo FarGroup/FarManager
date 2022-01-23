@@ -400,14 +400,14 @@ BOOL WINAPI apiShowHelp(const wchar_t *ModuleName, const wchar_t *HelpTopic, FAR
 		}
 		else if (ModuleName && (Flags&FHELP_GUID))
 		{
-			if (!*ModuleName || *reinterpret_cast<const UUID*>(ModuleName) == FarUuid)
+			if (!*ModuleName || view_as<UUID>(ModuleName) == FarUuid)
 			{
 				OFlags |= FHELP_FARHELP;
 				strTopic = HelpTopic + ((*HelpTopic == L':') ? 1 : 0);
 			}
 			else
 			{
-				if (const auto plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<const UUID*>(ModuleName)))
+				if (const auto plugin = Global->CtrlObject->Plugins->FindPlugin(view_as<UUID>(ModuleName)))
 				{
 					OFlags |= FHELP_CUSTOMPATH;
 					strTopic = help::make_link(ExtractFilePath(plugin->ModuleName()), HelpTopic);
@@ -481,8 +481,7 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			const auto info = static_cast<WindowType*>(Param2);
 			if (CheckStructSize(info))
 			{
-				const auto type = WindowTypeToPluginWindowType(Manager::GetCurrentWindowType());
-				switch(type)
+				switch(const auto type = WindowTypeToPluginWindowType(Manager::GetCurrentWindowType()))
 				{
 				case WTYPE_DESKTOP:
 				case WTYPE_PANELS:
@@ -889,7 +888,7 @@ intptr_t WINAPI apiMenuFn(
 				}
 				else
 				{
-					INPUT_RECORD input = {};
+					INPUT_RECORD input{};
 					FarKeyToInputRecord(i.AccelKey,&input);
 					CurItem.AccelKey=InputRecordToKey(&input);
 				}
@@ -1249,7 +1248,7 @@ intptr_t WINAPI apiMessageFn(const UUID* PluginId, const UUID* Id, unsigned long
 		if (Flags & FMSG_ALLINONE)
 		{
 			std::vector<string> Strings;
-			for (const auto& i: enum_tokens(reinterpret_cast<const wchar_t*>(Items), L"\n"sv))
+			for (const auto& i: enum_tokens(view_as<const wchar_t*>(Items), L"\n"sv))
 			{
 				Strings.emplace_back(i);
 			}
@@ -1575,7 +1574,7 @@ namespace magic
 	template<typename T>
 	static auto CastRawDataToVector(span<T> const RawItems)
 	{
-		auto Items = reinterpret_cast<std::vector<T>*>(RawItems.data()[RawItems.size()].Reserved[0]);
+		const auto Items = edit_as<std::vector<T>*>(RawItems.data()[RawItems.size()].Reserved[0]);
 		Items->pop_back(); // not needed anymore
 		return std::unique_ptr<std::vector<T>>(Items);
 	}
@@ -1862,7 +1861,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 		}
 
 		auto ExitCode = EEC_OPEN_ERROR;
-		string strTitle(NullToEmpty(Title));
+		const string strTitle = NullToEmpty(Title);
 
 		if (Flags & EF_NONMODAL)
 		{
@@ -1942,10 +1941,8 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 				{ static_cast<int>(X1), static_cast<int>(Y1), static_cast<int>(X2), static_cast<int>(Y2) },
 				DeleteOnClose, nullptr, OpMode);
 
-			const auto editorExitCode = Editor->GetExitCode();
-
 			// выполним предпроверку (ошибки разные могут быть)
-			switch (editorExitCode)
+			switch (const auto editorExitCode = Editor->GetExitCode())
 			{
 				case XC_OPEN_ERROR:
 					return EEC_OPEN_ERROR;
@@ -2606,7 +2603,7 @@ intptr_t WINAPI apiMacroControl(const UUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 				const auto ErrCode = Macro.GetMacroParseError(ErrPos, ErrSrc);
 
-				auto Size = static_cast<int>(aligned_sizeof<MacroParseResult>());
+				auto Size = static_cast<int>(aligned_sizeof<MacroParseResult, alignof(wchar_t)>);
 				const size_t stringOffset = Size;
 				Size += static_cast<int>((ErrSrc.size() + 1)*sizeof(wchar_t));
 
@@ -2617,7 +2614,8 @@ intptr_t WINAPI apiMacroControl(const UUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 					Result->StructSize = sizeof(MacroParseResult);
 					Result->ErrCode = ErrCode;
 					Result->ErrPos = { static_cast<short>(ErrPos.x), static_cast<short>(ErrPos.y) };
-					Result->ErrSrc = reinterpret_cast<const wchar_t*>(static_cast<char*>(Param2) + stringOffset);
+					Result->ErrSrc = view_as<const wchar_t*>(Param2, stringOffset);
+					assert(is_aligned(*Result->ErrSrc));
 					*copy_string(ErrSrc, const_cast<wchar_t*>(Result->ErrSrc)) = {};
 				}
 
@@ -2687,7 +2685,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 		case PCTL_GETPLUGININFORMATION:
 			{
 				const auto Info = static_cast<FarGetPluginInformation*>(Param2);
-				if (Handle && (!Info || (CheckStructSize(Info) && static_cast<size_t>(Param1) > sizeof(FarGetPluginInformation))))
+				if (Handle && (!Info || (CheckStructSize(Info) && static_cast<size_t>(Param1) > sizeof(*Info))))
 				{
 					return Global->CtrlObject->Plugins->GetPluginInformation(static_cast<Plugin*>(Handle), Info, Param1);
 				}
@@ -2911,7 +2909,7 @@ size_t WINAPI apiGetCurrentDirectory(size_t Size, wchar_t* Buffer) noexcept
 	return cpp_try(
 	[&]
 	{
-		const auto strCurDir = os::fs::GetCurrentDirectory();
+		const auto strCurDir = os::fs::get_current_directory();
 
 		if (Buffer && Size)
 		{
@@ -3022,9 +3020,8 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 		// 0xFFFFFFFFFF000000 - flags
 
 		const PROCESSNAME_FLAGS Flags = flags&0xFFFFFFFFFF000000;
-		const PROCESSNAME_FLAGS Mode = flags&0xFF0000;
 
-		switch(Mode)
+		switch(const PROCESSNAME_FLAGS Mode = flags & 0xFF0000)
 		{
 		case PN_CMPNAME:
 			return CmpName(param1, param2, (Flags&PN_SKIPPATH)!=0);

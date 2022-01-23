@@ -92,6 +92,7 @@ mf.usermenu = function(mode, filename)
 end
 
 mf.GetMacroCopy = utils.GetMacroCopy
+mf.EnumScripts = utils.EnumScripts
 --------------------------------------------------------------------------------
 
 Object = {

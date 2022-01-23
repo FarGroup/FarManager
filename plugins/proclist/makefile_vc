@@ -14,7 +14,7 @@ LINK_OBJS = \
 	$(INTDIR)\Proclist.obj
 
 !include ..\makefile_vc_def_inc
-CPPFLAGS = $(CPPFLAGS) -D"_WIN32_DCOM" -I"$(FARDIR)/common" -I"$(FARDIR)/thirdparty/fmt"
+CPPFLAGS = -I"$(FARDIR)/common" -I"$(FARDIR)/thirdparty/fmt" $(CPPFLAGS) -D"_WIN32_DCOM"
 
 !include ..\makefile_vc_target_inc
 

@@ -429,6 +429,9 @@ namespace os
 		void set_thread_name(const wchar_t* Name);
 		std::vector<uintptr_t> current_stack(size_t FramesToSkip = 0, size_t FramesToCapture = std::numeric_limits<size_t>::max());
 	}
+
+	HKL make_hkl(uint32_t Layout);
+	HKL make_hkl(string_view LayoutStr);
 }
 
 #endif // PLATFORM_HPP_632CB91D_08A9_4793_8FC7_2E38C30CE234

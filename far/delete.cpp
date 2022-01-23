@@ -162,7 +162,7 @@ public:
 		if (Files.Total)
 		{
 			const auto Percent = ToPercent(Files.Value, Files.Total);
-			const auto Title = reinterpret_cast<const wchar_t*>(m_Dialog->SendMessage(DM_GETCONSTTEXTPTR, items::pr_doublebox, {}));
+			const auto Title = view_as<const wchar_t*>(m_Dialog->SendMessage(DM_GETCONSTTEXTPTR, items::pr_doublebox, {}));
 			m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_console_title, UNSAFE_CSTR(concat(L'{', str(Percent), L"%} "sv, Title)));
 			m_Dialog->SendMessage(DM_SETTEXTPTR, items::pr_total_progress, UNSAFE_CSTR(make_progressbar(DlgW - 10, Percent, true, true)));
 		}
@@ -465,7 +465,7 @@ static total_items calculate_total(panel_ptr const SrcPanel)
 
 		if (i.Attributes & FILE_ATTRIBUTE_DIRECTORY && !os::fs::is_directory_symbolic_link(i))
 		{
-			DirInfoData Data = {};
+			DirInfoData Data{};
 
 			if (GetDirInfo(i.FileName, Data, nullptr, DirInfoCallback, 0) <= 0)
 				return {};
@@ -684,15 +684,14 @@ void ShellDelete::process_item(
 	}
 
 	bool RetryRecycleAsRemove = false;
-	const auto Removed = ERemoveDirectory(
+
+	if (ERemoveDirectory(
 		strSelName,
 		m_DeleteType == delete_type::recycle && DirSymLink && !IsWindowsVistaOrGreater()?
-			delete_type::remove :
-			m_DeleteType,
+		delete_type::remove :
+		m_DeleteType,
 		RetryRecycleAsRemove
-	);
-
-	if (Removed)
+	))
 	{
 		TreeList::DelTreeName(strSelName);
 
@@ -706,7 +705,6 @@ void ShellDelete::process_item(
 		process_item(SrcPanel, SelFindData, Total, Progress, TimeCheck, true);
 		m_DeleteType = delete_type::recycle;
 	}
-
 }
 
 ShellDelete::ShellDelete(panel_ptr SrcPanel, delete_type const Type):
@@ -989,7 +987,7 @@ bool ShellDelete::RemoveToRecycleBin(string_view const Name, bool dir, bool& Ret
 
 	const auto ErrorState = last_error();
 
-	const auto MsgCode = Message(MSG_WARNING, ErrorState,
+	switch (Message(MSG_WARNING, ErrorState,
 		msg(lng::MError),
 		{
 			msg(dir? lng::MCannotRecycleFolder : lng::MCannotRecycleFile),
@@ -997,9 +995,7 @@ bool ShellDelete::RemoveToRecycleBin(string_view const Name, bool dir, bool& Ret
 			msg(lng::MTryToDeletePermanently)
 		},
 		{ lng::MDeleteFileDelete, lng::MDeleteSkip, lng::MDeleteSkipAll, lng::MDeleteCancel },
-		{}, dir? &CannotRecycleFolderId : &CannotRecycleFileId);
-
-	switch (MsgCode)
+		{}, dir? &CannotRecycleFolderId : &CannotRecycleFileId))
 	{
 	case message_result::first_button:     // {Delete}
 		RetryRecycleAsRemove = true;

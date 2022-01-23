@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
+#include "common/algorithm.hpp"
 #include "common/string_utils.hpp"
 
 // External:
@@ -87,7 +88,7 @@ public:
 	std::unique_ptr<os::fs::enum_files> Find;
 	os::fs::enum_files::iterator Iterator;
 	string RealPath;
-	std::unordered_set<string> ActiveDirectories;
+	unordered_string_set ActiveDirectories;
 };
 
 ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction, bool FilesFirst)
@@ -231,7 +232,7 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 				RealPath = NTPath(ConvertNameToReal(RealPath));
 
 			//recursive symlinks guard
-			if (!ScanItems.back().ActiveDirectories.count(RealPath))
+			if (!contains(ScanItems.back().ActiveDirectories, RealPath))
 			{
 				CutToSlash(strFindPath);
 				path::append(strFindPath, fdata.FileName, strFindMask);

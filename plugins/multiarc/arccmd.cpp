@@ -53,10 +53,11 @@ int ArcCommand::ProcessCommand(char *Command,int CommandType,int IgnoreErrors,
 {
   MaxAllowedExitCode=0;
   DeleteBraces(Command);
+  const auto CommandLength = lstrlen(Command);
 
   for (char *CurPtr=Command;*CurPtr;)
   {
-    int Length=lstrlen(Command);
+    int Length = CommandLength;
     switch(ReplaceVar(CurPtr,Length))
     {
       case 1:
@@ -348,8 +349,8 @@ int ArcCommand::ReplaceVar(char *Command,int &Length)
       {
         char CurArcDir[NM];
         lstrcpy(CurArcDir,ArcDir);
-        int Length=lstrlen(CurArcDir);
-        if (Length>0 && CurArcDir[Length-1]!='\\')
+        const auto CurArcDirLength = lstrlen(CurArcDir);
+        if (CurArcDirLength > 0 && CurArcDir[CurArcDirLength - 1] != '\\')
           lstrcat(CurArcDir,"\\");
 
         char Names[MAX_COMMAND_LENGTH];

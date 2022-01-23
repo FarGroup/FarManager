@@ -77,11 +77,11 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 				case DBT_DEVICEARRIVAL:
 				case DBT_DEVICEREMOVECOMPLETE:
 					{
-						const auto& BroadcastHeader = *reinterpret_cast<const DEV_BROADCAST_HDR*>(lParam);
+						const auto& BroadcastHeader = *view_as<const DEV_BROADCAST_HDR*>(lParam);
 						if (BroadcastHeader.dbch_devicetype == DBT_DEVTYP_VOLUME)
 						{
 							LOGINFO(L"WM_DEVICECHANGE(DBT_DEVTYP_VOLUME)"sv);
-							const auto& BroadcastVolume = *reinterpret_cast<const DEV_BROADCAST_VOLUME*>(&BroadcastHeader);
+							const auto& BroadcastVolume = *view_as<const DEV_BROADCAST_VOLUME*>(&BroadcastHeader);
 							message_manager::instance().notify(update_devices, update_devices_message
 							{
 								BroadcastVolume.dbcv_unitmask,
@@ -98,7 +98,7 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 		case WM_SETTINGCHANGE:
 			if (lParam)
 			{
-				const auto Area = reinterpret_cast<const wchar_t*>(lParam);
+				const auto Area = view_as<const wchar_t*>(lParam);
 
 				if (Area == L"Environment"sv)
 				{
@@ -170,7 +170,7 @@ void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 {
 	os::debug::set_thread_name(L"Window messages processor");
 
-	WNDCLASSEX wc={sizeof(wc)};
+	WNDCLASSEX wc{ sizeof(wc) };
 	wc.lpfnWndProc = WndProc;
 	wc.lpszClassName = L"FarHiddenWindowClass";
 	UnregisterClass(wc.lpszClassName, nullptr);

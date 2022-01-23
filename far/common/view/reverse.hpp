@@ -34,6 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../keep_alive.hpp"
 
+#include <iterator>
+
 //----------------------------------------------------------------------------
 
 template<typename container, typename container_ref>
@@ -57,7 +59,7 @@ public:
 	[[nodiscard]] auto rend()    const { return std::end(m_Container); }
 	[[nodiscard]] auto crbegin() const { return std::cbegin(m_Container); }
 	[[nodiscard]] auto crend()   const { return std::cend(m_Container); }
-	
+
 private:
 	container m_Container;
 };

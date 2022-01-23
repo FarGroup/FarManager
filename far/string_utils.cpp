@@ -175,29 +175,29 @@ string lower(string_view const Str)
 	return lower(string(Str));
 }
 
-size_t hash_icase_t::operator()(wchar_t const Char) const
+size_t string_comparer_icase::operator()(wchar_t const Char) const
 {
 	return make_hash(upper(Char));
 }
 
-size_t hash_icase_t::operator()(string_view const Str) const
+size_t string_comparer_icase::operator()(string_view const Str) const
 {
 	return make_hash(upper(Str));
 }
 
-bool equal_icase_t::operator()(wchar_t Chr1, wchar_t Chr2) const
+bool string_comparer_icase::operator()(wchar_t Chr1, wchar_t Chr2) const
 {
 	return Chr1 == Chr2 || upper(Chr1) == upper(Chr2);
 }
 
-bool equal_icase_t::operator()(const string_view Str1, const string_view Str2) const
+bool string_comparer_icase::operator()(const string_view Str1, const string_view Str2) const
 {
 	return equal_icase(Str1, Str2);
 }
 
 bool equal_icase(const string_view Str1, const string_view Str2)
 {
-	return Str1 == Str2 || std::equal(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), equal_icase_t{});
+	return Str1 == Str2 || std::equal(ALL_CONST_RANGE(Str1), ALL_CONST_RANGE(Str2), string_comparer_icase{});
 }
 
 bool starts_with_icase(const string_view Str, const string_view Prefix)
@@ -215,7 +215,7 @@ size_t find_icase(string_view const Str, string_view const What, size_t Pos)
 	if (Pos >= Str.size())
 		return Str.npos;
 
-	const auto It = std::search(Str.cbegin() + Pos, Str.cend(), ALL_CONST_RANGE(What), equal_icase_t{});
+	const auto It = std::search(Str.cbegin() + Pos, Str.cend(), ALL_CONST_RANGE(What), string_comparer_icase{});
 	return It == Str.cend()? Str.npos : It - Str.cbegin();
 }
 
@@ -224,7 +224,7 @@ size_t find_icase(string_view const Str, wchar_t const What, size_t Pos)
 	if (Pos >= Str.size())
 		return Str.npos;
 
-	const auto It = std::find_if(Str.cbegin() + Pos, Str.cend(), [&](wchar_t const Char) { return equal_icase_t{}(What, Char); });
+	const auto It = std::find_if(Str.cbegin() + Pos, Str.cend(), [&](wchar_t const Char) { return string_comparer_icase{}(What, Char); });
 	return It == Str.cend() ? Str.npos : It - Str.cbegin();
 }
 
@@ -239,11 +239,11 @@ bool contains_icase(const string_view Str, wchar_t const What)
 }
 
 exact_searcher::exact_searcher(string_view const Needle, bool const CanReverse):
-	m_Searcher(ALL_CONST_RANGE(Needle)),
-	m_NeedleSize(Needle.size())
+	m_Needle(Needle),
+	m_Searcher(ALL_CONST_RANGE(m_Needle))
 {
 	if (CanReverse)
-		m_ReverseSearcher.emplace(ALL_CONST_REVERSE_RANGE(Needle));
+		m_ReverseSearcher.emplace(ALL_CONST_REVERSE_RANGE(m_Needle));
 }
 
 std::optional<std::pair<size_t, size_t>> exact_searcher::find_in(string_view const Haystack, bool const Reverse) const
@@ -256,19 +256,27 @@ std::optional<std::pair<size_t, size_t>> exact_searcher::find_in(string_view con
 		if (!Offset)
 			return {};
 
-		return { { Offset - m_NeedleSize, m_NeedleSize } };
+		return { { Offset - m_Needle.size(), m_Needle.size() } };
 	}
 
 	const auto Iterator = std::search(ALL_CONST_RANGE(Haystack), m_Searcher);
 	if (Iterator == Haystack.cend())
 		return {};
 
-	return { { Iterator - Haystack.cbegin(), m_NeedleSize } };
+	return { { Iterator - Haystack.cbegin(), m_Needle.size() } };
 }
 
-bool exact_searcher::contains_in(string_view const Haystack) const
+icase_searcher::icase_searcher(string_view const Needle, bool const CanReverse):
+	m_Searcher(upper(Needle), CanReverse)
 {
-	return find_in(Haystack).has_value();
+}
+
+std::optional<std::pair<size_t, size_t>> icase_searcher::find_in(string_view const Haystack, bool const Reverse) const
+{
+	// Reuse capacity
+	m_HayStack = Haystack;
+	inplace::upper(m_HayStack);
+	return m_Searcher.find_in(m_HayStack, Reverse);
 }
 
 static void normalize_for_search(string_view const Str, string& Result, string& Intermediate, std::vector<WORD>& Types)
@@ -311,8 +319,15 @@ static void normalize_for_search(string_view const Str, string& Result, string& 
 	Result.resize(End - Zip.begin());
 }
 
+static string normalize_for_search(string_view const Str, string& Intermediate, std::vector<WORD>& Types)
+{
+	string Result;
+	normalize_for_search(Str, Result, Intermediate, Types);
+	return Result;
+}
+
 fuzzy_searcher::fuzzy_searcher(string_view const Needle, bool const CanReverse):
-	m_Searcher(((void)normalize_for_search(Needle, m_Needle, m_Intermediate, m_Types), (void)inplace::upper(m_Needle), m_Needle), CanReverse)
+	m_Searcher(normalize_for_search(Needle, m_Intermediate, m_Types), CanReverse)
 {
 }
 
@@ -341,15 +356,9 @@ std::optional<std::pair<size_t, size_t>> fuzzy_searcher::find_in(string_view con
 	return Result;
 }
 
-bool fuzzy_searcher::contains_in(string_view Haystack) const
-{
-	return find_in_uncorrected(Haystack).has_value();
-}
-
 std::optional<std::pair<size_t, size_t>> fuzzy_searcher::find_in_uncorrected(string_view Haystack, bool Reverse) const
 {
 	normalize_for_search(Haystack, m_HayStack, m_Intermediate, m_Types);
-	inplace::upper(m_HayStack);
 	return m_Searcher.find_in(m_HayStack, Reverse);
 }
 
@@ -420,14 +429,27 @@ TEST_CASE("string.utils")
 	}
 }
 
-TEST_CASE("string.utils.hash")
+TEST_CASE("string.utils.hash_icase")
 {
-	const hash_icase_t hash;
+	const string_comparer_icase hash;
 	REQUIRE(hash(L'A') == hash(L'a'));
 	REQUIRE(hash(L'A') != hash(L'B'));
 	REQUIRE(hash(L"fooBAR"sv) == hash(L"FOObar"sv));
 	REQUIRE(hash(L"fooBAR"sv) != hash(L"Banana"sv));
 }
+
+#ifdef __cpp_lib_generic_unordered_lookup
+TEST_CASE("string_utils.generic_lookup_icase")
+{
+	const unordered_string_map_icase<int> Map
+	{
+		{ L"ABC"s, 123 },
+	};
+
+	REQUIRE(Map.find(L"AbC"sv) != Map.cend());
+	REQUIRE(Map.find(L"aBc") != Map.cend());
+}
+#endif
 
 TEST_CASE("string.utils.icase")
 {

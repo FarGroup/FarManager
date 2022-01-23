@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "taskbar.hpp"
 #include "wakeful.hpp"
 #include "datetime.hpp"
-#include "windowsfwd.hpp"
 #include "stddlg.hpp"
 
 // Platform:
@@ -59,7 +58,7 @@ public:
 
 	// These functions shall not draw anything directly,
 	// only update internal variables and call Flush().
-	void SetNames(const string& Src, const string& Dst);
+	void SetNames(string_view Src, string_view Dst);
 	void reset_current();
 	void set_current_total(unsigned long long Value);
 	void set_current_copied(unsigned long long Value);
@@ -108,7 +107,6 @@ private:
 	string m_FilesCopied;
 	std::chrono::steady_clock::duration m_CalcTime{};
 
-private:
 	struct
 	{
 		size_t Copied{};

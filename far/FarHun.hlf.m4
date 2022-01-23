@@ -476,7 +476,46 @@ aktív panelre fog vonatkozni. A következő rendezési módok használhatók:
  Rendezési csoport használata                             #Shift+F11#
  A kijelölt fájlok előre kerülnek                         #Shift+F12#
 
+ You can ~fine-tune~@PanelSortCriteria@ sort modes by pressing #F4#.
+
  See also: common ~menu~@MenuCmd@ keyboard commands.
+
+
+@PanelSortCriteria
+$ #Sort criteria#
+ When files are considered equivalent using the selected sort mode, additional sort criteria are taken into account.
+ For example, if files are sorted by size and both "a.txt" and "b.txt" have the same size, "a.txt" will come first, as if they were sorted by name.
+ In this menu you can adjust the set of criteria associated with the selected sort mode.
+
+ #Ins#
+ Add a criterion to the set.
+
+ #Del#
+ Remove the selected criterion.
+
+ #F4#
+ Replace the selected criterion.
+
+ #+#
+ Use ascending order.
+
+ #-#
+ Use descending order.
+
+ #*#
+ Change the order.
+
+ #=#
+ Inherit the order from the corresponding sort mode.
+
+ #Ctrl+Up#
+ Move the criterion up.
+
+ #Ctrl+Down#
+ Move the criterion down.
+
+ #Ctrl+R#
+ Reset the set of criteria to detault.
 
 
 @FastFind
@@ -2420,12 +2459,6 @@ megnyitott fájlok másolására, de veszélyessé is válhat, ha a fájl a más
  Ha ez az opció be van kapcsolva, akkor a mappák fastruktúrájának feltérképezése
 során a normál mappák mérete, valamint a ~szimbolikus linkjeik~@HardSymLink@
 mérete együttesen fogják meghatározni a mappákban található fájlok méretének összegét.
-
- #Update panels only when Far is active#
- If enabled, file panels will be monitored only when Far is active, i.e. panels will not be updated until Far window is focused.
-This allows to avoid blocking the directories opened on panels.
-However, sometimes the update is not triggered after receiving focus,
-so this option is disabled by default and directories are always monitored.
 
  #Parancs előzmények mentése#
  A Far kilépés előtt elmenti, indításnál visszatölti a ~parancs előzményeket~@History@.
@@ -4906,7 +4939,7 @@ $ #Regular expressions#
 
  #Options#:
  #i# - ignore character case;
- #s# - ^<wrap>consider the whole text as one line, ‘.’ matches any character;
+ #s# - ^<wrap>consider the whole text as one line, ‘#.#’ matches any character;
  #m# - ^<wrap>consider the whole text as multiple lines. ‘#^#’ and ‘#$#’ match the
 beginning and the end of any "inner" string;
  #x# - ^<wrap>ignore space characters (unescaped ones, i.e. without backslash before).

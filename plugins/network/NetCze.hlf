@@ -47,28 +47,35 @@ $ #Konfigurace síťového prohlížeče#
  #Přidat do menu pluginů#
  Zapíná přidání položky "síť" do menu pluginů.
 
- #Выводить ".." в списке провайдеров#
- Показывать ".." на панели в списке провайдеров.
+ #Show ".." in the providers list#
+ Show ".." on the panel in the list of providers. Selecting ".." will switch to the current working directory.
 
  #Zobrazovat lokáln síťí#
  Pokud je toto nastavení aktivováno, síťový prohlížeč při prvním spuštěná zobrazí
 síťové sousedy aktuálního počítače (počítače ve stejné doméně, nebo pracovní skupině).
 Toto nastavení pracuje pouze na sítích Microsoft Windows.
 
- #Показывать принтеры#
- Показывать предоставляемые хостом общие принтеры.
+ #Show printers#
+ Show shared printers.
 
- #Показывать полные пути к общим ресурсам#
- ...
+ #Scan network#
+ If this option is disabled, the plugin does not scan the network in search of devices.
+
+ #Show full share name#
+ When the option is enabled, \\Server1 and \\Server1\Share1 are displayed, when disabled - Server1 and Share1
 
  #Zobrazovat skrytá sdílení#
  Pokud je toto nastavení aktivováno, budou v pluginu zobrazeny skrytá (administrativní) sdílení.
 
- #Показывать скрытые ресурсы атрибутом Hidden#
- Если включена эта опция, плагин для скрытых административных ресурсов ставит атрибут Hidden.
+- #Never show#
+   Don't show hidden shares.
+ - #Show as hidden#
+   Hidden shares are displayed in the panel with the attribute 'Hidden'.
+ - #Always show#
+   Hidden shares appear in the panel as normal.
 
- #Возврат в Избранное, если ресурс в избранном#
- ...
+ #Browse up to favorites if possible#
+ If the computer you are viewing has been added to favorites, then when you go up level "..", Favorites will open.
 
 
 @DisconnectDrive

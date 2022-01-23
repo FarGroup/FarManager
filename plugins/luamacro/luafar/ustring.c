@@ -786,7 +786,27 @@ static int ustring_OutputDebugString(lua_State *L)
 static int ustring_system(lua_State *L)
 {
 	const wchar_t *str = opt_utf8_string(L, 1, NULL);
+
+	const HANDLE
+		InputHandle = GetStdHandle(STD_INPUT_HANDLE),
+		OutputHandle = GetStdHandle(STD_INPUT_HANDLE);
+
+	DWORD
+		InputMode = 0,
+		OutputMode = 0;
+
+	const BOOL
+		InputmodeRead = GetConsoleMode(InputHandle, &InputMode),
+		OutputModeRead = GetConsoleMode(OutputHandle, &OutputMode);
+
 	lua_pushinteger(L, _wsystem(str));
+
+	if (InputmodeRead)
+		SetConsoleMode(InputHandle, InputMode);
+
+	if (OutputModeRead)
+		SetConsoleMode(OutputHandle, OutputMode);
+
 	return 1;
 }
 

@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/algorithm.hpp"
 #include "common/function_ref.hpp"
 #include "common/movable.hpp"
 #include "common/string_utils.hpp"
@@ -850,7 +851,7 @@ bool RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 	code[0].op=opOpenBracket;
 	code[0].bracket.index = 0;
 	MatchHash h;
-	RegExpMatch m = {};
+	RegExpMatch m{};
 	int pos=1;
 	brackets[0]=code.data();
 #ifdef RE_DEBUG
@@ -939,7 +940,7 @@ bool RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 						const auto Name = new wchar_t[len + 1];
 						std::memcpy(Name, src + i, len*sizeof(wchar_t));
 						Name[len] = 0;
-						if (!h.Matches.count(Name))
+						if (!contains(h.Matches, Name))
 						{
 							delete[] Name;
 							return SetError(errReferenceToUndefinedNamedBracket, i + (src - start));
@@ -1744,7 +1745,7 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 	if (bracketscount<matchcount)matchcount=bracketscount;
 
-	static const RegExpMatch def_match = { -1, -1 };
+	static const RegExpMatch def_match{ -1, -1 };
 	std::fill_n(match, matchcount, def_match);
 
 	for(const auto* op = code.data(), *end = op + code.size(); op != end; ++op)
@@ -2021,7 +2022,7 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				{
 					if (hmatch)
 					{
-						if (!hmatch->Matches.count(op->nbracket.name))
+						if (!contains(hmatch->Matches, op->nbracket.name))
 						{
 							RegExpMatch sm;
 							sm.start = -1;
@@ -2384,7 +2385,8 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 					}
 					else
 					{
-						if (!hmatch || !hmatch->Matches.count(op->refname))break;
+						if (!hmatch || !contains(hmatch->Matches, op->refname))
+							break;
 						m = &hmatch->Matches[op->refname];
 					}
 
@@ -3869,7 +3871,7 @@ TEST_CASE("regex")
 		RegExp re;
 		REQUIRE(re.Compile(L"/a*?ca/"sv));
 
-		RegExpMatch m = { -1, -1 };
+		RegExpMatch m{ -1, -1 };
 		intptr_t n = 1;
 		REQUIRE(re.Search(L"abca", &m, n));
 		REQUIRE(n == 1);
@@ -3881,7 +3883,7 @@ TEST_CASE("regex")
 		RegExp re;
 		REQUIRE(re.Compile(L"/^\\[([\\w.]+)\\]:\\s*\\[(.*)\\]$/"sv, OP_PERLSTYLE));
 
-		RegExpMatch m = { -1, -1 };
+		RegExpMatch m{ -1, -1 };
 		intptr_t n = 1;
 		REQUIRE(re.Search(L"[init.svc.imsdatadaemon]: [running]", &m, n));
 		REQUIRE(n == 1);

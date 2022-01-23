@@ -327,12 +327,13 @@ void UserMenu::SaveMenu(string_view const MenuFileName) const
 		}
 
 		// Encoding could fail, so we need to prepare the data before touching the file
-		encoding::memory_writer Writer(m_MenuCP);
+		std::stringstream StrStream;
+		encoding::writer Writer(StrStream, m_MenuCP);
 		Writer.write(SerialisedMenu);
 
 		save_file_with_replace(MenuFileName, FileAttr, 0, false, [&](std::ostream& Stream)
 		{
-			Writer.flush_to(Stream);
+			Stream << StrStream.rdbuf();
 		});
 	}
 	catch (const far_exception& e)
@@ -398,7 +399,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, string_view const MenuFileNa
 		{
 			try
 			{
-				if (const auto MenuFile = os::fs::file(strMenuFileFullPath, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+				if (const auto MenuFile = os::fs::file(strMenuFileFullPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 					DeserializeMenu(m_Menu, MenuFile, m_MenuCP);
 			}
 			catch (std::exception const& e)
@@ -575,8 +576,6 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		const auto& strShortName = Names[1];
 		const subst_context Context(strName, strShortName);
 
-		/* $ 24.07.2000 VVM + При показе главного меню в заголовок добавляет тип - FAR/Registry */
-
 		const auto UserMenu = VMenu2::create(Title, {}, ScrY - 4);
 		UserMenu->SetMenuFlags(VMENU_WRAPMODE | VMENU_NOMERGEBORDER);
 		UserMenu->SetHelp(L"UserMenu"sv);
@@ -705,7 +704,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						if (!ShellEditor->IsFileChanged())
 							break;
 					}
-					if (const auto MenuFile = os::fs::file(MenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING))
+					if (const auto MenuFile = os::fs::file(MenuFileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 					{
 						MenuRoot.clear();
 						try
@@ -901,8 +900,8 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 			if (Param1==EM_BUTTON_OK)
 			{
 				bool Result = true;
-				const string_view HotKey = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_HOTKEY_EDIT, nullptr));
-				const string_view Label = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_LABEL_EDIT, nullptr));
+				const string_view HotKey = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_HOTKEY_EDIT, nullptr));
+				const string_view Label = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, EM_LABEL_EDIT, nullptr));
 				int FocusPos=-1;
 
 				if (HotKey != L"--"sv)

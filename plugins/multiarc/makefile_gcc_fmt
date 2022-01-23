@@ -12,12 +12,13 @@ USERCPP = -I ./libpcre
 USERLIBS = -L $(OBJDIR) -lPCRE
 
 include ../makefile_gcc_def_inc
-include ../makefile_gcc_target_inc
 
 ifeq ($(FMT),custom)
 DOCS = custom.ini
 else
 DOCS = $(DEVNULL)
 endif
+
+include ../makefile_gcc_target_inc
 
 $(RES): multiarcversion.hpp

@@ -614,7 +614,7 @@ void DialogBuilder::LinkFlags(DialogItemEx& Parent, DialogItemEx& Target, FARDIA
 
 	if (LinkLabels)
 	{
-		auto& Binding = FindBinding(Target);
+		const auto& Binding = FindBinding(Target);
 		if (Binding.BeforeLabelID != -1)
 			LinkFlagsByID(Parent, m_DialogItems[Binding.BeforeLabelID], Flags);
 		if (Binding.AfterLabelID != -1)
@@ -859,7 +859,7 @@ void DialogBuilder::UpdateBorderSize()
 	m_Indent = 0;
 }
 
-intptr_t DialogBuilder::MaxTextWidth()
+intptr_t DialogBuilder::MaxTextWidth() const
 {
 	intptr_t MaxWidth = 0;
 	for (const auto& i : irange(size_t{ 1 }, m_DialogItems.size()))
@@ -980,7 +980,7 @@ DialogItemEx& DialogBuilder::AddListControlImpl(FARDIALOGITEMTYPES Type, value_t
 
 	std::transform(ALL_CONST_RANGE(Items), std::back_inserter(ListItems), [&Value](const DialogBuilderListItem& i)
 	{
-		FarListItem NewItem = {};
+		FarListItem NewItem{};
 		NewItem.Text = i.str().c_str();
 		NewItem.Flags = (Value == i.value()? LIF_SELECTED : 0) | i.flags();
 		NewItem.UserData = i.value();

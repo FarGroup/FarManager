@@ -153,11 +153,11 @@ typedef union {
   LZH_Level2 l2;
 } LZH_Header;
 
-BOOL CheckLZHHeader(LZH_Level0 *lzh)
+static BOOL CheckLZHHeader(const LZH_Level0 *lzh)
 {
   return lzh->HeadID[0]=='-' && lzh->HeadID[1]=='l' && (lzh->HeadID[2]=='h' || lzh->HeadID[2]=='z') &&
         ((lzh->Method>='0' && lzh->Method<='9') || lzh->Method=='d' || lzh->Method=='s') &&
-        lzh->free1 == '-' && lzh->FLevel >= 0 && lzh->FLevel <= 2;
+        lzh->free1 == '-' && lzh->FLevel <= 2;
 }
 
 
@@ -273,7 +273,8 @@ int WINAPI _export GetArcItem(PluginPanelItem *Item, ArcItemInfo *Info)
     WORD NextHeaderSize;
     BYTE ExtType;//, FileNameSize;
 
-    do {
+	for (;;)
+	{
       ReadFile(ArcHandle,&NextHeaderSize,2,&ReadSize,NULL); // Next Header Size
       if(!NextHeaderSize)
         break;
@@ -369,7 +370,7 @@ int WINAPI _export GetArcItem(PluginPanelItem *Item, ArcItemInfo *Info)
         default:
           SetFilePointer(ArcHandle,NextHeaderSize-3,NULL,FILE_CURRENT);
       }
-    } while(NextHeaderSize != 0);
+    }
   }
 
   Item->CRC32=(DWORD)CRC16;

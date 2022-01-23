@@ -96,7 +96,7 @@ void EjectVolume(string_view const Path)
 		throw MAKE_FAR_EXCEPTION(L"Cannot open the disk"sv);
 	};
 
-	if (!OpenForWrite(DeviceName, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+	if (!OpenForWrite(DeviceName, os::fs::file_share_all, nullptr, OPEN_EXISTING))
 		ReadOnly = true;
 
 	if (!File.IoControl(FSCTL_LOCK_VOLUME, nullptr, 0, nullptr, 0))
@@ -139,7 +139,7 @@ void EjectVolume(string_view const Path)
 
 void LoadVolume(string_view const Path)
 {
-	const os::fs::file File(extract_root_device(Path), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+	const os::fs::file File(extract_root_device(Path), GENERIC_READ, os::fs::file_share_all, nullptr, OPEN_EXISTING);
 	if (!File)
 		throw MAKE_FAR_EXCEPTION(L"Cannot open the disk"sv);
 
@@ -149,7 +149,7 @@ void LoadVolume(string_view const Path)
 
 bool IsEjectableMedia(string_view const Path)
 {
-	const os::fs::file File(extract_root_device(Path), 0, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+	const os::fs::file File(extract_root_device(Path), 0, os::fs::file_share_all, nullptr, OPEN_EXISTING);
 	if (!File)
 		return false;
 

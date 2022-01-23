@@ -307,7 +307,7 @@ void copy_progress::add_total_bytes(unsigned long long const Value)
 	m_BytesTotal.Total += Value;
 }
 
-void copy_progress::SetNames(const string& Src, const string& Dst)
+void copy_progress::SetNames(const string_view Src, const string_view Dst)
 {
 	if (m_ShowTime && !m_Files.Copied)
 	{

@@ -140,12 +140,12 @@ std::list<std::wstring> parse_listfile(const std::wstring& str) {
   for (unsigned i = 0; i < str.size(); i++) {
     if (str[i] == L'\r' || str[i] == L'\n') {
       if (pos != i)
-        files.push_back(str.substr(pos, i - pos));
+        files.emplace_back(str.substr(pos, i - pos));
       pos = i + 1;
     }
   }
   if (pos != str.size())
-    files.push_back(str.substr(pos, str.size() - pos));
+    files.emplace_back(str.substr(pos, str.size() - pos));
   return files;
 }
 
@@ -312,9 +312,9 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
   for (; i < args.size(); i++) {
     CHECK_FMT(!is_param(args[i]));
     if (args[i][0] == L'@')
-      command.listfiles.push_back(unquote(args[i].substr(1)));
+      command.listfiles.emplace_back(unquote(args[i].substr(1)));
     else
-      command.files.push_back(unquote(args[i]));
+      command.files.emplace_back(unquote(args[i]));
   }
 
   if (command.options.level == 0)
@@ -368,7 +368,7 @@ static void parse_extract_params(const CommandArgs& ca, ExtractOptions& o, std::
         CHECK_FMT(false);
     }
     else {
-      items.push_back(unquote(a));
+      items.emplace_back(unquote(a));
     }
   }
 }
@@ -398,7 +398,7 @@ TestCommand parse_test_command(const CommandArgs& ca) {
   const std::vector<std::wstring>& args = ca.args;
   for (unsigned i = 0; i < args.size(); i++) {
     CHECK_FMT(!is_param(args.back()));
-    command.arc_list.push_back(unquote(args[i]));
+    command.arc_list.emplace_back(unquote(args[i]));
   }
   return command;
 }

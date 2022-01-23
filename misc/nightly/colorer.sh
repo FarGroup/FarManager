@@ -60,7 +60,8 @@ function bcolorer {
 
 ( \
 	bcolorer 32 x86 && \
-	bcolorer 64 x64 \
+	bcolorer 64 x64 && \
+	bcolorer ARM64 ARM64 \
 ) || exit 1
 
 cd ..

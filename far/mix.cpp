@@ -116,7 +116,7 @@ string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const U
 
 	AddEndSlash(strPath);
 
-	wchar_t_ptr_n<os::default_buffer_size> Buffer(Prefix.size() + strPath.size() + 13);
+	const wchar_t_ptr_n<os::default_buffer_size> Buffer(Prefix.size() + strPath.size() + 13);
 
 	auto Unique = 23 * GetCurrentProcessId() + s_shift;
 	const auto UniqueCopy = Unique? Unique : 1;
@@ -276,7 +276,7 @@ void FreePluginPanelItemUserData(HANDLE hPlugin, const UserDataItem& Data)
 	if (!Data.FreeData)
 		return;
 
-	FarPanelItemFreeInfo info{ sizeof(FarPanelItemFreeInfo), hPlugin };
+	const FarPanelItemFreeInfo info{ sizeof(info), hPlugin };
 	Data.FreeData(Data.Data, &info);
 }
 

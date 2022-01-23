@@ -160,10 +160,10 @@ private:
 	void FastShow();
 	void DrawWindowFrame() const;
 	void OutString(string_view Str);
-	int  StringLen(string_view Str);
+	int  StringLen(string_view Str) const;
 	void CorrectPosition() const;
-	bool IsReferencePresent();
-	bool GetTopic(int realX, int realY, string& strTopic);
+	bool IsReferencePresent() const;
+	bool GetTopic(int realX, int realY, string& strTopic) const;
 	void MoveToReference(int Forward, int CurScreen);
 	void ReadDocumentsHelp(int TypeIndex);
 	void Search(const os::fs::file& HelpFile, uintptr_t nCodePage);
@@ -199,7 +199,8 @@ private:
 	bool IsNewTopic{true};
 	bool m_TopicFound{};
 	bool ErrorHelp{true};
-	bool LastSearchCase, LastSearchWholeWords, LastSearchRegexp;
+	search_case_fold LastSearchCaseFold;
+	bool LastSearchWholeWords, LastSearchRegexp;
 };
 
 struct Help::StackHelpData
@@ -216,14 +217,14 @@ struct Help::StackHelpData
 
 static bool GetOptionsParam(const os::fs::file& LangFile, string_view const KeyName, string& Value, unsigned CodePage)
 {
-	return GetLangParam(LangFile, L"Options "sv + KeyName, Value, nullptr, CodePage);
+	return GetLangParam(LangFile, L"Options "sv + KeyName, Value, CodePage);
 }
 
 Help::Help(private_tag):
 	StackData(std::make_unique<StackHelpData>()),
 	CurColor(colors::PaletteColorToFarColor(COL_HELPTEXT)),
 	CtrlTabSize(Global->Opt->HelpTabSize),
-	LastSearchCase(Global->GlobalSearchCase),
+	LastSearchCaseFold(Global->GlobalSearchCaseFold),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
 	LastSearchRegexp(Global->Opt->HelpSearchRegexp)
 {
@@ -392,7 +393,7 @@ bool Help::ReadHelp(string_view const Mask)
 	/* $ 29.11.2001 DJ
 	   запомним, чего там написано в PluginContents
 	*/
-	if (!GetLangParam(HelpFile, L"PluginContents"sv, strCurPluginContents, nullptr, HelpFileCodePage))
+	if (!GetLangParam(HelpFile, L"PluginContents"sv, strCurPluginContents,  HelpFileCodePage))
 		strCurPluginContents.clear();
 
 	string strTabSpace(CtrlTabSize, L' ');
@@ -1078,7 +1079,7 @@ static bool FastParseLine(string_view Str, int* const pLen, const int x0, const 
 	return found;
 }
 
-bool Help::GetTopic(int realX, int realY, string& strTopic)
+bool Help::GetTopic(int realX, int realY, string& strTopic) const
 {
 	strTopic.clear();
 	if (realY <= m_Where.top || realY >= m_Where.bottom || realX <= m_Where.left || realX >= m_Where.right)
@@ -1112,7 +1113,7 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
 }
 
-int Help::StringLen(const string_view Str)
+int Help::StringLen(const string_view Str) const
 {
 	int len = 0;
 	FastParseLine(Str, &len, 0, -1, nullptr, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
@@ -1446,7 +1447,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 			if (!equal_icase(StackData->strHelpTopic, FoundContents))
 			{
 				string strLastSearchStr0=strLastSearchStr;
-				bool Case=LastSearchCase;
+				auto SearchCaseFold = LastSearchCaseFold;
 				bool WholeWords=LastSearchWholeWords;
 				bool Regexp=LastSearchRegexp;
 
@@ -1460,7 +1461,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 					strTempStr,
 					L"HelpSearch"sv,
 					{},
-					&Case,
+					&SearchCaseFold,
 					&WholeWords,
 					{},
 					&Regexp,
@@ -1473,7 +1474,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 					return true;
 
 				strLastSearchStr=strLastSearchStr0;
-				LastSearchCase=Case;
+				LastSearchCaseFold = SearchCaseFold;
 				LastSearchWholeWords=WholeWords;
 				LastSearchRegexp=Regexp;
 
@@ -1876,7 +1877,7 @@ bool Help::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	return true;
 }
 
-bool Help::IsReferencePresent()
+bool Help::IsReferencePresent() const
 {
 	CorrectPosition();
 	const auto StrPos = FixCount + StackData->TopStr + StackData->CurY;
@@ -1982,7 +1983,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 		const auto strSlash = InsertRegexpQuote(strLastSearchStr);
 
 		// Q: что важнее: опция диалога или опция RegExp`а?
-		if (!re.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (LastSearchCase? 0 : OP_IGNORECASE)))
+		if (!re.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (LastSearchCaseFold == search_case_fold::exact? 0 : OP_IGNORECASE)))
 		{
 			ReCompileErrorMessage(re, strSlash);
 			return; //BUGBUG
@@ -1992,7 +1993,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	}
 
 	searchers Searchers;
-	const auto& Searcher = init_searcher(Searchers, LastSearchCase, strLastSearchStr);
+	const auto& Searcher = init_searcher(Searchers, LastSearchCaseFold, strLastSearchStr);
 
 	os::fs::filebuf StreamBuffer(HelpFile, std::ios::in);
 	std::istream Stream(&StreamBuffer);
@@ -2034,7 +2035,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 				m.data(),
 				&hm,
 				CurPos,
-				LastSearchCase,
+				LastSearchCaseFold,
 				LastSearchWholeWords,
 				LastSearchRegexp,
 				false,
@@ -2091,22 +2092,14 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 				string_view Path = i->ModuleName();
 				CutToSlash(Path);
 				const auto [HelpFile, HelpLangName, HelpFileCodePage] = OpenLangFile(Path, Global->HelpFileMask, Global->Opt->strHelpLanguage);
-				if (HelpFile)
-				{
-					string strEntryName, strSecondParam;
+				if (!HelpFile)
+					continue;
 
-					if (GetLangParam(HelpFile, ContentsName, strEntryName, &strSecondParam, HelpFileCodePage))
-					{
-						string strHelpLine = concat(L"   ~"sv, strEntryName);
-						if (!strSecondParam.empty())
-						{
-							append(strHelpLine, L',', strSecondParam);
-						}
-						append(strHelpLine, L"~@"sv, help::make_link(Path, HelpContents), L'@');
+				string strEntryName;
+				if (!GetLangParam(HelpFile, ContentsName, strEntryName, HelpFileCodePage))
+					continue;
 
-						AddLine(strHelpLine);
-					}
-				}
+				AddLine(format(FSTR(L"   ~{}~@{}@"sv), strEntryName, help::make_link(Path, HelpContents)));
 			}
 
 			break;
@@ -2174,7 +2167,7 @@ static bool OpenURL(string_view const URLPath)
 	execute_info Info;
 	Info.DisplayCommand = FilteredURLPath;
 	Info.Command = FilteredURLPath;
-	Info.SourceMode = execute_info::source_mode::known; // skip plugin prefixes processing
+	Info.SourceMode = execute_info::source_mode::known_external; // skip plugin prefixes processing
 	Global->CtrlObject->CmdLine()->ExecString(Info);
 	return true;
 }

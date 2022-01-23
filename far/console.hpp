@@ -60,6 +60,7 @@ enum CLEAR_REGION
 
 wchar_t ReplaceControlCharacter(wchar_t Char);
 void sanitise_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second);
+bool get_console_screen_buffer_info(HANDLE ConsoleOutput, CONSOLE_SCREEN_BUFFER_INFO* ConsoleScreenBufferInfo);
 
 namespace console_detail
 {
@@ -139,9 +140,20 @@ namespace console_detail
 
 		bool GetAlias(string_view Name, string& Value, string_view ExeName) const;
 
-		std::unordered_map<string, std::unordered_map<string, string>> GetAllAliases() const;
+		struct console_aliases
+		{
+			console_aliases();
+			~console_aliases();
 
-		void SetAllAliases(const std::unordered_map<string, std::unordered_map<string, string>>& Aliases) const;
+			MOVE_CONSTRUCTIBLE(console_aliases);
+
+			struct data;
+			std::unique_ptr<data> m_Data;
+		};
+
+		console_aliases GetAllAliases() const;
+
+		void SetAllAliases(console_aliases&& Aliases) const;
 
 		bool GetDisplayMode(DWORD& Mode) const;
 
@@ -161,7 +173,7 @@ namespace console_detail
 
 		bool IsFullscreenSupported() const;
 
-		bool ResetPosition() const;
+		void ResetPosition() const;
 		bool ResetViewportPosition() const;
 
 		bool ScrollNonClientArea(size_t NumLines, const FAR_CHAR_INFO& Fill) const;

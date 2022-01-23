@@ -112,14 +112,6 @@ static auto read_value_from_big_endian(unsigned char const (&Src)[N])
 	return read_value_from_big_endian_impl<T>(Src, std::make_index_sequence<N>{});
 }
 
-template<typename T>
-static auto& edit_as(void* const Buffer)
-{
-	static_assert(std::is_trivially_copyable_v<T>);
-
-	return *static_cast<T*>(Buffer);
-}
-
 struct SCSI_PASS_THROUGH_WITH_BUFFERS: SCSI_PASS_THROUGH
 {
 	UCHAR SenseBuf[32];
@@ -239,11 +231,11 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 
 	span const Buffer(Spt.DataBuf, Spt.DataTransferLength);
 
-	const auto ConfigurationHeader = view_as_if<GET_CONFIGURATION_HEADER>(Buffer);
+	const auto ConfigurationHeader = view_as_opt<GET_CONFIGURATION_HEADER>(Buffer);
 	if (!ConfigurationHeader || Buffer.size() < sizeof(ConfigurationHeader->DataLength) + read_value_from_big_endian<size_t>(ConfigurationHeader->DataLength))
 		return CAPABILITIES_NONE;
 
-	const auto FeatureList = view_as_if<FEATURE_DATA_PROFILE_LIST>(Buffer, sizeof(*ConfigurationHeader));
+	const auto FeatureList = view_as_opt<FEATURE_DATA_PROFILE_LIST>(Buffer, sizeof(*ConfigurationHeader));
 	if (!FeatureList)
 		return CAPABILITIES_NONE;
 
@@ -456,7 +448,7 @@ cd_type get_cdrom_type(string_view RootDir)
 		VolumePath.insert(0, L"\\\\.\\"sv);
 	}
 
-	if (const auto Device = os::fs::file(VolumePath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+	if (const auto Device = os::fs::file(VolumePath, GENERIC_READ | GENERIC_WRITE, os::fs::file_share_all, nullptr, OPEN_EXISTING))
 	{
 		if (const auto Capabilities = get_device_capabilities(Device); Capabilities != CAPABILITIES_NONE)
 			return get_cd_type(Capabilities);
@@ -473,7 +465,7 @@ bool is_removable_usb(string_view RootDir)
 	string drive(HasPathPrefix(RootDir)? RootDir : L"\\\\?\\"sv + RootDir);
 	DeleteEndSlash(drive);
 
-	os::fs::file const Device(drive, STANDARD_RIGHTS_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+	os::fs::file const Device(drive, STANDARD_RIGHTS_READ, os::fs::file_share_all, nullptr, OPEN_EXISTING);
 	if (!Device)
 	{
 		LOGWARNING(L"CreateFile({}): {}"sv, drive, last_error());

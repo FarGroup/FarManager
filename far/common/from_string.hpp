@@ -152,6 +152,9 @@ template<typename T>
 [[nodiscard]]
 bool from_string(std::wstring_view const Str, T& Value, size_t* Pos = nullptr, int Base = 10)
 {
+	if (Str.empty())
+		return false;
+
 	try
 	{
 		detail::from_string(Str, Value, Pos, Base);

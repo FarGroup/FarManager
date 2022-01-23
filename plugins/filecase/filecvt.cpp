@@ -75,6 +75,7 @@ void CaseConvertion()
 			{
 				dirInfo->StructSize = sizeof(FarPanelDirectory);
 				PsInfo.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY, DirSize,dirInfo);
+				const auto NameLength = lstrlen(dirInfo->Name);
 
 				for (size_t I=0; I < PInfo.SelectedItemsNumber; I++)
 				{
@@ -85,16 +86,15 @@ void CaseConvertion()
 					{
 						FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 						PsInfo.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,&gpi);
-						wchar_t *FullName=new wchar_t[lstrlen(dirInfo->Name)+lstrlen(PPI->FileName)+8];
-						if (FullName)
-						{
-							lstrcpy(FullName,dirInfo->Name);
-							FSF.AddEndSlash(FullName);
-							lstrcat(FullName,PPI->FileName);
-							ProcessName(FullName,(DWORD)PPI->FileAttributes);
+						wchar_t *FullName = new wchar_t[NameLength + lstrlen(PPI->FileName) + 8];
 
-							delete[] FullName;
-						}
+						lstrcpy(FullName,dirInfo->Name);
+						FSF.AddEndSlash(FullName);
+						lstrcat(FullName,PPI->FileName);
+						ProcessName(FullName,(DWORD)PPI->FileAttributes);
+
+						delete[] FullName;
+
 						free(PPI);
 					}
 				}

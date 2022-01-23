@@ -106,6 +106,7 @@ enum
   kpidArcFileName,
   kpidIsHash,
 
+
   kpid_NUM_DEFINED,
 
   kpidUserDefined = 0x10000

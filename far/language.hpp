@@ -103,7 +103,7 @@ private:
 
 // (file, name, codepage)
 std::tuple<os::fs::file, string, uintptr_t> OpenLangFile(string_view Path, string_view Mask, string_view Language);
-bool GetLangParam(const os::fs::file& LangFile, string_view ParamName, string& strParam1, string* strParam2, uintptr_t CodePage);
+bool GetLangParam(const os::fs::file& LangFile, string_view ParamName, string& Param, uintptr_t CodePage);
 bool SelectInterfaceLanguage(string& Dest);
 bool SelectHelpLanguage(string& Dest);
 

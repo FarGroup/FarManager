@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/string_utils.hpp"
 
 // External:
 
@@ -54,7 +55,7 @@ public:
 	string_view ShortName;
 	string_view Path;
 
-	std::unordered_map<string, string> mutable Variables;
+	unordered_string_map<string> mutable Variables;
 };
 
 bool SubstFileName(

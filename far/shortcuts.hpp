@@ -70,7 +70,7 @@ public:
 
 	static int Configure();
 
-	auto Enumerator()
+	auto Enumerator() const
 	{
 		using value_type = data;
 		return make_inline_enumerator<value_type>([this, Index = size_t{}](bool Reset, value_type& Value) mutable

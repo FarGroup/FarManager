@@ -645,18 +645,15 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 		{
 			if (Param1 == ID_FF_BUTTON_ATTRIBUTES)
 			{
-				const auto Context = reinterpret_cast<const context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto Context = view_as<const context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				AttributesDialog(Context->Attributes);
 				break;
 			}
 			else if (Param1==ID_FF_CURRENT || Param1==ID_FF_BLANK)
 			{
-				string Date, Time;
-
-				if (Param1==ID_FF_CURRENT)
-				{
-					ConvertDate(os::chrono::nt_clock::now(), Date, Time, 16, 2);
-				}
+				const auto& [Date, Time] = Param1==ID_FF_CURRENT?
+					ConvertDate(os::chrono::nt_clock::now(), 16, 2) :
+					std::tuple<string, string>{};
 
 				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
@@ -684,7 +681,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			{
 				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-				const auto Context = reinterpret_cast<const context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto Context = view_as<const context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_MASKEDIT,const_cast<wchar_t*>(L"*"));
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_SIZEFROMEDIT,nullptr);
 				Dlg->SendMessage(DM_SETTEXTPTR,ID_FF_SIZETOEDIT,nullptr);
@@ -696,7 +693,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 						BSTATE_3STATE;
 				}
 
-				FarListPos LPos={sizeof(FarListPos)};
+				FarListPos LPos{ sizeof(LPos) };
 				Dlg->SendMessage(DM_LISTSETCURPOS,ID_FF_DATETYPE,&LPos);
 				Dlg->SendMessage(DM_SETCHECK,ID_FF_MATCHMASK,ToPtr(BSTATE_CHECKED));
 				Dlg->SendMessage(DM_SETCHECK,ID_FF_MATCHSIZE,ToPtr(BSTATE_UNCHECKED));
@@ -710,7 +707,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			}
 			else if (Param1==ID_FF_MAKETRANSPARENT)
 			{
-				const auto Context = reinterpret_cast<const context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto Context = view_as<const context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 				for (auto& i: Context->Colors->Color)
 				{
@@ -741,7 +738,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 		if ((Msg==DN_BTNCLICK && Param1 >= ID_HER_NORMALFILE && Param1 <= ID_HER_SELECTEDCURSORMARKING)
 			|| (Msg==DN_CONTROLINPUT && Param1==ID_HER_COLOREXAMPLE && static_cast<const INPUT_RECORD*>(Param2)->EventType == MOUSE_EVENT && static_cast<const INPUT_RECORD*>(Param2)->Event.MouseEvent.dwButtonState==FROM_LEFT_1ST_BUTTON_PRESSED))
 		{
-			const auto Context = reinterpret_cast<const context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+			const auto Context = view_as<const context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 			if (Msg==DN_CONTROLINPUT)
 			{
@@ -763,14 +760,14 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 
 	case DM_REFRESHCOLORS:
 		{
-			const auto Context = reinterpret_cast<const context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+			const auto Context = view_as<const context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 			const size_t Size = Dlg->SendMessage(DM_GETDLGITEM, ID_HER_COLOREXAMPLE, nullptr);
 			const block_ptr<FarDialogItem> Buffer(Size);
-			FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, Buffer.data()};
+			FarGetDialogItem gdi{ sizeof(gdi), Size, Buffer.data() };
 			Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,&gdi);
 			//MarkChar это FIXEDIT размером в 1 символ
 			wchar_t MarkChar[2];
-			FarDialogItemData item={sizeof(FarDialogItemData),1,MarkChar};
+			FarDialogItemData item{ sizeof(item), 1, MarkChar };
 			Dlg->SendMessage(DM_GETTEXT,ID_HER_MARKEDIT,&item);
 			Context->Colors->Mark.Char = *MarkChar;
 			Context->Colors->Mark.Transparent = Dlg->SendMessage(DM_GETCHECK, ID_HER_MARKTRANSPARENT, nullptr) == BST_CHECKED;
@@ -788,16 +785,16 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 
 		if (Param1 == ID_FF_OK && Dlg->SendMessage(DM_GETCHECK, ID_FF_MATCHSIZE, nullptr))
 		{
-			string Size = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_FF_SIZEFROMEDIT, nullptr));
+			string Size = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_FF_SIZEFROMEDIT, nullptr));
 			bool Ok = Size.empty() || CheckFileSizeStringFormat(Size);
 			if (Ok)
 			{
-				Size = reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_FF_SIZETOEDIT, nullptr));
+				Size = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_FF_SIZETOEDIT, nullptr));
 				Ok = Size.empty() || CheckFileSizeStringFormat(Size);
 			}
 			if (!Ok)
 			{
-				const auto Context = reinterpret_cast<const context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+				const auto Context = view_as<const context*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 				Message(MSG_WARNING,
 					msg(Context->Colors? lng::MFileHilightTitle : lng::MFileFilterTitle),
 					{
@@ -988,8 +985,8 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 			FilterDlg[i].Flags |= DIF_DISABLE;
 	}
 	// Лист для комбобокса времени файла
-	FarList DateList={sizeof(FarList)};
-	FarListItem TableItemDate[FDATE_COUNT]={};
+	FarList DateList{ sizeof(DateList) };
+	FarListItem TableItemDate[FDATE_COUNT]{};
 	// Настройка списка типов дат файла
 	DateList.Items=TableItemDate;
 	DateList.ItemsNumber=FDATE_COUNT;
@@ -1012,7 +1009,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 	const auto ProcessPoint = [&](auto Point, auto DateId, auto TimeId)
 	{
 		FilterDlg[ID_FF_DATERELATIVE].Selected = BSTATE_UNCHECKED;
-		ConvertDate(Point, FilterDlg[DateId].strData, FilterDlg[TimeId].strData, 16, 2);
+		std::tie(FilterDlg[DateId].strData, FilterDlg[TimeId].strData) = ConvertDate(Point, 16, 2);
 	};
 
 	Dates.visit(overload

@@ -118,7 +118,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 #include "disable_warnings_in_std_end.hpp"
 
-#include "cpp.hpp"
+#include "common/cpp.hpp"
 
 using string = std::wstring;
 using string_view = std::wstring_view;

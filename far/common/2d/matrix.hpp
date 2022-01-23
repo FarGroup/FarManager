@@ -37,6 +37,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../range.hpp"
 #include "../rel_ops.hpp"
 
+#include <vector>
+
+#include <cassert>
+
 //----------------------------------------------------------------------------
 
 namespace detail

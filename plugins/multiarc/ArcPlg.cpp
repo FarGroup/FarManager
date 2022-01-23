@@ -107,8 +107,7 @@ ArcPlugins::~ArcPlugins()
   for (int I=0;I<PluginsCount;I++)
     FreeLibrary(PluginsData[I].hModule);
 
-  if(PluginsData)
-    free(PluginsData);
+  free(PluginsData);
 }
 
 int ArcPlugins::IsArchive(char *Name,const unsigned char *Data,int DataSize)

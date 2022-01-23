@@ -2516,7 +2516,7 @@ static __inline BOOL CheckVersion(const struct VersionInfo* Current, const struc
 
 static __inline struct VersionInfo MAKEFARVERSION(DWORD Major, DWORD Minor, DWORD Revision, DWORD Build, enum VERSION_STAGE Stage)
 {
-	struct VersionInfo Info = {Major, Minor, Revision, Build, Stage};
+	const struct VersionInfo Info = {Major, Minor, Revision, Build, Stage};
 	return Info;
 }
 

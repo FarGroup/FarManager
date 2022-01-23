@@ -186,9 +186,7 @@ void InfoList::DisplayObject()
 
 	m_Flags.Set(FSCROBJ_ISREDRAWING);
 
-	string strOutStr;
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
-	string strDriveRoot;
 	string strVolumeName, strFileSystemName;
 	DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
 	string strDiskNumber;
@@ -222,7 +220,7 @@ void InfoList::DisplayObject()
 		PrintInfo(strComputerName);
 
 		os::netapi::ptr<SERVER_INFO_101> ServerInfo;
-		if (NetServerGetInfo(nullptr, 101, reinterpret_cast<LPBYTE*>(&ptr_setter(ServerInfo))) == NERR_Success)
+		if (NetServerGetInfo(nullptr, 101, edit_as<BYTE**>(&ptr_setter(ServerInfo))) == NERR_Success)
 		{
 			if(ServerInfo->sv101_comment && *ServerInfo->sv101_comment)
 			{
@@ -248,7 +246,7 @@ void InfoList::DisplayObject()
 		PrintInfo(DisplayName);
 
 		os::netapi::ptr<USER_INFO_1> UserInfo;
-		if (UserNameRead && NetUserGetInfo(nullptr, UserLogonName.c_str(), 1, reinterpret_cast<LPBYTE*>(&ptr_setter(UserInfo))) == NERR_Success)
+		if (UserNameRead && NetUserGetInfo(nullptr, UserLogonName.c_str(), 1, edit_as<BYTE**>(&ptr_setter(UserInfo))) == NERR_Success)
 		{
 			if(UserInfo->usri1_comment && *UserInfo->usri1_comment)
 			{
@@ -290,12 +288,13 @@ void InfoList::DisplayObject()
 		m_CurDir = AnotherPanel->GetCurDir();
 
 		if (m_CurDir.empty())
-			m_CurDir = os::fs::GetCurrentDirectory();
+			m_CurDir = os::fs::get_current_directory();
 
 		/*
 			Корректно отображать инфу при заходе в Juction каталог
 			Рут-диск может быть другим
 		*/
+		string strDriveRoot;
 		if (os::fs::file_status(m_CurDir).check(FILE_ATTRIBUTE_REPARSE_POINT))
 		{
 			string strJuncName;
@@ -377,7 +376,11 @@ void InfoList::DisplayObject()
 			if (UseAssocPath)
 				append(SectionTitle, L' ', strAssocPath);
 
-			strDiskNumber = format(FSTR(L"{:04X}-{:04X}"sv), HIWORD(VolumeNumber), LOWORD(VolumeNumber));
+			strDiskNumber = format(
+				FSTR(L"{:04X}-{:04X}"sv),
+				extract_integer<WORD, 1>(VolumeNumber),
+				extract_integer<WORD, 0>(VolumeNumber)
+			);
 		}
 		else // Error!
 			SectionTitle = strDriveRoot;
@@ -435,7 +438,7 @@ void InfoList::DisplayObject()
 
 	if (SectionState[ILSS_MEMORYINFO].Show)
 	{
-		MEMORYSTATUSEX ms={sizeof(ms)};
+		MEMORYSTATUSEX ms{ sizeof(ms) };
 		if (GlobalMemoryStatusEx(&ms))
 		{
 			if (!ms.dwMemoryLoad)
@@ -504,27 +507,24 @@ void InfoList::DisplayObject()
 			GotoXY(m_Where.left + 2, CurY++);
 			PrintText(lng::MInfoPowerStatusBCLifePercent);
 			if (PowerStatus.BatteryLifePercent > 100)
-				strOutStr = msg(lng::MInfoPowerStatusBCLifePercentUnknown);
+				PrintInfo(msg(lng::MInfoPowerStatusBCLifePercentUnknown));
 			else
-				strOutStr = str(PowerStatus.BatteryLifePercent) + L'%';
-			PrintInfo(strOutStr);
+				PrintInfo(str(PowerStatus.BatteryLifePercent) + L'%');
 
 			GotoXY(m_Where.left + 2, CurY++);
 			PrintText(lng::MInfoPowerStatusBC);
-			strOutStr.clear();
 			// PowerStatus.BatteryFlag == 0: The value is zero if the battery is not being charged and the battery capacity is between low and high.
 			if (!PowerStatus.BatteryFlag || PowerStatus.BatteryFlag == BATTERY_FLAG_UNKNOWN)
-				strOutStr=msg(lng::MInfoPowerStatusBCUnknown);
+				PrintInfo(msg(lng::MInfoPowerStatusBCUnknown));
 			else if (PowerStatus.BatteryFlag & BATTERY_FLAG_NO_BATTERY)
-				strOutStr=msg(lng::MInfoPowerStatusBCNoSysBat);
+				PrintInfo(msg(lng::MInfoPowerStatusBCNoSysBat));
 			else
 			{
-				if (PowerStatus.BatteryFlag & BATTERY_FLAG_HIGH)
-					strOutStr = msg(lng::MInfoPowerStatusBCHigh);
-				else if (PowerStatus.BatteryFlag & BATTERY_FLAG_LOW)
-					strOutStr = msg(lng::MInfoPowerStatusBCLow);
-				else if (PowerStatus.BatteryFlag & BATTERY_FLAG_CRITICAL)
-					strOutStr = msg(lng::MInfoPowerStatusBCCritical);
+				auto strOutStr =
+					PowerStatus.BatteryFlag & BATTERY_FLAG_HIGH? msg(lng::MInfoPowerStatusBCHigh) :
+					PowerStatus.BatteryFlag & BATTERY_FLAG_LOW? msg(lng::MInfoPowerStatusBCLow) :
+					PowerStatus.BatteryFlag & BATTERY_FLAG_CRITICAL? msg(lng::MInfoPowerStatusBCCritical) :
+					L""s;
 
 				if (PowerStatus.BatteryFlag & BATTERY_FLAG_CHARGING)
 				{
@@ -532,8 +532,8 @@ void InfoList::DisplayObject()
 						strOutStr += L' ';
 					strOutStr += msg(lng::MInfoPowerStatusBCCharging);
 				}
+				PrintInfo(strOutStr);
 			}
-			PrintInfo(strOutStr);
 
 			const auto GetBatteryTime = [](size_t SecondsCount)
 			{
@@ -682,7 +682,7 @@ void InfoList::SelectShowMode()
 	}
 	Global->Opt->InfoPanel.strShowStatusInfo.clear();
 
-	for (auto& i: SectionState)
+	for (const auto& i: SectionState)
 	{
 		Global->Opt->InfoPanel.strShowStatusInfo += i.Show? L"1"s : L"0"s;
 	}
@@ -957,7 +957,7 @@ bool InfoList::ShowPluginDescription(int YPos) const
 {
 	const auto AnotherPanel = Parent()->GetAnotherPanel(this);
 
-	static wchar_t VertcalLine[2]={BoxSymbols[BS_V2],0};
+	static wchar_t VertcalLine[]{ BoxSymbols[BS_V2], 0 };
 
 	OpenPanelInfo Info;
 	AnotherPanel->GetOpenPanelInfo(&Info);

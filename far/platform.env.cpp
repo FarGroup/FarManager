@@ -97,7 +97,7 @@ namespace os::env
 	bool get(const string_view Name, string& Value)
 	{
 		last_error_guard ErrorGuard;
-		null_terminated C_Name(Name);
+		const null_terminated C_Name(Name);
 
 		// GetEnvironmentVariable might return 0 not only in case of failure, but also when the variable is empty.
 		// To recognise this, we set LastError to ERROR_SUCCESS manually and check it after the call,
@@ -142,7 +142,7 @@ namespace os::env
 
 	string expand(const string_view Str)
 	{
-		null_terminated C_Str(Str);
+		const null_terminated C_Str(Str);
 
 		bool Failure = false;
 
@@ -153,8 +153,7 @@ namespace os::env
 			// ApiDynamicStringReceiver expects a string length upon success (e.g. without the \0),
 			// but we cannot simply subtract 1 from the returned value - the function can also return 1
 			// when the result exists, but empty, so if we do that, it will be treated as error.
-			const auto ReturnedSize = ::ExpandEnvironmentStrings(C_Str.c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()));
-			switch (ReturnedSize)
+			switch (const auto ReturnedSize = ::ExpandEnvironmentStrings(C_Str.c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size())))
 			{
 			case 0:
 				// Failure

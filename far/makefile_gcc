@@ -6,6 +6,7 @@ THIS_MAKE = $(TOP_MAKEFILE)
 EXEDIR = $(DIRNAME).$(DIRBIT).gcc/
 OBJDIR = $(EXEDIR)obj/
 export BOOTSTRAPDIR=$(OBJDIR)include/bootstrap/
+export FORCEINCLUDELIST=headers.hpp memcheck.hpp
 EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)$(EXENAME)
 DEPFILE = $(BOOTSTRAPDIR)far.gcc.dep
@@ -183,7 +184,7 @@ MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 TESTOBJS = $(OBJDIR)api_test_c.testobj $(OBJDIR)api_test_c++.testobj
 
 ADDINCLUDE=-I$(BOOTSTRAPDIR).. 
-FORCEINCLUDE=-include headers.hpp -include memcheck.hpp
+FORCEINCLUDE=$(patsubst %, -include %, $(FORCEINCLUDELIST))
 
 CPPFLAGS += $(ADDINCLUDE) $(FORCEINCLUDE)
 

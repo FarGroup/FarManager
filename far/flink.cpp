@@ -364,7 +364,7 @@ bool GetReparsePointInfo(string_view const Object, string& DestBuffer, LPDWORD R
 				WCHAR StringList[1];
 			};
 
-			const auto& AppExecLinkReparseBuffer = *static_cast<APPEXECLINK_REPARSE_DATA_BUFFER const*>(static_cast<void const*>(&rdb->GenericReparseBuffer));
+			const auto& AppExecLinkReparseBuffer = view_as<APPEXECLINK_REPARSE_DATA_BUFFER>(&rdb->GenericReparseBuffer);
 			if (AppExecLinkReparseBuffer.StringCount <= FilenameIndex)
 				return false;
 
@@ -390,7 +390,7 @@ bool GetReparsePointInfo(string_view const Object, string& DestBuffer, LPDWORD R
 
 std::optional<size_t> GetNumberOfLinks(string_view const Name)
 {
-	const os::fs::file File(Name, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
+	const os::fs::file File(Name, 0, os::fs::file_share_all, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT);
 	if (!File)
 		return {};
 
@@ -494,7 +494,7 @@ bool GetSubstName(int DriveType, string_view const Path, string &strTargetPath)
 
 bool GetVHDInfo(string_view const RootDirectory, string &strVolumePath, VIRTUAL_STORAGE_TYPE* StorageType)
 {
-	const os::fs::file Root(RootDirectory, FILE_READ_ATTRIBUTES, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING);
+	const os::fs::file Root(RootDirectory, FILE_READ_ATTRIBUTES, os::fs::file_share_all, nullptr, OPEN_EXISTING);
 	if (!Root)
 		return false;
 
@@ -921,7 +921,7 @@ TEST_CASE("flink.fill.reparse.buffer")
 		REQUIRE(Buffer->MountPointReparseBuffer.PrintNameOffset == 30);
 		REQUIRE(Buffer->MountPointReparseBuffer.PrintNameLength == 20);
 
-		REQUIRE(std::equal(ALL_CONST_RANGE(ExpectedData), static_cast<char const*>(static_cast<void const*>(Buffer.data()))));
+		REQUIRE(std::equal(ALL_CONST_RANGE(ExpectedData), view_as<char const*>(Buffer.data())));
 	}
 
 	{
@@ -963,7 +963,7 @@ TEST_CASE("flink.fill.reparse.buffer")
 		REQUIRE(Buffer->SymbolicLinkReparseBuffer.PrintNameLength == 20);
 		REQUIRE(Buffer->SymbolicLinkReparseBuffer.Flags == 0);
 
-		REQUIRE(std::equal(ALL_CONST_RANGE(ExpectedData), static_cast<char const*>(static_cast<void const*>(Buffer.data()))));
+		REQUIRE(std::equal(ALL_CONST_RANGE(ExpectedData), view_as<char const*>(Buffer.data())));
 	}
 }
 

@@ -447,7 +447,7 @@ static auto MakeSignature(const os::fs::find_data& Data)
 
 bool Plugin::SaveToCache()
 {
-	PluginInfo Info = {sizeof(Info)};
+	PluginInfo Info{ sizeof(Info) };
 	GetPluginInfo(&Info);
 
 	auto& PlCache = ConfigProvider().PlCacheCfg();
@@ -509,7 +509,7 @@ void Plugin::InitExports()
 	}
 }
 
-Plugin::Plugin(plugin_factory* Factory, const string& ModuleName):
+Plugin::Plugin(plugin_factory* Factory, const string_view ModuleName):
 	m_Factory(Factory),
 	m_strModuleName(ModuleName),
 	m_strCacheName(ModuleName)
@@ -548,7 +548,7 @@ bool Plugin::LoadData()
 
 	string strCurPlugDiskPath;
 	wchar_t Drive[]{ L'=', 0, L':', 0 };
-	const auto strCurPath = os::fs::GetCurrentDirectory();
+	const auto strCurPath = os::fs::get_current_directory();
 
 	if (ParsePath(m_strModuleName) == root_type::drive_letter)  // если указан локальный путь, то...
 	{
@@ -579,7 +579,7 @@ bool Plugin::LoadData()
 	}
 	InitExports();
 
-	GlobalInfo Info={sizeof(Info)};
+	GlobalInfo Info{ sizeof(Info) };
 
 	if(GetGlobalInfo(&Info) &&
 		Info.StructSize &&
@@ -720,7 +720,7 @@ bool Plugin::Unload(bool bExitFAR)
 
 	if (bExitFAR)
 	{
-		ExitInfo Info={sizeof(Info)};
+		ExitInfo Info{ sizeof(Info) };
 		ExitFAR(&Info);
 	}
 
@@ -774,9 +774,7 @@ void Plugin::SubscribeToSynchroEvents()
 	{
 		const auto Param = std::any_cast<void*>(Payload);
 
-		ProcessSynchroEventInfo Info = { sizeof(Info) };
-		Info.Event = SE_COMMONSYNCHRO;
-		Info.Param = Param;
+		ProcessSynchroEventInfo Info{ sizeof(Info), SE_COMMONSYNCHRO, Param };
 		ProcessSynchroEvent(&Info);
 	});
 }
@@ -1281,11 +1279,11 @@ class custom_plugin_factory final: public plugin_factory
 {
 public:
 	NONCOPYABLE(custom_plugin_factory);
-	custom_plugin_factory(PluginManager* Owner, const string& Filename):
+	custom_plugin_factory(PluginManager* Owner, const string_view Filename):
 		plugin_factory(Owner),
 		m_Imports(Filename)
 	{
-		GlobalInfo Info = { sizeof(Info) };
+		GlobalInfo Info{ sizeof(Info) };
 
 		if (m_Imports.IsValid() &&
 			m_Imports.pInitialize(&Info) &&
@@ -1311,7 +1309,7 @@ public:
 		if (!m_Success)
 			return;
 
-		ExitInfo Info = { sizeof(Info) };
+		ExitInfo Info{ sizeof(Info) };
 		m_Imports.pFree(&Info);
 		custom_plugin_factory::ProcessError(m_Imports.pFree.name());
 	}
@@ -1358,7 +1356,7 @@ public:
 		if (!m_Imports.pGetError)
 			return;
 
-		ErrorInfo Info = { sizeof(Info) };
+		ErrorInfo Info{ sizeof(Info) };
 		if (!m_Imports.pGetError(&Info))
 			return;
 
@@ -1406,7 +1404,7 @@ private:
 
 #undef DECLARE_IMPORT_FUNCTION
 
-		explicit ModuleImports(const string& Filename):
+		explicit ModuleImports(const string_view Filename):
 			m_Module(Filename),
 			m_IsValid(pInitialize && pIsPlugin && pCreateInstance && pGetFunctionAddress && pGetError && pDestroyInstance && pFree)
 		{
@@ -1423,7 +1421,7 @@ private:
 	bool m_Success{};
 };
 
-plugin_factory_ptr CreateCustomPluginFactory(PluginManager* Owner, const string& Filename)
+plugin_factory_ptr CreateCustomPluginFactory(PluginManager* const Owner, const string_view Filename)
 {
 	auto Model = std::make_unique<custom_plugin_factory>(Owner, Filename);
 	if (!Model->Success())

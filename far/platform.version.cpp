@@ -76,7 +76,12 @@ namespace os::version
 		if (!Translation)
 			return false;
 
-		m_BlockPath = format(FSTR(L"\\StringFileInfo\\{:04X}{:04X}\\"sv), LOWORD(*Translation), HIWORD(*Translation));
+		m_BlockPath = format(
+			FSTR(L"\\StringFileInfo\\{:04X}{:04X}\\"sv),
+			extract_integer<WORD, 0>(*Translation),
+			extract_integer<WORD, 1>(*Translation)
+		);
+
 		return true;
 	}
 
@@ -104,8 +109,8 @@ namespace os::version
 			OSVERSIONINFOEXW osvi
 			{
 				sizeof(osvi),
-				HIBYTE(_WIN32_WINNT_WIN10),
-				LOBYTE(_WIN32_WINNT_WIN10),
+				extract_integer<BYTE, 1>(_WIN32_WINNT_WIN10),
+				extract_integer<BYTE, 0>(_WIN32_WINNT_WIN10),
 				Build
 			};
 
@@ -140,16 +145,16 @@ namespace os::version
 			return L"Unknown"s;
 
 		return format(FSTR(L"{}.{}.{}.{}"sv),
-			HIWORD(FixedInfo->dwFileVersionMS),
-			LOWORD(FixedInfo->dwFileVersionMS),
-			HIWORD(FixedInfo->dwFileVersionLS),
-			LOWORD(FixedInfo->dwFileVersionLS)
+			extract_integer<WORD, 1>(FixedInfo->dwFileVersionMS),
+			extract_integer<WORD, 0>(FixedInfo->dwFileVersionMS),
+			extract_integer<WORD, 1>(FixedInfo->dwFileVersionLS),
+			extract_integer<WORD, 0>(FixedInfo->dwFileVersionLS)
 		);
 	}
 
 	static bool get_os_version(OSVERSIONINFOEX& Info)
 	{
-		const auto InfoPtr = static_cast<OSVERSIONINFO*>(static_cast<void*>(&Info));
+		const auto InfoPtr = edit_as<OSVERSIONINFO*>(&Info);
 
 		if (imports.RtlGetVersion && imports.RtlGetVersion(InfoPtr) == STATUS_SUCCESS)
 			return true;

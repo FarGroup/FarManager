@@ -1,5 +1,7 @@
 NAME = TmpPanel
 
+PRECOMPILED_HEADER=headers
+
 SRCS = TmpPanel.cpp \
 	TmpCfg.cpp \
 	TmpClass.cpp \
@@ -7,6 +9,8 @@ SRCS = TmpPanel.cpp \
 
 DOCS = \
 	*.temp
+
+USERCPP = -I "$(FARDIR)/common"
 
 include ../makefile_gcc_def_inc
 include ../makefile_gcc_target_inc

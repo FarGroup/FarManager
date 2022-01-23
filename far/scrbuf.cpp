@@ -181,7 +181,7 @@ void ScreenBuf::Write(int X, int Y, span<const FAR_CHAR_INFO> Text)
 
 	if (char_width::is_enabled())
 	{
-		rectangle const Where = { X, Y, static_cast<int>(X + Text.size() - 1), Y };
+		rectangle const Where{ X, Y, static_cast<int>(X + Text.size() - 1), Y };
 		invalidate_broken_pairs_in_cache(Buf, Shadow, Where, { 0, 0 });
 		invalidate_broken_pairs_in_cache(Buf, Shadow, Where, { Where.right - X, 0 });
 	}
@@ -519,7 +519,7 @@ void ScreenBuf::Flush(flush_type FlushType)
 			else
 			{
 				bool Started=false;
-				rectangle WriteRegion = { static_cast<int>(Buf.width() - 1), static_cast<int>(Buf.height() - 1), 0, 0 };
+				rectangle WriteRegion{ static_cast<int>(Buf.width() - 1), static_cast<int>(Buf.height() - 1), 0, 0 };
 
 				const auto CharWidthEnabled = char_width::is_enabled();
 
@@ -770,7 +770,7 @@ void ScreenBuf::Scroll(size_t Count)
 	{
 		if (console.IsScrollbackPresent())
 		{
-			rectangle Region = { 0, 0, ScrX, static_cast<int>(Count - 1) };
+			rectangle Region{ 0, 0, ScrX, static_cast<int>(Count - 1) };
 
 			// TODO: matrix_view to avoid copying
 			matrix<FAR_CHAR_INFO> BufferBlock(Count, ScrX + 1);

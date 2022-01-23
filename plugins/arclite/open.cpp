@@ -368,7 +368,7 @@ bool Archive::open(IInStream* stream, const ArcType& type) {
 
 static void prioritize(std::list<ArcEntry>& arc_entries, const ArcType& first, const ArcType& second) {
   std::list<ArcEntry>::iterator iter = arc_entries.end();
-  for (std::list<ArcEntry>::iterator arc_entry = arc_entries.begin(); arc_entry != arc_entries.end(); arc_entry++) {
+  for (std::list<ArcEntry>::iterator arc_entry = arc_entries.begin(); arc_entry != arc_entries.end(); ++arc_entry) {
     if (arc_entry->type == second) {
       iter = arc_entry;
     }
@@ -461,7 +461,7 @@ ArcEntries Archive::detect(
     const auto& format = signature.format;
     if (accepted_signature(sig_pos.pos, signature, buffer, size, stream, eof_i)) {
       found_types.insert(format.ClassID);
-      arc_entries.push_back(ArcEntry(format.ClassID, sig_pos.pos - format.SignatureOffset));
+      arc_entries.emplace_back(format.ClassID, sig_pos.pos - format.SignatureOffset);
     }
     else {
       eof_i = -1;
@@ -474,7 +474,7 @@ ArcEntries Archive::detect(
   std::for_each(types_by_ext.begin(), types_by_ext.end(), [&] (const ArcType& arc_type) {
     if (found_types.count(arc_type) == 0 && std::find(arc_types.begin(), arc_types.end(), arc_type) != arc_types.end()) {
       found_types.insert(arc_type);
-      arc_entries.push_front(ArcEntry(arc_type, 0));
+      arc_entries.emplace_front(arc_type, 0);
     }
   });
 
@@ -484,7 +484,7 @@ ArcEntries Archive::detect(
     if (found_types.count(arc_type) == 0) {
       const auto& format = ArcAPI::formats().at(arc_type);
       if (!format.Flags_ByExtOnlyOpen())
-        arc_entries.push_back(ArcEntry(arc_type, 0));
+        arc_entries.emplace_back(arc_type, 0);
     }
   });
 
@@ -577,7 +577,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
   ArcEntries arc_entries = detect(buffer.data(), size, size < max_check_size, extract_file_ext(arc_info.cFileName), options.arc_types, stream);
 
   for (ArcEntries::const_iterator arc_entry = arc_entries.cbegin(); arc_entry != arc_entries.cend(); ++arc_entry) {
-    std::shared_ptr<Archive> archive(new Archive());
+    const auto archive = std::make_shared<Archive>();
     if (options.open_password_len && *options.open_password_len == -'A')
       archive->m_open_password = *options.open_password_len;
     archive->arc_path = options.arc_path;
@@ -635,7 +635,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
 }
 
 std::unique_ptr<Archives> Archive::open(const OpenOptions& options) {
-  std::unique_ptr<Archives> archives(new Archives());
+  auto archives = std::make_unique<Archives>();
   open(options, *archives);
   if (!options.detect && !archives->empty())
     archives->erase(archives->begin(), archives->end() - 1);
@@ -660,7 +660,7 @@ void Archive::reopen() {
     if (!open(stream, arc_entry->type))
       FAIL(E_FAIL);
   }
-  arc_entry++;
+  ++arc_entry;
   while (arc_entry != arc_chain.end()) {
     UInt32 main_file;
     CHECK(get_main_file(main_file));
@@ -669,7 +669,7 @@ void Archive::reopen() {
     arc_info = get_file_info(main_file);
     sub_stream->Seek(arc_entry->sig_pos, STREAM_SEEK_SET, nullptr);
     CHECK(open(sub_stream, arc_entry->type));
-    arc_entry++;
+    ++arc_entry;
   }
 }
 

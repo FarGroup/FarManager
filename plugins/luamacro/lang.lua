@@ -25,6 +25,12 @@ local list = {
   "MBSepMacros",
   "MBSepActiveMacros",
   "MBSepEvents",
+  "MBSepMenuItems",
+  "MBSepActiveMenuItems",
+  "MBSepPrefixes",
+  "MBSepPanels",
+  "MBSepColumns",
+  "MBSepSortModes",
 
   -- macro browser messages
   "MBNoFileNameAvail",
@@ -33,6 +39,11 @@ local list = {
   -- macro browser F3 titles
   "MBTitleMacro",
   "MBTitleEventHandler",
+  "MBTitleMenuItem",
+  "MBTitlePrefix",
+  "MBTitlePanel",
+  "MBTitleColumn",
+  "MBTitleSortMode",
 
   -- custom panel sort
   "PSDefaultMenuItemText",

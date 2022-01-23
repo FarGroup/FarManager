@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/preprocessor.hpp"
+#include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
 
 // External:
@@ -429,6 +430,14 @@ static bool ExceptionTestHook(Manager::Key const& key)
 	if (none_of(key(), KEY_CTRLALTAPPS, KEY_RCTRLRALTAPPS, KEY_CTRLRALTAPPS, KEY_RCTRLALTAPPS))
 		return false;
 
+	static auto Processing = false;
+
+	if (Processing)
+		return false;
+
+	Processing = true;
+	SCOPE_EXIT{ Processing = false; };
+
 	static const std::pair<void(*)(), string_view> Tests[]
 	{
 		{ tests::cpp_far,                      L"C++ far_exception"sv },
@@ -451,7 +460,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::seh_access_violation_execute, L"SEH access violation (execute)"sv },
 		{ tests::seh_divide_by_zero,           L"SEH divide by zero"sv },
 		{ tests::seh_divide_by_zero_thread,    L"SEH divide by zero (thread)"sv },
-		{ tests::seh_int_overflow,             L"SEH int owerflow"sv },
+		{ tests::seh_int_overflow,             L"SEH int overflow"sv },
 		{ tests::seh_stack_overflow,           L"SEH stack overflow"sv },
 		{ tests::seh_fp_divide_by_zero,        L"SEH floating-point divide by zero"sv },
 		{ tests::seh_fp_overflow,              L"SEH floating-point overflow"sv },

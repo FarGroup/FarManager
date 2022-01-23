@@ -65,7 +65,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/scope_exit.hpp"
-#include "common/view/zip.hpp"
 
 // External:
 #include "format.hpp"
@@ -126,10 +125,10 @@ void disable_exception_handling()
 	LOGWARNING(L"Exception handling disabled"sv);
 }
 
-static std::atomic_size_t s_ExceptionHandlingInprogress;
+static std::atomic_bool s_ExceptionHandlingInprogress{};
 bool exception_handling_in_progress()
 {
-	return s_ExceptionHandlingInprogress != 0;
+	return s_ExceptionHandlingInprogress;
 }
 
 void force_stderr_exception_ui(bool const Force)
@@ -214,7 +213,7 @@ static bool write_minidump(const exception_context& Context, string_view const F
 	auto ExceptionRecord = Context.exception_record();
 	auto ContextRecord = Context.context_record();
 	EXCEPTION_POINTERS Pointers{ &ExceptionRecord, &ContextRecord };
-	MINIDUMP_EXCEPTION_INFORMATION Mei = { Context.thread_id(), &Pointers };
+	MINIDUMP_EXCEPTION_INFORMATION Mei{ Context.thread_id(), &Pointers };
 
 	return imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), Type, &Mei, nullptr, nullptr) != FALSE;
 }
@@ -611,8 +610,8 @@ public:
 			return;
 
 		m_BaseAddress = Record.NumberParameters == 4? Record.ExceptionInformation[3] : 0;
-		const auto& ThrowInfoRef = *reinterpret_cast<detail::ThrowInfo const*>(Record.ExceptionInformation[2]);
-		const auto& CatchableTypeArrayRef = *reinterpret_cast<detail::CatchableTypeArray const*>(m_BaseAddress + ThrowInfoRef.pCatchableTypeArray);
+		const auto& ThrowInfoRef = *view_as<detail::ThrowInfo const*>(Record.ExceptionInformation[2]);
+		const auto& CatchableTypeArrayRef = *view_as<detail::CatchableTypeArray const*>(m_BaseAddress + ThrowInfoRef.pCatchableTypeArray);
 		m_CatchableTypesRVAs = { &CatchableTypeArrayRef.arrayOfCatchableTypes, static_cast<size_t>(CatchableTypeArrayRef.nCatchableTypes) };
 	}
 
@@ -626,8 +625,8 @@ private:
 		if (m_Index == m_CatchableTypesRVAs.size())
 			return false;
 
-		const auto& CatchableTypeRef = *reinterpret_cast<detail::CatchableType const*>(m_BaseAddress + m_CatchableTypesRVAs[m_Index++]);
-		const auto& TypeInfoRef = *reinterpret_cast<std::type_info const*>(m_BaseAddress + CatchableTypeRef.pType);
+		const auto& CatchableTypeRef = *view_as<detail::CatchableType const*>(m_BaseAddress + m_CatchableTypesRVAs[m_Index++]);
+		const auto& TypeInfoRef = *view_as<std::type_info const*>(m_BaseAddress + CatchableTypeRef.pType);
 
 		Name = TypeInfoRef.name();
 		return true;
@@ -762,11 +761,11 @@ static bool handle_generic_exception(
 	if (ExceptionHandlingIgnored)
 		return false;
 
-	if (exception_handling_in_progress())
+	if (s_ExceptionHandlingInprogress)
 		return true;
 
-	++s_ExceptionHandlingInprogress;
-	SCOPE_EXIT{ --s_ExceptionHandlingInprogress; };
+	s_ExceptionHandlingInprogress = true;
+	SCOPE_EXIT{ s_ExceptionHandlingInprogress = false; };
 
 	string strFileName;
 
@@ -946,7 +945,7 @@ class seh_exception final: public far_exception
 {
 public:
 	template<typename... args>
-	explicit seh_exception(EXCEPTION_POINTERS& Pointers, args&&... Args):
+	explicit seh_exception(EXCEPTION_POINTERS const& Pointers, args&&... Args):
 		far_exception(FWD(Args)...),
 		m_Context(std::make_shared<seh_exception_context>(Pointers))
 	{}
@@ -1011,7 +1010,7 @@ static bool handle_seh_exception(
 	for (const auto& i : enum_catchable_objects(Context.exception_record()))
 	{
 		if (strstr(i, "std::exception"))
-			return handle_std_exception(Context, *reinterpret_cast<std::exception const*>(Context.exception_record().ExceptionInformation[1]), Function, PluginModule);
+			return handle_std_exception(Context, *view_as<std::exception const*>(Context.exception_record().ExceptionInformation[1]), Function, PluginModule);
 	}
 
 	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {});
@@ -1283,7 +1282,7 @@ namespace detail
 		return EXCEPTION_CONTINUE_SEARCH;
 	}
 
-	int seh_thread_filter(std::exception_ptr& Ptr, EXCEPTION_POINTERS* const Info)
+	int seh_thread_filter(std::exception_ptr& Ptr, EXCEPTION_POINTERS const* const Info)
 	{
 		// SEH transport between threads is currenly implemented in terms of C++ exceptions, so it requires both
 		if (!(HandleSehExceptions && HandleCppExceptions))

@@ -237,8 +237,8 @@ static FileFilterParams LoadHighlight(/*const*/ HierarchicalConfig& cfg, const H
 	unsigned long long MarkChar;
 	if (cfg.GetValue(key, names::MarkChar, MarkChar))
 	{
-		Colors.Mark.Char = LOWORD(MarkChar);
-		Colors.Mark.Transparent = LOBYTE(HIWORD(MarkChar)) == 0xff;
+		Colors.Mark.Char = extract_integer<WORD, 0>(MarkChar);
+		Colors.Mark.Transparent = extract_integer<BYTE, 0>(extract_integer<WORD, 1>(MarkChar)) == 0xff;
 	}
 	Item.SetColors(Colors);
 
@@ -804,7 +804,7 @@ static void SaveHighlight(HierarchicalConfig& cfg, const HierarchicalConfig::key
 		cfg.SetValue(key, names::mark_color(Index), view_bytes(Color.MarkColor));
 	}
 
-	cfg.SetValue(key, names::MarkChar, MAKELONG(Colors.Mark.Char, MAKEWORD(Colors.Mark.Transparent? 0xff : 0, 0)));
+	cfg.SetValue(key, names::MarkChar, make_integer<uint32_t>(uint16_t{ Colors.Mark.Char }, make_integer<uint16_t, uint8_t>(Colors.Mark.Transparent? 0xff : 0, 0)));
 	cfg.SetValue(key, names::ContinueProcessing, Item.GetContinueProcessing());
 }
 

@@ -271,8 +271,7 @@ void KeyBar::SetCustomLabels(KEYBARAREA Area)
 
 bool KeyBar::ProcessKey(const Manager::Key& Key)
 {
-	const auto LocalKey = Key();
-	switch (LocalKey)
+	switch (Key())
 	{
 		case KEY_KILLFOCUS:
 		case KEY_GOTFOCUS:

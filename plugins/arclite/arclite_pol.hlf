@@ -107,7 +107,7 @@ Standardowe moduły SFX mogą rozpakowywać tylko archiwa 7z.
 
 	#Usuń pliki po spakowaniu# - Usuwa pliki z dysku po poprawnym utworzeniu archiwum.
 
-	#Pakuj pliki otwarte do zapisu# - Wartość tej opcji jest pobierana z ~Ustawień systemowych Far~@:SystemSettings@
+	#Pakuj pliki otwarte do zapisu# - Wartość tej opcji jest pobierana z ~Ustawień systemowych Far~@:SystemSettings@.
 
 	#Ignoruj błędy# - Nie przerywa archiwizacji, gdy nie można otworzyć plików źródłowych.
 Dziennik błędów zostanie wyświetlony po zakończeniu archiwizacji.
@@ -249,7 +249,7 @@ jest dekompresowany w pamięci RAM (w najprostszym przypadku - całe archiwum).
 	#Zastąp ikonę# - Umieść własną ikonę (plik *.ico) w utworzonym instalatorze.
 	
 	#Zastąp wersję# - Można podać własne informacje o wersji dla utworzonego pliku wykonywalnego.
-#Wersja#  - Łańcuch powinien być w formacie 1.2.3.4
+#Wersja#  - Łańcuch powinien być w formacie 1.2.3.4.
 
 	#Konfiguracja instalatora# - Konfiguracja modułu instalatora.
 

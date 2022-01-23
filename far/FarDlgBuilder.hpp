@@ -185,7 +185,7 @@ private:
 	void SetNextY(DialogItemEx& Item);
 	void AddBorder(const wchar_t* TitleText);
 	void UpdateBorderSize();
-	intptr_t MaxTextWidth();
+	intptr_t MaxTextWidth() const;
 	void UpdateSecondColumnPosition();
 	void SetLastItemBinding(std::unique_ptr<DialogItemBinding>&& Binding);
 	int GetItemID(DialogItemEx const& Item) const;

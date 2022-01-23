@@ -68,8 +68,6 @@ HANDLE WINAPI _export OpenFilePlugin(char *Name,const unsigned char *Data,int Da
       return INVALID_HANDLE_VALUE;
   }
   HANDLE hPlugin=new PluginClass(ArcPluginNumber);
-  if (hPlugin==NULL)
-    return INVALID_HANDLE_VALUE;
   if (Name!=NULL)
   {
     PluginClass *Plugin=(PluginClass *)hPlugin;
@@ -116,7 +114,10 @@ HANDLE WINAPI _export OpenPlugin(int OpenFrom, INT_PTR Item)
     unsigned char *data;
     data = (unsigned char *) malloc(size*sizeof(unsigned char));
     if (!data)
-      return INVALID_HANDLE_VALUE;
+    {
+        CloseHandle(h);
+        return INVALID_HANDLE_VALUE;
+    }
     DWORD datasize;
     BOOL b = ReadFile(h,data,size,&datasize,NULL);
     CloseHandle(h);

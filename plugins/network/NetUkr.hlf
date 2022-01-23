@@ -47,28 +47,35 @@ $ #Конфігурація модуля перегляду мережі#
  #Додати до меню плагінів#
  Дозволяє додавання до меню плагінів пункту "Мережа".
 
- #Выводить ".." в списке провайдеров#
- Показывать ".." на панели в списке провайдеров.
+ #Show ".." in the providers list#
+ Show ".." on the panel in the list of providers. Selecting ".." will switch to the current working directory.
 
  #Показувати локальну мережу#
  Якщо включено цю опцію, то при початковому відкритті Network Browser буде показане мережне
 оточення поточного комп'ютера (комп'ютери, що знаходяться у тому ж домені або робочій групі).
 Опція діє тільки для мереж Microsoft Windows.
 
- #Показывать принтеры#
- Показывать предоставляемые хостом общие принтеры.
+ #Show printers#
+ Show shared printers.
 
- #Показывать полные пути к общим ресурсам#
- ...
+ #Scan network#
+ If this option is disabled, the plugin does not scan the network in search of devices.
+
+ #Show full share name#
+ When the option is enabled, \\Server1 and \\Server1\Share1 are displayed, when disabled - Server1 and Share1
 
  #Показувати приховані спільні ресурси#
  Якщо включено цю опцію, плагін буде показувати приховані (адміністративні) спільні ресурси.
 
- #Показывать скрытые ресурсы атрибутом Hidden#
- Если включена эта опция, плагин для скрытых административных ресурсов ставит атрибут Hidden.
+ - #Never show#
+   Don't show hidden shares.
+ - #Show as hidden#
+   Hidden shares are displayed in the panel with the attribute 'Hidden'.
+ - #Always show#
+   Hidden shares appear in the panel as normal.
 
- #Возврат в Избранное, если ресурс в избранном#
- ...
+ #Browse up to favorites if possible#
+ If the computer you are viewing has been added to favorites, then when you go up level "..", Favorites will open.
 
 
 @DisconnectDrive

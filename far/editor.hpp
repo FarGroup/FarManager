@@ -219,7 +219,7 @@ private:
 	void PasteFromClipboard();
 	void Paste(string_view Data);
 	void ProcessChar(wchar_t Char);
-	void Copy(int Append);
+	void Copy(bool Append);
 	void DeleteBlock();
 	void UnmarkBlock();
 	void UnmarkEmptyBlock();
@@ -383,7 +383,8 @@ private:
 	int Pasting{};
 	int XX2{}; //scrollbar
 	string strLastSearchStr;
-	bool LastSearchCase{}, LastSearchWholeWords{}, LastSearchReverse{}, LastSearchRegexp{}, LastSearchPreserveStyle{};
+	search_case_fold LastSearchCaseFold;
+	bool LastSearchWholeWords{}, LastSearchReverse{}, LastSearchRegexp{}, LastSearchPreserveStyle{};
 
 	int EditorID{};
 	int EditorControlLock{};

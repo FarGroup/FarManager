@@ -34,7 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "range.hpp"
-#include "scope_exit.hpp"
+#include "utility.hpp"
+
+#include <streambuf>
 
 //----------------------------------------------------------------------------
 
@@ -70,7 +72,7 @@ namespace io
 	{
 		try
 		{
-			Stream.read(static_cast<char*>(static_cast<void*>(Buffer.data())), Buffer.size());
+			Stream.read(edit_as<char*>(Buffer.data()), Buffer.size());
 		}
 		catch (std::ios::failure const&)
 		{

@@ -38,12 +38,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "palette.hpp"
 #include "plugin.hpp"
+#include "string_utils.hpp"
 
 // Platform:
 
 // Common:
 #include "common/multifunction.hpp"
 #include "common/monitored.hpp"
+#include "common/string_utils.hpp"
 #include "common/utility.hpp"
 
 // External:
@@ -53,9 +55,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct FarSettingsItem;
 class GeneralConfig;
 class RegExp;
+class DialogBuilder;
 struct PanelViewSettings;
-struct hash_icase_t;
-struct equal_icase_t;
 struct column;
 struct FARConfigItem;
 
@@ -165,7 +166,7 @@ public:
 	[[nodiscard]]
 	virtual string toString() const = 0;
 	[[nodiscard]]
-	virtual bool TryParse(const string& value) = 0;
+	virtual bool TryParse(string_view value) = 0;
 	[[nodiscard]]
 	virtual string ExInfo() const = 0;
 	[[nodiscard]]
@@ -174,7 +175,7 @@ public:
 	virtual bool IsDefault(const variant& Default) const = 0;
 	virtual void SetDefault(const variant& Default) = 0;
 	[[nodiscard]]
-	virtual bool Edit(class DialogBuilder& Builder, int Param) = 0;
+	virtual bool Edit(DialogBuilder& Builder, int Param) = 0;
 	virtual void Export(FarSettingsItem& To) const = 0;
 
 	[[nodiscard]]
@@ -332,11 +333,11 @@ public:
 	[[nodiscard]]
 	string toString() const override { return Get() ? L"true"s : L"false"s; }
 	[[nodiscard]]
-	bool TryParse(const string& value) override;
+	bool TryParse(string_view value) override;
 	[[nodiscard]]
 	string_view GetType() const override { return L"boolean"sv; }
 	[[nodiscard]]
-	bool Edit(class DialogBuilder& Builder, int Param) override;
+	bool Edit(DialogBuilder& Builder, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 
 	[[nodiscard]]
@@ -352,11 +353,11 @@ public:
 	[[nodiscard]]
 	string toString() const override { const auto v = Get(); return v == BSTATE_CHECKED? L"true"s : v == BSTATE_UNCHECKED? L"false"s : L"other"s; }
 	[[nodiscard]]
-	bool TryParse(const string& value) override;
+	bool TryParse(string_view value) override;
 	[[nodiscard]]
 	string_view GetType() const override { return L"3-state"sv; }
 	[[nodiscard]]
-	bool Edit(class DialogBuilder& Builder, int Param) override;
+	bool Edit(DialogBuilder& Builder, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 
 	[[nodiscard]]
@@ -372,13 +373,13 @@ public:
 	[[nodiscard]]
 	string toString() const override;
 	[[nodiscard]]
-	bool TryParse(const string& value) override;
+	bool TryParse(string_view value) override;
 	[[nodiscard]]
 	string ExInfo() const override;
 	[[nodiscard]]
 	string_view GetType() const override { return L"integer"sv; }
 	[[nodiscard]]
-	bool Edit(class DialogBuilder& Builder, int Param) override;
+	bool Edit(DialogBuilder& Builder, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 
 	IntOption& operator|=(long long Value){Set(Get()|Value); return *this;}
@@ -401,11 +402,11 @@ public:
 	[[nodiscard]]
 	string toString() const override { return Get(); }
 	[[nodiscard]]
-	bool TryParse(const string& value) override { Set(value); return true; }
+	bool TryParse(string_view value) override { Set(string(value)); return true; }
 	[[nodiscard]]
 	string_view GetType() const override { return L"string"sv; }
 	[[nodiscard]]
-	bool Edit(class DialogBuilder& Builder, int Param) override;
+	bool Edit(DialogBuilder& Builder, int Param) override;
 	void Export(FarSettingsItem& To) const override;
 
 	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}
@@ -440,7 +441,7 @@ public:
 	Options();
 	~Options();
 	void ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent);
-	using overrides = std::unordered_map<string, string, hash_icase_t, equal_icase_t>;
+	using overrides = unordered_string_map_icase<string_view>;
 	void Load(overrides&& Overrides);
 	void Save(bool Manual);
 	const Option* GetConfigValue(string_view Key, string_view Name) const;
@@ -1030,8 +1031,6 @@ public:
 	KnownModulesIDs KnownIDs;
 
 	StringOption strBoxSymbols;
-
-	BoolOption SmartFolderMonitor; // def: 0=always monitor panel folder(s), 1=only when FAR has input focus
 
 	int ReadOnlyConfig{-1};
 	int UseExceptionHandler{};
