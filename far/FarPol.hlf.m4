@@ -5455,372 +5455,374 @@ $ #Informacja o wersji#
 
 
 @FarConfig
-$ #Configuration editor#
- Starts with the command #far:config#
+$ #Edytor konfiguracji#
+ Wywoływany poleceniem #far:config#
 
- Allows to view and edit all Far Manager’s options.
- Most options can be changed from the ~Options menu~@OptMenu@, however some options are available only here or using configuration import.
-The options are displayed in a list with three fields per item: the name in the SectionName.ParamName format (for example, Editor.TabSize),
-the type (boolean, 3-state, integer, string), and the value (for the integer type, hexadecimal and symbolic representations additionally displayed).
-If current value of an option is other than the default, the option is marked with the ‘*’ character to the left of the name.
+ Pozwala na obejrzenie i edycję wszystkich opcji Far Manager.
+ Większość opcji można ustawić w menu ~Opcje~@OptMenu@, ale niektóre z nich są dostępny tylko tutaj lub poprzez import konfiguracji.
+Opcje są wyświetlane w postaci listy z trzema polami, wyświetlanymi w języku angielskim: nazwa w formacie NazwaSekcji.NazwaParametru
+(np. Editor.TabSize), typ wartości (boolean <prawda/fałsz>, trzystanowa, integer <liczba całkowita>, string <tekst>) oraz wartość
+(dla liczb całkowitych dodatkowo wyświetlana jest wartość szesnastkowa i symboliczna.
+Jeżeli bieżąca wartość opcji jest inna niż domyślna, opcja jest oznaczona znakiem gwiazdki ‘*’ po lewej stronie nazwy.
 
- Besides the list navigation keys, the following key combinations are supported:
+ Oprócz klawiszy nawigacyjnych, obsługiwane są następujące kombinacje klawiszy:
 
- #Enter# or #F4#
- Toggle or edit the value.
+ #Enter# lub #F4#
+ Przełącza lub edytuje wartość.
 
  #Shift+F4#
- Edit the integer value as a hexadecimal number. For other types works as #F4#.
+ Edytuje wartość całkowitą jako liczbę szesnastkową. Dla innych typów działa jak #F4#.
 
  #Alt+F4#
- Edit the integer value as a binary number. For other types works as #F4#.
+ Edytuje wartość całkowitą jak liczbę binarną. Dla innych typów działa jak #F4#.
 
  #Del#
- Reset the option to its default value.
+ Przywraca domyślną wartość opcji.
 
  #Ctrl+H#
- Toggle display of unchanged options.
+ Przełącza wyświetlanie nie zmienionych opcji.
 
  #Shift+F1#
- Show the help for the current option, if available.
+ Pokazuje pomoc dla bieżącej opcji, jeżeli jest dostępna.
 
  #Ctrl+Alt+F#
- Toggle quick filtering mode.
+ Przełącza tryb szybkiego filtrowania.
 
 
 @Codepages.NoAutoDetectCP
 $ #far:config Codepages.NoAutoDetectCP#
- This string parameter defines the code pages which will be excluded
-from Universal Codepage Detector (UCD) autodetect. Sometimes, especially
-on small files, UCD annoyingly chooses wrong code pages.
+ Ten parametr tekstowy definiuje strony kodowe, które będą wyłączane
+z autodetekcji Universal Codepage Detector (UCD). Czasami, szczególnie
+w przypadku małych plików, UCD irytująco wybiera niewłaściwe strony kodowe.
 
- The default value is empty string #""#. In this case all code pages
-detectable by UCD (about 20, much less than there is usually available
-in the system) are enabled.
+ Domyślną wartością jest pusty łańcuch #""#. W takim przypadku wszystkie
+strony kodowe wykrywane przez UCD (około 20, znacznie mniej niż zazwyczaj
+jest dostępnych w systemie) są włączone.
 
- If this parameter is set to string #"-1"# and the #Other# section
-of the ~Code pages~@CodePagesMenu@ menu is hidden (#Ctrl+H# key
-combination), only #System# (ANSI, OEM), #Unicode#, and #Favorites# code
-pages will be enabled for UCD. If the #Other# section is visible, all
-code pages are enabled.
+ Jeżeli ten parametr jest ustawiony na #"-1"# i sekcja #Pozostałe# w menu
+~Strony kodowe~@CodePagesMenu@ jest ukryta (kombinacja klawiszy #Ctrl+H#),
+tylko strony kodowe #Systemowe# (ANSI, OEM), #Unicode#, i #Ulubione# będą
+włączone dla UCD. Jeżeli sekcja #Pozostałe# jest widoczna, to wszystkie
+strony kodowe są włączone.
 
- Otherwise, this parameter should contain comma separated list
-of code page numbers disabled for UCD. For example,
+ W przeciwnym wypadku, parametr powinien zawierać listę stron kodowych
+wyłączonych dla UCD, oddzieloną przecinkami. Np.:
 #"1250,1252,1253,1255,855,10005,28592,28595,28597,28598,38598"#.
 
- Since Unicode code pages (1200, 1201, 65001) are detected outside
-of UCD, they cannot be disabled even if they appear on the exclusions
-list.
+ Ponieważ strony kodowe Unicode (1200, 1201, 65001) są wykrywane poza UCD,
+nie można ich wyłączyć, nawet jeżeli znajdują się na liście wykluczeń.
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Help.ActivateURL
 $ #far:config Help.ActivateURL#
- This numeric parameter controls whether Far will open (activate) URL
-links in help files:
+ Parametr liczbowy kontroluje czy Far będzie otwierał (aktywował) link
+URL w plikach pomocy:
 
- 0 - ^<wrap>URL links are not opened;
- 1 - URL links are opened;
- 2 - URL links are opened after user’s confirmation.
+ 0 - ^<wrap>linki URL nie będą otwierane;
+ 1 - linki URL będą otwierane;
+ 2 - linki URL będą otwierane po potwierdzeniu przez użytkownika.
 
- Default value: 1 (links are opened).
+ Domyślna wartość: 1 (linki będą otwierane).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Confirmations.EscTwiceToInterrupt
 $ #far:config Confirmations.EscTwiceToInterrupt#
- This Boolean parameter controls the behavior of #Esc# key in the
-confirmation dialog for canceling an operation.
+ Ten parametr logiczny (boolean) kontroluje zachowanie klawisza #Esc#
+w oknach dialogowych do operacji anulowania.
 
- False - ^<wrap>#Esc# key closes the dialog and continues the operation;
- True  - #Esc# key closes the dialog and cancels the operation.
+ False - ^<wrap>Klawisz #Esc# zamyka okno dialogowe i kontynuuje operację;
+ True  - Klawisz #Esc# zamyka okno dialogowe i anuluje operację.
 
- Default value: False (close the dialog and continue operation).
+ Domyślna wartość: False (zamyka okno dialogowe i kontynuuje operację).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @System.AllCtrlAltShiftRule
 $ #far:config System.AllCtrlAltShiftRule#
- This numeric parameter controls which user interface objects can be
-temporarily hidden with #Ctrl+Alt+Shift# key combination. Each bit
-corresponds to a certain object type.
+ Parametr liczbowy kontroluje, które obiekty interfejsu użytkownika
+mogą być tymczasowo ukryte za pomocą kombinacje klawiszy #Ctrl+Alt+Shift#.
+Każdy bit odpowiada określonemu typowi obiektu.
 
- Bit numbers:
- 0 - Panels;
- 1 - Editor;
- 2 - Viewer;
- 3 - Help window;
- 4 - Dialogs and menus.
+ Numery bitów:
+ 0 - Panele;
+ 1 - Edytor;
+ 2 - Podgląd;
+ 3 - Okno pomocy;
+ 4 - Okna dialogowe i menu.
 
- If a bit is set, objects of the corresponding type can be hidden.
+ Jeżeli bit jest ustawiony, obiekty odpowiadającego typu mogę być ukryte.
 
- By default, all objects can be hidden.
+ Domyślnie, wszystkie obiekty mogą być ukryte.
 
- See also ~System.CASRule~@System.CASRule@.
+ Zobacz także ~System.CASRule~@System.CASRule@.
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @System.CASRule
 $ #far:config System.CASRule#
- This numeric parameter allows to disable #Ctrl+Alt+Shift# key
-combination for temporary hiding user interface objects. Individual
-bits control the behavior of left and right key combinations.
+ Parametr liczbowy pozwala wyłączyć kombinację klawiszy #Ctrl+Alt+Shift#
+dla tymczasowego ukrycia obiektów interfejsu użytkownika. Poszczególne
+bity kontrolują zachowanie lewej i prawej kombinacji klawiszy.
 
- Bit numbers:
- 0 - Left #Ctrl+Alt+Shift# key combination;
- 1 - Right #Ctrl+Alt+Shift# key combination.
+ Numery bitów:
+ 0 - Lewa kombinacja klawiszy #Ctrl+Alt+Shift#;
+ 1 - Prawa kombinacja klawiszy #Ctrl+Alt+Shift#.
 
- If a bit is set, corresponding key combination hides interface objects.
+ Jeżeli dany bit jest ustawiony, odpowiadająca kombinacja klawiszy ukrywa
+obiekty interfejsu.
 
- By default, both key combinations are enabled.
+ Domyślnie obie kombinacje klawiszy są włączone.
 
- See also ~System.AllCtrlAltShiftRule~@System.AllCtrlAltShiftRule@.
+ Zobacz także ~System.AllCtrlAltShiftRule~@System.AllCtrlAltShiftRule@.
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Panel.ShellRightLeftArrowsRule
 $ #far:config Panel.ShellRightLeftArrowsRule#
- This Boolean parameter controls the behavior of left and right arrow
-keys, both on main keyboard and numeric keypad.
+ Ten parametr logiczny kontroluje zachowanie lewego i prawego klawisza
+strzałki (kursora), zarówno na klawiaturze głównej jak i numerycznej.
 
- False - ^<wrap>As in Far 1.70. If command line is not empty, the
-behavior of #Left#, #Right#, #Numpad4#, and #Numpad6# keys depends
-on the ~panel view mode~@PanelViewModes@.
-         - ^<wrap>If file names are displayed in multiple stripes (panel
-modes 2 and 3 by default), then the keys move panel cursor, just like
-with empty command line.
-         - ^<wrap>If file names are displayed in a single stripe (all
-other panel modes by default), the keys control the command line caret.
- True  - ^<wrap>When the panel is on, the #Left#, #Right#, #Numpad4#,
-and #Numpad6# keys always move panel cursor, even if the command line
-is not empty. The behavior does not depend on the current panel mode.
+ False - ^<wrap>Tak jak w Far 1.70. Jeżeli wiersz poleceń nie jest pusty,
+zachowanie klawiszy #Lewo#, #Prawo#, #Numpad4# i #Numpad6# zależą od
+~trybu widoku panelu~@PanelViewModes@.
+         - ^<wrap>Jeżeli nazwy plików wyświetlane są w wielu kolumnach
+(domyślny tryb panelu - 2 lub 3 kolumny), to klawisze te przesuwają
+kursor w panelach, tak jak przy pustym wierszu poleceń.
+         - ^<wrap>Jeżeli nazwy plików wyświetlane są w jednej kolumnie
+(domyślnie wszystkie inne tryby panelu), to klawisze sterują kursorem
+w wierszu poleceń.
+ True  - ^<wrap>Jeżeli panel jest włączony, to klawisze #Lewo#, #Prawo#,
+#Numpad4#, i #Numpad6# zawsze przesuwają kursor w panelu plików,
+nawal jeżeli wiersz poleceń nie jest pusty. Zachowanie to nie zależy
+od bieżącego trybu panelu.
 
- Note: The #Ctrl+D# and #Ctrl+S# keys always move command line caret.
+ Uwaga: Klawisze #Ctrl+D# i #Ctrl+S# zawsze przesuwają kursor wiersza poleceń.
 
- Default value: False (traditional behavior).
+ Domyślna wartość: False (tradycyjne zachowanie).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Panel.Layout.ScrollbarMenu
 $ #far:config Panel.Layout.ScrollbarMenu#
- This Boolean parameter enables menu scrollbar when there are more menu
-items than can fit vertically.
+ Ten parametr logiczny włącza pasek przewijania menu, gdy w menu znajduje się
+więcej pozycji, niż można zmieścić w pionie.
 
- False - ^<wrap>Never show menu scrollbar;
- True  - Show menu scrollbar if needed.
+ False - ^<wrap>Nigdy nie pokazuj paska przewijania;
+ True  - Pokaż pasek przewijania, jeżeli będzie potrzebny.
 
- Default value: True (show menu scrollbar if needed).
+ Domyślna wartość: True (pokaż pasek przewijania, gdy będzie potrzebny).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Panel.CtrlFRule
 $ #far:config Panel.CtrlFRule#
- This Boolean parameter controls the behavior of #Ctrl+F# key
-combination in the ~command line~@CmdLineCmd@.
+ Ten parametr logiczny kontroluje zachowanie kombinacji klawiszy #Ctrl+F5#
+w ~wierszu poleceń~@CmdLineCmd@.
 
- False - ^<wrap>The file name is inserted into the command line as it is
-recorded in the file system;
- True  - The file name is inserted as it appears on the file panel,
-possibly in lowercase or using the short name.
+ False - ^<wrap>Nazwa pliku wstawiana jest do wiersza poleceń tak,
+jak zapisana jest w systemie plików;
+ True  - Nazwa pliku wstawiana jest tak wygląda w panelu plików,
+najczęściej małymi literami lub używając krótkich nazw.
 
- Default value: False (insert as is).
+ Domyślna wartość: False (wstawia tak jak wygląda).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Panel.CtrlAltShiftRule
 $ #far:config Panel.CtrlAltShiftRule#
- This numeric parameter controls the behavior of #Ctrl+Alt+Shift# key
-combination for temporary hiding file panels.
+ Ten parametr numeryczny kontroluje zachowanie kombinacji klawiszy
+#Ctrl+Alt+Shift# do tymczasowego ukrycia paneli plików.
 
- 0 - ^<wrap>Hide panels only (like #Ctrl+O# key combination);
- 1 - Hide panels and command line;
- 2 - Hide panels, command line, and functional key bar at the bottom
-line.
+ 0 - ^<wrap>Ukrywa tylko panele (tak jak kombinacja klawiszy #Ctrl+O#);
+ 1 - Ukrywa panele i wiersz poleceń;
+ 2 - Ukrywa panele, wiersz poleceń i dolny pasek klawiszy funkcyjnych.
 
- Default value: 0 (hide panels only).
+ Domyślna wartość: 0 (ukrywa tylko panele).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Panel.RightClickRule
 $ #far:config Panel.RightClickRule#
- This numeric parameter controls the behavior of #right mouse click#
-on an empty stripe of file panel.
+ Ten parametr numeryczny kontroluje zachowanie #kliknięcia prawego klawisza myszy#
+na pustej kolumnie panelu plików.
 
- 0 - ^<wrap>Move panel cursor to the last file in the previous stripe
-and select the file;
- 1 - Move panel cursor to the last file in the previous stripe without
-selecting the file (like the #left mouse click#);
- 2 - Do not move panel cursor or select any file.
+ 0 - ^<wrap>Przesuwa kursor panelu do ostatniego pliku w poprzedniej kolumnie
+i zaznacza ten plik;
+ 1 - Przesuwa kursor do ostatniego pliku w poprzedniej kolumnie bez zaznaczania
+pliku (tak jak #kliknięcie lewym klawiszem myszy#);
+ 2 - Nie przesuwaj kursora panelu ani nie zaznaczaj żadnego pliku.
 
- Note: If the stripe is not empty the last file is always selected.
+ Uwaga: Jeżeli kolumna nie jest pusta, to zawsze zaznaczany jest ostatni plik.
 
- Default value: 2 (do nothing).
+ Domyślna wartość: 2 (nic nie rób).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @System.ExcludeCmdHistory
 $ #far:config System.ExcludeCmdHistory#
- This numeric parameter suppresses saving commands of certain categories
-to the history. If a bit in the parameter’s value is set, commands
-of the corresponding category will not be saved.
+ Ten parametr numeryczny wyłącza zapisywanie poleceń z niektórych kategorii
+do historii. Jeżeli bit w parametrze jest ustawiony, to polecenia
+z odpowiadającej kategorii nie będą zapisywane.
 
- Bit numbers and corresponding command categories:
- 0 - ^<wrap>Windows file type associations;
- 1 - Far ~file associations~@FileAssoc@;
- 2 - Executable files under cursor on ~file panel~@FuncCmd@;
- 3 - Commands entered on ~command line~@CmdLineCmd@.
+ Numery bitów i odpowiadające im kategorie poleceń:
+ 0 - ^<wrap>Skojarzenia typów plików Windows;
+ 1 - ~Przypisania plików~@FileAssoc@ Far;
+ 2 - Pliki wykonywalne pod kursorem w ~panelu plików~@FuncCmd@;
+ 3 - Komendy wpisywane w ~wierszu poleceń~@CmdLineCmd@.
 
- Default value: 0 (save commands of all categories).
+ Domyślna wartość: 0 (zapisu polecenia z wszystkich kategorii).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @System.Executor.RestoreCP
 $ #far:config System.Executor.RestoreCP#
- This Boolean parameter controls whether Far will restore console code
-page after the execution of an external program has completed. Some
-programs change console code page during execution and do not restore
-it before exiting. Use this parameter to compensate for this behavior.
+ Ten parametr logiczny kontroluje, czy Far przywróci stronę kodową
+konsoli po zakończeniu wykonywania zewnętrznego programu. Niektóre
+programy zmieniają stronę kodową podczas pracy i nie przywracają
+poprzedniej przed zakończeniem. Użyj tego parametru, aby kontrolować
+to zachowanie.
 
- False - ^<wrap>Leave it as is; do not restore console code page;
- True  - Restore console code page after an external program exited.
+ False - ^<wrap>Zostaw tak jak jest; nie przywracaj strony kodowej;
+ True  - Przywróć stronę kodową konsoli po zakończeniu zewnętrznego programu.
 
- Default value: True (restore console code page).
+ Domyślna wartość: True (restore console code page).
 
- See also #CHCP# ~Operating system~@OSCommands@ command.
+ Zobacz także polecenie ~Systemu operacyjnego~@OSCommands@ #CHCP#.
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @System.Executor.ExcludeCmds
 $ #far:config System.Executor.ExcludeCmds#
- This string parameter defines commands which will be directly passed
-for execution to the operating system command processor (specified
-by the #ComSpec# environment variable), without searching the current
-directory, directories listed on the #PATH# environment variable,
-or any other predefined places.
+ Ten parametr tekstowy definiuje polecenia, które będą przekazywane
+bezpośrednio do wykonania przez procesor poleceń systemu operacyjnego
+(określonego przez zmienną środowiskową #ComSpec#), bez przeszukiwania
+bieżącego folderu, folderów umieszczonych w zmiennej środowiskowej
+#PATH# lub w innych predefiniowanych miejscach.
 
- The commands are separated by semicolon (#;#). Environment variables
-surrounded by the percent sign (#%#) will be substituted.
+ Polecenia oddzielone są średnikami (#;#). Zmienne środowiskowe
+poprzedzone znakiem procentu (#%#) zostaną zastąpione ich zawartością.
 
- For example, if the value of this parameter is “DATE;ECHO” and “date”
-is entered on the command line, the internal command processor’s #DATE#
-command will be executed. To execute an external program “date.exe”,
-type the file name verbatim, including extension. However, if “DATE”
-is not listed in this parameter and the program “date.exe” exists
-in one of the #PATH# directories, the internal command processor’s
-command can never be executed.
+ Np. jeżeli wartością tego parametru jest test “DATE;ECHO” i wpisane
+zostanie w wierszy poleceń “date”, to zostanie uruchomione polecenie
+#DATE# wewnętrznego procesora danych . Aby wykonać zewnętrzny program
+o nazwie “date.exe”, należy wpisać dokładnie nazwę pliku, wraz z rozszerzeniem.
+Jednakże, jeżeli “DATE” nie jest wymieniona w tym parametrze, a program
+o nazwie “date.exe” istnieje w jednym z folderów zmiennej #PATH#,
+to polecenie wewnętrznego procesora może nie zostanie nigdy uruchomione.
 
- Ready-made settings for CMD.EXE, COMMAND.COM, and other well-known
-command processors can be found in the
-#Addons\SetUp\Executor.*.farconfig# files.
+ Gotowe ustawienia dla CMD.EXE, COMMAND.COM i innych znanych procesorów
+poleceń można znaleźć w plikach #Addons\SetUp\Executor.*.farconfig#.
 
- Note: Far executes some ~operating system~@OSCommands@ commands
-internally, without invoking operating system command processor. These
-commands are not included in #Executor.*.farconfig# files. Some other
-OS commands Far executes with the limited functionality. If the syntax
-does not match exactly that specified in the
-~Operating system commands~@OSCommands@ help topic, the command will
-be passed for execution to the command processor.
+ Uwaga: Far wykonuje niektóre polecenia ~systemu operacyjnego~@OSCommands@
+wewnętrznie, bez wywoływania procesora poleceń systemu operacyjnego.
+Polecenia te nie są zawarte w plikach #Executor.*.farconfig#.
+Niektóre inne polecenia systemowe Far wykonuje z ograniczoną funkcjonalnością.
+Jeżeli składnia nie odpowiada dokładnie tej określonej w poleceniach
+~systemu operacyjnego~@OSCommands@, to polecenie zostanie przekazane
+do wykonania procesorowi poleceń.
 
- Default value: empty string #""#.
+ Domyślna wartość: pusty łańcuch #""#.
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @System.Executor.ComspecArguments
 $ #far:config System.Executor.ComspecArguments#
- This string parameter defines the arguments which Far will use to
-invoke the operating system command processor (specified by the
-#ComSpec# environment variable).
+ Ten parametr tekstowy określa argumenty, których Far użyje do wywołania
+procesora poleceń systemu operacyjnego (określonego przez zmienną
+systemową #ComSpec#).
 
- The #{0}# placeholder will be replaced with the text of the command.
-This parameter is handy with non-standard command processors requiring
-unusual command line options or quoting.
+ Parametr #{0}# zostanie zastąpiony tekstem polecenia. Ten parametr
+jest przydatny przy niestandardowych poleceniach procesora wymagających
+nietypowych opcji wiersza poleceń lub cytowań.
 
- Default value: #/S /C "{0}"# (compatible with CMD.EXE).
+ Domyślna wartość: #/S /C "{0}"# (zgodne z CMD.EXE).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Interface.FormatNumberSeparators
 $ #far:config Interface.FormatNumberSeparators#
- This string parameter allows to override digit grouping symbol and
-decimal symbol in OS regional settings.
+ Ten parametr tekstowy pozwala na nadpisanie symboli grupowania cyfr
+(tysięcy) i symbolu dziesiętnego (ułamki) w regionalnych ustawieniach
+systemu operacyjnego.
 
- First symbol  - ^<wrap>digit grouping symbol;
- Second symbol - decimal separator symbol.
+ Pierwszy symbol  - ^<wrap>symbol grupowania cyfr (rozdzielenie tysięcy);
+ Drugi symbol - symbol separatora dziesiętnego (ułamka).
 
- Default value: empty string #""# (use OS regional settings).
+ Domyślna wartość: pusty ciąg #""# (użyj ustawień regionalnych systemu).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @System.CmdHistoryRule
 $ #far:config System.CmdHistoryRule#
- This Boolean parameter defines whether the current position
-in ~commands history~@History@ will change if #Esc# is pressed after
-#Ctrl+E# or #Ctrl+X# key combinations.
+ Ten parametr logiczny określa czy bieżąca pozycja w ~historii poleceń~@History@
+zmieni się po naciśnięciu klawisza #Esc# po wciśnięciu kombinacji klawiszy
+#Ctrl+E# lub #Ctrl+X#.
 
- False - ^<wrap>The current command in the history will remain the one
-recalled with #Ctrl+E# / #Ctrl+X#.
- True  - The current command in the history will be reset to the latest
-(newest) command.
+ False - ^<wrap>Aktualnym poleceniem w historii pozostanie polecenie
+wywołane za pomocą #Ctrl+E# / #Ctrl+X#.
+ True  - Bieżące polecenie w historii zostanie zresetowanie do ostatniego
+(najnowszego) polecenia.
 
- Note: The order of the commands in the history does not change in any
-case.
+ Uwaga: Kolejność poleceń w historii nie ulega zmianie w żadnym przypadku.
 
- Default value: False (change the current position in the commands
-history).
+ Domyślna wartość: False (zmienia bieżącą pozycję historii poleceń).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @System.ConsoleDetachKey
 $ #far:config System.ConsoleDetachKey#
- This string parameter specifies key combination to detach Far console
-from a non-interactive process running in it.
+ Ten parametr tekstowy określa kombinację klawiszy do odłączenia konsoli
+Far od nie-interaktywnego procesu uruchomionego w konsoli.
 
- If a long-running process is using Far console, press this key
-combination to create a new Far console where Far will continue running
-as if the process has already ended, while leaving the old console
-to the process.
+ Jeżeli długo trwający proces używa konsoli Far, można nacisnąć tę kombinację
+klawiszy, aby utworzyć nową konsolę Far w której Far będzie kontynuował
+pracę tak jakby ten proces zakończył się, pozostawiając dla procesu
+starą konsolę.
 
- This feature can come handy if, for example, an archiver process
-started from the Far command line is taking more time than you
-expected, and you want to continue editing a file opened in background
-Editor, or simply do not want to launch a new Far instance.
+ Funkcja może się przydać np. jeżeli proces archiwizacji uruchomiony z wiersza
+poleceń Far zabiera więcej czasu niż się spodziewane, a użytkownik chce w tym
+czasie edytować plik wcześniej otwarty w Edytorze (działający w tle)
+lub nie chce uruchamiać nowej instancji Far.
 
- Default value: #"CtrlShiftTab"# (the #Ctrl+Shift+Tab# key combination
-detaches Far console).
+ Domyślna wartość: #"CtrlShiftTab"# (kombinacja klawiszy #Ctrl+Shift+Tab#
+odłącza konsolę Far).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @System.QuotedSymbols
 $ #far:config System.QuotedSymbols#
- This string parameter defines special characters that require quoting
-of file and folder names. If a name contains one of these characters,
-Far will surround it with double quotes when inserting into the command
-line or editor, or copying to the clipboard.
+ Ten parametr tekstowy definiuje znaki specjalne, które wymagają użycia
+znaków cytowania, aby użyć nazw plików lub folderów. Jeżeli nazwa zawiera
+jeden z tych znaków, Far otoczy ją podwójnym cudzysłowem podczas wstawiania
+do wiersza poleceń, edytora lub kopiowania do schowka.
 
- Default value: #" &()[]{}^=;!'+,` "#. The first symbol is
-~Space (U+0020)~@https://en.wikipedia.org/wiki/Space_(punctuation)@;
-the last symbol is ~Non-breaking space (U+00A0)~@https://en.wikipedia.org/wiki/Non-breaking_space@.
+ Domyślna wartość: #" &()[]{}^=;!'+,` "#. Pierwszy symbol to Spacja (U+0020)
+~Wikipedia EN~@https://en.wikipedia.org/wiki/Space_(punctuation)@ / ~Wikipedia PL~@https://pl.wikipedia.org/wiki/Spacja@;
+ostatni symbol to Spacja niełamiąca (U+00A0) ~Wikipedia EN~@https://en.wikipedia.org/wiki/Non-breaking_space@
+/ ~Wikipedia PL~@https://pl.wikipedia.org/wiki/Spacja_nie%C5%82ami%C4%85ca@.
 
- See also ~System.QuotedName~@System.QuotedName@.
+ Zobacz także ~System.QuotedName~@System.QuotedName@.
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @System.QuotedName
