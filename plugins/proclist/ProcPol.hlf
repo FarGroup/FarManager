@@ -14,7 +14,7 @@ tej opcji używać, gdy użytkownik będzie absolutnie pewien.
 
    Klawisze specjalne używane przez tę wtyczkę:
 
-  #F6#            Oglądanie procesów na zdalnym komputerze w sieci.
+ #F6#            Oglądanie procesów na zdalnym komputerze w sieci.
 
  #Shift-F6#      Powrót do komputera lokalnego.
 
@@ -24,8 +24,7 @@ tej opcji używać, gdy użytkownik będzie absolutnie pewien.
 
  #Alt-Shift-F9#  Wywołanie okna ~Konfiguracji~@Config@.
 
- Zobacz także: ~Liczniki wydajności~@PerfCounters@
-               ~Specjalne typy kolumn~@Columns@
+ Zobacz także: ~Liczniki wydajności~@PerfCounters@, ~Specjalne typy kolumn~@Columns@
 
 
 @PerfCounters

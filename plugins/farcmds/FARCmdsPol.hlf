@@ -5,8 +5,8 @@
 
 @Contents
 $ #Polecenia FAR#
-   Wtyczka Polecenia FAR (FARCmds) provides a number of additional commands available
-in command line via prefixes.
+   Wtyczka Polecenia FAR (FARCmds) udostępnia szereg dodatkowych poleceń w linii poleceń
+za pomocą prefiksów.
 
    Dodatkowo, polecenia mogą być używane w ~Menu użytkownia~@:UserMenu@,
 w ~powiązaniach plików~@:FileAssoc@, oraz w oknie dialogowym ~Zastosuj polecenie~@:ApplyCmd@ (#Ctrl-G#)
@@ -26,115 +26,115 @@ w ~powiązaniach plików~@:FileAssoc@, oraz w oknie dialogowym ~Zastosuj polecen
              ~load~@Load@     - załaduj wtyczkę
              ~unload~@Unload@   - wyładuj wtyczkę
 
-   #opcje# - ^<wrap>optional parameters, see corresponding commands descriptions.
+   #opcje# - ^<wrap>parametry opcjonalne, więcej informacji w opisach poleceń.
 
    #obiekt#  - ^<wrap>jeden z poniższych:
-             #nazwapliku# - ^<wrap>name of the file to be viewed, edited or jumped to.
-             #ścieżka#     - ^<wrap>file or directory path to jump to.
-             #<polecenie# - ^<wrap>~intercept output~@Direction@ of operation system command. Symbol #<# is obligatory.
+             #nazwa_pliku# - ^<wrap>nazwa pliku do podglądu, edycji lub pokazania na liście.
+             #ścieżka#     - ^<wrap>ścieżka do pliku lub folderu, do której nastąpi przejście.
+             #<polecenie# - ^<wrap>~przekierowanie wyjścia~@Direction@ z poleceń systemu
+             operacyjnego. Symbol #<# jest wymagany.
 
    Zobacz także: ~Konfiguracja poleceń FAR~@Config@ | ~Uwagi~@Remark@
 
 
 @Load
 $ #Polecenie Load#
-   The #load# command allows to load plugins manually.
+   Polecenie #load# pozwala ręcznie wczytać wtyczki.
 
-   - Plugin path can be provided as a command argument:
+   - Ścieżka do wtyczki może być podana jako parametr polecenia:
 
-      #load:DLL_module_name#
+      #load:nazwa_modułu_DLL#
 
-   - or picked from provided "#filename#":
+   - lub pobrana z podanej "#nazwy_pliku#":
 
-      #load: <filename#
+      #load: <nazwa_pliku#
 
    Zobacz także: ~unload~@Unload@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
 
 
 @Unload
 $ #Polecenie Unload#
-   The #unload# command allows to unload plugins manually.
+   Polecenie #unload# pozwala na ręczne wyłączenie wtyczki.
 
-   - Plugin path can be provided as a command argument:
+   - Ścieżka do wtyczki może być podana jako parametr polecenia:
 
-      #unload:DLL_module_name#
+      #unload:nazw_modułu_DLL#
 
-   - or picked from provided "#filename#":
+   - lub pobrana z podanej "#nazwy_pliku#":
 
-      #unload: <filename#
+      #unload: <nazwa_pliku#
 
-   Plugin GUID can also be used instead of DLL path.
+   Zamiast ścieżki do biblioteki DLL można użyć GUID wtyczki.
 
    Zobacz także ~load~@Load@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
 
 
 @Clip
 $ #Polecenie Clip#
-   The #clip# command puts data into the Windows clipboard.
-The data can be the contents of a file or the output of a program.
-The clipboard will contain all the data up to the character with the
-code #0x00#.
-Размер помещаемых данных можно задавать в диалоге конфигурации плагина. По
-умолчанию - 1 MB.
+   Polecenie #clip# umieszcza dane w schowku systemu Windows.
+Dane mogą być zawartością pliku lub wynikiem działania programu.
+Schowek zawiera wszystkie dane, aż do znaku o kodzie #0x00#.
+Rozmiar umieszczanych danych można ustawić w oknie konfiguracji wtyczki.
+Domyślna wielkość to 1 MB.
 
    #clip:nazwa_pliku#
 
-   Передаваемые команде данные нулевого размера очищают буфер обмена.
+   Dane o zerowym rozmiarze przekazane do schowka spowodują wyczyszczenie schowka.
 
    Zobacz także: ~Przekierowanie wyjścia~@Direction@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
 
 
 @Run
 $ #Polecenie Run#
-   The #run# command executes an operating system #command# redirecting
-its output to the specified file #"filename"#. Output can also be displayed
-on the screen or hidden from the user using ~Output Redirection~@Direction@ modifiers.
+   Polecenie #run# wykonuje #polecenie# systemu operacyjnego z przekierowaniem wyniku
+do pliku podanego jako #"nazwa_pliku"#. Wynik można także wyświetlić na ekranie
+lub ukryć przed użytkownikiem stosując ~przekierowanie wyjścia~@Direction@.
 
-   #run:filename<command#
+   #run:nazwa_pliku<polecenie#
 
    Zobacz także: ~Przekierowanie wyjścia~@Direction@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
 
 
 @View
 $ #Polecenie View#
-   The #view# command opens the file "#filename#" in the FAR
-built-in ~viewer~@:Viewer@:
+   Polecenie #view# otwiera plik o nazwa #"nazwa_pliku"# we wbudowanym ~podglądzie~@:Viewer@ plików.
 
-   #view:filename#
+   #view:nazwa_plik#
 
-   See also: ~edit~@Edit@ | ~Output Redirection~@Direction@ | ~Notes~@Remark@ | ~Contents~@Contents@
+   Zobacz także: ~Edycja~@Edit@ | ~Przekierowanie wyjścia~@Direction@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
 
 
 @Edit
 $ #Polecenie Edit#
-   The #edit# command opens the file "#filename#" for editing
-in the FAR built-in ~editor~@:Editor@.
+   Polecenie #edit# otwiera plik "#nazwa_pliku#" do edycji
+we wbudowanym ~edytorze~@:Editor@ FAR.
 
-      #edit:filename#
+      #edit:nazwa_pliku#
 
-   If the file "#filename#" does not exist, it will be created.
-   If the newly created file is not changed before leaving the editor, it will
-be deleted (same behaviour as #Shift-F4#).
+   Jeżeli plik "#nazwa_pliku#" nie istnieje, zostanie on utworzony.
+   Jeżeli nowo utworzony plik nie zostanie zmieniony przed wyjściem z edytora,
+zostanie on usunięty (podobnie jak #Shift+F4#).
 
-   При открытии файла можно сразу перейти в заданную позицию. Для этого в квадратных скобках
-надо указать нужную строку и колонку (любую компоненту можно не указывать, по умолчнию одна будет равна 1).
-Квадратные скобки обязательны!
+   Podczas otwierania pliku, można przeskoczyć do określonej pozycji. W tym celu należy podać
+żądany wiersz i kolumnę w nawiasach kwadratowych (można pominąć dowolny element, domyślnie będzie
+to oznaczać wartość 1).
+Nawiasy kwadratowe są obowiązkowe!
 
-      #edit:[строка] имяфайла#
+      #edit:[wiersz] nazwa_pliku#
 
-      #edit:[строка,колонка] имяфайла#
+      #edit:[wiersz, kolumna] nazwa_pliku#
 
-      #edit:[,колонка] имяфайла#
+      #edit:[,kolumna] nazwa_pliku#
 
-   В качестве строки и колонки допускается указывать переменные среды, содержащие числа.
-Например, переменная среды Line равна 10. В этом случае произойдёт позиционирование курсора
-на 10 строку (позиция в строке 1) в файле "File.txt":
+   Dozwolone jest użycie zmiennych środowiskowych zawierających liczby w określaniu wiersza
+i kolumny. Np. zmienna środowiskowa Linia ma wartość 10. W tym przypadku kursor zostanie
+ustawiony w linii nr 10 (w kolumnie nr 1) pliku "Plik.txt":
 
-   edit:[%Line%,] File.txt
+   edit:[%Linia%,] Plik.txt
 
-   If the filename contains square brackets (for example: "[1].txt"), then for
-the correct opening of the file in the editor you must provide at least one delimiter
-(e.g. a space) before the filename, or enclose it in quotation marks:
+   Jeżeli nazwa pliku zawiera nawiasy kwadratowe (np. "[1].txt"), wtedy aby poprawnie
+otworzyć plik w edytorze należy zastosować przynajmniej jeden znak odstępu (np. spację)
+przed nazwą pliku lub ująć nazwę pliku w cudzysłów:
 
    edit: [1].txt
    edit:"[1].txt"

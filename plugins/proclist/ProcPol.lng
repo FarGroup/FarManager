@@ -25,17 +25,17 @@
 "Uruchomiony od"
 "Czas działania"
 
-"Size of all modules"
+"Wielkość wszystkich modułów"
 "Memory heap size"
 
-"Tytuł Okna"
+"Tytuł okna"
 "Styl okna"
 "Styl rozszerzony"
 
 "Zakończ proces"
 "Chcesz zabić proces \"{0}\"?"
-"Zabij zaznaczone procesy?"
-"Chces zabić {0} procesów?"
+"Zabić zaznaczone procesy?"
+"Chcesz zabić {0} procesów?"
 "Zakończ"
 "Nie mogę zakończyć \"{0}\""
 
@@ -54,7 +54,7 @@
 
 "Łączenie..."
 
-"Nie można zdalnie zabic procesów"
+"Nie można zdalnie zabić procesów"
 
 "Prior-"
 "Prior+"
@@ -70,17 +70,17 @@
 
 "Linia poleceń"
 "Bieżący folder"
-"Środowisko"
+"Środowisko:"
 
 "Wersja pliku"
 "Opis"
 
-"Moduły:"
+"Moduły"
 "Adres"
 "Wielk."
 "Ścieżka, wersja, opis"
-"Ścieżka (informacje o wersji nie są wyświetlane"
-"Uchwyty"
+"Ścieżka (informacje o wersji nie są wyświetlane)"
+"Uchwyty:"
 "Uchwyt"
 "Dostęp"
 "Typ"
@@ -93,10 +93,10 @@
 "Dołącz w dodatkowych informacjach:"
 "Ś&rodowisko (tylko lokalne)"
 "Info o &module"
-"&Wersja i opis modułu"
-"Pe&rformance data"
-"&Handles (local only)"
-"Include unnamed handles"
+"W&ersja i opis modułu"
+"D&ane wydajności"
+"&Uchwyty (tylko lokalne)"
+"Dołącz uchwyty bez nazwy"
 
 "Czas procesora"
 "Czas uprzywilejowany"
