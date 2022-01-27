@@ -1099,13 +1099,13 @@ void xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize)
 TEST_CASE("ConvertFileSizeString")
 {
 	constexpr auto
-		B = 1ull,
-		K = B * 1024,
-		M = K * 1024,
-		G = M * 1024,
-		T = G * 1024,
-		P = T * 1024,
-		E = P * 1024;
+		B =  0_bit,
+		K = 10_bit,
+		M = 20_bit,
+		G = 30_bit,
+		T = 40_bit,
+		P = 50_bit,
+		E = 60_bit;
 
 	static const struct
 	{

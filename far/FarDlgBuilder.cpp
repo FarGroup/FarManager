@@ -117,9 +117,9 @@ public:
 		LOGWARNING(L"Invalid integer value {}"sv, Item.strData);
 	}
 
-	const wchar_t* GetMask() const
+	string_view GetMask() const
 	{
-		return m_Mask;
+		return { m_Mask, std::size(m_Mask) - 1 };
 	}
 
 private:
@@ -145,9 +145,9 @@ public:
 		*m_IntValue = from_string<unsigned long long>(Item.strData, nullptr, 16);
 	}
 
-	const wchar_t* GetMask() const
+	string_view GetMask() const
 	{
-		return m_Mask;
+		return { m_Mask, std::size(m_Mask) - 1 };
 	}
 
 private:
@@ -171,9 +171,9 @@ public:
 		*m_IntValue = from_string<unsigned long long>(Item.strData, nullptr, 2);
 	}
 
-	const wchar_t* GetMask() const
+	string_view GetMask() const
 	{
-		return m_Mask;
+		return { m_Mask, std::size(m_Mask) - 1 };
 	}
 
 private:
