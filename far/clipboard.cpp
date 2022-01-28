@@ -141,7 +141,7 @@ public:
 		{
 			LOGWARNING(L"EmptyClipboard(): {}"sv, last_error());
 			return false;
-		};
+		}
 
 		return true;
 	}

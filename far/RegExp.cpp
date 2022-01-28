@@ -1753,12 +1753,6 @@ int RegExp::StrCmp(const wchar_t*& str, const wchar_t* start, const wchar_t* end
 
 bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wchar_t* strend, std::vector<RegExpMatch>& match, named_regex_match* NamedMatch, std::vector<StateStackItem>& stack) const
 {
-	const auto init_match = [&](size_t const Index)
-	{
-		if (Index >= match.size())
-			match.resize(Index + 1, { -1, -1 });
-	};
-
 	int i,j;
 	int minimizing;
 	const REOpCode* tmp=nullptr;
@@ -1770,6 +1764,8 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 	match.clear();
 	if (NamedMatch)
 		NamedMatch->Matches.clear();
+
+	match.resize(bracketscount, { -1, -1 });
 
 	for(const auto* op = code.data(), *end = op + code.size(); op != end; ++op)
 	{
@@ -2022,8 +2018,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				{
 					if (op->bracket.index >= 0)
 					{
-						init_match(op->bracket.index);
-
 						//if (inrangebracket) Mantis#1388
 						{
 							StateStackItem st;
@@ -2093,8 +2087,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 						{
 							if (op->bracket.index >= 0)
 							{
-								init_match(op->bracket.index);
-
 								match[op->bracket.index].end = str - start;
 							}
 
@@ -2117,8 +2109,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 							{
 								if (op->range.bracket.index >= 0)
 								{
-									init_match(op->range.bracket.index);
-
 									match[op->range.bracket.index].end = str - start;
 								}
 
@@ -2138,8 +2128,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 								if (op->range.bracket.index >= 0)
 								{
-									init_match(op->range.bracket.index);
-
 									StateStackItem Item;
 									match[op->range.bracket.index].start = str - start;
 									Item.op=opOpenBracket;
@@ -2167,8 +2155,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 							{
 								if (op->range.bracket.index >= 0)
 								{
-									init_match(op->range.bracket.index);
-
 									match[op->range.bracket.index].end = str - start;
 								}
 
@@ -2178,8 +2164,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 							if (op->range.bracket.index >= 0)
 							{
-								init_match(op->range.bracket.index);
-
 								match[op->range.bracket.index].end = str - start;
 								tmp=op;
 							}
@@ -2191,8 +2175,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 							if (op->range.bracket.index >= 0)
 							{
-								init_match(op->range.bracket.index);
-
 								StateStackItem Item;
 								Item.op=opOpenBracket;
 								Item.pos=tmp;
@@ -2231,8 +2213,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 								if (op->range.bracket.index >= 0)
 								{
-									init_match(op->range.bracket.index);
-
 									match[op->range.bracket.index].start = str - start;
 									st.op=opOpenBracket;
 									st.pos=op;
@@ -2254,8 +2234,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 							if (op->range.bracket.index >= 0)
 							{
-								init_match(op->range.bracket.index);
-
 								match[op->range.bracket.index].end = str - start;
 							}
 
@@ -2731,8 +2709,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				{
 					if (inrangebracket && op->range.bracket.index >= 0)
 					{
-						init_match(op->range.bracket.index);
-
 						StateStackItem st;
 						st.op=opOpenBracket;
 						st.pos=op->range.bracket.pairindex;
@@ -2764,8 +2740,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 					if (op->range.bracket.index >= 0)
 					{
-						init_match(op->range.bracket.index);
-
 						match[op->range.bracket.index].start=
 						    /*match[op->range.bracket.index].end=*/ str - start;
 					}
@@ -3148,8 +3122,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 						if (op->range.bracket.index >= 0)
 						{
-							init_match(op->range.bracket.index);
-
 							match[op->range.bracket.index].start = str - start;
 							StateStackItem st;
 							st.op=opOpenBracket;
@@ -3181,8 +3153,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 					if (j >= 0)
 					{
-						init_match(j);
-
 						match[j].start=ps->min;
 						match[j].end=ps->max;
 					}
@@ -3926,6 +3896,23 @@ TEST_CASE("regex.regression")
 
 		REQUIRE(match[2].start == 27);
 		REQUIRE(match[2].end == 34);
+	}
+
+	{
+		RegExp re;
+		re.Compile(L"([bc]+)|(zz)"sv);
+		std::vector<RegExpMatch> match;
+		REQUIRE(re.Search(L"abc", match));
+		REQUIRE(match.size() == 3u);
+
+		REQUIRE(match[0].start == 1);
+		REQUIRE(match[0].end == 3);
+
+		REQUIRE(match[1].start == 1);
+		REQUIRE(match[1].end == 3);
+
+		REQUIRE(match[2].start == -1);
+		REQUIRE(match[2].end == -1);
 	}
 }
 #endif
