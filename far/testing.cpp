@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "components.hpp"
+#include "log.hpp"
 
 // Platform:
 
@@ -51,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-extern constexpr bool DebugTests = false;
+constexpr auto DebugTests = !false;
 
 std::optional<int> testing_main(int const Argc, wchar_t const* const Argv[])
 {
@@ -64,6 +65,9 @@ std::optional<int> testing_main(int const Argc, wchar_t const* const Argv[])
 			std::wcout << L"Unit tests skipped"sv << std::endl;
 			return EXIT_SUCCESS;
 		}
+
+		if (Argc == 3 && logging::is_log_argument(Argv[1]))
+			return {};
 	}
 	else
 	{

@@ -2821,6 +2821,7 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 			const auto MaxSize = std::min(static_cast<size_t>(data->Count), Match.size());
 			std::copy_n(Match.cbegin(), MaxSize, data->Match);
 			data->Count = MaxSize;
+			return true;
 		}
 
 		case RECTL_SEARCHEX:
@@ -2833,6 +2834,7 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 			const auto MaxSize = std::min(static_cast<size_t>(data->Count), Match.size());
 			std::copy_n(Match.cbegin(), MaxSize, data->Match);
 			data->Count = MaxSize;
+			return true;
 		}
 
 		case RECTL_BRACKETSCOUNT:
