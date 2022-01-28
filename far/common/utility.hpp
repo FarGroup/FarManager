@@ -70,12 +70,6 @@ inline size_t grow_exp_noshrink(size_t const Current, std::optional<size_t> cons
 }
 
 template<typename container>
-void reserve_exp_noshrink(container& Container)
-{
-	Container.reserve(grow_exp_noshrink(Container.capacity(), {}));
-}
-
-template<typename container>
 void reserve_exp_noshrink(container& Container, size_t const DesiredCapacity)
 {
 	Container.reserve(grow_exp_noshrink(Container.capacity(), DesiredCapacity));

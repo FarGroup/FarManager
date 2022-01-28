@@ -52,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 enum class lng : int;
 enum class search_case_fold;
-class RegExp;
+class regex_exception;
 struct error_state_ex;
 
 /*
@@ -179,8 +179,7 @@ inline void cancel_operation()
 // operation_cancelled exception: cancelled
 bool retryable_ui_operation(function_ref<bool()> Action, string_view Name, lng ErrorDescription, bool& SkipErrors);
 
-void ReCompileErrorMessage(const RegExp& re, string_view str);
-void ReMatchErrorMessage(const RegExp& re);
+void ReCompileErrorMessage(regex_exception const& e, string_view str);
 
 struct goto_coord
 {

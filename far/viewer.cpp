@@ -2610,15 +2610,8 @@ struct Viewer::search_data
 	int search_len{};
 	int  ch_size{};
 	bool first_Rex{true};
-	int RexMatchCount{0};
 	std::vector<RegExpMatch> RexMatch;
 	std::optional<RegExp> Rex;
-
-	int InitRegEx(string_view const str, int flags)
-	{
-		Rex.emplace();
-		return Rex->Compile(str, flags);
-	}
 };
 
 enum SEARCHER_RESULT: int
@@ -3018,18 +3011,13 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 		if ( off > nw )
 			break;
 
-		intptr_t n = sd->RexMatchCount;
-		RegExpMatch *m = sd->RexMatch.data();
-		if (!sd->Rex->SearchEx({ line, static_cast<size_t>(nw) }, off, m, n))  // doesn't match
-		{
-			ReMatchErrorMessage(*sd->Rex);
+		if (!sd->Rex->SearchEx({ line, static_cast<size_t>(nw) }, off, sd->RexMatch))  // doesn't match
 			break;
-		}
 
-		const auto fpos = bpos + GetStrBytesNum({ t_line, static_cast<size_t>(m[0].start) });
+		const auto fpos = bpos + GetStrBytesNum({ t_line, static_cast<size_t>(sd->RexMatch[0].start) });
 		if ( fpos < cpos )
 		{
-			off = m[0].start + 1; // skip
+			off = sd->RexMatch[0].start + 1; // skip
 			continue;
 		}
 		else if (swrap == SearchWrap_CYCLE && !tail_part && fpos >= StartSearchPos)
@@ -3039,7 +3027,7 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 		else // found
 		{
 			sd->MatchPos = fpos;
-			sd->search_len = GetStrBytesNum({ t_line + off + m[0].start, static_cast<size_t>(m[0].end - m[0].start) });
+			sd->search_len = GetStrBytesNum({ t_line + off + sd->RexMatch[0].start, static_cast<size_t>(sd->RexMatch[0].end - sd->RexMatch[0].start) });
 			return Search_Found;
 		}
 	}
@@ -3087,16 +3075,11 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 		if (lsize <= 0 || off > nw)
 			break;
 
-		intptr_t n = sd->RexMatchCount;
-		RegExpMatch *m = sd->RexMatch.data();
-		if (!sd->Rex->SearchEx({ line, static_cast<size_t>(nw) }, off, m, n))
-		{
-			ReMatchErrorMessage(*sd->Rex);
+		if (!sd->Rex->SearchEx({ line, static_cast<size_t>(nw) }, off, sd->RexMatch))
 			break;
-		}
 
-		const auto fpos = bpos + GetStrBytesNum({ t_line, static_cast<size_t>(m[0].start) });
-		const auto flen = GetStrBytesNum({ t_line + m[0].start, static_cast<size_t>(m[0].end - m[0].start) });
+		const auto fpos = bpos + GetStrBytesNum({ t_line, static_cast<size_t>(sd->RexMatch[0].start) });
+		const auto flen = GetStrBytesNum({ t_line + sd->RexMatch[0].start, static_cast<size_t>(sd->RexMatch[0].end - sd->RexMatch[0].start) });
 		if (fpos+flen > cpos)
 			break;
 
@@ -3106,7 +3089,7 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 			prev_len = flen;
 		}
 
-		off = m[0].start + 1; // skip
+		off = sd->RexMatch[0].start + 1; // skip
 	}
 
 	if (prev_len >= 0)
@@ -3270,13 +3253,19 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 
 			strMsgStr = strSlash;
 
-			if (!sd.InitRegEx(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (SearchCaseFold == search_case_fold::exact? 0 : OP_IGNORECASE)))
+			sd.Rex.emplace();
+
+			try
 			{
-				ReCompileErrorMessage(*sd.Rex, strSlash);
-				return; // wrong regular expression...
+				sd.Rex->Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (SearchCaseFold == search_case_fold::exact? 0 : OP_IGNORECASE));
 			}
-			sd.RexMatchCount = sd.Rex->GetBracketsCount();
-			sd.RexMatch.resize(sd.RexMatchCount);
+			catch (regex_exception const& e)
+			{
+				ReCompileErrorMessage(e, strSlash);
+				return;
+			}
+
+			sd.RexMatch.resize(sd.Rex->GetBracketsCount());
 		}
 		else
 		{

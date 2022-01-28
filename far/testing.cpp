@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-constexpr auto DebugTests = false;
+extern constexpr bool DebugTests = false;
 
 std::optional<int> testing_main(int const Argc, wchar_t const* const Argv[])
 {

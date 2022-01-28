@@ -427,6 +427,9 @@ namespace
 	public:
 		void connect()
 		{
+			if (extern const bool DebugTests; DebugTests)
+				return;
+
 			if (!PeekNamedPipe(m_Pipe.native_handle(), {}, 0, {}, {}, {}))
 				disconnect();
 

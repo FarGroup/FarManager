@@ -90,6 +90,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lockscrn.hpp"
 #include "exception_handler.hpp"
 #include "setcolor.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -2796,7 +2797,16 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 			return true;
 
 		case RECTL_COMPILE:
-			return static_cast<RegExp*>(hHandle)->Compile(static_cast<const wchar_t*>(Param2), OP_PERLSTYLE);
+			try
+			{
+				static_cast<RegExp*>(hHandle)->Compile(static_cast<const wchar_t*>(Param2), OP_PERLSTYLE);
+				return true;
+			}
+			catch (regex_exception const& e)
+			{
+				LOGERROR(L"RECTL_COMPILE error: {}; position {}"sv, e.message(), e.position());
+				return false;
+			}
 
 		case RECTL_OPTIMIZE:
 			return static_cast<RegExp *>(hHandle)->Optimize();
@@ -2804,13 +2814,25 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 		case RECTL_MATCHEX:
 		{
 			const auto data = static_cast<RegExpSearch*>(Param2);
-			return static_cast<RegExp const*>(hHandle)->MatchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, data->Match, data->Count);
+			std::vector<RegExpMatch> Match;
+			if (!static_cast<RegExp const*>(hHandle)->MatchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, Match))
+				return false;
+
+			const auto MaxSize = std::min(static_cast<size_t>(data->Count), Match.size());
+			std::copy_n(Match.cbegin(), MaxSize, data->Match);
+			data->Count = MaxSize;
 		}
 
 		case RECTL_SEARCHEX:
 		{
 			const auto data = static_cast<RegExpSearch*>(Param2);
-			return static_cast<RegExp const*>(hHandle)->SearchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, data->Match, data->Count);
+			std::vector<RegExpMatch> Match;
+			if (!static_cast<RegExp const*>(hHandle)->SearchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, Match))
+				return false;
+
+			const auto MaxSize = std::min(static_cast<size_t>(data->Count), Match.size());
+			std::copy_n(Match.cbegin(), MaxSize, data->Match);
+			data->Count = MaxSize;
 		}
 
 		case RECTL_BRACKETSCOUNT:

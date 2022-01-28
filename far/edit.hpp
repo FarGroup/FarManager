@@ -54,7 +54,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct FarColor;
 class RegExp;
 struct RegExpMatch;
-struct MatchHash;
 struct position_parser_state;
 class positions_cache;
 

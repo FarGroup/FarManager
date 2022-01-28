@@ -697,67 +697,16 @@ bool retryable_ui_operation(function_ref<bool()> const Action, string_view const
 	return true;
 }
 
-static string GetReErrorString(int code)
-{
-	// TODO: localization
-	switch (code)
-	{
-	case errNone:
-		return L"No errors"s;
-	case errNotCompiled:
-		return L"RegExp wasn't even tried to compile"s;
-	case errSyntax:
-		return L"Expression contains a syntax error"s;
-	case errBrackets:
-		return L"Unbalanced brackets"s;
-	case errMaxDepth:
-		return L"Max recursive brackets level reached"s;
-	case errOptions:
-		return L"Invalid options combination"s;
-	case errInvalidBackRef:
-		return L"Reference to nonexistent bracket"s;
-	case errInvalidEscape:
-		return L"Invalid escape char"s;
-	case errInvalidRange:
-		return L"Invalid range value"s;
-	case errInvalidQuantifiersCombination:
-		return L"Quantifier applied to invalid object. f.e. lookahead assertion"s;
-	case errNotEnoughMatches:
-		return L"Size of match array isn't large enough"s;
-	case errNoStorageForNB:
-		return L"Attempt to match RegExp with Named Brackets but no storage class provided"s;
-	case errReferenceToUndefinedNamedBracket:
-		return L"Reference to undefined named bracket"s;
-	case errVariableLengthLookBehind:
-		return L"Only fixed length look behind assertions are supported"s;
-	default:
-		return L"Unknown error"s;
-	}
-}
-
-void ReCompileErrorMessage(const RegExp& re, string_view const str)
+void ReCompileErrorMessage(regex_exception const& e, string_view const str)
 {
 	Message(MSG_WARNING | MSG_LEFTALIGN,
 		msg(lng::MError),
 		{
-			GetReErrorString(re.LastError()),
+			e.message(),
 			string(str),
-			string(re.ErrorPosition(), L' ') + L'↑'
+			string(e.position(), L' ') + L'↑'
 		},
 		{ lng::MOk });
-}
-
-void ReMatchErrorMessage(const RegExp& re)
-{
-	if (re.LastError() != errNone)
-	{
-		Message(MSG_WARNING | MSG_LEFTALIGN,
-			msg(lng::MError),
-			{
-				GetReErrorString(re.LastError())
-			},
-			{ lng::MOk });
-	}
 }
 
 static void GetRowCol(const string_view Str, bool Hex, goto_coord& Row, goto_coord& Col)

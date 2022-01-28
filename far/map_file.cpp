@@ -131,7 +131,7 @@ void map_file::read_vc(std::istream& Stream)
 	RegExp ReBase, ReSymbol;
 	ReBase.Compile(L"^ +Preferred load address is ([0-9A-Fa-f]+)$", OP_OPTIMIZE);
 	ReSymbol.Compile(L"^ +([0-9A-Fa-f]+):([0-9A-Fa-f]+) +([^ ]+) +([0-9A-Fa-f]+) .+ ([^ ]+)$", OP_OPTIMIZE);
-	RegExpMatch m[6];
+	std::vector<RegExpMatch> m;
 
 	uintptr_t BaseAddress{};
 
@@ -148,16 +148,14 @@ void map_file::read_vc(std::istream& Stream)
 
 		if (!BaseAddress)
 		{
-			intptr_t MatchCount = std::size(m);
-			if (ReBase.Search(i.Str, m, MatchCount))
+			if (ReBase.Search(i.Str, m))
 			{
 				BaseAddress = from_string<uintptr_t>(group(i.Str, 1), {}, 16);
 				continue;
 			}
 		}
 
-		intptr_t MatchCount = std::size(m);
-		if (ReSymbol.Search(i.Str, m, MatchCount))
+		if (ReSymbol.Search(i.Str, m))
 		{
 			auto Address = from_string<uintptr_t>(group(i.Str, 4), {}, 16);
 			if (!Address)
@@ -168,7 +166,7 @@ void map_file::read_vc(std::istream& Stream)
 
 			line Line;
 			Line.Name = group(i.Str, 3);
-			if (MatchCount > 5)
+			if (m.size() > 5)
 			{
 				const auto File = group(i.Str, 5);
 				Line.File = &*m_Files.emplace(File).first;

@@ -98,7 +98,7 @@ namespace detail
 		m_Location(format(FSTR(L"{}({})"sv), encoding::utf8::get_chars(File), Line)),
 		m_FullMessage(format(FSTR(L"{} ({}, {})"sv), Message, encoding::utf8::get_chars(m_Function), m_Location))
 	{
-		LOGTRACE(L"far_base_exception: {}"sv, *this);
+		LOGTRACE(L"{}"sv, *this);
 	}
 
 	std::string far_std_exception::convert_message() const
@@ -135,12 +135,18 @@ std::wostream& operator<<(std::wostream& Stream, error_state const& e)
 
 std::wostream& operator<<(std::wostream& Stream, error_state_ex const& e)
 {
-	Stream << format(FSTR(L"Message: {}, Error: {}"sv), e.What, e.to_string());
-	return Stream;
+	return Stream << (
+		e.any()?
+		format(FSTR(L"Message: {}, Error: {}"sv), e.What, e.to_string()) :
+		format(FSTR(L"Message: {}"sv), e.What)
+	);
 }
 
 std::wostream& operator<<(std::wostream& Stream, detail::far_base_exception const& e)
 {
-	Stream << format(FSTR(L"far_base_exception: {}, Error: {}"sv), e.full_message(), e.to_string());
-	return Stream;
+	return Stream << (
+		e.any()?
+		format(FSTR(L"far_base_exception: {}, Error: {}"sv), e.full_message(), e.to_string()) :
+		format(FSTR(L"far_base_exception: {}"sv), e.full_message())
+	);
 }

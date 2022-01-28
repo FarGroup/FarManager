@@ -3298,7 +3298,7 @@ private:
 bool Editor::Search(bool Next)
 {
 	static string strLastReplaceStr;
-	bool Match,UserBreak;
+	bool MatchFound, UserBreak;
 	std::optional<undo_block> UndoBlock;
 
 	if (Next && strLastSearchStr.empty())
@@ -3412,7 +3412,7 @@ bool Editor::Search(bool Next)
 	size_t AllRefLines{};
 	{
 		SetCursorType(false, -1);
-		Match = false;
+		MatchFound = false;
 		UserBreak = false;
 
 		auto CurPos = FindAllReferences? 0 : m_it_CurLine->GetCurPos();
@@ -3441,28 +3441,26 @@ bool Editor::Search(bool Next)
 
 		auto CurPtr = FindAllReferences? FirstLine() : m_it_CurLine, TmpPtr = CurPtr;
 
-		std::vector<RegExpMatch> m;
-		MatchHash hm;
+		std::vector<RegExpMatch> Match;
+		named_regex_match NamedMatch;
 		RegExp re;
 
 		if (Regexp)
 		{
-			const auto strSlash = InsertRegexpQuote(strSearchStr);
-
-			QuotedStr = strSlash;
-
 			// Q: что важнее: опция диалога или опция RegExp`а?
-			if (!re.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (SearchCaseFold == search_case_fold::exact? 0 : OP_IGNORECASE)))
+			try
 			{
-				ReCompileErrorMessage(re, strSlash);
+				re.Compile(strSearchStr, (starts_with(strSearchStr, L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (SearchCaseFold == search_case_fold::exact? 0 : OP_IGNORECASE));
+			}
+			catch (regex_exception const& e)
+			{
+				ReCompileErrorMessage(e, strSearchStr);
 				return false; //BUGBUG
 			}
-			m.resize(re.GetBracketsCount() * 2);
+			Match.resize(re.GetBracketsCount() * 2);
 		}
-		else
-		{
-			QuotedStr = quote_unconditional(strSearchStr);
-		}
+
+		QuotedStr = quote_unconditional(strSearchStr);
 
 		searchers Searchers;
 		const auto& Searcher = init_searcher(Searchers, SearchCaseFold, strLastSearchStr);
@@ -3502,8 +3500,8 @@ bool Editor::Search(bool Next)
 				strSearchStr,
 				Searcher,
 				re,
-				m.data(),
-				&hm,
+				Match,
+				&NamedMatch,
 				strReplaceStrCurrent,
 				CurPos,
 				SearchCaseFold,
@@ -3515,7 +3513,7 @@ bool Editor::Search(bool Next)
 				GetWordDiv()
 			))
 			{
-				Match = true;
+				MatchFound = true;
 
 				m_FoundLine = CurPtr;
 				m_FoundPos = CurPos;
@@ -3777,7 +3775,7 @@ bool Editor::Search(bool Next)
 	}
 	Show();
 
-	if(FindAllReferences && Match)
+	if(FindAllReferences && MatchFound)
 	{
 		const auto MenuY1 = ScrY - 20;
 		const auto MenuY2 = MenuY1 + std::min(static_cast<int>(FindAllList->size()), 10) + 2;
@@ -3896,7 +3894,7 @@ bool Editor::Search(bool Next)
 		}
 	}
 
-	if (!Match && !UserBreak)
+	if (!MatchFound && !UserBreak)
 		Message(MSG_WARNING,
 			msg(lng::MEditSearchTitle),
 			{
