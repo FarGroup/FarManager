@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 01.02.2022 01:17:02 +0000 - build 5958
+
+1. Improve diagnostics in "access denied" errors.
+
+--------------------------------------------------------------------------------
 drkns 28.01.2022 09:21:47 +0000 - build 5957
 
 1. Wrong backwards regex replace with named groups and multiple matches within the line.

@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.chrono.hpp"
+#include "platform.process.hpp"
 
 // Common:
 #include "common/enum_substrings.hpp"
@@ -102,13 +103,28 @@ public:
 
 		for (const auto& i: irange(Attempts))
 		{
+			// TODO: this is bad, we should use a real window handle
 			if (OpenClipboard(console.GetWindow()))
 			{
 				m_Opened = true;
 				return true;
 			}
 
-			LOGDEBUG(L"OpenClipboard(): {}"sv, last_error());
+			const auto Error = last_error();
+
+			if (Error.Win32Error == ERROR_ACCESS_DENIED)
+			{
+				if (const auto Window = GetOpenClipboardWindow())
+				{
+					DWORD Pid;
+					if (const auto ThreadId = GetWindowThreadProcessId(Window, &Pid))
+					{
+						LOGWARNING(L"Clipboard is locked by {} (PID {}, TID {})"sv, os::process::get_process_name(Pid), Pid, ThreadId);
+					}
+				}
+			}
+
+			LOGDEBUG(L"OpenClipboard(): {}"sv, Error);
 
 			os::chrono::sleep_for((i + 1) * 50ms);
 		}

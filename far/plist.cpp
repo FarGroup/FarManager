@@ -128,7 +128,8 @@ static BOOL CALLBACK EnumWindowsProc(HWND const Window, LPARAM const Param)
 			return true;
 
 		DWORD Pid;
-		GetWindowThreadProcessId(Window, &Pid);
+		if (!GetWindowThreadProcessId(Window, &Pid))
+			return true;
 
 		Info.Windows.emplace_back(Window, Pid);
 		return true;

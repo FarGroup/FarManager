@@ -36,8 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 
 // Platform:
+#include "platform.hpp"
 
 // Common:
+#include "common/enumerator.hpp"
 #include "common/function_ref.hpp"
 
 // External:
@@ -56,8 +58,25 @@ namespace os::process
 	image_type get_process_subsystem(HANDLE Process);
 	string get_process_name(DWORD Pid);
 
-	size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, function_ref<bool(string&&)> Handler);
-	size_t enumerate_nt_processes(string_view Filename, function_ref<bool(string&&)> Handler);
+	using enumerate_callback = function_ref<bool(DWORD Pid, const wchar_t* AppName, const wchar_t* ServiceShortName)>;
+	size_t enumerate_locking_processes_rm(const string& Filename, DWORD& Reasons, enumerate_callback Handler);
+	size_t enumerate_locking_processes_nt(string_view Filename, enumerate_callback Handler);
+
+	using enum_process_entry = std::pair<DWORD, string_view>;
+	class [[nodiscard]] enum_processes: public enumerator<enum_processes, enum_process_entry>
+	{
+		IMPLEMENTS_ENUMERATOR(enum_processes);
+
+	public:
+		explicit enum_processes();
+
+	private:
+		[[nodiscard]]
+		bool get(bool Reset, enum_process_entry& Value) const;
+
+		block_ptr<SYSTEM_PROCESS_INFORMATION> m_Info;
+		mutable size_t m_Offset{};
+	};
 }
 
 #endif // PLATFORM_PROCESS_HPP_234140CB_C857_40CF_901D_A10C5EBEA85B

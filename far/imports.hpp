@@ -133,6 +133,7 @@ public: const unique_function_pointer<name_##NAME, stub_##NAME> NAME{m_##MODULE}
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, void, RtlReleaseResource, PRTL_RESOURCE Res);
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, void, RtlDeleteResource, PRTL_RESOURCE Res);
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQueryInformationProcess, HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength);
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQuerySystemInformation, SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength);
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, WORD, RtlCaptureStackBackTrace, DWORD FramesToSkip, DWORD FramesToCapture, PVOID* BackTrace, PDWORD BackTraceHash);
 #ifndef _WIN64
 	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtWow64QueryInformationProcess64, HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength);
