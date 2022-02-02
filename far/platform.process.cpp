@@ -429,8 +429,9 @@ namespace os::process
 		if (!Info.NextEntryOffset)
 			return false;
 
-		Value.first = static_cast<DWORD>(reinterpret_cast<uintptr_t>(Info.UniqueProcessId));
-		Value.second = { Info.ImageName.Buffer, Info.ImageName.Length / sizeof(wchar_t) };
+		Value.Pid = static_cast<DWORD>(reinterpret_cast<uintptr_t>(Info.UniqueProcessId));
+		Value.Name = { Info.ImageName.Buffer, Info.ImageName.Length / sizeof(wchar_t) };
+		Value.Threads = { view_as<SYSTEM_THREAD_INFORMATION const*>(&Info, sizeof(Info)), Info.NumberOfThreads };
 		m_Offset += Info.NextEntryOffset;
 
 		return true;

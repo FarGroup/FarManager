@@ -504,7 +504,10 @@ static std::vector<string> get_locking_processes(const string& FullName, size_t 
 		if (!Enum)
 		{
 			Enum.emplace();
-			std::copy(ALL_CONST_RANGE(*Enum), std::inserter(ActiveProcesses, ActiveProcesses.end()));
+			std::transform(ALL_CONST_RANGE(*Enum), std::inserter(ActiveProcesses, ActiveProcesses.end()), [](os::process::enum_process_entry const& Entry)
+			{
+				return std::pair(Entry.Pid, Entry.Name);
+			});
 		}
 
 		if (const auto Iterator = ActiveProcesses.find(Pid); Iterator != ActiveProcesses.end())

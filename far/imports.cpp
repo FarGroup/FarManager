@@ -364,6 +364,12 @@ HRESULT WINAPI imports::stub_SetThreadDescription(HANDLE Thread, PCWSTR ThreadDe
 	return E_NOTIMPL;
 }
 
+HRESULT WINAPI imports::stub_GetThreadDescription(HANDLE Thread, PWSTR* ThreadDescription)
+{
+	LOGWARNING(L"Stub call"sv);
+	return E_NOTIMPL;
+}
+
 // shell32
 HRESULT STDAPICALLTYPE imports::stub_SHCreateAssociationRegistration(REFIID riid, void ** ppv)
 {

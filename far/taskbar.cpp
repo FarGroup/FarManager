@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.com.hpp"
 #include "platform.concurrency.hpp"
+#include "platform.debug.hpp"
 
 // Common:
 #include "common/singleton.hpp"

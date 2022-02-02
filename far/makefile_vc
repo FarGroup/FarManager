@@ -163,6 +163,7 @@ LINK_OBJS = \
 	"$(INTDIR)\platform.chrono.obj" \
 	"$(INTDIR)\platform.com.obj" \
 	"$(INTDIR)\platform.concurrency.obj" \
+	"$(INTDIR)\platform.debug.obj" \
 	"$(INTDIR)\platform.env.obj" \
 	"$(INTDIR)\platform.fs.obj" \
 	"$(INTDIR)\platform.memory.obj" \

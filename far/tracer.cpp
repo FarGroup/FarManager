@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "map_file.hpp"
 
 // Platform:
+#include "platform.env.hpp"
 #include "platform.fs.hpp"
 
 // Common:
@@ -352,13 +353,29 @@ void tracer_detail::tracer::sym_initialise(string_view Module)
 		return;
 	}
 
-	auto Path = os::fs::get_current_process_file_name();
-	CutToParent(Path);
+	string Path = os::env::get(L"_NT_SYMBOL_PATH"sv);
+
+	const auto append_to_path = [&](string_view const Str)
+	{
+		append(Path, Path.empty()? L""sv : L";"sv, Str);
+	};
+
+	if (const auto AltSymbolPath = os::env::get(L"_NT_ALTERNATE_SYMBOL_PATH"sv); !AltSymbolPath.empty())
+	{
+		append_to_path(AltSymbolPath);
+	}
+
+	if (const auto FarPath = os::fs::get_current_process_file_name(); !FarPath.empty())
+	{
+		string_view FarPathView = FarPath;
+		CutToParent(FarPathView);
+		append_to_path(FarPathView);
+	}
 
 	if (!Module.empty())
 	{
 		CutToParent(Module);
-		append(Path, L';', Module);
+		append_to_path(Module);
 	}
 
 	if (imports.SymSetOptions)
@@ -369,7 +386,8 @@ void tracer_detail::tracer::sym_initialise(string_view Module)
 			SYMOPT_LOAD_LINES |
 			SYMOPT_FAIL_CRITICAL_ERRORS |
 			SYMOPT_INCLUDE_32BIT_MODULES |
-			SYMOPT_NO_PROMPTS
+			SYMOPT_NO_PROMPTS |
+			SYMOPT_DEBUG
 		);
 	}
 
