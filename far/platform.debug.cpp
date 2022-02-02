@@ -34,13 +34,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Self:
 #include "platform.debug.hpp"
-#include "platform.memory.hpp"
 
 // Internal:
 #include "imports.hpp"
 
 // Platform:
 #include "platform.hpp"
+#include "platform.memory.hpp"
 
 // Common:
 
