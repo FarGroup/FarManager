@@ -247,7 +247,7 @@ lng: $(BOOTSTRAPDIR)farlang.templ
 depfile:
 	@echo Rebuilding dependencies...
 	set BOOTSTRAPDIR=$(BOOTSTRAPDIR)
-	set FORCEINCLUDELIST=$(PCH_NAME).hpp memcheck.hpp
+	set FORCEINCLUDELIST=$(PCH_NAME).hpp memcheck.hpp disabled_warnings.hpp
 	scripts\list_deps.cmd | $(GAWK) -f scripts\mkdep.awk - > $(DEPFILE)
 
 .PHONY: include
