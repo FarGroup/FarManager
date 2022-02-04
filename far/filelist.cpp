@@ -1907,7 +1907,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 						auto Processed = false;
 
 						const auto SavedState = file_state::get(strFileName);
-						if (any_of(LocalKey, KEY_ALTF4, KEY_RALTF4, KEY_F4) && ProcessLocalFileTypes(strFileName, strShortFileName, LocalKey == KEY_F4? FILETYPE_EDIT:FILETYPE_ALTEDIT, PluginMode))
+						if (any_of(LocalKey, KEY_ALTF4, KEY_RALTF4, KEY_F4) && ProcessLocalFileTypes(strFileName, strShortFileName, LocalKey == KEY_F4? FILETYPE_EDIT:FILETYPE_ALTEDIT, PluginMode, TemporaryDirectory))
 						{
 							UploadFile = file_state::get(strFileName) != SavedState;
 							Processed = true;
@@ -1990,9 +1990,9 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 						/* $ 02.08.2001 IS обработаем ассоциации для alt-f3 */
 						auto Processed = false;
 
-						if (any_of(LocalKey, KEY_ALTF3, KEY_RALTF3) && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_ALTVIEW, PluginMode))
+						if (any_of(LocalKey, KEY_ALTF3, KEY_RALTF3) && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_ALTVIEW, PluginMode, TemporaryDirectory))
 							Processed = true;
-						else if (LocalKey == KEY_F3 && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_VIEW, PluginMode))
+						else if (LocalKey == KEY_F3 && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_VIEW, PluginMode, TemporaryDirectory))
 							Processed = true;
 
 						if (!Processed || any_of(LocalKey, KEY_CTRLSHIFTF3, KEY_RCTRLSHIFTF3))
@@ -2674,9 +2674,10 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		SCOPE_EXIT{ if (PluginMode && !OpenedPlugin && !FileNameToDelete.empty()) GetPluginHandle()->delayed_delete(FileNameToDelete); };
 		file_state SavedState;
 
+		string strTempDir;
 		if (PluginMode)
 		{
-			const auto strTempDir = MakeTemp();
+			strTempDir = MakeTemp();
 			// BUGBUG check result
 			if (!os::fs::create_directory(strTempDir))
 			{
@@ -2708,7 +2709,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			if (!SetCurPath())
 				return;
 
-			if (SeparateWindow || !ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_EXEC, PluginMode, true, RunAs))
+			if (SeparateWindow || !ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_EXEC, PluginMode, strTempDir, true, RunAs))
 			{
 				const auto IsItExecutable = IsExecutable(strFileName);
 
@@ -2743,7 +2744,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		else
 		{
 			// CtrlPgDn
-			if (EnableAssoc && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_ALTEXEC, PluginMode))
+			if (EnableAssoc && ProcessLocalFileTypes(strFileName, strShortFileName, FILETYPE_ALTEXEC, PluginMode, strTempDir))
 				return;
 
 			OpenedPlugin = OpenFilePlugin(strFileName, TRUE, Type) != nullptr;

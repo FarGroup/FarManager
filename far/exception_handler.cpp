@@ -418,7 +418,7 @@ static string collect_information(
 		}
 	}
 
-	make_header(L" Modules"sv, append_line);
+	make_header(L"Modules"sv, append_line);
 	read_modules(Strings, Eol);
 
 	return Strings;
