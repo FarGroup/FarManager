@@ -1974,22 +1974,24 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	bool TopicFound=false;
 	string strCurTopic, strEntryName;
 
-	std::vector<RegExpMatch> m;
-	MatchHash hm;
+	std::vector<RegExpMatch> Match;
+	named_regex_match NamedMatch;
 	RegExp re;
 
 	if (LastSearchRegexp)
 	{
-		const auto strSlash = InsertRegexpQuote(strLastSearchStr);
-
 		// Q: что важнее: опция диалога или опция RegExp`а?
-		if (!re.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (LastSearchCaseFold == search_case_fold::exact? 0 : OP_IGNORECASE)))
+		try
 		{
-			ReCompileErrorMessage(re, strSlash);
+			re.Compile(strLastSearchStr, (starts_with(strLastSearchStr, L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (LastSearchCaseFold == search_case_fold::exact? 0 : OP_IGNORECASE));
+		}
+		catch (regex_exception const& e)
+		{
+			ReCompileErrorMessage(e, strLastSearchStr);
 			return; //BUGBUG
 		}
 
-		m.resize(re.GetBracketsCount() * 2);
+		Match.resize(re.GetBracketsCount() * 2);
 	}
 
 	searchers Searchers;
@@ -2032,13 +2034,13 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 				strLastSearchStr,
 				Searcher,
 				re,
-				m.data(),
-				&hm,
+				Match,
+				&NamedMatch,
 				CurPos,
 				LastSearchCaseFold,
 				LastSearchWholeWords,
-				LastSearchRegexp,
 				false,
+				LastSearchRegexp,
 				&SearchLength,
 				Global->Opt->EdOpt.strWordDiv
 			))

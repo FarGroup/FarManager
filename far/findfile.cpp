@@ -85,6 +85,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.concurrency.hpp"
+#include "platform.debug.hpp"
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 
@@ -1975,7 +1976,7 @@ void FindFiles::OpenFile(string_view const SearchFileName, int OpenKey, const Fi
 	const auto FileNameOnly = ExtractFileName(SearchFileName);
 	const auto PathOnly = SearchFileName.substr(0, SearchFileName.size() - FileNameOnly.size());
 
-	if (shouldForceInternal || !ProcessLocalFileTypes(SearchFileName, FileNameOnly, openMode, PluginMode))
+	if (shouldForceInternal || !ProcessLocalFileTypes(SearchFileName, FileNameOnly, openMode, PluginMode, PathOnly))
 	{
 		if (openMode == FILETYPE_ALTVIEW && Global->Opt->strExternalViewer.empty())
 			openMode = FILETYPE_VIEW;

@@ -341,6 +341,9 @@
     <ClCompile Include="platform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="platform.debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="platform.env.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -950,6 +953,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platform.concurrency.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="platform.debug.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platform.env.hpp">

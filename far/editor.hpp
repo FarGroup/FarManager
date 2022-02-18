@@ -200,6 +200,7 @@ private:
 
 	using numbered_iterator = numbered_iterator_t<iterator, const_iterator>;
 	using numbered_const_iterator = numbered_iterator_t<const_iterator>;
+	enum class undo_type: char;
 
 	void DisplayObject() override;
 
@@ -224,8 +225,8 @@ private:
 	void UnmarkBlock();
 	void UnmarkEmptyBlock();
 	void UnmarkMacroBlock();
-	void AddUndoData(int Type) { return AddUndoData(Type, {}, eol::none, 0, 0); }
-	void AddUndoData(int Type, string_view Str, eol Eol, int StrNum, int StrPos);
+	void AddUndoData(undo_type Type) { return AddUndoData(Type, {}, eol::none, 0, 0); }
+	void AddUndoData(undo_type Type, string_view Str, eol Eol, int StrNum, int StrPos);
 	void Undo(int redo);
 	void SelectAll();
 	void BlockLeft();

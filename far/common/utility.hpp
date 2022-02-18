@@ -70,12 +70,6 @@ inline size_t grow_exp_noshrink(size_t const Current, std::optional<size_t> cons
 }
 
 template<typename container>
-void reserve_exp_noshrink(container& Container)
-{
-	Container.reserve(grow_exp_noshrink(Container.capacity(), {}));
-}
-
-template<typename container>
 void reserve_exp_noshrink(container& Container, size_t const DesiredCapacity)
 {
 	Container.reserve(grow_exp_noshrink(Container.capacity(), DesiredCapacity));
@@ -352,7 +346,7 @@ decltype(auto) edit_as(unsigned long long const Address)
 }
 
 template<typename T>
-static auto view_as_opt(void const* const Buffer, size_t const Size, size_t const Offset = 0)
+auto view_as_opt(void const* const Buffer, size_t const Size, size_t const Offset = 0)
 {
 	static_assert(std::is_trivially_copyable_v<T>);
 
@@ -360,7 +354,7 @@ static auto view_as_opt(void const* const Buffer, size_t const Size, size_t cons
 }
 
 template<typename T, typename container, REQUIRES(is_range_v<container>)>
-static auto view_as_opt(container const& Buffer, size_t const Offset = 0)
+auto view_as_opt(container const& Buffer, size_t const Offset = 0)
 {
 	return view_as_opt<T>(Buffer.data(), Buffer.size(), Offset);
 }

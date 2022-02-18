@@ -59,8 +59,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 
 // Platform:
+#include "platform.debug.hpp"
 #include "platform.fs.hpp"
-#include "platform.reg.hpp"
+#include "platform.process.hpp"
 #include "platform.version.hpp"
 
 // Common:
@@ -138,28 +139,33 @@ void force_stderr_exception_ui(bool const Force)
 
 void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
-constexpr NTSTATUS
+static constexpr NTSTATUS
 	EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363, // EH_EXCEPTION_NUMBER
 	EXCEPTION_TERMINATE           = 0xE074726D; // 'trm'
 
-static void get_backtrace(string_view const Module, span<uintptr_t const> const Stack, span<uintptr_t const> const NestedStack, function_ref<void(string&&)> const Consumer)
-{
-	const auto Separator = [&](string&& Message)
-	{
-		Consumer(string(40, L'-'));
-		Consumer(std::move(Message));
-		Consumer(string(40, L'-'));
-	};
+static const auto Separator = L"----------------------------------------------------------------------"sv;
 
+static void make_header(string_view const Message, function_ref<void(string_view)> const Consumer)
+{
+	Consumer({});
+
+	Consumer(Separator);
+	Consumer(Message);
+	Consumer(Separator);
+}
+
+static void get_backtrace(string_view const Module, span<uintptr_t const> const Stack, span<uintptr_t const> const NestedStack, function_ref<void(string_view)> const Consumer)
+{
+	make_header(L"Exception stack"sv, Consumer);
 	if (!NestedStack.empty())
 	{
 		tracer.get_symbols(Module, NestedStack, Consumer);
-		Separator(L"Rethrow:"s);
+		make_header(L"Rethrow stack"sv, Consumer);
 	}
 
 	tracer.get_symbols(Module, Stack, Consumer);
 
-	Separator(L"Current stack:"s);
+	make_header(L"Exception handler stack"sv, Consumer);
 	tracer.get_symbols(Module, os::debug::current_stack(), Consumer);
 }
 
@@ -191,6 +197,33 @@ static string get_report_location()
 		return SubDir;
 
 	return L"."s;
+}
+
+static bool write_readme(string_view const FullPath)
+{
+	os::fs::file const File(FullPath, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS);
+	if (!File)
+		return false;
+
+#define EOL "\r\n"
+
+	const auto Data = L"\xFEFF"
+		"Please send bug_report.txt and far.mdmp to the developers:" EOL
+		EOL
+		"  https://bugs.farmanager.com" EOL
+		"  https://github.com/FarGroup/FarManager/issues" EOL
+		"  https://forum.farmanager.com/viewforum.php?f=9" EOL
+		"  https://forum.farmanager.com/viewforum.php?f=37" EOL
+		EOL
+		"------------------------------------------------------------" EOL
+		"DO NOT SHARE far_full.mdmp UNLESS EXPLICITLY ASKED TO DO SO." EOL
+		"It could contain sensitive data." EOL
+		"------------------------------------------------------------" EOL
+		""sv;
+
+#undef EOL
+
+	return File.Write(Data.data(), Data.size() * sizeof(decltype(Data)::value_type));
 }
 
 static bool write_report(string_view const Data, string_view const FullPath)
@@ -329,24 +362,63 @@ static string collect_information(
 	string Strings;
 	Strings.reserve(1024);
 
+	Strings.push_back(L'\xFEFF');
+
 	const auto Eol = eol::system.str();
+
+	const auto append_line = [&](string_view const Line = {})
+	{
+		append(Strings, Line, Eol);
+	};
 
 	for (const auto& [Label, Value]: BasicInfo)
 	{
 		format_to(Strings, FSTR(L"{} {}{}"sv), Label, Value, Eol);
 	}
 
-	append(Strings, Eol);
-
+	make_header(L"Registers"sv, append_line);
 	read_registers(Strings, Context.context_record(), Eol);
-	append(Strings, Eol);
 
-	get_backtrace(Module, tracer.get(Module, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
+	get_backtrace(Module, tracer.get(Module, Context.context_record(), Context.thread_handle()), NestedStack, append_line);
+
 	{
-		append(Strings, Line, Eol);
-	});
-	append(Strings, Eol);
+		os::process::enum_processes const Enum;
+		const auto CurrentPid = GetCurrentProcessId();
+		const auto ContextThreadId = Context.thread_id();
+		const auto CurrentEntry = std::find_if(ALL_CONST_RANGE(Enum), [&](os::process::enum_process_entry const& Entry){ return Entry.Pid == CurrentPid; });
+		if (CurrentEntry != Enum.cend())
+		{
+			for (const auto& i: CurrentEntry->Threads)
+			{
+				const auto Tid = reinterpret_cast<uintptr_t>(i.ClientId.UniqueThread);
+				if (Tid == ContextThreadId)
+					continue;
 
+				os::handle const Thread(OpenThread(THREAD_QUERY_INFORMATION | THREAD_SUSPEND_RESUME | THREAD_GET_CONTEXT, false, Tid));
+				if (!Thread)
+					continue;
+
+				SuspendThread(Thread.native_handle());
+				SCOPE_EXIT{ ResumeThread(Thread.native_handle()); };
+
+				auto ThreadTitle = concat(L"Thread "sv, str(Tid));
+				if (const auto ThreadName = os::debug::get_thread_name(Thread.native_handle()); !ThreadName.empty())
+					append(ThreadTitle, L" ("sv, ThreadName, L')');
+				append(ThreadTitle, L" stack"sv);
+
+				make_header(ThreadTitle, append_line);
+
+				CONTEXT ThreadContext{};
+				ThreadContext.ContextFlags = CONTEXT_ALL;
+				if (!GetThreadContext(Thread.native_handle(), &ThreadContext))
+					continue;
+
+				tracer.get_symbols(Module, tracer.get(Module, ThreadContext, Thread.native_handle()), append_line);
+			}
+		}
+	}
+
+	make_header(L"Modules"sv, append_line);
 	read_modules(Strings, Eol);
 
 	return Strings;
@@ -414,8 +486,6 @@ static void print_exception_message(string const& ReportLocation, string const& 
 			msg(lng::MExceptionDialogMessage2),
 		};
 	}
-
-	const auto Separator = L"----------------------------------------------------------------------"sv;
 
 	std::wcerr <<
 		Eol <<
@@ -519,7 +589,8 @@ static bool ShowExceptionUI(
 	const auto BugReport = collect_information(Context, NestedStack, ModuleName, BasicInfo);
 	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, L"bug_report.txt"sv));
 	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
-	const auto AnythingOnDisk = ReportOnDisk || MinidumpNormal || MinidumpFull;
+	const auto ReadmeOnDisk = write_readme(path::join(ReportLocation, L"README.txt"sv));
+	const auto AnythingOnDisk = ReportOnDisk || MinidumpNormal || MinidumpFull || ReadmeOnDisk;
 
 	if (AnythingOnDisk)
 		OpenFolderInShell(ReportLocation);

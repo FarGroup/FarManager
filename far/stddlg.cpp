@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 #include "copy_progress.hpp"
 #include "keyboard.hpp"
+#include "pathmix.hpp"
 
 // Platform:
 #include "platform.com.hpp"
@@ -473,6 +474,80 @@ bool GetNameAndPassword(
 	return true;
 }
 
+static string format_process_name(DWORD const Pid, string_view const ImageName, const wchar_t* const AppName, const wchar_t* const ServiceShortName)
+{
+	const auto
+		HaveAppHame = AppName && *AppName,
+		HaveServiceName = ServiceShortName && *ServiceShortName;
+
+	return format(
+		FSTR(L"{} (PID {}{}{}{}{}{})"sv),
+		!ImageName.empty()? ImageName : L"Unknown"sv,
+		Pid,
+		HaveAppHame? L", "sv : L""sv,
+		HaveAppHame? AppName : L""sv,
+		HaveServiceName? L", ["sv : L""sv,
+		HaveServiceName? ServiceShortName : L""sv,
+		HaveServiceName? L"]"sv : L""sv
+	);
+}
+
+static std::vector<string> get_locking_processes(const string& FullName, size_t const MaxProcesses, DWORD& Reasons, size_t& ProcessCount)
+{
+	// This method allows to get names of all processes, even those we can't open.
+	std::optional<os::process::enum_processes> Enum;
+	std::unordered_map<DWORD, string_view> ActiveProcesses;
+	string NameBuffer;
+
+	auto process_name = [&](DWORD const Pid)
+	{
+		if (!Enum)
+		{
+			Enum.emplace();
+			std::transform(ALL_CONST_RANGE(*Enum), std::inserter(ActiveProcesses, ActiveProcesses.end()), [](os::process::enum_process_entry const& Entry)
+			{
+				return std::pair(Entry.Pid, Entry.Name);
+			});
+		}
+
+		if (const auto Iterator = ActiveProcesses.find(Pid); Iterator != ActiveProcesses.end())
+			return Iterator->second;
+
+		// Should never happen, but just in case
+		NameBuffer = os::process::get_process_name(Pid);
+		return PointToName(NameBuffer);
+	};
+
+	std::vector<string> Result;
+
+	{
+		// RM implementation returns separate entries for services; we don't care and want them collapsed
+		std::map<DWORD, string> UniqueProcesses;
+		ProcessCount = os::process::enumerate_locking_processes_rm(FullName, Reasons, [&](DWORD const Pid, const wchar_t* AppName, const wchar_t* ServiceShortName)
+		{
+			UniqueProcesses.try_emplace(Pid, format_process_name(Pid, process_name(Pid), AppName, ServiceShortName));
+			return UniqueProcesses.size() != MaxProcesses;
+		});
+
+		for (auto& [Pid, Name]: UniqueProcesses)
+		{
+			Result.emplace_back(std::move(Name));
+		}
+	}
+
+	if (Result.empty())
+	{
+		ProcessCount = os::process::enumerate_locking_processes_nt(FullName, [&](DWORD const Pid, const wchar_t* const AppName, const wchar_t* const ServiceShortName)
+		{
+			Result.emplace_back(format_process_name(Pid, process_name(Pid), AppName, ServiceShortName));
+			return Result.size() != MaxProcesses;
+		});
+	}
+
+	return Result;
+}
+
+
 operation OperationFailed(const error_state_ex& ErrorState, string_view const Object, lng Title, string Description, bool AllowSkip, bool AllowSkipAll)
 {
 	std::vector<string> Msg;
@@ -539,26 +614,14 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 		}
 		else
 		{
-			const size_t MaxRmProcesses = 5;
+			const size_t MaxProcesses = 5;
 			DWORD Reasons = RmRebootReasonNone;
-			auto ProcessCount = os::process::enumerate_rm_processes(FullName, Reasons, [&](string&& Str)
-			{
-				Msg.emplace_back(std::move(Str));
-				return Msg.size() != MaxRmProcesses;
-			});
+			size_t ProcessCount{};
+			Msg = get_locking_processes(FullName, MaxProcesses, Reasons, ProcessCount);
 
-			if (!ProcessCount)
+			if (ProcessCount > MaxProcesses)
 			{
-				ProcessCount = os::process::enumerate_nt_processes(FullName, [&](string&& Str)
-				{
-					Msg.emplace_back(std::move(Str));
-					return Msg.size() != MaxRmProcesses;
-				});
-			}
-
-			if (ProcessCount > MaxRmProcesses)
-			{
-				Msg.emplace_back(format(msg(lng::MObjectLockedAndMore), ProcessCount - MaxRmProcesses));
+				Msg.emplace_back(format(msg(lng::MObjectLockedAndMore), ProcessCount - MaxProcesses));
 			}
 
 			static const std::pair<DWORD, lng> Mappings[] =
@@ -697,67 +760,16 @@ bool retryable_ui_operation(function_ref<bool()> const Action, string_view const
 	return true;
 }
 
-static string GetReErrorString(int code)
-{
-	// TODO: localization
-	switch (code)
-	{
-	case errNone:
-		return L"No errors"s;
-	case errNotCompiled:
-		return L"RegExp wasn't even tried to compile"s;
-	case errSyntax:
-		return L"Expression contains a syntax error"s;
-	case errBrackets:
-		return L"Unbalanced brackets"s;
-	case errMaxDepth:
-		return L"Max recursive brackets level reached"s;
-	case errOptions:
-		return L"Invalid options combination"s;
-	case errInvalidBackRef:
-		return L"Reference to nonexistent bracket"s;
-	case errInvalidEscape:
-		return L"Invalid escape char"s;
-	case errInvalidRange:
-		return L"Invalid range value"s;
-	case errInvalidQuantifiersCombination:
-		return L"Quantifier applied to invalid object. f.e. lookahead assertion"s;
-	case errNotEnoughMatches:
-		return L"Size of match array isn't large enough"s;
-	case errNoStorageForNB:
-		return L"Attempt to match RegExp with Named Brackets but no storage class provided"s;
-	case errReferenceToUndefinedNamedBracket:
-		return L"Reference to undefined named bracket"s;
-	case errVariableLengthLookBehind:
-		return L"Only fixed length look behind assertions are supported"s;
-	default:
-		return L"Unknown error"s;
-	}
-}
-
-void ReCompileErrorMessage(const RegExp& re, string_view const str)
+void ReCompileErrorMessage(regex_exception const& e, string_view const str)
 {
 	Message(MSG_WARNING | MSG_LEFTALIGN,
 		msg(lng::MError),
 		{
-			GetReErrorString(re.LastError()),
+			e.message(),
 			string(str),
-			string(re.ErrorPosition(), L' ') + L'↑'
+			string(e.position(), L' ') + L'↑'
 		},
 		{ lng::MOk });
-}
-
-void ReMatchErrorMessage(const RegExp& re)
-{
-	if (re.LastError() != errNone)
-	{
-		Message(MSG_WARNING | MSG_LEFTALIGN,
-			msg(lng::MError),
-			{
-				GetReErrorString(re.LastError())
-			},
-			{ lng::MOk });
-	}
 }
 
 static void GetRowCol(const string_view Str, bool Hex, goto_coord& Row, goto_coord& Col)

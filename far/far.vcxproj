@@ -166,6 +166,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="platform.com.cpp" />
     <ClCompile Include="platform.concurrency.cpp" />
     <ClCompile Include="platform.cpp" />
+    <ClCompile Include="platform.debug.cpp" />
     <ClCompile Include="platform.env.cpp" />
     <ClCompile Include="platform.fs.cpp" />
     <ClCompile Include="platform.memory.cpp" />
@@ -375,6 +376,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="platform.chrono.hpp" />
     <ClInclude Include="platform.com.hpp" />
     <ClInclude Include="platform.concurrency.hpp" />
+    <ClInclude Include="platform.debug.hpp" />
     <ClInclude Include="platform.env.hpp" />
     <ClInclude Include="platform.fs.hpp" />
     <ClInclude Include="platform.fwd.hpp" />

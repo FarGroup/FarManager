@@ -213,8 +213,14 @@ static bool PartCmdLine(string_view const FullCommand, string& Command, string& 
 		if (Re.Pattern != Condition)
 		{
 			Re.Re = std::make_unique<RegExp>();
-			if (!Re.Re->Compile(Condition, OP_OPTIMIZE))
+
+			try
 			{
+				Re.Re->Compile(Condition, OP_OPTIMIZE);
+			}
+			catch (regex_exception const& e)
+			{
+				LOGERROR(L"ComspecCondition regex error: {}; position: {}"sv, e.message(), e.position());
 				Re.Re.reset();
 			}
 			Re.Pattern = Condition;
@@ -225,10 +231,7 @@ static bool PartCmdLine(string_view const FullCommand, string& Command, string& 
 			if (Re.Re->Search(FullCommand))
 				return false;
 
-			if (Re.Re->LastError() == errNone)
-			{
-				UseDefaultCondition = false;
-			}
+			UseDefaultCondition = false;
 		}
 	}
 
@@ -733,7 +736,7 @@ void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator
 
 		const auto ObjectNameShort = ConvertNameToShort(Command);
 		const auto LastX = WhereX(), LastY = WhereY();
-		if (ProcessLocalFileTypes(Command, ObjectNameShort, FILETYPE_EXEC, Info.WaitMode == execute_info::wait_mode::wait_finish, false, Info.RunAs, [&](execute_info& AssocInfo)
+		if (ProcessLocalFileTypes(Command, ObjectNameShort, FILETYPE_EXEC, Info.WaitMode == execute_info::wait_mode::wait_finish, Info.Directory, false, Info.RunAs, [&](execute_info& AssocInfo)
 		{
 			GotoXY(LastX, LastY);
 

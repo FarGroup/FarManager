@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "encoding.hpp"
 
 // Platform:
+#include "platform.debug.hpp"
 
 // Common:
 #include "common/2d/algorithm.hpp"

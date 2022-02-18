@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.concurrency.hpp"
+#include "platform.debug.hpp"
 
 // Common:
 #include "common/preprocessor.hpp"
@@ -408,20 +409,29 @@ namespace tests
 	static void debug_bounds_check()
 	{
 		[[maybe_unused]] std::vector<int> v(1);
+WARNING_PUSH()
+WARNING_DISABLE_GCC("-Warray-bounds")
 		v[1] = 42;
+WARNING_POP()
 	}
 
 	static void debug_bounds_check_as_stack()
 	{
 		[[maybe_unused]] int v[1];
 		const volatile size_t Index = 1;
+WARNING_PUSH()
+WARNING_DISABLE_GCC("-Warray-bounds")
 		v[Index] = 42;
+WARNING_POP()
 	}
 
 	static void debug_bounds_check_as_heap()
 	{
 		[[maybe_unused]] std::vector<int> v(1);
+WARNING_PUSH()
+WARNING_DISABLE_GCC("-Warray-bounds")
 		v.data()[1] = 42;
+WARNING_POP()
 	}
 }
 

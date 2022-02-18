@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.concurrency.hpp"
+#include "platform.debug.hpp"
 
 // Common:
 
@@ -85,7 +86,7 @@ struct MEMINFO
 };
 
 static MEMINFO FirstMemBlock{ {}, sizeof(FirstMemBlock) };
-static MEMINFO* LastMemBlock = &FirstMemBlock;
+static auto LastMemBlock = &FirstMemBlock;
 
 static auto to_real(void* address, std::align_val_t Alignment)
 {

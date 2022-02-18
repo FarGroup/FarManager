@@ -675,9 +675,8 @@ namespace
 	string ReplaceBrackets(
 		const string_view SearchStr,
 		const string_view ReplaceStr,
-		const RegExpMatch* Match,
-		size_t Count,
-		const MatchHash* HMatch,
+		span<RegExpMatch const> Match,
+		const named_regex_match* NamedMatch,
 		int& CurPos,
 		int* SearchLength)
 	{
@@ -706,7 +705,7 @@ namespace
 					if (TokenEnd != TokenStart)
 					{
 						size_t index = 0;
-						while (TokenEnd != TokenStart && (index = from_string<unsigned long>(ReplaceStr.substr(TokenStart, TokenEnd - TokenStart))) >= Count)
+						while (TokenEnd != TokenStart && (index = from_string<unsigned long>(ReplaceStr.substr(TokenStart, TokenEnd - TokenStart))) >= Match.size())
 						{
 							--TokenEnd;
 						}
@@ -726,10 +725,10 @@ namespace
 						if (const auto Part = ReplaceStr.substr(TokenStart); std::regex_search(ALL_CONST_RANGE(Part), CMatch, re))
 						{
 							ShiftLength = CMatch[0].length();
-							if (HMatch)
+							if (NamedMatch)
 							{
-								const auto Iterator = HMatch->Matches.find(string_comparer::generic_key{ CMatch[1].first, CMatch[1].second });
-								if (Iterator != HMatch->Matches.cend())
+								const auto Iterator = NamedMatch->Matches.find(string_comparer::generic_key{ CMatch[1].first, CMatch[1].second });
+								if (Iterator != NamedMatch->Matches.cend())
 								{
 									Success = true;
 									start = Iterator->second.start;
@@ -758,60 +757,53 @@ namespace
 			}
 		}
 
-		*SearchLength = Match->end - Match->start;
-		CurPos = Match->start;
+		*SearchLength = Match[0].end - Match[0].start;
+		CurPos = Match[0].start;
 		return result;
 	}
 
 	bool SearchStringRegex(
 		string_view const Source,
 		const RegExp& re,
-		RegExpMatch* const pm,
-		MatchHash* const hm,
+		std::vector<RegExpMatch>& Match,
+		named_regex_match* const NamedMatch,
 		intptr_t Position,
 		int const Reverse,
 		string& ReplaceStr,
 		int& CurPos,
 		int* SearchLength)
 	{
-		intptr_t n = re.GetBracketsCount();
-
 		if (!Reverse)
 		{
-			if (re.SearchEx(Source, Position, pm, n, hm))
-			{
-				ReplaceStr = ReplaceBrackets(Source, ReplaceStr, pm, n, hm, CurPos, SearchLength);
-				return true;
-			}
+			if (!re.SearchEx(Source, Position, Match, NamedMatch))
+				return false;
 
-			ReMatchErrorMessage(re);
-			return false;
+			ReplaceStr = ReplaceBrackets(Source, ReplaceStr, Match, NamedMatch, CurPos, SearchLength);
+			return true;
 		}
 
 		bool found = false;
-		intptr_t half = 0;
 		intptr_t pos = 0;
 
-		for (;;)
+		std::vector<RegExpMatch> FoundMatch;
+		named_regex_match FoundNamedMatch;
+
+		while (re.SearchEx(Source, pos, Match, NamedMatch))
 		{
-			if (!re.SearchEx(Source, pos, pm + half, n, hm))
-			{
-				ReMatchErrorMessage(re);
-				break;
-			}
-			pos = pm[half].start;
+			pos = Match[0].start;
 			if (pos > Position)
 				break;
 
 			found = true;
+			FoundMatch = std::move(Match);
+			if (NamedMatch)
+				FoundNamedMatch.Matches = std::move(NamedMatch)->Matches;
 			++pos;
-			half = n - half;
 		}
 
 		if (found)
 		{
-			half = n - half;
-			ReplaceStr = ReplaceBrackets(Source, ReplaceStr, pm + half, n, hm, CurPos, SearchLength);
+			ReplaceStr = ReplaceBrackets(Source, ReplaceStr, FoundMatch, NamedMatch? &FoundNamedMatch : nullptr, CurPos, SearchLength);
 		}
 
 		return found;
@@ -839,8 +831,8 @@ bool SearchString(
 	string_view const Needle,
 	i_searcher const& NeedleSearcher,
 	const RegExp& re,
-	RegExpMatch* const pm,
-	MatchHash* const hm,
+	std::vector<RegExpMatch>& Match,
+	named_regex_match* const NamedMatch,
 	int& CurPos,
 	search_case_fold const CaseFold,
 	bool const WholeWords,
@@ -855,8 +847,8 @@ bool SearchString(
 		Needle,
 		NeedleSearcher,
 		re,
-		pm,
-		hm,
+		Match,
+		NamedMatch,
 		Dummy,
 		CurPos,
 		CaseFold,
@@ -874,8 +866,8 @@ bool SearchAndReplaceString(
 	string_view const Needle,
 	i_searcher const& NeedleSearcher,
 	const RegExp& re,
-	RegExpMatch* const pm,
-	MatchHash* const hm,
+	std::vector<RegExpMatch>& Match,
+	named_regex_match* const NamedMatch,
 	string& ReplaceStr,
 	int& CurPos,
 	search_case_fold const CaseFold,
@@ -915,7 +907,7 @@ bool SearchAndReplaceString(
 		if ((Position || HaystackSize) && Position >= HaystackSize)
 			return false;
 
-		return SearchStringRegex(Haystack, re, pm, hm, Position, Reverse, ReplaceStr, CurPos, SearchLength);
+		return SearchStringRegex(Haystack, re, Match, NamedMatch, Position, Reverse, ReplaceStr, CurPos, SearchLength);
 	}
 
 	if (Position >= HaystackSize)
@@ -1099,13 +1091,13 @@ void xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize)
 TEST_CASE("ConvertFileSizeString")
 {
 	constexpr auto
-		B = 1ull,
-		K = B * 1024,
-		M = K * 1024,
-		G = M * 1024,
-		T = G * 1024,
-		P = T * 1024,
-		E = P * 1024;
+		B =  0_bit,
+		K = 10_bit,
+		M = 20_bit,
+		G = 30_bit,
+		T = 40_bit,
+		P = 50_bit,
+		E = 60_bit;
 
 	static const struct
 	{

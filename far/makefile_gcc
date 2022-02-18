@@ -6,7 +6,7 @@ THIS_MAKE = $(TOP_MAKEFILE)
 EXEDIR = $(DIRNAME).$(DIRBIT).gcc/
 OBJDIR = $(EXEDIR)obj/
 export BOOTSTRAPDIR=$(OBJDIR)include/bootstrap/
-export FORCEINCLUDELIST=headers.hpp memcheck.hpp
+export FORCEINCLUDELIST=headers.hpp memcheck.hpp disabled_warnings.hpp
 EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)$(EXENAME)
 DEPFILE = $(BOOTSTRAPDIR)far.gcc.dep
@@ -124,6 +124,7 @@ SRCS = \
 	platform.chrono.cpp \
 	platform.com.cpp \
 	platform.concurrency.cpp \
+	platform.debug.cpp \
 	platform.env.cpp \
 	platform.fs.cpp \
 	platform.memory.cpp \

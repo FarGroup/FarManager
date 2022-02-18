@@ -1,4 +1,42 @@
 --------------------------------------------------------------------------------
+drkns 04.02.2022 17:54:40 +0000 - build 5961
+
+1. Continue 5960.
+
+--------------------------------------------------------------------------------
+drkns 04.02.2022 00:15:55 +0000 - build 5960
+
+1. Continue 5905: associations were overlooked.
+
+--------------------------------------------------------------------------------
+drkns 02.02.2022 02:02:02 +0000 - build 5959
+
+1. Improve exception diagnostics.
+
+--------------------------------------------------------------------------------
+drkns 01.02.2022 01:17:02 +0000 - build 5958
+
+1. Improve diagnostics in "access denied" errors.
+
+--------------------------------------------------------------------------------
+drkns 28.01.2022 09:21:47 +0000 - build 5957
+
+1. Wrong backwards regex replace with named groups and multiple matches within the line.
+
+2. Regex search didn't work in Help.
+
+3. Regex should be truly thread-safe now (search/match-wise).
+
+4. Other corner case regex fixes.
+
+5. Refactoring.
+
+--------------------------------------------------------------------------------
+drkns 25.01.2022 00:07:30 +0000 - build 5956
+
+1. Correction of 5955.1.
+
+--------------------------------------------------------------------------------
 drkns 20.01.2022 20:41:13 +0000 - build 5955
 
 1. Refactoring.

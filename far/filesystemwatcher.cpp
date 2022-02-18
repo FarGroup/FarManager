@@ -45,10 +45,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "notification.hpp"
 
 // Platform:
+#include "platform.concurrency.hpp"
+#include "platform.debug.hpp"
 #include "platform.fs.hpp"
 
 // Common:
-#include "platform.concurrency.hpp"
 #include "common/scope_exit.hpp"
 #include "common/singleton.hpp"
 #include "common/string_utils.hpp"

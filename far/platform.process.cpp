@@ -289,24 +289,7 @@ namespace os::process
 		return get_process_name(Pid, {});
 	}
 
-	static string format_process_name(const DWORD Pid, chrono::time_point ProcessStartTime, const wchar_t* AppName, const wchar_t* ServiceShortName)
-	{
-		auto Str = AppName && *AppName? AppName : L"Unknown"s;
-
-		if (ServiceShortName && *ServiceShortName)
-			append(Str, L" ["sv, ServiceShortName, L']');
-
-		append(Str, L" (PID: "sv, str(Pid));
-
-		if (const auto Name = get_process_name(Pid, ProcessStartTime); !Name.empty())
-			append(Str, L", "sv, Name);
-
-		Str += L')';
-
-		return Str;
-	}
-
-	size_t enumerate_rm_processes(const string& Filename, DWORD& Reasons, function_ref<bool(string&&)> const Handler)
+	size_t enumerate_locking_processes_rm(const string& Filename, DWORD& Reasons, enumerate_callback const Handler)
 	{
 		if (!imports.RmStartSession)
 			return 0;
@@ -362,7 +345,7 @@ namespace os::process
 
 		for (const auto& Info: ProcessInfos)
 		{
-			if (!Handler(format_process_name(Info.Process.dwProcessId, chrono::nt_clock::from_filetime(Info.Process.ProcessStartTime), Info.strAppName, Info.strServiceShortName)))
+			if (!Handler(Info.Process.dwProcessId, Info.strAppName, Info.strServiceShortName))
 				break;
 		}
 
@@ -370,7 +353,7 @@ namespace os::process
 
 	}
 
-	size_t enumerate_nt_processes(const string_view Filename, function_ref<bool(string&&)> const Handler)
+	size_t enumerate_locking_processes_nt(const string_view Filename, enumerate_callback const Handler)
 	{
 		const fs::file File(Filename, FILE_READ_ATTRIBUTES, fs::file_share_all, nullptr, OPEN_EXISTING);
 		if (!File)
@@ -398,10 +381,59 @@ namespace os::process
 			version::file_version Version;
 			const auto Description = !Name.empty() && Version.read(Name)? Version.get_string(L"FileDescription") : nullptr;
 
-			if (!Handler(format_process_name(i, {}, Description, {})))
+			if (!Handler(i, Description, {}))
 				break;
 		}
 
 		return Info->NumberOfProcessIdsInList;
+	}
+
+	enum_processes::enum_processes()
+	{
+		// Should never happen, but just in case
+		if (!imports.NtQuerySystemInformation)
+			return;
+
+		m_Info.reset(sizeof(*m_Info));
+
+		for (;;)
+		{
+			ULONG ReturnSize{};
+			const auto Result = imports.NtQuerySystemInformation(SystemProcessInformation, m_Info.data(), static_cast<ULONG>(m_Info.size()), &ReturnSize);
+			if (Result == STATUS_SUCCESS)
+				break;
+
+			if (any_of(Result, STATUS_INFO_LENGTH_MISMATCH, STATUS_BUFFER_OVERFLOW, STATUS_BUFFER_TOO_SMALL))
+			{
+				m_Info.reset(ReturnSize? ReturnSize : grow_exp_noshrink(m_Info.size(), {}));
+				continue;
+			}
+
+			LOGWARNING(L"NtQuerySystemInformation(): {}"sv, format_ntstatus(Result));
+
+			m_Info.reset();
+			return;
+		}
+	}
+
+	bool enum_processes::get(bool Reset, enum_process_entry& Value) const
+	{
+		if (m_Info.empty())
+			return false;
+
+		if (Reset)
+			m_Offset = 0;
+
+		const auto& Info = view_as<SYSTEM_PROCESS_INFORMATION>(m_Info.data(), m_Offset);
+
+		if (!Info.NextEntryOffset)
+			return false;
+
+		Value.Pid = static_cast<DWORD>(reinterpret_cast<uintptr_t>(Info.UniqueProcessId));
+		Value.Name = { Info.ImageName.Buffer, Info.ImageName.Length / sizeof(wchar_t) };
+		Value.Threads = { view_as<SYSTEM_THREAD_INFORMATION const*>(&Info, sizeof(Info)), Info.NumberOfThreads };
+		m_Offset += Info.NextEntryOffset;
+
+		return true;
 	}
 }

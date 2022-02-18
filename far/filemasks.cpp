@@ -356,11 +356,15 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 
 	auto& RegexData = m_Masks.emplace<1>();
 
-	if (!RegexData.Regex.Compile(Masks, OP_PERLSTYLE | OP_OPTIMIZE))
+	try
+	{
+		RegexData.Regex.Compile(Masks, OP_PERLSTYLE | OP_OPTIMIZE);
+	}
+	catch(regex_exception const& e)
 	{
 		if (!(Flags & FMF_SILENT))
 		{
-			ReCompileErrorMessage(RegexData.Regex, Masks);
+			ReCompileErrorMessage(e, Masks);
 		}
 		return false;
 	}
@@ -381,8 +385,7 @@ bool filemasks::masks::operator==(const string_view FileName) const
 		},
 		[&](const regex_data& Data)
 		{
-			intptr_t i = Data.Match.size();
-			return Data.Regex.Search(FileName, Data.Match.data(), i) != 0; // BUGBUG
+			return Data.Regex.Search(FileName, Data.Match); // BUGBUG
 		}
 	}, m_Masks);
 }

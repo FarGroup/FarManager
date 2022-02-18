@@ -2581,9 +2581,9 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 				std::transform(BreakKeys, BreakKeys + BreakKeysCount, std::back_inserter(NewBreakKeys), [](int i)
 				{
 					FarKey NewItem;
-					NewItem.VirtualKeyCode = i & 0xffff;
+					NewItem.VirtualKeyCode = extract_integer<uint16_t, 0>(i);
 					NewItem.ControlKeyState = 0;
-					const auto ItemFlags = extract_integer<uint16_t, 0>(i);
+					const auto ItemFlags = extract_integer<uint16_t, 1>(i);
 					if (ItemFlags & oldfar::PKF_CONTROL) NewItem.ControlKeyState |= LEFT_CTRL_PRESSED;
 					if (ItemFlags & oldfar::PKF_ALT) NewItem.ControlKeyState |= LEFT_ALT_PRESSED;
 					if (ItemFlags & oldfar::PKF_SHIFT) NewItem.ControlKeyState |= SHIFT_PRESSED;
