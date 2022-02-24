@@ -108,12 +108,14 @@ namespace os
 
 		void handle_closer::operator()(HANDLE Handle) const noexcept
 		{
-			CloseHandle(Handle);
+			if (!CloseHandle(Handle))
+				LOGWARNING(L"CloseHandle(): {}"sv, last_error());
 		}
 
 		void printer_handle_closer::operator()(HANDLE Handle) const noexcept
 		{
-			ClosePrinter(Handle);
+			if (!ClosePrinter(Handle))
+				LOGWARNING(L"CloseHandle(): {}"sv, last_error());
 		}
 	}
 

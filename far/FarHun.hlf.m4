@@ -3695,6 +3695,8 @@ bezárja az ablakot.
 kiválasztott meghajtó gyökerét (csak "valódi" meghajtóknál működik,
 pluginnel emulált fájlrendszereknél nem).
 
+ #Ctrl+H# shows unmapped volumes.
+
  A #Ctrl+R# frissíti a Meghajtók menü tartalmát.
 
  Ha a #CD meghajtó típusa# mód engedélyezve van (#Ctrl+8#), a Far

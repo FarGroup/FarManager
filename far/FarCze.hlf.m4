@@ -3638,6 +3638,8 @@ disku a zavře menu.
 kořenový adresář vybraného diksu (funguje jen pro diskové jednotky a
 ne pro pluginy).
 
+ #Ctrl+H# shows unmapped volumes.
+
  #Ctrl+R# allows to refresh the disk selection menu.
 
  If "#CD drive type#" mode is enabled (#Ctrl+8#), Far will attempt to

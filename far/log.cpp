@@ -503,9 +503,9 @@ namespace
 	{
 	protected:
 		template<typename... args>
-		explicit async_impl(bool const IsDiscardable):
+		explicit async_impl(bool const IsDiscardable, string_view const Name):
 			m_IsDiscardable(IsDiscardable),
-			m_Thread(os::thread::mode::join, &async_impl::poll, this)
+			m_Thread(os::thread::mode::join, &async_impl::poll, this, Name)
 		{
 		}
 
@@ -533,9 +533,9 @@ namespace
 
 		virtual void out(message&& Message) = 0;
 
-		void poll()
+		void poll(string_view const Name)
 		{
-			os::debug::set_thread_name(L"Log sink");
+			os::debug::set_thread_name(format(FSTR(L"Log sink ({})"sv), Name));
 
 			return seh_try_no_ui(
 				[&]
@@ -599,7 +599,7 @@ namespace
 		static constexpr auto mode = sink_mode::mode::async;
 
 		explicit async(bool const IsDiscardable):
-			async_impl(IsDiscardable)
+			async_impl(IsDiscardable, sink_type::get_name())
 		{
 		}
 

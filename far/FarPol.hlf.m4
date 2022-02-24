@@ -3602,6 +3602,8 @@ dysku i zamyka menu.
  Wciśnięcie #Shift+Enter# wywołuje Eksploratora Windows i otwiera w nim
 główny folder wybranego dysku (działa tylko dla dysków, a dla wtyczek).
 
+ #Ctrl+H# shows unmapped volumes.
+
  #Ctrl+R# pozwala odświeżyć menu wyboru dysku.
 
  Jeżeli tryb #Parametry dysku optycznego# jest włączony (#Ctrl+8#), Far próbuje

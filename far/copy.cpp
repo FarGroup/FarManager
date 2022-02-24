@@ -135,7 +135,7 @@ private:
 	void CheckStreams(string_view Src, string_view DestPath);
 
 	// called by ShellCopyOneFile
-	bool ShellCopyFile(string_view SrcName, const os::fs::find_data& SrcData, string& strDestName, os::fs::attributes& DestAttr, bool Append, std::optional<error_state_ex>& ErrorState);
+	bool ShellCopyFile(string_view SrcName, const os::fs::find_data& SrcData, string& strDestName, bool Append, std::optional<error_state_ex>& ErrorState);
 
 	// called by ShellCopyFile
 	bool ShellSystemCopy(string_view SrcName, string_view DestName, const os::fs::find_data& SrcData);
@@ -2107,10 +2107,14 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 						LOGWARNING(L"set_file_attributes({}): {}"sv, strDestPath, last_error());
 					}
 
-					if (strDestFSName == L"NWFS"sv)
-						FileMoved = os::fs::move_file(strSrcFullName, strDestPath);
-					else
-						FileMoved = os::fs::move_file(strSrcFullName, strDestPath, SameName ? MOVEFILE_COPY_ALLOWED : MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING);
+					FileMoved = os::fs::move_file(
+						strSrcFullName,
+						strDestPath,
+						strDestFSName == L"NWFS"sv?
+							0 :
+							MOVEFILE_COPY_ALLOWED |
+							(SameName? 0 : MOVEFILE_REPLACE_EXISTING)
+					);
 
 					if (!FileMoved)
 					{
@@ -2140,8 +2144,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				}
 				else
 				{
-					os::fs::attributes Attr = INVALID_FILE_ATTRIBUTES;
-					FileMoved = ShellCopyFile(Src, SrcData, strDestPath, Attr, Append, ErrorState);
+					FileMoved = ShellCopyFile(Src, SrcData, strDestPath, Append, ErrorState);
 					AskDelete=1;
 				}
 
@@ -2175,7 +2178,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					}
 				};
 
-				if (ShellCopyFile(Src, SrcData, strDestPath, DestAttr, Append, ErrorState))
+				if (ShellCopyFile(Src, SrcData, strDestPath, Append, ErrorState))
 				{
 					strCopiedName = PointToName(strDestPath);
 
@@ -2417,7 +2420,6 @@ bool ShellCopy::ShellCopyFile(
 	const string_view SrcName,
 	os::fs::find_data const& SrcData,
 	string& strDestName,
-	os::fs::attributes& DestAttr,
 	bool Append,
 	std::optional<error_state_ex>& ErrorState
 )
@@ -2834,7 +2836,7 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 					break;
 				case WDLG_RENAME:
 				{
-					const auto& WFN = *view_as<const file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+					const auto& WFN = view_as<file_names_for_overwrite_dialog>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 					const auto strDestName = GenerateName(*WFN.Dest, *WFN.DestPath);
 
 					if (Dlg->SendMessage(DM_GETCHECK, WDLG_CHECKBOX, nullptr) == BSTATE_UNCHECKED)

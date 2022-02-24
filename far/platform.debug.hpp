@@ -36,10 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 
 // Platform:
-#include "platform.hpp"
 
 // Common:
-#include "common/enumerator.hpp"
 
 // External:
 
@@ -52,6 +50,7 @@ namespace os::debug
 	void print(const wchar_t* Str);
 	void print(string const& Str);
 	void set_thread_name(const wchar_t* Name);
+	void set_thread_name(string const& Name);
 	string get_thread_name(HANDLE ThreadHandle);
 	std::vector<uintptr_t> current_stack(size_t FramesToSkip = 0, size_t FramesToCapture = std::numeric_limits<size_t>::max());
 }

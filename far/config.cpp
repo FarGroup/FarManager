@@ -2799,28 +2799,28 @@ enum enumMenus
 	MENU_RIGHT
 };
 
-enum enumLeftMenu
+enum enumPanelMenu
 {
-	MENU_LEFT_BRIEFVIEW,
-	MENU_LEFT_MEDIUMVIEW,
-	MENU_LEFT_FULLVIEW,
-	MENU_LEFT_WIDEVIEW,
-	MENU_LEFT_DETAILEDVIEW,
-	MENU_LEFT_DIZVIEW,
-	MENU_LEFT_LONGVIEW,
-	MENU_LEFT_OWNERSVIEW,
-	MENU_LEFT_LINKSVIEW,
-	MENU_LEFT_ALTERNATIVEVIEW,
-	MENU_LEFT_SEPARATOR1,
-	MENU_LEFT_INFOPANEL,
-	MENU_LEFT_TREEPANEL,
-	MENU_LEFT_QUICKVIEW,
-	MENU_LEFT_SEPARATOR2,
-	MENU_LEFT_SORTMODES,
-	MENU_LEFT_LONGNAMES,
-	MENU_LEFT_TOGGLEPANEL,
-	MENU_LEFT_REREAD,
-	MENU_LEFT_CHANGEDRIVE
+	MENU_PANEL_BRIEFVIEW,
+	MENU_PANEL_MEDIUMVIEW,
+	MENU_PANEL_FULLVIEW,
+	MENU_PANEL_WIDEVIEW,
+	MENU_PANEL_DETAILEDVIEW,
+	MENU_PANEL_DIZVIEW,
+	MENU_PANEL_LONGVIEW,
+	MENU_PANEL_OWNERSVIEW,
+	MENU_PANEL_LINKSVIEW,
+	MENU_PANEL_ALTERNATIVEVIEW,
+	MENU_PANEL_SEPARATOR1,
+	MENU_PANEL_INFOPANEL,
+	MENU_PANEL_TREEPANEL,
+	MENU_PANEL_QUICKVIEW,
+	MENU_PANEL_SEPARATOR2,
+	MENU_PANEL_SORTMODES,
+	MENU_PANEL_LONGNAMES,
+	MENU_PANEL_TOGGLEPANEL,
+	MENU_PANEL_REREAD,
+	MENU_PANEL_CHANGEDRIVE
 };
 
 //currently left == right
@@ -2916,19 +2916,19 @@ static void SetLeftRightMenuChecks(menu_item* pMenu, bool bLeft)
 		break;
 
 	case panel_type::INFO_PANEL:
-		pMenu[MENU_LEFT_INFOPANEL].SetCheck();
+		pMenu[MENU_PANEL_INFOPANEL].SetCheck();
 		break;
 
 	case panel_type::TREE_PANEL:
-		pMenu[MENU_LEFT_TREEPANEL].SetCheck();
+		pMenu[MENU_PANEL_TREEPANEL].SetCheck();
 		break;
 
 	case panel_type::QVIEW_PANEL:
-		pMenu[MENU_LEFT_QUICKVIEW].SetCheck();
+		pMenu[MENU_PANEL_QUICKVIEW].SetCheck();
 		break;
 	}
 
-	pPanel->GetShowShortNamesMode()? pMenu[MENU_LEFT_LONGNAMES].ClearCheck() : pMenu[MENU_LEFT_LONGNAMES].SetCheck();
+	pPanel->GetShowShortNamesMode()? pMenu[MENU_PANEL_LONGNAMES].ClearCheck() : pMenu[MENU_PANEL_LONGNAMES].SetCheck();
 }
 
 void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEvent)
@@ -3142,38 +3142,38 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 		{
 			auto pPanel = (HItem == MENU_LEFT)? Global->CtrlObject->Cp()->LeftPanel() : Global->CtrlObject->Cp()->RightPanel();
 
-			if (VItem >= MENU_LEFT_BRIEFVIEW && VItem <= MENU_LEFT_ALTERNATIVEVIEW)
+			if (VItem >= MENU_PANEL_BRIEFVIEW && VItem <= MENU_PANEL_ALTERNATIVEVIEW)
 			{
 				Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, panel_type::FILE_PANEL);
 				pPanel=(HItem == MENU_LEFT)?Global->CtrlObject->Cp()->LeftPanel():Global->CtrlObject->Cp()->RightPanel();
-				pPanel->SetViewMode((VItem == MENU_LEFT_ALTERNATIVEVIEW)?VIEW_0:VIEW_1+VItem);
+				pPanel->SetViewMode((VItem == MENU_PANEL_ALTERNATIVEVIEW)? VIEW_0 : VIEW_1 + VItem);
 			}
 			else
 			{
 				switch (VItem)
 				{
-				case MENU_LEFT_INFOPANEL: // Info panel
+				case MENU_PANEL_INFOPANEL:
 					Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, panel_type::INFO_PANEL);
 					break;
-				case MENU_LEFT_TREEPANEL: // Tree panel
+				case MENU_PANEL_TREEPANEL:
 					Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, panel_type::TREE_PANEL);
 					break;
-				case MENU_LEFT_QUICKVIEW: // Quick view
+				case MENU_PANEL_QUICKVIEW:
 					Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, panel_type::QVIEW_PANEL);
 					break;
-				case MENU_LEFT_SORTMODES: // Sort modes
+				case MENU_PANEL_SORTMODES:
 					pPanel->ProcessKey(Manager::Key(KEY_CTRLF12));
 					break;
-				case MENU_LEFT_LONGNAMES: // Show long names
+				case MENU_PANEL_LONGNAMES:
 					pPanel->ProcessKey(Manager::Key(KEY_CTRLN));
 					break;
-				case MENU_LEFT_TOGGLEPANEL: // Panel On/Off
+				case MENU_PANEL_TOGGLEPANEL:
 					Global->WindowManager->ProcessKey(Manager::Key((HItem==MENU_LEFT)?KEY_CTRLF1:KEY_CTRLF2));
 					break;
-				case MENU_LEFT_REREAD: // Re-read
+				case MENU_PANEL_REREAD:
 					pPanel->ProcessKey(Manager::Key(KEY_CTRLR));
 					break;
-				case MENU_LEFT_CHANGEDRIVE: // Change drive
+				case MENU_PANEL_CHANGEDRIVE:
 					ChangeDisk(pPanel);
 					break;
 				}
