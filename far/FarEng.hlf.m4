@@ -3605,6 +3605,8 @@ and closes the menu.
 directory of the selected drives (works only for disk drives and not for
 plugins).
 
+ #Ctrl+H# shows unmapped volumes.
+
  #Ctrl+R# allows to refresh the disk selection menu.
 
  If "#CD drive type#" mode is enabled (#Ctrl+8#), Far will attempt to

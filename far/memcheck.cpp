@@ -134,15 +134,14 @@ static string format_type(allocation_type Type, size_t Size)
 	return format(FSTR(L"{} ({} bytes)"sv), sType, Size);
 }
 
-static string printable_string(string Str)
+static string printable_string(string_view const Str)
 {
-	for (auto& i: Str)
-	{
-		if (!std::iswprint(i))
-			i = L'.';
-	}
+	string Result;
+	Result.reserve(Str.size());
 
-	return Str;
+	std::replace_copy_if(ALL_RANGE(Str), std::back_inserter(Result), [](wchar_t const Char){ return !std::iswprint(Char); }, L'.');
+
+	return Result;
 }
 
 static string printable_wide_string(void const* const Data, size_t const Size)

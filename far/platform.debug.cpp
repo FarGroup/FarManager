@@ -77,6 +77,11 @@ namespace os::debug
 			imports.SetThreadDescription(GetCurrentThread(), Name);
 	}
 
+	void set_thread_name(string const& Name)
+	{
+		set_thread_name(Name.c_str());
+	}
+
 	string get_thread_name(HANDLE const ThreadHandle)
 	{
 		if (!imports.GetThreadDescription)

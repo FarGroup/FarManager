@@ -86,8 +86,8 @@ public:
 	}
 
 	auto code() const noexcept { return m_ExceptionRecord.ExceptionCode; }
-	auto& exception_record() const noexcept { return m_ExceptionRecord; }
-	auto& context_record() const noexcept { return m_ContextRecord; }
+	const auto& exception_record() const noexcept { return m_ExceptionRecord; }
+	const auto& context_record() const noexcept { return m_ContextRecord; }
 	auto thread_handle() const noexcept { return m_ThreadHandle.native_handle(); }
 	auto thread_id() const noexcept { return m_ThreadId; }
 
@@ -101,6 +101,8 @@ private:
 class seh_exception_context: public exception_context
 {
 public:
+	NONMOVABLE(seh_exception_context);
+
 	using exception_context::exception_context;
 
 	~seh_exception_context()
@@ -172,8 +174,11 @@ static void get_backtrace(string_view const Module, span<uintptr_t const> const 
 static string get_report_location()
 {
 	auto [Date, Time] = get_time();
-	std::replace(ALL_RANGE(Date), L'/', L'.');
-	std::replace(ALL_RANGE(Time), L':', L'.');
+
+	const auto not_digit = [](wchar_t const Char){ return !std::iswdigit(Char); };
+
+	std::replace_if(ALL_RANGE(Date), not_digit, L'_');
+	std::replace_if(ALL_RANGE(Time), not_digit, L'_');
 
 	const auto SubDir = format(L"Far.{}_{}_{}"sv, Date, Time, GetCurrentProcessId());
 
@@ -681,8 +686,8 @@ public:
 			return;
 
 		m_BaseAddress = Record.NumberParameters == 4? Record.ExceptionInformation[3] : 0;
-		const auto& ThrowInfoRef = *view_as<detail::ThrowInfo const*>(Record.ExceptionInformation[2]);
-		const auto& CatchableTypeArrayRef = *view_as<detail::CatchableTypeArray const*>(m_BaseAddress + ThrowInfoRef.pCatchableTypeArray);
+		const auto& ThrowInfoRef = view_as<detail::ThrowInfo>(Record.ExceptionInformation[2]);
+		const auto& CatchableTypeArrayRef = view_as<detail::CatchableTypeArray>(m_BaseAddress + ThrowInfoRef.pCatchableTypeArray);
 		m_CatchableTypesRVAs = { &CatchableTypeArrayRef.arrayOfCatchableTypes, static_cast<size_t>(CatchableTypeArrayRef.nCatchableTypes) };
 	}
 
@@ -696,8 +701,8 @@ private:
 		if (m_Index == m_CatchableTypesRVAs.size())
 			return false;
 
-		const auto& CatchableTypeRef = *view_as<detail::CatchableType const*>(m_BaseAddress + m_CatchableTypesRVAs[m_Index++]);
-		const auto& TypeInfoRef = *view_as<std::type_info const*>(m_BaseAddress + CatchableTypeRef.pType);
+		const auto& CatchableTypeRef = view_as<detail::CatchableType>(m_BaseAddress + m_CatchableTypesRVAs[m_Index++]);
+		const auto& TypeInfoRef = view_as<std::type_info>(m_BaseAddress + CatchableTypeRef.pType);
 
 		Name = TypeInfoRef.name();
 		return true;
@@ -1081,7 +1086,7 @@ static bool handle_seh_exception(
 	for (const auto& i : enum_catchable_objects(Context.exception_record()))
 	{
 		if (strstr(i, "std::exception"))
-			return handle_std_exception(Context, *view_as<std::exception const*>(Context.exception_record().ExceptionInformation[1]), Function, PluginModule);
+			return handle_std_exception(Context, view_as<std::exception>(Context.exception_record().ExceptionInformation[1]), Function, PluginModule);
 	}
 
 	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {});

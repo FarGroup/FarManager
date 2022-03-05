@@ -3668,6 +3668,8 @@ of this information.
  #Shift+Enter# викликає Провідника з показом кореня зазначеного диска
 (працює тільки для дисків).
 
+ #Ctrl+H# shows unmapped volumes.
+
  #Ctrl+R# дозволяє обновити меню вибору диска.
 
  If "#CD drive type#" mode is enabled (#Ctrl+8#), Far will attempt to

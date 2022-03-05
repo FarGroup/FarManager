@@ -139,6 +139,9 @@ protected:
 
 		sqlite::sqlite3* db() const;
 
+		std::pair<string, int> get_sql() const;
+		auto sql() const { return [&]{ return get_sql(); }; }
+
 		struct stmt_deleter { void operator()(sqlite::sqlite3_stmt*) const noexcept; };
 		std::unique_ptr<sqlite::sqlite3_stmt, stmt_deleter> m_Stmt;
 		int m_Param{};

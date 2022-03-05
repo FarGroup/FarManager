@@ -2249,7 +2249,7 @@ namespace os::fs
 
 		// win2k bug: \\?\ fails
 		if (!IsWindowsXPOrGreater())
-			return Create(string(FileName), string(ExistingFileName));
+			return Create(ConvertNameToFull(FileName), ConvertNameToFull(ExistingFileName));
 
 		return false;
 	}

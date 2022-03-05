@@ -2388,8 +2388,26 @@ static string GetDatabasePath(string_view const FileName, bool const Local)
 {
 	return FileName == SQLiteDb::memory_db_name?
 		string(FileName) :
-		path::join(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, FileName);
+		path::join(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, FileName) + L".db"sv;
 }
+
+string rename_bad_database(string_view const Name)
+{
+	for (size_t i = 0; ; ++i)
+	{
+		const auto Dest = format(FSTR(L"{}.bad{}"sv), Name, i? format(FSTR(L".{}"sv), Name) : L""sv);
+		if (os::fs::move_file(Name, Dest))
+			return Dest;
+
+		const auto ErrorState = last_error();
+		if (ErrorState.Win32Error == ERROR_ALREADY_EXISTS)
+			continue;
+
+		LOGWARNING(L"move_file({}): {}"sv, Name, ErrorState);
+		return {};
+	}
+}
+
 
 template<class T>
 std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
@@ -2410,7 +2428,17 @@ std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
 	{
 		Report(concat(Name, L':'));
 		Report(concat(L"  "sv, e1.message()));
-		if (Global->Opt->ReadOnlyConfig || !os::fs::move_file(Name, Name + L".bad"sv, MOVEFILE_REPLACE_EXISTING))
+
+		string NewName;
+
+		auto OpenInMemory = Global->Opt->ReadOnlyConfig;
+		if (!OpenInMemory)
+		{
+			NewName = rename_bad_database(Name);
+			OpenInMemory = NewName.empty();
+		}
+
+		if (OpenInMemory)
 		{
 			Report(L"  - database is opened in memory"sv);
 			return std::make_unique<T>(SQLiteDb::memory_db_name);
@@ -2419,7 +2447,7 @@ std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
 		try
 		{
 			auto Result = std::make_unique<T>(Name);
-			Report(L"  - database file is renamed to *.bad and new one is created"sv);
+			Report(format(FSTR(L"  - database file is renamed to {} and new one is created"sv), PointToName(NewName)));
 			return Result;
 		}
 		catch (const far_sqlite_exception& e2)
@@ -2471,27 +2499,27 @@ enum dbcheck: int
 
 HierarchicalConfigUniquePtr config_provider::CreatePluginsConfig(const string_view Uuid, const bool Local, bool UseFallback)
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, path::join(L"PluginsData"sv, Uuid) + L".db"sv, encoding::utf8::get_bytes(Uuid).c_str(), Local, true, UseFallback);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, path::join(L"PluginsData"sv, Uuid), encoding::utf8::get_bytes(Uuid).c_str(), Local, true, UseFallback);
 }
 
 HierarchicalConfigUniquePtr config_provider::CreateFiltersConfig()
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_FILTERS, L"filters.db"sv, "filters");
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_FILTERS, L"filters"sv, "filters");
 }
 
 HierarchicalConfigUniquePtr config_provider::CreateHighlightConfig()
 {
-	return CreateHierarchicalConfig<HighlightHierarchicalConfigDb>(CHECK_HIGHLIGHT, L"highlight.db"sv, "highlight");
+	return CreateHierarchicalConfig<HighlightHierarchicalConfigDb>(CHECK_HIGHLIGHT, L"highlight"sv, "highlight");
 }
 
 HierarchicalConfigUniquePtr config_provider::CreateShortcutsConfig()
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_SHORTCUTS, L"shortcuts.db"sv, "shortcuts", true);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_SHORTCUTS, L"shortcuts"sv, "shortcuts", true);
 }
 
 HierarchicalConfigUniquePtr config_provider::CreatePanelModesConfig()
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes.db"sv, "panelmodes");
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes"sv, "panelmodes");
 }
 
 config_provider::implementation::implementation()
@@ -2507,19 +2535,19 @@ config_provider::implementation::~implementation()
 
 static auto pluginscache_db_name()
 {
-	return format(FSTR(L"plugincache.{}.db"sv), build::platform());
+	return format(FSTR(L"plugincache.{}"sv), build::platform());
 }
 
 
 config_provider::config_provider(mode Mode):
 	m_Mode(Mode),
-	m_GeneralCfg([this]{ return CreateDatabase<GeneralConfigDb>(L"generalconfig.db"sv, false); }),
-	m_LocalGeneralCfg([this]{ return CreateDatabase<LocalGeneralConfigDb>(L"localconfig.db"sv, true); }),
-	m_ColorsCfg([this]{ return CreateDatabase<ColorsConfigDb>(L"colors.db"sv, false); }),
-	m_AssocConfig([this]{ return CreateDatabase<AssociationsConfigDb>(L"associations.db"sv, false); }),
+	m_GeneralCfg([this]{ return CreateDatabase<GeneralConfigDb>(L"generalconfig"sv, false); }),
+	m_LocalGeneralCfg([this]{ return CreateDatabase<LocalGeneralConfigDb>(L"localconfig"sv, true); }),
+	m_ColorsCfg([this]{ return CreateDatabase<ColorsConfigDb>(L"colors"sv, false); }),
+	m_AssocConfig([this]{ return CreateDatabase<AssociationsConfigDb>(L"associations"sv, false); }),
 	m_PlCacheCfg([this]{ return CreateDatabase<PluginsCacheConfigDb>(pluginscache_db_name(), true); }),
-	m_PlHotkeyCfg([this]{ return CreateDatabase<PluginsHotkeysConfigDb>(L"pluginhotkeys.db"sv, false); }),
-	m_HistoryCfg([this]{ return CreateDatabase<HistoryConfigDb>(L"history.db"sv, true); }),
+	m_PlHotkeyCfg([this]{ return CreateDatabase<PluginsHotkeysConfigDb>(L"pluginhotkeys"sv, false); }),
+	m_HistoryCfg([this]{ return CreateDatabase<HistoryConfigDb>(L"history"sv, true); }),
 	m_HistoryCfgMem([this]{ return CreateDatabase<HistoryConfigMemory>(SQLiteDb::memory_db_name, true); })
 {
 }
@@ -2564,13 +2592,13 @@ void config_provider::Export(string_view const File)
 		for(const auto& i: os::fs::enum_files(path::join(Global->Opt->ProfilePath, L"PluginsData"sv, Ext)))
 		{
 			const auto FileName = name_ext(i.FileName).first;
-			if (is_uuid(FileName))
-			{
-				auto& PluginRoot = CreateChild(e, "plugin");
-				SetAttribute(PluginRoot, "guid", encoding::utf8::get_bytes(FileName));
-				Representation.SetRoot(PluginRoot);
-				CreatePluginsConfig(FileName)->Export(Representation);
-			}
+			if (!is_uuid(FileName))
+				continue;
+
+			auto& PluginRoot = CreateChild(e, "plugin");
+			SetAttribute(PluginRoot, "guid", encoding::utf8::get_bytes(FileName));
+			Representation.SetRoot(PluginRoot);
+			CreatePluginsConfig(FileName)->Export(Representation);
 		}
 	}
 
