@@ -17,7 +17,7 @@ BOOL MYRTLEXP OpenMAPFileRO( PMAPFileRO mf, CONSTSTR fnm,int mode )
        mf->Handle = CreateFile( fnm, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0 );
        if ( mf->Handle == NOFILE ) return FALSE;
 
-       mf->MaxSize = GetFileSize(mf->Handle,NULL);;
+       mf->MaxSize = GetFileSize(mf->Handle,NULL);
 
        mf->Map = CreateFileMapping( mf->Handle, NULL, PAGE_READONLY, 0, mf->MaxSize, NULL );
        if ( !mf->Map || mf->Map == NOFILE )
