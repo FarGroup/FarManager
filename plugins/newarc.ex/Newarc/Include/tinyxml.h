@@ -146,7 +146,7 @@ public:
 	virtual bool Visit( const TiXmlText& /*text*/ )					{ return true; }
 	/// Visit a comment node
 	virtual bool Visit( const TiXmlComment& /*comment*/ )			{ return true; }
-	/// Visit an unknow node
+	/// Visit an unknown node
 	virtual bool Visit( const TiXmlUnknown& /*unknown*/ )			{ return true; }
 };
 
