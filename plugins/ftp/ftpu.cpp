@@ -91,5 +91,5 @@ void main(int argc,char *argv[])
 		printf("The password is: [%s]\n",str);
 	}
 	else
-		printf("Command missing or mitsmatch!\n");;
+		printf("Command missing or mitsmatch!\n");
 }
