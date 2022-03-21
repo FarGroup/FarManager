@@ -1684,7 +1684,7 @@ opcje #Uwzględnij wielkość znaków#, #Tylko całe wyrazy#, #Użyj strony kodo
 i #Szukaj folderów# zostaną wyłączone i ich wcześniejsze zaznaczenie nie ma
 żadnego wpływu na proces wyszukiwania.
 
- Zaznaczenie #Not containing# pozwoli odszukać pliki #nie# zawierające podany
+ Zaznaczenie #Nie zawierające# pozwoli odszukać pliki #nie# zawierające podany
 tekst lub kod.
 
  Rozwijana lista #Użyj strony kodowej# pozwala wybrać stroną kodową znaków
@@ -3602,7 +3602,7 @@ dysku i zamyka menu.
  Wciśnięcie #Shift+Enter# wywołuje Eksploratora Windows i otwiera w nim
 główny folder wybranego dysku (działa tylko dla dysków, a dla wtyczek).
 
- #Ctrl+H# shows unmapped volumes.
+ #Ctrl+H# pokazuje odłączone (odmapowane) wolumeny.
 
  #Ctrl+R# pozwala odświeżyć menu wyboru dysku.
 
@@ -4499,7 +4499,7 @@ Wewnętrzna funkcja jest również używana, gdy plik źródłowy jest zaszyfrow
 i jest kopiowany na inny wolumin.
 
  Parametr “#Kopiuj zawartość linków symbolicznych#” kontroluje
-~logikę~@CopyRule@ przetwarzania ~linków symbolicznych~@HardSymLink@.
+~zasady~@CopyRule@ przetwarzania ~linków symbolicznych~@HardSymLink@.
 
  Podczas przenoszenia plików, aby określić, czy należy wykonać operacje
 jako kopia z późniejszym usunięciem lub bezpośrednie przeniesienie
@@ -5829,198 +5829,199 @@ ostatni symbol to Spacja niełamiąca (U+00A0) ~Wikipedia EN~@https://en.wikiped
 
 @System.QuotedName
 $ #far:config System.QuotedName#
- This numeric parameter controls whether Far will surround with double
-quotes file and folder names containing special characters (see
-~System.QuotedSymbols~@System.QuotedSymbols@ parameter). Individual
-bits control the behavior in different contexts.
+ Ten parametr liczbowy określa, czy Far otacza znakami cudzysłowu nazwy
+plików i folderów zawierające znaki specjalne (zobacz parametr
+~System.QuotedSymbols~@System.QuotedSymbols@). Poszczególne bity
+kontrolują zachowanie w różnych sytuacjach kontekstowych.
 
- Bit numbers:
- 0 - ^<wrap>Quote names when inserting into the command line or editor;
- 1 - Quote names when copying to the clipboard.
+ Numery bitów:
+ 0 - ^<wrap>Otaczaj nazwy podczas wstawiania do wiersza poleceń lub edytora;
+ 1 - Otaczaj nazwy podczas kopiowania do schowka.
 
- Default value: 1 (quote when inserting into the command line or editor).
+ Domyślna wartość: 1 (Otaczaj nazwy podczas kopiowania do schowka) - bit nr 0 ustawiony na 1.
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Interface.AltF9
 $ #far:config Interface.AltF9#
- This Boolean parameter controls the behavior of the #Alt+F9# key
-combination (toggle the size of the Far console window).
+ Ten parametr logiczny kontroluje zachowanie wciśnięcia klawiszy
+#Alt+F9# (przełączanie wielkości okna konsoli Far).
 
- False - ^<wrap>Toggle Far window height between 25 and 50 lines; set
-window width to 80 columns;
- True  - Maximize Far window or restore it to normal size.
+ False - ^<wrap>Przełącza wielkość okna Far pomiędzy 25 a 50 linii;
+ustawia szerokość okna na 80 kolumn;
+ True  - Maksymalizuje okno Far lub przywraca do normalnej wielkości.
 
- Default value: True (maximize / restore).
+ Domyślna wartość: True (maksymalizuj / przywróć).
 
- Note: This parameter affects the behavior only in windowed mode.
+ Uwaga: Ten parametr obejmuje zachowanie programu tylko w trybie okna (nie pełnego ekranu).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Dialog.CBoxMaxHeight
 $ #far:config Dialog.CBoxMaxHeight#
- This numeric parameter specifies the maximum height of history list
-in dialogs.
+ Ten parametr liczbowy określa maksymalną wysokość listy historii
+w oknach dialogowych.
 
- Default value: 8.
+ Domyślna wartość: 8.
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Editor.UndoDataSize
 $ #far:config Editor.UndoDataSize#
- This numeric parameter limits the size of undo memory buffer in Editor.
+ Ten parametr liczbowy określa wielkość bufora pamięci do cofnięcia operacji w Edytorze.
 
- Default value: 104857600 (100MB).
+ Domyślna wartość: 104857600 (100MB).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Editor.CharCodeBase
 $ #far:config Editor.CharCodeBase#
- This numeric parameter defines how the code of the character under the
-cursor is represented on Editor’s status line.
+ Ten parametr liczbowy określa jaki kod znaku pod kursorem wyświetlany jest
+na linii statusu Edytora.
 
- 0 - Octal value (6 digits with the leading zero);
- 1 - Decimal value (up to 5 digits);
- 2 - Hexadecimal value (4 digits followed by the character ‘h’).
+ 0 - Wartość ósemkowa (6 liczb z zerami wiodącymi);
+ 1 - Wartość dziesiętna (do 5 cyfr);
+ 2 - Wartość szesnastkowa (do 4 znaków, po których następuje znak ‘h’).
 
- Default value: 1 (decimal).
+ Domyślna wartość: 1 (dziesiętna).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Editor.BSLikeDel
 $ #far:config Editor.BSLikeDel#
- This Boolean parameter defines the behavior of the #BackSpace# key when
-a vertical block is selected in Editor.
+ Ten parametr logiczny definiuje zachowanie klawisza #BackSpace#,
+gdy w Edytorze zaznaczony jest pionowy blok.
 
- False - ^<wrap>Deletes the character to the left of the cursor; keeps
-the (vertical) selection;
- True  - Deletes the selected vertical block, like the #Del# key does.
+ False - ^<wrap>Usuwa znak na lewo od kursora; zachowuje (pionowe)
+zaznaczenie;
+ True  - Usuwa zaznaczony pionowy blok, tak samo jak klawisz #Del#.
 
- Default value: True (deletes the selection).
+ Domyślna wartość: True (usuwa zaznaczenie).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Editor.AllowEmptySpaceAfterEof
 $ #far:config Editor.AllowEmptySpaceAfterEof#
- This Boolean parameter defines whether scrolling down in Editor (e.g.,
-with the #Ctrl+Down# key combination) can leave empty space at the
-bottom of the window.
+ Ten parametr logiczny określa czy przewijanie w dół w Edytorze
+(np. za pomocą kombinacji klawiszy #Ctrl+Down#) może pozostawić
+puste miejsce na dole okna.
 
- False - ^<wrap>Stop scrolling when the last line of the file appears
-at the bottom of the window;
- True  - Continue scrolling until the last line of the file reaches the
-cursor leaving empty space under the cursor.
+ False - ^<wrap>Zatrzymuje przewijanie, gdy ostatnia linia pliku
+pojawi się na dole okna;
+ True  - Kontynuuje przewijanie aż ostatnia linia dotrze do kursora
+pozostawiając pustą przestrzeń poniżej kursora.
 
- Default value: False (stop scrolling).
+ Domyślna wartość: False (zatrzymuje przewijanie).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @Interface.RedrawTimeout
 $ #far:config Interface.RedrawTimeout#
- This numeric parameter specifies the refresh time (in milliseconds)
-of the progress dialog displayed during various long-running
-operations, such as copying, moving, deleting and searching files and
-folders, applying access rights after moving files and folders,
-scanning the file system.
+ Ten parametr liczony określa czas odświeżania (w milisekundach)
+okna postępu wyświetlanego podczas różnych długo trwających operacji
+takich jak kopiowanie, przenoszenie, usuwanie i wyszukiwanie plików/folderów,
+stosowania praw dostępu po przenoszeniu plików i folderów, skanowania
+systemu plików.
 
- The larger the value, the less frequently the information about the
-operation is displayed, the faster the operation itself is performed.
+ Im większa wartość, tym rzadziej wyświetlane będą informacje o operacji,
+co będzie skutkować szybszym wykonaniem operacji.
 
- Default value: 200 ms.
+ Domyślna wartość: 200 ms.
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @TitleFormat
 $ #far:config Interface.ViewerTitleFormat, Interface.EditorTitleFormat#
- These string parameters define console window title for
-~Editor~@Editor@ and ~Viewer~@Viewer@.
+ Te parametry tekstowe definiują tytuł okna konsoli w ~Edytorze~@Editor@
+i ~Podglądzie~@Viewer@ plików.
 
- Macro #%File# is expanded to the name of the file being edited
-or viewed.
+ Makro #%File# jest interpretowane jako nazwa edytowanego lub przeglądanego
+pliku.
 
- Macro #%Lng# is replaced with the word “edit” or “view” in the current
-language, see ~Options menu~@OptMenu@.
+ Makro #%Lng# jest zastępowane słowami “edit” lub “view” w bieżącym
+języku, zobacz ~Menu Opcje~@OptMenu@.
 
- The #Far window title addons# string of the
-~Interface settings~@InterfSettings@ will be automatically appended
-to the console window title.
+ Tekst ustawiony w opcji #Okno tytułowe Far# opcji
+~Ustawień interfejsu~@InterfSettings@ zostanie automatycznie dołączony
+do tytułu okna konsoli.
 
- Default value: #"%Lng %File"#.
+ Domyślna wartość: #"%Lng %File"#.
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @System.WipeSymbol
 $ #far:config System.WipeSymbol#
- This numeric parameter defines the filler byte for the
-~wipe file~@DeleteFile@ operation (#Alt+Del# key combination).
+ Ten parametr liczbowy definiuje bajt wypełniający plik
+dla operacji ~wymazywania plików~@DeleteFile@ (kombinacja
+klawiszy #Alt+Del#).
 
- Each byte of the file is overwritten with the least significant byte
-of the parameter. If the parameter is set to #-1#, random values will
-be used.
+ Każdy bajt pliku będzie nadpisywany najmniej znaczącym bajtem parametru.
+Jeżeli parametr będzie ustawiony na #-1#, wówczas zostanie użyta losowa wartość.
 
- Default value: 0.
+ Domyślna wartość: 0.
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @System.ShowCheckingFile
 $ #far:config System.ShowCheckingFile#
- This Boolean parameter controls whether plugin’s name is displayed
-in the console window title while the plugin is checking a file.
+ Ten parametr logiczny kontroluje czy nazwa wtyczki będzie wyświetlana
+w tytule okna konsoli Far, podczas przetwarzania pliku przez wtyczkę.
 
- When the user presses #Enter# or #Ctrl+PgDn#, Far invokes registered
-plugins one by one to check if they can “open” or otherwise render the
-file. If this parameter is True, Far will show plugin’s name in the
-console window title while the plugin is checking the file.
+ Gdy użytkownik naciśnie klawisze #Enter# lub #Ctrl+PgDn#, Far wywołuje
+kolejno zarejestrowane wtyczki po kolei, aby sprawdzić czy mogą one
+“otworzyć” lub w inny sposób przetwarzać plik. Jeżeli wartość parametru
+ustawiona jest na True, Far pokaże nazwę wtyczki w tytule okna konsoli
+podczas sprawdzania pliku przez wtyczkę.
 
- Default value: False (do not show plugins’ names).
+ Domyślna wartość: False (nie pokazuj nazwy wtyczki).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @System.PluginMaxReadData
 $ #far:config System.PluginMaxReadData#
- This numeric parameter defines the maximum amount of file data used
-to find the plugin which supports the file.
+ Ten parametr liczbowy definiuje maksymalną ilość danych używanych
+do znalezienia wtyczki obsługującej dany plik.
 
- When the user presses #Enter# or #Ctrl+PgDn#, Far reads the number
-of bytes specified by this parameter from the beginning of the file and
-passes the data to registered plugins to check if they can “open”
-or otherwise render the file.
+ Gdy użytkownik naciśnie #Enter# lub #Ctrl+PgDn#, Far odczyta
+określoną przez ten parametr liczbę bajtów od początku pliku
+i przekaże te dane do zarejestrowanych wtyczek, aby sprawdzić
+czy mogą one “otworzyć” lub przetworzyć plik.
 
- Minimum value is 131072 (128 KiB). The maximum is limited only by the
-size of the logical address space (2^32 - 1 or 2^64 – 1).
+ Minimalna wartość do 131072 (128KB). Maksymalna wartość ograniczona
+jest jedynie wielkością logicznej przestrzeni adresowej (2^32 - 1 lub 2^64 – 1).
 
- Setting the value of this parameter above 5 MiB is not recommended.
+ Nie jest zalecane ustawienie wartości tego parametru powyżej 5MB.
 
- Default value: 131072 (0x20000).
+ Domyślna wartość: 131072 (0x20000).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @System.SetAttrFolderRules
 $ #far:config System.SetAttrFolderRules#
- This Boolean parameter defines the default value of the
-#Process subfolders# option of the file ~Attributes~@FileAttrDlg@ dialog
-when changing attributes of a single directory.
+ Ten parametr logiczny określa domyślną wartość opcji
+#Przetwarzaj podfoldery# okna dialogowego ~Atrybuty plików~@FileAttrDlg@
+podczas zmiany atrybutów pojedynczego folderu.
 
- False - ^<wrap>The #Process subfolders# option is on; date and time
-fields are cleared.
- True  - The #Process subfolders# option is off; date and time fields
-are set to the actual values.
+ False - ^<wrap>Opcja #Przetwarzaj podfoldery# jest włączona; data
+i czas są wyczyszczone.
+ True  - Opcja #Przetwarzaj podfoldery# jest wyłączona; pola
+daty i czasu są ustawione na aktualne wartości.
 
- Default value: True (do not process subfolders).
+ Domyślna wartość: True (nie przetwarzaj podfolderów).
 
- This parameter can be changed via ~far:config~@FarConfig@ only.
+ Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 
 
 @System.CopyBufferSize
