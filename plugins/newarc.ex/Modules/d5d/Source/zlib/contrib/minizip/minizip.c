@@ -215,7 +215,7 @@ int main(argc,argv)
 
                 while ((*p)!='\0')
                 {
-                    char c=*(p++);;
+                    char c=*(p++);
                     if ((c=='o') || (c=='O'))
                         opt_overwrite = 1;
                     if ((c=='a') || (c=='A'))
