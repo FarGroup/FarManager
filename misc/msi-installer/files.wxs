@@ -1252,11 +1252,17 @@
           <Component Id="NetBoxRus.lng" Guid="$(var.Guid.NetBoxRus.lng)" Win64="$(var.Win64)">
             <File Id="NetBoxRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBoxRus.lng" />
           </Component>
+          <Component Id="NetBoxPol.lng" Guid="$(var.Guid.NetBoxPol.lng)" Win64="$(var.Win64)">
+            <File Id="NetBoxPol.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\NetBoxPol.lng" />
+          </Component>
           <Component Id="README.md" Guid="$(var.Guid.README.md)" Win64="$(var.Win64)">
             <File Id="README.md" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\README.md" />
           </Component>
           <Component Id="README.RU.md" Guid="$(var.Guid.README.RU.md)" Win64="$(var.Win64)">
             <File Id="README.RU.md" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\README.RU.md" />
+          </Component>
+          <Component Id="README.PL.md" Guid="$(var.Guid.README.PL.md)" Win64="$(var.Win64)">
+            <File Id="README.PL.md" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\README.PL.md" />
           </Component>
           <Component Id="LICENSE.txt" Guid="$(var.Guid.LICENSE.txt)" Win64="$(var.Win64)">
             <File Id="LICENSE.txt" KeyPath="yes" Source="$(var.SourceDir)\Plugins\NetBox\LICENSE.txt" />
