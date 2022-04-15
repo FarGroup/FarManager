@@ -6,12 +6,12 @@
 
 "&Ukryj zewnętrzne wyjście polecenia"
 "&Pokaż zewnętrzne wyjście polecenia"
-"D&uplicate Intercepted output to screen"
+"&Duplikuj przechwycone wyjście na ekran"
 
-"Intercept &both stdout and stderr"
-"Intercept std&out only"
-"Intercept std&err only"
-"Intercept stdout &and stderr separately"
+"Przechwytuj o&ba strumienie stdout i stderr"
+"Przechwytuj tylko std&out"
+"Przechwytuj tylko std&err"
+"Przechwytuj oba stru&mienie stdout i stderr oddzielnie"
 "Podgląd/edycja p&ustych plików"
 
 "Edytuj &nowe pliki"
