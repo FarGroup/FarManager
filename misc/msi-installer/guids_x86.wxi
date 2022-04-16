@@ -503,6 +503,7 @@
 <?define Guid.shortcuts.bel.lua = "ABA8C98C-26FA-4749-9ACA-5743D978FF10" ?>
 <?define Guid.shortcuts.eng.temp = "D680C185-71A5-4AA4-B95E-A522C977F90A" ?>
 <?define Guid.shortcuts.rus.temp = "63539EEB-2A95-42FD-86DB-057011BB731A" ?>
+<?define Guid.shortcuts.pol.temp = "5F151C10-D29F-449D-A26F-81F9AE2D3382" ?>
 <?define Guid.shortcuts.bel.temp = "50CDE545-1ED7-4A2B-BDF0-C09FDA128611" ?>
 <?define Guid.TmpPanel.ListUTF8.farconfig = "0D50B147-D10D-43D5-BC61-E059319A9371" ?>
 <?define Guid.TmpEng.hlf = "C1EEFF12-0A91-4DC6-A105-529610D2BB77" ?>

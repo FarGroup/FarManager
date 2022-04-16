@@ -1007,6 +1007,7 @@
           <Feature Id="TmpPanel.Polish" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="disks.pol.temp" />
             <ComponentRef Id="shortcuts.pol.lua" />
+            <ComponentRef Id="shortcuts.pol.temp" />
             <ComponentRef Id="TmpPol.hlf" />
             <ComponentRef Id="TmpPol.lng" />
           </Feature>
