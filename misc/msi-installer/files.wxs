@@ -1577,6 +1577,9 @@
           <Component Id="shortcuts.rus.temp" Guid="$(var.Guid.shortcuts.rus.temp)" Win64="$(var.Win64)">
             <File Id="shortcuts.rus.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.rus.temp" />
           </Component>
+          <Component Id="shortcuts.pol.temp" Guid="$(var.Guid.shortcuts.pol.temp)" Win64="$(var.Win64)">
+            <File Id="shortcuts.pol.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.pol.temp" />
+          </Component>
           <Component Id="shortcuts.bel.temp" Guid="$(var.Guid.shortcuts.bel.temp)" Win64="$(var.Win64)">
             <File Id="shortcuts.bel.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.bel.temp" />
           </Component>
