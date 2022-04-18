@@ -5691,7 +5691,7 @@ size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelI
 	{
 		if (not_enough_for(ColumnsOffset, ColumnsSize))
 			return size;
-		gpi->Item->CustomColumnData = view_as<const wchar_t* const*>(data);
+		gpi->Item->CustomColumnData = view_as<const wchar_t* const*>(data, ColumnsOffset);
 		assert(is_aligned(*gpi->Item->CustomColumnData));
 	}
 
