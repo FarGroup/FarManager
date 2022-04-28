@@ -8,10 +8,10 @@ $ #Polecenia FAR#
    Wtyczka Polecenia FAR (FARCmds) udostępnia szereg dodatkowych poleceń w linii poleceń
 za pomocą prefiksów.
 
-   Dodatkowo, polecenia mogą być używane w ~Menu użytkownia~@:UserMenu@,
+   Dodatkowo, polecenia mogą być używane w ~Menu użytkownika~@:UserMenu@,
 w ~powiązaniach plików~@:FileAssoc@, oraz w oknie dialogowym ~Zastosuj polecenie~@:ApplyCmd@ (#Ctrl-G#)
 
-  #Command Line Syntax#
+  #Składnia poleceń#
 
    #polecenie:#[#opcje#] #obiekt#
 
@@ -38,7 +38,7 @@ w ~powiązaniach plików~@:FileAssoc@, oraz w oknie dialogowym ~Zastosuj polecen
 
 
 @Load
-$ #Polecenie Load#
+$ #Polecenie Load (wczytaj)#
    Polecenie #load# pozwala ręcznie wczytać wtyczki.
 
    - Ścieżka do wtyczki może być podana jako parametr polecenia:
@@ -53,7 +53,7 @@ $ #Polecenie Load#
 
 
 @Unload
-$ #Polecenie Unload#
+$ #Polecenie Unload (wyłącz)#
    Polecenie #unload# pozwala na ręczne wyłączenie wtyczki.
 
    - Ścieżka do wtyczki może być podana jako parametr polecenia:
@@ -70,7 +70,7 @@ $ #Polecenie Unload#
 
 
 @Clip
-$ #Polecenie Clip#
+$ #Polecenie Clip (schowek)#
    Polecenie #clip# umieszcza dane w schowku systemu Windows.
 Dane mogą być zawartością pliku lub wynikiem działania programu.
 Schowek zawiera wszystkie dane, aż do znaku o kodzie #0x00#.
@@ -85,7 +85,7 @@ Domyślna wielkość to 1 MB.
 
 
 @Run
-$ #Polecenie Run#
+$ #Polecenie Run (uruchom)#
    Polecenie #run# wykonuje #polecenie# systemu operacyjnego z przekierowaniem wyniku
 do pliku podanego jako #"nazwa_pliku"#. Wynik można także wyświetlić na ekranie
 lub ukryć przed użytkownikiem stosując ~przekierowanie wyjścia~@Direction@.
@@ -96,7 +96,7 @@ lub ukryć przed użytkownikiem stosując ~przekierowanie wyjścia~@Direction@.
 
 
 @View
-$ #Polecenie View#
+$ #Polecenie View (podgląd)#
    Polecenie #view# otwiera plik o nazwa #"nazwa_pliku"# we wbudowanym ~podglądzie~@:Viewer@ plików.
 
    #view:nazwa_plik#
@@ -105,7 +105,7 @@ $ #Polecenie View#
 
 
 @Edit
-$ #Polecenie Edit#
+$ #Polecenie Edit (edycja)#
    Polecenie #edit# otwiera plik "#nazwa_pliku#" do edycji
 we wbudowanym ~edytorze~@:Editor@ FAR.
 
@@ -139,242 +139,242 @@ przed nazwą pliku lub ująć nazwę pliku w cudzysłów:
    edit: [1].txt
    edit:"[1].txt"
 
-   Zobacz także: ~view~@View@ | ~Output Redirection~@Direction@ | ~Notes~@Remark@ | ~Contents~@Contents@
+   Zobacz także: ~view~@View@ | ~Przekierowanie wyjścia~@Direction@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
 
 
 @Goto
-$ #Polecenie Goto#
-   The #goto# command jumps to a file or a folder. The path can be
-   specified in two ways:
+$ #Polecenie Goto (przejdź)#
+   Poleceniem #goto# można przejść do pliku lub folderu. Ścieżkę można
+   przekazać na dwa sposoby:
 
-   1. Directly as a parameter of the command
+   1. Bezpośrednio jako parametr polecenia
 
-      #goto:path#
+      #goto:ścieżka#
 
-   2. The path is taken from the file "#filename#"
+   2. Ścieżka pobierana z pliku "#nazwa_pliku#"
 
-      #goto: <filename#
+      #goto: <nazwa_pliku#
 
-   If the parameter "#path#" specifies a folder and is terminated with
-a backslash ('#\#'), the plugin jumps to the specified folder. If the
-path to the folder is not terminated with a backslash, the cursor on the
-panels is positioned to the specified folder.
+   Jeżeli parametr "#ścieżka#" wskazuje folder i jest zakończony znakiem
+backslash('#\#'), to wtyczka przejdzie do podanego folderu. Jeżeli ścieżka
+do folderu nie jest zakończona znakiem backslash, to kursor w panelu
+zostanie umieszczony na podanych folderze.
 
-   Если файл "#имяфайла#" является ярлыком Windows, то плагин переходит
-к объекту, на который ссылается lnk-файл.
+   Jeżeli plik "#nazwa_pliku#" jest skrótem do pliku w systemie Windows,
+to wtyczka przejdzie do obiektu, na który wskazuje plik #lnk#.
 
-   When panels are turned off, the cursor is not positioned on the requested object,
-only the switching to the required folder occurs.
+   Gdy panele są wyłączone, kursor nie jest ustawiony na żądanym obiekcie,
+tylko następuje przełączenie do żądanego folderu.
 
-   Плагин осуществляет переход как указано, не пытаясь найти файловый объект.
+   Wtyczka wykonuje przełączenie zgodnie ze specyfikacją, nie próbuje
+zlokalizować położenia pliku.
 
-   Zobacz także: ~whereis~@WhereIs@ | ~Notes~@Remark@ | ~Contents~@Contents@
+   Zobacz także: ~whereis~@WhereIs@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
 
 
 @Link
 $ #Polecenie Link#
-   The #link# command creates ~links~@:HardSymLink@ to files and folders.
-It also allows to mount local disks on file system.
+   Polecenie #link# tworzy ~linki~@:HardSymLink@ dp plików i folderów.
+Pozwala także montować lokalne dyski w systemie plików.
 
-   #link:#[#/msg#] [#/n#] [#/s#] #source destination#
+   #link:#[#/msg#] [#/n#] [#/s#] #źródło cel#
 
-   Depending on the type of source are those types of links:
+   Zależnie od typu źródła można rozróżnić tylko linków:
 
-     #file#   : #hard link# is created
-     #folder# : #junction# is created
-     #drive#  : ^<wrap>drive is mounted (#volume mount point# is created)
-"drive" should be a sequence "#drive_letter:\#", e.g. "#C:\#"
+     #plik#   : tworzony jest #twardy link#;
+     #folder# : tworzone jest #przyłączenie#
+     #dysk#  : ^<wrap>montowany jest dysk (tworzony jest #punkt montowania wolumenu#)
+"dysk" należy podać wg schematu "#litera_dysku:\#", np. "#C:\#"
 
-   Switch #/msg# turns on the output of error messages
+   Przełącznik #/msg# włącza wyświetlanie komunikatów błędu
 
-   Switch #/n# disables automatic update of panels after creation of link
+   Przełącznik #/n# wyłącza automatyczną aktualizację paneli po utworzeniu linku
 
-   Switch #/s# allows to make symbolic links (#symlinks#).
-   It's possible to create a file symlink (instead of a hardlink)
-or a folder symlink (instead of folder junction).
-   The switch is relevant to Windows Vista or higher.
-Ignored when mounting drives.
+   Przełącznik #/s# pozwala wykonać link symboliczny (#symlinks#).
+   Istnieje możliwość utworzenia linku symbolicznego do pliku (zamiast twardego)
+lub do folderu (zamiast przyłączenia folderu).
+   Przełącznik ma zastosowanie w Windows Vista lub nowszym.
+Ignorowany podczas montowania dysków.
 
-   Mounted drives (or volume mount points) is a feature
-that allows to display specified disks as folders. Example:
+   Montowanie dysków (lub punkty montowania wolumenów) to funkcja Windows 2000/XP,
+która umożliwia wyświetlanie określonych dysków jako folderów. Na przykład:
 
    #link: E:\ C:\cdrom#
 
-    After this command the folder C:\cdrom will display the contents of drive E:
+    Po wykonaniu tego polecenia folder C:\cdrom wyświetli zawartość dysku E:
 
-   Zobacz także: ~Remarks~@Remark@ | ~Zawartość~@Contents@
+   Zobacz także: ~Uwagi~@Remark@ | ~Zawartość~@Contents@
 
 
 @WhereIs
-$ #Polecenie WhereIs#
-   The #whereis# command locates the given object and jumps to it if the search was
-successful.
+$ #Polecenie WhereIs (znajdź)#
+   Polecenie #whereis# lokalizuje podany obiekt i przechodzi do niego, jeżeli
+wyszukiwanie zakończyło się sukcesem.
 
-   #whereis:object#
+   #whereis:obiekt#
 
-   Второй способ - имя объекта поиска берётся из заданного файла "#имяфайла#"
+   Drugi sposób - nazwa obiektu wyszukiwania pobierana jest z podanego pliku #nazwa_pliku#
 
-      #whereis: <имяфайла#
+      #whereis: <nazwa_pliku#
 
-   The search is performed in the following order:
+   Wyszukiwanie prowadzone jest w następującej kolejności:
 
-   1. Current folder
-   2. The directory pointed to by the environment variable %FARHOME%
-   3. Folders in the system environment variable #PATH#
-   4. Windows 95: Windows' system folder (SYSTEM)
-      Windows NT: 32 bit Windows' system folder (SYSTEM32)
-   5. Windows NT: 16 bit Windows' system folder (SYSTEM)
-   6. Windows folder.
-   7. Contents of the registry key:
+   1. Bieżący folder
+   2. Folder wskazywany przez zmienną środowiskową %FARHOME%
+   3. Foldery w systemowej zmiennej środowiskowej #PATH#
+   4. Windows 95: folder systemowy Windows (SYSTEM)
+      Windows NT: 32-bitowy folder systemowy Windows (SYSTEM32)
+   5. Windows NT: 16-bity folder systemowy Windows (SYSTEM)
+   6. Folder Windows.
+   7. Zawartość klucza rejestru:
       #HKCU\Software\Microsoft\Windows\CurrentVersion\App Paths#
-   8. Contents of the registry key:
+   8. Zawartość klucza rejestru::
       #HKLM\Software\Microsoft\Windows\CurrentVersion\App Paths#
 
-   Плагин пытается найти файловый объект сначала как указано, а затем производит
-поиск объекта с расширениями из списка переменной среды PATHEXT.
+   Wtyczka próbuje najpierw znaleźć obiekt pliku zgodnie z podanymi parametrami,
+a następnie szuka obiektu z rozszerzeniami ze zmiennej środowiskowej #PATHEXT#.
 
-   When panels are turned off, the cursor is not positioned on the requested object,
-only the switching to the required folder occurs.
+   Gdy panele są wyłączone, kursor nie jest umieszczany na żądanym obiekcie,
+następuje tylko przełączenie do żądanego folderu.
 
-   See also: ~goto~@Goto@ | ~Notes~@Remark@ | ~Contents~@Contents@
+   Zobacz także: ~goto~@Goto@ | ~Uwagi~@Remark@ | ~Zawartość~@Contents@
 
 
 @Direction
 $ #Przekierowanie wyjścia#
-   The plugin can redirect the output of the specified #"<command"# or #"<<command"#.
+   Wtyczka może przekierować wyjście określonego #"<polecenie"# lub #"<<polecenie"#.
 
-    #command# - #[#stream#][#mode#][#|path|#]#command#.
+    #polecenie# - #[#strumień#][#tryb#][#|ścieżka|#]#polecenie#.
 
-    #stream# - controls which output stream(s) to redirect.
-             #1# - redirect only standard output stream #stdout#.
-             #2# - redirect only standard output stream #stderr#.
-             #*# - redirect #stderr# and #stdout# as one stream.
-             #?# - redirect #stderr# and #stdout# as different streams.
-                 ^<wrap>For commands ~view~@View@ and ~edit~@Edit@ the streams will be opened
-in separate windows. For other commands same behavior as #*#.
+    #strumień# - określa, który strumień ma zostać przekierowany.
+             #1# - przekierowuje tylko standardowy strumień wyjściowy #stdout#.
+             #2# - przekierowuje tylko standardowy strumień błędów #stderr#.
+             #*# - przekierowuje #stderr# i #stdout# jako jeden strumień.
+             #?# - przekierowuje #stderr# i #stdout# jako osobne strumienie.
+                 ^<wrap>W przypadku poleceń ~view (podgląd)~@View@ and ~edit (edycja)~@Edit@
+strumienie zostaną otwarte w osobnych oknach. Dla innych poleceń takie samo zachowanie
+jak dla opcji #*#.
 
-             ^<wrap>Default value of this parameter can be defined in ~config~@Config@.
+             ^<wrap>Domyślną wartość tego parametru można ustawić w ~konfiguracji~@Config@.
 
-    #mode#   - ^<wrap>controls direct console output (not via standard streams)
-             #># - ^<wrap>ignore the console output of the program
-and display only message about its execution.
-             #<# - ^<wrap>save console output and make it available
-for viewing with #Ctrl-O#.
-             #+# - ^<wrap>same as #<#, but displays on the screen redirected output
-of the program along with console output.
+    #tryb#   - ^<wrap>kontroluje bezpośrednie wyjście konsoli
+(nie poprzez standardowe strumienie)
+             #># - ^<wrap>ignoruje wyjście konsolowe programu i wyświetla
+tylko informacje o jego wykonaniu.
+             #<# - ^<wrap>zapisuje wyjście konsoli i udostępnia je do przeglądania
+za pomocą klawiszy #Ctrl-O#.
+             #+# - ^<wrap>tak samo jak #<#, ale wyświetla na ekranie
+przekierowane wyjście programu wraz z wyjściem konsoli.
 
-             ^<wrap>Default value of this parameter can be defined in ~config~@Config@.
-             ^<wrap>Параметр #mode# можно указывать только после #stream#.
+             ^<wrap>Domyślną wartość tego parametru można ustawić w ~konfiguracji~@Config@.
+             ^<wrap>Parametr #tryb# może być podany tylko po parametrze #strumień#.
 
-    #|path|# - ^<wrap>command can be executed in the folder different from the
-current one. To do this specify the path (enclosed in pipes '#|#')
-             For example: #edit:<|%TEMP%|dir#
+    #|ścieżka|# - ^<wrap>polecenie może zostać wykonane w innym folderze niż bieżący.
+W tym celu należy podać ścieżkę (ujętą w pionowe kreski - ang. pipes - '#|#').
+             Na przykład: #edit:<|%TEMP%|dir#
 
-   Program output can be opened in viewer: #~view~@View@:<command#
-     or in editor:                         #~edit~@Edit@:<command#
-     or can be placed into clipboard:      #~clip~@Clip@:<command#
-     or saved to a user-defined file:      #~run~@Run@:filename<command#
+   Dane wyjściowe można otworzyć w przeglądarce: #~view~@View@:<polecenie#
+     lub w edytorze:                       #~edit~@Edit@:<polecenie#
+     lub umieszczone w schowku:            #~clip~@Clip@:<polecenie#
+     lub zapisane do pliku użytkownika:    #~run~@Run@:nazwa_pliku<polecenie#
 
-  #Notes:#
+  #Uwagi:#
 
-   1. ^<wrap>The entire string after the symbol '#<#' and optional modifiers
-is sent to the command processor (%COMSPEC%)
+   1. ^<wrap>Cały łańcuch po symbolu '#<#' oraz opcjonalne modyfikatory
+jest wysyłany do procesora poleceń (%COMSPEC%).
 
-   2. ^<wrap>Program output is placed in a temporary file, which is deleted automatically when FAR Manager
-doesn't need it.
+   2. ^<wrap>Wyjście programu jest umieszczane w pliku tymczasowym, który jest automatycznie
+usuwany, gdy Far Manager nie będzie go potrzebować.
 
-   3. ^<wrap>Some programs do not use standard output stream(s), but
-print directly to the console. To store console output
-and make it available for viewing with #Ctrl-O#
-use modifiers '#<#' and '#+#'. To ignore it - use '#>#'
-      ^<wrap>You can change default behavior in the ~configuration~@Config@.
+   3. ^<wrap>Niektóre programy nie używają standardowych strumieni, ale wysyłają
+informacje bezpośrednio do konsoli. Aby zachować wyjście konsoli i udostępnić je
+do przeglądania za pomocą #Ctrl-O# należy użyć modyfikatorów '#<#' i '#+#'.
+Aby je zignorować, należy użyć'#>#'.
+      ^<wrap>Można zmienić domyślne zachowanie w ~konfiguracji~@Config@.
 
-   4. ^<wrap>If the #stream# parameter equals #1# or #2# then the start of the
-command text must be separated from it by some symbol.
+   4. ^<wrap>Jeżeli parametr #strumień# jest równy #1# lub #2#, to początek
+polecenia musi być oddzielony dowolnym symbolem.
 
-   5. ^<wrap>Если #command# указан без пути, то плагин пытается найти исполняемй
-модуль, как это делает команда ~whereis~@WhereIs@.
+   5. ^<wrap>Jeżeli #polecenie# zostanie podane bez ścieżki, wtyczka spróbuje
+znaleźć plik wykonywalny, podobnie jak polecenie ~whereis~@WhereIs@.
 
-  #Examples:#
+  #Przykłady:#
 
-   Execute the command "#command#" and redirect its output to the editor:
-     #edit:<command#
+   Wykonaj polecenie "#polecenie#" i przekieruj wyniki do edytora:
+     #edit:<polecenie#
 
-   Possible cases with the parameter #stream#=#1#:
-     #edit:<1 command#
-     #edit:<1"command"#
-     #edit:<1+command#
-     #edit:<1|%TEMP%|command#
+   Możliwe przypadki z użyciem parametru #strumień#=#1#:
+     #edit:<1 polecenie#
+     #edit:<1"polecenie"#
+     #edit:<1+polecenie#
+     #edit:<1|%TEMP%|polecenie#
 
-   See also: ~Notes~@Remark@ | ~Contents~@Contents@
+   Zobacz także: ~Uwagi~@Remark@ | ~Zawartość~@Contents@
 
 
 @Remark
-$ #Notes#
-   1. ^<wrap>It is possible to enclose parameters #filename#, #path# and #command# in quotes.
+$ #Uwagi#
+   1. ^<wrap>Parametry #nazwa_pliku#, #ścieżka# i #polecenie# można podawać w cudzysłowach.
 
-   2. You can use environment variables.
+   2. Można używać zmiennych systemowych.
 
-   3. If you make a syntax error, the help will pop up.
+   3. W przypadku błędu składni, zostanie wyświetlone okienko pomocy.
 
-   4. ^<wrap>You can use console aliases as #command# (Console aliases - macros defined by command DOSKEY)
+   4. ^<wrap>Można użyć aliasów konsolowych podobnie jak #poleceń# (aliasy - makropolecenia
+zdefiniowane przez polecenie DOSKEY).
 
-   See also: ~Contents~@Contents@
+   Zobacz także: ~Zawartość~@Contents@
 
 
 @Config
-$ #Configuring FAR Commands#
- #External commands screen output# Control program screen ~output~@Direction@:
+$ #Konfiguracja poleceń FAR#
+ #Zewnętrzne polecenia wyjścia#  ~Wyjście~@Direction@ ekranu uruchomionego programu:
+ #ekranu#
 
-   #Hide external command#       Hides program output. Only a message
-   #output#                      with the size of intercepted output
-                               will be displayed. Same as using #<>#
-                               instead of #<#.
+   #Ukryj zewnętrzne wyjście#    Ukrywa dane wyjściowe programu. Wyświetlany
+   #polecenia#                   jest tylko komunikat o rozmiarze przechwyconego
+                               wyjścia. Podobnie jak przy użyciu #<># zamiast #<#.
 
-   #Keep external command#       Saves the text output by programs
-   #output#                      directly to the console for viewing
-                               by #Ctrl-O#.
-                               Same as using #<<# instead of #<#.
+   #Pokaż zewnętrzne wyjście#    Zapisuje tekst wyprowadzony przez programy
+   #polecenia#                   bezpośrednio do konsoli w celu wyświetlenia
+                               za pomocą #Ctrl-O#.
+                               Podobnie jak przy użyciu #<<# zamiast #<#.
 
-   #Duplicate intercepted#       Saves for viewing by #Ctrl-O# both the
-   #output to screen#            direct console output and intercepted
-                               output.
-                               Same as using #<+# instead of #<#.
+   #Duplikuj przechwycone#       Zapisuje do wyświetlenia przez #Ctrl-O# oba wyjścia
+   #wyjście na ekran#            zarówno konsoli jak i przechwycone wyjście.
+                               Podobnie jak przy użyciu #<+# zamiast #<#.
 
- #Intercepting output#           Controlling of program ~output~@Direction@
-                               interception:
+ #Przechwytywanie wyników#       Kontrola przechwytywania danych ~wyjściowych~@Direction@
+                               programu:
 
-   #Intercept both#              Intercept standard output stream
-   #stdout and stderr#           #stdout# and standard error stream
-                               #stderr# as one stream.
-                               Same as using #<*# instead of #<#.
+   #Przechwytuj oba strumienie#  Przechwytuje standardowy strumień #stdout#
+   #stdout i stderr#             oraz strumień błędów #stderr# do jednego strumienia.
+                               Podobnie jak przy użyciu #<*# zamiast #<#.
 
-   #Intercept stdout only#       ^<wrap>Intercept only #stdout# (standard output stream).
-                               Same as using #<1# instead of #<#.
+   #Przechwytuj tylko stdout#    ^<wrap>Przechwytuje tylko #stdout# (standardowy strumień wyjścia).
+                               Podobnie jak przy użyciu #<1# zamiast #<#.
 
-   #Intercept stderr only#       ^<wrap>Intercept only #stderr# (standard errors stream).
-                               Same as using #<2# instead of #<#.
+   #Przechwytuj tylko stderr#    ^<wrap>Przechwytuje tylko #stderr# (standardowy strumień błędów).
+                               Podobnie jak przy użyciu #<2# zamiast #<#.
 
-   #Intercept stdout and #       Intercept stdout and #stderr#
-   #stderr separately#           separately. It has sense only in
-                               commands #view:<# and #edit:<#.
-                               In other cases same as #<*#.
-                               Can't be used with #<+#.
-                               Same as using  #<?# instead of #<#.
+   #Przechwytuj stdout#          Przechwytuje osobno strumienie #stdout# i #stderr#. 
+   #i stderr oddzielnie#         Ma to sens tylko w poleceniach #view:<# i #edit:<#.
+                               W innych przypadkach podobnie jak #<*#.
+                               Nie można używać z #<+#.
+                               Podobnie jak przy użyciu #<?# zamiast #<#.
 
-   #View/edit empty files#       With this options off, zero sized
-                               files will not be opened for viewing
-                               or editing.
+   #Podgląd/edycja pustych#      Po wyłączeniu tej opcji, pliki o zerowym rozmiarze
+   #plików#                      nie będą otwierane do przeglądania ani edycji.
 
- #Other#
+ #Pozostałe#
 
-   #Edit new files#              Allows to open the editor with non
-                               existing files.
+   #Edytuj nowe pliki#           Pozwala otworzyć edytor z nie istniejącymi plikami.
 
-   #The size of read data#       ^<wrap>Позволяет задавать максимальный размер
-считываемых из файла данных в командах ~clip~@clip@, ~goto~@goto@ и ~whereis~@whereis@.
-                               По умолчанию - 1048576 (1 MB).
-                               Максимальное значение - 4294967295 (4 GB-1).
-                               Пустое значение или 0 заменяется на 1048576 (1 MB).
+   #Wielkość odczytu danych#     ^<wrap>Umożliwia ustawienie maksymalnego rozmiaru
+                               danych odczytywanych z pliku w poleceniach ~clip~@clip@,
+                               ~goto~@goto@ i ~whereis~@whereis@.
+                               Domyślnie jest to - 1048576 (1 MB).
+                               Maksymalna wielkość - 4294967295 (4 GB-1).
+                               Wartość pusta lub 0 jest zastępowana przez 1048576 (1 MB).
 
-   Zobacz także: ~Contents~@Contents@
+   Zobacz także: ~Zawartość~@Contents@

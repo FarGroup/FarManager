@@ -417,8 +417,10 @@
 <?define Guid.NetBox.dll = "FABFEBD9-2B9B-40F1-9254-F79334A5EAA0" ?>
 <?define Guid.NetBoxEng.lng = "84D0F552-3B68-49F7-A5FC-9D0ADE6BDEB1" ?>
 <?define Guid.NetBoxRus.lng = "D3EA7808-4470-4ED4-876B-58ED0D75CD0E" ?>
+<?define Guid.NetBoxPol.lng = "F8B2CCAE-4A12-479F-8CC2-B591BFC94A47" ?>
 <?define Guid.README.md = "5D908D6F-ACB4-4B0E-A102-9A76E47F15C7" ?>
 <?define Guid.README.RU.md = "E879951C-FCFC-49DF-8A3B-F0263C42FB7C" ?>
+<?define Guid.README.PL.md = "087C4743-BCB3-4A2B-98CC-9E8E796A306B" ?>
 <?define Guid.LICENSE.txt = "EDD17AEF-E349-4A43-B890-BE65D5B82B9C" ?>
 
 <?define Guid.changelog_12 = "63AFBAE0-C8BF-4ACE-B770-E78BBAA8592F" ?>
@@ -501,6 +503,7 @@
 <?define Guid.shortcuts.bel.lua = "ABA8C98C-26FA-4749-9ACA-5743D978FF10" ?>
 <?define Guid.shortcuts.eng.temp = "D680C185-71A5-4AA4-B95E-A522C977F90A" ?>
 <?define Guid.shortcuts.rus.temp = "63539EEB-2A95-42FD-86DB-057011BB731A" ?>
+<?define Guid.shortcuts.pol.temp = "5F151C10-D29F-449D-A26F-81F9AE2D3382" ?>
 <?define Guid.shortcuts.bel.temp = "50CDE545-1ED7-4A2B-BDF0-C09FDA128611" ?>
 <?define Guid.TmpPanel.ListUTF8.farconfig = "0D50B147-D10D-43D5-BC61-E059319A9371" ?>
 <?define Guid.TmpEng.hlf = "C1EEFF12-0A91-4DC6-A105-529610D2BB77" ?>

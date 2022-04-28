@@ -303,6 +303,17 @@ size_t codepages::GetCodePageInsertPosition(uintptr_t codePage, size_t start, si
 	return Pos != iRange.cend()? *Pos : start + length;
 }
 
+static string_view unicode_codepage_name(uintptr_t const Codepage)
+{
+	switch (Codepage)
+	{
+	case CP_UTF8:       return L"UTF-8"sv;
+	case CP_UNICODE:    return L"UTF-16 (Little endian)"sv;
+	case CP_REVERSEBOM: return L"UTF-16 (Big endian)"sv;
+	default:            return {};
+	}
+}
+
 // Добавляем все необходимые таблицы символов
 void codepages::AddCodePages(DWORD codePages)
 {
@@ -362,9 +373,9 @@ void codepages::AddCodePages(DWORD codePages)
 	// unicode codepages
 	//
 	AddSeparator(msg(lng::MGetCodePageUnicode));
-	AddStandardCodePage(L"UTF-8"sv, CP_UTF8, -1, true);
-	AddStandardCodePage(L"UTF-16 (Little endian)"sv, CP_UNICODE);
-	AddStandardCodePage(L"UTF-16 (Big endian)"sv, CP_REVERSEBOM);
+	AddStandardCodePage(unicode_codepage_name(CP_UTF8), CP_UTF8, -1, true);
+	AddStandardCodePage(unicode_codepage_name(CP_UNICODE), CP_UNICODE);
+	AddStandardCodePage(unicode_codepage_name(CP_REVERSEBOM), CP_REVERSEBOM);
 
 	// other codepages
 	//
@@ -795,10 +806,18 @@ std::optional<cp_info> codepages::GetInfo(uintptr_t CodePage)
 
 string codepages::FormatName(uintptr_t const CodePage)
 {
-	const auto Info = GetCodePageInfo(CodePage);
-	auto Name = Info? Info->Name : L"Unknown"s;
-	GetCodePageCustomName(CodePage, Name);
-	return format(FSTR(L"{}: {}"sv), CodePage, Name);
+	const auto get_name = [&]
+	{
+		if (const auto Name = unicode_codepage_name(CodePage); !Name.empty())
+			return string(Name);
+
+		const auto Info = GetCodePageInfo(CodePage);
+		auto Name = Info? Info->Name : L"Unknown"s;
+		GetCodePageCustomName(CodePage, Name);
+		return Name;
+	};
+
+	return format(FSTR(L"{}: {}"sv), CodePage, get_name());
 }
 
 string codepages::UnsupportedCharacterMessage(wchar_t const Char)

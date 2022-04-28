@@ -515,6 +515,15 @@ static size_t get_chars_impl(uintptr_t const Codepage, std::string_view Str, spa
 	if (Str.empty())
 		return 0;
 
+	const auto validate_unicode = [&]
+	{
+		if (Str.size() & 1 && Diagnostics && Diagnostics->EnabledDiagnostics & encoding::diagnostics::incomplete_bytes)
+		{
+			Diagnostics->ErrorPosition = Str.size() - 1;
+			Diagnostics->IncompleteBytes = 1;
+		}
+	};
+
 	switch (Codepage)
 	{
 	case CP_UTF8:
@@ -525,10 +534,12 @@ static size_t get_chars_impl(uintptr_t const Codepage, std::string_view Str, spa
 
 	case CP_UNICODE:
 		copy_memory(Str.data(), Buffer.data(), std::min(Str.size(), Buffer.size() * sizeof(wchar_t)));
+		validate_unicode();
 		return Str.size() / sizeof(wchar_t);
 
 	case CP_REVERSEBOM:
 		swap_bytes(Str.data(), Buffer.data(), std::min(Str.size(), Buffer.size() * sizeof(wchar_t)));
+		validate_unicode();
 		return Str.size() / sizeof(wchar_t);
 
 	default:

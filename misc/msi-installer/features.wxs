@@ -786,6 +786,10 @@
             <ComponentRef Id="README.RU.md" />
             <ComponentRef Id="NetBoxRus.lng" />
           </Feature>
+          <Feature Id="NetBox.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="README.PL.md" />
+            <ComponentRef Id="NetBoxPol.lng" />
+          </Feature>
           <Feature Id="NetBox.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="ChangeLog_11" />
           </Feature>
@@ -1003,6 +1007,7 @@
           <Feature Id="TmpPanel.Polish" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="disks.pol.temp" />
             <ComponentRef Id="shortcuts.pol.lua" />
+            <ComponentRef Id="shortcuts.pol.temp" />
             <ComponentRef Id="TmpPol.hlf" />
             <ComponentRef Id="TmpPol.lng" />
           </Feature>
