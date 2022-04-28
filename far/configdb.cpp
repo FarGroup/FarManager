@@ -2391,7 +2391,7 @@ static string GetDatabasePath(string_view const FileName, bool const Local)
 		path::join(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, FileName) + L".db"sv;
 }
 
-string rename_bad_database(string_view const Name)
+static string rename_bad_database(string_view const Name)
 {
 	for (size_t i = 0; ; ++i)
 	{

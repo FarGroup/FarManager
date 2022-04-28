@@ -684,7 +684,6 @@ struct string_comparer
 {
 #ifdef __cpp_lib_generic_unordered_lookup
 	using is_transparent = void;
-	using transparent_key_equal = std::equal_to<>;
 	using generic_key = std::wstring_view;
 #else
 	using generic_key = string;

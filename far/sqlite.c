@@ -52,9 +52,11 @@ WARNING_PUSH(3)
 WARNING_DISABLE_MSC(4018) // '>': signed / unsigned mismatch
 WARNING_DISABLE_MSC(4668) // 'symbol' is not defined as a preprocessor macro, replacing with '0' for 'directives'
 WARNING_DISABLE_MSC(5105) // macro expansion producing 'defined' has undefined behavior
+WARNING_DISABLE_MSC(4191) // 'operator/operation' : unsafe conversion from 'type of expression' to 'type required'
 
 WARNING_DISABLE_GCC("-Wcast-function-type")
 WARNING_DISABLE_GCC("-Wcast-qual")
+WARNING_DISABLE_GCC("-Wdouble-promotion")
 WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
 WARNING_DISABLE_GCC("-Wmisleading-indentation")
 WARNING_DISABLE_GCC("-Wmissing-declarations")
@@ -66,6 +68,7 @@ WARNING_DISABLE_GCC("-Wformat=")
 WARNING_DISABLE_GCC("-Wformat-extra-args")
 WARNING_DISABLE_GCC("-Wformat-nonliteral")
 WARNING_DISABLE_GCC("-Wsign-compare")
+WARNING_DISABLE_GCC("-Wtype-limits")
 #endif
 
 WARNING_DISABLE_CLANG("-Weverything")

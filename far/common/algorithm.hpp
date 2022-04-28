@@ -134,7 +134,7 @@ constexpr bool in_closed_range(min_type const& Min, value_type const& Value, max
 template<typename arg, typename... args>
 constexpr bool any_of(arg const& Arg, args const... Args)
 {
-	static_assert(sizeof...(Args));
+	static_assert(sizeof...(Args) > 0);
 
 	return (... || (Arg == Args));
 }

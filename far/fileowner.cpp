@@ -169,7 +169,6 @@ static bool SidToNameCached(PSID Sid, string& Name, const string& Computer)
 	{
 #ifdef __cpp_lib_generic_unordered_lookup
 		using is_transparent = void;
-		using transparent_key_equal = std::equal_to<>;
 #endif
 
 		size_t operator()(const sid& Sid) const { return Sid.get_hash(); }
