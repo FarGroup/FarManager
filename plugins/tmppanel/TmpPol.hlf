@@ -228,7 +228,7 @@ given above - #tmp:#) can be set in the configuration dialog.
 @CMD
 $ #Panel tymczasowy: Linia poleceń#
  Składnia linii poleceń:
-   #<przedrostek>:[<opcje>] [<lista_plików>]# , where:
+   #<przedrostek>:[<opcje>] [<lista_plików>]# , gdzie:
 
    #<przedrostek># - przedrostek wtyczki, ustawiany w
                 ~oknie konfiguracji~@Config@ (domyślny to #tmp#)
@@ -245,10 +245,10 @@ $ #Panel tymczasowy: Linia poleceń#
    #+menu# / #-menu# - menu/panel from file list
    #+replace# / #-replace# - replace/add panel items
 
-   #<lista_plików>#  - the ~list file~@List@ from which the temporary
-panel will read its list of elements
+   #<lista_plików>#  - ~Lista plików~@List@, z której panel tymczasowy
+odczyta listę elementów
 
-   See ~Panel tymczasowy: Konfiguracja~@Config@ for a more in depth
-explanation of command line switches.
+   Zobacz ~Panel tymczasowy: Konfiguracja~@Config@, aby uzyskać więcej
+informacji o przełącznikach wiersza poleceń.
 
  ~Zawartość~@Contents@
