@@ -3933,7 +3933,7 @@ plików otwartych na długi czas, ale może być niebezpieczna, jeżeli pliki zo
 edytowanego tekstu podobnie do wciśnięcia #Ctrl+L#.
 
  #Ostrzeż przed otwieraniem plików tylko do odczytu#
- Przy otwarciu plików z atrybutem Tylko-do-odczytu zostanie pokazane okno ostrzeżenia.
+ Przy otwarciu plików z atrybutem "Tylko-do-odczytu" zostanie pokazane okno ostrzeżenia.
 
  #Rozpoznaj stronę kodową#
  ~Automatyczne wykrywanie~@CodePageAuto@ strony kodowej edytowanego pliku.
