@@ -151,6 +151,13 @@
         <ComponentRef Id="FarEncyclopedia.ru.chm" />
         <ComponentRef Id="macroapi_manual.ru.chm" />
       </Feature>
+      <Feature Id="Docs.Polish" Level="1" Display="hidden" AllowAdvertise="no">
+        <ComponentRef Id="Bug.Report.txt_2" />
+        <ComponentRef Id="Far.FAQ.txt_2" />
+        <ComponentRef Id="Plugins.Install.txt_2" />
+        <ComponentRef Id="Plugins.Review.txt_2" />
+        <ComponentRef Id="TechInfo.txt_2" />
+      </Feature>
       <Feature Id="MapFiles" Level="1" Title="!(loc.Feature.Title.MapFiles)" AllowAdvertise="no" Description="!(loc.Feature.Description.MapFiles)">
         <ComponentRef Id="Far.map" />
       </Feature>

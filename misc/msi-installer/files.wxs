@@ -473,6 +473,23 @@
             <File Id="TechInfo.txt_1" KeyPath="yes" Source="$(var.SourceDir)\Documentation\rus\TechInfo.txt" />
           </Component>
         </Directory>
+        <Directory Id="pol" Name="pol">
+          <Component Id="Bug.Report.txt_2" Guid="$(var.Guid.Bug.Report.txt_2)" Win64="$(var.Win64)">
+            <File Id="Bug.Report.txt_2" KeyPath="yes" Source="$(var.SourceDir)\Documentation\pol\Bug.Report.txt" />
+          </Component>
+          <Component Id="Far.FAQ.txt_2" Guid="$(var.Guid.Far.FAQ.txt_2)" Win64="$(var.Win64)">
+            <File Id="Far.FAQ.txt_2" KeyPath="yes" Source="$(var.SourceDir)\Documentation\pol\Far.FAQ.txt" />
+          </Component>
+          <Component Id="Plugins.Install.txt_2" Guid="$(var.Guid.Plugins.Install.txt_2)" Win64="$(var.Win64)">
+            <File Id="Plugins.Install.txt_2" KeyPath="yes" Source="$(var.SourceDir)\Documentation\pol\Plugins.Install.txt" />
+          </Component>
+          <Component Id="Plugins.Review.txt_2" Guid="$(var.Guid.Plugins.Review.txt_2)" Win64="$(var.Win64)">
+            <File Id="Plugins.Review.txt_2" KeyPath="yes" Source="$(var.SourceDir)\Documentation\pol\Plugins.Review.txt" />
+          </Component>
+          <Component Id="TechInfo.txt_2" Guid="$(var.Guid.TechInfo.txt_2)" Win64="$(var.Win64)">
+            <File Id="TechInfo.txt_2" KeyPath="yes" Source="$(var.SourceDir)\Documentation\pol\TechInfo.txt" />
+          </Component>
+        </Directory>
       </Directory>
       <Directory Id="Encyclopedia" Name="Encyclopedia">
         <Component Id="FarEncyclopedia.ru.chm" Guid="$(var.Guid.FarEncyclopedia.ru.chm)" Win64="$(var.Win64)">

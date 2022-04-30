@@ -160,6 +160,11 @@
 <?define Guid.Plugins.Install.txt_1 = "A9075CCF-1972-4902-A137-FB93F970746D" ?>
 <?define Guid.Plugins.Review.txt_1 = "4CB25AC4-C516-4E83-97A1-88A2B5706C52" ?>
 <?define Guid.TechInfo.txt_1 = "3CFE1838-445C-4A65-A2A0-DAC8EBA82CCB" ?>
+<?define Guid.Bug.Report.txt_2 = "7BE1C49C-FFBF-4327-BB07-4CA02FE98DD6" ?>
+<?define Guid.Far.FAQ.txt_2 = "6B64B4CC-3A0F-4C4B-A6F0-91FF0C793B2C" ?>
+<?define Guid.Plugins.Install.txt_2 = "40D1ED5E-42F3-4312-A2B7-F53533B355A9" ?>
+<?define Guid.Plugins.Review.txt_2 = "ADF61439-22E6-4CFF-9FAF-3868748C5DBD" ?>
+<?define Guid.TechInfo.txt_2 = "5CF88975-770B-4783-95C4-40F9A21FAE62" ?>
 
 <?define Guid.Align.dll = "30E12BA3-B32B-4A79-BD51-E3EA2F2FE9A4" ?>
 <?define Guid.Align.map = "A4C654C4-9DEA-46CF-8D9A-9EC8148FE49F" ?>

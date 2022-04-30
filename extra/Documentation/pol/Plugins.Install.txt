@@ -1,0 +1,121 @@
+﻿
+                    The Far File and Archive Manager
+                      (Menedżer Plików i Archiwów)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                  Jak zainstalować/odnistalować wtyczki
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Ten dokument zawiera instrukcje dla następujących procedur:
+
+1. Instalacja wtyczki
+
+2. Usuwanie wtyczki
+
+3. Aktualizacja wtyczki
+
+
+INSTALACJA WTYCZKI
+~~~~~~~~~~~~~~~~~~
+1. Przeczytaj dokumentację wtyczki (file_id.diz, readme.txt, whatsnew.txt
+   doc\*.*, itp.), aby znaleźć instrukcję instalacji, minimalną wersję Far
+   wymaganą do poprawnego działania wtyczki, itd.
+
+   Zainstaluj wtyczkę w opisany tam sposób.
+
+2. Jeżeli w dokumentacji nie zawarto opisu instalacji, lub niemożliwe było
+   zainstalowanie jej zgodnie z instrukcją, zainstaluj wtyczkę w następujący
+   sposób:
+
+   a) Utwórz podfolder o dowolnej nazwie w folderze Plugins w folderze
+      gdzie zainstalowano Far.
+
+   b) Skopiuj zawartość archiwum dystrybucyjnego do tego folderu (należy
+      skopiować przynajmniej pliki *.dll, *.hlf, *.lng).
+
+   c) Uruchom ponownie Far manager.
+
+   Jeżeli operacja się powiedzie, wtyczka doda pozycję do menu wtyczek
+   lub wykona niezbędne funkcje opisane w dokumentacji.
+
+   d) Wciśnij F1 na następnie Shift-F2, wybierz z listy temat odpowiadający
+      zainstalowanej wtyczce i dokładnie przeczytaj jej zawartość.
+
+   e) Otwórz menu konfiguracji zainstalowanej wtyczki (F9,
+      Opcje -> Konfiguracja tyczek) i, jeżeli jest to możliwe, skonfiguruj
+      ją.
+
+3. Wskazówka: aby klawisze skrótów w menu wtyczek (F11) nie zmieniały się
+   po zmianie na liście wtyczek, należy nadać samodzielnie skrót naciskając
+   klawisz F4 w tym menu. 
+
+USUWANIE WTYCZKI
+~~~~~~~~~~~~~~~~
+1. Przeczytaj dokumentację (pomoc, readme.txt, doc\*.*, itp.), aby odszukać
+   instrukcję usunięcia wtyczki. Usuń ją w opisany tam sposób.
+
+2. Jeżeli w dokumentacji nie ma instrukcji usuwania, lub usunięcie wtyczki
+   zgodnie z instrukcją nie było możliwe, usuń wtyczkę w następujący sposób:
+
+   a) Jeżeli uruchomionych jest kilka instancji Far Manager, należy zamknąć
+      wszystkie oprócz jednej.
+
+   b) Przenieś (F6) podfolder wtyczki z folderu wtyczek (domyślnie jest to
+      folder Plugins w folderze gdzie zainstalowano Far Manager), do innego
+      folderu na tym samym dysku (np. poziom wyżej niż folder gdzie
+      zainstalowano Far Manager).
+
+   c) Jeżeli folder został pomyślnie przeniesiony, zrestartuj Far i przejdź
+      do punktu 'e' instrukcji.
+
+   d) Jeżeli wtyczka zablokowała swój folder roboczy i przeniesienie wtyczki
+      nie było możliwe:
+
+      - zamknij Far Manager
+
+      - uruchom nową instancję Far Manager z przełącznikiem "/p" z wiersza
+        poleceń (Far Manager zostanie uruchomiony bez wtyczek).
+
+   e) Usuń folder zawierający wtyczkę, która ma zostać usunięta.
+
+   f) Jeżeli po usunięciu wtyczki zauważysz dziwne zachowanie Far Manager
+      (np. nieprawidłowa lista wtyczek w menu pod klawiszem F11, awarie,
+      itp.) należy wyczyścić pamięć podręczną wtyczek:
+      Far.exe /clearcache
+
+AKTUALIZACJA WTYCZKI
+~~~~~~~~~~~~~~~~~~~~
+Czasami zachodzi potrzeba zainstalowania nowych wersji istniejących wtyczek.
+Najprostszym sposobem jest usunięcie starej wersji, a następnie zainstalowanie
+nowej wersji (zobacz poprzednie rozdziały). Jednak ta procedura nie zawsze
+jest satysfakcjonująca, ponieważ może doprowadzić do utraty istniejących
+ustawień dla danej wtyczki. Z tego powodu aktualizację wtyczki lepiej
+przeprowadzić w następujący sposób:
+
+1. Przeczytaj dokumentację nowej wersji wtyczki (file_id.diz, readme.txt,
+   whatsnew.txt, doc\*.*, itp.), aby dowiedzieć się jak zainstalować nową
+   wersję. Zaktualizuj wtyczkę w opisany tam sposób.
+
+2. Jeżeli dokumentacja nie zawiera instrukcji aktualizacji wtyczki, lub
+   aktualizacja wg instrukcji nie była możliwa do przeprowadzania,
+   zaktualizuj wtyczkę w następujący sposób:
+
+   a) Wykonaj instrukcje 'a' do 'd' z części "Usuwanie wtyczki" opisanej
+      powyżej.
+
+   b) Jeżeli stary folder nie zawiera dodatkowych plików konfiguracyjnych,
+      danych lub innych ważnych plików, można go bezpiecznie usunąć,
+      ale lepiej zachować go na jakiś czas w innej lokalizacji, aby ułatwić
+      cofnięcie do starszej wersji jeżeli nowa wersja będzie z jakiegoś
+      powodu niezadowalająca.
+
+   c) Utwórz folder o tej samej nazwie, jak folder starej wersji w podfolderze
+      Plugins folderu, w którym zainstalowany jest Far.
+
+   d) Skopiuj zawartość archiwum dystrybucyjnego do tego folderu (należy
+      skopiować przynajmniej pliki *.dll, *.hlf, *.lng).
+
+   e) W razie potrzeby, skopiuj tam wszystkie dodatkowe pliki konfiguracyjne,
+      dane lub inne ważne pliki z folderu starej wersji wtyczki.
+
+   f) Wykonaj instrukcja 'c' do 'e' z części "Instalacja wtyczki" opisanej
+      powyżej.
