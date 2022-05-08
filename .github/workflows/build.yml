@@ -51,9 +51,9 @@ jobs:
                ]
 
         include:
-          - { build: msbuild_cl_x64_debug,     compiler: msbuild_cl, arch: amd64,       platform_sln: x64,   platform_name: x64,   build_config: Debug_ASAN }
+          - { build: msbuild_cl_x64_debug,     compiler: msbuild_cl, arch: amd64,       platform_sln: x64,   platform_name: x64,   build_config: Debug }
           - { build: msbuild_cl_x64_release,   compiler: msbuild_cl, arch: amd64,       platform_sln: x64,   platform_name: x64,   build_config: Release }
-          - { build: msbuild_cl_x86_debug,     compiler: msbuild_cl, arch: amd64_x86,   platform_sln: Win32, platform_name: x86,   build_config: Debug_ASAN }
+          - { build: msbuild_cl_x86_debug,     compiler: msbuild_cl, arch: amd64_x86,   platform_sln: Win32, platform_name: x86,   build_config: Debug }
           - { build: msbuild_cl_x86_release,   compiler: msbuild_cl, arch: amd64_x86,   platform_sln: Win32, platform_name: x86,   build_config: Release }
           - { build: msbuild_cl_ARM64_release, compiler: msbuild_cl, arch: amd64_arm64, platform_sln: ARM64, platform_name: ARM64, build_config: Release }
 
@@ -73,7 +73,7 @@ jobs:
           arch: ${{ matrix.arch }}
 
       - name: Set environment for debug build
-        if: matrix.build_config  == 'Debug_ASAN'
+        if: matrix.build_config  == 'Debug'
         run: Add-Content -Path $env:GITHUB_ENV -Value "DEBUG=1"
 
       - name: Build (cl)
