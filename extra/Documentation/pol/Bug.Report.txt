@@ -1,0 +1,110 @@
+﻿
+                    The Far File and Archive Manager
+                      (Menedżer Plików i Archiwów)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+               Raportowanie problemów i wsparcie techniczne
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Przestrzegając poniższych prostych zasad, masz największe szanse
+na pomyślne rozwiązanie Twoich problemów.
+
+1. Upewnij się, że napotkany problem nie jest zwykłą sytuacją lub znanym
+problemem: zobacz pomoc Far, FAQ (najczęściej zadawane pytania), Informacje
+techniczne i CoNowego. Jeżeli jest to możliwe, poszukaj odpowiedzi w sieci
+internet (linki do zasobów znajdują się w rozdziale "Przegląd możliwości
+wtyczek").
+Tylko gdy problem nie jest znany, przejdź do punktu 2, w przeciwnym razie
+nie ma potrzeby generowania dodatkowej pracy, która w żaden sposób
+nie stymuluje programistów lecz rozprasza ich uwagę.
+
+2. Ponieważ Far jest powszechnie używany z wtyczkami, najpierw należy
+zlokalizować źródło problemu.
+
+2.1. Uruchom Far bez wtyczek. Możesz to zrobić poleceniem "far.exe /p".
+Spróbuj odtworzyć sytuację, w której wystąpił problem. Jeżeli problem
+będzie się powtarzał, warto sensownie poinformować twórców programu
+o problemie (patrz krok 3).
+
+2.2. Jeżeli problem nie występuje jeżeli Far jest uruchomiony bez wtyczek,
+musisz dowiedzieć się, która wtyczka jest odpowiedzialna za wystąpienie
+problemu.
+Aby tego dokonać, można np. usuwać po kolei wtyczki, zaczynając od ostatnio
+zainstalowanych i za każdym razem sprawdzać czy problem nadal występuje.
+Jeżeli udało Ci się znaleźć wtyczkę powodującą problem, a wtyczka nie jest
+dołączona do dystrybucji Fat, należy zgłosić problem autorowi wtyczki.
+
+2.3. Jeżeli znaleziona "zła" wtyczka jest dołączona do dystrybucji Far,
+lub nie udało Ci się znaleźć, która wtyczka jest potrzebna do odtworzenia
+problemu, poinformuj programistów Far (patrz krok 3). Jeżeli problem
+występuje we wtyczce MultiArc/ArcLite, patrz krok 4. Jeżeli problem
+dotyczy wtyczki FTP, patrz krok 5.
+
+3. Poinformuj Grupę Far o problemie (kontakty znajdują się w pliku File_id.diz).
+
+3.1. Przy zgłaszaniu problemu należy uwzględnić następujące zasady:
+   - Wyodrębnij warunki, w których pojawia się problem, tak dokładnie
+     jak możesz - pomoże to szybciej znaleźć przyczynę. Staraj się
+     nie podawać mało istotnych informacji (np. nie wymieniaj wszystkich
+     zainstalowanych wtyczek, jeżeli nie jest to konieczne do odtworzenia
+     problemu).
+   - Upewnij się, że problem jest spowodowany przez makropolecenia, które
+     mogłeś nagrać. Wciśnij Ctrl-. (Ctrl-kropka), aby wyłączyć
+     makropolecenia i spróbuj odtworzyć problem.
+   - Jeżeli jest to możliwe, spróbuj odtworzyć problem na różnych wersjach
+     Far, Windows, innych komputerach i z różnymi ustawieniami Far.
+     Dołącz raport z tych prób do wiadomości ze zgłoszeniem problemu.
+
+3.2. Podaj informacje potrzebne do odtworzenia problemu (wersja Windows,
+rodzaj systemu plików, typ sieci lokalnej, wersja Far, wersje
+zainstalowanych wtyczek, makropolecenia, itd. - wymagany i niezbędny
+zestaw warunków do powtórzenia działań).
+
+3.3. Jeżeli do odtworzenia problemu wymagane są specyficzne pliki, powinieneś
+je dołączyć do wiadomości, tylko gdy całkowita wielkość wiadomości
+nie przekroczy 80KB. Jeżeli wielkość przekroczy tę wartość, lepiej pliki
+te umieścić na serwerze FTP lub HTTP i dodać link do tych plików w wiadomości.
+
+3.4. Jeżeli problem dotyczy interfejsu API wtyczek, spróbuj napisać minimalną
+wtyczkę testową, która demonstruje problem i dołącz archiwum (skompilowaną
+wtyczkę i jej źródła) do wiadomości.
+
+3.5. Odpowiedz na następujące pytania:
+   - jakie operacje wykonywałeś?
+   - jakiego rezultatu się spodziewałeś?
+   - co stało się w zamian?
+
+3.6. Podaj dodatkowe uwagi/komentarze (jeżeli to możliwe)
+
+4. Uzupełnienia dotyczące MultiArc/ArcLite
+
+4.1. Przy opisywaniu błędów MultiArch związanych z konkretnym archiwizatorem,
+należy również podać jego wersję oraz linie poleceń dla niego.
+
+4.2. Małe archiwum testowe jest niezbędne do odtworzenia problemu
+(nie większe niż 30KB), lub mile widziany będzie link do takiego archiwum.
+
+5. Uzupełnienia dotyczące FTP
+
+5.1. Podczas opisywanie błędów wtyczki FTP, powinieneś podać jej wersję.
+     Można ją odczytać z:
+      1) informacji o wersji głównego pliki wtyczki (FarFtp.dll);
+      2) menu Narzędzia, które jest widoczne po naciśnięciu Shift+F1
+         w aktywnym panelu wtyczki.
+
+5.2. Dziennik zdarzeń wtyczki
+     Aby wygenerować pełny dziennik zdarzeń, powinieneś:
+      a) zdefiniować nazwę pliku dziennika w opcjach wtyczki;
+      b) włączyć opcję konfiguracyjną:
+         [x] Raportuj zawartość folderu
+
+5.3 Jeżeli problem nastąpi podczas operacji z serwerami, należy podać
+    informacje na temat oprogramowani i systemu operacyjnego serwera,
+    pożądane jest także uzyskanie dostępu do takiego serwera.
+
+6. ogólna uwaga dotycząca załączonych plików - specyficzne dla serwera
+pocztowego jest to, że wszystkie załączniki z rozszerzeniami .exe, .dll,
+.sys, .bat, .cmd, .pif, .cpl, .com, .vbs, i .js są usuwane.
+Dlatego przed wysłaniem takich plików, należy je najpierw zarchiwizować.
+
+
+                                  [ Grupa rozwojowa Far Manager ]

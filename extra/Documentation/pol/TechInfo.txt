@@ -1,0 +1,116 @@
+﻿
+                    The Far File and Archive Manager
+                      (Menedżer Plików i Archiwów)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                         Informacje techniczne
+                         ~~~~~~~~~~~~~~~~~~~~~
+
+Zawartość:
+
+I. Far Manager: ustawienia zaawansowane.
+  1.1. Ogólne/różne.
+  1.2. System.
+  1.3. Uruchamianie.
+  1.4. Polisy.
+  1.5. Interfejs.
+  1.6. Panel.
+  1.7. Dialog.
+  1.8. Edytor.
+  1.9. XLat.
+II. Windows: ustawienia mające wpływ na Far Manager.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+I. Far Manager: ustawienia zaawansowane.
+===============================================================================
+   W tej sekcji opisane są zaawansowane informacje techniczne, które nie są
+zawarte w głównym pliku pomocy, które są aktualne dla bieżącej wersji Far Manager.
+
+
+
+=====================
+  1.1. Ogólne/różne.
+=====================
+
+
+1.1.0.(TechInfo #0)
+~~~~~~~~~~~~~~~~~~~
+   Klucz "/u <nazwa_użytkownika>"
+   Dane z rejestru [HKCU\Software\Far Manager] są kopiowane do
+   [HKCU\Software\Far Manager\Users] tylko wtedy, gdy następująca gałąź
+   nie istnieje: [HKCU\Software\Far Manager\Users\<nazwa_użytkownika>]. Tylko
+   następujące gałęzie nie są kopiowane: [HKCU\Software\Far Manager\Users]
+   i [HKCU\Software\Far Manager\PluginsCache].
+   Oznacza to, że zmiana parametrów opisanych poniżej nie będzie miała wpływu
+   na istniejące profile użytkowników. Ustawienia dla "<nazwa_użytkownika>"
+   należy zmienić w odniesieniu do gałęzi
+   [HKCU\Software\Far Manager\Users\<nazwa_użytkownika>].
+
+
+
+II. Windows: ustawienia mające wpływ na Far Manager.
+===============================================================================
+   W tej sekcji opisane dodatkowe informacje techniczne, które mają związek
+z Far Manager.
+
+
+2.0.(TechInfo #57)
+~~~~~~~~~~~~~~~~~~
+   Jeżeli klucz rejestru [HKEY_CLASSES_ROOT\Directory\shellex\CopyHookHandlers]
+   jest pusty, Far usuwa go podczas uruchamiania.
+   Jeżeli klucz jest pusty, program Far ulegnie awarii podczas usuwania plików
+   do kosza.
+
+2.1.(TechInfo #58)
+~~~~~~~~~~~~~~~~~~
+   [HKEY_CURRENT_USER\Control Panel\Desktop]
+   "AutoEndTasks":REG_DWORD
+   System: Automatycznie zamykaj zawieszone aplikacje.
+   Opcja jest używana do wymuszania automatycznego zamykania przez system
+   Windows bez żadnego ostrzeżenia aplikacji, które się zawiesiły.
+
+   Może przyjmować jedną z następujących wartości:
+     0 - wyłączone.
+     1 - zezwalaj na automatyczne zamykanie zawieszonych aplikacji.
+   Domyślna wartość jest równa 0 (wyłączone).
+
+   Ustawienie klucza na "1" pozwala wyeliminować problem zamykania
+   wewnętrznego edytora modalnego (np. edycja pliku wewnątrz archiwum)
+   za pomocą standardowego przycisku "Zamknij" konsoli.
+   Więcej informacji: http://www.winguides.com/registry/display.php/199/
+
+2.2.(TechInfo #59)
+~~~~~~~~~~~~~~~~~~
+   [HKEY_CURRENT_USER\Software\Microsoft\Command Processor]
+   "DisableUNCCheck":REG_DWORD
+   (dotyczy tylko NT4/2k/XP/2003/Vista/2008 i cmd.exe)
+   Program CMD.EXE standardowo nie pozwala na używanie nazw UNC dla bieżącego
+   folderu. Gdy Far próbuje wykonać polecenie, a bieżącą ścieżką jest UNC
+   to w konsoli zostanie wyświetlony następujący komunikat:
+
+     (po angielsku)
+     "CMD.EXE was started with the above path as the current directory.
+     UNC paths are not supported.  Defaulting to Windows directory."
+
+     (po polsku)
+     "CMD.EXE został uruchomiony z powyższą ścieżką jako folderem bieżącym.
+     Ścieżki UNC nie są obsługiwane. Przechodzę do folderu Windows."
+
+   (komunikat może się różnić, zależnie od Windows NT4/W2k/XP/2003/Vista/2008)
+
+   Klucz "DisableUNCCheck" pozwala rozwiązać ten problem.
+   Można użyć następujących wartości:
+     0 - wyświetlenie komunikatu ostrzegawczego i ustawienie bieżącej ścieżki
+         na folder systemowy Windows.
+     1 - brak wyświetlenia ostrzeżenia i próba ustawienia ścieżki na folder UNC.
+
+   Domyślną wartością jest 0.
+   Zalecaną wartością jest 1.
+
+   Więcej informacji: http://www.winguides.com/registry/display.php/1247/
+                    lub artykuł Microsoft - Q156276
+
+
+                                  [ Grupa rozwojowa Far Manager ]
