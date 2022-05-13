@@ -221,10 +221,10 @@ zostaną załadowane z cache;
 'Plugins' zapisanego w profilu użytkownika (domyślnie: #%APPDATA%\\Far Manager\\Profile#).
 
  #-m#
- Far nie będzie wczytywał makr podczas uruchamiania.
+ Far nie będzie wczytywał makropoleceń podczas uruchamiania.
 
  #-ma#
- Makra z opcją "Uruchom po starcie Far" nie będą uruchamiane po uruchomieniu programu.
+ Makropolecenia z opcją "Uruchom po starcie Far" nie będą uruchamiane po uruchomieniu programu.
 
  #-s <ścieżka_profilu> [<lokalna_ścieżka_profilu>]#
  Położenie plików konfiguracyjnych programu, ustalone przez użytkownika (nadpisuje
@@ -255,7 +255,7 @@ dir, jak w przykładzie),
 
  #-title[:<tytuł>]#
  Jeżeli podano <tytuł>, będzie on używany jako tytułu okna; w innym przypadku
-będzie to tytuł okna konsoli. Makro #%Default%# w tytule użytkownika zostanie
+będzie to tytuł okna konsoli. Makropolecenie #%Default%# w tytule użytkownika zostanie
 zastąpione standardowym tekstem okna Far, zależnym od kontekstu programu.
 
  #-clearcache [ścieżka_profilu [lokalna_ścieżka_profilu]]#
@@ -315,7 +315,7 @@ $ #Polecenia kontroli menu#
  Menu filtru lub pozycje listy                      #Ctrl+Alt+F,RAlt#
  Zablokuj filtr                                          #Ctrl+Alt+L#
 
- Zobacz także listę ~klawiszy makr~@KeyMacroMenuList@, dostępnych w menu.
+ Zobacz także listę ~klawiszy makropoleceń~@KeyMacroMenuList@, dostępnych w menu.
 
 
 @PanelCmd
@@ -326,7 +326,7 @@ $ #Polecenia kontroli panelu#
  Zamień panele                                               #Ctrl+U#
  Odśwież panel                                               #Ctrl+R#
  Przełącz panel informacyjny                                 #Ctrl+L#
- Przełącz panel ~szybkiego podglądu~@QViewPanel@                          #Ctrl+Q#
+ Przełącz panel ~szybkiego podglądu~@QViewPanel@                           #Ctrl+Q#
  Przełącz panel ~drzewa~@TreePanel@                                       #Ctrl+T#
  Ukryj/pokaż oba panele                                      #Ctrl+O#
  Tymczasowo ukryj oba panele                         #Ctrl+Alt+Shift#
@@ -346,8 +346,8 @@ $ #Polecenia kontroli panelu#
 
  #Polecenie panelu plików#
 
- ~Zaznacz/odznacz plik~@SelectFiles@                        #Ins, Shift+Klawisze kursora#
-                                                #Prawy klawisz myszy#
+ ~Zaznacz/odznacz plik~@SelectFiles@                   #Ins, Shift+Klawisze kursora#
+                                               #Prawy przycisk myszy#
  Zaznacz grupę                                              #Szary +#
  Odznacz grupę                                              #Szary -#
  Odwróć zaznaczenie                                         #Szary *#
@@ -392,7 +392,7 @@ $ #Polecenia kontroli panelu#
  Sortuj pliki w aktywnym panelu wg daty dostępu             #Ctrl+F9#
  Sortuj pliki w aktywnym panelu wg opisu                   #Ctrl+F10#
  Sortuj pliki w aktywnym panelu wg właściciela pliku       #Ctrl+F11#
- Wyświetl menu ~sposobów sortowania~@PanelCmdSort@         #Ctrl+F12#
+ Wyświetl menu ~sposobów sortowania~@PanelCmdSort@                         #Ctrl+F12#
  Użyj grup sortowania                                     #Shift+F11#
  Pokaż najpierw zaznaczone pliki                          #Shift+F12#
 
@@ -423,13 +423,13 @@ lecz w pasywnym oknie panelu.
 
  Pliki, skopiowane lub cięcie z paneli, mogą być kopiowane do innej aplikacji, np. Explorer.
 
- Zobacz także listę ~klawiszy makr~@KeyMacroShellList@, dostępnych w panelach.
+ Zobacz także listę ~klawiszy makropoleceń~@KeyMacroShellList@, dostępnych w panelach.
 
  Uwaga:
 
  1. ^<wrap>Jeżeli opcja "Włącz możliwość odwrotnego sortowania" w ~Ustawieniach panelu~@PanelSettings@
 jest włączona, wciskając ten sam skrót trybu sortowania zmieniamy kierunek sortowania
-z rosnącego na malejący lub odwrotnie;
+z rosnącego na malejący lub odwrotnie.
 
  2. ^<wrap>Kombinacja #Alt+Lewo# i #Alt+Prawo#, używana do przesuwania długich nazw plików i opisów,
 nie działa tylko z klawiszami z klawiatury numerycznej. Przyczyną jest fakt, że po wciśnięciu
@@ -527,7 +527,7 @@ do pola wyszukiwania. Jeżeli wprowadzony tekst będzie transliterowany, to będ
 wyszukiwany jako nowy tekst. Zobacz flagę ~XLat.Flags~@XLat.Flags@ jak ustawić
 klawisz skrótu dla transliteracji.
 
- Zobacz także listę ~klawiszy makr~@KeyMacroSearchList@, dostępnych w szybkim szukaniu.
+ Zobacz także listę ~klawiszy makropoleceń~@KeyMacroSearchList@, dostępnych w szybkim szukaniu.
 
 
 @CmdLineCmd
@@ -774,12 +774,12 @@ $ #Zrzut ekranu#
  Zrzut ekranu pozwala na zaznaczenie i skopiowanie do schowka dowolnego fragmentu okna.
 
  Aby przełączyć pomiędzy zaznaczeniem ciągu i bloku należy wcisnąć klawisz #Spacja#.
- Aby przesunąć kursor użyj #strzałek# lub kliknij #lewym klawiszem myszy#.
- Aby zaznaczyć tekst użyj klawiszy #Shift+strzałka# lub przeciągnij kursor myszy trzymając
-wciśnięty #lewy klawisz myszy#.
+ Aby przesunąć kursor użyj #strzałek# lub kliknij #lewym przyciskiem myszy#.
+ Aby zaznaczyć tekst użyj klawiszy #Shift+strzałka# lub przeciągnij kursor myszy
+trzymając wciśnięty #lewy przycisk myszy#.
  Aby rozszerzyć lub zmniejszyć zaznaczony obszar użyj klawiszy #Alt+Shift+strzałka#.
  Aby przenieść zaznaczenie użyj klawiszy #Alt+strzałka#.
- #Enter#, #Ctrl+Ins#, #prawy klawisz myszy# lub #podwójne kliknięcie# kopiują
+ #Enter#, #Ctrl+Ins#, #prawy przycisk myszy# lub #podwójne kliknięcie# kopiują
 zaznaczony tekst do schowka, #Ctrl+<Szary +># dołączają tekst do zawartości schowka.
  #Esc# opuszcza tryb zaznaczania.
  #Ctrl+A# - zaznacza cały ekran.
@@ -790,7 +790,7 @@ zaznaczony tekst do schowka, #Ctrl+<Szary +># dołączają tekst do zawartości 
 
 @MiscCmd
 $ #Polecenia sterowania programem#
- #Makra klawiatury#
+ #Makropolecenia klawiatury#
 
  Nagraj ~makropolecenie~@KeyMacro@                                     #Ctrl+<.>#
 
@@ -834,7 +834,8 @@ za wyjątkiem wiersza poleceń, włączając okna dialogowe i ~wewnętrzny edyto
  - zmień na nieoznaczone (#[?]#)                              #Szara *#
    (dla pól trój-stanowych)
 
- Możesz przenieść okno dialogowe przeciągając myszą lub wciskając #Ctrl+F5# i używając klawiszy #strzałek#.
+ Możesz przenieść okno dialogowe przeciągając myszą lub wciskając #Ctrl+F5#
+i używając klawiszy #strzałek#.
 
  #Lewe kliknięcie# poza oknem dialogowym działa jak wciśnięcie #Esc#.
 
@@ -842,7 +843,7 @@ za wyjątkiem wiersza poleceń, włączając okna dialogowe i ~wewnętrzny edyto
 
  #Mysz#
 
- Kliknięcie #środkowym klawiszem myszy# w ~panelu~@PanelCmd@ daje ten sam efekt
+ Kliknięcie #środkowym przyciskiem myszy# w ~panelu~@PanelCmd@ daje ten sam efekt
 jak wciśnięcie klawisza #Enter#. Także z klawiszami modyfikującymi polecenie
 (#Ctrl#, #Alt#, #Shift#). Jeżeli ~wiersz poleceń~@CmdLineCmd@ nie jest pusty,
 jego zawartość zostanie wykonana.
@@ -896,9 +897,10 @@ Po wykryciu nowej wtyczki Far zapisuje informację o niej, a później wczytuje 
 gdy jest potrzebna - nie używane wtyczki nie zajmują dodatkowej pamięci.
 Ale jeżeli któraś wtyczka nie będzie już potrzebna, można ją usunąć oszczędzając miejsce na dysku.
 
- Wtyczki mogą być wywołane z menu ~Zmień dysk~@DriveDlg@ lub ~Listy wtyczek~@PluginCommands@ włączanej klawiszem
-#F11# lub odpowiadającemu menu ~Polecenia~@CmdMenu@. Wciśnięcie #F4# na ~"Liście wtyczek"~@PluginCommands@
-pozwala przypisać klawisz skrótu do menu (ułatwia to wywoływanie wtyczek w ~makropoleceniach~@KeyMacro@).
+ Wtyczki mogą być wywołane z menu ~Zmień dysk~@DriveDlg@ lub ~Listy wtyczek~@PluginCommands@
+włączanej klawiszem #F11# lub odpowiadającemu menu ~Polecenia~@CmdMenu@. Wciśnięcie #F4#
+na ~"Liście wtyczek"~@PluginCommands@ pozwala przypisać klawisz skrótu do menu (ułatwia
+to wywoływanie wtyczek w ~makropoleceniach~@KeyMacro@).
 Menu to jest dostępne w panelu plików, oknach dialogowych oraz (tylko po wciśnięciu klawisza #F11#)
 w oknie podglądu i edycji. Tylko specjalnie przygotowane wtyczki będą wywoływane w oknach dialogowych,
 przeglądarce lub edytorze.
@@ -1111,7 +1113,7 @@ automatycznie ustawiony na panel plików.
  Operacja ~szybkiego szukania~@FastFind@ może być użyta jako odnośnik do żądanego
 plików po pierwszej literze jego nazwy.
 
- Zobacz także listę ~klawiszy makr~@KeyMacroShellList@, dostępnych w panelach.
+ Zobacz także listę ~klawiszy makropoleceń~@KeyMacroShellList@, dostępnych w panelach.
 
 
 @TreePanel
@@ -1134,7 +1136,7 @@ Wciśnięcie #Ctrl+Enter# przeniesie do następnego folderu o takim samym począ
  Klawisze #Szary +# i #Szary -# przesuwają przesuwają w górę i w dół do następnej gałęzi
 tego samego poziomu.
 
- Zobacz także listę ~klawiszy makr~@KeyMacroTreeList@, dostępnych dla panelu drzewa.
+ Zobacz także listę ~klawiszy makropoleceń~@KeyMacroTreeList@, dostępnych dla panelu drzewa.
 
 
 @InfoPanel
@@ -1168,7 +1170,7 @@ fizycznej pamięci (dostępnej dla Windows), pamięć wirtualna i plik stronicow
  4. ^<wrap>Plik #opisu folderu#.
     ^<wrap>Można podejrzeć zawartość pliku opisu foldera na pełnym ekranie wciskając klawisz
 #F3# lub klikając #lewym przyciskiem myszy#. Do edycji lub utworzenia pliku opisu należy
-wcisnąć klawisz #F4# lub kliknąć #prawym klawiszem myszy#. Można także użyć wielu poleceń
+wcisnąć klawisz #F4# lub kliknąć #prawym przyciskiem myszy#. Można także użyć wielu poleceń
 ~podglądu~@Viewer@ (wyszukiwanie, wybór strony kodowej, itd.) w trakcie podglądu pliku opisu
 folderu.
     ^<wrap>Lista możliwych plików opisu folderu może być zdefiniowana używając
@@ -1193,7 +1195,7 @@ wartość ta może być zbyt niedokładna do rzeczywistości).
  Wszystkie sekcje (za wyjątkiem nazwy komputera i użytkownika) mogą być widoczne lub ukryte (zobacz
 ~Tryby wyświetlania panelu informacyjnego~@InfoPanelShowMode@).
 
- Zobacz także listę ~klawiszy makr~@KeyMacroInfoList@, dostępnych w panelu informacyjnym.
+ Zobacz także listę ~klawiszy makropoleceń~@KeyMacroInfoList@, dostępnych w panelu informacyjnym.
 
 
 @InfoPanelShowMode
@@ -1314,7 +1316,7 @@ klastra na dysku, rzeczywistą wielkość pliku z ilością utraconej pojemnośc
 Dotyczy to także ~Panelu informacyjnego~@InfoPanel@ i linii statusu w ~Panelu plików~@FilePanel@.
 Bieżący tryb - far:config #Panel.ShowBytes# (domyślnie=fałsz).
 
- Zobacz także listę ~klawiszy makr~@KeyMacroQViewList@, dostępnych w panelu szybkiego poglądu.
+ Zobacz także listę ~klawiszy makropoleceń~@KeyMacroQViewList@, dostępnych w panelu szybkiego poglądu.
 
 
 @DragAndDrop
@@ -1327,9 +1329,9 @@ myszy na pliku źródłowym, przeciągnąć go do drugiego panelu i zwolnić prz
 zaznaczyć przed przeciągnięciem, kliknąć lewym przyciskiem myszy w panelu
 źródłowym i przeciągnąć do drugiego panelu.
 
- Można zamienić operacje kopiowania i przenoszenia wciskają prawy klawisz
+ Można zamienić operacje kopiowania i przenoszenia wciskają prawy przycisk
 myszy podczas przeciągania. Można także nacisnąć i przytrzymać klawisz
-#Shift# przy wciśniętym lewym klawiszy myszy.
+#Shift# przy wciśniętym lewym przycisku myszy.
 
 
 @Menus
@@ -1352,7 +1354,7 @@ do menu pasywnego panelu.
  ~Menu Polecenia~@CmdMenu@
  ~Menu Opcje~@OptMenu@
 
- Zobacz także listę ~klawiszy makr~@KeyMacroMainMenuList@, dostępną w głównym menu.
+ Zobacz także listę ~klawiszy makropoleceń~@KeyMacroMainMenuList@, dostępną w głównym menu.
 
 
 @LeftRightMenu
@@ -1890,8 +1892,8 @@ do poprzedniej wielkości.
  Wciśnięcie #Ctrl+Enter# pozwala na przejście do następnego folderu z wprowadzoną
 wcześniej nazwą. #Ctrl+Shift+Enter# przechodzi do poprzedniego folderu.
 
- Zobacz także listę ~klawiszy makr~@KeyMacroFindFolderList@, dostępnych w oknie
-dialogowym szukania.
+ Zobacz także listę ~klawiszy makropoleceń~@KeyMacroFindFolderList@, dostępnych
+w oknie dialogowym szukania.
 
 
 @Filter
@@ -2187,7 +2189,7 @@ Jeżeli istnieje plik globalny, to zastępuje on menu specyficzne dla użytkowni
 
  Zobacz także:
 
- Lista ~klawiszy makr~@KeyMacroUserMenuList@, dostępnych w menu użytkownika.
+ Lista ~klawiszy makropoleceń~@KeyMacroUserMenuList@, dostępnych w menu użytkownika.
  Wspólne ~polecenia menu~@MenuCmd@.
 
 
@@ -2450,8 +2452,8 @@ $ #Okno ustawień: Panel#
 będą wyłącznie pliki.
 
  #Prawy klik zaznacza pliki#
- Po włączeniu tej opcji, #kliknięcie prawym klawiszem myszy# zaznacza pliki. Po wyłączeniu otwiera się menu
-kontekstowe Eksploratora Windows.
+ Po włączeniu tej opcji, #kliknięcie prawym przyciskiem myszy# zaznacza pliki. Po wyłączeniu
+otwiera się menu kontekstowe Eksploratora Windows.
 
  #Sortuj nazwy folderów wg rozszerzeń#
  Stosuje sortowanie wg rozszerzenie nie tylko do plików, ale także do folderów. Jeżeli opcja ta jest włączona,
@@ -2606,17 +2608,17 @@ $ #Okno ustawień: Okna#
                          listę historii lub polach kombi. Gdy opcja jest wyłączona,
                          można użyć skrótu #Ctrl+End# aby uzupełnić linię.
                          AutoUzupełnianie jest wyłączone, gdy nagrywane
-                         lub uruchamiane jest makro.
+                         lub uruchamiane jest makropolecenie.
 
  #BACKSPACE usuwa#         Jeżeli opcja jest włączona, naciśnięcie #Backspace#
  #nie zmieniony tekst#     na nie zmienionym tekście usuwa cały ciąg tekstu,
                          tak samo jak naciśnięcie klawisza #Del#.
 
- #Kliknięcie myszy#        Kliknięcie #prawym/lewym klawiszem myszy# poza oknem
+ #Kliknięcie myszy#        Kliknięcie #prawym/lewym przyciskiem myszy# poza oknem
  #poza oknem zamyka je#    dialogowym, zamyka to okno (zobacz ~Polecenia sterowania~@MiscCmd@).
                          Opcja ta pozwala na wyłączenie tej funkcjonalności.
 
- Zobacz także listę ~klawiszy makr~@KeyMacroDialogList@, dostępnych w oknach dialogowych.
+ Zobacz także listę ~klawiszy makropoleceń~@KeyMacroDialogList@, dostępnych w oknach dialogowych.
 
 
 @VMenuSettings
@@ -2637,7 +2639,7 @@ $ #Okno ustawień: Wiersz poleceń#
  #AutoUzupełnianie#
  Pozwala na użycie funkcji AutoUzupełniania w wierszu poleceń. Gdy opcja jest wyłączona,
 możesz użyć skrótu #Ctrl+Spacja# aby uzupełnić wiersz. AutoUzupełnianie jest wyłączona
-automatycznie podczas nagrywania lub wykonywania makr.
+automatycznie podczas nagrywania lub wykonywania makropoleceń.
 
  #Wygląd znaku zachęty wiersza poleceń#
  Ta opcja pozwala ustawić domyślny ~format zachęty~@CommandPrompt@ wiersza poleceń Far.
@@ -2826,7 +2828,7 @@ Użyj klawiszy nawigacyjnych po pierwszym kliknięciu, aby przesunąć pozycję
 końcową na ekran. Koniec zaznaczonego obszaru może być przed lub za tekstem
 początkowym.
 
- Zobacz także listę ~klawiszy makr~@KeyMacroViewerList@, dostępnych w podglądzie.
+ Zobacz także listę ~klawiszy makropoleceń~@KeyMacroViewerList@, dostępnych w podglądzie.
 
  Uwagi:
 
@@ -3161,7 +3163,7 @@ kodowa ANSI, ale można zmienić to ustawienie w oknie ~Ustawień edytora~@Edito
  #Ctrl+B#                  Pokazuje/ukrywa pasek klawiszy w dolnej linii
  #Ctrl+Shift+B#            Pokazuje/ukrywa górną linię statusu
 
- Zobacz także listę ~klawiszy makr~@KeyMacroEditList@, dostępnych w edytorze.
+ Zobacz także listę ~klawiszy makropoleceń~@KeyMacroEditList@, dostępnych w edytorze.
 
  Uwagi:
 
@@ -3631,7 +3633,7 @@ dla Far 1.7x i nie obsługuje wszystkich możliwości dostępnych w Far 3
 
  Zobacz także:
 
- Lista ~klawiszy makr~@KeyMacroDisksList@, dostępnych w menu dysku.
+ Lista ~klawiszy makropoleceń~@KeyMacroDisksList@, dostępnych w menu dysku.
  Polecenia ~menu~@MenuCmd@.
 
 
@@ -4996,7 +4998,7 @@ użytkownika.
 
 @KeyMacro
 $ #Makropolecenia#
- Domyślnie makra są wczytywanie z plików z rozszerzeniami #.lua# i #.moon# zapisanych w folderze
+ Domyślnie makropolecenia są wczytywanie z plików z rozszerzeniami #.lua# i #.moon# zapisanych w folderze
 #%FARPROFILE%\\Macros\\scripts#. Więcej szczegółów w pliku #%FARHOME%\\Encyclopedia\\macroapi_manual.en.chm#.
 
  Makropolecenia klawiaturowe lub makropolecenia - są to nagrywane sekwencje
@@ -5023,10 +5025,10 @@ do wywoływanie zewnętrznych wtyczek i przeciążania akcji Far.
 
  ~Obszary wykonywań makropoleceń~@KeyMacroArea@
  ~Klawisze skrótów~@KeyMacroAssign@
- ~Nagrywanie i odtwarzanie poleceń makr~@KeyMacroRecPlay@
- ~Usuwanie makr~@KeyMacroDelete@
- ~Ustawienia makr~@KeyMacroSetting@
- ~Lista zainstalowanych makr~@KeyMacroList@
+ ~Nagrywanie i odtwarzanie poleceń makropoleceń~@KeyMacroRecPlay@
+ ~Usuwanie makropoleceń~@KeyMacroDelete@
+ ~Ustawienia makropoleceń~@KeyMacroSetting@
+ ~Lista zainstalowanych makropoleceń~@KeyMacroList@
 
 
 @KeyMacroArea
@@ -5099,8 +5101,8 @@ co zwykle wykonuje po wciśnięciu takiej kombinacji klawiszy.
 
  #Rozpoczęcie nagrywania makropoleceń#
  Naciśnięcie #Ctrl+<.># (#Ctrl# i kropka wciśnięte razem), aby nagrać
-makro w trybie ogólnym lub #Ctrl+Shift+<.># (#Ctrl#, #Shift# i kropka
-wciśnięte razem), aby nagrać makro w trybie specjalnym.
+makropolecenie w trybie ogólnym lub #Ctrl+Shift+<.># (#Ctrl#, #Shift#
+i kropka wciśnięte razem), aby nagrać makro w trybie specjalnym.
  Po rozpoczęciu nagrywania, znak '\CFR\-' będzie widoczny w lewym
 górnym rogu ekranu.
 
@@ -5112,8 +5114,8 @@ program zewnętrzny z poziomu bieżącej konsoli, to nagrane będą
 wciśnięcia wykonane przed uruchomieniem i po zakończeniu tego
 programu.
 
- #Uwaga#: Podczas nagrywania makra, wszystkie inne makra są wyłączone.
-Przez to nie możliwe jest tworzenie “wielopoziomowych” makr,
+ #Uwaga#: Podczas nagrywania makropolecenia, wszystkie inne makropolecenia są wyłączone.
+Przez to nie możliwe jest tworzenie “wielopoziomowych” makropoleceń,
 które wywołują poprzednio nagrane makropolecenia.
 
  #Zakończenie nagrywania makropolecenia#
@@ -5122,25 +5124,26 @@ kombinacje klawiszy. Ponieważ makropolecenia można dodatkowo
 skonfigurować, istnieją dwie kombinacje klawiszy: #Ctrl+<.># (#Ctrl#
 i kropka wciśnięte razem) oraz #Ctrl+Shift+<.># (#Ctrl#, #Shift#
 i kropka naciśnięte razem). Wciśnięcie pierwszej kombinacji kończy
-nagrywanie makra, a przy odtwarzaniu zastosowane zostaną domyślne
+nagrywanie makropolecenia, a przy odtwarzaniu zastosowane zostaną domyślne
 ustawienia. Wciśnięcie drugiej kombinacji kończy nagrywanie
 makropoleceń i wyświetla okno ~ustawień~@KeyMacroSetting@ makropolecenia.
 
  #Przypisane skrótu do makropolecenia#
- Po zakończeniu nagrywania makra i ustawieniu wszystkich opcji, wyświetlone
+ Po zakończeniu nagrywania makropoleceniaa i ustawieniu wszystkich opcji, wyświetlone
 zostanie okno ~przypisania klawiszy skrótu ~@KeyMacroSetting@, gdzie można
 ustawić klawisz szybkiego dostępu, który będzie użyty do wykonania nagranej
 sekwencji.
 
- Odtworzenie makra jest sygnalizowane przez wyświetlenie znaku '\2FP\-' w lewym górnym
-rogu ekranu. Zobacz także "~Macros.ShowPlayIndicator~@Macros.ShowPlayIndicator@"
+ Odtworzenie makropolecenia jest sygnalizowane przez wyświetlenie znaku '\2FP\-'
+w lewym górnym rogu ekranu. Zobacz także "~Macros.ShowPlayIndicator~@Macros.ShowPlayIndicator@",
 aby włączyć/wyłączyć ten znacznik.
 
 
 @KeyMacroDelete
-$ #Makropolecenia: usuwanie makr#
+$ #Makropolecenia: usuwanie makropoleceń#
  Aby usunąć ~makropolecenie~@KeyMacro@ należy nagrać puste (nie zawierające
-poleceń) makro i przypisać ten sam klawisz skrótu, jak makro do usunięcia.
+poleceń) makropolecenie i przypisać ten sam klawisz skrótu, jak makropolecenie
+do usunięcia.
 
  Można to osiągnąć poprzez następujące kroki:
  1. ^<wrap>Rozpoczęcie nagrywania makropolecenia (#Ctrl+<.>#)
@@ -5210,11 +5213,12 @@ znajduje się zaznaczony blok
 
  1. ^<wrap>Przed uruchomieniem makropolecenia, sprawdzane są wszystkie powyższe warunki.
 
- 2. ^<wrap>Niektóre kombinacje klawiszy (w tym #Enter#, #Esc#, #F1# i #Ctrl+F5#, #RolkaDoGóry#, #RolkaWDół#
-oraz inne klawisze myszy w kombinacji z #Ctrl#, #Shift#, #Alt#) nie mogą być wprowadzone
-bezpośrednio, ponieważ mają one przypisane funkcje specjalne w oknach dialogowych.
-Aby ~przypisać makro~@KeyMacroAssign@ do jednego z tych kombinacji klawiszy, należy wybrać ją
-z rozwijanej listy.
+ 2. ^<wrap>Niektóre kombinacje klawiszy (w tym #Enter#, #Esc#, #F1# i #Ctrl+F5#,
+#RolkaDoGóry#, #RolkaWDół# oraz inne przyciski myszy w kombinacji z #Ctrl#, #Shift#,
+#Alt#) nie mogą być wprowadzone bezpośrednio, ponieważ mają one przypisane funkcje
+specjalne w oknach dialogowych.
+Aby ~przypisać makropolecenie~@KeyMacroAssign@ do jednego z tych kombinacji klawiszy,
+należy wybrać ją z rozwijanej listy.
 
 
 @KeyMacroList
@@ -5222,7 +5226,7 @@ $ #Makropolecenia: lista zainstalowanych makropoleceń#
  Poniżej znajduje się lista tematów, gdzie można dowiedzieć się które ~makropolecenia~@KeyMacro@
 są dostępne w bieżącej sesji Far Manager.
 
- ~Makra ogólne#~@KeyMacroCommonList@
+ ~Makropolecenia ogólne#~@KeyMacroCommonList@
 
  ~Panele plików~@KeyMacroShellList@
  ~Panel szybkiego podglądu~@KeyMacroQViewList@
@@ -5250,7 +5254,7 @@ są dostępne w bieżącej sesji Far Manager.
 
 
 @KeyMacroCommonList
-$ #Makropolecenia: makra ogólne#
+$ #Makropolecenia: makropolecenia ogólne#
  Następujące makropolecenia są dostępne we wszystkich obszarach.
 
 <!Macro:Common!>
@@ -5657,13 +5661,13 @@ $ #far:config Panel.CtrlAltShiftRule#
 
 @Panel.RightClickRule
 $ #far:config Panel.RightClickRule#
- Ten parametr numeryczny kontroluje zachowanie #kliknięcia prawego klawisza myszy#
+ Ten parametr numeryczny kontroluje zachowanie #kliknięcia prawego przycisku myszy#
 na pustej kolumnie panelu plików.
 
  0 - ^<wrap>Przesuwa kursor panelu do ostatniego pliku w poprzedniej kolumnie
 i zaznacza ten plik;
  1 - Przesuwa kursor do ostatniego pliku w poprzedniej kolumnie bez zaznaczania
-pliku (tak jak #kliknięcie lewym klawiszem myszy#);
+pliku (tak jak #kliknięcie lewym przyciskiem myszy#);
  2 - Nie przesuwaj kursora panelu ani nie zaznaczaj żadnego pliku.
 
  Uwaga: Jeżeli kolumna nie jest pusta, to zawsze zaznaczany jest ostatni plik.
@@ -5944,11 +5948,11 @@ $ #far:config Interface.ViewerTitleFormat, Interface.EditorTitleFormat#
  Te parametry tekstowe definiują tytuł okna konsoli w ~Edytorze~@Editor@
 i ~Podglądzie~@Viewer@ plików.
 
- Makro #%File# jest interpretowane jako nazwa edytowanego lub przeglądanego
-pliku.
+ Makropolecenie #%File# jest interpretowane jako nazwa edytowanego
+lub przeglądanego pliku.
 
- Makro #%Lng# jest zastępowane słowami “edit” lub “view” w bieżącym
-języku, zobacz ~Menu Opcje~@OptMenu@.
+ Makropolecenie #%Lng# jest zastępowane słowami “edit” lub “view”
+w bieżącym języku, zobacz ~Menu Opcje~@OptMenu@.
 
  Tekst ustawiony w opcji #Okno tytułowe Far# opcji
 ~Ustawień interfejsu~@InterfSettings@ zostanie automatycznie dołączony
