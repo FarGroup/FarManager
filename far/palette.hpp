@@ -99,8 +99,8 @@ public:
 	void ResetToBlack();
 	void Set(size_t StartOffset, span<FarColor> Values);
 	void CopyTo(span<FarColor> Destination) const;
-	const FarColor& operator[](size_t Index) const {return CurrentPalette[Index];}
-	size_t size() const {return CurrentPalette.size();}
+	const FarColor& operator[](size_t Index) const;
+	size_t size() const;
 
 	using custom_colors = std::array<COLORREF, 16>;
 	custom_colors GetCustomColors() const;

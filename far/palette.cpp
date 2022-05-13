@@ -251,6 +251,17 @@ void palette::CopyTo(span<FarColor> const Destination) const
 	std::copy_n(CurrentPalette.begin(), Size, Destination.begin());
 }
 
+const FarColor& palette::operator[](size_t const Index) const
+{
+	return CurrentPalette[Index];
+}
+
+size_t palette::size() const
+{
+	return CurrentPalette.size();
+}
+
+
 static palette::custom_colors CustomColors;
 
 static string CustomLabel(size_t Index)
