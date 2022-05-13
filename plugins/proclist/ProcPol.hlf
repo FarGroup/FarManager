@@ -4,8 +4,8 @@
 
 @Contents
 $ #Lista procesów#
-   Wtyczka pokazuje aktywną listę procesów. Możesz użyć klawisza F8 aby zakończyć
-zaznaczony proces, Enter aby przełączyć się do okna procesu lub F3 aby zobaczyć
+   Wtyczka pokazuje aktywną listę procesów. Możesz użyć klawisza F8, aby zakończyć
+zaznaczony proces, Enter aby przełączyć się do okna procesu lub F3, aby zobaczyć
 dodatkowe informacje o procesie.
 
    Proszę ostrożnie postępować z zabijaniem procesów. Zostaną one zatrzymane
