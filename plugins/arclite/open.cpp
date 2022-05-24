@@ -357,11 +357,17 @@ HRESULT Archive::copy_prologue(IOutStream *out_stream)
   return res;
 }
 
-bool Archive::open(IInStream* stream, const ArcType& type) {
+bool Archive::open(IInStream* stream, const ArcType& type, const bool allow_tail) {
   ArcAPI::create_in_archive(type, in_arc.ref());
   ComObject<IArchiveOpenCallback> opener(new ArchiveOpener(shared_from_this()));
   const UInt64 max_check_start_position = 0;
   HRESULT res;
+  if (allow_tail && ArcAPI::formats().at(type).Flags_PreArc())  {
+    ComObject<IArchiveAllowTail> allowTail;
+    in_arc->QueryInterface(IID_IArchiveAllowTail, (void**)&allowTail);
+    if (allowTail)
+      allowTail->AllowTail(TRUE);
+  }
   COM_ERROR_CHECK(res = in_arc->Open(stream, &max_check_start_position, opener));
   return res == S_OK;
 }
@@ -399,7 +405,6 @@ static bool accepted_signature(
   if (eof_i < 0)
     return false;
 
-  std::unique_ptr<Byte[]> buf;
   std::string_view tail;
   if (eof_i) {
     pos += min_LOCAL;
@@ -411,7 +416,7 @@ static bool accepted_signature(
     tail = { (const char*)buffer + pos, size - pos };
   }
   else {
-    buf = std::make_unique<Byte[]>(check_size);
+    auto buf = std::make_unique<Byte[]>(check_size);
     pos = 0;
     buffer = buf.get();
     UInt64 cur_pos;
@@ -586,22 +591,25 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
     if (parent_idx != (size_t)-1)
       archive->volume_names = archives[parent_idx]->volume_names;
 
-#ifdef _DEBUG
     const auto& format = ArcAPI::formats().at(arc_entry->type);
-    (void)format;
-#endif
-    bool opened = false;
+    bool opened = false, have_tail = false;
     CHECK_COM(stream->Seek(arc_entry->sig_pos, STREAM_SEEK_SET, nullptr));
     if (!arc_entry->sig_pos) {
       opened = archive->open(stream, arc_entry->type);
       if (archive->m_open_password && options.open_password_len)
         *options.open_password_len = archive->m_open_password;
       if (!opened && first_open) {
-        auto next_entry = arc_entry;
-        ++next_entry;
-        if (next_entry != arc_entries.cend() && next_entry->sig_pos > 0) {
-          skip_header = archive->get_skip_header(stream, arc_entry->type);
+        if (format.Flags_PreArc()) {
+           stream->Seek(0, STREAM_SEEK_SET, nullptr);
+           opened = have_tail = archive->open(stream, arc_entry->type, true);
         }
+        if (!opened) {
+          auto next_entry = arc_entry;
+          ++next_entry;
+          if (next_entry != arc_entries.cend() && next_entry->sig_pos > 0) {
+            skip_header = archive->get_skip_header(stream, arc_entry->type);
+          }
+		  }
       }
     }
     else if (arc_entry->sig_pos >= skip_header) {
@@ -623,7 +631,7 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
       archives.push_back(archive);
       open(options, archives);
 
-      if (!options.detect)
+      if (!options.detect && !have_tail)
         break;
       skip_header = arc_entry->sig_pos + std::min(archive->arc_info.size(), archive->get_physize());
     }
