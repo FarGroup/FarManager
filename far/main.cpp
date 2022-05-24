@@ -862,6 +862,7 @@ static int wmain_seh()
 	configure_exception_handling(Argc, Argv.get());
 
 	SCOPED_ACTION(unhandled_exception_filter);
+	SCOPED_ACTION(vectored_exception_handler);
 	SCOPED_ACTION(seh_terminate_handler);
 	SCOPED_ACTION(purecall_handler);
 	SCOPED_ACTION(invalid_parameter_handler);

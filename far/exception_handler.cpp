@@ -142,6 +142,7 @@ void force_stderr_exception_ui(bool const Force)
 void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
 static constexpr NTSTATUS
+	EXCEPTION_HEAP_CORRUPTION     = STATUS_HEAP_CORRUPTION,
 	EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363, // EH_EXCEPTION_NUMBER
 	EXCEPTION_TERMINATE           = 0xE074726D; // 'trm'
 
@@ -751,6 +752,7 @@ static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_vie
 		{TEXTANDCODE(EXCEPTION_GUARD_PAGE)},
 		{TEXTANDCODE(EXCEPTION_INVALID_HANDLE)},
 		{TEXTANDCODE(EXCEPTION_POSSIBLE_DEADLOCK)},
+		{TEXTANDCODE(EXCEPTION_HEAP_CORRUPTION)},
 		{TEXTANDCODE(CONTROL_C_EXIT)},
 #undef TEXTANDCODE
 
@@ -810,7 +812,7 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 		if (Symbol.empty())
 			Symbol = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
 
-		return format(FSTR(L"Memory at {} could not be {}"sv), Symbol, Mode);
+		return format(FSTR(L"0x{:0>8X} - Memory at {} could not be {}"sv), ExceptionRecord.ExceptionCode, Symbol, Mode);
 	}
 
 	case EXCEPTION_MICROSOFT_CPLUSPLUS:
@@ -1248,6 +1250,28 @@ invalid_parameter_handler::invalid_parameter_handler():
 invalid_parameter_handler::~invalid_parameter_handler()
 {
 	_set_invalid_parameter_handler(m_PreviousHandler);
+}
+
+static LONG NTAPI vectored_exception_handler_impl(EXCEPTION_POINTERS* Pointers)
+{
+	if (Pointers->ExceptionRecord->ExceptionCode == EXCEPTION_HEAP_CORRUPTION)
+	{
+		// VEH handlers shouldn't do this in general, but it's not like we can make things much worse at this point anyways.
+		if (handle_seh_exception(exception_context(*Pointers), CURRENT_FUNCTION_NAME, {}))
+			std::_Exit(EXIT_FAILURE);
+	}
+
+	return EXCEPTION_CONTINUE_SEARCH;
+}
+
+vectored_exception_handler::vectored_exception_handler():
+	m_Handler(AddVectoredExceptionHandler(false, vectored_exception_handler_impl))
+{
+}
+
+vectored_exception_handler::~vectored_exception_handler()
+{
+	RemoveVectoredExceptionHandler(m_Handler);
 }
 
 namespace detail

@@ -105,6 +105,18 @@ private:
 	_invalid_parameter_handler m_PreviousHandler;
 };
 
+class vectored_exception_handler
+{
+public:
+	NONCOPYABLE(vectored_exception_handler);
+
+	vectored_exception_handler();
+	~vectored_exception_handler();
+
+private:
+	void* m_Handler;
+};
+
 void restore_system_exception_handler();
 
 namespace detail

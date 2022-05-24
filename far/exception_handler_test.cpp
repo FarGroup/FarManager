@@ -353,6 +353,15 @@ namespace tests
 
 	WARNING_POP()
 
+	static void seh_heap_corruption()
+	{
+		// Using low level functions to avoid access violations in debug blocks
+		const auto m = HeapAlloc(GetProcessHeap(), 0, 42);
+
+		// Two times should do
+		repeat(2, [&]{ HeapFree(GetProcessHeap(), 0, m); });
+	}
+
 	static void seh_fp_divide_by_zero()
 	{
 		detail::set_fp_exceptions(true);
@@ -472,6 +481,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::seh_divide_by_zero_thread,    L"SEH divide by zero (thread)"sv },
 		{ tests::seh_int_overflow,             L"SEH int overflow"sv },
 		{ tests::seh_stack_overflow,           L"SEH stack overflow"sv },
+		{ tests::seh_heap_corruption,          L"SEH heap corruption"sv },
 		{ tests::seh_fp_divide_by_zero,        L"SEH floating-point divide by zero"sv },
 		{ tests::seh_fp_overflow,              L"SEH floating-point overflow"sv },
 		{ tests::seh_fp_underflow,             L"SEH floating-point underflow"sv },
