@@ -358,8 +358,10 @@ namespace tests
 		// Using low level functions to avoid access violations in debug blocks
 		const auto m = HeapAlloc(GetProcessHeap(), 0, 42);
 
-		// Two times should do
-		repeat(2, [&]{ HeapFree(GetProcessHeap(), 0, m); });
+		for (;;)
+		{
+			HeapFree(GetProcessHeap(), 0, m);
+		}
 	}
 
 	static void seh_fp_divide_by_zero()
@@ -413,6 +415,15 @@ namespace tests
 	static void seh_unknown()
 	{
 		RaiseException(-1, 0, 0, {});
+	}
+
+	static void seh_unhandled()
+	{
+		os::thread Thread(os::thread::mode::join, [&]
+		{
+			os::debug::set_thread_name(L"Unhandled exception test");
+			RaiseException(-1, 0, 0, {});
+		});
 	}
 
 	static void debug_bounds_check()
@@ -489,6 +500,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::seh_breakpoint,               L"SEH breakpoint"sv },
 		{ tests::seh_alignment_fault,          L"SEH alignment fault"sv },
 		{ tests::seh_unknown,                  L"SEH unknown"sv },
+		{ tests::seh_unhandled,                L"SEH unhandled"sv },
 		{ tests::debug_bounds_check,           L"Debug bounds check"sv },
 		{ tests::debug_bounds_check_as_stack,  L"Debug bounds check stack (ASAN)"sv },
 		{ tests::debug_bounds_check_as_heap,   L"Debug bounds check heap (ASAN)"sv },

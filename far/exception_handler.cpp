@@ -390,14 +390,14 @@ static string collect_information(
 	{
 		os::process::enum_processes const Enum;
 		const auto CurrentPid = GetCurrentProcessId();
-		const auto ContextThreadId = Context.thread_id();
+		const auto CurrentThreadId = GetCurrentThreadId();
 		const auto CurrentEntry = std::find_if(ALL_CONST_RANGE(Enum), [&](os::process::enum_process_entry const& Entry){ return Entry.Pid == CurrentPid; });
 		if (CurrentEntry != Enum.cend())
 		{
 			for (const auto& i: CurrentEntry->Threads)
 			{
 				const auto Tid = reinterpret_cast<uintptr_t>(i.ClientId.UniqueThread);
-				if (Tid == ContextThreadId)
+				if (Tid == CurrentThreadId)
 					continue;
 
 				os::handle const Thread(OpenThread(THREAD_QUERY_INFORMATION | THREAD_SUSPEND_RESUME | THREAD_GET_CONTEXT, false, Tid));
@@ -1107,7 +1107,10 @@ bool use_terminate_handler()
 static void seh_terminate_handler_impl()
 {
 	if (!HandleCppExceptions)
+	{
+		restore_system_exception_handler();
 		std::abort();
+	}
 
 	static auto InsideTerminateHandler = false;
 	if (InsideTerminateHandler)
@@ -1166,19 +1169,11 @@ seh_terminate_handler::~seh_terminate_handler()
 
 static LONG WINAPI unhandled_exception_filter_impl(EXCEPTION_POINTERS* const Pointers)
 {
-	if (!HandleSehExceptions)
-	{
-		restore_system_exception_handler();
-		return EXCEPTION_CONTINUE_SEARCH;
-	}
-
-	detail::set_fp_exceptions(false);
-	if (handle_seh_exception(exception_context(*Pointers), CURRENT_FUNCTION_NAME, {}))
-	{
+	const auto Result = detail::seh_filter(Pointers, CURRENT_FUNCTION_NAME, {});
+	if (Result == EXCEPTION_EXECUTE_HANDLER)
 		std::_Exit(EXIT_FAILURE);
-	}
-	restore_system_exception_handler();
-	return EXCEPTION_CONTINUE_SEARCH;
+
+	return Result;
 }
 
 unhandled_exception_filter::unhandled_exception_filter():
@@ -1223,6 +1218,12 @@ purecall_handler::~purecall_handler()
 
 static void invalid_parameter_handler_impl(const wchar_t* const Expression, const wchar_t* const Function, const wchar_t* const File, unsigned int const Line, uintptr_t const Reserved)
 {
+	if (!HandleCppExceptions)
+	{
+		restore_system_exception_handler();
+		std::abort();
+	}
+
 	exception_context const Context
 	({
 		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(EXCEPTION_TERMINATE)),
@@ -1252,12 +1253,12 @@ invalid_parameter_handler::~invalid_parameter_handler()
 	_set_invalid_parameter_handler(m_PreviousHandler);
 }
 
-static LONG NTAPI vectored_exception_handler_impl(EXCEPTION_POINTERS* Pointers)
+static LONG NTAPI vectored_exception_handler_impl(EXCEPTION_POINTERS* const Pointers)
 {
-	if (Pointers->ExceptionRecord->ExceptionCode == EXCEPTION_HEAP_CORRUPTION)
+	if (static_cast<NTSTATUS>(Pointers->ExceptionRecord->ExceptionCode) == EXCEPTION_HEAP_CORRUPTION)
 	{
 		// VEH handlers shouldn't do this in general, but it's not like we can make things much worse at this point anyways.
-		if (handle_seh_exception(exception_context(*Pointers), CURRENT_FUNCTION_NAME, {}))
+		if (detail::seh_filter(Pointers, CURRENT_FUNCTION_NAME, {}) == EXCEPTION_EXECUTE_HANDLER)
 			std::_Exit(EXIT_FAILURE);
 	}
 
@@ -1349,33 +1350,37 @@ namespace detail
 
 	int seh_filter(EXCEPTION_POINTERS const* const Info, std::string_view const Function, Plugin const* const Module)
 	{
-		if (HandleSehExceptions)
+		if (!HandleSehExceptions)
 		{
-			const exception_context Context(*Info);
+			restore_system_exception_handler();
+			return EXCEPTION_CONTINUE_SEARCH;
+		}
 
-			if (static_cast<NTSTATUS>(Info->ExceptionRecord->ExceptionCode) == EXCEPTION_STACK_OVERFLOW)
+		detail::set_fp_exceptions(false);
+		const exception_context Context(*Info);
+
+		if (static_cast<NTSTATUS>(Info->ExceptionRecord->ExceptionCode) == EXCEPTION_STACK_OVERFLOW)
+		{
+			bool Result = false;
 			{
-				bool Result = false;
+				os::thread(os::thread::mode::join, [&]
 				{
-					os::thread(os::thread::mode::join, [&]
-					{
-						os::debug::set_thread_name(L"Stack overflow handler");
-						Result = handle_seh_exception(Context, Function, Module);
-					});
-				}
-
-				StackOverflowHappened = true;
-
-				if (Result)
-				{
-					return EXCEPTION_EXECUTE_HANDLER;
-				}
+					os::debug::set_thread_name(L"Stack overflow handler");
+					Result = handle_seh_exception(Context, Function, Module);
+				});
 			}
-			else
+
+			StackOverflowHappened = true;
+
+			if (Result)
 			{
-				if (handle_seh_exception(Context, Function, Module))
-					return EXCEPTION_EXECUTE_HANDLER;
+				return EXCEPTION_EXECUTE_HANDLER;
 			}
+		}
+		else
+		{
+			if (handle_seh_exception(Context, Function, Module))
+				return EXCEPTION_EXECUTE_HANDLER;
 		}
 
 		restore_system_exception_handler();
@@ -1384,7 +1389,7 @@ namespace detail
 
 	int seh_thread_filter(std::exception_ptr& Ptr, EXCEPTION_POINTERS const* const Info)
 	{
-		// SEH transport between threads is currenly implemented in terms of C++ exceptions, so it requires both
+		// SEH transport between threads is currently implemented in terms of C++ exceptions, so it requires both
 		if (!(HandleSehExceptions && HandleCppExceptions))
 		{
 			restore_system_exception_handler();
