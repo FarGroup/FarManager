@@ -110,6 +110,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cwchar>
 #include <cwctype>
 
+#include <crtdbg.h>
 #include <fcntl.h>
 #include <io.h>
 #include <process.h>

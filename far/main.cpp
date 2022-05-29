@@ -80,6 +80,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/algorithm.hpp"
+#include "common/from_string.hpp"
 #include "common/range.hpp"
 #include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
@@ -87,11 +88,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // External:
 
-
 #ifdef ENABLE_TESTS
-#define TESTS_ENTRYPOINT_ONLY
 #include "testing.hpp"
-#undef TESTS_ENTRYPOINT_ONLY
 #endif
 
 //----------------------------------------------------------------------------
@@ -423,11 +421,16 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 	}
 }
 
+static bool is_arg(string_view const Str)
+{
+	return !Str.empty() && any_of(Str.front(), L'-', L'/');
+}
+
 static std::optional<int> ProcessServiceModes(span<const wchar_t* const> const Args)
 {
-	const auto isArg = [](const wchar_t* Arg, string_view const Name)
+	const auto isArg = [&](string_view const Name)
 	{
-		return (*Arg == L'/' || *Arg == L'-') && equal_icase(Arg + 1, Name);
+		return is_arg(Args[0]) && equal_icase(Args[0] + 1, Name);
 	};
 
 	if (Args.size() == 4 && IsElevationArgument(Args[0])) // /service:elevation {UUID} PID UsePrivileges
@@ -435,9 +438,9 @@ static std::optional<int> ProcessServiceModes(span<const wchar_t* const> const A
 		return ElevationMain(Args[1], std::wcstoul(Args[2], nullptr, 10), *Args[3] == L'1');
 	}
 
-	if (in_closed_range(2u, Args.size(), 5u) && (isArg(Args[0], L"export"sv) || isArg(Args[0], L"import"sv)))
+	if (in_closed_range(2u, Args.size(), 5u) && (isArg(L"export"sv) || isArg(L"import"sv)))
 	{
-		const auto Export = isArg(Args[0], L"export"sv);
+		const auto Export = isArg(L"export"sv);
 		string strProfilePath(Args.size() > 2? Args[2] : L""sv), strLocalProfilePath(Args.size() > 3 ? Args[3] : L""), strTemplatePath(Args.size() > 4 ? Args[4] : L"");
 		InitTemplateProfile(strTemplatePath);
 		InitProfile(strProfilePath, strLocalProfilePath);
@@ -446,7 +449,7 @@ static std::optional<int> ProcessServiceModes(span<const wchar_t* const> const A
 		return EXIT_SUCCESS;
 	}
 
-	if (in_closed_range(1u, Args.size(), 3u) && isArg(Args[0], L"clearcache"sv))
+	if (in_closed_range(1u, Args.size(), 3u) && isArg(L"clearcache"sv))
 	{
 		string strProfilePath(Args.size() > 1? Args[1] : L""sv);
 		string strLocalProfilePath(Args.size() > 2? Args[2] : L""sv);
@@ -458,6 +461,13 @@ static std::optional<int> ProcessServiceModes(span<const wchar_t* const> const A
 	if (Args.size() == 2 && logging::is_log_argument(Args[0]))
 	{
 		return logging::main(Args[1]);
+	}
+
+	if (Args.size() == 1 && (isArg(L"?") || isArg(L"h")))
+	{
+		ControlObject::ShowVersion();
+		show_help();
+		return EXIT_SUCCESS;
 	}
 
 	return {};
@@ -514,6 +524,291 @@ static void log_hook_wow64_status()
 }
 #endif
 
+struct args_context
+{
+	int* E_Line;
+	int* E_Pos;
+	string* E_Param;
+	string* V_Param;
+	string* U_Param;
+	string* S_Param1;
+	string* S_Param2;
+	string* T_Param;
+	std::optional<string>* Title_Param;
+	int* MacroOptions;
+	Options::overrides* Overrides;
+	bool* PluginsCacheOnly;
+	bool* PluginsPersonal;
+	bool* MainPluginDir;
+	string* CustomPluginsPath;
+	int* WindowMode;
+	int* ReadOnlyConfig;
+};
+
+[[noreturn]]
+static void invalid_argument(string_view const Argument, string_view const Str)
+{
+	throw MAKE_FAR_KNOWN_EXCEPTION(format(FSTR(L"Error processing \"{}\": {}"sv), Argument, Str));
+}
+
+namespace args
+{
+	static const auto
+		unknown_argument  = L"unknown argument"sv,
+		invalid_format    = L"invalid format"sv,
+		number_expected   = L"a number is expected"sv,
+		parameter_expected = L"a parameter is expected"sv;
+}
+
+static void parse_argument(span<const wchar_t* const>::const_iterator& Iterator, span<const wchar_t* const>::const_iterator End, args_context& Context)
+{
+	if (Iterator == End)
+		return;
+
+	string_view const FullArgument = *Iterator++, Argument = FullArgument.substr(1);
+
+	switch (upper(Argument.front()))
+	{
+	case L'E':
+		{
+			if (Argument.size() == 1)
+				invalid_argument(FullArgument, args::parameter_expected);
+
+			size_t LineEnd;
+			if (!from_string(Argument.substr(1), *Context.E_Line, &LineEnd))
+				invalid_argument(FullArgument, args::number_expected);
+
+			if (LineEnd + 1 != Argument.size())
+			{
+				if (Argument[LineEnd + 1] != L':')
+					invalid_argument(FullArgument, args::invalid_format);
+
+				size_t PosEnd;
+				if (!from_string(Argument.substr(LineEnd + 2), *Context.E_Pos, &PosEnd))
+					invalid_argument(FullArgument, args::number_expected);
+
+				if (PosEnd + LineEnd + 2 != Argument.size())
+					invalid_argument(FullArgument, args::invalid_format);
+			}
+
+			if (Iterator == End)
+				invalid_argument(FullArgument, args::parameter_expected);
+
+			*Context.E_Param = *Iterator++;
+			return;
+		}
+	case 'V':
+		{
+			if (Argument.size() != 1)
+				invalid_argument(FullArgument, args::unknown_argument);
+
+			if (Iterator == End)
+				invalid_argument(FullArgument, args::parameter_expected);
+
+			*Context.V_Param = *Iterator++;
+			return;
+		}
+
+	case L'M':
+		{
+			if (Argument.size() == 1)
+			{
+				*Context.MacroOptions |= MDOL_ALL;
+				return;
+			}
+
+			if (equal_icase(Argument.substr(1), L"A"))
+			{
+				*Context.MacroOptions |= MDOL_AUTOSTART;
+				return;
+			}
+
+			invalid_argument(FullArgument, args::unknown_argument);
+		}
+
+#ifndef NO_WRAPPER
+	case L'U':
+		{
+			if (Argument.size() != 1)
+				invalid_argument(FullArgument, args::unknown_argument);
+
+			if (Iterator == End)
+				invalid_argument(FullArgument, args::parameter_expected);
+
+			*Context.U_Param = *Iterator++;
+			return;
+		}
+#endif // NO_WRAPPER
+
+	case L'S':
+		{
+			if (const auto SetParam = L"set:"sv; starts_with_icase(Argument, SetParam))
+			{
+				const auto Tail = Argument.substr(SetParam.size());
+				const auto& [Name, Value] = split(Tail);
+				if (Name.size() == Tail.size())
+					invalid_argument(FullArgument, args::invalid_format);
+
+				Context.Overrides->emplace(Name, Value);
+				return;
+			}
+
+			if (equal_icase(Argument, L"service"sv))
+			{
+				// Processed earlier
+				return;
+			}
+
+			if (Argument.size() != 1)
+				invalid_argument(FullArgument, args::unknown_argument);
+
+			if (Iterator == End)
+				invalid_argument(FullArgument, args::parameter_expected);
+
+			*Context.S_Param1 = *Iterator++;
+
+			if (Iterator != End && !is_arg(*Iterator))
+				*Context.S_Param2 = *Iterator++;
+
+			return;
+		}
+
+	case L'T':
+		{
+			if (Argument.size() == 1)
+			{
+				if (Iterator == End)
+					invalid_argument(FullArgument, args::parameter_expected);
+
+				*Context.T_Param = *Iterator++;
+				return;
+			}
+
+			if (const auto Title = L"title"sv; starts_with_icase(Argument, Title))
+			{
+				if (Argument.size() == Title.size())
+				{
+					*Context.Title_Param = L""sv;
+					return;
+				}
+
+				if (Argument[Title.size()] != L':')
+					invalid_argument(FullArgument, args::unknown_argument);
+
+				*Context.Title_Param = Argument.substr(Title.size() + 1);
+				return;
+			}
+
+			invalid_argument(FullArgument, args::unknown_argument);
+		}
+
+	case L'P':
+		{
+			*Context.PluginsPersonal = false;
+			*Context.MainPluginDir = false;
+
+			// we can't expand it here - some environment variables might not be available yet
+			*Context.CustomPluginsPath = Argument.substr(1);
+			return;
+		}
+
+	case L'C':
+		{
+			if (!equal_icase(Argument.substr(1), L"O"sv))
+				invalid_argument(FullArgument, args::unknown_argument);
+
+			*Context.PluginsCacheOnly = true;
+			*Context.PluginsPersonal = false;
+			return;
+		}
+
+#ifdef DIRECT_RT
+	case L'D':
+		{
+			if (!equal_icase(Argument.substr(1), L"O"sv))
+				invalid_argument(FullArgument, args::unknown_argument);
+
+			Global->DirectRT = true;
+			return;
+		}
+#endif
+	case L'W':
+		{
+			if (Argument.size() == 1)
+			{
+				*Context.WindowMode = true;
+				return;
+			}
+
+			if (Argument.substr(1) != L"-"sv)
+				invalid_argument(FullArgument, args::unknown_argument);
+
+			*Context.WindowMode = false;
+			return;
+		}
+
+	case L'R':
+		{
+			if (Argument.size() == 1)
+				invalid_argument(FullArgument, args::unknown_argument);
+
+			if (upper(Argument[1]) != L'O')
+				invalid_argument(FullArgument, args::unknown_argument);
+
+			if (Argument.size() == 2)
+			{
+				*Context.ReadOnlyConfig = true;
+				return;
+			}
+
+			if (Argument.size() == 3 && Argument[2] == L'-')
+			{
+				*Context.ReadOnlyConfig = false;
+				return;
+			}
+
+			invalid_argument(FullArgument, args::unknown_argument);
+		}
+
+	case L'X':
+		{
+			if (Argument.size() == 1)
+				// Processed earlier
+				return;
+
+			invalid_argument(FullArgument, args::unknown_argument);
+		}
+
+	default:
+		invalid_argument(FullArgument, args::unknown_argument);
+	}
+}
+
+static void parse_command_line(span<const wchar_t* const> const Args, span<string> const SimpleArgs, args_context& Context)
+{
+	size_t SimpleArgsCount{};
+
+	for (auto Iter = Args.cbegin(); Iter != Args.cend();)
+	{
+		if (is_arg(*Iter))
+		{
+			parse_argument(Iter, Args.cend(), Context);
+			continue;
+		}
+
+		if (SimpleArgsCount == 2)
+			invalid_argument(*Iter, args::unknown_argument);
+
+		if (GetPluginPrefixPath(*Iter))
+		{
+			SimpleArgs[SimpleArgsCount++] = *Iter++;
+			continue;
+		}
+
+		SimpleArgs[SimpleArgsCount++] = full_path_expanded(*Iter++);
+	}
+}
+
 static int mainImpl(span<const wchar_t* const> const Args)
 {
 	setlocale(LC_ALL, "");
@@ -564,194 +859,34 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	string strViewName;
 	string DestNames[2];
 	int StartLine=-1,StartChar=-1;
-	int CntDestName=0; // количество параметров-имен каталогов
 
 	string strProfilePath, strLocalProfilePath, strTemplatePath;
 
 	std::optional<string> CustomTitle;
 
 	Options::overrides Overrides;
-	FOR_RANGE(Args, Iter)
-	{
-		const auto& Arg = *Iter;
-		if ((Arg[0]==L'/' || Arg[0]==L'-') && Arg[1])
-		{
-			switch (upper(Arg[1]))
-			{
-				case L'E':
-					if (std::iswdigit(Arg[2]))
-					{
-						StartLine = static_cast<int>(std::wcstol(Arg + 2, nullptr, 10));
 
-						if (const wchar_t* ChPtr = std::wcschr(Arg + 2, L':'))
-							StartChar = static_cast<int>(std::wcstol(ChPtr + 1, nullptr, 10));
-					}
 
-					if (Iter + 1 != Args.end())
-					{
-						strEditName = *++Iter;
-					}
-					break;
+	args_context Context;
+	Context.E_Line = &StartLine;
+	Context.E_Pos = &StartChar;
+	Context.E_Param = &strEditName;
+	Context.V_Param = &strViewName;
+	Context.U_Param = &Global->strRegUser;
+	Context.S_Param1 = &strProfilePath;
+	Context.S_Param2 = &strLocalProfilePath;
+	Context.T_Param = &strTemplatePath;
+	Context.Title_Param = &CustomTitle;
+	Context.MacroOptions = &Global->Opt->Macro.DisableMacro;
+	Context.Overrides = &Overrides;
+	Context.PluginsCacheOnly = &Global->Opt->LoadPlug.PluginsCacheOnly;
+	Context.PluginsPersonal = &Global->Opt->LoadPlug.PluginsPersonal;
+	Context.MainPluginDir = &Global->Opt->LoadPlug.MainPluginDir;
+	Context.CustomPluginsPath = &Global->Opt->LoadPlug.strCustomPluginsPath;
+	Context.WindowMode = &Global->Opt->WindowMode;
+	Context.ReadOnlyConfig = &Global->Opt->ReadOnlyConfig;
 
-				case L'V':
-					if (Iter + 1 != Args.end())
-					{
-						strViewName = *++Iter;
-					}
-					break;
-
-				case L'M':
-					switch (upper(Arg[2]))
-					{
-					case L'\0':
-						Global->Opt->Macro.DisableMacro|=MDOL_ALL;
-						break;
-
-					case L'A':
-						if (!Arg[3])
-							Global->Opt->Macro.DisableMacro|=MDOL_AUTOSTART;
-						break;
-					}
-					break;
-
-#ifndef NO_WRAPPER
-				case L'U':
-					if (Iter + 1 != Args.end())
-					{
-						//Affects OEM plugins only!
-						Global->strRegUser = *++Iter;
-					}
-					break;
-#endif // NO_WRAPPER
-
-				case L'S':
-					{
-						constexpr auto SetParam = L"set:"sv;
-						if (starts_with_icase(Arg + 1, SetParam))
-						{
-							if (const auto EqualPtr = std::wcschr(Arg + 1, L'='))
-							{
-								const auto NameData = Arg + 1 + SetParam.size();
-								const size_t NameSize = EqualPtr - NameData;
-								Overrides.emplace(string_view{ NameData, NameSize }, EqualPtr + 1);
-							}
-						}
-						else if (Iter + 1 != Args.end())
-						{
-							strProfilePath = *++Iter;
-							const auto Next = Iter + 1;
-							if (Next != Args.end() && *Next[0] != L'-'  && *Next[0] != L'/')
-							{
-								strLocalProfilePath = *Next;
-								Iter = Next;
-							}
-						}
-					}
-					break;
-
-				case L'T':
-					{
-						const auto Title = L"title"sv;
-						if (starts_with_icase(Arg + 1, Title))
-						{
-							if (Arg[1 + Title.size()] == L':')
-								CustomTitle = Arg + 1 + Title.size() + 1;
-							else
-								CustomTitle = L""sv;
-						}
-						else if (Iter + 1 != Args.end())
-						{
-							strTemplatePath = *++Iter;
-						}
-					}
-					break;
-
-				case L'P':
-					{
-						Global->Opt->LoadPlug.PluginsPersonal = false;
-						Global->Opt->LoadPlug.MainPluginDir = false;
-
-						if (Arg[2])
-						{
-							// we can't expand it here - some environment variables might not be available yet
-							Global->Opt->LoadPlug.strCustomPluginsPath = &Arg[2];
-						}
-						else
-						{
-							// если указан -P без <путь>, то, считаем, что основные
-							//  плагины не загружать вооообще!!!
-							Global->Opt->LoadPlug.strCustomPluginsPath.clear();
-						}
-					}
-					break;
-
-				case L'C':
-					if (upper(Arg[2])==L'O' && !Arg[3])
-					{
-						Global->Opt->LoadPlug.PluginsCacheOnly = true;
-						Global->Opt->LoadPlug.PluginsPersonal = false;
-					}
-					break;
-
-				case L'?':
-				case L'H':
-					ControlObject::ShowVersion();
-					show_help();
-					return EXIT_SUCCESS;
-
-#ifdef DIRECT_RT
-				case L'D':
-					if (upper(Arg[2])==L'O' && !Arg[3])
-						Global->DirectRT=true;
-					break;
-#endif
-				case L'W':
-					{
-						if(Arg[2] == L'-')
-						{
-							Global->Opt->WindowMode = false;
-						}
-						else if(!Arg[2])
-						{
-							Global->Opt->WindowMode = true;
-						}
-					}
-					break;
-
-				case L'R':
-					if (upper(Arg[2]) == L'O')
-					{
-						if (!Arg[3]) // -ro
-						{
-							Global->Opt->ReadOnlyConfig = TRUE;
-						}
-						else if (Arg[3] == L'-') // -ro-
-						{
-							Global->Opt->ReadOnlyConfig = FALSE;
-						}
-					}
-					break;
-			}
-		}
-		else // простые параметры. Их может быть max две штукА.
-		{
-			if (CntDestName < 2)
-			{
-				if (GetPluginPrefixPath(Arg))
-				{
-					DestNames[CntDestName++] = Arg;
-				}
-				else
-				{
-					auto ArgvI = full_path_expanded(Arg);
-					if (os::fs::exists(ArgvI))
-					{
-						DestNames[CntDestName++] = ArgvI;
-					}
-				}
-			}
-		}
-	}
+	parse_command_line(Args, DestNames, Context);
 
 	InitTemplateProfile(strTemplatePath);
 	InitProfile(strProfilePath, strLocalProfilePath);
@@ -823,12 +958,42 @@ static int mainImpl(span<const wchar_t* const> const Args)
 
 static void configure_exception_handling(int Argc, const wchar_t* const Argv[])
 {
+#ifdef _DEBUG
+	// _OUT_TO_STDERR is the default for console apps, but it is less convenient for debugging.
+	// Use -service to set it back to _OUT_TO_STDERR (e.g. for macro tests on CI).
+	_set_error_mode(_OUT_TO_MSGBOX);
+
+	_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_WNDW);
+	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_WNDW);
+	_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_WNDW);
+#endif
+
 	for (const auto& i : span(Argv + 1, Argc - 1))
 	{
-		if ((i[0] == L'/' || i[0] == L'-') && upper(i[1]) == L'X' && !i[2])
+		if (!is_arg(i))
+			continue;
+
+		if (upper(i[1]) == L'X' && !i[2])
 		{
 			disable_exception_handling();
-			return;
+			continue;
+		}
+
+		if (equal_icase(i + 1, L"service"sv))
+		{
+#ifdef _DEBUG
+			_set_error_mode(_OUT_TO_STDERR);
+
+			_CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+			_CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+			_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+
+			_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+			_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+			_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+#endif
+
+			continue;
 		}
 	}
 }
@@ -908,3 +1073,157 @@ int main()
 	},
 	CURRENT_FUNCTION_NAME);
 }
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("Args")
+{
+	int E_Line;
+	int E_Pos;
+	string E_Param;
+	string V_Param;
+	string U_Param;
+	string S_Param1;
+	string S_Param2;
+	string T_Param;
+	std::optional<string> Title_Param;
+	int MacroOptions{};
+	Options::overrides Overrides;
+	bool PluginsCacheOnly{};
+	bool PluginsPersonal{};
+	bool MainPluginDir{};
+	string CustomPluginsPath;
+	int WindowMode{};
+	int ReadOnlyConfig{};
+
+	args_context Context;
+
+	Context.E_Line = &E_Line;
+	Context.E_Pos = &E_Pos;
+	Context.E_Param = &E_Param;
+	Context.V_Param = &V_Param;
+	Context.U_Param = &U_Param;
+	Context.S_Param1 = &S_Param1;
+	Context.S_Param2 = &S_Param2;
+	Context.T_Param = &T_Param;
+	Context.Title_Param = &Title_Param;
+	Context.MacroOptions = &MacroOptions;
+	Context.Overrides = &Overrides;
+	Context.PluginsCacheOnly = &PluginsCacheOnly;
+	Context.PluginsPersonal = &PluginsPersonal;
+	Context.MainPluginDir = &MainPluginDir;
+	Context.CustomPluginsPath = &CustomPluginsPath;
+	Context.WindowMode = &WindowMode;
+	Context.ReadOnlyConfig = &ReadOnlyConfig;
+
+	static const struct
+	{
+		std::initializer_list<const wchar_t*> Args;
+		std::variant<std::function<bool()>, string_view> Validator;
+	}
+	Tests[]
+	{
+		{ {} },
+		{ { L"-e" },                     args::parameter_expected },
+		{ { L"-ew" },                    args::number_expected },
+		{ { L"-e1" },                    args::parameter_expected },
+		{ { L"-e1", L"foo"},             [&]{ return E_Line == 1 && E_Param == L"foo"sv; } },
+		{ { L"-e1:" },                   args::number_expected },
+		{ { L"-e1:b" },                  args::number_expected },
+		{ { L"-e2:3" },                  args::parameter_expected },
+		{ { L"-e2:3", L"bar" },          [&]{ return E_Line == 2 && E_Pos == 3 && E_Param == L"bar"sv; } },
+		{ { L"-v" },                     args::parameter_expected },
+		{ { L"-vw" },                    args::unknown_argument },
+		{ { L"-v", L"file" },            [&]{ return V_Param == L"file"sv; } },
+		{ { L"-m" },                     [&]{ return flags::check_all(MacroOptions, MDOL_ALL); } },
+		{ { L"-mb" },                    args::unknown_argument },
+		{ { L"-ma" },                    [&]{ return flags::check_all(MacroOptions, MDOL_AUTOSTART); } },
+#ifndef NO_WRAPPER
+		{ { L"-u" },                     args::parameter_expected },
+		{ { L"-ua" },                    args::unknown_argument },
+		{ { L"-u", L"user"},             [&]{ return U_Param == L"user"sv; } },
+#endif // NO_WRAPPER
+		{ { L"-set" },                   args::unknown_argument },
+		{ { L"-set:" },                  args::invalid_format },
+		{ { L"-set:beep" },              args::invalid_format },
+		{ { L"-set:beep=" },             [&]{ return Overrides[L"beep"s].empty(); } },
+		{ { L"-set:foo=bar" },           [&]{ return Overrides[L"foo"s] == L"bar"sv; } },
+		{ { L"-service" } },
+		{ { L"-service1" },              args::unknown_argument },
+		{ { L"-s" },                     args::parameter_expected },
+		{ { L"-s1" },                    args::unknown_argument },
+		{ { L"-s", L"dir1" },            [&]{ return S_Param1 == L"dir1"sv; }},
+		{ { L"-s", L"dir1", L"-dir2" },  [&]{ return S_Param1 == L"dir1"sv && S_Param2.empty(); } },
+		{ { L"-s", L"dir1", L"dir2" },   [&]{ return S_Param1 == L"dir1"sv && S_Param2 == L"dir2"sv; } },
+		{ { L"-t" },                     args::parameter_expected },
+		{ { L"-t1" },                    args::unknown_argument },
+		{ { L"-t", L"path" },            [&]{ return T_Param == L"path"sv; } },
+		{ { L"-title" },                 [&]{ return Title_Param->empty(); } },
+		{ { L"-title1" },                args::unknown_argument },
+		{ { L"-title:" },                [&]{ return Title_Param->empty(); } },
+		{ { L"-title:foo" },             [&]{ return Title_Param == L"foo"sv; } },
+		{ { L"-p" },                     [&]{ return !PluginsPersonal && !MainPluginDir && CustomPluginsPath.empty(); } },
+		{ { L"-pfoo" },                  [&]{ return !PluginsPersonal && !MainPluginDir && CustomPluginsPath == L"foo"sv; } },
+		{ { L"-c" },                     args::unknown_argument },
+		{ { L"-c1" },                    args::unknown_argument },
+		{ { L"-co" },                    [&]{ return !PluginsPersonal && PluginsCacheOnly; } },
+		{ { L"-co1" },                   args::unknown_argument },
+		{ { L"-w" },                     [&]{ return WindowMode != false; } },
+		{ { L"-w1" },                    args::unknown_argument },
+		{ { L"-w-" },                    [&]{ return WindowMode == false; } },
+		{ { L"-w-1" },                   args::unknown_argument },
+		{ { L"-r" },                     args::unknown_argument },
+		{ { L"-r1" },                    args::unknown_argument },
+		{ { L"-ro" },                    [&]{ return ReadOnlyConfig != false; } },
+		{ { L"-ro1" },                   args::unknown_argument },
+		{ { L"-ro-" },                   [&]{ return ReadOnlyConfig == false; } },
+		{ { L"-ro-1" },                  args::unknown_argument },
+		{ { L"-x" } },
+		{ { L"-x1" },                    args::unknown_argument },
+		{ { L"-q" },                     args::unknown_argument },
+	};
+
+	class ExceptionMatcher: public Catch::MatcherBase<far_known_exception>
+	{
+	public:
+		ExceptionMatcher(string_view const Expected):
+			m_Expected(Expected)
+		{
+		}
+
+		bool match(far_known_exception const& e) const override
+		{
+			return !m_Expected.empty() && contains(e.message(), m_Expected);
+		}
+
+		std::string describe() const override
+		{
+			return "contains the substring"s;
+		}
+
+	private:
+		string m_Expected;
+	};
+
+	for (const auto& i: Tests)
+	{
+		auto Iterator = i.Args.begin();
+
+		std::visit(overload
+		{
+			[&](std::function<bool()> const& Validator)
+			{
+				REQUIRE_NOTHROW(parse_argument(Iterator, i.Args.end(), Context));
+				if (Validator)
+					REQUIRE(Validator());
+			},
+			[&](string_view const& Validator)
+			{
+				REQUIRE_THROWS_MATCHES(parse_argument(Iterator, i.Args.end(), Context), far_known_exception, ExceptionMatcher(Validator));
+			}
+		}, i.Validator);
+	}
+}
+#endif

@@ -138,7 +138,7 @@ after_build:
   #test & archive 
   - cd ci\%configuration%.%platform_name%
   #Run macrotest.lua, on failure %ERRORLEVEL% is non zero
-  - if not "%platform_name%" == "ARM64" Far.exe "lua:far.MacroPost([=[R=win.GetEnv('FARHOME');R=R or os.exit(1); R=R..[[\Plugins\LuaMacro\macrotest.lua]]; R=loadfile(R);R=R or os.exit(2); OK,R=pcall(R);OK=OK or os.exit(3); OK,R=pcall(R.test_all);os.exit(OK and 0 or 4);]=],nil,'CtrlShiftF12')"
+  - if not "%platform_name%" == "ARM64" Far.exe -service "lua:far.MacroPost([=[R=win.GetEnv('FARHOME');R=R or os.exit(1); R=R..[[\Plugins\LuaMacro\macrotest.lua]]; R=loadfile(R);R=R or os.exit(2); OK,R=pcall(R);OK=OK or os.exit(3); OK,R=pcall(R.test_all);os.exit(OK and 0 or 4);]=],nil,'CtrlShiftF12')"
   #set NAME_PREFIX variable as otherwise it is not available when artifacts are collected
   - set NAME_PREFIX="Far%NAME_ADD%.%platform_name%.%appveyor_build_version%.%APPVEYOR_REPO_COMMIT%"
   - appveyor SetVariable -Name NAME_PREFIX -Value "%NAME_PREFIX%"

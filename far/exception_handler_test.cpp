@@ -263,6 +263,11 @@ namespace tests
 #endif
 	}
 
+	static void cpp_assert()
+	{
+		assert(true == false);
+	}
+
 	static void seh_access_violation_read()
 	{
 		volatile const int* InvalidAddress = nullptr;
@@ -485,6 +490,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::cpp_pure_virtual_call,        L"C++ pure virtual call"sv },
 		{ tests::cpp_memory_leak,              L"C++ memory leak"sv },
 		{ tests::cpp_invalid_parameter,        L"C++ invalid parameter"sv },
+		{ tests::cpp_assert,                   L"C++ assert"sv },
 		{ tests::seh_access_violation_read,    L"SEH access violation (read)"sv },
 		{ tests::seh_access_violation_write,   L"SEH access violation (write)"sv },
 		{ tests::seh_access_violation_execute, L"SEH access violation (execute)"sv },
