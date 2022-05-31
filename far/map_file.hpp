@@ -54,11 +54,10 @@ public:
 
 	std::pair<string, string_view> get(uintptr_t Address) const;
 
-private:
 	struct line;
 
+private:
 	void read(std::istream& Stream);
-	void read_vc(std::istream& Stream);
 
 	std::map<uintptr_t, line> m_Symbols;
 	unordered_string_set m_Files;

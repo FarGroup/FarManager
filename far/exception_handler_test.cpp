@@ -148,7 +148,18 @@ namespace tests
 	static void cpp_std_bad_alloc()
 	{
 		// Less than the physical limit to leave some space for a service block, if any
-		const auto Ptr = std::make_unique<char[]>(std::numeric_limits<size_t>::max() - 1024 * 1024);
+		volatile const auto Size = std::numeric_limits<ptrdiff_t>::max() - 1024 * 1024;
+		[[maybe_unused]]
+		volatile const auto Ptr = new char[Size];
+		delete[] Ptr;
+	}
+
+	static void cpp_bad_malloc()
+	{
+		// Less than the physical limit to leave some space for a service block, if any
+		volatile const auto Size = std::numeric_limits<ptrdiff_t>::max() - 1024 * 1024;
+		if (volatile const auto Ptr = static_cast<char*>(malloc(Size)))
+			free(Ptr);
 	}
 
 	[[noreturn]]
@@ -172,6 +183,12 @@ namespace tests
 		});
 
 		rethrow_if(Ptr);
+	}
+
+	[[noreturn]]
+	static void cpp_abort()
+	{
+		std::abort();
 	}
 
 	[[noreturn]]
@@ -199,6 +216,23 @@ namespace tests
 		}
 		catch(...)
 		{
+		}
+	}
+
+	static void cpp_noexcept_throw()
+	{
+		try
+		{
+			const auto do_throw = []{ throw MAKE_FAR_EXCEPTION(L"throw from a noexcept function"); };
+
+			[&]() noexcept
+			{
+				do_throw();
+			}();
+		}
+		catch (far_exception const&)
+		{
+			assert(false);
 		}
 	}
 
@@ -358,6 +392,7 @@ namespace tests
 
 	WARNING_POP()
 
+	[[noreturn]]
 	static void seh_heap_corruption()
 	{
 		// Using low level functions to avoid access violations in debug blocks
@@ -483,10 +518,13 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::cpp_std_nested,               L"C++ nested std::exception"sv },
 		{ tests::cpp_std_nested_thread,        L"C++ nested std::exception (thread)"sv },
 		{ tests::cpp_std_bad_alloc,            L"C++ std::bad_alloc"sv },
+		{ tests::cpp_bad_malloc,               L"C++ malloc failure"sv },
 		{ tests::cpp_unknown,                  L"C++ unknown exception"sv },
 		{ tests::cpp_unknown_nested,           L"C++ unknown exception (nested)"sv },
+		{ tests::cpp_abort,                    L"C++ abort"sv },
 		{ tests::cpp_terminate,                L"C++ terminate"sv },
 		{ tests::cpp_terminate_unwind,         L"C++ terminate unwind"sv },
+		{ tests::cpp_noexcept_throw,           L"C++ noexcept throw"sv },
 		{ tests::cpp_pure_virtual_call,        L"C++ pure virtual call"sv },
 		{ tests::cpp_memory_leak,              L"C++ memory leak"sv },
 		{ tests::cpp_invalid_parameter,        L"C++ invalid parameter"sv },

@@ -81,16 +81,17 @@ private:
 	PTOP_LEVEL_EXCEPTION_FILTER m_PreviousFilter;
 };
 
-class purecall_handler
+class signal_handler
 {
 public:
-	NONCOPYABLE(purecall_handler);
+	NONCOPYABLE(signal_handler);
 
-	purecall_handler();
-	~purecall_handler();
+	signal_handler();
+	~signal_handler();
 
 private:
-	_purecall_handler m_PreviousHandler;
+	using signal_handler_t = void(*)(int);
+	signal_handler_t m_PreviousHandler;
 };
 
 class invalid_parameter_handler

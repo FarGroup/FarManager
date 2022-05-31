@@ -103,6 +103,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cfloat>
 #include <climits>
 #include <cmath>
+#include <csignal>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>

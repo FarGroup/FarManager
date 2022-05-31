@@ -1028,8 +1028,7 @@ static int wmain_seh()
 
 	SCOPED_ACTION(unhandled_exception_filter);
 	SCOPED_ACTION(vectored_exception_handler);
-	SCOPED_ACTION(seh_terminate_handler);
-	SCOPED_ACTION(purecall_handler);
+	SCOPED_ACTION(signal_handler);
 	SCOPED_ACTION(invalid_parameter_handler);
 	SCOPED_ACTION(new_handler);
 

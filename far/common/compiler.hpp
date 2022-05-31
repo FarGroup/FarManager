@@ -71,18 +71,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define IS_MICROSOFT_SDK() 0
 #endif
 
-#if COMPILER(GCC) || COMPILER(CLANG)
-#define STR_PRAGMA(x) _Pragma(#x)
+#if COMPILER(CL) || COMPILER(INTEL)
+#define STR_PRAGMA(...) __pragma(__VA_ARGS__)
+#elif COMPILER(GCC) || COMPILER(CLANG)
+#define STR_PRAGMA(...) _Pragma(#__VA_ARGS__)
 #endif
 
 //----------------------------------------------------------------------------
-#if COMPILER(CL) || COMPILER(INTEL)
-#define PACK_PUSH(n) __pragma(pack(push, n))
-#define PACK_POP()   __pragma(pack(pop))
-#elif COMPILER(GCC) || COMPILER(CLANG)
 #define PACK_PUSH(n) STR_PRAGMA(pack(push, n))
 #define PACK_POP()   STR_PRAGMA(pack(pop))
-#endif
 
 //----------------------------------------------------------------------------
 #if COMPILER(CL) || COMPILER(INTEL)
@@ -149,5 +146,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define COMPILER_VERSION_PATCH 0
 #endif
 
+//----------------------------------------------------------------------------
+#define COMPILER_MESSAGE_IMPL_STR0(x) #x
+#define COMPILER_MESSAGE_IMPL_STR1(x) COMPILER_MESSAGE_IMPL_STR0(x)
+#define COMPILER_MESSAGE_IMPL(type, str) \
+	STR_PRAGMA(message(__FILE__ "(" COMPILER_MESSAGE_IMPL_STR1(__LINE__) "): " type ": " str))
+
+#define COMPILER_MESSAGE(str) COMPILER_MESSAGE_IMPL("message", str)
+#define COMPILER_WARNING(str) COMPILER_MESSAGE_IMPL("warning", str)
+#define COMPILER_ERROR(str)   COMPILER_MESSAGE_IMPL("error", str)
 
 #endif // COMPILER_HPP_6A237B14_5BAA_4106_9D7F_7C7BA14A36B0

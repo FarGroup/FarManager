@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 01.06.2022 00:54:02 +0100 - build 5973
+
+1. Improve exception diagnostics.
+
+2. Use Clang and GCC maps for stack traces enrichment.
+
+--------------------------------------------------------------------------------
 drkns 29.05.2022 20:03:12 +0100 - build 5972
 
 1. Improve exception diagnostics.

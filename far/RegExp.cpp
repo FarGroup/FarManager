@@ -3836,7 +3836,7 @@ TEST_CASE("regex.list.special")
 	RegExp re;
 	std::vector<RegExpMatch> Match;
 
-	re.Compile(L"[]]");
+	re.Compile(L"[]]"sv);
 	REQUIRE(!re.Match(L"!", Match));
 	REQUIRE(re.Match(L"]", Match));
 	REQUIRE(Match.size() == 1u);
@@ -3844,7 +3844,7 @@ TEST_CASE("regex.list.special")
 	REQUIRE(Match[0].end == 1);
 
 
-	re.Compile(L"[^]]");
+	re.Compile(L"[^]]"sv);
 	REQUIRE(!re.Match(L"]", Match));
 	REQUIRE(re.Match(L"!", Match));
 	REQUIRE(Match.size() == 1u);

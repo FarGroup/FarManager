@@ -128,6 +128,14 @@ void disable_exception_handling()
 	LOGWARNING(L"Exception handling disabled"sv);
 }
 
+[[noreturn]]
+static void user_abort()
+{
+	// This is a user-initiated abort, we don't want any extra messages, dumps etc.
+	TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
+	UNREACHABLE;
+}
+
 static std::atomic_bool s_ExceptionHandlingInprogress{};
 bool exception_handling_in_progress()
 {
@@ -144,7 +152,7 @@ void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 static constexpr NTSTATUS
 	EXCEPTION_HEAP_CORRUPTION     = STATUS_HEAP_CORRUPTION,
 	EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363, // EH_EXCEPTION_NUMBER
-	EXCEPTION_TERMINATE           = 0xE074726D; // 'trm'
+	EXCEPTION_ABORT               = 0xE0616274; // 'abt'
 
 static const auto Separator = L"----------------------------------------------------------------------"sv;
 
@@ -211,25 +219,32 @@ static bool write_readme(string_view const FullPath)
 	if (!File)
 		return false;
 
+#define BUGREPORT_NAME  "bug_report.txt"
+#define MINIDDUMP_NAME   "far.mdmp"
+#define FULLDUMP_NAME    "far_full.mdmp"
 #define EOL "\r\n"
 
-	const auto Data = L"\xFEFF"
-		"Please send bug_report.txt and far.mdmp to the developers:" EOL
+	// English text, ANSI will do fine.
+	const auto Data =
+		"Please send " BUGREPORT_NAME " and " MINIDDUMP_NAME " to the developers:" EOL
 		EOL
-		"  https://bugs.farmanager.com" EOL
 		"  https://github.com/FarGroup/FarManager/issues" EOL
-		"  https://forum.farmanager.com/viewforum.php?f=9" EOL
+		"  https://bugs.farmanager.com" EOL
 		"  https://forum.farmanager.com/viewforum.php?f=37" EOL
+		"  https://forum.farmanager.com/viewforum.php?f=9" EOL
 		EOL
 		"------------------------------------------------------------" EOL
-		"DO NOT SHARE far_full.mdmp UNLESS EXPLICITLY ASKED TO DO SO." EOL
+		"DO NOT SHARE " FULLDUMP_NAME " UNLESS EXPLICITLY ASKED TO DO SO." EOL
 		"It could contain sensitive data." EOL
 		"------------------------------------------------------------" EOL
 		""sv;
 
 #undef EOL
+#undef FULLDUMP_NAME
+#undef MINIDDUMP_NAME
+#undef BUGREPORT_NAME
 
-	return File.Write(Data.data(), Data.size() * sizeof(decltype(Data)::value_type));
+	return File.Write(Data.data(), Data.size() * sizeof(Data[0]));
 }
 
 static bool write_report(string_view const Data, string_view const FullPath)
@@ -281,7 +296,12 @@ static void read_modules(string& To, string_view const Eol)
 	for (;;)
 	{
 		if (!EnumProcessModules(GetCurrentProcess(), Data, Size, &Needed))
+		{
+			const auto LastError = last_error();
+			format_to(To, FSTR(L"{}"sv), LastError);
+			LOGWARNING(L"{}"sv, LastError);
 			return;
+		}
 
 		if (Needed <= Size)
 			return read_modules({ Data, Needed / sizeof(HMODULE) }, To, Eol);
@@ -757,7 +777,7 @@ static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_vie
 #undef TEXTANDCODE
 
 		{L"C++ exception"sv,  EXCEPTION_MICROSOFT_CPLUSPLUS},
-		{L"std::terminate"sv, EXCEPTION_TERMINATE},
+		{L"std::abort"sv,     EXCEPTION_ABORT},
 	};
 
 	const auto AppendType = [](string& Str, string_view const ExceptionType)
@@ -816,7 +836,7 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 	}
 
 	case EXCEPTION_MICROSOFT_CPLUSPLUS:
-	case EXCEPTION_TERMINATE:
+	case EXCEPTION_ABORT:
 		return string(Message);
 
 	default:
@@ -1104,25 +1124,22 @@ bool use_terminate_handler()
 	return UseTerminateHandler;
 }
 
-static void seh_terminate_handler_impl()
+static void seh_abort_handler_impl()
 {
-	if (!HandleCppExceptions)
+	static auto InsideHandler = false;
+	if (!HandleCppExceptions || InsideHandler)
 	{
 		restore_system_exception_handler();
 		std::abort();
 	}
 
-	static auto InsideTerminateHandler = false;
-	if (InsideTerminateHandler)
-		std::abort();
-
-	InsideTerminateHandler = true;
+	InsideHandler = true;
 
 	// If it's a SEH or a C++ exception implemented in terms of SEH (and not a fake for GCC) it's better to handle it as SEH
 	if (const auto Info = exception_information(); Info.ContextRecord && Info.ExceptionRecord && !is_fake_cpp_exception(*Info.ExceptionRecord))
 	{
 		if (handle_seh_exception(exception_context(Info), CURRENT_FUNCTION_NAME, {}))
-			std::abort();
+			user_abort();
 	}
 
 	// It's a C++ exception, implemented in some other way (GCC)
@@ -1135,30 +1152,30 @@ static void seh_terminate_handler_impl()
 		catch(std::exception const& e)
 		{
 			if (handle_std_exception(e, CURRENT_FUNCTION_NAME, {}))
-				std::abort();
+				user_abort();
 		}
 		catch (...)
 		{
 			if (handle_unknown_exception(CURRENT_FUNCTION_NAME, {}))
-				std::abort();
+				user_abort();
 		}
 	}
 
 	// No exception in flight, must be a direct call
 	exception_context const Context
 	({
-		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(EXCEPTION_TERMINATE)),
+		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(EXCEPTION_ABORT)),
 		static_cast<CONTEXT*>(*dummy_current_exception_context())
 	});
 
 	if (handle_generic_exception(Context, CURRENT_FUNCTION_NAME, {}, {}, {}, L"Abnormal termination"sv))
-		std::abort();
+		user_abort();
 
 	restore_system_exception_handler();
 }
 
 seh_terminate_handler::seh_terminate_handler():
-	m_PreviousHandler(std::set_terminate(seh_terminate_handler_impl))
+	m_PreviousHandler(std::set_terminate(seh_abort_handler_impl))
 {
 }
 
@@ -1186,47 +1203,57 @@ unhandled_exception_filter::~unhandled_exception_filter()
 	SetUnhandledExceptionFilter(m_PreviousFilter);
 }
 
-[[noreturn]]
-static void purecall_handler_impl()
+// For GCC. For some reason the default one works in Debug, but not in Release.
+extern "C"
 {
-	// VC invokes abort if the user handler isn't set,
-	// so we call terminate here, which we already intercept.
-	// GCC just invokes terminate directly, no further actions needed.
-	std::terminate();
+	[[noreturn]]
+	void __cxa_pure_virtual();
+
+	[[noreturn]]
+	void __cxa_pure_virtual()
+	{
+		std::abort();
+	}
 }
 
-static _purecall_handler set_purecall_handler(_purecall_handler const Handler)
+static void signal_handler_impl(int const Signal)
 {
-	return
-#if IS_MICROSOFT_SDK()
-		_set_purecall_handler(Handler)
-#else
-		nullptr
-#endif
-		;
+	switch (Signal)
+	{
+	case SIGABRT:
+		// terminate() defaults to abort(), so this also covers various C++ runtime failures.
+		return seh_abort_handler_impl();
+
+	default:
+		return;
+	}
 }
 
-purecall_handler::purecall_handler():
-	m_PreviousHandler(set_purecall_handler(purecall_handler_impl))
+signal_handler::signal_handler():
+	m_PreviousHandler(std::signal(SIGABRT, signal_handler_impl))
 {
 }
 
-purecall_handler::~purecall_handler()
+signal_handler::~signal_handler()
 {
-	set_purecall_handler(m_PreviousHandler);
+	if (m_PreviousHandler != SIG_ERR)
+		std::signal(SIGABRT, m_PreviousHandler);
 }
 
 static void invalid_parameter_handler_impl(const wchar_t* const Expression, const wchar_t* const Function, const wchar_t* const File, unsigned int const Line, uintptr_t const Reserved)
 {
-	if (!HandleCppExceptions)
+	static auto InsideHandler = false;
+	if (!HandleCppExceptions || InsideHandler)
 	{
 		restore_system_exception_handler();
 		std::abort();
 	}
 
+	InsideHandler = true;
+
 	exception_context const Context
 	({
-		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(EXCEPTION_TERMINATE)),
+		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(EXCEPTION_ABORT)),
 		static_cast<CONTEXT*>(*dummy_current_exception_context())
 	});
 
@@ -1238,7 +1265,7 @@ static void invalid_parameter_handler_impl(const wchar_t* const Expression, cons
 		{},
 		Expression? Expression : L"Invalid parameter"sv
 	))
-		std::abort();
+		user_abort();
 
 	restore_system_exception_handler();
 }

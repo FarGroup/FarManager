@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/from_string.hpp"
+#include "common/scope_exit.hpp"
 
 // External:
 #include "format.hpp"
@@ -121,58 +122,173 @@ std::pair<string, string_view> map_file::get(uintptr_t const Address) const
 	return { format(FSTR(L"{:04X}+{}"sv), Address - Begin->first, undecorate(Begin->second.Name)), *Begin->second.File};
 }
 
-void map_file::read(std::istream& Stream)
+enum class map_format
 {
-	read_vc(Stream);
+	unknown,
+	msvc,
+	clang,
+	gcc,
+};
+
+static auto determine_format(string_view const Str)
+{
+	if (starts_with(Str, L' '))
+		return map_format::msvc;
+
+	if (Str == L"Address  Size     Align Out     In      Symbol"sv)
+		return map_format::clang;
+
+	if (Str.empty())
+		return map_format::gcc;
+
+	return map_format::unknown;
 }
 
-void map_file::read_vc(std::istream& Stream)
+static auto determine_format(std::istream& Stream)
+{
+	const auto Position = Stream.tellg();
+	SCOPE_EXIT{ Stream.seekg(Position); };
+
+	const auto Lines = enum_lines(Stream, CP_UTF8);
+	if (Lines.empty())
+		return map_format::unknown;
+
+	return determine_format(Lines.begin()->Str);
+}
+
+static auto group(string_view const Str, std::vector<RegExpMatch> const& m, size_t const Index)
+{
+	const auto& Match = m[Index];
+	return Str.substr(Match.start, Match.end - Match.start);
+}
+
+static void read_vc(std::istream& Stream, unordered_string_set& Files, std::map<uintptr_t, map_file::line>& Symbols)
 {
 	RegExp ReBase, ReSymbol;
-	ReBase.Compile(L"^ +Preferred load address is ([0-9A-Fa-f]+)$", OP_OPTIMIZE);
-	ReSymbol.Compile(L"^ +([0-9A-Fa-f]+):([0-9A-Fa-f]+) +([^ ]+) +([0-9A-Fa-f]+) .+ ([^ ]+)$", OP_OPTIMIZE);
+	ReBase.Compile(L"^ +Preferred load address is ([0-9A-Fa-f]+)$"sv, OP_OPTIMIZE);
+	ReSymbol.Compile(L"^ +([0-9A-Fa-f]+):([0-9A-Fa-f]+) +([^ ]+) +([0-9A-Fa-f]+) .+ ([^ ]+)$"sv, OP_OPTIMIZE);
 	std::vector<RegExpMatch> m;
 
 	uintptr_t BaseAddress{};
-
-	const auto group = [&](string_view const Str, size_t const Index)
-	{
-		const auto& Match = m[Index];
-		return Str.substr(Match.start, Match.end - Match.start);
-	};
 
 	for (const auto& i: enum_lines(Stream, CP_UTF8))
 	{
 		if (i.Str.empty())
 			continue;
 
-		if (!BaseAddress)
+		if (!BaseAddress && ReBase.Search(i.Str, m))
 		{
-			if (ReBase.Search(i.Str, m))
-			{
-				BaseAddress = from_string<uintptr_t>(group(i.Str, 1), {}, 16);
-				continue;
-			}
+			BaseAddress = from_string<uintptr_t>(group(i.Str, m, 1), {}, 16);
+			continue;
 		}
 
 		if (ReSymbol.Search(i.Str, m))
 		{
-			auto Address = from_string<uintptr_t>(group(i.Str, 4), {}, 16);
+			auto Address = from_string<uintptr_t>(group(i.Str, m, 4), {}, 16);
 			if (!Address)
 				continue;
 
 			if (Address >= BaseAddress)
 				Address -= BaseAddress;
 
-			line Line;
-			Line.Name = group(i.Str, 3);
+			map_file::line Line;
+			Line.Name = group(i.Str, m, 3);
 			if (m.size() > 5)
 			{
-				const auto File = group(i.Str, 5);
-				Line.File = &*m_Files.emplace(File).first;
+				const auto File = group(i.Str, m, 5);
+				Line.File = &*Files.emplace(File).first;
 			}
 
-			m_Symbols.emplace(Address, std::move(Line));
+			Symbols.emplace(Address, std::move(Line));
+			continue;
 		}
+	}
+}
+
+static void read_clang(std::istream& Stream, unordered_string_set& Files, std::map<uintptr_t, map_file::line>& Symbols)
+{
+	RegExp ReObject, ReSymbol;
+	ReObject.Compile(L"^[0-9A-Fa-f]+ [0-9A-Fa-f]+ +[0-9]+         (.+)$"sv);
+	ReSymbol.Compile(L"^([0-9A-Fa-f]+) [0-9A-Fa-f]+     0                 (.+)$"sv);
+	std::vector<RegExpMatch> m;
+
+	string ObjName;
+
+	for (const auto& i: enum_lines(Stream, CP_UTF8))
+	{
+		if (i.Str.empty())
+			continue;
+
+		if (ReSymbol.Search(i.Str, m))
+		{
+			map_file::line Line;
+			Line.Name = group(i.Str, m, 2);
+			Line.File = &*Files.emplace(ObjName).first;
+			const auto Address = from_string<uintptr_t>(group(i.Str, m, 1), {}, 16);
+			Symbols.emplace(Address, std::move(Line));
+			continue;
+		}
+
+		if (ReObject.Search(i.Str, m))
+		{
+			ObjName = group(i.Str, m, 1);
+			continue;
+		}
+	}
+}
+
+static void read_gcc(std::istream& Stream, unordered_string_set& Files, std::map<uintptr_t, map_file::line>& Symbols)
+{
+	RegExp ReFile, ReFileName, ReSymbol;
+	ReFile.Compile(L"^File $"sv);
+	ReFileName.Compile(L"^\\[ *[0-9]+\\]\\(.+\\)\\(.+\\)\\(.+\\)\\(.+\\) \\(nx 1\\) 0x[0-9A-Fa-f]+ (.+)$"sv);
+	ReSymbol.Compile(L"^\\[ *[0-9]+\\]\\(.+\\)\\(.+\\)\\(.+\\)\\(.+\\) \\(nx 0\\) 0x([0-9A-Fa-f]+) (.+)$"sv);
+	std::vector<RegExpMatch> m;
+
+	const auto BaseAddress = 0x1000;
+
+	string LastLine, FileName;
+
+	for (const auto& i: enum_lines(Stream, CP_UTF8))
+	{
+		if (i.Str.empty())
+			continue;
+
+		if (ReFile.Search(i.Str, m) && ReFileName.Search(LastLine, m))
+		{
+			FileName = group(LastLine, m, 1);
+			LastLine.clear();
+			continue;
+		}
+
+		if (ReSymbol.Search(i.Str, m))
+		{
+			map_file::line Line;
+			Line.Name = group(i.Str, m, 2);
+			Line.File = &*Files.emplace(FileName).first;
+			const auto Address = from_string<uintptr_t>(group(i.Str, m, 1), {}, 16) + BaseAddress;
+			Symbols.emplace(Address, std::move(Line));
+			continue;
+		}
+
+		LastLine = i.Str;
+	}
+}
+
+void map_file::read(std::istream& Stream)
+{
+	switch (determine_format(Stream))
+	{
+	case map_format::msvc:
+		return read_vc(Stream, m_Files, m_Symbols);
+
+	case map_format::clang:
+		return read_clang(Stream, m_Files, m_Symbols);
+
+	case map_format::gcc:
+		return read_gcc(Stream, m_Files, m_Symbols);
+
+	case map_format::unknown:
+		return;
 	}
 }
