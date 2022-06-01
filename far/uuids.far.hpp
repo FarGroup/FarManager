@@ -47,6 +47,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace uuids::far
 {
+#ifdef _MSC_VER
+        //needed for VS2022(19.32) -- in std::wcschr use 'movaps' :(
+        //e.g. without align situation (GPF or not) is depends on link order 
+        __declspec(align(16))
+#endif
 	constexpr inline auto
 		FarUuid = "00000000-0000-0000-0000-000000000000"_uuid;
 }
