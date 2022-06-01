@@ -1204,6 +1204,7 @@ unhandled_exception_filter::~unhandled_exception_filter()
 }
 
 // For GCC. For some reason the default one works in Debug, but not in Release.
+#ifndef _DEBUG
 extern "C"
 {
 	[[noreturn]]
@@ -1215,6 +1216,7 @@ extern "C"
 		std::abort();
 	}
 }
+#endif
 
 static void signal_handler_impl(int const Signal)
 {
