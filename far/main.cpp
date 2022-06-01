@@ -1187,7 +1187,7 @@ TEST_CASE("Args")
 	class ExceptionMatcher: public Catch::MatcherBase<far_known_exception>
 	{
 	public:
-		ExceptionMatcher(string_view const Expected):
+		explicit ExceptionMatcher(string_view const Expected):
 			m_Expected(Expected)
 		{
 		}
