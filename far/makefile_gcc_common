@@ -7,6 +7,7 @@ FARDIR := $(dir $(COMMON_MAKEFILE))
 # DEBUG - set if a debug build is needed
 # USE_LTO - use link-time optimisation in release mode
 # CLANG - use Clang compiler and LLD linker
+# USE_LLD - use LLD linker (useful for debug builds where ld is insanely slow)
 
 # Toolchain setup
 TOOLSDIR = $(FARDIR)tools/
@@ -222,6 +223,12 @@ LNKFLAGS += -static # Doesn't work with Clang (yet?)
 USE_OBJDUMP_MAPS=1
 endif
 # Compiler-specific flags end
+
+ifdef USE_LLD
+LNKFLAGS += \
+	-fuse-ld=lld \
+
+endif
 
 ifeq ($(findstring ----,---$(strip $(MAKEFLAGS))-),)
  MK_FLAGS := -$(strip $(MAKEFLAGS))

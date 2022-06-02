@@ -63,7 +63,7 @@ jobs:
 
       - name: Initialize CodeQL
         if: matrix.build == 'msbuild_cl_x64_debug'
-        uses: github/codeql-action/init@v1
+        uses: github/codeql-action/init@v2
         with:
           languages: cpp
 
@@ -82,7 +82,7 @@ jobs:
 
       - name: Perform CodeQL Analysis
         if: matrix.build == 'msbuild_cl_x64_debug'
-        uses: github/codeql-action/analyze@v1
+        uses: github/codeql-action/analyze@v2
 
       - name: Publish
         uses: actions/upload-artifact@v2
@@ -121,7 +121,7 @@ jobs:
 
       - name: Initialize CodeQL
         if: matrix.build == 'nmake_cl_x64_debug'
-        uses: github/codeql-action/init@v1
+        uses: github/codeql-action/init@v2
         with:
           languages: cpp
 
@@ -155,7 +155,7 @@ jobs:
 
       - name: Perform CodeQL Analysis
         if: matrix.build == 'nmake_cl_x64_debug'
-        uses: github/codeql-action/analyze@v1
+        uses: github/codeql-action/analyze@v2
 
 #------------------------------------------------------------------------------
   build-mingw:
@@ -182,20 +182,22 @@ jobs:
 
       - name: Initialize CodeQL
         if: matrix.build == 'mingw_gcc_x64_debug'
-        uses: github/codeql-action/init@v1
+        uses: github/codeql-action/init@v2
         with:
           languages: cpp
 
       - name: Set environment for debug build
         if: matrix.build_config  == 'Debug'
-        run: Add-Content -Path $env:GITHUB_ENV -Value "DEBUG=1"
+        run: |
+          Add-Content -Path $env:GITHUB_ENV -Value "DEBUG=1"
+          Add-Content -Path $env:GITHUB_ENV -Value "USE_LLD=1"
 
       - name: Install GCC x64
         if: matrix.compiler  == 'mingw_gcc'
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
-          install: make gcc mingw-w64-x86_64-toolchain
+          install: make gcc mingw-w64-x86_64-lld mingw-w64-x86_64-toolchain
 
       - name: Build Far (gcc)
         if: matrix.compiler  == 'mingw_gcc'
@@ -238,4 +240,4 @@ jobs:
 
       - name: Perform CodeQL Analysis
         if: matrix.build == 'mingw_gcc_x64_debug'
-        uses: github/codeql-action/analyze@v1
+        uses: github/codeql-action/analyze@v2
