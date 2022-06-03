@@ -169,28 +169,46 @@ new_handler::new_handler():
 	m_Screen(CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, CONSOLE_TEXTMODE_BUFFER, nullptr))
 {
 	if (!m_Screen)
+	{
+		LOGWARNING(L"CreateConsoleScreenBuffer(): {}"sv, last_error());
 		return;
+	}
 
 	const COORD BufferSize{ X, Y };
 
 	const SMALL_RECT WindowInfo{ 0, 0, X - 1, Y - 1 };
 	if (!SetConsoleWindowInfo(m_Screen.native_handle(), true, &WindowInfo))
+	{
+		LOGWARNING(L"SetConsoleWindowInfo(): {}"sv, last_error());
 		return;
+	}
 
 	if (!SetConsoleScreenBufferSize(m_Screen.native_handle(), BufferSize))
+	{
+		LOGWARNING(L"SetConsoleScreenBufferSize(): {}"sv, last_error());
 		return;
+	}
 
 	const auto WhiteOnBlue = 0x9F;
 	if (!SetConsoleTextAttribute(m_Screen.native_handle(), WhiteOnBlue))
+	{
+		LOGWARNING(L"SetConsoleTextAttribute(): {}"sv, last_error());
 		return;
+	}
 
 	DWORD AttrWritten;
 	if (!FillConsoleOutputAttribute(m_Screen.native_handle(), WhiteOnBlue, BufferSize.X * BufferSize.Y, { 0, 0 }, &AttrWritten))
+	{
+		LOGWARNING(L"FillConsoleOutputAttribute(): {}"sv, last_error());
 		return;
+	}
 
 	const CONSOLE_CURSOR_INFO cci{ 1 };
 	if (!SetConsoleCursorInfo(m_Screen.native_handle(), &cci))
+	{
+		LOGWARNING(L"SetConsoleCursorInfo(): {}"sv, last_error());
 		return;
+	}
 
 	const string_view Strings[]
 	{
@@ -202,9 +220,20 @@ new_handler::new_handler():
 
 	const auto Write = [this](const string_view Str, size_t Y)
 	{
-		SetConsoleCursorPosition(m_Screen.native_handle(), { static_cast<short>((m_BufferSize.X - Str.size()) / 2), static_cast<short>(Y) });
+		if (!SetConsoleCursorPosition(m_Screen.native_handle(), { static_cast<short>((m_BufferSize.X - Str.size()) / 2), static_cast<short>(Y) }))
+		{
+			LOGWARNING(L"SetConsoleCursorPosition(): {}"sv, last_error());
+			return false;
+		}
+
 		DWORD CharWritten;
-		return WriteConsole(m_Screen.native_handle(), Str.data(), static_cast<DWORD>(Str.size()), &CharWritten, nullptr) && CharWritten == Str.size();
+		if (!WriteConsole(m_Screen.native_handle(), Str.data(), static_cast<DWORD>(Str.size()), &CharWritten, nullptr) && CharWritten == Str.size())
+		{
+			LOGWARNING(L"WriteConsole(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	};
 
 	auto InitialY = (m_BufferSize.Y - std::size(Strings)) / 2;
@@ -252,7 +281,10 @@ bool new_handler::retry() const
 {
 	const auto CurrentBuffer = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (!SetConsoleActiveScreenBuffer(m_Screen.native_handle()))
+	{
+		LOGWARNING(L"SetConsoleActiveScreenBuffer(): {}"sv, last_error());
 		return false;
+	}
 
 	SCOPE_EXIT { SetConsoleActiveScreenBuffer(CurrentBuffer); };
 
@@ -263,7 +295,10 @@ bool new_handler::retry() const
 	{
 		DWORD Read;
 		if (!ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &ir, 1, &Read) || Read != 1)
+		{
+			LOGWARNING(L"ReadConsoleInput(): {}"sv, last_error());
 			return false;
+		}
 	}
 	while (!(ir.EventType == KEY_EVENT && !KeyEvent.bKeyDown && (KeyEvent.wVirtualKeyCode == VK_RETURN || KeyEvent.wVirtualKeyCode == VK_ESCAPE)));
 

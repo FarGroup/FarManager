@@ -203,9 +203,8 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 					}
 				}
 			}
-			else
+			else if (rectangle const WriteRegion{ 0, DesiredHeight - OriginalHeight, DesiredWidth - 1, -1 }; WriteRegion.left < ScrX && WriteRegion.top < ScrY)
 			{
-				rectangle const WriteRegion{ 0, DesiredHeight - OriginalHeight, DesiredWidth - 1, -1 };
 				for (const auto& i: irange(Tmp.height()))
 				{
 					std::copy_n(ScreenBuf[i].data(), Tmp.width(), Tmp[i].data());
@@ -230,9 +229,8 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 					}
 				}
 			}
-			else
+			else if (rectangle const WriteRegion{ DesiredWidth, DesiredHeight - OriginalHeight, OriginalWidth - 1, DesiredHeight - 1 }; WriteRegion.left < ScrX && WriteRegion.top < ScrY)
 			{
-				rectangle const WriteRegion{ DesiredWidth, DesiredHeight - OriginalHeight, OriginalWidth - 1, DesiredHeight - 1 };
 				for (const auto& i: irange(Tmp.height()))
 				{
 					if (static_cast<int>(i) < OriginalHeight)
