@@ -571,24 +571,24 @@ static void parse_argument(span<const wchar_t* const>::const_iterator& Iterator,
 	{
 	case L'E':
 		{
-			if (Argument.size() == 1)
-				invalid_argument(FullArgument, args::parameter_expected);
-
-			size_t LineEnd;
-			if (!from_string(Argument.substr(1), *Context.E_Line, &LineEnd))
-				invalid_argument(FullArgument, args::number_expected);
-
-			if (LineEnd + 1 != Argument.size())
+			if (Argument.size() != 1)
 			{
-				if (Argument[LineEnd + 1] != L':')
-					invalid_argument(FullArgument, args::invalid_format);
-
-				size_t PosEnd;
-				if (!from_string(Argument.substr(LineEnd + 2), *Context.E_Pos, &PosEnd))
+				size_t LineEnd;
+				if (!from_string(Argument.substr(1), *Context.E_Line, &LineEnd))
 					invalid_argument(FullArgument, args::number_expected);
 
-				if (PosEnd + LineEnd + 2 != Argument.size())
-					invalid_argument(FullArgument, args::invalid_format);
+				if (LineEnd + 1 != Argument.size())
+				{
+					if (Argument[LineEnd + 1] != L':')
+						invalid_argument(FullArgument, args::invalid_format);
+
+					size_t PosEnd;
+					if (!from_string(Argument.substr(LineEnd + 2), *Context.E_Pos, &PosEnd))
+						invalid_argument(FullArgument, args::number_expected);
+
+					if (PosEnd + LineEnd + 2 != Argument.size())
+						invalid_argument(FullArgument, args::invalid_format);
+				}
 			}
 
 			if (Iterator == End)
@@ -1126,9 +1126,10 @@ TEST_CASE("Args")
 	{
 		{ {} },
 		{ { L"-e" },                     args::parameter_expected },
+		{ { L"-e", L"file" },            [&]{ return E_Param == L"file"sv; } },
 		{ { L"-ew" },                    args::number_expected },
 		{ { L"-e1" },                    args::parameter_expected },
-		{ { L"-e1", L"foo"},             [&]{ return E_Line == 1 && E_Param == L"foo"sv; } },
+		{ { L"-e1", L"foo" },            [&]{ return E_Line == 1 && E_Param == L"foo"sv; } },
 		{ { L"-e1:" },                   args::number_expected },
 		{ { L"-e1:b" },                  args::number_expected },
 		{ { L"-e2:3" },                  args::parameter_expected },
@@ -1142,7 +1143,7 @@ TEST_CASE("Args")
 #ifndef NO_WRAPPER
 		{ { L"-u" },                     args::parameter_expected },
 		{ { L"-ua" },                    args::unknown_argument },
-		{ { L"-u", L"user"},             [&]{ return U_Param == L"user"sv; } },
+		{ { L"-u", L"user" },            [&]{ return U_Param == L"user"sv; } },
 #endif // NO_WRAPPER
 		{ { L"-set" },                   args::unknown_argument },
 		{ { L"-set:" },                  args::invalid_format },
