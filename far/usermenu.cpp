@@ -405,7 +405,7 @@ void UserMenu::ProcessUserMenu(bool ChooseMenuType, string_view const MenuFileNa
 			catch (std::exception const& e)
 			{
 				m_Menu.clear();
-				LOGWARNING(L"{}"sv, e);
+				LOGERROR(L"{}"sv, e);
 			}
 		}
 		else if (m_MenuMode != menu_mode::user)
@@ -714,7 +714,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 						catch (std::exception const& e)
 						{
 							MenuRoot.clear();
-							LOGWARNING(L"{}"sv, e);
+							LOGERROR(L"{}"sv, e);
 						}
 
 						ReturnCode = 0;

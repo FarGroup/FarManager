@@ -80,7 +80,7 @@ namespace logging
 	bool is_log_argument(const wchar_t* Argument);
 
 	[[nodiscard]]
-	int main(const wchar_t* PipeName);
+	int main(string_view PipeName);
 }
 
 #define LOG(log_level, Format, ...) \

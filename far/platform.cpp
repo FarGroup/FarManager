@@ -109,13 +109,13 @@ namespace os
 		void handle_closer::operator()(HANDLE Handle) const noexcept
 		{
 			if (!CloseHandle(Handle))
-				LOGWARNING(L"CloseHandle(): {}"sv, last_error());
+				LOGERROR(L"CloseHandle(): {}"sv, last_error());
 		}
 
 		void printer_handle_closer::operator()(HANDLE Handle) const noexcept
 		{
 			if (!ClosePrinter(Handle))
-				LOGWARNING(L"CloseHandle(): {}"sv, last_error());
+				LOGWARNING(L"ClosePrinter(): {}"sv, last_error());
 		}
 	}
 
@@ -164,6 +164,8 @@ void set_last_error_from_ntstatus(NTSTATUS const Status)
 
 static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 {
+	SCOPED_ACTION(os::last_error_guard);
+
 	memory::local::ptr<wchar_t> Buffer;
 	const size_t Size = FormatMessage(
 			(Nt? FORMAT_MESSAGE_FROM_HMODULE : FORMAT_MESSAGE_FROM_SYSTEM) |
@@ -176,6 +178,12 @@ static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 		edit_as<wchar_t*>(&ptr_setter(Buffer)),
 		0,
 		nullptr);
+
+	if (!Size)
+	{
+		LOGERROR(L"FormatMessage({}): {}"sv, ErrorCode, last_error());
+		return {};
+	}
 
 	string Result(Buffer.get(), Size);
 	std::replace_if(ALL_RANGE(Result), IsEol, L' ');

@@ -56,7 +56,7 @@ namespace os::com
 	{
 		if (const auto Result = CoInitializeEx({}, COINIT_DISABLE_OLE1DDE | COINIT_MULTITHREADED); FAILED(Result))
 		{
-			LOGWARNING(L"CoInitializeEx(): {}"sv, format_error(Result));
+			LOG(Result == RPC_E_CHANGED_MODE? logging::level::warning : logging::level::error, L"CoInitializeEx(): {}"sv, format_error(Result));
 			return false;
 		}
 

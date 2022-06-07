@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "imports.hpp"
 #include "pathmix.hpp"
+#include "log.hpp"
 
 // Platform:
 
@@ -316,8 +317,7 @@ namespace os::concurrency
 	void timer::timer_closer::operator()(HANDLE const Handle) const
 	{
 		while (!(DeleteTimerQueueTimer({}, Handle, INVALID_HANDLE_VALUE) || GetLastError() == ERROR_IO_PENDING))
-		{
-		}
+			LOGWARNING(L"DeleteTimerQueueTimer(): {}"sv, last_error());
 	}
 }
 

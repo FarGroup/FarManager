@@ -521,7 +521,7 @@ namespace
 			if (m_Messages.size() > QueueBufferSize * 2)
 			{
 				m_Messages.clear();
-				LOGWARNING(L"Queue overflow"sv);
+				LOGERROR(L"Queue overflow"sv);
 			}
 
 			m_Messages.push(std::move(Message));
@@ -678,6 +678,7 @@ namespace logging
 			{
 			case engine_status::incomplete:
 				{
+					SCOPED_ACTION(os::last_error_guard);
 					SCOPED_ACTION(std::lock_guard)(m_CS);
 					initialise();
 				}
@@ -879,7 +880,7 @@ namespace logging
 		return Argument == log_argument;
 	}
 
-	int main(const wchar_t* const PipeName)
+	int main(string_view const PipeName)
 	{
 		console.SetTitle(concat(L"Far Log Viewer: "sv, PipeName));
 		console.SetTextAttributes(colors::ConsoleColorToFarColor(F_LIGHTGRAY | B_BLACK));
@@ -917,7 +918,13 @@ namespace logging
 			catch (far_exception const& e)
 			{
 				if (e.Win32Error == ERROR_BROKEN_PIPE)
+				{
+					// If the last logged message was a warning or worse, the user probably wants to see it
+					if (Message.m_Level < level::info)
+						os::chrono::sleep_for(5s);
+
 					return EXIT_SUCCESS;
+				}
 
 				std::wcerr << format(FSTR(L"Error reading pipe {}: {}"sv), PipeName, e.format_error()) << std::endl;
 				return EXIT_FAILURE;

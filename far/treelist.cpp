@@ -1920,7 +1920,7 @@ void TreeList::ReadCache(string_view const TreeRoot)
 	catch (std::exception const& e)
 	{
 		ClearCache();
-		LOGWARNING(L"{}"sv, e);
+		LOGERROR(L"{}"sv, e);
 		return;
 	}
 }

@@ -219,7 +219,7 @@ bool get_console_screen_buffer_info(HANDLE ConsoleOutput, CONSOLE_SCREEN_BUFFER_
 {
 	if (!GetConsoleScreenBufferInfo(ConsoleOutput, ConsoleScreenBufferInfo))
 	{
-		LOGWARNING(L"GetConsoleScreenBufferInfo(): {}"sv, last_error());
+		LOGERROR(L"GetConsoleScreenBufferInfo(): {}"sv, last_error());
 		return false;
 	}
 
@@ -247,13 +247,13 @@ bool get_console_screen_buffer_info(HANDLE ConsoleOutput, CONSOLE_SCREEN_BUFFER_
 
 		if (!SetConsoleWindowInfo(ConsoleOutput, true, &NewWindow))
 		{
-			LOGWARNING(L"SetConsoleWindowInfo(): {}"sv, last_error());
+			LOGERROR(L"SetConsoleWindowInfo(): {}"sv, last_error());
 			return false;
 		}
 
 		if (!GetConsoleScreenBufferInfo(ConsoleOutput, ConsoleScreenBufferInfo))
 		{
-			LOGWARNING(L"GetConsoleScreenBufferInfo(): {}"sv, last_error());
+			LOGERROR(L"GetConsoleScreenBufferInfo(): {}"sv, last_error());
 			return false;
 		}
 	}
@@ -339,7 +339,7 @@ namespace console_detail
 	{
 		if (!AllocConsole())
 		{
-			LOGWARNING(L"AllocConsole(): {}"sv, last_error());
+			LOGERROR(L"AllocConsole(): {}"sv, last_error());
 			return false;
 		}
 
@@ -350,7 +350,7 @@ namespace console_detail
 	{
 		if (!FreeConsole())
 		{
-			LOGWARNING(L"FreeConsole(): {}"sv, last_error());
+			LOGERROR(L"FreeConsole(): {}"sv, last_error());
 			return false;
 		}
 
@@ -461,7 +461,7 @@ namespace console_detail
 						}
 					))
 					{
-						LOGWARNING(L"SetConsoleCursorPosition(): {}"sv, last_error());
+						LOGERROR(L"SetConsoleCursorPosition(): {}"sv, last_error());
 						return false;
 					}
 				}
@@ -484,7 +484,7 @@ namespace console_detail
 
 		if (!SetConsoleScreenBufferSize(Out, make_coord(Size)))
 		{
-			LOGWARNING(L"SetConsoleScreenBufferSize(): {}"sv, last_error());
+			LOGERROR(L"SetConsoleScreenBufferSize(): {}"sv, last_error());
 			return false;
 		}
 
@@ -516,7 +516,7 @@ namespace console_detail
 		const auto Rect = make_rect(ConsoleWindow);
 		if (!SetConsoleWindowInfo(GetOutputHandle(), true, &Rect))
 		{
-			LOGWARNING(L"SetConsoleWindowInfo(): {}"sv, last_error());
+			LOGERROR(L"SetConsoleWindowInfo(): {}"sv, last_error());
 			return false;
 		}
 
@@ -542,7 +542,7 @@ namespace console_detail
 		string Title;
 		if (!os::GetWindowText(GetWindow(), Title))
 		{
-			LOGWARNING(L"GetWindowText(): {}"sv, last_error());
+			LOGERROR(L"GetWindowText(): {}"sv, last_error());
 		}
 
 		return Title;
@@ -558,7 +558,7 @@ namespace console_detail
 		m_Title = Title;
 		if (!SetConsoleTitle(m_Title.c_str()))
 		{
-			LOGWARNING(L"SetConsoleTitle(): {}"sv, last_error());
+			LOGERROR(L"SetConsoleTitle(): {}"sv, last_error());
 			return false;
 		}
 
@@ -570,7 +570,7 @@ namespace console_detail
 		wchar_t Buffer[KL_NAMELENGTH];
 		if (!imports.GetConsoleKeyboardLayoutNameW(Buffer))
 		{
-			LOGWARNING(L"GetConsoleKeyboardLayoutNameW(): {}"sv, last_error());
+			LOGERROR(L"GetConsoleKeyboardLayoutNameW(): {}"sv, last_error());
 			return false;
 		}
 
@@ -587,7 +587,7 @@ namespace console_detail
 	{
 		if (!SetConsoleCP(Codepage))
 		{
-			LOGWARNING(L"SetConsoleCP(): {}"sv, last_error());
+			LOGERROR(L"SetConsoleCP(): {}"sv, last_error());
 			return false;
 		}
 
@@ -603,7 +603,7 @@ namespace console_detail
 	{
 		if (!SetConsoleOutputCP(Codepage))
 		{
-			LOGWARNING(L"SetConsoleOutputCP(): {}"sv, last_error());
+			LOGERROR(L"SetConsoleOutputCP(): {}"sv, last_error());
 			return false;
 		}
 
@@ -614,7 +614,7 @@ namespace console_detail
 	{
 		if (!SetConsoleCtrlHandler(HandlerRoutine, Add))
 		{
-			LOGWARNING(L"SetConsoleCtrlHandler(): {}"sv, last_error());
+			LOGERROR(L"SetConsoleCtrlHandler(): {}"sv, last_error());
 			return false;
 		}
 
@@ -625,7 +625,7 @@ namespace console_detail
 	{
 		if (!GetConsoleMode(ConsoleHandle, &Mode))
 		{
-			LOGWARNING(L"GetConsoleMode(): {}"sv, last_error());
+			LOGERROR(L"GetConsoleMode(): {}"sv, last_error());
 			return false;
 		}
 
@@ -636,7 +636,7 @@ namespace console_detail
 	{
 		if (!SetConsoleMode(ConsoleHandle, Mode))
 		{
-			LOGWARNING(L"SetConsoleMode(): {}"sv, last_error());
+			LOGERROR(L"SetConsoleMode(): {}"sv, last_error());
 			return false;
 		}
 
@@ -674,7 +674,7 @@ namespace console_detail
 	{
 		if (!GetCurrentConsoleFont(OutputHandle, FALSE, &FontInfo))
 		{
-			LOGWARNING(L"GetCurrentConsoleFont(): {}"sv, last_error());
+			LOGERROR(L"GetCurrentConsoleFont(): {}"sv, last_error());
 			return false;
 		}
 
@@ -758,7 +758,7 @@ namespace console_detail
 		DWORD dwNumberOfEventsRead = 0;
 		if (!PeekConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead))
 		{
-			LOGWARNING(L"PeekConsoleInput(): {}"sv, last_error());
+			LOGERROR(L"PeekConsoleInput(): {}"sv, last_error());
 			return false;
 		}
 
@@ -782,7 +782,7 @@ namespace console_detail
 		DWORD dwNumberOfEventsRead = 0;
 		if (!ReadConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead))
 		{
-			LOGWARNING(L"ReadConsoleInput(): {}"sv, last_error());
+			LOGERROR(L"ReadConsoleInput(): {}"sv, last_error());
 			return false;
 		}
 
@@ -821,7 +821,7 @@ namespace console_detail
 
 		if (!WriteConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsWritten))
 		{
-			LOGWARNING(L"WriteConsoleInput(): {}"sv, last_error());
+			LOGERROR(L"WriteConsoleInput(): {}"sv, last_error());
 			return false;
 		}
 
@@ -835,7 +835,7 @@ namespace console_detail
 
 		if (!ReadConsoleOutput(::console.GetOutputHandle(), Buffer, make_coord(BufferSize), {}, &Rect))
 		{
-			LOGWARNING(L"ReadConsoleOutput(): {}"sv, last_error());
+			LOGERROR(L"ReadConsoleOutput(): {}"sv, last_error());
 			return false;
 		}
 
@@ -1185,7 +1185,7 @@ namespace console_detail
 			auto SysWriteRegion = make_rect(WriteRegion);
 			if (!WriteConsoleOutput(::console.GetOutputHandle(), Buffer, make_coord(BufferSize), {}, &SysWriteRegion))
 			{
-				LOGWARNING(L"WriteConsoleOutput(): {}"sv, last_error());
+				LOGERROR(L"WriteConsoleOutput(): {}"sv, last_error());
 				return false;
 			}
 
@@ -1315,7 +1315,7 @@ namespace console_detail
 		{
 			if (!SetConsoleTextAttribute(::console.GetOutputHandle(), colors::FarColorToConsoleColor(Attributes)))
 			{
-				LOGWARNING(L"SetConsoleTextAttribute(): {}"sv, last_error());
+				LOGERROR(L"SetConsoleTextAttribute(): {}"sv, last_error());
 				return false;
 			}
 
@@ -1359,7 +1359,7 @@ namespace console_detail
 		{
 			if (!ReadConsole(InputHandle, Buffer.data(), static_cast<DWORD>(Buffer.size()), &NumberOfCharsRead, nullptr))
 			{
-				LOGWARNING(L"ReadConsole(): {}"sv, last_error());
+				LOGERROR(L"ReadConsole(): {}"sv, last_error());
 				return false;
 			}
 		}
@@ -1367,7 +1367,7 @@ namespace console_detail
 		{
 			if (!ReadFile(InputHandle, Buffer.data(), static_cast<DWORD>(Buffer.size() * sizeof(wchar_t)), &NumberOfCharsRead, nullptr))
 			{
-				LOGWARNING(L"ReadFile(): {}"sv, last_error());
+				LOGERROR(L"ReadFile(): {}"sv, last_error());
 				return false;
 			}
 
@@ -1388,7 +1388,7 @@ namespace console_detail
 		{
 			if (!WriteConsole(OutputHandle, Str.data(), static_cast<DWORD>(Str.size()), &NumberOfCharsWritten, nullptr))
 			{
-				LOGWARNING(L"WriteConsole(): {}"sv, last_error());
+				LOGERROR(L"WriteConsole(): {}"sv, last_error());
 				return false;
 			}
 
@@ -1447,7 +1447,7 @@ namespace console_detail
 	{
 		if (!GetConsoleCursorInfo(GetOutputHandle(), &ConsoleCursorInfo))
 		{
-			LOGWARNING(L"GetConsoleCursorInfo(): {}"sv, last_error());
+			LOGERROR(L"GetConsoleCursorInfo(): {}"sv, last_error());
 			return false;
 		}
 
@@ -1458,7 +1458,7 @@ namespace console_detail
 	{
 		if (!SetConsoleCursorInfo(GetOutputHandle(), &ConsoleCursorInfo))
 		{
-			LOGWARNING(L"SetConsoleCursorInfo(): {}"sv, last_error());
+			LOGERROR(L"SetConsoleCursorInfo(): {}"sv, last_error());
 			return false;
 		}
 
@@ -1551,7 +1551,7 @@ namespace console_detail
 		std::vector<wchar_t> ExeBuffer(ExeLength / sizeof(wchar_t) + 1); // +1 for double \0
 		if (!GetConsoleAliasExes(ExeBuffer.data(), ExeLength))
 		{
-			LOGWARNING(L"GetConsoleAliasExes(): {}"sv, last_error());
+			LOGERROR(L"GetConsoleAliasExes(): {}"sv, last_error());
 			return {};
 		}
 
@@ -1566,7 +1566,7 @@ namespace console_detail
 			AliasesBuffer.resize(AliasesLength / sizeof(wchar_t) + 1); // +1 for double \0
 			if (!GetConsoleAliases(AliasesBuffer.data(), AliasesLength, ExeNamePtr))
 			{
-				LOGWARNING(L"GetConsoleAliases(): {}"sv, last_error());
+				LOGERROR(L"GetConsoleAliases(): {}"sv, last_error());
 				continue;
 			}
 
@@ -1608,7 +1608,7 @@ namespace console_detail
 	{
 		if (!GetConsoleDisplayMode(&Mode))
 		{
-			LOGWARNING(L"GetConsoleDisplayMode(): {}"sv, last_error());
+			LOGERROR(L"GetConsoleDisplayMode(): {}"sv, last_error());
 			return false;
 		}
 
@@ -1634,7 +1634,7 @@ namespace console_detail
 	{
 		if (!SetConsoleActiveScreenBuffer(ConsoleOutput))
 		{
-			LOGWARNING(L"SetConsoleActiveScreenBuffer(): {}"sv, last_error());
+			LOGERROR(L"SetConsoleActiveScreenBuffer(): {}"sv, last_error());
 			return false;
 		}
 
@@ -1968,7 +1968,7 @@ namespace console_detail
 		CONSOLE_SCREEN_BUFFER_INFOEX csbi{ sizeof(csbi) };
 		if (!imports.GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbi))
 		{
-			LOGWARNING(L"GetConsoleScreenBufferInfoEx(): {}"sv, last_error());
+			LOGERROR(L"GetConsoleScreenBufferInfoEx(): {}"sv, last_error());
 			return false;
 		}
 
@@ -2001,7 +2001,7 @@ namespace console_detail
 	{
 		if (!SetConsoleCursorPosition(GetOutputHandle(), make_coord(Position)))
 		{
-			LOGWARNING(L"SetConsoleCursorPosition(): {}"sv, last_error());
+			LOGERROR(L"SetConsoleCursorPosition(): {}"sv, last_error());
 			return false;
 		}
 

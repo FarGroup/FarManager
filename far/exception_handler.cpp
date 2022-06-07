@@ -299,7 +299,7 @@ static void read_modules(string& To, string_view const Eol)
 		{
 			const auto LastError = last_error();
 			format_to(To, FSTR(L"{}"sv), LastError);
-			LOGWARNING(L"{}"sv, LastError);
+			LOGWARNING(L"EnumProcessModules(): {}"sv, LastError);
 			return;
 		}
 

@@ -164,7 +164,7 @@ void DizList::Read(string_view const Path, const string* DizName)
 			m_DizFileName.clear();
 			m_Modified = false;
 
-			LOGWARNING(L"{}"sv, e);
+			LOGERROR(L"{}"sv, e);
 
 			return false;
 		}

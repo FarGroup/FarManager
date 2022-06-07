@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "drivemix.hpp"
 #include "global.hpp"
 #include "keyboard.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -106,7 +107,14 @@ namespace
 
 namespace detail
 {
-	struct devinfo_handle_closer { void operator()(HDEVINFO Handle) const noexcept { SetupDiDestroyDeviceInfoList(Handle); } };
+	struct devinfo_handle_closer
+	{
+		void operator()(HDEVINFO Handle) const noexcept
+		{
+			if (!SetupDiDestroyDeviceInfoList(Handle))
+				LOGWARNING(L"SetupDiDestroyDeviceInfoList(): {}"sv, last_error());
+		}
+	};
 }
 
 class [[nodiscard]] dev_info: noncopyable

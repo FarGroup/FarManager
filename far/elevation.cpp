@@ -437,7 +437,10 @@ static os::handle create_elevated_process(const string& Parameters)
 	};
 
 	if (!ShellExecuteEx(&info))
+	{
+		LOGERROR(L"ShellExecuteEx({}): {}"sv, info.lpFile, last_error());
 		return nullptr;
+	}
 
 	return os::handle(info.hProcess);
 }

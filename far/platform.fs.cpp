@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception.hpp"
 #include "exception_handler.hpp"
 #include "mix.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -134,7 +135,8 @@ namespace os::fs
 	{
 		void find_handle_closer::operator()(HANDLE Handle) const noexcept
 		{
-			FindClose(Handle);
+			if (!FindClose(Handle))
+				LOGWARNING(L"FindClose(): {}"sv, last_error());
 		}
 
 		void find_file_handle_closer::operator()(HANDLE Handle) const noexcept
@@ -144,12 +146,14 @@ namespace os::fs
 
 		void find_volume_handle_closer::operator()(HANDLE Handle) const noexcept
 		{
-			FindVolumeClose(Handle);
+			if (!FindVolumeClose(Handle))
+				LOGWARNING(L"FindVolumeClose(): {}"sv, last_error());
 		}
 
 		void find_notification_handle_closer::operator()(HANDLE Handle) const noexcept
 		{
-			FindCloseChangeNotification(Handle);
+			if (!FindCloseChangeNotification(Handle))
+				LOGWARNING(L"FindCloseChangeNotification(): {}"sv, last_error());
 		}
 	}
 
