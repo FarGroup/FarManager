@@ -377,6 +377,7 @@ namespace tests
 	WARNING_PUSH()
 	WARNING_DISABLE_MSC(4717) // 'function': recursive on all control paths, function will cause runtime stack overflow
 	WARNING_DISABLE_CLANG("-Winfinite-recursion")
+	WARNING_DISABLE_GCC("-Winfinite-recursion")
 
 	static void seh_stack_overflow()
 	{
