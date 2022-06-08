@@ -1232,16 +1232,6 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 					return true;
 				}
 
-				string strFullFileNameTemp = strFullFileName;
-
-				if (!os::fs::exists(strFullFileName)) // а сам файл то еще на месте?
-				{
-					if (!CheckShortcutFolder(strFullFileNameTemp, true, false))
-						return false;
-
-					path::append(strFullFileNameTemp, L'.'); // для вваливания внутрь :-)
-				}
-
 				const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 
 				if (m_Flags.Check(FFILEEDIT_NEW) || (ActivePanel && ActivePanel->FindFile(strFileName) == -1)) // Mantis#279
@@ -1252,7 +1242,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 
 				{
 					SCOPED_ACTION(SaveScreen);
-					Global->CtrlObject->Cp()->GoToFile(strFullFileNameTemp);
+					Global->CtrlObject->Cp()->GoToFile(strFullFileName);
 					m_Flags.Set(FFILEEDIT_REDRAWTITLE);
 				}
 

@@ -122,7 +122,8 @@ static void PrepareOptFolder(string &strSrc, bool IsLocalPath_FarPath)
 	}
 	else
 	{
-		CheckShortcutFolder(strSrc, true, true);
+		if (!os::fs::is_directory(strSrc))
+			CutToExistingParent(strSrc);
 	}
 
 	//ConvertNameToFull(strSrc,strSrc);

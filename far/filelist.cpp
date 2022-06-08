@@ -2999,17 +2999,23 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		strSetDir = extract_root_directory(m_CurDir);
 	}
 
-	auto SetDirectorySuccess = FarChDir(strSetDir);
-	if (!SetDirectorySuccess)
+	auto SetDirectorySuccess = false;
+	auto ParentAttempt = false;
+	for (;;)
 	{
-		if (CheckShortcutFolder(strSetDir, !Silent, Silent || !Global->WindowManager->ManagerStarted()))
-		{
-			SetDirectorySuccess = FarChDir(strSetDir);
-		}
-		else
-		{
-			UpdateFlags = UPDATE_KEEP_SELECTION;
-		}
+		SetDirectorySuccess = FarChDir(strSetDir);
+		if (SetDirectorySuccess)
+			break;
+
+		if (Silent || !TryParentFolder(strSetDir))
+			break;
+
+		ParentAttempt = true;
+	}
+
+	if (!SetDirectorySuccess && !ParentAttempt)
+	{
+		UpdateFlags = UPDATE_KEEP_SELECTION;
 	}
 
 	m_CurDir = os::fs::get_current_directory();

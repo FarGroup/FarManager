@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
+#include "tracer.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -496,8 +497,35 @@ WARNING_POP()
 	}
 }
 
+static bool trace()
+{
+	static auto Processing = false;
+
+	if (Processing)
+		return false;
+
+	Processing = true;
+	SCOPE_EXIT{ Processing = false; };
+
+	const auto Menu = VMenu2::create(L"Current stack"s, {}, ScrY - 4);
+	Menu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
+	Menu->SetPosition({ -1, -1, 0, 0 });
+
+	tracer.get_symbols({}, os::debug::current_stack(), [&](string_view const Line)
+	{
+		Menu->AddItem(string(Line));
+	});
+
+	Menu->Run();
+
+	return true;
+}
+
 static bool ExceptionTestHook(Manager::Key const& key)
 {
+	if (any_of(key(), KEY_CTRLALTF1, KEY_RCTRLRALTF1, KEY_CTRLRALTF1, KEY_RCTRLALTF1))
+		return trace();
+
 	if (none_of(key(), KEY_CTRLALTAPPS, KEY_RCTRLRALTAPPS, KEY_CTRLRALTAPPS, KEY_RCTRLALTAPPS))
 		return false;
 

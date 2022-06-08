@@ -428,7 +428,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 
 					//Type==1 - плагиновый путь
 					//Type==0 - обычный путь
-					Panel->ExecFolder(strStr, Uuid, strFile, strData, true, true, false);
+					Panel->ExecFolder(strStr, Uuid, strFile, strData, true, false);
 					// Panel may be changed
 					if(SelectType == HRT_CTRLSHIFTENTER)
 					{
@@ -1382,28 +1382,16 @@ bool CommandLine::IntChDir(string_view const CmdLine, bool const ClosePanel, boo
 		return true;
 	}
 
-	if (FarChDir(strExpandedDir))
+	while (!FarChDir(strExpandedDir))
 	{
-		SetPanel->ChangeDirToCurrent();
-
-		if (!SetPanel->IsVisible())
-			SetPanel->RefreshTitle();
+		if (Silent || !TryParentFolder(strExpandedDir))
+			return false;
 	}
-	else
-	{
-		if (!Silent)
-		{
-			const auto ErrorState = last_error();
 
-			Message(MSG_WARNING, ErrorState,
-				msg(lng::MError),
-				{
-					strExpandedDir
-				},
-				{ lng::MOk });
-		}
-		return false;
-	}
+	SetPanel->ChangeDirToCurrent();
+
+	if (!SetPanel->IsVisible())
+		SetPanel->RefreshTitle();
 
 	return true;
 }
