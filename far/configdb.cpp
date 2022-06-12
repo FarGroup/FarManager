@@ -840,8 +840,10 @@ private:
 
 static const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]
 {
-	{ FCF_FG_4BIT,         L"fg4bit"sv       },
-	{ FCF_BG_4BIT,         L"bg4bit"sv       },
+	{ FCF_FG_INDEX,        L"fgindex"sv      },
+	{ FCF_BG_INDEX,        L"bgindex"sv      },
+	{ FCF_FG_INDEX,        L"fg4bit"sv       }, // Legacy name
+	{ FCF_BG_INDEX,        L"bg4bit"sv       }, // Legacy name
 	{ FCF_FG_BOLD,         L"bold"sv         },
 	{ FCF_FG_ITALIC,       L"italic"sv       },
 	{ FCF_FG_UNDERLINE,    L"underline"sv    },
@@ -850,6 +852,8 @@ static const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]
 	{ FCF_FG_STRIKEOUT,    L"strikeout"sv    },
 	{ FCF_FG_FAINT,        L"faint"sv        },
 	{ FCF_FG_BLINK,        L"blink"sv        },
+	{ FCF_FG_INVERSE,      L"inverse"sv      },
+	{ FCF_FG_INVISIBLE,    L"invisible"sv    },
 };
 
 class HighlightHierarchicalConfigDb final: public HierarchicalConfigDb

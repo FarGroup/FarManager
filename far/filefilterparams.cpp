@@ -47,7 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "datetime.hpp"
 #include "strmix.hpp"
-#include "setcolor.hpp"
+#include "color_picker.hpp"
 #include "flink.hpp"
 #include "lang.hpp"
 #include "locale.hpp"

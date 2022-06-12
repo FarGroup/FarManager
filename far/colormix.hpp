@@ -49,6 +49,18 @@ struct FarColor;
 
 namespace colors
 {
+	namespace index
+	{
+		constexpr auto
+			nt_mask = 0xf,
+			nt_last = 15,
+			cube_first = nt_last + 1,
+			cube_size = 6,
+			cube_last = cube_first + cube_size * cube_size * cube_size - 1,
+			grey_first = cube_last + 1,
+			grey_last = 255;
+	}
+
 	COLORREF index_bits(COLORREF Colour);
 	COLORREF color_bits(COLORREF Colour);
 	COLORREF alpha_bits(COLORREF Colour);
@@ -81,7 +93,7 @@ namespace colors
 
 	FarColor merge(const FarColor& Bottom, const FarColor& Top);
 	WORD FarColorToConsoleColor(const FarColor& Color);
-	FarColor ConsoleColorToFarColor(WORD Color);
+	FarColor NtColorToFarColor(WORD Color);
 	COLORREF ConsoleIndexToTrueColor(COLORREF Color);
 	const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex);
 	const FarColor* StoreColor(const FarColor& Value);

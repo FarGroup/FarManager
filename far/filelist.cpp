@@ -7562,7 +7562,7 @@ void FileList::ShowFileList(bool Fast)
 			const auto& ColumnTitleColor = colors::PaletteColorToFarColor(COL_PANELCOLUMNTITLE);
 			auto Color = colors::PaletteColorToFarColor(COL_PANELBOX);
 			Color.BackgroundColor = ColumnTitleColor.BackgroundColor;
-			Color.SetBg4Bit(ColumnTitleColor.IsBg4Bit());
+			Color.SetBgIndex(ColumnTitleColor.IsBgIndex());
 			SetColor(Color);
 
 			GotoXY(static_cast<int>(ColumnPos), m_Where.top + 1);
@@ -8247,7 +8247,7 @@ void FileList::HighlightBorder(int Level, int ListPos) const
 		const auto FileColor = GetShowColor(ListPos, true);
 		auto Color = colors::PaletteColorToFarColor(COL_PANELBOX);
 		Color.BackgroundColor = FileColor.BackgroundColor;
-		Color.SetBg4Bit(FileColor.IsBg4Bit());
+		Color.SetBgIndex(FileColor.IsBgIndex());
 		SetColor(Color);
 	}
 }

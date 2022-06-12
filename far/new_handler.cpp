@@ -174,19 +174,48 @@ new_handler::new_handler():
 		return;
 	}
 
-	const COORD BufferSize{ X, Y };
+	CONSOLE_SCREEN_BUFFER_INFO Info;
+	if (!GetConsoleScreenBufferInfo(m_Screen.native_handle(), &Info))
+	{
+		LOGWARNING(L"GetConsoleScreenBufferInfo(): {}"sv, last_error());
+		return;
+	}
 
-	const SMALL_RECT WindowInfo{ 0, 0, X - 1, Y - 1 };
-	if (!SetConsoleWindowInfo(m_Screen.native_handle(), true, &WindowInfo))
+	// The new and improved console is full of wonders.
+	// You can't make the window size larger than the buffer.
+	// And you can't make the buffer size smaller than the window.
+	// So you have to make the buffer larger first, but not too large,
+	// then set the window size to what you want, and then make
+	// the buffer size smaller if needed.
+	// This is insane.
+	if (Info.dwSize.X < X || Info.dwSize.Y < Y)
+	{
+		const COORD BufferSize
+		{
+			std::max(static_cast<short>(X), Info.dwSize.X),
+			std::max(static_cast<short>(X), Info.dwSize.Y)
+		};
+
+		if (!SetConsoleScreenBufferSize(m_Screen.native_handle(), BufferSize))
+		{
+			LOGWARNING(L"SetConsoleScreenBufferSize(): {}"sv, last_error());
+			return;
+		}
+	}
+
+	if (const SMALL_RECT WindowInfo{ 0, 0, X - 1, Y - 1 }; !SetConsoleWindowInfo(m_Screen.native_handle(), true, &WindowInfo))
 	{
 		LOGWARNING(L"SetConsoleWindowInfo(): {}"sv, last_error());
 		return;
 	}
 
-	if (!SetConsoleScreenBufferSize(m_Screen.native_handle(), BufferSize))
+	if (Info.dwSize.X > X || Info.dwSize.Y > Y)
 	{
-		LOGWARNING(L"SetConsoleScreenBufferSize(): {}"sv, last_error());
-		return;
+		if (!SetConsoleScreenBufferSize(m_Screen.native_handle(), { X, Y }))
+		{
+			LOGWARNING(L"SetConsoleScreenBufferSize(): {}"sv, last_error());
+			return;
+		}
 	}
 
 	const auto WhiteOnBlue = 0x9F;
@@ -196,15 +225,14 @@ new_handler::new_handler():
 		return;
 	}
 
-	DWORD AttrWritten;
-	if (!FillConsoleOutputAttribute(m_Screen.native_handle(), WhiteOnBlue, BufferSize.X * BufferSize.Y, { 0, 0 }, &AttrWritten))
+	if (DWORD AttrWritten; !FillConsoleOutputAttribute(m_Screen.native_handle(), WhiteOnBlue, X * Y, { 0, 0 }, &AttrWritten))
 	{
 		LOGWARNING(L"FillConsoleOutputAttribute(): {}"sv, last_error());
 		return;
 	}
 
-	const CONSOLE_CURSOR_INFO cci{ 1 };
-	if (!SetConsoleCursorInfo(m_Screen.native_handle(), &cci))
+
+	if (const CONSOLE_CURSOR_INFO cci{ 1 }; !SetConsoleCursorInfo(m_Screen.native_handle(), &cci))
 	{
 		LOGWARNING(L"SetConsoleCursorInfo(): {}"sv, last_error());
 		return;

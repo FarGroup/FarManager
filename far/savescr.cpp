@@ -188,12 +188,12 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 
 		if (DesiredHeight != OriginalHeight)
 		{
-			matrix<FAR_CHAR_INFO> Tmp(std::abs(OriginalHeight - DesiredHeight), std::max(DesiredWidth, OriginalWidth));
 			if (DesiredHeight > OriginalHeight)
 			{
 				if (IsExtraTop)
 				{
 					rectangle const ReadRegion{ 0, 0, DesiredWidth - 1, DesiredHeight - OriginalHeight - 1 };
+					matrix<FAR_CHAR_INFO> Tmp(DesiredHeight - OriginalHeight, std::max(DesiredWidth, OriginalWidth));
 					if (console.ReadOutput(Tmp, ReadRegion))
 					{
 						for (const auto& i: irange(Tmp.height()))
@@ -203,8 +203,9 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 					}
 				}
 			}
-			else if (rectangle const WriteRegion{ 0, DesiredHeight - OriginalHeight, DesiredWidth - 1, -1 }; WriteRegion.left < ScrX && WriteRegion.top < ScrY)
+			else if (rectangle const WriteRegion{ 0, DesiredHeight - OriginalHeight, OriginalWidth - 1, -1 }; WriteRegion.left < ScrX && WindowRect.first.top && WriteRegion.top < ScrY)
 			{
+				matrix<FAR_CHAR_INFO> Tmp(OriginalHeight - DesiredHeight, std::max(DesiredWidth, OriginalWidth));
 				for (const auto& i: irange(Tmp.height()))
 				{
 					std::copy_n(ScreenBuf[i].data(), Tmp.width(), Tmp[i].data());
@@ -216,12 +217,12 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 
 		if (DesiredWidth != OriginalWidth)
 		{
-			matrix<FAR_CHAR_INFO> Tmp(std::max(DesiredHeight, OriginalHeight), std::abs(DesiredWidth - OriginalWidth));
 			if (DesiredWidth > OriginalWidth)
 			{
 				if (IsExtraRight)
 				{
 					rectangle const ReadRegion{ OriginalWidth, 0, DesiredWidth - 1, DesiredHeight - 1 };
+					matrix<FAR_CHAR_INFO> Tmp(ReadRegion.height(), ReadRegion.width());
 					console.ReadOutput(Tmp, ReadRegion);
 					for (const auto& i: irange(NewBuf.height()))
 					{
@@ -229,14 +230,16 @@ void SaveScreen::Resize(int DesiredWidth, int DesiredHeight, bool SyncWithConsol
 					}
 				}
 			}
-			else if (rectangle const WriteRegion{ DesiredWidth, DesiredHeight - OriginalHeight, OriginalWidth - 1, DesiredHeight - 1 }; WriteRegion.left < ScrX && WriteRegion.top < ScrY)
+			else if (rectangle WriteRegion{ DesiredWidth, 0, OriginalWidth - 1, std::min(DesiredHeight, OriginalHeight) - 1 }; WriteRegion.top < ScrY)
 			{
+				// VT can only move the cursor within the viewport. What a bloody joke.
+				const auto VtFixup = 1;
+				WriteRegion.left -= VtFixup;
+				matrix<FAR_CHAR_INFO> Tmp(WriteRegion.height(), WriteRegion.width());
+				const auto StartY = OriginalHeight - Tmp.height();
 				for (const auto& i: irange(Tmp.height()))
 				{
-					if (static_cast<int>(i) < OriginalHeight)
-						std::copy_n(&ScreenBuf[i][DesiredWidth], Tmp.width(), Tmp[i].data());
-					else
-						CleanupBuffer(Tmp[i].data(), Tmp.width());
+					std::copy_n(&ScreenBuf[i + StartY][DesiredWidth - VtFixup], Tmp.width(), Tmp[i].data());
 				}
 				console.WriteOutput(Tmp, WriteRegion);
 				console.Commit();

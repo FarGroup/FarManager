@@ -160,7 +160,7 @@ static int MainProcess(
 {
 		FarColor InitAttributes;
 		if (!console.GetTextAttributes(InitAttributes))
-			InitAttributes = colors::ConsoleColorToFarColor(F_LIGHTGRAY | B_BLACK);
+			InitAttributes = colors::NtColorToFarColor(F_LIGHTGRAY | B_BLACK);
 		SetRealColor(colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN));
 
 		string ename(EditName),vname(ViewName), apanel(DestName1),ppanel(DestName2);

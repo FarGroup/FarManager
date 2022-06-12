@@ -1,15 +1,14 @@
-﻿#ifndef SETCOLOR_HPP_6E3A8440_946E_46AA_AAE1_372CAD23A7E6
-#define SETCOLOR_HPP_6E3A8440_946E_46AA_AAE1_372CAD23A7E6
+﻿#ifndef COLOR_PICKER_RGB_HPP_2D6C08AA_17E2_4EE8_9567_E9270BFFAE84
+#define COLOR_PICKER_RGB_HPP_2D6C08AA_17E2_4EE8_9567_E9270BFFAE84
 #pragma once
 
 /*
-setcolor.hpp
+color_picker_rgb.hpp
 
-Установка фаровских цветов
+RGB colors extension to the standard color picker
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2022 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -45,6 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-void SetColors();
+bool pick_color_rgb(COLORREF& Color);
 
-#endif // SETCOLOR_HPP_6E3A8440_946E_46AA_AAE1_372CAD23A7E6
+#endif // COLOR_PICKER_RGB_HPP_2D6C08AA_17E2_4EE8_9567_E9270BFFAE84

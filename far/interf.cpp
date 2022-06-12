@@ -1132,7 +1132,7 @@ void DropShadow(rectangle const Where, bool const IsLegacy)
 
 void SetColor(int Color)
 {
-	CurColor = colors::ConsoleColorToFarColor(Color);
+	CurColor = colors::NtColorToFarColor(Color);
 }
 
 void SetColor(PaletteColors Color)

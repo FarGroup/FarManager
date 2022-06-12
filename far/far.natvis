@@ -144,14 +144,17 @@
 	</Type>
 
 	<Type Name="FarColor">
-		<Intrinsic Name="is_f_rgb" Expression="(Flags &amp; FCF_FG_4BIT) == 0"/>
-		<Intrinsic Name="is_b_rgb" Expression="(Flags &amp; FCF_BG_4BIT) == 0"/>
-		<Intrinsic Name="is_f_index" Expression="!is_f_rgb() &amp;&amp; (ForegroundColor &amp; 0xf) == Index">
+		<Intrinsic Name="is_f_rgb" Expression="(Flags &amp; FCF_FG_INDEX) == 0"/>
+		<Intrinsic Name="is_b_rgb" Expression="(Flags &amp; FCF_BG_INDEX) == 0"/>
+		<Intrinsic Name="is_f_index" Expression="!is_f_rgb() &amp;&amp; (ForegroundColor &amp; 0xff) == Index">
 			<Parameter Type="int" Name="Index"/>
 		</Intrinsic>
-		<Intrinsic Name="is_b_index" Expression="!is_b_rgb() &amp;&amp; (BackgroundColor &amp; 0xf) == Index">
+		<Intrinsic Name="is_f_index256" Expression="!is_f_rgb() &amp;&amp; (ForegroundColor &amp; 0xff) &gt; 15"/>
+		<Intrinsic Name="is_b_index" Expression="!is_b_rgb() &amp;&amp; (BackgroundColor &amp; 0xff) == Index">
 			<Parameter Type="int" Name="Index"/>
 		</Intrinsic>
+		<Intrinsic Name="is_b_index256" Expression="!is_b_rgb() &amp;&amp; (BackgroundColor &amp; 0xff) &gt; 15"/>
+
 		<Expand>
 			<Synthetic Name="Foreground">
 				<DisplayString Condition="is_f_rgb()">{ForegroundRGBA}</DisplayString>
@@ -171,9 +174,14 @@
 				<DisplayString Condition="is_f_index(0xd)">fuchsia</DisplayString>
 				<DisplayString Condition="is_f_index(0xe)">yellow</DisplayString>
 				<DisplayString Condition="is_f_index(0xf)">white</DisplayString>
+				<DisplayString Condition="is_f_index256()">{short(ForegroundIndex.i),xb}</DisplayString>
 				<Expand>
-					<Item Name="index">short(ForegroundIndex.i),xb</Item>
-					<Item Name="alpha">short(ForegroundIndex.a)</Item>
+					<Item Name="index" Condition="!is_f_rgb()">short(ForegroundIndex.i),xb</Item>
+					<Item Name="alpha" Condition="!is_f_rgb()">short(ForegroundIndex.a)</Item>
+					<Item Name="red"   Condition="is_f_rgb()">short(ForegroundRGBA.r),xb</Item>
+					<Item Name="green" Condition="is_f_rgb()">short(ForegroundRGBA.g),xb</Item>
+					<Item Name="blue"  Condition="is_f_rgb()">short(ForegroundRGBA.b),xb</Item>
+					<Item Name="alpha" Condition="is_f_rgb()">short(ForegroundRGBA.a)</Item>
 				</Expand>
 			</Synthetic>
 			<Synthetic Name="Background">
@@ -194,9 +202,14 @@
 				<DisplayString Condition="is_b_index(0xd)">fuchsia</DisplayString>
 				<DisplayString Condition="is_b_index(0xe)">yellow</DisplayString>
 				<DisplayString Condition="is_b_index(0xf)">white</DisplayString>
+				<DisplayString Condition="is_b_index256()">{short(BackgroundIndex.i),xb}</DisplayString>
 				<Expand>
-					<Item Name="index">short(BackgroundIndex.i),xb</Item>
-					<Item Name="alpha">short(BackgroundIndex.a)</Item>
+					<Item Name="index" Condition="!is_b_rgb()">short(BackgroundIndex.i),xb</Item>
+					<Item Name="alpha" Condition="!is_b_rgb()">short(BackgroundIndex.a)</Item>
+					<Item Name="red"   Condition="is_b_rgb()">short(BackgroundRGBA.r),xb</Item>
+					<Item Name="green" Condition="is_b_rgb()">short(BackgroundRGBA.g),xb</Item>
+					<Item Name="blue"  Condition="is_b_rgb()">short(BackgroundRGBA.b),xb</Item>
+					<Item Name="alpha" Condition="is_b_rgb()">short(BackgroundRGBA.a)</Item>
 				</Expand>
 			</Synthetic>
 			<Synthetic Name="Flags">
@@ -211,6 +224,8 @@
 					<Item Name="strikeout">bool(Flags &amp; FCF_FG_STRIKEOUT)</Item>
 					<Item Name="faint">bool(Flags &amp; FCF_FG_FAINT)</Item>
 					<Item Name="blink">bool(Flags &amp; FCF_FG_BLINK)</Item>
+					<Item Name="inverse">bool(Flags &amp; FCF_FG_INVERSE)</Item>
+					<Item Name="invisible">bool(Flags &amp; FCF_FG_INVISIBLE)</Item>
 					<Item Name="raw">short((Flags &amp; FCF_RAWATTR_MASK) &gt;&gt; 8),h</Item>
 				</Expand>
 			</Synthetic>

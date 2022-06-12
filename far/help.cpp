@@ -993,7 +993,7 @@ static bool GetHelpColor(string_view& Str, wchar_t cColor, FarColor& color)
 	if (Str.size() > 2 && std::iswxdigit(Str[1]) && std::iswxdigit(Str[2]))
 	{
 		const auto Value = std::to_integer<unsigned>(HexStringToBlob(Str.substr(1, 2))[0]);
-		color = colors::ConsoleColorToFarColor(Value);
+		color = colors::NtColorToFarColor(Value);
 		Str.remove_prefix(3);
 		return true;
 	}

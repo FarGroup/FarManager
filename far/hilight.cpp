@@ -78,7 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static const FarColor DefaultColor
 {
-	FCF_FG_4BIT | FCF_BG_4BIT | FCF_INHERIT_STYLE,
+	FCF_FG_INDEX | FCF_BG_INDEX | FCF_INHERIT_STYLE,
 	{colors::transparent(F_BLACK)},
 	{colors::transparent(F_BLACK)}
 };
@@ -151,7 +151,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig& cfg)
 
 	const auto MakeFarColor = [](int ConsoleColour)
 	{
-		auto Colour = colors::ConsoleColorToFarColor(ConsoleColour);
+		auto Colour = colors::NtColorToFarColor(ConsoleColour);
 		colors::make_transparent(Colour.BackgroundColor);
 		Colour.Flags |= FCF_INHERIT_STYLE;
 		return Colour;
@@ -297,7 +297,7 @@ static void ApplyBlackOnBlackColor(highlight::element::colors_array::value_type&
 
 		colors::set_color_value(Color.BackgroundColor, Base.BackgroundColor);
 		colors::set_color_value(Color.ForegroundColor, Base.ForegroundColor);
-		flags::copy(Color.Flags, FCF_4BITMASK, Base.Flags);
+		flags::copy(Color.Flags, FCF_INDEXMASK, Base.Flags);
 
 		if (Color.Flags & FCF_INHERIT_STYLE)
 			flags::set(Color.Flags, Base.Flags & FCF_STYLEMASK);

@@ -1,15 +1,14 @@
-﻿#ifndef SETCOLOR_HPP_6E3A8440_946E_46AA_AAE1_372CAD23A7E6
-#define SETCOLOR_HPP_6E3A8440_946E_46AA_AAE1_372CAD23A7E6
+﻿#ifndef COLOR_PICKER_256_HPP_31E35302_0627_46E0_830F_B81F8D7344B1
+#define COLOR_PICKER_256_HPP_31E35302_0627_46E0_830F_B81F8D7344B1
 #pragma once
 
 /*
-setcolor.hpp
+color_picker_256.hpp
 
-Установка фаровских цветов
+256 colors extension to the standard color picker
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2022 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -45,6 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-void SetColors();
+bool pick_color_256(COLORREF& Color);
 
-#endif // SETCOLOR_HPP_6E3A8440_946E_46AA_AAE1_372CAD23A7E6
+#endif // COLOR_PICKER_256_HPP_31E35302_0627_46E0_830F_B81F8D7344B1

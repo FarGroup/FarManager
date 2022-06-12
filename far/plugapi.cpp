@@ -89,7 +89,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "lockscrn.hpp"
 #include "exception_handler.hpp"
-#include "setcolor.hpp"
+#include "color_picker.hpp"
 #include "log.hpp"
 
 // Platform:

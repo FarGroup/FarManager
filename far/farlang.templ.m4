@@ -18634,18 +18634,18 @@ MSetColorBackground
 MSetColorForeIndex
 l:
 l:// 8 characters max
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
 
 MSetColorForeAARRGGBB
 l:
@@ -18662,6 +18662,22 @@ l:// 8 characters max
 "AARRGGBB"
 "AARRGGBB"
 "AARRGGBB"
+
+MSetColorFore256
+l:
+l:// 3 characters max
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
 
 MSetColorForeRGB
 l:
@@ -18682,18 +18698,18 @@ l:// 3 characters max
 MSetColorBackIndex
 l:
 l:// 8 characters max
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
 
 MSetColorBackAARRGGBB
 l:
@@ -18710,6 +18726,22 @@ l:// 8 characters max
 "AARRGGBB"
 "AARRGGBB"
 "AARRGGBB"
+
+MSetColorBack256
+l:
+l:// 3 characters max
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
+"256…"
 
 MSetColorBackRGB
 l:
@@ -18866,6 +18898,34 @@ MSetColorStyleBlink
 "Миготіння"
 "Мігценне"
 "Mirksėjimas"
+
+MSetColorStyleInverse
+"Мерцающий"
+"Inverse"
+"Inverzní"
+"Umgekehrt"
+"Inverz"
+"Odwrotność"
+"Inverso"
+"Inverzný"
+"Inverso"
+"Зворотний"
+"Зваротны"
+"Atvirkščiai"
+
+MSetColorStyleInvisible
+"Невидимый"
+"Invisible"
+"Neviditelný"
+"Unsichtbar"
+"Láthatatlan"
+"Niewidzialny"
+"Invisible"
+"Neviditeľný"
+"Invisibile"
+"Невидимий"
+"Нябачны"
+"Nematomas"
 
 MSetColorSample
 "Текст Текст Текст Текст Текст Текст"

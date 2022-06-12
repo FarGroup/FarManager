@@ -895,7 +895,7 @@ namespace console_detail
 		for_submatrix(Buffer, SubRect, [&](FAR_CHAR_INFO& i)
 		{
 			const auto& Cell = *ConsoleBufferIterator++;
-			i = { Cell.Char.UnicodeChar, colors::ConsoleColorToFarColor(Cell.Attributes) };
+			i = { Cell.Char.UnicodeChar, colors::NtColorToFarColor(Cell.Attributes) };
 		});
 
 		return true;
@@ -922,14 +922,14 @@ namespace console_detail
 
 	static const struct
 	{
-		string_view Normal, Intense, TrueColour;
+		string_view Normal, Intense, ExtendedColour;
 		COLORREF FarColor::* Color;
 		FARCOLORFLAGS Flags;
 	}
 	ColorsMapping[]
 	{
-		{ L"3"sv,  L"9"sv, L"38"sv, &FarColor::ForegroundColor, FCF_FG_4BIT },
-		{ L"4"sv, L"10"sv, L"48"sv, &FarColor::BackgroundColor, FCF_BG_4BIT },
+		{ L"3"sv,  L"9"sv, L"38"sv, &FarColor::ForegroundColor, FCF_FG_INDEX },
+		{ L"4"sv, L"10"sv, L"48"sv, &FarColor::BackgroundColor, FCF_BG_INDEX },
 	};
 
 	static void make_vt_attributes(const FarColor& Attributes, string& Str, std::optional<FarColor> const& LastColor)
@@ -942,12 +942,16 @@ namespace console_detail
 
 			if (Attributes.Flags & i.Flags)
 			{
-				append(Str, ColorPart & FOREGROUND_INTENSITY? i.Intense : i.Normal, vt_color_index(ColorPart));
+				const auto Index = colors::index_value(ColorPart);
+				if (Index < 16)
+					append(Str, ColorPart & FOREGROUND_INTENSITY? i.Intense : i.Normal, vt_color_index(Index));
+				else
+					format_to(Str, FSTR(L"{};5;{}"sv), i.ExtendedColour, Index);
 			}
 			else
 			{
 				const union { COLORREF Color; rgba RGBA; } Value { ColorPart };
-				format_to(Str, FSTR(L"{};2;{};{};{}"sv), i.TrueColour, Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
+				format_to(Str, FSTR(L"{};2;{};{};{}"sv), i.ExtendedColour, Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
 			}
 
 			Str += L';';
@@ -977,6 +981,8 @@ namespace console_detail
 		set_style(FCF_FG_STRIKEOUT,  L";9"sv,  L";29"sv);
 		set_style(FCF_FG_FAINT,      L";2"sv,  L";22"sv);
 		set_style(FCF_FG_BLINK,      L";5"sv,  L";25"sv);
+		set_style(FCF_FG_INVERSE,    L";7"sv,  L";27"sv);
+		set_style(FCF_FG_INVISIBLE,  L";8"sv,  L";28"sv);
 
 		Str += L'm';
 	}
@@ -1075,13 +1081,17 @@ namespace console_detail
 			if (WriteRegion.left > csbi.dwSize.X - 1 || WriteRegion.top > csbi.dwSize.Y - 1)
 				return false;
 
-			if (
-				// Hide cursor
-				!::console.SetCursorInfo({1}) ||
-				// Move the viewport down
-				!::console.SetCursorRealPosition({ 0, csbi.dwSize.Y - 1 }) ||
-				// Set cursor position within the viewport
-				!::console.SetCursorRealPosition({ WriteRegion.left, WriteRegion.top }))
+
+			// Hide cursor
+			if (!::console.SetCursorInfo({1}))
+				return false;
+
+			// Move the viewport down
+			if (!::console.SetCursorRealPosition({0, csbi.dwSize.Y - 1}))
+				return false;
+
+			// Set cursor position within the viewport
+			if (!::console.SetCursorRealPosition({WriteRegion.left, WriteRegion.top}))
 				return false;
 
 			SCOPE_EXIT
@@ -1119,17 +1129,40 @@ namespace console_detail
 
 			std::optional<FarColor> LastColor;
 
-			for (const auto& i: irange(SubRect.top + 0, SubRect.bottom + 1))
-			{
-				if (i != SubRect.top)
-					format_to(Str, FSTR(L"\033[{};{}H"sv), CursorPosition.y + 1 + (i - SubRect.top), CursorPosition.x + 1);
+			point ViewportSize;
+			if (!::console.GetSize(ViewportSize))
+				return false;
 
-				make_vt_sequence(Buffer[i].subspan(SubRect.left, SubRect.width()), Str, LastColor);
+			// If SubRect is too tall (e.g. when we flushing the old content of console resize), the rest will be dropped.
+			// VT is a bloody joke.
+			for (int SubrectOffset = 0; SubrectOffset < SubRect.height(); SubrectOffset += ViewportSize.y)
+			{
+				if (SubrectOffset)
+				{
+					// Move the viewport down
+					if (!::console.SetCursorRealPosition({0, csbi.dwSize.Y - 1}))
+						return false;
+					// Set cursor position within the viewport
+					if (!::console.SetCursorRealPosition({ WriteRegion.left, WriteRegion.top + SubrectOffset }))
+						return false;
+				}
+
+				for (const auto& i: irange(SubRect.top + SubrectOffset, std::min(SubRect.top + SubrectOffset + ViewportSize.y, SubRect.bottom + 1)))
+				{
+					if (i != SubRect.top)
+						format_to(Str, FSTR(L"\033[{};{}H"sv), CursorPosition.y + 1 + (i - SubrectOffset - SubRect.top), CursorPosition.x + 1);
+
+					make_vt_sequence(Buffer[i].subspan(SubRect.left, SubRect.width()), Str, LastColor);
+				}
+
+				if (!::console.Write(Str))
+					return false;
+
+				Str.clear();
+
 			}
 
-			append(Str, L"\033[0m"sv);
-
-			return ::console.Write(Str);
+			return ::console.Write(L"\033[0m"sv);
 		}
 
 		class cursor_suppressor
@@ -1431,7 +1464,7 @@ namespace console_detail
 		if (!get_console_screen_buffer_info(GetOutputHandle(), &ConsoleScreenBufferInfo))
 			return false;
 
-		Attributes = colors::ConsoleColorToFarColor(ConsoleScreenBufferInfo.wAttributes);
+		Attributes = colors::NtColorToFarColor(ConsoleScreenBufferInfo.wAttributes);
 		return true;
 	}
 
@@ -2107,7 +2140,7 @@ public:
 		m_Err(std::wcerr, m_BufErr),
 		m_Log(std::wclog, m_BufLog)
 	{
-		auto Color = colors::ConsoleColorToFarColor(F_LIGHTRED);
+		auto Color = colors::NtColorToFarColor(F_LIGHTRED);
 		colors::make_transparent(Color.BackgroundColor);
 		m_BufErr.color(Color);
 	}

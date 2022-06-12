@@ -267,10 +267,12 @@ namespace
 				{
 					CONSOLE_SCREEN_BUFFER_INFO csbi;
 					if (!get_console_screen_buffer_info(Buffer, &csbi))
-						return;
+						throw MAKE_FAR_EXCEPTION(L"get_console_screen_buffer_info"sv);
+
+					if (!SetConsoleTextAttribute(Buffer, Color))
+						throw MAKE_FAR_EXCEPTION(L"SetConsoleTextAttributes"sv);
 
 					m_SavedAttributes = csbi.wAttributes;
-					SetConsoleTextAttribute(Buffer, Color);
 				}
 
 				~console_color()
@@ -287,7 +289,8 @@ namespace
 			const auto write_console = [Buffer](string_view Str)
 			{
 				DWORD Written;
-				WriteConsole(Buffer, Str.data(), static_cast<DWORD>(Str.size()), &Written, {});
+				if (!WriteConsole(Buffer, Str.data(), static_cast<DWORD>(Str.size()), &Written, {}))
+					throw MAKE_FAR_EXCEPTION(L"WriteConsole"sv);
 			};
 
 			const auto write = [&](string_view const Borders, WORD const Color, string_view const Str)
@@ -313,7 +316,19 @@ namespace
 
 		void handle(message Message) override
 		{
-			process(m_Buffer.native_handle(), Message);
+			if (!m_Buffer)
+				return;
+
+			try
+			{
+				process(m_Buffer.native_handle(), Message);
+			}
+			catch (far_exception const& e)
+			{
+				m_Buffer.close();
+
+				LOGERROR(L"{}"sv, e);
+			}
 		}
 
 		void configure(string_view const Parameters) override
@@ -840,7 +855,7 @@ namespace logging
 		os::concurrency::synced_queue<message> m_QueuedMessages;
 		std::atomic_size_t m_QueuedMessagesCount;
 		std::atomic<level> m_Level{ level::off };
-		level m_TraceLevel{ level::error };
+		level m_TraceLevel{ level::fatal };
 		size_t m_TraceDepth{ std::numeric_limits<size_t>::max() };
 		std::atomic<engine_status> m_Status{ engine_status::incomplete };
 	};
@@ -883,7 +898,7 @@ namespace logging
 	int main(string_view const PipeName)
 	{
 		console.SetTitle(concat(L"Far Log Viewer: "sv, PipeName));
-		console.SetTextAttributes(colors::ConsoleColorToFarColor(F_LIGHTGRAY | B_BLACK));
+		console.SetTextAttributes(colors::NtColorToFarColor(F_LIGHTGRAY | B_BLACK));
 
 		DWORD ConsoleMode = 0;
 		console.GetMode(console.GetInputHandle(), ConsoleMode);
@@ -930,7 +945,14 @@ namespace logging
 				return EXIT_FAILURE;
 			}
 
-			sink_console::process(GetStdHandle(STD_OUTPUT_HANDLE), Message);
+			try
+			{
+				sink_console::process(GetStdHandle(STD_OUTPUT_HANDLE), Message);
+			}
+			catch (far_exception const& e)
+			{
+				LOGERROR(L"{}"sv, e);
+			}
 		}
 	}
 }

@@ -1,15 +1,10 @@
-﻿#ifndef SETCOLOR_HPP_6E3A8440_946E_46AA_AAE1_372CAD23A7E6
-#define SETCOLOR_HPP_6E3A8440_946E_46AA_AAE1_372CAD23A7E6
-#pragma once
+﻿/*
+color_picker_rgb.cpp
 
-/*
-setcolor.hpp
-
-Установка фаровских цветов
+RGB colors extension to the standard color picker
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2022 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,7 +30,16 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// BUGBUG
+#include "platform.headers.hpp"
+
+// Self:
+#include "color_picker_rgb.hpp"
+
 // Internal:
+#include "config.hpp"
+#include "console.hpp"
+#include "global.hpp"
 
 // Platform:
 
@@ -45,6 +49,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-void SetColors();
+bool pick_color_rgb(COLORREF& Color)
+{
+	CHOOSECOLOR Params{ sizeof(Params) };
 
-#endif // SETCOLOR_HPP_6E3A8440_946E_46AA_AAE1_372CAD23A7E6
+	Params.hwndOwner = console.GetWindow();
+	Params.Flags = CC_ANYCOLOR | CC_FULLOPEN | CC_RGBINIT;
+
+	auto CustomColors = Global->Opt->Palette.GetCustomColors();
+	Params.lpCustColors = CustomColors.data();
+	Params.rgbResult = Color;
+
+	if (!ChooseColor(&Params))
+		return false;
+
+	Global->Opt->Palette.SetCustomColors(CustomColors);
+	Color = Params.rgbResult;
+
+	return true;
+}
