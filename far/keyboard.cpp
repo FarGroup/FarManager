@@ -57,6 +57,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "global.hpp"
 #include "log.hpp"
+#include "exception.hpp"
+#include "xlat.hpp"
 
 // Platform:
 #include "platform.reg.hpp"
@@ -269,9 +271,67 @@ static const TFKey ModifKeyName[]
 	{ KEY_SHIFT,    lng::MKeyShift,  L"Shift"sv, },
 };
 
+static auto get_keyboard_layout_list()
+{
+	std::vector<HKL> Result;
+
+	if (const auto LayoutNumber = GetKeyboardLayoutList(0, nullptr))
+	{
+		Result.resize(LayoutNumber);
+		Result.resize(GetKeyboardLayoutList(LayoutNumber, Result.data())); // if less than expected
+
+		return Result;
+	}
+
+	// GetKeyboardLayoutList can fail in telnet mode, which is, technically, a right thing to do.
+	// However, we still need to map the keys.
+	// The code below emulates it in the hope that your client and server layouts are more or less similar.
+	LOGWARNING(L"GetKeyboardLayoutList(): {}"sv, last_error());
+
+	Result.reserve(10);
+	string LayoutStr, LayoutIdStr;
+	for (const auto& i: os::reg::enum_value(os::reg::key::current_user, L"Keyboard Layout\\Preload"sv))
+	{
+		try
+		{
+			// Just to make sure we're not trying to parse some rubbish
+			[[maybe_unused]] const auto PreloadNumber = from_string<int>(i.name());
+
+			const auto PreloadStr = i.get_string();
+			const auto Preload = from_string<uint32_t>(PreloadStr, {}, 16);
+			const auto PrimaryLanguageId = extract_integer<uint16_t, 0>(Preload);
+
+			const auto LayoutValue = os::reg::key::current_user.get(L"Keyboard Layout\\Substitutes"sv, PreloadStr, LayoutStr)?
+				from_string<uint32_t>(LayoutStr, {}, 16) :
+				Preload;
+
+			const auto SecondaryLanguageId = extract_integer<uint16_t, 0>(LayoutValue);
+
+			const string_view LayoutView = LayoutValue == Preload? PreloadStr : LayoutStr;
+
+			const auto LayoutId = os::reg::key::local_machine.get(concat(L"SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts\\"sv, LayoutView), L"Layout Id"sv, LayoutIdStr)?
+				from_string<int>(LayoutIdStr, {}, 16) :
+				0;
+
+			const auto FinalLayout = make_integer<uint32_t, uint16_t>(PrimaryLanguageId, LayoutId? (LayoutId & 0xfff) | 0xf000 : SecondaryLanguageId);
+
+			Result.emplace_back(os::make_hkl(FinalLayout));
+		}
+		catch (std::exception const& e)
+		{
+			LOGWARNING(L"{}", e);
+		}
+	}
+
+	if (Result.empty())
+		Result.emplace_back(os::make_hkl(0x04090409)); // Fallback to US
+
+	return Result;
+}
+
 static auto& Layout()
 {
-	static std::vector<HKL> s_Layout;
+	static std::vector<HKL> s_Layout = get_keyboard_layout_list();
 	return s_Layout;
 }
 
@@ -282,72 +342,60 @@ static auto& Layout()
 */
 void InitKeysArray()
 {
-	if (const auto LayoutNumber = GetKeyboardLayoutList(0, nullptr))
-	{
-		Layout().resize(LayoutNumber);
-		Layout().resize(GetKeyboardLayoutList(LayoutNumber, Layout().data())); // if less than expected
-	}
-	else // GetKeyboardLayoutList can return 0 in telnet mode
-	{
-		Layout().reserve(10);
-		for (const auto& i: os::reg::enum_value(os::reg::key::current_user, L"Keyboard Layout\\Preload"sv))
-		{
-			if (i.type() == REG_SZ && std::iswdigit(i.name().front()))
-			{
-				const auto Value = i.get_string();
-
-				if (const auto Hkl = os::make_hkl(Value); Hkl)
-					Layout().emplace_back(Hkl);
-				else
-					LOGWARNING(L"Unsupported layout: {}"sv, Value);
-			}
-		}
-	}
-
 	KeyToVKey.fill(0);
 	VKeyToASCII.fill(0);
 
-	if (!Layout().empty())
+	BYTE KeyState[0x100]{};
+	//KeyToVKey - используется чтоб проверить если два символа это одна и та же кнопка на клаве
+	//*********
+	//Так как сделать полноценное мапирование между всеми раскладками не реально,
+	//по причине того что во время проигрывания макросов нет такого понятия раскладка
+	//то сделаем наилучшую попытку - смысл такой, делаем полное мапирование всех возможных
+	//VKs и ShiftVKs в юникодные символы проходясь по всем раскладкам с одним но:
+	//если разные VK мапятся в тот же юникод символ то мапирование будет только для первой
+	//раскладки которая вернула этот символ
+	//
+	for (const auto& j: irange(2))
 	{
-		BYTE KeyState[0x100]{};
-		//KeyToVKey - используется чтоб проверить если два символа это одна и та же кнопка на клаве
-		//*********
-		//Так как сделать полноценное мапирование между всеми раскладками не реально,
-		//по причине того что во время проигрывания макросов нет такого понятия раскладка
-		//то сделаем наилучшую попытку - смысл такой, делаем полное мапирование всех возможных
-		//VKs и ShiftVKs в юникодные символы проходясь по всем раскладкам с одним но:
-		//если разные VK мапятся в тот же юникод символ то мапирование будет только для первой
-		//раскладки которая вернула этот символ
-		//
-		for (const auto& j: irange(2))
-		{
-			KeyState[VK_SHIFT]=j*0x80;
+		KeyState[VK_SHIFT] = j * 0x80;
 
-			for (const auto& i: Layout())
+		for (const auto& i: Layout())
+		{
+			for (const auto& VK : irange(256))
 			{
-				for (const auto& VK: irange(256))
+				wchar_t idx;
+
+				// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-tounicodeex
+				// If bit 2 is set, keyboard state is not changed (Windows 10, version 1607 and newer)
+				const auto DontChangeKeyboardState = 0b100;
+
+				if (ToUnicodeEx(VK, 0, KeyState, &idx, 1, DontChangeKeyboardState, i) > 0)
 				{
-					wchar_t idx;
-					if (ToUnicodeEx(VK, 0, KeyState, &idx, 1, 0, i) > 0)
-					{
-						if (!KeyToVKey[idx])
-							KeyToVKey[idx] = VK + j * 0x100;
-					}
+					if (!KeyToVKey[idx])
+						KeyToVKey[idx] = VK + j * 0x100;
 				}
 			}
 		}
+	}
 
-		//VKeyToASCII - используется вместе с KeyToVKey чтоб подменить нац. символ на US-ASCII
-		//***********
-		//Имея мапирование юникод -> VK строим обратное мапирование
-		//VK -> символы с кодом меньше 0x80, т.е. только US-ASCII символы
-		for (const auto& i: irange(1, 0x80))
-		{
-			const auto x = KeyToVKey[i];
+	// If the user has the 'X' UI language, but doesn't have the 'X' keyboard layout for whatever reason,
+	// this would allow to map that language via user-defined XLat tables
+	xlat_observe_tables([](wchar_t const Local, wchar_t const English)
+	{
+		if (!KeyToVKey[Local])
+			KeyToVKey[Local] = KeyToVKey[English];
+	});
 
-			if (x && !VKeyToASCII[x])
-				VKeyToASCII[x]=upper(i);
-		}
+	//VKeyToASCII - используется вместе с KeyToVKey чтоб подменить нац. символ на US-ASCII
+	//***********
+	//Имея мапирование юникод -> VK строим обратное мапирование
+	//VK -> символы с кодом меньше 0x80, т.е. только US-ASCII символы
+	for (const auto& i: irange(1, 0x80))
+	{
+		const auto x = KeyToVKey[i];
+
+		if (x && !VKeyToASCII[x])
+			VKeyToASCII[x] = upper(i);
 	}
 }
 

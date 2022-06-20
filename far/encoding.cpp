@@ -1872,10 +1872,10 @@ TEST_CASE("encoding.utf16.surrogate")
 	}
 	Tests[]
 	{
-		{ U'\x000000', {L'\x0000', L'\x0000'} },
-		{ U'\x010000', {L'\xD800', L'\xDC00'} },
-		{ U'\x02070E', {L'\xD841', L'\xDF0E'} },
-		{ U'\x10FFFF', {L'\xDBFF', L'\xDFFF'} },
+		{ U'\U00000000', {L'\x0000', L'\x0000'} },
+		{ U'\U00010000', {L'\xD800', L'\xDC00'} },
+		{ U'\U0002070E', {L'\xD841', L'\xDF0E'} },
+		{ U'\U0010FFFF', {L'\xDBFF', L'\xDFFF'} },
 	};
 
 	for (const auto& i: Tests)

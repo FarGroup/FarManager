@@ -468,7 +468,7 @@ void Shortcuts::Add(string_view const Folder, const UUID& PluginUuid, string_vie
 static void MakeListName(const std::list<Shortcuts::shortcut>& List, string_view const Key, MenuItemEx& MenuItem)
 {
 	const auto ItemName = List.empty()? msg(lng::MShortcutNone) : MakeName(List.front());
-	MenuItem.Name = concat(KeyToLocalizedText(KEY_RCTRL), L"+&"sv, Key, L" \x2502 "sv, ItemName);
+	MenuItem.Name = format(FSTR(L"{}+&{} {} {}"sv), KeyToLocalizedText(KEY_RCTRL), Key, BoxSymbols[BS_V1], ItemName);
 	if (List.size() > 1)
 	{
 		MenuItem.Flags |= MIF_SUBMENU;

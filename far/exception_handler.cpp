@@ -388,7 +388,7 @@ static string collect_information(
 	string Strings;
 	Strings.reserve(1024);
 
-	Strings.push_back(L'\xFEFF');
+	Strings.push_back(L'\uFEFF');
 
 	const auto Eol = eol::system.str();
 

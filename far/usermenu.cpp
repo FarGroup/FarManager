@@ -769,7 +769,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		if ((*CurrentMenuItem)->Submenu)
 		{
 			/* $ 14.07.2000 VVM ! Если закрыли подменю, то остаться. Иначе передать управление выше */
-			MenuPos = ProcessSingleMenu((*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, concat(Title, L" \xbb "sv, CurrentLabel));
+			MenuPos = ProcessSingleMenu((*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, concat(Title, L" » "sv, CurrentLabel));
 
 			if (MenuPos!=EC_CLOSE_LEVEL)
 				return MenuPos;

@@ -455,9 +455,12 @@ handle OpenConsoleActiveScreenBuffer()
 	return handle(fs::low::create_file(L"CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr));
 }
 
-HKL make_hkl(uint32_t const Layout)
+HKL make_hkl(int32_t const Layout)
 {
-	return reinterpret_cast<HKL>(static_cast<uintptr_t>(extract_integer<WORD, 1>(Layout)? Layout : make_integer<uint32_t, uint16_t>(Layout, Layout)));
+	// For an unknown reason HKLs must be promoted as signed integers on x64:
+	// 0x1NNNNNNN -> 0x000000001NNNNNNN
+	// 0xFNNNNNNN -> 0xFFFFFFFFFNNNNNNN
+	return reinterpret_cast<HKL>(static_cast<intptr_t>(extract_integer<WORD, 1>(Layout)? Layout : make_integer<int32_t, uint16_t>(Layout, Layout)));
 }
 
 HKL make_hkl(string_view const LayoutStr)
