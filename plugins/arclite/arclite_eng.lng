@@ -337,6 +337,11 @@
 "Copy Link"
 "Arc FileName"
 "Is Hash"
+"Metadata Changed"
+"User ID"
+"Group ID"
+"Device Major"
+"Device Minor"
 
 // Property values
 "Yes"

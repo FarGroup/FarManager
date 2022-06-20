@@ -399,6 +399,7 @@
     <ClCompile Include="..\..\..\Windows\FileIO.cpp" />
     <ClCompile Include="..\..\..\Windows\FileName.cpp" />
     <ClCompile Include="..\..\..\Windows\PropVariant.cpp" />
+    <ClCompile Include="..\..\..\Windows\PropVariantConv.cpp" />
     <ClCompile Include="..\..\..\Windows\PropVariantUtils.cpp" />
     <ClCompile Include="..\..\..\Windows\Synchronization.cpp" />
     <ClCompile Include="..\..\..\Windows\System.cpp" />
@@ -440,6 +441,7 @@
     <ClCompile Include="..\..\Archive\Common\OutStreamWithCRC.cpp" />
     <ClCompile Include="..\..\Archive\Common\OutStreamWithSha1.cpp" />
     <ClCompile Include="..\..\Archive\Common\ParseProperties.cpp" />
+    <ClCompile Include="..\..\Archive\ApfsHandler.cpp" />
     <ClCompile Include="..\..\Archive\Base64Handler.cpp" />
     <ClCompile Include="..\..\Archive\CpioHandler.cpp" />
     <ClCompile Include="..\..\Archive\CramfsHandler.cpp" />
@@ -459,6 +461,7 @@
     <ClCompile Include="..\..\Archive\Iso\IsoHeader.cpp" />
     <ClCompile Include="..\..\Archive\Iso\IsoIn.cpp" />
     <ClCompile Include="..\..\Archive\Iso\IsoRegister.cpp" />
+    <ClCompile Include="..\..\Archive\LpHandler.cpp" />
     <ClCompile Include="..\..\Archive\LzhHandler.cpp" />
     <ClCompile Include="..\..\Archive\LzmaHandler.cpp" />
     <ClCompile Include="..\..\Archive\MachoHandler.cpp" />
@@ -476,6 +479,7 @@
     <ClCompile Include="..\..\Archive\Rar\Rar5Handler.cpp" />
     <ClCompile Include="..\..\Archive\Rar\RarHandler.cpp" />
     <ClCompile Include="..\..\Archive\RpmHandler.cpp" />
+    <ClCompile Include="..\..\Archive\SparseHandler.cpp" />
     <ClCompile Include="..\..\Archive\SplitHandler.cpp" />
     <ClCompile Include="..\..\Archive\SquashfsHandler.cpp" />
     <ClCompile Include="..\..\Archive\SwfHandler.cpp" />
@@ -718,6 +722,7 @@
     <ClInclude Include="..\..\..\Windows\FileIO.h" />
     <ClInclude Include="..\..\..\Windows\FileName.h" />
     <ClInclude Include="..\..\..\Windows\PropVariant.h" />
+    <ClInclude Include="..\..\..\Windows\PropVariantConv.h" />
     <ClInclude Include="..\..\..\Windows\PropVariantUtils.h" />
     <ClInclude Include="..\..\..\Windows\Synchronization.h" />
     <ClInclude Include="..\..\..\Windows\System.h" />

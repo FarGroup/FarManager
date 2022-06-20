@@ -280,7 +280,12 @@ static PropInfo c_prop_info[] =
   { kpidOutName, MSG_KPID_OUTNAME, nullptr },
   { kpidCopyLink, MSG_KPID_COPYLINK, nullptr },
   { kpidArcFileName, MSG_KPID_ARCFILENAME, nullptr },
-  { kpidIsHash, MSG_KPID_ISHASH, nullptr }
+  { kpidIsHash, MSG_KPID_ISHASH, nullptr },
+  { kpidChangeTime, MSG_KPID_METADATA_CHANGED, nullptr },
+  { kpidUserId, MSG_KPID_USER_ID, nullptr },
+  { kpidGroupId, MSG_KPID_GROUP_ID, nullptr },
+  { kpidDeviceMajor, MSG_KPID_DEVICE_MAJOR, nullptr },
+  { kpidDeviceMinor, MSG_KPID_DEVICE_MINOR, nullptr }
 };
 
 static const PropInfo* find_prop_info(PROPID prop_id) {

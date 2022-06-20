@@ -337,6 +337,11 @@
 "Link kopii"
 "Nazwa pliku archiwum"
 "Suma kontrolna"
+"Metadata Changed"
+"User ID"
+"Group ID"
+"Device Major"
+"Device Minor"
 
 // Property values
 "Tak"

@@ -78,7 +78,6 @@ typedef struct _FILETIME
   DWORD dwHighDateTime;
 } FILETIME;
 
-#define HRESULT LONG
 #define SUCCEEDED(hr) ((HRESULT)(hr) >= 0)
 #define FAILED(hr)    ((HRESULT)(hr) < 0)
 typedef ULONG PROPID;
@@ -152,6 +151,7 @@ enum VARENUM
   VT_VARIANT = 12,
   VT_UNKNOWN = 13,
   VT_DECIMAL = 14,
+
   VT_I1 = 16,
   VT_UI1 = 17,
   VT_UI2 = 18,
