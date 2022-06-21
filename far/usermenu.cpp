@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "fnparce.hpp"
 #include "pathmix.hpp"
+#include "exitcode.hpp"
 #include "panelmix.hpp"
 #include "filestr.hpp"
 #include "interf.hpp"
@@ -700,7 +701,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 					SaveMenu(MenuFileName);
 					{
 						const auto ShellEditor = FileEditor::create(MenuFileName, m_MenuCP, FFILEEDIT_DISABLEHISTORY, -1, -1, nullptr);
-						if (-1 == ShellEditor->GetExitCode()) Global->WindowManager->ExecuteModal(ShellEditor);
+						if (any_of(ShellEditor->GetExitCode(), -1, XC_OPEN_NEWINSTANCE)) Global->WindowManager->ExecuteModal(ShellEditor);
 						if (!ShellEditor->IsFileChanged())
 							break;
 					}

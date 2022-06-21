@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "delete.hpp"
 #include "datetime.hpp"
 #include "pathmix.hpp"
+#include "exitcode.hpp"
 #include "strmix.hpp"
 #include "mix.hpp"
 #include "constitle.hpp"
@@ -2026,7 +2027,7 @@ void FindFiles::OpenFile(string_view const SearchFileName, int OpenKey, const Fi
 			if (FindItem->Arc && !(FindItem->Arc->Flags & OPIF_REALNAMES))
 				ShellEditor->SetSaveToSaveAs(true);
 
-			if (-1 == ShellEditor->GetExitCode())
+			if (any_of(ShellEditor->GetExitCode(), -1, XC_OPEN_NEWINSTANCE))
 			{
 				Global->WindowManager->ExecuteModal(ShellEditor);
 				// заставляем рефрешится экран
