@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+drkns 22.06.2022 23:59:59 +0100 - build 5982
+
+1. gh-532: Copy file bigger than target file system can store.
+   Do not proceed if we can't reserve the space for the file.
+
+--------------------------------------------------------------------------------
 EugeneManushkin 22.06.2022 14:09:17 +0300 - build 5981
 
 1. Allow run modal editor with XC_OPEN_NEWINSTANCE exit code. This fix invalid EF_OPENMODE_NEWIFOPEN flag behaviour #530.

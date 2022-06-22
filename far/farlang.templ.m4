@@ -5702,6 +5702,20 @@ MCopyWriteError
 "Памылка запісу дадзеных у"
 "Negaliu įrašyti duomenų į"
 
+MCopyCannotReserveSpace
+"Ошибка резервирования места на диске"
+"Error reserving disk space"
+"Chyba při rezervaci místa na disku"
+"Fehler beim Reservieren von Speicherplatz"
+"Hiba a lemezterület foglalásakor"
+"Błąd rezerwowania miejsca na dysku"
+"Error al reservar espacio en disco"
+"Chyba pri rezervovaní miesta na disku"
+"Errore durante la prenotazione dello spazio su disco"
+"Помилка резервування місця на диску"
+"Памылка браніравання месца на дыску"
+"Klaida rezervuojant vietą diske"
+
 MCopyFilesTotalInfo
 l:
 "Файлов:"
@@ -5772,21 +5786,6 @@ MCopyTo
 "в"
 "у"
 "į"
-
-MCopyErrorDiskFull
-l:
-"Диск заполнен. Вставьте следующий"
-"Disk full. Insert next"
-"Disk je plný. Vložte další"
-"Datenträger voll. Bitte nächsten einlegen"
-"A lemez megtelt, kérem a következőt"
-"Dysk pełny. Włóż następny"
-"Disco lleno. Inserte el próximo"
-"Disk je plný. Vložte ďalší"
-"Disco Pieno, Inserite Il Prossimo"
-"Диск заповнено. Вставте наступний"
-"Дыск перапоўнены. Устаўце наступны"
-"Diskas pilnas. Įkiškite sekantį"
 
 MDeleteTitle
 l:

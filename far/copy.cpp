@@ -2515,6 +2515,36 @@ bool ShellCopy::ShellCopyFile(
 
 	bool CopySparse=false;
 
+	const auto UndoDestFile = [&]
+	{
+		if (Flags & FCOPY_COPYTONUL)
+			return;
+
+		if (Append)
+		{
+			DestFile.SetPointer(AppendPos, nullptr, FILE_BEGIN);
+			if (!DestFile.SetEnd())
+			{
+				LOGWARNING(L"SetEndOfFile({}): {}"sv, strDestName, last_error()); // BUGBUG
+			}
+		}
+
+		DestFile.Close();
+
+		if (!Append)
+		{
+			if (!os::fs::set_file_attributes(strDestName, FILE_ATTRIBUTE_NORMAL)) // BUGBUG
+			{
+				LOGWARNING(L"set_file_attributes({}): {}"sv, strDestName, last_error());
+			}
+
+			if (!os::fs::delete_file(strDestName)) //BUGBUG
+			{
+				LOGWARNING(L"delete_file({}): {}"sv, strDestName, last_error());
+			}
+		}
+	};
+
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
 		//if (DestAttr!=INVALID_FILE_ATTRIBUTES && !Append) //вот это портит копирование поверх хардлинков
@@ -2562,52 +2592,45 @@ bool ShellCopy::ShellCopyFile(
 			if (!DestFile.SetPointer(0,&AppendPos,FILE_END))
 			{
 				SrcFile.Close();
-				DestFile.SetEnd();
+
+				if (!DestFile.SetEnd())
+				{
+					LOGWARNING(L"SetEndOfFile({}): {}"sv, strDestName, last_error()); // BUGBUG
+				}
+
 				DestFile.Close();
 				return false;
 			}
 		}
 
-		// если места в приёмнике хватает - займём сразу.
-		unsigned long long FreeBytes = 0;
-		if (os::fs::get_disk_size(strDriveRoot,nullptr,nullptr,&FreeBytes))
+		// Reserve the space for the file
+		const auto CurPtr = DestFile.GetPointer();
+		DestFile.SetPointer(SrcData.FileSize, nullptr, FILE_CURRENT);
+
+		while (!DestFile.SetEnd())
 		{
-			if (FreeBytes>SrcData.FileSize)
+			ErrorState = last_error();
+
+			switch (OperationFailed(*ErrorState, strDestName, lng::MError, msg(lng::MCopyCannotReserveSpace)))
 			{
-				const auto CurPtr = DestFile.GetPointer();
-				DestFile.SetPointer(SrcData.FileSize, nullptr, FILE_CURRENT);
-				DestFile.SetEnd();
-				DestFile.SetPointer(CurPtr, nullptr, FILE_BEGIN);
+			case operation::retry:
+				continue;
+
+			case operation::skip_all:
+				SkipErrors = true;
+				[[fallthrough]];
+			case operation::skip:
+				UndoDestFile();
+				return COPY_SKIPPED;
+
+			default:
+				UndoDestFile();
+				cancel_operation();
 			}
 		}
+
+		DestFile.SetPointer(CurPtr, nullptr, FILE_BEGIN);
 	}
-
-	const auto UndoDestFile = [&]
-	{
-		if (Flags & FCOPY_COPYTONUL)
-			return;
-
-		if (Append)
-		{
-			DestFile.SetPointer(AppendPos, nullptr, FILE_BEGIN);
-			DestFile.SetEnd();
-		}
-
-		DestFile.Close();
-
-		if (!Append)
-		{
-			if (!os::fs::set_file_attributes(strDestName, FILE_ATTRIBUTE_NORMAL)) // BUGBUG
-			{
-				LOGWARNING(L"set_file_attributes({}): {}"sv, strDestName, last_error());
-			}
-
-			if (!os::fs::delete_file(strDestName)) //BUGBUG
-			{
-				LOGWARNING(L"delete_file({}): {}"sv, strDestName, last_error());
-			}
-		}
-	};
 
 	if(SrcFile.InitWalk(CopyBufferSize))
 	{
@@ -2705,7 +2728,10 @@ bool ShellCopy::ShellCopyFile(
 				Pos+=AppendPos;
 
 			DestFile.SetPointer(Pos,nullptr,FILE_BEGIN);
-			DestFile.SetEnd();
+			if (!DestFile.SetEnd())
+			{
+				LOGWARNING(L"SetEndOfFile({}): {}"sv, strDestName, last_error()); // BUGBUG
+			}
 		}
 
 		set_file_time(DestFile, SrcData, Global->Opt->CMOpt.PreserveTimestamps);
