@@ -1957,7 +1957,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 					/* $ 15.05.2002 SKV
 					  Зафиксируем вход и выход в/из модального редактора.
 					  */
-					if (-1 == editorExitCode)
+					if (any_of(editorExitCode, -1, XC_OPEN_NEWINSTANCE))
 						Global->WindowManager->ExecuteModal(Editor);
 
 					if (Editor->GetExitCode() == XC_OPEN_ERROR)

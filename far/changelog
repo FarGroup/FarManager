@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+EugeneManushkin 22.06.2022 14:09:17 +0300 - build 5981
+
+1. Allow run modal editor with XC_OPEN_NEWINSTANCE exit code. This fix invalid EF_OPENMODE_NEWIFOPEN flag behaviour #530.
+
+--------------------------------------------------------------------------------
 drkns 20.06.2022 22:32:45 +0100 - build 5980
 
 1. Allow sourcing of keyboard mappings from xlat tables.
