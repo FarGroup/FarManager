@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 23.06.2022 19:19:19 +0100 - build 5983
+
+1. Workaround for broken half-width surrogates (e.g. "𝔟𝔞𝔫𝔞𝔫𝔞") in conhost & WT.
+
+--------------------------------------------------------------------------------
 drkns 22.06.2022 23:59:59 +0100 - build 5982
 
 1. gh-532: Copy file bigger than target file system can store.

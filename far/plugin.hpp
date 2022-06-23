@@ -164,7 +164,9 @@ struct FarColor
 	{
 		return Flags == rhs.Flags
 			&& ForegroundColor == rhs.ForegroundColor
-			&& BackgroundColor == rhs.BackgroundColor;
+			&& BackgroundColor == rhs.BackgroundColor
+			&& Reserved[0] == rhs.Reserved[0]
+			&& Reserved[1] == rhs.Reserved[1];
 	}
 
 	bool operator !=(const FarColor& rhs) const

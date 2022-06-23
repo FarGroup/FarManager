@@ -1050,6 +1050,9 @@ namespace console_detail
 			{
 				const auto Pair = encoding::utf16::to_surrogate(Cell.Attributes.Reserved[0]);
 				append(Str, Pair.first, Pair.second);
+
+				if (char_width::is_half_width_surrogate_broken())
+					append(Str, L"\033[1D"sv); // Yuck
 			}
 			else
 			{

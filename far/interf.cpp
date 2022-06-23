@@ -794,12 +794,6 @@ static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_C
 					Buffer.back().Char = encoding::replace_char;
 					// Stash the actual codepoint. The drawing code will restore it from here:
 					Buffer.back().Attributes.Reserved[0] = Codepoint;
-
-					// As of 10 Jun 2021, neither Conhost nor Terminal can render these properly.
-					// Expect the broken UI
-
-					// Uncomment for testing:
-					// Buffer.back().Attributes.Reserved[0] = 0;
 				}
 				else
 				{

@@ -888,7 +888,8 @@ bool Edit::ProcessKey(const Manager::Key& Key)
 			SetPrevCurPos(m_CurPos);
 			do
 			{
-				--m_CurPos;
+				const auto Decrement = m_CurPos > 1 && is_valid_surrogate_pair(string_view(m_Str).substr(m_CurPos - 2))? 2 : 1;
+				m_CurPos -= Decrement;
 			}
 			while (!Mask.empty() && m_CurPos > 0 && !CheckCharMask(Mask[m_CurPos]));
 
