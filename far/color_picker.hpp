@@ -46,6 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct FarColor;
 
-bool GetColorDialog(FarColor& Color, bool bCentered, const FarColor* BaseColor = {});
+bool GetColorDialog(FarColor& Color, bool bCentered, const FarColor* BaseColor = {}, bool* Reset = {});
 
 #endif // COLOR_PICKER_HPP_280834E3_121C_4413_ACDA_474844C0764D

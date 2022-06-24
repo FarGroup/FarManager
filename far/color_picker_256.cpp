@@ -517,6 +517,7 @@ bool pick_color_256(COLORREF& Color)
 		DlgHeight = static_cast<int>(ColorDlg[cd_border].Y2) + 2;
 
 	Dlg->SetPosition({ -1, -1, DlgWidth, DlgHeight });
+	Dlg->SetHelp(L"ColorPicker256"sv);
 	Dlg->Process();
 
 	if (Dlg->GetExitCode() != cd_button_ok)

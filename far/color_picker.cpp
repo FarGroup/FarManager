@@ -212,6 +212,7 @@ enum color_dialog_items
 	cd_sample_last = cd_sample_first + 2,
 
 	cd_button_ok,
+	cd_button_reset,
 	cd_button_cancel,
 
 	cd_count
@@ -461,7 +462,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
-bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const BaseColor)
+bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const BaseColor, bool* const Reset)
 {
 	const auto
 		Fg4X = 5,
@@ -553,6 +554,7 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 		{ DI_TEXT,        {{SampleX,  SampleY+2}, {SampleX+SampleW, SampleY+2}}, DIF_NONE, msg(lng::MSetColorSample), },
 
 		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MSetColorSet), },
+		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP | (Reset? DIF_NONE : DIF_DISABLE), msg(lng::MReset), },
 		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP, msg(lng::MSetColorCancel), },
 	});
 
@@ -665,10 +667,22 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 		Dlg->SetPosition({DlgLeft, DlgTop, DlgLeft + DlgWidth - 1, DlgTop + DlgHeight - 1 });
 	}
 
+	Dlg->SetHelp(L"ColorPicker"sv);
 	Dlg->Process();
-	if (Dlg->GetExitCode() != cd_button_ok)
+
+	switch (Dlg->GetExitCode())
+	{
+	case cd_button_ok:
+		Color = ColorState.CurColor;
+		return true;
+
+	case cd_button_reset:
+		if (Reset)
+			*Reset = true;
+		[[fallthrough]];
+
+	default:
 		return false;
 
-	Color = ColorState.CurColor;
-	return true;
+	}
 }

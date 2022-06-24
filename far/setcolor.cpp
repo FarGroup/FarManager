@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "farcolor.hpp"
 #include "color_picker.hpp"
+#include "colormix.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
 #include "filepanels.hpp"
@@ -67,8 +68,13 @@ static void ChangeColor(PaletteColors PaletteIndex, PaletteColors const* const B
 	auto NewColor = Global->Opt->Palette[PaletteIndex];
 	const auto BottomColor = BottomPaletteIndex? &Global->Opt->Palette[*BottomPaletteIndex] : nullptr;
 
-	if (!GetColorDialog(NewColor, false, BottomColor))
+	auto Reset = false;
+
+	if (!GetColorDialog(NewColor, false, BottomColor, &Reset) && !Reset)
 		return;
+
+	if (Reset)
+		NewColor = colors::NtColorToFarColor(Global->Opt->Palette.Default(PaletteIndex));
 
 	Global->Opt->Palette.Set(PaletteIndex, { &NewColor, 1 });
 

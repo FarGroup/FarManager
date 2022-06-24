@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 24.06.2022 20:41:44 +0100 - build 5984
+
+1. Add color picker dialog help page.
+
+2. UI colors can be reset separately.
+
+--------------------------------------------------------------------------------
 drkns 23.06.2022 19:19:19 +0100 - build 5983
 
 1. Workaround for broken half-width surrogates (e.g. "𝔟𝔞𝔫𝔞𝔫𝔞") in conhost & WT.

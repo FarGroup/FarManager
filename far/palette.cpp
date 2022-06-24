@@ -56,10 +56,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static const struct ColorsInit
 {
 	string_view Name;
-	int DefaultIndex;
-	int MonoIndex;
+	unsigned char DefaultIndex;
+	unsigned char MonoIndex;
 }
-Init[]=
+Init[]
 {
 	{L"Menu.Text"sv,                                   F_WHITE|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_MENUTEXT,
 	{L"Menu.Text.Selected"sv,                          F_WHITE|B_BLACK,        F_LIGHTGRAY|B_BLACK,   }, // COL_MENUSELECTEDTEXT,
@@ -237,6 +237,13 @@ void palette::ResetToDefault()
 void palette::ResetToBlack()
 {
 	Reset(true);
+}
+
+unsigned char palette::Default(size_t const Index) const
+{
+	assert(Index < std::size(Init));
+
+	return Init[Index].DefaultIndex;
 }
 
 void palette::Set(size_t StartOffset, span<FarColor> Values)
