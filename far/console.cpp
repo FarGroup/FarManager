@@ -66,6 +66,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+#define ESC L"\x1b"
+#define CSI ESC L"["
+
 static bool sWindowMode;
 static bool sEnableVirtualTerminal;
 
@@ -932,9 +935,28 @@ namespace console_detail
 		{ L"4"sv, L"10"sv, L"48"sv, &FarColor::BackgroundColor, FCF_BG_INDEX },
 	};
 
+	static const struct
+	{
+		FARCOLORFLAGS Style;
+		string_view On, Off;
+	}
+	StyleMapping[]
+	{
+		{ FCF_FG_BOLD,         L"1"sv,     L"22"sv },
+		{ FCF_FG_ITALIC,       L"3"sv,     L"23"sv },
+		{ FCF_FG_UNDERLINE,    L"4"sv,     L"24"sv },
+		{ FCF_FG_UNDERLINE2,   L"21"sv,    L"24"sv },
+		{ FCF_FG_OVERLINE,     L"53"sv,    L"55"sv },
+		{ FCF_FG_STRIKEOUT,    L"9"sv,     L"29"sv },
+		{ FCF_FG_FAINT,        L"2"sv,     L"22"sv },
+		{ FCF_FG_BLINK,        L"5"sv,     L"25"sv },
+		{ FCF_FG_INVERSE,      L"7"sv,     L"27"sv },
+		{ FCF_FG_INVISIBLE,    L"8"sv,     L"28"sv },
+	};
+
 	static void make_vt_attributes(const FarColor& Attributes, string& Str, std::optional<FarColor> const& LastColor)
 	{
-		append(Str, L"\033["sv);
+		append(Str, CSI ""sv);
 
 		for (const auto& i: ColorsMapping)
 		{
@@ -959,30 +981,19 @@ namespace console_detail
 
 		Str.pop_back();
 
-		const auto set_style = [&](FARCOLORFLAGS const Style, string_view const On, string_view const Off)
+		for (const auto& [Style, On, Off]: StyleMapping)
 		{
 			if (Attributes.Flags & Style)
 			{
 				if (!LastColor.has_value() || !(LastColor->Flags & Style))
-					Str += On;
+					append(Str, L';', On);
 			}
 			else
 			{
 				if (LastColor.has_value() && LastColor->Flags & Style)
-					Str += Off;
+					append(Str, L';', Off);
 			}
-		};
-
-		set_style(FCF_FG_BOLD,       L";1"sv,  L";22"sv);
-		set_style(FCF_FG_ITALIC,     L";3"sv,  L";23"sv);
-		set_style(FCF_FG_UNDERLINE,  L";4"sv,  L";24"sv);
-		set_style(FCF_FG_UNDERLINE2, L";21"sv, L";24"sv);
-		set_style(FCF_FG_OVERLINE,   L";53"sv, L";55"sv);
-		set_style(FCF_FG_STRIKEOUT,  L";9"sv,  L";29"sv);
-		set_style(FCF_FG_FAINT,      L";2"sv,  L";22"sv);
-		set_style(FCF_FG_BLINK,      L";5"sv,  L";25"sv);
-		set_style(FCF_FG_INVERSE,    L";7"sv,  L";27"sv);
-		set_style(FCF_FG_INVISIBLE,  L";8"sv,  L";28"sv);
+		}
 
 		Str += L'm';
 	}
@@ -1052,7 +1063,7 @@ namespace console_detail
 				append(Str, Pair.first, Pair.second);
 
 				if (char_width::is_half_width_surrogate_broken())
-					append(Str, L"\033[1D"sv); // Yuck
+					append(Str, CSI L"1D"sv); // Yuck
 			}
 			else
 			{
@@ -1153,7 +1164,7 @@ namespace console_detail
 				for (const auto& i: irange(SubRect.top + SubrectOffset, std::min(SubRect.top + SubrectOffset + ViewportSize.y, SubRect.bottom + 1)))
 				{
 					if (i != SubRect.top)
-						format_to(Str, FSTR(L"\033[{};{}H"sv), CursorPosition.y + 1 + (i - SubrectOffset - SubRect.top), CursorPosition.x + 1);
+						format_to(Str, FSTR(CSI L"{};{}H"sv), CursorPosition.y + 1 + (i - SubrectOffset - SubRect.top), CursorPosition.x + 1);
 
 					make_vt_sequence(Buffer[i].subspan(SubRect.left, SubRect.width()), Str, LastColor);
 				}
@@ -1165,7 +1176,7 @@ namespace console_detail
 
 			}
 
-			return ::console.Write(L"\033[0m"sv);
+			return ::console.Write(CSI L"0m"sv);
 		}
 
 		class cursor_suppressor

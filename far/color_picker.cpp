@@ -554,7 +554,7 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 		{ DI_TEXT,        {{SampleX,  SampleY+2}, {SampleX+SampleW, SampleY+2}}, DIF_NONE, msg(lng::MSetColorSample), },
 
 		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MSetColorSet), },
-		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP | (Reset? DIF_NONE : DIF_DISABLE), msg(lng::MReset), },
+		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP | (Reset? DIF_NONE : DIF_DISABLE | DIF_HIDDEN), msg(lng::MReset), },
 		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP, msg(lng::MSetColorCancel), },
 	});
 
