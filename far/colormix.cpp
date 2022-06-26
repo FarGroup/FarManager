@@ -298,25 +298,33 @@ namespace colors
 		if (console.GetPalette(Palette))
 			return Palette;
 
+		enum
+		{
+			C0 = 0,
+			C1 = 128,
+			C2 = 192,
+			C3 = 255,
+		};
+
 		return std::array
 		{
-			RGB(  0,   0,   0), // black
-			RGB(  0,   0, 128), // blue
-			RGB(  0, 128,   0), // green
-			RGB(  0, 128, 128), // cyan
-			RGB(128,   0,   0), // red
-			RGB(128,   0, 128), // magenta
-			RGB(128, 128,   0), // yellow
-			RGB(192, 192, 192), // white
+			RGB(C0, C0, C0), // black
+			RGB(C0, C0, C1), // blue
+			RGB(C0, C1, C0), // green
+			RGB(C0, C1, C1), // cyan
+			RGB(C1, C0, C0), // red
+			RGB(C1, C0, C1), // magenta
+			RGB(C1, C1, C0), // yellow
+			RGB(C2, C2, C2), // white
 
-			RGB(128, 128, 128), // bright black
-			RGB(  0,   0, 255), // bright blue
-			RGB(  0, 255,   0), // bright green
-			RGB(  0, 255, 255), // bright cyan
-			RGB(255,   0,   0), // bright red
-			RGB(255,   0, 255), // bright magenta
-			RGB(255, 255,   0), // bright yellow
-			RGB(255, 255, 255)  // bright white
+			RGB(C1, C1, C1), // bright black
+			RGB(C0, C0, C3), // bright blue
+			RGB(C0, C3, C0), // bright green
+			RGB(C0, C3, C3), // bright cyan
+			RGB(C3, C0, C0), // bright red
+			RGB(C3, C0, C3), // bright magenta
+			RGB(C3, C3, C0), // bright yellow
+			RGB(C3, C3, C3)  // bright white
 		};
 	}
 

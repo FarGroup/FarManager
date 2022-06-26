@@ -347,7 +347,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				const auto IsFg = Param1 == cd_fg_256;
 				const auto& Component = IsFg? CurColor.ForegroundColor : CurColor.BackgroundColor;
-				auto NewColor = colors::index_value(Component);
+				auto NewColor = colors::color_value(Component);
 				if (pick_color_256(NewColor))
 				{
 					SetComponentColorValue(IsFg, NewColor);

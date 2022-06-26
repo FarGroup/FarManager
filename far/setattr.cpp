@@ -1277,7 +1277,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 							NewFindData.Attributes = (SingleSelFindData.Attributes | SetAttr) & ~ClearAttr;
 
 							const state
-								Current{ L""s, SingleSelFindData }, // BUGBUG, should we read the owner?
+								Current{ SelCount == 1 && !AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected? DlgParam.Owner.InitialValue : L""s, SingleSelFindData},
 								New{ AttrDlg[SA_EDIT_OWNER].strData, NewFindData };
 
 							if (!process_single_file(SingleSelFileName, Current, New, AttrDlgAccessor, SkipErrors))
