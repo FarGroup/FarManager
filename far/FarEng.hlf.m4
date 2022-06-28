@@ -2314,6 +2314,18 @@ the active panel, !##!\\!^!.! - a file on the passive
 panel with the same name as the name of the current
 file on the active panel.
 
+ #!<#
+ "!<" prefix forces all subsequent special symbols
+to refer to the left panel.
+For example, !<!\\!.! denotes the full path to the current
+file on the left panel.
+
+ #!>#
+ "!>" prefix forces all subsequent special symbols
+to refer to the right panel.
+For example, !>!\\!.! denotes the full path to the current
+file on the right panel.
+
  Notes:
 
  1. ^<wrap>When handling special characters, Far substitutes only the string

@@ -143,6 +143,8 @@ struct subst_data
 namespace tokens
 {
 	const auto
+		left_panel                   = L"!<"sv,
+		right_panel                  = L"!>"sv,
 		passive_panel                = L"!#"sv,
 		active_panel                 = L"!^"sv,
 		exclamation                  = L"!!"sv,
@@ -384,6 +386,20 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 	{
 		append(Destination, EscapeAmpersands && contains(Str, L"&"sv)? escape_ampersands(Str) : Str);
 	};
+
+	if (const auto Tail = tokens::skip(CurStr, tokens::left_panel))
+	{
+		// Need to clarify, if the following assignment is required.
+		SubstData.PassivePanel = Global->CtrlObject->Cp()->IsLeftActive();
+		return Tail;
+	}
+
+	if (const auto Tail = tokens::skip(CurStr, tokens::right_panel))
+	{
+		// Need to clarify, if the following assignment is required.
+		SubstData.PassivePanel = Global->CtrlObject->Cp()->IsRightActive();
+		return Tail;
+	}
 
 	if (const auto Tail = tokens::skip(CurStr, tokens::passive_panel))
 	{
