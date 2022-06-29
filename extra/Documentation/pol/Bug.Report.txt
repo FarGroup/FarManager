@@ -77,7 +77,7 @@ wtyczkę i jej źródła) do wiadomości.
 
 4. Uzupełnienia dotyczące MultiArc/ArcLite
 
-4.1. Przy opisywaniu błędów MultiArch związanych z konkretnym archiwizatorem,
+4.1. Przy opisywaniu błędów MultiArc związanych z konkretnym archiwizatorem,
 należy również podać jego wersję oraz linie poleceń dla niego.
 
 4.2. Małe archiwum testowe jest niezbędne do odtworzenia problemu
@@ -97,11 +97,11 @@ należy również podać jego wersję oraz linie poleceń dla niego.
       b) włączyć opcję konfiguracyjną:
          [x] Raportuj zawartość folderu
 
-5.3 Jeżeli problem nastąpi podczas operacji z serwerami, należy podać
-    informacje na temat oprogramowani i systemu operacyjnego serwera,
+5.3 Jeżeli problem nastąpi podczas pracy z serwerami, należy podać
+    informacje na temat oprogramowania i systemu operacyjnego serwera,
     pożądane jest także uzyskanie dostępu do takiego serwera.
 
-6. ogólna uwaga dotycząca załączonych plików - specyficzne dla serwera
+6. Ogólna uwaga dotycząca załączonych plików - specyficzne dla serwera
 pocztowego jest to, że wszystkie załączniki z rozszerzeniami .exe, .dll,
 .sys, .bat, .cmd, .pif, .cpl, .com, .vbs, i .js są usuwane.
 Dlatego przed wysłaniem takich plików, należy je najpierw zarchiwizować.

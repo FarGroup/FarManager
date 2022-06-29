@@ -59,13 +59,13 @@ priority.
    The unique identifier of this process. ID Process numbers are reused, so
 they only identify a process for the lifetime of that process.
 
-   #Parent Process ID#
+   #ID procesu nadrzędnego#
 
    The Process ID of the process that created the process. Note that the
 creating process may have terminated since this process was created and so
 this value may no longer identify a running process.
 
-   #% Processor Time#
+   #% czasu procesora#
 
    The percentage of time that the processor is executing a non-Idle
 thread. This counter was designed as a primary indicator of processor
@@ -248,8 +248,8 @@ I/O's.
 
 @Columns
 $ #Specjalne typy kolumn#
-   Several #standard# column types have a special meaning in the Process
-List:
+   Niektóre #standardowe# typy kolumn mają specjalne znaczenie na
+liście procesów:
 
    #S (Wielkość)#
 
@@ -263,21 +263,21 @@ and last access date/time are the same.
    In addition to the standard FAR column types, these #special# column
 types can be used in this plugin:
 
-   #Numeric columns:#
+   #Kolumny numeryczne:#
 
    #XP# - Priotytet
    #XI# - ID procesu
-   #XC# - Creating (parent) process ID
-   #XT# - Number of threads
-   #XG# - GDI Objects (local only)
-   #XU# - USER Objects (local only)
-   #XB# - Bitness (32/64)
-   #X0...X21[S][T]# - performance counters (see below).
+   #XC# - ID procesu nadrzędnego (rodzica)
+   #XT# - Liczba wątków
+   #XG# - Obiekty GDI (tylko lokalnie)
+   #XU# - Obiekty USER (tylko lokalnie)
+   #XB# - Typ systemu (32/64)
+   #X0...X21[S][T]# - liczniki wydajności (zobacz niżej).
 
-   #Description columns:#
+   #Kolumny opisowe:#
 
    #ZP# - Pełna ścieżka
-   #ZW# - Window title
+   #ZW# - Tytuł okna
    #ZD# - Opis pliku
    #ZC# - Linia poleceń (tylko lokalna)
 
@@ -322,7 +322,7 @@ You can append #T# to the column type to use 1000 instead of 1024 as a divider.
 
 @Config
 $ #Konfiguracja#
- #Add to disks menu#      Enables adding the "process list" item to
+ #Dodaj do menu dysków#   Enables adding the "process list" item to
                         the disks menu.
 
  #Add to plugins menu#    Enables adding the "Process list" item to
@@ -361,4 +361,4 @@ you press "OK" in the dialog, the configuration is saved with the current
 #HKCU\Software\Far\Plugins\Plist\ModeX\# to change the defaults. When you
 open the plugin again, the changes will be taken.
 
-   See also: ~Column types~@Columns@ help.
+   Zobacz także: ~Typy kolumn~@Columns@.

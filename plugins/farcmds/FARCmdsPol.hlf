@@ -174,7 +174,7 @@ zlokalizować położenia pliku.
 
 @Link
 $ #Polecenie Link (odnośnik)#
-   Polecenie #link# tworzy ~linki~@:HardSymLink@ dp plików i folderów.
+   Polecenie #link# tworzy ~linki~@:HardSymLink@ do plików i folderów.
 Pozwala także montować lokalne dyski w systemie plików.
 
    #link:#[#/msg#] [#/n#] [#/s#] #źródło cel#
