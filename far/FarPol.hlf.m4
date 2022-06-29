@@ -4294,45 +4294,46 @@ podczas przetwarzania plików Far zawsze używa oryginalnych wielkości znaków.
 
 
 @ColorPicker
-$ #Color Picker#
- This dialog allows to define a foreground color, a background color and a text style.
+$ #Wybór kolorów#
+ To okno dialogowe pozwala zdefiniować kolor wyświetlania znaków, kolor tła i styl tekstu.
 
- The foreground and the background colors can be either:
- - one of the 16 colors from the standard Windows Console pallete,
- - one of the 256 colors from the Xterm pallette, or
- - one of the 16 million colors from the RGB color space.
+ Kolory wyświetlanych znaków i tła mogą być:
+ - jednym z 16 kolorów ze standardowej palety Konsoli Windows,
+ - jednym z 256 kolorów z palety Xterm, lub
+ - jednym z 16 milionów kolorów z przestrzeni barw RGB.
 
- The standard 16-color palette is available in the dialog.
- To access the ~256-color palette~@ColorPicker256@ and the RGB color space use the corresponding buttons.
+ Standardowa 16-kolorowa paleta jest dostępna w oknie dialogowym.
+ Aby skorzystać z ~256-kolorowej palety@ColorPicker256@ i przestrzeni barw RGB należy użyć odpowiednich przycisków.
 
- The color value is also represented in the hexadecimal form for convenience, where:
- - #AA______# - the alpha channel, representing the degree of transparency from fully transparent (00) to fully opaque (FF).
- - #______##### - the palette index from 00 to FF.
- - #__RRGGBB# - the red, green and blue channels in the RGB color space, from 00 to FF each.
+ Wartość kolorów jest także przedstawiania w postaci szesnastkowej, gdzie:
+ - #AA______# - kanał alfa, oznaczający stopień przezroczystości od pełnej przejrzystości (00) do pełnego koloru (FF).
+ - #______##### - indeks palety od 00 do FF.
+ - #__RRGGBB# - kanały czerwony (Red), zielony (Green) i niebieski (Blue) z przestrzeni barw RGB, każdy od 00 do FF.
 
- When the color is not fully opaque, the previous color in the logical Z-order is taken into account.
+ Jeżeli kolor nie jest w pełni nieprzezroczysty, brany jest pod uwagę poprzedni kolor w logicznym porządku Z.
 
- The foreground text style can include ANSI/VT100-like attributes listed in the right section.
- When #Inherit# is checked, the previous foreground text style in the logical Z-order is taken into account.
+ Styl tekstu pierwszoplanowego może zawierać atrybuty podobne do ANSI/VT100 wymienione po prawej stronie.
+ Jeżeli opcja #Dziedziczenie# jest zaznaczona, uwzględniany jest poprzedni styl tekstu pierwszoplanowego
+ w logicznym porządku Z.
 
- The preview section below displays the final result.
+ W sekcji podglądu (poniżej opcji) wyświetlany jest wynik końcowy.
 
- #Attention#
- Only the standard 16-color palette is guaranteed to work everywhere.
- Support for everything else is conditional and defined by your terminal.
+ #Uwaga#
+ Tylko standardowa 16 kolorowa paleta jest gwarantem poprawnej pracy na wszystkich komputerach.
+ Obsługa wszystkich innych jest warunkowa i definiowana przez Twój terminal.
 
 
 @ColorPicker256
-$ #256 Color Picker#
- This dialog allows to pick a color from the 256-color Xterm pallette.
+$ #Wybór z 256 kolorów#
+ To okno dialogowe pozwala wybrać kolor z 256-kolorowej palety Xterm.
 
- The first 16 colors are the same as the standard palette and are available in the ~main dialog~@ColorPicker@.
+ Pierwsze 16 kolorów są takie same, jak standardowa paleta dostępna w ~głównym oknie~@ColorPicker@.
 
  \00  \10  \20  \30  \40  \50  \60  \70  \-
  \80  \90  \A0  \B0  \C0  \D0  \E0  \F0  \-
 
- The next 216 colors are represented as a 6x6x6 cube. The palette usually has 6 levels for every primary color and forms a homogeneous RGB cube.
- Use the buttons on the right to rotate the cube and access its inner levels.
+ Następne 216 kolorów są prezentowane w postaci kostki 6x6x6. Paleta zawiera zwykle 6 poziomów dla każdego koloru podstawowego i tworzy jednorodną kostkę RGB.
+ Użyj przycisków po prawej stronie, aby obrócić sześcian i uzyskać dostęp do jego wewnętrznych poziomów.
 
  \(:10)  \(:11)  \(:12)  \(:13)  \(:14)  \(:15)  \-  \(:34)  \(:35)  \(:36)  \(:37)  \(:38)  \(:39)  \-  \(:58)  \(:59)  \(:5A)  \(:5B)  \(:5C)  \(:5D)  \-
  \(:16)  \(:17)  \(:18)  \(:19)  \(:1A)  \(:1B)  \-  \(:3A)  \(:3B)  \(:3C)  \(:3D)  \(:3E)  \(:3F)  \-  \(:5E)  \(:5F)  \(:60)  \(:61)  \(:62)  \(:63)  \-
@@ -4348,7 +4349,7 @@ $ #256 Color Picker#
  \(:94)  \(:95)  \(:96)  \(:97)  \(:98)  \(:99)  \-  \(:B8)  \(:B9)  \(:BA)  \(:BB)  \(:BC)  \(:BD)  \-  \(:DC)  \(:DD)  \(:DE)  \(:DF)  \(:E0)  \(:E1)  \-
  \(:9A)  \(:9B)  \(:9C)  \(:9D)  \(:9E)  \(:9F)  \-  \(:BE)  \(:BF)  \(:C0)  \(:C1)  \(:C2)  \(:C3)  \-  \(:E2)  \(:E3)  \(:E4)  \(:E5)  \(:E6)  \(:E7)  \-
 
- The last 24 colors are usually defined as a grayscale ramp.
+ Ostatnie 24 kolory zwykle zdefiniowane są jako skala szarości.
 
  \(:E8)  \(:E9)  \(:EA)  \(:EB)  \(:EC)  \(:ED)  \(:EE)  \(:EF)  \(:F0)  \(:F1)  \(:F2)  \(:F3)  \(:F4)  \(:F5)  \(:F6)  \(:F7)  \(:F8)  \(:F9)  \(:FA)  \(:FB)  \(:FC)  \(:FD)  \(:FE)  \(:FF)  \-
 
@@ -5162,7 +5163,7 @@ co zwykle wykonuje po wciśnięciu takiej kombinacji klawiszy.
  #Rozpoczęcie nagrywania makropoleceń#
  Naciśnięcie #Ctrl+<.># (#Ctrl# i kropka wciśnięte razem), aby nagrać
 makropolecenie w trybie ogólnym lub #Ctrl+Shift+<.># (#Ctrl#, #Shift#
-i kropka wciśnięte razem), aby nagrać makro w trybie specjalnym.
+i kropka wciśnięte razem), aby nagrać makropolecenie w trybie specjalnym.
  Po rozpoczęciu nagrywania, znak '\CFR\-' będzie widoczny w lewym
 górnym rogu ekranu.
 
@@ -5202,8 +5203,7 @@ aby włączyć/wyłączyć ten znacznik.
 @KeyMacroDelete
 $ #Makropolecenia: usuwanie makropoleceń#
  Aby usunąć ~makropolecenie~@KeyMacro@ należy nagrać puste (nie zawierające
-poleceń) makropolecenie i przypisać ten sam klawisz skrótu, jak makropolecenie
-do usunięcia.
+poleceń) makropolecenie i przypisać ten sam klawisz skrótu, jak makropolecenie do usunięcia.
 
  Można to osiągnąć poprzez następujące kroki:
  1. ^<wrap>Rozpoczęcie nagrywania makropolecenia (#Ctrl+<.>#)
@@ -6294,18 +6294,18 @@ uniknąć przypadkowemu otwieraniu dużych plików.
 @System.MsWheelDelta
 $ #far:config System.MsWheelDelta* & System.MsHWheelDelta*#
  Te parametry liczbowe definiują szybkość przewijania, gdy rolowane
-(kręcone) lub przechylane jest kółko myszki. Szybkość przewijania
+(obracane) lub przechylana jest rolka myszki. Szybkość przewijania
 można określić dla różnych kierunków i obszarów.
 
  Aby przewinąć określoną liczbę wierszy jednocześnie w pionie, należy
-obrócić kółko o jeden przeskok w pionie:
+obrócić rolkę o jeden przeskok w pionie:
 
  System.MsWheelDeltaView  - ^<wrap>w wewnętrznym Podglądzie
  System.MsWheelDeltaEdit  - w wewnętrznym Edytorze
  System.MsWheelDeltaHelp  - na stronach pomocy
  System.MsWheelDelta      - w innych obszarach
 
- Przechylenie kółka przewija określoną liczbę znaków jednocześnie w poziomie
+ Przechylenie rolki przewija określoną liczbę znaków jednocześnie w poziomie
 (Windows Vista i nowsze):
 
  System.MsHWheelDeltaView - ^<wrap>w wewnętrznym Podglądzie
@@ -6314,7 +6314,7 @@ obrócić kółko o jeden przeskok w pionie:
 
  Domyślna wartość: 1 (dla wszystkich parametrów).
 
- Uwaga: Rolowanie lub przechylanie kółka myszki przy wciśniętym
+ Uwaga: Rolowanie lub przechylanie rolki myszki przy wciśniętym
 klawiszu #Alt# zawsze przewija o jedną linię lub jeden znak na raz.
 
  Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
