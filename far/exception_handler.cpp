@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "manager.hpp"
 #include "config.hpp"
+#include "console.hpp"
 #include "dialog.hpp"
 #include "interf.hpp"
 #include "lang.hpp"
@@ -71,6 +72,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "format.hpp"
 
 //----------------------------------------------------------------------------
+
+#define BUGREPORT_NAME   "bug_report.txt"
+#define MINIDDUMP_NAME   "far.mdmp"
+#define FULLDUMP_NAME    "far_full.mdmp"
 
 class exception_context
 {
@@ -219,9 +224,6 @@ static bool write_readme(string_view const FullPath)
 	if (!File)
 		return false;
 
-#define BUGREPORT_NAME  "bug_report.txt"
-#define MINIDDUMP_NAME   "far.mdmp"
-#define FULLDUMP_NAME    "far_full.mdmp"
 #define EOL "\r\n"
 
 	// English text, ANSI will do fine.
@@ -240,9 +242,6 @@ static bool write_readme(string_view const FullPath)
 		""sv;
 
 #undef EOL
-#undef FULLDUMP_NAME
-#undef MINIDDUMP_NAME
-#undef BUGREPORT_NAME
 
 	return File.Write(Data.data(), Data.size() * sizeof(Data[0]));
 }
@@ -543,6 +542,70 @@ static bool ExcConsole(string const& ReportLocation, string const& PluginInforma
 	return true;
 }
 
+static string get_console_host()
+{
+	if (!imports.NtQueryInformationProcess)
+		return {};
+
+	ULONG_PTR ConsoleHostProcess;
+	const auto Status = imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessConsoleHostProcess, &ConsoleHostProcess, sizeof(ConsoleHostProcess), {});
+	if (!NT_SUCCESS(Status))
+		return {};
+
+	const auto ConsoleHostProcessId = ConsoleHostProcess & ~3;
+
+	const auto ConhostName = os::process::get_process_name(ConsoleHostProcessId);
+	if (ConhostName.empty())
+		return {};
+
+	const auto ConhostVersion = os::version::get_file_version(ConhostName);
+	const auto ConhostLegacy = console.IsVtSupported()? L""sv : L" (legacy mode)"sv;
+
+	return concat(ConhostName, L' ', ConhostVersion, ConhostLegacy);
+}
+
+namespace detail
+{
+	// GCC headers for once got it right
+	IS_DETECTED(has_InheritedFromUniqueProcessId, T::InheritedFromUniqueProcessId);
+
+	// Windows SDK (at least up to 19041) defines it as "Reserved3".
+	// Surprisingly, MSDN calls it InheritedFromUniqueProcessId, so it might get renamed one day.
+	// For forward compatibility it's better to use the compiler rather than the preprocessor here.
+	IS_DETECTED(has_Reserved3, T::Reserved3);
+}
+
+template<typename process_basic_information_t>
+static auto parent_process_id(process_basic_information_t const& Info)
+{
+	if constexpr (detail::has_InheritedFromUniqueProcessId<process_basic_information_t>)
+		return static_cast<DWORD>(Info.InheritedFromUniqueProcessId);
+	else if constexpr (detail::has_Reserved3<process_basic_information_t>)
+		return static_cast<DWORD>(reinterpret_cast<uintptr_t>(Info.Reserved3));
+	else
+		static_assert(!sizeof(Info));
+}
+
+static string get_parent_process()
+{
+	if (!imports.NtQueryInformationProcess)
+		return {};
+
+	PROCESS_BASIC_INFORMATION ProcessInfo;
+	if (!NT_SUCCESS(imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessBasicInformation, &ProcessInfo, sizeof(ProcessInfo), {})))
+		return {};
+
+	const auto ParentProcessId = parent_process_id(ProcessInfo);
+
+	const auto ParentName = os::process::get_process_name(ParentProcessId);
+	if (ParentName.empty())
+		return {};
+
+	const auto ParentVersion = os::version::get_file_version(ParentName);
+
+	return concat(ParentName, L' ', ParentVersion);
+}
+
 static bool ShowExceptionUI(
 	bool const UseDialog,
 	exception_context const& Context,
@@ -570,8 +633,11 @@ static bool ShowExceptionUI(
 
 	const auto Errors = ErrorState.format_errors();
 	const auto Version = self_version();
+	const auto Compiler = build::compiler();
 	const auto OsVersion = os::version::os_version();
 	const auto KernelVersion = kernel_version();
+	const auto ConsoleHost = get_console_host();
+	const auto Parent = get_parent_process();
 
 	std::pair<string_view, string_view> const BasicInfo[]
 	{
@@ -586,8 +652,11 @@ static bool ShowExceptionUI(
 		{ L"File:     "sv, ModuleName,    },
 		{ L"Plugin:   "sv, PluginInfo,    },
 		{ L"Far:      "sv, Version,       },
+		{ L"Compiler: "sv, Compiler,      },
 		{ L"OS:       "sv, OsVersion,     },
 		{ L"Kernel:   "sv, KernelVersion, },
+		{ L"Host:     "sv, ConsoleHost,   },
+		{ L"Parent:   "sv, Parent,        },
 	};
 
 	const auto log_message = [&]
@@ -610,10 +679,10 @@ static bool ShowExceptionUI(
 	LOG(PluginModule? logging::level::error : logging::level::fatal, L"\n{}\n"sv, log_message());
 
 	const auto ReportLocation = get_report_location();
-	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, L"far.mdmp"sv), MiniDumpNormal);
-	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, L"far_full.mdmp"sv), MiniDumpWithFullMemory);
+	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDDUMP_NAME)), MiniDumpNormal);
+	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), MiniDumpWithFullMemory);
 	const auto BugReport = collect_information(Context, NestedStack, ModuleName, BasicInfo);
-	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, L"bug_report.txt"sv));
+	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
 	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
 	const auto ReadmeOnDisk = write_readme(path::join(ReportLocation, L"README.txt"sv));
 	const auto AnythingOnDisk = ReportOnDisk || MinidumpNormal || MinidumpFull || ReadmeOnDisk;
@@ -1385,7 +1454,7 @@ namespace detail
 			return EXCEPTION_CONTINUE_SEARCH;
 		}
 
-		detail::set_fp_exceptions(false);
+		set_fp_exceptions(false);
 		const exception_context Context(*Info);
 
 		if (static_cast<NTSTATUS>(Info->ExceptionRecord->ExceptionCode) == EXCEPTION_STACK_OVERFLOW)

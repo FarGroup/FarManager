@@ -407,7 +407,7 @@ public:
 			if (NumberOfBytesRead)
 				*NumberOfBytesRead = static_cast<size_t>(Read);
 
-			return Result == STATUS_SUCCESS;
+			return NT_SUCCESS(Result);
 		}
 		else
 #endif
@@ -451,7 +451,7 @@ public:
 	)
 	{
 		typename types::PROCESS_BASIC_INFORMATION processInfo;
-		if (
+		if (const auto Status =
 			(
 #ifndef _WIN64
 				Ipc == x64? pNtWow64QueryInformationProcess64 :
@@ -462,7 +462,7 @@ public:
 				ProcessBasicInformation,
 				&processInfo,
 				sizeof(processInfo), {}
-			) != STATUS_SUCCESS)
+			); !NT_SUCCESS(Status))
 			return false;
 
 		//FindModule, obtained from PSAPI.DLL

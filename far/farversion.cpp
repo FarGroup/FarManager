@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 
 // External:
+#include "format.hpp"
 
 //----------------------------------------------------------------------------
 
@@ -58,5 +59,17 @@ namespace build
 		{
 #include "bootstrap/farversion.inc"
 		};
+	}
+
+	string compiler()
+	{
+		const auto CompilerInfo =
+#ifdef _MSC_BUILD
+			L"." WSTR(_MSC_BUILD)
+#endif
+			L""sv;
+
+		return format(FSTR(L"{}, version {}.{}.{}{}"sv), COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH, CompilerInfo);
+
 	}
 }

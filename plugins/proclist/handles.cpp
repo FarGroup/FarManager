@@ -50,7 +50,7 @@ static bool GetProcessId(HANDLE Handle, DWORD& Pid)
 {
 	PROCESS_BASIC_INFORMATION pi{};
 
-	if (pNtQueryInformationProcess(Handle, ProcessBasicInformation, &pi, sizeof(pi), {}) != STATUS_SUCCESS)
+	if (!NT_SUCCESS(pNtQueryInformationProcess(Handle, ProcessBasicInformation, &pi, sizeof(pi), {})))
 		return false;
 
 	Pid = static_cast<DWORD>(pi.UniqueProcessId);
@@ -60,7 +60,7 @@ static bool GetProcessId(HANDLE Handle, DWORD& Pid)
 static bool GetThreadId(HANDLE Handle, DWORD& Tid)
 {
 	THREAD_BASIC_INFORMATION ti;
-	if (pNtQueryInformationThread(Handle, 0, &ti, sizeof(ti), {}) != STATUS_SUCCESS)
+	if (!NT_SUCCESS(pNtQueryInformationThread(Handle, 0, &ti, sizeof(ti), {})))
 		return false;
 
 	Tid = static_cast<DWORD>(reinterpret_cast<uintptr_t>(ti.ClientId.UniqueThread));
@@ -79,17 +79,14 @@ static std::unique_ptr<char[]> query_object(HANDLE Handle, OBJECT_INFORMATION_CL
 	{
 		auto Buffer = std::make_unique<char[]>(Size);
 
-		switch (pNtQueryObject(Handle, Class, Buffer.get(), Size, &Size))
-		{
-		case STATUS_SUCCESS:
+		const auto Status = pNtQueryObject(Handle, Class, Buffer.get(), Size, &Size);
+		if (NT_SUCCESS(Status))
 			return Buffer;
 
-		case STATUS_INFO_LENGTH_MISMATCH:
+		if (Status == STATUS_INFO_LENGTH_MISMATCH)
 			continue;
 
-		default:
-			return {};
-		}
+		return {};
 	}
 }
 
@@ -385,7 +382,7 @@ bool PrintHandleInfo(DWORD dwPID, HANDLE file, bool bIncludeUnnamed, PerfThread*
 	for (;;)
 	{
 		DWORD needed;
-		if (pNtQuerySystemInformation(16, pSysHandleInformation.get(), size, &needed) == STATUS_SUCCESS)
+		if (NT_SUCCESS(pNtQuerySystemInformation(16, pSysHandleInformation.get(), size, &needed)))
 			break;
 
 		if (needed == 0)

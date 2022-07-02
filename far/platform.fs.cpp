@@ -620,7 +620,7 @@ namespace os::fs
 		// for network paths buffer size must be <= 64k
 		// we double it in a first loop, so starting value is 32k
 		size_t BufferSize = 32768;
-		NTSTATUS Result = STATUS_SEVERITY_ERROR;
+		auto Result = STATUS_UNSUCCESSFUL;
 		do
 		{
 			BufferSize *= 2;
@@ -633,7 +633,7 @@ namespace os::fs
 		}
 		while (any_of(Result, STATUS_INFO_LENGTH_MISMATCH, STATUS_BUFFER_OVERFLOW, STATUS_BUFFER_TOO_SMALL));
 
-		if (Result != STATUS_SUCCESS)
+		if (!NT_SUCCESS(Result))
 			return nullptr;
 
 		const auto& StreamInfo = view_as<FILE_STREAM_INFORMATION>(Handle->BufferBase.data());
@@ -876,7 +876,7 @@ namespace os::fs
 		const auto Status = imports.NtSetInformationFile(m_Handle.native_handle(), &IoStatusBlock, &fbi, sizeof fbi, FileBasicInformation);
 		set_last_error_from_ntstatus(Status);
 
-		return Status == STATUS_SUCCESS;
+		return NT_SUCCESS(Status);
 	}
 
 	bool file::GetSize(unsigned long long& Size) const
@@ -941,7 +941,7 @@ namespace os::fs
 			*Status = Result;
 		}
 
-		return (Result == STATUS_SUCCESS) && (di->NextEntryOffset != 0xffffffffUL);
+		return NT_SUCCESS(Result) && (di->NextEntryOffset != 0xffffffffUL);
 	}
 
 	bool file::NtQueryInformationFile(void* FileInformation, size_t Length, FILE_INFORMATION_CLASS FileInformationClass, NTSTATUS* Status) const
@@ -954,7 +954,7 @@ namespace os::fs
 		{
 			*Status = Result;
 		}
-		return Result == STATUS_SUCCESS;
+		return NT_SUCCESS(Result);
 	}
 
 	static bool GetObjectName(HANDLE hFile, string& ObjectName)
@@ -977,7 +977,7 @@ namespace os::fs
 			Result = QueryObject();
 		}
 
-		if (Result != STATUS_SUCCESS)
+		if (!NT_SUCCESS(Result))
 			return false;
 
 		ObjectName.assign(oni->Name.Buffer, oni->Name.Length / sizeof(wchar_t));
@@ -1002,7 +1002,7 @@ namespace os::fs
 		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr)
 
 		HANDLE hSymLink;
-		if (imports.NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs) != STATUS_SUCCESS)
+		if (!NT_SUCCESS(imports.NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs)))
 			return 0;
 
 		SCOPE_EXIT{ imports.NtClose(hSymLink); };
@@ -1011,7 +1011,7 @@ namespace os::fs
 		const wchar_t_ptr Buffer(BufSize);
 		UNICODE_STRING LinkTarget{ 0, static_cast<USHORT>(BufSize * sizeof(wchar_t)), Buffer.data() };
 
-		if (imports.NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr) != STATUS_SUCCESS)
+		if (!NT_SUCCESS(imports.NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr)))
 			return 0;
 
 		TargetPath.assign(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));

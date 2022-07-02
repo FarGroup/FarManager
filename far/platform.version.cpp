@@ -156,7 +156,7 @@ namespace os::version
 	{
 		const auto InfoPtr = edit_as<OSVERSIONINFO*>(&Info);
 
-		if (imports.RtlGetVersion && imports.RtlGetVersion(InfoPtr) == STATUS_SUCCESS)
+		if (imports.RtlGetVersion && NT_SUCCESS(imports.RtlGetVersion(InfoPtr)))
 			return true;
 
 WARNING_PUSH()

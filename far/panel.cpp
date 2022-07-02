@@ -365,7 +365,7 @@ bool Panel::SetCurPath()
 		if (CutToExistingParent(CurDirView))
 			continue;
 
-		if (!Global->WindowManager->ManagerStarted())
+		if (Global->WindowManager->ManagerIsDown())
 			return false;
 
 		SetCurDir(Global->g_strFarPath, true);

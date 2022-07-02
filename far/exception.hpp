@@ -51,7 +51,7 @@ struct error_state
 
 	bool any() const
 	{
-		return Errno || Win32Error != ERROR_SUCCESS || NtError != STATUS_SUCCESS;
+		return Errno || Win32Error != ERROR_SUCCESS || !NT_SUCCESS(NtError);
 	}
 
 	string ErrnoStr() const;

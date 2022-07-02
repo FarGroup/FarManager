@@ -68,22 +68,19 @@ class wm_listener;
 
 namespace detail
 {
+	IS_DETECTED(with_payload, std::declval<T&>()(std::declval<std::any>()));
+	IS_DETECTED(without_payload, std::declval<T&>()());
+
 	class event_handler: public std::function<void(const std::any&)>
 	{
-		template<typename T>
-		using with_payload = decltype(std::declval<T&>()(std::declval<std::any>()));
-
-		template<typename T>
-		using without_payload = decltype(std::declval<T&>()());
-
 	public:
-		template<typename callable_type, REQUIRES(is_detected_v<with_payload, callable_type>)>
+		template<typename callable_type, REQUIRES(with_payload<callable_type>)>
 		explicit event_handler(callable_type&& Handler):
 			function(FWD(Handler))
 		{
 		}
 
-		template<typename callable_type, REQUIRES(is_detected_v<without_payload, callable_type>)>
+		template<typename callable_type, REQUIRES(without_payload<callable_type>)>
 		explicit event_handler(callable_type&& Handler):
 			function([Handler = FWD(Handler)](const std::any&) { Handler(); })
 		{

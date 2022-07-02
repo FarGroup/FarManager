@@ -73,7 +73,7 @@ RefreshWindowManager::RefreshWindowManager(int OScrX, int OScrY, bool Force):
 
 RefreshWindowManager::~RefreshWindowManager()
 {
-	if ((OScrX != ScrX || OScrY != ScrY || m_Force) && Global->WindowManager->ManagerStarted())
+	if ((OScrX != ScrX || OScrY != ScrY || m_Force) && !Global->WindowManager->ManagerIsDown())
 	{
 		SCOPED_ACTION(LockScreen);
 		Global->WindowManager->ResizeAllWindows();

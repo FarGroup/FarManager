@@ -69,6 +69,7 @@ WARNING_DISABLE_GCC("-Wformat-extra-args")
 WARNING_DISABLE_GCC("-Wformat-nonliteral")
 WARNING_DISABLE_GCC("-Wsign-compare")
 WARNING_DISABLE_GCC("-Wtype-limits")
+WARNING_DISABLE_GCC("-Wunused-function")
 #endif
 
 WARNING_DISABLE_CLANG("-Weverything")

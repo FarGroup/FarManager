@@ -80,11 +80,7 @@ void apply_permutation(Iter1 first, Iter1 last, Iter2 indices)
 
 namespace detail
 {
-	template<typename T>
-	using try_emplace_hint = decltype(std::declval<T&>().emplace_hint(std::declval<T&>().end(), *std::declval<T&>().begin()));
-
-	template<class T>
-	inline constexpr bool has_emplace_hint_v = is_detected_v<try_emplace_hint, T>;
+	IS_DETECTED(has_emplace_hint_v, std::declval<T&>().emplace_hint(std::declval<T&>().end(), *std::declval<T&>().begin()));
 }
 
 // Unified container emplace
@@ -101,18 +97,14 @@ void emplace(container& Container, args&&... Args)
 
 namespace detail
 {
-	template<typename T>
-	using try_find = decltype(std::declval<T&>().find(std::declval<typename T::key_type&>()));
-
-	template<class T>
-	inline constexpr bool has_find_v = is_detected_v<try_find, T>;
+	IS_DETECTED(has_find, std::declval<T&>().find(std::declval<typename T::key_type&>()));
 }
 
 template<typename container, typename element, REQUIRES(is_range_v<container>)>
 [[nodiscard]]
 constexpr bool contains(const container& Container, const element& Element)
 {
-	if constexpr (detail::has_find_v<container>)
+	if constexpr (detail::has_find<container>)
 	{
 		// associative containers
 		return Container.find(Element) != Container.cend();

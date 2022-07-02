@@ -927,13 +927,7 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool)> con
 			std::wcout << L"\nSCM revision:\n"sv << Revision << L'\n';
 		}
 
-		const auto CompilerInfo =
-#ifdef _MSC_BUILD
-			L"." WSTR(_MSC_BUILD)
-#endif
-			L""sv;
-
-		std::wcout << L"\nCompiler:\n"sv << format(FSTR(L"{}, version {}.{}.{}{}"sv), COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH, CompilerInfo) << L'\n';
+		std::wcout << L"\nCompiler:\n"sv << build::compiler();
 
 		if (const auto& ComponentsInfo = components::GetComponentsInfo(); !ComponentsInfo.empty())
 		{
