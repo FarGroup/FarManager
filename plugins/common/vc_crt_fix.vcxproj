@@ -18,7 +18,9 @@
       <PreprocessorDefinitions>$(Platform)</PreprocessorDefinitions>
       <ExcludedFromBuild Condition="'$(Platform)'!='Win32' and '$(Platform)'!='x64'">true</ExcludedFromBuild>
     </MASM>
-    <ClCompile Include="vc_crt_fix_impl.cpp"/>
+    <ClCompile Include="vc_crt_fix_impl.cpp">
+      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
   </ItemGroup>
 
   <Import Project="$(ProjectDir)..\..\_build\vc\config\common.targets" />
