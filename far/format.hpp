@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/preprocessor.hpp"
+#include "common/type_traits.hpp"
 
 // External:
 
@@ -146,10 +147,42 @@ namespace format_helpers
 	};
 }
 
-template<>
-struct fmt::formatter<std::exception, wchar_t>: format_helpers::no_spec<std::exception>
+template<typename object_type>
+struct formattable;
+
+namespace detail
 {
-	static string to_string(std::exception const& Value);
+	IS_DETECTED(is_formattable, formattable<T>{});
+	IS_DETECTED(has_to_string, std::declval<T&>().to_string());
+}
+
+template<typename object_type>
+struct fmt::formatter<object_type, wchar_t, std::enable_if_t<detail::is_formattable<object_type>>>: format_helpers::no_spec<object_type>
+{
+	static string to_string(object_type const& Value)
+	{
+		return formattable<object_type>::to_string(Value);
+	}
+};
+
+template<typename object_type>
+struct fmt::formatter<object_type, wchar_t, std::enable_if_t<detail::has_to_string<object_type>>>: format_helpers::no_spec<object_type>
+{
+	static string to_string(object_type const& Value)
+	{
+		return Value.to_string();
+	}
+};
+
+// fmt 9 deprecated implicit enums formatting :(
+template <typename object_type, typename char_type>
+struct fmt::formatter<object_type, char_type, std::enable_if_t<std::is_enum_v<object_type>>>: fmt::formatter<std::underlying_type_t<object_type>, char_type>
+{
+	template <typename FormatContext>
+	auto format(object_type const& Value, FormatContext& ctx) const
+	{
+		return formatter<std::underlying_type_t<object_type>, char_type>::format(std::to_underlying(Value), ctx);
+	}
 };
 
 #endif // FORMAT_HPP_27C3F464_170B_432E_9D44_3884DDBB95AC
