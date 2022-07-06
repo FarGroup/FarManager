@@ -121,6 +121,7 @@
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <ConformanceMode>true</ConformanceMode>
       <UseFullPaths>false</UseFullPaths>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
     </ClCompile>
     <ResourceCompile>
       <Culture>0x0409</Culture>

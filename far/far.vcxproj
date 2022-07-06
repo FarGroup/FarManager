@@ -591,5 +591,11 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
   <ItemGroup>
     <Natvis Include="far.natvis" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="common_test.vcxproj">
+      <Project>{459C0A10-7D18-4623-9FA9-1D5B6A587D40}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(ProjectDir)..\_build\vc\config\common.targets" />
 </Project>

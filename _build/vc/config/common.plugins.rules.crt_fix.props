@@ -1,13 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>$(OutputsRoot)intermediate\$(ConfigSpecificDirectoryName)\vc_crt_fix\vc_crt_fix.obj;$(OutputsRoot)intermediate\$(ConfigSpecificDirectoryName)\vc_crt_fix\vc_crt_fix_impl.obj;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
-    <MASM Include="$(SrcRoot)plugins\common\vc_crt_fix.asm">
-      <PreprocessorDefinitions>$(Platform)</PreprocessorDefinitions>
-      <ExcludedFromBuild Condition="'$(Platform)'!='Win32' and '$(Platform)'!='x64'">true</ExcludedFromBuild>
-    </MASM>
-    <ClCompile Include="$(SrcRoot)plugins\common\vc_crt_fix_impl.cpp">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <ForcedIncludeFiles>$(SrcRoot)far\disabled_warnings.hpp</ForcedIncludeFiles>
-    </ClCompile>
+    <ProjectReference Include="$(SrcRoot)plugins\common\vc_crt_fix.vcxproj">
+      <Project>{A5D12A94-6FA0-43B4-B790-987DA09A735A}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemGroup>
 </Project>

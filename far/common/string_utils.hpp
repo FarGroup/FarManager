@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "type_traits.hpp"
 #include "utility.hpp"
 
+#include <array>
 #include <numeric>
 #include <string>
 #include <string_view>
