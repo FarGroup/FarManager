@@ -637,7 +637,7 @@ std::tuple<string, string> ConvertDate(os::chrono::time_point const Point, int c
 		wchar_t Format[] = L"{0: >{1}}{6}{2:0>{3}}{6}{4: >{5}}";
 		Format[3] = f1;
 		Format[27] = f3;
-		DateText = format(Format, p1, w1, p2, 2, p3, w3, DateSeparator);
+		DateText = format(string_view(Format), p1, w1, p2, 2, p3, w3, DateSeparator);
 	}
 
 	if (Brief)

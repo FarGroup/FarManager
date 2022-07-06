@@ -338,7 +338,7 @@ TEST_CASE("platform.thread.forwarding")
 			std::make_unique<int>(Magic * 2)
 		);
 	}
-	REQUIRE(true);
+	SUCCEED();
 }
 
 TEST_CASE("platform.timer")

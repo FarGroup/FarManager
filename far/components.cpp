@@ -57,8 +57,7 @@ namespace components
 	public:
 		void add(component* item)
 		{
-			(m_First? m_Last->m_Next : m_First) = item;
-			m_Last = item;
+			item->m_Next = std::exchange(m_First, item);
 		}
 
 	private:
@@ -79,7 +78,6 @@ namespace components
 		}
 
 		component* m_First{};
-		component* m_Last{};
 		mutable component* m_Iterator{};
 	};
 

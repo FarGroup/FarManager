@@ -369,11 +369,60 @@ static void read_registers(string& To, CONTEXT const& Context, string_view const
 	r(L"EBP"sv, Context.Ebp);
 	r(L"EFL"sv, Context.EFlags);
 #elif defined _M_ARM64
-	// TODO
+	r(L"X0 "sv, Context.X0);
+	r(L"X1 "sv, Context.X1);
+	r(L"X2 "sv, Context.X2);
+	r(L"X3 "sv, Context.X3);
+	r(L"X4 "sv, Context.X4);
+	r(L"X5 "sv, Context.X5);
+	r(L"X6 "sv, Context.X6);
+	r(L"X7 "sv, Context.X7);
+	r(L"X8 "sv, Context.X8);
+	r(L"X9 "sv, Context.X9);
+	r(L"X10"sv, Context.X10);
+	r(L"X11"sv, Context.X11);
+	r(L"X12"sv, Context.X12);
+	r(L"X13"sv, Context.X13);
+	r(L"X14"sv, Context.X14);
+	r(L"X15"sv, Context.X15);
+	r(L"X16"sv, Context.X16);
+	r(L"X17"sv, Context.X17);
+	r(L"X18"sv, Context.X18);
+	r(L"X19"sv, Context.X19);
+	r(L"X20"sv, Context.X20);
+	r(L"X21"sv, Context.X21);
+	r(L"X22"sv, Context.X22);
+	r(L"X23"sv, Context.X23);
+	r(L"X24"sv, Context.X24);
+	r(L"X25"sv, Context.X25);
+	r(L"X26"sv, Context.X26);
+	r(L"X27"sv, Context.X27);
+	r(L"X28"sv, Context.X28);
+	r(L"FP "sv, Context.Fp);
+	r(L"SP "sv, Context.Sp);
+	r(L"LR "sv, Context.Lr);
+	r(L"PC "sv, Context.Pc);
+	r(L"CPS"sv, Context.Cpsr);
 #elif defined _M_ARM
-	// TODO
+	r(L"R0 "sv, Context.R0);
+	r(L"R1 "sv, Context.R1);
+	r(L"R2 "sv, Context.R2);
+	r(L"R3 "sv, Context.R3);
+	r(L"R4 "sv, Context.R4);
+	r(L"R5 "sv, Context.R5);
+	r(L"R6 "sv, Context.R6);
+	r(L"R7 "sv, Context.R7);
+	r(L"R8 "sv, Context.R8);
+	r(L"R9 "sv, Context.R9);
+	r(L"R10"sv, Context.R10);
+	r(L"R11"sv, Context.R11);
+	r(L"R12"sv, Context.R12);
+	r(L"SP "sv, Context.Sp);
+	r(L"LR "sv, Context.Lr);
+	r(L"PC "sv, Context.Pc);
+	r(L"CPS"sv, Context.Cpsr);
 #else
-	// TODO
+	COMPILER_WARNING("Unknown platform")
 #endif
 }
 
@@ -400,9 +449,6 @@ static string collect_information(
 	{
 		format_to(Strings, FSTR(L"{} {}{}"sv), Label, Value, Eol);
 	}
-
-	make_header(L"Registers"sv, append_line);
-	read_registers(Strings, Context.context_record(), Eol);
 
 	get_backtrace(Module, tracer.get(Module, Context.context_record(), Context.thread_handle()), NestedStack, append_line);
 
@@ -445,6 +491,9 @@ static string collect_information(
 
 	make_header(L"Modules"sv, append_line);
 	read_modules(Strings, Eol);
+
+	make_header(L"Registers"sv, append_line);
+	read_registers(Strings, Context.context_record(), Eol);
 
 	return Strings;
 }
@@ -934,18 +983,11 @@ static bool handle_generic_exception(
 	s_ExceptionHandlingInprogress = true;
 	SCOPE_EXIT{ s_ExceptionHandlingInprogress = false; };
 
-	string strFileName;
-
-	if (!PluginModule)
-	{
-		strFileName = Global?
+	const auto strFileName = PluginModule?
+		PluginModule->ModuleName() :
+		Global?
 			Global->g_strFarModuleName :
 			os::fs::get_current_process_file_name();
-	}
-	else
-	{
-		strFileName = PluginModule->ModuleName();
-	}
 
 	const auto Exception = exception_name(Context.exception_record(), Type);
 	const auto Details = exception_details(strFileName, Context.exception_record(), Message);
@@ -1530,9 +1572,7 @@ namespace detail
 
 TEST_CASE("fourcc")
 {
-	static_assert(fourcc("CPLG"sv) == 0x474C5043);
-	static_assert(fourcc("avc1"sv) == 0x31637661);
-
-	REQUIRE(true);
+	STATIC_REQUIRE(fourcc("CPLG"sv) == 0x474C5043);
+	STATIC_REQUIRE(fourcc("avc1"sv) == 0x31637661);
 }
 #endif

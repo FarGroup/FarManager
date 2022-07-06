@@ -67,7 +67,7 @@ namespace detail
 	template<typename F>
 	void validate_format()
 	{
-		static_assert(!std::is_array_v<F>, "Use FSTR or string_view instead of string literals");
+		static_assert(!std::is_array_v<std::remove_reference_t<F>>, "Use FSTR or string_view instead of string literals");
 	}
 }
 

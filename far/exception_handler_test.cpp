@@ -375,24 +375,20 @@ namespace tests
 		volatile const auto Result = std::numeric_limits<int>::min() / Denominator;
 	}
 
-	WARNING_PUSH()
-	WARNING_DISABLE_MSC(4717) // 'function': recursive on all control paths, function will cause runtime stack overflow
-	WARNING_DISABLE_CLANG("-Winfinite-recursion")
-	WARNING_DISABLE_GCC("-Winfinite-recursion")
-
 	static void seh_stack_overflow()
 	{
 		volatile char Buffer[10240];
 		Buffer[0] = 1;
 
-		seh_stack_overflow();
+		// Prevent the compiler from detecting recursion on all control paths:
+		volatile const auto Condition = true;
+		if (Condition)
+			seh_stack_overflow();
 
 		// A "side effect" to prevent deletion of this function call due to C4718.
 		// After the recursive call to prevent the tail call optimisation.
 		Sleep(Buffer[0]);
 	}
-
-	WARNING_POP()
 
 	[[noreturn]]
 	static void seh_heap_corruption()
@@ -471,29 +467,22 @@ namespace tests
 	static void debug_bounds_check()
 	{
 		[[maybe_unused]] std::vector<int> v(1);
-WARNING_PUSH()
-WARNING_DISABLE_GCC("-Warray-bounds")
-		v[1] = 42;
-WARNING_POP()
+		const volatile size_t Index = 1;
+		v[Index] = 42;
 	}
 
 	static void debug_bounds_check_as_stack()
 	{
 		[[maybe_unused]] int v[1];
 		const volatile size_t Index = 1;
-WARNING_PUSH()
-WARNING_DISABLE_GCC("-Warray-bounds")
 		v[Index] = 42;
-WARNING_POP()
 	}
 
 	static void debug_bounds_check_as_heap()
 	{
 		[[maybe_unused]] std::vector<int> v(1);
-WARNING_PUSH()
-WARNING_DISABLE_GCC("-Warray-bounds")
-		v.data()[1] = 42;
-WARNING_POP()
+		const volatile size_t Index = 1;
+		v.data()[Index] = 42;
 	}
 }
 
