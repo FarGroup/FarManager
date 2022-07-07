@@ -75,6 +75,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define STR_PRAGMA(...) __pragma(__VA_ARGS__)
 #elif COMPILER(GCC) || COMPILER(CLANG)
 #define STR_PRAGMA(...) _Pragma(#__VA_ARGS__)
+#else
+#define STR_PRAGMA(...)
 #endif
 
 //----------------------------------------------------------------------------
@@ -88,6 +90,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #elif COMPILER(GCC) || COMPILER(CLANG)
 #define WARNING_PUSH(...) STR_PRAGMA(GCC diagnostic push)
 #define WARNING_POP()     STR_PRAGMA(GCC diagnostic pop)
+#else
+#define WARNING_PUSH(...)
+#define WARNING_POP()
 #endif
 
 //----------------------------------------------------------------------------
@@ -147,6 +152,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 //----------------------------------------------------------------------------
+
+#if COMPILER(GCC) || COMPILER(CLANG)
+#define COMPILER_MESSAGE(str) STR_PRAGMA(message str)
+#define COMPILER_WARNING(str) STR_PRAGMA(GCC warning str)
+#define COMPILER_ERROR(str)   STR_PRAGMA(GCC error str)
+#else
 #define COMPILER_MESSAGE_IMPL_STR0(x) #x
 #define COMPILER_MESSAGE_IMPL_STR1(x) COMPILER_MESSAGE_IMPL_STR0(x)
 #define COMPILER_MESSAGE_IMPL(type, str) \
@@ -155,5 +166,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define COMPILER_MESSAGE(str) COMPILER_MESSAGE_IMPL("message", str)
 #define COMPILER_WARNING(str) COMPILER_MESSAGE_IMPL("warning", str)
 #define COMPILER_ERROR(str)   COMPILER_MESSAGE_IMPL("error", str)
+#endif
 
 #endif // COMPILER_HPP_6A237B14_5BAA_4106_9D7F_7C7BA14A36B0

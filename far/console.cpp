@@ -1020,7 +1020,13 @@ namespace console_detail
 						Cell.Char = bad_char_replacement;
 						flags::clear(Cell.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
 					}
-					else if (Cell.Char == *LeadingChar)
+					else
+WARNING_PUSH()
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80635
+WARNING_DISABLE_GCC("-Wmaybe-uninitialized")
+
+						if (Cell.Char == *LeadingChar)
+WARNING_POP()
 					{
 						LeadingChar.reset();
 						continue;

@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalDependencies>$(OutputsRoot)intermediate\$(ConfigSpecificDirectoryName)\vc_crt_fix\vc_crt_fix.obj;$(OutputsRoot)intermediate\$(ConfigSpecificDirectoryName)\vc_crt_fix\vc_crt_fix_impl.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(Platform)'=='Win32' or '$(Platform)'=='x64'">$(OutputsRoot)intermediate\$(ConfigSpecificDirectoryName)\vc_crt_fix\vc_crt_fix.obj;$(OutputsRoot)intermediate\$(ConfigSpecificDirectoryName)\vc_crt_fix\vc_crt_fix_impl.obj;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

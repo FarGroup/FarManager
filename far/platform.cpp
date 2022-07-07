@@ -137,7 +137,10 @@ NTSTATUS get_last_nt_status()
 	if (imports.RtlGetLastNtStatus)
 		return imports.RtlGetLastNtStatus();
 
+WARNING_PUSH()
+WARNING_DISABLE_GCC("-Warray-bounds")
 	const auto Teb = NtCurrentTeb();
+WARNING_POP()
 
 	constexpr auto Offset =
 #ifdef _WIN64

@@ -312,11 +312,17 @@ void ScreenBuf::ApplyShadow(rectangle Where, bool const IsLegacy)
 				}
 				else if (ForegroundColor <= colors::index::cube_last)
 				{
+					// Just to stop GCC from complaining about identical branches
+					[[maybe_unused]] constexpr auto Cube = true;
+
 					// Subpar
 					colors::set_index_value(Element.Attributes.ForegroundColor, F_DARKGRAY);
 				}
 				else
 				{
+					// Just to stop GCC from complaining about identical branches
+					[[maybe_unused]] constexpr auto Ramp = true;
+
 					// Subpar
 					colors::set_index_value(Element.Attributes.ForegroundColor, F_DARKGRAY);
 				}
