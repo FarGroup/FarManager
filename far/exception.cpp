@@ -146,4 +146,3 @@ string formattable<std::exception>::to_string(std::exception const& e)
 {
 	return ::format(FSTR(L"std::exception: {}"sv), encoding::utf8::get_chars(e.what()));
 }
-
