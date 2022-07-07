@@ -216,8 +216,6 @@ int GetDirInfo(string_view const DirName, DirInfoData& Data, multifilter* Filter
 	return 1;
 }
 
-static int PluginSearchMsgOut;
-
 static void PushPluginDirItem(std::vector<PluginPanelItem>& PluginDirList, const PluginPanelItem *CurPanelItem, string_view const PluginSearchPath, BasicDirInfoData& Data)
 {
 	const auto MakeCopy = [](string_view const Str)
@@ -362,9 +360,7 @@ static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, string_vi
 			return false;
 	}
 
-	const auto strDirName = fit_to_center(truncate_left(Dir, 30), 30);
 	SetCursorType(false, 0);
-	PluginSearchMsgOut=FALSE;
 
 	OpenPanelInfo Info;
 	Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&Info);
