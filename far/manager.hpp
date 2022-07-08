@@ -126,7 +126,8 @@ public:
 	window_ptr GetWindow(size_t Index) const;
 	int IndexOf(const window_ptr& Window) const;
 	window_ptr GetBottomWindow() { return m_NonModalSize ? m_windows[m_NonModalSize - 1] : nullptr; }
-	bool ManagerIsDown() const { return !StartManager || EndLoop; }
+	bool ManagerIsDown() const { return EndLoop; }
+	bool ManagerStarted() const { return StartManager; }
 	void InitKeyBar() const;
 	bool InModal() const { return m_NonModalSize < m_windows.size(); }
 	bool IsModal(size_t Index) const { return Index >= m_NonModalSize; }
