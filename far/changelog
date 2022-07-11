@@ -1,4 +1,15 @@
 --------------------------------------------------------------------------------
+drkns 11.07.2022 21:44:15 +0100 - build 5992
+
+1. Switch to conformant preprocessor.
+
+2. Refactoring.
+
+3. Menu width correction.
+
+4. Fix "use shell name" in disk menu.
+
+--------------------------------------------------------------------------------
 drkns 08.07.2022 08:39:53 +0100 - build 5991
 
 1. Correction of 5989.2.
