@@ -85,11 +85,12 @@ CPPFLAGS = $(CPPFLAGS)\
 	$(CFLAGS)\
 	/EHsc\
 	/std:c++latest\
-	/Zc:__cplusplus,externConstexpr,inline,throwingNew\
+	/Zc:__cplusplus,externConstexpr,inline,preprocessor,throwingNew\
 	/D "_HAS_AUTO_PTR_ETC=0"\
 	/D "_ENABLE_EXTENDED_ALIGNED_STORAGE"\
 	/D "_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1"\
 	/D "_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1"\
+	/D "MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS=1"\
 
 AFLAGS =\
 	/nologo\

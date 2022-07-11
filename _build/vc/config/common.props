@@ -104,8 +104,8 @@
 
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalOptions>/J /Zc:__cplusplus,externConstexpr,inline,throwingNew /volatile:iso /utf-8 /Gw $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;VC_EXTRALEAN;PSAPI_VERSION=1;_CRT_SECURE_NO_WARNINGS;_HAS_AUTO_PTR_ETC=0;_ENABLE_EXTENDED_ALIGNED_STORAGE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/J /Zc:__cplusplus,externConstexpr,inline,preprocessor,throwingNew /volatile:iso /utf-8 /Gw $(NewOptions) %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;VC_EXTRALEAN;PSAPI_VERSION=1;_CRT_SECURE_NO_WARNINGS;_HAS_AUTO_PTR_ETC=0;_ENABLE_EXTENDED_ALIGNED_STORAGE;_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1;MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <ExternalWarningLevel>Level4</ExternalWarningLevel>
