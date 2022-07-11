@@ -782,7 +782,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					if (TryReadLabel && DriveMode & DRIVE_SHOW_LABEL_USE_SHELL)
 					{
 						NewItem.Label = GetShellName(RootDirectory);
-						TryReadLabel = !NewItem.Label.empty();
+						TryReadLabel = NewItem.Label.empty();
 					}
 
 					const auto LabelPtr = TryReadLabel? &NewItem.Label : nullptr;
