@@ -1119,7 +1119,7 @@ void Delete(const panel_ptr& SrcPanel, delete_type const Type)
 	{
 		ShellDelete(SrcPanel, Type);
 	}
-	catch (const operation_cancelled&)
+	catch (operation_cancelled const&)
 	{
 		// Nop
 	}

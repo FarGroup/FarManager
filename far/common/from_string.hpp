@@ -160,7 +160,7 @@ bool from_string(std::wstring_view const Str, T& Value, size_t* Pos = nullptr, i
 		detail::from_string(Str, Value, Pos, Base);
 		return true;
 	}
-	catch (const std::exception&)
+	catch (std::exception const&)
 	{
 		return false;
 	}

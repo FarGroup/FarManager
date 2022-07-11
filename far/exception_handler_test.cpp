@@ -215,7 +215,7 @@ namespace tests
 			c C;
 			throw MAKE_FAR_EXCEPTION(L"Regular exception"s);
 		}
-		catch(...)
+		catch (...)
 		{
 		}
 	}

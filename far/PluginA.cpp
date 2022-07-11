@@ -5751,7 +5751,7 @@ WARNING_POP()
 			PluginLang = std::make_unique<ansi_plugin_language>(Path, Language);
 			return true;
 		}
-		catch (const std::exception& e)
+		catch (std::exception const& e)
 		{
 			LOGERROR(L"{}"sv, e);
 			return false;

@@ -232,7 +232,7 @@ namespace os::process
 			Stream.exceptions(Stream.badbit | Stream.failbit);
 			return get_process_subsystem_from_module_impl(Stream);
 		}
-		catch (const std::exception&)
+		catch (std::exception const&)
 		{
 			return image_type::unknown;
 		}

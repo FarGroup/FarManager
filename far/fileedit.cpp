@@ -1730,7 +1730,7 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 	return true;
 
 	}
-	catch (const std::bad_alloc&)
+	catch (std::bad_alloc const&)
 	{
 		// TODO: better diagnostics
 		m_editor->FreeAllocatedData();
@@ -1739,7 +1739,7 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 		ErrorState = last_error();
 		return false;
 	}
-	catch (const std::exception&)
+	catch (std::exception const&)
 	{
 		// A portion of file can be locked
 
@@ -2060,7 +2060,7 @@ int FileEditor::SaveFile(const string_view Name, int Ask, bool bSaveAs, error_st
 			}
 		});
 	}
-	catch (const far_exception& e)
+	catch (far_exception const& e)
 	{
 		RetCode = SAVEFILE_ERROR;
 		ErrorState = e;

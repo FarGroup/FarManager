@@ -337,7 +337,7 @@ void UserMenu::SaveMenu(string_view const MenuFileName) const
 			Stream << StrStream.rdbuf();
 		});
 	}
-	catch (const far_exception& e)
+	catch (far_exception const& e)
 	{
 		Message(MSG_WARNING, e,
 			msg(lng::MError),

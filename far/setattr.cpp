@@ -1370,7 +1370,7 @@ void ShellSetFileAttributes(Panel* SrcPanel, const string* Object)
 	{
 		ShellSetFileAttributesImpl(SrcPanel, Object);
 	}
-	catch (const operation_cancelled&)
+	catch (operation_cancelled const&)
 	{
 		// Nop
 	}

@@ -854,7 +854,7 @@ bool Plugin::InitLang(string_view const Path, string_view const Language)
 		PluginLang = std::make_unique<plugin_language>(Path, Language);
 		return true;
 	}
-	catch (const std::exception& e)
+	catch (std::exception const& e)
 	{
 		LOGERROR(L"{}"sv, e);
 		return false;

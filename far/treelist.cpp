@@ -744,7 +744,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 				LOGWARNING(L"set_file_attributes({}): {}"sv, Name, last_error());
 			}
 		}
-		catch (const far_exception& e)
+		catch (far_exception const& e)
 		{
 			ErrorState = e;
 		}

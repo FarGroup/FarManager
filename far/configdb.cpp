@@ -2428,7 +2428,7 @@ std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
 	{
 		return std::make_unique<T>(Name);
 	}
-	catch (const far_sqlite_exception& e1)
+	catch (far_sqlite_exception const& e1)
 	{
 		Report(concat(Name, L':'));
 		Report(concat(L"  "sv, e1.message()));
@@ -2454,7 +2454,7 @@ std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
 			Report(format(FSTR(L"  - database file is renamed to {} and new one is created"sv), PointToName(NewName)));
 			return Result;
 		}
-		catch (const far_sqlite_exception& e2)
+		catch (far_sqlite_exception const& e2)
 		{
 			Report(concat(L"  "sv, e2.message()));
 			Report(L"  - database is opened in memory"sv);

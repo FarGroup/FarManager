@@ -1131,7 +1131,7 @@ static std::pair<string, string> extract_nested_exceptions(EXCEPTION_RECORD cons
 	{
 		std::rethrow_if_nested(Exception);
 	}
-	catch (const std::exception& e)
+	catch (std::exception const& e)
 	{
 		const auto& [NestedObjectType, NestedWhat] = extract_nested_exceptions(*exception_information().ExceptionRecord, e, false);
 		ObjectType = concat(NestedObjectType, L" -> "sv, ObjectType);
@@ -1260,7 +1260,7 @@ static void seh_abort_handler_impl()
 		{
 			std::rethrow_exception(CurrentException);
 		}
-		catch(std::exception const& e)
+		catch (std::exception const& e)
 		{
 			if (handle_std_exception(e, CURRENT_FUNCTION_NAME, {}))
 				user_abort();

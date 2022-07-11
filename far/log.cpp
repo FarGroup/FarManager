@@ -832,7 +832,7 @@ namespace logging
 					m_Sinks.emplace_back(std::make_unique<sync<T>>()) :
 					m_Sinks.emplace_back(std::make_unique<async<T>>(T::is_discardable));
 			}
-			catch (const far_exception& e)
+			catch (far_exception const& e)
 			{
 				LOGERROR(L"{}"sv, e);
 			}

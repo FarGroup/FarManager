@@ -1041,7 +1041,7 @@ static int wmain_seh()
 		{
 			return mainImpl({ Argv.get() + 1, Argv.get() + Argc });
 		}
-		catch (const far_known_exception& e)
+		catch (far_known_exception const& e)
 		{
 			std::wcout << build::version_string() << L'\n' << std::endl;
 			std::wcerr << e.message() << std::endl;

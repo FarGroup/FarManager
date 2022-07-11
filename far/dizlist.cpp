@@ -158,7 +158,7 @@ void DizList::Read(string_view const Path, const string* DizName)
 		{
 			return ReadDizFile(Name);
 		}
-		catch(std::exception const& e)
+		catch (std::exception const& e)
 		{
 			m_DizData.clear();
 			m_DizFileName.clear();
@@ -371,7 +371,7 @@ bool DizList::Flush(string_view const Path, const string* DizName)
 			Stream << StrStream.rdbuf();
 		});
 	}
-	catch (const far_exception& e)
+	catch (far_exception const& e)
 	{
 		Message(MSG_WARNING, e,
 			msg(lng::MError),

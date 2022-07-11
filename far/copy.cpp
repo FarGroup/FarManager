@@ -3457,7 +3457,7 @@ void Copy(panel_ptr SrcPanel, bool Move, bool Link, bool CurrentOnly, bool Ask, 
 	{
 		ShellCopy(SrcPanel, Move, Link, CurrentOnly, Ask, ToPlugin, PluginDestPath, ToSubdir);
 	}
-	catch (const operation_cancelled&)
+	catch (operation_cancelled const&)
 	{
 		// Nop
 	}

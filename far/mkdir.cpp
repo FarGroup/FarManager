@@ -261,7 +261,7 @@ void ShellMakeDir(Panel* SrcPanel)
 	{
 		ShellMakeDirImpl(SrcPanel);
 	}
-	catch (const operation_cancelled&)
+	catch (operation_cancelled const&)
 	{
 		// Nop
 	}
