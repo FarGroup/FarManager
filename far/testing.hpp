@@ -56,6 +56,18 @@ WARNING_POP()
 
 #include "disable_warnings_in_std_end.hpp"
 
+class generic_exception_matcher: public Catch::MatcherBase<std::any>
+{
+public:
+	explicit generic_exception_matcher(std::function<bool(std::any const&)> Matcher);
+
+	bool match(std::any const& e) const override;
+	std::string describe() const override;
+
+private:
+	std::function<bool(std::any const&)> m_Matcher;
+};
+
 #endif
 
 std::optional<int> testing_main(int Argc, wchar_t const* const Argv[]);

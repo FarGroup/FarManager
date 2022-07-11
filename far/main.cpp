@@ -1185,28 +1185,6 @@ TEST_CASE("Args")
 		{ { L"-q" },                     args::unknown_argument },
 	};
 
-	class ExceptionMatcher: public Catch::MatcherBase<far_known_exception>
-	{
-	public:
-		explicit ExceptionMatcher(string_view const Expected):
-			m_Expected(Expected)
-		{
-		}
-
-		bool match(far_known_exception const& e) const override
-		{
-			return !m_Expected.empty() && contains(e.message(), m_Expected);
-		}
-
-		std::string describe() const override
-		{
-			return "contains the substring"s;
-		}
-
-	private:
-		string m_Expected;
-	};
-
 	for (const auto& i: Tests)
 	{
 		auto Iterator = i.Args.begin();
@@ -1221,7 +1199,10 @@ TEST_CASE("Args")
 			},
 			[&](string_view const& Validator)
 			{
-				REQUIRE_THROWS_MATCHES(parse_argument(Iterator, i.Args.end(), Context), far_known_exception, ExceptionMatcher(Validator));
+				REQUIRE_THROWS_MATCHES(parse_argument(Iterator, i.Args.end(), Context), far_known_exception, generic_exception_matcher([Validator](std::any const& e)
+				{
+					return !Validator.empty() && contains(std::any_cast<far_known_exception const&>(e).message(), Validator);
+				}));
 			}
 		}, i.Validator);
 	}

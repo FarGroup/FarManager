@@ -405,7 +405,10 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 				return Str;
 			}
 
-			(LeftAlign? inplace::cut_right : inplace::cut_left)(Str, Width - 1);
+			LeftAlign?
+				inplace::cut_right(Str, Width - 1) :
+				inplace::cut_left(Str, Width - 1);
+
 			Str.insert(LeftAlign? Str.end() : Str.begin(), L'…');
 			return Str;
 		};

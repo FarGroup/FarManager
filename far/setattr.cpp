@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "constitle.hpp"
 #include "taskbar.hpp"
-#include "keyboard.hpp"
 #include "message.hpp"
 #include "config.hpp"
 #include "datetime.hpp"
