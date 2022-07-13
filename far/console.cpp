@@ -147,7 +147,7 @@ wchar_t ReplaceControlCharacter(wchar_t const Char)
 	case 0x9C:
 	case 0x9D:
 	case 0x9E:
-	case 0x9F: return L'�'; // replacement character
+	case 0x9F: return encoding::replace_char;
 
 	default:   return Char;
 	}
@@ -895,10 +895,20 @@ namespace console_detail
 		}
 
 		auto ConsoleBufferIterator = ConsoleBuffer.cbegin();
+
+		const auto replace_replacement_if_needed = [IsDefaultReplacementWide = char_width::is_wide(encoding::replace_char)](CHAR_INFO const& Cell)
+		{
+			// In some cases the host replaces various non-BMP codepoints with FFFD,
+			// but always treats it as a narrow character, even when it's not (e.g. in MS Gothic).
+			// Reading those FFFDs and writing them back breaks the layout spectacularly.
+			// Replacing them with '?' is the easiest way to fix it.
+			return IsDefaultReplacementWide && Cell.Char.UnicodeChar == encoding::replace_char && !(Cell.Attributes & COMMON_LVB_SBCSDBCS)? L'?' : Cell.Char.UnicodeChar;
+		};
+
 		for_submatrix(Buffer, SubRect, [&](FAR_CHAR_INFO& i)
 		{
 			const auto& Cell = *ConsoleBufferIterator++;
-			i = { Cell.Char.UnicodeChar, colors::NtColorToFarColor(Cell.Attributes) };
+			i = { replace_replacement_if_needed(Cell), colors::NtColorToFarColor(Cell.Attributes) };
 		});
 
 		return true;
@@ -1028,8 +1038,18 @@ WARNING_DISABLE_GCC("-Wmaybe-uninitialized")
 						if (Cell.Char == *LeadingChar)
 WARNING_POP()
 					{
-						LeadingChar.reset();
-						continue;
+						if (Cell.Char == encoding::replace_char && !char_width::is_wide(encoding::replace_char))
+						{
+							// As of 13 Jul 2022 ReadConsoleOutputW doesn't work with surrogate pairs (see microsoft/terminal#10810)
+							// It returns two FFFDs instead with leading and trailing flags.
+							// We can't just drop the trailing one here because FFFD isn't always wide and the layout might get broken.
+							Cell.Char = L' ';
+						}
+						else
+						{
+							LeadingChar.reset();
+							continue;
+						}
 					}
 				}
 				else if (!n && encoding::utf16::is_low_surrogate(Cell.Char))
@@ -1051,7 +1071,14 @@ WARNING_POP()
 						LeadingChar = Cell.Char;
 					}
 				}
-				else if (n == Input.size() - 1 && encoding::utf16::is_high_surrogate(Cell.Char))
+				else if (
+					n == Input.size() - 1 &&
+					(
+						encoding::utf16::is_high_surrogate(Cell.Char) ||
+						// FFFD can be wide too
+						(Cell.Char == encoding::replace_char && char_width::is_wide(encoding::replace_char))
+					)
+				)
 				{
 					Cell.Char = bad_char_replacement;
 				}

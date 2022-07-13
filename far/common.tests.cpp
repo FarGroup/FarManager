@@ -666,7 +666,7 @@ TEST_CASE("placement")
 		int& m_Value;
 	};
 
-	std::aligned_storage_t<sizeof(raii), alignof(raii)> Data;
+	alignas(raii) std::byte Data[sizeof(raii)];
 	auto& Object = edit_as<raii>(&Data);
 
 	int Value = 0;
