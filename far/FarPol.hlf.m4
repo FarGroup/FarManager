@@ -2403,7 +2403,7 @@ program przypisany do tego typu pliku.
 Far pozwala na ponowienie operacji przy użyciu uprzywilejowanego konta.
  Dostępne opcje:
  - ^<wrap>#do modyfikacji#: zezwalaj na żądanie uprawnień do operacji, które zmieniają stan systemu plików (np. tworzenie/modyfikacja/usuwanie pliku lub folderu);
- - ^<wrap>#do odczytu#: zezwalaj na żądanie uprawnień do operacji, które nie zmieniają stanu systemu plików (np. czytanie plików lub wyświetlanie katalogów);
+ - ^<wrap>#do odczytu#: zezwalaj na żądanie uprawnień do operacji, które nie zmieniają stanu systemu plików (np. czytanie plików lub wyświetlanie folderów);
  - ^<wrap>#użyj dodatkowych uprawnień#: spróbuj uzyskać dostęp do wszystkich plików z pominięciem list kontroli dostępów (ACL).
 Opcji tej należy używać z uwagą i ostrożnością.
 
