@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pipe.hpp"
 #include "strmix.hpp"
 #include "tracer.hpp"
+#include "res.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -897,6 +898,8 @@ namespace logging
 
 	int main(string_view const PipeName)
 	{
+		consoleicons::instance().set_icon(FAR_ICON_LOG);
+
 		console.SetTitle(concat(L"Far Log Viewer: "sv, PipeName));
 		console.SetTextAttributes(colors::NtColorToFarColor(F_LIGHTGRAY | B_BLACK));
 

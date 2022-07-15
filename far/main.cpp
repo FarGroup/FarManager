@@ -81,9 +81,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/algorithm.hpp"
 #include "common/from_string.hpp"
-#include "common/range.hpp"
 #include "common/scope_exit.hpp"
-#include "common/string_utils.hpp"
 #include "common/uuid.hpp"
 
 // External:
@@ -560,7 +558,7 @@ namespace args
 		parameter_expected = L"a parameter is expected"sv;
 }
 
-static void parse_argument(span<const wchar_t* const>::const_iterator& Iterator, span<const wchar_t* const>::const_iterator End, args_context& Context)
+static void parse_argument(span<const wchar_t* const>::const_iterator& Iterator, span<const wchar_t* const>::const_iterator End, args_context const& Context)
 {
 	if (Iterator == End)
 		return;
@@ -784,7 +782,7 @@ static void parse_argument(span<const wchar_t* const>::const_iterator& Iterator,
 	}
 }
 
-static void parse_command_line(span<const wchar_t* const> const Args, span<string> const SimpleArgs, args_context& Context)
+static void parse_command_line(span<const wchar_t* const> const Args, span<string> const SimpleArgs, args_context const& Context)
 {
 	size_t SimpleArgsCount{};
 
@@ -843,10 +841,10 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	os::env::set(L"FARHOME"sv, Global->g_strFarPath);
 	AddEndSlash(Global->g_strFarPath);
 
-	if (os::security::is_admin())
-		os::env::set(L"FARADMINMODE"sv, L"1"sv);
+	if (const auto FarAdminMode = L"FARADMINMODE"sv; os::security::is_admin())
+		os::env::set(FarAdminMode, L"1"sv);
 	else
-		os::env::del(L"FARADMINMODE"sv);
+		os::env::del(FarAdminMode);
 
 	if (const auto Result = ProcessServiceModes(Args))
 		return *Result;

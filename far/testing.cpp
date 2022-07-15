@@ -104,6 +104,9 @@ std::optional<int> testing_main(int const Argc, wchar_t const* const Argv[])
 		Args.reserve(Argc + 1);
 		Args.assign(Argv, Argv + Argc);
 		Args.emplace_back(L"--break");
+
+		if (DebugTests)
+			Args.emplace_back(L"--wait-for-keypress exit");
 	}
 
 	return Catch::Session().run(static_cast<int>(Args.size()), Args.data());

@@ -205,11 +205,11 @@ static void rotate_cube(cube& Cube, axis const Axis, bool const Clockwise)
 
 	cube NewCube{};
 
-	for (auto& Plane: Cube)
+	for (const auto& Plane: Cube)
 	{
-		for (auto& Line: Plane)
+		for (const auto& Line: Plane)
 		{
-			for (auto& Point: Line)
+			for (const auto& Point: Line)
 			{
 				std::array const Coord
 				{

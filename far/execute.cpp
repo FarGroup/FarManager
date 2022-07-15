@@ -393,7 +393,7 @@ static void wait_for_process_or_detach(os::handle const& Process, int const Cons
 		os::chrono::sleep_for(100ms);
 		InitConsole();
 
-		consoleicons::instance().set_icon();
+		consoleicons::instance().update_icon();
 		console.SetAllAliases(std::move(Aliases));
 
 		return;

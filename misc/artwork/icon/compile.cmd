@@ -36,12 +36,31 @@ call :make_one blue_%2 mono        mono_%2
 
 goto :eof
 
+:make_log
+set size=%2
+
+copy /b src\svg\log\%1.svg %OUTDIR%\svg\log_%2.svg > nul
+
+if not %size% gtr 48 (
+call :make_one log_%2  none        log_%2
+) else (
+call :make_one log_%2  make_shadow log_%2
+)
+
+goto :eof
+
 :make_all
 call :make 16 16
 call :make 24 24
 call :make 32 32
 call :make 48 48
 call :make 32 256
+
+call :make_log 16 16
+call :make_log 24 24
+call :make_log 32 32
+call :make_log 24 48
+call :make_log 32 256
 goto :eof
 
 :help

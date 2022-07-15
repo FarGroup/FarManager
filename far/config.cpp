@@ -369,7 +369,7 @@ void Options::InterfaceSettings()
 			CMOpt.CopyTimeRule = 3;
 
 		SetFarConsoleMode();
-		consoleicons::instance().set_icon();
+		consoleicons::instance().update_icon();
 
 		const auto& Panels = Global->CtrlObject->Cp();
 		Panels->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
