@@ -3764,12 +3764,12 @@ grupy podświetlenia plików. Każda definicja grupy ~zawiera~@Filter@:
    #[ ]# - ^<wrap>atrybut wyłączenia - plik nie może posiadać tego atrybutu,
    #[?]# - ^<wrap>ignoruj ten atrybut;
 
- - kolory do wyświetlania nazw plików - zwykła nazwa, zaznaczona nazwa,
+ - ^<wrap>kolory do wyświetlania nazw plików - zwykła nazwa, zaznaczona nazwa,
 nazwa pod kursorem oraz zaznaczona nazwa pod kursorem.
 Jeżeli mają być użyte domyślne kolory, należy ustawić kolor "Czarny na czarnym";
 
- - opcjonalny znak do oznaczania plików z grupy.
-   Mogą być użyte zarówno z lub zamiast kolorów podświetlania.
+ - ^<wrap>oznaczenie plików z grupy.
+Mogą być użyte zarówno z lub zamiast kolorów podświetlania.
 
  Plik należy do grupy podświetlenia jeżeli:
  - ^<wrap>analiza maski jest włączona i nazwa pliku jest zgodna przynajmniej

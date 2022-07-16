@@ -200,9 +200,9 @@ highlight::element FileFilterParams::GetColors() const
 	return FHighlight.Colors;
 }
 
-wchar_t FileFilterParams::GetMarkChar() const
+const string& FileFilterParams::GetMark() const
 {
-	return FHighlight.Colors.Mark.Char;
+	return FHighlight.Colors.Mark.Mark;
 }
 
 struct filter_file_object
@@ -403,7 +403,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 {
 	string_view Name;
 	auto Mask = L""sv;
-	auto MarkChar = L"' '"s;
+	auto Mark = L"    "s;
 	os::fs::attributes IncludeAttr, ExcludeAttr;
 	bool UseSize, UseHardLinks, UseDate, RelativeDate;
 
@@ -417,14 +417,8 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 	}
 	else
 	{
-		if (const auto Char = FF->GetMarkChar())
-		{
-			MarkChar[1] = Char;
-			if (Char == L'&')
-				MarkChar.insert(1, 1, L'&');
-		}
-		else
-			MarkChar.clear();
+		Mark = FF->GetMark();
+		escape_ampersands(Mark);
 
 		Name=FF->GetTitle();
 
@@ -477,9 +471,9 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 
 		const auto AmpFix = Name.size() - HiStrlen(Name);
 
-		return format(FSTR(L"{1:3} {0} {2:{3}.{3}} {0} {4} {5} {0} {6}"sv),
+		return format(FSTR(L"{1:4.4} {0} {2:{3}.{3}} {0} {4} {5} {0} {6}"sv),
 			BoxSymbols[BS_V1],
-			MarkChar,
+			Mark,
 			Name,
 			MaxNameSize + AmpFix,
 			AttrStr,
@@ -546,7 +540,7 @@ enum enumFileFilterConfig
 	ID_HER_SEPARATOR1,
 	ID_HER_MARK_TITLE,
 	ID_HER_MARKEDIT,
-	ID_HER_MARKTRANSPARENT,
+	ID_HER_MARKINHERIT,
 
 	ID_HER_NORMALFILE,
 	ID_HER_NORMALMARKING,
@@ -717,7 +711,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 					colors::make_transparent(i.MarkColor.BackgroundColor);
 				}
 
-				Dlg->SendMessage(DM_SETCHECK,ID_HER_MARKTRANSPARENT,ToPtr(BSTATE_CHECKED));
+				Dlg->SendMessage(DM_SETCHECK,ID_HER_MARKINHERIT,ToPtr(BSTATE_CHECKED));
 				Dlg->SendMessage(DM_REFRESHCOLORS, 0, nullptr);
 				break;
 			}
@@ -726,7 +720,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 				FilterDlgRelativeDateItemsUpdate(Dlg, true);
 				break;
 			}
-			else if (Param1 == ID_HER_MARKTRANSPARENT)
+			else if (Param1 == ID_HER_MARKINHERIT)
 			{
 				Dlg->SendMessage(DM_REFRESHCOLORS, 0, nullptr);
 				break;
@@ -744,7 +738,7 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			{
 				Param1 = ID_HER_NORMALFILE + static_cast<const INPUT_RECORD*>(Param2)->Event.MouseEvent.dwMousePosition.Y*2;
 
-				if (static_cast<const INPUT_RECORD*>(Param2)->Event.MouseEvent.dwMousePosition.X==1 && Context->Colors->Mark.Char)
+				if (static_cast<const INPUT_RECORD*>(Param2)->Event.MouseEvent.dwMousePosition.X==1 && !Context->Colors->Mark.Mark.empty())
 					Param1 = ID_HER_NORMALMARKING + static_cast<const INPUT_RECORD*>(Param2)->Event.MouseEvent.dwMousePosition.Y*2;
 			}
 
@@ -765,12 +759,9 @@ static intptr_t FileFilterConfigDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1
 			const block_ptr<FarDialogItem> Buffer(Size);
 			FarGetDialogItem gdi{ sizeof(gdi), Size, Buffer.data() };
 			Dlg->SendMessage(DM_GETDLGITEM,ID_HER_COLOREXAMPLE,&gdi);
-			//MarkChar это FIXEDIT размером в 1 символ
-			wchar_t MarkChar[2];
-			FarDialogItemData item{ sizeof(item), 1, MarkChar };
-			Dlg->SendMessage(DM_GETTEXT,ID_HER_MARKEDIT,&item);
-			Context->Colors->Mark.Char = *MarkChar;
-			Context->Colors->Mark.Transparent = Dlg->SendMessage(DM_GETCHECK, ID_HER_MARKTRANSPARENT, nullptr) == BST_CHECKED;
+			const auto Mark = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, ID_HER_MARKEDIT, {}));
+			Context->Colors->Mark.Mark = Mark;
+			Context->Colors->Mark.Inherit = Dlg->SendMessage(DM_GETCHECK, ID_HER_MARKINHERIT, nullptr) == BST_CHECKED;
 			HighlightDlgUpdateUserControl(matrix_view(gdi.Item->VBuf, ColorExampleSize.y, ColorExampleSize.x), *Context->Colors);
 			Dlg->SendMessage(DM_SETDLGITEM,ID_HER_COLOREXAMPLE,gdi.Item);
 			return TRUE;
@@ -889,9 +880,9 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 		{ DI_CHECKBOX,    {{41, 10}, {0,  10}}, DIF_NONE, msg(lng::MFileHardLinksCount), },
 
 		{ DI_TEXT,        {{-1, 12}, {0,  12}}, DIF_SEPARATOR, msg(lng::MHighlightColors), },
-		{ DI_TEXT,        {{7,  13}, {0,  13}}, DIF_NONE,  msg(lng::MHighlightMarkChar), },
-		{ DI_FIXEDIT,     {{5,  13}, {5,  13}}, DIF_NONE, },
-		{ DI_CHECKBOX,    {{0,  13}, {0,  13}}, DIF_NONE, msg(lng::MHighlightTransparentMarkChar), },
+		{ DI_TEXT,        {{10, 13}, {0,  13}}, DIF_NONE,  msg(lng::MHighlightMark), },
+		{ DI_EDIT,        {{5,  13}, {8,  13}}, DIF_NONE, },
+		{ DI_CHECKBOX,    {{0,  13}, {0,  13}}, DIF_NONE, msg(lng::MHighlightInheritMark), },
 		{ DI_BUTTON,      {{5,  14}, {0,  14}}, DIF_BTNNOCLOSE | DIF_NOBRACKETS, NameLabels[0].second, },
 		{ DI_BUTTON,      {{0,  14}, {0,  14}}, DIF_BTNNOCLOSE | DIF_NOBRACKETS, msg(lng::MHighlightMarking1), },
 		{ DI_BUTTON,      {{5,  15}, {0,  15}}, DIF_BTNNOCLOSE | DIF_NOBRACKETS, NameLabels[1].second, },
@@ -955,7 +946,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 	FilterDlg[ID_FF_CURRENT].X1 = FilterDlg[ID_FF_CURRENT].X2 - FilterDlg[ID_FF_CURRENT].strData.size() + AmpFixup(ID_FF_CURRENT) - 3;
 
 	FilterDlg[ID_FF_BUTTON_ATTRIBUTES].X1 = GetPosAfter(ID_FF_CHECKBOX_ATTRIBUTES) + 5;
-	FilterDlg[ID_HER_MARKTRANSPARENT].X1 = GetPosAfter(ID_HER_MARK_TITLE) + 1;
+	FilterDlg[ID_HER_MARKINHERIT].X1 = GetPosAfter(ID_HER_MARK_TITLE) + 1;
 
 	for (int i = ID_HER_NORMALMARKING; i <= ID_HER_SELECTEDCURSORMARKING; i += 2)
 		FilterDlg[i].X1 = GetPosAfter(ID_HER_NORMALFILE) + 1;
@@ -964,8 +955,8 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 	auto Colors = Filter.GetColors();
 	HighlightDlgUpdateUserControl(VBufColorExample,Colors);
 	FilterDlg[ID_HER_COLOREXAMPLE].VBuf = VBufColorExample.data();
-	FilterDlg[ID_HER_MARKEDIT].strData.assign(Colors.Mark.Char ? 1 : 0, Colors.Mark.Char);
-	FilterDlg[ID_HER_MARKTRANSPARENT].Selected = Colors.Mark.Transparent;
+	FilterDlg[ID_HER_MARKEDIT].strData = Colors.Mark.Mark;
+	FilterDlg[ID_HER_MARKINHERIT].Selected = Colors.Mark.Inherit;
 	FilterDlg[ID_HER_CONTINUEPROCESSING].Selected=(Filter.GetContinueProcessing()?1:0);
 	FilterDlg[ID_FF_NAMEEDIT].strData = Filter.GetTitle();
 	FilterDlg[ID_FF_MATCHMASK].Selected = Filter.IsMaskUsed();
@@ -1107,7 +1098,7 @@ bool FileFilterConfig(FileFilterParams& Filter, bool ColorConfig)
 			if (FilterDlg[ID_FF_MATCHMASK].Selected && !FileMask.assign(FilterDlg[ID_FF_MASKEDIT].strData, 0))
 				continue;
 
-			Colors.Mark.Transparent = FilterDlg[ID_HER_MARKTRANSPARENT].Selected == BSTATE_CHECKED;
+			Colors.Mark.Inherit = FilterDlg[ID_HER_MARKINHERIT].Selected == BSTATE_CHECKED;
 
 			Filter.SetColors(Colors);
 			Filter.SetContinueProcessing(FilterDlg[ID_HER_CONTINUEPROCESSING].Selected!=0);

@@ -142,7 +142,7 @@ public:
 	bool  GetHardLinks(DWORD *HardLinksAbove, DWORD *HardLinksBelow) const;
 	bool  GetAttr(os::fs::attributes* AttrSet, os::fs::attributes* AttrClear) const;
 	highlight::element GetColors() const;
-	wchar_t GetMarkChar() const;
+	const string& GetMark() const;
 	int   GetSortGroup() const { return FHighlight.SortGroup; }
 	bool  GetContinueProcessing() const { return FHighlight.bContinueProcessing; }
 	DWORD GetFlags(filter_area FType) const { return FFlags[static_cast<size_t>(FType)]; }

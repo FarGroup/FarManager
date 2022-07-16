@@ -3860,8 +3860,8 @@ fájlnév és a kurzor alatti kijelölt fájlnév színét. Ha egy elemre az
 alapértelmezett színeket szeretnénk használni, a színeket állítsuk "feketén
 fekete", azaz fekete háttéren fekete szöveg színösszetételre;
 
- - ^<wrap>megadható fájljelölő karaktert. A jelölő karaktert használhatjuk
-színkiemeléssel együtt vagy helyette.
+ - ^<wrap>a csoportból származó fájlok jelölése.
+A jelölő karaktert használhatjuk színkiemeléssel együtt vagy helyette.
 
  Egy fájl akkor tartozik egy kiemelési csoportba, ha:
  - ^<wrap>a fájlmaszkelemzés engedélyezve van és a fájl megfelel

@@ -3797,12 +3797,12 @@ definovat skupiny zvýraznění souborů. Každá definice skupiny ~zahrnuje~@Fi
    #[ ]# - ^<wrap>exclusion attribute - file must not have this attribute.
    #[?]# - ^<wrap>ignore this attribute;
 
- - normální název, vybraný název, název pod kurzorem a barvu
+ - ^<wrap>normální název, vybraný název, název pod kurzorem a barvu
 vybraného názvu pod kurzorem pro zobrazení názvů souboru.
 Pokud si přejete používat implicitní barvu, nastavte "černou na černé";
 
- - volitelný znak pro označení souborů skupiny.
-   Te může být použit spolu z barevným zvýrazněním, nebo místo něho.
+ - ^<wrap>označení pro soubory ze skupiny.
+Te může být použit spolu z barevným zvýrazněním, nebo místo něho.
 
  Soubory patří do zvýrazněné skupiny, pokud:
  - ^<wrap>je zapnutá analýza masek a název souboru je shodný s některou

@@ -3764,12 +3764,12 @@ specify file highlighting groups. Each group definition ~includes~@Filter@:
    #[ ]# - ^<wrap>exclusion attribute - file must not have this attribute.
    #[?]# - ^<wrap>ignore this attribute;
 
- - normal name, selected name, name under cursor and
+ - ^<wrap>normal name, selected name, name under cursor and
 selected name under cursor colors to display file names.
 If you wish to use the default color, set color to "Black on black";
 
- - an optional character to mark files from the group.
-   It can be used both with or instead of color highlighting.
+ - ^<wrap>a marking for files from the group.
+It can be used both with or instead of color highlighting.
 
  A file belongs to a highlighting group if:
  - ^<wrap>file mask analysis is enabled and the name of the file matches

@@ -3840,14 +3840,14 @@ Jede Gruppendefinition ~beinhaltet~@Filter@:
    #[ ]# - ^<wrap>exclusion attribute - file must not have this attribute.
    #[?]# - ^<wrap>ignore this attribute;
 
- - Farbeneinstellungen für normale Dateinamen, ausgewählte
+ - ^<wrap>Farbeneinstellungen für normale Dateinamen, ausgewählte
 Dateinamen, Dateiname unter dem Cursor und ausgewählte
 Dateinamen unter dem Cursor.
 Wenn Sie die Standardfarben benutzen wollen, wählen Sie
 die Farbkombination "Schwarz auf Schwarz";
 
- - optionales Zeichen, um Dateien der Gruppe zu markieren. Es
-kann mit oder anstelle farblicher Hervorhebung benutzt werden.
+ - ^<wrap>eine Markierung für Dateien aus der Gruppe.
+Es kann mit oder anstelle farblicher Hervorhebung benutzt werden.
 
  Eine Datei fällt in eine hervorgehobene Gruppe, wenn:
  - ^<wrap>ihr Name wenigstens einer der Dateimasken entspricht (if file mask analysis is disabled,

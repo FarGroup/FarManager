@@ -87,12 +87,12 @@ namespace highlight
 
 		struct mark
 		{
-			wchar_t Char{};
-			bool Transparent{true};
+			string Mark;
+			bool Inherit{true};
 
 			bool operator ==(const mark& rhs) const
 			{
-				return Char == rhs.Char && Transparent == rhs.Transparent;
+				return Mark == rhs.Mark && Inherit == rhs.Inherit;
 			}
 		};
 

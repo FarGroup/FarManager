@@ -3759,11 +3759,11 @@ definovanie skupín súborov pre zvýrazňovanie. Definícia každej skupiny ~za
    #[ ]# - ^<wrap>exclusion attribute - file nesmie mať this attribute.
    #[?]# - ^<wrap>ignore this attribute;
 
- - farbu použitú na zobrazenie mena súboru normálneho, označeného,
+ - ^<wrap>farbu použitú na zobrazenie mena súboru normálneho, označeného,
 pod kurzorom a označeného pod kurzorom. Ak chcete použiť štandardné
 farby, nastavte "čiernu na čiernej";
 
- - akékoľvek voliteľné znaky, ktoré budú označovať súbory skupiny.
+ - ^<wrap>označenie pre súbory zo skupiny.
 Môžu byť použité tak s farebným zvýraznením ako i namiesto neho.
 
  Súbor patrí do zvýrazňovanej skupiny ak:

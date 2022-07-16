@@ -8378,14 +8378,14 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								Width -= static_cast<int>(Mark.size());
 							}
 
-							if (Global->Opt->Highlight && m_ListData[ListPos].Colors && m_ListData[ListPos].Colors->Mark.Char && Width>1)
+							if (Global->Opt->Highlight && m_ListData[ListPos].Colors && !m_ListData[ListPos].Colors->Mark.Mark.empty() && Width>1)
 							{
 								Width--;
 								const auto OldColor = GetColor();
 								if (!ShowStatus)
 									SetShowColor(ListPos, false);
 
-								Text(m_ListData[ListPos].Colors->Mark.Char);
+								Text(m_ListData[ListPos].Colors->Mark.Mark, visual_string_length(m_ListData[ListPos].Colors->Mark.Mark));
 								SetColor(OldColor);
 							}
 

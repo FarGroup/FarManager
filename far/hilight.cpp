@@ -97,6 +97,7 @@ namespace names
 		STR_INIT(MarkCharCursorColor),
 		STR_INIT(MarkCharSelectedCursorColor),
 		STR_INIT(MarkChar),
+		STR_INIT(Mark),
 		STR_INIT(ContinueProcessing),
 		STR_INIT(Group),
 		STR_INIT(UpperGroup),
@@ -234,11 +235,22 @@ static FileFilterParams LoadHighlight(/*const*/ HierarchicalConfig& cfg, const H
 		cfg.GetValue(key, names::mark_color(Index), Blob) && deserialise(Blob, Color.MarkColor);
 	}
 
-	unsigned long long MarkChar;
-	if (cfg.GetValue(key, names::MarkChar, MarkChar))
+	auto MarkRead = false;
+	if (string Mark; cfg.GetValue(key, names::Mark, Mark))
 	{
-		Colors.Mark.Char = extract_integer<WORD, 0>(MarkChar);
-		Colors.Mark.Transparent = extract_integer<BYTE, 0>(extract_integer<WORD, 1>(MarkChar)) == 0xff;
+		Colors.Mark.Mark = Mark;
+		MarkRead = true;
+	}
+
+	if (unsigned long long MarkChar; cfg.GetValue(key, names::MarkChar, MarkChar))
+	{
+		// "MarkChar" used to contain both the mark character and the inheritance flag.
+		// "Mark" is the main storage of the mark now, but if it's not there, we try the old way:
+		const auto Char = static_cast<wchar_t>(extract_integer<WORD, 0>(MarkChar));
+		if (!MarkRead && Char)
+			Colors.Mark.Mark = Char;
+
+		Colors.Mark.Inherit = extract_integer<BYTE, 0>(extract_integer<WORD, 1>(MarkChar)) == 0xff;
 	}
 	Item.SetColors(Colors);
 
@@ -339,10 +351,10 @@ static void ApplyColors(highlight::element& DestColors, const highlight::element
 	}
 
 	//Унаследуем пометку из Src если она не прозрачная
-	if (!SrcColors.Mark.Transparent)
+	if (!SrcColors.Mark.Inherit)
 	{
-		DestColors.Mark.Transparent = false;
-		DestColors.Mark.Char = SrcColors.Mark.Char;
+		DestColors.Mark.Inherit = false;
+		DestColors.Mark.Mark = SrcColors.Mark.Mark;
 	}
 }
 
@@ -390,8 +402,8 @@ const highlight::element* highlight::configuration::GetHiColor(const FileListIte
 	//for (const auto& i: zip(Item.Color, PalColor)) std::apply(ApplyFinalColor, i);
 
 	//Если символ пометки прозрачный то его как бы и нет вообще.
-	if (item.Mark.Transparent)
-		item.Mark.Char = 0;
+	if (item.Mark.Inherit)
+		item.Mark.Mark.clear();
 
 	return &*m_Colors.emplace(item).first;
 }
@@ -460,8 +472,8 @@ size_t highlight::configuration::element_hash::operator()(const element& item) c
 {
 	size_t Seed = 0;
 
-	hash_combine(Seed, item.Mark.Char);
-	hash_combine(Seed, item.Mark.Transparent);
+	hash_combine(Seed, item.Mark.Mark);
+	hash_combine(Seed, item.Mark.Inherit);
 
 	for (const auto& i: item.Color)
 	{
@@ -539,9 +551,9 @@ void HighlightDlgUpdateUserControl(matrix_view<FAR_CHAR_INFO> const& VBufColorEx
 
 		auto Iterator = Row.begin() + 1;
 
-		if (Colors.Mark.Char)
+		if (!Colors.Mark.Mark.empty() && !Colors.Mark.Inherit)
 		{
-			Iterator->Char = Colors.Mark.Transparent? L' ' : Colors.Mark.Char;
+			Iterator->Char = Colors.Mark.Mark.front();
 			Iterator->Attributes = BakedColor.MarkColor;
 			++Iterator;
 		}
@@ -804,7 +816,14 @@ static void SaveHighlight(HierarchicalConfig& cfg, const HierarchicalConfig::key
 		cfg.SetValue(key, names::mark_color(Index), view_bytes(Color.MarkColor));
 	}
 
-	cfg.SetValue(key, names::MarkChar, make_integer<uint32_t>(uint16_t{ Colors.Mark.Char }, make_integer<uint16_t, uint8_t>(Colors.Mark.Transparent? 0xff : 0, 0)));
+	cfg.SetValue(key, names::Mark, Colors.Mark.Mark);
+
+	// "MarkChar" used to contain both the mark character and the inheritance flag.
+	// "Mark" is the main storage of the mark now, but we still store the first character in "MarkChar" for compatibility:
+	cfg.SetValue(key, names::MarkChar, make_integer<uint32_t>(
+		uint16_t{ Colors.Mark.Mark.empty()? wchar_t{} : Colors.Mark.Mark.front() },
+		make_integer<uint16_t, uint8_t>(Colors.Mark.Inherit? 0xff : 0, 0))
+	);
 	cfg.SetValue(key, names::ContinueProcessing, Item.GetContinueProcessing());
 }
 
