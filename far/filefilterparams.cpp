@@ -403,7 +403,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 {
 	string_view Name;
 	auto Mask = L""sv;
-	auto Mark = L"    "s;
+	string Mark;
 	os::fs::attributes IncludeAttr, ExcludeAttr;
 	bool UseSize, UseHardLinks, UseDate, RelativeDate;
 
@@ -418,7 +418,7 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 	else
 	{
 		Mark = FF->GetMark();
-		escape_ampersands(Mark);
+		inplace::escape_ampersands(Mark);
 
 		Name=FF->GetTitle();
 
@@ -469,13 +469,18 @@ string MenuString(const FileFilterParams* const FF, bool const bHighlightType, w
 	{
 		SetFlag(FF->GetContinueProcessing(), L'↓');
 
-		const auto AmpFix = Name.size() - HiStrlen(Name);
+		const auto MaxMarkSize = 4;
 
-		return format(FSTR(L"{1:4.4} {0} {2:{3}.{3}} {0} {4} {5} {0} {6}"sv),
+		const auto
+			MarkAmpFix = Mark.size() - HiStrlen(Mark),
+			NameAmpFix = Name.size() - HiStrlen(Name);
+
+		return format(FSTR(L"{1:{2}.{2}} {0} {3:{4}.{4}} {0} {5} {6} {0} {7}"sv),
 			BoxSymbols[BS_V1],
 			Mark,
+			MaxMarkSize + MarkAmpFix,
 			Name,
-			MaxNameSize + AmpFix,
+			MaxNameSize + NameAmpFix,
 			AttrStr,
 			OtherFlags,
 			Mask
