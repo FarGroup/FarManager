@@ -1358,6 +1358,19 @@ unsigned int encoding::utf16::extract_codepoint(string_view const Str)
 		Str.front();
 }
 
+void encoding::utf16::remove_first_codepoint(string_view& Str)
+{
+	const auto IsSurrogate = Str.size() > 1 && is_valid_surrogate_pair(Str[0], Str[1]);
+	Str.remove_prefix(IsSurrogate? 2 : 1);
+}
+
+void encoding::utf16::remove_last_codepoint(string_view& Str)
+{
+	const auto Size = Str.size();
+	const auto IsSurrogate = Size > 1 && is_valid_surrogate_pair(Str[Size - 2], Str[Size - 1]);
+	Str.remove_suffix(IsSurrogate? 2 : 1);
+}
+
 std::pair<wchar_t, wchar_t> encoding::utf16::to_surrogate(unsigned int const Codepoint)
 {
 	if (Codepoint <= std::numeric_limits<wchar_t>::max())

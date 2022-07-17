@@ -7939,22 +7939,35 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	Text(L' ');
 }
 
-bool FileList::ConvertName(const string_view SrcName, string& strDest, const int MaxLength, const unsigned long long RightAlign, const int ShowStatus, os::fs::attributes const FileAttr) const
+bool FileList::ConvertName(const string_view SrcName, string& strDest, const size_t MaxLength, const unsigned long long RightAlign, const int ShowStatus, os::fs::attributes const FileAttr) const
 {
 	strDest.reserve(MaxLength);
 
-	const auto SrcLength = static_cast<int>(SrcName.size());
+	const auto SrcLength = visual_string_length(SrcName);
 
 	if ((RightAlign & COLFLAGS_RIGHTALIGNFORCE) || (RightAlign && (SrcLength>MaxLength)))
 	{
 		if (SrcLength>MaxLength)
 		{
-			strDest = SrcName.substr(SrcLength - MaxLength, MaxLength);
+			auto Tail = SrcName;
+			size_t VisualLength;
+
+			for (;;)
+			{
+				VisualLength = visual_string_length(Tail);
+				if (VisualLength > MaxLength)
+					encoding::utf16::remove_first_codepoint(Tail);
+				else
+					break;
+			}
+
+			strDest.assign(MaxLength - VisualLength, L' ');
+			strDest.append(Tail);
 		}
 		else
 		{
 			strDest.assign(MaxLength - SrcLength, L' ');
-			append(strDest, SrcName);
+			strDest.append(SrcName);
 		}
 		return SrcLength > MaxLength;
 	}
@@ -7970,21 +7983,28 @@ bool FileList::ConvertName(const string_view SrcName, string& strDest, const int
 	{
 		Extension.remove_prefix(1);
 		auto Name = SrcName.substr(0, SrcName.size() - Extension.size());
-		const auto DotPos = std::max(MaxLength - std::max(Extension.size(), size_t{ 3 }), Name.size());
 
 		if (Name.size() > 1 && Name[Name.size() - 2] != L' ')
 			Name.remove_suffix(1);
 
+		const auto VisualNameLength = visual_string_length(Name);
+		const auto VisualExtensionLength = std::max(size_t{ 3 }, visual_string_length(Extension));
+
+		const auto SpaceLength = VisualNameLength + VisualExtensionLength < MaxLength?
+			MaxLength - VisualNameLength - VisualExtensionLength :
+			0;
+
 		strDest += Name;
-		strDest.resize(DotPos, L' ');
+		strDest.append(SpaceLength, L' ');
 		strDest += Extension;
-		strDest.resize(MaxLength, L' ');
 	}
 	else
 	{
-		strDest.assign(SrcName, 0, std::min(SrcLength, MaxLength));
-		strDest.resize(MaxLength, L' ');
+		strDest.assign(SrcName, 0, visual_pos_to_string_pos(SrcName, MaxLength, 1));
 	}
+
+	if (const auto VisualSize = visual_string_length(strDest); VisualSize < MaxLength)
+		strDest.append(MaxLength - VisualSize, L' ');
 
 	return SrcLength > MaxLength;
 }
@@ -8412,17 +8432,21 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							if (!ShowStatus && LeftPos)
 							{
-								const auto Length = static_cast<int>(Name.size());
-
-								if (Length>Width)
+								if (const auto Length = static_cast<int>(visual_string_length(Name)); Length > Width)
 								{
 									if (LeftPos>0)
 									{
 										if (!RightAlign)
 										{
 											CurLeftPos = std::min(LeftPos, Length-Width);
-											MaxLeftPos = std::max(MaxLeftPos, CurLeftPos);
-											Name.remove_prefix(CurLeftPos);
+
+											auto ActualLeftPos = 0;
+											for (; ActualLeftPos != CurLeftPos && static_cast<int>(visual_string_length(Name)) > Width; ++ActualLeftPos)
+											{
+												encoding::utf16::remove_first_codepoint(Name);
+											}
+
+											MaxLeftPos = std::max(MaxLeftPos, ActualLeftPos);
 										}
 									}
 									else if (RightAlign)
@@ -8439,27 +8463,26 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 											LeftBracket=(ViewFlags & COLFLAGS_RIGHTALIGNFORCE)==COLFLAGS_RIGHTALIGNFORCE;
 										}
 
-										Name.remove_prefix(Length + CurRightPos - Width);
-										RightAlign=FALSE;
+										while (static_cast<int>(visual_string_length(Name)) > Width - CurRightPos)
+										{
+											encoding::utf16::remove_first_codepoint(Name);
+										}
 
 										MinLeftPos = std::min(MinLeftPos, CurRightPos);
+										RightAlign=FALSE;
 									}
 								}
 							}
 
 							string strName;
-							int TooLong=ConvertName(Name, strName, Width, RightAlign,ShowStatus,m_ListData[ListPos].Attributes);
+							const auto TooLong = ConvertName(Name, strName, Width, RightAlign,ShowStatus,m_ListData[ListPos].Attributes);
 
 							if (CurLeftPos)
 								LeftBracket=TRUE;
 
 							if (TooLong)
 							{
-								if (RightAlign)
-									LeftBracket=TRUE;
-
-								if (!RightAlign && static_cast<int>(Name.size()) > Width)
-									RightBracket=TRUE;
+								(RightAlign? LeftBracket : RightBracket) = TRUE;
 							}
 
 							if (!ShowStatus)
@@ -8475,7 +8498,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 									inplace::lower(strName);
 							}
 
-							Text(strName);
+							Text(strName, Width);
 
 
 							if (!ShowStatus)
