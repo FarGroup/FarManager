@@ -369,7 +369,7 @@ void Options::InterfaceSettings()
 			CMOpt.CopyTimeRule = 3;
 
 		SetFarConsoleMode();
-		consoleicons::instance().set_icon();
+		consoleicons::instance().update_icon();
 
 		const auto& Panels = Global->CtrlObject->Cp();
 		Panels->LeftPanel()->Update(UPDATE_KEEP_SELECTION);
@@ -3333,7 +3333,7 @@ void Options::ShellOptions(bool LastCommand, const MOUSE_EVENT_RECORD *MouseEven
 							far_language::instance().load(Global->g_strFarPath, InterfaceLanguage, static_cast<int>(lng::MNewFileName + 1));
 							strLanguage = InterfaceLanguage;
 						}
-						catch (const far_known_exception& e)
+						catch (far_known_exception const& e)
 						{
 							Message(MSG_WARNING,
 								msg(lng::MError),

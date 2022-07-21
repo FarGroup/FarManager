@@ -63,7 +63,9 @@ void set_drive_env_curdir(string_view Directory);
 bool FarChDir(string_view NewDir);
 
 int TestFolder(string_view Path);
-bool CheckShortcutFolder(string& TestPath, bool TryClosest, bool Silent);
+bool CutToExistingParent(string_view& Path);
+bool CutToExistingParent(string& Path);
+bool TryParentFolder(string& Path);
 
 bool CreatePath(string_view InputPath, bool AddToTreeCache = true);
 

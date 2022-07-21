@@ -108,10 +108,10 @@ NTSTATUS NTAPI imports::stub_RtlGetLastNtStatus()
 	return STATUS_NOT_IMPLEMENTED;
 }
 
-NTSTATUS NTAPI imports::stub_RtlNtStatusToDosError(NTSTATUS Status)
+ULONG NTAPI imports::stub_RtlNtStatusToDosError(NTSTATUS Status)
 {
 	LOGWARNING(L"Stub call"sv);
-	return STATUS_NOT_IMPLEMENTED;
+	return ERROR_CALL_NOT_IMPLEMENTED;
 }
 
 NTSTATUS NTAPI imports::stub_RtlGetVersion(PRTL_OSVERSIONINFOW VersionInformation)

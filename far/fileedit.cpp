@@ -1232,16 +1232,6 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 					return true;
 				}
 
-				string strFullFileNameTemp = strFullFileName;
-
-				if (!os::fs::exists(strFullFileName)) // а сам файл то еще на месте?
-				{
-					if (!CheckShortcutFolder(strFullFileNameTemp, true, false))
-						return false;
-
-					path::append(strFullFileNameTemp, L'.'); // для вваливания внутрь :-)
-				}
-
 				const auto ActivePanel = Global->CtrlObject->Cp()->ActivePanel();
 
 				if (m_Flags.Check(FFILEEDIT_NEW) || (ActivePanel && ActivePanel->FindFile(strFileName) == -1)) // Mantis#279
@@ -1252,7 +1242,7 @@ bool FileEditor::ReProcessKey(const Manager::Key& Key, bool CalledFromControl)
 
 				{
 					SCOPED_ACTION(SaveScreen);
-					Global->CtrlObject->Cp()->GoToFile(strFullFileNameTemp);
+					Global->CtrlObject->Cp()->GoToFile(strFullFileName);
 					m_Flags.Set(FFILEEDIT_REDRAWTITLE);
 				}
 
@@ -1740,7 +1730,7 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 	return true;
 
 	}
-	catch (const std::bad_alloc&)
+	catch (std::bad_alloc const&)
 	{
 		// TODO: better diagnostics
 		m_editor->FreeAllocatedData();
@@ -1749,7 +1739,7 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 		ErrorState = last_error();
 		return false;
 	}
-	catch (const std::exception&)
+	catch (std::exception const&)
 	{
 		// A portion of file can be locked
 
@@ -2070,7 +2060,7 @@ int FileEditor::SaveFile(const string_view Name, int Ask, bool bSaveAs, error_st
 			}
 		});
 	}
-	catch (const far_exception& e)
+	catch (far_exception const& e)
 	{
 		RetCode = SAVEFILE_ERROR;
 		ErrorState = e;

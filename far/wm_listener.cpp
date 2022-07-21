@@ -65,11 +65,6 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 	{
 		switch (Msg)
 		{
-		case WM_CLOSE:
-			if (!DestroyWindow(Hwnd))
-				LOGWARNING(L"DestroyWindow(): {}"sv, last_error());
-			break;
-
 		case WM_DESTROY:
 			PostQuitMessage(0);
 			break;
@@ -186,7 +181,10 @@ void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 	WNDCLASSEX wc{ sizeof(wc) };
 	wc.lpfnWndProc = WndProc;
 	wc.lpszClassName = L"FarHiddenWindowClass";
-	UnregisterClass(wc.lpszClassName, nullptr);
+
+	if (UnregisterClass(wc.lpszClassName, nullptr))
+		LOGWARNING(L"Class {} was already registered"sv, wc.lpszClassName);
+
 	if (!RegisterClassEx(&wc))
 	{
 		LOGERROR(L"RegisterClassEx(): {}"sv, last_error());
@@ -194,7 +192,11 @@ void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 		return;
 	}
 
-	SCOPE_EXIT{ UnregisterClass(wc.lpszClassName, nullptr); };
+	SCOPE_EXIT
+	{
+		if (!UnregisterClass(wc.lpszClassName, {}))
+			LOGWARNING(L"UnregisterClass(): {}"sv, last_error());
+	};
 
 	m_Hwnd = CreateWindowEx(0, wc.lpszClassName, nullptr, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, nullptr, nullptr);
 	if (!m_Hwnd)
@@ -209,12 +211,14 @@ void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 		imports.RegisterPowerSettingNotification(m_Hwnd, &GUID_BATTERY_PERCENTAGE_REMAINING, DEVICE_NOTIFY_WINDOW_HANDLE) :
 		nullptr;
 
+	if (!hpn && imports.RegisterPowerSettingNotification)
+	{
+		LOGWARNING(L"RegisterPowerSettingNotification(): {}"sv, last_error());
+	}
+
 	SCOPE_EXIT
 	{
-		if (!hpn)
-			return;
-
-		if (imports.UnregisterPowerSettingNotification(hpn))
+		if (hpn && !imports.UnregisterPowerSettingNotification(hpn))
 			LOGWARNING(L"UnregisterPowerSettingNotification(): {}"sv, last_error());
 	};
 

@@ -109,13 +109,13 @@ namespace os
 		void handle_closer::operator()(HANDLE Handle) const noexcept
 		{
 			if (!CloseHandle(Handle))
-				LOGWARNING(L"CloseHandle(): {}"sv, last_error());
+				LOGERROR(L"CloseHandle(): {}"sv, last_error());
 		}
 
 		void printer_handle_closer::operator()(HANDLE Handle) const noexcept
 		{
 			if (!ClosePrinter(Handle))
-				LOGWARNING(L"CloseHandle(): {}"sv, last_error());
+				LOGWARNING(L"ClosePrinter(): {}"sv, last_error());
 		}
 	}
 
@@ -137,7 +137,10 @@ NTSTATUS get_last_nt_status()
 	if (imports.RtlGetLastNtStatus)
 		return imports.RtlGetLastNtStatus();
 
+WARNING_PUSH()
+WARNING_DISABLE_GCC("-Warray-bounds")
 	const auto Teb = NtCurrentTeb();
+WARNING_POP()
 
 	constexpr auto Offset =
 #ifdef _WIN64
@@ -164,6 +167,8 @@ void set_last_error_from_ntstatus(NTSTATUS const Status)
 
 static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 {
+	SCOPED_ACTION(os::last_error_guard);
+
 	memory::local::ptr<wchar_t> Buffer;
 	const size_t Size = FormatMessage(
 			(Nt? FORMAT_MESSAGE_FROM_HMODULE : FORMAT_MESSAGE_FROM_SYSTEM) |
@@ -176,6 +181,12 @@ static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 		edit_as<wchar_t*>(&ptr_setter(Buffer)),
 		0,
 		nullptr);
+
+	if (!Size)
+	{
+		LOGERROR(L"FormatMessage({}): {}"sv, ErrorCode, last_error());
+		return {};
+	}
 
 	string Result(Buffer.get(), Size);
 	std::replace_if(ALL_RANGE(Result), IsEol, L' ');
@@ -447,9 +458,12 @@ handle OpenConsoleActiveScreenBuffer()
 	return handle(fs::low::create_file(L"CONOUT$", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr));
 }
 
-HKL make_hkl(uint32_t const Layout)
+HKL make_hkl(int32_t const Layout)
 {
-	return reinterpret_cast<HKL>(static_cast<uintptr_t>(extract_integer<WORD, 1>(Layout)? Layout : make_integer<uint32_t, uint16_t>(Layout, Layout)));
+	// For an unknown reason HKLs must be promoted as signed integers on x64:
+	// 0x1NNNNNNN -> 0x000000001NNNNNNN
+	// 0xFNNNNNNN -> 0xFFFFFFFFFNNNNNNN
+	return reinterpret_cast<HKL>(static_cast<intptr_t>(extract_integer<WORD, 1>(Layout)? Layout : make_integer<int32_t, uint16_t>(Layout, Layout)));
 }
 
 HKL make_hkl(string_view const LayoutStr)

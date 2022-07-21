@@ -293,6 +293,7 @@ public:
 	static std::vector<string> AddHotkeys(span<menu_item> MenuItems);
 
 	size_t MaxItemLength() const;
+	size_t GetServiceAreaSize();
 
 private:
 	void init(span<menu_item const> Data, DWORD Flags);
@@ -312,7 +313,6 @@ private:
 	//корректировка текущей позиции и флагов SELECTED
 	void UpdateSelectPos();
 	void EnableFilter(bool Enable);
-	size_t GetServiceAreaSize();
 
 	size_t Text(string_view Str) const;
 	size_t Text(wchar_t Char) const;

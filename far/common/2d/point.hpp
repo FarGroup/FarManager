@@ -36,6 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../preprocessor.hpp"
 #include "../rel_ops.hpp"
 
+#include <type_traits>
+
 //----------------------------------------------------------------------------
 
 struct point: public rel_ops<point>

@@ -159,7 +159,7 @@ static os::handle open(const string_view Directory)
 	);
 
 	if (!DirectoryHandle)
-		LOGWARNING(L"create_file({}): {}"sv, Directory, last_error());
+		LOGERROR(L"create_file({}): {}"sv, Directory, last_error());
 
 	return DirectoryHandle;
 }
@@ -203,7 +203,7 @@ void FileSystemWatcher::read_async() const
 		{}
 	))
 	{
-		LOGWARNING(L"ReadDirectoryChangesW({}): {}"sv, m_Directory, last_error());
+		LOGERROR(L"ReadDirectoryChangesW({}): {}"sv, m_Directory, last_error());
 	}
 }
 

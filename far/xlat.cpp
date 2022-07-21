@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enum_tokens.hpp"
+#include "common/view/zip.hpp"
 
 // External:
 
@@ -224,5 +225,15 @@ void Xlat(span<wchar_t> const Data, unsigned long long const Flags)
 			if (Flags & XLAT_SWITCHKEYBBEEP)
 				MessageBeep(0);
 		}
+	}
+}
+
+void xlat_observe_tables(function_ref<void(wchar_t, wchar_t)> const Observer)
+{
+	const auto& XLat = Global->Opt->XLat;
+
+	for (const auto& [Local, English]: zip(XLat.Table[0].Get(), XLat.Table[1].Get()))
+	{
+		Observer(Local, English);
 	}
 }

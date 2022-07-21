@@ -93,6 +93,13 @@ string error_state::to_string() const
 
 namespace detail
 {
+	string far_base_exception::to_string() const
+	{
+		return any()?
+			format(FSTR(L"far_base_exception: {}, Error: {}"sv), full_message(), error_state_ex::to_string()) :
+			format(FSTR(L"far_base_exception: {}"sv), full_message());
+	}
+
 	far_base_exception::far_base_exception(bool const CaptureErrors, string_view const Message, std::string_view const Function, std::string_view const File, int const Line):
 		error_state_ex(CaptureErrors? last_error(): error_state{}, Message),
 		m_Function(Function),
@@ -128,26 +135,14 @@ string error_state_ex::format_error() const
 	return Str + (UseNtMessages? NtErrorStr() : Win32ErrorStr());
 }
 
-std::wostream& operator<<(std::wostream& Stream, error_state const& e)
+string error_state_ex::to_string() const
 {
-	Stream << e.to_string();
-	return Stream;
+	return any()?
+		format(FSTR(L"Message: {}, Error: {}"sv), What, error_state::to_string()) :
+		format(FSTR(L"Message: {}"sv), What);
 }
 
-std::wostream& operator<<(std::wostream& Stream, error_state_ex const& e)
+string formattable<std::exception>::to_string(std::exception const& e)
 {
-	return Stream << (
-		e.any()?
-		format(FSTR(L"Message: {}, Error: {}"sv), e.What, e.to_string()) :
-		format(FSTR(L"Message: {}"sv), e.What)
-	);
-}
-
-std::wostream& operator<<(std::wostream& Stream, detail::far_base_exception const& e)
-{
-	return Stream << (
-		e.any()?
-		format(FSTR(L"far_base_exception: {}, Error: {}"sv), e.full_message(), e.to_string()) :
-		format(FSTR(L"far_base_exception: {}"sv), e.full_message())
-	);
+	return ::format(FSTR(L"std::exception: {}"sv), encoding::utf8::get_chars(e.what()));
 }

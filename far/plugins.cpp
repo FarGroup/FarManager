@@ -579,14 +579,14 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 			os::fs::file const File(*Name, FILE_READ_DATA, os::fs::file_share_all, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 			if (!File)
 			{
-				LOGWARNING(L"create_file({}): {}"sv, *Name, last_error());
+				LOGERROR(L"create_file({}): {}"sv, *Name, last_error());
 				return nullptr;
 			}
 
 			size_t DataSize = 0;
 			if (!File.Read(Buffer.data(), Buffer.size(), DataSize))
 			{
-				LOGWARNING(L"read_file({}): {}"sv, *Name, last_error());
+				LOGERROR(L"read_file({}): {}"sv, *Name, last_error());
 				return nullptr;
 			}
 

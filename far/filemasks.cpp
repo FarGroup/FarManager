@@ -360,7 +360,7 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 	{
 		RegexData.Regex.Compile(Masks, OP_PERLSTYLE | OP_OPTIMIZE);
 	}
-	catch(regex_exception const& e)
+	catch (regex_exception const& e)
 	{
 		if (!(Flags & FMF_SILENT))
 		{

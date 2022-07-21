@@ -428,7 +428,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 
 					//Type==1 - плагиновый путь
 					//Type==0 - обычный путь
-					Panel->ExecFolder(strStr, Uuid, strFile, strData, true, true, false);
+					Panel->ExecFolder(strStr, Uuid, strFile, strData, true, false);
 					// Panel may be changed
 					if(SelectType == HRT_CTRLSHIFTENTER)
 					{
@@ -927,13 +927,7 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool)> con
 			std::wcout << L"\nSCM revision:\n"sv << Revision << L'\n';
 		}
 
-		const auto CompilerInfo =
-#ifdef _MSC_BUILD
-			L"." WSTR(_MSC_BUILD)
-#endif
-			L""sv;
-
-		std::wcout << L"\nCompiler:\n"sv << format(FSTR(L"{}, version {}.{}.{}{}"sv), COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH, CompilerInfo) << L'\n';
+		std::wcout << L"\nCompiler:\n"sv << build::compiler();
 
 		if (const auto& ComponentsInfo = components::GetComponentsInfo(); !ComponentsInfo.empty())
 		{
@@ -1382,28 +1376,16 @@ bool CommandLine::IntChDir(string_view const CmdLine, bool const ClosePanel, boo
 		return true;
 	}
 
-	if (FarChDir(strExpandedDir))
+	while (!FarChDir(strExpandedDir))
 	{
-		SetPanel->ChangeDirToCurrent();
-
-		if (!SetPanel->IsVisible())
-			SetPanel->RefreshTitle();
+		if (Silent || !TryParentFolder(strExpandedDir))
+			return false;
 	}
-	else
-	{
-		if (!Silent)
-		{
-			const auto ErrorState = last_error();
 
-			Message(MSG_WARNING, ErrorState,
-				msg(lng::MError),
-				{
-					strExpandedDir
-				},
-				{ lng::MOk });
-		}
-		return false;
-	}
+	SetPanel->ChangeDirToCurrent();
+
+	if (!SetPanel->IsVisible())
+		SetPanel->RefreshTitle();
 
 	return true;
 }

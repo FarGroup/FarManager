@@ -228,7 +228,7 @@ public:
 	bool GetShowShortNamesMode() const { return m_ShowShortNames; }
 	void SetShowShortNamesMode(bool Mode) {m_ShowShortNames=Mode;}
 	bool ExecShortcutFolder(int Pos);
-	bool ExecFolder(string_view Folder, const UUID& PluginUuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool TryClosest, bool Silent);
+	bool ExecFolder(string_view Folder, const UUID& PluginUuid, const string& strPluginFile, const string& strPluginData, bool CheckType, bool Silent);
 	bool SaveShortcutFolder(int Pos) const;
 	int SetPluginCommand(int Command,int Param1,void* Param2);
 	bool ProcessMouseDrag(const MOUSE_EVENT_RECORD* MouseEvent);

@@ -129,7 +129,7 @@ public:
 			os::chrono::sleep_for((i + 1) * 50ms);
 		}
 
-		LOGWARNING(L"OpenClipboard(): {}"sv, last_error());
+		LOGERROR(L"OpenClipboard(): {}"sv, last_error());
 		return false;
 	}
 
@@ -141,7 +141,7 @@ public:
 
 		if (!CloseClipboard())
 		{
-			LOGWARNING(L"CloseClipboard(): {}"sv, last_error());
+			LOGERROR(L"CloseClipboard(): {}"sv, last_error());
 			return false;
 		}
 
@@ -155,7 +155,7 @@ public:
 
 		if (!EmptyClipboard())
 		{
-			LOGWARNING(L"EmptyClipboard(): {}"sv, last_error());
+			LOGERROR(L"EmptyClipboard(): {}"sv, last_error());
 			return false;
 		}
 
@@ -170,7 +170,7 @@ public:
 		auto hData = os::memory::global::copy(Str);
 		if (!hData)
 		{
-			LOGWARNING(L"global::copy(): {}"sv, last_error());
+			LOGERROR(L"global::copy(): {}"sv, last_error());
 			return false;
 		}
 
@@ -229,14 +229,14 @@ public:
 		auto Memory = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(DROPFILES) + (NamesData.size() + 1) * sizeof(wchar_t));
 		if (!Memory)
 		{
-			LOGWARNING(L"global::alloc(): {}"sv, last_error());
+			LOGERROR(L"global::alloc(): {}"sv, last_error());
 			return false;
 		}
 
 		const auto Drop = os::memory::global::lock<LPDROPFILES>(Memory);
 		if (!Drop)
 		{
-			LOGWARNING(L"global::lock(): {}"sv, last_error());
+			LOGERROR(L"global::lock(): {}"sv, last_error());
 			return false;
 		}
 
@@ -255,7 +255,7 @@ public:
 		auto DropEffect = os::memory::global::copy<DWORD>(Move? DROPEFFECT_MOVE : DROPEFFECT_COPY);
 		if (!DropEffect)
 		{
-			LOGWARNING(L"global::copy(): {}"sv, last_error());
+			LOGERROR(L"global::copy(): {}"sv, last_error());
 			return false;
 		}
 
@@ -268,21 +268,27 @@ public:
 
 	bool GetText(string& Data) const override
 	{
+		if (!IsFormatAvailable(CF_UNICODETEXT))
+			return GetHDROPAsText(Data);
+
 		const auto DataHandle = GetClipboardData(CF_UNICODETEXT);
 		if (!DataHandle)
-			return GetHDROPAsText(Data);
+		{
+			LOGERROR(L"GetClipboardData: {}"sv, last_error());
+			return false;
+		}
 
 		const auto DataPtr = os::memory::global::lock<const wchar_t*>(DataHandle);
 		if (!DataPtr)
 		{
-			LOGWARNING(L"global::lock(): {}"sv, last_error());
+			LOGERROR(L"global::lock(): {}"sv, last_error());
 			return false;
 		}
 
 		const string_view DataView(DataPtr.get(), GlobalSize(DataHandle) / sizeof(*DataPtr));
 		if (DataView.empty())
 		{
-			LOGWARNING(L"Insufficient data"sv);
+			LOGERROR(L"Insufficient data"sv);
 			return false;
 		}
 
@@ -292,9 +298,15 @@ public:
 			if (!SizeFormat)
 				return {};
 
+			if (!IsFormatAvailable(SizeFormat))
+				return {};
+
 			const auto SizeHandle = GetClipboardData(SizeFormat);
 			if (!SizeHandle)
+			{
+				LOGWARNING(L"GetClipboardData(): {}"sv, last_error());
 				return {};
+			}
 
 			const auto SizePtr = os::memory::global::lock<const uint32_t*>(SizeHandle);
 			if (!SizePtr)
@@ -333,9 +345,15 @@ public:
 			if (!BlockFormat)
 				return false;
 
+			if (!IsFormatAvailable(BlockFormat))
+				return false;
+
 			const auto BlockHandle = GetClipboardData(BlockFormat);
 			if (!BlockHandle)
+			{
+				LOGWARNING(L"GetClipboardData(): {}"sv, last_error());
 				return false;
+			}
 
 			const auto BlockPtr = os::memory::global::lock<const char*>(BlockHandle);
 			if (!BlockPtr)
@@ -358,9 +376,15 @@ public:
 		if (!OemDataFormat)
 			return false;
 
+		if (!IsFormatAvailable(OemDataFormat))
+			return false;
+
 		const auto OemDataHandle = GetClipboardData(OemDataFormat);
 		if (!OemDataHandle)
+		{
+			LOGERROR(L"GetClipboardData(): {}"sv, last_error());
 			return false;
+		}
 
 		const auto OemDataPtr = os::memory::global::lock<const char*>(OemDataHandle);
 		if (!OemDataPtr)
@@ -413,9 +437,15 @@ private:
 
 	bool GetHDROPAsText(string& data) const
 	{
+		if (!IsFormatAvailable(CF_HDROP))
+			return false;
+
 		const auto DropHandle = GetClipboardData(CF_HDROP);
 		if (!DropHandle)
+		{
+			LOGWARNING(L"GetClipboardData(): {}"sv, last_error());
 			return false;
+		}
 
 		const auto DropPtr = os::memory::global::lock<const DROPFILES*>(DropHandle);
 		if (!DropPtr)

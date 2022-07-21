@@ -1,0 +1,64 @@
+﻿
+                    The Far File and Archive Manager
+                      (Menedżer Plików i Archiwów)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                      Przegląd możliwości wtyczek
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Far Manager jest tak ściśle zintegrowany z wtyczkami, że po prostu
+nie ma sensu mówić o programie Far i nie wspominać o wtyczkach. Wtyczki
+umożliwiają niemal nieograniczone rozszerzanie możliwości programu Far.
+
+   Bez wdawania się w szczegóły, można wymienić kilka ich możliwości:
+
+  * Podświetlanie składni w plikach źródłowych programów.
+  * Praca z serwerami FTP (w tym dostęp przez proxy).
+  * Wyszukiwanie i zamiana w wielu plikach jednocześnie, używając
+    wyrażeń regularnych.
+  * Zmiana nazw grup plików z obsługą złożonych masek składających się
+    z symboli zastępczych i szablonów.
+  * Klienci NNTP/SMTP/POP3/IMAP4 oraz wysyłanie wiadomości na pager.
+  * Praca z niestandardowymi rozdzielczościami ekranu tekstowego.
+  * Konwersja tekstów z jednej strony kodowej na inną.
+  * Manipulowanie zawartością Kosza.
+  * Kontrola priorytetu procesów na komputerze lokalnym lub sieciowym.
+  * Automatycznie uzupełnianie słów w edytorze i praca z szablonami.
+  * Edycja rejestru systemu Windows.
+  * Tworzenie i modyfikacja skrótów systemu Windows.
+  * Operacje na plikach zwiększające komfort pracy z FidoNet.
+  * UU-kodowanie i UU-dekodowanie plików.
+  * Sterowanie WinAmp i modyfikacja tagów MP3.
+  * Przetwarzanie plików Quake PAK.
+  * Sterowanie drukarkami, zarówno lokalnymi jak i sieciowymi.
+  * Połączenia i debugowanie zapytań do baz danych zgodnych z ODBC.
+  * Sterowanie usługami RAS.
+  * Wykonywanie programów zewnętrznych (kompilatory, konwertery, itp.)
+    podczas edytowania tekstów w edytorze Far.
+  * Wyświetlanie plików pomocy Windows (.hlp i .chm).
+  * Kalkulatory z różnymi możliwościami.
+  * Kilka gier :-)
+  * Funkcja sprawdzania pisowni podczas edycji tekstu w edytorze Far.
+  * Przygotowanie katalogu dysków wymiennych i wiele więcej...
+
+   Nie ma możliwości, aby wymienić wszystkie funkcjonalności udostępniane
+przez Far i jego wtyczki, ponieważ lista stale się powiększa. Jako źródło
+informacji można użyć poniższych adresów do wyszukiwania wtyczek:
+
+  - PlugRinG - strona z wtyczkami
+    https://plugring.farmanager.com
+  - Forum online
+    https://forum.farmanager.com
+  - Listy mailingowe
+    https://groups.google.com/group/fardev
+    https://groups.google.com/group/fardeven
+    https://groups.google.com/group/farcommits
+  - Sieć USENET
+    news:fido7.far.support
+    Grupy Google: https://groups.google.ru/groups?hl=ru&lr=&ie=UTF-8&group=fido7.far.support
+    news:fido7.far.development
+    Grupy Google: https://groups.google.ru/groups?hl=ru&lr=&ie=UTF-8&group=fido7.far.development
+  - Sieć FidoNet
+    far.support
+    far.development
+
+                                  [ Grupa rozwojowa Far Manager ]

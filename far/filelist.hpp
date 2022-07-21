@@ -258,7 +258,7 @@ private:
 	FarColor GetShowColor(int Position, bool FileColor = true) const;
 	void ShowSelectedSize();
 	void ShowTotalSize(const OpenPanelInfo &Info);
-	bool ConvertName(string_view SrcName, string &strDest, int MaxLength, unsigned long long RightAlign, int ShowStatus, os::fs::attributes FileAttr) const;
+	bool ConvertName(string_view SrcName, string &strDest, size_t MaxLength, unsigned long long RightAlign, int ShowStatus, os::fs::attributes FileAttr) const;
 	void Select(FileListItem& SelItem, bool Selection);
 	long SelectFiles(int Mode, string_view Mask = {});
 	void ProcessEnter(bool EnableExec, bool SeparateWindow, bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type);

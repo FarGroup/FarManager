@@ -878,7 +878,7 @@ bool GoToRowCol(goto_coord& Row, goto_coord& Col, bool& Hex, string_view const H
 		GetRowCol(strData, Hex, Row, Col);
 		return true;
 	}
-	catch (const std::exception& e)
+	catch (std::exception const& e)
 	{
 		LOGWARNING(L"{}"sv, e);
 		// maybe we need to display a message in case of an incorrect input

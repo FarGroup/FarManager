@@ -652,6 +652,14 @@ bool KeyMacro::ProcessEvent(const FAR_INPUT_RECORD *Rec)
 			const auto LuaMacro = Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Luamacro.Id);
 			if (!LuaMacro || LuaMacro->IsPendingRemove())
 			{
+				static auto Processing = false;
+
+				if (Processing)
+					return false;
+
+				Processing = true;
+				SCOPE_EXIT{ Processing = false; };
+
 				Message(MSG_WARNING,
 					msg(lng::MError),
 					{

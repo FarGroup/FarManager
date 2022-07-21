@@ -29,6 +29,9 @@ SRCS = \
 	clipboard.cpp \
 	cmdline.cpp \
 	codepage_selection.cpp \
+	color_picker.cpp \
+	color_picker_256.cpp \
+	color_picker_rgb.cpp \
 	colormix.cpp \
 	common.tests.cpp \
 	components.cpp \

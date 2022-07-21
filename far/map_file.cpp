@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/from_string.hpp"
+#include "common/scope_exit.hpp"
 
 // External:
 #include "format.hpp"
@@ -109,70 +110,379 @@ static string undecorate(string const& Symbol)
 	return Symbol;
 }
 
-std::pair<string, string_view> map_file::get(uintptr_t const Address) const
+static std::pair<string, string_view> get_impl(uintptr_t const Address, std::map<uintptr_t, map_file::line> const& Symbols)
 {
-	auto [Begin, End] = m_Symbols.equal_range(Address);
-	if (Begin == m_Symbols.cend())
-		return {};
+	auto [Begin, End] = Symbols.equal_range(Address);
 
-	if (Begin->first > Address)
+	if (Begin == Symbols.cend() || Begin->first > Address)
+	{
+		if (Begin == Symbols.cbegin())
+			return {};
+
 		--Begin;
+	}
 
 	return { format(FSTR(L"{:04X}+{}"sv), Address - Begin->first, undecorate(Begin->second.Name)), *Begin->second.File};
 }
 
-void map_file::read(std::istream& Stream)
+std::pair<string, string_view> map_file::get(uintptr_t const Address) const
 {
-	read_vc(Stream);
+	return get_impl(Address, m_Symbols);
 }
 
-void map_file::read_vc(std::istream& Stream)
+enum class map_format
+{
+	unknown,
+	msvc,
+	clang,
+	gcc,
+};
+
+static auto determine_format(string_view const Str)
+{
+	if (starts_with(Str, L' '))
+		return map_format::msvc;
+
+	if (Str == L"Address  Size     Align Out     In      Symbol"sv)
+		return map_format::clang;
+
+	if (Str.empty())
+		return map_format::gcc;
+
+	return map_format::unknown;
+}
+
+static auto determine_format(std::istream& Stream)
+{
+	const auto Position = Stream.tellg();
+	SCOPE_EXIT{ Stream.seekg(Position); };
+
+	const auto Lines = enum_lines(Stream, CP_UTF8);
+	if (Lines.empty())
+		return map_format::unknown;
+
+	return determine_format(Lines.begin()->Str);
+}
+
+static auto group(string_view const Str, std::vector<RegExpMatch> const& m, size_t const Index)
+{
+	const auto& Match = m[Index];
+	return Str.substr(Match.start, Match.end - Match.start);
+}
+
+static void read_vc(std::istream& Stream, unordered_string_set& Files, std::map<uintptr_t, map_file::line>& Symbols)
 {
 	RegExp ReBase, ReSymbol;
-	ReBase.Compile(L"^ +Preferred load address is ([0-9A-Fa-f]+)$", OP_OPTIMIZE);
-	ReSymbol.Compile(L"^ +([0-9A-Fa-f]+):([0-9A-Fa-f]+) +([^ ]+) +([0-9A-Fa-f]+) .+ ([^ ]+)$", OP_OPTIMIZE);
+	ReBase.Compile(L"^ +Preferred load address is ([0-9A-Fa-f]+)$"sv, OP_OPTIMIZE);
+	ReSymbol.Compile(L"^ +([0-9A-Fa-f]+):([0-9A-Fa-f]+) +([^ ]+) +([0-9A-Fa-f]+) .+ ([^ ]+)$"sv, OP_OPTIMIZE);
 	std::vector<RegExpMatch> m;
 
 	uintptr_t BaseAddress{};
-
-	const auto group = [&](string_view const Str, size_t const Index)
-	{
-		const auto& Match = m[Index];
-		return Str.substr(Match.start, Match.end - Match.start);
-	};
 
 	for (const auto& i: enum_lines(Stream, CP_UTF8))
 	{
 		if (i.Str.empty())
 			continue;
 
-		if (!BaseAddress)
+		if (!BaseAddress && ReBase.Search(i.Str, m))
 		{
-			if (ReBase.Search(i.Str, m))
-			{
-				BaseAddress = from_string<uintptr_t>(group(i.Str, 1), {}, 16);
-				continue;
-			}
+			BaseAddress = from_string<uintptr_t>(group(i.Str, m, 1), {}, 16);
+			continue;
 		}
 
 		if (ReSymbol.Search(i.Str, m))
 		{
-			auto Address = from_string<uintptr_t>(group(i.Str, 4), {}, 16);
+			auto Address = from_string<uintptr_t>(group(i.Str, m, 4), {}, 16);
 			if (!Address)
 				continue;
 
 			if (Address >= BaseAddress)
 				Address -= BaseAddress;
 
-			line Line;
-			Line.Name = group(i.Str, 3);
-			if (m.size() > 5)
-			{
-				const auto File = group(i.Str, 5);
-				Line.File = &*m_Files.emplace(File).first;
-			}
+			map_file::line Line;
+			Line.Name = group(i.Str, m, 3);
+			const auto File = group(i.Str, m, 5);
+			Line.File = &*Files.emplace(File).first;
 
-			m_Symbols.emplace(Address, std::move(Line));
+			Symbols.emplace(Address, std::move(Line));
+			continue;
 		}
 	}
 }
+
+static void read_clang(std::istream& Stream, unordered_string_set& Files, std::map<uintptr_t, map_file::line>& Symbols)
+{
+	RegExp ReObject, ReSymbol;
+	ReObject.Compile(L"^[0-9A-Fa-f]+ [0-9A-Fa-f]+ +[0-9]+         (.+)$"sv);
+	ReSymbol.Compile(L"^([0-9A-Fa-f]+) [0-9A-Fa-f]+     0                 (.+)$"sv);
+	std::vector<RegExpMatch> m;
+
+	string ObjName;
+
+	for (const auto& i: enum_lines(Stream, CP_UTF8))
+	{
+		if (i.Str.empty())
+			continue;
+
+		if (ReSymbol.Search(i.Str, m))
+		{
+			map_file::line Line;
+			Line.Name = group(i.Str, m, 2);
+			Line.File = &*Files.emplace(ObjName).first;
+			const auto Address = from_string<uintptr_t>(group(i.Str, m, 1), {}, 16);
+			Symbols.emplace(Address, std::move(Line));
+			continue;
+		}
+
+		if (ReObject.Search(i.Str, m))
+		{
+			ObjName = group(i.Str, m, 1);
+			continue;
+		}
+	}
+}
+
+static void read_gcc(std::istream& Stream, unordered_string_set& Files, std::map<uintptr_t, map_file::line>& Symbols)
+{
+	RegExp ReFile, ReFileName, ReSymbol;
+	ReFile.Compile(L"^File $"sv);
+	ReFileName.Compile(L"^\\[ *[0-9]+\\]\\(.+\\)\\(.+\\)\\(.+\\)\\(.+\\) \\(nx 1\\) 0x[0-9A-Fa-f]+ (.+)$"sv);
+	ReSymbol.Compile(L"^\\[ *[0-9]+\\]\\(.+\\)\\(.+\\)\\(.+\\)\\(.+\\) \\(nx 0\\) 0x([0-9A-Fa-f]+) (.+)$"sv);
+	std::vector<RegExpMatch> m;
+
+	const auto BaseAddress = 0x1000;
+
+	string LastLine, FileName;
+
+	for (const auto& i: enum_lines(Stream, CP_UTF8))
+	{
+		if (i.Str.empty())
+			continue;
+
+		if (ReFile.Search(i.Str, m) && ReFileName.Search(LastLine, m))
+		{
+			FileName = group(LastLine, m, 1);
+			LastLine.clear();
+			continue;
+		}
+
+		if (ReSymbol.Search(i.Str, m))
+		{
+			map_file::line Line;
+			Line.Name = group(i.Str, m, 2);
+			Line.File = &*Files.emplace(FileName).first;
+			const auto Address = from_string<uintptr_t>(group(i.Str, m, 1), {}, 16) + BaseAddress;
+			Symbols.emplace(Address, std::move(Line));
+			continue;
+		}
+
+		LastLine = i.Str;
+	}
+}
+
+void map_file::read(std::istream& Stream)
+{
+	switch (determine_format(Stream))
+	{
+	case map_format::msvc:
+		return read_vc(Stream, m_Files, m_Symbols);
+
+	case map_format::clang:
+		return read_clang(Stream, m_Files, m_Symbols);
+
+	case map_format::gcc:
+		return read_gcc(Stream, m_Files, m_Symbols);
+
+	case map_format::unknown:
+		return;
+	}
+}
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("map_file.msvc")
+{
+	const auto MapFileData =
+R"( Far
+
+ Preferred load address is 00400000
+
+  Address         Publics by Value              Rva+Base       Lib:Object
+
+ 0000:00000000       ___AbsoluteZero            00000000     <absolute>
+ 0000:000007e9       ___safe_se_handler_count   000007e9     <absolute>
+ 0000:00000000       ___ImageBase               00400000     <linker-defined>
+ 0001:000050e0       ??3@YAXPAX@Z               004060e0 f   LIBCMT:delete_scalar.obj
+ 0001:0002e450       _sqlite3_step              0042f450 f   sqlite.obj
+ 0001:000a0d90       _sqlite3_open              004a1d90 f   sqlite.obj
+ 0001:000a7670       ?_Xlength@?$vector@Ucolumn@@V?$allocator@Ucolumn@@@std@@@std@@CAXXZ 004a8670 f i config.obj
+ 0001:000a7670       ?_Xlength@?$vector@_WV?$allocator@_W@std@@@std@@CAXXZ 004a8670 f i configdb.obj
+ 0001:000fe9b0       ??0config_provider@@QAE@Uclear_cache@0@@Z 004ff9b0 f   configdb.obj
+ 0001:000fec00       ??1config_provider@@QAE@XZ 004ffc00 f   configdb.obj
+)"sv;
+
+	std::stringstream Stream(std::string{ MapFileData });
+
+	REQUIRE(determine_format(Stream) == map_format::msvc);
+
+	unordered_string_set Files;
+	std::map<uintptr_t, map_file::line> Symbols;
+
+	read_vc(Stream, Files, Symbols);
+
+	REQUIRE(Files.size() == 6u);
+	REQUIRE(Symbols.size() == 8u);
+
+	static const struct
+	{
+		uintptr_t Address;
+		string_view File, Symbol;
+	}
+	Tests[]
+	{
+		{ 0x00000000, L"<linker-defined>"sv,           L"0000+___ImageBase"sv, },
+		{ 0x000007e9, L"<absolute>"sv,                 L"0000+___safe_se_handler_count"sv, },
+		{ 0x000060e0, L"LIBCMT:delete_scalar.obj"sv,   L"0000+operator delete(void *)"sv, },
+		{ 0x000060e8, L"LIBCMT:delete_scalar.obj"sv,   L"0008+operator delete(void *)"sv, },
+		{ 0x0002f450, L"sqlite.obj"sv,                 L"0000+_sqlite3_step"sv, },
+		{ 0x000a1d8F, L"sqlite.obj"sv,                 L"7293F+_sqlite3_step"sv, },
+		{ 0x000a1d90, L"sqlite.obj"sv,                 L"0000+_sqlite3_open"sv, },
+		{ 0x000a8670, L"config.obj"sv,                 L"0000+std::vector<struct column,class std::allocator<struct column> >::_Xlength(void)"sv, },
+		{ 0x000a8678, L"config.obj"sv,                 L"0008+std::vector<struct column,class std::allocator<struct column> >::_Xlength(void)"sv, },
+		{ 0x000ff9AF, L"config.obj"sv,                 L"5733F+std::vector<struct column,class std::allocator<struct column> >::_Xlength(void)"sv, },
+		{ 0x000ff9b0, L"configdb.obj"sv,               L"0000+config_provider::config_provider(struct config_provider::clear_cache)"sv, },
+		{ 0x000ffc00, L"configdb.obj"sv,               L"0000+config_provider::~config_provider(void)"sv, },
+		{ 0xffffffff, L"configdb.obj"sv,               L"FFF003FF+config_provider::~config_provider(void)"sv, },
+	};
+
+	for (const auto& i: Tests)
+	{
+		const auto [Symbol, File] = get_impl(i.Address, Symbols);
+		REQUIRE(Symbol == i.Symbol);
+		REQUIRE(File == i.File);
+	}
+}
+
+TEST_CASE("map_file.clang")
+{
+	const auto MapFileData =
+R"(Address  Size     Align Out     In      Symbol
+00001550 0014512f    16         obj/sqlite.o:(.text)
+000016c0 00000000     0                 sqlite3_mutex_enter
+00001740 00000000     0                 sqlite3_mutex_leave
+0014ebc0 0000002e    16         obj/cddrv.o:(.text$_ZNSt18bad_variant_accessD0Ev)
+0014ebc0 00000000     0                 std::bad_variant_access::~bad_variant_access()
+001515b0 00000019    16         obj/cddrv.o:(.text$_ZNSt14pointer_traitsIPwE10pointer_toERw)
+001515b0 00000000     0                 std::pointer_traits<wchar_t*>::pointer_to(wchar_t&)
+0064f310 00000ea4    16         obj/palette.o:(.text)
+0064f420 00000000     0                 palette::palette()
+0064f4e0 00000000     0                 palette::ResetToDefault()
+)"sv;
+
+	std::stringstream Stream(std::string{ MapFileData });
+
+	REQUIRE(determine_format(Stream) == map_format::clang);
+
+	unordered_string_set Files;
+	std::map<uintptr_t, map_file::line> Symbols;
+
+	read_clang(Stream, Files, Symbols);
+
+	REQUIRE(Files.size() == 4u);
+	REQUIRE(Symbols.size() == 6u);
+
+	static const struct
+	{
+		uintptr_t Address;
+		string_view File, Symbol;
+	}
+	Tests[]
+	{
+		{ 0x00000000, {},                                                                {}, },
+		{ 0x000016c0, L"obj/sqlite.o:(.text)"sv,                                         L"0000+sqlite3_mutex_enter"sv, },
+		{ 0x000016c8, L"obj/sqlite.o:(.text)"sv,                                         L"0008+sqlite3_mutex_enter"sv, },
+		{ 0x00001740, L"obj/sqlite.o:(.text)"sv,                                         L"0000+sqlite3_mutex_leave"sv, },
+		{ 0x0014ebbf, L"obj/sqlite.o:(.text)"sv,                                         L"14D47F+sqlite3_mutex_leave"sv, },
+		{ 0x0014ebc0, L"obj/cddrv.o:(.text$_ZNSt18bad_variant_accessD0Ev)"sv,            L"0000+std::bad_variant_access::~bad_variant_access()"sv, },
+		{ 0x001515b0, L"obj/cddrv.o:(.text$_ZNSt14pointer_traitsIPwE10pointer_toERw)"sv, L"0000+std::pointer_traits<wchar_t*>::pointer_to(wchar_t&)"sv, },
+		{ 0x0064f420, L"obj/palette.o:(.text)"sv,                                        L"0000+palette::palette()"sv, },
+		{ 0x0064f4e0, L"obj/palette.o:(.text)"sv,                                        L"0000+palette::ResetToDefault()"sv, },
+		{ 0xffffffff, L"obj/palette.o:(.text)"sv,                                        L"FF9B0B1F+palette::ResetToDefault()"sv, },
+	};
+
+	for (const auto& i: Tests)
+	{
+		const auto [Symbol, File] = get_impl(i.Address, Symbols);
+		REQUIRE(Symbol == i.Symbol);
+		REQUIRE(File == i.File);
+	}
+}
+
+TEST_CASE("map_file.gcc")
+{
+	const auto MapFileData =
+R"(
+Release.64.gcc/Far.exe:     file format pei-x86-64
+
+SYMBOL TABLE:
+[  0](sec -2)(fl 0x00)(ty    0)(scl 103) (nx 1) 0x000000000000005f crtexe.c
+File )" R"(
+[  4](sec  1)(fl 0x00)(ty   20)(scl   3) (nx 0) 0x0000000000000010 pre_c_init
+[ 56](sec  1)(fl 0x00)(ty   20)(scl   2) (nx 0) 0x00000000000004b0 WinMainCRTStartup
+[106](sec -2)(fl 0x00)(ty    0)(scl 103) (nx 1) 0x00000000000006a4 sqlite.c
+File )" R"(
+[114](sec  1)(fl 0x00)(ty   20)(scl   2) (nx 0) 0x0000000000000580 sqlite3_mutex_enter
+[115](sec  1)(fl 0x00)(ty   20)(scl   2) (nx 0) 0x00000000000005a0 sqlite3_mutex_leave
+[2752](sec -2)(fl 0x00)(ty    0)(scl 103) (nx 1) 0x0000000000000c35 cmdline.cpp
+File )" R"(
+[2761](sec  1)(fl 0x00)(ty   20)(scl   2) (nx 0) 0x00000000006bdfa0 SimpleScreenObject::ShowConsoleTitle()
+[2764](sec  1)(fl 0x00)(ty   20)(scl   2) (nx 0) 0x00000000006e44f0 Panel::ProcessPluginEvent(int, void*)
+[31289](sec -2)(fl 0x00)(ty    0)(scl 103) (nx 1) 0x0000000000007b45 sqlitedb.cpp
+File )" R"(
+[31293](sec  1)(fl 0x00)(ty   20)(scl   3) (nx 0) 0x00000000005dc140 (anonymous namespace)::GetErrorString(int)
+[31321](sec  1)(fl 0x00)(ty   20)(scl   3) (nx 0) 0x00000000005dcab0 (anonymous namespace)::scoped_object_148::{lambda()#1}::_FUN()
+)"sv;
+
+	std::stringstream Stream(std::string{ MapFileData });
+
+	REQUIRE(determine_format(Stream) == map_format::gcc);
+
+	unordered_string_set Files;
+	std::map<uintptr_t, map_file::line> Symbols;
+
+	read_gcc(Stream, Files, Symbols);
+
+	REQUIRE(Files.size() == 4u);
+	REQUIRE(Symbols.size() == 8u);
+
+	static const struct
+	{
+		uintptr_t Address;
+		string_view File, Symbol;
+	}
+	Tests[]
+	{
+		{ 0x00000000, {},                {}, },
+		{ 0x00001010, L"crtexe.c"sv,     L"0000+pre_c_init"sv, },
+		{ 0x000014b0, L"crtexe.c"sv,     L"0000+WinMainCRTStartup"sv, },
+		{ 0x000014b8, L"crtexe.c"sv,     L"0008+WinMainCRTStartup"sv, },
+		{ 0x0000157F, L"crtexe.c"sv,     L"00CF+WinMainCRTStartup"sv, },
+		{ 0x00001580, L"sqlite.c"sv,     L"0000+sqlite3_mutex_enter"sv, },
+		{ 0x000015a0, L"sqlite.c"sv,     L"0000+sqlite3_mutex_leave"sv, },
+		{ 0x005dd140, L"sqlitedb.cpp"sv, L"0000+(anonymous namespace)::GetErrorString(int)"sv, },
+		{ 0x005ddab0, L"sqlitedb.cpp"sv, L"0000+(anonymous namespace)::scoped_object_148::{lambda()#1}::_FUN()"sv, },
+		{ 0x006befa0, L"cmdline.cpp"sv,  L"0000+SimpleScreenObject::ShowConsoleTitle()"sv, },
+		{ 0x006e54f0, L"cmdline.cpp"sv,  L"0000+Panel::ProcessPluginEvent(int, void*)"sv, },
+		{ 0xffffffff, L"cmdline.cpp"sv,  L"FF91AB0F+Panel::ProcessPluginEvent(int, void*)"sv, },
+	};
+
+	for (const auto& i: Tests)
+	{
+		const auto [Symbol, File] = get_impl(i.Address, Symbols);
+		REQUIRE(Symbol == i.Symbol);
+		REQUIRE(File == i.File);
+	}
+}
+#endif

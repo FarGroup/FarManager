@@ -521,7 +521,7 @@ MF7
 "VytAdr"
 "VerzEr"
 "ÚjMapp"
-"UtwKat"
+"UtwFol"
 "CrDIR"
 "VytvAd"
 "FaiDir"
@@ -929,7 +929,7 @@ MAltF12
 "AdrsHs"
 "BearHs"
 "MapElő"
-"HsKat"
+"HisFol"
 "HisDIR"
 "HsAdrs"
 "Carte+"
@@ -5702,6 +5702,20 @@ MCopyWriteError
 "Памылка запісу дадзеных у"
 "Negaliu įrašyti duomenų į"
 
+MCopyCannotReserveSpace
+"Ошибка резервирования места на диске"
+"Error reserving disk space"
+"Chyba při rezervaci místa na disku"
+"Fehler beim Reservieren von Speicherplatz"
+"Hiba a lemezterület foglalásakor"
+"Błąd rezerwowania miejsca na dysku"
+"Error al reservar espacio en disco"
+"Chyba pri rezervovaní miesta na disku"
+"Errore durante la prenotazione dello spazio su disco"
+"Помилка резервування місця на диску"
+"Памылка браніравання месца на дыску"
+"Klaida rezervuojant vietą diske"
+
 MCopyFilesTotalInfo
 l:
 "Файлов:"
@@ -5772,21 +5786,6 @@ MCopyTo
 "в"
 "у"
 "į"
-
-MCopyErrorDiskFull
-l:
-"Диск заполнен. Вставьте следующий"
-"Disk full. Insert next"
-"Disk je plný. Vložte další"
-"Datenträger voll. Bitte nächsten einlegen"
-"A lemez megtelt, kérem a következőt"
-"Dysk pełny. Włóż następny"
-"Disco lleno. Inserte el próximo"
-"Disk je plný. Vložte ďalší"
-"Disco Pieno, Inserite Il Prossimo"
-"Диск заповнено. Вставте наступний"
-"Дыск перапоўнены. Устаўце наступны"
-"Diskas pilnas. Įkiškite sekantį"
 
 MDeleteTitle
 l:
@@ -12279,33 +12278,33 @@ l:
 "Мяняць разфарбоўку файлаў"
 "Redaguoti failų spalvas"
 
-MHighlightMarkChar
-"Оп&циональный символ пометки,"
-"Optional markin&g character,"
-"Volitelný &znak pro označení určených souborů,"
-"Optionale Markierun&g mit Zeichen,"
-"Megadható &jelölő karakter"
-"Opcjonalny znak &wyróżniający zaznaczone pliki,"
-"Ca&racter opcional para marcar,"
-"Voliteľný &znak označovania,"
-"Carattere Opzionale Di Marcatura"
-"Оп&ціональний символ помітки,"
-"Неа&бавязковы сімвал адзнакі"
-"Pasirinktinas si&mbolis pažymėti apibrėžtiems failams,"
+MHighlightMark
+"Ма&ркировка,"
+"Markin&g,"
+"O&značení,"
+"Markierun&g,"
+"&Jelzés,"
+"Cecho&wanie,"
+"Ma&rcado,"
+"O&značenie,"
+"Marcatura,"
+"Ма&ркування,"
+"М&аркіроўка,"
+"Žymėjimas,"
 
-MHighlightTransparentMarkChar
-"прозра&чный"
-"trans&parent"
-"průh&ledný"
-"trans&parent"
-"át&látszó"
-"prze&zroczyste"
-"tra&nsparente"
-"prieh&ľadný"
-"Traspare&nte"
-"прозор&ий"
-"празр&ысты"
-upd:"trans&parent"
+MHighlightInheritMark
+"На&следовать"
+"In&herit"
+"Zdědí"
+"Erben"
+"Örökölje"
+"D&ziedziczenie"
+"Heredar"
+"Zdediť"
+"Eredita"
+"Успадковуват&и"
+"Спадч&ыну"
+"&Paveldėti"
 
 MHighlightColors
 "Цвета файлов (\"чёрный на чёрном\" - цвет по умолчанию)"
@@ -18634,18 +18633,18 @@ MSetColorBackground
 MSetColorForeIndex
 l:
 l:// 8 characters max
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
 
 MSetColorForeAARRGGBB
 l:
@@ -18662,6 +18661,22 @@ l:// 8 characters max
 "AARRGGBB"
 "AARRGGBB"
 "AARRGGBB"
+
+MSetColorFore256
+l:
+l:// 3 characters max
+"&256…"
+"&256…"
+"&256…"
+"&256…"
+"&256…"
+"&256…"
+"&256…"
+"&256…"
+"&256…"
+"&256…"
+"&256…"
+"&256…"
 
 MSetColorForeRGB
 l:
@@ -18682,18 +18697,18 @@ l:// 3 characters max
 MSetColorBackIndex
 l:
 l:// 8 characters max
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
-"AA     #"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
+"AA    ##"
 
 MSetColorBackAARRGGBB
 l:
@@ -18710,6 +18725,22 @@ l:// 8 characters max
 "AARRGGBB"
 "AARRGGBB"
 "AARRGGBB"
+
+MSetColorBack256
+l:
+l:// 3 characters max
+"2&56…"
+"2&56…"
+"2&56…"
+"2&56…"
+"2&56…"
+"2&56…"
+"2&56…"
+"2&56…"
+"2&56…"
+"2&56…"
+"2&56…"
+"2&56…"
 
 MSetColorBackRGB
 l:
@@ -18866,6 +18897,34 @@ MSetColorStyleBlink
 "Миготіння"
 "Мігценне"
 "Mirksėjimas"
+
+MSetColorStyleInverse
+"Мерцающий"
+"Inverse"
+"Inverzní"
+"Umgekehrt"
+"Inverz"
+"Odwrotność"
+"Inverso"
+"Inverzný"
+"Inverso"
+"Зворотний"
+"Зваротны"
+"Atvirkščiai"
+
+MSetColorStyleInvisible
+"Невидимый"
+"Invisible"
+"Neviditelný"
+"Unsichtbar"
+"Láthatatlan"
+"Niewidzialny"
+"Invisible"
+"Neviditeľný"
+"Invisibile"
+"Невидимий"
+"Нябачны"
+"Nematomas"
 
 MSetColorSample
 "Текст Текст Текст Текст Текст Текст"

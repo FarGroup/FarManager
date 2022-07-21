@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+w17 20.06.2022 17:09:51 +0300 - build 326
+
+1. 7z.dll 22.00
+
+w17 24.05.2022 19:01:10 +0300 - build 325
+
+1. 003947: ArcLite:PE fails to open files with data after executable body
+   https://bugs.farmanager.com/view.php?id=3947
+
 w17 28.12.2021 16:36:54 +0300 - build 324
 
 1. 7z.dll 21.07

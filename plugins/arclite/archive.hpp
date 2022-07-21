@@ -217,7 +217,7 @@ private:
   UInt32 error_flags, warning_flags;
   std::wstring error_text, warning_text;
   IInStream *base_stream;
-  bool open(IInStream* in_stream, const ArcType& type);
+  bool open(IInStream* in_stream, const ArcType& type, const bool allow_tail = false);
   UInt64 get_physize();
   UInt64 archive_filesize();
   UInt64 get_skip_header(IInStream *stream, const ArcType& type);

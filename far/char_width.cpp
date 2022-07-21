@@ -527,4 +527,16 @@ namespace char_width
 		if (is_enabled())
 			(void)device_width(0, true);
 	}
+
+	bool is_half_width_surrogate_broken()
+	{
+		// As of 23 Jun 2022 conhost and WT render half-width surrogates as half-width,
+		// but advance the cursor position as if they were full-width.
+		// We can workaround it by moving the cursor backwards each time.
+		// They might fix it eventually, so it's better to detect it dynamically.
+
+		// Mathematical Bold Fraktur Small A, U+1D586, half-width
+		static const auto Result = console.IsWidePreciseExpensive(U'𝖆');
+		return Result;
+	}
 }

@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pipe.hpp"
 #include "strmix.hpp"
 #include "tracer.hpp"
+#include "res.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -267,10 +268,12 @@ namespace
 				{
 					CONSOLE_SCREEN_BUFFER_INFO csbi;
 					if (!get_console_screen_buffer_info(Buffer, &csbi))
-						return;
+						throw MAKE_FAR_EXCEPTION(L"get_console_screen_buffer_info"sv);
+
+					if (!SetConsoleTextAttribute(Buffer, Color))
+						throw MAKE_FAR_EXCEPTION(L"SetConsoleTextAttributes"sv);
 
 					m_SavedAttributes = csbi.wAttributes;
-					SetConsoleTextAttribute(Buffer, Color);
 				}
 
 				~console_color()
@@ -287,7 +290,8 @@ namespace
 			const auto write_console = [Buffer](string_view Str)
 			{
 				DWORD Written;
-				WriteConsole(Buffer, Str.data(), static_cast<DWORD>(Str.size()), &Written, {});
+				if (!WriteConsole(Buffer, Str.data(), static_cast<DWORD>(Str.size()), &Written, {}))
+					throw MAKE_FAR_EXCEPTION(L"WriteConsole"sv);
 			};
 
 			const auto write = [&](string_view const Borders, WORD const Color, string_view const Str)
@@ -313,7 +317,19 @@ namespace
 
 		void handle(message Message) override
 		{
-			process(m_Buffer.native_handle(), Message);
+			if (!m_Buffer)
+				return;
+
+			try
+			{
+				process(m_Buffer.native_handle(), Message);
+			}
+			catch (far_exception const& e)
+			{
+				m_Buffer.close();
+
+				LOGERROR(L"{}"sv, e);
+			}
 		}
 
 		void configure(string_view const Parameters) override
@@ -521,7 +537,7 @@ namespace
 			if (m_Messages.size() > QueueBufferSize * 2)
 			{
 				m_Messages.clear();
-				LOGWARNING(L"Queue overflow"sv);
+				LOGERROR(L"Queue overflow"sv);
 			}
 
 			m_Messages.push(std::move(Message));
@@ -678,6 +694,7 @@ namespace logging
 			{
 			case engine_status::incomplete:
 				{
+					SCOPED_ACTION(os::last_error_guard);
 					SCOPED_ACTION(std::lock_guard)(m_CS);
 					initialise();
 				}
@@ -816,7 +833,7 @@ namespace logging
 					m_Sinks.emplace_back(std::make_unique<sync<T>>()) :
 					m_Sinks.emplace_back(std::make_unique<async<T>>(T::is_discardable));
 			}
-			catch (const far_exception& e)
+			catch (far_exception const& e)
 			{
 				LOGERROR(L"{}"sv, e);
 			}
@@ -839,7 +856,7 @@ namespace logging
 		os::concurrency::synced_queue<message> m_QueuedMessages;
 		std::atomic_size_t m_QueuedMessagesCount;
 		std::atomic<level> m_Level{ level::off };
-		level m_TraceLevel{ level::error };
+		level m_TraceLevel{ level::fatal };
 		size_t m_TraceDepth{ std::numeric_limits<size_t>::max() };
 		std::atomic<engine_status> m_Status{ engine_status::incomplete };
 	};
@@ -879,10 +896,12 @@ namespace logging
 		return Argument == log_argument;
 	}
 
-	int main(const wchar_t* const PipeName)
+	int main(string_view const PipeName)
 	{
+		consoleicons::instance().set_icon(FAR_ICON_LOG);
+
 		console.SetTitle(concat(L"Far Log Viewer: "sv, PipeName));
-		console.SetTextAttributes(colors::ConsoleColorToFarColor(F_LIGHTGRAY | B_BLACK));
+		console.SetTextAttributes(colors::NtColorToFarColor(F_LIGHTGRAY | B_BLACK));
 
 		DWORD ConsoleMode = 0;
 		console.GetMode(console.GetInputHandle(), ConsoleMode);
@@ -917,13 +936,26 @@ namespace logging
 			catch (far_exception const& e)
 			{
 				if (e.Win32Error == ERROR_BROKEN_PIPE)
+				{
+					// If the last logged message was a warning or worse, the user probably wants to see it
+					if (Message.m_Level < level::info)
+						os::chrono::sleep_for(5s);
+
 					return EXIT_SUCCESS;
+				}
 
 				std::wcerr << format(FSTR(L"Error reading pipe {}: {}"sv), PipeName, e.format_error()) << std::endl;
 				return EXIT_FAILURE;
 			}
 
-			sink_console::process(GetStdHandle(STD_OUTPUT_HANDLE), Message);
+			try
+			{
+				sink_console::process(GetStdHandle(STD_OUTPUT_HANDLE), Message);
+			}
+			catch (far_exception const& e)
+			{
+				LOGERROR(L"{}"sv, e);
+			}
 		}
 	}
 }

@@ -7,6 +7,7 @@ FARDIR := $(dir $(COMMON_MAKEFILE))
 # DEBUG - set if a debug build is needed
 # USE_LTO - use link-time optimisation in release mode
 # CLANG - use Clang compiler and LLD linker
+# USE_LLD - use LLD linker (useful for debug builds where ld is insanely slow)
 
 # Toolchain setup
 TOOLSDIR = $(FARDIR)tools/
@@ -135,7 +136,7 @@ LNKFLAGS += \
 	-luserenv \
 	-lcomdlg32 \
 	-m$(DIRBIT) \
-	-static-libgcc \
+	-static \
 	-Xlinker --tsaware \
 	-Xlinker --dynamicbase \
 	-Xlinker --nxcompat \
@@ -204,7 +205,7 @@ CFLAGS += -D __FLOAT_H # 8.1 incompatibility
 LNKFLAGS += \
 	$(CLANG_FLAGS) \
 	-fuse-ld=lld \
-	-lpthread \
+	-Xlinker --allow-multiple-definition \
 	-Xlinker -Map \
 	-Xlinker $(MAP) \
 
@@ -215,13 +216,18 @@ LNKFLAGS += \
 endif
 
 else
-LNKFLAGS += -static # Doesn't work with Clang (yet?)
 # LD map files are unusable for tracing,
 # so we keep the symbols, objdump them and strip manually.
 # LLD, on the contrary, generates good maps and doesn't need this trickery.
 USE_OBJDUMP_MAPS=1
 endif
 # Compiler-specific flags end
+
+ifdef USE_LLD
+LNKFLAGS += \
+	-fuse-ld=lld \
+
+endif
 
 ifeq ($(findstring ----,---$(strip $(MAKEFLAGS))-),)
  MK_FLAGS := -$(strip $(MAKEFLAGS))

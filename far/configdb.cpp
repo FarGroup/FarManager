@@ -840,8 +840,10 @@ private:
 
 static const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]
 {
-	{ FCF_FG_4BIT,         L"fg4bit"sv       },
-	{ FCF_BG_4BIT,         L"bg4bit"sv       },
+	{ FCF_FG_INDEX,        L"fgindex"sv      },
+	{ FCF_BG_INDEX,        L"bgindex"sv      },
+	{ FCF_FG_INDEX,        L"fg4bit"sv       }, // Legacy name
+	{ FCF_BG_INDEX,        L"bg4bit"sv       }, // Legacy name
 	{ FCF_FG_BOLD,         L"bold"sv         },
 	{ FCF_FG_ITALIC,       L"italic"sv       },
 	{ FCF_FG_UNDERLINE,    L"underline"sv    },
@@ -850,6 +852,8 @@ static const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]
 	{ FCF_FG_STRIKEOUT,    L"strikeout"sv    },
 	{ FCF_FG_FAINT,        L"faint"sv        },
 	{ FCF_FG_BLINK,        L"blink"sv        },
+	{ FCF_FG_INVERSE,      L"inverse"sv      },
+	{ FCF_FG_INVISIBLE,    L"invisible"sv    },
 };
 
 class HighlightHierarchicalConfigDb final: public HierarchicalConfigDb
@@ -2391,7 +2395,7 @@ static string GetDatabasePath(string_view const FileName, bool const Local)
 		path::join(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, FileName) + L".db"sv;
 }
 
-string rename_bad_database(string_view const Name)
+static string rename_bad_database(string_view const Name)
 {
 	for (size_t i = 0; ; ++i)
 	{
@@ -2424,7 +2428,7 @@ std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
 	{
 		return std::make_unique<T>(Name);
 	}
-	catch (const far_sqlite_exception& e1)
+	catch (far_sqlite_exception const& e1)
 	{
 		Report(concat(Name, L':'));
 		Report(concat(L"  "sv, e1.message()));
@@ -2450,7 +2454,7 @@ std::unique_ptr<T> config_provider::CreateWithFallback(string_view const Name)
 			Report(format(FSTR(L"  - database file is renamed to {} and new one is created"sv), PointToName(NewName)));
 			return Result;
 		}
-		catch (const far_sqlite_exception& e2)
+		catch (far_sqlite_exception const& e2)
 		{
 			Report(concat(L"  "sv, e2.message()));
 			Report(L"  - database is opened in memory"sv);

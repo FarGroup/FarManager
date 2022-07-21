@@ -178,7 +178,6 @@ private:
 	std::stack<StackHelpData, std::vector<StackHelpData>> Stack; // стек возврата
 	std::vector<HelpRecord> HelpList; // "хелп" в памяти.
 	string  strFullHelpPathName;
-	string strCtrlColorChar;    // CtrlColorChar - опция! для спецсимвола-
 	string strCurPluginContents; // помним PluginContents (для отображения в заголовке)
 	string strCtrlStartPosChar;
 	string strLastSearchStr;
@@ -194,6 +193,8 @@ private:
 
 	DWORD LastStartPos{};
 	DWORD StartPos{};
+
+	wchar_t m_CtrlColorChar{};
 
 	bool MouseDown{};
 	bool IsNewTopic{true};
@@ -381,9 +382,9 @@ bool Help::ReadHelp(string_view const Mask)
 	}
 
 	if (GetOptionsParam(HelpFile, L"CtrlColorChar"sv, strReadStr, HelpFileCodePage))
-		strCtrlColorChar = strReadStr;
+		m_CtrlColorChar = strReadStr.front();
 	else
-		strCtrlColorChar.clear();
+		m_CtrlColorChar = 0;
 
 	if (GetOptionsParam(HelpFile, L"CtrlStartPosChar"sv, strReadStr, HelpFileCodePage))
 		strCtrlStartPosChar = strReadStr;
@@ -990,10 +991,13 @@ static bool GetHelpColor(string_view& Str, wchar_t cColor, FarColor& color)
 	}
 
 	// '\hh' custom color index
-	if (Str.size() > 2 && std::iswxdigit(Str[1]) && std::iswxdigit(Str[2]))
+	// Note: even though we support 256 and true colors now,
+	// this notation SHALL NOT not be extended due to backward compatibility.
+	// Use ([[T]FFFFFFFF][:[T]BBBBBBBB]) to utilise extended colors.
+		if (Str.size() > 2 && std::iswxdigit(Str[1]) && std::iswxdigit(Str[2]))
 	{
 		const auto Value = std::to_integer<unsigned>(HexStringToBlob(Str.substr(1, 2))[0]);
-		color = colors::ConsoleColorToFarColor(Value);
+		color = colors::NtColorToFarColor(Value);
 		Str.remove_prefix(3);
 		return true;
 	}
@@ -1110,13 +1114,13 @@ bool Help::GetTopic(int realX, int realY, string& strTopic) const
 		x = m_Where.left + 1 + std::max(0, (CanvasWidth() - w) / 2);
 	}
 
-	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
+	return FastParseLine(Str, {}, x, realX, &strTopic, m_CtrlColorChar);
 }
 
 int Help::StringLen(const string_view Str) const
 {
 	int len = 0;
-	FastParseLine(Str, &len, 0, -1, nullptr, strCtrlColorChar.empty()? 0 : strCtrlColorChar[0]);
+	FastParseLine(Str, &len, 0, -1, {}, m_CtrlColorChar);
 	return len;
 }
 
@@ -1129,7 +1133,6 @@ void Help::OutString(string_view Str)
 
 	auto StartTopic = Str.data();
 	int Highlight = 0, Topic = 0;
-	const auto cColor = strCtrlColorChar.empty()? L'\0' : strCtrlColorChar[0];
 
 	for (;;)
 	{
@@ -1137,7 +1140,7 @@ void Help::OutString(string_view Str)
 		    (Str[0]==L'~' && Str[1]==L'~') ||
 		    (Str[0]==L'#' && Str[1]==L'#') ||
 		    (Str[0]==L'@' && Str[1]==L'@') ||
-		    (cColor && Str[0]==cColor && Str[1]==cColor)
+		    (m_CtrlColorChar && Str[0] == m_CtrlColorChar && Str[1] == m_CtrlColorChar)
 		))
 		{
 			OutStr.push_back(Str[0]);
@@ -1145,7 +1148,7 @@ void Help::OutString(string_view Str)
 			continue;
 		}
 
-		if (Str.empty() /*|| *Str==HelpBeginLink*/ || Str[0] == L'~' || ((Str[0] == L'#' || Str[0] == cColor) && !Topic))
+		if (Str.empty() /*|| *Str==HelpBeginLink*/ || Str[0] == L'~' || ((Str[0] == L'#' || Str[0] == m_CtrlColorChar) && !Topic))
 		{
 			if (Topic)
 			{
@@ -1191,7 +1194,7 @@ void Help::OutString(string_view Str)
 			Highlight = !Highlight;
 			Str.remove_prefix(1);
 		}
-		else if (!GetHelpColor(Str, cColor, CurColor))
+		else if (!GetHelpColor(Str, m_CtrlColorChar, CurColor))
 		{
 			OutStr.push_back(Str[0]);
 			Str.remove_prefix(1);
@@ -1966,7 +1969,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	StackData->TopStr=0;
 	m_TopicFound = true;
 	StackData->CurX=StackData->CurY=0;
-	strCtrlColorChar.clear();
+	m_CtrlColorChar = 0;
 
 	string strTitleLine=strLastSearchStr;
 	AddTitle(strTitleLine);
@@ -2066,7 +2069,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	StackData->TopStr=0;
 	m_TopicFound = true;
 	StackData->CurX=StackData->CurY=0;
-	strCtrlColorChar.clear();
+	m_CtrlColorChar = 0;
 	string_view Title;
 	string_view ContentsName;
 

@@ -420,7 +420,7 @@ namespace os
 		UUID generate();
 	}
 
-	HKL make_hkl(uint32_t Layout);
+	HKL make_hkl(int32_t Layout);
 	HKL make_hkl(string_view LayoutStr);
 }
 

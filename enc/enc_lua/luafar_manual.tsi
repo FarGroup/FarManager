@@ -2869,7 +2869,7 @@ mtime=3605129666
 #_
 #_```
 #_local buffer=far.CreateUserControl(10,10)
-#_local textel={Char="a",Attributes={Flags=bit64.bor(F.FCF_FG_4BIT,F.FCF_BG_4BIT),ForegroundColor=9,BackgroundColor=8}}
+#_local textel={Char="a",Attributes={Flags=bit64.bor(F.FCF_FG_INDEX,F.FCF_BG_INDEX),ForegroundColor=9,BackgroundColor=8}}
 #_for ii=1,#buffer do
 #_  buffer[ii]=textel
 #_end

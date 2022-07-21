@@ -85,9 +85,17 @@ struct FAR_INPUT_RECORD
 
 typedef unsigned long long FARCOLORFLAGS;
 static const FARCOLORFLAGS
-	FCF_FG_4BIT       = 0x0000000000000001ULL,
-	FCF_BG_4BIT       = 0x0000000000000002ULL,
-	FCF_4BITMASK      = 0x0000000000000003ULL, // FCF_FG_4BIT | FCF_BG_4BIT
+	FCF_FG_INDEX      = 0x0000000000000001ULL,
+	FCF_BG_INDEX      = 0x0000000000000002ULL,
+	FCF_INDEXMASK     = 0x0000000000000003ULL, // FCF_FG_INDEX | FCF_BG_INDEX
+
+#ifdef FAR_USE_INTERNALS
+#else // ELSE FAR_USE_INTERNALS
+	// Legacy names, don't use
+	FCF_FG_4BIT       = 0x0000000000000001ULL, // FCF_FG_INDEX
+	FCF_BG_4BIT       = 0x0000000000000002ULL, // FCF_BG_INDEX
+	FCF_4BITMASK      = 0x0000000000000003ULL, // FCF_INDEXMASK
+#endif // END FAR_USE_INTERNALS
 
 	FCF_INHERIT_STYLE = 0x0000000000000004ULL,
 
@@ -101,8 +109,10 @@ static const FARCOLORFLAGS
 	FCF_FG_STRIKEOUT  = 0x0200000000000000ULL,
 	FCF_FG_FAINT      = 0x0400000000000000ULL,
 	FCF_FG_BLINK      = 0x0800000000000000ULL,
+	FCF_FG_INVERSE    = 0x0010000000000000ULL,
+	FCF_FG_INVISIBLE  = 0x0020000000000000ULL,
 
-	FCF_STYLEMASK     = 0xFF00000000000000ULL,
+	FCF_STYLEMASK     = 0xFFF0000000000000ULL,
 
 	FCF_NONE          = 0;
 
@@ -154,7 +164,9 @@ struct FarColor
 	{
 		return Flags == rhs.Flags
 			&& ForegroundColor == rhs.ForegroundColor
-			&& BackgroundColor == rhs.BackgroundColor;
+			&& BackgroundColor == rhs.BackgroundColor
+			&& Reserved[0] == rhs.Reserved[0]
+			&& Reserved[1] == rhs.Reserved[1];
 	}
 
 	bool operator !=(const FarColor& rhs) const
@@ -162,28 +174,51 @@ struct FarColor
 		return !(*this == rhs);
 	}
 
+	bool IsBgIndex() const
+	{
+		return (Flags & FCF_BG_INDEX) != 0;
+	}
+
+	bool IsFgIndex() const
+	{
+		return (Flags & FCF_FG_INDEX) != 0;
+	}
+
+	FarColor& SetBgIndex(bool Value)
+	{
+		Value? Flags |= FCF_BG_INDEX : Flags &= ~FCF_BG_INDEX;
+		return *this;
+	}
+
+	FarColor& SetFgIndex(bool Value)
+	{
+		Value? Flags |= FCF_FG_INDEX : Flags &= ~FCF_FG_INDEX;
+		return *this;
+	}
+#ifdef FAR_USE_INTERNALS
+#else // ELSE FAR_USE_INTERNALS
+
+	// Legacy names, don't use
 	bool IsBg4Bit() const
 	{
-		return (Flags & FCF_BG_4BIT) != 0;
+		return IsBgIndex();
 	}
 
 	bool IsFg4Bit() const
 	{
-		return (Flags & FCF_FG_4BIT) != 0;
+		return IsFgIndex();
 	}
 
 	FarColor& SetBg4Bit(bool Value)
 	{
-		Value? Flags |= FCF_BG_4BIT : Flags &= ~FCF_BG_4BIT;
-		return *this;
+		return SetBgIndex(Value);
 	}
 
 	FarColor& SetFg4Bit(bool Value)
 	{
-		Value? Flags |= FCF_FG_4BIT : Flags &= ~FCF_FG_4BIT;
-		return *this;
+		return SetFgIndex(Value);
 	}
-
+#endif // END FAR_USE_INTERNALS
 #endif
 };
 
@@ -191,7 +226,7 @@ struct FarColor
 static_assert(sizeof(FarColor) == 24);
 #endif // END FAR_USE_INTERNALS
 
-#define INDEXMASK 0x0000000f
+#define INDEXMASK 0x000000ff
 #define COLORMASK 0x00ffffff
 #define ALPHAMASK 0xff000000
 

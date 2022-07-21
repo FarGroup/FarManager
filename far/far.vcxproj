@@ -66,6 +66,9 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="clipboard.cpp" />
     <ClCompile Include="cmdline.cpp" />
     <ClCompile Include="codepage_selection.cpp" />
+    <ClCompile Include="color_picker.cpp" />
+    <ClCompile Include="color_picker_256.cpp" />
+    <ClCompile Include="color_picker_rgb.cpp" />
     <ClCompile Include="colormix.cpp" />
     <ClCompile Include="common.tests.cpp" />
     <ClCompile Include="components.cpp" />
@@ -232,6 +235,9 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="clipboard.hpp" />
     <ClInclude Include="cmdline.hpp" />
     <ClInclude Include="codepage_selection.hpp" />
+    <ClInclude Include="color_picker.hpp" />
+    <ClInclude Include="color_picker_256.hpp" />
+    <ClInclude Include="color_picker_rgb.hpp" />
     <ClInclude Include="colormix.hpp" />
     <ClInclude Include="common.hpp" />
     <ClInclude Include="common\2d\algorithm.hpp" />
@@ -573,6 +579,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <None Include="Far.msg.ico" />
     <None Include="far.natjmc" />
     <None Include="Far.red.ico" />
+    <None Include="Far.log.ico" />
     <None Include="farversion.m4" />
     <None Include="headers.m4" />
     <None Include="vbuild.m4" />
@@ -584,6 +591,12 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="far.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="common_test.vcxproj">
+      <Project>{459C0A10-7D18-4623-9FA9-1D5B6A587D40}</Project>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(ProjectDir)..\_build\vc\config\common.targets" />
 </Project>

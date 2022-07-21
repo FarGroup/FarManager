@@ -50,6 +50,7 @@
 	<asmv3:windowsSettings>
 		<dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true</dpiAware>
 		<longPathAware xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">true</longPathAware>
+		<heapType xmlns="http://schemas.microsoft.com/SMI/2020/WindowsSettings">SegmentHeap</heapType>
 	</asmv3:windowsSettings>
 </asmv3:application>
 </assembly>

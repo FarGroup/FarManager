@@ -168,11 +168,26 @@ namespace colors
 
 	COLORREF invert(COLORREF Colour, bool const IsIndex)
 	{
-		return alpha_bits(Colour) | (
-			IsIndex?
-			index_bits(~index_bits(Colour)) :
-			color_bits(~color_bits(Colour))
-		);
+		const auto Alpha = alpha_bits(Colour);
+
+		if (IsIndex)
+		{
+			const auto Index = index_value(Colour);
+
+			if (Index <= index::nt_last)
+				return Alpha | (index::nt_last - Index);
+
+			if (Index <= index::cube_last)
+			{
+				const auto CubeIndex = Index - index::cube_first;
+				return Alpha | (index::cube_last - CubeIndex);
+			}
+
+			const auto GreyIndex = Index - index::grey_first;
+			return Alpha | (index::grey_last - GreyIndex);
+		}
+
+		return Alpha | color_bits(~color_bits(Colour));
 	}
 
 	void make_invert(COLORREF& Colour, bool const IsIndex)
@@ -232,9 +247,9 @@ namespace colors
 				return;
 			}
 
-			const auto to_rgba = [](COLORREF const Color, bool const Is4Bit)
+			const auto to_rgba = [](COLORREF const Color, bool const IsIndex)
 			{
-				return ::to_rgba(Is4Bit ? ConsoleIndexToTrueColor(Color) : Color);
+				return ::to_rgba(IsIndex? ConsoleIndexToTrueColor(Color) : Color);
 			};
 
 			const auto TopRGBA = to_rgba(TopValue, (Top.Flags & Flag) != 0);
@@ -257,8 +272,8 @@ namespace colors
 			flags::clear(Result.Flags, Flag);
 		};
 
-		merge_part(&FarColor::BackgroundColor, FCF_BG_4BIT);
-		merge_part(&FarColor::ForegroundColor, FCF_FG_4BIT);
+		merge_part(&FarColor::BackgroundColor, FCF_BG_INDEX);
+		merge_part(&FarColor::ForegroundColor, FCF_FG_INDEX);
 
 		if (Top.Flags & FCF_INHERIT_STYLE)
 		{
@@ -283,27 +298,146 @@ namespace colors
 		if (console.GetPalette(Palette))
 			return Palette;
 
+		enum
+		{
+			C0 = 0,
+			C1 = 128,
+			C2 = 192,
+			C3 = 255,
+		};
+
 		return std::array
 		{
-			RGB(  0,   0,   0), // black
-			RGB(  0,   0, 128), // blue
-			RGB(  0, 128,   0), // green
-			RGB(  0, 128, 128), // cyan
-			RGB(128,   0,   0), // red
-			RGB(128,   0, 128), // magenta
-			RGB(128, 128,   0), // yellow
-			RGB(192, 192, 192), // white
+			RGB(C0, C0, C0), // black
+			RGB(C0, C0, C1), // blue
+			RGB(C0, C1, C0), // green
+			RGB(C0, C1, C1), // cyan
+			RGB(C1, C0, C0), // red
+			RGB(C1, C0, C1), // magenta
+			RGB(C1, C1, C0), // yellow
+			RGB(C2, C2, C2), // white
 
-			RGB(128, 128, 128), // bright black
-			RGB(  0,   0, 255), // bright blue
-			RGB(  0, 255,   0), // bright green
-			RGB(  0, 255, 255), // bright cyan
-			RGB(255,   0,   0), // bright red
-			RGB(255,   0, 255), // bright magenta
-			RGB(255, 255,   0), // bright yellow
-			RGB(255, 255, 255)  // bright white
+			RGB(C1, C1, C1), // bright black
+			RGB(C0, C0, C3), // bright blue
+			RGB(C0, C3, C0), // bright green
+			RGB(C0, C3, C3), // bright cyan
+			RGB(C3, C0, C0), // bright red
+			RGB(C3, C0, C3), // bright magenta
+			RGB(C3, C3, C0), // bright yellow
+			RGB(C3, C3, C3)  // bright white
 		};
 	}
+
+	constexpr unsigned char Index8ToIndex4[]
+	{
+		 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
+		 0,  1,  1,  1,  9,  9,  2,  1,  1,  1,  1,  1,  2,  2,  3,  3,
+		 3,  3,  2,  2, 11, 11,  3,  3, 10, 10, 11, 11, 11, 11, 10, 10,
+		10, 10, 11, 11,  5,  5,  5,  5,  1,  1,  8,  8,  1,  1,  9,  9,
+		 2,  2,  3,  3,  3,  3,  2,  2, 11, 11,  3,  3, 10, 10, 11, 11,
+		11, 11, 10, 10, 10, 10, 11, 11,  4, 13,  5,  5,  5,  5,  4, 13,
+		13, 13, 13, 13,  6,  8,  8,  8,  9,  9, 10, 10, 11, 11,  3,  3,
+		10, 10, 11, 11, 11, 11, 10, 10, 10, 10, 11, 11,  4, 13, 13, 13,
+		13, 13,  4, 12, 13, 13, 13, 13,  6,  6,  8,  8,  9,  9,  6,  6,
+		 7,  7,  7,  7, 10, 14, 14, 14,  7,  7, 10, 10, 14, 14, 11, 11,
+		 4, 12, 13, 13, 13, 13,  4, 12, 13, 13, 13, 13,  6,  6, 12, 12,
+		 7,  7,  6,  6,  7,  7,  7,  7,  6, 14, 14, 14,  7,  7, 14, 14,
+		14, 14, 15, 15, 12, 12, 13, 13, 13, 13, 12, 12, 12, 12, 13, 13,
+		 6, 12, 12, 12,  7,  7,  6,  6,  7,  7,  7,  7,  6, 14, 14, 14,
+		 7,  7, 14, 14, 14, 14, 15, 15,  0,  0,  0,  0,  0,  0,  8,  8,
+		 8,  8,  8,  8,  8,  8,  8,  8,  7,  7,  7,  7,  7,  7, 15, 15
+	};
+
+	enum
+	{
+		C_Step = 40,
+
+		C0 = 0,
+		C1 = 95,
+		C2 = C1 + C_Step,
+		C3 = C2 + C_Step,
+		C4 = C3 + C_Step,
+		C5 = C4 + C_Step
+	};
+
+	constexpr auto gray(int const Shade)
+	{
+		const auto Value = 8 + 10 * Shade;
+		return RGB(Value, Value, Value);
+	}
+
+	static constexpr COLORREF Index8ToRGB[]
+	{
+		// First 16 colors are dynamic, see console_palette().
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+
+		// 6x6x6 color cube
+		RGB(C0, C0, C0), RGB(C0, C0, C1), RGB(C0, C0, C2), RGB(C0, C0, C3), RGB(C0, C0, C4), RGB(C0, C0, C5),
+		RGB(C0, C1, C0), RGB(C0, C1, C1), RGB(C0, C1, C2), RGB(C0, C1, C3), RGB(C0, C1, C4), RGB(C0, C1, C5),
+		RGB(C0, C2, C0), RGB(C0, C2, C1), RGB(C0, C2, C2), RGB(C0, C2, C3), RGB(C0, C2, C4), RGB(C0, C2, C5),
+		RGB(C0, C3, C0), RGB(C0, C3, C1), RGB(C0, C3, C2), RGB(C0, C3, C3), RGB(C0, C3, C4), RGB(C0, C3, C5),
+		RGB(C0, C4, C0), RGB(C0, C4, C1), RGB(C0, C4, C2), RGB(C0, C4, C3), RGB(C0, C4, C4), RGB(C0, C4, C5),
+		RGB(C0, C5, C0), RGB(C0, C5, C1), RGB(C0, C5, C2), RGB(C0, C5, C3), RGB(C0, C5, C4), RGB(C0, C5, C5),
+		RGB(C1, C0, C0), RGB(C1, C0, C1), RGB(C1, C0, C2), RGB(C1, C0, C3), RGB(C1, C0, C4), RGB(C1, C0, C5),
+		RGB(C1, C1, C0), RGB(C1, C1, C1), RGB(C1, C1, C2), RGB(C1, C1, C3), RGB(C1, C1, C4), RGB(C1, C1, C5),
+		RGB(C1, C2, C0), RGB(C1, C2, C1), RGB(C1, C2, C2), RGB(C1, C2, C3), RGB(C1, C2, C4), RGB(C1, C2, C5),
+		RGB(C1, C3, C0), RGB(C1, C3, C1), RGB(C1, C3, C2), RGB(C1, C3, C3), RGB(C1, C3, C4), RGB(C1, C3, C5),
+		RGB(C1, C4, C0), RGB(C1, C4, C1), RGB(C1, C4, C2), RGB(C1, C4, C3), RGB(C1, C4, C4), RGB(C1, C4, C5),
+		RGB(C1, C5, C0), RGB(C1, C5, C1), RGB(C1, C5, C2), RGB(C1, C5, C3), RGB(C1, C5, C4), RGB(C1, C5, C5),
+		RGB(C2, C0, C0), RGB(C2, C0, C1), RGB(C2, C0, C2), RGB(C2, C0, C3), RGB(C2, C0, C4), RGB(C2, C0, C5),
+		RGB(C2, C1, C0), RGB(C2, C1, C1), RGB(C2, C1, C2), RGB(C2, C1, C3), RGB(C2, C1, C4), RGB(C2, C1, C5),
+		RGB(C2, C2, C0), RGB(C2, C2, C1), RGB(C2, C2, C2), RGB(C2, C2, C3), RGB(C2, C2, C4), RGB(C2, C2, C5),
+		RGB(C2, C3, C0), RGB(C2, C3, C1), RGB(C2, C3, C2), RGB(C2, C3, C3), RGB(C2, C3, C4), RGB(C2, C3, C5),
+		RGB(C2, C4, C0), RGB(C2, C4, C1), RGB(C2, C4, C2), RGB(C2, C4, C3), RGB(C2, C4, C4), RGB(C2, C4, C5),
+		RGB(C2, C5, C0), RGB(C2, C5, C1), RGB(C2, C5, C2), RGB(C2, C5, C3), RGB(C2, C5, C4), RGB(C2, C5, C5),
+		RGB(C3, C0, C0), RGB(C3, C0, C1), RGB(C3, C0, C2), RGB(C3, C0, C3), RGB(C3, C0, C4), RGB(C3, C0, C5),
+		RGB(C3, C1, C0), RGB(C3, C1, C1), RGB(C3, C1, C2), RGB(C3, C1, C3), RGB(C3, C1, C4), RGB(C3, C1, C5),
+		RGB(C3, C2, C0), RGB(C3, C2, C1), RGB(C3, C2, C2), RGB(C3, C2, C3), RGB(C3, C2, C4), RGB(C3, C2, C5),
+		RGB(C3, C3, C0), RGB(C3, C3, C1), RGB(C3, C3, C2), RGB(C3, C3, C3), RGB(C3, C3, C4), RGB(C3, C3, C5),
+		RGB(C3, C4, C0), RGB(C3, C4, C1), RGB(C3, C4, C2), RGB(C3, C4, C3), RGB(C3, C4, C4), RGB(C3, C4, C5),
+		RGB(C3, C5, C0), RGB(C3, C5, C1), RGB(C3, C5, C2), RGB(C3, C5, C3), RGB(C3, C5, C4), RGB(C3, C5, C5),
+		RGB(C4, C0, C0), RGB(C4, C0, C1), RGB(C4, C0, C2), RGB(C4, C0, C3), RGB(C4, C0, C4), RGB(C4, C0, C5),
+		RGB(C4, C1, C0), RGB(C4, C1, C1), RGB(C4, C1, C2), RGB(C4, C1, C3), RGB(C4, C1, C4), RGB(C4, C1, C5),
+		RGB(C4, C2, C0), RGB(C4, C2, C1), RGB(C4, C2, C2), RGB(C4, C2, C3), RGB(C4, C2, C4), RGB(C4, C2, C5),
+		RGB(C4, C3, C0), RGB(C4, C3, C1), RGB(C4, C3, C2), RGB(C4, C3, C3), RGB(C4, C3, C4), RGB(C4, C3, C5),
+		RGB(C4, C4, C0), RGB(C4, C4, C1), RGB(C4, C4, C2), RGB(C4, C4, C3), RGB(C4, C4, C4), RGB(C4, C4, C5),
+		RGB(C4, C5, C0), RGB(C4, C5, C1), RGB(C4, C5, C2), RGB(C4, C5, C3), RGB(C4, C5, C4), RGB(C4, C5, C5),
+		RGB(C5, C0, C0), RGB(C5, C0, C1), RGB(C5, C0, C2), RGB(C5, C0, C3), RGB(C5, C0, C4), RGB(C5, C0, C5),
+		RGB(C5, C1, C0), RGB(C5, C1, C1), RGB(C5, C1, C2), RGB(C5, C1, C3), RGB(C5, C1, C4), RGB(C5, C1, C5),
+		RGB(C5, C2, C0), RGB(C5, C2, C1), RGB(C5, C2, C2), RGB(C5, C2, C3), RGB(C5, C2, C4), RGB(C5, C2, C5),
+		RGB(C5, C3, C0), RGB(C5, C3, C1), RGB(C5, C3, C2), RGB(C5, C3, C3), RGB(C5, C3, C4), RGB(C5, C3, C5),
+		RGB(C5, C4, C0), RGB(C5, C4, C1), RGB(C5, C4, C2), RGB(C5, C4, C3), RGB(C5, C4, C4), RGB(C5, C4, C5),
+		RGB(C5, C5, C0), RGB(C5, C5, C1), RGB(C5, C5, C2), RGB(C5, C5, C3), RGB(C5, C5, C4), RGB(C5, C5, C5),
+
+		// 24 shades of grey
+		gray(0),
+		gray(1),
+		gray(2),
+		gray(3),
+		gray(4),
+		gray(5),
+		gray(6),
+		gray(7),
+		gray(8),
+		gray(9),
+		gray(10),
+		gray(11),
+		gray(12),
+		gray(13),
+		gray(14),
+		gray(15),
+		gray(16),
+		gray(17),
+		gray(18),
+		gray(19),
+		gray(20),
+		gray(21),
+		gray(22),
+		gray(23),
+	};
+
+
+	static_assert(sizeof(Index8ToIndex4) == 256);
 
 	static WORD get_closest_palette_index(COLORREF const Color)
 	{
@@ -347,23 +481,42 @@ namespace colors
 		return ClosestIndex;
 	}
 
+	static WORD emulate_styles(WORD Color, FARCOLORFLAGS const Flags)
+	{
+		if (Flags & FCF_FG_BOLD)
+			Color |= FOREGROUND_INTENSITY;
+
+		if (Flags & FCF_FG_FAINT)
+			Color &= ~FOREGROUND_INTENSITY;
+
+		if (Flags & (FCF_FG_UNDERLINE | FCF_FG_UNDERLINE2))
+			Color |= COMMON_LVB_UNDERSCORE;
+
+		if (Flags & FCF_FG_OVERLINE)
+			Color |= COMMON_LVB_GRID_HORIZONTAL;
+
+		// COMMON_LVB_REVERSE_VIDEO is a better way, but it only works on Windows 10.
+		// Manual swap works everywhere.
+		if (Flags & FCF_FG_INVERSE)
+			Color = ((Color & 0x00F0) >> 4) | ((Color & 0x000F) << 4);
+
+		if (Flags & FCF_FG_INVISIBLE)
+			Color = (Color & 0x00F0) | ((Color & 0x00F0) >> 4);
+
+		return Color | (Flags & FCF_RAWATTR_MASK);
+	}
 
 WORD FarColorToConsoleColor(const FarColor& Color)
 {
 	static FarColor LastColor{};
 	static WORD Result = 0;
 
-	const auto NonColorAttributes =
-		(Color.Flags & FCF_RAWATTR_MASK) |
-		(Color.Flags & FCF_FG_UNDERLINE? COMMON_LVB_UNDERSCORE : 0) |
-		(Color.Flags & FCF_FG_OVERLINE? COMMON_LVB_GRID_HORIZONTAL : 0);
-
 	if (
 		Color.BackgroundColor == LastColor.BackgroundColor &&
 		Color.ForegroundColor == LastColor.ForegroundColor &&
-		(Color.Flags & FCF_4BITMASK) == (LastColor.Flags & FCF_4BITMASK)
+		(Color.Flags & FCF_INDEXMASK) == (LastColor.Flags & FCF_INDEXMASK)
 	)
-		return Result | NonColorAttributes;
+		return emulate_styles(Result, Color.Flags);
 
 	const auto convert_and_save = [&](COLORREF FarColor::* const Getter, FARCOLORFLAGS const Flag, BYTE& IndexColor)
 	{
@@ -377,7 +530,7 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 
 		if (Color.Flags & Flag)
 		{
-			IndexColor = index_value(Current);
+			IndexColor = Index8ToIndex4[index_value(Current)];
 			return;
 		}
 
@@ -392,8 +545,8 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 	}
 	Index{};
 
-	convert_and_save(&FarColor::ForegroundColor, FCF_FG_4BIT, Index.Foreground);
-	convert_and_save(&FarColor::BackgroundColor, FCF_BG_4BIT, Index.Background);
+	convert_and_save(&FarColor::ForegroundColor, FCF_FG_INDEX, Index.Foreground);
+	convert_and_save(&FarColor::BackgroundColor, FCF_BG_INDEX, Index.Background);
 
 	LastColor.Flags = Color.Flags;
 
@@ -413,22 +566,23 @@ WORD FarColorToConsoleColor(const FarColor& Color)
 		(FinalIndex.Foreground << ConsoleFgShift) |
 		(FinalIndex.Background << ConsoleBgShift);
 
-	return Result | NonColorAttributes;
+	return emulate_styles(Result, Color.Flags);
 }
 
-FarColor ConsoleColorToFarColor(WORD Color)
+FarColor NtColorToFarColor(WORD Color)
 {
 	return
 	{
-		FCF_FG_4BIT | FCF_BG_4BIT | FCF_INHERIT_STYLE | (Color & FCF_RAWATTR_MASK),
-		{ opaque(index_bits(Color >> ConsoleFgShift)) },
-		{ opaque(index_bits(Color >> ConsoleBgShift)) }
+		FCF_FG_INDEX | FCF_BG_INDEX | FCF_INHERIT_STYLE | (Color & FCF_RAWATTR_MASK),
+		{ opaque(index_bits(Color >> ConsoleFgShift) & index::nt_mask) },
+		{ opaque(index_bits(Color >> ConsoleBgShift) & index::nt_mask) }
 	};
 }
 
 COLORREF ConsoleIndexToTrueColor(COLORREF const Color)
 {
-	return alpha_bits(Color) | console_palette()[index_value(Color)];
+	const auto Index = index_value(Color);
+	return alpha_bits(Color) | (Index < 16? console_palette()[Index] : Index8ToRGB[Index]);
 }
 
 const FarColor& PaletteColorToFarColor(PaletteColors ColorIndex)
@@ -487,8 +641,8 @@ string_view ExtractColorInNewFormat(string_view const Str, FarColor& Color, bool
 	auto NewColor = Color;
 
 	if (
-		(FgColor.empty() || ExtractColor(FgColor, NewColor.ForegroundColor, NewColor.Flags, FCF_FG_4BIT)) &&
-		(BgColor.empty() || ExtractColor(BgColor, NewColor.BackgroundColor, NewColor.Flags, FCF_BG_4BIT))
+		(FgColor.empty() || ExtractColor(FgColor, NewColor.ForegroundColor, NewColor.Flags, FCF_FG_INDEX)) &&
+		(BgColor.empty() || ExtractColor(BgColor, NewColor.BackgroundColor, NewColor.Flags, FCF_BG_INDEX))
 	)
 	{
 		Color = NewColor;
@@ -518,8 +672,8 @@ TEST_CASE("colors.COLORREF")
 		{ 0x00000001, 0x00000000, 0x00000001, 0x00010000, 0x01, false, true  },
 		{ 0x01000000, 0x01000000, 0x00000000, 0x01000000, 0x00, false, false },
 		{ 0xFF000000, 0xFF000000, 0x00000000, 0xFF000000, 0x00, true,  false },
-		{ 0x00ABCDEF, 0x00000000, 0x00ABCDEF, 0x00EFCDAB, 0x0F, false, true  },
-		{ 0xFFFFFFFF, 0xFF000000, 0x00FFFFFF, 0xFFFFFFFF, 0x0F, true,  false },
+		{ 0x00ABCDEF, 0x00000000, 0x00ABCDEF, 0x00EFCDAB, 0xEF, false, true  },
+		{ 0xFFFFFFFF, 0xFF000000, 0x00FFFFFF, 0xFFFFFFFF, 0xFF, true,  false },
 	};
 
 	for (const auto& i: Tests)
@@ -536,7 +690,7 @@ TEST_CASE("colors.COLORREF")
 
 	COLORREF Color;
 	colors::set_index_value(Color = 0xffffffff, 0x7);
-	REQUIRE(Color == 0xfffffff7);
+	REQUIRE(Color == 0xffffff07);
 	colors::set_color_value(Color = 0xffffffff, 0x42);
 	REQUIRE(Color == 0xff000042);
 	colors::set_alpha_value(Color = 0xffffffff, 0x42);
@@ -574,10 +728,13 @@ TEST_CASE("colors.parser")
 	}
 	ValidTests[]
 	{
-		{ L"(E)"sv,               { FCF_FG_4BIT, {0xE}, {0} } },
-		{ L"(:F)"sv,              { FCF_BG_4BIT, {0}, {0xF} } },
-		{ L"(B:C)"sv,             { FCF_FG_4BIT | FCF_BG_4BIT, {0xB}, {0xC} } },
 		{ L"()"sv,                { } },
+		{ L"(E)"sv,               { FCF_FG_INDEX, {0xE}, {0} } },
+		{ L"(:F)"sv,              { FCF_BG_INDEX, {0}, {0xF} } },
+		{ L"(B:C)"sv,             { FCF_FG_INDEX | FCF_BG_INDEX, {0xB}, {0xC} } },
+		{ L"(AE)"sv,              { FCF_FG_INDEX, { 0xAE }, { 0 } } },
+		{ L"(:AF)"sv,             { FCF_BG_INDEX, { 0 }, { 0xAF } } },
+		{ L"(AB:AC)"sv,           { FCF_FG_INDEX | FCF_BG_INDEX, {0xAB}, {0xAC} } },
 		{ L"(T00CCCC:TE34234)"sv, { 0, {0x00CCCC00}, {0x003442E3} } },
 	};
 

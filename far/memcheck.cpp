@@ -74,10 +74,11 @@ struct MEMINFO
 
 	size_t Size;
 
-	void* Stack[10];
+	// Initializers aren't really needed here, just to stop GCC from complaining about them.
+	void* Stack[10]{};
 
-	MEMINFO* prev;
-	MEMINFO* next;
+	MEMINFO* prev{};
+	MEMINFO* next{};
 
 	int& end_marker()
 	{

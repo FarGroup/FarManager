@@ -113,10 +113,10 @@ namespace os::process
 	{
 #ifndef _WIN64
 		if constexpr (wow)
-			return imports.NtWow64QueryInformationProcess64 && imports.NtWow64QueryInformationProcess64(Process, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength) == STATUS_SUCCESS;
+			return imports.NtWow64QueryInformationProcess64 && NT_SUCCESS(imports.NtWow64QueryInformationProcess64(Process, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength));
 		else
 #endif
-			return imports.NtQueryInformationProcess && imports.NtQueryInformationProcess(Process, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength) == STATUS_SUCCESS;
+			return imports.NtQueryInformationProcess && NT_SUCCESS(imports.NtQueryInformationProcess(Process, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength));
 	}
 
 	template<bool wow>
@@ -124,7 +124,7 @@ namespace os::process
 	{
 #ifndef _WIN64
 		if constexpr (wow)
-			return imports.NtWow64ReadVirtualMemory64 && imports.NtWow64ReadVirtualMemory64(Process, BaseAddress, Buffer, Size, NumberOfBytesRead) == STATUS_SUCCESS;
+			return imports.NtWow64ReadVirtualMemory64 && NT_SUCCESS(imports.NtWow64ReadVirtualMemory64(Process, BaseAddress, Buffer, Size, NumberOfBytesRead));
 		else
 #endif
 			return ReadProcessMemory(Process, reinterpret_cast<void*>(BaseAddress), Buffer, Size, NumberOfBytesRead) != FALSE;
@@ -232,7 +232,7 @@ namespace os::process
 			Stream.exceptions(Stream.badbit | Stream.failbit);
 			return get_process_subsystem_from_module_impl(Stream);
 		}
-		catch (const std::exception&)
+		catch (std::exception const&)
 		{
 			return image_type::unknown;
 		}
@@ -362,7 +362,7 @@ namespace os::process
 		const auto ReasonableSize = 1024;
 		block_ptr<FILE_PROCESS_IDS_USING_FILE_INFORMATION, ReasonableSize> Info(ReasonableSize);
 
-		NTSTATUS Result = STATUS_SEVERITY_ERROR;
+		auto Result = STATUS_UNSUCCESSFUL;
 
 		while (
 			!File.NtQueryInformationFile(Info.data(), Info.size(), FileProcessIdsUsingFileInformation, &Result) &&
@@ -372,7 +372,7 @@ namespace os::process
 			Info.reset(Info.size() * 2);
 		}
 
-		if (Result != STATUS_SUCCESS)
+		if (!NT_SUCCESS(Result))
 			return 0;
 
 		for (const auto& i: span(Info->ProcessIdList, Info->NumberOfProcessIdsInList))
@@ -400,7 +400,7 @@ namespace os::process
 		{
 			ULONG ReturnSize{};
 			const auto Result = imports.NtQuerySystemInformation(SystemProcessInformation, m_Info.data(), static_cast<ULONG>(m_Info.size()), &ReturnSize);
-			if (Result == STATUS_SUCCESS)
+			if (NT_SUCCESS(Result))
 				break;
 
 			if (any_of(Result, STATUS_INFO_LENGTH_MISMATCH, STATUS_BUFFER_OVERFLOW, STATUS_BUFFER_TOO_SMALL))

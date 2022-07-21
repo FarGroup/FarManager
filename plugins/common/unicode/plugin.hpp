@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.5886.0
+Plugin API for Far Manager 3.0.5979.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 5886
+#define FARMANAGERVERSION_BUILD 5979
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -64,9 +64,14 @@ typedef GUID UUID;
 
 typedef unsigned long long FARCOLORFLAGS;
 static const FARCOLORFLAGS
-	FCF_FG_4BIT       = 0x0000000000000001ULL,
-	FCF_BG_4BIT       = 0x0000000000000002ULL,
-	FCF_4BITMASK      = 0x0000000000000003ULL, // FCF_FG_4BIT | FCF_BG_4BIT
+	FCF_FG_INDEX      = 0x0000000000000001ULL,
+	FCF_BG_INDEX      = 0x0000000000000002ULL,
+	FCF_INDEXMASK     = 0x0000000000000003ULL, // FCF_FG_INDEX | FCF_BG_INDEX
+
+	// Legacy names, don't use
+	FCF_FG_4BIT       = 0x0000000000000001ULL, // FCF_FG_INDEX
+	FCF_BG_4BIT       = 0x0000000000000002ULL, // FCF_BG_INDEX
+	FCF_4BITMASK      = 0x0000000000000003ULL, // FCF_INDEXMASK
 
 	FCF_INHERIT_STYLE = 0x0000000000000004ULL,
 
@@ -80,8 +85,10 @@ static const FARCOLORFLAGS
 	FCF_FG_STRIKEOUT  = 0x0200000000000000ULL,
 	FCF_FG_FAINT      = 0x0400000000000000ULL,
 	FCF_FG_BLINK      = 0x0800000000000000ULL,
+	FCF_FG_INVERSE    = 0x0010000000000000ULL,
+	FCF_FG_INVISIBLE  = 0x0020000000000000ULL,
 
-	FCF_STYLEMASK     = 0xFF00000000000000ULL,
+	FCF_STYLEMASK     = 0xFFF0000000000000ULL,
 
 	FCF_NONE          = 0;
 
@@ -141,33 +148,53 @@ struct FarColor
 		return !(*this == rhs);
 	}
 
+	bool IsBgIndex() const
+	{
+		return (Flags & FCF_BG_INDEX) != 0;
+	}
+
+	bool IsFgIndex() const
+	{
+		return (Flags & FCF_FG_INDEX) != 0;
+	}
+
+	FarColor& SetBgIndex(bool Value)
+	{
+		Value? Flags |= FCF_BG_INDEX : Flags &= ~FCF_BG_INDEX;
+		return *this;
+	}
+
+	FarColor& SetFgIndex(bool Value)
+	{
+		Value? Flags |= FCF_FG_INDEX : Flags &= ~FCF_FG_INDEX;
+		return *this;
+	}
+
+	// Legacy names, don't use
 	bool IsBg4Bit() const
 	{
-		return (Flags & FCF_BG_4BIT) != 0;
+		return IsBgIndex();
 	}
 
 	bool IsFg4Bit() const
 	{
-		return (Flags & FCF_FG_4BIT) != 0;
+		return IsFgIndex();
 	}
 
 	FarColor& SetBg4Bit(bool Value)
 	{
-		Value? Flags |= FCF_BG_4BIT : Flags &= ~FCF_BG_4BIT;
-		return *this;
+		return SetBgIndex(Value);
 	}
 
 	FarColor& SetFg4Bit(bool Value)
 	{
-		Value? Flags |= FCF_FG_4BIT : Flags &= ~FCF_FG_4BIT;
-		return *this;
+		return SetFgIndex(Value);
 	}
-
 #endif
 };
 
 
-#define INDEXMASK 0x0000000f
+#define INDEXMASK 0x000000ff
 #define COLORMASK 0x00ffffff
 #define ALPHAMASK 0xff000000
 
@@ -2392,7 +2419,7 @@ static __inline BOOL CheckVersion(const struct VersionInfo* Current, const struc
 
 static __inline struct VersionInfo MAKEFARVERSION(DWORD Major, DWORD Minor, DWORD Revision, DWORD Build, enum VERSION_STAGE Stage)
 {
-	struct VersionInfo Info = {Major, Minor, Revision, Build, Stage};
+	const struct VersionInfo Info = {Major, Minor, Revision, Build, Stage};
 	return Info;
 }
 

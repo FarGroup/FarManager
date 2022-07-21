@@ -54,6 +54,8 @@ namespace char_width
 	bool is_enabled();
 
 	void invalidate();
+
+	bool is_half_width_surrogate_broken();
 }
 
 #endif // CHAR_WIDTH_HPP_D66C86AC_3415_4FD1_89DA_0AB843FFEEB8

@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ProjectName>vc_crt_fix</ProjectName>
+    <ProjectGuid>{A5D12A94-6FA0-43B4-B790-987DA09A735A}</ProjectGuid>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(ProjectDir)..\..\_build\vc\config\common.props" />
+  </ImportGroup>
+
+  <PropertyGroup>
+    <OutDir>$(IntDir)</OutDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <MASM Include="vc_crt_fix.asm">
+      <PreprocessorDefinitions>$(Platform)</PreprocessorDefinitions>
+      <ExcludedFromBuild Condition="'$(Platform)'!='Win32' and '$(Platform)'!='x64'">true</ExcludedFromBuild>
+    </MASM>
+    <ClCompile Include="vc_crt_fix_impl.cpp">
+      <AdditionalOptions>/Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+  </ItemGroup>
+
+  <Import Project="$(ProjectDir)..\..\_build\vc\config\common.targets" />
+</Project>

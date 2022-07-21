@@ -1358,6 +1358,19 @@ unsigned int encoding::utf16::extract_codepoint(string_view const Str)
 		Str.front();
 }
 
+void encoding::utf16::remove_first_codepoint(string_view& Str)
+{
+	const auto IsSurrogate = Str.size() > 1 && is_valid_surrogate_pair(Str[0], Str[1]);
+	Str.remove_prefix(IsSurrogate? 2 : 1);
+}
+
+void encoding::utf16::remove_last_codepoint(string_view& Str)
+{
+	const auto Size = Str.size();
+	const auto IsSurrogate = Size > 1 && is_valid_surrogate_pair(Str[Size - 2], Str[Size - 1]);
+	Str.remove_suffix(IsSurrogate? 2 : 1);
+}
+
 std::pair<wchar_t, wchar_t> encoding::utf16::to_surrogate(unsigned int const Codepoint)
 {
 	if (Codepoint <= std::numeric_limits<wchar_t>::max())
@@ -1872,10 +1885,10 @@ TEST_CASE("encoding.utf16.surrogate")
 	}
 	Tests[]
 	{
-		{ U'\x000000', {L'\x0000', L'\x0000'} },
-		{ U'\x010000', {L'\xD800', L'\xDC00'} },
-		{ U'\x02070E', {L'\xD841', L'\xDF0E'} },
-		{ U'\x10FFFF', {L'\xDBFF', L'\xDFFF'} },
+		{ U'\U00000000', {L'\x0000', L'\x0000'} },
+		{ U'\U00010000', {L'\xD800', L'\xDC00'} },
+		{ U'\U0002070E', {L'\xD841', L'\xDF0E'} },
+		{ U'\U0010FFFF', {L'\xDBFF', L'\xDFFF'} },
 	};
 
 	for (const auto& i: Tests)

@@ -49,18 +49,19 @@ struct error_state
 	DWORD Win32Error = ERROR_SUCCESS;
 	NTSTATUS NtError = STATUS_SUCCESS;
 
+	[[nodiscard]]
 	bool any() const
 	{
-		return Errno || Win32Error != ERROR_SUCCESS || NtError != STATUS_SUCCESS;
+		return Errno || Win32Error != ERROR_SUCCESS || !NT_SUCCESS(NtError);
 	}
 
-	string ErrnoStr() const;
-	string Win32ErrorStr() const;
-	string NtErrorStr() const;
+	[[nodiscard]] string ErrnoStr() const;
+	[[nodiscard]] string Win32ErrorStr() const;
+	[[nodiscard]] string NtErrorStr() const;
 
-	std::array<string, 3> format_errors() const;
+	[[nodiscard]] std::array<string, 3> format_errors() const;
 
-	string to_string() const;
+	[[nodiscard]] string to_string() const;
 };
 
 struct error_state_ex: public error_state
@@ -73,7 +74,8 @@ struct error_state_ex: public error_state
 	{
 	}
 
-	string format_error() const;
+	[[nodiscard]] string format_error() const;
+	[[nodiscard]] string to_string() const;
 
 	string What;
 };
@@ -89,6 +91,7 @@ namespace detail
 		[[nodiscard]] const auto& full_message() const noexcept { return m_FullMessage; }
 		[[nodiscard]] const auto& function() const noexcept { return m_Function; }
 		[[nodiscard]] const auto& location() const noexcept { return m_Location; }
+		[[nodiscard]] string to_string() const;
 
 	protected:
 		far_base_exception(bool CaptureErrors, string_view Message, std::string_view Function, std::string_view File, int Line);
@@ -154,8 +157,13 @@ class far_known_exception final: public far_exception
 #define MAKE_FAR_EXCEPTION(...) MAKE_EXCEPTION(far_exception, true, __VA_ARGS__)
 #define MAKE_FAR_KNOWN_EXCEPTION(...) MAKE_EXCEPTION(far_known_exception, false, __VA_ARGS__)
 
-std::wostream& operator<<(std::wostream& Stream, error_state const& e);
-std::wostream& operator<<(std::wostream& Stream, error_state_ex const& e);
-std::wostream& operator<<(std::wostream& Stream, detail::far_base_exception const& e);
+template<typename T>
+struct formattable;
+
+template<>
+struct formattable<std::exception>
+{
+	static string to_string(std::exception const& e);
+};
 
 #endif // EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF

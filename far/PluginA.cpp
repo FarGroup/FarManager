@@ -916,7 +916,7 @@ static void AnsiVBufToUnicode(CHAR_INFO* VBufA, FAR_CHAR_INFO* VBuf, size_t Size
 		{
 			AnsiToUnicodeBin({ &Src.Char.AsciiChar, 1 }, &Dst.Char);
 		}
-		Dst.Attributes = colors::ConsoleColorToFarColor(Src.Attributes);
+		Dst.Attributes = colors::NtColorToFarColor(Src.Attributes);
 	}
 }
 
@@ -2323,7 +2323,7 @@ static void WINAPI FarTextA(int X, int Y, int ConColor, const char *Str) noexcep
 	return cpp_try(
 	[&]
 	{
-		const auto Color = colors::ConsoleColorToFarColor(ConColor);
+		const auto Color = colors::NtColorToFarColor(ConColor);
 		return pluginapi::apiText(X, Y, &Color, Str? encoding::oem::get_chars(Str).c_str() : nullptr);
 	},
 	[]
@@ -2683,7 +2683,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 			case DN_CTLCOLORDIALOG:
 				{
 					auto& Color = *static_cast<FarColor*>(Param2);
-					Color = colors::ConsoleColorToFarColor(static_cast<int>(CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDIALOG, Param1,
+					Color = colors::NtColorToFarColor(static_cast<int>(CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDIALOG, Param1,
 					ToPtr(colors::FarColorToConsoleColor(Color)))));
 				}
 				break;
@@ -2700,20 +2700,20 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 					// first, emulate DIF_SETCOLOR
 					if(diA->Flags&oldfar::DIF_SETCOLOR)
 					{
-						lc->Colors[0] = colors::ConsoleColorToFarColor(diA->Flags&oldfar::DIF_COLORMASK);
+						lc->Colors[0] = colors::NtColorToFarColor(diA->Flags&oldfar::DIF_COLORMASK);
 					}
 
 					const auto Result = static_cast<DWORD>(CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDLGITEM, Param1, ToPtr(make_integer<uint32_t, uint16_t>(
 						make_integer<uint16_t, uint8_t>(colors::FarColorToConsoleColor(lc->Colors[0]), colors::FarColorToConsoleColor(lc->Colors[1])),
 						make_integer<uint16_t, uint8_t>(colors::FarColorToConsoleColor(lc->Colors[2]), colors::FarColorToConsoleColor(lc->Colors[3]))))));
 					if(lc->ColorsCount > 0)
-						lc->Colors[0] = colors::ConsoleColorToFarColor(extract_integer<BYTE, 0>(Result));
+						lc->Colors[0] = colors::NtColorToFarColor(extract_integer<BYTE, 0>(Result));
 					if(lc->ColorsCount > 1)
-						lc->Colors[1] = colors::ConsoleColorToFarColor(extract_integer<BYTE, 1>(Result));
+						lc->Colors[1] = colors::NtColorToFarColor(extract_integer<BYTE, 1>(Result));
 					if(lc->ColorsCount > 2)
-						lc->Colors[2] = colors::ConsoleColorToFarColor(extract_integer<BYTE, 2>(Result));
+						lc->Colors[2] = colors::NtColorToFarColor(extract_integer<BYTE, 2>(Result));
 					if(lc->ColorsCount > 3)
-						lc->Colors[3] = colors::ConsoleColorToFarColor(extract_integer<BYTE, 3>(Result));
+						lc->Colors[3] = colors::NtColorToFarColor(extract_integer<BYTE, 3>(Result));
 				}
 				break;
 
@@ -2727,7 +2727,7 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 					if(Result)
 					{
 						lc->ColorsCount = lcA.ColorCount;
-						std::transform(lcA.Colors, lcA.Colors + lcA.ColorCount, lc->Colors, colors::ConsoleColorToFarColor);
+						std::transform(lcA.Colors, lcA.Colors + lcA.ColorCount, lc->Colors, colors::NtColorToFarColor);
 					}
 					return Result != 0;
 				}
@@ -4183,7 +4183,7 @@ static intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber, oldfar::ADVANCED_CO
 
 				const auto scA = static_cast<const oldfar::FarSetColors*>(Param);
 				std::vector<FarColor> Colors(scA->ColorCount);
-				std::transform(scA->Colors, scA->Colors + scA->ColorCount, Colors.begin(), colors::ConsoleColorToFarColor);
+				std::transform(scA->Colors, scA->Colors + scA->ColorCount, Colors.begin(), colors::NtColorToFarColor);
 				Colors.erase(Colors.begin() + oldfar::COL_RESERVED0);
 				FarSetColors sc{ sizeof(sc), 0, static_cast<size_t>(scA->StartIndex), Colors.size(), Colors.data() };
 				if (scA->Flags&oldfar::FCLR_REDRAW)
@@ -4232,7 +4232,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 					ec.StringNumber = ecA->StringNumber;
 					ec.StartPos = ecA->StartPos;
 					ec.EndPos = ecA->EndPos;
-					ec.Color = colors::ConsoleColorToFarColor(ecA->Color);
+					ec.Color = colors::NtColorToFarColor(ecA->Color);
 					if(ecA->Color&oldfar::ECF_TAB1) ec.Color.Flags|=ECF_TABMARKFIRST;
 					ec.Priority=EDITOR_COLOR_NORMAL_PRIORITY;
 					ec.Owner = FarUuid;
@@ -5751,7 +5751,7 @@ WARNING_POP()
 			PluginLang = std::make_unique<ansi_plugin_language>(Path, Language);
 			return true;
 		}
-		catch (const std::exception& e)
+		catch (std::exception const& e)
 		{
 			LOGERROR(L"{}"sv, e);
 			return false;

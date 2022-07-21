@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "manager.hpp"
 #include "config.hpp"
+#include "console.hpp"
 #include "dialog.hpp"
 #include "interf.hpp"
 #include "lang.hpp"
@@ -71,6 +72,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "format.hpp"
 
 //----------------------------------------------------------------------------
+
+#define BUGREPORT_NAME   "bug_report.txt"
+#define MINIDDUMP_NAME   "far.mdmp"
+#define FULLDUMP_NAME    "far_full.mdmp"
 
 class exception_context
 {
@@ -128,6 +133,14 @@ void disable_exception_handling()
 	LOGWARNING(L"Exception handling disabled"sv);
 }
 
+[[noreturn]]
+static void user_abort()
+{
+	// This is a user-initiated abort, we don't want any extra messages, dumps etc.
+	TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
+	UNREACHABLE;
+}
+
 static std::atomic_bool s_ExceptionHandlingInprogress{};
 bool exception_handling_in_progress()
 {
@@ -142,8 +155,9 @@ void force_stderr_exception_ui(bool const Force)
 void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
 static constexpr NTSTATUS
+	EXCEPTION_HEAP_CORRUPTION     = STATUS_HEAP_CORRUPTION,
 	EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363, // EH_EXCEPTION_NUMBER
-	EXCEPTION_TERMINATE           = 0xE074726D; // 'trm'
+	EXCEPTION_ABORT               = 0xE0616274; // 'abt'
 
 static const auto Separator = L"----------------------------------------------------------------------"sv;
 
@@ -212,23 +226,24 @@ static bool write_readme(string_view const FullPath)
 
 #define EOL "\r\n"
 
-	const auto Data = L"\xFEFF"
-		"Please send bug_report.txt and far.mdmp to the developers:" EOL
+	// English text, ANSI will do fine.
+	const auto Data =
+		"Please send " BUGREPORT_NAME " and " MINIDDUMP_NAME " to the developers:" EOL
 		EOL
-		"  https://bugs.farmanager.com" EOL
 		"  https://github.com/FarGroup/FarManager/issues" EOL
-		"  https://forum.farmanager.com/viewforum.php?f=9" EOL
+		"  https://bugs.farmanager.com" EOL
 		"  https://forum.farmanager.com/viewforum.php?f=37" EOL
+		"  https://forum.farmanager.com/viewforum.php?f=9" EOL
 		EOL
 		"------------------------------------------------------------" EOL
-		"DO NOT SHARE far_full.mdmp UNLESS EXPLICITLY ASKED TO DO SO." EOL
+		"DO NOT SHARE " FULLDUMP_NAME " UNLESS EXPLICITLY ASKED TO DO SO." EOL
 		"It could contain sensitive data." EOL
 		"------------------------------------------------------------" EOL
 		""sv;
 
 #undef EOL
 
-	return File.Write(Data.data(), Data.size() * sizeof(decltype(Data)::value_type));
+	return File.Write(Data.data(), Data.size() * sizeof(Data[0]));
 }
 
 static bool write_report(string_view const Data, string_view const FullPath)
@@ -280,7 +295,12 @@ static void read_modules(string& To, string_view const Eol)
 	for (;;)
 	{
 		if (!EnumProcessModules(GetCurrentProcess(), Data, Size, &Needed))
+		{
+			const auto LastError = last_error();
+			format_to(To, FSTR(L"{}"sv), LastError);
+			LOGWARNING(L"EnumProcessModules(): {}"sv, LastError);
 			return;
+		}
 
 		if (Needed <= Size)
 			return read_modules({ Data, Needed / sizeof(HMODULE) }, To, Eol);
@@ -349,11 +369,60 @@ static void read_registers(string& To, CONTEXT const& Context, string_view const
 	r(L"EBP"sv, Context.Ebp);
 	r(L"EFL"sv, Context.EFlags);
 #elif defined _M_ARM64
-	// TODO
+	r(L"X0 "sv, Context.X0);
+	r(L"X1 "sv, Context.X1);
+	r(L"X2 "sv, Context.X2);
+	r(L"X3 "sv, Context.X3);
+	r(L"X4 "sv, Context.X4);
+	r(L"X5 "sv, Context.X5);
+	r(L"X6 "sv, Context.X6);
+	r(L"X7 "sv, Context.X7);
+	r(L"X8 "sv, Context.X8);
+	r(L"X9 "sv, Context.X9);
+	r(L"X10"sv, Context.X10);
+	r(L"X11"sv, Context.X11);
+	r(L"X12"sv, Context.X12);
+	r(L"X13"sv, Context.X13);
+	r(L"X14"sv, Context.X14);
+	r(L"X15"sv, Context.X15);
+	r(L"X16"sv, Context.X16);
+	r(L"X17"sv, Context.X17);
+	r(L"X18"sv, Context.X18);
+	r(L"X19"sv, Context.X19);
+	r(L"X20"sv, Context.X20);
+	r(L"X21"sv, Context.X21);
+	r(L"X22"sv, Context.X22);
+	r(L"X23"sv, Context.X23);
+	r(L"X24"sv, Context.X24);
+	r(L"X25"sv, Context.X25);
+	r(L"X26"sv, Context.X26);
+	r(L"X27"sv, Context.X27);
+	r(L"X28"sv, Context.X28);
+	r(L"FP "sv, Context.Fp);
+	r(L"SP "sv, Context.Sp);
+	r(L"LR "sv, Context.Lr);
+	r(L"PC "sv, Context.Pc);
+	r(L"CPS"sv, Context.Cpsr);
 #elif defined _M_ARM
-	// TODO
+	r(L"R0 "sv, Context.R0);
+	r(L"R1 "sv, Context.R1);
+	r(L"R2 "sv, Context.R2);
+	r(L"R3 "sv, Context.R3);
+	r(L"R4 "sv, Context.R4);
+	r(L"R5 "sv, Context.R5);
+	r(L"R6 "sv, Context.R6);
+	r(L"R7 "sv, Context.R7);
+	r(L"R8 "sv, Context.R8);
+	r(L"R9 "sv, Context.R9);
+	r(L"R10"sv, Context.R10);
+	r(L"R11"sv, Context.R11);
+	r(L"R12"sv, Context.R12);
+	r(L"SP "sv, Context.Sp);
+	r(L"LR "sv, Context.Lr);
+	r(L"PC "sv, Context.Pc);
+	r(L"CPS"sv, Context.Cpsr);
 #else
-	// TODO
+	COMPILER_WARNING("Unknown platform")
 #endif
 }
 
@@ -367,7 +436,7 @@ static string collect_information(
 	string Strings;
 	Strings.reserve(1024);
 
-	Strings.push_back(L'\xFEFF');
+	Strings.push_back(L'\uFEFF');
 
 	const auto Eol = eol::system.str();
 
@@ -381,22 +450,19 @@ static string collect_information(
 		format_to(Strings, FSTR(L"{} {}{}"sv), Label, Value, Eol);
 	}
 
-	make_header(L"Registers"sv, append_line);
-	read_registers(Strings, Context.context_record(), Eol);
-
 	get_backtrace(Module, tracer.get(Module, Context.context_record(), Context.thread_handle()), NestedStack, append_line);
 
 	{
 		os::process::enum_processes const Enum;
 		const auto CurrentPid = GetCurrentProcessId();
-		const auto ContextThreadId = Context.thread_id();
+		const auto CurrentThreadId = GetCurrentThreadId();
 		const auto CurrentEntry = std::find_if(ALL_CONST_RANGE(Enum), [&](os::process::enum_process_entry const& Entry){ return Entry.Pid == CurrentPid; });
 		if (CurrentEntry != Enum.cend())
 		{
 			for (const auto& i: CurrentEntry->Threads)
 			{
 				const auto Tid = reinterpret_cast<uintptr_t>(i.ClientId.UniqueThread);
-				if (Tid == ContextThreadId)
+				if (Tid == CurrentThreadId)
 					continue;
 
 				os::handle const Thread(OpenThread(THREAD_QUERY_INFORMATION | THREAD_SUSPEND_RESUME | THREAD_GET_CONTEXT, false, Tid));
@@ -425,6 +491,9 @@ static string collect_information(
 
 	make_header(L"Modules"sv, append_line);
 	read_modules(Strings, Eol);
+
+	make_header(L"Registers"sv, append_line);
+	read_registers(Strings, Context.context_record(), Eol);
 
 	return Strings;
 }
@@ -522,6 +591,70 @@ static bool ExcConsole(string const& ReportLocation, string const& PluginInforma
 	return true;
 }
 
+static string get_console_host()
+{
+	if (!imports.NtQueryInformationProcess)
+		return {};
+
+	ULONG_PTR ConsoleHostProcess;
+	const auto Status = imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessConsoleHostProcess, &ConsoleHostProcess, sizeof(ConsoleHostProcess), {});
+	if (!NT_SUCCESS(Status))
+		return {};
+
+	const auto ConsoleHostProcessId = ConsoleHostProcess & ~3;
+
+	const auto ConhostName = os::process::get_process_name(ConsoleHostProcessId);
+	if (ConhostName.empty())
+		return {};
+
+	const auto ConhostVersion = os::version::get_file_version(ConhostName);
+	const auto ConhostLegacy = console.IsVtSupported()? L""sv : L" (legacy mode)"sv;
+
+	return concat(ConhostName, L' ', ConhostVersion, ConhostLegacy);
+}
+
+namespace detail
+{
+	// GCC headers for once got it right
+	IS_DETECTED(has_InheritedFromUniqueProcessId, T::InheritedFromUniqueProcessId);
+
+	// Windows SDK (at least up to 19041) defines it as "Reserved3".
+	// Surprisingly, MSDN calls it InheritedFromUniqueProcessId, so it might get renamed one day.
+	// For forward compatibility it's better to use the compiler rather than the preprocessor here.
+	IS_DETECTED(has_Reserved3, T::Reserved3);
+}
+
+template<typename process_basic_information_t>
+static auto parent_process_id(process_basic_information_t const& Info)
+{
+	if constexpr (detail::has_InheritedFromUniqueProcessId<process_basic_information_t>)
+		return static_cast<DWORD>(Info.InheritedFromUniqueProcessId);
+	else if constexpr (detail::has_Reserved3<process_basic_information_t>)
+		return static_cast<DWORD>(reinterpret_cast<uintptr_t>(Info.Reserved3));
+	else
+		static_assert(!sizeof(Info));
+}
+
+static string get_parent_process()
+{
+	if (!imports.NtQueryInformationProcess)
+		return {};
+
+	PROCESS_BASIC_INFORMATION ProcessInfo;
+	if (!NT_SUCCESS(imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessBasicInformation, &ProcessInfo, sizeof(ProcessInfo), {})))
+		return {};
+
+	const auto ParentProcessId = parent_process_id(ProcessInfo);
+
+	const auto ParentName = os::process::get_process_name(ParentProcessId);
+	if (ParentName.empty())
+		return {};
+
+	const auto ParentVersion = os::version::get_file_version(ParentName);
+
+	return concat(ParentName, L' ', ParentVersion);
+}
+
 static bool ShowExceptionUI(
 	bool const UseDialog,
 	exception_context const& Context,
@@ -549,8 +682,11 @@ static bool ShowExceptionUI(
 
 	const auto Errors = ErrorState.format_errors();
 	const auto Version = self_version();
+	const auto Compiler = build::compiler();
 	const auto OsVersion = os::version::os_version();
 	const auto KernelVersion = kernel_version();
+	const auto ConsoleHost = get_console_host();
+	const auto Parent = get_parent_process();
 
 	std::pair<string_view, string_view> const BasicInfo[]
 	{
@@ -565,8 +701,11 @@ static bool ShowExceptionUI(
 		{ L"File:     "sv, ModuleName,    },
 		{ L"Plugin:   "sv, PluginInfo,    },
 		{ L"Far:      "sv, Version,       },
+		{ L"Compiler: "sv, Compiler,      },
 		{ L"OS:       "sv, OsVersion,     },
 		{ L"Kernel:   "sv, KernelVersion, },
+		{ L"Host:     "sv, ConsoleHost,   },
+		{ L"Parent:   "sv, Parent,        },
 	};
 
 	const auto log_message = [&]
@@ -589,10 +728,10 @@ static bool ShowExceptionUI(
 	LOG(PluginModule? logging::level::error : logging::level::fatal, L"\n{}\n"sv, log_message());
 
 	const auto ReportLocation = get_report_location();
-	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, L"far.mdmp"sv), MiniDumpNormal);
-	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, L"far_full.mdmp"sv), MiniDumpWithFullMemory);
+	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDDUMP_NAME)), MiniDumpNormal);
+	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), MiniDumpWithFullMemory);
 	const auto BugReport = collect_information(Context, NestedStack, ModuleName, BasicInfo);
-	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, L"bug_report.txt"sv));
+	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
 	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
 	const auto ReadmeOnDisk = write_readme(path::join(ReportLocation, L"README.txt"sv));
 	const auto AnythingOnDisk = ReportOnDisk || MinidumpNormal || MinidumpFull || ReadmeOnDisk;
@@ -751,11 +890,12 @@ static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_vie
 		{TEXTANDCODE(EXCEPTION_GUARD_PAGE)},
 		{TEXTANDCODE(EXCEPTION_INVALID_HANDLE)},
 		{TEXTANDCODE(EXCEPTION_POSSIBLE_DEADLOCK)},
+		{TEXTANDCODE(EXCEPTION_HEAP_CORRUPTION)},
 		{TEXTANDCODE(CONTROL_C_EXIT)},
 #undef TEXTANDCODE
 
 		{L"C++ exception"sv,  EXCEPTION_MICROSOFT_CPLUSPLUS},
-		{L"std::terminate"sv, EXCEPTION_TERMINATE},
+		{L"std::abort"sv,     EXCEPTION_ABORT},
 	};
 
 	const auto AppendType = [](string& Str, string_view const ExceptionType)
@@ -810,11 +950,11 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 		if (Symbol.empty())
 			Symbol = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
 
-		return format(FSTR(L"Memory at {} could not be {}"sv), Symbol, Mode);
+		return format(FSTR(L"0x{:0>8X} - Memory at {} could not be {}"sv), ExceptionRecord.ExceptionCode, Symbol, Mode);
 	}
 
 	case EXCEPTION_MICROSOFT_CPLUSPLUS:
-	case EXCEPTION_TERMINATE:
+	case EXCEPTION_ABORT:
 		return string(Message);
 
 	default:
@@ -843,18 +983,11 @@ static bool handle_generic_exception(
 	s_ExceptionHandlingInprogress = true;
 	SCOPE_EXIT{ s_ExceptionHandlingInprogress = false; };
 
-	string strFileName;
-
-	if (!PluginModule)
-	{
-		strFileName = Global?
+	const auto strFileName = PluginModule?
+		PluginModule->ModuleName() :
+		Global?
 			Global->g_strFarModuleName :
 			os::fs::get_current_process_file_name();
-	}
-	else
-	{
-		strFileName = PluginModule->ModuleName();
-	}
 
 	const auto Exception = exception_name(Context.exception_record(), Type);
 	const auto Details = exception_details(strFileName, Context.exception_record(), Message);
@@ -998,7 +1131,7 @@ static std::pair<string, string> extract_nested_exceptions(EXCEPTION_RECORD cons
 	{
 		std::rethrow_if_nested(Exception);
 	}
-	catch (const std::exception& e)
+	catch (std::exception const& e)
 	{
 		const auto& [NestedObjectType, NestedWhat] = extract_nested_exceptions(*exception_information().ExceptionRecord, e, false);
 		ObjectType = concat(NestedObjectType, L" -> "sv, ObjectType);
@@ -1102,22 +1235,22 @@ bool use_terminate_handler()
 	return UseTerminateHandler;
 }
 
-static void seh_terminate_handler_impl()
+static void seh_abort_handler_impl()
 {
-	if (!HandleCppExceptions)
+	static auto InsideHandler = false;
+	if (!HandleCppExceptions || InsideHandler)
+	{
+		restore_system_exception_handler();
 		std::abort();
+	}
 
-	static auto InsideTerminateHandler = false;
-	if (InsideTerminateHandler)
-		std::abort();
-
-	InsideTerminateHandler = true;
+	InsideHandler = true;
 
 	// If it's a SEH or a C++ exception implemented in terms of SEH (and not a fake for GCC) it's better to handle it as SEH
 	if (const auto Info = exception_information(); Info.ContextRecord && Info.ExceptionRecord && !is_fake_cpp_exception(*Info.ExceptionRecord))
 	{
 		if (handle_seh_exception(exception_context(Info), CURRENT_FUNCTION_NAME, {}))
-			std::abort();
+			user_abort();
 	}
 
 	// It's a C++ exception, implemented in some other way (GCC)
@@ -1127,33 +1260,33 @@ static void seh_terminate_handler_impl()
 		{
 			std::rethrow_exception(CurrentException);
 		}
-		catch(std::exception const& e)
+		catch (std::exception const& e)
 		{
 			if (handle_std_exception(e, CURRENT_FUNCTION_NAME, {}))
-				std::abort();
+				user_abort();
 		}
 		catch (...)
 		{
 			if (handle_unknown_exception(CURRENT_FUNCTION_NAME, {}))
-				std::abort();
+				user_abort();
 		}
 	}
 
 	// No exception in flight, must be a direct call
 	exception_context const Context
 	({
-		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(EXCEPTION_TERMINATE)),
+		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(EXCEPTION_ABORT)),
 		static_cast<CONTEXT*>(*dummy_current_exception_context())
 	});
 
 	if (handle_generic_exception(Context, CURRENT_FUNCTION_NAME, {}, {}, {}, L"Abnormal termination"sv))
-		std::abort();
+		user_abort();
 
 	restore_system_exception_handler();
 }
 
 seh_terminate_handler::seh_terminate_handler():
-	m_PreviousHandler(std::set_terminate(seh_terminate_handler_impl))
+	m_PreviousHandler(std::set_terminate(seh_abort_handler_impl))
 {
 }
 
@@ -1164,19 +1297,11 @@ seh_terminate_handler::~seh_terminate_handler()
 
 static LONG WINAPI unhandled_exception_filter_impl(EXCEPTION_POINTERS* const Pointers)
 {
-	if (!HandleSehExceptions)
-	{
-		restore_system_exception_handler();
-		return EXCEPTION_CONTINUE_SEARCH;
-	}
-
-	detail::set_fp_exceptions(false);
-	if (handle_seh_exception(exception_context(*Pointers), CURRENT_FUNCTION_NAME, {}))
-	{
+	const auto Result = detail::seh_filter(Pointers, CURRENT_FUNCTION_NAME, {});
+	if (Result == EXCEPTION_EXECUTE_HANDLER)
 		std::_Exit(EXIT_FAILURE);
-	}
-	restore_system_exception_handler();
-	return EXCEPTION_CONTINUE_SEARCH;
+
+	return Result;
 }
 
 unhandled_exception_filter::unhandled_exception_filter():
@@ -1189,41 +1314,59 @@ unhandled_exception_filter::~unhandled_exception_filter()
 	SetUnhandledExceptionFilter(m_PreviousFilter);
 }
 
-[[noreturn]]
-static void purecall_handler_impl()
+// For GCC. For some reason the default one works in Debug, but not in Release.
+#ifndef _DEBUG
+extern "C"
 {
-	// VC invokes abort if the user handler isn't set,
-	// so we call terminate here, which we already intercept.
-	// GCC just invokes terminate directly, no further actions needed.
-	std::terminate();
-}
+	[[noreturn]]
+	void __cxa_pure_virtual();
 
-static _purecall_handler set_purecall_handler(_purecall_handler const Handler)
-{
-	return
-#if IS_MICROSOFT_SDK()
-		_set_purecall_handler(Handler)
-#else
-		nullptr
+	[[noreturn]]
+	void __cxa_pure_virtual()
+	{
+		std::abort();
+	}
+}
 #endif
-		;
+
+static void signal_handler_impl(int const Signal)
+{
+	switch (Signal)
+	{
+	case SIGABRT:
+		// terminate() defaults to abort(), so this also covers various C++ runtime failures.
+		return seh_abort_handler_impl();
+
+	default:
+		return;
+	}
 }
 
-purecall_handler::purecall_handler():
-	m_PreviousHandler(set_purecall_handler(purecall_handler_impl))
+signal_handler::signal_handler():
+	m_PreviousHandler(std::signal(SIGABRT, signal_handler_impl))
 {
 }
 
-purecall_handler::~purecall_handler()
+signal_handler::~signal_handler()
 {
-	set_purecall_handler(m_PreviousHandler);
+	if (m_PreviousHandler != SIG_ERR)
+		std::signal(SIGABRT, m_PreviousHandler);
 }
 
 static void invalid_parameter_handler_impl(const wchar_t* const Expression, const wchar_t* const Function, const wchar_t* const File, unsigned int const Line, uintptr_t const Reserved)
 {
+	static auto InsideHandler = false;
+	if (!HandleCppExceptions || InsideHandler)
+	{
+		restore_system_exception_handler();
+		std::abort();
+	}
+
+	InsideHandler = true;
+
 	exception_context const Context
 	({
-		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(EXCEPTION_TERMINATE)),
+		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(EXCEPTION_ABORT)),
 		static_cast<CONTEXT*>(*dummy_current_exception_context())
 	});
 
@@ -1235,7 +1378,7 @@ static void invalid_parameter_handler_impl(const wchar_t* const Expression, cons
 		{},
 		Expression? Expression : L"Invalid parameter"sv
 	))
-		std::abort();
+		user_abort();
 
 	restore_system_exception_handler();
 }
@@ -1248,6 +1391,28 @@ invalid_parameter_handler::invalid_parameter_handler():
 invalid_parameter_handler::~invalid_parameter_handler()
 {
 	_set_invalid_parameter_handler(m_PreviousHandler);
+}
+
+static LONG NTAPI vectored_exception_handler_impl(EXCEPTION_POINTERS* const Pointers)
+{
+	if (static_cast<NTSTATUS>(Pointers->ExceptionRecord->ExceptionCode) == EXCEPTION_HEAP_CORRUPTION)
+	{
+		// VEH handlers shouldn't do this in general, but it's not like we can make things much worse at this point anyways.
+		if (detail::seh_filter(Pointers, CURRENT_FUNCTION_NAME, {}) == EXCEPTION_EXECUTE_HANDLER)
+			std::_Exit(EXIT_FAILURE);
+	}
+
+	return EXCEPTION_CONTINUE_SEARCH;
+}
+
+vectored_exception_handler::vectored_exception_handler():
+	m_Handler(AddVectoredExceptionHandler(false, vectored_exception_handler_impl))
+{
+}
+
+vectored_exception_handler::~vectored_exception_handler()
+{
+	RemoveVectoredExceptionHandler(m_Handler);
 }
 
 namespace detail
@@ -1325,33 +1490,37 @@ namespace detail
 
 	int seh_filter(EXCEPTION_POINTERS const* const Info, std::string_view const Function, Plugin const* const Module)
 	{
-		if (HandleSehExceptions)
+		if (!HandleSehExceptions)
 		{
-			const exception_context Context(*Info);
+			restore_system_exception_handler();
+			return EXCEPTION_CONTINUE_SEARCH;
+		}
 
-			if (static_cast<NTSTATUS>(Info->ExceptionRecord->ExceptionCode) == EXCEPTION_STACK_OVERFLOW)
+		set_fp_exceptions(false);
+		const exception_context Context(*Info);
+
+		if (static_cast<NTSTATUS>(Info->ExceptionRecord->ExceptionCode) == EXCEPTION_STACK_OVERFLOW)
+		{
+			bool Result = false;
 			{
-				bool Result = false;
+				os::thread(os::thread::mode::join, [&]
 				{
-					os::thread(os::thread::mode::join, [&]
-					{
-						os::debug::set_thread_name(L"Stack overflow handler");
-						Result = handle_seh_exception(Context, Function, Module);
-					});
-				}
-
-				StackOverflowHappened = true;
-
-				if (Result)
-				{
-					return EXCEPTION_EXECUTE_HANDLER;
-				}
+					os::debug::set_thread_name(L"Stack overflow handler");
+					Result = handle_seh_exception(Context, Function, Module);
+				});
 			}
-			else
+
+			StackOverflowHappened = true;
+
+			if (Result)
 			{
-				if (handle_seh_exception(Context, Function, Module))
-					return EXCEPTION_EXECUTE_HANDLER;
+				return EXCEPTION_EXECUTE_HANDLER;
 			}
+		}
+		else
+		{
+			if (handle_seh_exception(Context, Function, Module))
+				return EXCEPTION_EXECUTE_HANDLER;
 		}
 
 		restore_system_exception_handler();
@@ -1360,7 +1529,7 @@ namespace detail
 
 	int seh_thread_filter(std::exception_ptr& Ptr, EXCEPTION_POINTERS const* const Info)
 	{
-		// SEH transport between threads is currenly implemented in terms of C++ exceptions, so it requires both
+		// SEH transport between threads is currently implemented in terms of C++ exceptions, so it requires both
 		if (!(HandleSehExceptions && HandleCppExceptions))
 		{
 			restore_system_exception_handler();
@@ -1403,9 +1572,7 @@ namespace detail
 
 TEST_CASE("fourcc")
 {
-	static_assert(fourcc("CPLG"sv) == 0x474C5043);
-	static_assert(fourcc("avc1"sv) == 0x31637661);
-
-	REQUIRE(true);
+	STATIC_REQUIRE(fourcc("CPLG"sv) == 0x474C5043);
+	STATIC_REQUIRE(fourcc("avc1"sv) == 0x31637661);
 }
 #endif

@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "vmenu.hpp"
 #include "vmenu2.hpp"
+#include "tracer.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -148,7 +149,18 @@ namespace tests
 	static void cpp_std_bad_alloc()
 	{
 		// Less than the physical limit to leave some space for a service block, if any
-		const auto Ptr = std::make_unique<char[]>(std::numeric_limits<size_t>::max() - 1024 * 1024);
+		volatile const auto Size = std::numeric_limits<ptrdiff_t>::max() - 1024 * 1024;
+		[[maybe_unused]]
+		volatile const auto Ptr = new char[Size];
+		delete[] Ptr;
+	}
+
+	static void cpp_bad_malloc()
+	{
+		// Less than the physical limit to leave some space for a service block, if any
+		volatile const auto Size = std::numeric_limits<ptrdiff_t>::max() - 1024 * 1024;
+		if (volatile const auto Ptr = static_cast<char*>(malloc(Size)))
+			free(Ptr);
 	}
 
 	[[noreturn]]
@@ -175,6 +187,12 @@ namespace tests
 	}
 
 	[[noreturn]]
+	static void cpp_abort()
+	{
+		std::abort();
+	}
+
+	[[noreturn]]
 	static void cpp_terminate()
 	{
 		std::terminate();
@@ -197,8 +215,25 @@ namespace tests
 			c C;
 			throw MAKE_FAR_EXCEPTION(L"Regular exception"s);
 		}
-		catch(...)
+		catch (...)
 		{
+		}
+	}
+
+	static void cpp_noexcept_throw()
+	{
+		try
+		{
+			const auto do_throw = []{ throw MAKE_FAR_EXCEPTION(L"throw from a noexcept function"); };
+
+			[&]() noexcept
+			{
+				do_throw();
+			}();
+		}
+		catch (far_exception const&)
+		{
+			assert(false);
 		}
 	}
 
@@ -261,6 +296,11 @@ namespace tests
 		const auto Func = printf;
 		Func({});
 #endif
+	}
+
+	static void cpp_assert()
+	{
+		assert(true == false);
 	}
 
 	static void seh_access_violation_read()
@@ -335,23 +375,32 @@ namespace tests
 		volatile const auto Result = std::numeric_limits<int>::min() / Denominator;
 	}
 
-	WARNING_PUSH()
-	WARNING_DISABLE_MSC(4717) // 'function': recursive on all control paths, function will cause runtime stack overflow
-	WARNING_DISABLE_CLANG("-Winfinite-recursion")
-
 	static void seh_stack_overflow()
 	{
 		volatile char Buffer[10240];
 		Buffer[0] = 1;
 
-		seh_stack_overflow();
+		// Prevent the compiler from detecting recursion on all control paths:
+		volatile const auto Condition = true;
+		if (Condition)
+			seh_stack_overflow();
 
 		// A "side effect" to prevent deletion of this function call due to C4718.
 		// After the recursive call to prevent the tail call optimisation.
 		Sleep(Buffer[0]);
 	}
 
-	WARNING_POP()
+	[[noreturn]]
+	static void seh_heap_corruption()
+	{
+		// Using low level functions to avoid access violations in debug blocks
+		const auto m = HeapAlloc(GetProcessHeap(), 0, 42);
+
+		for (;;)
+		{
+			HeapFree(GetProcessHeap(), 0, m);
+		}
+	}
 
 	static void seh_fp_divide_by_zero()
 	{
@@ -406,37 +455,66 @@ namespace tests
 		RaiseException(-1, 0, 0, {});
 	}
 
+	static void seh_unhandled()
+	{
+		os::thread Thread(os::thread::mode::join, [&]
+		{
+			os::debug::set_thread_name(L"Unhandled exception test");
+			RaiseException(-1, 0, 0, {});
+		});
+	}
+
 	static void debug_bounds_check()
 	{
 		[[maybe_unused]] std::vector<int> v(1);
-WARNING_PUSH()
-WARNING_DISABLE_GCC("-Warray-bounds")
-		v[1] = 42;
-WARNING_POP()
+		const volatile size_t Index = 1;
+		v[Index] = 42;
 	}
 
 	static void debug_bounds_check_as_stack()
 	{
 		[[maybe_unused]] int v[1];
 		const volatile size_t Index = 1;
-WARNING_PUSH()
-WARNING_DISABLE_GCC("-Warray-bounds")
 		v[Index] = 42;
-WARNING_POP()
 	}
 
 	static void debug_bounds_check_as_heap()
 	{
 		[[maybe_unused]] std::vector<int> v(1);
-WARNING_PUSH()
-WARNING_DISABLE_GCC("-Warray-bounds")
-		v.data()[1] = 42;
-WARNING_POP()
+		const volatile size_t Index = 1;
+		v.data()[Index] = 42;
 	}
+}
+
+static bool trace()
+{
+	static auto Processing = false;
+
+	if (Processing)
+		return false;
+
+	Processing = true;
+	SCOPE_EXIT{ Processing = false; };
+
+	const auto Menu = VMenu2::create(L"Current stack"s, {}, ScrY - 4);
+	Menu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
+	Menu->SetPosition({ -1, -1, 0, 0 });
+
+	tracer.get_symbols({}, os::debug::current_stack(), [&](string_view const Line)
+	{
+		Menu->AddItem(string(Line));
+	});
+
+	Menu->Run();
+
+	return true;
 }
 
 static bool ExceptionTestHook(Manager::Key const& key)
 {
+	if (any_of(key(), KEY_CTRLALTF1, KEY_RCTRLRALTF1, KEY_CTRLRALTF1, KEY_RCTRLALTF1))
+		return trace();
+
 	if (none_of(key(), KEY_CTRLALTAPPS, KEY_RCTRLRALTAPPS, KEY_CTRLRALTAPPS, KEY_RCTRLALTAPPS))
 		return false;
 
@@ -458,13 +536,17 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::cpp_std_nested,               L"C++ nested std::exception"sv },
 		{ tests::cpp_std_nested_thread,        L"C++ nested std::exception (thread)"sv },
 		{ tests::cpp_std_bad_alloc,            L"C++ std::bad_alloc"sv },
+		{ tests::cpp_bad_malloc,               L"C++ malloc failure"sv },
 		{ tests::cpp_unknown,                  L"C++ unknown exception"sv },
 		{ tests::cpp_unknown_nested,           L"C++ unknown exception (nested)"sv },
+		{ tests::cpp_abort,                    L"C++ abort"sv },
 		{ tests::cpp_terminate,                L"C++ terminate"sv },
 		{ tests::cpp_terminate_unwind,         L"C++ terminate unwind"sv },
+		{ tests::cpp_noexcept_throw,           L"C++ noexcept throw"sv },
 		{ tests::cpp_pure_virtual_call,        L"C++ pure virtual call"sv },
 		{ tests::cpp_memory_leak,              L"C++ memory leak"sv },
 		{ tests::cpp_invalid_parameter,        L"C++ invalid parameter"sv },
+		{ tests::cpp_assert,                   L"C++ assert"sv },
 		{ tests::seh_access_violation_read,    L"SEH access violation (read)"sv },
 		{ tests::seh_access_violation_write,   L"SEH access violation (write)"sv },
 		{ tests::seh_access_violation_execute, L"SEH access violation (execute)"sv },
@@ -472,6 +554,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::seh_divide_by_zero_thread,    L"SEH divide by zero (thread)"sv },
 		{ tests::seh_int_overflow,             L"SEH int overflow"sv },
 		{ tests::seh_stack_overflow,           L"SEH stack overflow"sv },
+		{ tests::seh_heap_corruption,          L"SEH heap corruption"sv },
 		{ tests::seh_fp_divide_by_zero,        L"SEH floating-point divide by zero"sv },
 		{ tests::seh_fp_overflow,              L"SEH floating-point overflow"sv },
 		{ tests::seh_fp_underflow,             L"SEH floating-point underflow"sv },
@@ -479,6 +562,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::seh_breakpoint,               L"SEH breakpoint"sv },
 		{ tests::seh_alignment_fault,          L"SEH alignment fault"sv },
 		{ tests::seh_unknown,                  L"SEH unknown"sv },
+		{ tests::seh_unhandled,                L"SEH unhandled"sv },
 		{ tests::debug_bounds_check,           L"Debug bounds check"sv },
 		{ tests::debug_bounds_check_as_stack,  L"Debug bounds check stack (ASAN)"sv },
 		{ tests::debug_bounds_check_as_heap,   L"Debug bounds check heap (ASAN)"sv },

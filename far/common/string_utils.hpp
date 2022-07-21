@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "type_traits.hpp"
 #include "utility.hpp"
 
+#include <algorithm>
+#include <array>
 #include <numeric>
 #include <string>
 #include <string_view>
@@ -49,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 template<typename string_type>
-auto copy_string(string_type const& Str, typename string_type::value_type* Destination)
+auto copy_string(string_type const& Str, typename string_type::value_type* const Destination)
 {
 	return Destination + Str.copy(Destination, Str.npos);
 }
@@ -108,7 +110,7 @@ using null_terminated = null_terminated_t<wchar_t>;
 class string_copyref
 {
 public:
-	string_copyref(std::wstring_view Str) noexcept:
+	string_copyref(std::wstring_view const Str) noexcept:
 		m_Str(Str)
 	{
 	}
@@ -229,7 +231,7 @@ namespace detail
 {
 	template<typename begin_iterator, typename end_iterator>
 	[[nodiscard]]
-	size_t get_space_count(begin_iterator Begin, end_iterator End) noexcept
+	size_t get_space_count(begin_iterator const Begin, end_iterator const End) noexcept
 	{
 		return std::find_if_not(Begin, End, std::iswspace) - Begin;
 	}
@@ -237,36 +239,48 @@ namespace detail
 
 namespace inplace
 {
-	inline void cut_left(std::wstring& Str, size_t MaxWidth)
+	inline void cut_left(std::wstring& Str, size_t const MaxWidth) noexcept
 	{
 		if (Str.size() > MaxWidth)
 			Str.erase(0, Str.size() - MaxWidth);
 	}
 
-	inline void cut_right(std::wstring& Str, size_t MaxWidth)
+	constexpr inline void cut_left(std::wstring_view& Str, size_t const MaxWidth) noexcept
+	{
+		if (Str.size() > MaxWidth)
+			Str.remove_prefix(Str.size() - MaxWidth);
+	}
+
+	inline void cut_right(std::wstring& Str, size_t const MaxWidth) noexcept
 	{
 		if (Str.size() > MaxWidth)
 			Str.resize(MaxWidth);
 	}
 
-	inline void pad_left(std::wstring& Str, size_t MinWidth, wchar_t Padding = L' ')
+	constexpr inline void cut_right(std::wstring_view& Str, size_t const MaxWidth) noexcept
+	{
+		if (Str.size() > MaxWidth)
+			Str.remove_suffix(Str.size() - MaxWidth);
+	}
+
+	inline void pad_left(std::wstring& Str, size_t const MinWidth, wchar_t const Padding = L' ')
 	{
 		if (Str.size() < MinWidth)
 			Str.insert(0, MinWidth - Str.size(), Padding);
 	}
 
-	inline void pad_right(std::wstring& Str, size_t MinWidth, wchar_t Padding = L' ')
+	inline void pad_right(std::wstring& Str, size_t const MinWidth, wchar_t const Padding = L' ')
 	{
 		if (Str.size() < MinWidth)
 			Str.append(MinWidth - Str.size(), Padding);
 	}
 
-	inline void fit_to_left(std::wstring& Str, size_t Size)
+	inline void fit_to_left(std::wstring& Str, size_t const Size)
 	{
 		Str.size() < Size? pad_right(Str, Size) : cut_right(Str, Size);
 	}
 
-	inline void fit_to_center(std::wstring& Str, size_t Size)
+	inline void fit_to_center(std::wstring& Str, size_t const Size)
 	{
 		const auto StrSize = Str.size();
 
@@ -281,7 +295,7 @@ namespace inplace
 		}
 	}
 
-	inline void fit_to_right(std::wstring& Str, size_t Size)
+	inline void fit_to_right(std::wstring& Str, size_t const Size)
 	{
 		Str.size() < Size? pad_left(Str, Size) : cut_right(Str, Size);
 	}
@@ -361,65 +375,63 @@ namespace copy
 }
 
 [[nodiscard]]
-inline auto cut_left(std::wstring Str, size_t MaxWidth)
+inline auto cut_left(std::wstring Str, size_t const MaxWidth)
 {
 	inplace::cut_left(Str, MaxWidth);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto cut_right(std::wstring Str, size_t MaxWidth)
+inline auto cut_right(std::wstring Str, size_t const MaxWidth)
 {
 	inplace::cut_right(Str, MaxWidth);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto cut_left(std::wstring_view Str, size_t MaxWidth) noexcept
+constexpr inline auto cut_left(std::wstring_view Str, size_t const MaxWidth) noexcept
 {
-	if (Str.size() > MaxWidth)
-		Str.remove_prefix(Str.size() - MaxWidth);
+	inplace::cut_left(Str, MaxWidth);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto cut_right(std::wstring_view Str, size_t MaxWidth) noexcept
+constexpr inline auto cut_right(std::wstring_view Str, size_t const MaxWidth) noexcept
 {
-	if (Str.size() > MaxWidth)
-		Str.remove_suffix(Str.size() - MaxWidth);
+	inplace::cut_right(Str, MaxWidth);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto pad_left(std::wstring Str, size_t MinWidth, wchar_t Padding = L' ')
+inline auto pad_left(std::wstring Str, size_t const MinWidth, wchar_t Padding = L' ')
 {
 	inplace::pad_left(Str, MinWidth, Padding);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto pad_right(std::wstring Str, size_t MinWidth, wchar_t Padding = L' ')
+inline auto pad_right(std::wstring Str, size_t const MinWidth, wchar_t Padding = L' ')
 {
 	inplace::pad_right(Str, MinWidth, Padding);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto fit_to_left(std::wstring Str, size_t Size)
+inline auto fit_to_left(std::wstring Str, const size_t Size)
 {
 	inplace::fit_to_left(Str, Size);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto fit_to_center(std::wstring Str, size_t Size)
+inline auto fit_to_center(std::wstring Str, const size_t Size)
 {
 	inplace::fit_to_center(Str, Size);
 	return Str;
 }
 
 [[nodiscard]]
-inline auto fit_to_right(std::wstring Str, size_t Size)
+inline auto fit_to_right(std::wstring Str, const size_t Size)
 {
 	inplace::fit_to_right(Str, Size);
 	return Str;
@@ -491,31 +503,31 @@ inline auto quote_space(std::wstring_view const Str)
 }
 
 [[nodiscard]]
-inline bool equal(const std::wstring_view Str1, const std::wstring_view Str2) noexcept
+constexpr inline bool equal(const std::wstring_view Str1, const std::wstring_view Str2) noexcept
 {
 	return Str1 == Str2;
 }
 
 [[nodiscard]]
-inline bool starts_with(const std::wstring_view Str, const std::wstring_view Prefix) noexcept
+constexpr inline bool starts_with(const std::wstring_view Str, const std::wstring_view Prefix) noexcept
 {
 	return Str.size() >= Prefix.size() && Str.substr(0, Prefix.size()) == Prefix;
 }
 
 [[nodiscard]]
-inline bool starts_with(const std::wstring_view Str, wchar_t const Prefix) noexcept
+constexpr inline bool starts_with(const std::wstring_view Str, wchar_t const Prefix) noexcept
 {
 	return !Str.empty() && Str.front() == Prefix;
 }
 
 [[nodiscard]]
-inline bool ends_with(const std::wstring_view Str, const std::wstring_view Suffix) noexcept
+constexpr inline bool ends_with(const std::wstring_view Str, const std::wstring_view Suffix) noexcept
 {
 	return Str.size() >= Suffix.size() && Str.substr(Str.size() - Suffix.size()) == Suffix;
 }
 
 [[nodiscard]]
-inline bool ends_with(const std::wstring_view Str, wchar_t const Suffix) noexcept
+constexpr inline bool ends_with(const std::wstring_view Str, wchar_t const Suffix) noexcept
 {
 	return !Str.empty() && Str.back() == Suffix;
 }
@@ -598,10 +610,10 @@ std::wstring join(const container& Container, std::wstring_view const Separator)
 }
 
 [[nodiscard]]
-inline std::pair<std::wstring_view, std::wstring_view> split(std::wstring_view const Str, wchar_t const Separator = L'=') noexcept
+inline auto split(std::wstring_view const Str, wchar_t const Separator = L'=') noexcept
 {
 	const auto SeparatorPos = Str.find(Separator);
-	return { Str.substr(0, SeparatorPos), Str.substr(SeparatorPos == Str.npos? Str.size() : SeparatorPos + 1) };
+	return std::pair{ Str.substr(0, SeparatorPos), Str.substr(SeparatorPos == Str.npos? Str.size() : SeparatorPos + 1) };
 }
 
 
@@ -622,7 +634,7 @@ auto operator+(const std::basic_string_view<T> Lhs, const std::basic_string<T>& 
 
 template<typename T>
 [[nodiscard]]
-auto operator+(const std::basic_string_view<T> Lhs, std::basic_string_view<T> Rhs)
+auto operator+(const std::basic_string_view<T> Lhs, const std::basic_string_view<T> Rhs)
 {
 	return concat(Lhs, Rhs);
 }
@@ -636,7 +648,7 @@ auto operator+(const std::basic_string_view<T> Lhs, T const Rhs)
 
 template<typename T>
 [[nodiscard]]
-auto operator+(T const Lhs, std::basic_string_view<T> Rhs)
+auto operator+(T const Lhs, std::basic_string_view<T> const Rhs)
 {
 	return concat(Lhs, Rhs);
 }
@@ -684,7 +696,6 @@ struct string_comparer
 {
 #ifdef __cpp_lib_generic_unordered_lookup
 	using is_transparent = void;
-	using transparent_key_equal = std::equal_to<>;
 	using generic_key = std::wstring_view;
 #else
 	using generic_key = string;
@@ -697,7 +708,7 @@ struct string_comparer
 	}
 
 	[[nodiscard]]
-	bool operator()(const std::wstring_view Str1, const std::wstring_view Str2) const
+	constexpr bool operator()(const std::wstring_view Str1, const std::wstring_view Str2) const noexcept
 	{
 		return Str1 == Str2;
 	}

@@ -35,10 +35,10 @@ struct FarColor
     <div class=dfndescr>Может быть комбинацией следующих значений (тип <a name="FARCOLORFLAGS">FARCOLORFLAGS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_4BIT">FCF_FG_4BIT</a></td>
-    <td class="cont" width="60%">цвет символа задан стандартным кодом в 4 бита</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCF_BG_4BIT">FCF_BG_4BIT</a></td>
-    <td class="cont" width="60%">цвет фона символа задан стандартным кодом в 4 бита</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_INDEX">FCF_FG_INDEX</a></td>
+    <td class="cont" width="60%">цвет символа задан индексом в стандартной палитре NT (0 - 15) или VT100 (16 - 255)</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FCF_BG_INDEX">FCF_BG_INDEX</a></td>
+    <td class="cont" width="60%">цвет фона символа задан индексом в стандартной палитре NT (0 - 15) или VT100 (16 - 255)</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_BOLD">FCF_FG_BOLD</a></td>
     <td class="cont" width="60%">расширенные атрибуты, задан стиль: "жирный" символ</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_ITALIC">FCF_FG_ITALIC</a></td>
@@ -50,16 +50,16 @@ struct FarColor
     </table>
     </div>
   <div class=dfn>ForegroundColor</div>
-    <div class=dfndescr>Цвет символа в формате <code>0xAABBGGRR</code> или индекс <code>0xAA000000</code> - <code>0xAA00000F</code>, если установлен флаг FCF_FG_4BIT.</div>
+    <div class=dfndescr>Цвет символа в формате <code>0xAABBGGRR</code> или индекс <code>0xAA000000</code> - <code>0xAA0000FF</code>, если установлен флаг FCF_FG_INDEX.</div>
   <div class=dfn>BackgroundColor</div>
-    <div class=dfndescr>Цвет символа в формате <code>0xAABBGGRR</code> или индекс <code>0xAA000000</code> - <code>0xAA00000F</code>, если установлен флаг FCF_BG_4BIT.</div>
+    <div class=dfndescr>Цвет символа в формате <code>0xAABBGGRR</code> или индекс <code>0xAA000000</code> - <code>0xAA0000FF</code>, если установлен флаг FCF_BG_INDEX.</div>
   <div class=dfn>Reserved</div>
     <div class=dfndescr>Не используется и должен быть установлен в 0.</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-При формировании цвета для стандартной консоли Windows обязательно указывайте флаги <code>FCF_FG_4BIT</code> и <code>FCF_BG_4BIT</code>.
+При формировании цвета для стандартной консоли Windows обязательно указывайте флаги <code>FCF_FG_INDEX</code> и <code>FCF_BG_INDEX</code>.
 </div>
 
 <div class=descr>

@@ -79,6 +79,33 @@ void* AbstractSettings::Allocate(size_t Size)
 	return m_Data.back().data();
 }
 
+class FarSettingsNameItems
+{
+public:
+	NONCOPYABLE(FarSettingsNameItems);
+	MOVE_CONSTRUCTIBLE(FarSettingsNameItems);
+
+	FarSettingsNameItems() = default;
+
+	void add(FarSettingsName& Item, string&& String)
+	{
+		m_Strings.emplace_front(std::move(String));
+		Item.Name = m_Strings.front().c_str();
+		m_Items.emplace_back(Item);
+	}
+
+	void get(FarSettingsEnum& e) const
+	{
+		e.Count = m_Items.size();
+		e.Items = e.Count? m_Items.data() : nullptr;
+	}
+
+private:
+	std::vector<FarSettingsName> m_Items;
+	// String address must always remain valid, hence the list
+	std::forward_list<string> m_Strings;
+};
+
 class PluginSettings final: public AbstractSettings
 {
 public:
@@ -90,8 +117,6 @@ public:
 	bool Enum(FarSettingsEnum& Enum) override;
 	bool Delete(const FarSettingsValue& Value) override;
 	int SubKey(const FarSettingsValue& Value, bool bCreate) override;
-
-	class FarSettingsNameItems;
 
 private:
 	std::vector<FarSettingsNameItems> m_Enum;
@@ -110,7 +135,7 @@ std::unique_ptr<AbstractSettings> AbstractSettings::CreatePluginSettings(const U
 	{
 		return std::make_unique<PluginSettings>(pPlugin, Local);
 	}
-	catch (const far_exception&)
+	catch (far_exception const&)
 	{
 		return nullptr;
 	}
@@ -228,58 +253,7 @@ bool PluginSettings::Get(FarSettingsItem& Item)
 	return false;
 }
 
-class PluginSettings::FarSettingsNameItems
-{
-public:
-	NONCOPYABLE(FarSettingsNameItems);
-	MOVE_CONSTRUCTIBLE(FarSettingsNameItems);
-
-	FarSettingsNameItems() = default;
-
-	void add(FarSettingsName& Item, string&& String)
-	{
-		m_Strings.emplace_front(std::move(String));
-		Item.Name = m_Strings.front().c_str();
-		m_Items.emplace_back(Item);
-	}
-
-	void get(FarSettingsEnum& e) const
-	{
-		e.Count = m_Items.size();
-		e.Items = e.Count? m_Items.data() : nullptr;
-	}
-
-private:
-	std::vector<FarSettingsName> m_Items;
-	// String address must always remain valid, hence the list
-	std::forward_list<string> m_Strings;
-};
-
-class FarSettings final: public AbstractSettings
-{
-public:
-	bool Set(const FarSettingsItem& Item) override;
-	bool Get(FarSettingsItem& Item) override;
-	bool Enum(FarSettingsEnum& Enum) override;
-	bool Delete(const FarSettingsValue& Value) override;
-	int SubKey(const FarSettingsValue& Value, bool bCreate) override;
-
-	class FarSettingsHistoryItems;
-
-private:
-	bool FillHistory(int Type, string_view HistoryName, FarSettingsEnum& Enum, function_ref<bool(history_record_type)> Filter);
-	std::vector<FarSettingsHistoryItems> m_Enum;
-	std::vector<string> m_Keys;
-};
-
-
-std::unique_ptr<AbstractSettings> AbstractSettings::CreateFarSettings()
-{
-	return std::make_unique<FarSettings>();
-}
-
-
-class FarSettings::FarSettingsHistoryItems
+class FarSettingsHistoryItems
 {
 public:
 	NONCOPYABLE(FarSettingsHistoryItems);
@@ -310,6 +284,27 @@ private:
 	// String address must always remain valid, hence the list
 	std::forward_list<string> m_Names, m_Params, m_Files;
 };
+
+class FarSettings final: public AbstractSettings
+{
+public:
+	bool Set(const FarSettingsItem& Item) override;
+	bool Get(FarSettingsItem& Item) override;
+	bool Enum(FarSettingsEnum& Enum) override;
+	bool Delete(const FarSettingsValue& Value) override;
+	int SubKey(const FarSettingsValue& Value, bool bCreate) override;
+
+private:
+	bool FillHistory(int Type, string_view HistoryName, FarSettingsEnum& Enum, function_ref<bool(history_record_type)> Filter);
+	std::vector<FarSettingsHistoryItems> m_Enum;
+	std::vector<string> m_Keys;
+};
+
+
+std::unique_ptr<AbstractSettings> AbstractSettings::CreateFarSettings()
+{
+	return std::make_unique<FarSettings>();
+}
 
 bool PluginSettings::Enum(FarSettingsEnum& Enum)
 {

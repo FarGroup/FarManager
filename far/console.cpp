@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "encoding.hpp"
 #include "char_width.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.version.hpp"
@@ -64,6 +65,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "format.hpp"
 
 //----------------------------------------------------------------------------
+
+#define ESC L"\x1b"
+#define CSI ESC L"["
 
 static bool sWindowMode;
 static bool sEnableVirtualTerminal;
@@ -143,7 +147,7 @@ wchar_t ReplaceControlCharacter(wchar_t const Char)
 	case 0x9C:
 	case 0x9D:
 	case 0x9E:
-	case 0x9F: return L'�'; // replacement character
+	case 0x9F: return encoding::replace_char;
 
 	default:   return Char;
 	}
@@ -217,21 +221,44 @@ void sanitise_pair(FAR_CHAR_INFO& First, FAR_CHAR_INFO& Second)
 bool get_console_screen_buffer_info(HANDLE ConsoleOutput, CONSOLE_SCREEN_BUFFER_INFO* ConsoleScreenBufferInfo)
 {
 	if (!GetConsoleScreenBufferInfo(ConsoleOutput, ConsoleScreenBufferInfo))
+	{
+		LOGERROR(L"GetConsoleScreenBufferInfo(): {}"sv, last_error());
 		return false;
+	}
 
 	const auto& Window = ConsoleScreenBufferInfo->srWindow;
 
 	// Mantis#3919: Windows 10 is a PITA
-	if (Window.Left > Window.Right)
+	if (Window.Left > Window.Right || Window.Top > Window.Bottom)
 	{
-		auto NewWindow = Window;
-		NewWindow.Left = 0;
-		NewWindow.Right = ConsoleScreenBufferInfo->dwSize.X - 1;
+		LOGERROR(L"Console window state is broken, trying to repair"sv);
 
-		SetConsoleWindowInfo(ConsoleOutput, true, &NewWindow);
+		auto NewWindow = Window;
+
+		if (Window.Left > Window.Right)
+		{
+			NewWindow.Left = 0;
+			NewWindow.Right = std::min(ConsoleScreenBufferInfo->dwMaximumWindowSize.X - 1, ConsoleScreenBufferInfo->dwSize.X - 1);
+		}
+
+		// https://forum.farmanager.com/viewtopic.php?p=170779#p170779
+		if (Window.Top > Window.Bottom)
+		{
+			NewWindow.Bottom = ConsoleScreenBufferInfo->dwSize.Y - 1;
+			NewWindow.Top = std::clamp(NewWindow.Top, short{}, NewWindow.Bottom);
+		}
+
+		if (!SetConsoleWindowInfo(ConsoleOutput, true, &NewWindow))
+		{
+			LOGERROR(L"SetConsoleWindowInfo(): {}"sv, last_error());
+			return false;
+		}
 
 		if (!GetConsoleScreenBufferInfo(ConsoleOutput, ConsoleScreenBufferInfo))
+		{
+			LOGERROR(L"GetConsoleScreenBufferInfo(): {}"sv, last_error());
 			return false;
+		}
 	}
 
 	return true;
@@ -313,12 +340,24 @@ namespace console_detail
 
 	bool console::Allocate() const
 	{
-		return AllocConsole() != FALSE;
+		if (!AllocConsole())
+		{
+			LOGERROR(L"AllocConsole(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	}
 
 	bool console::Free() const
 	{
-		return FreeConsole() != FALSE;
+		if (!FreeConsole())
+		{
+			LOGERROR(L"FreeConsole(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	}
 
 	HANDLE console::GetInputHandle() const
@@ -388,7 +427,8 @@ namespace console_detail
 		{
 			WindowCoord.x = std::max(WindowCoord.x, static_cast<int>(csbi.dwSize.X));
 			WindowCoord.y = std::max(WindowCoord.y, static_cast<int>(csbi.dwSize.Y));
-			SetScreenBufferSize(WindowCoord);
+			if (!SetScreenBufferSize(WindowCoord))
+				return false;
 
 			if (WindowCoord.x > csbi.dwSize.X)
 			{
@@ -416,13 +456,17 @@ namespace console_detail
 				// Make sure the cursor is within the new buffer
 				if (!(Info.dwCursorPosition.X < Size.x && Info.dwCursorPosition.Y < Size.y))
 				{
-					SetConsoleCursorPosition(
+					if (!SetConsoleCursorPosition(
 						Out,
 						{
 							std::min(Info.dwCursorPosition.X, static_cast<SHORT>(Size.x - 1)),
 							std::min(Info.dwCursorPosition.Y, static_cast<SHORT>(Size.y - 1))
 						}
-					);
+					))
+					{
+						LOGERROR(L"SetConsoleCursorPosition(): {}"sv, last_error());
+						return false;
+					}
 				}
 
 				// Make sure the window is within the new buffer:
@@ -435,12 +479,17 @@ namespace console_detail
 					Rect.top = std::max(0, Rect.bottom - Height);
 					Rect.left = std::max(0, Rect.right - Width);
 
-					SetWindowRect(Rect);
+					if (!SetWindowRect(Rect))
+						return false;
 				}
 			}
 		}
 
-		const auto Result = SetConsoleScreenBufferSize(Out, make_coord(Size)) != FALSE;
+		if (!SetConsoleScreenBufferSize(Out, make_coord(Size)))
+		{
+			LOGERROR(L"SetConsoleScreenBufferSize(): {}"sv, last_error());
+			return false;
+		}
 
 		// After changing the buffer size the window size is not always correct
 		if (IsVtSupported())
@@ -452,7 +501,7 @@ namespace console_detail
 			}
 		}
 
-		return Result;
+		return true;
 	}
 
 	bool console::GetWindowRect(rectangle& ConsoleWindow) const
@@ -468,7 +517,13 @@ namespace console_detail
 	bool console::SetWindowRect(rectangle const& ConsoleWindow) const
 	{
 		const auto Rect = make_rect(ConsoleWindow);
-		return SetConsoleWindowInfo(GetOutputHandle(), true, &Rect) != FALSE;
+		if (!SetConsoleWindowInfo(GetOutputHandle(), true, &Rect))
+		{
+			LOGERROR(L"SetConsoleWindowInfo(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	}
 
 	bool console::GetWorkingRect(rectangle& WorkingRect) const
@@ -488,7 +543,11 @@ namespace console_detail
 	{
 		// Don't use GetConsoleTitle here, it's buggy.
 		string Title;
-		os::GetWindowText(GetWindow(), Title);
+		if (!os::GetWindowText(GetWindow(), Title))
+		{
+			LOGERROR(L"GetWindowText(): {}"sv, last_error());
+		}
+
 		return Title;
 	}
 
@@ -500,14 +559,23 @@ namespace console_detail
 	bool console::SetTitle(string_view const Title) const
 	{
 		m_Title = Title;
-		return SetConsoleTitle(m_Title.c_str()) != FALSE;
+		if (!SetConsoleTitle(m_Title.c_str()))
+		{
+			LOGERROR(L"SetConsoleTitle(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	}
 
 	bool console::GetKeyboardLayoutName(string &strName) const
 	{
 		wchar_t Buffer[KL_NAMELENGTH];
 		if (!imports.GetConsoleKeyboardLayoutNameW(Buffer))
+		{
+			LOGERROR(L"GetConsoleKeyboardLayoutNameW(): {}"sv, last_error());
 			return false;
+		}
 
 		strName = Buffer;
 		return true;
@@ -520,7 +588,13 @@ namespace console_detail
 
 	bool console::SetInputCodepage(uintptr_t Codepage) const
 	{
-		return SetConsoleCP(Codepage) != FALSE;
+		if (!SetConsoleCP(Codepage))
+		{
+			LOGERROR(L"SetConsoleCP(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	}
 
 	uintptr_t console::GetOutputCodepage() const
@@ -530,22 +604,46 @@ namespace console_detail
 
 	bool console::SetOutputCodepage(uintptr_t Codepage) const
 	{
-		return SetConsoleOutputCP(Codepage) != FALSE;
+		if (!SetConsoleOutputCP(Codepage))
+		{
+			LOGERROR(L"SetConsoleOutputCP(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	}
 
 	bool console::SetControlHandler(PHANDLER_ROUTINE HandlerRoutine, bool Add) const
 	{
-		return SetConsoleCtrlHandler(HandlerRoutine, Add) != FALSE;
+		if (!SetConsoleCtrlHandler(HandlerRoutine, Add))
+		{
+			LOGERROR(L"SetConsoleCtrlHandler(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	}
 
 	bool console::GetMode(HANDLE ConsoleHandle, DWORD& Mode) const
 	{
-		return GetConsoleMode(ConsoleHandle, &Mode) != FALSE;
+		if (!GetConsoleMode(ConsoleHandle, &Mode))
+		{
+			LOGERROR(L"GetConsoleMode(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	}
 
 	bool console::SetMode(HANDLE ConsoleHandle, DWORD Mode) const
 	{
-		return SetConsoleMode(ConsoleHandle, Mode) != FALSE;
+		if (!SetConsoleMode(ConsoleHandle, Mode))
+		{
+			LOGERROR(L"SetConsoleMode(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	}
 
 	bool console::IsVtSupported() const
@@ -578,7 +676,10 @@ namespace console_detail
 	static bool get_current_console_font(HANDLE OutputHandle, CONSOLE_FONT_INFO& FontInfo)
 	{
 		if (!GetCurrentConsoleFont(OutputHandle, FALSE, &FontInfo))
+		{
+			LOGERROR(L"GetCurrentConsoleFont(): {}"sv, last_error());
 			return false;
+		}
 
 		// in XP FontInfo.dwFontSize contains something else than the size in pixels.
 		FontInfo.dwFontSize = GetConsoleFontSize(OutputHandle, FontInfo.nFont);
@@ -599,13 +700,19 @@ namespace console_detail
 		// Note: using the current mouse position rather than what's in the wheel event
 		POINT CursorPos;
 		if (!GetCursorPos(&CursorPos))
+		{
+			LOGWARNING(L"GetCursorPos(): {}"sv, last_error());
 			return;
+		}
 
 		const auto WindowHandle = ::console.GetWindow();
 
 		auto RelativePos = CursorPos;
 		if (!ScreenToClient(WindowHandle, &RelativePos))
+		{
+			LOGWARNING(L"ScreenToClient(): {}"sv, last_error());
 			return;
+		}
 
 		const auto OutputHandle = ::console.GetOutputHandle();
 
@@ -653,7 +760,10 @@ namespace console_detail
 	{
 		DWORD dwNumberOfEventsRead = 0;
 		if (!PeekConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead))
+		{
+			LOGERROR(L"PeekConsoleInput(): {}"sv, last_error());
 			return false;
+		}
 
 		NumberOfEventsRead = dwNumberOfEventsRead;
 
@@ -674,7 +784,10 @@ namespace console_detail
 	{
 		DWORD dwNumberOfEventsRead = 0;
 		if (!ReadConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsRead))
+		{
+			LOGERROR(L"ReadConsoleInput(): {}"sv, last_error());
 			return false;
+		}
 
 		NumberOfEventsRead = dwNumberOfEventsRead;
 
@@ -707,17 +820,29 @@ namespace console_detail
 			}
 		}
 		DWORD dwNumberOfEventsWritten = 0;
-		const auto Result = WriteConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsWritten) != FALSE;
-		NumberOfEventsWritten = dwNumberOfEventsWritten;
-		return Result;
+		SCOPE_EXIT{ NumberOfEventsWritten = dwNumberOfEventsWritten; };
+
+		if (!WriteConsoleInput(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &dwNumberOfEventsWritten))
+		{
+			LOGERROR(L"WriteConsoleInput(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	}
 
 	static bool ReadOutputImpl(CHAR_INFO* const Buffer, point const BufferSize, rectangle& ReadRegion)
 	{
 		auto Rect = make_rect(ReadRegion);
-		const auto Result = ReadConsoleOutput(::console.GetOutputHandle(), Buffer, make_coord(BufferSize), {}, &Rect) != FALSE;
-		ReadRegion = Rect;
-		return Result;
+		SCOPE_EXIT{ ReadRegion = Rect; };
+
+		if (!ReadConsoleOutput(::console.GetOutputHandle(), Buffer, make_coord(BufferSize), {}, &Rect))
+		{
+			LOGERROR(L"ReadConsoleOutput(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	}
 
 	bool console::ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, point const BufferCoord, rectangle const& ReadRegionRelative) const
@@ -770,10 +895,20 @@ namespace console_detail
 		}
 
 		auto ConsoleBufferIterator = ConsoleBuffer.cbegin();
+
+		const auto replace_replacement_if_needed = [IsDefaultReplacementWide = char_width::is_wide(encoding::replace_char)](CHAR_INFO const& Cell)
+		{
+			// In some cases the host replaces various non-BMP codepoints with FFFD,
+			// but always treats it as a narrow character, even when it's not (e.g. in MS Gothic).
+			// Reading those FFFDs and writing them back breaks the layout spectacularly.
+			// Replacing them with '?' is the easiest way to fix it.
+			return IsDefaultReplacementWide && Cell.Char.UnicodeChar == encoding::replace_char && !(Cell.Attributes & COMMON_LVB_SBCSDBCS)? L'?' : Cell.Char.UnicodeChar;
+		};
+
 		for_submatrix(Buffer, SubRect, [&](FAR_CHAR_INFO& i)
 		{
 			const auto& Cell = *ConsoleBufferIterator++;
-			i = { Cell.Char.UnicodeChar, colors::ConsoleColorToFarColor(Cell.Attributes) };
+			i = { replace_replacement_if_needed(Cell), colors::NtColorToFarColor(Cell.Attributes) };
 		});
 
 		return true;
@@ -800,19 +935,38 @@ namespace console_detail
 
 	static const struct
 	{
-		string_view Normal, Intense, TrueColour;
+		string_view Normal, Intense, ExtendedColour;
 		COLORREF FarColor::* Color;
 		FARCOLORFLAGS Flags;
 	}
 	ColorsMapping[]
 	{
-		{ L"3"sv,  L"9"sv, L"38"sv, &FarColor::ForegroundColor, FCF_FG_4BIT },
-		{ L"4"sv, L"10"sv, L"48"sv, &FarColor::BackgroundColor, FCF_BG_4BIT },
+		{ L"3"sv,  L"9"sv, L"38"sv, &FarColor::ForegroundColor, FCF_FG_INDEX },
+		{ L"4"sv, L"10"sv, L"48"sv, &FarColor::BackgroundColor, FCF_BG_INDEX },
+	};
+
+	static const struct
+	{
+		FARCOLORFLAGS Style;
+		string_view On, Off;
+	}
+	StyleMapping[]
+	{
+		{ FCF_FG_BOLD,         L"1"sv,     L"22"sv },
+		{ FCF_FG_ITALIC,       L"3"sv,     L"23"sv },
+		{ FCF_FG_UNDERLINE,    L"4"sv,     L"24"sv },
+		{ FCF_FG_UNDERLINE2,   L"21"sv,    L"24"sv },
+		{ FCF_FG_OVERLINE,     L"53"sv,    L"55"sv },
+		{ FCF_FG_STRIKEOUT,    L"9"sv,     L"29"sv },
+		{ FCF_FG_FAINT,        L"2"sv,     L"22"sv },
+		{ FCF_FG_BLINK,        L"5"sv,     L"25"sv },
+		{ FCF_FG_INVERSE,      L"7"sv,     L"27"sv },
+		{ FCF_FG_INVISIBLE,    L"8"sv,     L"28"sv },
 	};
 
 	static void make_vt_attributes(const FarColor& Attributes, string& Str, std::optional<FarColor> const& LastColor)
 	{
-		append(Str, L"\033["sv);
+		append(Str, CSI ""sv);
 
 		for (const auto& i: ColorsMapping)
 		{
@@ -820,12 +974,16 @@ namespace console_detail
 
 			if (Attributes.Flags & i.Flags)
 			{
-				append(Str, ColorPart & FOREGROUND_INTENSITY? i.Intense : i.Normal, vt_color_index(ColorPart));
+				const auto Index = colors::index_value(ColorPart);
+				if (Index < 16)
+					append(Str, ColorPart & FOREGROUND_INTENSITY? i.Intense : i.Normal, vt_color_index(Index));
+				else
+					format_to(Str, FSTR(L"{};5;{}"sv), i.ExtendedColour, Index);
 			}
 			else
 			{
 				const union { COLORREF Color; rgba RGBA; } Value { ColorPart };
-				format_to(Str, FSTR(L"{};2;{};{};{}"sv), i.TrueColour, Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
+				format_to(Str, FSTR(L"{};2;{};{};{}"sv), i.ExtendedColour, Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
 			}
 
 			Str += L';';
@@ -833,28 +991,19 @@ namespace console_detail
 
 		Str.pop_back();
 
-		const auto set_style = [&](FARCOLORFLAGS const Style, string_view const On, string_view const Off)
+		for (const auto& [Style, On, Off]: StyleMapping)
 		{
 			if (Attributes.Flags & Style)
 			{
 				if (!LastColor.has_value() || !(LastColor->Flags & Style))
-					Str += On;
+					append(Str, L';', On);
 			}
 			else
 			{
 				if (LastColor.has_value() && LastColor->Flags & Style)
-					Str += Off;
+					append(Str, L';', Off);
 			}
-		};
-
-		set_style(FCF_FG_BOLD,       L";1"sv,  L";22"sv);
-		set_style(FCF_FG_ITALIC,     L";3"sv,  L";23"sv);
-		set_style(FCF_FG_UNDERLINE,  L";4"sv,  L";24"sv);
-		set_style(FCF_FG_UNDERLINE2, L";21"sv, L";24"sv);
-		set_style(FCF_FG_OVERLINE,   L";53"sv, L";55"sv);
-		set_style(FCF_FG_STRIKEOUT,  L";9"sv,  L";29"sv);
-		set_style(FCF_FG_FAINT,      L";2"sv,  L";22"sv);
-		set_style(FCF_FG_BLINK,      L";5"sv,  L";25"sv);
+		}
 
 		Str += L'm';
 	}
@@ -881,10 +1030,26 @@ namespace console_detail
 						Cell.Char = bad_char_replacement;
 						flags::clear(Cell.Attributes.Flags, COMMON_LVB_TRAILING_BYTE);
 					}
-					else if (Cell.Char == *LeadingChar)
+					else
+WARNING_PUSH()
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=80635
+WARNING_DISABLE_GCC("-Wmaybe-uninitialized")
+
+						if (Cell.Char == *LeadingChar)
+WARNING_POP()
 					{
-						LeadingChar.reset();
-						continue;
+						if (Cell.Char == encoding::replace_char && !char_width::is_wide(encoding::replace_char))
+						{
+							// As of 13 Jul 2022 ReadConsoleOutputW doesn't work with surrogate pairs (see microsoft/terminal#10810)
+							// It returns two FFFDs instead with leading and trailing flags.
+							// We can't just drop the trailing one here because FFFD isn't always wide and the layout might get broken.
+							Cell.Char = L' ';
+						}
+						else
+						{
+							LeadingChar.reset();
+							continue;
+						}
 					}
 				}
 				else if (!n && encoding::utf16::is_low_surrogate(Cell.Char))
@@ -906,7 +1071,14 @@ namespace console_detail
 						LeadingChar = Cell.Char;
 					}
 				}
-				else if (n == Input.size() - 1 && encoding::utf16::is_high_surrogate(Cell.Char))
+				else if (
+					n == Input.size() - 1 &&
+					(
+						encoding::utf16::is_high_surrogate(Cell.Char) ||
+						// FFFD can be wide too
+						(Cell.Char == encoding::replace_char && char_width::is_wide(encoding::replace_char))
+					)
+				)
 				{
 					Cell.Char = bad_char_replacement;
 				}
@@ -922,6 +1094,9 @@ namespace console_detail
 			{
 				const auto Pair = encoding::utf16::to_surrogate(Cell.Attributes.Reserved[0]);
 				append(Str, Pair.first, Pair.second);
+
+				if (char_width::is_half_width_surrogate_broken())
+					append(Str, CSI L"1D"sv); // Yuck
 			}
 			else
 			{
@@ -949,13 +1124,21 @@ namespace console_detail
 			if (!::console.GetCursorInfo(SavedCursorInfo))
 				return false;
 
-			if (
-				// Hide cursor
-				!::console.SetCursorInfo({1}) ||
-				// Move the viewport down
-				!::console.SetCursorRealPosition({ 0, csbi.dwSize.Y - 1 }) ||
-				// Set cursor position within the viewport
-				!::console.SetCursorRealPosition({ WriteRegion.left, WriteRegion.top }))
+			// Ideally this should be filtered out earlier
+			if (WriteRegion.left > csbi.dwSize.X - 1 || WriteRegion.top > csbi.dwSize.Y - 1)
+				return false;
+
+
+			// Hide cursor
+			if (!::console.SetCursorInfo({1}))
+				return false;
+
+			// Move the viewport down
+			if (!::console.SetCursorRealPosition({0, csbi.dwSize.Y - 1}))
+				return false;
+
+			// Set cursor position within the viewport
+			if (!::console.SetCursorRealPosition({WriteRegion.left, WriteRegion.top}))
 				return false;
 
 			SCOPE_EXIT
@@ -993,17 +1176,40 @@ namespace console_detail
 
 			std::optional<FarColor> LastColor;
 
-			for (const auto& i: irange(SubRect.top + 0, SubRect.bottom + 1))
-			{
-				if (i != SubRect.top)
-					format_to(Str, FSTR(L"\033[{};{}H"sv), CursorPosition.y + 1 + (i - SubRect.top), CursorPosition.x + 1);
+			point ViewportSize;
+			if (!::console.GetSize(ViewportSize))
+				return false;
 
-				make_vt_sequence(Buffer[i].subspan(SubRect.left, SubRect.width()), Str, LastColor);
+			// If SubRect is too tall (e.g. when we flushing the old content of console resize), the rest will be dropped.
+			// VT is a bloody joke.
+			for (int SubrectOffset = 0; SubrectOffset < SubRect.height(); SubrectOffset += ViewportSize.y)
+			{
+				if (SubrectOffset)
+				{
+					// Move the viewport down
+					if (!::console.SetCursorRealPosition({0, csbi.dwSize.Y - 1}))
+						return false;
+					// Set cursor position within the viewport
+					if (!::console.SetCursorRealPosition({ WriteRegion.left, WriteRegion.top + SubrectOffset }))
+						return false;
+				}
+
+				for (const auto& i: irange(SubRect.top + SubrectOffset, std::min(SubRect.top + SubrectOffset + ViewportSize.y, SubRect.bottom + 1)))
+				{
+					if (i != SubRect.top + SubrectOffset)
+						format_to(Str, FSTR(CSI L"{};{}H"sv), CursorPosition.y + 1 + (i - SubrectOffset - SubRect.top), CursorPosition.x + 1);
+
+					make_vt_sequence(Buffer[i].subspan(SubRect.left, SubRect.width()), Str, LastColor);
+				}
+
+				if (!::console.Write(Str))
+					return false;
+
+				Str.clear();
+
 			}
 
-			append(Str, L"\033[0m"sv);
-
-			return ::console.Write(Str);
+			return ::console.Write(CSI L"0m"sv);
 		}
 
 		class cursor_suppressor
@@ -1057,7 +1263,13 @@ namespace console_detail
 				CursorSuppressor.emplace();
 
 			auto SysWriteRegion = make_rect(WriteRegion);
-			return WriteConsoleOutput(::console.GetOutputHandle(), Buffer, make_coord(BufferSize), {}, &SysWriteRegion) != FALSE;
+			if (!WriteConsoleOutput(::console.GetOutputHandle(), Buffer, make_coord(BufferSize), {}, &SysWriteRegion))
+			{
+				LOGERROR(L"WriteConsoleOutput(): {}"sv, last_error());
+				return false;
+			}
+
+			return true;
 		}
 
 		static bool WriteOutputNTImplDebug(CHAR_INFO* const Buffer, point const BufferSize, rectangle const& WriteRegion)
@@ -1181,7 +1393,13 @@ namespace console_detail
 
 		static bool SetTextAttributesNT(const FarColor& Attributes)
 		{
-			return SetConsoleTextAttribute(::console.GetOutputHandle(), colors::FarColorToConsoleColor(Attributes)) != FALSE;
+			if (!SetConsoleTextAttribute(::console.GetOutputHandle(), colors::FarColorToConsoleColor(Attributes)))
+			{
+				LOGERROR(L"SetConsoleTextAttribute(): {}"sv, last_error());
+				return false;
+			}
+
+			return true;
 		}
 	};
 
@@ -1220,12 +1438,18 @@ namespace console_detail
 		if (GetMode(InputHandle, Mode))
 		{
 			if (!ReadConsole(InputHandle, Buffer.data(), static_cast<DWORD>(Buffer.size()), &NumberOfCharsRead, nullptr))
+			{
+				LOGERROR(L"ReadConsole(): {}"sv, last_error());
 				return false;
+			}
 		}
 		else
 		{
 			if (!ReadFile(InputHandle, Buffer.data(), static_cast<DWORD>(Buffer.size() * sizeof(wchar_t)), &NumberOfCharsRead, nullptr))
+			{
+				LOGERROR(L"ReadFile(): {}"sv, last_error());
 				return false;
+			}
 
 			NumberOfCharsRead /= sizeof(wchar_t);
 		}
@@ -1241,7 +1465,15 @@ namespace console_detail
 
 		DWORD Mode;
 		if (GetMode(OutputHandle, Mode))
-			return WriteConsole(OutputHandle, Str.data(), static_cast<DWORD>(Str.size()), &NumberOfCharsWritten, nullptr) != FALSE;
+		{
+			if (!WriteConsole(OutputHandle, Str.data(), static_cast<DWORD>(Str.size()), &NumberOfCharsWritten, nullptr))
+			{
+				LOGERROR(L"WriteConsole(): {}"sv, last_error());
+				return false;
+			}
+
+			return true;
+		}
 
 		// Redirected output
 
@@ -1279,7 +1511,7 @@ namespace console_detail
 		if (!get_console_screen_buffer_info(GetOutputHandle(), &ConsoleScreenBufferInfo))
 			return false;
 
-		Attributes = colors::ConsoleColorToFarColor(ConsoleScreenBufferInfo.wAttributes);
+		Attributes = colors::NtColorToFarColor(ConsoleScreenBufferInfo.wAttributes);
 		return true;
 	}
 
@@ -1293,12 +1525,24 @@ namespace console_detail
 
 	bool console::GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const
 	{
-		return GetConsoleCursorInfo(GetOutputHandle(), &ConsoleCursorInfo) != FALSE;
+		if (!GetConsoleCursorInfo(GetOutputHandle(), &ConsoleCursorInfo))
+		{
+			LOGERROR(L"GetConsoleCursorInfo(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	}
 
 	bool console::SetCursorInfo(const CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const
 	{
-		return SetConsoleCursorInfo(GetOutputHandle(), &ConsoleCursorInfo) != FALSE;
+		if (!SetConsoleCursorInfo(GetOutputHandle(), &ConsoleCursorInfo))
+		{
+			LOGERROR(L"SetConsoleCursorInfo(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	}
 
 	bool console::GetCursorPosition(point& Position) const
@@ -1386,7 +1630,10 @@ namespace console_detail
 
 		std::vector<wchar_t> ExeBuffer(ExeLength / sizeof(wchar_t) + 1); // +1 for double \0
 		if (!GetConsoleAliasExes(ExeBuffer.data(), ExeLength))
+		{
+			LOGERROR(L"GetConsoleAliasExes(): {}"sv, last_error());
 			return {};
+		}
 
 		auto Aliases = std::make_unique<console_aliases::data>();
 
@@ -1398,7 +1645,10 @@ namespace console_detail
 			const auto AliasesLength = GetConsoleAliasesLength(ExeNamePtr);
 			AliasesBuffer.resize(AliasesLength / sizeof(wchar_t) + 1); // +1 for double \0
 			if (!GetConsoleAliases(AliasesBuffer.data(), AliasesLength, ExeNamePtr))
+			{
+				LOGERROR(L"GetConsoleAliases(): {}"sv, last_error());
 				continue;
+			}
 
 			std::pair<string, std::vector<std::pair<string, string>>> ExeData;
 			ExeData.first = ExeNamePtr;
@@ -1436,7 +1686,13 @@ namespace console_detail
 
 	bool console::GetDisplayMode(DWORD& Mode) const
 	{
-		return GetConsoleDisplayMode(&Mode) != FALSE;
+		if (!GetConsoleDisplayMode(&Mode))
+		{
+			LOGERROR(L"GetConsoleDisplayMode(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	}
 
 	point console::GetLargestWindowSize() const
@@ -1457,7 +1713,10 @@ namespace console_detail
 	bool console::SetActiveScreenBuffer(HANDLE ConsoleOutput)
 	{
 		if (!SetConsoleActiveScreenBuffer(ConsoleOutput))
+		{
+			LOGERROR(L"SetConsoleActiveScreenBuffer(): {}"sv, last_error());
 			return false;
+		}
 
 		m_ActiveConsoleScreenBuffer = ConsoleOutput;
 		return true;
@@ -1581,11 +1840,17 @@ namespace console_detail
 #ifdef _WIN64
 		return false;
 #else
-		CONSOLE_SCREEN_BUFFER_INFOEX csbiex{ sizeof(csbiex) };
-		if (imports.GetConsoleScreenBufferInfoEx && imports.GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbiex))
-			return csbiex.bFullscreenSupported != FALSE;
+		if (!imports.GetConsoleScreenBufferInfoEx)
+			return true;
 
-		return true;
+		CONSOLE_SCREEN_BUFFER_INFOEX csbiex{ sizeof(csbiex) };
+		if (!imports.GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbiex))
+		{
+			LOGWARNING(L"GetConsoleScreenBufferInfoEx(): {}"sv, last_error());
+			return true;
+		}
+
+		return csbiex.bFullscreenSupported != FALSE;
 #endif
 	}
 
@@ -1739,17 +2004,34 @@ namespace console_detail
 		if (!m_WidthTestScreen)
 		{
 			m_WidthTestScreen.reset(CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, {}, {}, CONSOLE_TEXTMODE_BUFFER, {}));
-			SetConsoleScreenBufferSize(m_WidthTestScreen.native_handle(), { 10, 1 });
+
+			const auto TestScreenX = 20, TestScreenY = 1;
+			const SMALL_RECT WindowInfo{ 0, 0, TestScreenX - 1, TestScreenY - 1 };
+			if (!SetConsoleWindowInfo(m_WidthTestScreen.native_handle(), true, &WindowInfo))
+			{
+				LOGWARNING(L"SetConsoleWindowInfo(): {}"sv, last_error());
+			}
+
+			if (!SetConsoleScreenBufferSize(m_WidthTestScreen.native_handle(), { TestScreenX, TestScreenY }))
+			{
+				LOGWARNING(L"SetConsoleScreenBufferSize(): {}"sv, last_error());
+			}
 		}
 
 		if (!SetConsoleCursorPosition(m_WidthTestScreen.native_handle(), {}))
+		{
+			LOGWARNING(L"SetConsoleCursorPosition(): {}"sv, last_error());
 			return false;
+		}
 
 		DWORD Written;
 		const auto Pair = encoding::utf16::to_surrogate(Codepoint);
 		const std::array Chars{ Pair.first, Pair.second };
 		if (!WriteConsole(m_WidthTestScreen.native_handle(), Chars.data(), Pair.second? 2 : 1, &Written, {}))
+		{
+			LOGWARNING(L"WriteConsole(): {}"sv, last_error());
 			return false;
+		}
 
 		CONSOLE_SCREEN_BUFFER_INFO Info;
 		if (!get_console_screen_buffer_info(m_WidthTestScreen.native_handle(), &Info))
@@ -1765,7 +2047,10 @@ namespace console_detail
 
 		CONSOLE_SCREEN_BUFFER_INFOEX csbi{ sizeof(csbi) };
 		if (!imports.GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbi))
+		{
+			LOGERROR(L"GetConsoleScreenBufferInfoEx(): {}"sv, last_error());
 			return false;
+		}
 
 		std::copy(ALL_CONST_RANGE(csbi.ColorTable), Palette.begin());
 
@@ -1794,7 +2079,13 @@ namespace console_detail
 
 	bool console::SetCursorRealPosition(point const Position) const
 	{
-		return SetConsoleCursorPosition(GetOutputHandle(), make_coord(Position)) != FALSE;
+		if (!SetConsoleCursorPosition(GetOutputHandle(), make_coord(Position)))
+		{
+			LOGERROR(L"SetConsoleCursorPosition(): {}"sv, last_error());
+			return false;
+		}
+
+		return true;
 	}
 }
 
@@ -1896,7 +2187,7 @@ public:
 		m_Err(std::wcerr, m_BufErr),
 		m_Log(std::wclog, m_BufLog)
 	{
-		auto Color = colors::ConsoleColorToFarColor(F_LIGHTRED);
+		auto Color = colors::NtColorToFarColor(F_LIGHTRED);
 		colors::make_transparent(Color.BackgroundColor);
 		m_BufErr.color(Color);
 	}

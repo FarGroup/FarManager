@@ -117,95 +117,98 @@ private: static RETTYPE CALLTYPE stub_##NAME(__VA_ARGS__);\
 private: struct name_##NAME { static constexpr auto name = #NAME; };\
 public: const unique_function_pointer<name_##NAME, stub_##NAME> NAME{m_##MODULE}
 
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQueryDirectoryFile, HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQueryInformationFile, HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtSetInformationFile, HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQueryObject, HANDLE Handle, OBJECT_INFORMATION_CLASS ObjectInformationClass, PVOID ObjectInformation, ULONG ObjectInformationLength, PULONG ReturnLength);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtOpenSymbolicLinkObject, PHANDLE LinkHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQuerySymbolicLinkObject, HANDLE LinkHandle, PUNICODE_STRING LinkTarget, PULONG ReturnedLength);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtClose, HANDLE Handle);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, RtlGetLastNtStatus);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, RtlNtStatusToDosError, NTSTATUS Status);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, RtlGetVersion, PRTL_OSVERSIONINFOW VersionInformation);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, BOOLEAN, RtlAcquireResourceExclusive, PRTL_RESOURCE Res, BOOLEAN WaitForAccess);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, BOOLEAN, RtlAcquireResourceShared, PRTL_RESOURCE Res, BOOLEAN WaitForAccess);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, void, RtlInitializeResource, PRTL_RESOURCE Res);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, void, RtlReleaseResource, PRTL_RESOURCE Res);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, void, RtlDeleteResource, PRTL_RESOURCE Res);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQueryInformationProcess, HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQuerySystemInformation, SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, WORD, RtlCaptureStackBackTrace, DWORD FramesToSkip, DWORD FramesToCapture, PVOID* BackTrace, PDWORD BackTraceHash);
+	// NT4 < 2k < XP < 2k3 < Vista < 7 < 8 < 10
+	// Rock bottom is 2k
+
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQueryDirectoryFile, HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan); // NT4
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQueryInformationFile, HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass); // NT4
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtSetInformationFile, HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass); // NT4
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQueryObject, HANDLE Handle, OBJECT_INFORMATION_CLASS ObjectInformationClass, PVOID ObjectInformation, ULONG ObjectInformationLength, PULONG ReturnLength); // NT4
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtOpenSymbolicLinkObject, PHANDLE LinkHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes); // NT4
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQuerySymbolicLinkObject, HANDLE LinkHandle, PUNICODE_STRING LinkTarget, PULONG ReturnedLength); // NT4
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtClose, HANDLE Handle); // NT4
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, RtlGetLastNtStatus); // XP
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, ULONG, RtlNtStatusToDosError, NTSTATUS Status); // NT4
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, RtlGetVersion, PRTL_OSVERSIONINFOW VersionInformation); // 2k
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, BOOLEAN, RtlAcquireResourceExclusive, PRTL_RESOURCE Res, BOOLEAN WaitForAccess); // NT4
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, BOOLEAN, RtlAcquireResourceShared, PRTL_RESOURCE Res, BOOLEAN WaitForAccess); // NT4
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, void, RtlInitializeResource, PRTL_RESOURCE Res); // NT4
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, void, RtlReleaseResource, PRTL_RESOURCE Res); // NT4
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, void, RtlDeleteResource, PRTL_RESOURCE Res); // NT4
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQueryInformationProcess, HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength); // NT4
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtQuerySystemInformation, SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation, ULONG SystemInformationLength, PULONG ReturnLength); // NT4
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, WORD, RtlCaptureStackBackTrace, DWORD FramesToSkip, DWORD FramesToCapture, PVOID* BackTrace, PDWORD BackTraceHash); // NT4
 #ifndef _WIN64
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtWow64QueryInformationProcess64, HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength);
-	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtWow64ReadVirtualMemory64, HANDLE Process, ULONG64 BaseAddress, LPVOID Buffer, ULONG64 Size, PULONG64 NumberOfBytesRead);
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtWow64QueryInformationProcess64, HANDLE ProcessHandle, PROCESSINFOCLASS ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength); // 2k3
+	DECLARE_IMPORT_FUNCTION(ntdll, NTAPI, NTSTATUS, NtWow64ReadVirtualMemory64, HANDLE Process, ULONG64 BaseAddress, LPVOID Buffer, ULONG64 Size, PULONG64 NumberOfBytesRead); // 2k3
 #endif
 
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, GetConsoleKeyboardLayoutNameW, LPWSTR Buffer);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOLEAN, CreateSymbolicLinkW, LPCWSTR SymlinkFileName, LPCWSTR TargetFileName, DWORD Flags);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, HANDLE, FindFirstFileNameW, LPCWSTR FileName, DWORD Flags, LPDWORD StringLength, LPWSTR LinkName);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, FindNextFileNameW, HANDLE FindStream, LPDWORD StringLength, PWCHAR LinkName);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, HANDLE, FindFirstStreamW, LPCWSTR FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID FindStreamData, DWORD Flags);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, FindNextStreamW, HANDLE FindStream, LPVOID FindStreamData);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, DWORD, GetFinalPathNameByHandleW, HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, GetVolumePathNamesForVolumeNameW, LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, GetPhysicallyInstalledSystemMemory, PULONGLONG TotalMemoryInKilobytes);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, HeapSetInformation, HANDLE HeapHandle, HEAP_INFORMATION_CLASS HeapInformationClass, PVOID HeapInformation, SIZE_T HeapInformationLength);
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, GetConsoleKeyboardLayoutNameW, LPWSTR Buffer); // NT4
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOLEAN, CreateSymbolicLinkW, LPCWSTR SymlinkFileName, LPCWSTR TargetFileName, DWORD Flags); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, HANDLE, FindFirstFileNameW, LPCWSTR FileName, DWORD Flags, LPDWORD StringLength, LPWSTR LinkName); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, FindNextFileNameW, HANDLE FindStream, LPDWORD StringLength, PWCHAR LinkName); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, HANDLE, FindFirstStreamW, LPCWSTR FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID FindStreamData, DWORD Flags); // 2k3
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, FindNextStreamW, HANDLE FindStream, LPVOID FindStreamData); // 2k3
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, DWORD, GetFinalPathNameByHandleW, HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, GetVolumePathNamesForVolumeNameW, LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength); // 2k3
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, GetPhysicallyInstalledSystemMemory, PULONGLONG TotalMemoryInKilobytes); // Vista SP1
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, HeapSetInformation, HANDLE HeapHandle, HEAP_INFORMATION_CLASS HeapInformationClass, PVOID HeapInformation, SIZE_T HeapInformationLength); // 2k + KB816542
 #ifndef _WIN64
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, IsWow64Process, HANDLE Process, PBOOL Wow64Process);
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, IsWow64Process, HANDLE Process, PBOOL Wow64Process); // 2k3
 #endif
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, GetNamedPipeServerProcessId, HANDLE Pipe, PULONG ServerProcessId);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, CancelSynchronousIo, HANDLE Thread);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, SetConsoleKeyShortcuts, BOOL Set, BYTE ReserveKeys, LPVOID AppKeys, DWORD NumAppKeys);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, GetConsoleScreenBufferInfoEx, HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, QueryFullProcessImageNameW, HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, TzSpecificLocalTimeToSystemTime, const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, InitializeSRWLock, PSRWLOCK SRWLock);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, AcquireSRWLockExclusive, PSRWLOCK SRWLock);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, AcquireSRWLockShared, PSRWLOCK SRWLock);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, ReleaseSRWLockExclusive, PSRWLOCK SRWLock);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, ReleaseSRWLockShared, PSRWLOCK SRWLock);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOLEAN, TryAcquireSRWLockExclusive, PSRWLOCK SRWLock);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOLEAN, TryAcquireSRWLockShared, PSRWLOCK SRWLock);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, GetSystemTimePreciseAsFileTime, LPFILETIME SystemTimeAsFileTime);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, int, CompareStringOrdinal, LPCWCH String1, int Count1, LPCWCH String2, int Count2, BOOL IgnoreCase);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, HRESULT, SetThreadDescription, HANDLE Thread, PCWSTR ThreadDescription);
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, HRESULT, GetThreadDescription, HANDLE Thread, PWSTR* ThreadDescription);
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, GetNamedPipeServerProcessId, HANDLE Pipe, PULONG ServerProcessId); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, CancelSynchronousIo, HANDLE Thread); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, SetConsoleKeyShortcuts, BOOL Set, BYTE ReserveKeys, LPVOID AppKeys, DWORD NumAppKeys); // NT4
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, GetConsoleScreenBufferInfoEx, HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, QueryFullProcessImageNameW, HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOL, TzSpecificLocalTimeToSystemTime, const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime); // XP
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, InitializeSRWLock, PSRWLOCK SRWLock); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, AcquireSRWLockExclusive, PSRWLOCK SRWLock); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, AcquireSRWLockShared, PSRWLOCK SRWLock); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, ReleaseSRWLockExclusive, PSRWLOCK SRWLock); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, ReleaseSRWLockShared, PSRWLOCK SRWLock); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOLEAN, TryAcquireSRWLockExclusive, PSRWLOCK SRWLock); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOLEAN, TryAcquireSRWLockShared, PSRWLOCK SRWLock); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, GetSystemTimePreciseAsFileTime, LPFILETIME SystemTimeAsFileTime); // 8
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, int, CompareStringOrdinal, LPCWCH String1, int Count1, LPCWCH String2, int Count2, BOOL IgnoreCase); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, HRESULT, SetThreadDescription, HANDLE Thread, PCWSTR ThreadDescription); // 10
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, HRESULT, GetThreadDescription, HANDLE Thread, PWSTR* ThreadDescription); // 10
 
-	DECLARE_IMPORT_FUNCTION(shell32, STDAPICALLTYPE, HRESULT, SHCreateAssociationRegistration, REFIID riid, void** ppv);
+	DECLARE_IMPORT_FUNCTION(shell32, STDAPICALLTYPE, HRESULT, SHCreateAssociationRegistration, REFIID riid, void** ppv); // Vista
 
-	DECLARE_IMPORT_FUNCTION(user32, WINAPI, HPOWERNOTIFY, RegisterPowerSettingNotification, HANDLE hRecipient, LPCGUID PowerSettingGuid, DWORD Flags);
-	DECLARE_IMPORT_FUNCTION(user32, WINAPI, BOOL, UnregisterPowerSettingNotification, HPOWERNOTIFY Handle);
+	DECLARE_IMPORT_FUNCTION(user32, WINAPI, HPOWERNOTIFY, RegisterPowerSettingNotification, HANDLE hRecipient, LPCGUID PowerSettingGuid, DWORD Flags); // Vista
+	DECLARE_IMPORT_FUNCTION(user32, WINAPI, BOOL, UnregisterPowerSettingNotification, HPOWERNOTIFY Handle); // Vista
 
-	DECLARE_IMPORT_FUNCTION(virtdisk, WINAPI, DWORD, GetStorageDependencyInformation, HANDLE ObjectHandle, GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed);
-	DECLARE_IMPORT_FUNCTION(virtdisk, WINAPI, DWORD, OpenVirtualDisk, PVIRTUAL_STORAGE_TYPE VirtualStorageType, PCWSTR Path, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, POPEN_VIRTUAL_DISK_PARAMETERS Parameters, PHANDLE Handle);
-	DECLARE_IMPORT_FUNCTION(virtdisk, WINAPI, DWORD, DetachVirtualDisk, HANDLE VirtualDiskHandle, DETACH_VIRTUAL_DISK_FLAG Flags, ULONG ProviderSpecificFlags);
+	DECLARE_IMPORT_FUNCTION(virtdisk, WINAPI, DWORD, GetStorageDependencyInformation, HANDLE ObjectHandle, GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed); // 7
+	DECLARE_IMPORT_FUNCTION(virtdisk, WINAPI, DWORD, OpenVirtualDisk, PVIRTUAL_STORAGE_TYPE VirtualStorageType, PCWSTR Path, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, POPEN_VIRTUAL_DISK_PARAMETERS Parameters, PHANDLE Handle); // 7
+	DECLARE_IMPORT_FUNCTION(virtdisk, WINAPI, DWORD, DetachVirtualDisk, HANDLE VirtualDiskHandle, DETACH_VIRTUAL_DISK_FLAG Flags, ULONG ProviderSpecificFlags); // 7
 
-	DECLARE_IMPORT_FUNCTION(rstrtmgr, WINAPI, DWORD, RmStartSession, DWORD *SessionHandle, DWORD SessionFlags, WCHAR strSessionKey[]);
-	DECLARE_IMPORT_FUNCTION(rstrtmgr, WINAPI, DWORD, RmEndSession, DWORD dwSessionHandle);
-	DECLARE_IMPORT_FUNCTION(rstrtmgr, WINAPI, DWORD, RmRegisterResources, DWORD dwSessionHandle, UINT nFiles, LPCWSTR rgsFilenames[], UINT nApplications, RM_UNIQUE_PROCESS rgApplications[], UINT nServices, LPCWSTR rgsServiceNames[]);
-	DECLARE_IMPORT_FUNCTION(rstrtmgr, WINAPI, DWORD, RmGetList, DWORD dwSessionHandle, UINT *pnProcInfoNeeded, UINT *pnProcInfo, RM_PROCESS_INFO rgAffectedApps[], LPDWORD lpdwRebootReasons);
+	DECLARE_IMPORT_FUNCTION(rstrtmgr, WINAPI, DWORD, RmStartSession, DWORD *SessionHandle, DWORD SessionFlags, WCHAR strSessionKey[]); // Vista
+	DECLARE_IMPORT_FUNCTION(rstrtmgr, WINAPI, DWORD, RmEndSession, DWORD dwSessionHandle); // Vista
+	DECLARE_IMPORT_FUNCTION(rstrtmgr, WINAPI, DWORD, RmRegisterResources, DWORD dwSessionHandle, UINT nFiles, LPCWSTR rgsFilenames[], UINT nApplications, RM_UNIQUE_PROCESS rgApplications[], UINT nServices, LPCWSTR rgsServiceNames[]); // Vista
+	DECLARE_IMPORT_FUNCTION(rstrtmgr, WINAPI, DWORD, RmGetList, DWORD dwSessionHandle, UINT *pnProcInfoNeeded, UINT *pnProcInfo, RM_PROCESS_INFO rgAffectedApps[], LPDWORD lpdwRebootReasons); // Vista
 
-	DECLARE_IMPORT_FUNCTION(netapi32, NET_API_FUNCTION, NET_API_STATUS, NetDfsGetInfo, LPWSTR DfsEntryPath, LPWSTR ServerName, LPWSTR ShareName, DWORD Level, LPBYTE* Buffer);
-	DECLARE_IMPORT_FUNCTION(netapi32, NET_API_FUNCTION, NET_API_STATUS, NetDfsGetClientInfo, LPWSTR DfsEntryPath, LPWSTR ServerName, LPWSTR ShareName, DWORD Level, LPBYTE* Buffer);
+	DECLARE_IMPORT_FUNCTION(netapi32, NET_API_FUNCTION, NET_API_STATUS, NetDfsGetInfo, LPWSTR DfsEntryPath, LPWSTR ServerName, LPWSTR ShareName, DWORD Level, LPBYTE* Buffer); // 2k
+	DECLARE_IMPORT_FUNCTION(netapi32, NET_API_FUNCTION, NET_API_STATUS, NetDfsGetClientInfo, LPWSTR DfsEntryPath, LPWSTR ServerName, LPWSTR ShareName, DWORD Level, LPBYTE* Buffer); // 2k
 
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, MiniDumpWriteDump, HANDLE Process, DWORD ProcessId, HANDLE File, MINIDUMP_TYPE DumpType, PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, StackWalk64, DWORD MachineType, HANDLE Process, HANDLE Thread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord, PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine, PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymInitialize, HANDLE Process, PCSTR UserSearchPath, BOOL InvadeProcess);
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymInitializeW, HANDLE Process, PCWSTR UserSearchPath, BOOL InvadeProcess);
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymCleanup, HANDLE Process);
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymFromAddr, HANDLE Process, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFO Symbol);
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymFromAddrW, HANDLE Process, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFOW Symbol);
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, DWORD, SymSetOptions, DWORD SymOptions);
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymGetSymFromAddr64, HANDLE Process, DWORD64 Addr, PDWORD64 Displacement, PIMAGEHLP_SYMBOL64 Symbol);
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymGetLineFromAddr64, HANDLE Process, DWORD64 Addr, PDWORD Displacement, PIMAGEHLP_LINE64 Line);
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymGetLineFromAddrW64, HANDLE Process, DWORD64 Addr, PDWORD Displacement, PIMAGEHLP_LINEW64 Line);
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymGetModuleInfoW64, HANDLE Process, DWORD64 Addr, PIMAGEHLP_MODULEW64 ModuleInfo);
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, PVOID, SymFunctionTableAccess64, HANDLE Process, DWORD64 AddrBase);
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, DWORD64, SymGetModuleBase64, HANDLE Process, DWORD64 Address);
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, DWORD, UnDecorateSymbolName, PCSTR Name, PSTR OutputString, DWORD MaxStringLength, DWORD Flags);
-	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, DWORD, UnDecorateSymbolNameW, PCWSTR Name, PWSTR OutputString, DWORD MaxStringLength, DWORD Flags);
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, MiniDumpWriteDump, HANDLE Process, DWORD ProcessId, HANDLE File, MINIDUMP_TYPE DumpType, PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, PMINIDUMP_CALLBACK_INFORMATION CallbackParam); // XP
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, StackWalk64, DWORD MachineType, HANDLE Process, HANDLE Thread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord, PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine, PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress); // 2k
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymInitialize, HANDLE Process, PCSTR UserSearchPath, BOOL InvadeProcess); // 2k
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymInitializeW, HANDLE Process, PCWSTR UserSearchPath, BOOL InvadeProcess); // Vista
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymCleanup, HANDLE Process); // 2k
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymFromAddr, HANDLE Process, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFO Symbol); // 2k
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymFromAddrW, HANDLE Process, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFOW Symbol); // Vista
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, DWORD, SymSetOptions, DWORD SymOptions); // 2k
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymGetSymFromAddr64, HANDLE Process, DWORD64 Addr, PDWORD64 Displacement, PIMAGEHLP_SYMBOL64 Symbol); // 2k
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymGetLineFromAddr64, HANDLE Process, DWORD64 Addr, PDWORD Displacement, PIMAGEHLP_LINE64 Line); // 2k
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymGetLineFromAddrW64, HANDLE Process, DWORD64 Addr, PDWORD Displacement, PIMAGEHLP_LINEW64 Line); // Vista
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, SymGetModuleInfoW64, HANDLE Process, DWORD64 Addr, PIMAGEHLP_MODULEW64 ModuleInfo); // 2k
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, PVOID, SymFunctionTableAccess64, HANDLE Process, DWORD64 AddrBase); // 2k
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, DWORD64, SymGetModuleBase64, HANDLE Process, DWORD64 Address); // 2k
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, DWORD, UnDecorateSymbolName, PCSTR Name, PSTR OutputString, DWORD MaxStringLength, DWORD Flags); // 2k
+	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, DWORD, UnDecorateSymbolNameW, PCWSTR Name, PWSTR OutputString, DWORD MaxStringLength, DWORD Flags); // Vista
 
-	DECLARE_IMPORT_FUNCTION(dwmapi, WINAPI, HRESULT, DwmGetWindowAttribute, HWND Hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute);
+	DECLARE_IMPORT_FUNCTION(dwmapi, WINAPI, HRESULT, DwmGetWindowAttribute, HWND Hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute); // Vista
 
 #undef DECLARE_IMPORT_FUNCTION
 };

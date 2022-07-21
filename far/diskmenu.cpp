@@ -579,7 +579,7 @@ static bool DisconnectDrive(panel_ptr Owner, const disk_item& item, VMenu2 &ChDi
 		EjectVolume(item.Path);
 		return true;
 	}
-	catch (const far_exception&)
+	catch (far_exception const&)
 	{
 		// запоминаем состояние панелей
 		const auto CMode = Owner->GetMode();
@@ -599,7 +599,7 @@ static bool DisconnectDrive(panel_ptr Owner, const disk_item& item, VMenu2 &ChDi
 				EjectVolume(item.Path);
 				return true;
 			}
-			catch (const far_exception& e)
+			catch (far_exception const& e)
 			{
 				// восстановим пути - это избавит нас от левых данных в панели.
 				if (AMode != panel_mode::PLUGIN_PANEL)
@@ -782,7 +782,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					if (TryReadLabel && DriveMode & DRIVE_SHOW_LABEL_USE_SHELL)
 					{
 						NewItem.Label = GetShellName(RootDirectory);
-						TryReadLabel = !NewItem.Label.empty();
+						TryReadLabel = NewItem.Label.empty();
 					}
 
 					const auto LabelPtr = TryReadLabel? &NewItem.Label : nullptr;

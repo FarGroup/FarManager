@@ -124,7 +124,7 @@ namespace path
 	[[nodiscard]]
 	string join(arg&& Arg, const args&... Args)
 	{
-		static_assert(sizeof...(Args));
+		static_assert(sizeof...(Args) > 0);
 
 		string Str(FWD(Arg));
 		detail::append_impl(Str, { detail::append_arg(Args)... });

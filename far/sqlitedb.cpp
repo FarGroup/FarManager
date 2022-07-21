@@ -499,7 +499,7 @@ public:
 		{
 			return copy_db_to_memory(Path, BusyHandler, WAL);
 		}
-		catch (const far_sqlite_exception& e)
+		catch (far_sqlite_exception const& e)
 		{
 			LOGWARNING(L"copy_db_to_memory({}): {}"sv, Path, e);
 			return open(memory_db_name, {});

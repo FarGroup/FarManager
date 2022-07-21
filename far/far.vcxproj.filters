@@ -53,6 +53,15 @@
     <ClCompile Include="codepage_selection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="color_picker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="color_picker_256.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="color_picker_rgb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="colormix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -512,6 +521,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="codepage_selection.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="color_picker.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="color_picker_256.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="color_picker_rgb.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="colormix.hpp">
@@ -1159,6 +1177,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="Far.red.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Far.log.ico">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="farversion.m4">

@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup Label="Globals">
+    <ProjectName>common_test</ProjectName>
+    <ProjectGuid>{459C0A10-7D18-4623-9FA9-1D5B6A587D40}</ProjectGuid>
+    <RootNamespace>common_test</RootNamespace>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+
+  <PropertyGroup Label="UserMacros">
+    <ProjectSpecificOutDirName>.</ProjectSpecificOutDirName>
+    <ProjectSpecificIntDirName>$(ProjectName)</ProjectSpecificIntDirName>
+  </PropertyGroup>
+
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(ProjectDir)..\_build\vc\config\common.props" />
+  </ImportGroup>
+
+  <PropertyGroup>
+    <OutDir>$(IntDir)</OutDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ClCompile Include="common\**\*.hpp" />
+  </ItemGroup>
+
+  <Import Project="$(ProjectDir)..\_build\vc\config\common.targets" />
+</Project>

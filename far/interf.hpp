@@ -274,7 +274,8 @@ class consoleicons: public singleton<consoleicons>
 	IMPLEMENTS_SINGLETON;
 
 public:
-	void set_icon();
+	void update_icon();
+	void set_icon(int IconId);
 	void restore_icon();
 
 	size_t size() const;

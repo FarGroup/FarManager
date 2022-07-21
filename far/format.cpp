@@ -46,11 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-string fmt::formatter<std::exception, wchar_t, void>::to_string(std::exception const& Value)
-{
-	return ::format(FSTR(L"std::exception: {}"sv), encoding::utf8::get_chars(Value.what()));
-}
-
 WARNING_PUSH(3)
 
 WARNING_DISABLE_GCC("-Wmissing-declarations")

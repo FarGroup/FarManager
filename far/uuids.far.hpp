@@ -47,6 +47,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace uuids::far
 {
+	// It looks like in VS2022 (at least 19.32, Release/x86) this symbol is merged by COMDAT folding (/OPT:ICF)
+	// with something from libvcruntime::wcschr of the same size, but a different alignment.
+	// Depending on which symbol is discarded, wcschr may or may not crash when accessing it.
+	// This manual alignment should at least make them compatible.
+	alignas(16)
 	constexpr inline auto
 		FarUuid = "00000000-0000-0000-0000-000000000000"_uuid;
 }

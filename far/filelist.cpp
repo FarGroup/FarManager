@@ -1925,7 +1925,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 							{
 								RefreshedPanel = Global->WindowManager->GetCurrentWindow()->GetType() != windowtype_editor;
 								const auto ShellEditor = FileEditor::create(strFileName, codepage, (LocalKey == KEY_SHIFTF4 ? FFILEEDIT_CANNEWFILE : 0) | FFILEEDIT_DISABLEHISTORY, -1, -1, &strPluginData);
-								if (-1 == ShellEditor->GetExitCode()) Global->WindowManager->ExecuteModal(ShellEditor);//OT
+								if (any_of(ShellEditor->GetExitCode(), -1, XC_OPEN_NEWINSTANCE)) Global->WindowManager->ExecuteModal(ShellEditor);//OT
 								UploadFile=ShellEditor->IsFileChanged() || NewFile;
 								Modaling = true;
 							}
@@ -2999,17 +2999,23 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		strSetDir = extract_root_directory(m_CurDir);
 	}
 
-	auto SetDirectorySuccess = FarChDir(strSetDir);
-	if (!SetDirectorySuccess)
+	auto SetDirectorySuccess = false;
+	auto ParentAttempt = false;
+	for (;;)
 	{
-		if (CheckShortcutFolder(strSetDir, !Silent, Silent || !Global->WindowManager->ManagerStarted()))
-		{
-			SetDirectorySuccess = FarChDir(strSetDir);
-		}
-		else
-		{
-			UpdateFlags = UPDATE_KEEP_SELECTION;
-		}
+		SetDirectorySuccess = FarChDir(strSetDir);
+		if (SetDirectorySuccess)
+			break;
+
+		if (Silent || !TryParentFolder(strSetDir))
+			break;
+
+		ParentAttempt = true;
+	}
+
+	if (!SetDirectorySuccess && !ParentAttempt)
+	{
+		UpdateFlags = UPDATE_KEEP_SELECTION;
 	}
 
 	m_CurDir = os::fs::get_current_directory();
@@ -7556,7 +7562,7 @@ void FileList::ShowFileList(bool Fast)
 			const auto& ColumnTitleColor = colors::PaletteColorToFarColor(COL_PANELCOLUMNTITLE);
 			auto Color = colors::PaletteColorToFarColor(COL_PANELBOX);
 			Color.BackgroundColor = ColumnTitleColor.BackgroundColor;
-			Color.SetBg4Bit(ColumnTitleColor.IsBg4Bit());
+			Color.SetBgIndex(ColumnTitleColor.IsBgIndex());
 			SetColor(Color);
 
 			GotoXY(static_cast<int>(ColumnPos), m_Where.top + 1);
@@ -7933,22 +7939,35 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 	Text(L' ');
 }
 
-bool FileList::ConvertName(const string_view SrcName, string& strDest, const int MaxLength, const unsigned long long RightAlign, const int ShowStatus, os::fs::attributes const FileAttr) const
+bool FileList::ConvertName(const string_view SrcName, string& strDest, const size_t MaxLength, const unsigned long long RightAlign, const int ShowStatus, os::fs::attributes const FileAttr) const
 {
 	strDest.reserve(MaxLength);
 
-	const auto SrcLength = static_cast<int>(SrcName.size());
+	const auto SrcLength = visual_string_length(SrcName);
 
 	if ((RightAlign & COLFLAGS_RIGHTALIGNFORCE) || (RightAlign && (SrcLength>MaxLength)))
 	{
 		if (SrcLength>MaxLength)
 		{
-			strDest = SrcName.substr(SrcLength - MaxLength, MaxLength);
+			auto Tail = SrcName;
+			size_t VisualLength;
+
+			for (;;)
+			{
+				VisualLength = visual_string_length(Tail);
+				if (VisualLength > MaxLength)
+					encoding::utf16::remove_first_codepoint(Tail);
+				else
+					break;
+			}
+
+			strDest.assign(MaxLength - VisualLength, L' ');
+			strDest.append(Tail);
 		}
 		else
 		{
 			strDest.assign(MaxLength - SrcLength, L' ');
-			append(strDest, SrcName);
+			strDest.append(SrcName);
 		}
 		return SrcLength > MaxLength;
 	}
@@ -7964,21 +7983,28 @@ bool FileList::ConvertName(const string_view SrcName, string& strDest, const int
 	{
 		Extension.remove_prefix(1);
 		auto Name = SrcName.substr(0, SrcName.size() - Extension.size());
-		const auto DotPos = std::max(MaxLength - std::max(Extension.size(), size_t{ 3 }), Name.size());
 
 		if (Name.size() > 1 && Name[Name.size() - 2] != L' ')
 			Name.remove_suffix(1);
 
+		const auto VisualNameLength = visual_string_length(Name);
+		const auto VisualExtensionLength = std::max(size_t{ 3 }, visual_string_length(Extension));
+
+		const auto SpaceLength = VisualNameLength + VisualExtensionLength < MaxLength?
+			MaxLength - VisualNameLength - VisualExtensionLength :
+			0;
+
 		strDest += Name;
-		strDest.resize(DotPos, L' ');
+		strDest.append(SpaceLength, L' ');
 		strDest += Extension;
-		strDest.resize(MaxLength, L' ');
 	}
 	else
 	{
-		strDest.assign(SrcName, 0, std::min(SrcLength, MaxLength));
-		strDest.resize(MaxLength, L' ');
+		strDest.assign(SrcName, 0, visual_pos_to_string_pos(SrcName, MaxLength, 1));
 	}
+
+	if (const auto VisualSize = visual_string_length(strDest); VisualSize < MaxLength)
+		strDest.append(MaxLength - VisualSize, L' ');
 
 	return SrcLength > MaxLength;
 }
@@ -8241,7 +8267,7 @@ void FileList::HighlightBorder(int Level, int ListPos) const
 		const auto FileColor = GetShowColor(ListPos, true);
 		auto Color = colors::PaletteColorToFarColor(COL_PANELBOX);
 		Color.BackgroundColor = FileColor.BackgroundColor;
-		Color.SetBg4Bit(FileColor.IsBg4Bit());
+		Color.SetBgIndex(FileColor.IsBgIndex());
 		SetColor(Color);
 	}
 }
@@ -8372,14 +8398,14 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								Width -= static_cast<int>(Mark.size());
 							}
 
-							if (Global->Opt->Highlight && m_ListData[ListPos].Colors && m_ListData[ListPos].Colors->Mark.Char && Width>1)
+							if (Global->Opt->Highlight && m_ListData[ListPos].Colors && !m_ListData[ListPos].Colors->Mark.Mark.empty() && Width>1)
 							{
 								Width--;
 								const auto OldColor = GetColor();
 								if (!ShowStatus)
 									SetShowColor(ListPos, false);
 
-								Text(m_ListData[ListPos].Colors->Mark.Char);
+								Text(m_ListData[ListPos].Colors->Mark.Mark, visual_string_length(m_ListData[ListPos].Colors->Mark.Mark));
 								SetColor(OldColor);
 							}
 
@@ -8406,17 +8432,21 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							if (!ShowStatus && LeftPos)
 							{
-								const auto Length = static_cast<int>(Name.size());
-
-								if (Length>Width)
+								if (const auto Length = static_cast<int>(visual_string_length(Name)); Length > Width)
 								{
 									if (LeftPos>0)
 									{
 										if (!RightAlign)
 										{
 											CurLeftPos = std::min(LeftPos, Length-Width);
-											MaxLeftPos = std::max(MaxLeftPos, CurLeftPos);
-											Name.remove_prefix(CurLeftPos);
+
+											auto ActualLeftPos = 0;
+											for (; ActualLeftPos != CurLeftPos && static_cast<int>(visual_string_length(Name)) > Width; ++ActualLeftPos)
+											{
+												encoding::utf16::remove_first_codepoint(Name);
+											}
+
+											MaxLeftPos = std::max(MaxLeftPos, ActualLeftPos);
 										}
 									}
 									else if (RightAlign)
@@ -8433,27 +8463,26 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 											LeftBracket=(ViewFlags & COLFLAGS_RIGHTALIGNFORCE)==COLFLAGS_RIGHTALIGNFORCE;
 										}
 
-										Name.remove_prefix(Length + CurRightPos - Width);
-										RightAlign=FALSE;
+										while (static_cast<int>(visual_string_length(Name)) > Width - CurRightPos)
+										{
+											encoding::utf16::remove_first_codepoint(Name);
+										}
 
 										MinLeftPos = std::min(MinLeftPos, CurRightPos);
+										RightAlign=FALSE;
 									}
 								}
 							}
 
 							string strName;
-							int TooLong=ConvertName(Name, strName, Width, RightAlign,ShowStatus,m_ListData[ListPos].Attributes);
+							const auto TooLong = ConvertName(Name, strName, Width, RightAlign,ShowStatus,m_ListData[ListPos].Attributes);
 
 							if (CurLeftPos)
 								LeftBracket=TRUE;
 
 							if (TooLong)
 							{
-								if (RightAlign)
-									LeftBracket=TRUE;
-
-								if (!RightAlign && static_cast<int>(Name.size()) > Width)
-									RightBracket=TRUE;
+								(RightAlign? LeftBracket : RightBracket) = TRUE;
 							}
 
 							if (!ShowStatus)
@@ -8469,7 +8498,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 									inplace::lower(strName);
 							}
 
-							Text(strName);
+							Text(strName, Width);
 
 
 							if (!ShowStatus)

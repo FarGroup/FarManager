@@ -56,10 +56,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static const struct ColorsInit
 {
 	string_view Name;
-	int DefaultIndex;
-	int MonoIndex;
+	unsigned char DefaultIndex;
+	unsigned char MonoIndex;
 }
-Init[]=
+Init[]
 {
 	{L"Menu.Text"sv,                                   F_WHITE|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_MENUTEXT,
 	{L"Menu.Text.Selected"sv,                          F_WHITE|B_BLACK,        F_LIGHTGRAY|B_BLACK,   }, // COL_MENUSELECTEDTEXT,
@@ -223,7 +223,7 @@ void palette::Reset(bool Black)
 	const auto IndexPtr = Black? &ColorsInit::MonoIndex : &ColorsInit::DefaultIndex;
 	std::transform(ALL_CONST_RANGE(Init), CurrentPalette.begin(), [&IndexPtr](const ColorsInit& i)
 	{
-		return colors::ConsoleColorToFarColor(std::invoke(IndexPtr, i));
+		return colors::NtColorToFarColor(std::invoke(IndexPtr, i));
 	});
 
 	PaletteChanged = true;
@@ -239,6 +239,13 @@ void palette::ResetToBlack()
 	Reset(true);
 }
 
+unsigned char palette::Default(size_t const Index) const
+{
+	assert(Index < std::size(Init));
+
+	return Init[Index].DefaultIndex;
+}
+
 void palette::Set(size_t StartOffset, span<FarColor> Values)
 {
 	std::copy(ALL_CONST_RANGE(Values), CurrentPalette.begin() + StartOffset);
@@ -250,6 +257,17 @@ void palette::CopyTo(span<FarColor> const Destination) const
 	const auto Size = std::min(CurrentPalette.size(), Destination.size());
 	std::copy_n(CurrentPalette.begin(), Size, Destination.begin());
 }
+
+const FarColor& palette::operator[](size_t const Index) const
+{
+	return CurrentPalette[Index];
+}
+
+size_t palette::size() const
+{
+	return CurrentPalette.size();
+}
+
 
 static palette::custom_colors CustomColors;
 

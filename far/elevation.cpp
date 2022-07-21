@@ -233,7 +233,7 @@ elevation::~elevation()
 		{
 			Write(C_SERVICE_EXIT);
 		}
-		catch (const far_exception& e)
+		catch (far_exception const& e)
 		{
 			LOGERROR(L"{}"sv, e);
 		}
@@ -308,7 +308,7 @@ auto elevation::execute(lng Why, string_view const Object, T Fallback, const F1&
 	{
 		return ElevatedHandler();
 	}
-	catch (const far_exception& e)
+	catch (far_exception const& e)
 	{
 		// Something went really bad, it's better to stop any further attempts
 		TerminateChildProcess();
@@ -437,7 +437,10 @@ static os::handle create_elevated_process(const string& Parameters)
 	};
 
 	if (!ShellExecuteEx(&info))
+	{
+		LOGERROR(L"ShellExecuteEx({}): {}"sv, info.lpFile, last_error());
 		return nullptr;
+	}
 
 	return os::handle(info.hProcess);
 }

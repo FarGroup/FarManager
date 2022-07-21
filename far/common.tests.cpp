@@ -122,7 +122,7 @@ TEST_CASE("algorithm.apply_permutation")
 		std::array Data{ 'E', 'L', 'V', 'I', 'S' };
 		std::array const Expected{ 'L', 'I', 'V', 'E', 'S' };
 		std::array Indices{ 1, 3, 2, 0, 4 };
-		static_assert(
+		STATIC_REQUIRE(
 			std::size(Data) == std::size(Expected) &&
 			std::size(Data) == std::size(Indices)
 		);
@@ -151,7 +151,7 @@ TEST_CASE("algorithm.contains")
 	{
 		constexpr std::array Data{ 1, 2, 3 };
 
-		// TODO: static_assert
+		// TODO: STATIC_REQUIRE
 		// GCC stdlib isn't constexpr yet :(
 		REQUIRE(contains(Data, 1));
 		REQUIRE(contains(Data, 2));
@@ -171,27 +171,25 @@ TEST_CASE("algorithm.contains")
 
 TEST_CASE("algorithm.in_closed_range")
 {
-	static_assert(in_closed_range(0, 0, 0));
-	static_assert(in_closed_range(0, 0, 1));
-	static_assert(in_closed_range(0, 1, 1));
-	static_assert(in_closed_range(1, 1, 1));
-	static_assert(in_closed_range(1, 3, 5));
+	STATIC_REQUIRE(in_closed_range(0, 0, 0));
+	STATIC_REQUIRE(in_closed_range(0, 0, 1));
+	STATIC_REQUIRE(in_closed_range(0, 1, 1));
+	STATIC_REQUIRE(in_closed_range(1, 1, 1));
+	STATIC_REQUIRE(in_closed_range(1, 3, 5));
 
-	static_assert(!in_closed_range(0, 1, 0));
-	static_assert(!in_closed_range(1, 0, 0));
-	static_assert(!in_closed_range(1, 1, 0));
-	static_assert(!in_closed_range(1, 0, 1));
-	static_assert(!in_closed_range(5, 3, 1));
-	REQUIRE(true);
+	STATIC_REQUIRE(!in_closed_range(0, 1, 0));
+	STATIC_REQUIRE(!in_closed_range(1, 0, 0));
+	STATIC_REQUIRE(!in_closed_range(1, 1, 0));
+	STATIC_REQUIRE(!in_closed_range(1, 0, 1));
+	STATIC_REQUIRE(!in_closed_range(5, 3, 1));
 }
 
 TEST_CASE("algorithm.any_none_of")
 {
-	static_assert(any_of(1, 1));
-	static_assert(any_of(1, 1, 2, 3));
-	static_assert(none_of(1, 0));
-	static_assert(none_of(1, 2, 3));
-	REQUIRE(true);
+	STATIC_REQUIRE(any_of(1, 1));
+	STATIC_REQUIRE(any_of(1, 1, 2, 3));
+	STATIC_REQUIRE(none_of(1, 0));
+	STATIC_REQUIRE(none_of(1, 2, 3));
 }
 
 //----------------------------------------------------------------------------
@@ -514,28 +512,26 @@ TEST_CASE("function_traits")
 {
 	{
 		using t = function_traits<void()>;
-		static_assert(t::arity == 0);
-		static_assert(std::is_same_v<t::result_type, void>);
+		STATIC_REQUIRE(t::arity == 0);
+		STATIC_REQUIRE(std::is_same_v<t::result_type, void>);
 	}
 
 	{
 		using t = function_traits<char(short, int, long)>;
-		static_assert(t::arity == 3);
-		static_assert(std::is_same_v<t::arg<0>, short>);
-		static_assert(std::is_same_v<t::arg<1>, int>);
-		static_assert(std::is_same_v<t::arg<2>, long>);
-		static_assert(std::is_same_v<t::result_type, char>);
+		STATIC_REQUIRE(t::arity == 3);
+		STATIC_REQUIRE(std::is_same_v<t::arg<0>, short>);
+		STATIC_REQUIRE(std::is_same_v<t::arg<1>, int>);
+		STATIC_REQUIRE(std::is_same_v<t::arg<2>, long>);
+		STATIC_REQUIRE(std::is_same_v<t::result_type, char>);
 	}
 
 	{
 		struct s { double f(bool) const { return 0; } };
 		using t = function_traits<decltype(&s::f)>;
-		static_assert(t::arity == 1);
-		static_assert(std::is_same_v<t::arg<0>, bool>);
-		static_assert(std::is_same_v<t::result_type, double>);
+		STATIC_REQUIRE(t::arity == 1);
+		STATIC_REQUIRE(std::is_same_v<t::arg<0>, bool>);
+		STATIC_REQUIRE(std::is_same_v<t::result_type, double>);
 	}
-
-	REQUIRE(true);
 }
 
 //----------------------------------------------------------------------------
@@ -560,7 +556,7 @@ TEST_CASE("io")
 template<typename type>
 static void TestKeepAlive()
 {
-	static_assert(std::is_same_v<decltype(keep_alive(std::declval<type>())), keep_alive<type>>);
+	STATIC_REQUIRE(std::is_same_v<decltype(keep_alive(std::declval<type>())), keep_alive<type>>);
 }
 
 TEST_CASE("keep_alive")
@@ -568,8 +564,6 @@ TEST_CASE("keep_alive")
 	TestKeepAlive<int>();
 	TestKeepAlive<int&>();
 	TestKeepAlive<const int&>();
-
-	REQUIRE(true);
 }
 
 //----------------------------------------------------------------------------
@@ -672,7 +666,7 @@ TEST_CASE("placement")
 		int& m_Value;
 	};
 
-	std::aligned_storage_t<sizeof(raii), alignof(raii)> Data;
+	alignas(raii) std::byte Data[sizeof(raii)];
 	auto& Object = edit_as<raii>(&Data);
 
 	int Value = 0;
@@ -701,7 +695,7 @@ TEST_CASE("range.static")
 					// Workaround for VS19
 					[[maybe_unused]] auto& RangeRef = Range;
 
-					static_assert(std::is_same_v<decltype(ContainerGetter(ContainerVersion)), decltype(RangeGetter(Range))>);
+					STATIC_REQUIRE(std::is_same_v<decltype(ContainerGetter(ContainerVersion)), decltype(RangeGetter(Range))>);
 				};
 
 // std::cbegin and friends are broken in the standard for shallow-const containers, thus the member version.
@@ -728,25 +722,24 @@ TEST_CASE("range.static")
 	{
 		int Data[2]{};
 		range Range(std::begin(Data), std::end(Data));
-		static_assert(std::is_same_v<decltype(*Range.begin()), int&>);
-		static_assert(std::is_same_v<decltype(*Range.cbegin()), const int&>);
+		STATIC_REQUIRE(std::is_same_v<decltype(*Range.begin()), int&>);
+		STATIC_REQUIRE(std::is_same_v<decltype(*Range.cbegin()), const int&>);
 	}
 
 	{
 		std::vector<int> Data;
 		range Range(std::begin(Data), std::end(Data));
-		static_assert(std::is_same_v<decltype(*Range.begin()), int&>);
+		STATIC_REQUIRE(std::is_same_v<decltype(*Range.begin()), int&>);
 		// It's not possible to deduce const_iterator here
-		static_assert(std::is_same_v<decltype(*Range.cbegin()), int&>);
+		STATIC_REQUIRE(std::is_same_v<decltype(*Range.cbegin()), int&>);
 	}
 
 	{
 		int Data[2]{};
 		span Span(Data);
-		static_assert(std::is_same_v<decltype(*Span.begin()), int&>);
-		static_assert(std::is_same_v<decltype(*Span.cbegin()), const int&>);
+		STATIC_REQUIRE(std::is_same_v<decltype(*Span.begin()), int&>);
+		STATIC_REQUIRE(std::is_same_v<decltype(*Span.cbegin()), const int&>);
 	}
-	REQUIRE(true);
 }
 
 TEST_CASE("range.dynamic")
@@ -849,7 +842,7 @@ TEST_CASE("smart_ptr")
 	constexpr auto ActualStaticSize = sizeof(std::unique_ptr<char[]>) / sizeof(char);
 	const char_ptr_n<ActualStaticSize> Ptr2;
 
-	static_assert(sizeof(Ptr) == sizeof(Ptr2));
+	STATIC_REQUIRE(sizeof(Ptr) == sizeof(Ptr2));
 	REQUIRE(Ptr.size() == Ptr2.size());
 }
 
@@ -1304,7 +1297,7 @@ namespace utility_integers_detail
 	{
 		using L = std::remove_reference_t<decltype(LargeValues[0])>;
 		constexpr auto Offset = sizeof(LargeValues[0]) / sizeof(SmallValues[0]) * Index;
-		static_assert(make_integer<L>(SmallValues[Offset + 0], SmallValues[Offset + 1]) == LargeValues[Index]);
+		STATIC_REQUIRE(make_integer<L>(SmallValues[Offset + 0], SmallValues[Offset + 1]) == LargeValues[Index]);
 	}
 
 	template<const auto& LargeValues, const auto& SmallValues, size_t... LargeI>
@@ -1324,7 +1317,7 @@ namespace utility_integers_detail
 	static void check_extract_integer(std::index_sequence<SmallI...>)
 	{
 		using S = std::remove_reference_t<decltype(SmallValues[0])>;
-		static_assert(((extract_integer<S, SmallI>(LargeValues[Index]) == SmallValues[sizeof...(SmallI) * Index + SmallI]) && ...));
+		STATIC_REQUIRE(((extract_integer<S, SmallI>(LargeValues[Index]) == SmallValues[sizeof...(SmallI) * Index + SmallI]) && ...));
 	}
 
 	template<const auto& LargeValues, const auto& SmallValues, size_t... LargeI>
@@ -1387,8 +1380,6 @@ TEST_CASE("utility.integers")
 	check_extract_integers<u32, u8>();
 
 	check_extract_integers<u16, u8>();
-
-	REQUIRE(true);
 }
 
 //----------------------------------------------------------------------------
@@ -1405,17 +1396,17 @@ TEST_CASE("uuid")
 
 	REQUIRE(Uuid == UuidWithBrackets);
 
-	static_assert(Uuid.Data1 == 0x01234567);
-	static_assert(Uuid.Data2 == 0x89AB);
-	static_assert(Uuid.Data3 == 0xCDEF);
-	static_assert(Uuid.Data4[0] == 0x01);
-	static_assert(Uuid.Data4[1] == 0x23);
-	static_assert(Uuid.Data4[2] == 0x45);
-	static_assert(Uuid.Data4[3] == 0x67);
-	static_assert(Uuid.Data4[4] == 0x89);
-	static_assert(Uuid.Data4[5] == 0xAB);
-	static_assert(Uuid.Data4[6] == 0xCD);
-	static_assert(Uuid.Data4[7] == 0xEF);
+	STATIC_REQUIRE(Uuid.Data1 == 0x01234567);
+	STATIC_REQUIRE(Uuid.Data2 == 0x89AB);
+	STATIC_REQUIRE(Uuid.Data3 == 0xCDEF);
+	STATIC_REQUIRE(Uuid.Data4[0] == 0x01);
+	STATIC_REQUIRE(Uuid.Data4[1] == 0x23);
+	STATIC_REQUIRE(Uuid.Data4[2] == 0x45);
+	STATIC_REQUIRE(Uuid.Data4[3] == 0x67);
+	STATIC_REQUIRE(Uuid.Data4[4] == 0x89);
+	STATIC_REQUIRE(Uuid.Data4[5] == 0xAB);
+	STATIC_REQUIRE(Uuid.Data4[6] == 0xCD);
+	STATIC_REQUIRE(Uuid.Data4[7] == 0xEF);
 
 	REQUIRE(uuid::str(Uuid) == UuidStr);
 

@@ -244,13 +244,12 @@ void VMenu2::Resize(bool force)
 			Y1-=1;
 	}
 
-	int width = static_cast<int>(ListBox().MaxItemLength()) + (m_BoxType == box_type::none? 0 : m_BoxType == box_type::thin? 2 : 6) + 3;
-	if(m_X2>0)
-		width=m_X2-X1+1;
-
-	if(width>ScrX+1)
-		width=ScrX+1;
-
+	const auto width = std::min(
+		ScrX + 1,
+		m_X2 > 0?
+			m_X2 - X1 + 1 :
+			static_cast<int>(ListBox().MaxItemLength() + ListBox().GetServiceAreaSize() + (m_BoxType == box_type::full? 4 : 0))
+	);
 
 	int height=GetShowItemCount();
 	if(MaxHeight && height>MaxHeight)

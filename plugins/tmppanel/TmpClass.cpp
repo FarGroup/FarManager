@@ -73,7 +73,7 @@ void TmpPanel::GetOpenPanelInfo(OpenPanelInfo& Info)
 
 	if (!m_HostFile.empty())
 	{
-		if (const size_t Size = PsInfo.PanelControl(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, {}))
+		if (const size_t Size = PsInfo.PanelControl(this, FCTL_GETCURRENTPANELITEM, 0, {}))
 		{
 			const block_ptr<PluginPanelItem> ppi(Size);
 			FarGetPluginPanelItem gpi{ sizeof(gpi), Size, ppi.data() };

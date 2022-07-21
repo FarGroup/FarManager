@@ -295,8 +295,8 @@ void Grabber::DisplayObject()
 					}
 				}
 
-				colors::make_invert(Destination.BackgroundColor, CurColor.IsBg4Bit());
-				colors::make_invert(Destination.ForegroundColor, CurColor.IsFg4Bit());
+				colors::make_invert(Destination.BackgroundColor, CurColor.IsBgIndex());
+				colors::make_invert(Destination.ForegroundColor, CurColor.IsFgIndex());
 			}
 		}
 

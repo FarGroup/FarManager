@@ -46,7 +46,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "constitle.hpp"
 #include "taskbar.hpp"
-#include "keyboard.hpp"
 #include "message.hpp"
 #include "config.hpp"
 #include "datetime.hpp"
@@ -1277,7 +1276,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 							NewFindData.Attributes = (SingleSelFindData.Attributes | SetAttr) & ~ClearAttr;
 
 							const state
-								Current{ L""s, SingleSelFindData }, // BUGBUG, should we read the owner?
+								Current{ SelCount == 1 && !AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected? DlgParam.Owner.InitialValue : L""s, SingleSelFindData},
 								New{ AttrDlg[SA_EDIT_OWNER].strData, NewFindData };
 
 							if (!process_single_file(SingleSelFileName, Current, New, AttrDlgAccessor, SkipErrors))
@@ -1370,7 +1369,7 @@ void ShellSetFileAttributes(Panel* SrcPanel, const string* Object)
 	{
 		ShellSetFileAttributesImpl(SrcPanel, Object);
 	}
-	catch (const operation_cancelled&)
+	catch (operation_cancelled const&)
 	{
 		// Nop
 	}

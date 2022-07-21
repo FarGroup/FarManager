@@ -158,4 +158,6 @@ inline constexpr auto FileBasicInformation                = static_cast<FILE_INF
 inline constexpr auto FileStreamInformation               = static_cast<FILE_INFORMATION_CLASS>(22);
 inline constexpr auto FileIdBothDirectoryInformation      = static_cast<FILE_INFORMATION_CLASS>(37);
 
+inline constexpr auto ProcessConsoleHostProcess           = static_cast<PROCESSINFOCLASS>(49);
+
 #endif // SDK_VC_H_47CB8DA7_19E2_4E69_96EA_CF89EFAD00D7
