@@ -1,4 +1,9 @@
---------------------------------------------------------------------------------
+drkns 22.07.2022 23:00:00 +0100 - build 327
+
+1. Adapt to 7z v22 shenanigans with file times.
+
+2. Create archive - Advanced parameters didn't work with integer values.
+
 w17 20.06.2022 17:09:51 +0300 - build 326
 
 1. 7z.dll 22.00

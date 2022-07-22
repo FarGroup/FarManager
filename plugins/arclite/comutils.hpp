@@ -248,7 +248,7 @@ public:
     return vt == VT_BOOL;
   }
   bool is_filetime() const {
-    return vt == VT_FILETIME;
+    return vt == VT_FILETIME && (filetime.dwLowDateTime || filetime.dwHighDateTime);
   }
 
   Int64 get_int() const {
