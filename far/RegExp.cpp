@@ -871,7 +871,7 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 	brackets[0]=code.data();
 #ifdef RE_DEBUG
 	resrc = L'(';
-	resrc.append(src, srclength).append(L")\x2190");
+	resrc.append(src, srclength).append(L")←");
 #endif
 	havelookahead=0;
 

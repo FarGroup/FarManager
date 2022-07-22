@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace char_width
 {
-	using codepoint = unsigned int;
+	using codepoint = char32_t;
 
 	bool is_wide(codepoint Codepoint);
 

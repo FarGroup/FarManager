@@ -753,7 +753,7 @@ static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_C
 
 		const auto Codepoint = encoding::utf16::extract_codepoint(Str);
 
-		if (Codepoint > std::numeric_limits<wchar_t>::max())
+		if (Codepoint > std::numeric_limits<char16_t>::max())
 		{
 			Char[1] = Str[1];
 			Str.remove_prefix(2);
@@ -1224,7 +1224,7 @@ size_t string_pos_to_visual_pos(string_view Str, size_t const StringPos, size_t 
 		else if (CharWidthEnabled)
 		{
 			const auto Codepoint = encoding::utf16::extract_codepoint(Str.substr(State.StringIndex));
-			CharStringIncrement = Codepoint > std::numeric_limits<wchar_t>::max()? 2 : 1;
+			CharStringIncrement = Codepoint > std::numeric_limits<char16_t>::max()? 2 : 1;
 			CharVisualIncrement = char_width::is_wide(Codepoint)? 2 : 1;
 		}
 		else
@@ -1281,7 +1281,7 @@ size_t visual_pos_to_string_pos(string_view Str, size_t const VisualPos, size_t 
 		{
 			const auto Codepoint = encoding::utf16::extract_codepoint(Str.substr(State.StringIndex));
 			CharVisualIncrement = char_width::is_wide(Codepoint)? 2 : 1;
-			CharStringIncrement = Codepoint > std::numeric_limits<wchar_t>::max()? 2 : 1;
+			CharStringIncrement = Codepoint > std::numeric_limits<char16_t>::max()? 2 : 1;
 		}
 		else
 		{
