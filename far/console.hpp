@@ -190,7 +190,8 @@ namespace console_detail
 		bool ExternalRendererLoaded() const;
 
 		[[nodiscard]]
-		bool IsWidePreciseExpensive(unsigned int Codepoint, bool ClearCacheOnly = false);
+		bool IsWidePreciseExpensive(char32_t Codepoint);
+		void ClearWideCache();
 
 		bool GetPalette(std::array<COLORREF, 16>& Palette) const;
 

@@ -993,6 +993,32 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
       name_ptrs.push_back(names[i].c_str());
     }
 
+    const auto string_to_integer = [](const std::wstring& str, auto converter, PropVariant& v)
+    {
+      wchar_t* endptr{};
+      const auto str_end = str.data() + str.size();
+
+      const auto value = converter(str.c_str(), &endptr, 10);
+      if (endptr != str_end)
+        return false;
+
+      if (value > std::numeric_limits<UInt32>::max())
+        v = static_cast<UInt64>(value);
+      else
+        v = static_cast<UInt32>(value);
+
+      return true;
+    };
+
+    for (auto& i: values)
+    {
+      if (!i.is_str())
+        continue;
+
+      const auto str = i.get_str();
+      string_to_integer(str, &wcstoull, i) || string_to_integer(str, &wcstoll, i);
+    }
+
     CHECK_COM(set_props->SetProperties(name_ptrs.data(), values.data(), static_cast<UInt32>(values.size())));
   }
 }

@@ -66,7 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-#define ESC L"\x1b"
+#define ESC L"\u001b"
 #define CSI ESC L"["
 
 static bool sWindowMode;
@@ -79,75 +79,75 @@ wchar_t ReplaceControlCharacter(wchar_t const Char)
 	switch (Char)
 	{
 	// C0
-	case 0x00: return L' '; // space
-	case 0x01: return L'☺'; // white smiling face
-	case 0x02: return L'☻'; // black smiling face
-	case 0x03: return L'♥'; // black heart suit
-	case 0x04: return L'♦'; // black diamond suit
-	case 0x05: return L'♣'; // black club suit
-	case 0x06: return L'♠'; // black spade suit
-	case 0x07: return L'•'; // bullet
-	case 0x08: return L'◘'; // inverse bullet
-	case 0x09: return L'○'; // white circle
-	case 0x0A: return L'◙'; // inverse white circle
-	case 0x0B: return L'♂'; // male sign
-	case 0x0C: return L'♀'; // female sign
-	case 0x0D: return L'♪'; // eighth note
-	case 0x0E: return L'♫'; // beamed eighth notes
-	case 0x0F: return L'☼'; // white sun with rays
-	case 0x10: return L'►'; // black right - pointing pointer
-	case 0x11: return L'◄'; // black left - pointing pointer
-	case 0x12: return L'↕'; // up down arrow
-	case 0x13: return L'‼'; // double exclamation mark
-	case 0x14: return L'¶'; // pilcrow sign
-	case 0x15: return L'§'; // section sign
-	case 0x16: return L'▬'; // black rectangle
-	case 0x17: return L'↨'; // up down arrow with base
-	case 0x18: return L'↑'; // upwards arrow
-	case 0x19: return L'↓'; // downwards arrow
-	case 0x1A: return L'→'; // rightwards arrow
-	case 0x1B: return L'←'; // leftwards arrow
-	case 0x1C: return L'∟'; // right angle
-	case 0x1D: return L'↔'; // left right arrow
-	case 0x1E: return L'▲'; // black up - pointing triangle
-	case 0x1F: return L'▼'; // black down - pointing triangle
-	case 0x7F: return L'⌂'; // house
+	case L'\u0000': return L' '; // space
+	case L'\u0001': return L'☺'; // white smiling face
+	case L'\u0002': return L'☻'; // black smiling face
+	case L'\u0003': return L'♥'; // black heart suit
+	case L'\u0004': return L'♦'; // black diamond suit
+	case L'\u0005': return L'♣'; // black club suit
+	case L'\u0006': return L'♠'; // black spade suit
+	case L'\u0007': return L'•'; // bullet
+	case L'\u0008': return L'◘'; // inverse bullet
+	case L'\u0009': return L'○'; // white circle
+	case L'\u000A': return L'◙'; // inverse white circle
+	case L'\u000B': return L'♂'; // male sign
+	case L'\u000C': return L'♀'; // female sign
+	case L'\u000D': return L'♪'; // eighth note
+	case L'\u000E': return L'♫'; // beamed eighth notes
+	case L'\u000F': return L'☼'; // white sun with rays
+	case L'\u0010': return L'►'; // black right - pointing pointer
+	case L'\u0011': return L'◄'; // black left - pointing pointer
+	case L'\u0012': return L'↕'; // up down arrow
+	case L'\u0013': return L'‼'; // double exclamation mark
+	case L'\u0014': return L'¶'; // pilcrow sign
+	case L'\u0015': return L'§'; // section sign
+	case L'\u0016': return L'▬'; // black rectangle
+	case L'\u0017': return L'↨'; // up down arrow with base
+	case L'\u0018': return L'↑'; // upwards arrow
+	case L'\u0019': return L'↓'; // downwards arrow
+	case L'\u001A': return L'→'; // rightwards arrow
+	case L'\u001B': return L'←'; // leftwards arrow
+	case L'\u001C': return L'∟'; // right angle
+	case L'\u001D': return L'↔'; // left right arrow
+	case L'\u001E': return L'▲'; // black up - pointing triangle
+	case L'\u001F': return L'▼'; // black down - pointing triangle
+	case L'\u007F': return L'⌂'; // house
 
 	// C1
 	// These are considered control characters too now.
 	// Unlike C0, it is unclear what glyphs to use, so just replace with FFFD for now.
-	case 0x80:
-	case 0x81:
-	case 0x82:
-	case 0x83:
-	case 0x84:
-	case 0x85:
-	case 0x86:
-	case 0x87:
-	case 0x88:
-	case 0x89:
-	case 0x8A:
-	case 0x8B:
-	case 0x8C:
-	case 0x8D:
-	case 0x8E:
-	case 0x8F:
-	case 0x90:
-	case 0x91:
-	case 0x92:
-	case 0x93:
-	case 0x94:
-	case 0x95:
-	case 0x96:
-	case 0x97:
-	case 0x98:
-	case 0x99:
-	case 0x9A:
-	case 0x9B:
-	case 0x9C:
-	case 0x9D:
-	case 0x9E:
-	case 0x9F: return encoding::replace_char;
+	case L'\u0080':
+	case L'\u0081':
+	case L'\u0082':
+	case L'\u0083':
+	case L'\u0084':
+	case L'\u0085':
+	case L'\u0086':
+	case L'\u0087':
+	case L'\u0088':
+	case L'\u0089':
+	case L'\u008A':
+	case L'\u008B':
+	case L'\u008C':
+	case L'\u008D':
+	case L'\u008E':
+	case L'\u008F':
+	case L'\u0090':
+	case L'\u0091':
+	case L'\u0092':
+	case L'\u0093':
+	case L'\u0094':
+	case L'\u0095':
+	case L'\u0096':
+	case L'\u0097':
+	case L'\u0098':
+	case L'\u0099':
+	case L'\u009A':
+	case L'\u009B':
+	case L'\u009C':
+	case L'\u009D':
+	case L'\u009E':
+	case L'\u009F': return encoding::replace_char;
 
 	default:   return Char;
 	}
@@ -1991,15 +1991,9 @@ WARNING_POP()
 		return ExternalConsole.Imports.pWriteOutput.operator bool();
 	}
 
-	bool console::IsWidePreciseExpensive(unsigned int const Codepoint, bool const ClearCacheOnly)
+	bool console::IsWidePreciseExpensive(char32_t const Codepoint)
 	{
 		// It ain't stupid if it works
-
-		if (ClearCacheOnly)
-		{
-			m_WidthTestScreen = {};
-			return false;
-		}
 
 		if (!m_WidthTestScreen)
 		{
@@ -2038,6 +2032,11 @@ WARNING_POP()
 			return false;
 
 		return Info.dwCursorPosition.X > 1;
+	}
+
+	void console::ClearWideCache()
+	{
+		m_WidthTestScreen = {};
 	}
 
 	bool console::GetPalette(std::array<COLORREF, 16>& Palette) const

@@ -1343,13 +1343,14 @@ bool encoding::utf16::is_valid_surrogate_pair(wchar_t const First, wchar_t const
 	return is_high_surrogate(First) && is_low_surrogate(Second);
 }
 
-unsigned int encoding::utf16::extract_codepoint(wchar_t const First, wchar_t const Second)
+char32_t encoding::utf16::extract_codepoint(wchar_t const First, wchar_t const Second)
 {
 	static_assert(sizeof(wchar_t) == 2);
+
 	return 0b1'00000000'00000000u + ((First - ::utf16::surrogate_high_first) << 10) + (Second - ::utf16::surrogate_low_first);
 }
 
-unsigned int encoding::utf16::extract_codepoint(string_view const Str)
+char32_t encoding::utf16::extract_codepoint(string_view const Str)
 {
 	static_assert(sizeof(wchar_t) == 2);
 
@@ -1371,9 +1372,9 @@ void encoding::utf16::remove_last_codepoint(string_view& Str)
 	Str.remove_suffix(IsSurrogate? 2 : 1);
 }
 
-std::pair<wchar_t, wchar_t> encoding::utf16::to_surrogate(unsigned int const Codepoint)
+std::pair<wchar_t, wchar_t> encoding::utf16::to_surrogate(char32_t const Codepoint)
 {
-	if (Codepoint <= std::numeric_limits<wchar_t>::max())
+	if (Codepoint <= std::numeric_limits<char16_t>::max())
 		return { static_cast<wchar_t>(Codepoint), 0 };
 
 	const auto TwentyBits = Codepoint - 0b1'00000000'00000000u;
@@ -1880,7 +1881,7 @@ TEST_CASE("encoding.utf16.surrogate")
 {
 	static const struct
 	{
-		unsigned Codepoint;
+		char32_t Codepoint;
 		std::array<wchar_t, 2> Pair;
 	}
 	Tests[]

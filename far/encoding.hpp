@@ -206,11 +206,11 @@ namespace encoding
 		bool is_high_surrogate(wchar_t Char);
 		bool is_low_surrogate(wchar_t Char);
 		bool is_valid_surrogate_pair(wchar_t First, wchar_t Second);
-		unsigned int extract_codepoint(wchar_t First, wchar_t Second);
-		unsigned int extract_codepoint(string_view Str);
+		char32_t extract_codepoint(wchar_t First, wchar_t Second);
+		char32_t extract_codepoint(string_view Str);
 		void remove_first_codepoint(string_view& Str);
 		void remove_last_codepoint(string_view& Str);
-		std::pair<wchar_t, wchar_t> to_surrogate(unsigned int Codepoint);
+		std::pair<wchar_t, wchar_t> to_surrogate(char32_t Codepoint);
 	}
 }
 
