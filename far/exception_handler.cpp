@@ -71,6 +71,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // External:
 #include "format.hpp"
 
+#if !IS_MICROSOFT_SDK()
+#include <cxxabi.h>
+#endif
+
 //----------------------------------------------------------------------------
 
 #define BUGREPORT_NAME   "bug_report.txt"
@@ -856,10 +860,30 @@ static string ExtractObjectType(EXCEPTION_RECORD const& xr)
 {
 	enum_catchable_objects const CatchableTypesEnumerator(xr);
 	const auto Iterator = CatchableTypesEnumerator.cbegin();
-	if (Iterator == CatchableTypesEnumerator.cend())
+	if (Iterator != CatchableTypesEnumerator.cend())
+		return encoding::utf8::get_chars(*Iterator);
+
+#if IS_MICROSOFT_SDK()
+	return {};
+#else
+	const auto TypeInfo = abi::__cxa_current_exception_type();
+	if (!TypeInfo)
 		return {};
 
-	return encoding::utf8::get_chars(*Iterator);
+	const auto Name = TypeInfo->name();
+	auto Status = -1;
+
+	struct free_deleter
+	{
+		void operator()(void* Ptr) const
+		{
+			free(Ptr);
+		}
+	};
+
+	std::unique_ptr<char, free_deleter> const DemangledName(abi::__cxa_demangle(Name, {}, {}, &Status));
+	return encoding::utf8::get_chars(DemangledName.get());
+#endif
 }
 
 static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_view const Type)
@@ -1070,7 +1094,7 @@ static EXCEPTION_POINTERS exception_information()
 	};
 }
 
-class far_wrapper_exception final: public far_exception
+class far_wrapper_exception final: public far_exception, public std::nested_exception
 {
 public:
 	far_wrapper_exception(std::string_view const Function, std::string_view const File, int const Line):
@@ -1087,11 +1111,13 @@ private:
 	std::vector<uintptr_t> m_Stack;
 };
 
+static_assert(std::is_base_of_v<std::nested_exception, far_wrapper_exception>);
+
 std::exception_ptr wrap_current_exception(std::string_view const Function, std::string_view const File, int const Line)
 {
 	try
 	{
-		std::throw_with_nested(far_wrapper_exception(Function, File, Line));
+		throw far_wrapper_exception(Function, File, Line);
 	}
 	catch (...)
 	{
@@ -1548,15 +1574,18 @@ namespace detail
 				)
 			)
 		);
+
+		// The thread is about to quit, but we still need it to get the stack trace and write a minidump.
+		// It will be released once the corresponding exception context is destroyed.
+		// The caller MUST detach it if ExceptionPtr is not empty.
+		// The thread has to be suspended right here in the filter to ensure a successful stack capture.
+		SuspendThread(GetCurrentThread());
+
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
 
 	void seh_thread_handler(DWORD)
 	{
-		// The thread is about to quit, but we still need it to get a stack trace / write a minidump.
-		// It will be released once the corresponding exception context is destroyed.
-		// The caller MUST detach it if ExceptionPtr is not empty.
-		SuspendThread(GetCurrentThread());
 	}
 
 	void set_fp_exceptions(bool const Enable)

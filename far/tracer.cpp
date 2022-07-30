@@ -172,18 +172,17 @@ static void get_symbols_impl(
 
 	string NameBuffer;
 
-	const auto GetName = [&](uintptr_t const Address) -> string_view
+	const auto GetName = [&](uintptr_t const Address) ->std::pair<string_view, size_t>
 	{
-		const auto Get = [&](auto const& Getter, auto& Buffer) -> std::basic_string_view<VALUE_TYPE(Buffer.info.Name)>
+		const auto Get = [&](auto const& Getter, auto& Buffer) -> std::pair<std::basic_string_view<VALUE_TYPE(Buffer.info.Name)>, size_t>
 		{
 			if (!Getter)
 				return {};
 
 			Buffer.info.SizeOfStruct = sizeof(Buffer.info);
 
-			size_t NameSize{};
-
-			if constexpr (std::is_convertible_v<decltype(imports.SymGetSymFromAddr64), decltype(Getter)>)
+			constexpr auto IsOldApi = std::is_same_v<decltype(Buffer.info), IMAGEHLP_SYMBOL64>;
+			if constexpr (IsOldApi)
 			{
 				// This one is for Win2k, which doesn't have SymFromAddr.
 				// However, I couldn't make it work with the out-of-the-box version.
@@ -191,32 +190,36 @@ static void get_symbols_impl(
 				// http://download.microsoft.com/download/A/6/A/A6AC035D-DA3F-4F0C-ADA4-37C8E5D34E3D/setup/WinSDKDebuggingTools/dbg_x86.msi
 
 				Buffer.info.MaxNameLength = Buffer.max_name_size;
-				if (DWORD64 Displacement; !Getter(Process, Address, &Displacement, &Buffer.info))
-					return {};
 			}
 			else
 			{
 				Buffer.info.MaxNameLen = Buffer.max_name_size;
-				if (!Getter(Process, Address, {}, &Buffer.info))
-					return {};
+			}
 
+			DWORD64 Displacement;
+			if (!Getter(Process, Address, &Displacement, &Buffer.info))
+				return {};
+
+			size_t NameSize{};
+			if constexpr (!IsOldApi)
+			{
 				NameSize = Buffer.info.NameLen;
 			}
 
 			// Old dbghelp versions (e.g. XP) not always populate NameLen
-			return { Buffer.info.Name, NameSize? NameSize : std::char_traits<VALUE_TYPE(Buffer.info.Name)>::length(Buffer.info.Name) };
+			return { { Buffer.info.Name, NameSize? NameSize : std::char_traits<VALUE_TYPE(Buffer.info.Name)>::length(Buffer.info.Name) }, Displacement };
 		};
 
-		if (const auto Name = Get(imports.SymFromAddrW, SymbolData.emplace<0>()); !Name.empty())
+		if (const auto Name = Get(imports.SymFromAddrW, SymbolData.emplace<0>()); !Name.first.empty())
 			return Name;
 
-		if (const auto Name = Get(imports.SymFromAddr, SymbolData.emplace<1>()); !Name.empty())
-			return NameBuffer = encoding::ansi::get_chars(Name);
+		if (const auto Name = Get(imports.SymFromAddr, SymbolData.emplace<1>()); !Name.first.empty())
+			return { NameBuffer = encoding::ansi::get_chars(Name.first), Name.second };
 
-		if (const auto Name = Get(imports.SymGetSymFromAddr64, SymbolData.emplace<2>()); !Name.empty())
-			return NameBuffer = encoding::ansi::get_chars(Name);
+		if (const auto Name = Get(imports.SymGetSymFromAddr64, SymbolData.emplace<2>()); !Name.first.empty())
+			return { NameBuffer = encoding::ansi::get_chars(Name.first), Name.second };
 
-		return L""sv;
+		return {};
 	};
 
 	const auto GetLocation = [&](uintptr_t const Address)
@@ -248,43 +251,45 @@ static void get_symbols_impl(
 		const auto HasModuleInfo = imports.SymGetModuleInfoW64 && imports.SymGetModuleInfoW64(Process, Address, &Module);
 
 		string_view SymbolName;
+		size_t Displacement;
 		string Location;
 
 		if (Address)
 		{
-			SymbolName = GetName(Address);
+			std::tie(SymbolName, Displacement) = GetName(Address);
 			Location = GetLocation(Address);
 
 			if (SymbolName.empty() && HasModuleInfo)
 			{
-				const auto& MapFile = MapFiles.try_emplace(
+				auto& MapFile = MapFiles.try_emplace(
 					Module.BaseOfImage,
 					*Module.ImageName?
 						Module.ImageName :
 						ModuleName
 				).first->second;
 
-				string_view LocationFromMap;
-				std::tie(NameBuffer, LocationFromMap) = MapFile.get(Address - Module.BaseOfImage);
-				SymbolName = NameBuffer;
+				const auto Info = MapFile.get(Address - Module.BaseOfImage);
+				SymbolName = Info.Symbol;
+				Displacement = Info.Displacement;
 
 				if (Location.empty())
-					Location = LocationFromMap;
-
-				if (SymbolName.empty())
-					SymbolName = L"<unknown> (get the pdb)"sv;
+					Location = Info.File;
 			}
 		}
 
 		Consumer(
 			FormatAddress(Address - Module.BaseOfImage),
 			Address?
-				concat(
+				format(FSTR(L"{}!{}{}"sv),
 					HasModuleInfo?
 						PointToName(Module.ImageName) :
 						L"<unknown>"sv,
-						L'!',
-						SymbolName
+					!SymbolName.empty()?
+						SymbolName :
+						L"<unknown> (get the pdb)"sv,
+					!SymbolName.empty()?
+						format(FSTR(L"+{:X}"sv), Displacement) :
+						L""s
 				) :
 				L""s,
 			std::move(Location)

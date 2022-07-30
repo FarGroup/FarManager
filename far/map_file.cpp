@@ -91,7 +91,7 @@ map_file::map_file(string_view const ModuleName)
 
 map_file::~map_file() = default;
 
-static string undecorate(string const& Symbol)
+static void undecorate(string& Symbol)
 {
 	const auto UndecorateFlags =
 		UNDNAME_NO_FUNCTION_RETURNS |
@@ -102,30 +102,36 @@ static string undecorate(string const& Symbol)
 		UNDNAME_32_BIT_DECODE;
 
 	if (wchar_t Buffer[MAX_SYM_NAME]; imports.UnDecorateSymbolNameW && imports.UnDecorateSymbolNameW(Symbol.c_str(), Buffer, static_cast<DWORD>(std::size(Buffer)), UndecorateFlags))
-		return Buffer;
+	{
+		Symbol = Buffer;
+		return;
+	}
 
 	if (char Buffer[MAX_SYM_NAME]; imports.UnDecorateSymbolName && imports.UnDecorateSymbolName(encoding::ansi::get_bytes(Symbol).c_str(), Buffer, static_cast<DWORD>(std::size(Buffer)), UndecorateFlags))
-		return encoding::ansi::get_chars(Buffer);
-
-	return Symbol;
+	{
+		encoding::ansi::get_chars(Buffer, Symbol);
+		return;
+	}
 }
 
-static std::pair<string, string_view> get_impl(uintptr_t const Address, std::map<uintptr_t, map_file::line> const& Symbols)
+static map_file::info get_impl(uintptr_t const Address, std::map<uintptr_t, map_file::line>& Symbols)
 {
 	auto [Begin, End] = Symbols.equal_range(Address);
 
-	if (Begin == Symbols.cend() || Begin->first > Address)
+	if (Begin == Symbols.end() || Begin->first > Address)
 	{
-		if (Begin == Symbols.cbegin())
+		if (Begin == Symbols.begin())
 			return {};
 
 		--Begin;
 	}
 
-	return { format(FSTR(L"{:04X}+{}"sv), Address - Begin->first, undecorate(Begin->second.Name)), *Begin->second.File};
+	undecorate(Begin->second.Name);
+
+	return { Begin->second.Name, *Begin->second.File, Address - Begin->first };
 }
 
-std::pair<string, string_view> map_file::get(uintptr_t const Address) const
+map_file::info map_file::get(uintptr_t const Address)
 {
 	return get_impl(Address, m_Symbols);
 }
@@ -302,6 +308,22 @@ void map_file::read(std::istream& Stream)
 
 #include "testing.hpp"
 
+struct test_symbol_info
+{
+	string_view
+		File, Symbol;
+
+	size_t Displacement;
+
+	bool operator==(map_file::info const& Info) const
+	{
+		return
+			File == Info.File &&
+			Symbol == Info.Symbol &&
+			Displacement == Info.Displacement;
+	}
+};
+
 TEST_CASE("map_file.msvc")
 {
 	const auto MapFileData =
@@ -338,30 +360,28 @@ R"( Far
 	static const struct
 	{
 		uintptr_t Address;
-		string_view File, Symbol;
+		test_symbol_info Info;
 	}
 	Tests[]
 	{
-		{ 0x00000000, L"<linker-defined>"sv,           L"0000+___ImageBase"sv, },
-		{ 0x000007e9, L"<absolute>"sv,                 L"0000+___safe_se_handler_count"sv, },
-		{ 0x000060e0, L"LIBCMT:delete_scalar.obj"sv,   L"0000+operator delete(void *)"sv, },
-		{ 0x000060e8, L"LIBCMT:delete_scalar.obj"sv,   L"0008+operator delete(void *)"sv, },
-		{ 0x0002f450, L"sqlite.obj"sv,                 L"0000+_sqlite3_step"sv, },
-		{ 0x000a1d8F, L"sqlite.obj"sv,                 L"7293F+_sqlite3_step"sv, },
-		{ 0x000a1d90, L"sqlite.obj"sv,                 L"0000+_sqlite3_open"sv, },
-		{ 0x000a8670, L"config.obj"sv,                 L"0000+std::vector<struct column,class std::allocator<struct column> >::_Xlength(void)"sv, },
-		{ 0x000a8678, L"config.obj"sv,                 L"0008+std::vector<struct column,class std::allocator<struct column> >::_Xlength(void)"sv, },
-		{ 0x000ff9AF, L"config.obj"sv,                 L"5733F+std::vector<struct column,class std::allocator<struct column> >::_Xlength(void)"sv, },
-		{ 0x000ff9b0, L"configdb.obj"sv,               L"0000+config_provider::config_provider(struct config_provider::clear_cache)"sv, },
-		{ 0x000ffc00, L"configdb.obj"sv,               L"0000+config_provider::~config_provider(void)"sv, },
-		{ 0xffffffff, L"configdb.obj"sv,               L"FFF003FF+config_provider::~config_provider(void)"sv, },
+		{ 0x00000000, { L"<linker-defined>"sv,           L"___ImageBase"sv, 0, }, },
+		{ 0x000007e9, { L"<absolute>"sv,                 L"___safe_se_handler_count"sv, 0, }, },
+		{ 0x000060e0, { L"LIBCMT:delete_scalar.obj"sv,   L"operator delete(void *)"sv, 0, }, },
+		{ 0x000060e8, { L"LIBCMT:delete_scalar.obj"sv,   L"operator delete(void *)"sv, 0x8, }, },
+		{ 0x0002f450, { L"sqlite.obj"sv,                 L"_sqlite3_step"sv, 0, }, },
+		{ 0x000a1d8F, { L"sqlite.obj"sv,                 L"_sqlite3_step"sv, 0x7293f, }, },
+		{ 0x000a1d90, { L"sqlite.obj"sv,                 L"_sqlite3_open"sv, 0, }, },
+		{ 0x000a8670, { L"config.obj"sv,                 L"std::vector<struct column,class std::allocator<struct column> >::_Xlength(void)"sv, 0, }, },
+		{ 0x000a8678, { L"config.obj"sv,                 L"std::vector<struct column,class std::allocator<struct column> >::_Xlength(void)"sv, 0x8, }, },
+		{ 0x000ff9AF, { L"config.obj"sv,                 L"std::vector<struct column,class std::allocator<struct column> >::_Xlength(void)"sv, 0x5733f, }, },
+		{ 0x000ff9b0, { L"configdb.obj"sv,               L"config_provider::config_provider(struct config_provider::clear_cache)"sv, 0, }, },
+		{ 0x000ffc00, { L"configdb.obj"sv,               L"config_provider::~config_provider(void)"sv, 0, }, },
+		{ 0xffffffff, { L"configdb.obj"sv,               L"config_provider::~config_provider(void)"sv, 0xfff003ff, }, },
 	};
 
 	for (const auto& i: Tests)
 	{
-		const auto [Symbol, File] = get_impl(i.Address, Symbols);
-		REQUIRE(Symbol == i.Symbol);
-		REQUIRE(File == i.File);
+		REQUIRE(i.Info == get_impl(i.Address, Symbols));
 	}
 }
 
@@ -396,27 +416,25 @@ R"(Address  Size     Align Out     In      Symbol
 	static const struct
 	{
 		uintptr_t Address;
-		string_view File, Symbol;
+		test_symbol_info Info;
 	}
 	Tests[]
 	{
-		{ 0x00000000, {},                                                                {}, },
-		{ 0x000016c0, L"obj/sqlite.o:(.text)"sv,                                         L"0000+sqlite3_mutex_enter"sv, },
-		{ 0x000016c8, L"obj/sqlite.o:(.text)"sv,                                         L"0008+sqlite3_mutex_enter"sv, },
-		{ 0x00001740, L"obj/sqlite.o:(.text)"sv,                                         L"0000+sqlite3_mutex_leave"sv, },
-		{ 0x0014ebbf, L"obj/sqlite.o:(.text)"sv,                                         L"14D47F+sqlite3_mutex_leave"sv, },
-		{ 0x0014ebc0, L"obj/cddrv.o:(.text$_ZNSt18bad_variant_accessD0Ev)"sv,            L"0000+std::bad_variant_access::~bad_variant_access()"sv, },
-		{ 0x001515b0, L"obj/cddrv.o:(.text$_ZNSt14pointer_traitsIPwE10pointer_toERw)"sv, L"0000+std::pointer_traits<wchar_t*>::pointer_to(wchar_t&)"sv, },
-		{ 0x0064f420, L"obj/palette.o:(.text)"sv,                                        L"0000+palette::palette()"sv, },
-		{ 0x0064f4e0, L"obj/palette.o:(.text)"sv,                                        L"0000+palette::ResetToDefault()"sv, },
-		{ 0xffffffff, L"obj/palette.o:(.text)"sv,                                        L"FF9B0B1F+palette::ResetToDefault()"sv, },
+		{ 0x00000000, { {},                                                                {}, 0, }, },
+		{ 0x000016c0, { L"obj/sqlite.o:(.text)"sv,                                         L"sqlite3_mutex_enter"sv, 0, }, },
+		{ 0x000016c8, { L"obj/sqlite.o:(.text)"sv,                                         L"sqlite3_mutex_enter"sv, 0x8, }, },
+		{ 0x00001740, { L"obj/sqlite.o:(.text)"sv,                                         L"sqlite3_mutex_leave"sv, 0, }, },
+		{ 0x0014ebbf, { L"obj/sqlite.o:(.text)"sv,                                         L"sqlite3_mutex_leave"sv, 0x14d47f, }, },
+		{ 0x0014ebc0, { L"obj/cddrv.o:(.text$_ZNSt18bad_variant_accessD0Ev)"sv,            L"std::bad_variant_access::~bad_variant_access()"sv, 0, }, },
+		{ 0x001515b0, { L"obj/cddrv.o:(.text$_ZNSt14pointer_traitsIPwE10pointer_toERw)"sv, L"std::pointer_traits<wchar_t*>::pointer_to(wchar_t&)"sv, 0, }, },
+		{ 0x0064f420, { L"obj/palette.o:(.text)"sv,                                        L"palette::palette()"sv, 0, }, },
+		{ 0x0064f4e0, { L"obj/palette.o:(.text)"sv,                                        L"palette::ResetToDefault()"sv, 0, }, },
+		{ 0xffffffff, { L"obj/palette.o:(.text)"sv,                                        L"palette::ResetToDefault()"sv, 0xff9b0b1f }, },
 	};
 
 	for (const auto& i: Tests)
 	{
-		const auto [Symbol, File] = get_impl(i.Address, Symbols);
-		REQUIRE(Symbol == i.Symbol);
-		REQUIRE(File == i.File);
+		REQUIRE(i.Info == get_impl(i.Address, Symbols));
 	}
 }
 
@@ -460,29 +478,27 @@ File )" R"(
 	static const struct
 	{
 		uintptr_t Address;
-		string_view File, Symbol;
+		test_symbol_info Info;
 	}
 	Tests[]
 	{
-		{ 0x00000000, {},                {}, },
-		{ 0x00001010, L"crtexe.c"sv,     L"0000+pre_c_init"sv, },
-		{ 0x000014b0, L"crtexe.c"sv,     L"0000+WinMainCRTStartup"sv, },
-		{ 0x000014b8, L"crtexe.c"sv,     L"0008+WinMainCRTStartup"sv, },
-		{ 0x0000157F, L"crtexe.c"sv,     L"00CF+WinMainCRTStartup"sv, },
-		{ 0x00001580, L"sqlite.c"sv,     L"0000+sqlite3_mutex_enter"sv, },
-		{ 0x000015a0, L"sqlite.c"sv,     L"0000+sqlite3_mutex_leave"sv, },
-		{ 0x005dd140, L"sqlitedb.cpp"sv, L"0000+(anonymous namespace)::GetErrorString(int)"sv, },
-		{ 0x005ddab0, L"sqlitedb.cpp"sv, L"0000+(anonymous namespace)::scoped_object_148::{lambda()#1}::_FUN()"sv, },
-		{ 0x006befa0, L"cmdline.cpp"sv,  L"0000+SimpleScreenObject::ShowConsoleTitle()"sv, },
-		{ 0x006e54f0, L"cmdline.cpp"sv,  L"0000+Panel::ProcessPluginEvent(int, void*)"sv, },
-		{ 0xffffffff, L"cmdline.cpp"sv,  L"FF91AB0F+Panel::ProcessPluginEvent(int, void*)"sv, },
+		{ 0x00000000, { {},                {}, }, },
+		{ 0x00001010, { L"crtexe.c"sv,     L"pre_c_init"sv, 0, }, },
+		{ 0x000014b0, { L"crtexe.c"sv,     L"WinMainCRTStartup"sv, 0, }, },
+		{ 0x000014b8, { L"crtexe.c"sv,     L"WinMainCRTStartup"sv, 0x8, }, },
+		{ 0x0000157F, { L"crtexe.c"sv,     L"WinMainCRTStartup"sv, 0xcf, }, },
+		{ 0x00001580, { L"sqlite.c"sv,     L"sqlite3_mutex_enter"sv, 0, }, },
+		{ 0x000015a0, { L"sqlite.c"sv,     L"sqlite3_mutex_leave"sv, 0, }, },
+		{ 0x005dd140, { L"sqlitedb.cpp"sv, L"(anonymous namespace)::GetErrorString(int)"sv, 0, }, },
+		{ 0x005ddab0, { L"sqlitedb.cpp"sv, L"(anonymous namespace)::scoped_object_148::{lambda()#1}::_FUN()"sv, 0, }, },
+		{ 0x006befa0, { L"cmdline.cpp"sv,  L"SimpleScreenObject::ShowConsoleTitle()"sv, 0, }, },
+		{ 0x006e54f0, { L"cmdline.cpp"sv,  L"Panel::ProcessPluginEvent(int, void*)"sv, 0, }, },
+		{ 0xffffffff, { L"cmdline.cpp"sv,  L"Panel::ProcessPluginEvent(int, void*)"sv, 0xff91ab0f, }, },
 	};
 
 	for (const auto& i: Tests)
 	{
-		const auto [Symbol, File] = get_impl(i.Address, Symbols);
-		REQUIRE(Symbol == i.Symbol);
-		REQUIRE(File == i.File);
+		REQUIRE(i.Info == get_impl(i.Address, Symbols));
 	}
 }
 #endif
