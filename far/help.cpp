@@ -127,7 +127,7 @@ static const auto HelpFormatLinkModule = FSTR(L"<{}>{}"sv);
 
 class Help final: public window
 {
-	struct private_tag {};
+	struct private_tag { explicit private_tag() = default; };
 
 public:
 	static help_ptr create(string_view Topic, string_view Mask, unsigned long long Flags);

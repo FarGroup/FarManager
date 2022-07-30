@@ -53,7 +53,7 @@ class MenuBar;
 
 class FilePanels final: public window, public ViewerContainer
 {
-	struct private_tag {};
+	struct private_tag { explicit private_tag() = default; };
 
 public:
 	static filepanels_ptr create(bool CreateRealPanels, int DirCount);

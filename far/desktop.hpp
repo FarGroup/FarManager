@@ -48,7 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class desktop final: public window
 {
-	struct private_tag {};
+	struct private_tag { explicit private_tag() = default; };
 
 public:
 	static desktop_ptr create();

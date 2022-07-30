@@ -62,7 +62,7 @@ class VMenu2;
 
 class HMenu final: public Modal
 {
-	struct private_tag {};
+	struct private_tag { explicit private_tag() = default; };
 
 public:
 	static hmenu_ptr create(HMenuData* Item, size_t ItemCount);

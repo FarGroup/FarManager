@@ -50,7 +50,7 @@ class EditControl;
 
 class FastFind final: public window
 {
-	struct private_tag {};
+	struct private_tag { explicit private_tag() = default; };
 
 public:
 	static fastfind_ptr create(Panel* Owner, const Manager::Key& FirstKey);

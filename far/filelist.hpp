@@ -128,9 +128,7 @@ enum OPENFILEPLUGINTYPE: int;
 
 class FileList final: public Panel
 {
-	struct private_tag
-	{
-	};
+	struct private_tag { explicit private_tag() = default; };
 
 public:
 	static file_panel_ptr create(window_ptr Owner);

@@ -154,7 +154,7 @@ class Dialog;
 class Dialog: public window
 {
 protected:
-	struct private_tag {};
+	struct private_tag { explicit private_tag() = default; };
 
 public:
 	using dialog_handler = std::function<intptr_t(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)>;

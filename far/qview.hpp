@@ -53,7 +53,8 @@ class Viewer;
 
 class QuickView final: public Panel
 {
-	struct private_tag {};
+	struct private_tag { explicit private_tag() = default; };
+
 public:
 	static qview_panel_ptr create(window_ptr Owner);
 	QuickView(private_tag, window_ptr Owner);

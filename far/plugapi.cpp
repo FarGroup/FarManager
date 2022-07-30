@@ -1034,7 +1034,7 @@ HANDLE WINAPI apiDialogInit(const UUID* PluginId, const UUID* Id, intptr_t X1, i
 		{
 			class plugin_dialog: public Dialog
 			{
-				struct private_tag {};
+				struct private_tag { explicit private_tag() = default; };
 
 			public:
 				static dialog_ptr create(span<const FarDialogItem> const Src, FARWINDOWPROC const DlgProc, void* const InitParam)
