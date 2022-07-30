@@ -2410,7 +2410,7 @@ static int WINAPI FarMessageFnA(intptr_t PluginNumber, DWORD Flags, const char *
 		{
 			AnsiItems.reserve(ItemsNumber);
 			AnsiItemsPtrs.reserve(ItemsNumber);
-			std::transform(Items, Items + ItemsNumber, std::back_inserter(AnsiItems), [](const char* Item){ return encoding::oem::get_chars(Item); });
+			std::transform(Items, Items + ItemsNumber, std::back_inserter(AnsiItems), [](const char* Item){ return encoding::oem::get_chars(NullToEmpty(Item)); });
 			std::transform(ALL_CONST_RANGE(AnsiItems), std::back_inserter(AnsiItemsPtrs), [](const string& Item){ return Item.c_str(); });
 		}
 
