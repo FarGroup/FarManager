@@ -1340,19 +1340,18 @@ unhandled_exception_filter::~unhandled_exception_filter()
 	SetUnhandledExceptionFilter(m_PreviousFilter);
 }
 
+
+#if !IS_MICROSOFT_SDK()
 // For GCC. For some reason the default one works in Debug, but not in Release.
 #ifndef _DEBUG
 extern "C"
 {
-	[[noreturn]]
-	void __cxa_pure_virtual();
-
-	[[noreturn]]
 	void __cxa_pure_virtual()
 	{
 		std::abort();
 	}
 }
+#endif
 #endif
 
 static void signal_handler_impl(int const Signal)

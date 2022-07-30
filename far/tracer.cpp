@@ -207,7 +207,7 @@ static void get_symbols_impl(
 			}
 
 			// Old dbghelp versions (e.g. XP) not always populate NameLen
-			return { { Buffer.info.Name, NameSize? NameSize : std::char_traits<VALUE_TYPE(Buffer.info.Name)>::length(Buffer.info.Name) }, Displacement };
+			return { { Buffer.info.Name, NameSize? NameSize : std::char_traits<VALUE_TYPE(Buffer.info.Name)>::length(Buffer.info.Name) }, static_cast<size_t>(Displacement) };
 		};
 
 		if (const auto Name = Get(imports.SymFromAddrW, SymbolData.emplace<0>()); !Name.first.empty())
