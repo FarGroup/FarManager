@@ -43,6 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "exception.hpp"
 #include "log.hpp"
+#include "encoding.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -304,12 +305,27 @@ bool get_locale_value(LCID const LcId, LCTYPE const Id, int& Value)
 string GetPrivateProfileString(string_view const AppName, string_view const KeyName, string_view const Default, string_view const FileName)
 {
 	string Value;
-	return detail::ApiDynamicStringReceiver(Value, [&](span<wchar_t> const Buffer)
+
+	if (!detail::ApiDynamicStringReceiver(Value, [&](span<wchar_t> const Buffer)
 	{
 		const auto Size = ::GetPrivateProfileString(null_terminated(AppName).c_str(), null_terminated(KeyName).c_str(), null_terminated(Default).c_str(), Buffer.data(), static_cast<DWORD>(Buffer.size()), null_terminated(FileName).c_str());
 		return Size == Buffer.size() - 1? Buffer.size() * 2 : Size;
-	})?
-		Value : string(Default);
+	}))
+		return {};
+
+	// GetPrivateProfileStringW doesn't work with UTF-8 and interprets it as ANSI.
+	// We try to re-convert if possible.
+
+	const auto AnsiBytes = encoding::ansi::get_bytes(Value);
+
+	if (encoding::ansi::get_chars(AnsiBytes) != Value)
+		return Value;
+
+	bool PureAscii{};
+	if (!encoding::is_valid_utf8(AnsiBytes, false, PureAscii) || PureAscii)
+		return Value;
+
+	return encoding::utf8::get_chars(AnsiBytes);
 }
 
 bool GetWindowText(HWND Hwnd, string& Text)
