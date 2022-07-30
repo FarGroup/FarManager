@@ -89,7 +89,7 @@ namespace
 		using os::fs::find_handle::find_handle;
 	};
 
-	static DWORD SHErrorToWinError(DWORD const SHError)
+	DWORD SHErrorToWinError(DWORD const SHError)
 	{
 		switch (SHError)
 		{

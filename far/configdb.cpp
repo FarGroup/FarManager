@@ -216,26 +216,26 @@ private:
 	const tinyxml::XMLNode* m_base;
 };
 
-static void serialise_integer(tinyxml::XMLElement& e, long long const Value)
+void serialise_integer(tinyxml::XMLElement& e, long long const Value)
 {
 	SetAttribute(e, "type", "qword"sv);
 	SetAttribute(e, "value", encoding::utf8::get_bytes(to_hex_wstring(Value)));
 }
 
-static void serialise_string(tinyxml::XMLElement& e, std::string const& Value)
+void serialise_string(tinyxml::XMLElement& e, std::string const& Value)
 {
 	SetAttribute(e, "type", "text"sv);
 	SetAttribute(e, "value", Value);
 }
 
-static void serialise_blob(tinyxml::XMLElement& e, bytes_view const Value)
+void serialise_blob(tinyxml::XMLElement& e, bytes_view const Value)
 {
 	SetAttribute(e, "type", "base64"sv);
 	SetAttribute(e, "value", base64::encode(Value));
 }
 
 template<typename callable>
-static bool deserialise_value(char const* Type, char const* Value, callable const& Setter)
+bool deserialise_value(char const* Type, char const* Value, callable const& Setter)
 {
 	if (!strcmp(Type, "qword"))
 	{
@@ -838,7 +838,7 @@ private:
 	};
 };
 
-static const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]
+const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]
 {
 	{ FCF_FG_INDEX,        L"fgindex"sv      },
 	{ FCF_BG_INDEX,        L"bgindex"sv      },
@@ -2334,7 +2334,7 @@ private:
 	void Export(representation_destination&) const override {}
 };
 
-static bool is_uuid(string_view const Str)
+bool is_uuid(string_view const Str)
 {
 	static const std::wregex re(RE_BEGIN RE_ANY_UUID RE_END, std::regex::icase | std::regex::optimize);
 	return std::regex_search(ALL_CONST_RANGE(Str), re);

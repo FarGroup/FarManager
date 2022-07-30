@@ -794,7 +794,7 @@ TEST_CASE("range.dynamic")
 namespace
 {
 	template<scope_exit::scope_type type>
-	static void test_scope_impl(bool const Throw, bool const MustBeTriggered)
+	void test_scope_impl(bool const Throw, bool const MustBeTriggered)
 	{
 		bool IsTriggered = false;
 
@@ -819,7 +819,7 @@ namespace
 	};
 
 	template<scope_exit::scope_type type>
-	static void test_scope(int const When)
+	void test_scope(int const When)
 	{
 		test_scope_impl<type>(true, (When & on_fail) != 0);
 		test_scope_impl<type>(false, (When & on_success) != 0);

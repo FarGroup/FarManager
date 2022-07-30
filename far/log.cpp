@@ -70,20 +70,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace
 {
-	static const auto log_argument = L"/service:log_viewer"sv;
+	const auto log_argument = L"/service:log_viewer"sv;
 
-	static string get_parameter(string_view const Name)
+	string get_parameter(string_view const Name)
 	{
 		return os::env::get(concat(L"far.log."sv, Name));
 	}
 
 	template<typename sink_type>
-	static string get_sink_parameter(string_view const Name)
+	string get_sink_parameter(string_view const Name)
 	{
 		return get_parameter(concat(L"sink."sv, sink_type::name, L'.', Name));
 	}
 
-	static auto parse_level(string_view const Str, logging::level const Default)
+	auto parse_level(string_view const Str, logging::level const Default)
 	{
 		if (Str.empty())
 			return Default;
@@ -109,7 +109,7 @@ namespace
 		return ItemIterator == LevelMap.cend()? Default : ItemIterator->second;
 	}
 
-	static string_view level_to_string(logging::level const Level)
+	string_view level_to_string(logging::level const Level)
 	{
 		using level = logging::level;
 
@@ -131,7 +131,7 @@ namespace
 		}
 	}
 
-	static WORD level_to_color(logging::level const Level)
+	WORD level_to_color(logging::level const Level)
 	{
 		using level = logging::level;
 
@@ -146,12 +146,12 @@ namespace
 		return F_DARKGRAY;
 	}
 
-	static string get_location(std::string_view const Function, std::string_view const File, int const Line)
+	string get_location(std::string_view const Function, std::string_view const File, int const Line)
 	{
 		return format(FSTR(L"{}, {}({})"sv), encoding::utf8::get_chars(Function), encoding::utf8::get_chars(File), Line);
 	}
 
-	static string get_thread_id()
+	string get_thread_id()
 	{
 		return str(GetCurrentThreadId());
 	}

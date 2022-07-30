@@ -58,7 +58,7 @@ namespace
 		automatic
 	};
 
-	static auto s_FullWidthState = full_width::off;
+	auto s_FullWidthState = full_width::off;
 
 	enum class codepoint_width: char
 	{
@@ -68,7 +68,7 @@ namespace
 	};
 
 	[[nodiscard]]
-	static auto quick_width(char_width::codepoint const Codepoint) noexcept
+	auto quick_width(char_width::codepoint const Codepoint) noexcept
 	{
 		return in_closed_range(U'\U00000020', Codepoint, U'\U0000007E')?
 			codepoint_width::narrow :
@@ -96,7 +96,7 @@ namespace
 	// Note: unlike Terminal, we don't use any overrides since we don't control any drawing code
 	// and have no other choice but to do as the Romans do.
 	using cpw = codepoint_width;
-	static constexpr unicode_range s_WideAndAmbiguousTable[]
+	constexpr unicode_range s_WideAndAmbiguousTable[]
 	{
 		{ U'\U000000A1', U'\U000000A1', cpw::ambiguous },
 		{ U'\U000000A4', U'\U000000A4', cpw::ambiguous },
@@ -396,7 +396,7 @@ namespace
 	};
 
 	[[nodiscard]]
-	static auto lookup_width(char_width::codepoint const Codepoint)
+	auto lookup_width(char_width::codepoint const Codepoint)
 	{
 		if (
 			const auto Iterator = std::lower_bound(ALL_CONST_RANGE(s_WideAndAmbiguousTable), Codepoint);
@@ -410,13 +410,13 @@ namespace
 	}
 
 	[[nodiscard]]
-	static auto is_bmp(char_width::codepoint const Codepoint)
+	auto is_bmp(char_width::codepoint const Codepoint)
 	{
 		return Codepoint <= std::numeric_limits<char16_t>::max();
 	}
 
 	[[nodiscard]]
-	static auto device_width(char_width::codepoint const Codepoint, bool const ClearCacheOnly = false)
+	auto device_width(char_width::codepoint const Codepoint, bool const ClearCacheOnly = false)
 	{
 		static std::array<codepoint_width, std::numeric_limits<char16_t>::max()> FastCache;
 		static std::unordered_map<char_width::codepoint, codepoint_width> SlowCache;
@@ -450,13 +450,13 @@ namespace
 	}
 
 	[[nodiscard]]
-	static auto is_fullwidth_needed()
+	auto is_fullwidth_needed()
 	{
 		return console.IsVtSupported() || locale.is_cjk();
 	}
 
 	[[nodiscard]]
-	static auto get_width(char_width::codepoint const RawCodepoint)
+	auto get_width(char_width::codepoint const RawCodepoint)
 	{
 		const auto Codepoint = RawCodepoint > std::numeric_limits<char16_t>::max()?
 			RawCodepoint :

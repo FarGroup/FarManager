@@ -51,12 +51,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace
 {
-	static constexpr bool is_string_type(DWORD Type)
+	constexpr bool is_string_type(DWORD Type)
 	{
 		return Type == REG_SZ || Type == REG_EXPAND_SZ || Type == REG_MULTI_SZ;
 	}
 
-	static bool query_value(const HKEY Key, const string_view Name, DWORD* const Type, void* const Data, size_t* const Size)
+	bool query_value(const HKEY Key, const string_view Name, DWORD* const Type, void* const Data, size_t* const Size)
 	{
 		DWORD dwSize = Size? static_cast<DWORD>(*Size) : 0;
 		const auto Result = RegQueryValueEx(Key, null_terminated(Name).c_str(), nullptr, Type, static_cast<BYTE*>(Data), Size? &dwSize : nullptr);
@@ -67,7 +67,7 @@ namespace
 		return Result == ERROR_SUCCESS;
 	}
 
-	static bool query_value(const HKEY Key, const string_view Name, DWORD& Type, bytes& Value)
+	bool query_value(const HKEY Key, const string_view Name, DWORD& Type, bytes& Value)
 	{
 		size_t Size = 0;
 		if (!query_value(Key, Name, nullptr, nullptr, &Size))

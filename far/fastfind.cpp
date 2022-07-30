@@ -62,7 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace
 {
 	// корректировка букв
-	static DWORD CorrectFastFindKbdLayout(const INPUT_RECORD& rec, DWORD Key)
+	DWORD CorrectFastFindKbdLayout(const INPUT_RECORD& rec, DWORD Key)
 	{
 		if ((Key&(KEY_ALT | KEY_RALT)))// && Key!=(KEY_ALT|0x3C))
 		{

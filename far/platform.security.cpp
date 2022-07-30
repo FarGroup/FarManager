@@ -52,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace
 {
-	static const auto& lookup_privilege_value(const wchar_t* Name)
+	const auto& lookup_privilege_value(const wchar_t* Name)
 	{
 		static unordered_string_map<std::optional<LUID>> s_Cache;
 		static os::critical_section s_CS;
@@ -75,7 +75,7 @@ namespace
 		return MapValue;
 	}
 
-	static bool operator==(const LUID& a, const LUID& b)
+	bool operator==(const LUID& a, const LUID& b)
 	{
 		return a.LowPart == b.LowPart && a.HighPart == b.HighPart;
 	}
