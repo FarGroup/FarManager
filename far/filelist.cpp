@@ -7941,7 +7941,7 @@ void FileList::ShowTotalSize(const OpenPanelInfo &Info)
 
 bool FileList::ConvertName(const string_view SrcName, string& strDest, const size_t MaxLength, const unsigned long long RightAlign, const int ShowStatus, os::fs::attributes const FileAttr) const
 {
-	strDest.reserve(MaxLength);
+	reserve_exp_noshrink(strDest, MaxLength);
 
 	const auto SrcLength = visual_string_length(SrcName);
 
@@ -7988,23 +7988,28 @@ bool FileList::ConvertName(const string_view SrcName, string& strDest, const siz
 			Name.remove_suffix(1);
 
 		const auto VisualNameLength = visual_string_length(Name);
-		const auto VisualExtensionLength = std::max(size_t{ 3 }, visual_string_length(Extension));
+		const auto VisualExtensionLength = visual_string_length(Extension);
+		const auto AlignedVisualExtensionLength = std::max(size_t{ 3 }, VisualExtensionLength);
 
-		const auto SpaceLength = VisualNameLength + VisualExtensionLength < MaxLength?
-			MaxLength - VisualNameLength - VisualExtensionLength :
-			0;
+		const auto SpacesBetween =
+			VisualNameLength + AlignedVisualExtensionLength < MaxLength?
+				MaxLength - VisualNameLength - AlignedVisualExtensionLength:
+				1;
+
+		const auto SpacesAfter = MaxLength - VisualNameLength - SpacesBetween - VisualExtensionLength;
 
 		strDest += Name;
-		strDest.append(SpaceLength, L' ');
+		strDest.append(SpacesBetween, L' ');
 		strDest += Extension;
+		strDest.append(SpacesAfter, L' ');
 	}
 	else
 	{
 		strDest.assign(SrcName, 0, visual_pos_to_string_pos(SrcName, MaxLength, 1));
-	}
 
-	if (const auto VisualSize = visual_string_length(strDest); VisualSize < MaxLength)
-		strDest.append(MaxLength - VisualSize, L' ');
+		if (const auto VisualSize = visual_string_length(strDest); VisualSize < MaxLength)
+			strDest.append(MaxLength - VisualSize, L' ');
+	}
 
 	return SrcLength > MaxLength;
 }
