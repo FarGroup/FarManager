@@ -56,7 +56,7 @@ public:
 	imports() = default;
 
 private:
-#define DECLARE_MODULE(MODULE) const os::rtdl::module m_##MODULE{L###MODULE}
+#define DECLARE_MODULE(MODULE) const os::rtdl::module m_##MODULE{WIDE_SV(#MODULE)}
 
 	DECLARE_MODULE(ntdll);
 	DECLARE_MODULE(kernel32);

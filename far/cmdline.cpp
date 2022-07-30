@@ -909,14 +909,19 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool)> con
 {
 	inplace::trim(Command);
 
-	if (equal_icase(Command, L"far:config"sv))
+	if (constexpr auto Prefix = L"far:"sv; starts_with(Command, Prefix))
+		Command.remove_prefix(Prefix.size());
+	else
+		return false;
+
+	if (equal_icase(Command, L"config"sv))
 	{
 		ConsoleActivatior(false);
 		Global->Opt->AdvancedConfig();
 		return true;
 	}
 
-	if (equal_icase(Command, L"far:about"sv))
+	if (equal_icase(Command, L"about"sv))
 	{
 		ConsoleActivatior(true);
 
@@ -969,7 +974,7 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool)> con
 		return true;
 	}
 
-	if (const auto LogCommand = L"far:log"sv; starts_with_icase(Command, LogCommand))
+	if (const auto LogCommand = L"log"sv; starts_with_icase(Command, LogCommand))
 	{
 		if (const auto LogParameters = Command.substr(LogCommand.size()); starts_with(LogParameters, L' ') || LogParameters.empty())
 		{

@@ -44,6 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-bool pick_color_rgb(COLORREF& Color);
+bool pick_color_rgb(COLORREF& Color, std::array<COLORREF, 16>& CustomColors);
 
 #endif // COLOR_PICKER_RGB_HPP_2D6C08AA_17E2_4EE8_9567_E9270BFFAE84

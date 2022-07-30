@@ -70,6 +70,5 @@ namespace build
 			L""sv;
 
 		return format(FSTR(L"{}, version {}.{}.{}{}"sv), COMPILER_NAME, COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH, CompilerInfo);
-
 	}
 }

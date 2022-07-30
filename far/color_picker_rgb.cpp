@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "config.hpp"
 #include "console.hpp"
-#include "global.hpp"
 
 // Platform:
 
@@ -49,21 +48,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-bool pick_color_rgb(COLORREF& Color)
+bool pick_color_rgb(COLORREF& Color, std::array<COLORREF, 16>& CustomColors)
 {
 	CHOOSECOLOR Params{ sizeof(Params) };
 
 	Params.hwndOwner = console.GetWindow();
 	Params.Flags = CC_ANYCOLOR | CC_FULLOPEN | CC_RGBINIT;
 
-	auto CustomColors = Global->Opt->Palette.GetCustomColors();
 	Params.lpCustColors = CustomColors.data();
 	Params.rgbResult = Color;
 
 	if (!ChooseColor(&Params))
 		return false;
 
-	Global->Opt->Palette.SetCustomColors(CustomColors);
 	Color = Params.rgbResult;
 
 	return true;

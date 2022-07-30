@@ -52,8 +52,10 @@ namespace os::chrono
 {
 	nt_clock::time_point nt_clock::now() noexcept
 	{
+		static const auto Get = imports.GetSystemTimePreciseAsFileTime? imports.GetSystemTimePreciseAsFileTime : GetSystemTimeAsFileTime;
+
 		FILETIME Time;
-		(imports.GetSystemTimePreciseAsFileTime? imports.GetSystemTimePreciseAsFileTime : GetSystemTimeAsFileTime)(&Time);
+		Get(&Time);
 		return from_filetime(Time);
 	}
 
