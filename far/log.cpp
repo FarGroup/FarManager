@@ -668,10 +668,7 @@ namespace logging
 
 		void configure(string_view const Parameters)
 		{
-			{
-				SCOPED_ACTION(std::lock_guard)(m_CS);
-				initialise();
-			}
+			initialise();
 
 			if (equal_icase(Parameters, L"reconfigure"))
 			{
@@ -693,11 +690,7 @@ namespace logging
 			switch (m_Status)
 			{
 			case engine_status::incomplete:
-				{
-					SCOPED_ACTION(os::last_error_guard);
-					SCOPED_ACTION(std::lock_guard)(m_CS);
-					initialise();
-				}
+				initialise();
 				[[fallthrough]];
 			case engine_status::complete:
 				return m_Level >= Level;
@@ -775,11 +768,15 @@ namespace logging
 
 		void initialise()
 		{
+			SCOPED_ACTION(std::lock_guard)(m_CS);
+
 			if (m_Status != engine_status::incomplete)
 				return;
 
 			m_Status = engine_status::in_progress;
 			SCOPE_EXIT{ m_Status = engine_status::complete; flush_queue(); };
+
+			SCOPED_ACTION(os::last_error_guard);
 
 			// No recursion if it's the helper process
 			if (contains(string_view{ GetCommandLine() }, log_argument))

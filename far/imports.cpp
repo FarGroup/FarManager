@@ -40,10 +40,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "log.hpp"
 #include "encoding.hpp"
+#include "exception.hpp"
 
 // Platform:
 
 // Common:
+#include "common/scope_exit.hpp"
 
 // External:
 
@@ -53,10 +55,23 @@ namespace imports_detail
 {
 	void imports::log_missing_import(const os::rtdl::module& Module, std::string_view const Name)
 	{
-		if (Module)
-			LOGWARNING(L"[{}:{}]: function not found"sv, Module.name(), encoding::utf8::get_chars(Name));
-		else
-			LOGWARNING(L"[{}:{}]: module not loaded"sv, Module.name(), encoding::utf8::get_chars(Name));
+		static const os::rtdl::module* CurrentModule{};
+		static std::string_view CurrentName;
+
+		if (CurrentModule == &Module && CurrentName.data() == Name.data())
+			return;
+
+		CurrentModule = &Module;
+		CurrentName = Name;
+
+		SCOPE_EXIT
+		{
+			CurrentModule = {};
+			CurrentName = {};
+		};
+
+		const auto LastError = last_error();
+		LOGWARNING(L"{}::{}: {}"sv, Module.name(), encoding::utf8::get_chars(Name), LastError);
 	}
 
 // ntdll
@@ -368,6 +383,20 @@ HRESULT WINAPI imports::stub_GetThreadDescription(HANDLE Thread, PWSTR* ThreadDe
 {
 	LOGWARNING(L"Stub call"sv);
 	return E_NOTIMPL;
+}
+
+PVOID WINAPI imports::stub_AddVectoredExceptionHandler(ULONG First, PVECTORED_EXCEPTION_HANDLER Handler)
+{
+	LOGWARNING(L"Stub call"sv);
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return nullptr;
+}
+
+ULONG WINAPI imports::stub_RemoveVectoredExceptionHandler(PVOID Handle)
+{
+	LOGWARNING(L"Stub call"sv);
+	SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+	return 0;
 }
 
 // shell32

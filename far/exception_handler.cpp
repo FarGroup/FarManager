@@ -1431,13 +1431,14 @@ static LONG NTAPI vectored_exception_handler_impl(EXCEPTION_POINTERS* const Poin
 }
 
 vectored_exception_handler::vectored_exception_handler():
-	m_Handler(AddVectoredExceptionHandler(false, vectored_exception_handler_impl))
+	m_Handler(imports.AddVectoredExceptionHandler? imports.AddVectoredExceptionHandler(false, vectored_exception_handler_impl) : nullptr)
 {
 }
 
 vectored_exception_handler::~vectored_exception_handler()
 {
-	RemoveVectoredExceptionHandler(m_Handler);
+	if (m_Handler && imports.RemoveVectoredExceptionHandler)
+		imports.RemoveVectoredExceptionHandler(m_Handler);
 }
 
 namespace detail
