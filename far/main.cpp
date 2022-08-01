@@ -503,7 +503,7 @@ static void log_hook_wow64_status()
 	const auto [Msg, Error] = get_hook_wow64_error();
 	LOG(
 		Error == ERROR_SUCCESS? logging::level::debug : logging::level::warning,
-		L"hook_wow64: {} {}"sv,
+		L"hook_wow64: {}: {}"sv,
 		Msg,
 		os::format_error(Error)
 	);
