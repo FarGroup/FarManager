@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "colormix.hpp"
 #include "lang.hpp"
+#include "strmix.hpp"
 
 // Platform:
 
@@ -72,7 +73,12 @@ static constexpr uint8_t cube_rc_mapping[]
 
 static_assert(std::size(cube_rc_mapping) == colors::index::cube_size * colors::index::cube_size);
 
-static constexpr uint16_t distinct_grey(unsigned char const Value)
+static constexpr uint16_t distinct_cube_index(uint8_t const Index)
+{
+	return Index << 8 | (colors::index::cube_last - (Index - colors::index::cube_first));
+}
+
+static constexpr uint16_t distinct_grey(uint8_t const Value)
 {
 	// Naive inversion doesn't work nicely in the middle of the spectre.
 	// This way the distance between foreground and background colors is constant and should always produce readable results.
@@ -145,9 +151,30 @@ static_assert(std::size(grey_stripe_mapping) == std::size(GreyColorIndex));
 
 using cube = unsigned char[colors::index::cube_size][colors::index::cube_size][colors::index::cube_size];
 
+struct rgb6
+{
+	rgb6() = default;
+
+	rgb6(COLORREF const Color):
+		r((Color - 16) / 36),
+		g((Color - 16 - r * 36) / 6),
+		b(Color - 16 - r * 36 - g * 6)
+
+	{
+	}
+
+	operator COLORREF() const
+	{
+		return 16 + r * 36 + g * 6 + b;
+	}
+
+	uint8_t r{}, g{}, b{};
+};
+
 struct color256_state
 {
 	COLORREF CurColor;
+	rgb6 RGB;
 	cube Cube;
 	int CubeSlice{};
 	unsigned char CurrentIndex{};
@@ -251,6 +278,8 @@ enum color256_dialog_items
 	cd_grey_first,
 	cd_grey_last = cd_grey_first + 23,
 
+	cd_radio_rgb,
+
 	cd_button_up,
 	cd_button_left,
 	cd_button_right,
@@ -259,13 +288,80 @@ enum color256_dialog_items
 	cd_button_plus,
 	cd_button_minus,
 
-	cd_separator1,
+	cd_text_r,
+	cd_button_r_plus,
+	cd_button_r_minus,
+	cd_text_g,
+	cd_button_g_plus,
+	cd_button_g_minus,
+	cd_text_b,
+	cd_button_b_plus,
+	cd_button_b_minus,
+
+	cd_separator,
 
 	cd_button_ok,
 	cd_button_cancel,
 
 	cd_count
 };
+
+struct rgb_context
+{
+	uint8_t rgb6::*Channel;
+	color256_dialog_items TextId;
+	int Multiplier;
+
+};
+static rgb_context get_rgb_context(color256_dialog_items const Item)
+{
+	switch (Item)
+	{
+	case cd_text_r:
+	case cd_button_r_plus:
+	case cd_button_r_minus:
+		return { &rgb6::r, cd_text_r, 36 };
+
+	case cd_text_g:
+	case cd_button_g_plus:
+	case cd_button_g_minus:
+		return { &rgb6::g, cd_text_g, 6 };
+
+	case cd_text_b:
+	case cd_button_b_plus:
+	case cd_button_b_minus:
+		return { &rgb6::b, cd_text_b, 1 };
+
+	default:
+		assert(false);
+		UNREACHABLE;
+	}
+}
+
+static auto get_channel_operation(color256_dialog_items const Button)
+{
+	switch (Button)
+	{
+	case cd_button_r_plus:
+	case cd_button_g_plus:
+	case cd_button_b_plus:
+		return +1;
+
+	case cd_button_r_minus:
+	case cd_button_g_minus:
+	case cd_button_b_minus:
+		return -1;
+
+	default:
+		assert(false);
+		UNREACHABLE;
+	}
+}
+
+static auto channel_value(uint8_t const Channel)
+{
+	return format(FSTR(L" {} "sv), Channel);
+}
 
 static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
@@ -292,7 +388,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			if (in_closed_range(cd_cube_first, Param1, cd_cube_last))
 			{
 				const auto ColorIndex = cube_index(Param1);
-				Colors->Colors[0] = Console256ColorToFarColor(ColorIndex << 8 | (colors::index::cube_last - (ColorIndex - colors::index::cube_first)));
+				Colors->Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
 				return TRUE;
 			}
 
@@ -302,20 +398,44 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				return TRUE;
 			}
 
+			switch (const auto Item = static_cast<color256_dialog_items>(Param1))
+			{
+			case cd_radio_rgb:
+				{
+					const COLORREF ColorIndex = ColorState.RGB;
+					Colors->Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
+					return TRUE;
+				}
+
+			case cd_text_r:
+			case cd_text_g:
+			case cd_text_b:
+				{
+					const auto Context = get_rgb_context(Item);
+					const auto Channel = std::invoke(Context.Channel, ColorState.RGB);
+					const auto ColorIndex = 16 + Channel * Context.Multiplier;
+					Colors->Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
+					return TRUE;
+				}
+
+			default:
+				break;
+			}
+
 			return FALSE;
 		}
 
 	case DN_BTNCLICK:
 		{
-			switch(Param1)
+			switch(const auto Button = static_cast<color256_dialog_items>(Param1))
 			{
 			case cd_button_up:
 			case cd_button_down:
 			case cd_button_right:
 			case cd_button_left:
 				{
-					const auto Axis = any_of(Param1, cd_button_up, cd_button_down)? axis::x : axis::y;
-					const auto Cw = any_of(Param1, cd_button_down, cd_button_left);
+					const auto Axis = any_of(Button, cd_button_up, cd_button_down)? axis::x : axis::y;
+					const auto Cw = any_of(Button, cd_button_down, cd_button_left);
 					rotate_cube(ColorState.Cube, Axis, Cw);
 					Dlg->SendMessage(DM_ONCUBECHANGE, 0, {});
 					return TRUE;
@@ -324,21 +444,63 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			case cd_button_plus:
 			case cd_button_minus:
 				{
-					ColorState.CubeSlice = std::clamp(ColorState.CubeSlice + (Param1 == cd_button_plus? +1 : -1), 0, colors::index::cube_size - 1);
+					ColorState.CubeSlice = std::clamp(ColorState.CubeSlice + (Button == cd_button_plus? +1 : -1), 0, colors::index::cube_size - 1);
 					Dlg->SendMessage(DM_ONCUBECHANGE, 0, {});
 					return TRUE;
 				}
+
+			case cd_button_r_plus:
+			case cd_button_r_minus:
+			case cd_button_g_plus:
+			case cd_button_g_minus:
+			case cd_button_b_plus:
+			case cd_button_b_minus:
+				{
+					const auto Context = get_rgb_context(Button);
+					auto& Channel = std::invoke(Context.Channel, ColorState.RGB);
+					switch (get_channel_operation(Button))
+					{
+					case -1:
+						if (Channel)
+							--Channel;
+						break;
+
+					case +1:
+						if (Channel < 5)
+							++Channel;
+						break;
+					}
+
+					Dlg->SendMessage(DM_SETTEXTPTR, Context.TextId, UNSAFE_CSTR(channel_value(Channel)));
+					return TRUE;
+				}
+
+			default:
+				break;
 			}
 
 			if (Param2 && in_closed_range(cd_cube_first, Param1, cd_cube_last))
 			{
 				ColorState.CurColor = cube_index(Param1);
+				ColorState.RGB = ColorState.CurColor;
+
+				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+				Dlg->SendMessage(DM_SETTEXTPTR, cd_text_r, UNSAFE_CSTR(channel_value(ColorState.RGB.r)));
+				Dlg->SendMessage(DM_SETTEXTPTR, cd_text_g, UNSAFE_CSTR(channel_value(ColorState.RGB.g)));
+				Dlg->SendMessage(DM_SETTEXTPTR, cd_text_b, UNSAFE_CSTR(channel_value(ColorState.RGB.b)));
+
 				return TRUE;
 			}
 
 			if (Param2 && in_closed_range(cd_grey_first, Param1, cd_grey_last))
 			{
 				ColorState.CurColor = GreyColorIndex[grey_stripe_mapping[grey_color_by_control[Param1 - cd_grey_first]]] >> 8;
+				return TRUE;
+			}
+
+			if (Param2 && Param1 == cd_radio_rgb)
+			{
+				ColorState.CurColor = ColorState.RGB;
 				return TRUE;
 			}
 		}
@@ -384,6 +546,8 @@ bool pick_color_256(COLORREF& Color)
 		GreyX = CubeX,
 		GreyY = CubeY + colors::index::cube_size + 1,
 		GreyH = 4,
+		RGBX = PadX,
+		RGBY = GreyY,
 		ButtonY = GreyY + GreyH + 1;
 
 	auto ColorDlg = MakeDialogItems<cd_count>(
@@ -463,12 +627,24 @@ bool pick_color_256(COLORREF& Color)
 		{ DI_RADIOBUTTON, {{GreyX+3*5, GreyY+2}, {0, GreyY+2}}, DIF_MOVESELECT, },
 		{ DI_RADIOBUTTON, {{GreyX+3*5, GreyY+3}, {0, GreyY+3}}, DIF_MOVESELECT, },
 
+		{ DI_RADIOBUTTON, {{RGBX+3, RGBY+0}, {0, RGBY+0}}, DIF_MOVESELECT, },
+
 		{ DI_BUTTON,      {{PadX+3, PadY+0}, {0, PadY+0}}, DIF_NOBRACKETS, L"[▲]"sv, },
 		{ DI_BUTTON,      {{PadX+0, PadY+1}, {0, PadY+1}}, DIF_NOBRACKETS, L"[◄]"sv, },
 		{ DI_BUTTON,      {{PadX+6, PadY+1}, {0, PadY+1}}, DIF_NOBRACKETS, L"[►]"sv, },
 		{ DI_BUTTON,      {{PadX+3, PadY+2}, {0, PadY+2}}, DIF_NOBRACKETS, L"[▼]"sv, },
 		{ DI_BUTTON,      {{PadX+1, PadY+4}, {0, PadY+4}}, DIF_NOBRACKETS, L"[+]"sv, },
 		{ DI_BUTTON,      {{PadX+5, PadY+4}, {0, PadY+4}}, DIF_NOBRACKETS, L"[-]"sv, },
+
+		{ DI_TEXT,        {{RGBX+0, RGBY+1}, {0, RGBY+1}}, DIF_NONE,       L" 0 "sv, },
+		{ DI_BUTTON,      {{RGBX+0, RGBY+2}, {0, RGBY+2}}, DIF_NOBRACKETS, L"[▲]"sv, },
+		{ DI_BUTTON,      {{RGBX+0, RGBY+3}, {0, RGBY+3}}, DIF_NOBRACKETS, L"[▼]"sv, },
+		{ DI_TEXT,        {{RGBX+3, RGBY+1}, {0, RGBY+1}}, DIF_NONE,       L" 0 "sv, },
+		{ DI_BUTTON,      {{RGBX+3, RGBY+2}, {0, RGBY+2}}, DIF_NOBRACKETS, L"[▲]"sv, },
+		{ DI_BUTTON,      {{RGBX+3, RGBY+3}, {0, RGBY+3}}, DIF_NOBRACKETS, L"[▼]"sv, },
+		{ DI_TEXT,        {{RGBX+6, RGBY+1}, {0, RGBY+1}}, DIF_NONE,       L" 0 "sv, },
+		{ DI_BUTTON,      {{RGBX+6, RGBY+2}, {0, RGBY+2}}, DIF_NOBRACKETS, L"[▲]"sv, },
+		{ DI_BUTTON,      {{RGBX+6, RGBY+3}, {0, RGBY+3}}, DIF_NOBRACKETS, L"[▼]"sv, },
 
 		{ DI_TEXT,        {{-1, ButtonY-1}, {0, ButtonY-1}}, DIF_SEPARATOR, },
 
@@ -480,6 +656,14 @@ bool pick_color_256(COLORREF& Color)
 	{
 		Color,
 	};
+
+	if (in_closed_range(colors::index::cube_first, static_cast<int>(Color), colors::index::cube_last))
+	{
+		ColorState.RGB = Color;
+		ColorDlg[cd_text_r].strData = channel_value(ColorState.RGB.r);
+		ColorDlg[cd_text_g].strData = channel_value(ColorState.RGB.g);
+		ColorDlg[cd_text_b].strData = channel_value(ColorState.RGB.b);
+	}
 
 	{
 		unsigned char Index = colors::index::cube_first;
