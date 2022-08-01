@@ -492,6 +492,26 @@ HKL make_hkl(string_view const LayoutStr)
 	return {};
 }
 
+bool is_interactive_user_session()
+{
+	const auto WindowStation = GetProcessWindowStation();
+	if (!WindowStation)
+	{
+		LOGWARNING(L"GetProcessWindowStation(): {}"sv, last_error());
+		return false; // assume the worse
+	}
+
+	USEROBJECTFLAGS Flags;
+	if (!GetUserObjectInformation(WindowStation, UOI_FLAGS, &Flags, sizeof(Flags), {}))
+	{
+		LOGWARNING(L"GetUserObjectInformation(): {}"sv, last_error());
+		return false; // assume the worse
+	}
+
+	// An invisible window station suggests that we aren't interactive.
+	return flags::check_all(Flags.dwFlags, WSF_VISIBLE);
+}
+
 namespace rtdl
 	{
 		void module::module_deleter::operator()(HMODULE Module) const

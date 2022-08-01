@@ -740,7 +740,7 @@ static bool ShowExceptionUI(
 	const auto ReadmeOnDisk = write_readme(path::join(ReportLocation, L"README.txt"sv));
 	const auto AnythingOnDisk = ReportOnDisk || MinidumpNormal || MinidumpFull || ReadmeOnDisk;
 
-	if (AnythingOnDisk)
+	if (AnythingOnDisk && os::is_interactive_user_session())
 		OpenFolderInShell(ReportLocation);
 
 	if (AnythingOnDisk || ReportInClipboard)

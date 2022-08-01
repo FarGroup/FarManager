@@ -422,6 +422,8 @@ namespace os
 
 	HKL make_hkl(int32_t Layout);
 	HKL make_hkl(string_view LayoutStr);
+
+	bool is_interactive_user_session();
 }
 
 #endif // PLATFORM_HPP_632CB91D_08A9_4793_8FC7_2E38C30CE234

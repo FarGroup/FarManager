@@ -171,7 +171,7 @@ struct rgb6
 	uint8_t r{}, g{}, b{};
 };
 
-struct color256_state
+struct color_256_state
 {
 	COLORREF CurColor;
 	rgb6 RGB;
@@ -262,13 +262,13 @@ static FarColor Console256ColorToFarColor(WORD const Color)
 {
 	return
 	{
-		FCF_FG_INDEX | FCF_BG_INDEX | FCF_INHERIT_STYLE,
+		FCF_FG_INDEX | FCF_BG_INDEX,
 		{ colors::opaque(colors::index_bits(Color >> 0)) },
 		{ colors::opaque(colors::index_bits(Color >> 8)) }
 	};
 }
 
-enum color256_dialog_items
+enum color_256_dialog_items
 {
 	cd_border,
 
@@ -309,11 +309,12 @@ enum color256_dialog_items
 struct rgb_context
 {
 	uint8_t rgb6::*Channel;
-	color256_dialog_items TextId;
+	color_256_dialog_items TextId;
 	int Multiplier;
 
 };
-static rgb_context get_rgb_context(color256_dialog_items const Item)
+
+static rgb_context get_rgb_context(color_256_dialog_items const Item)
 {
 	switch (Item)
 	{
@@ -338,7 +339,7 @@ static rgb_context get_rgb_context(color256_dialog_items const Item)
 	}
 }
 
-static auto get_channel_operation(color256_dialog_items const Button)
+static auto get_channel_operation(color_256_dialog_items const Button)
 {
 	switch (Button)
 	{
@@ -365,7 +366,7 @@ static auto channel_value(uint8_t const Channel)
 
 static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	auto& ColorState = edit_as<color256_state>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
+	auto& ColorState = edit_as<color_256_state>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
 	const auto cube_index = [&](intptr_t ControlId)
 	{
@@ -398,7 +399,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				return TRUE;
 			}
 
-			switch (const auto Item = static_cast<color256_dialog_items>(Param1))
+			switch (const auto Item = static_cast<color_256_dialog_items>(Param1))
 			{
 			case cd_radio_rgb:
 				{
@@ -421,13 +422,12 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			default:
 				break;
 			}
-
-			return FALSE;
 		}
+		break;
 
 	case DN_BTNCLICK:
 		{
-			switch(const auto Button = static_cast<color256_dialog_items>(Param1))
+			switch(const auto Button = static_cast<color_256_dialog_items>(Param1))
 			{
 			case cd_button_up:
 			case cd_button_down:
@@ -458,6 +458,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				{
 					const auto Context = get_rgb_context(Button);
 					auto& Channel = std::invoke(Context.Channel, ColorState.RGB);
+
 					switch (get_channel_operation(Button))
 					{
 					case -1:
@@ -652,7 +653,7 @@ bool pick_color_256(COLORREF& Color)
 		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP, msg(lng::MCancel), },
 	});
 
-	color256_state ColorState
+	color_256_state ColorState
 	{
 		Color,
 	};
