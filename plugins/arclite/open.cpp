@@ -405,6 +405,7 @@ static bool accepted_signature(
   if (eof_i < 0)
     return false;
 
+  std::unique_ptr<Byte[]> buf;
   std::string_view tail;
   if (eof_i) {
     pos += min_LOCAL;
@@ -416,7 +417,7 @@ static bool accepted_signature(
     tail = { (const char*)buffer + pos, size - pos };
   }
   else {
-    auto buf = std::make_unique<Byte[]>(check_size);
+    buf = std::make_unique<Byte[]>(check_size);
     pos = 0;
     buffer = buf.get();
     UInt64 cur_pos;

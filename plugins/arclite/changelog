@@ -1,3 +1,7 @@
+drkns 02.08.2022 21:52:59 +0100 - build 328
+
+1. UAF crash after 325.
+
 drkns 22.07.2022 23:00:00 +0100 - build 327
 
 1. Adapt to 7z v22 shenanigans with file times.

@@ -1,6 +1,6 @@
 #include <farversion.hpp>
 
-#define PLUGIN_BUILD 327
+#define PLUGIN_BUILD 328
 #define PLUGIN_DESC L"Archive support for Far Manager (based on 7-Zip project)"
 #define PLUGIN_NAME L"ArcLite"
 #define PLUGIN_FILENAME L"arclite.dll"
