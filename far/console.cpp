@@ -1008,6 +1008,16 @@ namespace console_detail
 		Str += L'm';
 	}
 
+	static bool is_same_color(FarColor const& a, FarColor const& b)
+	{
+		return
+			a.Flags == b.Flags &&
+			a.ForegroundColor == b.ForegroundColor &&
+			a.BackgroundColor == b.BackgroundColor &&
+			// Reserved[0] contains non-BMP codepoints and is of no interest here.
+			a.Reserved[1] == b.Reserved[1];
+	}
+
 	static void make_vt_sequence(span<FAR_CHAR_INFO> Input, string& Str, std::optional<FarColor>& LastColor)
 	{
 		const auto CharWidthEnabled = char_width::is_enabled();
@@ -1084,7 +1094,7 @@ WARNING_POP()
 				}
 			}
 
-			if (!LastColor.has_value() || Cell.Attributes != *LastColor)
+			if (!LastColor.has_value() || !is_same_color(Cell.Attributes, *LastColor))
 			{
 				make_vt_attributes(Cell.Attributes, Str, LastColor);
 				LastColor = Cell.Attributes;
