@@ -711,6 +711,8 @@ void TmpPanel::SaveListFile(const string& Path)
 		WriteFile(File, &bom, sizeof(bom), &BytesWritten, {});
 	}
 
+	std::string Dest;
+
 	for (const auto& i: m_Panel->Items)
 	{
 		const string_view FName = i.FileName;
@@ -724,10 +726,9 @@ void TmpPanel::SaveListFile(const string& Path)
 		else
 		{
 			const auto CRLF = "\r\n";
-			std::string Dest;
-			const auto Required = WideCharToMultiByte(CP_UTF8, 0, FName.data(), -1, {}, 0, {}, {});
+			const auto Required = WideCharToMultiByte(CP_UTF8, 0, FName.data(), static_cast<int>(FName.size()), {}, 0, {}, {});
 			Dest.resize(Required);
-			Dest.resize(WideCharToMultiByte(CP_UTF8, 0, FName.data(), -1, Dest.data(), static_cast<int>(Dest.size()), {}, {}));
+			Dest.resize(WideCharToMultiByte(CP_UTF8, 0, FName.data(), static_cast<int>(FName.size()), Dest.data(), static_cast<int>(Dest.size()), {}, {}));
 			WriteFile(File, Dest.data(), static_cast<DWORD>(Dest.size()), &BytesWritten, {});
 			WriteFile(File, CRLF, 2 * sizeof(char), &BytesWritten, {});
 		}
