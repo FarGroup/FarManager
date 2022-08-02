@@ -1,3 +1,7 @@
+drkns 02.08.2022 22:48:02 +0100 - build 114
+
+1. Fix crashes.
+
 drkns 02.08.2022 21:06:08 +0100 - build 113
 
 1. gh-537: Saved content to a list file contains null termination character.

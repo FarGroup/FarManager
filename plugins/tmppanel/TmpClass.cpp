@@ -50,6 +50,12 @@ int TmpPanel::GetFindData(PluginPanelItem*& pPanelItem, size_t& pItemsNumber, co
 	for (;;)
 	{
 		const size_t Size = PsInfo.PanelControl(this, FCTL_GETCOLUMNTYPES, ColumnTypes.size(), ColumnTypes.data());
+		if (!Size)
+		{
+			ColumnTypes.clear();
+			break;
+		}
+
 		const auto CurrentSize = ColumnTypes.size();
 		ColumnTypes.resize(Size - 1);
 		if (Size - 1 <= CurrentSize)
@@ -457,6 +463,12 @@ void TmpPanel::UpdateItems(const bool ShowOwners, const bool ShowLinks)
 				for (;;)
 				{
 					const auto Size = FSF.GetFileOwner({}, CurItem.FileName, OwnerData.data(), OwnerData.size());
+					if (!Size)
+					{
+						OwnerData.clear();
+						break;
+					}
+
 					const auto CurrentSize = OwnerData.size();
 					OwnerData.resize(Size - 1);
 					if (Size - 1 <= CurrentSize)
