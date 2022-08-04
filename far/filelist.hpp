@@ -201,6 +201,7 @@ public:
 	void UpdateKeyBar() override;
 	void GoHome(string_view Drive) override;
 	bool GetSelectedFirstMode() const override;
+	void on_swap() override;
 
 	const FileListItem* GetItem(size_t Index) const;
 	const FileListItem* GetLastSelectedItem() const;

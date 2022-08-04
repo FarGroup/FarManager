@@ -8804,6 +8804,12 @@ bool FileList::GetSelectedFirstMode() const
 	return SelectedFirst;
 }
 
+void FileList::on_swap()
+{
+	if (m_Filter)
+		m_Filter = std::make_unique<multifilter>(this, FFT_PANEL);
+}
+
 std::unique_ptr<content_data> FileList::GetContentData(const string_view Item) const
 {
 	if (m_ContentPlugins.empty())

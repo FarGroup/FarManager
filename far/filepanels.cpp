@@ -365,6 +365,8 @@ int FilePanels::SwapPanels()
 
 	using std::swap;
 	swap(m_Panels[panel_left], m_Panels[panel_right]);
+	m_Panels[panel_left].m_Panel->on_swap();
+	m_Panels[panel_right].m_Panel->on_swap();
 	filters::SwapPanelFilters();
 	m_ActivePanelIndex = IsLeftActive()? panel_right : panel_left;
 
