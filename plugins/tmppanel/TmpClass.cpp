@@ -288,7 +288,7 @@ void TmpPanel::FindSearchResultsPanel()
 
 	if (Opt.NewPanelForSearchResults)
 	{
-		std::optional<size_t> SearchResultsPanel = -1;
+		std::optional<size_t> SearchResultsPanel;
 
 		for (size_t i = 0; i != std::size(SharedData->CommonPanels); i++)
 		{
