@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 04.08.2022 20:33:22 +0100 - build 6006
+
+1. Fix filters issue after swapping panels.
+
+2. Suppress plugin selection dialog during search.
+
+--------------------------------------------------------------------------------
 drkns 02.08.2022 22:50:15 +0100 - build 6005
 
 1. "[x] Search in archives" was trying to read directories.
