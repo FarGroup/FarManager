@@ -557,7 +557,12 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 		Name = &strFullName;
 	}
 
-	const auto ShowMenu = Global->Opt->PluginConfirm.OpenFilePlugin==BSTATE_3STATE? !(Type == OFP_NORMAL || Type == OFP_SEARCH) : Global->Opt->PluginConfirm.OpenFilePlugin != 0;
+	const auto ShowMenu =
+		Type != OFP_SEARCH && // UI is not thread-safe
+		(
+			Global->Opt->PluginConfirm.OpenFilePlugin == BSTATE_CHECKED ||
+			(Global->Opt->PluginConfirm.OpenFilePlugin == BSTATE_3STATE && Type != OFP_NORMAL)
+		);
 
 	 //у анси плагинов OpMode нет.
 	if(Type==OFP_ALTERNATIVE) OpMode|=OPM_PGDN;
