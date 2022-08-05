@@ -436,4 +436,15 @@ namespace os::process
 
 		return true;
 	}
+
+	[[noreturn]]
+	void terminate(int const ExitCode)
+	{
+		// exit/_exit/_Exit/quick_exit/abort/ExitProcess etc. are all unreliable in one way or another.
+		// They still allow some code in CRT or other threads to run and fail spectacularly.
+
+		// "I say we take off and nuke the entire site from orbit. It’s the only way to be sure."
+		TerminateProcess(GetCurrentProcess(), ExitCode);
+		UNREACHABLE;
+	}
 }

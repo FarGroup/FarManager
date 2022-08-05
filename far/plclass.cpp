@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
+#include "platform.process.hpp"
 
 // Common:
 #include "common/enum_tokens.hpp"
@@ -1216,10 +1217,10 @@ void Plugin::ExitFAR(ExitInfo *Info)
 
 void Plugin::ExecuteFunctionImpl(export_index const ExportId, function_ref<void()> const Callback)
 {
-	const auto HandleFailure = [&]
+	const auto HandleFailure = [&](DWORD const ExceptionCode = EXIT_FAILURE)
 	{
 		if (use_terminate_handler())
-			std::_Exit(EXIT_FAILURE);
+			os::process::terminate(ExceptionCode);
 
 		m_Factory->Owner()->UnloadPlugin(this, ExportId);
 	};
@@ -1257,10 +1258,7 @@ void Plugin::ExecuteFunctionImpl(export_index const ExportId, function_ref<void(
 			HandleException(handle_std_exception, e);
 		});
 	},
-	[&](DWORD)
-	{
-		HandleFailure();
-	},
+	HandleFailure,
 	m_Factory->ExportsNames()[ExportId].AName, this);
 }
 

@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 
 // Platform:
+#include "platform.concurrency.hpp"
 
 // Common:
 #include "common/function_ref.hpp"
@@ -120,6 +121,22 @@ private:
 
 void restore_system_exception_handler();
 
+class seh_exception: public os::event
+{
+public:
+	seh_exception();
+	~seh_exception();
+
+	void set(EXCEPTION_POINTERS const& Pointers);
+	void raise();
+	void dismiss();
+	class seh_exception_impl;
+	seh_exception_impl const& get() const;
+
+private:
+	std::unique_ptr<seh_exception_impl> m_Impl;
+};
+
 namespace detail
 {
 	struct no_handler
@@ -131,7 +148,7 @@ namespace detail
 	void cpp_try(function_ref<void()> Callable, function_ref<void()> UnknownHandler, function_ref<void(std::exception const&)> StdHandler);
 	void seh_try(function_ref<void()> Callable, function_ref<DWORD(EXCEPTION_POINTERS*)> Filter, function_ref<void(DWORD)> Handler);
 	int seh_filter(EXCEPTION_POINTERS const* Info, std::string_view Function, Plugin const* Module);
-	int seh_thread_filter(std::exception_ptr& Ptr, EXCEPTION_POINTERS const* Info);
+	int seh_thread_filter(seh_exception& Exception, EXCEPTION_POINTERS const* Info);
 	void seh_thread_handler(DWORD ExceptionCode);
 	void set_fp_exceptions(bool Enable);
 
@@ -247,11 +264,11 @@ auto seh_try_no_ui(function const& Callable, handler const& Handler)
 }
 
 template<class function>
-auto seh_try_thread(std::exception_ptr& ExceptionPtr, function const& Callable)
+auto seh_try_thread(seh_exception& Exception, function const& Callable)
 {
 	return seh_try(
 		Callable,
-		[&](EXCEPTION_POINTERS const* const Info){ return detail::seh_thread_filter(ExceptionPtr, Info); },
+		[&](EXCEPTION_POINTERS const* const Info){ return detail::seh_thread_filter(Exception, Info); },
 		detail::seh_thread_handler
 	);
 }

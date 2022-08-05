@@ -404,10 +404,10 @@ public:
 	void Resume() const { PauseEvent.set(); }
 	void Stop() const { PauseEvent.set(); StopEvent.set(); }
 	bool Stopped() const { return StopEvent.is_signaled(); }
-	bool Finished() const { return m_Finished || m_ExceptionPtr; }
+	bool Finished() const { return m_Finished || m_ExceptionPtr || m_SehException.is_signaled(); }
 
-	auto ExceptionPtr() const { return m_ExceptionPtr; }
-	auto IsRegularException() const { return m_IsRegularException; }
+	const auto& ExceptionPtr() const { return m_ExceptionPtr; }
+	auto& SehException() { return m_SehException; }
 
 private:
 	void InitInFileSearch();
@@ -454,7 +454,7 @@ private:
 	std::atomic_bool m_Finished{};
 
 	std::exception_ptr m_ExceptionPtr;
-	bool m_IsRegularException{};
+	seh_exception m_SehException;
 
 	searchers m_TextSearchers;
 	i_searcher const* m_TextSearcher;
@@ -2664,7 +2664,7 @@ void background_searcher::Search()
 {
 	os::debug::set_thread_name(L"Find file");
 
-	seh_try_thread(m_ExceptionPtr, [this]
+	seh_try_thread(m_SehException, [this]
 	{
 		cpp_try(
 		[&]
@@ -2677,7 +2677,6 @@ void background_searcher::Search()
 		[&]
 		{
 			SAVE_EXCEPTION_TO(m_ExceptionPtr);
-			m_IsRegularException = true;
 		});
 	});
 
@@ -2808,13 +2807,13 @@ bool FindFiles::FindFilesProcess()
 				m_ExceptionPtr = BC.ExceptionPtr();
 			}
 
-			if (m_ExceptionPtr && !BC.IsRegularException())
+			rethrow_if(m_ExceptionPtr);
+
+			if (auto& SehException = BC.SehException(); SehException.is_signaled())
 			{
-				// You're someone else's problem
-				FindThread.detach();
+				SehException.raise();
 			}
 
-			rethrow_if(m_ExceptionPtr);
 		}
 
 		switch (Dlg->GetExitCode())

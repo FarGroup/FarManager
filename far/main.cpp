@@ -76,6 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.env.hpp"
 #include "platform.memory.hpp"
+#include "platform.process.hpp"
 #include "platform.security.hpp"
 
 // Common:
@@ -489,7 +490,7 @@ static void handle_exception(function_ref<bool()> const Handler)
 	if (Handler())
 	{
 		LOGFATAL(L"Abnormal exit"sv);
-		std::_Exit(EXIT_FAILURE);
+		os::process::terminate(EXIT_FAILURE);
 	}
 
 	throw;
@@ -1002,7 +1003,7 @@ static void handle_exception_final(function_ref<bool()> const Handler)
 	if (Handler())
 	{
 		LOGFATAL(L"Abnormal exit"sv);
-		std::_Exit(EXIT_FAILURE);
+		os::process::terminate(EXIT_FAILURE);
 	}
 
 	restore_system_exception_handler();
@@ -1066,7 +1067,7 @@ int main()
 	[](DWORD const ExceptionCode) -> int
 	{
 		LOGFATAL(L"Abnormal exit due to SEH exception {}"sv, ExceptionCode);
-		std::_Exit(ExceptionCode? ExceptionCode : EXIT_FAILURE);
+		os::process::terminate(ExceptionCode? ExceptionCode : EXIT_FAILURE);
 	},
 	CURRENT_FUNCTION_NAME);
 }

@@ -100,49 +100,42 @@ namespace tests
 	{
 		std::exception_ptr Ptr;
 
-		cpp_try(
-		[]
+		[&]() noexcept
 		{
-			throw std::runtime_error("Test nested std error"s);
-		},
-		[&]
-		{
-			SAVE_EXCEPTION_TO(Ptr);
-		});
+			cpp_try(
+			[]
+			{
+				throw std::runtime_error("Test nested std error"s);
+			},
+			[&]
+			{
+				SAVE_EXCEPTION_TO(Ptr);
+			});
+		}();
 
+		assert(Ptr);
 		rethrow_if(Ptr);
 	}
 
 	static void cpp_std_nested_thread()
 	{
 		std::exception_ptr Ptr;
-		os::thread Thread(os::thread::mode::join, [&]
+		os::thread const Thread(os::thread::mode::join, [&]
 		{
 			os::debug::set_thread_name(L"Nested thread exception test");
 
-			seh_try_thread(Ptr, [&]
+			cpp_try(
+			[]
 			{
-				cpp_try(
-				[]
-				{
-					throw std::runtime_error("Test nested std error (thread)"s);
-				},
-				[&]
-				{
-					SAVE_EXCEPTION_TO(Ptr);
-				});
+				throw std::runtime_error("Test nested std error (thread)"s);
+			},
+			[&]
+			{
+				SAVE_EXCEPTION_TO(Ptr);
 			});
 		});
 
-		while (!Thread.is_signaled() && !Ptr)
-			;
-
-		if (Ptr)
-		{
-			// You're someone else's problem
-			Thread.detach();
-		}
-
+		assert(Ptr);
 		rethrow_if(Ptr);
 	}
 
@@ -343,12 +336,12 @@ namespace tests
 
 	static void seh_divide_by_zero_thread()
 	{
-		std::exception_ptr Ptr;
-		os::thread Thread(os::thread::mode::join, [&]
+		seh_exception SehException;
+		os::thread const Thread(os::thread::mode::join, [&]
 		{
 			os::debug::set_thread_name(L"Divide by zero test");
 
-			seh_try_thread(Ptr, []
+			seh_try_thread(SehException, []
 			{
 				volatile const auto InvalidDenominator = 0;
 				[[maybe_unused]]
@@ -356,16 +349,11 @@ namespace tests
 			});
 		});
 
-		while (!Thread.is_signaled() && !Ptr)
-			;
+		const auto Result = os::handle::wait_any({ Thread.native_handle(), SehException.native_handle() });
 
-		if (Ptr)
-		{
-			// You're someone else's problem
-			Thread.detach();
-		}
-
-		rethrow_if(Ptr);
+		assert(Result == 1);
+		if (Result == 1)
+			SehException.raise();
 	}
 
 	static void seh_int_overflow()

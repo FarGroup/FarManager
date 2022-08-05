@@ -160,8 +160,9 @@ void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
 static constexpr NTSTATUS
 	EXCEPTION_HEAP_CORRUPTION     = STATUS_HEAP_CORRUPTION,
-	EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363, // EH_EXCEPTION_NUMBER
-	EXCEPTION_ABORT               = 0xE0616274; // 'abt'
+	EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363, // 'msc', EH_EXCEPTION_NUMBER
+	EXCEPTION_ABORT               = 0xE0616274, // 'abt'
+	EXCEPTION_THREAD_RETHROW      = 0xE0747274; // 'trt'
 
 static const auto Separator = L"----------------------------------------------------------------------"sv;
 
@@ -949,7 +950,7 @@ static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_vie
 
 static string exception_details(string_view const Module, EXCEPTION_RECORD const& ExceptionRecord, string_view const Message)
 {
-	switch (static_cast<NTSTATUS>(ExceptionRecord.ExceptionCode))
+	switch (const auto NtStatus = static_cast<NTSTATUS>(ExceptionRecord.ExceptionCode))
 	{
 	case EXCEPTION_ACCESS_VIOLATION:
 	case EXCEPTION_IN_PAGE_ERROR:
@@ -974,7 +975,11 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 		if (Symbol.empty())
 			Symbol = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
 
-		return format(FSTR(L"0x{:0>8X} - Memory at {} could not be {}"sv), ExceptionRecord.ExceptionCode, Symbol, Mode);
+		auto Result = format(FSTR(L"Memory at {} could not be {}"sv), Symbol, Mode);
+		if (NtStatus == EXCEPTION_IN_PAGE_ERROR)
+			append(Result, L": "sv, os::format_ntstatus(static_cast<NTSTATUS>(ExceptionRecord.ExceptionInformation[2])));
+
+		return Result;
 	}
 
 	case EXCEPTION_MICROSOFT_CPLUSPLUS:
@@ -1176,24 +1181,6 @@ static std::pair<string, string> extract_nested_exceptions(EXCEPTION_RECORD cons
 	return Result;
 }
 
-class seh_exception final: public far_exception
-{
-public:
-	template<typename... args>
-	explicit seh_exception(EXCEPTION_POINTERS const& Pointers, args&&... Args):
-		far_exception(FWD(Args)...),
-		m_Context(std::make_shared<seh_exception_context>(Pointers))
-	{}
-
-	const auto& context() const noexcept { return *m_Context; }
-
-private:
-	// Q: Why do you need a shared_ptr here?
-	// A: The exception must be copyable
-	std::shared_ptr<seh_exception_context> m_Context;
-};
-
-
 static bool handle_std_exception(
 	exception_context const& Context,
 	const std::exception& e,
@@ -1201,20 +1188,6 @@ static bool handle_std_exception(
 	const Plugin* const Module
 )
 {
-	if (const auto SehException = dynamic_cast<const seh_exception*>(&e))
-	{
-		return handle_generic_exception(
-			Context,
-			Function,
-			SehException->location(),
-			Module,
-			{},
-			SehException->message(),
-			*SehException,
-			tracer.get({}, SehException->context().context_record(), SehException->context().thread_handle())
-		);
-	}
-
 	const auto& [Type, What] = extract_nested_exceptions(Context.exception_record(), e);
 
 	if (const auto FarException = dynamic_cast<const detail::far_base_exception*>(&e))
@@ -1236,16 +1209,78 @@ bool handle_std_exception(const std::exception& e, std::string_view const Functi
 	return handle_std_exception(exception_context(exception_information()), e, Function, Module);
 }
 
+class seh_exception::seh_exception_impl
+{
+public:
+	explicit seh_exception_impl(EXCEPTION_POINTERS const& Pointers):
+		Context(Pointers),
+		ErrorState(last_error())
+	{}
+
+	seh_exception_context Context;
+	error_state ErrorState;
+};
+
+seh_exception::seh_exception():
+	os::event(os::event::type::manual, os::event::state::nonsignaled)
+{}
+
+seh_exception::~seh_exception()
+{
+	if (m_Impl)
+		raise();
+}
+
+void seh_exception::set(EXCEPTION_POINTERS const& Pointers)
+{
+	m_Impl = std::make_unique<seh_exception_impl>(Pointers);
+	event::set();
+}
+
+void seh_exception::raise()
+{
+	assert(m_Impl);
+
+	ULONG_PTR const Arguments[]
+	{
+		reinterpret_cast<ULONG_PTR>(this)
+	};
+
+	RaiseException(EXCEPTION_THREAD_RETHROW, 0, static_cast<DWORD>(std::size(Arguments)), Arguments);
+
+	dismiss();
+}
+
+void seh_exception::dismiss()
+{
+	m_Impl.reset();
+	reset();
+}
+
+seh_exception::seh_exception_impl const& seh_exception::get() const
+{
+	return *m_Impl;
+}
+
 static bool handle_seh_exception(
 	exception_context const& Context,
 	std::string_view const Function,
 	Plugin const* const PluginModule
 )
 {
-	for (const auto& i : enum_catchable_objects(Context.exception_record()))
+	const auto& Record = Context.exception_record();
+
+	if (Record.ExceptionCode == EXCEPTION_THREAD_RETHROW && Record.NumberParameters == 1)
+	{
+		const auto& OriginalExceptionData = reinterpret_cast<seh_exception const*>(Record.ExceptionInformation[0])->get();
+		// We don't need to care about the rethrow stack here: SEH is synchronous, so it will be a part of the handler stack
+		return handle_generic_exception(OriginalExceptionData.Context, Function, {}, PluginModule, {}, {}, OriginalExceptionData.ErrorState);
+	}
+
+	for (const auto& i : enum_catchable_objects(Record))
 	{
 		if (strstr(i, "std::exception"))
-			return handle_std_exception(Context, view_as<std::exception>(Context.exception_record().ExceptionInformation[1]), Function, PluginModule);
+			return handle_std_exception(Context, view_as<std::exception>(Record.ExceptionInformation[1]), Function, PluginModule);
 	}
 
 	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {});
@@ -1325,7 +1360,7 @@ static LONG WINAPI unhandled_exception_filter_impl(EXCEPTION_POINTERS* const Poi
 {
 	const auto Result = detail::seh_filter(Pointers, CURRENT_FUNCTION_NAME, {});
 	if (Result == EXCEPTION_EXECUTE_HANDLER)
-		std::_Exit(EXIT_FAILURE);
+		os::process::terminate(Pointers->ExceptionRecord->ExceptionCode? Pointers->ExceptionRecord->ExceptionCode : EXIT_FAILURE);
 
 	return Result;
 }
@@ -1424,7 +1459,7 @@ static LONG NTAPI vectored_exception_handler_impl(EXCEPTION_POINTERS* const Poin
 	{
 		// VEH handlers shouldn't do this in general, but it's not like we can make things much worse at this point anyways.
 		if (detail::seh_filter(Pointers, CURRENT_FUNCTION_NAME, {}) == EXCEPTION_EXECUTE_HANDLER)
-			std::_Exit(EXIT_FAILURE);
+			os::process::terminate(Pointers->ExceptionRecord->ExceptionCode? Pointers->ExceptionRecord->ExceptionCode : EXIT_FAILURE);
 	}
 
 	return EXCEPTION_CONTINUE_SEARCH;
@@ -1500,7 +1535,7 @@ namespace detail
 			if (StackOverflowHappened)
 			{
 				if (!_resetstkoflw())
-					std::_Exit(EXIT_FAILURE);
+					os::process::terminate(GetExceptionCode());
 
 				StackOverflowHappened = false;
 			}
@@ -1553,31 +1588,18 @@ namespace detail
 		return EXCEPTION_CONTINUE_SEARCH;
 	}
 
-	int seh_thread_filter(std::exception_ptr& Ptr, EXCEPTION_POINTERS const* const Info)
+	int seh_thread_filter(seh_exception& Exception, EXCEPTION_POINTERS const* const Info)
 	{
-		// SEH transport between threads is currently implemented in terms of C++ exceptions, so it requires both
-		if (!(HandleSehExceptions && HandleCppExceptions))
+		if (!HandleSehExceptions)
 		{
 			restore_system_exception_handler();
 			return EXCEPTION_CONTINUE_SEARCH;
 		}
 
-		Ptr = std::make_exception_ptr(
-			MAKE_EXCEPTION(
-				seh_exception,
-				*Info,
-				true,
-				concat(
-					exception_name(*Info->ExceptionRecord, {}),
-					L" - "sv,
-					exception_details({}, *Info->ExceptionRecord, {})
-				)
-			)
-		);
+		Exception.set(*Info);
 
 		// The thread is about to quit, but we still need it to get the stack trace and write a minidump.
 		// It will be released once the corresponding exception context is destroyed.
-		// The caller MUST detach it if ExceptionPtr is not empty.
 		// The thread has to be suspended right here in the filter to ensure a successful stack capture.
 		SuspendThread(GetCurrentThread());
 
