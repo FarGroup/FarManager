@@ -1475,9 +1475,6 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 			Pasting++;
 
-			if (!EdOpt.PersistentBlocks && !IsVerticalSelection())
-				DeleteBlock();
-
 			PasteFromClipboard();
 			// MarkingBlock=!VBlockStart;
 			m_Flags.Change(FEDITOR_MARKINGBLOCK, IsStreamSelection());
@@ -2606,7 +2603,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 						if (CmpStr != NewCmpStr)
 						{
-							AddUndoData(undo_type::edit, CmpStr, m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos()); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+							AddUndoData(undo_type::edit, CmpStr, m_it_CurLine->GetEOL(), m_it_CurLine.Number(), std::min(CurPos, m_it_CurLine->GetCurPos())); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 							Change(ECTYPE_CHANGED, m_it_CurLine.Number());
 							TextChanged(true);
 						}
@@ -3932,9 +3929,11 @@ void Editor::Paste(string_view const Data)
 	if (m_Flags.Check(FEDITOR_LOCKMODE))
 		return;
 
-	if (!Data.empty())
-	{
 		AddUndoData(undo_type::begin);
+
+		if (!EdOpt.PersistentBlocks && !IsVerticalSelection())
+			DeleteBlock();
+
 		m_Flags.Set(FEDITOR_NEWUNDO);
 		TextChanged(true);
 		const auto SaveOvertype = m_Flags.Check(FEDITOR_OVERTYPE);
@@ -4034,7 +4033,6 @@ void Editor::Paste(string_view const Data)
 
 		Pasting--;
 		AddUndoData(undo_type::end);
-	}
 }
 
 void Editor::ProcessChar(wchar_t Char)
@@ -5087,9 +5085,11 @@ void Editor::VPaste(string_view const Data)
 	if (m_Flags.Check(FEDITOR_LOCKMODE))
 		return;
 
-	if (!Data.empty())
-	{
 		AddUndoData(undo_type::begin);
+
+		if (!EdOpt.PersistentBlocks && !IsVerticalSelection())
+			DeleteBlock();
+
 		m_Flags.Set(FEDITOR_NEWUNDO);
 		TextChanged(true);
 		const auto SaveOvertype = m_Flags.Check(FEDITOR_OVERTYPE);
@@ -5176,7 +5176,6 @@ void Editor::VPaste(string_view const Data)
 		m_it_CurLine->SetTabCurPos(StartPos);
 		Pasting--;
 		AddUndoData(undo_type::end);
-	}
 }
 
 
