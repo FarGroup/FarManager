@@ -59,18 +59,6 @@ bool handle_std_exception(const std::exception& e, std::string_view Function, co
 bool handle_unknown_exception(std::string_view Function, const Plugin* Module = nullptr);
 bool use_terminate_handler();
 
-class seh_terminate_handler
-{
-public:
-	NONCOPYABLE(seh_terminate_handler);
-
-	seh_terminate_handler();
-	~seh_terminate_handler();
-
-private:
-	std::terminate_handler m_PreviousHandler;
-};
-
 class unhandled_exception_filter
 {
 public:

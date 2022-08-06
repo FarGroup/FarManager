@@ -1346,16 +1346,6 @@ static void seh_abort_handler_impl()
 	restore_system_exception_handler();
 }
 
-seh_terminate_handler::seh_terminate_handler():
-	m_PreviousHandler(std::set_terminate(seh_abort_handler_impl))
-{
-}
-
-seh_terminate_handler::~seh_terminate_handler()
-{
-	std::set_terminate(m_PreviousHandler);
-}
-
 static LONG WINAPI unhandled_exception_filter_impl(EXCEPTION_POINTERS* const Pointers)
 {
 	const auto Result = detail::seh_filter(Pointers, CURRENT_FUNCTION_NAME, {});
