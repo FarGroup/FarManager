@@ -488,10 +488,7 @@ static void UpdateErrorMode()
 static void handle_exception(function_ref<bool()> const Handler)
 {
 	if (Handler())
-	{
-		LOGFATAL(L"Abnormal exit"sv);
-		os::process::terminate(EXIT_FAILURE);
-	}
+		os::process::terminate_by_user();
 
 	throw;
 }
@@ -1001,10 +998,7 @@ static void configure_exception_handling(int Argc, const wchar_t* const Argv[])
 static void handle_exception_final(function_ref<bool()> const Handler)
 {
 	if (Handler())
-	{
-		LOGFATAL(L"Abnormal exit"sv);
-		os::process::terminate(EXIT_FAILURE);
-	}
+		os::process::terminate_by_user();
 
 	restore_system_exception_handler();
 	throw;
@@ -1066,8 +1060,7 @@ int main()
 	},
 	[](DWORD const ExceptionCode) -> int
 	{
-		LOGFATAL(L"Abnormal exit due to SEH exception {}"sv, ExceptionCode);
-		os::process::terminate(ExceptionCode? ExceptionCode : EXIT_FAILURE);
+		os::process::terminate_by_user(ExceptionCode);
 	},
 	CURRENT_FUNCTION_NAME);
 }

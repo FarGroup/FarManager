@@ -447,4 +447,10 @@ namespace os::process
 		TerminateProcess(GetCurrentProcess(), ExitCode);
 		UNREACHABLE;
 	}
+
+	[[noreturn]]
+	void terminate_by_user(int const ExitCode)
+	{
+		terminate(ExitCode? ExitCode : EXIT_FAILURE);
+	}
 }

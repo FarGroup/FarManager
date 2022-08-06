@@ -86,6 +86,8 @@ namespace os::process
 
 	[[noreturn]]
 	void terminate(int ExitCode);
+	[[noreturn]]
+	void terminate_by_user(int ExitCode = EXIT_FAILURE);
 }
 
 #endif // PLATFORM_PROCESS_HPP_234140CB_C857_40CF_901D_A10C5EBEA85B

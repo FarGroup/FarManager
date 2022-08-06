@@ -1220,7 +1220,7 @@ void Plugin::ExecuteFunctionImpl(export_index const ExportId, function_ref<void(
 	const auto HandleFailure = [&](DWORD const ExceptionCode = EXIT_FAILURE)
 	{
 		if (use_terminate_handler())
-			os::process::terminate(ExceptionCode);
+			os::process::terminate_by_user(ExceptionCode);
 
 		m_Factory->Owner()->UnloadPlugin(this, ExportId);
 	};

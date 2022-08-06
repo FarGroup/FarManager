@@ -137,14 +137,6 @@ void disable_exception_handling()
 	LOGWARNING(L"Exception handling disabled"sv);
 }
 
-[[noreturn]]
-static void user_abort()
-{
-	// This is a user-initiated abort, we don't want any extra messages, dumps etc.
-	TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
-	UNREACHABLE;
-}
-
 static std::atomic_bool s_ExceptionHandlingInprogress{};
 bool exception_handling_in_progress()
 {
@@ -156,13 +148,42 @@ void force_stderr_exception_ui(bool const Force)
 	ForceStderrExceptionUI = Force;
 }
 
+static constexpr NTSTATUS make_far_ntstatus(uint16_t const Number)
+{
+	// https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/87fba13e-bf06-450e-83b1-9241dc81e781
+
+	// These codes are used purely internally (so far), so we don't really need to do all this.
+	// However, why not.
+
+	const auto FarMagic =
+		'F' << 16 |
+		'A' << 8 |
+		'R' << 0;
+
+	const auto FarMagicCompressed =
+		(FarMagic & 0x00FFF000) >> 12 ^
+		(FarMagic & 0x00000FFF) >> 0;
+
+	const auto FarFacility = FarMagicCompressed;
+
+	return
+		STATUS_SEVERITY_ERROR << 30 |
+		1                     << 29 |
+		FarFacility           << 16 |
+		Number                << 0;
+}
+
 void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
-static constexpr NTSTATUS
+enum
+{
 	EXCEPTION_HEAP_CORRUPTION     = STATUS_HEAP_CORRUPTION,
-	EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363, // 'msc', EH_EXCEPTION_NUMBER
-	EXCEPTION_ABORT               = 0xE0616274, // 'abt'
-	EXCEPTION_THREAD_RETHROW      = 0xE0747274; // 'trt'
+	EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363, // EH_EXCEPTION_NUMBER, 'msc'
+
+	// Far-specific codes
+	EXCEPTION_ABORT          = make_far_ntstatus(0),
+	EXCEPTION_THREAD_RETHROW = make_far_ntstatus(1),
+};
 
 static const auto Separator = L"----------------------------------------------------------------------"sv;
 
@@ -1311,7 +1332,7 @@ static void seh_abort_handler_impl()
 	if (const auto Info = exception_information(); Info.ContextRecord && Info.ExceptionRecord && !is_fake_cpp_exception(*Info.ExceptionRecord))
 	{
 		if (handle_seh_exception(exception_context(Info), CURRENT_FUNCTION_NAME, {}))
-			user_abort();
+			os::process::terminate_by_user();
 	}
 
 	// It's a C++ exception, implemented in some other way (GCC)
@@ -1324,12 +1345,12 @@ static void seh_abort_handler_impl()
 		catch (std::exception const& e)
 		{
 			if (handle_std_exception(e, CURRENT_FUNCTION_NAME, {}))
-				user_abort();
+				os::process::terminate_by_user();
 		}
 		catch (...)
 		{
 			if (handle_unknown_exception(CURRENT_FUNCTION_NAME, {}))
-				user_abort();
+				os::process::terminate_by_user();
 		}
 	}
 
@@ -1341,7 +1362,7 @@ static void seh_abort_handler_impl()
 	});
 
 	if (handle_generic_exception(Context, CURRENT_FUNCTION_NAME, {}, {}, {}, L"Abnormal termination"sv))
-		user_abort();
+		os::process::terminate_by_user();
 
 	restore_system_exception_handler();
 }
@@ -1350,7 +1371,7 @@ static LONG WINAPI unhandled_exception_filter_impl(EXCEPTION_POINTERS* const Poi
 {
 	const auto Result = detail::seh_filter(Pointers, CURRENT_FUNCTION_NAME, {});
 	if (Result == EXCEPTION_EXECUTE_HANDLER)
-		os::process::terminate(Pointers->ExceptionRecord->ExceptionCode? Pointers->ExceptionRecord->ExceptionCode : EXIT_FAILURE);
+		os::process::terminate_by_user(Pointers->ExceptionRecord->ExceptionCode);
 
 	return Result;
 }
@@ -1428,7 +1449,7 @@ static void invalid_parameter_handler_impl(const wchar_t* const Expression, cons
 		{},
 		Expression? Expression : L"Invalid parameter"sv
 	))
-		user_abort();
+		os::process::terminate_by_user();
 
 	restore_system_exception_handler();
 }
@@ -1449,7 +1470,7 @@ static LONG NTAPI vectored_exception_handler_impl(EXCEPTION_POINTERS* const Poin
 	{
 		// VEH handlers shouldn't do this in general, but it's not like we can make things much worse at this point anyways.
 		if (detail::seh_filter(Pointers, CURRENT_FUNCTION_NAME, {}) == EXCEPTION_EXECUTE_HANDLER)
-			os::process::terminate(Pointers->ExceptionRecord->ExceptionCode? Pointers->ExceptionRecord->ExceptionCode : EXIT_FAILURE);
+			os::process::terminate_by_user(Pointers->ExceptionRecord->ExceptionCode);
 	}
 
 	return EXCEPTION_CONTINUE_SEARCH;
