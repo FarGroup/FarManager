@@ -175,15 +175,13 @@ static constexpr NTSTATUS make_far_ntstatus(uint16_t const Number)
 
 void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
-enum
-{
+static constexpr NTSTATUS
 	EXCEPTION_HEAP_CORRUPTION     = STATUS_HEAP_CORRUPTION,
 	EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363, // EH_EXCEPTION_NUMBER, 'msc'
 
 	// Far-specific codes
 	EXCEPTION_ABORT          = make_far_ntstatus(0),
-	EXCEPTION_THREAD_RETHROW = make_far_ntstatus(1),
-};
+	EXCEPTION_THREAD_RETHROW = make_far_ntstatus(1);
 
 static const auto Separator = L"----------------------------------------------------------------------"sv;
 
@@ -1291,7 +1289,7 @@ static bool handle_seh_exception(
 {
 	const auto& Record = Context.exception_record();
 
-	if (Record.ExceptionCode == EXCEPTION_THREAD_RETHROW && Record.NumberParameters == 1)
+	if (Record.ExceptionCode == static_cast<DWORD>(EXCEPTION_THREAD_RETHROW) && Record.NumberParameters == 1)
 	{
 		const auto& OriginalExceptionData = reinterpret_cast<seh_exception const*>(Record.ExceptionInformation[0])->get();
 		// We don't need to care about the rethrow stack here: SEH is synchronous, so it will be a part of the handler stack

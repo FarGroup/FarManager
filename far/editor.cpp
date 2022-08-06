@@ -3926,8 +3926,8 @@ void Editor::PasteFromClipboard()
 
 void Editor::Paste(string_view const Data)
 {
-	if (m_Flags.Check(FEDITOR_LOCKMODE))
-		return;
+		if (m_Flags.Check(FEDITOR_LOCKMODE))
+			return;
 
 		AddUndoData(undo_type::begin);
 
@@ -5082,8 +5082,8 @@ string Editor::VBlock2Text()
 
 void Editor::VPaste(string_view const Data)
 {
-	if (m_Flags.Check(FEDITOR_LOCKMODE))
-		return;
+		if (m_Flags.Check(FEDITOR_LOCKMODE))
+			return;
 
 		AddUndoData(undo_type::begin);
 
