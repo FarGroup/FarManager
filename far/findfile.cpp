@@ -1222,9 +1222,9 @@ bool background_searcher::LookForString(string_view const FileName)
 
 				string_view Where{ buffer, bufferCount };
 
-				const auto Next = [&](size_t const Offset, size_t const Size)
+				const auto Next = [&](size_t const Offset)
 				{
-					Where.remove_prefix(Offset + Size);
+					Where.remove_prefix(Offset + 1);
 				};
 
 				while (!Where.empty())
@@ -1262,7 +1262,7 @@ bool background_searcher::LookForString(string_view const FileName)
 							firstWordDiv = true;
 					}
 
-					// Проверяем разделитель в конце, только если найден разделитель вначале
+					// Проверяем разделитель в конце, только если найден разделитель в начале
 					if (firstWordDiv)
 					{
 						// Если блок выбран не до конца
@@ -1278,7 +1278,7 @@ bool background_searcher::LookForString(string_view const FileName)
 							i.WordFound = true;
 					}
 
-					Next(FoundOffset, FoundSize);
+					Next(FoundOffset);
 				}
 
 				// Выходим, если мы вышли за пределы количества байт разрешённых для поиска

@@ -920,11 +920,11 @@ bool SearchAndReplaceString(
 		Haystack.substr(0, Position + 1) :
 		Haystack.substr(Position);
 
-	const auto Next = [&](size_t const Offset, size_t const Size)
+	const auto Next = [&](size_t const Offset)
 	{
 		Where = Reverse?
-			Where.substr(0, Offset - Size + 1) :
-			Where.substr(Offset + Size);
+			Where.substr(0, Offset > 0? Offset - 1 : 0) :
+			Where.substr(Offset + 1);
 	};
 
 	while (!Where.empty())
@@ -939,7 +939,7 @@ bool SearchAndReplaceString(
 
 		if (WholeWords && !CanContainWholeWord(Haystack, AbsoluteOffset, FoundSize, WordDiv))
 		{
-			Next(FoundOffset, FoundSize);
+			Next(FoundOffset);
 			continue;
 		}
 
