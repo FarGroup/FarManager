@@ -1337,7 +1337,7 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 			string DriveLetter;
 			if (IsDisk)
 			{
-				DriveLetter = item.Path;
+				DriveLetter = dos_drive_name(item.Path).front();
 				auto& DriveLetterEdit = Builder.AddFixEditField(DriveLetter, 1);
 				Builder.AddTextBefore(DriveLetterEdit, lng::MChangeDriveCannotReadDisk);
 				Builder.AddTextAfter(DriveLetterEdit, L":", 0);
