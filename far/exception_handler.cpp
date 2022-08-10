@@ -1390,6 +1390,8 @@ unhandled_exception_filter::~unhandled_exception_filter()
 #ifndef _DEBUG
 extern "C"
 {
+	void __cxa_pure_virtual();
+
 	void __cxa_pure_virtual()
 	{
 		std::abort();

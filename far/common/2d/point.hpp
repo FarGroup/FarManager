@@ -35,10 +35,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../preprocessor.hpp"
 #include "../rel_ops.hpp"
+#include "../type_traits.hpp"
 
 #include <type_traits>
 
 //----------------------------------------------------------------------------
+
+namespace detail
+{
+	IS_DETECTED(has_X, T::X);
+	IS_DETECTED(has_Y, T::Y);
+}
 
 struct point: public rel_ops<point>
 {
@@ -53,7 +60,7 @@ struct point: public rel_ops<point>
 	{
 	}
 
-	template<typename T, REQUIRES(sizeof(T::X) && sizeof(T::Y))>
+	template<typename T, REQUIRES(detail::has_X<T> && detail::has_Y<T>)>
 	point(T const& Coord) noexcept:
 		point(Coord.X, Coord.Y)
 	{
