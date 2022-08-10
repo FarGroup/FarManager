@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 10.08.2022 22:34:43 +0100 - build 6011
+
+1. Fix change disk dialog behavior.
+
+2. Do not try to execute empty commands.
+
+3. Fix build in VS 2022 17.4.
+
+--------------------------------------------------------------------------------
 MZK 06.08.2022 18:26:39 -0700 - build 6010
 
 1. Fixed two bugs in the string search algorithm.
