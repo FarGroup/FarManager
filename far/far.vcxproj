@@ -140,6 +140,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="infolist.cpp" />
     <ClCompile Include="initguid.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles>disabled_warnings.hpp</ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="interf.cpp" />
     <ClCompile Include="keybar.cpp" />
