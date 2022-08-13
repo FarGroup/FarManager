@@ -117,7 +117,7 @@ static bool parse_bool_value(const std::wstring& value) {
   else if (lcvalue == L"n")
     return false;
   else
-    CHECK_FMT(false);
+    FAIL(E_BAD_FORMAT);
 }
 
 static TriState parse_tri_state_value(const std::wstring& value) {
@@ -131,7 +131,7 @@ static TriState parse_tri_state_value(const std::wstring& value) {
   else if (lcvalue == L"a")
     return triUndef;
   else
-    CHECK_FMT(false);
+    FAIL(E_BAD_FORMAT);
 }
 
 std::list<std::wstring> parse_listfile(const std::wstring& str) {
@@ -172,7 +172,7 @@ OpenCommand parse_open_command(const CommandArgs& ca) {
       command.options.password = param.value;
     }
     else
-      CHECK_FMT(false);
+      FAIL(E_BAD_FORMAT);
   }
   if (!arc_type_spec) {
     command.options.arc_types = ArcAPI::formats().get_arc_types();
@@ -291,14 +291,14 @@ UpdateCommand parse_update_command(const CommandArgs& ca) {
       else if (lcvalue == L"s")
         command.options.overwrite = oaSkip;
       else
-        CHECK_FMT(false);
+        FAIL(E_BAD_FORMAT);
     }
     else if (param.name == L"adv") {
       CHECK_FMT(!param.value.empty());
       command.options.advanced = param.value;
     }
     else
-      CHECK_FMT(false);
+      FAIL(E_BAD_FORMAT);
   }
   CHECK_FMT(i + 1 < args.size());
   CHECK_FMT(!is_param(args[i]));
@@ -350,7 +350,7 @@ static void parse_extract_params(const CommandArgs& ca, ExtractOptions& o, std::
         else if (lcvalue == L"a")
           o.overwrite = oaAppend;
         else
-          CHECK_FMT(false);
+          FAIL(E_BAD_FORMAT);
       }
       else if (ca.cmd != cmdDeleteItems && param.name == L"mf")
         o.move_files = parse_tri_state_value(param.value);
@@ -365,7 +365,7 @@ static void parse_extract_params(const CommandArgs& ca, ExtractOptions& o, std::
       else if (ca.cmd == cmdExtractItems && param.name == L"out" && !param.value.empty())
         o.dst_dir = unquote(param.value);
       else
-        CHECK_FMT(false);
+        FAIL(E_BAD_FORMAT);
     }
     else {
       items.emplace_back(unquote(a));
