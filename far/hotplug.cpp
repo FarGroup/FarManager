@@ -427,10 +427,10 @@ static bool RemoveHotplugDriveDevice(const DeviceInfo& Info, bool const Confirm,
 	{
 		const auto Separator = L", "sv;
 
-		auto DisksStr = join(select(os::fs::enum_drives(Info.DevicePaths.Disks), [](wchar_t const Drive){ return os::fs::drive::get_device_path(Drive); }), Separator);
+		auto DisksStr = join(Separator, select(os::fs::enum_drives(Info.DevicePaths.Disks), [](wchar_t const Drive){ return os::fs::drive::get_device_path(Drive); }));
 
 		if (DisksStr.empty())
-			DisksStr = join(Info.DevicePaths.Volumes, L", "sv);
+			DisksStr = join(Separator, Info.DevicePaths.Volumes);
 
 		std::vector<string> MessageItems;
 		MessageItems.reserve(6);

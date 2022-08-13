@@ -1520,7 +1520,7 @@ string KeyToLocalizedText(unsigned int const Key)
 
 string KeysListToLocalizedText(span<unsigned int const> const Keys)
 {
-	return join(select(Keys, [](unsigned int const Key) { return KeyToLocalizedText(Key); }), L" "sv);
+	return join(L" "sv, select(Keys, [](unsigned int const Key){ return KeyToLocalizedText(Key); }));
 }
 
 int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)

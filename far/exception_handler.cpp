@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "lang.hpp"
 #include "language.hpp"
-#include "message.hpp"
 #include "imports.hpp"
 #include "strmix.hpp"
 #include "tracer.hpp"
@@ -155,6 +154,8 @@ static constexpr NTSTATUS make_far_ntstatus(uint16_t const Number)
 	// These codes are used purely internally (so far), so we don't really need to do all this.
 	// However, why not.
 
+	const unsigned Severity = STATUS_SEVERITY_ERROR;
+
 	const auto FarMagic =
 		'F' << 16 |
 		'A' << 8 |
@@ -167,10 +168,10 @@ static constexpr NTSTATUS make_far_ntstatus(uint16_t const Number)
 	const auto FarFacility = FarMagicCompressed;
 
 	return
-		STATUS_SEVERITY_ERROR << 30 |
-		1                     << 29 |
-		FarFacility           << 16 |
-		Number                << 0;
+		Severity    << 30 |
+		1           << 29 |
+		FarFacility << 16 |
+		Number      << 0;
 }
 
 void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
@@ -724,6 +725,7 @@ static bool ShowExceptionUI(
 		{ L"Source:   "sv, Source,        },
 		{ L"File:     "sv, ModuleName,    },
 		{ L"Plugin:   "sv, PluginInfo,    },
+		{},
 		{ L"Far:      "sv, Version,       },
 		{ L"Compiler: "sv, Compiler,      },
 		{ L"OS:       "sv, OsVersion,     },
@@ -734,10 +736,10 @@ static bool ShowExceptionUI(
 
 	const auto log_message = [&]
 	{
-		auto Message = join(select(BasicInfo, [](auto const& Pair)
+		auto Message = join(L"\n"sv, select(BasicInfo, [](auto const& Pair)
 		{
 			return format(FSTR(L"{} {}"sv), Pair.first, Pair.second);
-		}), L"\n"sv);
+		}));
 
 		Message += L"\n\n"sv;
 

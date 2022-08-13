@@ -498,13 +498,13 @@ bool Help::ReadHelp(string_view const Mask)
 
 			size_t LastKeySize = 0;
 
-			strReadStr = join(select(enum_tokens(strKeyName, L" "sv),
+			strReadStr = join(L"\n"sv, select(enum_tokens(strKeyName, L" "sv),
 				[&](const auto& i)
 				{
 					LastKeySize = i.size();
 					return concat(L" #"sv, escape(i), L'#');
-				}),
-				L"\n"sv);
+				})
+			);
 
 			if (!strDescription.empty())
 			{

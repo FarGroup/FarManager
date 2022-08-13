@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/string_utils.hpp"
+#include "common/view/where.hpp"
 
 // External:
 #include "format.hpp"
@@ -87,8 +88,18 @@ std::array<string, 3> error_state::format_errors() const
 
 string error_state::to_string() const
 {
-	const auto Errors = format_errors();
-	return format(FSTR(L"Errno: {}, Win32 error: {}, NT error: {}"sv), Errors[0], Errors[1], Errors[2]);
+	const auto StrErrno      = Errno?      format(FSTR(L"errno: {}"sv),     ErrnoStr())      : L""s;
+	const auto StrWin32Error = Win32Error? format(FSTR(L"LastError: {}"sv), Win32ErrorStr()) : L""s;
+	const auto StrNtError    = NtError?    format(FSTR(L"NTSTATUS: {}"sv),  NtErrorStr())    : L""s;
+
+	string_view const Errors[]
+	{
+		StrErrno,
+		StrWin32Error,
+		StrNtError,
+	};
+
+	return join(L", "sv, where(Errors, [](string_view const Str){ return !Str.empty(); }));
 }
 
 namespace detail
@@ -96,7 +107,7 @@ namespace detail
 	string far_base_exception::to_string() const
 	{
 		return any()?
-			format(FSTR(L"far_base_exception: {}, Error: {}"sv), full_message(), error_state_ex::to_string()) :
+			format(FSTR(L"far_base_exception: {}, Error: {}"sv), full_message(), error_state::to_string()) :
 			format(FSTR(L"far_base_exception: {}"sv), full_message());
 	}
 

@@ -79,6 +79,12 @@ namespace os::com
 		CoTaskMemFree(const_cast<void*>(Object));
 	}
 
+	void invoke(function_ref<HRESULT()> const Callable, string_view CallableName, std::string_view const Function, std::string_view const File, int const Line)
+	{
+		if (const auto Result = Callable(); FAILED(Result))
+			throw exception(Result, CallableName, Function, File, Line);
+	}
+
 	string get_shell_name(string_view Path)
 	{
 		// Q: Why not SHCreateItemFromParsingName + IShellItem::GetDisplayName?
@@ -87,38 +93,34 @@ namespace os::com
 		// Q: Why not SHParseDisplayName + SHCreateShellItem + IShellItem::GetDisplayName then?
 		// A: Not available in Win2k.
 
-		SCOPED_ACTION(initialize);
-
-		ptr<IShellFolder> ShellFolder;
-		if (const auto Result = SHGetDesktopFolder(&ptr_setter(ShellFolder)); FAILED(Result))
+		try
 		{
-			LOGWARNING(L"SHGetDesktopFolder(): {}"sv, format_error(Result));
+			SCOPED_ACTION(initialize);
+
+			ptr<IShellFolder> ShellFolder;
+			COM_INVOKE(SHGetDesktopFolder, (&ptr_setter(ShellFolder)));
+
+			memory<PIDLIST_RELATIVE> IdList;
+			null_terminated const C_Path(Path);
+			COM_INVOKE(ShellFolder->ParseDisplayName, ({}, {}, UNSAFE_CSTR(C_Path), {}, &ptr_setter(IdList), {}));
+
+			STRRET StrRet;
+			COM_INVOKE(ShellFolder->GetDisplayNameOf, (IdList.get(), SHGDN_FOREDITING, &StrRet));
+
+			if (StrRet.uType != STRRET_WSTR)
+			{
+				LOGWARNING(L"StrRet.uType = {}"sv, StrRet.uType);
+				return {};
+			}
+
+			const memory<wchar_t*> Str(StrRet.pOleStr);
+			return Str.get();
+		}
+		catch (exception const& e)
+		{
+			LOGWARNING(L"{}"sv, e);
 			return {};
 		}
-
-		memory<PIDLIST_RELATIVE> IdList;
-		null_terminated const C_Path(Path);
-		if (const auto Result = ShellFolder->ParseDisplayName({}, {}, UNSAFE_CSTR(C_Path), {}, &ptr_setter(IdList), {}); FAILED(Result))
-		{
-			LOGWARNING(L"ParseDisplayName(): {}"sv, format_error(Result));
-			return {};
-		}
-
-		STRRET StrRet;
-		if (const auto Result = ShellFolder->GetDisplayNameOf(IdList.get(), SHGDN_FOREDITING, &StrRet); FAILED(Result))
-		{
-			LOGWARNING(L"GetDisplayNameOf(): {}"sv, format_error(Result));
-			return {};
-		}
-
-		if (StrRet.uType != STRRET_WSTR)
-		{
-			LOGWARNING(L"StrRet.uType = {}"sv, StrRet.uType);
-			return {};
-		}
-
-		const memory<wchar_t*> Str(StrRet.pOleStr);
-		return Str.get();
 	}
 
 	static bool is_proper_progid(string_view const ProgID)
@@ -134,21 +136,24 @@ namespace os::com
 
 		if (imports.SHCreateAssociationRegistration)
 		{
-			ptr<IApplicationAssociationRegistration> AAR;
-			if (const auto Result = imports.SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR))); FAILED(Result))
+			try
 			{
-				LOGWARNING(L"cSHCreateAssociationRegistration(): {}"sv, format_error(Result));
-				return {};
-			}
+				ptr<IApplicationAssociationRegistration> AAR;
+				COM_INVOKE(imports.SHCreateAssociationRegistration, (IID_IApplicationAssociationRegistration, IID_PPV_ARGS_Helper(&ptr_setter(AAR))));
 
-			memory<wchar_t*> Association;
-			if (const auto Result = AAR->QueryCurrentDefault(null_terminated(Ext).c_str(), AT_FILEEXTENSION, AL_EFFECTIVE, &ptr_setter(Association)); FAILED(Result))
+				memory<wchar_t*> Association;
+				// https://github.com/llvm/llvm-project/issues/54300
+				// TODO: remove once we have it.
+				const auto& ExtRef = Ext;
+				COM_INVOKE(AAR->QueryCurrentDefault, (null_terminated(ExtRef).c_str(), AT_FILEEXTENSION, AL_EFFECTIVE, &ptr_setter(Association)));
+
+				return Association.get();
+			}
+			catch (exception const& e)
 			{
-				LOGDEBUG(L"QueryCurrentDefault({}): {}"sv, Ext, format_error(Result));
-				return {};
+				// This is informational, debug will do fine
+				LOGDEBUG(L"{}"sv, e);
 			}
-
-			return Association.get();
 		}
 
 		if (const auto UserKey = reg::key::open(reg::key::current_user, concat(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\"sv, Ext), KEY_QUERY_VALUE))
@@ -195,65 +200,57 @@ namespace os::com
 
 	ptr<IFileIsInUse> create_file_is_in_use(const string& File)
 	{
-		ptr<IRunningObjectTable> RunningObjectTable;
-		if (const auto Result = GetRunningObjectTable(0, &ptr_setter(RunningObjectTable)); FAILED(Result))
+		try
 		{
-			LOGWARNING(L"GetRunningObjectTable(): {}"sv, format_error(Result));
-			return {};
-		}
+			ptr<IRunningObjectTable> RunningObjectTable;
+			COM_INVOKE(GetRunningObjectTable, (0, &ptr_setter(RunningObjectTable)));
 
-		ptr<IMoniker> FileMoniker;
-		if (const auto Result = CreateFileMoniker(File.c_str(), &ptr_setter(FileMoniker)); FAILED(Result))
-		{
-			LOGWARNING(L"CreateFileMoniker({}): {}"sv, File, format_error(Result));
-			return {};
-		}
+			ptr<IMoniker> FileMoniker;
+			COM_INVOKE(CreateFileMoniker, (File.c_str(), &ptr_setter(FileMoniker)));
 
-		ptr<IEnumMoniker> EnumMoniker;
-		if (const auto Result = RunningObjectTable->EnumRunning(&ptr_setter(EnumMoniker)); FAILED(Result))
-		{
-			LOGWARNING(L"EnumRunning(): {}"sv, format_error(Result));
-			return {};
-		}
+			ptr<IEnumMoniker> EnumMoniker;
+			COM_INVOKE(RunningObjectTable->EnumRunning, (&ptr_setter(EnumMoniker)));
 
-		for (;;)
-		{
-			ptr<IMoniker> Moniker;
-			if (EnumMoniker->Next(1, &ptr_setter(Moniker), {}) == S_FALSE)
-				return {};
-
-			DWORD Type;
-			if (const auto Result = Moniker->IsSystemMoniker(&Type); FAILED(Result))
+			for (;;)
 			{
-				LOGWARNING(L"IsSystemMoniker(): {}"sv, format_error(Result));
-				continue;
+				try
+				{
+					ptr<IMoniker> Moniker;
+					if (EnumMoniker->Next(1, &ptr_setter(Moniker), {}) == S_FALSE)
+						return {};
+
+					DWORD Type;
+					COM_INVOKE(Moniker->IsSystemMoniker, (&Type));
+
+					if (Type != MKSYS_FILEMONIKER)
+						continue;
+
+					ptr<IMoniker> PrefixMoniker;
+					COM_INVOKE(FileMoniker->CommonPrefixWith, (Moniker.get(), &ptr_setter(PrefixMoniker)));
+
+					if (FileMoniker->IsEqual(PrefixMoniker.get()) == S_FALSE)
+						continue;
+
+					ptr<IUnknown> Unknown;
+					if (RunningObjectTable->GetObject(Moniker.get(), &ptr_setter(Unknown)) == S_FALSE)
+						continue;
+
+					ptr<IFileIsInUse> FileIsInUse;
+					COM_INVOKE(Unknown->QueryInterface, (IID_IFileIsInUse, IID_PPV_ARGS_Helper(&ptr_setter(FileIsInUse))));
+
+					return FileIsInUse;
+				}
+				catch (exception const& e)
+				{
+					LOGWARNING(L"{}"sv, e);
+					continue;
+				}
 			}
-
-			if (Type != MKSYS_FILEMONIKER)
-				continue;
-
-			ptr<IMoniker> PrefixMoniker;
-			if (const auto Result = FileMoniker->CommonPrefixWith(Moniker.get(), &ptr_setter(PrefixMoniker)); FAILED(Result))
-			{
-				LOGWARNING(L"CommonPrefixWith(): {}"sv, format_error(Result));
-				continue;
-			}
-
-			if (FileMoniker->IsEqual(PrefixMoniker.get()) == S_FALSE)
-				continue;
-
-			ptr<IUnknown> Unknown;
-			if (RunningObjectTable->GetObject(Moniker.get(), &ptr_setter(Unknown)) == S_FALSE)
-				continue;
-
-			ptr<IFileIsInUse> FileIsInUse;
-			if (const auto Result = Unknown->QueryInterface(IID_IFileIsInUse, IID_PPV_ARGS_Helper(&ptr_setter(FileIsInUse))); FAILED(Result))
-			{
-				LOGWARNING(L"QueryInterface(): {}"sv, format_error(Result));
-				continue;
-			}
-
-			return FileIsInUse;
+		}
+		catch (exception const& e)
+		{
+			LOGWARNING(L"{}"sv, e);
+			return {};
 		}
 	}
 }

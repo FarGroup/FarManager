@@ -4560,7 +4560,7 @@ void FarMacroApi::strwrapFunc() const
 	if (Break.isUnknown())
 		Break = L"\n"sv;
 
-	PassValue(join(wrapped_text(Text.asString(), Width), Break.asString()));
+	PassValue(join(Break.asString(), wrapped_text(Text.asString(), Width)));
 }
 
 void FarMacroApi::intFunc() const

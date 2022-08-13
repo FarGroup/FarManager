@@ -6,7 +6,8 @@ THIS_MAKE = $(TOP_MAKEFILE)
 EXEDIR = $(DIRNAME).$(DIRBIT).gcc/
 OBJDIR = $(EXEDIR)obj/
 export BOOTSTRAPDIR=$(OBJDIR)include/bootstrap/
-export FORCEINCLUDELIST=headers.hpp memcheck.hpp disabled_warnings.hpp
+FORCEINCLUDELIST_NO_PCH=memcheck.hpp disabled_warnings.hpp
+export FORCEINCLUDELIST=headers.hpp $(FORCEINCLUDELIST_NO_PCH)
 EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)$(EXENAME)
 DEPFILE = $(BOOTSTRAPDIR)far.gcc.dep
@@ -188,9 +189,9 @@ MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 TESTOBJS = $(OBJDIR)api_test_c.testobj $(OBJDIR)api_test_c++.testobj
 
 ADDINCLUDE=-I$(BOOTSTRAPDIR).. 
-FORCEINCLUDE=$(patsubst %, -include %, $(FORCEINCLUDELIST))
+FORCEINCLUDE=$(patsubst %, -include %, $(FORCEINCLUDELIST_NO_PCH))
 
-CPPFLAGS += $(ADDINCLUDE) $(FORCEINCLUDE)
+CPPFLAGS += $(ADDINCLUDE)
 
 .PHONY: all
 all:
@@ -258,12 +259,12 @@ $(OBJDIR)%.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 ifndef NO_PCH
-CPPFLAGS_PCH = -include $(OBJDIR)headers
+CPPFLAGS_PCH = -include $(OBJDIR)headers -include headers.hpp
 endif
 
 $(OBJDIR)%.o: %.cpp
 	@echo $<
-	$(CXX) -c $(CPPFLAGS_PCH) $(CPPFLAGS) -o $@ $<
+	$(CXX) -c $(CPPFLAGS_PCH) $(CPPFLAGS) $(FORCEINCLUDE) -o $@ $<
 
 $(OBJDIR)headers.gch: headers.cpp headers.hpp
 	@echo Making precompiled headers

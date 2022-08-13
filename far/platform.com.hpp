@@ -33,10 +33,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Internal:
+#include "exception.hpp"
 
 // Platform:
 
 // Common:
+#include "common/function_ref.hpp"
 #include "common/preprocessor.hpp"
 
 // External:
@@ -79,6 +81,22 @@ namespace os::com
 
 	template<typename T>
 	using memory = std::unique_ptr<std::remove_pointer_t<T>, detail::memory_releaser>;
+
+	class exception final: public far_exception
+	{
+	public:
+		template<typename... args>
+		explicit exception(HRESULT const ErrorCode, args&&... Args):
+			far_exception(false, FWD(Args)...)
+		{
+			Win32Error = ErrorCode;
+		}
+	};
+
+	void invoke(function_ref<HRESULT()> Callable, string_view CallableName, std::string_view Function, std::string_view File, int Line);
+
+#define COM_INVOKE(Function, Args) \
+	os::com::invoke([&]{ return Function Args; }, WSTRVIEW(Function), CURRENT_FUNCTION_NAME, CURRENT_FILE_NAME, __LINE__)
 
 	string get_shell_name(string_view Path);
 

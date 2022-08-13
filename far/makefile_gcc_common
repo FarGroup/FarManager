@@ -93,6 +93,8 @@ CFLAGS += \
 	-funsigned-char \
 	-Wall \
 	-Wextra \
+	-Werror=odr \
+	-Werror=return-type \
 	-Wcast-align \
 	-Wcast-qual \
 	-Wdouble-promotion \
@@ -103,7 +105,6 @@ CFLAGS += \
 	-Winvalid-pch \
 	-Wlogical-op \
 	-Wmissing-declarations \
-	-Werror=odr \
 	-Wredundant-decls \
 	-Wundef \
 	-include $(FARDIR)disabled_warnings.hpp \

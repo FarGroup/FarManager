@@ -1663,7 +1663,7 @@ size_t ConsoleChoice(string_view const Message, string_view const Choices, size_
 
 	for (;;)
 	{
-		std::wcout << format(FSTR(L"\n{} ({})? "sv), Message, join(Choices, L"/"sv)) << std::flush;
+		std::wcout << format(FSTR(L"\n{} ({})? "sv), Message, join(L"/"sv, Choices)) << std::flush;
 
 		wchar_t Input;
 		std::wcin.clear();

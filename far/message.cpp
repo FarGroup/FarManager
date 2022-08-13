@@ -237,7 +237,7 @@ static message_result MessageImpl(
 
 	MaxLength = std::min(MaxLength, MAX_MESSAGE_WIDTH);
 
-	join(strClipText, Strings, Eol);
+	join(strClipText, Eol, Strings);
 	append(strClipText, Eol, Eol);
 
 	if (!strErrStr.empty())
@@ -272,7 +272,7 @@ static message_result MessageImpl(
 		}
 	}
 
-	join(strClipText, Buttons, L" "sv);
+	join(strClipText, L" "sv, Buttons);
 
 	rectangle Position;
 
