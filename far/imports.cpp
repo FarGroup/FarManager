@@ -479,6 +479,13 @@ NET_API_STATUS NET_API_FUNCTION imports::stub_NetDfsGetClientInfo(LPWSTR DfsEntr
 	return NERR_InvalidAPI;
 }
 
+// dbgeng
+HRESULT STDAPICALLTYPE imports::stub_DebugCreate(REFIID InterfaceId, PVOID* Interface)
+{
+	LOGWARNING(L"Stub call"sv);
+	return E_NOTIMPL;
+}
+
 // dbghelp
 BOOL WINAPI imports::stub_MiniDumpWriteDump(HANDLE Process, DWORD ProcessId, HANDLE File, MINIDUMP_TYPE DumpType, PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, PMINIDUMP_CALLBACK_INFORMATION CallbackParam)
 {

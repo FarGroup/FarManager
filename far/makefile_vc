@@ -135,6 +135,7 @@ LINK_OBJS = \
 	"$(INTDIR)\hotplug.obj" \
 	"$(INTDIR)\imports.obj"\
 	"$(INTDIR)\infolist.obj" \
+	"$(INTDIR)\initguid.obj" \
 	"$(INTDIR)\interf.obj" \
 	"$(INTDIR)\keybar.obj" \
 	"$(INTDIR)\keyboard.obj" \
@@ -315,6 +316,9 @@ AllDirs:
 $(PCH_FILE): $(PCH_NAME).cpp $(PCH_NAME).hpp
 	@echo Making precompiled headers
 	$(CPP) $(CPPFLAGS) $(PCH_NAME).cpp /Yc$(PCH_NAME).hpp /Fp$(PCH_FILE)
+
+$(INTDIR)\initguid.obj: $(@B).cpp
+	$(CPP) $(CPPFLAGS) $(@B).cpp
 
 $(INTDIR)\vc_crt_fix_impl.obj: $(@B).cpp
 	$(CPP) $(CPPFLAGS) /Zc:threadSafeInit- $(@B).cpp

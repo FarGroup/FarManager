@@ -65,6 +65,7 @@ private:
 	DECLARE_MODULE(virtdisk);
 	DECLARE_MODULE(rstrtmgr);
 	DECLARE_MODULE(netapi32);
+	DECLARE_MODULE(dbgeng);
 	DECLARE_MODULE(dbghelp);
 	DECLARE_MODULE(dwmapi);
 
@@ -192,6 +193,8 @@ public: const unique_function_pointer<name_##NAME, stub_##NAME> NAME{m_##MODULE}
 
 	DECLARE_IMPORT_FUNCTION(netapi32, NET_API_FUNCTION, NET_API_STATUS, NetDfsGetInfo, LPWSTR DfsEntryPath, LPWSTR ServerName, LPWSTR ShareName, DWORD Level, LPBYTE* Buffer); // 2k
 	DECLARE_IMPORT_FUNCTION(netapi32, NET_API_FUNCTION, NET_API_STATUS, NetDfsGetClientInfo, LPWSTR DfsEntryPath, LPWSTR ServerName, LPWSTR ShareName, DWORD Level, LPBYTE* Buffer); // 2k
+
+	DECLARE_IMPORT_FUNCTION(dbgeng, STDAPICALLTYPE, HRESULT, DebugCreate, REFIID InterfaceId, PVOID* Interface);
 
 	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, MiniDumpWriteDump, HANDLE Process, DWORD ProcessId, HANDLE File, MINIDUMP_TYPE DumpType, PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, PMINIDUMP_CALLBACK_INFORMATION CallbackParam); // XP
 	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, StackWalk64, DWORD MachineType, HANDLE Process, HANDLE Thread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord, PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine, PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress); // 2k

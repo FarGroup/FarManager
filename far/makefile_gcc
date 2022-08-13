@@ -98,6 +98,7 @@ SRCS = \
 	imports.cpp \
 	infolist.cpp \
 	interf.cpp \
+	initguid.cpp \
 	keybar.cpp \
 	keyboard.cpp \
 	language.cpp \
@@ -265,6 +266,10 @@ endif
 $(OBJDIR)%.o: %.cpp
 	@echo $<
 	$(CXX) -c $(CPPFLAGS_PCH) $(CPPFLAGS) $(FORCEINCLUDE) -o $@ $<
+
+$(OBJDIR)initguid.o: initguid.cpp
+	@echo $<
+	$(CXX) -c $(CPPFLAGS) -o $@ $<
 
 $(OBJDIR)headers.gch: headers.cpp headers.hpp
 	@echo Making precompiled headers

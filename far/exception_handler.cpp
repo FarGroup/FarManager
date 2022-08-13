@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 
 // Platform:
+#include "platform.com.hpp"
 #include "platform.debug.hpp"
 #include "platform.fs.hpp"
 #include "platform.process.hpp"
@@ -451,6 +452,137 @@ static void read_registers(string& To, CONTEXT const& Context, string_view const
 #endif
 }
 
+WARNING_PUSH()
+WARNING_DISABLE_GCC("-Wnon-virtual-dtor")
+class DebugOutputCallbacks final:
+	public IDebugOutputCallbacks,
+	public IDebugOutputCallbacksWide
+{
+public:
+	explicit DebugOutputCallbacks(string* To):
+		m_To(To)
+	{}
+
+	// IUnknown
+	STDMETHOD(QueryInterface)(REFIID InterfaceId, PVOID* Interface) override
+	{
+
+		if (none_of(InterfaceId, IID_IUnknown, IID_IDebugOutputCallbacks, IID_IDebugOutputCallbacksWide))
+		{
+			*Interface = {};
+			return E_NOINTERFACE;
+		}
+
+		*Interface = this;
+		AddRef();
+		return S_OK;
+	}
+
+	// IUnknown
+	STDMETHOD_(ULONG, AddRef)() override
+	{
+		return 1;
+	}
+
+	// IUnknown
+	STDMETHOD_(ULONG, Release)() override
+	{
+		return 0;
+	}
+
+	// IDebugOutputCallbacks
+	STDMETHOD(Output)(ULONG Mask, PCSTR Text) override
+	{
+		*m_To += encoding::utf8::get_chars(Text);
+		return S_OK;
+	}
+
+	// IDebugOutputCallbacksWide
+	STDMETHOD(Output)(ULONG Mask, PCWSTR Text) override
+	{
+		*m_To += Text;
+		return S_OK;
+	}
+
+private:
+	string* m_To;
+};
+WARNING_POP()
+
+static void read_disassembly(string& To, string_view const Module, span<uintptr_t const> const Stack, string_view const Eol)
+{
+	if (Stack.empty())
+		return;
+
+	if (!imports.DebugCreate)
+		return;
+
+	try
+	{
+		DebugOutputCallbacks Callbacks(&To);
+
+		os::com::ptr<IDebugClient> DebugClient;
+		COM_INVOKE(imports.DebugCreate, (IID_IDebugClient, IID_PPV_ARGS_Helper(&ptr_setter(DebugClient))));
+
+		COM_INVOKE(DebugClient->AttachProcess, ({}, GetCurrentProcessId(), DEBUG_ATTACH_NONINVASIVE | DEBUG_ATTACH_NONINVASIVE_NO_SUSPEND));
+
+		os::com::ptr<IDebugControl> DebugControl;
+		COM_INVOKE(DebugClient->QueryInterface, (IID_IDebugControl, IID_PPV_ARGS_Helper(&ptr_setter(DebugControl))));
+
+		if (const auto Result = DebugControl->WaitForEvent(DEBUG_WAIT_DEFAULT, INFINITE); FAILED(Result))
+			LOGWARNING(L"WaitForEvent(): {}"sv, os::format_error(Result));
+
+		if (const auto Result = DebugClient->SetOutputMask(DEBUG_OUTPUT_NORMAL); FAILED(Result))
+			LOGWARNING(L"SetOutputMask(): {}"sv, os::format_error(Result));
+
+		if (os::com::ptr<IDebugClient5> DebugClient5; SUCCEEDED(DebugClient->QueryInterface(IID_IDebugClient5, IID_PPV_ARGS_Helper(&ptr_setter(DebugClient5)))))
+			COM_INVOKE(DebugClient5->SetOutputCallbacksWide, (&Callbacks));
+		else
+			COM_INVOKE(DebugClient->SetOutputCallbacks, (&Callbacks));
+
+		const auto DisassembleFlags =
+			DEBUG_DISASM_EFFECTIVE_ADDRESS |
+			DEBUG_DISASM_MATCHING_SYMBOLS |
+			DEBUG_DISASM_SOURCE_LINE_NUMBER |
+			DEBUG_DISASM_SOURCE_FILE_NAME;
+
+		const auto MaxFrames = 10;
+		auto Frames = 0;
+		for (const auto i: Stack)
+		{
+			tracer.get_symbols(Module, {&i, 1}, [&](string_view const Line)
+			{
+				append(To, Line, L':', Eol);
+			});
+
+			const auto PrevLines = 10;
+			if (const auto Result = DebugControl->OutputDisassemblyLines(
+				DEBUG_OUTCTL_THIS_CLIENT,
+				PrevLines,
+				PrevLines + 1,
+				i,
+				DisassembleFlags,
+				{},
+				{},
+				{},
+				{}
+			); FAILED(Result))
+			{
+				LOGWARNING(L"OutputDisassemblyLines(): {}"sv, os::format_error(Result));
+			}
+
+			if (++Frames == MaxFrames)
+				break;
+
+			To += Eol;
+		}
+	}
+	catch (os::com::exception const& e)
+	{
+		LOGWARNING(L"{}"sv, e);
+	}
+}
+
 static string collect_information(
 	exception_context const& Context,
 	span<uintptr_t const> NestedStack,
@@ -475,7 +607,8 @@ static string collect_information(
 		format_to(Strings, FSTR(L"{} {}{}"sv), Label, Value, Eol);
 	}
 
-	get_backtrace(Module, tracer.get(Module, Context.context_record(), Context.thread_handle()), NestedStack, append_line);
+	const auto Stack = tracer.get(Module, Context.context_record(), Context.thread_handle());
+	get_backtrace(Module, Stack, NestedStack, append_line);
 
 	{
 		os::process::enum_processes const Enum;
@@ -513,6 +646,10 @@ static string collect_information(
 			}
 		}
 	}
+
+	// Read disassembly before modules - it will load dbgeng.dll and we might want to see it too just in case
+	make_header(L"Disassembly"sv, append_line);
+	read_disassembly(Strings, Module, NestedStack.empty()? Stack : NestedStack, Eol);
 
 	make_header(L"Modules"sv, append_line);
 	read_modules(Strings, Eol);

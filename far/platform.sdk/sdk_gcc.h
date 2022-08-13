@@ -193,4 +193,129 @@ typedef struct _SYSTEM_THREAD_INFORMATION {
 SYSTEM_THREAD_INFORMATION, *PSYSTEM_THREAD_INFORMATION;
 #endif
 
+// dbgeng.h
+#ifndef DEBUG_DISASM_SOURCE_LINE_NUMBER
+#define DEBUG_DISASM_SOURCE_LINE_NUMBER 0x00000004
+#define DEBUG_DISASM_SOURCE_FILE_NAME   0x00000008
+
+DEFINE_GUID(IID_IDebugClient5,0xe3acb9d7,0x7ec2,0x4f0c,0xa0,0xda,0xe8,0x1e,0x0c,0xbb,0xe6,0x28);
+DEFINE_GUID(IID_IDebugOutputCallbacksWide,0x4c7fd663,0xc394,0x4e26,0x8e,0xf1,0x34,0xad,0x5e,0xd3,0x76,0x4c);
+
+typedef struct IDebugClient5 *PDEBUG_CLIENT5;
+typedef struct IDebugEventCallbacksWide *PDEBUG_EVENT_CALLBACKS_WIDE;
+typedef struct IDebugOutputCallbacksWide *PDEBUG_OUTPUT_CALLBACKS_WIDE;
+
+#undef INTERFACE
+#define INTERFACE IDebugClient5
+DECLARE_INTERFACE_(IDebugClient5, IUnknown)
+{
+    STDMETHOD(QueryInterface)(THIS_ REFIID InterfaceId,PVOID *Interface) PURE;
+    STDMETHOD_(ULONG,AddRef)(THIS) PURE;
+    STDMETHOD_(ULONG,Release)(THIS) PURE;
+    STDMETHOD(AttachKernel)(THIS_ ULONG Flags,PCSTR ConnectOptions) PURE;
+    STDMETHOD(GetKernelConnectionOptions)(THIS_ PSTR Buffer,ULONG BufferSize,PULONG OptionsSize) PURE;
+    STDMETHOD(SetKernelConnectionOptions)(THIS_ PCSTR Options) PURE;
+    STDMETHOD(StartProcessServer)(THIS_ ULONG Flags,PCSTR Options,PVOID Reserved) PURE;
+    STDMETHOD(ConnectProcessServer)(THIS_ PCSTR RemoteOptions,PULONG64 Server) PURE;
+    STDMETHOD(DisconnectProcessServer)(THIS_ ULONG64 Server) PURE;
+    STDMETHOD(GetRunningProcessSystemIds)(THIS_ ULONG64 Server,PULONG Ids,ULONG Count,PULONG ActualCount) PURE;
+    STDMETHOD(GetRunningProcessSystemIdByExecutableName)(THIS_ ULONG64 Server,PCSTR ExeName,ULONG Flags,PULONG Id) PURE;
+    STDMETHOD(GetRunningProcessDescription)(THIS_ ULONG64 Server,ULONG SystemId,ULONG Flags,PSTR ExeName,ULONG ExeNameSize,PULONG ActualExeNameSize,PSTR Description,ULONG DescriptionSize,PULONG ActualDescriptionSize) PURE;
+    STDMETHOD(AttachProcess)(THIS_ ULONG64 Server,ULONG ProcessId,ULONG AttachFlags) PURE;
+    STDMETHOD(CreateProcess)(THIS_ ULONG64 Server,PSTR CommandLine,ULONG CreateFlags) PURE;
+    STDMETHOD(CreateProcessAndAttach)(THIS_ ULONG64 Server,PSTR CommandLine,ULONG CreateFlags,ULONG ProcessId,ULONG AttachFlags) PURE;
+    STDMETHOD(GetProcessOptions)(THIS_ PULONG Options) PURE;
+    STDMETHOD(AddProcessOptions)(THIS_ ULONG Options) PURE;
+    STDMETHOD(RemoveProcessOptions)(THIS_ ULONG Options) PURE;
+    STDMETHOD(SetProcessOptions)(THIS_ ULONG Options) PURE;
+    STDMETHOD(OpenDumpFile)(THIS_ PCSTR DumpFile) PURE;
+    STDMETHOD(WriteDumpFile)(THIS_ PCSTR DumpFile,ULONG Qualifier) PURE;
+    STDMETHOD(ConnectSession)(THIS_ ULONG Flags,ULONG HistoryLimit) PURE;
+    STDMETHOD(StartServer)(THIS_ PCSTR Options) PURE;
+    STDMETHOD(OutputServers)(THIS_ ULONG OutputControl,PCSTR Machine,ULONG Flags) PURE;
+    STDMETHOD(TerminateProcesses)(THIS) PURE;
+    STDMETHOD(DetachProcesses)(THIS) PURE;
+    STDMETHOD(EndSession)(THIS_ ULONG Flags) PURE;
+    STDMETHOD(GetExitCode)(THIS_ PULONG Code) PURE;
+    STDMETHOD(DispatchCallbacks)(THIS_ ULONG Timeout) PURE;
+    STDMETHOD(ExitDispatch)(THIS_ PDEBUG_CLIENT Client) PURE;
+    STDMETHOD(CreateClient)(THIS_ PDEBUG_CLIENT *Client) PURE;
+    STDMETHOD(GetInputCallbacks)(THIS_ PDEBUG_INPUT_CALLBACKS *Callbacks) PURE;
+    STDMETHOD(SetInputCallbacks)(THIS_ PDEBUG_INPUT_CALLBACKS Callbacks) PURE;
+    STDMETHOD(GetOutputCallbacks)(THIS_ PDEBUG_OUTPUT_CALLBACKS *Callbacks) PURE;
+    STDMETHOD(SetOutputCallbacks)(THIS_ PDEBUG_OUTPUT_CALLBACKS Callbacks) PURE;
+    STDMETHOD(GetOutputMask)(THIS_ PULONG Mask) PURE;
+    STDMETHOD(SetOutputMask)(THIS_ ULONG Mask) PURE;
+    STDMETHOD(GetOtherOutputMask)(THIS_ PDEBUG_CLIENT Client,PULONG Mask) PURE;
+    STDMETHOD(SetOtherOutputMask)(THIS_ PDEBUG_CLIENT Client,ULONG Mask) PURE;
+    STDMETHOD(GetOutputWidth)(THIS_ PULONG Columns) PURE;
+    STDMETHOD(SetOutputWidth)(THIS_ ULONG Columns) PURE;
+    STDMETHOD(GetOutputLinePrefix)(THIS_ PSTR Buffer,ULONG BufferSize,PULONG PrefixSize) PURE;
+    STDMETHOD(SetOutputLinePrefix)(THIS_ PCSTR Prefix) PURE;
+    STDMETHOD(GetIdentity)(THIS_ PSTR Buffer,ULONG BufferSize,PULONG IdentitySize) PURE;
+    STDMETHOD(OutputIdentity)(THIS_ ULONG OutputControl,ULONG Flags,PCSTR Format) PURE;
+    STDMETHOD(GetEventCallbacks)(THIS_ PDEBUG_EVENT_CALLBACKS *Callbacks) PURE;
+    STDMETHOD(SetEventCallbacks)(THIS_ PDEBUG_EVENT_CALLBACKS Callbacks) PURE;
+    STDMETHOD(FlushCallbacks)(THIS) PURE;
+    STDMETHOD(WriteDumpFile2)(THIS_ PCSTR DumpFile,ULONG Qualifier,ULONG FormatFlags,PCSTR Comment) PURE;
+    STDMETHOD(AddDumpInformationFile)(THIS_ PCSTR InfoFile,ULONG Type) PURE;
+    STDMETHOD(EndProcessServer)(THIS_ ULONG64 Server) PURE;
+    STDMETHOD(WaitForProcessServerEnd)(THIS_ ULONG Timeout) PURE;
+    STDMETHOD(IsKernelDebuggerEnabled)(THIS) PURE;
+    STDMETHOD(TerminateCurrentProcess)(THIS) PURE;
+    STDMETHOD(DetachCurrentProcess)(THIS) PURE;
+    STDMETHOD(AbandonCurrentProcess)(THIS) PURE;
+    STDMETHOD(GetRunningProcessSystemIdByExecutableNameWide)(THIS_ ULONG64 Server,PCWSTR ExeName,ULONG Flags,PULONG Id) PURE;
+    STDMETHOD(GetRunningProcessDescriptionWide)(THIS_ ULONG64 Server,ULONG SystemId,ULONG Flags,PWSTR ExeName,ULONG ExeNameSize,PULONG ActualExeNameSize,PWSTR Description,ULONG DescriptionSize,PULONG ActualDescriptionSize) PURE;
+    STDMETHOD(CreateProcessWide)(THIS_ ULONG64 Server,PWSTR CommandLine,ULONG CreateFlags) PURE;
+    STDMETHOD(CreateProcessAndAttachWide)(THIS_ ULONG64 Server,PWSTR CommandLine,ULONG CreateFlags,ULONG ProcessId,ULONG AttachFlags) PURE;
+    STDMETHOD(OpenDumpFileWide)(THIS_ PCWSTR FileName,ULONG64 FileHandle) PURE;
+    STDMETHOD(WriteDumpFileWide)(THIS_ PCWSTR FileName,ULONG64 FileHandle,ULONG Qualifier,ULONG FormatFlags,PCWSTR Comment) PURE;
+    STDMETHOD(AddDumpInformationFileWide)(THIS_ PCWSTR FileName,ULONG64 FileHandle,ULONG Type) PURE;
+    STDMETHOD(GetNumberDumpFiles)(THIS_ PULONG Number) PURE;
+    STDMETHOD(GetDumpFile)(THIS_ ULONG Index,PSTR Buffer,ULONG BufferSize,PULONG NameSize,PULONG64 Handle,PULONG Type) PURE;
+    STDMETHOD(GetDumpFileWide)(THIS_ ULONG Index,PWSTR Buffer,ULONG BufferSize,PULONG NameSize,PULONG64 Handle,PULONG Type) PURE;
+    STDMETHOD(AttachKernelWide)(THIS_ ULONG Flags,PCWSTR ConnectOptions) PURE;
+    STDMETHOD(GetKernelConnectionOptionsWide)(THIS_ PWSTR Buffer,ULONG BufferSize,PULONG OptionsSize) PURE;
+    STDMETHOD(SetKernelConnectionOptionsWide)(THIS_ PCWSTR Options) PURE;
+    STDMETHOD(StartProcessServerWide)(THIS_ ULONG Flags,PCWSTR Options,PVOID Reserved) PURE;
+    STDMETHOD(ConnectProcessServerWide)(THIS_ PCWSTR RemoteOptions,PULONG64 Server) PURE;
+    STDMETHOD(StartServerWide)(THIS_ PCWSTR Options) PURE;
+    STDMETHOD(OutputServersWide)(THIS_ ULONG OutputControl,PCWSTR Machine,ULONG Flags) PURE;
+    STDMETHOD(GetOutputCallbacksWide)(THIS_ PDEBUG_OUTPUT_CALLBACKS_WIDE *Callbacks) PURE;
+    STDMETHOD(SetOutputCallbacksWide)(THIS_ PDEBUG_OUTPUT_CALLBACKS_WIDE Callbacks) PURE;
+    STDMETHOD(GetOutputLinePrefixWide)(THIS_ PWSTR Buffer,ULONG BufferSize,PULONG PrefixSize) PURE;
+    STDMETHOD(SetOutputLinePrefixWide)(THIS_ PCWSTR Prefix) PURE;
+    STDMETHOD(GetIdentityWide)(THIS_ PWSTR Buffer,ULONG BufferSize,PULONG IdentitySize) PURE;
+    STDMETHOD(OutputIdentityWide)(THIS_ ULONG OutputControl,ULONG Flags,PCWSTR Format) PURE;
+    STDMETHOD(GetEventCallbacksWide)(THIS_ PDEBUG_EVENT_CALLBACKS_WIDE *Callbacks) PURE;
+    STDMETHOD(SetEventCallbacksWide)(THIS_ PDEBUG_EVENT_CALLBACKS_WIDE Callbacks) PURE;
+    STDMETHOD(CreateProcess2)(THIS_ ULONG64 Server,PSTR CommandLine,PVOID OptionsBuffer,ULONG OptionsBufferSize,PCSTR InitialDirectory,PCSTR Environment) PURE;
+    STDMETHOD(CreateProcess2Wide)(THIS_ ULONG64 Server,PWSTR CommandLine,PVOID OptionsBuffer,ULONG OptionsBufferSize,PCWSTR InitialDirectory,PCWSTR Environment) PURE;
+    STDMETHOD(CreateProcessAndAttach2)(THIS_ ULONG64 Server,PSTR CommandLine,PVOID OptionsBuffer,ULONG OptionsBufferSize,PCSTR InitialDirectory,PCSTR Environment,ULONG ProcessId,ULONG AttachFlags) PURE;
+    STDMETHOD(CreateProcessAndAttach2Wide)(THIS_ ULONG64 Server,PWSTR CommandLine,PVOID OptionsBuffer,ULONG OptionsBufferSize,PCWSTR InitialDirectory,PCWSTR Environment,ULONG ProcessId,ULONG AttachFlags) PURE;
+    STDMETHOD(PushOutputLinePrefix)(THIS_ PCSTR NewPrefix,PULONG64 Handle) PURE;
+    STDMETHOD(PushOutputLinePrefixWide)(THIS_ PCWSTR NewPrefix,PULONG64 Handle) PURE;
+    STDMETHOD(PopOutputLinePrefix)(THIS_ ULONG64 Handle) PURE;
+    STDMETHOD(GetNumberInputCallbacks)(THIS_ PULONG Count) PURE;
+    STDMETHOD(GetNumberOutputCallbacks)(THIS_ PULONG Count) PURE;
+    STDMETHOD(GetNumberEventCallbacks)(THIS_ ULONG EventFlags,PULONG Count) PURE;
+    STDMETHOD(GetQuitLockString)(THIS_ PSTR Buffer,ULONG BufferSize,PULONG StringSize) PURE;
+    STDMETHOD(SetQuitLockString)(THIS_ PCSTR String) PURE;
+    STDMETHOD(GetQuitLockStringWide)(THIS_ PWSTR Buffer,ULONG BufferSize,PULONG StringSize) PURE;
+    STDMETHOD(SetQuitLockStringWide)(THIS_ PCWSTR String) PURE;
+};
+
+#undef INTERFACE
+#define INTERFACE IDebugOutputCallbacksWide
+DECLARE_INTERFACE_(IDebugOutputCallbacksWide, IUnknown)
+{
+    STDMETHOD(QueryInterface)(THIS_ REFIID InterfaceId,PVOID *Interface) PURE;
+    STDMETHOD_(ULONG, AddRef)(THIS) PURE;
+    STDMETHOD_(ULONG, Release)(THIS) PURE;
+    STDMETHOD(Output)(THIS_ ULONG Mask,PCWSTR Text) PURE;
+};
+
+#endif
+
 #endif // SDK_GCC_H_EA5F3F70_C987_4240_AA25_3016DB39C651
