@@ -1506,6 +1506,9 @@
     <ClInclude Include="..\..\Archive\HandlerCont.h">
       <Filter>Archive</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Archive\HfsHandler.h">
+      <Filter>Archive</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Archive\IArchive.h">
       <Filter>Archive</Filter>
     </ClInclude>

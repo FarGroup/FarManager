@@ -760,6 +760,7 @@
     <ClInclude Include="..\..\Archive\Common\ParseProperties.h" />
     <ClInclude Include="..\..\Archive\DeflateProps.h" />
     <ClInclude Include="..\..\Archive\HandlerCont.h" />
+    <ClInclude Include="..\..\Archive\HfsHandler.h" />
     <ClInclude Include="..\..\Archive\IArchive.h" />
     <ClInclude Include="..\..\Archive\Iso\IsoHandler.h" />
     <ClInclude Include="..\..\Archive\Iso\IsoHeader.h" />
