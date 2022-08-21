@@ -52,7 +52,7 @@ class SaveScreen;
 
 class FolderTree final: public window
 {
-	struct private_tag {};
+	struct private_tag { explicit private_tag() = default; };
 
 public:
 	static foldertree_ptr create(string &strResultFolder, int ModalMode, int IsStandalone = TRUE, bool IsFullScreen = true);

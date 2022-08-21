@@ -212,6 +212,7 @@ public:
 	virtual Viewer* GetById(int ID) { return nullptr;}
 	virtual void OnDestroy() {}
 	virtual void InitCurDir(string_view CurDir);
+	virtual void on_swap() {}
 
 	panel_mode GetMode() const { return m_PanelMode; }
 	void SetMode(panel_mode Mode) { m_PanelMode = Mode; }

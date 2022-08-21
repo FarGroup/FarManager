@@ -85,7 +85,7 @@ static LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 							const auto IsArrival = wParam == DBT_DEVICEARRIVAL;
 							const auto IsMedia = (BroadcastVolume.dbcv_flags & DBTF_MEDIA) != 0;
 
-							LOGINFO(L"WM_DEVICECHANGE(type: {}, media: {}, drives: {})"sv, IsArrival? L"arrival"sv : L"removal"sv, IsMedia, join(os::fs::enum_drives(Drives), {}));
+							LOGINFO(L"WM_DEVICECHANGE(type: {}, media: {}, drives: {})"sv, IsArrival? L"arrival"sv : L"removal"sv, IsMedia, join({}, os::fs::enum_drives(Drives)));
 
 							message_manager::instance().notify(update_devices, update_devices_message{ Drives, IsArrival, IsMedia });
 						}

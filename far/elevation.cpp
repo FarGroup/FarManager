@@ -248,6 +248,7 @@ void elevation::ResetApprove()
 		return;
 
 	m_AskApprove=true;
+	m_IsApproved = false;
 
 	if (!m_Elevation)
 		return;
@@ -613,8 +614,14 @@ static void ElevationApproveDlgSync(const EAData& Data)
 
 bool elevation::ElevationApproveDlg(lng const Why, string_view const Object)
 {
-	if (m_Suppressions)
+	// Some logic actually relies on disabled elevation
+	if (m_CompleteSuppressions)
 		return false;
+
+	// Usually we just don't want to be too annoying,
+	// but if it's already active, we might as well use it.
+	if (m_Suppressions)
+		return m_IsApproved;
 
 	// request for backup&restore privilege is useless if the user already has them
 	{
@@ -988,16 +995,27 @@ bool elevation::reset_file_security(string const& Object)
 		});
 }
 
-elevation::suppress::suppress():
-	m_owner(Global? &instance() : nullptr)
+elevation::suppress::suppress(bool const Completely):
+	m_owner(Global? &instance() : nullptr),
+	m_Completely(Completely)
 {
-	if (m_owner)
+	if (!m_owner)
+		return;
+
+	if (m_Completely)
+		++m_owner->m_CompleteSuppressions;
+	else
 		++m_owner->m_Suppressions;
 }
 
 elevation::suppress::~suppress()
 {
-	if (m_owner)
+	if (!m_owner)
+		return;
+
+	if (m_Completely)
+		--m_owner->m_CompleteSuppressions;
+	else
 		--m_owner->m_Suppressions;
 }
 

@@ -704,6 +704,11 @@ void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator
 
 		if (PartCmdLine(FullCommand, Command, Parameters))
 		{
+			// Can happen if the user entered only spaces.
+			// No point in going further.
+			if (Command.empty())
+				return;
+
 			string FullName;
 			// Unfortunately it's not possible to avoid the manual search, see gh-290.
 			if (FindObject(Command, FullName))

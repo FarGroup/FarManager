@@ -128,9 +128,7 @@ enum OPENFILEPLUGINTYPE: int;
 
 class FileList final: public Panel
 {
-	struct private_tag
-	{
-	};
+	struct private_tag { explicit private_tag() = default; };
 
 public:
 	static file_panel_ptr create(window_ptr Owner);
@@ -203,6 +201,7 @@ public:
 	void UpdateKeyBar() override;
 	void GoHome(string_view Drive) override;
 	bool GetSelectedFirstMode() const override;
+	void on_swap() override;
 
 	const FileListItem* GetItem(size_t Index) const;
 	const FileListItem* GetLastSelectedItem() const;

@@ -52,7 +52,14 @@ public:
 	explicit map_file(string_view ModuleName);
 	~map_file();
 
-	std::pair<string, string_view> get(uintptr_t Address) const;
+	struct info
+	{
+		string_view Symbol;
+		string_view File;
+		size_t Displacement;
+	};
+
+	info get(uintptr_t Address);
 
 	struct line;
 

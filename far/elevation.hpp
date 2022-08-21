@@ -96,11 +96,12 @@ public:
 	public:
 		NONCOPYABLE(suppress);
 
-		suppress();
+		suppress(bool Completely = false);
 		~suppress();
 
 	private:
 		elevation* m_owner;
+		bool m_Completely;
 	};
 
 private:
@@ -130,6 +131,7 @@ private:
 	void progress_routine(LPPROGRESS_ROUTINE ProgressRoutine) const;
 
 	std::atomic_size_t m_Suppressions{};
+	std::atomic_size_t m_CompleteSuppressions{};
 	os::handle m_Pipe;
 	os::handle m_Process;
 	os::handle m_Job;

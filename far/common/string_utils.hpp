@@ -575,7 +575,7 @@ inline auto trim(std::wstring_view Str) noexcept
 }
 
 template<typename container>
-void join(std::wstring& Str, const container& Container, std::wstring_view const Separator)
+void join(std::wstring& Str, std::wstring_view const Separator, const container& Container)
 {
 	const auto Size = std::accumulate(ALL_CONST_RANGE(Container), size_t{}, [Separator](size_t const Value, const auto& Element)
 	{
@@ -602,10 +602,10 @@ void join(std::wstring& Str, const container& Container, std::wstring_view const
 
 template<typename container>
 [[nodiscard]]
-std::wstring join(const container& Container, std::wstring_view const Separator)
+std::wstring join(std::wstring_view const Separator, const container& Container)
 {
 	std::wstring Str;
-	join(Str, Container, Separator);
+	join(Str, Separator, Container);
 	return Str;
 }
 

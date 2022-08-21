@@ -257,6 +257,9 @@
     <ClCompile Include="infolist.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="initguid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="interf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

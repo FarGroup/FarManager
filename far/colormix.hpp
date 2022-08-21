@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 struct FarColor;
+struct rgba;
 
 namespace colors
 {
@@ -88,6 +89,9 @@ namespace colors
 
 	COLORREF invert(COLORREF Colour, bool IsIndex);
 	void make_invert(COLORREF& Colour, bool IsIndex);
+
+	rgba to_rgba(COLORREF Color);
+	COLORREF to_color(rgba Rgba);
 
 	size_t color_hash(const FarColor& Value);
 

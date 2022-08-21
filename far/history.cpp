@@ -115,7 +115,7 @@ namespace
 		os::chrono::time_point m_StartTime{ os::chrono::nt_clock::now() };
 	};
 
-	static auto& history_white_list()
+	auto& history_white_list()
 	{
 		static history_white_list_t Instance;
 		return Instance;

@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "lang.hpp"
 #include "language.hpp"
-#include "message.hpp"
 #include "imports.hpp"
 #include "strmix.hpp"
 #include "tracer.hpp"
@@ -60,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 
 // Platform:
+#include "platform.com.hpp"
 #include "platform.debug.hpp"
 #include "platform.fs.hpp"
 #include "platform.process.hpp"
@@ -70,6 +70,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // External:
 #include "format.hpp"
+
+#if !IS_MICROSOFT_SDK()
+#include <cxxabi.h>
+#endif
 
 //----------------------------------------------------------------------------
 
@@ -133,14 +137,6 @@ void disable_exception_handling()
 	LOGWARNING(L"Exception handling disabled"sv);
 }
 
-[[noreturn]]
-static void user_abort()
-{
-	// This is a user-initiated abort, we don't want any extra messages, dumps etc.
-	TerminateProcess(GetCurrentProcess(), EXIT_FAILURE);
-	UNREACHABLE;
-}
-
 static std::atomic_bool s_ExceptionHandlingInprogress{};
 bool exception_handling_in_progress()
 {
@@ -152,12 +148,42 @@ void force_stderr_exception_ui(bool const Force)
 	ForceStderrExceptionUI = Force;
 }
 
+static constexpr NTSTATUS make_far_ntstatus(uint16_t const Number)
+{
+	// https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/87fba13e-bf06-450e-83b1-9241dc81e781
+
+	// These codes are used purely internally (so far), so we don't really need to do all this.
+	// However, why not.
+
+	const unsigned Severity = STATUS_SEVERITY_ERROR;
+
+	const auto FarMagic =
+		'F' << 16 |
+		'A' << 8 |
+		'R' << 0;
+
+	const auto FarMagicCompressed =
+		(FarMagic & 0x00FFF000) >> 12 ^
+		(FarMagic & 0x00000FFF) >> 0;
+
+	const auto FarFacility = FarMagicCompressed;
+
+	return
+		Severity    << 30 |
+		1           << 29 |
+		FarFacility << 16 |
+		Number      << 0;
+}
+
 void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
 static constexpr NTSTATUS
 	EXCEPTION_HEAP_CORRUPTION     = STATUS_HEAP_CORRUPTION,
-	EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363, // EH_EXCEPTION_NUMBER
-	EXCEPTION_ABORT               = 0xE0616274; // 'abt'
+	EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363, // EH_EXCEPTION_NUMBER, 'msc'
+
+	// Far-specific codes
+	EXCEPTION_ABORT          = make_far_ntstatus(0),
+	EXCEPTION_THREAD_RETHROW = make_far_ntstatus(1);
 
 static const auto Separator = L"----------------------------------------------------------------------"sv;
 
@@ -426,6 +452,137 @@ static void read_registers(string& To, CONTEXT const& Context, string_view const
 #endif
 }
 
+WARNING_PUSH()
+WARNING_DISABLE_GCC("-Wnon-virtual-dtor")
+class DebugOutputCallbacks final:
+	public IDebugOutputCallbacks,
+	public IDebugOutputCallbacksWide
+{
+public:
+	explicit DebugOutputCallbacks(string* To):
+		m_To(To)
+	{}
+
+	// IUnknown
+	STDMETHOD(QueryInterface)(REFIID InterfaceId, PVOID* Interface) override
+	{
+
+		if (none_of(InterfaceId, IID_IUnknown, IID_IDebugOutputCallbacks, IID_IDebugOutputCallbacksWide))
+		{
+			*Interface = {};
+			return E_NOINTERFACE;
+		}
+
+		*Interface = this;
+		AddRef();
+		return S_OK;
+	}
+
+	// IUnknown
+	STDMETHOD_(ULONG, AddRef)() override
+	{
+		return 1;
+	}
+
+	// IUnknown
+	STDMETHOD_(ULONG, Release)() override
+	{
+		return 0;
+	}
+
+	// IDebugOutputCallbacks
+	STDMETHOD(Output)(ULONG Mask, PCSTR Text) override
+	{
+		*m_To += encoding::utf8::get_chars(Text);
+		return S_OK;
+	}
+
+	// IDebugOutputCallbacksWide
+	STDMETHOD(Output)(ULONG Mask, PCWSTR Text) override
+	{
+		*m_To += Text;
+		return S_OK;
+	}
+
+private:
+	string* m_To;
+};
+WARNING_POP()
+
+static void read_disassembly(string& To, string_view const Module, span<uintptr_t const> const Stack, string_view const Eol)
+{
+	if (Stack.empty())
+		return;
+
+	if (!imports.DebugCreate)
+		return;
+
+	try
+	{
+		DebugOutputCallbacks Callbacks(&To);
+
+		os::com::ptr<IDebugClient> DebugClient;
+		COM_INVOKE(imports.DebugCreate, (IID_IDebugClient, IID_PPV_ARGS_Helper(&ptr_setter(DebugClient))));
+
+		COM_INVOKE(DebugClient->AttachProcess, ({}, GetCurrentProcessId(), DEBUG_ATTACH_NONINVASIVE | DEBUG_ATTACH_NONINVASIVE_NO_SUSPEND));
+
+		os::com::ptr<IDebugControl> DebugControl;
+		COM_INVOKE(DebugClient->QueryInterface, (IID_IDebugControl, IID_PPV_ARGS_Helper(&ptr_setter(DebugControl))));
+
+		if (const auto Result = DebugControl->WaitForEvent(DEBUG_WAIT_DEFAULT, INFINITE); FAILED(Result))
+			LOGWARNING(L"WaitForEvent(): {}"sv, os::format_error(Result));
+
+		if (const auto Result = DebugClient->SetOutputMask(DEBUG_OUTPUT_NORMAL); FAILED(Result))
+			LOGWARNING(L"SetOutputMask(): {}"sv, os::format_error(Result));
+
+		if (os::com::ptr<IDebugClient5> DebugClient5; SUCCEEDED(DebugClient->QueryInterface(IID_IDebugClient5, IID_PPV_ARGS_Helper(&ptr_setter(DebugClient5)))))
+			COM_INVOKE(DebugClient5->SetOutputCallbacksWide, (&Callbacks));
+		else
+			COM_INVOKE(DebugClient->SetOutputCallbacks, (&Callbacks));
+
+		const auto DisassembleFlags =
+			DEBUG_DISASM_EFFECTIVE_ADDRESS |
+			DEBUG_DISASM_MATCHING_SYMBOLS |
+			DEBUG_DISASM_SOURCE_LINE_NUMBER |
+			DEBUG_DISASM_SOURCE_FILE_NAME;
+
+		const auto MaxFrames = 10;
+		auto Frames = 0;
+		for (const auto i: Stack)
+		{
+			tracer.get_symbols(Module, {&i, 1}, [&](string_view const Line)
+			{
+				append(To, Line, L':', Eol);
+			});
+
+			const auto PrevLines = 10;
+			if (const auto Result = DebugControl->OutputDisassemblyLines(
+				DEBUG_OUTCTL_THIS_CLIENT,
+				PrevLines,
+				PrevLines + 1,
+				i,
+				DisassembleFlags,
+				{},
+				{},
+				{},
+				{}
+			); FAILED(Result))
+			{
+				LOGWARNING(L"OutputDisassemblyLines(): {}"sv, os::format_error(Result));
+			}
+
+			if (++Frames == MaxFrames)
+				break;
+
+			To += Eol;
+		}
+	}
+	catch (os::com::exception const& e)
+	{
+		LOGWARNING(L"{}"sv, e);
+	}
+}
+
 static string collect_information(
 	exception_context const& Context,
 	span<uintptr_t const> NestedStack,
@@ -450,7 +607,8 @@ static string collect_information(
 		format_to(Strings, FSTR(L"{} {}{}"sv), Label, Value, Eol);
 	}
 
-	get_backtrace(Module, tracer.get(Module, Context.context_record(), Context.thread_handle()), NestedStack, append_line);
+	const auto Stack = tracer.get(Module, Context.context_record(), Context.thread_handle());
+	get_backtrace(Module, Stack, NestedStack, append_line);
 
 	{
 		os::process::enum_processes const Enum;
@@ -488,6 +646,10 @@ static string collect_information(
 			}
 		}
 	}
+
+	// Read disassembly before modules - it will load dbgeng.dll and we might want to see it too just in case
+	make_header(L"Disassembly"sv, append_line);
+	read_disassembly(Strings, Module, NestedStack.empty()? Stack : NestedStack, Eol);
 
 	make_header(L"Modules"sv, append_line);
 	read_modules(Strings, Eol);
@@ -700,6 +862,7 @@ static bool ShowExceptionUI(
 		{ L"Source:   "sv, Source,        },
 		{ L"File:     "sv, ModuleName,    },
 		{ L"Plugin:   "sv, PluginInfo,    },
+		{},
 		{ L"Far:      "sv, Version,       },
 		{ L"Compiler: "sv, Compiler,      },
 		{ L"OS:       "sv, OsVersion,     },
@@ -710,10 +873,10 @@ static bool ShowExceptionUI(
 
 	const auto log_message = [&]
 	{
-		auto Message = join(select(BasicInfo, [](auto const& Pair)
+		auto Message = join(L"\n"sv, select(BasicInfo, [](auto const& Pair)
 		{
 			return format(FSTR(L"{} {}"sv), Pair.first, Pair.second);
-		}), L"\n"sv);
+		}));
 
 		Message += L"\n\n"sv;
 
@@ -736,7 +899,7 @@ static bool ShowExceptionUI(
 	const auto ReadmeOnDisk = write_readme(path::join(ReportLocation, L"README.txt"sv));
 	const auto AnythingOnDisk = ReportOnDisk || MinidumpNormal || MinidumpFull || ReadmeOnDisk;
 
-	if (AnythingOnDisk)
+	if (AnythingOnDisk && os::is_interactive_user_session())
 		OpenFolderInShell(ReportLocation);
 
 	if (AnythingOnDisk || ReportInClipboard)
@@ -856,10 +1019,30 @@ static string ExtractObjectType(EXCEPTION_RECORD const& xr)
 {
 	enum_catchable_objects const CatchableTypesEnumerator(xr);
 	const auto Iterator = CatchableTypesEnumerator.cbegin();
-	if (Iterator == CatchableTypesEnumerator.cend())
+	if (Iterator != CatchableTypesEnumerator.cend())
+		return encoding::utf8::get_chars(*Iterator);
+
+#if IS_MICROSOFT_SDK()
+	return {};
+#else
+	const auto TypeInfo = abi::__cxa_current_exception_type();
+	if (!TypeInfo)
 		return {};
 
-	return encoding::utf8::get_chars(*Iterator);
+	const auto Name = TypeInfo->name();
+	auto Status = -1;
+
+	struct free_deleter
+	{
+		void operator()(void* Ptr) const
+		{
+			free(Ptr);
+		}
+	};
+
+	std::unique_ptr<char, free_deleter> const DemangledName(abi::__cxa_demangle(Name, {}, {}, &Status));
+	return encoding::utf8::get_chars(DemangledName.get());
+#endif
 }
 
 static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_view const Type)
@@ -925,7 +1108,7 @@ static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_vie
 
 static string exception_details(string_view const Module, EXCEPTION_RECORD const& ExceptionRecord, string_view const Message)
 {
-	switch (static_cast<NTSTATUS>(ExceptionRecord.ExceptionCode))
+	switch (const auto NtStatus = static_cast<NTSTATUS>(ExceptionRecord.ExceptionCode))
 	{
 	case EXCEPTION_ACCESS_VIOLATION:
 	case EXCEPTION_IN_PAGE_ERROR:
@@ -950,7 +1133,11 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 		if (Symbol.empty())
 			Symbol = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
 
-		return format(FSTR(L"0x{:0>8X} - Memory at {} could not be {}"sv), ExceptionRecord.ExceptionCode, Symbol, Mode);
+		auto Result = format(FSTR(L"Memory at {} could not be {}"sv), Symbol, Mode);
+		if (NtStatus == EXCEPTION_IN_PAGE_ERROR)
+			append(Result, L": "sv, os::format_ntstatus(static_cast<NTSTATUS>(ExceptionRecord.ExceptionInformation[2])));
+
+		return Result;
 	}
 
 	case EXCEPTION_MICROSOFT_CPLUSPLUS:
@@ -1070,7 +1257,7 @@ static EXCEPTION_POINTERS exception_information()
 	};
 }
 
-class far_wrapper_exception final: public far_exception
+class far_wrapper_exception final: public far_exception, public std::nested_exception
 {
 public:
 	far_wrapper_exception(std::string_view const Function, std::string_view const File, int const Line):
@@ -1087,11 +1274,13 @@ private:
 	std::vector<uintptr_t> m_Stack;
 };
 
+static_assert(std::is_base_of_v<std::nested_exception, far_wrapper_exception>);
+
 std::exception_ptr wrap_current_exception(std::string_view const Function, std::string_view const File, int const Line)
 {
 	try
 	{
-		std::throw_with_nested(far_wrapper_exception(Function, File, Line));
+		throw far_wrapper_exception(Function, File, Line);
 	}
 	catch (...)
 	{
@@ -1150,24 +1339,6 @@ static std::pair<string, string> extract_nested_exceptions(EXCEPTION_RECORD cons
 	return Result;
 }
 
-class seh_exception final: public far_exception
-{
-public:
-	template<typename... args>
-	explicit seh_exception(EXCEPTION_POINTERS const& Pointers, args&&... Args):
-		far_exception(FWD(Args)...),
-		m_Context(std::make_shared<seh_exception_context>(Pointers))
-	{}
-
-	const auto& context() const noexcept { return *m_Context; }
-
-private:
-	// Q: Why do you need a shared_ptr here?
-	// A: The exception must be copyable
-	std::shared_ptr<seh_exception_context> m_Context;
-};
-
-
 static bool handle_std_exception(
 	exception_context const& Context,
 	const std::exception& e,
@@ -1175,20 +1346,6 @@ static bool handle_std_exception(
 	const Plugin* const Module
 )
 {
-	if (const auto SehException = dynamic_cast<const seh_exception*>(&e))
-	{
-		return handle_generic_exception(
-			Context,
-			Function,
-			SehException->location(),
-			Module,
-			{},
-			SehException->message(),
-			*SehException,
-			tracer.get({}, SehException->context().context_record(), SehException->context().thread_handle())
-		);
-	}
-
 	const auto& [Type, What] = extract_nested_exceptions(Context.exception_record(), e);
 
 	if (const auto FarException = dynamic_cast<const detail::far_base_exception*>(&e))
@@ -1210,16 +1367,78 @@ bool handle_std_exception(const std::exception& e, std::string_view const Functi
 	return handle_std_exception(exception_context(exception_information()), e, Function, Module);
 }
 
+class seh_exception::seh_exception_impl
+{
+public:
+	explicit seh_exception_impl(EXCEPTION_POINTERS const& Pointers):
+		Context(Pointers),
+		ErrorState(last_error())
+	{}
+
+	seh_exception_context Context;
+	error_state ErrorState;
+};
+
+seh_exception::seh_exception():
+	os::event(os::event::type::manual, os::event::state::nonsignaled)
+{}
+
+seh_exception::~seh_exception()
+{
+	if (m_Impl)
+		raise();
+}
+
+void seh_exception::set(EXCEPTION_POINTERS const& Pointers)
+{
+	m_Impl = std::make_unique<seh_exception_impl>(Pointers);
+	event::set();
+}
+
+void seh_exception::raise()
+{
+	assert(m_Impl);
+
+	ULONG_PTR const Arguments[]
+	{
+		reinterpret_cast<ULONG_PTR>(this)
+	};
+
+	RaiseException(EXCEPTION_THREAD_RETHROW, 0, static_cast<DWORD>(std::size(Arguments)), Arguments);
+
+	dismiss();
+}
+
+void seh_exception::dismiss()
+{
+	m_Impl.reset();
+	reset();
+}
+
+seh_exception::seh_exception_impl const& seh_exception::get() const
+{
+	return *m_Impl;
+}
+
 static bool handle_seh_exception(
 	exception_context const& Context,
 	std::string_view const Function,
 	Plugin const* const PluginModule
 )
 {
-	for (const auto& i : enum_catchable_objects(Context.exception_record()))
+	const auto& Record = Context.exception_record();
+
+	if (Record.ExceptionCode == static_cast<DWORD>(EXCEPTION_THREAD_RETHROW) && Record.NumberParameters == 1)
+	{
+		const auto& OriginalExceptionData = reinterpret_cast<seh_exception const*>(Record.ExceptionInformation[0])->get();
+		// We don't need to care about the rethrow stack here: SEH is synchronous, so it will be a part of the handler stack
+		return handle_generic_exception(OriginalExceptionData.Context, Function, {}, PluginModule, {}, {}, OriginalExceptionData.ErrorState);
+	}
+
+	for (const auto& i : enum_catchable_objects(Record))
 	{
 		if (strstr(i, "std::exception"))
-			return handle_std_exception(Context, view_as<std::exception>(Context.exception_record().ExceptionInformation[1]), Function, PluginModule);
+			return handle_std_exception(Context, view_as<std::exception>(Record.ExceptionInformation[1]), Function, PluginModule);
 	}
 
 	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {});
@@ -1250,7 +1469,7 @@ static void seh_abort_handler_impl()
 	if (const auto Info = exception_information(); Info.ContextRecord && Info.ExceptionRecord && !is_fake_cpp_exception(*Info.ExceptionRecord))
 	{
 		if (handle_seh_exception(exception_context(Info), CURRENT_FUNCTION_NAME, {}))
-			user_abort();
+			os::process::terminate_by_user();
 	}
 
 	// It's a C++ exception, implemented in some other way (GCC)
@@ -1263,12 +1482,12 @@ static void seh_abort_handler_impl()
 		catch (std::exception const& e)
 		{
 			if (handle_std_exception(e, CURRENT_FUNCTION_NAME, {}))
-				user_abort();
+				os::process::terminate_by_user();
 		}
 		catch (...)
 		{
 			if (handle_unknown_exception(CURRENT_FUNCTION_NAME, {}))
-				user_abort();
+				os::process::terminate_by_user();
 		}
 	}
 
@@ -1280,26 +1499,16 @@ static void seh_abort_handler_impl()
 	});
 
 	if (handle_generic_exception(Context, CURRENT_FUNCTION_NAME, {}, {}, {}, L"Abnormal termination"sv))
-		user_abort();
+		os::process::terminate_by_user();
 
 	restore_system_exception_handler();
-}
-
-seh_terminate_handler::seh_terminate_handler():
-	m_PreviousHandler(std::set_terminate(seh_abort_handler_impl))
-{
-}
-
-seh_terminate_handler::~seh_terminate_handler()
-{
-	std::set_terminate(m_PreviousHandler);
 }
 
 static LONG WINAPI unhandled_exception_filter_impl(EXCEPTION_POINTERS* const Pointers)
 {
 	const auto Result = detail::seh_filter(Pointers, CURRENT_FUNCTION_NAME, {});
 	if (Result == EXCEPTION_EXECUTE_HANDLER)
-		std::_Exit(EXIT_FAILURE);
+		os::process::terminate_by_user(Pointers->ExceptionRecord->ExceptionCode);
 
 	return Result;
 }
@@ -1314,19 +1523,20 @@ unhandled_exception_filter::~unhandled_exception_filter()
 	SetUnhandledExceptionFilter(m_PreviousFilter);
 }
 
+
+#if !IS_MICROSOFT_SDK()
 // For GCC. For some reason the default one works in Debug, but not in Release.
 #ifndef _DEBUG
 extern "C"
 {
-	[[noreturn]]
 	void __cxa_pure_virtual();
 
-	[[noreturn]]
 	void __cxa_pure_virtual()
 	{
 		std::abort();
 	}
 }
+#endif
 #endif
 
 static void signal_handler_impl(int const Signal)
@@ -1378,7 +1588,7 @@ static void invalid_parameter_handler_impl(const wchar_t* const Expression, cons
 		{},
 		Expression? Expression : L"Invalid parameter"sv
 	))
-		user_abort();
+		os::process::terminate_by_user();
 
 	restore_system_exception_handler();
 }
@@ -1399,20 +1609,21 @@ static LONG NTAPI vectored_exception_handler_impl(EXCEPTION_POINTERS* const Poin
 	{
 		// VEH handlers shouldn't do this in general, but it's not like we can make things much worse at this point anyways.
 		if (detail::seh_filter(Pointers, CURRENT_FUNCTION_NAME, {}) == EXCEPTION_EXECUTE_HANDLER)
-			std::_Exit(EXIT_FAILURE);
+			os::process::terminate_by_user(Pointers->ExceptionRecord->ExceptionCode);
 	}
 
 	return EXCEPTION_CONTINUE_SEARCH;
 }
 
 vectored_exception_handler::vectored_exception_handler():
-	m_Handler(AddVectoredExceptionHandler(false, vectored_exception_handler_impl))
+	m_Handler(imports.AddVectoredExceptionHandler? imports.AddVectoredExceptionHandler(false, vectored_exception_handler_impl) : nullptr)
 {
 }
 
 vectored_exception_handler::~vectored_exception_handler()
 {
-	RemoveVectoredExceptionHandler(m_Handler);
+	if (m_Handler && imports.RemoveVectoredExceptionHandler)
+		imports.RemoveVectoredExceptionHandler(m_Handler);
 }
 
 namespace detail
@@ -1474,7 +1685,7 @@ namespace detail
 			if (StackOverflowHappened)
 			{
 				if (!_resetstkoflw())
-					std::_Exit(EXIT_FAILURE);
+					os::process::terminate(GetExceptionCode());
 
 				StackOverflowHappened = false;
 			}
@@ -1527,36 +1738,26 @@ namespace detail
 		return EXCEPTION_CONTINUE_SEARCH;
 	}
 
-	int seh_thread_filter(std::exception_ptr& Ptr, EXCEPTION_POINTERS const* const Info)
+	int seh_thread_filter(seh_exception& Exception, EXCEPTION_POINTERS const* const Info)
 	{
-		// SEH transport between threads is currently implemented in terms of C++ exceptions, so it requires both
-		if (!(HandleSehExceptions && HandleCppExceptions))
+		if (!HandleSehExceptions)
 		{
 			restore_system_exception_handler();
 			return EXCEPTION_CONTINUE_SEARCH;
 		}
 
-		Ptr = std::make_exception_ptr(
-			MAKE_EXCEPTION(
-				seh_exception,
-				*Info,
-				true,
-				concat(
-					exception_name(*Info->ExceptionRecord, {}),
-					L" - "sv,
-					exception_details({}, *Info->ExceptionRecord, {})
-				)
-			)
-		);
+		Exception.set(*Info);
+
+		// The thread is about to quit, but we still need it to get the stack trace and write a minidump.
+		// It will be released once the corresponding exception context is destroyed.
+		// The thread has to be suspended right here in the filter to ensure a successful stack capture.
+		SuspendThread(GetCurrentThread());
+
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
 
 	void seh_thread_handler(DWORD)
 	{
-		// The thread is about to quit, but we still need it to get a stack trace / write a minidump.
-		// It will be released once the corresponding exception context is destroyed.
-		// The caller MUST detach it if ExceptionPtr is not empty.
-		SuspendThread(GetCurrentThread());
 	}
 
 	void set_fp_exceptions(bool const Enable)

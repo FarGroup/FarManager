@@ -149,8 +149,8 @@ bool message_manager::dispatch()
 	{
 		const auto& [EventId, Payload] = EventData;
 
-		// For purist clang /o
-		// TODO: remove once we enable C++20
+		// https://github.com/llvm/llvm-project/issues/54300
+		// TODO: remove once we have it.
 		const auto& EventIdRef = EventId;
 
 		const auto find_eligible_from = [&](handlers_map const& Handlers)

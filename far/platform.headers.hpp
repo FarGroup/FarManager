@@ -95,6 +95,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ntddmmc.h>
 #include <ntddscsi.h>
 #include <lmdfs.h>
+#include <dbgeng.h>
 
 #define _NTSCSI_USER_MODE_
 
@@ -127,5 +128,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #undef far
 #undef near
+#undef FAR
+#undef NEAR
+#define FAR
+#define NEAR
 
 #endif // PLATFORM_HEADERS_HPP_28623022_12EB_4D53_A153_16CAC90C0710

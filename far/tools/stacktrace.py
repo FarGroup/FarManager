@@ -107,7 +107,7 @@ def show_stack():
 		if keys[key_index] > address:
 			key_index -= 1;
 		data = map_data[keys[key_index]]
-		print("{0}: {1:04X}+{2} ({3})".format(i, address - keys[key_index], undecorate(data[0]), data[1]))
+		print("{0}: {1}+{2:X} ({3})".format(i, undecorate(data[0]), address - keys[key_index], data[1]))
 
 
 if __name__ == "__main__":

@@ -76,6 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.env.hpp"
 #include "platform.memory.hpp"
+#include "platform.process.hpp"
 #include "platform.security.hpp"
 
 // Common:
@@ -487,10 +488,7 @@ static void UpdateErrorMode()
 static void handle_exception(function_ref<bool()> const Handler)
 {
 	if (Handler())
-	{
-		LOGFATAL(L"Abnormal exit"sv);
-		std::_Exit(EXIT_FAILURE);
-	}
+		os::process::terminate_by_user();
 
 	throw;
 }
@@ -503,7 +501,7 @@ static void log_hook_wow64_status()
 	const auto [Msg, Error] = get_hook_wow64_error();
 	LOG(
 		Error == ERROR_SUCCESS? logging::level::debug : logging::level::warning,
-		L"hook_wow64: {} {}"sv,
+		L"hook_wow64: {}: {}"sv,
 		Msg,
 		os::format_error(Error)
 	);
@@ -1000,10 +998,7 @@ static void configure_exception_handling(int Argc, const wchar_t* const Argv[])
 static void handle_exception_final(function_ref<bool()> const Handler)
 {
 	if (Handler())
-	{
-		LOGFATAL(L"Abnormal exit"sv);
-		std::_Exit(EXIT_FAILURE);
-	}
+		os::process::terminate_by_user();
 
 	restore_system_exception_handler();
 	throw;
@@ -1065,8 +1060,7 @@ int main()
 	},
 	[](DWORD const ExceptionCode) -> int
 	{
-		LOGFATAL(L"Abnormal exit due to SEH exception {}"sv, ExceptionCode);
-		std::_Exit(ExceptionCode? ExceptionCode : EXIT_FAILURE);
+		os::process::terminate_by_user(ExceptionCode);
 	},
 	CURRENT_FUNCTION_NAME);
 }

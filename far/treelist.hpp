@@ -57,7 +57,7 @@ enum
 
 class TreeList final: public Panel
 {
-	struct private_tag {};
+	struct private_tag { explicit private_tag() = default; };
 
 public:
 	struct TreeItem

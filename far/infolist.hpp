@@ -52,7 +52,7 @@ class DizViewer;
 
 class InfoList final: public Panel
 {
-	struct private_tag {};
+	struct private_tag { explicit private_tag() = default; };
 
 public:
 	static info_panel_ptr create(window_ptr Owner);

@@ -42,10 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farcolor.hpp"
 #include "vmenu.hpp"
 #include "dialog.hpp"
-#include "filepanels.hpp"
-#include "ctrlobj.hpp"
 #include "scrbuf.hpp"
-#include "panel.hpp"
 #include "interf.hpp"
 #include "config.hpp"
 #include "colormix.hpp"
@@ -240,7 +237,9 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 	const auto GetColor = [Param1](size_t const Offset)
 	{
-		return colors::NtColorToFarColor(IndexColors[color_by_control[Param1 - Offset]]);
+		auto Color = colors::NtColorToFarColor(IndexColors[color_by_control[Param1 - Offset]]);
+		flags::clear(Color.Flags, FCF_INHERIT_STYLE);
+		return Color;
 	};
 
 	const auto FlagIndex = [](bool const IsFg)
@@ -371,13 +370,14 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						Component
 				);
 
-				if (pick_color_rgb(Color))
+				if (auto CustomColors = Global->Opt->Palette.GetCustomColors(); pick_color_rgb(Color, CustomColors))
 				{
 					SetComponentColorValue(IsFg, Color);
 					CurColor.Flags &= ~(FlagIndex(IsFg) | FlagIndex(IsFg));
 
 					Dlg->SendMessage(DM_SETCHECK, IsFg? cd_fg_color_first : cd_bg_color_first, ToPtr(BSTATE_3STATE));
 					Dlg->SendMessage(DM_UPDATECOLORCODE, IsFg? cd_fg_colorcode : cd_bg_colorcode, {});
+					Global->Opt->Palette.SetCustomColors(CustomColors);
 				}
 
 				return TRUE;
@@ -567,14 +567,12 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 	ColorDlg[cd_fg_colorcode].strMask = Color.IsFgIndex()? MaskIndex : MaskARGB;
 	ColorDlg[cd_bg_colorcode].strMask = Color.IsBgIndex()? MaskIndex : MaskARGB;
 
-
 	color_state ColorState
 	{
 		Color,
 		BaseColor? *BaseColor : colors::NtColorToFarColor(F_BLACK | B_BLACK),
 		BaseColor != nullptr
 	};
-
 
 	auto
 		ForegroundColorControlActivated = false,
@@ -661,7 +659,7 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 	else
 	{
 		constexpr auto
-			DlgLeft = 37,
+			DlgLeft = 14,
 			DlgTop = 2;
 
 		Dlg->SetPosition({DlgLeft, DlgTop, DlgLeft + DlgWidth - 1, DlgTop + DlgHeight - 1 });

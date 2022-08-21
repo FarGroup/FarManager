@@ -982,8 +982,8 @@ namespace console_detail
 			}
 			else
 			{
-				const union { COLORREF Color; rgba RGBA; } Value { ColorPart };
-				format_to(Str, FSTR(L"{};2;{};{};{}"sv), i.ExtendedColour, Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
+				const auto RGBA = colors::to_rgba(ColorPart);
+				format_to(Str, FSTR(L"{};2;{};{};{}"sv), i.ExtendedColour, RGBA.r, RGBA.g, RGBA.b);
 			}
 
 			Str += L';';
@@ -991,21 +991,31 @@ namespace console_detail
 
 		Str.pop_back();
 
-		for (const auto& [Style, On, Off]: StyleMapping)
+		for (const auto& i: StyleMapping)
 		{
-			if (Attributes.Flags & Style)
+			if (Attributes.Flags & i.Style)
 			{
-				if (!LastColor.has_value() || !(LastColor->Flags & Style))
-					append(Str, L';', On);
+				if (!LastColor.has_value() || !(LastColor->Flags & i.Style))
+					append(Str, L';', i.On);
 			}
 			else
 			{
-				if (LastColor.has_value() && LastColor->Flags & Style)
-					append(Str, L';', Off);
+				if (LastColor.has_value() && LastColor->Flags & i.Style)
+					append(Str, L';', i.Off);
 			}
 		}
 
 		Str += L'm';
+	}
+
+	static bool is_same_color(FarColor const& a, FarColor const& b)
+	{
+		return
+			a.Flags == b.Flags &&
+			a.ForegroundColor == b.ForegroundColor &&
+			a.BackgroundColor == b.BackgroundColor &&
+			// Reserved[0] contains non-BMP codepoints and is of no interest here.
+			a.Reserved[1] == b.Reserved[1];
 	}
 
 	static void make_vt_sequence(span<FAR_CHAR_INFO> Input, string& Str, std::optional<FarColor>& LastColor)
@@ -1084,7 +1094,7 @@ WARNING_POP()
 				}
 			}
 
-			if (!LastColor.has_value() || Cell.Attributes != *LastColor)
+			if (!LastColor.has_value() || !is_same_color(Cell.Attributes, *LastColor))
 			{
 				make_vt_attributes(Cell.Attributes, Str, LastColor);
 				LastColor = Cell.Attributes;

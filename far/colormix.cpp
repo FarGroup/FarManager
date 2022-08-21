@@ -56,24 +56,6 @@ enum
 	ConsoleFgShift=0,
 };
 
-static auto to_rgba(COLORREF const Color)
-{
-	rgba Rgba;
-	static_assert(sizeof(Rgba) == sizeof(Color));
-
-	copy_memory(&Color, &Rgba, sizeof(Color));
-	return Rgba;
-}
-
-static auto to_color(rgba const Rgba)
-{
-	COLORREF Color;
-	static_assert(sizeof(Color) == sizeof(Rgba));
-
-	copy_memory(&Rgba, &Color, sizeof(Rgba));
-	return Color;
-}
-
 namespace colors
 {
 	COLORREF index_bits(COLORREF const Colour)
@@ -195,6 +177,24 @@ namespace colors
 		Colour = invert(Colour, IsIndex);
 	}
 
+	rgba to_rgba(COLORREF const Color)
+	{
+		rgba Rgba;
+		static_assert(sizeof(Rgba) == sizeof(Color));
+
+		copy_memory(&Color, &Rgba, sizeof(Color));
+		return Rgba;
+	}
+
+	COLORREF to_color(rgba const Rgba)
+	{
+		COLORREF Color;
+		static_assert(sizeof(Color) == sizeof(Rgba));
+
+		copy_memory(&Rgba, &Color, sizeof(Rgba));
+		return Color;
+	}
+
 	size_t color_hash(const FarColor& Value)
 	{
 		return hash_combine_all(
@@ -249,7 +249,7 @@ namespace colors
 
 			const auto to_rgba = [](COLORREF const Color, bool const IsIndex)
 			{
-				return ::to_rgba(IsIndex? ConsoleIndexToTrueColor(Color) : Color);
+				return colors::to_rgba(IsIndex? ConsoleIndexToTrueColor(Color) : Color);
 			};
 
 			const auto TopRGBA = to_rgba(TopValue, (Top.Flags & Flag) != 0);

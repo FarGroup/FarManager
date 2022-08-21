@@ -170,6 +170,12 @@ FileSystemWatcher::FileSystemWatcher(const string_view EventId, const string_vie
 	m_WatchSubtree(WatchSubtree),
 	m_DirectoryHandle(open(m_Directory))
 {
+	if (!m_DirectoryHandle)
+	{
+		LOGWARNING(L"Skip monitoring of {}"sv, Directory);
+		return;
+	}
+
 	m_Overlapped.hEvent = m_Event.native_handle();
 	read_async();
 
@@ -179,6 +185,9 @@ FileSystemWatcher::FileSystemWatcher(const string_view EventId, const string_vie
 
 FileSystemWatcher::~FileSystemWatcher()
 {
+	if (!m_DirectoryHandle)
+		return;
+
 	LOGDEBUG(L"Stop monitoring {}"sv, m_Directory);
 	background_watcher::instance().remove(this);
 }

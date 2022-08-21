@@ -4333,7 +4333,7 @@ $ #Wybór z 256 kolorów#
  \80  \90  \A0  \B0  \C0  \D0  \E0  \F0  \-
 
  Następne 216 kolorów są prezentowane w postaci kostki 6x6x6. Paleta zawiera zwykle 6 poziomów dla każdego koloru podstawowego i tworzy jednorodną kostkę RGB.
- Użyj przycisków po prawej stronie, aby obrócić sześcian i uzyskać dostęp do jego wewnętrznych poziomów.
+ Użyj przycisków po prawej stronie, aby obrócić sześcian, uzyskać dostęp do jego wewnętrznych poziomów lub bezpośrednio wymieszaj kolory podstawowe.
 
  \(:10)  \(:11)  \(:12)  \(:13)  \(:14)  \(:15)  \-  \(:34)  \(:35)  \(:36)  \(:37)  \(:38)  \(:39)  \-  \(:58)  \(:59)  \(:5A)  \(:5B)  \(:5C)  \(:5D)  \-
  \(:16)  \(:17)  \(:18)  \(:19)  \(:1A)  \(:1B)  \-  \(:3A)  \(:3B)  \(:3C)  \(:3D)  \(:3E)  \(:3F)  \-  \(:5E)  \(:5F)  \(:60)  \(:61)  \(:62)  \(:63)  \-

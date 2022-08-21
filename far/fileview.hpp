@@ -49,7 +49,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class FileViewer final: public window,public ViewerContainer
 {
-	struct private_tag {};
+	struct private_tag { explicit private_tag() = default; };
+
 public:
 	static fileviewer_ptr create(
 		string_view Name,

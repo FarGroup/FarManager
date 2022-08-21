@@ -49,7 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Grabber final: public Modal
 {
-	struct private_tag {};
+	struct private_tag { explicit private_tag() = default; };
 
 public:
 	static grabber_ptr create();
@@ -60,7 +60,7 @@ public:
 	void ResizeConsole() override;
 
 private:
-	struct grabber_tag {};
+	struct grabber_tag { explicit grabber_tag() = default; };
 
 	void DisplayObject() override;
 	bool ProcessKey(const Manager::Key& Key) override;

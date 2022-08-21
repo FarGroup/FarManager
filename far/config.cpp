@@ -2249,7 +2249,7 @@ static auto serialise_sort_layer(std::pair<panel_sort, sort_order> const& Layer)
 
 static auto serialise_sort_layers(span<std::pair<panel_sort, sort_order> const> const Layers)
 {
-	return join(select(Layers, serialise_sort_layer), L" "sv);
+	return join(L" "sv, select(Layers, serialise_sort_layer));
 }
 
 void Options::ReadSortLayers()

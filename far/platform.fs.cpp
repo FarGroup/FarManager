@@ -89,7 +89,7 @@ namespace
 		using os::fs::find_handle::find_handle;
 	};
 
-	static DWORD SHErrorToWinError(DWORD const SHError)
+	DWORD SHErrorToWinError(DWORD const SHError)
 	{
 		switch (SHError)
 		{
@@ -494,7 +494,7 @@ namespace os::fs
 		{
 			// temporarily disable elevation to try the requested name first
 			{
-				SCOPED_ACTION(elevation::suppress);
+				SCOPED_ACTION(auto)(elevation::suppress(true));
 				m_Handle = FindFirstFileInternal(m_Object, Value);
 			}
 

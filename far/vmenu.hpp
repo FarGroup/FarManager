@@ -180,7 +180,8 @@ class window;
 
 class VMenu final: public Modal
 {
-	struct private_tag {};
+	struct private_tag { explicit private_tag() = default; };
+
 public:
 	static vmenu_ptr create(string Title, span<menu_item const> Data, int MaxHeight = 0, DWORD Flags = 0, dialog_ptr ParentDialog = nullptr);
 

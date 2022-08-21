@@ -56,7 +56,7 @@ public:
 	imports() = default;
 
 private:
-#define DECLARE_MODULE(MODULE) const os::rtdl::module m_##MODULE{L###MODULE}
+#define DECLARE_MODULE(MODULE) const os::rtdl::module m_##MODULE{WIDE_SV(#MODULE)}
 
 	DECLARE_MODULE(ntdll);
 	DECLARE_MODULE(kernel32);
@@ -65,6 +65,7 @@ private:
 	DECLARE_MODULE(virtdisk);
 	DECLARE_MODULE(rstrtmgr);
 	DECLARE_MODULE(netapi32);
+	DECLARE_MODULE(dbgeng);
 	DECLARE_MODULE(dbghelp);
 	DECLARE_MODULE(dwmapi);
 
@@ -167,12 +168,14 @@ public: const unique_function_pointer<name_##NAME, stub_##NAME> NAME{m_##MODULE}
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, AcquireSRWLockShared, PSRWLOCK SRWLock); // Vista
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, ReleaseSRWLockExclusive, PSRWLOCK SRWLock); // Vista
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, ReleaseSRWLockShared, PSRWLOCK SRWLock); // Vista
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOLEAN, TryAcquireSRWLockExclusive, PSRWLOCK SRWLock); // Vista
-	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOLEAN, TryAcquireSRWLockShared, PSRWLOCK SRWLock); // Vista
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOLEAN, TryAcquireSRWLockExclusive, PSRWLOCK SRWLock); // 7
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, BOOLEAN, TryAcquireSRWLockShared, PSRWLOCK SRWLock); // 7
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, void, GetSystemTimePreciseAsFileTime, LPFILETIME SystemTimeAsFileTime); // 8
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, int, CompareStringOrdinal, LPCWCH String1, int Count1, LPCWCH String2, int Count2, BOOL IgnoreCase); // Vista
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, HRESULT, SetThreadDescription, HANDLE Thread, PCWSTR ThreadDescription); // 10
 	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, HRESULT, GetThreadDescription, HANDLE Thread, PWSTR* ThreadDescription); // 10
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, PVOID, AddVectoredExceptionHandler, ULONG First, PVECTORED_EXCEPTION_HANDLER Handler); // XP
+	DECLARE_IMPORT_FUNCTION(kernel32, WINAPI, ULONG, RemoveVectoredExceptionHandler, PVOID Handle); // XP
 
 	DECLARE_IMPORT_FUNCTION(shell32, STDAPICALLTYPE, HRESULT, SHCreateAssociationRegistration, REFIID riid, void** ppv); // Vista
 
@@ -190,6 +193,8 @@ public: const unique_function_pointer<name_##NAME, stub_##NAME> NAME{m_##MODULE}
 
 	DECLARE_IMPORT_FUNCTION(netapi32, NET_API_FUNCTION, NET_API_STATUS, NetDfsGetInfo, LPWSTR DfsEntryPath, LPWSTR ServerName, LPWSTR ShareName, DWORD Level, LPBYTE* Buffer); // 2k
 	DECLARE_IMPORT_FUNCTION(netapi32, NET_API_FUNCTION, NET_API_STATUS, NetDfsGetClientInfo, LPWSTR DfsEntryPath, LPWSTR ServerName, LPWSTR ShareName, DWORD Level, LPBYTE* Buffer); // 2k
+
+	DECLARE_IMPORT_FUNCTION(dbgeng, STDAPICALLTYPE, HRESULT, DebugCreate, REFIID InterfaceId, PVOID* Interface);
 
 	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, MiniDumpWriteDump, HANDLE Process, DWORD ProcessId, HANDLE File, MINIDUMP_TYPE DumpType, PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, PMINIDUMP_CALLBACK_INFORMATION CallbackParam); // XP
 	DECLARE_IMPORT_FUNCTION(dbghelp, WINAPI, BOOL, StackWalk64, DWORD MachineType, HANDLE Process, HANDLE Thread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord, PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine, PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress); // 2k

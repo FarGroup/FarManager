@@ -127,7 +127,7 @@ static const auto HelpFormatLinkModule = FSTR(L"<{}>{}"sv);
 
 class Help final: public window
 {
-	struct private_tag {};
+	struct private_tag { explicit private_tag() = default; };
 
 public:
 	static help_ptr create(string_view Topic, string_view Mask, unsigned long long Flags);
@@ -498,13 +498,13 @@ bool Help::ReadHelp(string_view const Mask)
 
 			size_t LastKeySize = 0;
 
-			strReadStr = join(select(enum_tokens(strKeyName, L" "sv),
+			strReadStr = join(L"\n"sv, select(enum_tokens(strKeyName, L" "sv),
 				[&](const auto& i)
 				{
 					LastKeySize = i.size();
 					return concat(L" #"sv, escape(i), L'#');
-				}),
-				L"\n"sv);
+				})
+			);
 
 			if (!strDescription.empty())
 			{

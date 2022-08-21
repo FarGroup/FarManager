@@ -83,7 +83,7 @@ enum FFILEEDIT_FLAGS
 
 class FileEditor final: public window,public EditorContainer
 {
-	struct private_tag {};
+	struct private_tag { explicit private_tag() = default; };
 
 public:
 	static fileeditor_ptr create(string_view Name, uintptr_t codepage, DWORD InitFlags, int StartLine = -1, int StartChar = -1, const string* PluginData = nullptr, EDITOR_FLAGS OpenModeExstFile = EF_OPENMODE_QUERY);

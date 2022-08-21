@@ -765,24 +765,54 @@ namespace
 		return result;
 	}
 
+	bool CanContainWholeWord(string_view const Haystack, size_t const Offset, size_t const NeedleSize, string_view const WordDiv)
+	{
+		const auto BlankOrWordDiv = [&WordDiv](wchar_t Ch)
+		{
+			return std::iswblank(Ch) || contains(WordDiv, Ch);
+		};
+
+		if (Offset && !BlankOrWordDiv(Haystack[Offset - 1]))
+			return false;
+
+		if (Offset + NeedleSize < Haystack.size() && !BlankOrWordDiv(Haystack[Offset + NeedleSize]))
+			return false;
+
+		return true;
+	}
+
 	bool SearchStringRegex(
 		string_view const Source,
 		const RegExp& re,
 		std::vector<RegExpMatch>& Match,
 		named_regex_match* const NamedMatch,
 		intptr_t Position,
-		int const Reverse,
+		bool const WholeWords,
+		bool const Reverse,
 		string& ReplaceStr,
 		int& CurPos,
-		int* SearchLength)
+		int* SearchLength,
+		string_view WordDiv)
 	{
 		if (!Reverse)
 		{
-			if (!re.SearchEx(Source, Position, Match, NamedMatch))
-				return false;
+			auto CurrentPosition = Position;
 
-			ReplaceStr = ReplaceBrackets(Source, ReplaceStr, Match, NamedMatch, CurPos, SearchLength);
-			return true;
+			do
+			{
+				if (!re.SearchEx(Source, CurrentPosition, Match, NamedMatch))
+					return false;
+
+				if (WholeWords && !CanContainWholeWord(Source, Match[0].start, Match[0].end - Match[0].start, WordDiv))
+				{
+					++CurrentPosition;
+					continue;
+				}
+
+				ReplaceStr = ReplaceBrackets(Source, ReplaceStr, Match, NamedMatch, CurPos, SearchLength);
+				return true;
+			}
+			while (static_cast<size_t>(CurrentPosition) != Source.size());
 		}
 
 		bool found = false;
@@ -796,6 +826,12 @@ namespace
 			pos = Match[0].start;
 			if (pos > Position)
 				break;
+
+			if (WholeWords && !CanContainWholeWord(Source, Match[0].start, Match[0].end - Match[0].start, WordDiv))
+			{
+				++pos;
+				continue;
+			}
 
 			found = true;
 			FoundMatch = std::move(Match);
@@ -811,22 +847,6 @@ namespace
 
 		return found;
 	}
-}
-
-static bool CanContainWholeWord(string_view const Haystack, size_t const Offset, size_t const NeedleSize, string_view const WordDiv)
-{
-	const auto BlankOrWordDiv = [&WordDiv](wchar_t Ch)
-	{
-		return std::iswblank(Ch) || contains(WordDiv, Ch);
-	};
-
-	if (Offset && !BlankOrWordDiv(Haystack[Offset - 1]))
-		return false;
-
-	if (Offset + NeedleSize < Haystack.size() && !BlankOrWordDiv(Haystack[Offset + NeedleSize]))
-		return false;
-
-	return true;
 }
 
 bool SearchString(
@@ -910,7 +930,7 @@ bool SearchAndReplaceString(
 		if ((Position || HaystackSize) && Position >= HaystackSize)
 			return false;
 
-		return SearchStringRegex(Haystack, re, Match, NamedMatch, Position, Reverse, ReplaceStr, CurPos, SearchLength);
+		return SearchStringRegex(Haystack, re, Match, NamedMatch, Position, WholeWords, Reverse, ReplaceStr, CurPos, SearchLength, WordDiv);
 	}
 
 	if (Position >= HaystackSize)
@@ -920,11 +940,11 @@ bool SearchAndReplaceString(
 		Haystack.substr(0, Position + 1) :
 		Haystack.substr(Position);
 
-	const auto Next = [&](size_t const Offset, size_t const Size)
+	const auto Next = [&](size_t const Offset)
 	{
 		Where = Reverse?
-			Where.substr(0, Offset - Size + 1) :
-			Where.substr(Offset + Size);
+			Where.substr(0, Offset > 0? Offset - 1 : 0) :
+			Where.substr(Offset + 1);
 	};
 
 	while (!Where.empty())
@@ -939,7 +959,7 @@ bool SearchAndReplaceString(
 
 		if (WholeWords && !CanContainWholeWord(Haystack, AbsoluteOffset, FoundSize, WordDiv))
 		{
-			Next(FoundOffset, FoundSize);
+			Next(FoundOffset);
 			continue;
 		}
 

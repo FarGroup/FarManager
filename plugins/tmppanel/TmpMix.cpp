@@ -182,6 +182,9 @@ string GetFullPath(string_view Input)
 	for (const null_terminated_t C_Input(Input);;)
 	{
 		const size_t Size = FSF.ConvertPath(CPM_FULL, C_Input.c_str(), Result.data(), Result.size());
+		if (!Size)
+			return {};
+
 		const auto CurrentSize = Result.size();
 		Result.resize(Size);
 		if (Size <= CurrentSize)
