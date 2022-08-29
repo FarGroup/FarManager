@@ -120,7 +120,7 @@ namespace tests
 	static void cpp_std_nested_thread()
 	{
 		std::exception_ptr Ptr;
-		os::thread const Thread(os::thread::mode::join, [&]
+		os::thread(os::thread::mode::join, [&]
 		{
 			os::debug::set_thread_name(L"Nested thread exception test");
 
@@ -472,6 +472,11 @@ namespace tests
 		const volatile size_t Index = 1;
 		v.data()[Index] = 42;
 	}
+
+	static void debug_nt_assertion_failure()
+	{
+		DbgRaiseAssertionFailure();
+	}
 }
 
 static bool trace()
@@ -554,6 +559,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::debug_bounds_check,           L"Debug bounds check"sv },
 		{ tests::debug_bounds_check_as_stack,  L"Debug bounds check stack (ASAN)"sv },
 		{ tests::debug_bounds_check_as_heap,   L"Debug bounds check heap (ASAN)"sv },
+		{ tests::debug_nt_assertion_failure,   L"Debug NT assertion failure"sv },
 	};
 
 	const auto ModalMenu = VMenu2::create(L"Test Exceptions"s, {}, ScrY - 4);

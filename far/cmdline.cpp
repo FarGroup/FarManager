@@ -932,7 +932,7 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool)> con
 			std::wcout << L"\nSCM revision:\n"sv << Revision << L'\n';
 		}
 
-		std::wcout << L"\nCompiler:\n"sv << build::compiler();
+		std::wcout << L"\nCompiler:\n"sv << build::compiler() << L'\n';
 
 		if (const auto& ComponentsInfo = components::GetComponentsInfo(); !ComponentsInfo.empty())
 		{

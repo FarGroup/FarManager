@@ -244,7 +244,7 @@ user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
 вхідного потоку until you press Ctrl+Break.
 
  #-w[-]#
- Stretch to console window instead of console buffer or vice versa.
+ Show the interface within the console window instead of the console buffer or vice versa.
 
  #-t templateprofile#
  Location of Far template configuration file (overrides the ini file).
@@ -338,7 +338,7 @@ $ #Команди керування панелями#
  Restore default panels height                     #Ctrl+Alt+Numpad5#
  Сховати/Показати лінійку функціональних клавіш              #Ctrl+B#
  Toggle total and free size show mode                  #Ctrl+Shift+S#
- in bytes (if possible) or with size suffices K/M/G/T
+ in bytes (if possible) or with size suffixes K/M/G/T
 
  #Команди файлової панелі#
 
@@ -505,7 +505,7 @@ $ #Sort criteria#
  Move the criterion down.
 
  #Ctrl+R#
- Reset the set of criteria to detault.
+ Reset the set of criteria to default.
 
 
 @FastFind

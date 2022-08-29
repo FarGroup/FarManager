@@ -538,6 +538,24 @@ namespace rtdl
 		{
 			return Module? ::GetProcAddress(Module, Name) : nullptr;
 		}
+
+		opaque_function_pointer::opaque_function_pointer(const module& Module, const char* Name):
+			m_Module(&Module),
+			m_Name(Name)
+		{}
+
+		opaque_function_pointer::operator bool() const noexcept
+		{
+			return get_pointer() != nullptr;
+		}
+
+		void* opaque_function_pointer::get_pointer() const
+		{
+			if (!m_Pointer)
+				m_Pointer = m_Module->GetProcAddress<void*>(m_Name);
+
+			return *m_Pointer;
+		}
 	}
 
 	namespace uuid

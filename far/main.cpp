@@ -98,6 +98,7 @@ global *Global = nullptr;
 static void show_help()
 {
 	static const auto HelpMsg =
+		//------------------------------------------------------------------------------
 		L"Usage: far [switches] [apath [ppath]]\n\n"
 		L"where\n"
 		L"  apath - path to a folder (or a file or an archive or command with prefix)\n"
@@ -141,7 +142,8 @@ static void show_help()
 #endif // NO_WRAPPER
 		L" -v <filename>\n"
 		L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
-		L" -w[-] Stretch to console window instead of console buffer or vise versa.\n"
+		L" -w[-] Show the interface within the console window instead of the console\n"
+		L"      buffer or vise versa.\n"
 		L" -x   Disable exception handling.\n"
 		L""sv;
 

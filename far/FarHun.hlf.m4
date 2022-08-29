@@ -251,7 +251,7 @@ végtelenségig fog várakozni a bemenő adatfolyam végére. Ezt a hibát a Far
 egy későbbi verziójában a szerzők valószínűleg ki fogják javítani.
 
  #-w[-]#
- Stretch to console window instead of console buffer or vice versa.
+ Show the interface within the console window instead of the console buffer or vice versa.
 
  #-t templateprofile#
  Location of Far template configuration file (overrides the ini file).
@@ -347,7 +347,7 @@ $ #Panelvezérlő parancsok#
  Megmutatja/elrejti a funkcióbillentyűk sorát                #Ctrl+B#
  a képernyő alján
  Toggle total and free size show mode                  #Ctrl+Shift+S#
- in bytes (if possible) or with size suffices K/M/G/T
+ in bytes (if possible) or with size suffixes K/M/G/T
 
  #Fájlpanel parancsok#
 
@@ -515,7 +515,7 @@ $ #Sort criteria#
  Move the criterion down.
 
  #Ctrl+R#
- Reset the set of criteria to detault.
+ Reset the set of criteria to default.
 
 
 @FastFind

@@ -517,7 +517,7 @@ $ #Sort criteria#
  Move the criterion down.
 
  #Ctrl+R#
- Reset the set of criteria to detault.
+ Reset the set of criteria to default.
 
 
 @FastFind
