@@ -53,7 +53,7 @@ namespace imports_detail
 class imports
 {
 public:
-	imports() = default;
+	imports();
 
 private:
 #define DEFINE_MODULE(MODULE) const os::rtdl::module m_##MODULE{WIDE_SV(#MODULE)}

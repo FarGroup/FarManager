@@ -53,6 +53,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace imports_detail
 {
+	imports::imports()
+	{
+	}
+
 	void imports::log_missing_import(const os::rtdl::module& Module, std::string_view const Name)
 	{
 		static const os::rtdl::module* CurrentModule{};

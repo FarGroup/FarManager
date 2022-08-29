@@ -475,7 +475,8 @@ namespace tests
 
 	static void debug_nt_assertion_failure()
 	{
-		DbgRaiseAssertionFailure();
+		if ([[maybe_unused]] const volatile auto Fail = true)
+			DbgRaiseAssertionFailure();
 	}
 }
 
