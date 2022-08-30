@@ -365,17 +365,15 @@ namespace tests
 
 	static void seh_stack_overflow()
 	{
+		[[maybe_unused]]
 		volatile char Buffer[10240];
-		Buffer[0] = 1;
 
 		// Prevent the compiler from detecting recursion on all control paths:
-		volatile const auto Condition = true;
-		if (Condition)
+		if ([[maybe_unused]] volatile const auto Condition = true)
 			seh_stack_overflow();
 
-		// A "side effect" to prevent deletion of this function call due to C4718.
 		// After the recursive call to prevent the tail call optimisation.
-		Sleep(Buffer[0]);
+		Buffer[0] = 1;
 	}
 
 	[[noreturn]]
@@ -475,7 +473,7 @@ namespace tests
 
 	static void debug_nt_assertion_failure()
 	{
-		if ([[maybe_unused]] const volatile auto Fail = true)
+		if ([[maybe_unused]] volatile const auto Condition = true)
 			DbgRaiseAssertionFailure();
 	}
 }

@@ -74,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 
 // Platform:
+#include "platform.debug.hpp"
 #include "platform.env.hpp"
 #include "platform.memory.hpp"
 #include "platform.process.hpp"
@@ -1055,6 +1056,8 @@ static int wmain_seh()
 
 int main()
 {
+	os::debug::set_thread_name(L"Main Thread");
+
 	return seh_try_with_ui(
 	[]
 	{

@@ -294,7 +294,37 @@ static bool write_minidump(const exception_context& Context, string_view const F
 	EXCEPTION_POINTERS Pointers{ &ExceptionRecord, &ContextRecord };
 	MINIDUMP_EXCEPTION_INFORMATION Mei{ Context.thread_id(), &Pointers };
 
-	return imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), Type, &Mei, nullptr, nullptr) != FALSE;
+	// https://docs.microsoft.com/en-us/windows/win32/api/minidumpapiset/nf-minidumpapiset-minidumpwritedump#remarks
+	// MiniDumpWriteDump may not produce a valid stack trace for the calling thread.
+	// You can call the function from a new worker thread and filter this worker thread from the dump.
+
+	bool Result = false;
+	os::thread(os::thread::mode::join, [&]
+	{
+		struct writer_context
+		{
+			DWORD const ThreadId{ GetCurrentThreadId() };
+		}
+		WriterContext;
+
+		MINIDUMP_CALLBACK_INFORMATION Mci
+		{
+			[](void* const Param, MINIDUMP_CALLBACK_INPUT* const Input, MINIDUMP_CALLBACK_OUTPUT*)
+			{
+				const auto& Ctx = *static_cast<writer_context const*>(Param);
+
+				if (Input->CallbackType == IncludeThreadCallback && Input->IncludeThread.ThreadId == Ctx.ThreadId)
+					return FALSE;
+
+				return TRUE;
+			},
+			&WriterContext
+		};
+
+		Result = imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), Type, &Mei, {}, &Mci) != FALSE;
+	});
+
+	return Result;
 }
 
 static void read_modules(span<HMODULE const> const Modules, string& To, string_view const Eol)
@@ -630,7 +660,7 @@ static string collect_information(
 				SuspendThread(Thread.native_handle());
 				SCOPE_EXIT{ ResumeThread(Thread.native_handle()); };
 
-				auto ThreadTitle = concat(L"Thread "sv, str(Tid));
+				auto ThreadTitle = format(FSTR(L"Thread {0} / 0x{0:X}"sv), Tid);
 				if (const auto ThreadName = os::debug::get_thread_name(Thread.native_handle()); !ThreadName.empty())
 					append(ThreadTitle, L" ("sv, ThreadName, L')');
 				append(ThreadTitle, L" stack"sv);
