@@ -750,20 +750,23 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 					}
 					else
 					{
-						static const std::pair<int, lng> DriveTypes[]
+						if (const auto TypeId = [](int const Type) -> std::optional<lng>
+							{
+								switch (Type)
+								{
+								case DRIVE_REMOVABLE:                 return lng::MChangeDriveRemovable;
+								case DRIVE_FIXED:                     return lng::MChangeDriveFixed;
+								case DRIVE_REMOTE:                    return lng::MChangeDriveNetwork;
+								case DRIVE_REMOTE_NOT_CONNECTED:      return lng::MChangeDriveDisconnectedNetwork;
+								case DRIVE_RAMDISK:                   return lng::MChangeDriveRAM;
+								case DRIVE_SUBSTITUTE:                return lng::MChangeDriveSUBST;
+								case DRIVE_VIRTUAL:                   return lng::MChangeDriveVirtual;
+								default:                              return {};
+								}
+							}(NewItem.DriveType))
 						{
-							{ DRIVE_REMOVABLE,            lng::MChangeDriveRemovable },
-							{ DRIVE_FIXED,                lng::MChangeDriveFixed },
-							{ DRIVE_REMOTE,               lng::MChangeDriveNetwork },
-							{ DRIVE_REMOTE_NOT_CONNECTED, lng::MChangeDriveDisconnectedNetwork },
-							{ DRIVE_RAMDISK,              lng::MChangeDriveRAM },
-							{ DRIVE_SUBSTITUTE,           lng::MChangeDriveSUBST },
-							{ DRIVE_VIRTUAL,              lng::MChangeDriveVirtual },
-						};
-
-						const auto ItemIterator = std::find_if(CONST_RANGE(DriveTypes, DriveTypeItem) { return DriveTypeItem.first == NewItem.DriveType; });
-						if (ItemIterator != std::cend(DriveTypes))
-							NewItem.Type = msg(ItemIterator->second);
+							NewItem.Type = msg(*TypeId);
+						}
 					}
 				}
 			}

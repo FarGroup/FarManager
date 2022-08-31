@@ -1523,6 +1523,22 @@ string KeysListToLocalizedText(span<unsigned int const> const Keys)
 	return join(L" "sv, select(Keys, [](unsigned int const Key){ return KeyToLocalizedText(Key); }));
 }
 
+static int key_to_vk(unsigned int const Key)
+{
+	switch (Key)
+	{
+	case KEY_BREAK:       return VK_CANCEL;
+	case KEY_BS:          return VK_BACK;
+	case KEY_TAB:         return VK_TAB;
+	case KEY_ENTER:       return VK_RETURN;
+	case KEY_NUMENTER:    return VK_RETURN;
+	case KEY_ESC:         return VK_ESCAPE;
+	case KEY_SPACE:       return VK_SPACE;
+	case KEY_NUMPAD5:     return VK_CLEAR;
+	default:              return 0;
+	}
+}
+
 int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 {
 	WORD EventType=KEY_EVENT;
@@ -1530,31 +1546,9 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 	DWORD FKey  =Key&KEY_END_SKEY;
 	DWORD FShift=Key&KEY_CTRLMASK;
 
-	int VirtKey=0;
+	auto VirtKey = key_to_vk(FKey);
 
-	bool KeyInTable = false;
-	{
-		static const std::pair<unsigned int, int> Table_KeyToVK[] =
-		{
-			{ KEY_BREAK, VK_CANCEL },
-			{ KEY_BS, VK_BACK },
-			{ KEY_TAB, VK_TAB },
-			{ KEY_ENTER, VK_RETURN },
-			{ KEY_NUMENTER, VK_RETURN }, //????
-			{ KEY_ESC, VK_ESCAPE },
-			{ KEY_SPACE, VK_SPACE },
-			{ KEY_NUMPAD5, VK_CLEAR },
-		};
-
-		const auto ItemIterator = std::find_if(CONST_RANGE(Table_KeyToVK, i) { return static_cast<DWORD>(i.first) == FKey; });
-		if (ItemIterator != std::cend(Table_KeyToVK))
-		{
-			VirtKey = ItemIterator->second;
-			KeyInTable = true;
-		}
-	}
-
-	if (!KeyInTable)
+	if (VirtKey == 0)
 	{
 		if ((FKey>=L'0' && FKey<=L'9') || (FKey>=L'A' && FKey<=L'Z'))
 		{
@@ -1600,7 +1594,7 @@ int TranslateKeyToVK(int Key, INPUT_RECORD* Rec)
 		}
 		else if (!FKey)
 		{
-			static const std::pair<far_key_code, DWORD> ExtKeyMap[]=
+			static const std::pair<far_key_code, DWORD> ExtKeyMap[]
 			{
 				{KEY_SHIFT, VK_SHIFT},
 				{KEY_CTRL, VK_CONTROL},

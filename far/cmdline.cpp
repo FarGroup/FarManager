@@ -660,17 +660,22 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 		{
 			const auto strExpandedDestStr = os::env::expand(Iterator->Text);
 			Iterator->Text.clear();
-			static const std::pair<wchar_t, wchar_t> ChrFmt[] =
+
+			const auto escaped_char = [](wchar_t const Char)
 			{
-				{L'A', L'&'},   // $A - & (Ampersand)
-				{L'B', L'|'},   // $B - | (pipe)
-				{L'C', L'('},   // $C - ( (Left parenthesis)
-				{L'F', L')'},   // $F - ) (Right parenthesis)
-				{L'G', L'>'},   // $G - > (greater-than sign)
-				{L'L', L'<'},   // $L - < (less-than sign)
-				{L'Q', L'='},   // $Q - = (equal sign)
-				{L'S', L' '},   // $S - (space)
-				{L'$', L'$'},   // $$ - $ (dollar sign)
+				switch (Char)
+				{
+				case L'A': return L'&';
+				case L'B': return L'|';
+				case L'C': return L'(';
+				case L'F': return L')';
+				case L'G': return L'>';
+				case L'L': return L'<';
+				case L'Q': return L'=';
+				case L'S': return L' ';
+				case L'$': return L'$';
+				default:   return L'\0';
+				}
 			};
 
 			FOR_CONST_RANGE(strExpandedDestStr, it)
@@ -680,15 +685,9 @@ std::list<CommandLine::segment> CommandLine::GetPrompt()
 				if (*it == L'$' && it + 1 != strExpandedDestStr.cend())
 				{
 					const auto Chr = upper(*++it);
-
-					const auto ItemIterator = std::find_if(CONST_RANGE(ChrFmt, Item)
+					if (const auto EscapedChar = escaped_char(Chr))
 					{
-						return Item.first == Chr;
-					});
-
-					if (ItemIterator != std::cend(ChrFmt))
-					{
-						strDestStr += ItemIterator->second;
+						strDestStr += EscapedChar;
 					}
 					else
 					{

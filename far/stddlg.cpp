@@ -624,7 +624,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 				Msg.emplace_back(format(msg(lng::MObjectLockedAndMore), ProcessCount - MaxProcesses));
 			}
 
-			static const std::pair<DWORD, lng> Mappings[] =
+			static const std::pair<DWORD, lng> Mappings[]
 			{
 				// We don't handle RmRebootReasonPermissionDenied here as we don't try to close anything.
 				{RmRebootReasonSessionMismatch, lng::MObjectLockedReasonSessionMismatch },

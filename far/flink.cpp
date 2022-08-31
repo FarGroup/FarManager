@@ -734,7 +734,7 @@ static string_view reparse_tag_to_string(DWORD ReparseTag)
 	case IO_REPARSE_TAG_SYMLINK:                     return msg(lng::MListSymlink);
 
 	// Generated
-#define TAG_STR(name) case IO_REPARSE_TAG_ ## name: return WSTRVIEW(name);
+#define TAG_STR(name) case IO_REPARSE_TAG_##name: return WIDE_SV(#name);
 	// MS tags:
 	TAG_STR(HSM)
 	TAG_STR(HSM2)
