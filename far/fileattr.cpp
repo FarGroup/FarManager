@@ -222,6 +222,7 @@ void enum_attributes(function_ref<bool(os::fs::attributes, wchar_t)> const Pred)
 		{ L'‼', FILE_ATTRIBUTE_RECALL_ON_OPEN },        // Unknown symbol
 		{ L'!', FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS }, // Unknown symbol
 		{ L'B', FILE_ATTRIBUTE_STRICTLY_SEQUENTIAL },   // "SMR Blob" in attrib.exe
+		{ L'*', FILE_ATTRIBUTE_DEVICE },                // Unknown symbol
 	};
 
 	for (const auto& [Letter, Attr]: AttrMap)

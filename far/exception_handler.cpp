@@ -294,7 +294,37 @@ static bool write_minidump(const exception_context& Context, string_view const F
 	EXCEPTION_POINTERS Pointers{ &ExceptionRecord, &ContextRecord };
 	MINIDUMP_EXCEPTION_INFORMATION Mei{ Context.thread_id(), &Pointers };
 
-	return imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), Type, &Mei, nullptr, nullptr) != FALSE;
+	// https://docs.microsoft.com/en-us/windows/win32/api/minidumpapiset/nf-minidumpapiset-minidumpwritedump#remarks
+	// MiniDumpWriteDump may not produce a valid stack trace for the calling thread.
+	// You can call the function from a new worker thread and filter this worker thread from the dump.
+
+	bool Result = false;
+	os::thread(os::thread::mode::join, [&]
+	{
+		struct writer_context
+		{
+			DWORD const ThreadId{ GetCurrentThreadId() };
+		}
+		WriterContext;
+
+		MINIDUMP_CALLBACK_INFORMATION Mci
+		{
+			[](void* const Param, MINIDUMP_CALLBACK_INPUT* const Input, MINIDUMP_CALLBACK_OUTPUT*)
+			{
+				const auto& Ctx = *static_cast<writer_context const*>(Param);
+
+				if (Input->CallbackType == IncludeThreadCallback && Input->IncludeThread.ThreadId == Ctx.ThreadId)
+					return FALSE;
+
+				return TRUE;
+			},
+			&WriterContext
+		};
+
+		Result = imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), Type, &Mei, {}, &Mci) != FALSE;
+	});
+
+	return Result;
 }
 
 static void read_modules(span<HMODULE const> const Modules, string& To, string_view const Eol)
@@ -630,7 +660,7 @@ static string collect_information(
 				SuspendThread(Thread.native_handle());
 				SCOPE_EXIT{ ResumeThread(Thread.native_handle()); };
 
-				auto ThreadTitle = concat(L"Thread "sv, str(Tid));
+				auto ThreadTitle = format(FSTR(L"Thread {0} / 0x{0:X}"sv), Tid);
 				if (const auto ThreadName = os::debug::get_thread_name(Thread.native_handle()); !ThreadName.empty())
 					append(ThreadTitle, L" ("sv, ThreadName, L')');
 				append(ThreadTitle, L" stack"sv);
@@ -1045,42 +1075,46 @@ static string ExtractObjectType(EXCEPTION_RECORD const& xr)
 #endif
 }
 
+static string_view exception_name(NTSTATUS const Code)
+{
+	switch (Code)
+	{
+#define CASE_STR(Code) case Code: return WIDE_SV(#Code);
+	CASE_STR(EXCEPTION_ACCESS_VIOLATION)
+	CASE_STR(EXCEPTION_DATATYPE_MISALIGNMENT)
+	CASE_STR(EXCEPTION_BREAKPOINT)
+	CASE_STR(EXCEPTION_SINGLE_STEP)
+	CASE_STR(EXCEPTION_ARRAY_BOUNDS_EXCEEDED)
+	CASE_STR(EXCEPTION_FLT_DENORMAL_OPERAND)
+	CASE_STR(EXCEPTION_FLT_DIVIDE_BY_ZERO)
+	CASE_STR(EXCEPTION_FLT_INEXACT_RESULT)
+	CASE_STR(EXCEPTION_FLT_INVALID_OPERATION)
+	CASE_STR(EXCEPTION_FLT_OVERFLOW)
+	CASE_STR(EXCEPTION_FLT_STACK_CHECK)
+	CASE_STR(EXCEPTION_FLT_UNDERFLOW)
+	CASE_STR(EXCEPTION_INT_DIVIDE_BY_ZERO)
+	CASE_STR(EXCEPTION_INT_OVERFLOW)
+	CASE_STR(EXCEPTION_PRIV_INSTRUCTION)
+	CASE_STR(EXCEPTION_IN_PAGE_ERROR)
+	CASE_STR(EXCEPTION_ILLEGAL_INSTRUCTION)
+	CASE_STR(EXCEPTION_NONCONTINUABLE_EXCEPTION)
+	CASE_STR(EXCEPTION_STACK_OVERFLOW)
+	CASE_STR(EXCEPTION_INVALID_DISPOSITION)
+	CASE_STR(EXCEPTION_GUARD_PAGE)
+	CASE_STR(EXCEPTION_INVALID_HANDLE)
+	CASE_STR(EXCEPTION_POSSIBLE_DEADLOCK)
+	CASE_STR(EXCEPTION_HEAP_CORRUPTION)
+	CASE_STR(CONTROL_C_EXIT)
+	CASE_STR(STATUS_ASSERTION_FAILURE)
+#undef CASE_STR
+
+	case EXCEPTION_MICROSOFT_CPLUSPLUS: return L"C++ exception"sv;
+	case EXCEPTION_ABORT:               return L"std::abort"sv;
+	default:                            return L"Unknown exception"sv;
+	}
+}
 static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_view const Type)
 {
-	static const std::pair<string_view, NTSTATUS> KnownExceptions[]
-	{
-#define TEXTANDCODE(x) L###x##sv, x
-		{TEXTANDCODE(EXCEPTION_ACCESS_VIOLATION)},
-		{TEXTANDCODE(EXCEPTION_DATATYPE_MISALIGNMENT)},
-		{TEXTANDCODE(EXCEPTION_BREAKPOINT)},
-		{TEXTANDCODE(EXCEPTION_SINGLE_STEP)},
-		{TEXTANDCODE(EXCEPTION_ARRAY_BOUNDS_EXCEEDED)},
-		{TEXTANDCODE(EXCEPTION_FLT_DENORMAL_OPERAND)},
-		{TEXTANDCODE(EXCEPTION_FLT_DIVIDE_BY_ZERO)},
-		{TEXTANDCODE(EXCEPTION_FLT_INEXACT_RESULT)},
-		{TEXTANDCODE(EXCEPTION_FLT_INVALID_OPERATION)},
-		{TEXTANDCODE(EXCEPTION_FLT_OVERFLOW)},
-		{TEXTANDCODE(EXCEPTION_FLT_STACK_CHECK)},
-		{TEXTANDCODE(EXCEPTION_FLT_UNDERFLOW)},
-		{TEXTANDCODE(EXCEPTION_INT_DIVIDE_BY_ZERO)},
-		{TEXTANDCODE(EXCEPTION_INT_OVERFLOW)},
-		{TEXTANDCODE(EXCEPTION_PRIV_INSTRUCTION)},
-		{TEXTANDCODE(EXCEPTION_IN_PAGE_ERROR)},
-		{TEXTANDCODE(EXCEPTION_ILLEGAL_INSTRUCTION)},
-		{TEXTANDCODE(EXCEPTION_NONCONTINUABLE_EXCEPTION)},
-		{TEXTANDCODE(EXCEPTION_STACK_OVERFLOW)},
-		{TEXTANDCODE(EXCEPTION_INVALID_DISPOSITION)},
-		{TEXTANDCODE(EXCEPTION_GUARD_PAGE)},
-		{TEXTANDCODE(EXCEPTION_INVALID_HANDLE)},
-		{TEXTANDCODE(EXCEPTION_POSSIBLE_DEADLOCK)},
-		{TEXTANDCODE(EXCEPTION_HEAP_CORRUPTION)},
-		{TEXTANDCODE(CONTROL_C_EXIT)},
-#undef TEXTANDCODE
-
-		{L"C++ exception"sv,  EXCEPTION_MICROSOFT_CPLUSPLUS},
-		{L"std::abort"sv,     EXCEPTION_ABORT},
-	};
-
 	const auto AppendType = [](string& Str, string_view const ExceptionType)
 	{
 		append(Str, L" ("sv, ExceptionType, ')');
@@ -1101,8 +1135,7 @@ static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_vie
 		return std::move(Str);
 	};
 
-	const auto ItemIterator = std::find_if(CONST_RANGE(KnownExceptions, i) { return static_cast<DWORD>(i.second) == ExceptionRecord.ExceptionCode; });
-	const auto Name = ItemIterator != std::cend(KnownExceptions) ? ItemIterator->first : L"Unknown exception"sv;
+	const auto Name = exception_name(ExceptionRecord.ExceptionCode);
 	return WithType(format(FSTR(L"0x{:0>8X} - {}"sv), ExceptionRecord.ExceptionCode, Name));
 }
 

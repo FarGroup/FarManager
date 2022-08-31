@@ -453,7 +453,7 @@ void Options::InfoPanelSettings()
 
 static void ApplyDefaultMaskGroups()
 {
-	static const std::pair<string_view, string_view> Sets[] =
+	static const std::pair<string_view, string_view> Sets[]
 	{
 		{ L"arc"sv,  L"*.zip,*.rar,*.[7bgxl]z,*.[bg]zip,*.tar,*.t[agbxl]z,*.z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.[ah]pk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz,*.aa[br],*.msi"sv },
 		{ L"temp"sv, L"*.bak,*.tmp"sv },
@@ -660,7 +660,7 @@ void Options::VMenuSettings()
 		{ lng::MConfigVMenuClickIgnore, VMENUCLICK_IGNORE },  // Do nothing
 	};
 
-	static const std::pair<lng, IntOption VMenuOptions::*> DialogItems[] =
+	static const std::pair<lng, IntOption VMenuOptions::*> DialogItems[]
 	{
 		{ lng::MConfigVMenuLBtnClick, &VMenuOptions::LBtnClick },
 		{ lng::MConfigVMenuRBtnClick, &VMenuOptions::RBtnClick },
@@ -1309,14 +1309,14 @@ void Options::SetFilePanelModes()
 
 		inplace::remove_highlight(ModeDlg[MD_DOUBLEBOX].strData);
 
-		static const std::pair<ModeItems, panel_view_settings_flags> ModesFlagsMapping[] =
+		static const std::pair<ModeItems, panel_view_settings_flags> ModesFlagsMapping[]
 		{
-			{ MD_CHECKBOX_FULLSCREEN, PVS_FULLSCREEN },
-			{ MD_CHECKBOX_ALIGNFILEEXT, PVS_ALIGNEXTENSIONS },
-			{ MD_CHECKBOX_ALIGNFOLDEREXT, PVS_FOLDERALIGNEXTENSIONS },
-			{ MD_CHECKBOX_FOLDERUPPERCASE, PVS_FOLDERUPPERCASE },
-			{ MD_CHECKBOX_FILESLOWERCASE, PVS_FILELOWERCASE },
-			{ MD_CHECKBOX_UPPERTOLOWERCASE, PVS_FILEUPPERTOLOWERCASE },
+			{ MD_CHECKBOX_FULLSCREEN,          PVS_FULLSCREEN },
+			{ MD_CHECKBOX_ALIGNFILEEXT,        PVS_ALIGNEXTENSIONS },
+			{ MD_CHECKBOX_ALIGNFOLDEREXT,      PVS_FOLDERALIGNEXTENSIONS },
+			{ MD_CHECKBOX_FOLDERUPPERCASE,     PVS_FOLDERUPPERCASE },
+			{ MD_CHECKBOX_FILESLOWERCASE,      PVS_FILELOWERCASE },
+			{ MD_CHECKBOX_UPPERTOLOWERCASE,    PVS_FILEUPPERTOLOWERCASE },
 		};
 
 		if (!AddNewMode)

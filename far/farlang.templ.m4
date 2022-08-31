@@ -16751,6 +16751,20 @@ upd:"Strictly sequential"
 upd:"Strictly sequential"
 upd:"Strictly se&quential"
 
+MSetAttrDevice
+"Устройство"
+"Device"
+"Přístroj"
+"Gerät"
+"Eszköz"
+"Urządzenie"
+"Dispositivo"
+"Zariadenie"
+"Dispositivo"
+"Пристрій"
+"Прылада"
+"Įrenginys"
+
 MSetAttrMore
 "Ещё"
 "&More"

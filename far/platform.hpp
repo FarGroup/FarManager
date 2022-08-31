@@ -356,43 +356,37 @@ namespace os
 			bool m_AlternativeLoad;
 		};
 
-		template<typename T>
-		class function_pointer
+		class opaque_function_pointer
 		{
 		public:
-			NONCOPYABLE(function_pointer);
+			NONCOPYABLE(opaque_function_pointer);
 
-			function_pointer(const module& Module, const char* Name):
-				m_Module(&Module),
-				m_Name(Name)
-			{}
+			opaque_function_pointer(const module& Module, const char* Name);
 
 			[[nodiscard]]
-			operator T() const { return get_pointer(); }
-
-			[[nodiscard]]
-			explicit operator bool() const noexcept { return get_pointer() != nullptr; }
+			explicit operator bool() const noexcept;
 
 			[[nodiscard]]
 			std::string_view name() const { return m_Name; }
 
-		private:
+		protected:
 			[[nodiscard]]
-			T get_pointer() const
-			{
-				if (!m_Tried)
-				{
-					m_Pointer = m_Module->GetProcAddress<T>(m_Name);
-					m_Tried = true;
-				}
+			void* get_pointer() const;
 
-				return m_Pointer;
-			}
-
+		private:
 			const module* m_Module;
 			const char* m_Name;
-			mutable T m_Pointer{};
-			mutable bool m_Tried{};
+			mutable std::optional<void*> m_Pointer;
+		};
+
+		template<typename T>
+		class function_pointer: public opaque_function_pointer
+		{
+		public:
+			using opaque_function_pointer::opaque_function_pointer;
+
+			[[nodiscard]]
+			operator T() const { return reinterpret_cast<T>(get_pointer()); }
 		};
 	}
 

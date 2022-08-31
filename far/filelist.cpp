@@ -7992,7 +7992,7 @@ bool FileList::ConvertName(const string_view SrcName, string& strDest, const siz
 		const auto AlignedVisualExtensionLength = std::max(size_t{ 3 }, VisualExtensionLength);
 
 		const auto SpacesBetween =
-			VisualNameLength + AlignedVisualExtensionLength < MaxLength?
+			VisualNameLength + AlignedVisualExtensionLength <= MaxLength?
 				MaxLength - VisualNameLength - AlignedVisualExtensionLength:
 				1;
 

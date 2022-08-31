@@ -243,7 +243,7 @@ the "dir" command in the provided example), Far will wait for the end of data
 in the input stream until you press Ctrl+Break.
 
  #-w[-]#
- Stretch to console window instead of console buffer or vice versa.
+ Show the interface within the console window instead of the console buffer or vice versa.
 
  #-t templateprofile#
  Location of Far template configuration file (overrides the ini file).
@@ -338,7 +338,7 @@ $ #Panel control commands#
  Restore default panels height                     #Ctrl+Alt+Numpad5#
  Show/Hide functional key bar at the bottom line.            #Ctrl+B#
  Toggle total and free size show mode                  #Ctrl+Shift+S#
- in bytes (if possible) or with size suffices K/M/G/T
+ in bytes (if possible) or with size suffixes K/M/G/T
 
  #File panel commands#
 
@@ -502,7 +502,7 @@ $ #Sort criteria#
  Move the criterion down.
 
  #Ctrl+R#
- Reset the set of criteria to detault.
+ Reset the set of criteria to default.
 
 
 @FastFind
