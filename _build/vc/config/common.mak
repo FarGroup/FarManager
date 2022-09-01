@@ -112,7 +112,8 @@ LINKFLAGS = $(LINKFLAGS)\
 	/map\
 	/merge:_RDATA=.rdata
 
-ULINKFLAGS = $(ULINKFLAGS) -q -m- -ap -Gz -O- -o- -Gh -Gh- -GF:LARGEADDRESSAWARE -d*kernel32
+ULINKFLAGS = $(ULINKFLAGS) -q -m- -ap -Gz -O- -o- -Gh -Gh- -d*kernel32 -b* \
+             -GF:LARGEADDRESSAWARE -GM:_RDATA=.rdata
 
 # Configuration-specific flags
 !ifdef DEBUG
@@ -147,6 +148,7 @@ CPPFLAGS = $(CPPFLAGS) /arch:IA32
 !ifndef DEBUG
 CPPFLAGS = $(CPPFLAGS) /Oy-
 LINKFLAGS = $(LINKFLAGS) /safeseh
+ULINKFLAGS = $(ULINKFLAGS) -RS
 !endif # DEBUG
 LINKFLAGS = $(LINKFLAGS) /machine:i386
 OS_VERSION = 5.0
