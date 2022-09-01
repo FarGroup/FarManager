@@ -110,6 +110,7 @@ LINKFLAGS = $(LINKFLAGS)\
 	/largeaddressaware\
 	/dynamicbase\
 	/map\
+	/merge:_RDATA=.rdata
 
 ULINKFLAGS = $(ULINKFLAGS) -q -m- -ap -Gz -O- -o- -Gh -Gh- -GF:LARGEADDRESSAWARE -d*kernel32
 
