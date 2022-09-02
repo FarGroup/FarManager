@@ -51,5 +51,5 @@ $(FMTLIST): $(FICTIVE)
 !ifndef INSTALL
 	@$(MAKE) $(_MKHIDE) /f makefile_vc_fmt $(_MKDO_)FMT=$@ $(_MDEFS)
 !else
-	@$(MAKE) $(_MKHIDE) /f makefile_vc_fmt $(_MKDO_)FMT=$@ $(_MDEFS) INSTALL=$(INSTALL)
+	@$(MAKE) $(_MKHIDE) /f makefile_vc_fmt $(_MKDO_)FMT=$@ $(_MDEFS) $(_MKDO)INSTALL=$(INSTALL)
 !endif
