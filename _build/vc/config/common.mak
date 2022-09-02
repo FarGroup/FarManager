@@ -112,8 +112,11 @@ LINKFLAGS = $(LINKFLAGS)\
 	/map\
 	/merge:_RDATA=.rdata
 
-ULINKFLAGS = $(ULINKFLAGS) -q -m- -ap -Gz -O- -o- -Gh -Gh- -d*kernel32 -b* \
-             -GF:LARGEADDRESSAWARE -GM:_RDATA=.rdata
+ULINKFLAGS = $(ULINKFLAGS) -q -m- -ap -Gz -O- -o- -Gh -Gh- -b* \
+             -GF:NXCOMPAT -GF:LARGEADDRESSAWARE
+!if "$(DIRBIT)"=="64"
+ULINKFLAGS = $(ULINKFLAGS) -GM:_RDATA=.rdata
+!endif
 
 # Configuration-specific flags
 !ifdef DEBUG
