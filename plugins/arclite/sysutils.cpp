@@ -270,14 +270,14 @@ DWORD File::attributes(const std::wstring& file_path) noexcept {
 bool File::attributes_ex(const std::wstring& file_path, WIN32_FILE_ATTRIBUTE_DATA* ex_attrs) noexcept
 {
   static int have_attributes_ex = 0;
-  BOOL (WINAPI *pfGetFileAttributesExW)(LPCWSTR pname, GET_FILEEX_INFO_LEVELS level, LPVOID pinfo) = nullptr;
+  static BOOL (WINAPI *pfGetFileAttributesExW)(LPCWSTR pname, GET_FILEEX_INFO_LEVELS level, LPVOID pinfo) = nullptr;
   if (have_attributes_ex == 0) {
     auto pf = GetProcAddress(GetModuleHandleW(L"kernel32"), "GetFileAttributesExW");
     if (pf == nullptr)
       have_attributes_ex = -1;
     else {
       (FARPROC&)pfGetFileAttributesExW = pf;
-		have_attributes_ex = +1;
+      have_attributes_ex = +1;
     }
   }
 

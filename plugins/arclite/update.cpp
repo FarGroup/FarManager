@@ -1162,7 +1162,7 @@ void Archive::update(const std::wstring& src_dir, const std::vector<std::wstring
     const auto progress = std::make_shared<ArchiveUpdateProgress>(false, arc_path);
     ComObject<IArchiveUpdateCallback> updater(new ArchiveUpdater(src_dir, dst_dir, m_num_indices, file_index_map, options, ignore_errors, error_log, progress));
     auto simple_update_stream = new SimpleUpdateStream(temp_arc_name, progress);
-	 ComObject<IOutStream> update_stream(simple_update_stream);
+    ComObject<IOutStream> update_stream(simple_update_stream);
 
     COM_ERROR_CHECK(copy_prologue(update_stream));
 
