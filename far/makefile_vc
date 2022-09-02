@@ -301,7 +301,7 @@ AllDirs:
 	$(ULINKFLAGS) $(LINK_OBJS)
 	,"$(OUTDIR)\Far.exe","$(OUTDIR)\Far.map"
 	,$(LINK_LIBS)
-	,far.def,"$(RES_FILE)"
+	,,"$(RES_FILE)"
 <<
 !endif
 !if "$(BUILD_PLATFORM)" == "X86" || "$(BUILD_PLATFORM)" == "AMD64"
