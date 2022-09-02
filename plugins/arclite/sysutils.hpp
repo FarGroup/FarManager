@@ -95,6 +95,7 @@ public:
     return DeviceIoControl(h_file, code, nullptr, 0, &data, sizeof(Type), &size_ret, nullptr) != 0;
   }
   static DWORD attributes(const std::wstring& file_path) noexcept;
+  static bool attributes_ex(const std::wstring& file_path, WIN32_FILE_ATTRIBUTE_DATA* ex_attrs) noexcept;
   static bool exists(const std::wstring& file_path) noexcept;
   static void set_attr(const std::wstring& file_path, DWORD attr);
   static bool set_attr_nt(const std::wstring& file_path, DWORD attr) noexcept;

@@ -267,6 +267,40 @@ DWORD File::attributes(const std::wstring& file_path) noexcept {
     return GetFileAttributesW(long_path_norm(file_path).c_str());
 }
 
+bool File::attributes_ex(const std::wstring& file_path, WIN32_FILE_ATTRIBUTE_DATA* ex_attrs) noexcept
+{
+  static int have_attributes_ex = 0;
+  BOOL (WINAPI *pfGetFileAttributesExW)(LPCWSTR pname, GET_FILEEX_INFO_LEVELS level, LPVOID pinfo) = nullptr;
+  if (have_attributes_ex == 0) {
+    auto pf = GetProcAddress(GetModuleHandleW(L"kernel32"), "GetFileAttributesExW");
+    if (pf == nullptr)
+      have_attributes_ex = -1;
+    else {
+      (FARPROC&)pfGetFileAttributesExW = pf;
+		have_attributes_ex = +1;
+    }
+  }
+
+  auto norm_path = long_path_norm(file_path);
+  if (have_attributes_ex > 0) {
+    return pfGetFileAttributesExW(norm_path.c_str(), GetFileExInfoStandard, ex_attrs) != FALSE;
+  }
+  else {
+    WIN32_FIND_DATAW ff;
+    auto hfind = FindFirstFileW(norm_path.c_str(), &ff);
+    if (hfind == INVALID_HANDLE_VALUE)
+      return false;
+    FindClose(hfind);
+    ex_attrs->dwFileAttributes = ff.dwFileAttributes;
+    ex_attrs->ftCreationTime   = ff.ftCreationTime;
+    ex_attrs->ftLastWriteTime  = ff.ftLastWriteTime;
+    ex_attrs->ftLastAccessTime = ff.ftLastAccessTime;
+    ex_attrs->nFileSizeLow     = ff.nFileSizeLow;
+    ex_attrs->nFileSizeHigh    = ff.nFileSizeHigh;
+	 return true;
+  }
+}
+
 void File::set_attr(const std::wstring& file_path, DWORD attr) {
   CHECK_FILE(set_attr_nt(file_path, attr), file_path);
 }
