@@ -3095,12 +3095,13 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 							st.savestr=str;
 							stack.emplace_back(st);
 						}
-						/*
-						if(op->bracket.index>=0 && op->bracket.index<matchcount)
+
+						if (op->bracket.index >= 0 && static_cast<size_t>(op->bracket.index) < match.size())
 						{
-							match[op->bracket.index].end=str-start;
+							match[op->bracket.index].start = -1;
+							match[op->bracket.index].end = -1;
 						}
-						*/
+
 						break;
 					}
 
@@ -3913,6 +3914,18 @@ TEST_CASE("regex.regression")
 
 		REQUIRE(match[2].start == -1);
 		REQUIRE(match[2].end == -1);
+	}
+
+	{
+		RegExp re;
+		re.Compile(L"a(.)?b"sv);
+		std::vector<RegExpMatch> match;
+		REQUIRE(re.Search(L"ab", match));
+		REQUIRE(match.size() == 2u);
+		REQUIRE(match[0].start == 0);
+		REQUIRE(match[0].end == 2);
+		REQUIRE(match[1].start == -1);
+		REQUIRE(match[1].end == -1);
 	}
 }
 #endif
