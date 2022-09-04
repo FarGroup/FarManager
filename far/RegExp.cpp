@@ -3838,16 +3838,16 @@ TEST_CASE("regex.list.special")
 	std::vector<RegExpMatch> Match;
 
 	re.Compile(L"[]]"sv);
-	REQUIRE(!re.Match(L"!", Match));
-	REQUIRE(re.Match(L"]", Match));
+	REQUIRE(!re.Match(L"!"sv, Match));
+	REQUIRE(re.Match(L"]"sv, Match));
 	REQUIRE(Match.size() == 1u);
 	REQUIRE(Match[0].start == 0);
 	REQUIRE(Match[0].end == 1);
 
 
 	re.Compile(L"[^]]"sv);
-	REQUIRE(!re.Match(L"]", Match));
-	REQUIRE(re.Match(L"!", Match));
+	REQUIRE(!re.Match(L"]"sv, Match));
+	REQUIRE(re.Match(L"!"sv, Match));
 	REQUIRE(Match.size() == 1u);
 	REQUIRE(Match[0].start == 0);
 	REQUIRE(Match[0].end == 1);
@@ -3873,7 +3873,7 @@ TEST_CASE("regex.regression")
 
 		std::vector<RegExpMatch> match(1);
 
-		REQUIRE(re.Search(L"abca", match));
+		REQUIRE(re.Search(L"abca"sv, match));
 		REQUIRE(match.size() == 1u);
 
 		REQUIRE(match[0].start == 2);
@@ -3886,7 +3886,7 @@ TEST_CASE("regex.regression")
 
 		std::vector<RegExpMatch> match(1);
 
-		REQUIRE(re.Search(L"[init.svc.imsdatadaemon]: [running]", match));
+		REQUIRE(re.Search(L"[init.svc.imsdatadaemon]: [running]"sv, match));
 		REQUIRE(match.size() == 3u);
 
 		REQUIRE(match[0].start == 0);
@@ -3903,7 +3903,7 @@ TEST_CASE("regex.regression")
 		RegExp re;
 		re.Compile(L"([bc]+)|(zz)"sv);
 		std::vector<RegExpMatch> match;
-		REQUIRE(re.Search(L"abc", match));
+		REQUIRE(re.Search(L"abc"sv, match));
 		REQUIRE(match.size() == 3u);
 
 		REQUIRE(match[0].start == 1);
@@ -3920,7 +3920,7 @@ TEST_CASE("regex.regression")
 		RegExp re;
 		re.Compile(L"a(.)?b"sv);
 		std::vector<RegExpMatch> match;
-		REQUIRE(re.Search(L"ab", match));
+		REQUIRE(re.Search(L"ab"sv, match));
 		REQUIRE(match.size() == 2u);
 		REQUIRE(match[0].start == 0);
 		REQUIRE(match[0].end == 2);
