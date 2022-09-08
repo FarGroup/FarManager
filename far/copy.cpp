@@ -1642,7 +1642,7 @@ void ShellCopy::copy_selected_items(const string_view Dest)
 
 		// Mantis#44 - Потеря данных при копировании ссылок на папки
 		// если каталог (или нужно копировать симлинк) - придется рекурсивно спускаться...
-		if (RPT != RP_SYMLINKFILE && (i.Attributes & FILE_ATTRIBUTE_DIRECTORY) && ((Flags & FCOPY_COPYSYMLINKCONTENTS) || !os::fs::is_directory_symbolic_link(i)))
+		if (RPT != RP_SYMLINKFILE && os::fs::is_directory(i) && ((Flags & FCOPY_COPYSYMLINKCONTENTS) || !os::fs::is_directory_symbolic_link(i)))
 		{
 			string strFullName;
 			ScanTree ScTree(true, true, Flags & FCOPY_COPYSYMLINKCONTENTS);
@@ -1657,7 +1657,7 @@ void ShellCopy::copy_selected_items(const string_view Dest)
 			os::fs::find_data SrcData;
 			while (ScTree.GetNextName(SrcData,strFullName))
 			{
-				const auto IsDirectory = os::fs::is_directory(SrcData.Attributes);
+				const auto IsDirectory = os::fs::is_directory(SrcData);
 
 				auto SubCopyCode = COPY_SUCCESS;
 

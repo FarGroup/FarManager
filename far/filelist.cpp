@@ -6773,7 +6773,7 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 	{
 		ErrorState = last_error();
 
-		const auto IsDirectory = (fdata.Attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+		const auto IsDirectory = os::fs::is_directory(fdata);
 
 		if (fdata.Attributes & (FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM) && !Global->Opt->ShowHidden)
 			continue;

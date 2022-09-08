@@ -389,6 +389,9 @@ namespace os::fs
 	bool is_file(string_view Object);
 
 	[[nodiscard]]
+	bool is_file(find_data const& Data);
+
+	[[nodiscard]]
 	bool is_file(attributes Attributes);
 
 	[[nodiscard]]
@@ -396,6 +399,9 @@ namespace os::fs
 
 	[[nodiscard]]
 	bool is_directory(string_view Object);
+
+	[[nodiscard]]
+	bool is_directory(find_data const& Data);
 
 	[[nodiscard]]
 	bool is_directory(attributes Attributes);

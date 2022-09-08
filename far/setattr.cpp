@@ -861,7 +861,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				}
 			}
 
-			if (os::fs::is_directory(SingleSelFindData.Attributes))
+			if (os::fs::is_directory(SingleSelFindData))
 				EnableSubfolders();
 
 			if (SingleSelFindData.Attributes != INVALID_FILE_ATTRIBUTES)
@@ -996,7 +996,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			}
 
 			// обработка случая "несколько хардлинков"
-			if (os::fs::is_file(SingleSelFindData.Attributes))
+			if (os::fs::is_file(SingleSelFindData))
 			{
 				if (const auto Hardlinks = GetNumberOfLinks(SingleSelFileName); Hardlinks && *Hardlinks > 1)
 				{
@@ -1062,7 +1062,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 
 			for (const auto& PanelItem: SrcPanel->enum_selected())
 			{
-				if (!FolderPresent && os::fs::is_directory(PanelItem.Attributes))
+				if (!FolderPresent && os::fs::is_directory(PanelItem))
 				{
 					FolderPresent = true;
 					EnableSubfolders();
