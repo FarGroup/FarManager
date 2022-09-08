@@ -192,18 +192,22 @@ static message_result MessageImpl(
 
 	Context.IsWarningStyle = (Flags&MSG_WARNING) != 0;
 
-	string strErrStr;
+	string ErrorMessage, SystemErrorMessage;
 
 	if (ErrorState)
 	{
 		Context.ErrorState = *ErrorState;
-		strErrStr = Context.ErrorState->format_error();
-		if (!strErrStr.empty())
+		ErrorMessage = Context.ErrorState->What;
+
+		if (Context.ErrorState->any())
+			SystemErrorMessage = Context.ErrorState->system_error();
+
+		if (!SystemErrorMessage.empty())
 		{
 			size_t index = 1;
 			for (const auto& i: Inserts)
 			{
-				replace(strErrStr, L'%' + str(index), i);
+				replace(SystemErrorMessage, L'%' + str(index), i);
 				++index;
 			}
 		}
@@ -240,36 +244,28 @@ static message_result MessageImpl(
 	join(strClipText, Eol, Strings);
 	append(strClipText, Eol, Eol);
 
-	if (!strErrStr.empty())
+	if (!ErrorMessage.empty() || !SystemErrorMessage.empty())
 	{
-		append(strClipText, strErrStr, Eol, Eol);
+		if (!ErrorMessage.empty())
+			append(strClipText, ErrorMessage, Eol);
 
-		// вычисление "красивого" размера
-		auto LenErrStr = strErrStr.size();
-
-		if (LenErrStr > MAX_MESSAGE_WIDTH)
-		{
-			// половина меньше?
-			if (LenErrStr / 2 < MAX_MESSAGE_WIDTH)
-			{
-				// а половина + 1/3?
-				if ((LenErrStr + LenErrStr / 3) / 2 < MAX_MESSAGE_WIDTH)
-					LenErrStr=(LenErrStr+LenErrStr/3)/2;
-				else
-					LenErrStr/=2;
-			}
-			else
-				LenErrStr = MAX_MESSAGE_WIDTH;
-		}
+		if (!SystemErrorMessage.empty())
+			append(strClipText, SystemErrorMessage, Eol, Eol);
 
 		if (!Strings.empty())
 			Strings.emplace_back(L"\x1"sv);
 
-		for (const auto& i: wrapped_text(strErrStr, LenErrStr))
+		const auto add_wrapped = [&](string_view const Str)
 		{
-			Strings.emplace_back(i);
-			MaxLength = std::max(MaxLength, i.size());
-		}
+			for (const auto& i : wrapped_text(Str, MAX_MESSAGE_WIDTH))
+			{
+				Strings.emplace_back(i);
+				MaxLength = std::max(MaxLength, i.size());
+			}
+		};
+
+		add_wrapped(ErrorMessage);
+		add_wrapped(SystemErrorMessage);
 	}
 
 	join(strClipText, L" "sv, Buttons);

@@ -131,19 +131,10 @@ namespace detail
 	}
 }
 
-string error_state_ex::format_error() const
+string error_state_ex::system_error() const
 {
-	if (!any())
-		return What;
-
-	auto Str = What;
-
-	if (!Str.empty())
-		append(Str, L": "sv);
-
 	constexpr auto UseNtMessages = false;
-
-	return Str + (UseNtMessages? NtErrorStr() : Win32ErrorStr());
+	return UseNtMessages? NtErrorStr() : Win32ErrorStr();
 }
 
 string error_state_ex::to_string() const
