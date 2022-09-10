@@ -491,11 +491,20 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						const auto NewPlane = Plane;
 						Plane = OldPlane;
 
+						// N steps -> N - 1 delays
+						const auto Delay = 250ms / (colors::index::cube_size - 1);
+
+						// Sleep won't do, the rendering time is non-negligible and unpredictable
+						os::concurrency::event const Event(os::event::type::automatic, os::event::state::nonsignaled);
+						os::concurrency::timer const Timer(Delay, Delay, [&]{ Event.set(); });
+
 						for (const auto& i: irange(0, colors::index::cube_size))
 						{
 							move_plane(NewPlane, Plane, Button, i);
 							Dlg->SendMessage(DM_REDRAW, 0, {});
-							os::chrono::sleep_for(10ms);
+
+							if (i != colors::index::cube_size - 1)
+								Event.wait();
 						}
 					}
 
