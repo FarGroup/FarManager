@@ -427,18 +427,18 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	{
 	case DN_CTLCOLORDLGITEM:
 		{
-			const auto Colors = static_cast<FarDialogItemColors*>(Param2);
+			const auto& Colors = *static_cast<FarDialogItemColors const*>(Param2);
 
 			if (in_closed_range(cd_cube_first, Param1, cd_cube_last))
 			{
 				const auto ColorIndex = cube_index(Param1);
-				Colors->Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
+				Colors.Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
 				return TRUE;
 			}
 
 			if (in_closed_range(cd_grey_first, Param1, cd_grey_last))
 			{
-				Colors->Colors[0] = Console256ColorToFarColor(GreyColorIndex[grey_stripe_mapping[grey_color_by_control[Param1 - cd_grey_first]]]);
+				Colors.Colors[0] = Console256ColorToFarColor(GreyColorIndex[grey_stripe_mapping[grey_color_by_control[Param1 - cd_grey_first]]]);
 				return TRUE;
 			}
 
@@ -447,7 +447,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			case cd_radio_rgb:
 				{
 					const COLORREF ColorIndex = ColorState.RGB;
-					Colors->Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
+					Colors.Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
 					return TRUE;
 				}
 
@@ -458,7 +458,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					const auto Context = get_rgb_context(Item);
 					const auto Channel = std::invoke(Context.Channel, ColorState.RGB);
 					const auto ColorIndex = 16 + Channel * Context.Multiplier;
-					Colors->Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
+					Colors.Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
 					return TRUE;
 				}
 

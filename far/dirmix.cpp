@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "treelist.hpp"
 #include "pathmix.hpp"
-#include "strmix.hpp"
 #include "interf.hpp"
 #include "elevation.hpp"
 #include "network.hpp"

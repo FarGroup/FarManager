@@ -2694,40 +2694,40 @@ static intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, v
 
 			case DN_CTLCOLORDLGITEM:
 				{
-					const auto lc = static_cast<const FarDialogItemColors*>(Param2);
+					const auto& lc = *static_cast<FarDialogItemColors const*>(Param2);
 					const auto diA = CurrentDialogItemA(hDlg, Param1);
 
 					// first, emulate DIF_SETCOLOR
 					if(diA->Flags&oldfar::DIF_SETCOLOR)
 					{
-						lc->Colors[0] = colors::NtColorToFarColor(diA->Flags&oldfar::DIF_COLORMASK);
+						lc.Colors[0] = colors::NtColorToFarColor(diA->Flags&oldfar::DIF_COLORMASK);
 					}
 
 					const auto Result = static_cast<DWORD>(CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDLGITEM, Param1, ToPtr(make_integer<uint32_t, uint16_t>(
-						make_integer<uint16_t, uint8_t>(colors::FarColorToConsoleColor(lc->Colors[0]), colors::FarColorToConsoleColor(lc->Colors[1])),
-						make_integer<uint16_t, uint8_t>(colors::FarColorToConsoleColor(lc->Colors[2]), colors::FarColorToConsoleColor(lc->Colors[3]))))));
-					if(lc->ColorsCount > 0)
-						lc->Colors[0] = colors::NtColorToFarColor(extract_integer<BYTE, 0>(Result));
-					if(lc->ColorsCount > 1)
-						lc->Colors[1] = colors::NtColorToFarColor(extract_integer<BYTE, 1>(Result));
-					if(lc->ColorsCount > 2)
-						lc->Colors[2] = colors::NtColorToFarColor(extract_integer<BYTE, 2>(Result));
-					if(lc->ColorsCount > 3)
-						lc->Colors[3] = colors::NtColorToFarColor(extract_integer<BYTE, 3>(Result));
+						make_integer<uint16_t, uint8_t>(colors::FarColorToConsoleColor(lc.Colors[0]), colors::FarColorToConsoleColor(lc.Colors[1])),
+						make_integer<uint16_t, uint8_t>(colors::FarColorToConsoleColor(lc.Colors[2]), colors::FarColorToConsoleColor(lc.Colors[3]))))));
+					if(lc.ColorsCount > 0)
+						lc.Colors[0] = colors::NtColorToFarColor(extract_integer<BYTE, 0>(Result));
+					if(lc.ColorsCount > 1)
+						lc.Colors[1] = colors::NtColorToFarColor(extract_integer<BYTE, 1>(Result));
+					if(lc.ColorsCount > 2)
+						lc.Colors[2] = colors::NtColorToFarColor(extract_integer<BYTE, 2>(Result));
+					if(lc.ColorsCount > 3)
+						lc.Colors[3] = colors::NtColorToFarColor(extract_integer<BYTE, 3>(Result));
 				}
 				break;
 
 			case DN_CTLCOLORDLGLIST:
 				{
-					const auto lc = static_cast<FarDialogItemColors*>(Param2);
-					std::vector<BYTE> AnsiColors(lc->ColorsCount);
-					std::transform(lc->Colors, lc->Colors + lc->ColorsCount, AnsiColors.begin(), colors::FarColorToConsoleColor);
+					auto& lc = *static_cast<FarDialogItemColors*>(Param2);
+					std::vector<BYTE> AnsiColors(lc.ColorsCount);
+					std::transform(lc.Colors, lc.Colors + lc.ColorsCount, AnsiColors.begin(), colors::FarColorToConsoleColor);
 					oldfar::FarListColors lcA{ 0, 0, static_cast<int>(AnsiColors.size()), AnsiColors.data() };
 					const auto Result = CurrentDlgProc(hDlg, oldfar::DN_CTLCOLORDLGLIST, Param1, &lcA);
 					if(Result)
 					{
-						lc->ColorsCount = lcA.ColorCount;
-						std::transform(lcA.Colors, lcA.Colors + lcA.ColorCount, lc->Colors, colors::NtColorToFarColor);
+						lc.ColorsCount = lcA.ColorCount;
+						std::transform(lcA.Colors, lcA.Colors + lcA.ColorCount, lc.Colors, colors::NtColorToFarColor);
 					}
 					return Result != 0;
 				}

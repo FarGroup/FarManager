@@ -2543,10 +2543,10 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 
 	case DN_CONTROLINPUT:
 		{
-			const auto record = static_cast<const INPUT_RECORD*>(Param2);
-			if (Param1 == ac_item_listbox && record->EventType==KEY_EVENT)
+			const auto& record = *static_cast<INPUT_RECORD const*>(Param2);
+			if (Param1 == ac_item_listbox && record.EventType==KEY_EVENT)
 			{
-				switch (InputRecordToKey(record))
+				switch (InputRecordToKey(&record))
 				{
 				case KEY_SHIFTF1:
 					{

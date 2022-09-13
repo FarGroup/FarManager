@@ -456,13 +456,13 @@ static intptr_t SetAttrDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Pa
 			if (Param1 != SA_TEXT_LASTWRITE && Param1 != SA_TEXT_CREATION && Param1 != SA_TEXT_LASTACCESS && Param1 != SA_TEXT_CHANGE)
 				break;
 
-			const auto Record = static_cast<const INPUT_RECORD*>(Param2);
-			if (Record->EventType != MOUSE_EVENT)
+			const auto& Record = *static_cast<INPUT_RECORD const*>(Param2);
+			if (Record.EventType != MOUSE_EVENT)
 				break;
 
 			SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-			if (Record->Event.MouseEvent.dwEventFlags == DOUBLE_CLICK)
+			if (Record.Event.MouseEvent.dwEventFlags == DOUBLE_CLICK)
 				set_dates_and_times(Dlg, TimeMap[label_to_time_map_index(Param1)], os::chrono::nt_clock::now(), false);
 			else
 				Dlg->SendMessage(DM_SETFOCUS, Param1 + 1, nullptr);

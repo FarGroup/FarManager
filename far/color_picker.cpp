@@ -278,23 +278,23 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					GetColor(Index);
 			};
 
-			const auto Colors = static_cast<FarDialogItemColors*>(Param2);
+			const auto& Colors = *static_cast<FarDialogItemColors const*>(Param2);
 
 			if (Param1 >= cd_fg_color_first && Param1 <= cd_fg_color_last)
 			{
-				Colors->Colors[0] = preview_or_disabled(CurColor.ForegroundColor, cd_fg_color_first);
+				Colors.Colors[0] = preview_or_disabled(CurColor.ForegroundColor, cd_fg_color_first);
 				return TRUE;
 			}
 
 			if (Param1 >= cd_bg_color_first && Param1 <= cd_bg_color_last)
 			{
-				Colors->Colors[0] = preview_or_disabled(CurColor.BackgroundColor, cd_bg_color_first);
+				Colors.Colors[0] = preview_or_disabled(CurColor.BackgroundColor, cd_bg_color_first);
 				return TRUE;
 			}
 
 			if (Param1 >= cd_sample_first && Param1 <= cd_sample_last)
 			{
-				Colors->Colors[0] = colors::merge(ColorState.BaseColor, ColorState.CurColor);
+				Colors.Colors[0] = colors::merge(ColorState.BaseColor, ColorState.CurColor);
 				return TRUE;
 			}
 
