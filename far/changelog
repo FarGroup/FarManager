@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 13.09.2022 19:34:03 +0100 - build 6022
+
+1. Optimise VT throughput.
+
+2. Fix VT double underline to underline transitioning.
+
+3. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 10.09.2022 18:06:24 +0100 - build 6021
 
 1. Add smooth rotation to 256 color picker.
