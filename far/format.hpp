@@ -57,7 +57,6 @@ WARNING_DISABLE_CLANG("-Weverything")
 #define FMT_STATIC_THOUSANDS_SEPARATOR
 #include "thirdparty/fmt/fmt/format.h"
 #include "thirdparty/fmt/fmt/xchar.h"
-#include "thirdparty/fmt/fmt/ostream.h"
 #undef FMT_STATIC_THOUSANDS_SEPARATOR
 
 WARNING_POP()

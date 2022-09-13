@@ -33,13 +33,14 @@
 #ifndef FMT_FORMAT_H_
 #define FMT_FORMAT_H_
 
-#include <cmath>         // std::signbit
-#include <cstdint>       // uint32_t
-#include <cstring>       // std::memcpy
-#include <limits>        // std::numeric_limits
-#include <memory>        // std::uninitialized_copy
-#include <stdexcept>     // std::runtime_error
-#include <system_error>  // std::system_error
+#include <cmath>             // std::signbit
+#include <cstdint>           // uint32_t
+#include <cstring>           // std::memcpy
+#include <initializer_list>  // std::initializer_list
+#include <limits>            // std::numeric_limits
+#include <memory>            // std::uninitialized_copy
+#include <stdexcept>         // std::runtime_error
+#include <system_error>      // std::system_error
 
 #ifdef __cpp_lib_bit_cast
 #  include <bit>  // std::bitcast
@@ -249,6 +250,18 @@ FMT_CONSTEXPR inline void abort_fuzzing_if(bool condition) {
 #endif
 }
 
+template <typename CharT, CharT... C> struct string_literal {
+  static constexpr CharT value[sizeof...(C)] = {C...};
+  constexpr operator basic_string_view<CharT>() const {
+    return {value, sizeof...(C)};
+  }
+};
+
+#if FMT_CPLUSPLUS < 201703L
+template <typename CharT, CharT... C>
+constexpr CharT string_literal<CharT, C...>::value[sizeof...(C)];
+#endif
+
 template <typename Streambuf> class formatbuf : public Streambuf {
  private:
   using char_type = typename Streambuf::char_type;
@@ -287,7 +300,8 @@ FMT_CONSTEXPR20 auto bit_cast(const From& from) -> To {
   if (is_constant_evaluated()) return std::bit_cast<To>(from);
 #endif
   auto to = To();
-  std::memcpy(&to, &from, sizeof(to));
+  // The cast suppresses a bogus -Wclass-memaccess on GCC.
+  std::memcpy(static_cast<void*>(&to), &from, sizeof(to));
   return to;
 }
 
@@ -366,10 +380,12 @@ class uint128_fallback {
   }
   FMT_CONSTEXPR auto operator>>(int shift) const -> uint128_fallback {
     if (shift == 64) return {0, hi_};
+    if (shift > 64) return uint128_fallback(0, hi_) >> (shift - 64);
     return {hi_ >> shift, (hi_ << (64 - shift)) | (lo_ >> shift)};
   }
   FMT_CONSTEXPR auto operator<<(int shift) const -> uint128_fallback {
     if (shift == 64) return {lo_, 0};
+    if (shift > 64) return uint128_fallback(lo_, 0) << (shift - 64);
     return {hi_ << shift | (lo_ >> (64 - shift)), (lo_ << shift)};
   }
   FMT_CONSTEXPR auto operator>>=(int shift) -> uint128_fallback& {
@@ -389,11 +405,11 @@ class uint128_fallback {
       hi_ += (lo_ < n ? 1 : 0);
       return *this;
     }
-#if FMT_HAS_BUILTIN(__builtin_addcll)
+#if FMT_HAS_BUILTIN(__builtin_addcll) && !defined(__ibmxl__)
     unsigned long long carry;
     lo_ = __builtin_addcll(lo_, n, 0, &carry);
     hi_ += carry;
-#elif FMT_HAS_BUILTIN(__builtin_ia32_addcarryx_u64)
+#elif FMT_HAS_BUILTIN(__builtin_ia32_addcarryx_u64) && !defined(__ibmxl__)
     unsigned long long result;
     auto carry = __builtin_ia32_addcarryx_u64(0, lo_, n, &result);
     lo_ = result;
@@ -592,19 +608,23 @@ FMT_CONSTEXPR inline auto utf8_decode(const char* s, uint32_t* c, int* e)
   constexpr const int shiftc[] = {0, 18, 12, 6, 0};
   constexpr const int shifte[] = {0, 6, 4, 2, 0};
 
-  int len = code_point_length(s);
-  const char* next = s + len;
+  int len = code_point_length_impl(*s);
+  // Compute the pointer to the next character early so that the next
+  // iteration can start working on the next character. Neither Clang
+  // nor GCC figure out this reordering on their own.
+  const char* next = s + len + !len;
+
+  using uchar = unsigned char;
 
   // Assume a four-byte character and load four bytes. Unused bits are
   // shifted out.
-  *c = uint32_t(s[0] & masks[len]) << 18;
-  *c |= uint32_t(s[1] & 0x3f) << 12;
-  *c |= uint32_t(s[2] & 0x3f) << 6;
-  *c |= uint32_t(s[3] & 0x3f) << 0;
+  *c = uint32_t(uchar(s[0]) & masks[len]) << 18;
+  *c |= uint32_t(uchar(s[1]) & 0x3f) << 12;
+  *c |= uint32_t(uchar(s[2]) & 0x3f) << 6;
+  *c |= uint32_t(uchar(s[3]) & 0x3f) << 0;
   *c >>= shiftc[len];
 
   // Accumulate the various error conditions.
-  using uchar = unsigned char;
   *e = (*c < mins[len]) << 6;       // non-canonical encoding
   *e |= ((*c >> 11) == 0x1b) << 7;  // surrogate half?
   *e |= (*c > 0x10FFFF) << 8;       // out of range?
@@ -628,8 +648,8 @@ FMT_CONSTEXPR void for_each_codepoint(string_view s, F f) {
     auto error = 0;
     auto end = utf8_decode(buf_ptr, &cp, &error);
     bool result = f(error ? invalid_code_point : cp,
-                    string_view(ptr, to_unsigned(end - buf_ptr)));
-    return result ? end : nullptr;
+                    string_view(ptr, error ? 1 : to_unsigned(end - buf_ptr)));
+    return result ? (error ? buf_ptr + 1 : end) : nullptr;
   };
   auto p = s.data();
   const size_t block_size = 4;  // utf8_decode always reads blocks of 4 chars.
@@ -687,6 +707,7 @@ FMT_CONSTEXPR inline size_t compute_width(string_view s) {
       return true;
     }
   };
+  // We could avoid branches by using utf8_decode directly.
   for_each_codepoint(s, count_code_points{&num_code_points});
   return num_code_points;
 }
@@ -717,6 +738,21 @@ inline auto code_point_index(basic_string_view<char8_type> s, size_t n)
   return code_point_index(
       string_view(reinterpret_cast<const char*>(s.data()), s.size()), n);
 }
+
+template <typename T> struct is_integral : std::is_integral<T> {};
+template <> struct is_integral<int128_opt> : std::true_type {};
+template <> struct is_integral<uint128_t> : std::true_type {};
+
+template <typename T>
+using is_signed =
+    std::integral_constant<bool, std::numeric_limits<T>::is_signed ||
+                                     std::is_same<T, int128_opt>::value>;
+
+template <typename T>
+using is_integer =
+    bool_constant<is_integral<T>::value && !std::is_same<T, bool>::value &&
+                  !std::is_same<T, char>::value &&
+                  !std::is_same<T, wchar_t>::value>;
 
 #ifndef FMT_USE_FLOAT128
 #  ifdef __SIZEOF_FLOAT128__
@@ -919,8 +955,11 @@ struct is_contiguous<basic_memory_buffer<T, SIZE, Allocator>> : std::true_type {
 };
 
 namespace detail {
+#ifdef _WIN32
+FMT_API bool write_console(std::FILE* f, string_view text);
+#endif
 FMT_API void print(std::FILE*, string_view);
-}
+}  // namespace detail
 
 /** A formatting error such as invalid format string. */
 FMT_CLASS_API
@@ -962,16 +1001,52 @@ constexpr auto compile_string_to_view(detail::std_string_view<Char> s)
 }
 }  // namespace detail_exported
 
+class loc_value {
+ private:
+  basic_format_arg<format_context> value_;
+
+ public:
+  template <typename T, FMT_ENABLE_IF(!detail::is_float128<T>::value)>
+  loc_value(T value) : value_(detail::make_arg<format_context>(value)) {}
+
+  template <typename T, FMT_ENABLE_IF(detail::is_float128<T>::value)>
+  loc_value(T) {}
+
+  template <typename Visitor> auto visit(Visitor&& vis) -> decltype(vis(0)) {
+    return visit_format_arg(vis, value_);
+  }
+};
+
+// A locale facet that formats values in UTF-8.
+// It is parameterized on the locale to avoid the heavy <locale> include.
+template <typename Locale> class format_facet : public Locale::facet {
+ private:
+  std::string separator_;
+  std::string grouping_;
+  std::string decimal_point_;
+
+ protected:
+  virtual auto do_put(appender out, loc_value val,
+                      const format_specs& specs) const -> bool;
+
+ public:
+  static FMT_API typename Locale::id id;
+
+  explicit format_facet(Locale& loc);
+  explicit format_facet(string_view sep = "",
+                        std::initializer_list<unsigned char> g = {3},
+                        std::string decimal_point = ".")
+      : separator_(sep.data(), sep.size()),
+        grouping_(g.begin(), g.end()),
+        decimal_point_(decimal_point) {}
+
+  auto put(appender out, loc_value val, const format_specs& specs) const
+      -> bool {
+    return do_put(out, val, specs);
+  }
+};
+
 FMT_BEGIN_DETAIL_NAMESPACE
-
-template <typename T> struct is_integral : std::is_integral<T> {};
-template <> struct is_integral<int128_opt> : std::true_type {};
-template <> struct is_integral<uint128_t> : std::true_type {};
-
-template <typename T>
-using is_signed =
-    std::integral_constant<bool, std::numeric_limits<T>::is_signed ||
-                                     std::is_same<T, int128_opt>::value>;
 
 // Returns true if value is negative, false otherwise.
 // Same as `value < 0` but doesn't produce warnings if T is an unsigned type.
@@ -1213,10 +1288,10 @@ FMT_CONSTEXPR20 auto format_decimal(Char* out, UInt value, int size)
 
 template <typename Char, typename UInt, typename Iterator,
           FMT_ENABLE_IF(!std::is_pointer<remove_cvref_t<Iterator>>::value)>
-inline auto format_decimal(Iterator out, UInt value, int size)
+FMT_CONSTEXPR inline auto format_decimal(Iterator out, UInt value, int size)
     -> format_decimal_result<Iterator> {
   // Buffer is large enough to hold all digits (digits10 + 1).
-  Char buffer[digits10<UInt>() + 1];
+  Char buffer[digits10<UInt>() + 1] = {};
   auto end = format_decimal(buffer, value, size).end;
   return {out, detail::copy_str_noinline<Char>(buffer, end, out)};
 }
@@ -1274,8 +1349,6 @@ template <> struct float_info<float> {
   static const int small_divisor = 10;
   static const int min_k = -31;
   static const int max_k = 46;
-  static const int divisibility_check_by_5_threshold = 39;
-  static const int case_fc_pm_half_lower_threshold = -1;
   static const int shorter_interval_tie_lower_threshold = -35;
   static const int shorter_interval_tie_upper_threshold = -35;
 };
@@ -1288,8 +1361,6 @@ template <> struct float_info<double> {
   static const int small_divisor = 100;
   static const int min_k = -292;
   static const int max_k = 326;
-  static const int divisibility_check_by_5_threshold = 86;
-  static const int case_fc_pm_half_lower_threshold = -2;
   static const int shorter_interval_tie_lower_threshold = -77;
   static const int shorter_interval_tie_upper_threshold = -77;
 };
@@ -1543,7 +1614,10 @@ FMT_CONSTEXPR inline fp get_cached_power(int min_exponent,
   const int dec_exp_step = 8;
   index = (index - first_dec_exp - 1) / dec_exp_step + 1;
   pow10_exponent = first_dec_exp + index * dec_exp_step;
-  return {data::pow10_significands[index], data::pow10_exponents[index]};
+  // Using *(x + index) instead of x[index] avoids an issue with some compilers
+  // using the EDG frontend (e.g. nvhpc/22.3 in C++17 mode).
+  return {*(data::pow10_significands + index),
+          *(data::pow10_exponents + index)};
 }
 
 #ifndef _MSC_VER
@@ -1604,7 +1678,9 @@ auto snprintf_float(T value, int precision, float_specs specs,
 
 template <typename T>
 using convert_float_result =
-    conditional_t<std::is_same<T, float>::value || sizeof(T) == sizeof(double),
+    conditional_t<std::is_same<T, float>::value ||
+                      std::numeric_limits<T>::digits ==
+                          std::numeric_limits<double>::digits,
                   double, T>;
 
 template <typename T>
@@ -1724,18 +1800,18 @@ inline auto find_escape(const char* begin, const char* end)
   return result;
 }
 
-#define FMT_STRING_IMPL(s, base, explicit)                                 \
-  [] {                                                                     \
-    /* Use the hidden visibility as a workaround for a GCC bug (#1973). */ \
-    /* Use a macro-like name to avoid shadowing warnings. */               \
-    struct FMT_GCC_VISIBILITY_HIDDEN FMT_COMPILE_STRING : base {           \
-      using char_type = fmt::remove_cvref_t<decltype(s[0])>;               \
-      FMT_MAYBE_UNUSED FMT_CONSTEXPR explicit                              \
-      operator fmt::basic_string_view<char_type>() const {                 \
-        return fmt::detail_exported::compile_string_to_view<char_type>(s); \
-      }                                                                    \
-    };                                                                     \
-    return FMT_COMPILE_STRING();                                           \
+#define FMT_STRING_IMPL(s, base, explicit)                                    \
+  [] {                                                                        \
+    /* Use the hidden visibility as a workaround for a GCC bug (#1973). */    \
+    /* Use a macro-like name to avoid shadowing warnings. */                  \
+    struct FMT_GCC_VISIBILITY_HIDDEN FMT_COMPILE_STRING : base {              \
+      using char_type FMT_MAYBE_UNUSED = fmt::remove_cvref_t<decltype(s[0])>; \
+      FMT_MAYBE_UNUSED FMT_CONSTEXPR explicit                                 \
+      operator fmt::basic_string_view<char_type>() const {                    \
+        return fmt::detail_exported::compile_string_to_view<char_type>(s);    \
+      }                                                                       \
+    };                                                                        \
+    return FMT_COMPILE_STRING();                                              \
   }()
 
 /**
@@ -1909,19 +1985,19 @@ FMT_CONSTEXPR FMT_INLINE auto write_int(OutputIt out, int num_digits,
 
 template <typename Char> class digit_grouping {
  private:
-  thousands_sep_result<Char> sep_;
+  std::string grouping_;
+  std::basic_string<Char> thousands_sep_;
 
   struct next_state {
     std::string::const_iterator group;
     int pos;
   };
-  next_state initial_state() const { return {sep_.grouping.begin(), 0}; }
+  next_state initial_state() const { return {grouping_.begin(), 0}; }
 
   // Returns the next digit group separator position.
   int next(next_state& state) const {
-    if (!sep_.thousands_sep) return max_value<int>();
-    if (state.group == sep_.grouping.end())
-      return state.pos += sep_.grouping.back();
+    if (thousands_sep_.empty()) return max_value<int>();
+    if (state.group == grouping_.end()) return state.pos += grouping_.back();
     if (*state.group <= 0 || *state.group == max_value<char>())
       return max_value<int>();
     state.pos += *state.group++;
@@ -1930,14 +2006,15 @@ template <typename Char> class digit_grouping {
 
  public:
   explicit digit_grouping(locale_ref loc, bool localized = true) {
-    if (localized)
-      sep_ = thousands_sep<Char>(loc);
-    else
-      sep_.thousands_sep = Char();
+    if (!localized) return;
+    auto sep = thousands_sep<Char>(loc);
+    grouping_ = sep.grouping;
+    if (sep.thousands_sep) thousands_sep_.assign(1, sep.thousands_sep);
   }
-  explicit digit_grouping(thousands_sep_result<Char> sep) : sep_(sep) {}
+  digit_grouping(std::string grouping, std::basic_string<Char> sep)
+      : grouping_(std::move(grouping)), thousands_sep_(std::move(sep)) {}
 
-  Char separator() const { return sep_.thousands_sep; }
+  bool has_separator() const { return !thousands_sep_.empty(); }
 
   int count_separators(int num_digits) const {
     int count = 0;
@@ -1960,7 +2037,9 @@ template <typename Char> class digit_grouping {
     for (int i = 0, sep_index = static_cast<int>(separators.size() - 1);
          i < num_digits; ++i) {
       if (num_digits - i == separators[sep_index]) {
-        *out++ = separator();
+        out =
+            copy_str<Char>(thousands_sep_.data(),
+                           thousands_sep_.data() + thousands_sep_.size(), out);
         --sep_index;
       }
       *out++ = static_cast<Char>(digits[to_unsigned(i)]);
@@ -1969,10 +2048,11 @@ template <typename Char> class digit_grouping {
   }
 };
 
+// Writes a decimal integer with digit grouping.
 template <typename OutputIt, typename UInt, typename Char>
-auto write_int_localized(OutputIt out, UInt value, unsigned prefix,
-                         const basic_format_specs<Char>& specs,
-                         const digit_grouping<Char>& grouping) -> OutputIt {
+auto write_int(OutputIt out, UInt value, unsigned prefix,
+               const basic_format_specs<Char>& specs,
+               const digit_grouping<Char>& grouping) -> OutputIt {
   static_assert(std::is_same<uint64_or_128_t<UInt>, UInt>::value, "");
   int num_digits = count_digits(value);
   char digits[40];
@@ -1981,18 +2061,21 @@ auto write_int_localized(OutputIt out, UInt value, unsigned prefix,
                               grouping.count_separators(num_digits));
   return write_padded<align::right>(
       out, specs, size, size, [&](reserve_iterator<OutputIt> it) {
-        if (prefix != 0) *it++ = static_cast<Char>(prefix);
+        if (prefix != 0) {
+          char sign = static_cast<char>(prefix);
+          *it++ = static_cast<Char>(sign);
+        }
         return grouping.apply(it, string_view(digits, to_unsigned(num_digits)));
       });
 }
 
-template <typename OutputIt, typename UInt, typename Char>
-auto write_int_localized(OutputIt& out, UInt value, unsigned prefix,
-                         const basic_format_specs<Char>& specs, locale_ref loc)
-    -> bool {
-  auto grouping = digit_grouping<Char>(loc);
-  out = write_int_localized(out, value, prefix, specs, grouping);
-  return true;
+// Writes a localized value.
+FMT_API auto write_loc(appender out, loc_value value, const format_specs& specs,
+                       locale_ref loc) -> bool;
+template <typename OutputIt, typename Char>
+inline auto write_loc(OutputIt, loc_value, const basic_format_specs<Char>&,
+                      locale_ref) -> bool {
+  return false;
 }
 
 FMT_CONSTEXPR inline void prefix_append(unsigned& prefix, unsigned value) {
@@ -2021,21 +2104,39 @@ FMT_CONSTEXPR auto make_write_int_arg(T value, sign_t sign)
   return {abs_value, prefix};
 }
 
+template <typename Char = char> struct loc_writer {
+  buffer_appender<Char> out;
+  const basic_format_specs<Char>& specs;
+  std::basic_string<Char> sep;
+  std::string grouping;
+  std::basic_string<Char> decimal_point;
+
+  template <typename T, FMT_ENABLE_IF(is_integer<T>::value)>
+  auto operator()(T value) -> bool {
+    auto arg = make_write_int_arg(value, specs.sign);
+    write_int(out, static_cast<uint64_or_128_t<T>>(arg.abs_value), arg.prefix,
+              specs, digit_grouping<Char>(grouping, sep));
+    return true;
+  }
+
+  template <typename T, FMT_ENABLE_IF(is_floating_point<T>::value)>
+  auto operator()(T) -> bool {
+    return false;
+  }
+
+  auto operator()(...) -> bool { return false; }
+};
+
 template <typename Char, typename OutputIt, typename T>
 FMT_CONSTEXPR FMT_INLINE auto write_int(OutputIt out, write_int_arg<T> arg,
                                         const basic_format_specs<Char>& specs,
-                                        locale_ref loc) -> OutputIt {
+                                        locale_ref) -> OutputIt {
   static_assert(std::is_same<T, uint32_or_64_or_128_t<T>>::value, "");
   auto abs_value = arg.abs_value;
   auto prefix = arg.prefix;
   switch (specs.type) {
   case presentation_type::none:
   case presentation_type::dec: {
-    if (specs.localized &&
-        write_int_localized(out, static_cast<uint64_or_128_t<T>>(abs_value),
-                            prefix, specs, loc)) {
-      return out;
-    }
     auto num_digits = count_digits(abs_value);
     return write_int(
         out, num_digits, prefix, specs, [=](reserve_iterator<OutputIt> it) {
@@ -2095,6 +2196,7 @@ template <typename Char, typename OutputIt, typename T,
 FMT_CONSTEXPR FMT_INLINE auto write(OutputIt out, T value,
                                     const basic_format_specs<Char>& specs,
                                     locale_ref loc) -> OutputIt {
+  if (specs.localized && write_loc(out, value, specs, loc)) return out;
   return write_int_noinline(out, make_write_int_arg(value, specs.sign), specs,
                             loc);
 }
@@ -2106,6 +2208,7 @@ template <typename Char, typename OutputIt, typename T,
 FMT_CONSTEXPR FMT_INLINE auto write(OutputIt out, T value,
                                     const basic_format_specs<Char>& specs,
                                     locale_ref loc) -> OutputIt {
+  if (specs.localized && write_loc(out, value, specs, loc)) return out;
   return write_int(out, make_write_int_arg(value, specs.sign), specs, loc);
 }
 
@@ -2123,29 +2226,30 @@ class counting_iterator {
   FMT_UNCHECKED_ITERATOR(counting_iterator);
 
   struct value_type {
-    template <typename T> void operator=(const T&) {}
+    template <typename T> FMT_CONSTEXPR void operator=(const T&) {}
   };
 
-  counting_iterator() : count_(0) {}
+  FMT_CONSTEXPR counting_iterator() : count_(0) {}
 
-  size_t count() const { return count_; }
+  FMT_CONSTEXPR size_t count() const { return count_; }
 
-  counting_iterator& operator++() {
+  FMT_CONSTEXPR counting_iterator& operator++() {
     ++count_;
     return *this;
   }
-  counting_iterator operator++(int) {
+  FMT_CONSTEXPR counting_iterator operator++(int) {
     auto it = *this;
     ++*this;
     return it;
   }
 
-  friend counting_iterator operator+(counting_iterator it, difference_type n) {
+  FMT_CONSTEXPR friend counting_iterator operator+(counting_iterator it,
+                                                   difference_type n) {
     it.count_ += static_cast<size_t>(n);
     return it;
   }
 
-  value_type operator*() const { return {}; }
+  FMT_CONSTEXPR value_type operator*() const { return {}; }
 };
 
 template <typename Char, typename OutputIt>
@@ -2256,7 +2360,7 @@ template <typename Char, typename OutputIt, typename T, typename Grouping>
 FMT_CONSTEXPR20 auto write_significand(OutputIt out, T significand,
                                        int significand_size, int exponent,
                                        const Grouping& grouping) -> OutputIt {
-  if (!grouping.separator()) {
+  if (!grouping.has_separator()) {
     out = write_significand<Char>(out, significand, significand_size);
     return detail::fill_n(out, exponent, static_cast<Char>('0'));
   }
@@ -2318,7 +2422,7 @@ FMT_CONSTEXPR20 auto write_significand(OutputIt out, T significand,
                                        int significand_size, int integral_size,
                                        Char decimal_point,
                                        const Grouping& grouping) -> OutputIt {
-  if (!grouping.separator()) {
+  if (!grouping.has_separator()) {
     return write_significand(out, significand, significand_size, integral_size,
                              decimal_point);
   }
@@ -2441,7 +2545,7 @@ template <typename Char> class fallback_digit_grouping {
  public:
   constexpr fallback_digit_grouping(locale_ref, bool) {}
 
-  constexpr Char separator() const { return Char(); }
+  constexpr bool has_separator() const { return false; }
 
   constexpr int count_separators(int) const { return 0; }
 
@@ -2481,14 +2585,14 @@ template <typename T, FMT_ENABLE_IF(std::is_floating_point<T>::value&&
 FMT_CONSTEXPR20 bool isfinite(T value) {
   constexpr T inf = T(std::numeric_limits<double>::infinity());
   if (is_constant_evaluated())
-    return !detail::isnan(value) && value != inf && value != -inf;
+    return !detail::isnan(value) && value < inf && value > -inf;
   return std::isfinite(value);
 }
 template <typename T, FMT_ENABLE_IF(!has_isfinite<T>::value)>
 FMT_CONSTEXPR bool isfinite(T value) {
   T inf = T(std::numeric_limits<double>::infinity());
   // std::isfinite doesn't support __float128.
-  return !detail::isnan(value) && value != inf && value != -inf;
+  return !detail::isnan(value) && value < inf && value > -inf;
 }
 
 template <typename T, FMT_ENABLE_IF(is_floating_point<T>::value)>
@@ -2991,7 +3095,7 @@ FMT_CONSTEXPR20 inline void format_dragon(basic_fp<uint128_t> value,
       upper = &upper_store;
     }
   }
-  bool even = (value.f & 1) == 0;
+  int even = static_cast<int>((value.f & 1) == 0);
   if (!upper) upper = &lower;
   if ((flags & dragon::fixup) != 0) {
     if (add_compare(numerator, *upper, denominator) + even <= 0) {
@@ -3156,13 +3260,10 @@ FMT_CONSTEXPR20 auto format_float(Float value, int precision, float_specs specs,
   }
   return exp;
 }
-
-template <typename Char, typename OutputIt, typename T,
-          FMT_ENABLE_IF(is_floating_point<T>::value)>
-FMT_CONSTEXPR20 auto write(OutputIt out, T value,
-                           basic_format_specs<Char> specs, locale_ref loc = {})
+template <typename Char, typename OutputIt, typename T>
+FMT_CONSTEXPR20 auto write_float(OutputIt out, T value,
+                                 basic_format_specs<Char> specs, locale_ref loc)
     -> OutputIt {
-  if (const_check(!is_supported_floating_point(value))) return out;
   float_specs fspecs = parse_float_type_spec(specs);
   fspecs.sign = specs.sign;
   if (detail::signbit(value)) {  // value < 0 is false for NaN so use signbit.
@@ -3206,6 +3307,17 @@ FMT_CONSTEXPR20 auto write(OutputIt out, T value,
   fspecs.precision = precision;
   auto f = big_decimal_fp{buffer.data(), static_cast<int>(buffer.size()), exp};
   return write_float(out, f, specs, fspecs, loc);
+}
+
+template <typename Char, typename OutputIt, typename T,
+          FMT_ENABLE_IF(is_floating_point<T>::value)>
+FMT_CONSTEXPR20 auto write(OutputIt out, T value,
+                           basic_format_specs<Char> specs, locale_ref loc = {})
+    -> OutputIt {
+  if (const_check(!is_supported_floating_point(value))) return out;
+  return specs.localized && write_loc(out, value, specs, loc)
+             ? out
+             : write_float(out, value, specs, loc);
 }
 
 template <typename Char, typename OutputIt, typename T,
@@ -3385,12 +3497,6 @@ template <typename Char> struct custom_formatter {
   }
   template <typename T> void operator()(T) const {}
 };
-
-template <typename T>
-using is_integer =
-    bool_constant<is_integral<T>::value && !std::is_same<T, bool>::value &&
-                  !std::is_same<T, char>::value &&
-                  !std::is_same<T, wchar_t>::value>;
 
 template <typename ErrorHandler> class width_checker {
  public:
@@ -3887,9 +3993,9 @@ template <typename T> struct formatter<group_digits_view<T>> : formatter<T> {
                                                        specs_.width_ref, ctx);
     detail::handle_dynamic_spec<detail::precision_checker>(
         specs_.precision, specs_.precision_ref, ctx);
-    return detail::write_int_localized(
+    return detail::write_int(
         ctx.out(), static_cast<detail::uint64_or_128_t<T>>(t.value), 0, specs_,
-        detail::digit_grouping<char>({"\3", ','}));
+        detail::digit_grouping<char>("\3", ","));
   }
 };
 
@@ -4028,10 +4134,9 @@ FMT_NODISCARD auto to_string(const basic_memory_buffer<Char, SIZE>& buf)
 FMT_BEGIN_DETAIL_NAMESPACE
 
 template <typename Char>
-void vformat_to(
-    buffer<Char>& buf, basic_string_view<Char> fmt,
-    basic_format_args<FMT_BUFFER_CONTEXT(type_identity_t<Char>)> args,
-    locale_ref loc) {
+void vformat_to(buffer<Char>& buf, basic_string_view<Char> fmt,
+                basic_format_args<FMT_BUFFER_CONTEXT(Char)> args,
+                locale_ref loc) {
   // workaround for msvc bug regarding name-lookup in module
   // link names into function scope
   using detail::arg_formatter;
@@ -4112,6 +4217,9 @@ void vformat_to(
 }
 
 #ifndef FMT_HEADER_ONLY
+extern template FMT_API void vformat_to(
+    buffer<char>&, string_view, basic_format_args<FMT_BUFFER_CONTEXT(char)>,
+    locale_ref);
 extern template FMT_API auto thousands_sep_impl<char>(locale_ref)
     -> thousands_sep_result<char>;
 extern template FMT_API auto thousands_sep_impl<wchar_t>(locale_ref)
@@ -4168,7 +4276,7 @@ auto vformat_to(OutputIt out, const Locale& loc, string_view fmt,
   using detail::get_buffer;
   auto&& buf = get_buffer<char>(out);
   detail::vformat_to(buf, fmt, args, detail::locale_ref(loc));
-  return detail::get_iterator(buf);
+  return detail::get_iterator(buf, out);
 }
 
 template <typename OutputIt, typename Locale, typename... T,
@@ -4177,6 +4285,18 @@ template <typename OutputIt, typename Locale, typename... T,
 FMT_INLINE auto format_to(OutputIt out, const Locale& loc,
                           format_string<T...> fmt, T&&... args) -> OutputIt {
   return vformat_to(out, loc, fmt, fmt::make_format_args(args...));
+}
+
+template <typename Locale, typename... T,
+          FMT_ENABLE_IF(detail::is_locale<Locale>::value)>
+FMT_NODISCARD FMT_INLINE auto formatted_size(const Locale& loc,
+                                             format_string<T...> fmt,
+                                             T&&... args) -> size_t {
+  auto buf = detail::counting_buffer<>();
+  detail::vformat_to(buf, string_view(fmt),
+                     format_args(fmt::make_format_args(args...)),
+                     detail::locale_ref(loc));
+  return buf.count();
 }
 
 FMT_MODULE_EXPORT_END

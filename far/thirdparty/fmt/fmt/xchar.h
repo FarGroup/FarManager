@@ -9,15 +9,33 @@
 #define FMT_XCHAR_H_
 
 #include <cwchar>
-#include <tuple>
 
 #include "format.h"
 
+#ifndef FMT_STATIC_THOUSANDS_SEPARATOR
+#  include <locale>
+#endif
+
 FMT_BEGIN_NAMESPACE
 namespace detail {
+
 template <typename T>
 using is_exotic_char = bool_constant<!std::is_same<T, char>::value>;
+
+inline auto write_loc(std::back_insert_iterator<detail::buffer<wchar_t>> out,
+                      loc_value value, const basic_format_specs<wchar_t>& specs,
+                      locale_ref loc) -> bool {
+#ifndef FMT_STATIC_THOUSANDS_SEPARATOR
+  auto& numpunct =
+      std::use_facet<std::numpunct<wchar_t>>(loc.get<std::locale>());
+  auto separator = std::wstring();
+  auto grouping = numpunct.grouping();
+  if (!grouping.empty()) separator = std::wstring(1, numpunct.thousands_sep());
+  return value.visit(loc_writer<wchar_t>{out, specs, separator, grouping, {}});
+#endif
+  return false;
 }
+}  // namespace detail
 
 FMT_MODULE_EXPORT_BEGIN
 
@@ -30,9 +48,11 @@ using wmemory_buffer = basic_memory_buffer<wchar_t>;
 #if FMT_GCC_VERSION && FMT_GCC_VERSION < 409
 // Workaround broken conversion on older gcc.
 template <typename... Args> using wformat_string = wstring_view;
+inline auto runtime(wstring_view s) -> wstring_view { return s; }
 #else
 template <typename... Args>
 using wformat_string = basic_format_string<wchar_t, type_identity_t<Args>...>;
+inline auto runtime(wstring_view s) -> basic_runtime<wchar_t> { return {{s}}; }
 #endif
 
 template <> struct is_char<wchar_t> : std::true_type {};
@@ -82,20 +102,16 @@ auto vformat(basic_string_view<Char> format_str,
   return to_string(buffer);
 }
 
-#if !FMT_GCC_VERSION || FMT_GCC_VERSION >= 409
-template <typename... Args>
-using wformat_string = basic_format_string<wchar_t, type_identity_t<Args>...>;
-#endif
-
 template <typename... T>
 auto format(wformat_string<T...> fmt, T&&... args) -> std::wstring {
-  return vformat(fmt, fmt::make_wformat_args(args...));
+  return vformat(fmt::wstring_view(fmt), fmt::make_wformat_args(args...));
 }
 
 // Pass char_t as a default template parameter instead of using
 // std::basic_string<char_t<S>> to reduce the symbol size.
 template <typename S, typename... Args, typename Char = char_t<S>,
-          FMT_ENABLE_IF(!std::is_same<Char, char>::value)>
+          FMT_ENABLE_IF(!std::is_same<Char, char>::value &&
+                        !std::is_same<Char, wchar_t>::value)>
 auto format(const S& format_str, Args&&... args) -> std::basic_string<Char> {
   return vformat(detail::to_string_view(format_str),
                  fmt::make_format_args<buffer_context<Char>>(args...));
@@ -129,7 +145,7 @@ auto vformat_to(OutputIt out, const S& format_str,
     -> OutputIt {
   auto&& buf = detail::get_buffer<Char>(out);
   detail::vformat_to(buf, detail::to_string_view(format_str), args);
-  return detail::get_iterator(buf);
+  return detail::get_iterator(buf, out);
 }
 
 template <typename OutputIt, typename S, typename... Args,
