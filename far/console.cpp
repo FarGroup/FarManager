@@ -933,7 +933,7 @@ namespace console_detail
 		return L'0' + Table[Index & 0b111];
 	}
 
-	static const struct
+	static constexpr struct
 	{
 		string_view Normal, Intense, ExtendedColour;
 		COLORREF FarColor::* Color;
@@ -945,7 +945,7 @@ namespace console_detail
 		{ L"4"sv, L"10"sv, L"48"sv, &FarColor::BackgroundColor, FCF_BG_INDEX },
 	};
 
-	static const struct
+	static constexpr struct
 	{
 		FARCOLORFLAGS Style;
 		string_view On, Off;
@@ -963,6 +963,10 @@ namespace console_detail
 		{ FCF_FG_INVERSE,      L"7"sv,     L"27"sv },
 		{ FCF_FG_INVISIBLE,    L"8"sv,     L"28"sv },
 	};
+
+	static const size_t UnderlineIndex = 2;
+	static_assert(StyleMapping[UnderlineIndex].Style == FCF_FG_UNDERLINE);
+	static_assert(StyleMapping[UnderlineIndex + 1].Style == FCF_FG_UNDERLINE2);
 
 	static void make_vt_color(const FarColor& Attributes, string& Str, size_t const MappingIndex)
 	{
@@ -986,17 +990,44 @@ namespace console_detail
 
 	static void make_vt_style(const FarColor& Attributes, string& Str, std::optional<FarColor> const& LastColor)
 	{
+		auto UnderlineSet = false;
+
 		for (const auto& i: StyleMapping)
 		{
 			if (Attributes.Flags & i.Style)
 			{
 				if (!LastColor.has_value() || !(LastColor->Flags & i.Style))
+				{
 					append(Str, i.On, L';');
+
+					// See below
+					if (i.Style == FCF_FG_UNDERLINE)
+						UnderlineSet = true;
+				}
 			}
 			else
 			{
 				if (LastColor.has_value() && LastColor->Flags & i.Style)
+				{
+					if (i.Style == FCF_FG_UNDERLINE2 && Attributes.Flags & FCF_FG_UNDERLINE)
+					{
+						// Both Underline and Double Underline have the same off code. 🤦
+						// VT is a bloody joke. Whoever invented it should be punished.
+
+						// D is checked after U.
+						// We're dropping D now, so, if we have already enabled U on the previous iteration, this will kill it.
+						// To address this, we undo U if needed, emit the off code and enable U.
+						constexpr auto UnderlineOn = StyleMapping[UnderlineIndex].On;
+
+						if (UnderlineSet)
+							Str.resize(Str.size() - UnderlineOn.size() - 1);
+
+						append(Str, i.Off, L';', UnderlineOn, L';');
+						continue;
+					}
+
 					append(Str, i.Off, L';');
+				}
 			}
 		}
 
@@ -2302,6 +2333,26 @@ TEST_CASE("console.vt_sequence")
 		console_detail::make_vt_sequence(Buffer, Str, LastColor);
 
 		REQUIRE(Str == CSI L"92;44;1m" L"  " CSI "22m" L" "sv);
+	}
+
+	{
+		FAR_CHAR_INFO Buffer[3]{};
+		Buffer[0].Char = L' ';
+		Buffer[0].Attributes.Flags = FCF_BG_INDEX | FCF_FG_INDEX | FCF_FG_UNDERLINE2;
+		Buffer[0].Attributes.BackgroundColor = 1;
+		Buffer[0].Attributes.ForegroundColor = 10;
+
+		Buffer[1] = Buffer[0];
+
+		Buffer[2] = Buffer[1];
+		flags::clear(Buffer[2].Attributes.Flags, FCF_FG_UNDERLINE2);
+		flags::set(Buffer[2].Attributes.Flags, FCF_FG_UNDERLINE);
+
+		string Str;
+		std::optional<FarColor> LastColor;
+		console_detail::make_vt_sequence(Buffer, Str, LastColor);
+
+		REQUIRE(Str == CSI L"92;44;21m" L"  " CSI "24;4m" L" "sv);
 	}
 }
 
