@@ -196,7 +196,7 @@ static void make_header(string_view const Message, function_ref<void(string_view
 	Consumer(Separator);
 }
 
-static void get_backtrace(string_view const Module, span<uintptr_t const> const Stack, span<uintptr_t const> const NestedStack, function_ref<void(string_view)> const Consumer)
+static void get_backtrace(string_view const Module, span<os::debug::stack_frame const> const Stack, span<os::debug::stack_frame const> const NestedStack, function_ref<void(string_view)> const Consumer)
 {
 	make_header(L"Exception stack"sv, Consumer);
 	if (!NestedStack.empty())
@@ -539,7 +539,7 @@ private:
 };
 WARNING_POP()
 
-static void read_disassembly(string& To, string_view const Module, span<uintptr_t const> const Stack, string_view const Eol)
+static void read_disassembly(string& To, string_view const Module, span<os::debug::stack_frame const> const Stack, string_view const Eol)
 {
 	if (Stack.empty())
 		return;
@@ -578,8 +578,15 @@ static void read_disassembly(string& To, string_view const Module, span<uintptr_
 
 		const auto MaxFrames = 10;
 		auto Frames = 0;
+		uintptr_t LastFrameAddress = 0;
+
 		for (const auto i: Stack)
 		{
+			if (i.Address == LastFrameAddress)
+				continue;
+
+			LastFrameAddress = i.Address;
+
 			tracer.get_symbols(Module, {&i, 1}, [&](string_view const Line)
 			{
 				append(To, Line, L':', Eol);
@@ -590,7 +597,7 @@ static void read_disassembly(string& To, string_view const Module, span<uintptr_
 				DEBUG_OUTCTL_THIS_CLIENT,
 				PrevLines,
 				PrevLines + 1,
-				i,
+				i.Address,
 				DisassembleFlags,
 				{},
 				{},
@@ -615,7 +622,7 @@ static void read_disassembly(string& To, string_view const Module, span<uintptr_
 
 static string collect_information(
 	exception_context const& Context,
-	span<uintptr_t const> NestedStack,
+	span<os::debug::stack_frame const> NestedStack,
 	string_view const Module,
 	span<std::pair<string_view, string_view> const> const BasicInfo
 )
@@ -858,7 +865,7 @@ static bool ShowExceptionUI(
 	string_view const ModuleName,
 	string const& PluginInfo,
 	Plugin const* const PluginModule,
-	span<uintptr_t const> const NestedStack
+	span<os::debug::stack_frame const> const NestedStack
 )
 {
 	SCOPED_ACTION(tracer_detail::tracer::with_symbols)(PluginModule? ModuleName : L""sv);
@@ -867,7 +874,7 @@ static bool ShowExceptionUI(
 	tracer.get_symbol(ModuleName, Context.exception_record().ExceptionAddress, Address, Name, Source);
 
 	if (!Name.empty())
-		append(Address, L" - "sv, Name);
+		Address = concat(L"0x"sv, Address, L" - "sv, Name);
 
 	if (Source.empty())
 		Source = Location;
@@ -1158,7 +1165,7 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 		}(ExceptionRecord.ExceptionInformation[0]);
 
 		string Symbol;
-		tracer.get_symbols(Module, { ExceptionRecord.ExceptionInformation[1] }, [&](string&& Line)
+		tracer.get_symbols(Module, { { ExceptionRecord.ExceptionInformation[1], 0 } }, [&](string&& Line)
 		{
 			Symbol = std::move(Line);
 		});
@@ -1190,7 +1197,7 @@ static bool handle_generic_exception(
 	string_view const Type,
 	string_view const Message,
 	error_state const& ErrorState = last_error(),
-	span<uintptr_t const> const NestedStack = {}
+	span<os::debug::stack_frame const> const NestedStack = {}
 )
 {
 	static bool ExceptionHandlingIgnored = false;
@@ -1300,11 +1307,11 @@ public:
 	{
 	}
 
-	span<uintptr_t const> get_stack() const noexcept { return m_Stack; }
+	span<os::debug::stack_frame const> get_stack() const noexcept { return m_Stack; }
 
 private:
 	std::shared_ptr<os::handle> m_ThreadHandle;
-	std::vector<uintptr_t> m_Stack;
+	std::vector<os::debug::stack_frame> m_Stack;
 };
 
 static_assert(std::is_base_of_v<std::nested_exception, far_wrapper_exception>);
@@ -1386,7 +1393,7 @@ static bool handle_std_exception(
 		const auto NestedStack = [&]
 		{
 			const auto Wrapper = dynamic_cast<const far_wrapper_exception*>(&e);
-			return Wrapper? Wrapper->get_stack() : span<uintptr_t const>{};
+			return Wrapper? Wrapper->get_stack() : span<os::debug::stack_frame const>{};
 		}();
 
 		return handle_generic_exception(Context, FarException->function(), FarException->location(), Module, Type, What, *FarException, NestedStack);

@@ -52,7 +52,14 @@ namespace os::debug
 	void set_thread_name(const wchar_t* Name);
 	void set_thread_name(string const& Name);
 	string get_thread_name(HANDLE ThreadHandle);
-	std::vector<uintptr_t> current_stack(size_t FramesToSkip = 0, size_t FramesToCapture = std::numeric_limits<size_t>::max());
+
+	struct stack_frame
+	{
+		uintptr_t Address;
+		DWORD InlineContext;
+	};
+
+	std::vector<stack_frame> current_stack(size_t FramesToSkip = 0, size_t FramesToCapture = std::numeric_limits<size_t>::max());
 }
 
 #endif // PLATFORM_DEBUG_HPP_8453E69F_3955_416D_BB64_A3A88D3D1D8D

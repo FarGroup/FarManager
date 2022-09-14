@@ -325,12 +325,12 @@ private:
 				L"\nWide: "sv, printable_wide_string(UserAddress, std::min(BlockSize, Width * sizeof(wchar_t))),
 				L"\nStack:\n"sv);
 
-			uintptr_t Stack[ARRAYSIZE(MEMINFO::Stack)];
+			os::debug::stack_frame Stack[ARRAYSIZE(MEMINFO::Stack)];
 			size_t StackSize;
 
 			for (StackSize = 0; StackSize != std::size(Stack) && i->Stack[StackSize]; ++StackSize)
 			{
-				Stack[StackSize] = reinterpret_cast<uintptr_t>(i->Stack[StackSize]);
+				Stack[StackSize] = { reinterpret_cast<uintptr_t>(i->Stack[StackSize]), INLINE_FRAME_CONTEXT_INIT };
 			}
 
 			tracer.get_symbols({}, span(Stack, StackSize), [&](string_view const Line)

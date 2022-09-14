@@ -94,12 +94,12 @@ namespace os::debug
 		return Name.get();
 	}
 
-	std::vector<uintptr_t> current_stack(size_t const FramesToSkip, size_t const FramesToCapture)
+	std::vector<stack_frame> current_stack(size_t const FramesToSkip, size_t const FramesToCapture)
 	{
 		if (!imports.RtlCaptureStackBackTrace)
 			return {};
 
-		std::vector<uintptr_t> Stack;
+		std::vector<stack_frame> Stack;
 		Stack.reserve(128);
 
 		// http://web.archive.org/web/20140815000000*/http://msdn.microsoft.com/en-us/library/windows/hardware/ff552119(v=vs.85).aspx
@@ -126,7 +126,7 @@ namespace os::debug
 
 			std::transform(Pointers, Pointers + Size, std::back_inserter(Stack), [](void* Ptr)
 			{
-				return reinterpret_cast<uintptr_t>(Ptr);
+				return stack_frame{ reinterpret_cast<uintptr_t>(Ptr), INLINE_FRAME_CONTEXT_INIT };
 			});
 
 			i += Size;

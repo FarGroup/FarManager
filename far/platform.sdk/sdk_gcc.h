@@ -318,4 +318,20 @@ DECLARE_INTERFACE_(IDebugOutputCallbacksWide, IUnknown)
 
 #endif
 
+#ifndef STACK_FRAME_TYPE_INLINE
+#define STACK_FRAME_TYPE_INLINE 0x02
+#define STACK_FRAME_TYPE_IGNORE 0xFF
+
+#define SYM_STKWALK_DEFAULT 0x00000000
+
+typedef union _INLINE_FRAME_CONTEXT {
+    DWORD ContextValue;
+    struct {
+        BYTE FrameId;
+        BYTE FrameType;
+        WORD FrameSignature;
+    };
+} INLINE_FRAME_CONTEXT;
+#endif
+
 #endif // SDK_GCC_H_EA5F3F70_C987_4240_AA25_3016DB39C651

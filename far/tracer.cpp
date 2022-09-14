@@ -91,35 +91,80 @@ static auto platform_specific_data(CONTEXT const& ContextRecord)
 	return Data;
 }
 
-// StackWalk64() may modify context record passed to it, so we will use a copy.
-static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
+template<typename T, typename data>
+static void stack_walk(data const& Data, function_ref<bool(T&)> const& Walker, function_ref<void(uintptr_t, DWORD)> const& Handler)
 {
-	std::vector<uintptr_t> Result;
-
-	if (!imports.StackWalk64)
-		return Result;
-
-	const auto Data = platform_specific_data(ContextRecord);
-
-	if (Data.MachineType == IMAGE_FILE_MACHINE_UNKNOWN || (!Data.PC && !Data.Frame && !Data.Stack))
-		return Result;
-
 	const auto address = [](DWORD64 const Offset)
 	{
 		return ADDRESS64{ Offset, 0, AddrModeFlat };
 	};
 
-	STACKFRAME64 StackFrame{};
-	StackFrame.AddrPC    = address(Data.PC);
+	T StackFrame{};
+	StackFrame.AddrPC = address(Data.PC);
 	StackFrame.AddrFrame = address(Data.Frame);
 	StackFrame.AddrStack = address(Data.Stack);
 
-	while (imports.StackWalk64(Data.MachineType, GetCurrentProcess(), ThreadHandle, &StackFrame, &ContextRecord, nullptr, imports.SymFunctionTableAccess64, imports.SymGetModuleBase64, nullptr))
+	if constexpr (std::is_same_v<T, STACKFRAME_EX>)
+	{
+		StackFrame.StackFrameSize = sizeof(StackFrame);
+	}
+
+	while (Walker(StackFrame))
 	{
 		// Cast to uintptr_t is ok here: although this function can be used
 		// to capture a stack of 64-bit process from a 32-bit one,
 		// we always use it with the current process only.
-		Result.emplace_back(static_cast<uintptr_t>(StackFrame.AddrPC.Offset));
+
+		DWORD InlineFrameContext;
+		if constexpr (std::is_same_v<T, STACKFRAME_EX>)
+			InlineFrameContext = StackFrame.InlineFrameContext;
+		else
+			InlineFrameContext = 0;
+
+		Handler(static_cast<uintptr_t>(StackFrame.AddrPC.Offset), InlineFrameContext);
+	}
+}
+
+// StackWalk64() may modify context record passed to it, so we will use a copy.
+static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
+{
+	std::vector<os::debug::stack_frame> Result;
+
+	if (!imports.StackWalkEx && !imports.StackWalk64)
+		return Result;
+
+	const auto Process = GetCurrentProcess();
+	const auto Data = platform_specific_data(ContextRecord);
+
+	if (Data.MachineType == IMAGE_FILE_MACHINE_UNKNOWN || (!Data.PC && !Data.Frame && !Data.Stack))
+		return Result;
+
+	const auto handler = [&](uintptr_t const Address, DWORD const InlineFrameContext)
+	{
+		Result.emplace_back(Address, InlineFrameContext);
+	};
+
+	if (imports.StackWalkEx)
+	{
+		stack_walk<STACKFRAME_EX>(
+			Data,
+			[&](STACKFRAME_EX& StackFrame)
+			{
+				return imports.StackWalkEx(Data.MachineType, Process, ThreadHandle, &StackFrame, &ContextRecord, {}, imports.SymFunctionTableAccess64, imports.SymGetModuleBase64, {}, SYM_STKWALK_DEFAULT);
+			},
+			handler
+		);
+	}
+	else
+	{
+		stack_walk<STACKFRAME64>(
+			Data,
+			[&](STACKFRAME64& StackFrame)
+			{
+				return imports.StackWalk64(Data.MachineType, Process, ThreadHandle, &StackFrame, &ContextRecord, {}, imports.SymFunctionTableAccess64, imports.SymGetModuleBase64, {});
+			},
+			handler
+		);
 	}
 
 	return Result;
@@ -139,7 +184,7 @@ static string FormatAddress(uintptr_t const Value)
 		width_in_hex_chars<uint32_t>;
 
 	return format(FSTR(L"{:0{}X}"sv), Value, Width);
-};
+}
 
 // SYMBOL_INFO_PACKAGEW not defined in GCC headers :(
 namespace
@@ -149,15 +194,29 @@ namespace
 	{
 		header info;
 		static constexpr auto max_name_size = MAX_SYM_NAME;
-		std::remove_all_extents_t<decltype(header::Name)> name[max_name_size + 1];
+
+		using char_type = VALUE_TYPE(header::Name);
+		char_type name[max_name_size + 1];
+
+		using result_type = std::pair<std::basic_string_view<char_type>, size_t>;
 	};
+}
+
+static bool is_inline_frame(DWORD const InlineFrameContext)
+{
+	INLINE_FRAME_CONTEXT const frameContext{ InlineFrameContext };
+
+	if (frameContext.ContextValue == INLINE_FRAME_CONTEXT_IGNORE)
+		return false;
+
+	return (frameContext.FrameType & STACK_FRAME_TYPE_INLINE) != 0;
 }
 
 static void get_symbols_impl(
 	string_view const ModuleName,
-	span<uintptr_t const> const BackTrace,
+	span<os::debug::stack_frame const> const BackTrace,
 	std::unordered_map<uintptr_t, map_file>& MapFiles,
-	function_ref<void(string&&, string&&, string&&)> const Consumer
+	function_ref<void(string&&, bool, string&&, string&&)> const Consumer
 )
 {
 	const auto Process = GetCurrentProcess();
@@ -172,9 +231,9 @@ static void get_symbols_impl(
 
 	string NameBuffer;
 
-	const auto GetName = [&](uintptr_t const Address) ->std::pair<string_view, size_t>
+	const auto frame_get_name = [&](uintptr_t const Address) -> std::pair<string_view, size_t>
 	{
-		const auto Get = [&](auto const& Getter, auto& Buffer) -> std::pair<std::basic_string_view<VALUE_TYPE(Buffer.info.Name)>, size_t>
+		const auto Get = [&](auto const& Getter, auto& Buffer) -> package<decltype(Buffer.info)>::result_type
 		{
 			if (!Getter)
 				return {};
@@ -222,53 +281,93 @@ static void get_symbols_impl(
 		return {};
 	};
 
-	const auto GetLocation = [&](uintptr_t const Address)
+	const auto location = [](string_view const File, unsigned const Line, unsigned const Displacement)
 	{
+		return format(FSTR(L"{}({})"sv), File, Line);
+	};
+
+	const auto frame_get_location = [&](uintptr_t const Address)
+	{
+		DWORD Displacement;
+
 		const auto Get = [&](auto const& Getter, auto& Buffer)
 		{
 			Buffer.SizeOfStruct = sizeof(Buffer);
-			DWORD Displacement;
 			return Getter && Getter(Process, Address, &Displacement, &Buffer);
 		};
 
-		const auto Location = [](string_view const File, unsigned const Line)
-		{
-			return format(FSTR(L"{}({})"sv), File, Line);
-		};
-
 		if (IMAGEHLP_LINEW64 Line; Get(imports.SymGetLineFromAddrW64, Line))
-			return Location(Line.FileName, Line.LineNumber);
+			return location(Line.FileName, Line.LineNumber, Displacement);
 
 		if (IMAGEHLP_LINE64 Line; Get(imports.SymGetLineFromAddr64, Line))
-			return Location(encoding::ansi::get_chars(Line.FileName), Line.LineNumber);
+			return location(encoding::ansi::get_chars(Line.FileName), Line.LineNumber, Displacement);
 
 		return L""s;
 	};
 
-	for (const auto Address: BackTrace)
+	const auto inline_frame_get_name = [&](os::debug::stack_frame const& Frame) -> std::pair<string_view, size_t>
 	{
-		IMAGEHLP_MODULEW64 Module{ static_cast<DWORD>(aligned_size(offsetof(IMAGEHLP_MODULEW64, LoadedImageName), 8)) }; // use the pre-07-Jun-2002 struct size, aligned to 8
-		const auto HasModuleInfo = imports.SymGetModuleInfoW64 && imports.SymGetModuleInfoW64(Process, Address, &Module);
+		auto& Buffer = SymbolData.emplace<0>();
+		Buffer.info.SizeOfStruct = sizeof(Buffer.info);
+		Buffer.info.MaxNameLen = Buffer.max_name_size;
+		DWORD64 Displacement;
+
+		// Both W and A APIs were added together in dbghelp 6.2 (8), we don't need to fallback to A.
+		if (!imports.SymFromInlineContextW(Process, Frame.Address, Frame.InlineContext, &Displacement, &Buffer.info))
+			return {};
+
+		return { { Buffer.info.Name, Buffer.info.NameLen }, Displacement };
+	};
+
+	const auto inline_frame_get_location = [&](os::debug::stack_frame const& Frame, uintptr_t const BaseAddress)
+	{
+		DWORD Displacement;
+		IMAGEHLP_LINEW64 Buffer{ sizeof(Buffer) };
+		// Both W and A APIs were added together in dbghelp 6.2 (8), we don't need to fallback to A.
+		if (!imports.SymGetLineFromInlineContextW(Process, Frame.Address, Frame.InlineContext, BaseAddress, &Displacement, &Buffer))
+			return L""s;
+
+		return location(Buffer.FileName, Buffer.LineNumber, Displacement);
+	};
+
+	const auto handle_frame = [&](os::debug::stack_frame const& Frame, bool const IsInlineFrame, int Fixup = 0)
+	{
+		std::optional<IMAGEHLP_MODULEW64> Module(std::in_place);
+		// use the pre-07-Jun-2002 struct size, aligned to 8
+		Module->SizeOfStruct = static_cast<DWORD>(aligned_size(offsetof(IMAGEHLP_MODULEW64, LoadedImageName), 8));
+		if (!imports.SymGetModuleInfoW64 || !imports.SymGetModuleInfoW64(Process, Frame.Address, &*Module))
+			Module.reset();
+
+		const auto BaseAddress = Module? Module->BaseOfImage : 0;
+		const auto ImageName = Module? PointToName(Module->ImageName) : L""sv;
 
 		string_view SymbolName;
 		size_t Displacement;
 		string Location;
 
-		if (Address)
+		if (Frame.Address)
 		{
-			std::tie(SymbolName, Displacement) = GetName(Address);
-			Location = GetLocation(Address);
+			if (IsInlineFrame)
+			{
+				std::tie(SymbolName, Displacement) = inline_frame_get_name(Frame);
+				Location = inline_frame_get_location(Frame, BaseAddress);
+			}
+			else
+			{
+				std::tie(SymbolName, Displacement) = frame_get_name(Frame.Address);
+				Location = frame_get_location(Frame.Address);
+			}
 
-			if (SymbolName.empty() && HasModuleInfo)
+			if (SymbolName.empty() && Module)
 			{
 				auto& MapFile = MapFiles.try_emplace(
-					Module.BaseOfImage,
-					*Module.ImageName?
-						Module.ImageName :
+					Module->BaseOfImage,
+					*Module->ImageName?
+						Module->ImageName :
 						ModuleName
 				).first->second;
 
-				const auto Info = MapFile.get(Address - Module.BaseOfImage);
+				const auto Info = MapFile.get(Frame.Address - BaseAddress);
 				SymbolName = Info.Symbol;
 				Displacement = Info.Displacement;
 
@@ -278,22 +377,54 @@ static void get_symbols_impl(
 		}
 
 		Consumer(
-			FormatAddress(Address - Module.BaseOfImage),
-			Address?
+			FormatAddress(Frame.Address? Frame.Address + Fixup - BaseAddress : 0),
+			IsInlineFrame,
+			Frame.Address?
 				format(FSTR(L"{}!{}{}"sv),
-					HasModuleInfo?
-						PointToName(Module.ImageName) :
+					!ImageName.empty()?
+						PointToName(ImageName):
 						L"<unknown>"sv,
 					!SymbolName.empty()?
 						SymbolName :
 						L"<unknown> (get the pdb)"sv,
 					!SymbolName.empty()?
-						format(FSTR(L"+{:X}"sv), Displacement) :
+						format(FSTR(L"+0x{:X}"sv), Displacement) :
 						L""s
 				) :
 				L""s,
 			std::move(Location)
 		);
+	};
+
+	for (const auto& i: BackTrace)
+	{
+		if (i.InlineContext)
+		{
+			handle_frame(i, is_inline_frame(i.InlineContext));
+			continue;
+		}
+
+		if (imports.SymAddrIncludeInlineTrace)
+		{
+			auto Frame = i;
+			if (Frame.Address != 0)
+				--Frame.Address;
+
+			if (const auto InlineFramesCount = imports.SymAddrIncludeInlineTrace(Process, Frame.Address))
+			{
+				ULONG FrameIndex{};
+				if (imports.SymQueryInlineTrace(Process, Frame.Address, INLINE_FRAME_CONTEXT_INIT, Frame.Address, Frame.Address, &Frame.InlineContext, &FrameIndex))
+				{
+					for (DWORD n = FrameIndex; n != InlineFramesCount; ++n)
+					{
+						handle_frame(Frame, true, 1);
+						++Frame.InlineContext;
+					}
+				}
+			}
+		}
+
+		handle_frame(i, false);
 	}
 }
 
@@ -304,19 +435,21 @@ tracer_detail::tracer::tracer():
 
 tracer_detail::tracer::~tracer() = default;
 
-std::vector<uintptr_t> tracer_detail::tracer::get(string_view const Module, CONTEXT const& ContextRecord, HANDLE ThreadHandle)
+std::vector<os::debug::stack_frame> tracer_detail::tracer::get(string_view const Module, CONTEXT const& ContextRecord, HANDLE ThreadHandle)
 {
 	SCOPED_ACTION(with_symbols)(Module);
 
 	return GetBackTrace(ContextRecord, ThreadHandle);
 }
 
-void tracer_detail::tracer::get_symbols(string_view const Module, span<uintptr_t const> const Trace, function_ref<void(string&& Line)> const Consumer) const
+void tracer_detail::tracer::get_symbols(string_view const Module, span<os::debug::stack_frame const> const Trace, function_ref<void(string&& Line)> const Consumer) const
 {
 	SCOPED_ACTION(with_symbols)(Module);
 
-	get_symbols_impl(Module, Trace, *m_MapFiles, [&](string&& Address, string&& Name, string&& Source)
+	get_symbols_impl(Module, Trace, *m_MapFiles, [&](string&& Address, bool const InlineFrame, string&& Name, string&& Source)
 	{
+		Address += InlineFrame? L" I"sv : L"  "sv;
+
 		if (!Name.empty())
 			append(Address, L' ', Name);
 
@@ -331,9 +464,9 @@ void tracer_detail::tracer::get_symbol(string_view const Module, const void* Ptr
 {
 	SCOPED_ACTION(with_symbols)(Module);
 
-	uintptr_t const Stack[]{ reinterpret_cast<uintptr_t>(Ptr) };
+	os::debug::stack_frame const Stack[]{ { reinterpret_cast<uintptr_t>(Ptr), INLINE_FRAME_CONTEXT_INIT } };
 
-	get_symbols_impl(Module, Stack, *m_MapFiles, [&](string&& StrAddress, string&& StrName, string&& StrSource)
+	get_symbols_impl(Module, Stack, *m_MapFiles, [&](string&& StrAddress, bool, string&& StrName, string&& StrSource)
 	{
 		Address = std::move(StrAddress);
 		Name = std::move(StrName);
