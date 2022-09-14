@@ -53,6 +53,7 @@ WARNING_PUSH()
 
 WARNING_DISABLE_MSC(4668) // 'symbol' is not defined as a preprocessor macro, replacing with '0' for 'directives'
 WARNING_DISABLE_MSC(4774) // 'string' : format string expected in argument number is not a string literal
+WARNING_DISABLE_MSC(5262) // implicit fall-through occurs here; are you missing a break statement? Use [[fallthrough]] when a break statement is intentionally omitted between cases
 
 WARNING_DISABLE_GCC("-Wdouble-promotion")
 WARNING_DISABLE_GCC("-Wimplicit-fallthrough")
