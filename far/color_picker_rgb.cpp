@@ -176,14 +176,14 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	{
 	case DN_CTLCOLORDLGITEM:
 		{
-			const auto Colors = static_cast<FarDialogItemColors*>(Param2);
+			const auto& Colors = *static_cast<FarDialogItemColors const*>(Param2);
 			switch (const auto Item = static_cast<color_rgb_dialog_items>(Param1))
 			{
 			case cd_text_rgb:
 				{
-					flags::clear(Colors->Colors[0].Flags, FCF_INDEXMASK | FCF_INHERIT_STYLE);
-					Colors->Colors[0].BackgroundColor = colors::opaque(ColorState.CurColor);
-					Colors->Colors[0].ForegroundColor = Colors->Colors[0].BackgroundColor;
+					flags::clear(Colors.Colors[0].Flags, FCF_INDEXMASK | FCF_INHERIT_STYLE);
+					Colors.Colors[0].BackgroundColor = colors::opaque(ColorState.CurColor);
+					Colors.Colors[0].ForegroundColor = Colors.Colors[0].BackgroundColor;
 					return TRUE;
 				}
 
@@ -197,9 +197,9 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					const auto SavedValue = Channel;
 					RGBA = {};
 					Channel = SavedValue;
-					flags::clear(Colors->Colors[0].Flags, FCF_INDEXMASK | FCF_INHERIT_STYLE);
-					Colors->Colors[0].BackgroundColor = colors::opaque(colors::to_color(RGBA));
-					Colors->Colors[0].ForegroundColor = colors::invert(Colors->Colors[0].BackgroundColor, false);
+					flags::clear(Colors.Colors[0].Flags, FCF_INDEXMASK | FCF_INHERIT_STYLE);
+					Colors.Colors[0].BackgroundColor = colors::opaque(colors::to_color(RGBA));
+					Colors.Colors[0].ForegroundColor = colors::invert(Colors.Colors[0].BackgroundColor, false);
 					return TRUE;
 				}
 			default:

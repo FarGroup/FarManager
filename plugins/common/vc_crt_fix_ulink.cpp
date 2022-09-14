@@ -37,18 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <delayimp.h>
 
 //----------------------------------------------------------------------------
-static LPVOID WINAPI no_recode_pointer(LPVOID p)
-{
-    return p;
-}
-
-//----------------------------------------------------------------------------
-static void WINAPI sim_InitializeSListHead(PSLIST_HEADER ListHead)
-{
-    ((LPDWORD)ListHead)[1] = ((LPDWORD)ListHead)[0] = 0;
-}
-
-//----------------------------------------------------------------------------
 static BOOL WINAPI sim_GetModuleHandleExW(DWORD flg, LPCWSTR name, HMODULE* pm)
 {
     // GET_MODULE_HANDLE_EX_FLAG_PIN not implemented (and unneeded)
@@ -73,29 +61,58 @@ done:
 }
 
 //----------------------------------------------------------------------------
+static BOOL WINAPI sim_InitializeCriticalSectionEx(LPCRITICAL_SECTION psec,
+                                                   DWORD cnt, DWORD flg)
+{
+    InitializeCriticalSection(psec);
+    psec->SpinCount = cnt | flg;
+    return TRUE;
+}
+
+//----------------------------------------------------------------------------
+static int WINAPI sim_LCMapStringEx(LPCWSTR, DWORD flg, LPCWSTR src, int scn,
+                                    LPWSTR dst, int dcn,
+                                    LPNLSVERSIONINFO, LPVOID, LPARAM)
+{
+    return LCMapStringW(LOCALE_USER_DEFAULT, flg, src, scn, dst, dcn);
+}
+
+//----------------------------------------------------------------------------
+static int WINAPI sim_CompareStringEx(LPCWSTR, DWORD flg, LPCWCH s1, int c1,
+                                      LPCWCH s2, int c2, LPNLSVERSIONINFO,
+                                      LPVOID, LPARAM)
+{
+    return CompareStringW(LOCALE_USER_DEFAULT, flg, s1, c1, s2, c2);
+}
+
+//----------------------------------------------------------------------------
 static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
                                        PDelayLoadInfo pdli)
 {
     if(   dliNotify == /*dliFailGetProcAddress*/dliFailGetProc
        && pdli && pdli->cb == sizeof(*pdli)
-       && pdli->hmodCur == GetModuleHandleA("kernel32")
        && pdli->dlp.fImportByName && pdli->dlp.szProcName)
     {
 #if _MSC_FULL_VER >= 191326128  // VS2017.6
 #pragma warning(disable: 4191)  // unsafe conversion from...to
 #endif
-      if(   !lstrcmpA(pdli->dlp.szProcName, "EncodePointer")
-         || !lstrcmpA(pdli->dlp.szProcName, "DecodePointer"))
-      {
-        return (FARPROC)no_recode_pointer;
-      }
-      if(!lstrcmpA(pdli->dlp.szProcName, "InitializeSListHead"))
-        return (FARPROC)sim_InitializeSListHead;
       if(!lstrcmpA(pdli->dlp.szProcName, "GetModuleHandleExW"))
         return (FARPROC)sim_GetModuleHandleExW;
+      if(!lstrcmpA(pdli->dlp.szProcName, "InitializeCriticalSectionEx"))
+        return (FARPROC)sim_InitializeCriticalSectionEx;
+      if(!lstrcmpA(pdli->dlp.szProcName, "LCMapStringEx"))
+        return (FARPROC)sim_LCMapStringEx;
+      if(!lstrcmpA(pdli->dlp.szProcName, "CompareStringEx"))
+        return (FARPROC)sim_CompareStringEx;
     }
     return nullptr;
 }
+
+//----------------------------------------------------------------------------
+#pragma comment(linker, "/delayload:kernel32.GetModuleHandleExW")
+#pragma comment(linker, "/delayload:kernel32.CompareStringEx")
+#pragma comment(linker, "/delayload:kernel32.LCMapStringEx")
+#pragma comment(linker, "/delayload:kernel32.InitializeCriticalSectionEx")
 
 //----------------------------------------------------------------------------
 #if _MSC_FULL_VER >= 190024215 // VS2015sp3
@@ -104,5 +121,3 @@ const
 PfnDliHook __pfnDliFailureHook2 = (PfnDliHook)delayFailureHook;
 
 //----------------------------------------------------------------------------
-
-// TODO: Add GetModuleHandleExW

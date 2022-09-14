@@ -18954,6 +18954,48 @@ MSetColorSample
 "Тэкст Тэкст Тэкст Тэкст Тэкст Тэкст"
 "Tekstas Tekstas Tekstas Tekstas Te"
 
+MSetColorVTHintInfo
+"Extended colors and styles require VT rendering."
+"Extended colors and styles require VT rendering."
+"Extended colors and styles require VT rendering."
+"Extended colors and styles require VT rendering."
+"Extended colors and styles require VT rendering."
+"Rozszerzone kolory i style wymagają renderowania VT."
+"Extended colors and styles require VT rendering."
+"Extended colors and styles require VT rendering."
+"Extended colors and styles require VT rendering."
+"Extended colors and styles require VT rendering."
+"Extended colors and styles require VT rendering."
+"Extended colors and styles require VT rendering."
+
+MSetColorVTHintSupported
+"Press \"Enable VT\" below to turn it on."
+"Press \"Enable VT\" below to turn it on."
+"Press \"Enable VT\" below to turn it on."
+"Press \"Enable VT\" below to turn it on."
+"Press \"Enable VT\" below to turn it on."
+"Wciśnij \"Włącz VT\" poniżej, aby uruchomić."
+"Press \"Enable VT\" below to turn it on."
+"Press \"Enable VT\" below to turn it on."
+"Press \"Enable VT\" below to turn it on."
+"Press \"Enable VT\" below to turn it on."
+"Press \"Enable VT\" below to turn it on."
+"Press \"Enable VT\" below to turn it on."
+
+MSetColorVTHintNotSupported
+"Your system does not support it."
+"Your system does not support it."
+"Your system does not support it."
+"Your system does not support it."
+"Your system does not support it."
+"Twój system nie obsługuje tej opcji."
+"Your system does not support it."
+"Your system does not support it."
+"Your system does not support it."
+"Your system does not support it."
+"Your system does not support it."
+"Your system does not support it."
+
 MSetColorSet
 "Установить"
 "Set"
@@ -18967,6 +19009,20 @@ MSetColorSet
 "Встановити"
 "Ужыць"
 "Gerai"
+
+MSetColorEnableVT
+"Enable VT"
+"Enable VT"
+"Enable VT"
+"Enable VT"
+"Enable VT"
+"Włącz &VT"
+"Enable VT"
+"Enable VT"
+"Enable VT"
+"Enable VT"
+"Enable VT"
+"Enable VT"
 
 MSetColorCancel
 "Отменить"

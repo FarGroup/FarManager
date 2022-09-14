@@ -304,6 +304,9 @@ static bool EnumModules(VMenu2& Menu, const string_view strStart, const string_v
 
 			for (const auto& FindData: os::fs::enum_files(path::join(Path, Pattern)))
 			{
+				if (!os::fs::is_file(FindData))
+					continue;
+
 				const auto FindExt = name_ext(FindData.FileName).second;
 
 				for (const auto& Ext: PathExtList)

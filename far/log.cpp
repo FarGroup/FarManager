@@ -941,7 +941,8 @@ namespace logging
 					return EXIT_SUCCESS;
 				}
 
-				std::wcerr << format(FSTR(L"Error reading pipe {}: {}"sv), PipeName, e.format_error()) << std::endl;
+				std::wcerr << format(FSTR(L"Error reading pipe {}: {}"sv), PipeName, e) << std::endl;
+				os::chrono::sleep_for(5s);
 				return EXIT_FAILURE;
 			}
 
@@ -951,7 +952,7 @@ namespace logging
 			}
 			catch (far_exception const& e)
 			{
-				LOGERROR(L"{}"sv, e);
+				std::wcerr << format(FSTR(L"sink_console::process(): {}"sv), e) << std::endl;
 			}
 		}
 	}

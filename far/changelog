@@ -1,4 +1,51 @@
 --------------------------------------------------------------------------------
+drkns 13.09.2022 22:45:05 +0100 - build 6023
+
+1. fmt 9.1.1.
+
+2. Catch2 2.13.9.
+
+--------------------------------------------------------------------------------
+drkns 13.09.2022 19:34:03 +0100 - build 6022
+
+1. Optimise VT throughput.
+
+2. Fix VT double underline to underline transitioning.
+
+3. Refactoring.
+
+--------------------------------------------------------------------------------
+drkns 10.09.2022 18:06:24 +0100 - build 6021
+
+1. Add smooth rotation to 256 color picker.
+
+--------------------------------------------------------------------------------
+drkns 08.09.2022 01:08:00 +0100 - build 6020
+
+1. Ignore directories when looking for specific file masks, e.g. lng & hlf.
+
+2. Improve exception messages.
+
+3. Improve recovery after exceptions in window processing.
+
+4. Handle exceptions in help & remove a few old workarounds.
+
+--------------------------------------------------------------------------------
+yjh 07.09.2022 00:39:44 +0300 - build 6019
+
+1. SQLite v3.39.3.
+
+--------------------------------------------------------------------------------
+drkns 04.09.2022 18:26:41 +0100 - build 6018
+
+1. 0003336: Regex \{(.)?\} finds } in {}.
+
+--------------------------------------------------------------------------------
+drkns 04.09.2022 16:59:33 +0100 - build 6017
+
+1. Enable VT directly from color dialog if supported.
+
+--------------------------------------------------------------------------------
 drkns 31.08.2022 20:57:09 +0100 - build 6016
 
 1. Support FILE_ATTRIBUTE_DEVICE.

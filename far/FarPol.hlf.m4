@@ -248,7 +248,7 @@ dir, jak w przykładzie),
  Far będzie czekał na koniec strumienia danych dopóki nie zostaną wciśnięte Ctrl+Break.
 
  #-w[-]#
- Rozciąga do okna konsoli zamiast do bufora konsoli, lub na odwrót.
+ Pokazuje interfejs w obrębie okna konsoli zamiast bufora konsoli lub odwrotnie.
 
  #-t szablon_profilu#
  Położenie pliku konfiguracyjnego szablonu Far (nadpisuje ustawienia z pliku ini).
@@ -471,7 +471,7 @@ $ #Tryby sortowania#
 
 
 @PanelSortCriteria
-$ #Kryteria softowania#
+$ #Kryteria sortowania#
  Kiedy pliki są traktowane równoważnie używając wybranego trybu sortowania, pod uwagę brane są dodatkowe ktyteria sortowania.
  Na przykład, jeżeli pliki są sortowane wg wielkości i zarówno "a.txt" i "b.txt" mają tę samą wielkość, "a.txt"
  będzie wyświetlane pierwszy, tak jakby były posortowane według nazw.
@@ -2558,8 +2558,8 @@ całkowitą liczbę plików.
 wyświetlona lista współdzielonych zasobów serwera.
 
  #Użyj Terminalu Wirtualnego do renderowania#
- Renderuj dane wyjściowe za pomocą sekwencji ANSI escape.
- Pozwala to na użycie 24-bitowych kolorów i pozwala (lub nie) pracować lepiej (lub gorzej) z niektórymi znakami Unicode.
+ Renderuj dane wyjściowe za pomocą sekwencji ANSI escape. You can find more about it ~here~@https://docs.microsoft.com/en-us/windows/console/classic-vs-vt@.
+ Pozwala to na użycie 8 i 24-bitowych kolorów, stylów tekstu, i pozwala (lub nie) pracować lepiej (lub gorzej) z niektórymi znakami Unicode.
  Wymaga Windows 10 lub nowszego.
 
  #Renderowanie na pełnej szerokości#
@@ -4303,7 +4303,7 @@ $ #Wybór kolorów#
  - jednym z 16 milionów kolorów z przestrzeni barw RGB.
 
  Standardowa 16-kolorowa paleta jest dostępna w oknie dialogowym.
- Aby skorzystać z ~256-kolorowej palety@ColorPicker256@ i przestrzeni barw RGB należy użyć odpowiednich przycisków.
+ Aby skorzystać z ~256-kolorowej palety~@ColorPicker256@ i przestrzeni barw RGB należy użyć odpowiednich przycisków.
 
  Wartość kolorów jest także przedstawiania w postaci szesnastkowej, gdzie:
  - #AA______# - kanał alfa, oznaczający stopień przezroczystości od pełnej przejrzystości (00) do pełnego koloru (FF).
@@ -4321,6 +4321,9 @@ $ #Wybór kolorów#
  #Uwaga#
  Tylko standardowa 16 kolorowa paleta jest gwarantem poprawnej pracy na wszystkich komputerach.
  Obsługa wszystkich innych jest warunkowa i definiowana przez Twój terminal.
+
+ Extended colors and styles require Virtual Terminal-based rendering, which can be enabled in ~Interface settings~@InterfSettings@.
+You can find more about it ~here~@https://docs.microsoft.com/en-us/windows/console/classic-vs-vt@.
 
 
 @ColorPicker256

@@ -355,12 +355,16 @@ void Manager::ExecuteNonModal(const window_ptr& NonModal)
 void Manager::ExecuteModal(const window_ptr& Executed)
 {
 	bool stop=false;
-	auto& stop_ref=m_Executed[Executed];
-	if (stop_ref) return;
-	stop_ref=&stop;
+	if (!m_Executed.emplace(Executed, &stop).second)
+		return;
 
 	const auto OriginalStartManager = StartManager;
 	StartManager = true;
+	SCOPE_EXIT{ StartManager = OriginalStartManager; };
+
+	// Under normal circumstances the window breaks the loop by calling DeleteWindow.
+	// If the loop is broken by an exception, we have to restore the status quo.
+	SCOPE_FAIL{ DeleteWindow(Executed); };
 
 	for (;;)
 	{
@@ -373,9 +377,6 @@ void Manager::ExecuteModal(const window_ptr& Executed)
 
 		ProcessMainLoop();
 	}
-
-	StartManager = OriginalStartManager;
-	return;// GetModalExitCode();
 }
 
 int Manager::GetModalExitCode() const
@@ -929,10 +930,7 @@ void Manager::DeleteCommit(const window_ptr& Param)
 	if (CurrentWindow == Param) DeactivateCommit(Param);
 	Param->OnDestroy();
 
-	const auto WindowIndex=IndexOf(Param);
-	assert(-1!=WindowIndex);
-
-	if (-1!=WindowIndex)
+	if (const auto WindowIndex = IndexOf(Param); WindowIndex != -1)
 	{
 		m_windows.erase(m_windows.begin() + WindowIndex);
 		WindowsChanged();
@@ -962,16 +960,13 @@ void Manager::DeleteCommit(const window_ptr& Param)
 
 	assert(GetCurrentWindow()!=Param);
 
-	const auto stop = m_Executed.find(Param);
-	if (stop != m_Executed.end())
+	if (const auto stop = m_Executed.find(Param); stop != m_Executed.end())
 	{
-		*(stop->second)=true;
+		*stop->second = true;
 		m_Executed.erase(stop);
 	}
 
-	[[maybe_unused]]
-	const auto size = m_Added.erase(Param);
-	assert(size==1);
+	m_Added.erase(Param);
 }
 
 void Manager::ActivateCommit(const window_ptr& Param)

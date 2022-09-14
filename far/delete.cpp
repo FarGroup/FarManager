@@ -397,7 +397,7 @@ static void show_confirmation(
 	{
 		if (HighlightSelected && Msg == DN_CTLCOLORDLGITEM && in_closed_range(FirstHighlighted, Param1, LastHighlighted))
 		{
-			auto& Colors = *static_cast<const FarDialogItemColors*>(Param2);
+			const auto& Colors = *static_cast<FarDialogItemColors const*>(Param2);
 			Colors.Colors[0] = Colors.Colors[1];
 		}
 		return Dlg->DefProc(Msg, Param1, Param2);

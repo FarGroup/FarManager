@@ -2595,6 +2595,9 @@ void config_provider::Export(string_view const File)
 		auto& e = CreateChild(root, "pluginsconfig");
 		for(const auto& i: os::fs::enum_files(path::join(Global->Opt->ProfilePath, L"PluginsData"sv, Ext)))
 		{
+			if (!os::fs::is_file(i))
+				continue;
+
 			const auto FileName = name_ext(i.FileName).first;
 			if (!is_uuid(FileName))
 				continue;

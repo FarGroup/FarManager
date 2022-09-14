@@ -2639,8 +2639,8 @@ to calculate the total files count.
 nem elérhető).
 
  #Use Virtual Terminal for rendering#
- Render the output using ANSI escape sequences.
- This allows using 24-bit colors and may (or may not) work better (or worse) with some Unicode characters.
+ Render the output using ANSI escape sequences. You can find more about it ~here~@https://docs.microsoft.com/en-us/windows/console/classic-vs-vt@.
+ This allows using 8 and 24-bit colors, text styles, and may (or may not) work better (or worse) with some Unicode characters.
  Requires Windows 10 and above.
 
  #Fullwidth-aware rendering#
@@ -4425,6 +4425,9 @@ $ #Color Picker#
  #Attention#
  Only the standard 16-color palette is guaranteed to work everywhere.
  Support for everything else is conditional and defined by your terminal.
+
+ Extended colors and styles require Virtual Terminal-based rendering, which can be enabled in ~Interface settings~@InterfSettings@.
+You can find more about it ~here~@https://docs.microsoft.com/en-us/windows/console/classic-vs-vt@.
 
 
 @ColorPicker256

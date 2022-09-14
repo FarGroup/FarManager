@@ -1,3 +1,16 @@
+w17 05.09.2022 20:06:54 +0300 - build 332
+
+1. Avoid some arclite crash
+
+w17 03.09.2022 00:14:10 +0300 - build 331
+
+1. Correct 330
+
+w17 02.09.2022 16:32:43 +0300 - build 330
+
+1. Updating Archives does not preserve File Creation Timestamp
+   https://github.com/FarGroup/FarManager/issues/496
+
 w17 26.08.2022 14:30:39 +0300 - build 329
 
 1. 7z.dll 22.01

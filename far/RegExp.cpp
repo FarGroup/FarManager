@@ -3095,12 +3095,13 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 							st.savestr=str;
 							stack.emplace_back(st);
 						}
-						/*
-						if(op->bracket.index>=0 && op->bracket.index<matchcount)
+
+						if (op->bracket.index >= 0 && static_cast<size_t>(op->bracket.index) < match.size())
 						{
-							match[op->bracket.index].end=str-start;
+							match[op->bracket.index].start = -1;
+							match[op->bracket.index].end = -1;
 						}
-						*/
+
 						break;
 					}
 
@@ -3837,16 +3838,16 @@ TEST_CASE("regex.list.special")
 	std::vector<RegExpMatch> Match;
 
 	re.Compile(L"[]]"sv);
-	REQUIRE(!re.Match(L"!", Match));
-	REQUIRE(re.Match(L"]", Match));
+	REQUIRE(!re.Match(L"!"sv, Match));
+	REQUIRE(re.Match(L"]"sv, Match));
 	REQUIRE(Match.size() == 1u);
 	REQUIRE(Match[0].start == 0);
 	REQUIRE(Match[0].end == 1);
 
 
 	re.Compile(L"[^]]"sv);
-	REQUIRE(!re.Match(L"]", Match));
-	REQUIRE(re.Match(L"!", Match));
+	REQUIRE(!re.Match(L"]"sv, Match));
+	REQUIRE(re.Match(L"!"sv, Match));
 	REQUIRE(Match.size() == 1u);
 	REQUIRE(Match[0].start == 0);
 	REQUIRE(Match[0].end == 1);
@@ -3872,7 +3873,7 @@ TEST_CASE("regex.regression")
 
 		std::vector<RegExpMatch> match(1);
 
-		REQUIRE(re.Search(L"abca", match));
+		REQUIRE(re.Search(L"abca"sv, match));
 		REQUIRE(match.size() == 1u);
 
 		REQUIRE(match[0].start == 2);
@@ -3885,7 +3886,7 @@ TEST_CASE("regex.regression")
 
 		std::vector<RegExpMatch> match(1);
 
-		REQUIRE(re.Search(L"[init.svc.imsdatadaemon]: [running]", match));
+		REQUIRE(re.Search(L"[init.svc.imsdatadaemon]: [running]"sv, match));
 		REQUIRE(match.size() == 3u);
 
 		REQUIRE(match[0].start == 0);
@@ -3902,7 +3903,7 @@ TEST_CASE("regex.regression")
 		RegExp re;
 		re.Compile(L"([bc]+)|(zz)"sv);
 		std::vector<RegExpMatch> match;
-		REQUIRE(re.Search(L"abc", match));
+		REQUIRE(re.Search(L"abc"sv, match));
 		REQUIRE(match.size() == 3u);
 
 		REQUIRE(match[0].start == 1);
@@ -3913,6 +3914,18 @@ TEST_CASE("regex.regression")
 
 		REQUIRE(match[2].start == -1);
 		REQUIRE(match[2].end == -1);
+	}
+
+	{
+		RegExp re;
+		re.Compile(L"a(.)?b"sv);
+		std::vector<RegExpMatch> match;
+		REQUIRE(re.Search(L"ab"sv, match));
+		REQUIRE(match.size() == 2u);
+		REQUIRE(match[0].start == 0);
+		REQUIRE(match[0].end == 2);
+		REQUIRE(match[1].start == -1);
+		REQUIRE(match[1].end == -1);
 	}
 }
 #endif

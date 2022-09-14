@@ -154,15 +154,17 @@ UInt64 ProgressMonitor::ticks_per_sec() {
 static const wchar_t** get_suffixes(int start) {
   static const int msg_ids[1 + 5 + 5] =
   { MSG_LANG
-  , 0,                  MSG_SUFFIX_SIZE_KB,  MSG_SUFFIX_SIZE_MB,  MSG_SUFFIX_SIZE_GB,  MSG_SUFFIX_SIZE_TB
+  , -1,                 MSG_SUFFIX_SIZE_KB,  MSG_SUFFIX_SIZE_MB,  MSG_SUFFIX_SIZE_GB,  MSG_SUFFIX_SIZE_TB
   , MSG_SUFFIX_SPEED_B, MSG_SUFFIX_SPEED_KB, MSG_SUFFIX_SPEED_MB, MSG_SUFFIX_SPEED_GB, MSG_SUFFIX_SPEED_TB
   };
-  static std::wstring       msg_texts[1 + 5 + 5];
+  static std::wstring  msg_texts[1 + 5 + 5];
   static const wchar_t* suffixes[1 + 5 + 5];
 
   if (Far::get_msg(msg_ids[0]) != msg_texts[0]) {
-    for (int i = 0; i < 1 + 5 + 5; ++i)
-      suffixes[i] = (msg_texts[i] = msg_ids[i] ? Far::get_msg(msg_ids[i]) : std::wstring()).c_str();
+    for (int i = 0; i < 1 + 5 + 5; ++i) {
+      auto msg_id = msg_ids[i];
+      suffixes[i] = (msg_texts[i] = msg_id >= 0 ? Far::get_msg(msg_id) : std::wstring()).c_str();
+    }
   }
 
   return suffixes + start;

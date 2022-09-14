@@ -134,6 +134,7 @@
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <MergeSections>_RDATA=.rdata</MergeSections>
     </Link>
   </ItemDefinitionGroup>
 

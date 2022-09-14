@@ -74,7 +74,7 @@ struct error_state_ex: public error_state
 	{
 	}
 
-	[[nodiscard]] string format_error() const;
+	[[nodiscard]] string system_error() const;
 	[[nodiscard]] string to_string() const;
 
 	string What;

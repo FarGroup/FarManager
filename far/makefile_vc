@@ -301,10 +301,10 @@ AllDirs:
 	$(ULINKFLAGS) $(LINK_OBJS)
 	,"$(OUTDIR)\Far.exe","$(OUTDIR)\Far.map"
 	,$(LINK_LIBS)
-	,far.def,"$(RES_FILE)"
+	,,"$(RES_FILE)"
 <<
 !endif
-!if "$(BUILD_PLATFORM)" == "X86" || "$(BUILD_PLATFORM)" == "AMD64"
+!if ("$(BUILD_PLATFORM)" == "X86" || "$(BUILD_PLATFORM)" == "AMD64") && !defined(LINK_ULINK)
 	@echo Fixing subsystem version
 	editbin /nologo /subsystem:console,$(OS_VERSION) /osversion:$(OS_VERSION) $(OUTDIR)\Far.exe > $(INTDIR)\version_fix.log
 !endif

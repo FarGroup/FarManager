@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "global.hpp"
 #include "strmix.hpp"
+#include "console.hpp"
 
 // Platform:
 
@@ -164,11 +165,12 @@ enum color_dialog_items
 {
 	cd_border,
 
-	cd_separator1,
-	cd_separator2,
-	cd_separator3,
-	cd_separator4,
-	cd_separator5,
+	cd_separator_before_hint,
+	cd_separator_before_buttons,
+	cd_separator_vertical_before_style,
+	cd_separator_after_foreground,
+	cd_separator_after_background,
+	cd_separator_style,
 
 	cd_fg_text,
 	cd_fg_active,
@@ -208,8 +210,13 @@ enum color_dialog_items
 	cd_sample_first,
 	cd_sample_last = cd_sample_first + 2,
 
+	cd_vt_hint_text_intro,
+	cd_vt_hint_text_supported,
+	cd_vt_hint_text_not_supported,
+
 	cd_button_ok,
 	cd_button_reset,
+	cd_button_enable_vt,
 	cd_button_cancel,
 
 	cd_count
@@ -271,23 +278,23 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					GetColor(Index);
 			};
 
-			const auto Colors = static_cast<FarDialogItemColors*>(Param2);
+			const auto& Colors = *static_cast<FarDialogItemColors const*>(Param2);
 
 			if (Param1 >= cd_fg_color_first && Param1 <= cd_fg_color_last)
 			{
-				Colors->Colors[0] = preview_or_disabled(CurColor.ForegroundColor, cd_fg_color_first);
+				Colors.Colors[0] = preview_or_disabled(CurColor.ForegroundColor, cd_fg_color_first);
 				return TRUE;
 			}
 
 			if (Param1 >= cd_bg_color_first && Param1 <= cd_bg_color_last)
 			{
-				Colors->Colors[0] = preview_or_disabled(CurColor.BackgroundColor, cd_bg_color_first);
+				Colors.Colors[0] = preview_or_disabled(CurColor.BackgroundColor, cd_bg_color_first);
 				return TRUE;
 			}
 
 			if (Param1 >= cd_sample_first && Param1 <= cd_sample_last)
 			{
-				Colors->Colors[0] = colors::merge(ColorState.BaseColor, ColorState.CurColor);
+				Colors.Colors[0] = colors::merge(ColorState.BaseColor, ColorState.CurColor);
 				return TRUE;
 			}
 
@@ -382,6 +389,16 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 				return TRUE;
 			}
+
+			if (Param1 == cd_button_enable_vt)
+			{
+				Global->Opt->VirtualTerminalRendering = true;
+				SetFarConsoleMode();
+
+				Dlg->SendMessage(DM_ENABLE, cd_button_enable_vt, ToPtr(FALSE));
+
+				return TRUE;
+			}
 		}
 		break;
 
@@ -464,6 +481,10 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const BaseColor, bool* const Reset)
 {
+	const auto IsVtEnabled = console.IsVtEnabled();
+	const auto IsVtSupported = console.IsVtSupported();
+	const auto ShowVtHint = !IsVtEnabled && !console.ExternalRendererLoaded();
+
 	const auto
 		Fg4X = 5,
 		Fg4Y = 2,
@@ -474,14 +495,18 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 		SampleW = 32,
 		StyleX = 41,
 		StyleY = 2,
-		ButtonY = 16;
+		HintX = 5,
+		HintY = 16,
+		HintW = 55,
+		ButtonY = 19 - (ShowVtHint? 0 : 3);
 
 	auto ColorDlg = MakeDialogItems<cd_count>(
 	{
 		{ DI_DOUBLEBOX,   {{3,  1 }, {62, ButtonY+1}}, DIF_NONE, msg(lng::MSetColorTitle), },
 
+		{ DI_TEXT,        {{-1, HintY-1}, {0, HintY - 1}}, DIF_SEPARATOR, },
 		{ DI_TEXT,        {{-1, ButtonY-1}, {0, ButtonY-1}}, DIF_SEPARATOR, },
-		{ DI_VTEXT,       {{39, 1 }, {39, ButtonY-1}}, DIF_SEPARATORUSER, },
+		{ DI_VTEXT,       {{39, 1 }, {39, HintY-1}}, DIF_SEPARATORUSER, },
 		{ DI_TEXT,        {{3,  6 }, {39, 6 }}, DIF_SEPARATORUSER, },
 		{ DI_TEXT,        {{3,  11}, {39, 11}}, DIF_SEPARATORUSER, },
 		{ DI_TEXT,        {{41, 4 }, {60, 4 }}, DIF_SEPARATORUSER, },
@@ -553,14 +578,19 @@ bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const
 		{ DI_TEXT,        {{SampleX,  SampleY+1}, {SampleX+SampleW, SampleY+1}}, DIF_NONE, msg(lng::MSetColorSample), },
 		{ DI_TEXT,        {{SampleX,  SampleY+2}, {SampleX+SampleW, SampleY+2}}, DIF_NONE, msg(lng::MSetColorSample), },
 
+		{ DI_TEXT,        {{HintX,  HintY+0}, {HintX+HintW, HintY+0}}, ShowVtHint? DIF_NONE : DIF_HIDDEN, msg(lng::MSetColorVTHintInfo), },
+		{ DI_TEXT,        {{HintX,  HintY+1}, {HintX+HintW, HintY+1}}, ShowVtHint && IsVtSupported? DIF_NONE : DIF_HIDDEN, msg(lng::MSetColorVTHintSupported), },
+		{ DI_TEXT,        {{HintX,  HintY+1}, {HintX+HintW, HintY+1}}, ShowVtHint && !IsVtSupported? DIF_NONE : DIF_HIDDEN, msg(lng::MSetColorVTHintNotSupported), },
+
 		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MSetColorSet), },
 		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP | (Reset? DIF_NONE : DIF_DISABLE | DIF_HIDDEN), msg(lng::MReset), },
+		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP | (ShowVtHint && IsVtSupported? DIF_NONE : DIF_HIDDEN), msg(lng::MSetColorEnableVT), },
 		{ DI_BUTTON,      {{0, ButtonY}, {0, ButtonY}}, DIF_CENTERGROUP, msg(lng::MSetColorCancel), },
 	});
 
-	ColorDlg[cd_separator2].strMask = { BoxSymbols[BS_T_H2V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1] };
-	ColorDlg[cd_separator3].strMask = ColorDlg[cd_separator4].strMask = { BoxSymbols[BS_L_H1V2], BoxSymbols[BS_H1], BoxSymbols[BS_R_H1V1] };
-	ColorDlg[cd_separator5].strMask = { BoxSymbols[BS_H1], BoxSymbols[BS_H1], BoxSymbols[BS_H1] };
+	ColorDlg[cd_separator_vertical_before_style].strMask = { BoxSymbols[BS_T_H2V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1] };
+	ColorDlg[cd_separator_after_foreground].strMask = ColorDlg[cd_separator_after_background].strMask = { BoxSymbols[BS_L_H1V2], BoxSymbols[BS_H1], BoxSymbols[BS_R_H1V1] };
+	ColorDlg[cd_separator_style].strMask = { BoxSymbols[BS_H1], BoxSymbols[BS_H1], BoxSymbols[BS_H1] };
 
 	ColorDlg[cd_fg_colorcode].strData = color_code(Color.ForegroundColor, Color.IsFgIndex());
 	ColorDlg[cd_bg_colorcode].strData = color_code(Color.BackgroundColor, Color.IsBgIndex());

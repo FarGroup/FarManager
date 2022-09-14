@@ -508,10 +508,10 @@ intptr_t ShellCopy::CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 			break;
 		case DN_INPUT:
 			{
-				const auto ir = static_cast<const INPUT_RECORD*>(Param2);
-				if (ir->EventType == MOUSE_EVENT && Dlg->SendMessage(DM_GETDROPDOWNOPENED, ID_SC_COMBO, nullptr))
+				const auto& ir = *static_cast<INPUT_RECORD const*>(Param2);
+				if (ir.EventType == MOUSE_EVENT && Dlg->SendMessage(DM_GETDROPDOWNOPENED, ID_SC_COMBO, nullptr))
 				{
-					if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, nullptr) == CM_ASKRO && ir->Event.MouseEvent.dwButtonState && !(ir->Event.MouseEvent.dwEventFlags & MOUSE_MOVED))
+					if (Dlg->SendMessage(DM_LISTGETCURPOS, ID_SC_COMBO, nullptr) == CM_ASKRO && ir.Event.MouseEvent.dwButtonState && !(ir.Event.MouseEvent.dwEventFlags & MOUSE_MOVED))
 					{
 						Dlg->SendMessage(DM_SWITCHRO, 0, nullptr);
 						return FALSE;
@@ -1657,7 +1657,7 @@ void ShellCopy::copy_selected_items(const string_view Dest)
 
 		// Mantis#44 - Потеря данных при копировании ссылок на папки
 		// если каталог (или нужно копировать симлинк) - придется рекурсивно спускаться...
-		if (RPT != RP_SYMLINKFILE && (i.Attributes & FILE_ATTRIBUTE_DIRECTORY) && ((Flags & FCOPY_COPYSYMLINKCONTENTS) || !os::fs::is_directory_symbolic_link(i)))
+		if (RPT != RP_SYMLINKFILE && os::fs::is_directory(i) && ((Flags & FCOPY_COPYSYMLINKCONTENTS) || !os::fs::is_directory_symbolic_link(i)))
 		{
 			string strFullName;
 			ScanTree ScTree(true, true, Flags & FCOPY_COPYSYMLINKCONTENTS);
@@ -1672,7 +1672,7 @@ void ShellCopy::copy_selected_items(const string_view Dest)
 			os::fs::find_data SrcData;
 			while (ScTree.GetNextName(SrcData,strFullName))
 			{
-				const auto IsDirectory = os::fs::is_directory(SrcData.Attributes);
+				const auto IsDirectory = os::fs::is_directory(SrcData);
 
 				auto SubCopyCode = COPY_SUCCESS;
 
@@ -2919,8 +2919,8 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 		break;
 		case DN_CONTROLINPUT:
 		{
-			const auto record = static_cast<const INPUT_RECORD*>(Param2);
-			if (record->EventType == KEY_EVENT && any_of(Param1, WDLG_SRCFILEBTN, WDLG_DSTFILEBTN) && InputRecordToKey(record) == KEY_F3)
+			const auto& record = *static_cast<INPUT_RECORD const*>(Param2);
+			if (record.EventType == KEY_EVENT && any_of(Param1, WDLG_SRCFILEBTN, WDLG_DSTFILEBTN) && InputRecordToKey(&record) == KEY_F3)
 				Dlg->SendMessage(DM_OPENVIEWER, Param1, nullptr);
 		}
 		break;

@@ -1428,6 +1428,11 @@ namespace os::fs
 		return is_file(file_status(Object));
 	}
 
+	bool is_file(find_data const& Data)
+	{
+		return is_file(Data.Attributes);
+	}
+
 	bool is_file(attributes const Attributes)
 	{
 		return Attributes != INVALID_FILE_ATTRIBUTES && !flags::check_any(Attributes, FILE_ATTRIBUTE_DIRECTORY);
@@ -1441,6 +1446,11 @@ namespace os::fs
 	bool is_directory(const string_view Object)
 	{
 		return is_directory(file_status(Object));
+	}
+
+	bool is_directory(find_data const& Data)
+	{
+		return is_directory(Data.Attributes);
 	}
 
 	bool is_directory(attributes const Attributes)

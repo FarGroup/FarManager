@@ -933,7 +933,7 @@ namespace console_detail
 		return L'0' + Table[Index & 0b111];
 	}
 
-	static const struct
+	static constexpr struct
 	{
 		string_view Normal, Intense, ExtendedColour;
 		COLORREF FarColor::* Color;
@@ -945,7 +945,7 @@ namespace console_detail
 		{ L"4"sv, L"10"sv, L"48"sv, &FarColor::BackgroundColor, FCF_BG_INDEX },
 	};
 
-	static const struct
+	static constexpr struct
 	{
 		FARCOLORFLAGS Style;
 		string_view On, Off;
@@ -964,45 +964,111 @@ namespace console_detail
 		{ FCF_FG_INVISIBLE,    L"8"sv,     L"28"sv },
 	};
 
-	static void make_vt_attributes(const FarColor& Attributes, string& Str, std::optional<FarColor> const& LastColor)
+	static const size_t UnderlineIndex = 2;
+	static_assert(StyleMapping[UnderlineIndex].Style == FCF_FG_UNDERLINE);
+	static_assert(StyleMapping[UnderlineIndex + 1].Style == FCF_FG_UNDERLINE2);
+
+	static void make_vt_color(const FarColor& Attributes, string& Str, size_t const MappingIndex)
 	{
-		append(Str, CSI ""sv);
+		const auto& Mapping = ColorsMapping[MappingIndex];
+		const auto ColorPart = std::invoke(Mapping.Color, Attributes);
 
-		for (const auto& i: ColorsMapping)
+		if (Attributes.Flags & Mapping.Flags)
 		{
-			const auto ColorPart = std::invoke(i.Color, Attributes);
-
-			if (Attributes.Flags & i.Flags)
-			{
-				const auto Index = colors::index_value(ColorPart);
-				if (Index < 16)
-					append(Str, ColorPart & FOREGROUND_INTENSITY? i.Intense : i.Normal, vt_color_index(Index));
-				else
-					format_to(Str, FSTR(L"{};5;{}"sv), i.ExtendedColour, Index);
-			}
+			const auto Index = colors::index_value(ColorPart);
+			if (Index < 16)
+				append(Str, ColorPart & FOREGROUND_INTENSITY? Mapping.Intense : Mapping.Normal, vt_color_index(Index));
 			else
-			{
-				const auto RGBA = colors::to_rgba(ColorPart);
-				format_to(Str, FSTR(L"{};2;{};{};{}"sv), i.ExtendedColour, RGBA.r, RGBA.g, RGBA.b);
-			}
-
-			Str += L';';
+				format_to(Str, FSTR(L"{};5;{}"sv), Mapping.ExtendedColour, Index);
 		}
+		else
+		{
+			const auto RGBA = colors::to_rgba(ColorPart);
+			format_to(Str, FSTR(L"{};2;{};{};{}"sv), Mapping.ExtendedColour, RGBA.r, RGBA.g, RGBA.b);
+		}
+	}
 
-		Str.pop_back();
+	static void make_vt_style(const FarColor& Attributes, string& Str, std::optional<FarColor> const& LastColor)
+	{
+		auto UnderlineSet = false;
 
 		for (const auto& i: StyleMapping)
 		{
 			if (Attributes.Flags & i.Style)
 			{
 				if (!LastColor.has_value() || !(LastColor->Flags & i.Style))
-					append(Str, L';', i.On);
+				{
+					append(Str, i.On, L';');
+
+					// See below
+					if (i.Style == FCF_FG_UNDERLINE)
+						UnderlineSet = true;
+				}
 			}
 			else
 			{
 				if (LastColor.has_value() && LastColor->Flags & i.Style)
-					append(Str, L';', i.Off);
+				{
+					if (i.Style == FCF_FG_UNDERLINE2 && Attributes.Flags & FCF_FG_UNDERLINE)
+					{
+						// Both Underline and Double Underline have the same off code. 🤦
+						// VT is a bloody joke. Whoever invented it should be punished.
+
+						// D is checked after U.
+						// We're dropping D now, so, if we have already enabled U on the previous iteration, this will kill it.
+						// To address this, we undo U if needed, emit the off code and enable U.
+						constexpr auto UnderlineOn = StyleMapping[UnderlineIndex].On;
+
+						if (UnderlineSet)
+							Str.resize(Str.size() - UnderlineOn.size() - 1);
+
+						append(Str, i.Off, L';', UnderlineOn, L';');
+						continue;
+					}
+
+					append(Str, i.Off, L';');
+				}
 			}
+		}
+
+		// We should only enter this function if the style has changed and it should add or remove at least something,
+		// so no need to check before pop:
+		Str.pop_back();
+	}
+
+	static void make_vt_attributes(const FarColor& Attributes, string& Str, std::optional<FarColor> const& LastColor)
+	{
+		const auto SameFgColor = LastColor && LastColor->IsFgIndex() == Attributes.IsFgIndex() && LastColor->ForegroundColor == Attributes.ForegroundColor;
+		const auto SameBgColor = LastColor && LastColor->IsBgIndex() == Attributes.IsBgIndex() && LastColor->BackgroundColor == Attributes.BackgroundColor;
+		const auto SameStyle = LastColor && ((LastColor->Flags & FCF_STYLEMASK) == (Attributes.Flags & FCF_STYLEMASK));
+
+		if (SameFgColor && SameBgColor && SameStyle)
+		{
+			assert(false);
+			return;
+		}
+
+		Str += CSI ""sv;
+
+		if (!SameFgColor)
+		{
+			make_vt_color(Attributes, Str, 0);
+		}
+
+		if (!SameBgColor)
+		{
+			if (!SameFgColor)
+				Str += L';';
+
+			make_vt_color(Attributes, Str, 1);
+		}
+
+		if (!SameStyle)
+		{
+			if (!SameFgColor || !SameBgColor)
+				Str += L';';
+
+			make_vt_style(Attributes, Str, LastColor);
 		}
 
 		Str += L'm';
@@ -1011,7 +1077,8 @@ namespace console_detail
 	static bool is_same_color(FarColor const& a, FarColor const& b)
 	{
 		return
-			a.Flags == b.Flags &&
+			// FCF_RAWATTR_MASK contains non-VT stuff we don't care about.
+			(a.Flags & ~FCF_RAWATTR_MASK) == (b.Flags & ~FCF_RAWATTR_MASK) &&
 			a.ForegroundColor == b.ForegroundColor &&
 			a.BackgroundColor == b.BackgroundColor &&
 			// Reserved[0] contains non-BMP codepoints and is of no interest here.
@@ -2205,3 +2272,88 @@ private:
 	consolebuf m_BufIn, m_BufOut, m_BufErr, m_BufLog;
 	io::wstreambuf_override m_In, m_Out, m_Err, m_Log;
 };
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("console.vt_color")
+{
+	const auto I = FCF_INDEXMASK;
+
+	static const struct
+	{
+		FarColor Color;
+		string_view Fg, Bg;
+	}
+	Tests[]
+	{
+		{ { I, { 0x0      }, { 0x0      } }, L"30"sv,               L"40"sv,               },
+		{ { I, { 0x1      }, { 0x1      } }, L"34"sv,               L"44"sv,               },
+		{ { I, { 0x7      }, { 0x7      } }, L"37"sv,               L"47"sv,               },
+		{ { I, { 0x8      }, { 0x8      } }, L"90"sv,               L"100"sv,              },
+		{ { I, { 0x9      }, { 0x9      } }, L"94"sv,               L"104"sv,              },
+		{ { I, { 0xF      }, { 0xF      } }, L"97"sv,               L"107"sv,              },
+		{ { I, { 0x10     }, { 0x10     } }, L"38;5;16"sv,          L"48;5;16"sv,          },
+		{ { I, { 0xC0     }, { 0xC0     } }, L"38;5;192"sv,         L"48;5;192"sv,         },
+		{ { I, { 0xFF     }, { 0xFF     } }, L"38;5;255"sv,         L"48;5;255"sv,         },
+		{ { 0, { 0x000000 }, { 0x000000 } }, L"38;2;0;0;0"sv,       L"48;2;0;0;0"sv,       },
+		{ { 0, { 0x123456 }, { 0x654321 } }, L"38;2;86;52;18"sv,    L"48;2;33;67;101"sv,   },
+		{ { 0, { 0x00D5FF }, { 0xBB5B00 } }, L"38;2;255;213;0"sv,   L"48;2;0;91;187"sv,    },
+		{ { 0, { 0xABCDEF }, { 0xFEDCBA } }, L"38;2;239;205;171"sv, L"48;2;186;220;254"sv, },
+		{ { 0, { 0xFFFFFF }, { 0xFFFFFF } }, L"38;2;255;255;255"sv, L"48;2;255;255;255"sv, },
+	};
+
+	for (const auto& i: Tests)
+	{
+		string Str[2];
+		console_detail::make_vt_color(i.Color, Str[0], 0);
+		console_detail::make_vt_color(i.Color, Str[1], 1);
+		REQUIRE(Str[0] == i.Fg);
+		REQUIRE(Str[1] == i.Bg);
+	}
+}
+
+TEST_CASE("console.vt_sequence")
+{
+	{
+		FAR_CHAR_INFO Buffer[3]{};
+		Buffer[0].Char = L' ';
+		Buffer[0].Attributes.Flags = FCF_BG_INDEX | FCF_FG_INDEX | FCF_FG_BOLD;
+		Buffer[0].Attributes.BackgroundColor = 1;
+		Buffer[0].Attributes.ForegroundColor = 10;
+
+		Buffer[1] = Buffer[0];
+
+		Buffer[2] = Buffer[1];
+		flags::clear(Buffer[2].Attributes.Flags, FCF_FG_BOLD);
+
+		string Str;
+		std::optional<FarColor> LastColor;
+		console_detail::make_vt_sequence(Buffer, Str, LastColor);
+
+		REQUIRE(Str == CSI L"92;44;1m" L"  " CSI "22m" L" "sv);
+	}
+
+	{
+		FAR_CHAR_INFO Buffer[3]{};
+		Buffer[0].Char = L' ';
+		Buffer[0].Attributes.Flags = FCF_BG_INDEX | FCF_FG_INDEX | FCF_FG_UNDERLINE2;
+		Buffer[0].Attributes.BackgroundColor = 1;
+		Buffer[0].Attributes.ForegroundColor = 10;
+
+		Buffer[1] = Buffer[0];
+
+		Buffer[2] = Buffer[1];
+		flags::clear(Buffer[2].Attributes.Flags, FCF_FG_UNDERLINE2);
+		flags::set(Buffer[2].Attributes.Flags, FCF_FG_UNDERLINE);
+
+		string Str;
+		std::optional<FarColor> LastColor;
+		console_detail::make_vt_sequence(Buffer, Str, LastColor);
+
+		REQUIRE(Str == CSI L"92;44;21m" L"  " CSI "24;4m" L" "sv);
+	}
+}
+
+#endif

@@ -165,5 +165,5 @@ $(FLLLIST): $(FICTIVE)
 !ifndef INSTALL
 	@$(MAKE) $(_MKHIDE) /f makefile_vc_fll $(_MKDO_)FLL=$@ $(_MDEFS)
 !else
-	@$(MAKE) $(_MKHIDE) /f makefile_vc_fll $(_MKDO_)FLL=$@ $(_MDEFS) INSTALL=$(INSTALL)
+	@$(MAKE) $(_MKHIDE) /f makefile_vc_fll $(_MKDO_)FLL=$@ $(_MDEFS) $(_MKDO)INSTALL=$(INSTALL)
 !endif

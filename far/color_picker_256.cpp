@@ -149,7 +149,10 @@ static constexpr uint8_t grey_stripe_mapping[]
 
 static_assert(std::size(grey_stripe_mapping) == std::size(GreyColorIndex));
 
-using cube = unsigned char[colors::index::cube_size][colors::index::cube_size][colors::index::cube_size];
+using cell  = std::uint8_t;
+using row   = std::array<cell,  colors::index::cube_size>;
+using plane = std::array<row,   colors::index::cube_size>;
+using cube  = std::array<plane, colors::index::cube_size>;
 
 struct rgb6
 {
@@ -364,6 +367,46 @@ static auto channel_value(uint8_t const Channel)
 	return format(FSTR(L" {} "sv), Channel);
 }
 
+static void copy_row(plane const& SrcPlane, size_t const SrcRow, plane& DestPlane, size_t const DestRow)
+{
+	for (size_t Col = 0; Col != colors::index::cube_size; ++Col)
+	{
+		DestPlane[DestRow][Col] = SrcPlane[SrcRow][Col];
+	}
+}
+
+static void copy_col(plane const& SrcPlane, size_t const SrcCol, plane& DestPlane, size_t const DestCol)
+{
+	for (size_t Row = 0; Row != colors::index::cube_size; ++Row)
+	{
+		DestPlane[Row][DestCol] = SrcPlane[Row][SrcCol];
+	}
+}
+
+static void move_step(plane const& NewPlane, plane& Plane, size_t const Step, bool const Row, size_t const From, size_t const To)
+{
+	const auto Copy = Row? copy_row : copy_col;
+	const auto Direction = From < To? +1 : -1;
+
+	for (auto i = From; i != To; i += Direction)
+		Copy(Plane, i + Direction, Plane, i);
+
+	Copy(NewPlane, Direction > 0? From + Step : From - Step, Plane, To);
+}
+
+static void move_plane(plane const& NewPlane, plane& Plane, color_256_dialog_items const Direction, size_t const Step)
+{
+	const auto
+		Forward = any_of(Direction, cd_button_up, cd_button_left),
+		Row = any_of(Direction, cd_button_up, cd_button_down);
+
+	const auto
+		First = Forward? 0 : colors::index::cube_size - 1,
+		Last = Forward? colors::index::cube_size - 1 : 0;
+
+	move_step(NewPlane, Plane, Step, Row, First, Last);
+}
+
 static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	auto& ColorState = edit_as<color_256_state>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
@@ -384,18 +427,18 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	{
 	case DN_CTLCOLORDLGITEM:
 		{
-			const auto Colors = static_cast<FarDialogItemColors*>(Param2);
+			const auto& Colors = *static_cast<FarDialogItemColors const*>(Param2);
 
 			if (in_closed_range(cd_cube_first, Param1, cd_cube_last))
 			{
 				const auto ColorIndex = cube_index(Param1);
-				Colors->Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
+				Colors.Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
 				return TRUE;
 			}
 
 			if (in_closed_range(cd_grey_first, Param1, cd_grey_last))
 			{
-				Colors->Colors[0] = Console256ColorToFarColor(GreyColorIndex[grey_stripe_mapping[grey_color_by_control[Param1 - cd_grey_first]]]);
+				Colors.Colors[0] = Console256ColorToFarColor(GreyColorIndex[grey_stripe_mapping[grey_color_by_control[Param1 - cd_grey_first]]]);
 				return TRUE;
 			}
 
@@ -404,7 +447,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			case cd_radio_rgb:
 				{
 					const COLORREF ColorIndex = ColorState.RGB;
-					Colors->Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
+					Colors.Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
 					return TRUE;
 				}
 
@@ -415,7 +458,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					const auto Context = get_rgb_context(Item);
 					const auto Channel = std::invoke(Context.Channel, ColorState.RGB);
 					const auto ColorIndex = 16 + Channel * Context.Multiplier;
-					Colors->Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
+					Colors.Colors[0] = Console256ColorToFarColor(distinct_cube_index(ColorIndex));
 					return TRUE;
 				}
 
@@ -436,7 +479,35 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				{
 					const auto Axis = any_of(Button, cd_button_up, cd_button_down)? axis::x : axis::y;
 					const auto Cw = any_of(Button, cd_button_down, cd_button_left);
+
+					const auto OldPlane = ColorState.Cube[ColorState.CubeSlice];
+
 					rotate_cube(ColorState.Cube, Axis, Cw);
+
+					if constexpr (true)
+					{
+						// Undo the top plane and refill it step by step for a smooth transition effect
+						auto& Plane = ColorState.Cube[ColorState.CubeSlice];
+						const auto NewPlane = Plane;
+						Plane = OldPlane;
+
+						// N steps -> N - 1 delays
+						const auto Delay = 250ms / (colors::index::cube_size - 1);
+
+						// Sleep won't do, the rendering time is non-negligible and unpredictable
+						os::concurrency::event const Event(os::event::type::automatic, os::event::state::nonsignaled);
+						os::concurrency::timer const Timer(Delay, Delay, [&]{ Event.set(); });
+
+						for (const auto& i: irange(0, colors::index::cube_size))
+						{
+							move_plane(NewPlane, Plane, Button, i);
+							Dlg->SendMessage(DM_REDRAW, 0, {});
+
+							if (i != colors::index::cube_size - 1)
+								Event.wait();
+						}
+					}
+
 					Dlg->SendMessage(DM_ONCUBECHANGE, 0, {});
 					return TRUE;
 				}

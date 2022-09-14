@@ -61,7 +61,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "console.hpp"
 #include "panelmix.hpp"
-#include "message.hpp"
 #include "network.hpp"
 #include "plugins.hpp"
 #include "colormix.hpp"
