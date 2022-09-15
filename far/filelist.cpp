@@ -7467,7 +7467,8 @@ void FileList::ShowFileList(bool Fast)
 	}
 	else
 	{
-		UpdateIfChanged(m_UpdatePending);
+		if (Global->WindowManager->IsPanelsActive() && IsVisible())
+			UpdateIfChanged(m_UpdatePending);
 	}
 
 	bool CurFullScreen=IsFullScreen();
