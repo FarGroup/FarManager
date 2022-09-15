@@ -141,7 +141,7 @@ static auto GetBackTrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
 
 	const auto handler = [&](uintptr_t const Address, DWORD const InlineFrameContext)
 	{
-		Result.emplace_back(Address, InlineFrameContext);
+		Result.push_back({ Address, InlineFrameContext });
 	};
 
 	if (imports.StackWalkEx)
@@ -233,7 +233,7 @@ static void get_symbols_impl(
 
 	const auto frame_get_name = [&](uintptr_t const Address) -> std::pair<string_view, size_t>
 	{
-		const auto Get = [&](auto const& Getter, auto& Buffer) -> package<decltype(Buffer.info)>::result_type
+		const auto Get = [&](auto const& Getter, auto& Buffer) -> typename package<decltype(Buffer.info)>::result_type
 		{
 			if (!Getter)
 				return {};
@@ -316,7 +316,7 @@ static void get_symbols_impl(
 		if (!imports.SymFromInlineContextW(Process, Frame.Address, Frame.InlineContext, &Displacement, &Buffer.info))
 			return {};
 
-		return { { Buffer.info.Name, Buffer.info.NameLen }, Displacement };
+		return { { Buffer.info.Name, Buffer.info.NameLen }, static_cast<size_t>(Displacement) };
 	};
 
 	const auto inline_frame_get_location = [&](os::debug::stack_frame const& Frame, uintptr_t const BaseAddress)
