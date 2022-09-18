@@ -178,12 +178,13 @@ static constexpr NTSTATUS make_far_ntstatus(uint16_t const Number)
 void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
 static constexpr NTSTATUS
-	EXCEPTION_HEAP_CORRUPTION     = STATUS_HEAP_CORRUPTION,
-	EXCEPTION_MICROSOFT_CPLUSPLUS = 0xE06D7363, // EH_EXCEPTION_NUMBER, 'msc'
+	EH_EXCEPTION_NUMBER           = 0xE06D7363, // 'msc'
+	EH_SANITIZER                  = 0xE073616E, // 'san',
+	EH_SANITIZER_ASAN             = EH_SANITIZER + 1,
 
 	// Far-specific codes
-	EXCEPTION_ABORT          = make_far_ntstatus(0),
-	EXCEPTION_THREAD_RETHROW = make_far_ntstatus(1);
+	STATUS_FAR_ABORT              = make_far_ntstatus(0),
+	STATUS_FAR_THREAD_RETHROW     = make_far_ntstatus(1);
 
 static const auto Separator = L"----------------------------------------------------------------------"sv;
 
@@ -624,7 +625,8 @@ static string collect_information(
 	exception_context const& Context,
 	span<os::debug::stack_frame const> NestedStack,
 	string_view const Module,
-	span<std::pair<string_view, string_view> const> const BasicInfo
+	span<std::pair<string_view, string_view> const> const BasicInfo,
+	string_view const ExtraDetails
 )
 {
 	string Strings;
@@ -642,6 +644,12 @@ static string collect_information(
 	for (const auto& [Label, Value]: BasicInfo)
 	{
 		format_to(Strings, FSTR(L"{} {}{}"sv), Label, Value, Eol);
+	}
+
+	if (!ExtraDetails.empty())
+	{
+		make_header(L"Details"sv, append_line);
+		append_line(ExtraDetails);
 	}
 
 	const auto Stack = tracer.get(Module, Context.context_record(), Context.thread_handle());
@@ -859,6 +867,7 @@ static bool ShowExceptionUI(
 	exception_context const& Context,
 	string_view const Exception,
 	string_view const Details,
+	string_view const ExtraDetails,
 	error_state const& ErrorState,
 	string_view const Function,
 	string_view const Location,
@@ -930,7 +939,7 @@ static bool ShowExceptionUI(
 	const auto ReportLocation = get_report_location();
 	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDDUMP_NAME)), MiniDumpNormal);
 	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), MiniDumpWithFullMemory);
-	const auto BugReport = collect_information(Context, NestedStack, ModuleName, BasicInfo);
+	const auto BugReport = collect_information(Context, NestedStack, ModuleName, BasicInfo, ExtraDetails);
 	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
 	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
 	const auto ReadmeOnDisk = write_readme(path::join(ReportLocation, L"README.txt"sv));
@@ -1002,16 +1011,48 @@ namespace detail
 		int          pForwardCompat;       // Image relative offset of Forward compatibility frame handler
 		int          pCatchableTypeArray;  // Image relative offset of CatchableTypeArray
 	};
+
+	// https://github.com/microsoft/onefuzz/blob/main/src/agent/input-tester/src/test_result/asan.rs
+	// All pointers are probably 64-bit in the original definition, but we don't care here since it's all within the same process.
+	struct EXCEPTION_ASAN_ERROR
+	{
+		// The description string from asan, such as heap-use-after-free
+		UINT64 uiRuntimeDescriptionLength;
+		LPCWSTR pwRuntimeDescription;
+
+		// A translation of the description string to something more user friendly, not localized
+		UINT64 uiRuntimeShortMessageLength;
+		LPCWSTR pwRuntimeShortMessage;
+
+		// the full report from asan, not localized
+		UINT64 uiRuntimeFullMessageLength;
+		LPCWSTR pwRuntimeFullMessage;
+
+		// azure payload, WIP
+		UINT64 uiCustomDataLength;
+		LPCWSTR pwCustomData;
+	};
+
+	struct EXCEPTION_SANITIZER_ERROR
+	{
+		DWORD cbSize;
+		DWORD dwSanitizerKind;
+		union
+		{
+			EXCEPTION_ASAN_ERROR Asan;
+		}
+		u;
+	};
 }
 
 static bool is_cpp_exception(const EXCEPTION_RECORD& Record)
 {
-	return Record.ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS) && Record.NumberParameters;
+	return Record.ExceptionCode == static_cast<DWORD>(EH_EXCEPTION_NUMBER) && Record.NumberParameters;
 }
 
 static bool is_fake_cpp_exception(const EXCEPTION_RECORD& Record)
 {
-	return Record.ExceptionCode == static_cast<DWORD>(EXCEPTION_MICROSOFT_CPLUSPLUS) && !Record.NumberParameters;
+	return Record.ExceptionCode == static_cast<DWORD>(EH_EXCEPTION_NUMBER) && !Record.NumberParameters;
 }
 
 class [[nodiscard]] enum_catchable_objects: public enumerator<enum_catchable_objects, char const*>
@@ -1087,36 +1128,38 @@ static string_view exception_name(NTSTATUS const Code)
 	switch (Code)
 	{
 #define CASE_STR(Code) case Code: return WIDE_SV(#Code);
-	CASE_STR(EXCEPTION_ACCESS_VIOLATION)
-	CASE_STR(EXCEPTION_DATATYPE_MISALIGNMENT)
-	CASE_STR(EXCEPTION_BREAKPOINT)
-	CASE_STR(EXCEPTION_SINGLE_STEP)
-	CASE_STR(EXCEPTION_ARRAY_BOUNDS_EXCEEDED)
-	CASE_STR(EXCEPTION_FLT_DENORMAL_OPERAND)
-	CASE_STR(EXCEPTION_FLT_DIVIDE_BY_ZERO)
-	CASE_STR(EXCEPTION_FLT_INEXACT_RESULT)
-	CASE_STR(EXCEPTION_FLT_INVALID_OPERATION)
-	CASE_STR(EXCEPTION_FLT_OVERFLOW)
-	CASE_STR(EXCEPTION_FLT_STACK_CHECK)
-	CASE_STR(EXCEPTION_FLT_UNDERFLOW)
-	CASE_STR(EXCEPTION_INT_DIVIDE_BY_ZERO)
-	CASE_STR(EXCEPTION_INT_OVERFLOW)
-	CASE_STR(EXCEPTION_PRIV_INSTRUCTION)
-	CASE_STR(EXCEPTION_IN_PAGE_ERROR)
-	CASE_STR(EXCEPTION_ILLEGAL_INSTRUCTION)
-	CASE_STR(EXCEPTION_NONCONTINUABLE_EXCEPTION)
-	CASE_STR(EXCEPTION_STACK_OVERFLOW)
-	CASE_STR(EXCEPTION_INVALID_DISPOSITION)
-	CASE_STR(EXCEPTION_GUARD_PAGE)
-	CASE_STR(EXCEPTION_INVALID_HANDLE)
-	CASE_STR(EXCEPTION_POSSIBLE_DEADLOCK)
-	CASE_STR(EXCEPTION_HEAP_CORRUPTION)
-	CASE_STR(CONTROL_C_EXIT)
+	// TODO: Half of these probably can never occur and should be removed
+	CASE_STR(STATUS_ACCESS_VIOLATION)
+	CASE_STR(STATUS_DATATYPE_MISALIGNMENT)
+	CASE_STR(STATUS_BREAKPOINT)
+	CASE_STR(STATUS_SINGLE_STEP)
+	CASE_STR(STATUS_ARRAY_BOUNDS_EXCEEDED)
+	CASE_STR(STATUS_FLOAT_DENORMAL_OPERAND)
+	CASE_STR(STATUS_FLOAT_DIVIDE_BY_ZERO)
+	CASE_STR(STATUS_FLOAT_INEXACT_RESULT)
+	CASE_STR(STATUS_FLOAT_INVALID_OPERATION)
+	CASE_STR(STATUS_FLOAT_OVERFLOW)
+	CASE_STR(STATUS_FLOAT_STACK_CHECK)
+	CASE_STR(STATUS_FLOAT_UNDERFLOW)
+	CASE_STR(STATUS_INTEGER_DIVIDE_BY_ZERO)
+	CASE_STR(STATUS_INTEGER_OVERFLOW)
+	CASE_STR(STATUS_PRIVILEGED_INSTRUCTION)
+	CASE_STR(STATUS_IN_PAGE_ERROR)
+	CASE_STR(STATUS_ILLEGAL_INSTRUCTION)
+	CASE_STR(STATUS_NONCONTINUABLE_EXCEPTION)
+	CASE_STR(STATUS_STACK_OVERFLOW)
+	CASE_STR(STATUS_INVALID_DISPOSITION)
+	CASE_STR(STATUS_GUARD_PAGE_VIOLATION)
+	CASE_STR(STATUS_INVALID_HANDLE)
+	CASE_STR(STATUS_POSSIBLE_DEADLOCK)
+	CASE_STR(STATUS_CONTROL_C_EXIT)
+	CASE_STR(STATUS_HEAP_CORRUPTION)
 	CASE_STR(STATUS_ASSERTION_FAILURE)
 #undef CASE_STR
 
-	case EXCEPTION_MICROSOFT_CPLUSPLUS: return L"C++ exception"sv;
-	case EXCEPTION_ABORT:               return L"std::abort"sv;
+	case EH_EXCEPTION_NUMBER:           return L"C++ exception"sv;
+	case EH_SANITIZER:                  return L"Sanitizer"sv;
+	case STATUS_FAR_ABORT:              return L"std::abort"sv;
 	default:                            return L"Unknown exception"sv;
 	}
 }
@@ -1146,12 +1189,12 @@ static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_vie
 	return WithType(format(FSTR(L"0x{:0>8X} - {}"sv), ExceptionRecord.ExceptionCode, Name));
 }
 
-static string exception_details(string_view const Module, EXCEPTION_RECORD const& ExceptionRecord, string_view const Message)
+static string exception_details(string_view const Module, EXCEPTION_RECORD const& ExceptionRecord, string_view const Message, string& ExtraDetails)
 {
 	switch (const auto NtStatus = static_cast<NTSTATUS>(ExceptionRecord.ExceptionCode))
 	{
-	case EXCEPTION_ACCESS_VIOLATION:
-	case EXCEPTION_IN_PAGE_ERROR:
+	case STATUS_ACCESS_VIOLATION:
+	case STATUS_IN_PAGE_ERROR:
 	{
 		const auto Mode = [](ULONG_PTR Code)
 		{
@@ -1180,9 +1223,32 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 		return Result;
 	}
 
-	case EXCEPTION_MICROSOFT_CPLUSPLUS:
-	case EXCEPTION_ABORT:
+	case EH_EXCEPTION_NUMBER:
+	case STATUS_FAR_ABORT:
 		return string(Message);
+
+	case EH_SANITIZER:
+		if (ExceptionRecord.NumberParameters && ExceptionRecord.ExceptionInformation[0])
+		{
+			const auto& Record = view_as<detail::EXCEPTION_SANITIZER_ERROR>(ExceptionRecord.ExceptionInformation[0]);
+			if (Record.cbSize < sizeof(Record))
+				return L"Unrecognized sanitizer record size"s;
+
+			switch (Record.dwSanitizerKind)
+			{
+			case static_cast<DWORD>(EH_SANITIZER_ASAN):
+				if (Record.u.Asan.uiRuntimeFullMessageLength)
+					ExtraDetails = { Record.u.Asan.pwRuntimeFullMessage, static_cast<size_t>(Record.u.Asan.uiRuntimeFullMessageLength) };
+				else
+					ExtraDetails = L"ASan report is missing, probably it is too large."s;
+
+				return { Record.u.Asan.pwRuntimeShortMessage, static_cast<size_t>(Record.u.Asan.uiRuntimeShortMessageLength) };
+
+			default:
+				return L"Unrecognized sanitizer kind"s;
+			}
+		}
+		[[fallthrough]];
 
 	default:
 		return os::format_ntstatus(ExceptionRecord.ExceptionCode);
@@ -1217,7 +1283,8 @@ static bool handle_generic_exception(
 			os::fs::get_current_process_file_name();
 
 	const auto Exception = exception_name(Context.exception_record(), Type);
-	const auto Details = exception_details(strFileName, Context.exception_record(), Message);
+	string ExtraDetails;
+	const auto Details = exception_details(strFileName, Context.exception_record(), Message, ExtraDetails);
 
 	const auto PluginInformation = PluginModule? format(FSTR(L"{} {} ({}, {})"sv),
 		PluginModule->Title(),
@@ -1231,6 +1298,7 @@ static bool handle_generic_exception(
 		Context,
 		Exception,
 		Details,
+		ExtraDetails,
 		ErrorState,
 		encoding::utf8::get_chars(Function),
 		Location,
@@ -1276,7 +1344,7 @@ extern "C" void** __current_exception_context();
 #else
 static void** __current_exception()
 {
-	return dummy_current_exception(EXCEPTION_MICROSOFT_CPLUSPLUS);
+	return dummy_current_exception(EH_EXCEPTION_NUMBER);
 }
 
 static void** __current_exception_context()
@@ -1444,7 +1512,7 @@ void seh_exception::raise()
 		reinterpret_cast<ULONG_PTR>(this)
 	};
 
-	RaiseException(EXCEPTION_THREAD_RETHROW, 0, static_cast<DWORD>(std::size(Arguments)), Arguments);
+	RaiseException(STATUS_FAR_THREAD_RETHROW, 0, static_cast<DWORD>(std::size(Arguments)), Arguments);
 
 	dismiss();
 }
@@ -1468,7 +1536,7 @@ static bool handle_seh_exception(
 {
 	const auto& Record = Context.exception_record();
 
-	if (Record.ExceptionCode == static_cast<DWORD>(EXCEPTION_THREAD_RETHROW) && Record.NumberParameters == 1)
+	if (Record.ExceptionCode == static_cast<DWORD>(STATUS_FAR_THREAD_RETHROW) && Record.NumberParameters == 1)
 	{
 		const auto& OriginalExceptionData = reinterpret_cast<seh_exception const*>(Record.ExceptionInformation[0])->get();
 		// We don't need to care about the rethrow stack here: SEH is synchronous, so it will be a part of the handler stack
@@ -1534,7 +1602,7 @@ static void seh_abort_handler_impl()
 	// No exception in flight, must be a direct call
 	exception_context const Context
 	({
-		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(EXCEPTION_ABORT)),
+		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(STATUS_FAR_ABORT)),
 		static_cast<CONTEXT*>(*dummy_current_exception_context())
 	});
 
@@ -1616,7 +1684,7 @@ static void invalid_parameter_handler_impl(const wchar_t* const Expression, cons
 
 	exception_context const Context
 	({
-		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(EXCEPTION_ABORT)),
+		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(STATUS_FAR_ABORT)),
 		static_cast<CONTEXT*>(*dummy_current_exception_context())
 	});
 
@@ -1645,7 +1713,7 @@ invalid_parameter_handler::~invalid_parameter_handler()
 
 static LONG NTAPI vectored_exception_handler_impl(EXCEPTION_POINTERS* const Pointers)
 {
-	if (static_cast<NTSTATUS>(Pointers->ExceptionRecord->ExceptionCode) == EXCEPTION_HEAP_CORRUPTION)
+	if (static_cast<NTSTATUS>(Pointers->ExceptionRecord->ExceptionCode) == STATUS_HEAP_CORRUPTION)
 	{
 		// VEH handlers shouldn't do this in general, but it's not like we can make things much worse at this point anyways.
 		if (detail::seh_filter(Pointers, CURRENT_FUNCTION_NAME, {}) == EXCEPTION_EXECUTE_HANDLER)

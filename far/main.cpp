@@ -1013,13 +1013,6 @@ static int wmain_seh()
 	int Argc = 0;
 	const os::memory::local::ptr Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
 
-#ifdef ENABLE_TESTS
-	if (const auto Result = testing_main(Argc, Argv.get()))
-	{
-		return *Result;
-	}
-#endif
-
 	configure_exception_handling(Argc, Argv.get());
 
 	SCOPED_ACTION(unhandled_exception_filter);
@@ -1027,6 +1020,17 @@ static int wmain_seh()
 	SCOPED_ACTION(signal_handler);
 	SCOPED_ACTION(invalid_parameter_handler);
 	SCOPED_ACTION(new_handler);
+
+#ifdef ENABLE_TESTS
+	if (const auto Result = testing_main(Argc, Argv.get()))
+	{
+		return *Result;
+	}
+#endif
+
+#ifdef __SANITIZE_ADDRESS__
+	os::env::set(L"ASAN_VCASAN_DEBUGGING"sv, L"1"sv);
+#endif
 
 	const auto CurrentFunctionName = CURRENT_FUNCTION_NAME;
 
