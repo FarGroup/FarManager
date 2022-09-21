@@ -842,8 +842,7 @@ const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]
 {
 	{ FCF_FG_INDEX,        L"fgindex"sv      },
 	{ FCF_BG_INDEX,        L"bgindex"sv      },
-	{ FCF_FG_INDEX,        L"fg4bit"sv       }, // Legacy name
-	{ FCF_BG_INDEX,        L"bg4bit"sv       }, // Legacy name
+	{ FCF_INHERIT_STYLE,   L"inherit"sv      },
 	{ FCF_FG_BOLD,         L"bold"sv         },
 	{ FCF_FG_ITALIC,       L"italic"sv       },
 	{ FCF_FG_UNDERLINE,    L"underline"sv    },
@@ -854,6 +853,12 @@ const std::pair<FARCOLORFLAGS, string_view> ColorFlagNames[]
 	{ FCF_FG_BLINK,        L"blink"sv        },
 	{ FCF_FG_INVERSE,      L"inverse"sv      },
 	{ FCF_FG_INVISIBLE,    L"invisible"sv    },
+};
+
+const std::pair<FARCOLORFLAGS, string_view> LegacyColorFlagNames[]
+{
+	{ FCF_FG_INDEX, L"fg4bit"sv },
+	{ FCF_BG_INDEX, L"bg4bit"sv },
 };
 
 class HighlightHierarchicalConfigDb final: public HierarchicalConfigDb
@@ -903,7 +908,10 @@ private:
 			if (const auto foreground = e.Attribute("foreground"))
 				Color.ForegroundColor = std::strtoul(foreground, nullptr, 16);
 			if (const auto flags = e.Attribute("flags"))
-				Color.Flags = StringToFlags(encoding::utf8::get_chars(flags), ColorFlagNames);
+			{
+				const auto FlagsStr = encoding::utf8::get_chars(flags);
+				Color.Flags = StringToFlags(FlagsStr, ColorFlagNames) | StringToFlags(FlagsStr, LegacyColorFlagNames);
+			}
 
 			return bytes(view_bytes(Color));
 		}

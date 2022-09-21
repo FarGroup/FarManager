@@ -289,7 +289,7 @@ void palette::Load()
 	{
 		FarColor Color;
 		i = ColorsCfg.GetValue(CustomLabel(index), Color)?
-			Color.BackgroundColor :
+			colors::color_value(Color.BackgroundColor) :
 			RGB(255,255,255);
 	}
 
@@ -318,7 +318,7 @@ void palette::Save(bool always)
 		for (const auto& [i, index] : enumerate(CustomColors))
 		{
 			FarColor Color{};
-			Color.BackgroundColor = i;
+			Color.BackgroundColor = colors::opaque(i);
 			ConfigProvider().ColorsCfg()->SetValue(CustomLabel(index), Color);
 		}
 		CustomColorsChanged = false;
