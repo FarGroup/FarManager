@@ -9,10 +9,10 @@
           <value name="UseAttr" type="qword" value="0000000000000001"/>
           <value name="AttrSet" type="qword" value="0000000000000002"/>
 
-          <value name="NormalColor"         type="color" background="00000000" foreground="FF000001" flags="fg4bit bg4bit"/>
-          <value name="CursorColor"         type="color" background="00000000" foreground="FF000001" flags="fg4bit bg4bit"/>
-          <value name="SelectedColor"       type="color" background="00000000" foreground="FF000000" flags="fg4bit bg4bit"/>
-          <value name="SelectedCursorColor" type="color" background="00000000" foreground="FF000000" flags="fg4bit bg4bit"/>
+          <value name="NormalColor"         type="color" background="00000000" foreground="FF000001" flags="fgindex bgindex inherit"/>
+          <value name="CursorColor"         type="color" background="00000000" foreground="FF000001" flags="fgindex bgindex inherit"/>
+          <value name="SelectedColor"       type="color" background="00000000" foreground="FF000000" flags="fgindex bgindex inherit"/>
+          <value name="SelectedCursorColor" type="color" background="00000000" foreground="FF000000" flags="fgindex bgindex inherit"/>
         </key>
         <key name="Group1">
           <!-- System files -->
@@ -20,10 +20,10 @@
           <value name="UseAttr" type="qword" value="0000000000000001"/>
           <value name="AttrSet" type="qword" value="0000000000000004"/>
 
-          <value name="NormalColor"         type="color" background="00000000" foreground="FF000001" flags="fg4bit bg4bit"/>
-          <value name="CursorColor"         type="color" background="00000000" foreground="FF000001" flags="fg4bit bg4bit"/>
-          <value name="SelectedColor"       type="color" background="00000000" foreground="FF000000" flags="fg4bit bg4bit"/>
-          <value name="SelectedCursorColor" type="color" background="00000000" foreground="FF000000" flags="fg4bit bg4bit"/>
+          <value name="NormalColor"         type="color" background="00000000" foreground="FF000001" flags="fgindex bgindex inherit"/>
+          <value name="CursorColor"         type="color" background="00000000" foreground="FF000001" flags="fgindex bgindex inherit"/>
+          <value name="SelectedColor"       type="color" background="00000000" foreground="FF000000" flags="fgindex bgindex inherit"/>
+          <value name="SelectedCursorColor" type="color" background="00000000" foreground="FF000000" flags="fgindex bgindex inherit"/>
         </key>
         <key name="Group2">
           <!-- Directories -->
@@ -31,37 +31,37 @@
           <value name="UseAttr" type="qword" value="0000000000000001"/>
           <value name="AttrSet" type="qword" value="0000000000000010"/>
 
-          <value name="NormalColor"         type="color" background="00000000" foreground="FF000007" flags="fg4bit bg4bit"/>
-          <value name="CursorColor"         type="color" background="00000000" foreground="FF000007" flags="fg4bit bg4bit"/>
-          <value name="SelectedColor"       type="color" background="00000000" foreground="FF000000" flags="fg4bit bg4bit"/>
-          <value name="SelectedCursorColor" type="color" background="00000000" foreground="FF000000" flags="fg4bit bg4bit"/>
+          <value name="NormalColor"         type="color" background="00000000" foreground="FF000007" flags="fgindex bgindex inherit"/>
+          <value name="CursorColor"         type="color" background="00000000" foreground="FF000007" flags="fgindex bgindex inherit"/>
+          <value name="SelectedColor"       type="color" background="00000000" foreground="FF000000" flags="fgindex bgindex inherit"/>
+          <value name="SelectedCursorColor" type="color" background="00000000" foreground="FF000000" flags="fgindex bgindex inherit"/>
         </key>
         <key name="Group3">
           <!-- Executable files -->
           <value name="Mask" type="text" value="&lt;exec&gt;"/>
 
-          <value name="NormalColor"         type="color" background="00000000" foreground="FF00000F" flags="fg4bit bg4bit"/>
-          <value name="CursorColor"         type="color" background="00000000" foreground="FF00000A" flags="fg4bit bg4bit"/>
-          <value name="SelectedColor"       type="color" background="00000000" foreground="FF000000" flags="fg4bit bg4bit"/>
-          <value name="SelectedCursorColor" type="color" background="00000000" foreground="FF000000" flags="fg4bit bg4bit"/>
+          <value name="NormalColor"         type="color" background="00000000" foreground="FF00000F" flags="fgindex bgindex inherit"/>
+          <value name="CursorColor"         type="color" background="00000000" foreground="FF00000A" flags="fgindex bgindex inherit"/>
+          <value name="SelectedColor"       type="color" background="00000000" foreground="FF000000" flags="fgindex bgindex inherit"/>
+          <value name="SelectedCursorColor" type="color" background="00000000" foreground="FF000000" flags="fgindex bgindex inherit"/>
         </key>
         <key name="Group4">
           <!-- Archive files -->
           <value name="Mask" type="text" value="&lt;arc&gt;"/>
 
-          <value name="NormalColor"         type="color" background="00000000" foreground="FF00000C" flags="fg4bit bg4bit"/>
-          <value name="CursorColor"         type="color" background="00000000" foreground="FF00000C" flags="fg4bit bg4bit"/>
-          <value name="SelectedColor"       type="color" background="00000000" foreground="FF000000" flags="fg4bit bg4bit"/>
-          <value name="SelectedCursorColor" type="color" background="00000000" foreground="FF000000" flags="fg4bit bg4bit"/>
+          <value name="NormalColor"         type="color" background="00000000" foreground="FF00000C" flags="fgindex bgindex inherit"/>
+          <value name="CursorColor"         type="color" background="00000000" foreground="FF00000C" flags="fgindex bgindex inherit"/>
+          <value name="SelectedColor"       type="color" background="00000000" foreground="FF000000" flags="fgindex bgindex inherit"/>
+          <value name="SelectedCursorColor" type="color" background="00000000" foreground="FF000000" flags="fgindex bgindex inherit"/>
         </key>
         <key name="Group5">
           <!-- Temporary files -->
           <value name="Mask" type="text" value="&lt;temp&gt;"/>
 
-          <value name="NormalColor"         type="color" background="00000000" foreground="FF000008" flags="fg4bit bg4bit"/>
-          <value name="CursorColor"         type="color" background="00000000" foreground="FF000006" flags="fg4bit bg4bit"/>
-          <value name="SelectedColor"       type="color" background="00000000" foreground="FF000000" flags="fg4bit bg4bit"/>
-          <value name="SelectedCursorColor" type="color" background="00000000" foreground="FF000000" flags="fg4bit bg4bit"/>
+          <value name="NormalColor"         type="color" background="00000000" foreground="FF000008" flags="fgindex bgindex inherit"/>
+          <value name="CursorColor"         type="color" background="00000000" foreground="FF000006" flags="fgindex bgindex inherit"/>
+          <value name="SelectedColor"       type="color" background="00000000" foreground="FF000000" flags="fgindex bgindex inherit"/>
+          <value name="SelectedCursorColor" type="color" background="00000000" foreground="FF000000" flags="fgindex bgindex inherit"/>
         </key>
       </key>
     </hierarchicalconfig>
