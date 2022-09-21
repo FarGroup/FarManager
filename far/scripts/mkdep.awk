@@ -46,6 +46,8 @@ BEGIN{
       for (i in force_include)
         print " " force_include[i];
     }
+    else if (ext == obj)
+        print " disabled_warnings.hpp"
   }
   else
   {
