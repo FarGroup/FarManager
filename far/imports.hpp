@@ -195,6 +195,11 @@ public: \
 	DEFINE_IMPORT_FUNCTION(dbghelp, le, false,   WINAPI, BOOL,    SymFromAddrW, HANDLE Process, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFOW Symbol); // Vista
 	DEFINE_IMPORT_FUNCTION(dbghelp, le, false,   WINAPI, BOOL,    SymGetLineFromAddrW64, HANDLE Process, DWORD64 Addr, PDWORD Displacement, PIMAGEHLP_LINEW64 Line); // Vista
 	DEFINE_IMPORT_FUNCTION(dbghelp, le, zero,    WINAPI, DWORD,   UnDecorateSymbolNameW, PCWSTR Name, PWSTR OutputString, DWORD MaxStringLength, DWORD Flags); // Vista
+	DEFINE_IMPORT_FUNCTION(dbghelp, le, false,   WINAPI, BOOL,    StackWalkEx, DWORD MachineType, HANDLE Process, HANDLE Thread, LPSTACKFRAME_EX StackFrame, PVOID ContextRecord, PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine, PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress, DWORD Flags); // 8
+	DEFINE_IMPORT_FUNCTION(dbghelp, le, false,   WINAPI, BOOL,    SymFromInlineContextW, HANDLE Process, DWORD64 Address, ULONG InlineContext, PDWORD64 Displacement, PSYMBOL_INFOW Symbol); // 8
+	DEFINE_IMPORT_FUNCTION(dbghelp, le, false,   WINAPI, BOOL,    SymGetLineFromInlineContextW, HANDLE Process, DWORD64 Address, ULONG InlineContext, DWORD64 ModuleBaseAddress, PDWORD Displacement, PIMAGEHLP_LINEW64 Line); // 8
+	DEFINE_IMPORT_FUNCTION(dbghelp, le, zero,    WINAPI, DWORD,   SymAddrIncludeInlineTrace, HANDLE Process, DWORD64 Address); // 8
+	DEFINE_IMPORT_FUNCTION(dbghelp, le, false,   WINAPI, BOOL,    SymQueryInlineTrace, HANDLE Process, DWORD64 StartAddress, DWORD StartContext, DWORD64 StartRetAddress, DWORD64 CurAddress, LPDWORD CurContext, LPDWORD CurFrameIndex); // 8
 
 	DEFINE_IMPORT_FUNCTION(dwmapi, nop, hr, WINAPI, HRESULT, DwmGetWindowAttribute, HWND Hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute); // Vista
 

@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.concurrency.hpp"
+#include "platform.debug.hpp"
 
 // Common:
 #include "common/function_ref.hpp"
@@ -58,8 +59,8 @@ namespace tracer_detail
 		tracer();
 		~tracer();
 
-		std::vector<uintptr_t> get(string_view Module, CONTEXT const& ContextRecord, HANDLE ThreadHandle);
-		void get_symbols(string_view Module, span<uintptr_t const> Trace, function_ref<void(string&& Line)> Consumer) const;
+		std::vector<os::debug::stack_frame> get(string_view Module, CONTEXT const& ContextRecord, HANDLE ThreadHandle);
+		void get_symbols(string_view Module, span<os::debug::stack_frame const> Trace, function_ref<void(string&& Line)> Consumer) const;
 		void get_symbol(string_view Module, const void* Ptr, string& Address, string& Name, string& Source) const;
 
 		class with_symbols

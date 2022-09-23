@@ -179,7 +179,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // winternl.h
 #ifndef FILE_VALID_SET_FLAGS
-typedef struct _SYSTEM_THREAD_INFORMATION {
+typedef struct _SYSTEM_THREAD_INFORMATION
+{
 	LARGE_INTEGER Reserved1[3];
 	ULONG Reserved2;
 	PVOID StartAddress;
@@ -316,6 +317,48 @@ DECLARE_INTERFACE_(IDebugOutputCallbacksWide, IUnknown)
     STDMETHOD(Output)(THIS_ ULONG Mask,PCWSTR Text) PURE;
 };
 
+#endif
+
+#ifndef STACK_FRAME_TYPE_INLINE
+#define STACK_FRAME_TYPE_INLINE 0x02
+#define STACK_FRAME_TYPE_IGNORE 0xFF
+
+#define SYM_STKWALK_DEFAULT 0x00000000
+
+typedef union _INLINE_FRAME_CONTEXT
+{
+	DWORD ContextValue;
+	struct
+	{
+		BYTE FrameId;
+		BYTE FrameType;
+		WORD FrameSignature;
+	};
+}
+INLINE_FRAME_CONTEXT;
+#endif
+
+#ifndef INLINE_FRAME_CONTEXT_INIT
+#define INLINE_FRAME_CONTEXT_INIT   0
+#define INLINE_FRAME_CONTEXT_IGNORE 0xFFFFFFFF
+
+typedef struct _tagSTACKFRAME_EX
+{
+	ADDRESS64 AddrPC;
+	ADDRESS64 AddrReturn;
+	ADDRESS64 AddrFrame;
+	ADDRESS64 AddrStack;
+	ADDRESS64 AddrBStore;
+	PVOID FuncTableEntry;
+	DWORD64 Params[4];
+	WINBOOL Far;
+	WINBOOL Virtual;
+	DWORD64 Reserved[3];
+	KDHELP64 KdHelp;
+	DWORD StackFrameSize;
+	DWORD InlineFrameContext;
+}
+STACKFRAME_EX,*LPSTACKFRAME_EX;
 #endif
 
 #endif // SDK_GCC_H_EA5F3F70_C987_4240_AA25_3016DB39C651

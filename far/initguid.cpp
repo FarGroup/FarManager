@@ -33,5 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <initguid.h>
 
 #include <dbgeng.h>
+#include <dbghelp.h>
 #include <winternl.h>
 #include "platform.sdk.hpp"

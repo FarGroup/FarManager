@@ -1272,7 +1272,11 @@ static int ChangeDiskMenu(panel_ptr Owner, int Pos, bool FirstCall)
 		if (ChDisk->GetExitCode() < 0)
 		{
 			if (os::fs::drive::get_type(CurDir) == DRIVE_NO_ROOT_DIR)
-				return ChDisk->GetSelectPos();
+			{
+				// get_type can return DRIVE_NO_ROOT_DIR when we can't access the path
+				if (!ElevationRequired(ELEVATION_READ_REQUEST))
+					return ChDisk->GetSelectPos();
+			}
 
 			return -1;
 		}

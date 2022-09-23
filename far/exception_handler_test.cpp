@@ -291,7 +291,7 @@ namespace tests
 #endif
 	}
 
-	static void cpp_assert()
+	static void cpp_assertion_failure()
 	{
 		assert(true == false);
 	}
@@ -450,6 +450,12 @@ namespace tests
 		});
 	}
 
+	static void seh_assertion_failure()
+	{
+		if ([[maybe_unused]] volatile const auto Condition = true)
+			DbgRaiseAssertionFailure();
+	}
+
 	static void debug_bounds_check()
 	{
 		[[maybe_unused]] std::vector<int> v(1);
@@ -457,24 +463,31 @@ namespace tests
 		v[Index] = 42;
 	}
 
-	static void debug_bounds_check_as_stack()
+	static void asan_stack_buffer_overflow()
 	{
 		[[maybe_unused]] int v[1];
 		const volatile size_t Index = 1;
 		v[Index] = 42;
 	}
 
-	static void debug_bounds_check_as_heap()
+	static void asan_heap_buffer_overflow()
 	{
 		[[maybe_unused]] std::vector<int> v(1);
 		const volatile size_t Index = 1;
 		v.data()[Index] = 42;
 	}
 
-	static void debug_nt_assertion_failure()
+	static void asan_stack_use_after_scope()
 	{
-		if ([[maybe_unused]] volatile const auto Condition = true)
-			DbgRaiseAssertionFailure();
+		volatile int* Ptr;
+
+		{
+			volatile int i = 42;
+			Ptr = &i;
+		}
+
+		[[maybe_unused]]
+		volatile const auto i = *Ptr;
 	}
 }
 
@@ -538,7 +551,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::cpp_pure_virtual_call,        L"C++ pure virtual call"sv },
 		{ tests::cpp_memory_leak,              L"C++ memory leak"sv },
 		{ tests::cpp_invalid_parameter,        L"C++ invalid parameter"sv },
-		{ tests::cpp_assert,                   L"C++ assert"sv },
+		{ tests::cpp_assertion_failure,        L"C++ assertion failure"sv },
 		{ tests::seh_access_violation_read,    L"SEH access violation (read)"sv },
 		{ tests::seh_access_violation_write,   L"SEH access violation (write)"sv },
 		{ tests::seh_access_violation_execute, L"SEH access violation (execute)"sv },
@@ -555,10 +568,11 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::seh_alignment_fault,          L"SEH alignment fault"sv },
 		{ tests::seh_unknown,                  L"SEH unknown"sv },
 		{ tests::seh_unhandled,                L"SEH unhandled"sv },
+		{ tests::seh_assertion_failure,        L"SEH assertion failure"sv },
 		{ tests::debug_bounds_check,           L"Debug bounds check"sv },
-		{ tests::debug_bounds_check_as_stack,  L"Debug bounds check stack (ASAN)"sv },
-		{ tests::debug_bounds_check_as_heap,   L"Debug bounds check heap (ASAN)"sv },
-		{ tests::debug_nt_assertion_failure,   L"Debug NT assertion failure"sv },
+		{ tests::asan_stack_buffer_overflow,   L"ASan stack-buffer-overflow"sv },
+		{ tests::asan_heap_buffer_overflow,    L"ASan heap-buffer-overflow"sv },
+		{ tests::asan_stack_use_after_scope,   L"ASan stack-use-after-scope"sv },
 	};
 
 	const auto ModalMenu = VMenu2::create(L"Test Exceptions"s, {}, ScrY - 4);

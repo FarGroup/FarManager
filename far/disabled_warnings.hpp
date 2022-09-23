@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4582) // 'class': constructor is not implicitly called
 #pragma warning(disable: 4583) // 'class': destructor is not implicitly called
 #pragma warning(disable: 5219) // implicit conversion from 'type1' to 'type2', possible loss of data
+#pragma warning(disable: 5262) // implicit fall-through occurs here; are you missing a break statement? Use [[fallthrough]] when a break statement is intentionally omitted between cases
 #else
 // these in the rest of the code as well:
 // TODO: some of these might be useful
