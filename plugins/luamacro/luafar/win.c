@@ -430,6 +430,14 @@ static void pushSystemTime(lua_State *L, const SYSTEMTIME *st)
 	PutIntToTable(L, "wMilliseconds", st->wMilliseconds);
 }
 
+static int win_GetSystemTime(lua_State *L)
+{
+	SYSTEMTIME st;
+	GetSystemTime(&st);
+	pushSystemTime(L, &st);
+	return 1;
+}
+
 static int win_GetSystemTimeAsFileTime(lua_State *L)
 {
 	FILETIME ft;
@@ -942,6 +950,7 @@ const luaL_Reg win_funcs[] =
 	{"GetFileInfo",         win_GetFileInfo},
 	{"GetFileTimes",        win_GetFileTimes},
 	{"GetRegKey",           win_GetRegKey},
+	{"GetSystemTime",       win_GetSystemTime},
 	{"GetSystemTimeAsFileTime", win_GetSystemTimeAsFileTime},
 	{"GetVirtualKeys",      win_GetVirtualKeys},
 	{"IsProcess64bit",      win_IsProcess64bit},
