@@ -145,7 +145,7 @@ template<size_t, typename... args>
 class [[nodiscard]] zip
 {
 public:
-	using iterator = detail::zip_iterator<decltype(std::begin(std::declval<args>()))...>;
+	using iterator = detail::zip_iterator<decltype(std::begin(std::declval<args&>()))...>;
 
 	template<typename... args_ref>
 	explicit zip(args_ref&&... ArgsRef):

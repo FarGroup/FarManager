@@ -917,7 +917,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 
 						if (upper(HotKey.front()) == L'F')
 						{
-							if (in_closed_range(1, from_string<int>(HotKey.substr(1)), 24))
+							if (int Number; from_string(HotKey.substr(1), Number) && in_closed_range(1, Number, 24))
 								FocusPos=-1;
 						}
 					}
