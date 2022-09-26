@@ -10928,6 +10928,30 @@ mtime=3602448840
 </article>
 </node>
 <node>
+id=558
+lv=3
+dt=Text
+nm=win.GetSystemTime
+ctime=3873306659
+mtime=3873306772
+<article>
+#_result = win.GetSystemTime()
+#_
+#_**Parameters:**
+#_  none
+#_
+#_**Returns:**
+#_  result : table `tSystemTime`
+#_
+#_**Windows API used:**
+#_  GetSystemTime
+#_
+#_@@@
+#_[tSystemTime]: 218.html
+#_
+</article>
+</node>
+<node>
 id=217
 lv=3
 dt=Text
