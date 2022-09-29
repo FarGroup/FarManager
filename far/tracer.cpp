@@ -474,6 +474,51 @@ void tracer_detail::tracer::get_symbol(string_view const Module, const void* Ptr
 	});
 }
 
+static auto event_level(IMAGEHLP_CBA_EVENT const& Event)
+{
+	switch (Event.severity)
+	{
+	default:
+	case sevInfo:    return logging::level::info;
+	case sevProblem: return logging::level::warning;
+	case sevAttn:    return logging::level::error;
+	case sevFatal:   return logging::level::fatal;
+	}
+}
+
+static BOOL CALLBACK SymCallbackProc(HANDLE const Process, ULONG const ActionCode, ULONG64 const CallbackData, ULONG64 const UserContext)
+{
+	const auto IsUnicode = UserContext == 1;
+
+	switch (ActionCode)
+	{
+	case CBA_EVENT:
+		{
+			const auto& Event = *static_cast<IMAGEHLP_CBA_EVENT const*>(reinterpret_cast<void const*>(CallbackData));
+			const auto Level = event_level(Event);
+
+			string Buffer;
+			string_view Message;
+
+			if (IsUnicode)
+			{
+				Message = static_cast<wchar_t const*>(static_cast<void const*>(Event.desc));
+			}
+			else
+			{
+				Buffer = encoding::ansi::get_chars(Event.desc);
+				Message = Buffer;
+			}
+
+			LOG(Level, L"{}"sv, Message);
+			return true;
+		}
+
+	default:
+		return false;
+	}
+}
+
 void tracer_detail::tracer::sym_initialise(string_view Module)
 {
 	SCOPED_ACTION(std::lock_guard)(m_CS);
@@ -522,11 +567,19 @@ void tracer_detail::tracer::sym_initialise(string_view Module)
 		);
 	}
 
-	if (
-		(imports.SymInitializeW && imports.SymInitializeW(GetCurrentProcess(), EmptyToNull(Path), TRUE)) ||
-		(imports.SymInitialize && imports.SymInitialize(GetCurrentProcess(), EmptyToNull(encoding::ansi::get_bytes(Path)), TRUE))
-	)
-		++m_SymInitialised;
+	const auto Process = GetCurrentProcess();
+
+	const auto Initialised =
+		(imports.SymInitializeW && imports.SymInitializeW(Process, EmptyToNull(Path), TRUE)) ||
+		(imports.SymInitialize && imports.SymInitialize(Process, EmptyToNull(encoding::ansi::get_bytes(Path)), TRUE));
+
+	if (!Initialised)
+		return;
+
+	++m_SymInitialised;
+
+	(imports.SymRegisterCallbackW64 && imports.SymRegisterCallbackW64(Process, SymCallbackProc, 1)) ||
+	(imports.SymRegisterCallback64 && imports.SymRegisterCallback64(Process, SymCallbackProc, 0));
 }
 
 void tracer_detail::tracer::sym_cleanup()

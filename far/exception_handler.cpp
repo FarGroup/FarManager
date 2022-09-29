@@ -490,6 +490,12 @@ class DebugOutputCallbacks final:
 	public IDebugOutputCallbacksWide
 {
 public:
+	static constexpr ULONG CallbackTypes =
+		DEBUG_OUTPUT_NORMAL |
+		DEBUG_OUTPUT_ERROR |
+		DEBUG_OUTPUT_WARNING |
+		DEBUG_OUTPUT_VERBOSE;
+
 	explicit DebugOutputCallbacks(string* To):
 		m_To(To)
 	{}
@@ -497,7 +503,6 @@ public:
 	// IUnknown
 	STDMETHOD(QueryInterface)(REFIID InterfaceId, PVOID* Interface) override
 	{
-
 		if (none_of(InterfaceId, IID_IUnknown, IID_IDebugOutputCallbacks, IID_IDebugOutputCallbacksWide))
 		{
 			*Interface = {};
@@ -524,18 +529,42 @@ public:
 	// IDebugOutputCallbacks
 	STDMETHOD(Output)(ULONG Mask, PCSTR Text) override
 	{
-		*m_To += encoding::utf8::get_chars(Text);
+		output_impl(Mask, encoding::utf8::get_chars(Text));
 		return S_OK;
 	}
 
 	// IDebugOutputCallbacksWide
 	STDMETHOD(Output)(ULONG Mask, PCWSTR Text) override
 	{
-		*m_To += Text;
+		output_impl(Mask, Text);
 		return S_OK;
 	}
 
 private:
+	static auto output_type_to_level(ULONG const OutputType)
+	{
+		switch (OutputType)
+		{
+		default:
+		case DEBUG_OUTPUT_VERBOSE: return logging::level::info;
+		case DEBUG_OUTPUT_WARNING: return logging::level::warning;
+		case DEBUG_OUTPUT_ERROR:   return logging::level::error;
+		}
+	}
+
+	void output_impl(ULONG const Mask, string_view const Text) const
+	{
+		switch (Mask & CallbackTypes)
+		{
+		case DEBUG_OUTPUT_NORMAL:
+			*m_To += Text;
+			return;
+
+		default:
+			LOG(output_type_to_level(Mask), L"{}"sv, Text);
+		}
+	}
+
 	string* m_To;
 };
 WARNING_POP()
@@ -563,7 +592,7 @@ static void read_disassembly(string& To, string_view const Module, span<os::debu
 		if (const auto Result = DebugControl->WaitForEvent(DEBUG_WAIT_DEFAULT, INFINITE); FAILED(Result))
 			LOGWARNING(L"WaitForEvent(): {}"sv, os::format_error(Result));
 
-		if (const auto Result = DebugClient->SetOutputMask(DEBUG_OUTPUT_NORMAL); FAILED(Result))
+		if (const auto Result = DebugClient->SetOutputMask(DebugOutputCallbacks::CallbackTypes); FAILED(Result))
 			LOGWARNING(L"SetOutputMask(): {}"sv, os::format_error(Result));
 
 		if (os::com::ptr<IDebugClient5> DebugClient5; SUCCEEDED(DebugClient->QueryInterface(IID_IDebugClient5, IID_PPV_ARGS_Helper(&ptr_setter(DebugClient5)))))
