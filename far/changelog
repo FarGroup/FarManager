@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 02.10.2022 19:29:07 +0100 - build 6030
+
+1. Named groups in regular expressions are now included into the usual match list and can be referred by number in order of appearance.
+
+2. Named groups support in RegExpControl:
+   After a successful RECTL_MATCHEX/RECTL_SEARCHEX call RECTL_NAMEDGROUPINDEX with Param1 = 0 and Param2 = <group name>.
+   The return value is the index of the group in the RegExpSearch.Match array, populated by the last call to match/search.
+
+--------------------------------------------------------------------------------
 drkns 29.09.2022 18:22:32 +0100 - build 6029
 
 1. Capture dbgeng and dbghelp logs.

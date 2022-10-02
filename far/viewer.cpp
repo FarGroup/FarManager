@@ -3264,8 +3264,6 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 				ReCompileErrorMessage(e, strSlash);
 				return;
 			}
-
-			sd.RexMatch.resize(sd.Rex->GetBracketsCount());
 		}
 		else
 		{

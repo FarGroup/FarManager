@@ -2786,20 +2786,26 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 		if (Command != RECTL_CREATE && !hHandle)
 			return false;
 
+		struct regex_handle
+		{
+			RegExp Regex;
+			named_regex_match NamedMatch;
+		};
+
 		switch (Command)
 		{
 		case RECTL_CREATE:
-			*static_cast<RegExp**>(Param2) = std::make_unique<RegExp>().release();
+			*static_cast<regex_handle**>(Param2) = std::make_unique<regex_handle>().release();
 			return true;
 
 		case RECTL_FREE:
-			delete static_cast<RegExp const*>(hHandle);
+			delete static_cast<regex_handle const*>(hHandle);
 			return true;
 
 		case RECTL_COMPILE:
 			try
 			{
-				static_cast<RegExp*>(hHandle)->Compile(static_cast<const wchar_t*>(Param2), OP_PERLSTYLE);
+				static_cast<regex_handle*>(hHandle)->Regex.Compile(static_cast<const wchar_t*>(Param2), OP_PERLSTYLE);
 				return true;
 			}
 			catch (regex_exception const& e)
@@ -2809,13 +2815,15 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 			}
 
 		case RECTL_OPTIMIZE:
-			return static_cast<RegExp *>(hHandle)->Optimize();
+			return static_cast<regex_handle*>(hHandle)->Regex.Optimize();
 
 		case RECTL_MATCHEX:
 		{
+			auto& Handle = *static_cast<regex_handle*>(hHandle);
 			const auto data = static_cast<RegExpSearch*>(Param2);
 			std::vector<RegExpMatch> Match;
-			if (!static_cast<RegExp const*>(hHandle)->MatchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, Match))
+
+			if (!Handle.Regex.MatchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, Match, &Handle.NamedMatch))
 				return false;
 
 			const auto MaxSize = std::min(static_cast<size_t>(data->Count), Match.size());
@@ -2826,9 +2834,11 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 
 		case RECTL_SEARCHEX:
 		{
+			auto& Handle = *static_cast<regex_handle*>(hHandle);
 			const auto data = static_cast<RegExpSearch*>(Param2);
 			std::vector<RegExpMatch> Match;
-			if (!static_cast<RegExp const*>(hHandle)->SearchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, Match))
+
+			if (!Handle.Regex.SearchEx({ data->Text, static_cast<size_t>(data->Length) }, data->Position, Match, &Handle.NamedMatch))
 				return false;
 
 			const auto MaxSize = std::min(static_cast<size_t>(data->Count), Match.size());
@@ -2838,7 +2848,15 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 		}
 
 		case RECTL_BRACKETSCOUNT:
-			return static_cast<RegExp const*>(hHandle)->GetBracketsCount();
+			return static_cast<regex_handle const*>(hHandle)->Regex.GetBracketsCount();
+
+		case RECTL_NAMEDGROUPINDEX:
+		{
+			const auto& Handle = *static_cast<regex_handle const*>(hHandle);
+			const auto Str = static_cast<wchar_t const*>(Param2);
+			const auto Iterator = Handle.NamedMatch.Matches.find(Str);
+			return Iterator == Handle.NamedMatch.Matches.cend()? 0 : Iterator->second;
+		}
 
 		default:
 			return false;

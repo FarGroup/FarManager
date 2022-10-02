@@ -72,10 +72,10 @@ enum REError
 	errInvalidRange,
 	//! Quantifier applied to invalid object. f.e. lookahead assertion
 	errInvalidQuantifiersCombination,
-	//! Size of match array isn't large enough.
-	errNotEnoughMatches,
-	//! Attempt to match RegExp with Named Brackets, and no storage class provided.
-	errNoStorageForNB,
+	//! Incomplete group structure
+	errIncompleteGroupStructure,
+	//! A subpattern name must be unique
+	errSubpatternGroupNameMustBeUnique,
 	//! Reference to undefined named bracket
 	errReferenceToUndefinedNamedBracket,
 	//! Only fixed length look behind assertions are supported
@@ -103,7 +103,7 @@ enum
 
 struct named_regex_match
 {
-	unordered_string_map<RegExpMatch> Matches;
+	unordered_string_map<size_t> Matches;
 };
 
 class regex_exception: public far_exception
@@ -163,7 +163,6 @@ private:
 
 		int bracketscount{};
 		int maxbackref{};
-		int havenamedbrackets{};
 #ifdef RE_DEBUG
 		std::wstring resrc;
 #endif
@@ -171,7 +170,7 @@ private:
 		int CalcLength(string_view src);
 		void InnerCompile(const wchar_t* start, const wchar_t* src, int srclength, int options);
 
-		bool InnerMatch(const wchar_t* start, const wchar_t* str, const wchar_t* strend, std::vector<RegExpMatch>& match, named_regex_match* NamedMatch, std::vector<StateStackItem>& stack) const;
+		bool InnerMatch(const wchar_t* start, const wchar_t* str, const wchar_t* strend, std::vector<RegExpMatch>& match, named_regex_match& NamedMatch, std::vector<StateStackItem>& stack) const;
 
 		void TrimTail(const wchar_t* start, const wchar_t*& strend) const;
 

@@ -71,8 +71,8 @@ string_view regex_exception::to_string(REError const Code)
 	case errInvalidEscape:                     return L"Invalid escape char"sv;
 	case errInvalidRange:                      return L"Invalid range value"sv;
 	case errInvalidQuantifiersCombination:     return L"Quantifier applied to an invalid object, e.g. a lookahead assertion"sv;
-	case errNotEnoughMatches:                  return L"Size of the match array isn't large enough"sv;
-	case errNoStorageForNB:                    return L"Attempt to match regex with named brackets but no storage provided"sv;
+	case errIncompleteGroupStructure:          return L"Incomplete group structure"sv;
+	case errSubpatternGroupNameMustBeUnique:   return L"A subpattern name must be unique"sv;
 	case errReferenceToUndefinedNamedBracket:  return L"Reference to an undefined named bracket"sv;
 	case errVariableLengthLookBehind:          return L"Only fixed length look behind assertions are supported"sv;
 	default:                                   return L"Unknown error"sv;
@@ -430,11 +430,9 @@ struct REOpCode_data
 		int min,max;
 	};
 
-	struct SNamedBracket
+	struct SNamedBracket: SBracket
 	{
-		RegExp::REOpCode* nextalt;
 		const wchar_t* name;
-		RegExp::REOpCode* pairindex;
 	};
 
 	struct SAssert
@@ -597,10 +595,8 @@ int RegExp::CalcLength(string_view src)
 							throw MAKE_REGEX_EXCEPTION(errSyntax, i);
 					}
 				}
-				else
-				{
-					bracketscount++;
-				}
+
+				bracketscount++;
 
 				break;
 			}
@@ -1152,25 +1148,21 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 						case L'{':
 						{
 							op->op = opNamedBracket;
-							havenamedbrackets = 1;
 							int len = 0;
 							i++;
 
 							while (src[i + len] != L'}')len++;
 
-							if (len > 0)
-							{
-								const auto Name = new wchar_t[len + 1];
-								std::memcpy(Name, src + i, len*sizeof(wchar_t));
-								Name[len] = 0;
-								op->nbracket.name = Name;
-							}
-							else
-							{
-								op->op = opOpenBracket;
-								op->bracket.index = -1;
-							}
+							if (!len)
+								throw MAKE_REGEX_EXCEPTION(errIncompleteGroupStructure, i + (src - start));
 
+							const auto Name = new wchar_t[len + 1];
+							std::memcpy(Name, src + i, len * sizeof(wchar_t));
+							Name[len] = 0;
+							op->nbracket.name = Name;
+							++brcount;
+							closedbrackets.push_back(false);
+							op->nbracket.index = brcount;
 							i += len;
 						} break;
 						default:
@@ -1220,8 +1212,18 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 					{
 						op->nbracket.pairindex = brackets[brdepth];
 						brackets[brdepth]->nbracket.pairindex = op;
+						op->bracket.index = brackets[brdepth]->bracket.index;
+
+						if (op->bracket.index != -1)
+						{
+							closedbrackets[op->bracket.index] = true;
+						}
+
 						op->nbracket.name = brackets[brdepth]->nbracket.name;
-						NamedMatch.Matches[op->nbracket.name] = Match;
+
+						if (!NamedMatch.Matches.emplace(op->nbracket.name, op->bracket.index).second)
+							throw MAKE_REGEX_EXCEPTION(errSubpatternGroupNameMustBeUnique, i + (src - start));
+
 						break;
 					}
 					case opLookBehind:
@@ -1751,7 +1753,7 @@ int RegExp::StrCmp(const wchar_t*& str, const wchar_t* start, const wchar_t* end
 	return 1;
 }
 
-bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wchar_t* strend, std::vector<RegExpMatch>& match, named_regex_match* NamedMatch, std::vector<StateStackItem>& stack) const
+bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wchar_t* strend, std::vector<RegExpMatch>& match, named_regex_match& NamedMatch, std::vector<StateStackItem>& stack) const
 {
 	int i,j;
 	int minimizing;
@@ -1762,8 +1764,7 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 
 	stack.clear();
 	match.clear();
-	if (NamedMatch)
-		NamedMatch->Matches.clear();
+	NamedMatch.Matches.clear();
 
 	match.resize(bracketscount, { -1, -1 });
 
@@ -2044,28 +2045,19 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				}
 				case opNamedBracket:
 				{
-					if (NamedMatch)
+					if (op->bracket.index >= 0)
 					{
-						if (!contains(NamedMatch->Matches, op->nbracket.name))
-						{
-							RegExpMatch sm;
-							sm.start = -1;
-							sm.end = -1;
-							NamedMatch->Matches[op->nbracket.name] = sm;
-						}
-						const auto m2 = &NamedMatch->Matches[op->nbracket.name];
-
 						//if (inrangebracket) Mantis#1388
 						{
 							StateStackItem st;
 							st.op = opNamedBracket;
 							st.pos = op;
-							st.min = m2->start;
-							st.max = m2->end;
+							st.min = match[op->bracket.index].start;
+							st.max = match[op->bracket.index].end;
 							stack.emplace_back(st);
 						}
 
-						m2->start = str - start;
+						match[op->bracket.index].start = str - start;
 					}
 
 					if (op->bracket.nextalt)
@@ -2077,6 +2069,7 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 						stack.emplace_back(st);
 					}
 
+					NamedMatch.Matches.emplace(op->nbracket.name, op->bracket.index);
 					continue;
 				}
 				case opClosingBracket:
@@ -2094,9 +2087,9 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 						}
 						case opNamedBracket:
 						{
-							if (NamedMatch)
+							if (op->nbracket.index >= 0)
 							{
-								NamedMatch->Matches[op->nbracket.name].end = str - start;
+								match[op->nbracket.index].end = str - start;
 							}
 
 							continue;
@@ -2306,9 +2299,11 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 					}
 					else
 					{
-						if (!NamedMatch || !contains(NamedMatch->Matches, op->refname))
+						const auto Iterator = NamedMatch.Matches.find(op->refname);
+						if (Iterator == NamedMatch.Matches.cend())
 							break;
-						m = &NamedMatch->Matches[op->refname];
+
+						m = &match[Iterator->second];
 					}
 
 					if (m->start==-1 || m->end==-1)break;
@@ -2666,7 +2661,11 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 					}
 					else
 					{
-						m = &NamedMatch->Matches[op->range.refname];
+						const auto Iterator = NamedMatch.Matches.find(op->range.refname);
+						if (Iterator == NamedMatch.Matches.cend())
+							break;
+
+						m = &match[Iterator->second];
 					}
 
 					if (!m)break;
@@ -2873,7 +2872,11 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 					}
 					else
 					{
-						m = &NamedMatch->Matches[ps->pos->range.refname];
+						const auto Iterator = NamedMatch.Matches.find(ps->pos->range.refname);
+						if (Iterator == NamedMatch.Matches.cend())
+							break;
+
+						m = &match[Iterator->second];
 					}
 					str=ps->savestr-(m->end-m->start);
 					op=ps->pos;
@@ -3058,7 +3061,11 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 					}
 					else
 					{
-						m = &NamedMatch->Matches[op->range.refname];
+						const auto Iterator = NamedMatch.Matches.find(op->range.refname);
+						if (Iterator == NamedMatch.Matches.cend())
+							break;
+
+						m = &match[Iterator->second];
 					}
 
 					if (str+m->end-m->start<strend && StrCmp(str,start+m->start,start+m->end))
@@ -3162,14 +3169,12 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 				}
 				case opNamedBracket:
 				{
-					const auto n = ps->pos->nbracket.name;
+					j = ps->pos->nbracket.index;
 
-					if (n && NamedMatch)
+					if (j >= 0)
 					{
-						RegExpMatch sm;
-						sm.start = ps->min;
-						sm.end = ps->max;
-						NamedMatch->Matches[n] = sm;
+						match[j].start = ps->min;
+						match[j].end = ps->max;
 					}
 
 					continue;
@@ -3219,8 +3224,9 @@ bool RegExp::MatchEx(string_view const text, size_t const From, std::vector<RegE
 	if (code.empty())
 		throw MAKE_REGEX_EXCEPTION(errNotCompiled, 0);
 
-	if (havenamedbrackets && !NamedMatch)
-		throw MAKE_REGEX_EXCEPTION(errNoStorageForNB, 0);
+	named_regex_match LocalNamedMatch;
+	if (!NamedMatch)
+		NamedMatch = &LocalNamedMatch;
 
 	const auto start = text.data();
 	const auto textstart = text.data() + From;
@@ -3246,7 +3252,7 @@ bool RegExp::MatchEx(string_view const text, size_t const From, std::vector<RegE
 
 	std::vector<StateStackItem> stack;
 
-	if (!InnerMatch(start, textstart, tempend, match, NamedMatch, stack))
+	if (!InnerMatch(start, textstart, tempend, match, *NamedMatch, stack))
 		return false;
 
 	for (auto& i: match)
@@ -3530,8 +3536,9 @@ bool RegExp::SearchEx(string_view const text, size_t const From, std::vector<Reg
 	if (code.empty())
 		throw MAKE_REGEX_EXCEPTION(errNotCompiled, 0);
 
-	if (havenamedbrackets && !NamedMatch)
-		throw MAKE_REGEX_EXCEPTION(errNoStorageForNB, 0);
+	named_regex_match LocalNamedMatch;
+	if (!NamedMatch)
+		NamedMatch = &LocalNamedMatch;
 
 	const auto start = text.data();
 	const auto textstart = text.data() + From;
@@ -3552,7 +3559,7 @@ bool RegExp::SearchEx(string_view const text, size_t const From, std::vector<Reg
 
 	if (!code[0].bracket.nextalt && code[1].op == opDataStart)
 	{
-		if (!InnerMatch(start, str, tempend, match, NamedMatch, stack))
+		if (!InnerMatch(start, str, tempend, match, *NamedMatch, stack))
 			return false;
 	}
 	else
@@ -3572,7 +3579,7 @@ bool RegExp::SearchEx(string_view const text, size_t const From, std::vector<Reg
 			{
 				while (!first[*str] && str<tempend)str++;
 
-				if (InnerMatch(start, str, tempend, match, NamedMatch, stack))
+				if (InnerMatch(start, str, tempend, match, *NamedMatch, stack))
 				{
 					res = true;
 					break;
@@ -3582,7 +3589,7 @@ bool RegExp::SearchEx(string_view const text, size_t const From, std::vector<Reg
 			}
 			while (str<tempend);
 
-			if (!res && !InnerMatch(start, str, tempend, match, NamedMatch, stack))
+			if (!res && !InnerMatch(start, str, tempend, match, *NamedMatch, stack))
 				return false;
 		}
 		else
@@ -3590,7 +3597,7 @@ bool RegExp::SearchEx(string_view const text, size_t const From, std::vector<Reg
 			bool res = false;
 			do
 			{
-				if (InnerMatch(start, str, tempend, match, NamedMatch, stack))
+				if (InnerMatch(start, str, tempend, match, *NamedMatch, stack))
 				{
 					res = true;
 					break;
@@ -3856,13 +3863,36 @@ TEST_CASE("regex.list.special")
 TEST_CASE("regex.exceptions")
 {
 	RegExp re;
-	REQUIRE_THROWS_AS(re.Search(L"meow"sv), regex_exception);
-	REQUIRE_THROWS_AS(re.Compile(L"("sv), regex_exception);
-	REQUIRE_THROWS_AS(re.Compile(L")"sv), regex_exception);
-	REQUIRE_THROWS_AS(re.Compile(L"["sv), regex_exception);
+
+	const auto Matcher = [](int const Code)
+	{
+		return generic_exception_matcher([=](std::any const& e)
+		{
+			return std::any_cast<regex_exception const&>(e).code() == Code;
+		});
+	};
+
+#define REQUIRE_REGEX_THROW(Expression, Code) REQUIRE_THROWS_MATCHES(Expression, regex_exception, Matcher(Code))
+
+	REQUIRE_REGEX_THROW(re.Search(L"meow"sv),                 errNotCompiled);
+	REQUIRE_REGEX_THROW(re.Compile(L"\\"sv),                  errSyntax);
+	REQUIRE_REGEX_THROW(re.Compile(L"("sv),                   errBrackets);
+	REQUIRE_REGEX_THROW(re.Compile(L")"sv),                   errBrackets);
+	REQUIRE_REGEX_THROW(re.Compile(L"["sv),                   errBrackets);
+	REQUIRE_REGEX_THROW(re.Compile(L"[]"sv),                  errBrackets);
+	REQUIRE_REGEX_THROW(re.Compile(L"(?{q}a)(?{q}b)"sv),      errSubpatternGroupNameMustBeUnique);
+	REQUIRE_REGEX_THROW(re.Compile(L"/./q"sv, OP_PERLSTYLE),  errOptions);
+	REQUIRE_REGEX_THROW(re.Compile(L"\\1"sv),                 errInvalidBackRef);
+	REQUIRE_REGEX_THROW(re.Compile(L"\\j"sv, OP_STRICT),      errInvalidEscape);
+	REQUIRE_REGEX_THROW(re.Compile(L"{1,0}."sv),              errInvalidRange);
+	REQUIRE_REGEX_THROW(re.Compile(L"{1,2}^"sv),              errInvalidQuantifiersCombination);
+	REQUIRE_REGEX_THROW(re.Compile(L"\\p{q}"sv),              errReferenceToUndefinedNamedBracket);
+	REQUIRE_REGEX_THROW(re.Compile(L"(?<=.+)"sv),             errVariableLengthLookBehind);
+	REQUIRE_REGEX_THROW(re.Compile(L"(?{}.)"sv),              errIncompleteGroupStructure);
+
+#undef REQUIRE_REGEX_THROW
+
 	REQUIRE_NOTHROW(re.Compile(L"]"sv));
-	REQUIRE_THROWS_AS(re.Compile(L"[]"sv), regex_exception);
-	REQUIRE_THROWS_AS(re.Compile(L"\\"sv), regex_exception);
 }
 
 TEST_CASE("regex.regression")
@@ -3926,6 +3956,88 @@ TEST_CASE("regex.regression")
 		REQUIRE(match[0].end == 2);
 		REQUIRE(match[1].start == -1);
 		REQUIRE(match[1].end == -1);
+	}
+}
+
+TEST_CASE("regex.named_groups")
+{
+	{
+		RegExp re;
+		re.Compile(L"(?{g1}a)(b)(?{g3}c)"sv);
+		std::vector<RegExpMatch> match;
+		named_regex_match NamedMatch;
+		REQUIRE(re.Match(L"abc"sv, match, &NamedMatch));
+		REQUIRE(match.size() == 4u);
+		REQUIRE(NamedMatch.Matches.size() == 2u);
+
+		REQUIRE(match[0].start == 0);
+		REQUIRE(match[0].end == 3);
+
+		REQUIRE(match[1].start == 0);
+		REQUIRE(match[1].end == 1);
+
+		REQUIRE(match[2].start == 1);
+		REQUIRE(match[2].end == 2);
+
+		REQUIRE(match[3].start == 2);
+		REQUIRE(match[3].end == 3);
+
+		{
+			const auto It = NamedMatch.Matches.find(L"g1"sv);
+			REQUIRE(It != NamedMatch.Matches.cend());
+			REQUIRE(It->second == 1u);
+		}
+
+		{
+			const auto It = NamedMatch.Matches.find(L"g3"sv);
+			REQUIRE(It != NamedMatch.Matches.cend());
+			REQUIRE(It->second == 3u);
+		}
+	}
+
+	{
+		RegExp re;
+		re.Compile(L"(['\"])hello\\1"sv);
+		std::vector<RegExpMatch> match;
+		named_regex_match NamedMatch;
+		REQUIRE(re.Match(L"'hello'"sv, match, &NamedMatch));
+		REQUIRE(match.size() == 2u);
+
+		REQUIRE(match[0].start == 0);
+		REQUIRE(match[0].end == 7);
+
+		REQUIRE(match[1].start == 0);
+		REQUIRE(match[1].end == 1);
+	}
+
+	{
+		RegExp re;
+		re.Compile(L"(?{q}['\"])hello\\1"sv);
+		std::vector<RegExpMatch> match;
+		named_regex_match NamedMatch;
+		REQUIRE(re.Match(L"'hello'"sv, match, &NamedMatch));
+		REQUIRE(match.size() == 2u);
+
+		REQUIRE(match[0].start == 0);
+		REQUIRE(match[0].end == 7);
+
+		REQUIRE(match[1].start == 0);
+		REQUIRE(match[1].end == 1);
+	}
+
+	{
+		RegExp re;
+		re.Compile(L"(?{q}['\"])hello\\p{q}"sv);
+		std::vector<RegExpMatch> match;
+		named_regex_match NamedMatch;
+		REQUIRE(re.Match(L"'hello'"sv, match, &NamedMatch));
+		REQUIRE(match.size() == 2u);
+
+		REQUIRE(match[0].start == 0);
+		REQUIRE(match[0].end == 7);
+
+		REQUIRE(match[1].start == 0);
+		REQUIRE(match[1].end == 1);
 	}
 }
 #endif

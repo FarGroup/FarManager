@@ -369,7 +369,6 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 		return false;
 	}
 
-	RegexData.Match.resize(RegexData.Regex.GetBracketsCount());
 	return true;
 }
 

@@ -734,8 +734,9 @@ namespace
 								if (Iterator != NamedMatch->Matches.cend())
 								{
 									Success = true;
-									start = Iterator->second.start;
-									end = Iterator->second.end;
+									const auto& m = Match[Iterator->second];
+									start = m.start;
+									end = m.end;
 								}
 							}
 						}
@@ -836,7 +837,7 @@ namespace
 			found = true;
 			FoundMatch = std::move(Match);
 			if (NamedMatch)
-				FoundNamedMatch.Matches = std::move(NamedMatch)->Matches;
+				FoundNamedMatch.Matches = std::move(NamedMatch->Matches);
 			++pos;
 		}
 
