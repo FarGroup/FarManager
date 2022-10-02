@@ -362,6 +362,8 @@ bool filemasks::masks::assign(string&& Masks, DWORD Flags)
 	}
 	catch (regex_exception const& e)
 	{
+		m_Masks.emplace<0>(); // Make it empty
+
 		if (!(Flags & FMF_SILENT))
 		{
 			ReCompileErrorMessage(e, Masks);
@@ -397,9 +399,10 @@ bool filemasks::masks::empty() const
 		{
 			return Data.empty();
 		},
-		[](const regex_data& Data)
+		[](const regex_data&)
 		{
-			return Data.Match.empty();
+			// It holds regex_data only when compilation is successful
+			return false;
 		}
 	}, m_Masks);
 }
