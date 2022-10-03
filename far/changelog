@@ -1,4 +1,15 @@
 --------------------------------------------------------------------------------
+drkns 03.10.2022 23:20:09 +0100 - build 6033
+
+1. Add regex testing UI - far:regex
+
+2. Fix regex named groups processing in cases like a(?{name}.)?b, improve tests
+
+3. Suppress logs once the logger is destroyed.
+
+4. Minor refactoring.
+
+--------------------------------------------------------------------------------
 yjh 03.10.2022 00:22:43 +0300 - build 6032
 
 1. SQLite v3.39.4.
