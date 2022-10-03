@@ -862,7 +862,6 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 	code[0].op=opOpenBracket;
 	code[0].bracket.index = 0;
 	named_regex_match NamedMatch;
-	RegExpMatch Match{};
 	int pos=1;
 	brackets[0]=code.data();
 #ifdef RE_DEBUG

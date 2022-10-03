@@ -1085,7 +1085,7 @@ void regex_playground()
 			for (const auto& [i, Index] : enumerate(Match))
 			{
 				ListStrings.emplace_back(format(FSTR(L"${}: {}"sv), Index, match_str(i)));
-				ListItems.emplace_back(i.start < 0? LIF_GRAYED : LIF_NONE, ListStrings.back().c_str(), 0, 0);
+				ListItems.push_back({ i.start < 0? LIF_GRAYED : LIF_NONE, ListStrings.back().c_str(), 0, 0 });
 			}
 
 			for (const auto& [k, v] : NamedMatch.Matches)
