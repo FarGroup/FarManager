@@ -1633,8 +1633,11 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 					{
 						op=op->bracket.pairindex;
 
-						if (op->op != opOpenBracket)
+						if (op->op != opOpenBracket && op->op != opNamedBracket)
 							throw MAKE_REGEX_EXCEPTION(errInvalidQuantifiersCombination, i + (src - start));
+
+						if (op->op == opNamedBracket)
+							delete[] op->nbracket.name;
 
 						op->range.min=min;
 						op->range.max=max;
@@ -3841,28 +3844,54 @@ TEST_CASE("regex.corner.empty_haystack")
 
 TEST_CASE("regex.list.special")
 {
+	static const struct tests
+	{
+		string_view Regex, BadMatch, GoodMatch;
+		std::initializer_list<RegExpMatch> Match;
+	}
+	Tests[]
+	{
+		{ L"[]]",     L"!"sv, L"]"sv, { { 0, 1 } } },
+		{ L"[^]]"sv,  L"]"sv, L"!"sv, { { 0, 1 } } },
+	};
+
 	RegExp re;
 	std::vector<RegExpMatch> Match;
 
-	re.Compile(L"[]]"sv);
-	REQUIRE(!re.Match(L"!"sv, Match));
-	REQUIRE(re.Match(L"]"sv, Match));
-	REQUIRE(Match.size() == 1u);
-	REQUIRE(Match[0].start == 0);
-	REQUIRE(Match[0].end == 1);
-
-
-	re.Compile(L"[^]]"sv);
-	REQUIRE(!re.Match(L"]"sv, Match));
-	REQUIRE(re.Match(L"!"sv, Match));
-	REQUIRE(Match.size() == 1u);
-	REQUIRE(Match[0].start == 0);
-	REQUIRE(Match[0].end == 1);
+	for (const auto& i: Tests)
+	{
+		re.Compile(i.Regex);
+		REQUIRE(!re.Match(i.BadMatch, Match));
+		REQUIRE(re.Match(i.GoodMatch, Match));
+		REQUIRE(Match == i.Match);
+	}
 }
 
 TEST_CASE("regex.exceptions")
 {
-	RegExp re;
+	static const struct tests
+	{
+		string_view Regex;
+		int Error;
+		int Flags;
+	}
+	CompileTests[]
+	{
+		{ L"\\"sv,               errSyntax },
+		{ L"("sv,                errBrackets },
+		{ L")"sv,                errBrackets },
+		{ L"["sv,                errBrackets },
+		{ L"[]"sv,               errBrackets },
+		{ L"(?{q}a)(?{q}b)"sv,   errSubpatternGroupNameMustBeUnique },
+		{ L"/./q"sv,             errOptions, OP_PERLSTYLE },
+		{ L"\\1"sv,              errInvalidBackRef },
+		{ L"\\j"sv,              errInvalidEscape, OP_STRICT },
+		{ L"{1,0}."sv,           errInvalidRange },
+		{ L"{1,2}^"sv,           errInvalidQuantifiersCombination },
+		{ L"\\p{q}"sv,           errReferenceToUndefinedNamedBracket },
+		{ L"(?<=.+)"sv,          errVariableLengthLookBehind },
+		{ L"(?{}.)"sv,           errIncompleteGroupStructure },
+	};
 
 	const auto Matcher = [](int const Code)
 	{
@@ -3872,172 +3901,94 @@ TEST_CASE("regex.exceptions")
 		});
 	};
 
-#define REQUIRE_REGEX_THROW(Expression, Code) REQUIRE_THROWS_MATCHES(Expression, regex_exception, Matcher(Code))
+	RegExp re;
 
-	REQUIRE_REGEX_THROW(re.Search(L"meow"sv),                 errNotCompiled);
-	REQUIRE_REGEX_THROW(re.Compile(L"\\"sv),                  errSyntax);
-	REQUIRE_REGEX_THROW(re.Compile(L"("sv),                   errBrackets);
-	REQUIRE_REGEX_THROW(re.Compile(L")"sv),                   errBrackets);
-	REQUIRE_REGEX_THROW(re.Compile(L"["sv),                   errBrackets);
-	REQUIRE_REGEX_THROW(re.Compile(L"[]"sv),                  errBrackets);
-	REQUIRE_REGEX_THROW(re.Compile(L"(?{q}a)(?{q}b)"sv),      errSubpatternGroupNameMustBeUnique);
-	REQUIRE_REGEX_THROW(re.Compile(L"/./q"sv, OP_PERLSTYLE),  errOptions);
-	REQUIRE_REGEX_THROW(re.Compile(L"\\1"sv),                 errInvalidBackRef);
-	REQUIRE_REGEX_THROW(re.Compile(L"\\j"sv, OP_STRICT),      errInvalidEscape);
-	REQUIRE_REGEX_THROW(re.Compile(L"{1,0}."sv),              errInvalidRange);
-	REQUIRE_REGEX_THROW(re.Compile(L"{1,2}^"sv),              errInvalidQuantifiersCombination);
-	REQUIRE_REGEX_THROW(re.Compile(L"\\p{q}"sv),              errReferenceToUndefinedNamedBracket);
-	REQUIRE_REGEX_THROW(re.Compile(L"(?<=.+)"sv),             errVariableLengthLookBehind);
-	REQUIRE_REGEX_THROW(re.Compile(L"(?{}.)"sv),              errIncompleteGroupStructure);
+	for (const auto& i: CompileTests)
+	{
+		REQUIRE_THROWS_MATCHES(re.Compile(i.Regex, i.Flags), regex_exception, Matcher(i.Error));
+	}
 
-#undef REQUIRE_REGEX_THROW
-
+	REQUIRE_THROWS_MATCHES(re.Search(L"meow"sv), regex_exception, Matcher(errNotCompiled));
 	REQUIRE_NOTHROW(re.Compile(L"]"sv));
 }
 
 TEST_CASE("regex.regression")
 {
+	static const struct tests
 	{
-		RegExp re;
-		re.Compile(L"a*?ca"sv);
-
-		std::vector<RegExpMatch> match(1);
-
-		REQUIRE(re.Search(L"abca"sv, match));
-		REQUIRE(match.size() == 1u);
-
-		REQUIRE(match[0].start == 2);
-		REQUIRE(match[0].end == 4);
+		string_view Regex, Input;
+		std::initializer_list<RegExpMatch> Match;
 	}
-
+	Tests[]
 	{
-		RegExp re;
-		re.Compile(L"^\\[([\\w.]+)\\]:\\s*\\[(.*)\\]$"sv);
+		{ L"a*?ca"sv,                              L"abca"sv,       {{ 2,  4}} },
+		{ L"a(.)?b"sv,                             L"ab"sv,         {{ 0,  2}, {-1, -1}} },
+		{ L"a(?{lol}.)?b"sv,                       L"ab"sv,         {{ 0,  2}, {-1, -1}} },
+		{ L"^\\[([\\w.]+)\\]:\\s*\\[(.*)\\]$"sv,   L"[i]: [r]"sv,   {{ 0,  8}, { 1,  2}, { 6,  7}} },
+		{ L"([bc]+)|(zz)"sv,                       L"abc"sv,        {{ 1,  3}, { 1,  3}, {-1, -1}} },
+	};
 
-		std::vector<RegExpMatch> match(1);
+	RegExp re;
+	std::vector<RegExpMatch> Match;
 
-		REQUIRE(re.Search(L"[init.svc.imsdatadaemon]: [running]"sv, match));
-		REQUIRE(match.size() == 3u);
-
-		REQUIRE(match[0].start == 0);
-		REQUIRE(match[0].end == 35);
-
-		REQUIRE(match[1].start == 1);
-		REQUIRE(match[1].end == 23);
-
-		REQUIRE(match[2].start == 27);
-		REQUIRE(match[2].end == 34);
-	}
-
+	for (const auto& i: Tests)
 	{
-		RegExp re;
-		re.Compile(L"([bc]+)|(zz)"sv);
-		std::vector<RegExpMatch> match;
-		REQUIRE(re.Search(L"abc"sv, match));
-		REQUIRE(match.size() == 3u);
+		const auto MatchExpected = i.Match.size() != 0;
 
-		REQUIRE(match[0].start == 1);
-		REQUIRE(match[0].end == 3);
+		for (const auto Flag: { OP_NONE, OP_OPTIMIZE })
+		{
+			re.Compile(i.Regex, Flag);
+			REQUIRE(re.Search(i.Input, Match) == MatchExpected);
 
-		REQUIRE(match[1].start == 1);
-		REQUIRE(match[1].end == 3);
-
-		REQUIRE(match[2].start == -1);
-		REQUIRE(match[2].end == -1);
-	}
-
-	{
-		RegExp re;
-		re.Compile(L"a(.)?b"sv);
-		std::vector<RegExpMatch> match;
-		REQUIRE(re.Search(L"ab"sv, match));
-		REQUIRE(match.size() == 2u);
-		REQUIRE(match[0].start == 0);
-		REQUIRE(match[0].end == 2);
-		REQUIRE(match[1].start == -1);
-		REQUIRE(match[1].end == -1);
+			if (MatchExpected)
+				REQUIRE(Match == i.Match);
+		}
 	}
 }
 
 TEST_CASE("regex.named_groups")
 {
+	static const struct tests
 	{
-		RegExp re;
-		re.Compile(L"(?{g1}a)(b)(?{g3}c)"sv);
-		std::vector<RegExpMatch> match;
-		named_regex_match NamedMatch;
-		REQUIRE(re.Match(L"abc"sv, match, &NamedMatch));
-		REQUIRE(match.size() == 4u);
-		REQUIRE(NamedMatch.Matches.size() == 2u);
+		string_view Regex, Input;
+		std::initializer_list<RegExpMatch> Match;
+		std::initializer_list<std::pair<string_view, size_t>> NamedMatch;
+	}
+	Tests[]
+	{
+		{ L"(?{g1}a)(b)(?{g3}c)"sv,        L"abc"sv,       {{0, 3}, {0, 1}, {1, 2},  {2, 3}}, {{L"g1"sv, 1}, { L"g3"sv, 3 } }},
+		{ L"(?{q}['\"])hello\\1"sv,        L"'hello'"sv,   {{0, 7}, {0, 1}},                  {{L"q"sv, 1}}},
+		{ L"(?{q}['\"])hello\\p{q}"sv,     L"\"hello\""sv, {{0, 7}, {0, 1}},                  {{L"q"sv, 1}}},
+		{ L"(?{q}['\"])hello\\p{q}"sv,     L"\"hello'"sv, },
+	};
 
-		REQUIRE(match[0].start == 0);
-		REQUIRE(match[0].end == 3);
+	RegExp re;
+	std::vector<RegExpMatch> Match;
+	named_regex_match NamedMatch;
 
-		REQUIRE(match[1].start == 0);
-		REQUIRE(match[1].end == 1);
+	for (const auto& i: Tests)
+	{
+		const auto MatchExpected = i.Match.size() != 0;
 
-		REQUIRE(match[2].start == 1);
-		REQUIRE(match[2].end == 2);
-
-		REQUIRE(match[3].start == 2);
-		REQUIRE(match[3].end == 3);
-
+		for (const auto Flag: { OP_NONE, OP_OPTIMIZE })
 		{
-			const auto It = NamedMatch.Matches.find(L"g1"sv);
-			REQUIRE(It != NamedMatch.Matches.cend());
-			REQUIRE(It->second == 1u);
+			re.Compile(i.Regex, Flag);
+			REQUIRE(re.Search(i.Input, Match, &NamedMatch) == MatchExpected);
+
+			if (!MatchExpected)
+				continue;
+
+			REQUIRE(Match == i.Match);
+
+			REQUIRE(i.NamedMatch.size() == NamedMatch.Matches.size());
+
+			for (const auto& [k, v]: i.NamedMatch)
+			{
+				const auto It = NamedMatch.Matches.find(k);
+				REQUIRE(It != NamedMatch.Matches.cend());
+				REQUIRE(It->second == v);
+			}
 		}
-
-		{
-			const auto It = NamedMatch.Matches.find(L"g3"sv);
-			REQUIRE(It != NamedMatch.Matches.cend());
-			REQUIRE(It->second == 3u);
-		}
-	}
-
-	{
-		RegExp re;
-		re.Compile(L"(['\"])hello\\1"sv);
-		std::vector<RegExpMatch> match;
-		named_regex_match NamedMatch;
-		REQUIRE(re.Match(L"'hello'"sv, match, &NamedMatch));
-		REQUIRE(match.size() == 2u);
-
-		REQUIRE(match[0].start == 0);
-		REQUIRE(match[0].end == 7);
-
-		REQUIRE(match[1].start == 0);
-		REQUIRE(match[1].end == 1);
-	}
-
-	{
-		RegExp re;
-		re.Compile(L"(?{q}['\"])hello\\1"sv);
-		std::vector<RegExpMatch> match;
-		named_regex_match NamedMatch;
-		REQUIRE(re.Match(L"'hello'"sv, match, &NamedMatch));
-		REQUIRE(match.size() == 2u);
-
-		REQUIRE(match[0].start == 0);
-		REQUIRE(match[0].end == 7);
-
-		REQUIRE(match[1].start == 0);
-		REQUIRE(match[1].end == 1);
-	}
-
-	{
-		RegExp re;
-		re.Compile(L"(?{q}['\"])hello\\p{q}"sv);
-		std::vector<RegExpMatch> match;
-		named_regex_match NamedMatch;
-		REQUIRE(re.Match(L"'hello'"sv, match, &NamedMatch));
-		REQUIRE(match.size() == 2u);
-
-		REQUIRE(match[0].start == 0);
-		REQUIRE(match[0].end == 7);
-
-		REQUIRE(match[1].start == 0);
-		REQUIRE(match[1].end == 1);
 	}
 }
 #endif
