@@ -3505,7 +3505,7 @@ bool Editor::Search(bool Next)
 				ReverseSearch,
 				Regexp,
 				PreserveStyle,
-				&SearchLength,
+				SearchLength,
 				GetWordDiv()
 			))
 			{

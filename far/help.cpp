@@ -2012,7 +2012,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 				LastSearchWholeWords,
 				false,
 				LastSearchRegexp,
-				&SearchLength,
+				SearchLength,
 				Global->Opt->EdOpt.strWordDiv
 			))
 			{

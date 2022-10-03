@@ -673,15 +673,13 @@ unsigned long long ConvertFileSizeString(string_view const FileSizeStr)
 	}
 }
 
-namespace
-{
-	string ReplaceBrackets(
+string ReplaceBrackets(
 		const string_view SearchStr,
 		const string_view ReplaceStr,
 		span<RegExpMatch const> Match,
 		const named_regex_match* NamedMatch,
 		int& CurPos,
-		int* SearchLength)
+		int& SearchLength)
 	{
 		string result;
 		for (size_t i = 0, length = ReplaceStr.size(); i < length; ++i)
@@ -761,11 +759,13 @@ namespace
 			}
 		}
 
-		*SearchLength = Match[0].end - Match[0].start;
+		SearchLength = Match[0].end - Match[0].start;
 		CurPos = Match[0].start;
 		return result;
 	}
 
+namespace
+{
 	bool CanContainWholeWord(string_view const Haystack, size_t const Offset, size_t const NeedleSize, string_view const WordDiv)
 	{
 		const auto BlankOrWordDiv = [&WordDiv](wchar_t Ch)
@@ -792,7 +792,7 @@ namespace
 		bool const Reverse,
 		string& ReplaceStr,
 		int& CurPos,
-		int* SearchLength,
+		int& SearchLength,
 		string_view WordDiv)
 	{
 		if (!Reverse)
@@ -862,7 +862,7 @@ bool SearchString(
 	bool const WholeWords,
 	bool const Reverse,
 	bool const Regexp,
-	int* const SearchLength,
+	int& SearchLength,
 	string_view WordDiv)
 {
 	string Dummy;
@@ -899,15 +899,15 @@ bool SearchAndReplaceString(
 	bool const Reverse,
 	bool const Regexp,
 	bool const PreserveStyle,
-	int* const SearchLength,
+	int& SearchLength,
 	string_view WordDiv)
 {
-	*SearchLength = 0;
+	SearchLength = 0;
 
 	if (WordDiv.empty())
 		WordDiv = Global->Opt->strWordDiv;
 
-	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Haystack, Needle, ReplaceStr, CurPos, CaseFold, WholeWords, WordDiv, Reverse, *SearchLength))
+	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Haystack, Needle, ReplaceStr, CurPos, CaseFold, WholeWords, WordDiv, Reverse, SearchLength))
 		return true;
 
 	if (Needle.empty())
@@ -965,7 +965,7 @@ bool SearchAndReplaceString(
 		}
 
 		CurPos = static_cast<int>(AbsoluteOffset);
-		*SearchLength = static_cast<int>(FoundSize);
+		SearchLength = static_cast<int>(FoundSize);
 
 		// В случае PreserveStyle: если не получилось сделать замену c помощью PreserveStyleReplaceString,
 		// то хотя бы сохранить регистр первой буквы.
