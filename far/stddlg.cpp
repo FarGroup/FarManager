@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "copy_progress.hpp"
 #include "keyboard.hpp"
 #include "pathmix.hpp"
+#include "colormix.hpp"
 
 // Platform:
 #include "platform.com.hpp"
@@ -67,6 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/from_string.hpp"
 #include "common/function_ref.hpp"
+#include "common/view/enumerate.hpp"
 
 // External:
 #include "format.hpp"
@@ -928,6 +930,239 @@ bool RetryAbort(std::vector<string>&& Messages)
 		for (const auto& i: Messages)
 			std::wcerr << i << L'\n';
 	});
+}
+
+void regex_playground()
+{
+	enum
+	{
+		rp_doublebox,
+		rp_text_regex,
+		rp_edit_regex,
+		rp_text_cursor,
+		rp_text_test,
+		rp_edit_test,
+		rp_text_substitution,
+		rp_edit_substitution,
+		rp_text_result,
+		rp_edit_result,
+		rp_list_matches,
+		rp_text_status,
+		rp_edit_status,
+		rp_separator,
+		rp_button_ok,
+
+		rp_count
+	};
+
+	auto RegexDlgItems = MakeDialogItems<rp_count>(
+	{
+		{ DI_DOUBLEBOX, {{3,  1}, {72,15}}, DIF_NONE, L"Regular expressions", },
+		{ DI_TEXT,      {{5,  2}, {0,  2}}, DIF_NONE, L"Regex:" },
+		{ DI_EDIT,      {{5,  3}, {45, 3}}, DIF_HISTORY, },
+		{ DI_TEXT,      {{5,  4}, {45, 4}}, DIF_NONE, L"" },
+		{ DI_TEXT,      {{5,  5}, {0,  5}}, DIF_NONE, L"Test string:" },
+		{ DI_EDIT,      {{5,  6}, {45, 6}}, DIF_HISTORY, },
+		{ DI_TEXT,      {{5,  7}, {0,  7}}, DIF_NONE, L"Substitution:" },
+		{ DI_EDIT,      {{5,  8}, {45, 8}}, DIF_HISTORY, },
+		{ DI_TEXT,      {{5,  9}, {0,  9}}, DIF_NONE, L"Result:" },
+		{ DI_EDIT,      {{5, 10}, {45,10}}, DIF_READONLY, },
+		{ DI_LISTBOX,   {{47, 2}, {70,11}}, DIF_NONE, L"Matches" },
+		{ DI_TEXT,      {{5, 11}, {0, 11}}, DIF_NONE, L"Status:" },
+		{ DI_EDIT,      {{5, 12}, {70,12}}, DIF_READONLY, },
+		{ DI_TEXT,      {{-1,13}, {0, 13}}, DIF_SEPARATOR, },
+		{ DI_BUTTON,    {{0, 14}, {0, 14}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MOk), },
+	});
+
+	RegexDlgItems[rp_edit_regex].strHistory = L"RegexTestRegex"sv;
+	RegexDlgItems[rp_edit_test].strHistory = L"RegexTestTest"sv;
+	RegexDlgItems[rp_edit_substitution].strHistory = L"RegexTestSubstitution"sv;
+
+	RegExp Regex;
+	std::vector<RegExpMatch> Match;
+	named_regex_match NamedMatch;
+
+	std::vector<string> ListStrings;
+	std::vector<FarListItem> ListItems;
+
+	enum class status
+	{
+		normal,
+		warning,
+		error
+	}
+	Status{};
+
+	const auto status_to_color = [&]
+	{
+		switch (Status)
+		{
+		case status::normal:  return F_LIGHTGREEN;
+		case status::warning: return F_YELLOW;
+		case status::error:   return F_LIGHTRED;
+		default: UNREACHABLE;
+		}
+	};
+
+	const auto RegexDlg = Dialog::create(RegexDlgItems, [&](Dialog* const Dlg, intptr_t const Msg, intptr_t const Param1, void* const Param2)
+	{
+		const auto update_substitution = [&]
+		{
+			const auto TestStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
+			const auto ReplaceStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_substitution, {}));
+
+			int CurPos = 0;
+			int SearchLength;
+			const auto Str = ReplaceBrackets(TestStr, ReplaceStr, Match, &NamedMatch, CurPos, SearchLength);
+			Status = status::normal;
+			Dlg->SendMessage(DM_SETTEXTPTR, rp_edit_result, UNSAFE_CSTR(Str));
+		};
+
+		const auto update_matches = [&]
+		{
+			FarList List{ sizeof(List), ListItems.size(), ListItems.data() };
+			Dlg->SendMessage(DM_LISTSET, rp_list_matches, &List);
+		};
+
+		const auto clear_matches = [&]
+		{
+			Match.clear();
+			NamedMatch.Matches.clear();
+			ListItems.clear();
+
+			update_matches();
+		};
+
+		const auto update_cursor = [&](std::optional<size_t> const& Position = {})
+		{
+			Dlg->SendMessage(DM_SETTEXTPTR, rp_text_cursor, Position? UNSAFE_CSTR(string(*Position, L' ') + L'↑') : nullptr);
+		};
+
+		const auto update_status = [&](status const NewStatus, string const& Message)
+		{
+			Status = NewStatus;
+			Dlg->SendMessage(DM_SETTEXTPTR, rp_edit_status, UNSAFE_CSTR(Message));
+		};
+
+		const auto update_test = [&]
+		{
+			string_view const TestStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_test, {}));
+
+			bool IsMatch;
+
+			try
+			{
+				IsMatch = Regex.Search(TestStr, Match, &NamedMatch);
+			}
+			catch (regex_exception const& e)
+			{
+				clear_matches();
+				update_cursor(e.position());
+				update_status(status::error, e.message());
+				return false;
+			}
+
+			if (!IsMatch)
+			{
+				clear_matches();
+				update_status(status::warning, L"Not found"s);
+				return false;
+			}
+
+			update_status(status::normal, L"Found"s);
+
+			ListItems.clear();
+			ListStrings.clear();
+
+			reserve_exp_noshrink(ListItems, Match.size());
+			reserve_exp_noshrink(ListStrings, Match.size());
+
+			const auto match_str = [&](RegExpMatch const& m)
+			{
+				return m.start < 0? L""sv : TestStr.substr(m.start, m.end - m.start);
+			};
+
+			for (const auto& [i, Index] : enumerate(Match))
+			{
+				ListStrings.emplace_back(format(FSTR(L"${}: {}"sv), Index, match_str(i)));
+				ListItems.emplace_back(i.start < 0? LIF_GRAYED : LIF_NONE, ListStrings.back().c_str(), 0, 0);
+			}
+
+			for (const auto& [k, v] : NamedMatch.Matches)
+			{
+				const auto& m = Match[v];
+				ListStrings[v] = format(FSTR(L"${{{}}}: {}"sv), k, match_str(m));
+				ListItems[v].Text = ListStrings[v].c_str();
+			}
+
+			update_matches();
+			update_substitution();
+			return true;
+		};
+
+		const auto update_regex = [&]
+		{
+			const auto RegexStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_regex, {}));
+
+			try
+			{
+				Regex.Compile(RegexStr, starts_with(RegexStr, L'/')? OP_PERLSTYLE : 0);
+			}
+			catch (regex_exception const& e)
+			{
+				clear_matches();
+				update_cursor(e.position());
+				update_status(status::error, e.message());
+				return false;
+			}
+
+			update_cursor();
+			update_status(status::normal, msg(lng::MOk));
+			return update_test();
+		};
+
+		switch (Msg)
+		{
+		case DN_CTLCOLORDLGITEM:
+			if (Param1 == rp_edit_status)
+			{
+				const auto& Colors = *static_cast<FarDialogItemColors const*>(Param2);
+				Colors.Colors[0] = Colors.Colors[2] = colors::NtColorToFarColor(B_BLACK | status_to_color());
+			}
+			break;
+
+		case DN_EDITCHANGE:
+			{
+				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
+
+				switch (Param1)
+				{
+				case rp_edit_regex:
+					update_regex();
+					break;
+
+				case rp_edit_test:
+					update_test();
+					break;
+
+				case rp_edit_substitution:
+					update_substitution();
+					break;
+				}
+			}
+			break;
+		}
+
+		return Dlg->DefProc(Msg, Param1, Param2);
+	});
+
+	const auto
+		DlgWidth = static_cast<int>(RegexDlgItems[rp_doublebox].X2) + 4,
+		DlgHeight = static_cast<int>(RegexDlgItems[rp_doublebox].Y2) + 2;
+
+	RegexDlg->SetPosition({ -1, -1, DlgWidth, DlgHeight });
+	RegexDlg->SetHelp(L"RegExp"sv);
+	RegexDlg->Process();
 }
 
 progress_impl::~progress_impl()

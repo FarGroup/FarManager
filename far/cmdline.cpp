@@ -74,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "log.hpp"
 #include "char_width.hpp"
+#include "stddlg.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -980,6 +981,12 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool)> con
 			logging::configure(trim(LogParameters));
 			return true;
 		}
+	}
+
+	if (equal_icase(Command, L"regex"sv))
+	{
+		regex_playground();
+		return true;
 	}
 
 	return false;
