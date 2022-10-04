@@ -3983,7 +3983,7 @@ TEST_CASE("regex.named_groups")
 
 			for (const auto& [k, v]: i.NamedMatch)
 			{
-				const auto It = NamedMatch.Matches.find(k);
+				const auto It = NamedMatch.Matches.find(string_comparer::generic_key{ k });
 				REQUIRE(It != NamedMatch.Matches.cend());
 				REQUIRE(It->second == v);
 			}

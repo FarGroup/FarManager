@@ -1206,9 +1206,7 @@ size_t string_pos_to_visual_pos(string_view Str, size_t const StringPos, size_t 
 	if (SavedState && StringPos > SavedState->StringIndex)
 		State = *SavedState;
 
-	// Lambda capture is essential here, without it the lambda will happily convert itself
-	// to a temporary function pointer and function_ref will refer to that temporary.
-	const auto nop_signal = [&](size_t, size_t){};
+	const auto nop_signal = [](size_t, size_t){};
 	const auto signal = State.signal? State.signal : nop_signal;
 
 	const auto End = std::min(Str.size(), StringPos);
@@ -1263,9 +1261,7 @@ size_t visual_pos_to_string_pos(string_view Str, size_t const VisualPos, size_t 
 	if (SavedState && VisualPos > SavedState->VisualIndex)
 		State = *SavedState;
 
-	// Lambda capture is essential here, without it the lambda will happily convert itself
-	// to a temporary function pointer and function_ref will refer to that temporary.
-	const auto nop_signal = [&](size_t, size_t){};
+	const auto nop_signal = [](size_t, size_t){};
 	const auto signal = State.signal? State.signal : nop_signal;
 
 	const auto End = Str.size();

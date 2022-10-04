@@ -506,6 +506,62 @@ TEST_CASE("from_string")
 
 //----------------------------------------------------------------------------
 
+#include "common/function_ref.hpp"
+
+TEST_CASE("function_ref")
+{
+	{
+		struct s
+		{
+			static int square(int const i) { return i * i; }
+		};
+
+		function_ref const Func = &s::square;
+		REQUIRE(Func(2) == 4);
+	}
+
+	{
+		struct square
+		{
+			int operator()(int const i) const { return i * i; }
+		};
+
+		square const Square;
+		function_ref const Func = Square;
+		REQUIRE(Func(2) == 4);
+	}
+
+	{
+		const auto square = [](int const i) { return i * i; };
+
+		function_ref const Func = square;
+		REQUIRE(Func(2) == 4);
+	}
+
+	{
+		const auto square = [&](int const i) { return i * i; };
+
+		function_ref const Func = square;
+		REQUIRE(Func(2) == 4);
+	}
+
+	{
+		auto square = [&](int const i) mutable { return i * i; };
+
+		function_ref const Func = square;
+		REQUIRE(Func(2) == 4);
+	}
+
+	{
+		const auto square = [](int const i) mutable { return i * i; };
+
+		function_ref const Func = square;
+		REQUIRE(Func(2) == 4);
+	}
+}
+
+//----------------------------------------------------------------------------
+
 #include "common/function_traits.hpp"
 
 TEST_CASE("function_traits")
