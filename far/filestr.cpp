@@ -42,8 +42,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "codepage_selection.hpp"
 #include "global.hpp"
+#include "log.hpp"
 
 // Platform:
+#include "platform.com.hpp"
 
 // Common:
 #include "common/algorithm.hpp"
@@ -322,32 +324,63 @@ static bool GetUnicodeCpUsingWindows(const void* Data, size_t Size, uintptr_t& C
 	return false;
 }
 
-static bool GetCpUsingUniversalDetectorWithExceptions(std::string_view const Str, uintptr_t& Codepage)
+static bool GetCpUsingML(std::string_view Str, uintptr_t& Codepage, function_ref<bool(uintptr_t)> const IsCodepageAcceptable)
 {
-	if (!GetCpUsingUniversalDetector(Str, Codepage))
+	SCOPED_ACTION(os::com::initialize);
+
+	os::com::ptr<IMultiLanguage2> ML;
+	if (const auto Result = CoCreateInstance(CLSID_CMultiLanguage, {}, CLSCTX_INPROC_SERVER, IID_IMultiLanguage2, IID_PPV_ARGS_Helper(&ptr_setter(ML))); FAILED(Result))
+	{
+		LOGWARNING(L"CoCreateInstance(CLSID_CMultiLanguage): {}"sv, os::format_error(Result));
+		return false;
+	}
+
+	int Size = static_cast<int>(Str.size());
+	DetectEncodingInfo Info[10];
+	int InfoCount = static_cast<int>(std::size(Info));
+
+	if (const auto Result = ML->DetectInputCodepage(MLDETECTCP_NONE, 0, const_cast<char*>(Str.data()), &Size, Info, &InfoCount); FAILED(Result))
 		return false;
 
-	// This whole block shouldn't be here
-	if (Global->Opt->strNoAutoDetectCP.Get() == L"-1"sv)
-	{
-		if (Global->Opt->CPMenuMode && none_of(Codepage, encoding::codepage::ansi(), encoding::codepage::oem()))
-		{
-			const auto CodepageType = codepages::GetFavorite(Codepage);
-			if (!(CodepageType & CPST_FAVORITE))
-			{
-				return false;
-			}
-		}
-	}
-	else
-	{
-		if (contains(enum_tokens(Global->Opt->strNoAutoDetectCP.Get(), L",;"sv), str(Codepage)))
-		{
-			return false;
-		}
-	}
+	const auto Scores = span(Info, InfoCount);
+	std::sort(ALL_CONST_RANGE(Scores), [](DetectEncodingInfo const& a, DetectEncodingInfo const& b) { return a.nDocPercent > b.nDocPercent; });
 
+	const auto It = std::find_if(ALL_CONST_RANGE(Scores), [&](DetectEncodingInfo const& i) { return i.nLangID != 0xffffffff && IsCodepageAcceptable(i.nCodePage); });
+	if (It == Scores.cend())
+		return false;
+
+	Codepage = It->nCodePage;
 	return true;
+}
+
+static bool GetCpUsingHeuristicsWithExceptions(std::string_view const Str, uintptr_t& Codepage)
+{
+	const auto IsCodepageNotBlacklisted = [](uintptr_t const Cp)
+	{
+		return !contains(enum_tokens(Global->Opt->strNoAutoDetectCP.Get(), L",;"sv), str(Cp));
+	};
+
+	const auto IsCodepageWhitelisted = [](uintptr_t const Cp)
+	{
+		if (!Global->Opt->CPMenuMode)
+			return true;
+
+		if (any_of(Cp, encoding::codepage::ansi(), encoding::codepage::oem()))
+			return true;
+
+		const auto CodepageType = codepages::GetFavorite(Cp);
+		return (CodepageType & CPST_FAVORITE) != 0;
+	};
+
+	const auto IsCodepageAcceptable =
+		Global->Opt->strNoAutoDetectCP == L"-1"sv?
+			function_ref(IsCodepageWhitelisted) :
+			function_ref(IsCodepageNotBlacklisted);
+
+	if (GetCpUsingUniversalDetector(Str, Codepage) && IsCodepageAcceptable(Codepage))
+		return true;
+
+	return GetCpUsingML(Str, Codepage, IsCodepageAcceptable);
 }
 
 // If the file contains a BOM this function will advance the file pointer by the BOM size (either 2 or 3)
@@ -398,7 +431,7 @@ static bool GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage,
 
 	NotUTF8 = true;
 
-	return GetCpUsingUniversalDetectorWithExceptions({ Buffer.data(), ReadSize }, Codepage);
+	return GetCpUsingHeuristicsWithExceptions({ Buffer.data(), ReadSize }, Codepage);
 }
 
 uintptr_t GetFileCodepage(const os::fs::file& File, uintptr_t DefaultCodepage, bool* SignatureFound, bool UseHeuristics)

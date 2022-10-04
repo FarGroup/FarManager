@@ -5560,28 +5560,17 @@ Jeżeli bieżąca wartość opcji jest inna niż domyślna, opcja jest oznaczona
 
 @Codepages.NoAutoDetectCP
 $ #far:config Codepages.NoAutoDetectCP#
- Ten parametr tekstowy definiuje strony kodowe, które będą wyłączane
-z autodetekcji Universal Codepage Detector (UCD). Czasami, szczególnie
-w przypadku małych plików, UCD irytująco wybiera niewłaściwe strony kodowe.
+ This parameter allows to exclude specific code pages from the heuristic code page detection results.
+Such detection is unreliable by definition: it depends on statistical data and could guess wrong, especially when the amount of input data is small.
 
- Domyślną wartością jest pusty łańcuch #""#. W takim przypadku wszystkie
-strony kodowe wykrywane przez UCD (około 20, znacznie mniej niż zazwyczaj
-jest dostępnych w systemie) są włączone.
+ By default the parameter is empty and there are no restrictions which code pages could be detected heuristically.
 
- Jeżeli ten parametr jest ustawiony na #"-1"# i sekcja #Pozostałe# w menu
-~Strony kodowe~@CodePagesMenu@ jest ukryta (kombinacja klawiszy #Ctrl+H#),
-tylko strony kodowe #Systemowe# (ANSI, OEM), #Unicode#, i #Ulubione# będą
-włączone dla UCD. Jeżeli sekcja #Pozostałe# jest widoczna, to wszystkie
-strony kodowe są włączone.
+ If this parameter is set to #-1#, only the code pages, currenltly visible in the ~Code pages~@CodePagesMenu@ menu, will be accepted.
+You can control which code pages are visible there with the #Ctrl+H# key combination and the #Favorites# section.
 
- W przeciwnym wypadku, parametr powinien zawierać listę stron kodowych
-wyłączonych dla UCD, oddzieloną przecinkami. Np.:
-#"1250,1252,1253,1255,855,10005,28592,28595,28597,28598,38598"#.
+ If this parameter contains a comma-separated list of code page numbers, all the specified code pages will be excluded from the heuristic detection.
 
- Ponieważ strony kodowe Unicode (1200, 1201, 65001) są wykrywane poza UCD,
-nie można ich wyłączyć, nawet jeżeli znajdują się na liście wykluczeń.
-
- Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Help.ActivateURL

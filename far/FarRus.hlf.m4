@@ -5638,30 +5638,17 @@ $ #Редактор конфигурации#
 
 @Codepages.NoAutoDetectCP
 $ #far:config Codepages.NoAutoDetectCP#
- Этот строковый параметр задаёт кодовые страницы, которые будут
-исключены из автоматического определения Universal Codepage Detector'ом
-(UCD). Иногда (особенно на небольших файлах) UCD назойливо выбирает
-неподходящие кодовые страницы.
+ This parameter allows to exclude specific code pages from the heuristic code page detection results.
+Such detection is unreliable by definition: it depends on statistical data and could guess wrong, especially when the amount of input data is small.
 
- Значение по умолчанию -- это пустая строка #""#. В этом случае все
-кодовые страницы, которые может определить UCD (около двух десятков,
-гораздо меньше, чем обычно доступно в системе) разрешены.
+ By default the parameter is empty and there are no restrictions which code pages could be detected heuristically.
 
- Если параметр равен строке #"-1"#, и раздел #Прочие# в меню
-~кодовых страниц~@CodePagesMenu@ скрыт (комбинация клавиш #Ctrl+H#),
-то для UCD будут разрешены только #Системные# (ANSI, OEM), #Юникодные#
-и #Избранные# кодовые страницы. Если раздел #Прочие# виден, все кодовые
-страницы разрешены.
+ If this parameter is set to #-1#, only the code pages, currenltly visible in the ~Code pages~@CodePagesMenu@ menu, will be accepted.
+You can control which code pages are visible there with the #Ctrl+H# key combination and the #Favorites# section.
 
- В противном случае параметр должен содержать список номеров кодовых
-страниц, запрещённых для UCD. Например,
-#"1250,1252,1253,1255,855,10005,28592,28595,28597,28598,38598"#.
+ If this parameter contains a comma-separated list of code page numbers, all the specified code pages will be excluded from the heuristic detection.
 
- Поскольку юникодные кодовые страницы (1200, 1201, 65001) проверяются
-отдельно от UCD, они не могут быть запрещены, даже если они есть
-в списке исключений.
-
- Изменить этот параметр можно только через ~far:config~@FarConfig@.
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Help.ActivateURL
