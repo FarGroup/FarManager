@@ -3766,7 +3766,7 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 
 #include "testing.hpp"
 
-std::ostream& operator<<(std::ostream& Stream, RegExpMatch const& m)
+static std::ostream& operator<<(std::ostream& Stream, RegExpMatch const& m)
 {
 	Stream << '{' << m.start << ", "sv << m.end << '}';
 	return Stream;

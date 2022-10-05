@@ -1565,10 +1565,7 @@ $ #Menus: options menu#
 
  #Code pages#            Shows the ~Code pages~@CodePagesMenu@ menu.
 
- #Colors#                Allows to select colors for different
-                       interface items, to change the entire Far
-                       colors palette to black and white or to set
-                       the colors to default.
+ #Colors#                Shows the ~Color groups~@ColorGroups@ menu.
 
  #Files highlighting#    Shows ~Files highlighting~@Highlight@ and sort groups
  #and sort groups#       dialog.
@@ -4294,6 +4291,33 @@ the method of displaying files, when processing files Far always uses the
 real case.
 
  See also: common ~menu~@MenuCmd@ keyboard commands.
+
+
+@ColorGroups
+$ #Color groups#
+ This menu allows to select colors for different interface items or to set the colors to default.
+
+ #Set default colors#
+ Set the colors to default values, expressed as indices in the console palette.
+
+ #Set default colors (RGB)#
+ Set the colors to default values, expressed as colors in RGB space, normally used for the corresponding console palette indices.
+ Unlike the indices in the console palette, the RGB values are device-independent and will look the same in any terminal.
+ For example, the default #index# value of panels background is #1#, which is usually, but not necessarily, mapped to some unspecified shade of blue.
+ The default #RGB# value of panels background, on the contrary, is always exactly #000080#.
+
+ #Note#: RGB colors require Virtual Terminal-based rendering, which can be enabled in ~Interface settings~@InterfSettings@.
+If it is not enabled or if your terminal does not support RGB colors, they will be approximated to the closest console palette indices.
+
+ This is the current palette:
+
+ \00  \10  \20  \30  \40  \50  \60  \70  \-
+ \80  \90  \A0  \B0  \C0  \D0  \E0  \F0  \-
+
+ This is the default RGB representation:
+
+ \(T0:T000000)  \(T0:T000080)  \(T0:T008000)  \(T0:T008080)  \(T0:T800000)  \(T0:T800080)  \(T0:T808000)  \(T0:TC0C0C0)  \-
+ \(T0:T808080)  \(T0:T0000FF)  \(T0:T00FF00)  \(T0:T00FFFF)  \(T0:TFF0000)  \(T0:TFF00FF)  \(T0:TFFFF00)  \(T0:TFFFFFF)  \-
 
 
 @ColorPicker

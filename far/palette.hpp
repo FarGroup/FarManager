@@ -95,8 +95,8 @@ public:
 	palette();
 	void Load();
 	void Save(bool always);
-	void ResetToDefault();
-	void ResetToBlack();
+	void ResetToDefaultIndex();
+	void ResetToDefaultRGB();
 	unsigned char Default(size_t Index) const;
 	void Set(size_t StartOffset, span<FarColor> Values);
 	void CopyTo(span<FarColor> Destination) const;
@@ -108,7 +108,7 @@ public:
 	void SetCustomColors(const custom_colors& Colors);
 
 private:
-	void Reset(bool Black);
+	void Reset(bool RGB);
 	std::vector<FarColor> CurrentPalette;
 	bool PaletteChanged{};
 	bool CustomColorsChanged{};

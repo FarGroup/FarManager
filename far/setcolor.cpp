@@ -389,10 +389,11 @@ void SetColors()
 			GroupsMenu->AddItem(tmp);
 		}
 
-		const auto DefaultId = static_cast<int>(GroupsMenu->size());
+		const auto DefaultIndexId = static_cast<int>(GroupsMenu->size());
 		GroupsMenu->AddItem(msg(lng::MSetDefaultColors));
-		const auto BlackWhiteId = static_cast<int>(GroupsMenu->size());
-		GroupsMenu->AddItem(msg(lng::MSetBW));
+		const auto DefaultRGBId = static_cast<int>(GroupsMenu->size());
+		GroupsMenu->AddItem(msg(lng::MSetDefaultColorsRGB));
+		GroupsMenu->SetHelp(L"ColorGroups"sv);
 
 		GroupsMenu->SetPosition({ 2, 1, 0, 0 });
 		GroupsMenu->SetMenuFlags(VMENU_WRAPMODE);
@@ -405,16 +406,15 @@ void SetColors()
 			return 1;
 		});
 
-		if (GroupsCode == DefaultId)
+		if (GroupsCode == DefaultIndexId)
 		{
-			Global->Opt->Palette.ResetToDefault();
+			Global->Opt->Palette.ResetToDefaultIndex();
 		}
-		else if (GroupsCode == BlackWhiteId)
+		else if (GroupsCode == DefaultRGBId)
 		{
-			Global->Opt->Palette.ResetToBlack();
+			Global->Opt->Palette.ResetToDefaultRGB();
 		}
 	}
 	Global->CtrlObject->Cp()->SetScreenPosition();
-	Global->CtrlObject->Cp()->LeftPanel()->Redraw();
-	Global->CtrlObject->Cp()->RightPanel()->Redraw();
+	Global->CtrlObject->Cp()->Redraw();
 }

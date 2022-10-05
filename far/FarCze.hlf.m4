@@ -1592,10 +1592,7 @@ $ #Menu Nastavení#
 
  #Code pages#            Shows the ~Code pages~@CodePagesMenu@ menu.
 
- #Barvy#                Umožňuje nastavit barvy různých položek
-                      rozhraní, změnit barevnou paletu Faru na
-                      černobílou, nebo nastavit barvy na
-                      implicitní.
+ #Barvy#                Shows the ~Color groups~@ColorGroups@ menu.
 
  #Zvýraznění souborů#   Změny nastavení ~zvýraznění souborů~@Highlight@.
 
@@ -4327,6 +4324,33 @@ písmeny". Všechny tyto metody pouze mění způsob zobrazování souborů, př
 se soubory Far vždy používá skutečné názvy.
 
  See also: common ~menu~@MenuCmd@ keyboard commands.
+
+
+@ColorGroups
+$ #Color groups#
+ Toto menu umožňuje nastavit barvy různých položek rozhraní nebo nastavit barvy na implicitní.
+
+ #Set default colors#
+ Set the colors to default values, expressed as indices in the console palette.
+
+ #Set default colors (RGB)#
+ Set the colors to default values, expressed as colors in RGB space, normally used for the corresponding console palette indices.
+ Unlike the indices in the console palette, the RGB values are device-independent and will look the same in any terminal.
+ For example, the default #index# value of panels background is #1#, which is usually, but not necessarily, mapped to some unspecified shade of blue.
+ The default #RGB# value of panels background, on the contrary, is always exactly #000080#.
+
+ #Note#: RGB colors require Virtual Terminal-based rendering, which can be enabled in ~Interface settings~@InterfSettings@.
+If it is not enabled or if your terminal does not support RGB colors, they will be approximated to the closest console palette indices.
+
+ This is the current palette:
+
+ \00  \10  \20  \30  \40  \50  \60  \70  \-
+ \80  \90  \A0  \B0  \C0  \D0  \E0  \F0  \-
+
+ This is the default RGB representation:
+
+ \(T0:T000000)  \(T0:T000080)  \(T0:T008000)  \(T0:T008080)  \(T0:T800000)  \(T0:T800080)  \(T0:T808000)  \(T0:TC0C0C0)  \-
+ \(T0:T808080)  \(T0:T0000FF)  \(T0:T00FF00)  \(T0:T00FFFF)  \(T0:TFF0000)  \(T0:TFF00FF)  \(T0:TFFFF00)  \(T0:TFFFFFF)  \-
 
 
 @ColorPicker

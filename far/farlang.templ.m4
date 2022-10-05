@@ -17273,19 +17273,19 @@ MSetDefaultColors
 "&Ужыць прадвызначаныя колеры"
 "Grįžti prie pra&dinių spalvų"
 
-MSetBW
-"Чёрно-бел&ый режим"
-"&Black and white mode"
-"Černo&bílý mód"
-"Schwarz && &Weiß"
-"Fekete-fe&hér mód"
-"&Tryb czarno-biały"
-"Modo blanco y &negro"
-"Čierno&biely režim"
-"Modalità Bianco&/Nero"
-"Чорно-біл&ий режим"
-"Чорна-бел&ы рэжым"
-"Juodai-&baltas režimas"
+MSetDefaultColorsRGB
+"Установить стандартные цвета (RGB)"
+"Set default colors (RGB)"
+"Nastavit výchozí barvy (RGB)"
+"Setze Standardfarben (RGB)"
+"Alapért. színek (RGB)"
+"Ustaw kolory domyślne (RGB)"
+"Poner colores predeterminados (RGB)"
+"Nastaviť východiskové farby (RGB)"
+"Colori Originari (RGB)"
+"Установити стандартні кольори (RGB)"
+"Ужыць прадвызначаныя колеры (RGB)"
+"Grįžti prie pradinių spalvų (RGB)"
 
 MSetColorPanelNormal
 l:
