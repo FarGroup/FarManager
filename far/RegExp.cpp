@@ -593,10 +593,14 @@ int RegExp::CalcLength(string_view src)
 
 						if (src[i] != L'}' && !(ISWORD(src[i]) || ISSPACE(src[i])))
 							throw MAKE_REGEX_EXCEPTION(errSyntax, i);
+
+						++bracketscount;
 					}
 				}
-
-				bracketscount++;
+				else
+				{
+					++bracketscount;
+				}
 
 				break;
 			}
@@ -3762,6 +3766,12 @@ void RegExp::TrimTail(const wchar_t* const start, const wchar_t*& strend) const
 
 #include "testing.hpp"
 
+std::ostream& operator<<(std::ostream& Stream, RegExpMatch const& m)
+{
+	Stream << '{' << m.start << ", "sv << m.end << '}';
+	return Stream;
+}
+
 static bool operator==(RegExpMatch const& a, RegExpMatch const& b)
 {
 	return a.start == b.start && a.end == b.end;
@@ -3925,6 +3935,8 @@ TEST_CASE("regex.regression")
 		{ L"a(?{lol}.)?b"sv,                       L"ab"sv,         {{ 0,  2}, {-1, -1}} },
 		{ L"^\\[([\\w.]+)\\]:\\s*\\[(.*)\\]$"sv,   L"[i]: [r]"sv,   {{ 0,  8}, { 1,  2}, { 6,  7}} },
 		{ L"([bc]+)|(zz)"sv,                       L"abc"sv,        {{ 1,  3}, { 1,  3}, {-1, -1}} },
+		{ L"(?:abc)"sv,                            L"abc"sv,        {{ 0,  3}} },
+		{ L"a(?!b)d"sv,                            L"ad"sv,         {{ 0,  2}} },
 	};
 
 	RegExp re;
