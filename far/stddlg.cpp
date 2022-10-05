@@ -1079,7 +1079,7 @@ void regex_playground()
 
 			const auto match_str = [&](RegExpMatch const& m)
 			{
-				return m.start < 0? L""sv : TestStr.substr(m.start, m.end - m.start);
+				return m.start < 0? L""s : format(FSTR(L"{}-{} {}"sv), m.start, m.end, TestStr.substr(m.start, m.end - m.start));
 			};
 
 			for (const auto& [i, Index] : enumerate(Match))
