@@ -491,13 +491,51 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 	return FormatSize(std::move(Str), UnitIndex);
 }
 
+static bool within(string_view const Haystack, string_view const Needle)
+{
+	// Comparing potentially unrelated pointers is, technically, UB.
+	// Integers are always fine.
+
+	const auto HaystackBegin = reinterpret_cast<uintptr_t>(Haystack.data());
+	const auto HaystackEnd = reinterpret_cast<uintptr_t>(Haystack.data() + Haystack.size());
+
+	const auto NeedleBegin = reinterpret_cast<uintptr_t>(Needle.data());
+	const auto NeedleEnd = reinterpret_cast<uintptr_t>(Needle.data() + Needle.size());
+
+	/*
+	HHHHHH
+	NN
+	  NN
+	    NN
+	*/
+	return
+		NeedleBegin >= HaystackBegin && NeedleBegin < HaystackEnd&&
+		NeedleEnd > HaystackBegin && NeedleEnd <= HaystackEnd &&
+		// An empty needle could be within the haystack, but who cares.
+		// You can't really break an empty view by invalidating its underlying storage.
+		NeedleEnd > NeedleBegin;
+}
 
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
 // Если Count == npos - заменять "до полной победы"
-bool ReplaceStrings(string& strStr, const string_view FindStr, const string_view ReplStr, const bool IgnoreCase, size_t Count)
+bool ReplaceStrings(string& strStr, string_view FindStr, string_view ReplStr, const bool IgnoreCase, size_t Count)
 {
 	if (strStr.empty() || FindStr.empty() || !Count)
 		return false;
+
+	string FindCopy, ReplaceCopy;
+
+	if (Count != 1 && within(strStr, FindStr))
+	{
+		FindCopy = FindStr;
+		FindStr = FindCopy;
+	}
+
+	if (Count != 1 && within(strStr, ReplStr))
+	{
+		ReplaceCopy = ReplStr;
+		ReplStr = ReplaceCopy;
+	}
 
 	size_t replaced = 0;
 	size_t StartPos = 0;
@@ -1176,6 +1214,50 @@ TEST_CASE("ReplaceStrings")
 		Src = i.Src;
 		ReplaceStrings(Src, i.Find, i.Replace, true);
 		REQUIRE(i.Result == Src);
+	}
+}
+
+TEST_CASE("within")
+{
+	const auto Haystack = L"banana"sv;
+
+	REQUIRE(within(Haystack, Haystack.substr(0)));
+	REQUIRE(within(Haystack, Haystack.substr(0, 2)));
+	REQUIRE(within(Haystack, Haystack.substr(2, 2)));
+	REQUIRE(within(Haystack, Haystack.substr(4)));
+	REQUIRE(within(Haystack, Haystack.substr(Haystack.size() - 1)));
+
+	// Empty views are not within anything.
+	REQUIRE(!within(Haystack, Haystack.substr(0, 0)));
+	REQUIRE(!within(Haystack, Haystack.substr(1, 0)));
+	REQUIRE(!within(Haystack, Haystack.substr(Haystack.size())));
+}
+
+TEST_CASE("ReplaceStrings.within")
+{
+	{
+		auto Str = L"99 little bugs in the code. 99 little bugs in the code"s;
+		const auto Find = string_view(Str).substr(0, 2);
+		const auto Replace = string_view(Str).substr(3, 6);
+		ReplaceStrings(Str, Find, Replace);
+		REQUIRE(Str == L"little little bugs in the code. little little bugs in the code"sv);
+	}
+
+	{
+		auto Str = L"banana banana banana banana"s;
+		const auto Find = string_view(Str).substr(21, 6);
+		const auto Replace = string_view(Str).substr(2, 2);
+		ReplaceStrings(Str, Find, Replace);
+		REQUIRE(Str == L"na na na na"sv);
+	}
+
+	{
+		auto Str = L"Alegría Macarena"s;
+		const auto Find = string_view(Str).substr(0, 7);
+		const auto Replace = string_view(Str).substr(8, 8);
+		// A single replace should pick the fast path
+		ReplaceStrings(Str, Find, Replace, false, 1);
+		REQUIRE(Str == L"Macarena Macarena"sv);
 	}
 }
 

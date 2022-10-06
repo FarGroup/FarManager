@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 06.10.2022 17:43:00 +0100 - build 6037
+
+1. Fix string replace when pattern and/or replacement are views into the same string.
+
+--------------------------------------------------------------------------------
 drkns 05.10.2022 23:47:54 +0100 - build 6036
 
 1. Remove "Colors - Black and white mode".
