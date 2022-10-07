@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 07.10.2022 23:13:59 +0100 - build 6038
+
+1. gh-551: Screen scrambled when pressing Alt-F9 under Windows 11 22H2
+
+--------------------------------------------------------------------------------
 drkns 06.10.2022 17:43:00 +0100 - build 6037
 
 1. Fix string replace when pattern and/or replacement are views into the same string.
