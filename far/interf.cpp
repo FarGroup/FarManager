@@ -572,18 +572,18 @@ void ChangeVideoMode(bool Maximize)
 
 	if (Maximize)
 	{
+		SendMessage(console.GetWindow(), WM_SYSCOMMAND, SC_MAXIMIZE, 0);
+
 		coordScreen = console.GetLargestWindowSize();
 
 		if (!validate_console_size(coordScreen))
 		{
-			LOGERROR(L"GetLargestConsoleWindowSize(): the reported size ({{{}, {}}} makes no sense. Talk to your terminal or OS vendor."sv, coordScreen.x, coordScreen.y);
+			LOGERROR(L"GetLargestConsoleWindowSize(): the reported size {{{}, {}}} makes no sense. Talk to your terminal or OS vendor."sv, coordScreen.x, coordScreen.y);
 			return;
 		}
 
 		coordScreen.x += Global->Opt->ScrSize.DeltaX;
 		coordScreen.y += Global->Opt->ScrSize.DeltaY;
-
-		SendMessage(console.GetWindow(), WM_SYSCOMMAND, SC_MAXIMIZE, 0);
 	}
 	else
 	{

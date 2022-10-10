@@ -382,7 +382,19 @@ namespace console_detail
 
 	HWND console::GetWindow() const
 	{
-		return GetConsoleWindow();
+		const auto Window = GetConsoleWindow();
+
+		wchar_t ClassName[MAX_PATH];
+		if (const auto Size = GetClassName(Window, ClassName, static_cast<int>(std::size(ClassName))); Size)
+		{
+			if (string_view(ClassName, Size) == L"PseudoConsoleWindow"sv)
+			{
+				if (const auto Owner = ::GetWindow(Window, GW_OWNER))
+					return Owner;
+			}
+		}
+
+		return Window;
 	}
 
 	bool console::GetSize(point& Size) const

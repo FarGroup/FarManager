@@ -638,8 +638,12 @@ ShellCopy::ShellCopy(
 		SingleSelectedFileSize = Data.FileSize;
 	}
 
-	ZoomedState = IsZoomed(console.GetWindow()) != FALSE;
-	IconicState = IsIconic(console.GetWindow()) != FALSE;
+	{
+		const auto hWnd = console.GetWindow();
+		ZoomedState = IsZoomed(hWnd) != FALSE;
+		IconicState = IsIconic(hWnd) != FALSE;
+	}
+
 	bool ShowTotalCopySize = Global->Opt->CMOpt.CopyShowTotal;
 	auto DestPlugin = ToPlugin;
 	ToPlugin = 0;

@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 10.10.2022 18:06:05 +0100 - build 6039
+
+1. Use the real window handle when running in Windows Terminal.
+   This should fix some scenarios like taskbar progress, flashing, icon setting, Alt+F9 etc.
+   It also may or may not break your Terminal, who knows.
+
+--------------------------------------------------------------------------------
 drkns 07.10.2022 23:13:59 +0100 - build 6038
 
 1. gh-551: Screen scrambled when pressing Alt-F9 under Windows 11 22H2
