@@ -145,6 +145,8 @@ namespace tokens
 	const auto
 		passive_panel                = L"!#"sv,
 		active_panel                 = L"!^"sv,
+		left_panel                   = L"!["sv,
+		right_panel                  = L"!]"sv,
 		exclamation                  = L"!!"sv,
 		name_extension               = L"!.!"sv,
 		short_name                   = L"!~"sv,
@@ -394,6 +396,18 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 	if (const auto Tail = tokens::skip(CurStr, tokens::active_panel))
 	{
 		SubstData.PassivePanel = false;
+		return Tail;
+	}
+
+	if (const auto Tail = tokens::skip(CurStr, tokens::left_panel))
+	{
+		SubstData.PassivePanel = SubstData.This.Panel->Parent()->IsRightActive();
+		return Tail;
+	}
+
+	if (const auto Tail = tokens::skip(CurStr, tokens::right_panel))
+	{
+		SubstData.PassivePanel = SubstData.This.Panel->Parent()->IsLeftActive();
 		return Tail;
 	}
 

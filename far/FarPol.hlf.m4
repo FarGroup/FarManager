@@ -2311,6 +2311,22 @@ Np. !^!.! oznacza nazwę bieżącego pliku w panelu aktywnym,
 !##!\\!^!.! - plik w panelu pasywnym z taką samą nazwą jak
 bieżący plik w aktywnym panelu.
 
+ #![#
+ "![" prefix forces all subsequent special symbols
+to refer to the left panel (see note 4).
+For example, ![!.! denotes a current file name on
+the left panel, ![!\\!^!.! - a file on the left
+panel with the same name as the name of the current
+file on the active panel.
+
+ #!]#
+ "!]" prefix forces all subsequent special symbols
+to refer to the right panel (see note 4).
+For example, !]!.! denotes a current file name on
+the right panel, !]!\\!^!.! - a file on the right
+panel with the same name as the name of the current
+file on the active panel.
+
  Uwagi:
 
  1. ^<wrap>Podczas obsługi znaków specjalnych, Far podstawia tylko
@@ -2340,7 +2356,7 @@ plików, w kodowaniu ANSI, z pełnymi ścieżkami, każdy ujęty w cudzysłów".
  3. ^<wrap>Jeżeli określono wiele skojarzeń, meta-znaki !@@! oraz !$! są pokazywane w menu bez zmian.
 Znaki te są tłumaczone podczas wykonywania poleceń.
 
- 4. ^<wrap>Przedrostki "!##" oraz "!^" działają jako przełączniki. Efekt ich działania trwa
+ 4. ^<wrap>Przedrostki "!##", "!^", "![" oraz "!]" działają jako przełączniki. Efekt ich działania trwa
 aż do następnego podobnego przedrostka. Np.
 
     if exist !##!\\!^!.! diff -c -p !##!\\!^!.! !\\!.!

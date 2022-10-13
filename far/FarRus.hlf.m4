@@ -2360,6 +2360,22 @@ grep !?В (!.!) найти:?! |Far.exe -v -.
 пассивной панели с таким же именем, как имя текущего
 файла на активной панели.
 
+ #![#
+ "![" prefix forces all subsequent special symbols
+to refer to the left panel (see note 4).
+For example, ![!.! denotes a current file name on
+the left panel, ![!\\!^!.! - a file on the left
+panel with the same name as the name of the current
+file on the active panel.
+
+ #!]#
+ "!]" prefix forces all subsequent special symbols
+to refer to the right panel (see note 4).
+For example, !]!.! denotes a current file name on
+the right panel, !]!\\!^!.! - a file on the right
+panel with the same name as the name of the current
+file on the active panel.
+
  Примечания:
 
  1. ^<wrap>Far при обработке метасимволов подставляется только то, что они означают
@@ -2389,7 +2405,7 @@ grep !?В (!.!) найти:?! |Far.exe -v -.
  3. ^<wrap>Метасимволы !@@! и !$! в меню выбора (когда задано несколько ассоциаций) и меню пользователя
 показываются как есть, преобразование происходит в момент исполнения команды.
 
- 4. ^<wrap>Префиксы "!##" и "!^" работают как переключатели.
+ 4. ^<wrap>Префиксы "!##", "!^", "![" и "!]" работают как переключатели.
 Действие этих префиксов распространяется до следующего подобного префикса. Например:
 
     if exist !##!\\!^!.! diff -c -p !##!\\!^!.! !\\!.!

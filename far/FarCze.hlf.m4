@@ -2344,6 +2344,22 @@ Například !^!.! označí název daného souboru v
 aktivním panelu, !##!\\!^!.! - soubor v pasivním
 panelu se stejným názvem jako daný soubor v aktivním panelu.
 
+ #![#
+ "![" prefix forces all subsequent special symbols
+to refer to the left panel (see note 4).
+For example, ![!.! denotes a current file name on
+the left panel, ![!\\!^!.! - a file on the left
+panel with the same name as the name of the current
+file on the active panel.
+
+ #!]#
+ "!]" prefix forces all subsequent special symbols
+to refer to the right panel (see note 4).
+For example, !]!.! denotes a current file name on
+the right panel, !]!\\!^!.! - a file on the right
+panel with the same name as the name of the current
+file on the active panel.
+
   Poznámka:
 
  1. ^<wrap>Když používáte speciální znaky, Far nahrazuje pouze znaky
@@ -2373,7 +2389,7 @@ v ANSI kódování, zahrnuje plné názvy cest, názvy s mezerami budou v úvozo
  3. ^<wrap>Pokud je specifikovaných více závislostí, jsou meta-znaky !@@!
 a !$! zobrazeny v menu tak jak jsou. Tyto znaky jsou přeloženy tehdy, když je příkaz proveden.
 
- 4. ^<wrap>Předpony "!##" a "!^" pracují jako spoje pro závislosti. Efekt
+ 4. ^<wrap>Předpony "!##", "!^", "![" a "!]" pracují jako spoje pro závislosti. Efekt
 těchto předpon pokračuje až k další podobné předponě. Například:
 
     if exist !##!\\!^!.! diff -c -p !##!\\!^!.! !\\!.!

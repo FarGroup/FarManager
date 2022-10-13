@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+pepak 13.10.2022 20:18:32 +0100 - build 6040
+
+1. Add special symbols to refer to the left ("![") or to the right ("!]") panel.
+
+--------------------------------------------------------------------------------
 drkns 10.10.2022 18:06:05 +0100 - build 6039
 
 1. Use the real window handle when running in Windows Terminal.

@@ -2389,6 +2389,22 @@ vonatkozik (lásd 4-es számú megjegyzés). Például a !^!.! szimbólum az akt
 panel aktuális fájljára utal, a !##!\\!^!.! pedig a passzív panelen lévő fájl
 nevére és az aktív panel aktuális, azonos nevű fájljára utal.
 
+ #![#
+ "![" prefix forces all subsequent special symbols
+to refer to the left panel (see note 4).
+For example, ![!.! denotes a current file name on
+the left panel, ![!\\!^!.! - a file on the left
+panel with the same name as the name of the current
+file on the active panel.
+
+ #!]#
+ "!]" prefix forces all subsequent special symbols
+to refer to the right panel (see note 4).
+For example, !]!.! denotes a current file name on
+the right panel, !]!\\!^!.! - a file on the right
+panel with the same name as the name of the current
+file on the active panel.
+
  Megjegyzések:
 
  1. ^<wrap>A Far a különleges szimbólumok kezelésénél kizárólag a
@@ -2418,7 +2434,7 @@ selected file names, in ANSI encoding, with full pathnames, each enclosed in quo
 eredeti alakjában jelenik meg a menüben. Ezeket a Far a parancs
 végrehajtásakor fogja értelmezni.
 
- 4. ^<wrap>A "!##" és a "!^" előtag a hivatkozások paneloldali
+ 4. ^<wrap>A "!##", "!^", "![" és a "!]" előtag a hivatkozások paneloldali
 átkapcsolójaként szolgál. Az ilyen előtag hatóköre a sorban utána következő,
 szintén átkapcsoló előtagig terjed. Például:
 

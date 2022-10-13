@@ -2385,6 +2385,22 @@ the active panel, !##!\\!^!.! - a file on the passive
 panel with the same name as the name of the current
 file on the active panel.
 
+ #![#
+ "![" prefix forces all subsequent special symbols
+to refer to the left panel (see note 4).
+For example, ![!.! denotes a current file name on
+the left panel, ![!\\!^!.! - a file on the left
+panel with the same name as the name of the current
+file on the active panel.
+
+ #!]#
+ "!]" prefix forces all subsequent special symbols
+to refer to the right panel (see note 4).
+For example, !]!.! denotes a current file name on
+the right panel, !]!\\!^!.! - a file on the right
+panel with the same name as the name of the current
+file on the active panel.
+
  Notes:
 
  1. ^<wrap>When handling special characters, Far substitutes only the string
@@ -2414,7 +2430,7 @@ selected file names, in ANSI encoding, with full pathnames, each enclosed in quo
  3. ^<wrap>When there are multiple associations specified, the meta-characters !@@!
 and !$! are shown in the menu as is. Those characters are translated when the command is executed.
 
- 4. ^<wrap>The prefixes "!##" and "!^" work as toggles. The effect
+ 4. ^<wrap>The prefixes "!##", "!^", "![" and "!]" work as toggles. The effect
 of these prefixes continues up to the next similar prefix. For example:
 
     if exist !##!\\!^!.! diff -c -p !##!\\!^!.! !\\!.!
