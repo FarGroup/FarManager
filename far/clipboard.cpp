@@ -1,4 +1,4 @@
-/*
+﻿/*
 clipboard.cpp
 
 Работа с буфером обмена.
@@ -363,26 +363,26 @@ public:
 						All versions of old Borland products I know (Builder, Delphi) has it
 						but may be some exceptions exists,
 		*/
-		if (IsOldBorlandText()) {
-			//Make temp buffer for multibyte string
-			auto buff = std::make_unique<char[]>( Data.length() );
-
-			//Compress fake unicode back to multibyte
+		if (IsOldBorlandText())
+		{
+		  const auto CheckAnsiOnly = [&](auto src, int maxS) -> int
+		  {
+			int sz = 0;
+			for (sz = 0; sz < maxS && *src; src++, sz++)
+			  if ((*src & 0xFF00) != 0)
+				return 0;
+			return sz;
+		  };
+		  int sz = CheckAnsiOnly(Data.c_str(), Data.length());
+		  if (sz)
+		  {
+			auto buff = std::make_unique<char[]>(Data.length());
 			auto src = Data.c_str();
 			auto b = buff.get();
-			int sz = 0;
-			for (; *src && sz < (int)Data.length(); src++, sz++)
-			  *b++ = *src & 0xFF;
-
-			/* Little optimization bonus.
-				In originl FAR try to insert zero-length text from clipboard.
-				Iv no idea why
-			*/
-			if ( !sz ) return false;
-
-			//Create correct unicode inplace (terminating zero included)
-			sz++;
-			MultiByteToWideChar(CP_ACP, 0, buff.get(), sz, (LPWSTR)Data.c_str(), sz );
+			for (int n = 0; n < sz; b++, src++, n++)
+			  *b = *src & 0xFF;
+			MultiByteToWideChar(CP_ACP, 0, buff.get(), sz, (LPWSTR)Data.c_str(), sz);
+		  }
 		}
 
 		return true;
