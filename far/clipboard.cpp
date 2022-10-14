@@ -365,15 +365,16 @@ public:
 		*/
 		if (IsOldBorlandText())
 		{
-		  const auto CheckAnsiOnly = [&](auto src, int maxS) -> int
+		  const auto CheckAnsiOnly = [&]() -> int
 		  {
+			auto src = Data.c_str();
 			int sz = 0;
-			for (sz = 0; sz < maxS && *src; src++, sz++)
+			for (sz = 0; sz < (int)Data.length() && *src; src++, sz++)
 			  if ((*src & 0xFF00) != 0)
 				return 0;
 			return sz;
 		  };
-		  int sz = CheckAnsiOnly(Data.c_str(), Data.length());
+		  int sz = CheckAnsiOnly();
 		  if (sz)
 		  {
 			auto buff = std::make_unique<char[]>(Data.length());
