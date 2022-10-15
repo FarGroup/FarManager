@@ -266,31 +266,50 @@ public:
 		return SetData(Format, std::move(DropEffect));
 	}
 
-	bool GetText(string& Data) const override
+	template<typename T>
+	struct clip_ptr: public os::memory::global::lock_t<T const*>
 	{
-		if (!IsFormatAvailable(CF_UNICODETEXT))
-			return GetHDROPAsText(Data);
+		size_t size{};
+	};
 
-		const auto DataHandle = GetClipboardData(CF_UNICODETEXT);
+	template<typename T>
+	static clip_ptr<T> get_as(unsigned const Format)
+	{
+		if (!IsFormatAvailable(Format))
+			return {};
+
+		const auto DataHandle = GetClipboardData(Format);
 		if (!DataHandle)
 		{
-			LOGERROR(L"GetClipboardData: {}"sv, last_error());
-			return false;
+			LOGWARNING(L"GetClipboardData(): {}"sv, last_error());
+			return {};
 		}
 
-		const auto DataPtr = os::memory::global::lock<const wchar_t*>(DataHandle);
+		auto DataPtr = os::memory::global::lock<T const*>(DataHandle);
 		if (!DataPtr)
 		{
-			LOGERROR(L"global::lock(): {}"sv, last_error());
-			return false;
+			LOGWARNING(L"global::lock(): {}"sv, last_error());
+			return {};
 		}
 
-		const string_view DataView(DataPtr.get(), GlobalSize(DataHandle) / sizeof(*DataPtr));
-		if (DataView.empty())
+		const auto DataSize = GlobalSize(DataHandle);
+
+		if (DataSize < sizeof(T))
 		{
-			LOGERROR(L"Insufficient data"sv);
-			return false;
+			LOGWARNING(L"Insufficient data"sv);
+			return {};
 		}
+
+		return { std::move(DataPtr), DataSize };
+	}
+
+	bool GetText(string& Data) const override
+	{
+		const auto ClipData = get_as<wchar_t>(CF_UNICODETEXT);
+		if (!ClipData)
+			return GetHDROPAsText(Data);
+
+		const string_view DataView(ClipData.get(), ClipData.size / sizeof(*ClipData));
 
 		const auto GetBinaryTextLength = []() -> std::optional<size_t>
 		{
@@ -298,31 +317,11 @@ public:
 			if (!SizeFormat)
 				return {};
 
-			if (!IsFormatAvailable(SizeFormat))
+			const auto ClipData = get_as<uint32_t>(SizeFormat);
+			if (!ClipData)
 				return {};
 
-			const auto SizeHandle = GetClipboardData(SizeFormat);
-			if (!SizeHandle)
-			{
-				LOGWARNING(L"GetClipboardData(): {}"sv, last_error());
-				return {};
-			}
-
-			const auto SizePtr = os::memory::global::lock<const uint32_t*>(SizeHandle);
-			if (!SizePtr)
-			{
-				LOGWARNING(L"global::lock(): {}"sv, last_error());
-				return {};
-			}
-
-			const auto Size = view_as_opt<uint32_t>(SizePtr.get(), GlobalSize(SizeHandle));
-			if (!Size)
-			{
-				LOGWARNING(L"Insufficient data"sv);
-				return {};
-			}
-
-			return *Size;
+			return *ClipData;
 		};
 
 		const auto GetTextLength = [&]
@@ -345,24 +344,11 @@ public:
 			if (!BlockFormat)
 				return false;
 
-			if (!IsFormatAvailable(BlockFormat))
+			const auto ClipData = get_as<char>(BlockFormat);
+			if (!ClipData)
 				return false;
 
-			const auto BlockHandle = GetClipboardData(BlockFormat);
-			if (!BlockHandle)
-			{
-				LOGWARNING(L"GetClipboardData(): {}"sv, last_error());
-				return false;
-			}
-
-			const auto BlockPtr = os::memory::global::lock<const char*>(BlockHandle);
-			if (!BlockPtr)
-			{
-				LOGWARNING(L"global::lock(): {}"sv, last_error());
-				return false;
-			}
-
-			return *BlockPtr == '\2';
+			return *ClipData == '\2';
 		};
 
 		if (IsFormatAvailable(RegisterFormat(clipboard_format::vertical_block_unicode)) ||
@@ -376,29 +362,11 @@ public:
 		if (!OemDataFormat)
 			return false;
 
-		if (!IsFormatAvailable(OemDataFormat))
+		const auto ClipData = get_as<char>(OemDataFormat);
+		if (!ClipData)
 			return false;
 
-		const auto OemDataHandle = GetClipboardData(OemDataFormat);
-		if (!OemDataHandle)
-		{
-			LOGERROR(L"GetClipboardData(): {}"sv, last_error());
-			return false;
-		}
-
-		const auto OemDataPtr = os::memory::global::lock<const char*>(OemDataHandle);
-		if (!OemDataPtr)
-		{
-			LOGWARNING(L"global::lock(): {}"sv, last_error());
-			return false;
-		}
-
-		const std::string_view OemDataView(OemDataPtr.get(), GlobalSize(OemDataHandle) / sizeof(*OemDataPtr));
-		if (OemDataView.empty())
-		{
-			LOGWARNING(L"Insufficient data"sv);
-			return false;
-		}
+		const std::string_view OemDataView(ClipData.get(), ClipData.size / sizeof(*ClipData));
 
 		const auto OemDataSize = static_cast<size_t>(std::find(ALL_CONST_RANGE(OemDataView), '\0') - OemDataView.cbegin());
 		encoding::oem::get_chars(OemDataView.substr(0, OemDataSize), Data);
@@ -437,35 +405,13 @@ private:
 
 	bool GetHDROPAsText(string& data) const
 	{
-		if (!IsFormatAvailable(CF_HDROP))
+		const auto ClipData = get_as<DROPFILES>(CF_HDROP);
+		if (!ClipData)
 			return false;
 
-		const auto DropHandle = GetClipboardData(CF_HDROP);
-		if (!DropHandle)
-		{
-			LOGWARNING(L"GetClipboardData(): {}"sv, last_error());
-			return false;
-		}
+		const auto Copy = ClipData->fWide? copy_strings<wchar_t> : copy_strings<char>;
 
-		const auto DropPtr = os::memory::global::lock<const DROPFILES*>(DropHandle);
-		if (!DropPtr)
-		{
-			LOGWARNING(L"global::lock(): {}"sv, last_error());
-			return false;
-		}
-
-		const auto HandleSize = GlobalSize(DropHandle);
-
-		const auto Drop = view_as_opt<DROPFILES>(DropPtr.get(), HandleSize);
-		if (!Drop)
-		{
-			LOGWARNING(L"Insufficient data"sv);
-			return false;
-		}
-
-		const auto Copy = Drop->fWide? copy_strings<wchar_t> : copy_strings<char>;
-
-		return Copy(data, Drop, HandleSize);
+		return Copy(data, ClipData.get(), ClipData.size);
 	}
 
 	bool SetData(unsigned const Format, os::memory::global::ptr&& Data) const
