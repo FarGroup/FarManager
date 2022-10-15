@@ -336,7 +336,7 @@ static bool GetCpUsingML(std::string_view Str, uintptr_t& Codepage, function_ref
 	}
 
 	int Size = static_cast<int>(Str.size());
-	DetectEncodingInfo Info[10];
+	DetectEncodingInfo Info[16];
 	int InfoCount = static_cast<int>(std::size(Info));
 
 	if (const auto Result = ML->DetectInputCodepage(MLDETECTCP_NONE, 0, const_cast<char*>(Str.data()), &Size, Info, &InfoCount); FAILED(Result))
