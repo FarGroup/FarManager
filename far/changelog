@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+drkns 15.10.2022 19:27:16 +0100 - build 6041
+
+1. Add workaround for incorrect encoding in OS-generated CF_UNICODETEXT.
+   See far:config, ClipboardUnicodeWorkaround.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 pepak 13.10.2022 20:18:32 +0100 - build 6040
 
 1. Add special symbols to refer to the left ("![") or to the right ("!]") panel.

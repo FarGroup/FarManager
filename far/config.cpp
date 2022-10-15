@@ -87,6 +87,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "log.hpp"
 #include "char_width.hpp"
+#include "clipboard.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -1775,6 +1776,11 @@ Options::Options():
 		wakeup_for_screensaver(Value);
 	}));
 
+	ClipboardUnicodeWorkaround.SetCallback(option::notifier([](bool const Value)
+	{
+		clipboard::enable_ansi_to_unicode_conversion_workaround(Value);
+	}));
+
 	// По умолчанию - брать плагины из основного каталога
 	LoadPlug.MainPluginDir = true;
 	LoadPlug.PluginsPersonal = true;
@@ -2003,6 +2009,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeySystem,                 L"AutoUpdateRemoteDrive"sv,         AutoUpdateRemoteDrive, true},
 		{FSSF_PRIVATE,           NKeySystem,                 L"BoxSymbols"sv,                    strBoxSymbols, DefaultBoxSymbols},
 		{FSSF_PRIVATE,           NKeySystem,                 L"CASRule"sv,                       CASRule, -1},
+		{FSSF_PRIVATE,           NKeySystem,                 L"ClipboardUnicodeWorkaround"sv,    ClipboardUnicodeWorkaround, false},
 		{FSSF_PRIVATE,           NKeySystem,                 L"CmdHistoryRule"sv,                CmdHistoryRule, false},
 		{FSSF_PRIVATE,           NKeySystem,                 L"ConsoleDetachKey"sv,              ConsoleDetachKey, L"CtrlShiftTab"sv},
 		{FSSF_PRIVATE,           NKeySystem,                 L"CopyBufferSize"sv,                CMOpt.BufferSize, 0},

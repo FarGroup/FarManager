@@ -57,6 +57,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+static bool s_AnsiToUnicodeConversionWorkaround = false;
+
 void default_clipboard_mode::set(clipboard_mode Mode) noexcept
 {
 	m_Mode = Mode;
@@ -303,6 +305,162 @@ public:
 		return { std::move(DataPtr), DataSize };
 	}
 
+	static unsigned find_first_supported_text_format()
+	{
+		for (auto Format = EnumClipboardFormats(0); Format; Format = EnumClipboardFormats(Format))
+		{
+			if (any_of(as_signed(Format), CF_UNICODETEXT, CF_TEXT))
+				return Format;
+		}
+
+		return 0;
+	}
+
+	static bool get_ansi_text(std::string& Data)
+	{
+		const auto FirstFormat = find_first_supported_text_format();
+		/*
+		If CF_UNICODETEXT comes first, then it's definitely not generated. Our job here is done.
+		If CF_TEXT comes first, it means nothing. See the comment below.
+		*/
+		if (FirstFormat != CF_TEXT)
+			return false;
+
+		const auto ClipData = get_as<char>(CF_TEXT);
+		if (!ClipData)
+			return false;
+
+		const std::string_view DataView(ClipData.get(), ClipData.size / sizeof(*ClipData));
+		if (DataView.empty())
+			return false;
+
+		const auto DataSize = static_cast<size_t>(std::find(ALL_CONST_RANGE(DataView), '\0') - DataView.cbegin());
+
+		Data = DataView.substr(0, DataSize);
+
+		return true;
+	}
+
+	static LCID get_locale()
+	{
+		const auto ClipData = get_as<LCID>(CF_LOCALE);
+		if (!ClipData)
+			return 0;
+
+		return *ClipData;
+	}
+
+	static unsigned get_locale_codepage(LCID const Locale)
+	{
+		unsigned Acp;
+		const int SizeInChars = sizeof(Acp) / sizeof(wchar_t);
+
+		if (GetLocaleInfo(
+			Locale,
+				LOCALE_IDEFAULTANSICODEPAGE |
+				LOCALE_RETURN_NUMBER,
+			reinterpret_cast<wchar_t*>(&Acp),
+			SizeInChars
+		) != SizeInChars)
+		{
+			LOGWARNING(L"GetLocaleInfo(LOCALE_IDEFAULTANSICODEPAGE): {}"sv, last_error());
+			return 0;
+		}
+
+		return Acp;
+	}
+
+	static void try_to_fix_incorrect_ansi_to_unicode_conversion(string& Data)
+	{
+		/*
+		https://learn.microsoft.com/en-us/windows/win32/dataxchg/standard-clipboard-formats#CF_LOCALE
+		When you close the clipboard, if it contains CF_TEXT data but no CF_LOCALE data,
+		the system automatically sets the CF_LOCALE format to the current input language.
+		The system uses the code page associated with CF_LOCALE to implicitly convert from CF_TEXT to CF_UNICODETEXT.
+
+		If you are pasting information from the clipboard, retrieve the first clipboard format that you can handle.
+		That will be the most descriptive clipboard format that you can handle.
+		The system provides automatic type conversions for certain clipboard formats.
+		In the case of such a format, this function enumerates the specified format,
+		then enumerates the formats to which it can be converted.
+
+
+		In other words, if the user copies a localized text from a non-Unicode application
+		when their input language is not the same as the language of the aforementioned text,
+		CF_UNICODETEXT will be garbled.
+
+		Surprisingly, sometimes it is not a bug, but a feature.
+		E.g. when the ACP is incompatible with the text, the user can switch to a compatible input language
+		to guide the conversion to CF_UNICODETEXT and get sensible results... if the user knows about this feature in the first place.
+		If they don't, it's rather "WTF why the text is broken?".
+		And most users don't know and don't expect this street magic at all.
+
+		So it's a double-edged sword and there is no win-win scenario.
+		~15 years of observation show that users are generally expect the pasted text to be the same as copied, but...
+		there is no way to even properly choose between CF_TEXT and CF_UNICODETEXT.
+
+		The MSDN verse above claims that clipboard formats are ordered by their descriptiveness, but that's wishful thinking:
+		yes, if an app, say, only adds CF_UNICODETEXT, Windows generates the rest and it works, but nothing in this Universe can stop an app from
+		being annoyingly smart and adding multiple formats itself in any unholy order.
+		And guess what, they do exactly that. At least these:
+		- Visual Studio
+		- Windows Terminal
+		- WordPad
+		- The whole "modern Windows UI"
+		and who knows how many more add CF_TEXT manually *before* CF_UNICODETEXT. 🤦
+		*/
+
+		/*
+		The situation is annoying enough to have a workaround,
+		but probably isn't widespread enough to have it enabled by default:
+		extra conversions below aren't free and pure ANSI apps are too rare these days
+		to make everyone pay the price.
+		 */
+		if (!s_AnsiToUnicodeConversionWorkaround)
+			return;
+
+		const auto ClipboardLocale = get_locale();
+		if (!ClipboardLocale)
+			return;
+
+		const auto ClipboardLocaleCodepage = get_locale_codepage(ClipboardLocale);
+		if (!ClipboardLocaleCodepage)
+			return;
+
+		std::string AnsiData;
+		if (!get_ansi_text(AnsiData) || AnsiData.empty())
+			return;
+
+		/*
+		As explained above, we cannot trust the order of formats if CF_TEXT comes before CF_UNICODETEXT,
+		so we check that CF_TEXT, converted to Unicode using the code page of the declared CF_LOCALE,
+		is the same as CF_UNICODETEXT:
+		- If it is, the conversion is lossless, either because it was CF_TEXT in the first place
+		  and CF_UNICODETEXT was generated from it, or because it's pure ASCII.
+		  Either way, it means that we won't make it worse and can proceed.
+		- If it is not, it must be one of them smartasses who put it there manually in a wrong order and our job here is done.
+
+		We use starts_with instead of == here because our encoding method, unlike the OS, tries to yield as many
+		Unicode characters as possible, even if they're invalid. For these purposes such conversion is still lossless.
+		*/
+		if (const auto UnicodeData = encoding::get_chars(ClipboardLocaleCodepage, AnsiData); !starts_with(UnicodeData, Data))
+			return;
+
+		// Here it comes
+		encoding::diagnostics Diagnostics;
+		auto RecodedData = encoding::ansi::get_chars(AnsiData, &Diagnostics);
+
+		if (Diagnostics.ErrorPosition || Diagnostics.IncompleteBytes)
+			return;
+
+		if (RecodedData == Data)
+			return;
+
+		LOGINFO(L"Potentially incorrect CF_UNICODETEXT detected, using CF_TEXT instead"sv);
+
+		Data = std::move(RecodedData);
+	}
+
 	bool GetText(string& Data) const override
 	{
 		const auto ClipData = get_as<wchar_t>(CF_UNICODETEXT);
@@ -333,6 +491,9 @@ public:
 		};
 
 		Data = DataView.substr(0, GetTextLength());
+
+		try_to_fix_incorrect_ansi_to_unicode_conversion(Data);
+
 		return true;
 	}
 
@@ -601,6 +762,11 @@ clipboard& clipboard::GetInstance(clipboard_mode Mode)
 		return system_clipboard::instance();
 
 	return internal_clipboard::instance();
+}
+
+void clipboard::enable_ansi_to_unicode_conversion_workaround(bool Enable)
+{
+	s_AnsiToUnicodeConversionWorkaround = Enable;
 }
 
 //-----------------------------------------------------------------------------

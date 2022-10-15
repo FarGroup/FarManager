@@ -1038,6 +1038,8 @@ public:
 	BoolOption WindowModeStickyX;
 	BoolOption WindowModeStickyY;
 
+	BoolOption ClipboardUnicodeWorkaround;
+
 	std::vector<std::vector<std::pair<panel_sort, sort_order>>> PanelSortLayers;
 
 	const std::vector<PanelViewSettings>& ViewSettings;
