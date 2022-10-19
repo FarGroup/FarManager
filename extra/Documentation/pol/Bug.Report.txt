@@ -78,7 +78,7 @@ wtyczkę i jej źródła) do wiadomości.
 4. Uzupełnienia dotyczące MultiArc/ArcLite
 
 4.1. Przy opisywaniu błędów MultiArc związanych z konkretnym archiwizatorem,
-należy również podać jego wersję oraz linie poleceń dla niego.
+należy również podać jego wersję oraz linię poleceń dla niego.
 
 4.2. Małe archiwum testowe jest niezbędne do odtworzenia problemu
 (nie większe niż 30KB), lub mile widziany będzie link do takiego archiwum.
