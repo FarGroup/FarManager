@@ -1,9 +1,9 @@
-﻿|&D: Pulpit|%HOMEDRIVE%%HOMEPATH%\Desktop
-|&M: Moje dokumenty|%HOMEDRIVE%%HOMEPATH%\My Documents
+﻿|&P: Pulpit|%HOMEDRIVE%%HOMEPATH%\Desktop
+|&D: Moje dokumenty|%HOMEDRIVE%%HOMEPATH%\My Documents
 |&U: Ulubione|%USERPROFILE%\Favorites
-|&P: Program Files|%ProgramFiles%
+|&F: Program Files|%ProgramFiles%
 |-|
-|&N: NetHood|%HOMEDRIVE%%HOMEPATH%\NetHood
-|&S: Dokumenty udostępnione|%ALLUSERSPROFILE%\Documents
+|&S: Moje miejsca sieciowe|%HOMEDRIVE%%HOMEPATH%\NetHood
+|&N: Dokumenty udostępnione|%ALLUSERSPROFILE%\Documents
 |-|
 |&T: %USERNAME%\Temp|%TEMP%
