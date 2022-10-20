@@ -419,6 +419,10 @@ public:
 		if (!s_AnsiToUnicodeConversionWorkaround)
 			return;
 
+		// If it's pure ASCII, our job here is done.
+		if (std::all_of(ALL_CONST_RANGE(Data), [](wchar_t const Char){ return Char < 128; }))
+			return;
+
 		const auto ClipboardLocale = get_locale();
 		if (!ClipboardLocale)
 			return;
