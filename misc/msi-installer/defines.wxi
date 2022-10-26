@@ -1,17 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <?if $(var.Platform) = x86 ?>
+  <?define InstallerVersion = "200" ?>
   <?define InstallDirParam = "InstallDir" ?>
   <?define DefUserInstallDir = "Far Manager x86" ?>
   <?define ProgramFiles = "ProgramFilesFolder" ?>
   <?define Win64 = "no" ?>
 <?endif?>
 <?if $(var.Platform) = x64 ?>
+  <?define InstallerVersion = "200" ?>
   <?define InstallDirParam = "InstallDir_x64" ?>
   <?define DefUserInstallDir = "Far Manager x64" ?>
   <?define ProgramFiles = "ProgramFiles64Folder" ?>
   <?define Win64 = "yes" ?>
 <?endif?>
 <?if $(var.Platform) = arm64 ?>
+  <?define InstallerVersion = "500" ?>
   <?define InstallDirParam = "InstallDir_arm64" ?>
   <?define DefUserInstallDir = "Far Manager ARM64" ?>
   <?define ProgramFiles = "ProgramFiles64Folder" ?>
