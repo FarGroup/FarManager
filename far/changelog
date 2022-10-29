@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 29.10.2022 18:00:05 +0100 - build 6042
+
+1. Include PE & file timestamps into generated bug reports.
+
+--------------------------------------------------------------------------------
 drkns 15.10.2022 19:27:16 +0100 - build 6041
 
 1. Add workaround for incorrect encoding in OS-generated CF_UNICODETEXT.

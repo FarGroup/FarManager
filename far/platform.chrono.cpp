@@ -104,6 +104,13 @@ namespace os::chrono
 		return Duration / 1_hns;
 	}
 
+	SYSTEMTIME now_utc()
+	{
+		SYSTEMTIME SystemTime{};
+		GetSystemTime(&SystemTime);
+		return SystemTime;
+	}
+
 	bool utc_to_local(time_point UtcTime, SYSTEMTIME& LocalTime)
 	{
 		const auto FileTime = nt_clock::to_filetime(UtcTime);
@@ -188,7 +195,7 @@ namespace os::chrono
 		return true;
 	}
 
-	string format_time(time_point const Time)
+	string wall_time(time_point const Time)
 	{
 		SYSTEMTIME LocalTime;
 		if (!utc_to_local(Time, LocalTime))

@@ -86,6 +86,8 @@ namespace os::chrono
 	using duration = nt_clock::duration;
 	using time_point = nt_clock::time_point;
 
+	SYSTEMTIME now_utc();
+
 	bool utc_to_local(time_point UtcTime, SYSTEMTIME& LocalTime);
 	bool local_to_utc(const SYSTEMTIME& LocalTime, time_point& UtcTime);
 
@@ -97,7 +99,7 @@ namespace os::chrono
 	bool get_process_creation_time(HANDLE Process, time_point& CreationTime);
 
 	[[nodiscard]]
-	string format_time(time_point Time);
+	string wall_time(time_point Time);
 
 	namespace literals
 	{

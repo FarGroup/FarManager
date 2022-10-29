@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "filelist.hpp"
 #include "plugin.hpp"
+#include "datetime.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -499,6 +500,18 @@ string ExtractFilePath(string_view const Path)
 		return path::join(Path.substr(0, PathRootLen), L""sv);
 
 	return string(Path.substr(0, p));
+}
+
+string unique_name()
+{
+	auto [Date, Time] = format_datetime(os::chrono::now_utc());
+
+	const auto not_digit = [](wchar_t const Char){ return !std::iswdigit(Char); };
+
+	std::erase_if(Date, not_digit);
+	std::erase_if(Time, not_digit);
+
+	return format(FSTR(L"Far_{}_{}_{}"sv), Date, Time, GetCurrentProcessId());
 }
 
 bool IsRootPath(const string_view Path)

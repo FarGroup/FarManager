@@ -165,7 +165,7 @@ namespace
 			m_Location(get_location(Function, File, Line)),
 			m_Level(Level)
 		{
-			std::tie(m_Date, m_Time) = get_time();
+			std::tie(m_Date, m_Time) = format_datetime(os::chrono::now_utc());
 
 			if (TraceDepth)
 			{
@@ -409,14 +409,10 @@ namespace
 	private:
 		static string make_filename()
 		{
-			auto [Date, Time] = get_time();
-			std::replace(ALL_RANGE(Date), L'/', L'.');
-			std::replace(ALL_RANGE(Time), L':', L'.');
-
 			return path::join
 			(
 				get_sink_parameter<sink_file>(L"path"sv),
-				format(L"Far.{}_{}_{}.txt"sv, Date, Time, GetCurrentProcessId())
+				unique_name() + L".txt"sv
 			);
 		}
 

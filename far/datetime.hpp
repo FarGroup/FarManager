@@ -104,7 +104,8 @@ private:
 	const clock_type::duration m_Interval;
 };
 
-std::pair<string, string> get_time();
+// { "YYYY-MM-DD", "hh:mm:ss.sss" }, ISO 8601-like
+std::pair<string, string> format_datetime(SYSTEMTIME const& SystemTime);
 
 std::chrono::milliseconds till_next_second();
 std::chrono::milliseconds till_next_minute();

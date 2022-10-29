@@ -214,14 +214,7 @@ static void get_backtrace(string_view const Module, span<os::debug::stack_frame 
 
 static string get_report_location()
 {
-	auto [Date, Time] = get_time();
-
-	const auto not_digit = [](wchar_t const Char){ return !std::iswdigit(Char); };
-
-	std::replace_if(ALL_RANGE(Date), not_digit, L'_');
-	std::replace_if(ALL_RANGE(Time), not_digit, L'_');
-
-	const auto SubDir = format(L"Far.{}_{}_{}"sv, Date, Time, GetCurrentProcessId());
+	const auto SubDir = unique_name();
 
 	if (const auto CrashLogs = path::join(Global? Global->Opt->LocalProfilePath : L"."sv, L"CrashLogs"); os::fs::is_directory(CrashLogs) || os::fs::create_directory(CrashLogs))
 	{
@@ -373,6 +366,40 @@ static string self_version()
 	const auto Version = format(FSTR(L"{} {}"sv), version_to_string(build::version()), build::platform());
 	const auto ScmRevision = build::scm_revision();
 	return ScmRevision.empty()? Version : Version + format(FSTR(L" ({:.7})"sv), ScmRevision);
+}
+
+static string timestamp(os::chrono::time_point const Point)
+{
+	const auto FileTime = os::chrono::nt_clock::to_filetime(Point);
+	SYSTEMTIME SystemTime{};
+	if (!FileTimeToSystemTime(&FileTime, &SystemTime))
+	{
+		LOGWARNING(L"FileTimeToSystemTime(): {}"sv, last_error());
+		return format(FSTR(L"{:16X}"sv), Point.time_since_epoch().count());
+	}
+
+	const auto [Date, Time] = format_datetime(SystemTime);
+	return concat(Date, L' ', Time);
+}
+
+static string pe_timestamp()
+{
+	const auto FarModule = GetModuleHandle({});
+	const auto& FarDosHeader = view_as<IMAGE_DOS_HEADER>(FarModule, 0);
+	const auto& FarNtHeaders = view_as<IMAGE_NT_HEADERS>(FarModule, FarDosHeader.e_lfanew);
+	return timestamp(os::chrono::nt_clock::from_time_t(FarNtHeaders.FileHeader.TimeDateStamp));
+}
+
+static string file_timestamp()
+{
+	os::fs::find_data Data;
+	if (!os::fs::get_find_data(Global->g_strFarModuleName, Data))
+	{
+		LOGWARNING(L"get_find_data({}): {}"sv, Global->g_strFarModuleName, last_error());
+		return {};
+	}
+
+	return timestamp(Data.LastWriteTime);
 }
 
 static string kernel_version()
@@ -920,6 +947,8 @@ static bool ShowExceptionUI(
 	const auto Errors = ErrorState.format_errors();
 	const auto Version = self_version();
 	const auto Compiler = build::compiler();
+	const auto PeTime = pe_timestamp();
+	const auto FileTime = file_timestamp();
 	const auto OsVersion = os::version::os_version();
 	const auto KernelVersion = kernel_version();
 	const auto ConsoleHost = get_console_host();
@@ -940,6 +969,8 @@ static bool ShowExceptionUI(
 		{},
 		{ L"Far:      "sv, Version,       },
 		{ L"Compiler: "sv, Compiler,      },
+		{ L"PE time:  "sv, PeTime,        },
+		{ L"File time:"sv, FileTime,      },
 		{ L"OS:       "sv, OsVersion,     },
 		{ L"Kernel:   "sv, KernelVersion, },
 		{ L"Host:     "sv, ConsoleHost,   },
