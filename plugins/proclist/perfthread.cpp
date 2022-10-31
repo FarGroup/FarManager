@@ -319,22 +319,10 @@ bool PerfThread::RefreshImpl()
 	}
 
 	decltype(m_ProcessesData) NewPData;
-	NewPData.reserve(pObj->NumInstances);
 
-	auto pInst = view_as_opt<PERF_INSTANCE_DEFINITION>(pObj, DataEnd, pObj->DefinitionLength);
-	if (!pInst)
-		return false;
-
-	// loop thru the performance instance data extracting each process name
-	// and process id
-	//
-	for (size_t i = 0; i != static_cast<size_t>(pObj->NumInstances); ++i)
+	const auto process_counter = [&](PERF_COUNTER_BLOCK const* pCounter, std::wstring_view const ProcessName)
 	{
 		// get the process id
-		const auto pCounter = view_as_opt<PERF_COUNTER_BLOCK>(pInst, DataEnd, pInst->ByteLength);
-		if (!pCounter)
-			return false;
-
 		const auto pProcessId = view_as_opt<DWORD>(pCounter, DataEnd, dwProcessIdCounter);
 		if (!pProcessId)
 			return false;
@@ -464,19 +452,74 @@ bool PerfThread::RefreshImpl()
 			}
 		}
 
-		if (Task.ProcessName.empty())  // if after all this it's still unfilled...
+		if (Task.ProcessName.empty() && !ProcessName.empty())  // if after all this it's still unfilled...
 		{
 			// pointer to the process name
-			// convert it to ascii
-			Task.ProcessName.assign(reinterpret_cast<const wchar_t*>(reinterpret_cast<DWORD_PTR>(pInst) + pInst->NameOffset), pInst->NameLength / sizeof(wchar_t) - 1);
+			Task.ProcessName.assign(ProcessName);
 
 			if (Task.dwProcessId > 8)
 				Task.ProcessName += L".exe";
 		}
 
-		pInst = view_as_opt<PERF_INSTANCE_DEFINITION>(pCounter, DataEnd, pCounter->ByteLength);
-		if (!pInst && i + 1 != static_cast<size_t>(pObj->NumInstances))
+		return true;
+	};
+
+	if (pObj->NumInstances >= 0 && pObj->NumInstances <= 0x7fffffff)
+	{
+		// If set to a value from 0 to 0x7fffffff, indicates that this is data collected from an object that supports 0 or more named instances.
+		// The PERF_COUNTER_DEFINITION block should be followed by the specified number of PERF_INSTANCE_DEFINITION blocks.
+
+		NewPData.reserve(pObj->NumInstances);
+
+		auto pInst = view_as_opt<PERF_INSTANCE_DEFINITION>(pObj, DataEnd, pObj->DefinitionLength);
+		if (!pInst)
 			return false;
+
+		for (size_t i = 0; i != static_cast<size_t>(pObj->NumInstances); ++i)
+		{
+			if (!pInst)
+				return false;
+
+			const auto pCounter = view_as_opt<PERF_COUNTER_BLOCK>(pInst, DataEnd, pInst->ByteLength);
+			if (!pCounter)
+				return false;
+
+			const auto NamePtr = view_as_opt<wchar_t>(pInst, DataEnd, pInst->NameOffset);
+			if (!NamePtr)
+				return false;
+
+			const auto NameSize = pInst->NameLength / sizeof(wchar_t) - 1;
+			if (static_cast<void const*>(NamePtr + NameSize) > DataEnd)
+				return false;
+
+			if (!process_counter(pCounter, { NamePtr, NameSize }))
+				return false;
+
+			pInst = view_as_opt<PERF_INSTANCE_DEFINITION>(pCounter, DataEnd, pCounter->ByteLength);
+		}
+	}
+	else if (pObj->NumInstances == PERF_NO_INSTANCES)
+	{
+		// If set to the value PERF_NO_INSTANCES, indicates that this is data collected from an object that always has exactly one unnamed instance.
+		// The PERF_COUNTER_DEFINITION block should be followed by exactly one PERF_COUNTER_BLOCK block.
+
+		// Supposedly it should not happen, but just in case: there were reports about NumInstances set to some unholy value.
+		const auto pCounter = view_as_opt<PERF_COUNTER_BLOCK>(pObj, DataEnd, pObj->DefinitionLength);
+		if (!pCounter)
+			return false;
+
+		if (!process_counter(pCounter, {}))
+			return false;
+	}
+	else
+	{
+		// If set to the value PERF_METADATA_MULTIPLE_INSTANCES, indicates that this is metadata for an object that supports 0 or more named instances.
+		// The result contains no PERF_INSTANCE_DEFINITION blocks.
+
+		// If set to the value PERF_METADATA_NO_INSTANCES, indicates that this is metadata for an object that always has exactly one unnamed instance.
+		// The result contains no PERF_COUNTER_BLOCK.
+
+		return false;
 	}
 
 	dwLastTickCount += dwDeltaTickCount;
