@@ -72,8 +72,8 @@ $ #Panel tymczasowy: Konfiguracja#
    Jeżeli opcja jest włączona, obsługiwany jest jeden panel tymczasowy
 a jego zawartość jest przechowywana nawet po jego zamknięciu. Bez
 tej opcji każdy panel tymczasowy po utworzeniu jest pusty.
-   Jeżeli opcja #"Użyj stałego panelu" jest włączona,
-wtyczka tworzy 10 tymczasowych instancji panelu, a każda
+   Jeżeli opcja #"Użyj stałego panelu"# w konfiguracji wtyczki
+jest włączona, wtyczka tworzy 10 tymczasowych instancji panelu, a każda
 z nich zawiera osobną listę plików. Aby przełączyć się między panelami,
 można użyć menu (#Alt-Shift-F12#) lub skrótów klawiszowych do szybkiego
 przełączania (#Alt-Shift-0# do #Alt-Shift-9#).
@@ -189,7 +189,7 @@ zawierać dowolne linie - wszystkie z nich zostaną pokazane w panelu.
    Nazwy plików i folderów w pliku listy mogą zawierać zmienne
 środowiskowe (np.%WINDIR%\System).
 
-   List file example:
+   Lista przykładów plików:
      #c:#
      #d:#
      #d:\Gry\Quake3#

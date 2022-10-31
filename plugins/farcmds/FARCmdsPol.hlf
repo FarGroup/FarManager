@@ -357,7 +357,7 @@ $ #Konfiguracja poleceń FAR#
    #Przechwytuj tylko stderr#    ^<wrap>Przechwytuje tylko #stderr# (standardowy strumień błędów).
                                Podobnie jak przy użyciu #<2# zamiast #<#.
 
-   #Przechwytuj stdout#          Przechwytuje osobno strumienie #stdout# i #stderr#. 
+   #Przechwytuj stdout#          Przechwytuje osobno strumienie #stdout# i #stderr#.
    #i stderr oddzielnie#         Ma to sens tylko w poleceniach #view:<# i #edit:<#.
                                W innych przypadkach podobnie jak #<*#.
                                Nie można używać z #<+#.
