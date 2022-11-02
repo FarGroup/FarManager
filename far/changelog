@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 02.11.2022 21:24:55 +0000 - build 6043
+
+1. Refactoring, move plarform-specific code around.
+
+2. Refactoring, reorganize error checking.
+
+--------------------------------------------------------------------------------
 drkns 29.10.2022 18:00:05 +0100 - build 6042
 
 1. Include PE & file timestamps into generated bug reports.
