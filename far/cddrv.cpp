@@ -38,11 +38,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cddrv.hpp"
 
 // Internal:
-#include "exception.hpp"
 #include "log.hpp"
 #include "pathmix.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.fs.hpp"
 
 // Common:
@@ -225,7 +225,7 @@ static auto capatibilities_from_scsi_configuration(const os::fs::file& Device)
 
 	if (!Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &Spt, sizeof(SCSI_PASS_THROUGH), &Spt, sizeof(Spt)) || Spt.ScsiStatus != SCSISTAT_GOOD)
 	{
-		LOGWARNING(L"SCSIOP_GET_CONFIGURATION: {}"sv, last_error());
+		LOGWARNING(L"SCSIOP_GET_CONFIGURATION: {}"sv, os::last_error());
 		return CAPABILITIES_NONE;
 	}
 
@@ -265,7 +265,7 @@ static auto capatibilities_from_scsi_mode_sense(const os::fs::file& Device)
 
 	if (!Device.IoControl(IOCTL_SCSI_PASS_THROUGH, &Spt, sizeof(SCSI_PASS_THROUGH), &Spt, sizeof(Spt)) || Spt.ScsiStatus != SCSISTAT_GOOD)
 	{
-		LOGWARNING(L"SCSIOP_MODE_SENSE: {}"sv, last_error());
+		LOGWARNING(L"SCSIOP_MODE_SENSE: {}"sv, os::last_error());
 		return CAPABILITIES_NONE;
 	}
 
@@ -364,14 +364,14 @@ static auto capatibilities_from_product_id(const os::fs::file& Device)
 
 	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &PropertyQuery, sizeof(PropertyQuery), &DescriptorHeader, sizeof(DescriptorHeader)) || !DescriptorHeader.Size)
 	{
-		LOGWARNING(L"IOCTL_STORAGE_QUERY_PROPERTY: {}"sv, last_error());
+		LOGWARNING(L"IOCTL_STORAGE_QUERY_PROPERTY: {}"sv, os::last_error());
 		return CAPABILITIES_NONE;
 	}
 
 	const char_ptr_n<os::default_buffer_size> Buffer(DescriptorHeader.Size);
 	if (!Device.IoControl(IOCTL_STORAGE_QUERY_PROPERTY, &PropertyQuery, sizeof(PropertyQuery), Buffer.data(), static_cast<DWORD>(Buffer.size())))
 	{
-		LOGWARNING(L"IOCTL_STORAGE_QUERY_PROPERTY: {}"sv, last_error());
+		LOGWARNING(L"IOCTL_STORAGE_QUERY_PROPERTY: {}"sv, os::last_error());
 		return CAPABILITIES_NONE;
 	}
 
@@ -468,14 +468,14 @@ bool is_removable_usb(string_view RootDir)
 	os::fs::file const Device(drive, STANDARD_RIGHTS_READ, os::fs::file_share_all, nullptr, OPEN_EXISTING);
 	if (!Device)
 	{
-		LOGWARNING(L"CreateFile({}): {}"sv, drive, last_error());
+		LOGWARNING(L"CreateFile({}): {}"sv, drive, os::last_error());
 		return false;
 	}
 
 	DISK_GEOMETRY DiskGeometry;
 	if (!Device.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &DiskGeometry, sizeof(DiskGeometry)))
 	{
-		LOGWARNING(L"IOCTL_DISK_GET_DRIVE_GEOMETRY({}): {}"sv, drive, last_error());
+		LOGWARNING(L"IOCTL_DISK_GET_DRIVE_GEOMETRY({}): {}"sv, drive, os::last_error());
 		return false;
 	}
 

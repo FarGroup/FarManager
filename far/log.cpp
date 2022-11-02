@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "res.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.concurrency.hpp"
 #include "platform.debug.hpp"
 #include "platform.env.hpp"
@@ -451,7 +452,7 @@ namespace
 
 			if (!CreateProcess(m_ThisModule.c_str(), UNSAFE_CSTR(format(FSTR(L"\"{}\" {} {}"sv), m_ThisModule, log_argument, m_PipeName)), {}, {}, false, CREATE_NEW_CONSOLE, {}, {}, &si, &pi))
 			{
-				LOGERROR(L"{}"sv, last_error());
+				LOGERROR(L"{}"sv, os::last_error());
 				return;
 			}
 
@@ -460,7 +461,7 @@ namespace
 
 			while (!ConnectNamedPipe(m_Pipe.native_handle(), {}) && GetLastError() != ERROR_PIPE_CONNECTED)
 			{
-				LOGWARNING(L"ConnectNamedPipe({}): {}"sv, m_PipeName, last_error());
+				LOGWARNING(L"ConnectNamedPipe({}): {}"sv, m_PipeName, os::last_error());
 			}
 
 			m_Connected = true;
@@ -913,7 +914,7 @@ namespace logging
 
 		while (!PipeFile.Open(PipeName, GENERIC_READ, 0, {}, OPEN_EXISTING))
 		{
-			const auto ErrorState = last_error();
+			const auto ErrorState = os::last_error();
 
 			if (!ConsoleYesNo(L"Retry"sv, false, [&]{ std::wcerr << format(FSTR(L"Can't open pipe {}: {}"sv), PipeName, ErrorState.Win32ErrorStr()) << std::endl; }))
 				return EXIT_FAILURE;

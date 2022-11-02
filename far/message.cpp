@@ -118,7 +118,13 @@ intptr_t message_context::DlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void*
 				case KEY_F3:
 					if(ErrorState)
 					{
-						const auto Errors = ErrorState->format_errors();
+						const string Errors[]
+						{
+							L""s,
+							ErrorState->Win32ErrorStr(),
+							ErrorState->NtErrorStr(),
+						};
+
 						const auto MaxStr = std::max(Errors[0].size(), Errors[1].size());
 						const auto SysArea = 5 * 2;
 						const auto FieldsWidth = std::max(80 - SysArea, std::min(static_cast<int>(MaxStr), ScrX - SysArea));

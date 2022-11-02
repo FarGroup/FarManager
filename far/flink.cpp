@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.fs.hpp"
 #include "platform.security.hpp"
 
@@ -163,14 +164,14 @@ static bool SetREPARSE_DATA_BUFFER(const string_view Object, REPARSE_DATA_BUFFER
 
 	if (Attributes & FILE_ATTRIBUTE_READONLY && !os::fs::set_file_attributes(Object, Attributes & ~FILE_ATTRIBUTE_READONLY)) //BUGBUG
 	{
-		LOGWARNING(L"set_file_attributes({}): {}"sv, Object, last_error());
+		LOGWARNING(L"set_file_attributes({}): {}"sv, Object, os::last_error());
 	}
 
 	SCOPE_EXIT
 	{
 		if (Attributes & FILE_ATTRIBUTE_READONLY && !os::fs::set_file_attributes(Object, Attributes)) //BUGBUG
 		{
-			LOGWARNING(L"set_file_attributes({}): {}"sv, Object, last_error());
+			LOGWARNING(L"set_file_attributes({}): {}"sv, Object, os::last_error());
 		}
 
 	};
@@ -411,7 +412,7 @@ bool MkHardLink(string_view const ExistingName, string_view const NewName, bool 
 		if (Silent)
 			return false;
 
-		const auto ErrorState = last_error();
+		const auto ErrorState = os::last_error();
 
 		if (OperationFailed(ErrorState, NewName, lng::MError, msg(lng::MCopyCannotCreateLink), false) != operation::retry)
 			break;
@@ -666,7 +667,7 @@ bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePoin
 		{
 			if (!Silent)
 			{
-				const auto ErrorState = last_error();
+				const auto ErrorState = os::last_error();
 
 				Message(MSG_WARNING, ErrorState,
 					msg(lng::MError),
@@ -688,7 +689,7 @@ bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePoin
 
 		if (!Silent)
 		{
-			const auto ErrorState = last_error();
+			const auto ErrorState = os::last_error();
 
 			Message(MSG_WARNING, ErrorState,
 				msg(lng::MError),
@@ -708,7 +709,7 @@ bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePoin
 
 		if (!Silent)
 		{
-			const auto ErrorState = last_error();
+			const auto ErrorState = os::last_error();
 
 			Message(MSG_WARNING, ErrorState,
 				msg(lng::MError),

@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.com.hpp"
 #include "platform.debug.hpp"
 #include "platform.fs.hpp"
@@ -346,7 +347,7 @@ static void read_modules(string& To, string_view const Eol)
 	{
 		if (!EnumProcessModules(GetCurrentProcess(), Data, Size, &Needed))
 		{
-			const auto LastError = last_error();
+			const auto LastError = os::last_error();
 			format_to(To, FSTR(L"{}"sv), LastError);
 			LOGWARNING(L"EnumProcessModules(): {}"sv, LastError);
 			return;
@@ -374,7 +375,7 @@ static string timestamp(os::chrono::time_point const Point)
 	SYSTEMTIME SystemTime{};
 	if (!FileTimeToSystemTime(&FileTime, &SystemTime))
 	{
-		LOGWARNING(L"FileTimeToSystemTime(): {}"sv, last_error());
+		LOGWARNING(L"FileTimeToSystemTime(): {}"sv, os::last_error());
 		return format(FSTR(L"{:16X}"sv), Point.time_since_epoch().count());
 	}
 
@@ -395,7 +396,7 @@ static string file_timestamp()
 	os::fs::find_data Data;
 	if (!os::fs::get_find_data(Global->g_strFarModuleName, Data))
 	{
-		LOGWARNING(L"get_find_data({}): {}"sv, Global->g_strFarModuleName, last_error());
+		LOGWARNING(L"get_find_data({}): {}"sv, Global->g_strFarModuleName, os::last_error());
 		return {};
 	}
 
@@ -1218,7 +1219,7 @@ static bool handle_generic_exception(
 	Plugin const* const PluginModule,
 	string_view const Type,
 	string_view const Message,
-	error_state const& ErrorState = last_error(),
+	error_state_ex const& ErrorState,
 	span<os::debug::stack_frame const> const NestedStack = {}
 )
 {
@@ -1266,7 +1267,9 @@ static bool handle_generic_exception(
 		Source = Location;
 
 	const auto FunctionWide = encoding::utf8::get_chars(Function);
-	const auto Errors = ErrorState.format_errors();
+	const auto Errno = ErrorState.ErrnoStr();
+	const auto LastError = ErrorState.Win32ErrorStr();
+	const auto LastNtStatus = ErrorState.NtErrorStr();
 	const auto Version = self_version();
 	const auto Compiler = build::compiler();
 	const auto PeTime = pe_timestamp();
@@ -1281,9 +1284,9 @@ static bool handle_generic_exception(
 	{
 		{ L"Exception:"sv, Exception,     },
 		{ L"Details:  "sv, Details,       },
-		{ L"errno:    "sv, Errors[0],     },
-		{ L"LastError:"sv, Errors[1],     },
-		{ L"NTSTATUS: "sv, Errors[2],     },
+		{ L"errno:    "sv, Errno,         },
+		{ L"LastError:"sv, LastError,     },
+		{ L"NTSTATUS: "sv, LastNtStatus,  },
 		{ L"Address:  "sv, Address,       },
 		{ L"Function: "sv, FunctionWide,  },
 		{ L"Source:   "sv, Source,        },
@@ -1491,6 +1494,7 @@ static bool handle_std_exception(
 	const Plugin* const Module
 )
 {
+	error_state_ex const LastError{ os::last_error(), {}, errno };
 	const auto& [Type, What] = extract_nested_exceptions(Context.exception_record(), e);
 
 	if (const auto FarException = dynamic_cast<const detail::far_base_exception*>(&e))
@@ -1504,7 +1508,7 @@ static bool handle_std_exception(
 		return handle_generic_exception(Context, FarException->function(), FarException->location(), Module, Type, What, *FarException, NestedStack);
 	}
 
-	return handle_generic_exception(Context, Function, {}, Module, Type, What);
+	return handle_generic_exception(Context, Function, {}, Module, Type, What, LastError);
 }
 
 bool handle_std_exception(const std::exception& e, std::string_view const Function, const Plugin* const Module)
@@ -1517,11 +1521,11 @@ class seh_exception::seh_exception_impl
 public:
 	explicit seh_exception_impl(EXCEPTION_POINTERS const& Pointers):
 		Context(Pointers),
-		ErrorState(last_error())
+		ErrorState(os::last_error())
 	{}
 
 	seh_exception_context Context;
-	error_state ErrorState;
+	os::error_state ErrorState;
 };
 
 seh_exception::seh_exception():
@@ -1571,6 +1575,7 @@ static bool handle_seh_exception(
 	Plugin const* const PluginModule
 )
 {
+	error_state_ex const LastError{ os::last_error(), {}, errno };
 	const auto& Record = Context.exception_record();
 
 	if (Record.ExceptionCode == static_cast<DWORD>(STATUS_FAR_THREAD_RETHROW) && Record.NumberParameters == 1)
@@ -1586,7 +1591,7 @@ static bool handle_seh_exception(
 			return handle_std_exception(Context, view_as<std::exception>(Record.ExceptionInformation[1]), Function, PluginModule);
 	}
 
-	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {});
+	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {}, LastError);
 }
 
 bool handle_unknown_exception(std::string_view const Function, const Plugin* const Module)
@@ -1643,7 +1648,9 @@ static void seh_abort_handler_impl()
 		static_cast<CONTEXT*>(*dummy_current_exception_context())
 	});
 
-	if (handle_generic_exception(Context, CURRENT_FUNCTION_NAME, {}, {}, {}, L"Abnormal termination"sv))
+	error_state_ex const LastError{ os::last_error(), {}, errno };
+
+	if (handle_generic_exception(Context, CURRENT_FUNCTION_NAME, {}, {}, {}, L"Abnormal termination"sv, LastError))
 		os::process::terminate_by_user();
 
 	restore_system_exception_handler();
@@ -1725,13 +1732,16 @@ static void invalid_parameter_handler_impl(const wchar_t* const Expression, cons
 		static_cast<CONTEXT*>(*dummy_current_exception_context())
 	});
 
+	error_state_ex const LastError{ os::last_error(), {}, errno };
+
 	if (handle_generic_exception(
 		Context,
 		Function? encoding::utf8::get_bytes(Function) : CURRENT_FUNCTION_NAME,
 		format(FSTR(L"{}({})"sv), File? File : WIDE(CURRENT_FILE_NAME), File? Line : __LINE__),
 		{},
 		{},
-		Expression? Expression : L"Invalid parameter"sv
+		Expression? Expression : L"Invalid parameter"sv,
+		LastError
 	))
 		os::process::terminate_by_user();
 

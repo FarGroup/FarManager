@@ -84,6 +84,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 // Platform:
+#include "platform.hpp"
 #if defined(TREEFILE_PROJECT)
 #include "platform.env.hpp"
 #endif
@@ -293,13 +294,13 @@ static bool GetCacheTreeName(string_view const Root, string& strName, bool const
 		// BUGBUG check result
 		if (!os::fs::create_directory(strFolderName))
 		{
-			LOGWARNING(L"create_directory({}): {}"sv, strFolderName, last_error());
+			LOGWARNING(L"create_directory({}): {}"sv, strFolderName, os::last_error());
 		}
 
 		// BUGBUG check result
 		if (!os::fs::set_file_attributes(strFolderName, Global->Opt->Tree.TreeFileAttr))
 		{
-			LOGWARNING(L"set_file_attributes({}): {}"sv, strFolderName, last_error());
+			LOGWARNING(L"set_file_attributes({}): {}"sv, strFolderName, os::last_error());
 		}
 	}
 
@@ -717,7 +718,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 
 	if (SavedAttributes != INVALID_FILE_ATTRIBUTES && !os::fs::set_file_attributes(Name, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
 	{
-		LOGWARNING(L"set_file_attributes({}): {}"sv, Name, last_error());
+		LOGWARNING(L"set_file_attributes({}): {}"sv, Name, os::last_error());
 	}
 
 	std::optional<error_state_ex> ErrorState;
@@ -741,7 +742,7 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 
 			if (SavedAttributes != INVALID_FILE_ATTRIBUTES && !os::fs::set_file_attributes(Name, SavedAttributes)) //BUGBUG
 			{
-				LOGWARNING(L"set_file_attributes({}): {}"sv, Name, last_error());
+				LOGWARNING(L"set_file_attributes({}): {}"sv, Name, os::last_error());
 			}
 		}
 		catch (far_exception const& e)
@@ -754,14 +755,14 @@ static void WriteTree(string_type& Name, const container_type& Container, const 
 	}
 	else
 	{
-		ErrorState = last_error();
+		ErrorState = os::last_error();
 	}
 
 	if (ErrorState)
 	{
 		if (const auto CacheName = TreeCache().GetTreeName(); !os::fs::delete_file(CacheName)) // BUGBUG
 		{
-			LOGWARNING(L"delete_file({}): {}"sv, CacheName, last_error());
+			LOGWARNING(L"delete_file({}): {}"sv, CacheName, os::last_error());
 		}
 
 		if (!Global->WindowManager->ManagerIsDown())

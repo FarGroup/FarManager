@@ -65,6 +65,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.env.hpp"
 #include "platform.memory.hpp"
 #include "platform.version.hpp"
@@ -202,7 +203,7 @@ public:
 		auto Module = std::make_unique<oem_plugin_module>(filename);
 		if (!*Module)
 		{
-			const auto ErrorState = last_error();
+			const auto ErrorState = os::last_error();
 
 			Module.reset();
 

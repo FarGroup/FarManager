@@ -40,9 +40,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "log.hpp"
 #include "encoding.hpp"
-#include "exception.hpp"
 
 // Platform:
+#include "platform.hpp"
 
 // Common:
 #include "common/scope_exit.hpp"
@@ -74,7 +74,7 @@ namespace imports_detail
 			CurrentName = {};
 		};
 
-		const auto LastError = last_error();
+		const auto LastError = os::last_error();
 		LOGWARNING(L"{}::{}: {}"sv, Module.name(), encoding::utf8::get_chars(Name), LastError);
 	}
 

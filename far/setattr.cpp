@@ -69,6 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.fs.hpp"
 
 // Common:
@@ -786,7 +787,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 			// BUGBUG
 			if (!os::fs::get_find_data(*Object, SingleSelFindData))
 			{
-				LOGWARNING(L"get_find_data({}): {}"sv, *Object, last_error());
+				LOGWARNING(L"get_find_data({}): {}"sv, *Object, os::last_error());
 			}
 
 			SingleSelFileName = *Object;

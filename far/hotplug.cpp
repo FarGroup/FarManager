@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.fs.hpp"
 
 // Common:
@@ -112,7 +113,7 @@ namespace detail
 		void operator()(HDEVINFO Handle) const noexcept
 		{
 			if (!SetupDiDestroyDeviceInfoList(Handle))
-				LOGWARNING(L"SetupDiDestroyDeviceInfoList(): {}"sv, last_error());
+				LOGWARNING(L"SetupDiDestroyDeviceInfoList(): {}"sv, os::last_error());
 		}
 	};
 }
@@ -621,7 +622,7 @@ void ShowHotplugDevices()
 					else if (!Cancelled)
 					{
 						SetLastError(ERROR_DRIVE_LOCKED); // ... "The disk is in use or locked by another process."
-						const auto ErrorState = last_error();
+						const auto ErrorState = os::last_error();
 
 						Message(MSG_WARNING, ErrorState,
 							msg(lng::MError),

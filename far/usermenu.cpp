@@ -66,6 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 
@@ -313,7 +314,7 @@ void UserMenu::SaveMenu(string_view const MenuFileName) const
 
 		if (!os::fs::set_file_attributes(MenuFileName, FileAttr & ~FILE_ATTRIBUTE_READONLY)) //BUGBUG
 		{
-			LOGWARNING(L"set_file_attributes({}): {}"sv, MenuFileName, last_error());
+			LOGWARNING(L"set_file_attributes({}): {}"sv, MenuFileName, os::last_error());
 		}
 	}
 

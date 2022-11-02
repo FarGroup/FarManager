@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "char_width.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 #include "platform.process.hpp"
@@ -501,7 +502,7 @@ static bool execute_createprocess(string const& Command, string const& Parameter
 		&pi
 	))
 	{
-		LOGDEBUG(L"CreateProcess({}): {}"sv, FullCommand, last_error());
+		LOGDEBUG(L"CreateProcess({}): {}"sv, FullCommand, os::last_error());
 		return false;
 	}
 
@@ -538,7 +539,7 @@ static bool execute_shell(string const& Command, string const& Parameters, strin
 
 	if (!ShellExecuteEx(&Info))
 	{
-		LOGDEBUG(L"ShellExecuteEx({}): {}"sv, Command, last_error());
+		LOGDEBUG(L"ShellExecuteEx({}): {}"sv, Command, os::last_error());
 		return false;
 	}
 
@@ -649,7 +650,7 @@ static bool execute_impl(
 		if (execute_process())
 			return true;
 
-		if (last_error().Win32Error == ERROR_EXE_MACHINE_TYPE_MISMATCH)
+		if (os::last_error().Win32Error == ERROR_EXE_MACHINE_TYPE_MISMATCH)
 			return false;
 	}
 
@@ -669,7 +670,7 @@ static bool execute_impl(
 	if (execute_shell())
 		return true;
 
-	if (last_error().Win32Error != ERROR_FILE_NOT_FOUND || UsingComspec || !UseComspec(FullCommand, Command, Parameters))
+	if (os::last_error().Win32Error != ERROR_FILE_NOT_FOUND || UsingComspec || !UseComspec(FullCommand, Command, Parameters))
 		return false;
 
 	UsingComspec = true;
@@ -762,7 +763,7 @@ void Execute(execute_info& Info, function_ref<void(bool)> const ConsoleActivator
 	if (execute_impl(Info, ConsoleActivator, FullCommand, Command, Parameters, CurrentDirectory, UsingComspec))
 		return;
 
-	const auto ErrorState = last_error();
+	const auto ErrorState = os::last_error();
 
 	if (ErrorState.Win32Error == ERROR_CANCELLED)
 		return;

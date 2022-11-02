@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "xlat.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.reg.hpp"
 
 // Common:
@@ -286,7 +287,7 @@ static auto get_keyboard_layout_list()
 	// GetKeyboardLayoutList can fail in telnet mode, which is, technically, a right thing to do.
 	// However, we still need to map the keys.
 	// The code below emulates it in the hope that your client and server layouts are more or less similar.
-	LOGWARNING(L"GetKeyboardLayoutList(): {}"sv, last_error());
+	LOGWARNING(L"GetKeyboardLayoutList(): {}"sv, os::last_error());
 
 	Result.reserve(10);
 	string LayoutStr, LayoutIdStr;

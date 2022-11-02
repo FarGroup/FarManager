@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.fs.hpp"
 
 // Common:
@@ -106,7 +107,7 @@ void EjectVolume(string_view const Path)
 	{
 		if (!File.IoControl(FSCTL_UNLOCK_VOLUME, nullptr, 0, nullptr, 0))
 		{
-			LOGERROR(L"IoControl(FSCTL_UNLOCK_VOLUME, {}): {}"sv, File.GetName(), last_error());
+			LOGERROR(L"IoControl(FSCTL_UNLOCK_VOLUME, {}): {}"sv, File.GetName(), os::last_error());
 		}
 	};
 
@@ -114,7 +115,7 @@ void EjectVolume(string_view const Path)
 	{
 		if (!File.FlushBuffers())
 		{
-			LOGWARNING(L"FlushBuffers({}): {}"sv, File.GetName(), last_error());
+			LOGWARNING(L"FlushBuffers({}): {}"sv, File.GetName(), os::last_error());
 		}
 	}
 

@@ -44,11 +44,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "preservestyle.hpp"
 #include "locale.hpp"
-#include "stddlg.hpp"
 #include "encoding.hpp"
 #include "regex_helpers.hpp"
 #include "string_utils.hpp"
-#include "exception.hpp"
 #include "global.hpp"
 
 // Platform:

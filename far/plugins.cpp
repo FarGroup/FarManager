@@ -56,7 +56,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "processname.hpp"
 #include "interf.hpp"
-#include "message.hpp"
 #include "uuids.far.hpp"
 #include "configdb.hpp"
 #include "FarDlgBuilder.hpp"
@@ -74,6 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exception_handler.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.env.hpp"
 #include "platform.memory.hpp"
 
@@ -584,14 +584,14 @@ std::unique_ptr<plugin_panel> PluginManager::OpenFilePlugin(const string* Name, 
 			os::fs::file const File(*Name, FILE_READ_DATA, os::fs::file_share_all, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 			if (!File)
 			{
-				LOGERROR(L"create_file({}): {}"sv, *Name, last_error());
+				LOGERROR(L"create_file({}): {}"sv, *Name, os::last_error());
 				return nullptr;
 			}
 
 			size_t DataSize = 0;
 			if (!File.Read(Buffer.data(), Buffer.size(), DataSize))
 			{
-				LOGERROR(L"read_file({}): {}"sv, *Name, last_error());
+				LOGERROR(L"read_file({}): {}"sv, *Name, os::last_error());
 				return nullptr;
 			}
 
@@ -1054,12 +1054,12 @@ bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 		{
 			if (!os::fs::set_file_attributes(Result, FILE_ATTRIBUTE_NORMAL)) // BUGBUG
 			{
-				LOGWARNING(L"set_file_attributes({}): {}"sv, Result, last_error());
+				LOGWARNING(L"set_file_attributes({}): {}"sv, Result, os::last_error());
 			}
 
 			if (!os::fs::delete_file(Result)) //BUGBUG
 			{
-				LOGWARNING(L"delete_file({}): {}"sv, Result, last_error());
+				LOGWARNING(L"delete_file({}): {}"sv, Result, os::last_error());
 			}
 		}
 	}

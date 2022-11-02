@@ -102,6 +102,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.fs.hpp"
 
 // Common:
@@ -1884,7 +1885,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 							// BUGBUG check result
 							if (!os::fs::remove_directory(TemporaryDirectory))
 							{
-								LOGWARNING(L"remove_directory({}): {}"sv, TemporaryDirectory, last_error());
+								LOGWARNING(L"remove_directory({}): {}"sv, TemporaryDirectory, os::last_error());
 							}
 							return true;
 						}
@@ -2681,7 +2682,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			// BUGBUG check result
 			if (!os::fs::create_directory(strTempDir))
 			{
-				LOGWARNING(L"create_directory({}): {}"sv, strTempDir, last_error());
+				LOGWARNING(L"create_directory({}): {}"sv, strTempDir, os::last_error());
 			}
 
 			PluginPanelItemHolderHeap PanelItem;
@@ -2692,7 +2693,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				// BUGBUG check result
 				if (!os::fs::remove_directory(strTempDir))
 				{
-					LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, last_error());
+					LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, os::last_error());
 				}
 
 				return;
@@ -4163,7 +4164,7 @@ void FileList::UpdateViewPanel()
 		// BUGBUG check result
 		if (!os::fs::create_directory(strTempDir))
 		{
-			LOGWARNING(L"create_directory({}): {}"sv, strTempDir, last_error());
+			LOGWARNING(L"create_directory({}): {}"sv, strTempDir, os::last_error());
 		}
 
 		PluginPanelItemHolderHeap PanelItem;
@@ -4176,7 +4177,7 @@ void FileList::UpdateViewPanel()
 			// BUGBUG check result
 			if (!os::fs::remove_directory(strTempDir))
 			{
-				LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, last_error());
+				LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, os::last_error());
 			}
 
 			return;
@@ -6018,7 +6019,7 @@ void FileList::PluginToPluginFiles(bool Move)
 	// BUGBUG check result
 	if (!os::fs::create_directory(strTempDir))
 	{
-		LOGWARNING(L"create_directory({}): {}"sv, strTempDir, last_error());
+		LOGWARNING(L"create_directory({}): {}"sv, strTempDir, os::last_error());
 	}
 
 	{
@@ -6060,7 +6061,7 @@ void FileList::PluginToPluginFiles(bool Move)
 		// BUGBUG check result
 		if (!os::fs::remove_directory(OriginalTempDir))
 		{
-			LOGWARNING(L"remove_directory({}): {}"sv, OriginalTempDir, last_error());
+			LOGWARNING(L"remove_directory({}): {}"sv, OriginalTempDir, os::last_error());
 		}
 	}
 
@@ -6658,7 +6659,7 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 		// BUGBUG check result
 		if (!os::fs::get_disk_size(m_CurDir, nullptr, nullptr, &FreeDiskSize))
 		{
-			LOGWARNING(L"get_disk_size({}): {}"sv, m_CurDir, last_error());
+			LOGWARNING(L"get_disk_size({}): {}"sv, m_CurDir, os::last_error());
 		}
 	}
 
@@ -6689,7 +6690,7 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 	// BUGBUG check result
 	if (const auto Root = GetPathRoot(m_CurDir); !os::fs::GetVolumeInformation(Root, nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName))
 	{
-		LOGWARNING(L"GetVolumeInformation({}): {}"sv, Root, last_error());
+		LOGWARNING(L"GetVolumeInformation({}): {}"sv, Root, os::last_error());
 	}
 
 	m_HardlinksSupported = true;
@@ -6766,12 +6767,12 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 		}
 	}
 
-	std::optional<error_state> ErrorState;
+	std::optional<os::error_state> ErrorState;
 	const time_check TimeCheck;
 
 	for (const auto& fdata: Find)
 	{
-		ErrorState = last_error();
+		ErrorState = os::last_error();
 
 		const auto IsDirectory = os::fs::is_directory(fdata);
 
@@ -6829,7 +6830,7 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 	}
 
 	if (!ErrorState)
-		ErrorState = last_error();
+		ErrorState = os::last_error();
 
 	if (!(ErrorState->Win32Error == ERROR_SUCCESS || ErrorState->Win32Error == ERROR_NO_MORE_FILES || ErrorState->Win32Error == ERROR_FILE_NOT_FOUND))
 	{
@@ -6856,7 +6857,7 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 		}
 		else
 		{
-			LOGWARNING(L"GetFileTimeSimple({}): {}"sv, m_CurDir, last_error());
+			LOGWARNING(L"GetFileTimeSimple({}): {}"sv, m_CurDir, os::last_error());
 		}
 
 		NewItem.Position = m_ListData.size();
@@ -7131,7 +7132,7 @@ void FileList::UpdatePlugin(bool const KeepSelection, bool const UpdateEvenIfPan
 			// BUGBUG check result
 			if (!os::fs::get_disk_size(m_CurDir, nullptr, nullptr, &FreeDiskSize))
 			{
-				LOGWARNING(L"get_disk_size({}): {}"sv, m_CurDir, last_error());
+				LOGWARNING(L"get_disk_size({}): {}"sv, m_CurDir, os::last_error());
 			}
 		}
 		else if (m_CachedOpenPanelInfo.Flags & OPIF_USEFREESIZE)
@@ -7366,7 +7367,7 @@ void FileList::ReadDiz(span<PluginPanelItem> const Items)
 
 					if (!os::fs::create_directory(strTempDir))
 					{
-						LOGWARNING(L"create_directory({}): {}"sv, strTempDir, last_error());
+						LOGWARNING(L"create_directory({}): {}"sv, strTempDir, os::last_error());
 						continue;
 					}
 
@@ -7382,7 +7383,7 @@ void FileList::ReadDiz(span<PluginPanelItem> const Items)
 					// BUGBUG check result
 					if (!os::fs::remove_directory(strTempDir))
 					{
-						LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, last_error());
+						LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, os::last_error());
 					}
 					//ViewPanel->ShowFile(nullptr,FALSE,nullptr);
 				}

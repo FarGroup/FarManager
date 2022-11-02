@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.fs.hpp"
 
 // Common:
@@ -460,7 +461,7 @@ public:
 
 			if (!os::fs::set_file_attributes(TmpDbPath, FILE_ATTRIBUTE_NORMAL)) //BUGBUG
 			{
-				LOGWARNING(L"set_file_attributes({}): {}"sv, TmpDbPath, last_error());
+				LOGWARNING(L"set_file_attributes({}): {}"sv, TmpDbPath, os::last_error());
 			}
 
 			SourceDb = open(TmpDbPath, BusyHandler);

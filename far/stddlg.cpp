@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "dlgedit.hpp"
 #include "cvtname.hpp"
-#include "exception.hpp"
 #include "RegExp.hpp"
 #include "FarDlgBuilder.hpp"
 #include "config.hpp"
@@ -62,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.com.hpp"
 #include "platform.process.hpp"
 
@@ -743,7 +743,7 @@ bool retryable_ui_operation(function_ref<bool()> const Action, string_view const
 {
 	while (!Action())
 	{
-		switch (const auto ErrorState = last_error(); SkipErrors? operation::skip_all : OperationFailed(ErrorState, Name, lng::MError, msg(ErrorDescription)))
+		switch (const auto ErrorState = os::last_error(); SkipErrors? operation::skip_all : OperationFailed(ErrorState, Name, lng::MError, msg(ErrorDescription)))
 		{
 		case operation::retry:
 			continue;

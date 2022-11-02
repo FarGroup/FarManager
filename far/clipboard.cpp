@@ -41,10 +41,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "encoding.hpp"
 #include "eol.hpp"
-#include "exception.hpp"
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.chrono.hpp"
 #include "platform.process.hpp"
 
@@ -112,7 +112,7 @@ public:
 				return true;
 			}
 
-			const auto Error = last_error();
+			const auto Error = os::last_error();
 
 			if (Error.Win32Error == ERROR_ACCESS_DENIED)
 			{
@@ -131,7 +131,7 @@ public:
 			os::chrono::sleep_for((i + 1) * 50ms);
 		}
 
-		LOGERROR(L"OpenClipboard(): {}"sv, last_error());
+		LOGERROR(L"OpenClipboard(): {}"sv, os::last_error());
 		return false;
 	}
 
@@ -143,7 +143,7 @@ public:
 
 		if (!CloseClipboard())
 		{
-			LOGERROR(L"CloseClipboard(): {}"sv, last_error());
+			LOGERROR(L"CloseClipboard(): {}"sv, os::last_error());
 			return false;
 		}
 
@@ -157,7 +157,7 @@ public:
 
 		if (!EmptyClipboard())
 		{
-			LOGERROR(L"EmptyClipboard(): {}"sv, last_error());
+			LOGERROR(L"EmptyClipboard(): {}"sv, os::last_error());
 			return false;
 		}
 
@@ -172,7 +172,7 @@ public:
 		auto hData = os::memory::global::copy(Str);
 		if (!hData)
 		{
-			LOGERROR(L"global::copy(): {}"sv, last_error());
+			LOGERROR(L"global::copy(): {}"sv, os::last_error());
 			return false;
 		}
 
@@ -186,14 +186,14 @@ public:
 			if (auto Size = os::memory::global::copy(static_cast<uint32_t>(Str.size())))
 				SetData(Format, std::move(Size));
 			else
-				LOGWARNING(L"global::copy(): {}"sv, last_error());
+				LOGWARNING(L"global::copy(): {}"sv, os::last_error());
 		}
 
 		// return value is ignored - non-critical feature
 		if (auto Locale = os::memory::global::copy(GetUserDefaultLCID()))
 			SetData(CF_LOCALE, std::move(Locale));
 		else
-			LOGWARNING(L"global::copy(): {}"sv, last_error());
+			LOGWARNING(L"global::copy(): {}"sv, os::last_error());
 
 		return true;
 	}
@@ -231,14 +231,14 @@ public:
 		auto Memory = os::memory::global::alloc(GMEM_MOVEABLE, sizeof(DROPFILES) + (NamesData.size() + 1) * sizeof(wchar_t));
 		if (!Memory)
 		{
-			LOGERROR(L"global::alloc(): {}"sv, last_error());
+			LOGERROR(L"global::alloc(): {}"sv, os::last_error());
 			return false;
 		}
 
 		const auto Drop = os::memory::global::lock<LPDROPFILES>(Memory);
 		if (!Drop)
 		{
-			LOGERROR(L"global::lock(): {}"sv, last_error());
+			LOGERROR(L"global::lock(): {}"sv, os::last_error());
 			return false;
 		}
 
@@ -257,7 +257,7 @@ public:
 		auto DropEffect = os::memory::global::copy<DWORD>(Move? DROPEFFECT_MOVE : DROPEFFECT_COPY);
 		if (!DropEffect)
 		{
-			LOGERROR(L"global::copy(): {}"sv, last_error());
+			LOGERROR(L"global::copy(): {}"sv, os::last_error());
 			return false;
 		}
 
@@ -283,14 +283,14 @@ public:
 		const auto DataHandle = GetClipboardData(Format);
 		if (!DataHandle)
 		{
-			LOGWARNING(L"GetClipboardData(): {}"sv, last_error());
+			LOGWARNING(L"GetClipboardData(): {}"sv, os::last_error());
 			return {};
 		}
 
 		auto DataPtr = os::memory::global::lock<T const*>(DataHandle);
 		if (!DataPtr)
 		{
-			LOGWARNING(L"global::lock(): {}"sv, last_error());
+			LOGWARNING(L"global::lock(): {}"sv, os::last_error());
 			return {};
 		}
 
@@ -363,7 +363,7 @@ public:
 			SizeInChars
 		) != SizeInChars)
 		{
-			LOGWARNING(L"GetLocaleInfo(LOCALE_IDEFAULTANSICODEPAGE): {}"sv, last_error());
+			LOGWARNING(L"GetLocaleInfo(LOCALE_IDEFAULTANSICODEPAGE): {}"sv, os::last_error());
 			return 0;
 		}
 
@@ -585,7 +585,7 @@ private:
 
 		if (!SetClipboardData(Format, Data.get()))
 		{
-			LOGWARNING(L"SetClipboardData(): {}"sv, last_error());
+			LOGWARNING(L"SetClipboardData(): {}"sv, os::last_error());
 			return false;
 		}
 
@@ -615,7 +615,7 @@ private:
 			FormatId = RegisterClipboardFormat(FormatName);
 			if (!FormatId)
 			{
-				LOGWARNING(L"RegisterClipboardFormat(): {}"sv, last_error());
+				LOGWARNING(L"RegisterClipboardFormat(): {}"sv, os::last_error());
 			}
 		}
 		return FormatId;

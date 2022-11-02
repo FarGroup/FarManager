@@ -59,12 +59,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cvtname.hpp"
 #include "datetime.hpp"
 #include "global.hpp"
-#include "exception.hpp"
 #include "log.hpp"
 #include "stddlg.hpp"
 
 
 // Platform:
+#include "platform.hpp"
 #include "platform.com.hpp"
 #include "platform.fs.hpp"
 
@@ -496,12 +496,12 @@ void QuickView::QViewDelTempName()
 
 		if (!os::fs::set_file_attributes(strCurFileName, FILE_ATTRIBUTE_NORMAL)) // BUGBUG
 		{
-			LOGWARNING(L"set_file_attributes({}): {}"sv, strCurFileName, last_error());
+			LOGWARNING(L"set_file_attributes({}): {}"sv, strCurFileName, os::last_error());
 		}
 
 		if (!os::fs::delete_file(strCurFileName))  //BUGBUG
 		{
-			LOGWARNING(L"delete_file({}): {}"sv, strCurFileName, last_error());
+			LOGWARNING(L"delete_file({}): {}"sv, strCurFileName, os::last_error());
 		}
 
 		string_view TempDirectoryName = strCurFileName;
@@ -509,7 +509,7 @@ void QuickView::QViewDelTempName()
 		// BUGBUG check result
 		if (!os::fs::remove_directory(TempDirectoryName))
 		{
-			LOGWARNING(L"remove_directory({}): {}"sv, TempDirectoryName, last_error());
+			LOGWARNING(L"remove_directory({}): {}"sv, TempDirectoryName, os::last_error());
 		}
 
 		m_TemporaryFile = false;

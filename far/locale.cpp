@@ -40,10 +40,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "global.hpp"
 #include "encoding.hpp"
-#include "exception.hpp"
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 
 // Common:
 #include "common/algorithm.hpp"
@@ -84,7 +84,7 @@ static auto get_date_format()
 	int DateFormat;
 	if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_IDATE, DateFormat))
 	{
-		LOGWARNING(L"get_locale_value(LOCALE_IDATE): {}"sv, last_error());
+		LOGWARNING(L"get_locale_value(LOCALE_IDATE): {}"sv, os::last_error());
 		DateFormat = 2;
 	}
 
@@ -101,7 +101,7 @@ static auto get_digits_grouping()
 	string Grouping;
 	if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SGROUPING, Grouping))
 	{
-		LOGWARNING(L"get_locale_value(LOCALE_SGROUPING): {}"sv, last_error());
+		LOGWARNING(L"get_locale_value(LOCALE_SGROUPING): {}"sv, os::last_error());
 		return 3;
 	}
 
@@ -149,7 +149,7 @@ static auto get_date_separator()
 	}
 	else
 	{
-		LOGDEBUG(L"get_locale_value(LOCALE_SSHORTDATE): {}"sv, last_error());
+		LOGDEBUG(L"get_locale_value(LOCALE_SSHORTDATE): {}"sv, os::last_error());
 	}
 
 	if (os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SDATE, Value))
@@ -158,7 +158,7 @@ static auto get_date_separator()
 	}
 	else
 	{
-		LOGWARNING(L"get_locale_value(LOCALE_SDATE): {}"sv, last_error());
+		LOGWARNING(L"get_locale_value(LOCALE_SDATE): {}"sv, os::last_error());
 	}
 
 	return KnownSeparators.front();
@@ -169,7 +169,7 @@ static auto get_time_separator()
 	string Value;
 	if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_STIME, Value))
 	{
-		LOGWARNING(L"get_locale_value(LOCALE_STIME): {}"sv, last_error());
+		LOGWARNING(L"get_locale_value(LOCALE_STIME): {}"sv, os::last_error());
 	}
 
 	return Value.empty()? L':' : Value.front();
@@ -185,7 +185,7 @@ static auto get_decimal_separator()
 	string Value;
 	if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, Value))
 	{
-		LOGWARNING(L"get_locale_value(LOCALE_SDECIMAL): {}"sv, last_error());
+		LOGWARNING(L"get_locale_value(LOCALE_SDECIMAL): {}"sv, os::last_error());
 	}
 
 	return Value.empty()? L'.' : Value.front();
@@ -201,7 +201,7 @@ static auto get_thousand_separator()
 	string Value;
 	if (!os::get_locale_value(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, Value))
 	{
-		LOGWARNING(L"get_locale_value(LOCALE_STHOUSAND): {}"sv, last_error());
+		LOGWARNING(L"get_locale_value(LOCALE_STHOUSAND): {}"sv, os::last_error());
 	}
 
 	return Value.empty()? L',' : Value.front();
@@ -242,13 +242,13 @@ static auto get_month_day_names(int const Language)
 		if (!os::get_locale_value(CurLCID, Init.Index, Dest.Full))
 		{
 			Dest.Full = Init.Default;
-			LOGWARNING(L"get_locale_value(LOCALE_SMONTHNAME{}): {}"sv, Init.Index, last_error());
+			LOGWARNING(L"get_locale_value(LOCALE_SMONTHNAME{}): {}"sv, Init.Index, os::last_error());
 		}
 
 		if (!os::get_locale_value(CurLCID, Init.AbbrIndex, Dest.Short))
 		{
 			Dest.Full = Init.Default.substr(0, 3);
-			LOGWARNING(L"get_locale_value(LOCALE_SABBREVMONTHNAME{}): {}"sv, Init.AbbrIndex, last_error());
+			LOGWARNING(L"get_locale_value(LOCALE_SABBREVMONTHNAME{}): {}"sv, Init.AbbrIndex, os::last_error());
 		}
 	}
 
@@ -271,13 +271,13 @@ static auto get_month_day_names(int const Language)
 		if (!os::get_locale_value(CurLCID, Init.Index, Dest.Full))
 		{
 			Dest.Full = Init.Default;
-			LOGWARNING(L"get_locale_value({}): {}"sv, Init.Index, last_error());
+			LOGWARNING(L"get_locale_value({}): {}"sv, Init.Index, os::last_error());
 		}
 
 		if (!os::get_locale_value(CurLCID, Init.AbbrIndex, Dest.Short))
 		{
 			Dest.Full = Init.Default.substr(0, 3);
-			LOGWARNING(L"get_locale_value({}): {}"sv, Init.AbbrIndex, last_error());
+			LOGWARNING(L"get_locale_value({}): {}"sv, Init.AbbrIndex, os::last_error());
 		}
 	}
 

@@ -38,10 +38,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "preservelongname.hpp"
 
 // Internal:
-#include "exception.hpp"
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.fs.hpp"
 
 // Common:
@@ -82,6 +82,6 @@ PreserveLongName::~PreserveLongName()
 	// BUGBUG check result
 	if (!os::fs::move_file(m_SaveShortName, m_SaveLongName))
 	{
-		LOGERROR(L"move_file({}, {}): {}"sv, m_SaveShortName, m_SaveLongName, last_error());
+		LOGERROR(L"move_file({}, {}): {}"sv, m_SaveShortName, m_SaveLongName, os::last_error());
 	}
 }

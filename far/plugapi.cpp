@@ -93,6 +93,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.fs.hpp"
 
 // Common:
@@ -1186,7 +1187,8 @@ intptr_t WINAPI apiMessageFn(const UUID* PluginId, const UUID* Id, unsigned long
 	return cpp_try(
 	[&]() -> intptr_t
 	{
-		const error_state_ex ErrorState = Flags & FMSG_ERRORTYPE? last_error() : error_state();
+		const auto CaptureErrors = (Flags & FMSG_ERRORTYPE) != 0;
+		const error_state_ex ErrorState(CaptureErrors? os::last_error() : os::error_state{}, {}, CaptureErrors? errno : 0);
 
 		if (Global->WindowManager->ManagerIsDown())
 			return -1;

@@ -78,6 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 
 // Common:
 #include "common/bytes_view.hpp"
@@ -180,12 +181,12 @@ Viewer::~Viewer()
 		{
 			if (!os::fs::set_file_attributes(strTempViewName, FILE_ATTRIBUTE_NORMAL)) // BUGBUG
 			{
-				LOGWARNING(L"set_file_attributes({}): {}"sv, strTempViewName, last_error());
+				LOGWARNING(L"set_file_attributes({}): {}"sv, strTempViewName, os::last_error());
 			}
 
 			if (!os::fs::delete_file(strTempViewName)) //BUGBUG
 			{
-				LOGWARNING(L"delete_file({}): {}"sv, strTempViewName, last_error());
+				LOGWARNING(L"delete_file({}): {}"sv, strTempViewName, os::last_error());
 			}
 		}
 	}
@@ -299,7 +300,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 			// BUGBUG check result
 			if (!ViewFile.Write(vread_buffer.data(), ReadSize))
 			{
-				LOGWARNING(L"Write({}): {}"sv, ViewFile.GetName(), last_error());
+				LOGWARNING(L"Write({}): {}"sv, ViewFile.GetName(), os::last_error());
 			}
 		}
 		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
@@ -317,7 +318,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 				 so don't show red message box */
 			if (Warn)
 			{
-				const auto ErrorState = last_error();
+				const auto ErrorState = os::last_error();
 
 				if (OperationFailed(ErrorState, strFileName, lng::MViewerTitle, msg(lng::MViewerCannotOpenFile), false) == operation::retry)
 					continue;
@@ -334,7 +335,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 	// BUGBUG check result
 	if (!os::fs::get_find_data(strFileName, ViewFindData))
 	{
-		LOGWARNING(L"get_find_data({}): {}"sv, strFileName, last_error());
+		LOGWARNING(L"get_find_data({}): {}"sv, strFileName, os::last_error());
 	}
 
 	uintptr_t CachedCodePage=0;
@@ -3921,7 +3922,7 @@ void Viewer::SetFileSize()
 	// BUGBUG check result
 	if (!ViewFile.GetSize(uFileSize))
 	{
-		LOGWARNING(L"GetSize({}): {}"sv, ViewFile.GetName(), last_error());
+		LOGWARNING(L"GetSize({}): {}"sv, ViewFile.GetName(), os::last_error());
 	}
 
 	FileSize=uFileSize;

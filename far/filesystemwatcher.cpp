@@ -40,11 +40,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "exception_handler.hpp"
 #include "pathmix.hpp"
-#include "exception.hpp"
 #include "log.hpp"
 #include "notification.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.concurrency.hpp"
 #include "platform.debug.hpp"
 #include "platform.fs.hpp"
@@ -159,7 +159,7 @@ static os::handle open(const string_view Directory)
 	);
 
 	if (!DirectoryHandle)
-		LOGERROR(L"create_file({}): {}"sv, Directory, last_error());
+		LOGERROR(L"create_file({}): {}"sv, Directory, os::last_error());
 
 	return DirectoryHandle;
 }
@@ -212,7 +212,7 @@ void FileSystemWatcher::read_async() const
 		{}
 	))
 	{
-		LOGERROR(L"ReadDirectoryChangesW({}): {}"sv, m_Directory, last_error());
+		LOGERROR(L"ReadDirectoryChangesW({}): {}"sv, m_Directory, os::last_error());
 	}
 }
 
@@ -220,7 +220,7 @@ void FileSystemWatcher::callback_notify() const
 {
 	if (DWORD BytesReturned = 0; !GetOverlappedResult(m_DirectoryHandle.native_handle(), &m_Overlapped, &BytesReturned, false))
 	{
-		const auto LastError = last_error();
+		const auto LastError = os::last_error();
 		if (!(LastError.Win32Error == ERROR_ACCESS_DENIED && LastError.NtError == STATUS_DELETE_PENDING))
 		{
 			LOGWARNING(L"GetOverlappedResult({}): {}"sv, m_Directory, LastError);

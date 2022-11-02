@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 
@@ -358,7 +359,7 @@ static void MakeListFile(panel_ptr const& Panel, string& ListFileName, bool cons
 	{
 		if (!os::fs::delete_file(ListFileName)) // BUGBUG
 		{
-			LOGWARNING(L"delete_file({}): {}"sv, ListFileName, last_error());
+			LOGWARNING(L"delete_file({}): {}"sv, ListFileName, os::last_error());
 		}
 	};
 
