@@ -209,7 +209,7 @@ static void get_backtrace(string_view const Module, span<os::debug::stack_frame 
 	tracer.get_symbols(Module, Stack, Consumer);
 
 	make_header(L"Exception handler stack"sv, Consumer);
-	tracer.get_symbols(Module, os::debug::current_stack(), Consumer);
+	tracer.get_symbols(Module, os::debug::current_stacktrace(), Consumer);
 }
 
 static string get_report_location()
@@ -635,14 +635,11 @@ static void read_disassembly(string& To, string_view const Module, span<os::debu
 
 		const auto MaxFrames = 10;
 		auto Frames = 0;
-		uintptr_t LastFrameAddress = 0;
 
 		for (const auto i: Stack)
 		{
-			if (i.Address == LastFrameAddress)
+			if (os::debug::is_inline_frame(i.InlineContext))
 				continue;
-
-			LastFrameAddress = i.Address;
 
 			tracer.get_symbols(Module, {&i, 1}, [&](string_view const Line)
 			{
@@ -917,107 +914,6 @@ static string get_parent_process()
 
 	return concat(ParentName, L' ', ParentVersion);
 }
-
-static bool ShowExceptionUI(
-	bool const UseDialog,
-	exception_context const& Context,
-	string_view const Exception,
-	string_view const Details,
-	string_view const ExtraDetails,
-	error_state const& ErrorState,
-	string_view const Function,
-	string_view const Location,
-	string_view const ModuleName,
-	string const& PluginInfo,
-	Plugin const* const PluginModule,
-	span<os::debug::stack_frame const> const NestedStack
-)
-{
-	SCOPED_ACTION(tracer_detail::tracer::with_symbols)(PluginModule? ModuleName : L""sv);
-
-	string Address, Name, Source;
-	tracer.get_symbol(ModuleName, Context.exception_record().ExceptionAddress, Address, Name, Source);
-
-	if (!Name.empty())
-		Address = concat(L"0x"sv, Address, L" - "sv, Name);
-
-	if (Source.empty())
-		Source = Location;
-
-	const auto Errors = ErrorState.format_errors();
-	const auto Version = self_version();
-	const auto Compiler = build::compiler();
-	const auto PeTime = pe_timestamp();
-	const auto FileTime = file_timestamp();
-	const auto OsVersion = os::version::os_version();
-	const auto KernelVersion = kernel_version();
-	const auto ConsoleHost = get_console_host();
-	const auto Parent = get_parent_process();
-
-	std::pair<string_view, string_view> const BasicInfo[]
-	{
-		{ L"Exception:"sv, Exception,     },
-		{ L"Details:  "sv, Details,       },
-		{ L"errno:    "sv, Errors[0],     },
-		{ L"LastError:"sv, Errors[1],     },
-		{ L"NTSTATUS: "sv, Errors[2],     },
-		{ L"Address:  "sv, Address,       },
-		{ L"Function: "sv, Function,      },
-		{ L"Source:   "sv, Source,        },
-		{ L"File:     "sv, ModuleName,    },
-		{ L"Plugin:   "sv, PluginInfo,    },
-		{},
-		{ L"Far:      "sv, Version,       },
-		{ L"Compiler: "sv, Compiler,      },
-		{ L"PE time:  "sv, PeTime,        },
-		{ L"File time:"sv, FileTime,      },
-		{ L"OS:       "sv, OsVersion,     },
-		{ L"Kernel:   "sv, KernelVersion, },
-		{ L"Host:     "sv, ConsoleHost,   },
-		{ L"Parent:   "sv, Parent,        },
-	};
-
-	const auto log_message = [&]
-	{
-		auto Message = join(L"\n"sv, select(BasicInfo, [](auto const& Pair)
-		{
-			return format(FSTR(L"{} {}"sv), Pair.first, Pair.second);
-		}));
-
-		Message += L"\n\n"sv;
-
-		get_backtrace(ModuleName, tracer.get(ModuleName, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
-		{
-			append(Message, Line, L'\n');
-		});
-
-		return Message;
-	};
-
-	LOG(PluginModule? logging::level::error : logging::level::fatal, L"\n{}\n"sv, log_message());
-
-	const auto ReportLocation = get_report_location();
-	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDDUMP_NAME)), MiniDumpNormal);
-	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), MiniDumpWithFullMemory);
-	const auto BugReport = collect_information(Context, NestedStack, ModuleName, BasicInfo, ExtraDetails);
-	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
-	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
-	const auto ReadmeOnDisk = write_readme(path::join(ReportLocation, L"README.txt"sv));
-	const auto AnythingOnDisk = ReportOnDisk || MinidumpNormal || MinidumpFull || ReadmeOnDisk;
-
-	if (AnythingOnDisk && os::is_interactive_user_session())
-		OpenFolderInShell(ReportLocation);
-
-	if (AnythingOnDisk || ReportInClipboard)
-		return (UseDialog? ExcDialog : ExcConsole)(
-			AnythingOnDisk? ReportLocation : msg(lng::MExceptionDialogClipboard),
-			PluginInfo
-		);
-
-	// Should never happen - neither the filesystem nor clipboard are writable, so just dump it to the screen:
-	return ExcConsole(BugReport, PluginInfo);
-}
-
 
 template<size_t... I>
 static constexpr uint32_t any_cc(std::string_view const Str, std::index_sequence<I...> Sequence)
@@ -1336,37 +1232,118 @@ static bool handle_generic_exception(
 	s_ExceptionHandlingInprogress = true;
 	SCOPE_EXIT{ s_ExceptionHandlingInprogress = false; };
 
-	const auto strFileName = PluginModule?
+	const auto ModuleName = PluginModule?
 		PluginModule->ModuleName() :
 		Global?
 			Global->g_strFarModuleName :
 			os::fs::get_current_process_file_name();
 
+	SCOPED_ACTION(tracer_detail::tracer::with_symbols)(PluginModule? ModuleName : L""sv);
+
 	const auto Exception = exception_name(Context.exception_record(), Type);
+
 	string ExtraDetails;
-	const auto Details = exception_details(strFileName, Context.exception_record(), Message, ExtraDetails);
+	const auto Details = exception_details(ModuleName, Context.exception_record(), Message, ExtraDetails);
 
-	const auto PluginInformation = PluginModule? format(FSTR(L"{} {} ({}, {})"sv),
-		PluginModule->Title(),
-		version_to_string(PluginModule->version()),
-		PluginModule->Description(),
-		PluginModule->Author()
-	) : L""s;
+	const auto PluginInfo = PluginModule?
+		format(FSTR(L"{} {} ({}, {})"sv),
+			PluginModule->Title(),
+			version_to_string(PluginModule->version()),
+			PluginModule->Description(),
+			PluginModule->Author()
+		) :
+		L""s;
 
-	if (!ShowExceptionUI(
-		!ForceStderrExceptionUI && Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown(),
-		Context,
-		Exception,
-		Details,
-		ExtraDetails,
-		ErrorState,
-		encoding::utf8::get_chars(Function),
-		Location,
-		strFileName,
-		PluginInformation,
-		PluginModule,
-		NestedStack
-	))
+	string Address, Name, Source;
+	tracer.get_symbol(ModuleName, Context.exception_record().ExceptionAddress, Address, Name, Source);
+
+	Address.insert(0, L"0x"sv);
+
+	if (!Name.empty())
+		append(Address, L" - "sv, Name);
+
+	if (Source.empty())
+		Source = Location;
+
+	const auto FunctionWide = encoding::utf8::get_chars(Function);
+	const auto Errors = ErrorState.format_errors();
+	const auto Version = self_version();
+	const auto Compiler = build::compiler();
+	const auto PeTime = pe_timestamp();
+	const auto FileTime = file_timestamp();
+	const auto OsVersion = os::version::os_version();
+	const auto KernelVersion = kernel_version();
+	const auto ConsoleHost = get_console_host();
+	const auto Parent = get_parent_process();
+
+
+	std::pair<string_view, string_view> const BasicInfo[]
+	{
+		{ L"Exception:"sv, Exception,     },
+		{ L"Details:  "sv, Details,       },
+		{ L"errno:    "sv, Errors[0],     },
+		{ L"LastError:"sv, Errors[1],     },
+		{ L"NTSTATUS: "sv, Errors[2],     },
+		{ L"Address:  "sv, Address,       },
+		{ L"Function: "sv, FunctionWide,  },
+		{ L"Source:   "sv, Source,        },
+		{ L"File:     "sv, ModuleName,    },
+		{ L"Plugin:   "sv, PluginInfo,    },
+		{},
+		{ L"Far:      "sv, Version,       },
+		{ L"Compiler: "sv, Compiler,      },
+		{ L"PE time:  "sv, PeTime,        },
+		{ L"File time:"sv, FileTime,      },
+		{ L"OS:       "sv, OsVersion,     },
+		{ L"Kernel:   "sv, KernelVersion, },
+		{ L"Host:     "sv, ConsoleHost,   },
+		{ L"Parent:   "sv, Parent,        },
+	};
+
+	const auto log_message = [&]
+	{
+		auto LogMessage = join(L"\n"sv, select(BasicInfo, [](auto const& Pair)
+		{
+			return format(FSTR(L"{} {}"sv), Pair.first, Pair.second);
+		}));
+
+		LogMessage += L"\n\n"sv;
+
+		get_backtrace(ModuleName, tracer.get(ModuleName, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
+		{
+			append(LogMessage, Line, L'\n');
+		});
+
+		return LogMessage;
+	};
+
+	LOG(PluginModule? logging::level::error : logging::level::fatal, L"\n{}\n"sv, log_message());
+
+	const auto ReportLocation = get_report_location();
+	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDDUMP_NAME)), MiniDumpNormal);
+	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), MiniDumpWithFullMemory);
+	const auto BugReport = collect_information(Context, NestedStack, ModuleName, BasicInfo, ExtraDetails);
+	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
+	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
+	const auto ReadmeOnDisk = write_readme(path::join(ReportLocation, L"README.txt"sv));
+	const auto AnythingOnDisk = ReportOnDisk || MinidumpNormal || MinidumpFull || ReadmeOnDisk;
+
+	if (AnythingOnDisk && os::is_interactive_user_session())
+		OpenFolderInShell(ReportLocation);
+
+	const auto UseDialog = !ForceStderrExceptionUI && Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown();
+
+	const auto InvokeHandler = AnythingOnDisk || ReportInClipboard?
+		(UseDialog? ExcDialog : ExcConsole)(
+			AnythingOnDisk?
+				ReportLocation :
+				msg(lng::MExceptionDialogClipboard),
+			PluginInfo
+		) :
+		// Should never happen - neither the filesystem nor clipboard are writable, so just dump it to the screen:
+		ExcConsole(BugReport, PluginInfo);
+
+	if (!InvokeHandler)
 	{
 		ExceptionHandlingIgnored = true;
 		return false;

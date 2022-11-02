@@ -36,13 +36,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.debug.hpp"
 
 // Internal:
+#include "encoding.hpp"
+#include "exception.hpp"
 #include "imports.hpp"
+#include "log.hpp"
+#include "map_file.hpp"
+#include "pathmix.hpp"
 
 // Platform:
-#include "platform.hpp"
+#include "platform.env.hpp"
+#include "platform.fs.hpp"
 #include "platform.memory.hpp"
 
 // Common:
+#include "common.hpp"
+#include "common/function_ref.hpp"
 
 // External:
 
@@ -94,7 +102,7 @@ namespace os::debug
 		return Name.get();
 	}
 
-	std::vector<stack_frame> current_stack(size_t const FramesToSkip, size_t const FramesToCapture)
+	std::vector<stack_frame> current_stacktrace(size_t const FramesToSkip, size_t const FramesToCapture)
 	{
 		if (!imports.RtlCaptureStackBackTrace)
 			return {};
@@ -133,5 +141,551 @@ namespace os::debug
 		}
 
 		return Stack;
+	}
+
+	static auto platform_specific_data(CONTEXT const& ContextRecord)
+	{
+		const struct
+		{
+			DWORD MachineType;
+			DWORD64 PC, Frame, Stack;
+		}
+		Data
+		{
+#if defined _M_X64
+			IMAGE_FILE_MACHINE_AMD64,
+			ContextRecord.Rip,
+			ContextRecord.Rbp,
+			ContextRecord.Rsp
+#elif defined _M_IX86
+			IMAGE_FILE_MACHINE_I386,
+			ContextRecord.Eip,
+			ContextRecord.Ebp,
+			ContextRecord.Esp
+#elif defined _M_ARM64
+			IMAGE_FILE_MACHINE_ARM64,
+			ContextRecord.Pc,
+			ContextRecord.Fp,
+			ContextRecord.Sp
+#elif defined _M_ARM
+			IMAGE_FILE_MACHINE_ARM,
+			ContextRecord.Pc,
+			ContextRecord.R11,
+			ContextRecord.Sp
+#else
+			IMAGE_FILE_MACHINE_UNKNOWN
+#endif
+		};
+
+		return Data;
+	}
+
+	template<typename T, typename data>
+	static void stack_walk(data const& Data, function_ref<bool(T&)> const& Walker, function_ref<void(uintptr_t, DWORD)> const& Handler)
+	{
+		const auto address = [](DWORD64 const Offset)
+		{
+			return ADDRESS64{ Offset, 0, AddrModeFlat };
+		};
+
+		T StackFrame{};
+		StackFrame.AddrPC = address(Data.PC);
+		StackFrame.AddrFrame = address(Data.Frame);
+		StackFrame.AddrStack = address(Data.Stack);
+
+		if constexpr (std::is_same_v<T, STACKFRAME_EX>)
+		{
+			StackFrame.StackFrameSize = sizeof(StackFrame);
+		}
+
+		while (Walker(StackFrame))
+		{
+			// Cast to uintptr_t is ok here: although this function can be used
+			// to capture a stack of 64-bit process from a 32-bit one,
+			// we always use it with the current process only.
+
+			DWORD InlineFrameContext;
+			if constexpr (std::is_same_v<T, STACKFRAME_EX>)
+				InlineFrameContext = StackFrame.InlineFrameContext;
+			else
+				InlineFrameContext = 0;
+
+			Handler(static_cast<uintptr_t>(StackFrame.AddrPC.Offset), InlineFrameContext);
+		}
+	}
+
+	// StackWalk64() may modify context record passed to it, so we will use a copy.
+	std::vector<stack_frame> stacktrace(CONTEXT ContextRecord, HANDLE ThreadHandle)
+	{
+		std::vector<stack_frame> Result;
+
+		if (!imports.StackWalkEx && !imports.StackWalk64)
+			return Result;
+
+		const auto Process = GetCurrentProcess();
+		const auto Data = platform_specific_data(ContextRecord);
+
+		if (Data.MachineType == IMAGE_FILE_MACHINE_UNKNOWN || (!Data.PC && !Data.Frame && !Data.Stack))
+			return Result;
+
+		const auto handler = [&](uintptr_t const Address, DWORD const InlineFrameContext)
+		{
+			Result.push_back({ Address, InlineFrameContext });
+		};
+
+		if (imports.StackWalkEx)
+		{
+			stack_walk<STACKFRAME_EX>(
+				Data,
+				[&](STACKFRAME_EX& StackFrame)
+				{
+					return imports.StackWalkEx(
+						Data.MachineType,
+						Process,
+						ThreadHandle,
+						&StackFrame,
+						&ContextRecord,
+						{},
+						imports.SymFunctionTableAccess64,
+						imports.SymGetModuleBase64,
+						{},
+						SYM_STKWALK_DEFAULT
+					);
+				},
+				handler
+			);
+		}
+		else
+		{
+			stack_walk<STACKFRAME64>(
+				Data,
+				[&](STACKFRAME64& StackFrame)
+				{
+					return imports.StackWalk64(
+						Data.MachineType,
+						Process,
+						ThreadHandle,
+						&StackFrame,
+						&ContextRecord,
+						{},
+						imports.SymFunctionTableAccess64,
+						imports.SymGetModuleBase64,
+						{}
+					);
+				},
+				handler
+			);
+		}
+
+		return Result;
+	}
+
+	bool is_inline_frame(DWORD const InlineContext)
+	{
+		INLINE_FRAME_CONTEXT const frameContext{ InlineContext };
+
+		if (frameContext.ContextValue == INLINE_FRAME_CONTEXT_IGNORE)
+			return false;
+
+		return (frameContext.FrameType & STACK_FRAME_TYPE_INLINE) != 0;
+	}
+}
+
+namespace os::debug::symbols
+{
+	static bool initialize(HANDLE const Process, string const& Path)
+	{
+		if (imports.SymInitializeW)
+			return imports.SymInitializeW(Process, EmptyToNull(Path), TRUE) != FALSE;
+
+		if (imports.SymInitialize)
+			return imports.SymInitialize(Process, EmptyToNull(encoding::ansi::get_bytes(Path)), TRUE);
+
+		return false;
+	}
+
+	static auto event_level(DWORD const EventSeverity)
+	{
+		switch (EventSeverity)
+		{
+		default:
+		case sevInfo:    return logging::level::info;
+		case sevProblem: return logging::level::warning;
+		case sevAttn:    return logging::level::error;
+		case sevFatal:   return logging::level::fatal;
+		}
+	}
+
+	static BOOL CALLBACK callback([[maybe_unused]] HANDLE const Process, ULONG const ActionCode, ULONG64 const CallbackData, ULONG64 const UserContext)
+	{
+		const auto IsUnicode = UserContext == 1;
+
+		switch (ActionCode)
+		{
+		case CBA_EVENT:
+			{
+				const auto& Event = *static_cast<IMAGEHLP_CBA_EVENT const*>(reinterpret_cast<void const*>(CallbackData));
+				const auto Level = event_level(Event.severity);
+
+				string Buffer;
+				string_view Message;
+
+				if (IsUnicode)
+				{
+					Message = static_cast<wchar_t const*>(static_cast<void const*>(Event.desc));
+				}
+				else
+				{
+					Buffer = encoding::ansi::get_chars(Event.desc);
+					Message = Buffer;
+				}
+
+				LOG(Level, L"{}"sv, Message);
+				return true;
+			}
+
+		default:
+			return false;
+		}
+	}
+
+	static bool register_callback(HANDLE const Process)
+	{
+		if (imports.SymRegisterCallbackW64)
+			return imports.SymRegisterCallbackW64(Process, callback, 1) != FALSE;
+
+		if (imports.SymRegisterCallback64)
+			return imports.SymRegisterCallback64(Process, callback, 0) != FALSE;
+
+		return false;
+	}
+
+	bool initialize(string_view Module)
+	{
+		auto Path = env::get(L"_NT_SYMBOL_PATH"sv);
+
+		const auto append_to_path = [&](string_view const Str)
+		{
+			append(Path, Path.empty()? L""sv : L";"sv, Str);
+		};
+
+		if (const auto AltSymbolPath = env::get(L"_NT_ALTERNATE_SYMBOL_PATH"sv); !AltSymbolPath.empty())
+		{
+			append_to_path(AltSymbolPath);
+		}
+
+		if (const auto FarPath = fs::get_current_process_file_name(); !FarPath.empty())
+		{
+			string_view FarPathView = FarPath;
+			CutToParent(FarPathView);
+			append_to_path(FarPathView);
+		}
+
+		if (!Module.empty())
+		{
+			CutToParent(Module);
+			append_to_path(Module);
+		}
+
+		if (imports.SymSetOptions)
+		{
+			imports.SymSetOptions(
+				SYMOPT_UNDNAME |
+				SYMOPT_DEFERRED_LOADS |
+				SYMOPT_LOAD_LINES |
+				SYMOPT_FAIL_CRITICAL_ERRORS |
+				SYMOPT_INCLUDE_32BIT_MODULES |
+				SYMOPT_NO_PROMPTS |
+				SYMOPT_DEBUG
+			);
+		}
+
+		const auto Process = GetCurrentProcess();
+
+		if (!initialize(Process, Path))
+		{
+			LOGWARNING(L"SymInitialize({}): {}"sv, Path, last_error());
+			return false;
+		}
+
+		if (!register_callback(Process))
+			LOGWARNING(L"SymRegisterCallback(): {}"sv, last_error());
+
+		return true;
+	}
+
+	void clean()
+	{
+		if (imports.SymCleanup)
+		{
+			if (!imports.SymCleanup(GetCurrentProcess()))
+			{
+				LOGWARNING(L"SymCleanup(): {}"sv, last_error());
+			}
+		}
+	}
+
+	namespace
+	{
+		template<typename header>
+		struct package
+		{
+			header info;
+			static constexpr auto max_name_size = MAX_SYM_NAME;
+
+			using char_type = VALUE_TYPE(header::Name);
+			char_type name[max_name_size + 1];
+
+			using result_type = std::pair<std::basic_string_view<char_type>, size_t>;
+		};
+
+		struct symbol_storage
+		{
+			std::variant
+			<
+				package<SYMBOL_INFOW>,
+				package<SYMBOL_INFO>,
+				package<IMAGEHLP_SYMBOL64>
+			>
+			SymbolInfo;
+
+			string
+				SymbolName,
+				FileName;
+		};
+	}
+
+	static symbol frame_get_symbol(HANDLE const Process, uintptr_t const Address, symbol_storage& Storage)
+	{
+		const auto Get = [&](auto const& Getter, auto& Buffer) -> typename package<decltype(Buffer.info)>::result_type
+		{
+			Buffer.info.SizeOfStruct = sizeof(Buffer.info);
+
+			constexpr auto IsOldApi = std::is_same_v<decltype(Buffer.info), IMAGEHLP_SYMBOL64>;
+			if constexpr (IsOldApi)
+			{
+				// This one is for Win2k, which doesn't have SymFromAddr.
+				// However, I couldn't make it work with the out-of-the-box version.
+				// Get a newer dbghelp.dll if you need traces there:
+				// http://download.microsoft.com/download/A/6/A/A6AC035D-DA3F-4F0C-ADA4-37C8E5D34E3D/setup/WinSDKDebuggingTools/dbg_x86.msi
+
+				Buffer.info.MaxNameLength = Buffer.max_name_size;
+			}
+			else
+			{
+				Buffer.info.MaxNameLen = Buffer.max_name_size;
+			}
+
+			DWORD64 Displacement;
+			if (!Getter(Process, Address, &Displacement, &Buffer.info))
+				return {};
+
+			size_t NameSize{};
+			if constexpr (!IsOldApi)
+			{
+				NameSize = Buffer.info.NameLen;
+			}
+
+			// Old dbghelp versions (e.g. XP) not always populate NameLen
+			return { { Buffer.info.Name, NameSize? NameSize : std::char_traits<VALUE_TYPE(Buffer.info.Name)>::length(Buffer.info.Name) }, static_cast<size_t>(Displacement) };
+		};
+
+		if (imports.SymFromAddrW)
+		{
+			const auto Name = Get(imports.SymFromAddrW, Storage.SymbolInfo.emplace<0>());
+			if (Name.first.empty())
+				return {};
+
+			return { Name.first, Name.second };
+		}
+
+		if (imports.SymFromAddr)
+		{
+			const auto Name = Get(imports.SymFromAddr, Storage.SymbolInfo.emplace<1>());
+			if (Name.first.empty())
+				return {};
+
+			return { Storage.SymbolName = encoding::ansi::get_chars(Name.first), Name.second };
+		}
+
+		if (imports.SymGetSymFromAddr64)
+		{
+			const auto Name = Get(imports.SymGetSymFromAddr64, Storage.SymbolInfo.emplace<2>());
+			if (Name.first.empty())
+				return {};
+
+			return { Storage.SymbolName = encoding::ansi::get_chars(Name.first), Name.second };
+		}
+
+		return {};
+	}
+
+	static location frame_get_location(HANDLE const Process, uintptr_t const Address, symbol_storage& Storage)
+	{
+		DWORD Displacement;
+
+		const auto Get = [&](auto const& Getter, auto& Buffer)
+		{
+			Buffer.SizeOfStruct = sizeof(Buffer);
+			return Getter(Process, Address, &Displacement, &Buffer);
+		};
+
+		if (imports.SymGetLineFromAddrW64)
+		{
+			IMAGEHLP_LINEW64 Line;
+			if (!Get(imports.SymGetLineFromAddrW64, Line))
+				return {};
+
+			return { Line.FileName, Line.LineNumber, Displacement };
+		}
+
+		if (imports.SymGetLineFromAddr64)
+		{
+			IMAGEHLP_LINE64 Line;
+			if (!Get(imports.SymGetLineFromAddr64, Line))
+				return {};
+
+			return { Storage.FileName = encoding::ansi::get_chars(Line.FileName), Line.LineNumber, Displacement };
+		}
+
+		return {};
+	}
+
+	static symbol inline_frame_get_symbol(HANDLE const Process, stack_frame const& Frame, symbol_storage& Storage)
+	{
+		auto& Buffer = Storage.SymbolInfo.emplace<0>();
+		Buffer.info.SizeOfStruct = sizeof(Buffer.info);
+		Buffer.info.MaxNameLen = Buffer.max_name_size;
+		DWORD64 Displacement;
+
+		// Both W and A APIs were added together in dbghelp 6.2 (8), we don't need to fallback to A.
+		if (!imports.SymFromInlineContextW(Process, Frame.Address, Frame.InlineContext, &Displacement, &Buffer.info))
+			return {};
+
+		return { { Buffer.info.Name, Buffer.info.NameLen }, static_cast<size_t>(Displacement) };
+	}
+
+	static location inline_frame_get_location(HANDLE const Process, stack_frame const& Frame, uintptr_t const BaseAddress)
+	{
+		DWORD Displacement;
+		IMAGEHLP_LINEW64 Buffer{ sizeof(Buffer) };
+		// Both W and A APIs were added together in dbghelp 6.2 (8), we don't need to fallback to A.
+		if (!imports.SymGetLineFromInlineContextW(Process, Frame.Address, Frame.InlineContext, BaseAddress, &Displacement, &Buffer))
+			return {};
+
+		return { Buffer.FileName, Buffer.LineNumber, Displacement };
+	}
+
+	static void handle_frame(
+		HANDLE const Process,
+		string_view const ModuleName,
+		stack_frame const& Frame,
+		bool const IsInlineFrame,
+		symbol_storage& Storage,
+		std::unordered_map<uintptr_t, map_file>& MapFiles,
+		function_ref<void(uintptr_t, string_view, bool, symbol, location)> const Consumer
+	)
+	{
+		std::optional<IMAGEHLP_MODULEW64> Module(std::in_place);
+
+		// use the pre-07-Jun-2002 struct size, aligned to 8
+		Module->SizeOfStruct = static_cast<DWORD>(aligned_size(offsetof(IMAGEHLP_MODULEW64, LoadedImageName), 8));
+
+		if (!imports.SymGetModuleInfoW64 || !imports.SymGetModuleInfoW64(Process, Frame.Address, &*Module))
+			Module.reset();
+
+		const auto BaseAddress = Module? Module->BaseOfImage : 0;
+		const auto ImageName = Module? Module->ImageName : L""sv;
+
+		symbol Symbol;
+		location Location;
+
+		if (Frame.Address)
+		{
+			if (IsInlineFrame)
+			{
+				Symbol = inline_frame_get_symbol(Process, Frame, Storage);
+				Location = inline_frame_get_location(Process, Frame, BaseAddress);
+			}
+			else
+			{
+				Symbol = frame_get_symbol(Process, Frame.Address, Storage);
+				Location = frame_get_location(Process, Frame.Address, Storage);
+			}
+
+			if (Symbol.Name.empty() && Module)
+			{
+				auto& MapFile = MapFiles.try_emplace(
+					Module->BaseOfImage,
+					*Module->ImageName?
+					Module->ImageName :
+					ModuleName
+				).first->second;
+
+				const auto Info = MapFile.get(Frame.Address - BaseAddress);
+				Symbol.Name = Info.Symbol;
+				Symbol.Displacement = Info.Displacement;
+
+				if (Location.FileName.empty())
+				{
+					Location.FileName = Info.File;
+					Location.Line.reset();
+				}
+			}
+		}
+
+		const auto Fixup = IsInlineFrame && !is_inline_frame(Frame.InlineContext)? 1 : 0;
+
+		Consumer(
+			Frame.Address? Frame.Address + Fixup - BaseAddress : 0,
+			ImageName,
+			IsInlineFrame,
+			Symbol,
+			Location
+		);
+	}
+
+	void get(
+		string_view const ModuleName,
+		span<stack_frame const> const BackTrace,
+		std::unordered_map<uintptr_t, map_file>& MapFiles,
+		function_ref<void(uintptr_t, string_view, bool, symbol, location)> const Consumer
+	)
+	{
+		const auto Process = GetCurrentProcess();
+		symbol_storage Storage;
+
+		for (const auto& i: BackTrace)
+		{
+			if (i.InlineContext)
+			{
+				// If InlineContext is populated, the frames are from StackWalkEx and any inline frames are alrady included.
+				handle_frame(Process, ModuleName, i, is_inline_frame(i.InlineContext), Storage, MapFiles, Consumer);
+				continue;
+			}
+
+			// StackWalk64 and RtlCaptureStackBackTrace do not include inline frames, we have to ask for them manually.
+			if (imports.SymAddrIncludeInlineTrace)
+			{
+				auto Frame = i;
+				if (Frame.Address != 0)
+					--Frame.Address;
+
+				if (const auto InlineFramesCount = imports.SymAddrIncludeInlineTrace(Process, Frame.Address))
+				{
+					ULONG FrameIndex{};
+					if (imports.SymQueryInlineTrace(Process, Frame.Address, INLINE_FRAME_CONTEXT_INIT, Frame.Address, Frame.Address, &Frame.InlineContext, &FrameIndex))
+					{
+						for (DWORD n = FrameIndex; n != InlineFramesCount; ++n)
+						{
+							handle_frame(Process, ModuleName, Frame, true, Storage, MapFiles, Consumer);
+							++Frame.InlineContext;
+						}
+					}
+				}
+			}
+
+			handle_frame(Process, ModuleName, i, false, Storage, MapFiles, Consumer);
+		}
 	}
 }
