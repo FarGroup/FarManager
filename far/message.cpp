@@ -120,7 +120,7 @@ intptr_t message_context::DlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void*
 					{
 						const string Errors[]
 						{
-							L""s,
+							ErrorState->ErrnoStr(),
 							ErrorState->Win32ErrorStr(),
 							ErrorState->NtErrorStr(),
 						};
