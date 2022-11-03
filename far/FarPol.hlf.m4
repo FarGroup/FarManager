@@ -4871,9 +4871,9 @@ zdefiniowana (jeżeli dodano warunek “NOT”).
 a “zmienna” jest zdefiniowana:
  #if exist plik1 if not exist plik2 if defined zmienna polecenie#
 
- #PUSHD ścieżka#
- Zachowuje bieżącą ścieżkę do użycia przez polecenie “POPD”,
-następnie zmienia na ścieżkę z aktywnego panelu plików.
+ #PUSHD [ścieżka]#
+ Zachowuje bieżącą ścieżkę do użycia przez polecenie “POPD”.
+If “path” is specified, changes the current path on the active panel to it.
 
  #POPD#
  Zmienia bieżącą ścieżkę w aktywnym panelu na ścieżkę zachowaną poleceniem “PUSHD”.

@@ -4942,9 +4942,9 @@ $ #Команды операционной системы#
 не существует, и переменная среды «variable» определена.
  #if exist file1 if not exist file2 if defined variable command#
 
- #PUSHD path#
- Сохраняет текущий путь для использования командой «POPD» и меняет
-текущий путь на активной панели на указанный «path».
+ #PUSHD [path]#
+ Сохраняет текущий путь для использования командой «POPD».
+If “path” is specified, changes the current path on the active panel to it.
 
  #POPD#
  Меняет текущий путь на активной панели на сохранённый командой «PUSHD».

@@ -4866,9 +4866,9 @@ will be executed if “file1” exists, “file2” does not exist, and the
 environment “variable” is defined:
  #if exist file1 if not exist file2 if defined variable command#
 
- #PUSHD path#
- Stores the current path for use by the “POPD” command, then changes
-the current path on the active panel to the specified “path”.
+ #PUSHD [path]#
+ Stores the current path for use by the “POPD” command.
+If “path” is specified, changes the current path on the active panel to it.
 
  #POPD#
  Changes the current path on the active panel to that stored by the “PUSHD” command.

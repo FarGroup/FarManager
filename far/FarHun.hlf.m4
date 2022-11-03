@@ -4985,9 +4985,9 @@ nevű parancsa csak akkor hajtódik végre, ha "fájl1" fájl létezik, "fájl2"
 létezik és a "változó" nevű környezeti változó létezik:
  #if exist fájl1 if not exist fájl2 if defined változó parancs#
 
- #PUSHD path#
- Stores the current path for use by the “POPD” command, then changes
-the current path on the active panel to the specified “path”.
+ #PUSHD [path]#
+ Stores the current path for use by the “POPD” command.
+If “path” is specified, changes the current path on the active panel to it.
 
  #POPD#
  Changes the current path on the active panel to that stored by the “PUSHD” command.

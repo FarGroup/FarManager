@@ -1223,7 +1223,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 
 		const auto PushDir = m_CurDir;
 
-		if (IntChDir(trim(CmdLine.substr(CommandPushd.size())), true))
+		if (const auto NewDir = trim(CmdLine.substr(CommandPushd.size())); NewDir.empty() || IntChDir(NewDir, true))
 		{
 			ppstack.push(PushDir);
 			os::env::set(L"FARDIRSTACK"sv, PushDir);
