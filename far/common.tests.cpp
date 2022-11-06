@@ -1060,6 +1060,22 @@ TEST_CASE("string_utils.contains")
 	}
 }
 
+TEST_CASE("string_utils.within")
+{
+	const auto Haystack = L"banana"sv;
+
+	REQUIRE(within(Haystack, Haystack.substr(0)));
+	REQUIRE(within(Haystack, Haystack.substr(0, 2)));
+	REQUIRE(within(Haystack, Haystack.substr(2, 2)));
+	REQUIRE(within(Haystack, Haystack.substr(4)));
+	REQUIRE(within(Haystack, Haystack.substr(Haystack.size() - 1)));
+
+	// Empty views are not within anything.
+	REQUIRE(!within(Haystack, Haystack.substr(0, 0)));
+	REQUIRE(!within(Haystack, Haystack.substr(1, 0)));
+	REQUIRE(!within(Haystack, Haystack.substr(Haystack.size())));
+}
+
 TEST_CASE("string_utils.quotes")
 {
 	static const struct

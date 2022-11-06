@@ -227,6 +227,32 @@ bool contains(raw_string_type const& Str, detail::char_type<raw_string_type> con
 		return std::strchr(Str, What) != nullptr;
 }
 
+[[nodiscard]]
+inline bool within(std::wstring_view const Haystack, std::wstring_view const Needle)
+{
+	// Comparing potentially unrelated pointers is, technically, UB.
+	// Integers are always fine.
+
+	const auto HaystackBegin = reinterpret_cast<uintptr_t>(Haystack.data());
+	const auto HaystackEnd = reinterpret_cast<uintptr_t>(Haystack.data() + Haystack.size());
+
+	const auto NeedleBegin = reinterpret_cast<uintptr_t>(Needle.data());
+	const auto NeedleEnd = reinterpret_cast<uintptr_t>(Needle.data() + Needle.size());
+
+	/*
+	HHHHHH
+	NN
+	  NN
+		NN
+	*/
+	return
+		NeedleBegin >= HaystackBegin && NeedleBegin < HaystackEnd&&
+		NeedleEnd > HaystackBegin && NeedleEnd <= HaystackEnd &&
+		// An empty needle could be within the haystack, but who cares.
+		// You can't really break an empty view by invalidating its underlying storage.
+		NeedleEnd > NeedleBegin;
+}
+
 namespace detail
 {
 	template<typename begin_iterator, typename end_iterator>
