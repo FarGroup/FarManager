@@ -836,41 +836,39 @@ namespace os::fs
 
 	bool file::GetTime(os::chrono::time_point* CreationTime, os::chrono::time_point* LastAccessTime, os::chrono::time_point* LastWriteTime, os::chrono::time_point* ChangeTime) const
 	{
+		const auto convert_time = [](LARGE_INTEGER const& From, os::chrono::time_point* const To)
+		{
+			if (To)
+				*To = os::chrono::nt_clock::from_hectonanoseconds(From.QuadPart);
+		};
+
 		FILE_BASIC_INFORMATION fbi;
 
 		if (!NtQueryInformationFile(&fbi, sizeof fbi, FileBasicInformation))
 			return false;
 
-		if (CreationTime)
-			*CreationTime = os::chrono::nt_clock::from_hectonanoseconds(fbi.CreationTime.QuadPart);
-
-		if (LastAccessTime)
-			*LastAccessTime = os::chrono::nt_clock::from_hectonanoseconds(fbi.LastAccessTime.QuadPart);
-
-		if (LastWriteTime)
-			*LastWriteTime = os::chrono::nt_clock::from_hectonanoseconds(fbi.LastWriteTime.QuadPart);
-
-		if (ChangeTime)
-			*ChangeTime = os::chrono::nt_clock::from_hectonanoseconds(fbi.ChangeTime.QuadPart);
+		convert_time(fbi.CreationTime, CreationTime);
+		convert_time(fbi.LastAccessTime, LastAccessTime);
+		convert_time(fbi.LastWriteTime, LastWriteTime);
+		convert_time(fbi.ChangeTime, ChangeTime);
 
 		return true;
 	}
 
 	bool file::SetTime(const os::chrono::time_point* CreationTime, const os::chrono::time_point* LastAccessTime, const os::chrono::time_point* LastWriteTime, const os::chrono::time_point* ChangeTime) const
 	{
+		const auto convert_time = [](os::chrono::time_point const* const From, LARGE_INTEGER& To)
+		{
+			if (From)
+				To.QuadPart = os::chrono::nt_clock::to_hectonanoseconds(*From);
+		};
+
 		FILE_BASIC_INFORMATION fbi{};
 
-		if (CreationTime)
-			fbi.CreationTime.QuadPart = os::chrono::nt_clock::to_hectonanoseconds(*CreationTime);
-
-		if (LastAccessTime)
-			fbi.LastAccessTime.QuadPart = os::chrono::nt_clock::to_hectonanoseconds(*LastAccessTime);
-
-		if (LastWriteTime)
-			fbi.LastWriteTime.QuadPart = os::chrono::nt_clock::to_hectonanoseconds(*LastWriteTime);
-
-		if (ChangeTime)
-			fbi.ChangeTime.QuadPart = os::chrono::nt_clock::to_hectonanoseconds(*ChangeTime);
+		convert_time(CreationTime, fbi.CreationTime);
+		convert_time(LastAccessTime, fbi.LastAccessTime);
+		convert_time(LastWriteTime, fbi.LastWriteTime);
+		convert_time(ChangeTime, fbi.ChangeTime);
 
 		IO_STATUS_BLOCK IoStatusBlock;
 		const auto Status = imports.NtSetInformationFile(m_Handle.native_handle(), &IoStatusBlock, &fbi, sizeof fbi, FileBasicInformation);

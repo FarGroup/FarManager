@@ -862,7 +862,7 @@ static string get_console_host()
 	if (!NT_SUCCESS(Status))
 		return {};
 
-	const auto ConsoleHostProcessId = ConsoleHostProcess & ~3;
+	const auto ConsoleHostProcessId = ConsoleHostProcess & ~0b11;
 
 	const auto ConhostName = os::process::get_process_name(ConsoleHostProcessId);
 	if (ConhostName.empty())
@@ -1554,8 +1554,6 @@ void seh_exception::raise()
 	};
 
 	RaiseException(STATUS_FAR_THREAD_RETHROW, 0, static_cast<DWORD>(std::size(Arguments)), Arguments);
-
-	dismiss();
 }
 
 void seh_exception::dismiss()

@@ -380,7 +380,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				if (auto CustomColors = Global->Opt->Palette.GetCustomColors(); pick_color_rgb(Color, CustomColors))
 				{
 					SetComponentColorValue(IsFg, Color);
-					CurColor.Flags &= ~(FlagIndex(IsFg) | FlagIndex(IsFg));
+					CurColor.Flags &= ~FlagIndex(IsFg);
 
 					Dlg->SendMessage(DM_SETCHECK, IsFg? cd_fg_color_first : cd_bg_color_first, ToPtr(BSTATE_3STATE));
 					Dlg->SendMessage(DM_UPDATECOLORCODE, IsFg? cd_fg_colorcode : cd_bg_colorcode, {});

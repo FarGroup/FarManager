@@ -431,7 +431,7 @@ private:
 	std::vector<wchar_t> readBuffer;
 	bytes hexFindString;
 	struct CodePageInfo;
-	std::list<CodePageInfo> m_CodePages;
+	std::vector<CodePageInfo> m_CodePages;
 	string strPluginSearchPath;
 
 	bool m_Autodetection;

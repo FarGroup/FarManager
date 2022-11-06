@@ -159,10 +159,11 @@ void Grabber::CopyGrabbedArea(bool Append, bool VerticalBlock)
 		}
 
 		Line.clear();
-		std::optional<wchar_t> LeadingChar;
 
 		if (CharWidthEnabled)
 		{
+			std::optional<wchar_t> LeadingChar;
+
 			for (const auto& Char: span(Begin, End))
 			{
 				if (LeadingChar && Char.Char == *LeadingChar && Char.Attributes.Flags & COMMON_LVB_TRAILING_BYTE)

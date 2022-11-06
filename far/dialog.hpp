@@ -309,7 +309,7 @@ private:
 	bool Do_ProcessNextCtrl(bool Up, bool IsRedraw=true);
 	bool Do_ProcessFirstCtrl();
 	bool Do_ProcessSpace();
-	void SetComboBoxPos(DialogItemEx* Item=nullptr);
+	void SetComboBoxPos(DialogItemEx const* Item = nullptr);
 	rectangle CalcComboBoxPos(const DialogItemEx* CurItem, intptr_t ItemCount) const;
 	void ProcessKey(int Key, size_t ItemPos);
 	void ProcessDrag(const MOUSE_EVENT_RECORD *MouseEvent);

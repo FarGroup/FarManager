@@ -304,7 +304,7 @@ bool PreserveStyleReplaceString(
 		auto j = StrTokens.cbegin();
 		auto LastItem = StrTokens.cend();
 		--LastItem;
-		while (((j != LastItem) || (j == LastItem && T < j->Token.size())) && Source[Idx])
+		while ((j != LastItem || T < j->Token.size()) && Source[Idx])
 		{
 			bool Sep = (static_cast<size_t>(I) < Idx && static_cast<size_t>(I) + 1 != Source.size() && IsPreserveStyleTokenSeparator(Source[Idx])
 					&& !IsPreserveStyleTokenSeparator(Source[Idx-1])

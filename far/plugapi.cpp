@@ -3391,7 +3391,7 @@ intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data) noexcept
 
 }
 
-static const FarStandardFunctions NativeFSF
+static constexpr FarStandardFunctions NativeFSF
 {
 	sizeof(NativeFSF),
 	pluginapi::apiAtoi,
@@ -3444,7 +3444,7 @@ static const FarStandardFunctions NativeFSF
 	pluginapi::apiCompareStrings,
 };
 
-static const PluginStartupInfo NativeInfo
+static constexpr PluginStartupInfo NativeInfo
 {
 	sizeof(NativeInfo),
 	nullptr, //ModuleName, dynamic

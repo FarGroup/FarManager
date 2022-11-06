@@ -688,7 +688,7 @@ static string process_subexpression(const subst_strings::item& Item, subst_data&
 	return Processed == Item.Sub?
 		string(Item.All) :
 		concat(Item.prefix(), Processed, Item.suffix());
-};
+}
 
 static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_view const DlgTitle)
 {

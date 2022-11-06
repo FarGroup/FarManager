@@ -853,6 +853,7 @@ namespace
 	void test_scope_impl(bool const Throw, bool const MustBeTriggered)
 	{
 		bool IsTriggered = false;
+		bool IsThrown = false;
 
 		try
 		{
@@ -863,9 +864,11 @@ namespace
 		}
 		catch (int)
 		{
+			IsThrown = true;
 		}
 
 		REQUIRE(IsTriggered == MustBeTriggered);
+		REQUIRE(IsThrown == Throw);
 	}
 
 	enum

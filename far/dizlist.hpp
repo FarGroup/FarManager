@@ -71,8 +71,8 @@ private:
 	desc_map::const_iterator Find(string_view Name, string_view ShortName) const;
 
 	desc_map m_DizData;
-	std::list<description_data> m_RemovedEntries;
-	std::list<desc_map::value_type*> m_OrderForWrite;
+	std::vector<description_data> m_RemovedEntries;
+	std::vector<desc_map::value_type*> m_OrderForWrite;
 	string m_DizFileName;
 	std::optional<uintptr_t> m_CodePage;
 	bool m_Modified{};

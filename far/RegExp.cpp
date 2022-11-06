@@ -2674,8 +2674,6 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 						m = &match[Iterator->second];
 					}
 
-					if (!m)break;
-
 					if (m->start==-1 || m->end==-1)
 					{
 						if (!j)continue;

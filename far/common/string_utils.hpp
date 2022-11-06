@@ -245,7 +245,7 @@ namespace inplace
 			Str.erase(0, Str.size() - MaxWidth);
 	}
 
-	constexpr inline void cut_left(std::wstring_view& Str, size_t const MaxWidth) noexcept
+	constexpr void cut_left(std::wstring_view& Str, size_t const MaxWidth) noexcept
 	{
 		if (Str.size() > MaxWidth)
 			Str.remove_prefix(Str.size() - MaxWidth);
@@ -257,7 +257,7 @@ namespace inplace
 			Str.resize(MaxWidth);
 	}
 
-	constexpr inline void cut_right(std::wstring_view& Str, size_t const MaxWidth) noexcept
+	constexpr void cut_right(std::wstring_view& Str, size_t const MaxWidth) noexcept
 	{
 		if (Str.size() > MaxWidth)
 			Str.remove_suffix(Str.size() - MaxWidth);
@@ -389,14 +389,14 @@ inline auto cut_right(std::wstring Str, size_t const MaxWidth)
 }
 
 [[nodiscard]]
-constexpr inline auto cut_left(std::wstring_view Str, size_t const MaxWidth) noexcept
+constexpr auto cut_left(std::wstring_view Str, size_t const MaxWidth) noexcept
 {
 	inplace::cut_left(Str, MaxWidth);
 	return Str;
 }
 
 [[nodiscard]]
-constexpr inline auto cut_right(std::wstring_view Str, size_t const MaxWidth) noexcept
+constexpr auto cut_right(std::wstring_view Str, size_t const MaxWidth) noexcept
 {
 	inplace::cut_right(Str, MaxWidth);
 	return Str;
@@ -503,31 +503,31 @@ inline auto quote_space(std::wstring_view const Str)
 }
 
 [[nodiscard]]
-constexpr inline bool equal(const std::wstring_view Str1, const std::wstring_view Str2) noexcept
+constexpr bool equal(const std::wstring_view Str1, const std::wstring_view Str2) noexcept
 {
 	return Str1 == Str2;
 }
 
 [[nodiscard]]
-constexpr inline bool starts_with(const std::wstring_view Str, const std::wstring_view Prefix) noexcept
+constexpr bool starts_with(const std::wstring_view Str, const std::wstring_view Prefix) noexcept
 {
 	return Str.size() >= Prefix.size() && Str.substr(0, Prefix.size()) == Prefix;
 }
 
 [[nodiscard]]
-constexpr inline bool starts_with(const std::wstring_view Str, wchar_t const Prefix) noexcept
+constexpr bool starts_with(const std::wstring_view Str, wchar_t const Prefix) noexcept
 {
 	return !Str.empty() && Str.front() == Prefix;
 }
 
 [[nodiscard]]
-constexpr inline bool ends_with(const std::wstring_view Str, const std::wstring_view Suffix) noexcept
+constexpr bool ends_with(const std::wstring_view Str, const std::wstring_view Suffix) noexcept
 {
 	return Str.size() >= Suffix.size() && Str.substr(Str.size() - Suffix.size()) == Suffix;
 }
 
 [[nodiscard]]
-constexpr inline bool ends_with(const std::wstring_view Str, wchar_t const Suffix) noexcept
+constexpr bool ends_with(const std::wstring_view Str, wchar_t const Suffix) noexcept
 {
 	return !Str.empty() && Str.back() == Suffix;
 }

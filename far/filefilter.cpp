@@ -882,7 +882,7 @@ static bool LoadAreaFlags(const HierarchicalConfig& Cfg, HierarchicalConfig::key
 
 // Old format
 // TODO 2020 Q4: remove
-static bool LoadLegacyAreaFlags(HierarchicalConfig& Cfg, HierarchicalConfig::key const Key, string_view const Name, FileFilterParams& Item)
+static bool LoadLegacyAreaFlags(HierarchicalConfig const& Cfg, HierarchicalConfig::key const Key, string_view const Name, FileFilterParams& Item)
 {
 	const auto LegacyCount = static_cast<size_t>(filter_area::custom) + 1;
 	static_assert(static_cast<size_t>(filter_area::count) >= LegacyCount);

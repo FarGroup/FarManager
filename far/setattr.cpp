@@ -1252,10 +1252,6 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 					if(SrcPanel)
 					{
 						Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
-					}
-
-					if(SrcPanel)
-					{
 						SrcPanel->GetSelName(nullptr);
 					}
 

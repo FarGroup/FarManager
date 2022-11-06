@@ -647,7 +647,7 @@ void DialogBuilder::AddButtons(span<lng const> Buttons)
 void DialogBuilder::AddButtons(span<lng const> const Buttons, size_t const OkIndex, size_t const CancelIndex)
 {
 	const auto LineY = m_NextY++;
-	DialogItemEx* PrevButton = nullptr;
+	DialogItemEx const* PrevButton = nullptr;
 
 	for (const auto& i: irange(Buttons.size()))
 	{

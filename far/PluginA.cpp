@@ -325,8 +325,8 @@ static int WINAPI comparer_wrapper(const void *one, const void *two, void *user)
 
 static int WINAPI comparer_ex_wrapper(const void *one, const void *two, void *user)
 {
-	const auto helper = static_cast<const comparer_helper*>(user);
-	return helper->cmp(one,two,helper->user);
+	const auto& helper = *static_cast<const comparer_helper*>(user);
+	return helper.cmp(one, two, helper.user);
 }
 
 static int LocalStricmp(const char *s1, const char *s2)
@@ -373,36 +373,30 @@ static const char *FirstSlashA(const char *String)
 	return nullptr;
 }
 
-static void AnsiToUnicodeBin(std::string_view const AnsiString, wchar_t* const UnicodeString, uintptr_t const CodePage = encoding::codepage::oem())
+static void AnsiToUnicodeBin(std::string_view const AnsiString, span<wchar_t> const UnicodeString, uintptr_t const CodePage = encoding::codepage::oem())
 {
-	if (!AnsiString.empty())
-	{
-		*UnicodeString = 0;
-		// BUGBUG, error checking
-		(void)encoding::get_chars(CodePage, AnsiString, { UnicodeString, AnsiString.size() });
-	}
+	UnicodeString.front() = {};
+	(void)encoding::get_chars(CodePage, AnsiString, UnicodeString);
 }
 
 static wchar_t* AnsiToUnicodeBin(std::string_view const AnsiString, uintptr_t const CodePage = encoding::codepage::oem())
 {
-	auto Result = std::make_unique<wchar_t[]>(AnsiString.size() + 1);
-	AnsiToUnicodeBin(AnsiString, Result.get(), CodePage);
+	const auto Size = AnsiString.size() + 1;
+	auto Result = std::make_unique<wchar_t[]>(Size);
+	AnsiToUnicodeBin(AnsiString, { Result.get(), Size }, CodePage);
 	return Result.release();
 }
 
 static wchar_t *AnsiToUnicode(const char* AnsiString)
 {
-	return AnsiString? AnsiToUnicodeBin(AnsiString, encoding::codepage::oem()) : nullptr;
+	return AnsiString? AnsiToUnicodeBin(AnsiString) : nullptr;
 }
 
-static void UnicodeToAnsiBin(string_view const UnicodeString, char* const AnsiString, uintptr_t const CodePage = encoding::codepage::oem())
+static void UnicodeToAnsiBin(string_view const UnicodeString, span<char> const AnsiString, uintptr_t const CodePage = encoding::codepage::oem())
 {
-	if (!UnicodeString.empty())
-	{
-		*AnsiString = 0;
-		// BUGBUG, error checking
-		(void)encoding::get_bytes(CodePage, UnicodeString, { AnsiString, UnicodeString.size() });
-	}
+	AnsiString.front() = {};
+	// BUGBUG, error checking
+	(void)encoding::get_bytes(CodePage, UnicodeString, AnsiString);
 }
 
 static char* UnicodeToAnsiBin(string_view const UnicodeString, uintptr_t const CodePage = encoding::codepage::oem())
@@ -412,17 +406,15 @@ static char* UnicodeToAnsiBin(string_view const UnicodeString, uintptr_t const C
 	работы старых плагинов, которые не знали, что надо смотреть на длину,
 	а не на завершающий ноль (например в EditorGetString.StringText).
 	*/
-	auto Result = std::make_unique<char[]>(UnicodeString.size() + 1);
-	UnicodeToAnsiBin(UnicodeString, Result.get(), CodePage);
+	const auto Size = UnicodeString.size() + 1;
+	auto Result = std::make_unique<char[]>(Size);
+	UnicodeToAnsiBin(UnicodeString, { Result.get(), Size }, CodePage);
 	return Result.release();
 }
 
 static char *UnicodeToAnsi(const wchar_t* UnicodeString)
 {
-	if (!UnicodeString)
-		return nullptr;
-
-	return UnicodeToAnsiBin(UnicodeString, encoding::codepage::oem());
+	return UnicodeString? UnicodeToAnsiBin(UnicodeString) : nullptr;
 }
 
 static wchar_t** AnsiArrayToUnicode(span<const char* const> const Strings)
@@ -915,7 +907,7 @@ static void AnsiVBufToUnicode(CHAR_INFO* VBufA, FAR_CHAR_INFO* VBuf, size_t Size
 		}
 		else
 		{
-			AnsiToUnicodeBin({ &Src.Char.AsciiChar, 1 }, &Dst.Char);
+			AnsiToUnicodeBin({ &Src.Char.AsciiChar, 1 }, { &Dst.Char, 1 });
 		}
 		Dst.Attributes = colors::NtColorToFarColor(Src.Attributes);
 	}
@@ -1132,7 +1124,7 @@ static void AnsiDialogItemToUnicode(const oldfar::FarDialogItem &diA, FarDialogI
 	//di->MaxLen = 0;
 }
 
-static void FreeUnicodeDialogItem(FarDialogItem &di)
+static void FreeUnicodeDialogItem(FarDialogItem const& di)
 {
 	switch (di.Type)
 	{
@@ -2220,7 +2212,6 @@ static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData, con
 	return cpp_try(
 	[&]
 	{
-		const auto pCallbackParam = static_cast<const FAR_SEARCH_A_CALLBACK_PARAM*>(param);
 		WIN32_FIND_DATAA FindData{};
 		FindData.dwFileAttributes = FData->FileAttributes;
 		FindData.ftCreationTime = FData->CreationTime;
@@ -2232,7 +2223,9 @@ static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData, con
 		(void)encoding::oem::get_bytes(FData->AlternateFileName, FindData.cAlternateFileName);
 		char FullNameA[oldfar::NM];
 		(void)encoding::oem::get_bytes(FullName, FullNameA);
-		return pCallbackParam->Func(&FindData, FullNameA, pCallbackParam->Param);
+
+		const auto& CallbackParam = *static_cast<const FAR_SEARCH_A_CALLBACK_PARAM*>(param);
+		return CallbackParam.Func(&FindData, FullNameA, CallbackParam.Param);
 	},
 	[]
 	{
@@ -2549,7 +2542,7 @@ static int WINAPI FarMenuFnA(intptr_t PluginNumber, int X, int Y, int MaxHeight,
 					Item.Flags |= MIF_CHECKED;
 
 					if (AnsiItem.Checked > 1)
-						AnsiToUnicodeBin({ view_as<const char*>(&AnsiItem.Checked), 1 }, edit_as<wchar_t*>(&Item.Flags));
+						AnsiToUnicodeBin({ view_as<const char*>(&AnsiItem.Checked), 1 }, { edit_as<wchar_t*>(&Item.Flags), 1 });
 				}
 
 				if (AnsiItem.Separator)
@@ -4271,9 +4264,8 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 				if (!oegs) return FALSE;
 
 				egs.StringNumber=oegs->StringNumber;
-				const auto ret = static_cast<int>(pluginapi::apiEditorControl(-1,ECTL_GETSTRING,0,&egs));
 
-				if (ret)
+				if (static_cast<int>(pluginapi::apiEditorControl(-1,ECTL_GETSTRING,0,&egs)))
 				{
 					oegs->StringNumber=egs.StringNumber;
 					oegs->StringLength=egs.StringLength;
@@ -4303,9 +4295,7 @@ static int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand, 
 				if (!oei)
 					return FALSE;
 
-				const auto ret = static_cast<int>(pluginapi::apiEditorControl(-1,ECTL_GETINFO,0,&ei));
-
-				if (ret)
+				if (static_cast<int>(pluginapi::apiEditorControl(-1, ECTL_GETINFO, 0, &ei)))
 				{
 					*oei = {};
 					if (const size_t FileNameSize = pluginapi::apiEditorControl(-1, ECTL_GETFILENAME, 0, nullptr))
@@ -5111,7 +5101,7 @@ private:
 		{
 WARNING_PUSH()
 WARNING_DISABLE_CLANG("-Wused-but-marked-unused")
-			static const oldfar::FarStandardFunctions StandardFunctions =
+			static constexpr oldfar::FarStandardFunctions StandardFunctions
 			{
 				sizeof(StandardFunctions),
 				oldpluginapi::FarAtoiA,
@@ -5166,8 +5156,7 @@ WARNING_DISABLE_CLANG("-Wused-but-marked-unused")
 			};
 WARNING_POP()
 
-			// NOT constexpr, see VS bug #3103404
-			static const oldfar::PluginStartupInfo StartupInfo =
+			static constexpr oldfar::PluginStartupInfo StartupInfo
 			{
 				sizeof(StartupInfo),
 				"", // ModuleName, dynamic
@@ -5636,12 +5625,12 @@ WARNING_POP()
 		if (exception_handling_in_progress() || !Load() || !has(es))
 			return es;
 
-		const INPUT_RECORD *Ptr = &Info->Rec;
+		const auto* Ptr = &Info->Rec;
 		INPUT_RECORD OemRecord;
 		if (Ptr->EventType == KEY_EVENT)
 		{
 			OemRecord = Info->Rec;
-			UnicodeToAnsiBin({ &Info->Rec.Event.KeyEvent.uChar.UnicodeChar, 1 }, &OemRecord.Event.KeyEvent.uChar.AsciiChar);
+			UnicodeToAnsiBin({ &Info->Rec.Event.KeyEvent.uChar.UnicodeChar, 1 }, { &OemRecord.Event.KeyEvent.uChar.AsciiChar, 1 });
 			Ptr = &OemRecord;
 		}
 		ExecuteFunction(es, Ptr);

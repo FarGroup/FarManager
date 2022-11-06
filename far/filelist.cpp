@@ -4683,7 +4683,7 @@ void FileList::SelectSortMode()
 	static const menu_item MenuSeparator{ {}, LIF_SEPARATOR };
 
 	OpenMacroPluginInfo ompInfo{ MCT_GETCUSTOMSORTMODES };
-	MacroPluginReturn* mpr{};
+	MacroPluginReturn const* mpr{};
 	size_t extra = 0; // number of additional menu items due to custom sort modes
 	{
 		void *ptr;

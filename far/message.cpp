@@ -112,8 +112,7 @@ intptr_t message_context::DlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void*
 			const auto record = static_cast<const INPUT_RECORD *>(Param2);
 			if (record->EventType==KEY_EVENT)
 			{
-				const auto key = InputRecordToKey(record);
-				switch(key)
+				switch(InputRecordToKey(record))
 				{
 				case KEY_F3:
 					if(ErrorState)

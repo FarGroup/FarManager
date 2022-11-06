@@ -927,12 +927,11 @@ void Dialog::InitDialogObjects(size_t ID)
 
 			if (Item.Type == DI_COMBOBOX && Item.strData.empty() && Item.ListItems)
 			{
-				FarListItem *ListItems=Item.ListItems->Items;
-				const auto Length = Item.ListItems->ItemsNumber;
+				span<FarListItem const> const ListItems{ Item.ListItems->Items, Item.ListItems->ItemsNumber };
 				//Item.ListPtr->AddItem(Item.ListItems);
 
-				const auto ItemIterator = std::find_if(ListItems, ListItems + Length, [](FarListItem& i) { return (i.Flags & LIF_SELECTED) != 0; });
-				if (ItemIterator != ListItems + Length)
+				const auto ItemIterator = std::find_if(ALL_CONST_RANGE(ListItems), [](FarListItem const& i) { return (i.Flags & LIF_SELECTED) != 0; });
+				if (ItemIterator != ListItems.cend())
 				{
 					if (Item.Flags & (DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND))
 						Item.strData = HiText2Str(ItemIterator->Text);
@@ -3116,7 +3115,7 @@ bool Dialog::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	INPUT_RECORD mouse{ MOUSE_EVENT };
 	mouse.Event.MouseEvent=*MouseEvent;
-	MOUSE_EVENT_RECORD &MouseRecord=mouse.Event.MouseEvent;
+	const auto& MouseRecord = mouse.Event.MouseEvent;
 
 	if (!DialogMode.Check(DMODE_SHOW))
 		return false;
@@ -4348,7 +4347,7 @@ intptr_t Dialog::DefProc(intptr_t Msg, intptr_t Param1, void* Param2)
 			return de.Result;
 		}
 	}
-	DialogItemEx *CurItem=nullptr;
+	DialogItemEx const* CurItem = nullptr;
 	int Type=0;
 
 	switch (Msg)
@@ -6039,7 +6038,7 @@ rectangle Dialog::CalcComboBoxPos(const DialogItemEx* CurItem, intptr_t ItemCoun
 	return Rect;
 }
 
-void Dialog::SetComboBoxPos(DialogItemEx* Item)
+void Dialog::SetComboBoxPos(DialogItemEx const* Item)
 {
 	if (GetDropDownOpened())
 	{

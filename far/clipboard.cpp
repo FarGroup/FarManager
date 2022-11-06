@@ -738,7 +738,7 @@ private:
 	internal_clipboard() = default;
 
 	std::optional<string> m_Data;
-	bool m_Vertical;
+	bool m_Vertical{};
 };
 
 //-----------------------------------------------------------------------------

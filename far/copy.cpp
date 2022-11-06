@@ -2010,7 +2010,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				while (!os::fs::create_directory(
 					// CreateDirectoryEx preserves reparse points,
 					// so we shouldn't use template when copying with content
-					os::fs::is_directory_symbolic_link(SrcData) && (Flags & FCOPY_COPYSYMLINKCONTENTS)? L""s : Src,
+					os::fs::is_directory_symbolic_link(SrcData) && (Flags & FCOPY_COPYSYMLINKCONTENTS)? L""sv : Src,
 					strDestPath,
 					sd? &SecAttr : nullptr))
 				{
