@@ -541,14 +541,9 @@ void background_searcher::InitInFileSearch()
 					m_CodePages.emplace_back(OemCp);
 				}
 
-				const uintptr_t UnicodeCodepages[]
-				{
-					CP_UTF8,
-					CP_UNICODE,
-					CP_REVERSEBOM
-				};
-
-				m_CodePages.insert(m_CodePages.end(), ALL_CONST_RANGE(UnicodeCodepages));
+				m_CodePages.emplace_back(CP_UTF8);
+				m_CodePages.emplace_back(CP_UNICODE);
+				m_CodePages.emplace_back(CP_REVERSEBOM);
 			}
 
 			// Добавляем избранные таблицы символов
