@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 07.11.2022 22:07:21 +0000 - build 6047
+
+1. Microsoft keeps fixing things that ain't broken.
+   Apparently Windows Terminal is now default and we have another wave of questions about its eye-bleeding palette.
+   It is getting annoying, so the classic palette is now set automatically by default,
+   overriding any terminal preferences and rejecting any modern fashion trends in UI design.
+   If you actually know what a palette is and have your own, turn the override off in color settings.
+
+--------------------------------------------------------------------------------
 drkns 07.11.2022 20:19:16 +0000 - build 6046
 
 1. Rework InfoPanel memory section.

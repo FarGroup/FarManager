@@ -809,6 +809,8 @@ public:
 	SortingOptions Sort;
 
 	palette Palette;
+	BoolOption SetPalette;
+
 	BoolOption Clock;
 	BoolOption Mouse;
 	BoolOption ShowKeyBar;

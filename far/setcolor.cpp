@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "global.hpp"
 #include "lockscrn.hpp"
+#include "FarDlgBuilder.hpp"
 
 // Platform:
 
@@ -139,6 +140,14 @@ static void SetItemColors(span<const color_item> const Items, point Position = {
 
 		return 1;
 	});
+}
+
+void ConfigurePalette()
+{
+	DialogBuilder Builder(lng::MColorsPalette, {});
+	Builder.AddCheckbox(lng::MColorsClassicPalette, Global->Opt->SetPalette);
+	Builder.AddOKCancel();
+	Builder.ShowDialog();
 }
 
 void SetColors()
@@ -394,6 +403,15 @@ void SetColors()
 		GroupsMenu->AddItem(msg(lng::MSetDefaultColorsRGB));
 		GroupsMenu->SetHelp(L"ColorGroups"sv);
 
+		{
+			MenuItemEx tmp;
+			tmp.Flags = LIF_SEPARATOR;
+			GroupsMenu->AddItem(tmp);
+		}
+
+		const auto PaletteId = static_cast<int>(GroupsMenu->size());
+		GroupsMenu->AddItem(msg(lng::MColorsPalette));
+
 		GroupsMenu->SetPosition({ 2, 1, 0, 0 });
 		GroupsMenu->SetMenuFlags(VMENU_WRAPMODE);
 		const auto GroupsCode=GroupsMenu->RunEx([&](int Msg, void *param)
@@ -412,6 +430,10 @@ void SetColors()
 		else if (GroupsCode == DefaultRGBId)
 		{
 			Global->Opt->Palette.ResetToDefaultRGB();
+		}
+		else if (GroupsCode == PaletteId)
+		{
+			ConfigurePalette();
 		}
 	}
 	Global->CtrlObject->Cp()->SetScreenPosition();

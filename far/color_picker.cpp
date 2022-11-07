@@ -394,6 +394,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				Global->Opt->VirtualTerminalRendering = true;
 				SetFarConsoleMode();
+				SetPalette();
 
 				Dlg->SendMessage(DM_ENABLE, cd_button_enable_vt, ToPtr(FALSE));
 

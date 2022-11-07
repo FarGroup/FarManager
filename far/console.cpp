@@ -68,6 +68,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define ESC L"\u001b"
 #define CSI ESC L"["
+#define OSC ESC L"]"
+#define ST ESC L"\\"
 
 static bool sWindowMode;
 static bool sEnableVirtualTerminal;
@@ -926,10 +928,10 @@ namespace console_detail
 		return true;
 	}
 
-	static constexpr wchar_t vt_color_index(int const Index)
+	static constexpr uint8_t vt_base_color_index(uint8_t const Index)
 	{
 		// NT is RGB, VT is BGR
-		constexpr int Table[]
+		constexpr uint8_t Table[]
 		{
 			//BGR     RGB
 			0b000, // 000
@@ -942,7 +944,12 @@ namespace console_detail
 			0b111, // 111
 		};
 
-		return L'0' + Table[Index & 0b111];
+		return Table[Index & 0b111];
+	}
+
+	static constexpr uint8_t vt_color_index(uint8_t const Index)
+	{
+		return (Index & 0b11111000) | vt_base_color_index(Index);
 	}
 
 	static constexpr struct
@@ -989,7 +996,7 @@ namespace console_detail
 		{
 			const auto Index = colors::index_value(ColorPart);
 			if (Index < 16)
-				append(Str, ColorPart & FOREGROUND_INTENSITY? Mapping.Intense : Mapping.Normal, vt_color_index(Index));
+				append(Str, ColorPart & FOREGROUND_INTENSITY? Mapping.Intense : Mapping.Normal, static_cast<wchar_t>(L'0' + vt_base_color_index(Index)));
 			else
 				format_to(Str, FSTR(L"{};5;{}"sv), Mapping.ExtendedColour, Index);
 		}
@@ -1493,6 +1500,46 @@ WARNING_POP()
 
 			return true;
 		}
+
+		static bool SetPaletteVT(std::array<COLORREF, 16> const& Palette)
+		{
+			string Str;
+			Str.reserve(OSC L"4;15;rgb:ff/ff/ff" ST ""sv.size() * 16);
+
+			for (const auto& [Color, i] : enumerate(Palette))
+			{
+				const union { COLORREF Color; rgba RGBA; } Value{ Color };
+				format_to(Str, FSTR(OSC L"4;{};rgb:{:02x}/{:02x}/{:02x}" ST ""sv), vt_color_index(i), Value.RGBA.r, Value.RGBA.g, Value.RGBA.b);
+			}
+
+			return ::console.Write(Str);
+		}
+
+		static bool SetPaletteNT(std::array<COLORREF, 16> const& Palette)
+		{
+			if (!imports.GetConsoleScreenBufferInfoEx)
+				return false;
+
+			const auto Output = ::console.GetOutputHandle();
+
+			CONSOLE_SCREEN_BUFFER_INFOEX csbi{ sizeof(csbi) };
+			if (!imports.GetConsoleScreenBufferInfoEx(Output, &csbi))
+			{
+				LOGERROR(L"GetConsoleScreenBufferInfoEx(): {}"sv, os::last_error());
+				return false;
+			}
+
+			std::copy(ALL_CONST_RANGE(Palette), std::begin(csbi.ColorTable));
+
+			if (!imports.SetConsoleScreenBufferInfoEx(Output, &csbi))
+			{
+				LOGERROR(L"SetConsoleScreenBufferInfoEx(): {}"sv, os::last_error());
+				return false;
+			}
+
+			return true;
+		}
+
 	};
 
 	bool console::WriteOutput(matrix<FAR_CHAR_INFO>& Buffer, point BufferCoord, const rectangle& WriteRegionRelative) const
@@ -2146,6 +2193,11 @@ WARNING_POP()
 		std::copy(ALL_CONST_RANGE(csbi.ColorTable), Palette.begin());
 
 		return true;
+	}
+
+	bool console::SetPalette(std::array<COLORREF, 16> const& Palette) const
+	{
+		return (IsVtEnabled()? implementation::SetPaletteVT : implementation::SetPaletteNT)(Palette);
 	}
 
 	void console::EnableWindowMode(bool const Value)

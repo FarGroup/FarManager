@@ -377,6 +377,7 @@ void InitConsole()
 
 
 	SetFarConsoleMode();
+	SetPalette();
 
 	UpdateScreenSize();
 	Global->ScrBuf->FillBuf();
@@ -1652,6 +1653,12 @@ void AdjustConsoleScreenBufferSize()
 	}
 
 	console.SetScreenBufferSize(Size);
+}
+
+void SetPalette()
+{
+	if (Global->Opt->SetPalette)
+		console.SetPalette(colors::nt_palette());
 }
 
 static point& NonMaximisedBufferSize()

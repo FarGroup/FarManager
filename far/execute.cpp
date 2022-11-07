@@ -394,7 +394,6 @@ static void wait_for_process_or_detach(os::handle const& Process, int const Cons
 		os::chrono::sleep_for(100ms);
 		InitConsole();
 
-		consoleicons::instance().update_icon();
 		console.SetAllAliases(std::move(Aliases));
 
 		return;
@@ -567,6 +566,7 @@ public:
 		SCOPED_ACTION(os::last_error_guard);
 
 		SetFarConsoleMode(true);
+		SetPalette();
 
 		point ConSize;
 		if (console.GetSize(ConSize) && (ConSize.x != ScrX + 1 || ConSize.y != ScrY + 1))

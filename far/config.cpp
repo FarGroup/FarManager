@@ -370,6 +370,7 @@ void Options::InterfaceSettings()
 			CMOpt.CopyTimeRule = 3;
 
 		SetFarConsoleMode();
+		::SetPalette();
 		consoleicons::instance().update_icon();
 
 		const auto& Panels = Global->CtrlObject->Cp();
@@ -1781,6 +1782,11 @@ Options::Options():
 		clipboard::enable_ansi_to_unicode_conversion_workaround(Value);
 	}));
 
+	SetPalette.SetCallback(option::notifier([](bool const Value)
+	{
+		::SetPalette();
+	}));
+
 	// По умолчанию - брать плагины из основного каталога
 	LoadPlug.MainPluginDir = true;
 	LoadPlug.PluginsPersonal = true;
@@ -1907,6 +1913,7 @@ void Options::InitConfigsData()
 		{FSSF_PRIVATE,           NKeyInterface,              L"RedrawTimeout"sv,                 RedrawTimeout, 200},
 		{FSSF_PRIVATE,           NKeyInterface,              L"TitleAddons"sv,                   strTitleAddons, L"%Ver %Platform %Admin"sv},
 		{FSSF_PRIVATE,           NKeyInterface,              L"ViewerTitleFormat"sv,             strViewerTitleFormat, L"%Lng %File"sv},
+		{FSSF_PRIVATE,           NKeyInterface,              L"SetPalette"sv,                    SetPalette, true},
 		{FSSF_PRIVATE,           NKeyInterfaceCompletion,    L"Append"sv,                        AutoComplete.AppendCompletion, false},
 		{FSSF_PRIVATE,           NKeyInterfaceCompletion,    L"ModalList"sv,                     AutoComplete.ModalList, false},
 		{FSSF_PRIVATE,           NKeyInterfaceCompletion,    L"ShowList"sv,                      AutoComplete.ShowList, true},

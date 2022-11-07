@@ -18996,6 +18996,34 @@ MSetColorCancel
 "Адмяніць"
 "Atšaukti"
 
+MColorsPalette
+"Палитра"
+"Palette"
+"Paleta"
+"Palette"
+"Paletta"
+"Paleta"
+"Paleta"
+"Paleta"
+"Tavolozza"
+"Палітра"
+"Палітра"
+"Paletė"
+
+MColorsClassicPalette
+"Классическая палитра"
+"Classic palette"
+"Klasická paleta"
+"Klassische Palette"
+"Klasszikus paletta"
+"Klasyczna paleta"
+"Paleta clásica"
+"Klasická paleta"
+"Tavolozza classica"
+"Класична палітра"
+"Класічная палітра"
+"Klasikinė paletė"
+
 MSetConfirmTitle
 l:
 "Подтверждения"

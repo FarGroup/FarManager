@@ -194,6 +194,7 @@ namespace console_detail
 		void ClearWideCache();
 
 		bool GetPalette(std::array<COLORREF, 16>& Palette) const;
+		bool SetPalette(std::array<COLORREF, 16> const& Palette) const;
 
 		static void EnableWindowMode(bool Value);
 		static void EnableVirtualTerminal(bool Value);
