@@ -1088,9 +1088,12 @@ namespace console_detail
 
 	static bool is_same_color(FarColor const& a, FarColor const& b)
 	{
+		// FCF_RAWATTR_MASK contains non-VT stuff we don't care about.
+		// FCF_INHERIT_STYLE only affects logical composition.
+		constexpr auto IgnoredFlags = FCF_RAWATTR_MASK | FCF_INHERIT_STYLE;
+
 		return
-			// FCF_RAWATTR_MASK contains non-VT stuff we don't care about.
-			(a.Flags & ~FCF_RAWATTR_MASK) == (b.Flags & ~FCF_RAWATTR_MASK) &&
+			(a.Flags & ~IgnoredFlags) == (b.Flags & ~IgnoredFlags) &&
 			a.ForegroundColor == b.ForegroundColor &&
 			a.BackgroundColor == b.BackgroundColor &&
 			// Reserved[0] contains non-BMP codepoints and is of no interest here.
