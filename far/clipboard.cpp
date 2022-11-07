@@ -465,6 +465,19 @@ public:
 		Data = std::move(RecodedData);
 	}
 
+	static std::optional<size_t> GetBinaryTextLength()
+	{
+		const auto SizeFormat = RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length);
+		if (!SizeFormat)
+			return {};
+
+		const auto ClipData = get_as<uint32_t>(SizeFormat);
+		if (!ClipData)
+			return {};
+
+		return *ClipData;
+	}
+
 	bool GetText(string& Data) const override
 	{
 		const auto ClipData = get_as<wchar_t>(CF_UNICODETEXT);
@@ -472,19 +485,6 @@ public:
 			return GetHDROPAsText(Data);
 
 		const string_view DataView(ClipData.get(), ClipData.size / sizeof(*ClipData));
-
-		const auto GetBinaryTextLength = []() -> std::optional<size_t>
-		{
-			const auto SizeFormat = RegisterFormat(clipboard_format::notepad_plusplus_binary_text_length);
-			if (!SizeFormat)
-				return {};
-
-			const auto ClipData = get_as<uint32_t>(SizeFormat);
-			if (!ClipData)
-				return {};
-
-			return *ClipData;
-		};
 
 		const auto GetTextLength = [&]
 		{

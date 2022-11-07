@@ -5101,7 +5101,8 @@ private:
 		{
 WARNING_PUSH()
 WARNING_DISABLE_CLANG("-Wused-but-marked-unused")
-			static constexpr oldfar::FarStandardFunctions StandardFunctions
+			// Not constexpr, clang doesn't like _snprintf
+			static const oldfar::FarStandardFunctions StandardFunctions
 			{
 				sizeof(StandardFunctions),
 				oldpluginapi::FarAtoiA,
