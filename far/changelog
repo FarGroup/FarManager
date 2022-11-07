@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 07.11.2022 20:19:16 +0000 - build 6046
+
+1. Rework InfoPanel memory section.
+
+2. Fix color processing.
+
+--------------------------------------------------------------------------------
 drkns 06.11.2022 23:58:52 +0000 - build 6045
 
 1. Fix ECTL_SETSTRING crash when source and destination strings overlap.
