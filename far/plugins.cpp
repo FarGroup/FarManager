@@ -1826,6 +1826,9 @@ size_t PluginManager::GetPluginInformation(Plugin* pPlugin, FarGetPluginInformat
 	pInfo->PInfo = edit_as<PluginInfo*>(pInfo, offsetof(layout, PInfo));
 	pInfo->GInfo = edit_as<GlobalInfo*>(pInfo, offsetof(layout, GInfo));
 
+	*pInfo->PInfo = {};
+	*pInfo->GInfo = {};
+
 	pInfo->ModuleName = StrToBuf(pPlugin->ModuleName(), Buffer, Rest, RequiredSize);
 
 	pInfo->Flags = 0;

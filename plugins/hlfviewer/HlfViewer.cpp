@@ -540,21 +540,24 @@ bool FindPluginHelp(const wchar_t* Name,wchar_t* DestPath)
 			HANDLE *hPlugins=new HANDLE[CountPlugin];
 
 			// 2. Получить хэндлы плагинов
-			PsInfo.PluginsControl(INVALID_HANDLE_VALUE,PCTL_GETPLUGINS,CountPlugin,hPlugins);
+			CountPlugin = PsInfo.PluginsControl(INVALID_HANDLE_VALUE, PCTL_GETPLUGINS, CountPlugin, hPlugins);
 
 			// 3. Посмотреть на эти плагины
 			for (int I=0; I < CountPlugin; ++I)
 			{
 				// 4. Для очередного плагина получить размер необходимой памяти по информационные структуры
 				int SizeMemory=(int)PsInfo.PluginsControl(hPlugins[I],PCTL_GETPLUGININFORMATION,0,{});
-				if (SizeMemory > 0)
+				if (!SizeMemory)
+					continue;
+
+				const auto data = new BYTE[SizeMemory];
+				const auto fgpi=reinterpret_cast<FarGetPluginInformation*>(data);
+				fgpi->StructSize = sizeof(*fgpi);
+
+				wchar_t FoundPath[MAX_PATH];
+				// 5. Для очередного плагина получить информационные структуры
+				if (PsInfo.PluginsControl(hPlugins[I],PCTL_GETPLUGININFORMATION,SizeMemory,fgpi) == SizeMemory)
 				{
-						const auto fgpi=reinterpret_cast<FarGetPluginInformation*>(new BYTE[SizeMemory]);
-
-						wchar_t FoundPath[MAX_PATH];
-						// 5. Для очередного плагина получить информационные структуры
-						PsInfo.PluginsControl(hPlugins[I],PCTL_GETPLUGININFORMATION,SizeMemory,fgpi);
-
 						// 6. Путь к плагину
 						wchar_t *ModuleName=new wchar_t[lstrlen(fgpi->ModuleName)+1];
 						lstrcpy(ModuleName,fgpi->ModuleName);
@@ -574,11 +577,12 @@ bool FindPluginHelp(const wchar_t* Name,wchar_t* DestPath)
 						}
 
 						delete[] ModuleName;
-						delete[] fgpi;
-
-						if (Result)
-							break;
 				}
+
+				delete[] data;
+
+				if (Result)
+					break;
 			}
 
 			delete[] hPlugins;
