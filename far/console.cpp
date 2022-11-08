@@ -2204,7 +2204,27 @@ WARNING_POP()
 
 	bool console::SetPalette(std::array<COLORREF, 16> const& Palette) const
 	{
-		return (IsVtEnabled()? implementation::SetPaletteVT : implementation::SetPaletteNT)(Palette);
+		// Happy path
+		if (IsVtEnabled())
+			return implementation::SetPaletteVT(Palette);
+
+		// Legacy console
+		if (!IsVtSupported())
+			return implementation::SetPaletteNT(Palette);
+
+		// These methods are currently not synchronized in WT 🤦
+		// As of 8 Oct 2022 NT method doesn't affect the display, only the array returned in CSBI.
+		// VT does and updates the CSBI too.
+
+		// If VT is not enabled, we enable it temporarily and use VT method if we can:
+		if (std::pair<HANDLE, DWORD> Data{ GetOutputHandle(), 0 }; GetMode(Data.first, Data.second) && SetMode(Data.first, Data.second | ENABLE_VIRTUAL_TERMINAL_PROCESSING))
+		{
+			SCOPE_EXIT { SetMode(Data.first, Data.second); };
+			return implementation::SetPaletteVT(Palette);
+		}
+
+		// Otherwise fallback to NT
+		return implementation::SetPaletteNT(Palette);
 	}
 
 	void console::EnableWindowMode(bool const Value)
