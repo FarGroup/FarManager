@@ -1529,6 +1529,9 @@ WARNING_POP()
 				return false;
 			}
 
+			if (std::equal(ALL_CONST_RANGE(Palette), ALL_CONST_RANGE(csbi.ColorTable)))
+				return true;
+
 			std::copy(ALL_CONST_RANGE(Palette), std::begin(csbi.ColorTable));
 
 			if (!imports.SetConsoleScreenBufferInfoEx(Output, &csbi))
@@ -1536,6 +1539,10 @@ WARNING_POP()
 				LOGERROR(L"SetConsoleScreenBufferInfoEx(): {}"sv, os::last_error());
 				return false;
 			}
+
+			// Get + Set screws up the window size 🤦
+			if (!SetConsoleWindowInfo(Output, true, &csbi.srWindow))
+				LOGWARNING(L"SetConsoleWindowInfo(): {}"sv, os::last_error());
 
 			return true;
 		}
