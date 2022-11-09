@@ -83,6 +83,8 @@ void WFD2FFD(const WIN32_FIND_DATA& wfd, PluginPanelItem& ffd, string* NameData)
 	ffd.LastWriteTime = wfd.ftLastWriteTime;
 	ffd.FileSize = make_integer<unsigned long long>(wfd.nFileSizeLow, wfd.nFileSizeHigh);
 	ffd.AllocationSize = 0;
+	ffd.Reserved[0] = wfd.dwReserved0;
+	ffd.Reserved[1] = wfd.dwReserved1;
 	ffd.AlternateFileName = {};
 
 	if (NameData)
