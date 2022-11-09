@@ -5755,8 +5755,14 @@ FileListItem::FileListItem(const PluginPanelItem& pi)
 	UserData = pi.UserData;
 
 	Attributes = pi.FileAttributes;
-	// we don't really know, but it's better than show it as 'unknown'
-	ReparseTag = (Attributes & FILE_ATTRIBUTE_REPARSE_POINT)? IO_REPARSE_TAG_SYMLINK : 0;
+
+	ReparseTag =
+		Attributes & FILE_ATTRIBUTE_REPARSE_POINT?
+			pi.Reserved[0]?
+				pi.Reserved[0] :
+				// we don't really know, but it's better than show it as 'unknown'
+				IO_REPARSE_TAG_SYMLINK :
+			0;
 
 	if (pi.CustomColumnData && pi.CustomColumnNumber)
 	{
