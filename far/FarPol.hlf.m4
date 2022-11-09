@@ -2571,7 +2571,7 @@ całkowitą liczbę plików.
 wyświetlona lista współdzielonych zasobów serwera.
 
  #Użyj Terminalu Wirtualnego do renderowania#
- Renderuj dane wyjściowe za pomocą sekwencji ANSI escape. Więcej informacji znajdziesz ~tutaj~@https://docs.microsoft.com/en-us/windows/console/classic-vs-vt@  (po angielsku).
+ Renderuj dane wyjściowe za pomocą sekwencji ANSI escape. Więcej informacji znajdziesz ~tutaj~@https://docs.microsoft.com/en-us/windows/console/classic-vs-vt@ (po angielsku).
  Pozwala to na użycie 8 i 24-bitowych kolorów, stylów tekstu, i pozwala (lub nie) pracować lepiej (lub gorzej) z niektórymi znakami Unicode.
  Wymaga Windows 10 lub nowszego.
 
