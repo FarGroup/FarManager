@@ -171,7 +171,7 @@ plugin_factory::plugin_module_ptr native_plugin_factory::Create(const string& fi
 	auto Module = std::make_unique<native_plugin_module>(filename);
 	if (!*Module)
 	{
-		const auto ErrorState = last_error();
+		const auto ErrorState = os::last_error();
 
 		Module.reset();
 
@@ -213,7 +213,7 @@ bool native_plugin_factory::IsPlugin(const string& FileName) const
 	const os::fs::file ModuleFile(FileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING);
 	if (!ModuleFile)
 	{
-		LOGDEBUG(L"create_file({}) {}"sv, FileName, last_error());
+		LOGDEBUG(L"create_file({}) {}"sv, FileName, os::last_error());
 		return false;
 	}
 

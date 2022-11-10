@@ -1560,8 +1560,7 @@ $ #Menu: Menu opcje#
 
  #Strony kodowe#         Pokazuje listę ~Stron kodowych~@CodePagesMenu@ plików.
 
- #Kolory#                Pozwala na wybór kolorów dla różnych elementów ekranu, pozwala zmienić
-                       cały wygląd programu Far na czarno/biały lub ustawić domyślne kolory.
+ #Kolory#                Pokazuje menu ~Grup kolorów~@ColorGroups@.
 
  #Wyróżnianie plików#    Pokazuje okno ~Wyróżniania plików~@Highlight@ i sortowania grup plików.
  #i sortowanie grup#
@@ -2312,6 +2311,20 @@ Np. !^!.! oznacza nazwę bieżącego pliku w panelu aktywnym,
 !##!\\!^!.! - plik w panelu pasywnym z taką samą nazwą jak
 bieżący plik w aktywnym panelu.
 
+ #![#
+ Przedrostek "![" wymusza na wszystkich kolejnych symbolach
+specjalnych, aby odnosiły się do lewego panelu (zobacz uwaga
+nr 4). Np. ![!.! oznacza bieżącą nazwę pliku w lewym panelu,
+![!\\!^!.! - plik w lewym panelu o takiej samej nazwie jak
+nazwa bieżącego pliku w aktywnym panelu.
+
+ #!]#
+ Przedrostek "!]" wymusza na wszystkich kolejnych symbolach
+specjalnych, aby odnosiły się do prawego panelu (zobacz uwaga
+nr 4). Np. !]!.! oznacza bieżącą nazwę pliku w prawym panelu,
+!]!\\!^!.! - plik w prawym panelu o takiej samej nazwie jak
+nazwa bieżącego pliku w aktywnym panelu.
+
  Uwagi:
 
  1. ^<wrap>Podczas obsługi znaków specjalnych, Far podstawia tylko
@@ -2341,8 +2354,8 @@ plików, w kodowaniu ANSI, z pełnymi ścieżkami, każdy ujęty w cudzysłów".
  3. ^<wrap>Jeżeli określono wiele skojarzeń, meta-znaki !@@! oraz !$! są pokazywane w menu bez zmian.
 Znaki te są tłumaczone podczas wykonywania poleceń.
 
- 4. ^<wrap>Przedrostki "!##" oraz "!^" działają jako przełączniki. Efekt ich działania trwa
-aż do następnego podobnego przedrostka. Np.
+ 4. ^<wrap>Przedrostki "!##", "!^", "![" oraz "!]" działają jako przełączniki.
+Efekt ich działania trwa aż do następnego podobnego przedrostka, np.
 
     if exist !##!\\!^!.! diff -c -p !##!\\!^!.! !\\!.!
 
@@ -2558,7 +2571,7 @@ całkowitą liczbę plików.
 wyświetlona lista współdzielonych zasobów serwera.
 
  #Użyj Terminalu Wirtualnego do renderowania#
- Renderuj dane wyjściowe za pomocą sekwencji ANSI escape. You can find more about it ~here~@https://docs.microsoft.com/en-us/windows/console/classic-vs-vt@.
+ Renderuj dane wyjściowe za pomocą sekwencji ANSI escape. Więcej informacji znajdziesz ~tutaj~@https://docs.microsoft.com/en-us/windows/console/classic-vs-vt@ (po angielsku).
  Pozwala to na użycie 8 i 24-bitowych kolorów, stylów tekstu, i pozwala (lub nie) pracować lepiej (lub gorzej) z niektórymi znakami Unicode.
  Wymaga Windows 10 lub nowszego.
 
@@ -4293,6 +4306,38 @@ podczas przetwarzania plików Far zawsze używa oryginalnych wielkości znaków.
  Zobacz także: polecenia ~menu~@MenuCmd@.
 
 
+@ColorGroups
+$ #Grupy kolorów#
+ To menu pozwala na wybór kolorów dla różnych elementów ekranu lub ustawić domyślne kolory.
+
+ #Ustaw kolory domyślne#
+ Przywraca kolory do wartości domyślnych, wyrażonych jako indeksy w palecie kolorów.
+
+ #Ustaw kolory domyślne (RGB)#
+ Przyraca kolory do wartości domyślnych, wyrażonych jako kolory w przestrzeni barw RGB,
+normalnie używanych do odpowiednich indeksów palety konsoli.
+ W przeciwieństwie do indeksów palety konsoli, wartości RGB są niezleżne od urządzenia
+i zawsze będą tak samo wyglądać w dowolnym terminalu.
+ Na przykład, domyślna #indeksu# tła panelu jest #1#, który zwykle (ale nie zawsze),
+jest mapowany na jakiś nieokreślony odcień koloru niebieskiego.
+ Domyślną wartością #RGB# tła panelu jest zawsze wartość #000080#.
+
+ #Uwaga#: kolory RGB wymagają renderowania opartego na Wirtualnym Terminalu, który można
+włączyć w ~Ustawieniach interfejsu~@InterfSettings@.
+Jeżeli nie jest włączony lub wybrany terminal nie obsługuje kolorów RGB, kolory będą ustawione
+na zbliżone do najbliższych indeksów palety konsoli.
+
+ Oto bieżąca paleta:
+
+ \00  \10  \20  \30  \40  \50  \60  \70  \-
+ \80  \90  \A0  \B0  \C0  \D0  \E0  \F0  \-
+
+ Oto domyślna reprezentacja RGB:
+
+ \(T0:T000000)  \(T0:T000080)  \(T0:T008000)  \(T0:T008080)  \(T0:T800000)  \(T0:T800080)  \(T0:T808000)  \(T0:TC0C0C0)  \-
+ \(T0:T808080)  \(T0:T0000FF)  \(T0:T00FF00)  \(T0:T00FFFF)  \(T0:TFF0000)  \(T0:TFF00FF)  \(T0:TFFFF00)  \(T0:TFFFFFF)  \-
+
+
 @ColorPicker
 $ #Wybór kolorów#
  To okno dialogowe pozwala zdefiniować kolor wyświetlania znaków, kolor tła i styl tekstu.
@@ -4322,8 +4367,8 @@ $ #Wybór kolorów#
  Tylko standardowa 16 kolorowa paleta jest gwarantem poprawnej pracy na wszystkich komputerach.
  Obsługa wszystkich innych jest warunkowa i definiowana przez Twój terminal.
 
- Extended colors and styles require Virtual Terminal-based rendering, which can be enabled in ~Interface settings~@InterfSettings@.
-You can find more about it ~here~@https://docs.microsoft.com/en-us/windows/console/classic-vs-vt@.
+ Rozszerzone kolory i style wymagają Terminalu Wirtualnego, który można włączyć w ~Ustawieniach interfejsu~@InterfSettings@.
+Więcej informacji znajdziesz ~tutaj~@https://docs.microsoft.com/en-us/windows/console/classic-vs-vt@ (po angielsku).
 
 
 @ColorPicker256
@@ -4826,9 +4871,9 @@ zdefiniowana (jeżeli dodano warunek “NOT”).
 a “zmienna” jest zdefiniowana:
  #if exist plik1 if not exist plik2 if defined zmienna polecenie#
 
- #PUSHD ścieżka#
- Zachowuje bieżącą ścieżkę do użycia przez polecenie “POPD”,
-następnie zmienia na ścieżkę z aktywnego panelu plików.
+ #PUSHD [ścieżka]#
+ Zachowuje bieżącą ścieżkę do użycia przez polecenie “POPD”.
+If “path” is specified, changes the current path on the active panel to it.
 
  #POPD#
  Zmienia bieżącą ścieżkę w aktywnym panelu na ścieżkę zachowaną poleceniem “PUSHD”.
@@ -4923,17 +4968,16 @@ do klasy, to nie może on być pierwszym znakiem lub musi być poprzedzony znaki
 samego miejsca, ale tylko gdy zgadza się wzorzec w nawiasach. Np. #\w+(?=\s)#
 dopasowuje słowo, po którym następuje spacja, a spacja nie jest uwzględniana w wynikach
 szukania.
- #(?!pattern)#  - ^<wrap>negacja wyszukiwania do przodu. Dopasowanie kontynuuje od tego
+ #(?!wzorzec)#  - ^<wrap>negacja wyszukiwania do przodu. Dopasowanie kontynuuje od tego
 samego miejsca, jeżeli wzorzec się nie zgadza. Np. #foo(?!bar)# dopasowuje dowolne
 "foo" bez następującego "bar". Należy pamiętać że wyrażenie ma wielkość zero, co oznacza
 że #a(?!b)d# pasuje do #ad#, ponieważ po #a# następuje znak który nie jest #b# (lecz #d#),
 a #d# następuje po wyrażeniu o zerowym rozmiarze.
- #(?<=pattern)# - ^<wrap>wyszukiwanie wstecz. Niestety, wzorzec musi mieć określoną długość.
- #(?<!pattern)# - ^<wrap>negacja wyszukiwania wstecz. Takie same ograniczenia jak przy negacji
+ #(?<=wzorzec)# - ^<wrap>wyszukiwanie wstecz. Niestety, wzorzec musi mieć określoną długość.
+ #(?<!wzorzec)# - ^<wrap>negacja wyszukiwania wstecz. Takie same ograniczenia jak przy negacji
 wyszukiwania do przodu.
 
- #(?{name}pattern)# - group with a name. The name can be empty (in such case you
-cannot refer to this group) or must contain only word characters (#\w#) and spaces (#\s#).
+ #(?{nazwa}wzorzec)# - grupa z nazwą. Nazwa może zawierać tylko litery (#\w#) i spacje (#\s#).
 
  #Kwantyfikatory#
 
@@ -5009,7 +5053,7 @@ dużej ilości danych.
 (w rzeczywistości - omijane) szybciej.
 
  #\NN#  - ^<wrap>odniesienie do wcześniej dopasowanych nawiasów. NN jest liczbą całkowitą dodatnią.
-Wszystkie nawiasy oprócz (?:wzorzec), (?=wzorzec), (?!wzorzec), (?<=wzorzec), (?<!wzorzec) i (?{nazwa}wzorzec)
+Wszystkie nawiasy oprócz (?:wzorzec), (?=wzorzec), (?!wzorzec), (?<=wzorzec) i (?<!wzorzec)
 posiadają numer (w kolejności występowania).
         Przykład:
         "(['"])witaj\1" pasuje do "witaj" lub 'witaj'.
@@ -5561,26 +5605,21 @@ Jeżeli bieżąca wartość opcji jest inna niż domyślna, opcja jest oznaczona
 
 @Codepages.NoAutoDetectCP
 $ #far:config Codepages.NoAutoDetectCP#
- Ten parametr tekstowy definiuje strony kodowe, które będą wyłączane
-z autodetekcji Universal Codepage Detector (UCD). Czasami, szczególnie
-w przypadku małych plików, UCD irytująco wybiera niewłaściwe strony kodowe.
+ Ten parametr tekstowy pozwala wykluczyć specyficzne strony kodowe z wyników
+heurystycznego wykrywania stron kodowych. Takie wykrywanie jest z definicji
+zawodne: zależy od danych statystycznych i może się mylić, zwłaszcza gdy
+ilość danych wejściowych jest mała.
 
- Domyślną wartością jest pusty łańcuch #""#. W takim przypadku wszystkie
-strony kodowe wykrywane przez UCD (około 20, znacznie mniej niż zazwyczaj
-jest dostępnych w systemie) są włączone.
+ Domyślnie parametr jest pusty i nie istnieją żadne ograniczenia, co do heurystycznego
+wykrywania stron kodowych.
 
- Jeżeli ten parametr jest ustawiony na #"-1"# i sekcja #Pozostałe# w menu
-~Strony kodowe~@CodePagesMenu@ jest ukryta (kombinacja klawiszy #Ctrl+H#),
-tylko strony kodowe #Systemowe# (ANSI, OEM), #Unicode#, i #Ulubione# będą
-włączone dla UCD. Jeżeli sekcja #Pozostałe# jest widoczna, to wszystkie
-strony kodowe są włączone.
+ Jeżeli parametr jest ustawiony na #-1#, to tylko strony kodowe widoczne w menu
+~Strony kodowe~@CodePagesMenu@ zostaną zaakceptowane.
+Można kontrolować, które strony kodowe mają być widoczne w sekcji #Ulubione#
+za pomocą kombinacji klawiszy #Ctrl+H#.
 
- W przeciwnym wypadku, parametr powinien zawierać listę stron kodowych
-wyłączonych dla UCD, oddzieloną przecinkami. Np.:
-#"1250,1252,1253,1255,855,10005,28592,28595,28597,28598,38598"#.
-
- Ponieważ strony kodowe Unicode (1200, 1201, 65001) są wykrywane poza UCD,
-nie można ich wyłączyć, nawet jeżeli znajdują się na liście wykluczeń.
+ Jeżeli parametr ten zawiera listę stron kodowych oddzieloną przecinkami, to wszystkie
+wymienione tutaj strony kodowe zostaną wykluczone z wykrywania heurystycznego.
 
  Ten parametr można zmienić tylko w ~far:config~@FarConfig@.
 

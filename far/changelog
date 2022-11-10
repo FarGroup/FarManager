@@ -1,4 +1,145 @@
 --------------------------------------------------------------------------------
+drkns 09.11.2022 19:37:38 +0000 - build 6050
+
+1. Recognize reparse point types on plugin panels.
+
+--------------------------------------------------------------------------------
+drkns 08.11.2022 19:47:00 +0000 - build 6049
+
+1. Correction of 6047.
+
+--------------------------------------------------------------------------------
+drkns 08.11.2022 17:08:16 +0000 - build 6048
+
+1. Correction of 6047.
+
+--------------------------------------------------------------------------------
+drkns 07.11.2022 22:07:21 +0000 - build 6047
+
+1. Microsoft keeps fixing things that ain't broken.
+   Apparently Windows Terminal is now default and we have another wave of questions about its eye-bleeding palette.
+   It is getting annoying, so the classic palette is now set automatically by default,
+   overriding any terminal preferences and rejecting any modern fashion trends in UI design.
+   If you actually know what a palette is and have your own, turn the override off in color settings.
+
+--------------------------------------------------------------------------------
+drkns 07.11.2022 20:19:16 +0000 - build 6046
+
+1. Rework InfoPanel memory section.
+
+2. Fix color processing.
+
+--------------------------------------------------------------------------------
+drkns 06.11.2022 23:58:52 +0000 - build 6045
+
+1. Fix ECTL_SETSTRING crash when source and destination strings overlap.
+
+2. Static analysis warnings.
+
+--------------------------------------------------------------------------------
+drkns 03.11.2022 20:43:44 +0000 - build 6044
+
+1. Make "path" in "pushd path" optional.
+
+--------------------------------------------------------------------------------
+drkns 02.11.2022 21:24:55 +0000 - build 6043
+
+1. Refactoring, move plarform-specific code around.
+
+2. Refactoring, reorganize error checking.
+
+--------------------------------------------------------------------------------
+drkns 29.10.2022 18:00:05 +0100 - build 6042
+
+1. Include PE & file timestamps into generated bug reports.
+
+--------------------------------------------------------------------------------
+drkns 15.10.2022 19:27:16 +0100 - build 6041
+
+1. Add workaround for incorrect encoding in OS-generated CF_UNICODETEXT.
+   See far:config, ClipboardUnicodeWorkaround.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
+pepak 13.10.2022 20:18:32 +0100 - build 6040
+
+1. Add special symbols to refer to the left ("![") or to the right ("!]") panel.
+
+--------------------------------------------------------------------------------
+drkns 10.10.2022 18:06:05 +0100 - build 6039
+
+1. Use the real window handle when running in Windows Terminal.
+   This should fix some scenarios like taskbar progress, flashing, icon setting, Alt+F9 etc.
+   It also may or may not break your Terminal, who knows.
+
+--------------------------------------------------------------------------------
+drkns 07.10.2022 23:13:59 +0100 - build 6038
+
+1. gh-551: Screen scrambled when pressing Alt-F9 under Windows 11 22H2
+
+--------------------------------------------------------------------------------
+drkns 06.10.2022 17:43:00 +0100 - build 6037
+
+1. Fix string replace when pattern and/or replacement are views into the same string.
+
+--------------------------------------------------------------------------------
+drkns 05.10.2022 23:47:54 +0100 - build 6036
+
+1. Remove "Colors - Black and white mode".
+
+2. Add "Colors - Set default colors (RGB)" - same as "Set default colors", but fixed RGB values instead of indices.
+
+--------------------------------------------------------------------------------
+drkns 05.10.2022 17:15:46 +0100 - build 6035
+
+1. far:regex: include offsets into match information.
+
+2. Fix 6030.1.
+
+--------------------------------------------------------------------------------
+drkns 04.10.2022 21:56:22 +0100 - build 6034
+
+1. Use IMultiLanguage2 for codepage detection.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
+drkns 03.10.2022 23:20:09 +0100 - build 6033
+
+1. Add regex testing UI - far:regex
+
+2. Fix regex named groups processing in cases like a(?{name}.)?b, improve tests
+
+3. Suppress logs once the logger is destroyed.
+
+4. Minor refactoring.
+
+--------------------------------------------------------------------------------
+yjh 03.10.2022 00:22:43 +0300 - build 6032
+
+1. SQLite v3.39.4.
+
+--------------------------------------------------------------------------------
+drkns 02.10.2022 21:16:49 +0100 - build 6031
+
+1. Correction of 6030.
+
+--------------------------------------------------------------------------------
+drkns 02.10.2022 19:29:07 +0100 - build 6030
+
+1. Named groups in regular expressions are now included into the usual match list and can be referred by number in order of appearance.
+
+2. Named groups support in RegExpControl:
+   After a successful RECTL_MATCHEX/RECTL_SEARCHEX call RECTL_NAMEDGROUPINDEX with Param1 = 0 and Param2 = <group name>.
+   The return value is the index of the group in the RegExpSearch.Match array, populated by the last call to match/search.
+
+--------------------------------------------------------------------------------
+drkns 29.09.2022 18:22:32 +0100 - build 6029
+
+1. Capture dbgeng and dbghelp logs.
+
+--------------------------------------------------------------------------------
 drkns 21.09.2022 17:59:59 +0100 - build 6028
 
 1. Fix colors import/export.

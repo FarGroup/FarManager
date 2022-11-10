@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "preprocessor.hpp"
+#include "function_traits.hpp"
 
 #include <functional>
 
@@ -48,11 +49,11 @@ public:
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4180) // qualifier applied to function type has no meaning; ignored
 	template<typename callable_type, REQUIRES(!std::is_same_v<std::decay_t<callable_type>, function_ref>)>
-	function_ref(const callable_type& Callable) noexcept:
-		m_Ptr(const_cast<void*>(reinterpret_cast<const void*>(&Callable))),
+	function_ref(callable_type&& Callable) noexcept:
+		m_Ptr(to_ptr(FWD(Callable))),
 		m_ErasedFn([](void* Ptr, args... Args) -> return_type
 		{
-			return std::invoke(*reinterpret_cast<const callable_type*>(Ptr), FWD(Args)...);
+			return std::invoke(from_ptr<callable_type>(Ptr), FWD(Args)...);
 		})
 	{
 	}
@@ -76,10 +77,31 @@ WARNING_POP()
 	}
 
 private:
+	template<typename callable_type>
+	static auto to_ptr(callable_type&& Callable)
+	{
+		if constexpr (std::is_pointer_v<callable_type>)
+			return const_cast<void*>(reinterpret_cast<const void*>(Callable));
+		else
+			return const_cast<void*>(reinterpret_cast<const void*>(&Callable));
+	}
+
+	template<typename callable_type>
+	static auto& from_ptr(void* Ptr)
+	{
+		if constexpr (std::is_pointer_v<callable_type>)
+			return *reinterpret_cast<callable_type>(Ptr);
+		else
+			return *reinterpret_cast<std::add_pointer_t<callable_type>>(Ptr);
+	}
+
 	using signature_type = return_type(void*, args...);
 
 	void* m_Ptr;
 	signature_type* m_ErasedFn;
 };
+
+template<typename object>
+function_ref(object) -> function_ref<typename function_traits<object>::signature_type>;
 
 #endif // FUNCTION_REF_HPP_0B2E3AF4_AB0A_4C89_9FC1_1A92AC2699A4

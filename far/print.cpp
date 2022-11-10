@@ -55,8 +55,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 #include "stddlg.hpp"
 #include "datetime.hpp"
+#include "exception.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.fs.hpp"
 
 // Common:
@@ -75,7 +77,7 @@ static void AddToPrintersMenu(VMenu2 *PrinterList, span<PRINTER_INFO_4W const> c
 	// BUGBUG check result
 	if (!os::GetDefaultPrinter(strDefaultPrinter))
 	{
-		LOGWARNING(L"GetDefaultPrinter(): {}"sv, last_error());
+		LOGWARNING(L"GetDefaultPrinter(): {}"sv, os::last_error());
 	}
 
 	bool bDefaultPrinterFound = false;
@@ -232,7 +234,7 @@ void PrintFiles(FileList* SrcPanel)
 					// BUGBUG check result
 					if (!os::fs::remove_directory(strTempDir))
 					{
-						LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, last_error());
+						LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, os::last_error());
 					}
 
 					throw MAKE_FAR_EXCEPTION(L"GetFile error"sv);

@@ -78,6 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 
 // Common:
 #include "common/bytes_view.hpp"
@@ -180,12 +181,12 @@ Viewer::~Viewer()
 		{
 			if (!os::fs::set_file_attributes(strTempViewName, FILE_ATTRIBUTE_NORMAL)) // BUGBUG
 			{
-				LOGWARNING(L"set_file_attributes({}): {}"sv, strTempViewName, last_error());
+				LOGWARNING(L"set_file_attributes({}): {}"sv, strTempViewName, os::last_error());
 			}
 
 			if (!os::fs::delete_file(strTempViewName)) //BUGBUG
 			{
-				LOGWARNING(L"delete_file({}): {}"sv, strTempViewName, last_error());
+				LOGWARNING(L"delete_file({}): {}"sv, strTempViewName, os::last_error());
 			}
 		}
 	}
@@ -299,7 +300,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 			// BUGBUG check result
 			if (!ViewFile.Write(vread_buffer.data(), ReadSize))
 			{
-				LOGWARNING(L"Write({}): {}"sv, ViewFile.GetName(), last_error());
+				LOGWARNING(L"Write({}): {}"sv, ViewFile.GetName(), os::last_error());
 			}
 		}
 		ViewFile.SetPointer(0, nullptr, FILE_BEGIN);
@@ -317,7 +318,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 				 so don't show red message box */
 			if (Warn)
 			{
-				const auto ErrorState = last_error();
+				const auto ErrorState = os::last_error();
 
 				if (OperationFailed(ErrorState, strFileName, lng::MViewerTitle, msg(lng::MViewerCannotOpenFile), false) == operation::retry)
 					continue;
@@ -334,7 +335,7 @@ bool Viewer::OpenFile(string_view const Name, bool const Warn)
 	// BUGBUG check result
 	if (!os::fs::get_find_data(strFileName, ViewFindData))
 	{
-		LOGWARNING(L"get_find_data({}): {}"sv, strFileName, last_error());
+		LOGWARNING(L"get_find_data({}): {}"sv, strFileName, os::last_error());
 	}
 
 	uintptr_t CachedCodePage=0;
@@ -2391,13 +2392,13 @@ void Viewer::Up(int nlines, bool adjust)
 	}
 }
 
-int Viewer::GetStrBytesNum(string_view const Str) const
+int Viewer::GetStrBytesNum(const wchar_t* const Str, int const Length) const
 {
 	const auto ch_size = getCharSize();
 	if (ch_size > 0)
-		return static_cast<int>(Str.size() * ch_size);
+		return Length * ch_size;
 
-	return static_cast<int>(encoding::get_bytes_count(m_Codepage, Str));
+	return static_cast<int>(encoding::get_bytes_count(m_Codepage, { Str, static_cast<size_t>(Length) }));
 }
 
 void Viewer::SetViewKeyBar(KeyBar *ViewKeyBar)
@@ -2796,7 +2797,7 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 		int nw1 = vread(buff+nw, 3*(slen+ww), t_buff ? t_buff+nw : nullptr);
 		nw1 = std::max(nw1, slen+ww-1);
 		nw += nw1;
-		to1 = to + (t_buff ? GetStrBytesNum({ t_buff, static_cast<size_t>(nw1) }) : sd->ch_size * nw1);
+		to1 = to + (t_buff ? GetStrBytesNum(t_buff, static_cast<size_t>(nw1)) : sd->ch_size * nw1);
 	}
 
 	const auto is_eof = (to1 >= FileSize ? 1 : 0), iLast = nw - slen - ww + ww*is_eof;
@@ -2817,8 +2818,8 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 		 || (slen > 2 && !std::equal(buff + i + 2, buff + i + slen, sd->search_text.cbegin() + 2))
 		) continue;
 
-		sd->MatchPos = cpos + GetStrBytesNum({ buff, static_cast<size_t>(i) });
-		sd->search_len = GetStrBytesNum({ buff + i, static_cast<size_t>(slen) });
+		sd->MatchPos = cpos + GetStrBytesNum(buff, static_cast<size_t>(i));
+		sd->search_len = GetStrBytesNum(buff + i, static_cast<size_t>(slen));
 		return Search_Found;
 	}
 
@@ -2835,7 +2836,7 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 	}
 	else
 	{
-		sd->CurPos = to1 - GetStrBytesNum({ t_buff + iLast + 1, static_cast<size_t>(nw - iLast - 1) });
+		sd->CurPos = to1 - GetStrBytesNum(t_buff + iLast + 1, static_cast<size_t>(nw - iLast - 1));
 
 		if (LastSelectPos > 0 && cpos < LastSelectPos && sd->CurPos >= LastSelectPos)
 			return Search_NotFound;
@@ -2874,7 +2875,7 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 			vseek(to1, FILE_BEGIN);
 			const auto nw1 = vread(buff, nb1, t_buff);
 			if (nw1 > slen + ww - 1)
-				nb1 = GetStrBytesNum({ t_buff + nw1 - (slen + ww - 1), static_cast<size_t>(slen + ww - 1) });
+				nb1 = GetStrBytesNum(t_buff + nw1 - (slen + ww - 1), static_cast<size_t>(slen + ww - 1));
 			nb += nb1;
 		}
 	}
@@ -2900,8 +2901,8 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 		|| (slen > 2 && !std::equal(buff + i + 2, buff + i + slen, sd->search_text.cbegin() + 2))
 		) continue;
 
-		sd->MatchPos = cpos + GetStrBytesNum({ t_buff, static_cast<size_t>(i) });
-		sd->search_len = GetStrBytesNum({ t_buff + i, static_cast<size_t>(slen) });
+		sd->MatchPos = cpos + GetStrBytesNum(t_buff, static_cast<size_t>(i));
+		sd->search_len = GetStrBytesNum(t_buff + i, static_cast<size_t>(slen));
 		return Search_Found;
 	}
 
@@ -2919,7 +2920,7 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 	}
 	else
 	{
-		sd->CurPos = cpos + GetStrBytesNum({ t_buff, static_cast<size_t>(iFirst + slen - 1) });
+		sd->CurPos = cpos + GetStrBytesNum(t_buff, static_cast<size_t>(iFirst + slen - 1));
 
 		if (cpos+nb > LastSelectPos && sd->CurPos <= LastSelectPos)
 			return Search_NotFound;
@@ -3014,7 +3015,7 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 		if (!sd->Rex->SearchEx({ line, static_cast<size_t>(nw) }, off, sd->RexMatch))  // doesn't match
 			break;
 
-		const auto fpos = bpos + GetStrBytesNum({ t_line, static_cast<size_t>(sd->RexMatch[0].start) });
+		const auto fpos = bpos + GetStrBytesNum(t_line, sd->RexMatch[0].start);
 		if ( fpos < cpos )
 		{
 			off = sd->RexMatch[0].start + 1; // skip
@@ -3027,7 +3028,7 @@ SEARCHER_RESULT Viewer::search_regex_forward(search_data* sd)
 		else // found
 		{
 			sd->MatchPos = fpos;
-			sd->search_len = GetStrBytesNum({ t_line + off + sd->RexMatch[0].start, static_cast<size_t>(sd->RexMatch[0].end - sd->RexMatch[0].start) });
+			sd->search_len = GetStrBytesNum(t_line + off + sd->RexMatch[0].start, sd->RexMatch[0].end - sd->RexMatch[0].start);
 			return Search_Found;
 		}
 	}
@@ -3078,8 +3079,8 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 		if (!sd->Rex->SearchEx({ line, static_cast<size_t>(nw) }, off, sd->RexMatch))
 			break;
 
-		const auto fpos = bpos + GetStrBytesNum({ t_line, static_cast<size_t>(sd->RexMatch[0].start) });
-		const auto flen = GetStrBytesNum({ t_line + sd->RexMatch[0].start, static_cast<size_t>(sd->RexMatch[0].end - sd->RexMatch[0].start) });
+		const auto fpos = bpos + GetStrBytesNum(t_line, sd->RexMatch[0].start);
+		const auto flen = GetStrBytesNum(t_line + sd->RexMatch[0].start, sd->RexMatch[0].end - sd->RexMatch[0].start);
 		if (fpos+flen > cpos)
 			break;
 
@@ -3264,8 +3265,6 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 				ReCompileErrorMessage(e, strSlash);
 				return;
 			}
-
-			sd.RexMatch.resize(sd.Rex->GetBracketsCount());
 		}
 		else
 		{
@@ -3923,7 +3922,7 @@ void Viewer::SetFileSize()
 	// BUGBUG check result
 	if (!ViewFile.GetSize(uFileSize))
 	{
-		LOGWARNING(L"GetSize({}): {}"sv, ViewFile.GetName(), last_error());
+		LOGWARNING(L"GetSize({}): {}"sv, ViewFile.GetName(), os::last_error());
 	}
 
 	FileSize=uFileSize;

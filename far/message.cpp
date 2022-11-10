@@ -112,13 +112,18 @@ intptr_t message_context::DlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void*
 			const auto record = static_cast<const INPUT_RECORD *>(Param2);
 			if (record->EventType==KEY_EVENT)
 			{
-				const auto key = InputRecordToKey(record);
-				switch(key)
+				switch(InputRecordToKey(record))
 				{
 				case KEY_F3:
 					if(ErrorState)
 					{
-						const auto Errors = ErrorState->format_errors();
+						const string Errors[]
+						{
+							ErrorState->ErrnoStr(),
+							ErrorState->Win32ErrorStr(),
+							ErrorState->NtErrorStr(),
+						};
+
 						const auto MaxStr = std::max(Errors[0].size(), Errors[1].size());
 						const auto SysArea = 5 * 2;
 						const auto FieldsWidth = std::max(80 - SysArea, std::min(static_cast<int>(MaxStr), ScrX - SysArea));

@@ -105,6 +105,6 @@ void global::far_clock::update(bool const Force)
 	if (!Force && Value == m_LastValue)
 		return;
 
-	m_CurrentTime = os::chrono::format_time(Now);
+	m_CurrentTime = os::chrono::wall_time(Now);
 	m_LastValue = Value;
 }

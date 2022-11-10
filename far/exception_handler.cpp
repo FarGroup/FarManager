@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.com.hpp"
 #include "platform.debug.hpp"
 #include "platform.fs.hpp"
@@ -209,19 +210,12 @@ static void get_backtrace(string_view const Module, span<os::debug::stack_frame 
 	tracer.get_symbols(Module, Stack, Consumer);
 
 	make_header(L"Exception handler stack"sv, Consumer);
-	tracer.get_symbols(Module, os::debug::current_stack(), Consumer);
+	tracer.get_symbols(Module, os::debug::current_stacktrace(), Consumer);
 }
 
 static string get_report_location()
 {
-	auto [Date, Time] = get_time();
-
-	const auto not_digit = [](wchar_t const Char){ return !std::iswdigit(Char); };
-
-	std::replace_if(ALL_RANGE(Date), not_digit, L'_');
-	std::replace_if(ALL_RANGE(Time), not_digit, L'_');
-
-	const auto SubDir = format(L"Far.{}_{}_{}"sv, Date, Time, GetCurrentProcessId());
+	const auto SubDir = unique_name();
 
 	if (const auto CrashLogs = path::join(Global? Global->Opt->LocalProfilePath : L"."sv, L"CrashLogs"); os::fs::is_directory(CrashLogs) || os::fs::create_directory(CrashLogs))
 	{
@@ -353,7 +347,7 @@ static void read_modules(string& To, string_view const Eol)
 	{
 		if (!EnumProcessModules(GetCurrentProcess(), Data, Size, &Needed))
 		{
-			const auto LastError = last_error();
+			const auto LastError = os::last_error();
 			format_to(To, FSTR(L"{}"sv), LastError);
 			LOGWARNING(L"EnumProcessModules(): {}"sv, LastError);
 			return;
@@ -373,6 +367,40 @@ static string self_version()
 	const auto Version = format(FSTR(L"{} {}"sv), version_to_string(build::version()), build::platform());
 	const auto ScmRevision = build::scm_revision();
 	return ScmRevision.empty()? Version : Version + format(FSTR(L" ({:.7})"sv), ScmRevision);
+}
+
+static string timestamp(os::chrono::time_point const Point)
+{
+	const auto FileTime = os::chrono::nt_clock::to_filetime(Point);
+	SYSTEMTIME SystemTime{};
+	if (!FileTimeToSystemTime(&FileTime, &SystemTime))
+	{
+		LOGWARNING(L"FileTimeToSystemTime(): {}"sv, os::last_error());
+		return format(FSTR(L"{:16X}"sv), Point.time_since_epoch().count());
+	}
+
+	const auto [Date, Time] = format_datetime(SystemTime);
+	return concat(Date, L' ', Time);
+}
+
+static string pe_timestamp()
+{
+	const auto FarModule = GetModuleHandle({});
+	const auto& FarDosHeader = view_as<IMAGE_DOS_HEADER>(FarModule, 0);
+	const auto& FarNtHeaders = view_as<IMAGE_NT_HEADERS>(FarModule, FarDosHeader.e_lfanew);
+	return timestamp(os::chrono::nt_clock::from_time_t(FarNtHeaders.FileHeader.TimeDateStamp));
+}
+
+static string file_timestamp()
+{
+	os::fs::find_data Data;
+	if (!os::fs::get_find_data(Global->g_strFarModuleName, Data))
+	{
+		LOGWARNING(L"get_find_data({}): {}"sv, Global->g_strFarModuleName, os::last_error());
+		return {};
+	}
+
+	return timestamp(Data.LastWriteTime);
 }
 
 static string kernel_version()
@@ -490,6 +518,12 @@ class DebugOutputCallbacks final:
 	public IDebugOutputCallbacksWide
 {
 public:
+	static constexpr ULONG CallbackTypes =
+		DEBUG_OUTPUT_NORMAL |
+		DEBUG_OUTPUT_ERROR |
+		DEBUG_OUTPUT_WARNING |
+		DEBUG_OUTPUT_VERBOSE;
+
 	explicit DebugOutputCallbacks(string* To):
 		m_To(To)
 	{}
@@ -497,7 +531,6 @@ public:
 	// IUnknown
 	STDMETHOD(QueryInterface)(REFIID InterfaceId, PVOID* Interface) override
 	{
-
 		if (none_of(InterfaceId, IID_IUnknown, IID_IDebugOutputCallbacks, IID_IDebugOutputCallbacksWide))
 		{
 			*Interface = {};
@@ -524,18 +557,42 @@ public:
 	// IDebugOutputCallbacks
 	STDMETHOD(Output)(ULONG Mask, PCSTR Text) override
 	{
-		*m_To += encoding::utf8::get_chars(Text);
+		output_impl(Mask, encoding::utf8::get_chars(Text));
 		return S_OK;
 	}
 
 	// IDebugOutputCallbacksWide
 	STDMETHOD(Output)(ULONG Mask, PCWSTR Text) override
 	{
-		*m_To += Text;
+		output_impl(Mask, Text);
 		return S_OK;
 	}
 
 private:
+	static auto output_type_to_level(ULONG const OutputType)
+	{
+		switch (OutputType)
+		{
+		default:
+		case DEBUG_OUTPUT_VERBOSE: return logging::level::info;
+		case DEBUG_OUTPUT_WARNING: return logging::level::warning;
+		case DEBUG_OUTPUT_ERROR:   return logging::level::error;
+		}
+	}
+
+	void output_impl(ULONG const Mask, string_view const Text) const
+	{
+		switch (Mask & CallbackTypes)
+		{
+		case DEBUG_OUTPUT_NORMAL:
+			*m_To += Text;
+			return;
+
+		default:
+			LOG(output_type_to_level(Mask), L"{}"sv, Text);
+		}
+	}
+
 	string* m_To;
 };
 WARNING_POP()
@@ -563,7 +620,7 @@ static void read_disassembly(string& To, string_view const Module, span<os::debu
 		if (const auto Result = DebugControl->WaitForEvent(DEBUG_WAIT_DEFAULT, INFINITE); FAILED(Result))
 			LOGWARNING(L"WaitForEvent(): {}"sv, os::format_error(Result));
 
-		if (const auto Result = DebugClient->SetOutputMask(DEBUG_OUTPUT_NORMAL); FAILED(Result))
+		if (const auto Result = DebugClient->SetOutputMask(DebugOutputCallbacks::CallbackTypes); FAILED(Result))
 			LOGWARNING(L"SetOutputMask(): {}"sv, os::format_error(Result));
 
 		if (os::com::ptr<IDebugClient5> DebugClient5; SUCCEEDED(DebugClient->QueryInterface(IID_IDebugClient5, IID_PPV_ARGS_Helper(&ptr_setter(DebugClient5)))))
@@ -579,14 +636,11 @@ static void read_disassembly(string& To, string_view const Module, span<os::debu
 
 		const auto MaxFrames = 10;
 		auto Frames = 0;
-		uintptr_t LastFrameAddress = 0;
 
 		for (const auto i: Stack)
 		{
-			if (i.Address == LastFrameAddress)
+			if (os::debug::is_inline_frame(i.InlineContext))
 				continue;
-
-			LastFrameAddress = i.Address;
 
 			tracer.get_symbols(Module, {&i, 1}, [&](string_view const Line)
 			{
@@ -808,7 +862,7 @@ static string get_console_host()
 	if (!NT_SUCCESS(Status))
 		return {};
 
-	const auto ConsoleHostProcessId = ConsoleHostProcess & ~3;
+	const auto ConsoleHostProcessId = ConsoleHostProcess & ~0b11;
 
 	const auto ConhostName = os::process::get_process_name(ConsoleHostProcessId);
 	if (ConhostName.empty())
@@ -861,103 +915,6 @@ static string get_parent_process()
 
 	return concat(ParentName, L' ', ParentVersion);
 }
-
-static bool ShowExceptionUI(
-	bool const UseDialog,
-	exception_context const& Context,
-	string_view const Exception,
-	string_view const Details,
-	string_view const ExtraDetails,
-	error_state const& ErrorState,
-	string_view const Function,
-	string_view const Location,
-	string_view const ModuleName,
-	string const& PluginInfo,
-	Plugin const* const PluginModule,
-	span<os::debug::stack_frame const> const NestedStack
-)
-{
-	SCOPED_ACTION(tracer_detail::tracer::with_symbols)(PluginModule? ModuleName : L""sv);
-
-	string Address, Name, Source;
-	tracer.get_symbol(ModuleName, Context.exception_record().ExceptionAddress, Address, Name, Source);
-
-	if (!Name.empty())
-		Address = concat(L"0x"sv, Address, L" - "sv, Name);
-
-	if (Source.empty())
-		Source = Location;
-
-	const auto Errors = ErrorState.format_errors();
-	const auto Version = self_version();
-	const auto Compiler = build::compiler();
-	const auto OsVersion = os::version::os_version();
-	const auto KernelVersion = kernel_version();
-	const auto ConsoleHost = get_console_host();
-	const auto Parent = get_parent_process();
-
-	std::pair<string_view, string_view> const BasicInfo[]
-	{
-		{ L"Exception:"sv, Exception,     },
-		{ L"Details:  "sv, Details,       },
-		{ L"errno:    "sv, Errors[0],     },
-		{ L"LastError:"sv, Errors[1],     },
-		{ L"NTSTATUS: "sv, Errors[2],     },
-		{ L"Address:  "sv, Address,       },
-		{ L"Function: "sv, Function,      },
-		{ L"Source:   "sv, Source,        },
-		{ L"File:     "sv, ModuleName,    },
-		{ L"Plugin:   "sv, PluginInfo,    },
-		{},
-		{ L"Far:      "sv, Version,       },
-		{ L"Compiler: "sv, Compiler,      },
-		{ L"OS:       "sv, OsVersion,     },
-		{ L"Kernel:   "sv, KernelVersion, },
-		{ L"Host:     "sv, ConsoleHost,   },
-		{ L"Parent:   "sv, Parent,        },
-	};
-
-	const auto log_message = [&]
-	{
-		auto Message = join(L"\n"sv, select(BasicInfo, [](auto const& Pair)
-		{
-			return format(FSTR(L"{} {}"sv), Pair.first, Pair.second);
-		}));
-
-		Message += L"\n\n"sv;
-
-		get_backtrace(ModuleName, tracer.get(ModuleName, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
-		{
-			append(Message, Line, L'\n');
-		});
-
-		return Message;
-	};
-
-	LOG(PluginModule? logging::level::error : logging::level::fatal, L"\n{}\n"sv, log_message());
-
-	const auto ReportLocation = get_report_location();
-	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDDUMP_NAME)), MiniDumpNormal);
-	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), MiniDumpWithFullMemory);
-	const auto BugReport = collect_information(Context, NestedStack, ModuleName, BasicInfo, ExtraDetails);
-	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
-	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
-	const auto ReadmeOnDisk = write_readme(path::join(ReportLocation, L"README.txt"sv));
-	const auto AnythingOnDisk = ReportOnDisk || MinidumpNormal || MinidumpFull || ReadmeOnDisk;
-
-	if (AnythingOnDisk && os::is_interactive_user_session())
-		OpenFolderInShell(ReportLocation);
-
-	if (AnythingOnDisk || ReportInClipboard)
-		return (UseDialog? ExcDialog : ExcConsole)(
-			AnythingOnDisk? ReportLocation : msg(lng::MExceptionDialogClipboard),
-			PluginInfo
-		);
-
-	// Should never happen - neither the filesystem nor clipboard are writable, so just dump it to the screen:
-	return ExcConsole(BugReport, PluginInfo);
-}
-
 
 template<size_t... I>
 static constexpr uint32_t any_cc(std::string_view const Str, std::index_sequence<I...> Sequence)
@@ -1262,7 +1219,7 @@ static bool handle_generic_exception(
 	Plugin const* const PluginModule,
 	string_view const Type,
 	string_view const Message,
-	error_state const& ErrorState = last_error(),
+	error_state_ex const& ErrorState,
 	span<os::debug::stack_frame const> const NestedStack = {}
 )
 {
@@ -1276,37 +1233,120 @@ static bool handle_generic_exception(
 	s_ExceptionHandlingInprogress = true;
 	SCOPE_EXIT{ s_ExceptionHandlingInprogress = false; };
 
-	const auto strFileName = PluginModule?
+	const auto ModuleName = PluginModule?
 		PluginModule->ModuleName() :
 		Global?
 			Global->g_strFarModuleName :
 			os::fs::get_current_process_file_name();
 
+	SCOPED_ACTION(tracer_detail::tracer::with_symbols)(PluginModule? ModuleName : L""sv);
+
 	const auto Exception = exception_name(Context.exception_record(), Type);
+
 	string ExtraDetails;
-	const auto Details = exception_details(strFileName, Context.exception_record(), Message, ExtraDetails);
+	const auto Details = exception_details(ModuleName, Context.exception_record(), Message, ExtraDetails);
 
-	const auto PluginInformation = PluginModule? format(FSTR(L"{} {} ({}, {})"sv),
-		PluginModule->Title(),
-		version_to_string(PluginModule->version()),
-		PluginModule->Description(),
-		PluginModule->Author()
-	) : L""s;
+	const auto PluginInfo = PluginModule?
+		format(FSTR(L"{} {} ({}, {})"sv),
+			PluginModule->Title(),
+			version_to_string(PluginModule->version()),
+			PluginModule->Description(),
+			PluginModule->Author()
+		) :
+		L""s;
 
-	if (!ShowExceptionUI(
-		!ForceStderrExceptionUI && Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown(),
-		Context,
-		Exception,
-		Details,
-		ExtraDetails,
-		ErrorState,
-		encoding::utf8::get_chars(Function),
-		Location,
-		strFileName,
-		PluginInformation,
-		PluginModule,
-		NestedStack
-	))
+	string Address, Name, Source;
+	tracer.get_symbol(ModuleName, Context.exception_record().ExceptionAddress, Address, Name, Source);
+
+	Address.insert(0, L"0x"sv);
+
+	if (!Name.empty())
+		append(Address, L" - "sv, Name);
+
+	if (Source.empty())
+		Source = Location;
+
+	const auto FunctionWide = encoding::utf8::get_chars(Function);
+	const auto Errno = ErrorState.ErrnoStr();
+	const auto LastError = ErrorState.Win32ErrorStr();
+	const auto LastNtStatus = ErrorState.NtErrorStr();
+	const auto Version = self_version();
+	const auto Compiler = build::compiler();
+	const auto PeTime = pe_timestamp();
+	const auto FileTime = file_timestamp();
+	const auto OsVersion = os::version::os_version();
+	const auto KernelVersion = kernel_version();
+	const auto ConsoleHost = get_console_host();
+	const auto Parent = get_parent_process();
+
+
+	std::pair<string_view, string_view> const BasicInfo[]
+	{
+		{ L"Exception:"sv, Exception,     },
+		{ L"Details:  "sv, Details,       },
+		{ L"errno:    "sv, Errno,         },
+		{ L"LastError:"sv, LastError,     },
+		{ L"NTSTATUS: "sv, LastNtStatus,  },
+		{ L"Address:  "sv, Address,       },
+		{ L"Function: "sv, FunctionWide,  },
+		{ L"Source:   "sv, Source,        },
+		{ L"File:     "sv, ModuleName,    },
+		{ L"Plugin:   "sv, PluginInfo,    },
+		{},
+		{ L"Far:      "sv, Version,       },
+		{ L"Compiler: "sv, Compiler,      },
+		{ L"PE time:  "sv, PeTime,        },
+		{ L"File time:"sv, FileTime,      },
+		{ L"OS:       "sv, OsVersion,     },
+		{ L"Kernel:   "sv, KernelVersion, },
+		{ L"Host:     "sv, ConsoleHost,   },
+		{ L"Parent:   "sv, Parent,        },
+	};
+
+	const auto log_message = [&]
+	{
+		auto LogMessage = join(L"\n"sv, select(BasicInfo, [](auto const& Pair)
+		{
+			return format(FSTR(L"{} {}"sv), Pair.first, Pair.second);
+		}));
+
+		LogMessage += L"\n\n"sv;
+
+		get_backtrace(ModuleName, tracer.get(ModuleName, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
+		{
+			append(LogMessage, Line, L'\n');
+		});
+
+		return LogMessage;
+	};
+
+	LOG(PluginModule? logging::level::error : logging::level::fatal, L"\n{}\n"sv, log_message());
+
+	const auto ReportLocation = get_report_location();
+	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDDUMP_NAME)), MiniDumpNormal);
+	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), MiniDumpWithFullMemory);
+	const auto BugReport = collect_information(Context, NestedStack, ModuleName, BasicInfo, ExtraDetails);
+	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
+	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
+	const auto ReadmeOnDisk = write_readme(path::join(ReportLocation, L"README.txt"sv));
+	const auto AnythingOnDisk = ReportOnDisk || MinidumpNormal || MinidumpFull || ReadmeOnDisk;
+
+	if (AnythingOnDisk && os::is_interactive_user_session())
+		OpenFolderInShell(ReportLocation);
+
+	const auto UseDialog = !ForceStderrExceptionUI && Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown();
+
+	const auto InvokeHandler = AnythingOnDisk || ReportInClipboard?
+		(UseDialog? ExcDialog : ExcConsole)(
+			AnythingOnDisk?
+				ReportLocation :
+				msg(lng::MExceptionDialogClipboard),
+			PluginInfo
+		) :
+		// Should never happen - neither the filesystem nor clipboard are writable, so just dump it to the screen:
+		ExcConsole(BugReport, PluginInfo);
+
+	if (!InvokeHandler)
 	{
 		ExceptionHandlingIgnored = true;
 		return false;
@@ -1454,6 +1494,7 @@ static bool handle_std_exception(
 	const Plugin* const Module
 )
 {
+	error_state_ex const LastError{ os::last_error(), {}, errno };
 	const auto& [Type, What] = extract_nested_exceptions(Context.exception_record(), e);
 
 	if (const auto FarException = dynamic_cast<const detail::far_base_exception*>(&e))
@@ -1467,7 +1508,7 @@ static bool handle_std_exception(
 		return handle_generic_exception(Context, FarException->function(), FarException->location(), Module, Type, What, *FarException, NestedStack);
 	}
 
-	return handle_generic_exception(Context, Function, {}, Module, Type, What);
+	return handle_generic_exception(Context, Function, {}, Module, Type, What, LastError);
 }
 
 bool handle_std_exception(const std::exception& e, std::string_view const Function, const Plugin* const Module)
@@ -1480,11 +1521,11 @@ class seh_exception::seh_exception_impl
 public:
 	explicit seh_exception_impl(EXCEPTION_POINTERS const& Pointers):
 		Context(Pointers),
-		ErrorState(last_error())
+		ErrorState(os::last_error())
 	{}
 
 	seh_exception_context Context;
-	error_state ErrorState;
+	os::error_state ErrorState;
 };
 
 seh_exception::seh_exception():
@@ -1513,8 +1554,6 @@ void seh_exception::raise()
 	};
 
 	RaiseException(STATUS_FAR_THREAD_RETHROW, 0, static_cast<DWORD>(std::size(Arguments)), Arguments);
-
-	dismiss();
 }
 
 void seh_exception::dismiss()
@@ -1534,6 +1573,7 @@ static bool handle_seh_exception(
 	Plugin const* const PluginModule
 )
 {
+	error_state_ex const LastError{ os::last_error(), {}, errno };
 	const auto& Record = Context.exception_record();
 
 	if (Record.ExceptionCode == static_cast<DWORD>(STATUS_FAR_THREAD_RETHROW) && Record.NumberParameters == 1)
@@ -1549,7 +1589,7 @@ static bool handle_seh_exception(
 			return handle_std_exception(Context, view_as<std::exception>(Record.ExceptionInformation[1]), Function, PluginModule);
 	}
 
-	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {});
+	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {}, LastError);
 }
 
 bool handle_unknown_exception(std::string_view const Function, const Plugin* const Module)
@@ -1606,7 +1646,9 @@ static void seh_abort_handler_impl()
 		static_cast<CONTEXT*>(*dummy_current_exception_context())
 	});
 
-	if (handle_generic_exception(Context, CURRENT_FUNCTION_NAME, {}, {}, {}, L"Abnormal termination"sv))
+	error_state_ex const LastError{ os::last_error(), {}, errno };
+
+	if (handle_generic_exception(Context, CURRENT_FUNCTION_NAME, {}, {}, {}, L"Abnormal termination"sv, LastError))
 		os::process::terminate_by_user();
 
 	restore_system_exception_handler();
@@ -1688,13 +1730,16 @@ static void invalid_parameter_handler_impl(const wchar_t* const Expression, cons
 		static_cast<CONTEXT*>(*dummy_current_exception_context())
 	});
 
+	error_state_ex const LastError{ os::last_error(), {}, errno };
+
 	if (handle_generic_exception(
 		Context,
 		Function? encoding::utf8::get_bytes(Function) : CURRENT_FUNCTION_NAME,
 		format(FSTR(L"{}({})"sv), File? File : WIDE(CURRENT_FILE_NAME), File? Line : __LINE__),
 		{},
 		{},
-		Expression? Expression : L"Invalid parameter"sv
+		Expression? Expression : L"Invalid parameter"sv,
+		LastError
 	))
 		os::process::terminate_by_user();
 

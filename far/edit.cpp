@@ -1545,6 +1545,13 @@ void Edit::SetString(string_view Str, bool const KeepSelection)
 	if (m_Flags.Check(FEDITLINE_READONLY))
 		return;
 
+	string StrCopy;
+	if (within(m_Str, Str))
+	{
+		StrCopy = Str;
+		Str = StrCopy;
+	}
+
 	// коррекция вставляемого размера, если определен GetMaxLength()
 	if (GetMaxLength() != -1 && Str.size() > static_cast<size_t>(GetMaxLength()))
 	{

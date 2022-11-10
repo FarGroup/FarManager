@@ -56,7 +56,7 @@ class EditControl final: public Edit
 	struct Callback;
 	using parent_processkey_t = std::function<int(const Manager::Key& Key)>;
 public:
-	EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey = nullptr, Callback* aCallback = nullptr, History* iHistory = nullptr, FarList* iList = nullptr, DWORD iFlags = 0);
+	EditControl(window_ptr Owner, SimpleScreenObject* Parent, parent_processkey_t&& ParentProcessKey = nullptr, Callback const* aCallback = nullptr, History* iHistory = nullptr, FarList* iList = nullptr, DWORD iFlags = 0);
 
 	bool ProcessKey(const Manager::Key& Key) override;
 	bool ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;

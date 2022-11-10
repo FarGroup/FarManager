@@ -1963,8 +1963,6 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 			ReCompileErrorMessage(e, strLastSearchStr);
 			return; //BUGBUG
 		}
-
-		Match.resize(re.GetBracketsCount() * 2);
 	}
 
 	searchers Searchers;
@@ -2014,7 +2012,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 				LastSearchWholeWords,
 				false,
 				LastSearchRegexp,
-				&SearchLength,
+				SearchLength,
 				Global->Opt->EdOpt.strWordDiv
 			))
 			{

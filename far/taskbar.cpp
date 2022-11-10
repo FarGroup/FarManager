@@ -38,10 +38,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "console.hpp"
-#include "exception.hpp"
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.com.hpp"
 #include "platform.concurrency.hpp"
 #include "platform.debug.hpp"
@@ -172,7 +172,7 @@ void taskbar::flash()
 
 	if (!GetWindowInfo(ConsoleWindow, &WindowInfo))
 	{
-		LOGWARNING(L"GetWindowInfo(ConsoleWindow): {}"sv, last_error());
+		LOGWARNING(L"GetWindowInfo(ConsoleWindow): {}"sv, os::last_error());
 		return;
 	}
 

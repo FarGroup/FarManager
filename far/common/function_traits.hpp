@@ -42,6 +42,7 @@ namespace detail
 	struct function_traits_impl
 	{
 		using result_type = result;
+		using signature_type = result(args...);
 
 		static constexpr auto arity = sizeof...(args);
 

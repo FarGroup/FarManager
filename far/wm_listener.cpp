@@ -41,11 +41,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "notification.hpp"
 #include "global.hpp"
-#include "exception.hpp"
 #include "exception_handler.hpp"
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.debug.hpp"
 #include "platform.fs.hpp"
 
@@ -187,7 +187,7 @@ void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 
 	if (!RegisterClassEx(&wc))
 	{
-		LOGERROR(L"RegisterClassEx(): {}"sv, last_error());
+		LOGERROR(L"RegisterClassEx(): {}"sv, os::last_error());
 		ReadyEvent.set();
 		return;
 	}
@@ -195,13 +195,13 @@ void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 	SCOPE_EXIT
 	{
 		if (!UnregisterClass(wc.lpszClassName, {}))
-			LOGWARNING(L"UnregisterClass(): {}"sv, last_error());
+			LOGWARNING(L"UnregisterClass(): {}"sv, os::last_error());
 	};
 
 	m_Hwnd = CreateWindowEx(0, wc.lpszClassName, nullptr, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, nullptr, nullptr);
 	if (!m_Hwnd)
 	{
-		LOGERROR(L"CreateWindowEx(): {}"sv, last_error());
+		LOGERROR(L"CreateWindowEx(): {}"sv, os::last_error());
 		ReadyEvent.set();
 		return;
 	}
@@ -213,13 +213,13 @@ void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 
 	if (!hpn && imports.RegisterPowerSettingNotification)
 	{
-		LOGWARNING(L"RegisterPowerSettingNotification(): {}"sv, last_error());
+		LOGWARNING(L"RegisterPowerSettingNotification(): {}"sv, os::last_error());
 	}
 
 	SCOPE_EXIT
 	{
 		if (hpn && !imports.UnregisterPowerSettingNotification(hpn))
-			LOGWARNING(L"UnregisterPowerSettingNotification(): {}"sv, last_error());
+			LOGWARNING(L"UnregisterPowerSettingNotification(): {}"sv, os::last_error());
 	};
 
 	MSG Msg;
@@ -235,7 +235,7 @@ void wm_listener::WindowThreadRoutine(const os::event& ReadyEvent)
 
 		if (Result < 0)
 		{
-			LOGERROR(L"GetMessage(): {}"sv, last_error());
+			LOGERROR(L"GetMessage(): {}"sv, os::last_error());
 			return;
 		}
 

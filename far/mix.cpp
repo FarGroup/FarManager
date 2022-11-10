@@ -43,10 +43,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "dlgedit.hpp"
 #include "strmix.hpp"
-#include "exception.hpp"
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 
@@ -106,7 +106,7 @@ string MakeTemp(string_view Prefix, bool const WithTempPath, string_view const U
 		// BUGBUG check result
 		if (!os::fs::GetTempPath(strPath))
 		{
-			LOGWARNING(L"GetTempPath(): {}"sv, last_error());
+			LOGWARNING(L"GetTempPath(): {}"sv, os::last_error());
 		}
 	}
 	else if(!UserTempPath.empty())

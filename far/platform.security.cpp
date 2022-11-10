@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.security.hpp"
 
 // Internal:
-#include "exception.hpp"
 #include "log.hpp"
 
 // Platform:
@@ -69,7 +68,7 @@ namespace
 			if (LookupPrivilegeValue(nullptr, MapKey.c_str(), &Luid))
 				MapValue = Luid;
 			else
-				LOGWARNING(L"LookupPrivilegeValue({}): {}"sv, MapKey, last_error());
+				LOGWARNING(L"LookupPrivilegeValue({}): {}"sv, MapKey, os::last_error());
 		}
 
 		return MapValue;

@@ -211,4 +211,6 @@ string extract_root_directory(string_view Path);
 string_view ExtractFileName(string_view Path);
 string ExtractFilePath(string_view Path);
 
+string unique_name();
+
 #endif // PATHMIX_HPP_4A60B3C3_4328_407E_A0E8_F55A9A9BE343

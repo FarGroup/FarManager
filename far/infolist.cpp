@@ -400,28 +400,33 @@ void InfoList::DisplayObject()
 		}
 		else
 		{
-			str = FileSizeToStr(Size, 16, COLFLAGS_FLOATSIZE | COLFLAGS_SHOW_MULTIPLIER);
+			str = FileSizeToStr(Size, 0, COLFLAGS_FLOATSIZE | COLFLAGS_SHOW_MULTIPLIER);
 			if (str.back() != bytes_suffix[0])
 				str += bytes_suffix;
 		}
 		return str;
 	};
 
+	const auto PrintMetricText = [&](lng const Kind, lng const Metric)
+	{
+		PrintText(format(FSTR(L"{}, {}"sv), msg(Kind), msg(Metric)));
+	};
+
+	const auto PrintMetric = [&](lng const Kind, unsigned long long const Total, unsigned long long const Available)
+	{
+		GotoXY(m_Where.left + 2, CurY++);
+		PrintMetricText(Kind, lng::MInfoMetricTotal);
+		PrintInfo(size2str(Total));
+		GotoXY(m_Where.left + 2, CurY++);
+		PrintMetricText(Kind, lng::MInfoMetricAvailable);
+		PrintInfo(format(FSTR(L"{}%, {}"sv), ToPercent(Available, Total), size2str(Available)));
+	};
+
 	if (SectionState[ILSS_DISKINFO].Show)
 	{
 		/* #2.2 - disk info: size */
-		unsigned long long TotalSize, UserFree;
-
-		if (os::fs::get_disk_size(m_CurDir,&TotalSize, nullptr, &UserFree))
-		{
-			GotoXY(m_Where.left + 2, CurY++);
-			PrintText(lng::MInfoDiskTotal);
-			PrintInfo(size2str(TotalSize));
-
-			GotoXY(m_Where.left + 2, CurY++);
-			PrintText(lng::MInfoDiskFree);
-			PrintInfo(size2str(UserFree));
-		}
+		if (unsigned long long TotalSize, UserFree; os::fs::get_disk_size(m_CurDir, &TotalSize, {}, &UserFree))
+			PrintMetric(lng::MInfoDiskSpace, TotalSize, UserFree);
 
 		/* #4 - disk info: label & SN */
 		GotoXY(m_Where.left + 2, CurY++);
@@ -441,44 +446,16 @@ void InfoList::DisplayObject()
 		MEMORYSTATUSEX ms{ sizeof(ms) };
 		if (GlobalMemoryStatusEx(&ms))
 		{
-			if (!ms.dwMemoryLoad)
-				ms.dwMemoryLoad=100-ToPercent(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
+			PrintMetric(lng::MInfoMemoryCommittable, ms.ullTotalPageFile, ms.ullAvailPageFile);
+			PrintMetric(lng::MInfoMemoryAddressable, ms.ullTotalVirtual, ms.ullAvailVirtual);
+			PrintMetric(lng::MInfoMemoryPhysical, ms.ullTotalPhys, ms.ullAvailPhys);
 
-			GotoXY(m_Where.left + 2, CurY++);
-			PrintText(lng::MInfoMemoryLoad);
-			PrintInfo(str(ms.dwMemoryLoad) + L'%');
-
-			ULONGLONG TotalMemoryInKilobytes=0;
-			if(imports.GetPhysicallyInstalledSystemMemory && imports.GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
+			if (ULONGLONG TotalMemoryInKilobytes; imports.GetPhysicallyInstalledSystemMemory && imports.GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
 			{
 				GotoXY(m_Where.left + 2, CurY++);
-				PrintText(lng::MInfoMemoryInstalled);
+				PrintMetricText(lng::MInfoMemoryPhysical, lng::MInfoMetricMemoryInstalled);
 				PrintInfo(size2str(TotalMemoryInKilobytes << 10));
 			}
-
-			GotoXY(m_Where.left + 2, CurY++);
-			PrintText(lng::MInfoMemoryTotal);
-			PrintInfo(size2str(ms.ullTotalPhys));
-
-			GotoXY(m_Where.left + 2, CurY++);
-			PrintText(lng::MInfoMemoryFree);
-			PrintInfo(size2str(ms.ullAvailPhys));
-
-			GotoXY(m_Where.left + 2, CurY++);
-			PrintText(lng::MInfoVirtualTotal);
-			PrintInfo(size2str(ms.ullTotalVirtual));
-
-			GotoXY(m_Where.left + 2, CurY++);
-			PrintText(lng::MInfoVirtualFree);
-			PrintInfo(size2str(ms.ullAvailVirtual));
-
-			GotoXY(m_Where.left + 2, CurY++);
-			PrintText(lng::MInfoPageFileTotal);
-			PrintInfo(size2str(ms.ullTotalPageFile));
-
-			GotoXY(m_Where.left + 2, CurY++);
-			PrintText(lng::MInfoPageFileFree);
-			PrintInfo(size2str(ms.ullAvailPageFile));
 		}
 	}
 

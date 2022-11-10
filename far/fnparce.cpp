@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 
@@ -145,6 +146,8 @@ namespace tokens
 	const auto
 		passive_panel                = L"!#"sv,
 		active_panel                 = L"!^"sv,
+		left_panel                   = L"!["sv,
+		right_panel                  = L"!]"sv,
 		exclamation                  = L"!!"sv,
 		name_extension               = L"!.!"sv,
 		short_name                   = L"!~"sv,
@@ -356,7 +359,7 @@ static void MakeListFile(panel_ptr const& Panel, string& ListFileName, bool cons
 	{
 		if (!os::fs::delete_file(ListFileName)) // BUGBUG
 		{
-			LOGWARNING(L"delete_file({}): {}"sv, ListFileName, last_error());
+			LOGWARNING(L"delete_file({}): {}"sv, ListFileName, os::last_error());
 		}
 	};
 
@@ -394,6 +397,18 @@ static string_view ProcessMetasymbol(string_view const CurStr, subst_data& Subst
 	if (const auto Tail = tokens::skip(CurStr, tokens::active_panel))
 	{
 		SubstData.PassivePanel = false;
+		return Tail;
+	}
+
+	if (const auto Tail = tokens::skip(CurStr, tokens::left_panel))
+	{
+		SubstData.PassivePanel = SubstData.This.Panel->Parent()->IsRightActive();
+		return Tail;
+	}
+
+	if (const auto Tail = tokens::skip(CurStr, tokens::right_panel))
+	{
+		SubstData.PassivePanel = SubstData.This.Panel->Parent()->IsLeftActive();
 		return Tail;
 	}
 
@@ -673,7 +688,7 @@ static string process_subexpression(const subst_strings::item& Item, subst_data&
 	return Processed == Item.Sub?
 		string(Item.All) :
 		concat(Item.prefix(), Processed, Item.suffix());
-};
+}
 
 static bool InputVariablesDialog(string& strStr, subst_data& SubstData, string_view const DlgTitle)
 {

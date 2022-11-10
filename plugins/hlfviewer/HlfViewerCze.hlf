@@ -27,7 +27,7 @@ $ #Hlf prohlížeč: syntaxe příkazového řádku
 
    #název_souboru# - ^<wrap>název HLF souboru (musí mít příponu .HLF).
               ^<wrap>Pokud název souboru obsahuje mezery, musí být uzavřen v úvozovkách.
-              ^<wrap>Если имя файла указано без пути, то порядок поиска следущий:
+              ^<wrap>Если имя файла указано без пути, то порядок поиска следующий:
               - Текущий каталог
               - %FARHOME%
               - пути плагинов "в этой сессии" Far Manager

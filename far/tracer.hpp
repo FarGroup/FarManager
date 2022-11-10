@@ -61,7 +61,7 @@ namespace tracer_detail
 
 		std::vector<os::debug::stack_frame> get(string_view Module, CONTEXT const& ContextRecord, HANDLE ThreadHandle);
 		void get_symbols(string_view Module, span<os::debug::stack_frame const> Trace, function_ref<void(string&& Line)> Consumer) const;
-		void get_symbol(string_view Module, const void* Ptr, string& Address, string& Name, string& Source) const;
+		void get_symbol(string_view Module, const void* Ptr, string& AddressStr, string& Name, string& Source) const;
 
 		class with_symbols
 		{
@@ -78,7 +78,8 @@ namespace tracer_detail
 
 		os::concurrency::critical_section m_CS;
 		std::unique_ptr<std::unordered_map<uintptr_t, map_file>> m_MapFiles;
-		size_t m_SymInitialised{};
+		size_t m_SymInitializeLevel{};
+		bool m_SymInitialized{};
 	};
 }
 

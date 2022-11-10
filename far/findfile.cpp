@@ -85,6 +85,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.concurrency.hpp"
 #include "platform.debug.hpp"
 #include "platform.env.hpp"
@@ -430,7 +431,7 @@ private:
 	std::vector<wchar_t> readBuffer;
 	bytes hexFindString;
 	struct CodePageInfo;
-	std::list<CodePageInfo> m_CodePages;
+	std::vector<CodePageInfo> m_CodePages;
 	string strPluginSearchPath;
 
 	bool m_Autodetection;
@@ -540,14 +541,9 @@ void background_searcher::InitInFileSearch()
 					m_CodePages.emplace_back(OemCp);
 				}
 
-				const uintptr_t UnicodeCodepages[]
-				{
-					CP_UTF8,
-					CP_UNICODE,
-					CP_REVERSEBOM
-				};
-
-				m_CodePages.insert(m_CodePages.end(), ALL_CONST_RANGE(UnicodeCodepages));
+				m_CodePages.emplace_back(CP_UTF8);
+				m_CodePages.emplace_back(CP_UNICODE);
+				m_CodePages.emplace_back(CP_REVERSEBOM);
 			}
 
 			// Добавляем избранные таблицы символов
@@ -1061,7 +1057,7 @@ bool background_searcher::LookForString(string_view const FileName)
 	// BUGBUG check result
 	if (!File.GetSize(FileSize))
 	{
-		LOGWARNING(L"GetSize({}): {}"sv, File.GetName(), last_error());
+		LOGWARNING(L"GetSize({}): {}"sv, File.GetName(), os::last_error());
 	}
 
 	if (SearchInFirst)
@@ -1396,7 +1392,7 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view 
 				// BUGBUG check result
 				if (!os::fs::remove_directory(strTempDir))
 				{
-					LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, last_error());
+					LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, os::last_error());
 				}
 
 				return false;
@@ -1783,7 +1779,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 								// BUGBUG check result
 								if (!os::fs::remove_directory(strTempDir))
 								{
-									LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, last_error());
+									LOGWARNING(L"remove_directory({}): {}"sv, strTempDir, os::last_error());
 								}
 
 								return FALSE;

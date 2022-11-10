@@ -38,10 +38,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/function_ref.hpp"
+#include "common/range.hpp"
 
 // External:
 
 //----------------------------------------------------------------------------
+
+class map_file;
 
 namespace os::debug
 {
@@ -59,7 +63,36 @@ namespace os::debug
 		DWORD InlineContext;
 	};
 
-	std::vector<stack_frame> current_stack(size_t FramesToSkip = 0, size_t FramesToCapture = std::numeric_limits<size_t>::max());
+	std::vector<stack_frame> current_stacktrace(size_t FramesToSkip = 0, size_t FramesToCapture = std::numeric_limits<size_t>::max());
+	std::vector<stack_frame> stacktrace(CONTEXT ContextRecord, HANDLE ThreadHandle);
+	bool is_inline_frame(DWORD InlineContext);
+
+	namespace symbols
+	{
+		struct symbol
+		{
+			string_view Name;
+			size_t Displacement{};
+		};
+
+		struct location
+		{
+			string_view FileName;
+			std::optional<size_t> Line;
+			size_t Displacement{};
+		};
+
+		bool initialize(string_view Module);
+
+		void clean();
+
+		void get(
+			string_view ModuleName,
+			span<stack_frame const> BackTrace,
+			std::unordered_map<uintptr_t, map_file>& MapFiles,
+			function_ref<void(uintptr_t, string_view, bool, symbol, location)> Consumer
+		);
+	}
 }
 
 #endif // PLATFORM_DEBUG_HPP_8453E69F_3955_416D_BB64_A3A88D3D1D8D

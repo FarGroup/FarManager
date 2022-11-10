@@ -2008,6 +2008,7 @@ enum FAR_REGEXP_CONTROL_COMMANDS
 	RECTL_MATCHEX                   = 4,
 	RECTL_SEARCHEX                  = 5,
 	RECTL_BRACKETSCOUNT             = 6,
+	RECTL_NAMEDGROUPINDEX           = 7,
 };
 
 struct RegExpMatch

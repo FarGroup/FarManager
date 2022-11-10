@@ -2984,7 +2984,6 @@ void Editor::InsertString()
 //  TextChanged(true);
 	auto SrcIndent = Lines.end();
 	intptr_t SelStart,SelEnd;
-	int NewLineEmpty=TRUE;
 	const auto NextLine = std::next(m_it_CurLine);
 	const auto NewString = InsertString({}, NextLine);
 
@@ -3053,10 +3052,7 @@ void Editor::InsertString()
 
 		NewString->SetString(string_view(CurLineStr).substr(CurPos));
 
-		if (!std::all_of(CurLineStr.cbegin() + CurPos, CurLineStr.cend(), std::iswblank))
-		{
-			NewLineEmpty = FALSE;
-		}
+		const auto NewLineEmpty = std::all_of(CurLineStr.cbegin() + CurPos, CurLineStr.cend(), std::iswblank);
 
 		AddUndoData(undo_type::begin);
 		AddUndoData(undo_type::edit, m_it_CurLine->GetString(), m_it_CurLine->GetEOL(), m_it_CurLine.Number(), m_it_CurLine->GetCurPos());
@@ -3454,7 +3450,6 @@ bool Editor::Search(bool Next)
 				ReCompileErrorMessage(e, strSearchStr);
 				return false; //BUGBUG
 			}
-			Match.resize(re.GetBracketsCount() * 2);
 		}
 
 		QuotedStr = quote_unconditional(strSearchStr);
@@ -3506,7 +3501,7 @@ bool Editor::Search(bool Next)
 				ReverseSearch,
 				Regexp,
 				PreserveStyle,
-				&SearchLength,
+				SearchLength,
 				GetWordDiv()
 			))
 			{

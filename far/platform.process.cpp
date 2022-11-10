@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.process.hpp"
 
 // Internal:
-#include "exception.hpp"
 #include "imports.hpp"
 #include "log.hpp"
 

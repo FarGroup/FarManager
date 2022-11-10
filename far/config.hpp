@@ -810,6 +810,8 @@ public:
 	SortingOptions Sort;
 
 	palette Palette;
+	BoolOption SetPalette;
+
 	BoolOption Clock;
 	BoolOption Mouse;
 	BoolOption ShowKeyBar;
@@ -1038,6 +1040,8 @@ public:
 	int WindowMode{-1};
 	BoolOption WindowModeStickyX;
 	BoolOption WindowModeStickyY;
+
+	BoolOption ClipboardUnicodeWorkaround;
 
 	std::vector<std::vector<std::pair<panel_sort, sort_order>>> PanelSortLayers;
 

@@ -96,6 +96,9 @@ namespace colors
 	size_t color_hash(const FarColor& Value);
 
 	FarColor merge(const FarColor& Bottom, const FarColor& Top);
+
+	std::array<COLORREF, 16> nt_palette();
+
 	WORD FarColorToConsoleColor(const FarColor& Color);
 	FarColor NtColorToFarColor(WORD Color);
 	COLORREF ConsoleIndexToTrueColor(COLORREF Color);

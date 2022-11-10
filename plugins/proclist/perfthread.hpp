@@ -110,6 +110,7 @@ private:
 	static DWORD WINAPI WmiThreadProc(void* Param);
 	void ThreadProc();
 	void WmiThreadProc();
+	bool RefreshImpl();
 	void Refresh();
 	void RefreshWMIData();
 

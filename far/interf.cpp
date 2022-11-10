@@ -377,6 +377,7 @@ void InitConsole()
 
 
 	SetFarConsoleMode();
+	SetPalette();
 
 	UpdateScreenSize();
 	Global->ScrBuf->FillBuf();
@@ -540,14 +541,48 @@ void SetVideoMode()
 	}
 }
 
+static bool validate_console_size(point const Size)
+{
+	// https://github.com/microsoft/terminal/issues/10337
+
+	// As of 7 Oct 2022 GetLargestConsoleWindowSize is broken in WT.
+	// It takes the current screen resolution and divides it by an inadequate font size, e.g. 1x16.
+
+	// It is unlikely that it is ever gonna be fixed, so we do a few very basic checks here to filter out obvious rubbish.
+
+	if (Size.x <= 0 || Size.y <= 0)
+		return false;
+
+	// A typical screen ratio these days is roughly 2:1.
+	// A typical font cell is about 1:2, so the expected screen ratio in cells
+	// is around 4 for the landscape and around 1 for the portrait, give or take.
+	// Anything twice larger than that is likely rubbish.
+	if (Size.x >= 8 * Size.y || Size.y >= 2 * Size.x)
+		return false;
+
+	// The API works with SHORTs, anything larger than that makes no sense.
+	if (Size.x >= std::numeric_limits<SHORT>::max() || Size.y >= std::numeric_limits<SHORT>::max())
+		return false;
+
+	return true;
+}
+
 void ChangeVideoMode(bool Maximize)
 {
 	point coordScreen;
 
 	if (Maximize)
 	{
-		SendMessage(console.GetWindow(),WM_SYSCOMMAND,SC_MAXIMIZE,0);
+		SendMessage(console.GetWindow(), WM_SYSCOMMAND, SC_MAXIMIZE, 0);
+
 		coordScreen = console.GetLargestWindowSize();
+
+		if (!validate_console_size(coordScreen))
+		{
+			LOGERROR(L"GetLargestConsoleWindowSize(): the reported size {{{}, {}}} makes no sense. Talk to your terminal or OS vendor."sv, coordScreen.x, coordScreen.y);
+			return;
+		}
+
 		coordScreen.x += Global->Opt->ScrSize.DeltaX;
 		coordScreen.y += Global->Opt->ScrSize.DeltaY;
 	}
@@ -1206,9 +1241,7 @@ size_t string_pos_to_visual_pos(string_view Str, size_t const StringPos, size_t 
 	if (SavedState && StringPos > SavedState->StringIndex)
 		State = *SavedState;
 
-	// Lambda capture is essential here, without it the lambda will happily convert itself
-	// to a temporary function pointer and function_ref will refer to that temporary.
-	const auto nop_signal = [&](size_t, size_t){};
+	const auto nop_signal = [](size_t, size_t){};
 	const auto signal = State.signal? State.signal : nop_signal;
 
 	const auto End = std::min(Str.size(), StringPos);
@@ -1263,9 +1296,7 @@ size_t visual_pos_to_string_pos(string_view Str, size_t const VisualPos, size_t 
 	if (SavedState && VisualPos > SavedState->VisualIndex)
 		State = *SavedState;
 
-	// Lambda capture is essential here, without it the lambda will happily convert itself
-	// to a temporary function pointer and function_ref will refer to that temporary.
-	const auto nop_signal = [&](size_t, size_t){};
+	const auto nop_signal = [](size_t, size_t){};
 	const auto signal = State.signal? State.signal : nop_signal;
 
 	const auto End = Str.size();
@@ -1622,6 +1653,12 @@ void AdjustConsoleScreenBufferSize()
 	}
 
 	console.SetScreenBufferSize(Size);
+}
+
+void SetPalette()
+{
+	if (Global->Opt->SetPalette)
+		console.SetPalette(colors::nt_palette());
 }
 
 static point& NonMaximisedBufferSize()

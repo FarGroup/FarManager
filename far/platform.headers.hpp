@@ -96,6 +96,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ntddscsi.h>
 #include <lmdfs.h>
 #include <dbgeng.h>
+#include <mlang.h>
 
 #define _NTSCSI_USER_MODE_
 

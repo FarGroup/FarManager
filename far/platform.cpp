@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/from_string.hpp"
 #include "common/range.hpp"
 #include "common/string_utils.hpp"
+#include "common/view/where.hpp"
 
 // External:
 #include "format.hpp"
@@ -238,6 +239,39 @@ last_error_guard::~last_error_guard()
 void last_error_guard::dismiss()
 {
 	m_Active = false;
+}
+
+string error_state::Win32ErrorStr() const
+{
+	return format_error(Win32Error);
+}
+
+string error_state::NtErrorStr() const
+{
+	return format_ntstatus(NtError);
+}
+
+string error_state::to_string() const
+{
+	const auto StrWin32Error = Win32Error? format(FSTR(L"LastError: {}"sv), Win32ErrorStr()) : L""s;
+	const auto StrNtError    = NtError?    format(FSTR(L"NTSTATUS: {}"sv),  NtErrorStr())    : L""s;
+
+	string_view const Errors[]
+	{
+		StrWin32Error,
+		StrNtError,
+	};
+
+	return join(L", "sv, where(Errors, [](string_view const Str){ return !Str.empty(); }));
+}
+
+error_state last_error()
+{
+	return
+	{
+		GetLastError(),
+		get_last_nt_status(),
+	};
 }
 
 

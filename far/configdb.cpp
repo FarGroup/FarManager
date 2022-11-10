@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.concurrency.hpp"
 #include "platform.debug.hpp"
 #include "platform.fs.hpp"
@@ -1783,7 +1784,7 @@ private:
 	os::event AsyncDeleteAddDone{os::event::type::manual, os::event::state::signaled};
 	os::event AsyncCommitDone{os::event::type::manual, os::event::state::signaled};
 	os::event AsyncWork{os::event::type::automatic, os::event::state::nonsignaled};
-	os::thread WorkThread{os::thread::mode::join, &HistoryConfigCustom::ThreadProc, this};
+	[[maybe_unused]] os::thread WorkThread{os::thread::mode::join, &HistoryConfigCustom::ThreadProc, this};
 
 	struct AsyncWorkItem
 	{
@@ -2411,7 +2412,7 @@ static string rename_bad_database(string_view const Name)
 		if (os::fs::move_file(Name, Dest))
 			return Dest;
 
-		const auto ErrorState = last_error();
+		const auto ErrorState = os::last_error();
 		if (ErrorState.Win32Error == ERROR_ALREADY_EXISTS)
 			continue;
 

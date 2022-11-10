@@ -51,57 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-error_state last_error()
-{
-	return
-	{
-		errno,
-		GetLastError(),
-		os::get_last_nt_status(),
-	};
-}
-
-string error_state::ErrnoStr() const
-{
-	return os::format_errno(Errno);
-}
-
-string error_state::Win32ErrorStr() const
-{
-	return os::format_error(Win32Error);
-}
-
-string error_state::NtErrorStr() const
-{
-	return os::format_ntstatus(NtError);
-}
-
-std::array<string, 3> error_state::format_errors() const
-{
-	return
-	{
-		ErrnoStr(),
-		Win32ErrorStr(),
-		NtErrorStr()
-	};
-}
-
-string error_state::to_string() const
-{
-	const auto StrErrno      = Errno?      format(FSTR(L"errno: {}"sv),     ErrnoStr())      : L""s;
-	const auto StrWin32Error = Win32Error? format(FSTR(L"LastError: {}"sv), Win32ErrorStr()) : L""s;
-	const auto StrNtError    = NtError?    format(FSTR(L"NTSTATUS: {}"sv),  NtErrorStr())    : L""s;
-
-	string_view const Errors[]
-	{
-		StrErrno,
-		StrWin32Error,
-		StrNtError,
-	};
-
-	return join(L", "sv, where(Errors, [](string_view const Str){ return !Str.empty(); }));
-}
-
 namespace detail
 {
 	string far_base_exception::to_string() const
@@ -112,7 +61,7 @@ namespace detail
 	}
 
 	far_base_exception::far_base_exception(bool const CaptureErrors, string_view const Message, std::string_view const Function, std::string_view const File, int const Line):
-		error_state_ex(CaptureErrors? last_error(): error_state{}, Message),
+		error_state_ex(CaptureErrors? os::last_error(): os::error_state{}, Message, CaptureErrors? errno : 0),
 		m_Function(Function),
 		m_Location(format(FSTR(L"{}({})"sv), encoding::utf8::get_chars(File), Line)),
 		m_FullMessage(format(FSTR(L"{} ({}, {})"sv), Message, encoding::utf8::get_chars(m_Function), m_Location))
@@ -131,6 +80,11 @@ namespace detail
 	}
 }
 
+string error_state_ex::ErrnoStr() const
+{
+	return os::format_errno(Errno);
+}
+
 string error_state_ex::system_error() const
 {
 	constexpr auto UseNtMessages = false;
@@ -139,9 +93,16 @@ string error_state_ex::system_error() const
 
 string error_state_ex::to_string() const
 {
-	return any()?
-		format(FSTR(L"Message: {}, Error: {}"sv), What, error_state::to_string()) :
-		format(FSTR(L"Message: {}"sv), What);
+	if (any())
+	{
+		auto Str = error_state::to_string();
+		if (Errno)
+			Str = concat(ErrnoStr(), L", "sv, Str);
+
+		return format(FSTR(L"Message: {}, Error: {}"sv), What, Str);
+	}
+
+	return format(FSTR(L"Message: {}"sv), What);
 }
 
 string formattable<std::exception>::to_string(std::exception const& e)

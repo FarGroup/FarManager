@@ -633,26 +633,32 @@ local function ErrMsgLoad (msg, filename, isMoonScript, mode)
   end
 
   if mode=="run" then
-    local found = false
-    local fname,line = msg:match("^(.-):(%d+):")
+    local fname, line, found
+    fname = msg:match("^error loading module .- from file '([^\n]+)':")
     if fname then
-      line = tonumber(line)
-      if string_sub(fname,1,3) ~= "..." then
-        found = true
-      else
-        fname = string_sub(fname,4)
-        -- for k=1,5 do
-        --   if fname:utf8valid() then break end
-        --   fname = string_sub(fname,2)
-        -- end
-        fname = fname:gsub("/", "\\")
-        local middle = fname:match([=[^[^\\]*\[^\\]+\]=])
-        if middle then
-          local from = string_find(filename:lower(), middle:lower(), 1, true)
-          if from then
-            fname = string_sub(filename,1,from-1) .. fname
-            local attr = win.GetFileAttr(fname)
-            found = attr and not attr:find("d")
+      found = true
+      line = tonumber(msg:match("^.-\n.-:(%d+):"))
+    else
+      fname,line = msg:match("^(.-):(%d+):")
+      if fname then
+        line = tonumber(line)
+        if string_sub(fname,1,3) ~= "..." then
+          found = true
+        else
+          fname = string_sub(fname,4)
+          -- for k=1,5 do
+          --   if fname:utf8valid() then break end
+          --   fname = string_sub(fname,2)
+          -- end
+          fname = fname:gsub("/", "\\")
+          local middle = fname:match([=[^[^\\]*\[^\\]+\]=])
+          if middle then
+            local from = string_find(filename:lower(), middle:lower(), 1, true)
+            if from then
+              fname = string_sub(filename,1,from-1) .. fname
+              local attr = win.GetFileAttr(fname)
+              found = attr and not attr:find("d")
+            end
           end
         end
       end
@@ -669,7 +675,7 @@ local function ErrMsgLoad (msg, filename, isMoonScript, mode)
     if 2 == far.Message(msg, title, "OK;Edit", "wl") then
       local pattern = isMoonScript and "%[(%d+)%] >>" or "^[^\n]-:(%d+):"
       local line = tonumber(msg:match(pattern))
-      if line and isMoonScript and mode=="run" then line = GetMoonscriptLineNumber(filename,line) end
+      if line and isMoonScript then line = GetMoonscriptLineNumber(filename,line) end
       editor.Editor(filename,nil,nil,nil,nil,nil,nil,line or 1,nil,65001)
     end
   end

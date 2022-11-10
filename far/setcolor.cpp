@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "global.hpp"
 #include "lockscrn.hpp"
+#include "FarDlgBuilder.hpp"
 
 // Platform:
 
@@ -141,10 +142,18 @@ static void SetItemColors(span<const color_item> const Items, point Position = {
 	});
 }
 
+void ConfigurePalette()
+{
+	DialogBuilder Builder(lng::MColorsPalette, {});
+	Builder.AddCheckbox(lng::MColorsClassicPalette, Global->Opt->SetPalette);
+	Builder.AddOKCancel();
+	Builder.ShowDialog();
+}
+
 void SetColors()
 {
-	static const color_item
-	PanelItems[] =
+	static constexpr color_item
+	PanelItems[]
 	{
 		{ lng::MSetColorPanelNormal,                COL_PANELTEXT },
 		{ lng::MSetColorPanelSelected,              COL_PANELSELECTEDTEXT },
@@ -163,7 +172,7 @@ void SetColors()
 		{ lng::MSetColorPanelScreensNumber,         COL_PANELSCREENSNUMBER },
 	},
 
-	ListItemsNormal[] =
+	ListItemsNormal[]
 	{
 		{ lng::MSetColorDialogListText,                          COL_DIALOGLISTTEXT },
 		{ lng::MSetColorDialogListHighLight,                     COL_DIALOGLISTHIGHLIGHT },
@@ -180,7 +189,7 @@ void SetColors()
 		{ lng::MSetColorDialogSelectedListGrayed,                COL_DIALOGLISTSELECTEDGRAYTEXT },
 	},
 
-	ListItemsWarn[] =
+	ListItemsWarn[]
 	{
 		{ lng::MSetColorDialogListText,                          COL_WARNDIALOGLISTTEXT },
 		{ lng::MSetColorDialogListHighLight,                     COL_WARNDIALOGLISTHIGHLIGHT },
@@ -197,7 +206,7 @@ void SetColors()
 		{ lng::MSetColorDialogSelectedListGrayed,                COL_WARNDIALOGLISTSELECTEDGRAYTEXT },
 	},
 
-	ComboItemsNormal[] =
+	ComboItemsNormal[]
 	{
 		{ lng::MSetColorDialogListText,                          COL_DIALOGCOMBOTEXT },
 		{ lng::MSetColorDialogListHighLight,                     COL_DIALOGCOMBOHIGHLIGHT },
@@ -214,7 +223,7 @@ void SetColors()
 		{ lng::MSetColorDialogSelectedListGrayed,                COL_DIALOGCOMBOSELECTEDGRAYTEXT },
 	},
 
-	ComboItemsWarn[] =
+	ComboItemsWarn[]
 	{
 		{ lng::MSetColorDialogListText,                          COL_WARNDIALOGCOMBOTEXT },
 		{ lng::MSetColorDialogListHighLight,                     COL_WARNDIALOGCOMBOHIGHLIGHT },
@@ -231,7 +240,7 @@ void SetColors()
 		{ lng::MSetColorDialogSelectedListGrayed,                COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT },
 	},
 
-	DialogItems[] =
+	DialogItems[]
 	{
 		{ lng::MSetColorDialogNormal,                                   COL_DIALOGTEXT },
 		{ lng::MSetColorDialogHighlighted,                              COL_DIALOGHIGHLIGHTTEXT },
@@ -255,7 +264,7 @@ void SetColors()
 		{ lng::MSetColorDialogComboBoxControl,                          {}, ComboItemsNormal },
 	},
 
-	WarnDialogItems[] =
+	WarnDialogItems[]
 	{
 		{ lng::MSetColorDialogNormal,                                   COL_WARNDIALOGTEXT },
 		{ lng::MSetColorDialogHighlighted,                              COL_WARNDIALOGHIGHLIGHTTEXT },
@@ -279,7 +288,7 @@ void SetColors()
 		{ lng::MSetColorDialogComboBoxControl,                          {}, ComboItemsWarn },
 	},
 
-	MenuItems[] =
+	MenuItems[]
 	{
 		{ lng::MSetColorMenuNormal,                   COL_MENUTEXT },
 		{ lng::MSetColorMenuSelected,                 COL_MENUSELECTEDTEXT },
@@ -296,7 +305,7 @@ void SetColors()
 		{ lng::MSetColorMenuSelectedGrayed,           COL_MENUSELECTEDGRAYTEXT },
 	},
 
-	HMenuItems[] =
+	HMenuItems[]
 	{
 		{ lng::MSetColorHMenuNormal,                  COL_HMENUTEXT },
 		{ lng::MSetColorHMenuSelected,                COL_HMENUSELECTEDTEXT },
@@ -304,14 +313,14 @@ void SetColors()
 		{ lng::MSetColorHMenuSelectedHighlighted,     COL_HMENUSELECTEDHIGHLIGHT },
 	},
 
-	KeyBarItems[] =
+	KeyBarItems[]
 	{
 		{ lng::MSetColorKeyBarNumbers,                COL_KEYBARNUM },
 		{ lng::MSetColorKeyBarNames,                  COL_KEYBARTEXT },
 		{ lng::MSetColorKeyBarBackground,             COL_KEYBARBACKGROUND },
 	},
 
-	CommandLineItems[] =
+	CommandLineItems[]
 	{
 		{ lng::MSetColorCommandLineNormal,            COL_COMMANDLINE },
 		{ lng::MSetColorCommandLineSelected,          COL_COMMANDLINESELECTED },
@@ -319,14 +328,14 @@ void SetColors()
 		{ lng::MSetColorCommandLineUserScreen,        COL_COMMANDLINEUSERSCREEN },
 	},
 
-	ClockItems[] =
+	ClockItems[]
 	{
 		{ lng::MSetColorClockNormal,                  COL_CLOCK },
 		{ lng::MSetColorClockNormalEditor,            COL_EDITORCLOCK },
 		{ lng::MSetColorClockNormalViewer,            COL_VIEWERCLOCK },
 	},
 
-	ViewerItems[] =
+	ViewerItems[]
 	{
 		{ lng::MSetColorViewerNormal,                 COL_VIEWERTEXT },
 		{ lng::MSetColorViewerSelected,               COL_VIEWERSELECTEDTEXT },
@@ -335,7 +344,7 @@ void SetColors()
 		{ lng::MSetColorViewerScrollbar,              COL_VIEWERSCROLLBAR },
 	},
 
-	EditorItems[] =
+	EditorItems[]
 	{
 		{ lng::MSetColorEditorNormal,                 COL_EDITORTEXT },
 		{ lng::MSetColorEditorSelected,               COL_EDITORSELECTEDTEXT, {}, &EditorItems[0].Color },
@@ -343,7 +352,7 @@ void SetColors()
 		{ lng::MSetColorEditorScrollbar,              COL_EDITORSCROLLBAR },
 	},
 
-	HelpItems[] =
+	HelpItems[]
 	{
 		{ lng::MSetColorHelpNormal,                   COL_HELPTEXT },
 		{ lng::MSetColorHelpHighlighted,              COL_HELPHIGHLIGHTTEXT },
@@ -355,8 +364,7 @@ void SetColors()
 	};
 
 	{
-		// NOT constexpr, see VS bug #3103404
-		static const struct
+		static constexpr struct
 		{
 			lng MenuId;
 			span<const color_item> Subitems;
@@ -389,10 +397,20 @@ void SetColors()
 			GroupsMenu->AddItem(tmp);
 		}
 
-		const auto DefaultId = static_cast<int>(GroupsMenu->size());
+		const auto DefaultIndexId = static_cast<int>(GroupsMenu->size());
 		GroupsMenu->AddItem(msg(lng::MSetDefaultColors));
-		const auto BlackWhiteId = static_cast<int>(GroupsMenu->size());
-		GroupsMenu->AddItem(msg(lng::MSetBW));
+		const auto DefaultRGBId = static_cast<int>(GroupsMenu->size());
+		GroupsMenu->AddItem(msg(lng::MSetDefaultColorsRGB));
+		GroupsMenu->SetHelp(L"ColorGroups"sv);
+
+		{
+			MenuItemEx tmp;
+			tmp.Flags = LIF_SEPARATOR;
+			GroupsMenu->AddItem(tmp);
+		}
+
+		const auto PaletteId = static_cast<int>(GroupsMenu->size());
+		GroupsMenu->AddItem(msg(lng::MColorsPalette));
 
 		GroupsMenu->SetPosition({ 2, 1, 0, 0 });
 		GroupsMenu->SetMenuFlags(VMENU_WRAPMODE);
@@ -405,16 +423,19 @@ void SetColors()
 			return 1;
 		});
 
-		if (GroupsCode == DefaultId)
+		if (GroupsCode == DefaultIndexId)
 		{
-			Global->Opt->Palette.ResetToDefault();
+			Global->Opt->Palette.ResetToDefaultIndex();
 		}
-		else if (GroupsCode == BlackWhiteId)
+		else if (GroupsCode == DefaultRGBId)
 		{
-			Global->Opt->Palette.ResetToBlack();
+			Global->Opt->Palette.ResetToDefaultRGB();
+		}
+		else if (GroupsCode == PaletteId)
+		{
+			ConfigurePalette();
 		}
 	}
 	Global->CtrlObject->Cp()->SetScreenPosition();
-	Global->CtrlObject->Cp()->LeftPanel()->Redraw();
-	Global->CtrlObject->Cp()->RightPanel()->Redraw();
+	Global->CtrlObject->Cp()->Redraw();
 }

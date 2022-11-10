@@ -197,8 +197,7 @@ namespace tests
 		{
 			~c() noexcept(false)
 			{
-				volatile const auto Throw = true;
-				if (Throw)
+				if (volatile const auto Throw = true)
 					throw MAKE_FAR_EXCEPTION(L"Dtor exception"s);
 			}
 		};
@@ -315,14 +314,17 @@ namespace tests
 	}
 
 	static volatile const int NotExecutable = 42;
-	static void seh_access_violation_execute()
+	static void seh_access_violation_ex_nx()
 	{
 		using func_t = void(*)();
 
-		// Try something real first to see the address
 		reinterpret_cast<func_t>(const_cast<int*>(&NotExecutable))();
+	}
 
-		// Fallback
+	static void seh_access_violation_ex_nul()
+	{
+		using func_t = void(*)();
+
 		volatile const func_t InvalidAddress = nullptr;
 		InvalidAddress();
 	}
@@ -505,7 +507,7 @@ static bool trace()
 	Menu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 	Menu->SetPosition({ -1, -1, 0, 0 });
 
-	tracer.get_symbols({}, os::debug::current_stack(), [&](string_view const Line)
+	tracer.get_symbols({}, os::debug::current_stacktrace(), [&](string_view const Line)
 	{
 		Menu->AddItem(string(Line));
 	});
@@ -554,7 +556,8 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::cpp_assertion_failure,        L"C++ assertion failure"sv },
 		{ tests::seh_access_violation_read,    L"SEH access violation (read)"sv },
 		{ tests::seh_access_violation_write,   L"SEH access violation (write)"sv },
-		{ tests::seh_access_violation_execute, L"SEH access violation (execute)"sv },
+		{ tests::seh_access_violation_ex_nx,   L"SEH access violation (execute NX)"sv },
+		{ tests::seh_access_violation_ex_nul,  L"SEH access violation (execute nullptr)"sv },
 		{ tests::seh_divide_by_zero,           L"SEH divide by zero"sv },
 		{ tests::seh_divide_by_zero_thread,    L"SEH divide by zero (thread)"sv },
 		{ tests::seh_int_overflow,             L"SEH int overflow"sv },

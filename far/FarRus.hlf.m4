@@ -1609,10 +1609,7 @@ $ #Меню параметров#
 
  #Кодовые страницы#     Управление ~кодовыми страницами~@CodePagesMenu@.
 
- #Цвета#                Изменение цвета различных элементов
-                      интерфейса или изменение всей палитры цветов
-                      либо на чёрно-белую, либо на предлагаемую
-                      по умолчанию.
+ #Цвета#                Shows the ~Color groups~@ColorGroups@ menu.
 
  #Раскраска файлов#     Редактирование
  #и группы сортировки#  ~раскраски файлов и групп сортировки~@Highlight@.
@@ -2363,6 +2360,22 @@ grep !?В (!.!) найти:?! |Far.exe -v -.
 пассивной панели с таким же именем, как имя текущего
 файла на активной панели.
 
+ #![#
+ "![" prefix forces all subsequent special symbols
+to refer to the left panel (see note 4).
+For example, ![!.! denotes a current file name on
+the left panel, ![!\\!^!.! - a file on the left
+panel with the same name as the name of the current
+file on the active panel.
+
+ #!]#
+ "!]" prefix forces all subsequent special symbols
+to refer to the right panel (see note 4).
+For example, !]!.! denotes a current file name on
+the right panel, !]!\\!^!.! - a file on the right
+panel with the same name as the name of the current
+file on the active panel.
+
  Примечания:
 
  1. ^<wrap>Far при обработке метасимволов подставляется только то, что они означают
@@ -2392,7 +2405,7 @@ grep !?В (!.!) найти:?! |Far.exe -v -.
  3. ^<wrap>Метасимволы !@@! и !$! в меню выбора (когда задано несколько ассоциаций) и меню пользователя
 показываются как есть, преобразование происходит в момент исполнения команды.
 
- 4. ^<wrap>Префиксы "!##" и "!^" работают как переключатели.
+ 4. ^<wrap>Префиксы "!##", "!^", "![" и "!]" работают как переключатели.
 Действие этих префиксов распространяется до следующего подобного префикса. Например:
 
     if exist !##!\\!^!.! diff -c -p !##!\\!^!.! !\\!.!
@@ -4358,6 +4371,33 @@ Far всегда использует настоящий регистр.
  См. также: клавиатурные команды, общие ~для всех меню~@MenuCmd@.
 
 
+@ColorGroups
+$ #Color groups#
+ Это меню позволяет измененить цвета различных элементов интерфейса или всей палитры цветов на предлагаемую по умолчанию.
+
+ #Set default colors#
+ Set the colors to default values, expressed as indices in the console palette.
+
+ #Set default colors (RGB)#
+ Set the colors to default values, expressed as colors in RGB space, normally used for the corresponding console palette indices.
+ Unlike the indices in the console palette, the RGB values are device-independent and will look the same in any terminal.
+ For example, the default #index# value of panels background is #1#, which is usually, but not necessarily, mapped to some unspecified shade of blue.
+ The default #RGB# value of panels background, on the contrary, is always exactly #000080#.
+
+ #Note#: RGB colors require Virtual Terminal-based rendering, which can be enabled in ~Interface settings~@InterfSettings@.
+If it is not enabled or if your terminal does not support RGB colors, they will be approximated to the closest console palette indices.
+
+ This is the current palette:
+
+ \00  \10  \20  \30  \40  \50  \60  \70  \-
+ \80  \90  \A0  \B0  \C0  \D0  \E0  \F0  \-
+
+ This is the default RGB representation:
+
+ \(T0:T000000)  \(T0:T000080)  \(T0:T008000)  \(T0:T008080)  \(T0:T800000)  \(T0:T800080)  \(T0:T808000)  \(T0:TC0C0C0)  \-
+ \(T0:T808080)  \(T0:T0000FF)  \(T0:T00FF00)  \(T0:T00FFFF)  \(T0:TFF0000)  \(T0:TFF00FF)  \(T0:TFFFF00)  \(T0:TFFFFFF)  \-
+
+
 @ColorPicker
 $ #Color Picker#
  This dialog allows to define a foreground color, a background color and a text style.
@@ -4902,9 +4942,9 @@ $ #Команды операционной системы#
 не существует, и переменная среды «variable» определена.
  #if exist file1 if not exist file2 if defined variable command#
 
- #PUSHD path#
- Сохраняет текущий путь для использования командой «POPD» и меняет
-текущий путь на активной панели на указанный «path».
+ #PUSHD [path]#
+ Сохраняет текущий путь для использования командой «POPD».
+If “path” is specified, changes the current path on the active panel to it.
 
  #POPD#
  Меняет текущий путь на активной панели на сохранённый командой «PUSHD».
@@ -5010,9 +5050,7 @@ $ #Регулярные выражения для поиска#
  #(?<!pattern)# - ^<wrap>отрицание просмотра назад. Те же ограничения, что и для просмотра назад.
 
  #(?{name}pattern)# - именованная группа.
- В качестве имени "name" может быть пустая строка (получается
-#безымянная группа#, на которую нельзя сослаться) или последовательность из
-знаков слова (#\w#) и пробелов (#\s#).
+ В качестве имени "name" может использоваться последовательность из знаков слова (#\w#) и пробелов (#\s#).
 
  #Квантификаторы#
 
@@ -5088,7 +5126,7 @@ $ #Регулярные выражения для поиска#
         ^<wrap>Строки,  в которых есть "name=", но нет "value=", будут обрабатываться (фактически - пропускаться) быстрее.
 
  #\NN#  - ^<wrap>ссылка на ранее совпавшую группу. NN - целое положительное число
-Каждая группа, кроме (?:pattern), (?=pattern), (?!pattern), (?<=pattern), (?<!pattern) и (?{name}pattern),
+Каждая группа, кроме (?:pattern), (?=pattern), (?!pattern), (?<=pattern) и (?<!pattern)
 имеет номер (по порядку появления открывающей скобки).
         Пример:
         "(['"])hello\1" совпадёт с "hello" или 'hello'.
@@ -5640,30 +5678,17 @@ $ #Редактор конфигурации#
 
 @Codepages.NoAutoDetectCP
 $ #far:config Codepages.NoAutoDetectCP#
- Этот строковый параметр задаёт кодовые страницы, которые будут
-исключены из автоматического определения Universal Codepage Detector'ом
-(UCD). Иногда (особенно на небольших файлах) UCD назойливо выбирает
-неподходящие кодовые страницы.
+ This parameter allows to exclude specific code pages from the heuristic code page detection results.
+Such detection is unreliable by definition: it depends on statistical data and could guess wrong, especially when the amount of input data is small.
 
- Значение по умолчанию -- это пустая строка #""#. В этом случае все
-кодовые страницы, которые может определить UCD (около двух десятков,
-гораздо меньше, чем обычно доступно в системе) разрешены.
+ By default the parameter is empty and there are no restrictions which code pages could be detected heuristically.
 
- Если параметр равен строке #"-1"#, и раздел #Прочие# в меню
-~кодовых страниц~@CodePagesMenu@ скрыт (комбинация клавиш #Ctrl+H#),
-то для UCD будут разрешены только #Системные# (ANSI, OEM), #Юникодные#
-и #Избранные# кодовые страницы. Если раздел #Прочие# виден, все кодовые
-страницы разрешены.
+ If this parameter is set to #-1#, only the code pages, currenltly visible in the ~Code pages~@CodePagesMenu@ menu, will be accepted.
+You can control which code pages are visible there with the #Ctrl+H# key combination and the #Favorites# section.
 
- В противном случае параметр должен содержать список номеров кодовых
-страниц, запрещённых для UCD. Например,
-#"1250,1252,1253,1255,855,10005,28592,28595,28597,28598,38598"#.
+ If this parameter contains a comma-separated list of code page numbers, all the specified code pages will be excluded from the heuristic detection.
 
- Поскольку юникодные кодовые страницы (1200, 1201, 65001) проверяются
-отдельно от UCD, они не могут быть запрещены, даже если они есть
-в списке исключений.
-
- Изменить этот параметр можно только через ~far:config~@FarConfig@.
+ This parameter can be changed via ~far:config~@FarConfig@ only.
 
 
 @Help.ActivateURL

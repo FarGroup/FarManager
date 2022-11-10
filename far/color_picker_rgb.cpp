@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "console.hpp"
 #include "dialog.hpp"
-#include "exception.hpp"
 #include "lang.hpp"
 #include "log.hpp"
 #include "strmix.hpp"
@@ -70,7 +69,7 @@ static bool pick_color_rgb_gui(COLORREF& Color, std::array<COLORREF, 16>& Custom
 
 	if (!ChooseColor(&Params))
 	{
-		if (const auto LastError = last_error(); LastError.Win32Error)
+		if (const auto LastError = os::last_error(); LastError.Win32Error)
 		{
 			LOGWARNING(L"ChooseColor(): {} ({:04X})"sv, LastError, CommDlgExtendedError());
 		}

@@ -269,6 +269,8 @@ point GetNonMaximisedBufferSize();
 
 void AdjustConsoleScreenBufferSize();
 
+void SetPalette();
+
 class consoleicons: public singleton<consoleicons>
 {
 	IMPLEMENTS_SINGLETON;

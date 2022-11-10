@@ -37,11 +37,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "encoding.hpp"
-#include "exception.hpp"
 #include "farversion.hpp"
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 
 // Common:
 #include "common/compiler.hpp"
@@ -107,14 +107,14 @@ static decltype(Function) get_address(const char* const Name)
 	const auto Crt = GetModuleHandle(L"msvcrt.dll");
 	if (!Crt)
 	{
-		LOGWARNING(L"GetModuleHandle(msvcrt): {}"sv, last_error());
+		LOGWARNING(L"GetModuleHandle(msvcrt): {}"sv, os::last_error());
 		return nullptr;
 	}
 
 	const auto Ptr = GetProcAddress(Crt, Name);
 	if (!Ptr)
 	{
-		LOGWARNING(L"GetProcAddress({}): {}"sv, encoding::utf8::get_chars(Name), last_error());
+		LOGWARNING(L"GetProcAddress({}): {}"sv, encoding::utf8::get_chars(Name), os::last_error());
 		return nullptr;
 	}
 
@@ -170,14 +170,14 @@ new_handler::new_handler():
 {
 	if (!m_Screen)
 	{
-		LOGWARNING(L"CreateConsoleScreenBuffer(): {}"sv, last_error());
+		LOGWARNING(L"CreateConsoleScreenBuffer(): {}"sv, os::last_error());
 		return;
 	}
 
 	CONSOLE_SCREEN_BUFFER_INFO Info;
 	if (!GetConsoleScreenBufferInfo(m_Screen.native_handle(), &Info))
 	{
-		LOGWARNING(L"GetConsoleScreenBufferInfo(): {}"sv, last_error());
+		LOGWARNING(L"GetConsoleScreenBufferInfo(): {}"sv, os::last_error());
 		return;
 	}
 
@@ -198,14 +198,14 @@ new_handler::new_handler():
 
 		if (!SetConsoleScreenBufferSize(m_Screen.native_handle(), BufferSize))
 		{
-			LOGWARNING(L"SetConsoleScreenBufferSize(): {}"sv, last_error());
+			LOGWARNING(L"SetConsoleScreenBufferSize(): {}"sv, os::last_error());
 			return;
 		}
 	}
 
 	if (const SMALL_RECT WindowInfo{ 0, 0, X - 1, Y - 1 }; !SetConsoleWindowInfo(m_Screen.native_handle(), true, &WindowInfo))
 	{
-		LOGWARNING(L"SetConsoleWindowInfo(): {}"sv, last_error());
+		LOGWARNING(L"SetConsoleWindowInfo(): {}"sv, os::last_error());
 		return;
 	}
 
@@ -213,7 +213,7 @@ new_handler::new_handler():
 	{
 		if (!SetConsoleScreenBufferSize(m_Screen.native_handle(), { X, Y }))
 		{
-			LOGWARNING(L"SetConsoleScreenBufferSize(): {}"sv, last_error());
+			LOGWARNING(L"SetConsoleScreenBufferSize(): {}"sv, os::last_error());
 			return;
 		}
 	}
@@ -221,20 +221,20 @@ new_handler::new_handler():
 	const auto WhiteOnBlue = 0x9F;
 	if (!SetConsoleTextAttribute(m_Screen.native_handle(), WhiteOnBlue))
 	{
-		LOGWARNING(L"SetConsoleTextAttribute(): {}"sv, last_error());
+		LOGWARNING(L"SetConsoleTextAttribute(): {}"sv, os::last_error());
 		return;
 	}
 
 	if (DWORD AttrWritten; !FillConsoleOutputAttribute(m_Screen.native_handle(), WhiteOnBlue, X * Y, { 0, 0 }, &AttrWritten))
 	{
-		LOGWARNING(L"FillConsoleOutputAttribute(): {}"sv, last_error());
+		LOGWARNING(L"FillConsoleOutputAttribute(): {}"sv, os::last_error());
 		return;
 	}
 
 
 	if (const CONSOLE_CURSOR_INFO cci{ 1 }; !SetConsoleCursorInfo(m_Screen.native_handle(), &cci))
 	{
-		LOGWARNING(L"SetConsoleCursorInfo(): {}"sv, last_error());
+		LOGWARNING(L"SetConsoleCursorInfo(): {}"sv, os::last_error());
 		return;
 	}
 
@@ -250,14 +250,14 @@ new_handler::new_handler():
 	{
 		if (!SetConsoleCursorPosition(m_Screen.native_handle(), { static_cast<short>((m_BufferSize.X - Str.size()) / 2), static_cast<short>(Y) }))
 		{
-			LOGWARNING(L"SetConsoleCursorPosition(): {}"sv, last_error());
+			LOGWARNING(L"SetConsoleCursorPosition(): {}"sv, os::last_error());
 			return false;
 		}
 
 		DWORD CharWritten;
 		if (!WriteConsole(m_Screen.native_handle(), Str.data(), static_cast<DWORD>(Str.size()), &CharWritten, nullptr) && CharWritten == Str.size())
 		{
-			LOGWARNING(L"WriteConsole(): {}"sv, last_error());
+			LOGWARNING(L"WriteConsole(): {}"sv, os::last_error());
 			return false;
 		}
 
@@ -310,7 +310,7 @@ bool new_handler::retry() const
 	const auto CurrentBuffer = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (!SetConsoleActiveScreenBuffer(m_Screen.native_handle()))
 	{
-		LOGWARNING(L"SetConsoleActiveScreenBuffer(): {}"sv, last_error());
+		LOGWARNING(L"SetConsoleActiveScreenBuffer(): {}"sv, os::last_error());
 		return false;
 	}
 
@@ -324,7 +324,7 @@ bool new_handler::retry() const
 		DWORD Read;
 		if (!ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), &ir, 1, &Read) || Read != 1)
 		{
-			LOGWARNING(L"ReadConsoleInput(): {}"sv, last_error());
+			LOGWARNING(L"ReadConsoleInput(): {}"sv, os::last_error());
 			return false;
 		}
 	}

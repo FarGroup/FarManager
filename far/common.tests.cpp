@@ -506,6 +506,62 @@ TEST_CASE("from_string")
 
 //----------------------------------------------------------------------------
 
+#include "common/function_ref.hpp"
+
+TEST_CASE("function_ref")
+{
+	{
+		struct s
+		{
+			static int square(int const i) { return i * i; }
+		};
+
+		function_ref const Func = &s::square;
+		REQUIRE(Func(2) == 4);
+	}
+
+	{
+		struct square
+		{
+			int operator()(int const i) const { return i * i; }
+		};
+
+		square const Square;
+		function_ref const Func = Square;
+		REQUIRE(Func(2) == 4);
+	}
+
+	{
+		const auto square = [](int const i) { return i * i; };
+
+		function_ref const Func = square;
+		REQUIRE(Func(2) == 4);
+	}
+
+	{
+		const auto square = [&](int const i) { return i * i; };
+
+		function_ref const Func = square;
+		REQUIRE(Func(2) == 4);
+	}
+
+	{
+		auto square = [&](int const i) mutable { return i * i; };
+
+		function_ref const Func = square;
+		REQUIRE(Func(2) == 4);
+	}
+
+	{
+		const auto square = [](int const i) mutable { return i * i; };
+
+		function_ref const Func = square;
+		REQUIRE(Func(2) == 4);
+	}
+}
+
+//----------------------------------------------------------------------------
+
 #include "common/function_traits.hpp"
 
 TEST_CASE("function_traits")
@@ -797,6 +853,7 @@ namespace
 	void test_scope_impl(bool const Throw, bool const MustBeTriggered)
 	{
 		bool IsTriggered = false;
+		bool IsThrown = false;
 
 		try
 		{
@@ -807,9 +864,11 @@ namespace
 		}
 		catch (int)
 		{
+			IsThrown = true;
 		}
 
 		REQUIRE(IsTriggered == MustBeTriggered);
+		REQUIRE(IsThrown == Throw);
 	}
 
 	enum
@@ -999,6 +1058,22 @@ TEST_CASE("string_utils.contains")
 		REQUIRE(ends_with(i.Src, i.Pattern) == i.Ends);
 		REQUIRE(contains(i.Src, i.Pattern) == i.Contains);
 	}
+}
+
+TEST_CASE("string_utils.within")
+{
+	const auto Haystack = L"banana"sv;
+
+	REQUIRE(within(Haystack, Haystack.substr(0)));
+	REQUIRE(within(Haystack, Haystack.substr(0, 2)));
+	REQUIRE(within(Haystack, Haystack.substr(2, 2)));
+	REQUIRE(within(Haystack, Haystack.substr(4)));
+	REQUIRE(within(Haystack, Haystack.substr(Haystack.size() - 1)));
+
+	// Empty views are not within anything.
+	REQUIRE(!within(Haystack, Haystack.substr(0, 0)));
+	REQUIRE(!within(Haystack, Haystack.substr(1, 0)));
+	REQUIRE(!within(Haystack, Haystack.substr(Haystack.size())));
 }
 
 TEST_CASE("string_utils.quotes")

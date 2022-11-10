@@ -41,11 +41,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "lang.hpp"
 #include "fileowner.hpp"
-#include "exception.hpp"
 #include "stddlg.hpp"
 #include "log.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.fs.hpp"
 
 // Common:
@@ -72,7 +72,7 @@ static auto without_ro(string_view const Name, os::fs::attributes const Attribut
 
 			if (Attributes & Mask && !os::fs::set_file_attributes(Name, Attributes)) //BUGBUG
 			{
-				LOGWARNING(L"set_file_attributes({}): {}"sv, Name, last_error());
+				LOGWARNING(L"set_file_attributes({}): {}"sv, Name, os::last_error());
 			}
 		};
 

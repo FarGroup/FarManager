@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "res.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.concurrency.hpp"
 #include "platform.debug.hpp"
 #include "platform.env.hpp"
@@ -165,14 +166,14 @@ namespace
 			m_Location(get_location(Function, File, Line)),
 			m_Level(Level)
 		{
-			std::tie(m_Date, m_Time) = get_time();
+			std::tie(m_Date, m_Time) = format_datetime(os::chrono::now_utc());
 
 			if (TraceDepth)
 			{
 				m_Data += L"\nLog stack:\n"sv;
 
 				const auto FramesToSkip = 4; // log -> engine.log -> submit -> this ctor
-				tracer.get_symbols({}, os::debug::current_stack(FramesToSkip, TraceDepth), [&](string_view const TraceLine)
+				tracer.get_symbols({}, os::debug::current_stacktrace(FramesToSkip, TraceDepth), [&](string_view const TraceLine)
 				{
 					append(m_Data, TraceLine, L'\n');
 				});
@@ -409,14 +410,10 @@ namespace
 	private:
 		static string make_filename()
 		{
-			auto [Date, Time] = get_time();
-			std::replace(ALL_RANGE(Date), L'/', L'.');
-			std::replace(ALL_RANGE(Time), L':', L'.');
-
 			return path::join
 			(
 				get_sink_parameter<sink_file>(L"path"sv),
-				format(L"Far.{}_{}_{}.txt"sv, Date, Time, GetCurrentProcessId())
+				unique_name() + L".txt"sv
 			);
 		}
 
@@ -455,7 +452,7 @@ namespace
 
 			if (!CreateProcess(m_ThisModule.c_str(), UNSAFE_CSTR(format(FSTR(L"\"{}\" {} {}"sv), m_ThisModule, log_argument, m_PipeName)), {}, {}, false, CREATE_NEW_CONSOLE, {}, {}, &si, &pi))
 			{
-				LOGERROR(L"{}"sv, last_error());
+				LOGERROR(L"{}"sv, os::last_error());
 				return;
 			}
 
@@ -464,7 +461,7 @@ namespace
 
 			while (!ConnectNamedPipe(m_Pipe.native_handle(), {}) && GetLastError() != ERROR_PIPE_CONNECTED)
 			{
-				LOGWARNING(L"ConnectNamedPipe({}): {}"sv, m_PipeName, last_error());
+				LOGWARNING(L"ConnectNamedPipe({}): {}"sv, m_PipeName, os::last_error());
 			}
 
 			m_Connected = true;
@@ -666,6 +663,11 @@ namespace logging
 
 		engine() = default;
 
+		~engine()
+		{
+			s_Destroyed = true;
+		}
+
 		void configure(string_view const Parameters)
 		{
 			initialise();
@@ -687,6 +689,9 @@ namespace logging
 		[[nodiscard]]
 		bool filter(level const Level)
 		{
+			if (s_Destroyed)
+				return false;
+
 			switch (m_Status)
 			{
 			case engine_status::incomplete:
@@ -856,6 +861,7 @@ namespace logging
 		level m_TraceLevel{ level::fatal };
 		size_t m_TraceDepth{ std::numeric_limits<size_t>::max() };
 		std::atomic<engine_status> m_Status{ engine_status::incomplete };
+		static inline bool s_Destroyed;
 	};
 
 	bool filter(level const Level)
@@ -908,7 +914,7 @@ namespace logging
 
 		while (!PipeFile.Open(PipeName, GENERIC_READ, 0, {}, OPEN_EXISTING))
 		{
-			const auto ErrorState = last_error();
+			const auto ErrorState = os::last_error();
 
 			if (!ConsoleYesNo(L"Retry"sv, false, [&]{ std::wcerr << format(FSTR(L"Can't open pipe {}: {}"sv), PipeName, ErrorState.Win32ErrorStr()) << std::endl; }))
 				return EXIT_FAILURE;

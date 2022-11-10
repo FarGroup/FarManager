@@ -44,11 +44,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "preservestyle.hpp"
 #include "locale.hpp"
-#include "stddlg.hpp"
 #include "encoding.hpp"
 #include "regex_helpers.hpp"
 #include "string_utils.hpp"
-#include "exception.hpp"
 #include "global.hpp"
 
 // Platform:
@@ -491,13 +489,26 @@ string FileSizeToStr(unsigned long long FileSize, int WidthWithSign, unsigned lo
 	return FormatSize(std::move(Str), UnitIndex);
 }
 
-
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
 // Если Count == npos - заменять "до полной победы"
-bool ReplaceStrings(string& strStr, const string_view FindStr, const string_view ReplStr, const bool IgnoreCase, size_t Count)
+bool ReplaceStrings(string& strStr, string_view FindStr, string_view ReplStr, const bool IgnoreCase, size_t Count)
 {
 	if (strStr.empty() || FindStr.empty() || !Count)
 		return false;
+
+	string FindCopy, ReplaceCopy;
+
+	if (Count != 1 && within(strStr, FindStr))
+	{
+		FindCopy = FindStr;
+		FindStr = FindCopy;
+	}
+
+	if (Count != 1 && within(strStr, ReplStr))
+	{
+		ReplaceCopy = ReplStr;
+		ReplStr = ReplaceCopy;
+	}
 
 	size_t replaced = 0;
 	size_t StartPos = 0;
@@ -673,15 +684,13 @@ unsigned long long ConvertFileSizeString(string_view const FileSizeStr)
 	}
 }
 
-namespace
-{
-	string ReplaceBrackets(
+string ReplaceBrackets(
 		const string_view SearchStr,
 		const string_view ReplaceStr,
 		span<RegExpMatch const> Match,
 		const named_regex_match* NamedMatch,
 		int& CurPos,
-		int* SearchLength)
+		int& SearchLength)
 	{
 		string result;
 		for (size_t i = 0, length = ReplaceStr.size(); i < length; ++i)
@@ -734,8 +743,9 @@ namespace
 								if (Iterator != NamedMatch->Matches.cend())
 								{
 									Success = true;
-									start = Iterator->second.start;
-									end = Iterator->second.end;
+									const auto& m = Match[Iterator->second];
+									start = m.start;
+									end = m.end;
 								}
 							}
 						}
@@ -760,11 +770,13 @@ namespace
 			}
 		}
 
-		*SearchLength = Match[0].end - Match[0].start;
+		SearchLength = Match[0].end - Match[0].start;
 		CurPos = Match[0].start;
 		return result;
 	}
 
+namespace
+{
 	bool CanContainWholeWord(string_view const Haystack, size_t const Offset, size_t const NeedleSize, string_view const WordDiv)
 	{
 		const auto BlankOrWordDiv = [&WordDiv](wchar_t Ch)
@@ -791,7 +803,7 @@ namespace
 		bool const Reverse,
 		string& ReplaceStr,
 		int& CurPos,
-		int* SearchLength,
+		int& SearchLength,
 		string_view WordDiv)
 	{
 		if (!Reverse)
@@ -836,7 +848,7 @@ namespace
 			found = true;
 			FoundMatch = std::move(Match);
 			if (NamedMatch)
-				FoundNamedMatch.Matches = std::move(NamedMatch)->Matches;
+				FoundNamedMatch.Matches = std::move(NamedMatch->Matches);
 			++pos;
 		}
 
@@ -861,7 +873,7 @@ bool SearchString(
 	bool const WholeWords,
 	bool const Reverse,
 	bool const Regexp,
-	int* const SearchLength,
+	int& SearchLength,
 	string_view WordDiv)
 {
 	string Dummy;
@@ -898,15 +910,15 @@ bool SearchAndReplaceString(
 	bool const Reverse,
 	bool const Regexp,
 	bool const PreserveStyle,
-	int* const SearchLength,
+	int& SearchLength,
 	string_view WordDiv)
 {
-	*SearchLength = 0;
+	SearchLength = 0;
 
 	if (WordDiv.empty())
 		WordDiv = Global->Opt->strWordDiv;
 
-	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Haystack, Needle, ReplaceStr, CurPos, CaseFold, WholeWords, WordDiv, Reverse, *SearchLength))
+	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Haystack, Needle, ReplaceStr, CurPos, CaseFold, WholeWords, WordDiv, Reverse, SearchLength))
 		return true;
 
 	if (Needle.empty())
@@ -964,7 +976,7 @@ bool SearchAndReplaceString(
 		}
 
 		CurPos = static_cast<int>(AbsoluteOffset);
-		*SearchLength = static_cast<int>(FoundSize);
+		SearchLength = static_cast<int>(FoundSize);
 
 		// В случае PreserveStyle: если не получилось сделать замену c помощью PreserveStyleReplaceString,
 		// то хотя бы сохранить регистр первой буквы.
@@ -1175,6 +1187,34 @@ TEST_CASE("ReplaceStrings")
 		Src = i.Src;
 		ReplaceStrings(Src, i.Find, i.Replace, true);
 		REQUIRE(i.Result == Src);
+	}
+}
+
+TEST_CASE("ReplaceStrings.within")
+{
+	{
+		auto Str = L"99 little bugs in the code. 99 little bugs in the code"s;
+		const auto Find = string_view(Str).substr(0, 2);
+		const auto Replace = string_view(Str).substr(3, 6);
+		ReplaceStrings(Str, Find, Replace);
+		REQUIRE(Str == L"little little bugs in the code. little little bugs in the code"sv);
+	}
+
+	{
+		auto Str = L"banana banana banana banana"s;
+		const auto Find = string_view(Str).substr(21, 6);
+		const auto Replace = string_view(Str).substr(2, 2);
+		ReplaceStrings(Str, Find, Replace);
+		REQUIRE(Str == L"na na na na"sv);
+	}
+
+	{
+		auto Str = L"Alegría Macarena"s;
+		const auto Find = string_view(Str).substr(0, 7);
+		const auto Replace = string_view(Str).substr(8, 8);
+		// A single replace should pick the fast path
+		ReplaceStrings(Str, Find, Replace, false, 1);
+		REQUIRE(Str == L"Macarena Macarena"sv);
 	}
 }
 

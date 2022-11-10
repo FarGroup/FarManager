@@ -96,6 +96,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 5045) // Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
 #pragma warning(disable: 5052) // Keyword 'char8_t' was introduced in C++20 and requires use of the '/std:c++latest' command-line option
 #pragma warning(disable: 5246) // 'member': the initialization of a subobject should be wrapped in braces
+#pragma warning(disable: 5264) // 'name': 'const' variable is not used
 #endif
 
 #ifdef _DEBUG

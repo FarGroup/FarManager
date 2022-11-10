@@ -71,7 +71,7 @@ DlgEdit::DlgEdit(window_ptr Owner,size_t Index,DLGEDITTYPE Type):
 
 			FarList* iList = nullptr;
 			DWORD iFlags=0;
-			auto& CurItem=GetDialog()->Items[Index];
+			const auto& CurItem = GetDialog()->Items[Index];
 			if(Global->Opt->Dialogs.AutoComplete && CurItem.Flags&(DIF_HISTORY|DIF_EDITPATH|DIF_EDITPATHEXEC) && !(CurItem.Flags&DIF_DROPDOWNLIST) && !(CurItem.Flags&DIF_NOAUTOCOMPLETE))
 			{
 				iFlags=EditControl::EC_ENABLEAUTOCOMPLETE;

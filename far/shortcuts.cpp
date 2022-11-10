@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 
 // Platform:
+#include "platform.hpp"
 #include "platform.env.hpp"
 #include "platform.fs.hpp"
 
@@ -321,7 +322,7 @@ static bool EditItemImpl(Shortcuts::shortcut& Item, bool raw)
 		{
 			if (!os::fs::exists(os::env::expand(NewItem.Folder)))
 			{
-				const auto ErrorState = last_error();
+				const auto ErrorState = os::last_error();
 
 				if (Message(MSG_WARNING, ErrorState,
 					msg(lng::MError),

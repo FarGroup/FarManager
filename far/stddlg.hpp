@@ -195,6 +195,8 @@ bool ConfirmAbort();
 bool CheckForEscAndConfirmAbort();
 bool RetryAbort(std::vector<string>&& Messages);
 
+void regex_playground();
+
 class progress_impl
 {
 protected:

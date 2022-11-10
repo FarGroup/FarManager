@@ -258,6 +258,25 @@ namespace os
 		bool m_Active;
 	};
 
+	struct error_state
+	{
+		DWORD Win32Error = ERROR_SUCCESS;
+		NTSTATUS NtError = STATUS_SUCCESS;
+
+		[[nodiscard]]
+		bool any() const
+		{
+			return Win32Error != ERROR_SUCCESS || !NT_SUCCESS(NtError);
+		}
+
+		[[nodiscard]] string Win32ErrorStr() const;
+		[[nodiscard]] string NtErrorStr() const;
+
+		[[nodiscard]] string to_string() const;
+	};
+
+	error_state last_error();
+
 
 	bool WNetGetConnection(string_view LocalName, string &RemoteName);
 

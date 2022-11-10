@@ -43,44 +43,31 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-struct error_state
+struct error_state_ex: public os::error_state
 {
-	int Errno = 0;
-	DWORD Win32Error = ERROR_SUCCESS;
-	NTSTATUS NtError = STATUS_SUCCESS;
+	error_state_ex() = default;
+
+	error_state_ex(const error_state& State, string_view const Message = {}, int Errno = 0):
+		error_state(State),
+		What(Message),
+		Errno(Errno)
+	{
+	}
 
 	[[nodiscard]]
 	bool any() const
 	{
-		return Errno || Win32Error != ERROR_SUCCESS || !NT_SUCCESS(NtError);
+		return Errno != 0 || error_state::any();
 	}
 
 	[[nodiscard]] string ErrnoStr() const;
-	[[nodiscard]] string Win32ErrorStr() const;
-	[[nodiscard]] string NtErrorStr() const;
-
-	[[nodiscard]] std::array<string, 3> format_errors() const;
-
-	[[nodiscard]] string to_string() const;
-};
-
-struct error_state_ex: public error_state
-{
-	error_state_ex() = default;
-
-	error_state_ex(const error_state& State, string_view const Message = {}):
-		error_state(State),
-		What(Message)
-	{
-	}
 
 	[[nodiscard]] string system_error() const;
 	[[nodiscard]] string to_string() const;
 
 	string What;
+	int Errno{};
 };
-
-error_state last_error();
 
 namespace detail
 {

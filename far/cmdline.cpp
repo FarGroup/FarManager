@@ -74,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "log.hpp"
 #include "char_width.hpp"
+#include "stddlg.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -982,6 +983,12 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool)> con
 		}
 	}
 
+	if (equal_icase(Command, L"regex"sv))
+	{
+		regex_playground();
+		return true;
+	}
+
 	return false;
 }
 
@@ -1216,7 +1223,7 @@ bool CommandLine::ProcessOSCommands(string_view const CmdLine, function_ref<void
 
 		const auto PushDir = m_CurDir;
 
-		if (IntChDir(trim(CmdLine.substr(CommandPushd.size())), true))
+		if (const auto NewDir = trim(CmdLine.substr(CommandPushd.size())); NewDir.empty() || IntChDir(NewDir, true))
 		{
 			ppstack.push(PushDir);
 			os::env::set(L"FARDIRSTACK"sv, PushDir);
