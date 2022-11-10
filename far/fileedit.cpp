@@ -2143,6 +2143,9 @@ void FileEditor::SetScreenPosition()
 
 void FileEditor::OnDestroy()
 {
+	if (Global->CtrlObject && !m_Flags.Check(FFILEEDIT_DISABLEHISTORY) && !equal_icase(strFileName, msg(lng::MNewFileName)))
+		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName, m_editor->m_Flags.Check(Editor::FEDITOR_LOCKMODE)? HR_EDITOR_RO : HR_EDITOR);
+
 	//AY: флаг оповещающий закрытие редактора.
 	m_bClosing = true;
 
