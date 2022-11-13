@@ -131,6 +131,9 @@ void ControlObject::close()
 	{
 		if (Global->Opt->AutoSaveSetup)
 			Global->Opt->Save(false);
+
+		if (FPanels->ActivePanel()->GetMode() != panel_mode::PLUGIN_PANEL)
+			FolderHistory->AddToHistory(FPanels->ActivePanel()->GetCurDir());
 	}
 
 	Global->WindowManager->CloseAll();

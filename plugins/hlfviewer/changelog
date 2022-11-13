@@ -1,3 +1,7 @@
+drkns 10.11.2022 17:40:00 +0000 - build 50
+
+1. Handle errors and fill structures properly.
+
 svs 29.04.2014 13:19:46 +0400 - build 
 
 1. "Оптимизация хелпа"

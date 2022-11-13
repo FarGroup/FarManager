@@ -2824,7 +2824,6 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 {
 	bool IsPopPlugin = false;
 
-	/*//Lost: возвращение нормальной истории каталогов до билда 5773
 	SCOPE_EXIT
 	{
 		if (m_PanelMode == panel_mode::PLUGIN_PANEL)
@@ -2845,7 +2844,6 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 				InitFSWatcher(false);
 		}
 	};
-	*/
 
 	if (m_PanelMode != panel_mode::PLUGIN_PANEL && !IsAbsolutePath(NewDir) && !equal_icase(os::fs::get_current_directory(), m_CurDir))
 		FarChDir(m_CurDir);
@@ -2899,8 +2897,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		  + Если у плагина нет OPIF_REALNAMES, то история папок не пишется в реестр */
 		string strInfoCurDir = NullToEmpty(m_CachedOpenPanelInfo.CurDir);
 		string strInfoHostFile = NullToEmpty(m_CachedOpenPanelInfo.HostFile);
-
-		if (m_CachedOpenPanelInfo.Flags&OPIF_SHORTCUT)//Lost: возвращение нормальной истории каталогов до билда 5773
+		if (m_CachedOpenPanelInfo.Flags & OPIF_SHORTCUT)
 		{
 			const auto strInfoData = NullToEmpty(m_CachedOpenPanelInfo.ShortcutData);
 			Global->CtrlObject->FolderHistory->AddToHistory(strInfoCurDir, HR_DEFAULT, &PluginManager::GetUUID(GetPluginHandle()), strInfoHostFile, strInfoData);
@@ -2960,7 +2957,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 	}
 	else
 	{
-		if (!equal_icase(ConvertNameToFull(strSetDir), m_CurDir))//Lost: возвращение нормальной истории каталогов до билда 5773
+		if (!equal_icase(ConvertNameToFull(strSetDir), m_CurDir))
 			Global->CtrlObject->FolderHistory->AddToHistory(m_CurDir);
 
 		if (IsParent)
@@ -6369,10 +6366,8 @@ void FileList::SetPluginMode(std::unique_ptr<plugin_panel>&& PluginPanel, string
 {
 	const auto ParentWindow = Parent();
 
-	if (m_PanelMode != panel_mode::PLUGIN_PANEL)//Lost: возвращение нормальной истории каталогов до билда 5773
-	{
+	if (m_PanelMode != panel_mode::PLUGIN_PANEL)
 		Global->CtrlObject->FolderHistory->AddToHistory(m_CurDir);
-	}
 
 	PushPlugin(std::move(PluginPanel), PluginFile);
 

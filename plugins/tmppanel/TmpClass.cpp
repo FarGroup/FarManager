@@ -681,7 +681,7 @@ void TmpPanel::ProcessSaveListKey()
 		append(ListPath, L'.', Ext);
 
 	string Buffer(NT_MAX_PATH, 0);
-	if (PsInfo.InputBox(&MainGuid, {}, GetMsg(MTempPanel), GetMsg(MListFilePath), L"TmpPanel.SaveList", ListPath.c_str(), Buffer.data(), Buffer.size(), {}, FIB_BUTTONS))
+	if (PsInfo.InputBox(&MainGuid, &SaveListDialogGuid, GetMsg(MTempPanel), GetMsg(MListFilePath), L"TmpPanel.SaveList", ListPath.c_str(), Buffer.data(), Buffer.size(), {}, FIB_BUTTONS))
 	{
 		ListPath = Buffer.c_str(); // REQUIRED, we don't know the size
 		SaveListFile(ListPath);
