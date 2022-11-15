@@ -8010,10 +8010,13 @@ bool FileList::ConvertName(const string_view SrcName, string& strDest, const siz
 		const auto VisualExtensionLength = visual_string_length(Extension);
 		const auto AlignedVisualExtensionLength = std::max(size_t{ 3 }, VisualExtensionLength);
 
-		const auto SpacesBetween =
+		auto SpacesBetween =
 			VisualNameLength + AlignedVisualExtensionLength <= MaxLength?
 				MaxLength - VisualNameLength - AlignedVisualExtensionLength:
 				1;
+
+		if (!SpacesBetween && VisualNameLength + VisualExtensionLength < MaxLength)
+			SpacesBetween = MaxLength - VisualNameLength - VisualExtensionLength;
 
 		const auto SpacesAfter = MaxLength - VisualNameLength - SpacesBetween - VisualExtensionLength;
 
