@@ -826,7 +826,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			Update(Param1?UPDATE_KEEP_SELECTION:0);
 
 			if (GetType() == panel_type::QVIEW_PANEL)
-				UpdateViewPanel();
+				Parent()->GetAnotherPanel(this)->UpdateViewPanel();
 
 			Result=TRUE;
 			break;
