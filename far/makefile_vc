@@ -165,6 +165,7 @@ LINK_OBJS = \
 	"$(INTDIR)\pipe.obj" \
 	"$(INTDIR)\platform.obj" \
 	"$(INTDIR)\platform.chrono.obj" \
+	"$(INTDIR)\platform.clipboard.obj" \
 	"$(INTDIR)\platform.com.obj" \
 	"$(INTDIR)\platform.concurrency.obj" \
 	"$(INTDIR)\platform.debug.obj" \

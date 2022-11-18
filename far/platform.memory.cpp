@@ -50,56 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace os::memory
 {
-	namespace global
-	{
-		namespace detail
-		{
-			void deleter::operator()(HGLOBAL MemoryBlock) const noexcept
-			{
-				GlobalFree(MemoryBlock);
-			}
-
-			void unlocker::operator()(const void* MemoryBlock) const noexcept
-			{
-				GlobalUnlock(const_cast<HGLOBAL>(MemoryBlock));
-			}
-		}
-
-		ptr alloc(unsigned const Flags, size_t const Size)
-		{
-			return ptr(GlobalAlloc(Flags, Size));
-		}
-
-		ptr copy(HGLOBAL const Ptr)
-		{
-			const auto Size = GlobalSize(Ptr);
-			auto Memory = alloc(GMEM_MOVEABLE, Size);
-			if (!Memory)
-				return nullptr;
-
-			const auto From = lock<std::byte const*>(Ptr);
-			const auto To = lock<std::byte*>(Memory);
-			std::copy_n(From.get(), Size, To.get());
-
-			return Memory;
-		}
-
-		ptr copy(string_view const Str)
-		{
-			auto Memory = alloc(GMEM_MOVEABLE, (Str.size() + 1) * sizeof(wchar_t));
-			if (!Memory)
-				return nullptr;
-
-			const auto Copy = lock<wchar_t*>(Memory);
-			if (!Copy)
-				return nullptr;
-
-			*copy_string(Str, Copy.get()) = {};
-			return Memory;
-		}
-
-	}
-
 	namespace local
 	{
 		namespace detail

@@ -1,13 +1,13 @@
-﻿#ifndef PLATFORM_MEMORY_HPP_87E958A6_C4DE_4F53_A9F6_337D97D664E6
-#define PLATFORM_MEMORY_HPP_87E958A6_C4DE_4F53_A9F6_337D97D664E6
+﻿#ifndef PLATFORM_CLIPBOARD_HPP_49E6F44B_4F91_46FB_BDAA_CB8DF4D4764D
+#define PLATFORM_CLIPBOARD_HPP_49E6F44B_4F91_46FB_BDAA_CB8DF4D4764D
 #pragma once
 
 /*
-platform.memory.hpp
+platform.clipboard.hpp
 
 */
 /*
-Copyright © 2017 Far Group
+Copyright © 2022 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -38,44 +38,32 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/utility.hpp"
 
 // External:
 
 //----------------------------------------------------------------------------
 
-namespace os::memory
+namespace os::clipboard
 {
-	namespace local
+	void enable_ansi_to_unicode_conversion_workaround(bool Enable);
+
+	bool open();
+	bool close();
+	bool clear();
+	bool set_text(string_view Str);
+	bool set_vtext(string_view Str);
+	bool set_files(string_view NamesData, bool Move);
+	bool get_text(string& Data);
+	bool get_vtext(string& Data);
+
+#ifdef ENABLE_TESTS
+	namespace testing
 	{
-		namespace detail
-		{
-			struct deleter
-			{
-				void operator()(const void* MemoryBlock) const noexcept;
-			};
-		}
-
-		template<class T>
-		class ptr: public base<std::unique_ptr<T, detail::deleter>>
-		{
-			using ptr::base_ctor::base_ctor;
-		};
-
-		template<class T>
-		ptr(T*) -> ptr<T>;
-
-		template<class T>
-		ptr<T> to_ptr(T* Ptr)
-		{
-			return ptr<T>{ Ptr };
-		}
+		class state;
+		state* capture();
+		void restore(state* State);
 	}
-
-	[[nodiscard]]
-	bool is_pointer(const void* Address);
-
-	void enable_low_fragmentation_heap();
+#endif
 }
 
-#endif // PLATFORM_MEMORY_HPP_87E958A6_C4DE_4F53_A9F6_337D97D664E6
+#endif // PLATFORM_CLIPBOARD_HPP_49E6F44B_4F91_46FB_BDAA_CB8DF4D4764D

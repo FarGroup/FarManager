@@ -127,6 +127,7 @@ SRCS = \
 	pipe.cpp \
 	platform.cpp \
 	platform.chrono.cpp \
+	platform.clipboard.cpp \
 	platform.com.cpp \
 	platform.concurrency.cpp \
 	platform.debug.cpp \

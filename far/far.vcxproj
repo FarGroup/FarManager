@@ -170,6 +170,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="pathmix.cpp" />
     <ClCompile Include="pipe.cpp" />
     <ClCompile Include="platform.chrono.cpp" />
+    <ClCompile Include="platform.clipboard.cpp" />
     <ClCompile Include="platform.com.cpp" />
     <ClCompile Include="platform.concurrency.cpp" />
     <ClCompile Include="platform.cpp" />
@@ -384,6 +385,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="pathmix.hpp" />
     <ClInclude Include="pipe.hpp" />
     <ClInclude Include="platform.chrono.hpp" />
+    <ClInclude Include="platform.clipboard.hpp" />
     <ClInclude Include="platform.com.hpp" />
     <ClInclude Include="platform.concurrency.hpp" />
     <ClInclude Include="platform.debug.hpp" />
