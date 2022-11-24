@@ -160,7 +160,7 @@ static point InitialSize;
 
 static os::event& CancelIoInProgress()
 {
-	static os::event s_CancelIoInProgress;
+	static os::event s_CancelIoInProgress(os::event::type::manual, os::event::state::nonsignaled);
 	return s_CancelIoInProgress;
 }
 
@@ -306,27 +306,29 @@ static bool ConsoleGlobalKeysHook(const Manager::Key& key)
 
 void InitConsole()
 {
-	static bool FirstInit = true;
-
-	if (FirstInit)
+	if (static bool FirstInit = true; FirstInit)
 	{
-		CancelIoInProgress() = os::event(os::event::type::manual, os::event::state::nonsignaled);
-
-		DWORD Mode;
-		if(!console.GetMode(console.GetInputHandle(), Mode))
-		{
-			static const auto ConIn = os::OpenConsoleInputBuffer();
-			SetStdHandle(STD_INPUT_HANDLE, ConIn.native_handle());
-		}
-
-		if(!console.GetMode(console.GetOutputHandle(), Mode))
-		{
-			static const auto ConOut = os::OpenConsoleActiveScreenBuffer();
-			SetStdHandle(STD_OUTPUT_HANDLE, ConOut.native_handle());
-			SetStdHandle(STD_ERROR_HANDLE, ConOut.native_handle());
-		}
-
 		Global->WindowManager->AddGlobalKeyHandler(ConsoleGlobalKeysHook);
+		FirstInit = false;
+	}
+
+	if (DWORD Mode; !console.GetMode(console.GetInputHandle(), Mode))
+	{
+		static os::handle ConIn;
+		// Separately to allow reinitialization
+		ConIn = os::OpenConsoleInputBuffer();
+
+		SetStdHandle(STD_INPUT_HANDLE, ConIn.native_handle());
+	}
+
+	if (DWORD Mode; !console.GetMode(console.GetOutputHandle(), Mode))
+	{
+		static os::handle ConOut;
+		// Separately to allow reinitialization
+		ConOut = os::OpenConsoleActiveScreenBuffer();
+
+		SetStdHandle(STD_OUTPUT_HANDLE, ConOut.native_handle());
+		SetStdHandle(STD_ERROR_HANDLE, ConOut.native_handle());
 	}
 
 	console.SetControlHandler(CtrlHandler, true);
@@ -342,39 +344,35 @@ void InitConsole()
 	console.GetSize(InitialSize);
 	console.GetCursorInfo(InitialCursorInfo);
 
-	if (FirstInit)
-	{
-		rectangle WindowRect;
-		console.GetWindowRect(WindowRect);
-		console.GetSize(InitSize);
+	rectangle WindowRect;
+	console.GetWindowRect(WindowRect);
+	console.GetSize(InitSize);
 
-		if(Global->Opt->WindowMode)
+	if(Global->Opt->WindowMode)
+	{
+		AdjustConsoleScreenBufferSize();
+		console.ResetViewportPosition();
+	}
+	else
+	{
+		if (WindowRect.left || WindowRect.top || WindowRect.right != InitSize.x - 1 || WindowRect.bottom != InitSize.y - 1)
 		{
-			AdjustConsoleScreenBufferSize();
-			console.ResetViewportPosition();
-		}
-		else
-		{
-			if (WindowRect.left || WindowRect.top || WindowRect.right != InitSize.x - 1 || WindowRect.bottom != InitSize.y - 1)
-			{
-				console.SetSize({ WindowRect.width(), WindowRect.height() });
-				console.GetSize(InitSize);
-			}
-		}
-		if (IsZoomed(console.GetWindow()))
-		{
-			ChangeVideoMode(true);
-		}
-		else
-		{
-			point CurrentSize;
-			if (console.GetSize(CurrentSize))
-			{
-				SaveNonMaximisedBufferSize(CurrentSize);
-			}
+			console.SetSize({ WindowRect.width(), WindowRect.height() });
+			console.GetSize(InitSize);
 		}
 	}
-
+	if (IsZoomed(console.GetWindow()))
+	{
+		ChangeVideoMode(true);
+	}
+	else
+	{
+		point CurrentSize;
+		if (console.GetSize(CurrentSize))
+		{
+			SaveNonMaximisedBufferSize(CurrentSize);
+		}
+	}
 
 	SetFarConsoleMode();
 	SetPalette();
@@ -383,8 +381,6 @@ void InitConsole()
 	Global->ScrBuf->FillBuf();
 
 	consoleicons::instance().update_icon();
-
-	FirstInit = false;
 }
 
 void CloseConsole()
@@ -541,32 +537,6 @@ void SetVideoMode()
 	}
 }
 
-static bool validate_console_size(point const Size)
-{
-	// https://github.com/microsoft/terminal/issues/10337
-
-	// As of 7 Oct 2022 GetLargestConsoleWindowSize is broken in WT.
-	// It takes the current screen resolution and divides it by an inadequate font size, e.g. 1x16.
-
-	// It is unlikely that it is ever gonna be fixed, so we do a few very basic checks here to filter out obvious rubbish.
-
-	if (Size.x <= 0 || Size.y <= 0)
-		return false;
-
-	// A typical screen ratio these days is roughly 2:1.
-	// A typical font cell is about 1:2, so the expected screen ratio in cells
-	// is around 4 for the landscape and around 1 for the portrait, give or take.
-	// Anything twice larger than that is likely rubbish.
-	if (Size.x >= 8 * Size.y || Size.y >= 2 * Size.x)
-		return false;
-
-	// The API works with SHORTs, anything larger than that makes no sense.
-	if (Size.x >= std::numeric_limits<SHORT>::max() || Size.y >= std::numeric_limits<SHORT>::max())
-		return false;
-
-	return true;
-}
-
 void ChangeVideoMode(bool Maximize)
 {
 	point coordScreen;
@@ -575,13 +545,10 @@ void ChangeVideoMode(bool Maximize)
 	{
 		SendMessage(console.GetWindow(), WM_SYSCOMMAND, SC_MAXIMIZE, 0);
 
-		coordScreen = console.GetLargestWindowSize();
+		coordScreen = console.GetLargestWindowSize(console.GetOutputHandle());
 
-		if (!validate_console_size(coordScreen))
-		{
-			LOGERROR(L"GetLargestConsoleWindowSize(): the reported size {{{}, {}}} makes no sense. Talk to your terminal or OS vendor."sv, coordScreen.x, coordScreen.y);
+		if (!coordScreen.x || !coordScreen.y)
 			return;
-		}
 
 		coordScreen.x += Global->Opt->ScrSize.DeltaX;
 		coordScreen.y += Global->Opt->ScrSize.DeltaY;

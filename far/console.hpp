@@ -157,7 +157,7 @@ namespace console_detail
 
 		bool GetDisplayMode(DWORD& Mode) const;
 
-		point GetLargestWindowSize() const;
+		point GetLargestWindowSize(HANDLE ConsoleOutput) const;
 
 		bool SetActiveScreenBuffer(HANDLE ConsoleOutput);
 

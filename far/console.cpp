@@ -1841,14 +1841,47 @@ WARNING_POP()
 		return true;
 	}
 
-	point console::GetLargestWindowSize() const
+	static bool validate_console_size(point const Size)
 	{
-		point Result = GetLargestConsoleWindowSize(GetOutputHandle());
+		// https://github.com/microsoft/terminal/issues/10337
+
+		// As of 7 Oct 2022 GetLargestConsoleWindowSize is broken in WT.
+		// It takes the current screen resolution and divides it by an inadequate font size, e.g. 1x16.
+
+		// It is unlikely that it is ever gonna be fixed, so we do a few very basic checks here to filter out obvious rubbish.
+
+		if (Size.x <= 0 || Size.y <= 0)
+			return false;
+
+		// A typical screen ratio these days is roughly 2:1.
+		// A typical font cell is about 1:2, so the expected screen ratio in cells
+		// is around 4 for the landscape and around 1 for the portrait, give or take.
+		// Anything twice larger than that is likely rubbish.
+		if (Size.x >= 8 * Size.y || Size.y >= 2 * Size.x)
+			return false;
+
+		// The API works with SHORTs, anything larger than that makes no sense.
+		if (Size.x >= std::numeric_limits<SHORT>::max() || Size.y >= std::numeric_limits<SHORT>::max())
+			return false;
+
+		return true;
+	}
+
+	point console::GetLargestWindowSize(HANDLE const ConsoleOutput) const
+	{
+		point Result = GetLargestConsoleWindowSize(ConsoleOutput);
+
+		if (!validate_console_size(Result))
+		{
+			LOGERROR(L"GetLargestConsoleWindowSize(): the reported size {{{}, {}}} makes no sense. Talk to your terminal or OS vendor."sv, Result.x, Result.y);
+			return {};
+		}
+
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		if (get_console_screen_buffer_info(GetOutputHandle(), &csbi) && csbi.dwSize.Y > Result.y)
+		if (get_console_screen_buffer_info(ConsoleOutput, &csbi) && csbi.dwSize.Y > Result.y)
 		{
 			CONSOLE_FONT_INFO FontInfo;
-			if (get_current_console_font(GetOutputHandle(), FontInfo))
+			if (get_current_console_font(ConsoleOutput, FontInfo))
 			{
 				Result.x -= Round(GetSystemMetrics(SM_CXVSCROLL), static_cast<int>(FontInfo.dwFontSize.X));
 			}

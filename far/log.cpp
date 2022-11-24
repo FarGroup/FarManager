@@ -250,11 +250,9 @@ namespace
 	class sink_console: public discardable<true>, public sink_boilerplate<sink_console>
 	{
 	public:
-		sink_console():
-			m_Buffer(CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, {}, CONSOLE_TEXTMODE_BUFFER, {}))
+		sink_console()
 		{
-			const auto Size = GetLargestConsoleWindowSize(m_Buffer.native_handle());
-			SetConsoleScreenBufferSize(m_Buffer.native_handle(), { Size.X, 9999 });
+			initialize_ui();
 		}
 
 		static void process(HANDLE Buffer, message const& Message)
@@ -337,7 +335,14 @@ namespace
 		{
 			if (Parameters.empty())
 			{
-				console.SetActiveScreenBuffer(m_Buffer.native_handle());
+				while (!console.SetActiveScreenBuffer(m_Buffer.native_handle()))
+				{
+					if (GetLastError() != ERROR_INVALID_HANDLE)
+						return;
+
+					LOGINFO(L"Reinitializing");
+					initialize_ui();
+				}
 
 				for (;;)
 				{
@@ -355,6 +360,19 @@ namespace
 		static constexpr auto name = L"console"sv;
 
 	private:
+		void initialize_ui()
+		{
+			m_Buffer.reset(CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, {}, CONSOLE_TEXTMODE_BUFFER, {}));
+			if (!m_Buffer)
+				return;
+
+			SHORT Width = console.GetLargestWindowSize(m_Buffer.native_handle()).x;
+			if (!Width)
+				Width = 80;
+
+			SetConsoleScreenBufferSize(m_Buffer.native_handle(), { Width, 9999 });
+		}
+
 		os::handle m_Buffer;
 	};
 
