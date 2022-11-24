@@ -84,6 +84,7 @@ namespace os::process
 		mutable size_t m_Offset{};
 	};
 
+	bool terminate_other(int Pid);
 	[[noreturn]]
 	void terminate(int ExitCode);
 	[[noreturn]]

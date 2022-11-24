@@ -482,6 +482,7 @@ TEST_CASE("from_string")
 	REQUIRE(from_string<int64_t>(L"-9223372036854775808"sv) == std::numeric_limits<int64_t>::min());
 	REQUIRE(from_string<int64_t>(L"9223372036854775807"sv) == std::numeric_limits<int64_t>::max());
 	REQUIRE(from_string<uint64_t>(L"18446744073709551615"sv) == std::numeric_limits<uint64_t>::max());
+	REQUIRE(from_string<double>(L"0.03125"sv) == 0.03125);
 
 	REQUIRE_THROWS_AS(from_string<uint64_t>(L"18446744073709551616"sv), std::out_of_range);
 	REQUIRE_THROWS_AS(from_string<int64_t>(L"-9223372036854775809"sv), std::out_of_range);
@@ -497,6 +498,7 @@ TEST_CASE("from_string")
 	REQUIRE_THROWS_AS(from_string<int>({}), std::invalid_argument);
 	REQUIRE_THROWS_AS(from_string<int>(L" 42"sv), std::invalid_argument);
 	REQUIRE_THROWS_AS(from_string<int>(L" +42"sv), std::invalid_argument);
+	REQUIRE_THROWS_AS(from_string<double>(L"1"sv, {}, 3), std::invalid_argument);
 
 	{
 		int Value;
