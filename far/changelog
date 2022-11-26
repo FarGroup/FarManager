@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 26.11.2022 10:33:29 +0000 - build 6057
+
+1. Fix empty sort criteria menus handling.
+
+2. Optimize map file lookup.
+
+--------------------------------------------------------------------------------
 drkns 24.11.2022 21:22:23 +0000 - build 6056
 
 1. Fix detach from WT & properly handle alternative buffers.
