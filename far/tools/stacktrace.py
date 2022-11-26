@@ -27,7 +27,7 @@ def undecorate(name):
 
 def parse_vc(map_file, map_data):
 	re_base = re.compile(r"^ +Preferred load address is ([0-9A-Fa-f]+)\s+$")
-	re_symbol = re.compile(r"^ +([0-9A-Fa-f]+):([0-9A-Fa-f]+) +([^ ]+) +([0-9A-Fa-f]+) .+ ([^ ]+)\s+$")
+	re_symbol = re.compile(r"^ +[0-9A-Fa-f]+:[0-9A-Fa-f]+ +([^ ]+) +([0-9A-Fa-f]+) .+ ([^ ]+)\s+$")
 	BaseAddress = None
 
 	for line in map_file:
@@ -39,10 +39,10 @@ def parse_vc(map_file, map_data):
 
 		m = re_symbol.search(line)
 		if m is not None:
-			Address = int(m.group(4), 16);
+			Address = int(m.group(2), 16);
 			if Address >= BaseAddress:
 				Address -= BaseAddress
-			map_data[Address] = (m.group(3), m.group(5))
+			map_data[Address] = (m.group(1), m.group(3))
 
 
 def parse_clang(map_file, map_data):
