@@ -262,7 +262,7 @@ unsigned char palette::Default(size_t const Index) const
 
 void palette::Set(size_t StartOffset, span<FarColor> Values)
 {
-	assert(Values.size() + StartOffset < CurrentPalette.size());
+	assert(Values.size() + StartOffset <= CurrentPalette.size());
 
 	std::copy(ALL_CONST_RANGE(Values), CurrentPalette.begin() + StartOffset);
 	PaletteChanged = true;
