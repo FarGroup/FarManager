@@ -1571,7 +1571,7 @@ WARNING_POP()
 			BufferCoord.y + WriteRegion.height() - 1
 		};
 
-		return (IsVtEnabled()? implementation::WriteOutputVT : implementation::WriteOutputNT)(Buffer, SubRect, WriteRegion);
+		return (IsVtActive()? implementation::WriteOutputVT : implementation::WriteOutputNT)(Buffer, SubRect, WriteRegion);
 	}
 
 	bool console::Read(string& Buffer, size_t& Size) const
@@ -1666,7 +1666,7 @@ WARNING_POP()
 		if (ExternalConsole.Imports.pSetTextAttributes)
 			return ExternalConsole.Imports.pSetTextAttributes(&Attributes) != FALSE;
 
-		return (IsVtEnabled()? implementation::SetTextAttributesVT : implementation::SetTextAttributesNT)(Attributes);
+		return (IsVtActive()? implementation::SetTextAttributesVT : implementation::SetTextAttributesNT)(Attributes);
 	}
 
 	bool console::GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const
@@ -2058,6 +2058,12 @@ WARNING_POP()
 			SetCursorPosition({ 0, WindowRect.height() - 1 });
 	}
 
+	bool console::IsVtEnabled() const
+	{
+		DWORD Mode;
+		return GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	}
+
 	short console::GetDelta() const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -2159,10 +2165,9 @@ WARNING_POP()
 		return GetDelta() != 0;
 	}
 
-	bool console::IsVtEnabled() const
+	bool console::IsVtActive() const
 	{
-		DWORD Mode;
-		return sEnableVirtualTerminal && GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+		return sEnableVirtualTerminal && IsVtEnabled();
 	}
 
 	bool console::ExternalRendererLoaded() const

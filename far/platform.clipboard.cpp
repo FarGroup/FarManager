@@ -54,7 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-// Moved from platform.global. It is only used with clipboard, no point to share it.
+// Moved from platform.memory. It is only used with clipboard, no point to share it.
 namespace os::memory::global
 {
 	namespace detail
@@ -78,7 +78,7 @@ namespace os::memory::global
 
 	using ptr = std::unique_ptr<std::remove_pointer_t<HGLOBAL>, detail::deleter>;
 
-	ptr alloc(unsigned const Flags, size_t const Size)
+	static ptr alloc(unsigned const Flags, size_t const Size)
 	{
 		return ptr(GlobalAlloc(Flags, Size));
 	}
@@ -100,7 +100,8 @@ namespace os::memory::global
 		return lock<T>(Ptr.get());
 	}
 
-	ptr copy(HGLOBAL const Ptr)
+#ifdef ENABLE_TESTS
+	static ptr copy(HGLOBAL const Ptr)
 	{
 		const auto Size = GlobalSize(Ptr);
 		auto Memory = alloc(GMEM_MOVEABLE, Size);
@@ -113,6 +114,9 @@ namespace os::memory::global
 
 		return Memory;
 	}
+#else
+	static ptr copy(HGLOBAL) = delete;
+#endif
 
 	template<class T>
 	[[nodiscard]]
@@ -133,7 +137,7 @@ namespace os::memory::global
 	}
 
 	[[nodiscard]]
-	ptr copy(string_view const Str)
+	static ptr copy(string_view const Str)
 	{
 		auto Memory = alloc(GMEM_MOVEABLE, (Str.size() + 1) * sizeof(wchar_t));
 		if (!Memory)

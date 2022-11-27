@@ -281,7 +281,7 @@ void ScreenBuf::ApplyShadow(rectangle Where, bool const IsLegacy)
 	fix_coordinates(Where);
 
 	const auto CharWidthEnabled = char_width::is_enabled();
-	const auto IsTrueColorAvailable = console.IsVtEnabled() || console.ExternalRendererLoaded();
+	const auto IsTrueColorAvailable = console.IsVtActive() || console.ExternalRendererLoaded();
 	const auto Is256ColorAvailable = IsTrueColorAvailable;
 
 	static constexpr FarColor

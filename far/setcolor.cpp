@@ -142,7 +142,7 @@ static void SetItemColors(span<const color_item> const Items, point Position = {
 	});
 }
 
-void ConfigurePalette()
+static void ConfigurePalette()
 {
 	DialogBuilder Builder(lng::MColorsPalette, {});
 	Builder.AddCheckbox(lng::MColorsClassicPalette, Global->Opt->SetPalette);

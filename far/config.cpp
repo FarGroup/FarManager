@@ -370,7 +370,6 @@ void Options::InterfaceSettings()
 			CMOpt.CopyTimeRule = 3;
 
 		SetFarConsoleMode();
-		::SetPalette();
 		consoleicons::instance().update_icon();
 
 		const auto& Panels = Global->CtrlObject->Cp();

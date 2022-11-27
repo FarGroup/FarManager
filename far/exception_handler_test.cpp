@@ -197,7 +197,7 @@ namespace tests
 		{
 			~c() noexcept(false)
 			{
-				if (volatile const auto Throw = true)
+				if ([[maybe_unused]] volatile const auto Throw = true)
 					throw MAKE_FAR_EXCEPTION(L"Dtor exception"s);
 			}
 		};

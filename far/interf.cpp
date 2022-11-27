@@ -794,7 +794,7 @@ static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_C
 			if (Char[1])
 			{
 				// It's a surrogate pair that occupies one cell only. Here be dragons.
-				if (console.IsVtEnabled())
+				if (console.IsVtActive())
 				{
 					// Put *one* fake character:
 					Buffer.back().Char = encoding::replace_char;

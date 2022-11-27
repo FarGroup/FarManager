@@ -394,7 +394,6 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			{
 				Global->Opt->VirtualTerminalRendering = true;
 				SetFarConsoleMode();
-				SetPalette();
 
 				Dlg->SendMessage(DM_ENABLE, cd_button_enable_vt, ToPtr(FALSE));
 
@@ -482,9 +481,9 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 bool GetColorDialog(FarColor& Color, bool const bCentered, const FarColor* const BaseColor, bool* const Reset)
 {
-	const auto IsVtEnabled = console.IsVtEnabled();
+	const auto IsVtActive = console.IsVtActive();
 	const auto IsVtSupported = console.IsVtSupported();
-	const auto ShowVtHint = !IsVtEnabled && !console.ExternalRendererLoaded();
+	const auto ShowVtHint = !IsVtActive && !console.ExternalRendererLoaded();
 
 	const auto
 		Fg4X = 5,
