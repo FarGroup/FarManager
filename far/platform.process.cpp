@@ -436,6 +436,15 @@ namespace os::process
 		return true;
 	}
 
+	bool terminate_other(int const Pid)
+	{
+		handle const Process(OpenProcess(PROCESS_TERMINATE, FALSE, Pid));
+		if (!Process)
+			return false;
+
+		return TerminateProcess(Process.native_handle(), ERROR_PROCESS_ABORTED) != FALSE;
+	}
+
 	[[noreturn]]
 	void terminate(int const ExitCode)
 	{

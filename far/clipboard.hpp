@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Internal:
-#include "platform.memory.hpp"
 
 // Platform:
 
@@ -79,8 +78,6 @@ public:
 
 	virtual bool GetText(string& Data) const = 0;
 	virtual bool GetVText(string& Data) const = 0;
-
-	static void enable_ansi_to_unicode_conversion_workaround(bool Enable);
 
 protected:
 	bool m_Opened{};

@@ -54,9 +54,11 @@ public:
 	new_handler();
 	~new_handler();
 
-	bool retry() const;
+	bool retry();
 
 private:
+	void initialize_ui();
+
 	COORD m_BufferSize;
 	os::handle m_Screen;
 	std::new_handler m_OldHandler{};

@@ -127,7 +127,7 @@ class multifunction
 {
 public:
 	MOVABLE(multifunction);
-	COPY_AND_MOVE(multifunction, const multifunction&)
+	COPY_ASSIGNABLE_SWAP(multifunction)
 
 	multifunction() = default;
 

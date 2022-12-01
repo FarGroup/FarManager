@@ -1571,7 +1571,7 @@ WARNING_POP()
 			BufferCoord.y + WriteRegion.height() - 1
 		};
 
-		return (IsVtEnabled()? implementation::WriteOutputVT : implementation::WriteOutputNT)(Buffer, SubRect, WriteRegion);
+		return (IsVtActive()? implementation::WriteOutputVT : implementation::WriteOutputNT)(Buffer, SubRect, WriteRegion);
 	}
 
 	bool console::Read(string& Buffer, size_t& Size) const
@@ -1666,7 +1666,7 @@ WARNING_POP()
 		if (ExternalConsole.Imports.pSetTextAttributes)
 			return ExternalConsole.Imports.pSetTextAttributes(&Attributes) != FALSE;
 
-		return (IsVtEnabled()? implementation::SetTextAttributesVT : implementation::SetTextAttributesNT)(Attributes);
+		return (IsVtActive()? implementation::SetTextAttributesVT : implementation::SetTextAttributesNT)(Attributes);
 	}
 
 	bool console::GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const
@@ -1841,14 +1841,47 @@ WARNING_POP()
 		return true;
 	}
 
-	point console::GetLargestWindowSize() const
+	static bool validate_console_size(point const Size)
 	{
-		point Result = GetLargestConsoleWindowSize(GetOutputHandle());
+		// https://github.com/microsoft/terminal/issues/10337
+
+		// As of 7 Oct 2022 GetLargestConsoleWindowSize is broken in WT.
+		// It takes the current screen resolution and divides it by an inadequate font size, e.g. 1x16.
+
+		// It is unlikely that it is ever gonna be fixed, so we do a few very basic checks here to filter out obvious rubbish.
+
+		if (Size.x <= 0 || Size.y <= 0)
+			return false;
+
+		// A typical screen ratio these days is roughly 2:1.
+		// A typical font cell is about 1:2, so the expected screen ratio in cells
+		// is around 4 for the landscape and around 1 for the portrait, give or take.
+		// Anything twice larger than that is likely rubbish.
+		if (Size.x >= 8 * Size.y || Size.y >= 2 * Size.x)
+			return false;
+
+		// The API works with SHORTs, anything larger than that makes no sense.
+		if (Size.x >= std::numeric_limits<SHORT>::max() || Size.y >= std::numeric_limits<SHORT>::max())
+			return false;
+
+		return true;
+	}
+
+	point console::GetLargestWindowSize(HANDLE const ConsoleOutput) const
+	{
+		point Result = GetLargestConsoleWindowSize(ConsoleOutput);
+
+		if (!validate_console_size(Result))
+		{
+			LOGERROR(L"GetLargestConsoleWindowSize(): the reported size {{{}, {}}} makes no sense. Talk to your terminal or OS vendor."sv, Result.x, Result.y);
+			return {};
+		}
+
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
-		if (get_console_screen_buffer_info(GetOutputHandle(), &csbi) && csbi.dwSize.Y > Result.y)
+		if (get_console_screen_buffer_info(ConsoleOutput, &csbi) && csbi.dwSize.Y > Result.y)
 		{
 			CONSOLE_FONT_INFO FontInfo;
-			if (get_current_console_font(GetOutputHandle(), FontInfo))
+			if (get_current_console_font(ConsoleOutput, FontInfo))
 			{
 				Result.x -= Round(GetSystemMetrics(SM_CXVSCROLL), static_cast<int>(FontInfo.dwFontSize.X));
 			}
@@ -2025,6 +2058,12 @@ WARNING_POP()
 			SetCursorPosition({ 0, WindowRect.height() - 1 });
 	}
 
+	bool console::IsVtEnabled() const
+	{
+		DWORD Mode;
+		return GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	}
+
 	short console::GetDelta() const
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -2126,10 +2165,9 @@ WARNING_POP()
 		return GetDelta() != 0;
 	}
 
-	bool console::IsVtEnabled() const
+	bool console::IsVtActive() const
 	{
-		DWORD Mode;
-		return sEnableVirtualTerminal && GetMode(GetOutputHandle(), Mode) && Mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+		return sEnableVirtualTerminal && IsVtEnabled();
 	}
 
 	bool console::ExternalRendererLoaded() const

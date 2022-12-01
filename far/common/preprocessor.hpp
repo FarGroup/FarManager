@@ -158,8 +158,8 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 #define WIDE_SV(x) DETAIL_WIDE_IMPL(x, sv)
 
 #define STR(x) #x
-#define WSTR(x) WIDE(STR(x))
-#define WSTRVIEW(x) WIDE_SV(STR(x))
+#define WSTR(x) WIDE(#x)
+#define WSTRVIEW(x) WIDE_SV(#x)
 
 #define CURRENT_FUNCTION_NAME std::string_view{ __func__, std::size(__func__) - 1 }
 #define CURRENT_FILE_NAME CHAR_SV(__FILE__)

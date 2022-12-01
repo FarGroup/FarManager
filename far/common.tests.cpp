@@ -482,6 +482,7 @@ TEST_CASE("from_string")
 	REQUIRE(from_string<int64_t>(L"-9223372036854775808"sv) == std::numeric_limits<int64_t>::min());
 	REQUIRE(from_string<int64_t>(L"9223372036854775807"sv) == std::numeric_limits<int64_t>::max());
 	REQUIRE(from_string<uint64_t>(L"18446744073709551615"sv) == std::numeric_limits<uint64_t>::max());
+	REQUIRE(from_string<double>(L"0.03125"sv) == 0.03125);
 
 	REQUIRE_THROWS_AS(from_string<uint64_t>(L"18446744073709551616"sv), std::out_of_range);
 	REQUIRE_THROWS_AS(from_string<int64_t>(L"-9223372036854775809"sv), std::out_of_range);
@@ -497,6 +498,7 @@ TEST_CASE("from_string")
 	REQUIRE_THROWS_AS(from_string<int>({}), std::invalid_argument);
 	REQUIRE_THROWS_AS(from_string<int>(L" 42"sv), std::invalid_argument);
 	REQUIRE_THROWS_AS(from_string<int>(L" +42"sv), std::invalid_argument);
+	REQUIRE_THROWS_AS(from_string<double>(L"1"sv, {}, 3), std::invalid_argument);
 
 	{
 		int Value;
@@ -731,6 +733,221 @@ TEST_CASE("placement")
 
 	placement::destruct(Object);
 	REQUIRE(Value == 33);
+}
+
+//----------------------------------------------------------------------------
+
+#include "common/preprocessor.hpp"
+
+TEST_CASE("preprocessor.types")
+{
+	{
+		using type = std::vector<int>;
+		type v;
+
+		STATIC_REQUIRE(std::is_same_v<REFERENCE(v),              type::reference>);
+		STATIC_REQUIRE(std::is_same_v<CONST_REFERENCE(v),        type::const_reference>);
+		STATIC_REQUIRE(std::is_same_v<VALUE_TYPE(v),             type::value_type>);
+		STATIC_REQUIRE(std::is_same_v<CONST_VALUE_TYPE(v),       type::value_type const>);
+		STATIC_REQUIRE(std::is_same_v<ITERATOR(v),               type::iterator>);
+		STATIC_REQUIRE(std::is_same_v<CONST_ITERATOR(v),         type::const_iterator>);
+		STATIC_REQUIRE(std::is_same_v<REVERSE_ITERATOR(v),       type::reverse_iterator>);
+		STATIC_REQUIRE(std::is_same_v<CONST_REVERSE_ITERATOR(v), type::const_reverse_iterator>);
+	}
+
+	{
+		using type = int[2];
+		type v;
+
+		STATIC_REQUIRE(std::is_same_v<REFERENCE(v),              int&>);
+		STATIC_REQUIRE(std::is_same_v<CONST_REFERENCE(v),        int const&>);
+		STATIC_REQUIRE(std::is_same_v<VALUE_TYPE(v),             int>);
+		STATIC_REQUIRE(std::is_same_v<CONST_VALUE_TYPE(v),       int const>);
+		STATIC_REQUIRE(std::is_same_v<ITERATOR(v),               int*>);
+		STATIC_REQUIRE(std::is_same_v<CONST_ITERATOR(v),         int const*>);
+		STATIC_REQUIRE(std::is_same_v<REVERSE_ITERATOR(v),       std::reverse_iterator<int*>>);
+		STATIC_REQUIRE(std::is_same_v<CONST_REVERSE_ITERATOR(v), std::reverse_iterator<int const*>>);
+
+	}
+}
+
+TEST_CASE("preprocessor.copy-move")
+{
+	{
+		struct s
+		{
+			NONCOPYABLE(s);
+			s() = default;
+		};
+
+		STATIC_REQUIRE(!std::is_copy_constructible_v<s>);
+		STATIC_REQUIRE(!std::is_copy_assignable_v<s>);
+		STATIC_REQUIRE(!std::is_move_constructible_v<s>);
+		STATIC_REQUIRE(!std::is_move_assignable_v<s>);
+	}
+
+	{
+		struct s
+		{
+			NONMOVABLE(s);
+			s() = default;
+		};
+
+		STATIC_REQUIRE(!std::is_copy_constructible_v<s>);
+		STATIC_REQUIRE(!std::is_copy_assignable_v<s>);
+		STATIC_REQUIRE(!std::is_move_constructible_v<s>);
+		STATIC_REQUIRE(!std::is_move_assignable_v<s>);
+	}
+
+	{
+		struct s
+		{
+			MOVABLE(s);
+			s() = default;
+		};
+
+		STATIC_REQUIRE(!std::is_copy_constructible_v<s>);
+		STATIC_REQUIRE(!std::is_copy_assignable_v<s>);
+		STATIC_REQUIRE(std::is_move_constructible_v<s>);
+		STATIC_REQUIRE(std::is_move_assignable_v<s>);
+	}
+
+	{
+		struct s
+		{
+			NONCOPYABLE(s);
+			MOVABLE(s);
+			s() = default;
+		};
+
+		STATIC_REQUIRE(!std::is_copy_constructible_v<s>);
+		STATIC_REQUIRE(!std::is_copy_assignable_v<s>);
+		STATIC_REQUIRE(std::is_move_constructible_v<s>);
+		STATIC_REQUIRE(std::is_move_assignable_v<s>);
+	}
+
+	{
+		struct s
+		{
+			COPYABLE(s);
+			MOVABLE(s);
+			s() = default;
+		};
+
+		STATIC_REQUIRE(std::is_copy_constructible_v<s>);
+		STATIC_REQUIRE(std::is_copy_assignable_v<s>);
+		STATIC_REQUIRE(std::is_move_constructible_v<s>);
+		STATIC_REQUIRE(std::is_move_assignable_v<s>);
+	}
+
+	{
+		struct s
+		{
+			NOT_COPY_ASSIGNABLE(s);
+			s() = default;
+		};
+
+		STATIC_REQUIRE(std::is_copy_constructible_v<s>);
+		STATIC_REQUIRE(!std::is_copy_assignable_v<s>);
+		STATIC_REQUIRE(std::is_move_constructible_v<s>);
+		STATIC_REQUIRE(!std::is_move_assignable_v<s>);
+	}
+
+	{
+		struct s
+		{
+			MOVE_ASSIGNABLE(s);
+			s() = default;
+		};
+
+		STATIC_REQUIRE(!std::is_copy_constructible_v<s>);
+		STATIC_REQUIRE(!std::is_copy_assignable_v<s>);
+		STATIC_REQUIRE(!std::is_move_constructible_v<s>);
+		STATIC_REQUIRE(std::is_move_assignable_v<s>);
+	}
+
+	{
+		struct s
+		{
+			NOT_MOVE_ASSIGNABLE(s);
+			s() = default;
+		};
+
+		STATIC_REQUIRE(!std::is_copy_constructible_v<s>);
+		STATIC_REQUIRE(!std::is_copy_assignable_v<s>);
+		STATIC_REQUIRE(!std::is_move_constructible_v<s>);
+		STATIC_REQUIRE(!std::is_move_assignable_v<s>);
+	}
+}
+
+TEST_CASE("preprocessor.literals")
+{
+	{
+		// Should expand macros
+
+		#define TEST_LITERAL "la\0rd"
+		constexpr size_t Size = 5;
+		static_assert(sizeof(TEST_LITERAL) - 1 == Size);
+
+		const auto Str = CHAR_S(TEST_LITERAL);
+		STATIC_REQUIRE(std::is_same_v<decltype(Str), std::string const>);
+		REQUIRE(Str.size() == Size);
+
+		constexpr auto View = CHAR_SV(TEST_LITERAL);
+		STATIC_REQUIRE(std::is_same_v<decltype(View), std::string_view const>);
+		STATIC_REQUIRE(View.size() == Size);
+
+		const auto WStr = WIDE_S(TEST_LITERAL);
+		STATIC_REQUIRE(std::is_same_v<decltype(WStr), std::wstring const>);
+		REQUIRE(WStr.size() == Size);
+
+		constexpr auto WView = WIDE_SV(TEST_LITERAL);
+		STATIC_REQUIRE(std::is_same_v<decltype(WView), std::wstring_view const>);
+		STATIC_REQUIRE(WView.size() == Size);
+
+		#undef TEST_LITERAL
+	}
+
+	{
+		// Should not expand macros
+
+		#define TEST_TOKEN meow
+
+		STATIC_REQUIRE(std::is_same_v<decltype(STR(TEST_TOKEN)), char const(&)[11]>);
+		STATIC_REQUIRE(std::is_same_v<decltype(WSTR(TEST_TOKEN)), wchar_t const(&)[11]>);
+
+		const auto Literal = STR(TEST_TOKEN);
+		STATIC_REQUIRE(std::is_same_v<decltype(Literal), char const* const>);
+		REQUIRE(Literal == "TEST_TOKEN"sv);
+
+		const auto WLiteral = WSTR(TEST_TOKEN);
+		STATIC_REQUIRE(std::is_same_v<decltype(WLiteral), wchar_t const* const>);
+		REQUIRE(WLiteral == L"TEST_TOKEN"sv);
+
+		const auto WView = WSTRVIEW(TEST_TOKEN);
+		STATIC_REQUIRE(std::is_same_v<decltype(WView), std::wstring_view const>);
+		REQUIRE(WView == L"TEST_TOKEN"sv);
+
+		#undef TEST_TOKEN
+	}
+}
+
+TEST_CASE("preprocessor.predefined")
+{
+	struct test
+	{
+		static void method()
+		{
+#if __cpp_lib_string_view == 201803
+			STATIC_REQUIRE(CURRENT_FUNCTION_NAME == "method"sv);
+#endif
+			REQUIRE(CURRENT_FUNCTION_NAME == "method"sv);
+		}
+	};
+
+	test::method();
+
+	STATIC_REQUIRE(ends_with(WIDE(CURRENT_FILE_NAME), L"common.tests.cpp"sv));
 }
 
 //----------------------------------------------------------------------------

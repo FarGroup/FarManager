@@ -4572,23 +4572,19 @@ static void edit_sort_layers(int MenuPos)
 	SortLayersMenu->Run([&](const Manager::Key& RawKey)
 	{
 		const auto Pos = SortLayersMenu->GetSelectPos();
-		if (!Pos)
-			return false;
 
 		switch (const auto Key = RawKey())
 		{
 		case KEY_INS:
 		case KEY_NUMPAD0:
-			if (Pos > 0)
+			if (const auto Result = select_sort_layer(SortLayers); Result >= 0)
 			{
-				if (const auto Result = select_sort_layer(SortLayers); Result >= 0)
-				{
-					const auto NewSortModeIndex = std::find_if(CONST_RANGE(SortModes, i) { return i.MenuPosition == Result; }) - SortModes;
-					const auto Order = SortModes[NewSortModeIndex].DefaultLayers.begin()->second;
-					SortLayersMenu->AddItem(MenuItemEx{ msg(SortModes[NewSortModeIndex].Label), MIF_CHECKED | order_indicator(Order) }, Pos);
-					SortLayersMenu->SetSelectPos(Pos);
-					SortLayers.emplace(SortLayers.begin() + Pos, static_cast<panel_sort>(NewSortModeIndex), Order);
-				}
+				const auto NewSortModeIndex = std::find_if(CONST_RANGE(SortModes, i) { return i.MenuPosition == Result; }) - SortModes;
+				const auto Order = SortModes[NewSortModeIndex].DefaultLayers.begin()->second;
+				const auto InsertPos = Pos > 0? Pos : 1;
+				SortLayersMenu->AddItem(MenuItemEx{ msg(SortModes[NewSortModeIndex].Label), MIF_CHECKED | order_indicator(Order) }, InsertPos);
+				SortLayersMenu->SetSelectPos(InsertPos);
+				SortLayers.emplace(SortLayers.begin() + InsertPos, static_cast<panel_sort>(NewSortModeIndex), Order);
 			}
 			break;
 
@@ -4602,29 +4598,35 @@ static void edit_sort_layers(int MenuPos)
 			break;
 
 		case KEY_F4:
-			if (const auto Result = select_sort_layer(SortLayers); Result >= 0)
+			if (Pos > 0)
 			{
-				const auto NewSortModeIndex = std::find_if(CONST_RANGE(SortModes, i) { return i.MenuPosition == Result; }) - SortModes;
-				const auto Order = SortModes[NewSortModeIndex].DefaultLayers.begin()->second;
-				SortLayersMenu->at(Pos).Name = msg(SortModes[NewSortModeIndex].Label);
-				SortLayersMenu->at(Pos).SetCustomCheck(order_indicator(Order));
-				SortLayers[Pos] = { static_cast<panel_sort>(NewSortModeIndex), Order };
-				SortLayersMenu->Redraw();
+				if (const auto Result = select_sort_layer(SortLayers); Result >= 0)
+				{
+					const auto NewSortModeIndex = std::find_if(CONST_RANGE(SortModes, i) { return i.MenuPosition == Result; }) - SortModes;
+					const auto Order = SortModes[NewSortModeIndex].DefaultLayers.begin()->second;
+					SortLayersMenu->at(Pos).Name = msg(SortModes[NewSortModeIndex].Label);
+					SortLayersMenu->at(Pos).SetCustomCheck(order_indicator(Order));
+					SortLayers[Pos] = { static_cast<panel_sort>(NewSortModeIndex), Order };
+					SortLayersMenu->Redraw();
+				}
 			}
 			break;
 
 		case L'+':
 		case KEY_ADD:
-			SetCheck(Pos, sort_order::ascend);
+			if (Pos > 0)
+				SetCheck(Pos, sort_order::ascend);
 			break;
 
 		case L'-':
 		case KEY_SUBTRACT:
-			SetCheck(Pos, sort_order::descend);
+			if (Pos > 0)
+				SetCheck(Pos, sort_order::descend);
 			break;
 
 		case L'*':
 		case KEY_MULTIPLY:
+			if (Pos > 0)
 			{
 				const auto CurrentOrder = SortLayers[Pos].second;
 				const auto NewOrder =

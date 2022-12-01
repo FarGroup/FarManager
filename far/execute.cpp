@@ -381,18 +381,17 @@ static void wait_for_process_or_detach(os::handle const& Process, int const Cons
 		  чего работающее приложение могло и не ожидать.
 		*/
 
+		if (const auto Window = console.GetWindow())   // если окно имело HOTKEY, то старое должно его забыть.
+			SendMessage(Window, WM_SETHOTKEY, 0, 0);
+
 		console.Free();
 		console.Allocate();
 
-		if (const auto Window = console.GetWindow())   // если окно имело HOTKEY, то старое должно его забыть.
-			SendMessage(Window, WM_SETHOTKEY, 0, 0);
+		InitConsole();
 
 		console.SetSize(ConsoleSize);
 		console.SetWindowRect(ConsoleWindowRect);
 		console.SetSize(ConsoleSize);
-
-		os::chrono::sleep_for(100ms);
-		InitConsole();
 
 		console.SetAllAliases(std::move(Aliases));
 

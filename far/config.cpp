@@ -87,9 +87,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "log.hpp"
 #include "char_width.hpp"
-#include "clipboard.hpp"
 
 // Platform:
+#include "platform.clipboard.hpp"
 #include "platform.env.hpp"
 
 // Common:
@@ -370,7 +370,6 @@ void Options::InterfaceSettings()
 			CMOpt.CopyTimeRule = 3;
 
 		SetFarConsoleMode();
-		::SetPalette();
 		consoleicons::instance().update_icon();
 
 		const auto& Panels = Global->CtrlObject->Cp();
@@ -1779,7 +1778,7 @@ Options::Options():
 
 	ClipboardUnicodeWorkaround.SetCallback(option::notifier([](bool const Value)
 	{
-		clipboard::enable_ansi_to_unicode_conversion_workaround(Value);
+		os::clipboard::enable_ansi_to_unicode_conversion_workaround(Value);
 	}));
 
 	SetPalette.SetCallback(option::notifier([](bool const Value)

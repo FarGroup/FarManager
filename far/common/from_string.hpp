@@ -40,31 +40,23 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace detail
 {
-	namespace handler
+	enum class result
 	{
-		[[noreturn]]
-		inline void invalid_argument()
-		{
-			throw std::invalid_argument("invalid from_string argument");
-		}
-
-		[[noreturn]]
-		inline void out_of_range()
-		{
-			throw std::out_of_range("from_string argument out of range");
-		}
-	}
+		ok,
+		invalid_argument,
+		out_of_range,
+	};
 
 	template<typename result_type, typename converter_type>
-	void from_string(std::wstring_view const Str, result_type& Value, size_t* Pos, int Base, converter_type Converter)
+	result from_string(std::wstring_view const Str, result_type& Value, size_t* const Pos, int const Base, converter_type const Converter)
 	{
 		if (Str.empty() || Str.front() == L' ' || Str.front() == L'+')
-			handler::invalid_argument();
+			return result::invalid_argument;
 
 		if constexpr(std::is_unsigned_v<result_type>)
 		{
 			if (Str.front() == L'-')
-				handler::out_of_range();
+				return result::out_of_range;
 		}
 
 		auto& Errno = errno; // Nonzero cost, pay it once
@@ -77,104 +69,107 @@ namespace detail
 		const auto Result = Converter(Ptr, &EndPtr, Base);
 
 		if (Ptr == EndPtr)
-			handler::invalid_argument();
+			return result::invalid_argument;
 
 		if (Errno == ERANGE)
-			handler::out_of_range();
+			return result::out_of_range;
 
 		if (Pos != nullptr)
 			*Pos = static_cast<size_t>(EndPtr - Ptr);
 
 		Value = Result;
+
+		return result::ok;
 	}
 
-	inline void from_string(std::wstring_view const Str, long& Value, size_t* Pos, int Base)
+	inline auto from_string(std::wstring_view const Str, long& Value, size_t* const Pos, int const Base)
 	{
-		from_string(Str, Value, Pos, Base, std::wcstol);
+		return from_string(Str, Value, Pos, Base, std::wcstol);
 	}
 
-	inline void from_string(std::wstring_view const Str, unsigned long& Value, size_t* Pos, int Base)
+	inline auto from_string(std::wstring_view const Str, unsigned long& Value, size_t* const Pos, int const Base)
 	{
-		from_string(Str, Value, Pos, Base, std::wcstoul);
+		return from_string(Str, Value, Pos, Base, std::wcstoul);
 	}
 
-	inline void from_string(std::wstring_view const Str, long long& Value, size_t* Pos, int Base)
+	inline auto from_string(std::wstring_view const Str, long long& Value, size_t* const Pos, int const Base)
 	{
-		from_string(Str, Value, Pos, Base, std::wcstoll);
+		return from_string(Str, Value, Pos, Base, std::wcstoll);
 	}
 
-	inline void from_string(std::wstring_view const Str, unsigned long long& Value, size_t* Pos, int Base)
+	inline auto from_string(std::wstring_view const Str, unsigned long long& Value, size_t* const Pos, int const Base)
 	{
-		from_string(Str, Value, Pos, Base, std::wcstoull);
+		return from_string(Str, Value, Pos, Base, std::wcstoull);
 	}
 
-	inline void from_string(std::wstring_view const Str, int& Value, size_t* Pos, int Base)
+	template<typename L, typename S>
+	auto from_string_long(std::wstring_view const Str, S& Value, size_t* const Pos, int const Base)
 	{
-		static_assert(sizeof(int) == sizeof(long));
-		long LongValue;
-		from_string(Str, LongValue, Pos, Base);
-		Value = static_cast<int>(LongValue);
+		L LongValue;
+		if (const auto Result = from_string(Str, LongValue, Pos, Base); Result != result::ok)
+			return Result;
+
+		if (LongValue < std::numeric_limits<S>::min() || LongValue > std::numeric_limits<S>::max())
+			return result::out_of_range;
+
+		Value = static_cast<S>(LongValue);
+		return result::ok;
 	}
 
-	inline void from_string(std::wstring_view const Str, unsigned int& Value, size_t* Pos, int Base)
+	inline auto from_string(std::wstring_view const Str, int& Value, size_t* const Pos, int const Base)
 	{
-		static_assert(sizeof(unsigned int) == sizeof(unsigned long));
-		unsigned long LongValue;
-		from_string(Str, LongValue, Pos, Base);
-		Value = static_cast<unsigned int>(LongValue);
+		return from_string_long<long>(Str, Value, Pos, Base);
 	}
 
-	inline void from_string(std::wstring_view const Str, short& Value, size_t* Pos, int Base)
+	inline auto from_string(std::wstring_view const Str, unsigned int& Value, size_t* const Pos, int const Base)
 	{
-		long LongValue;
-		from_string(Str, LongValue, Pos, Base);
-		if (LongValue < std::numeric_limits<short>::min() || LongValue > std::numeric_limits<short>::max())
-			handler::out_of_range();
-
-		Value = static_cast<short>(LongValue);
+		return from_string_long<unsigned long>(Str, Value, Pos, Base);
 	}
 
-	inline void from_string(std::wstring_view const Str, unsigned short& Value, size_t* Pos, int Base)
+	inline auto from_string(std::wstring_view const Str, short& Value, size_t* const Pos, int const Base)
 	{
-		unsigned long LongValue;
-		from_string(Str, LongValue, Pos, Base);
-		if (LongValue > std::numeric_limits<unsigned short>::max())
-			handler::out_of_range();
-
-		Value = static_cast<unsigned short>(LongValue);
+		return from_string_long<long>(Str, Value, Pos, Base);
 	}
 
-	inline void from_string(std::wstring_view const Str, double& Value, size_t* Pos, int)
+	inline auto from_string(std::wstring_view const Str, unsigned short& Value, size_t* const Pos, int const Base)
 	{
-		from_string(Str, Value, Pos, {}, [](const wchar_t* const StrPtr, wchar_t** const EndPtr, int) { return std::wcstod(StrPtr, EndPtr); });
+		return from_string_long<unsigned long>(Str, Value, Pos, Base);
+	}
+
+	inline auto from_string(std::wstring_view const Str, double& Value, size_t* const Pos, int const Base)
+	{
+		if (Base != 10)
+			return result::invalid_argument;
+
+		return from_string(Str, Value, Pos, Base, [](wchar_t const* const StrPtr, wchar_t** const EndPtr, int) { return std::wcstod(StrPtr, EndPtr); });
 	}
 }
 
 template<typename T>
 [[nodiscard]]
-bool from_string(std::wstring_view const Str, T& Value, size_t* Pos = nullptr, int Base = 10)
+bool from_string(std::wstring_view const Str, T& Value, size_t* const Pos = {}, int const Base = 10)
 {
-	if (Str.empty())
-		return false;
-
-	try
-	{
-		detail::from_string(Str, Value, Pos, Base);
-		return true;
-	}
-	catch (std::exception const&)
-	{
-		return false;
-	}
+	return detail::from_string(Str, Value, Pos, Base) == detail::result::ok;
 }
 
 template<typename T>
 [[nodiscard]]
-T from_string(std::wstring_view const Str, size_t* Pos = nullptr, int Base = 10)
+T from_string(std::wstring_view const Str, size_t* const Pos = {}, int const Base = 10)
 {
-	T Value;
-	detail::from_string(Str, Value, Pos, Base);
-	return Value;
+	switch (T Value; detail::from_string(Str, Value, Pos, Base))
+	{
+	case detail::result::ok:
+		return Value;
+
+	case detail::result::invalid_argument:
+		throw std::invalid_argument("invalid from_string argument");
+
+	case detail::result::out_of_range:
+		throw std::out_of_range("from_string argument out of range");
+
+	default:
+		UNREACHABLE;
+	}
 }
 
 #endif // FROM_STRING_HPP_B1AC0296_5353_4EFE_91BE_DD553796548A

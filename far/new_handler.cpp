@@ -164,21 +164,21 @@ namespace
 	};
 }
 
-new_handler::new_handler():
-	m_BufferSize{ X, Y },
-	m_Screen(CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, CONSOLE_TEXTMODE_BUFFER, nullptr))
+static os::handle create_ui(COORD const BufferSize)
 {
-	if (!m_Screen)
+	os::handle Screen{ CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, {}, CONSOLE_TEXTMODE_BUFFER, {}) };
+
+	if (!Screen)
 	{
 		LOGWARNING(L"CreateConsoleScreenBuffer(): {}"sv, os::last_error());
-		return;
+		return {};
 	}
 
 	CONSOLE_SCREEN_BUFFER_INFO Info;
-	if (!GetConsoleScreenBufferInfo(m_Screen.native_handle(), &Info))
+	if (!GetConsoleScreenBufferInfo(Screen.native_handle(), &Info))
 	{
 		LOGWARNING(L"GetConsoleScreenBufferInfo(): {}"sv, os::last_error());
-		return;
+		return {};
 	}
 
 	// The new and improved console is full of wonders.
@@ -190,55 +190,55 @@ new_handler::new_handler():
 	// This is insane.
 	if (Info.dwSize.X < X || Info.dwSize.Y < Y)
 	{
-		const COORD BufferSize
+		const COORD CompatibleBufferSize
 		{
 			std::max(static_cast<short>(X), Info.dwSize.X),
 			std::max(static_cast<short>(X), Info.dwSize.Y)
 		};
 
-		if (!SetConsoleScreenBufferSize(m_Screen.native_handle(), BufferSize))
+		if (!SetConsoleScreenBufferSize(Screen.native_handle(), CompatibleBufferSize))
 		{
 			LOGWARNING(L"SetConsoleScreenBufferSize(): {}"sv, os::last_error());
-			return;
+			return {};
 		}
 	}
 
-	if (const SMALL_RECT WindowInfo{ 0, 0, X - 1, Y - 1 }; !SetConsoleWindowInfo(m_Screen.native_handle(), true, &WindowInfo))
+	if (const SMALL_RECT WindowInfo{ 0, 0, X - 1, Y - 1 }; !SetConsoleWindowInfo(Screen.native_handle(), true, &WindowInfo))
 	{
 		LOGWARNING(L"SetConsoleWindowInfo(): {}"sv, os::last_error());
-		return;
+		return {};
 	}
 
 	if (Info.dwSize.X > X || Info.dwSize.Y > Y)
 	{
-		if (!SetConsoleScreenBufferSize(m_Screen.native_handle(), { X, Y }))
+		if (!SetConsoleScreenBufferSize(Screen.native_handle(), { X, Y }))
 		{
 			LOGWARNING(L"SetConsoleScreenBufferSize(): {}"sv, os::last_error());
-			return;
+			return {};
 		}
 	}
 
 	const auto WhiteOnBlue = 0x9F;
-	if (!SetConsoleTextAttribute(m_Screen.native_handle(), WhiteOnBlue))
+	if (!SetConsoleTextAttribute(Screen.native_handle(), WhiteOnBlue))
 	{
 		LOGWARNING(L"SetConsoleTextAttribute(): {}"sv, os::last_error());
-		return;
+		return {};
 	}
 
-	if (DWORD AttrWritten; !FillConsoleOutputAttribute(m_Screen.native_handle(), WhiteOnBlue, X * Y, { 0, 0 }, &AttrWritten))
+	if (DWORD AttrWritten; !FillConsoleOutputAttribute(Screen.native_handle(), WhiteOnBlue, X * Y, { 0, 0 }, &AttrWritten))
 	{
 		LOGWARNING(L"FillConsoleOutputAttribute(): {}"sv, os::last_error());
-		return;
+		return {};
 	}
 
 
-	if (const CONSOLE_CURSOR_INFO cci{ 1 }; !SetConsoleCursorInfo(m_Screen.native_handle(), &cci))
+	if (const CONSOLE_CURSOR_INFO cci{ 1 }; !SetConsoleCursorInfo(Screen.native_handle(), &cci))
 	{
 		LOGWARNING(L"SetConsoleCursorInfo(): {}"sv, os::last_error());
-		return;
+		return {};
 	}
 
-	const string_view Strings[]
+	string_view const Strings[]
 	{
 		build::version_string(),
 		{},
@@ -246,16 +246,16 @@ new_handler::new_handler():
 		L"Press Enter to retry or Esc to continue..."sv
 	};
 
-	const auto Write = [this](const string_view Str, size_t Y)
+	const auto Write = [&](string_view const Str, size_t const Y)
 	{
-		if (!SetConsoleCursorPosition(m_Screen.native_handle(), { static_cast<short>((m_BufferSize.X - Str.size()) / 2), static_cast<short>(Y) }))
+		if (!SetConsoleCursorPosition(Screen.native_handle(), { static_cast<short>((BufferSize.X - Str.size()) / 2), static_cast<short>(Y) }))
 		{
 			LOGWARNING(L"SetConsoleCursorPosition(): {}"sv, os::last_error());
 			return false;
 		}
 
 		DWORD CharWritten;
-		if (!WriteConsole(m_Screen.native_handle(), Str.data(), static_cast<DWORD>(Str.size()), &CharWritten, nullptr) && CharWritten == Str.size())
+		if (!WriteConsole(Screen.native_handle(), Str.data(), static_cast<DWORD>(Str.size()), &CharWritten, nullptr) && CharWritten == Str.size())
 		{
 			LOGWARNING(L"WriteConsole(): {}"sv, os::last_error());
 			return false;
@@ -264,12 +264,28 @@ new_handler::new_handler():
 		return true;
 	};
 
-	auto InitialY = (m_BufferSize.Y - std::size(Strings)) / 2;
+	auto InitialY = (BufferSize.Y - std::size(Strings)) / 2;
 	for (const auto& Str : Strings)
 	{
 		if (!Write(Str, InitialY++))
-			return;
+			return {};
 	}
+
+	return Screen;
+}
+
+void new_handler::initialize_ui()
+{
+	m_Screen = create_ui(m_BufferSize);
+}
+
+new_handler::new_handler():
+	m_BufferSize{ X, Y }
+{
+	initialize_ui();
+
+	if (!m_Screen)
+		return;
 
 	NewHandler = this;
 
@@ -305,13 +321,19 @@ new_handler::~new_handler()
 	NewHandler = nullptr;
 }
 
-bool new_handler::retry() const
+bool new_handler::retry()
 {
 	const auto CurrentBuffer = GetStdHandle(STD_OUTPUT_HANDLE);
-	if (!SetConsoleActiveScreenBuffer(m_Screen.native_handle()))
+
+	while (!SetConsoleActiveScreenBuffer(m_Screen.native_handle()))
 	{
 		LOGWARNING(L"SetConsoleActiveScreenBuffer(): {}"sv, os::last_error());
-		return false;
+
+		if (GetLastError() != ERROR_INVALID_HANDLE)
+			return false;
+
+		LOGINFO(L"Reinitializing");
+		initialize_ui();
 	}
 
 	SCOPE_EXIT { SetConsoleActiveScreenBuffer(CurrentBuffer); };

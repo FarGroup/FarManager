@@ -157,7 +157,7 @@ namespace console_detail
 
 		bool GetDisplayMode(DWORD& Mode) const;
 
-		point GetLargestWindowSize() const;
+		point GetLargestWindowSize(HANDLE ConsoleOutput) const;
 
 		bool SetActiveScreenBuffer(HANDLE ConsoleOutput);
 
@@ -184,7 +184,7 @@ namespace console_detail
 		bool IsScrollbackPresent() const;
 
 		[[nodiscard]]
-		bool IsVtEnabled() const;
+		bool IsVtActive() const;
 
 		[[nodiscard]]
 		bool ExternalRendererLoaded() const;
@@ -203,6 +203,9 @@ namespace console_detail
 		class implementation;
 		friend class implementation;
 
+		[[nodiscard]]
+		bool IsVtEnabled() const;
+		[[nodiscard]]
 		short GetDelta() const;
 		bool ScrollScreenBuffer(rectangle const& ScrollRectangle, point DestinationOrigin, const FAR_CHAR_INFO& Fill) const;
 		bool GetCursorRealPosition(point& Position) const;

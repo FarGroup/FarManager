@@ -62,10 +62,7 @@ struct map_file::line
 
 static string get_map_name(string_view const ModuleName)
 {
-	string_view BaseName = ModuleName;
-	const auto Ext = name_ext(BaseName).second;
-	BaseName.remove_suffix(Ext.size());
-	return BaseName + L".map"sv;
+	return name_ext(ModuleName).first + L".map"sv;
 }
 
 map_file::map_file(string_view const ModuleName)
@@ -180,8 +177,10 @@ static void read_vc(std::istream& Stream, unordered_string_set& Files, std::map<
 {
 	RegExp ReBase, ReSymbol;
 	ReBase.Compile(L"^ +Preferred load address is ([0-9A-Fa-f]+)$"sv, OP_OPTIMIZE);
-	ReSymbol.Compile(L"^ +([0-9A-Fa-f]+):([0-9A-Fa-f]+) +([^ ]+) +([0-9A-Fa-f]+) .+ ([^ ]+)$"sv, OP_OPTIMIZE);
+	ReSymbol.Compile(L"^ +[0-9A-Fa-f]+:[0-9A-Fa-f]+ +([^ ]+) +([0-9A-Fa-f]+) .+ ([^ ]+)$"sv, OP_OPTIMIZE);
+
 	std::vector<RegExpMatch> m;
+	m.reserve(3);
 
 	uintptr_t BaseAddress{};
 
@@ -198,7 +197,7 @@ static void read_vc(std::istream& Stream, unordered_string_set& Files, std::map<
 
 		if (ReSymbol.Search(i.Str, m))
 		{
-			auto Address = from_string<uintptr_t>(group(i.Str, m, 4), {}, 16);
+			auto Address = from_string<uintptr_t>(group(i.Str, m, 2), {}, 16);
 			if (!Address)
 				continue;
 
@@ -206,8 +205,8 @@ static void read_vc(std::istream& Stream, unordered_string_set& Files, std::map<
 				Address -= BaseAddress;
 
 			map_file::line Line;
-			Line.Name = group(i.Str, m, 3);
-			const auto File = group(i.Str, m, 5);
+			Line.Name = group(i.Str, m, 1);
+			const auto File = group(i.Str, m, 3);
 			Line.File = &*Files.emplace(File).first;
 
 			Symbols.emplace(Address, std::move(Line));
@@ -221,7 +220,9 @@ static void read_clang(std::istream& Stream, unordered_string_set& Files, std::m
 	RegExp ReObject, ReSymbol;
 	ReObject.Compile(L"^[0-9A-Fa-f]+ [0-9A-Fa-f]+ +[0-9]+         (.+)$"sv);
 	ReSymbol.Compile(L"^([0-9A-Fa-f]+) [0-9A-Fa-f]+     0                 (.+)$"sv);
+
 	std::vector<RegExpMatch> m;
+	m.reserve(2);
 
 	string ObjName;
 
@@ -254,7 +255,9 @@ static void read_gcc(std::istream& Stream, unordered_string_set& Files, std::map
 	ReFile.Compile(L"^File $"sv);
 	ReFileName.Compile(L"^\\[ *[0-9]+\\]\\(.+\\)\\(.+\\)\\(.+\\)\\(.+\\) \\(nx 1\\) 0x[0-9A-Fa-f]+ (.+)$"sv);
 	ReSymbol.Compile(L"^\\[ *[0-9]+\\]\\(.+\\)\\(.+\\)\\(.+\\)\\(.+\\) \\(nx 0\\) 0x([0-9A-Fa-f]+) (.+)$"sv);
+
 	std::vector<RegExpMatch> m;
+	m.reserve(2);
 
 	const auto BaseAddress = 0x1000;
 
