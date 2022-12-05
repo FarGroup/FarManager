@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "scrobj.hpp"
+#include "stddlg.hpp"
 #include "poscache.hpp"
 #include "bitflags.hpp"
 #include "config.hpp"
@@ -384,8 +385,7 @@ private:
 	int Pasting{};
 	int XX2{}; //scrollbar
 	string strLastSearchStr;
-	search_case_fold LastSearchCaseFold;
-	bool LastSearchWholeWords{}, LastSearchReverse{}, LastSearchRegexp{}, LastSearchPreserveStyle{};
+	SearchReplaceDlgOptions LastSearchDlgOptions;
 
 	int EditorID{};
 	int EditorControlLock{};

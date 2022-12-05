@@ -263,17 +263,15 @@ bool PreserveStyleReplaceString(
 	string_view const Str,
 	string& ReplaceStr,
 	int& CurPos,
-	search_case_fold CaseFold,
-	bool WholeWords,
+	search_replace_string_options const options,
 	string_view const WordDiv,
-	bool Reverse,
 	int& SearchLength
 )
 {
 	int Position = CurPos;
 	SearchLength = 0;
 
-	if (Reverse)
+	if (options.Reverse)
 	{
 		Position = std::min(Position - 1, static_cast<int>(Source.size() - 1));
 
@@ -291,9 +289,9 @@ bool PreserveStyleReplaceString(
 		return std::iswblank(Ch) || contains(WordDiv, Ch);
 	};
 
-	for (int I=Position; (Reverse && I>=0) || (!Reverse && static_cast<size_t>(I) < Source.size()); Reverse? I-- : I++)
+	for (int I=Position; (options.Reverse && I>=0) || (!options.Reverse && static_cast<size_t>(I) < Source.size()); options.Reverse? I-- : I++)
 	{
-		if (WholeWords && I && !BlankOrWordDiv(Source[I - 1]))
+		if (options.WholeWords && I && !BlankOrWordDiv(Source[I - 1]))
 			continue;
 
 		bool Matched = true;
@@ -351,13 +349,13 @@ bool PreserveStyleReplaceString(
 				break;
 			}
 
-			if (CaseFold == search_case_fold::exact && Source[Idx] != j->Token[T])
+			if (options.CaseSensitive && Source[Idx] != j->Token[T])
 			{
 				Matched = false;
 				break;
 			}
 
-			if (CaseFold != search_case_fold::exact && upper(Source[Idx]) != upper(j->Token[T]))
+			if (!options.CaseSensitive && upper(Source[Idx]) != upper(j->Token[T]))
 			{
 				Matched = false;
 				break;
@@ -367,7 +365,7 @@ bool PreserveStyleReplaceString(
 			Idx++;
 		}
 
-		if (WholeWords && Idx < Source.size() && !BlankOrWordDiv(Source[Idx]))
+		if (options.WholeWords && Idx < Source.size() && !BlankOrWordDiv(Source[Idx]))
 			continue;
 
 		if (!Matched || T != j->Token.size() || j != LastItem)
@@ -544,7 +542,7 @@ TEST_CASE("PreserveStyleReplaceString")
 		int Position = 0;
 		int Size;
 		ResultStr = Patterns[i.PatternIndex].Replace;
-		REQUIRE(i.Result == PreserveStyleReplaceString(i.Src, Patterns[i.PatternIndex].Find, ResultStr, Position, search_case_fold::icase, false, {}, false, Size));
+		REQUIRE(i.Result == PreserveStyleReplaceString(i.Src, Patterns[i.PatternIndex].Find, ResultStr, Position, {}, {}, Size));
 		if (i.Result)
 		{
 			REQUIRE(i.ResultStr == ResultStr);

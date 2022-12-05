@@ -6923,6 +6923,20 @@ upd:"Re&gular expressions"
 "&Рэгулярныя выразы"
 upd:"Re&gular expressions"
 
+MEditSearchFuzzy
+"&Нестрогий поиск"
+"&Fuzzy search"
+upd:"&Fuzzy search"
+upd:"&Fuzzy search"
+upd:"&Fuzzy search"
+upd:"&Fuzzy search"
+upd:"&Fuzzy search"
+upd:"&Fuzzy search"
+upd:"&Fuzzy search"
+upd:"&Fuzzy search"
+upd:"&Fuzzy search"
+upd:"&Fuzzy search"
+
 MEditSearchPreserveStyle
 "&Сохранять стиль"
 "&Preserve style"
