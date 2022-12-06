@@ -1033,7 +1033,7 @@ MCtrlF7
 "Netrie"
 "Disord"
 "Несорт"
-"Несартавана"
+"Непарадкавана"
 "Nerūš"
 
 MCtrlF8
@@ -1103,7 +1103,7 @@ MCtrlF12
 "Tried"
 "Ordina"
 "Сорт"
-"Сартаваць"
+"Парадкаваць"
 "Rušiuot"
 
 MAltShiftF1
@@ -2165,7 +2165,7 @@ upd:"Sorting collation:"
 "Spôsob triedenia:"
 "Ordinamento Collation:"
 "Сортувальне порівняння:"
-"Параўненне сартавання:"
+"Параўненне парадкавання:"
 upd:"Sorti&ng collation:"
 
 MConfigSortingOrdinal
@@ -2517,7 +2517,7 @@ MConfigAllowReverseSort
 "Po&voliť opačné triedenie"
 "Permetti &Ordinamento Inverso"
 "Дозволити зв&оротнє сортування"
-"Дазволіць звар&отнае сартаванне"
+"Дазволіць звар&отнае парадкаванне"
 "Leisti at&virkštinį rūšiavimo būdą"
 
 MConfigAutoUpdateLimit
@@ -3338,7 +3338,7 @@ upd:"Physical DNS hostname"
 upd:"Physical DNS hostname"
 "Nome DNS"
 "Фізичне ім'я хоста DNS"
-"Фізічнае імя DNS"
+"Фізічнае імя вузла DNS"
 upd:"Physical DNS hostname"
 
 MConfigInfoPanelCNPhysicalDnsDomain
@@ -3394,7 +3394,7 @@ upd:"DNS hostname"
 upd:"DNS hostname"
 "Nome DNS"
 "Ім'я хоста DNS"
-"Імя DNS"
+"Імя вузла DNS"
 upd:"DNS hostname"
 
 MConfigInfoPanelCNDnsDomain

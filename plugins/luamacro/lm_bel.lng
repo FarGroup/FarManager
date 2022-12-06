@@ -20,18 +20,18 @@
 "Ctrl+F3     парадкаваць макрасы па апісанню"
 "Enter       выканаць абраны макрас"
 "Ctrl+H      зхаваць/адлюстраваць неактыўныя макрасы"
-"Ctrl+R      reload macros"
+"Ctrl+R      перачытаць макрас"
 
 // macro browser separators
 "Макрасы"
 "Актыўныя макрасы"
 "Апрацоўшчыкі падзеяў"
-"Items of Plugins menu"
-"Active items of Plugins menu"
-"Prefixes"
-"Panel modules"
-"Content columns"
-"Custom sort modes"
+"Пункты меню дадаткаў"
+"Актыўныя пункты меню дадаткаў"
+"Прэфіксы"
+"Панэльныя модулі"
+"Слупкі змесціва"
+"Карыстальніцкія рэжымы парадкавання"
 
 // macro browser messages
 "Імя файла недаступна"
@@ -40,11 +40,11 @@
 // macro browser F3 titles
 "Макрас"
 "Апрацоўшчык падзеі"
-"Plugins menu item"
-"Prefix"
-"Panel module"
-"Content column"
-"Custom sort mode"
+"Пункт меню дадаткаў"
+"Прэфікс"
+"Панэльныя модулі"
+"Слупкі змесціва"
+"Карыстальніцкія рэжымы парадкавання"
 
 // custom panel sort
 "Рэжым парадкавання "
