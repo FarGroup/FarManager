@@ -2165,7 +2165,7 @@ upd:"Sorting collation:"
 "Spôsob triedenia:"
 "Ordinamento Collation:"
 "Сортувальне порівняння:"
-"Параўненне сартыроўкі:"
+"Параўненне сартавання:"
 upd:"Sorti&ng collation:"
 
 MConfigSortingOrdinal
@@ -2517,7 +2517,7 @@ MConfigAllowReverseSort
 "Po&voliť opačné triedenie"
 "Permetti &Ordinamento Inverso"
 "Дозволити зв&оротнє сортування"
-"Дазволіць звар&отную сартыроўку"
+"Дазволіць звар&отнае сартаванне"
 "Leisti at&virkštinį rūšiavimo būdą"
 
 MConfigAutoUpdateLimit
@@ -2854,7 +2854,7 @@ upd:"Use Virtual Terminal for rendering"
 upd:"Use Virtual Terminal for rendering"
 "Usa Terminale Virtuale Per Il Rendering"
 "Використовувати Virtual Terminal для рендерингу"
-"Ужываць Virtual Terminal для рэндэра"
+"Ужываць Virtual Terminal для візуалізацыі"
 upd:"Use &Virtual Terminal for rendering"
 
 MConfigFullWidthAwareRendering
@@ -2868,7 +2868,7 @@ upd:"Fullwidth-aware rendering"
 upd:"Fullwidth-aware rendering"
 upd:"Fullwidth-aware rendering"
 upd:"Fullwidth-aware rendering"
-upd:"Fullwidth-aware rendering"
+upd:"Візуалізацыя з улікам поўнай шырыні"
 upd:"Fullwidth-aware rendering"
 
 MConfigClearType
@@ -3324,7 +3324,7 @@ upd:"Physical NetBIOS"
 upd:"Physical NetBIOS"
 "NetBIOS"
 "Фізичне NetBIOS"
-"Фізічнае NetBIOS"
+"Фізічны NetBIOS"
 upd:"Physical NetBIOS"
 
 MConfigInfoPanelCNPhysicalDnsHostname
@@ -4128,7 +4128,7 @@ MEditConfigAutoIndent
 "Automatické &odsadenie"
 "A&uto Allineamento"
 "Автовідст&уп"
-"Сама&уцісканне"
+"Сама&ўцісканне"
 "Auto &atitraukti eilutę"
 
 MEditConfigSavePos
@@ -4522,7 +4522,7 @@ MCopyAskRO
 "Opýtať sa aj pri súboroch &R/O"
 "Anche Nei File Di &Sola Lettura"
 "Запит підтвердження для &R/O файлів"
-"Запыт пацверджання файлаў, якія толькі для чытання"
+"Запыт пацверджання файлаў толькі для чытання"
 upd:"Also ask on &R/O files"
 
 MCopyOnlyNewerFiles
@@ -4662,7 +4662,7 @@ MCopyMultiActions
 "Spra&covať viacero miest určenia"
 "Elabora Destinazioni &Multiple"
 "Обр&обляти декілька імен файлів"
-"Апр&ацоўваць некалькі імён файлаў"
+"Апр&ацоўваць некалькі імёнаў файлаў"
 upd:"Process &multiple destinations"
 
 MCopyDlgCopy
@@ -7175,7 +7175,7 @@ upd:"Automatic detection"
 "Automatické zistenie"
 "Rilevamento Automatico"
 "Автоматичне визначення"
-"Аўтаматычные вызначэнне"
+"Аўтаматычнае вызначэнне"
 upd:"Automatic detection"
 
 MDefaultCP
@@ -7189,7 +7189,7 @@ upd:"Default"
 "Východiskové"
 "Default"
 "За замовчуванням"
-"Прадвызначаны"
+"Прадвызначана"
 upd:"Default"
 
 MGoTo
@@ -11610,7 +11610,7 @@ upd:"Search in alternate streams"
 "Hľadanie v alternatívnych menách"
 "Cerca &Stream Alternativo (ADS)"
 "Шукати в альтернативних потоках"
-"Шукаць у альтрэрнатыўных струменях"
+"Шукаць у струменях"
 upd:"Search in a&lternate streams"
 
 MSearchForHex
@@ -11652,7 +11652,7 @@ upd:"Suchbereich:"
 "Zvoľte oblasť hľadania:"
 "Selezione Area Di Ricerca:"
 "Виберіть &область пошуку:"
-"Вызначце в&обласць пошуку"
+"В&обласць пошуку"
 upd:"Select search &area:"
 
 MSearchAllDisks
@@ -12176,7 +12176,7 @@ l:
 "Zvýrazňovanie súborov"
 "Evidenzia File"
 "Розмальовка файлів"
-"Разфарбоўка файлаў"
+"Афарбоўка файлаў"
 "Failų spalvos"
 
 MHighlightUpperSortGroup
@@ -12218,7 +12218,7 @@ MHighlightLastGroup
 "Zvýraznenie najnižšej priority"
 "Evidenzia Gruppo Priorità Inferiore"
 "Найменш пріоритетна група розмальовки"
-"Найменьш пераважная суполка разфарбоўкі"
+"Найменьш пераважная суполка афарбоўкі"
 upd:"Lowest priority highlighting group"
 
 MHighlightAskDel
@@ -12232,7 +12232,7 @@ MHighlightAskDel
 "Chcete zmazať zvýraznenie pre"
 "Vuoi Cancellare Le Informazioni Per"
 "Ви бажаєте видалити розмальовку для"
-"Вы жадаеце выдаліць разфарбоўку для"
+"Вы жадаеце выдаліць афарбоўку для"
 "Ar norite ištrinti spalvą failams"
 
 MHighlightWarning
@@ -12260,7 +12260,7 @@ MHighlightAskRestore
 "Chcete obnoviť východiskové zvýrazňovanie?"
 "Vuoi Ripristinare Le Informazioni?"
 "Ви бажаєте відновити розмальовку файлів за замовчуванням?"
-"Вы жадаеце узнавіць прадвызначаную разфарбоўку файлаў?"
+"Вы жадаеце узнавіць прадвызначаную афарбоўку файлаў?"
 "Ar norite grįžti į standartines spalvas?"
 
 MHighlightEditTitle
@@ -12275,7 +12275,7 @@ l:
 "Upraviť zvýrazňovanie súborov"
 "Modifica Le Evidenziazioni"
 "Редагування розмальовки файлів"
-"Мяняць разфарбоўку файлаў"
+"Мяняць афарбоўку файлаў"
 "Redaguoti failų spalvas"
 
 MHighlightMark
@@ -12303,7 +12303,7 @@ MHighlightInheritMark
 "Zdediť"
 "Eredita"
 "Успадковуват&и"
-"Спадч&ыну"
+"Спадк&аваць"
 "&Paveldėti"
 
 MHighlightColors
@@ -14341,7 +14341,7 @@ l:
 "S&ystémové nastavenia"
 "► &Sistema"
 "Си&стемні параметри"
-"Сістэ&іныя налады"
+"Сістэ&мныя налады"
 "Siste&miniai nustatymai"
 
 MMenuPanelSettings
@@ -14635,7 +14635,7 @@ MMenuFilesHighlighting
 "Z&výrazňovanie súborov a skupiny triedenia"
 "► Colori Files"
 "Розмальовка &файлів і групи сортування"
-"Разфарбоўка &файлаў і суполкі парадкавання"
+"Афарбоўка &файлаў і суполкі парадкавання"
 "Failų par&yškinimai ir rūšiavimo grupes"
 
 MMenuSaveSetup
@@ -14959,7 +14959,7 @@ upd:"Si&ze of streams"
 "Veľkos&ti tokov"
 "Dimensione De&gli Streams"
 "Розмір по&токів"
-"Пасмер с&труменяў"
+"Памер с&труменяў"
 upd:"Si&ze of streams"
 
 MMenuSortByNameOnly
@@ -17285,7 +17285,7 @@ MSetColorPanelHighlightedText
 "Zvýraznený text"
 "Testo Evidenziato"
 "Виділений текст"
-"Разфарбаваны тэкст"
+"Афарбаваны тэкст"
 upd:"Highlighted text"
 
 MSetColorPanelHighlightedInfo
@@ -17299,7 +17299,7 @@ MSetColorPanelHighlightedInfo
 "Zvýraznené info"
 "Info Evidenziate"
 "Виділена інформація"
-"Разфарбаваная даведка"
+"Афарбаваная даведка"
 "Paryškinta info"
 
 MSetColorPanelDragging
@@ -17482,7 +17482,7 @@ MSetColorDialogHighlighted
 "Zvýraznený text"
 "Testo Evidenziato"
 "Виділений текст"
-"Разфарбаваны тэкст"
+"Афарбаваны тэкст"
 "Paryškintas tekstas"
 
 MSetColorDialogDisabled
@@ -17538,7 +17538,7 @@ MSetColorDialogHighlightedBoxTitle
 "Zvýraznený názov"
 "Titolo Evidenziato"
 "Виділений заголовок рамки"
-"Разфарбаваная назва аблямоўкі"
+"Афарбаваная назва аблямоўкі"
 "Paryškinta antraštė"
 
 MSetColorDialogTextInput
@@ -17636,7 +17636,7 @@ MSetColorDialogHighlightedButtons
 "Zvýraznené tlačidlá"
 "Pulsante Evidenziato"
 "Виділені кнопки"
-"Разфарбаваныя кнопки"
+"Афарбаваныя кнопки"
 "Paryškinti mygtukai"
 
 MSetColorDialogSelectedHighlightedButtons
@@ -17650,7 +17650,7 @@ MSetColorDialogSelectedHighlightedButtons
 "Vybrané zvýraznené tlačidlá"
 "Selezionato Evidenziato"
 "Вибрані виділені кнопки"
-"Абраныя разфарбаваныя кнопки"
+"Абраныя афарбаваныя кнопки"
 "Pažymėti paryškinti mygtukai"
 
 MSetColorDialogDefaultButton
@@ -17692,7 +17692,7 @@ upd:"Highlighted default button"
 "Zvýraznené predvolené tlačidlo"
 "Pulsante Default Evidenziato"
 "Виділена кнопка за замовчуванням"
-"Разфарбаваная прадвызначаная кнопка"
+"Афарбаваная прадвызначаная кнопка"
 upd:"Highlighted default button"
 
 MSetColorDialogSelectedHighlightedDefaultButton
@@ -17706,7 +17706,7 @@ upd:"Selected highlighted default button"
 "Vybrané zvýraznené predvolené tlačidlo"
 "Pulsante Default Selezionato Evidenziato"
 "Вибрана виділена кнопка за замовчуванням"
-"Абраная разфарбаваная прадвызначаная кнопка"
+"Абраная афарбаваная прадвызначаная кнопка"
 upd:"Selected highlighted default button"
 
 MSetColorDialogListBoxControl
@@ -17777,7 +17777,7 @@ MSetColorDialogListHighLight
 "Zvýraznený text"
 "Testo Evidenziato"
 "Виділений текст"
-"Разфарбаваны тэкст"
+"Афарбаваны тэкст"
 "Paryškintas tekstas"
 
 MSetColorDialogListSelectedHighLight
@@ -17791,7 +17791,7 @@ MSetColorDialogListSelectedHighLight
 "Vybraný zvýraznený text"
 "Selezionato Evidenziato"
 "Вибраний виділений текст"
-"Абраны разфарбаваны тэкст"
+"Абраны афарбаваны тэкст"
 upd:"Selected highlighted text"
 
 MSetColorDialogListDisabled
@@ -17960,7 +17960,7 @@ MSetColorMenuHighlighted
 "Zvýraznený text"
 "Testo Evidenziato"
 "Виділений текст"
-"Разфарбаваны тэкст"
+"Афарбаваны тэкст"
 "Paryškintas tekstas"
 
 MSetColorMenuSelectedHighlighted
@@ -17974,7 +17974,7 @@ MSetColorMenuSelectedHighlighted
 "Vybraný zvýraznený text"
 "Testo Selezionato Evidenziato"
 "Вибраний виділенний текст"
-"Абраны разфарбаваны тэкст"
+"Абраны афарбаваны тэкст"
 "Pažymėtas paryškintas tekstas"
 
 MSetColorMenuDisabled
@@ -18143,7 +18143,7 @@ MSetColorHMenuHighlighted
 "Zvýraznený text"
 "Testo Evidenziato"
 "Виділений текст"
-"Разфарбаваны тэкст"
+"Афарбаваны тэкст"
 "Paryškintas tekstas"
 
 MSetColorHMenuSelectedHighlighted
@@ -18157,7 +18157,7 @@ MSetColorHMenuSelectedHighlighted
 "Vybraný zvýraznený text"
 "Testo Selezionato Evidenziato"
 "Вибраний виділений текст"
-"Абраны разфарбаваны тэкст"
+"Абраны афарбаваны тэкст"
 "Pažymėtas paryškintas tekstas"
 
 MSetColorKeyBarNumbers
@@ -18457,7 +18457,7 @@ MSetColorHelpHighlighted
 "Zvýraznený text"
 "Testo Evidenziato"
 "Виділений текст"
-"Разфарбаваны тэкст"
+"Афарбаваны тэкст"
 "Paryškintas tekstas"
 
 MSetColorHelpReference
@@ -18755,7 +18755,7 @@ MSetColorStyleInherit
 "Zdediť"
 "Eredita"
 "Успадковувати"
-"Спадчыну"
+"Спадкаваць"
 "Paveldėti"
 
 MSetColorStyleBold
@@ -19219,7 +19219,7 @@ MSetConfirmHistoryClear
 "Vymazanie zoznamu &histórie"
 "A&zzeramento Cronologia"
 "Очищення списку історії"
-"Чысціць сіс г&історыі"
+"Чысціць спіс г&історыі"
 upd:"Clear &history list"
 
 MSetConfirmExit
@@ -19318,7 +19318,7 @@ upd:"Even if only &one plugin found"
 "aj keď sa náj&de len jeden modul"
 "Anche Se Solo &Un Plugin E' Presente"
 "Навіть якщо знайдено лише &один плагін"
-"Нават калі знойдзены ўсяг&о аднаго дадатку"
+"Нават калі знойдзены ўсяг&о адзін дадатак"
 upd:"&Even if only one plugin found"
 
 MPluginsManagerSFL
@@ -21637,7 +21637,7 @@ MCfgDizListNames
 "Zoznam pop&isov súborov oddelených čiarkami:"
 "Nomi Files Contenenti &Descrizioni Divisi Da Virgola:"
 "Імена &списків описів, розділені комами:"
-"Імёны &спісаў апісанняў, падзеленых коскамі:"
+"Імёны &спісаў апісанняў, падзеленыя коскамі:"
 "Aprašymo failų &sąrašas, vardai atskirti kableliais:"
 
 MCfgDizSetHidden
@@ -21962,7 +21962,7 @@ MEditPanelModeUpperToLowerCase
 "Zobraziť veľké znaky v názvoch súborov ako &malé písmená"
 "Mostra Nomi Files MAIUSCOLO In minuscol&o"
 "Показувати имена файлів из заголовних літер малими літерами"
-"Адлю&строўваць імёны файлаў з віялікімі літарамі як малымі літарамі"
+"Адлю&строўваць імёны файлаў з вялікімі літарамі як малымі"
 "Rodyti didžiosiomis parašytus failų vardus ma&žosiomis"
 
 MSetFolderInfoTitle
@@ -28702,7 +28702,7 @@ MFileHilightTitle
 "Zvýrazňovanie súborov"
 "E&videnzia File:"
 "Розмальовка файлів"
-"Разфарбоўка файлаў"
+"Афарбоўка файлаў"
 upd:"Files highlighting"
 
 MFileFilterName
