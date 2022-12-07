@@ -123,7 +123,7 @@ private:
 
 			CPINFOEX cpix;
 			if (get_codepage_info(Codepage, CpStr, cpix) && cpix.MaxCharSize >= 1)
-				m_InstalledCp.try_emplace(Codepage, string(extract_codepage_name(cpix.CodePageName)), static_cast<unsigned char>(cpix.MaxCharSize));
+				m_InstalledCp.try_emplace(Codepage, cp_info{ string(extract_codepage_name(cpix.CodePageName)), static_cast<unsigned char>(cpix.MaxCharSize) });
 
 			return TRUE;
 		},
