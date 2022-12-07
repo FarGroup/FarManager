@@ -68,7 +68,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define RE_ONE_OR_MORE_GREEDY L"+"
 #define RE_ONE_OR_MORE_LAZY L"+?"
 
-#define RE_REPEAT(x) L"{" WSTR(x) L"}"
+#define RE_REPEAT(x) L"{" EXPAND_TO_WIDE_LITERAL(x) L"}"
 #define RE_C_GROUP(x) L"(" x L")"
 #define RE_NC_GROUP(x) L"(?:" x L")"
 

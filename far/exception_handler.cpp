@@ -1462,13 +1462,13 @@ static std::pair<string, string> extract_nested_exceptions(EXCEPTION_RECORD cons
 	{
 		What = FarException->message();
 		if (ObjectType.empty())
-			ObjectType = WSTRVIEW(detail::far_base_exception);
+			ObjectType = WIDE_SV_LITERAL(detail::far_base_exception);
 	}
 	else
 	{
 		What = encoding::utf8::get_chars(Exception.what());
 		if (ObjectType.empty())
-			ObjectType = WSTRVIEW(std::exception);
+			ObjectType = WIDE_SV_LITERAL(std::exception);
 	}
 
 	try

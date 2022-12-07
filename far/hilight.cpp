@@ -85,7 +85,7 @@ static const FarColor DefaultColor
 
 namespace names
 {
-#define STR_INIT(x) x = WSTRVIEW(x)
+#define STR_INIT(x) x = WIDE_SV_LITERAL(x)
 
 	static const auto
 		STR_INIT(NormalColor),

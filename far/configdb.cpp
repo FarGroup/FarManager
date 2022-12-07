@@ -1995,7 +1995,9 @@ private:
 			}
 			catch (far_sqlite_exception const& e)
 			{
-				if (!e.is_constaint_unique())
+				LOGWARNING(L"{}"sv, e);
+
+				if (!e.is_constraint_unique())
 					throw;
 
 				recreate_position_history(Db, Table.Name, Table.Schema);

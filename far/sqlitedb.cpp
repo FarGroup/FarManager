@@ -167,14 +167,9 @@ static void sqlite_log(void*, int const Code, const char* const Message)
 	LOG(Level, L"SQLite {} ({}): {}"sv, GetErrorString(Code), Code, encoding::utf8::get_chars(Message));
 }
 
-bool far_sqlite_exception::is_constaint_unique() const
+bool far_sqlite_exception::is_constraint_unique() const
 {
 	return m_ErrorCode == SQLITE_CONSTRAINT_UNIQUE;
-}
-
-bool far_sqlite_exception::is_corrupt_index() const
-{
-	return m_ErrorCode == SQLITE_CORRUPT_INDEX;
 }
 
 void SQLiteDb::library_load()

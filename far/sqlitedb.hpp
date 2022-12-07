@@ -64,8 +64,7 @@ public:
 		m_ErrorCode(ErrorCode)
 	{}
 
-	bool is_constaint_unique() const;
-	bool is_corrupt_index() const;
+	bool is_constraint_unique() const;
 
 private:
 	int m_ErrorCode;

@@ -93,7 +93,7 @@ namespace
 
 		static std::unordered_map<string_view, level, string_comparer_icase, string_comparer_icase> LevelMap
 		{
-#define STRLEVEL(x) { WSTRVIEW(x), level::x }
+#define STRLEVEL(x) { WIDE_SV_LITERAL(x), level::x }
 			STRLEVEL(off),
 			STRLEVEL(fatal),
 			STRLEVEL(error),
@@ -116,7 +116,7 @@ namespace
 
 		switch (Level)
 		{
-#define LEVELTOSTR(x) case level::x: return WSTRVIEW(x)
+#define LEVELTOSTR(x) case level::x: return WIDE_SV_LITERAL(x)
 		LEVELTOSTR(off);
 		LEVELTOSTR(fatal);
 		LEVELTOSTR(error);
