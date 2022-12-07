@@ -55,6 +55,7 @@ namespace build
 	string_view platform();
 	VersionInfo version();
 	string compiler();
+	string library();
 }
 
 #endif // FARVERSION_HPP_2DFC77DA_8558_4EF9_9F2E_3B8B848F7C84

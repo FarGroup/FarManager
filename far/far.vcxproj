@@ -269,6 +269,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="common\io.hpp" />
     <ClInclude Include="common\keep_alive.hpp" />
     <ClInclude Include="common\lazy.hpp" />
+    <ClInclude Include="common\library.hpp" />
     <ClInclude Include="common\monitored.hpp" />
     <ClInclude Include="common\movable.hpp" />
     <ClInclude Include="common\multifunction.hpp" />
