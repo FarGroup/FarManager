@@ -214,6 +214,7 @@ protected:
 		FORWARD_FUNCTION(add_nocase_collation)
 		FORWARD_FUNCTION(add_numeric_collation)
 		FORWARD_FUNCTION(ScopedTransaction)
+		FORWARD_FUNCTION(create_stmt)
 
 #undef FORWARD_FUNCTION
 

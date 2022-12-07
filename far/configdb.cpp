@@ -1963,26 +1963,42 @@ private:
 
 	static void reindex(db_initialiser const& Db)
 	{
-		static const std::pair<std::string_view, std::string_view> ReindexTables[]
+		static constexpr struct
 		{
-			{ EDITORPOSITION_HISTORY_NAME ""sv, EDITORPOSITION_HISTORY_SCHEMA ""sv },
-			{ VIEWERPOSITION_HISTORY_NAME ""sv, VIEWERPOSITION_HISTORY_SCHEMA ""sv },
+			std::string_view Name;
+			string_view WideName;
+			std::string_view Schema;
+		}
+		ReindexTables[]
+		{
+#define INIT_TABLE(x) CHAR_SV(x ## POSITION_HISTORY_NAME), WIDE_SV(x ## POSITION_HISTORY_NAME), CHAR_SV(x ## POSITION_HISTORY_SCHEMA)
+			{ INIT_TABLE(EDITOR) },
+			{ INIT_TABLE(VIEWER) },
+#undef INIT_TABLE
 		};
 
-		for (const auto& [Name, Schema]: ReindexTables)
+		for (const auto& Table: ReindexTables)
 		{
-			const auto reindex = [&, Name = Name]{ Db.Exec(format(FSTR("REINDEX {}"sv), Name)); };
+			const auto reindex = [&]{ Db.Exec(format(FSTR("REINDEX {}"sv), Table.Name)); };
 
 			try
 			{
-				reindex();
+				if (const auto stmtIntegrityCheck = Db.create_stmt(format(FSTR("PRAGMA INTEGRITY_CHECK({})"sv), Table.Name)); stmtIntegrityCheck.Step())
+				{
+					if (const auto Result = stmtIntegrityCheck.GetColText(0); Result != L"ok"sv)
+					{
+						LOGWARNING(L"Integrity issue in {}: {}, reindexing the table"sv, Table.WideName, Result);
+						reindex();
+						LOGINFO(L"Reindexing of {} completed"sv, Table.WideName);
+					}
+				}
 			}
 			catch (far_sqlite_exception const& e)
 			{
 				if (!e.is_constaint_unique())
 					throw;
 
-				recreate_position_history(Db, Name, Schema);
+				recreate_position_history(Db, Table.Name, Table.Schema);
 				reindex();
 			}
 		}
