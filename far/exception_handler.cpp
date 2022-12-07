@@ -180,7 +180,8 @@ void CreatePluginStartupInfo(PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
 static constexpr NTSTATUS
 	EH_EXCEPTION_NUMBER           = 0xE06D7363, // 'msc'
-	EH_SANITIZER                  = 0xE073616E, // 'san',
+	EH_CLR_EXCEPTION              = 0xE0434352, // 'CCR'
+	EH_SANITIZER                  = 0xE073616E, // 'san'
 	EH_SANITIZER_ASAN             = EH_SANITIZER + 1,
 
 	// Far-specific codes
@@ -1115,6 +1116,7 @@ static string_view exception_name(NTSTATUS const Code)
 #undef CASE_STR
 
 	case EH_EXCEPTION_NUMBER:           return L"C++ exception"sv;
+	case EH_CLR_EXCEPTION:              return L"CLR exception"sv;
 	case EH_SANITIZER:                  return L"Sanitizer"sv;
 	case STATUS_FAR_ABORT:              return L"std::abort"sv;
 	default:                            return L"Unknown exception"sv;
@@ -1184,6 +1186,11 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 	case STATUS_FAR_ABORT:
 		return string(Message);
 
+	case EH_CLR_EXCEPTION:
+		if (ExceptionRecord.NumberParameters)
+			return os::format_error(ExceptionRecord.ExceptionInformation[0]);
+		return {};
+
 	case EH_SANITIZER:
 		if (ExceptionRecord.NumberParameters && ExceptionRecord.ExceptionInformation[0])
 		{
@@ -1205,7 +1212,7 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 				return L"Unrecognized sanitizer kind"s;
 			}
 		}
-		[[fallthrough]];
+		return {};
 
 	default:
 		return os::format_ntstatus(ExceptionRecord.ExceptionCode);
