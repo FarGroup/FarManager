@@ -36,17 +36,17 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <chrono>
-#include <map>
-#include <set>
-#include <unordered_map>
-#include <unordered_set>
-
 #include "compiler.hpp"
+
+#ifdef __has_include
+#if __has_include(<version>)
+#include <version>
+#endif
+#endif
 
 //----------------------------------------------------------------------------
 
-#if COMPILER(GCC)
+#ifdef FAR_ENABLE_CORRECT_ISO_CPP_WCHAR_H_OVERLOADS
 // These inline implementations in gcc/cwchar are wrong and non-compilable if _CONST_RETURN is defined.
 namespace std
 {
@@ -84,7 +84,10 @@ using std::wmemchr;
 
 #endif
 
+//----------------------------------------------------------------------------
+
 #if COMPILER(GCC) && !defined(_GLIBCXX_HAS_GTHREADS)
+
 namespace std::this_thread
 {
 	inline void yield() noexcept
@@ -94,8 +97,17 @@ namespace std::this_thread
 }
 #endif
 
+//----------------------------------------------------------------------------
 
 #ifndef __cpp_lib_erase_if
+#include <algorithm>
+#include <map>
+#include <set>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
 namespace std
 {
 	namespace detail
@@ -167,7 +179,11 @@ namespace std
 }
 #endif
 
+//----------------------------------------------------------------------------
+
 #if COMPILER(CLANG) && IS_MICROSOFT_SDK() && defined __cpp_char8_t && !defined __cpp_lib_char8_t
+#include <string_view>
+
 namespace std
 {
 	inline namespace literals
@@ -187,14 +203,22 @@ WARNING_POP()
 }
 #endif
 
+//----------------------------------------------------------------------------
+
 #if (IS_MICROSOFT_SDK() && __cplusplus < 202004) || !defined __cpp_lib_bitops // Not related, just no better way to check
+#include <chrono>
+
 namespace std::chrono
 {
 	using days = duration<int, ratio_multiply<ratio<24>, hours::period>>;
 }
 #endif
 
+//----------------------------------------------------------------------------
+
 #ifndef __cpp_lib_to_underlying
+#include <type_traits>
+
 namespace std
 {
 	template<class enum_type>
@@ -205,5 +229,7 @@ namespace std
 	}
 }
 #endif
+
+//----------------------------------------------------------------------------
 
 #endif // CPP_HPP_95E41B70_5DB2_4E5B_A468_95343C6438AD

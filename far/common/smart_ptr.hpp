@@ -227,7 +227,7 @@ public:
 	~ptr_setter() { m_Ptr->reset(m_RawPtr); }
 
 	[[nodiscard]]
-	auto operator&() { return &m_RawPtr; }
+	auto operator&() && { return &m_RawPtr; }
 
 private:
 	T* m_Ptr;
