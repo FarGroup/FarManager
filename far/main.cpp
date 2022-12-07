@@ -437,7 +437,7 @@ static std::optional<int> ProcessServiceModes(span<const wchar_t* const> const A
 
 	if (Args.size() == 4 && IsElevationArgument(Args[0])) // /service:elevation {UUID} PID UsePrivileges
 	{
-		return ElevationMain(Args[1], std::wcstoul(Args[2], nullptr, 10), *Args[3] == L'1');
+		return ElevationMain(Args[1], from_string<DWORD>(Args[2]), *Args[3] == L'1');
 	}
 
 	if (in_closed_range(2u, Args.size(), 5u) && (isArg(L"export"sv) || isArg(L"import"sv)))

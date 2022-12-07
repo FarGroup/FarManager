@@ -1013,6 +1013,14 @@ TEST_CASE("range.static")
 		STATIC_REQUIRE(std::is_same_v<decltype(*Span.begin()), int&>);
 		STATIC_REQUIRE(std::is_same_v<decltype(*Span.cbegin()), const int&>);
 	}
+
+	{
+		int Data[2]{};
+		span Span{ Data };
+		STATIC_REQUIRE(std::is_same_v<decltype(*Span.begin()), int* const&>);
+		// It's not possible to deduce const_iterator here
+		STATIC_REQUIRE(std::is_same_v<decltype(*Span.cbegin()), int* const&>);
+	}
 }
 
 TEST_CASE("range.dynamic")
@@ -1101,6 +1109,7 @@ namespace
 		test_scope_impl<type>(false, (When & on_success) != 0);
 	}
 }
+
 TEST_CASE("scope_exit")
 {
 	test_scope<scope_exit::scope_type::exit>(on_fail | on_success);

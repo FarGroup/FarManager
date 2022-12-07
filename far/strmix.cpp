@@ -326,18 +326,40 @@ bool IsCaseMixed(const string_view Str)
    Форматирование размера файла в удобочитаемый вид.
 */
 
-static const unsigned long long BytesInUnit[][2]
+template<size_t multiplier>
+struct units
 {
-	{0x0000000000000001ull,                   1ull}, // B
-	{0x0000000000000400ull,                1000ull}, // KiB / KB
-	{0x0000000000100000ull,             1000000ull}, // MiB / MB
-	{0x0000000040000000ull,          1000000000ull}, // GiB / GB
-	{0x0000010000000000ull,       1000000000000ull}, // TiB / TB
-	{0x0004000000000000ull,    1000000000000000ull}, // PiB / PB
-	{0x1000000000000000ull, 1000000000000000000ull}, // EiB / EB
+	enum: unsigned long long
+	{
+		B = 1,
+		K = B * multiplier,
+		M = K * multiplier,
+		G = M * multiplier,
+		T = G * multiplier,
+		P = T * multiplier,
+		E = P * multiplier,
+	};
 };
 
-static const unsigned long long PrecisionMultiplier[]
+using binary = units<1024>;
+using decimal = units<1000>;
+
+static constexpr unsigned long long BytesInUnit[][2]
+{
+#define BD_UNIT(x) { binary::x, decimal::x }
+
+	BD_UNIT(B),
+	BD_UNIT(K),
+	BD_UNIT(M),
+	BD_UNIT(G),
+	BD_UNIT(T),
+	BD_UNIT(P),
+	BD_UNIT(E),
+
+#undef BU_NIT
+};
+
+static constexpr unsigned long long PrecisionMultiplier[]
 {
 	  1ull,
 	 10ull,
