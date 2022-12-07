@@ -317,22 +317,4 @@ inline bool norm_m_prefix(const wchar_t* Str)
 	return Str[0] == L'\\' && Str[1] == L'\\';
 }
 
-template<typename T>
-class ptr_setter
-{
-public:
-	explicit ptr_setter(T& Ptr) : m_Ptr(&Ptr) {}
-	~ptr_setter() { m_Ptr->reset(m_RawPtr); }
-
-	[[nodiscard]]
-	auto operator&() { return &m_RawPtr; }
-
-	ptr_setter(const ptr_setter&) = delete;
-	ptr_setter& operator=(const ptr_setter&) = delete;
-
-private:
-	T* m_Ptr;
-	typename T::pointer m_RawPtr{};
-};
-
 #endif // PROCLIST_HPP_71FFA62B_457B_416D_B4F5_DAB215BE015F

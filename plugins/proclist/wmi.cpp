@@ -8,6 +8,8 @@
 #include "Proclist.hpp"
 #include "perfthread.hpp"
 
+#include <smart_ptr.hpp>
+
 class bstr
 {
 public:

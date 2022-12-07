@@ -464,7 +464,7 @@ bool PerfThread::RefreshImpl()
 		return true;
 	};
 
-	if (pObj->NumInstances >= 0 && pObj->NumInstances <= 0x7fffffff)
+	if (pObj->NumInstances >= 0)
 	{
 		// If set to a value from 0 to 0x7fffffff, indicates that this is data collected from an object that supports 0 or more named instances.
 		// The PERF_COUNTER_DEFINITION block should be followed by the specified number of PERF_INSTANCE_DEFINITION blocks.

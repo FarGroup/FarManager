@@ -2,6 +2,8 @@
 #include "Proclng.hpp"
 #include "guid.hpp"
 
+#include <smart_ptr.hpp>
+
 const wchar_t* GetMsg(int MsgId)
 {
 	return PsInfo.GetMsg(&MainGuid, MsgId);
