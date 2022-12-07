@@ -1,4 +1,14 @@
 --------------------------------------------------------------------------------
+drkns 07.12.2022 00:24:41 +0000 - build 6059
+
+1. Decode CLR exceptions.
+
+2. Refactoring.
+
+3. gh-567: Poor warm-up time.
+   Continue the "SQLite vs nocase" saga: reindex affected tables only when integrity checks failed.
+
+--------------------------------------------------------------------------------
 drkns 27.11.2022 19:25:18 +0000 - build 6058
 
 1. Refactoring.
