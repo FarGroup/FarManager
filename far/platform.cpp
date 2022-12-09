@@ -186,7 +186,7 @@ static string format_error_impl(unsigned const ErrorCode, bool const Nt)
 
 	if (!Size)
 	{
-		LOGERROR(L"FormatMessage({}): {}"sv, ErrorCode, last_error());
+		LOGERROR(L"FormatMessage(0x{:08X}): {}"sv, ErrorCode, last_error());
 		return {};
 	}
 

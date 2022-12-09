@@ -225,7 +225,7 @@ namespace tests
 		}
 		catch (far_exception const&)
 		{
-			assert(false);
+			UNREACHABLE;
 		}
 	}
 
@@ -465,6 +465,11 @@ namespace tests
 		v[Index] = 42;
 	}
 
+	static void debug_reach_unreachable()
+	{
+		UNREACHABLE;
+	}
+
 	static void asan_stack_buffer_overflow()
 	{
 		[[maybe_unused]] int v[1];
@@ -573,6 +578,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::seh_unhandled,                L"SEH unhandled"sv },
 		{ tests::seh_assertion_failure,        L"SEH assertion failure"sv },
 		{ tests::debug_bounds_check,           L"Debug bounds check"sv },
+		{ tests::debug_reach_unreachable,      L"Debug reach unreachable"sv },
 		{ tests::asan_stack_buffer_overflow,   L"ASan stack-buffer-overflow"sv },
 		{ tests::asan_heap_buffer_overflow,    L"ASan heap-buffer-overflow"sv },
 		{ tests::asan_stack_use_after_scope,   L"ASan stack-use-after-scope"sv },

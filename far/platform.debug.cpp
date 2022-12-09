@@ -435,7 +435,11 @@ namespace os::debug::symbols
 			using char_type = VALUE_TYPE(header::Name);
 			char_type name[max_name_size + 1];
 
-			using result_type = std::pair<std::basic_string_view<char_type>, size_t>;
+			struct symbol
+			{
+				std::basic_string_view<char_type> Name;
+				size_t Displacement;
+			};
 		};
 
 		struct symbol_storage
@@ -456,7 +460,7 @@ namespace os::debug::symbols
 
 	static symbol frame_get_symbol(HANDLE const Process, uintptr_t const Address, symbol_storage& Storage)
 	{
-		const auto Get = [&](auto const& Getter, auto& Buffer) -> typename package<decltype(Buffer.info)>::result_type
+		const auto Get = [&](auto const& Getter, auto& Buffer) -> typename package<decltype(Buffer.info)>::symbol
 		{
 			Buffer.info.SizeOfStruct = sizeof(Buffer.info);
 
@@ -491,29 +495,29 @@ namespace os::debug::symbols
 
 		if (imports.SymFromAddrW)
 		{
-			const auto Name = Get(imports.SymFromAddrW, Storage.SymbolInfo.emplace<0>());
-			if (Name.first.empty())
+			const auto Symbol = Get(imports.SymFromAddrW, Storage.SymbolInfo.emplace<0>());
+			if (Symbol.Name.empty())
 				return {};
 
-			return { Name.first, Name.second };
+			return { Symbol.Name, Symbol.Displacement };
 		}
 
 		if (imports.SymFromAddr)
 		{
-			const auto Name = Get(imports.SymFromAddr, Storage.SymbolInfo.emplace<1>());
-			if (Name.first.empty())
+			const auto Symbol = Get(imports.SymFromAddr, Storage.SymbolInfo.emplace<1>());
+			if (Symbol.Name.empty())
 				return {};
 
-			return { Storage.SymbolName = encoding::ansi::get_chars(Name.first), Name.second };
+			return { Storage.SymbolName = encoding::ansi::get_chars(Symbol.Name), Symbol.Displacement };
 		}
 
 		if (imports.SymGetSymFromAddr64)
 		{
-			const auto Name = Get(imports.SymGetSymFromAddr64, Storage.SymbolInfo.emplace<2>());
-			if (Name.first.empty())
+			const auto Symbol = Get(imports.SymGetSymFromAddr64, Storage.SymbolInfo.emplace<2>());
+			if (Symbol.Name.empty())
 				return {};
 
-			return { Storage.SymbolName = encoding::ansi::get_chars(Name.first), Name.second };
+			return { Storage.SymbolName = encoding::ansi::get_chars(Symbol.Name), Symbol.Displacement };
 		}
 
 		return {};
@@ -658,7 +662,7 @@ namespace os::debug::symbols
 		{
 			if (i.InlineContext)
 			{
-				// If InlineContext is populated, the frames are from StackWalkEx and any inline frames are alrady included.
+				// If InlineContext is populated, the frames are from StackWalkEx and any inline frames are already included.
 				handle_frame(Process, ModuleName, i, is_inline_frame(i.InlineContext), Storage, MapFiles, Consumer);
 				continue;
 			}

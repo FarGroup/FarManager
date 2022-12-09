@@ -72,7 +72,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-#define STR_INIT(x) x = WSTRVIEW(x)
+#define STR_INIT(x) x = WIDE_SV_LITERAL(x)
 
 namespace names
 {

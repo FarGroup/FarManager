@@ -59,6 +59,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define _CONST_RETURN const
 // Disable broken inline overloads
 #define __CORRECT_ISO_CPP_WCHAR_H_PROTO
+// Enable inline overloads in common/cpp.hpp
+#define FAR_ENABLE_CORRECT_ISO_CPP_WCHAR_H_OVERLOADS
 #endif
 
 #include "disable_warnings_in_std_begin.hpp"

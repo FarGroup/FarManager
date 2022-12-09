@@ -12,6 +12,8 @@
 #include <lmcons.h>
 #include <sddl.h>
 
+#include <smart_ptr.hpp>
+
 using namespace std::literals;
 
 struct SYSTEM_HANDLE_TABLE_ENTRY_INFO

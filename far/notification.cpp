@@ -52,10 +52,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static const string_view EventNames[]
 {
-	WSTRVIEW(update_intl),
-	WSTRVIEW(update_power),
-	WSTRVIEW(update_devices),
-	WSTRVIEW(update_environment),
+	WIDE_SV_LITERAL(update_intl),
+	WIDE_SV_LITERAL(update_power),
+	WIDE_SV_LITERAL(update_devices),
+	WIDE_SV_LITERAL(update_environment),
 };
 
 static_assert(std::size(EventNames) == event_id_count);

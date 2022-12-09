@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/algorithm.hpp"
+#include "common/from_string.hpp"
 #include "common/function_ref.hpp"
 #include "common/io.hpp"
 
@@ -55,6 +56,38 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "format.hpp"
 
 //----------------------------------------------------------------------------
+
+static bool get_codepage_info(unsigned const Codepage, wchar_t const* const CodepageStr, CPINFOEX& Info)
+{
+	if (GetCPInfoEx(Codepage, 0, &Info))
+		return true;
+
+	CPINFO cpi;
+	if (!GetCPInfo(Codepage, &cpi))
+		return false;
+
+	Info = {};
+	Info.MaxCharSize = cpi.MaxCharSize;
+	xwcsncpy(Info.CodePageName, CodepageStr, std::size(Info.CodePageName));
+	return true;
+}
+
+static string_view extract_codepage_name(string_view const Str)
+{
+	// Windows: "XXXX (Name)", Wine: "Name"
+
+	const auto OpenBracketPos = Str.find(L'(');
+	if (OpenBracketPos == Str.npos)
+		return Str;
+
+	const auto Name = Str.substr(OpenBracketPos + 1);
+
+	const auto CloseBracketPos = Name.rfind(L')');
+	if (CloseBracketPos == Str.npos)
+		return Str;
+
+	return Name.substr(0, CloseBracketPos);
+}
 
 class installed_codepages
 {
@@ -81,40 +114,17 @@ private:
 		return Context->enum_cp_callback(cpNum);
 	}
 
-	BOOL enum_cp_callback(wchar_t const* cpNum)
+	BOOL enum_cp_callback(wchar_t const* CpStr)
 	{
 		return cpp_try(
 		[&]
 		{
-			const auto cp = static_cast<unsigned>(std::wcstoul(cpNum, nullptr, 10));
+			const auto Codepage = from_string<unsigned>(CpStr);
 
 			CPINFOEX cpix;
-			if (!GetCPInfoEx(cp, 0, &cpix))
-			{
-				CPINFO cpi;
-				if (!GetCPInfo(cp, &cpi))
-					return TRUE;
+			if (get_codepage_info(Codepage, CpStr, cpix) && cpix.MaxCharSize >= 1)
+				m_InstalledCp.try_emplace(Codepage, cp_info{ string(extract_codepage_name(cpix.CodePageName)), static_cast<unsigned char>(cpix.MaxCharSize) });
 
-				cpix.MaxCharSize = cpi.MaxCharSize;
-				xwcsncpy(cpix.CodePageName, cpNum, std::size(cpix.CodePageName));
-			}
-
-			if (cpix.MaxCharSize < 1)
-				return TRUE;
-
-			string_view cp_data = cpix.CodePageName;
-			// Windows: "XXXX (Name)", Wine: "Name"
-			const auto OpenBracketPos = cp_data.find(L'(');
-			if (OpenBracketPos != string::npos)
-			{
-				const auto CloseBracketPos = cp_data.rfind(L')');
-				if (CloseBracketPos != string::npos && CloseBracketPos > OpenBracketPos)
-				{
-					cp_data = cp_data.substr(OpenBracketPos + 1, CloseBracketPos - OpenBracketPos - 1);
-				}
-			}
-
-			m_InstalledCp[cp] = { string(cp_data), static_cast<unsigned char>(cpix.MaxCharSize) };
 			return TRUE;
 		},
 		[&]
@@ -1556,6 +1566,29 @@ bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialConte
 #ifdef ENABLE_TESTS
 
 #include "testing.hpp"
+
+TEST_CASE("encoding.extract_codepage_name")
+{
+	static const struct
+	{
+		string_view Str, Name;
+	}
+	Tests[]
+	{
+		{ {},                        {} },
+		{ L"banana"sv,               L"banana"sv },
+		{ L"69 (ANSI - Klingon)"sv,  L"ANSI - Klingon"sv },
+		{ L"(((deeper)))"sv,         L"((deeper))"sv },
+		{ L"(no"sv,                  L"(no"sv },
+		{ L")(oh no"sv,              L")(oh no"sv },
+		{ L")(oh yes)("sv,           L"oh yes"sv },
+	};
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(extract_codepage_name(i.Str) == i.Name);
+	}
+}
 
 TEST_CASE("encoding.basic")
 {

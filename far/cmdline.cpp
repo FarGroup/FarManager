@@ -932,10 +932,11 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool)> con
 		}
 
 		std::wcout << L"\nCompiler:\n"sv << build::compiler() << L'\n';
+		std::wcout << L"\nStandard library:\n"sv << build::library() << L'\n';
 
 		if (const auto& ComponentsInfo = components::GetComponentsInfo(); !ComponentsInfo.empty())
 		{
-			std::wcout << L"\nLibraries:\n"sv;
+			std::wcout << L"\nThird party libraries:\n"sv;
 
 			for (const auto& [Name, Version]: ComponentsInfo)
 			{

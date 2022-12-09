@@ -1,11 +1,14 @@
-﻿/*
-farversion.cpp
+﻿#ifndef LIBRARY_HPP_3C1EF122_E9E8_4F3D_8E2F_C5E2829E2E32
+#define LIBRARY_HPP_3C1EF122_E9E8_4F3D_8E2F_C5E2829E2E32
+#pragma once
 
-Версия Far Manager
+/*
+library.hpp
+
+Library-specific macros and definitions
 */
 /*
-Copyright © 1996 Eugene Roshal
-Copyright © 2000 Far Group
+Copyright © 2022 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -31,63 +34,27 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// BUGBUG
-#include "platform.headers.hpp"
-
-// Self:
-#include "farversion.hpp"
-
-// Internal:
-#include "plugin.hpp"
-
-// Platform:
-
-// Common:
-#include "common/compiler.hpp"
-#include "common/library.hpp"
-
-// External:
-#include "format.hpp"
-
-//----------------------------------------------------------------------------
-
-namespace build
-{
-#include "bootstrap/copyright.inc"
-
-	VersionInfo version()
-	{
-		return
-		{
-#include "bootstrap/farversion.inc"
-		};
-	}
-
-	string compiler()
-	{
-		const auto CompilerInfo =
-#ifdef _MSC_BUILD
-			L"." EXPAND_TO_WIDE_LITERAL(_MSC_BUILD)
+#if defined __cplusplus && defined __has_include
+#if __has_include(<version>)
+#include <version>
 #endif
-			L""sv;
+#endif
 
-		return format(FSTR(L"{}, version {}.{}.{}{}"sv),
-			COMPILER_NAME,
-			COMPILER_VERSION_MAJOR,
-			COMPILER_VERSION_MINOR,
-			COMPILER_VERSION_PATCH,
-			CompilerInfo
-		);
-	}
+#if defined(_MSVC_STL_VERSION) && defined(_MSVC_STL_UPDATE)
+#define STANDARD_LIBRARY_NAME L"Microsoft STL"
+#define STANDARD_LIBRARY_VERSION_MAJOR (_MSVC_STL_VERSION / 10)
+#define STANDARD_LIBRARY_VERSION_MINOR (_MSVC_STL_VERSION % 10)
+#define STANDARD_LIBRARY_VERSION_PATCH _MSVC_STL_UPDATE
+#elif defined(_GLIBCXX_RELEASE) and defined(__GLIBCXX__)
+#define STANDARD_LIBRARY_NAME L"libstdc++"
+#define STANDARD_LIBRARY_VERSION_MAJOR _GLIBCXX_RELEASE
+#define STANDARD_LIBRARY_VERSION_MINOR 0
+#define STANDARD_LIBRARY_VERSION_PATCH __GLIBCXX__
+#else
+#define STANDARD_LIBRARY_NAME L"Unknown standard library"
+#define STANDARD_LIBRARY_VERSION_MAJOR 0
+#define STANDARD_LIBRARY_VERSION_MINOR 0
+#define STANDARD_LIBRARY_VERSION_PATCH 0
+#endif
 
-	string library()
-	{
-		return format(FSTR(L"{}, version {}.{}.{}"sv),
-			STANDARD_LIBRARY_NAME,
-			STANDARD_LIBRARY_VERSION_MAJOR,
-			STANDARD_LIBRARY_VERSION_MINOR,
-			STANDARD_LIBRARY_VERSION_PATCH
-		);
-	}
-
-}
+#endif // LIBRARY_HPP_3C1EF122_E9E8_4F3D_8E2F_C5E2829E2E32

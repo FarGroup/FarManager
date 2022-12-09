@@ -117,10 +117,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 //----------------------------------------------------------------------------
-#if COMPILER(CL)
-#define UNREACHABLE __assume(0)
+
+#ifdef NDEBUG
+#define DEBUG_DEBUG_BREAK() ((void)0)
 #else
-#define UNREACHABLE __builtin_unreachable()
+#define DEBUG_DEBUG_BREAK() __debugbreak()
+#endif
+
+#if COMPILER(CL)
+#define UNREACHABLE (DEBUG_DEBUG_BREAK(), __assume(0))
+#else
+#define UNREACHABLE (DEBUG_DEBUG_BREAK(), __builtin_unreachable())
 #endif
 
 //----------------------------------------------------------------------------

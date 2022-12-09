@@ -587,7 +587,7 @@
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\cpp.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\enum_substrings.hpp">
       <Filter>Header Files\common</Filter>
@@ -614,6 +614,9 @@
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\lazy.hpp">
+      <Filter>Header Files\common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\library.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
     <ClInclude Include="common\monitored.hpp">

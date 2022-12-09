@@ -137,7 +137,6 @@ static rgb_context get_rgb_context(color_rgb_dialog_items const Item)
 		return { &rgba::b, cd_text_b };
 
 	default:
-		assert(false);
 		UNREACHABLE;
 	}
 }
@@ -157,7 +156,6 @@ static auto get_channel_operation(color_rgb_dialog_items const Button)
 		return -1;
 
 	default:
-		assert(false);
 		UNREACHABLE;
 	}
 }

@@ -883,8 +883,6 @@ TEST_CASE("preprocessor.copy-move")
 TEST_CASE("preprocessor.literals")
 {
 	{
-		// Should expand macros
-
 		#define TEST_LITERAL "la\0rd"
 		constexpr size_t Size = 5;
 		static_assert(sizeof(TEST_LITERAL) - 1 == Size);
@@ -909,24 +907,41 @@ TEST_CASE("preprocessor.literals")
 	}
 
 	{
-		// Should not expand macros
-
 		#define TEST_TOKEN meow
 
-		STATIC_REQUIRE(std::is_same_v<decltype(STR(TEST_TOKEN)), char const(&)[11]>);
-		STATIC_REQUIRE(std::is_same_v<decltype(WSTR(TEST_TOKEN)), wchar_t const(&)[11]>);
+		{
+			STATIC_REQUIRE(std::is_same_v<decltype(LITERAL(TEST_TOKEN)), char const(&)[11]>);
+			STATIC_REQUIRE(std::is_same_v<decltype(WIDE_LITERAL(TEST_TOKEN)), wchar_t const(&)[11]>);
 
-		const auto Literal = STR(TEST_TOKEN);
-		STATIC_REQUIRE(std::is_same_v<decltype(Literal), char const* const>);
-		REQUIRE(Literal == "TEST_TOKEN"sv);
+			const auto Literal = LITERAL(TEST_TOKEN);
+			STATIC_REQUIRE(std::is_same_v<decltype(Literal), char const* const>);
+			REQUIRE(Literal == "TEST_TOKEN"sv);
 
-		const auto WLiteral = WSTR(TEST_TOKEN);
-		STATIC_REQUIRE(std::is_same_v<decltype(WLiteral), wchar_t const* const>);
-		REQUIRE(WLiteral == L"TEST_TOKEN"sv);
+			const auto WLiteral = WIDE_LITERAL(TEST_TOKEN);
+			STATIC_REQUIRE(std::is_same_v<decltype(WLiteral), wchar_t const* const>);
+			REQUIRE(WLiteral == L"TEST_TOKEN"sv);
 
-		const auto WView = WSTRVIEW(TEST_TOKEN);
-		STATIC_REQUIRE(std::is_same_v<decltype(WView), std::wstring_view const>);
-		REQUIRE(WView == L"TEST_TOKEN"sv);
+			const auto WView = WIDE_SV_LITERAL(TEST_TOKEN);
+			STATIC_REQUIRE(std::is_same_v<decltype(WView), std::wstring_view const>);
+			REQUIRE(WView == L"TEST_TOKEN"sv);
+		}
+
+		{
+			STATIC_REQUIRE(std::is_same_v<decltype(EXPAND_TO_LITERAL(TEST_TOKEN)), char const(&)[5]>);
+			STATIC_REQUIRE(std::is_same_v<decltype(EXPAND_TO_WIDE_LITERAL(TEST_TOKEN)), wchar_t const(&)[5]>);
+
+			const auto Literal = EXPAND_TO_LITERAL(TEST_TOKEN);
+			STATIC_REQUIRE(std::is_same_v<decltype(Literal), char const* const>);
+			REQUIRE(Literal == "meow"sv);
+
+			const auto WLiteral = EXPAND_TO_WIDE_LITERAL(TEST_TOKEN);
+			STATIC_REQUIRE(std::is_same_v<decltype(WLiteral), wchar_t const* const>);
+			REQUIRE(WLiteral == L"meow"sv);
+
+			const auto WView = EXPAND_TO_WIDE_SV_LITERAL(TEST_TOKEN);
+			STATIC_REQUIRE(std::is_same_v<decltype(WView), std::wstring_view const>);
+			REQUIRE(WView == L"meow"sv);
+		}
 
 		#undef TEST_TOKEN
 	}
@@ -1012,6 +1027,14 @@ TEST_CASE("range.static")
 		span Span(Data);
 		STATIC_REQUIRE(std::is_same_v<decltype(*Span.begin()), int&>);
 		STATIC_REQUIRE(std::is_same_v<decltype(*Span.cbegin()), const int&>);
+	}
+
+	{
+		int Data[2]{};
+		span Span{ Data };
+		STATIC_REQUIRE(std::is_same_v<decltype(*Span.begin()), int* const&>);
+		// It's not possible to deduce const_iterator here
+		STATIC_REQUIRE(std::is_same_v<decltype(*Span.cbegin()), int* const&>);
 	}
 }
 
@@ -1101,6 +1124,7 @@ namespace
 		test_scope_impl<type>(false, (When & on_success) != 0);
 	}
 }
+
 TEST_CASE("scope_exit")
 {
 	test_scope<scope_exit::scope_type::exit>(on_fail | on_success);

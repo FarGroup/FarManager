@@ -96,7 +96,7 @@ namespace os::com
 	void invoke(function_ref<HRESULT()> Callable, string_view CallableName, std::string_view Function, std::string_view File, int Line);
 
 #define COM_INVOKE(Function, Args) \
-	os::com::invoke([&]{ return Function Args; }, WSTRVIEW(Function), CURRENT_FUNCTION_NAME, CURRENT_FILE_NAME, __LINE__)
+	os::com::invoke([&]{ return Function Args; }, WIDE_SV_LITERAL(Function), CURRENT_FUNCTION_NAME, CURRENT_FILE_NAME, __LINE__)
 
 	string get_shell_name(string_view Path);
 
