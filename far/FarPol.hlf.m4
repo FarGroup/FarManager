@@ -3207,6 +3207,14 @@ i ~zastępowanie~@RegExpRepl@).
 Każda linia jest dekodowana osobno, więc wprowadzanie wyrażeń wieloliniowych i znaki łamania
 linii nie zostaną odnalezione.
 
+ #Fuzzy search#
+ The search will be diacritical insensitive (for example, #deja# will be found in #déjà vu#),
+ligatures will be equivalent to corresponding multicharacter sequences (#fluffy# matches #ﬂuﬀy#),
+fancy numbers to corresponding numbers (#42# matches #④②#), and so on.
+
+ Note that case sensitive fuzzy search sometimes may be useful. For example, #Uber# will be found
+in #Überwald# but not in #überwald#. However, #Æther# will match #AEther#, but not #Aether#.
+
  ~Zachowaj styl~@PreserveStyle@
  Zachowuje styl (wielkość znaków i ograniczniki w kodzie źródłowym) w zastąpionym tekście.
 

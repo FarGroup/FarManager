@@ -51,9 +51,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 enum class lng : int;
-enum class search_case_fold;
 class regex_exception;
 struct error_state_ex;
+
+struct SearchReplaceDlgOptions
+{
+	std::optional<bool> CaseSensitive;
+	std::optional<bool> WholeWords;
+	std::optional<bool> Reverse;
+	std::optional<bool> Regexp;
+	std::optional<bool> Fuzzy;
+	std::optional<bool> PreserveStyle;
+};
 
 /*
   Функция GetSearchReplaceString выводит диалог поиска или замены, принимает
@@ -85,23 +94,9 @@ struct error_state_ex;
       Имя истории строки замены.
       Если пустая строка, то принимается значение "ReplaceText"
 
-    Case
-      Ссылка на переменную, указывающую на значение опции "Case sensitive"
-
-    WholeWords
-      Ссылка на переменную, указывающую на значение опции "Whole words"
-
-    Reverse
-      Ссылка на переменную, указывающую на значение опции "Reverse search"
-
-    SelectFound
-      Ссылка на переменную, указывающую на значение опции "Select found"
-
-    Regexp
-      Ссылка на переменную, указывающую на значение опции "Regular expressions"
-
-    Regexp
-      Ссылка на переменную, указывающую на значение опции "Preserve style"
+    Options
+      InOut parameter. Specifies which options to show in the dialog and provides initial values.
+      On exit, contains the values selected by the user.
 
     HelpTopic
       Имя темы помощи.
@@ -109,7 +104,7 @@ struct error_state_ex;
 
   Возвращаемое значение:
   0 - пользователь отказался от диалога (Esc)
-    1  - пользователь подтвердил свои намерения
+    1 - пользователь подтвердил свои намерения
     2 - выбран поиск всех вхождений
 
 */
@@ -121,11 +116,7 @@ int GetSearchReplaceString(
 	string& ReplaceStr,
 	string_view TextHistoryName,
 	string_view ReplaceHistoryName,
-	search_case_fold* pCaseFold,
-	bool* pWholeWords,
-	bool* pReverse,
-	bool* pRegexp,
-	bool* pPreserveStyle,
+	SearchReplaceDlgOptions& Options,
 	string_view HelpTopic = {},
 	bool HideAll=false,
 	const UUID* Id = nullptr,

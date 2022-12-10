@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "xlat.hpp"
 #include "datetime.hpp"
-#include "stddlg.hpp"
 #include "strmix.hpp"
 #include "wakeful.hpp"
 #include "colormix.hpp"
@@ -131,10 +130,14 @@ Editor::Editor(window_ptr Owner, uintptr_t Codepage, bool DialogUsed):
 	GlobalEOL(GetDefaultEOL()),
 	m_codepage(Codepage),
 	EdOpt(Global->Opt->EdOpt),
-	LastSearchCaseFold(Global->GlobalSearchCaseFold),
-	LastSearchWholeWords(Global->GlobalSearchWholeWords),
-	LastSearchReverse(Global->GlobalSearchReverse),
-	LastSearchRegexp(Global->Opt->EdOpt.SearchRegexp),
+	LastSearchDlgOptions{
+		.CaseSensitive = Global->GlobalSearchCaseSensitive,
+		.WholeWords = Global->GlobalSearchWholeWords,
+		.Reverse = Global->GlobalSearchReverse,
+		.Regexp = Global->Opt->EdOpt.SearchRegexp,
+		.Fuzzy = Global->GlobalSearchFuzzy,
+		.PreserveStyle = false // Consider: Should we introduce Global->Opt->EdOpt.ReplacePreserveStyle?
+	},
 	EditorID(::EditorID++),
 	Color(colors::PaletteColorToFarColor(COL_EDITORTEXT)),
 	SelColor(colors::PaletteColorToFarColor(COL_EDITORSELECTEDTEXT))
@@ -211,6 +214,8 @@ void Editor::SwapState(Editor& swap_state)
 	swap(MaxRightPosState, swap_state.MaxRightPosState);
 }
 
+// Consider: Since this function deals with the options of Search/Replace dialog and nothing else,
+// should it be called after the dialog was closed (not cancelled) instead of in Edior's destructor?
 void Editor::KeepInitParameters() const
 {
 	// Установлен глобальный режим поиска 16-ричных данных?
@@ -224,10 +229,11 @@ void Editor::KeepInitParameters() const
 	{
 		Global->StoreSearchString(strLastSearchStr, false);
 	}
-	Global->GlobalSearchCaseFold = LastSearchCaseFold;
-	Global->GlobalSearchWholeWords=LastSearchWholeWords;
-	Global->GlobalSearchReverse=LastSearchReverse;
-	Global->Opt->EdOpt.SearchRegexp=LastSearchRegexp;
+	Global->GlobalSearchCaseSensitive = LastSearchDlgOptions.CaseSensitive.value();
+	Global->GlobalSearchWholeWords = LastSearchDlgOptions.WholeWords.value();
+	Global->GlobalSearchReverse = LastSearchDlgOptions.Reverse.value();
+	Global->Opt->EdOpt.SearchRegexp = LastSearchDlgOptions.Regexp.value();
+	Global->GlobalSearchFuzzy = LastSearchDlgOptions.Fuzzy.value();
 }
 
 void Editor::DisplayObject()
@@ -1929,10 +1935,10 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_RALTF7:
 		{
 			TurnOffMarkingBlock();
-			bool LastSearchReversePrev = LastSearchReverse;
-			LastSearchReverse = !LastSearchReverse;
+			bool LastSearchReverseOrig = LastSearchDlgOptions.Reverse.value();
+			LastSearchDlgOptions.Reverse = !LastSearchReverseOrig;
 			Search(true);
-			LastSearchReverse = LastSearchReversePrev;
+			LastSearchDlgOptions.Reverse = LastSearchReverseOrig;
 			return true;
 		}
 
@@ -3299,11 +3305,7 @@ bool Editor::Search(bool Next)
 
 	auto strSearchStr = strLastSearchStr;
 	auto strReplaceStr = strLastReplaceStr;
-	auto SearchCaseFold = LastSearchCaseFold;
-	auto WholeWords = LastSearchWholeWords;
-	auto ReverseSearch = LastSearchReverse;
-	auto PreserveStyle = LastSearchPreserveStyle;
-	auto Regexp = LastSearchRegexp;
+	auto SearchDlgOptions{ LastSearchDlgOptions };
 
 	bool FindAllReferences = false;
 
@@ -3361,11 +3363,7 @@ bool Editor::Search(bool Next)
 			strReplaceStr,
 			{},
 			{},
-			&SearchCaseFold,
-			&WholeWords,
-			&ReverseSearch,
-			&Regexp,
-			&PreserveStyle,
+			SearchDlgOptions,
 			L"EditorSearch"sv,
 			false,
 			ReplaceMode? &EditorReplaceId : &EditorSearchId,
@@ -3385,15 +3383,11 @@ bool Editor::Search(bool Next)
 
 	strLastSearchStr = strSearchStr;
 	strLastReplaceStr = strReplaceStr;
-	LastSearchCaseFold = SearchCaseFold;
-	LastSearchWholeWords=WholeWords;
-	LastSearchReverse=ReverseSearch;
-	LastSearchRegexp=Regexp;
-	LastSearchPreserveStyle=PreserveStyle;
+	LastSearchDlgOptions = SearchDlgOptions;
 
-	if(FindAllReferences)
+	if (FindAllReferences)
 	{
-		ReverseSearch = false;
+		SearchDlgOptions.Reverse.value() = false;
 	}
 
 	if (strSearchStr.empty())
@@ -3412,7 +3406,7 @@ bool Editor::Search(bool Next)
 
 		if (Next && m_FoundLine == m_it_CurLine)
 		{
-			if (ReverseSearch)
+			if (SearchDlgOptions.Reverse.value())
 			{
 				if (EdOpt.SearchCursorAtEnd)
 				{
@@ -3438,12 +3432,12 @@ bool Editor::Search(bool Next)
 		named_regex_match NamedMatch;
 		RegExp re;
 
-		if (Regexp)
+		if (SearchDlgOptions.Regexp.value())
 		{
 			// Q: что важнее: опция диалога или опция RegExp`а?
 			try
 			{
-				re.Compile(strSearchStr, (starts_with(strSearchStr, L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (SearchCaseFold == search_case_fold::exact? 0 : OP_IGNORECASE));
+				re.Compile(strSearchStr, (starts_with(strSearchStr, L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (SearchDlgOptions.CaseSensitive.value()? 0 : OP_IGNORECASE));
 			}
 			catch (regex_exception const& e)
 			{
@@ -3455,7 +3449,7 @@ bool Editor::Search(bool Next)
 		QuotedStr = quote_unconditional(strSearchStr);
 
 		searchers Searchers;
-		const auto& Searcher = init_searcher(Searchers, SearchCaseFold, strLastSearchStr);
+		const auto& Searcher = init_searcher(Searchers, SearchDlgOptions.CaseSensitive.value(), SearchDlgOptions.Fuzzy.value(), strLastSearchStr);
 
 		const time_check TimeCheck;
 		std::optional<single_progress> Progress;
@@ -3478,7 +3472,7 @@ bool Editor::Search(bool Next)
 					Progress.emplace(msg(lng::MEditSearchTitle), format(msg(lng::MEditSearchingFor), QuotedStr), 0);
 
 				SetCursorType(false, -1);
-				const auto Total = FindAllReferences? Lines.size() : ReverseSearch? StartLine : Lines.size() - StartLine;
+				const auto Total = FindAllReferences? Lines.size() : SearchDlgOptions.Reverse.value()? StartLine : Lines.size() - StartLine;
 				const auto Current = std::abs(CurPtr.Number() - StartLine);
 				Progress->update(ToPercent(Current, Total));
 				taskbar::set_value(Current,Total);
@@ -3496,11 +3490,13 @@ bool Editor::Search(bool Next)
 				&NamedMatch,
 				strReplaceStrCurrent,
 				CurPos,
-				SearchCaseFold,
-				WholeWords,
-				ReverseSearch,
-				Regexp,
-				PreserveStyle,
+				{
+					.CaseSensitive = SearchDlgOptions.CaseSensitive.value(),
+					.WholeWords = SearchDlgOptions.WholeWords.value(),
+					.Reverse = SearchDlgOptions.Reverse.value(),
+					.Regexp = SearchDlgOptions.Regexp.value(),
+					.PreserveStyle = SearchDlgOptions.PreserveStyle.value()
+				},
 				SearchLength,
 				GetWordDiv()
 			))
@@ -3731,11 +3727,11 @@ bool Editor::Search(bool Next)
 					}
 
 					CurPos = m_it_CurLine->GetCurPos();
-					if ((Skip || ZeroLength) && !ReverseSearch)
+					if ((Skip || ZeroLength) && !SearchDlgOptions.Reverse.value())
 					{
 						CurPos++;
 					}
-					if (!(Skip || ZeroLength) && ReverseSearch)
+					if (!(Skip || ZeroLength) && SearchDlgOptions.Reverse.value())
 					{
 						(m_it_CurLine = CurPtr = m_FoundLine)->SetCurPos(CurPos = m_FoundPos);
 					}
@@ -3743,7 +3739,7 @@ bool Editor::Search(bool Next)
 			}
 			else
 			{
-				if (ReverseSearch)
+				if (SearchDlgOptions.Reverse.value())
 				{
 					if (CurPtr == Lines.begin())
 					{

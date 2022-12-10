@@ -195,10 +195,7 @@ bool SearchString(
 	std::vector<RegExpMatch>& Match,
 	named_regex_match* NamedMatch,
 	int& CurPos,
-	search_case_fold CaseFold,
-	bool WholeWords,
-	bool Reverse,
-	bool Regexp,
+	search_replace_string_options options,
 	int& SearchLength,
 	string_view WordDiv
 );
@@ -213,11 +210,7 @@ bool SearchAndReplaceString(
 	named_regex_match* NamedMatch,
 	string& ReplaceStr,
 	int& CurPos,
-	search_case_fold CaseFold,
-	bool WholeWords,
-	bool Reverse,
-	bool Regexp,
-	bool PreserveStyle,
+	search_replace_string_options options,
 	int& SearchLength,
 	string_view WordDiv
 );

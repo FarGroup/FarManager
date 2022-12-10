@@ -200,8 +200,7 @@ private:
 	bool IsNewTopic{true};
 	bool m_TopicFound{};
 	bool ErrorHelp{true};
-	search_case_fold LastSearchCaseFold;
-	bool LastSearchWholeWords, LastSearchRegexp;
+	SearchReplaceDlgOptions LastSearchDlgOptions;
 };
 
 struct Help::StackHelpData
@@ -225,9 +224,12 @@ Help::Help(private_tag):
 	StackData(std::make_unique<StackHelpData>()),
 	CurColor(colors::PaletteColorToFarColor(COL_HELPTEXT)),
 	CtrlTabSize(Global->Opt->HelpTabSize),
-	LastSearchCaseFold(Global->GlobalSearchCaseFold),
-	LastSearchWholeWords(Global->GlobalSearchWholeWords),
-	LastSearchRegexp(Global->Opt->HelpSearchRegexp)
+	LastSearchDlgOptions{
+		.CaseSensitive = Global->GlobalSearchCaseSensitive,
+		.WholeWords = Global->GlobalSearchWholeWords,
+		.Regexp = Global->Opt->EdOpt.SearchRegexp,
+		.Fuzzy = Global->GlobalSearchFuzzy
+	}
 {
 }
 
@@ -1420,9 +1422,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 			if (!equal_icase(StackData->strHelpTopic, FoundContents))
 			{
 				string strLastSearchStr0=strLastSearchStr;
-				auto SearchCaseFold = LastSearchCaseFold;
-				bool WholeWords=LastSearchWholeWords;
-				bool Regexp=LastSearchRegexp;
+				auto SearchDlgOptions{ LastSearchDlgOptions };
 
 				string strTempStr;
 				//int RetCode = GetString(msg(lng::MHelpSearchTitle),msg(lng::MHelpSearchingFor),L"HelpSearch",strLastSearchStr,strLastSearchStr0);
@@ -1434,11 +1434,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 					strTempStr,
 					L"HelpSearch"sv,
 					{},
-					&SearchCaseFold,
-					&WholeWords,
-					{},
-					&Regexp,
-					{},
+					SearchDlgOptions,
 					{},
 					true,
 					&HelpSearchId);
@@ -1447,9 +1443,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 					return true;
 
 				strLastSearchStr=strLastSearchStr0;
-				LastSearchCaseFold = SearchCaseFold;
-				LastSearchWholeWords=WholeWords;
-				LastSearchRegexp=Regexp;
+				LastSearchDlgOptions = SearchDlgOptions;
 
 				Stack.emplace(*StackData);
 				IsNewTopic = true;
@@ -1951,12 +1945,12 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	named_regex_match NamedMatch;
 	RegExp re;
 
-	if (LastSearchRegexp)
+	if (LastSearchDlgOptions.Regexp.value())
 	{
 		// Q: что важнее: опция диалога или опция RegExp`а?
 		try
 		{
-			re.Compile(strLastSearchStr, (starts_with(strLastSearchStr, L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (LastSearchCaseFold == search_case_fold::exact? 0 : OP_IGNORECASE));
+			re.Compile(strLastSearchStr, (starts_with(strLastSearchStr, L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (LastSearchDlgOptions.CaseSensitive.value()? 0 : OP_IGNORECASE));
 		}
 		catch (regex_exception const& e)
 		{
@@ -1966,7 +1960,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	}
 
 	searchers Searchers;
-	const auto& Searcher = init_searcher(Searchers, LastSearchCaseFold, strLastSearchStr);
+	const auto& Searcher = init_searcher(Searchers, LastSearchDlgOptions.CaseSensitive.value(), LastSearchDlgOptions.Fuzzy.value(), strLastSearchStr);
 
 	os::fs::filebuf StreamBuffer(HelpFile, std::ios::in);
 	std::istream Stream(&StreamBuffer);
@@ -2008,10 +2002,11 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 				Match,
 				&NamedMatch,
 				CurPos,
-				LastSearchCaseFold,
-				LastSearchWholeWords,
-				false,
-				LastSearchRegexp,
+				{
+					.CaseSensitive = LastSearchDlgOptions.CaseSensitive.value(),
+					.WholeWords = LastSearchDlgOptions.WholeWords.value(),
+					.Regexp = LastSearchDlgOptions.Regexp.value()
+				},
 				SearchLength,
 				Global->Opt->EdOpt.strWordDiv
 			))
