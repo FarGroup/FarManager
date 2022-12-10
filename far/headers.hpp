@@ -36,8 +36,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #ifdef _MSC_VER
-#if !defined __clang__ && _MSC_FULL_VER < 191627023
-#error Visual C++ 2017 Update 9 (or higher) required
+#if !defined __clang__ && _MSC_VER < 1921
+#error Visual C++ 2019 Update 1 (or higher) required
 #endif
 #endif //_MSC_VER
 

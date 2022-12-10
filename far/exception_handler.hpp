@@ -139,14 +139,6 @@ namespace detail
 	int seh_thread_filter(seh_exception& Exception, EXCEPTION_POINTERS const* Info);
 	void seh_thread_handler(DWORD ExceptionCode);
 	void set_fp_exceptions(bool Enable);
-
-	// A workaround for 2017
-	// TODO: remove once we drop support for VS2017.
-	template<typename result_type, typename std_handler>
-	void assign(result_type& Result, std_handler const& StdHandler, std::exception const& e)
-	{
-		Result = StdHandler(e);
-	}
 }
 
 template<typename callable, typename unknown_handler, typename std_handler = ::detail::no_handler>
@@ -177,10 +169,8 @@ auto cpp_try(callable const& Callable, unknown_handler const& UnknownHandler, st
 		[[maybe_unused]]
 		const auto StdHandlerEx = [&](std::exception const& e)
 		{
-			// IsVoid is a workaround for 2017
-			// TODO: remove once we drop support for VS2017.
-			if constexpr (HasStdHandler && !IsVoid)
-				::detail::assign(Result, StdHandler, e);
+			if constexpr (HasStdHandler)
+				Result = StdHandler(e);
 		};
 
 		if constexpr (HasStdHandler)

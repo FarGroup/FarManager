@@ -328,9 +328,7 @@ TEST_CASE("chrono")
 		REQUIRE(Result.template get<decltype(Arg)>() == Arg);
 	};
 
-	// The explicit capture is a workaround for VS2017.
-	// TODO: remove once we drop support for VS2017.
-	const auto check_split_duration = [&, check](auto... Args)
+	const auto check_split_duration = [&](auto... Args)
 	{
 		const auto Result = split_duration<decltype(Args)...>(Duration);
 		(..., check(Result, Args));

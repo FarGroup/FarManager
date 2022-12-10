@@ -384,14 +384,10 @@ void codepages::AddCodePages(DWORD codePages)
 		if (IsStandardCodePage(cp))
 			continue;
 
-		// VS2017 spurious const bug
-		// auto [len, CodepageName] = Info;
-		const auto len = Info.MaxCharSize;
-		auto CodepageName = Info.Name;
-
-		if (!len || (len > 2 && (codePages & VOnly)))
+		if (!Info.MaxCharSize || (Info.MaxCharSize > 2 && (codePages & VOnly)))
 			continue;
 
+		auto CodepageName = Info.Name;
 		const auto IsCodePageNameCustom = GetCodePageCustomName(cp, CodepageName);
 		const auto selectType = GetFavorite(cp);
 

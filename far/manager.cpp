@@ -293,8 +293,7 @@ void Manager::CloseAll()
 
 void Manager::PushWindow(const window_ptr& Param, window_callback Callback)
 {
-	// This idiotic "self=this" is to make both VS17 and VS19 happy
-	m_Queue.emplace([=, self=this]{ std::invoke(Callback, self, Param); });
+	m_Queue.emplace([=, this]{ std::invoke(Callback, this, Param); });
 }
 
 void Manager::CheckAndPushWindow(const window_ptr& Param, window_callback Callback)
@@ -554,8 +553,7 @@ void Manager::ExecuteWindow(const window_ptr& Executed)
 
 void Manager::ReplaceWindow(const window_ptr& Old, const window_ptr& New)
 {
-	// This idiotic "self=this" is to make both VS17 and VS19 happy
-	m_Queue.emplace([=, self=this]{ self->ReplaceCommit(Old, New); });
+	m_Queue.emplace([=, this]{ ReplaceCommit(Old, New); });
 }
 
 void Manager::ModalDesktopWindow()

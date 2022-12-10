@@ -75,8 +75,7 @@ private:
 	template<const os::rtdl::module imports::* ModuleAccessor, auto Name, auto StubFunction>
 	class unique_function_pointer
 	{
-		// The indirection is a workaround for MSVC
-		using function_type = std::enable_if_t<true, decltype(StubFunction)>;
+		using function_type = decltype(StubFunction);
 
 	public:
 		unique_function_pointer() = default;
