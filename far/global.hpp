@@ -73,7 +73,6 @@ public:
 	string g_strFarINI;
 	string g_strFarPath;
 	string strInitTitle;
-	search_case_fold GlobalSearchCaseFold;
 	bool GlobalSearchCaseSensitive{};
 	bool GlobalSearchFuzzy{};
 	bool GlobalSearchWholeWords{}; // значение "Whole words" для поиска

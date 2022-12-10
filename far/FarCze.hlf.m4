@@ -1713,6 +1713,11 @@ citlivost porovnávání.
 od ostatního textu mezerami, tabulátory, zalomeními, nebo
 standardními oddělovači, které jsou: #!%^&*()+|{}:"<>?`-=\\[];',./#.
 
+ #Fuzzy search# is diacritical insensitive, treats ligatures equivalent
+to their corresponding multicharacter sequences and fancy numerals
+to corresponding number characters, and ignores some other minor
+differences.
+
  Seznam #"Použít znakovou sadu"# umožňuje zvolit konkrétní znakovou sadu
 pro vyhledávání textu, nebo lze pro vyhledávání textu v souborech různými
 znakovými sadami použít nastavení #Všechny znakové sady#, kdy jsou použity

@@ -193,8 +193,7 @@ private:
 	bool m_DeleteFolder{true};
 
 	string strLastSearchStr;
-	search_case_fold LastSearchCaseFold;
-	bool LastSearchWholeWords, LastSearchReverse, LastSearchHex, LastSearchRegexp;
+	bool LastSearchCaseSensitive, LastSearchWholeWords, LastSearchReverse, LastSearchHex, LastSearchRegexp;
 	int LastSearchDirection;
 	long long StartSearchPos{};
 

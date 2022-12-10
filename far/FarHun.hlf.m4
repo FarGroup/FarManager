@@ -1732,6 +1732,11 @@ szövegrészeket, ha a megadott karaktersort a többitől a szóköz, tabulátor
 soremelés karakter választja el, vagy a szabványos határoló karakterek,
 amelyek alapértelmezés szerint: #!%^&*()+|{}:"<>?`-=\\[];',./#.
 
+ #Fuzzy search# is diacritical insensitive, treats ligatures equivalent
+to their corresponding multicharacter sequences and fancy numerals
+to corresponding number characters, and ignores some other minor
+differences.
+
  A #Keresés hexákra# opcióval hexadecimális számsorokat adhatunk meg
 keresési feltételként. Ebben az esetben a #Nagy/kisbetű érzékeny#, a
 #Csak egész szavak#, a #Kódlap# és a #Keresés mappákra# opciók
