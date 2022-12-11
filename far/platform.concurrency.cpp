@@ -52,6 +52,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // External:
 #include "format.hpp"
 
+#include <process.h>
+
 //----------------------------------------------------------------------------
 
 namespace os::concurrency

@@ -68,6 +68,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "format.hpp"
 #include "tinyxml.hpp"
 
+#include <share.h>
+
 //----------------------------------------------------------------------------
 
 static const auto XmlDocumentRootName = "farconfig";

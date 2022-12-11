@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.fs.hpp"
 #include "platform.memory.hpp"
+#include "platform.reg.hpp"
 
 // Common:
 #include "common/algorithm.hpp"
@@ -221,24 +222,22 @@ string format_ntstatus(NTSTATUS const Status)
 }
 
 last_error_guard::last_error_guard():
-	m_LastError(GetLastError()),
-	m_LastStatus(get_last_nt_status()),
-	m_Active(true)
+	m_Error(last_error())
 {
 }
 
 last_error_guard::~last_error_guard()
 {
-	if (!m_Active)
+	if (!m_Error)
 		return;
 
-	SetLastError(m_LastError);
-	set_last_nt_status(m_LastStatus);
+	SetLastError(m_Error->Win32Error);
+	set_last_nt_status(m_Error->NtError);
 }
 
 void last_error_guard::dismiss()
 {
-	m_Active = false;
+	m_Error.reset();
 }
 
 string error_state::Win32ErrorStr() const
@@ -526,6 +525,64 @@ HKL make_hkl(string_view const LayoutStr)
 	return {};
 }
 
+std::vector<HKL> get_keyboard_layout_list()
+{
+	std::vector<HKL> Result;
+
+	if (const auto LayoutNumber = GetKeyboardLayoutList(0, nullptr))
+	{
+		Result.resize(LayoutNumber);
+		Result.resize(GetKeyboardLayoutList(LayoutNumber, Result.data())); // if less than expected
+
+		return Result;
+	}
+
+	// GetKeyboardLayoutList can fail in telnet mode, which is, technically, a right thing to do.
+	// However, we still need to map the keys.
+	// The code below emulates it in the hope that your client and server layouts are more or less similar.
+	LOGWARNING(L"GetKeyboardLayoutList(): {}"sv, os::last_error());
+
+	Result.reserve(10);
+	string LayoutStr, LayoutIdStr;
+	for (const auto& i: os::reg::enum_value(os::reg::key::current_user, L"Keyboard Layout\\Preload"sv))
+	{
+		try
+		{
+			// Just to make sure we're not trying to parse some rubbish
+			[[maybe_unused]] const auto PreloadNumber = from_string<int>(i.name());
+
+			const auto PreloadStr = i.get_string();
+			const auto Preload = from_string<uint32_t>(PreloadStr, {}, 16);
+			const auto PrimaryLanguageId = extract_integer<uint16_t, 0>(Preload);
+
+			const auto LayoutValue = os::reg::key::current_user.get(L"Keyboard Layout\\Substitutes"sv, PreloadStr, LayoutStr)?
+				from_string<uint32_t>(LayoutStr, {}, 16) :
+				Preload;
+
+			const auto SecondaryLanguageId = extract_integer<uint16_t, 0>(LayoutValue);
+
+			const string_view LayoutView = LayoutValue == Preload? PreloadStr : LayoutStr;
+
+			const auto LayoutId = os::reg::key::local_machine.get(concat(L"SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts\\"sv, LayoutView), L"Layout Id"sv, LayoutIdStr)?
+				from_string<int>(LayoutIdStr, {}, 16) :
+				0;
+
+			const auto FinalLayout = make_integer<uint32_t, uint16_t>(PrimaryLanguageId, LayoutId? (LayoutId & 0xfff) | 0xf000 : SecondaryLanguageId);
+
+			Result.emplace_back(os::make_hkl(FinalLayout));
+		}
+		catch (std::exception const& e)
+		{
+			LOGWARNING(L"{}", e);
+		}
+	}
+
+	if (Result.empty())
+		Result.emplace_back(make_hkl(0x04090409)); // Fallback to US
+
+	return Result;
+}
+
 bool is_interactive_user_session()
 {
 	const auto WindowStation = GetProcessWindowStation();
@@ -553,6 +610,24 @@ namespace rtdl
 			FreeLibrary(Module);
 		}
 
+		module::module(string_view const Name, bool const AlternativeLoad):
+			m_name(Name),
+			m_tried(),
+			m_AlternativeLoad(AlternativeLoad)
+		{
+		}
+
+		module::operator bool() const noexcept
+		{
+			return get_module() != nullptr;
+		}
+
+		const string& module::name() const
+		{
+			assert(!m_name.empty());
+			return m_name;
+		}
+
 		HMODULE module::get_module() const noexcept
 		{
 			if (!m_tried && !m_module && !m_name.empty())
@@ -568,9 +643,11 @@ namespace rtdl
 			return m_module.get();
 		}
 
-		FARPROC module::get_proc_address(HMODULE Module, const char* Name) const
+		void* module::get_proc_address(const char* const Name) const
 		{
-			return Module? ::GetProcAddress(Module, Name) : nullptr;
+			const auto& Module = get_module();
+			assert(Module);
+			return Module? reinterpret_cast<void*>(::GetProcAddress(Module, Name)) : nullptr;
 		}
 
 		opaque_function_pointer::opaque_function_pointer(const module& Module, const char* Name):
@@ -586,7 +663,7 @@ namespace rtdl
 		void* opaque_function_pointer::get_pointer() const
 		{
 			if (!m_Pointer)
-				m_Pointer = m_Module->GetProcAddress<void*>(m_Name);
+				m_Pointer = *m_Module? m_Module->GetProcAddress<void*>(m_Name) : nullptr;
 
 			return *m_Pointer;
 		}

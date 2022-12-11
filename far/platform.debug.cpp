@@ -53,6 +53,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // External:
 
+#include <crtdbg.h>
+
 //----------------------------------------------------------------------------
 
 namespace os::debug
@@ -287,6 +289,34 @@ namespace os::debug
 			return false;
 
 		return (frameContext.FrameType & STACK_FRAME_TYPE_INLINE) != 0;
+	}
+
+	void crt_report_to_ui()
+	{
+#ifdef _DEBUG
+		// _OUT_TO_STDERR is the default for console apps, but it is less convenient for debugging.
+		// Use -service to set it back to _OUT_TO_STDERR (e.g. for macro tests on CI).
+		_set_error_mode(_OUT_TO_MSGBOX);
+
+		_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_WNDW);
+		_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_WNDW);
+		_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_WNDW);
+#endif
+	}
+
+	void crt_report_to_stderr()
+	{
+#ifdef _DEBUG
+		_set_error_mode(_OUT_TO_STDERR);
+
+		(void)_CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+		(void)_CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+		(void)_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+
+		_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+		_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+		_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+#endif
 	}
 }
 

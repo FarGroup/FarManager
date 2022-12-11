@@ -55,7 +55,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "common/2d/algorithm.hpp"
 #include "common/algorithm.hpp"
 #include "common/enum_substrings.hpp"
-#include "common/function_traits.hpp"
 #include "common/io.hpp"
 #include "common/range.hpp"
 #include "common/scope_exit.hpp"
@@ -334,9 +333,6 @@ namespace console_detail
 
 	console::~console()
 	{
-		if (m_FileHandle != -1)
-			_close(m_FileHandle);
-
 		placement::destruct(ExternalConsole);
 	}
 
@@ -1574,30 +1570,13 @@ WARNING_POP()
 		return (IsVtActive()? implementation::WriteOutputVT : implementation::WriteOutputNT)(Buffer, SubRect, WriteRegion);
 	}
 
-	bool console::Read(string& Buffer, size_t& Size) const
+	bool console::Read(span<wchar_t> const Buffer, size_t& Size) const
 	{
-		const auto InputHandle = GetInputHandle();
-
 		DWORD NumberOfCharsRead;
-
-		DWORD Mode;
-		if (GetMode(InputHandle, Mode))
+		if (!ReadConsole(GetInputHandle(), Buffer.data(), static_cast<DWORD>(Buffer.size()), &NumberOfCharsRead, {}))
 		{
-			if (!ReadConsole(InputHandle, Buffer.data(), static_cast<DWORD>(Buffer.size()), &NumberOfCharsRead, nullptr))
-			{
-				LOGERROR(L"ReadConsole(): {}"sv, os::last_error());
-				return false;
-			}
-		}
-		else
-		{
-			if (!ReadFile(InputHandle, Buffer.data(), static_cast<DWORD>(Buffer.size() * sizeof(wchar_t)), &NumberOfCharsRead, nullptr))
-			{
-				LOGERROR(L"ReadFile(): {}"sv, os::last_error());
-				return false;
-			}
-
-			NumberOfCharsRead /= sizeof(wchar_t);
+			LOGERROR(L"ReadConsole(): {}"sv, os::last_error());
+			return false;
 		}
 
 		Size = NumberOfCharsRead;
@@ -1607,36 +1586,13 @@ WARNING_POP()
 	bool console::Write(const string_view Str) const
 	{
 		DWORD NumberOfCharsWritten;
-		const auto OutputHandle = GetOutputHandle();
-
-		DWORD Mode;
-		if (GetMode(OutputHandle, Mode))
+		if (!WriteConsole(GetOutputHandle(), Str.data(), static_cast<DWORD>(Str.size()), &NumberOfCharsWritten, {}))
 		{
-			if (!WriteConsole(OutputHandle, Str.data(), static_cast<DWORD>(Str.size()), &NumberOfCharsWritten, nullptr))
-			{
-				LOGERROR(L"WriteConsole(): {}"sv, os::last_error());
-				return false;
-			}
-
-			return true;
+			LOGERROR(L"WriteConsole(): {}"sv, os::last_error());
+			return false;
 		}
 
-		// Redirected output
-
-		if (m_FileHandle == -1)
-		{
-			HANDLE OsHandle;
-			if (!DuplicateHandle(GetCurrentProcess(), OutputHandle, GetCurrentProcess(), &OsHandle, 0, FALSE, DUPLICATE_SAME_ACCESS))
-				return false;
-
-			m_FileHandle = _open_osfhandle(reinterpret_cast<intptr_t>(OsHandle), _O_U8TEXT);
-			if (m_FileHandle == -1)
-				return false;
-
-			_setmode(m_FileHandle, _O_U8TEXT);
-		}
-
-		return _write(m_FileHandle, Str.data(), static_cast<unsigned int>(Str.size() * sizeof(wchar_t))) != -1;
+		return true;
 	}
 
 	bool console::Commit() const
@@ -2304,12 +2260,20 @@ enum
 	BufferSize = 8192
 };
 
+static bool is_redirected(int const HandleType)
+{
+	DWORD Mode;
+	return !GetConsoleMode(GetStdHandle(HandleType), &Mode);
+}
+
 class consolebuf final: public std::wstreambuf
 {
 public:
 	NONCOPYABLE(consolebuf);
 
-	consolebuf():
+	consolebuf(int const Type):
+		m_Type(Type),
+		m_Redirected(is_redirected(Type)),
 		m_InBuffer(BufferSize, {}),
 		m_OutBuffer(BufferSize, {})
 	{
@@ -2325,27 +2289,23 @@ public:
 protected:
 	int_type underflow() override
 	{
-		size_t Read;
-		if (!console.Read(m_InBuffer, Read))
-			throw MAKE_FAR_FATAL_EXCEPTION(L"Console read error"sv);
-
-		if (!Read)
+		const auto Size = read(m_InBuffer);
+		if (!Size)
 			return traits_type::eof();
 
-		setg(m_InBuffer.data(), m_InBuffer.data(), m_InBuffer.data() + Read);
+		setg(m_InBuffer.data(), m_InBuffer.data(), m_InBuffer.data() + Size);
 		return m_InBuffer[0];
 	}
 
 	int_type overflow(int_type Ch) override
 	{
-		if (!Write({ pbase(), static_cast<size_t>(pptr() - pbase()) }))
-			return traits_type::eof();
+		write({ pbase(), static_cast<size_t>(pptr() - pbase()) });
 
 		setp(m_OutBuffer.data(), m_OutBuffer.data() + m_OutBuffer.size());
 
 		if (traits_type::eq_int_type(Ch, traits_type::eof()))
 		{
-			console.Commit();
+			flush();
 		}
 		else
 		{
@@ -2362,10 +2322,50 @@ protected:
 	}
 
 private:
-	bool Write(string_view Str)
+	size_t read(span<wchar_t> const Str) const
+	{
+		if (m_Redirected)
+		{
+			DWORD BytesRead;
+			if (!ReadFile(GetStdHandle(m_Type), Str.data(), static_cast<DWORD>(Str.size() * sizeof(wchar_t)), &BytesRead, {}))
+				throw MAKE_FAR_FATAL_EXCEPTION(L"File read error"sv);
+
+			return BytesRead / sizeof(wchar_t);
+		}
+
+		size_t Size;
+		if (!console.Read(Str, Size))
+			throw MAKE_FAR_FATAL_EXCEPTION(L"Console read error"sv);
+
+		return Size;
+	}
+
+	void write(string_view const Str) const
 	{
 		if (Str.empty())
-			return true;
+			return;
+
+		if (m_Redirected)
+		{
+			const auto write = [&](void const* Data, size_t const Size)
+			{
+				DWORD BytesWritten;
+				if (!WriteFile(GetStdHandle(m_Type), Data, static_cast<DWORD>(Size), &BytesWritten, {}))
+					throw MAKE_FAR_FATAL_EXCEPTION(L"File write error"sv);
+			};
+
+			if constexpr (constexpr auto UseUtf8Output = true)
+			{
+				const auto Utf8Str = encoding::utf8::get_bytes(Str);
+				write(Utf8Str.data(), Utf8Str.size());
+			}
+			else
+			{
+				write(Str.data(), Str.size() * sizeof(wchar_t));
+			}
+
+			return;
+		}
 
 		FarColor CurrentColor;
 		const auto ChangeColour = m_Colour && console.GetTextAttributes(CurrentColor);
@@ -2377,11 +2377,43 @@ private:
 
 		SCOPE_EXIT{ if (ChangeColour) console.SetTextAttributes(CurrentColor); };
 
-		return console.Write(Str);
+		if (!console.Write(Str))
+			throw MAKE_FAR_FATAL_EXCEPTION(L"Console write error"sv);
 	}
 
+	void flush() const
+	{
+		if (m_Redirected)
+		{
+			FlushFileBuffers(GetStdHandle(m_Type));
+			return;
+		}
+
+		console.Commit();
+	}
+
+	int m_Type;
+	bool m_Redirected;
 	string m_InBuffer, m_OutBuffer;
 	std::optional<FarColor> m_Colour;
+};
+
+class stream_buffer_overrider
+{
+public:
+	NONCOPYABLE(stream_buffer_overrider);
+
+	stream_buffer_overrider(std::wios& Stream, int const HandleType, std::optional<FarColor> const Color = {}):
+		m_Buf(HandleType),
+		m_Override(Stream, m_Buf)
+	{
+		if (Color)
+			m_Buf.color(*Color);
+	}
+
+private:
+	consolebuf m_Buf;
+	io::wstreambuf_override m_Override;
 };
 
 class console_detail::console::stream_buffers_overrider
@@ -2390,19 +2422,24 @@ public:
 	NONCOPYABLE(stream_buffers_overrider);
 
 	stream_buffers_overrider():
-		m_In(std::wcin, m_BufIn),
-		m_Out(std::wcout, m_BufOut),
-		m_Err(std::wcerr, m_BufErr),
-		m_Log(std::wclog, m_BufLog)
+		m_ErrorColor(fg_color(F_LIGHTRED)),
+		m_In(std::wcin, STD_INPUT_HANDLE),
+		m_Out(std::wcout, STD_OUTPUT_HANDLE),
+		m_Err(std::wcerr, STD_ERROR_HANDLE, m_ErrorColor),
+		m_Log(std::wclog, STD_ERROR_HANDLE, m_ErrorColor)
 	{
-		auto Color = colors::NtColorToFarColor(F_LIGHTRED);
-		colors::make_transparent(Color.BackgroundColor);
-		m_BufErr.color(Color);
 	}
 
 private:
-	consolebuf m_BufIn, m_BufOut, m_BufErr, m_BufLog;
-	io::wstreambuf_override m_In, m_Out, m_Err, m_Log;
+	static FarColor fg_color(int const NtColor)
+	{
+		auto Color = colors::NtColorToFarColor(NtColor);
+		colors::make_transparent(Color.BackgroundColor);
+		return Color;
+	}
+
+	FarColor m_ErrorColor;
+	stream_buffer_overrider m_In, m_Out, m_Err, m_Log;
 };
 
 #ifdef ENABLE_TESTS

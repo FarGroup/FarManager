@@ -235,7 +235,11 @@ namespace imports_detail
 	{
 		static const auto Pointer = [&]
 		{
-			if (const auto DynamicPointer = std::invoke(ModuleAccessor, ::imports).GetProcAddress<function_type>(Name))
+			const auto& Module = std::invoke(ModuleAccessor, ::imports);
+			if (!Module)
+				return StubFunction;
+
+			if (const auto DynamicPointer = Module.GetProcAddress<function_type>(Name))
 				return DynamicPointer;
 
 			return StubFunction;

@@ -712,6 +712,24 @@ namespace os::fs
 
 	//-------------------------------------------------------------------------
 
+	file::file():
+		m_Pointer(),
+		m_NeedSyncPointer(),
+		m_ShareMode()
+	{
+	}
+
+	file::file(handle&& Handle):
+		m_Handle(std::move(Handle)),
+		m_Pointer(),
+		m_NeedSyncPointer(),
+		m_ShareMode()
+	{
+		LARGE_INTEGER NewPointer;
+		SetFilePointerEx(m_Handle.native_handle(), {}, &NewPointer, FILE_CURRENT);
+		m_Pointer = NewPointer.QuadPart;
+	}
+
 	file::operator bool() const noexcept
 	{
 		return m_Handle.operator bool();
@@ -1826,15 +1844,15 @@ namespace os::fs
 		if (auto Handle = handle(low::create_file(strObject.c_str(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile)))
 			return Handle;
 
-		const auto LastError = GetLastError();
+		const auto LastError = last_error();
 
-		if (STATUS_STOPPED_ON_SYMLINK == get_last_nt_status() && ERROR_STOPPED_ON_SYMLINK != LastError)
+		if (LastError.NtError == STATUS_STOPPED_ON_SYMLINK && LastError.Win32Error != ERROR_STOPPED_ON_SYMLINK)
 		{
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 			return nullptr;
 		}
 
-		if (LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_PATH_NOT_FOUND)
+		if (LastError.Win32Error == ERROR_FILE_NOT_FOUND || LastError.Win32Error == ERROR_PATH_NOT_FOUND)
 		{
 			FlagsAndAttributes &= ~FILE_FLAG_POSIX_SEMANTICS;
 			if (auto Handle = handle(low::create_file(strObject.c_str(), DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile)))
@@ -1882,13 +1900,15 @@ namespace os::fs
 		if (low::copy_file(strFrom.c_str(), strTo.c_str(), ProgressRoutine, Data, Cancel, CopyFlags))
 			return true;
 
-		if (STATUS_STOPPED_ON_SYMLINK == get_last_nt_status() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
+		const auto LastError = last_error();
+
+		if (LastError.NtError == STATUS_STOPPED_ON_SYMLINK && LastError.Win32Error != ERROR_STOPPED_ON_SYMLINK)
 		{
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 			return false;
 		}
 
-		if (STATUS_FILE_IS_A_DIRECTORY == get_last_nt_status())
+		if (LastError.NtError == STATUS_FILE_IS_A_DIRECTORY)
 		{
 			SetLastError(ERROR_FILE_EXISTS);
 			return false;
@@ -1913,7 +1933,9 @@ namespace os::fs
 		if (low::move_file(strFrom.c_str(), strTo.c_str(), Flags))
 			return true;
 
-		if (STATUS_STOPPED_ON_SYMLINK == get_last_nt_status() && ERROR_STOPPED_ON_SYMLINK != GetLastError())
+		const auto LastError = last_error();
+
+		if (LastError.NtError == STATUS_STOPPED_ON_SYMLINK && LastError.Win32Error != ERROR_STOPPED_ON_SYMLINK)
 		{
 			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 			return false;

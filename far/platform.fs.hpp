@@ -223,14 +223,11 @@ namespace os::fs
 		NONCOPYABLE(file);
 		MOVABLE(file);
 
-		file():
-			m_Pointer(),
-			m_NeedSyncPointer(),
-			m_ShareMode()
-		{
-		}
+		file();
 
-		template<typename... args>
+		explicit file(handle&& Handle);
+
+		template<typename... args, REQUIRES((sizeof...(args) > 1))>
 		explicit file(args&&... Args)
 		{
 			(void)Open(FWD(Args)...);
