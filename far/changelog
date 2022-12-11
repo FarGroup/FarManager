@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 11.12.2022 00:58:15 +0000 - build 6062
+
+1. 0003971: Cross-layout key mapping didn't work in some OSes after 5980.
+
+--------------------------------------------------------------------------------
 MZK 07.12.2022 19:00:08 -0800 - build 6061
 
 1. Decoupling fuzzy search from case sensitive search. Part 1.

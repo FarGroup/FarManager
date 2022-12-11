@@ -63,6 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 #include "platform.hpp"
 #include "platform.reg.hpp"
+#include "platform.version.hpp"
 
 // Common:
 #include "common/algorithm.hpp"
@@ -356,6 +357,14 @@ void InitKeysArray()
 	//если разные VK мапятся в тот же юникод символ то мапирование будет только для первой
 	//раскладки которая вернула этот символ
 	//
+
+	// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-tounicodeex
+	// If bit 2 is set, keyboard state is not changed (Windows 10, version 1607 and newer)
+	const auto DontChangeKeyboardState = 0b100;
+	const auto ToUnicodeFlags = os::version::is_win10_1607_or_later()?
+		DontChangeKeyboardState :
+		0;
+
 	for (const auto& j: irange(2))
 	{
 		KeyState[VK_SHIFT] = j * 0x80;
@@ -366,11 +375,7 @@ void InitKeysArray()
 			{
 				wchar_t idx;
 
-				// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-tounicodeex
-				// If bit 2 is set, keyboard state is not changed (Windows 10, version 1607 and newer)
-				const auto DontChangeKeyboardState = 0b100;
-
-				if (ToUnicodeEx(VK, 0, KeyState, &idx, 1, DontChangeKeyboardState, i) > 0)
+				if (ToUnicodeEx(VK, 0, KeyState, &idx, 1, ToUnicodeFlags, i) > 0)
 				{
 					if (!KeyToVKey[idx])
 						KeyToVKey[idx] = VK + j * 0x100;
