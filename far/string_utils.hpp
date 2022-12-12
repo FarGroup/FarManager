@@ -227,24 +227,6 @@ using searchers = std::variant
 	fuzzy_ic_searcher
 >;
 
-enum class search_case_fold
-{
-	exact,
-	icase,
-	fuzzy
-};
-
-inline i_searcher const& init_searcher(searchers& Searchers, search_case_fold const Mode, string_view const Needle, const bool CanReverse = true)
-{
-	switch (Mode)
-	{
-	case search_case_fold::exact: return Searchers.emplace<exact_searcher>(Needle, CanReverse);
-	case search_case_fold::icase: return Searchers.emplace<icase_searcher>(Needle, CanReverse);
-	case search_case_fold::fuzzy: return Searchers.emplace<fuzzy_ic_searcher>(Needle, CanReverse);
-	default: UNREACHABLE;
-	}
-}
-
 inline i_searcher const& init_searcher(searchers& Searchers, const bool CaseSensitive, const bool Fuzzy, string_view const Needle, const bool CanReverse = true)
 {
 	if (Fuzzy)

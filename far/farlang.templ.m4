@@ -6924,18 +6924,18 @@ upd:"Re&gular expressions"
 upd:"Re&gular expressions"
 
 MEditSearchFuzzy
-"&Нестрогий поиск"
-"&Fuzzy search"
-upd:"&Fuzzy search"
-upd:"&Fuzzy search"
-upd:"&Fuzzy search"
-upd:"&Fuzzy search"
-upd:"&Fuzzy search"
-upd:"&Fuzzy search"
-upd:"&Fuzzy search"
-upd:"&Fuzzy search"
-upd:"&Fuzzy search"
-upd:"&Fuzzy search"
+"Нестроги&й поиск"
+"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
 
 MEditSearchPreserveStyle
 "&Сохранять стиль"
@@ -11543,6 +11543,20 @@ MFindFileWholeWords
 "Толькі по&ўныя словы"
 "Visi ž&odžiai"
 
+MFindFileFuzzy
+"Нестроги&й поиск"
+"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+
 MFindFileAllCodePages
 "Все стандартные кодовые страницы"
 "All standard code pages"
@@ -11642,7 +11656,7 @@ MSearchForHex
 upd:"Search for &hex"
 
 MSearchNotContaining
-"Не содержащих"
+"&Не содержащих"
 "&Not containing"
 "Neobsahuje"
 "Nicht enthalten"

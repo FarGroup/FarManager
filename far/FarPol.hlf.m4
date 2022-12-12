@@ -1678,6 +1678,11 @@ używane będzie porównywanie wielkich i małych znaków.
 od innego tekstu spacją, tabulatorem, znakiem łamania linii lub standardowym
 separatorem, którym domyślnie są znaki: #!%^&*()+|{}:"<>?`-=\\[];',./#.
 
+ #Fuzzy search# is diacritical insensitive, treats ligatures equivalent
+to their corresponding multicharacter sequences and fancy numerals
+to corresponding number characters, and ignores some other minor
+differences.
+
  Zaznaczając opcję #Szukaj wartości szesnastkowej# można wyszukać pliki
 zawierające szesnastkową sekwencję podanych bajtów. W tym przypadku
 opcje #Uwzględnij wielkość znaków#, #Tylko całe wyrazy#, #Użyj strony kodowej#
