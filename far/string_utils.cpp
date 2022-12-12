@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-string_view GetSpaces()
+string_view GetBlanks()
 {
 	return L" \t"sv;
 }
@@ -348,9 +348,9 @@ std::optional<std::pair<size_t, size_t>> detail::fuzzy_searcher_impl::find_in(co
 
 #include "testing.hpp"
 
-TEST_CASE("string.spaces")
+TEST_CASE("string.blanks")
 {
-	for (const auto& i: GetSpaces())
+	for (const auto& i: GetBlanks())
 	{
 		REQUIRE(std::iswblank(i));
 	}
@@ -395,19 +395,6 @@ TEST_CASE("string.case")
 
 	REQUIRE(lower(L"FOO"sv) == L"foo"sv);
 	REQUIRE(lower(L"foo"sv) == L"foo"sv);
-}
-
-TEST_CASE("string.utils")
-{
-	for (const auto& i: GetSpaces())
-	{
-		REQUIRE(std::isblank(i));
-	}
-
-	for (const auto& i: GetEols())
-	{
-		REQUIRE(IsEol(i));
-	}
 }
 
 TEST_CASE("string.utils.hash_icase")

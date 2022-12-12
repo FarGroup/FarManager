@@ -193,8 +193,17 @@ private:
 	bool m_DeleteFolder{true};
 
 	string strLastSearchStr;
-	bool LastSearchCaseSensitive, LastSearchWholeWords, LastSearchReverse, LastSearchHex, LastSearchRegexp;
-	int LastSearchDirection;
+
+	struct SearchOptions
+	{
+		bool CaseSensitive{};
+		bool WholeWords{};
+		bool Reverse{};
+		bool Regexp{};
+		bool Fuzzy{};
+		bool SearchHex{};
+	} LastSearchOptions;
+
 	long long StartSearchPos{};
 
 	uintptr_t m_DefCodepage;
