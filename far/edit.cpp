@@ -1714,8 +1714,15 @@ void Edit::InsertString(string_view Str)
 					{
 						j++;
 					}
-					SetPrevCurPos(m_CurPos);
-					m_CurPos++;
+
+					// After 5050 InsertKey above redraws the dialog.
+					// This advances m_CurPos through the mask as needed,
+					// so we should not advance it manually here.
+					// The commented code is preserved for the context,
+					// e.g. if we choose to disable the redraw one day.
+
+					//SetPrevCurPos(m_CurPos);
+					//m_CurPos++;
 				}
 
 				i++;

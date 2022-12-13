@@ -931,6 +931,7 @@ void EditControl::RefreshStrByMask(int InitMode)
 		return;
 
 	m_Str.resize(Mask.size(), L' ');
+	MaxLength = m_Str.size();
 
 	for (const auto& [Str, Msk]: zip(m_Str, Mask))
 	{
