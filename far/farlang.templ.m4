@@ -2868,7 +2868,7 @@ upd:"Fullwidth-aware rendering"
 upd:"Fullwidth-aware rendering"
 upd:"Fullwidth-aware rendering"
 upd:"Fullwidth-aware rendering"
-upd:"Візуалізацыя з улікам поўнай шырыні"
+"Візуалізацыя з улікам поўнай шырыні"
 upd:"Fullwidth-aware rendering"
 
 MConfigClearType
@@ -3310,7 +3310,7 @@ upd:"Computer &name format"
 "Formát &názvu počítača"
 "Formato Nome Co&mputer"
 "Форма&т відображення імені комп'ютера"
-"Выгляд імі кампью&тара"
+"Выгляд імені кампу&тара"
 upd:"Computer &name format"
 
 MConfigInfoPanelCNPhysicalNetBIOS
@@ -3436,7 +3436,7 @@ MConfigInfoPanelUNTitle
 "Formát &užívateľského mena"
 "&Formato Nome Utente"
 "Формат відображення імені &користувача"
-"Выгляд імі &карыстальніка"
+"Выгляд імені &карыстальніка"
 "Vartotojo vardo formatas"
 
 MConfigInfoPanelUNLogon
@@ -6934,7 +6934,7 @@ upd:"Fu&zzy search"
 upd:"Fu&zzy search"
 upd:"Fu&zzy search"
 upd:"Fu&zzy search"
-upd:"Fu&zzy search"
+"Нястрог&і пошук"
 upd:"Fu&zzy search"
 
 MEditSearchPreserveStyle
@@ -11554,7 +11554,7 @@ upd:"Fu&zzy search"
 upd:"Fu&zzy search"
 upd:"Fu&zzy search"
 upd:"Fu&zzy search"
-upd:"Fu&zzy search"
+"Нястрог&і пошук"
 upd:"Fu&zzy search"
 
 MFindFileAllCodePages
@@ -11666,7 +11666,7 @@ upd:"Not containing"
 "Neobsahuje"
 "Non Contenente"
 "Які не містять"
-"Не змяшчае"
+"&Не змяшчае"
 upd:"&Not containing"
 
 MSearchWhere
@@ -16454,7 +16454,7 @@ MSetAttrAppExecLink
 "Alias aplikácie :"
 "Alias dell'app:"
 "Псевдонім програми:"
-"Псеўданім прыкладання :"
+"Псеўданім праграмы:"
 "Programos slapyvardis :"
 
 MSetAttrUnknownReparsePoint
@@ -18584,7 +18584,7 @@ MSetColorItemsTitle
 "Položky skupín"
 "Oggetti Di Gruppo"
 "Елементи групи"
-"Элемент суполки"
+"Элемент суполкі"
 "Grupės punktai"
 
 MSetColorTitle
@@ -18951,7 +18951,7 @@ MSetColorVTHintInfo
 "Extended colors and styles require VT rendering."
 "Extended colors and styles require VT rendering."
 "Extended colors and styles require VT rendering."
-"Extended colors and styles require VT rendering."
+"Пашыраныя колеры і стылі патрабуюць візуалізацыі VT."
 "Extended colors and styles require VT rendering."
 
 MSetColorVTHintSupported
@@ -18965,7 +18965,7 @@ MSetColorVTHintSupported
 "Press \"Enable VT\" below to turn it on."
 "Press \"Enable VT\" below to turn it on."
 "Press \"Enable VT\" below to turn it on."
-"Press \"Enable VT\" below to turn it on."
+"Націсніце \"Уключыць VT\", каб уключыць яго."
 "Press \"Enable VT\" below to turn it on."
 
 MSetColorVTHintNotSupported
@@ -18979,7 +18979,7 @@ MSetColorVTHintNotSupported
 "Your system does not support it."
 "Your system does not support it."
 "Your system does not support it."
-"Your system does not support it."
+"Вашая сістэма не падтрымлівае гэтае."
 "Your system does not support it."
 
 MSetColorSet
@@ -19007,7 +19007,7 @@ MSetColorEnableVT
 "Enable VT"
 "Enable VT"
 "Enable VT"
-"Enable VT"
+"Уключыць VT"
 "Enable VT"
 
 MSetColorCancel
@@ -27463,7 +27463,7 @@ MKBTreeShiftF11
 "Skupin"
 "Gruppo"
 "Групи"
-"Суполккі"
+"Суполкі"
 upd:"Group"
 
 MKBTreeShiftF12
@@ -29785,7 +29785,7 @@ upd:"One or more services are critical services."
 "Jeden, alebo viac servisov je kritických."
 "Uno O Più Servizi Sono Servizi Critici"
 "Одна або кілька служб є критичними службами."
-"Адзін альбо некалькі служб з'яўляюцца крытычнымі службамі."
+"Адна альбо некалькі служб з'яўляюцца крытычнымі службамі."
 upd:"One or more services are critical services."
 
 MObjectLockedReasonDetectedSelf
@@ -29827,7 +29827,7 @@ upd:"Show configuration folders"
 "Zobraziť konfiguračné priečinky"
 "Mostra Cartella Configurazione"
 "Показати каталоги налаштувань"
-"Адлючтраваць каталогі наладаў"
+"Адлюстраваць каталогі наладаў"
 upd:"Show configuration folders"
 
 MBadLanguageFile
