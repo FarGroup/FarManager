@@ -488,6 +488,36 @@ struct FileList::PrevDataItem
 	int PrevTopFile;
 };
 
+class FileList::background_updater
+{
+public:
+	explicit background_updater(FileList* const Owner):
+		m_Owner(Owner)
+	{
+	}
+
+	const auto& event_id() const
+	{
+		return m_Listener.GetEventName();
+	}
+
+private:
+	listener m_Listener{[this]
+	{
+		if (Global->WindowManager->IsPanelsActive() && m_Owner->IsVisible())
+		{
+			m_Owner->UpdateIfChanged(true);
+			m_Owner->Redraw();
+		}
+		else
+		{
+			m_Owner->m_UpdatePending = true;
+		}
+	}};
+
+	FileList* m_Owner;
+};
+
 file_panel_ptr FileList::create(window_ptr Owner)
 {
 	return std::make_shared<FileList>(private_tag(), Owner);
@@ -6990,36 +7020,6 @@ void FileList::UpdateIfChanged(bool Changed)
 
 	Update(UPDATE_KEEP_SELECTION);
 }
-
-class FileList::background_updater
-{
-public:
-	explicit background_updater(FileList* const Owner):
-		m_Owner(Owner)
-	{
-	}
-
-	const auto& event_id() const
-	{
-		return m_Listener.GetEventName();
-	}
-
-private:
-	listener m_Listener{[this]
-	{
-		if (Global->WindowManager->IsPanelsActive() && m_Owner->IsVisible())
-		{
-			m_Owner->UpdateIfChanged(true);
-			m_Owner->Redraw();
-		}
-		else
-		{
-			m_Owner->m_UpdatePending = true;
-		}
-	}};
-
-	FileList* m_Owner;
-};
 
 void FileList::InitFSWatcher(bool CheckTree)
 {
