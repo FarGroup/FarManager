@@ -94,7 +94,7 @@ namespace os::concurrency
 		template<typename callable, typename... args>
 		explicit thread(mode Mode, callable&& Callable, args&&... Args): m_Mode(Mode)
 		{
-			starter([Callable = FWD(Callable), Args = std::make_tuple(FWD(Args)...)]() mutable // make_tuple for GCC 8.1
+			starter([Callable = FWD(Callable), Args = std::tuple(FWD(Args)...)]() mutable
 			{
 				std::apply(FWD(Callable), FWD(Args));
 			});
@@ -216,7 +216,7 @@ namespace os::concurrency
 
 		template<typename callable, typename... args>
 		explicit timer(std::chrono::milliseconds const DueTime, std::chrono::milliseconds const Period, callable&& Callable, args&&... Args):
-			m_Callable(std::make_unique<std::function<void()>>([Callable = FWD(Callable), Args = std::make_tuple(FWD(Args)...)]() mutable // make_tuple for GCC 8.1
+			m_Callable(std::make_unique<std::function<void()>>([Callable = FWD(Callable), Args = std::tuple(FWD(Args)...)]() mutable
 			{
 				std::apply(FWD(Callable), FWD(Args));
 			}))

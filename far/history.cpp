@@ -739,7 +739,7 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 			continue;
 
 		if (bAppend)
-			strStr.append(strName, Length, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later
+			strStr.append(strName, Length);
 		else
 			strStr = strName;
 

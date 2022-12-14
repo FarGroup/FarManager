@@ -296,7 +296,7 @@ bool Help::ReadHelp(string_view const Mask)
 		if (pos == string::npos)
 			return false;
 
-		StackData->strHelpTopic.assign(strPath, pos + 1, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later
+		StackData->strHelpTopic.assign(strPath, pos + 1);
 		strPath.resize(pos);
 		DeleteEndSlash(strPath);
 		AddEndSlash(strPath);
@@ -577,7 +577,7 @@ bool Help::ReadHelp(string_view const Mask)
 				size_t n2 = strReadStr.size();
 				if (1 + n1 + 1 < n2 && starts_with_icase(string_view(strReadStr).substr(1), StackData->strHelpTopic) && strReadStr[1 + n1] == L'=')
 				{
-					StackData->strHelpTopic.assign(strReadStr, 1 + n1 + 1, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later
+					StackData->strHelpTopic.assign(strReadStr, 1 + n1 + 1);
 					continue;
 				}
 			}

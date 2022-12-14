@@ -66,7 +66,6 @@ namespace uuid
 			if (L'A' <= c && c <= L'F')
 				return c - L'A' + 10;
 
-			else // GCC 8.1 don't understand this without an explicit 'else'
 			fail("Invalid character");
 		}
 

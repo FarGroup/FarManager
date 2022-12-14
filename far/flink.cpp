@@ -486,7 +486,7 @@ bool GetSubstName(int DriveType, string_view const Path, string &strTargetPath)
 
 	if (starts_with(Device, L"\\??\\"sv))
 	{
-		strTargetPath.assign(Device, 4, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later
+		strTargetPath.assign(Device, 4);
 		return true;
 	}
 
