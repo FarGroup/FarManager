@@ -1,4 +1,19 @@
 --------------------------------------------------------------------------------
+drkns 14.12.2022 00:51:14 +0000 - build 6066
+
+1. Shuffle the code to make Clang happy.
+
+2. Improve OS version info display.
+
+3. Refactoring.
+
+4. Bump VS version to 2019.5, GCC to 10.0, Clang to 10.0.
+
+5. Use native concepts instead of SFINAE hacks.
+
+6. Remove redundant workarounds.
+
+--------------------------------------------------------------------------------
 drkns 13.12.2022 19:59:11 +0000 - build 6065
 
 1. Fix a typo in 4280.
