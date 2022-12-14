@@ -35,20 +35,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef _MSC_VER
-#if !defined __clang__ && _MSC_VER < 1921
-#error Visual C++ 2019 Update 1 (or higher) required
-#endif
-#endif //_MSC_VER
+#include "common/compiler.hpp"
 
-
-#ifdef __GNUC__
-#define GCC_VER_(gcc_major,gcc_minor,gcc_patch) (100*(gcc_major) + 10*(gcc_minor) + (gcc_patch))
-#define _GCC_VER GCC_VER_(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
-
-#if !defined __clang__ && _GCC_VER < GCC_VER_(8,1,0)
-#error gcc 8.1.0 (or higher) required
-#endif
+#if !CHECK_COMPILER(CL, 19, 25, 0)
+#error Visual C++ 2019 Update 5 (or higher) required
+#elif !CHECK_COMPILER(GCC, 10, 0, 0)
+#error GCC 10.0.0 (or higher) required
+#elif !CHECK_COMPILER(CLANG, 10, 0, 0)
+#error Clang 10.0.0 (or higher) required
 #endif
 
 #ifdef __GNUC__
