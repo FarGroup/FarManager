@@ -43,7 +43,7 @@ namespace detail
 	template<typename T, bool Add>
 	using add_const_if_t = std::conditional_t<Add, T const, T>;
 
-	template<typename return_type, typename T, REQUIRES((std::disjunction_v<std::is_void<T>, std::is_trivially_copyable<T>>))>
+	template<typename return_type, typename T> requires std::is_void_v<T> || std::is_trivially_copyable_v<T>
 	return_type bytes_impl(T* const Data, size_t const Size)
 	{
 		constexpr auto IsConst = std::is_const_v<T>;

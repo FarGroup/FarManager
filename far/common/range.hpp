@@ -67,14 +67,14 @@ public:
 	{
 	}
 
-	template<typename compatible_iterator, typename compatible_const_iterator,
-		REQUIRES((std::is_convertible_v<compatible_iterator, iterator> && std::is_convertible_v<compatible_const_iterator, const_iterator>))>
+	template<typename compatible_iterator, typename compatible_const_iterator>
+		requires std::is_convertible_v<compatible_iterator, iterator> && std::is_convertible_v<compatible_const_iterator, const_iterator>
 	constexpr range(const range<compatible_iterator, compatible_const_iterator>& Rhs):
 		range(ALL_RANGE(Rhs))
 	{
 	}
 
-	template<typename container, REQUIRES(is_range_v<container>)>
+	template<typename container> requires is_range<container>
 	constexpr range(container& Container):
 		range(ALL_RANGE(Container))
 	{
@@ -203,13 +203,13 @@ public:
 	{
 	}
 
-	template<typename compatible_span_value_type, REQUIRES((std::is_convertible_v<compatible_span_value_type*, span_value_type*>))>
+	template<typename compatible_span_value_type> requires std::is_convertible_v<compatible_span_value_type*, span_value_type*>
 	constexpr span(const span<compatible_span_value_type>& Rhs) noexcept:
 		span(ALL_RANGE(Rhs))
 	{
 	}
 
-	template<typename container, REQUIRES(is_span_v<container>)>
+	template<typename container> requires is_span_v<container>
 	constexpr span(container&& Container) noexcept:
 		span(std::data(Container), std::size(Container))
 	{
@@ -280,7 +280,7 @@ private:
 	T m_value{};
 };
 
-template<typename T1, typename T2 = T1, REQUIRES(std::is_integral_v<std::common_type_t<sane_underlying_type<T1>, sane_underlying_type<T2>>>)>
+template<typename T1, typename T2 = T1> requires std::is_integral_v<std::common_type_t<sane_underlying_type<T1>, sane_underlying_type<T2>>>
 class [[nodiscard]] irange: public range<i_iterator<std::common_type_t<sane_underlying_type<T1>, sane_underlying_type<T2>>>>
 {
 	using integer_type = typename irange::value_type;

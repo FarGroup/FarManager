@@ -65,7 +65,7 @@ namespace pipe
 
 	void read(const os::handle& Pipe, void* Data, size_t DataSize);
 
-	template<typename T, REQUIRES(detail::is_supported_type<T>)>
+	template<typename T> requires detail::is_supported_type<T>
 	void read(const os::handle& Pipe, T& Data)
 	{
 		read(Pipe, &Data, sizeof(Data));
@@ -73,7 +73,7 @@ namespace pipe
 
 	void read(const os::handle& Pipe, string& Data);
 
-	template<typename... args, REQUIRES(detail::are_supported_types<args...>)>
+	template<typename... args> requires detail::are_supported_types<args...>
 	void read(const os::handle& Pipe, args&... Args)
 	{
 		(..., read(Pipe, Args));
@@ -81,7 +81,7 @@ namespace pipe
 
 	void write(const os::handle& Pipe, const void* Data, size_t DataSize);
 
-	template<typename T, REQUIRES(detail::is_supported_type<T>)>
+	template<typename T> requires detail::is_supported_type<T>
 	void write(const os::handle& Pipe, const T& Data)
 	{
 		write(Pipe, &Data, sizeof(Data));
@@ -89,7 +89,7 @@ namespace pipe
 
 	void write(const os::handle& Pipe, string_view Data);
 
-	template<typename... args, REQUIRES(detail::are_supported_types<args...>)>
+	template<typename... args> requires detail::are_supported_types<args...>
 	void write(const os::handle& Pipe, args const&... Args)
 	{
 		(..., write(Pipe, Args));

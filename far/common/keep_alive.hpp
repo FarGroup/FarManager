@@ -36,14 +36,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-template<typename arg_type>
+template<typename arg_type> requires std::is_reference_v<arg_type>
 using keep_alive_type =
-	std::enable_if_t<std::is_reference_v<arg_type>,
-		std::conditional_t<
-			std::is_rvalue_reference_v<arg_type>,
-			std::remove_reference_t<arg_type>,
-			arg_type
-		>
+	std::conditional_t<
+		std::is_rvalue_reference_v<arg_type>,
+		std::remove_reference_t<arg_type>,
+		arg_type
 	>;
 
 template<typename type>

@@ -100,7 +100,7 @@ namespace detail
 	IS_DETECTED(has_find, std::declval<T&>().find(std::declval<typename T::key_type&>()));
 }
 
-template<typename container, typename element, REQUIRES(is_range_v<container>)>
+template<typename container, typename element> requires is_range<container>
 [[nodiscard]]
 constexpr bool contains(const container& Container, const element& Element)
 {

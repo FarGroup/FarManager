@@ -207,7 +207,7 @@ namespace detail
 	>;
 }
 
-template<typename raw_string_type, REQUIRES(detail::is_supported_type<raw_string_type>)>
+template<typename raw_string_type> requires detail::is_supported_type<raw_string_type>
 [[nodiscard]]
 bool contains(raw_string_type const& Str, raw_string_type const& What)
 {
@@ -217,7 +217,7 @@ bool contains(raw_string_type const& Str, raw_string_type const& What)
 		return std::strstr(Str, What) != nullptr;
 }
 
-template<typename raw_string_type, REQUIRES(detail::is_supported_type<raw_string_type>)>
+template<typename raw_string_type> requires detail::is_supported_type<raw_string_type>
 [[nodiscard]]
 bool contains(raw_string_type const& Str, detail::char_type<raw_string_type> const What)
 {

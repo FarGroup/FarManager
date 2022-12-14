@@ -48,7 +48,7 @@ class function_ref<return_type(args...)> final
 public:
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4180) // qualifier applied to function type has no meaning; ignored
-	template<typename callable_type, REQUIRES(!std::is_same_v<std::decay_t<callable_type>, function_ref>)>
+	template<typename callable_type> requires (!std::is_same_v<std::decay_t<callable_type>, function_ref>)
 	function_ref(callable_type&& Callable) noexcept:
 		m_Ptr(to_ptr(FWD(Callable))),
 		m_ErasedFn([](void* Ptr, args... Args) -> return_type

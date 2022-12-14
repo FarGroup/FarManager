@@ -60,7 +60,7 @@ struct point: public rel_ops<point>
 	{
 	}
 
-	template<typename T, REQUIRES(detail::has_X<T> && detail::has_Y<T>)>
+	template<typename T> requires detail::has_X<T> && detail::has_Y<T>
 	point(T const& Coord) noexcept:
 		point(Coord.X, Coord.Y)
 	{

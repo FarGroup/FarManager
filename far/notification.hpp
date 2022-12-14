@@ -74,13 +74,13 @@ namespace detail
 	class event_handler: public std::function<void(const std::any&)>
 	{
 	public:
-		template<typename callable_type, REQUIRES(with_payload<callable_type>)>
+		template<typename callable_type> requires with_payload<callable_type>
 		explicit event_handler(callable_type&& Handler):
 			function(FWD(Handler))
 		{
 		}
 
-		template<typename callable_type, REQUIRES(without_payload<callable_type>)>
+		template<typename callable_type> requires without_payload<callable_type>
 		explicit event_handler(callable_type&& Handler):
 			function([Handler = FWD(Handler)](const std::any&) { Handler(); })
 		{

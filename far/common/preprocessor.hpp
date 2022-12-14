@@ -168,8 +168,6 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 #define CURRENT_FUNCTION_NAME std::string_view{ __func__, std::size(__func__) - 1 }
 #define CURRENT_FILE_NAME CHAR_SV(__FILE__)
 
-#define REQUIRES(...) std::enable_if_t<__VA_ARGS__>* = nullptr
-
 #define FWD(...) std::forward<decltype(__VA_ARGS__)>(__VA_ARGS__)
 
 #if COMPILER(CL) && _MSC_FULL_VER < 192428316

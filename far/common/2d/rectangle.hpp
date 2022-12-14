@@ -77,7 +77,7 @@ struct rectangle_t: public rel_ops<rectangle_t<T>>
 	{
 	}
 
-	template<typename Y, REQUIRES(detail::has_Left<Y> && detail::has_Top<Y> && detail::has_Right<Y> && detail::has_Bottom<Y>)>
+	template<typename Y> requires detail::has_Left<Y> && detail::has_Top<Y> && detail::has_Right<Y> && detail::has_Bottom<Y>
 	rectangle_t(Y const& Rectangle) noexcept:
 		rectangle_t(Rectangle.Left, Rectangle.Top, Rectangle.Right, Rectangle.Bottom)
 	{

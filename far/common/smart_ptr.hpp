@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "utility.hpp"
 
 #include <array>
-#include <functional>
 #include <memory>
 #include <variant>
 
@@ -45,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-template<typename T, size_t MinStaticSize, REQUIRES(std::is_trivially_copyable_v<T>)>
+template<typename T, size_t MinStaticSize> requires std::is_trivially_copyable_v<T>
 class array_ptr: public span<T>
 {
 public:
@@ -154,7 +153,7 @@ using wchar_t_ptr = wchar_t_ptr_n<1>;
 using char_ptr = char_ptr_n<1>;
 
 
-template<typename T, size_t Size = 1, REQUIRES(std::is_trivially_copyable_v<T>)>
+template<typename T, size_t Size = 1> requires std::is_trivially_copyable_v<T>
 class block_ptr: public array_ptr<std::byte, Size>
 {
 public:

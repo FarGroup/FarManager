@@ -1392,7 +1392,7 @@ public:
 	void PassValue(const string& str) const;
 	void PassValue(const TVar& Var) const;
 
-	template<typename T, REQUIRES(std::is_integral_v<T> || std::is_enum_v<T>)>
+	template<typename T> requires std::is_integral_v<T> || std::is_enum_v<T>
 	void PassValue(T const Value) const
 	{
 		return PassValue(static_cast<long long>(Value));

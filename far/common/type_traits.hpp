@@ -84,24 +84,16 @@ namespace detail
 }
 
 template<class type>
-using is_range = std::conjunction<is_detected<detail::try_begin, type>, is_detected<detail::try_end, type>>;
+inline constexpr bool is_range_v = std::conjunction_v<is_detected<detail::try_begin, type>, is_detected<detail::try_end, type>>;
 
 template<class type>
-inline constexpr bool is_range_v = is_range<type>::value;
-
-template<class type>
-using is_span = std::conjunction<is_detected<detail::try_data, type>, is_detected<detail::try_size, type>>;
-
-template<class type>
-inline constexpr bool is_span_v = is_span<type>::value;
+inline constexpr bool is_span_v = std::conjunction_v<is_detected<detail::try_data, type>, is_detected<detail::try_size, type>>;
 
 namespace detail
 {
-	template<typename T>
+	template<typename T> requires std::is_integral_v<T> || std::is_enum_v<T>
 	auto sane_to_underlying(T Value)
 	{
-		static_assert(std::disjunction_v<std::is_integral<T>, std::is_enum<T>>);
-
 		if constexpr (std::is_enum_v<T>)
 			return static_cast<std::underlying_type_t<T>>(Value);
 		else

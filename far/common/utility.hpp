@@ -284,17 +284,15 @@ template<typename... args> overload(args&&...) -> overload<args...>;
 namespace detail
 {
 	template<typename T>
-	using is_void_or_trivially_copyable = std::disjunction<std::is_void<T>, std::is_trivially_copyable<T>>;
+	inline constexpr bool is_void_or_trivially_copyable = std::disjunction_v<std::is_void<T>, std::is_trivially_copyable<T>>;
 }
 
 template<typename src_type, typename dst_type>
+requires
+	detail::is_void_or_trivially_copyable<src_type> &&
+	detail::is_void_or_trivially_copyable<dst_type>
 void copy_memory(const src_type* Source, dst_type* Destination, size_t const Size) noexcept
 {
-	static_assert(std::conjunction_v<
-		detail::is_void_or_trivially_copyable<src_type>,
-		detail::is_void_or_trivially_copyable<dst_type>
-	>);
-
 	if (Size) // paranoid gcc null checks are paranoid
 		std::memmove(Destination, Source, Size);
 }
@@ -354,7 +352,7 @@ auto view_as_opt(void const* const Buffer, size_t const Size, size_t const Offse
 	return Size >= Offset + sizeof(T)? view_as<T const*>(Buffer, Offset) : nullptr;
 }
 
-template<typename T, typename container, REQUIRES(is_range_v<container>)>
+template<typename T, typename container> requires is_range<container>
 auto view_as_opt(container const& Buffer, size_t const Offset = 0)
 {
 	return view_as_opt<T>(Buffer.data(), Buffer.size(), Offset);

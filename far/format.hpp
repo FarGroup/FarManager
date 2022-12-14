@@ -155,27 +155,21 @@ namespace detail
 	IS_DETECTED(has_to_string, std::declval<T&>().to_string());
 }
 
-template<typename object_type>
-struct fmt::formatter<object_type, wchar_t, std::enable_if_t<detail::is_formattable<object_type>>>: format_helpers::no_spec<object_type>
+template<typename object_type> requires detail::is_formattable<object_type> || detail::has_to_string<object_type>
+struct fmt::formatter<object_type, wchar_t>: format_helpers::no_spec<object_type>
 {
 	static string to_string(object_type const& Value)
 	{
-		return formattable<object_type>::to_string(Value);
-	}
-};
-
-template<typename object_type>
-struct fmt::formatter<object_type, wchar_t, std::enable_if_t<detail::has_to_string<object_type>>>: format_helpers::no_spec<object_type>
-{
-	static string to_string(object_type const& Value)
-	{
-		return Value.to_string();
+		if constexpr(::detail::is_formattable<object_type>)
+			return formattable<object_type>::to_string(Value);
+		else
+			return Value.to_string();
 	}
 };
 
 // fmt 9 deprecated implicit enums formatting :(
-template <typename object_type, typename char_type>
-struct fmt::formatter<object_type, char_type, std::enable_if_t<std::is_enum_v<object_type>>>: fmt::formatter<std::underlying_type_t<object_type>, char_type>
+template <typename object_type, typename char_type> requires std::is_enum_v<object_type>
+struct fmt::formatter<object_type, char_type>: fmt::formatter<std::underlying_type_t<object_type>, char_type>
 {
 	template <typename FormatContext>
 	auto format(object_type const& Value, FormatContext& ctx) const

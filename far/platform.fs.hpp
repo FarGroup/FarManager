@@ -227,7 +227,7 @@ namespace os::fs
 
 		explicit file(handle&& Handle);
 
-		template<typename... args, REQUIRES((sizeof...(args) > 1))>
+		template<typename... args> requires (sizeof...(args) > 1)
 		explicit file(args&&... Args)
 		{
 			(void)Open(FWD(Args)...);
