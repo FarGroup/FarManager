@@ -34,21 +34,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "../algorithm.hpp"
-#include "../preprocessor.hpp"
 #include "../rel_ops.hpp"
-#include "../type_traits.hpp"
 #include "point.hpp"
-
-#include <type_traits>
 
 //----------------------------------------------------------------------------
 
 namespace detail
 {
-	IS_DETECTED(has_Left, T::Left);
-	IS_DETECTED(has_Top, T::Top);
-	IS_DETECTED(has_Right, T::Right);
-	IS_DETECTED(has_Bottom, T::Bottom);
+	template<typename type>
+	concept is_rect = requires(type&& t)
+	{
+		t.Left;
+		t.Top;
+		t.Right;
+		t.Bottom;
+	};
 }
 
 template<typename T>
@@ -77,7 +77,7 @@ struct rectangle_t: public rel_ops<rectangle_t<T>>
 	{
 	}
 
-	template<typename Y> requires detail::has_Left<Y> && detail::has_Top<Y> && detail::has_Right<Y> && detail::has_Bottom<Y>
+	template<typename Y> requires detail::is_rect<Y>
 	rectangle_t(Y const& Rectangle) noexcept:
 		rectangle_t(Rectangle.Left, Rectangle.Top, Rectangle.Right, Rectangle.Bottom)
 	{

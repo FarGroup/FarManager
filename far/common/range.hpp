@@ -209,7 +209,7 @@ public:
 	{
 	}
 
-	template<typename container> requires is_span_v<container>
+	template<typename container> requires is_span<container>
 	constexpr span(container&& Container) noexcept:
 		span(std::data(Container), std::size(Container))
 	{

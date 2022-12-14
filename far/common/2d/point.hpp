@@ -33,18 +33,18 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "../preprocessor.hpp"
 #include "../rel_ops.hpp"
-#include "../type_traits.hpp"
-
-#include <type_traits>
 
 //----------------------------------------------------------------------------
 
 namespace detail
 {
-	IS_DETECTED(has_X, T::X);
-	IS_DETECTED(has_Y, T::Y);
+	template<typename type>
+	concept is_coord = requires(type&& t)
+	{
+		t.X;
+		t.Y;
+	};
 }
 
 struct point: public rel_ops<point>
@@ -60,7 +60,7 @@ struct point: public rel_ops<point>
 	{
 	}
 
-	template<typename T> requires detail::has_X<T> && detail::has_Y<T>
+	template<typename T> requires detail::is_coord<T>
 	point(T const& Coord) noexcept:
 		point(Coord.X, Coord.Y)
 	{

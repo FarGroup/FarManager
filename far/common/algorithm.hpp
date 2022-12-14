@@ -80,14 +80,18 @@ void apply_permutation(Iter1 first, Iter1 last, Iter2 indices)
 
 namespace detail
 {
-	IS_DETECTED(has_emplace_hint_v, std::declval<T&>().emplace_hint(std::declval<T&>().end(), *std::declval<T&>().begin()));
+	template<typename type>
+	concept has_emplace_hint = requires(type&& t)
+	{
+		t.emplace_hint(t.end(), *t.begin());
+	};
 }
 
 // Unified container emplace
 template<typename container, typename... args>
 void emplace(container& Container, args&&... Args)
 {
-	if constexpr (detail::has_emplace_hint_v<container>)
+	if constexpr (detail::has_emplace_hint<container>)
 		Container.emplace_hint(Container.end(), FWD(Args)...);
 	else
 		Container.emplace(Container.end(), FWD(Args)...);
@@ -97,7 +101,11 @@ void emplace(container& Container, args&&... Args)
 
 namespace detail
 {
-	IS_DETECTED(has_find, std::declval<T&>().find(std::declval<typename T::key_type&>()));
+	template<typename type>
+	concept has_find = requires(type&& t)
+	{
+		t.find(std::declval<typename type::key_type&>());
+	};
 }
 
 template<typename container, typename element> requires is_range<container>

@@ -151,8 +151,17 @@ struct formattable;
 
 namespace detail
 {
-	IS_DETECTED(is_formattable, formattable<T>{});
-	IS_DETECTED(has_to_string, std::declval<T&>().to_string());
+	template<typename type>
+	concept is_formattable = requires
+	{
+		formattable<type>{};
+	};
+
+	template<typename type>
+	concept has_to_string = requires(type&& t)
+	{
+		t.to_string();
+	};
 }
 
 template<typename object_type> requires detail::is_formattable<object_type> || detail::has_to_string<object_type>

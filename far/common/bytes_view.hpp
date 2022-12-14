@@ -55,7 +55,7 @@ namespace detail
 	template<typename return_type, typename T>
 	auto bytes_impl(T& Object)
 	{
-		if constexpr (is_span_v<T>)
+		if constexpr (is_span<T>)
 		{
 			using value_type = std::remove_reference_t<decltype(*std::data(std::declval<T&>()))>;
 			static_assert(std::is_trivially_copyable_v<value_type>);
