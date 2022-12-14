@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "utility.hpp"
 
 #include <array>
+#include <functional>
 #include <memory>
 #include <variant>
 
