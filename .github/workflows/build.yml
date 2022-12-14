@@ -23,7 +23,7 @@ jobs:
 
 #------------------------------------------------------------------------------
   hlf-checks:
-    runs-on: windows-2019
+    runs-on: windows-2022
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
@@ -38,7 +38,7 @@ jobs:
 
 #------------------------------------------------------------------------------
   build-msbuild:
-    runs-on: windows-2019
+    runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
@@ -92,7 +92,7 @@ jobs:
 
 #------------------------------------------------------------------------------
   build-nmake:
-    runs-on: windows-2019
+    runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
@@ -159,7 +159,7 @@ jobs:
 
 #------------------------------------------------------------------------------
   build-mingw:
-    runs-on: windows-2019
+    runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
