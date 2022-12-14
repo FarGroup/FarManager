@@ -806,7 +806,7 @@ namespace logging
 				return;
 
 			LOGINFO(L"{}"sv, build::version_string());
-			LOGINFO(L"Windows {}", os::version::os_version());
+			LOGINFO(L"{}"sv, os::version::os_version());
 
 			configure_env();
 		}
