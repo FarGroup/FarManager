@@ -121,6 +121,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using string = std::wstring;
 using string_view = std::wstring_view;
+using size_t = std::size_t;
 
 inline namespace literals
 {

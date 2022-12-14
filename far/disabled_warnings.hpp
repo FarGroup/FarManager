@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma warning(disable: 4996) // The compiler encountered a deprecated declaration
 #pragma warning(disable: 4582) // 'class': constructor is not implicitly called
 #pragma warning(disable: 4583) // 'class': destructor is not implicitly called
+#pragma warning(disable: 5204) // 'type-name': class has virtual functions, but its trivial destructor is not virtual; instances of objects derived from this class may not be destructed correctly
 #pragma warning(disable: 5219) // implicit conversion from 'type1' to 'type2', possible loss of data
 #pragma warning(disable: 5262) // implicit fall-through occurs here; are you missing a break statement? Use [[fallthrough]] when a break statement is intentionally omitted between cases
 #else

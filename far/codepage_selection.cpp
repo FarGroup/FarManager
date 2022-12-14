@@ -844,7 +844,7 @@ F8CP::F8CP(bool viewer):
 	m_OemName(msg(viewer? lng::MViewF8DOS : lng::MEditF8DOS)),
 	m_UtfName(L"UTF-8"sv)
 {
-	uintptr_t defcp = viewer? Global->Opt->ViOpt.DefaultCodePage : Global->Opt->EdOpt.DefaultCodePage;
+	uintptr_t defcp = encoding::codepage::normalise(viewer? Global->Opt->ViOpt.DefaultCodePage : Global->Opt->EdOpt.DefaultCodePage);
 
 	const auto& cps = (viewer? Global->Opt->ViOpt.strF8CPs : Global->Opt->EdOpt.strF8CPs).Get();
 	if (cps != L"-1"sv)

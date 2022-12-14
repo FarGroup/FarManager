@@ -455,12 +455,17 @@ static size_t get_bytes_impl(uintptr_t const Codepage, string_view const Str, sp
 	}
 }
 
-uintptr_t encoding::codepage::ansi()
+uintptr_t encoding::codepage::detail::utf8::id()
+{
+	return CP_UTF8;
+}
+
+uintptr_t encoding::codepage::detail::ansi::id()
 {
 	return GetACP();
 }
 
-uintptr_t encoding::codepage::oem()
+uintptr_t encoding::codepage::detail::oem::id()
 {
 	return GetOEMCP();
 }

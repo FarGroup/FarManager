@@ -465,10 +465,13 @@ namespace tests
 		v[Index] = 42;
 	}
 
+	WARNING_PUSH()
+	WARNING_DISABLE_CLANG("-Wmissing-noreturn")
 	static void debug_reach_unreachable()
 	{
 		UNREACHABLE;
 	}
+	WARNING_POP()
 
 	static void asan_stack_buffer_overflow()
 	{

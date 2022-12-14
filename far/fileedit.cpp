@@ -2837,10 +2837,10 @@ bool FileEditor::AskOverwrite(const string_view FileName)
 
 uintptr_t FileEditor::GetDefaultCodePage()
 {
-	intptr_t cp = Global->Opt->EdOpt.DefaultCodePage;
-	if (cp < 0 || !codepages::IsCodePageSupported(cp))
-		cp = encoding::codepage::ansi();
-	return cp;
+	const auto cp = encoding::codepage::normalise(Global->Opt->ViOpt.DefaultCodePage);
+	return cp == CP_DEFAULT || !codepages::IsCodePageSupported(cp)?
+		encoding::codepage::ansi() :
+		cp;
 }
 
 Editor* FileEditor::GetEditor()
