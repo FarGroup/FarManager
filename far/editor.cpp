@@ -3437,7 +3437,7 @@ bool Editor::Search(bool Next)
 			// Q: что важнее: опция диалога или опция RegExp`а?
 			try
 			{
-				re.Compile(strSearchStr, (starts_with(strSearchStr, L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (SearchDlgOptions.CaseSensitive.value()? 0 : OP_IGNORECASE));
+				re.Compile(strSearchStr, (strSearchStr.starts_with(L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (SearchDlgOptions.CaseSensitive.value()? 0 : OP_IGNORECASE));
 			}
 			catch (regex_exception const& e)
 			{
@@ -6753,7 +6753,7 @@ bool Editor::SetCodePage(uintptr_t codepage, bool *BOM, bool ShowMe)
 		if (codepage == CP_UTF8 && !Lines.empty())
 		{
 			auto& first = *Lines.begin();
-			if (starts_with(first.m_Str, encoding::bom_char))
+			if (first.m_Str.starts_with(encoding::bom_char))
 			{
 				first.m_Str.erase(0, 1);
 				*BOM = true;

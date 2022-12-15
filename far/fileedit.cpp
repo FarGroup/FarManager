@@ -1640,7 +1640,7 @@ bool FileEditor::LoadFile(const string_view Name, int& UserBreak, error_state_ex
 		{
 			if (testBOM && IsUnicodeOrUtfCodePage(m_codepage))
 			{
-				if (starts_with(Str.Str, encoding::bom_char))
+				if (Str.Str.starts_with(encoding::bom_char))
 				{
 					Str.Str.remove_prefix(1);
 					m_bAddSignature = true;

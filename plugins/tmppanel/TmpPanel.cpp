@@ -392,7 +392,7 @@ HANDLE WINAPI OpenW(const OpenInfo* Info)
 
 		if (!CommandLine.empty())
 		{
-			if (starts_with(CommandLine, L'<'))
+			if (CommandLine.starts_with(L'<'))
 			{
 				CommandLine.remove_prefix(1);
 				auto Plugin = OpenPanelFromOutput(string(CommandLine));

@@ -1563,22 +1563,22 @@ void Edit::SetString(string_view Str, bool const KeepSelection)
 
 	if (!m_Flags.Check(FEDITLINE_PARENT_SINGLELINE))
 	{
-		if (ends_with(Str, L'\r'))
+		if (Str.ends_with(L'\r'))
 		{
 			m_Eol = eol::mac;
 			Str.remove_suffix(1);
 		}
 		else
 		{
-			if (ends_with(Str, L'\n'))
+			if (Str.ends_with(L'\n'))
 			{
 				Str.remove_suffix(1);
 
-				if (ends_with(Str, L'\r'))
+				if (Str.ends_with(L'\r'))
 				{
 					Str.remove_suffix(1);
 
-					if (ends_with(Str, L'\r'))
+					if (Str.ends_with(L'\r'))
 					{
 						Str.remove_suffix(1);
 						m_Eol = eol::bad_win;

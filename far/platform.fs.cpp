@@ -313,7 +313,7 @@ namespace os::fs
 	// Some other buggy implementations just set the first char of AlternateFileName to '\0' to make it "empty", leaving rubbish in others. Double facepalm.
 	static auto empty_if_zero(string_view const Str)
 	{
-		return starts_with(Str, L'\0')? string_view{} : Str;
+		return Str.starts_with(L'\0')? string_view{} : Str;
 	}
 
 	static void DirectoryInfoToFindData(const FILE_ID_BOTH_DIR_INFORMATION& DirectoryInfo, find_data& FindData, bool IsExtended)
@@ -1046,7 +1046,7 @@ namespace os::fs
 
 		const auto ReplaceRoot = [&](const auto& OldRoot, const auto& NewRoot)
 		{
-			if (!starts_with(NtPath, OldRoot))
+			if (!NtPath.starts_with(OldRoot))
 				return false;
 
 			FinalFilePath = NtPath.replace(0, OldRoot.size(), NewRoot);
@@ -1063,7 +1063,7 @@ namespace os::fs
 			const auto Device = drive::get_device_path(i);
 			if (const auto Len = MatchNtPathRoot(NtPath, Device))
 			{
-				FinalFilePath = starts_with(NtPath, L"\\Device\\WinDfs"sv)? NtPath.replace(0, Len, 1, L'\\') : NtPath.replace(0, Len, Device);
+				FinalFilePath = NtPath.starts_with(L"\\Device\\WinDfs"sv)? NtPath.replace(0, Len, 1, L'\\') : NtPath.replace(0, Len, Device);
 				return true;
 			}
 		}

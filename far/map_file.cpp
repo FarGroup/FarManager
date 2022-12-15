@@ -148,7 +148,7 @@ enum class map_format
 
 static auto determine_format(string_view const Str)
 {
-	if (starts_with(Str, L' '))
+	if (Str.starts_with(L' '))
 		return map_format::msvc;
 
 	if (Str == L"Address  Size     Align Out     In      Symbol"sv)

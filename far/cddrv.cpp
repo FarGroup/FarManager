@@ -342,14 +342,14 @@ static auto product_id_to_capatibilities(const char* const ProductId)
 		if (
 			const auto Prefix = Id.substr(0, Pos);
 			std::any_of(ALL_CONST_RANGE(i.AntipatternsBefore),
-				[&](string_view const Str){ return ends_with(Prefix, Str); })
+				[&](string_view const Str){ return Prefix.ends_with(Str); })
 		)
 			return Value;
 
 		if (
 			const auto Suffix = Id.substr(Pos + i.Pattern.size());
 			std::any_of(ALL_CONST_RANGE(i.AntipatternsAfter),
-				[&](string_view const Str){ return starts_with(Suffix, Str); })
+				[&](string_view const Str){ return Suffix.starts_with(Str); })
 		)
 			return Value;
 
@@ -439,7 +439,7 @@ cd_type get_cdrom_type(string_view RootDir)
 	string VolumePath(RootDir);
 	DeleteEndSlash(VolumePath);
 
-	if (starts_with(VolumePath, L"\\\\?\\"sv))
+	if (VolumePath.starts_with(L"\\\\?\\"sv))
 	{
 		VolumePath[2] = L'.';
 	}

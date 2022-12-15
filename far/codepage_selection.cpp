@@ -338,7 +338,7 @@ void codepages::AddCodePages(DWORD codePages)
 			const auto Info = GetCodePageInfo(Cp);
 			if (!Info)
 				return str(Cp);
-			if (starts_with(Info->Name, SystemName))
+			if (Info->Name.starts_with(SystemName))
 				return Info->Name;
 			return concat(SystemName, L" - "sv, Info->Name);
 		};

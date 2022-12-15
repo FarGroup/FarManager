@@ -817,7 +817,7 @@ static string_view PrepareOSIfExist(string_view const CmdLine, predicate IsExist
 
 	auto Command = CmdLine;
 
-	while (starts_with(Command, L'@'))
+	while (Command.starts_with(L'@'))
 		Command.remove_prefix(1);
 
 	const auto skip_spaces = [](string_view& Str)

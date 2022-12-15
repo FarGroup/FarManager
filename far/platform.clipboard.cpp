@@ -553,7 +553,7 @@ namespace os::clipboard
 		We use starts_with instead of == here because our encoding method, unlike the OS, tries to yield as many
 		Unicode characters as possible, even if they're invalid. For these purposes such conversion is still lossless.
 		*/
-		if (const auto UnicodeData = encoding::get_chars(ClipboardLocaleCodepage, AnsiData); !starts_with(UnicodeData, Data))
+		if (const auto UnicodeData = encoding::get_chars(ClipboardLocaleCodepage, AnsiData); !UnicodeData.starts_with(Data))
 			return;
 
 		// Here it comes

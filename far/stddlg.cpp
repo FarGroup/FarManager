@@ -795,22 +795,22 @@ static void GetRowCol(const string_view Str, bool Hex, goto_coord& Row, goto_coo
 		auto Radix = 0;
 
 		// он умный - hex код ввел!
-		if (starts_with(Part, L"0x"sv))
+		if (Part.starts_with(L"0x"sv))
 		{
 			Part.remove_prefix(2);
 			Radix = 16;
 		}
-		else if (starts_with(Part, L"$"sv))
+		else if (Part.starts_with(L"$"sv))
 		{
 			Part.remove_prefix(1);
 			Radix = 16;
 		}
-		else if (ends_with(Part, L"h"sv))
+		else if (Part.ends_with(L"h"sv))
 		{
 			Part.remove_suffix(1);
 			Radix = 16;
 		}
-		else if (ends_with(Part, L"m"sv))
+		else if (Part.ends_with(L"m"sv))
 		{
 			Part.remove_suffix(1);
 			Radix = 10;
@@ -1083,11 +1083,10 @@ void regex_playground()
 
 		const auto update_regex = [&]
 		{
-			const auto RegexStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_regex, {}));
-
 			try
 			{
-				Regex.Compile(RegexStr, starts_with(RegexStr, L'/')? OP_PERLSTYLE : 0);
+				const string_view RegexStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_regex, {}));
+				Regex.Compile(RegexStr, RegexStr.starts_with(L'/')? OP_PERLSTYLE : 0);
 			}
 			catch (regex_exception const& e)
 			{

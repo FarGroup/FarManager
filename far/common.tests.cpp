@@ -962,7 +962,7 @@ TEST_CASE("preprocessor.predefined")
 
 	test::method();
 
-	STATIC_REQUIRE(ends_with(WIDE(CURRENT_FILE_NAME), L"common.tests.cpp"sv));
+	STATIC_REQUIRE(WIDE(CURRENT_FILE_NAME).ends_with(L"common.tests.cpp"sv));
 }
 
 //----------------------------------------------------------------------------
@@ -1295,8 +1295,6 @@ TEST_CASE("string_utils.contains")
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(starts_with(i.Src, i.Pattern) == i.Starts);
-		REQUIRE(ends_with(i.Src, i.Pattern) == i.Ends);
 		REQUIRE(contains(i.Src, i.Pattern) == i.Contains);
 	}
 }

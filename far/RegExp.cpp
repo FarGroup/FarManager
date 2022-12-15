@@ -677,7 +677,7 @@ void RegExp::Compile(string_view const src, int options)
 
 	if (options&OP_PERLSTYLE)
 	{
-		if (!starts_with(src, slashChar))
+		if (!src.starts_with(slashChar))
 			throw MAKE_REGEX_EXCEPTION(errSyntax, 0);
 
 		const auto End = src.rfind(slashChar);

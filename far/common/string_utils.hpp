@@ -535,30 +535,6 @@ constexpr bool equal(const std::wstring_view Str1, const std::wstring_view Str2)
 }
 
 [[nodiscard]]
-constexpr bool starts_with(const std::wstring_view Str, const std::wstring_view Prefix) noexcept
-{
-	return Str.size() >= Prefix.size() && Str.substr(0, Prefix.size()) == Prefix;
-}
-
-[[nodiscard]]
-constexpr bool starts_with(const std::wstring_view Str, wchar_t const Prefix) noexcept
-{
-	return !Str.empty() && Str.front() == Prefix;
-}
-
-[[nodiscard]]
-constexpr bool ends_with(const std::wstring_view Str, const std::wstring_view Suffix) noexcept
-{
-	return Str.size() >= Suffix.size() && Str.substr(Str.size() - Suffix.size()) == Suffix;
-}
-
-[[nodiscard]]
-constexpr bool ends_with(const std::wstring_view Str, wchar_t const Suffix) noexcept
-{
-	return !Str.empty() && Str.back() == Suffix;
-}
-
-[[nodiscard]]
 inline auto trim_left(std::wstring Str)
 {
 	inplace::trim_left(Str);

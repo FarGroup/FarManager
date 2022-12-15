@@ -2324,7 +2324,7 @@ void ShellCopy::CheckStreams(const string_view Src, const string_view DestPath)
 
 	const auto StreamsEnumerator = os::fs::enum_streams(Src);
 
-	if (!std::any_of(ALL_CONST_RANGE(StreamsEnumerator), [](WIN32_FIND_STREAM_DATA const& i){ return !starts_with(i.cStreamName, L"::"sv); }))
+	if (!std::any_of(ALL_CONST_RANGE(StreamsEnumerator), [](WIN32_FIND_STREAM_DATA const& i){ return !string_view(i.cStreamName).starts_with(L"::"sv); }))
 		return;
 
 	switch (Message(MSG_WARNING, msg(lng::MWarning),

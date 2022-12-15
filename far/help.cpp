@@ -260,7 +260,7 @@ void Help::init(string_view const Topic, string_view const Mask, unsigned long l
 	{
 		StackData->strHelpTopic = Topic;
 
-		if (starts_with(StackData->strHelpTopic, HelpBeginLink))
+		if (StackData->strHelpTopic.starts_with(HelpBeginLink))
 		{
 			const auto pos = StackData->strHelpTopic.rfind(HelpEndLink);
 
@@ -288,7 +288,7 @@ bool Help::ReadHelp(string_view const Mask)
 {
 	string strPath;
 
-	if (starts_with(StackData->strHelpTopic, HelpBeginLink))
+	if (StackData->strHelpTopic.starts_with(HelpBeginLink))
 	{
 		strPath = StackData->strHelpTopic.substr(1);
 		const auto pos = strPath.find(HelpEndLink);
@@ -527,7 +527,7 @@ bool Help::ReadHelp(string_view const Mask)
 			HighlightsCorrection(strReadStr);
 		}
 
-		if (starts_with(strReadStr, L'@') && !BreakProcess)
+		if (strReadStr.starts_with(L'@') && !BreakProcess)
 		{
 			if (m_TopicFound)
 			{
@@ -613,7 +613,7 @@ m1:
 					continue;
 				}
 
-				if (!(starts_with(strReadStr, L'$') && NearTopicFound && any_of(PrevSymbol, L'$', L'@')))
+				if (!(strReadStr.starts_with(L'$') && NearTopicFound && any_of(PrevSymbol, L'$', L'@')))
 					NearTopicFound=0;
 
 				/* $<text> в начале строки, определение темы
@@ -626,7 +626,7 @@ m1:
 					LastStartPos = 0;
 				}
 
-				if (starts_with(strReadStr, L'$') && NearTopicFound && any_of(PrevSymbol, L'$', L'@'))
+				if (strReadStr.starts_with(L'$') && NearTopicFound && any_of(PrevSymbol, L'$', L'@'))
 				{
 					AddLine(string_view(strReadStr).substr(1));
 					FixCount++;
@@ -792,7 +792,7 @@ m1:
 
 void Help::AddLine(const string_view Line)
 {
-	const auto Width = StartPos && starts_with(Line, L' ')? StartPos - 1 : StartPos;
+	const auto Width = StartPos && Line.starts_with(L' ')? StartPos - 1 : StartPos;
 	HelpList.emplace_back(string(Width, L' ') + Line);
 }
 
@@ -896,7 +896,7 @@ void Help::FastShow()
 		{
 			string_view OutStr = HelpList[StrPos].HelpStr;
 
-			if (starts_with(OutStr, L'^'))
+			if (OutStr.starts_with(L'^'))
 			{
 				OutStr.remove_prefix(1);
 				GotoXY(m_Where.left + 1 + std::max(0, (CanvasWidth() - StringLen(OutStr)) / 2), m_Where.top + i + 1);
@@ -994,7 +994,7 @@ static bool FastParseLine(string_view Str, int* const pLen, const int x0, const 
 	{
 		const auto wc = Str[0];
 		Str.remove_prefix(1);
-		if (starts_with(Str, wc) && any_of(wc, L'~', L'@', L'#', cColor))
+		if (Str.starts_with(wc) && any_of(wc, L'~', L'@', L'#', cColor))
 			Str.remove_prefix(1);
 		else if (wc == L'#') // start/stop highlighting
 			continue;
@@ -1036,7 +1036,7 @@ static bool FastParseLine(string_view Str, int* const pLen, const int x0, const 
 			else
 			{
 				found = (realX >= start_topic && realX < x);
-				if (starts_with(Str, L'@'))
+				if (Str.starts_with(L'@'))
 					Str = SkipLink(Str.substr(1), found ? pTopic : nullptr);
 				if (found)
 					break;
@@ -1526,7 +1526,7 @@ bool Help::JumpTopic()
 
 	// Если ссылка на другой файл, путь относительный и есть то, от чего можно
 	// вычислить абсолютный путь, то сделаем это
-	if (starts_with(StackData->strSelTopic, HelpBeginLink) && !StackData->strHelpPath.empty())
+	if (StackData->strSelTopic.starts_with(HelpBeginLink) && !StackData->strHelpPath.empty())
 	{
 		const auto pos = StackData->strSelTopic.find(HelpEndLink, 2);
 		if (pos != string::npos)
@@ -1550,7 +1550,7 @@ bool Help::JumpTopic()
 	{
 		const auto ColonPos = StackData->strSelTopic.find(L':');
 		if (ColonPos != 0 && ColonPos != string::npos &&
-			!(starts_with(StackData->strSelTopic, HelpBeginLink) && contains(StackData->strSelTopic, HelpEndLink))
+			!(StackData->strSelTopic.starts_with(HelpBeginLink) && contains(StackData->strSelTopic, HelpEndLink))
 			&& OpenURL(StackData->strSelTopic))
 			return false;
 	}
@@ -1559,7 +1559,7 @@ bool Help::JumpTopic()
 	string strNewTopic;
 	if (!StackData->strHelpPath.empty() && StackData->strSelTopic.front() !=HelpBeginLink && StackData->strSelTopic != HelpOnHelpTopic)
 	{
-		if (starts_with(StackData->strSelTopic, L':'))
+		if (StackData->strSelTopic.starts_with(L':'))
 		{
 			strNewTopic = StackData->strSelTopic.substr(1);
 			StackData->Flags&=~FHELP_CUSTOMFILE;
@@ -1633,7 +1633,7 @@ bool Help::JumpTopic()
 	{
 		StackData->strHelpTopic = strNewTopic;
 
-		if (starts_with(StackData->strHelpTopic, HelpBeginLink))
+		if (StackData->strHelpTopic.starts_with(HelpBeginLink))
 		{
 			const auto pos = StackData->strHelpTopic.rfind(HelpEndLink);
 			if (pos != string::npos)
@@ -1950,7 +1950,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 		// Q: что важнее: опция диалога или опция RegExp`а?
 		try
 		{
-			re.Compile(strLastSearchStr, (starts_with(strLastSearchStr, L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (LastSearchDlgOptions.CaseSensitive.value()? 0 : OP_IGNORECASE));
+			re.Compile(strLastSearchStr, (strLastSearchStr.starts_with(L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (LastSearchDlgOptions.CaseSensitive.value()? 0 : OP_IGNORECASE));
 		}
 		catch (regex_exception const& e)
 		{
@@ -1970,7 +1970,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	{
 		auto Str = trim_right(i.Str);
 
-		if (starts_with(Str, L'@') &&
+		if (Str.starts_with(L'@') &&
 		    !(Str.size() > 1 && any_of(Str[1], L'+', L'-')) &&
 		    !contains(Str, L'='))// && !TopicFound)
 		{
@@ -2214,7 +2214,7 @@ namespace help
 			format(HelpFormatLinkModule, pPlugin->ModuleName(), HelpTopic) :
 			string(HelpTopic);
 
-		if (!starts_with(Topic, HelpBeginLink))
+		if (!Topic.starts_with(HelpBeginLink))
 			return Topic;
 
 		const auto EndPos = Topic.find(HelpEndLink);

@@ -132,7 +132,7 @@ bool GetLangParam(const os::fs::file& LangFile, string_view const ParamName, str
 			return true;
 		}
 
-		if (starts_with(i.Str, L'"'))
+		if (i.Str.starts_with(L'"'))
 		{
 			// '"' indicates some meaningful string.
 			// Parameters can be only in the header, no point to go deeper
@@ -282,29 +282,29 @@ struct lng_line
 static lng_line parse_lng_line(const string_view str, bool ParseLabels)
 {
 	//-- "Text"
-	if (starts_with(str, L'"'))
+	if (str.starts_with(L'"'))
 	{
-		return { lng_line_type::text, {}, str.substr(1, str.size() - (ends_with(str, L'"')? 2 : 1)) };
+		return { lng_line_type::text, {}, str.substr(1, str.size() - (str.ends_with(L'"')? 2 : 1)) };
 	}
 
 	//-- //[Label]
 	if (ParseLabels)
 	{
 		const auto Prefix = L"//["sv, Suffix = L"]"sv;
-		if (starts_with(str, Prefix) && ends_with(str, Suffix))
+		if (str.starts_with(Prefix) && str.ends_with(Suffix))
 		{
 			return { lng_line_type::label, str.substr(Prefix.size(), str.size() - Prefix.size() - Suffix.size()) };
 		}
 	}
 
 	//-- MLabel="Text"
-	if (ParseLabels && ends_with(str, L'"') && std::iswalpha(str.front()))
+	if (ParseLabels && str.ends_with(L'"') && std::iswalpha(str.front()))
 	{
 		auto [Name, Value] = split(str);
 		inplace::trim(Name);
 		inplace::trim(Value);
 
-		if (!Name.empty() && Value.size() > 1 && starts_with(Value, L'"'))
+		if (!Name.empty() && Value.size() > 1 && Value.starts_with(L'"'))
 		{
 			return { lng_line_type::both, Name, Value.substr(1, Value.size() - 2) };
 		}

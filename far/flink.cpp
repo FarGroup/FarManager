@@ -484,7 +484,7 @@ bool GetSubstName(int DriveType, string_view const Path, string &strTargetPath)
 		return true;
 	}
 
-	if (starts_with(Device, L"\\??\\"sv))
+	if (Device.starts_with(L"\\??\\"sv))
 	{
 		strTargetPath.assign(Device, 4);
 		return true;
@@ -562,7 +562,7 @@ bool DuplicateReparsePoint(string_view const Src, string_view const Dst)
 
 void NormalizeSymlinkName(string &strLinkName)
 {
-	if (!starts_with(strLinkName, L"\\??\\"sv))
+	if (!strLinkName.starts_with(L"\\??\\"sv))
 		return;
 
 	if (ParsePath(strLinkName) != root_type::win32nt_drive_letter)
