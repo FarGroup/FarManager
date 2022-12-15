@@ -226,7 +226,7 @@ namespace uuid
 	namespace literals
 	{
 		[[nodiscard]]
-		constexpr auto operator ""_uuid(const char* const Str, size_t const Size)
+		constexpr auto operator""_uuid(const char* const Str, size_t const Size)
 		{
 			return parse(Str, Size);
 		}

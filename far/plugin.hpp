@@ -160,7 +160,7 @@ struct FarColor
 	DWORD Reserved[2];
 
 #ifdef __cplusplus
-	bool operator ==(const FarColor& rhs) const
+	bool operator==(const FarColor& rhs) const
 	{
 		return Flags == rhs.Flags
 			&& ForegroundColor == rhs.ForegroundColor
@@ -169,7 +169,7 @@ struct FarColor
 			&& Reserved[1] == rhs.Reserved[1];
 	}
 
-	bool operator !=(const FarColor& rhs) const
+	bool operator!=(const FarColor& rhs) const
 	{
 		return !(*this == rhs);
 	}
@@ -634,12 +634,12 @@ struct FAR_CHAR_INFO
 	struct FarColor Attributes;
 
 #ifdef __cplusplus
-	bool operator ==(const FAR_CHAR_INFO& rhs) const
+	bool operator==(const FAR_CHAR_INFO& rhs) const
 	{
 		return Char == rhs.Char && Attributes == rhs.Attributes;
 	}
 
-	bool operator !=(const FAR_CHAR_INFO& rhs) const
+	bool operator!=(const FAR_CHAR_INFO& rhs) const
 	{
 		return !(*this == rhs);
 	}

@@ -77,7 +77,7 @@ namespace detail
 using bytes_view = std::basic_string_view<std::byte>;
 
 [[nodiscard]]
-constexpr bytes_view operator "" _bv(const char* Str, std::size_t Size) noexcept
+constexpr bytes_view operator""_bv(const char* Str, std::size_t Size) noexcept
 {
 	return { static_cast<std::byte const*>(static_cast<void const*>(Str)), Size };
 }
@@ -86,9 +86,9 @@ constexpr bytes_view operator "" _bv(const char* Str, std::size_t Size) noexcept
 using bytes = std::basic_string<std::byte>;
 
 [[nodiscard]]
-/*constexpr*/ inline bytes operator "" _b(const char* Str, std::size_t Size) noexcept
+/*constexpr*/ inline bytes operator""_b(const char* Str, std::size_t Size) noexcept
 {
-	return bytes{ operator ""_bv(Str, Size) };
+	return bytes{ operator""_bv(Str, Size) };
 }
 
 

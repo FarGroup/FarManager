@@ -152,7 +152,7 @@ struct TFKey
 	lng LocalizedNameId;
 	string_view Name;
 
-	bool operator ==(DWORD rhsKey) const {return Key == rhsKey;}
+	bool operator==(DWORD rhsKey) const {return Key == rhsKey;}
 };
 
 static const TFKey FKeys1[]

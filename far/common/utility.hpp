@@ -183,7 +183,7 @@ constexpr auto bit(size_t const Number)
 }
 
 [[nodiscard]]
-constexpr auto operator ""_bit(unsigned long long const Number)
+constexpr auto operator""_bit(unsigned long long const Number)
 {
 	return bit(Number);
 }

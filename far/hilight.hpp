@@ -79,7 +79,7 @@ namespace highlight
 			FarColor FileColor;
 			FarColor MarkColor;
 
-			bool operator ==(const colors& rhs) const
+			bool operator==(const colors& rhs) const
 			{
 				return FileColor == rhs.FileColor && MarkColor == rhs.MarkColor;
 			}
@@ -90,7 +90,7 @@ namespace highlight
 			string Mark;
 			bool Inherit{true};
 
-			bool operator ==(const mark& rhs) const
+			bool operator==(const mark& rhs) const
 			{
 				return Mark == rhs.Mark && Inherit == rhs.Inherit;
 			}

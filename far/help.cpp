@@ -109,12 +109,12 @@ public:
 
 	explicit HelpRecord(string HStr): HelpStr(std::move(HStr)) {}
 
-	bool operator ==(const HelpRecord& rhs) const
+	bool operator==(const HelpRecord& rhs) const
 	{
 		return equal_icase(HelpStr, rhs.HelpStr);
 	}
 
-	bool operator <(const HelpRecord& rhs) const
+	bool operator<(const HelpRecord& rhs) const
 	{
 		return string_sort::less(HelpStr, rhs.HelpStr);
 	}

@@ -77,12 +77,12 @@ enum cdrom_device_capabilities
 	CAPABILITIES_HDDVDRAM = 13_bit,
 };
 
-static auto operator | (cdrom_device_capabilities const This, cdrom_device_capabilities const Rhs)
+static auto operator|(cdrom_device_capabilities const This, cdrom_device_capabilities const Rhs)
 {
 	return static_cast<cdrom_device_capabilities>(std::to_underlying(This) | Rhs);
 }
 
-static auto& operator |= (cdrom_device_capabilities& This, cdrom_device_capabilities const Rhs)
+static auto& operator|=(cdrom_device_capabilities& This, cdrom_device_capabilities const Rhs)
 {
 	return This = This | Rhs;
 }
