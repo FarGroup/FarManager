@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+w17 15.12.2022 13:23:17 +0300 - build 6069
+
+1. Extend 'HH HH ...' mask in the viewer search dialog.
+
+--------------------------------------------------------------------------------
 drkns 15.12.2022 01:11:01 +0000 - build 6068
 
 1. Remove redundant workarounds & homebrew implementations of language features.

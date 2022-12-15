@@ -2451,7 +2451,8 @@ enum SEARCHDLG
 	SD_BUTTON_OK,
 	SD_BUTTON_CANCEL,
 
-	SD_COUNT
+	SD_COUNT,
+	SD_MAX_CHARS = 128
 };
 
 enum
@@ -3167,8 +3168,11 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 			{ DI_BUTTON,      {{0,  10}, {0,  10}}, DIF_CENTERGROUP, msg(lng::MViewSearchCancel), },
 		});
 
+		string mask(3 * SD_MAX_CHARS, L'H');
+		for (int i = 0; i < SD_MAX_CHARS; ++i)
+			mask[3 * i + 2] = L' '; // "HH HH ..."
+		SearchDlg[SD_EDIT_HEX].strMask = std::move(mask);
 		SearchDlg[SD_EDIT_TEXT].strHistory = L"SearchText"sv;
-		SearchDlg[SD_EDIT_HEX].strMask = L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH "sv;
 		SearchDlg[SD_RADIO_TEXT].Selected=!LastSearchHex;
 		SearchDlg[SD_RADIO_HEX].Selected=LastSearchHex;
 		SearchDlg[SD_CHECKBOX_CASE].Selected = LastSearchCaseSensitive;
