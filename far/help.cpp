@@ -80,13 +80,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 static const auto
-	FoundContents = L"__FoundContents__"sv,
-	PluginContents = L"__PluginContents__"sv,
+	FoundContents   = L"__FoundContents__"sv,
+	PluginContents  = L"__PluginContents__"sv,
 	HelpOnHelpTopic = L":Help"sv,
-	HelpContents = L"Contents"sv;
+	HelpContents    = L"Contents"sv,
+	HelpMacroStart  = L"<!Macro:"sv,
+	HelpMacroEnd    = L">"sv;
 
 static const wchar_t HelpBeginLink = L'<';
 static const wchar_t HelpEndLink = L'>';
+
+static bool is_generated_topic(string_view const Topic)
+{
+	// I hate ADL
+	return ::any_of(Topic, PluginContents, FoundContents);
+}
 
 enum HELPDOCUMENTSHELPTYPE
 {
@@ -590,9 +598,9 @@ m1:
 
 			if (m_TopicFound)
 			{
-				if (starts_with_icase(strReadStr, L"<!Macro:"sv) && Global->CtrlObject)
+				if (strReadStr.starts_with(HelpMacroStart) && Global->CtrlObject)
 				{
-					const auto PosTab = strReadStr.find(L'>');
+					const auto PosTab = strReadStr.find(HelpMacroEnd);
 					if (PosTab != string::npos && strReadStr[PosTab - 1] != L'!')
 						continue;
 
@@ -1391,7 +1399,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 		case KEY_F1:
 		{
 			// не поганим SelTopic, если и так в Help on Help
-			if (!equal_icase(StackData->strHelpTopic, HelpOnHelpTopic))
+			if (StackData->strHelpTopic != HelpOnHelpTopic)
 			{
 				Stack.emplace(*StackData);
 				IsNewTopic = true;
@@ -1405,7 +1413,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTF1:
 		{
 			//   не поганим SelTopic, если и так в теме Contents
-			if (!equal_icase(StackData->strHelpTopic, HelpContents))
+			if (StackData->strHelpTopic != HelpContents)
 			{
 				Stack.emplace(*StackData);
 				IsNewTopic = true;
@@ -1419,7 +1427,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 		case KEY_F7:
 		{
 			// не поганим SelTopic, если и так в FoundContents
-			if (!equal_icase(StackData->strHelpTopic, FoundContents))
+			if (StackData->strHelpTopic != FoundContents)
 			{
 				string strLastSearchStr0=strLastSearchStr;
 				auto SearchDlgOptions{ LastSearchDlgOptions };
@@ -1458,7 +1466,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTF2:
 		{
 			//   не поганим SelTopic, если и так в PluginContents
-			if (!equal_icase(StackData->strHelpTopic, PluginContents))
+			if (StackData->strHelpTopic != PluginContents)
 			{
 				Stack.emplace(*StackData);
 				IsNewTopic = true;
@@ -1557,7 +1565,12 @@ bool Help::JumpTopic()
 	// а вот теперь попробуем...
 
 	string strNewTopic;
-	if (!StackData->strHelpPath.empty() && StackData->strSelTopic.front() !=HelpBeginLink && StackData->strSelTopic != HelpOnHelpTopic)
+	if (
+		!StackData->strHelpPath.empty() &&
+		StackData->strSelTopic.front() != HelpBeginLink &&
+		StackData->strSelTopic != HelpOnHelpTopic &&
+		!is_generated_topic(StackData->strSelTopic)
+	)
 	{
 		if (StackData->strSelTopic.starts_with(L':'))
 		{
@@ -1610,9 +1623,7 @@ bool Help::JumpTopic()
 		}
 	}
 
-	if (StackData->strSelTopic.front() != L':' &&
-	        (!equal_icase(StackData->strSelTopic, PluginContents) || !equal_icase(StackData->strSelTopic, FoundContents))
-	   )
+	if (StackData->strSelTopic.front() != L':' && !is_generated_topic(StackData->strSelTopic))
 	{
 		if (!(StackData->Flags&FHELP_CUSTOMFILE) && contains(strNewTopic, HelpEndLink))
 		{
@@ -1668,7 +1679,7 @@ bool Help::JumpTopic()
 	}
 
 	// ResizeConsole();
-	if (IsNewTopic || !(!equal_icase(StackData->strSelTopic, PluginContents) || !equal_icase(StackData->strSelTopic, FoundContents))) // Это неприятный костыль :-((
+	if (IsNewTopic || is_generated_topic(StackData->strSelTopic)) // Это неприятный костыль :-((
 		MoveToReference(1,1);
 
 	Global->WindowManager->RefreshWindow();
