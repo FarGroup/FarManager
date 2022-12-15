@@ -51,27 +51,17 @@ public:
 	[[nodiscard]]
 	type& get()
 	{
-		return std::get<type>(tuple_cast(*this));
+		return std::get<type>(*this);
 	}
 
 	template<typename type>
 	[[nodiscard]]
 	const type& get() const
 	{
-		return std::get<type>(tuple_cast(*this));
+		return std::get<type>(*this);
 	}
 
 private:
-	template<typename self_type>
-	static auto& tuple_cast(self_type& Self)
-	{
-		// This idiotic cast to std::tuple is for clang
-		using tuple_type = std::tuple<tuple_types...>;
-		using result_type = std::conditional_t<std::is_const_v<self_type>, const tuple_type, tuple_type>;
-
-		return static_cast<result_type&>(Self);
-	}
-
 	template<typename cast_type, typename duration_type>
 	void set_and_chop(duration_type& Duration)
 	{

@@ -38,9 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "compiler.hpp"
 
-#if __has_include(<version>)
 #include <version>
-#endif
 
 //----------------------------------------------------------------------------
 

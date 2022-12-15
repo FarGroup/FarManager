@@ -170,12 +170,7 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 
 #define FWD(...) std::forward<decltype(__VA_ARGS__)>(__VA_ARGS__)
 
-#if COMPILER(CL) && _MSC_FULL_VER < 192428316
-// See MSVC bug #540185
-#define NOEXCEPT_NOEXCEPT(...)
-#else
 #define NOEXCEPT_NOEXCEPT(...) noexcept(noexcept(__VA_ARGS__))
-#endif
 
 #define LIFT(...) [](auto&&... Args) NOEXCEPT_NOEXCEPT(__VA_ARGS__(FWD(Args)...)) -> decltype(auto) \
 { \
