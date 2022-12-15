@@ -47,7 +47,7 @@ struct error_state_ex: public os::error_state
 {
 	error_state_ex() = default;
 
-	error_state_ex(const error_state& State, string_view const Message = {}, int Errno = 0):
+	explicit(false) error_state_ex(const error_state& State, string_view const Message = {}, int Errno = 0):
 		error_state(State),
 		What(Message),
 		Errno(Errno)

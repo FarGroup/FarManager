@@ -144,7 +144,7 @@ namespace os
 
 			constexpr handle_t() = default;
 
-			constexpr handle_t(std::nullptr_t)
+			constexpr explicit(false) handle_t(std::nullptr_t)
 			{
 			}
 
@@ -396,7 +396,7 @@ namespace os
 			using opaque_function_pointer::opaque_function_pointer;
 
 			[[nodiscard]]
-			operator T() const { return reinterpret_cast<T>(get_pointer()); }
+			explicit(false) operator T() const { return reinterpret_cast<T>(get_pointer()); }
 		};
 	}
 

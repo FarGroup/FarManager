@@ -49,7 +49,7 @@ public:
 WARNING_PUSH()
 WARNING_DISABLE_MSC(4180) // qualifier applied to function type has no meaning; ignored
 	template<typename callable_type> requires (!std::is_same_v<std::decay_t<callable_type>, function_ref>)
-	function_ref(callable_type&& Callable) noexcept:
+	explicit(false) function_ref(callable_type&& Callable) noexcept:
 		m_Ptr(to_ptr(FWD(Callable))),
 		m_ErasedFn([](void* Ptr, args... Args) -> return_type
 		{
@@ -59,7 +59,7 @@ WARNING_DISABLE_MSC(4180) // qualifier applied to function type has no meaning; 
 	}
 WARNING_POP()
 
-	function_ref(std::nullptr_t) noexcept:
+	explicit(false) function_ref(std::nullptr_t) noexcept:
 		m_Ptr(),
 		m_ErasedFn()
 	{

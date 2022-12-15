@@ -81,7 +81,7 @@ private:
 		unique_function_pointer() = default;
 		NONCOPYABLE(unique_function_pointer);
 
-		operator function_type() const { return get_pointer(); }
+		explicit(false) operator function_type() const { return get_pointer(); }
 		explicit operator bool() const noexcept { return get_pointer() != StubFunction; }
 
 	private:

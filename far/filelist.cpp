@@ -7050,8 +7050,8 @@ struct hash_less
 {
 	struct arg
 	{
-		arg(unsigned long long const Value): m_Value(Value) {}
-		arg(FileListItem const& Value): m_Value(Value.FileId) {}
+		explicit(false) arg(unsigned long long const Value): m_Value(Value) {}
+		explicit(false) arg(FileListItem const& Value): m_Value(Value.FileId) {}
 		unsigned long long m_Value;
 	};
 

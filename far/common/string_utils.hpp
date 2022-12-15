@@ -110,18 +110,18 @@ using null_terminated = null_terminated_t<wchar_t>;
 class string_copyref
 {
 public:
-	string_copyref(std::wstring_view const Str) noexcept:
+	explicit(false) string_copyref(std::wstring_view const Str) noexcept:
 		m_Str(Str)
 	{
 	}
 
-	string_copyref(std::wstring&& Str) noexcept:
+	explicit(false) string_copyref(std::wstring&& Str) noexcept:
 		m_StrBuffer(std::move(Str)),
 		m_Str(m_StrBuffer)
 	{
 	}
 
-	operator std::wstring_view() const noexcept
+	explicit(false) operator std::wstring_view() const noexcept
 	{
 		return m_Str;
 	}
@@ -674,18 +674,18 @@ class lvalue_string_view
 public:
 	lvalue_string_view() = default;
 
-	lvalue_string_view(std::wstring_view const Str):
+	explicit(false) lvalue_string_view(std::wstring_view const Str):
 		m_Str(Str)
 	{
 	}
 
-	lvalue_string_view(std::wstring const& Str):
+	explicit(false) lvalue_string_view(std::wstring const& Str):
 		m_Str(Str)
 	{}
 
-	lvalue_string_view(std::wstring&& Str) = delete;
+	explicit(false) lvalue_string_view(std::wstring&& Str) = delete;
 
-	operator std::wstring_view() const
+	explicit(false) operator std::wstring_view() const
 	{
 		return m_Str;
 	}

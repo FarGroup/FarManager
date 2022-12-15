@@ -96,7 +96,7 @@ public:
 	public:
 		NONCOPYABLE(suppress);
 
-		suppress(bool Completely = false);
+		explicit(false) suppress(bool Completely = false);
 		~suppress();
 
 	private:

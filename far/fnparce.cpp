@@ -177,7 +177,7 @@ namespace tokens
 		}
 
 		explicit operator bool() const { return m_Tail.data() != nullptr; }
-		operator string_view() const { assert(*this); return m_Tail; }
+		explicit(false) operator string_view() const { assert(*this); return m_Tail; }
 
 	private:
 		string_view m_Tail;

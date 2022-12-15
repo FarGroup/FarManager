@@ -1366,7 +1366,7 @@ struct FarMacroValue
 	FarMacroValue(const UUID& v)      { Type=FMVT_BINARY; Binary.Data=&const_cast<UUID&>(v); Binary.Size=sizeof(UUID); }
 	FarMacroValue(FarMacroValue* arr,size_t count) { Type=FMVT_ARRAY; Array.Values=arr; Array.Count=count; }
 #ifdef FAR_USE_INTERNALS
-	FarMacroValue(const string& v)    { Type=FMVT_STRING; String=v.c_str(); }
+	explicit(false) FarMacroValue(const string& v)    { Type=FMVT_STRING; String=v.c_str(); }
 #endif // END FAR_USE_INTERNALS
 #endif
 };

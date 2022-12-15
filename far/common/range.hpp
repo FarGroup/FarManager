@@ -68,13 +68,13 @@ public:
 
 	template<typename compatible_iterator, typename compatible_const_iterator>
 		requires std::is_convertible_v<compatible_iterator, iterator> && std::is_convertible_v<compatible_const_iterator, const_iterator>
-	constexpr range(const range<compatible_iterator, compatible_const_iterator>& Rhs):
+	explicit(false) constexpr range(const range<compatible_iterator, compatible_const_iterator>& Rhs):
 		range(ALL_RANGE(Rhs))
 	{
 	}
 
 	template<typename container> requires is_range<container>
-	constexpr range(container& Container):
+	constexpr explicit(false) range(container& Container):
 		range(ALL_RANGE(Container))
 	{
 	}
@@ -203,13 +203,13 @@ public:
 	}
 
 	template<typename compatible_span_value_type> requires std::is_convertible_v<compatible_span_value_type*, span_value_type*>
-	constexpr span(const span<compatible_span_value_type>& Rhs) noexcept:
+	constexpr explicit(false) span(const span<compatible_span_value_type>& Rhs) noexcept:
 		span(ALL_RANGE(Rhs))
 	{
 	}
 
 	template<typename container> requires is_span<container>
-	constexpr span(container&& Container) noexcept:
+	constexpr explicit(false) span(container&& Container) noexcept:
 		span(std::data(Container), std::size(Container))
 	{
 	}

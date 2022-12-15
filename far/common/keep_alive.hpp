@@ -53,7 +53,7 @@ public:
 	{}
 
 	[[nodiscard]]
-	operator const type&() const noexcept { return m_Value; }
+	explicit(false) operator const type&() const noexcept { return m_Value; }
 
 	[[nodiscard]]
 	auto operator&() const noexcept { return &m_Value; }

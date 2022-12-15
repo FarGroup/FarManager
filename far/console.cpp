@@ -337,7 +337,7 @@ namespace console_detail
 	public:
 		NONCOPYABLE(consolebuf);
 
-		consolebuf(int const Type):
+		explicit(false) consolebuf(int const Type):
 			m_Type(Type),
 			m_Redirected(is_redirected(Type)),
 			m_InBuffer(BufferSize, {}),

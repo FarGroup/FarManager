@@ -54,12 +54,12 @@ WARNING_DISABLE_CLANG("-Weverything")
 
 struct thousands_separator
 {
-	operator wchar_t() const
+	explicit(false) operator wchar_t() const
 	{
 		return ::locale.thousand_separator();
 	}
 
-	operator char() const
+	explicit(false) operator char() const
 	{
 		return static_cast<char>(operator wchar_t());
 	}

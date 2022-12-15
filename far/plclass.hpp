@@ -211,9 +211,9 @@ namespace detail
 	{
 		auto& operator=(intptr_t value) { Result = value; return *this; }
 		auto& operator=(HANDLE value) { Result = reinterpret_cast<intptr_t>(value); return *this; }
-		operator intptr_t() const { return Result; }
-		operator void*() const { return ToPtr(Result); }
-		operator bool() const { return Result != 0; }
+		explicit(false) operator intptr_t() const { return Result; }
+		explicit(false) operator void*() const { return ToPtr(Result); }
+		explicit(false) operator bool() const { return Result != 0; }
 		intptr_t Result;
 	};
 }
