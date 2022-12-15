@@ -93,7 +93,7 @@ namespace
 
 		bool check(os::chrono::time_point const Time) const
 		{
-			return Time < m_StartTime || contains(m_KnownRecords, Time);
+			return Time < m_StartTime || m_KnownRecords.contains(Time);
 		}
 
 		void add(os::chrono::time_point const Time)

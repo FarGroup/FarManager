@@ -232,7 +232,7 @@ bool ScanTree::GetNextName(os::fs::find_data& fdata,string &strFullName)
 				RealPath = NTPath(ConvertNameToReal(RealPath));
 
 			//recursive symlinks guard
-			if (!contains(ScanItems.back().ActiveDirectories, RealPath))
+			if (!ScanItems.back().ActiveDirectories.contains(RealPath))
 			{
 				CutToSlash(strFindPath);
 				path::append(strFindPath, fdata.FileName, strFindMask);

@@ -150,7 +150,7 @@ TEST_CASE("algorithm.contains")
 {
 	{
 		constexpr std::array Data{ 1, 2, 3 };
-		STATIC_REQUIRE(!detail::has_find<decltype(Data)>);
+		STATIC_REQUIRE(!detail::has_contains<decltype(Data)>);
 
 		// TODO: STATIC_REQUIRE
 		// GCC stdlib isn't constexpr yet :(
@@ -162,7 +162,7 @@ TEST_CASE("algorithm.contains")
 
 	{
 		std::set Data{ 1, 2, 3 };
-		STATIC_REQUIRE(detail::has_find<decltype(Data)>);
+		STATIC_REQUIRE(detail::has_contains<decltype(Data)>);
 
 		REQUIRE(contains(Data, 1));
 		REQUIRE(contains(Data, 2));

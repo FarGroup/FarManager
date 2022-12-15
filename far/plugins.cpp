@@ -876,7 +876,7 @@ intptr_t PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, con
 
 		for (const auto& i: SortedPlugins)
 		{
-			if (!i->has(iProcessEditorEvent) || !contains(PluginIds, i->Id()))
+			if (!i->has(iProcessEditorEvent) || !PluginIds.contains(i->Id()))
 				continue;
 
 			// The return value is currently ignored

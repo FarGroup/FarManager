@@ -6084,7 +6084,7 @@ void Dialog::RemoveFromList()
 
 bool Dialog::IsValid(Dialog* Handle)
 {
-	return contains(dialogs_set::instance().Set, Handle);
+	return dialogs_set::instance().Set.contains(Handle);
 }
 
 void Dialog::SetDeleting()

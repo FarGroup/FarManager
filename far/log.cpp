@@ -814,7 +814,7 @@ namespace logging
 		template<typename T>
 		void configure_sink(std::unordered_set<string_view> const& SinkNames, bool const AllowAdd)
 		{
-			const auto Needed = contains(SinkNames, T::name);
+			const auto Needed = SinkNames.contains(T::name);
 
 			lazy<sink_mode::mode> const NewSinkMode([]
 			{

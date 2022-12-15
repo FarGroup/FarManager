@@ -102,9 +102,9 @@ void emplace(container& Container, args&&... Args)
 namespace detail
 {
 	template<typename type>
-	concept has_find = requires(type&& t)
+	concept has_contains = requires(type&& t)
 	{
-		t.find(std::declval<typename type::key_type&>());
+		t.contains(std::declval<typename type::key_type&>());
 	};
 }
 
@@ -112,10 +112,9 @@ template<typename container, typename element> requires is_range<container>
 [[nodiscard]]
 constexpr bool contains(const container& Container, const element& Element)
 {
-	if constexpr (detail::has_find<container>)
+	if constexpr (detail::has_contains<container>)
 	{
-		// associative containers
-		return Container.find(Element) != Container.cend();
+		return Container.contains(Element);
 	}
 	else
 	{

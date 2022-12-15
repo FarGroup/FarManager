@@ -6152,7 +6152,7 @@ void FileList::PluginHostGetFiles()
 			continue;
 
 		int OpMode=OPM_TOPLEVEL;
-		if (contains(UsedPlugins, hCurPlugin->plugin()))
+		if (UsedPlugins.contains(hCurPlugin->plugin()))
 			OpMode|=OPM_SILENT;
 
 		span<PluginPanelItem> Items;
