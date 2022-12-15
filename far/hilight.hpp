@@ -101,10 +101,7 @@ namespace highlight
 		colors_array Color;
 		mark Mark;
 
-		bool operator==(const element& rhs) const
-		{
-			return Color == rhs.Color && Mark == rhs.Mark;
-		}
+		bool operator==(const element&) const = default;
 	};
 
 	class configuration: noncopyable

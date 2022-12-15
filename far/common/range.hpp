@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "preprocessor.hpp"
-#include "rel_ops.hpp"
 #include "type_traits.hpp"
 
 #include <limits>
@@ -237,7 +236,7 @@ span(const std::initializer_list<value_type>&) -> span<const value_type>;
 
 
 template<class T>
-class [[nodiscard]] i_iterator: public rel_ops<i_iterator<T>>
+class [[nodiscard]] i_iterator
 {
 public:
 	using iterator_category = std::random_access_iterator_tag;
@@ -271,10 +270,7 @@ public:
 	auto operator-(const i_iterator& rhs) const noexcept { return m_value - rhs.m_value; }
 
 	[[nodiscard]]
-	auto operator==(const i_iterator& rhs) const noexcept { return m_value == rhs.m_value; }
-
-	[[nodiscard]]
-	auto operator<(const i_iterator& rhs) const noexcept { return m_value < rhs.m_value; }
+	auto operator<=>(const i_iterator&) const = default;
 
 private:
 	T m_value{};

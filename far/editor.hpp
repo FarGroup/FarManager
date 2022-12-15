@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/rel_ops.hpp"
 
 // External:
 
@@ -163,9 +162,7 @@ private:
 	struct InternalEditorBookmark;
 
 	template<class T, class ConstT = T>
-	class numbered_iterator_t:
-		public T,
-		public rel_ops<numbered_iterator_t<T, ConstT>>
+	class numbered_iterator_t: public T
 	{
 	public:
 		COPYABLE(numbered_iterator_t);

@@ -646,9 +646,6 @@
     <ClInclude Include="common\range.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>
-    <ClInclude Include="common\rel_ops.hpp">
-      <Filter>Header Files\common</Filter>
-    </ClInclude>
     <ClInclude Include="common\scope_exit.hpp">
       <Filter>Header Files\common</Filter>
     </ClInclude>

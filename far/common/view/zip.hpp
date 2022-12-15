@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "../keep_alive.hpp"
-#include "../rel_ops.hpp"
 
 #include <iterator>
 #include <optional>
@@ -97,7 +96,7 @@ namespace detail
 	};
 
 	template<typename... args>
-	class zip_iterator: public rel_ops<zip_iterator<args...>>
+	class zip_iterator
 	{
 	public:
 		using iterator_category = typename traits<args...>::iterator_category;
@@ -113,10 +112,10 @@ namespace detail
 
 		// tuple's operators == and < are inappropriate as ranges might be of different length and we want to stop on a shortest one
 		[[nodiscard]]
-		auto operator==(const zip_iterator& rhs) const { return traits<args...>::binary_any_of(std::equal_to<>{}, m_Tuple, rhs.m_Tuple); }
+		bool operator==(const zip_iterator& rhs) const { return traits<args...>::binary_any_of(std::equal_to{}, m_Tuple, rhs.m_Tuple); }
 
 		[[nodiscard]]
-		auto operator<(const zip_iterator& rhs) const { return traits<args...>::binary_all_of(std::less<>{}, m_Tuple, rhs.m_Tuple); }
+		bool operator<(const zip_iterator& rhs) const { return traits<args...>::binary_all_of(std::less{}, m_Tuple, rhs.m_Tuple); }
 
 		[[nodiscard]]
 		auto& operator*() const

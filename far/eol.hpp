@@ -60,8 +60,7 @@ public:
 
 	static eol parse(string_view Value);
 	string_view str() const;
-	bool operator==(const eol& rhs) const;
-	bool operator!=(const eol& rhs) const;
+	bool operator==(const eol&) const = default;
 
 private:
 	explicit eol(char Type);

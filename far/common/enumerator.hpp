@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "preprocessor.hpp"
-#include "rel_ops.hpp"
 
 #include <iterator>
 
@@ -52,7 +51,7 @@ public:
 	using enumerator_type = enumerator;
 
 	template<typename item_type, typename owner>
-	class iterator_t: public rel_ops<iterator_t<item_type, owner>>
+	class iterator_t
 	{
 	public:
 		using iterator_category = std::input_iterator_tag;

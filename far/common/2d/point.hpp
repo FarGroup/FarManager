@@ -33,8 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "../rel_ops.hpp"
-
 //----------------------------------------------------------------------------
 
 namespace detail
@@ -47,7 +45,7 @@ namespace detail
 	};
 }
 
-struct point: public rel_ops<point>
+struct point
 {
 	int x{};
 	int y{};
@@ -61,16 +59,13 @@ struct point: public rel_ops<point>
 	}
 
 	template<typename T> requires detail::is_coord<T>
-	point(T const& Coord) noexcept:
+	explicit(false) point(T const& Coord) noexcept:
 		point(Coord.X, Coord.Y)
 	{
 	}
 
 	[[nodiscard]]
-	bool operator==(point const& rhs) const noexcept
-	{
-		return x == rhs.x && y == rhs.y;
-	}
+	bool operator==(point const& rhs) const = default;
 };
 
 #endif // POINT_HPP_5D641DB2_6406_4A9E_8D64_C642ECCF9790

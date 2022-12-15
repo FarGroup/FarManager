@@ -54,9 +54,11 @@ public:
 
 	struct info
 	{
-		string_view Symbol;
 		string_view File;
+		string_view Symbol;
 		size_t Displacement;
+
+		bool operator==(const info&) const = default;
 	};
 
 	info get(uintptr_t Address);

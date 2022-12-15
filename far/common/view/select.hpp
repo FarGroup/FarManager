@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "../keep_alive.hpp"
-#include "../rel_ops.hpp"
 
 #include <iterator>
 
@@ -42,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace detail
 {
 	template<typename T, typename accessor>
-	class select_iterator : public rel_ops<select_iterator<T, accessor>>
+	class select_iterator
 	{
 	public:
 		using iterator_category = typename std::iterator_traits<T>::iterator_category;
@@ -81,10 +80,10 @@ namespace detail
 		auto operator-(const select_iterator& rhs) const { return m_Value - rhs.m_Value; }
 
 		[[nodiscard]]
-		auto operator==(const select_iterator& rhs) const { return m_Value == rhs.m_Value; }
+		bool operator==(const select_iterator& rhs) const { return m_Value == rhs.m_Value; }
 
 		[[nodiscard]]
-		auto operator<(const select_iterator& rhs) const { return m_Value < rhs.m_Value; }
+		bool operator<(const select_iterator& rhs) const { return m_Value < rhs.m_Value; }
 
 	private:
 		T m_Value;

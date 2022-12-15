@@ -107,7 +107,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enum_tokens.hpp"
-#include "common/rel_ops.hpp"
 #include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
 #include "common/utility.hpp"
@@ -1131,7 +1130,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 	return 0;
 }
 
-class file_state: public rel_ops<file_state>
+class file_state
 {
 public:
 	static auto get(string_view const Filename)

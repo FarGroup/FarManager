@@ -32,14 +32,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "rel_ops.hpp"
-
 #include <iterator>
 
 //----------------------------------------------------------------------------
 
 template <class T>
-class null_iterator: public rel_ops<null_iterator<T>>
+class null_iterator
 {
 public:
 	using iterator_category = std::forward_iterator_tag;

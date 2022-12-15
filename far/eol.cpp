@@ -95,16 +95,6 @@ string_view eol::str() const
 	}
 }
 
-bool eol::operator==(const eol& rhs) const
-{
-	return m_Type == rhs.m_Type;
-}
-
-bool eol::operator!=(const eol& rhs) const
-{
-	return !(*this == rhs);
-}
-
 eol::eol(char const Type):
 	m_Type(Type)
 {

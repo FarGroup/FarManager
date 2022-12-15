@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "../preprocessor.hpp"
 #include "../range.hpp"
-#include "../rel_ops.hpp"
 
 #include <vector>
 
@@ -56,12 +55,6 @@ namespace detail
 		{
 			return std::equal(ALL_CONST_RANGE(*this), ALL_CONST_RANGE(rhs));
 		}
-
-		[[nodiscard]]
-		bool operator!=(const matrix_row& rhs) const
-		{
-			return !(*this == rhs);
-		}
 	};
 
 	// GCC isn't smart enough to deduce this
@@ -69,7 +62,7 @@ namespace detail
 	matrix_row(T*, size_t) -> matrix_row<T>;
 
 	template<typename T>
-	class matrix_iterator: public rel_ops<matrix_iterator<T>>
+	class matrix_iterator
 	{
 	public:
 		using iterator_category = std::random_access_iterator_tag;
@@ -107,13 +100,21 @@ namespace detail
 		auto operator+(size_t const n) const { return matrix_iterator(m_Data + n * m_Width, m_Width); }
 		auto operator-(size_t const n) const { return matrix_iterator(m_Data - n * m_Width, m_Width); }
 
-		auto operator-(const matrix_iterator& rhs) const { return m_Data - rhs.m_Data; }
+		auto operator-(const matrix_iterator& rhs) const
+		{
+			assert(m_Width == rhs.m_Width);
+			return m_Data - rhs.m_Data;
+		}
 
 		[[nodiscard]]
-		auto operator==(const matrix_iterator& rhs) const { return m_Data == rhs.m_Data; }
+		bool operator==(const matrix_iterator&) const = default;
 
 		[[nodiscard]]
-		auto operator<(const matrix_iterator& rhs) const { return m_Data < rhs.m_Data; }
+		auto operator<(const matrix_iterator& rhs) const
+		{
+			assert(m_Width == rhs.m_Width);
+			return m_Data < rhs.m_Data;
+		}
 
 	private:
 		T* m_Data{};

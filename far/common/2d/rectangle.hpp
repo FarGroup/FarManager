@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "../algorithm.hpp"
-#include "../rel_ops.hpp"
 #include "point.hpp"
 
 //----------------------------------------------------------------------------
@@ -52,7 +51,7 @@ namespace detail
 }
 
 template<typename T>
-struct rectangle_t: public rel_ops<rectangle_t<T>>
+struct rectangle_t
 {
 	T left;
 	T top;
@@ -72,25 +71,18 @@ struct rectangle_t: public rel_ops<rectangle_t<T>>
 	}
 
 	template<typename Y>
-	rectangle_t(rectangle_t<Y> const Rectangle) noexcept:
+	explicit(false) rectangle_t(rectangle_t<Y> const Rectangle) noexcept:
 		rectangle_t(Rectangle.left, Rectangle.top, Rectangle.right, Rectangle.bottom)
 	{
 	}
 
 	template<typename Y> requires detail::is_rect<Y>
-	rectangle_t(Y const& Rectangle) noexcept:
+	explicit(false) rectangle_t(Y const& Rectangle) noexcept:
 		rectangle_t(Rectangle.Left, Rectangle.Top, Rectangle.Right, Rectangle.Bottom)
 	{
 	}
 
-	bool operator==(rectangle_t const& rhs) const
-	{
-		return
-			left == rhs.left &&
-			top == rhs.top &&
-			right == rhs.right &&
-			bottom == rhs.bottom;
-	}
+	bool operator==(rectangle_t const&) const = default;
 
 	[[nodiscard]]
 	auto width() const noexcept { assert(left <= right); return right - left + 1; }
