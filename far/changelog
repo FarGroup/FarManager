@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 15.12.2022 19:04:20 +0000 - build 6070
+
+1. gh-575: Plugin help doesn't work when launched from some plugin panels.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 w17 15.12.2022 13:23:17 +0300 - build 6069
 
 1. Extend 'HH HH ...' mask in the viewer search dialog.
