@@ -99,12 +99,17 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* Info)
 	return Config();
 }
 
+
+static constexpr int MenuType_FindSelect = 0, MenuType_Direction = 1;
+static constexpr int Direct_UNKNOWN  = -1, Direct_FORWARD = 0, Direct_BACKWARD = 1;
+static constexpr int FindSel_UNKNOWN = -1, FindSel_FIND   = 0, FindSel_SELECT  = 1;
+//
 static int ShowMenu(int Type)
 {
 	FarMenuItem shMenu[4]= {};
-	static const wchar_t *HelpTopic[2]= {L"Find",L"Direct"};
-	shMenu[0].Text = GetMsg((Type?MBForward:MBrackMath));
-	shMenu[1].Text = GetMsg((Type?MBBackward:MBrackSelect));
+	static const wchar_t *HelpTopic[2]= {L"Find", L"Direct"};
+	shMenu[0].Text = GetMsg((Type == MenuType_Direction ? MBForward  : MBrackMath  ));
+	shMenu[1].Text = GetMsg((Type == MenuType_Direction ? MBBackward : MBrackSelect));
 	shMenu[2].Flags = MIF_SEPARATOR;
 	shMenu[3].Text = GetMsg(MConfigure);
 	int Ret;
@@ -133,10 +138,11 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 	wchar_t B21=0,B22=0,B23=0,B24=0;
 
 	int nQuotes=0;
-	int isSelect=-1;
+	int find_sel = FindSel_UNKNOWN;
 	intptr_t CurPos;
 	int i=3,j,k;
-	int Direction=0,DirectQuotes=-1;
+	int Direction = 0; // 0: unspecified, +1: forward, -1: backward
+	int DirectQuotes = Direct_UNKNOWN; // Menu() order
 	int types=BrZERO;
 	BOOL found=FALSE;
 	int MatchCount=1;
@@ -194,20 +200,20 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 			switch (value)
 			{
 				case 0: // search fwd
-					isSelect=0;
-					DirectQuotes=1;
+					find_sel = FindSel_FIND;
+					DirectQuotes = Direct_FORWARD;
 					break;
 				case 1: // search back
-					isSelect=0;
-					DirectQuotes=0;
+					find_sel = FindSel_FIND;
+					DirectQuotes = Direct_BACKWARD;
 					break;
 				case 2: // select fwd
-					DirectQuotes=1;
-					isSelect=1;
+					find_sel = FindSel_SELECT;
+					DirectQuotes = Direct_FORWARD;
 					break;
 				case 3: // select back
-					DirectQuotes=0;
-					isSelect=1;
+					find_sel = FindSel_SELECT;
+					DirectQuotes = Direct_BACKWARD;
 					break;
 				case 4:
 					Config();
@@ -218,15 +224,14 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 		}
 	}
 
-	if(isSelect == -1)
-		if((isSelect=ShowMenu(0)) == -1)
+	if(find_sel == FindSel_UNKNOWN)
+		if((find_sel = ShowMenu(MenuType_FindSelect)) < 0)
 			return nullptr;
 
 	if(CurPos > egs.StringLength)
 		return nullptr;
 
 	egs.StringNumber=espo.CurLine;
-	isSelect=isSelect == 1;
 	Bracket_1=(CurPos-1 >= 0?egs.StringText[CurPos-1]:L'\0');
 	Bracket1=(CurPos+1 < egs.StringLength?egs.StringText[CurPos+1]:L'\0');
 
@@ -303,12 +308,12 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 						if((Bracket==B21 && Bracket1==B22) || (Bracket==B22 && Bracket_1==B21))
 						{
 							types=BrTwo;
-							Direction=1;
+							Direction = +1;
 						}
 						else if((Bracket_1==B23 && Bracket==B24) || (Bracket==B23 && Bracket1==B24))
 						{
 							types=BrTwo;
-							Direction=-1;
+							Direction = -1;
 						}
 
 						break;
@@ -332,13 +337,13 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 					if(Bracket==B21)
 					{
 						types=BrOne;
-						Direction=1;
+						Direction = +1;
 						break;
 					}
 					else if(Bracket==B22)
 					{
 						types=BrOne;
-						Direction=-1;
+						Direction = -1;
 						break;
 					}
 				}
@@ -353,13 +358,13 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 						if(Bracket_1==B21)
 						{
 							types=BrRight;
-							Direction=1;
+							Direction = +1;
 							break;
 						}
 						else if(Bracket_1==B22)
 						{
 							types=BrRight;
-							Direction=-1;
+							Direction = -1;
 							break;
 						}
 					}
@@ -376,12 +381,12 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 
 	if(B21 == B22)
 	{
-		if (DirectQuotes == -1)
-			if((DirectQuotes=ShowMenu(1)) == -1)
+		if (DirectQuotes == Direct_UNKNOWN)
+			if((DirectQuotes = ShowMenu(MenuType_Direction)) < 0)
 				return nullptr;
 
-		Direction=DirectQuotes == 0?1:-1;
-		types=BrOneMath;
+		Direction = DirectQuotes != Direct_BACKWARD ? +1 : -1;
+		types = BrOneMath;
 	}
 
 	esp.CurPos=esp.CurTabPos=esp.TopScreenLine=esp.LeftPos=esp.Overtype=-1;
@@ -460,7 +465,7 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 				{
 					--MatchCount;
 
-					if((Direction ==  1 && MatchCount == 0) || (Direction == -1 && MatchCount == 1))
+					if((Direction == +1 && MatchCount == 0) || (Direction == -1 && MatchCount == 1))
 						found=TRUE;
 				}
 
@@ -484,7 +489,7 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 			/***************************************************************/
 			case BrTwo:
 			{
-				if((Direction == 1 &&
+				if((Direction == +1 &&
 				        ((Bracket==B21 && Ch==B21 && Ch1  == B22) ||
 				         (Bracket==B22 && Ch==B22 && Ch_1 == B21))
 				   ) ||
@@ -539,13 +544,13 @@ HANDLE WINAPI OpenW(const OpenInfo *Info)
 			esp.TopScreenLine=-1;
 		}
 
-		if(!isSelect || Opt.JumpToPair)
+		if(find_sel != FindSel_SELECT || Opt.JumpToPair)
 			PsInfo.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 
 		if(Opt.Beep)
 			MessageBeep(0);
 
-		if(isSelect)
+		if(find_sel == FindSel_SELECT)
 		{
 			es.BlockType=BTYPE_STREAM;
 			es.BlockStartLine = std::min(esp.CurLine,espo.CurLine);
