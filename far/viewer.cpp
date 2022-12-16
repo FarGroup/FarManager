@@ -3324,8 +3324,9 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 	}
 	LastSearchDirection = search_direction;
 
-	if (!sd.search_len || static_cast<long long>(sd.search_len) > FileSize)
+	if (!sd.search_len || !FileSize)
 		return;
+	const auto can_found = (SearchRegexp && !SearchHex) || static_cast<long long>(sd.search_len) <= FileSize;
 
 	sd.CurPos = LastSelectPos;
 	{
@@ -3337,7 +3338,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 
 		for (;;)
 		{
-			const auto found = std::invoke(searcher, this, &sd);
+			const auto found = can_found ? std::invoke(searcher, this, &sd) : Search_NotFound;
 			if (found == Search_Found)
 				break;
 
