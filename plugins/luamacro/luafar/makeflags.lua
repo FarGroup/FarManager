@@ -8,7 +8,7 @@ local function add_defines (src, trg_keys, trg_vals)
   local cast1 = "%(HANDLE%)" -- suppress compiler warnings
   local cast2 = "%(void%*%)" -- suppress compiler warnings
   for k,v in src:gmatch("#define%s+([A-Z][A-Z0-9_]*)[ \t]+([^\n]+)") do
-    if k ~= "FARMANAGERVERSION" then
+    if k ~= "FARMANAGERVERSION" and k ~= "FAR_INLINE_CONSTANT" then
       table.insert(trg_keys, k)
       if   v:find(cast1) or v:find(cast2) then v = "(INT_PTR)" .. k
       else v = k
@@ -29,8 +29,8 @@ local function add_enums (src, trg_keys, trg_vals)
   end
 end
 
-local function add_static  (src, trg_keys, trg_vals)
-  for chunk in src:gmatch("static%s+const%s+[^;]-;") do
+local function add_constants  (src, trg_keys, trg_vals)
+  for chunk in src:gmatch("FAR_INLINE_CONSTANT%s+[^;]-;") do
     for k,v in chunk:gmatch("\n%s*([%w_]+)%s*=%s*(%w+)") do
       table.insert(trg_keys, k)
       table.insert(trg_vals, v)
@@ -107,7 +107,7 @@ local function write_common_flags_file (fname)
   local tb_keys, tb_vals = {}, {}
   add_defines(src, tb_keys, tb_vals)
   add_enums(src, tb_keys, tb_vals)
-  add_static(src, tb_keys, tb_vals)
+  add_constants(src, tb_keys, tb_vals)
   for _,v in ipairs(t_winapi) do
     table.insert(tb_keys, v)
     table.insert(tb_vals, v)
