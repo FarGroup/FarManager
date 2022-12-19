@@ -422,6 +422,14 @@ namespace tests
 		volatile const auto Result = Max + 1;
 	}
 
+	static void seh_fp_invalid()
+	{
+		detail::set_fp_exceptions(true);
+		volatile const auto InvalidDenominator = 0.0;
+		[[maybe_unused]]
+		volatile const auto Result = InvalidDenominator / InvalidDenominator;
+	}
+
 	static void seh_breakpoint()
 	{
 		os::debug::breakpoint();
@@ -575,6 +583,7 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::seh_fp_overflow,              L"SEH floating-point overflow"sv },
 		{ tests::seh_fp_underflow,             L"SEH floating-point underflow"sv },
 		{ tests::seh_fp_inexact_result,        L"SEH floating-point inexact result"sv },
+		{ tests::seh_fp_invalid,               L"SEH floating-point invalid operation"sv },
 		{ tests::seh_breakpoint,               L"SEH breakpoint"sv },
 		{ tests::seh_alignment_fault,          L"SEH alignment fault"sv },
 		{ tests::seh_unknown,                  L"SEH unknown"sv },

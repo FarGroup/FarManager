@@ -48,6 +48,30 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+#if COMPILER(GCC)
+#include "common/cpp.hpp"
+
+TEST_CASE("cpp.const_return")
+{
+	STATIC_REQUIRE(std::same_as<decltype(     wcschr(L"", '0')), wchar_t const*>);
+	STATIC_REQUIRE(std::same_as<decltype(std::wcschr(L"", '0')), wchar_t const*>);
+
+	STATIC_REQUIRE(std::same_as<decltype(     wcspbrk(L"", L"")), wchar_t const*>);
+	STATIC_REQUIRE(std::same_as<decltype(std::wcspbrk(L"", L"")), wchar_t const*>);
+
+	STATIC_REQUIRE(std::same_as<decltype(     wcsrchr(L"", '0')), wchar_t const*>);
+	STATIC_REQUIRE(std::same_as<decltype(std::wcsrchr(L"", '0')), wchar_t const*>);
+
+	STATIC_REQUIRE(std::same_as<decltype(     wcsstr(L"", L"")), wchar_t const*>);
+	STATIC_REQUIRE(std::same_as<decltype(std::wcsstr(L"", L"")), wchar_t const*>);
+
+	STATIC_REQUIRE(std::same_as<decltype(     wmemchr(L"", L'0', 0)), wchar_t const*>);
+	STATIC_REQUIRE(std::same_as<decltype(std::wmemchr(L"", L'0', 0)), wchar_t const*>);
+}
+#endif
+
+//----------------------------------------------------------------------------
+
 #include "common/2d/matrix.hpp"
 
 TEST_CASE("2d.matrix")
@@ -1424,6 +1448,23 @@ TEST_CASE("string_utils.generic_lookup")
 
 #include "common/utility.hpp"
 
+TEST_CASE("utility.base")
+{
+	struct c
+	{
+	};
+
+	struct d: base<c>
+	{
+		d()
+		{
+			STATIC_REQUIRE(std::same_as<d::base_type, c>);
+			STATIC_REQUIRE(std::same_as<d::base_ctor, base<c>>);
+		}
+	}
+	D;
+}
+
 TEST_CASE("utility.grow_exp_noshrink")
 {
 	static const struct
@@ -1515,6 +1556,18 @@ TEST_CASE("utility.hash_range")
 	REQUIRE(h2 != h3);
 }
 
+TEST_CASE("utility.sign")
+{
+	STATIC_REQUIRE(std::same_as<decltype(as_signed(0u)), signed>);
+	STATIC_REQUIRE(std::same_as<decltype(as_unsigned(0)), unsigned>);
+}
+
+TEST_CASE("utility.bit")
+{
+	STATIC_REQUIRE(0_bit == 1ull << 0);
+	STATIC_REQUIRE(63_bit == 1ull << 63);
+}
+
 TEST_CASE("utility.flags")
 {
 	using flags_type = uint8_t;
@@ -1602,6 +1655,94 @@ TEST_CASE("utility.aligned_size")
 		const size_t Expected = std::ceil(static_cast<double>(i) / Alignment) * Alignment;
 		REQUIRE(aligned_size(i) == Expected);
 	}
+}
+
+TEST_CASE("utility.is_aligned")
+{
+	{
+		const int i = 42;
+		REQUIRE(is_aligned(i));
+	}
+
+	{
+		alignas(int) const char data[sizeof(int) * 2]{};
+		static_assert(sizeof(int) > sizeof(char));
+
+		REQUIRE(is_aligned(view_as<int>(data, 0)));
+		REQUIRE(!is_aligned(view_as<int>(data, 1)));
+		REQUIRE(!is_aligned(view_as<int>(data, sizeof(int) - 1)));
+		REQUIRE(is_aligned(view_as<int>(data, sizeof(int))));
+		REQUIRE(!is_aligned(view_as<int>(data, sizeof(int) + 1)));
+	}
+}
+
+TEST_CASE("utility.enum_helpers")
+{
+	enum class e
+	{
+		foo = 1,
+		bar = 2,
+	};
+
+	{
+		constexpr auto r = enum_helpers::operation<std::plus<>>(e::foo, e::bar);
+		STATIC_REQUIRE(std::same_as<decltype(r), e const>);
+		STATIC_REQUIRE(std::to_underlying(r) == 3);
+	}
+
+	{
+		constexpr auto r = enum_helpers::operation<std::bit_and<>, int>(e::foo, e::bar);
+		STATIC_REQUIRE(std::same_as<decltype(r), int const>);
+		STATIC_REQUIRE(r == 0);
+	}
+}
+
+TEST_CASE("utility.overload")
+{
+	const auto Composite = overload
+	{
+		[](int i){ return i; },
+		[](bool b){ return b; },
+		[](auto a) { return a; }
+	};
+
+	STATIC_REQUIRE(std::same_as<decltype(Composite(42)), int>);
+	STATIC_REQUIRE(std::same_as<decltype(Composite(false)), bool>);
+	STATIC_REQUIRE(std::same_as<decltype(Composite(0.5)), double>);
+}
+
+TEST_CASE("utility.casts")
+{
+	int Data[]{ 42, 24 };
+	void* Ptr = &Data;
+
+	auto& Object1View = view_as<int>(Ptr);
+	STATIC_REQUIRE(std::same_as<decltype(Object1View), int const&>);
+	REQUIRE(&Object1View == &Data[0]);
+
+	auto& Object2View = view_as<int>(Ptr, sizeof(int));
+	STATIC_REQUIRE(std::same_as<decltype(Object2View), int const&>);
+	REQUIRE(&Object2View == &Data[1]);
+
+	auto Object1OptView = view_as_opt<int>(Ptr, sizeof(Data), 0);
+	STATIC_REQUIRE(std::same_as<decltype(Object1OptView), int const*>);
+	REQUIRE(Object1OptView == &Data[0]);
+
+	auto Object2OptView = view_as_opt<int>(Ptr, sizeof(Data), sizeof(int) * 1);
+	STATIC_REQUIRE(std::same_as<decltype(Object2OptView), int const*>);
+	REQUIRE(Object2OptView == &Data[1]);
+
+	auto Object3OptView = view_as_opt<int>(Ptr, sizeof(Data), sizeof(int) * 2);
+	STATIC_REQUIRE(std::same_as<decltype(Object1OptView), int const*>);
+	REQUIRE(Object3OptView == nullptr);
+
+	auto& Object1Edit = edit_as<int>(Ptr);
+	STATIC_REQUIRE(std::same_as<decltype(Object1Edit), int&>);
+	REQUIRE(&Object1View == &Data[0]);
+
+	auto& Object2Edit = edit_as<int>(Ptr, sizeof(int) * 1);
+	STATIC_REQUIRE(std::same_as<decltype(Object2Edit), int&>);
+	REQUIRE(&Object2Edit == &Data[1]);
 }
 
 namespace utility_integers_detail

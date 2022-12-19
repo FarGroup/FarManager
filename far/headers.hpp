@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <any>
 #include <array>
 #include <atomic>
+#include <bit>
 #include <bitset>
 #include <chrono>
 #include <concepts>

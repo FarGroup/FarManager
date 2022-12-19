@@ -90,6 +90,7 @@ static auto& operator|=(cdrom_device_capabilities& This, cdrom_device_capabiliti
 template<typename T, size_t N, size_t... I>
 static auto write_value_to_big_endian_impl(unsigned char (&Dest)[N], T const Value, std::index_sequence<I...>)
 {
+	static_assert(std::endian::native == std::endian::little, "No way");
 	(..., (Dest[N - I - 1] = (Value >> (8 * I) & 0xFF)));
 }
 
@@ -102,6 +103,7 @@ static auto write_value_to_big_endian(unsigned char (&Dest)[N], T const Value)
 template<typename T, size_t N, size_t... I>
 static auto read_value_from_big_endian_impl(unsigned char const (&Src)[N], std::index_sequence<I...>)
 {
+	static_assert(std::endian::native == std::endian::little, "No way");
 	static_assert(sizeof(T) >= N);
 	return T((... | (T(Src[I]) << (8 * (N - I - 1)))));
 }
@@ -486,7 +488,7 @@ bool is_removable_usb(string_view RootDir)
 
 #include "testing.hpp"
 
-TEST_CASE("product_id_to_capatibilities")
+TEST_CASE("cddrv.product_id_to_capatibilities")
 {
 	static const struct
 	{
@@ -516,4 +518,16 @@ TEST_CASE("product_id_to_capatibilities")
 		REQUIRE(i.Result == product_id_to_capatibilities(i.Src));
 	}
 }
+
+TEST_CASE("cddrv.big_endian")
+{
+	std::uint32_t const Value = 0x123456;
+	unsigned char Buffer[3];
+	write_value_to_big_endian(Buffer, Value);
+	REQUIRE((Buffer[0] == 0x12 && Buffer[1] == 0x34 && Buffer[2] == 0x56));
+
+	const auto ValueCopy = read_value_from_big_endian<decltype(Value)>(Buffer);
+	REQUIRE(ValueCopy == Value);
+}
+
 #endif
