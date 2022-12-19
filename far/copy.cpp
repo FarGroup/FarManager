@@ -116,8 +116,6 @@ class ShellCopy : noncopyable
 public:
 	ShellCopy(panel_ptr SrcPanel, bool Move, bool Link, bool CurrentOnly, bool Ask, int& ToPlugin, string* PluginDestPath, bool ToSubdir);
 
-	DWORD CopyProgressRoutine(unsigned long long TotalFileSize, unsigned long long TotalBytesTransferred, unsigned long long StreamSize, unsigned long long StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE hSourceFile, HANDLE hDestinationFile);
-
 	enum class security
 	{
 		do_nothing,
@@ -3278,39 +3276,56 @@ void ShellCopy::ResetSecurity(const string_view FileName)
 
 bool ShellCopy::ShellSystemCopy(const string_view SrcName, const string_view DestName, const os::fs::find_data &SrcData)
 {
+	m_FileHandleForStreamSizeFix = nullptr;
+	std::exception_ptr ExceptionPtr;
+
+	const auto callback = [&](
+		unsigned long long TotalFileSize,
+		unsigned long long TotalBytesTransferred,
+		unsigned long long StreamSize,
+		unsigned long long StreamBytesTransferred,
+		DWORD StreamNumber,
+		DWORD CallbackReason,
+		HANDLE SourceFile,
+		HANDLE DestinationFile
+	)
+	{
+		return cpp_try(
+		[&]
+		{
+			bool Abort = false;
+			if (CP->IsCancelled())
+			{
+				Abort=true;
+			}
+
+			CheckAndUpdateConsole();
+			//fix total size
+			if (StreamNumber == 1 && SourceFile != m_FileHandleForStreamSizeFix)
+			{
+				CP->add_total_bytes(TotalFileSize - StreamSize);
+				CP->set_current_total(TotalFileSize);
+				m_FileHandleForStreamSizeFix = SourceFile;
+			}
+
+			CP->set_current_copied(TotalBytesTransferred);
+
+			return Abort?
+				PROGRESS_CANCEL :
+				PROGRESS_CONTINUE;
+		},
+		[&]
+		{
+			SAVE_EXCEPTION_TO(ExceptionPtr);
+			return PROGRESS_CANCEL;
+		});
+	};
+
 	const auto sd = GetSecurity(SrcName);
 
-	m_FileHandleForStreamSizeFix = nullptr;
-
-	struct callback_data
+	if (!os::fs::copy_file(SrcName, DestName, callback, {}, Flags & FCOPY_DECRYPTED_DESTINATION? COPY_FILE_ALLOW_DECRYPTED_DESTINATION : 0))
 	{
-		ShellCopy* Owner;
-		std::exception_ptr ExceptionPtr;
-	};
-
-	struct callback_wrapper
-	{
-		static DWORD CALLBACK callback(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile, HANDLE DestinationFile, LPVOID Data)
-		{
-			const auto CallbackData = static_cast<callback_data*>(Data);
-
-			return cpp_try(
-			[&]
-			{
-				return CallbackData->Owner->CopyProgressRoutine(TotalFileSize.QuadPart, TotalBytesTransferred.QuadPart, StreamSize.QuadPart, StreamBytesTransferred.QuadPart, StreamNumber, CallbackReason, SourceFile, DestinationFile);
-			},
-			[&]
-			{
-				SAVE_EXCEPTION_TO(CallbackData->ExceptionPtr);
-				return PROGRESS_CANCEL;
-			});
-		}
-	};
-
-	callback_data CallbackData{ this };
-	if (!os::fs::copy_file(SrcName, DestName, callback_wrapper::callback, &CallbackData, nullptr, Flags&FCOPY_DECRYPTED_DESTINATION ? COPY_FILE_ALLOW_DECRYPTED_DESTINATION : 0))
-	{
-		rethrow_if(CallbackData.ExceptionPtr);
+		rethrow_if(ExceptionPtr);
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 		if (GetLastError() == ERROR_REQUEST_ABORTED)
 			cancel_operation();
@@ -3332,28 +3347,6 @@ bool ShellCopy::ShellSystemCopy(const string_view SrcName, const string_view Des
 	}
 
 	return true;
-}
-
-DWORD ShellCopy::CopyProgressRoutine(unsigned long long TotalFileSize, unsigned long long TotalBytesTransferred, unsigned long long StreamSize, unsigned long long StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE hSourceFile, HANDLE hDestinationFile)
-{
-	bool Abort = false;
-	if (CP->IsCancelled())
-	{
-		Abort=true;
-	}
-
-	CheckAndUpdateConsole();
-	//fix total size
-	if (StreamNumber == 1 && hSourceFile != m_FileHandleForStreamSizeFix)
-	{
-		CP->add_total_bytes(TotalFileSize - StreamSize);
-		CP->set_current_total(TotalFileSize);
-		m_FileHandleForStreamSizeFix = hSourceFile;
-	}
-
-	CP->set_current_copied(TotalBytesTransferred);
-
-	return Abort?PROGRESS_CANCEL:PROGRESS_CONTINUE;
 }
 
 std::pair<unsigned long long, unsigned long long> ShellCopy::CalcTotalSize() const

@@ -1887,7 +1887,31 @@ namespace os::fs
 		return false;
 	}
 
-	bool copy_file(const string_view ExistingFileName, const string_view NewFileName, const LPPROGRESS_ROUTINE ProgressRoutine, void* const Data, BOOL* const Cancel, const DWORD CopyFlags)
+	static DWORD WINAPI progress_routine_wrapper(
+		LARGE_INTEGER const TotalFileSize,
+		LARGE_INTEGER const TotalBytesTransferred,
+		LARGE_INTEGER const StreamSize,
+		LARGE_INTEGER const StreamBytesTransferred,
+		DWORD const StreamNumber,
+		DWORD const CallbackReason,
+		HANDLE const SourceFile,
+		HANDLE const DestinationFile,
+		void* const Data)
+	{
+		const auto Routine = view_as<progress_routine>(Data);
+		return Routine(
+			TotalFileSize.QuadPart,
+			TotalBytesTransferred.QuadPart,
+			StreamSize.QuadPart,
+			StreamBytesTransferred.QuadPart,
+			StreamNumber,
+			CallbackReason,
+			SourceFile,
+			DestinationFile
+		);
+	}
+
+	bool copy_file(const string_view ExistingFileName, const string_view NewFileName, progress_routine ProgressRoutine, BOOL* const Cancel, const DWORD CopyFlags)
 	{
 		const NTPath strFrom(ExistingFileName);
 		NTPath strTo(NewFileName);
@@ -1897,7 +1921,10 @@ namespace os::fs
 			append(strTo, PointToName(strFrom));
 		}
 
-		if (low::copy_file(strFrom.c_str(), strTo.c_str(), ProgressRoutine, Data, Cancel, CopyFlags))
+		const auto RoutinePtr = ProgressRoutine? &progress_routine_wrapper : nullptr;
+		const auto DataPtr = ProgressRoutine? &ProgressRoutine : nullptr;
+
+		if (low::copy_file(strFrom.c_str(), strTo.c_str(), RoutinePtr, DataPtr, Cancel, CopyFlags))
 			return true;
 
 		const auto LastError = last_error();
@@ -1915,7 +1942,7 @@ namespace os::fs
 		}
 
 		if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
-			return elevation::instance().copy_file(strFrom, strTo, ProgressRoutine, Data, Cancel, CopyFlags);
+			return elevation::instance().copy_file(strFrom, strTo, RoutinePtr, DataPtr, Cancel, CopyFlags);
 
 		return false;
 	}
