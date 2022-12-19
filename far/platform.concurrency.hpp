@@ -227,8 +227,6 @@ namespace os::concurrency
 	private:
 		void initialise_impl(std::chrono::milliseconds DueTime, std::chrono::milliseconds Period);
 
-		static void CALLBACK wrapper(void* Parameter, BOOLEAN);
-
 		// Indirection to have a permanent address for move
 		std::unique_ptr<std::function<void()>> m_Callable;
 

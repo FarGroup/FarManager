@@ -436,10 +436,10 @@ namespace os::fs
 		if (!QueryResult)
 			return nullptr;
 
-		const auto DirectoryInfo = view_as<const FILE_ID_BOTH_DIR_INFORMATION*>(Handle->BufferBase.data());
-		DirectoryInfoToFindData(*DirectoryInfo, FindData, Handle->Extended);
+		const auto& DirectoryInfo = view_as<FILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase.data());
+		DirectoryInfoToFindData(DirectoryInfo, FindData, Handle->Extended);
 		fill_allocation_size_alternative(FindData, Directory);
-		Handle->NextOffset = DirectoryInfo->NextEntryOffset;
+		Handle->NextOffset = DirectoryInfo.NextEntryOffset;
 		return find_file_handle(Handle.release());
 	}
 
@@ -658,11 +658,11 @@ namespace os::fs
 		if (!Handle->NextOffset)
 			return false;
 
-		const auto StreamInfo = view_as<const FILE_STREAM_INFORMATION*>(Handle->BufferBase.data() + Handle->NextOffset);
-		Handle->NextOffset = StreamInfo->NextEntryOffset? Handle->NextOffset + StreamInfo->NextEntryOffset : 0;
+		const auto& StreamInfo = view_as<FILE_STREAM_INFORMATION>(Handle->BufferBase.data() + Handle->NextOffset);
+		Handle->NextOffset = StreamInfo.NextEntryOffset? Handle->NextOffset + StreamInfo.NextEntryOffset : 0;
 		const auto StreamData = static_cast<WIN32_FIND_STREAM_DATA*>(FindStreamData);
 
-		return FileStreamInformationToFindStreamData(*StreamInfo, *StreamData);
+		return FileStreamInformationToFindStreamData(StreamInfo, *StreamData);
 	}
 
 	enum_streams::enum_streams(const string_view Object):

@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "log.hpp"
 #include "char_width.hpp"
+#include "exception_handler.hpp"
 
 // Platform:
 #include "platform.concurrency.hpp"
@@ -64,7 +65,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.security.hpp"
 
 // Common:
-#include "common/function_ref.hpp"
 
 // External:
 #include "format.hpp"
@@ -176,7 +176,7 @@ static void CancelSynchronousIoWrapper(void* Thread)
 	CancelIoInProgress().reset();
 }
 
-static BOOL WINAPI CtrlHandler(DWORD CtrlType)
+static BOOL control_handler(DWORD CtrlType)
 {
 	switch(CtrlType)
 	{
@@ -216,6 +216,19 @@ static BOOL WINAPI CtrlHandler(DWORD CtrlType)
 		//return TRUE;
 	}
 	return FALSE;
+}
+
+static BOOL WINAPI CtrlHandler(DWORD CtrlType)
+{
+	return cpp_try(
+	[&]
+	{
+		return control_handler(CtrlType);
+	},
+	[&]
+	{
+		return FALSE;
+	});
 }
 
 static bool ConsoleGlobalKeysHook(const Manager::Key& key)
