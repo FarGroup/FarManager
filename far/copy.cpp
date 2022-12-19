@@ -67,7 +67,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "lang.hpp"
 #include "manager.hpp"
 #include "copy_progress.hpp"
-#include "string_utils.hpp"
 #include "cvtname.hpp"
 #include "exception_handler.hpp"
 #include "global.hpp"
@@ -125,10 +124,10 @@ public:
 
 private:
 	// called by ShellCopy
-	void copy_selected_items(string_view Dest);
+	void copy_selected_items(string_view Dest, std::optional<error_state_ex>& ErrorState);
 
 	// called by copy_selected_items 4 times
-	COPY_CODES ShellCopyOneFile(string_view Src, const os::fs::find_data& SrcData, string& strDest, int KeepPathPos, bool Rename);
+	COPY_CODES ShellCopyOneFile(string_view Src, const os::fs::find_data& SrcData, string& strDest, int KeepPathPos, bool Rename, std::optional<error_state_ex>& ErrorState);
 
 	void CheckStreams(string_view Src, string_view DestPath);
 
@@ -1355,7 +1354,9 @@ ShellCopy::ShellCopy(
 
 		NeedDizUpdate = true;
 
-		copy_selected_items(strNameTmp);
+		std::optional<error_state_ex> ErrorState;
+
+		copy_selected_items(strNameTmp, ErrorState);
 
 		flags::change(Flags, FCOPY_COPYSYMLINKCONTENTS, OldCopySymlinkContents);
 
@@ -1376,7 +1377,7 @@ ShellCopy::ShellCopy(
 }
 
 
-void ShellCopy::copy_selected_items(const string_view Dest)
+void ShellCopy::copy_selected_items(const string_view Dest, std::optional<error_state_ex>& ErrorState)
 {
 	//SaveScreen SaveScr;
 	os::fs::attributes DestAttr = INVALID_FILE_ATTRIBUTES;
@@ -1486,9 +1487,9 @@ void ShellCopy::copy_selected_items(const string_view Dest)
 				auto Exists_2 = Exists_1;
 				while ( !Exists_2 && !SkipErrors)
 				{
-					const auto ErrorState = os::last_error();
+					ErrorState = os::last_error();
 
-					switch (OperationFailed(ErrorState, strDestDriveRoot, lng::MError, {}))
+					switch (OperationFailed(*ErrorState, strDestDriveRoot, lng::MError, {}))
 					{
 					case operation::retry:
 						Exists_2 = os::fs::exists(strDestDriveRoot);
@@ -1547,7 +1548,7 @@ void ShellCopy::copy_selected_items(const string_view Dest)
 
 		if (RPT==RP_JUNCTION || RPT==RP_SYMLINK || RPT==RP_SYMLINKFILE || RPT==RP_SYMLINKDIR)
 		{
-			if (!MkSymLink(i.FileName, strDest, RPT))
+			if (!MkSymLink(i.FileName, strDest, RPT, ErrorState))
 				return;
 
 			// Отметим (Ins) несколько каталогов, ALT-F6 Enter - выделение с папок не снялось.
@@ -1570,7 +1571,7 @@ void ShellCopy::copy_selected_items(const string_view Dest)
 				do
 				{
 					// attempt to move
-					CopyCode = ShellCopyOneFile(i.FileName, i, strDestPath, KeepPathPos, true);
+					CopyCode = ShellCopyOneFile(i.FileName, i, strDestPath, KeepPathPos, true, ErrorState);
 				}
 				while (CopyCode==COPY_RETRY);
 
@@ -1616,7 +1617,7 @@ void ShellCopy::copy_selected_items(const string_view Dest)
 			{
 				// copy or fallback from move
 				// for directories this only creates the top directory, the content is copied later (see below)
-				CopyCode = ShellCopyOneFile(i.FileName, i, strCopyDest, KeepPathPos, false);
+				CopyCode = ShellCopyOneFile(i.FileName, i, strCopyDest, KeepPathPos, false, ErrorState);
 			}
 			while (CopyCode==COPY_RETRY);
 
@@ -1686,7 +1687,7 @@ void ShellCopy::copy_selected_items(const string_view Dest)
 
 						do
 						{
-							Ret=ShellCopyOneFile(strFullName,SrcData,strCopyDest,KeepPathPos,NeedRename);
+							Ret = ShellCopyOneFile(strFullName, SrcData, strCopyDest, KeepPathPos, NeedRename, ErrorState);
 						}
 						while (Ret==COPY_RETRY);
 
@@ -1728,7 +1729,7 @@ void ShellCopy::copy_selected_items(const string_view Dest)
 
 					do
 					{
-						SubCopyCode = ShellCopyOneFile(strFullName, SrcData, strCopyDest, KeepPathPos, false);
+						SubCopyCode = ShellCopyOneFile(strFullName, SrcData, strCopyDest, KeepPathPos, false, ErrorState);
 					}
 					while (SubCopyCode==COPY_RETRY);
 
@@ -1793,7 +1794,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
     const os::fs::find_data &SrcData,
     string &strDest,
 	int const KeepPathPos,
-	bool const Rename
+	bool const Rename,
+	std::optional<error_state_ex>& ErrorState
 )
 {
 	CP->reset_current();
@@ -1940,8 +1942,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				// Пытаемся переименовать, пока не отменят
 				while (!os::fs::move_file(Src, strDestPath))
 				{
-					const auto ErrorState = os::last_error();
-					switch (OperationFailed(ErrorState, Src, lng::MError, msg(lng::MCopyCannotRenameFolder), true, false))
+					ErrorState = os::last_error();
+					switch (OperationFailed(*ErrorState, Src, lng::MError, msg(lng::MCopyCannotRenameFolder), true, false))
 					{
 					case operation::retry:
 						continue;
@@ -2009,8 +2011,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					strDestPath,
 					sd? &SecAttr : nullptr))
 				{
-					const auto ErrorState = os::last_error();
-					const auto MsgCode = Message(MSG_WARNING, ErrorState,
+					ErrorState = os::last_error();
+					const auto MsgCode = Message(MSG_WARNING, *ErrorState,
 						msg(lng::MError),
 						{
 							msg(lng::MCopyCannotCreateFolder),
@@ -2048,7 +2050,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			// Directory symbolic links and junction points are handled by CreateDirectoryEx.
 			if (!IsDirectory && IsReparsePoint && !CopySymlinkContents && RPT == RP_EXACTCOPY)
 			{
-				if (!MkSymLink(Src, strDestPath, RPT))
+				if (!MkSymLink(Src, strDestPath, RPT, ErrorState))
 					return COPY_FAILURE;
 			}
 
@@ -2081,8 +2083,6 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 		for (;;)
 		{
-			std::optional<error_state_ex> ErrorState;
-
 			if (!(Flags&FCOPY_COPYTONUL) && Rename)
 			{
 				int AskDelete;
@@ -2432,11 +2432,11 @@ bool ShellCopy::ShellCopyFile(
 				LOGWARNING(L"delete_file({}): {}"sv, strDestName, os::last_error());
 			}
 
-			return MkHardLink(SrcName,strDestName);
+			return MkHardLink(SrcName,strDestName, ErrorState, true);
 		}
 		else
 		{
-			return MkSymLink(SrcName, strDestName, RPT);
+			return MkSymLink(SrcName, strDestName, RPT, ErrorState, true);
 		}
 	}
 
@@ -2817,27 +2817,28 @@ intptr_t ShellCopy::WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* P
 	{
 		case DM_OPENVIEWER:
 		{
-			if (const auto WFN = view_as<const file_names_for_overwrite_dialog*>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr)))
-			{
-				NamesList List;
-				List.AddName(*WFN->Src);
-				List.AddName(*WFN->Dest);
-				const auto ViewName = *(Param1 == WDLG_SRCFILEBTN ? WFN->Src : WFN->Dest);
-				List.SetCurName(ViewName);
+			const auto& WFN = view_as<const file_names_for_overwrite_dialog>(Dlg->SendMessage(DM_GETDLGDATA, 0, nullptr));
 
-				const auto Viewer = FileViewer::create(
-					ViewName,
-					false,
-					false,
-					true,
-					-1,
-					{},
-					&List,
-					false);
+			NamesList List;
+			List.AddName(*WFN.Src);
+			List.AddName(*WFN.Dest);
+			const auto ViewName = *(Param1 == WDLG_SRCFILEBTN? WFN.Src : WFN.Dest);
+			List.SetCurName(ViewName);
 
-				if (Viewer->GetExitCode()) Global->WindowManager->ExecuteModal(Viewer);
-				Global->WindowManager->ResizeAllWindows();
-			}
+			const auto Viewer = FileViewer::create(
+				ViewName,
+				false,
+				false,
+				true,
+				-1,
+				{},
+				&List,
+				false);
+
+			if (Viewer->GetExitCode())
+				Global->WindowManager->ExecuteModal(Viewer);
+
+			Global->WindowManager->ResizeAllWindows();
 		}
 		break;
 		case DN_CTLCOLORDLGITEM:
