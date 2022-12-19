@@ -66,6 +66,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <atomic>
 #include <bitset>
 #include <chrono>
+#include <concepts>
 #include <forward_list>
 #include <fstream>
 #include <functional>
@@ -122,7 +123,7 @@ inline namespace literals
 	using namespace std::literals;
 }
 
-static_assert(std::is_unsigned_v<char>);
+static_assert(std::unsigned_integral<char>);
 static_assert(sizeof(wchar_t) == 2);
 static_assert("𠜎"sv == "\xF0\xA0\x9C\x8E"sv);
 

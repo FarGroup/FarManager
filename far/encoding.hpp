@@ -300,11 +300,11 @@ private:
 		[[maybe_unused]] char const Char
 	)
 	{
-		if constexpr (std::is_same_v<T, wchar_t>)
+		if constexpr (std::same_as<T, wchar_t>)
 			return WideChar;
 		else
 		{
-			static_assert(std::is_same_v<T, char>);
+			static_assert(std::same_as<T, char>);
 			return Char;
 		}
 	}

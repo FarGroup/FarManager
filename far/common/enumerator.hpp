@@ -180,7 +180,7 @@ public:
 	auto empty() const { return cbegin() == cend(); }
 
 protected:
-	enumerator() { static_assert(std::is_base_of_v<enumerator, Derived>); }
+	enumerator() { static_assert(std::derived_from<Derived, enumerator>); }
 
 private:
 	template<typename iterator_type, typename owner_type>

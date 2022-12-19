@@ -69,13 +69,13 @@ class wm_listener;
 namespace detail
 {
 	template<typename type>
-	concept with_payload = requires(type&& t)
+	concept with_payload = requires(type t)
 	{
 		t(std::declval<std::any>());
 	};
 
 	template<typename type>
-	concept without_payload = requires(type&& t)
+	concept without_payload = requires(type t)
 	{
 		t();
 	};
@@ -83,14 +83,12 @@ namespace detail
 	class event_handler: public std::function<void(const std::any&)>
 	{
 	public:
-		template<typename callable_type> requires with_payload<callable_type>
-		explicit event_handler(callable_type&& Handler):
+		explicit event_handler(with_payload auto&& Handler):
 			function(FWD(Handler))
 		{
 		}
 
-		template<typename callable_type> requires without_payload<callable_type>
-		explicit event_handler(callable_type&& Handler):
+		explicit event_handler(without_payload auto&& Handler):
 			function([Handler = FWD(Handler)](const std::any&) { Handler(); })
 		{
 		}

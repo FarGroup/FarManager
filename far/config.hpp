@@ -296,7 +296,7 @@ namespace detail
 		OptionImpl():
 			Option(base_type())
 		{
-			static_assert(std::is_base_of_v<OptionImpl, derived>);
+			static_assert(std::derived_from<derived, OptionImpl>);
 		}
 
 		auto& operator=(const base_type& Value)

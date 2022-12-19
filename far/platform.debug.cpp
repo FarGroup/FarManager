@@ -194,7 +194,7 @@ namespace os::debug
 		StackFrame.AddrFrame = address(Data.Frame);
 		StackFrame.AddrStack = address(Data.Stack);
 
-		if constexpr (std::is_same_v<T, STACKFRAME_EX>)
+		if constexpr (std::same_as<T, STACKFRAME_EX>)
 		{
 			StackFrame.StackFrameSize = sizeof(StackFrame);
 		}
@@ -206,7 +206,7 @@ namespace os::debug
 			// we always use it with the current process only.
 
 			DWORD InlineFrameContext;
-			if constexpr (std::is_same_v<T, STACKFRAME_EX>)
+			if constexpr (std::same_as<T, STACKFRAME_EX>)
 				InlineFrameContext = StackFrame.InlineFrameContext;
 			else
 				InlineFrameContext = 0;
@@ -494,7 +494,7 @@ namespace os::debug::symbols
 		{
 			Buffer.info.SizeOfStruct = sizeof(Buffer.info);
 
-			constexpr auto IsOldApi = std::is_same_v<decltype(Buffer.info), IMAGEHLP_SYMBOL64>;
+			constexpr auto IsOldApi = std::same_as<decltype(Buffer.info), IMAGEHLP_SYMBOL64>;
 			if constexpr (IsOldApi)
 			{
 				// This one is for Win2k, which doesn't have SymFromAddr.

@@ -596,7 +596,7 @@ namespace os::clipboard
 
 		for (const auto& i: enum_substrings(Names))
 		{
-			if constexpr (std::is_same_v<char_type, wchar_t>)
+			if constexpr (std::same_as<char_type, wchar_t>)
 			{
 				append(To, i, Eol);
 			}

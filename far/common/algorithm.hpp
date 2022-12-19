@@ -81,7 +81,7 @@ void apply_permutation(Iter1 first, Iter1 last, Iter2 indices)
 namespace detail
 {
 	template<typename type>
-	concept has_emplace_hint = requires(type&& t)
+	concept has_emplace_hint = requires(type t)
 	{
 		t.emplace_hint(t.end(), *t.begin());
 	};
@@ -102,25 +102,25 @@ void emplace(container& Container, args&&... Args)
 namespace detail
 {
 	template<typename type>
-	concept has_contains = requires(type&& t)
+	concept has_contains = requires(type t)
 	{
 		t.contains(std::declval<typename type::key_type&>());
 	};
 }
 
-template<typename container, typename element> requires is_range<container>
+template<typename element>
 [[nodiscard]]
-constexpr bool contains(const container& Container, const element& Element)
+constexpr bool contains(range_like auto const& Range, const element& Element)
 {
-	if constexpr (detail::has_contains<container>)
+	if constexpr (detail::has_contains<decltype(Range)>)
 	{
-		return Container.contains(Element);
+		return Range.contains(Element);
 	}
 	else
 	{
 		// everything else
-		const auto End = std::cend(Container);
-		return std::find(std::cbegin(Container), End, Element) != End;
+		const auto End = std::cend(Range);
+		return std::find(std::cbegin(Range), End, Element) != End;
 	}
 }
 

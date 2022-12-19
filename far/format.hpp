@@ -158,7 +158,7 @@ namespace detail
 	};
 
 	template<typename type>
-	concept has_to_string = requires(type&& t)
+	concept has_to_string = requires(type t)
 	{
 		t.to_string();
 	};

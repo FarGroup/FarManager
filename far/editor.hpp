@@ -185,8 +185,8 @@ private:
 		numbered_iterator_t& operator--() { --base(); --m_Number; return *this; }
 
 		T& base() { return *this; }
-		const std::conditional_t<std::is_base_of_v<ConstT, T>, ConstT, T>& base() const { return *this; }
-		std::conditional_t<std::is_base_of_v<ConstT, T>, const ConstT&, ConstT> cbase() const { return *this; }
+		std::conditional_t<std::derived_from<T, ConstT>, ConstT, T> const& base() const { return *this; }
+		std::conditional_t<std::derived_from<T, ConstT>, const ConstT&, ConstT> cbase() const { return *this; }
 
 		// Intentionally not implemented, use prefix forms.
 		numbered_iterator_t operator++(int) = delete;

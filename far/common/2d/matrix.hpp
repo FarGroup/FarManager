@@ -222,7 +222,7 @@ public:
 	{
 	}
 
-	template<typename Y> requires std::is_same_v<std::remove_const_t<Y>, T>
+	template<typename Y> requires std::same_as<std::remove_const_t<Y>, T>
 	explicit matrix(const matrix_view<Y>& rhs):
 		detail::matrix_data<T>(rhs.data(), rhs.data() + rhs.size()),
 		matrix_view<T>(this->m_Buffer.data(), rhs.height(), rhs.width())
@@ -237,7 +237,7 @@ public:
 
 	COPY_ASSIGNABLE_SWAP(matrix)
 
-	template<typename Y> requires std::is_same_v<std::remove_const_t<Y>, T>
+	template<typename Y> requires std::same_as<std::remove_const_t<Y>, T>
 	matrix& operator=(const matrix_view<Y>& rhs)
 	{
 		return *this = matrix<T>(rhs);

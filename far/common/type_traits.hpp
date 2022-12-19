@@ -32,6 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <concepts>
 #include <iterator>
 #include <type_traits>
 
@@ -44,14 +45,14 @@ template<typename type, typename... args>
 inline constexpr bool is_one_of_v = is_one_of<type, args...>::value;
 
 template<typename type>
-concept is_range = requires(type&& t)
+concept range_like = requires(type&& t)
 {
 	std::begin(t);
 	std::end(t);
 };
 
 template<typename type>
-concept is_span = requires(type&& t)
+concept span_like = requires(type&& t)
 {
 	std::data(t);
 	std::size(t);
@@ -59,7 +60,7 @@ concept is_span = requires(type&& t)
 
 namespace detail
 {
-	template<typename T> requires std::is_integral_v<T> || std::is_enum_v<T>
+	template<typename T> requires std::integral<T> || std::is_enum_v<T>
 	auto sane_to_underlying(T Value)
 	{
 		if constexpr (std::is_enum_v<T>)

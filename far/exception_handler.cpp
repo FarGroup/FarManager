@@ -879,7 +879,7 @@ namespace detail
 {
 	// GCC headers for once got it right
 	template<typename type>
-	concept has_InheritedFromUniqueProcessId = requires(type&& t)
+	concept has_InheritedFromUniqueProcessId = requires(type t)
 	{
 		t.InheritedFromUniqueProcessId;
 	};
@@ -888,7 +888,7 @@ namespace detail
 	// Surprisingly, MSDN calls it InheritedFromUniqueProcessId, so it might get renamed one day.
 	// For forward compatibility it's better to use the compiler rather than the preprocessor here.
 	template<typename type>
-	concept has_Reserved3 = requires(type&& t)
+	concept has_Reserved3 = requires(type t)
 	{
 		t.Reserved3;
 	};
@@ -1437,7 +1437,7 @@ private:
 	std::vector<os::debug::stack_frame> m_Stack;
 };
 
-static_assert(std::is_base_of_v<std::nested_exception, far_wrapper_exception>);
+static_assert(std::derived_from<far_wrapper_exception, std::nested_exception>);
 
 std::exception_ptr wrap_current_exception(std::string_view const Function, std::string_view const File, int const Line)
 {

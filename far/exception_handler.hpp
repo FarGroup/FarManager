@@ -149,8 +149,8 @@ auto cpp_try(callable const& Callable, unknown_handler const& UnknownHandler, st
 
 	enum
 	{
-		HasStdHandler = !std::is_same_v<std_handler, ::detail::no_handler>,
-		IsVoid = std::is_same_v<result_type, void>,
+		HasStdHandler = !std::same_as<std_handler, ::detail::no_handler>,
+		IsVoid = std::same_as<result_type, void>,
 	};
 
 	std_handler_ref StdHandlerRef = nullptr;
@@ -206,7 +206,7 @@ auto seh_try(function const& Callable, filter const& Filter, handler const& Hand
 {
 	using result_type = typename function_traits<function>::result_type;
 
-	if constexpr (std::is_same_v<result_type, void>)
+	if constexpr (std::same_as<result_type, void>)
 	{
 		::detail::seh_try(Callable, Filter, Handler);
 	}

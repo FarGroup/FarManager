@@ -211,7 +211,7 @@ template<typename raw_string_type> requires detail::is_supported_type<raw_string
 [[nodiscard]]
 bool contains(raw_string_type const& Str, raw_string_type const& What)
 {
-	if constexpr (std::is_same_v<detail::char_type<raw_string_type>, wchar_t>)
+	if constexpr (std::same_as<detail::char_type<raw_string_type>, wchar_t>)
 		return std::wcsstr(Str, What) != nullptr;
 	else
 		return std::strstr(Str, What) != nullptr;
@@ -221,7 +221,7 @@ template<typename raw_string_type> requires detail::is_supported_type<raw_string
 [[nodiscard]]
 bool contains(raw_string_type const& Str, detail::char_type<raw_string_type> const What)
 {
-	if constexpr (std::is_same_v<detail::char_type<raw_string_type>, wchar_t>)
+	if constexpr (std::same_as<detail::char_type<raw_string_type>, wchar_t>)
 		return std::wcschr(Str, What) != nullptr;
 	else
 		return std::strchr(Str, What) != nullptr;
@@ -663,7 +663,7 @@ template <typename T>
 constexpr auto make_string_view(T const Begin, T const End) noexcept
 {
 	using char_type = typename std::iterator_traits<T>::value_type;
-	static_assert(std::is_same_v<typename std::basic_string_view<char_type>::const_iterator, T>);
+	static_assert(std::same_as<typename std::basic_string_view<char_type>::const_iterator, T>);
 
 	const auto Size = static_cast<size_t>(End - Begin);
 	return std::basic_string_view<char_type>{ Size ? &*Begin : nullptr, Size };

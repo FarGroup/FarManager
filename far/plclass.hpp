@@ -278,7 +278,7 @@ public:
 	template<typename T>
 	bool has(const T& es) const
 	{
-		static_assert(std::is_base_of_v<detail::ExecuteStruct, T>);
+		static_assert(std::derived_from<T, detail::ExecuteStruct>);
 		return has(es.export_id);
 	}
 

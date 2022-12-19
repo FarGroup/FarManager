@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace detail
 {
 	template<typename type>
-	concept is_rect = requires(type&& t)
+	concept rectangle_like = requires(type t)
 	{
 		t.Left;
 		t.Top;
@@ -76,8 +76,7 @@ struct rectangle_t
 	{
 	}
 
-	template<typename Y> requires detail::is_rect<Y>
-	explicit(false) rectangle_t(Y const& Rectangle) noexcept:
+	explicit(false) rectangle_t(detail::rectangle_like auto const& Rectangle) noexcept:
 		rectangle_t(Rectangle.Left, Rectangle.Top, Rectangle.Right, Rectangle.Bottom)
 	{
 	}

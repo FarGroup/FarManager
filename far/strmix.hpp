@@ -273,13 +273,11 @@ string BlobToHexString(bytes_view Blob, wchar_t Separator = L',');
 [[nodiscard]]
 bytes HexStringToBlob(string_view Hex, wchar_t Separator = L',');
 
-template<class T>
 [[nodiscard]]
-auto to_hex_wstring(T Value)
+auto to_hex_wstring(std::integral auto Value)
 {
-	static_assert(std::is_integral_v<T>);
-	string Result(sizeof(T) * 2, '0');
-	for (int i = sizeof(T) * 2 - 1; i >= 0; --i, Value >>= 4)
+	string Result(sizeof(Value) * 2, '0');
+	for (int i = sizeof(Value) * 2 - 1; i >= 0; --i, Value >>= 4)
 		Result[i] = IntToHex(Value & 0xF);
 	return Result;
 }

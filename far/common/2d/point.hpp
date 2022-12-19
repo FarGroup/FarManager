@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace detail
 {
 	template<typename type>
-	concept is_coord = requires(type&& t)
+	concept point_like = requires(type t)
 	{
 		t.X;
 		t.Y;
@@ -58,9 +58,8 @@ struct point
 	{
 	}
 
-	template<typename T> requires detail::is_coord<T>
-	explicit(false) point(T const& Coord) noexcept:
-		point(Coord.X, Coord.Y)
+	explicit(false) point(detail::point_like auto const& Point) noexcept:
+		point(Point.X, Point.Y)
 	{
 	}
 

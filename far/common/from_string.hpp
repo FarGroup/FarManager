@@ -53,7 +53,7 @@ namespace detail
 		if (Str.empty() || Str.front() == L' ' || Str.front() == L'+')
 			return result::invalid_argument;
 
-		if constexpr(std::is_unsigned_v<result_type>)
+		if constexpr(std::unsigned_integral<result_type>)
 		{
 			if (Str.front() == L'-')
 				return result::out_of_range;

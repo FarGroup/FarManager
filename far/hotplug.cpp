@@ -157,12 +157,9 @@ public:
 		return SetupDiEnumDeviceInterfaces(m_info.native_handle(), nullptr, &InterfaceClassUuid, MemberIndex, &DeviceInterfaceData) != FALSE;
 	}
 
-	template<typename uuid_type>
 	[[nodiscard]]
-	auto DeviceInterfacesEnumerator(uuid_type&& InterfaceClassUuid) const
+	auto DeviceInterfacesEnumerator(UUID const& InterfaceClassUuid) const
 	{
-		static_assert(std::is_convertible_v<uuid_type, UUID>);
-
 		using value_type = SP_DEVICE_INTERFACE_DATA;
 		return make_inline_enumerator<value_type>([this, InterfaceClassUuid = keep_alive(FWD(InterfaceClassUuid)), Index = size_t{}](const bool Reset, value_type& Value) mutable
 		{
