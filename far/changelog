@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 20.12.2022 20:57:35 +0000 - build 6073
+
+1. gh-577: Configuration editor does not restore filtered state of unchanged options.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 19.12.2022 22:14:19 +0000 - build 6072
 
 1. Improve OS errors preserving during links creation.
