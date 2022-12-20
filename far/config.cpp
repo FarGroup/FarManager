@@ -2598,7 +2598,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 					{
 						SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-						static bool HideUnchanged = true;
+						bool HideUnchanged = true;
 
 						FarListInfo ListInfo{ sizeof(ListInfo) };
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
