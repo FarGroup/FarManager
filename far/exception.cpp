@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/string_utils.hpp"
-#include "common/view/where.hpp"
 
 // External:
 #include "format.hpp"

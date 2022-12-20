@@ -48,7 +48,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "flink.hpp"
 #include "pathmix.hpp"
-#include "strmix.hpp"
 #include "wakeful.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"

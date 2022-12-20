@@ -62,6 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrbuf.hpp"
 #include "plugapi.hpp"
 #include "message.hpp"
+#include "notification.hpp"
 #include "keyboard.hpp"
 #include "dirmix.hpp"
 #include "lockscrn.hpp"

@@ -38,13 +38,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "plclass.hpp"
 #include "mix.hpp"
-#include "notification.hpp"
 
 // Platform:
 #include "platform.fwd.hpp"
 
 // Common:
 #include "common/function_traits.hpp"
+#include "common/noncopyable.hpp"
 #include "common/range.hpp"
 #include "common/smart_ptr.hpp"
 #include "common/string_utils.hpp"

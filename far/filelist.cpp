@@ -79,6 +79,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "processname.hpp"
 #include "mix.hpp"
+#include "notification.hpp"
 #include "elevation.hpp"
 #include "uuids.far.hpp"
 #include "uuids.far.dialogs.hpp"

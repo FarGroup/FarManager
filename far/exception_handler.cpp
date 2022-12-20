@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "lang.hpp"
 #include "language.hpp"
+#include "mix.hpp"
 #include "imports.hpp"
 #include "strmix.hpp"
 #include "tracer.hpp"

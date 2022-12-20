@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.com.hpp"
+#include "platform.fs.hpp"
 
 // Common:
 #include "common/algorithm.hpp"

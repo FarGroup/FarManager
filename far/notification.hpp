@@ -39,9 +39,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.concurrency.hpp"
 
 // Common:
+#include "common/preprocessor.hpp"
 #include "common/singleton.hpp"
 #include "common/string_utils.hpp"
-#include "common/type_traits.hpp"
 
 // External:
 

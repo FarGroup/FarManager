@@ -32,7 +32,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "compiler.hpp"
 #include "preprocessor.hpp"
 #include "type_traits.hpp"
 #include "utility.hpp"

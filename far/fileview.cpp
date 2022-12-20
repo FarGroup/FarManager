@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "stddlg.hpp"
 #include "macroopcode.hpp"
+#include "notification.hpp"
 #include "plugins.hpp"
 #include "lang.hpp"
 #include "exitcode.hpp"
@@ -66,6 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.hpp"
+#include "platform.concurrency.hpp"
 #include "platform.fs.hpp"
 
 // Common:

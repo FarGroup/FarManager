@@ -54,7 +54,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/algorithm.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/from_string.hpp"
 #include "common/preprocessor.hpp"

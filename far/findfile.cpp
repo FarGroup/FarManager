@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "taskbar.hpp"
 #include "interf.hpp"
 #include "message.hpp"
+#include "notification.hpp"
 #include "delete.hpp"
 #include "datetime.hpp"
 #include "pathmix.hpp"

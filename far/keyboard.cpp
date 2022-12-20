@@ -57,12 +57,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "global.hpp"
 #include "log.hpp"
-#include "exception.hpp"
 #include "xlat.hpp"
 
 // Platform:
 #include "platform.hpp"
-#include "platform.reg.hpp"
 #include "platform.version.hpp"
 
 // Common:

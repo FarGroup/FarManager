@@ -37,9 +37,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 
 // Platform:
-#include "platform.hpp"
 
 // Common:
+#include "common/noncopyable.hpp"
 
 // External:
 
