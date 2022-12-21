@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 21.12.2022 18:22:14 +0000 - build 6074
+
+1. gh-576: Autocomplete does not work in a dialog launched from a macro.
+
+2. gh-577 again.
+
+--------------------------------------------------------------------------------
 drkns 20.12.2022 20:57:35 +0000 - build 6073
 
 1. gh-577: Configuration editor does not restore filtered state of unchanged options.
