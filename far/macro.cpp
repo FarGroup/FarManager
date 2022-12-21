@@ -976,6 +976,20 @@ bool KeyMacro::PostNewMacro(const wchar_t* Sequence,FARKEYMACROFLAGS InputFlags,
 	return CallMacroPlugin(&info);
 }
 
+bool KeyMacro::IsMacroDialog(window_ptr const& Window)
+{
+	const auto Dlg = dynamic_cast<Dialog*>(Window.get());
+	if (!Dlg)
+		return false;
+
+	const auto PluginOwner = Dlg->GetPluginOwner();
+	if (!PluginOwner)
+		return false;
+
+	const auto Id = PluginOwner->Id();
+	return Id == Global->Opt->KnownIDs.Luamacro.Id;
+}
+
 static bool CheckEditSelected(FARMACROAREA Area, unsigned long long CurFlags)
 {
 	if (Area==MACROAREA_EDITOR || Area==MACROAREA_DIALOG || Area==MACROAREA_VIEWER || (Area==MACROAREA_SHELL&&Global->CtrlObject->CmdLine()->IsVisible()))
