@@ -1053,7 +1053,7 @@ private:
 	void InitConfigsData();
 	farconfig& GetConfig(config_type Type);
 	const farconfig& GetConfig(config_type Type) const;
-	static intptr_t AdvancedConfigDlgProc(class Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	intptr_t AdvancedConfigDlgProc(class Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void SystemSettings();
 	void PanelSettings();
 	void InterfaceSettings();
@@ -1083,6 +1083,7 @@ private:
 	std::vector<farconfig> m_Configs;
 	std::vector<PanelViewSettings> m_ViewSettings;
 	bool m_ViewSettingsChanged{};
+	bool m_HideUnchanged{};
 };
 
 string GetFarIniString(string_view AppName, string_view KeyName, string_view Default);

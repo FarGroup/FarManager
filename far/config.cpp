@@ -2598,7 +2598,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 					{
 						SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-						bool HideUnchanged = true;
+						m_HideUnchanged = !m_HideUnchanged;
 
 						FarListInfo ListInfo{ sizeof(ListInfo) };
 						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
@@ -2611,7 +2611,7 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 								continue;
 
 							bool NeedUpdate = false;
-							if(HideUnchanged)
+							if(m_HideUnchanged)
 							{
 								if(!(Item.Item.Flags&LIF_CHECKED))
 								{
@@ -2633,7 +2633,6 @@ intptr_t Options::AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Para
 								Dlg->SendMessage(DM_LISTUPDATE, Param1, &UpdatedItem);
 							}
 						}
-						HideUnchanged = !HideUnchanged;
 					}
 					break;
 				}
@@ -2677,7 +2676,9 @@ bool Options::AdvancedConfig(config_type Mode)
 
 	AdvancedConfigDlg[ac_item_listbox].ListItems = &Items;
 
-	const auto Dlg = Dialog::create(AdvancedConfigDlg, &Options::AdvancedConfigDlgProc, &Strings);
+	m_HideUnchanged = false;
+
+	const auto Dlg = Dialog::create(AdvancedConfigDlg, std::bind_front(&Options::AdvancedConfigDlgProc, this), &Strings);
 	Dlg->SetHelp(L"FarConfig"sv);
 	Dlg->SetPosition({ -1, -1, DlgWidth, DlgHeight });
 	Dlg->SetId(AdvancedConfigId);
