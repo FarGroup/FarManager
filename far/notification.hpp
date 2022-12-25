@@ -39,9 +39,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.concurrency.hpp"
 
 // Common:
+#include "common/preprocessor.hpp"
 #include "common/singleton.hpp"
 #include "common/string_utils.hpp"
-#include "common/type_traits.hpp"
 
 // External:
 
@@ -68,20 +68,27 @@ class wm_listener;
 
 namespace detail
 {
-	IS_DETECTED(with_payload, std::declval<T&>()(std::declval<std::any>()));
-	IS_DETECTED(without_payload, std::declval<T&>()());
+	template<typename type>
+	concept with_payload = requires(type t)
+	{
+		t(std::declval<std::any>());
+	};
+
+	template<typename type>
+	concept without_payload = requires(type t)
+	{
+		t();
+	};
 
 	class event_handler: public std::function<void(const std::any&)>
 	{
 	public:
-		template<typename callable_type, REQUIRES(with_payload<callable_type>)>
-		explicit event_handler(callable_type&& Handler):
+		explicit event_handler(with_payload auto&& Handler):
 			function(FWD(Handler))
 		{
 		}
 
-		template<typename callable_type, REQUIRES(without_payload<callable_type>)>
-		explicit event_handler(callable_type&& Handler):
+		explicit event_handler(without_payload auto&& Handler):
 			function([Handler = FWD(Handler)](const std::any&) { Handler(); })
 		{
 		}

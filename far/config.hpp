@@ -296,7 +296,7 @@ namespace detail
 		OptionImpl():
 			Option(base_type())
 		{
-			static_assert(std::is_base_of_v<OptionImpl, derived>);
+			static_assert(std::derived_from<derived, OptionImpl>);
 		}
 
 		auto& operator=(const base_type& Value)
@@ -341,7 +341,7 @@ public:
 	void Export(FarSettingsItem& To) const override;
 
 	[[nodiscard]]
-	operator bool() const { return Get(); }
+	explicit(false) operator bool() const { return Get(); }
 };
 
 class Bool3Option final: public detail::OptionImpl<long long, Bool3Option>
@@ -361,7 +361,7 @@ public:
 	void Export(FarSettingsItem& To) const override;
 
 	[[nodiscard]]
-	operator FARCHECKEDSTATE() const { return static_cast<FARCHECKEDSTATE>(Get()); }
+	explicit(false) operator FARCHECKEDSTATE() const { return static_cast<FARCHECKEDSTATE>(Get()); }
 };
 
 class IntOption final: public detail::OptionImpl<long long, IntOption>
@@ -390,7 +390,7 @@ public:
 	IntOption& operator++(){Set(Get()+1); return *this;}
 
 	[[nodiscard]]
-	operator long long() const { return Get(); }
+	explicit(false) operator long long() const { return Get(); }
 };
 
 class StringOption final: public detail::OptionImpl<string, StringOption>
@@ -421,9 +421,9 @@ public:
 	size_t size() const { return Get().size(); }
 
 	[[nodiscard]]
-	operator const string&() const { return Get(); }
+	explicit(false) operator const string&() const { return Get(); }
 	[[nodiscard]]
-	operator string_view() const { return Get(); }
+	explicit(false) operator string_view() const { return Get(); }
 };
 
 class Options: noncopyable
@@ -1054,7 +1054,7 @@ private:
 	void InitConfigsData();
 	farconfig& GetConfig(config_type Type);
 	const farconfig& GetConfig(config_type Type) const;
-	static intptr_t AdvancedConfigDlgProc(class Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	intptr_t AdvancedConfigDlgProc(class Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void SystemSettings();
 	void PanelSettings();
 	void InterfaceSettings();
@@ -1084,6 +1084,7 @@ private:
 	std::vector<farconfig> m_Configs;
 	std::vector<PanelViewSettings> m_ViewSettings;
 	bool m_ViewSettingsChanged{};
+	bool m_HideUnchanged{};
 };
 
 string GetFarIniString(string_view AppName, string_view KeyName, string_view Default);

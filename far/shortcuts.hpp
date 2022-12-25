@@ -63,6 +63,8 @@ public:
 		string PluginFile;
 		string PluginData;
 		UUID PluginUuid{};
+
+		bool operator==(const data&) const = default;
 	};
 
 	bool Get(data& Data);

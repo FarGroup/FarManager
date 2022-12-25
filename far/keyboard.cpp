@@ -57,12 +57,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "string_utils.hpp"
 #include "global.hpp"
 #include "log.hpp"
-#include "exception.hpp"
 #include "xlat.hpp"
 
 // Platform:
 #include "platform.hpp"
-#include "platform.reg.hpp"
+#include "platform.version.hpp"
 
 // Common:
 #include "common/algorithm.hpp"
@@ -151,7 +150,7 @@ struct TFKey
 	lng LocalizedNameId;
 	string_view Name;
 
-	bool operator ==(DWORD rhsKey) const {return Key == rhsKey;}
+	bool operator==(DWORD rhsKey) const {return Key == rhsKey;}
 };
 
 static const TFKey FKeys1[]
@@ -272,67 +271,9 @@ static const TFKey ModifKeyName[]
 	{ KEY_SHIFT,    lng::MKeyShift,  L"Shift"sv, },
 };
 
-static auto get_keyboard_layout_list()
-{
-	std::vector<HKL> Result;
-
-	if (const auto LayoutNumber = GetKeyboardLayoutList(0, nullptr))
-	{
-		Result.resize(LayoutNumber);
-		Result.resize(GetKeyboardLayoutList(LayoutNumber, Result.data())); // if less than expected
-
-		return Result;
-	}
-
-	// GetKeyboardLayoutList can fail in telnet mode, which is, technically, a right thing to do.
-	// However, we still need to map the keys.
-	// The code below emulates it in the hope that your client and server layouts are more or less similar.
-	LOGWARNING(L"GetKeyboardLayoutList(): {}"sv, os::last_error());
-
-	Result.reserve(10);
-	string LayoutStr, LayoutIdStr;
-	for (const auto& i: os::reg::enum_value(os::reg::key::current_user, L"Keyboard Layout\\Preload"sv))
-	{
-		try
-		{
-			// Just to make sure we're not trying to parse some rubbish
-			[[maybe_unused]] const auto PreloadNumber = from_string<int>(i.name());
-
-			const auto PreloadStr = i.get_string();
-			const auto Preload = from_string<uint32_t>(PreloadStr, {}, 16);
-			const auto PrimaryLanguageId = extract_integer<uint16_t, 0>(Preload);
-
-			const auto LayoutValue = os::reg::key::current_user.get(L"Keyboard Layout\\Substitutes"sv, PreloadStr, LayoutStr)?
-				from_string<uint32_t>(LayoutStr, {}, 16) :
-				Preload;
-
-			const auto SecondaryLanguageId = extract_integer<uint16_t, 0>(LayoutValue);
-
-			const string_view LayoutView = LayoutValue == Preload? PreloadStr : LayoutStr;
-
-			const auto LayoutId = os::reg::key::local_machine.get(concat(L"SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts\\"sv, LayoutView), L"Layout Id"sv, LayoutIdStr)?
-				from_string<int>(LayoutIdStr, {}, 16) :
-				0;
-
-			const auto FinalLayout = make_integer<uint32_t, uint16_t>(PrimaryLanguageId, LayoutId? (LayoutId & 0xfff) | 0xf000 : SecondaryLanguageId);
-
-			Result.emplace_back(os::make_hkl(FinalLayout));
-		}
-		catch (std::exception const& e)
-		{
-			LOGWARNING(L"{}", e);
-		}
-	}
-
-	if (Result.empty())
-		Result.emplace_back(os::make_hkl(0x04090409)); // Fallback to US
-
-	return Result;
-}
-
 static auto& Layout()
 {
-	static std::vector<HKL> s_Layout = get_keyboard_layout_list();
+	static auto s_Layout = os::get_keyboard_layout_list();
 	return s_Layout;
 }
 
@@ -346,7 +287,6 @@ void InitKeysArray()
 	KeyToVKey.fill(0);
 	VKeyToASCII.fill(0);
 
-	BYTE KeyState[0x100]{};
 	//KeyToVKey - используется чтоб проверить если два символа это одна и та же кнопка на клаве
 	//*********
 	//Так как сделать полноценное мапирование между всеми раскладками не реально,
@@ -356,6 +296,16 @@ void InitKeysArray()
 	//если разные VK мапятся в тот же юникод символ то мапирование будет только для первой
 	//раскладки которая вернула этот символ
 	//
+
+	// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-tounicodeex
+	// If bit 2 is set, keyboard state is not changed (Windows 10, version 1607 and newer)
+	const auto DontChangeKeyboardState = 0b100;
+	const auto ToUnicodeFlags = os::version::is_win10_1607_or_later()?
+		DontChangeKeyboardState :
+		0;
+
+	BYTE KeyState[256]{};
+
 	for (const auto& j: irange(2))
 	{
 		KeyState[VK_SHIFT] = j * 0x80;
@@ -364,13 +314,7 @@ void InitKeysArray()
 		{
 			for (const auto& VK : irange(256))
 			{
-				wchar_t idx;
-
-				// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-tounicodeex
-				// If bit 2 is set, keyboard state is not changed (Windows 10, version 1607 and newer)
-				const auto DontChangeKeyboardState = 0b100;
-
-				if (ToUnicodeEx(VK, 0, KeyState, &idx, 1, DontChangeKeyboardState, i) > 0)
+				if (wchar_t idx; ToUnicodeEx(VK, 0, KeyState, &idx, 1, ToUnicodeFlags, i) > 0)
 				{
 					if (!KeyToVKey[idx])
 						KeyToVKey[idx] = VK + j * 0x100;
@@ -1417,7 +1361,7 @@ int KeyNameToKey(string_view Name)
 					OemPrefix = L"Oem"sv,
 					SpecPrefix = L"Spec"sv;
 
-				if (const auto IsOem = starts_with(Name, OemPrefix); IsOem || starts_with(Name, SpecPrefix))
+				if (const auto IsOem = Name.starts_with(OemPrefix); IsOem || Name.starts_with(SpecPrefix))
 				{
 					const auto Tail = Name.substr(IsOem? OemPrefix.size() : SpecPrefix.size());
 					if (Tail.size() == 5 && std::all_of(ALL_CONST_RANGE(Tail), std::iswdigit)) // Варианты (3) и (4)

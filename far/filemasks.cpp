@@ -82,7 +82,7 @@ static auto extract_masks(string_view& Str)
 
 static auto extract_re(string_view& Str)
 {
-	if (!starts_with(Str, RE_start))
+	if (!Str.starts_with(RE_start))
 		return extract_impl(Str, 0);
 
 	auto Iterator = Str.cbegin() + 1;
@@ -146,7 +146,7 @@ bool filemasks::assign(string_view Str, DWORD const Flags)
 		const auto MaskGroupNameWithBrackets = string_view(ExpandedGroups).substr(LBPos, RBPos - LBPos + 1);
 		const auto MaskGroupName = MaskGroupNameWithBrackets.substr(1, MaskGroupNameWithBrackets.size() - 2);
 
-		if (contains(UsedGroups, string_comparer::generic_key{ MaskGroupName }))
+		if (UsedGroups.contains(string_comparer::generic_key{ MaskGroupName }))
 		{
 			MaskGroupValue.clear();
 		}
@@ -194,7 +194,7 @@ bool filemasks::assign(string_view Str, DWORD const Flags)
 				DestString->append(Masks);
 			}
 
-			if (starts_with(Str, ExcludeMaskSeparator))
+			if (Str.starts_with(ExcludeMaskSeparator))
 			{
 				if (DestContainer != &Exclude)
 				{

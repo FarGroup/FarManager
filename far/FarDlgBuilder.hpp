@@ -58,9 +58,9 @@ struct DialogItemBinding;
 class lng_string
 {
 public:
-	lng_string(lng Str);
-	lng_string(const wchar_t* Str);
-	lng_string(const string& Str);
+	explicit(false) lng_string(lng Str);
+	explicit(false) lng_string(const wchar_t* Str);
+	explicit(false) lng_string(const string& Str);
 
 	const wchar_t* c_str() const;
 

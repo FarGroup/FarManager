@@ -45,6 +45,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+struct error_state_ex;
+
 enum ReparsePointTypes: int
 {
 	RP_EXACTCOPY,   // для копирования/переноса ссылок, копия существующего
@@ -56,7 +58,7 @@ enum ReparsePointTypes: int
 	RP_SYMLINKDIR,  // каталог-ссылка, NT>=6
 };
 
-bool MkHardLink(string_view ExistingName, string_view NewName, bool Silent = false);
+bool MkHardLink(string_view ExistingName, string_view NewName, std::optional<error_state_ex>& ErrorState, bool Silent = false);
 
 std::optional<size_t> GetNumberOfLinks(string_view Name);
 bool CreateVolumeMountPoint(string_view TargetVolume, const string& Object);
@@ -86,7 +88,7 @@ bool DuplicateReparsePoint(string_view Src, string_view Dst);
 
 void NormalizeSymlinkName(string &strLinkName);
 
-bool MkSymLink(string_view Target, string_view LinkName, ReparsePointTypes LinkType, bool Silent = false, bool HoldTarget = false);
+bool MkSymLink(string_view Target, string_view LinkName, ReparsePointTypes LinkType, std::optional<error_state_ex>& ErrorState, bool Silent = false, bool HoldTarget = false);
 
 bool reparse_tag_to_string(DWORD ReparseTag, string& Str);
 

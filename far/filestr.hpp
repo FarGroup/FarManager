@@ -39,10 +39,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "eol.hpp"
 
 // Platform:
-#include "platform.fs.hpp"
+#include "platform.fwd.hpp"
 
 // Common:
 #include "common/enumerator.hpp"
+#include "common/smart_ptr.hpp"
 
 // External:
 

@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enumerator.hpp"
+#include "common/function_ref.hpp"
 
 // External:
 
@@ -223,14 +224,11 @@ namespace os::fs
 		NONCOPYABLE(file);
 		MOVABLE(file);
 
-		file():
-			m_Pointer(),
-			m_NeedSyncPointer(),
-			m_ShareMode()
-		{
-		}
+		file();
 
-		template<typename... args>
+		explicit file(handle&& Handle);
+
+		template<typename... args> requires (sizeof...(args) > 1)
 		explicit file(args&&... Args)
 		{
 			(void)Open(FWD(Args)...);
@@ -518,8 +516,19 @@ namespace os::fs
 	[[nodiscard]]
 	bool delete_file(string_view FileName);
 
+	using progress_routine = function_ref<DWORD(
+		unsigned long long TotalFileSize,
+		unsigned long long TotalBytesTransferred,
+		unsigned long long StreamSize,
+		unsigned long long StreamBytesTransferred,
+		DWORD StreamNumber,
+		DWORD CallbackReason,
+		HANDLE SourceFile,
+		HANDLE DestinationFile
+	)>;
+
 	[[nodiscard]]
-	bool copy_file(string_view ExistingFileName, string_view NewFileName, LPPROGRESS_ROUTINE ProgressRoutine, void* Data, BOOL* Cancel, DWORD CopyFlags);
+	bool copy_file(string_view ExistingFileName, string_view NewFileName, progress_routine ProgressRoutine, BOOL* Cancel, DWORD CopyFlags);
 
 	[[nodiscard]]
 	bool move_file(string_view ExistingFileName, string_view NewFileName, DWORD Flags = 0);

@@ -159,7 +159,7 @@ namespace os::reg
 			return false;
 
 		Value.assign(view_as<const wchar_t*>(Buffer.data()), Buffer.size() / sizeof(wchar_t));
-		if (ends_with(Value, L'\0'))
+		if (Value.ends_with(L'\0'))
 		{
 			Value.pop_back();
 		}

@@ -77,12 +77,12 @@ enum cdrom_device_capabilities
 	CAPABILITIES_HDDVDRAM = 13_bit,
 };
 
-static auto operator | (cdrom_device_capabilities const This, cdrom_device_capabilities const Rhs)
+static auto operator|(cdrom_device_capabilities const This, cdrom_device_capabilities const Rhs)
 {
 	return static_cast<cdrom_device_capabilities>(std::to_underlying(This) | Rhs);
 }
 
-static auto& operator |= (cdrom_device_capabilities& This, cdrom_device_capabilities const Rhs)
+static auto& operator|=(cdrom_device_capabilities& This, cdrom_device_capabilities const Rhs)
 {
 	return This = This | Rhs;
 }
@@ -90,6 +90,7 @@ static auto& operator |= (cdrom_device_capabilities& This, cdrom_device_capabili
 template<typename T, size_t N, size_t... I>
 static auto write_value_to_big_endian_impl(unsigned char (&Dest)[N], T const Value, std::index_sequence<I...>)
 {
+	static_assert(std::endian::native == std::endian::little, "No way");
 	(..., (Dest[N - I - 1] = (Value >> (8 * I) & 0xFF)));
 }
 
@@ -102,6 +103,7 @@ static auto write_value_to_big_endian(unsigned char (&Dest)[N], T const Value)
 template<typename T, size_t N, size_t... I>
 static auto read_value_from_big_endian_impl(unsigned char const (&Src)[N], std::index_sequence<I...>)
 {
+	static_assert(std::endian::native == std::endian::little, "No way");
 	static_assert(sizeof(T) >= N);
 	return T((... | (T(Src[I]) << (8 * (N - I - 1)))));
 }
@@ -342,14 +344,14 @@ static auto product_id_to_capatibilities(const char* const ProductId)
 		if (
 			const auto Prefix = Id.substr(0, Pos);
 			std::any_of(ALL_CONST_RANGE(i.AntipatternsBefore),
-				[&](string_view const Str){ return ends_with(Prefix, Str); })
+				[&](string_view const Str){ return Prefix.ends_with(Str); })
 		)
 			return Value;
 
 		if (
 			const auto Suffix = Id.substr(Pos + i.Pattern.size());
 			std::any_of(ALL_CONST_RANGE(i.AntipatternsAfter),
-				[&](string_view const Str){ return starts_with(Suffix, Str); })
+				[&](string_view const Str){ return Suffix.starts_with(Str); })
 		)
 			return Value;
 
@@ -439,7 +441,7 @@ cd_type get_cdrom_type(string_view RootDir)
 	string VolumePath(RootDir);
 	DeleteEndSlash(VolumePath);
 
-	if (starts_with(VolumePath, L"\\\\?\\"sv))
+	if (VolumePath.starts_with(L"\\\\?\\"sv))
 	{
 		VolumePath[2] = L'.';
 	}
@@ -486,7 +488,7 @@ bool is_removable_usb(string_view RootDir)
 
 #include "testing.hpp"
 
-TEST_CASE("product_id_to_capatibilities")
+TEST_CASE("cddrv.product_id_to_capatibilities")
 {
 	static const struct
 	{
@@ -516,4 +518,16 @@ TEST_CASE("product_id_to_capatibilities")
 		REQUIRE(i.Result == product_id_to_capatibilities(i.Src));
 	}
 }
+
+TEST_CASE("cddrv.big_endian")
+{
+	std::uint32_t const Value = 0x123456;
+	unsigned char Buffer[3];
+	write_value_to_big_endian(Buffer, Value);
+	REQUIRE((Buffer[0] == 0x12 && Buffer[1] == 0x34 && Buffer[2] == 0x56));
+
+	const auto ValueCopy = read_value_from_big_endian<decltype(Value)>(Buffer);
+	REQUIRE(ValueCopy == Value);
+}
+
 #endif

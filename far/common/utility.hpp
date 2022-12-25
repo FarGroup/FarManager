@@ -183,7 +183,7 @@ constexpr auto bit(size_t const Number)
 }
 
 [[nodiscard]]
-constexpr auto operator ""_bit(unsigned long long const Number)
+constexpr auto operator""_bit(unsigned long long const Number)
 {
 	return bit(Number);
 }
@@ -262,7 +262,7 @@ namespace enum_helpers
 	[[nodiscard]]
 	constexpr auto operation(T a, T b)
 	{
-		return static_cast<std::conditional_t<std::is_same_v<R, void>, T, R>>(O()(std::to_underlying(a), std::to_underlying(b)));
+		return static_cast<std::conditional_t<std::same_as<R, void>, T, R>>(O()(std::to_underlying(a), std::to_underlying(b)));
 	}
 }
 
@@ -284,28 +284,24 @@ template<typename... args> overload(args&&...) -> overload<args...>;
 namespace detail
 {
 	template<typename T>
-	using is_void_or_trivially_copyable = std::disjunction<std::is_void<T>, std::is_trivially_copyable<T>>;
+	inline constexpr bool is_void_or_trivially_copyable = std::disjunction_v<std::is_void<T>, std::is_trivially_copyable<T>>;
 }
 
 template<typename src_type, typename dst_type>
+requires
+	detail::is_void_or_trivially_copyable<src_type> &&
+	detail::is_void_or_trivially_copyable<dst_type>
 void copy_memory(const src_type* Source, dst_type* Destination, size_t const Size) noexcept
 {
-	static_assert(std::conjunction_v<
-		detail::is_void_or_trivially_copyable<src_type>,
-		detail::is_void_or_trivially_copyable<dst_type>
-	>);
-
 	if (Size) // paranoid gcc null checks are paranoid
 		std::memmove(Destination, Source, Size);
 }
 
 namespace detail
 {
-	template<typename T, typename void_type>
+	template<typename T, typename void_type> requires std::same_as<std::remove_const_t<void_type>, void>
 	decltype(auto) cast_as(void_type* const BaseAddress, intptr_t const Offset)
 	{
-		static_assert(std::is_same_v<std::remove_const_t<void_type>, void>);
-
 		constexpr auto IsConst = std::is_const_v<void_type>;
 
 		const auto Ptr = static_cast<void_type*>(static_cast<std::conditional_t<IsConst, const std::byte, std::byte>*>(BaseAddress) + Offset);
@@ -346,18 +342,16 @@ decltype(auto) edit_as(unsigned long long const Address)
 	return edit_as<T>(nullptr, Address);
 }
 
-template<typename T>
+template<typename T> requires std::is_trivially_copyable_v<T>
 auto view_as_opt(void const* const Buffer, size_t const Size, size_t const Offset = 0)
 {
-	static_assert(std::is_trivially_copyable_v<T>);
-
 	return Size >= Offset + sizeof(T)? view_as<T const*>(Buffer, Offset) : nullptr;
 }
 
-template<typename T, typename container, REQUIRES(is_range_v<container>)>
-auto view_as_opt(container const& Buffer, size_t const Offset = 0)
+template<typename T>
+auto view_as_opt(span_like auto const& Buffer, size_t const Offset = 0)
 {
-	return view_as_opt<T>(Buffer.data(), Buffer.size(), Offset);
+	return view_as_opt<T>(std::data(Buffer), std::size(Buffer), Offset);
 }
 
 template<typename large_type, typename small_type>

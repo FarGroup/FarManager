@@ -112,7 +112,7 @@ static auto get_digits_grouping()
 			DigitsGrouping = DigitsGrouping * 10 + i - L'0';
 	}
 
-	if (!ends_with(Grouping, L";0"sv))
+	if (!Grouping.ends_with(L";0"sv))
 		DigitsGrouping *= 10;
 
 	return DigitsGrouping;
@@ -130,7 +130,7 @@ static auto get_date_separator()
 		const auto dMyg = L"dMyg"sv;
 
 		// Skip day of week, if any
-		if (starts_with(Value, Weekday))
+		if (Value.starts_with(Weekday))
 		{
 			pos = Value.find_first_not_of(L'd', Weekday.size());
 			// skip separators

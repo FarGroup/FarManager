@@ -79,6 +79,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "processname.hpp"
 #include "mix.hpp"
+#include "notification.hpp"
 #include "elevation.hpp"
 #include "uuids.far.hpp"
 #include "uuids.far.dialogs.hpp"
@@ -107,7 +108,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/enum_tokens.hpp"
-#include "common/rel_ops.hpp"
 #include "common/scope_exit.hpp"
 #include "common/string_utils.hpp"
 #include "common/utility.hpp"
@@ -361,7 +361,7 @@ DWORD FileListItem::NumberOfLinks(const FileList* Owner) const
 	{
 		SCOPED_ACTION(elevation::suppress);
 		const auto Hardlinks = GetNumberOfLinks(GetItemFullName(*this, Owner));
-		static_assert(std::is_same_v<decltype(m_NumberOfLinks), DWORD>);
+		static_assert(std::same_as<decltype(m_NumberOfLinks), DWORD>);
 		m_NumberOfLinks = Hardlinks? static_cast<DWORD>(*Hardlinks) : values::unknown(m_NumberOfLinks);
 	}
 
@@ -382,7 +382,7 @@ static void GetStreamsCountAndSize(const FileList* Owner, const FileListItem& It
 		size_t StreamsCount = 0;
 		if (EnumStreams(GetItemFullName(Item, Owner), StreamsSize, StreamsCount))
 		{
-			static_assert(std::is_same_v<decltype(NumberOfStreams), DWORD&>);
+			static_assert(std::same_as<decltype(NumberOfStreams), DWORD&>);
 			NumberOfStreams = static_cast<DWORD>(StreamsCount);
 		}
 		else
@@ -486,6 +486,36 @@ struct FileList::PrevDataItem
 	string strPrevName;
 	list_data PrevListData;
 	int PrevTopFile;
+};
+
+class FileList::background_updater
+{
+public:
+	explicit background_updater(FileList* const Owner):
+		m_Owner(Owner)
+	{
+	}
+
+	const auto& event_id() const
+	{
+		return m_Listener.GetEventName();
+	}
+
+private:
+	listener m_Listener{[this]
+	{
+		if (Global->WindowManager->IsPanelsActive() && m_Owner->IsVisible())
+		{
+			m_Owner->UpdateIfChanged(true);
+			m_Owner->Redraw();
+		}
+		else
+		{
+			m_Owner->m_UpdatePending = true;
+		}
+	}};
+
+	FileList* m_Owner;
 };
 
 file_panel_ptr FileList::create(window_ptr Owner)
@@ -1101,7 +1131,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 	return 0;
 }
 
-class file_state: public rel_ops<file_state>
+class file_state
 {
 public:
 	static auto get(string_view const Filename)
@@ -6123,7 +6153,7 @@ void FileList::PluginHostGetFiles()
 			continue;
 
 		int OpMode=OPM_TOPLEVEL;
-		if (contains(UsedPlugins, hCurPlugin->plugin()))
+		if (UsedPlugins.contains(hCurPlugin->plugin()))
 			OpMode|=OPM_SILENT;
 
 		span<PluginPanelItem> Items;
@@ -6991,36 +7021,6 @@ void FileList::UpdateIfChanged(bool Changed)
 	Update(UPDATE_KEEP_SELECTION);
 }
 
-class FileList::background_updater
-{
-public:
-	explicit background_updater(FileList* const Owner):
-		m_Owner(Owner)
-	{
-	}
-
-	const auto& event_id() const
-	{
-		return m_Listener.GetEventName();
-	}
-
-private:
-	listener m_Listener{[this]
-	{
-		if (Global->WindowManager->IsPanelsActive() && m_Owner->IsVisible())
-		{
-			m_Owner->UpdateIfChanged(true);
-			m_Owner->Redraw();
-		}
-		else
-		{
-			m_Owner->m_UpdatePending = true;
-		}
-	}};
-
-	FileList* m_Owner;
-};
-
 void FileList::InitFSWatcher(bool CheckTree)
 {
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
@@ -7051,8 +7051,8 @@ struct hash_less
 {
 	struct arg
 	{
-		arg(unsigned long long const Value): m_Value(Value) {}
-		arg(FileListItem const& Value): m_Value(Value.FileId) {}
+		explicit(false) arg(unsigned long long const Value): m_Value(Value) {}
+		explicit(false) arg(FileListItem const& Value): m_Value(Value.FileId) {}
 		unsigned long long m_Value;
 	};
 

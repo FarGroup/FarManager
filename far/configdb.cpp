@@ -68,6 +68,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "format.hpp"
 #include "tinyxml.hpp"
 
+#include <share.h>
+
 //----------------------------------------------------------------------------
 
 static const auto XmlDocumentRootName = "farconfig";
@@ -113,7 +115,7 @@ static auto& CreateChild(tinyxml::XMLElement& Parent, const char* Name)
 template<typename T>
 static void SetAttribute(tinyxml::XMLElement& Element, const char* Name, T const& Value)
 {
-	if constexpr (std::is_convertible_v<T, std::string_view>)
+	if constexpr (std::convertible_to<T, std::string_view>)
 		Element.SetAttribute(Name, null_terminated_t<char>(Value).c_str());
 	else
 		Element.SetAttribute(Name, Value);

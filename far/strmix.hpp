@@ -195,10 +195,7 @@ bool SearchString(
 	std::vector<RegExpMatch>& Match,
 	named_regex_match* NamedMatch,
 	int& CurPos,
-	search_case_fold CaseFold,
-	bool WholeWords,
-	bool Reverse,
-	bool Regexp,
+	search_replace_string_options options,
 	int& SearchLength,
 	string_view WordDiv
 );
@@ -213,11 +210,7 @@ bool SearchAndReplaceString(
 	named_regex_match* NamedMatch,
 	string& ReplaceStr,
 	int& CurPos,
-	search_case_fold CaseFold,
-	bool WholeWords,
-	bool Reverse,
-	bool Regexp,
-	bool PreserveStyle,
+	search_replace_string_options options,
 	int& SearchLength,
 	string_view WordDiv
 );
@@ -280,13 +273,11 @@ string BlobToHexString(bytes_view Blob, wchar_t Separator = L',');
 [[nodiscard]]
 bytes HexStringToBlob(string_view Hex, wchar_t Separator = L',');
 
-template<class T>
 [[nodiscard]]
-auto to_hex_wstring(T Value)
+auto to_hex_wstring(std::integral auto Value)
 {
-	static_assert(std::is_integral_v<T>);
-	string Result(sizeof(T) * 2, '0');
-	for (int i = sizeof(T) * 2 - 1; i >= 0; --i, Value >>= 4)
+	string Result(sizeof(Value) * 2, '0');
+	for (int i = sizeof(Value) * 2 - 1; i >= 0; --i, Value >>= 4)
 		Result[i] = IntToHex(Value & 0xF);
 	return Result;
 }

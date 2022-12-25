@@ -52,6 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "stddlg.hpp"
 #include "string_utils.hpp"
 #include "log.hpp"
+#include "exception.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -61,7 +62,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Common:
 #include "common/enum_substrings.hpp"
 #include "common/scope_exit.hpp"
-#include "common/string_utils.hpp"
 
 // External:
 #include "format.hpp"
@@ -402,7 +402,7 @@ std::optional<size_t> GetNumberOfLinks(string_view const Name)
 	return bhfi.nNumberOfLinks;
 }
 
-bool MkHardLink(string_view const ExistingName, string_view const NewName, bool const Silent)
+bool MkHardLink(string_view const ExistingName, string_view const NewName, std::optional<error_state_ex>& ErrorState, bool const Silent)
 {
 	for (;;)
 	{
@@ -412,9 +412,9 @@ bool MkHardLink(string_view const ExistingName, string_view const NewName, bool 
 		if (Silent)
 			return false;
 
-		const auto ErrorState = os::last_error();
+		ErrorState = os::last_error();
 
-		if (OperationFailed(ErrorState, NewName, lng::MError, msg(lng::MCopyCannotCreateLink), false) != operation::retry)
+		if (OperationFailed(*ErrorState, NewName, lng::MError, msg(lng::MCopyCannotCreateLink), false) != operation::retry)
 			break;
 	}
 
@@ -484,9 +484,9 @@ bool GetSubstName(int DriveType, string_view const Path, string &strTargetPath)
 		return true;
 	}
 
-	if (starts_with(Device, L"\\??\\"sv))
+	if (Device.starts_with(L"\\??\\"sv))
 	{
-		strTargetPath.assign(Device, 4, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later
+		strTargetPath.assign(Device, 4);
 		return true;
 	}
 
@@ -562,7 +562,7 @@ bool DuplicateReparsePoint(string_view const Src, string_view const Dst)
 
 void NormalizeSymlinkName(string &strLinkName)
 {
-	if (!starts_with(strLinkName, L"\\??\\"sv))
+	if (!strLinkName.starts_with(L"\\??\\"sv))
 		return;
 
 	if (ParsePath(strLinkName) != root_type::win32nt_drive_letter)
@@ -572,7 +572,7 @@ void NormalizeSymlinkName(string &strLinkName)
 }
 
 // Кусок для создания SymLink для каталогов.
-bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePointTypes LinkType, bool Silent, bool HoldTarget)
+bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePointTypes LinkType, std::optional<error_state_ex>& ErrorState, bool Silent, bool HoldTarget)
 {
 	string strFullTarget;
 	// выделим имя
@@ -667,9 +667,9 @@ bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePoin
 		{
 			if (!Silent)
 			{
-				const auto ErrorState = os::last_error();
+				ErrorState = os::last_error();
 
-				Message(MSG_WARNING, ErrorState,
+				Message(MSG_WARNING, *ErrorState,
 					msg(lng::MError),
 					{
 						msg(lng::MCopyCannotCreateLink),
@@ -689,9 +689,9 @@ bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePoin
 
 		if (!Silent)
 		{
-			const auto ErrorState = os::last_error();
+			ErrorState = os::last_error();
 
-			Message(MSG_WARNING, ErrorState,
+			Message(MSG_WARNING, *ErrorState,
 				msg(lng::MError),
 				{
 					format(msg(lng::MCopyMountVolFailed), Target),
@@ -709,9 +709,9 @@ bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePoin
 
 		if (!Silent)
 		{
-			const auto ErrorState = os::last_error();
+			ErrorState = os::last_error();
 
-			Message(MSG_WARNING, ErrorState,
+			Message(MSG_WARNING, *ErrorState,
 				msg(lng::MError),
 				{
 					msg(lng::MCopyCannotCreateLink),

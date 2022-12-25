@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "scrobj.hpp"
+#include "stddlg.hpp"
 #include "poscache.hpp"
 #include "bitflags.hpp"
 #include "config.hpp"
@@ -46,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/rel_ops.hpp"
 
 // External:
 
@@ -162,9 +162,7 @@ private:
 	struct InternalEditorBookmark;
 
 	template<class T, class ConstT = T>
-	class numbered_iterator_t:
-		public T,
-		public rel_ops<numbered_iterator_t<T, ConstT>>
+	class numbered_iterator_t: public T
 	{
 	public:
 		COPYABLE(numbered_iterator_t);
@@ -187,8 +185,8 @@ private:
 		numbered_iterator_t& operator--() { --base(); --m_Number; return *this; }
 
 		T& base() { return *this; }
-		const std::conditional_t<std::is_base_of_v<ConstT, T>, ConstT, T>& base() const { return *this; }
-		std::conditional_t<std::is_base_of_v<ConstT, T>, const ConstT&, ConstT> cbase() const { return *this; }
+		std::conditional_t<std::derived_from<T, ConstT>, ConstT, T> const& base() const { return *this; }
+		std::conditional_t<std::derived_from<T, ConstT>, const ConstT&, ConstT> cbase() const { return *this; }
 
 		// Intentionally not implemented, use prefix forms.
 		numbered_iterator_t operator++(int) = delete;
@@ -384,8 +382,7 @@ private:
 	int Pasting{};
 	int XX2{}; //scrollbar
 	string strLastSearchStr;
-	search_case_fold LastSearchCaseFold;
-	bool LastSearchWholeWords{}, LastSearchReverse{}, LastSearchRegexp{}, LastSearchPreserveStyle{};
+	SearchReplaceDlgOptions LastSearchDlgOptions;
 
 	int EditorID{};
 	int EditorControlLock{};

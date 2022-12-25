@@ -279,36 +279,36 @@ std::optional<std::pair<size_t, size_t>> icase_searcher::find_in(string_view con
 	return m_Searcher.find_in(m_HayStack, Reverse);
 }
 
-static void normalize_for_search(string_view const Str, string& Result, string& Intermediate, std::vector<WORD>& Types)
+string_view detail::fuzzy_searcher_impl::normalize(string_view const Str)
 {
 	if (Str.empty())
 	{
-		Result.clear();
-		return;
+		m_Result.clear();
+		return m_Result;
 	}
 
 	// This retarded function can't do both in one go :(
-	resize_exp_noshrink(Intermediate, Str.size());
-	fold(Str, Intermediate, MAP_EXPAND_LIGATURES);
+	resize_exp_noshrink(m_Intermediate, Str.size());
+	fold(Str, m_Intermediate, MAP_EXPAND_LIGATURES);
 
-	resize_exp_noshrink(Result, Intermediate.size());
+	resize_exp_noshrink(m_Result, m_Intermediate.size());
 
 	// For some insane reason trailing diacritics are not decomposed in old OS
-	Intermediate.push_back(0);
+	m_Intermediate.push_back(0);
 
-	fold(Intermediate, Result, MAP_COMPOSITE | MAP_FOLDCZONE | MAP_FOLDDIGITS);
+	fold(m_Intermediate, m_Result, MAP_COMPOSITE | MAP_FOLDCZONE | MAP_FOLDDIGITS);
 
-	if (!Result.back())
-		Result.pop_back();
+	if (!m_Result.back())
+		m_Result.pop_back();
 
-	resize_exp_noshrink(Types, Result.size());
-	if (!GetStringTypeW(CT_CTYPE3, Result.data(), static_cast<int>(Result.size()), Types.data()))
+	resize_exp_noshrink(m_Types, m_Result.size());
+	if (!GetStringTypeW(CT_CTYPE3, m_Result.data(), static_cast<int>(m_Result.size()), m_Types.data()))
 	{
-		Result = Str;
-		return;
+		m_Result = Str;
+		return m_Result;
 	}
 
-	zip const Zip(Result, Types);
+	zip const Zip(m_Result, m_Types);
 	const auto End = std::remove_if(ALL_RANGE(Zip), [](const auto& i)
 	{
 		return
@@ -316,24 +316,13 @@ static void normalize_for_search(string_view const Str, string& Result, string& 
 			flags::check_any(std::get<1>(i), C3_NONSPACING | C3_DIACRITIC | C3_VOWELMARK);
 	});
 
-	Result.resize(End - Zip.begin());
+	m_Result.resize(End - Zip.begin());
+	return m_Result;
 }
 
-static string normalize_for_search(string_view const Str, string& Intermediate, std::vector<WORD>& Types)
+std::optional<std::pair<size_t, size_t>> detail::fuzzy_searcher_impl::find_in(const i_searcher& searcher, string_view const Haystack, bool const Reverse)
 {
-	string Result;
-	normalize_for_search(Str, Result, Intermediate, Types);
-	return Result;
-}
-
-fuzzy_searcher::fuzzy_searcher(string_view const Needle, bool const CanReverse):
-	m_Searcher(normalize_for_search(Needle, m_Intermediate, m_Types), CanReverse)
-{
-}
-
-std::optional<std::pair<size_t, size_t>> fuzzy_searcher::find_in(string_view const Haystack, bool const Reverse) const
-{
-	const auto Result = find_in_uncorrected(Haystack, Reverse);
+	const auto Result = searcher.find_in(normalize(Haystack), Reverse);
 	if (!Result)
 		return {};
 
@@ -343,8 +332,7 @@ std::optional<std::pair<size_t, size_t>> fuzzy_searcher::find_in(string_view con
 
 	for (const auto& i: irange(Haystack.size()))
 	{
-		normalize_for_search(Haystack.substr(i, 1), m_HayStack, m_Intermediate, m_Types);
-		TransformedSize += m_HayStack.size();
+		TransformedSize += normalize(Haystack.substr(i, 1)).size();
 
 		if (!CorrectedOffset && TransformedSize > Result->first)
 			CorrectedOffset = i;
@@ -355,13 +343,6 @@ std::optional<std::pair<size_t, size_t>> fuzzy_searcher::find_in(string_view con
 
 	return Result;
 }
-
-std::optional<std::pair<size_t, size_t>> fuzzy_searcher::find_in_uncorrected(string_view Haystack, bool Reverse) const
-{
-	normalize_for_search(Haystack, m_HayStack, m_Intermediate, m_Types);
-	return m_Searcher.find_in(m_HayStack, Reverse);
-}
-
 
 #ifdef ENABLE_TESTS
 
@@ -480,7 +461,7 @@ TEST_CASE("string.utils.icase")
 	}
 }
 
-TEMPLATE_TEST_CASE("exact_searcher", "", exact_searcher, fuzzy_searcher)
+TEMPLATE_TEST_CASE("exact_searcher", "", exact_searcher, icase_searcher, fuzzy_ic_searcher, fuzzy_cs_searcher)
 {
 	static const struct
 	{
@@ -527,13 +508,11 @@ TEST_CASE("normalize_for_search")
 		{ L"ざじず"sv,       L"さしす"sv,      },
 	};
 
-	string Normalized, Intermediate;
-	std::vector<WORD> Types;
+	detail::fuzzy_searcher_impl SearcherImpl;
 
 	for (const auto& i: Tests)
 	{
-		normalize_for_search(i.Src, Normalized, Intermediate, Types);
-		REQUIRE(Normalized == i.Normalized);
+		REQUIRE(SearcherImpl.normalize(i.Src) == i.Normalized);
 	}
 }
 #endif

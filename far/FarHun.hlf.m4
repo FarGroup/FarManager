@@ -1732,6 +1732,11 @@ szövegrészeket, ha a megadott karaktersort a többitől a szóköz, tabulátor
 soremelés karakter választja el, vagy a szabványos határoló karakterek,
 amelyek alapértelmezés szerint: #!%^&*()+|{}:"<>?`-=\\[];',./#.
 
+ #Fuzzy search# is diacritical insensitive, treats ligatures equivalent
+to their corresponding multicharacter sequences and fancy numerals
+to corresponding number characters, and ignores some other minor
+differences.
+
  A #Keresés hexákra# opcióval hexadecimális számsorokat adhatunk meg
 keresési feltételként. Ebben az esetben a #Nagy/kisbetű érzékeny#, a
 #Csak egész szavak#, a #Kódlap# és a #Keresés mappákra# opciók
@@ -3289,6 +3294,14 @@ $ #Editor: search/replace#
  #Regular expressions#
  Treat input as Perl regular expression (~search~@RegExp@ and ~replace~@RegExpRepl@).
 Each line is processed individually, so multi-line expressions and line break characters will not be found.
+
+ #Fuzzy search#
+ The search will be diacritical insensitive (for example, #deja# will be found in #déjà vu#),
+ligatures will be equivalent to corresponding multicharacter sequences (#fluffy# matches #ﬂuﬀy#),
+fancy numbers to corresponding numbers (#42# matches #④②#), and so on.
+
+ Note that case sensitive fuzzy search sometimes may be useful. For example, #Uber# will be found
+in #Überwald# but not in #überwald#. However, #Æther# will match #AEther#, but not #Aether#.
 
  ~Preserve style~@PreserveStyle@
  Preserve style (case and delimiters in program source code) of the replaced text.

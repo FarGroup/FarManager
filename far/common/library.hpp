@@ -34,11 +34,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#if defined __cplusplus && defined __has_include
-#if __has_include(<version>)
 #include <version>
-#endif
-#endif
 
 #if defined(_MSVC_STL_VERSION) && defined(_MSVC_STL_UPDATE)
 #define STANDARD_LIBRARY_NAME L"Microsoft STL"

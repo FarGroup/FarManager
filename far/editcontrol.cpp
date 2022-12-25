@@ -396,7 +396,17 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,Manager::Key& BackKe
 {
 	int Result=0;
 	static int Reenter=0;
-	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && !m_Str.empty() && !Reenter && is_input_queue_empty() && (Global->CtrlObject->Macro.GetState() == MACROSTATE_NOMACRO || Manual))
+	if(
+		ECFlags.Check(EC_ENABLEAUTOCOMPLETE) &&
+		!m_Str.empty() &&
+		!Reenter &&
+		is_input_queue_empty() &&
+		(
+			Manual ||
+			Global->CtrlObject->Macro.GetState() == MACROSTATE_NOMACRO ||
+			(Area == MACROAREA_DIALOGAUTOCOMPLETION && KeyMacro::IsMacroDialog(GetOwner()))
+		)
+	)
 	{
 		Reenter++;
 		const auto ComplMenu = VMenu2::create({}, {});
@@ -931,6 +941,7 @@ void EditControl::RefreshStrByMask(int InitMode)
 		return;
 
 	m_Str.resize(Mask.size(), L' ');
+	MaxLength = m_Str.size();
 
 	for (const auto& [Str, Msk]: zip(m_Str, Mask))
 	{

@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.hpp"
 
 // Common:
-#include "common/preprocessor.hpp"
 
 // External:
 
@@ -51,13 +50,13 @@ namespace pipe
 	namespace detail
 	{
 		template<typename T>
-		inline constexpr bool is_supported_type = std::conjunction_v<
+		concept supported_type = std::conjunction_v<
 			std::negation<std::is_pointer<T>>,
 			std::is_trivially_copyable<T>
 		>;
 
 		template<typename... args>
-		inline constexpr bool are_supported_types = sizeof...(args) > 1 && std::conjunction_v<
+		concept supported_types = sizeof...(args) > 1 && std::conjunction_v<
 			std::negation<std::is_pointer<args>>...
 		>;
 
@@ -65,15 +64,14 @@ namespace pipe
 
 	void read(const os::handle& Pipe, void* Data, size_t DataSize);
 
-	template<typename T, REQUIRES(detail::is_supported_type<T>)>
-	void read(const os::handle& Pipe, T& Data)
+	void read(const os::handle& Pipe, detail::supported_type auto& Data)
 	{
 		read(Pipe, &Data, sizeof(Data));
 	}
 
 	void read(const os::handle& Pipe, string& Data);
 
-	template<typename... args, REQUIRES(detail::are_supported_types<args...>)>
+	template<typename... args> requires detail::supported_types<args...>
 	void read(const os::handle& Pipe, args&... Args)
 	{
 		(..., read(Pipe, Args));
@@ -81,15 +79,14 @@ namespace pipe
 
 	void write(const os::handle& Pipe, const void* Data, size_t DataSize);
 
-	template<typename T, REQUIRES(detail::is_supported_type<T>)>
-	void write(const os::handle& Pipe, const T& Data)
+	void write(const os::handle& Pipe, detail::supported_type auto const& Data)
 	{
 		write(Pipe, &Data, sizeof(Data));
 	}
 
 	void write(const os::handle& Pipe, string_view Data);
 
-	template<typename... args, REQUIRES(detail::are_supported_types<args...>)>
+	template<typename... args> requires detail::supported_types<args...>
 	void write(const os::handle& Pipe, args const&... Args)
 	{
 		(..., write(Pipe, Args));

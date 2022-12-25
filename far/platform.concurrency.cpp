@@ -52,6 +52,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // External:
 #include "format.hpp"
 
+#include <process.h>
+
 //----------------------------------------------------------------------------
 
 namespace os::concurrency
@@ -303,15 +305,15 @@ namespace os::concurrency
 		}
 	}
 
-	void CALLBACK timer::wrapper(void* const Parameter, BOOLEAN)
+	static void CALLBACK wrapper(void* const Parameter, BOOLEAN)
 	{
-		const auto& Callable = *static_cast<std::function<void()> const*>(Parameter);
+		const auto& Callable = view_as<std::function<void()>>(Parameter);
 		Callable();
 	}
 
 	void timer::initialise_impl(std::chrono::milliseconds const DueTime, std::chrono::milliseconds Period)
 	{
-		if (!CreateTimerQueueTimer(&ptr_setter(m_Timer), {}, wrapper, m_Callable.get(), DueTime / 1ms, Period / 1ms, WT_EXECUTEDEFAULT))
+		if (!CreateTimerQueueTimer(&ptr_setter(m_Timer), {}, &wrapper, m_Callable.get(), DueTime / 1ms, Period / 1ms, WT_EXECUTEDEFAULT))
 			throw MAKE_FAR_FATAL_EXCEPTION(L"CreateTimerQueueTimer failed"sv);
 	}
 

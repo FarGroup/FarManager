@@ -402,7 +402,7 @@ void TmpPanel::UpdateItems(const bool ShowOwners, const bool ShowLinks)
 			for (auto Next = CurItem + 1; Next != end; ++Next)
 			{
 				const string_view NextName = Next->FileName;
-				if (starts_with(NextName, Dir) && !contains(NextName.substr(Dir.size()), L'\\'))
+				if (NextName.starts_with(Dir) && !contains(NextName.substr(Dir.size()), L'\\'))
 					SameFolderItems++;
 				else
 					break;

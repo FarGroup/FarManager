@@ -145,7 +145,7 @@ string ConvertWildcards(string_view const SrcName, string_view const Mask)
 		}
 	}
 
-	if (ends_with(Result, L'.'))
+	if (Result.ends_with(L'.'))
 		Result.pop_back();
 
 	Result.insert(0, SrcName.data(), BeforeNameLength);

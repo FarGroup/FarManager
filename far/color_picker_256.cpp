@@ -158,7 +158,7 @@ struct rgb6
 {
 	rgb6() = default;
 
-	rgb6(COLORREF const Color):
+	explicit(false) rgb6(COLORREF const Color):
 		r((Color - 16) / 36),
 		g((Color - 16 - r * 36) / 6),
 		b(Color - 16 - r * 36 - g * 6)
@@ -166,7 +166,7 @@ struct rgb6
 	{
 	}
 
-	operator COLORREF() const
+	explicit(false) operator COLORREF() const
 	{
 		return 16 + r * 36 + g * 6 + b;
 	}

@@ -93,6 +93,9 @@ namespace os::debug
 			function_ref<void(uintptr_t, string_view, bool, symbol, location)> Consumer
 		);
 	}
+
+	void crt_report_to_ui();
+	void crt_report_to_stderr();
 }
 
 #endif // PLATFORM_DEBUG_HPP_8453E69F_3955_416D_BB64_A3A88D3D1D8D

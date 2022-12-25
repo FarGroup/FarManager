@@ -80,13 +80,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //----------------------------------------------------------------------------
 
 static const auto
-	FoundContents = L"__FoundContents__"sv,
-	PluginContents = L"__PluginContents__"sv,
+	FoundContents   = L"__FoundContents__"sv,
+	PluginContents  = L"__PluginContents__"sv,
 	HelpOnHelpTopic = L":Help"sv,
-	HelpContents = L"Contents"sv;
+	HelpContents    = L"Contents"sv,
+	HelpMacroStart  = L"<!Macro:"sv,
+	HelpMacroEnd    = L">"sv;
 
 static const wchar_t HelpBeginLink = L'<';
 static const wchar_t HelpEndLink = L'>';
+
+static bool is_generated_topic(string_view const Topic)
+{
+	// I hate ADL
+	return ::any_of(Topic, PluginContents, FoundContents);
+}
 
 enum HELPDOCUMENTSHELPTYPE
 {
@@ -109,12 +117,12 @@ public:
 
 	explicit HelpRecord(string HStr): HelpStr(std::move(HStr)) {}
 
-	bool operator ==(const HelpRecord& rhs) const
+	bool operator==(const HelpRecord& rhs) const
 	{
 		return equal_icase(HelpStr, rhs.HelpStr);
 	}
 
-	bool operator <(const HelpRecord& rhs) const
+	bool operator<(const HelpRecord& rhs) const
 	{
 		return string_sort::less(HelpStr, rhs.HelpStr);
 	}
@@ -200,8 +208,7 @@ private:
 	bool IsNewTopic{true};
 	bool m_TopicFound{};
 	bool ErrorHelp{true};
-	search_case_fold LastSearchCaseFold;
-	bool LastSearchWholeWords, LastSearchRegexp;
+	SearchReplaceDlgOptions LastSearchDlgOptions;
 };
 
 struct Help::StackHelpData
@@ -225,9 +232,12 @@ Help::Help(private_tag):
 	StackData(std::make_unique<StackHelpData>()),
 	CurColor(colors::PaletteColorToFarColor(COL_HELPTEXT)),
 	CtrlTabSize(Global->Opt->HelpTabSize),
-	LastSearchCaseFold(Global->GlobalSearchCaseFold),
-	LastSearchWholeWords(Global->GlobalSearchWholeWords),
-	LastSearchRegexp(Global->Opt->HelpSearchRegexp)
+	LastSearchDlgOptions{
+		.CaseSensitive = Global->GlobalSearchCaseSensitive,
+		.WholeWords = Global->GlobalSearchWholeWords,
+		.Regexp = Global->Opt->EdOpt.SearchRegexp,
+		.Fuzzy = Global->GlobalSearchFuzzy
+	}
 {
 }
 
@@ -258,7 +268,7 @@ void Help::init(string_view const Topic, string_view const Mask, unsigned long l
 	{
 		StackData->strHelpTopic = Topic;
 
-		if (starts_with(StackData->strHelpTopic, HelpBeginLink))
+		if (StackData->strHelpTopic.starts_with(HelpBeginLink))
 		{
 			const auto pos = StackData->strHelpTopic.rfind(HelpEndLink);
 
@@ -286,7 +296,7 @@ bool Help::ReadHelp(string_view const Mask)
 {
 	string strPath;
 
-	if (starts_with(StackData->strHelpTopic, HelpBeginLink))
+	if (StackData->strHelpTopic.starts_with(HelpBeginLink))
 	{
 		strPath = StackData->strHelpTopic.substr(1);
 		const auto pos = strPath.find(HelpEndLink);
@@ -294,7 +304,7 @@ bool Help::ReadHelp(string_view const Mask)
 		if (pos == string::npos)
 			return false;
 
-		StackData->strHelpTopic.assign(strPath, pos + 1, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later
+		StackData->strHelpTopic.assign(strPath, pos + 1);
 		strPath.resize(pos);
 		DeleteEndSlash(strPath);
 		AddEndSlash(strPath);
@@ -525,7 +535,7 @@ bool Help::ReadHelp(string_view const Mask)
 			HighlightsCorrection(strReadStr);
 		}
 
-		if (starts_with(strReadStr, L'@') && !BreakProcess)
+		if (strReadStr.starts_with(L'@') && !BreakProcess)
 		{
 			if (m_TopicFound)
 			{
@@ -575,7 +585,7 @@ bool Help::ReadHelp(string_view const Mask)
 				size_t n2 = strReadStr.size();
 				if (1 + n1 + 1 < n2 && starts_with_icase(string_view(strReadStr).substr(1), StackData->strHelpTopic) && strReadStr[1 + n1] == L'=')
 				{
-					StackData->strHelpTopic.assign(strReadStr, 1 + n1 + 1, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later
+					StackData->strHelpTopic.assign(strReadStr, 1 + n1 + 1);
 					continue;
 				}
 			}
@@ -588,9 +598,9 @@ m1:
 
 			if (m_TopicFound)
 			{
-				if (starts_with_icase(strReadStr, L"<!Macro:"sv) && Global->CtrlObject)
+				if (strReadStr.starts_with(HelpMacroStart) && Global->CtrlObject)
 				{
-					const auto PosTab = strReadStr.find(L'>');
+					const auto PosTab = strReadStr.find(HelpMacroEnd);
 					if (PosTab != string::npos && strReadStr[PosTab - 1] != L'!')
 						continue;
 
@@ -611,7 +621,7 @@ m1:
 					continue;
 				}
 
-				if (!(starts_with(strReadStr, L'$') && NearTopicFound && any_of(PrevSymbol, L'$', L'@')))
+				if (!(strReadStr.starts_with(L'$') && NearTopicFound && any_of(PrevSymbol, L'$', L'@')))
 					NearTopicFound=0;
 
 				/* $<text> в начале строки, определение темы
@@ -624,7 +634,7 @@ m1:
 					LastStartPos = 0;
 				}
 
-				if (starts_with(strReadStr, L'$') && NearTopicFound && any_of(PrevSymbol, L'$', L'@'))
+				if (strReadStr.starts_with(L'$') && NearTopicFound && any_of(PrevSymbol, L'$', L'@'))
 				{
 					AddLine(string_view(strReadStr).substr(1));
 					FixCount++;
@@ -790,7 +800,7 @@ m1:
 
 void Help::AddLine(const string_view Line)
 {
-	const auto Width = StartPos && starts_with(Line, L' ')? StartPos - 1 : StartPos;
+	const auto Width = StartPos && Line.starts_with(L' ')? StartPos - 1 : StartPos;
 	HelpList.emplace_back(string(Width, L' ') + Line);
 }
 
@@ -894,7 +904,7 @@ void Help::FastShow()
 		{
 			string_view OutStr = HelpList[StrPos].HelpStr;
 
-			if (starts_with(OutStr, L'^'))
+			if (OutStr.starts_with(L'^'))
 			{
 				OutStr.remove_prefix(1);
 				GotoXY(m_Where.left + 1 + std::max(0, (CanvasWidth() - StringLen(OutStr)) / 2), m_Where.top + i + 1);
@@ -992,7 +1002,7 @@ static bool FastParseLine(string_view Str, int* const pLen, const int x0, const 
 	{
 		const auto wc = Str[0];
 		Str.remove_prefix(1);
-		if (starts_with(Str, wc) && any_of(wc, L'~', L'@', L'#', cColor))
+		if (Str.starts_with(wc) && any_of(wc, L'~', L'@', L'#', cColor))
 			Str.remove_prefix(1);
 		else if (wc == L'#') // start/stop highlighting
 			continue;
@@ -1034,7 +1044,7 @@ static bool FastParseLine(string_view Str, int* const pLen, const int x0, const 
 			else
 			{
 				found = (realX >= start_topic && realX < x);
-				if (starts_with(Str, L'@'))
+				if (Str.starts_with(L'@'))
 					Str = SkipLink(Str.substr(1), found ? pTopic : nullptr);
 				if (found)
 					break;
@@ -1389,7 +1399,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 		case KEY_F1:
 		{
 			// не поганим SelTopic, если и так в Help on Help
-			if (!equal_icase(StackData->strHelpTopic, HelpOnHelpTopic))
+			if (StackData->strHelpTopic != HelpOnHelpTopic)
 			{
 				Stack.emplace(*StackData);
 				IsNewTopic = true;
@@ -1403,7 +1413,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTF1:
 		{
 			//   не поганим SelTopic, если и так в теме Contents
-			if (!equal_icase(StackData->strHelpTopic, HelpContents))
+			if (StackData->strHelpTopic != HelpContents)
 			{
 				Stack.emplace(*StackData);
 				IsNewTopic = true;
@@ -1417,12 +1427,10 @@ bool Help::ProcessKey(const Manager::Key& Key)
 		case KEY_F7:
 		{
 			// не поганим SelTopic, если и так в FoundContents
-			if (!equal_icase(StackData->strHelpTopic, FoundContents))
+			if (StackData->strHelpTopic != FoundContents)
 			{
 				string strLastSearchStr0=strLastSearchStr;
-				auto SearchCaseFold = LastSearchCaseFold;
-				bool WholeWords=LastSearchWholeWords;
-				bool Regexp=LastSearchRegexp;
+				auto SearchDlgOptions{ LastSearchDlgOptions };
 
 				string strTempStr;
 				//int RetCode = GetString(msg(lng::MHelpSearchTitle),msg(lng::MHelpSearchingFor),L"HelpSearch",strLastSearchStr,strLastSearchStr0);
@@ -1434,11 +1442,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 					strTempStr,
 					L"HelpSearch"sv,
 					{},
-					&SearchCaseFold,
-					&WholeWords,
-					{},
-					&Regexp,
-					{},
+					SearchDlgOptions,
 					{},
 					true,
 					&HelpSearchId);
@@ -1447,9 +1451,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 					return true;
 
 				strLastSearchStr=strLastSearchStr0;
-				LastSearchCaseFold = SearchCaseFold;
-				LastSearchWholeWords=WholeWords;
-				LastSearchRegexp=Regexp;
+				LastSearchDlgOptions = SearchDlgOptions;
 
 				Stack.emplace(*StackData);
 				IsNewTopic = true;
@@ -1464,7 +1466,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTF2:
 		{
 			//   не поганим SelTopic, если и так в PluginContents
-			if (!equal_icase(StackData->strHelpTopic, PluginContents))
+			if (StackData->strHelpTopic != PluginContents)
 			{
 				Stack.emplace(*StackData);
 				IsNewTopic = true;
@@ -1532,7 +1534,7 @@ bool Help::JumpTopic()
 
 	// Если ссылка на другой файл, путь относительный и есть то, от чего можно
 	// вычислить абсолютный путь, то сделаем это
-	if (starts_with(StackData->strSelTopic, HelpBeginLink) && !StackData->strHelpPath.empty())
+	if (StackData->strSelTopic.starts_with(HelpBeginLink) && !StackData->strHelpPath.empty())
 	{
 		const auto pos = StackData->strSelTopic.find(HelpEndLink, 2);
 		if (pos != string::npos)
@@ -1556,16 +1558,21 @@ bool Help::JumpTopic()
 	{
 		const auto ColonPos = StackData->strSelTopic.find(L':');
 		if (ColonPos != 0 && ColonPos != string::npos &&
-			!(starts_with(StackData->strSelTopic, HelpBeginLink) && contains(StackData->strSelTopic, HelpEndLink))
+			!(StackData->strSelTopic.starts_with(HelpBeginLink) && contains(StackData->strSelTopic, HelpEndLink))
 			&& OpenURL(StackData->strSelTopic))
 			return false;
 	}
 	// а вот теперь попробуем...
 
 	string strNewTopic;
-	if (!StackData->strHelpPath.empty() && StackData->strSelTopic.front() !=HelpBeginLink && StackData->strSelTopic != HelpOnHelpTopic)
+	if (
+		!StackData->strHelpPath.empty() &&
+		StackData->strSelTopic.front() != HelpBeginLink &&
+		StackData->strSelTopic != HelpOnHelpTopic &&
+		!is_generated_topic(StackData->strSelTopic)
+	)
 	{
-		if (starts_with(StackData->strSelTopic, L':'))
+		if (StackData->strSelTopic.starts_with(L':'))
 		{
 			strNewTopic = StackData->strSelTopic.substr(1);
 			StackData->Flags&=~FHELP_CUSTOMFILE;
@@ -1616,9 +1623,7 @@ bool Help::JumpTopic()
 		}
 	}
 
-	if (StackData->strSelTopic.front() != L':' &&
-	        (!equal_icase(StackData->strSelTopic, PluginContents) || !equal_icase(StackData->strSelTopic, FoundContents))
-	   )
+	if (StackData->strSelTopic.front() != L':' && !is_generated_topic(StackData->strSelTopic))
 	{
 		if (!(StackData->Flags&FHELP_CUSTOMFILE) && contains(strNewTopic, HelpEndLink))
 		{
@@ -1639,7 +1644,7 @@ bool Help::JumpTopic()
 	{
 		StackData->strHelpTopic = strNewTopic;
 
-		if (starts_with(StackData->strHelpTopic, HelpBeginLink))
+		if (StackData->strHelpTopic.starts_with(HelpBeginLink))
 		{
 			const auto pos = StackData->strHelpTopic.rfind(HelpEndLink);
 			if (pos != string::npos)
@@ -1674,7 +1679,7 @@ bool Help::JumpTopic()
 	}
 
 	// ResizeConsole();
-	if (IsNewTopic || !(!equal_icase(StackData->strSelTopic, PluginContents) || !equal_icase(StackData->strSelTopic, FoundContents))) // Это неприятный костыль :-((
+	if (IsNewTopic || is_generated_topic(StackData->strSelTopic)) // Это неприятный костыль :-((
 		MoveToReference(1,1);
 
 	Global->WindowManager->RefreshWindow();
@@ -1951,12 +1956,12 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	named_regex_match NamedMatch;
 	RegExp re;
 
-	if (LastSearchRegexp)
+	if (LastSearchDlgOptions.Regexp.value())
 	{
 		// Q: что важнее: опция диалога или опция RegExp`а?
 		try
 		{
-			re.Compile(strLastSearchStr, (starts_with(strLastSearchStr, L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (LastSearchCaseFold == search_case_fold::exact? 0 : OP_IGNORECASE));
+			re.Compile(strLastSearchStr, (strLastSearchStr.starts_with(L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (LastSearchDlgOptions.CaseSensitive.value()? 0 : OP_IGNORECASE));
 		}
 		catch (regex_exception const& e)
 		{
@@ -1966,7 +1971,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	}
 
 	searchers Searchers;
-	const auto& Searcher = init_searcher(Searchers, LastSearchCaseFold, strLastSearchStr);
+	const auto& Searcher = init_searcher(Searchers, LastSearchDlgOptions.CaseSensitive.value(), LastSearchDlgOptions.Fuzzy.value(), strLastSearchStr);
 
 	os::fs::filebuf StreamBuffer(HelpFile, std::ios::in);
 	std::istream Stream(&StreamBuffer);
@@ -1976,7 +1981,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	{
 		auto Str = trim_right(i.Str);
 
-		if (starts_with(Str, L'@') &&
+		if (Str.starts_with(L'@') &&
 		    !(Str.size() > 1 && any_of(Str[1], L'+', L'-')) &&
 		    !contains(Str, L'='))// && !TopicFound)
 		{
@@ -2008,10 +2013,11 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 				Match,
 				&NamedMatch,
 				CurPos,
-				LastSearchCaseFold,
-				LastSearchWholeWords,
-				false,
-				LastSearchRegexp,
+				{
+					.CaseSensitive = LastSearchDlgOptions.CaseSensitive.value(),
+					.WholeWords = LastSearchDlgOptions.WholeWords.value(),
+					.Regexp = LastSearchDlgOptions.Regexp.value()
+				},
 				SearchLength,
 				Global->Opt->EdOpt.strWordDiv
 			))
@@ -2219,7 +2225,7 @@ namespace help
 			format(HelpFormatLinkModule, pPlugin->ModuleName(), HelpTopic) :
 			string(HelpTopic);
 
-		if (!starts_with(Topic, HelpBeginLink))
+		if (!Topic.starts_with(HelpBeginLink))
 			return Topic;
 
 		const auto EndPos = Topic.find(HelpEndLink);

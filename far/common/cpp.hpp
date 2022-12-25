@@ -38,11 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "compiler.hpp"
 
-#ifdef __has_include
-#if __has_include(<version>)
 #include <version>
-#endif
-#endif
 
 //----------------------------------------------------------------------------
 
@@ -94,123 +90,6 @@ namespace std::this_thread
 	{
 		Sleep(0);
 	}
-}
-#endif
-
-//----------------------------------------------------------------------------
-
-#ifndef __cpp_lib_erase_if
-#include <algorithm>
-#include <map>
-#include <set>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
-namespace std
-{
-	namespace detail
-	{
-		template<typename container, typename predicate>
-		void sequential_erase(container& Container, const predicate& Predicate)
-		{
-			Container.erase(std::remove(Container.begin(), Container.end(), Predicate), Container.end());
-		}
-
-		template<typename container, typename predicate>
-		void sequential_erase_if(container& Container, const predicate& Predicate)
-		{
-			Container.erase(std::remove_if(Container.begin(), Container.end(), Predicate), Container.end());
-		}
-
-		template<typename container, typename predicate>
-		void associative_erase_if(container& Container, const predicate& Predicate)
-		{
-			for (auto i = Container.begin(), End = Container.end(); i != End; )
-			{
-				if (Predicate(*i))
-				{
-					i = Container.erase(i);
-				}
-				else
-				{
-					++i;
-				}
-			}
-		}
-	}
-
-	template <typename value, typename... traits>
-	void erase(std::basic_string<traits...>& Container, const value& Value) { detail::sequential_erase(Container, Value); }
-
-	template <typename predicate, typename... traits>
-	void erase_if(std::basic_string<traits...>& Container, predicate Predicate) { detail::sequential_erase_if(Container, Predicate); }
-
-	template <typename value, typename... traits>
-	void erase(std::vector<traits...>& Container, const value& Value) { detail::sequential_erase(Container, Value); }
-
-	template <typename predicate, typename... traits>
-	void erase_if(std::vector<traits...>& Container, predicate Predicate) { detail::sequential_erase_if(Container, Predicate); }
-
-	template <typename predicate, typename... traits>
-	void erase_if(std::set<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-
-	template <typename predicate, typename... traits>
-	void erase_if(std::multiset<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-
-	template <typename predicate, typename... traits>
-	void erase_if(std::map<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-
-	template <typename predicate, typename... traits>
-	void erase_if(std::multimap<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-
-	template <typename predicate, typename... traits>
-	void erase_if(std::unordered_set<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-
-	template <typename predicate, typename... traits>
-	void erase_if(std::unordered_multiset<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-
-	template <typename predicate, typename... traits>
-	void erase_if(std::unordered_map<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-
-	template <typename predicate, typename... traits>
-	void erase_if(std::unordered_multimap<traits...>& Container, predicate Predicate) { detail::associative_erase_if(Container, Predicate); }
-}
-#endif
-
-//----------------------------------------------------------------------------
-
-#if COMPILER(CLANG) && IS_MICROSOFT_SDK() && defined __cpp_char8_t && !defined __cpp_lib_char8_t
-#include <string_view>
-
-namespace std
-{
-	inline namespace literals
-	{
-		inline namespace string_view_literals
-		{
-WARNING_PUSH()
-WARNING_DISABLE_CLANG("-Wuser-defined-literals")
-			[[nodiscard]]
-			constexpr basic_string_view<char8_t> operator"" sv(const char8_t* const Str, size_t const Size) noexcept
-			{
-				return { Str, Size };
-			}
-WARNING_POP()
-		}
-	}
-}
-#endif
-
-//----------------------------------------------------------------------------
-
-#if (IS_MICROSOFT_SDK() && __cplusplus < 202004) || !defined __cpp_lib_bitops // Not related, just no better way to check
-#include <chrono>
-
-namespace std::chrono
-{
-	using days = duration<int, ratio_multiply<ratio<24>, hours::period>>;
 }
 #endif
 

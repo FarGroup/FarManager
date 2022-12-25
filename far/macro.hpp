@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "plugin.hpp"
+#include "windowsfwd.hpp"
 
 // Platform:
 
@@ -96,6 +97,7 @@ public:
 	static bool SaveMacros(bool always);
 	static void SetMacroConst(int ConstIndex, long long Value);
 	static bool PostNewMacro(const wchar_t* Sequence, FARKEYMACROFLAGS InputFlags, DWORD AKey = 0);
+	static bool IsMacroDialog(window_ptr const& Window);
 
 	void CallFar(intptr_t CheckCode, FarMacroCall* Data);
 	bool CheckWaitKeyFunc() const;

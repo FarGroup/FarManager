@@ -908,7 +908,7 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool)> con
 {
 	inplace::trim(Command);
 
-	if (constexpr auto Prefix = L"far:"sv; starts_with(Command, Prefix))
+	if (constexpr auto Prefix = L"far:"sv; Command.starts_with(Prefix))
 		Command.remove_prefix(Prefix.size());
 	else
 		return false;
@@ -976,7 +976,7 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool)> con
 
 	if (const auto LogCommand = L"log"sv; starts_with_icase(Command, LogCommand))
 	{
-		if (const auto LogParameters = Command.substr(LogCommand.size()); starts_with(LogParameters, L' ') || LogParameters.empty())
+		if (const auto LogParameters = Command.substr(LogCommand.size()); LogParameters.starts_with(L' ') || LogParameters.empty())
 		{
 			ConsoleActivatior(false);
 			logging::configure(trim(LogParameters));
@@ -995,7 +995,7 @@ static bool ProcessFarCommands(string_view Command, function_ref<void(bool)> con
 
 static void ProcessEcho(execute_info& Info)
 {
-	if (!starts_with(Info.Command, L'@'))
+	if (!Info.Command.starts_with(L'@'))
 		return;
 
 	Info.Echo = false;
@@ -1063,7 +1063,7 @@ void CommandLine::ExecString(execute_info& Info)
 	if (Info.SourceMode == execute_info::source_mode::unknown)
 	{
 		ProcessEcho(Info);
-		if (starts_with(Info.Command, L'@'))
+		if (Info.Command.starts_with(L'@'))
 		{
 			Info.Echo = false;
 			if (Info.DisplayCommand.empty())

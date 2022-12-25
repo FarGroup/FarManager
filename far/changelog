@@ -1,4 +1,95 @@
 --------------------------------------------------------------------------------
+drkns 21.12.2022 18:22:14 +0000 - build 6074
+
+1. gh-576: Autocomplete does not work in a dialog launched from a macro.
+
+2. gh-577 again.
+
+--------------------------------------------------------------------------------
+drkns 20.12.2022 20:57:35 +0000 - build 6073
+
+1. gh-577: Configuration editor does not restore filtered state of unchanged options.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
+drkns 19.12.2022 22:14:19 +0000 - build 6072
+
+1. Improve OS errors preserving during links creation.
+
+2. Refactoring, tests etc.
+
+--------------------------------------------------------------------------------
+w17 16.12.2022 03:00:34 +0300 - build 6071
+
+1. gh-573: viewer long regex serch fix
+
+--------------------------------------------------------------------------------
+drkns 15.12.2022 19:04:20 +0000 - build 6070
+
+1. gh-575: Plugin help doesn't work when launched from some plugin panels.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
+w17 15.12.2022 13:23:17 +0300 - build 6069
+
+1. Extend 'HH HH ...' mask in the viewer search dialog.
+
+--------------------------------------------------------------------------------
+drkns 15.12.2022 01:11:01 +0000 - build 6068
+
+1. Remove redundant workarounds & homebrew implementations of language features.
+
+--------------------------------------------------------------------------------
+drkns 14.12.2022 03:36:13 +0000 - build 6067
+
+1. Continue 6065.2.
+
+--------------------------------------------------------------------------------
+drkns 14.12.2022 00:51:14 +0000 - build 6066
+
+1. Shuffle the code to make Clang happy.
+
+2. Improve OS version info display.
+
+3. Refactoring.
+
+4. Bump VS version to 2019.5, GCC to 10.0, Clang to 10.0.
+
+5. Use native concepts instead of SFINAE hacks.
+
+6. Remove redundant workarounds.
+
+--------------------------------------------------------------------------------
+drkns 13.12.2022 19:59:11 +0000 - build 6065
+
+1. Fix a typo in 4280.
+
+2. Fix mask processing, broken by 5050.
+
+--------------------------------------------------------------------------------
+MZK 11.12.2022 17:22:57 -0800 - build 6064
+
+1. Continuation of 6061:
+   Decoupling fuzzy search from case sensitive search. Part 2.
+
+--------------------------------------------------------------------------------
+drkns 11.12.2022 23:18:33 +0000 - build 6063
+
+1. Refactoring.
+
+--------------------------------------------------------------------------------
+drkns 11.12.2022 00:58:15 +0000 - build 6062
+
+1. 0003971: Cross-layout key mapping didn't work in some OSes after 5980.
+
+--------------------------------------------------------------------------------
+MZK 07.12.2022 19:00:08 -0800 - build 6061
+
+1. Decoupling fuzzy search from case sensitive search. Part 1.
+
+--------------------------------------------------------------------------------
 drkns 07.12.2022 20:34:20 +0000 - build 6060
 
 1. Add standard library info to far:about.

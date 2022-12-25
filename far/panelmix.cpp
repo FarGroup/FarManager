@@ -360,10 +360,10 @@ std::vector<column> DeserialiseViewSettings(string_view const ColumnTitles, stri
 			}
 		}
 		else if (
-			starts_with(Type, L"DM"sv) ||
-			starts_with(Type, L"DC"sv) ||
-			starts_with(Type, L"DA"sv) ||
-			starts_with(Type, L"DE"sv))
+			Type.starts_with(L"DM"sv) ||
+			Type.starts_with(L"DC"sv) ||
+			Type.starts_with(L"DA"sv) ||
+			Type.starts_with(L"DE"sv))
 		{
 			switch (Type[1])
 			{

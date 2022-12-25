@@ -180,46 +180,74 @@ private:
 	exact_searcher m_Searcher;
 };
 
+namespace detail
+{
+	class fuzzy_searcher_impl
+	{
+	public:
+		string_view normalize(string_view Str);
+		std::optional<std::pair<size_t, size_t>> find_in(const i_searcher& searcher, string_view Haystack, bool Reverse);
+
+	private:
+		string m_Result, m_Intermediate;
+		std::vector<WORD> m_Types;
+	};
+}
+
+template <typename Searcher>
 class fuzzy_searcher final: public i_searcher
 {
 public:
 	NONCOPYABLE(fuzzy_searcher);
-	explicit fuzzy_searcher(string_view Needle, bool CanReverse = true);
-	std::optional<std::pair<size_t, size_t>> find_in(string_view Haystack, bool Reverse = {}) const override;
+
+	explicit fuzzy_searcher(string_view const Needle, bool const CanReverse = true):
+		m_Searcher(m_Impl.normalize(Needle), CanReverse)
+	{
+	}
+
+	std::optional<std::pair<size_t, size_t>> find_in(string_view Haystack, bool Reverse = {}) const override
+	{
+		return m_Impl.find_in(m_Searcher, Haystack, Reverse);
+	}
 
 private:
-	std::optional<std::pair<size_t, size_t>> find_in_uncorrected(string_view Haystack, bool Reverse = {}) const;
-
-	mutable string m_HayStack, m_Intermediate;
-	mutable std::vector<WORD> m_Types;
-
-	icase_searcher m_Searcher;
+	mutable detail::fuzzy_searcher_impl m_Impl;
+	Searcher m_Searcher;
 };
+
+using fuzzy_cs_searcher = fuzzy_searcher<exact_searcher>;
+using fuzzy_ic_searcher = fuzzy_searcher<icase_searcher>;
 
 using searchers = std::variant
 <
 	bool, // Just to make it default-constructible
 	exact_searcher,
 	icase_searcher,
-	fuzzy_searcher
+	fuzzy_cs_searcher,
+	fuzzy_ic_searcher
 >;
 
-enum class search_case_fold
+inline i_searcher const& init_searcher(searchers& Searchers, const bool CaseSensitive, const bool Fuzzy, string_view const Needle, const bool CanReverse = true)
 {
-	exact,
-	icase,
-	fuzzy
-};
-
-inline i_searcher const& init_searcher(searchers& Searchers, search_case_fold const Mode, string_view const Needle, const bool CanReverse = true)
-{
-	switch (Mode)
+	if (Fuzzy)
 	{
-	case search_case_fold::exact: return Searchers.emplace<exact_searcher>(Needle, CanReverse);
-	case search_case_fold::icase: return Searchers.emplace<icase_searcher>(Needle, CanReverse);
-	case search_case_fold::fuzzy: return Searchers.emplace<fuzzy_searcher>(Needle, CanReverse);
-	default: UNREACHABLE;
+		if (CaseSensitive) return Searchers.emplace<fuzzy_cs_searcher>(Needle, CanReverse);
+		else               return Searchers.emplace<fuzzy_ic_searcher>(Needle, CanReverse);
+	}
+	else
+	{
+		if (CaseSensitive) return Searchers.emplace<exact_searcher>(Needle, CanReverse);
+		else               return Searchers.emplace<icase_searcher>(Needle, CanReverse);
 	}
 }
+
+struct search_replace_string_options
+{
+	bool CaseSensitive{};
+	bool WholeWords{};
+	bool Reverse{};
+	bool Regexp{};
+	bool PreserveStyle{};
+};
 
 #endif // STRING_UTILS_HPP_82ECD8BE_D484_4023_AB42_21D93B2DF8B9

@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "noncopyable.hpp"
 
-#include <type_traits>
+#include <concepts>
 
 //----------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ public:
 	[[nodiscard]]
 	static type& instance()
 	{
-		static_assert(std::is_base_of_v<singleton, type>);
+		static_assert(std::derived_from<type, singleton>);
 
 		static type Instance;
 

@@ -35,20 +35,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef _MSC_VER
-#if !defined __clang__ && _MSC_FULL_VER < 191627023
-#error Visual C++ 2017 Update 9 (or higher) required
-#endif
-#endif //_MSC_VER
+#include "common/compiler.hpp"
 
-
-#ifdef __GNUC__
-#define GCC_VER_(gcc_major,gcc_minor,gcc_patch) (100*(gcc_major) + 10*(gcc_minor) + (gcc_patch))
-#define _GCC_VER GCC_VER_(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
-
-#if !defined __clang__ && _GCC_VER < GCC_VER_(8,1,0)
-#error gcc 8.1.0 (or higher) required
-#endif
+#if !CHECK_COMPILER(CL, 19, 25, 0)
+#error Visual C++ 2019 Update 5 (or higher) required
+#elif !CHECK_COMPILER(GCC, 10, 0, 0)
+#error GCC 10.0.0 (or higher) required
+#elif !CHECK_COMPILER(CLANG, 10, 0, 0)
+#error Clang 10.0.0 (or higher) required
 #endif
 
 #ifdef __GNUC__
@@ -70,8 +64,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <any>
 #include <array>
 #include <atomic>
+#include <bit>
 #include <bitset>
 #include <chrono>
+#include <concepts>
 #include <forward_list>
 #include <fstream>
 #include <functional>
@@ -114,12 +110,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cwchar>
 #include <cwctype>
 
-#include <crtdbg.h>
-#include <fcntl.h>
-#include <io.h>
-#include <process.h>
-#include <share.h>
-
 //----------------------------------------------------------------------------
 #include "disable_warnings_in_std_end.hpp"
 
@@ -127,13 +117,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using string = std::wstring;
 using string_view = std::wstring_view;
+using size_t = std::size_t;
 
 inline namespace literals
 {
 	using namespace std::literals;
 }
 
-static_assert(std::is_unsigned_v<char>);
+static_assert(std::unsigned_integral<char>);
 static_assert(sizeof(wchar_t) == 2);
 static_assert("𠜎"sv == "\xF0\xA0\x9C\x8E"sv);
 

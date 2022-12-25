@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // Internal:
+#include "string_utils.hpp"
 
 // Platform:
 
@@ -43,17 +44,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-enum class search_case_fold;
-
 bool PreserveStyleReplaceString(
 	string_view Source,
 	string_view Str,
 	string& ReplaceStr,
 	int& CurPos,
-	search_case_fold CaseFold,
-	bool WholeWords,
+	search_replace_string_options options,
 	string_view WordDiv,
-	bool Reverse,
 	int& SearchLength
 );
 

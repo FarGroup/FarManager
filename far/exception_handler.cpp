@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "lang.hpp"
 #include "language.hpp"
+#include "mix.hpp"
 #include "imports.hpp"
 #include "strmix.hpp"
 #include "tracer.hpp"
@@ -878,12 +879,20 @@ static string get_console_host()
 namespace detail
 {
 	// GCC headers for once got it right
-	IS_DETECTED(has_InheritedFromUniqueProcessId, T::InheritedFromUniqueProcessId);
+	template<typename type>
+	concept has_InheritedFromUniqueProcessId = requires(type t)
+	{
+		t.InheritedFromUniqueProcessId;
+	};
 
 	// Windows SDK (at least up to 19041) defines it as "Reserved3".
 	// Surprisingly, MSDN calls it InheritedFromUniqueProcessId, so it might get renamed one day.
 	// For forward compatibility it's better to use the compiler rather than the preprocessor here.
-	IS_DETECTED(has_Reserved3, T::Reserved3);
+	template<typename type>
+	concept has_Reserved3 = requires(type t)
+	{
+		t.Reserved3;
+	};
 }
 
 template<typename process_basic_information_t>
@@ -1429,7 +1438,7 @@ private:
 	std::vector<os::debug::stack_frame> m_Stack;
 };
 
-static_assert(std::is_base_of_v<std::nested_exception, far_wrapper_exception>);
+static_assert(std::derived_from<far_wrapper_exception, std::nested_exception>);
 
 std::exception_ptr wrap_current_exception(std::string_view const Function, std::string_view const File, int const Line)
 {

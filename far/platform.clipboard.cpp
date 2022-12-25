@@ -553,7 +553,7 @@ namespace os::clipboard
 		We use starts_with instead of == here because our encoding method, unlike the OS, tries to yield as many
 		Unicode characters as possible, even if they're invalid. For these purposes such conversion is still lossless.
 		*/
-		if (const auto UnicodeData = encoding::get_chars(ClipboardLocaleCodepage, AnsiData); !starts_with(UnicodeData, Data))
+		if (const auto UnicodeData = encoding::get_chars(ClipboardLocaleCodepage, AnsiData); !UnicodeData.starts_with(Data))
 			return;
 
 		// Here it comes
@@ -596,7 +596,7 @@ namespace os::clipboard
 
 		for (const auto& i: enum_substrings(Names))
 		{
-			if constexpr (std::is_same_v<char_type, wchar_t>)
+			if constexpr (std::same_as<char_type, wchar_t>)
 			{
 				append(To, i, Eol);
 			}

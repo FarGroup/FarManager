@@ -49,7 +49,7 @@ public:
 	NONCOPYABLE(movable);
 
 	movable() = default;
-	movable(T Value): m_Value(Value){}
+	explicit(false) movable(T Value): m_Value(Value){}
 	auto& operator=(T Value) { m_Value = Value; return *this; }
 	auto& operator+=(T Value) { m_Value += Value; return *this; }
 	auto& operator-=(T Value) { m_Value -= Value; return *this; }
@@ -66,7 +66,7 @@ public:
 	bool operator<(T Value) const { return m_Value < Value; }
 
 	[[nodiscard]]
-	operator T() const { return m_Value; }
+	explicit(false) operator T() const { return m_Value; }
 
 private:
 	T m_Value{Default};

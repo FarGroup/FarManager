@@ -677,7 +677,7 @@ void RegExp::Compile(string_view const src, int options)
 
 	if (options&OP_PERLSTYLE)
 	{
-		if (!starts_with(src, slashChar))
+		if (!src.starts_with(slashChar))
 			throw MAKE_REGEX_EXCEPTION(errSyntax, 0);
 
 		const auto End = src.rfind(slashChar);
@@ -957,7 +957,7 @@ void RegExp::InnerCompile(const wchar_t* const start, const wchar_t* src, int sr
 						const auto Name = new wchar_t[len + 1];
 						std::memcpy(Name, src + i, len*sizeof(wchar_t));
 						Name[len] = 0;
-						if (!contains(NamedMatch.Matches, Name))
+						if (!NamedMatch.Matches.contains(Name))
 						{
 							delete[] Name;
 							throw MAKE_REGEX_EXCEPTION(errReferenceToUndefinedNamedBracket, i + (src - start));

@@ -821,14 +821,13 @@ namespace
 		std::vector<RegExpMatch>& Match,
 		named_regex_match* const NamedMatch,
 		intptr_t Position,
-		bool const WholeWords,
-		bool const Reverse,
+		search_replace_string_options const options,
 		string& ReplaceStr,
 		int& CurPos,
 		int& SearchLength,
 		string_view WordDiv)
 	{
-		if (!Reverse)
+		if (!options.Reverse)
 		{
 			auto CurrentPosition = Position;
 
@@ -837,7 +836,7 @@ namespace
 				if (!re.SearchEx(Source, CurrentPosition, Match, NamedMatch))
 					return false;
 
-				if (WholeWords && !CanContainWholeWord(Source, Match[0].start, Match[0].end - Match[0].start, WordDiv))
+				if (options.WholeWords && !CanContainWholeWord(Source, Match[0].start, Match[0].end - Match[0].start, WordDiv))
 				{
 					++CurrentPosition;
 					continue;
@@ -861,7 +860,7 @@ namespace
 			if (pos > Position)
 				break;
 
-			if (WholeWords && !CanContainWholeWord(Source, Match[0].start, Match[0].end - Match[0].start, WordDiv))
+			if (options.WholeWords && !CanContainWholeWord(Source, Match[0].start, Match[0].end - Match[0].start, WordDiv))
 			{
 				++pos;
 				continue;
@@ -891,10 +890,7 @@ bool SearchString(
 	std::vector<RegExpMatch>& Match,
 	named_regex_match* const NamedMatch,
 	int& CurPos,
-	search_case_fold const CaseFold,
-	bool const WholeWords,
-	bool const Reverse,
-	bool const Regexp,
+	search_replace_string_options const options,
 	int& SearchLength,
 	string_view WordDiv)
 {
@@ -908,11 +904,7 @@ bool SearchString(
 		NamedMatch,
 		Dummy,
 		CurPos,
-		CaseFold,
-		WholeWords,
-		Reverse,
-		Regexp,
-		false,
+		options,
 		SearchLength,
 		WordDiv
 	);
@@ -927,11 +919,7 @@ bool SearchAndReplaceString(
 	named_regex_match* const NamedMatch,
 	string& ReplaceStr,
 	int& CurPos,
-	search_case_fold const CaseFold,
-	bool const WholeWords,
-	bool const Reverse,
-	bool const Regexp,
-	bool const PreserveStyle,
+	search_replace_string_options const options,
 	int& SearchLength,
 	string_view WordDiv)
 {
@@ -940,7 +928,7 @@ bool SearchAndReplaceString(
 	if (WordDiv.empty())
 		WordDiv = Global->Opt->strWordDiv;
 
-	if (!Regexp && PreserveStyle && PreserveStyleReplaceString(Haystack, Needle, ReplaceStr, CurPos, CaseFold, WholeWords, WordDiv, Reverse, SearchLength))
+	if (!options.Regexp && options.PreserveStyle && PreserveStyleReplaceString(Haystack, Needle, ReplaceStr, CurPos, options, WordDiv, SearchLength))
 		return true;
 
 	if (Needle.empty())
@@ -949,7 +937,7 @@ bool SearchAndReplaceString(
 	auto Position = CurPos;
 	const auto HaystackSize = static_cast<int>(Haystack.size());
 
-	if (Reverse)
+	if (options.Reverse)
 	{
 		// MZK 2018-04-01 BUGBUG: regex reverse search: "^$" does not match empty string
 		Position = std::min(Position - 1, HaystackSize - 1);
@@ -958,40 +946,40 @@ bool SearchAndReplaceString(
 			return false;
 	}
 
-	if (Regexp)
+	if (options.Regexp)
 	{
 		// Empty Haystack is ok for regex search, e.g. ^$
 		if ((Position || HaystackSize) && Position >= HaystackSize)
 			return false;
 
-		return SearchStringRegex(Haystack, re, Match, NamedMatch, Position, WholeWords, Reverse, ReplaceStr, CurPos, SearchLength, WordDiv);
+		return SearchStringRegex(Haystack, re, Match, NamedMatch, Position, options, ReplaceStr, CurPos, SearchLength, WordDiv);
 	}
 
 	if (Position >= HaystackSize)
 		return false;
 
-	auto Where = Reverse?
+	auto Where = options.Reverse?
 		Haystack.substr(0, Position + 1) :
 		Haystack.substr(Position);
 
 	const auto Next = [&](size_t const Offset)
 	{
-		Where = Reverse?
+		Where = options.Reverse?
 			Where.substr(0, Offset > 0? Offset - 1 : 0) :
 			Where.substr(Offset + 1);
 	};
 
 	while (!Where.empty())
 	{
-		const auto FoundPosition = NeedleSearcher.find_in(Where, Reverse);
+		const auto FoundPosition = NeedleSearcher.find_in(Where, options.Reverse);
 		if (!FoundPosition)
 			return false;
 
 		const auto [FoundOffset, FoundSize] = *FoundPosition;
 
-		const auto AbsoluteOffset = Reverse? FoundOffset : Haystack.size() - Where.size() + FoundOffset;
+		const auto AbsoluteOffset = options.Reverse? FoundOffset : Haystack.size() - Where.size() + FoundOffset;
 
-		if (WholeWords && !CanContainWholeWord(Haystack, AbsoluteOffset, FoundSize, WordDiv))
+		if (options.WholeWords && !CanContainWholeWord(Haystack, AbsoluteOffset, FoundSize, WordDiv))
 		{
 			Next(FoundOffset);
 			continue;
@@ -1002,7 +990,7 @@ bool SearchAndReplaceString(
 
 		// В случае PreserveStyle: если не получилось сделать замену c помощью PreserveStyleReplaceString,
 		// то хотя бы сохранить регистр первой буквы.
-		if (PreserveStyle && !ReplaceStr.empty() && is_alpha(ReplaceStr.front()) && is_alpha(Haystack[CurPos]))
+		if (options.PreserveStyle && !ReplaceStr.empty() && is_alpha(ReplaceStr.front()) && is_alpha(Haystack[CurPos]))
 		{
 			if (is_upper(Haystack[CurPos]))
 				inplace::upper(ReplaceStr.front());

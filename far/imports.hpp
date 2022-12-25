@@ -75,14 +75,13 @@ private:
 	template<const os::rtdl::module imports::* ModuleAccessor, auto Name, auto StubFunction>
 	class unique_function_pointer
 	{
-		// The indirection is a workaround for MSVC
-		using function_type = std::enable_if_t<true, decltype(StubFunction)>;
+		using function_type = decltype(StubFunction);
 
 	public:
 		unique_function_pointer() = default;
 		NONCOPYABLE(unique_function_pointer);
 
-		operator function_type() const { return get_pointer(); }
+		explicit(false) operator function_type() const { return get_pointer(); }
 		explicit operator bool() const noexcept { return get_pointer() != StubFunction; }
 
 	private:
@@ -236,7 +235,11 @@ namespace imports_detail
 	{
 		static const auto Pointer = [&]
 		{
-			if (const auto DynamicPointer = std::invoke(ModuleAccessor, ::imports).GetProcAddress<function_type>(Name))
+			const auto& Module = std::invoke(ModuleAccessor, ::imports);
+			if (!Module)
+				return StubFunction;
+
+			if (const auto DynamicPointer = Module.GetProcAddress<function_type>(Name))
 				return DynamicPointer;
 
 			return StubFunction;

@@ -69,6 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "plugins.hpp"
 #include "manager.hpp"
+#include "mix.hpp"
 #include "lang.hpp"
 #include "keybar.hpp"
 #include "strmix.hpp"

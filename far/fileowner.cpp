@@ -101,7 +101,7 @@ namespace
 
 		sid() noexcept = default;
 
-		sid(std::nullptr_t) noexcept
+		explicit(false) sid(std::nullptr_t) noexcept
 		{
 		}
 

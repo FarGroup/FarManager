@@ -876,7 +876,7 @@ intptr_t PluginManager::ProcessSubscribedEditorEvent(int Event, void *Param, con
 
 		for (const auto& i: SortedPlugins)
 		{
-			if (!i->has(iProcessEditorEvent) || !contains(PluginIds, i->Id()))
+			if (!i->has(iProcessEditorEvent) || !PluginIds.contains(i->Id()))
 				continue;
 
 			// The return value is currently ignored
@@ -1042,7 +1042,7 @@ bool PluginManager::GetFile(const plugin_panel* hPlugin, PluginPanelItem *PanelI
 	if (ItemIterator != Find.cend())
 	{
 		const string_view Name = PanelItem->FileName;
-		const auto isADS = GetCode == 1 && starts_with(Name, ItemIterator->FileName) && starts_with(Name.substr(ItemIterator->FileName.size()), L':');
+		const auto isADS = GetCode == 1 && Name.starts_with(ItemIterator->FileName) && Name.substr(ItemIterator->FileName.size()).starts_with(L':');
 		auto Result = path::join(Info.DestPath, isADS? Name : ItemIterator->FileName);
 
 		if (GetCode == 1)

@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "keyboard.hpp"
-#include "flink.hpp"
 #include "keys.hpp"
 #include "filepanels.hpp"
 #include "treelist.hpp"

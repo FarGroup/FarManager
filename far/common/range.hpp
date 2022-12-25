@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "preprocessor.hpp"
-#include "rel_ops.hpp"
 #include "type_traits.hpp"
 
 #include <limits>
@@ -45,7 +44,7 @@ class [[nodiscard]] range
 {
 public:
 	using iterator = iterator_type;
-	using const_iterator = std::conditional_t<std::is_same_v<iterator, const_iterator_type>&& std::is_pointer_v<iterator>,
+	using const_iterator = std::conditional_t<std::same_as<iterator, const_iterator_type> && std::is_pointer_v<iterator>,
 		std::add_pointer_t<std::add_const_t<std::remove_pointer_t<iterator>>>,
 		const_iterator_type>;
 	using reverse_iterator = std::reverse_iterator<iterator>;
@@ -67,16 +66,15 @@ public:
 	{
 	}
 
-	template<typename compatible_iterator, typename compatible_const_iterator,
-		REQUIRES((std::is_convertible_v<compatible_iterator, iterator> && std::is_convertible_v<compatible_const_iterator, const_iterator>))>
-	constexpr range(const range<compatible_iterator, compatible_const_iterator>& Rhs):
+	template<typename compatible_iterator, typename compatible_const_iterator>
+		requires std::convertible_to<compatible_iterator, iterator> && std::convertible_to<compatible_const_iterator, const_iterator>
+	explicit(false) constexpr range(const range<compatible_iterator, compatible_const_iterator>& Rhs):
 		range(ALL_RANGE(Rhs))
 	{
 	}
 
-	template<typename container, REQUIRES(is_range_v<container>)>
-	constexpr range(container& Container):
-		range(ALL_RANGE(Container))
+	constexpr explicit(false) range(range_like auto& Range):
+		range(ALL_RANGE(Range))
 	{
 	}
 
@@ -129,7 +127,7 @@ public:
 	[[nodiscard]]
 	constexpr auto& operator[](size_t n) const noexcept
 	{
-		static_assert(std::is_convertible_v<iterator_category, std::random_access_iterator_tag>);
+		static_assert(std::convertible_to<iterator_category, std::random_access_iterator_tag>);
 		assert(n < size() || (!n && empty()));
 		return *(m_Begin + n);
 	}
@@ -203,15 +201,14 @@ public:
 	{
 	}
 
-	template<typename compatible_span_value_type, REQUIRES((std::is_convertible_v<compatible_span_value_type*, span_value_type*>))>
-	constexpr span(const span<compatible_span_value_type>& Rhs) noexcept:
+	template<typename compatible_span_value_type> requires std::convertible_to<compatible_span_value_type*, span_value_type*>
+	constexpr explicit(false) span(const span<compatible_span_value_type>& Rhs) noexcept:
 		span(ALL_RANGE(Rhs))
 	{
 	}
 
-	template<typename container, REQUIRES(is_span_v<container>)>
-	constexpr span(container&& Container) noexcept:
-		span(std::data(Container), std::size(Container))
+	constexpr explicit(false) span(span_like auto&& Range) noexcept:
+		span(std::data(Range), std::size(Range))
 	{
 	}
 
@@ -237,7 +234,7 @@ span(const std::initializer_list<value_type>&) -> span<const value_type>;
 
 
 template<class T>
-class [[nodiscard]] i_iterator: public rel_ops<i_iterator<T>>
+class [[nodiscard]] i_iterator
 {
 public:
 	using iterator_category = std::random_access_iterator_tag;
@@ -271,16 +268,13 @@ public:
 	auto operator-(const i_iterator& rhs) const noexcept { return m_value - rhs.m_value; }
 
 	[[nodiscard]]
-	auto operator==(const i_iterator& rhs) const noexcept { return m_value == rhs.m_value; }
-
-	[[nodiscard]]
-	auto operator<(const i_iterator& rhs) const noexcept { return m_value < rhs.m_value; }
+	auto operator<=>(const i_iterator&) const = default;
 
 private:
 	T m_value{};
 };
 
-template<typename T1, typename T2 = T1, REQUIRES(std::is_integral_v<std::common_type_t<sane_underlying_type<T1>, sane_underlying_type<T2>>>)>
+template<typename T1, typename T2 = T1> requires std::integral<std::common_type_t<sane_underlying_type<T1>, sane_underlying_type<T2>>>
 class [[nodiscard]] irange: public range<i_iterator<std::common_type_t<sane_underlying_type<T1>, sane_underlying_type<T2>>>>
 {
 	using integer_type = typename irange::value_type;

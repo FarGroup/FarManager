@@ -54,7 +54,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
-#include "common/algorithm.hpp"
 #include "common/enum_tokens.hpp"
 #include "common/from_string.hpp"
 #include "common/preprocessor.hpp"
@@ -338,7 +337,7 @@ void codepages::AddCodePages(DWORD codePages)
 			const auto Info = GetCodePageInfo(Cp);
 			if (!Info)
 				return str(Cp);
-			if (starts_with(Info->Name, SystemName))
+			if (Info->Name.starts_with(SystemName))
 				return Info->Name;
 			return concat(SystemName, L" - "sv, Info->Name);
 		};
@@ -384,14 +383,10 @@ void codepages::AddCodePages(DWORD codePages)
 		if (IsStandardCodePage(cp))
 			continue;
 
-		// VS2017 spurious const bug
-		// auto [len, CodepageName] = Info;
-		const auto len = Info.MaxCharSize;
-		auto CodepageName = Info.Name;
-
-		if (!len || (len > 2 && (codePages & VOnly)))
+		if (!Info.MaxCharSize || (Info.MaxCharSize > 2 && (codePages & VOnly)))
 			continue;
 
+		auto CodepageName = Info.Name;
 		const auto IsCodePageNameCustom = GetCodePageCustomName(cp, CodepageName);
 		const auto selectType = GetFavorite(cp);
 
@@ -848,7 +843,7 @@ F8CP::F8CP(bool viewer):
 	m_OemName(msg(viewer? lng::MViewF8DOS : lng::MEditF8DOS)),
 	m_UtfName(L"UTF-8"sv)
 {
-	uintptr_t defcp = viewer? Global->Opt->ViOpt.DefaultCodePage : Global->Opt->EdOpt.DefaultCodePage;
+	uintptr_t defcp = encoding::codepage::normalise(viewer? Global->Opt->ViOpt.DefaultCodePage : Global->Opt->EdOpt.DefaultCodePage);
 
 	const auto& cps = (viewer? Global->Opt->ViOpt.strF8CPs : Global->Opt->EdOpt.strF8CPs).Get();
 	if (cps != L"-1"sv)
@@ -871,7 +866,7 @@ F8CP::F8CP(bool viewer):
 					cp = 0;
 			}
 
-			if (cp && codepages::IsCodePageSupported(cp, viewer ? 2:20) && !contains(used_cps, cp))
+			if (cp && codepages::IsCodePageSupported(cp, viewer ? 2:20) && !used_cps.contains(cp))
 			{
 				m_F8CpOrder.emplace_back(cp);
 				used_cps.emplace(cp);

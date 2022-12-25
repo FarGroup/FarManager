@@ -121,7 +121,7 @@ namespace console_detail
 		bool ReadOutput(matrix<FAR_CHAR_INFO>& Buffer, const rectangle& ReadRegion) const { return ReadOutput(Buffer, {}, ReadRegion); }
 		bool WriteOutput(matrix<FAR_CHAR_INFO>& Buffer, point BufferCoord, rectangle const& WriteRegionRelative) const;
 		bool WriteOutput(matrix<FAR_CHAR_INFO>& Buffer, rectangle const& WriteRegion) const { return WriteOutput(Buffer, {}, WriteRegion); }
-		bool Read(string& Buffer, size_t& Size) const;
+		bool Read(span<wchar_t> Buffer, size_t& Size) const;
 		bool Write(string_view Str) const;
 		bool Commit() const;
 
@@ -214,7 +214,6 @@ namespace console_detail
 		HANDLE m_OriginalInputHandle;
 		HANDLE m_ActiveConsoleScreenBuffer{};
 		mutable string m_Title;
-		mutable int m_FileHandle{ -1 };
 
 		class stream_buffers_overrider;
 		std::unique_ptr<stream_buffers_overrider> m_StreamBuffersOverrider;

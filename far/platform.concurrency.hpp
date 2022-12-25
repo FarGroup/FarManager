@@ -94,7 +94,7 @@ namespace os::concurrency
 		template<typename callable, typename... args>
 		explicit thread(mode Mode, callable&& Callable, args&&... Args): m_Mode(Mode)
 		{
-			starter([Callable = FWD(Callable), Args = std::make_tuple(FWD(Args)...)]() mutable // make_tuple for GCC 8.1
+			starter([Callable = FWD(Callable), Args = std::tuple(FWD(Args)...)]() mutable
 			{
 				std::apply(FWD(Callable), FWD(Args));
 			});
@@ -216,7 +216,7 @@ namespace os::concurrency
 
 		template<typename callable, typename... args>
 		explicit timer(std::chrono::milliseconds const DueTime, std::chrono::milliseconds const Period, callable&& Callable, args&&... Args):
-			m_Callable(std::make_unique<std::function<void()>>([Callable = FWD(Callable), Args = std::make_tuple(FWD(Args)...)]() mutable // make_tuple for GCC 8.1
+			m_Callable(std::make_unique<std::function<void()>>([Callable = FWD(Callable), Args = std::tuple(FWD(Args)...)]() mutable
 			{
 				std::apply(FWD(Callable), FWD(Args));
 			}))
@@ -226,8 +226,6 @@ namespace os::concurrency
 
 	private:
 		void initialise_impl(std::chrono::milliseconds DueTime, std::chrono::milliseconds Period);
-
-		static void CALLBACK wrapper(void* Parameter, BOOLEAN);
 
 		// Indirection to have a permanent address for move
 		std::unique_ptr<std::function<void()>> m_Callable;
@@ -249,27 +247,27 @@ namespace os::concurrency
 		[[nodiscard]]
 		bool empty() const
 		{
-			SCOPED_ACTION(guard_t)(m_QueueCS);
+			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
 			return m_Queue.empty();
 		}
 
 		template<typename... args>
 		void emplace(args&&... Args)
 		{
-			SCOPED_ACTION(guard_t)(m_QueueCS);
+			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
 			m_Queue.emplace(FWD(Args)...);
 		}
 
 		void push(T&& item)
 		{
-			SCOPED_ACTION(guard_t)(m_QueueCS);
+			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
 			m_Queue.push(FWD(item));
 		}
 
 		[[nodiscard]]
 		bool try_pop(T& To)
 		{
-			SCOPED_ACTION(guard_t)(m_QueueCS);
+			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
 
 			if (m_Queue.empty())
 				return false;
@@ -282,7 +280,7 @@ namespace os::concurrency
 		[[nodiscard]]
 		auto pop_all()
 		{
-			SCOPED_ACTION(guard_t)(m_QueueCS);
+			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
 			std::queue<T> All;
 			m_Queue.swap(All);
 			return All;
@@ -291,13 +289,13 @@ namespace os::concurrency
 		[[nodiscard]]
 		auto size() const
 		{
-			SCOPED_ACTION(guard_t)(m_QueueCS);
+			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
 			return m_Queue.size();
 		}
 
 		void clear()
 		{
-			SCOPED_ACTION(guard_t)(m_QueueCS);
+			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
 			clear_and_shrink(m_Queue);
 		}
 
@@ -305,10 +303,6 @@ namespace os::concurrency
 		auto scoped_lock() { return make_raii_wrapper<&synced_queue::lock, &synced_queue::unlock>(this); }
 
 	private:
-		// Q: Why not just use CTAD?
-		// A: To make Coverity and its compiler happy: 'Internal error #2688: assertion failed at: "edg/src/overload.c", line 27123'
-		using guard_t = std::lock_guard<critical_section>;
-
 		void lock() { return m_QueueCS.lock(); }
 		void unlock() { return m_QueueCS.unlock(); }
 

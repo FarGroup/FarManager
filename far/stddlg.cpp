@@ -83,18 +83,12 @@ int GetSearchReplaceString(
 	string& ReplaceStr,
 	string_view TextHistoryName,
 	string_view ReplaceHistoryName,
-	search_case_fold* pCaseFold,
-	bool* pWholeWords,
-	bool* pReverse,
-	bool* pRegexp,
-	bool* pPreserveStyle,
+	SearchReplaceDlgOptions& Options,
 	string_view const HelpTopic,
 	bool HideAll,
 	const UUID* Id,
 	function_ref<string(bool)> const Picker)
 {
-	int Result = 0;
-
 	if (TextHistoryName.empty())
 		TextHistoryName = L"SearchText"sv;
 
@@ -106,13 +100,6 @@ int GetSearchReplaceString(
 
 	if (SubTitle.empty())
 		SubTitle = msg(lng::MEditSearchFor);
-
-
-	auto CaseFold = pCaseFold? *pCaseFold : search_case_fold::icase;
-	bool WholeWords=pWholeWords?*pWholeWords:false;
-	bool Reverse=pReverse?*pReverse:false;
-	bool Regexp=pRegexp?*pRegexp:false;
-	bool PreserveStyle=pPreserveStyle?*pPreserveStyle:false;
 
 	const auto DlgWidth = 76;
 	const auto& WordLabel = msg(lng::MEditSearchPickWord);
@@ -140,6 +127,7 @@ int GetSearchReplaceString(
 		dlg_checkbox_words,
 		dlg_checkbox_reverse,
 		dlg_checkbox_regex,
+		dlg_checkbox_fuzzy,
 		dlg_checkbox_style,
 		dlg_separator_2,
 		dlg_button_action,
@@ -159,11 +147,12 @@ int GetSearchReplaceString(
 		{ DI_TEXT,      {{5,                 4      }, {0,                 4      }}, DIF_NONE, msg(lng::MEditReplaceWith), },
 		{ DI_EDIT,      {{5,                 5      }, {70,                5      }}, DIF_USELASTHISTORY | DIF_HISTORY, ReplaceStr, },
 		{ DI_TEXT,      {{-1,                6-YFix }, {0,                 6-YFix }}, DIF_SEPARATOR, },
-		{ DI_CHECKBOX,  {{5,                 7-YFix }, {0,                 7-YFix }}, DIF_3STATE, msg(lng::MEditSearchCase), },
+		{ DI_CHECKBOX,  {{5,                 7-YFix }, {0,                 7-YFix }}, DIF_NONE, msg(lng::MEditSearchCase), },
 		{ DI_CHECKBOX,  {{5,                 8-YFix }, {0,                 8-YFix }}, DIF_NONE, msg(lng::MEditSearchWholeWords), },
 		{ DI_CHECKBOX,  {{5,                 9-YFix }, {0,                 9-YFix }}, DIF_NONE, msg(lng::MEditSearchReverse), },
 		{ DI_CHECKBOX,  {{40,                7-YFix }, {0,                 7-YFix }}, DIF_NONE, msg(lng::MEditSearchRegexp), },
-		{ DI_CHECKBOX,  {{40,                8-YFix }, {0,                 8-YFix }}, DIF_NONE, msg(lng::MEditSearchPreserveStyle), },
+		{ DI_CHECKBOX,  {{40,                8-YFix }, {0,                 8-YFix }}, DIF_NONE, msg(lng::MEditSearchFuzzy), },
+		{ DI_CHECKBOX,  {{40,                9-YFix }, {0,                 9-YFix }}, DIF_NONE, msg(lng::MEditSearchPreserveStyle), },
 		{ DI_TEXT,      {{-1,                10-YFix}, {0,                 10-YFix}}, DIF_SEPARATOR, },
 		{ DI_BUTTON,    {{0,                 11-YFix}, {0,                 11-YFix}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(IsReplaceMode? lng::MEditReplaceReplace : lng::MEditSearchSearch), },
 		{ DI_BUTTON,    {{0,                 11-YFix}, {0,                 11-YFix}}, DIF_CENTERGROUP, msg(lng::MEditSearchAll), },
@@ -172,15 +161,12 @@ int GetSearchReplaceString(
 
 	ReplaceDlg[dlg_edit_search].strHistory = TextHistoryName;
 	ReplaceDlg[dlg_edit_replace].strHistory = ReplaceHistoryName;
-	ReplaceDlg[dlg_checkbox_case].Selected =
-		CaseFold == search_case_fold::exact? BSTATE_CHECKED :
-		CaseFold == search_case_fold::icase? BSTATE_UNCHECKED :
-		BSTATE_3STATE;
-	ReplaceDlg[dlg_checkbox_words].Selected = WholeWords;
-	ReplaceDlg[dlg_checkbox_reverse].Selected = Reverse;
-	ReplaceDlg[dlg_checkbox_regex].Selected = Regexp;
-	ReplaceDlg[dlg_checkbox_style].Selected = PreserveStyle;
-
+	ReplaceDlg[dlg_checkbox_case].Selected = Options.CaseSensitive.value_or(false);
+	ReplaceDlg[dlg_checkbox_words].Selected = Options.WholeWords.value_or(false);
+	ReplaceDlg[dlg_checkbox_reverse].Selected = Options.Reverse.value_or(false);
+	ReplaceDlg[dlg_checkbox_regex].Selected = Options.Regexp.value_or(false);
+	ReplaceDlg[dlg_checkbox_fuzzy].Selected = Options.Fuzzy.value_or(false);
+	ReplaceDlg[dlg_checkbox_style].Selected = Options.PreserveStyle.value_or(false);
 
 	if (IsReplaceMode || HideAll)
 	{
@@ -200,15 +186,17 @@ int GetSearchReplaceString(
 		ReplaceDlg[dlg_button_selection].Flags |= DIF_HIDDEN;
 	}
 
-	if (!pCaseFold)
+	if (!Options.CaseSensitive.has_value())
 		ReplaceDlg[dlg_checkbox_case].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
-	if (!pWholeWords)
+	if (!Options.WholeWords.has_value())
 		ReplaceDlg[dlg_checkbox_words].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
-	if (!pReverse)
+	if (!Options.Reverse.has_value())
 		ReplaceDlg[dlg_checkbox_reverse].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
-	if (!pRegexp)
+	if (!Options.Regexp.has_value())
 		ReplaceDlg[dlg_checkbox_regex].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
-	if (!pPreserveStyle)
+	if (!Options.Fuzzy.has_value())
+		ReplaceDlg[dlg_checkbox_fuzzy].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+	if (!Options.PreserveStyle.has_value())
 		ReplaceDlg[dlg_checkbox_style].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 
 	const auto Handler = [&](Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2) -> intptr_t
@@ -234,34 +222,27 @@ int GetSearchReplaceString(
 
 	Dlg->Process();
 
-	const auto ExitCode = Dlg->GetExitCode();
-	if(ExitCode == dlg_button_action || ExitCode == dlg_button_all)
+	if(const auto ExitCode = Dlg->GetExitCode(); ExitCode == dlg_button_action || ExitCode == dlg_button_all)
 	{
-		Result = ExitCode == dlg_button_action ? 1 : 2;
 		SearchStr = ReplaceDlg[dlg_edit_search].strData;
 		ReplaceStr = ReplaceDlg[dlg_edit_replace].strData;
-		CaseFold =
-			ReplaceDlg[dlg_checkbox_case].Selected == BSTATE_CHECKED? search_case_fold::exact :
-			ReplaceDlg[dlg_checkbox_case].Selected == BSTATE_UNCHECKED? search_case_fold::icase :
-			search_case_fold::fuzzy;
-		WholeWords=ReplaceDlg[dlg_checkbox_words].Selected == BSTATE_CHECKED;
-		Reverse=ReplaceDlg[dlg_checkbox_reverse].Selected == BSTATE_CHECKED;
-		Regexp=ReplaceDlg[dlg_checkbox_regex].Selected == BSTATE_CHECKED;
-		PreserveStyle=ReplaceDlg[dlg_checkbox_style].Selected == BSTATE_CHECKED;
+		if (Options.CaseSensitive.has_value())
+			Options.CaseSensitive = ReplaceDlg[dlg_checkbox_case].Selected == BSTATE_CHECKED;
+		if (Options.WholeWords.has_value())
+			Options.WholeWords = ReplaceDlg[dlg_checkbox_words].Selected == BSTATE_CHECKED;
+		if (Options.Reverse.has_value())
+			Options.Reverse = ReplaceDlg[dlg_checkbox_reverse].Selected == BSTATE_CHECKED;
+		if (Options.Regexp.has_value())
+			Options.Regexp = ReplaceDlg[dlg_checkbox_regex].Selected == BSTATE_CHECKED;
+		if (Options.Fuzzy.has_value())
+			Options.Fuzzy = ReplaceDlg[dlg_checkbox_fuzzy].Selected == BSTATE_CHECKED;
+		if (Options.PreserveStyle.has_value())
+			Options.PreserveStyle = ReplaceDlg[dlg_checkbox_style].Selected == BSTATE_CHECKED;
+
+		return ExitCode == dlg_button_action ? 1 : 2;
 	}
 
-	if (pCaseFold)
-		*pCaseFold = CaseFold;
-	if (pWholeWords)
-		*pWholeWords=WholeWords;
-	if (pReverse)
-		*pReverse=Reverse;
-	if (pRegexp)
-		*pRegexp=Regexp;
-	if (pPreserveStyle)
-		*pPreserveStyle=PreserveStyle;
-
-	return Result;
+	return 0;
 }
 
 bool GetString(
@@ -814,22 +795,22 @@ static void GetRowCol(const string_view Str, bool Hex, goto_coord& Row, goto_coo
 		auto Radix = 0;
 
 		// он умный - hex код ввел!
-		if (starts_with(Part, L"0x"sv))
+		if (Part.starts_with(L"0x"sv))
 		{
 			Part.remove_prefix(2);
 			Radix = 16;
 		}
-		else if (starts_with(Part, L"$"sv))
+		else if (Part.starts_with(L"$"sv))
 		{
 			Part.remove_prefix(1);
 			Radix = 16;
 		}
-		else if (ends_with(Part, L"h"sv))
+		else if (Part.ends_with(L"h"sv))
 		{
 			Part.remove_suffix(1);
 			Radix = 16;
 		}
-		else if (ends_with(Part, L"m"sv))
+		else if (Part.ends_with(L"m"sv))
 		{
 			Part.remove_suffix(1);
 			Radix = 10;
@@ -1102,11 +1083,10 @@ void regex_playground()
 
 		const auto update_regex = [&]
 		{
-			const auto RegexStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_regex, {}));
-
 			try
 			{
-				Regex.Compile(RegexStr, starts_with(RegexStr, L'/')? OP_PERLSTYLE : 0);
+				const string_view RegexStr = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, rp_edit_regex, {}));
+				Regex.Compile(RegexStr, RegexStr.starts_with(L'/')? OP_PERLSTYLE : 0);
 			}
 			catch (regex_exception const& e)
 			{

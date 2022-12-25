@@ -125,7 +125,12 @@ static map_file::info get_impl(uintptr_t const Address, std::map<uintptr_t, map_
 
 	undecorate(Begin->second.Name);
 
-	return { Begin->second.Name, *Begin->second.File, Address - Begin->first };
+	return
+	{
+		.File = *Begin->second.File,
+		.Symbol = Begin->second.Name,
+		.Displacement = Address - Begin->first
+	};
 }
 
 map_file::info map_file::get(uintptr_t const Address)
@@ -143,7 +148,7 @@ enum class map_format
 
 static auto determine_format(string_view const Str)
 {
-	if (starts_with(Str, L' '))
+	if (Str.starts_with(L' '))
 		return map_format::msvc;
 
 	if (Str == L"Address  Size     Align Out     In      Symbol"sv)
@@ -311,22 +316,6 @@ void map_file::read(std::istream& Stream)
 
 #include "testing.hpp"
 
-struct test_symbol_info
-{
-	string_view
-		File, Symbol;
-
-	size_t Displacement;
-
-	bool operator==(map_file::info const& Info) const
-	{
-		return
-			File == Info.File &&
-			Symbol == Info.Symbol &&
-			Displacement == Info.Displacement;
-	}
-};
-
 TEST_CASE("map_file.msvc")
 {
 	const auto MapFileData =
@@ -363,7 +352,7 @@ R"( Far
 	static const struct
 	{
 		uintptr_t Address;
-		test_symbol_info Info;
+		map_file::info Info;
 	}
 	Tests[]
 	{
@@ -419,7 +408,7 @@ R"(Address  Size     Align Out     In      Symbol
 	static const struct
 	{
 		uintptr_t Address;
-		test_symbol_info Info;
+		map_file::info Info;
 	}
 	Tests[]
 	{
@@ -481,7 +470,7 @@ File )" R"(
 	static const struct
 	{
 		uintptr_t Address;
-		test_symbol_info Info;
+		map_file::info Info;
 	}
 	Tests[]
 	{

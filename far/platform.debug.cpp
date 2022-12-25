@@ -53,6 +53,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // External:
 
+#include <crtdbg.h>
+
 //----------------------------------------------------------------------------
 
 namespace os::debug
@@ -192,7 +194,7 @@ namespace os::debug
 		StackFrame.AddrFrame = address(Data.Frame);
 		StackFrame.AddrStack = address(Data.Stack);
 
-		if constexpr (std::is_same_v<T, STACKFRAME_EX>)
+		if constexpr (std::same_as<T, STACKFRAME_EX>)
 		{
 			StackFrame.StackFrameSize = sizeof(StackFrame);
 		}
@@ -204,7 +206,7 @@ namespace os::debug
 			// we always use it with the current process only.
 
 			DWORD InlineFrameContext;
-			if constexpr (std::is_same_v<T, STACKFRAME_EX>)
+			if constexpr (std::same_as<T, STACKFRAME_EX>)
 				InlineFrameContext = StackFrame.InlineFrameContext;
 			else
 				InlineFrameContext = 0;
@@ -287,6 +289,34 @@ namespace os::debug
 			return false;
 
 		return (frameContext.FrameType & STACK_FRAME_TYPE_INLINE) != 0;
+	}
+
+	void crt_report_to_ui()
+	{
+#ifdef _DEBUG
+		// _OUT_TO_STDERR is the default for console apps, but it is less convenient for debugging.
+		// Use -service to set it back to _OUT_TO_STDERR (e.g. for macro tests on CI).
+		_set_error_mode(_OUT_TO_MSGBOX);
+
+		_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_WNDW);
+		_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_WNDW);
+		_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_WNDW);
+#endif
+	}
+
+	void crt_report_to_stderr()
+	{
+#ifdef _DEBUG
+		_set_error_mode(_OUT_TO_STDERR);
+
+		(void)_CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDERR);
+		(void)_CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDERR);
+		(void)_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+
+		_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+		_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+		_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+#endif
 	}
 }
 
@@ -464,7 +494,7 @@ namespace os::debug::symbols
 		{
 			Buffer.info.SizeOfStruct = sizeof(Buffer.info);
 
-			constexpr auto IsOldApi = std::is_same_v<decltype(Buffer.info), IMAGEHLP_SYMBOL64>;
+			constexpr auto IsOldApi = std::same_as<decltype(Buffer.info), IMAGEHLP_SYMBOL64>;
 			if constexpr (IsOldApi)
 			{
 				// This one is for Win2k, which doesn't have SymFromAddr.

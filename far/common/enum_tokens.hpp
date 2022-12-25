@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "enumerator.hpp"
-#include "type_traits.hpp"
 #include "string_utils.hpp"
 
 //----------------------------------------------------------------------------
@@ -49,6 +48,12 @@ namespace detail
 		bool active(wchar_t) noexcept { return false; }
 
 		void postprocess(std::wstring_view&) noexcept {}
+	};
+
+	template<typename base_type, size_t index, template<typename> typename operation>
+	concept has_operation = requires
+	{
+		operation<std::tuple_element_t<index + 1, base_type>>();
 	};
 
 	template<typename... args>
@@ -83,9 +88,8 @@ namespace detail
 		[[nodiscard]]
 		auto& get_opt()
 		{
-			using nth_type = std::tuple_element_t<index + 1, base_type>;
 			// This idiotic cast to std::tuple is for clang
-			return std::get<is_detected_v<operation, nth_type>? index + 1 : 0>(static_cast<base_type&>(*this));
+			return std::get<has_operation<base_type, index, operation>? index + 1 : 0>(static_cast<base_type&>(*this));
 		}
 
 		template<typename T>

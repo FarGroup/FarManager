@@ -67,8 +67,16 @@ namespace encoding
 
 	namespace codepage
 	{
-		[[nodiscard]] uintptr_t ansi();
-		[[nodiscard]] uintptr_t oem();
+		namespace detail
+		{
+			struct utf8 { [[nodiscard]] static uintptr_t id(); };
+			struct ansi { [[nodiscard]] static uintptr_t id(); };
+			struct oem  { [[nodiscard]] static uintptr_t id(); };
+		}
+
+		[[nodiscard]] inline uintptr_t utf8() { return detail::utf8::id(); }
+		[[nodiscard]] inline uintptr_t ansi() { return detail::ansi::id(); }
+		[[nodiscard]] inline uintptr_t oem()  { return detail::oem::id(); }
 
 		[[nodiscard]] uintptr_t normalise(uintptr_t Codepage);
 	}
@@ -100,75 +108,75 @@ namespace encoding
 	{
 		namespace cp = codepage;
 
-		template<uintptr_t Codepage>
+		template<typename T>
 		class codepage
 		{
 		public:
 			[[nodiscard]] static auto get_bytes(string_view const Str, span<char> const Buffer, diagnostics* const Diagnostics = {})
 			{
-				return encoding::get_bytes(cp::normalise(Codepage), Str, Buffer, Diagnostics);
+				return encoding::get_bytes(T::id(), Str, Buffer, Diagnostics);
 			}
 
 			static auto get_bytes(string_view const Str, std::string& Buffer, diagnostics* const Diagnostics = {})
 			{
-				return encoding::get_bytes(cp::normalise(Codepage), Str, Buffer, Diagnostics);
+				return encoding::get_bytes(T::id(), Str, Buffer, Diagnostics);
 			}
 
 			[[nodiscard]] static auto get_bytes(string_view const Str, diagnostics* const Diagnostics = {})
 			{
-				return encoding::get_bytes(cp::normalise(Codepage), Str, Diagnostics);
+				return encoding::get_bytes(T::id(), Str, Diagnostics);
 			}
 
 			[[nodiscard]] static auto get_bytes_count(string_view const Str, diagnostics* const Diagnostics = {})
 			{
-				return encoding::get_bytes_count(cp::normalise(Codepage), Str, Diagnostics);
+				return encoding::get_bytes_count(T::id(), Str, Diagnostics);
 			}
 
 			[[nodiscard]] static auto get_chars(std::string_view const Str, span<wchar_t> const Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars(cp::normalise(Codepage), Str, Buffer, Diagnostics);
+				return encoding::get_chars(T::id(), Str, Buffer, Diagnostics);
 			}
 
 			static auto get_chars(std::string_view const Str, string& Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars(cp::normalise(Codepage), Str, Buffer, Diagnostics);
+				return encoding::get_chars(T::id(), Str, Buffer, Diagnostics);
 			}
 
 			[[nodiscard]] static auto get_chars(bytes_view const Str, span<wchar_t> const Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars(cp::normalise(Codepage), Str, Buffer, Diagnostics);
+				return encoding::get_chars(T::id(), Str, Buffer, Diagnostics);
 			}
 
 			static auto get_chars(bytes_view const Str, string& Buffer, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars(cp::normalise(Codepage), Str, Buffer, Diagnostics);
+				return encoding::get_chars(T::id(), Str, Buffer, Diagnostics);
 			}
 
 			[[nodiscard]] static auto get_chars(std::string_view const Str, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars(cp::normalise(Codepage), Str, Diagnostics);
+				return encoding::get_chars(T::id(), Str, Diagnostics);
 			}
 
 			[[nodiscard]] static auto get_chars(bytes_view const Str, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars(cp::normalise(Codepage), Str, Diagnostics);
+				return encoding::get_chars(T::id(), Str, Diagnostics);
 			}
 
 			[[nodiscard]] static auto get_chars_count(std::string_view const Str, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars_count(cp::normalise(Codepage), Str, Diagnostics);
+				return encoding::get_chars_count(T::id(), Str, Diagnostics);
 			}
 
 			[[nodiscard]] static auto get_chars_count(bytes_view const Str, diagnostics* const Diagnostics = {}, size_t* IncompleteBytes = {})
 			{
-				return encoding::get_chars_count(cp::normalise(Codepage), Str, Diagnostics);
+				return encoding::get_chars_count(T::id(), Str, Diagnostics);
 			}
 		};
 	}
 
-	using utf8 = detail::codepage<CP_UTF8>;
-	using ansi = detail::codepage<CP_ACP>;
-	using oem = detail::codepage<CP_OEMCP>;
+	using utf8 = detail::codepage<codepage::detail::utf8>;
+	using ansi = detail::codepage<codepage::detail::ansi>;
+	using oem = detail::codepage<codepage::detail::oem>;
 
 	[[nodiscard]] std::string_view get_signature_bytes(uintptr_t Cp);
 
@@ -292,11 +300,11 @@ private:
 		[[maybe_unused]] char const Char
 	)
 	{
-		if constexpr (std::is_same_v<T, wchar_t>)
+		if constexpr (std::same_as<T, wchar_t>)
 			return WideChar;
 		else
 		{
-			static_assert(std::is_same_v<T, char>);
+			static_assert(std::same_as<T, char>);
 			return Char;
 		}
 	}

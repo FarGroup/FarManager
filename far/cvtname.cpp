@@ -310,7 +310,7 @@ string ConvertNameToReal(string_view const Object)
 	if (PathPrefix.size() == 8) // \\?\UNC\...
 	{
 		// network -> network
-		if (starts_with(FinalFilePath, L"\\\\"sv))
+		if (FinalFilePath.starts_with(L"\\\\"sv))
 			return PathPrefix + string_view(FinalFilePath).substr(2);
 
 		// network -> local
@@ -318,7 +318,7 @@ string ConvertNameToReal(string_view const Object)
 	}
 
 	// local -> network
-	if (starts_with(FinalFilePath, L"\\\\"sv))
+	if (FinalFilePath.starts_with(L"\\\\"sv))
 		return L"\\\\?\\UNC\\"sv + string_view(FinalFilePath).substr(2);
 
 	// local -> local

@@ -93,7 +93,7 @@ namespace
 
 		bool check(os::chrono::time_point const Time) const
 		{
-			return Time < m_StartTime || contains(m_KnownRecords, Time);
+			return Time < m_StartTime || m_KnownRecords.contains(Time);
 		}
 
 		void add(os::chrono::time_point const Time)
@@ -739,7 +739,7 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 			continue;
 
 		if (bAppend)
-			strStr.append(strName, Length, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later
+			strStr.append(strName, Length);
 		else
 			strStr = strName;
 

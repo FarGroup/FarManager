@@ -42,6 +42,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farversion.hpp"
 #include "plugapi.hpp"
 #include "message.hpp"
+#include "mix.hpp"
+#include "notification.hpp"
 #include "dirmix.hpp"
 #include "strmix.hpp"
 #include "uuids.far.hpp"

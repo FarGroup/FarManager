@@ -139,14 +139,6 @@ namespace detail
 	int seh_thread_filter(seh_exception& Exception, EXCEPTION_POINTERS const* Info);
 	void seh_thread_handler(DWORD ExceptionCode);
 	void set_fp_exceptions(bool Enable);
-
-	// A workaround for 2017
-	// TODO: remove once we drop support for VS2017.
-	template<typename result_type, typename std_handler>
-	void assign(result_type& Result, std_handler const& StdHandler, std::exception const& e)
-	{
-		Result = StdHandler(e);
-	}
 }
 
 template<typename callable, typename unknown_handler, typename std_handler = ::detail::no_handler>
@@ -157,8 +149,8 @@ auto cpp_try(callable const& Callable, unknown_handler const& UnknownHandler, st
 
 	enum
 	{
-		HasStdHandler = !std::is_same_v<std_handler, ::detail::no_handler>,
-		IsVoid = std::is_same_v<result_type, void>,
+		HasStdHandler = !std::same_as<std_handler, ::detail::no_handler>,
+		IsVoid = std::same_as<result_type, void>,
 	};
 
 	std_handler_ref StdHandlerRef = nullptr;
@@ -177,10 +169,8 @@ auto cpp_try(callable const& Callable, unknown_handler const& UnknownHandler, st
 		[[maybe_unused]]
 		const auto StdHandlerEx = [&](std::exception const& e)
 		{
-			// IsVoid is a workaround for 2017
-			// TODO: remove once we drop support for VS2017.
-			if constexpr (HasStdHandler && !IsVoid)
-				::detail::assign(Result, StdHandler, e);
+			if constexpr (HasStdHandler)
+				Result = StdHandler(e);
 		};
 
 		if constexpr (HasStdHandler)
@@ -216,7 +206,7 @@ auto seh_try(function const& Callable, filter const& Filter, handler const& Hand
 {
 	using result_type = typename function_traits<function>::result_type;
 
-	if constexpr (std::is_same_v<result_type, void>)
+	if constexpr (std::same_as<result_type, void>)
 	{
 		::detail::seh_try(Callable, Filter, Handler);
 	}

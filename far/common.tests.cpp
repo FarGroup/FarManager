@@ -48,6 +48,30 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+#if COMPILER(GCC)
+#include "common/cpp.hpp"
+
+TEST_CASE("cpp.const_return")
+{
+	STATIC_REQUIRE(std::same_as<decltype(     wcschr(L"", '0')), wchar_t const*>);
+	STATIC_REQUIRE(std::same_as<decltype(std::wcschr(L"", '0')), wchar_t const*>);
+
+	STATIC_REQUIRE(std::same_as<decltype(     wcspbrk(L"", L"")), wchar_t const*>);
+	STATIC_REQUIRE(std::same_as<decltype(std::wcspbrk(L"", L"")), wchar_t const*>);
+
+	STATIC_REQUIRE(std::same_as<decltype(     wcsrchr(L"", '0')), wchar_t const*>);
+	STATIC_REQUIRE(std::same_as<decltype(std::wcsrchr(L"", '0')), wchar_t const*>);
+
+	STATIC_REQUIRE(std::same_as<decltype(     wcsstr(L"", L"")), wchar_t const*>);
+	STATIC_REQUIRE(std::same_as<decltype(std::wcsstr(L"", L"")), wchar_t const*>);
+
+	STATIC_REQUIRE(std::same_as<decltype(     wmemchr(L"", L'0', 0)), wchar_t const*>);
+	STATIC_REQUIRE(std::same_as<decltype(std::wmemchr(L"", L'0', 0)), wchar_t const*>);
+}
+#endif
+
+//----------------------------------------------------------------------------
+
 #include "common/2d/matrix.hpp"
 
 TEST_CASE("2d.matrix")
@@ -150,6 +174,7 @@ TEST_CASE("algorithm.contains")
 {
 	{
 		constexpr std::array Data{ 1, 2, 3 };
+		STATIC_REQUIRE(!detail::has_contains<decltype(Data)>);
 
 		// TODO: STATIC_REQUIRE
 		// GCC stdlib isn't constexpr yet :(
@@ -161,6 +186,7 @@ TEST_CASE("algorithm.contains")
 
 	{
 		std::set Data{ 1, 2, 3 };
+		STATIC_REQUIRE(detail::has_contains<decltype(Data)>);
 
 		REQUIRE(contains(Data, 1));
 		REQUIRE(contains(Data, 2));
@@ -328,9 +354,7 @@ TEST_CASE("chrono")
 		REQUIRE(Result.template get<decltype(Arg)>() == Arg);
 	};
 
-	// The explicit capture is a workaround for VS2017.
-	// TODO: remove once we drop support for VS2017.
-	const auto check_split_duration = [&, check](auto... Args)
+	const auto check_split_duration = [&](auto... Args)
 	{
 		const auto Result = split_duration<decltype(Args)...>(Duration);
 		(..., check(Result, Args));
@@ -571,24 +595,24 @@ TEST_CASE("function_traits")
 	{
 		using t = function_traits<void()>;
 		STATIC_REQUIRE(t::arity == 0);
-		STATIC_REQUIRE(std::is_same_v<t::result_type, void>);
+		STATIC_REQUIRE(std::same_as<t::result_type, void>);
 	}
 
 	{
 		using t = function_traits<char(short, int, long)>;
 		STATIC_REQUIRE(t::arity == 3);
-		STATIC_REQUIRE(std::is_same_v<t::arg<0>, short>);
-		STATIC_REQUIRE(std::is_same_v<t::arg<1>, int>);
-		STATIC_REQUIRE(std::is_same_v<t::arg<2>, long>);
-		STATIC_REQUIRE(std::is_same_v<t::result_type, char>);
+		STATIC_REQUIRE(std::same_as<t::arg<0>, short>);
+		STATIC_REQUIRE(std::same_as<t::arg<1>, int>);
+		STATIC_REQUIRE(std::same_as<t::arg<2>, long>);
+		STATIC_REQUIRE(std::same_as<t::result_type, char>);
 	}
 
 	{
 		struct s { double f(bool) const { return 0; } };
 		using t = function_traits<decltype(&s::f)>;
 		STATIC_REQUIRE(t::arity == 1);
-		STATIC_REQUIRE(std::is_same_v<t::arg<0>, bool>);
-		STATIC_REQUIRE(std::is_same_v<t::result_type, double>);
+		STATIC_REQUIRE(std::same_as<t::arg<0>, bool>);
+		STATIC_REQUIRE(std::same_as<t::result_type, double>);
 	}
 }
 
@@ -614,7 +638,7 @@ TEST_CASE("io")
 template<typename type>
 static void TestKeepAlive()
 {
-	STATIC_REQUIRE(std::is_same_v<decltype(keep_alive(std::declval<type>())), keep_alive<type>>);
+	STATIC_REQUIRE(std::same_as<decltype(keep_alive(std::declval<type>())), keep_alive<type>>);
 }
 
 TEST_CASE("keep_alive")
@@ -745,28 +769,28 @@ TEST_CASE("preprocessor.types")
 		using type = std::vector<int>;
 		type v;
 
-		STATIC_REQUIRE(std::is_same_v<REFERENCE(v),              type::reference>);
-		STATIC_REQUIRE(std::is_same_v<CONST_REFERENCE(v),        type::const_reference>);
-		STATIC_REQUIRE(std::is_same_v<VALUE_TYPE(v),             type::value_type>);
-		STATIC_REQUIRE(std::is_same_v<CONST_VALUE_TYPE(v),       type::value_type const>);
-		STATIC_REQUIRE(std::is_same_v<ITERATOR(v),               type::iterator>);
-		STATIC_REQUIRE(std::is_same_v<CONST_ITERATOR(v),         type::const_iterator>);
-		STATIC_REQUIRE(std::is_same_v<REVERSE_ITERATOR(v),       type::reverse_iterator>);
-		STATIC_REQUIRE(std::is_same_v<CONST_REVERSE_ITERATOR(v), type::const_reverse_iterator>);
+		STATIC_REQUIRE(std::same_as<REFERENCE(v),              type::reference>);
+		STATIC_REQUIRE(std::same_as<CONST_REFERENCE(v),        type::const_reference>);
+		STATIC_REQUIRE(std::same_as<VALUE_TYPE(v),             type::value_type>);
+		STATIC_REQUIRE(std::same_as<CONST_VALUE_TYPE(v),       type::value_type const>);
+		STATIC_REQUIRE(std::same_as<ITERATOR(v),               type::iterator>);
+		STATIC_REQUIRE(std::same_as<CONST_ITERATOR(v),         type::const_iterator>);
+		STATIC_REQUIRE(std::same_as<REVERSE_ITERATOR(v),       type::reverse_iterator>);
+		STATIC_REQUIRE(std::same_as<CONST_REVERSE_ITERATOR(v), type::const_reverse_iterator>);
 	}
 
 	{
 		using type = int[2];
 		type v;
 
-		STATIC_REQUIRE(std::is_same_v<REFERENCE(v),              int&>);
-		STATIC_REQUIRE(std::is_same_v<CONST_REFERENCE(v),        int const&>);
-		STATIC_REQUIRE(std::is_same_v<VALUE_TYPE(v),             int>);
-		STATIC_REQUIRE(std::is_same_v<CONST_VALUE_TYPE(v),       int const>);
-		STATIC_REQUIRE(std::is_same_v<ITERATOR(v),               int*>);
-		STATIC_REQUIRE(std::is_same_v<CONST_ITERATOR(v),         int const*>);
-		STATIC_REQUIRE(std::is_same_v<REVERSE_ITERATOR(v),       std::reverse_iterator<int*>>);
-		STATIC_REQUIRE(std::is_same_v<CONST_REVERSE_ITERATOR(v), std::reverse_iterator<int const*>>);
+		STATIC_REQUIRE(std::same_as<REFERENCE(v),              int&>);
+		STATIC_REQUIRE(std::same_as<CONST_REFERENCE(v),        int const&>);
+		STATIC_REQUIRE(std::same_as<VALUE_TYPE(v),             int>);
+		STATIC_REQUIRE(std::same_as<CONST_VALUE_TYPE(v),       int const>);
+		STATIC_REQUIRE(std::same_as<ITERATOR(v),               int*>);
+		STATIC_REQUIRE(std::same_as<CONST_ITERATOR(v),         int const*>);
+		STATIC_REQUIRE(std::same_as<REVERSE_ITERATOR(v),       std::reverse_iterator<int*>>);
+		STATIC_REQUIRE(std::same_as<CONST_REVERSE_ITERATOR(v), std::reverse_iterator<int const*>>);
 
 	}
 }
@@ -888,19 +912,19 @@ TEST_CASE("preprocessor.literals")
 		static_assert(sizeof(TEST_LITERAL) - 1 == Size);
 
 		const auto Str = CHAR_S(TEST_LITERAL);
-		STATIC_REQUIRE(std::is_same_v<decltype(Str), std::string const>);
+		STATIC_REQUIRE(std::same_as<decltype(Str), std::string const>);
 		REQUIRE(Str.size() == Size);
 
 		constexpr auto View = CHAR_SV(TEST_LITERAL);
-		STATIC_REQUIRE(std::is_same_v<decltype(View), std::string_view const>);
+		STATIC_REQUIRE(std::same_as<decltype(View), std::string_view const>);
 		STATIC_REQUIRE(View.size() == Size);
 
 		const auto WStr = WIDE_S(TEST_LITERAL);
-		STATIC_REQUIRE(std::is_same_v<decltype(WStr), std::wstring const>);
+		STATIC_REQUIRE(std::same_as<decltype(WStr), std::wstring const>);
 		REQUIRE(WStr.size() == Size);
 
 		constexpr auto WView = WIDE_SV(TEST_LITERAL);
-		STATIC_REQUIRE(std::is_same_v<decltype(WView), std::wstring_view const>);
+		STATIC_REQUIRE(std::same_as<decltype(WView), std::wstring_view const>);
 		STATIC_REQUIRE(WView.size() == Size);
 
 		#undef TEST_LITERAL
@@ -910,36 +934,36 @@ TEST_CASE("preprocessor.literals")
 		#define TEST_TOKEN meow
 
 		{
-			STATIC_REQUIRE(std::is_same_v<decltype(LITERAL(TEST_TOKEN)), char const(&)[11]>);
-			STATIC_REQUIRE(std::is_same_v<decltype(WIDE_LITERAL(TEST_TOKEN)), wchar_t const(&)[11]>);
+			STATIC_REQUIRE(std::same_as<decltype(LITERAL(TEST_TOKEN)), char const(&)[11]>);
+			STATIC_REQUIRE(std::same_as<decltype(WIDE_LITERAL(TEST_TOKEN)), wchar_t const(&)[11]>);
 
 			const auto Literal = LITERAL(TEST_TOKEN);
-			STATIC_REQUIRE(std::is_same_v<decltype(Literal), char const* const>);
+			STATIC_REQUIRE(std::same_as<decltype(Literal), char const* const>);
 			REQUIRE(Literal == "TEST_TOKEN"sv);
 
 			const auto WLiteral = WIDE_LITERAL(TEST_TOKEN);
-			STATIC_REQUIRE(std::is_same_v<decltype(WLiteral), wchar_t const* const>);
+			STATIC_REQUIRE(std::same_as<decltype(WLiteral), wchar_t const* const>);
 			REQUIRE(WLiteral == L"TEST_TOKEN"sv);
 
 			const auto WView = WIDE_SV_LITERAL(TEST_TOKEN);
-			STATIC_REQUIRE(std::is_same_v<decltype(WView), std::wstring_view const>);
+			STATIC_REQUIRE(std::same_as<decltype(WView), std::wstring_view const>);
 			REQUIRE(WView == L"TEST_TOKEN"sv);
 		}
 
 		{
-			STATIC_REQUIRE(std::is_same_v<decltype(EXPAND_TO_LITERAL(TEST_TOKEN)), char const(&)[5]>);
-			STATIC_REQUIRE(std::is_same_v<decltype(EXPAND_TO_WIDE_LITERAL(TEST_TOKEN)), wchar_t const(&)[5]>);
+			STATIC_REQUIRE(std::same_as<decltype(EXPAND_TO_LITERAL(TEST_TOKEN)), char const(&)[5]>);
+			STATIC_REQUIRE(std::same_as<decltype(EXPAND_TO_WIDE_LITERAL(TEST_TOKEN)), wchar_t const(&)[5]>);
 
 			const auto Literal = EXPAND_TO_LITERAL(TEST_TOKEN);
-			STATIC_REQUIRE(std::is_same_v<decltype(Literal), char const* const>);
+			STATIC_REQUIRE(std::same_as<decltype(Literal), char const* const>);
 			REQUIRE(Literal == "meow"sv);
 
 			const auto WLiteral = EXPAND_TO_WIDE_LITERAL(TEST_TOKEN);
-			STATIC_REQUIRE(std::is_same_v<decltype(WLiteral), wchar_t const* const>);
+			STATIC_REQUIRE(std::same_as<decltype(WLiteral), wchar_t const* const>);
 			REQUIRE(WLiteral == L"meow"sv);
 
 			const auto WView = EXPAND_TO_WIDE_SV_LITERAL(TEST_TOKEN);
-			STATIC_REQUIRE(std::is_same_v<decltype(WView), std::wstring_view const>);
+			STATIC_REQUIRE(std::same_as<decltype(WView), std::wstring_view const>);
 			REQUIRE(WView == L"meow"sv);
 		}
 
@@ -962,7 +986,7 @@ TEST_CASE("preprocessor.predefined")
 
 	test::method();
 
-	STATIC_REQUIRE(ends_with(WIDE(CURRENT_FILE_NAME), L"common.tests.cpp"sv));
+	STATIC_REQUIRE(WIDE(CURRENT_FILE_NAME).ends_with(L"common.tests.cpp"sv));
 }
 
 //----------------------------------------------------------------------------
@@ -983,7 +1007,7 @@ TEST_CASE("range.static")
 					// Workaround for VS19
 					[[maybe_unused]] auto& RangeRef = Range;
 
-					STATIC_REQUIRE(std::is_same_v<decltype(ContainerGetter(ContainerVersion)), decltype(RangeGetter(Range))>);
+					STATIC_REQUIRE(std::same_as<decltype(ContainerGetter(ContainerVersion)), decltype(RangeGetter(Range))>);
 				};
 
 // std::cbegin and friends are broken in the standard for shallow-const containers, thus the member version.
@@ -1010,31 +1034,31 @@ TEST_CASE("range.static")
 	{
 		int Data[2]{};
 		range Range(std::begin(Data), std::end(Data));
-		STATIC_REQUIRE(std::is_same_v<decltype(*Range.begin()), int&>);
-		STATIC_REQUIRE(std::is_same_v<decltype(*Range.cbegin()), const int&>);
+		STATIC_REQUIRE(std::same_as<decltype(*Range.begin()), int&>);
+		STATIC_REQUIRE(std::same_as<decltype(*Range.cbegin()), const int&>);
 	}
 
 	{
 		std::vector<int> Data;
 		range Range(std::begin(Data), std::end(Data));
-		STATIC_REQUIRE(std::is_same_v<decltype(*Range.begin()), int&>);
+		STATIC_REQUIRE(std::same_as<decltype(*Range.begin()), int&>);
 		// It's not possible to deduce const_iterator here
-		STATIC_REQUIRE(std::is_same_v<decltype(*Range.cbegin()), int&>);
+		STATIC_REQUIRE(std::same_as<decltype(*Range.cbegin()), int&>);
 	}
 
 	{
 		int Data[2]{};
 		span Span(Data);
-		STATIC_REQUIRE(std::is_same_v<decltype(*Span.begin()), int&>);
-		STATIC_REQUIRE(std::is_same_v<decltype(*Span.cbegin()), const int&>);
+		STATIC_REQUIRE(std::same_as<decltype(*Span.begin()), int&>);
+		STATIC_REQUIRE(std::same_as<decltype(*Span.cbegin()), const int&>);
 	}
 
 	{
 		int Data[2]{};
 		span Span{ Data };
-		STATIC_REQUIRE(std::is_same_v<decltype(*Span.begin()), int* const&>);
+		STATIC_REQUIRE(std::same_as<decltype(*Span.begin()), int* const&>);
 		// It's not possible to deduce const_iterator here
-		STATIC_REQUIRE(std::is_same_v<decltype(*Span.cbegin()), int* const&>);
+		STATIC_REQUIRE(std::same_as<decltype(*Span.cbegin()), int* const&>);
 	}
 }
 
@@ -1295,8 +1319,6 @@ TEST_CASE("string_utils.contains")
 
 	for (const auto& i: Tests)
 	{
-		REQUIRE(starts_with(i.Src, i.Pattern) == i.Starts);
-		REQUIRE(ends_with(i.Src, i.Pattern) == i.Ends);
 		REQUIRE(contains(i.Src, i.Pattern) == i.Contains);
 	}
 }
@@ -1426,6 +1448,23 @@ TEST_CASE("string_utils.generic_lookup")
 
 #include "common/utility.hpp"
 
+TEST_CASE("utility.base")
+{
+	struct c
+	{
+	};
+
+	struct d: base<c>
+	{
+		d()
+		{
+			STATIC_REQUIRE(std::same_as<d::base_type, c>);
+			STATIC_REQUIRE(std::same_as<d::base_ctor, base<c>>);
+		}
+	}
+	D;
+}
+
 TEST_CASE("utility.grow_exp_noshrink")
 {
 	static const struct
@@ -1517,6 +1556,18 @@ TEST_CASE("utility.hash_range")
 	REQUIRE(h2 != h3);
 }
 
+TEST_CASE("utility.sign")
+{
+	STATIC_REQUIRE(std::same_as<decltype(as_signed(0u)), signed>);
+	STATIC_REQUIRE(std::same_as<decltype(as_unsigned(0)), unsigned>);
+}
+
+TEST_CASE("utility.bit")
+{
+	STATIC_REQUIRE(0_bit == 1ull << 0);
+	STATIC_REQUIRE(63_bit == 1ull << 63);
+}
+
 TEST_CASE("utility.flags")
 {
 	using flags_type = uint8_t;
@@ -1604,6 +1655,94 @@ TEST_CASE("utility.aligned_size")
 		const size_t Expected = std::ceil(static_cast<double>(i) / Alignment) * Alignment;
 		REQUIRE(aligned_size(i) == Expected);
 	}
+}
+
+TEST_CASE("utility.is_aligned")
+{
+	{
+		const int i = 42;
+		REQUIRE(is_aligned(i));
+	}
+
+	{
+		alignas(int) const char data[sizeof(int) * 2]{};
+		static_assert(sizeof(int) > sizeof(char));
+
+		REQUIRE(is_aligned(view_as<int>(data, 0)));
+		REQUIRE(!is_aligned(view_as<int>(data, 1)));
+		REQUIRE(!is_aligned(view_as<int>(data, sizeof(int) - 1)));
+		REQUIRE(is_aligned(view_as<int>(data, sizeof(int))));
+		REQUIRE(!is_aligned(view_as<int>(data, sizeof(int) + 1)));
+	}
+}
+
+TEST_CASE("utility.enum_helpers")
+{
+	enum class e
+	{
+		foo = 1,
+		bar = 2,
+	};
+
+	{
+		constexpr auto r = enum_helpers::operation<std::plus<>>(e::foo, e::bar);
+		STATIC_REQUIRE(std::same_as<decltype(r), e const>);
+		STATIC_REQUIRE(std::to_underlying(r) == 3);
+	}
+
+	{
+		constexpr auto r = enum_helpers::operation<std::bit_and<>, int>(e::foo, e::bar);
+		STATIC_REQUIRE(std::same_as<decltype(r), int const>);
+		STATIC_REQUIRE(r == 0);
+	}
+}
+
+TEST_CASE("utility.overload")
+{
+	const auto Composite = overload
+	{
+		[](int i){ return i; },
+		[](bool b){ return b; },
+		[](auto a) { return a; }
+	};
+
+	STATIC_REQUIRE(std::same_as<decltype(Composite(42)), int>);
+	STATIC_REQUIRE(std::same_as<decltype(Composite(false)), bool>);
+	STATIC_REQUIRE(std::same_as<decltype(Composite(0.5)), double>);
+}
+
+TEST_CASE("utility.casts")
+{
+	int Data[]{ 42, 24 };
+	void* Ptr = &Data;
+
+	auto& Object1View = view_as<int>(Ptr);
+	STATIC_REQUIRE(std::same_as<decltype(Object1View), int const&>);
+	REQUIRE(&Object1View == &Data[0]);
+
+	auto& Object2View = view_as<int>(Ptr, sizeof(int));
+	STATIC_REQUIRE(std::same_as<decltype(Object2View), int const&>);
+	REQUIRE(&Object2View == &Data[1]);
+
+	auto Object1OptView = view_as_opt<int>(Ptr, sizeof(Data), 0);
+	STATIC_REQUIRE(std::same_as<decltype(Object1OptView), int const*>);
+	REQUIRE(Object1OptView == &Data[0]);
+
+	auto Object2OptView = view_as_opt<int>(Ptr, sizeof(Data), sizeof(int) * 1);
+	STATIC_REQUIRE(std::same_as<decltype(Object2OptView), int const*>);
+	REQUIRE(Object2OptView == &Data[1]);
+
+	auto Object3OptView = view_as_opt<int>(Ptr, sizeof(Data), sizeof(int) * 2);
+	STATIC_REQUIRE(std::same_as<decltype(Object1OptView), int const*>);
+	REQUIRE(Object3OptView == nullptr);
+
+	auto& Object1Edit = edit_as<int>(Ptr);
+	STATIC_REQUIRE(std::same_as<decltype(Object1Edit), int&>);
+	REQUIRE(&Object1View == &Data[0]);
+
+	auto& Object2Edit = edit_as<int>(Ptr, sizeof(int) * 1);
+	STATIC_REQUIRE(std::same_as<decltype(Object2Edit), int&>);
+	REQUIRE(&Object2Edit == &Data[1]);
 }
 
 namespace utility_integers_detail

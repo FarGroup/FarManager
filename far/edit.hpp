@@ -101,7 +101,7 @@ struct ColorItem
 	const FarColor& GetColor() const { return *Color; }
 	void SetColor(const FarColor& Value);
 
-	bool operator <(const ColorItem& rhs) const
+	bool operator<(const ColorItem& rhs) const
 	{
 		return Priority < rhs.Priority;
 	}

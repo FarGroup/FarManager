@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "taskbar.hpp"
 #include "interf.hpp"
 #include "message.hpp"
+#include "notification.hpp"
 #include "delete.hpp"
 #include "datetime.hpp"
 #include "pathmix.hpp"
@@ -171,6 +172,17 @@ namespace
 		messages::status,
 		messages::percent
 	>;
+
+	struct FindFilesOptions
+	{
+		bool CaseSensitive{};
+		bool WholeWords{};
+		bool Fuzzy{};
+		bool SearchHex{};
+		bool NotContaining{};
+		bool SearchInArchives{};
+	};
+
 }
 
 class InterThreadData;
@@ -222,11 +234,7 @@ private:
 
 	// BUGBUG
 	bool AnySetFindList{};
-	search_case_fold SearchCaseFold{};
-	bool WholeWords{};
-	bool SearchInArchives{};
-	bool SearchHex{};
-	bool NotContaining{};
+	FindFilesOptions Options;
 	bool UseFilter{};
 	bool FindFoldersChanged{};
 	bool SearchFromChanged{};
@@ -343,6 +351,7 @@ enum FINDASKDLG
 	FAD_SEPARATOR1,
 	FAD_CHECKBOX_CASE,
 	FAD_CHECKBOX_WHOLEWORDS,
+	FAD_CHECKBOX_FUZZY,
 	FAD_CHECKBOX_HEX,
 	FAD_CHECKBOX_NOTCONTAINING,
 	FAD_CHECKBOX_ARC,
@@ -391,11 +400,7 @@ public:
 		ArcListItem* FindFileArcItem,
 		uintptr_t CodePage,
 		unsigned long long SearchInFirst,
-		search_case_fold SearchCaseFold,
-		bool WholeWords,
-		bool SearchInArchives,
-		bool SearchHex,
-		bool NotContaining,
+		FindFilesOptions Options,
 		bool UseFilter,
 		bool PluginMode
 	);
@@ -442,11 +447,7 @@ private:
 	const uintptr_t CodePage;
 	size_t m_MaxCharSize{};
 	const unsigned long long SearchInFirst;
-	const search_case_fold SearchCaseFold;
-	const bool WholeWords;
-	const bool SearchInArchives;
-	const bool SearchHex;
-	const bool NotContaining;
+	const FindFilesOptions Options;
 	const bool UseFilter;
 	const bool m_PluginMode;
 
@@ -509,9 +510,9 @@ void background_searcher::InitInFileSearch()
 	readBufferA.resize(readBufferSize);
 	readBuffer.resize(readBufferSize);
 
-	if (!SearchHex)
+	if (!Options.SearchHex)
 	{
-		m_TextSearcher = &init_searcher(m_TextSearchers, SearchCaseFold, strFindStr, false);
+		m_TextSearcher = &init_searcher(m_TextSearchers, Options.CaseSensitive, Options.Fuzzy, strFindStr, false);
 
 		// Формируем список кодовых страниц
 		if (CodePage == CP_ALL)
@@ -552,7 +553,8 @@ void background_searcher::InitInFileSearch()
 				if (Value & (hasSelected? CPST_FIND : CPST_FAVORITE))
 				{
 					// Проверяем дубли
-					// TODO: P1091R3
+					// https://github.com/llvm/llvm-project/issues/54300
+					// TODO: remove once we have it.
 					if (hasSelected || !std::any_of(ALL_CONST_RANGE(m_CodePages), [&Name = Name](const CodePageInfo& cp) { return cp.CodePage == Name; }))
 						m_CodePages.emplace_back(Name);
 				}
@@ -734,6 +736,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_ENABLE,FAD_COMBOBOX_CP,ToPtr(!Hex));
 			Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_CASE,ToPtr(!Hex));
 			Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,ToPtr(!Hex));
+			Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_FUZZY,ToPtr(!Hex));
 			Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(!Hex));
 			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_TEXT,ToPtr(1));
 			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,ToPtr(1));
@@ -842,6 +845,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					Dlg->SendMessage(DM_ENABLE,FAD_COMBOBOX_CP,ToPtr(!iParam));
 					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_CASE,ToPtr(!iParam));
 					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,ToPtr(!iParam));
+					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_FUZZY,ToPtr(!iParam));
 					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(!iParam));
 					Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_TEXTHEX, UNSAFE_CSTR(msg(Param2? lng::MFindFileHex : lng::MFindFileText)));
 
@@ -1049,7 +1053,7 @@ bool background_searcher::LookForString(string_view const FileName)
 	static_assert(!(ArbitraryOverlapBytesCountJustInCase & 1));
 
 	// Смещение на которое мы отступили при переходе между блоками
-	const intptr_t StepBackOffset = SearchHex?
+	const intptr_t StepBackOffset = Options.SearchHex?
 		hexFindString.size() - 1 :
 		(m_MaxCharSize * strFindStr.size()) + ArbitraryOverlapBytesCountJustInCase;
 
@@ -1084,7 +1088,7 @@ bool background_searcher::LookForString(string_view const FileName)
 		alreadyRead += readBlockSize;
 
 		// Для hex и обыкновенного поиска разные ветки
-		if (SearchHex)
+		if (Options.SearchHex)
 		{
 			// Выходим, если прочитали мало
 			if (readBlockSize < hexFindString.size())
@@ -1112,7 +1116,7 @@ bool background_searcher::LookForString(string_view const FileName)
 				}
 
 				// Если начало файла очищаем информацию о поиске по словам
-				if (WholeWords && alreadyRead==readBlockSize)
+				if (Options.WholeWords && alreadyRead==readBlockSize)
 				{
 					i.WordFound = false;
 					i.LastSymbol = 0;
@@ -1123,7 +1127,7 @@ bool background_searcher::LookForString(string_view const FileName)
 				{
 					// Если поиск по словам и в конце предыдущего блока было что-то найдено,
 					// то считаем, что нашли то, что нужно
-					if(WholeWords && i.WordFound)
+					if(Options.WholeWords && i.WordFound)
 						return true;
 					else
 					{
@@ -1133,7 +1137,7 @@ bool background_searcher::LookForString(string_view const FileName)
 					// Выходим, если прочитали меньше размера строки поиска и нет поиска по словам
 				}
 
-				if (readBlockSize < strFindStr.size() && !(WholeWords && i.WordFound))
+				if (readBlockSize < strFindStr.size() && !(Options.WholeWords && i.WordFound))
 				{
 					ErrorState = true;
 					continue;
@@ -1189,7 +1193,7 @@ bool background_searcher::LookForString(string_view const FileName)
 						--bufferCount;
 
 					// Если у нас поиск по словам и в конце предыдущего блока было вхождение
-					if (WholeWords && i.WordFound)
+					if (Options.WholeWords && i.WordFound)
 					{
 						// Если конец файла, то считаем, что есть разделитель в конце
 						if (bufferCount < strFindStr.size())
@@ -1229,7 +1233,7 @@ bool background_searcher::LookForString(string_view const FileName)
 					if (!FoundPosition)
 						break;
 
-					if (!WholeWords)
+					if (!Options.WholeWords)
 						return true;
 
 					const auto [FoundOffset, FoundSize] = *FoundPosition;
@@ -1402,7 +1406,7 @@ bool background_searcher::IsFileIncluded(PluginPanelItem* FileItem, string_view 
 		}
 	}
 
-	return LookForString(strSearchFileName) ^ NotContaining;
+	return LookForString(strSearchFileName) ^ Options.NotContaining;
 }
 
 static void clear_queue(std::queue<message>&& Messages)
@@ -2400,7 +2404,7 @@ void background_searcher::DoScanTree(string_view const strRoot)
 					m_Owner->m_Messages.emplace(messages::menu_data{ FullStreamName, FindData, {}, {} });
 				}
 
-				if (SearchInArchives && !(FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY))
+				if (Options.SearchInArchives && !(FindData.Attributes & FILE_ATTRIBUTE_DIRECTORY))
 					ArchiveSearch(FullStreamName);
 
 				return !Stopped();
@@ -2484,7 +2488,7 @@ void background_searcher::ScanPluginTree(plugin_panel* hPlugin, unsigned long lo
 			if (IsFileIncluded(&CurPanelItem, CurName, CurPanelItem.FileAttributes, strFullName))
 				AddMenuRecord(strFullName, CurPanelItem);
 
-			if (SearchInArchives && !(CurPanelItem.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (Flags & OPIF_REALNAMES))
+			if (Options.SearchInArchives && !(CurPanelItem.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) && (Flags & OPIF_REALNAMES))
 				ArchiveSearch(strFullName);
 		}
 	}
@@ -2763,7 +2767,18 @@ bool FindFiles::FindFilesProcess()
 	m_ResultsDialogPtr = Dlg.get();
 
 		{
-			background_searcher BC(this, strFindStr, SearchMode, FindFileArcItem, CodePage, ConvertFileSizeString(Global->Opt->FindOpt.strSearchInFirstSize), SearchCaseFold, WholeWords, SearchInArchives, SearchHex, NotContaining, UseFilter, PluginMode);
+			background_searcher BC
+			{
+				this,
+				strFindStr,
+				SearchMode,
+				FindFileArcItem,
+				CodePage,
+				ConvertFileSizeString(Global->Opt->FindOpt.strSearchInFirstSize),
+				Options,
+				UseFilter,
+				PluginMode
+			};
 
 			// BUGBUG
 			m_Searcher = &BC;
@@ -2834,7 +2849,7 @@ bool FindFiles::FindFilesProcess()
 						// панель сама уберет лишние дубли.
 						const auto IsArchive = i.Arc && !(i.Arc->Flags&OPIF_REALNAMES);
 						// Добавляем только файлы или имена архивов или папки когда просили
-						if (IsArchive || (Global->Opt->FindOpt.FindFolders && !SearchHex) ||
+						if (IsArchive || (Global->Opt->FindOpt.FindFolders && !Options.SearchHex) ||
 							    !(i.FindData.Attributes&FILE_ATTRIBUTE_DIRECTORY))
 						{
 							if (IsArchive)
@@ -3022,16 +3037,11 @@ FindFiles::FindFiles():
 	static string strSearchFromRoot;
 	strSearchFromRoot = msg(lng::MSearchFromRootFolder);
 
-	static auto LastSearchCaseFold = search_case_fold::icase;
-	static bool LastWholeWords = false, LastSearchInArchives = false, LastSearchHex = false, LastNotContaining = false;
+	static FindFilesOptions LastOptions;
 
-	SearchCaseFold = LastSearchCaseFold;
-	WholeWords=LastWholeWords;
-	SearchInArchives=LastSearchInArchives;
-	SearchHex=LastSearchHex;
-	NotContaining = LastNotContaining;
+	Options = LastOptions;
 	SearchMode = static_cast<FINDAREA>(Global->Opt->FindOpt.FileSearchMode.Get());
-	UseFilter=Global->Opt->FindOpt.UseFilter.Get();
+	UseFilter = Global->Opt->FindOpt.UseFilter.Get();
 	strFindMask = strLastFindMask;
 	strFindStr = strLastFindStr;
 
@@ -3050,7 +3060,7 @@ FindFiles::FindFiles():
 
 		auto FindAskDlg = MakeDialogItems<FAD_COUNT>(
 		{
-			{ DI_DOUBLEBOX,   {{3,  1 }, {76, 19}}, DIF_NONE, msg(lng::MFindFileTitle), },
+			{ DI_DOUBLEBOX,   {{3,  1 }, {76, 20}}, DIF_NONE, msg(lng::MFindFileTitle), },
 			{ DI_TEXT,        {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MFindFileMasks), },
 			{ DI_EDIT,        {{5,  3 }, {74, 3 }}, DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY, },
 			{ DI_TEXT,        {{-1, 4 }, {0,  4 }}, DIF_SEPARATOR, },
@@ -3060,31 +3070,32 @@ FindFiles::FindFiles():
 			{ DI_TEXT,        {{5,  7 }, {0,  7 }}, DIF_NONE, },
 			{ DI_COMBOBOX,    {{5,  8 }, {74, 8 }}, DIF_DROPDOWNLIST, },
 			{ DI_TEXT,        {{-1, 9 }, {0,  9 }}, DIF_SEPARATOR, },
-			{ DI_CHECKBOX,    {{5,  10}, {0,  10}}, DIF_3STATE, msg(lng::MFindFileCase), },
+			{ DI_CHECKBOX,    {{5,  10}, {0,  10}}, DIF_NONE, msg(lng::MFindFileCase), },
 			{ DI_CHECKBOX,    {{5,  11}, {0,  11}}, DIF_NONE, msg(lng::MFindFileWholeWords), },
-			{ DI_CHECKBOX,    {{5,  12}, {0,  12}}, DIF_NONE, msg(lng::MSearchForHex), },
-			{ DI_CHECKBOX,    {{5,  13}, {0,  13}}, DIF_NONE, msg(lng::MSearchNotContaining), },
+			{ DI_CHECKBOX,    {{5,  12}, {0,  12}}, DIF_NONE, msg(lng::MFindFileFuzzy), },
+			{ DI_CHECKBOX,    {{5,  13}, {0,  13}}, DIF_NONE, msg(lng::MSearchForHex), },
+			{ DI_CHECKBOX,    {{5,  14}, {0,  14}}, DIF_NONE, msg(lng::MSearchNotContaining), },
 			{ DI_CHECKBOX,    {{41, 10}, {0,  10}}, DIF_NONE, msg(lng::MFindArchives), },
 			{ DI_CHECKBOX,    {{41, 11}, {0,  11}}, DIF_NONE, msg(lng::MFindFolders), },
 			{ DI_CHECKBOX,    {{41, 12}, {0,  12}}, DIF_NONE, msg(lng::MFindSymLinks), },
 			{ DI_CHECKBOX,    {{41, 13}, {0,  13}}, DIF_NONE, msg(lng::MFindAlternateStreams), },
-			{ DI_TEXT,        {{-1, 14}, {0,  14}}, DIF_SEPARATOR, },
-			{ DI_VTEXT,       {{39, 9 }, {39, 14}}, DIF_SEPARATORUSER, },
-			{ DI_TEXT,        {{5,  15}, {0,  15}}, DIF_NONE, msg(lng::MSearchWhere), },
-			{ DI_COMBOBOX,    {{5,  16}, {36, 16}}, DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND, },
-			{ DI_CHECKBOX,    {{41, 16}, {0,  16}}, DIF_AUTOMATION, msg(lng::MFindUseFilter), },
-			{ DI_TEXT,        {{-1, 17}, {0,  17}}, DIF_SEPARATOR, },
-			{ DI_BUTTON,      {{0,  18}, {0,  18}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MFindFileFind), },
-			{ DI_BUTTON,      {{0,  18}, {0,  18}}, DIF_CENTERGROUP, msg(lng::MFindFileDrive), },
-			{ DI_BUTTON,      {{0,  18}, {0,  18}}, DIF_CENTERGROUP | DIF_AUTOMATION | (UseFilter ? 0 : DIF_DISABLE), msg(lng::MFindFileSetFilter), },
-			{ DI_BUTTON,      {{0,  18}, {0,  18}}, DIF_CENTERGROUP, msg(lng::MFindFileAdvanced), },
-			{ DI_BUTTON,      {{0,  18}, {0,  18}}, DIF_CENTERGROUP, msg(lng::MCancel), },
+			{ DI_TEXT,        {{-1, 15}, {0,  15}}, DIF_SEPARATOR, },
+			{ DI_VTEXT,       {{39, 9 }, {39, 15}}, DIF_SEPARATORUSER, },
+			{ DI_TEXT,        {{5,  16}, {0,  16}}, DIF_NONE, msg(lng::MSearchWhere), },
+			{ DI_COMBOBOX,    {{5,  17}, {36, 17}}, DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND, },
+			{ DI_CHECKBOX,    {{41, 17}, {0,  17}}, DIF_AUTOMATION, msg(lng::MFindUseFilter), },
+			{ DI_TEXT,        {{-1, 18}, {0,  18}}, DIF_SEPARATOR, },
+			{ DI_BUTTON,      {{0,  19}, {0,  19}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MFindFileFind), },
+			{ DI_BUTTON,      {{0,  19}, {0,  19}}, DIF_CENTERGROUP, msg(lng::MFindFileDrive), },
+			{ DI_BUTTON,      {{0,  19}, {0,  19}}, DIF_CENTERGROUP | DIF_AUTOMATION | (UseFilter ? 0 : DIF_DISABLE), msg(lng::MFindFileSetFilter), },
+			{ DI_BUTTON,      {{0,  19}, {0,  19}}, DIF_CENTERGROUP, msg(lng::MFindFileAdvanced), },
+			{ DI_BUTTON,      {{0,  19}, {0,  19}}, DIF_CENTERGROUP, msg(lng::MCancel), },
 		});
 
 		FindAskDlg[FAD_EDIT_MASK].strHistory = L"Masks"sv;
 		FindAskDlg[FAD_EDIT_TEXT].strHistory = L"SearchText"sv;
 		FindAskDlg[FAD_EDIT_HEX].strMask = L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH"sv;
-		FindAskDlg[FAD_CHECKBOX_NOTCONTAINING].Selected = NotContaining;
+		FindAskDlg[FAD_CHECKBOX_NOTCONTAINING].Selected = Options.NotContaining;
 		FindAskDlg[FAD_SEPARATOR_3].strMask = { BoxSymbols[BS_T_H1V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1] };
 		FindAskDlg[FAD_CHECKBOX_FILTER].Selected = UseFilter;
 
@@ -3137,26 +3148,24 @@ FindFiles::FindFiles():
 			FindAskDlg[FAD_CHECKBOX_STREAMS].Selected = Global->Opt->FindOpt.FindAlternateStreams;
 		}
 		if (!(FindAskDlg[FAD_CHECKBOX_ARC].Flags & DIF_DISABLE))
-			FindAskDlg[FAD_CHECKBOX_ARC].Selected=SearchInArchives;
+			FindAskDlg[FAD_CHECKBOX_ARC].Selected = Options.SearchInArchives;
 
 		FindAskDlg[FAD_EDIT_MASK].strData = strFindMask;
 
-		if (SearchHex)
+		if (Options.SearchHex)
 			FindAskDlg[FAD_EDIT_HEX].strData = strFindStr;
 		else
 			FindAskDlg[FAD_EDIT_TEXT].strData = strFindStr;
 
-		FindAskDlg[FAD_CHECKBOX_CASE].Selected =
-			SearchCaseFold == search_case_fold::exact? BSTATE_CHECKED :
-			SearchCaseFold == search_case_fold::icase? BSTATE_UNCHECKED :
-			BSTATE_3STATE;
-		FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected=WholeWords;
-		FindAskDlg[FAD_CHECKBOX_HEX].Selected=SearchHex;
+		FindAskDlg[FAD_CHECKBOX_CASE].Selected = Options.CaseSensitive;
+		FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected = Options.WholeWords;
+		FindAskDlg[FAD_CHECKBOX_FUZZY].Selected = Options.Fuzzy;
+		FindAskDlg[FAD_CHECKBOX_HEX].Selected = Options.SearchHex;
 		const auto Dlg = Dialog::create(FindAskDlg, &FindFiles::MainDlgProc, this);
 		Dlg->SetAutomation(FAD_CHECKBOX_FILTER,FAD_BUTTON_FILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg->SetHelp(L"FindFile"sv);
 		Dlg->SetId(FindFileId);
-		Dlg->SetPosition({ -1, -1, 80, 21 });
+		Dlg->SetPosition({ -1, -1, 80, 22 });
 		Dlg->Process();
 		const auto ExitCode = Dlg->GetExitCode();
 		//Рефреш текущему времени для фильтра сразу после выхода из диалога
@@ -3168,15 +3177,12 @@ FindFiles::FindFiles():
 		}
 
 		Global->Opt->FindCodePage = CodePage;
-		SearchCaseFold =
-			FindAskDlg[FAD_CHECKBOX_CASE].Selected == BSTATE_CHECKED? search_case_fold::exact :
-			FindAskDlg[FAD_CHECKBOX_CASE].Selected == BSTATE_UNCHECKED? search_case_fold::icase :
-			search_case_fold::fuzzy;
-
-		WholeWords=FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected == BSTATE_CHECKED;
-		SearchHex=FindAskDlg[FAD_CHECKBOX_HEX].Selected == BSTATE_CHECKED;
-		SearchInArchives=FindAskDlg[FAD_CHECKBOX_ARC].Selected == BSTATE_CHECKED;
-		NotContaining = FindAskDlg[FAD_CHECKBOX_NOTCONTAINING].Selected == BSTATE_CHECKED;
+		Options.CaseSensitive = FindAskDlg[FAD_CHECKBOX_CASE].Selected == BSTATE_CHECKED;
+		Options.WholeWords = FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected == BSTATE_CHECKED;
+		Options.Fuzzy = FindAskDlg[FAD_CHECKBOX_FUZZY].Selected == BSTATE_CHECKED;
+		Options.SearchHex = FindAskDlg[FAD_CHECKBOX_HEX].Selected == BSTATE_CHECKED;
+		Options.NotContaining = FindAskDlg[FAD_CHECKBOX_NOTCONTAINING].Selected == BSTATE_CHECKED;
+		Options.SearchInArchives = FindAskDlg[FAD_CHECKBOX_ARC].Selected == BSTATE_CHECKED;
 
 		if (FindFoldersChanged)
 		{
@@ -3193,7 +3199,7 @@ FindFiles::FindFiles():
 		Global->Opt->FindOpt.UseFilter=UseFilter;
 		strFindMask = !FindAskDlg[FAD_EDIT_MASK].strData.empty()? FindAskDlg[FAD_EDIT_MASK].strData : L"*"sv;
 
-		if (SearchHex)
+		if (Options.SearchHex)
 		{
 			strFindStr = ExtractHexString(FindAskDlg[FAD_EDIT_HEX].strData);
 		}
@@ -3202,9 +3208,10 @@ FindFiles::FindFiles():
 
 		if (!strFindStr.empty())
 		{
-			Global->StoreSearchString(strFindStr, SearchHex);
-			Global->GlobalSearchCaseFold = SearchCaseFold;
-			Global->GlobalSearchWholeWords=WholeWords;
+			Global->StoreSearchString(strFindStr, Options.SearchHex);
+			Global->GlobalSearchCaseSensitive = Options.CaseSensitive;
+			Global->GlobalSearchWholeWords = Options.WholeWords;
+			Global->GlobalSearchFuzzy = Options.Fuzzy;
 		}
 
 		SearchMode = static_cast<FINDAREA>(FindAskDlg[FAD_COMBOBOX_WHERE].ListPos);
@@ -3214,11 +3221,7 @@ FindFiles::FindFiles():
 			Global->Opt->FindOpt.FileSearchMode=SearchMode;
 		}
 
-		LastSearchCaseFold = SearchCaseFold;
-		LastWholeWords=WholeWords;
-		LastSearchHex=SearchHex;
-		LastSearchInArchives=SearchInArchives;
-		LastNotContaining = NotContaining;
+		LastOptions = Options;
 		strLastFindMask = strFindMask;
 		strLastFindStr = strFindStr;
 
@@ -3243,11 +3246,7 @@ background_searcher::background_searcher(
 	ArcListItem* FindFileArcItem,
 	uintptr_t CodePage,
 	unsigned long long SearchInFirst,
-	search_case_fold SearchCaseFold,
-	bool WholeWords,
-	bool SearchInArchives,
-	bool SearchHex,
-	bool NotContaining,
+	FindFilesOptions Options,
 	bool UseFilter,
 	bool PluginMode):
 
@@ -3258,11 +3257,7 @@ background_searcher::background_searcher(
 	m_FindFileArcItem(FindFileArcItem),
 	CodePage(CodePage),
 	SearchInFirst(SearchInFirst),
-	SearchCaseFold(SearchCaseFold),
-	WholeWords(WholeWords),
-	SearchInArchives(SearchInArchives),
-	SearchHex(SearchHex),
-	NotContaining(NotContaining),
+	Options(Options),
 	UseFilter(UseFilter),
 	m_PluginMode(PluginMode),
 	PauseEvent(os::event::type::manual, os::event::state::signaled),

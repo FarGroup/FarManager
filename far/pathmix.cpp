@@ -184,9 +184,9 @@ bool IsAbsolutePath(const string_view Path)
 bool HasPathPrefix(const string_view Path)
 {
 	return
-		starts_with(Path, L"\\\\?\\"sv) ||
-		starts_with(Path, L"\\\\.\\"sv) ||
-		starts_with(Path, L"\\??\\"sv);
+		Path.starts_with(L"\\\\?\\"sv) ||
+		Path.starts_with(L"\\\\.\\"sv) ||
+		Path.starts_with(L"\\??\\"sv);
 }
 
 string_view ExtractPathPrefix(const string_view Path)
@@ -254,7 +254,7 @@ bool IsParentDirectory(const PluginPanelItem& Data)
 
 bool IsCurrentDirectory(string_view const Str)
 {
-	return starts_with(Str, L"."sv) && (Str.size() == 1 || (Str.size() == 2 && path::is_separator(Str[1])));
+	return Str.starts_with(L"."sv) && (Str.size() == 1 || (Str.size() == 2 && path::is_separator(Str[1])));
 }
 
 string_view PointToName(string_view const Path)
@@ -524,7 +524,7 @@ bool IsRootPath(const string_view Path)
 bool PathStartsWith(const string_view Path, const string_view Start)
 {
 	const auto PathPart = DeleteEndSlash(Start);
-	return starts_with(Path, PathPart) && (Path.size() == PathPart.size() || path::is_separator(Path[PathPart.size()]));
+	return Path.starts_with(PathPart) && (Path.size() == PathPart.size() || path::is_separator(Path[PathPart.size()]));
 }
 
 #ifdef ENABLE_TESTS

@@ -164,7 +164,44 @@ WARNING_DISABLE_MSC(4996) // 'GetVersionExW': was declared deprecated. So helpfu
 WARNING_DISABLE_CLANG("-Wdeprecated-declarations")
 		return GetVersionEx(InfoPtr) != FALSE;
 WARNING_POP()
-}
+	}
+
+	static auto windows_platform(int const PlatformId)
+	{
+		switch (PlatformId)
+		{
+		case VER_PLATFORM_WIN32_NT:
+			return L"Windows NT"s;
+		default:
+			return format(FSTR(L"Unknown ({})"sv), PlatformId);
+		}
+	}
+
+	static auto windows_product_type(int const ProductType)
+	{
+		switch (ProductType)
+		{
+		case VER_NT_WORKSTATION:
+			return L"Workstation"s;
+		case VER_NT_DOMAIN_CONTROLLER:
+			return L"Domain Controller"s;
+		case VER_NT_SERVER:
+			return L"Server"s;
+		default:
+			return format(FSTR(L"Unknown ({})"sv), ProductType);
+		}
+	}
+
+	static auto windows_service_pack(OSVERSIONINFOEX const& Info)
+	{
+		if (*Info.szCSDVersion)
+			return format(FSTR(L" {} ({}.{})"sv), Info.szCSDVersion, Info.wServicePackMajor, Info.wServicePackMinor);
+
+		if (Info.wServicePackMajor)
+			return format(FSTR(L" {}.{}"sv), Info.wServicePackMajor, Info.wServicePackMinor);
+
+		return L""s;
+	}
 
 	static string os_version_from_api()
 	{
@@ -172,31 +209,44 @@ WARNING_POP()
 		if (!get_os_version(Info))
 			return L"Unknown"s;
 
-		return format(FSTR(L"{}.{}.{}.{}.{}.{}.{}.{}"sv),
+		return format(FSTR(L"{} {} {}.{}.{}{}, 0x{:X}"sv),
+			windows_platform(Info.dwPlatformId),
+			windows_product_type(Info.wProductType),
 			Info.dwMajorVersion,
 			Info.dwMinorVersion,
 			Info.dwBuildNumber,
-			Info.dwPlatformId,
-			Info.wServicePackMajor,
-			Info.wServicePackMinor,
-			Info.wSuiteMask,
-			Info.wProductType
+			windows_service_pack(Info),
+			Info.wSuiteMask
 		);
 	}
 
 	// Mental OS - mental methods *facepalm*
 	static string os_version_from_registry()
 	{
-		const auto Key = reg::key::open(reg::key::local_machine, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"sv, KEY_QUERY_VALUE);
+		static const auto NativeKeyFlag = []
+		{
+			return
+#ifndef _WIN64
+				IsWow64Process()? KEY_WOW64_64KEY :
+#endif
+				0;
+		}();
+
+		const auto Key = reg::key::open(reg::key::local_machine, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"sv, KEY_QUERY_VALUE | NativeKeyFlag);
 		if (!Key)
 			return {};
 
-		string DisplayVersion, CurrentBuild;
+		string ProductName, DisplayVersion, CurrentBuild;
 		unsigned UBR;
-		if ((!Key.get(L"DisplayVersion"sv, DisplayVersion) && !Key.get(L"ReleaseId"sv, DisplayVersion)) || !Key.get(L"CurrentBuild"sv, CurrentBuild) || !Key.get(L"UBR"sv, UBR))
+		if (
+			!Key.get(L"ProductName"sv, ProductName) ||
+			(!Key.get(L"DisplayVersion"sv, DisplayVersion) && !Key.get(L"ReleaseId"sv, DisplayVersion)) ||
+			!Key.get(L"CurrentBuild"sv, CurrentBuild) ||
+			!Key.get(L"UBR"sv, UBR)
+		)
 			return {};
 
-		return format(FSTR(L" (version {}, OS build {}.{})"sv), DisplayVersion, CurrentBuild, UBR);
+		return format(FSTR(L" ({}, version {}, OS build {}.{})"sv), ProductName, DisplayVersion, CurrentBuild, UBR);
 	}
 
 	string os_version()

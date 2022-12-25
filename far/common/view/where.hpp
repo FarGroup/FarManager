@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "../keep_alive.hpp"
-#include "../rel_ops.hpp"
 
 #include <iterator>
 
@@ -42,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace detail
 {
 	template<typename T, typename predicate>
-	class where_iterator : public rel_ops<where_iterator<T, predicate>>
+	class where_iterator
 	{
 	public:
 		using iterator_category = std::common_type_t<std::bidirectional_iterator_tag, typename std::iterator_traits<T>::iterator_category>;
@@ -87,7 +86,7 @@ namespace detail
 		}
 
 		[[nodiscard]]
-		auto operator==(const where_iterator& rhs) const { return m_Value == rhs.m_Value; }
+		bool operator==(const where_iterator& rhs) const { return m_Value == rhs.m_Value; }
 
 	private:
 		T m_Value;

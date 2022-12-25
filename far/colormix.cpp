@@ -629,7 +629,7 @@ string_view ExtractColorInNewFormat(string_view const Str, FarColor& Color, bool
 {
 	Stop = false;
 
-	if (!starts_with(Str, L'('))
+	if (!Str.starts_with(L'('))
 		return Str;
 
 	const auto Token = Str.substr(1, Str.substr(1).find(L')'));

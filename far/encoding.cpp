@@ -455,12 +455,17 @@ static size_t get_bytes_impl(uintptr_t const Codepage, string_view const Str, sp
 	}
 }
 
-uintptr_t encoding::codepage::ansi()
+uintptr_t encoding::codepage::detail::utf8::id()
+{
+	return CP_UTF8;
+}
+
+uintptr_t encoding::codepage::detail::ansi::id()
 {
 	return GetACP();
 }
 
-uintptr_t encoding::codepage::oem()
+uintptr_t encoding::codepage::detail::oem::id()
 {
 	return GetOEMCP();
 }
@@ -722,7 +727,7 @@ static const int OPT = opt + 255;
 static const int PLS = pls + b64 + 62;
 static const int MNS = mns + dir + 255;
 
-constexpr short operator ""_D(unsigned long long const n)
+constexpr short operator""_D(unsigned long long const n)
 {
 	return static_cast<short>(dir + b64 + n);
 }
@@ -1484,19 +1489,6 @@ string ShortReadableCodepageName(uintptr_t cp)
 // PureAscii makes sense only if the function returned true
 bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialContent, bool& PureAscii)
 {
-	// The number of consecutive 1 bits in 000-111
-	static constexpr char LookupTable[]
-	{
-		0, // 000
-		0, // 001
-		0, // 010
-		0, // 011
-		1, // 100
-		1, // 101
-		2, // 110
-		3, // 111
-	};
-
 	bool Ascii = true;
 	size_t ContinuationBytes = 0;
 	const unsigned char Min = 0b10000000, Max = 0b10111111;
@@ -1519,25 +1511,22 @@ bool encoding::is_valid_utf8(std::string_view const Str, bool const PartialConte
 			continue;
 		}
 
-		if (::utf8::is_ascii_byte(c))
+		const auto BytesCount = std::countl_one(c);
+		if (!BytesCount)
 			continue;
 
+		ContinuationBytes = BytesCount - 1;
+
 		Ascii = false;
-
-		const auto Bits = (c & 0b01110000) >> 4;
-
-		ContinuationBytes = LookupTable[Bits];
-		if (!ContinuationBytes)
-			return false;
-
-		if (c & bit(7 - 1 - ContinuationBytes))
-			return false;
 
 		NextMin = Min;
 		NextMax = Max;
 
 		switch (ContinuationBytes)
 		{
+		default:
+			return false;
+
 		case 1:
 			if (c < 0b11000010)
 				return false;

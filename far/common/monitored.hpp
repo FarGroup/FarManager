@@ -45,10 +45,10 @@ public:
 	MOVABLE(monitored);
 
 	monitored(): m_Value(), m_Touched() {}
-	monitored(const T& Value): m_Value(Value), m_Touched() {}
+	explicit(false) monitored(const T& Value): m_Value(Value), m_Touched() {}
 	monitored(const monitored& rhs): m_Value(rhs.m_Value), m_Touched() {}
 
-	monitored(T&& Value) noexcept: m_Value(std::move(Value)), m_Touched() {}
+	explicit(false) monitored(T&& Value) noexcept: m_Value(std::move(Value)), m_Touched() {}
 
 	auto& operator=(const T& Value) { m_Value = Value; m_Touched = true; return *this; }
 	auto& operator=(const monitored& rhs) { m_Value = rhs.m_Value; m_Touched = true; return *this; }
@@ -62,10 +62,10 @@ public:
 	const auto& value() const noexcept { return m_Value; }
 
 	[[nodiscard]]
-	operator T&() noexcept { return m_Value; }
+	explicit(false) operator T&() noexcept { return m_Value; }
 
 	[[nodiscard]]
-	operator const T&() const noexcept { return m_Value; }
+	explicit(false) operator const T&() const noexcept { return m_Value; }
 
 	[[nodiscard]]
 	auto touched() const noexcept { return m_Touched; }

@@ -1563,22 +1563,22 @@ void Edit::SetString(string_view Str, bool const KeepSelection)
 
 	if (!m_Flags.Check(FEDITLINE_PARENT_SINGLELINE))
 	{
-		if (ends_with(Str, L'\r'))
+		if (Str.ends_with(L'\r'))
 		{
 			m_Eol = eol::mac;
 			Str.remove_suffix(1);
 		}
 		else
 		{
-			if (ends_with(Str, L'\n'))
+			if (Str.ends_with(L'\n'))
 			{
 				Str.remove_suffix(1);
 
-				if (ends_with(Str, L'\r'))
+				if (Str.ends_with(L'\r'))
 				{
 					Str.remove_suffix(1);
 
-					if (ends_with(Str, L'\r'))
+					if (Str.ends_with(L'\r'))
 					{
 						Str.remove_suffix(1);
 						m_Eol = eol::bad_win;
@@ -1596,29 +1596,37 @@ void Edit::SetString(string_view Str, bool const KeepSelection)
 
 	m_CurPos=0;
 
-	const auto Mask = GetInputMask();
-	if (!Mask.empty())
+	// BUGBUG almost the same code in InsertString
+	// TODO Move to a function
+	if (const auto Mask = GetInputMask(); !Mask.empty())
 	{
 		RefreshStrByMask(TRUE);
-		for (size_t i = 0, j = 0, maskLen = Mask.size(); i < maskLen && j < maskLen && j < Str.size();)
+		for (size_t i = 0, j = 0, MaskLen = Mask.size(); i < MaskLen && j < MaskLen && j < Str.size();)
 		{
+			// After 5050 InsertKey above redraws the dialog.
+			// This might affect m_CurPos in mysterious ways.
+			m_CurPos = static_cast<int>(i);
+
 			if (CheckCharMask(Mask[i]))
 			{
-				int goLoop=FALSE;
+				bool goLoop = false;
 
-				if (CharInMask(Str[j], Mask[m_CurPos]))
+				if (j < Str.size() && CharInMask(Str[j], Mask[m_CurPos]))
 					InsertKey(Str[j]);
 				else
-					goLoop=TRUE;
+					goLoop = true;
 
 				j++;
 
-				if (goLoop) continue;
+				if (goLoop)
+					continue;
 			}
 			else
 			{
-				SetPrevCurPos(m_CurPos);
-				m_CurPos++;
+				if (Mask[j] == Str[j])
+				{
+					j++;
+				}
 			}
 
 			i++;
@@ -1681,8 +1689,9 @@ void Edit::InsertString(string_view Str)
 		return;
 	}
 
-	const auto Mask = GetInputMask();
-	if (!Mask.empty())
+	// BUGBUG almost the same code in SetString
+	// TODO Move to a function
+	if (const auto Mask = GetInputMask(); !Mask.empty())
 	{
 		const auto MaskLen = Mask.size();
 
@@ -1692,11 +1701,15 @@ void Edit::InsertString(string_view Str)
 
 			for (size_t i = m_CurPos, j = 0; i != MaskLen && j != StrLen;)
 			{
+				// After 5050 InsertKey above redraws the dialog.
+				// This might affect m_CurPos in mysterious ways.
+				m_CurPos = static_cast<int>(i);
+
 				if (CheckCharMask(Mask[i]))
 				{
 					bool goLoop = false;
 
-					if (j < Str.size() && CharInMask(Str[j], Mask[m_CurPos]))
+					if (j < Str.size() && CharInMask(Str[j], Mask[i]))
 					{
 						InsertKey(Str[j]);
 					}
@@ -1714,8 +1727,6 @@ void Edit::InsertString(string_view Str)
 					{
 						j++;
 					}
-					SetPrevCurPos(m_CurPos);
-					m_CurPos++;
 				}
 
 				i++;

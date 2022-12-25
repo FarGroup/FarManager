@@ -32,36 +32,11 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <concepts>
 #include <iterator>
 #include <type_traits>
 
 //----------------------------------------------------------------------------
-
-namespace detail
-{
-	template<typename void_type, template<typename...> typename operation, typename... args>
-	struct is_detected : std::false_type{};
-
-	template<template<typename...> typename operation, typename... args>
-	struct is_detected<std::void_t<operation<args...>>, operation, args...> : std::true_type{};
-}
-
-template <template<typename...> typename operation, typename... args>
-using is_detected = typename detail::is_detected<void, operation, args...>::type;
-
-template<template<typename...> typename operation, typename... args>
-inline constexpr bool is_detected_v = is_detected<operation, args...>::value;
-
-#define IS_DETECTED(Name, ...) \
-namespace detail \
-{ \
-	template<typename T> \
-	using try_ ## Name = decltype(__VA_ARGS__); \
-} \
- \
-template<typename T> \
-inline constexpr bool Name = is_detected_v<detail::try_ ## Name, T>;
-
 
 template<typename type, typename... args>
 using is_one_of = std::disjunction<std::is_same<type, args>...>;
@@ -69,39 +44,25 @@ using is_one_of = std::disjunction<std::is_same<type, args>...>;
 template<typename type, typename... args>
 inline constexpr bool is_one_of_v = is_one_of<type, args...>::value;
 
-namespace detail
+template<typename type>
+concept range_like = requires(type&& t)
 {
-#define DETAIL_TRY_(What) \
-	template<typename type> \
-	using try_ ## What = decltype(std::What(std::declval<type&>()))
+	std::begin(t);
+	std::end(t);
+};
 
-	DETAIL_TRY_(begin);
-	DETAIL_TRY_(end);
-	DETAIL_TRY_(data);
-	DETAIL_TRY_(size);
-
-#undef DETAIL_TRY_
-}
-
-template<class type>
-using is_range = std::conjunction<is_detected<detail::try_begin, type>, is_detected<detail::try_end, type>>;
-
-template<class type>
-inline constexpr bool is_range_v = is_range<type>::value;
-
-template<class type>
-using is_span = std::conjunction<is_detected<detail::try_data, type>, is_detected<detail::try_size, type>>;
-
-template<class type>
-inline constexpr bool is_span_v = is_span<type>::value;
+template<typename type>
+concept span_like = requires(type&& t)
+{
+	std::data(t);
+	std::size(t);
+};
 
 namespace detail
 {
-	template<typename T>
+	template<typename T> requires std::integral<T> || std::is_enum_v<T>
 	auto sane_to_underlying(T Value)
 	{
-		static_assert(std::disjunction_v<std::is_integral<T>, std::is_enum<T>>);
-
 		if constexpr (std::is_enum_v<T>)
 			return static_cast<std::underlying_type_t<T>>(Value);
 		else

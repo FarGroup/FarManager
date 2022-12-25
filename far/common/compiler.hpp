@@ -175,4 +175,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define COMPILER_ERROR(str)   COMPILER_MESSAGE_IMPL("error", str)
 #endif
 
+//----------------------------------------------------------------------------
+
+#define DETAIL_COMPILER_VERSION(major, minor, patch) \
+	((((major) * 1ull) << 32) | (((minor) * 1ull) << 16) | (((patch) * 1ull) << 0))
+
+#define CHECK_COMPILER(compiler, major, minor, patch) \
+	( \
+		!COMPILER(compiler) || ( \
+			DETAIL_COMPILER_VERSION(COMPILER_VERSION_MAJOR, COMPILER_VERSION_MINOR, COMPILER_VERSION_PATCH) >= \
+			DETAIL_COMPILER_VERSION(major, minor, patch) \
+		) \
+	)
+
 #endif // COMPILER_HPP_6A237B14_5BAA_4106_9D7F_7C7BA14A36B0

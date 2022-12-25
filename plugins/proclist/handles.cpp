@@ -292,33 +292,28 @@ static std::wstring GetNameByType(HANDLE handle, WORD type, PerfThread* pThread)
 			MACHINE  = L"MACHINE"sv,
 			CLASSES_ = L"_CLASSES"sv;
 
-		const auto starts_with = [](std::wstring_view const Str, std::wstring_view const Pattern)
-		{
-			return Str.size() >= Pattern.size() && std::equal(Pattern.cbegin(), Pattern.cend(), Str.cbegin());
-		};
-
-		if (type == OB_TYPE_KEY && starts_with(ws, REGISTRY))
+		if (type == OB_TYPE_KEY && ws.starts_with(REGISTRY))
 		{
 			auto ws1 = ws.substr(REGISTRY.size());
 			std::wstring_view s0;
 
-			if (starts_with(ws1, USER))
+			if (ws1.starts_with(USER))
 			{
 				ws1.remove_prefix(USER.size());
 
-				if (starts_with(ws1, L"\\"sv))
+				if (ws1.starts_with(L"\\"sv))
 				{
 					s0 = L"HKU\\"sv;
 					ws1.remove_prefix(1);
 
 					const auto& Id = GetUserAccountID();
 
-					if (starts_with(ws1, Id))
+					if (ws1.starts_with(Id))
 					{
 						s0 = L"HKCU"sv;
 						ws1.remove_prefix(Id.size());
 
-						if (starts_with(ws1, CLASSES_))
+						if (ws1.starts_with(CLASSES_))
 						{
 							s0 = L"HKCU\\Classes"sv;
 							ws1.remove_prefix(CLASSES_.size());
@@ -330,8 +325,8 @@ static std::wstring GetNameByType(HANDLE handle, WORD type, PerfThread* pThread)
 					s0 = L"HKU"sv;
 				}
 			}
-			else if (starts_with(ws1, CLASSES)) { s0 = L"HKCR"sv; ws1.remove_prefix(CLASSES.size()); }
-			else if (starts_with(ws1, MACHINE)) { s0 = L"HKLM"sv; ws1.remove_prefix(MACHINE.size()); }
+			else if (ws1.starts_with(CLASSES)) { s0 = L"HKCR"sv; ws1.remove_prefix(CLASSES.size()); }
+			else if (ws1.starts_with(MACHINE)) { s0 = L"HKLM"sv; ws1.remove_prefix(MACHINE.size()); }
 
 			if (!s0.empty())
 			{

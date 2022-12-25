@@ -43,7 +43,7 @@ namespace detail
 	template<typename T, bool Add>
 	using add_const_if_t = std::conditional_t<Add, T const, T>;
 
-	template<typename return_type, typename T, REQUIRES((std::disjunction_v<std::is_void<T>, std::is_trivially_copyable<T>>))>
+	template<typename return_type, typename T> requires std::is_void_v<T> || std::is_trivially_copyable_v<T>
 	return_type bytes_impl(T* const Data, size_t const Size)
 	{
 		constexpr auto IsConst = std::is_const_v<T>;
@@ -55,7 +55,7 @@ namespace detail
 	template<typename return_type, typename T>
 	auto bytes_impl(T& Object)
 	{
-		if constexpr (is_span_v<T>)
+		if constexpr (span_like<T>)
 		{
 			using value_type = std::remove_reference_t<decltype(*std::data(std::declval<T&>()))>;
 			static_assert(std::is_trivially_copyable_v<value_type>);
@@ -77,7 +77,7 @@ namespace detail
 using bytes_view = std::basic_string_view<std::byte>;
 
 [[nodiscard]]
-constexpr bytes_view operator "" _bv(const char* Str, std::size_t Size) noexcept
+constexpr bytes_view operator""_bv(const char* Str, std::size_t Size) noexcept
 {
 	return { static_cast<std::byte const*>(static_cast<void const*>(Str)), Size };
 }
@@ -86,9 +86,9 @@ constexpr bytes_view operator "" _bv(const char* Str, std::size_t Size) noexcept
 using bytes = std::basic_string<std::byte>;
 
 [[nodiscard]]
-/*constexpr*/ inline bytes operator "" _b(const char* Str, std::size_t Size) noexcept
+/*constexpr*/ inline bytes operator""_b(const char* Str, std::size_t Size) noexcept
 {
-	return bytes{ operator ""_bv(Str, Size) };
+	return bytes{ operator""_bv(Str, Size) };
 }
 
 

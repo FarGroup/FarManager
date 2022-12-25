@@ -9,7 +9,7 @@ skip_non_tags: false
 
 max_jobs: 8
 
-image: Visual Studio 2019
+image: Visual Studio 2022
 
 init:
   - git config --global core.autocrlf true
@@ -72,7 +72,7 @@ build_script:
   #build Lua MacroAPI docs
   - enc/tools/tool.make_lua_chm.bat
   #set vs environment variables
-  - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" %arch%
+  - call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" %arch%
   #print version
   - cl
   #build far

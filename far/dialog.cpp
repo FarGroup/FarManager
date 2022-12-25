@@ -378,7 +378,8 @@ void Dialog::Construct(span<DialogItemEx> const SrcItems)
 	{
 		for (const auto& [ItemAuto, SrcItemAuto]: zip(Item.Auto, SrcItem.Auto))
 		{
-			// TODO: P1091R3
+			// https://github.com/llvm/llvm-project/issues/54300
+			// TODO: remove once we have it.
 			const auto SrcItemIterator = std::find_if(ALL_CONST_RANGE(SrcItems), [&SrcItemAuto = SrcItemAuto](const DialogItemEx& i)
 			{
 				return &i == SrcItemAuto.Owner;
@@ -1721,9 +1722,9 @@ void Dialog::ShowDialog(size_t ID)
 					{
 						if (!strStr.empty())
 						{
-							if (!starts_with(strStr, L" "sv))
+							if (!strStr.starts_with(L" "sv))
 								strStr.insert(0, 1, L' ');
-							if (!ends_with(strStr, L" "sv))
+							if (!strStr.ends_with(L" "sv))
 								strStr.push_back(L' ');
 						}
 					}
@@ -6084,7 +6085,7 @@ void Dialog::RemoveFromList()
 
 bool Dialog::IsValid(Dialog* Handle)
 {
-	return contains(dialogs_set::instance().Set, Handle);
+	return dialogs_set::instance().Set.contains(Handle);
 }
 
 void Dialog::SetDeleting()

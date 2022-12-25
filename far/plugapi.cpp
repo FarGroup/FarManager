@@ -3194,7 +3194,10 @@ BOOL WINAPI apiMkLink(const wchar_t *Target, const wchar_t *LinkName, LINK_TYPE 
 			switch (Type)
 			{
 			case LINK_HARDLINK:
-				Result = MkHardLink(Target, LinkName, (Flags&MLF_SHOWERRMSG) == 0);
+				{
+					std::optional<error_state_ex> ErrorState;
+					Result = MkHardLink(Target, LinkName, ErrorState, (Flags & MLF_SHOWERRMSG) == 0);
+				}
 				break;
 
 			case LINK_JUNCTION:
@@ -3223,7 +3226,8 @@ BOOL WINAPI apiMkLink(const wchar_t *Target, const wchar_t *LinkName, LINK_TYPE 
 					break;
 				}
 
-				Result = MkSymLink(Target, LinkName, LinkType, (Flags&MLF_SHOWERRMSG) == 0, (Flags&MLF_HOLDTARGET) != 0);
+				std::optional<error_state_ex> ErrorState;
+				Result = MkSymLink(Target, LinkName, LinkType, ErrorState, (Flags&MLF_SHOWERRMSG) == 0, (Flags&MLF_HOLDTARGET) != 0);
 				break;
 			}
 

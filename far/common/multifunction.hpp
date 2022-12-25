@@ -132,7 +132,7 @@ public:
 	multifunction() = default;
 
 	template<typename callable_type>
-	multifunction(const callable_type& Callable):
+	explicit(false) multifunction(const callable_type& Callable):
 		m_Callable(std::make_unique<detail::callable<callable_type, signatures...>>(Callable))
 	{
 	}

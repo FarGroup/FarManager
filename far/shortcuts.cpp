@@ -63,7 +63,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "platform.fs.hpp"
 
 // Common:
-#include "common/rel_ops.hpp"
 #include "common/string_utils.hpp"
 #include "common/uuid.hpp"
 #include "common/view/enumerate.hpp"
@@ -84,7 +83,7 @@ static const auto
 	HelpFolderShortcuts = L"FolderShortcuts"sv,
 	SeparatorToken = L"--"sv;
 
-class Shortcuts::shortcut: public data, public rel_ops<shortcut>
+class Shortcuts::shortcut: public data
 {
 public:
 	shortcut() = default;
@@ -98,15 +97,7 @@ public:
 		this->PluginUuid = PluginUuid;
 	}
 
-	bool operator==(const shortcut& rhs) const
-	{
-		const auto tie = [](const shortcut& s)
-		{
-			return std::tie(s.Name, s.Folder, s.PluginUuid, s.PluginFile, s.PluginData);
-		};
-
-		return tie(*this) == tie(rhs);
-	}
+	bool operator==(const shortcut&) const = default;
 
 	string Name;
 };
@@ -493,9 +484,7 @@ static bool EditListItem(const std::list<Shortcuts::shortcut>& List, VMenu2& Men
 template<size_t... I>
 static auto make_shortcuts(std::index_sequence<I...>)
 {
-	// Q: Why not just use CTAD?
-	// A: To make Coverity and its compiler happy: 'Internal error #2688: assertion failed at: "edg/src/overload.c", line 27123'
-	return std::array<Shortcuts, sizeof...(I)>{ Shortcuts(I)... };
+	return std::array{ Shortcuts(I)... };
 }
 
 int Shortcuts::Configure()

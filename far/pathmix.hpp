@@ -136,7 +136,7 @@ class NTPath:public string
 {
 	void Transform();
 public:
-	NTPath(const string_view Src):
+	explicit(false) NTPath(const string_view Src):
 		string(Src)
 	{
 		Transform();

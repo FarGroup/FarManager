@@ -449,7 +449,7 @@ public:
 		if (WAL && !os::fs::can_create_file(concat(Path, L'.', uuid::str(os::uuid::generate())))) // can't open db -- copy to %TEMP%
 		{
 			const auto TmpDbPath = concat(MakeTemp(), str(GetCurrentProcessId()), L'-', PointToName(Path));
-			if (!os::fs::copy_file(Path, TmpDbPath, nullptr, nullptr, nullptr, 0))
+			if (!os::fs::copy_file(Path, TmpDbPath, nullptr, nullptr, 0))
 				throw_exception(Path, SQLITE_READONLY);
 
 			Deleter.add(TmpDbPath);

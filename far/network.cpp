@@ -191,7 +191,7 @@ string ExtractComputerName(const string_view CurDir, string* const strTail)
 		return {};
 
 	if (strTail)
-		strTail->assign(Result, pos + 1, string::npos); // gcc 7.3-8.1 bug: npos required. TODO: Remove after we move to 8.2 or later)
+		strTail->assign(Result, pos + 1);
 
 	Result.resize(pos);
 
