@@ -1,4 +1,12 @@
 --------------------------------------------------------------------------------
+drkns 27.12.2022 19:40:03 +0000 - build 6075
+
+1. If %comspec% is cmd.exe and System.Executor.ExcludeCmds is not specified, a predefined list is used.
+   Users don't read the documentation, let alone understand the peculiarities of command execution.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 21.12.2022 18:22:14 +0000 - build 6074
 
 1. gh-576: Autocomplete does not work in a dialog launched from a macro.
