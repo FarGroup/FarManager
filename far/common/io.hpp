@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "range.hpp"
+#include "type_traits.hpp"
 #include "utility.hpp"
 
 #include <istream>
@@ -87,10 +88,10 @@ namespace io
 		return Stream.gcount();
 	}
 
-	template<typename container>
+	template<span_like container>
 	void write(std::ostream& Stream, const container& Container)
 	{
-		static_assert(std::is_trivially_copyable_v<VALUE_TYPE(Container)>);
+		static_assert(std::is_trivially_copyable_v<value_type<container>>);
 
 		const auto Size = std::size(Container);
 		if (!Size)

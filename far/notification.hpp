@@ -69,9 +69,9 @@ class wm_listener;
 namespace detail
 {
 	template<typename type>
-	concept with_payload = requires(type t)
+	concept with_payload = requires(type t, std::any a)
 	{
-		t(std::declval<std::any>());
+		t(a);
 	};
 
 	template<typename type>

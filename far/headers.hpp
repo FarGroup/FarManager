@@ -37,8 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "common/compiler.hpp"
 
-#if !CHECK_COMPILER(CL, 19, 25, 0)
-#error Visual C++ 2019 Update 5 (or higher) required
+#if !CHECK_COMPILER(CL, 19, 29, 0)
+#error Visual C++ 2019 Update 11 (or higher) required
 #elif !CHECK_COMPILER(GCC, 10, 0, 0)
 #error GCC 10.0.0 (or higher) required
 #elif !CHECK_COMPILER(CLANG, 10, 0, 0)

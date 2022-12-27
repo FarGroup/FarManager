@@ -68,6 +68,12 @@ private:
 	std::function<bool(std::any const&)> m_Matcher;
 };
 
+#define STATIC_REQUIRE_ERROR(Type, ...) \
+	{ \
+		constexpr auto Result = []<typename TestType>(){ return requires { __VA_ARGS__; }; }.template operator()<Type>(); \
+		STATIC_REQUIRE_FALSE(Result); \
+	}
+
 #endif
 
 std::optional<int> testing_main(int Argc, wchar_t const* const Argv[]);

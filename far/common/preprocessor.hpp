@@ -55,10 +55,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CONST_REFERENCE(Object) DETAIL_REFERENCE_IMPL(Object, DETAIL_STD_CONST_MUTATOR)
 
 
-#define DETAIL_VALUE_TYPE_IMPL(Object, REFERENCE_PARAM) std::remove_reference_t<REFERENCE_PARAM(Object)>
-
-#define VALUE_TYPE(Object) DETAIL_VALUE_TYPE_IMPL(Object, REFERENCE)
-#define CONST_VALUE_TYPE(Object) DETAIL_VALUE_TYPE_IMPL(Object, CONST_REFERENCE)
+#define VALUE_TYPE(Object) value_type<decltype(Object)>
+#define CONST_VALUE_TYPE(Object) std::add_const_t<value_type<decltype(Object)>>
 
 
 #define DETAIL_ITERATOR_IMPL(Object, MUTATOR_PARAM) decltype(MUTATOR_PARAM(begin)(Object))
@@ -170,14 +168,12 @@ const RAII_type ANONYMOUS_VARIABLE(scoped_object_)
 
 #define FWD(...) std::forward<decltype(__VA_ARGS__)>(__VA_ARGS__)
 
-#define NOEXCEPT_NOEXCEPT(...) noexcept(noexcept(__VA_ARGS__))
-
-#define LIFT(...) [](auto&&... Args) NOEXCEPT_NOEXCEPT(__VA_ARGS__(FWD(Args)...)) -> decltype(auto) \
+#define LIFT(...) [](auto&&... Args) noexcept(noexcept(__VA_ARGS__(FWD(Args)...))) -> decltype(auto) \
 { \
 	return __VA_ARGS__(FWD(Args)...); \
 }
 
-#define LIFT_MF(...) [](auto&& Self, auto&&... Args) NOEXCEPT_NOEXCEPT(FWD(Self).__VA_ARGS__(FWD(Args)...)) -> decltype(auto) \
+#define LIFT_MF(...) [](auto&& Self, auto&&... Args) noexcept(noexcept(FWD(Self).__VA_ARGS__(FWD(Args)...))) -> decltype(auto) \
 { \
 	return FWD(Self).__VA_ARGS__(FWD(Args)...); \
 }
