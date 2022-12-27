@@ -5846,7 +5846,7 @@ Jednakże, jeżeli “DATE” nie jest wymieniona w tym parametrze, a program
 o nazwie “date.exe” istnieje w jednym z folderów zmiennej #PATH#,
 to polecenie wewnętrznego procesora może nie zostanie nigdy uruchomione.
 
- Gotowe ustawienia dla CMD.EXE, COMMAND.COM i innych znanych procesorów
+ Gotowe ustawienia dla CMD.EXE i innych znanych procesorów
 poleceń można znaleźć w plikach #Addons\SetUp\Executor.*.farconfig#.
 
  Uwaga: Far wykonuje niektóre polecenia ~systemu operacyjnego~@OSCommands@

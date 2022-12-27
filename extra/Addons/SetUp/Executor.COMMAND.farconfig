@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<farconfig>
-    <generalconfig>
-    	<!-- ExcludeCmds (TI#54) for command.com (Win9x/ME) -->
-        <setting key="System.Executor" name="ExcludeCmds" type="text" value="BREAK;CALL;COPY;CTTY;DATE;DEL;DIR;ECHO;ERASE;ERRORLEVEL;EXIST;EXIT;FOR;GOTO;IF;LFNFOR;LH;LOADHIGH;LOCK;MD;MKDIR;NOT;PATH;PAUSE;PROMPT;RD;REN;RENAME;RMDIR;SET;SHIFT;START;TIME;TYPE;UNLOCK;VER;VERIFY;VOL" />
-    </generalconfig>
-</farconfig>
