@@ -657,7 +657,7 @@ auto operator+(T const Lhs, std::basic_string_view<T> const Rhs)
 
 // string_view has iterators, but you cannot construct it from them
 // "Design by committee" *facepalm*
-template <typename T>
+template<typename T>
 [[nodiscard]]
 constexpr auto make_string_view(T const Begin, T const End) noexcept
 {

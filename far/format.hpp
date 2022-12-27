@@ -133,7 +133,7 @@ namespace format_helpers
 	template<typename object_type>
 	struct format_no_spec
 	{
-		template <typename FormatContext>
+		template<typename FormatContext>
 		auto format(object_type const& Value, FormatContext& ctx)
 		{
 			return fmt::format_to(ctx.out(), FSTR(L"{}"sv), fmt::formatter<object_type, wchar_t>::to_string(Value));
@@ -177,10 +177,10 @@ struct fmt::formatter<object_type, wchar_t>: format_helpers::no_spec<object_type
 };
 
 // fmt 9 deprecated implicit enums formatting :(
-template <typename object_type, typename char_type> requires std::is_enum_v<object_type>
+template<typename object_type, typename char_type> requires std::is_enum_v<object_type>
 struct fmt::formatter<object_type, char_type>: fmt::formatter<std::underlying_type_t<object_type>, char_type>
 {
-	template <typename FormatContext>
+	template<typename FormatContext>
 	auto format(object_type const& Value, FormatContext& ctx) const
 	{
 		return formatter<std::underlying_type_t<object_type>, char_type>::format(std::to_underlying(Value), ctx);

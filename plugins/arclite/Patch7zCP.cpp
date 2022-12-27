@@ -70,7 +70,7 @@ static __inline PIMAGE_NT_HEADERS WINAPI PinhFromImageBase(HMODULE hmod)
   return reinterpret_cast<PIMAGE_NT_HEADERS>(PBYTE(hmod) + PIMAGE_DOS_HEADER(hmod)->e_lfanew);
 }
 
-template <class X> X PFromRva(HMODULE m, RVA rva) { return reinterpret_cast<X>(PBYTE(m) + rva); }
+template<class X> X PFromRva(HMODULE m, RVA rva) { return reinterpret_cast<X>(PBYTE(m) + rva); }
 
 static __inline unsigned CountOfImports(PCImgThunkData pitdBase)
 {

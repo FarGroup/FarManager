@@ -281,10 +281,10 @@ public:
 	raw_eol(): m_Cr('\r'), m_Lf('\n') {}
 	explicit raw_eol(uintptr_t Codepage): m_Cr(to(Codepage, L'\r')), m_Lf(to(Codepage, L'\n')) {}
 
-	template <class T>
+	template<class T>
 	[[nodiscard]] T cr() const { return value<T>(L'\r', m_Cr); }
 
-	template <class T>
+	template<class T>
 	[[nodiscard]] T lf() const { return value<T>(L'\n', m_Lf); }
 
 private:
@@ -294,7 +294,7 @@ private:
 		return encoding::get_bytes(Codepage, { &WideChar, 1 }, { &Char, 1 })? Char : WideChar;
 	}
 
-	template <typename T>
+	template<typename T>
 	static T value(
 		[[maybe_unused]] wchar_t const WideChar,
 		[[maybe_unused]] char const Char

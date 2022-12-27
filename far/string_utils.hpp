@@ -194,7 +194,7 @@ namespace detail
 	};
 }
 
-template <typename Searcher>
+template<typename Searcher>
 class fuzzy_searcher final: public i_searcher
 {
 public:
