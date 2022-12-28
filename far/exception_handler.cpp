@@ -394,9 +394,11 @@ static string pe_timestamp()
 static string file_timestamp()
 {
 	os::fs::find_data Data;
-	if (!os::fs::get_find_data(Global->g_strFarModuleName, Data))
+	const auto& ModuleName = Global? Global->g_strFarModuleName : os::fs::get_current_process_file_name();
+
+	if (!os::fs::get_find_data(ModuleName, Data))
 	{
-		LOGWARNING(L"get_find_data({}): {}"sv, Global->g_strFarModuleName, os::last_error());
+		LOGWARNING(L"get_find_data({}): {}"sv, ModuleName, os::last_error());
 		return {};
 	}
 
@@ -832,6 +834,15 @@ static string get_parent_process()
 	return concat(ParentName, L' ', ParentVersion);
 }
 
+static string get_uptime()
+{
+	os::chrono::time_point CreationTime;
+	if (!os::chrono::get_process_creation_time(GetCurrentProcess(), CreationTime))
+		return {};
+
+	return ConvertDurationToHMS(os::chrono::nt_clock::now() - CreationTime);
+}
+
 namespace detail
 {
 	struct PMD
@@ -1169,7 +1180,8 @@ static string collect_information(
 	const auto KernelVersion = kernel_version();
 	const auto ConsoleHost = get_console_host();
 	const auto Parent = get_parent_process();
-
+	const auto Command = GetCommandLine();
+	const auto Uptime = get_uptime();
 
 	std::pair<string_view, string_view> const BasicInfo[]
 	{
@@ -1192,6 +1204,8 @@ static string collect_information(
 		{ L"Kernel:   "sv, KernelVersion, },
 		{ L"Host:     "sv, ConsoleHost,   },
 		{ L"Parent:   "sv, Parent,        },
+		{ L"Command:  "sv, Command,       },
+		{ L"Uptime:   "sv, Uptime,        },
 	};
 
 	const auto log_message = [&]

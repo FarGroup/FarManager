@@ -349,7 +349,7 @@ namespace os
 
 		private:
 			[[nodiscard]]
-			HMODULE get_module() const noexcept;
+			HMODULE get_module(bool Mandatory) const;
 
 			void* get_proc_address(const char* Name) const;
 
@@ -361,8 +361,7 @@ namespace os
 			using module_ptr = std::unique_ptr<std::remove_pointer_t<HMODULE>, module_deleter>;
 
 			string m_name;
-			mutable module_ptr m_module;
-			mutable bool m_tried;
+			mutable std::optional<module_ptr> m_module;
 			bool m_AlternativeLoad;
 		};
 
@@ -381,7 +380,7 @@ namespace os
 
 		protected:
 			[[nodiscard]]
-			void* get_pointer() const;
+			void* get_pointer(bool Mandatory) const;
 
 		private:
 			const module* m_Module;
@@ -392,11 +391,13 @@ namespace os
 		template<typename T>
 		class function_pointer: public opaque_function_pointer
 		{
+			using raw_function_pointer = std::conditional_t<std::is_pointer_v<T>, T, T*>;
+
 		public:
 			using opaque_function_pointer::opaque_function_pointer;
 
 			[[nodiscard]]
-			explicit(false) operator T() const { return reinterpret_cast<T>(get_pointer()); }
+			explicit(false) operator raw_function_pointer() const { return reinterpret_cast<raw_function_pointer>(get_pointer(true)); }
 		};
 	}
 

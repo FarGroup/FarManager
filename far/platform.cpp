@@ -612,14 +612,13 @@ namespace rtdl
 
 		module::module(string_view const Name, bool const AlternativeLoad):
 			m_name(Name),
-			m_tried(),
 			m_AlternativeLoad(AlternativeLoad)
 		{
 		}
 
 		module::operator bool() const noexcept
 		{
-			return get_module() != nullptr;
+			return get_module(false) != nullptr;
 		}
 
 		const string& module::name() const
@@ -628,26 +627,28 @@ namespace rtdl
 			return m_name;
 		}
 
-		HMODULE module::get_module() const noexcept
+		HMODULE module::get_module(bool const Mandatory) const
 		{
-			if (!m_tried && !m_module && !m_name.empty())
+			if (!m_module && !m_name.empty())
 			{
-				m_tried = true;
-				m_module.reset(LoadLibrary(m_name.c_str()));
+				m_module.emplace(LoadLibraryEx(m_name.c_str(), nullptr, 0));
 
-				if (!m_module && m_AlternativeLoad && IsAbsolutePath(m_name))
+				if (!*m_module && m_AlternativeLoad && IsAbsolutePath(m_name))
 				{
-					m_module.reset(LoadLibraryEx(m_name.c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH));
+					m_module->reset(LoadLibraryEx(m_name.c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH));
 				}
 			}
-			return m_module.get();
+
+			if (!*m_module && Mandatory)
+				throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"Error loading {}: {}"sv), m_name, last_error()));
+
+			return m_module->get();
 		}
 
 		void* module::get_proc_address(const char* const Name) const
 		{
-			const auto& Module = get_module();
-			assert(Module);
-			return Module? reinterpret_cast<void*>(::GetProcAddress(Module, Name)) : nullptr;
+			const auto& Module = get_module(true);
+			return reinterpret_cast<void*>(::GetProcAddress(Module, Name));
 		}
 
 		opaque_function_pointer::opaque_function_pointer(const module& Module, const char* Name):
@@ -657,15 +658,18 @@ namespace rtdl
 
 		opaque_function_pointer::operator bool() const noexcept
 		{
-			return get_pointer() != nullptr;
+			return get_pointer(false) != nullptr;
 		}
 
-		void* opaque_function_pointer::get_pointer() const
+		void* opaque_function_pointer::get_pointer(bool const Mandatory) const
 		{
 			if (!m_Pointer)
 				m_Pointer = *m_Module? m_Module->GetProcAddress<void*>(m_Name) : nullptr;
 
-			return *m_Pointer;
+			if (const auto Pointer = *m_Pointer; Pointer || !Mandatory)
+				return Pointer;
+
+			throw MAKE_FAR_FATAL_EXCEPTION(format(FSTR(L"{}!{} is missing: {}"sv), m_Module->name(), encoding::ansi::get_chars(m_Name), last_error()));
 		}
 	}
 
@@ -733,4 +737,38 @@ TEST_CASE("platform.string.receiver")
 		REQUIRE(validate(Data));
 	}
 }
+
+TEST_CASE("platform.rtdl")
+{
+	{
+		os::rtdl::module const Module(L"kernel32"sv);
+		REQUIRE(Module);
+		REQUIRE(Module.GetProcAddress<void*>("GetProcAddress"));
+		REQUIRE(!Module.GetProcAddress<void*>("¡Dame tu mano"));
+
+		{
+			os::rtdl::function_pointer<decltype(GetLastError)> const Pointer(Module, "GetLastError");
+			REQUIRE(Pointer);
+			REQUIRE(Pointer());
+		}
+
+		{
+			os::rtdl::function_pointer<void()> const Pointer(Module, "Y venga conmigo!");
+			REQUIRE(!Pointer);
+			REQUIRE_THROWS_AS(Pointer(), far_fatal_exception);
+		}
+	}
+
+	{
+		os::rtdl::module const Module(L"nul"sv);
+		REQUIRE(!Module);
+
+		REQUIRE_THROWS_AS(Module.GetProcAddress<void*>("¡Vámonos al viaje para buscar los sonidos mágicos"), far_fatal_exception);
+
+		os::rtdl::function_pointer<void()> const Pointer(Module, "De Ecuador!");
+		REQUIRE(!Pointer);
+		REQUIRE_THROWS_AS(Pointer(), far_fatal_exception);
+	}
+}
+
 #endif

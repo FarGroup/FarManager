@@ -309,12 +309,12 @@ namespace console_detail
 		public:
 #define DECLARE_IMPORT_FUNCTION(name, ...) os::rtdl::function_pointer<__VA_ARGS__> p ## name{ m_Module, #name }
 
-			DECLARE_IMPORT_FUNCTION(ReadOutput,           BOOL(WINAPI*)(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* ReadRegion));
-			DECLARE_IMPORT_FUNCTION(WriteOutput,          BOOL(WINAPI*)(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* WriteRegion));
-			DECLARE_IMPORT_FUNCTION(Commit,               BOOL(WINAPI*)());
-			DECLARE_IMPORT_FUNCTION(GetTextAttributes,    BOOL(WINAPI*)(FarColor* Attributes));
-			DECLARE_IMPORT_FUNCTION(SetTextAttributes,    BOOL(WINAPI*)(const FarColor* Attributes));
-			DECLARE_IMPORT_FUNCTION(ClearExtraRegions,    BOOL(WINAPI*)(const FarColor* Color, int Mode));
+			DECLARE_IMPORT_FUNCTION(ReadOutput,           BOOL WINAPI(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* ReadRegion));
+			DECLARE_IMPORT_FUNCTION(WriteOutput,          BOOL WINAPI(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* WriteRegion));
+			DECLARE_IMPORT_FUNCTION(Commit,               BOOL WINAPI());
+			DECLARE_IMPORT_FUNCTION(GetTextAttributes,    BOOL WINAPI(FarColor* Attributes));
+			DECLARE_IMPORT_FUNCTION(SetTextAttributes,    BOOL WINAPI(const FarColor* Attributes));
+			DECLARE_IMPORT_FUNCTION(ClearExtraRegions,    BOOL WINAPI(const FarColor* Color, int Mode));
 
 #undef DECLARE_IMPORT_FUNCTION
 		}

@@ -1394,13 +1394,13 @@ private:
 	public:
 #define DECLARE_IMPORT_FUNCTION(name, ...) os::rtdl::function_pointer<__VA_ARGS__> p ## name{ m_Module, #name }
 
-		DECLARE_IMPORT_FUNCTION(Initialize,            BOOL(WINAPI*)(GlobalInfo* info));
-		DECLARE_IMPORT_FUNCTION(IsPlugin,              BOOL(WINAPI*)(const wchar_t* filename));
-		DECLARE_IMPORT_FUNCTION(CreateInstance,        HANDLE(WINAPI*)(const wchar_t* filename));
-		DECLARE_IMPORT_FUNCTION(GetFunctionAddress,    void*(WINAPI*)(HANDLE Instance, const wchar_t* functionname));
-		DECLARE_IMPORT_FUNCTION(GetError,              BOOL(WINAPI*)(ErrorInfo* info));
-		DECLARE_IMPORT_FUNCTION(DestroyInstance,       BOOL(WINAPI*)(HANDLE Instance));
-		DECLARE_IMPORT_FUNCTION(Free,                  void (WINAPI*)(const ExitInfo* info));
+		DECLARE_IMPORT_FUNCTION(Initialize,            BOOL   WINAPI(GlobalInfo* info));
+		DECLARE_IMPORT_FUNCTION(IsPlugin,              BOOL   WINAPI(const wchar_t* filename));
+		DECLARE_IMPORT_FUNCTION(CreateInstance,        HANDLE WINAPI(const wchar_t* filename));
+		DECLARE_IMPORT_FUNCTION(GetFunctionAddress,    void*  WINAPI(HANDLE Instance, const wchar_t* functionname));
+		DECLARE_IMPORT_FUNCTION(GetError,              BOOL   WINAPI(ErrorInfo* info));
+		DECLARE_IMPORT_FUNCTION(DestroyInstance,       BOOL   WINAPI(HANDLE Instance));
+		DECLARE_IMPORT_FUNCTION(Free,                  void   WINAPI(const ExitInfo* info));
 
 #undef DECLARE_IMPORT_FUNCTION
 

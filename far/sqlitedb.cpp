@@ -325,7 +325,10 @@ std::pair<string, int> SQLiteDb::SQLiteStmt::get_sql() const
 		return { encoding::utf8::get_chars(Sql), ErrorOffset };
 	}
 
-	return { encoding::utf8::get_chars(sqlite::sqlite3_normalized_sql(m_Stmt.get())), ErrorOffset };
+	if (const auto Sql = sqlite::sqlite3_sql(m_Stmt.get()))
+		return { encoding::utf8::get_chars(Sql), ErrorOffset };
+
+	return { L"query"s, ErrorOffset };
 }
 
 static std::string_view get_column_text(sqlite::sqlite3_stmt* Stmt, int Col)
