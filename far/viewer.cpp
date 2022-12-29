@@ -2796,9 +2796,9 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 	if ( swrap == SearchWrap_CYCLE && !tail_part && nb + 3*(slen+ww) < bsize && !veof() )
 	{
 		int nw1 = vread(buff+nw, 3*(slen+ww), t_buff ? t_buff+nw : nullptr);
-		nw1 = std::max(nw1, slen+ww-1);
+		nw1 = std::min(nw1, slen+ww-1);
+		to1 = to + (t_buff ? GetStrBytesNum(t_buff+nw, static_cast<size_t>(nw1)) : sd->ch_size * nw1);
 		nw += nw1;
-		to1 = to + (t_buff ? GetStrBytesNum(t_buff, static_cast<size_t>(nw1)) : sd->ch_size * nw1);
 	}
 
 	const auto is_eof = (to1 >= FileSize ? 1 : 0), iLast = nw - slen - ww + ww*is_eof;
