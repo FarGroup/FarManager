@@ -629,7 +629,7 @@ bool FindWordInString(string_view const Str, size_t CurPos, size_t& Begin, size_
 	if (Str.empty() || CurPos > Str.size())
 		return false;
 
-	const auto WordDiv = concat(WordDiv0, GetSpaces(), GetEols());
+	const auto WordDiv = concat(WordDiv0, GetBlanks(), GetEols());
 
 	if (!CurPos)
 	{
@@ -801,15 +801,15 @@ namespace
 {
 	bool CanContainWholeWord(string_view const Haystack, size_t const Offset, size_t const NeedleSize, string_view const WordDiv)
 	{
-		const auto BlankOrWordDiv = [&WordDiv](wchar_t Ch)
+		const auto SpaceOrWordDiv = [&WordDiv](wchar_t Ch)
 		{
-			return std::iswblank(Ch) || contains(WordDiv, Ch);
+			return std::iswspace(Ch) || contains(WordDiv, Ch);
 		};
 
-		if (Offset && !BlankOrWordDiv(Haystack[Offset - 1]))
+		if (Offset && !SpaceOrWordDiv(Haystack[Offset - 1]))
 			return false;
 
-		if (Offset + NeedleSize < Haystack.size() && !BlankOrWordDiv(Haystack[Offset + NeedleSize]))
+		if (Offset + NeedleSize < Haystack.size() && !SpaceOrWordDiv(Haystack[Offset + NeedleSize]))
 			return false;
 
 		return true;

@@ -50,10 +50,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 constexpr bool IsEol(wchar_t x) noexcept { return x == L'\r' || x == L'\n'; }
 
 [[nodiscard]]
-inline bool IsBlankOrEos(wchar_t x) noexcept { return std::iswblank(x) || !x; }
+inline bool IsBlankOrEos(wchar_t x) noexcept { return !x || std::iswblank(x); }
 
 [[nodiscard]]
-string_view GetSpaces();
+string_view GetBlanks();
 
 [[nodiscard]]
 string_view GetEols();

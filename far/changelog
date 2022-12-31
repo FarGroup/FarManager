@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+MZK 29.12.2022 18:02:10 -0800 - build 6078
+
+1. Unifying Viewer and Editor search.
+   Part 1: Added Fuzzy search to Viewer text search.
+
+--------------------------------------------------------------------------------
 MZK 28.12.2022 21:12:37 -0800 - build 6077
 
 1. gh-581: A couple of bugs in Viewer search (text, forward, cycle).
