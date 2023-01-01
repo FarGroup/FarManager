@@ -343,7 +343,9 @@ enum FINDASKDLG
 	FAD_TEXT_MASK,
 	FAD_EDIT_MASK,
 	FAD_SEPARATOR0,
-	FAD_TEXT_TEXTHEX,
+	FAD_RADIO_TEXT,
+	FAD_RADIO_HEX,
+	FAD_TEXT_CONTAINING,
 	FAD_EDIT_TEXT,
 	FAD_EDIT_HEX,
 	FAD_TEXT_CP,
@@ -352,7 +354,6 @@ enum FINDASKDLG
 	FAD_CHECKBOX_CASE,
 	FAD_CHECKBOX_WHOLEWORDS,
 	FAD_CHECKBOX_FUZZY,
-	FAD_CHECKBOX_HEX,
 	FAD_CHECKBOX_NOTCONTAINING,
 	FAD_CHECKBOX_ARC,
 	FAD_CHECKBOX_DIRS,
@@ -596,7 +597,7 @@ string& FindFiles::PrepareDriveNameStr(string &strSearchFromRoot) const
 	DeleteEndSlash(strCurDir);
 
 	if (
-	    strCurDir.empty()||
+		strCurDir.empty()||
 		(Global->CtrlObject->Cp()->ActivePanel()->GetMode() == panel_mode::PLUGIN_PANEL && Global->CtrlObject->Cp()->ActivePanel()->IsVisible())
 	)
 	{
@@ -729,7 +730,11 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	{
 		case DN_INITDIALOG:
 		{
-			bool Hex = (Dlg->SendMessage(DM_GETCHECK, FAD_CHECKBOX_HEX, nullptr) == BSTATE_CHECKED);
+			// This flag is set to true if the hotkey of either of Text/Hex radio is pressed.
+			// If true, the handler of Text/Hex radio button click will set focus on the Text/Hex editor
+			Dlg->SendMessage(DM_SETITEMDATA, FAD_TEXT_CONTAINING, ToPtr(false));
+
+			const auto Hex{ Dlg->SendMessage(DM_GETCHECK, FAD_RADIO_HEX, nullptr) == BSTATE_CHECKED };
 			Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_TEXT,ToPtr(!Hex));
 			Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_HEX,ToPtr(Hex));
 			Dlg->SendMessage(DM_ENABLE,FAD_TEXT_CP,ToPtr(!Hex));
@@ -740,7 +745,6 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(!Hex));
 			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_TEXT,ToPtr(1));
 			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,ToPtr(1));
-			Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_TEXTHEX,const_cast<wchar_t*>(msg(Hex? lng::MFindFileHex : lng::MFindFileText).c_str()));
 			Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_CP,const_cast<wchar_t*>(msg(lng::MFindFileCodePage).c_str()));
 			Dlg->SendMessage(DM_SETCOMBOBOXEVENT,FAD_COMBOBOX_CP,ToPtr(CBET_KEY));
 			const auto BottomLine = KeysToLocalizedText(KEY_SPACE, KEY_INS);
@@ -826,33 +830,42 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			switch (Param1)
 			{
 				case FAD_CHECKBOX_DIRS:
-					{
-						FindFoldersChanged = true;
-					}
-					break;
-
-				case FAD_CHECKBOX_HEX:
 				{
+					FindFoldersChanged = true;
+				}
+				break;
+
+				case FAD_RADIO_TEXT:
+				case FAD_RADIO_HEX:
+				{
+					if (!Param2) break;
+
 					SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-					const auto Src = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Param2 ? FAD_EDIT_TEXT : FAD_EDIT_HEX, nullptr));
-					const auto strDataStr = ConvertHexString(Src, CodePage, !Param2);
-					Dlg->SendMessage(DM_SETTEXTPTR,Param2?FAD_EDIT_HEX:FAD_EDIT_TEXT, UNSAFE_CSTR(strDataStr));
-					const auto iParam = reinterpret_cast<intptr_t>(Param2);
-					Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_TEXT,ToPtr(!iParam));
-					Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_HEX,ToPtr(iParam));
-					Dlg->SendMessage(DM_ENABLE,FAD_TEXT_CP,ToPtr(!iParam));
-					Dlg->SendMessage(DM_ENABLE,FAD_COMBOBOX_CP,ToPtr(!iParam));
-					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_CASE,ToPtr(!iParam));
-					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,ToPtr(!iParam));
-					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_FUZZY,ToPtr(!iParam));
-					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(!iParam));
-					Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_TEXTHEX, UNSAFE_CSTR(msg(Param2? lng::MFindFileHex : lng::MFindFileText)));
+					const auto Hex{ Param1 == FAD_RADIO_HEX };
+
+					const auto Src = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Hex ? FAD_EDIT_TEXT : FAD_EDIT_HEX, nullptr));
+					const auto strDataStr = ConvertHexString(Src, CodePage, !Hex);
+					Dlg->SendMessage(DM_SETTEXTPTR, Hex?FAD_EDIT_HEX:FAD_EDIT_TEXT, UNSAFE_CSTR(strDataStr));
+					Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_TEXT,ToPtr(!Hex));
+					Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_HEX,ToPtr(Hex));
+					Dlg->SendMessage(DM_ENABLE,FAD_TEXT_CP,ToPtr(!Hex));
+					Dlg->SendMessage(DM_ENABLE,FAD_COMBOBOX_CP,ToPtr(!Hex));
+					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_CASE,ToPtr(!Hex));
+					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,ToPtr(!Hex));
+					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_FUZZY,ToPtr(!Hex));
+					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(!Hex));
 
 					if (!strDataStr.empty())
 					{
 						const auto UnchangeFlag = static_cast<int>(Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, FAD_EDIT_TEXT, ToPtr(-1)));
 						Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,ToPtr(UnchangeFlag));
+					}
+
+					if (Dlg->SendMessage(DM_GETITEMDATA, FAD_TEXT_CONTAINING, nullptr))
+					{
+						Dlg->SendMessage(DM_SETITEMDATA, FAD_TEXT_CONTAINING, ToPtr(false));
+						Dlg->SendMessage(DM_SETFOCUS, Hex ? FAD_EDIT_HEX : FAD_EDIT_TEXT, nullptr);
 					}
 				}
 				break;
@@ -976,8 +989,13 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					SearchFromChanged = true;
 					return TRUE;
 			}
+			break;
 		}
-		break;
+		case DN_HOTKEY:
+		{
+			Dlg->SendMessage(DM_SETITEMDATA, FAD_TEXT_CONTAINING, ToPtr(Param1 == FAD_RADIO_TEXT || Param1 == FAD_RADIO_HEX));
+			break;
+		}
 
 		default:
 			break;
@@ -2843,7 +2861,7 @@ bool FindFiles::FindFilesProcess()
 						const auto IsArchive = i.Arc && !(i.Arc->Flags&OPIF_REALNAMES);
 						// Добавляем только файлы или имена архивов или папки когда просили
 						if (IsArchive || (Global->Opt->FindOpt.FindFolders && !Options.SearchHex) ||
-							    !(i.FindData.Attributes&FILE_ATTRIBUTE_DIRECTORY))
+								!(i.FindData.Attributes&FILE_ATTRIBUTE_DIRECTORY))
 						{
 							if (IsArchive)
 							{
@@ -3051,38 +3069,57 @@ FindFiles::FindFiles():
 		PluginMode = ActivePanel->GetMode() == panel_mode::PLUGIN_PANEL && ActivePanel->IsVisible();
 		PrepareDriveNameStr(strSearchFromRoot);
 
+		constexpr auto DlgWidth{ 80 };
+		constexpr auto HorizontalRadioGap{ 2 };
+		const auto& Containing{ msg(lng::MFindFileContaining) };
+		const auto& ContainingText{ msg(lng::MFindFileText) };
+		const auto& ContainingHex{ msg(lng::MFindFileHex) };
+		const auto ContainingW{ static_cast<int>(HiStrlen(Containing)) };
+		const auto ContainingTextW{ static_cast<int>(HiStrlen(ContainingText) + 4) };
+		const auto ContainingHexW{ static_cast<int>(HiStrlen(ContainingHex) + 4) };
+
+		const auto ContainingX1{ 4 + 1 };                                           const auto ContainingX2{ ContainingX1 + ContainingW };
+
+		const auto ContainingTextX1_{ ContainingX2 + HorizontalRadioGap };          const auto ContainingTextX2_{ ContainingTextX1_ + ContainingTextW };
+		const auto ContainingHexX1_{ ContainingTextX2_ + HorizontalRadioGap };      const auto ContainingHexX2_{ ContainingHexX1_ + ContainingHexW };
+		const auto ContainingHexOverage{ std::max(ContainingHexX2_ - (DlgWidth - 4 - 1), 0) };
+
+		const auto ContainingTextX1{ ContainingTextX1_ - ContainingHexOverage };    const auto ContainingTextX2{ ContainingTextX2_ - ContainingHexOverage };
+		const auto ContainingHexX1{ ContainingHexX1_ - ContainingHexOverage };      const auto ContainingHexX2{ ContainingHexX2_ - ContainingHexOverage };
+
 		auto FindAskDlg = MakeDialogItems<FAD_COUNT>(
 		{
-			{ DI_DOUBLEBOX,   {{3,  1 }, {76, 20}}, DIF_NONE, msg(lng::MFindFileTitle), },
-			{ DI_TEXT,        {{5,  2 }, {0,  2 }}, DIF_NONE, msg(lng::MFindFileMasks), },
-			{ DI_EDIT,        {{5,  3 }, {74, 3 }}, DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY, },
-			{ DI_TEXT,        {{-1, 4 }, {0,  4 }}, DIF_SEPARATOR, },
-			{ DI_TEXT,        {{5,  5 }, {0,  5 }}, DIF_NONE, },
-			{ DI_EDIT,        {{5,  6 }, {74, 6 }}, DIF_HISTORY, },
-			{ DI_FIXEDIT,     {{5,  6 }, {74, 6 }}, DIF_MASKEDIT, },
-			{ DI_TEXT,        {{5,  7 }, {0,  7 }}, DIF_NONE, },
-			{ DI_COMBOBOX,    {{5,  8 }, {74, 8 }}, DIF_DROPDOWNLIST, },
-			{ DI_TEXT,        {{-1, 9 }, {0,  9 }}, DIF_SEPARATOR, },
-			{ DI_CHECKBOX,    {{5,  10}, {0,  10}}, DIF_NONE, msg(lng::MFindFileCase), },
-			{ DI_CHECKBOX,    {{5,  11}, {0,  11}}, DIF_NONE, msg(lng::MFindFileWholeWords), },
-			{ DI_CHECKBOX,    {{5,  12}, {0,  12}}, DIF_NONE, msg(lng::MFindFileFuzzy), },
-			{ DI_CHECKBOX,    {{5,  13}, {0,  13}}, DIF_NONE, msg(lng::MSearchForHex), },
-			{ DI_CHECKBOX,    {{5,  14}, {0,  14}}, DIF_NONE, msg(lng::MSearchNotContaining), },
-			{ DI_CHECKBOX,    {{41, 10}, {0,  10}}, DIF_NONE, msg(lng::MFindArchives), },
-			{ DI_CHECKBOX,    {{41, 11}, {0,  11}}, DIF_NONE, msg(lng::MFindFolders), },
-			{ DI_CHECKBOX,    {{41, 12}, {0,  12}}, DIF_NONE, msg(lng::MFindSymLinks), },
-			{ DI_CHECKBOX,    {{41, 13}, {0,  13}}, DIF_NONE, msg(lng::MFindAlternateStreams), },
-			{ DI_TEXT,        {{-1, 15}, {0,  15}}, DIF_SEPARATOR, },
-			{ DI_VTEXT,       {{39, 9 }, {39, 15}}, DIF_SEPARATORUSER, },
-			{ DI_TEXT,        {{5,  16}, {0,  16}}, DIF_NONE, msg(lng::MSearchWhere), },
-			{ DI_COMBOBOX,    {{5,  17}, {36, 17}}, DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND, },
-			{ DI_CHECKBOX,    {{41, 17}, {0,  17}}, DIF_AUTOMATION, msg(lng::MFindUseFilter), },
-			{ DI_TEXT,        {{-1, 18}, {0,  18}}, DIF_SEPARATOR, },
-			{ DI_BUTTON,      {{0,  19}, {0,  19}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MFindFileFind), },
-			{ DI_BUTTON,      {{0,  19}, {0,  19}}, DIF_CENTERGROUP, msg(lng::MFindFileDrive), },
-			{ DI_BUTTON,      {{0,  19}, {0,  19}}, DIF_CENTERGROUP | DIF_AUTOMATION | (UseFilter ? 0 : DIF_DISABLE), msg(lng::MFindFileSetFilter), },
-			{ DI_BUTTON,      {{0,  19}, {0,  19}}, DIF_CENTERGROUP, msg(lng::MFindFileAdvanced), },
-			{ DI_BUTTON,      {{0,  19}, {0,  19}}, DIF_CENTERGROUP, msg(lng::MCancel), },
+			{ DI_DOUBLEBOX,   {{3,                1 }, {DlgWidth-4,       19}}, DIF_NONE, msg(lng::MFindFileTitle), },
+			{ DI_TEXT,        {{5,                2 }, {0,                2 }}, DIF_NONE, msg(lng::MFindFileMasks), },
+			{ DI_EDIT,        {{5,                3 }, {DlgWidth-4-2,     3 }}, DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY, },
+			{ DI_TEXT,        {{-1,               4 }, {0,                4 }}, DIF_SEPARATOR, },
+			{ DI_RADIOBUTTON, {{ContainingTextX1, 5 }, {ContainingTextX2, 5 }}, DIF_GROUP, ContainingText, },
+			{ DI_RADIOBUTTON, {{ContainingHexX1,  5 }, {ContainingHexX2,  5 }}, DIF_NONE, ContainingHex, },
+			{ DI_TEXT,        {{ContainingX1,     5 }, {0,                5 }}, DIF_NONE, Containing, },
+			{ DI_EDIT,        {{5,                6 }, {DlgWidth-4-2,     6 }}, DIF_HISTORY, },
+			{ DI_FIXEDIT,     {{5,                6 }, {DlgWidth-4-2,     6 }}, DIF_MASKEDIT, },
+			{ DI_TEXT,        {{5,                7 }, {0,                7 }}, DIF_NONE, },
+			{ DI_COMBOBOX,    {{5,                8 }, {DlgWidth-4-2,     8 }}, DIF_DROPDOWNLIST, },
+			{ DI_TEXT,        {{-1,               9 }, {0,                9 }}, DIF_SEPARATOR, },
+			{ DI_CHECKBOX,    {{5,                10}, {0,                10}}, DIF_NONE, msg(lng::MFindFileCase), },
+			{ DI_CHECKBOX,    {{5,                11}, {0,                11}}, DIF_NONE, msg(lng::MFindFileWholeWords), },
+			{ DI_CHECKBOX,    {{5,                12}, {0,                12}}, DIF_NONE, msg(lng::MFindFileFuzzy), },
+			{ DI_CHECKBOX,    {{5,                13}, {0,                13}}, DIF_NONE, msg(lng::MSearchNotContaining), },
+			{ DI_CHECKBOX,    {{41,               10}, {0,                10}}, DIF_NONE, msg(lng::MFindArchives), },
+			{ DI_CHECKBOX,    {{41,               11}, {0,                11}}, DIF_NONE, msg(lng::MFindFolders), },
+			{ DI_CHECKBOX,    {{41,               12}, {0,                12}}, DIF_NONE, msg(lng::MFindSymLinks), },
+			{ DI_CHECKBOX,    {{41,               13}, {0,                13}}, DIF_NONE, msg(lng::MFindAlternateStreams), },
+			{ DI_TEXT,        {{-1,               14}, {0,                14}}, DIF_SEPARATOR, },
+			{ DI_VTEXT,       {{39,               9 }, {39,               14}}, DIF_SEPARATORUSER, },
+			{ DI_TEXT,        {{5,                15}, {0,                15}}, DIF_NONE, msg(lng::MSearchWhere), },
+			{ DI_COMBOBOX,    {{5,                16}, {36,               16}}, DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND, },
+			{ DI_CHECKBOX,    {{41,               16}, {0,                16}}, DIF_AUTOMATION, msg(lng::MFindUseFilter), },
+			{ DI_TEXT,        {{-1,               17}, {0,                17}}, DIF_SEPARATOR, },
+			{ DI_BUTTON,      {{0,                18}, {0,                18}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MFindFileFind), },
+			{ DI_BUTTON,      {{0,                18}, {0,                18}}, DIF_CENTERGROUP, msg(lng::MFindFileDrive), },
+			{ DI_BUTTON,      {{0,                18}, {0,                18}}, DIF_CENTERGROUP | DIF_AUTOMATION | (UseFilter ? 0 : DIF_DISABLE), msg(lng::MFindFileSetFilter), },
+			{ DI_BUTTON,      {{0,                18}, {0,                18}}, DIF_CENTERGROUP, msg(lng::MFindFileAdvanced), },
+			{ DI_BUTTON,      {{0,                18}, {0,                18}}, DIF_CENTERGROUP, msg(lng::MCancel), },
 		});
 
 		FindAskDlg[FAD_EDIT_MASK].strHistory = L"Masks"sv;
@@ -3153,12 +3190,13 @@ FindFiles::FindFiles():
 		FindAskDlg[FAD_CHECKBOX_CASE].Selected = Options.CaseSensitive;
 		FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected = Options.WholeWords;
 		FindAskDlg[FAD_CHECKBOX_FUZZY].Selected = Options.Fuzzy;
-		FindAskDlg[FAD_CHECKBOX_HEX].Selected = Options.SearchHex;
+		FindAskDlg[FAD_RADIO_TEXT].Selected = !Options.SearchHex;
+		FindAskDlg[FAD_RADIO_HEX].Selected = Options.SearchHex;
 		const auto Dlg = Dialog::create(FindAskDlg, &FindFiles::MainDlgProc, this);
 		Dlg->SetAutomation(FAD_CHECKBOX_FILTER,FAD_BUTTON_FILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg->SetHelp(L"FindFile"sv);
 		Dlg->SetId(FindFileId);
-		Dlg->SetPosition({ -1, -1, 80, 22 });
+		Dlg->SetPosition({ -1, -1, 80, 21 });
 		Dlg->Process();
 		const auto ExitCode = Dlg->GetExitCode();
 		//Рефреш текущему времени для фильтра сразу после выхода из диалога
@@ -3173,7 +3211,7 @@ FindFiles::FindFiles():
 		Options.CaseSensitive = FindAskDlg[FAD_CHECKBOX_CASE].Selected == BSTATE_CHECKED;
 		Options.WholeWords = FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected == BSTATE_CHECKED;
 		Options.Fuzzy = FindAskDlg[FAD_CHECKBOX_FUZZY].Selected == BSTATE_CHECKED;
-		Options.SearchHex = FindAskDlg[FAD_CHECKBOX_HEX].Selected == BSTATE_CHECKED;
+		Options.SearchHex = FindAskDlg[FAD_RADIO_HEX].Selected == BSTATE_CHECKED;
 		Options.NotContaining = FindAskDlg[FAD_CHECKBOX_NOTCONTAINING].Selected == BSTATE_CHECKED;
 		Options.SearchInArchives = FindAskDlg[FAD_CHECKBOX_ARC].Selected == BSTATE_CHECKED;
 
