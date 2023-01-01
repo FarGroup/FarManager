@@ -977,15 +977,8 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					return TRUE;
 			}
 		}
-		[[fallthrough]];
-		case DN_HOTKEY:
-			if (Param1==FAD_TEXT_TEXTHEX)
-			{
-				Dlg->SendMessage(DM_SETFOCUS, FAD_EDIT_HEX, nullptr); // only one
-				Dlg->SendMessage(DM_SETFOCUS, FAD_EDIT_TEXT, nullptr); // is active
-				return FALSE;
-			}
-		[[fallthrough]];
+		break;
+
 		default:
 			break;
 	}

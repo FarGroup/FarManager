@@ -2446,9 +2446,9 @@ void Viewer::ChangeViewKeyBar()
 enum SEARCHDLG
 {
 	SD_DOUBLEBOX,
-	SD_TEXT_SEARCH,
 	SD_RADIO_TEXT,
 	SD_RADIO_HEX,
+	SD_TEXT_SEARCH,
 	SD_EDIT_TEXT,
 	SD_EDIT_HEX,
 	SD_SEPARATOR1,
@@ -2583,16 +2583,6 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 				return TRUE;
 			else
 				break;
-		}
-		case DN_HOTKEY:
-		{
-			if (Param1==SD_TEXT_SEARCH)
-			{
-				const auto& Data = view_as<ViewerDialogData>(Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr));
-				Dlg->SendMessage(DM_SETFOCUS, (Data.hex_mode? SD_EDIT_HEX : SD_EDIT_TEXT), nullptr);
-				return FALSE;
-			}
-			break;
 		}
 		case DN_DRAWDIALOGDONE:
 		{
@@ -3200,9 +3190,9 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 		auto SearchDlg = MakeDialogItems<SD_COUNT>(
 		{
 			{ DI_DOUBLEBOX,   {{3,               1}, {DlgWidth-4,      10}}, DIF_NONE, msg(lng::MViewSearchTitle), },
-			{ DI_TEXT,        {{searchForX1,     2}, {0,               2 }}, DIF_NONE, searchFor, },
 			{ DI_RADIOBUTTON, {{searchForTextX1, 2}, {searchForTextX2, 2 }}, DIF_GROUP, searchForText, },
 			{ DI_RADIOBUTTON, {{searchForHexX1,  2}, {searchForHexX2,  2 }}, DIF_NONE, searchForHex, },
+			{ DI_TEXT,        {{searchForX1,     2}, {0,               2 }}, DIF_NONE, searchFor, },
 			{ DI_EDIT,        {{5,               3}, {DlgWidth-4-2,    3 }}, DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY, },
 			{ DI_FIXEDIT,     {{5,               3}, {DlgWidth-4-2,    3 }}, DIF_MASKEDIT, },
 			{ DI_TEXT,        {{-1,              4}, {0,               4 }}, DIF_SEPARATOR, },
