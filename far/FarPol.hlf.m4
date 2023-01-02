@@ -1678,10 +1678,9 @@ używane będzie porównywanie wielkich i małych znaków.
 od innego tekstu spacją, tabulatorem, znakiem łamania linii lub standardowym
 separatorem, którym domyślnie są znaki: #!%^&*()+|{}:"<>?`-=\\[];',./#.
 
- #Fuzzy search# is diacritical insensitive, treats ligatures equivalent
-to their corresponding multicharacter sequences and fancy numerals
-to corresponding number characters, and ignores some other minor
-differences.
+ #Wyszukiwanie rozmyte# jest niewrażliwe na znaki diakrytyczne, traktuje ligatury
+jako odpowiedniki odpowiadającym im sekwencjom wieloznakowym, a wymyślne cyfry
+do odpowiadających im znaków liczbowych i ignoruje kilka innych drobnych różnic.
 
  Zaznaczając opcję #Szukaj wartości szesnastkowej# można wyszukać pliki
 zawierające szesnastkową sekwencję podanych bajtów. W tym przypadku
@@ -3072,13 +3071,13 @@ jako całe słowo.
  Włącza użycie ~Wyrażeń regularnych~@RegExp@ w szukanym tekście.
 Wyszukiwanie wielowierszowe nie jest obsługiwane.
 
- #Fuzzy search#
- The search will be diacritical insensitive (for example, #deja# will be found in #déjà vu#),
-ligatures will be equivalent to corresponding multicharacter sequences (#fluffy# matches #ﬂuﬀy#),
-fancy numbers to corresponding numbers (#42# matches #④②#), and so on.
+ #Wyszukiwanie rozmyte#
+ Wyszukiwanie nie będzie rozróżniać diakrytyki (np. #deja# zostanie znalezione w #déjà vu#),
+ligatury będą równoznaczne z odpowiadającym im sekwencjom wieloznakowym (#fluffy# pasuje do #ﬂuﬀy#),
+fantazyjne liczby odpowiadającym im cyfrom (#42# pasuje do #④②#), itd.
 
- Note that case sensitive fuzzy search sometimes may be useful. For example, #Uber# will be found
-in #Überwald# but not in #überwald#. However, #Æther# will match #AEther#, but not #Aether#.
+ Należy zwrócić uwagę na rozróżnianie wielkości znaków. Np. #Uber# zostanie odnaleziony w słowie
+#Überwald# ale nie w słowie #überwald#. Natomiast #Æther# będzie pasował do #AEther#, ale nie #Aether#.
 
 
 @Editor
@@ -3220,13 +3219,13 @@ i ~zastępowanie~@RegExpRepl@).
 Każda linia jest dekodowana osobno, więc wprowadzanie wyrażeń wieloliniowych i znaki łamania
 linii nie zostaną odnalezione.
 
- #Fuzzy search#
- The search will be diacritical insensitive (for example, #deja# will be found in #déjà vu#),
-ligatures will be equivalent to corresponding multicharacter sequences (#fluffy# matches #ﬂuﬀy#),
-fancy numbers to corresponding numbers (#42# matches #④②#), and so on.
+ #Wyszukiwanie rozmyte#
+ Wyszukiwanie nie będzie rozróżniać diakrytyki (np. #deja# zostanie znalezione w #déjà vu#),
+ligatury będą równoznaczne z odpowiadającym im sekwencjom wieloznakowym (#fluffy# pasuje do #ﬂuﬀy#),
+fantazyjne liczby odpowiadającym im cyfrom (#42# pasuje do #④②#), itd.
 
- Note that case sensitive fuzzy search sometimes may be useful. For example, #Uber# will be found
-in #Überwald# but not in #überwald#. However, #Æther# will match #AEther#, but not #Aether#.
+ Należy zwrócić uwagę na rozróżnianie wielkości znaków. Np. #Uber# zostanie odnaleziony w słowie
+#Überwald# ale nie w słowie #überwald#. Natomiast #Æther# będzie pasował do #AEther#, ale nie #Aether#.
 
  ~Zachowaj styl~@PreserveStyle@
  Zachowuje styl (wielkość znaków i ograniczniki w kodzie źródłowym) w zastąpionym tekście.
@@ -4888,13 +4887,13 @@ Far Manager ustawia kilka ~zmiennych systemowych~@FAREnv@.
  Wykonuje “polecenie” jeżeli “zmienna” jest zdefiniowana lub nie jest
 zdefiniowana (jeżeli dodano warunek “NOT”).
  Polecenie “IF” może być zagnieżdżone. W poniższym przykładzie
-“polecenie” będzie wykonane jeżeli istnieje “plik1”, “plik2” nie istnieje
+“polecenie” będzie wykonane jeżeli istnieje “plik1”, “plik2” nie istnieje,
 a “zmienna” jest zdefiniowana:
  #if exist plik1 if not exist plik2 if defined zmienna polecenie#
 
  #PUSHD [ścieżka]#
  Zachowuje bieżącą ścieżkę do użycia przez polecenie “POPD”.
-If “path” is specified, changes the current path on the active panel to it.
+Jeżeli “ścieżka” jest podana, zmienia na nią bieżącą ścieżkę w aktywnym panelu.
 
  #POPD#
  Zmienia bieżącą ścieżkę w aktywnym panelu na ścieżkę zachowaną poleceniem “PUSHD”.

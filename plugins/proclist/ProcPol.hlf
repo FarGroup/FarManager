@@ -34,36 +34,36 @@ $ #Dane liczników wydajności#
 
    #Proces#
 
-   The performance object consists of counters that monitor running
-application program and system processes. All the threads in a process
-share the same address space and have access to the same data.
+   Wydajność obiektów składa się z liczników, które monitorują uruchomione
+aplikacje i procesy systemowe. Wszystkie wątki w procesie współdzielą
+tę samą przestrzeń adresową i mają dostęp do tych samych danych.
 
-   #Thread Count#
+   #Liczba wątków#
 
-   The number of threads currently active in this process. An instruction
-is the basic unit of execution in a processor, and a thread is the object
-that executes instructions. Every running process has at least one thread.
+   Liczba aktualnie aktywnych wątków w tym procesie. Instrukcja jest
+podstawową jednostką wykonania w procesorze, a wątek jest obiektem
+który wykonuje instrukcje. Każdy uruchomiony proces zajmuje co najmniej
+jeden wątek.
 
-   #Priority Base#
+   #Priorytet wątku#
 
-   The current base priority of this process. Threads within a process can
-raise and lower their own base priority relative to the process' base
-priority.
+   Bieżący podstawowy priorytet tego procesu. Wątki w procesie mogą podnosić
+lub obniżać priorytet w stosunku do priorytetu bazowego procesu.
 
-   #Elapsed Time#
+   #Czas działania#
 
-   The total elapsed time this process has been running.
+   Całkowity czas, jaki upłynął od momentu uruchomienia procesu.
 
-   #Process ID#
+   #ID Procesu#
 
-   The unique identifier of this process. ID Process numbers are reused, so
-they only identify a process for the lifetime of that process.
+   Unikalny identyfikator procesu. Numery procesów są ponownie używane,
+więc identyfikują proces tylko do czasu jego zakończenia.
 
    #ID procesu nadrzędnego#
 
-   The Process ID of the process that created the process. Note that the
-creating process may have terminated since this process was created and so
-this value may no longer identify a running process.
+   Identyfikator procesu, który utworzył dany proces. Należy pamiętać,
+że proces nadrzędny mógł już zakończyć pracę od czasu uruchomienia procesu
+potomnego, więc wartość ta może nie identyfikować uruchomionego procesu.
 
    #% czasu procesora#
 
@@ -257,13 +257,13 @@ liście procesów:
 
    #D/T (Data/Czas)#
 
-   Displays the process start date/time. The modification, creation
-and last access date/time are the same.
+   Wyświetla datę/czas uruchomienia procesu. Czas/data modyfikacji,
+utworzenia i dostępu są takie same.
 
    In addition to the standard FAR column types, these #special# column
 types can be used in this plugin:
 
-   #Kolumny numeryczne:#
+   #Kolumny liczbowe:#
 
    #XP# - Priotytet
    #XI# - ID procesu
@@ -285,18 +285,17 @@ types can be used in this plugin:
             column ('Zx'). To view different kinds of descriptions,
             you have to switch between modes.
 
-   The ~Performance Counters~@PerfCounters@ column numbers are described
-below.
+   Oznacznia kolumn ~liczników wydajności~@PerfCounters@ opisane są poniżej.
 
-   For X0..X2 you can append #S# to show percent value.
+   Dla X0..X2 można dodać #S#, aby wyświetlać wartość procentową.
 
-   For X11 and X14..X21 you can append #S# to show per second value.
+   Dla X11 oraz X14..X21 można dodać #S#, aby wyświetlać wartości na sekundę.
 
    For any counter, if the column is too narrow to show the full number or
 if #F# modifier is specified, the value is calculated in K's (1024), M's (1024*1024) etc.
 You can append #T# to the column type to use 1000 instead of 1024 as a divider.
 
-   #X0 # Processor Time
+   #X0 # Czas procesora
    #X1 # Privileged Time
    #X2 # User Time
    #X3 # Handle Count
@@ -336,11 +335,11 @@ $ #Konfiguracja#
                         extracted too slowly, so you may want
                         to disable them.
 
- #Environment#            Include the process's environment block.
-                        Used for local only.
+ #Środowisko#             Dołącza blok zmiennych środowiskowych.
+                        Tylko przy użytku lokalnym.
 
- #Module info#            Include the list of modules loaded by
-                        this process.
+ #Info o module#          Dołącza listę modułów wczytanych przez
+                        ten proces.
 
  #Module versions#        Along with the list of modules, extract
  #and descriptions#       description and version of each module's
