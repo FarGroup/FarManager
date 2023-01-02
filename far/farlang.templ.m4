@@ -16403,7 +16403,7 @@ upd:"&Junction:"
 
 MSetAttrSymlink
 "Ссылка:"
-"Symlink:"
+"S&ymlink:"
 "Link:"
 "Symlink:"
 "Szimlink:"
@@ -16417,7 +16417,7 @@ upd:"Symlink:"
 
 MSetAttrVolMount
 "Том:"
-"Volume:"
+"&Volume:"
 "Svazek:"
 "Datenträger:"
 "Kötet:"
@@ -16431,7 +16431,7 @@ upd:"Volume:"
 
 MSetAttrDfsTargets
 "DFS цели:"
-"DFS Targets:"
+"&DFS Targets:"
 "DFS cíly:"
 "DFS Ziele:"
 upd:"DFS Targets:"

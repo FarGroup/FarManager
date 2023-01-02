@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 02.01.2023 18:09:42 +0000 - build 6080
+
+1. gh-587: Environment variables not expanded when editing links.
+
+--------------------------------------------------------------------------------
 drkns 01.01.2023 14:24:37 +0000 - build 6079
 
 1. Remove redundant code from Find File and Viewer Search dialogs.

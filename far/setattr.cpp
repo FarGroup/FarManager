@@ -69,6 +69,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Platform:
 #include "platform.hpp"
+#include "platform.env.hpp"
 #include "platform.fs.hpp"
 
 // Common:
@@ -1189,7 +1190,7 @@ static bool ShellSetFileAttributesImpl(Panel* SrcPanel, const string* Object)
 				if (!equal_icase(AttrDlg[SA_EDIT_REPARSE_POINT].strData, strLinkName))
 				{
 					bool Dummy = false;
-					retryable_ui_operation([&]{ return ModifyReparsePoint(SingleSelFileName, unquote(AttrDlg[SA_EDIT_REPARSE_POINT].strData)); }, SingleSelFileName, lng::MCopyCannotCreateLink, Dummy);
+					retryable_ui_operation([&]{ return ModifyReparsePoint(SingleSelFileName, os::env::expand(unquote(AttrDlg[SA_EDIT_REPARSE_POINT].strData))); }, SingleSelFileName, lng::MCopyCannotCreateLink, Dummy);
 				}
 
 				if (SingleSelFindData.Attributes == INVALID_FILE_ATTRIBUTES)
