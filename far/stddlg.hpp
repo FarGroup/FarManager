@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Platform:
 
 // Common:
+#include "common/bytes_view.hpp"
 #include "common/function_ref.hpp"
 #include "common/preprocessor.hpp"
 #include "common/utility.hpp"
@@ -54,8 +55,14 @@ enum class lng : int;
 class regex_exception;
 struct error_state_ex;
 
-struct SearchReplaceDlgOptions
+struct SearchReplaceDlgParams
 {
+	bool ReplaceMode{};
+	bool ShowButtonAll{};
+	string SearchStr;
+	bytes SearchBytes;
+	string ReplaceStr;
+	std::optional<bool> Hex;
 	std::optional<bool> CaseSensitive;
 	std::optional<bool> WholeWords;
 	std::optional<bool> Reverse;
@@ -69,34 +76,17 @@ struct SearchReplaceDlgOptions
   от пользователя данные и в случае успешного выполнения диалога возвращает
   TRUE.
   Параметры:
-    IsReplaceMode
-      true  - если хотим заменять
-      false - если хотим искать
+	Params
+	  InOut parameter. Specifies which options to show in the dialog and provides initial values.
+	  On exit, contains the values selected by the user.
 
-    Title
-      Заголовок диалога.
-      Если пустая строка, то применяется MEditReplaceTitle или MEditSearchTitle в зависимости от параметра IsReplaceMode
-
-    SearchStr
-      Строка поиска.
-      Результат отработки диалога заносится в нее же.
-
-    ReplaceStr,
-      Строка замены.
-      Результат отработки диалога заносится в нее же.
-      Для случая, если IsReplaceMode=FALSE может быть равна nullptr
-
-    TextHistoryName
+	TextHistoryName
       Имя истории строки поиска.
       Если пустая строка, то принимается значение "SearchText"
 
     ReplaceHistoryName
       Имя истории строки замены.
       Если пустая строка, то принимается значение "ReplaceText"
-
-    Options
-      InOut parameter. Specifies which options to show in the dialog and provides initial values.
-      On exit, contains the values selected by the user.
 
     HelpTopic
       Имя темы помощи.
@@ -109,16 +99,11 @@ struct SearchReplaceDlgOptions
 
 */
 int GetSearchReplaceString(
-	bool IsReplaceMode,
-	string_view Title,
-	string_view SubTitle,
-	string& SearchStr,
-	string& ReplaceStr,
+	SearchReplaceDlgParams& Params,
 	string_view TextHistoryName,
 	string_view ReplaceHistoryName,
-	SearchReplaceDlgOptions& Options,
+	uintptr_t CodePage,
 	string_view HelpTopic = {},
-	bool HideAll=false,
 	const UUID* Id = nullptr,
 	function_ref<string(bool)> Picker = nullptr
 );

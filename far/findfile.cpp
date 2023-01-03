@@ -605,11 +605,11 @@ string& FindFiles::PrepareDriveNameStr(string &strSearchFromRoot) const
 		(Global->CtrlObject->Cp()->ActivePanel()->GetMode() == panel_mode::PLUGIN_PANEL && Global->CtrlObject->Cp()->ActivePanel()->IsVisible())
 	)
 	{
-		strSearchFromRoot = msg(lng::MSearchFromRootFolder);
+		strSearchFromRoot = msg(lng::MFindFileSearchFromRootFolder);
 	}
 	else
 	{
-		strSearchFromRoot = concat(msg(lng::MSearchFromRootOfDrive), L' ', strCurDir);
+		strSearchFromRoot = concat(msg(lng::MFindFileSearchFromRootOfDrive), L' ', strCurDir);
 	}
 
 	return strSearchFromRoot;
@@ -1487,7 +1487,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 			const auto refresh_status = [&]
 			{
-				const auto strDataStr = format(msg(lng::MFindFound), m_FileCount, m_DirCount);
+				const auto strDataStr = format(msg(lng::MFindFileFound), m_FileCount, m_DirCount);
 				Dlg->SendMessage(DM_SETTEXTPTR, FD_SEPARATOR1, UNSAFE_CSTR(strDataStr));
 
 				if (m_Searcher->Finished())
@@ -1500,7 +1500,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 					if (!strFindStr.empty())
 					{
-						strSearchStr = format(msg(lng::MFindSearchingIn), quote_unconditional(truncate_right(strFindStr, 10)));
+						strSearchStr = format(msg(lng::MFindFileSearchingIn), quote_unconditional(truncate_right(strFindStr, 10)));
 						Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, UNSAFE_CSTR(format(FSTR(L"{:3}%"sv), m_Percent)));
 					}
 
@@ -1554,11 +1554,11 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 				Finalized = true;
 
 				SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
-				const auto strMessage = format(msg(lng::MFindDone), m_FileCount, m_DirCount);
+				const auto strMessage = format(msg(lng::MFindFileDone), m_FileCount, m_DirCount);
 				Dlg->SendMessage(DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
 				Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS, UNSAFE_CSTR(strMessage));
 				Dlg->SendMessage(DM_SETTEXTPTR, FD_TEXT_STATUS_PERCENTS, nullptr);
-				Dlg->SendMessage(DM_SETTEXTPTR, FD_BUTTON_STOP, const_cast<wchar_t*>(msg(lng::MFindCancel).c_str()));
+				Dlg->SendMessage(DM_SETTEXTPTR, FD_BUTTON_STOP, const_cast<wchar_t*>(msg(lng::MFindFileCancel).c_str()));
 				ConsoleTitle::SetFarTitle(strMessage);
 
 				Dlg->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
@@ -2696,14 +2696,14 @@ bool FindFiles::FindFilesProcess()
 
 		if (UseFilter)
 		{
-			append(strTitle, L" ("sv, msg(lng::MFindUsingFilter), L')');
+			append(strTitle, L" ("sv, msg(lng::MFindFileUsingFilter), L')');
 		}
 	}
 	else
 	{
 		if (UseFilter)
 		{
-			append(strTitle, L" ("sv, msg(lng::MFindUsingFilter), L')');
+			append(strTitle, L" ("sv, msg(lng::MFindFileUsingFilter), L')');
 		}
 	}
 
@@ -2718,11 +2718,11 @@ bool FindFiles::FindFilesProcess()
 		{ DI_TEXT,      {{5,          DlgHeight-5}, {DlgWidth-(strFindStr.empty()? 6 : 12), DlgHeight-5}}, DIF_SHOWAMPERSAND, L"…"sv },
 		{ DI_TEXT,      {{DlgWidth-9, DlgHeight-5}, {DlgWidth-6, DlgHeight-5}}, (strFindStr.empty() ? DIF_HIDDEN : DIF_NONE), },
 		{ DI_TEXT,      {{-1,         DlgHeight-4}, {0,          DlgHeight-4}}, DIF_SEPARATOR, },
-		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP | DIF_FOCUS | DIF_DEFAULTBUTTON, msg(lng::MFindNewSearch), },
-		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP | DIF_DISABLE, msg(lng::MFindGoTo), },
-		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP | DIF_DISABLE, msg(lng::MFindView), },
-		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP | DIF_DISABLE, msg(lng::MFindPanel), },
-		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP, msg(lng::MFindStop), },
+		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP | DIF_FOCUS | DIF_DEFAULTBUTTON, msg(lng::MFindFileNewSearch), },
+		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP | DIF_DISABLE, msg(lng::MFindFileGoTo), },
+		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP | DIF_DISABLE, msg(lng::MFindFileView), },
+		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP | DIF_DISABLE, msg(lng::MFindFilePanel), },
+		{ DI_BUTTON,    {{0,          DlgHeight-3}, {0,          DlgHeight-3}}, DIF_CENTERGROUP, msg(lng::MFindFileStop), },
 	});
 
 	ArcListItem* FindFileArcItem{};
@@ -3028,7 +3028,7 @@ FindFiles::FindFiles():
 	static string strLastFindMask = L"*.*"s, strLastFindStr;
 
 	static string strSearchFromRoot;
-	strSearchFromRoot = msg(lng::MSearchFromRootFolder);
+	strSearchFromRoot = msg(lng::MFindFileSearchFromRootFolder);
 
 	static FindFilesOptions LastOptions;
 
@@ -3086,16 +3086,16 @@ FindFiles::FindFiles():
 			{ DI_CHECKBOX,    {{5,                10}, {0,                10}}, DIF_NONE, msg(lng::MFindFileCase), },
 			{ DI_CHECKBOX,    {{5,                11}, {0,                11}}, DIF_NONE, msg(lng::MFindFileWholeWords), },
 			{ DI_CHECKBOX,    {{5,                12}, {0,                12}}, DIF_NONE, msg(lng::MFindFileFuzzy), },
-			{ DI_CHECKBOX,    {{5,                13}, {0,                13}}, DIF_NONE, msg(lng::MSearchNotContaining), },
-			{ DI_CHECKBOX,    {{41,               10}, {0,                10}}, DIF_NONE, msg(lng::MFindArchives), },
-			{ DI_CHECKBOX,    {{41,               11}, {0,                11}}, DIF_NONE, msg(lng::MFindFolders), },
-			{ DI_CHECKBOX,    {{41,               12}, {0,                12}}, DIF_NONE, msg(lng::MFindSymLinks), },
-			{ DI_CHECKBOX,    {{41,               13}, {0,                13}}, DIF_NONE, msg(lng::MFindAlternateStreams), },
+			{ DI_CHECKBOX,    {{5,                13}, {0,                13}}, DIF_NONE, msg(lng::MFindFileNotContaining), },
+			{ DI_CHECKBOX,    {{41,               10}, {0,                10}}, DIF_NONE, msg(lng::MFindFileArchives), },
+			{ DI_CHECKBOX,    {{41,               11}, {0,                11}}, DIF_NONE, msg(lng::MFindFileFolders), },
+			{ DI_CHECKBOX,    {{41,               12}, {0,                12}}, DIF_NONE, msg(lng::MFindFileSymLinks), },
+			{ DI_CHECKBOX,    {{41,               13}, {0,                13}}, DIF_NONE, msg(lng::MFindFileAlternateStreams), },
 			{ DI_TEXT,        {{-1,               14}, {0,                14}}, DIF_SEPARATOR, },
 			{ DI_VTEXT,       {{39,               9 }, {39,               14}}, DIF_SEPARATORUSER, },
-			{ DI_TEXT,        {{5,                15}, {0,                15}}, DIF_NONE, msg(lng::MSearchWhere), },
+			{ DI_TEXT,        {{5,                15}, {0,                15}}, DIF_NONE, msg(lng::MFindFileSearchArea), },
 			{ DI_COMBOBOX,    {{5,                16}, {36,               16}}, DIF_DROPDOWNLIST | DIF_LISTNOAMPERSAND, },
-			{ DI_CHECKBOX,    {{41,               16}, {0,                16}}, DIF_AUTOMATION, msg(lng::MFindUseFilter), },
+			{ DI_CHECKBOX,    {{41,               16}, {0,                16}}, DIF_AUTOMATION, msg(lng::MFindFileUseFilter), },
 			{ DI_TEXT,        {{-1,               17}, {0,                17}}, DIF_SEPARATOR, },
 			{ DI_BUTTON,      {{0,                18}, {0,                18}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MFindFileFind), },
 			{ DI_BUTTON,      {{0,                18}, {0,                18}}, DIF_CENTERGROUP, msg(lng::MFindFileDrive), },
@@ -3114,13 +3114,13 @@ FindFiles::FindFiles():
 
 		FarListItem li[]=
 		{
-			{ 0, msg(lng::MSearchAllDisks).c_str() },
-			{ 0, msg(lng::MSearchAllButNetwork).c_str() },
-			{ 0, msg(lng::MSearchInPATH).c_str() },
+			{ 0, msg(lng::MFindFileSearchAllDisks).c_str() },
+			{ 0, msg(lng::MFindFileSearchAllButNetwork).c_str() },
+			{ 0, msg(lng::MFindFileSearchInPATH).c_str() },
 			{ 0, strSearchFromRoot.c_str() },
-			{ 0, msg(lng::MSearchFromCurrent).c_str() },
-			{ 0, msg(lng::MSearchInCurrent).c_str() },
-			{ 0, msg(lng::MSearchInSelected).c_str() },
+			{ 0, msg(lng::MFindFileSearchFromCurrent).c_str() },
+			{ 0, msg(lng::MFindFileSearchInCurrent).c_str() },
+			{ 0, msg(lng::MFindFileSearchInSelected).c_str() },
 		};
 
 		static_assert(std::size(li) == FINDAREA_COUNT);
@@ -3232,9 +3232,6 @@ FindFiles::FindFiles():
 		LastOptions = Options;
 		strLastFindMask = strFindMask;
 		strLastFindStr = strFindStr;
-
-		if (!strFindStr.empty())
-			Editor::SetReplaceMode(false);
 	}
 	while (FindFilesProcess());
 
