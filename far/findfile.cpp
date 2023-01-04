@@ -269,6 +269,8 @@ private:
 	time_check m_TimeCheck{ time_check::mode::immediate };
 	os::concurrency::timer m_UpdateTimer;
 	std::list<FindListItem> m_FindList;
+	bool m_IsHexActive{};
+	bool m_IsTextOrHexHotkeyUsed{};
 };
 
 // TODO BUGBUG DELETE THIS
@@ -742,7 +744,6 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_CASE,ToPtr(!Hex));
 			Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,ToPtr(!Hex));
 			Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_FUZZY,ToPtr(!Hex));
-			Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(!Hex));
 			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_TEXT,ToPtr(1));
 			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,ToPtr(1));
 			Dlg->SendMessage(DM_SETTEXTPTR,FAD_TEXT_CP,const_cast<wchar_t*>(msg(lng::MFindFileCodePage).c_str()));
@@ -842,11 +843,11 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 					SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-					const auto OldHex{ Dlg->SendMessage(DM_SHOWITEM, FAD_EDIT_HEX, ToPtr(-1)) };
 					const auto NewHex{ Param1 == FAD_RADIO_HEX };
 
-					if (NewHex != OldHex)
+					if (NewHex != m_IsHexActive)
 					{
+						m_IsHexActive = NewHex;
 						const auto Src = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, NewHex ? FAD_EDIT_TEXT : FAD_EDIT_HEX, nullptr));
 						const auto strDataStr = ConvertHexString(Src, CodePage, !NewHex);
 						Dlg->SendMessage(DM_SETTEXTPTR, NewHex ? FAD_EDIT_HEX : FAD_EDIT_TEXT, UNSAFE_CSTR(strDataStr));
@@ -857,7 +858,6 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						Dlg->SendMessage(DM_ENABLE, FAD_CHECKBOX_CASE, ToPtr(!NewHex));
 						Dlg->SendMessage(DM_ENABLE, FAD_CHECKBOX_WHOLEWORDS, ToPtr(!NewHex));
 						Dlg->SendMessage(DM_ENABLE, FAD_CHECKBOX_FUZZY, ToPtr(!NewHex));
-						Dlg->SendMessage(DM_ENABLE, FAD_CHECKBOX_DIRS, ToPtr(!NewHex));
 
 						if (!strDataStr.empty())
 						{
@@ -866,9 +866,9 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 						}
 					}
 
-					if (Dlg->SendMessage(DM_GETITEMDATA, FAD_TEXT_CONTAINING, nullptr))
+					if (m_IsTextOrHexHotkeyUsed)
 					{
-						Dlg->SendMessage(DM_SETITEMDATA, FAD_TEXT_CONTAINING, ToPtr(false));
+						m_IsTextOrHexHotkeyUsed = false;
 						Dlg->SendMessage(DM_SETFOCUS, NewHex ? FAD_EDIT_HEX : FAD_EDIT_TEXT, nullptr);
 					}
 				}
@@ -996,10 +996,8 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 			break;
 		}
 		case DN_HOTKEY:
-		{
-			Dlg->SendMessage(DM_SETITEMDATA, FAD_TEXT_CONTAINING, ToPtr(Param1 == FAD_RADIO_TEXT || Param1 == FAD_RADIO_HEX));
+			m_IsTextOrHexHotkeyUsed = Param1 == FAD_RADIO_TEXT || Param1 == FAD_RADIO_HEX;
 			break;
-		}
 
 		default:
 			break;
@@ -3196,6 +3194,7 @@ FindFiles::FindFiles():
 		FindAskDlg[FAD_CHECKBOX_FUZZY].Selected = Options.Fuzzy;
 		FindAskDlg[FAD_RADIO_TEXT].Selected = !Options.SearchHex;
 		FindAskDlg[FAD_RADIO_HEX].Selected = Options.SearchHex;
+		m_IsHexActive = Options.SearchHex;
 		const auto Dlg = Dialog::create(FindAskDlg, &FindFiles::MainDlgProc, this);
 		Dlg->SetAutomation(FAD_CHECKBOX_FILTER,FAD_BUTTON_FILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg->SetHelp(L"FindFile"sv);
@@ -3215,7 +3214,7 @@ FindFiles::FindFiles():
 		Options.CaseSensitive = FindAskDlg[FAD_CHECKBOX_CASE].Selected == BSTATE_CHECKED;
 		Options.WholeWords = FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected == BSTATE_CHECKED;
 		Options.Fuzzy = FindAskDlg[FAD_CHECKBOX_FUZZY].Selected == BSTATE_CHECKED;
-		Options.SearchHex = FindAskDlg[FAD_RADIO_HEX].Selected == BSTATE_CHECKED;
+		Options.SearchHex = m_IsHexActive;
 		Options.NotContaining = FindAskDlg[FAD_CHECKBOX_NOTCONTAINING].Selected == BSTATE_CHECKED;
 		Options.SearchInArchives = FindAskDlg[FAD_CHECKBOX_ARC].Selected == BSTATE_CHECKED;
 
