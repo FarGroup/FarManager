@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+MZK 04.01.2023 10:26:26 -0800 - build 6085
+
+1. Continuation of 6082. Changed tab order on Find File dialog.
+   Now Text/Hex radio is the next after "Containing".
+
+2. gh-592: Bug in 6082. Find File dialog: fixed disappearing searched text
+   when pressing the Text/Hex hotkey which matches the current state.
+
+--------------------------------------------------------------------------------
 zg 04.01.2023 19:47:50 +0200 - build 6084
 
 1. non tread safe code removed from ACTL_SYNCHRO implementation.
@@ -6,7 +15,7 @@ zg 04.01.2023 19:47:50 +0200 - build 6084
 --------------------------------------------------------------------------------
 yjh 04.01.2023 12:12:29 +0300 - build 6083
 
-1. 1. SQLite v3.40.1
+1. SQLite v3.40.1
 
 --------------------------------------------------------------------------------
 MZK 02.01.2023 11:22:16 -0800 - build 6082
