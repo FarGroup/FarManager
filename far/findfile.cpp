@@ -270,6 +270,8 @@ private:
 	os::concurrency::timer m_UpdateTimer;
 	std::list<FindListItem> m_FindList;
 	bool m_IsHexActive{};
+	// This flag is set to true if the hotkey of either of Text/Hex radio is pressed.
+	// If true, the handler of Text/Hex radio button click will set focus on the Text/Hex editor
 	bool m_IsTextOrHexHotkeyUsed{};
 };
 
@@ -732,10 +734,6 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 	{
 		case DN_INITDIALOG:
 		{
-			// This flag is set to true if the hotkey of either of Text/Hex radio is pressed.
-			// If true, the handler of Text/Hex radio button click will set focus on the Text/Hex editor
-			Dlg->SendMessage(DM_SETITEMDATA, FAD_TEXT_CONTAINING, ToPtr(false));
-
 			const auto Hex{ Dlg->SendMessage(DM_GETCHECK, FAD_RADIO_HEX, nullptr) == BSTATE_CHECKED };
 			Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_TEXT,ToPtr(!Hex));
 			Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_HEX,ToPtr(Hex));
