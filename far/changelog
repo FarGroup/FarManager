@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 04.01.2023 21:08:06 +0000 - build 6087
+
+1. gh-583: Submenus with keyboard accelerators display ampersand character in title.
+
+--------------------------------------------------------------------------------
 drkns 04.01.2023 18:55:21 +0000 - build 6086
 
 1. gh-591: Duplicate keyboard accelerators in Sort modes.
