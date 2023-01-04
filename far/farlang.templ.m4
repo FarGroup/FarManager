@@ -15006,7 +15006,7 @@ upd:"Name only"
 
 MMenuSortUseGroups
 "Использовать &группы сортировки"
-"Use sort &groups"
+"Use sort groups"
 "Řazení podle skup&in"
 "Sortier&gruppen verw."
 "Rend. cs&oport haszn."
@@ -15034,7 +15034,7 @@ MMenuSortSelectedFirst
 
 MMenuSortDirectoriesFirst
 "&Каталоги вперёд"
-"Sho&w directories first"
+"Show directories &first"
 "Nejdří&ve zobrazit adresáře"
 "Verzeichnisse zuerst anzeigen"
 upd:"Sho&w directories first"
