@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 04.01.2023 18:55:21 +0000 - build 6086
+
+1. gh-591: Duplicate keyboard accelerators in Sort modes.
+
+2. gh-593: Cancelling a copy operation on a symlink creates a zero-byte file.
+
+3. Refactoring.
+
+--------------------------------------------------------------------------------
 MZK 04.01.2023 10:26:26 -0800 - build 6085
 
 1. Continuation of 6082. Changed tab order on Find File dialog.
