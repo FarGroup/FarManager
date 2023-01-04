@@ -343,11 +343,11 @@ enum FINDASKDLG
 	FAD_TEXT_MASK,
 	FAD_EDIT_MASK,
 	FAD_SEPARATOR0,
-	FAD_RADIO_TEXT,
-	FAD_RADIO_HEX,
 	FAD_TEXT_CONTAINING,
 	FAD_EDIT_TEXT,
 	FAD_EDIT_HEX,
+	FAD_RADIO_TEXT,
+	FAD_RADIO_HEX,
 	FAD_TEXT_CP,
 	FAD_COMBOBOX_CP,
 	FAD_SEPARATOR1,
@@ -842,30 +842,34 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 					SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
 
-					const auto Hex{ Param1 == FAD_RADIO_HEX };
+					const auto OldHex{ Dlg->SendMessage(DM_SHOWITEM, FAD_EDIT_HEX, ToPtr(-1)) };
+					const auto NewHex{ Param1 == FAD_RADIO_HEX };
 
-					const auto Src = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Hex ? FAD_EDIT_TEXT : FAD_EDIT_HEX, nullptr));
-					const auto strDataStr = ConvertHexString(Src, CodePage, !Hex);
-					Dlg->SendMessage(DM_SETTEXTPTR, Hex?FAD_EDIT_HEX:FAD_EDIT_TEXT, UNSAFE_CSTR(strDataStr));
-					Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_TEXT,ToPtr(!Hex));
-					Dlg->SendMessage(DM_SHOWITEM,FAD_EDIT_HEX,ToPtr(Hex));
-					Dlg->SendMessage(DM_ENABLE,FAD_TEXT_CP,ToPtr(!Hex));
-					Dlg->SendMessage(DM_ENABLE,FAD_COMBOBOX_CP,ToPtr(!Hex));
-					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_CASE,ToPtr(!Hex));
-					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_WHOLEWORDS,ToPtr(!Hex));
-					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_FUZZY,ToPtr(!Hex));
-					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(!Hex));
-
-					if (!strDataStr.empty())
+					if (NewHex != OldHex)
 					{
-						const auto UnchangeFlag = static_cast<int>(Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, FAD_EDIT_TEXT, ToPtr(-1)));
-						Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,FAD_EDIT_HEX,ToPtr(UnchangeFlag));
+						const auto Src = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, NewHex ? FAD_EDIT_TEXT : FAD_EDIT_HEX, nullptr));
+						const auto strDataStr = ConvertHexString(Src, CodePage, !NewHex);
+						Dlg->SendMessage(DM_SETTEXTPTR, NewHex ? FAD_EDIT_HEX : FAD_EDIT_TEXT, UNSAFE_CSTR(strDataStr));
+						Dlg->SendMessage(DM_SHOWITEM, FAD_EDIT_TEXT, ToPtr(!NewHex));
+						Dlg->SendMessage(DM_SHOWITEM, FAD_EDIT_HEX, ToPtr(NewHex));
+						Dlg->SendMessage(DM_ENABLE, FAD_TEXT_CP, ToPtr(!NewHex));
+						Dlg->SendMessage(DM_ENABLE, FAD_COMBOBOX_CP, ToPtr(!NewHex));
+						Dlg->SendMessage(DM_ENABLE, FAD_CHECKBOX_CASE, ToPtr(!NewHex));
+						Dlg->SendMessage(DM_ENABLE, FAD_CHECKBOX_WHOLEWORDS, ToPtr(!NewHex));
+						Dlg->SendMessage(DM_ENABLE, FAD_CHECKBOX_FUZZY, ToPtr(!NewHex));
+						Dlg->SendMessage(DM_ENABLE, FAD_CHECKBOX_DIRS, ToPtr(!NewHex));
+
+						if (!strDataStr.empty())
+						{
+							const auto UnchangeFlag = static_cast<int>(Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, NewHex ? FAD_EDIT_TEXT : FAD_EDIT_HEX, ToPtr(-1)));
+							Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, NewHex ? FAD_EDIT_HEX : FAD_EDIT_TEXT, ToPtr(UnchangeFlag));
+						}
 					}
 
 					if (Dlg->SendMessage(DM_GETITEMDATA, FAD_TEXT_CONTAINING, nullptr))
 					{
 						Dlg->SendMessage(DM_SETITEMDATA, FAD_TEXT_CONTAINING, ToPtr(false));
-						Dlg->SendMessage(DM_SETFOCUS, Hex ? FAD_EDIT_HEX : FAD_EDIT_TEXT, nullptr);
+						Dlg->SendMessage(DM_SETFOCUS, NewHex ? FAD_EDIT_HEX : FAD_EDIT_TEXT, nullptr);
 					}
 				}
 				break;
@@ -3093,11 +3097,11 @@ FindFiles::FindFiles():
 			{ DI_TEXT,        {{5,                2 }, {0,                2 }}, DIF_NONE, msg(lng::MFindFileMasks), },
 			{ DI_EDIT,        {{5,                3 }, {DlgWidth-4-2,     3 }}, DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY, },
 			{ DI_TEXT,        {{-1,               4 }, {0,                4 }}, DIF_SEPARATOR, },
-			{ DI_RADIOBUTTON, {{ContainingTextX1, 5 }, {ContainingTextX2, 5 }}, DIF_GROUP, ContainingText, },
-			{ DI_RADIOBUTTON, {{ContainingHexX1,  5 }, {ContainingHexX2,  5 }}, DIF_NONE, ContainingHex, },
 			{ DI_TEXT,        {{ContainingX1,     5 }, {0,                5 }}, DIF_NONE, Containing, },
 			{ DI_EDIT,        {{5,                6 }, {DlgWidth-4-2,     6 }}, DIF_HISTORY, },
 			{ DI_FIXEDIT,     {{5,                6 }, {DlgWidth-4-2,     6 }}, DIF_MASKEDIT, },
+			{ DI_RADIOBUTTON, {{ContainingTextX1, 5 }, {ContainingTextX2, 5 }}, DIF_GROUP, ContainingText, },
+			{ DI_RADIOBUTTON, {{ContainingHexX1,  5 }, {ContainingHexX2,  5 }}, DIF_NONE, ContainingHex, },
 			{ DI_TEXT,        {{5,                7 }, {0,                7 }}, DIF_NONE, },
 			{ DI_COMBOBOX,    {{5,                8 }, {DlgWidth-4-2,     8 }}, DIF_DROPDOWNLIST, },
 			{ DI_TEXT,        {{-1,               9 }, {0,                9 }}, DIF_SEPARATOR, },
