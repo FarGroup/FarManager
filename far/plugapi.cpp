@@ -469,12 +469,6 @@ intptr_t WINAPI apiAdvControl(const UUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 	{
 		if (ACTL_SYNCHRO==Command) //must be first
 		{
-			const auto Plugin = Global->CtrlObject->Plugins->FindPlugin(*PluginId);
-			if (!Plugin)
-				return false;
-
-			Plugin->SubscribeToSynchroEvents();
-
 			message_manager::instance().notify(*PluginId, Param2);
 			return 0;
 		}

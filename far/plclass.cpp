@@ -613,6 +613,7 @@ bool Plugin::LoadData()
 
 		if (ok)
 		{
+			SubscribeToSynchroEvents();
 			WorkFlags.Set(PIWF_DATALOADED);
 			return true;
 		}
@@ -711,6 +712,7 @@ bool Plugin::LoadFromCache(const os::fs::find_data &FindData)
 		if (PlCache->GetExportState(id, Name.UName))
 			Export = ToPtr(true); // Fake, will be overwritten with the real address later
 	}
+	SubscribeToSynchroEvents();
 
 	WorkFlags.Set(PIWF_CACHED); //too many "cached" flags
 	return true;
@@ -765,13 +767,14 @@ bool Plugin::RemoveDialog(const window_ptr& Dlg)
 
 void Plugin::SubscribeToSynchroEvents()
 {
+	if (!has(iProcessSynchroEvent))
+		return;
+
 	// Already initialised
 	if (m_SynchroListenerCreated)
 		return;
 
-	// Being initialised by another thread
-	if (std::atomic_exchange(&m_SynchroListenerCreated, true))
-		return;
+	m_SynchroListenerCreated = true;
 
 	m_SynchroListener = std::make_unique<listener>(m_Uuid, [this](const std::any& Payload)
 	{

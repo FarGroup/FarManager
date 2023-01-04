@@ -310,8 +310,6 @@ public:
 		return make_raii_wrapper<&Plugin::increase_activity, &Plugin::decrease_activity>(this);
 	}
 
-	void SubscribeToSynchroEvents();
-
 protected:
 	template<export_index Export, bool Native = true>
 	struct ExecuteStruct: detail::ExecuteStruct
@@ -359,6 +357,7 @@ private:
 	void InitExports();
 	void ClearExports();
 	void SetUuid(const UUID& Uuid);
+	void SubscribeToSynchroEvents();
 
 	void increase_activity();
 	void decrease_activity();
@@ -387,7 +386,7 @@ private:
 	string m_strUuid;
 	std::atomic_size_t m_Activity{};
 
-	std::atomic_bool m_SynchroListenerCreated{};
+	bool m_SynchroListenerCreated{};
 	std::unique_ptr<listener> m_SynchroListener;
 };
 
