@@ -84,8 +84,6 @@ string GetPathRoot(string_view Path);
 
 bool EnumStreams(string_view FileName, unsigned long long& StreamsSize, size_t& StreamsCount);
 
-bool DuplicateReparsePoint(string_view Src, string_view Dst);
-
 void NormalizeSymlinkName(string &strLinkName);
 
 bool MkSymLink(string_view Target, string_view LinkName, ReparsePointTypes LinkType, std::optional<error_state_ex>& ErrorState, bool Silent = false, bool HoldTarget = false);
