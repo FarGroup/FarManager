@@ -1682,10 +1682,10 @@ separatorem, którym domyślnie są znaki: #!%^&*()+|{}:"<>?`-=\\[];',./#.
 jako odpowiedniki odpowiadającym im sekwencjom wieloznakowym, a wymyślne cyfry
 do odpowiadających im znaków liczbowych i ignoruje kilka innych drobnych różnic.
 
- Zaznaczając opcję #Szukaj wartości szesnastkowej# można wyszukać pliki
-zawierające szesnastkową sekwencję podanych bajtów. W tym przypadku
-opcje #Uwzględnij wielkość znaków#, #Tylko całe wyrazy#, #Użyj strony kodowej#
-i #Szukaj folderów# zostaną wyłączone i ich wcześniejsze zaznaczenie nie ma
+ Zaznaczając opcję #Szesnastkowo# można wyszukać pliki zawierające szesnastkową
+sekwencję podanych bajtów. W tym przypadku opcje #Uwzględnij wielkość znaków#,
+#Tylko całe wyrazy#, #Wyszukiwanie rozmyte#, #Użyj strony kodowej#
+i #Szukaj folderów# zostają wyłączone i ich wcześniejsze wartości nie mają
 żadnego wpływu na proces wyszukiwania.
 
  Zaznaczenie #Nie zawierające# pozwoli odszukać pliki #nie# zawierające podany
