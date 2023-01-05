@@ -11507,7 +11507,7 @@ MFindFileHex
 "He&x"
 "&Hex (xx xx …)"
 upd:"&Hexát"
-&Szesnastkowo"
+"&Szesnastkowo"
 upd:"Cadena &hexadecimal"
 "He&x"
 "&Esadecimale"
