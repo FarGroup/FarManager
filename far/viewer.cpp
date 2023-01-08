@@ -139,6 +139,7 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 		.Fuzzy = Global->GlobalSearchFuzzy,
 		.SearchHex = Global->GetSearchHex()
 	},
+	LastSearchReverse(Global->GlobalSearchReverse),
 	m_DefCodepage(aCodePage),
 	m_Codepage(m_DefCodepage),
 	m_Wrap(Global->Opt->ViOpt.ViewerIsWrap),
@@ -3339,7 +3340,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 						prev_pos = LastSelectPos;
 					}
 				}
-				if (SearchOptions.Reverse != LastSearchOptions.Reverse)
+				if (SearchOptions.Reverse != LastSearchReverse)
 					StartSearchPos = LastSelectPos;
 
 				break;
@@ -3353,7 +3354,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 			StartSearchPos = LastSelectPos = (SearchOptions.Reverse ? EndOfScreen(0) : BegOfScreen());
 		break;
 	}
-	LastSearchOptions.Reverse = SearchOptions.Reverse;
+	LastSearchReverse = SearchOptions.Reverse;
 
 	if (!sd.search_len || !FileSize)
 		return;
