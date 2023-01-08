@@ -130,14 +130,14 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	ViOpt(Global->Opt->ViOpt),
 	Reader(ViewFile, (Global->Opt->ViOpt.MaxLineSize*2*64 > 64*1024 ? Global->Opt->ViOpt.MaxLineSize*2*64 : 64*1024)),
 	strLastSearchStr(Global->GetSearchString()),
-	LastSearchOptions
+	LastSearchDlgOptions
 	{
 		.CaseSensitive = Global->GlobalSearchCaseSensitive,
 		.WholeWords = Global->GlobalSearchWholeWords,
 		.Reverse = Global->GlobalSearchReverse,
 		.Regexp = Global->Opt->ViOpt.SearchRegexp,
 		.Fuzzy = Global->GlobalSearchFuzzy,
-		.SearchHex = Global->GetSearchHex()
+		.Hex = Global->GetSearchHex()
 	},
 	LastSearchReverse(Global->GlobalSearchReverse),
 	m_DefCodepage(aCodePage),
@@ -265,14 +265,14 @@ void Viewer::SavePosition()
 
 void Viewer::KeepInitParameters() const
 {
-	Global->StoreSearchString(strLastSearchStr, LastSearchOptions.SearchHex);
-	Global->GlobalSearchCaseSensitive = LastSearchOptions.CaseSensitive;
-	Global->GlobalSearchWholeWords = LastSearchOptions.WholeWords;
-	Global->GlobalSearchReverse = LastSearchOptions.Reverse;
-	Global->GlobalSearchFuzzy = LastSearchOptions.Fuzzy;
+	Global->StoreSearchString(strLastSearchStr, LastSearchDlgOptions.Hex);
+	Global->GlobalSearchCaseSensitive = LastSearchDlgOptions.CaseSensitive;
+	Global->GlobalSearchWholeWords = LastSearchDlgOptions.WholeWords;
+	Global->GlobalSearchReverse = LastSearchDlgOptions.Reverse;
+	Global->GlobalSearchFuzzy = LastSearchDlgOptions.Fuzzy;
 	Global->Opt->ViOpt.ViewerIsWrap = m_Wrap;
 	Global->Opt->ViOpt.ViewerWrap = m_WordWrap;
-	Global->Opt->ViOpt.SearchRegexp = LastSearchOptions.Regexp;
+	Global->Opt->ViOpt.SearchRegexp = LastSearchDlgOptions.Regexp;
 }
 
 bool Viewer::OpenFile(string_view const Name, bool const Warn)
@@ -2773,7 +2773,7 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 {
 	assert(sd->searcher);
 
-	const auto bsize = 8192, slen = sd->search_len, ww = (LastSearchOptions.WholeWords ? 1 : 0);
+	const auto bsize = 8192, slen = sd->search_len, ww = (LastSearchDlgOptions.WholeWords ? 1 : 0);
 	wchar_t prev_char{}, *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
 	long long to;
 	const auto cpos = sd->CurPos;
@@ -2819,8 +2819,8 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 		{},
 		CurPos,
 		{
-			.CaseSensitive = LastSearchOptions.CaseSensitive,
-			.WholeWords = LastSearchOptions.WholeWords,
+			.CaseSensitive = LastSearchDlgOptions.CaseSensitive,
+			.WholeWords = LastSearchDlgOptions.WholeWords,
 		},
 		SearchLength,
 		sd->word_div))
@@ -2866,7 +2866,7 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 {
 	assert(sd->searcher);
 
-	const auto bsize = 8192, slen = sd->search_len, ww = (LastSearchOptions.WholeWords ? 1 : 0);
+	const auto bsize = 8192, slen = sd->search_len, ww = (LastSearchDlgOptions.WholeWords ? 1 : 0);
 	const auto buff = Search_buffer.data();
 	const auto t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
 	auto cpos = sd->CurPos;
@@ -2914,8 +2914,8 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 		{},
 		CurPos,
 		{
-			.CaseSensitive = LastSearchOptions.CaseSensitive,
-			.WholeWords = LastSearchOptions.WholeWords,
+			.CaseSensitive = LastSearchDlgOptions.CaseSensitive,
+			.WholeWords = LastSearchDlgOptions.WholeWords,
 			.Reverse = true
 		},
 		SearchLength,
@@ -3162,8 +3162,6 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 	if (!ViewFile || (Next && strLastSearchStr.empty()))
 		return;
 
-	auto SearchOptions{ LastSearchOptions };
-
 	string strSearchStr;
 	if (!strLastSearchStr.empty())
 		strSearchStr = strLastSearchStr;
@@ -3210,22 +3208,22 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 		string mask(3 * SD_MAX_CHARS, L'H');
 		for (int i = 0; i < SD_MAX_CHARS; ++i)
 			mask[3 * i + 2] = L' '; // "HH HH ..."
-		SearchDlg[SD_RADIO_TEXT].Selected =!LastSearchOptions.SearchHex;
-		SearchDlg[SD_RADIO_HEX].Selected = LastSearchOptions.SearchHex;
+		SearchDlg[SD_RADIO_TEXT].Selected =!LastSearchDlgOptions.Hex;
+		SearchDlg[SD_RADIO_HEX].Selected = LastSearchDlgOptions.Hex;
 		SearchDlg[SD_EDIT_HEX].strMask = std::move(mask);
 		SearchDlg[SD_EDIT_TEXT].strHistory = L"SearchText"sv;
-		SearchDlg[SD_CHECKBOX_CASE].Selected = LastSearchOptions.CaseSensitive;
-		SearchDlg[SD_CHECKBOX_WORDS].Selected = LastSearchOptions.WholeWords;
-		SearchDlg[SD_CHECKBOX_REVERSE].Selected = LastSearchOptions.Reverse;
-		SearchDlg[SD_CHECKBOX_REGEXP].Selected= LastSearchOptions.Regexp;
-		SearchDlg[SD_CHECKBOX_FUZZY].Selected = LastSearchOptions.Fuzzy;
+		SearchDlg[SD_CHECKBOX_CASE].Selected = LastSearchDlgOptions.CaseSensitive;
+		SearchDlg[SD_CHECKBOX_WORDS].Selected = LastSearchDlgOptions.WholeWords;
+		SearchDlg[SD_CHECKBOX_REVERSE].Selected = LastSearchDlgOptions.Reverse;
+		SearchDlg[SD_CHECKBOX_REGEXP].Selected= LastSearchDlgOptions.Regexp;
+		SearchDlg[SD_CHECKBOX_FUZZY].Selected = LastSearchDlgOptions.Fuzzy;
 		SearchDlg[SearchDlg[SD_RADIO_HEX].Selected? SD_EDIT_HEX : SD_EDIT_TEXT].strData = strSearchStr;
 
 		ViewerDialogData my;
 		//
 		my.viewer = this;
 		my.edit_autofocus = (ViOpt.SearchEditFocus != 0);
-		my.hex_mode = (LastSearchOptions.SearchHex != 0);
+		my.hex_mode = (LastSearchDlgOptions.Hex != 0);
 		my.recursive = false;
 		//
 		SearchDlg[SD_EDIT_TEXT].UserData = reinterpret_cast<intptr_t>(&my);
@@ -3240,14 +3238,14 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 		if (Dlg->GetExitCode()!=SD_BUTTON_OK)
 			return;
 
-		SearchOptions.SearchHex = SearchDlg[SD_RADIO_HEX].Selected == BSTATE_CHECKED;
-		SearchOptions.CaseSensitive = SearchDlg[SD_CHECKBOX_CASE].Selected == BSTATE_CHECKED;
-		SearchOptions.WholeWords = SearchDlg[SD_CHECKBOX_WORDS].Selected == BSTATE_CHECKED;
-		SearchOptions.Reverse = SearchDlg[SD_CHECKBOX_REVERSE].Selected == BSTATE_CHECKED;
-		SearchOptions.Regexp = SearchDlg[SD_CHECKBOX_REGEXP].Selected == BSTATE_CHECKED;
-		SearchOptions.Fuzzy = SearchDlg[SD_CHECKBOX_FUZZY].Selected == BSTATE_CHECKED;
+		LastSearchDlgOptions.Hex = SearchDlg[SD_RADIO_HEX].Selected == BSTATE_CHECKED;
+		LastSearchDlgOptions.CaseSensitive = SearchDlg[SD_CHECKBOX_CASE].Selected == BSTATE_CHECKED;
+		LastSearchDlgOptions.WholeWords = SearchDlg[SD_CHECKBOX_WORDS].Selected == BSTATE_CHECKED;
+		LastSearchDlgOptions.Reverse = SearchDlg[SD_CHECKBOX_REVERSE].Selected == BSTATE_CHECKED;
+		LastSearchDlgOptions.Regexp = SearchDlg[SD_CHECKBOX_REGEXP].Selected == BSTATE_CHECKED;
+		LastSearchDlgOptions.Fuzzy = SearchDlg[SD_CHECKBOX_FUZZY].Selected == BSTATE_CHECKED;
 
-		if (SearchOptions.SearchHex)
+		if (LastSearchDlgOptions.Hex)
 		{
 			strSearchStr = ExtractHexString(SearchDlg[SD_EDIT_HEX].strData);
 		}
@@ -3257,10 +3255,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 		}
 	}
 
-	LastSearchOptions = SearchOptions;
-
-	if (Next == -1)
-		SearchOptions.Reverse = !SearchOptions.Reverse;
+	auto SearchReverse{ Next == -1 ? !LastSearchDlgOptions.Reverse : LastSearchDlgOptions.Reverse };
 
 	auto strMsgStr = strLastSearchStr = strSearchStr;
 
@@ -3270,15 +3265,13 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 	bytes search_bytes;
 	decltype(&Viewer::search_hex_forward) searcher;
 
-	if (SearchOptions.SearchHex)
+	if (LastSearchDlgOptions.Hex)
 	{
 		sd.ch_size = 1;
 		search_bytes = hex2ss(strSearchStr);
 		sd.search_bytes = search_bytes;
 		sd.search_len = static_cast<int>(search_bytes.size());
-		SearchOptions.CaseSensitive = true;
-		SearchOptions.Regexp = false;
-		searcher = (SearchOptions.Reverse ? &Viewer::search_hex_backward : &Viewer::search_hex_forward);
+		searcher = (SearchReverse ? &Viewer::search_hex_backward : &Viewer::search_hex_forward);
 	}
 	else
 	{
@@ -3286,9 +3279,9 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 		sd.search_text = strSearchStr;
 		sd.search_len = static_cast<int>(strSearchStr.size());
 
-		if (SearchOptions.Regexp)
+		if (LastSearchDlgOptions.Regexp)
 		{
-			searcher = (SearchOptions.Reverse ? &Viewer::search_regex_backward : &Viewer::search_regex_forward);
+			searcher = (SearchReverse ? &Viewer::search_regex_backward : &Viewer::search_regex_forward);
 
 			const auto strSlash = InsertRegexpQuote(strSearchStr);
 
@@ -3296,7 +3289,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 
 			try
 			{
-				sd.Rex.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (SearchOptions.CaseSensitive? 0 : OP_IGNORECASE));
+				sd.Rex.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (LastSearchDlgOptions.CaseSensitive? 0 : OP_IGNORECASE));
 			}
 			catch (regex_exception const& e)
 			{
@@ -3306,9 +3299,9 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 		}
 		else
 		{
-			sd.searcher = &init_searcher(Searchers, SearchOptions.CaseSensitive, SearchOptions.Fuzzy, strLastSearchStr);
+			sd.searcher = &init_searcher(Searchers, LastSearchDlgOptions.CaseSensitive, LastSearchDlgOptions.Fuzzy, strLastSearchStr);
 			sd.word_div = get_word_div();
-			searcher = (SearchOptions.Reverse ? &Viewer::search_text_backward : &Viewer::search_text_forward);
+			searcher = (SearchReverse ? &Viewer::search_text_backward : &Viewer::search_text_forward);
 			inplace::quote_unconditional(strMsgStr);
 		}
 	}
@@ -3320,7 +3313,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 			if ( SelectPos >= 0 && SelectSize >= 0 )
 			{
 				if (sd.ch_size >= 1)
-					LastSelectPos = SelectPos + (SearchOptions.Reverse ? LastSelectSize-sd.ch_size : sd.ch_size);
+					LastSelectPos = SelectPos + (SearchReverse ? LastSelectSize-sd.ch_size : sd.ch_size);
 				else
 				{
 					long long prev_pos = SelectPos;
@@ -3330,7 +3323,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 						wchar_t ch;
 						bool ok_getc = vgetc(&ch);
 						LastSelectPos = vtell();
-						if (!SearchOptions.Reverse || !ok_getc)
+						if (!SearchReverse || !ok_getc)
 							break;
 						if ( LastSelectPos >= SelectPos + LastSelectSize )
 						{
@@ -3340,7 +3333,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 						prev_pos = LastSelectPos;
 					}
 				}
-				if (SearchOptions.Reverse != LastSearchReverse)
+				if (SearchReverse != LastSearchReverse)
 					StartSearchPos = LastSelectPos;
 
 				break;
@@ -3351,14 +3344,14 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 			assert(Next >= -1 && Next <= +1);
 			if (!Next || LastSelectSize < 0)
 				LastSelectSize = SelectSize = -1;
-			StartSearchPos = LastSelectPos = (SearchOptions.Reverse ? EndOfScreen(0) : BegOfScreen());
+			StartSearchPos = LastSelectPos = (SearchReverse ? EndOfScreen(0) : BegOfScreen());
 		break;
 	}
-	LastSearchReverse = SearchOptions.Reverse;
+	LastSearchReverse = SearchReverse;
 
 	if (!sd.search_len || !FileSize)
 		return;
-	const auto can_be_found = ((SearchOptions.Regexp || SearchOptions.Fuzzy) && !SearchOptions.SearchHex) || static_cast<long long>(sd.search_len) <= FileSize;
+	const auto can_be_found = ((LastSearchDlgOptions.Regexp || LastSearchDlgOptions.Fuzzy) && !LastSearchDlgOptions.Hex) || static_cast<long long>(sd.search_len) <= FileSize;
 
 	sd.CurPos = LastSelectPos;
 	{
@@ -3382,7 +3375,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 				Message(MSG_WARNING,
 					msg(lng::MViewSearchTitle),
 					{
-						msg(SearchOptions.SearchHex? lng::MViewSearchCannotFindHex : lng::MViewSearchCannotFind),
+						msg(LastSearchDlgOptions.Hex? lng::MViewSearchCannotFindHex : lng::MViewSearchCannotFind),
 						strMsgStr
 					},
 					{ lng::MOk });
@@ -3424,7 +3417,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 				if ( total > 0 )
 				{
 					long long done;
-					if (!SearchOptions.Reverse)
+					if (!SearchReverse)
 					{
 						if ( sd.CurPos >= StartSearchPos )
 							done = sd.CurPos - StartSearchPos;
@@ -3442,7 +3435,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 				}
 
 				if (!Progress)
-					Progress.emplace(msg(lng::MViewSearchTitle), concat(msg(SearchOptions.SearchHex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', strMsgStr), 0);
+					Progress.emplace(msg(lng::MViewSearchTitle), concat(msg(LastSearchDlgOptions.Hex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', strMsgStr), 0);
 
 				Progress->update(percent);
 			}
@@ -3451,7 +3444,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 
 	if ( sd.MatchPos >= 0 )
 	{
-		DWORD flags = SearchOptions.Reverse ? 0x2 : 0;
+		DWORD flags = SearchReverse ? 0x2 : 0;
 
 		if (sd.search_len < 0
 		 || (sd.MatchPos >= BegOfScreen() && sd.MatchPos + sd.search_len <= EndOfScreen(0)))
