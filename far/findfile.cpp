@@ -789,7 +789,6 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					item.Item.Text=strSearchFromRoot.c_str();
 					Dlg->SendMessage(DM_LISTUPDATE,FAD_COMBOBOX_WHERE,&item);
 					PluginMode = Global->CtrlObject->Cp()->ActivePanel()->GetMode() == panel_mode::PLUGIN_PANEL;
-					Dlg->SendMessage(DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(!PluginMode));
 					item.ItemIndex = FINDAREA_ROOT;
 					Dlg->SendMessage(DM_LISTGETITEM,FAD_COMBOBOX_WHERE,&item);
 
@@ -828,12 +827,6 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		{
 			switch (Param1)
 			{
-				case FAD_CHECKBOX_DIRS:
-				{
-					FindFoldersChanged = true;
-				}
-				break;
-
 				case FAD_RADIO_TEXT:
 				case FAD_RADIO_HEX:
 				{
@@ -969,19 +962,8 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 		}
 		case DN_EDITCHANGE:
 		{
-			auto& Item=*static_cast<FarDialogItem*>(Param2);
-
 			switch (Param1)
 			{
-				case FAD_EDIT_TEXT:
-					// Строка "Содержащих текст"
-					if (!FindFoldersChanged)
-					{
-						const auto Checked = Item.Data && *Item.Data? false : Global->Opt->FindOpt.FindFolders;
-						Dlg->SendMessage( DM_SETCHECK, FAD_CHECKBOX_DIRS, ToPtr(Checked? BSTATE_CHECKED : BSTATE_UNCHECKED));
-					}
-					return TRUE;
-
 				case FAD_COMBOBOX_CP:
 					// Получаем выбранную в выпадающем списке таблицу символов
 					CodePage = Dlg->GetListItemSimpleUserData(FAD_COMBOBOX_CP, Dlg->SendMessage(DM_LISTGETCURPOS, FAD_COMBOBOX_CP, nullptr));
@@ -3128,9 +3110,7 @@ FindFiles::FindFiles():
 		FindAskDlg[FAD_CHECKBOX_NOTCONTAINING].Selected = Options.NotContaining;
 		FindAskDlg[FAD_SEPARATOR_3].strMask = { BoxSymbols[BS_T_H1V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1] };
 		FindAskDlg[FAD_CHECKBOX_FILTER].Selected = UseFilter;
-
-		if (strFindStr.empty())
-			FindAskDlg[FAD_CHECKBOX_DIRS].Selected=Global->Opt->FindOpt.FindFolders;
+		FindAskDlg[FAD_CHECKBOX_DIRS].Selected = Global->Opt->FindOpt.FindFolders;
 
 		FarListItem li[]=
 		{
@@ -3215,11 +3195,7 @@ FindFiles::FindFiles():
 		Options.SearchHex = m_IsHexActive;
 		Options.NotContaining = FindAskDlg[FAD_CHECKBOX_NOTCONTAINING].Selected == BSTATE_CHECKED;
 		Options.SearchInArchives = FindAskDlg[FAD_CHECKBOX_ARC].Selected == BSTATE_CHECKED;
-
-		if (FindFoldersChanged)
-		{
-			Global->Opt->FindOpt.FindFolders=(FindAskDlg[FAD_CHECKBOX_DIRS].Selected==BSTATE_CHECKED);
-		}
+		Global->Opt->FindOpt.FindFolders = FindAskDlg[FAD_CHECKBOX_DIRS].Selected == BSTATE_CHECKED;
 
 		if (!PluginMode)
 		{

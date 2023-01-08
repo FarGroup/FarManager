@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+drkns 08.01.2023 20:47:16 +0000 - build 6090
+
+1. gh-601: Search for folders checkbox in Find file dialog not synchronized with Hex control
+   Remove all shenanigans with that checkbox.
+
+--------------------------------------------------------------------------------
 MZK 08.01.2023 09:26:22 -0800 - build 6089
 
 1. Viewer Search: minor refactoring.
