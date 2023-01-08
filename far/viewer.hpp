@@ -194,15 +194,15 @@ private:
 
 	string strLastSearchStr;
 
-	struct SearchOptions
+	struct SearchDlgOptions
 	{
 		bool CaseSensitive{};
 		bool WholeWords{};
 		bool Reverse{};
 		bool Regexp{};
 		bool Fuzzy{};
-		bool SearchHex{};
-	} LastSearchOptions;
+		bool Hex{};
+	} LastSearchDlgOptions;
 
 	bool LastSearchReverse{}; // Used to adjust StartSearchPos. NOT the same as LastSearchDlgOptions.Reverse.
 	long long StartSearchPos{};
