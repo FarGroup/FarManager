@@ -204,6 +204,7 @@ private:
 		bool SearchHex{};
 	} LastSearchOptions;
 
+	bool LastSearchReverse{}; // Used to adjust StartSearchPos. NOT the same as LastSearchDlgOptions.Reverse.
 	long long StartSearchPos{};
 
 	uintptr_t m_DefCodepage;
