@@ -155,8 +155,7 @@ bool message_manager::dispatch()
 
 		const auto find_eligible_from = [&](handlers_map const& Handlers)
 		{
-			const auto& [EqualBegin, EqualEnd] = Handlers.equal_range(EventIdRef);
-			for (const auto& [Key, Value]: range(EqualBegin, EqualEnd))
+			for (const auto& [Key, Value]: range(Handlers.equal_range(EventIdRef)))
 			{
 				EligibleHandlers.emplace(Value, false);
 			}

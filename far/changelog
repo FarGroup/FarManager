@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 09.01.2023 17:57:23 +0000 - build 6092
+
+1. gh-603: Process list plugin randomly switches selection to other processes with the same name.
+
+2. Minor refactoring.
+
+--------------------------------------------------------------------------------
 MZK 09.01.2023 09:33:35 -0800 - build 6091
 
 1. gh-605: Induced focus movement in Viewer Search dialog.
