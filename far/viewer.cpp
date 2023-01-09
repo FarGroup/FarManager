@@ -2476,6 +2476,7 @@ struct ViewerDialogData
 	Viewer* viewer;
 	bool edit_autofocus;
 	bool hex_mode;
+	bool is_text_or_hex_hotkey_used;
 	bool recursive;
 };
 
@@ -2488,6 +2489,8 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 			Dlg->SendMessage(DM_SDSETVISIBILITY, Dlg->SendMessage(DM_GETCHECK, SD_RADIO_HEX, nullptr) == BSTATE_CHECKED, nullptr);
 			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,SD_EDIT_TEXT,ToPtr(1));
 			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,SD_EDIT_HEX,ToPtr(1));
+			auto& Data = edit_as<ViewerDialogData>(Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr));
+			Dlg->SendMessage(DM_SETFOCUS, Data.hex_mode? SD_EDIT_HEX : SD_EDIT_TEXT, nullptr);
 			return TRUE;
 		}
 		case DM_SDSETVISIBILITY:
@@ -2556,7 +2559,7 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 					}
 
 					Data.hex_mode = new_hex;
-					if (!Data.edit_autofocus)
+					if (!(Data.edit_autofocus || Data.is_text_or_hex_hotkey_used))
 						return TRUE;
 				}
 			}
@@ -2565,7 +2568,7 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 				Dlg->SendMessage(DM_SDSETVISIBILITY, Data.hex_mode, nullptr);
 			}
 
-			if (Data.edit_autofocus && !Data.recursive)
+			if ((Data.edit_autofocus || Data.is_text_or_hex_hotkey_used) && !Data.recursive)
 			{
 				if ( need_focus
 				  || Param1 == SD_CHECKBOX_CASE
@@ -2589,6 +2592,12 @@ intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,vo
 		{
 			if (const auto FirstChar = view_as<const Manager::Key*>(Dlg->SendMessage(DM_SETDLGDATA, 0, nullptr)))
 				Global->WindowManager->CallbackWindow([Dlg, FirstChar]() { Dlg->ProcessKey(*FirstChar); });
+			break;
+		}
+		case DN_HOTKEY:
+		{
+			auto& Data = edit_as<ViewerDialogData>(Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr));
+			Data.is_text_or_hex_hotkey_used = Param1 == SD_RADIO_TEXT || Param1 == SD_RADIO_HEX;
 			break;
 		}
 		default:
@@ -3192,7 +3201,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 			{ DI_RADIOBUTTON, {{searchForTextX1, 2}, {searchForTextX2, 2 }}, DIF_GROUP, searchForText, },
 			{ DI_RADIOBUTTON, {{searchForHexX1,  2}, {searchForHexX2,  2 }}, DIF_NONE, searchForHex, },
 			{ DI_TEXT,        {{searchForX1,     2}, {0,               2 }}, DIF_NONE, searchFor, },
-			{ DI_EDIT,        {{5,               3}, {DlgWidth-4-2,    3 }}, DIF_FOCUS | DIF_HISTORY | DIF_USELASTHISTORY, },
+			{ DI_EDIT,        {{5,               3}, {DlgWidth-4-2,    3 }}, DIF_HISTORY | DIF_USELASTHISTORY, },
 			{ DI_FIXEDIT,     {{5,               3}, {DlgWidth-4-2,    3 }}, DIF_MASKEDIT, },
 			{ DI_TEXT,        {{-1,              4}, {0,               4 }}, DIF_SEPARATOR, },
 			{ DI_CHECKBOX,    {{5,               5}, {0,               5 }}, DIF_NONE, msg(lng::MViewSearchCase), },
@@ -3219,13 +3228,14 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 		SearchDlg[SD_CHECKBOX_FUZZY].Selected = LastSearchDlgOptions.Fuzzy;
 		SearchDlg[SearchDlg[SD_RADIO_HEX].Selected? SD_EDIT_HEX : SD_EDIT_TEXT].strData = strSearchStr;
 
-		ViewerDialogData my;
-		//
-		my.viewer = this;
-		my.edit_autofocus = (ViOpt.SearchEditFocus != 0);
-		my.hex_mode = (LastSearchDlgOptions.Hex != 0);
-		my.recursive = false;
-		//
+		ViewerDialogData my
+		{
+			.viewer = this,
+			.edit_autofocus = (ViOpt.SearchEditFocus != 0),
+			.hex_mode = LastSearchDlgOptions.Hex,
+			.is_text_or_hex_hotkey_used = false,
+			.recursive = false,
+		};
 		SearchDlg[SD_EDIT_TEXT].UserData = reinterpret_cast<intptr_t>(&my);
 
 		const auto Dlg = Dialog::create(SearchDlg, &Viewer::ViewerSearchDlgProc, this, const_cast<Manager::Key*>(FirstChar));
