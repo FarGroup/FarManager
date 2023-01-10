@@ -1676,7 +1676,7 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 	}
 	else if ((ControlState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) && Key == VK_F12)
 	{
-		struct
+		static const struct
 		{
 			unsigned id;
 			unsigned SortMode;
@@ -1712,7 +1712,7 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 
 		const auto CheckFlag = [&](size_t const Value)
 		{
-			return KnownSortingSlot && SortMode == Value? MIF_CHECKED | cIndicator : 0;
+			return KnownSortingSlot && SortMode == Value? MIF_SELECTED | MIF_CHECKED | cIndicator : 0;
 		};
 
 		std::vector<FarMenuItem> Items;
@@ -1761,6 +1761,7 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 		if (rc >= 0)
 		{
 			const auto IsStatic = static_cast<size_t>(rc) < std::size(StaticItems);
+			const auto CurrentSortMode = SortMode;
 
 			SortMode = IsStatic?
 				StaticItems[rc].SortMode :
@@ -1771,12 +1772,9 @@ int Plist::ProcessKey(const INPUT_RECORD* Rec)
 			PsInfo.PanelControl(this, FCTL_SETSORTMODE, FarSortMode, {});
 
 			const auto InvertByDefault = !IsStatic || StaticItems[rc].InvertByDefault;
-			const auto SameSelected = static_cast<unsigned>(FarSortMode) == LastFarSortMode && SortMode == LastInternalSortMode;
+			const auto SameSelected = SortMode == CurrentSortMode;
 
-			PsInfo.PanelControl(this, FCTL_SETSORTORDER, SameSelected? !InvertByDefault : InvertByDefault, {});
-
-			LastFarSortMode = FarSortMode;
-			LastInternalSortMode = SortMode;
+			PsInfo.PanelControl(this, FCTL_SETSORTORDER, SameSelected? !Reversed : InvertByDefault, {});
 			/*
 			else if(rc==std::size(StaticItems)-2)
 			Control(FCTL_SETSORTORDER, &items[rc].mode);
@@ -1959,15 +1957,24 @@ int Plist::Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, u
 	switch (SortMode)
 	{
 	case SM_PROCLIST_PID:
-		diff = compare_numbers(pd1.dwPID, pd2.dwPID);
+		diff = compare_numbers(
+			pd1.dwPID,
+			pd2.dwPID
+		);
 		break;
 
 	case SM_PROCLIST_PARENTPID:
-		diff = compare_numbers(pd1.dwParentPID, pd2.dwParentPID);
+		diff = compare_numbers(
+			pd1.dwParentPID,
+			pd2.dwParentPID
+		);
 		break;
 
 	case SM_PROCLIST_PRIOR:
-		diff = compare_numbers(pd2.dwPrBase, pd1.dwPrBase);
+		diff = compare_numbers(
+			pd1.dwPrBase,
+			pd2.dwPrBase
+		);
 		break;
 
 	default:
@@ -1977,10 +1984,10 @@ int Plist::Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, u
 			const auto data2 = pPerfThread->GetProcessData(pd2.dwPID, static_cast<DWORD>(Item2->NumberOfLinks));
 
 			if (!data1)
-				return data2? 1 : 0;
+				return data2? -1 : 0;
 
 			if (!data2)
-				return -1;
+				return 1;
 
 			bool bPerSec = false;
 			auto smode = SortMode;
@@ -1996,13 +2003,24 @@ int Plist::Compare(const PluginPanelItem* Item1, const PluginPanelItem* Item2, u
 			//  i=0; //????
 			//}
 
-			diff = bPerSec? compare_numbers(data2->qwResults[i], data1->qwResults[i]) : compare_numbers(data2->qwCounters[i], data1->qwCounters[i]);
+			diff = bPerSec?
+				compare_numbers(
+					data1->qwResults[i],
+					data2->qwResults[i]
+				) :
+				compare_numbers(
+					data1->qwCounters[i],
+					data2->qwCounters[i]
+			);
 		}
 		break;
 	}
 
 	if (diff == 0)
-		diff = compare_numbers(reinterpret_cast<uintptr_t>(Item1->UserData.Data), reinterpret_cast<uintptr_t>(Item2->UserData.Data)); // unsorted
+		diff = compare_numbers(
+			reinterpret_cast<uintptr_t>(Item1->UserData.Data),
+			reinterpret_cast<uintptr_t>(Item2->UserData.Data)
+		); // unsorted
 
 	return diff;
 }

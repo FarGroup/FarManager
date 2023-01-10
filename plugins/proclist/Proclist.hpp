@@ -160,7 +160,7 @@ private:
 	std::wstring HostName;
 	std::unique_ptr<PerfThread> pPerfThread;
 	unsigned StartPanelMode{};
-	unsigned SortMode, LastFarSortMode{}, LastInternalSortMode{};
+	unsigned SortMode{};
 	std::unique_ptr<WMIConnection> pWMI;
 	DWORD dwPluginThread;
 
