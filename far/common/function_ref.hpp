@@ -39,10 +39,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-template <typename callable_type>
+template<typename callable_type>
 class function_ref;
 
-template <typename return_type, typename... args>
+template<typename return_type, typename... args>
 class function_ref<return_type(args...)> final
 {
 public:

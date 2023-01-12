@@ -83,6 +83,11 @@ public:
 	{
 	}
 
+	template<typename iterator>
+	constexpr explicit (false) range(std::pair<iterator, iterator> const& Pair):
+		range(Pair.first, Pair.second)
+	{}
+
 	[[nodiscard]]
 	constexpr bool empty() const noexcept { return m_Begin == m_End; }
 
@@ -184,6 +189,9 @@ range(container& c) -> range<std::remove_reference_t<decltype(std::begin(c))>, s
 
 template<typename value_type>
 range(const std::initializer_list<value_type>&) -> range<const value_type*>;
+
+template<typename iterator>
+range(std::pair<iterator, iterator> const& Pair) -> range<iterator, iterator>;
 
 
 template<class span_value_type>

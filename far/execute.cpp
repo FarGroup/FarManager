@@ -191,6 +191,28 @@ static bool FindObject(string_view const Command, string& strDest)
 	return false;
 }
 
+static string get_comspec()
+{
+	if (auto Comspec = os::env::expand(Global->Opt->Exec.Comspec); !Comspec.empty())
+		return Comspec;
+
+	if (auto Comspec = os::env::get(L"COMSPEC"sv); !Comspec.empty())
+		return Comspec;
+
+	return {};
+}
+
+static string exclude_cmds()
+{
+	if (!Global->Opt->Exec.strExcludeCmds.empty())
+		return os::env::expand(Global->Opt->Exec.strExcludeCmds);
+
+	if (equal_icase(PointToName(get_comspec()), L"cmd.exe"sv))
+		return L"ASSOC;CALL;CD;CHCP;CHDIR;CLS;COLOR;COPY;DATE;DEL;DIR;DPATH;ECHO;ERASE;EXIT;FOR;FTYPE;IF;KEYS;MD;MKDIR;MKLINK;MOVE;PATH;PAUSE;POPD;PROMPT;PUSHD;RD;REM;REN;RENAME;RMDIR;SET;START;TIME;TITLE;TYPE;VER;VERIFY;VOL"s;
+
+	return {};
+}
+
 /*
  true: ok, found command & arguments.
  false: it's too complex, let comspec deal with it.
@@ -273,7 +295,7 @@ static bool PartCmdLine(string_view const FullCommand, string& Command, string& 
 	}
 
 	const auto Cmd = make_string_view(Begin, CmdEnd);
-	const auto ExcludeCmds = enum_tokens(os::env::expand(Global->Opt->Exec.strExcludeCmds), L";"sv);
+	const auto ExcludeCmds = enum_tokens(exclude_cmds(), L";"sv);
 	if (std::any_of(ALL_CONST_RANGE(ExcludeCmds), [&](string_view const i){ return equal_icase(i, Cmd); }))
 		return false;
 
@@ -438,20 +460,17 @@ static void after_process_creation(os::handle Process, execute_info::wait_mode c
 
 static bool UseComspec(string& FullCommand, string& Command, string& Parameters)
 {
-	Command = os::env::expand(Global->Opt->Exec.Comspec);
+	Command = get_comspec();
+
 	if (Command.empty())
 	{
-		Command = os::env::get(L"COMSPEC"sv);
-		if (Command.empty())
-		{
-			Message(MSG_WARNING,
-				msg(lng::MError),
-				{
-					msg(lng::MComspecNotFound)
-				},
-				{ lng::MOk });
-			return false;
-		}
+		Message(MSG_WARNING,
+			msg(lng::MError),
+			{
+				msg(lng::MComspecNotFound)
+			},
+			{ lng::MOk });
+		return false;
 	}
 
 	try

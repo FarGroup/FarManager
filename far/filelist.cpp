@@ -7082,13 +7082,56 @@ void FileList::MoveSelection(list_data& From, list_data& To)
 	std::vector<size_t> OldPositions;
 	OldPositions.reserve(To.size());
 
+	std::set<decltype(From.begin())> MatchedNames;
+
 	const auto npos = static_cast<size_t>(-1);
+
+	const auto find_old_item = [&](FileListItem const& NewItem)
+	{
+		range const EqualRange = std::equal_range(ALL_RANGE(From), make_hash(NewItem.FileName), hash_less{});
+		if (EqualRange.empty())
+			return From.end();
+
+		if (EqualRange.size() == 1 && !EqualRange.begin()->FileName.empty())
+			return EqualRange.begin();
+
+		MatchedNames.clear();
+		for (auto Iterator = EqualRange.begin(); Iterator != EqualRange.end(); ++Iterator)
+		{
+			if (!Iterator->FileName.empty())
+				MatchedNames.insert(Iterator);
+		}
+
+		const auto filter = [&](const auto& Predicate)
+		{
+			std::erase_if(MatchedNames, Predicate);
+		};
+
+		{
+			const auto HasAltName = NewItem.HasAlternateFileName();
+			const auto& AltName = NewItem.AlternateFileName();
+			filter([&](const auto& Item){ return Item->HasAlternateFileName() != HasAltName || Item->AlternateFileName() != AltName; });
+			if (MatchedNames.size() == 1)
+				return *MatchedNames.begin();
+		}
+
+		filter([&](const auto& Item){ return Item->CreationTime != NewItem.CreationTime; });
+		if (MatchedNames.size() == 1)
+			return *MatchedNames.begin();
+
+		filter([&](const auto& Item){ return Item->CRC32 != NewItem.CRC32; });
+		if (MatchedNames.size() == 1)
+			return *MatchedNames.begin();
+
+		// At this point we still have multiple matching names, but none of the items appear to be similar enough.
+		// It is safer to consider this "not found" and drop the selection than pick and select an unrelated item.
+		return From.end();
+	};
 
 	for (auto& i: To)
 	{
-		const auto& [EqualBegin, EqualEnd] = std::equal_range(ALL_RANGE(From), make_hash(i.FileName), hash_less{});
-		const auto OldItemIterator = std::find_if(EqualBegin, EqualEnd, [&](FileListItem const& Item){ return Item.FileName == i.FileName;});
-		if (OldItemIterator == EqualEnd)
+		const auto OldItemIterator = find_old_item(i);
+		if (OldItemIterator == From.end())
 		{
 			OldPositions.emplace_back(npos);
 			continue;

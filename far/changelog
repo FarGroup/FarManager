@@ -1,4 +1,111 @@
 --------------------------------------------------------------------------------
+drkns 09.01.2023 17:57:23 +0000 - build 6092
+
+1. gh-603: Process list plugin randomly switches selection to other processes with the same name.
+
+2. Minor refactoring.
+
+--------------------------------------------------------------------------------
+MZK 09.01.2023 09:33:35 -0800 - build 6091
+
+1. gh-605: Induced focus movement in Viewer Search dialog.
+
+--------------------------------------------------------------------------------
+drkns 08.01.2023 20:47:16 +0000 - build 6090
+
+1. gh-601: Search for folders checkbox in Find file dialog not synchronized with Hex control
+   Remove all shenanigans with that checkbox.
+
+--------------------------------------------------------------------------------
+MZK 08.01.2023 09:26:22 -0800 - build 6089
+
+1. Viewer Search: minor refactoring.
+
+--------------------------------------------------------------------------------
+MZK 07.01.2023 20:34:03 -0800 - build 6088
+
+1. Fallout of 6078: fixed Alt+F7 behavior in Viewer Search.
+
+--------------------------------------------------------------------------------
+drkns 04.01.2023 21:08:06 +0000 - build 6087
+
+1. gh-583: Submenus with keyboard accelerators display ampersand character in title.
+
+--------------------------------------------------------------------------------
+drkns 04.01.2023 18:55:21 +0000 - build 6086
+
+1. gh-591: Duplicate keyboard accelerators in Sort modes.
+
+2. gh-593: Cancelling a copy operation on a symlink creates a zero-byte file.
+
+3. Refactoring.
+
+--------------------------------------------------------------------------------
+MZK 04.01.2023 10:26:26 -0800 - build 6085
+
+1. Continuation of 6082. Changed tab order on Find File dialog.
+   Now Text/Hex radio is the next after "Containing".
+
+2. gh-592: Bug in 6082. Find File dialog: fixed disappearing searched text
+   when pressing the Text/Hex hotkey which matches the current state.
+
+--------------------------------------------------------------------------------
+zg 04.01.2023 19:47:50 +0200 - build 6084
+
+1. non tread safe code removed from ACTL_SYNCHRO implementation.
+
+--------------------------------------------------------------------------------
+yjh 04.01.2023 12:12:29 +0300 - build 6083
+
+1. SQLite v3.40.1
+
+--------------------------------------------------------------------------------
+MZK 02.01.2023 11:22:16 -0800 - build 6082
+
+1. Rearranged Text/Hex controls on Find File dialog.
+
+--------------------------------------------------------------------------------
+drkns 02.01.2023 18:55:18 +0000 - build 6081
+
+1. gh-588: Default code page problem.
+
+--------------------------------------------------------------------------------
+drkns 02.01.2023 18:09:42 +0000 - build 6080
+
+1. gh-587: Environment variables not expanded when editing links.
+
+--------------------------------------------------------------------------------
+drkns 01.01.2023 14:24:37 +0000 - build 6079
+
+1. Remove redundant code from Find File and Viewer Search dialogs.
+
+--------------------------------------------------------------------------------
+MZK 29.12.2022 18:02:10 -0800 - build 6078
+
+1. Unifying Viewer and Editor search.
+   Part 1: Added Fuzzy search to Viewer text search.
+
+--------------------------------------------------------------------------------
+MZK 28.12.2022 21:12:37 -0800 - build 6077
+
+1. gh-581: A couple of bugs in Viewer search (text, forward, cycle).
+
+--------------------------------------------------------------------------------
+drkns 28.12.2022 23:57:35 +0000 - build 6076
+
+1. Improve VT rendering in corner cases.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
+drkns 27.12.2022 19:40:03 +0000 - build 6075
+
+1. If %comspec% is cmd.exe and System.Executor.ExcludeCmds is not specified, a predefined list is used.
+   Users don't read the documentation, let alone understand the peculiarities of command execution.
+
+2. Refactoring.
+
+--------------------------------------------------------------------------------
 drkns 21.12.2022 18:22:14 +0000 - build 6074
 
 1. gh-576: Autocomplete does not work in a dialog launched from a macro.

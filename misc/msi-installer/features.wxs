@@ -112,7 +112,6 @@
           <ComponentRef Id="Descript.ion_7" />
           <ComponentRef Id="Executor.4NT.farconfig" />
           <ComponentRef Id="Executor.CMD.farconfig" />
-          <ComponentRef Id="Executor.COMMAND.farconfig" />
           <ComponentRef Id="WindowsGUI.farconfig" />
           <ComponentRef Id="WindowsGUI.lua" />
         </Feature>

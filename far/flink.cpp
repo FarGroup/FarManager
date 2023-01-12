@@ -245,49 +245,6 @@ static bool PrepareAndSetREPARSE_DATA_BUFFER(REPARSE_DATA_BUFFER& rdb, string_vi
 	return SetREPARSE_DATA_BUFFER(Object, rdb);
 }
 
-bool CreateReparsePoint(string_view const Target, string_view const Object, ReparsePointTypes Type)
-{
-	switch (Type)
-	{
-	case RP_EXACTCOPY:
-		return DuplicateReparsePoint(Target, Object);
-
-	case RP_SYMLINK:
-	case RP_SYMLINKFILE:
-	case RP_SYMLINKDIR:
-		{
-			if(Type == RP_SYMLINK)
-				Type = os::fs::is_directory(Target)? RP_SYMLINKDIR : RP_SYMLINKFILE;
-
-			os::fs::file_status const ObjectStatus(Object);
-			if (imports.CreateSymbolicLinkW && !os::fs::exists(ObjectStatus))
-				return os::fs::CreateSymbolicLink(Object, Target, Type == RP_SYMLINKDIR? SYMBOLIC_LINK_FLAG_DIRECTORY : 0);
-
-			const auto ObjectCreated = Type==RP_SYMLINKDIR?
-				os::fs::is_directory(ObjectStatus) || os::fs::create_directory(Object) :
-				os::fs::is_file(ObjectStatus) || os::fs::file(Object, 0, 0, nullptr, CREATE_NEW);
-
-			if (!ObjectCreated)
-				return false;
-
-			const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-			rdb->ReparseTag = IO_REPARSE_TAG_SYMLINK;
-			return PrepareAndSetREPARSE_DATA_BUFFER(*rdb, Object, Target);
-		}
-
-	case RP_JUNCTION:
-	case RP_VOLMOUNT:
-		{
-			const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-			rdb->ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
-			return PrepareAndSetREPARSE_DATA_BUFFER(*rdb, Object, Target);
-		}
-
-	default:
-		return false;
-	}
-}
-
 static bool GetREPARSE_DATA_BUFFER(string_view const Object, REPARSE_DATA_BUFFER& rdb)
 {
 	const auto FileAttr = os::fs::get_file_attributes(Object);
@@ -299,6 +256,84 @@ static bool GetREPARSE_DATA_BUFFER(string_view const Object, REPARSE_DATA_BUFFER
 		return false;
 
 	return fObject.IoControl(FSCTL_GET_REPARSE_POINT, nullptr, 0, &rdb, MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+}
+
+bool CreateReparsePoint(string_view const Target, string_view const Object, ReparsePointTypes Type)
+{
+	assert(any_of(Type, RP_EXACTCOPY, RP_JUNCTION, RP_VOLMOUNT, RP_SYMLINK, RP_SYMLINKFILE, RP_SYMLINKDIR));
+
+	if (Type == RP_SYMLINK)
+		Type = os::fs::is_directory(Target)? RP_SYMLINKDIR : RP_SYMLINKFILE;
+
+	os::fs::file_status const ObjectStatus(Object);
+
+	if (any_of(Type, RP_SYMLINKDIR, RP_SYMLINKFILE))
+	{
+		if (imports.CreateSymbolicLinkW && !os::fs::exists(ObjectStatus))
+			return os::fs::CreateSymbolicLink(Object, Target, Type == RP_SYMLINKDIR? SYMBOLIC_LINK_FLAG_DIRECTORY : 0);
+	}
+
+	const auto NeedDirectory = any_of(Type, RP_SYMLINKDIR, RP_JUNCTION, RP_VOLMOUNT) || (Type == RP_EXACTCOPY && os::fs::is_directory(Target));
+
+	bool ObjectCreated{};
+	const auto ensure_object = [&]
+	{
+		if (os::fs::exists(ObjectStatus))
+			return true;
+
+		ObjectCreated = NeedDirectory?
+			os::fs::create_directory(Object) :
+			!!os::fs::file(Object, 0, 0, nullptr, CREATE_NEW);
+
+		return ObjectCreated;
+	};
+
+	const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
+
+	if (Type == RP_EXACTCOPY)
+	{
+		if (!ensure_object())
+			return false;
+
+		if (GetREPARSE_DATA_BUFFER(Target, *rdb) && SetREPARSE_DATA_BUFFER(Object, *rdb))
+			return true;
+	}
+	else if (any_of(Type, RP_JUNCTION, RP_VOLMOUNT))
+	{
+		if (!ensure_object())
+			return false;
+
+		rdb->ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
+		if (PrepareAndSetREPARSE_DATA_BUFFER(*rdb, Object, Target))
+			return true;
+	}
+	else if (any_of(Type, RP_SYMLINKDIR, RP_SYMLINKFILE))
+	{
+		if (!ensure_object())
+			return false;
+
+		rdb->ReparseTag = IO_REPARSE_TAG_SYMLINK;
+		if (PrepareAndSetREPARSE_DATA_BUFFER(*rdb, Object, Target))
+			return true;
+	}
+	else
+		return false;
+
+	if (ObjectCreated)
+	{
+		if (NeedDirectory)
+		{
+			if (!os::fs::remove_directory(Object))
+				LOGWARNING(L"remove_directory({}): {}"sv, Object, os::last_error());
+		}
+		else
+		{
+			if (!os::fs::delete_file(Object))
+				LOGWARNING(L"delete_file({}): {}"sv, Object, os::last_error());
+		}
+	}
+
+	return false;
 }
 
 bool DeleteReparsePoint(string_view const Object)
@@ -554,12 +589,6 @@ bool ModifyReparsePoint(string_view const Object, string_view const Target)
 	return GetREPARSE_DATA_BUFFER(Object, *rdb) && PrepareAndSetREPARSE_DATA_BUFFER(*rdb, Object, Target);
 }
 
-bool DuplicateReparsePoint(string_view const Src, string_view const Dst)
-{
-	const block_ptr<REPARSE_DATA_BUFFER> rdb(MAXIMUM_REPARSE_DATA_BUFFER_SIZE);
-	return GetREPARSE_DATA_BUFFER(Src, *rdb) && SetREPARSE_DATA_BUFFER(Dst, *rdb);
-}
-
 void NormalizeSymlinkName(string &strLinkName)
 {
 	if (!strLinkName.starts_with(L"\\??\\"sv))
@@ -574,21 +603,15 @@ void NormalizeSymlinkName(string &strLinkName)
 // Кусок для создания SymLink для каталогов.
 bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePointTypes LinkType, std::optional<error_state_ex>& ErrorState, bool Silent, bool HoldTarget)
 {
+	assert(any_of(LinkType, RP_EXACTCOPY, RP_JUNCTION, RP_VOLMOUNT, RP_SYMLINK, RP_SYMLINKFILE, RP_SYMLINKDIR));
+
 	string strFullTarget;
-	// выделим имя
-	string strSelOnlyName(Target);
-	DeleteEndSlash(strSelOnlyName);
-	const auto SlashPos = FindLastSlash(strSelOnlyName);
 
-	const auto symlink = LinkType == RP_SYMLINK || LinkType == RP_SYMLINKFILE || LinkType == RP_SYMLINKDIR;
-
-	if (auto RootOnly = false; ParsePath(Target, {}, &RootOnly) == root_type::drive_letter && RootOnly)
+	if (auto RootOnly = false; LinkType == RP_JUNCTION && ParsePath(Target, {}, &RootOnly) == root_type::drive_letter && RootOnly)
 	{
-		// if(Flags&FCOPY_VOLMOUNT)
-		{
-			strFullTarget = Target;
-			AddEndSlash(strFullTarget);
-		}
+		strFullTarget = Target;
+		AddEndSlash(strFullTarget);
+
 		/*
 			Вот здесь - ну очень умное поведение!
 			Т.е. если в качестве SelName передали "C:", то в этом куске происходит
@@ -603,87 +626,27 @@ bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePoin
 
 	if (path::is_separator(strFullLink.back()))
 	{
-		if (LinkType != RP_VOLMOUNT)
-		{
-			const auto SelName = SlashPos != string::npos?
-				string_view(strSelOnlyName).substr(SlashPos + 1) :
-				string_view(strSelOnlyName);
-			append(strFullLink, SelName);
-		}
-		else
+		if (LinkType == RP_VOLMOUNT)
 		{
 			append(strFullLink, L"Disk_"sv, Target.front());
 		}
-	}
-
-	if (LinkType == RP_VOLMOUNT)
-	{
-		AddEndSlash(strFullTarget);
-		AddEndSlash(strFullLink);
-	}
-
-	if (symlink)
-	{
-		// в этом случае создается путь, но не сам каталог
-		string_view Path = strFullLink;
-
-		if (CutToSlash(Path))
-		{
-			if (!os::fs::exists(Path))
-				CreatePath(Path);
-		}
-	}
-	else
-	{
-		bool CreateDir = true;
-
-		if (LinkType == RP_EXACTCOPY)
-		{
-			// в этом случае создается или каталог, или пустой файл
-			if (os::fs::is_file(strFullTarget))
-				CreateDir = false;
-		}
-
-		if (CreateDir)
-		{
-			if (os::fs::create_directory(strFullLink))
-				TreeList::AddTreeName(strFullLink);
-			else
-				CreatePath(strFullLink);
-		}
 		else
 		{
-			string_view Path = strFullLink;
-
-			if (CutToSlash(Path))
-			{
-				if (!os::fs::exists(Path))
-					CreatePath(Path);
-				os::fs::file(strFullLink, 0, 0, nullptr, CREATE_NEW, os::fs::get_file_attributes(strFullTarget));
-			}
+			append(strFullLink, PointToFolderNameIfFolder(Target));
 		}
+	}
 
-		if (!os::fs::exists(strFullLink))
-		{
-			if (!Silent)
-			{
-				ErrorState = os::last_error();
-
-				Message(MSG_WARNING, *ErrorState,
-					msg(lng::MError),
-					{
-						msg(lng::MCopyCannotCreateLink),
-						strFullLink
-					},
-					{ lng::MOk });
-			}
-
+	if (string_view Path = strFullLink; CutToParent(Path) && !os::fs::exists(Path))
+	{
+		if (!CreatePath(Path))
 			return false;
-		}
 	}
 
 	if (LinkType == RP_VOLMOUNT)
 	{
+		AddEndSlash(strFullLink);
+		AddEndSlash(strFullTarget);
+
 		if (CreateVolumeMountPoint(strFullTarget, strFullLink))
 			return true;
 
@@ -704,7 +667,7 @@ bool MkSymLink(string_view const Target, string_view const LinkName, ReparsePoin
 	}
 	else
 	{
-		if (CreateReparsePoint(HoldTarget && symlink? Target : strFullTarget, strFullLink, LinkType))
+		if (CreateReparsePoint(HoldTarget && LinkType != RP_JUNCTION? Target : strFullTarget, strFullLink, LinkType))
 			return true;
 
 		if (!Silent)

@@ -1735,10 +1735,10 @@ to their corresponding multicharacter sequences and fancy numerals
 to corresponding number characters, and ignores some other minor
 differences.
 
- By checking the #Search for hex# option you can search for the files
-containing hexadecimal sequence of the specified bytes. In this case #Case#
-#sensitive#, #Whole words#, #Using code page# and #Search for folders#
-options are disabled and their values doesn't affect the search process.
+ By selecting #Hex# option you can search for the files containing hexadecimal
+sequence of the specified bytes. In this case, #Case sensitive#, #Whole words#,
+#Fuzzy search#, #Using code page# and #Search for folders# options are disabled
+and their values do not affect the search process.
 
  #Not containing# allows to find files #not# containing the specified text or code.
 
@@ -3140,6 +3140,14 @@ $ #Пошук у програмі перегляду#
  #Regular expressions#
  Enable the use of ~regular expressions~@RegExp@ in the search string.
 The multiline search is not supported.
+
+ #Fuzzy search#
+ The search will be diacritical insensitive (for example, #deja# will be found in #déjà vu#),
+ligatures will be equivalent to corresponding multicharacter sequences (#fluffy# matches #ﬂuﬀy#),
+fancy numbers to corresponding numbers (#42# matches #④②#), and so on.
+
+ Note that case sensitive fuzzy search sometimes may be useful. For example, #Uber# will be found
+in #Überwald# but not in #überwald#. However, #Æther# will match #AEther#, but not #Aether#.
 
 
 @Editor
@@ -5921,7 +5929,7 @@ is not listed in this parameter and the program “date.exe” exists
 in one of the #PATH# directories, the internal command processor’s
 command can never be executed.
 
- Ready-made settings for CMD.EXE, COMMAND.COM, and other well-known
+ Ready-made settings for CMD.EXE and other well-known
 command processors can be found in the
 #Addons\SetUp\Executor.*.farconfig# files.
 

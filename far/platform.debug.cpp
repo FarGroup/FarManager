@@ -462,7 +462,7 @@ namespace os::debug::symbols
 			header info;
 			static constexpr auto max_name_size = MAX_SYM_NAME;
 
-			using char_type = VALUE_TYPE(header::Name);
+			using char_type = value_type<decltype(info.Name)>;
 			char_type name[max_name_size + 1];
 
 			struct symbol
@@ -490,11 +490,11 @@ namespace os::debug::symbols
 
 	static symbol frame_get_symbol(HANDLE const Process, uintptr_t const Address, symbol_storage& Storage)
 	{
-		const auto Get = [&](auto const& Getter, auto& Buffer) -> typename package<decltype(Buffer.info)>::symbol
+		const auto Get = [&]<typename T>(auto const& Getter, package<T>& Buffer) -> typename package<T>::symbol
 		{
 			Buffer.info.SizeOfStruct = sizeof(Buffer.info);
 
-			constexpr auto IsOldApi = std::same_as<decltype(Buffer.info), IMAGEHLP_SYMBOL64>;
+			constexpr auto IsOldApi = std::same_as<T, IMAGEHLP_SYMBOL64>;
 			if constexpr (IsOldApi)
 			{
 				// This one is for Win2k, which doesn't have SymFromAddr.
@@ -520,7 +520,7 @@ namespace os::debug::symbols
 			}
 
 			// Old dbghelp versions (e.g. XP) not always populate NameLen
-			return { { Buffer.info.Name, NameSize? NameSize : std::char_traits<VALUE_TYPE(Buffer.info.Name)>::length(Buffer.info.Name) }, static_cast<size_t>(Displacement) };
+			return { { Buffer.info.Name, NameSize? NameSize : std::char_traits<typename package<T>::char_type>::length(Buffer.info.Name) }, static_cast<size_t>(Displacement) };
 		};
 
 		if (imports.SymFromAddrW)

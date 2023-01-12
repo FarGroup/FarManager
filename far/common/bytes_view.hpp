@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "range.hpp"
+#include "type_traits.hpp"
 
 #include <string_view>
 
@@ -57,10 +58,9 @@ namespace detail
 	{
 		if constexpr (span_like<T>)
 		{
-			using value_type = std::remove_reference_t<decltype(*std::data(std::declval<T&>()))>;
-			static_assert(std::is_trivially_copyable_v<value_type>);
+			static_assert(std::is_trivially_copyable_v<value_type<T>>);
 
-			return bytes_impl<return_type>(std::data(Object), std::size(Object) * sizeof(value_type));
+			return bytes_impl<return_type>(std::data(Object), std::size(Object) * sizeof(value_type<T>));
 		}
 		else if constexpr (std::is_trivially_copyable_v<T>)
 		{

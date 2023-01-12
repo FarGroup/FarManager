@@ -69,6 +69,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CSI ESC L"["
 #define OSC ESC L"]"
 #define ST ESC L"\\"
+#define ANSISYSSC CSI "s"
+#define ANSISYSRC CSI "u"
 
 static bool sWindowMode;
 static bool sEnableVirtualTerminal;
@@ -309,12 +311,12 @@ namespace console_detail
 		public:
 #define DECLARE_IMPORT_FUNCTION(name, ...) os::rtdl::function_pointer<__VA_ARGS__> p ## name{ m_Module, #name }
 
-			DECLARE_IMPORT_FUNCTION(ReadOutput,           BOOL(WINAPI*)(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* ReadRegion));
-			DECLARE_IMPORT_FUNCTION(WriteOutput,          BOOL(WINAPI*)(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* WriteRegion));
-			DECLARE_IMPORT_FUNCTION(Commit,               BOOL(WINAPI*)());
-			DECLARE_IMPORT_FUNCTION(GetTextAttributes,    BOOL(WINAPI*)(FarColor* Attributes));
-			DECLARE_IMPORT_FUNCTION(SetTextAttributes,    BOOL(WINAPI*)(const FarColor* Attributes));
-			DECLARE_IMPORT_FUNCTION(ClearExtraRegions,    BOOL(WINAPI*)(const FarColor* Color, int Mode));
+			DECLARE_IMPORT_FUNCTION(ReadOutput,           BOOL WINAPI(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* ReadRegion));
+			DECLARE_IMPORT_FUNCTION(WriteOutput,          BOOL WINAPI(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* WriteRegion));
+			DECLARE_IMPORT_FUNCTION(Commit,               BOOL WINAPI());
+			DECLARE_IMPORT_FUNCTION(GetTextAttributes,    BOOL WINAPI(FarColor* Attributes));
+			DECLARE_IMPORT_FUNCTION(SetTextAttributes,    BOOL WINAPI(const FarColor* Attributes));
+			DECLARE_IMPORT_FUNCTION(ClearExtraRegions,    BOOL WINAPI(const FarColor* Color, int Mode));
 
 #undef DECLARE_IMPORT_FUNCTION
 		}
@@ -1436,19 +1438,6 @@ WARNING_POP()
 					::console.SetWindowRect(csbi.srWindow);
 			};
 
-			point CursorPosition{ WriteRegion.left, WriteRegion.top };
-
-			if (sWindowMode)
-			{
-				CursorPosition.y -= ::GetDelta(csbi);
-
-				if (CursorPosition.y < 0)
-				{
-					// Drawing above the viewport
-					CursorPosition.y = 0;
-				}
-			}
-
 			string Str;
 
 			// The idea is to reduce the number of reallocations,
@@ -1459,8 +1448,13 @@ WARNING_POP()
 			std::optional<FarColor> LastColor;
 
 			point ViewportSize;
-			if (!::console.GetSize(ViewportSize))
-				return false;
+			{
+				rectangle WindowRect;
+				if (!::console.GetWindowRect(WindowRect))
+					return false;
+
+				ViewportSize = { WindowRect.width(), WindowRect.height() };
+			}
 
 			// If SubRect is too tall (e.g. when we flushing the old content of console resize), the rest will be dropped.
 			// VT is a bloody joke.
@@ -1468,18 +1462,34 @@ WARNING_POP()
 			{
 				if (SubrectOffset)
 				{
-					// Move the viewport down
-					if (!::console.SetCursorRealPosition({0, csbi.dwSize.Y - 1}))
+					// Move the viewport one "page" down
+					if (!::console.SetCursorRealPosition({0, std::min(csbi.dwSize.Y - 1, WriteRegion.top + SubrectOffset + ViewportSize.y - 1)}))
 						return false;
 					// Set cursor position within the viewport
 					if (!::console.SetCursorRealPosition({ WriteRegion.left, WriteRegion.top + SubrectOffset }))
 						return false;
 				}
 
+				// Don't do CUP here: the viewport origin is too unstable to rely on it, especially since we touch it just above.
+				// Saving, restoring and moving down seems to be more reliable.
+				// Words cannot describe how much I despise VT.
+
+				// Save cursor position
+				Str = ANSISYSSC ""sv;
+
 				for (const auto& i: irange(SubRect.top + SubrectOffset, std::min(SubRect.top + SubrectOffset + ViewportSize.y, SubRect.bottom + 1)))
 				{
 					if (i != SubRect.top + SubrectOffset)
-						format_to(Str, FSTR(CSI L"{};{}H"sv), CursorPosition.y + 1 + (i - SubrectOffset - SubRect.top), CursorPosition.x + 1);
+					{
+						Str +=
+							ANSISYSRC // Restore cursor position
+							CSI L"1B" // Move cursor down
+							ANSISYSSC // Save again
+							""sv;
+
+						// For some reason restoring the cursor position affects colors
+						LastColor.reset();
+					}
 
 					make_vt_sequence(Buffer[i].subspan(SubRect.left, SubRect.width()), Str, LastColor);
 				}

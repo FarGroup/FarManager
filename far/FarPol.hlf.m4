@@ -536,15 +536,15 @@ $ #Ułatwienia w wierszu poleceń#
 
  Przejdź o znak w lewo                                  #Lewo,Ctrl+S#
  Przejdź o znak w prawo                                #Prawo,Ctrl+D#
- Słowo w lewo                                             #Ctrl+Lewo#
- Słowo w prawo                                           #Ctrl+Prawo#
+ Wyraz w lewo                                             #Ctrl+Lewo#
+ Wyraz w prawo                                           #Ctrl+Prawo#
  Początek linii                                           #Ctrl+Home#
  Koniec linii                                              #Ctrl+End#
  Usuń znak                                                      #Del#
  Usuń znak po lewej                                              #BS#
  Usuń do końca linii                                         #Ctrl+K#
- Usuń słowo po lewej                                        #Ctrl+BS#
- Usuń słowo po prawej                                      #Ctrl+Del#
+ Usuń wyraz po lewej                                        #Ctrl+BS#
+ Usuń wyraz po prawej                                      #Ctrl+Del#
  Kopiuj do schowka                                         #Ctrl+Ins#
  Wklej ze schowka                                         #Shift+Ins#
  Poprzednie polecenie                                        #Ctrl+E#
@@ -1674,19 +1674,18 @@ przecinkami). Może być także użyte z emulacją systemu za pomocą ~wtyczek~@
 ten tekst. Po podaniu tekstu i zaznaczeniu opcji #Uwzględniaj wielkość znaków#
 używane będzie porównywanie wielkich i małych znaków.
 
- Opcja #Tylko całe słowa# pozwala znaleźć tylko tekst, który jest oddzielony
+ Opcja #Tylko całe wyrazy# pozwala znaleźć tylko tekst, który jest oddzielony
 od innego tekstu spacją, tabulatorem, znakiem łamania linii lub standardowym
 separatorem, którym domyślnie są znaki: #!%^&*()+|{}:"<>?`-=\\[];',./#.
 
- #Fuzzy search# is diacritical insensitive, treats ligatures equivalent
-to their corresponding multicharacter sequences and fancy numerals
-to corresponding number characters, and ignores some other minor
-differences.
+ #Wyszukiwanie rozmyte# jest niewrażliwe na znaki diakrytyczne, traktuje ligatury
+jako odpowiedniki odpowiadającym im sekwencjom wieloznakowym, a wymyślne cyfry
+do odpowiadających im znaków liczbowych i ignoruje kilka innych drobnych różnic.
 
- Zaznaczając opcję #Szukaj wartości szesnastkowej# można wyszukać pliki
-zawierające szesnastkową sekwencję podanych bajtów. W tym przypadku
-opcje #Uwzględnij wielkość znaków#, #Tylko całe wyrazy#, #Użyj strony kodowej#
-i #Szukaj folderów# zostaną wyłączone i ich wcześniejsze zaznaczenie nie ma
+ Zaznaczając opcję #Szesnastkowo# można wyszukać pliki zawierające szesnastkową
+sekwencję podanych bajtów. W tym przypadku opcje #Uwzględnij wielkość znaków#,
+#Tylko całe wyrazy#, #Wyszukiwanie rozmyte#, #Użyj strony kodowej#
+i #Szukaj folderów# zostają wyłączone i ich wcześniejsze wartości nie mają
 żadnego wpływu na proces wyszukiwania.
 
  Zaznaczenie #Nie zawierające# pozwoli odszukać pliki #nie# zawierające podany
@@ -1738,8 +1737,8 @@ gdzie można rozszerzyć zakres szukania i prezentacji wyników wyszukiwania.
 
 @FindFileAdvanced
 $ #Znajdź plik: Zaawansowane opcje#
- #Szukaj wyłącznie w pierwszych# - dane wpisane w pole #Zawierający tekst#
-(lub #Zawierająca wartość szesnastkową#) mogą być wyszukiwane nie tylko
+ #Szukaj wyłącznie w pierwszych# - dane wpisane w pole #Tekst#
+(lub #Szesnastkowo#) mogą być wyszukiwane nie tylko
 w całym pliku, ale także w podanym zakresie od początku pliku.
 Jeżeli podana wartość jest mniejsza niż wielkość pliku, pozostała zawartość
 pliku będzie zignorowana nawet jeżeli poszukiwana sekwencja będzie się tam
@@ -2719,7 +2718,7 @@ dodatkowych informacji w wierszu poleceń.
  $+ - głębokość zagnieżdżenia folderu
  $##nn - ^<wrap>maksymalna szerokość zachęty, wyrażana jako procentowa wartość szerokości okna
  $@@xx - ^<wrap>"Administrator", jeżeli Far został uruchomiony jako administrator.
-xx jest symbolem zastępczym dla dwóch znaków otaczających słowo "Administrator".
+xx jest symbolem zastępczym dla dwóch znaków otaczających wyraz "Administrator".
 Dla przykładu: #$@@{}$s$p$g# zostanie wyświetlone jako #"{Administrator} C:\>"#.
 
  Domyślnie używana jest sekwencja #$p$g# - bieżący dysk i ścieżka oraz znak większości ("C:\>").
@@ -2924,7 +2923,7 @@ Mac).
  Długie linie tekstu, które nie mieszą się w oknie także mogą być obcięte
 lub zawinięte na wiele wierszy ekranu. Klawisz #F2# przełącza pomiędzy
 trybami #zawijaj# i #obetnij#. W trybie #Zawijaj#, kombinacja klawiszy
-#Shift+F2# kontroluje czy wiersze mogą być dzielone wewnątrz słowa.
+#Shift+F2# kontroluje, czy wiersze mogą być dzielone wewnątrz wyrazów.
 
  W trybie #obcinania#, tekst może być przewijany poziomo w obrębie okna.
 Klawisz kursora #w prawo# przewija tekst o jedną kolumnę w lewo; klawisz
@@ -3051,19 +3050,19 @@ Jeżeli wartość zostanie pominięta, to odpowiadający jej parametr nie zostan
 $ #Podgląd: Wyszukiwanie#
  Do wyszukiwania w ~Podglądzie~@Viewer@ dostępne są następujące tryby i opcje:
 
- #Szukaj tekstu#
+ #Tekst#
  Szukaj dowolnego tekstu wprowadzonego w linii edycji #Znajdź#.
 
- #Szukaj wartości szesnastkowych#
- Szukaj ciągu odpowiadającemu kodom szesnastkowym wprowadzonym w polu #Znajdź#.
+ #Szesnastkowo#
+ Szukaj ciągu odpowiadającemu wartościom szesnastkowym wprowadzonym w polu #Znajdź#.
 
  #Uwzględnij wielkość znaków#
  Uwzględniona zostanie wielkość wprowadzonych znaków w polu szukania
 (więc np, #Tekst# nie zostanie odnaleziony jeżeli szukamy łańcucha #tekst#).
 
- #Tylko całe słowa#
+ #Tylko całe wyrazy#
  Wprowadzony tekst zostanie odnaleziony tylko wtedy, gdy wystąpi w tekście
-jako całe słowo.
+jako cały wyraz.
 
  #Szukaj w odwrotnym kierunku#
  Odwraca kierunek szukania - szuka od końca pliku do początku.
@@ -3071,6 +3070,14 @@ jako całe słowo.
  #Wyrażenie regularne#
  Włącza użycie ~Wyrażeń regularnych~@RegExp@ w szukanym tekście.
 Wyszukiwanie wielowierszowe nie jest obsługiwane.
+
+ #Wyszukiwanie rozmyte#
+ Wyszukiwanie nie będzie rozróżniać diakrytyki (np. #deja# zostanie znalezione w #déjà vu#),
+ligatury będą równoznaczne z odpowiadającym im sekwencjom wieloznakowym (#fluffy# pasuje do #ﬂuﬀy#),
+fantazyjne liczby odpowiadającym im cyfrom (#42# pasuje do #④②#), itd.
+
+ Należy zwrócić uwagę na rozróżnianie wielkości znaków. Np. #Uber# zostanie odnaleziony w wyrazie
+#Überwald#, ale nie w wyrazie #überwald#. Natomiast #Æther# będzie pasował do #AEther#, ale nie #Aether#.
 
 
 @Editor
@@ -3196,11 +3203,11 @@ bieżącą linię i kopiują ją do schowka.
 $ #Edytor: Szukaj/zastąp#
  Następujące opcje są dostępne przy szukaniu lub zastępowaniu w ~edytorze~@Editor@:
 
- #Uwzględniaj wielkość liter#
+ #Uwzględniaj wielkość znaków#
  Wielkość wprowadzonych znaków będzie brana pod uwagę podczas wyszukiwania (np. #Tekst# nie zostanie
-odnaleziony jeżeli wyszukiwane będzie słowo #tekst#).
+odnaleziony jeżeli wyszukiwany będzie wyraz #tekst#).
 
- #Tylko całe słowa#
+ #Tylko całe wyrazy#
  Poszukiwany tekst będzie odnaleziony, tylko gdy wprowadzony tekst będzie całym wyrazem.
 
  #Szukaj w odwrotnym kierunku#
@@ -3212,13 +3219,13 @@ i ~zastępowanie~@RegExpRepl@).
 Każda linia jest dekodowana osobno, więc wprowadzanie wyrażeń wieloliniowych i znaki łamania
 linii nie zostaną odnalezione.
 
- #Fuzzy search#
- The search will be diacritical insensitive (for example, #deja# will be found in #déjà vu#),
-ligatures will be equivalent to corresponding multicharacter sequences (#fluffy# matches #ﬂuﬀy#),
-fancy numbers to corresponding numbers (#42# matches #④②#), and so on.
+ #Wyszukiwanie rozmyte#
+ Wyszukiwanie nie będzie rozróżniać diakrytyki (np. #deja# zostanie znalezione w #déjà vu#),
+ligatury będą równoznaczne z odpowiadającym im sekwencjom wieloznakowym (#fluffy# pasuje do #ﬂuﬀy#),
+fantazyjne liczby odpowiadającym im cyfrom (#42# pasuje do #④②#), itd.
 
- Note that case sensitive fuzzy search sometimes may be useful. For example, #Uber# will be found
-in #Überwald# but not in #überwald#. However, #Æther# will match #AEther#, but not #Aether#.
+ Należy zwrócić uwagę na rozróżnianie wielkości znaków. Np. #Uber# zostanie odnaleziony w wyrazie
+#Überwald#, ale nie w wyrazie #überwald#. Natomiast #Æther# będzie pasował do #AEther#, ale nie #Aether#.
 
  ~Zachowaj styl~@PreserveStyle@
  Zachowuje styl (wielkość znaków i ograniczniki w kodzie źródłowym) w zastąpionym tekście.
@@ -3287,7 +3294,7 @@ zarówno jako #Tytuł# jak i #WIELKIE# litery.
  Wzorzec wyszukiwania i ciąg zastępując są dzielone na tokeny zgodnie
 z powyższymi zasadami. Tekst jest przeszukiwany pod kątem ciągu, który
 może być podzielony na tokeny jak poszukiwany wzorzec. Tokeny są porównywane
-zgodnie z #"Uwzględnieniem wielkości liter"# i #"Tylko całe słowa"#.
+zgodnie z #"Uwzględnieniem wielkości znaków"# i #"Tylko całe wyrazy"#.
 
  Jeżeli szukany i zastępowany ciąg znaków mają tę samą liczbę tokenów
 i znalezione tokeny mają wspólny styl (#Pierwsza wielka# jest ważniejsza
@@ -4880,13 +4887,13 @@ Far Manager ustawia kilka ~zmiennych systemowych~@FAREnv@.
  Wykonuje “polecenie” jeżeli “zmienna” jest zdefiniowana lub nie jest
 zdefiniowana (jeżeli dodano warunek “NOT”).
  Polecenie “IF” może być zagnieżdżone. W poniższym przykładzie
-“polecenie” będzie wykonane jeżeli istnieje “plik1”, “plik2” nie istnieje
+“polecenie” będzie wykonane jeżeli istnieje “plik1”, “plik2” nie istnieje,
 a “zmienna” jest zdefiniowana:
  #if exist plik1 if not exist plik2 if defined zmienna polecenie#
 
  #PUSHD [ścieżka]#
  Zachowuje bieżącą ścieżkę do użycia przez polecenie “POPD”.
-If “path” is specified, changes the current path on the active panel to it.
+Jeżeli “ścieżka” jest podana, zmienia na nią bieżącą ścieżkę w aktywnym panelu.
 
  #POPD#
  Zmienia bieżącą ścieżkę w aktywnym panelu na ścieżkę zachowaną poleceniem “PUSHD”.
@@ -4979,7 +4986,7 @@ do klasy, to nie może on być pierwszym znakiem lub musi być poprzedzony znaki
  #(?:wzorzec)#  - ^<wrap>zwykłe grupowanie, ale nie obejmuje liczb.
  #(?=wzorzec)#  - ^<wrap>przeszukiwanie do przodu. Dopasowanie rozpoczyna się od tego
 samego miejsca, ale tylko gdy zgadza się wzorzec w nawiasach. Np. #\w+(?=\s)#
-dopasowuje słowo, po którym następuje spacja, a spacja nie jest uwzględniana w wynikach
+dopasowuje wyraz, po którym następuje spacja, a spacja nie jest uwzględniana w wynikach
 szukania.
  #(?!wzorzec)#  - ^<wrap>negacja wyszukiwania do przodu. Dopasowanie kontynuuje od tego
 samego miejsca, jeżeli wzorzec się nie zgadza. Np. #foo(?!bar)# dopasowuje dowolne
@@ -5051,7 +5058,7 @@ jest traktowany jako tekst, a nie jako wyrażenie regularne
  #\L#   - znak nie pisany małą literą
  #\u#   - znak pisany wielką literą
  #\U#   - znak pisany nie wielką literą
- #\b#   - ^<wrap>granica słowa - oznacza, że po lewej lub prawej stronie od bieżącej pozycji
+ #\b#   - ^<wrap>granica wyrazów - oznacza, że po lewej lub prawej stronie od bieżącej pozycji
 znajduje się litera i odpowiednio po prawej i lewej stronie znajduje się znak nie będący literą.
  #\B#   - przeciwieństwo \b
  #\A#   - początek tekstu, ignoruje opcję “m”
@@ -5598,7 +5605,7 @@ Jeżeli bieżąca wartość opcji jest inna niż domyślna, opcja jest oznaczona
  Przełącza lub edytuje wartość.
 
  #Shift+F4#
- Edytuje wartość całkowitą jako liczbę szesnastkową. Dla innych typów działa jak #F4#.
+ Edytuje wartość całkowitą jako wartość szesnastkową. Dla innych typów działa jak #F4#.
 
  #Alt+F4#
  Edytuje wartość całkowitą jak liczbę binarną. Dla innych typów działa jak #F4#.
@@ -5846,7 +5853,7 @@ Jednakże, jeżeli “DATE” nie jest wymieniona w tym parametrze, a program
 o nazwie “date.exe” istnieje w jednym z folderów zmiennej #PATH#,
 to polecenie wewnętrznego procesora może nie zostanie nigdy uruchomione.
 
- Gotowe ustawienia dla CMD.EXE, COMMAND.COM i innych znanych procesorów
+ Gotowe ustawienia dla CMD.EXE i innych znanych procesorów
 poleceń można znaleźć w plikach #Addons\SetUp\Executor.*.farconfig#.
 
  Uwaga: Far wykonuje niektóre polecenia ~systemu operacyjnego~@OSCommands@
@@ -6066,7 +6073,7 @@ i ~Podglądzie~@Viewer@ plików.
  Makropolecenie #%File# jest interpretowane jako nazwa edytowanego
 lub przeglądanego pliku.
 
- Makropolecenie #%Lng# jest zastępowane słowami “edit” lub “view”
+ Makropolecenie #%Lng# jest zastępowane wyrazami “edit” lub “view”
 w bieżącym języku, zobacz ~Menu Opcje~@OptMenu@.
 
  Tekst ustawiony w opcji #Okno tytułowe Far# opcji
@@ -6294,7 +6301,7 @@ poza znakami #Spacja# i #Tab#.
 @XLat.WordDivForXlat
 $ #far:config XLat.WordDivForXlat#
  Ten parametr tekstowy definiuje ograniczniki dla transliteracji
-(funkcja #XLat#) bieżącego słowa bez jego zaznaczania.
+(funkcja #XLat#) bieżącego wyrazu bez jego zaznaczania.
 
  Domyślna wartość: #Space#, #Tab# and characters #!##$%^&*()+|=\\/@?#.
 

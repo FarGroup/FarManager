@@ -986,8 +986,7 @@ bool KeyMacro::IsMacroDialog(window_ptr const& Window)
 	if (!PluginOwner)
 		return false;
 
-	const auto Id = PluginOwner->Id();
-	return Id == Global->Opt->KnownIDs.Luamacro.Id;
+	return PluginOwner->Id() == Global->Opt->KnownIDs.Luamacro.Id;
 }
 
 static bool CheckEditSelected(FARMACROAREA Area, unsigned long long CurFlags)

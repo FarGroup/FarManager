@@ -767,6 +767,7 @@ int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std:
 		auto CurrentLabel = (*CurrentMenuItem)->strLabel;
 		SubstFileName(CurrentLabel, Context, {}, true, {}, true);
 		CurrentLabel = os::env::expand(CurrentLabel);
+		inplace::remove_highlight(CurrentLabel);
 
 		if ((*CurrentMenuItem)->Submenu)
 		{

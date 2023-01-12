@@ -104,7 +104,7 @@ namespace detail
 	template<typename type>
 	concept has_contains = requires(type t)
 	{
-		t.contains(std::declval<typename type::key_type&>());
+		t.contains(*t.begin());
 	};
 }
 

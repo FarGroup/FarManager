@@ -193,8 +193,18 @@ private:
 	bool m_DeleteFolder{true};
 
 	string strLastSearchStr;
-	bool LastSearchCaseSensitive, LastSearchWholeWords, LastSearchReverse, LastSearchHex, LastSearchRegexp;
-	int LastSearchDirection;
+
+	struct SearchDlgOptions
+	{
+		bool CaseSensitive{};
+		bool WholeWords{};
+		bool Reverse{};
+		bool Regexp{};
+		bool Fuzzy{};
+		bool Hex{};
+	} LastSearchDlgOptions;
+
+	bool LastSearchReverse{}; // Used to adjust StartSearchPos. NOT the same as LastSearchDlgOptions.Reverse.
 	long long StartSearchPos{};
 
 	uintptr_t m_DefCodepage;

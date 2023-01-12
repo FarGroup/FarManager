@@ -394,9 +394,6 @@
           <Component Id="Executor.CMD.farconfig" Guid="$(var.Guid.Executor.CMD.farconfig)" Win64="$(var.Win64)">
             <File Id="Executor.CMD.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.CMD.farconfig" />
           </Component>
-          <Component Id="Executor.COMMAND.farconfig" Guid="$(var.Guid.Executor.COMMAND.farconfig)" Win64="$(var.Win64)">
-            <File Id="Executor.COMMAND.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.COMMAND.farconfig" />
-          </Component>
           <Component Id="WindowsGUI.farconfig" Guid="$(var.Guid.WindowsGUI.farconfig)" Win64="$(var.Win64)">
             <File Id="WindowsGUI.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\WindowsGUI.farconfig" />
           </Component>

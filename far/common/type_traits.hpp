@@ -60,6 +60,40 @@ concept span_like = requires(type&& t)
 
 namespace detail
 {
+	template<typename type>
+	concept has_value_type = requires
+	{
+		typename type::value_type;
+	};
+
+	template<typename T>
+	struct value_type;
+
+	template<has_value_type T>
+	struct value_type<T>
+	{
+		using type = typename T::value_type;
+	};
+
+	template<range_like T> requires (!has_value_type<T> && !span_like<T>)
+	struct value_type<T>
+	{
+		using type = std::remove_reference_t<decltype(*std::begin(std::declval<T&>()))>;
+	};
+
+	template<span_like T> requires (!has_value_type<T>)
+	struct value_type<T>
+	{
+		using type = std::remove_reference_t<decltype(*std::data(std::declval<T&>()))>;
+	};
+}
+
+template<typename T>
+using value_type = typename detail::value_type<T>::type;
+
+
+namespace detail
+{
 	template<typename T> requires std::integral<T> || std::is_enum_v<T>
 	auto sane_to_underlying(T Value)
 	{

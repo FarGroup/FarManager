@@ -120,6 +120,41 @@ WARNING_POP()
 
 //----------------------------------------------------------------------------
 
+#include "common/2d/algorithm.hpp"
+
+TEST_CASE("2d.algorithm")
+{
+	int Data[]
+	{
+		 0,  1,  2,  3,  4,
+		 5,  6,  7,  8,  9,
+		10, 11, 12, 13, 15,
+		16, 17, 18, 19, 20,
+		21, 22, 23, 24, 25,
+	};
+
+	matrix_view const Matrix(Data, 5, 5);
+
+	const auto StartValue = 42;
+	int Value = StartValue;
+
+	for_submatrix(Matrix, {1, 1, 3, 3}, [&](int& i){ i = Value++; });
+
+	const int Expected[]
+	{
+		 0,  1,  2,  3,  4,
+		 5, 42, 43, 44,  9,
+		10, 45, 46, 47, 15,
+		16, 48, 49, 50, 20,
+		21, 22, 23, 24, 25,
+	};
+
+	REQUIRE(std::equal(ALL_CONST_RANGE(Data), ALL_CONST_RANGE(Expected)));
+	REQUIRE(Value == StartValue + 3 * 3);
+}
+
+//----------------------------------------------------------------------------
+
 #include "common/algorithm.hpp"
 
 TEST_CASE("algorithm.repeat")
@@ -716,6 +751,50 @@ TEST_CASE("movable")
 
 //----------------------------------------------------------------------------
 
+#include "common/multifunction.hpp"
+
+TEST_CASE("multifunction")
+{
+	struct impl
+	{
+		auto operator()(double const v) const { return v; }
+		auto operator()(bool const v)   const { return v; }
+		auto operator()(int const v)    const { return v; }
+	};
+
+	multifunction
+	<
+		double(double),
+		bool(bool),
+		int(int)
+	>
+	Func = impl{};
+
+	REQUIRE(Func(42.25) == 42.25);
+	REQUIRE(Func(true) == true);
+	REQUIRE(Func(99) == 99);
+}
+
+//----------------------------------------------------------------------------
+
+#include "common/noncopyable.hpp"
+
+TEST_CASE("noncopyable")
+{
+	class c0
+	{
+	};
+
+	class c1: noncopyable
+	{
+	};
+
+	STATIC_REQUIRE(std::copyable<c0>);
+	STATIC_REQUIRE_FALSE(std::copyable<c1>);
+}
+
+//----------------------------------------------------------------------------
+
 #include "common/null_iterator.hpp"
 
 TEST_CASE("null_iterator")
@@ -791,7 +870,6 @@ TEST_CASE("preprocessor.types")
 		STATIC_REQUIRE(std::same_as<CONST_ITERATOR(v),         int const*>);
 		STATIC_REQUIRE(std::same_as<REVERSE_ITERATOR(v),       std::reverse_iterator<int*>>);
 		STATIC_REQUIRE(std::same_as<CONST_REVERSE_ITERATOR(v), std::reverse_iterator<int const*>>);
-
 	}
 }
 
@@ -1004,9 +1082,6 @@ TEST_CASE("range.static")
 
 				const auto TestType = [&](const auto & ContainerGetter, const auto & RangeGetter)
 				{
-					// Workaround for VS19
-					[[maybe_unused]] auto& RangeRef = Range;
-
 					STATIC_REQUIRE(std::same_as<decltype(ContainerGetter(ContainerVersion)), decltype(RangeGetter(Range))>);
 				};
 
@@ -1154,6 +1229,23 @@ TEST_CASE("scope_exit")
 	test_scope<scope_exit::scope_type::exit>(on_fail | on_success);
 	test_scope<scope_exit::scope_type::fail>(on_fail);
 	test_scope<scope_exit::scope_type::success>(on_success);
+}
+
+//----------------------------------------------------------------------------
+
+#include "common/singleton.hpp"
+
+TEST_CASE("singleton")
+{
+	class c: public singleton<c>
+	{
+		IMPLEMENTS_SINGLETON;
+	};
+
+	const auto& Ref1 = c::instance();
+	const auto& Ref2 = c::instance();
+
+	REQUIRE(&Ref1 == &Ref2);
 }
 
 //----------------------------------------------------------------------------
@@ -1443,6 +1535,87 @@ TEST_CASE("string_utils.generic_lookup")
 	REQUIRE(Map.find(L"123") != Map.cend());
 }
 #endif
+
+//----------------------------------------------------------------------------
+
+#include "common/type_traits.hpp"
+
+TEST_CASE("type_traits")
+{
+	STATIC_REQUIRE(is_one_of_v<int, char, bool, int>);
+	STATIC_REQUIRE(!is_one_of_v<int, char, bool, unsigned int>);
+
+
+	STATIC_REQUIRE(range_like<int[1]>);
+	STATIC_REQUIRE(range_like<std::initializer_list<int>>);
+	STATIC_REQUIRE(range_like<std::vector<int>>);
+	STATIC_REQUIRE(range_like<std::string_view>);
+	STATIC_REQUIRE(range_like<std::string>);
+	STATIC_REQUIRE(range_like<std::list<int>>);
+	STATIC_REQUIRE(range_like<std::set<int>>);
+	STATIC_REQUIRE(!range_like<int>);
+	STATIC_REQUIRE(!range_like<void>);
+
+
+	STATIC_REQUIRE(span_like<int[1]>);
+	STATIC_REQUIRE(span_like<std::initializer_list<int>>);
+	STATIC_REQUIRE(span_like<std::vector<int>>);
+	STATIC_REQUIRE(span_like<std::string_view>);
+	STATIC_REQUIRE(span_like<std::string>);
+	STATIC_REQUIRE(!span_like<std::list<int>>);
+	STATIC_REQUIRE(!span_like<std::set<int>>);
+	STATIC_REQUIRE(!span_like<int>);
+	STATIC_REQUIRE(!span_like<void>);
+
+
+	STATIC_REQUIRE(std::same_as<int, value_type<std::vector<int>>>);
+	STATIC_REQUIRE(std::same_as<int, value_type<std::list<int>>>);
+	STATIC_REQUIRE(std::same_as<int, value_type<int[1]>>);
+	STATIC_REQUIRE_ERROR(int, typename value_type<TestType>);
+
+	{
+		struct test_type
+		{
+			using value_type = int;
+
+			int* begin()  const { return {}; }
+			int* end()    const { return {}; }
+
+			bool* data()  const { return {}; }
+			size_t size() const { return {}; }
+		};
+
+		STATIC_REQUIRE(std::same_as<int, value_type<test_type>>);
+	}
+
+	{
+		struct test_type
+		{
+			int* begin()  const { return {}; }
+			int* end()    const { return {}; }
+
+			bool* data()  const { return {}; }
+			size_t size() const { return {}; }
+		};
+
+		STATIC_REQUIRE(std::same_as<bool, value_type<test_type>>);
+	}
+
+	{
+		struct test_type
+		{
+			int* begin()  const { return {}; }
+			int* end()    const { return {}; }
+		};
+
+		STATIC_REQUIRE(std::same_as<int, value_type<test_type>>);
+	}
+
+	enum class foo: int;
+	STATIC_REQUIRE(std::same_as<sane_underlying_type<foo>, int>);
+	STATIC_REQUIRE(std::same_as<sane_underlying_type<int>, int>);
+	STATIC_REQUIRE_ERROR(void, typename sane_underlying_type<TestType>);
+}
 
 //----------------------------------------------------------------------------
 

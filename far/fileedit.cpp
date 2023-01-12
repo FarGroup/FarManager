@@ -2837,7 +2837,7 @@ bool FileEditor::AskOverwrite(const string_view FileName)
 
 uintptr_t FileEditor::GetDefaultCodePage()
 {
-	const auto cp = encoding::codepage::normalise(Global->Opt->ViOpt.DefaultCodePage);
+	const auto cp = encoding::codepage::normalise(Global->Opt->EdOpt.DefaultCodePage);
 	return cp == CP_DEFAULT || !codepages::IsCodePageSupported(cp)?
 		encoding::codepage::ansi() :
 		cp;

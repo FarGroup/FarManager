@@ -37,13 +37,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // TODO: clean up & split
 
-template <typename T>
+template<typename T>
 bool CheckStructSize(const T* s)
 {
 	return s && (s->StructSize >= sizeof(T));
 }
 
-template <typename T>
+template<typename T>
 bool CheckNullOrStructSize(const T* s)
 {
 	return !s || CheckStructSize(s);
@@ -68,7 +68,7 @@ auto EmptyToNull(const T& Str)
 	return Str.empty()? nullptr : Str.c_str();
 }
 
-template <class T>
+template<class T>
 T Round(const T &a, const T &b)
 {
 	return a / b + ((a % b * 2 > b)? 1 : 0);

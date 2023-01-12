@@ -178,7 +178,7 @@ public:
 	decltype(auto) operator*() const noexcept {return *data();}
 };
 
-template <typename T>
+template<typename T>
 class unique_ptr_with_ondestroy
 {
 public:

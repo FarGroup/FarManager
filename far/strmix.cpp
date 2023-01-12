@@ -629,7 +629,7 @@ bool FindWordInString(string_view const Str, size_t CurPos, size_t& Begin, size_
 	if (Str.empty() || CurPos > Str.size())
 		return false;
 
-	const auto WordDiv = concat(WordDiv0, GetSpaces(), GetEols());
+	const auto WordDiv = concat(WordDiv0, GetBlanks(), GetEols());
 
 	if (!CurPos)
 	{
@@ -801,15 +801,15 @@ namespace
 {
 	bool CanContainWholeWord(string_view const Haystack, size_t const Offset, size_t const NeedleSize, string_view const WordDiv)
 	{
-		const auto BlankOrWordDiv = [&WordDiv](wchar_t Ch)
+		const auto SpaceOrWordDiv = [&WordDiv](wchar_t Ch)
 		{
-			return std::iswblank(Ch) || contains(WordDiv, Ch);
+			return std::iswspace(Ch) || contains(WordDiv, Ch);
 		};
 
-		if (Offset && !BlankOrWordDiv(Haystack[Offset - 1]))
+		if (Offset && !SpaceOrWordDiv(Haystack[Offset - 1]))
 			return false;
 
-		if (Offset + NeedleSize < Haystack.size() && !BlankOrWordDiv(Haystack[Offset + NeedleSize]))
+		if (Offset + NeedleSize < Haystack.size() && !SpaceOrWordDiv(Haystack[Offset + NeedleSize]))
 			return false;
 
 		return true;
@@ -1419,29 +1419,30 @@ TEST_CASE("truncate")
 		{ L"c:/123/456"sv, 20, L"c:/123/456"sv,  L"c:/123/456"sv,  L"c:/123/456"sv,  L"c:/123/456"sv, },
 	};
 
-	using handler = string(string_view, size_t);
-	using legacy_handler = wchar_t*(wchar_t*, int);
-	using result_ptr = decltype(&tests::ResultLeft);
-	using tp = std::tuple<handler*, legacy_handler*, result_ptr>;
-
-	static const std::array Functions
+	static const struct
 	{
-		tp{ truncate_left,   legacy::truncate_left,   &tests::ResultLeft   },
-		tp{ truncate_center, legacy::truncate_center, &tests::ResultCenter },
-		tp{ truncate_right,  legacy::truncate_right,  &tests::ResultRight  },
-		tp{ truncate_path,   legacy::truncate_path,   &tests::ResultPath   },
+		string(*Truncate)(string_view, size_t);
+		wchar_t*(*TruncateLegacy)(wchar_t*, int);
+		string_view tests::*StrAccessor;
+	}
+	Functions[]
+	{
+		{ truncate_left,   legacy::truncate_left,   &tests::ResultLeft   },
+		{ truncate_center, legacy::truncate_center, &tests::ResultCenter },
+		{ truncate_right,  legacy::truncate_right,  &tests::ResultRight  },
+		{ truncate_path,   legacy::truncate_path,   &tests::ResultPath   },
 	};
 
 	for (const auto& i: Tests)
 	{
-		for (const auto& [Truncate, TruncateLegacy, StrAccessor]: Functions)
+		for (const auto& f: Functions)
 		{
-			const auto Baseline = std::invoke(StrAccessor, i);
+			const auto Baseline = std::invoke(f.StrAccessor, i);
 
-			REQUIRE(Truncate(string(i.Src), i.Size) == Baseline);
+			REQUIRE(f.Truncate(string(i.Src), i.Size) == Baseline);
 
 			string Buffer(i.Src);
-			REQUIRE(TruncateLegacy(Buffer.data(), static_cast<int>(i.Size)) == Baseline);
+			REQUIRE(f.TruncateLegacy(Buffer.data(), static_cast<int>(i.Size)) == Baseline);
 		}
 	}
 }
