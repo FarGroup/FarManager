@@ -112,7 +112,13 @@ public:
 	bool dispatch();
 
 private:
-	using message_queue = os::synced_queue<std::pair<string, std::any>>;
+	struct message
+	{
+		string Id;
+		std::any Payload;
+	};
+
+	using message_queue = std::list<message>;
 
 	message_manager();
 	~message_manager();
@@ -121,6 +127,7 @@ private:
 	void commit_remove();
 
 	os::concurrency::critical_section
+		m_QueueLock,
 		m_PendingLock,
 		m_ActiveLock;
 
