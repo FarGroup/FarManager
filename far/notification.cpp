@@ -138,7 +138,7 @@ void message_manager::notify(string_view const EventId, std::any&& Payload)
 			const auto Size = m_Messages.size();
 			std::erase_if(m_Messages, [&](message const& Item)
 			{
-				return !Item.Payload.has_value() && Item.Id == EventId;;
+				return !Item.Payload.has_value() && Item.Id == EventId;
 			});
 
 			if (const auto NewSize = m_Messages.size(); NewSize < Size)
@@ -147,7 +147,7 @@ void message_manager::notify(string_view const EventId, std::any&& Payload)
 			}
 		}
 
-		m_Messages.emplace_back(string{ EventId }, std::move(Payload));
+		m_Messages.emplace_back(message{ string{ EventId }, std::move(Payload) });
 	}
 
 	main_loop_process_messages();
