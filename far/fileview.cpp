@@ -136,7 +136,7 @@ private:
 	// Deliberately empty. It doesn't have to do anything,
 	// its only purpose is waking up the main loop
 	// and generating KEY_NONE to reload the file.
-	listener m_Listener{ []{} };
+	listener m_Listener{ listener::scope{L"FileView"sv}, [] {}};
 
 	std::optional<std::chrono::milliseconds> m_UpdatePeriod;
 	os::concurrency::timer m_ReloadTimer;

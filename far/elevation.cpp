@@ -649,7 +649,7 @@ bool elevation::ElevationApproveDlg(lng const Why, string_view const Object)
 		if(!Global->IsMainThread())
 		{
 			os::event SyncEvent(os::event::type::automatic, os::event::state::nonsignaled);
-			listener const Listener([&SyncEvent](const std::any& Payload)
+			listener const Listener(listener::scope{L"Elevation"sv}, [&SyncEvent](const std::any& Payload)
 			{
 				ElevationApproveDlgSync(*std::any_cast<EAData*>(Payload));
 				SyncEvent.set();

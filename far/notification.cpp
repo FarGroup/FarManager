@@ -254,7 +254,7 @@ bool message_manager::dispatch()
 	return Result;
 }
 
-string listener::CreateEventName()
+string listener::CreateEventName(string_view const ScopeName)
 {
-	return uuid::str(os::uuid::generate());
+	return concat(ScopeName, L"::"sv, uuid::str(os::uuid::generate()));
 }

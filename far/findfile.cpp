@@ -2791,7 +2791,7 @@ bool FindFiles::FindFilesProcess()
 				m_Searcher = nullptr;
 			};
 
-			listener Listener([&]
+			listener const Listener(listener::scope{L"FindFile"sv}, [&]
 			{
 				if (m_TimeCheck)
 					Dlg->SendMessage(DM_REFRESH, 0, {});
