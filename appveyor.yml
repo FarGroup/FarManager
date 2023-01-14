@@ -151,7 +151,7 @@ after_build:
   #create msi
   - cd misc\msi-installer
   - appveyor DownloadFile https://raw.githubusercontent.com/FarGroup/thirdparty/master/wix314-binaries-v3-14-0-5722.zip
-  - 7z x wix314-binaries.zip -owix
+  - 7z x wix314-binaries-v3-14-0-5722.zip -owix
   - set PATH=%PATH%;wix
   - set SOURCE_DIR=%APPVEYOR_BUILD_FOLDER%\ci\%configuration%.%platform_name%
   - set NIGHTLY=1
