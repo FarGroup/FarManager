@@ -72,19 +72,19 @@ void message_manager::commit_add()
 	handlers_map PendingHandlers;
 
 	{
-		SCOPED_ACTION(std::lock_guard)(m_PendingLock);
+		SCOPED_ACTION(std::scoped_lock)(m_PendingLock);
 		PendingHandlers = std::move(m_PendingHandlers);
 	}
 
 	{
-		SCOPED_ACTION(std::lock_guard)(m_ActiveLock);
+		SCOPED_ACTION(std::scoped_lock)(m_ActiveLock);
 		m_ActiveHandlers.merge(PendingHandlers);
 	}
 }
 
 void message_manager::commit_remove()
 {
-	SCOPED_ACTION(std::lock_guard)(m_ActiveLock);
+	SCOPED_ACTION(std::scoped_lock)(m_ActiveLock);
 	std::erase_if(m_ActiveHandlers, [](handlers_map::value_type const& Handler)
 	{
 		return !Handler.second;
@@ -93,19 +93,19 @@ void message_manager::commit_remove()
 
 message_manager::handlers_map::iterator message_manager::subscribe(UUID const& EventId, const detail::event_handler& EventHandler)
 {
-	SCOPED_ACTION(std::lock_guard)(m_PendingLock);
+	SCOPED_ACTION(std::scoped_lock)(m_PendingLock);
 	return m_PendingHandlers.emplace(uuid::str(EventId), &EventHandler);
 }
 
 message_manager::handlers_map::iterator message_manager::subscribe(event_id EventId, const detail::event_handler& EventHandler)
 {
-	SCOPED_ACTION(std::lock_guard)(m_PendingLock);
+	SCOPED_ACTION(std::scoped_lock)(m_PendingLock);
 	return m_PendingHandlers.emplace(EventNames[EventId], &EventHandler);
 }
 
 message_manager::handlers_map::iterator message_manager::subscribe(string_view const EventName, const detail::event_handler& EventHandler)
 {
-	SCOPED_ACTION(std::lock_guard)(m_PendingLock);
+	SCOPED_ACTION(std::scoped_lock)(m_PendingLock);
 	return m_PendingHandlers.emplace(EventName, &EventHandler);
 }
 
@@ -164,12 +164,12 @@ bool message_manager::dispatch()
 		EligibleHandlers.clear();
 
 		{
-			SCOPED_ACTION(std::lock_guard)(m_ActiveLock);
+			SCOPED_ACTION(std::scoped_lock)(m_ActiveLock);
 			find_eligible_from(m_ActiveHandlers);
 		}
 
 		{
-			SCOPED_ACTION(std::lock_guard)(m_PendingLock);
+			SCOPED_ACTION(std::scoped_lock)(m_PendingLock);
 			find_eligible_from(m_PendingHandlers);
 		}
 

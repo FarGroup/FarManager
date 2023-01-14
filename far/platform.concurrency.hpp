@@ -247,27 +247,27 @@ namespace os::concurrency
 		[[nodiscard]]
 		bool empty() const
 		{
-			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
+			SCOPED_ACTION(std::scoped_lock)(m_QueueCS);
 			return m_Queue.empty();
 		}
 
 		template<typename... args>
 		void emplace(args&&... Args)
 		{
-			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
+			SCOPED_ACTION(std::scoped_lock)(m_QueueCS);
 			m_Queue.emplace(FWD(Args)...);
 		}
 
 		void push(T&& item)
 		{
-			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
+			SCOPED_ACTION(std::scoped_lock)(m_QueueCS);
 			m_Queue.push(FWD(item));
 		}
 
 		[[nodiscard]]
 		bool try_pop(T& To)
 		{
-			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
+			SCOPED_ACTION(std::scoped_lock)(m_QueueCS);
 
 			if (m_Queue.empty())
 				return false;
@@ -280,7 +280,7 @@ namespace os::concurrency
 		[[nodiscard]]
 		auto pop_all()
 		{
-			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
+			SCOPED_ACTION(std::scoped_lock)(m_QueueCS);
 			std::queue<T> All;
 			m_Queue.swap(All);
 			return All;
@@ -289,13 +289,13 @@ namespace os::concurrency
 		[[nodiscard]]
 		auto size() const
 		{
-			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
+			SCOPED_ACTION(std::scoped_lock)(m_QueueCS);
 			return m_Queue.size();
 		}
 
 		void clear()
 		{
-			SCOPED_ACTION(std::lock_guard)(m_QueueCS);
+			SCOPED_ACTION(std::scoped_lock)(m_QueueCS);
 			clear_and_shrink(m_Queue);
 		}
 

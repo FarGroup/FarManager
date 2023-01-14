@@ -381,7 +381,7 @@ static void* debug_allocator(size_t const size, std::align_val_t Alignment, allo
 			assert(is_aligned(Address, static_cast<size_t>(Alignment)));
 
 			{
-				SCOPED_ACTION(std::lock_guard)(Checker);
+				SCOPED_ACTION(std::scoped_lock)(Checker);
 				Checker.register_block(Info);
 				poison_block(Info);
 			}
@@ -408,7 +408,7 @@ static void debug_deallocator(void* const Block, std::align_val_t Alignment, all
 	const auto Info = to_real(Block, Alignment);
 
 	{
-		SCOPED_ACTION(std::lock_guard)(Checker);
+		SCOPED_ACTION(std::scoped_lock)(Checker);
 		unpoison_block(Info);
 		Checker.unregister_block(Info);
 	}

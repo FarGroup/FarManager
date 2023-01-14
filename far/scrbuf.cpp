@@ -134,7 +134,7 @@ void ScreenBuf::DebugDump() const
 
 void ScreenBuf::AllocBuf(size_t rows, size_t cols)
 {
-	SCOPED_ACTION(std::lock_guard)(CS);
+	SCOPED_ACTION(std::scoped_lock)(CS);
 
 	if (rows == Buf.height() && cols == Buf.width())
 		return;
@@ -147,7 +147,7 @@ void ScreenBuf::AllocBuf(size_t rows, size_t cols)
 */
 void ScreenBuf::FillBuf()
 {
-	SCOPED_ACTION(std::lock_guard)(CS);
+	SCOPED_ACTION(std::scoped_lock)(CS);
 
 	rectangle const ReadRegion{ 0, 0, static_cast<int>(Buf.width() - 1), static_cast<int>(Buf.height() - 1) };
 	console.ReadOutput(Buf, ReadRegion);
@@ -161,7 +161,7 @@ void ScreenBuf::FillBuf()
 */
 void ScreenBuf::Write(int X, int Y, span<const FAR_CHAR_INFO> Text)
 {
-	SCOPED_ACTION(std::lock_guard)(CS);
+	SCOPED_ACTION(std::scoped_lock)(CS);
 
 	if (X<0)
 	{
@@ -197,7 +197,7 @@ void ScreenBuf::Write(int X, int Y, span<const FAR_CHAR_INFO> Text)
 */
 void ScreenBuf::Read(rectangle Where, matrix<FAR_CHAR_INFO>& Dest)
 {
-	SCOPED_ACTION(std::lock_guard)(CS);
+	SCOPED_ACTION(std::scoped_lock)(CS);
 
 	fix_coordinates(Where);
 
@@ -276,7 +276,7 @@ void ScreenBuf::ApplyShadow(rectangle Where, bool const IsLegacy)
 	if (!is_visible(Where))
 		return;
 
-	SCOPED_ACTION(std::lock_guard)(CS);
+	SCOPED_ACTION(std::scoped_lock)(CS);
 
 	fix_coordinates(Where);
 
@@ -365,7 +365,7 @@ void ScreenBuf::ApplyColor(rectangle Where, const FarColor& Color)
 	if (!is_visible(Where))
 		return;
 
-	SCOPED_ACTION(std::lock_guard)(CS);
+	SCOPED_ACTION(std::scoped_lock)(CS);
 
 	fix_coordinates(Where);
 
@@ -389,7 +389,7 @@ void ScreenBuf::FillRect(rectangle Where, const FAR_CHAR_INFO& Info)
 	if (!is_visible(Where))
 		return;
 
-	SCOPED_ACTION(std::lock_guard)(CS);
+	SCOPED_ACTION(std::scoped_lock)(CS);
 
 	fix_coordinates(Where);
 
@@ -484,7 +484,7 @@ static void expand_write_region_if_needed(matrix<FAR_CHAR_INFO>& Buf, rectangle&
 */
 void ScreenBuf::Flush(flush_type FlushType)
 {
-	SCOPED_ACTION(std::lock_guard)(CS);
+	SCOPED_ACTION(std::scoped_lock)(CS);
 
 	if (FlushType & flush_type::title && !SBFlags.Check(SBFLAGS_FLUSHEDTITLE))
 	{
@@ -741,7 +741,7 @@ void ScreenBuf::SetLockCount(int Count)
 
 void ScreenBuf::MoveCursor(point const Point)
 {
-	SCOPED_ACTION(std::lock_guard)(CS);
+	SCOPED_ACTION(std::scoped_lock)(CS);
 
 	if (Point == m_CurPos)
 		return;
@@ -814,7 +814,7 @@ void ScreenBuf::Scroll(size_t Count)
 {
 	assert(Count);
 
-	SCOPED_ACTION(std::lock_guard)(CS);
+	SCOPED_ACTION(std::scoped_lock)(CS);
 
 	const FAR_CHAR_INFO Fill{ L' ', colors::PaletteColorToFarColor(COL_COMMANDLINEUSERSCREEN) };
 

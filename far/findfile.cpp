@@ -289,19 +289,19 @@ public:
 
 	void Init()
 	{
-		SCOPED_ACTION(std::lock_guard)(DataCS);
+		SCOPED_ACTION(std::scoped_lock)(DataCS);
 		ArcList.clear();
 	}
 
 	void ClearAllLists()
 	{
-		SCOPED_ACTION(std::lock_guard)(DataCS);
+		SCOPED_ACTION(std::scoped_lock)(DataCS);
 		ArcList.clear();
 	}
 
 	ArcListItem& AddArcListItem(string_view const ArcName, plugin_panel* const hPlugin, unsigned long long const Flags, string_view const RootPath)
 	{
-		SCOPED_ACTION(std::lock_guard)(DataCS);
+		SCOPED_ACTION(std::scoped_lock)(DataCS);
 
 		ArcListItem NewItem;
 		NewItem.strArcName = ArcName;
@@ -638,12 +638,12 @@ void FindFiles::SetPluginDirectory(string_view const DirName, const plugin_panel
 			{
 				span<PluginPanelItem> PanelData;
 
-				SCOPED_ACTION(std::lock_guard)(PluginCS);
+				SCOPED_ACTION(std::scoped_lock)(PluginCS);
 				if (Global->CtrlObject->Plugins->GetFindData(hPlugin, PanelData, OPM_SILENT))
 					Global->CtrlObject->Plugins->FreeFindData(hPlugin, PanelData, true);
 			}
 
-			SCOPED_ACTION(std::lock_guard)(PluginCS);
+			SCOPED_ACTION(std::scoped_lock)(PluginCS);
 			Global->CtrlObject->Plugins->SetDirectory(hPlugin, Dir.empty()? L"\\"s : string(Dir), OPM_SILENT, Dir.empty()? nullptr : UserData);
 		}
 
@@ -988,7 +988,7 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 bool FindFiles::GetPluginFile(ArcListItem const* const ArcItem, const os::fs::find_data& FindData, const string& DestPath, string &strResultName, const UserDataItem* const UserData)
 {
-	SCOPED_ACTION(std::lock_guard)(PluginCS);
+	SCOPED_ACTION(std::scoped_lock)(PluginCS);
 	OpenPanelInfo Info;
 
 	Global->CtrlObject->Plugins->GetOpenPanelInfo(ArcItem->hPlugin,&Info);
@@ -1746,7 +1746,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 							{
 								const auto SavePluginsOutput = std::exchange(Global->DisablePluginsOutput, true);
 								{
-									SCOPED_ACTION(std::lock_guard)(PluginCS);
+									SCOPED_ACTION(std::scoped_lock)(PluginCS);
 									PluginPanelPtr = Global->CtrlObject->Plugins->OpenFilePlugin(&strFindArcName, OPM_NONE, OFP_SEARCH);
 									FindItem->Arc->hPlugin = PluginPanelPtr.get();
 								}
@@ -1766,7 +1766,7 @@ intptr_t FindFiles::FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 
 							if (PluginPanelPtr)
 							{
-								SCOPED_ACTION(std::lock_guard)(PluginCS);
+								SCOPED_ACTION(std::scoped_lock)(PluginCS);
 								Global->CtrlObject->Plugins->ClosePanel(std::move(PluginPanelPtr));
 								FindItem->Arc->hPlugin = nullptr;
 							}
@@ -2865,7 +2865,7 @@ bool FindFiles::FindFilesProcess()
 				}
 
 				{
-					SCOPED_ACTION(std::lock_guard)(PluginCS);
+					SCOPED_ACTION(std::scoped_lock)(PluginCS);
 					if (auto hNewPlugin = Global->CtrlObject->Plugins->OpenFindListPlugin(PanelItems))
 					{
 						const auto NewPanel = Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel(), panel_type::FILE_PANEL, TRUE, TRUE);
@@ -2907,7 +2907,7 @@ bool FindFiles::FindFilesProcess()
 					{
 						OpenPanelInfo Info;
 						{
-							SCOPED_ACTION(std::lock_guard)(PluginCS);
+							SCOPED_ACTION(std::scoped_lock)(PluginCS);
 							Global->CtrlObject->Plugins->GetOpenPanelInfo(FindExitItem->Arc->hPlugin, &Info);
 
 							if (SearchMode == FINDAREA_ROOT ||

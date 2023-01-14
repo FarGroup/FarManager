@@ -63,7 +63,7 @@ class background_watcher: public singleton<background_watcher>
 public:
 	void add(const FileSystemWatcher* Client)
 	{
-		SCOPED_ACTION(std::lock_guard)(m_CS);
+		SCOPED_ACTION(std::scoped_lock)(m_CS);
 
 		m_Clients.emplace_back(Client);
 
@@ -76,7 +76,7 @@ public:
 	void remove(const FileSystemWatcher* Client)
 	{
 		{
-			SCOPED_ACTION(std::lock_guard)(m_CS);
+			SCOPED_ACTION(std::scoped_lock)(m_CS);
 
 			std::erase(m_Clients, Client);
 		}
@@ -100,7 +100,7 @@ private:
 				SCOPE_EXIT{ m_UpdateDone.set(); };
 
 				{
-					SCOPED_ACTION(std::lock_guard)(m_CS);
+					SCOPED_ACTION(std::scoped_lock)(m_CS);
 
 					if (m_Clients.empty())
 					{
@@ -119,7 +119,7 @@ private:
 				continue;
 
 			{
-				SCOPED_ACTION(std::lock_guard)(m_CS);
+				SCOPED_ACTION(std::scoped_lock)(m_CS);
 
 				m_Clients[Result - 1]->callback_notify();
 

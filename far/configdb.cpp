@@ -2498,7 +2498,7 @@ std::unique_ptr<T> config_provider::CreateDatabase(string_view const Name, bool 
 	const auto FullName = GetDatabasePath(Name, Local);
 
 	os::mutex m(os::make_name<os::mutex>(Local? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath, Name));
-	SCOPED_ACTION(std::lock_guard)(m);
+	SCOPED_ACTION(std::scoped_lock)(m);
 
 	auto Database = CreateWithFallback<T>(FullName);
 
