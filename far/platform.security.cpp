@@ -56,7 +56,7 @@ namespace
 		static unordered_string_map<std::optional<LUID>> s_Cache;
 		static os::critical_section s_CS;
 
-		SCOPED_ACTION(std::lock_guard)(s_CS);
+		SCOPED_ACTION(std::scoped_lock)(s_CS);
 
 		const auto [Iterator, IsEmplaced] = s_Cache.try_emplace(Name);
 

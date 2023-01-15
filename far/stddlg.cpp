@@ -662,7 +662,7 @@ operation OperationFailed(const error_state_ex& ErrorState, string_view const Ob
 	std::optional<listener> Listener;
 	if (SwitchBtn)
 	{
-		Listener.emplace([](const std::any& Payload)
+		Listener.emplace(listener::scope{L"SwitchToLockedFile"sv}, [](const std::any& Payload)
 		{
 			// Switch asynchronously after the message is reopened,
 			// otherwise Far will lose the focus too early

@@ -112,7 +112,13 @@ public:
 	bool dispatch();
 
 private:
-	using message_queue = os::synced_queue<std::pair<string, std::any>>;
+	struct message
+	{
+		string Id;
+		std::any Payload;
+	};
+
+	using message_queue = std::list<message>;
 
 	message_manager();
 	~message_manager();
@@ -121,6 +127,7 @@ private:
 	void commit_remove();
 
 	os::concurrency::critical_section
+		m_QueueLock,
 		m_PendingLock,
 		m_ActiveLock;
 
@@ -138,6 +145,11 @@ private:
 class listener: noncopyable
 {
 public:
+	struct scope
+	{
+		string_view ScopeName;
+	};
+
 	template<class id_type, typename callable_type>
 	listener(const id_type& EventId, const callable_type& EventHandler):
 		m_Handler(EventHandler),
@@ -146,8 +158,8 @@ public:
 	}
 
 	template<typename callable_type>
-	explicit listener(const callable_type& EventHandler):
-		listener(CreateEventName(), EventHandler)
+	explicit listener(scope const Scope, callable_type const& EventHandler):
+		listener(CreateEventName(Scope.ScopeName), EventHandler)
 	{
 	}
 
@@ -162,7 +174,7 @@ public:
 	}
 
 private:
-	static string CreateEventName();
+	static string CreateEventName(string_view ScopeName);
 
 	detail::event_handler m_Handler;
 	message_manager::handlers_map::iterator m_Iterator;

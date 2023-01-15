@@ -502,7 +502,7 @@ public:
 	}
 
 private:
-	listener m_Listener{[this]
+	listener m_Listener{ listener::scope{L"FileList"sv}, [this]
 	{
 		if (Global->WindowManager->IsPanelsActive() && m_Owner->IsVisible())
 		{

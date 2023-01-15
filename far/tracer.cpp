@@ -147,7 +147,7 @@ void tracer_detail::tracer::get_symbol(string_view const Module, const void* Ptr
 
 void tracer_detail::tracer::sym_initialise(string_view Module)
 {
-	SCOPED_ACTION(std::lock_guard)(m_CS);
+	SCOPED_ACTION(std::scoped_lock)(m_CS);
 
 	// SymInitialize / SymCleanup do not support recursion, so we have to do it ourselves.
 	++m_SymInitializeLevel;
@@ -158,7 +158,7 @@ void tracer_detail::tracer::sym_initialise(string_view Module)
 
 void tracer_detail::tracer::sym_cleanup()
 {
-	SCOPED_ACTION(std::lock_guard)(m_CS);
+	SCOPED_ACTION(std::scoped_lock)(m_CS);
 
 	if (m_SymInitializeLevel)
 		--m_SymInitializeLevel;

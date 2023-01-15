@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 14.01.2023 00:43:31 +0000 - build 6093
+
+1. Refactoring: lock_guard -> scoped_lock.
+
+2. Deduplicate refresh notifications.
+
+3. Make notitication logs more readable.
+
+--------------------------------------------------------------------------------
 drkns 09.01.2023 17:57:23 +0000 - build 6092
 
 1. gh-603: Process list plugin randomly switches selection to other processes with the same name.

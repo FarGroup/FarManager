@@ -656,7 +656,7 @@ namespace
 		// sink
 		void handle(message Message) override
 		{
-			SCOPED_ACTION(std::lock_guard)(m_CS);
+			SCOPED_ACTION(std::scoped_lock)(m_CS);
 			sink_type::handle(std::move(Message));
 		}
 
@@ -791,7 +791,7 @@ namespace logging
 
 		void initialise()
 		{
-			SCOPED_ACTION(std::lock_guard)(m_CS);
+			SCOPED_ACTION(std::scoped_lock)(m_CS);
 
 			if (m_Status != engine_status::incomplete)
 				return;

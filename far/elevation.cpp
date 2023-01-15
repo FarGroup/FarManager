@@ -289,7 +289,7 @@ T elevation::RetrieveLastErrorAndResult() const
 template<typename T, typename F1, typename F2>
 auto elevation::execute(lng Why, string_view const Object, T Fallback, const F1& PrivilegedHander, const F2& ElevatedHandler)
 {
-	SCOPED_ACTION(std::lock_guard)(m_CS);
+	SCOPED_ACTION(std::scoped_lock)(m_CS);
 	if (!ElevationApproveDlg(Why, Object))
 		return Fallback;
 
@@ -649,7 +649,7 @@ bool elevation::ElevationApproveDlg(lng const Why, string_view const Object)
 		if(!Global->IsMainThread())
 		{
 			os::event SyncEvent(os::event::type::automatic, os::event::state::nonsignaled);
-			listener const Listener([&SyncEvent](const std::any& Payload)
+			listener const Listener(listener::scope{L"Elevation"sv}, [&SyncEvent](const std::any& Payload)
 			{
 				ElevationApproveDlgSync(*std::any_cast<EAData*>(Payload));
 				SyncEvent.set();
