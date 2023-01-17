@@ -495,6 +495,7 @@
 <?define Guid.ProcHun.hlf = "8CD829F8-4E1E-4058-9F24-62D0E67B5B4E" ?>
 <?define Guid.ProcHun.lng = "EE6B3E53-E08F-41DF-822C-2AFF3CC72FAF" ?>
 <?define Guid.ProcLit.lng = "8A434F5C-BEE3-423F-A68A-5CEF6CE33A9F" ?>
+<?define Guid.ProcSpa.lng = "01EAAF0F-A923-4E0F-B0C2-548E3B089C48" ?>
 
 <?define Guid.changelog_17 = "6D2B97BC-5745-4DD2-BAEF-86C26C28DB73" ?>
 <?define Guid.disks.eng.temp = "48341403-182F-408A-AF5C-27B7D4901F47" ?>

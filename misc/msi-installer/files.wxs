@@ -1556,6 +1556,9 @@
           <Component Id="ProcLit.lng" Guid="$(var.Guid.ProcLit.lng)" Win64="$(var.Win64)">
             <File Id="ProcLit.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcLit.lng" />
           </Component>
+          <Component Id="ProcSpa.lng" Guid="$(var.Guid.ProcSpa.lng)" Win64="$(var.Win64)">
+            <File Id="ProcSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ProcList\ProcSpa.lng" />
+          </Component>
         </Directory>
         <Directory Id="TmpPanel" Name="TmpPanel">
           <Component Id="changelog_17" Guid="$(var.Guid.changelog_17)" Win64="$(var.Win64)">
