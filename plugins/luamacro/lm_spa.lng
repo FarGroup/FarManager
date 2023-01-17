@@ -1,13 +1,13 @@
-﻿.Language=Spanish,Spanish
+﻿.Language=Spanish,Spanish (Español)
 
 "Aceptar"
 "Error analizando macro"
-"Reloading macros"
+"Recargando macros"
 
 "Ejecutar un macro"
 "Dígito: ejecutar | Alt+F4: abrir en editor"
-"< No description: Index=%d >"
-"Low priority"
+"< Sin descripción: Indice=%d >"
+"Baja prioridad"
 
 // macro browser help window
 "F1          mostrar esta ventana de ayuda"
@@ -20,18 +20,18 @@
 "Ctrl+F3     ordenar macros por descripción"
 "Enter       ejecutar macro seleccionado"
 "Ctrl+H      ocultar macros inactivos"
-"Ctrl+R      reload macros"
+"Ctrl+R      recargar macros"
 
 // macro browser separators
 "Macros"
 "Macros activos"
 "Eventos"
-"Items of Plugins menu"
-"Active items of Plugins menu"
-"Prefixes"
-"Panel modules"
-"Content columns"
-"Custom sort modes"
+"Items del menú de complementos"
+"Items activos del menú de complementos"
+"Prefijos"
+"Módulos panel"
+"Contenido columnas"
+"Modos de ordenamiento personalizados"
 
 // macro browser messages
 "No hay nombre de archivo disponible"
@@ -40,11 +40,11 @@
 // macro browser F3 titles
 "Macro"
 "Gestor de eventos"
-"Plugins menu item"
-"Prefix"
-"Panel module"
-"Content column"
-"Custom sort mode"
+"Item de menú de complementos"
+"Prefijo"
+"Módulo panel"
+"Contenido columna"
+"Modo de ordenamiento personalizado"
 
 // custom panel sort
 "Modo de ordenamiento"
