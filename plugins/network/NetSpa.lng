@@ -1,4 +1,4 @@
-﻿.Language=Spanish,Spanish
+﻿.Language=Spanish,Spanish (Español)
 
 "Aceptar"
 "Cancelar"
@@ -47,14 +47,14 @@
 "Añadir a menú de &Discos"
 "Añadir a menú de Com&plementos"
 "Mo&strar red local"
-"Shares"
+"Compartidos"
 "Mostrar nom&bre completo de compartido"
-"Hidden Shares"
-"Never show"
-"Make hidden"
-"Always show"
+"Ocultar Compartidos"
+"No mostrar nunca"
+"Hacer oculto"
+"Mostrar siempre"
 "Mostrar i&mpresoras"
-"Scan network"
+"Explorar red"
 "Mostrar \"..\" en los proveedores"
 "&Navegar hasta favoritos si es posible"
 "Comprobar accesibilidad de recu&rsos"

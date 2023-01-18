@@ -985,6 +985,9 @@
           <Feature Id="Proclist.Lithuanian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="ProcLit.lng" />
           </Feature>
+          <Feature Id="Proclist.Spanish" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="ProcSpa.lng" />
+          </Feature>
           <Feature Id="Proclist.MapFiles" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="ProcList.map" />
           </Feature>
