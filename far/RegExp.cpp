@@ -3107,7 +3107,7 @@ bool RegExp::InnerMatch(const wchar_t* const start, const wchar_t* str, const wc
 							stack.emplace_back(st);
 						}
 
-						if (op->bracket.index >= 0 && static_cast<size_t>(op->bracket.index) < match.size())
+						if (op->bracket.index >= 0 && static_cast<size_t>(op->bracket.index) < match.size() && inrangebracket < 0)
 						{
 							match[op->bracket.index].start = -1;
 							match[op->bracket.index].end = -1;
@@ -3935,6 +3935,8 @@ TEST_CASE("regex.regression")
 		{ L"([bc]+)|(zz)"sv,                       L"abc"sv,        {{ 1,  3}, { 1,  3}, {-1, -1}} },
 		{ L"(?:abc)"sv,                            L"abc"sv,        {{ 0,  3}} },
 		{ L"a(?!b)d"sv,                            L"ad"sv,         {{ 0,  2}} },
+		{ L"(\\d+)A|(\\d+)"sv,                     L"123"sv,        {{ 0,  3}, {-1, -1}, { 0,  3}} },
+		{ L"(8)+"sv,                               L"88"sv,         {{ 0,  2}, { 1, 2 }} },
 	};
 
 	RegExp re;
