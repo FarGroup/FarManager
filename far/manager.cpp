@@ -156,16 +156,29 @@ static bool CASHook(const Manager::Key& key)
 	{
 		for (;;)
 		{
+			// Maximum keyboard rate is ~30 Hz (every ~33 ms).
+			// Ideally the delay should be slightly shorter than that,
+			// to not consume too many cycles, but still process the events faster than they come.
+			// However, mouse rate is typically higher, 125 Hz or more (every 8 ms).
+			// In theory, the user can do goofy things while holding CAD,
+			// e.g. quickly move the mouse, filling the queue faster than we read it.
+
+			// 10 ms is picked experimentally, it seems to be a good compromise.
+			// TODO: consider suppressing the mouse and raising the delay to 25-30.
+			os::chrono::sleep_for(10ms);
+
 			INPUT_RECORD Record;
 
 			if (!PeekInputRecord(&Record, true))
 				continue;
 
 			GetInputRecord(&Record, true, true);
+
+			if (Record.EventType != KEY_EVENT)
+				continue;
+
 			if (!CasChecker(Record.Event.KeyEvent.dwControlKeyState))
 				break;
-
-			os::chrono::sleep_for(1ms);
 		}
 	};
 

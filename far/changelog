@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 22.01.2023 21:06:44 +0000 - build 6095
+
+1. Reduce CPU load on Ctrl+Alt+Shift.
+
+--------------------------------------------------------------------------------
 drkns 20.01.2023 19:34:14 +0000 - build 6094
 
 1. gh-609: Regexp replace: quantifier applied to a group empties its matched text.
