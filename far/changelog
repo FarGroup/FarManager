@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+MZK 22.01.2023 09:32:07 -0800 - build 6096
+
+1. Added "Search for Hex" functionality to the unified SearchReplace dialog.
+   Internal implementation only; no user-visible changes are expected.
+
+--------------------------------------------------------------------------------
 drkns 22.01.2023 21:06:44 +0000 - build 6095
 
 1. Reduce CPU load on Ctrl+Alt+Shift.

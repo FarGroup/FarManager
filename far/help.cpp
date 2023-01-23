@@ -188,7 +188,6 @@ private:
 	string  strFullHelpPathName;
 	string strCurPluginContents; // помним PluginContents (для отображения в заголовке)
 	string strCtrlStartPosChar;
-	string strLastSearchStr;
 
 	int FixCount{};             // количество строк непрокручиваемой области
 
@@ -208,7 +207,8 @@ private:
 	bool IsNewTopic{true};
 	bool m_TopicFound{};
 	bool ErrorHelp{true};
-	SearchReplaceDlgOptions LastSearchDlgOptions;
+
+	SearchReplaceDlgParams LastSearchDlgParams;
 };
 
 struct Help::StackHelpData
@@ -232,7 +232,8 @@ Help::Help(private_tag):
 	StackData(std::make_unique<StackHelpData>()),
 	CurColor(colors::PaletteColorToFarColor(COL_HELPTEXT)),
 	CtrlTabSize(Global->Opt->HelpTabSize),
-	LastSearchDlgOptions{
+	LastSearchDlgParams
+	{
 		.CaseSensitive = Global->GlobalSearchCaseSensitive,
 		.WholeWords = Global->GlobalSearchWholeWords,
 		.Regexp = Global->Opt->EdOpt.SearchRegexp,
@@ -1429,29 +1430,8 @@ bool Help::ProcessKey(const Manager::Key& Key)
 			// не поганим SelTopic, если и так в FoundContents
 			if (StackData->strHelpTopic != FoundContents)
 			{
-				string strLastSearchStr0=strLastSearchStr;
-				auto SearchDlgOptions{ LastSearchDlgOptions };
-
-				string strTempStr;
-				//int RetCode = GetString(msg(lng::MHelpSearchTitle),msg(lng::MHelpSearchingFor),L"HelpSearch",strLastSearchStr,strLastSearchStr0);
-				const int RetCode = GetSearchReplaceString(
-					false,
-					msg(lng::MHelpSearchTitle),
-					msg(lng::MHelpSearchingFor),
-					strLastSearchStr0,
-					strTempStr,
-					L"HelpSearch"sv,
-					{},
-					SearchDlgOptions,
-					{},
-					true,
-					&HelpSearchId);
-
-				if (RetCode <= 0)
+				if (GetSearchReplaceString(LastSearchDlgParams, L"HelpSearch"sv, {}, CP_DEFAULT, {}, &HelpSearchId) <= 0)
 					return true;
-
-				strLastSearchStr=strLastSearchStr0;
-				LastSearchDlgOptions = SearchDlgOptions;
 
 				Stack.emplace(*StackData);
 				IsNewTopic = true;
@@ -1946,8 +1926,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	StackData->CurX=StackData->CurY=0;
 	m_CtrlColorChar = 0;
 
-	string strTitleLine=strLastSearchStr;
-	AddTitle(strTitleLine);
+	AddTitle(LastSearchDlgParams.SearchStr);
 
 	bool TopicFound=false;
 	string strCurTopic, strEntryName;
@@ -1956,22 +1935,24 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	named_regex_match NamedMatch;
 	RegExp re;
 
-	if (LastSearchDlgOptions.Regexp.value())
+	if (LastSearchDlgParams.Regexp.value())
 	{
 		// Q: что важнее: опция диалога или опция RegExp`а?
 		try
 		{
-			re.Compile(strLastSearchStr, (strLastSearchStr.starts_with(L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (LastSearchDlgOptions.CaseSensitive.value()? 0 : OP_IGNORECASE));
+			re.Compile(
+				LastSearchDlgParams.SearchStr,
+				(LastSearchDlgParams.SearchStr.starts_with(L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (LastSearchDlgParams.CaseSensitive.value()? 0 : OP_IGNORECASE));
 		}
 		catch (regex_exception const& e)
 		{
-			ReCompileErrorMessage(e, strLastSearchStr);
+			ReCompileErrorMessage(e, LastSearchDlgParams.SearchStr);
 			return; //BUGBUG
 		}
 	}
 
 	searchers Searchers;
-	const auto& Searcher = init_searcher(Searchers, LastSearchDlgOptions.CaseSensitive.value(), LastSearchDlgOptions.Fuzzy.value(), strLastSearchStr);
+	const auto& Searcher = init_searcher(Searchers, LastSearchDlgParams.CaseSensitive.value(), LastSearchDlgParams.Fuzzy.value(), LastSearchDlgParams.SearchStr);
 
 	os::fs::filebuf StreamBuffer(HelpFile, std::ios::in);
 	std::istream Stream(&StreamBuffer);
@@ -2007,16 +1988,16 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 
 			if (SearchString(
 				Str,
-				strLastSearchStr,
+				LastSearchDlgParams.SearchStr,
 				Searcher,
 				re,
 				Match,
 				&NamedMatch,
 				CurPos,
 				{
-					.CaseSensitive = LastSearchDlgOptions.CaseSensitive.value(),
-					.WholeWords = LastSearchDlgOptions.WholeWords.value(),
-					.Regexp = LastSearchDlgOptions.Regexp.value()
+					.CaseSensitive = LastSearchDlgParams.CaseSensitive.value(),
+					.WholeWords = LastSearchDlgParams.WholeWords.value(),
+					.Regexp = LastSearchDlgParams.Regexp.value()
 				},
 				SearchLength,
 				Global->Opt->EdOpt.strWordDiv

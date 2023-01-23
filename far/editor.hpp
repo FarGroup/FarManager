@@ -142,7 +142,6 @@ public:
 	void AutoDeleteColors();
 	int GetId() const { return EditorID; }
 
-	static void SetReplaceMode(bool Mode);
 	static eol GetDefaultEOL();
 
 	struct EditorUndoData;
@@ -381,8 +380,9 @@ private:
 	Options::EditorOptions EdOpt;
 	int Pasting{};
 	int XX2{}; //scrollbar
-	string strLastSearchStr;
-	SearchReplaceDlgOptions LastSearchDlgOptions;
+
+	SearchReplaceDlgParams LastSearchDlgParams;
+	bool ReplaceAll{};
 
 	int EditorID{};
 	int EditorControlLock{};

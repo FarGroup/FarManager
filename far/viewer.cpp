@@ -3179,9 +3179,9 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 	{
 		constexpr auto DlgWidth{ 76 };
 		constexpr auto HorizontalRadioGap{ 2 };
-		const auto& searchFor{ msg(lng::MViewSearchFor) };
-		const auto& searchForText{ msg(lng::MViewSearchForText) };
-		const auto& searchForHex{ msg(lng::MViewSearchForHex) };
+		const auto& searchFor{ msg(lng::MSearchReplaceSearchFor) };
+		const auto& searchForText{ msg(lng::MSearchReplaceText) };
+		const auto& searchForHex{ msg(lng::MSearchReplaceHex) };
 		const auto searchForW{ static_cast<int>(HiStrlen(searchFor)) };
 		const auto searchForTextW{ static_cast<int>(HiStrlen(searchForText) + 4) };
 		const auto searchForHexW{ static_cast<int>(HiStrlen(searchForHex) + 4) };
@@ -3197,21 +3197,21 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 
 		auto SearchDlg = MakeDialogItems<SD_COUNT>(
 		{
-			{ DI_DOUBLEBOX,   {{3,               1}, {DlgWidth-4,      10}}, DIF_NONE, msg(lng::MViewSearchTitle), },
+			{ DI_DOUBLEBOX,   {{3,               1}, {DlgWidth-4,      10}}, DIF_NONE, msg(lng::MSearchReplaceSearchTitle), },
 			{ DI_RADIOBUTTON, {{searchForTextX1, 2}, {searchForTextX2, 2 }}, DIF_GROUP, searchForText, },
 			{ DI_RADIOBUTTON, {{searchForHexX1,  2}, {searchForHexX2,  2 }}, DIF_NONE, searchForHex, },
 			{ DI_TEXT,        {{searchForX1,     2}, {0,               2 }}, DIF_NONE, searchFor, },
 			{ DI_EDIT,        {{5,               3}, {DlgWidth-4-2,    3 }}, DIF_HISTORY | DIF_USELASTHISTORY, },
 			{ DI_FIXEDIT,     {{5,               3}, {DlgWidth-4-2,    3 }}, DIF_MASKEDIT, },
 			{ DI_TEXT,        {{-1,              4}, {0,               4 }}, DIF_SEPARATOR, },
-			{ DI_CHECKBOX,    {{5,               5}, {0,               5 }}, DIF_NONE, msg(lng::MViewSearchCase), },
-			{ DI_CHECKBOX,    {{5,               6}, {0,               6 }}, DIF_NONE, msg(lng::MViewSearchWholeWords), },
-			{ DI_CHECKBOX,    {{5,               7}, {0,               7 }}, DIF_NONE, msg(lng::MViewSearchReverse), },
-			{ DI_CHECKBOX,    {{40,              5}, {0,               5 }}, DIF_NONE, msg(lng::MViewSearchRegexp), },
-			{ DI_CHECKBOX,    {{40,              6}, {0,               6 }}, DIF_NONE, msg(lng::MViewSearchFuzzy), },
+			{ DI_CHECKBOX,    {{5,               5}, {0,               5 }}, DIF_NONE, msg(lng::MSearchReplaceCase), },
+			{ DI_CHECKBOX,    {{5,               6}, {0,               6 }}, DIF_NONE, msg(lng::MSearchReplaceWholeWords), },
+			{ DI_CHECKBOX,    {{5,               7}, {0,               7 }}, DIF_NONE, msg(lng::MSearchReplaceReverse), },
+			{ DI_CHECKBOX,    {{40,              5}, {0,               5 }}, DIF_NONE, msg(lng::MSearchReplaceRegexp), },
+			{ DI_CHECKBOX,    {{40,              6}, {0,               6 }}, DIF_NONE, msg(lng::MSearchReplaceFuzzy), },
 			{ DI_TEXT,        {{-1,              8}, {0,               8 }}, DIF_SEPARATOR, },
-			{ DI_BUTTON,      {{0,               9}, {0,               9 }}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MViewSearchSearch), },
-			{ DI_BUTTON,      {{0,               9}, {0,               9 }}, DIF_CENTERGROUP, msg(lng::MViewSearchCancel), },
+			{ DI_BUTTON,      {{0,               9}, {0,               9 }}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MSearchReplaceSearch), },
+			{ DI_BUTTON,      {{0,               9}, {0,               9 }}, DIF_CENTERGROUP, msg(lng::MSearchReplaceCancel), },
 		});
 
 		string mask(3 * SD_MAX_CHARS, L'H');
@@ -3383,7 +3383,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 			else if (found == Search_NotFound)
 			{
 				Message(MSG_WARNING,
-					msg(lng::MViewSearchTitle),
+					msg(lng::MSearchReplaceSearchTitle),
 					{
 						msg(LastSearchDlgOptions.Hex? lng::MViewSearchCannotFindHex : lng::MViewSearchCannotFind),
 						strMsgStr
@@ -3402,7 +3402,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 				static_assert(lng::MViewSearchEod + 2 == lng::MViewSearchBod && lng::MViewSearchEod + 4 == lng::MViewSearchCycle, "Wrong .lng file order");
 
 				if (Message(0,
-					msg(lng::MViewSearchTitle),
+					msg(lng::MSearchReplaceSearchTitle),
 					{
 						msg(lng::MViewSearchEod + 2 * (found - Search_Eof)),
 						msg(lng::MViewSearchFromBegin + 2 * (found - Search_Eof)),
@@ -3445,7 +3445,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 				}
 
 				if (!Progress)
-					Progress.emplace(msg(lng::MViewSearchTitle), concat(msg(LastSearchDlgOptions.Hex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', strMsgStr), 0);
+					Progress.emplace(msg(lng::MSearchReplaceSearchTitle), concat(msg(LastSearchDlgOptions.Hex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', strMsgStr), 0);
 
 				Progress->update(percent);
 			}
