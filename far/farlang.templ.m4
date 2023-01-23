@@ -6481,6 +6481,260 @@ MCannotSetSecurity
 "Немагчыма надаць правы доступа да файлу"
 "Negaliu nustatyti failo priėjimo teisių failui"
 
+MSearchReplaceSearchTitle
+l:
+"Поиск"
+"Search"
+"Hledání"
+"Suchen"
+"Keresés"
+"Szukaj"
+"Buscar"
+"Hľadanie"
+"Ricerca"
+"Пошук"
+"Пошук"
+"Paieška"
+
+MSearchReplaceReplaceTitle
+l:
+"Замена"
+"Replace"
+"Nahradit"
+"Ersetzen"
+"Keresés és csere"
+"Zamień"
+"Reemplazar"
+"Nahradiť"
+"Sostituisci"
+"Заміна"
+"Змена"
+"Pakeisti"
+
+MSearchReplaceText
+"&Текст"
+"&Text"
+"&Text"
+"&Text"
+upd:"&Szöveg"
+"&Tekst"
+upd:"Cadena de &texto"
+"&Text"
+"&Testo"
+"&Текст"
+"&Тэкст"
+upd:"Ieškoti &teksto"
+
+MSearchReplaceHex
+"16-ричный &код"
+"&Hex"
+"He&x"
+"&Hex (xx xx …)"
+upd:"&Hexákra"
+"Sz&esnastkowo"
+upd:"Cadena &hexadecimal"
+"He&x"
+"&Esadecimale"
+"16-ковий &код"
+"&Hex"
+upd:"Ieškoti &hex"
+
+MSearchReplacePickWord
+"&Слово"
+"W&ord"
+"Slovo"
+upd:"Word"
+upd:"Word"
+"Słowo"
+"Palabra"
+"Slovo"
+"Parola"
+"&Слово"
+"&Слова"
+upd:"W&ord"
+
+MSearchReplacePickSelection
+"&Выделение"
+"Se&lection"
+"Výběr"
+upd:"Selection"
+upd:"Selection"
+"Zaznaczenie"
+"Selección"
+"Výber"
+"Selezione"
+"В&иділення"
+"&Вылучэнне"
+upd:"Se&lection"
+
+MSearchReplaceSearchFor
+"&Искать"
+"&Search for"
+"&Hledat"
+"&Suchen nach"
+"&Keresés:"
+"&Znajdź"
+"&Buscar por"
+"&Hľadať"
+"Ricerca &Di"
+"&Шукати"
+"&Шукаць"
+"&Rasti"
+
+MSearchReplaceReplaceWith
+"Заменить &на"
+"R&eplace with"
+"Nahradit &s"
+"&Ersetzen mit"
+"&Erre cseréli:"
+"Zamień &na"
+"R&eemplazar con"
+"Nahradiť &čím"
+"Sostituisci &Con"
+"Замінити &на"
+"Змяніць &на"
+"Pa&keisti"
+
+MSearchReplaceCase
+"&Учитывать регистр"
+"&Case sensitive"
+"&Rozlišovat velikost písmen"
+"G&roß-/Kleinschrb."
+"&Nagy/kisbetű érz."
+"&Uwzględnij wielkość znaków"
+"Sensible min./ma&y."
+"&malé a VEĽKÉ"
+"&Minuscole/MAIUSCOLE"
+"&Враховувати регістр"
+"&Улічваць рэгістр"
+"&Didžiosios skiriasi"
+
+MSearchReplaceWholeWords
+"Только &целые слова"
+"&Whole words"
+"&Celá slova"
+"&Ganze Wörter"
+"Csak e&gész szavak"
+"&Tylko całe słowa"
+"&Palabras enteras"
+"&Celé slová"
+"&Parole Intere"
+"Лише &цілі слова"
+"Толькі по&ўныя словы"
+"Visi ž&odžiai"
+
+MSearchReplaceReverse
+"Обратн&ый поиск"
+"Re&verse search"
+"&Zpětné hledání"
+"Richtung um&kehren"
+"&Visszafelé keres"
+"Szukaj w &odwrotnym kierunku"
+"Búsqueda &inversa"
+"Opačné h&ľadanie"
+"Ricerca In&versa"
+"Зворотний пошу&к"
+"Зваротн&ы пошук"
+"At&virkščia paieška"
+
+MSearchReplaceRegexp
+"&Регулярные выражения"
+"Re&gular expressions"
+"Re&gulární výrazy"
+"Reguläre Ausdrücke"
+upd:"Re&gular expressions"
+"Wyrażenie &regularne"
+"Expresiones re&gulares"
+"Re&gulárne výrazy"
+"E&spressione Regolare"
+"&Регулярні вирази"
+"&Рэгулярныя выразы"
+upd:"Re&gular expressions"
+
+MSearchReplaceFuzzy
+"Нестроги&й поиск"
+"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+"W&yszuk. rozmyte"
+"Búsqueda di&fusa"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+upd:"Fu&zzy search"
+"Нястрог&і пошук"
+upd:"Fu&zzy search"
+
+MSearchReplacePreserveStyle
+"&Сохранять стиль"
+"&Preserve style"
+"&Zachovat styl"
+upd:"&Preserve Stil"
+upd:"&Megőrzése stílus"
+"&Zachowaj styl"
+"Preservar es&tilo"
+"&Zachovať štýl"
+"Mantieni Lo St&ile"
+"&Зберігати стиль"
+"Захоўваць &стыль"
+upd:"&Preserve style"
+
+MSearchReplaceSearch
+"Искать"
+"Search"
+"Hledat"
+"Suchen"
+"Kere&sés"
+"&Szukaj"
+"Buscar"
+"Hľadať"
+"&Ricerca"
+"Шукати"
+"Шукаць"
+"&Ieškoti"
+
+MSearchReplaceReplace
+"&Замена"
+"&Replace"
+"&Nahradit"
+"E&rsetzen"
+"&Csere"
+"Za&mień"
+"&Reemplazar"
+"&Nahradiť"
+"&Sostituisci"
+"&Замінити"
+"&Змена"
+"Pakeisti &į"
+
+MSearchReplaceAll
+"Вс&ё"
+"&All"
+"Všechn&y"
+"&Alles"
+upd:"&All"
+"&Wszystko"
+"&Todo"
+"Všetk&y"
+"&Tutti"
+"Вс&е"
+"Ус&ё"
+"&Atšaukti"
+
+MSearchReplaceCancel
+"Отменить"
+"Cancel"
+"Storno"
+"Abbruch"
+"&Mégsem"
+"&Anuluj"
+"Cancelar"
+"Storno"
+"&Annulla"
+"Скасувати"
+"Адмяніць"
+"&Atšaukti"
+
 MEditTitle
 l:
 "Редактор"
@@ -6809,232 +7063,6 @@ l:
 "Неможливо редагувати папку"
 "Немагчыма змяніць каталог"
 upd:"It is impossible to edit the folder"
-
-MEditSearchTitle
-l:
-"Поиск"
-"Search"
-"Hledat"
-"Suchen"
-"Keresés"
-"Szukaj"
-"Buscar"
-"Hľadanie"
-"Ricerca"
-"Пошук"
-"Пошук"
-"Paieška"
-
-MEditSearchFor
-"&Искать"
-"&Search for"
-"&Hledat"
-"&Suchen nach"
-"&Keresés:"
-"&Znajdź"
-"&Buscar por"
-"&Hľadať"
-"Ricerca &Di"
-"&Шукати"
-"&Шукаць"
-upd:"&Search for"
-
-MEditSearchPickWord
-"&Слово"
-"W&ord"
-"Slovo"
-upd:"Word"
-upd:"Word"
-"Słowo"
-"Palabra"
-"Slovo"
-"Parola"
-"&Слово"
-"&Слова"
-upd:"W&ord"
-
-MEditSearchPickSelection
-"&Выделение"
-"Se&lection"
-"Výběr"
-upd:"Selection"
-upd:"Selection"
-"Zaznaczenie"
-"Selección"
-"Výber"
-"Selezione"
-"В&иділення"
-"&Вылучэнне"
-upd:"Se&lection"
-
-MEditSearchCase
-"&Учитывать регистр"
-"&Case sensitive"
-"&Rozlišovat velikost písmen"
-"G&roß-/Kleinschrb."
-"&Nagy/kisbetű érz."
-"&Uwzględnij wielkość znaków"
-"Sensible min./ma&y."
-"&malé a VEĽKÉ"
-"&Minuscole/MAIUSCOLE"
-"&Враховувати регістр"
-"&Улічваць памер букв"
-"&Didžiosios skiriasi"
-
-MEditSearchWholeWords
-"Только &целые слова"
-"&Whole words"
-"&Celá slova"
-"&Ganze Wörter"
-"Csak e&gész szavak"
-"&Tylko całe wyrazy"
-"&Palabras enteras"
-"&Celé slová"
-"&Parole Intere"
-"Лише &цілі слова"
-"Толькі по&ўныя словы"
-"Visi ž&odžiai"
-
-MEditSearchReverse
-"Обратн&ый поиск"
-"Re&verse search"
-"&Zpětné hledání"
-"Richtung um&kehren"
-"&Visszafelé keres"
-"Szukaj w &odwrotnym kierunku"
-"Búsqueda &inversa"
-"Opačné h&ľadanie"
-"Ricerca In&versa"
-"Зворотний пошу&к"
-"Зваротн&ы пошук"
-"At&virkščia paieška"
-
-MEditSearchRegexp
-"&Регулярные выражения"
-"Re&gular expressions"
-"Re&gulární výrazy"
-"Reguläre Ausdrücke"
-upd:"Re&gular expressions"
-"Wyrażenie &regularne"
-"Expresiones re&gulares"
-"Re&gulárne výrazy"
-"E&spressione Regolare"
-"&Регулярні вирази"
-"&Рэгулярныя выразы"
-upd:"Re&gular expressions"
-
-MEditSearchFuzzy
-"Нестроги&й поиск"
-"Fu&zzy search"
-upd:"Fu&zzy search"
-upd:"Fu&zzy search"
-upd:"Fu&zzy search"
-"W&yszuk. rozmyte"
-"Búsqueda di&fusa"
-upd:"Fu&zzy search"
-upd:"Fu&zzy search"
-upd:"Fu&zzy search"
-"Нястрог&і пошук"
-upd:"Fu&zzy search"
-
-MEditSearchPreserveStyle
-"&Сохранять стиль"
-"&Preserve style"
-"&Zachovat styl"
-upd:"&Preserve Stil"
-upd:"&Megőrzése stílus"
-"&Zachowaj styl"
-"Preservar es&tilo"
-"&Zachovať štýl"
-"Mantieni Lo St&ile"
-"&Зберігати стиль"
-"Захоўваць &стыль"
-upd:"&Preserve style"
-
-MEditSearchSearch
-"Искать"
-"Search"
-"Hledat"
-"Suchen"
-"Kere&sés"
-"&Szukaj"
-"Buscar"
-"Hľadať"
-"&Ricerca"
-"Шукати"
-"Шукаць"
-"&Ieškoti"
-
-MEditSearchAll
-"Вс&ё"
-"&All"
-"Všechn&y"
-"&Alles"
-upd:"&All"
-"&Wszystko"
-"&Todo"
-"Všetk&y"
-"&Tutti"
-"Вс&е"
-"Ус&ё"
-"&Atšaukti"
-
-MEditSearchCancel
-"Отменить"
-"Cancel"
-"Storno"
-"Abbruch"
-"&Mégsem"
-"&Anuluj"
-"Cancelar"
-"Storno"
-"&Annulla"
-"Скасувати"
-"Адмяніць"
-"Keisti"
-
-MEditReplaceTitle
-l:
-"Замена"
-"Replace"
-"Nahradit"
-"Ersetzen"
-"Keresés és csere"
-"Zamień"
-"Reemplazar"
-"Nahradiť"
-"Sostituisci"
-"Заміна"
-"Змена"
-"Pakeisti"
-
-MEditReplaceWith
-"Заменить &на"
-"R&eplace with"
-"Nahradit &s"
-"&Ersetzen mit"
-"&Erre cseréli:"
-"Zamień &na"
-"R&eemplazar con"
-"Nahradiť &čím"
-"Sostituisci &Con"
-"Замінити &на"
-"Змяніць &на"
-"Pa&keisti"
-
-MEditReplaceReplace
-"&Замена"
-"&Replace"
-"&Nahradit"
-"E&rsetzen"
-"&Csere"
-"Za&mień"
-"&Reemplazar"
-"&Nahradiť"
-"&Sostituisci"
-"&Замінити"
-"&Змена"
-"Pakeisti &į"
 
 MEditSearchingFor
 l:
@@ -11529,6 +11557,34 @@ upd:"Zeichenta&belle verwenden:"
 "Ужыць кадыро&ўку:"
 upd:"Using code pa&ge:"
 
+MFindFileAllCodePages
+"Все стандартные кодовые страницы"
+"All standard code pages"
+"Všechny kódové stránky"
+upd:"Alle Zeichentabellen"
+upd:"Minden kódlappal"
+"Wszystkie zainstalowane"
+"Todas las páginas de códigos estándar"
+"Všetky tabuľky znakov"
+"Tutte Le Tabella Caratteri"
+"Усі стандартні кодові сторінки"
+"Усе стандарныя кадыроўкі"
+upd:"All standard code pages"
+
+MFindFileSelectedCodePages
+"Отмеченные кодовые страницы"
+"Selected code pages"
+"Vybrané kódové stránky"
+"Gewählte Codepages"
+upd:"Selected code pages"
+"Wybrana strona kodowa"
+"Páginas de códigos seleccionadas"
+"Zvolené kódové stránky"
+"Tabelle Caratteri Selezionate"
+"Позначені кодові сторінки"
+"Адзначаныя кадыроўкі"
+upd:"Selected code pages"
+
 MFindFileCase
 "&Учитывать регистр"
 "&Case sensitive"
@@ -11571,91 +11627,7 @@ upd:"Fu&zzy search"
 "Нястрог&і пошук"
 upd:"Fu&zzy search"
 
-MFindFileAllCodePages
-"Все стандартные кодовые страницы"
-"All standard code pages"
-"Všechny kódové stránky"
-upd:"Alle Zeichentabellen"
-upd:"Minden kódlappal"
-"Wszystkie zainstalowane"
-"Todas las páginas de códigos estándar"
-"Všetky tabuľky znakov"
-"Tutte Le Tabella Caratteri"
-"Усі стандартні кодові сторінки"
-"Усе стандарныя кадыроўкі"
-upd:"All standard code pages"
-
-MFindFileSelectedCodePages
-"Отмеченные кодовые страницы"
-"Selected code pages"
-"Vybrané kódové stránky"
-"Gewählte Codepages"
-upd:"Selected code pages"
-"Wybrana strona kodowa"
-"Páginas de códigos seleccionadas"
-"Zvolené kódové stránky"
-"Tabelle Caratteri Selezionate"
-"Позначені кодові сторінки"
-"Адзначаныя кадыроўкі"
-upd:"Selected code pages"
-
-MFindArchives
-"Искать в а&рхивах"
-"Search in arch&ives"
-"Hledat v a&rchívech"
-"In Arch&iven suchen"
-"Keresés t&ömörítettekben"
-"Szukaj w arc&hiwach"
-"Buscar en archivos &comprimidos"
-"Hľadať v a&rchívoch"
-"Cerca Nei File Co&mpressi"
-"Шукати в а&рхівах"
-"Шукаць у а&рхівах"
-"Ieškoti arch&yvuose"
-
-MFindFolders
-"Искать п&апки"
-"Search for f&olders"
-"Hledat a&dresáře"
-"Nach &Ordnern suchen"
-"Keresés mapp&ákra"
-"Szukaj f&olderów"
-"Buscar por &directorios"
-"Hľadať pr&iečinky"
-"Cerca Car&telle"
-"Шукати папки"
-"Шукаць к&аталогі"
-upd:"Search for f&olders"
-
-MFindSymLinks
-"Искать в символи&ческих ссылках"
-"Search in symbolic lin&ks"
-"Hledat v s&ymbolických lincích"
-"In symbolischen Lin&ks suchen"
-"Keresés sz&imbolikus linkekben"
-"Szukaj w &linkach"
-"Buscar en enlaces &simbólicos"
-"Hľadať v s&ymbol. prepoj."
-"Cerca Nei Lin&k Simbolici"
-"Шукати в символі&чних посиланнях"
-"Шукаць у сімвалі&чных спасылках"
-upd:"Search in symbolic lin&ks"
-
-MFindAlternateStreams
-"Искать в альтернативных потоках"
-"Search in a&lternate streams"
-"Hledat v alternativních streamech"
-"In alternativen Stream suchen"
-upd:"Search in alternate streams"
-"Szukaj w alt. st&rumieniach"
-"Buscar en cadenas alternativas"
-"Hľadanie v alternatívnych menách"
-"Cerca &Stream Alternativo (ADS)"
-"Шукати в альтернативних потоках"
-"Шукаць у струменях"
-upd:"Search in a&lternate streams"
-
-MSearchNotContaining
+MFindFileNotContaining
 "&Не содержащих"
 "&Not containing"
 "Neobsahuje"
@@ -11669,7 +11641,63 @@ upd:"Not containing"
 "&Не змяшчае"
 upd:"&Not containing"
 
-MSearchWhere
+MFindFileArchives
+"Искать в а&рхивах"
+"Search in arch&ives"
+"Hledat v a&rchívech"
+"In Arch&iven suchen"
+"Keresés t&ömörítettekben"
+"Szukaj w arc&hiwach"
+"Buscar en archivos &comprimidos"
+"Hľadať v a&rchívoch"
+"Cerca Nei File Co&mpressi"
+"Шукати в а&рхівах"
+"Шукаць у а&рхівах"
+"Ieškoti arch&yvuose"
+
+MFindFileFolders
+"Искать п&апки"
+"Search for f&olders"
+"Hledat a&dresáře"
+"Nach &Ordnern suchen"
+"Keresés mapp&ákra"
+"Szukaj f&olderów"
+"Buscar por &directorios"
+"Hľadať pr&iečinky"
+"Cerca Car&telle"
+"Шукати папки"
+"Шукаць к&аталогі"
+upd:"Search for f&olders"
+
+MFindFileSymLinks
+"Искать в символи&ческих ссылках"
+"Search in symbolic lin&ks"
+"Hledat v s&ymbolických lincích"
+"In symbolischen Lin&ks suchen"
+"Keresés sz&imbolikus linkekben"
+"Szukaj w &linkach"
+"Buscar en enlaces &simbólicos"
+"Hľadať v s&ymbol. prepoj."
+"Cerca Nei Lin&k Simbolici"
+"Шукати в символі&чних посиланнях"
+"Шукаць у сімвалі&чных спасылках"
+upd:"Search in symbolic lin&ks"
+
+MFindFileAlternateStreams
+"Искать в альтернативных потоках"
+"Search in a&lternate streams"
+"Hledat v alternativních streamech"
+"In alternativen Stream suchen"
+upd:"Search in alternate streams"
+"Szukaj w alt. st&rumieniach"
+"Buscar en cadenas alternativas"
+"Hľadanie v alternatívnych menách"
+"Cerca &Stream Alternativo (ADS)"
+"Шукати в альтернативних потоках"
+"Шукаць у струменях"
+upd:"Search in a&lternate streams"
+
+MFindFileSearchArea
 "Выберите &область поиска:"
 "Select search &area:"
 "Zvolte oblast hledání:"
@@ -11683,7 +11711,7 @@ upd:"Suchbereich:"
 "В&обласць пошуку"
 upd:"Select search &area:"
 
-MSearchAllDisks
+MFindFileSearchAllDisks
 "На всех несъёмных &дисках"
 "In &all non-removable drives"
 "Ve všech p&evných jednotkách"
@@ -11697,7 +11725,7 @@ MSearchAllDisks
 "На ўсіх нязменных &дысках"
 "Ieškoti &visuose fiksuotuose diskuose"
 
-MSearchAllButNetwork
+MFindFileSearchAllButNetwork
 "На всех &локальных дисках"
 "In all &local drives"
 "Ve všech &lokálních jednotkách"
@@ -11711,7 +11739,7 @@ MSearchAllButNetwork
 "На ўсіх &мясцовых дысках"
 upd:"In all &local drives"
 
-MSearchInPATH
+MFindFileSearchInPATH
 "В PATH-катало&гах"
 "In &PATH folders"
 "V adresářích z &PATH"
@@ -11725,7 +11753,7 @@ MSearchInPATH
 "В PATH-катало&гах"
 upd:"In &PATH folders"
 
-MSearchFromRootOfDrive
+MFindFileSearchFromRootOfDrive
 "С кор&ня диска"
 "From the &root of"
 "V &kořeni od"
@@ -11739,7 +11767,7 @@ MSearchFromRootOfDrive
 "З кора&ня дыска"
 upd:"From the &root of"
 
-MSearchFromRootFolder
+MFindFileSearchFromRootFolder
 "С кор&невой папки"
 "From the &root folder"
 "V kořeno&vém adresáři"
@@ -11753,7 +11781,7 @@ MSearchFromRootFolder
 "З кара&нёвага каталога"
 "Ieškoti nuo ša&kninio katalogo"
 
-MSearchFromCurrent
+MFindFileSearchFromCurrent
 "С &текущей папки"
 "From the curre&nt folder"
 "V tomto adresář&i"
@@ -11767,7 +11795,7 @@ MSearchFromCurrent
 "З бугучага ка&талога"
 "Ieškoti nuo &einamo katalogo"
 
-MSearchInCurrent
+MFindFileSearchInCurrent
 "Только в теку&щей папке"
 "The current folder onl&y"
 "P&ouze v tomto adresáři"
@@ -11781,7 +11809,7 @@ MSearchInCurrent
 "Толькі &ў бягучым каталоге"
 "Ieškoti tik eina&mame kataloge"
 
-MSearchInSelected
+MFindFileSearchInSelected
 "В &отмеченных папках"
 "&Selected folders"
 "Ve vy&braných adresářích"
@@ -11795,7 +11823,7 @@ MSearchInSelected
 "&Абраныя каталогі"
 "Ieškoti paž&ymėtuose kataloguose"
 
-MFindUseFilter
+MFindFileUseFilter
 "Исполь&зовать фильтр"
 "&Use filter"
 "Použít f&iltr"
@@ -11809,7 +11837,7 @@ MFindUseFilter
 "У&жыць фільтр"
 upd:"&Use filter"
 
-MFindUsingFilter
+MFindFileUsingFilter
 "используя фильтр"
 "using filter"
 "používám filtr"
@@ -11879,7 +11907,7 @@ MFindFileAdvanced
 "Да&даткова"
 upd:"Advance&d"
 
-MFindSearchingIn
+MFindFileSearchingIn
 "Поиск {0} в"
 "Searching {0} in"
 "Hledám {0} v"
@@ -11893,7 +11921,7 @@ MFindSearchingIn
 "Шукаць {0} у"
 "Ieškau {0} į"
 
-MFindNewSearch
+MFindFileNewSearch
 "&Новый поиск"
 "&New search"
 "&Nové hledání"
@@ -11907,7 +11935,7 @@ MFindNewSearch
 "&Новы пошук"
 "&Nauja paieška"
 
-MFindGoTo
+MFindFileGoTo
 "Пе&рейти"
 "&Go to"
 "&Jdi na"
@@ -11921,7 +11949,7 @@ MFindGoTo
 "Пе&райсці"
 "&Eiti"
 
-MFindView
+MFindFileView
 "&Смотреть"
 "&View"
 "Zo&braz"
@@ -11935,7 +11963,7 @@ MFindView
 "Гляд&зець"
 "&Žiūrėti"
 
-MFindPanel
+MFindFilePanel
 "Пане&ль"
 "&Panel"
 "&Panel"
@@ -11949,7 +11977,7 @@ MFindPanel
 "&Панэль"
 "&Langas"
 
-MFindStop
+MFindFileStop
 "С&топ"
 "&Stop"
 "&Stop"
@@ -11963,7 +11991,7 @@ MFindStop
 "Спыні&ць"
 upd:"&Stop"
 
-MFindDone
+MFindFileDone
 l:
 "Поиск закончен. Найдено файлов: {0}, папок: {1}"
 "Search done. Found files: {0}, folders: {1}"
@@ -11978,7 +12006,7 @@ l:
 "Пошук завершаны. Знойдзена файлаў:{0}, каталогаў: {1}"
 "Paieška baigta. Rasta files: {0}, folders: {1}"
 
-MFindCancel
+MFindFileCancel
 "Отм&ена"
 "&Cancel"
 "&Storno"
@@ -11992,7 +12020,7 @@ MFindCancel
 "Адм&яніць"
 "&Atšaukti"
 
-MFindFound
+MFindFileFound
 l:
 "Файлов: {0}, папок: {1}"
 "Files: {0}, folders: {1}"
@@ -21196,161 +21224,6 @@ upd:"Osz"
 "Кал"
 "Stl"
 
-MViewSearchTitle
-l:
-"Поиск"
-"Search"
-"Hledat"
-"Durchsuchen"
-"Keresés"
-"Szukaj"
-"Buscar"
-"Hľadanie"
-"Ricerca"
-"Пошук"
-"Пошук"
-"Paieška"
-
-MViewSearchFor
-"&Искать"
-"&Search for"
-"H&ledat"
-"&Suchen nach"
-"&Keresés:"
-"&Znajdź"
-"&Buscar por"
-"H&ľadať"
-"&Ricerca Di"
-"&Шукати"
-"&Шукаць"
-"&Rasti"
-
-MViewSearchForText
-"&Текст"
-"&Text"
-"&Text"
-"&Text"
-upd:"&Szöveg"
-"&Tekst"
-upd:"Cadena de &texto"
-"&Text"
-"&Testo"
-"&Текст"
-"&Тэкст"
-upd:"Ieškoti &teksto"
-
-MViewSearchForHex
-"16-ричный &код"
-"&Hex"
-"He&x"
-"&Hex (xx xx …)"
-upd:"&Hexákra"
-"Sz&esnastkowo"
-upd:"Cadena &hexadecimal"
-"He&x"
-"&Esadecimale"
-"16-ковий &код"
-"&Hex"
-upd:"Ieškoti &hex"
-
-MViewSearchCase
-"&Учитывать регистр"
-"&Case sensitive"
-"&Rozlišovat velikost písmen"
-"Gr&oß-/Kleinschreibung"
-"&Nagy/kisbetű érzékeny"
-"&Uwzględnij wielkość znaków"
-"Sensible min./ma&y."
-"&malé a VEĽKÉ"
-"&MAIUSCOLE/minuscole"
-"&Учитивать регистр"
-"&Улічваць рэгістр"
-"&Didžiosios skiriasi"
-
-MViewSearchWholeWords
-"Только &целые слова"
-"&Whole words"
-"Celá &slova"
-"Ganze &Wörter"
-"Csak e&gész szavak"
-"Tylko &całe wyrazy"
-"&Palabras enteras"
-"Celé &slová"
-"Parole Intere"
-"Только &целие слова"
-"Толькі по&ўныя словы"
-"Visi ž&odžiai"
-
-MViewSearchFuzzy
-"Нестроги&й поиск"
-"Fu&zzy search"
-upd:"Fu&zzy search"
-upd:"Fu&zzy search"
-upd:"Fu&zzy search"
-"W&yszuk. rozmyte"
-"Búsqueda di&fusa"
-upd:"Fu&zzy search"
-upd:"Fu&zzy search"
-upd:"Fu&zzy search"
-upd:"Fu&zzy search"
-upd:"Fu&zzy search"
-
-MViewSearchReverse
-"Обратн&ый поиск"
-"Re&verse search"
-"&Zpětné hledání"
-"Richtung um&kehren"
-"&Visszafelé keres"
-"Szukaj w &odwrotnym kierunku"
-"Búsqueda in&versa"
-"&Opačné hľadanie"
-"Ricerca In&versa"
-"Обратн&ий Пошук"
-"Адваротн&ы пошук"
-"At&virkščia paieška"
-
-MViewSearchRegexp
-"&Регулярные выражения"
-"Re&gular expressions"
-"Re&gulární výrazy"
-"&Reguläre Ausdrücke"
-upd:"Re&gular expressions"
-"Wyrażenie &regularne"
-"Expresiones re&gulares"
-"Re&gulárne výrazy"
-"Espressione Re&golare"
-"&Регулярние виражения"
-"&Рэгулярныя выразы"
-upd:"Re&gular expressions"
-
-MViewSearchSearch
-"Искать"
-"Search"
-"Hledat"
-"Suchen"
-"Keres"
-"&Szukaj"
-"Buscar"
-"Hľadať"
-"R&icerca"
-"Шукати"
-"Шукаць"
-"&Ieškoti"
-
-MViewSearchCancel
-"Отменить"
-"Cancel"
-"Storno"
-"Abbrechen"
-"Mégsem"
-"&Anuluj"
-"Cancelar"
-"Storno"
-"&Annulla"
-"Скасувати"
-"Адмяніць"
-"&Atšaukti"
-
 MViewSearchingFor
 l:
 "Поиск"
@@ -23030,35 +22903,6 @@ MDocumentsHelpTitle
 "Документи"
 "Дакументы"
 upd:"Documents help"
-
-MHelpSearchTitle
-l:
-"Поиск"
-"Search"
-"Hledání"
-"Suchen"
-"Keresés"
-"Szukaj"
-"Buscar"
-"Hľadanie"
-"Ricerca"
-"Пошук"
-"Пошук"
-upd:"Search"
-
-MHelpSearchingFor
-"&Искать"
-"&Search for"
-"&Hledat"
-"&Suchen nach"
-"&Keresés:"
-"&Znajdź"
-"&Buscar por"
-"&Hľadať"
-"Cerca"
-"&Шукати"
-"&Шукаць"
-upd:"&Search for"
 
 MHelpSearchCannotFind
 "Строка не найдена"
