@@ -6583,7 +6583,7 @@ MSearchReplaceSearchFor
 
 MSearchReplaceReplaceWith
 "Заменить &на"
-"R&eplace with"
+"&Replace with"
 "Nahradit &s"
 "&Ersetzen mit"
 "&Erre cseréli:"
@@ -6639,7 +6639,7 @@ MSearchReplaceReverse
 
 MSearchReplaceRegexp
 "&Регулярные выражения"
-"Re&gular expressions"
+"R&egular expressions"
 "Re&gulární výrazy"
 "Reguläre Ausdrücke"
 upd:"Re&gular expressions"
@@ -6694,8 +6694,8 @@ MSearchReplaceSearch
 "&Ieškoti"
 
 MSearchReplaceReplace
-"&Замена"
-"&Replace"
+"Замена"
+"Replace"
 "&Nahradit"
 "E&rsetzen"
 "&Csere"
@@ -11852,8 +11852,8 @@ MFindFileUsingFilter
 upd:"using filter"
 
 MFindFileFind
-"&Искать"
-"&Find"
+"Искать"
+"Find"
 "&Hledat"
 "&Suchen"
 "K&eres"
