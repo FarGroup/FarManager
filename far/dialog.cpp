@@ -861,10 +861,6 @@ void Dialog::InitDialogObjects(size_t ID)
 
 			if (Item.Type == DI_FIXEDIT)
 			{
-				//   DIF_HISTORY имеет более высокий приоритет, чем DIF_MASKEDIT
-				if (Item.Flags & DIF_HISTORY)
-					Item.Flags &= ~DIF_MASKEDIT;
-
 				// если DI_FIXEDIT, то курсор сразу ставится на замену...
 				//   ай-ай - было недокументировано :-)
 				DialogEdit->SetMaxLength(Item.X2 - Item.X1 + 1);
