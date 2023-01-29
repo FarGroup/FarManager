@@ -1063,6 +1063,10 @@ static void AnsiDialogItemToUnicodeSafe(const oldfar::FarDialogItem &diA, FarDia
 	if (diA.Flags)
 	{
 		FirstFlagsToSecond(diA.Flags, di.Flags, DialogItemFlagsMap);
+
+		// Ansi plugins can specify History or Mask, but not both
+		if (di.Flags & DIF_HISTORY)
+			di.Flags &= ~DIF_MASKEDIT;
 	}
 
 	if (diA.DefaultButton) di.Flags |= DIF_DEFAULTBUTTON;

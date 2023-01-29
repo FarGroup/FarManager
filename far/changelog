@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+rohitab 30.01.2023 01:17:44 +1100 - build 6098
+
+1. gh-617: Allow history to be used with masked edit controls.
+
+--------------------------------------------------------------------------------
 MZK 28.01.2023 18:41:14 -0800
 
 1. gh-618: Adjusted hotkey assignments on Search / Replace and Find File dialogs.
