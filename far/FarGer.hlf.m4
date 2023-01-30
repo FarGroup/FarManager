@@ -2926,25 +2926,22 @@ beginning in the text.
 
  Hinweise:
 
- 1. ^<wrap>Sie können zusätzlich zu #F7# den ~Suchdialog~@ViewerSearch@ einfach
-durch Eingabe des zu suchenden Textes starten.
-
- 2. ^<wrap>The viewer opens files with the permission to be deleted.
+ 1. ^<wrap>The viewer opens files with the permission to be deleted.
 If another process attempts to delete the file while it is open in the
 viewer, the file will be deleted after the viewer is closed. Any
 operation on a file while its deletion is pending will fail. This is
 a feature of the Windows operating system.
 
- 3. ^<wrap>The maximum number of columns displayed in the #text#
+ 2. ^<wrap>The maximum number of columns displayed in the #text#
 ~view mode~@ViewerMode@ can be configured in the
 ~Viewer settings~@ViewerSettings@ dialog. The range is between 100 to 100,000,
 the default is 10,000. Lines longer than the maximum will be split into
 several screen rows even if word wrap mode is turned off.
 
- 4. ^<wrap>Far starts ~searching~@ViewerSearch@ (#F7#) from the
+ 3. ^<wrap>Far starts ~searching~@ViewerSearch@ (#F7#) from the
 beginning of the currently visible area.
 
- 5. ^<wrap>To auto-scroll a file which is being appended by another
+ 4. ^<wrap>To auto-scroll a file which is being appended by another
 process (conf. Linux “tail”), go to the end of the file (press the #End# key).
 
 
@@ -3914,9 +3911,6 @@ Benutzen Sie die ~Spezialsymbole~@MetaSymbols@ um den Namen der anzuzeigenden Da
 @=
  #Persistent selection#
  Do not remove block selection after moving the cursor.
-
- #Search dialog auto-focus#
- Always returns focus to the search text field in the Viewer ~Search~@ViewerSearch@ dialog.
 
  #Tabulatorgröße#
  Tab zeigt die entsprechende Anzahl Leerzeichen an.

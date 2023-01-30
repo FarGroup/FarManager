@@ -129,15 +129,15 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	SimpleScreenObject(std::move(Owner)),
 	ViOpt(Global->Opt->ViOpt),
 	Reader(ViewFile, (Global->Opt->ViOpt.MaxLineSize*2*64 > 64*1024 ? Global->Opt->ViOpt.MaxLineSize*2*64 : 64*1024)),
-	strLastSearchStr(Global->GetSearchString()),
-	LastSearchDlgOptions
+	LastSearchDlgParams
 	{
+		.SearchStr = Global->GetSearchString(),
+		.Hex = Global->GetSearchHex(),
 		.CaseSensitive = Global->GlobalSearchCaseSensitive,
 		.WholeWords = Global->GlobalSearchWholeWords,
 		.Reverse = Global->GlobalSearchReverse,
 		.Regexp = Global->Opt->ViOpt.SearchRegexp,
 		.Fuzzy = Global->GlobalSearchFuzzy,
-		.Hex = Global->GetSearchHex()
 	},
 	LastSearchReverse(Global->GlobalSearchReverse),
 	m_DefCodepage(aCodePage),
@@ -265,14 +265,14 @@ void Viewer::SavePosition()
 
 void Viewer::KeepInitParameters() const
 {
-	Global->StoreSearchString(strLastSearchStr, LastSearchDlgOptions.Hex);
-	Global->GlobalSearchCaseSensitive = LastSearchDlgOptions.CaseSensitive;
-	Global->GlobalSearchWholeWords = LastSearchDlgOptions.WholeWords;
-	Global->GlobalSearchReverse = LastSearchDlgOptions.Reverse;
-	Global->GlobalSearchFuzzy = LastSearchDlgOptions.Fuzzy;
+	Global->StoreSearchString(LastSearchDlgParams.SearchStr, LastSearchDlgParams.Hex.value());
+	Global->GlobalSearchCaseSensitive = LastSearchDlgParams.CaseSensitive.value();
+	Global->GlobalSearchWholeWords = LastSearchDlgParams.WholeWords.value();
+	Global->GlobalSearchReverse = LastSearchDlgParams.Reverse.value();
+	Global->Opt->ViOpt.SearchRegexp = LastSearchDlgParams.Regexp.value();
+	Global->GlobalSearchFuzzy = LastSearchDlgParams.Fuzzy.value();
 	Global->Opt->ViOpt.ViewerIsWrap = m_Wrap;
 	Global->Opt->ViOpt.ViewerWrap = m_WordWrap;
-	Global->Opt->ViOpt.SearchRegexp = LastSearchDlgOptions.Regexp;
 }
 
 bool Viewer::OpenFile(string_view const Name, bool const Warn)
@@ -1627,19 +1627,19 @@ bool Viewer::process_key(const Manager::Key& Key)
 
 		case KEY_F7:
 		{
-			Search(0,nullptr);
+			Search(0);
 			return true;
 		}
 		case KEY_SHIFTF7:
 		case KEY_SPACE:
 		{
-			Search(1,nullptr);
+			Search(1);
 			return true;
 		}
 		case KEY_ALTF7:
 		case KEY_RALTF7:
 		{
-			Search(-1,nullptr);
+			Search(-1);
 			return true;
 		}
 		case KEY_F8:
@@ -1984,13 +1984,6 @@ bool Viewer::process_key(const Manager::Key& Key)
 			}
 
 			return true;
-		default:
-
-			if (LocalKey >= ' ' && IsCharKey(LocalKey))
-			{
-				Search(0,&Key);
-				return true;
-			}
 	}
 
 	return false;
@@ -2444,176 +2437,6 @@ void Viewer::ChangeViewKeyBar()
 	}
 }
 
-enum SEARCHDLG
-{
-	SD_DOUBLEBOX,
-	SD_RADIO_TEXT,
-	SD_RADIO_HEX,
-	SD_TEXT_SEARCH,
-	SD_EDIT_TEXT,
-	SD_EDIT_HEX,
-	SD_SEPARATOR1,
-	SD_CHECKBOX_CASE,
-	SD_CHECKBOX_WORDS,
-	SD_CHECKBOX_REVERSE,
-	SD_CHECKBOX_REGEXP,
-	SD_CHECKBOX_FUZZY,
-	SD_SEPARATOR2,
-	SD_BUTTON_OK,
-	SD_BUTTON_CANCEL,
-
-	SD_COUNT,
-	SD_MAX_CHARS = 128
-};
-
-enum
-{
-	DM_SDSETVISIBILITY = DM_USER + 1,
-};
-
-struct ViewerDialogData
-{
-	Viewer* viewer;
-	bool edit_autofocus;
-	bool hex_mode;
-	bool is_text_or_hex_hotkey_used;
-	bool recursive;
-};
-
-intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
-{
-	switch (Msg)
-	{
-		case DN_INITDIALOG:
-		{
-			Dlg->SendMessage(DM_SDSETVISIBILITY, Dlg->SendMessage(DM_GETCHECK, SD_RADIO_HEX, nullptr) == BSTATE_CHECKED, nullptr);
-			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,SD_EDIT_TEXT,ToPtr(1));
-			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,SD_EDIT_HEX,ToPtr(1));
-			auto& Data = edit_as<ViewerDialogData>(Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr));
-			Dlg->SendMessage(DM_SETFOCUS, Data.hex_mode? SD_EDIT_HEX : SD_EDIT_TEXT, nullptr);
-			return TRUE;
-		}
-		case DM_SDSETVISIBILITY:
-		{
-			Dlg->SendMessage(DM_SHOWITEM,SD_EDIT_TEXT,ToPtr(!Param1));
-			Dlg->SendMessage(DM_SHOWITEM,SD_EDIT_HEX,ToPtr(Param1));
-			Dlg->SendMessage(DM_ENABLE,SD_CHECKBOX_CASE,ToPtr(!Param1));
-			const auto re = Dlg->SendMessage(DM_GETCHECK, SD_CHECKBOX_REGEXP, nullptr) == BSTATE_CHECKED;
-			Dlg->SendMessage(DM_ENABLE,SD_CHECKBOX_WORDS,ToPtr(!Param1 && !re));
-			Dlg->SendMessage(DM_ENABLE,SD_CHECKBOX_REGEXP,ToPtr(!Param1));
-			Dlg->SendMessage(DM_ENABLE,SD_CHECKBOX_FUZZY,ToPtr(!Param1 && !re));
-			return TRUE;
-		}
-		case DN_KILLFOCUS:
-		{
-			if (SD_EDIT_TEXT == Param1 || SD_EDIT_HEX == Param1)
-			{
-				auto& Data = edit_as<ViewerDialogData>(Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr));
-				Data.hex_mode = (SD_EDIT_HEX == Param1);
-			}
-			break;
-		}
-		case DN_BTNCLICK:
-		{
-			bool need_focus = false;
-			auto& Data = edit_as<ViewerDialogData>(Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr));
-			const auto cradio = (Data.hex_mode? SD_RADIO_HEX : SD_RADIO_TEXT);
-
-			if ((Param1 == SD_RADIO_TEXT || Param1 == SD_RADIO_HEX) && Param2)
-			{
-				need_focus = true;
-				if ( Param1 != cradio)
-				{
-					SCOPED_ACTION(Dialog::suppress_redraw)(Dlg);
-
-					const auto new_hex = Param1 == SD_RADIO_HEX;
-					const auto sd_dst = new_hex? SD_EDIT_HEX : SD_EDIT_TEXT;
-					const auto sd_src = new_hex? SD_EDIT_TEXT : SD_EDIT_HEX;
-
-					EditorSetPosition esp{ sizeof(esp) };
-					esp.CurPos = -1;
-					Dlg->SendMessage(DM_GETEDITPOSITION, sd_src, &esp);
-					FarDialogItemData item{ sizeof(item) };
-					Dlg->SendMessage(DM_GETTEXT, sd_src, &item);
-					const string Src(view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, sd_src, nullptr)), item.PtrLength);
-					const auto strTo = ConvertHexString(Src, m_Codepage, !new_hex);
-					item.PtrLength = strTo.size();
-					item.PtrData = UNSAFE_CSTR(strTo);
-					Dlg->SendMessage(DM_SETTEXT, sd_dst, &item);
-					Dlg->SendMessage(DM_SDSETVISIBILITY, new_hex, nullptr);
-					if (esp.CurPos >= 0)
-					{
-						const auto p = esp.CurPos;
-						if (Dlg->SendMessage(DM_GETEDITPOSITION, sd_dst, &esp))
-						{
-							esp.CurPos = esp.CurTabPos = p;
-							esp.LeftPos = 0;
-							Dlg->SendMessage(DM_SETEDITPOSITION, sd_dst, &esp);
-						}
-					}
-
-					if (!strTo.empty())
-					{
-						const auto changed = Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, sd_src, ToPtr(-1));
-						Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, sd_dst, ToPtr(changed));
-					}
-
-					Data.hex_mode = new_hex;
-					if (!(Data.edit_autofocus || Data.is_text_or_hex_hotkey_used))
-						return TRUE;
-				}
-			}
-			else if (Param1 == SD_CHECKBOX_REGEXP)
-			{
-				Dlg->SendMessage(DM_SDSETVISIBILITY, Data.hex_mode, nullptr);
-			}
-
-			if ((Data.edit_autofocus || Data.is_text_or_hex_hotkey_used) && !Data.recursive)
-			{
-				if ( need_focus
-				  || Param1 == SD_CHECKBOX_CASE
-				  || Param1 == SD_CHECKBOX_WORDS
-				  || Param1 == SD_CHECKBOX_REVERSE
-				  || Param1 == SD_CHECKBOX_REGEXP
-				  || Param1 == SD_CHECKBOX_FUZZY
-				){
-					Data.recursive = true;
-					Dlg->SendMessage(DM_SETFOCUS, Data.hex_mode? SD_EDIT_HEX : SD_EDIT_TEXT, nullptr);
-					Data.recursive = false;
-				}
-			}
-
-			if (need_focus)
-				return TRUE;
-			else
-				break;
-		}
-		case DN_DRAWDIALOGDONE:
-		{
-			if (const auto FirstChar = view_as<const Manager::Key*>(Dlg->SendMessage(DM_SETDLGDATA, 0, nullptr)))
-				Global->WindowManager->CallbackWindow([Dlg, FirstChar]() { Dlg->ProcessKey(*FirstChar); });
-			break;
-		}
-		case DN_HOTKEY:
-		{
-			auto& Data = edit_as<ViewerDialogData>(Dlg->SendMessage(DM_GETITEMDATA, SD_EDIT_TEXT, nullptr));
-			Data.is_text_or_hex_hotkey_used = Param1 == SD_RADIO_TEXT || Param1 == SD_RADIO_HEX;
-			break;
-		}
-		default:
-			break;
-	}
-
-	return Dlg->DefProc(Msg,Param1,Param2);
-}
-
-static auto hex2ss(const string_view from, intptr_t * const pos = nullptr)
-{
-	if (pos)
-		*pos /= 2;
-	return HexStringToBlob(trim_right(from), 0);
-}
-
 struct Viewer::search_data
 {
 	long long CurPos{-1}; // IN: LastSelectPos in file, in bytes always. OUT: If Search_ NotFound/Eof/Bof/Cycle, current search position in file, in bytes always
@@ -2782,7 +2605,7 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 {
 	assert(sd->searcher);
 
-	const auto bsize = 8192, slen = sd->search_len, ww = (LastSearchDlgOptions.WholeWords ? 1 : 0);
+	const auto bsize = 8192, slen = sd->search_len, ww = (LastSearchDlgParams.WholeWords.value() ? 1 : 0);
 	wchar_t prev_char{}, *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
 	long long to;
 	const auto cpos = sd->CurPos;
@@ -2828,8 +2651,8 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 		{},
 		CurPos,
 		{
-			.CaseSensitive = LastSearchDlgOptions.CaseSensitive,
-			.WholeWords = LastSearchDlgOptions.WholeWords,
+			.CaseSensitive = LastSearchDlgParams.CaseSensitive.value(),
+			.WholeWords = LastSearchDlgParams.WholeWords.value(),
 		},
 		SearchLength,
 		sd->word_div))
@@ -2875,7 +2698,7 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 {
 	assert(sd->searcher);
 
-	const auto bsize = 8192, slen = sd->search_len, ww = (LastSearchDlgOptions.WholeWords ? 1 : 0);
+	const auto bsize = 8192, slen = sd->search_len, ww = (LastSearchDlgParams.WholeWords.value() ? 1 : 0);
 	const auto buff = Search_buffer.data();
 	const auto t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
 	auto cpos = sd->CurPos;
@@ -2923,8 +2746,8 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 		{},
 		CurPos,
 		{
-			.CaseSensitive = LastSearchDlgOptions.CaseSensitive,
-			.WholeWords = LastSearchDlgOptions.WholeWords,
+			.CaseSensitive = LastSearchDlgParams.CaseSensitive.value(),
+			.WholeWords = LastSearchDlgParams.WholeWords.value(),
 			.Reverse = true
 		},
 		SearchLength,
@@ -3166,140 +2989,57 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
  1 - Продолжить поиск со следующей позиции
 -1 - Продолжить поиск со следующей позиции в противоположном направлении
 */
-void Viewer::Search(int Next,const Manager::Key* FirstChar)
+void Viewer::Search(int Next)
 {
-	if (!ViewFile || (Next && strLastSearchStr.empty()))
+	if (!ViewFile || (Next && LastSearchDlgParams.SearchStr.empty()))
 		return;
-
-	string strSearchStr;
-	if (!strLastSearchStr.empty())
-		strSearchStr = strLastSearchStr;
 
 	if (!Next)
 	{
-		constexpr auto DlgWidth{ 76 };
-		constexpr auto HorizontalRadioGap{ 2 };
-		const auto& searchFor{ msg(lng::MSearchReplaceSearchFor) };
-		const auto& searchForText{ msg(lng::MSearchReplaceText) };
-		const auto& searchForHex{ msg(lng::MSearchReplaceHex) };
-		const auto searchForW{ static_cast<int>(HiStrlen(searchFor)) };
-		const auto searchForTextW{ static_cast<int>(HiStrlen(searchForText) + 4) };
-		const auto searchForHexW{ static_cast<int>(HiStrlen(searchForHex) + 4) };
-
-		const auto searchForX1{ 4 + 1 };                                        const auto searchForX2{ searchForX1 + searchForW };
-
-		const auto searchForTextX1_{ searchForX2 + HorizontalRadioGap };        const auto searchForTextX2_{ searchForTextX1_ + searchForTextW };
-		const auto searchForHexX1_{ searchForTextX2_ + HorizontalRadioGap };    const auto searchForHexX2_{ searchForHexX1_ + searchForHexW };
-		const auto searchForHexOverage{ std::max(searchForHexX2_ - (DlgWidth - 4 - 1), 0) };
-
-		const auto searchForTextX1{ searchForTextX1_ - searchForHexOverage };   const auto searchForTextX2{ searchForTextX2_ - searchForHexOverage };
-		const auto searchForHexX1{ searchForHexX1_ - searchForHexOverage };     const auto searchForHexX2{ searchForHexX2_ - searchForHexOverage };
-
-		auto SearchDlg = MakeDialogItems<SD_COUNT>(
+		if (!GetSearchReplaceString(
+			LastSearchDlgParams,
+			L"SearchText"sv,
+			{},
+			m_Codepage,
+			L"ViewerSearch"sv,
+			&ViewerSearchId))
 		{
-			{ DI_DOUBLEBOX,   {{3,               1}, {DlgWidth-4,      10}}, DIF_NONE, msg(lng::MSearchReplaceSearchTitle), },
-			{ DI_RADIOBUTTON, {{searchForTextX1, 2}, {searchForTextX2, 2 }}, DIF_GROUP, searchForText, },
-			{ DI_RADIOBUTTON, {{searchForHexX1,  2}, {searchForHexX2,  2 }}, DIF_NONE, searchForHex, },
-			{ DI_TEXT,        {{searchForX1,     2}, {0,               2 }}, DIF_NONE, searchFor, },
-			{ DI_EDIT,        {{5,               3}, {DlgWidth-4-2,    3 }}, DIF_HISTORY | DIF_USELASTHISTORY, },
-			{ DI_FIXEDIT,     {{5,               3}, {DlgWidth-4-2,    3 }}, DIF_MASKEDIT, },
-			{ DI_TEXT,        {{-1,              4}, {0,               4 }}, DIF_SEPARATOR, },
-			{ DI_CHECKBOX,    {{5,               5}, {0,               5 }}, DIF_NONE, msg(lng::MSearchReplaceCase), },
-			{ DI_CHECKBOX,    {{5,               6}, {0,               6 }}, DIF_NONE, msg(lng::MSearchReplaceWholeWords), },
-			{ DI_CHECKBOX,    {{5,               7}, {0,               7 }}, DIF_NONE, msg(lng::MSearchReplaceReverse), },
-			{ DI_CHECKBOX,    {{40,              5}, {0,               5 }}, DIF_NONE, msg(lng::MSearchReplaceRegexp), },
-			{ DI_CHECKBOX,    {{40,              6}, {0,               6 }}, DIF_NONE, msg(lng::MSearchReplaceFuzzy), },
-			{ DI_TEXT,        {{-1,              8}, {0,               8 }}, DIF_SEPARATOR, },
-			{ DI_BUTTON,      {{0,               9}, {0,               9 }}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(lng::MSearchReplaceSearch), },
-			{ DI_BUTTON,      {{0,               9}, {0,               9 }}, DIF_CENTERGROUP, msg(lng::MSearchReplaceCancel), },
-		});
-
-		string mask(3 * SD_MAX_CHARS, L'H');
-		for (int i = 0; i < SD_MAX_CHARS; ++i)
-			mask[3 * i + 2] = L' '; // "HH HH ..."
-		SearchDlg[SD_RADIO_TEXT].Selected =!LastSearchDlgOptions.Hex;
-		SearchDlg[SD_RADIO_HEX].Selected = LastSearchDlgOptions.Hex;
-		SearchDlg[SD_EDIT_HEX].strMask = std::move(mask);
-		SearchDlg[SD_EDIT_TEXT].strHistory = L"SearchText"sv;
-		SearchDlg[SD_CHECKBOX_CASE].Selected = LastSearchDlgOptions.CaseSensitive;
-		SearchDlg[SD_CHECKBOX_WORDS].Selected = LastSearchDlgOptions.WholeWords;
-		SearchDlg[SD_CHECKBOX_REVERSE].Selected = LastSearchDlgOptions.Reverse;
-		SearchDlg[SD_CHECKBOX_REGEXP].Selected= LastSearchDlgOptions.Regexp;
-		SearchDlg[SD_CHECKBOX_FUZZY].Selected = LastSearchDlgOptions.Fuzzy;
-		SearchDlg[SearchDlg[SD_RADIO_HEX].Selected? SD_EDIT_HEX : SD_EDIT_TEXT].strData = strSearchStr;
-
-		ViewerDialogData my
-		{
-			.viewer = this,
-			.edit_autofocus = (ViOpt.SearchEditFocus != 0),
-			.hex_mode = LastSearchDlgOptions.Hex,
-			.is_text_or_hex_hotkey_used = false,
-			.recursive = false,
-		};
-		SearchDlg[SD_EDIT_TEXT].UserData = reinterpret_cast<intptr_t>(&my);
-
-		const auto Dlg = Dialog::create(SearchDlg, &Viewer::ViewerSearchDlgProc, this, const_cast<Manager::Key*>(FirstChar));
-		Dlg->SetId(ViewerSearchId);
-		Dlg->SetHelp(L"ViewerSearch"sv);
-		Dlg->SetPosition({ -1, -1, 76, 12 });
-
-		Dlg->Process();
-
-		if (Dlg->GetExitCode()!=SD_BUTTON_OK)
 			return;
-
-		LastSearchDlgOptions.Hex = SearchDlg[SD_RADIO_HEX].Selected == BSTATE_CHECKED;
-		LastSearchDlgOptions.CaseSensitive = SearchDlg[SD_CHECKBOX_CASE].Selected == BSTATE_CHECKED;
-		LastSearchDlgOptions.WholeWords = SearchDlg[SD_CHECKBOX_WORDS].Selected == BSTATE_CHECKED;
-		LastSearchDlgOptions.Reverse = SearchDlg[SD_CHECKBOX_REVERSE].Selected == BSTATE_CHECKED;
-		LastSearchDlgOptions.Regexp = SearchDlg[SD_CHECKBOX_REGEXP].Selected == BSTATE_CHECKED;
-		LastSearchDlgOptions.Fuzzy = SearchDlg[SD_CHECKBOX_FUZZY].Selected == BSTATE_CHECKED;
-
-		if (LastSearchDlgOptions.Hex)
-		{
-			strSearchStr = ExtractHexString(SearchDlg[SD_EDIT_HEX].strData);
-		}
-		else
-		{
-			strSearchStr = SearchDlg[SD_EDIT_TEXT].strData;
 		}
 	}
 
-	auto SearchReverse{ Next == -1 ? !LastSearchDlgOptions.Reverse : LastSearchDlgOptions.Reverse };
-
-	auto strMsgStr = strLastSearchStr = strSearchStr;
+	auto SearchReverse{ Next == -1 ? !LastSearchDlgParams.Reverse.value() : LastSearchDlgParams.Reverse.value() };
+	auto strMsgStr = LastSearchDlgParams.SearchStr;
 
 	searchers Searchers;
 	search_data sd;
 
-	bytes search_bytes;
 	decltype(&Viewer::search_hex_forward) searcher;
 
-	if (LastSearchDlgOptions.Hex)
+	if (LastSearchDlgParams.Hex.value())
 	{
 		sd.ch_size = 1;
-		search_bytes = hex2ss(strSearchStr);
-		sd.search_bytes = search_bytes;
-		sd.search_len = static_cast<int>(search_bytes.size());
+		sd.search_bytes = LastSearchDlgParams.SearchBytes;
+		sd.search_len = static_cast<int>(LastSearchDlgParams.SearchBytes.size());
 		searcher = (SearchReverse ? &Viewer::search_hex_backward : &Viewer::search_hex_forward);
 	}
 	else
 	{
 		sd.ch_size = getCharSize();
-		sd.search_text = strSearchStr;
-		sd.search_len = static_cast<int>(strSearchStr.size());
+		sd.search_text = LastSearchDlgParams.SearchStr;
+		sd.search_len = static_cast<int>(LastSearchDlgParams.SearchStr.size());
 
-		if (LastSearchDlgOptions.Regexp)
+		if (LastSearchDlgParams.Regexp.value())
 		{
 			searcher = (SearchReverse ? &Viewer::search_regex_backward : &Viewer::search_regex_forward);
 
-			const auto strSlash = InsertRegexpQuote(strSearchStr);
+			const auto strSlash = InsertRegexpQuote(LastSearchDlgParams.SearchStr);
 
 			strMsgStr = strSlash;
 
 			try
 			{
-				sd.Rex.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (LastSearchDlgOptions.CaseSensitive? 0 : OP_IGNORECASE));
+				sd.Rex.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (LastSearchDlgParams.CaseSensitive.value() ? 0 : OP_IGNORECASE));
 			}
 			catch (regex_exception const& e)
 			{
@@ -3309,7 +3049,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 		}
 		else
 		{
-			sd.searcher = &init_searcher(Searchers, LastSearchDlgOptions.CaseSensitive, LastSearchDlgOptions.Fuzzy, strLastSearchStr);
+			sd.searcher = &init_searcher(Searchers, LastSearchDlgParams.CaseSensitive.value(), LastSearchDlgParams.Fuzzy.value(), LastSearchDlgParams.SearchStr);
 			sd.word_div = get_word_div();
 			searcher = (SearchReverse ? &Viewer::search_text_backward : &Viewer::search_text_forward);
 			inplace::quote_unconditional(strMsgStr);
@@ -3361,7 +3101,9 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 
 	if (!sd.search_len || !FileSize)
 		return;
-	const auto can_be_found = ((LastSearchDlgOptions.Regexp || LastSearchDlgOptions.Fuzzy) && !LastSearchDlgOptions.Hex) || static_cast<long long>(sd.search_len) <= FileSize;
+	const auto can_be_found =
+		((LastSearchDlgParams.Regexp.value() || LastSearchDlgParams.Fuzzy.value()) && !LastSearchDlgParams.Hex.value())
+		|| static_cast<long long>(sd.search_len) <= FileSize;
 
 	sd.CurPos = LastSelectPos;
 	{
@@ -3385,7 +3127,7 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 				Message(MSG_WARNING,
 					msg(lng::MSearchReplaceSearchTitle),
 					{
-						msg(LastSearchDlgOptions.Hex? lng::MViewSearchCannotFindHex : lng::MViewSearchCannotFind),
+						msg(LastSearchDlgParams.Hex.value() ? lng::MViewSearchCannotFindHex : lng::MViewSearchCannotFind),
 						strMsgStr
 					},
 					{ lng::MOk });
@@ -3445,7 +3187,10 @@ void Viewer::Search(int Next,const Manager::Key* FirstChar)
 				}
 
 				if (!Progress)
-					Progress.emplace(msg(lng::MSearchReplaceSearchTitle), concat(msg(LastSearchDlgOptions.Hex? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', strMsgStr), 0);
+				{
+					Progress.emplace(
+						msg(lng::MSearchReplaceSearchTitle), concat(msg(LastSearchDlgParams.Hex.value() ? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', strMsgStr), 0);
+				}
 
 				Progress->update(percent);
 			}

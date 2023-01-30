@@ -2849,24 +2849,22 @@ początkowym.
 
  Uwagi:
 
- 1. ^<wrap>Rozpoczęcie pisania otwiera okno ~wyszukiwania~@ViewerSearch@.
-
- 2. ^<wrap>Przeglądarka otwiera pliki z uprawnieniem do usunięcia.
+ 1. ^<wrap>Przeglądarka otwiera pliki z uprawnieniem do usunięcia.
 Jeżeli inny proces próbuje usunąć plik otwarty do poglądu, zostanie
 on usunięty po zamknięciu podglądu. Każda operacja na pliku oczekującym
 na usunięcie zakończy się niepowodzeniem. Jest to cecha systemu operacyjnego
 Windows.
 
- 3. ^<wrap>Maksymalna liczba kolumn wyświetlanych w ~podglądzie~@ViewerMode@ #tekstowym#
+ 2. ^<wrap>Maksymalna liczba kolumn wyświetlanych w ~podglądzie~@ViewerMode@ #tekstowym#
 można skonfigurować w oknie ~ustawieniach podglądu~@ViewerSettings@. Zakres
 zawiera się między 100 a 100.000, domyślnie ustawione jest 10.000. Linie
 dłuższe niż ustawiony zakres zostaną podzielone kilka wierszy, nawet jeżeli
 opcja zawijania wierszy jest wyłączona.
 
- 4. ^<wrap>Far rozpoczyna ~wyszukiwanie~@ViewerSearch@ (#F7#) od początku
+ 3. ^<wrap>Far rozpoczyna ~wyszukiwanie~@ViewerSearch@ (#F7#) od początku
 aktualnie widocznego obszaru.
 
- 5. ^<wrap>Aby automatycznie przewijać plik, który jest dołączany przez inny
+ 4. ^<wrap>Aby automatycznie przewijać plik, który jest dołączany przez inny
 proces (podobnie jak polecenie Linux "tail"), należy przejść na koniec pliku
 (naciśnięcie klawisza #End#).
 
@@ -3836,9 +3834,6 @@ Można użyć ~symboli specjalnych~@MetaSymbols@ do wpisania nazwy pliku.
 @=
  #Trwałe zaznaczenie#
  Nie usuwaj zaznaczonego bloku po przesunięciu kursora.
-
- #Auto-focus okna szukania#
- Zawsze przywraca fokus do pola tekstowego wyszukiwania w oknie dialogowym ~Szukaj~@ViewerSearch@.
 
  #Rozmiar tabulatora#
  Liczba znaków spacji na pojedynczy znak tabulacji.

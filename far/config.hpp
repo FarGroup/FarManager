@@ -604,7 +604,6 @@ public:
 		BoolOption SaveShortPos;
 		BoolOption SaveViewMode;
 		BoolOption SaveWrapMode;
-		BoolOption SearchEditFocus; // auto-focus on edit text/hex window
 		BoolOption SearchRegexp;
 		Bool3Option SearchWrapStop; // [NonStop] / {Start-End} / [Full Cycle]
 		BoolOption ShowArrows;

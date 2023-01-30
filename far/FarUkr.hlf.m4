@@ -2915,26 +2915,23 @@ beginning in the text.
 
  Примітки:
 
- 1. ^<wrap>Для виклику діалогу ~пошуку~@ViewerSearch@ ви також можете просто почати
-вводити призначений для пошуку текст.
-
- 2. ^<wrap>Файл відкривається у програмі перегляду із дозволом на
+ 1. ^<wrap>Файл відкривається у програмі перегляду із дозволом на
 видалення його стороннім процесом. Якщо відбудеться таке
 видалення, то реально файл буде видалений із каталогу тільки
 після закриття програми перегляду, при цьому він не буде
 доступний для обробки із любого процесу - це властивість
 операційної системи Windows.
 
- 3. ^<wrap>The maximum number of columns displayed in the #text#
+ 2. ^<wrap>The maximum number of columns displayed in the #text#
 ~view mode~@ViewerMode@ can be configured in the
 ~Viewer settings~@ViewerSettings@ dialog. The range is between 100 to 100,000,
 the default is 10,000. Рядки довжиною більше цього числа будуть займати
  на екрані не один рядок, а кілька, навіть якщо вимкнений режим переносу рядків.
 
- 4. ^<wrap>Far ~шукає~@ViewerSearch@ перше входження підрядка (#F7#) з початку видимої
+ 3. ^<wrap>Far ~шукає~@ViewerSearch@ перше входження підрядка (#F7#) з початку видимої
  ділянки екрана програми перегляду.
 
- 5. ^<wrap>To auto-scroll a file which is being appended by another
+ 4. ^<wrap>To auto-scroll a file which is being appended by another
 process (conf. Linux “tail”), go to the end of the file (press the #End# key).
 
 
@@ -3898,9 +3895,6 @@ $ #Конфігурація програми перегляду#
 @=
  #Persistent selection#
  Do not remove block selection after moving the cursor.
-
- #Search dialog auto-focus#
- Always returns focus to the search text field in the Viewer ~Search~@ViewerSearch@ dialog.
 
  #Розмір табуляції#
  Кількість пробілів при показі символа табуляції.
