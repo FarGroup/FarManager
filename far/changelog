@@ -1,4 +1,14 @@
 --------------------------------------------------------------------------------
+MZK 30.01.2023 21:02:33 -0800 - build 6099
+
+1. Viewer now uses the standard Search dialog.
+
+2. Removed the following features:
+   - Opening Viewer's Search dialog on typing the first character of the search pattern.
+     See gh-614 for the discussion.
+   - Search dialog auto-focus.
+
+--------------------------------------------------------------------------------
 rohitab 30.01.2023 01:17:44 +1100 - build 6098
 
 1. gh-617: Allow history to be used with masked edit controls.

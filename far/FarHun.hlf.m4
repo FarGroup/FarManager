@@ -2934,24 +2934,21 @@ beginning in the text.
 
  Megjegyzések:
 
- 1. ^<wrap>A ~keresőablak~@ViewerSearch@ meghívásához a nézőkében az is elég, ha elkezdjük
-begépelni a keresett szöveget.
-
- 2. ^<wrap>Az, hogy a nézőkében megnyitunk egy fájlt, nem zárja ki,
+ 1. ^<wrap>Az, hogy a nézőkében megnyitunk egy fájlt, nem zárja ki,
 hogy közben egy másik folyamat ne törölhetné azt. Annak ellenére, hogy a fájl
 valójában csak a nézőke bezárásakor törlődik, a törölt fájlra irányuló további
 műveletek hibával fognak leállni - ez Windows sajátosság.
 
- 3. ^<wrap>The maximum number of columns displayed in the #text#
+ 2. ^<wrap>The maximum number of columns displayed in the #text#
 ~view mode~@ViewerMode@ can be configured in the
 ~Viewer settings~@ViewerSettings@ dialog. The range is between 100 to 100,000,
 the default is 10,000. Ha valamelyik sor túllépi ezt, a Far akkor is
 több sorban jeleníti meg, ha a sortörés ki van kapcsolva.
 
- 4. ^<wrap>A Far nézőke ~keresője~@ViewerSearch@ (#F7#) a fájl képernyőn
+ 3. ^<wrap>A Far nézőke ~keresője~@ViewerSearch@ (#F7#) a fájl képernyőn
 megjelenő részének kezdetétől az első előfordulásig keresi a sztringet.
 
- 5. ^<wrap>Ha automatikusan szeretnénk gördíteni egy folyamatosan változó
+ 4. ^<wrap>Ha automatikusan szeretnénk gördíteni egy folyamatosan változó
 tartalmú fájlt, vigyük a kurzort a fájl végére (az End billentyűvel).
 
 
@@ -3931,9 +3928,6 @@ A parancssorban a megnézendő fájlnevek megadásához alkalmazhatunk ~különl
 @=
  #Maradó blokkok#
  Nem veszi le a kijelölést a blokkokról, ha megmozdítjuk a kurzort.
-
- #Search dialog auto-focus#
- Always returns focus to the search text field in the Viewer ~Search~@ViewerSearch@ dialog.
 
  #Tabulátor mérete#
  A tabulátor szóközökben mért hossza.

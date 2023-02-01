@@ -1004,7 +1004,7 @@ local function test_Far_GetConfig()
     "Viewer.SaveViewerPos", "boolean",
     "Viewer.SaveViewerShortPos", "boolean",
     "Viewer.SaveViewerWrapMode", "boolean",
-    "Viewer.SearchEditFocus", "boolean",
+    -- "Viewer.SearchEditFocus", "boolean", // Removed in 6099
     "Viewer.SearchRegexp", "boolean",
     "Viewer.SearchWrapStop", "3-state",
     "Viewer.ShowArrows", "boolean",
