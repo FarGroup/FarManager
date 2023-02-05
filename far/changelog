@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 05.02.2023 13:01:34 +0000 - build 6100
+
+1. gh-483: Do not update panel curdir too early. Experimental.
+
+2. Refactoring.
+
+3. More logging.
+
+--------------------------------------------------------------------------------
 MZK 30.01.2023 21:02:33 -0800 - build 6099
 
 1. Viewer now uses the standard Search dialog.
