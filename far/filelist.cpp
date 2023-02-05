@@ -2840,9 +2840,6 @@ bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdat
 
 	if (!NewDir.empty())
 	{
-		if (m_PanelMode != panel_mode::PLUGIN_PANEL)
-			Panel::SetCurDir(NewDir, ClosePanel, IsUpdated, Silent);
-
 		return ChangeDir(NewDir, NewDir == L".."sv, true, IsUpdated, &UsedData, OFP_NORMAL, Silent);
 	}
 
@@ -2868,7 +2865,7 @@ bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePa
 		}
 		else
 		{
-			Global->CtrlObject->FolderHistory->AddToHistory(GetCurDir());
+			Global->CtrlObject->FolderHistory->AddToHistory(m_CurDir);
 			if (!IsPopPlugin)
 				InitFSWatcher(false);
 		}
