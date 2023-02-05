@@ -322,7 +322,8 @@ void OpenFolderInShell(string_view const Folder)
 	Execute(Info);
 }
 
-static void wait_for_process_or_detach(os::handle const& Process, int const ConsoleDetachKey, point const& ConsoleSize, rectangle const& ConsoleWindowRect)
+[[nodiscard]]
+static os::handle wait_for_process_or_detach(os::handle Process, int const ConsoleDetachKey, point const& ConsoleSize, rectangle const& ConsoleWindowRect)
 {
 	const auto ConfigVKey = TranslateKeyToVK(ConsoleDetachKey);
 
@@ -417,10 +418,35 @@ static void wait_for_process_or_detach(os::handle const& Process, int const Cons
 
 		console.SetAllAliases(std::move(Aliases));
 
-		return;
+		return {};
 	}
+
+	return Process;
 }
 
+static void log_process_exit_code(os::handle const& Process)
+{
+	DWORD ExitCode;
+	if (!GetExitCodeProcess(Process.native_handle(), &ExitCode))
+	{
+		LOGWARNING(L"GetExitCodeProcess(): {}"sv, os::last_error());
+		return;
+	}
+
+	LOG(
+		ExitCode == EXIT_SUCCESS?
+			logging::level::debug :
+			logging::level::warning,
+		L"Exit code: {}"sv,
+		ExitCode
+	);
+
+	if (ExitCode != EXIT_SUCCESS && ExitCode != EXIT_FAILURE)
+	{
+		LOGWARNING(L"{}"sv, os::format_error(ExitCode));
+		LOGWARNING(L"{}"sv, os::format_ntstatus(ExitCode));
+	}
+}
 
 static void after_process_creation(os::handle Process, execute_info::wait_mode const WaitMode, HANDLE Thread, point const& ConsoleSize, rectangle const& ConsoleWindowRect, function_ref<void(bool)> const ConsoleActivator)
 {
@@ -443,9 +469,16 @@ static void after_process_creation(os::handle Process, execute_info::wait_mode c
 				return;
 
 			if (const auto ConsoleDetachKey = KeyNameToKey(Global->Opt->ConsoleDetachKey))
-				wait_for_process_or_detach(Process, ConsoleDetachKey, ConsoleSize, ConsoleWindowRect);
+			{
+				Process = wait_for_process_or_detach(std::move(Process), ConsoleDetachKey, ConsoleSize, ConsoleWindowRect);
+				if (Process)
+					log_process_exit_code(Process);
+			}
 			else
+			{
 				Process.wait();
+				log_process_exit_code(Process);
+			}
 		}
 		return;
 
@@ -454,6 +487,7 @@ static void after_process_creation(os::handle Process, execute_info::wait_mode c
 		if (Thread)
 			ResumeThread(Thread);
 		Process.wait();
+		log_process_exit_code(Process);
 		return;
 	}
 }
@@ -502,6 +536,8 @@ static bool execute_createprocess(string const& Command, string const& Parameter
 
 	auto FullCommand = full_command(quote(Command), Parameters);
 	STARTUPINFO si{ sizeof(si) };
+
+	LOGDEBUG(L"CreateProcess({})"sv, FullCommand);
 
 	if (!CreateProcess(
 		// We can't pass ApplicationName - if it's a bat file with a funny name (e.g. containing '&')
@@ -553,6 +589,8 @@ static bool execute_shell(string const& Command, string const& Parameters, strin
 			Info.fMask |= SEE_MASK_CLASSNAME;
 		}
 	}
+
+	LOGDEBUG(L"ShellExecuteEx({})"sv, Command);
 
 	if (!ShellExecuteEx(&Info))
 	{
