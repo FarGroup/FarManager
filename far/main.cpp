@@ -1041,11 +1041,10 @@ static int wmain_seh()
 
 int main()
 {
-	os::debug::set_thread_name(L"Main Thread");
-
 	return seh_try_with_ui(
 	[]
 	{
+		os::debug::set_thread_name(L"Main Thread");
 		return wmain_seh();
 	},
 	[](DWORD const ExceptionCode) -> int

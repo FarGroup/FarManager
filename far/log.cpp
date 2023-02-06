@@ -73,15 +73,29 @@ namespace
 {
 	const auto log_argument = L"/service:log_viewer"sv;
 
-	string get_parameter(string_view const Name)
+	auto get(string_view const Name)
 	{
-		return os::env::get(concat(L"far.log."sv, Name));
+		return os::env::get(Name);
 	}
 
-	template<typename sink_type>
-	string get_sink_parameter(string_view const Name)
+	auto parameter(string_view const Name)
 	{
-		return get_parameter(concat(L"sink."sv, sink_type::name, L'.', Name));
+		return concat(L"far.log."sv, Name);
+	}
+
+	auto get_parameter(string_view const Name)
+	{
+		return get(parameter(Name));
+	}
+
+	auto sink_parameter(string_view const SinkName, string_view const Name)
+	{
+		return parameter(concat(L"sink."sv, SinkName, L'.', Name));
+	}
+
+	auto get_sink_parameter(string_view const SinkName, string_view const Name)
+	{
+		return get(sink_parameter(SinkName, Name));
 	}
 
 	auto parse_level(string_view const Str, logging::level const Default)
@@ -110,7 +124,7 @@ namespace
 		return ItemIterator == LevelMap.cend()? Default : ItemIterator->second;
 	}
 
-	string_view level_to_string(logging::level const Level)
+	auto level_to_string(logging::level const Level)
 	{
 		using level = logging::level;
 
@@ -147,12 +161,12 @@ namespace
 		return F_DARKGRAY;
 	}
 
-	string get_location(std::string_view const Function, std::string_view const File, int const Line)
+	auto get_location(std::string_view const Function, std::string_view const File, int const Line)
 	{
 		return format(FSTR(L"{}, {}({})"sv), encoding::utf8::get_chars(Function), encoding::utf8::get_chars(File), Line);
 	}
 
-	string get_thread_id()
+	auto get_thread_id()
 	{
 		return str(GetCurrentThreadId());
 	}
@@ -430,7 +444,7 @@ namespace
 		{
 			return path::join
 			(
-				get_sink_parameter<sink_file>(L"path"sv),
+				get_sink_parameter(name, L"path"sv),
 				unique_name() + L".txt"sv
 			);
 		}
@@ -610,6 +624,11 @@ namespace
 			async,
 		};
 
+		static auto parse(string_view const Mode)
+		{
+			return Mode == L"sync"sv? mode::sync : mode::async;
+		}
+
 		virtual ~sink_mode() = default;
 		virtual mode get_mode() const = 0;
 	};
@@ -663,6 +682,96 @@ namespace
 	private:
 		os::critical_section m_CS;
 	};
+
+	std::unique_ptr<sink> create_sink(string_view SinkName, sink_mode::mode Mode);
+
+	class sink_composite: public discardable<false>, public sink_boilerplate<sink_composite>
+	{
+	public:
+		sink_composite()
+		{
+			unordered_string_set SeenSinks;
+
+			for (const auto& i: enum_tokens(get_sink_parameter(name, L"sinks"sv), L",;"sv))
+			{
+				// No funny stuff
+				if (equal_icase(i, name) || SeenSinks.contains(i))
+					continue;
+
+				const auto SinkMode = sink_mode::parse(get_sink_parameter(i, L"mode"sv));
+
+				try
+				{
+					if (auto Sink = create_sink(i, SinkMode))
+					{
+						m_Sinks.emplace_back(std::move(Sink));
+						SeenSinks.emplace(i);
+					}
+					else
+						LOGWARNING(L"Unknown sink {}"sv, i);
+				}
+				catch (far_exception const& e)
+				{
+					LOGERROR(L"{}"sv, e);
+				}
+			}
+		}
+
+		void handle(message Message) override
+		{
+			for (const auto& i: m_Sinks)
+				i->handle(Message);
+		}
+
+		void configure(string_view const Parameters) override
+		{
+			for (const auto& i: m_Sinks)
+				i->configure(Parameters);
+		}
+
+		static constexpr auto name = L"composite"sv;
+
+	private:
+		std::vector<std::unique_ptr<sink>> m_Sinks;
+	};
+
+	void log_sink(string_view const SinkName, sink_mode::mode const Mode)
+	{
+		LOGINFO(L"Sink: {} ({})"sv, SinkName, Mode == sink_mode::mode::sync? L"sync"sv : L"async"sv);
+	}
+
+	template<typename T>
+	std::unique_ptr<sink> create_sink(sink_mode::mode const Mode)
+	{
+		log_sink(T::name, Mode);
+
+		if (Mode == sink_mode::mode::sync)
+			return std::make_unique<sync<T>>();
+		else
+			return std::make_unique<async<T>>(T::is_discardable);
+	}
+
+	template<typename... args>
+	std::unique_ptr<sink> create_sink(string_view const SinkName, sink_mode::mode const Mode)
+	{
+		std::unique_ptr<sink> Result;
+		if ((... || (SinkName == args::name && (Result = create_sink<args>(Mode)))))
+			return Result;
+
+		return nullptr;
+	}
+
+	std::unique_ptr<sink> create_sink(string_view const SinkName, sink_mode::mode const Mode)
+	{
+		return create_sink<
+			sink_composite,
+			sink_console,
+			sink_pipe,
+			sink_debug,
+			sink_file,
+			sink_null>
+		(SinkName, Mode);
+	}
 }
 
 namespace logging
@@ -698,10 +807,7 @@ namespace logging
 				configure_env();
 			}
 
-			for (const auto& i: m_Sinks)
-			{
-				i->configure(Parameters);
-			}
+			m_Sink->configure(Parameters);
 		}
 
 		[[nodiscard]]
@@ -729,7 +835,7 @@ namespace logging
 
 		void flush_queue()
 		{
-			if (m_Status != engine_status::complete || !m_QueuedMessagesCount)
+			if (m_Status != engine_status::complete)
 				return;
 
 			for (auto Messages = m_QueuedMessages.pop_all(); !Messages.empty(); Messages.pop())
@@ -738,8 +844,6 @@ namespace logging
 				if (Message.m_Level <= m_Level)
 					submit(Message);
 			}
-
-			m_QueuedMessagesCount = 0;
 		}
 
 		void log(string_view const Str, level const Level, std::string_view const Function, std::string_view const File, int const Line)
@@ -748,7 +852,6 @@ namespace logging
 			{
 				message Message(Str, Level, Function, File, Line, Level <= m_TraceLevel? m_TraceDepth : 0);
 				m_QueuedMessages.emplace(std::move(Message));
-				++m_QueuedMessagesCount;
 				return;
 			}
 
@@ -768,22 +871,26 @@ namespace logging
 			if (size_t Depth; from_string(get_parameter(L"trace.depth"sv), Depth))
 				m_TraceDepth = Depth;
 
-			if (m_Level == level::off && m_Sinks.empty())
-				return;
+			auto SinkName = get_parameter(L"sink"sv);
+			if (SinkName.find_first_of(L",;") != SinkName.npos)
+			{
+				// far.log.sink=foo;bar
+				// is the same as
+				// far.log.sink=composite
+				// far.log.sink.composite.sinks=foo;bar
+				os::env::set(parameter(L"sink"sv), sink_composite::name);
+				os::env::set(sink_parameter(sink_composite::name, L"sinks"sv), SinkName);
+				SinkName = sink_composite::name;
+			}
 
-			const auto Enumerator = enum_tokens(get_parameter(L"sink"sv), L",;"sv);
-			std::unordered_set<string_view> SinkNames;
-			std::copy(ALL_CONST_RANGE(Enumerator), std::inserter(SinkNames, SinkNames.end()));
+			const auto SinkMode = sink_mode::parse(get_sink_parameter(SinkName, L"mode"sv));
 
-			configure_sinks<
-				sink_console,
-				sink_pipe,
-				sink_debug,
-				sink_file,
-				sink_null
-			>(SinkNames, m_Level != level::off);
+			// The old one must be closed before creating a new one
+			m_Sink.reset();
 
-			if (m_Sinks.empty())
+			m_Sink = create_sink(SinkName, SinkMode);
+
+			if (!m_Sink)
 				m_Level = level::off;
 			else
 				LOGINFO(L"Logging level: {}"sv, level_to_string(m_Level));
@@ -811,70 +918,15 @@ namespace logging
 			configure_env();
 		}
 
-		template<typename T>
-		void configure_sink(std::unordered_set<string_view> const& SinkNames, bool const AllowAdd)
-		{
-			const auto Needed = SinkNames.contains(T::name);
-
-			lazy<sink_mode::mode> const NewSinkMode([]
-			{
-				return get_sink_parameter<T>(L"mode"sv) == L"sync"sv? sink_mode::mode::sync : sink_mode::mode::async;
-			});
-
-			const auto same_sink = [](const auto& Sink)
-			{
-				return Sink->get_name().data() == T::name.data();
-			};
-
-			if (const auto SinkIterator = std::find_if(ALL_CONST_RANGE(m_Sinks), same_sink); SinkIterator != m_Sinks.cend())
-			{
-				if (Needed && dynamic_cast<sink_mode const&>(**SinkIterator).get_mode() == *NewSinkMode)
-					return;
-
-				m_Sinks.erase(SinkIterator);
-
-				if (!Needed)
-					return;
-			}
-			else
-			{
-				if (!Needed)
-					return;
-			}
-
-			if (!AllowAdd)
-				return;
-
-			try
-			{
-				LOGINFO(L"Sink: {} ({})"sv, T::name, *NewSinkMode == sink_mode::mode::sync? L"sync"sv : L"async"sv);
-
-				*NewSinkMode == sink_mode::mode::sync?
-					m_Sinks.emplace_back(std::make_unique<sync<T>>()) :
-					m_Sinks.emplace_back(std::make_unique<async<T>>(T::is_discardable));
-			}
-			catch (far_exception const& e)
-			{
-				LOGERROR(L"{}"sv, e);
-			}
-		}
-
-		template<typename... args>
-		void configure_sinks(std::unordered_set<string_view> const& SinkNames, bool const AllowAdd)
-		{
-			(..., configure_sink<args>(SinkNames, AllowAdd));
-		}
 
 		void submit(message const& Message) const
 		{
-			for (const auto& i: m_Sinks)
-				i->handle(Message);
+			m_Sink->handle(Message);
 		}
 
 		os::concurrency::critical_section m_CS;
-		std::vector<std::unique_ptr<sink>> m_Sinks;
+		std::unique_ptr<sink> m_Sink;
 		os::concurrency::synced_queue<message> m_QueuedMessages;
-		std::atomic_size_t m_QueuedMessagesCount;
 		std::atomic<level> m_Level{ level::off };
 		level m_TraceLevel{ level::fatal };
 		size_t m_TraceDepth{ std::numeric_limits<size_t>::max() };
