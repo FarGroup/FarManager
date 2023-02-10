@@ -538,7 +538,7 @@ bool TmpPanel::ProcessKey(const INPUT_RECORD* Rec)
 	const auto Key = Rec->Event.KeyEvent.wVirtualKeyCode;
 	const auto ControlState = Rec->Event.KeyEvent.dwControlKeyState;
 
-	if (ControlState == (SHIFT_PRESSED | LEFT_ALT_PRESSED) && Key == VK_F3)
+	if ((ControlState == (SHIFT_PRESSED | LEFT_ALT_PRESSED) || ControlState == (SHIFT_PRESSED | RIGHT_ALT_PRESSED)) && Key == VK_F3)
 	{
 		if (const auto CurFileName = IsCurrentFileCorrect(); !CurFileName.empty())
 		{
