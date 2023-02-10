@@ -537,8 +537,10 @@ bool TmpPanel::ProcessKey(const INPUT_RECORD* Rec)
 
 	const auto Key = Rec->Event.KeyEvent.wVirtualKeyCode;
 	const auto ControlState = Rec->Event.KeyEvent.dwControlKeyState;
+	bool isAltShift = ControlState == (SHIFT_PRESSED | LEFT_ALT_PRESSED) || ControlState == (SHIFT_PRESSED | RIGHT_ALT_PRESSED);
+	bool isCtrl = ControlState == LEFT_CTRL_PRESSED || ControlState == RIGHT_CTRL_PRESSED;
 
-	if ((ControlState == (SHIFT_PRESSED | LEFT_ALT_PRESSED) || ControlState == (SHIFT_PRESSED | RIGHT_ALT_PRESSED)) && Key == VK_F3)
+	if (isAltShift && Key == VK_F3)
 	{
 		if (const auto CurFileName = IsCurrentFileCorrect(); !CurFileName.empty())
 		{
@@ -569,7 +571,7 @@ bool TmpPanel::ProcessKey(const INPUT_RECORD* Rec)
 		}
 	}
 
-	if (ControlState != LEFT_CTRL_PRESSED && Key >= VK_F3 && Key <= VK_F8 && Key != VK_F7)
+	if (!isCtrl && Key >= VK_F3 && Key <= VK_F8 && Key != VK_F7)
 	{
 		if (IsCurrentFileCorrect().empty())
 			return true;
@@ -584,7 +586,7 @@ bool TmpPanel::ProcessKey(const INPUT_RECORD* Rec)
 		}
 	}
 
-	if (Opt.SafeModePanel && ControlState == LEFT_CTRL_PRESSED && Key == VK_PRIOR)
+	if (Opt.SafeModePanel && isCtrl && Key == VK_PRIOR)
 	{
 		if (const auto CurFileName = IsCurrentFileCorrect(); !CurFileName.empty())
 		{
@@ -602,14 +604,14 @@ bool TmpPanel::ProcessKey(const INPUT_RECORD* Rec)
 		ProcessRemoveKey();
 		return true;
 	}
-	else if (ControlState == (SHIFT_PRESSED | LEFT_ALT_PRESSED) && Key == VK_F2)
+	else if (isAltShift && Key == VK_F2)
 	{
 		ProcessSaveListKey();
 		return true;
 	}
 	else
 	{
-		if (Opt.CommonPanel && ControlState == (SHIFT_PRESSED | LEFT_ALT_PRESSED))
+		if (Opt.CommonPanel && isAltShift)
 		{
 			if (Key == VK_F12)
 			{
