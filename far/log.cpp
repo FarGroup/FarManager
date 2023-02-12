@@ -148,17 +148,19 @@ namespace
 
 	WORD level_to_color(logging::level const Level)
 	{
-		using level = logging::level;
+		static constexpr WORD Colors[]
+		{
+			F_BLACK,
+			F_WHITE | B_LIGHTRED,
+			F_LIGHTRED,
+			F_YELLOW,
+			F_LIGHTCYAN,
+			F_LIGHTGRAY,
+			F_CYAN,
+			F_DARKGRAY,
+		};
 
-		if (Level <= level::fatal)   return F_WHITE | B_LIGHTRED;
-		if (Level <= level::error)   return F_LIGHTRED;
-		if (Level <= level::warning) return F_YELLOW;
-		if (Level <= level::notice)  return F_LIGHTCYAN;
-		if (Level <= level::info)    return F_LIGHTGRAY;
-		if (Level <= level::debug)   return F_CYAN;
-		if (Level <= level::trace)   return F_DARKGRAY;
-
-		return F_DARKGRAY;
+		return Colors[std::to_underlying(Level) / logging::detail::step];
 	}
 
 	auto get_location(std::string_view const Function, std::string_view const File, int const Line)
@@ -212,18 +214,17 @@ namespace
 
 		sink() = default;
 		virtual ~sink() = default;
-		virtual void configure(string_view const Parameters) {}
-		virtual void handle(message Message) = 0;
-		virtual string_view get_name() = 0;
+		virtual void configure(string_view Parameters) = 0;
+		virtual void handle(message const& Message) = 0;
 	};
 
 	template<typename sink_type>
-	class sink_boilerplate: public sink
+	class sink_boilerplate: public sink, public sink_type
 	{
 	public:
-		string_view get_name() override
+		void configure(string_view const Parameters) override
 		{
-			return sink_type::name;
+			this->configure_impl(Parameters);
 		}
 	};
 
@@ -233,20 +234,27 @@ namespace
 		static constexpr auto is_discardable = Value;
 	};
 
-	class sink_null: public discardable<true>, public sink_boilerplate<sink_null>
+	struct no_config
+	{
+		static void configure_impl(string_view)
+		{
+		}
+	};
+
+	class sink_null: public no_config, public discardable<true>
 	{
 	public:
-		void handle(message Message) override
+		static void handle_impl(message const&)
 		{
 		}
 
 		static constexpr auto name = L"null"sv;
 	};
 
-	class sink_debug: public discardable<false>, public sink_boilerplate<sink_debug>
+	class sink_debug: public no_config, public discardable<false>
 	{
 	public:
-		void handle(message Message) override
+		void handle_impl(message const& Message) const
 		{
 			os::debug::print(concat(
 				L'[', Message.m_Time, L']',
@@ -261,7 +269,7 @@ namespace
 		static constexpr auto name = L"debug"sv;
 	};
 
-	class sink_console: public discardable<true>, public sink_boilerplate<sink_console>
+	class sink_console: public discardable<true>
 	{
 	public:
 		sink_console()
@@ -328,7 +336,7 @@ namespace
 			write_console(L"\n");
 		}
 
-		void handle(message Message) override
+		void handle_impl(message const& Message)
 		{
 			if (!m_Buffer)
 				return;
@@ -345,7 +353,7 @@ namespace
 			}
 		}
 
-		void configure(string_view const Parameters) override
+		void configure_impl(string_view const Parameters)
 		{
 			if (Parameters.empty())
 			{
@@ -390,7 +398,7 @@ namespace
 		os::handle m_Buffer;
 	};
 
-	class sink_file: public discardable<false>, public sink_boilerplate<sink_file>
+	class sink_file: public no_config, public discardable<false>
 	{
 	public:
 		explicit sink_file():
@@ -402,7 +410,7 @@ namespace
 			m_Stream.exceptions(m_Stream.badbit | m_Stream.failbit);
 		}
 
-		void handle(message Message) override
+		void handle_impl(message const& Message)
 		{
 			if (!m_File)
 				return;
@@ -468,7 +476,7 @@ namespace
 		string_view m_Eol{ eol::win.str() };
 	};
 
-	class sink_pipe: public discardable<true>, public sink_boilerplate<sink_pipe>
+	class sink_pipe: public no_config, public discardable<true>
 	{
 	public:
 		void connect()
@@ -508,7 +516,7 @@ namespace
 			m_Connected = false;
 		}
 
-		void handle(message Message) override
+		void handle_impl(message const& Message)
 		{
 			connect();
 
@@ -544,6 +552,25 @@ namespace
 		bool m_Connected{};
 	};
 
+	template<typename impl>
+	class synchronized_impl: public impl
+	{
+	protected:
+		template<typename... args>
+		explicit synchronized_impl(args&&... Args):
+			impl(FWD(Args)...)
+		{}
+
+		void handle_impl_synchronized(message const& Message)
+		{
+			SCOPED_ACTION(std::scoped_lock)(m_CS);
+			impl::handle_impl(Message);
+		}
+
+	private:
+		os::critical_section m_CS;
+	};
+
 	class async_impl
 	{
 	protected:
@@ -559,7 +586,7 @@ namespace
 			m_FinishEvent.set();
 		}
 
-		void in(message Message)
+		void handle_impl(message const& Message)
 		{
 			// The receiver takes all available messages in one go so this shouldn't happen.
 			// However, should it fail to do so, this will prevent us from eating all the RAM:
@@ -569,7 +596,7 @@ namespace
 				LOGERROR(L"Queue overflow"sv);
 			}
 
-			m_Messages.push(std::move(Message));
+			m_Messages.emplace(Message);
 			m_MessageEvent.set();
 		}
 
@@ -615,77 +642,57 @@ namespace
 		os::thread m_Thread;
 	};
 
-	class sink_mode
+	enum class sink_mode
 	{
-	public:
-		enum class mode
-		{
-			sync,
-			async,
-		};
-
-		static auto parse(string_view const Mode)
-		{
-			return Mode == L"sync"sv? mode::sync : mode::async;
-		}
-
-		virtual ~sink_mode() = default;
-		virtual mode get_mode() const = 0;
-	};
-
-	template<typename sink_mode_type>
-	class sink_mode_boilerplate: public sink_mode
-	{
-		mode get_mode() const override
-		{
-			return sink_mode_type::mode;
-		}
+		sync,
+		async,
 	};
 
 	template<typename sink_type>
-	class async final: public sink_type, public sink_mode_boilerplate<async<sink_type>>, private async_impl
+	class async final: public sink_boilerplate<sink_type>, private synchronized_impl<async_impl>
 	{
 	public:
-		static constexpr auto mode = sink_mode::mode::async;
+		static constexpr auto mode = sink_mode::async;
 
 		explicit async(bool const IsDiscardable):
-			async_impl(IsDiscardable, sink_type::get_name())
+			synchronized_impl<async_impl>(IsDiscardable, sink_type::name)
 		{
 		}
 
 		// sink
-		void handle(message Message) override
+		void handle(message const& Message) override
 		{
-			return in(std::move(Message));
+			this->handle_impl_synchronized(Message);
 		}
 
 		// async_impl
 		void out(message&& Message) override
 		{
-			return sink_type::handle(std::move(Message));
+			return sink_boilerplate<sink_type>::handle_impl(std::move(Message));
 		}
 	};
 
 	template<typename sink_type>
-	class sync final: public sink_type, public sink_mode_boilerplate<sync<sink_type>>
+	class sync final: public sink_boilerplate<sink_type>, private synchronized_impl<sink_type>
 	{
 	public:
-		static constexpr auto mode = sink_mode::mode::sync;
+		static constexpr auto mode = sink_mode::sync;
 
 		// sink
-		void handle(message Message) override
+		void handle(message const& Message) override
 		{
-			SCOPED_ACTION(std::scoped_lock)(m_CS);
-			sink_type::handle(std::move(Message));
+			this->handle_impl_synchronized(Message);
 		}
-
-	private:
-		os::critical_section m_CS;
 	};
 
-	std::unique_ptr<sink> create_sink(string_view SinkName, sink_mode::mode Mode);
+	auto parse_sink_mode(string_view const Mode)
+	{
+		return Mode == L"sync"sv? sink_mode::sync : sink_mode::async;
+	}
 
-	class sink_composite: public discardable<false>, public sink_boilerplate<sink_composite>
+	std::unique_ptr<sink> create_sink(string_view SinkName, sink_mode Mode);
+
+	class sink_composite: public discardable<false>
 	{
 	public:
 		sink_composite()
@@ -695,10 +702,10 @@ namespace
 			for (const auto& i: enum_tokens(get_sink_parameter(name, L"sinks"sv), L",;"sv))
 			{
 				// No funny stuff
-				if (equal_icase(i, name) || SeenSinks.contains(i))
+				if (equal_icase(i, name) || SeenSinks.contains(string_comparer::generic_key{ i }))
 					continue;
 
-				const auto SinkMode = sink_mode::parse(get_sink_parameter(i, L"mode"sv));
+				const auto SinkMode = parse_sink_mode(get_sink_parameter(i, L"mode"sv));
 
 				try
 				{
@@ -717,13 +724,13 @@ namespace
 			}
 		}
 
-		void handle(message Message) override
+		void handle_impl(message const& Message) const
 		{
 			for (const auto& i: m_Sinks)
 				i->handle(Message);
 		}
 
-		void configure(string_view const Parameters) override
+		void configure_impl(string_view const Parameters) const
 		{
 			for (const auto& i: m_Sinks)
 				i->configure(Parameters);
@@ -735,33 +742,32 @@ namespace
 		std::vector<std::unique_ptr<sink>> m_Sinks;
 	};
 
-	void log_sink(string_view const SinkName, sink_mode::mode const Mode)
+	void log_sink(string_view const SinkName, sink_mode const Mode)
 	{
-		LOGINFO(L"Sink: {} ({})"sv, SinkName, Mode == sink_mode::mode::sync? L"sync"sv : L"async"sv);
+		LOGINFO(L"Sink: {} ({})"sv, SinkName, Mode == sink_mode::sync? L"sync"sv : L"async"sv);
 	}
 
 	template<typename T>
-	std::unique_ptr<sink> create_sink(sink_mode::mode const Mode)
+	std::unique_ptr<sink> create_sink(sink_mode const Mode)
 	{
 		log_sink(T::name, Mode);
 
-		if (Mode == sink_mode::mode::sync)
+		if (Mode == sink_mode::sync)
 			return std::make_unique<sync<T>>();
 		else
 			return std::make_unique<async<T>>(T::is_discardable);
 	}
 
 	template<typename... args>
-	std::unique_ptr<sink> create_sink(string_view const SinkName, sink_mode::mode const Mode)
+	std::unique_ptr<sink> create_sink(string_view const SinkName, sink_mode const Mode)
 	{
-		std::unique_ptr<sink> Result;
-		if ((... || (SinkName == args::name && (Result = create_sink<args>(Mode)))))
+		if (std::unique_ptr<sink> Result; (... || (SinkName == args::name && ((Result = create_sink<args>(Mode))))))
 			return Result;
 
 		return nullptr;
 	}
 
-	std::unique_ptr<sink> create_sink(string_view const SinkName, sink_mode::mode const Mode)
+	std::unique_ptr<sink> create_sink(string_view const SinkName, sink_mode const Mode)
 	{
 		return create_sink<
 			sink_composite,
@@ -816,6 +822,9 @@ namespace logging
 			if (s_Destroyed)
 				return false;
 
+			if (s_Suppressed)
+				return false;
+
 			switch (m_Status)
 			{
 			case engine_status::incomplete:
@@ -861,6 +870,18 @@ namespace logging
 			submit({ Str, Level, Function, File, Line, Level <= m_TraceLevel? m_TraceDepth : 0 });
 		}
 
+		static void suppress()
+		{
+			++s_Suppressed;
+		}
+
+		static void restore()
+		{
+			assert(s_Suppressed);
+
+			--s_Suppressed;
+		}
+
 	private:
 		void configure_env()
 		{
@@ -883,7 +904,7 @@ namespace logging
 				SinkName = sink_composite::name;
 			}
 
-			const auto SinkMode = sink_mode::parse(get_sink_parameter(SinkName, L"mode"sv));
+			const auto SinkMode = parse_sink_mode(get_sink_parameter(SinkName, L"mode"sv));
 
 			// The old one must be closed before creating a new one
 			m_Sink.reset();
@@ -932,6 +953,7 @@ namespace logging
 		size_t m_TraceDepth{ std::numeric_limits<size_t>::max() };
 		std::atomic<engine_status> m_Status{ engine_status::incomplete };
 		static inline bool s_Destroyed;
+		static inline std::atomic_size_t s_Suppressed;
 	};
 
 	bool filter(level const Level)
@@ -990,9 +1012,7 @@ namespace logging
 				return EXIT_FAILURE;
 		}
 
-		message Message;
-
-		for (;;)
+		for (message Message; ;)
 		{
 			try
 			{
@@ -1032,6 +1052,75 @@ namespace logging
 			}
 		}
 	}
+
+	suppressor::suppressor()
+	{
+		engine::suppress();
+	}
+
+	suppressor::~suppressor()
+	{
+		engine::restore();
+	}
 }
 
 NIFTY_DEFINE(logging::engine, log_engine);
+
+
+#ifdef ENABLE_TESTS
+
+#include "testing.hpp"
+
+TEST_CASE("log.level")
+{
+	using logging::level;
+
+	const auto UnmappedLevel = level{ std::to_underlying(level::off) + 1 };
+
+	static const struct
+	{
+		string_view StrLevel;
+		level Level;
+		WORD Color;
+	}
+	Tests[]
+	{
+		{ {},           UnmappedLevel,  F_BLACK,              },
+		{ L"lalala"sv,  UnmappedLevel,  F_BLACK,              },
+
+		{ L"off"sv,     level::off,     F_BLACK,              },
+		{ L"fatal"sv,   level::fatal,   F_WHITE | B_LIGHTRED, },
+		{ L"error"sv,   level::error,   F_LIGHTRED,           },
+		{ L"warning"sv, level::warning, F_YELLOW,             },
+		{ L"notice"sv,  level::notice,  F_LIGHTCYAN,          },
+		{ L"info"sv,    level::info,    F_LIGHTGRAY,          },
+		{ L"debug"sv,   level::debug,   F_CYAN,               },
+		{ L"trace"sv,   level::trace,   F_DARKGRAY,           },
+		{ L"all"sv,     level::all,     F_DARKGRAY,           },
+	};
+
+	{
+		const auto ExpectedLevels = (std::to_underlying(level::all) + 1ull) / logging::detail::step + 1;
+		REQUIRE(std::size(Tests) >= ExpectedLevels);
+	}
+
+	for (const auto& i: Tests)
+	{
+		REQUIRE(parse_level(i.StrLevel, UnmappedLevel) == i.Level);
+		REQUIRE(level_to_string(i.Level) == (i.Level == UnmappedLevel? L"???"sv : i.StrLevel));
+		REQUIRE(level_to_color(i.Level) == i.Color);
+	}
+}
+
+TEST_CASE("log.misc")
+{
+	REQUIRE(parameter(L"banana"sv) == L"far.log.banana"sv);
+	REQUIRE(sink_parameter(L"ham"sv, L"eggs"sv) == L"far.log.sink.ham.eggs"sv);
+	REQUIRE(get_location("banana"sv, "meow.cpp"sv, 123) == L"banana, meow.cpp(123)"sv);
+	REQUIRE(parse_sink_mode(L"sync"sv) == sink_mode::sync);
+	REQUIRE(parse_sink_mode(L"async"sv) == sink_mode::async);
+	REQUIRE(parse_sink_mode(L"whatever"sv) == sink_mode::async);
+	REQUIRE(logging::is_log_argument(log_argument.data()));
+}
+
+#endif
