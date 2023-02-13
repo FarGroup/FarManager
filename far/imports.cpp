@@ -57,6 +57,17 @@ namespace imports_detail
 	{
 	}
 
+	void* imports::get_pointer_impl(os::rtdl::module const& Module, const char* Name)
+	{
+		// imports is the lowest level. Everything else depends on it, including logging.
+		// Without a suppression we might fall into a recursive initialisation.
+		SCOPED_ACTION(logging::suppressor);
+
+		return Module?
+			Module.GetProcAddress<void*>(Name) :
+			nullptr;
+	}
+
 	void imports::log_missing_import(const os::rtdl::module& Module, std::string_view const Name)
 	{
 		static const os::rtdl::module* CurrentModule{};

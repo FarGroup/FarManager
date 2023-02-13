@@ -448,7 +448,7 @@ TEST_CASE("string.utils.icase")
 	}
 }
 
-TEMPLATE_TEST_CASE("exact_searcher", "", exact_searcher, icase_searcher, fuzzy_ic_searcher, fuzzy_cs_searcher)
+TEMPLATE_TEST_CASE("searcher.ascii", "", exact_searcher, icase_searcher, fuzzy_ic_searcher, fuzzy_cs_searcher)
 {
 	static const struct
 	{
@@ -466,7 +466,7 @@ TEMPLATE_TEST_CASE("exact_searcher", "", exact_searcher, icase_searcher, fuzzy_i
 
 	for (const auto& i: Tests)
 	{
-		exact_searcher const Searcher(i.Needle);
+		TestType const Searcher(i.Needle);
 		REQUIRE(Searcher.find_in(i.GoodHaystack, false) == i.FirstPos);
 		REQUIRE(Searcher.find_in(i.GoodHaystack, true) == i.LastPos);
 
@@ -475,7 +475,7 @@ TEMPLATE_TEST_CASE("exact_searcher", "", exact_searcher, icase_searcher, fuzzy_i
 	}
 }
 
-TEST_CASE("normalize_for_search")
+TEST_CASE("fuzzy.normalize")
 {
 	static const struct
 	{

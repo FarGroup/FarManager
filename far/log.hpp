@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Common:
 #include "common/nifty_counter.hpp"
+#include "common/preprocessor.hpp"
 
 // External:
 #include "format.hpp"
@@ -81,6 +82,15 @@ namespace logging
 
 	[[nodiscard]]
 	int main(string_view PipeName);
+
+	class suppressor
+	{
+	public:
+		NONCOPYABLE(suppressor);
+
+		suppressor();
+		~suppressor();
+	};
 }
 
 #define LOG(log_level, Format, ...) \

@@ -430,7 +430,7 @@ static os::handle create_elevated_process(const string& Parameters)
 	SHELLEXECUTEINFO info
 	{
 		sizeof(info),
-		SEE_MASK_FLAG_NO_UI | SEE_MASK_UNICODE | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS,
+		SEE_MASK_FLAG_NO_UI | SEE_MASK_NOASYNC | SEE_MASK_NOCLOSEPROCESS,
 		nullptr,
 		L"runas",
 		Global->g_strFarModuleName.c_str(),

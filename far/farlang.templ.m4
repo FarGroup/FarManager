@@ -3960,20 +3960,6 @@ upd:"Visible '\\0'"
 "Адлюстроўваць '\\&0'"
 upd:"Visible '\\&0'"
 
-MViewConfigEditAutofocus
-"Авто-&фокус в диалоге поиска"
-"Search dialog auto-&focus"
-"Automaticky aktivovat dialog hledání"
-"Auto&fokus in der Suche in Dialog"
-upd:"Search dialog auto-focus"
-"Auto-&focus okna szukania"
-"Auto-enfocar en &diálogo de búsqueda"
-"Automaticky aktivovať dialóg hľadania"
-"Auto Riposiziona Dialogo Di &Ricerca"
-"Авто-&фокус у діалозі пошуку"
-"Аўта-&фокус у гутарцы"
-upd:"Search dialog auto-&focus"
-
 MEditConfigTitle
 l:
 "Редактор"
@@ -6583,7 +6569,7 @@ MSearchReplaceSearchFor
 
 MSearchReplaceReplaceWith
 "Заменить &на"
-"R&eplace with"
+"&Replace with"
 "Nahradit &s"
 "&Ersetzen mit"
 "&Erre cseréli:"
@@ -6639,7 +6625,7 @@ MSearchReplaceReverse
 
 MSearchReplaceRegexp
 "&Регулярные выражения"
-"Re&gular expressions"
+"R&egular expressions"
 "Re&gulární výrazy"
 "Reguläre Ausdrücke"
 upd:"Re&gular expressions"
@@ -6694,8 +6680,8 @@ MSearchReplaceSearch
 "&Ieškoti"
 
 MSearchReplaceReplace
-"&Замена"
-"&Replace"
+"Замена"
+"Replace"
 "&Nahradit"
 "E&rsetzen"
 "&Csere"
@@ -11852,8 +11838,8 @@ MFindFileUsingFilter
 upd:"using filter"
 
 MFindFileFind
-"&Искать"
-"&Find"
+"Искать"
+"Find"
 "&Hledat"
 "&Suchen"
 "K&eres"

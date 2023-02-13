@@ -145,19 +145,8 @@ bool GetLangParam(const os::fs::file& LangFile, string_view const ParamName, str
 
 static bool SelectLanguage(bool HelpLanguage, string& Dest)
 {
-	lng Title;
-	string_view Mask;
-
-	if (HelpLanguage)
-	{
-		Title = lng::MHelpLangTitle;
-		Mask=Global->HelpFileMask;
-	}
-	else
-	{
-		Title = lng::MLangTitle;
-		Mask=LangFileMask;
-	}
+	const auto Title = HelpLanguage? lng::MHelpLangTitle : lng::MLangTitle;
+	const auto Mask = HelpLanguage? Global->HelpFileMask : LangFileMask;
 
 	const auto LangMenu = VMenu2::create(msg(Title), {}, ScrY - 4);
 	LangMenu->SetMenuFlags(VMENU_WRAPMODE);

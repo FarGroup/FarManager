@@ -311,9 +311,8 @@ int GetSearchReplaceString(
 					// BUGBUG: #0003136: DM_INSERTTEXT or something like that
 					static_cast<DlgEdit*>(Dlg->GetAllItem()[dlg_edit_search_text].ObjPtr)->InsertString(Picker(Param1 == dlg_button_selection));
 					Dlg->SendMessage(DM_SETFOCUS, dlg_edit_search_text, nullptr);
-					return TRUE;
 				}
-				break;
+				return TRUE;
 
 			case dlg_checkbox_regex:
 				{
@@ -366,10 +365,10 @@ int GetSearchReplaceString(
 			Params.ReplaceStr = DlgItems[dlg_edit_replace].strData;
 		}
 
-		const auto SaveParam{ [&](auto& Param, const item_id Id)
+		const auto SaveParam{ [&](auto& Param, const item_id ItemId)
 		{
 			if (Param.has_value())
-				Param = DlgItems[Id].Selected == BSTATE_CHECKED;
+				Param = DlgItems[ItemId].Selected == BSTATE_CHECKED;
 		} };
 
 		SaveParam(Params.Hex, dlg_radio_hex);

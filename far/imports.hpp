@@ -207,6 +207,7 @@ public: \
 
 #undef DEFINE_IMPORT_FUNCTION
 
+	static void* get_pointer_impl(const os::rtdl::module& Module, const char* Name);
 	static void log_missing_import(const os::rtdl::module& Module, std::string_view Name);
 	static void log_usage(std::string_view Name);
 
@@ -236,10 +237,7 @@ namespace imports_detail
 		static const auto Pointer = [&]
 		{
 			const auto& Module = std::invoke(ModuleAccessor, ::imports);
-			if (!Module)
-				return StubFunction;
-
-			if (const auto DynamicPointer = Module.GetProcAddress<function_type>(Name))
+			if (const auto DynamicPointer = reinterpret_cast<function_type>(get_pointer_impl(Module, Name)))
 				return DynamicPointer;
 
 			return StubFunction;

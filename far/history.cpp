@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "global.hpp"
 #include "FarDlgBuilder.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.hpp"
@@ -188,6 +189,8 @@ void History::AddToHistory(string_view const Str, history_record_type const Type
 
 		break;
 	}
+
+	LOGTRACE(L"AddToHistory({})"sv, Str);
 
 	HistoryCfgRef()->DeleteAndAddAsync(DeleteId, m_TypeHistory, m_HistoryName, Str, Type, Lock, Time, strUuid, File, Data);  //Async - should never be used in a transaction
 

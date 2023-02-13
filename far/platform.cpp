@@ -629,14 +629,22 @@ namespace rtdl
 
 		HMODULE module::get_module(bool const Mandatory) const
 		{
-			if (!m_module && !m_name.empty())
+			assert(!m_name.empty());
+
+			if (!m_module)
 			{
+				LOGDEBUG(L"LoadLibraryEx({})"sv, m_name);
 				m_module.emplace(LoadLibraryEx(m_name.c_str(), nullptr, 0));
 
 				if (!*m_module && m_AlternativeLoad && IsAbsolutePath(m_name))
 				{
+					LOGDEBUG(L"LoadLibraryEx({}): {}"sv, m_name, os::last_error());
+					LOGDEBUG(L"LoadLibraryEx({}, altered)"sv, m_name);
 					m_module->reset(LoadLibraryEx(m_name.c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH));
 				}
+
+				if (!*m_module)
+					LOGWARNING(L"LoadLibraryEx({}): {}"sv, m_name, os::last_error());
 			}
 
 			if (!*m_module && Mandatory)
