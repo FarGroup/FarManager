@@ -5642,11 +5642,11 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 	auto& pi = Holder.Item;
 
 	FileListItemToPluginPanelItemBasic(fi, pi);
-	pi.NumberOfLinks = fi.IsNumberOfLinksRead() ? fi.NumberOfLinks(this) : 0;
 
 	Holder.set_name(fi.FileName);
-	Holder.set_alt_name(fi.AlternateFileName());
-	Holder.set_columns(fi.CustomColumns);
+
+	if (const auto& AltName = fi.AlternateFileName(); !AltName.empty())
+		Holder.set_alt_name(AltName);
 
 	if (fi.DizText)
 		Holder.set_description(fi.DizText);
@@ -5656,6 +5656,12 @@ void FileList::FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolde
 		if (const auto& Owner = fi.Owner(this); !Owner.empty())
 			Holder.set_owner(Owner);
 	}
+
+	if (!fi.CustomColumns.empty())
+		Holder.set_columns(fi.CustomColumns);
+
+	if (fi.IsNumberOfLinksRead())
+		pi.NumberOfLinks = fi.NumberOfLinks(this);
 }
 
 size_t FileList::FileListToPluginItem2(const FileListItem& fi,FarGetPluginPanelItem* gpi) const
