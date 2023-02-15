@@ -113,6 +113,8 @@ $^#Copyright © 1996-2000 Eugene Roshal#
  ~Maski plików~@FileMasks@
  ~Makropolecenia (sterowanie klawiaturą)~@KeyMacro@
 
+ ~Customizing UI elements~@CustomizingUI@
+
 
 @Help
 $ #Far: Jak używać pomocy#
@@ -1522,6 +1524,7 @@ $ #Menu: Menu opcje#
 
  #Język programu#        Wybór języka programu i pomocy. Użyj opcji "Zapisz ustawienia",
                        aby zapamiętać wybrany język
+                       You can ~customize UI elements~@CustomizingUI@ to you needs and taste.
 
  #Konfiguracja#          Pokazuje okno ~konfiguracji wtyczek~@PluginsConfig@.
  #wtyczek#
@@ -5579,6 +5582,41 @@ $ #Informacja o wersji#
  - wersję i kompilację Far Manager;
  - wersję dodatkowych bibliotek użytych w projekcie;
  - nazwy i wersje aktywnych wtyczek.
+
+
+@CustomizingUI
+$ #Customizing UI elements#
+ All Far user interface elements are defined in #.lng# files (e.g., #FarEng.lng#).
+You can customize these elements to your needs. For example, you can
+change hotkeys or labels on a certain Far dialog. To override
+UI elements, create a file with the name #Far<Lng>.lng.custom#
+in #%FARHOME%# or #%FARPROFILE%# directory and provide new values for
+the UI IDs you want to customize.
+
+ For example, to make file system link types on Far panels look like
+in the listing of DIR DOS command, you can create file #FarEng.lng.custom#
+in the #%FARPROFILE%# directory with the following content:
+
+@-
+ \0A┌────────────────────────────┐\-
+ \0A│\30│  │UTF-8│Ln 1/7│Col│8:34 PM\0A│\-
+ \0A│\1b//[MListUp]                 \0A│\-
+ \0A│\1b"..↑"                       \0A│\-
+ \0A│\1b                            \0A│\-
+ \0A│\1bMListFolder   = "<DIR>"     \0A│\-
+ \0A│\1bMListSymlink  = "<SYMLINK>" \0A│\-
+ \0A│\1bMListJunction = "<JUNCTION>"\0A│\-
+ \0A│\071\30Help  \07 2\30Save  \07 3\30      \07 \30    \0A│\-
+ \0A└────────────────────────────┘\-
+@+
+
+ You can specify replacement UI elements in two ways, on two separate
+lines or on a single line. The new value should always be enclosed
+in double quotation marks. You can find UI IDs you want to redefine
+in the original #Far<Lng>.lng# file.
+
+ If custom UI language files exist in both directories, the file
+in #%FARPROFILE%# has precedence over the file in #%FARHOME%#.
 
 
 @FarConfig
