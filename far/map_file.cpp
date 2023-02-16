@@ -37,10 +37,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Internal:
 #include "encoding.hpp"
 #include "filestr.hpp"
-#include "global.hpp"
 #include "imports.hpp"
 #include "pathmix.hpp"
 #include "RegExp.hpp"
+#include "log.hpp"
 
 // Platform:
 #include "platform.fs.hpp"
@@ -79,10 +79,12 @@ map_file::map_file(string_view const ModuleName)
 
 		read(Stream);
 	}
-	catch (std::exception const&)
+	catch (std::exception const& e)
 	{
 		m_Symbols.clear();
 		m_Files.clear();
+
+		LOGERROR(L"{}"sv, e);
 	}
 }
 

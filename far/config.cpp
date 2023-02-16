@@ -236,9 +236,9 @@ void Options::PanelSettings()
 
 	auto& AutoUpdateEnabled = Builder.AddCheckbox(lng::MConfigAutoUpdateLimit, AutoUpdate);
 	auto& AutoUpdateLimitItem = Builder.AddIntEditField(AutoUpdateLimit, 6);
-	AutoUpdateLimitItem.Indent(4);
 	Builder.LinkFlags(AutoUpdateEnabled, AutoUpdateLimitItem, DIF_DISABLE, false);
 	Builder.AddTextBefore(AutoUpdateLimitItem, lng::MConfigAutoUpdateLimit2).Indent(4);
+	AutoUpdateLimitItem.Indent(4);
 	Builder.AddCheckbox(lng::MConfigAutoUpdateRemoteDrive, AutoUpdateRemoteDrive);
 
 	Builder.AddSeparator();

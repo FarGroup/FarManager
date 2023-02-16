@@ -229,6 +229,7 @@ bool TmpPanel::PutOneFile(const string& SrcPath, const PluginPanelItem& PanelIte
 		NewStr = concat(SrcPath, SrcPath.back() == L'\\'? L""sv : L"\\"sv, PanelItem.FileName);
 
 	NewItem.FileName = NewStr.c_str();
+	NewItem.AlternateFileName = {};
 	NewItem.Owner = m_Panel->OwnerData.emplace_back(NullToEmpty(NewItem.Owner)).c_str();
 	NewItem.UserData.Data = reinterpret_cast<void*>(m_Panel->Items.size() - 1);
 
@@ -389,7 +390,7 @@ void TmpPanel::UpdateItems(const bool ShowOwners, const bool ShowLinks)
 	{
 		const string_view FullName(CurItem->FileName);
 		const auto SlashPos = FullName.rfind(L'\\');
-		const auto Dir = FullName.substr(0, SlashPos == FullName.npos? 0 : SlashPos);
+		const auto Dir = FullName.substr(0, SlashPos == FullName.npos? 0 : SlashPos + 1);
 		size_t SameFolderItems = 1;
 
 		/* $ 23.12.2001 DJ
