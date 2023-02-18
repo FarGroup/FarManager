@@ -105,6 +105,7 @@
           <ComponentRef Id="View.PgDn.lua" />
           <ComponentRef Id="View.ShiftInsSearch.lua" />
           <ComponentRef Id="View.Space.lua" />
+          <ComponentRef Id="View.TypeToSearch.lua" />
           <ComponentRef Id="WheelScreenSwitch.lua" />
           <ComponentRef Id="Editor.ColorWord.moon" />
         </Feature>

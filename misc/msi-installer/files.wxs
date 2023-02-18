@@ -377,6 +377,9 @@
           <Component Id="View.Space.lua" Guid="$(var.Guid.View.Space.lua)" Win64="$(var.Win64)">
             <File Id="View.Space.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.Space.lua" />
           </Component>
+          <Component Id="View.TypeToSearch.lua" Guid="$(var.Guid.View.TypeToSearch.lua)" Win64="$(var.Win64)">
+            <File Id="View.TypeToSearch.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.TypeToSearch.lua" />
+          </Component>
           <Component Id="WheelScreenSwitch.lua" Guid="$(var.Guid.WheelScreenSwitch.lua)" Win64="$(var.Win64)">
             <File Id="WheelScreenSwitch.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\WheelScreenSwitch.lua" />
           </Component>

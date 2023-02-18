@@ -43,4 +43,5 @@ View.NextPrevFile.lua Viewer: update panel position when navigating through file
 View.PgDn.lua Viewer: PgDn: never scroll beyond EOF (like in FAR 1.70 beta 4 and earlier)
 View.ShiftInsSearch.lua Viewer: Use Shift+Ins to search text from clipboard in internal viewer
 View.Space.lua Viewer: Use Space for listing in the viewer (like in Outlook Express or The Bat!)
+View.TypeToSearch.lua Viewer: Bring up the Search dialog with the typed character or pasted text
 WheelScreenSwitch.lua Use Shift+MsWheel to switch between screens
