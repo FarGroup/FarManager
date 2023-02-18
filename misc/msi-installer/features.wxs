@@ -44,6 +44,7 @@
           <ComponentRef Id="nc5pal2.farconfig_1" />
           <ComponentRef Id="Rodion_Doroshkevich.farconfig_1" />
           <ComponentRef Id="VaxColors.farconfig_1" />
+          <ComponentRef Id="black_and_white.farconfig_2" />
           <ComponentRef Id="black_from_Fonarev.farconfig_2" />
           <ComponentRef Id="black_from_july.farconfig_2" />
           <ComponentRef Id="black_from_Myodov.farconfig_2" />

@@ -74,6 +74,7 @@
 <?define Guid.nc5pal2.farconfig_1 = "5952E8F6-6250-4601-83E9-AE5C39FC8D43" ?>
 <?define Guid.Rodion_Doroshkevich.farconfig_1 = "63B4B80A-17EA-4383-AF6F-7E7BEB24B8A6" ?>
 <?define Guid.VaxColors.farconfig_1 = "0098BE83-B20C-4964-B648-DA3646447D50" ?>
+<?define Guid.black_and_white.farconfig_2 = "1BE94E4C-D282-4C41-8B6F-A29A90C5D23A" ?>
 <?define Guid.black_from_Fonarev.farconfig_2 = "F4CE556D-679F-442F-B8DD-32DD3F2A1A94" ?>
 <?define Guid.black_from_july.farconfig_2 = "67754516-3C49-4BF0-B0A7-81F9F6EB798F" ?>
 <?define Guid.black_from_Myodov.farconfig_2 = "B571EA0C-9A6A-4564-B21A-735852E7487C" ?>
