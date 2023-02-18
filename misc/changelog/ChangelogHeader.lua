@@ -4,8 +4,9 @@ Macro {
     build=mf.int(mf.substr(Editor.Value,Editor.RealPos-1))+1;
     Keys("CtrlHome")
 
+    Tz=mf.date("%z");
     print("--------------------------------------------------------------------------------") Keys("Enter")
-    print(mf.date("name %d.%m0.%Y %H:%M:%S %z - build ")) print(build) print([[
+    print(mf.date("name %Y-%m0-%d %H:%M:%S")) print(mf.substr(Tz,0,3)..":"..mf.substr(Tz,3,2)) print(" - build ") print(build) print([[
 
 
 1. <English>

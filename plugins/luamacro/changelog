@@ -1,16 +1,16 @@
-drkns 13.10.2022 20:13:45 +0100 - build 770
+drkns 2022-10-13 20:13:45+01:00 - build 770
 
 1. Fix opening a module in the editor from the error message box (from Shmuel).
 
-drkns 25.09.2022 21:35:49 +0100 - build 769
+drkns 2022-09-25 21:35:49+01:00 - build 769
 
 1. LuaFAR: GetSystemTime (from Shmuel).
 
-drkns 21.12.2021 17:10:10 +0000 - build 768
+drkns 2021-12-21 17:10:10+00:00 - build 768
 
 1. Error in win.MoveFile.
 
-johnd0e 13.12.2021 16:00:00 +0200 - build 767
+johnd0e 2021-12-13 16:00:00+02:00 - build 767
 
 1. More introspection with new function mf.EnumScript.
 
@@ -21,162 +21,162 @@ johnd0e 13.12.2021 16:00:00 +0200 - build 767
    - Content columns
    - Custom sort modes
 
-drkns 04.12.2021 22:32:15 +0000 - build 766
+drkns 2021-12-04 22:32:15+00:00 - build 766
 
 1. Preserve console mode in win.system().
 
-johnd0e 06.09.2021 12:00:00 +0200 - build 765
+johnd0e 2021-09-06 12:00:00+02:00 - build 765
 
 1. Remove unnecessary metatables access restrictions when creating global 
    MacroAPI tables (Area, Editor, etc.)
    (patch from shmuel).
 
-johnd0e 20.07.2021 12:00:00 +0200 - build 764
+johnd0e 2021-07-20 12:00:00+02:00 - build 764
 
 1. LuaFAR: DM_GETDLGDATA / DM_SETDLGDATA are "no-ops" now: ignore parameters and return nil.
    (patch from shmuel).
 
-johnd0e 30.04.2021 12:17:00 +0200 - build 763
+johnd0e 2021-04-30 12:17:00+02:00 - build 763
 
 1. LuaFAR: fix file:seek() for files larger than 2 GB
    (patch from shmuel).
 
-johnd0e 10.04.2021 19:37:46 +0300 - build 762
+johnd0e 2021-04-10 19:37:46+03:00 - build 762
 
 1. LuaFAR: minor fix (from shmuel):
    panel.GetPanelInfo \ PluginHandle is light userdata now
    and doesn't require rawhandle() method.
 
-johnd0e 15.01.2021 10:12:00 +0200 - build 761
+johnd0e 2021-01-15 10:12:00+02:00 - build 761
 
 1. LuaFAR: update luautf8 library to 0.1.3-2-g5627e17.
 
-shmuel 09.09.2020 21:29:21 +0300 - build 760
+shmuel 2020-09-09 21:29:21+03:00 - build 760
 
 1. LuaFAR: continued 751 (minor changes).
 
-shmuel 06.09.2020 22:56:38 +0300 - build 759
+shmuel 2020-09-06 22:56:38+03:00 - build 759
 
 1. LuaFAR: revert 756.
 
-shmuel 05.09.2020 16:53:54 +0300 - build 758
+shmuel 2020-09-05 16:53:54+03:00 - build 758
 
 1. LuaFAR: continued 751.
 
-shmuel 31.08.2020 12:07:03 +0300 - build 757
+shmuel 2020-08-31 12:07:03+03:00 - build 757
 
 1. LuaFAR: continued 751.
 
-shmuel 26.08.2020 17:44:40 +0200 - build 756
+shmuel 2020-08-26 17:44:40+02:00 - build 756
 
 1. LuaFAR: refactoring.
 
-shmuel 20.08.2020 20:11:34 +0300 - build 755
+shmuel 2020-08-20 20:11:34+03:00 - build 755
 
 1. Correct argument safety check in LoadCustomSortMode().
 
-shmuel 20.08.2020 19:28:27 +0300 - build 754
+shmuel 2020-08-20 19:28:27+03:00 - build 754
 
 1. Revert changes (except farapi.lua) made in 753.
 
-drkns 19.08.2020 22:34:11 +0100 - build 753
+drkns 2020-08-19 22:34:11+01:00 - build 753
 
 1. Adaptation to Far 3.0.5655.
 
-shmuel 15.08.2020 21:20:57 +0300 - build 752
+shmuel 2020-08-15 21:20:57+03:00 - build 752
 
 1. LuaFAR: VS warning + whitespace formatting.
 
-shmuel 01.08.2020 14:45:37 +0200 - build 751
+shmuel 2020-08-01 14:45:37+02:00 - build 751
 
 1. LuaFAR: preparations for search in plugins' directories.
 
-shmuel 06.07.2020 11:48:04 +0300 - build 750
+shmuel 2020-07-06 11:48:04+03:00 - build 750
 
 1. Minor fix related to build 738.
 
-shmuel 21.05.2020 15:21:20 +0300 - build 749
+shmuel 2020-05-21 15:21:20+03:00 - build 749
 
 1. Show traceback when error is thrown from ExitFAR event handler.
 
-zg 18.05.2020 23:28:55 +0300 - build 748
+zg 2020-05-18 23:28:55+03:00 - build 748
 
 1. откат 747.
 
-zg 18.05.2020 18:30:29 +0300 - build 747
+zg 2020-05-18 18:30:29+03:00 - build 747
 
 1. experimental "FolderChanged" event.
 
-shmuel 07.05.2020 22:58:33 +0300 - build 746
+shmuel 2020-05-07 22:58:33+03:00 - build 746
 
 1. LuaFAR: refactoring.
 
-shmuel 05.05.2020 23:27:35 +0300 - build 745
+shmuel 2020-05-05 23:27:35+03:00 - build 745
 
 1. LuaFAR: make tPluginPanelItem.UserData accessible from coroutines (and therefore macros).
 
-shmuel 03.05.2020 14:12:01 +0200 - build 744
+shmuel 2020-05-03 14:12:01+02:00 - build 744
 
 1. Minor fix related to build 738.
 
-shmuel 26.04.2020 19:59:14 +0200 - build 743
+shmuel 2020-04-26 19:59:14+02:00 - build 743
 
 1. Refactoring.
 
-shmuel 25.04.2020 21:24:46 +0200 - build 742
+shmuel 2020-04-25 21:24:46+02:00 - build 742
 
 1. Fix build 741.
 
-shmuel 25.04.2020 18:44:02 +0200 - build 741
+shmuel 2020-04-25 18:44:02+02:00 - build 741
 
 1. Minor fixes and refactoring.
 
-shmuel 24.04.2020 21:12:21 +0200 - build 740
+shmuel 2020-04-24 21:12:21+02:00 - build 740
 
 1. GCC warnings + micro-refactoring.
 
-shmuel 19.04.2020 11:22:12 +0200 - build 739
+shmuel 2020-04-19 11:22:12+02:00 - build 739
 
 1. LuaFAR: fix GCC warnings from appveyor.
 
-shmuel 10.04.2020 21:59:24 +0200 - build 738
+shmuel 2020-04-10 21:59:24+02:00 - build 738
 
 1. LuaFAR: update luautf8 library to release 0.1.2.
 
-shmuel 30.03.2020 15:14:49 +0200 - build 737
+shmuel 2020-03-30 15:14:49+02:00 - build 737
 
 1. LuaFAR: add file:read("*b") - read binary line.
 
-shmuel 04.03.2020 16:14:42 +0200 - build 736
+shmuel 2020-03-04 16:14:42+02:00 - build 736
 
 1. LuaFAR: win.CreateDir() preserves trailing spaces.
 
-shmuel 03.03.2020 13:29:18 +0200 - build 735
+shmuel 2020-03-03 13:29:18+02:00 - build 735
 
 1. LuaFAR: fix win.XX functions dependent on FileTimeResolution broken since build 704
    (they were broken only when luafar3.dll was used outside Far Manager).
 
-shmuel 02.03.2020 19:10:27 +0200 - build 734
+shmuel 2020-03-02 19:10:27+02:00 - build 734
 
 1. LuaFAR: added function far.GetLuafarVersion.
    luafar3.dll and luamacro.dll will share the same version within any given Far Manager build.
 
-shmuel 01.03.2020 22:01:50 +0200 - build 733
+shmuel 2020-03-01 22:01:50+02:00 - build 733
 
 1. LuaFAR: more 730.1 (win.FileTimeToSystemTime).
 
-shmuel 17.02.2020 08:06:24 +0200 - build 732
+shmuel 2020-02-17 08:06:24+02:00 - build 732
 
 1. LuaFAR: allow 64-bit range for floating point arguments where 64-bit integers expected
            (was: 53 bits allowed).
 
 2. LuaFAR (generic plugin): fix a nasty pointer arithmetics bug in SetStartupInfoW().
 
-shmuel 15.02.2020 19:31:22 +0200 - build 731
+shmuel 2020-02-15 19:31:22+02:00 - build 731
 
 1. Fix build 730.1.
 
-shmuel 15.02.2020 18:50:58 +0200 - build 730
+shmuel 2020-02-15 18:50:58+02:00 - build 730
 
 LuaFAR:
 
@@ -187,58 +187,58 @@ LuaFAR:
 
 3. A fix in win.FileTimeToLocalFileTime function.
 
-shmuel 15.02.2020 08:50:10 +0200 - build 729
+shmuel 2020-02-15 08:50:10+02:00 - build 729
 
 1. LuaFAR: added functions win.GetFileTimes and win.SetFileTimes.
 
-shmuel 08.02.2020 18:14:28 +0200 - build 728
+shmuel 2020-02-08 18:14:28+02:00 - build 728
 
 1. LuaFAR: fix far.Message() - when the 3-rd argument was ";Yes;No"
            the function immediately returned 1 with no dialog shown.
 
-shmuel 07.02.2020 21:52:13 +0200 - build 727
+shmuel 2020-02-07 21:52:13+02:00 - build 727
 
 1. LuaFAR: add function far.FreeScreen.
 
-shmuel 02.02.2020 21:14:03 +0200 - build 726
+shmuel 2020-02-02 21:14:03+02:00 - build 726
 
 1. Macro Browser: Ctrl+R reloads macrofiles and updates the browser menu.
 
-shmuel 26.01.2020 20:48:33 +0200 - build 725
+shmuel 2020-01-26 20:48:33+02:00 - build 725
 
 1. LuaFAR: extend struct LuafarAPI with 3 bit64_XX() functions.
 
-shmuel 20.01.2020 18:03:08 +0200 - build 724
+shmuel 2020-01-20 18:03:08+02:00 - build 724
 
 1. LuaFAR: refactoring.
 
-shmuel 20.01.2020 14:31:27 +0200 - build 723
+shmuel 2020-01-20 14:31:27+02:00 - build 723
 
 1. LuaFAR: revert 721.2: panel.XX functions accept PANEL_ACTIVE/PANEL_PASSIVE in the 1-st argument again.
 
-shmuel 20.01.2020 12:31:55 +0200 - build 722
+shmuel 2020-01-20 12:31:55+02:00 - build 722
 
 1. LuaFAR: fix LF_GetFindData/LF_FreeFindData (the bug existed from the very beginning).
 
-shmuel 30.12.2019 16:05:03 +0200 - build 721
+shmuel 2019-12-30 16:05:03+02:00 - build 721
 
 1. A fix in GetOpenPanelInfo() for LuaMacro panel modules.
 
 2. LuaFAR: minor refactoring.
 
-shmuel 29.12.2019 18:35:07 +0200 - build 720
+shmuel 2019-12-29 18:35:07+02:00 - build 720
 
 1. LuaFAR: a minor fix in MakeDirectoryW.
 
-shmuel 16.12.2019 14:23:15 +0200 - build 719
+shmuel 2019-12-16 14:23:15+02:00 - build 719
 
 1. LuaFAR: fix utf8.charpattern.
 
-shmuel 08.12.2019 09:31:15 +0200 - build 718
+shmuel 2019-12-08 09:31:15+02:00 - build 718
 
 1. Refactor build 717.
 
-shmuel 07.12.2019 23:34:24 +0200 - build 717
+shmuel 2019-12-07 23:34:24+02:00 - build 717
 
 1. Regular macros: functions condition() and action() receive an additional argument - a table.
    This table can be used for keeping and modifying data that are private to the macro.
@@ -247,57 +247,57 @@ shmuel 07.12.2019 23:34:24 +0200 - build 717
 2. Regular macros: arbitrary non-standard fields are allowed, they will be copied to the table
    described in the above paragraph.
 
-shmuel 04.12.2019 18:01:32 +0200 - build 716
+shmuel 2019-12-04 18:01:32+02:00 - build 716
 
 1. LuaFAR: far.GetMsg() accepts the optional 2-nd parameter (PluginId).
 
-shmuel 23.11.2019 19:16:02 +0200 - build 715
+shmuel 2019-11-23 19:16:02+02:00 - build 715
 
 1. LuaFAR: far.RecursiveSearch():
    Extend syntax of "Mask" parameter to optionally include file attributes after >> delimiter.
 
-shmuel 30.10.2019 22:19:18 +0200 - build 714
+shmuel 2019-10-30 22:19:18+02:00 - build 714
 
 1. Support throwing Lua errors from macro-API code in Far.exe (starting from build 5502).
 
-shmuel 26.10.2019 21:11:29 +0200 - build 713
+shmuel 2019-10-26 21:11:29+02:00 - build 713
 
 1. LuaFAR: a fix in win.IsWinVersion().
 
-shmuel 26.10.2019 17:01:59 +0200 - build 712
+shmuel 2019-10-26 17:01:59+02:00 - build 712
 
 1. LuaFAR: added function win.IsWinVersion().
 
-shmuel 21.10.2019 11:43:16 +0200 - build 711
+shmuel 2019-10-21 11:43:16+02:00 - build 711
 
 1. Panel.Item(X,Idx,10) - property 'SortGroup' - returns again a number rather than a boolean.
    Returning a boolean was a bug.
 
-shmuel 20.10.2019 13:08:07 +0200 - build 710
+shmuel 2019-10-20 13:08:07+02:00 - build 710
 
 1. Panel.Item(X,Idx,8) and Panel.Item(X,Idx,10) given invalid Idx returned 0 now they return false.
 
-shmuel 17.10.2019 08:28:50 +0200 - build 709
+shmuel 2019-10-17 08:28:50+02:00 - build 709
 
 1. LuaFAR: make return value of DN_KILLFOCUS 1-based and refactor function ProcessDNResult().
 
-shmuel 12.10.2019 13:45:55 +0200 - build 708
+shmuel 2019-10-12 13:45:55+02:00 - build 708
 
 1. LuaFAR: cosmetic changes.
 
-shmuel 25.09.2019 10:17:41 +0200 - build 707
+shmuel 2019-09-25 10:17:41+02:00 - build 707
 
 1. LuaFAR: fix require('luafar3') that was broken since build 699.
 
-shmuel 22.09.2019 10:55:23 +0200 - build 706
+shmuel 2019-09-22 10:55:23+02:00 - build 706
 
 1. Add functions mf.serialize, mf.deserialize.
 
-shmuel 05.09.2019 03:23:04 +0200 - build 705
+shmuel 2019-09-05 03:23:04+02:00 - build 705
 
 1. Generic plugin: prevent stack overflow in GetContentDataW calls due to error/message box.
 
-shmuel 03.09.2019 13:44:25 +0200 - build 704
+shmuel 2019-09-03 13:44:25+02:00 - build 704
 
 1. LuaFAR:
    New function far.FileTimeResolution(). This function can set current resolution of time values
@@ -305,87 +305,87 @@ shmuel 03.09.2019 13:44:25 +0200 - build 704
    The idea is to move gradually from 1ms to 100ns time resolution while not breaking the existing
    LuaFAR plugins.
 
-shmuel 31.08.2019 22:10:18 +0200 - build 703
+shmuel 2019-08-31 22:10:18+02:00 - build 703
 
 1. LuaFAR: refactoring.
 
-shmuel 31.08.2019 19:08:04 +0200 - build 702
+shmuel 2019-08-31 19:08:04+02:00 - build 702
 
 1. LuaFAR: remove parts from slnunico.c that are not supposed to be used.
 
-shmuel 30.08.2019 23:00:22 +0200 - build 701
+shmuel 2019-08-30 23:00:22+02:00 - build 701
 
 1. LuaFAR: make utf8.cfind=utf8.find for backward compatibility.
 
 2. LuaFAR: handle x64 warnings in lutf8lib.c.
 
-shmuel 30.08.2019 15:37:22 +0200 - build 700
+shmuel 2019-08-30 15:37:22+02:00 - build 700
 
 1. Remove unicode.utf8.cfind function. It is not needed when utf8.find is available.
 
-shmuel 30.08.2019 14:36:46 +0200 - build 699
+shmuel 2019-08-30 14:36:46+02:00 - build 699
 
 1. LuaFAR: add "luautf8" library (https://github.com/starwing/luautf8).
    - The library can be directly accessed via "utf8" global variable.
    - This library becomes the default when calling string functions with colon syntax, e.g. var:match().
    - A few missing functions are copied to utf8 from unicode.utf8: dump, format, rep, utf8valid.
 
-shmuel 16.08.2019 17:25:50 +0200 - build 698
+shmuel 2019-08-16 17:25:50+02:00 - build 698
 
 1. LuaFAR: из реализации функций panel.SetSelection() / panel.ClearSelection() убраны внутренние вызовы
    FCTL_BEGINSELECTION / FCTL_ENDSELECTION; это отдано на усмотрение пользовательских скриптов.
    Причина изменения: Far Manager не поддерживает вложенные вызовы  FCTL_BEGINSELECTION / FCTL_ENDSELECTION.
 
-shmuel 14.08.2019 10:43:37 +0200 - build 697
+shmuel 2019-08-14 10:43:37+02:00 - build 697
 
 1. LuaFAR: добавлены функции panel.BeginSelection и panel.EndSelection.
 
-shmuel 03.08.2019 17:55:11 +0200 - build 696
+shmuel 2019-08-03 17:55:11+02:00 - build 696
 
 1. Добавлена поддержка контент-колонок в макрофайлах. Для этого нужно определить функцию ContentColumns().
 
-shmuel 28.07.2019 02:03:08 +0200 - build 695
+shmuel 2019-07-28 02:03:08+02:00 - build 695
 
 1. LuaFAR: suppress a warning.
 
-shmuel 25.07.2019 21:47:31 +0200 - build 694
+shmuel 2019-07-25 21:47:31+02:00 - build 694
 
 1. Added function mf.printconsole().
 
-shmuel 24.07.2019 20:52:16 +0200 - build 693
+shmuel 2019-07-24 20:52:16+02:00 - build 693
 
 1. M#3548: LuaFAR: функция юникодного вывода в консоль
    --> added function win.WriteConsole().
 
-shmuel 22.06.2019 21:04:56 +0200 - build 692
+shmuel 2019-06-22 21:04:56+02:00 - build 692
 
 1. M#3670: mf.AddExitHandler: возвращаемое значение и дополнительные параметры
 
-shmuel 21.06.2019 22:02:33 +0200 - build 691
+shmuel 2019-06-21 22:02:33+02:00 - build 691
 
 1. LuaFAR: minor refactoring.
 
-shmuel 18.04.2019 10:00:19 +0200 - build 690
+shmuel 2019-04-18 10:00:19+02:00 - build 690
 
 1. Уточнение обработки OPEN_FINDLIST.
 
-shmuel 14.02.2019 22:34:39 +0200 - build 689
+shmuel 2019-02-14 22:34:39+02:00 - build 689
 
 1. Меры по увеличению безопасности функции mf.mload.
 
-shmuel 14.02.2019 15:21:37 +0200 - build 688
+shmuel 2019-02-14 15:21:37+02:00 - build 688
 
 1. В функции mf.mload была возможна ситуация неосвобождения объекта доступа к базе данных.
 
-shmuel 18.01.2019 19:31:11 +0200 - build 687
+shmuel 2019-01-18 19:31:11+02:00 - build 687
 
 1. LuaFAR: мелкая подчистка (не баг-фикс).
 
-shmuel 12.01.2019 20:56:37 +0200 - build 686
+shmuel 2019-01-12 20:56:37+02:00 - build 686
 
 1. Уточнение 685.
 
-shmuel 12.01.2019 19:16:29 +0200 - build 685
+shmuel 2019-01-12 19:16:29+02:00 - build 685
 
 1. LuaFAR: добавлена экспортируемая функция luaopen_luafar3.
    - Это делает возможным использование luafar3.dll как обычной библиотеки для скриптов Lua 5.1,
@@ -393,34 +393,34 @@ shmuel 12.01.2019 19:16:29 +0200 - build 685
    - Естественно, при этом нельзя будет использовать таблицы, относящиеся к Far API.
    - Загрузка библиотеки: require "luafar3"
 
-shmuel 25.12.2018 16:23:52 +0200 - build 684
+shmuel 2018-12-25 16:23:52+02:00 - build 684
 
 1. farapi.lua: добавлены прототипы функций FSF.FarClock и FSF.CompareStrings.
 
-shmuel 22.12.2018 21:07:42 +0200 - build 683
+shmuel 2018-12-22 21:07:42+02:00 - build 683
 
 1. LuaFAR: во всех функциях, принимающих цвет, если цвет передан числом, то байт прозрачности
    принудительно устанавливается в 0xFF.
 
-shmuel 16.12.2018 22:19:32 +0200 - build 682
+shmuel 2018-12-16 22:19:32+02:00 - build 682
 
 1. Отмена 679.2:
    mf.mload не бросает ошибку, а возвращает 2 значения:
    1) собственно результат (валидный, если 2-е значение == nil).
    2) nil в случае успеха, либо сообщение об ошибке (string) в случае неудачи.
 
-shmuel 16.12.2018 16:18:05 +0200 - build 681
+shmuel 2018-12-16 16:18:05+02:00 - build 681
 
 1. mf.mdelete() возвращает булевое значение.
 
 2. LuaFAR: во всех методах Settings Control параметр Root теперь типа flag
            (было: тип integer во всех, кроме Enum).
 
-shmuel 15.12.2018 20:11:17 +0200 - build 680
+shmuel 2018-12-15 20:11:17+02:00 - build 680
 
 1. Улучшено сообщение об ошибке в mf.mload().
 
-shmuel 15.12.2018 16:35:39 +0200 - build 679
+shmuel 2018-12-15 16:35:39+02:00 - build 679
 
 1. mf.msave() возвращает булевое значение.
 
@@ -430,156 +430,156 @@ shmuel 15.12.2018 16:35:39 +0200 - build 679
 
 4. LuaFAR: #M3663: возможность опустить параметры-флаги может быть нежелательна.
 
-shmuel 13.12.2018 22:03:17 +0200 - build 678
+shmuel 2018-12-13 22:03:17+02:00 - build 678
 
 1. LuaFAR: баг-фиксы + вызывать сборщик мусора внутри GetFindDataW().
 
-shmuel 13.12.2018 11:15:43 +0200 - build 677
+shmuel 2018-12-13 11:15:43+02:00 - build 677
 
 1. LuaFAR: вызывать сборщик мусора внутри FreeFindDataW().
 
-shmuel 01.12.2018 22:09:18 +0200 - build 676
+shmuel 2018-12-01 22:09:18+02:00 - build 676
 
 1. M#3684: Включать и выключать показ макросов с пониженным приоритетом в меню выбора макросов.
    --> включение и выключение решено не делать, а показывать их всегда после макросов с наивысшим
        приоритетом, отделёнными от них сепаратором.
 
-shmuel 27.11.2018 15:27:30 +0200 - build 675
+shmuel 2018-11-27 15:27:30+02:00 - build 675
 
 1. LuaFAR: suppress compilation warnings.
 
-shmuel 22.11.2018 21:36:01 +0200 - build 674
+shmuel 2018-11-22 21:36:01+02:00 - build 674
 
 1. LuaFAR: добавлены функции win.GetConsoleCP, win.SetConsoleCP, win.GetConsoleOutputCP,
    win.SetConsoleOutputCP.
 
-zg 15.11.2018 11:39:11 +0200 - build 673
+zg 2018-11-15 11:39:11+02:00 - build 673
 
 1. 0003669: Немодальный диалог: в обработчик передаётся закрытый хэндл.
 
-shmuel 24.10.2018 15:22:08 +0200 - build 672
+shmuel 2018-10-24 15:22:08+02:00 - build 672
 
 1. LuaFAR: suppress compilation warning.
 
-shmuel 23.10.2018 10:16:54 +0200 - build 671
+shmuel 2018-10-23 10:16:54+02:00 - build 671
 
 1. LuaFAR: добавлена поддержка пропущенного файлового атрибута (no scrub data).
 
-shmuel 22.10.2018 11:41:37 +0200 - build 670
+shmuel 2018-10-22 11:41:37+02:00 - build 670
 
 1. LuaFAR: добавлена поддержка 3-х пропущенных файловых атрибутов (encrypted, not indexed, virtual).
 
-shmuel 12.10.2018 02:39:44 +0200 - build 669
+shmuel 2018-10-12 02:39:44+02:00 - build 669
 
 1. LuaFAR: добавлены функции: regex.exec, regex.execW;
            добавлены методы скомпилированного регекса: exec, execW;
 
-shmuel 26.09.2018 19:09:59 +0200 - build 668
+shmuel 2018-09-26 19:09:59+02:00 - build 668
 
 1. Fix build 667.
 
-shmuel 26.09.2018 18:23:42 +0200 - build 667
+shmuel 2018-09-26 18:23:42+02:00 - build 667
 
 1. LuaFAR: функция win.SetRegKey() возвращает булевое значение.
 
-shmuel 13.09.2018 22:12:27 +0200 - build 666
+shmuel 2018-09-13 22:12:27+02:00 - build 666
 
 1. M#3034: LuaFAR: SendDlgMessage работает не со всеми событиями/сообщениями
    --> Сделано пока частично: добавлена обработка 7-ми сообщений DN_*
 
-shmuel 12.09.2018 20:16:50 +0200 - build 665
+shmuel 2018-09-12 20:16:50+02:00 - build 665
 
 1. M#3654: в LuaMacro добавить поле "selected"
 
-shmuel 08.09.2018 18:01:32 +0200 - build 664
+shmuel 2018-09-08 18:01:32+02:00 - build 664
 
 1. LuaFAR: M#3652: метод raw для хэндлов панелей
 
-shmuel 29.08.2018 23:47:28 +0200 - build 663
+shmuel 2018-08-29 23:47:28+02:00 - build 663
 
 1. Suppress a warning in build 662.
 
-shmuel 29.08.2018 19:47:30 +0200 - build 662
+shmuel 2018-08-29 19:47:30+02:00 - build 662
 
 1. LuaFAR: M#3644: far.Menu: приоритет SelectIndex перед selected
 
-zg 28.08.2018 19:38:59 +0300 - build 661
+zg 2018-08-28 19:38:59+03:00 - build 661
 
 1. при обработке событий редактора/просмотра в паре мест использовался текущий редактор/просмотр.
 
-shmuel 25.08.2018 15:50:47 +0200 - build 660
+shmuel 2018-08-25 15:50:47+02:00 - build 660
 
 1. M#3643: Макросы для Grabber не работают если фар запущен в режиме редактора/вьюера
 
-shmuel 25.08.2018 11:35:47 +0200 - build 659
+shmuel 2018-08-25 11:35:47+02:00 - build 659
 
 1. Из форума: В фаре запущенном как редактор/вьюер (ключи /v /e) не загружаются макросы на Desktop
 
-shmuel 22.08.2018 08:57:15 +0200 - build 658
+shmuel 2018-08-22 08:57:15+02:00 - build 658
 
 1. M#3637: Сопоставление по маске при ошибке получения имени в обработчиках событий
 
-shmuel 22.08.2018 08:05:40 +0200 - build 657
+shmuel 2018-08-22 08:05:40+02:00 - build 657
 
 1. LuaFAR: file:rawhandle() throws an error in non-GCC compilations.
            This is to prevent a crash caused by incompatible runtime libraries.
 
-shmuel 14.08.2018 12:16:25 +0200 - build 656
+shmuel 2018-08-14 12:16:25+02:00 - build 656
 
 1. LuaFAR: export.SetDirectory() получает 5-й параметр (UserData).
 
-shmuel 22.07.2018 18:23:27 +0200 - build 655
+shmuel 2018-07-22 18:23:27+02:00 - build 655
 
 1. LuaFAR: в таблице, возвращаемой panel.GetPanelInfo(), добавлено поле PluginObject.
 
-shmuel 07.06.2018 17:27:07 +0200 - build 654
+shmuel 2018-06-07 17:27:07+02:00 - build 654
 
 1. LuaFAR: добавлена функция far.RunDefaultScript.
 
-shmuel 16.05.2018 15:01:23 +0200 - build 653
+shmuel 2018-05-16 15:01:23+02:00 - build 653
 
 1. LuaFAR: far.SendDlgMessage(DM_LISTDELETE): the 4-th parameter is allowed to be nil or missing.
 
-shmuel 13.05.2018 00:40:47 +0200 - build 652
+shmuel 2018-05-13 00:40:47+02:00 - build 652
 
 1. M#3286: Возможность выполнить скрипт только один раз при загрузке
    --> Макрофайлу передаётся вторым аргументом номер текущей загрузки.
 
-shmuel 09.05.2018 12:29:01 +0200 - build 651
+shmuel 2018-05-09 12:29:01+02:00 - build 651
 
 1. M#3495: luafar: win.ExtractKey: возвращаемое значение
    --> LuaFAR: добавлена функция win.ExtractKeyEx.
 
-shmuel 09.05.2018 00:05:39 +0200 - build 650
+shmuel 2018-05-09 00:05:39+02:00 - build 650
 
 1. M#3448: ExitFAR объединяет два типа событий, которые надо разъединить
    --> добавлен параметр: true=выгрузка макросов; false=выгрузка плагина.
 
-shmuel 08.04.2018 07:00:51 +0200 - build 649
+shmuel 2018-04-08 07:00:51+02:00 - build 649
 
 1. Добавлена функция mf.AddExitHandler.
 
-shmuel 05.04.2018 14:03:12 +0200 - build 648
+shmuel 2018-04-05 14:03:12+02:00 - build 648
 
 1. Рефакторинг.
 
-shmuel 04.04.2018 13:15:25 +0200 - build 647
+shmuel 2018-04-04 13:15:25+02:00 - build 647
 
 1. M#3597: PanelModule: добавить имя файла
 
-shmuel 20.03.2018 19:53:33 +0200 - build 646
+shmuel 2018-03-20 19:53:33+02:00 - build 646
 
 1. Рефакторинг.
 
-shmuel 20.03.2018 10:04:30 +0200 - build 645
+shmuel 2018-03-20 10:04:30+02:00 - build 645
 
 1. Рефакторинг.
 
-shmuel 19.03.2018 21:50:21 +0200 - build 644
+shmuel 2018-03-19 21:50:21+02:00 - build 644
 
 1. Рефакторинг.
 
-shmuel 15.03.2018 22:29:45 +0200 - build 643
+shmuel 2018-03-15 22:29:45+02:00 - build 643
 
 1. LuaFAR: убран вызов Message() при ошибках возврата из export.GetOpenPanelInfo(),
            т.к. он приводил к рекурсии и переполнению стека.
@@ -589,152 +589,152 @@ shmuel 15.03.2018 22:29:45 +0200 - build 643
 
 3. LuaMacro: мелкие правки.
 
-shmuel 15.03.2018 02:10:32 +0200 - build 642
+shmuel 2018-03-15 02:10:32+02:00 - build 642
 
 1. Исправления в обработке панельных модулей.
 
-shmuel 15.03.2018 01:40:36 +0200 - build 641
+shmuel 2018-03-15 01:40:36+02:00 - build 641
 
 1. Каждый панельный модуль должен иметь таблицу Info с обязательным полем Guid.
 
 2. Исправления в обработке панельных модулей.
 
-shmuel 13.03.2018 22:50:03 +0200 - build 640
+shmuel 2018-03-13 22:50:03+02:00 - build 640
 
 1. Fix build 638 (сломались OPEN_FINDLIST и OPEN_SHORTCUT).
 
-shmuel 13.03.2018 14:13:29 +0200 - build 639
+shmuel 2018-03-13 14:13:29+02:00 - build 639
 
 1. Функция CloseAnalyseW не экспортировалась.
 
-shmuel 13.03.2018 11:50:02 +0200 - build 638
+shmuel 2018-03-13 11:50:02+02:00 - build 638
 
 1. Добавлена поддержка "панельных модулей", то есть функциональность панельных плагинов.
    Модули независимы друг от друга, их количество не ограничивается.
    Документация будет обновлена в ближайшее время.
 
-drkns 26.02.2018 08:03:01 +0000 - build 637
+drkns 2018-02-26 08:03:01+00:00 - build 637
 
 1. Far 5150.
 
-zg 27.01.2018 14:27:28 +0200 - build 636
+zg 2018-01-27 14:27:28+02:00 - build 636
 
 1. у panel.GetUserScreen/panel.SetUserScreen второй параметр - тип скролирования.
 
-shmuel 09.12.2017 12:06:14 +0200 - build 635
+shmuel 2017-12-09 12:06:14+02:00 - build 635
 
 1. LuaFAR: добавлен метод rawhandle для дескриптора, возвращаемого io.open().
 
-zg 02.12.2017 17:22:38 +0200 - build 634
+zg 2017-12-02 17:22:38+02:00 - build 634
 
 1. уточнение 633.
 
-zg 30.11.2017 13:09:55 +0200 - build 633
+zg 2017-11-30 13:09:55+02:00 - build 633
 
 1. уточнение 632 для относительных путей на плаггиновых панелях.
 
-zg 29.11.2017 19:08:27 +0200 - build 632
+zg 2017-11-29 19:08:27+02:00 - build 632
 
 1. уточнение 631.
 
-zg 28.11.2017 17:56:27 +0200 - build 631
+zg 2017-11-28 17:56:27+02:00 - build 631
 
 1. уточнение 630 для плагиновых панелей.
 
-zg 26.11.2017 17:03:32 +0200 - build 630
+zg 2017-11-26 17:03:32+02:00 - build 630
 
 1. 0002406: Panel.SetPath не работает.
 
-shmuel 20.11.2017 15:56:17 +0200 - build 629
+shmuel 2017-11-20 15:56:17+02:00 - build 629
 
 1. M#3555: mf.mmode(2): в младшем байте всегда 255
 
-zg 26.10.2017 16:49:34 +0300 - build 628
+zg 2017-10-26 16:49:34+03:00 - build 628
 
 1. far.GetDlgItem возвращает имя истории и маску, если они есть.
 
-zg 17.10.2017 12:29:42 +0300 - build 627
+zg 2017-10-17 12:29:42+03:00 - build 627
 
 1. Area.Desktop, Area.Grabber.
 
-zg 16.10.2017 17:52:33 +0300 - build 626
+zg 2017-10-16 17:52:33+03:00 - build 626
 
 1. 0002760: Отдельные макрообласти для GRABBER, HMENU, DESKTOP.
 
-shmuel 13.10.2017 21:28:18 +0200 - build 625
+shmuel 2017-10-13 21:28:18+02:00 - build 625
 
 1. M#3515: eval("@filename"): в окружение не добавляется _filename
 
-zg 13.10.2017 13:36:39 +0300 - build 624
+zg 2017-10-13 13:36:39+03:00 - build 624
 
 1. у DN_GOTFOCUS и DN_KILLFOCUS Param1 = -1, если они приходят при получении или потере диалогом фокуса.
 
-shmuel 13.10.2017 11:40:50 +0200 - build 623
+shmuel 2017-10-13 11:40:50+02:00 - build 623
 
 1. LuaFAR: minor refactoring.
 
-shmuel 12.10.2017 16:44:33 +0200 - build 622
+shmuel 2017-10-12 16:44:33+02:00 - build 622
 
 1. LuaFAR: M#3458: Падение Far в far.Timer при малых значениях периода
 
-zg 08.10.2017 14:46:34 +0300 - build 621
+zg 2017-10-08 14:46:34+03:00 - build 621
 
 1. 0003514: Возможность задать приоритет макросов, определяемым через MCTL_ADDMACRO.
 
-shmuel 30.09.2017 14:46:04 +0200 - build 620
+shmuel 2017-09-30 14:46:04+02:00 - build 620
 
 1. Откат 619, т.к. не учитывается возможность вызова диалога из независимых от плагина lua_State.
 
 2. LuaFAR: уточнение 377.1 (были падения, если far.DialogInit() вызывалась из макроса, затем макрос
    завершался, затем вызывалась far.DialogRun()).
 
-zg 30.09.2017 14:12:54 +0300 - build 619
+zg 2017-09-30 14:12:54+03:00 - build 619
 
 1. диалоговая процедура использует текущий lua_State, а не тот, который использовался при создании диалога.
 
-zg 29.09.2017 11:09:07 +0300 - build 618
+zg 2017-09-29 11:09:07+03:00 - build 618
 
 1. уточнение 617.
 
-zg 28.09.2017 19:12:08 FLE Daylight Time - build 617
+zg 2017-09-28 19:12:08+03:00 - build 617
 
 1. поддержка немодальных диалогов.
 
-shmuel 27.08.2017 14:24:18 +0200 - build 616
+shmuel 2017-08-27 14:24:18+02:00 - build 616
 
 1. С форума:
      lua:@empty.lua qwerty.asdf
      После этого не гаснет индикатор работы макроса в левом верхнем углу.
 
-shmuel 24.08.2017 15:16:45 +0200 - build 615
+shmuel 2017-08-24 15:16:45+02:00 - build 615
 
 1. MCTL_GETLASTERROR можно теперь вызывать и после исполнения MSSC_POST и MCTL_EXECSTRING.
 
 2. MCTL_EXECSTRING теперь учитывает флаг KMFLAGS_SILENTCHECK.
 
-shmuel 23.08.2017 13:06:35 +0200 - build 614
+shmuel 2017-08-23 13:06:35+02:00 - build 614
 
 1. Флаг KMFLAGS_SILENTCHECK игнорировался в команде MSSC_POST.
 
-shmuel 17.08.2017 16:44:24 +0200 - build 613
+shmuel 2017-08-17 16:44:24+02:00 - build 613
 
 1. LuaFAR: возвращаемые значения DM_LISTSETCURPOS теперь отсчитываются от 1.
 
-shmuel 13.08.2017 22:15:40 +0200 - build 612
+shmuel 2017-08-13 22:15:40+02:00 - build 612
 
 1. Уточнение build 611: порядковые номера - буквы не всегда работали как "горячие клавиши".
 
-shmuel 07.08.2017 15:25:23 +0200 - build 611
+shmuel 2017-08-07 15:25:23+02:00 - build 611
 
 1. M#3464: Предложение корректировки формы меню "Исполнить макрос".
    Изменение: порядковые номера пунктов не подсвечены, но тем не менее являются "горячими клавишами".
    В дополнение к ним пользователь может назначить и подсвеченные "горячие клавиши".
 
-shmuel 03.08.2017 16:13:49 +0200 - build 610
+shmuel 2017-08-03 16:13:49+02:00 - build 610
 
 1. Уточнение 609.3 (были удвоенные бэкслеши в путях).
 
-shmuel 31.07.2017 17:05:07 +0200 - build 609
+shmuel 2017-07-31 17:05:07+02:00 - build 609
 
 1. LuaFAR: добавлена функция win.IsProcess64bit().
 
@@ -745,65 +745,65 @@ shmuel 31.07.2017 17:05:07 +0200 - build 609
 3. Папки %FARPROFILE%\Macros\modules, %FARPROFILE%\Macros\lib32 и %FARPROFILE%\Macros\lib64
    создаются плагином автоматически.
 
-shmuel 23.06.2017 10:09:22 +0200 - build 608
+shmuel 2017-06-23 10:09:22+02:00 - build 608
 
 1. LuaFAR: minor refactoring and GCC warnings.
 
-shmuel 16.05.2017 11:42:28 +0200 - build 607
+shmuel 2017-05-16 11:42:28+02:00 - build 607
 
 1. LuaFAR: (FIX) функция far.ShowHelp неправильно обрабатывала флаг FHELP_GUID.
 
-shmuel 11.05.2017 13:00:01 +0200 - build 606
+shmuel 2017-05-11 13:00:01+02:00 - build 606
 
 1. M#3432: Краткая справка по синтаксису командной строки LuaMacro (lua:)
 
-shmuel 01.05.2017 22:01:38 +0200 - build 605
+shmuel 2017-05-01 22:01:38+02:00 - build 605
 
 1. LuaFAR: Запретить обработку событий в редакторе, вьювере и панелях во время вывода сообщения
    об ошибке (продолжение build 523).
 
-shmuel 12.04.2017 22:47:30 +0200 - build 604
+shmuel 2017-04-12 22:47:30+02:00 - build 604
 
 1. LuaFAR: ещё раз дополнительная оптимизация unicode.utf8.sub.
 
-shmuel 10.04.2017 11:12:30 +0200 - build 603
+shmuel 2017-04-10 11:12:30+02:00 - build 603
 
 1. LuaFAR: дополнительная оптимизация unicode.utf8.sub.
 
-shmuel 08.04.2017 14:16:00 +0200 - build 602
+shmuel 2017-04-08 14:16:00+02:00 - build 602
 
 1. LuaFAR: оптимизация unicode.utf8.sub для неотрицательных аргументов + рефакторинг.
 
-shmuel 07.04.2017 00:52:17 +0200 - build 601
+shmuel 2017-04-07 00:52:17+02:00 - build 601
 
 1. LuaFAR (продолжение build 165):
    сброс разрешения floating point exceptions при вызове макрофункций (в частности: Plugin.SyncCall).
 
-shmuel 31.03.2017 19:41:21 +0200 - build 600
+shmuel 2017-03-31 19:41:21+02:00 - build 600
 
 1. LuaFAR: refactoring.
 
-shmuel 15.03.2017 17:05:28 +0200 - build 599
+shmuel 2017-03-15 17:05:28+02:00 - build 599
 
 1. LuaFAR: suppress compiler warning.
 
-shmuel 15.03.2017 16:18:38 +0200 - build 598
+shmuel 2017-03-15 16:18:38+02:00 - build 598
 
 1. LuaFAR: suppress compiler warning.
 
-shmuel 13.02.2017 01:39:25 +0200 - build 597
+shmuel 2017-02-13 01:39:25+02:00 - build 597
 
 1. LuaFAR: refactoring.
 
-shmuel 23.01.2017 11:29:08 +0200 - build 596
+shmuel 2017-01-23 11:29:08+02:00 - build 596
 
 1. M#3387: Словосочетание "Sort mode" в меню режимов сортировки не переводится на язык интерфейса
 
-shmuel 29.11.2016 15:21:02 +0200 - build 595
+shmuel 2016-11-29 15:21:02+02:00 - build 595
 
 1. Убрана поддержка старого формата файла клавиатурного макроса (см. комментарий к билду 454).
 
-shmuel 13.11.2016 17:59:43 +0200 - build 594
+shmuel 2016-11-13 17:59:43+02:00 - build 594
 
 1. M#3303: far.Menu: клавиши для BreakKeys
    LuaFAR: 3-й параметр far.Menu может быть и строкой - перечислением ключей, разделённых пробелами.
@@ -811,189 +811,189 @@ shmuel 13.11.2016 17:59:43 +0200 - build 594
            при 3-м параметре равном "Ins CtrlF1" и нажатии CtrlF1, первое возвращаемое значение
            будет сформировано как таблица {BreakKey="CtrlF1"}.
 
-shmuel 11.11.2016 18:17:36 +0200 - build 593
+shmuel 2016-11-11 18:17:36+02:00 - build 593
 
 1. LuaFAR: editor.DeleteSessionBookmark(EditorId,position) - make parameter 'position' 1-based.
 
-shmuel 25.10.2016 18:53:41 +0200 - build 592
+shmuel 2016-10-25 18:53:41+02:00 - build 592
 
 1. M#3303: far.Menu: клавиши для BreakKeys
    LuaFAR: far.Menu теперь понимает обозначения AccelKey также именами, принятыми в Far-макросах.
 
-shmuel 22.10.2016 19:36:48 +0200 - build 591
+shmuel 2016-10-22 19:36:48+02:00 - build 591
 
 1. M#3303: far.Menu: клавиши для BreakKeys
    LuaFAR: наряду с "виртуальными" именами ключей, far.Menu теперь понимает и обозначения BreakKey
            именами, принятыми в Far-макросах.
 
-shmuel 20.10.2016 19:36:54 +0200 - build 590
+shmuel 2016-10-20 19:36:54+02:00 - build 590
 
 1. M#3275: Allow plugins to load and edit unsaved macro
    Макробраузер при нажатии F4/AltF4 на несохранённом клавиатурном макросе вызывает фаровский диалог "Macro settings".
 
-zg 06.10.2016 21:01:03 +0200 - build 589
+zg 2016-10-06 21:01:03+02:00 - build 589
 
 1. LuaFAR: far.CreateUserControl().rawhandle возвращает адрес буфера в виде light userdata.
 
 2. LuaFAR: far.GetDlgItem[6] для DI_USERCONTROL возвращает адрес буфера в виде light userdata.
 
-zg 01.10.2016 15:20:33 +0200 - build 588
+zg 2016-10-01 15:20:33+02:00 - build 588
 
 1. moonscript 0.5.0.
 
-zg 01.10.2016 15:07:26 +0200 - build 587
+zg 2016-10-01 15:07:26+02:00 - build 587
 
 1. LuaFAR: в таком коде
    buffer=far.CreateUserControl(10,10)
    buffer[1]={Char="1"}
    вместо 1 выводился символ с кодом 1.
 
-shmuel 29.09.2016 18:57:45 +0200 - build 586
+shmuel 2016-09-29 18:57:45+02:00 - build 586
 
 1. LuaFAR: улучшено сообщение об ошибке при передаче аргумента - несуществующего флага типа string.
    Сообщение теперь включает в себя переданный флаг.
 
-shmuel 25.09.2016 21:29:41 +0200 - build 585
+shmuel 2016-09-25 21:29:41+02:00 - build 585
 
 1. Продолжение 584: заменяем в traceback табы тремя пробелами - для лучшего восприятия.
 
-shmuel 25.09.2016 00:04:30 +0200 - build 584
+shmuel 2016-09-25 00:04:30+02:00 - build 584
 
 1. M#3013: Отображать traceback при ошибках, возникающих в процессе загрузки макрофайлов.
 
-shmuel 06.09.2016 09:45:50 +0200 - build 583
+shmuel 2016-09-06 09:45:50+02:00 - build 583
 
 1. MCT_GETMACRO дополнительно возвращает информацию о том, является ли макрос клавиатурным.
 
-shmuel 22.08.2016 19:14:55 +0200 - build 582
+shmuel 2016-08-22 19:14:55+02:00 - build 582
 
 1. LuaFAR: BreakKey в far.Menu() сделан полностью регистронезависимым.
 
-shmuel 13.08.2016 18:24:05 +0200 - build 581
+shmuel 2016-08-13 18:24:05+02:00 - build 581
 
 1. Уточнения 579,580.
 
-shmuel 18.07.2016 17:55:32 +0200 - build 580
+shmuel 2016-07-18 17:55:32+02:00 - build 580
 
 1. Макро-браузер отображает поле "id" в диалоге информации о макросе.
 
-shmuel 18.07.2016 15:59:19 +0200 - build 579
+shmuel 2016-07-18 15:59:19+02:00 - build 579
 
 1. В таблицы определений Macro и Event добавлено опциональное поле "id" типа string.
 
-shmuel 04.07.2016 17:35:59 +0200 - build 578
+shmuel 2016-07-04 17:35:59+02:00 - build 578
 
 1. LuaFAR: добавлена функция win.GetKeyState.
 
-shmuel 26.06.2016 19:28:14 +0200 - build 577
+shmuel 2016-06-26 19:28:14+02:00 - build 577
 
 1. Уточнение 576.2.
 
-shmuel 26.06.2016 16:39:39 +0200 - build 576
+shmuel 2016-06-26 16:39:39+02:00 - build 576
 
 1. Расширение возможностей функции Panel.SetCustomSortMode().
 
 2. Расширение возможностей функции Panel.CustomSortMenu().
 
-shmuel 14.06.2016 14:26:10 +0200 - build 575
+shmuel 2016-06-14 14:26:10+02:00 - build 575
 
 1. LuaFAR (generic plugin): ExitFARW экспортируется всегда (убраны директивы условной компиляции).
 
-shmuel 14.06.2016 12:35:08 +0200 - build 574
+shmuel 2016-06-14 12:35:08+02:00 - build 574
 
 1. LuaFAR: LF_ExitFAR(), после вызова export.ExitFAR(), удаляет все незакрытые таймеры (если таковые
    имеются), что предотвращает падения: (1) на выходе из Far и (2) при пересоздании lua_State
    с помощью _G.RecreateLuaState=true.
 
-shmuel 11.06.2016 20:36:21 +0200 - build 573
+shmuel 2016-06-11 20:36:21+02:00 - build 573
 
 1. LuaFAR: экспериментальная альтернативная реализация far.Timer и свойств/методов объекта таймера.
    (Как побочное явление данной реализации, LuaFAR больше не поддерживает Windows 2000).
 
-shmuel 08.06.2016 15:00:53 +0200 - build 572
+shmuel 2016-06-08 15:00:53+02:00 - build 572
 
 1. LuaFAR: far.Timer(N, ...) при N<1 подвешивал Far.
 
-shmuel 08.06.2016 00:23:44 +0200 - build 571
+shmuel 2016-06-08 00:23:44+02:00 - build 571
 
 1. LuaFAR: fix unicode.utf8.gmatch and add a specific test for it.
 
-zg 08.05.2016 13:40:15 +0200 - build 570
+zg 2016-05-08 13:40:15+02:00 - build 570
 
 1. LuaFAR: поддержка WTYPE_COMBOBOX.
 
-shmuel 21.04.2016 23:04:40 +0200 - build 569
+shmuel 2016-04-21 23:04:40+02:00 - build 569
 
 1. LuaFAR: функция far.PasteFromClipboard теперь возвращает всю строку, полученную от Far,
    а не до первого символа '\0'.
 
-shmuel 10.04.2016 14:36:10 +0200 - build 568
+shmuel 2016-04-10 14:36:10+02:00 - build 568
 
 1. Изменение в поведении mf.iif() при Expr==0 для более полной совместимости с оригиналом.
 
-shmuel 17.03.2016 18:18:54 +0200 - build 567
+shmuel 2016-03-17 18:18:54+02:00 - build 567
 
 1. Кастомные сортировки в панелях повреждали содержимое внутренних структур FileListItem
    (это проявлялось при сборке Far с GCC 5.2 или 5.3).
    Алгоритм кастомной сортировки пришлось изменить, теперь нет прямой манипуляции с памятью.
 
-shmuel 13.03.2016 21:46:38 +0200 - build 566
+shmuel 2016-03-13 21:46:38+02:00 - build 566
 
 1. Уточнение 565.
 
-shmuel 13.03.2016 01:28:38 +0200 - build 565
+shmuel 2016-03-13 01:28:38+02:00 - build 565
 
 1. В функции Panel.LoadCustomSortMode таблица параметров может включать в себя опциональное поле
    'Condition' (функцию). Данная функция может использоваться, например, в интерактивном режиме
    работы для изменения параметров сортировки, а также для её отмены.
 
-shmuel 08.03.2016 23:42:18 +0200 - build 564
+shmuel 2016-03-08 23:42:18+02:00 - build 564
 
 1. Рефакторинг.
 
-shmuel 07.03.2016 19:41:34 +0200 - build 563
+shmuel 2016-03-07 19:41:34+02:00 - build 563
 
 1. LuaFAR: продолжение M#3175.
    - Убрана функция win.DeleteRegKeyEx.
    - Функция win.DeleteRegKey принимает дополнительный параметр AccessMask (который игнорируется,
      если операционная система не поддерживает функцию RegDeleteKeyExW).
 
-shmuel 06.03.2016 17:37:26 +0200 - build 562
+shmuel 2016-03-06 17:37:26+02:00 - build 562
 
 1. LuaFAR: фикс во внутренней функции GetFarColor для совместимости с LuaJIT 2.1.0-beta2.
 
-shmuel 03.03.2016 21:40:00 +0200 - build 561
+shmuel 2016-03-03 21:40:00+02:00 - build 561
 
 1. В определение стационарных макросов добавлено опциональное поле sortpriority - для управления
    порядком расположения макросов в меню "Исполнить макрос".
 
-shmuel 25.02.2016 16:15:44 +0200 - build 560
+shmuel 2016-02-25 16:15:44+02:00 - build 560
 
 1. В winapi.lua добавлены 2 константы и 5 определений функций.
 
-shmuel 20.02.2016 00:08:38 +0200 - build 559
+shmuel 2016-02-20 00:08:38+02:00 - build 559
 
 1. Исправлен мелкий баг в функции Panel.CustomSortMenu.
 
-shmuel 19.02.2016 23:36:00 +0200 - build 558
+shmuel 2016-02-19 23:36:00+02:00 - build 558
 
 1. Меню, выводимому функцией Panel.CustomSortMenu, присвоен GUID "C323FBCF-6803-4F2C-B8B4-E576E7F125DC".
 
-shmuel 19.02.2016 21:32:01 +0200 - build 557
+shmuel 2016-02-19 21:32:01+02:00 - build 557
 
 1. M#3175: "Отключить в LuaMacro редирект WOW64 для функций работы с реестром"
    LuaFAR: добавлена функция win.DeleteRegKeyEx. Описание в мануале.
 
-shmuel 12.02.2016 12:41:32 +0200 - build 556
+shmuel 2016-02-12 12:41:32+02:00 - build 556
 
 1. LuaFAR: fix handling PPIF_SELECTED.
 
-shmuel 08.02.2016 23:14:30 +0200 - build 555
+shmuel 2016-02-08 23:14:30+02:00 - build 555
 
 1. M#3175: "Отключить в LuaMacro редирект WOW64 для функций работы с реестром"
    LuaFAR: Во все функции работы с реестром, кроме win.DeleteRegKey, добавлен параметр "AccessMask".
 
-shmuel 02.02.2016 12:53:04 +0200 - build 554
+shmuel 2016-02-02 12:53:04+02:00 - build 554
 
 1. Функция Keys: добавлены новые специальные ключи:
      "EnOut"  - разрешить вывод на экран (то же, что mmode(1,0))
@@ -1001,118 +1001,118 @@ shmuel 02.02.2016 12:53:04 +0200 - build 554
 
 2. Функция Keys: перед каждым ключом может быть указан множитель, например "3*Down" эквивалентно "Down Down Down".
 
-shmuel 26.01.2016 16:09:42 +0200 - build 553
+shmuel 2016-01-26 16:09:42+02:00 - build 553
 
 1. Префиксы, добавляемые функцией CommandLine, не работали, если не состояли полностью из "символов слова" ("%w+").
    Теперь в этих префиксах допускаются любые символы, кроме двоеточия и пробелов.
 
-shmuel 20.12.2015 15:08:21 +0200 - build 552
+shmuel 2015-12-20 15:08:21+02:00 - build 552
 
 1. LuaFAR: fix function win.SetRegKey.
 
-shmuel 18.12.2015 22:09:39 +0200 - build 551
+shmuel 2015-12-18 22:09:39+02:00 - build 551
 
 1. Ещё одно уточнение 549.
 
-shmuel 18.12.2015 20:17:25 +0200 - build 550
+shmuel 2015-12-18 20:17:25+02:00 - build 550
 
 1. Уточнение 549.
 
-shmuel 18.12.2015 18:48:29 +0200 - build 549
+shmuel 2015-12-18 18:48:29+02:00 - build 549
 
 1. LuaFAR: добавлена функция win.DeleteRegValue.
 
-shmuel 18.12.2015 14:09:39 +0200 - build 548
+shmuel 2015-12-18 14:09:39+02:00 - build 548
 
 1. Удалена макрофункция printf (mf.printf и _G.printf).
 
-shmuel 13.12.2015 08:52:51 +0200 - build 547
+shmuel 2015-12-13 08:52:51+02:00 - build 547
 
 1. При старте Фар не исполнялись автостартующие макросы, у которых area="Common".
 
-zg 08.12.2015 03:51:59 +0200 - build 546
+zg 2015-12-08 03:51:59+02:00 - build 546
 
 1. moonscript 0.4.0.
 
-shmuel 15.11.2015 09:10:25 +0200 - build 545
+shmuel 2015-11-15 09:10:25+02:00 - build 545
 
 1. Уточнение 543.
 
-shmuel 11.11.2015 12:17:37 +0200 - build 544
+shmuel 2015-11-11 12:17:37+02:00 - build 544
 
 1. MoonScript 0.3.2.
 
-shmuel 10.11.2015 18:19:12 +0200 - build 543
+shmuel 2015-11-10 18:19:12+02:00 - build 543
 
 1. LuaFAR (generic plugin):
    Очередная (после билда 533) попытка справиться с ситуацией, когда экспортируемые функции плагина
    вызываются из разных потоков с перекрытием во времени. "Перекрывающие" вызовы, поступающие не из
    "перекрываемого" потока, должны игнорироваться (холостой возврат без исполнения).
 
-shmuel 01.11.2015 14:10:39 +0200 - build 542
+shmuel 2015-11-01 14:10:39+02:00 - build 542
 
 1. Откат 540-541. Данный вид события может быть получен имеющимися средствами (mf.postmacro() из макрофайла).
 
-shmuel 31.10.2015 22:34:42 +0200 - build 541
+shmuel 2015-10-31 22:34:42+02:00 - build 541
 
 1. Уточнение 540.
 
-shmuel 31.10.2015 19:33:22 +0200 - build 540
+shmuel 2015-10-31 19:33:22+02:00 - build 540
 
 1. Добавлен новый вид события: group="MacrosLoaded". Обработчики вызываются по завершению загрузки макрофайлов.
 
-shmuel 28.10.2015 19:17:43 +0200 - build 539
+shmuel 2015-10-28 19:17:43+02:00 - build 539
 
 1. Рефакторинг (синхронный с рефакторингом в Far build 4450).
 
-shmuel 28.10.2015 13:23:40 +0200 - build 538
+shmuel 2015-10-28 13:23:40+02:00 - build 538
 
 1. Изменение API: загрузочные функции 'Macro' и 'Event' теперь возвращают true в случае успеха,
    а не число-идентификатор макроса/события, как было раньше.
 
 2. Рефакторинг.
 
-shmuel 26.10.2015 19:07:00 +0200 - build 537
+shmuel 2015-10-26 19:07:00+02:00 - build 537
 
 1. Приоритет по умолчанию у общих (area="Common") макросов теперь такой же, как у прочих макросов, то-есть 50.
 
-shmuel 25.10.2015 17:24:57 +0200 - build 536
+shmuel 2015-10-25 17:24:57+02:00 - build 536
 
 1. Продолжение 516:
    a) пункты меню выбора макроса выводятся отсортированными;
    б) заголовок консоли показывает заголовок данного меню;
 
-shmuel 16.10.2015 19:08:56 +0200 - build 535
+shmuel 2015-10-16 19:08:56+02:00 - build 535
 
 1. Откат билда 533 (перестал работать макро-API в FarNet и PowerShellFar).
 
-shmuel 13.10.2015 16:17:58 +0200 - build 534
+shmuel 2015-10-13 16:17:58+02:00 - build 534
 
 1. LuaFAR (generic plugin):
    Возвращение установки переменной _G.IsLuaStateRecreated = true, отменённой в билде 529.
 
-shmuel 13.10.2015 13:37:15 +0200 - build 533
+shmuel 2015-10-13 13:37:15+02:00 - build 533
 
 1. LuaFAR (generic plugin):
    Полное игнорирование вызовов экспортируемых плагином функций, произведенных из неосновного потока Фара.
    Пусть лучше не работает, но не падает.
    (Защита, сделанная в build 127, снимается как излишняя).
 
-shmuel 06.10.2015 07:38:08 +0200 - build 532
+shmuel 2015-10-06 07:38:08+02:00 - build 532
 
 1. Рефакторинг.
 
-shmuel 02.10.2015 00:42:24 +0200 - build 531
+shmuel 2015-10-02 00:42:24+02:00 - build 531
 
 1. LuaFAR: несколько изменилась интерпретация значения, возвращаемого export.ProcessConsoleInput - см. мануал.
 
 2. M#2944: Добавить обработку ProcessConsoleInputW.
 
-shmuel 26.09.2015 00:42:09 +0200 - build 530
+shmuel 2015-09-26 00:42:09+02:00 - build 530
 
 1. Загрузка макросов: при обнаружении несуществующих имён флагов выдаются сообщения об ошибке.
 
-shmuel 23.09.2015 19:34:14 +0200 - build 529
+shmuel 2015-09-23 19:34:14+02:00 - build 529
 
 1. LuaFAR + generic plugin:
    a) При загрузке и перезагрузке стартового скрипта плагина ему передаётся один аргумент булевого типа:
@@ -1123,81 +1123,81 @@ shmuel 23.09.2015 19:34:14 +0200 - build 529
 
 2. LuaMacro: косметическая правка в плагине, связанная с пунктом "1".
 
-shmuel 18.09.2015 19:42:34 +0200 - build 528
+shmuel 2015-09-18 19:42:34+02:00 - build 528
 
 1. Уточнение 526.
 
-shmuel 18.09.2015 13:00:27 +0200 - build 527
+shmuel 2015-09-18 13:00:27+02:00 - build 527
 
 1. Уточнение 526.
 
-shmuel 18.09.2015 12:29:10 +0200 - build 526
+shmuel 2015-09-18 12:29:10+02:00 - build 526
 
 1. LuaFAR: M#2384: Нужна глобальная таблица guid'ов диалогов фара.
    --> Таблица far.Guids.
 
-shmuel 04.09.2015 21:48:41 +0200 - build 525
+shmuel 2015-09-04 21:48:41+02:00 - build 525
 
 1. M#3067: LuaFAR: far.SubscribeDialogDrawEvents не срабатывает в момент Msg==F.DN_INITDIALOG and Event==F.DE_DLGPROCINIT
 
-shmuel 31.08.2015 18:33:16 +0200 - build 524
+shmuel 2015-08-31 18:33:16+02:00 - build 524
 
 1. M#3068: LuaFAR: не работает изменение цветовых атрибутов в DN_CTLCOLORDLGITEM
 
-shmuel 17.08.2015 18:56:17 +0200 - build 523
+shmuel 2015-08-17 18:56:17+02:00 - build 523
 
 1. M#3035: LuaFAR: Запретить обработку событий в диалогах во время вывода сообщения об ошибке
 
-shmuel 06.08.2015 22:31:56 +0200 - build 522
+shmuel 2015-08-06 22:31:56+02:00 - build 522
 
 1. M#3050: Падение при непрерывном вызове DM_KEY
 
-shmuel 26.07.2015 03:06:22 +0200 - build 521
+shmuel 2015-07-26 03:06:22+02:00 - build 521
 
 1. LuaFAR: убрано лишнее поле StructSize из таблицы, возвращаемой по DM_GETDIALOGINFO.
 
-shmuel 17.06.2015 23:31:43 +0200 - build 520
+shmuel 2015-06-17 23:31:43+02:00 - build 520
 
 1. Меню выбора макроса присвоен GUID ("165AA6E3-C89B-4F82-A0C5-C309243FD21B").
 
-shmuel 16.06.2015 14:56:31 +0200 - build 519
+shmuel 2015-06-16 14:56:31+02:00 - build 519
 
 1. Уточнение 518.
 
-shmuel 16.06.2015 14:16:24 +0200 - build 518
+shmuel 2015-06-16 14:16:24+02:00 - build 518
 
 1. Продолжение 516: если пользователь назначил свой хоткей, то он имеет преимущество перед
    автоматически назначаемым.
 
-shmuel 16.06.2015 12:37:41 +0200 - build 517
+shmuel 2015-06-16 12:37:41+02:00 - build 517
 
 1. Вместо локальной переменной 'status' использовалась глобальная.
 
-shmuel 15.06.2015 17:46:15 +0200 - build 516
+shmuel 2015-06-15 17:46:15+02:00 - build 516
 
 1. Пункты меню выбора макроса (выводимого, когда есть несколько макросов, назначенных на одно
    кнопкосочетание) автоматически нумеруются, и их номера являются горячими клавишами.
 
-shmuel 04.06.2015 21:57:25 +0200 - build 515
+shmuel 2015-06-04 21:57:25+02:00 - build 515
 
 1. Вызов error() без параметра при загрузке макросов полностью нарушал эту самую загрузку.
 
-shmuel 21.05.2015 23:38:29 +0200 - build 514
+shmuel 2015-05-21 23:38:29+02:00 - build 514
 
 1. M#2794: MenuItem: возможность определить имя пункта строкой, а не функцией.
 
-shmuel 07.05.2015 16:59:03 +0200 - build 513
+shmuel 2015-05-07 16:59:03+02:00 - build 513
 
 1. LuaFAR: добавлены функции win.GetCurrentDir и win.SetCurrentDir.
 
-shmuel 03.05.2015 16:07:30 +0200 - build 512
+shmuel 2015-05-03 16:07:30+02:00 - build 512
 
 1. LuaFAR (generic plugin): запуск плагином "%FARPROFILE%\luafar_init.lua" обусловлен флагом
    компиляции -DRUN_LUAFAR_INIT при сборке плагина.
 
 2. Плагин LuaMacro собирается с заданным флагом компиляции -DRUN_LUAFAR_INIT.
 
-shmuel 02.05.2015 19:57:59 +0200 - build 511
+shmuel 2015-05-02 19:57:59+02:00 - build 511
 
 1. LuaFAR (generic plugin):
    - Параметр ENV_PREFIX ликвидирован. Переменные окружения при инициализации плагина теперь
@@ -1207,135 +1207,135 @@ shmuel 02.05.2015 19:57:59 +0200 - build 511
      - Скрипт исполняется также при перезагрузках, вызванных исполнением _G.RecreateLuaState = true.
      - Скрипт не исполняется при перезагрузках, вызванных установкой far.ReloadDefaultScript = true.
 
-zg 22.04.2015 21:33:27 +0200 - build 510
+zg 2015-04-22 21:33:27+02:00 - build 510
 
 1. Far 3.0 API 4353.
 
-shmuel 21.04.2015 16:19:03 +0200 - build 509
+shmuel 2015-04-21 16:19:03+02:00 - build 509
 
 1. LuaFAR (generic plugin):
    Параметр ENV_PREFIX больше не имеет значения по умолчанию: ни в C-файле, ни в мейк-файле.
    Теперь для того, чтобы LuaFAR-плагин при инициализации обрабатывал переменные окружения,
    параметр ENV_PREFIX должен быть задан явно при сборке плагина.
 
-shmuel 17.04.2015 00:31:25 +0200 - build 508
+shmuel 2015-04-17 00:31:25+02:00 - build 508
 
 1. M#2986: far /e падает при попытке вызвать юзер меню макросом.
 
-shmuel 12.04.2015 23:18:52 +0200 - build 507
+shmuel 2015-04-12 23:18:52+02:00 - build 507
 
 1. Рефакторинг.
 
-shmuel 10.04.2015 17:44:53 +0200 - build 506
+shmuel 2015-04-10 17:44:53+02:00 - build 506
 
 1. LuaFAR: изменения, связанные с функцией far.SubscribeDialogDrawEvents:
    - Функция не обрабатывает параметры и не возвращает значения.
    - При открытии каждого нового диалога группа событий перерисовки не передаётся
      в export.ProcessDialogEvent, покуда не будет вызвана far.SubscribeDialogDrawEvents.
 
-shmuel 10.04.2015 01:00:29 +0200 - build 505
+shmuel 2015-04-10 01:00:29+02:00 - build 505
 
 1. Рефакторинг.
 
-shmuel 08.04.2015 21:29:15 +0200 - build 504
+shmuel 2015-04-08 21:29:15+02:00 - build 504
 
 1. Командная строка: символ '=' можно использовать также и при вызове файла-скрипта, то-есть перед
    символом '@'.
 
-shmuel 07.04.2015 13:05:26 +0200 - build 503
+shmuel 2015-04-07 13:05:26+02:00 - build 503
 
 1. Мелкий рефакторинг.
 
-shmuel 07.04.2015 00:27:31 +0200 - build 502
+shmuel 2015-04-07 00:27:31+02:00 - build 502
 
 1. M#2685: Выполнять заданные в командной строке lua: скрипты синхронно.
 
-shmuel 30.03.2015 16:43:55 +0200 - build 501
+shmuel 2015-03-30 16:43:55+02:00 - build 501
 
 1. LuaFAR: оптимизация по скорости far.MakeMenuItems (и, опосредованно, far.Show).
 
-shmuel 27.03.2015 14:27:00 +0200 - build 500
+shmuel 2015-03-27 14:27:00+02:00 - build 500
 
 1. LuaFAR: мелкий рефакторинг.
 
 2. Уточнение 493: eval(s,0) снова исполняется в окружении вызывающего его макроса.
 
-shmuel 26.03.2015 09:34:26 +0200 - build 499
+shmuel 2015-03-26 09:34:26+02:00 - build 499
 
 1. Добавлена функция-заглушка NoCommandLine, по аналогии с функциями NoMacro, NoEvent, NoMenuItem.
 
-shmuel 25.03.2015 16:11:10 +0200 - build 498
+shmuel 2015-03-25 16:11:10+02:00 - build 498
 
 1. Добавлена возможность загрузки из макрофайлов пользовательских префиксов командной строки.
    Этим занимается новая загрузочная функция 'CommandLine'.
 
-zg 21.03.2015 14:29:00 +0200 - build 497
+zg 2015-03-21 14:29:00+02:00 - build 497
 
 1. LuaFAR-плагины без ExitFARW, использующие luaplug.c могли падать при выгрузке, если оставались
    не удалённые lua-переменные, в __gc методе которых вызывались функции farapi.
 
-zg 21.03.2015 00:39:48 +0200 - build 496
+zg 2015-03-21 00:39:48+02:00 - build 496
 
 1. Far 3.0 API 4321
 
-shmuel 19.03.2015 09:18:45 +0200 - build 495
+shmuel 2015-03-19 09:18:45+02:00 - build 495
 
 1. Уточнение 494.
 
-shmuel 18.03.2015 20:34:15 +0200 - build 494
+shmuel 2015-03-18 20:34:15+02:00 - build 494
 
 1. LuaFAR (библиотека regex): падение при большом количестве captures (несколько десятков) из-за
    отсутствовавшего вызова lua_checkstack.
 
-shmuel 17.03.2015 17:57:24 +0200 - build 493
+shmuel 2015-03-17 17:57:24+02:00 - build 493
 
 1. С форума: Запуск lua: mf.postmacro(eval,"F1") приводит к ошибке "bad argument #1 to 'getfenv'
              (invalid level)".
 
-shmuel 15.03.2015 15:48:33 +0200 - build 492
+shmuel 2015-03-15 15:48:33+02:00 - build 492
 
 1. LuaFAR (библиотека bit64): устранение зависимости результатов сдвиговых операций при величинах
    сдвига >= 64 от применяемого компилятора.
 
-shmuel 13.03.2015 16:38:56 +0200 - build 491
+shmuel 2015-03-13 16:38:56+02:00 - build 491
 
 1. LuaFAR: неправильно работал far.AdvControl("ACTL_GETARRAYCOLOR").
 
-zg 08.03.2015 02:30:10 +0200 - build 490
+zg 2015-03-08 02:30:10+02:00 - build 490
 
 1. moonscript 0.3.1.
 
-zg 07.03.2015 02:15:16 +0200 - build 489
+zg 2015-03-07 02:15:16+02:00 - build 489
 
 1. moonscript: issue #177 fix.
 
-zg 05.03.2015 02:31:50 +0200 - build 488
+zg 2015-03-05 02:31:50+02:00 - build 488
 
 1. moonscript 0.3.0.
 
-shmuel 02.03.2015 19:01:59 +0200 - build 487
+shmuel 2015-03-02 19:01:59+02:00 - build 487
 
 1. LuaFAR: убрана функция far.LuafarVersion.
 
-shmuel 21.02.2015 19:30:30 +0200 - build 486
+shmuel 2015-02-21 19:30:30+02:00 - build 486
 
 1. Рефакторинг.
 
-shmuel 21.02.2015 00:56:10 +0200 - build 485
+shmuel 2015-02-21 00:56:10+02:00 - build 485
 
 1. Рефакторинг.
 
-shmuel 17.02.2015 00:44:37 +0200 - build 484
+shmuel 2015-02-17 00:44:37+02:00 - build 484
 
 1. Расширение API в области возвращаемых значений для eval(S,2).
 
 2. Рефакторинг.
 
-shmuel 14.02.2015 16:35:25 +0200 - build 483
+shmuel 2015-02-14 16:35:25+02:00 - build 483
 
 1. LuaFAR: неправильная передача обработчику диалога параметра Param2 при событии DN_HOTKEY.
 
-shmuel 08.02.2015 17:47:16 +0200 - build 482
+shmuel 2015-02-08 17:47:16+02:00 - build 482
 
 1. LuaFAR (generic plugin):
    Размер структур PluginStartupInfo и FarStandardFunctions определяется теперь не при компиляции,
@@ -1343,51 +1343,51 @@ shmuel 08.02.2015 17:47:16 +0200 - build 482
    Это позволит LuaFAR-плагинам автоматически поддерживать добавляемые функции Plugins API без
    необходимости перекомпиляции плагина.
 
-shmuel 06.02.2015 17:07:16 +0200 - build 481
+shmuel 2015-02-06 17:07:16+02:00 - build 481
 
 1. Уточнение build 476: после вызова Plugin.Call и завершения макроса не производилась перерисовка редактора.
 
-shmuel 03.02.2015 01:48:32 +0200 - build 480
+shmuel 2015-02-03 01:48:32+02:00 - build 480
 
 1. LuaFAR: добавлена функция far.FarClock. Документация следует.
 
-shmuel 28.01.2015 22:30:52 +0200 - build 479
+shmuel 2015-01-28 22:30:52+02:00 - build 479
 
 1. LuaFAR: x64 warnings.
 
-shmuel 28.01.2015 19:19:30 +0200 - build 478
+shmuel 2015-01-28 19:19:30+02:00 - build 478
 
 1. LuaFAR: добавлена функция win.system.
 
-shmuel 21.01.2015 23:59:12 +0200 - build 477
+shmuel 2015-01-21 23:59:12+02:00 - build 477
 
 1. Рефакторинг.
 
-shmuel 21.01.2015 16:51:11 +0200 - build 476
+shmuel 2015-01-21 16:51:11+02:00 - build 476
 
 1. Рефакторинг.
 
-zg 20.01.2015 03:10:50 +0200 - build 475
+zg 2015-01-20 03:10:50+02:00 - build 475
 
 1. 0002912: В диалогах DM_SETTEXT, DM_GETTEXT не позволяют работать со строками содержащими '\0'.
 
-shmuel 17.01.2015 23:05:52 +0200 - build 474
+shmuel 2015-01-17 23:05:52+02:00 - build 474
 
 1. Рефакторинг.
 
-shmuel 15.01.2015 16:59:48 +0200 - build 473
+shmuel 2015-01-15 16:59:48+02:00 - build 473
 
 1. LuaFAR: исправлены два бага в библиотеке bit64.
 
-shmuel 14.01.2015 00:19:06 +0200 - build 472
+shmuel 2015-01-14 00:19:06+02:00 - build 472
 
 1. Рефакторинг.
 
-shmuel 13.01.2015 19:29:57 +0200 - build 471
+shmuel 2015-01-13 19:29:57+02:00 - build 471
 
 1. Рефакторинг, уточнения.
 
-shmuel 12.01.2015 20:52:17 +0200 - build 470
+shmuel 2015-01-12 20:52:17+02:00 - build 470
 
 1. Уточнение 465.1.
 
@@ -1395,135 +1395,135 @@ shmuel 12.01.2015 20:52:17 +0200 - build 470
 
 3. Рефакторинг.
 
-shmuel 11.01.2015 19:58:26 +0200 - build 469
+shmuel 2015-01-11 19:58:26+02:00 - build 469
 
 1. Рефакторинг.
 
-shmuel 07.01.2015 10:26:06 +0200 - build 468
+shmuel 2015-01-07 10:26:06+02:00 - build 468
 
 1. LuaFAR: добавлена функция win.OutputDebugString.
 
-shmuel 06.01.2015 23:42:23 +0200 - build 467
+shmuel 2015-01-06 23:42:23+02:00 - build 467
 
 1. Уточнение 465.1.
 
-shmuel 06.01.2015 18:27:55 +0200 - build 466
+shmuel 2015-01-06 18:27:55+02:00 - build 466
 
 1. Уточнение 465.1.
 
-shmuel 03.01.2015 21:20:32 +0200 - build 465
+shmuel 2015-01-03 21:20:32+02:00 - build 465
 
 1. eval(S,2) снова, как это было до перевода макросистемы на Lua, запускает на исполнение
    соответствующий макрос, а не просто вызывает его функцию 'action'.
 
 2. Рефакторинг.
 
-shmuel 01.01.2015 20:34:10 +0200 - build 464
+shmuel 2015-01-01 20:34:10+02:00 - build 464
 
 1. Рефакторинг.
 
-shmuel 31.12.2014 00:11:10 +0200 - build 463
+shmuel 2014-12-31 00:11:10+02:00 - build 463
 
 1. Far.DisableHistory(-1) не запрещал добавления в историю при последующих вызовах Panel.SetPath().
 
 2. Рефакторинг.
 
-shmuel 26.12.2014 19:26:13 +0200 - build 462
+shmuel 2014-12-26 19:26:13+02:00 - build 462
 
 1. Рефакторинг: прекращено использование фаровских регулярных выражений для внутренних нужд плагина.
 
-shmuel 15.12.2014 00:46:09 +0200 - build 461
+shmuel 2014-12-15 00:46:09+02:00 - build 461
 
 1. LuaFAR: добавлена обработка функций export.GetContentFields и export.GetContentData.
 
-zg 06.12.2014 00:17:49 +0200 - build 460
+zg 2014-12-06 00:17:49+02:00 - build 460
 
 1. Panel.AddCustomDataCallback удалена.
 
-zg 03.12.2014 17:52:55 +0200 - build 459
+zg 2014-12-03 17:52:55+02:00 - build 459
 
 1. уточнение 457. данные для одной и той же колонки не замещают друг друга, а склеиваются.
 
-zg 03.12.2014 11:22:55 +0200 - build 458
+zg 2014-12-03 11:22:55+02:00 - build 458
 
 1. в обработчик Panel.AddCustomDataCallback данные приходят в виде {guid="строка"}.
 
-zg 03.12.2014 03:57:46 +0200 - build 457
+zg 2014-12-03 03:57:46+02:00 - build 457
 
 1. экспериментально. продолжение 456. поддержка колонок C1-C9.
 
-zg 30.11.2014 12:05:23 +0200 - build 456
+zg 2014-11-30 12:05:23+02:00 - build 456
 
 1. Panel.AddCustomDataCallback: добавляет новый обработчик данных для кастом колонок.
 
-zg 29.11.2014 13:27:38 +0200 - build 455
+zg 2014-11-29 13:27:38+02:00 - build 455
 
 1. уточнение поддержки UTF-8 BOM для moonscript.
 
-shmuel 28.11.2014 20:27:54 +0200 - build 454
+shmuel 2014-11-28 20:27:54+02:00 - build 454
 
 1. Продолжение 452: добавлена поддержка загрузки старого формата файла клавиатурного макроса.
    * Сохранение будет производиться в новом формате.
    * Через полгода поддержку старого формата следует убрать.
 
-shmuel 27.11.2014 23:44:56 +0200 - build 453
+shmuel 2014-11-27 23:44:56+02:00 - build 453
 
 1. Уточнение 452.
 
-shmuel 27.11.2014 21:06:15 +0200 - build 452
+shmuel 2014-11-27 21:06:15+02:00 - build 452
 
 1. Файловый формат клавиатурного макроса сделан подобным формату стационарного макроса.
    Сохранённые клавиатурные макросы прежнего формата должны быть преобразованы в новый.
 
-shmuel 24.11.2014 02:05:58 +0200 - build 451
+shmuel 2014-11-24 02:05:58+02:00 - build 451
 
 1. LuaFAR: в функциях editor.Editor и viewer.Viewer значение по умолчанию параметра Title,
    передаваемое в Фар - NULL, а не FileName, как было до сих пор. См. M#2867.
 
-shmuel 19.11.2014 13:16:10 +0200 - build 450
+shmuel 2014-11-19 13:16:10+02:00 - build 450
 
 1. M#2609: LuaFAR: защита от ошибок в far.SaveScreen/RestoreScreen.
 
-shmuel 13.11.2014 13:42:23 +0200 - build 449
+shmuel 2014-11-13 13:42:23+02:00 - build 449
 
 1. LuaFAR: меню, выводимое функцией far.Show, может быть закрыто и нажатием клавиши Space.
 
-shmuel 05.11.2014 13:21:11 +0200 - build 448
+shmuel 2014-11-05 13:21:11+02:00 - build 448
 
 1. Из окружения макроса не убирались "загрузочные" функции MenuItem и NoMenuItem.
 
-shmuel 05.11.2014 12:25:16 +0200 - build 447
+shmuel 2014-11-05 12:25:16+02:00 - build 447
 
 1. Ещё раз M#2726.
 
-shmuel 04.11.2014 23:09:39 +0200 - build 446
+shmuel 2014-11-04 23:09:39+02:00 - build 446
 
 1. M#2726: mbrowser.lua:73: bad argument #3 to 'format' (invalid multibyte string).
 
-shmuel 02.11.2014 16:46:25 +0200 - build 445
+shmuel 2014-11-02 16:46:25+02:00 - build 445
 
 1. LuaFAR: устранён ещё один баг в обработке флагов типа userdata ("int64").
 
-shmuel 02.11.2014 00:52:08 +0200 - build 444
+shmuel 2014-11-02 00:52:08+02:00 - build 444
 
 1. LuaFAR: устранены 2 однотипных бага в обработке флагов типа userdata ("int64").
 
-shmuel 01.11.2014 20:06:42 +0200 - build 443
+shmuel 2014-11-01 20:06:42+02:00 - build 443
 
 1. LuaFAR: рефакторинг.
 
-shmuel 30.10.2014 22:51:40 +0200 - build 442
+shmuel 2014-10-30 22:51:40+02:00 - build 442
 
 1. LuaFAR (generic plugin): рефакторинг.
 
-shmuel 29.10.2014 18:14:31 +0200 - build 441
+shmuel 2014-10-29 18:14:31+02:00 - build 441
 
 1. Команды macro:post и lm:post больше не поддерживаются.
 
 2. LuaFAR: добавлена экспортируемая функция LF_GetLuafarAPI, позволяющая LuaFAR-плагину (той его
    части, что на C) пользоваться многими сервисными функциями LuaFAR.
 
-shmuel 29.10.2014 01:04:04 +0200 - build 440
+shmuel 2014-10-29 01:04:04+02:00 - build 440
 
 1. При многократной перезагрузке макросов (far.MacroLoadAll) среднее время перезагрузки устойчиво
    возрастало. Заметил, что для проявления этого нежелательного эффекта необходимы два фактора:
@@ -1532,142 +1532,142 @@ shmuel 29.10.2014 01:04:04 +0200 - build 440
    Эффект убран прекращением перезагрузки библиотеки MoonScript при перезагрузке макросов.
    Механизм данного эффекта мне на данный момент не ясен.
 
-shmuel 27.10.2014 16:31:01 +0200 - build 439
+shmuel 2014-10-27 16:31:01+02:00 - build 439
 
 1. LuaFAR (generic plugin): рефакторинг.
 
-shmuel 27.10.2014 13:55:29 +0200 - build 438
+shmuel 2014-10-27 13:55:29+02:00 - build 438
 
 1. LuaFAR (generic plugin): рефакторинг.
 
-shmuel 25.10.2014 19:08:38 +0200 - build 437
+shmuel 2014-10-25 19:08:38+02:00 - build 437
 
 1. LuaFAR: рефакторинг.
 
-shmuel 22.10.2014 10:28:20 +0200 - build 436
+shmuel 2014-10-22 10:28:20+02:00 - build 436
 
 1. Исправлен баг в функции mf.msave.
 
-shmuel 20.10.2014 21:01:14 +0200 - build 435
+shmuel 2014-10-20 21:01:14+02:00 - build 435
 
 1. M#2840: mload/msave: работать с локальным профилем.
 
-w17 09.10.2014 02:53:15 +0200 - build 434
+w17 2014-10-09 02:53:15+02:00 - build 434
 
 1. LuaFAR: build recovered after plugin.hpp changes
 
-shmuel 02.10.2014 21:47:41 +0200 - build 433
+shmuel 2014-10-02 21:47:41+02:00 - build 433
 
 1. Продолжение 328.2.
 
-shmuel 21.09.2014 12:16:52 +0200 - build 432
+shmuel 2014-09-21 12:16:52+02:00 - build 432
 
 1. Продолжение 431: mf.msave сохраняет связи между таблицами и их метатаблицами.
 
-shmuel 20.09.2014 19:34:52 +0200 - build 431
+shmuel 2014-09-20 19:34:52+02:00 - build 431
 
 1. Переделка сериализации данных, в результате чего функция mf.msave дополнительно поддерживает:
    (1) ключи-таблицы
    (2) таблицы с рекурсивными вложениями
 
-shmuel 07.09.2014 19:22:01 +0200 - build 430
+shmuel 2014-09-07 19:22:01+02:00 - build 430
 
 1. Небольшая оптимизация 429.2.
 
-shmuel 06.09.2014 13:36:28 +0200 - build 429
+shmuel 2014-09-06 13:36:28+02:00 - build 429
 
 1. Уточнение 428.
 
 2. M#2793: MenuItem: нужна возможность задать разный текст для пунктов в разных меню.
 
-shmuel 06.09.2014 00:51:16 +0200 - build 428
+shmuel 2014-09-06 00:51:16+02:00 - build 428
 
 1. M#2792: MenuItem: заменить wtype на area.
    Подробности - в мануале (статья "Добавление пунктов в меню плагинов").
 
-shmuel 03.09.2014 23:52:40 +0200 - build 427
+shmuel 2014-09-03 23:52:40+02:00 - build 427
 
 1. Продолжение 425.
 
-shmuel 03.09.2014 16:13:53 +0200 - build 426
+shmuel 2014-09-03 16:13:53+02:00 - build 426
 
 1. Продолжение 425.
 
-shmuel 03.09.2014 01:25:51 +0200 - build 425
+shmuel 2014-09-03 01:25:51+02:00 - build 425
 
 1. M#2705: Far.GetConfig (на замену Far.Cfg_Get).
 
-shmuel 01.09.2014 23:48:28 +0200 - build 424
+shmuel 2014-09-01 23:48:28+02:00 - build 424
 
 1. M#2724: LuaFAR: MIF_SELECTED для far.Menu.
 
-shmuel 28.08.2014 21:36:52 +0200 - build 423
+shmuel 2014-08-28 21:36:52+02:00 - build 423
 
 1. 'MacroPath' в luamacro.ini должно быть внутри секции [General].
 
-shmuel 27.08.2014 21:22:51 +0200 - build 422
+shmuel 2014-08-27 21:22:51+02:00 - build 422
 
 1. LuaFAR: продолжение 419.2.
 
-shmuel 27.08.2014 00:29:48 +0200 - build 421
+shmuel 2014-08-27 00:29:48+02:00 - build 421
 
 1. Уточнение 420.
 
-shmuel 26.08.2014 23:15:21 +0200 - build 420
+shmuel 2014-08-26 23:15:21+02:00 - build 420
 
 1. macro:load поддерживает явное указание путей, с которых будут грузиться макрофайлы.
 
-shmuel 26.08.2014 21:16:27 +0200 - build 419
+shmuel 2014-08-26 21:16:27+02:00 - build 419
 
 1. MCTL_LOADALL поддерживает явное указание путей, с которых будут грузиться макрофайлы.
 
 2. LuaFAR: far.MacroLoadAll поддерживает явное указание путей, с которых будут грузиться макрофайлы.
 
-shmuel 25.08.2014 20:23:55 +0200 - build 418
+shmuel 2014-08-25 20:23:55+02:00 - build 418
 
 1. Мелкий рефакторинг.
 
-shmuel 24.08.2014 11:37:48 +0200 - build 417
+shmuel 2014-08-24 11:37:48+02:00 - build 417
 
 1. Уточнение 414.
 
-shmuel 23.08.2014 09:43:48 +0200 - build 416
+shmuel 2014-08-23 09:43:48+02:00 - build 416
 
 1. Уточнение 414.
 
-shmuel 23.08.2014 03:11:07 +0200 - build 415
+shmuel 2014-08-23 03:11:07+02:00 - build 415
 
 1. Поддержка UTF-8 BOM в luamacro.ini.
 
-shmuel 23.08.2014 02:13:33 +0200 - build 414
+shmuel 2014-08-23 02:13:33+02:00 - build 414
 
 1. M#2469: Общие макросы.
    Добавлен файл luamacro.example.ini, активируется при его переименовании в luamacro.ini.
    В нём может быть установлено значение `MacroPath`, указывающее, с каких путей будут загружаться
    стационарные макрофайлы. Значение по умолчанию: %FARPROFILE%\Macros\scripts.
 
-shmuel 23.08.2014 00:31:33 +0200 - build 413
+shmuel 2014-08-23 00:31:33+02:00 - build 413
 
 1. mf.usermenu: режим "синхронного вызова" был сломан (в билде Far 3.0.3914).
 
-shmuel 20.08.2014 12:25:13 +0200 - build 412
+shmuel 2014-08-20 12:25:13+02:00 - build 412
 
 1. Упрощение вызова макробраузера, ставшее возможным благодаря изменениям в Far 3.0.4059.
 
-shmuel 15.08.2014 19:20:35 +0200 - build 411
+shmuel 2014-08-15 19:20:35+02:00 - build 411
 
 1. `eval(S,2)` возвращает `-3`, если было выведено меню выбора макроса, и это меню было отменено пользователем.
 
-shmuel 14.08.2014 23:55:27 +0200 - build 410
+shmuel 2014-08-14 23:55:27+02:00 - build 410
 
 1. Могли исполняться макросы во время загрузки макросов (например, при выводе диалога).
 
-shmuel 01.08.2014 22:52:40 +0200 - build 409
+shmuel 2014-08-01 22:52:40+02:00 - build 409
 
 1. LuaFAR: функция 'editor.GetSelection' выдавала неправильные результаты для вертикальных блоков нулевой ширины
    в начальной позиции строк.
 
-shmuel 01.08.2014 12:38:19 +0200 - build 408
+shmuel 2014-08-01 12:38:19+02:00 - build 408
 
 1. LuaFAR + generic plugin: уточнение 382; плагин падал при следующих обстоятельствах:
    - из макроса A добавляем новый макрос B посредством far.MacroAdd, параметр callback - функция;
@@ -1677,93 +1677,93 @@ shmuel 01.08.2014 12:38:19 +0200 - build 408
 2. LuaFAR: если при вызове callback() макроса, добавленного по far.MacroAdd, происходила ошибка,
    то возвращалось TRUE, и макрос мог быть исполнен.
 
-shmuel 28.07.2014 15:40:16 +0200 - build 407
+shmuel 2014-07-28 15:40:16+02:00 - build 407
 
 1. LuaFAR + generic plugin: новая функция far.SubscribeDialogDrawEvents.
 
-shmuel 22.07.2014 10:13:18 +0200 - build 406
+shmuel 2014-07-22 10:13:18+02:00 - build 406
 
 1. LuaFAR: в таблице, возвращаемой вызовом export.ProcessEditorEvent(EE_CHANGE),
    значения поля 'StringNumber' отсчитываются от 1.
 
-shmuel 22.07.2014 09:07:35 +0200 - build 405
+shmuel 2014-07-22 09:07:35+02:00 - build 405
 
 1. Уточнение 404.
 
-shmuel 22.07.2014 08:00:07 +0200 - build 404
+shmuel 2014-07-22 08:00:07+02:00 - build 404
 
 1. Функция editor.SubscribeChangeEvent не работала, будучи вызвана из макроса.
    (Она работала только если был загружен хотя бы один обработчик с group="EditorEvent").
 
-shmuel 21.07.2014 20:32:05 +0200 - build 403
+shmuel 2014-07-21 20:32:05+02:00 - build 403
 
 1. LuaFAR: новая функция editor.GetTitle.
 
-shmuel 19.07.2014 20:47:27 +0200 - build 402
+shmuel 2014-07-19 20:47:27+02:00 - build 402
 
 1. LuaFAR: функция editor.ClearSessionBookmarks возвращает булевое значение, а не число.
 
-shmuel 18.07.2014 07:46:24 +0200 - build 401
+shmuel 2014-07-18 07:46:24+02:00 - build 401
 
 1. LuaFAR: функции editor.GetBookmarks и editor.GetSessionBookmarks неправильно работали и вызывали падение.
 
-shmuel 17.07.2014 16:38:07 +0200 - build 400
+shmuel 2014-07-17 16:38:07+02:00 - build 400
 
 1. LuaFAR: функции panel.* не работали с хэндлами панелей, полученными от panel.GetPanelInfo().
 
-shmuel 16.07.2014 18:28:05 +0200 - build 399
+shmuel 2014-07-16 18:28:05+02:00 - build 399
 
 1. Новая функция: mf.acall. Подробности - в мануале.
 
-shmuel 15.07.2014 00:22:49 +0200 - build 398
+shmuel 2014-07-15 00:22:49+02:00 - build 398
 
 1. Мелкий рефакторинг.
 
-shmuel 14.07.2014 21:01:59 +0200 - build 397
+shmuel 2014-07-14 21:01:59+02:00 - build 397
 
 1. Игнорируем неправильные команды от вызовов Plugin.Command().
 
-shmuel 08.07.2014 16:11:57 +0200 - build 396
+shmuel 2014-07-08 16:11:57+02:00 - build 396
 
 1. Уточнение 389.2 : была ошибка при запуске Far /w /e <filename>.
 
-shmuel 07.07.2014 15:48:17 +0200 - build 395
+shmuel 2014-07-07 15:48:17+02:00 - build 395
 
 1. Уточнение 389.2 : ошибка при исполнении функции text() одного пункта меню
    приводила к тому, что и остальные пункты меню плагина не загружались.
 
-shmuel 07.07.2014 00:08:44 +0200 - build 394
+shmuel 2014-07-07 00:08:44+02:00 - build 394
 
 1. Уточнение 389.2 : поле "area" сделано опциональным.
 
-shmuel 06.07.2014 13:00:38 +0200 - build 393
+shmuel 2014-07-06 13:00:38+02:00 - build 393
 
 1. Уточнение 389.2 : поле "title" переименовано в "text".
 
-shmuel 05.07.2014 22:37:25 +0200 - build 392
+shmuel 2014-07-05 22:37:25+02:00 - build 392
 
 1. Мелкий рефакторинг.
 
-shmuel 05.07.2014 22:27:12 +0200 - build 391
+shmuel 2014-07-05 22:27:12+02:00 - build 391
 
 1. Уточнение 389.2.
 
-shmuel 05.07.2014 17:29:40 +0200 - build 390
+shmuel 2014-07-05 17:29:40+02:00 - build 390
 
 1. Уточнение 389.2.
 
-shmuel 05.07.2014 16:58:08 +0200 - build 389
+shmuel 2014-07-05 16:58:08+02:00 - build 389
 
 1. Продолжение 387.2.
 
 2. Добавление пунктов в меню плагинов/дисков/конфигурации плагинов из макрофайлов. Подробности - в мануале.
 
-shmuel 03.07.2014 12:38:39 +0200 - build 388
+shmuel 2014-07-03 12:38:39+02:00 - build 388
 
 1. LuaFAR (generic plugin): защита от вызовов Фаром экспортируемых функций плагина, производимых
    до возвращения из SetStartupInfoW(), то-есть когда плагин ещё не полностью инициализирован.
 
-shmuel 01.07.2014 00:02:47 +0200 - build 387
+shmuel 2014-07-01 00:02:47+02:00 - build 387
 
 1. Откат 383-386.
 
@@ -1771,93 +1771,93 @@ shmuel 01.07.2014 00:02:47 +0200 - build 387
 
 3. При переходе на MoonScript 0.2.6 сломалось нахождение номера строки в .moon-файлах.
 
-shmuel 30.06.2014 14:02:24 +0200 - build 386
+shmuel 2014-06-30 14:02:24+02:00 - build 386
 
 1. Продолжение 383: аргументы, передаваемые обработчикам события "CommandLine", задаются списком Lua-выражений.
 
-shmuel 28.06.2014 19:47:38 +0200 - build 385
+shmuel 2014-06-28 19:47:38+02:00 - build 385
 
 1. Продолжение 383: плагин передаёт обработчикам события "CommandLine" не таблицу, а последовательность аргументов.
 
-shmuel 28.06.2014 00:21:04 +0200 - build 384
+shmuel 2014-06-28 00:21:04+02:00 - build 384
 
 1. Продолжение 383: плагин передаёт обработчикам события "CommandLine" таблицу - массив аргументов.
 
-shmuel 27.06.2014 16:54:07 +0200 - build 383
+shmuel 2014-06-27 16:54:07+02:00 - build 383
 
 1. Новая команда macro:user (lm:user) и новый тип обработчика событий group="CommandLine". Подробности - в мануале.
 
-shmuel 25.06.2014 13:37:44 +0200 - build 382
+shmuel 2014-06-25 13:37:44+02:00 - build 382
 
 1. LuaFAR: far.MacroAdd и far.MacroDelete могут работать не только из основного lua_State, но и из дополнительных.
 
-shmuel 24.06.2014 01:36:45 +0200 - build 381
+shmuel 2014-06-24 01:36:45+02:00 - build 381
 
 1. MoonScript: в сборку не был включён файл moon.lua.
 
-shmuel 23.06.2014 22:46:06 +0200 - build 380
+shmuel 2014-06-23 22:46:06+02:00 - build 380
 
 1. Уточнение 377.2.
 
-shmuel 23.06.2014 20:38:21 +0200 - build 379
+shmuel 2014-06-23 20:38:21+02:00 - build 379
 
 1. LuaFAR: мелкий рефакторинг.
 
-shmuel 22.06.2014 13:11:38 +0200 - build 378
+shmuel 2014-06-22 13:11:38+02:00 - build 378
 
 1. MoonScript 0.2.6.
 
-shmuel 21.06.2014 18:09:57 +0200 - build 377
+shmuel 2014-06-21 18:09:57+02:00 - build 377
 
 1. LuaFAR: при создании и инициализации дополнительного lua_State, и вызове из него диалога, было падение.
 
 2. LuaFAR (generic plugin): экспортируемая функция luaopen_luaplug сделана доступной из Lua, в виде глобальной
    переменной _luaplug. Подробнее - в мануале.
 
-shmuel 18.06.2014 20:47:47 +0200 - build 376
+shmuel 2014-06-18 20:47:47+02:00 - build 376
 
 1. Уточнение 366.
 
-shmuel 17.06.2014 16:35:54 +0200 - build 375
+shmuel 2014-06-17 16:35:54+02:00 - build 375
 
 1. Уточнение 372.
 
-shmuel 17.06.2014 16:14:51 +0200 - build 374
+shmuel 2014-06-17 16:14:51+02:00 - build 374
 
 1. LuaFAR: функция editor.InsertTextW теперь сама обеспечивает два нулевых байта в конце текста,
    передаваемого Фару. Таким образом, вызывающая функция может об этом не заботиться.
 
-shmuel 16.06.2014 20:52:25 +0200 - build 373
+shmuel 2014-06-16 20:52:25+02:00 - build 373
 
 1. Уточнение 371.
 
-shmuel 16.06.2014 13:38:25 +0200 - build 372
+shmuel 2014-06-16 13:38:25+02:00 - build 372
 
 1. FIX: макросы, добавленные с помощью far.MacroAdd, работали с глобальным окружением.
 
-shmuel 15.06.2014 20:38:11 +0200 - build 371
+shmuel 2014-06-15 20:38:11+02:00 - build 371
 
 1. Если перезагрузка макросов прерывалась по ошибке в обработчике ExitFAR, то макросы переставали
    вызываться по нажатию клавиш, причём последующие перезагрузки уже не помогали.
 
-shmuel 08.06.2014 22:47:43 +0200 - build 370
+shmuel 2014-06-08 22:47:43+02:00 - build 370
 
 1. Восстановим поломанное во время рефакторингов поведение при выводе меню выбора макроса.
 
-shmuel 08.06.2014 12:28:07 +0200 - build 369
+shmuel 2014-06-08 12:28:07+02:00 - build 369
 
 1. M#2696: Отображать версии LuaFAR и luajit среди прочих выводимых по команде far:ver.
    В плагин добавлена команда macro:about (lm:about).
 
-shmuel 07.06.2014 16:00:14 +0200 - build 368
+shmuel 2014-06-07 16:00:14+02:00 - build 368
 
 1. Исправление двух редких, но возможных ситуаций, вызывающих падение Фара (одна в LuaFAR, другая в LuaMacro).
 
-shmuel 06.06.2014 23:40:12 +0200 - build 367
+shmuel 2014-06-06 23:40:12+02:00 - build 367
 
 1. Уточнение 366.
 
-shmuel 06.06.2014 21:37:13 +0200 - build 366
+shmuel 2014-06-06 21:37:13+02:00 - build 366
 
 1. LuaFAR-плагины (включая LuaMacro), использующие luaplug.c:
    Добавлена возможность "воссоздать" виртуальную машину (lua_State), используемую плагином, то-есть:
@@ -1874,7 +1874,7 @@ shmuel 06.06.2014 21:37:13 +0200 - build 366
 
    Плагин LuaMacro при этом автоматически загружает макросы и обработчики событий из макрофайлов.
 
-shmuel 06.06.2014 16:19:53 +0200 - build 365
+shmuel 2014-06-06 16:19:53+02:00 - build 365
 
 1. FIX: при незагруженных или выгруженных стационарных макросах не исполнялись вновь записанные клавиатурные.
 
@@ -1882,40 +1882,40 @@ shmuel 06.06.2014 16:19:53 +0200 - build 365
 
 3. FIX: не работали автостартующие макросы, у которых key="".
 
-zg 05.06.2014 18:06:43 +0200 - build 364
+zg 2014-06-05 18:06:43+02:00 - build 364
 
 1. Macro Browser: более корректный переход к телу макроса на moonscript по f4/altf4.
 
-shmuel 05.06.2014 00:51:14 +0200 - build 363
+shmuel 2014-06-05 00:51:14+02:00 - build 363
 
 1. Оптимизация обработки ключей при загрузке макросов.
 
-shmuel 04.06.2014 16:35:43 +0200 - build 362
+shmuel 2014-06-04 16:35:43+02:00 - build 362
 
 1. LuaFAR: panel.GetPanelInfo().PluginHandle устанавливается в nil, если от Фара пришёл NULL
    (раньше и в этом случае создавалась userdata).
 
-shmuel 03.06.2014 22:53:34 +0200 - build 361
+shmuel 2014-06-03 22:53:34+02:00 - build 361
 
 1. Поле 'key' в спецификации макроса сделано опциональным.
 
-shmuel 03.06.2014 20:47:06 +0200 - build 360
+shmuel 2014-06-03 20:47:06+02:00 - build 360
 
 1. Fix 359.
 
-shmuel 03.06.2014 20:14:25 +0200 - build 359
+shmuel 2014-06-03 20:14:25+02:00 - build 359
 
 1. Рефакторинг.
 
-shmuel 02.06.2014 18:16:01 +0200 - build 358
+shmuel 2014-06-02 18:16:01+02:00 - build 358
 
 1. Рефакторинг.
 
-shmuel 02.06.2014 00:18:56 +0200 - build 357
+shmuel 2014-06-02 00:18:56+02:00 - build 357
 
 1. Рефакторинг.
 
-shmuel 01.06.2014 16:49:47 +0200 - build 356
+shmuel 2014-06-01 16:49:47+02:00 - build 356
 
 1. В диалоге редактирования клавиатурного макроса не детектировались синтактические ошибки в параметрах файла-скрипта.
 
@@ -1923,135 +1923,135 @@ shmuel 01.06.2014 16:49:47 +0200 - build 356
 
 3. Рефакторинг.
 
-shmuel 31.05.2014 21:22:42 +0200 - build 355
+shmuel 2014-05-31 21:22:42+02:00 - build 355
 
 1. Продолжение 353: теперь не только не падаем, но и выполняем скрипт из архива по ассоциации
    (раньше выдавалось сообщение об ошибке, т.к. на момент запуска макроса временный файл уже был удалён).
 
-shmuel 31.05.2014 17:32:08 +0200 - build 354
+shmuel 2014-05-31 17:32:08+02:00 - build 354
 
 1. Рефакторинг.
 
-shmuel 29.05.2014 21:10:14 +0200 - build 353
+shmuel 2014-05-29 21:10:14+02:00 - build 353
 
 1. Фар падал при выдаче плагином сообщения об ошибке при запуске скрипта из архива по ассоциации
    lua:@"!\!.!"
 
-shmuel 29.05.2014 09:27:11 +0200 - build 352
+shmuel 2014-05-29 09:27:11+02:00 - build 352
 
 1. M#2389: mmode(1,x): Вывод на экран включается/отключается не вовремя.
 
-shmuel 28.05.2014 13:00:02 +0200 - build 351
+shmuel 2014-05-28 13:00:02+02:00 - build 351
 
 1. LuaFAR: M#2674: Возврат хэндла панели при работе из макроса - поддержка для LuaFAR-плагинов.
 
-shmuel 28.05.2014 12:52:34 +0200 - build 350
+shmuel 2014-05-28 12:52:34+02:00 - build 350
 
 1. Плагин падал при начальной загрузке макросов, если на package.cpath
    находилась lpeg.dll версии 0.10 при том, что в %farhome% была версия 0.12.
 
-shmuel 26.05.2014 20:20:14 +0200 - build 349
+shmuel 2014-05-26 20:20:14+02:00 - build 349
 
 1. Завершение рефакторинга, начатого в 332.
 
-shmuel 25.05.2014 21:14:54 +0200 - build 348
+shmuel 2014-05-25 21:14:54+02:00 - build 348
 
 1. Продолжение 332.
 
-shmuel 25.05.2014 18:17:51 +0200 - build 347
+shmuel 2014-05-25 18:17:51+02:00 - build 347
 
 1. Продолжение 332.
 
-shmuel 24.05.2014 20:09:27 +0200 - build 346
+shmuel 2014-05-24 20:09:27+02:00 - build 346
 
 1. Починим вложенные макросы.
 
-shmuel 24.05.2014 17:26:49 +0200 - build 345
+shmuel 2014-05-24 17:26:49+02:00 - build 345
 
 1. Продолжение 332.
 
-shmuel 24.05.2014 00:37:50 +0200 - build 344
+shmuel 2014-05-24 00:37:50+02:00 - build 344
 
 1. Уточнение 343.
 
-shmuel 23.05.2014 19:52:47 +0200 - build 343
+shmuel 2014-05-23 19:52:47+02:00 - build 343
 
 1. Продолжение 332.
 
-shmuel 23.05.2014 01:47:14 +0200 - build 342
+shmuel 2014-05-23 01:47:14+02:00 - build 342
 
 1. Продолжение 332.
 
-shmuel 21.05.2014 18:08:08 +0200 - build 341
+shmuel 2014-05-21 18:08:08+02:00 - build 341
 
 1. Продолжение 332.
 
-shmuel 17.05.2014 23:58:48 +0200 - build 340
+shmuel 2014-05-17 23:58:48+02:00 - build 340
 
 1. Продолжение 332.
 
-shmuel 15.05.2014 23:27:15 +0200 - build 339
+shmuel 2014-05-15 23:27:15+02:00 - build 339
 
 1. LuaFAR: compilation warnings.
 
-shmuel 15.05.2014 00:12:19 +0200 - build 338
+shmuel 2014-05-15 00:12:19+02:00 - build 338
 
 1. Продолжение 332.
 
-shmuel 14.05.2014 17:11:46 +0200 - build 337
+shmuel 2014-05-14 17:11:46+02:00 - build 337
 
 1. M#2673: LuaFAR: дополнительные параметры для far.Timer.
 
-zg 13.05.2014 20:18:30 +0200 - build 336
+zg 2014-05-13 20:18:30+02:00 - build 336
 
 1. %farprofile%\Macros\modules добавлен в package.moonpath.
 
-shmuel 13.05.2014 17:22:27 +0200 - build 335
+shmuel 2014-05-13 17:22:27+02:00 - build 335
 
 1. Из-за 328.1 не инициализировался package.moonpath.
 
-zg 13.05.2014 04:31:07 +0200 - build 334
+zg 2014-05-13 04:31:07+02:00 - build 334
 
 1. %farprofile%\Macros\modules добавлен в package.cpath.
 
-shmuel 13.05.2014 00:35:01 +0200 - build 333
+shmuel 2014-05-13 00:35:01+02:00 - build 333
 
 1. Продолжение 332.
 
-shmuel 12.05.2014 13:05:51 +0200 - build 332
+shmuel 2014-05-12 13:05:51+02:00 - build 332
 
 1. Рефакторинг в системе макросов.
 
-shmuel 11.05.2014 02:47:01 +0200 - build 331
+shmuel 2014-05-11 02:47:01+02:00 - build 331
 
 1. Из форума: ошибка moonscript.lua:677: too many pending calls/choices
    Ошибка проявлялась после перезагрузки макросов на вложенном цикле глубиной 8.
 
-shmuel 07.05.2014 16:59:17 +0200 - build 330
+shmuel 2014-05-07 16:59:17+02:00 - build 330
 
 1. LuaFAR: добавлен метод "send" хэндлу диалога.
    Выражение hDlg:send(...) соответствует выражению far.SendDlgMessage(hDlg, ...)
 
-shmuel 05.05.2014 22:50:22 +0200 - build 329
+shmuel 2014-05-05 22:50:22+02:00 - build 329
 
 1. Рефакторинг.
 
-shmuel 05.05.2014 15:24:35 +0200 - build 328
+shmuel 2014-05-05 15:24:35+02:00 - build 328
 
 1. Force MoonScript to load lpeg.dll residing in %farhome%.
 
 2. M#2388: При ошибках сообщения системы на русском могут не отображаться.
 
-shmuel 04.05.2014 11:24:24 +0200 - build 327
+shmuel 2014-05-04 11:24:24+02:00 - build 327
 
 1. LuaFAR: ряд функций приведен в соответствие с документацией в отношении их возвращаемых значений.
    Эти функции могли возвращать 0 значений, тогда как по документации должны были возвращать nil или false.
 
-shmuel 04.05.2014 02:12:28 +0200 - build 326
+shmuel 2014-05-04 02:12:28+02:00 - build 326
 
 1. Откат build 325.
 
-shmuel 03.05.2014 17:51:18 +0200 - build 325
+shmuel 2014-05-03 17:51:18+02:00 - build 325
 
 1. Экспериментально:
    Перед обработкой комстроки Фар передаёт её плагину LuaMacro, который вызывает глобальную функцию
@@ -2060,48 +2060,48 @@ shmuel 03.05.2014 17:51:18 +0200 - build 325
    его как новое значение комстроки. Если возвращает true, дальнейшая обработка комстроки Фаром не
    производится.
 
-shmuel 02.05.2014 23:00:20 +0200 - build 324
+shmuel 2014-05-02 23:00:20+02:00 - build 324
 
 1. Командная строка: если в `lua: <code>` или `moon: <code>`
    `<code>` начинается с символа `=`, то вызывается `far.Show()`, например:
    `lua:=5+2,6,"foo"` эквивалентно `lua:far.Show(5+2,6,"foo")`.
 
-shmuel 01.05.2014 17:05:32 +0200 - build 323
+shmuel 2014-05-01 17:05:32+02:00 - build 323
 
 1. В файл moonscript.lua не была включена стандартная библиотека языка.
 
 2. Рефакторинг.
 
-shmuel 30.04.2014 20:57:47 +0200 - build 322
+shmuel 2014-04-30 20:57:47+02:00 - build 322
 
 1. Мелкий рефакторинг.
 
-shmuel 29.04.2014 17:51:59 +0200 - build 321
+shmuel 2014-04-29 17:51:59+02:00 - build 321
 
 1. По просьбе трудящихся: команды "lm:post" и "macro:post" оставлены на полгода,
    в качестве синонимов команды "lua:".
 
-shmuel 28.04.2014 19:42:31 +0200 - build 320
+shmuel 2014-04-28 19:42:31+02:00 - build 320
 
 1. Не, "lm:" никому не мешала, пусть живёт как синоним "macro:".
 
-shmuel 28.04.2014 18:18:11 +0200 - build 319
+shmuel 2014-04-28 18:18:11+02:00 - build 319
 
 1. Команда "lm:" убрана, вместо неё - команда "macro:".
 
 2. Из таблицы mf убраны функции: band,bor,bnot,bxor,lshift,rshift.
 
-shmuel 28.04.2014 13:42:55 +0200 - build 318
+shmuel 2014-04-28 13:42:55+02:00 - build 318
 
 1. Убраны команды "luacheck:" и "mooncheck:".
 
 2. В функции eval добавлен опциональный 3-й параметр 'Lang'.
 
-shmuel 27.04.2014 13:32:54 +0200 - build 317
+shmuel 2014-04-27 13:32:54+02:00 - build 317
 
 1. Продолжение build 316 + обновлена документация.
 
-shmuel 27.04.2014 01:33:41 +0200 - build 316
+shmuel 2014-04-27 01:33:41+02:00 - build 316
 
 1. Новый синтаксис командной строки плагина:
        lm:        load
@@ -2113,114 +2113,114 @@ shmuel 27.04.2014 01:33:41 +0200 - build 316
        mooncheck: <sequence> | @<filename> [<params>]
    Документация ещё не обновлена.
 
-shmuel 26.04.2014 17:56:39 +0200 - build 315
+shmuel 2014-04-26 17:56:39+02:00 - build 315
 
 1. Продолжение 314, документация обновлена:
    -- команды lm:post2 и lm:check2 в плагине LuaMacro.
 
-shmuel 25.04.2014 21:32:52 +0200 - build 314
+shmuel 2014-04-25 21:32:52+02:00 - build 314
 
 1. Поддержка MoonScript в API плагинов (документация ещё не обновлена).
 
-shmuel 23.04.2014 16:34:49 +0200 - build 313
+shmuel 2014-04-23 16:34:49+02:00 - build 313
 
 1. moonscript.dll заменена на moonscript.lua.
 
-shmuel 23.04.2014 10:28:06 +0200 - build 312
+shmuel 2014-04-23 10:28:06+02:00 - build 312
 
 1. Откат build 311, в связи с вынесением LPeg из moonscript.dll в отдельную lpeg.dll.
 
-shmuel 23.04.2014 08:12:28 +0200 - build 311
+shmuel 2014-04-23 08:12:28+02:00 - build 311
 
 1. Fix build 310: при перезагрузке скриптов выгружался LPeg, без которого
    не может работать MoonScript.
 
-shmuel 23.04.2014 01:08:10 +0200 - build 310
+shmuel 2014-04-23 01:08:10+02:00 - build 310
 
 1. Добавлена поддержка MoonScript (автор идеи и первой реализации - Вадим Егоров).
    Используется слегка патченый MoonScript 0.2.5: в функции moonscript.loadfile
    добавлена 1 строчка для пропуска UTF-8 BOM, если таковой имеется.
 
-shmuel 18.04.2014 13:26:34 +0200 - build 309
+shmuel 2014-04-18 13:26:34+02:00 - build 309
 
 1. Refactoring.
 
-shmuel 14.04.2014 13:37:00 +0200 - build 308
+shmuel 2014-04-14 13:37:00+02:00 - build 308
 
 1. LuaFAR: реализована обработка DM_KEY.
 
-shmuel 12.04.2014 16:23:58 +0200 - build 307
+shmuel 2014-04-12 16:23:58+02:00 - build 307
 
 1. Fix: ключ макроса, заданный регулярным выражением, содержащий альтернативы
         верхнего уровня, разделённые символом '|', не срабатывал при наличии
         полностью валидной альтернативы, в случае, если ей предшествовала
         альтернатива, дающая частичное совпадение.
 
-shmuel 11.04.2014 18:34:10 +0200 - build 306
+shmuel 2014-04-11 18:34:10+02:00 - build 306
 
 1. Fix: ключ макроса, заданный регулярным выражением, преобразовывался в нижний
         регистр, что приводило к обработке \D как \d и т.п.
 
-zg 09.04.2014 18:05:25 +0200 - build 305
+zg 2014-04-09 18:05:25+02:00 - build 305
 
 1. LuaFAR: удалена поддержка DN_ACTIVATEAPP.
 
-shmuel 08.04.2014 10:39:15 +0200 - build 304
+shmuel 2014-04-08 10:39:15+02:00 - build 304
 
 1. LuaFAR: refactoring.
 
-shmuel 07.04.2014 23:31:55 +0200 - build 303
+shmuel 2014-04-07 23:31:55+02:00 - build 303
 
 1. LuaFAR: refactoring.
 
-shmuel 07.04.2014 21:08:04 +0200 - build 302
+shmuel 2014-04-07 21:08:04+02:00 - build 302
 
 1. LuaFAR: добавилась поддержка DN_ACTIVATEAPP.
 
-shmuel 06.04.2014 18:45:15 +0200 - build 301
+shmuel 2014-04-06 18:45:15+02:00 - build 301
 
 1. LuaFAR fix: require 'unicode' возвращало не ту таблицу.
 
-shmuel 22.03.2014 23:20:01 +0200 - build 300
+shmuel 2014-03-22 23:20:01+02:00 - build 300
 
 1. LuaFAR: добавлена обработка новых диалоговых сообщений и событий:
    DM_GETDIALOGTITLE, DN_DROPDOWNOPENED, DN_DRAWDLGITEMDONE.
 
-shmuel 14.03.2014 00:46:28 +0200 - build 299
+shmuel 2014-03-14 00:46:28+02:00 - build 299
 
 1. lua51.dll и lua5.1.dll меняются ролями: теперь lua51.dll - основная, а lua5.1.dll - proxy.
 
-shmuel 08.03.2014 01:07:28 +0200 - build 298
+shmuel 2014-03-08 01:07:28+02:00 - build 298
 
 1. LuaFAR: снято ограничение на длину строки, получаемой посредством DM_GETTEXT.
 
-shmuel 08.03.2014 00:08:20 +0200 - build 297
+shmuel 2014-03-08 00:08:20+02:00 - build 297
 
 1. Уточнение build 296.
 
-shmuel 07.03.2014 22:30:54 +0200 - build 296
+shmuel 2014-03-07 22:30:54+02:00 - build 296
 
 1. Расширение winapi.lua (от John Doe).
 
-shmuel 06.03.2014 13:24:27 +0200 - build 295
+shmuel 2014-03-06 13:24:27+02:00 - build 295
 
 1. M#2612: LuaFAR: метод для получения "сырого" значения хэндла диалога.
 
-shmuel 02.03.2014 10:01:12 +0200 - build 294
+shmuel 2014-03-02 10:01:12+02:00 - build 294
 
 1. LuaFAR: все параметры функции far.Text сделаны опциональными.
 
-shmuel 21.02.2014 20:43:53 +0200 - build 293
+shmuel 2014-02-21 20:43:53+02:00 - build 293
 
 1. LuaFAR: автоматическая вставка <plugin_path>\?.lua в package.path больше не производится.
    Те LuaFAR-плагины, которым это надо, должны об этом позаботиться сами.
 
-shmuel 19.02.2014 16:22:00 +0200 - build 292
+shmuel 2014-02-19 16:22:00+02:00 - build 292
 
 1. Fix: в функции eval при исполнении скрипта-файла (@<filename> [<params>]),
    вместо указанных параметров скрипту передавалась функция.
 
-shmuel 18.02.2014 00:06:10 +0200 - build 291
+shmuel 2014-02-18 00:06:10+02:00 - build 291
 
 1. LuaFAR: в следующих функциях теперь допускается вместо таблицы FarColor передавать число:
      - editor.AddColor
@@ -2229,359 +2229,359 @@ shmuel 18.02.2014 00:06:10 +0200 - build 291
      - диалоговые процедуры (DN_CTLCOLORDLGLIST, DN_CTLCOLORDLGITEM, DN_CTLCOLORDIALOG)
    Передача числа подразумевает стандартные 4-битные цвета (обрабатывается только младший байт числа).
 
-shmuel 16.02.2014 21:41:56 +0200 - build 290
+shmuel 2014-02-16 21:41:56+02:00 - build 290
 
 1. LuaFAR: far.RecursiveSearch принимает произвольное количество дополнительных аргументов.
 
-shmuel 16.02.2014 19:48:43 +0200 - build 289
+shmuel 2014-02-16 19:48:43+02:00 - build 289
 
 1. LuaFAR: добавлен 5-й параметр в функцию far.RecursiveSearch.
 
-shmuel 12.02.2014 22:50:28 +0200 - build 288
+shmuel 2014-02-12 22:50:28+02:00 - build 288
 
 1. Убрана локализация coroutine.create - для удобства отладки с ZeroBrane Studio.
 
-shmuel 11.02.2014 16:56:31 +0200 - build 287
+shmuel 2014-02-11 16:56:31+02:00 - build 287
 
 1. LuaFAR: очередное исправление обработки DM_LISTSETDATA/DM_LISTGETDATA.
    В качестве идентификатора данных теперь используем GetPluginData(L), а не L,
    поскольку L разное для разных макросов.
 
-shmuel 10.02.2014 09:34:12 +0200 - build 286
+shmuel 2014-02-10 09:34:12+02:00 - build 286
 
 1. LuaFAR: уточнение обработки DM_LISTSETDATA/DM_LISTGETDATA.
    DM_LISTGETDATA возвращает light userdata для "чужих" данных (см. мануал LuaFAR).
 
-shmuel 09.02.2014 22:27:26 +0200 - build 285
+shmuel 2014-02-09 22:27:26+02:00 - build 285
 
 1. LuaFAR: исправление обработки DM_LISTGETDATASIZE (номер элемента списка отсчитывался от 0, а не 1).
 
 2. LuaFAR: небольшое изменение алгоритма обработки DM_LISTSETDATA.
 
-shmuel 08.02.2014 00:41:08 +0200 - build 284
+shmuel 2014-02-08 00:41:08+02:00 - build 284
 
 1. Уточнение билда 283.
 
-shmuel 07.02.2014 22:37:35 +0200 - build 283
+shmuel 2014-02-07 22:37:35+02:00 - build 283
 
 1. LuaFAR: far.SendDlgMessage(DM_LISTSETDATA) при повторной установке данных по тому же индексу
    не затирал предыдущее значение, что приводило к росту потребления памяти.
 
-shmuel 06.02.2014 18:28:38 +0200 - build 282
+shmuel 2014-02-06 18:28:38+02:00 - build 282
 
 1. LuaFAR: доработка far.GetDlgItem и far.SendDlgMessage(DM_GETDLGITEM):
    для элементов типа DI_LISTBOX и DI_COMBOBOX элемент 6 (ListItems) передавался нулём.
 
 2. LuaFAR: мелкий рефакторинг.
 
-shmuel 30.01.2014 11:20:16 +0200 - build 281
+shmuel 2014-01-30 11:20:16+02:00 - build 281
 
 1. LuaFAR: откат билда 279 (сломалось получение пустых строк).
 
-shmuel 29.01.2014 18:46:57 +0200 - build 280
+shmuel 2014-01-29 18:46:57+02:00 - build 280
 
 1. Мелкий рефакторинг.
 
-zg 29.01.2014 14:10:34 +0200 - build 279
+zg 2014-01-29 14:10:34+02:00 - build 279
 
 1. LuaFAR: уточнение 276 - для несуществующих элементов DM_GETTEXT возвращает nil.
 
-shmuel 29.01.2014 09:42:12 +0200 - build 278
+shmuel 2014-01-29 09:42:12+02:00 - build 278
 
 1. Откат изменения DM_LISTGETCURPOS предыдущего коммита.
 
-shmuel 28.01.2014 23:23:52 +0200 - build 277
+shmuel 2014-01-28 23:23:52+02:00 - build 277
 
 1. LuaFAR: уточнения в DM_GETCONSTTEXTPTR и DM_LISTGETCURPOS.
 
-zg 28.01.2014 12:07:51 +0200 - build 276
+zg 2014-01-28 12:07:51+02:00 - build 276
 
 1. LuaFAR: DM_GETTEXT для несуществующих элементов диалога возвращало мусор.
 
-shmuel 28.01.2014 01:28:32 +0200 - build 275
+shmuel 2014-01-28 01:28:32+02:00 - build 275
 
 1. LuaFAR: работали скрипты с двумя BOM'ами (один удалял LuaFAR, второй - LuaJIT).
 
-shmuel 24.01.2014 20:19:11 +0200 - build 274
+shmuel 2014-01-24 20:19:11+02:00 - build 274
 
 1. LuaFAR: M#2572: far.MakeMenuItems: добавлять в таблицу не только строковое представление, но и сами объекты.
 
 2. LuaFAR: M#2573: far.Show: возвращать выбранный пункт меню.
 
-shmuel 21.01.2014 22:03:31 +0200 - build 273
+shmuel 2014-01-21 22:03:31+02:00 - build 273
 
 1. LuaFAR (far.Message): добавлен флаг 'n', означающий "не делать свёртку длинных строк".
 
-shmuel 18.01.2014 13:18:11 +0200 - build 272
+shmuel 2014-01-18 13:18:11+02:00 - build 272
 
 1. M#2561: far.MacroPost: возможность задавать SequenceText функцией (а не строкой).
    Добавлена функция mf.postmacro.
 
-shmuel 14.01.2014 11:15:34 +0200 - build 271
+shmuel 2014-01-14 11:15:34+02:00 - build 271
 
 1. Адаптация к Far 3.0.3770 ("рефакторинг в системе макросов").
 
-shmuel 12.01.2014 20:21:37 +0200 - build 270
+shmuel 2014-01-12 20:21:37+02:00 - build 270
 
 1. LuaFAR (far.MacroAdd) - доработка build 150:
    -- Callback(Id,Flags) получает первым параметром не число, а light userdata.
 
-shmuel 10.01.2014 16:45:19 +0200 - build 269
+shmuel 2014-01-10 16:45:19+02:00 - build 269
 
 1. LuaFAR-плагины, собираемые GCC:
    автоматическое включение экспорта FreeFindDataW при наличии GetFindDataW.
 
-shmuel 07.01.2014 11:00:53 +0200 - build 268
+shmuel 2014-01-07 11:00:53+02:00 - build 268
 
 1. Кастомная сортировка: косметика.
 
-shmuel 06.01.2014 17:09:29 +0200 - build 267
+shmuel 2014-01-06 17:09:29+02:00 - build 267
 
 1. Кастомная сортировка: возможность указания функции сортировки при загрузке режима сортировки.
 
-shmuel 06.01.2014 13:33:30 +0200 - build 266
+shmuel 2014-01-06 13:33:30+02:00 - build 266
 
 1. Кастомная сортировка: адаптация "альтернативной" функции сортировки (qsort) к Far 3.0.3751+.
 
-shmuel 05.01.2014 19:22:10 +0200 - build 265
+shmuel 2014-01-05 19:22:10+02:00 - build 265
 
 1. Рефакторинг кастомной сортировки.
 
-drkns 03.01.2014 13:38:35 +0200 - build 264
+drkns 2014-01-03 13:38:35+02:00 - build 264
 
 1. Немного упростим 263.
 
-t-rex 03.01.2014 04:58:00 +0200 - build 263
+t-rex 2014-01-03 04:58:00+02:00 - build 263
 
 1. Фикс кастомной сортировки, уродливо но чтоб намёк был понят.
 
 [ Примечание от shmuel: кастомная сортировка сломалась в Far 3.0.3751 ]
 
-shmuel 28.12.2013 13:05:44 +0200 - build 262
+shmuel 2013-12-28 13:05:44+02:00 - build 262
 
 1. M#2550: Возвращаемое значение для загрузочных функций Macro и Event.
    При успешной загрузке данные функции возвращают число-идентификатор
    загруженного макроса или обработчика события.
 
-shmuel 25.12.2013 18:55:20 +0200 - build 261
+shmuel 2013-12-25 18:55:20+02:00 - build 261
 
 1. LuaFAR (far.Timer):
    после закрытия таймера его обработчик не может быть автоматически вызван,
    поэтому больше нет необходимости проверять в обработчике, закрыт ли таймер.
 
-shmuel 16.11.2013 23:14:32 +0200 - build 260
+shmuel 2013-11-16 23:14:32+02:00 - build 260
 
 1. LuaFAR: доработана передача параметров функции export.ProcessPanelEvent.
 
-shmuel 12.11.2013 00:06:37 +0200 - build 259
+shmuel 2013-11-12 00:06:37+02:00 - build 259
 
 1. LuaFAR: Оказывается, хэндл панели, возвращаемый OpenW(), должен быть уникальным не в пределах
    плагина, а в пределах Фара. Поэтому добавим к нему смещение, равное адресу lua_State плагина.
 
-shmuel 02.11.2013 18:36:31 +0200 - build 258
+shmuel 2013-11-02 18:36:31+02:00 - build 258
 
 1. LuaFAR: для элементов плагиновых панелей не заполнялся массив CustomColumnData.
 
-shmuel 30.09.2013 13:54:30 +0200 - build 257
+shmuel 2013-09-30 13:54:30+02:00 - build 257
 
 1. LuaFAR (unicode.utf8.format): уточнение билда 141.
 
-shmuel 29.09.2013 21:08:52 +0200 - build 256
+shmuel 2013-09-29 21:08:52+02:00 - build 256
 
 1. Уточнение билда 255: сделано одинаково для Lua 5.1 и 5.2.
 
-shmuel 29.09.2013 19:28:05 +0200 - build 255
+shmuel 2013-09-29 19:28:05+02:00 - build 255
 
 1. LuaFAR: предотвратим исключение при невалидном 2-м аргументе io.open().
    Из форума: Вот такая строчка в макросе роняет ФАР
      io.open("file","xyz")
 
-shmuel 26.09.2013 12:37:08 +0200 - build 254
+shmuel 2013-09-26 12:37:08+02:00 - build 254
 
 1. Macro Browser: по F3 выводится информация о макросе/обработчике события.
 
-shmuel 24.09.2013 16:50:11 +0200 - build 253
+shmuel 2013-09-24 16:50:11+02:00 - build 253
 
 1. Уточнение 252.
 
-shmuel 24.09.2013 13:56:53 +0200 - build 252
+shmuel 2013-09-24 13:56:53+02:00 - build 252
 
 1. Продолжение M#2390: Передавать параметры скрипту, запущенному через lm:post @
    Глобальная (в пределах окружения скрипта) переменная `_filename` содержит имя файла-скрипта.
    См. начало в лог-записи билда 196.
 
-shmuel 22.09.2013 18:57:29 +0200 - build 251
+shmuel 2013-09-22 18:57:29+02:00 - build 251
 
 1. Добавка и уточнение сообщений об ошибках. Мини-рефакторинг.
 
-shmuel 21.09.2013 19:24:13 +0200 - build 250
+shmuel 2013-09-21 19:24:13+02:00 - build 250
 
 1. Небольшие уточнения.
 
-shmuel 21.09.2013 11:50:29 +0200 - build 249
+shmuel 2013-09-21 11:50:29+02:00 - build 249
 
 1. Рефакторинг.
 
-shmuel 20.09.2013 20:08:09 +0200 - build 248
+shmuel 2013-09-20 20:08:09+02:00 - build 248
 
 1. Расширены файлы winapi.lua и farapi.lua.
 
-shmuel 19.09.2013 23:53:41 +0200 - build 247
+shmuel 2013-09-19 23:53:41+02:00 - build 247
 
 1. LuaFAR: добавлена функция far.IsPluginLoaded.
 
-shmuel 19.09.2013 19:45:15 +0200 - build 246
+shmuel 2013-09-19 19:45:15+02:00 - build 246
 
 1. Мелкий рефакторинг и приведение переводов строк к единообразному виду.
 
-shmuel 19.09.2013 00:01:45 +0200 - build 245
+shmuel 2013-09-19 00:01:45+02:00 - build 245
 
 1. M#2486: Разрешить использование Plugin.Call в Condition.
    Добавлена макрофункция Plugin.SyncCall, см. macroapi_manual.chm.
 
-shmuel 16.09.2013 20:04:27 +0200 - build 244
+shmuel 2013-09-16 20:04:27+02:00 - build 244
 
 1. Если у Фара выставлена опция ReadOnlyConfig != 0, плагин не создаёт папки
    и не сохраняет клавиатурные макросы в файлы.
 
-shmuel 15.09.2013 21:01:09 +0200 - build 243
+shmuel 2013-09-15 21:01:09+02:00 - build 243
 
 1. Рефакторинг.
 
-shmuel 12.09.2013 18:59:27 +0200 - build 242
+shmuel 2013-09-12 18:59:27+02:00 - build 242
 
 1. Рефакторинг.
 
-shmuel 11.09.2013 08:18:35 +0200 - build 241
+shmuel 2013-09-11 08:18:35+02:00 - build 241
 
 1. Не все вхождения PluginPanelItemEx были переименованы в 240.
 
-shmuel 10.09.2013 23:58:49 +0200 - build 240
+shmuel 2013-09-10 23:58:49+02:00 - build 240
 
 1. Переименование PluginPanelItemEx -> SortingPanelItem.
 
-shmuel 10.09.2013 22:19:08 +0200 - build 239
+shmuel 2013-09-10 22:19:08+02:00 - build 239
 
 1. Кастомные сортировки в панелях используют структуру PluginPanelItemEx вместо PluginPanelItem.
    (Это ломающее изменение, пересмотрите свой код).
 
-shmuel 08.09.2013 20:47:29 +0200 - build 238
+shmuel 2013-09-08 20:47:29+02:00 - build 238
 
 1. Кастомные сортировки: поля спецификации сортировки DirectoriesFirst,
    SelectedFirst, RevertSorting и SortGroups ошибочно обрабатывались как
    булевые величины, в то время как они могут принимать 3 значения.
 
-shmuel 06.09.2013 02:21:33 +0200 - build 237
+shmuel 2013-09-06 02:21:33+02:00 - build 237
 
 1. Кастомные режимы сортировки выгружаются при выгрузке макросов.
 
-shmuel 05.09.2013 22:41:24 +0200 - build 236
+shmuel 2013-09-05 22:41:24+02:00 - build 236
 
 1. Рефакторинг.
 
-shmuel 04.09.2013 19:59:11 +0200 - build 235
+shmuel 2013-09-04 19:59:11+02:00 - build 235
 
 1. Уточнение 234: вызов макроса из меню сортировок панели (CtrlF12) с последующим
    выбором кастомного режима сортировки приводили к падению Фара.
 
-shmuel 04.09.2013 19:31:48 +0200 - build 234
+shmuel 2013-09-04 19:31:48+02:00 - build 234
 
 1. Меню сортировок панели (CtrlF12) включает в себя и кастомные режимы сортировки, если таковые имеются.
 
-shmuel 02.09.2013 10:35:41 +0200 - build 233
+shmuel 2013-09-02 10:35:41+02:00 - build 233
 
 1. LuaFAR: far.CopyToClipboard(nil) очищает буфер обмена.
 
-shmuel 25.08.2013 22:48:35 +0200 - build 232
+shmuel 2013-08-25 22:48:35+02:00 - build 232
 
 1. Продолжение 231: функция InitSort получает один параметр - таблицу опций сортировки.
 
-shmuel 25.08.2013 15:25:46 +0200 - build 231
+shmuel 2013-08-25 15:25:46+02:00 - build 231
 
 1. Параметр Settings функции Panel.LoadCustomSortMode может содержать опциональные поля - функции InitSort и EndSort.
 
-shmuel 20.08.2013 20:54:52 +0200 - build 230
+shmuel 2013-08-20 20:54:52+02:00 - build 230
 
 1. Кастомные сортировки панелей восстанавливаются при перезапуске Фара, если setup был сохранён,
    при условии, что соответствующие вызовы Panel.LoadCustomSortMode() производятся в процессе загрузки макросов.
    Восстановление происходит после окончания загрузки макросов, до начала исполнения автостартующих макросов.
 
-shmuel 17.08.2013 13:30:57 +0200 - build 229
+shmuel 2013-08-17 13:30:57+02:00 - build 229
 
 1. Уточнение 228.
 
-shmuel 17.08.2013 11:56:31 +0200 - build 228
+shmuel 2013-08-17 11:56:31+02:00 - build 228
 
 1. M#2468: некорректная работа Editor.Value и Editor.GetStr() при наличии в строке символа \x00.
 
-shmuel 15.08.2013 00:36:48 +0200 - build 227
+shmuel 2013-08-15 00:36:48+02:00 - build 227
 
 1. Рефакторинг.
 
-shmuel 14.08.2013 15:56:53 +0200 - build 226
+shmuel 2013-08-14 15:56:53+02:00 - build 226
 
 1. Временно убираем C.wcscmp из panelsort.lua (LuaJIT, скомпилированный с msvcr100.dll, её не находит).
 
-shmuel 14.08.2013 00:12:38 +0200 - build 225
+shmuel 2013-08-14 00:12:38+02:00 - build 225
 
 1. Переименование: Panel.InstallCustomSortMode -> Panel.LoadCustomSortMode.
 
-shmuel 13.08.2013 18:53:50 +0200 - build 224
+shmuel 2013-08-13 18:53:50+02:00 - build 224
 
 1. Добавлена макрофункция Panel.CustomSortMenu.
 
-shmuel 12.08.2013 20:55:13 +0200 - build 223
+shmuel 2013-08-12 20:55:13+02:00 - build 223
 
 1. Добавлена макрофункция Panel.InstallCustomSortMode.
 
-shmuel 12.08.2013 14:42:45 +0200 - build 222
+shmuel 2013-08-12 14:42:45+02:00 - build 222
 
 1. Уточнение 219.
 
-shmuel 11.08.2013 20:26:08 +0200 - build 221
+shmuel 2013-08-11 20:26:08+02:00 - build 221
 
 1. Уточнение 219.
 
-shmuel 11.08.2013 01:20:02 +0200 - build 220
+shmuel 2013-08-11 01:20:02+02:00 - build 220
 
 1. Уточнение 219.
 
-shmuel 10.08.2013 19:32:13 +0200 - build 219
+shmuel 2013-08-10 19:32:13+02:00 - build 219
 
 1. Кастомная сортировка в панелях. Уже работает.
    Добавлена макрофункция Panel.SetCustomSortMode.
 
-shmuel 09.08.2013 20:01:49 +0200 - build 218
+shmuel 2013-08-09 20:01:49+02:00 - build 218
 
 1. Кастомная сортировка в панелях. Пока не работает.
 
-shmuel 05.08.2013 20:20:50 +0200 - build 217
+shmuel 2013-08-05 20:20:50+02:00 - build 217
 
 1. LuaFAR: добавлена функция panel.SetDirectoriesFirst.
 
-shmuel 04.08.2013 19:29:15 +0200 - build 216
+shmuel 2013-08-04 19:29:15+02:00 - build 216
 
 1. Уточнение билда 209 (были падения при большом количестве возвращаемых значений от Plugin.Call).
 
-shmuel 04.08.2013 00:39:23 +0200 - build 215
+shmuel 2013-08-04 00:39:23+02:00 - build 215
 
 1. LuaFAR: мелкий рефакторинг.
 
-shmuel 04.08.2013 00:17:43 +0200 - build 214
+shmuel 2013-08-04 00:17:43+02:00 - build 214
 
 1. LuaFAR: уточнение билда 211: элемент DI_USERCONTROL *не обязан* содержать в 6-й позиции тип "far_usercontrol"
    (например, плагин LuaFAR History перестал работать, т.к. у него этот тип не используется).
 
-shmuel 02.08.2013 08:06:45 +0200 - build 213
+shmuel 2013-08-02 08:06:45+02:00 - build 213
 
 1. Порядок вывода пунктов в меню выбора макроса (при наличии более одного макроса на сочетание area/key)
    не был постоянным, он мог меняться после каждой перезагрузки макросов (следствие переделки в билде 191).
 
-zg 01.08.2013 18:20:23 +0200 - build 212
+zg 2013-08-01 18:20:23+02:00 - build 212
 
 1. LuaFAR: usercontrol.new -> far.CreateUserControl.
 
-zg 31.07.2013 21:24:49 +0200 - build 211
+zg 2013-07-31 21:24:49+02:00 - build 211
 
 1. LuaFAR: добавлена поддержка буфера для DI_USERCONTROL. использовать примерно так:
 
@@ -2595,186 +2595,186 @@ zg 31.07.2013 21:24:49 +0200 - build 211
      {"DI_USERCONTROL",1,1,10,10,buffer,0,0,0,""}
    }
 
-shmuel 30.07.2013 22:19:16 +0200 - build 210
+shmuel 2013-07-30 22:19:16+02:00 - build 210
 
 1. LuaFAR: в far.MacroExecute неправильно обрабатывался тип FMVT_BINARY.
 
-shmuel 30.07.2013 19:30:59 +0200 - build 209
+shmuel 2013-07-30 19:30:59+02:00 - build 209
 
 1. Рефакторинг передачи параметров из Фара в плагин при OpenFrom==OPEN_LUAMACRO
    (параметры помещаются непосредственно на Lua-стек, без создания таблицы).
 
-shmuel 19.07.2013 10:45:16 +0200 - build 208
+shmuel 2013-07-19 10:45:16+02:00 - build 208
 
 1. Событие ExitFAR теперь вызывается также при операциях выгрузки и перезагрузки макросов.
 
-shmuel 17.07.2013 21:51:48 +0200 - build 207
+shmuel 2013-07-17 21:51:48+02:00 - build 207
 
 1. При загрузке макросов первым всегда исполняется макрофайл %FARPROFILE%\Macros\scripts\_macroinit.lua,
    если такой файл существует. Порядок исполнения прочих макрофайлов не определён.
 
-shmuel 17.07.2013 16:44:15 +0200 - build 206
+shmuel 2013-07-17 16:44:15+02:00 - build 206
 
 1. LuaFAR: export.ProcessEditorEvent(EE_SAVE) получает параметром таблицу (M#2446).
 
-shmuel 16.07.2013 15:03:34 +0200 - build 205
+shmuel 2013-07-16 15:03:34+02:00 - build 205
 
 1. LuaFAR: export.ProcessEditorEvent(EE_SAVE) получает параметром имя сохраняемого файла (M#2446).
 
-shmuel 07.07.2013 00:59:38 +0200 - build 204
+shmuel 2013-07-07 00:59:38+02:00 - build 204
 
 1. LuaFAR: fix compatibility with Lua 5.2.
 
-shmuel 06.07.2013 20:57:39 +0300 - build 203
+shmuel 2013-07-06 20:57:39+03:00 - build 203
 
 1. LuaFAR: рефакторинг.
 
-shmuel 06.07.2013 18:17:47 +0300 - build 202
+shmuel 2013-07-06 18:17:47+03:00 - build 202
 
 1. LuaFAR: win.CreateDir почти полностью переписана.
 
 2. Мелкий рефакторинг.
 
-shmuel 04.07.2013 17:39:47 +0300 - build 201
+shmuel 2013-07-04 17:39:47+03:00 - build 201
 
 1. Мелкий рефакторинг.
 
-shmuel 04.07.2013 15:54:01 +0300 - build 200
+shmuel 2013-07-04 15:54:01+03:00 - build 200
 
 1. LuaFAR: расширены возможности ф-ции win.CreateDir.
 
 2. Отмена импорта ф-ции Фара CreatePath.
 
-shmuel 03.07.2013 21:13:37 +0200 - build 199
+shmuel 2013-07-03 21:13:37+02:00 - build 199
 
 1. Из форума: "Зачем фар создает каталоги с корне С".
    Внутренняя функция Фара CreatePath импортирована в плагин LuaMacro и используется вместо win.CreateDir.
 
-shmuel 03.07.2013 13:24:32 +0300 - build 198
+shmuel 2013-07-03 13:24:32+03:00 - build 198
 
 1. Вызов скрипт-файлов с аргументами:
    Аргументы от имени файла отделяются пробелом, то-есть разделитель :: упразднён.
    Друг от друга аргументы по-прежнему отделяются запятыми.
 
-shmuel 01.07.2013 17:29:01 +0200 - build 197
+shmuel 2013-07-01 17:29:01+02:00 - build 197
 
 1. LuaFAR: уточнение обработки DN_GETVALUE.
 
-shmuel 30.06.2013 13:12:37 +0200 - build 196
+shmuel 2013-06-30 13:12:37+02:00 - build 196
 
 1. Добавлена возможность вызывать скрипт-файлы с аргументами.
    Это касается: MCTL_SENDSTRING, MCTL_ADDMACRO, eval, lm:post, lm:check.
 
-shmuel 24.06.2013 17:17:36 +0300 - build 195
+shmuel 2013-06-24 17:17:36+03:00 - build 195
 
 1. Macro Browser: при нажатии Enter ("исполнить выделенный макрос")
    передаётся аргумент для функции condition и работает функция akey,
    (но не во всех случаях, т.к. реального ключа, запустившего макрос, нет).
 
-shmuel 21.06.2013 20:55:30 +0200 - build 194
+shmuel 2013-06-21 20:55:30+02:00 - build 194
 
 1. Мелкий рефакторинг.
 
-shmuel 21.06.2013 18:31:26 +0200 - build 193
+shmuel 2013-06-21 18:31:26+02:00 - build 193
 
 1. Рефакторинг функции GetMacro.
 
-shmuel 21.06.2013 12:38:30 +0200 - build 192
+shmuel 2013-06-21 12:38:30+02:00 - build 192
 
 1. Рефакторинг функции GetMacro.
 
-shmuel 20.06.2013 21:25:25 +0200 - build 191
+shmuel 2013-06-20 21:25:25+02:00 - build 191
 
 1. Почти полностью переписана функция GetMacro - возможны баги. Но теперь её должно быть легче поддерживать.
 
-shmuel 18.06.2013 18:28:33 +0200 - build 190
+shmuel 2013-06-18 18:28:33+02:00 - build 190
 
 1. LuaFAR: bit64.new имела неоправданно узкий диапазон при аргументе типа "number".
 
-shmuel 18.06.2013 10:44:58 +0200 - build 189
+shmuel 2013-06-18 10:44:58+02:00 - build 189
 
 1. Имена флагов макросов перемещены из Фара в плагин LuaMacro.
 
-shmuel 16.06.2013 12:02:57 +0200 - build 188
+shmuel 2013-06-16 12:02:57+02:00 - build 188
 
 1. LuaFAR: far.MacroExecute поддерживает передачу скрипту аргументов.
 
-shmuel 15.06.2013 20:14:26 +0200 - build 187
+shmuel 2013-06-15 20:14:26+02:00 - build 187
 
 1. Уточнение 186.
 
-shmuel 15.06.2013 12:30:47 +0200 - build 186
+shmuel 2013-06-15 12:30:47+02:00 - build 186
 
 1. Поддержка изменений в MCTL_EXECSTRING.
 
-shmuel 14.06.2013 16:34:43 +0200 - build 185
+shmuel 2013-06-14 16:34:43+02:00 - build 185
 
 1. Поддержка FMVT_NIL.
 
 2. LuaFAR: LuaFAR-плагины при вызове OPEN_FROMMACRO теперь _всегда_ возвращают Фару указатель на структуру
    FarMacroCall, даже если плагин ничего не вернул. Исключение - только возврат в результате runtime error.
 
-shmuel 14.06.2013 00:46:43 +0300 - build 184
+shmuel 2013-06-14 00:46:43+03:00 - build 184
 
 1. Fix 183.2.
 
-shmuel 14.06.2013 00:22:19 +0200 - build 183
+shmuel 2013-06-14 00:22:19+02:00 - build 183
 
 1. Поддержка MCTL_EXECSTRING.
 
 2. LuaFAR: добавлена функция far.MacroExecute.
 
-shmuel 10.06.2013 12:27:20 +0200 - build 182
+shmuel 2013-06-10 12:27:20+02:00 - build 182
 
 1. LuaFAR: fix FileFilter:IsFileInFilter().
 
-shmuel 09.06.2013 13:09:46 +0200 - build 181
+shmuel 2013-06-09 13:09:46+02:00 - build 181
 
 1. LuaFAR: добавлена функция unicode.utf8.utf8valid. Описание - в мануале LuaFAR.
 
-shmuel 05.06.2013 20:37:32 +0200 - build 180
+shmuel 2013-06-05 20:37:32+02:00 - build 180
 
 1. LuaFAR: функция far.Menu:
    Из флагов по умолчанию убран FMENU_AUTOHIGHLIGHT, поскольку приводит к диким тормозам на больших меню
    (например, меню из 10000 пунктов, каждый с текстом в 1000 символов).
    Кому надо - установит этот флаг в коде аппликации.
 
-shmuel 30.05.2013 16:03:15 +0200 - build 179
+shmuel 2013-05-30 16:03:15+02:00 - build 179
 
 1. M#2336: LuaMacro не сканирует каталоги-симлинки.
 
-shmuel 30.05.2013 11:34:15 +0200 - build 178
+shmuel 2013-05-30 11:34:15+02:00 - build 178
 
 1. Выбор автостартующих макросов производится не по соответствию области макроса текущей области,
    а по соответствию области макроса области запуска Фара (определяемой ключами /e и /v).
 
-shmuel 29.05.2013 19:17:49 +0200 - build 177
+shmuel 2013-05-29 19:17:49+02:00 - build 177
 
 1. Была ошибка при запросе от Фара макроса в незагруженных областях (например, область "Disks" при запуске Фара
    с ключом /e или /v).
 
-shmuel 29.05.2013 17:53:38 +0200 - build 176
+shmuel 2013-05-29 17:53:38+02:00 - build 176
 
 1. Экспериментально: автостартующие макросы работают при запуске Фара с ключами /e и /v.
 
-shmuel 26.05.2013 11:20:07 +0200 - build 175
+shmuel 2013-05-26 11:20:07+02:00 - build 175
 
 1. LuaFAR: в сообщениях об ошибках при отображении traceback начальные табы в строках заменяются на 3 пробела
    для улучшения читаемости.
 
-shmuel 25.05.2013 23:51:14 +0300 - build 174
+shmuel 2013-05-25 23:51:14+03:00 - build 174
 
 1. LuaFAR: в функции editor.GetString добавлено значение параметра mode==3
    (не меняет текущую позицию в редакторе, возвращает: StringText,StringEOL).
 
-shmuel 24.05.2013 20:20:51 +0300 - build 173
+shmuel 2013-05-24 20:20:51+03:00 - build 173
 
 1. Из форума:
       lm:post error()
       1. Хотелось бы выравнивание по левому краю
       2. Зацикливается на Step: called on macro in dead status
 
-shmuel 23.05.2013 12:02:55 +0300 - build 172
+shmuel 2013-05-23 12:02:55+03:00 - build 172
 
 1. M#2365: Передавать макросам полный путь к файлу скрипта при загрузке.
 
@@ -2783,33 +2783,33 @@ shmuel 23.05.2013 12:02:55 +0300 - build 172
        local MacroFileName = ...
    то эта переменная будет доступна всем макросам и обработчикам событий в данном файле.
 
-shmuel 22.05.2013 18:15:06 +0300 - build 171
+shmuel 2013-05-22 18:15:06+03:00 - build 171
 
 1. Плагин создаёт таблицу package.nounload, ключи которой - имена модулей,
    которые требуется не выгружать при выгрузке или перезагрузке иперосов.
    Подробнее - в macroapi_manual.
 
-shmuel 22.05.2013 00:19:37 +0200 - build 170
+shmuel 2013-05-22 00:19:37+02:00 - build 170
 
 1. LuaFAR: функция far.Message больше не разрывает длинные строки на одинарных и двойных кавычках.
 
-shmuel 21.05.2013 18:13:57 +0300 - build 169
+shmuel 2013-05-21 18:13:57+03:00 - build 169
 
 1. Добавлено "?\\init.lua" в package.path.
 
-shmuel 20.05.2013 15:11:46 +0300 - build 168
+shmuel 2013-05-20 15:11:46+03:00 - build 168
 
 1. Рефакторинг.
 
-shmuel 18.05.2013 19:46:39 +0200 - build 167
+shmuel 2013-05-18 19:46:39+02:00 - build 167
 
 1. Macro Browser: меню ограничивается по высоте, чтобы не занимать весь экран.
 
-shmuel 17.05.2013 20:01:52 +0300 - build 166
+shmuel 2013-05-17 20:01:52+03:00 - build 166
 
 1. При "конфликте" макросов, в меню выбора макроса работает AltF4 - открытие модального редактора.
 
-shmuel 17.05.2013 16:55:00 +0200 - build 165
+shmuel 2013-05-17 16:55:00+02:00 - build 165
 
 1. LuaFAR: сброс разрешения floating point exceptions теперь делается в начале всех экспортируемых
    плагинами функций. Это делает возможным совместную работу с плагинами, которые устанавливают
@@ -2818,16 +2818,16 @@ shmuel 17.05.2013 16:55:00 +0200 - build 165
 
 2. Рефакторинг.
 
-shmuel 15.05.2013 23:23:16 +0200 - build 164
+shmuel 2013-05-15 23:23:16+02:00 - build 164
 
 1. Рефакторинг.
 
-shmuel 14.05.2013 23:32:46 +0200 - build 163
+shmuel 2013-05-14 23:32:46+02:00 - build 163
 
 1. Если в процессе начальной загрузки макросов выводилось меню или диалог, то тут же (то-есть преждевременно)
    начиналось исполнение цикла автостартующих макросов.
 
-shmuel 14.05.2013 21:05:41 +0200 - build 162
+shmuel 2013-05-14 21:05:41+02:00 - build 162
 
 1. LuaFAR: функция far.Message при разрыве длинных строк больше не отдаёт предпочтения пробелам и табам
    перед прочими разделителями.
@@ -2835,89 +2835,89 @@ shmuel 14.05.2013 21:05:41 +0200 - build 162
 2. В сообщениях об ошибках при отображении traceback начальные табы в строках заменяются на 3 пробела
    для улучшения читаемости.
 
-shmuel 14.05.2013 09:05:48 +0200 - build 161
+shmuel 2013-05-14 09:05:48+02:00 - build 161
 
 1. LuaFAR: рефакторинг.
 
-shmuel 13.05.2013 22:46:37 +0200 - build 160
+shmuel 2013-05-13 22:46:37+02:00 - build 160
 
 1. Macro Browser: добавлена операция перехода к макрофайлу по CtrlPgUp.
 
-shmuel 13.05.2013 20:23:41 +0200 - build 159
+shmuel 2013-05-13 20:23:41+02:00 - build 159
 
 1. Macro Browser: состояние показа/скрытия неактивных макросов запоминается между вызовами.
 
-shmuel 13.05.2013 13:22:40 +0300 - build 158
+shmuel 2013-05-13 13:22:40+03:00 - build 158
 
 1. Локализация плагина, добавление lng-файлов.
 
-shmuel 12.05.2013 20:58:40 +0200 - build 157
+shmuel 2013-05-12 20:58:40+02:00 - build 157
 
 1. Рефакторинг и мелкие исправления.
 
-shmuel 12.05.2013 17:22:33 +0200 - build 156
+shmuel 2013-05-12 17:22:33+02:00 - build 156
 
 1. Macro Browser: добавлены операции:
    -- исполнение макроса по Enter
    -- скрытие/показ неактивных макросов по CtrlH
 
-shmuel 11.05.2013 23:09:54 +0200 - build 155
+shmuel 2013-05-11 23:09:54+02:00 - build 155
 
 1. Macro Browser: refactoring.
 
-shmuel 11.05.2013 17:28:56 +0300 - build 154
+shmuel 2013-05-11 17:28:56+03:00 - build 154
 
 1. Added "Macro Browser" utility.
 
-shmuel 07.05.2013 00:29:54 +0200 - build 153
+shmuel 2013-05-07 00:29:54+02:00 - build 153
 
 1. Рефакторинг.
 
-t-rex 07.05.2013 00:14:27 +0200 - build 152
+t-rex 2013-05-07 00:14:27+02:00 - build 152
 
 1. Коррекция 151 в связи с исправление в Far 3389.
 
-shmuel 06.05.2013 23:19:36 +0200 - build 151
+shmuel 2013-05-06 23:19:36+02:00 - build 151
 
 1. LuaFAR: fix editor.SaveFile
    -- Поле CodePage было не инициализировано, что приводило к нулевому размеру сохраняемого файла.
    -- Теперь CodePage является опциональным 4-м параметром функции.
 
-shmuel 06.05.2013 19:48:08 +0200 - build 150
+shmuel 2013-05-06 19:48:08+02:00 - build 150
 
 1. LuaFAR: небольшая ломка API, для единообразия между LuaFAR-плагинами и прочими плагинами.
    -- far.MacroAdd возвращает не число, а light userdata.
    -- far.MacroDelete получает не число, а light userdata.
 
-shmuel 04.05.2013 15:49:15 +0200 - build 149
+shmuel 2013-05-04 15:49:15+02:00 - build 149
 
 1. Уточнение 148.
 
-shmuel 04.05.2013 08:46:57 +0200 - build 148
+shmuel 2013-05-04 08:46:57+02:00 - build 148
 
 1. Макросы, загруженные по MCTL_ADDMACRO, больше не выгружаются по MCTL_LOADALL и lm:unload.
    (Восстановлено исходное поведение данного типа макросов, сломанное в процессе перехода с макроязыка на Lua).
 
-shmuel 02.05.2013 21:26:30 +0200 - build 147
+shmuel 2013-05-02 21:26:30+02:00 - build 147
 
 1. В режиме запуска "Far /m" происходила ошибка "attempt to index upvalue 'Areas' (a nil value)"
    при попытке выполнения любой из следующих операций:
    (1)MCTL_ADDMACRO, (2)MSSC_POST, (3)ручная запись макроса и (4)просмотр списка макросов в хелпе.
 
-shmuel 02.05.2013 13:12:26 +0200 - build 146
+shmuel 2013-05-02 13:12:26+02:00 - build 146
 
 1. Небольшая оптимизация обработки ключей при загрузке макросов.
 
-shmuel 30.04.2013 11:39:55 +0200 - build 145
+shmuel 2013-04-30 11:39:55+02:00 - build 145
 
 1. Вызов far.MacroAdd из макрофайла при загрузке приводил к тому, что для всех макросов этого файла,
    загружаемых после вызова far.MacroAdd, поле FileName не устанавливалось.
 
-shmuel 29.04.2013 20:35:33 +0200 - build 144
+shmuel 2013-04-29 20:35:33+02:00 - build 144
 
 1. LuaFAR: fix DM_LISTGETTITLES.
 
-shmuel 29.04.2013 18:50:02 +0200 - build 143
+shmuel 2013-04-29 18:50:02+02:00 - build 143
 
 1. Для макросов-обработчиков событий:
 
@@ -2930,31 +2930,31 @@ shmuel 29.04.2013 18:50:02 +0200 - build 143
 
    * Счётчики подписок отдельные для каждой сессии редактора.
 
-shmuel 29.04.2013 14:17:24 +0200 - build 142
+shmuel 2013-04-29 14:17:24+02:00 - build 142
 
 1. Уточнение 135.
 
-shmuel 29.04.2013 12:19:52 +0200 - build 141
+shmuel 2013-04-29 12:19:52+02:00 - build 141
 
 1. LuaFAR: unicode.utf8.format допускает 3 цифры в спецификации ширины вывода величины (было: 2).
 
-shmuel 28.04.2013 16:32:41 +0200 - build 140
+shmuel 2013-04-28 16:32:41+02:00 - build 140
 
 1. LuaFAR: новая функция editor.SubscribeChangeEvent.
 
 2. В связи с появлением ECTL_SUBSCRIBECHANGEEVENT, ECTL_UNSUBSCRIBECHANGEEVENT (Фар 3.0.3371)
    откатываем 137.1 и 137.2.
 
-shmuel 26.04.2013 02:38:10 +0200 - build 139
+shmuel 2013-04-26 02:38:10+02:00 - build 139
 
 1. LuaFAR: Объекты FarSettings не подбирались сборщиком мусора.
 
-shmuel 25.04.2013 14:31:15 +0200 - build 138
+shmuel 2013-04-25 14:31:15+02:00 - build 138
 
 1. LuaFAR: far_FreeSettings больше не вызывается автоматически перед возвращением из экспортируемых функций в Фар,
    поскольку исполнение одного макроса может состоять из нескольких вызовов плагина.
 
-shmuel 23.04.2013 18:01:28 +0200 - build 137
+shmuel 2013-04-23 18:01:28+02:00 - build 137
 
 1. LuaFAR: экспортируемая функция ProcessEditorEventW теперь соответствует двум Lua-функциям:
        a) export.ProcessEditorChange - если параметр Event==EE_CHANGE;
@@ -2963,7 +2963,7 @@ shmuel 23.04.2013 18:01:28 +0200 - build 137
 
 2. В макросах-событиях добавилась группа: group="EditorChange".
 
-shmuel 21.04.2013 23:49:25 +0300 - build 136
+shmuel 2013-04-21 23:49:25+03:00 - build 136
 
 1. После загрузки событий, обработчик каждого типа события (Lua-функция) создаётся только в случае,
    если загружено хоть одно событие данного типа. Это значительно снижает время обработки для тех
@@ -2972,55 +2972,55 @@ shmuel 21.04.2013 23:49:25 +0300 - build 136
 
    Это особенно актуально для ProcessEditorEventW(EE_CHANGE) во время массовой замены в редакторе.
 
-shmuel 20.04.2013 11:42:53 +0200 - build 135
+shmuel 2013-04-20 11:42:53+02:00 - build 135
 
 1. LuaFAR: editor.Editor: во время слома LuaFAR API зря сдвинули смещение у параметров StartLine и StartChar.
 
-shmuel 19.04.2013 16:49:21 +0200 - build 134
+shmuel 2013-04-19 16:49:21+02:00 - build 134
 
 1. LuaFAR: M#2375: Pattern %<multibyte char> in unicode.utf8.
 
-shmuel 18.04.2013 08:54:23 +0200 - build 133
+shmuel 2013-04-18 08:54:23+02:00 - build 133
 
 1. LuaFAR: panel.GetPanelItem и panel.GetSelectedPanelItem возвращают nil для неположительных индексов элемента.
 
-shmuel 18.04.2013 08:14:21 +0200 - build 132
+shmuel 2013-04-18 08:14:21+02:00 - build 132
 
 1. LuaFAR: рефакторинг.
 
-shmuel 18.04.2013 00:36:55 +0200 - build 131
+shmuel 2013-04-18 00:36:55+02:00 - build 131
 
 1. LuaFAR: M#2372: string:format неправильно учитывает длину юникодной строки.
 
-shmuel 16.04.2013 12:03:47 +0200 - build 130
+shmuel 2013-04-16 12:03:47+02:00 - build 130
 
 1. LuaFAR (SettingsControl/Enum): параметр Root можно указывать и стрингом (например, "FSSF_HISTORY_CMD").
 
-shmuel 10.04.2013 17:23:01 +0200 - build 129
+shmuel 2013-04-10 17:23:01+02:00 - build 129
 
 1. lm:post @filename работает без указания полного пути, если filename есть в активной панели.
 
-shmuel 05.04.2013 15:31:22 +0200 - build 128
+shmuel 2013-04-05 15:31:22+02:00 - build 128
 
 1. LuaFAR: при ломке API забыли про параметры ProcessDialogEvent.
 
-shmuel 04.04.2013 16:12:53 +0300 - build 127
+shmuel 2013-04-04 16:12:53+03:00 - build 127
 
 1. Предотвращение падения Фара при запуске макроса в диалоге "Find file".
    Фар вызывает OpenW, не дожидаясь возврата плагина из ProcessDialogEventW,
    запускаемого из дополнительного потока.
 
-shmuel 02.04.2013 18:02:11 +0300 - build 126
+shmuel 2013-04-02 18:02:11+03:00 - build 126
 
 1. mf.msave сохраняет таблицы произвольной степени вложенности.
    Рекурсивные вложения не сохраняются (пропускаются).
    /С использованием кода от SUSim/.
 
-shmuel 02.04.2013 10:44:44 +0200 - build 125
+shmuel 2013-04-02 10:44:44+02:00 - build 125
 
 1. Из форума: far.SendDlgMessage(id,far.Flags.DM_GETFOCUS,0,0) возвращает от 0.
 
-shmuel 31.03.2013 23:36:30 +0200 - build 124
+shmuel 2013-03-31 23:36:30+02:00 - build 124
 
 1. LuaFAR: продолжение ломки API.
 
@@ -3036,17 +3036,17 @@ shmuel 31.03.2013 23:36:30 +0200 - build 124
    far.DialogRun, far.Dialog, far.Message:
      * Return value: 1-based where it is element index, -1 otherwise.
 
-shmuel 31.03.2013 00:36:33 +0200 - build 123
+shmuel 2013-03-31 00:36:33+02:00 - build 123
 
 1. LuaFAR: far.AdvControl(ACTL_GETWINDOWINFO) в случае неудачи возвращает nil.
 
-shmuel 29.03.2013 23:51:37 +0200 - build 122
+shmuel 2013-03-29 23:51:37+02:00 - build 122
 
 1. LuaFAR: продолжение ломки API.
    viewer.GetInfo, viewer.SetPosition:
      * LeftPos: number, 1-based.
 
-shmuel 28.03.2013 17:51:48 +0200 - build 121
+shmuel 2013-03-28 17:51:48+02:00 - build 121
 
 1. LuaFAR: продолжение ломки API.
 
@@ -3056,28 +3056,28 @@ shmuel 28.03.2013 17:51:48 +0200 - build 121
    far.AdvControl, ACTL_SETCURRENTWINDOW:
      * Param1:  window number; 1-based integer.
 
-shmuel 28.03.2013 12:53:29 +0200 - build 120
+shmuel 2013-03-28 12:53:29+02:00 - build 120
 
 1. LuaFAR: продолжение ломки API.
    far.SendDlgMessage, операции DM_GETSELECTION, DM_SETSELECTION, DM_GETEDITPOSITION, DM_SETEDITPOSITION:
      * Начала отсчёта выделений и позиций приведены в соответствие с функциями editor.xxx.
 
-shmuel 27.03.2013 18:37:53 +0200 - build 119
+shmuel 2013-03-27 18:37:53+02:00 - build 119
 
 1. LuaFAR: из-за неинициализированной переменной были падения в LuaFAR-плагинах,
    создающих панели.
 
-shmuel 26.03.2013 23:04:35 +0200 - build 118
+shmuel 2013-03-26 23:04:35+02:00 - build 118
 
 1. LuaFAR: far.RecursiveSearch, в случае, если первое возвращённое значение
    callback() не false и не nil, возвращает все значения, возвращённые этим
    вызовом callback.
 
-shmuel 25.03.2013 21:18:35 +0200 - build 117
+shmuel 2013-03-25 21:18:35+02:00 - build 117
 
 1. LuaFAR: коррекция editor.SaveFile в связи с изменением в Far 3 build 3275.
 
-shmuel 22.03.2013 17:22:55 +0200 - build 116
+shmuel 2013-03-22 17:22:55+02:00 - build 116
 
 1. LuaFAR: начало ограниченной ломки API (перевод индексов с базы 0 на базу 1).
    Функции editor.xxx:
@@ -3094,91 +3094,91 @@ shmuel 22.03.2013 17:22:55 +0200 - build 116
 
 2. LuaFAR: добавлена функция panel.SetActivePanel.
 
-shmuel 22.03.2013 00:31:09 +0200 - build 115
+shmuel 2013-03-22 00:31:09+02:00 - build 115
 
 1. Рефакторинг.
 
-shmuel 22.03.2013 00:10:43 +0200 - build 114
+shmuel 2013-03-22 00:10:43+02:00 - build 114
 
 1. Рефакторинг.
 
-shmuel 18.03.2013 21:11:45 +0200 - build 113
+shmuel 2013-03-18 21:11:45+02:00 - build 113
 
 1. LuaFAR (fix): игнорировался 6-й параметр far.Message (Id).
 
-shmuel 18.03.2013 15:10:06 +0200 - build 112
+shmuel 2013-03-18 15:10:06+02:00 - build 112
 
 1. Fix: eval("<area>/<key>",2): при указании несуществующего <area> исполнялись макросы из текущей области или "Common".
 
-shmuel 16.03.2013 12:18:03 +0200 - build 111
+shmuel 2013-03-16 12:18:03+02:00 - build 111
 
 1. При операциях выгрузки и перезагрузки макросов очищается кэш модулей
    (за исключением "исходных" модулей).
 
-shmuel 14.03.2013 20:20:39 +0200 - build 110
+shmuel 2013-03-14 20:20:39+02:00 - build 110
 
 1. Откат 101 и 102 (т.к. сломалось MCTL_ADDMACRO).
 
-shmuel 13.03.2013 16:31:55 +0200 - build 109
+shmuel 2013-03-13 16:31:55+02:00 - build 109
 
 1. Fix: при расчёте текущих приоритетов событий не учитывалось, что обработчик
    событий - рекурсивная функция.
 
-shmuel 12.03.2013 15:47:57 +0200 - build 108
+shmuel 2013-03-12 15:47:57+02:00 - build 108
 
 1. LuaFAR: защита от плагинов, устанавливающих разрешение floating point
    exceptions в контрольном слове процессора, перенесена в начало LF_Open().
 
-shmuel 09.03.2013 22:50:25 +0200 - build 107
+shmuel 2013-03-09 22:50:25+02:00 - build 107
 
 1. MCTL_LOADALL и far.MacroLoadAll возвращают true только если не было ни одной ошибки при загрузке.
 
-shmuel 09.03.2013 10:30:50 +0200 - build 106
+shmuel 2013-03-09 10:30:50+02:00 - build 106
 
 1. Обработчики событий ничего не возвращали Фару.
 
-shmuel 08.03.2013 12:44:18 +0200 - build 105
+shmuel 2013-03-08 12:44:18+02:00 - build 105
 
 1. Уточнение 104.
 
-shmuel 08.03.2013 11:51:14 +0200 - build 104
+shmuel 2013-03-08 11:51:14+02:00 - build 104
 
 1. Добавлено событие 'EditorInput', т.е. в спецификации события надо указывать group="EditorInput".
    Параметры функций action и condition, а также возвращаемое значение функции action - согласно
    описанию функции export.ProcessEditorInput в мануале LuaFAR.
 
-shmuel 06.03.2013 08:00:28 +0200 - build 103
+shmuel 2013-03-06 08:00:28+02:00 - build 103
 
 1. При вызове eval(str,2) целевой макрос выбирается обычным алгоритмом выбора,
    с учётом флагов, приоритетов и функции condition.
 
-shmuel 04.03.2013 21:29:11 +0200 - build 102
+shmuel 2013-03-04 21:29:11+02:00 - build 102
 
 1. Рефакторинг.
 
-shmuel 04.03.2013 20:18:04 +0200 - build 101
+shmuel 2013-03-04 20:18:04+02:00 - build 101
 
 1. Рефакторинг.
 
-shmuel 02.03.2013 11:27:47 +0200 - build 100
+shmuel 2013-03-02 11:27:47+02:00 - build 100
 
 1. Рефакторинг.
 
-shmuel 02.03.2013 01:17:54 +0200 - build 99
+shmuel 2013-03-02 01:17:54+02:00 - build 99
 
 1. Продолжение 97: mf.usermenu. Описание - в macroapi_manual.chm.
 
-shmuel 28.02.2013 21:37:28 +0200 - build 98
+shmuel 2013-02-28 21:37:28+02:00 - build 98
 
 1. Продолжение 97: расширение функциональности mf.usermenu. Полное описание - в macroapi_manual.chm.
 
-shmuel 28.02.2013 17:22:41 +0200 - build 97
+shmuel 2013-02-28 17:22:41+02:00 - build 97
 
 1. Добавлена макрофункция mf.usermenu(filename [,mode]).
    Если 'mode' равен 0 или не задан, файл открывается "как есть", т.е. по заданному 'filename'.
    Если 'mode' равен 1, файл открывается в %farprofile%\Menus (папка создаётся автоматически).
 
-shmuel 27.02.2013 00:12:33 +0200 - build 96
+shmuel 2013-02-27 00:12:33+02:00 - build 96
 
 1. LuaFAR: функция export.ProcessDialogEvent возвращает одно значение, а не два.
 
@@ -3186,46 +3186,46 @@ shmuel 27.02.2013 00:12:33 +0200 - build 96
    Параметры функций action и condition, а также возвращаемое значение функции action - согласно
    описанию функции export.ProcessDialogEvent в мануале LuaFAR.
 
-shmuel 26.02.2013 18:07:30 +0200 - build 95
+shmuel 2013-02-26 18:07:30+02:00 - build 95
 
 1. Добавлено событие 'ExitFAR', т.е. в спецификации события надо указывать group="ExitFAR".
    Обработчики события вызываются при любой выгрузке плагина LuaMacro.
 
-shmuel 25.02.2013 22:21:19 +0200 - build 94
+shmuel 2013-02-25 22:21:19+02:00 - build 94
 
 1. При вызове error и других исключительных ситуациях при исполнении скриптов,
    в сообщения об ошибках будет включаться стек вызовов функций.
 
-shmuel 24.02.2013 22:30:21 +0200 - build 93
+shmuel 2013-02-24 22:30:21+02:00 - build 93
 
 1. Добавлена экспортируемая функция 'GetLuaState', для возможности использования
    Lua API непосредственно мз Фара.
 
-shmuel 21.02.2013 23:24:02 +0200 - build 92
+shmuel 2013-02-21 23:24:02+02:00 - build 92
 
 1. LuaFAR: в editor.AddColor() добавлен параметр 'Owner'.
 
-shmuel 20.02.2013 18:26:48 +0200 - build 91
+shmuel 2013-02-20 18:26:48+02:00 - build 91
 
 1. Фикс билда 68: при вызове макроса по eval(str,2), сначала вызывалась его функция condition().
 
-shmuel 16.02.2013 22:52:12 +0200 - build 90
+shmuel 2013-02-16 22:52:12+02:00 - build 90
 
 1. Функция condition() вызывается с одним аргументом-строкой: имя ключа.
    * Это не касается макросов, вызываемых во время 'RunAfterFARStart'.
    * Это не касается событий.
    * Это сделано потому, что akey() не работает, будучи вызвана из condition().
 
-shmuel 12.02.2013 22:39:04 +0200 - build 89
+shmuel 2013-02-12 22:39:04+02:00 - build 89
 
 1. LuaFAR: в far.Menu() обозначение BreakKey стало регистронезависимым,
    например, можно указать BreakKey="cS+rEtUrN".
 
-shmuel 11.02.2013 23:24:08 +0200 - build 88
+shmuel 2013-02-11 23:24:08+02:00 - build 88
 
 1. Макросы, ключи которых содержали Ctrl или Alt, показывались в хелпе более одного раза.
 
-shmuel 11.02.2013 18:19:46 +0200 - build 87
+shmuel 2013-02-11 18:19:46+02:00 - build 87
 
 1. Очерёдность в событиях - определяется динамическими приоритетами.
    * Динамический приоритет определяется так же, как и для макросов, при помощи полей
@@ -3233,7 +3233,7 @@ shmuel 11.02.2013 18:19:46 +0200 - build 87
    * Вызывается функция action() для всех событий, исключая те, для которых вызов
      condition() вернул false/nil/ничего, в порядке убывания динамических приоритетов.
 
-shmuel 11.02.2013 11:14:37 +0200 - build 86
+shmuel 2013-02-11 11:14:37+02:00 - build 86
 
 1. Новая спецификация событий (несовместимая с предыдущей):
    1.1. Проверка флагов не делается, поле 'flags' не используется.
@@ -3241,24 +3241,24 @@ shmuel 11.02.2013 11:14:37 +0200 - build 86
    1.3. Функции condition() и action() получают 3 аргумента: Id,Event,Param
         (см. мануал LuaFAR, ф-ции ProcessEditorEvent, ProcessViewerEvent).
 
-shmuel 10.02.2013 16:53:05 +0200 - build 85
+shmuel 2013-02-10 16:53:05+02:00 - build 85
 
 1. Продолжение 82.
    * В группе ViewerEvent, 'name' может иметь следующие значения:
      'Read', 'Close', 'KillFocus', 'GotFocus'.
 
-shmuel 09.02.2013 13:20:11 +0200 - build 84
+shmuel 2013-02-09 13:20:11+02:00 - build 84
 
 1. LuaFAR: в export.ProcessEditorEvent(Id,Event,Param) во всех случаях,
    кроме Event==EE_CHANGE, Param передаёт в Lua число, полученное от Фара.
 
-shmuel 08.02.2013 01:16:32 +0200 - build 83
+shmuel 2013-02-08 01:16:32+02:00 - build 83
 
 1. Продолжение 82.
    * В группе EditorEvent, 'name' может иметь следующие значения:
      'Read', 'Save', 'Change', 'Close', 'Redraw', 'KillFocus', 'GotFocus'.
 
-shmuel 07.02.2013 20:15:14 +0200 - build 82
+shmuel 2013-02-07 20:15:14+02:00 - build 82
 
 1. Новая спецификация обработчика событий (модифицирует спецификацию от 05.02.2013).
    * Ключ key="Read" в таблице-параметре функции Macro отменяется.
@@ -3277,15 +3277,15 @@ shmuel 07.02.2013 20:15:14 +0200 - build 82
          action=function() ...... end;
        }
 
-shmuel 06.02.2013 09:05:25 +0200 - build 81
+shmuel 2013-02-06 09:05:25+02:00 - build 81
 
 1. Рефакторинг.
 
-shmuel 05.02.2013 19:54:59 +0200 - build 80
+shmuel 2013-02-05 19:54:59+02:00 - build 80
 
 1. Уточнение 79.
 
-shmuel 05.02.2013 17:11:26 +0200 - build 79
+shmuel 2013-02-05 17:11:26+02:00 - build 79
 
 1. Спецификация макросов: новое опциональное поле "filemask" типа string.
    * Для областей Editor и Viewer, при наличии этого поля, проверяется
@@ -3311,49 +3311,49 @@ shmuel 05.02.2013 17:11:26 +0200 - build 79
      возвращаемого значения.
    * Данные макросы исполняются один за другим, то-есть все, а не один из всех.
 
-t-rex 01.02.2013 21:20:11 +0200 - build 78
+t-rex 2013-02-01 21:20:11+02:00 - build 78
 
 1. При загрузке всегда создаём папочку %FARPROFILE%\Macros\scripts чтоб тупой юзер как я мог понять куда ложить свои макросы.
 
-shmuel 30.01.2013 13:18:49 +0200 - build 77
+shmuel 2013-01-30 13:18:49+02:00 - build 77
 
 1. LuaFAR: добавлена функция 'win.EnumRegValue'.
 
-shmuel 29.01.2013 20:19:19 +0200 - build 76
+shmuel 2013-01-29 20:19:19+02:00 - build 76
 
 1. LuaFAR: добавлена функция 'win.EnumRegKey'.
 
-shmuel 29.01.2013 10:46:39 +0200 - build 75
+shmuel 2013-01-29 10:46:39+02:00 - build 75
 
 1. При отмене меню выбора макроса ключ передавался Фару для дальнейшей обработки.
 
-shmuel 27.01.2013 16:01:35 +0200 - build 74
+shmuel 2013-01-27 16:01:35+02:00 - build 74
 
 1. LuaFAR: если в far.Menu передавался невалидный BreakKey, то все последующие
    BreakKey игнорировались. Теперь игнорируются только невалидные BreakKey.
 
-shmuel 26.01.2013 15:55:37 +0200 - build 73
+shmuel 2013-01-26 15:55:37+02:00 - build 73
 
 1. Автостартующий макрос, назначенный на CtrlAltF8, запускался 4 раза
    при старте Фара (т.е. для всех сочетаний левых/правых модификаторов).
 
-shmuel 23.01.2013 21:26:52 +0200 - build 72
+shmuel 2013-01-23 21:26:52+02:00 - build 72
 
 1. LuaFAR: функция 'dofile' сделана юникодной и понимающей UTF-8 BOM.
 
-shmuel 18.01.2013 21:07:42 +0200 - build 71
+shmuel 2013-01-18 21:07:42+02:00 - build 71
 
 1. Рефакторинг.
 
-shmuel 15.01.2013 21:23:50 +0200 - build 70
+shmuel 2013-01-15 21:23:50+02:00 - build 70
 
 1. Рефакторинг.
 
-shmuel 14.01.2013 18:20:29 +0200 - build 69
+shmuel 2013-01-14 18:20:29+02:00 - build 69
 
 1. Рефакторинг.
 
-shmuel 13.01.2013 11:40:40 +0200 - build 68
+shmuel 2013-01-13 11:40:40+02:00 - build 68
 
 1. Изменения, связанные с макросами.
 
@@ -3386,36 +3386,36 @@ shmuel 13.01.2013 11:40:40 +0200 - build 68
 
 1.6. Макросы, назначенные на область "Common", имеют приоритет по умолчанию = 40.
 
-shmuel 11.01.2013 17:50:52 +0200 - build 67
+shmuel 2013-01-11 17:50:52+02:00 - build 67
 
 1. Из форума: если при старте ФАРа на одной из панелей открывается сетевая папка, _может_ быть выдано такое сообщение:
    attempt to index upvalue 'Areas' (a nil value).
 
-shmuel 07.01.2013 19:41:07 +0200 - build 66
+shmuel 2013-01-07 19:41:07+02:00 - build 66
 
 1. Рефакторинг.
 
-shmuel 07.01.2013 12:08:17 +0200 - build 65
+shmuel 2013-01-07 12:08:17+02:00 - build 65
 
 1. LuaFAR: поддержка UTF-8 BOM в Lua-файлах.
 
-shmuel 06.01.2013 15:18:45 +0200 - build 64
+shmuel 2013-01-06 15:18:45+02:00 - build 64
 
 1. Из форума: C макросом Panel.Esc.lua в Macros\scripts перестала работать отмена копирования файлов по Esc.
 
-shmuel 05.01.2013 00:02:17 +0200 - build 63
+shmuel 2013-01-05 00:02:17+02:00 - build 63
 
 1. LuaFAR: M#2242: regex.match()
 
-shmuel 04.01.2013 13:27:23 +0200 - build 62
+shmuel 2013-01-04 13:27:23+02:00 - build 62
 
 1. Снято ограничение доступа к глобальным переменным на этапе загрузки макросов.
 
-shmuel 03.01.2013 00:39:45 +0200 - build 61
+shmuel 2013-01-03 00:39:45+02:00 - build 61
 
 1. Уточнение 60.1
 
-shmuel 02.01.2013 22:46:02 +0200 - build 60
+shmuel 2013-01-02 22:46:02+02:00 - build 60
 
 1. Файл luamacro.lua разделён на два файла (luamacro.lua и utils.lua).
 
@@ -3424,27 +3424,27 @@ shmuel 02.01.2013 22:46:02 +0200 - build 60
    предпочтительным способом запрещения загрузки является закомментирование
    секции Macro {...}.
 
-shmuel 02.01.2013 00:48:54 +0200 - build 59
+shmuel 2013-01-02 00:48:54+02:00 - build 59
 
 1. Рефакторинг.
 
-shmuel 01.01.2013 13:48:46 +0200 - build 58
+shmuel 2013-01-01 13:48:46+02:00 - build 58
 
 1. ExitFARW больше не экспортируется.
 
-shmuel 31.12.2012 00:00:49 +0200 - build 57
+shmuel 2012-12-31 00:00:49+02:00 - build 57
 
 1. Неправильно работали ключи-регекспы при наличии группировки в ().
 
-shmuel 30.12.2012 20:03:25 +0200 - build 56
+shmuel 2012-12-30 20:03:25+02:00 - build 56
 
 1. В хелпе не отображались макросы, введенные с клавиатуры.
 
-shmuel 29.12.2012 17:37:45 +0200 - build 55
+shmuel 2012-12-29 17:37:45+02:00 - build 55
 
 1. 'area' в описании макроса может включать несколько областей, разделённых только пробелами.
 
-shmuel 29.12.2012 15:09:01 +0200 - build 54
+shmuel 2012-12-29 15:09:01+02:00 - build 54
 
 1. 'area' в описании макроса может включать несколько областей, разделённых пробелами/запятыми/точками с запятой.
 
@@ -3471,43 +3471,43 @@ shmuel 29.12.2012 15:09:01 +0200 - build 54
 6. Формат макросов, записываемых с клавиатуры, изменился. Если у кого-то есть такие макросы, сохранённые в папке
    Macros/internal, перенесите эти файлы в папку Macros/scripts.
 
-shmuel 15.12.2012 00:00:28 +0200 - build 53
+shmuel 2012-12-15 00:00:28+02:00 - build 53
 
 1. Увеличена длина строки "Последовательность", используемой в диалогах
    удаления или модификации макросов.
 
-shmuel 14.12.2012 20:26:02 +0200 - build 52
+shmuel 2012-12-14 20:26:02+02:00 - build 52
 
 1. После перезагрузки плагина LuaMacro вызовы макросов приводили к ошибкам.
    Теперь после перезагрузки плагина макросы не загружены, но их можно загрузить командой lm:load.
 
 2. Плагин LuaMacro: новая команда lm:unload - выгружает все макросы.
 
-shmuel 12.12.2012 19:20:43 +0200 - build 51
+shmuel 2012-12-12 19:20:43+02:00 - build 51
 
 1. Опечатка.
 
-shmuel 12.12.2012 13:37:03 +0200 - build 50
+shmuel 2012-12-12 13:37:03+02:00 - build 50
 
 1. При сохранении макроса "action=function()" записывается в текущей строке записи,
    для удобства просмотра аутлайнером колорера.
 
-shmuel 12.12.2012 00:08:24 +0200 - build 49
+shmuel 2012-12-12 00:08:24+02:00 - build 49
 
 1. Уточнение build 46:
    "<" = "Less"
    ">" = "More"
 
-shmuel 11.12.2012 15:34:44 +0200 - build 48
+shmuel 2012-12-11 15:34:44+02:00 - build 48
 
 1. Уточнение предыдущих двух коммитов.
 
-shmuel 11.12.2012 15:27:15 +0200 - build 47
+shmuel 2012-12-11 15:27:15+02:00 - build 47
 
 1. Добавление к предыдущему коммиту:
    "." = "Dot"
 
-shmuel 11.12.2012 15:04:09 +0200 - build 46
+shmuel 2012-12-11 15:04:09+02:00 - build 46
 
 1. Кодирование 'key' в имени файла-макроса при сохранении производится путём
    замены некоторых символов, с помощью следующего соответствия:
@@ -3520,29 +3520,29 @@ shmuel 11.12.2012 15:04:09 +0200 - build 46
    "*" = "Asterisk"
    '"' = "Quote"
 
-shmuel 11.12.2012 01:11:46 +0200 - build 45
+shmuel 2012-12-11 01:11:46+02:00 - build 45
 
 1. Кодирование 'key' в имени файла-макроса при сохранении производится только в случае,
    если 'key' содержит символы, которые являются невалидными для имени файла.
 
-shmuel 09.12.2012 22:32:32 +0200 - build 44
+shmuel 2012-12-09 22:32:32+02:00 - build 44
 
 1. Рефакторинг.
 
-shmuel 09.12.2012 20:26:09 +0200 - build 43
+shmuel 2012-12-09 20:26:09+02:00 - build 43
 
 1. У функций, определённых вне таблицы-аргумента загрузочной функции Macro(),
    не было доступа к глобальным переменным.
 
-shmuel 09.12.2012 16:03:52 +0200 - build 42
+shmuel 2012-12-09 16:03:52+02:00 - build 42
 
 1. Макросы переехали из macros.db в папку %FARPROFILE%\Macros и содержатся в Lua-файлах.
 
-shmuel 27.11.2012 16:12:25 +0200 - build 41
+shmuel 2012-11-27 16:12:25+02:00 - build 41
 
 1. Рефакторинг.
 
-shmuel 25.11.2012 19:39:47 +0200 - build 40
+shmuel 2012-11-25 19:39:47+02:00 - build 40
 
 1. Экспериментально: использование секции "farconfig/macros/variables" базы данных для Lua-модулей (библиотек).
    Каждая переменная - модуль. Имена модулей регистрозависимы.
@@ -3550,186 +3550,186 @@ shmuel 25.11.2012 19:39:47 +0200 - build 40
    Пример использования в макросе: utils=require "shmuel.utils"
    ВНИМАНИЕ: "variables" больше не грузятся при старте Фара. Используйте для этого "constants".
 
-shmuel 25.11.2012 11:05:58 +0200 - build 39
+shmuel 2012-11-25 11:05:58+02:00 - build 39
 
 1. Добавлено свойство Mouse.LastCtrlState, которое (в отличие от Mouse.CtrlState)
    обновляется как по мышиным, так и по клавиатурным событиям.
 
-shmuel 23.11.2012 13:33:16 +0200 - build 38
+shmuel 2012-11-23 13:33:16+02:00 - build 38
 
 1. LuaFAR: чистим структуру PluginPanelItem перед заполнением.
 
-shmuel 23.11.2012 12:14:12 +0200 - build 37
+shmuel 2012-11-23 12:14:12+02:00 - build 37
 
 1. M#2206: Соответствие структуры таблицы FindData со структурой PluginPanelItem.
 
-shmuel 10.11.2012 00:05:31 +0200 - build 36
+shmuel 2012-11-10 00:05:31+02:00 - build 36
 
 1. LuaFAR: рефакторинг.
 
-shmuel 08.11.2012 10:43:21 +0200 - build 35
+shmuel 2012-11-08 10:43:21+02:00 - build 35
 
 1. Перенос вызова _control87 из Фара в плагин LuaMacro.
 
-shmuel 07.11.2012 15:30:22 +0200 - build 34
+shmuel 2012-11-07 15:30:22+02:00 - build 34
 
 1. LuaFAR: фикс багов с передачей указателей на данные внутри блока наружу.
 
-shmuel 02.11.2012 18:07:06 +0200 - build 33
+shmuel 2012-11-02 18:07:06+02:00 - build 33
 
 1. Упорядочена структура FarMacroCall.
 
-shmuel 01.11.2012 22:47:59 +0200 - build 32
+shmuel 2012-11-01 22:47:59+02:00 - build 32
 
 1. LuaFAR: Far API 3.0.2918.
 
-shmuel 31.10.2012 20:32:30 +0200 - build 31
+shmuel 2012-10-31 20:32:30+02:00 - build 31
 
 1. Plugin.Call: для симметрии, величины типа FMVT_BINARY, возвращаемые плагином,
    передаются в макрос в таблице, как 1-й элемент таблицы.
 
-shmuel 30.10.2012 23:06:44 +0200 - build 30
+shmuel 2012-10-30 23:06:44+02:00 - build 30
 
 1. LuaFAR-плагины при вызове OPEN_FROMMACRO получают таблицу-массив аргументов
    без явного указания их типов.
 
-shmuel 30.10.2012 20:42:17 +0200 - build 29
+shmuel 2012-10-30 20:42:17+02:00 - build 29
 
 1. LuaFAR: фикс багов с передачей указателей на данные внутри блока наружу.
 
-shmuel 30.10.2012 18:16:01 +0200 - build 28
+shmuel 2012-10-30 18:16:01+02:00 - build 28
 
 1. Уточнение build 26.
 
 2. Far API 3.0.2912.
 
-zg 30.10.2012 00:32:37 +0200 - build 27
+zg 2012-10-30 00:32:37+02:00 - build 27
 
 1. LuaFAR: Far API 3.0.2912.
 
-shmuel 29.10.2012 22:58:41 +0200 - build 26
+shmuel 2012-10-29 22:58:41+02:00 - build 26
 
 1. Поддержка передачи "бинарных величин" (FMVT_BINARY) из Lua в C, то-есть:
      а) из макроса в (любой) плагин
      б) из LuaFAR-плагина в макрос
    Каждая такая величина должна передаваться в таблице, как 1-й элемент таблицы.
 
-shmuel 28.10.2012 22:23:05 +0200 - build 25
+shmuel 2012-10-28 22:23:05+02:00 - build 25
 
 1. Рефакторинг.
 
-zg 28.10.2012 02:04:17 +0200 - build 24
+zg 2012-10-28 02:04:17+02:00 - build 24
 
 1. LuaFAR: ACTL_GETWINDOWINFO возвращает userdata для Id также и для WTYPE_VMENU.
 
-shmuel 27.10.2012 20:55:55 +0200 - build 23
+shmuel 2012-10-27 20:55:55+02:00 - build 23
 
 1. LuaFAR: warnings.
 
-shmuel 25.10.2012 00:12:09 +0200 - build 22
+shmuel 2012-10-25 00:12:09+02:00 - build 22
 
 1. LuaFAR: рефакторинг.
 
-shmuel 22.10.2012 11:20:01 +0200 - build 21
+shmuel 2012-10-22 11:20:01+02:00 - build 21
 
 1. LuaFAR: поддержка последних изменений в Plugin.Call для LuaFAR-плагинов.
 
-w17 21.10.2012 20:36:46 +0400 - build 20
+w17 2012-10-21 20:36:46+04:00 - build 20
 
 1. luafar3.vcxproj postbuild - copy lua5.1.dll added
 
-shmuel 21.10.2012 10:33:29 +0200 - build 19
+shmuel 2012-10-21 10:33:29+02:00 - build 19
 
 1. LuaFAR: рефакторинг.
 
-shmuel 20.10.2012 19:49:43 +0200 - build 18
+shmuel 2012-10-20 19:49:43+02:00 - build 18
 
 1. LuaFAR: к четырём типам данных, которые может возвращать Plugin.Call,
    добавился ещё один: "бинарная величина" - это string, который может содержать
    любые данные и который не подвергается преобразованию UTF-16LE -> UTF-8.
 
-shmuel 20.10.2012 08:36:00 +0200 - build 17
+shmuel 2012-10-20 08:36:00+02:00 - build 17
 
 1. Plugin.Call может возвращать одну или более величин, каждая из которых
    может быть: целым 64-битным числом, числом с плавающей точкой, строкой
    (UTF-16LE) или булевой величиной.
 
-shmuel 19.10.2012 15:48:43 +0200 - build 16
+shmuel 2012-10-19 15:48:43+02:00 - build 16
 
 1. LuaFAR: рефакторинг.
 
-shmuel 19.10.2012 11:41:44 +0200 - build 15
+shmuel 2012-10-19 11:41:44+02:00 - build 15
 
 1. LuaFAR: удалены препроцессорные директивы FAR_LUA.
 
-svs 15.10.2012 12:40:38 +0400 - build
+svs 2012-10-15 12:40:38+04:00 - build
 
 1. Форматирование кода
    AStyle --style=ansi --indent=tab=4 --brackets=break --indent-classes --indent-switches --indent-namespaces --indent-preprocessor --break-blocks --delete-empty-lines --unpad-paren --keep-one-line-statements --keep-one-line-blocks "!\!.!"
 
 
-svs 15.10.2012 11:46:00 +0400 - build 14
+svs 2012-10-15 11:46:00+04:00 - build 14
 
 1. ФАРоконстанты в api.lua и luamacro.lua
 
-shmuel 14.10.2012 21:22:40 +0200 - build 13
+shmuel 2012-10-14 21:22:40+02:00 - build 13
 
 1. Добавлена функция `unicode.utf8.cfind` (она будет автоматически вызываться
    при использовании метода `cfind`).
 
-zg 14.10.2012 19:42:19 +0200 - build 12
+zg 2012-10-14 19:42:19+02:00 - build 12
 
 1. warnings.
 
-shmuel 14.10.2012 15:33:27 +0200 - build 11
+shmuel 2012-10-14 15:33:27+02:00 - build 11
 
 1. Немного упрощён протокол передачи данных Far->LuaFAR->LuaMacro.
 
-shmuel 12.10.2012 20:55:00 +0200 - build 10
+shmuel 2012-10-12 20:55:00+02:00 - build 10
 
 1. LuaFAR: удалена неиспользуемая функция far.DefDlgProc.
 
-shmuel 11.10.2012 17:35:57 +0200 - build 9
+shmuel 2012-10-11 17:35:57+02:00 - build 9
 
 1. Восстановлена работа функции MacroControl(MCTL_GETLASTERROR).
 
-shmuel 10.10.2012 20:36:46 +0200 - build 8
+shmuel 2012-10-10 20:36:46+02:00 - build 8
 
 1. LuaFAR: исправлена ошибка, приводящая к падению.
 
-shmuel 10.10.2012 06:48:48 +0200 - build 7
+shmuel 2012-10-10 06:48:48+02:00 - build 7
 
 1. Более корректная обработка командной строки.
 
 2. LuaFAR: закомментирован кусок с ошибкой, приводящей к падению. На работу
    плагина не влияет. Исправление займёт некоторое время.
 
-shmuel 09.10.2012 11:44:09 +0200 - build 6
+shmuel 2012-10-09 11:44:09+02:00 - build 6
 
 1. Добавлена поддержка командной строки (префикс LM).
    Операции те же, что в плагине FarCmds: load, save, post, check.
    Имя файла задаётся как @filename, а не <filename.
    Теперь можно производить операции с командной строки, независимо от наличия плагина FarCmds.
 
-shmuel 09.10.2012 06:37:50 +0200 - build 5
+shmuel 2012-10-09 06:37:50+02:00 - build 5
 
 1. Refactor.
 
-shmuel 09.10.2012 00:07:33 +0200 - build 4
+shmuel 2012-10-09 00:07:33+02:00 - build 4
 
 1. Добавлена возможность интроспекции "свойств" глобальных таблиц API макроязыка.
    Например, свойства таблицы Editor можно просмотреть так:
      for k,v in pairs(Editor.properties) do .... end
 
-t-rex 06.10.2012 18:48:30 +0200 - build 3
+t-rex 2012-10-06 18:48:30+02:00 - build 3
 
 1. Обновил для Far build 2871.
 
-shmuel 05.10.2012 20:00:00 +0200 - build 2
+shmuel 2012-10-05 20:00:00+02:00 - build 2
 
 1. Macro API: все глобальные функции, относящиеся к этому API, продублированы также в таблице mf.
    Например, eval и mf.eval - это одна и та же функция.
 
-drkns 29.09.2012 22:52:06 +0200 - build 1
+drkns 2012-09-29 22:52:06+02:00 - build 1
 
 1. Импорт & адаптация под систему сборки.
