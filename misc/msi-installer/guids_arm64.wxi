@@ -133,6 +133,7 @@
 <?define Guid.View.PgDn.lua = "FB10928A-15AA-43A5-A4D0-8492F6376B72" ?>
 <?define Guid.View.ShiftInsSearch.lua = "5C4AD9EF-1080-4159-892F-8D0EB90AA48A" ?>
 <?define Guid.View.Space.lua = "BD6A2D3D-D42C-42AE-9A47-7B94AD82F5BC" ?>
+<?define Guid.View.TypeToSearch.lua = "D551A72D-1429-4055-B89A-AE6258F63E1B" ?>
 <?define Guid.WheelScreenSwitch.lua = "AEE8AF3C-B032-480D-94BC-D0C1AF851EF7" ?>
 <?define Guid.Editor.ColorWord.moon = "7910F123-8FB0-46FF-B79F-D49A58924984" ?>
 <?define Guid.Default165.farconfig = "1B08A0A2-7B66-4313-9731-1EFA4DA76E96" ?>
