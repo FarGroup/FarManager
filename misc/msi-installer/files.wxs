@@ -197,6 +197,9 @@
             </Component>
           </Directory>
           <Directory Id="No_Highlighting" Name="Interface">
+            <Component Id="black_and_white.farconfig_2" Guid="$(var.Guid.black_and_white.farconfig_2)" Win64="$(var.Win64)">
+              <File Id="black_and_white.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\black_and_white.farconfig" />
+            </Component>
             <Component Id="black_from_Fonarev.farconfig_2" Guid="$(var.Guid.black_from_Fonarev.farconfig_2)" Win64="$(var.Win64)">
               <File Id="black_from_Fonarev.farconfig_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Interface\black_from_Fonarev.farconfig" />
             </Component>
@@ -373,6 +376,9 @@
           </Component>
           <Component Id="View.Space.lua" Guid="$(var.Guid.View.Space.lua)" Win64="$(var.Win64)">
             <File Id="View.Space.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.Space.lua" />
+          </Component>
+          <Component Id="View.TypeToSearch.lua" Guid="$(var.Guid.View.TypeToSearch.lua)" Win64="$(var.Win64)">
+            <File Id="View.TypeToSearch.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.TypeToSearch.lua" />
           </Component>
           <Component Id="WheelScreenSwitch.lua" Guid="$(var.Guid.WheelScreenSwitch.lua)" Win64="$(var.Win64)">
             <File Id="WheelScreenSwitch.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\WheelScreenSwitch.lua" />

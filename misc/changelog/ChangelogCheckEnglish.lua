@@ -1,4 +1,4 @@
-local HeaderPattern = regex.new([[ ^\w.+\s\d\d\.\d\d\.20\d\d\s\d\d:\d\d:\d\d\s[+-]\d\d00.*$ ]], "x")
+local HeaderPattern = regex.new([[ ^\w.+\s20\d\d-\d\d-\d\d\s\d\d:\d\d:\d\d[+-]\d\d:00.*$ ]], "x")
 local SeparatorPattern = regex.new([[^·(\s·)+$]], "x")
 local CyrillicPattern = regex.new([[[А-Яа-я]+]], "x")
 

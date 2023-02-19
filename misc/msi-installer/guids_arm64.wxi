@@ -74,6 +74,7 @@
 <?define Guid.nc5pal2.farconfig_1 = "E78402C1-1A50-4A50-874B-3CF56BCAF93A" ?>
 <?define Guid.Rodion_Doroshkevich.farconfig_1 = "BDF97489-CD8E-48A4-B15E-55D720B357F9" ?>
 <?define Guid.VaxColors.farconfig_1 = "588D5E71-4AB3-43FA-806E-C866FB992F59" ?>
+<?define Guid.black_and_white.farconfig_2 = "C4FDE6E3-8A09-4E0A-B3F4-CE969A76D929" ?>
 <?define Guid.black_from_Fonarev.farconfig_2 = "AAAC8FD4-897D-4F49-85DC-3117EEFA4485" ?>
 <?define Guid.black_from_july.farconfig_2 = "37583031-F663-4669-82DE-CDB21F8A251B" ?>
 <?define Guid.black_from_Myodov.farconfig_2 = "0808DF91-D816-45A5-994B-7CC3EF461BBD" ?>
@@ -132,6 +133,7 @@
 <?define Guid.View.PgDn.lua = "FB10928A-15AA-43A5-A4D0-8492F6376B72" ?>
 <?define Guid.View.ShiftInsSearch.lua = "5C4AD9EF-1080-4159-892F-8D0EB90AA48A" ?>
 <?define Guid.View.Space.lua = "BD6A2D3D-D42C-42AE-9A47-7B94AD82F5BC" ?>
+<?define Guid.View.TypeToSearch.lua = "D551A72D-1429-4055-B89A-AE6258F63E1B" ?>
 <?define Guid.WheelScreenSwitch.lua = "AEE8AF3C-B032-480D-94BC-D0C1AF851EF7" ?>
 <?define Guid.Editor.ColorWord.moon = "7910F123-8FB0-46FF-B79F-D49A58924984" ?>
 <?define Guid.Default165.farconfig = "1B08A0A2-7B66-4313-9731-1EFA4DA76E96" ?>
