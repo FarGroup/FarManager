@@ -1222,3 +1222,8 @@ Manager::windows::const_iterator Manager::IsSpecialWindow() const
 {
 	return std::find_if(CONST_RANGE(m_windows, i) { return i->IsSpecial(); });
 }
+
+void Manager::FolderChanged()
+{
+	CallbackWindow([](){ Global->CtrlObject->Plugins->ProcessSynchroEvent(SE_FOLDERCHANGED, nullptr); });
+}

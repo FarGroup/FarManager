@@ -912,6 +912,23 @@ intptr_t PluginManager::ProcessViewerEvent(int Event, void *Param, const Viewer*
 	return 0;
 }
 
+intptr_t PluginManager::ProcessSynchroEvent(intptr_t Event, void* Param) const
+{
+	ProcessSynchroEventInfo Info{ sizeof(Info) };
+	Info.Event = Event;
+	Info.Param = Param;
+
+	for (const auto& i: SortedPlugins)
+	{
+		if (!i->has(iProcessSynchroEvent))
+			continue;
+
+		i->ProcessSynchroEvent(&Info);
+	}
+
+	return 0;
+}
+
 intptr_t PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param) const
 {
 	ProcessDialogEventInfo Info{ sizeof(Info) };

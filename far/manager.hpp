@@ -147,6 +147,8 @@ public:
 	void ImmediateHide();
 	bool HaveAnyMessage() const;
 
+	void FolderChanged();
+
 private:
 	struct window_comparer
 	{
