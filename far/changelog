@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+zg 2023-02-22 00:19:12+02:00 - build 6105
+
+1. Correction of 5822.2 for persistent blocks.
+
+--------------------------------------------------------------------------------
 zg 2023-02-21 20:49:15+02:00 - build 6104
 
 1. experimental: new event SE_FOLDERCHANGED, sent when changing the current directory in panels.

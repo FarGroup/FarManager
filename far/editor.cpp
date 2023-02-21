@@ -768,7 +768,7 @@ long long Editor::VMProcess(int OpCode, void* vParam, long long iParam)
 	return 0;
 }
 
-static bool is_clear_selection_key(unsigned const Key)
+static bool is_clear_selection_key(unsigned const Key, bool Persistent)
 {
 	static const unsigned int Keys[]
 	{
@@ -782,9 +782,12 @@ static bool is_clear_selection_key(unsigned const Key)
 		KEY_CTRLDOWN,  KEY_RCTRLDOWN,  KEY_CTRLNUMPAD2,  KEY_RCTRLNUMPAD2,
 		KEY_CTRLN,     KEY_RCTRLN,
 		KEY_CTRLE,     KEY_RCTRLE,
+	}, KeysP[]
+	{
+		KEY_ENTER,     KEY_NUMENTER,
 	};
 
-	return Edit::is_clear_selection_key(Key) || contains(Keys, Key);
+	return Edit::is_clear_selection_key(Key) || contains(Keys, Key) || (Persistent && contains(KeysP, Key));
 }
 
 bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
@@ -816,7 +819,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 	auto CurPos = m_it_CurLine->GetCurPos();
 	const auto CurVisPos = GetLineCurPos();
 
-	if (!Pasting && IsAnySelection() && is_clear_selection_key(LocalKey()))
+	if (!Pasting && IsAnySelection() && is_clear_selection_key(LocalKey(), EdOpt.PersistentBlocks))
 	{
 		TurnOffMarkingBlock();
 
