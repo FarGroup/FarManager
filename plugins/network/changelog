@@ -1,3 +1,7 @@
+drkns 2023-02-22 20:58:40+00:00 - build 107
+
+1. gh-631: Network plugin crash on directory change.
+
 ctapmex 2021-12-08 18:00:00+00:00 - build 106
 
 1. рефакторинг

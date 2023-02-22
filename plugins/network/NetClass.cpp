@@ -404,7 +404,7 @@ int NetBrowser::ProcessEvent(intptr_t Event, void* Param)
 	{
 		if (SetOpenFromCommandLine(static_cast<wchar_t*>(Param)))
 		{
-			PsInfo.PanelControl(this, FCTL_SETCMDLINE, 0, (void*)"");
+			PsInfo.PanelControl(this, FCTL_SETCMDLINE, 0, const_cast<wchar_t*>(L""));
 			PsInfo.PanelControl(this, FCTL_UPDATEPANEL, 0, nullptr);
 			return TRUE;
 		}
@@ -871,7 +871,13 @@ int NetBrowser::SetDirectory(const wchar_t* Dir, OPERATION_MODES OpMode)
 		ChangeDirSuccess = true;
 
 		if (ChangeToDirectory(Dir, OpMode, false))
-			return ChangeDirSuccess;
+		{
+			// ChangeToDirectory calls FCTL_CLOSEPANEL, which is equivalent to "delete this;"
+			// We have to exit ASAP without touching *this.
+
+			// TODO: Perhaps it's better to avoid such patterns if we can.
+			return true;
+		}
 
 		if (GetLastError() == ERROR_CANCELLED)
 			return FALSE;
