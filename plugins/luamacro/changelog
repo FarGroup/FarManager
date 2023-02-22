@@ -1,3 +1,7 @@
+zg 2023-02-22 02:04:22+02:00 - build 771
+
+1. experimental "FolderChanged" event.
+
 drkns 2022-10-13 20:13:45+01:00 - build 770
 
 1. Fix opening a module in the editor from the error message box (from Shmuel).
@@ -27,7 +31,7 @@ drkns 2021-12-04 22:32:15+00:00 - build 766
 
 johnd0e 2021-09-06 12:00:00+02:00 - build 765
 
-1. Remove unnecessary metatables access restrictions when creating global 
+1. Remove unnecessary metatables access restrictions when creating global
    MacroAPI tables (Area, Editor, etc.)
    (patch from shmuel).
 
