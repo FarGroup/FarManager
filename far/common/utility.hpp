@@ -117,12 +117,13 @@ auto make_hash(const T& value)
 template<class type>
 void hash_combine(size_t& Seed, const type& Value)
 {
+	// https://en.wikipedia.org/wiki/Hash_function#Fibonacci_hashing
 	const auto MagicValue =
 #ifdef _WIN64
-		// (sqrt(5) - 1) * 2^63
+		// 2^64 / phi
 		11400714819323198485ull
 #else
-		// (sqrt(5) - 1) * 2^31
+		// 2^32 / phi
 		2654435769ul
 #endif
 	;

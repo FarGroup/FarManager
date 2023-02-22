@@ -446,7 +446,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 							flags::check_any(Key, KEY_CTRL | KEY_RCTRL) && flags::check_any(Key, KEY_SHIFT)?
 								HRT_CTRLSHIFTENTER :
 								flags::check_any(Key, KEY_SHIFT)?
-									HRT_SHIFTETNER :
+									HRT_SHIFTENTER :
 									HRT_CTRLENTER;
 					break;
 				}
@@ -635,7 +635,7 @@ history_return_type History::ProcessMenu(string& strStr, UUID* const Uuid, strin
 		break;
 
 	case HRT_ENTER:
-	case HRT_SHIFTETNER:
+	case HRT_SHIFTENTER:
 	case HRT_CTRLENTER:
 	case HRT_CTRLSHIFTENTER:
 	case HRT_CTRLALTENTER:

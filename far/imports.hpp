@@ -153,6 +153,7 @@ public: \
 	DEFINE_IMPORT_FUNCTION(kernel32, le, void,    WINAPI,  void,    ReleaseSRWLockExclusive, PSRWLOCK SRWLock); // Vista
 	DEFINE_IMPORT_FUNCTION(kernel32, le, void,    WINAPI,  void,    ReleaseSRWLockShared, PSRWLOCK SRWLock); // Vista
 	DEFINE_IMPORT_FUNCTION(kernel32, le, zero,    WINAPI,  int,     CompareStringOrdinal, LPCWCH String1, int Count1, LPCWCH String2, int Count2, BOOL IgnoreCase); // Vista
+	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    GetProductInfo, DWORD OSMajorVersion, DWORD OSMinorVersion, DWORD SpMajorVersion, DWORD SpMinorVersion, PDWORD ReturnedProductType);
 	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOL,    GetPhysicallyInstalledSystemMemory, PULONGLONG TotalMemoryInKilobytes); // Vista SP1
 	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOLEAN, TryAcquireSRWLockExclusive, PSRWLOCK SRWLock); // 7
 	DEFINE_IMPORT_FUNCTION(kernel32, le, false,   WINAPI,  BOOLEAN, TryAcquireSRWLockShared, PSRWLOCK SRWLock); // 7

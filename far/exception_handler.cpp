@@ -784,31 +784,16 @@ static string get_console_host()
 	return concat(ConhostName, L' ', ConhostVersion, ConhostLegacy);
 }
 
-namespace detail
-{
-	// GCC headers for once got it right
-	template<typename type>
-	concept has_InheritedFromUniqueProcessId = requires(type t)
-	{
-		t.InheritedFromUniqueProcessId;
-	};
-
-	// Windows SDK (at least up to 19041) defines it as "Reserved3".
-	// Surprisingly, MSDN calls it InheritedFromUniqueProcessId, so it might get renamed one day.
-	// For forward compatibility it's better to use the compiler rather than the preprocessor here.
-	template<typename type>
-	concept has_Reserved3 = requires(type t)
-	{
-		t.Reserved3;
-	};
-}
-
 template<typename process_basic_information_t>
 static auto parent_process_id(process_basic_information_t const& Info)
 {
-	if constexpr (detail::has_InheritedFromUniqueProcessId<process_basic_information_t>)
+	// GCC headers for once got it right
+	if constexpr (requires {Info.InheritedFromUniqueProcessId; })
 		return static_cast<DWORD>(Info.InheritedFromUniqueProcessId);
-	else if constexpr (detail::has_Reserved3<process_basic_information_t>)
+	// Windows SDK (at least up to 19041) defines it as "Reserved3".
+	// Surprisingly, MSDN calls it InheritedFromUniqueProcessId, so it might get renamed one day.
+	// For forward compatibility it's better to use the compiler rather than the preprocessor here.
+	else if constexpr (requires { Info.Reserved3; })
 		return static_cast<DWORD>(reinterpret_cast<uintptr_t>(Info.Reserved3));
 	else
 		static_assert(!sizeof(Info));
@@ -1592,7 +1577,7 @@ static bool handle_seh_exception(
 
 	for (const auto& i : enum_catchable_objects(Record))
 	{
-		if (strstr(i, "std::exception"))
+		if (std::strstr(i, "std::exception"))
 			return handle_std_exception(Context, view_as<std::exception>(Record.ExceptionInformation[1]), Function, PluginModule);
 	}
 

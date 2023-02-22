@@ -50,12 +50,6 @@ namespace detail
 		void postprocess(std::wstring_view&) noexcept {}
 	};
 
-	template<typename base_type, size_t index, template<typename> typename operation>
-	concept has_operation = requires
-	{
-		operation<std::tuple_element_t<index + 1, base_type>>();
-	};
-
 	template<typename... args>
 	class composite_overrider: public base<std::tuple<null_overrider, args...>>
 	{
@@ -88,8 +82,9 @@ namespace detail
 		[[nodiscard]]
 		auto& get_opt()
 		{
+			constexpr auto HasOperation = requires { operation<std::tuple_element_t<index + 1, base_type>>(); };
 			// This idiotic cast to std::tuple is for clang
-			return std::get<has_operation<base_type, index, operation>? index + 1 : 0>(static_cast<base_type&>(*this));
+			return std::get<HasOperation? index + 1 : 0>(static_cast<base_type&>(*this));
 		}
 
 		template<typename T>

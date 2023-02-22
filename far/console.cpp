@@ -1139,14 +1139,14 @@ protected:
 
 	static constexpr struct
 	{
-		string_view Normal, Intense, ExtendedColour;
 		COLORREF FarColor::* Color;
 		FARCOLORFLAGS Flags;
+		string_view Normal, Intense, ExtendedColour;
 	}
 	ColorsMapping[]
 	{
-		{ L"3"sv,  L"9"sv, L"38"sv, &FarColor::ForegroundColor, FCF_FG_INDEX },
-		{ L"4"sv, L"10"sv, L"48"sv, &FarColor::BackgroundColor, FCF_BG_INDEX },
+		{ &FarColor::ForegroundColor, FCF_FG_INDEX, L"3"sv, L"9"sv,  L"38"sv },
+		{ &FarColor::BackgroundColor, FCF_BG_INDEX, L"4"sv, L"10"sv, L"48"sv },
 	};
 
 	static constexpr struct
@@ -2036,7 +2036,7 @@ WARNING_POP()
 			CONSOLE_FONT_INFO FontInfo;
 			if (get_current_console_font(ConsoleOutput, FontInfo))
 			{
-				Result.x -= Round(GetSystemMetrics(SM_CXVSCROLL), static_cast<int>(FontInfo.dwFontSize.X));
+				Result.x -= std::lround(GetSystemMetrics(SM_CXVSCROLL) * 1.0 / FontInfo.dwFontSize.X);
 			}
 		}
 		return Result;

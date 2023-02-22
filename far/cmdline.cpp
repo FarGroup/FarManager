@@ -344,7 +344,7 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 			history_record_type Type;
 			string strStr;
 			const auto SelectType = Global->CtrlObject->CmdHistory->Select(msg(lng::MHistoryTitle), L"History"sv, strStr, Type);
-			if (SelectType == HRT_ENTER || SelectType == HRT_SHIFTETNER || SelectType == HRT_CTRLENTER || SelectType == HRT_CTRLALTENTER)
+			if (SelectType == HRT_ENTER || SelectType == HRT_SHIFTENTER || SelectType == HRT_CTRLENTER || SelectType == HRT_CTRLALTENTER)
 			{
 				std::optional<SetAutocomplete> disable;
 				if(SelectType != HRT_CTRLENTER)
@@ -413,11 +413,11 @@ bool CommandLine::ProcessKey(const Manager::Key& Key)
 			switch(const auto SelectType = Global->CtrlObject->FolderHistory->Select(msg(lng::MFolderHistoryTitle), L"HistoryFolders"sv, strStr, Type, &Uuid, &strFile, &strData))
 			{
 			case HRT_ENTER:
-			case HRT_SHIFTETNER:
+			case HRT_SHIFTENTER:
 			case HRT_CTRLSHIFTENTER:
 				{
 					auto Suppressor = Global->CtrlObject->FolderHistory->suppressor();
-					if (SelectType != HRT_SHIFTETNER)
+					if (SelectType != HRT_SHIFTENTER)
 						Suppressor.reset();
 
 					// пусть плагин сам прыгает... ;-)
@@ -848,10 +848,10 @@ void CommandLine::ShowViewEditHistory()
 	switch(const auto SelectType = Global->CtrlObject->ViewHistory->Select(msg(lng::MViewHistoryTitle), L"HistoryViews"sv, strStr, Type))
 	{
 	case HRT_ENTER:
-	case HRT_SHIFTETNER:
+	case HRT_SHIFTENTER:
 		{
 			auto Suppressor = Global->CtrlObject->ViewHistory->suppressor();
-			if (SelectType != HRT_SHIFTETNER)
+			if (SelectType != HRT_SHIFTENTER)
 				Suppressor.reset();
 
 			switch (Type)
