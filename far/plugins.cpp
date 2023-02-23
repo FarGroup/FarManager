@@ -918,12 +918,10 @@ intptr_t PluginManager::ProcessSynchroEvent(intptr_t Event, void* Param) const
 	Info.Event = Event;
 	Info.Param = Param;
 
-	for (const auto& i: SortedPlugins)
+	const auto LuaMacro = FindPlugin(Global->Opt->KnownIDs.Luamacro.Id);
+	if (LuaMacro && !LuaMacro->IsPendingRemove() && LuaMacro->has(iProcessSynchroEvent))
 	{
-		if (!i->has(iProcessSynchroEvent))
-			continue;
-
-		i->ProcessSynchroEvent(&Info);
+		LuaMacro->ProcessSynchroEvent(&Info);
 	}
 
 	return 0;
