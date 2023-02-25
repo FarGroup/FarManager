@@ -817,7 +817,8 @@ string codepages::FormatName(uintptr_t const CodePage)
 
 string codepages::UnsupportedCharacterMessage(wchar_t const Char)
 {
-	return format(msg(lng::MCharacterIsNotSupportedByTheCodepage), Char);
+	const auto UnicodeNotation = format(FSTR(L"U+{0:04X}"sv), Char);
+	return format(msg(lng::MCharacterIsNotSupportedByTheCodepage), Char, UnicodeNotation);
 }
 
 long long codepages::GetFavorite(uintptr_t cp)
