@@ -399,9 +399,11 @@ SQLiteDb::SQLiteDb(busy_handler BusyHandler, initialiser Initialiser, string_vie
 	// and thus blocks all other writers. If the BEGIN IMMEDIATE operation succeeds,
 	// then no subsequent operations in that transaction will ever fail with an SQLITE_BUSY error.
 	m_stmt_BeginTransaction(create_stmt("BEGIN EXCLUSIVE"sv)),
-	m_stmt_EndTransaction(create_stmt("END"sv)),
-	m_Init(((void)initialise(), (void)Initialiser(db_initialiser(this)), init{})) // yay, operator comma!
+	m_stmt_EndTransaction(create_stmt("END"sv))
 {
+	sqlite::sqlite3_extended_result_codes(m_Db.get(), true);
+
+	Initialiser(db_initialiser(this));
 }
 
 void SQLiteDb::db_closer::operator()(sqlite::sqlite3* Object) const noexcept
@@ -601,11 +603,6 @@ void SQLiteDb::SetWALJournalingMode() const
 void SQLiteDb::EnableForeignKeysConstraints() const
 {
 	Exec("PRAGMA foreign_keys = ON;"sv);
-}
-
-void SQLiteDb::initialise() const
-{
-	sqlite::sqlite3_extended_result_codes(m_Db.get(), true);
 }
 
 template<typename char_type>
