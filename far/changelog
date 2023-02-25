@@ -9,7 +9,7 @@ zg 2023-02-24 00:45:38+02:00 - build 6108
 1. correction of 6104: SE_FOLDERCHANGED sends only to LuaMacro temporary.
 
 --------------------------------------------------------------------------------
-skipik 23.02.2023 13:50:41+0300 - build 6107
+skipik 23.02.2023 13:50:41+03:00 - build 6107
 
 1. SQLite v3.41.0.
 
