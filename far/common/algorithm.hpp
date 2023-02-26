@@ -78,41 +78,22 @@ void apply_permutation(Iter1 first, Iter1 last, Iter2 indices)
 	}
 }
 
-namespace detail
-{
-	template<typename type>
-	concept has_emplace_hint = requires(type t)
-	{
-		t.emplace_hint(t.end(), *t.begin());
-	};
-}
-
 // Unified container emplace
 template<typename container, typename... args>
 void emplace(container& Container, args&&... Args)
 {
-	if constexpr (detail::has_emplace_hint<container>)
+	if constexpr (requires { Container.emplace_hint(Container.end(), *Container.begin()); })
 		Container.emplace_hint(Container.end(), FWD(Args)...);
 	else
 		Container.emplace(Container.end(), FWD(Args)...);
 }
 
 // uniform "contains"
-
-namespace detail
-{
-	template<typename type>
-	concept has_contains = requires(type t)
-	{
-		t.contains(*t.begin());
-	};
-}
-
 template<typename element>
 [[nodiscard]]
 constexpr bool contains(range_like auto const& Range, const element& Element)
 {
-	if constexpr (detail::has_contains<decltype(Range)>)
+	if constexpr (requires { Range.contains(*Range.begin()); })
 	{
 		return Range.contains(Element);
 	}

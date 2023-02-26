@@ -98,6 +98,11 @@ void global::StoreSearchString(string_view Str, uintptr_t Codepage, bool Hex)
 		StoreSearchString(Str, false);
 }
 
+void global::FolderChanged()
+{
+	WindowManager->FolderChanged();
+}
+
 global::far_clock::far_clock()
 {
 	update();

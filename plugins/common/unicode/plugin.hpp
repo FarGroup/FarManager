@@ -6,7 +6,7 @@
 /*
 plugin.hpp
 
-Plugin API for Far Manager 3.0.6070.0
+Plugin API for Far Manager 3.0.6105.0
 */
 /*
 Copyright © 1996 Eugene Roshal
@@ -44,7 +44,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 6070
+#define FARMANAGERVERSION_BUILD 6105
 #define FARMANAGERVERSION_STAGE VS_PRIVATE
 
 #ifndef RC_INVOKED
@@ -1526,6 +1526,7 @@ enum DIALOG_EVENTS
 enum SYNCHRO_EVENTS
 {
 	SE_COMMONSYNCHRO  =0,
+	SE_FOLDERCHANGED  =1,
 };
 
 #define EEREDRAW_ALL    (void*)0

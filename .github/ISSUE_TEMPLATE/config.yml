@@ -1,13 +1,21 @@
 blank_issues_enabled: true
 
 contact_links:
-  - name: I have an issue with Colorer
-    url: https://github.com/colorer/FarColorer/issues/new/choose
-    about: Please report Colorer-specific issues here
-
   - name: I have an issue with NetBox
     url: https://github.com/FarGroup/Far-NetBox/issues/new/choose
     about: Please report NetBox-specific issues here
+
+  - name: I have an issue with the website
+    url: https://github.com/FarGroup/www/issues/new/choose
+    about: Please report website-specific issues here
+
+  - name: I have an issue with Plugring
+    url: https://github.com/FarGroup/plugring/issues/new/choose
+    about: Please report Plugring-specific issues here
+
+  - name: I have an issue with Colorer
+    url: https://github.com/colorer/FarColorer/issues/new/choose
+    about: Please report Colorer-specific issues here
 
   - name: I have an issue with Windows Console or Terminal
     url: https://github.com/microsoft/terminal/issues/new/choose

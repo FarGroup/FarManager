@@ -231,7 +231,6 @@ private:
 	database_ptr Open(string_view Path, busy_handler BusyHandler, bool WAL);
 	void Close();
 
-	void initialise() const;
 	void add_nocase_collation() const;
 	void add_numeric_collation() const;
 
@@ -242,7 +241,6 @@ private:
 	SQLiteStmt m_stmt_BeginTransaction;
 	SQLiteStmt m_stmt_EndTransaction;
 	mutable std::vector<SQLiteStmt> m_Statements;
-	struct init{} m_Init;
 	std::atomic_size_t m_ActiveTransactions{};
 };
 

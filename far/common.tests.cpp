@@ -48,6 +48,42 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
+#include "common.hpp"
+
+TEST_CASE("common.CheckStructSize")
+{
+	struct s
+	{
+		int StructSize;
+	}
+	const S1{ 1 }, S2{ sizeof(s) }, S3{ sizeof(s) + 1 };
+
+	REQUIRE(!CheckStructSize(static_cast<s const*>(nullptr)));
+	REQUIRE(!CheckStructSize(&S1));
+	REQUIRE(CheckStructSize(&S2));
+	REQUIRE(CheckStructSize(&S3));
+
+	REQUIRE(CheckNullOrStructSize(static_cast<s const*>(nullptr)));
+	REQUIRE(!CheckNullOrStructSize(&S1));
+	REQUIRE(CheckNullOrStructSize(&S2));
+	REQUIRE(CheckNullOrStructSize(&S3));
+}
+
+TEST_CASE("common.NullToEmpty")
+{
+	const char* Null{}, *Empty = "", *NonEmpty = "banana";
+
+	REQUIRE(!*NullToEmpty(Null));
+	REQUIRE(NullToEmpty(Empty) == Empty);
+	REQUIRE(NullToEmpty(NonEmpty) == NonEmpty);
+
+	REQUIRE(!EmptyToNull(Null));
+	REQUIRE(!EmptyToNull(Empty));
+	REQUIRE(EmptyToNull(NonEmpty) == NonEmpty);
+}
+
+//----------------------------------------------------------------------------
+
 #if COMPILER(GCC)
 #include "common/cpp.hpp"
 
@@ -209,7 +245,6 @@ TEST_CASE("algorithm.contains")
 {
 	{
 		constexpr std::array Data{ 1, 2, 3 };
-		STATIC_REQUIRE(!detail::has_contains<decltype(Data)>);
 
 		// TODO: STATIC_REQUIRE
 		// GCC stdlib isn't constexpr yet :(
@@ -220,8 +255,7 @@ TEST_CASE("algorithm.contains")
 	}
 
 	{
-		std::set Data{ 1, 2, 3 };
-		STATIC_REQUIRE(detail::has_contains<decltype(Data)>);
+		std::set const Data{ 1, 2, 3 };
 
 		REQUIRE(contains(Data, 1));
 		REQUIRE(contains(Data, 2));

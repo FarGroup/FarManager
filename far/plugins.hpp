@@ -163,6 +163,7 @@ public:
 	intptr_t ProcessEditorEvent(int Event, void *Param, const Editor* EditorInstance) const;
 	intptr_t ProcessSubscribedEditorEvent(int Event, void *Param, const Editor* EditorInstance, const std::unordered_set<UUID>& PluginIds) const;
 	intptr_t ProcessViewerEvent(int Event, void *Param, const Viewer* ViewerInstance) const;
+	intptr_t ProcessSynchroEvent(intptr_t Event, void* Param) const;
 	intptr_t ProcessDialogEvent(int Event,FarDialogEvent *Param) const;
 	intptr_t ProcessConsoleInput(ProcessConsoleInputInfo *Info) const;
 	std::vector<Plugin*> GetContentPlugins(const std::vector<const wchar_t*>& ColNames) const;

@@ -209,14 +209,19 @@ WARNING_POP()
 		if (!get_os_version(Info))
 			return L"Unknown"s;
 
-		return format(FSTR(L"{} {} {}.{}.{}{}, 0x{:X}"sv),
+		DWORD ProductType;
+		if (!imports.GetProductInfo || !imports.GetProductInfo(-1, -1, -1, -1, &ProductType))
+			ProductType = 0;
+
+		return format(FSTR(L"{} {} {}.{}.{}{}, 0x{:X}/0x{:X}"sv),
 			windows_platform(Info.dwPlatformId),
 			windows_product_type(Info.wProductType),
 			Info.dwMajorVersion,
 			Info.dwMinorVersion,
 			Info.dwBuildNumber,
 			windows_service_pack(Info),
-			Info.wSuiteMask
+			Info.wSuiteMask,
+			ProductType
 		);
 	}
 

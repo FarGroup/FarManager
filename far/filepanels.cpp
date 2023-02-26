@@ -853,6 +853,7 @@ void FilePanels::SetActivePanel(Panel* ToBeActive)
 {
 	if (ActivePanel().get() != ToBeActive)
 	{
+		Global->FolderChanged();
 		SetPassivePanelInternal(ActivePanel());
 		SetActivePanelInternal(ToBeActive->shared_from_this());
 	}

@@ -76,7 +76,7 @@ enum history_return_type
 {
 	HRT_CANCEL,
 	HRT_ENTER,
-	HRT_SHIFTETNER,
+	HRT_SHIFTENTER,
 	HRT_CTRLENTER,
 	HRT_F3, //internal
 	HRT_F4, //internal

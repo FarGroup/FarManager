@@ -69,6 +69,8 @@ public:
 	string GetSearchString(uintptr_t Codepage);
 	void StoreSearchString(string_view Str, uintptr_t Codepage, bool Hex);
 
+	void FolderChanged();
+
 	// BUGBUG
 
 	string g_strFarModuleName;

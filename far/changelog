@@ -1,4 +1,34 @@
 --------------------------------------------------------------------------------
+drkns 2023-02-25 16:36:54+00:00 - build 6109
+
+1. Include Unicode notation (U+NNNN) into the "character is not supported by the selected code page" warning.
+
+--------------------------------------------------------------------------------
+zg 2023-02-24 00:45:38+02:00 - build 6108
+
+1. correction of 6104: SE_FOLDERCHANGED sends only to LuaMacro temporary.
+
+--------------------------------------------------------------------------------
+skipik 2023-02-23 13:50:41+03:00 - build 6107
+
+1. SQLite v3.41.0.
+
+--------------------------------------------------------------------------------
+drkns 2023-02-22 20:47:28+00:00 - build 6106
+
+1. Refactoring.
+
+--------------------------------------------------------------------------------
+zg 2023-02-22 00:19:12+02:00 - build 6105
+
+1. Correction of 5822.2 for persistent blocks.
+
+--------------------------------------------------------------------------------
+zg 2023-02-21 20:49:15+02:00 - build 6104
+
+1. experimental: new event SE_FOLDERCHANGED, sent when changing the current directory in panels.
+
+--------------------------------------------------------------------------------
 MZK 2023-02-18 12:03:13-08:00
 
 1. gh-614: Restored Viewer type-to-search feature which was removed in 6099.
