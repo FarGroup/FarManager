@@ -54,7 +54,7 @@ TEST_CASE("common.CheckStructSize")
 {
 	struct s
 	{
-		int StructSize;
+		size_t StructSize;
 	}
 	const S1{ 1 }, S2{ sizeof(s) }, S3{ sizeof(s) + 1 };
 

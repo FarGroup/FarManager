@@ -69,10 +69,12 @@ private:
 };
 
 #define STATIC_REQUIRE_ERROR(Type, ...) \
+	do \
 	{ \
 		constexpr auto Result = []<typename TestType>(){ return requires { __VA_ARGS__; }; }.template operator()<Type>(); \
 		STATIC_REQUIRE_FALSE(Result); \
-	}
+	} \
+	while (false)
 
 #endif
 
