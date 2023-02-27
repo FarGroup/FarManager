@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -225,7 +225,7 @@ namespace HlfChecker
 				return line.IndexOf('=', 2) < 0 ? TokenKind.Title : TokenKind.Alias;
 			}
 
-			if (line[0] == '$' || line.Length >= 2 && line[0] == '`' && line[1] == '$') return TokenKind.Header;
+			if (line[0] == '$' || (line.Length >= 2 && line[0] == '`' && line[1] == '$')) return TokenKind.Header;
 
 			return TokenKind.Normal;
 		}
@@ -304,5 +304,4 @@ namespace HlfChecker
 		private delegate Parser Parser(Token token);
 		private List<Diagnostics> diagnostics = new();
 	}
-
 }

@@ -1,11 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
-    <Platforms>x64</Platforms>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
+<Project>
 
   <PropertyGroup>
     <GeneratedText>
@@ -14,7 +7,7 @@ namespace $(RootNamespace)
 {
 	public static class GeneratedConstants
 	{
-		public static readonly string FarManagerRootDir = System.IO.Path.Combine(@"$(MSBuildProjectDirectory)", "..", "..")%3B
+		public static readonly string FarManagerRootDir = System.IO.Path.Combine(@"$(MSBuildThisFileDirectory)", "..", "..")%3B
 	}
 }
 ]]>
