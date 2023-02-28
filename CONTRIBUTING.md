@@ -52,7 +52,7 @@ cd far
 3. Each entry starts with a header of the form:
 ```
 --------------------------------------------------------------------------------
-warp 05.12.2006 01:39:38 +0300 - build 2149
+warp 2006-12-05 01:39:38+03:00 - build 2149
 ```
 4. Changes not always require a build increase (i.e. cosmetic or non code
    related changes).
