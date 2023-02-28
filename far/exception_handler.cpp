@@ -316,7 +316,29 @@ static bool write_minidump(const exception_context& Context, string_view const F
 			&WriterContext
 		};
 
-		Result = imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), Type, &Mei, {}, &Mci) != FALSE;
+		auto DegradedType = Type;
+
+		for (;;)
+		{
+			Result = imports.MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), DumpFile.get().native_handle(), DegradedType, &Mei, {}, &Mci) != FALSE;
+			if (Result)
+			{
+				if (DegradedType != Type)
+					LOGWARNING(L"MiniDumpWriteDump(): requested: 0x{:08X}, accepted: 0x{:08X}, rejected: 0x{:08X}"sv, Type, DegradedType, Type & ~DegradedType);
+
+				break;
+			}
+
+			if (!any_of(static_cast<int>(os::last_error().Win32Error), ERROR_INVALID_PARAMETER, E_INVALIDARG))
+				break;
+
+			// 1. Each version of dbghelp.dll has its own set of supported flags and rejects everything else.
+			// 2. It is not possible to reliably determine the version of dbghelp.dll.
+			// As retarded as it gets.
+
+			// The best we can do is try over and over, dropping the flags one by one from newest to oldest.
+			DegradedType = static_cast<MINIDUMP_TYPE>(DegradedType & ~bit(std::bit_width(static_cast<uint32_t>(DegradedType)) - 1));
+		}
 	});
 
 	return Result;
@@ -1314,9 +1336,24 @@ static bool handle_generic_exception(
 	) :
 	L""s;
 
+	constexpr auto MinidumpFlags = static_cast<MINIDUMP_TYPE>(
+		MiniDumpNormal |
+		MiniDumpWithHandleData |
+		MiniDumpWithUnloadedModules |
+		MiniDumpWithIndirectlyReferencedMemory |
+		MiniDumpWithProcessThreadData |
+		MiniDumpWithThreadInfo
+	);
+
+	constexpr auto FulldumpFlags = static_cast<MINIDUMP_TYPE>(
+		MinidumpFlags |
+		MiniDumpWithFullMemory |
+		MiniDumpIgnoreInaccessibleMemory
+	);
+
 	const auto ReportLocation = get_report_location();
-	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDDUMP_NAME)), MiniDumpNormal);
-	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), MiniDumpWithFullMemory);
+	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDDUMP_NAME)), MinidumpFlags);
+	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), FulldumpFlags);
 	const auto BugReport = collect_information(Context, Function, Location, PluginModule, PluginInfo, ModuleName, Type, Message, ErrorState, NestedStack);
 	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
 	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
