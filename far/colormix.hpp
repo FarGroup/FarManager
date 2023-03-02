@@ -52,7 +52,7 @@ namespace colors
 {
 	namespace index
 	{
-		constexpr auto
+		constexpr inline auto
 			nt_mask = 0xf,
 			nt_last = 15,
 			cube_first = nt_last + 1,

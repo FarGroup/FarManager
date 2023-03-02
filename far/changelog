@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2023-02-28 21:43:49+00:00 - build 6110
+
+1. Fix crash when window size is too small.
+
+2. Include more data into minidumps.
+
+--------------------------------------------------------------------------------
 drkns 2023-02-25 16:36:54+00:00 - build 6109
 
 1. Include Unicode notation (U+NNNN) into the "character is not supported by the selected code page" warning.
