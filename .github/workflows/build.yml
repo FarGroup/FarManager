@@ -22,19 +22,26 @@ jobs:
         run: python tools/source_validator.py
 
 #------------------------------------------------------------------------------
-  hlf-checks:
-    runs-on: windows-2022
+  changelog-hlf-checks:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-dotnet@v1
+      - uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '5.0.x'
+          dotnet-version: '6.0'
+
+# For "--property UseSharedCompilation=false", see
+# https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/troubleshooting-the-codeql-workflow#no-code-found-during-the-build
+
+      - name: Build and run ChangelogChecker
+        working-directory: misc/build-checks/ChangelogChecker
+        run: dotnet run --project ./ChangelogChecker.csproj --configuration Release --property UseSharedCompilation=false
 
       - name: Build and run HlfChecker
-        working-directory: misc/hlf-checker
-        run: dotnet run --project .\HlfChecker.csproj --configuration Release -- Verbose
+        working-directory: misc/build-checks/HlfChecker
+        run: dotnet run --project ./HlfChecker.csproj --configuration Release --property UseSharedCompilation=false -- Verbose
 
 #------------------------------------------------------------------------------
   build-msbuild:

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -68,8 +68,6 @@ namespace HlfChecker
 			return options;
 		}
 
-		private static readonly Regex ValidLanguageFilter = new Regex(@"^[+-]\p{L}{3}$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
 		// Filters paramList
 		private static Regex GetLanguageFilter(List<string> paramList)
 		{
@@ -83,28 +81,47 @@ namespace HlfChecker
 
 			if (requested.Count > 0 && excluded.Count > 0)
 			{
-				$"Cannot apply requested ({string.Join(", ", requested)}) and exculded ({string.Join(", ", excluded)}) language filters together. Exiting.".Trace();
+				$"Cannot apply requested ({string.Join(", ", requested)}) and excluded ({string.Join(", ", excluded)}) language filters together. Exiting.".Trace();
 				return default;
 			}
 
-			var filters = requested.Count > 0 ? requested : excluded;
+			return GetLanguageFilter(paramList, requested.Count > 0 ? (requested, @"({0})\.hlf") : (excluded, @"(?!{0})\p{{L}}{{3}}\.hlf"));
+		}
 
-			var invalid = filters.Where(lng => !ValidLanguageFilter.IsMatch(lng)).ToList();
-			if (invalid.Count != 0)
+		private static Regex GetLanguageFilter(List<string> paramList, (List<string> filters, string regexFormat) requestedOrExcluded)
+		{
+			if (!ValidateLanguageFilters(requestedOrExcluded.filters))
 			{
-				$"Invalid language filter(s) specified: ({string.Join(", ", invalid)}). Exiting.".Trace();
 				return default;
 			}
 
+			ApplyLanguageFilters(paramList, requestedOrExcluded.filters);
+
+			return new Regex(string.Format(requestedOrExcluded.regexFormat, string.Join("|", requestedOrExcluded.filters.Select(f => f.Substring(1)))),
+				RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+		}
+
+		private static readonly Regex ValidLanguageFilter = new Regex(@"^[+-]\p{L}{3}$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+		private static bool ValidateLanguageFilters(List<string> filters)
+		{
+			var invalid = filters.Where(lng => !ValidLanguageFilter.IsMatch(lng)).ToList();
+			if (invalid.Count == 0)
+			{
+				return true;
+			}
+
+			$"Invalid language filter(s) specified: ({string.Join(", ", invalid)}). Exiting.".Trace();
+			return false;
+		}
+
+		private static void ApplyLanguageFilters(List<string> paramList, List<string> filters)
+		{
 			$"Language filters applied: ({string.Join(", ", filters)}).".Trace();
 
 			var outParamList = paramList.Except(filters).ToList();
 			paramList.Clear();
 			paramList.AddRange(outParamList);
-
-			return new Regex(
-				(requested.Count > 0 ? "(" : @"\p{L}{3}(?<!") + string.Join("|", filters.Select(f => f.Substring(1))) + @")\.hlf",
-				RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 		}
 
 		private static List<DirectoryInfo> GetDirectories(List<string> paramList)
