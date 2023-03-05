@@ -5904,7 +5904,7 @@ void FileList::PluginDelete()
 		if (Global->CtrlObject->Plugins->DeleteFiles(Item.lock()->m_Plugin.get(), ItemList, 0) && !Item.expired())
 		{
 			SetPluginModified();
-			PutDizToPlugin(this, ItemList.items(), true, false, nullptr);
+			PutDizToPlugin(this, ItemList, true, false, nullptr);
 		}
 	}
 
@@ -5916,7 +5916,7 @@ void FileList::PluginDelete()
 }
 
 
-void FileList::PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanelItem>& ItemList, bool Delete, bool Move, DizList *SrcDiz) const
+void FileList::PutDizToPlugin(FileList *DestPanel, span<PluginPanelItem> const ItemList, bool Delete, bool Move, DizList *SrcDiz) const
 {
 	Global->CtrlObject->Plugins->GetOpenPanelInfo(DestPanel->GetPluginHandle(), &m_CachedOpenPanelInfo);
 
@@ -6016,7 +6016,7 @@ void FileList::PluginGetFiles(const string& DestPath, bool Move)
 					DizList DestDiz;
 					bool DizFound = false;
 
-					for (auto& i: ItemList.items())
+					for (auto& i: ItemList)
 					{
 						if (i.Flags & PPIF_PROCESSDESCR)
 						{
@@ -6040,11 +6040,11 @@ void FileList::PluginGetFiles(const string& DestPath, bool Move)
 				if (Move)
 				{
 					SetPluginModified();
-					PutDizToPlugin(this, ItemList.items(), true, false, nullptr);
+					PutDizToPlugin(this, ItemList, true, false, nullptr);
 				}
 			}
 			else if (!ReturnCurrentFile)
-				PluginClearSelection(ItemList.items());
+				PluginClearSelection(ItemList);
 		}
 	}
 
@@ -6092,16 +6092,16 @@ void FileList::PluginToPluginFiles(bool Move)
 					ClearSelection();
 
 				AnotherFilePanel->SetPluginModified();
-				PutDizToPlugin(AnotherFilePanel.get(), ItemList.items(), false, false, &Diz);
+				PutDizToPlugin(AnotherFilePanel.get(), ItemList, false, false, &Diz);
 
 				if (Move && Global->CtrlObject->Plugins->DeleteFiles(GetPluginHandle(), ItemList, OPM_SILENT))
 				{
 					SetPluginModified();
-					PutDizToPlugin(this, ItemList.items(), true, false, nullptr);
+					PutDizToPlugin(this, ItemList, true, false, nullptr);
 				}
 			}
 			else if (!ReturnCurrentFile)
-				PluginClearSelection(ItemList.items());
+				PluginClearSelection(ItemList);
 
 			FarChDir(strSaveDir);
 		}
@@ -6268,11 +6268,11 @@ int FileList::PluginPutFilesToAnother(bool Move, panel_ptr AnotherPanel)
 				ClearSelection();
 			}
 
-			PutDizToPlugin(AnotherFilePanel.get(), ItemList.items(), false, Move, &Diz);
+			PutDizToPlugin(AnotherFilePanel.get(), ItemList, false, Move, &Diz);
 			AnotherFilePanel->SetPluginModified();
 		}
 		else if (!ReturnCurrentFile)
-			PluginClearSelection(ItemList.items());
+			PluginClearSelection(ItemList);
 	}
 
 	Update(UPDATE_KEEP_SELECTION);
@@ -6319,7 +6319,7 @@ void FileList::ProcessHostFile()
 			else
 			{
 				if (!ReturnCurrentFile)
-					PluginClearSelection(ItemList.items());
+					PluginClearSelection(ItemList);
 
 				Redraw();
 			}
@@ -6579,7 +6579,7 @@ bool FileList::ProcessPluginEvent(int Event,void *Param)
 	return Global->CtrlObject->Plugins->ProcessEvent(GetPluginHandle(), Event, Param) != FALSE;
 }
 
-void FileList::PluginClearSelection(const std::vector<PluginPanelItem>& ItemList)
+void FileList::PluginClearSelection(span<PluginPanelItem> const ItemList)
 {
 	SaveSelection();
 	size_t FileNumber=0,PluginNumber=0;

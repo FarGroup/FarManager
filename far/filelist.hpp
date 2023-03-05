@@ -284,13 +284,13 @@ private:
 	void PrepareStripes(const std::vector<column>& Columns);
 	void PrepareViewSettings(int ViewMode);
 	void PluginDelete();
-	void PutDizToPlugin(FileList *DestPanel, const std::vector<PluginPanelItem>& ItemList, bool Delete, bool Move, DizList *SrcDiz) const;
+	void PutDizToPlugin(FileList *DestPanel, span<PluginPanelItem> ItemList, bool Delete, bool Move, DizList *SrcDiz) const;
 	void PluginGetFiles(const string& DestPath, bool Move);
 	void PluginToPluginFiles(bool Move);
 	void PluginHostGetFiles();
 	void PluginPutFilesToNew();
 	int PluginPutFilesToAnother(bool Move, panel_ptr AnotherPanel);
-	void PluginClearSelection(const std::vector<PluginPanelItem>& ItemList);
+	void PluginClearSelection(span<PluginPanelItem> ItemList);
 	void ProcessCopyKeys(unsigned Key);
 	void ReadSortGroups(bool UpdateFilterCurrentTime = true);
 	int ProcessOneHostFile(const FileListItem* Item);

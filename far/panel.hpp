@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scrobj.hpp"
 #include "panelfwd.hpp"
 #include "panelctype.hpp"
+#include "plugin.hpp"
 
 // Platform:
 #include "platform.fwd.hpp"
@@ -54,8 +55,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class plugin_panel;
 class DizList;
-struct PluginPanelItem;
-struct OpenPanelInfo;
 
 struct column
 {

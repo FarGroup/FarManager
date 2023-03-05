@@ -1737,26 +1737,32 @@ static void ItemsToBuf(PluginMenuItem& Menu, const std::vector<string>& NamesArr
 	if (Menu.Count)
 	{
 		const auto Items = edit_as<wchar_t**>(BufReserve(Buf, Menu.Count * sizeof(wchar_t*), alignof(wchar_t*), Rest, Size));
-		assert(is_aligned(Items));
-		assert(is_aligned(*Items));
-		Menu.Strings = Items;
+		if (Items)
+		{
+			assert(is_aligned(Items));
+			assert(is_aligned(*Items));
+			Menu.Strings = Items;
+		}
 
 		const auto Uuids = edit_as<UUID*>(BufReserve(Buf, Menu.Count * sizeof(UUID), alignof(UUID), Rest, Size));
-		assert(is_aligned(Uuids));
-		assert(is_aligned(*Uuids));
-		Menu.Guids = Uuids;
-
-		for (const auto& [FromName, FromUuid, ToName, ToUuid]: zip(NamesArray, UuidsArray, span(Items, Menu.Count), span(Uuids, Menu.Count)))
+		if (Uuids)
 		{
-			wchar_t* pStr = StrToBuf(FromName, Buf, Rest, Size);
+			assert(is_aligned(Uuids));
+			assert(is_aligned(*Uuids));
+			Menu.Guids = Uuids;
+		}
+
+		for (const auto& i: irange(Menu.Count))
+		{
+			const auto Str = StrToBuf(NamesArray[i], Buf, Rest, Size);
 			if (Items)
 			{
-				ToName = pStr;
+				Items[i] = Str;
 			}
 
 			if (Uuids)
 			{
-				ToUuid = FromUuid;
+				Uuids[i] = UuidsArray[i];
 			}
 		}
 	}

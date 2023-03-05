@@ -1159,7 +1159,18 @@ TEST_CASE("range.static")
 		int Data[2]{};
 		span Span(Data);
 		STATIC_REQUIRE(std::same_as<decltype(*Span.begin()), int&>);
-		STATIC_REQUIRE(std::same_as<decltype(*Span.cbegin()), const int&>);
+
+		[](auto S)
+		{
+			if constexpr (requires(std::span<decltype(S)> s) { s.cbegin(); })
+			{
+				STATIC_REQUIRE(std::same_as<decltype(*S.cbegin()), const int&>);
+			}
+			else
+			{
+				STATIC_REQUIRE(std::same_as<decltype(*S.cbegin()), int&>);
+			}
+		}(Span);
 	}
 
 	{
@@ -1168,6 +1179,59 @@ TEST_CASE("range.static")
 		STATIC_REQUIRE(std::same_as<decltype(*Span.begin()), int* const&>);
 		// It's not possible to deduce const_iterator here
 		STATIC_REQUIRE(std::same_as<decltype(*Span.cbegin()), int* const&>);
+	}
+
+	{
+		using v = int;
+		using cv = int const;
+		using ptr = v*;
+		using cptr = cv*;
+
+		STATIC_REQUIRE(std::same_as<decltype(span({1, 2})), span<cv>>);
+		STATIC_REQUIRE(std::same_as<decltype(span(ptr{}, 0)), span<v>>);
+		STATIC_REQUIRE(std::same_as<decltype(span(cptr{}, 0)), span<cv>>);
+		STATIC_REQUIRE(std::same_as<decltype(span(ptr{}, ptr{})), span<v>>);
+		STATIC_REQUIRE(std::same_as<decltype(span(ptr{}, cptr{})), span<v>>);
+		STATIC_REQUIRE(std::same_as<decltype(span(cptr{}, ptr{})), span<cv>>);
+		STATIC_REQUIRE(std::same_as<decltype(span(cptr{}, cptr{})), span<cv>>);
+		STATIC_REQUIRE(std::same_as<decltype(span(std::vector<v>{})), span<v>>);
+		STATIC_REQUIRE(std::same_as<decltype(span(std::array<v, 0>{})), span<v>>);
+		STATIC_REQUIRE(std::same_as<decltype(span(std::array<cv, 0>{})), span<cv>>);
+	}
+
+	{
+		using v = int;
+		using cv = int const;
+		using m_f_span = span<v>;
+		using c_f_span = span<cv>;
+		using m_s_span = std::span<v>;
+		using c_s_span = std::span<cv>;
+
+		STATIC_REQUIRE(std::convertible_to<m_f_span, m_s_span>);
+		STATIC_REQUIRE(std::convertible_to<m_s_span, m_f_span>);
+		STATIC_REQUIRE(std::convertible_to<c_f_span, c_s_span>);
+		STATIC_REQUIRE(std::convertible_to<c_s_span, c_f_span>);
+
+		STATIC_REQUIRE(std::assignable_from<m_s_span&, m_f_span>);
+		STATIC_REQUIRE(std::assignable_from<m_f_span&, m_s_span>);
+		STATIC_REQUIRE(std::assignable_from<c_s_span&, c_f_span>);
+		STATIC_REQUIRE(std::assignable_from<c_f_span&, c_s_span>);
+
+		STATIC_REQUIRE(std::convertible_to<m_f_span, c_f_span>);
+		STATIC_REQUIRE(std::convertible_to<m_f_span, c_s_span>);
+		STATIC_REQUIRE(std::convertible_to<m_s_span, c_f_span>);
+
+		STATIC_REQUIRE(std::assignable_from<c_f_span&, m_f_span>);
+		STATIC_REQUIRE(std::assignable_from<c_s_span&, m_f_span>);
+		STATIC_REQUIRE(std::assignable_from<c_f_span&, m_s_span>);
+
+		STATIC_REQUIRE(!std::convertible_to<c_f_span, m_f_span>);
+		STATIC_REQUIRE(!std::convertible_to<c_f_span, m_s_span>);
+		STATIC_REQUIRE(!std::convertible_to<c_s_span, m_f_span>);
+
+		STATIC_REQUIRE(!std::assignable_from<m_f_span&, c_f_span>);
+		STATIC_REQUIRE(!std::assignable_from<m_s_span&, c_f_span>);
+		STATIC_REQUIRE(!std::assignable_from<m_f_span&, c_s_span>);
 	}
 }
 

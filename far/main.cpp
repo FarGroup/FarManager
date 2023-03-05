@@ -1168,19 +1168,20 @@ TEST_CASE("Args")
 
 	for (const auto& i: Tests)
 	{
-		auto Iterator = i.Args.begin();
+		span const Args = i.Args;
+		auto Iterator = Args.begin();
 
 		std::visit(overload
 		{
 			[&](std::function<bool()> const& Validator)
 			{
-				REQUIRE_NOTHROW(parse_argument(Iterator, i.Args.end(), Context));
+				REQUIRE_NOTHROW(parse_argument(Iterator, Args.end(), Context));
 				if (Validator)
 					REQUIRE(Validator());
 			},
 			[&](string_view const& Validator)
 			{
-				REQUIRE_THROWS_MATCHES(parse_argument(Iterator, i.Args.end(), Context), far_known_exception, generic_exception_matcher([Validator](std::any const& e)
+				REQUIRE_THROWS_MATCHES(parse_argument(Iterator, Args.end(), Context), far_known_exception, generic_exception_matcher([Validator](std::any const& e)
 				{
 					return !Validator.empty() && contains(std::any_cast<far_known_exception const&>(e).message(), Validator);
 				}));

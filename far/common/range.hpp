@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "type_traits.hpp"
 
 #include <limits>
+#include <span>
 
 //----------------------------------------------------------------------------
 
@@ -194,48 +195,82 @@ template<typename iterator>
 range(std::pair<iterator, iterator> const& Pair) -> range<iterator, iterator>;
 
 
-template<class span_value_type>
-class [[nodiscard]] span: public range<span_value_type*, span_value_type const*>
+namespace detail
 {
+	template<typename span_type>
+	struct span_const_iterators
+	{
+		using const_iterator = typename span_type::const_iterator;
+		using const_reverse_iterator = typename span_type::const_reverse_iterator;
+	};
+
+	template<typename span_type>
+	struct span_fake_const_iterators
+	{
+		using const_iterator = typename span_type::iterator;
+		using const_reverse_iterator = typename span_type::reverse_iterator;
+	};
+}
+
+template<class span_value_type>
+class [[nodiscard]] span: public std::span<span_value_type>
+{
+	using base_span = std::span<span_value_type>;
+
+	static constexpr auto has_const_iterators = requires
+	{
+		typename base_span::const_iterator;
+		typename base_span::const_reverse_iterator;
+	};
+
+	using iterators = std::conditional_t<has_const_iterators, detail::span_const_iterators<base_span>, detail::span_fake_const_iterators<base_span>>;
+
 public:
-	constexpr span() noexcept = default;
+	using const_iterator = typename iterators::const_iterator;
+	using const_reverse_iterator = typename iterators::const_reverse_iterator;
 
-	constexpr span(span_value_type* Begin, span_value_type* End) noexcept:
-		range<span_value_type*, span_value_type const*>(Begin, End)
-	{}
+	// Can't use base_span alias here, Clang isn't smart enough.
+	using std::span<span_value_type>::span;
 
-	constexpr span(span_value_type* Data, size_t Size) noexcept:
-		span(Data, Data + Size)
+	template<span_like SpanLike> requires requires { base_span(std::declval<SpanLike&>()); }
+	constexpr explicit(false) span(SpanLike&& Span) noexcept:
+		base_span(Span)
 	{
 	}
 
-	template<typename compatible_span_value_type> requires std::convertible_to<compatible_span_value_type*, span_value_type*>
-	constexpr explicit(false) span(const span<compatible_span_value_type>& Rhs) noexcept:
-		span(ALL_RANGE(Rhs))
-	{
-	}
-
-	constexpr explicit(false) span(span_like auto&& Range) noexcept:
-		span(std::data(Range), std::size(Range))
-	{
-	}
-
+	// Design by committee
 	constexpr span(const std::initializer_list<span_value_type>& List) noexcept:
-		span(ALL_CONST_RANGE(List))
+		base_span(List)
 	{
 	}
 
-	constexpr span subspan(size_t const Offset, size_t const Size = std::numeric_limits<size_t>::max()) const noexcept
-	{
-		assert(Offset <= this->size());
-		assert(Size == std::numeric_limits<size_t>::max() || (Size <= this->size() - Offset));
-
-		return { this->data() + Offset, Size == std::numeric_limits<size_t>::max()? this->size() - Offset : Size };
+	// Design by committee
+#define DEFINE_SPAN_C(name) \
+	auto c##name() const noexcept \
+	{ \
+		if constexpr (has_const_iterators) \
+			return base_span::c##name(); \
+		else \
+			return base_span::name(); \
 	}
+
+	DEFINE_SPAN_C(begin)
+	DEFINE_SPAN_C(end)
+	DEFINE_SPAN_C(rbegin)
+	DEFINE_SPAN_C(rend)
+
+#undef DEFINE_SPAN_C
 };
 
-template<typename container>
-span(container&& c) -> span<std::remove_pointer_t<decltype(std::data(c))>>;
+
+template<std::contiguous_iterator Iterator>
+span(Iterator Begin, size_t Size) -> span<std::remove_reference_t<decltype(*Begin)>>;
+
+template<std::contiguous_iterator Iterator, std::contiguous_iterator Centinel>
+span(Iterator Begin, Centinel End) -> span<std::remove_reference_t<decltype(*Begin)>>;
+
+template<span_like container>
+span(container&& c) -> span<std::remove_reference_t<decltype(*std::begin(c))>>;
 
 template<typename value_type>
 span(const std::initializer_list<value_type>&) -> span<const value_type>;

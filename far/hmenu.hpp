@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // Internal:
 #include "modal.hpp"
+#include "vmenu.hpp"
 
 // Platform:
 
@@ -46,8 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // External:
 
 //----------------------------------------------------------------------------
-
-struct menu_item;
 
 struct HMenuData
 {

@@ -173,7 +173,7 @@ namespace os::security
 		block_ptr<TOKEN_PRIVILEGES> Result(1024);
 
 		if (!os::detail::ApiDynamicReceiver(Result,
-			[&](span<TOKEN_PRIVILEGES> Buffer)
+			[&](block_ptr<TOKEN_PRIVILEGES> const& Buffer)
 			{
 				DWORD LengthNeeded = 0;
 				if (!GetTokenInformation(TokenHandle, TokenPrivileges, Buffer.data(), static_cast<DWORD>(Buffer.size()), &LengthNeeded))
