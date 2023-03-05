@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+drkns 2023-03-05 21:10:37+00:00 - build 6111
+
+1. Refactoring: implement span in terms of std::span.
+
+2. Clang warnings: remove unused variables.
+
+--------------------------------------------------------------------------------
 drkns 2023-02-28 21:43:49+00:00 - build 6110
 
 1. Fix crash when window size is too small.
