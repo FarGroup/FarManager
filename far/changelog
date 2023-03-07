@@ -1,7 +1,12 @@
 --------------------------------------------------------------------------------
+drkns 2023-03-07 17:10:01+00:00 - build 6113
+
+1. gh-650: Pressing Ctrl+Enter in the find all menu of the Editor crashes Far if all entries are filtered out.
+
+--------------------------------------------------------------------------------
 drkns 2023-03-07 16:29:53+00:00 - build 6112
 
-1. gh-647: Selection not removed in Editor and edit controls on pressing Ctrl+Num6
+1. gh-647: Selection not removed in Editor and edit controls on pressing Ctrl+Num6.
 
 --------------------------------------------------------------------------------
 drkns 2023-03-05 21:10:37+00:00 - build 6111

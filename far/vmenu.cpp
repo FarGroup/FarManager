@@ -871,35 +871,32 @@ long long VMenu::VMProcess(int OpCode, void* vParam, long long iParam)
 		case MCODE_F_MENU_GETHOTKEY:
 		case MCODE_F_MENU_GETVALUE: // S=Menu.GetValue([N])
 		{
-			intptr_t Param = iParam;
-
-			if (Param == -1)
-				Param = SelectPos;
+			if (iParam == -1)
+				iParam = SelectPos;
 			else
-				Param = VisualPosToReal(Param);
+				iParam = VisualPosToReal(static_cast<int>(iParam));
 
-			if (Param>=0 && Param<static_cast<intptr_t>(Items.size()))
+			if (iParam < 0 || iParam >= static_cast<long long>(Items.size()))
+				return 0;
+
+			const auto& menuEx = at(iParam);
+			if (OpCode == MCODE_F_MENU_GETVALUE)
 			{
-				const auto& menuEx = at(Param);
-				if (OpCode == MCODE_F_MENU_GETVALUE)
-				{
-					*static_cast<string*>(vParam) = menuEx.Name;
-					return 1;
-				}
-				else
-				{
-					return GetHighlights(&menuEx);
-				}
+				*static_cast<string*>(vParam) = menuEx.Name;
+				return 1;
 			}
-
-			return 0;
+			else
+			{
+				return GetHighlights(&menuEx);
+			}
 		}
 
 		case MCODE_F_MENU_ITEMSTATUS: // N=Menu.ItemStatus([N])
 		{
-			if (iParam == -1LL)
+			if (iParam == -1)
 				iParam = SelectPos;
-			else if (iParam >= static_cast<int>(size()) || iParam <= -1LL)
+
+			if (iParam < 0 || iParam >= static_cast<long long>(size()))
 				return -1;
 
 			const auto& menuEx = at(iParam);
