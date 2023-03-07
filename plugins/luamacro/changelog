@@ -1,3 +1,17 @@
+johnd0e 2023-03-07 15:59:00+01:00 - build 772
+
+1. LuaFAR: update luautf8 library to 0.1.5
+
+   New functions:
+   - utf8.isvalid(s) -> boolean
+   - utf8.clean(s[, replacement_string]) -> cleaned_string, was_valid
+   - utf8.invalidoffset(s[, init]) -> offset
+
+   See https://github.com/starwing/luautf8 for more info.
+
+   Note:
+     utf8.utf8valid is rather obsolete now.
+
 zg 2023-02-22 02:04:22+02:00 - build 771
 
 1. experimental "FolderChanged" event.

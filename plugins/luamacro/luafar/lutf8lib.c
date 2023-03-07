@@ -4,9 +4,9 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
-
 #include <assert.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "unidata.h"
 
@@ -115,6 +115,54 @@ static int utf8_range(const char *s, const char *e, lua_Integer *i, lua_Integer 
   return *i < *j;
 }
 
+/* Indexed by top nibble of first byte in code unit */
+static uint8_t utf8_code_unit_len[] = {
+  1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, 2, 2, 3, 4
+};
+
+/* Return pointer to first invalid UTF-8 sequence in 's', or NULL if valid */
+static const char *utf8_invalid_offset(const char *s, const char *e) {
+  while (s < e) {
+    uint8_t c = *s;
+    if (c >= 0x80) {
+      /* c < 0xC0 means a continuation byte, but we are not in the middle of a multi-byte code unit
+       * c >= 0xC0 && c < 0xC2 means an overlong 2-byte code unit
+       * c >= 0xF8 means a 5-byte or 6-byte code unit, which is illegal, or else illegal byte 0xFE/0xFF
+       * c >= 0xF5 && c < 0xF8 means a 4-byte code unit encoding invalid codepoint > U+10FFFF */
+      if (c < 0xC2 || c >= 0xF5)
+        return s;
+      uint8_t needed_bytes = utf8_code_unit_len[c >> 4];
+      if (e - s < needed_bytes)
+        return s; /* String is truncated */
+      uint8_t c2 = *(s+1);
+      if ((c2 & 0xC0) != 0x80)
+        return s; /* 2nd byte of code unit is not a continuation byte */
+      if (needed_bytes >= 3) {
+        uint8_t c3 = *(s+2);
+        if ((c3 & 0xC0) != 0x80)
+          return s; /* 3rd byte of code unit is not a continuation byte */
+        if (needed_bytes == 3) {
+          if (c == 0xE0 && c2 < 0xA0)
+            return s; /* Overlong 3-byte code unit */
+          if (c == 0xED && c2 >= 0xA0)
+            return s; /* Reserved codepoint from U+D800-U+DFFF */
+        } else {
+          uint8_t c4 = *(s+3);
+          if ((c4 & 0xC0) != 0x80)
+            return s; /* 4th byte of code unit is not a continuation byte */
+          if (c == 0xF0 && c2 < 0x90)
+            return s; /* Overlong 4-byte code unit */
+          if (c == 0xF4 && c2 >= 0x90)
+            return s; /* Illegal codepoint > U+10FFFF */
+        }
+      }
+      s += needed_bytes;
+    } else {
+      s++;
+    }
+  }
+  return NULL;
+}
 
 /* Unicode character categories */
 
@@ -1239,6 +1287,83 @@ static int Lutf8_gsub (lua_State *L) {
   return 2;
 }
 
+static int Lutf8_isvalid(lua_State *L) {
+  const char *e, *s = check_utf8(L, 1, &e);
+  const char *invalid = utf8_invalid_offset(s, e);
+  lua_pushboolean(L, invalid == NULL);
+  return 1;
+}
+
+static int Lutf8_invalidoffset(lua_State *L) {
+  const char *e, *s = check_utf8(L, 1, &e);
+  const char *orig_s = s;
+  int offset = luaL_optinteger(L, 2, 0);
+  if (offset > 1) {
+    offset--;
+    s += offset;
+    if (s >= e) {
+      lua_pushnil(L);
+      return 1;
+    }
+  } else if (offset < 0 && s - e < offset) {
+    s = e + offset;
+  }
+  const char *invalid = utf8_invalid_offset(s, e);
+  if (invalid == NULL) {
+    lua_pushnil(L);
+  } else {
+    lua_pushinteger(L, invalid - orig_s + 1);
+  }
+  return 1;
+}
+
+static int Lutf8_clean(lua_State *L) {
+  const char *e, *s = check_utf8(L, 1, &e);
+
+  /* Default replacement string is REPLACEMENT CHARACTER U+FFFD */
+  size_t repl_len;
+  const char *r = luaL_optlstring(L, 2, "\xEF\xBF\xBD", &repl_len);
+
+  if (lua_gettop(L) > 1) {
+    /* Check if replacement string is valid UTF-8 or not */
+    if (utf8_invalid_offset(r, r + repl_len) != NULL) {
+      lua_pushstring(L, "replacement string must be valid UTF-8");
+      lua_error(L);
+    }
+  }
+
+  const char *invalid = utf8_invalid_offset(s, e);
+  if (invalid == NULL) {
+    lua_settop(L, 1); /* Return input string without modification */
+    lua_pushboolean(L, 1); /* String was clean already */
+    return 2;
+  }
+
+  luaL_Buffer buff;
+  luaL_buffinit(L, &buff);
+
+  while (1) {
+    /* Invariant: 's' points to first GOOD byte not in output buffer,
+     * 'invalid' points to first BAD byte after that */
+    luaL_addlstring(&buff, s, invalid - s);
+    luaL_addlstring(&buff, r, repl_len);
+    /* We do not replace every bad byte with the replacement character,
+     * but rather a contiguous sequence of bad bytes
+     * Restore the invariant by stepping forward until we find at least
+     * one good byte */
+    s = invalid;
+    while (s == invalid) {
+      s++;
+      invalid = utf8_invalid_offset(s, e);
+    }
+    if (invalid == NULL) {
+      luaL_addlstring(&buff, s, e - s);
+      luaL_pushresult(&buff);
+      lua_pushboolean(L, 0); /* String was not clean */
+      return 2;
+    }
+  }
+}
 
 /* lua module import interface */
 
@@ -1276,6 +1401,9 @@ LUALIB_API int luaopen_utf8 (lua_State *L) {
     ENTRY(gmatch),
     ENTRY(gsub),
     ENTRY(match),
+    ENTRY(isvalid),
+    ENTRY(invalidoffset),
+    ENTRY(clean),
 #undef  ENTRY
     { NULL, NULL }
   };
