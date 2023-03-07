@@ -183,6 +183,7 @@ local function AddId (trg, src)
 end
 
 local function EV_Handler (macros, filename, ...)
+  if not macros then return end
   -- Get current priorities.
   local indexes,priorities = {},{}
   for i,m in ipairs(macros) do
@@ -297,6 +298,10 @@ local function export_GetContentData (filename, colnames)
     end
   end
   return tOut
+end
+
+local function ProcessEvent (group, options, ...) --todo
+  return EV_Handler(Events[group:lower()], options and options.filename, options, ...)
 end
 
 local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = ??? (Lua); 2.3uS (LuaJIT);
@@ -485,7 +490,8 @@ end
 local AddEvent_fields = {"group","action","description","priority","condition","filemask"}
 local function AddEvent (srctable, FileName)
   local group = type(srctable)=="table" and type(srctable.group)=="string" and srctable.group:lower()
-  if not (group and Events[group]) then return end
+  if not group then return end
+  Events[group] = Events[group] or {}
 
   if type(srctable.action)~="function" then return end
 
@@ -724,7 +730,6 @@ local function LoadMacros (unload, paths)
 
   local AreaNames = allAreas and AllAreaNames or SomeAreaNames
   for _,name in pairs(AreaNames) do newAreas[name]={} end
-  for _,name in ipairs(EventGroups) do Events[name]={} end
   for k in pairs(package.loaded) do
     if initial_modules[k]==nil and not package.nounload[k] then
       package.loaded[k]=nil
@@ -865,12 +870,12 @@ local function LoadMacros (unload, paths)
 
     far.RecursiveSearch (DirMacros.."internal", "*.lua", LoadRecordedFile, 0)
 
-    export.ExitFAR = Events.exitfar[1] and export_ExitFAR
-    export.ProcessDialogEvent = Events.dialogevent[1] and export_ProcessDialogEvent
-    export.ProcessEditorInput = Events.editorinput[1] and export_ProcessEditorInput
-    export.ProcessViewerEvent = Events.viewerevent[1] and export_ProcessViewerEvent
-    export.ProcessConsoleInput = Events.consoleinput[1] and export_ProcessConsoleInput
-    export.ProcessSynchroEvent = Events.folderchanged[1] and export_ProcessSynchroEvent
+    export.ExitFAR = Events.exitfar and export_ExitFAR
+    export.ProcessDialogEvent = Events.dialogevent and export_ProcessDialogEvent
+    export.ProcessEditorInput = Events.editorinput and export_ProcessEditorInput
+    export.ProcessViewerEvent = Events.viewerevent and export_ProcessViewerEvent
+    export.ProcessConsoleInput = Events.consoleinput and export_ProcessConsoleInput
+    export.ProcessSynchroEvent = Events.folderchanged and export_ProcessSynchroEvent
     if ContentColumns[1] then
       export.GetContentFields = export_GetContentFields
       export.GetContentData   = export_GetContentData
@@ -1309,6 +1314,7 @@ return {
   InitMacroSystem = InitMacroSystem,
   LoadingInProgress = function() return LoadingInProgress end,
   LoadMacros = LoadMacros,
+  ProcessEvent = ProcessEvent,
   ProcessRecordedMacro = ProcessRecordedMacro,
   RunStartMacro = RunStartMacro,
   UnloadMacros = InitMacroSystem,
