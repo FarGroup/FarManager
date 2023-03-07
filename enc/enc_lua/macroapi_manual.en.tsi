@@ -975,7 +975,7 @@ mtime=3833370824
 #_  clip               msgbox
 #_  date               `postmacro`
 #_  `deserialize`        print
-#_  `EnumScrips`         `printconsole`
+#_  `EnumScripts`        `printconsole`
 #_  env                prompt
 #_  `eval`               replace
 #_  `exit`               rindex
@@ -997,6 +997,7 @@ mtime=3833370824
 #_@@@
 #_[acall]: 91.html
 #_[deserialize]: 104.html
+#_[EnumScripts]: 106.html
 #_[eval]: 79.html
 #_[exit]: 61.html
 #_[GetMacroCopy]: 72.html
@@ -1203,7 +1204,7 @@ mtime=3833370836
 #_- The behavior of *next_script* is undefined if further scripts are loaded while traversing.
 #_
 #_**See also:**
-#_  `GetMacroCopy` - for work with "Macro" and "Event" only.
+#_`GetMacroCopy` - for work with "Macro" and "Event" only.
 #_
 #_@@@
 #_[GetMacroCopy]: 72.html
@@ -1291,6 +1292,8 @@ mtime=3833370856
 #_**See also:**
 #_`EnumScripts` - allows to work with other types of scripts
 #_
+#_@@@
+#_[EnumScripts]: 106.html
 </article>
 </node>
 <node>
