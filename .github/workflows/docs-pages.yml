@@ -16,7 +16,7 @@ jobs:
 
       - name: GitHub Pages
         if: success()
-        uses: crazy-max/ghaction-github-pages@v2
+        uses: crazy-max/ghaction-github-pages@v3
         with:
           repo: FarGroup/api
           target_branch: master

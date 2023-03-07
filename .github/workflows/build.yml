@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
 
       - name: Run checks
         working-directory: far
@@ -92,7 +92,7 @@ jobs:
         uses: github/codeql-action/analyze@v2
 
       - name: Publish
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Far.${{ matrix.build_config }}.${{ matrix.platform_name }}
           path: _build/vc/_output/product/${{ matrix.build_config }}.${{ matrix.platform_sln }}
