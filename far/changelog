@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2023-03-07 16:29:53+00:00 - build 6112
+
+1. gh-647: Selection not removed in Editor and edit controls on pressing Ctrl+Num6
+
+--------------------------------------------------------------------------------
 drkns 2023-03-05 21:10:37+00:00 - build 6111
 
 1. Refactoring: implement span in terms of std::span.
