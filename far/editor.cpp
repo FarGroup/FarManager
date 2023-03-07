@@ -3336,6 +3336,55 @@ Editor::SearchReplaceDisposition Editor::ShowSearchReplaceDialog(const bool Repl
 	}
 }
 
+int Editor::CalculateSearchStartPosition(const bool Continue, const bool Backward, const bool Regex) const
+{
+	// We say that a search is a Search-Next, if it is initiated with Shift+F7 or Alt+F7
+	// and immediately follows the previous search. In this case, we need to punt the search start
+	// position by at least one character to ensure that the search makes progress as the user
+	// repeatedly presses Shift+F7 or Alt+F7. In all other cases, start the search from the cursor.
+	// To detect Search-Next, we compare the current cursor position with the position
+	// where the cursor would be left by the previous search.
+
+	const auto CurLineCurPos{ m_it_CurLine->GetCurPos() };
+
+	// If it is not Shift+F7 or Alt+F7, or the cursor is nowhere near the last found match,
+	// or there is no last found match, it is not Search-Next.
+	if (!Continue || m_FoundLine != m_it_CurLine || m_FoundPos < 0)
+		return CurLineCurPos;
+
+	assert(Regex ? m_FoundSize >= 0 : m_FoundSize > 0);
+
+	// Anchor is the begin or the end of the last found match (depending on cursor-at-the-end mode)
+	// where we expect to find cursor if this is Search-Next.
+	const auto Anchor{ m_FoundPos + EdOpt.SearchCursorAtEnd * m_FoundSize };
+
+	// If the cursor is not at the anchor, it is not Search-Next.
+	if (CurLineCurPos != Anchor)
+		return CurLineCurPos;
+
+	// Now we are handling Search-Next. Cursor position does not matter anymore.
+	return CalculateSearchNextPositionInTheLine(Backward, Regex);
+}
+
+int Editor::CalculateSearchNextPositionInTheLine(const bool Backward, const bool Regex) const
+{
+	if (Regex)
+	{
+		// 2023-03-25 MZK: Simulating pre https://github.com/FarGroup/FarManager/pull/651 behavior.
+		// See also the discussion in the PR above about unifying plain text and regex search.
+		// Also fixed search forward in cursor-at-the-end mode, see https://github.com/FarGroup/FarManager/issues/660.
+		// Now search continues from the next character.
+		// Note: Regex search backwards steps back one character.
+		return m_FoundPos + (Backward ? 0 : 1);
+	}
+	else
+	{
+		// To find the next nearest match, include the entire last found match (minus one character)
+		// into the search range. Drop one character to ensure search progress.
+		return m_FoundPos + (Backward ? m_FoundSize - 1 : 1);
+	}
+}
+
 void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 {
 	if (Disposition == SearchReplaceDisposition::Cancel || LastSearchDlgParams.SearchStr.empty())
@@ -3356,31 +3405,9 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 	{
 		SetCursorType(false, -1);
 
-		auto CurPos = FindAll? 0 : m_it_CurLine->GetCurPos();
+		auto CurPos = FindAll ? 0 : CalculateSearchStartPosition(Continue, Backward, LastSearchDlgParams.Regexp.value());
 
-		if (Continue && m_FoundLine == m_it_CurLine)
-		{
-			if (Backward)
-			{
-				if (EdOpt.SearchCursorAtEnd)
-				{
-					if (CurPos == m_FoundPos + m_FoundSize)
-						CurPos -= m_FoundSize; // 2023-03-04 MZK: See gh-542
-				}
-			}
-			else
-			{
-				if (!EdOpt.SearchCursorAtEnd)
-				{
-					if (CurPos == m_FoundPos)
-					{
-						++CurPos;
-					}
-				}
-			}
-		}
-
-		auto CurPtr = FindAll? FirstLine() : m_it_CurLine, TmpPtr = CurPtr;
+		auto CurPtr = FindAll ? FirstLine() : m_it_CurLine, TmpPtr = CurPtr;
 
 		std::vector<RegExpMatch> Match;
 		named_regex_match NamedMatch;
@@ -3466,20 +3493,19 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 
 				if(FindAll)
 				{
-					int NextPos = CurPos + (SearchLength? SearchLength : 1);
-
-					const int service_len = 12;
-					const auto Location = format(FSTR(L"{}:{}"sv), CurPtr.Number() + 1, CurPos + 1);
-					MenuItemEx Item(format(FSTR(L"{:{}}{}{}"sv), Location, service_len, BoxSymbols[BS_V1], CurPtr->GetString()));
-					Item.Annotations.emplace_back(CurPos + service_len + 1, NextPos - CurPos);
-					Item.ComplexUserData = FindCoord{ CurPtr.Number(), CurPos, SearchLength };
+					constexpr int service_len{ 12 };
+					const auto Location{ format(FSTR(L"{}:{}"sv), m_FoundLine.Number() + 1, m_FoundPos + 1) };
+					MenuItemEx Item{ format(FSTR(L"{:{}}{}{}"sv), Location, service_len, BoxSymbols[BS_V1], m_FoundLine->GetString()) };
+					Item.Annotations.emplace_back(m_FoundPos + service_len + 1, m_FoundSize);
+					Item.ComplexUserData = FindCoord{ m_FoundLine.Number(), m_FoundPos, m_FoundSize };
 					FindAllList->AddItem(Item);
-					CurPos = NextPos;
-					if (CurPtr.Number() != LastCheckedLine)
+
+					if (m_FoundLine.Number() != LastCheckedLine)
 					{
-						LastCheckedLine = CurPtr.Number();
+						LastCheckedLine = m_FoundLine.Number();
 						++AllRefLines;
 					}
+					CurPos = CalculateSearchNextPositionInTheLine(/* Backward */ false, LastSearchDlgParams.Regexp.value());
 				}
 				else
 				{

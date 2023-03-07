@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+MZK 2023-03-26 11:56:52-07:00 - build 6119
+
+1. gh-542: Editor Search (plain text): Shift+F7 / Alt+F7 now finds the nearest match,
+   even if it overlaps with the last found match.
+
+2. gh-660: Editor Search (regex): Shift+F7 in cursor-at-the-end mode now continues
+   from the next character.
+
+--------------------------------------------------------------------------------
 skipik 2023-03-22 17:19:19+03:00 - build 6118
 
 1. SQLite v3.41.2.
