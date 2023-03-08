@@ -97,6 +97,17 @@
       <Component Id="SaveOldPluginSettings.cmd" Guid="$(var.Guid.SaveOldPluginSettings.cmd)" Win64="$(var.Win64)">
         <File Id="SaveOldPluginSettings.cmd" KeyPath="yes" Source="$(var.SourceDir)\SaveOldPluginSettings.cmd" />
       </Component>
+      <Component Id="Far.VisualElementsManifest.xml" Guid="$(var.Guid.Far.VisualElementsManifest.xml)" Win64="$(var.Win64)">
+        <File Id="Far.VisualElementsManifest.xml" KeyPath="yes" Source="$(var.SourceDir)\Far.VisualElementsManifest.xml" />
+      </Component>
+      <Directory Id="VisualElements" Name="VisualElements">
+        <Component Id="VisualElements.large.png" Guid="$(var.Guid.VisualElements.large.png)" Win64="$(var.Win64)">
+          <File Id="VisualElements.large.png" KeyPath="yes" Source="$(var.SourceDir)\VisualElements\large.png" />
+        </Component>
+        <Component Id="VisualElements.small.png" Guid="$(var.Guid.VisualElements.small.png)" Win64="$(var.Win64)">
+          <File Id="VisualElements.small.png" KeyPath="yes" Source="$(var.SourceDir)\VisualElements\small.png" />
+        </Component>
+      </Directory>
       <Directory Id="Addons" Name="Addons">
         <Component Id="Descript.ion_1" Guid="$(var.Guid.Descript.ion_1)" Win64="$(var.Win64)">
           <File Id="Descript.ion_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Descript.ion" />

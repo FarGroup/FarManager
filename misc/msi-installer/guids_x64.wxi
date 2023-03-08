@@ -43,6 +43,10 @@
 <?define Guid.RestoreOldPluginSettings.cmd = "4D0EAB15-49AE-4EA9-8AEE-D3764AF5648D" ?>
 <?define Guid.SaveOldPluginSettings.cmd = "6CCDB7C8-427C-485F-9C92-9328DBEBD716" ?>
 
+<?define Guid.Far.VisualElementsManifest.xml = "7ED27C25-814C-40C3-9FB0-5CE37856DEF8" ?>
+<?define Guid.VisualElements.large.png = "5F6A5001-4CDE-471D-BE38-1729FFB71F11" ?>
+<?define Guid.VisualElements.small.png = "682DA675-C4BB-4A81-AC40-36940A7F5511" ?>
+
 <?define Guid.Descript.ion_1 = "B3E6B774-0808-4CF2-BB3F-DFEBAF32AEBD" ?>
 <?define Guid.README.TXT_1 = "9845A482-45EF-477E-A162-B4B902DC3CCB" ?>
 <?define Guid.Descript.ion_3 = "7FA03EA0-6798-4D25-99E7-E55D9A4F57C8" ?>
