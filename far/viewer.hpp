@@ -136,7 +136,10 @@ private:
 	long long BegOfScreen();
 	long long XYfilepos(int col, int row);
 	void ChangeViewKeyBar();
-	void Search(int Next);
+
+	enum class SearchDisposition;
+	SearchDisposition ShowSearchReplaceDialog();
+	void DoSearchReplace(SearchDisposition Disposition);
 	struct search_data;
 	SEARCHER_RESULT search_hex_forward( search_data* sd );
 	SEARCHER_RESULT search_hex_backward( search_data* sd );
@@ -145,6 +148,7 @@ private:
 	SEARCHER_RESULT search_regex_forward( search_data* sd );
 	SEARCHER_RESULT search_regex_backward( search_data* sd );
 	int read_line(wchar_t *buf, wchar_t *tbuf, long long cpos, int adjust, long long& lpos, int &lsize);
+
 	int vread(wchar_t *Buf, int Count, wchar_t *Buf2 = nullptr);
 	bool vseek(long long Offset, int Whence);
 	long long vtell() const;
@@ -194,7 +198,7 @@ private:
 
 	SearchReplaceDlgParams LastSearchDlgParams;
 
-	bool LastSearchReverse{}; // Used to adjust StartSearchPos. NOT the same as LastSearchDlgOptions.Reverse.
+	bool LastSearchBackward{}; // Used to adjust StartSearchPos
 	long long StartSearchPos{};
 
 	uintptr_t m_DefCodepage;

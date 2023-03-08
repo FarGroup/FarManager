@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+MZK 2023-03-07 20:13:03-08:00 - build 6114
+
+1. gh-600: Shift+F7 and Alt+F7 now search in absolute directions (down or up respectfully)
+   instead of reversing the direction defined by the last invocation of the Search / Replace dialog.
+   Also, on the dialog itself, replaced "Reverse" checkbox with "Search Down / Up" buttons.
+
+--------------------------------------------------------------------------------
 drkns 2023-03-07 17:10:01+00:00 - build 6113
 
 1. gh-650: Pressing Ctrl+Enter in the find all menu of the Editor crashes Far if all entries are filtered out.

@@ -89,6 +89,16 @@ enum class Editor::undo_type: char
 	end
 };
 
+enum class Editor::SearchReplaceDisposition
+{
+	Cancel,
+	Up,
+	Down,
+	All,
+	ContinueUp,
+	ContinueDown,
+};
+
 /* $ 04.11.2003 SKV
 на любом выходе если была нажата кнопка выделения,
 и она его "сняла" (сделала 0-й ширины), то его надо убрать.
@@ -129,11 +139,9 @@ Editor::Editor(window_ptr Owner, uintptr_t Codepage, bool DialogUsed):
 	m_codepage(Codepage),
 	EdOpt(Global->Opt->EdOpt),
 	LastSearchDlgParams{
-		.ShowButtonAll = true,
 		.SearchStr = Global->GetSearchString(Codepage),
 		.CaseSensitive = Global->GlobalSearchCaseSensitive,
 		.WholeWords = Global->GlobalSearchWholeWords,
-		.Reverse = Global->GlobalSearchReverse,
 		.Regexp = Global->Opt->EdOpt.SearchRegexp,
 		.Fuzzy = Global->GlobalSearchFuzzy,
 		.PreserveStyle = false // Consider: Should we introduce Global->Opt->EdOpt.ReplacePreserveStyle?
@@ -212,7 +220,6 @@ void Editor::KeepInitParameters() const
 	Global->StoreSearchString(LastSearchDlgParams.SearchStr, m_codepage, Global->GetSearchHex());
 	Global->GlobalSearchCaseSensitive = LastSearchDlgParams.CaseSensitive.value();
 	Global->GlobalSearchWholeWords = LastSearchDlgParams.WholeWords.value();
-	Global->GlobalSearchReverse = LastSearchDlgParams.Reverse.value();
 	Global->Opt->EdOpt.SearchRegexp = LastSearchDlgParams.Regexp.value();
 	Global->GlobalSearchFuzzy = LastSearchDlgParams.Fuzzy.value();
 }
@@ -1867,16 +1874,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 
 		case KEY_F7:
 		{
-			bool ReplaceMode0 = LastSearchDlgParams.ReplaceMode;
-			bool ReplaceAll0 = ReplaceAll;
-			LastSearchDlgParams.ReplaceMode=ReplaceAll=false;
-
-			if (!Search(false))
-			{
-				LastSearchDlgParams.ReplaceMode = ReplaceMode0;
-				ReplaceAll = ReplaceAll0;
-			}
-
+			DoSearchReplace(ShowSearchReplaceDialog(false));
 			return true;
 		}
 
@@ -1885,33 +1883,15 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		{
 			if (!m_Flags.Check(FEDITOR_LOCKMODE))
 			{
-				bool ReplaceMode0 = LastSearchDlgParams.ReplaceMode;
-				bool ReplaceAll0 = ReplaceAll;
-				LastSearchDlgParams.ReplaceMode = true;
-				ReplaceAll = false;
-
-				if (!Search(false))
-				{
-					LastSearchDlgParams.ReplaceMode = ReplaceMode0;
-					ReplaceAll = ReplaceAll0;
-				}
+				DoSearchReplace(ShowSearchReplaceDialog(true));
 			}
-
 			return true;
 		}
 
 		case KEY_SHIFTF7:
 		{
-			/* $ 20.09.2000 SVS
-			   При All после нажатия Shift-F7 надобно снова спросить...
-			*/
-			//ReplaceAll=FALSE;
-			/* $ 07.05.2001 IS
-			   Сказано в хелпе "Shift-F7 Продолжить _поиск_"
-			*/
-			//ReplaceMode=FALSE;
 			TurnOffMarkingBlock();
-			Search(true);
+			DoSearchReplace(SearchReplaceDisposition::ContinueDown);
 			return true;
 		}
 
@@ -1919,10 +1899,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_RALTF7:
 		{
 			TurnOffMarkingBlock();
-			bool LastSearchReverseOrig = LastSearchDlgParams.Reverse.value();
-			LastSearchDlgParams.Reverse = !LastSearchReverseOrig;
-			Search(true);
-			LastSearchDlgParams.Reverse = LastSearchReverseOrig;
+			DoSearchReplace(SearchReplaceDisposition::ContinueUp);
 			return true;
 		}
 
@@ -3278,81 +3255,97 @@ private:
 	Editor* m_Owner;
 };
 
-bool Editor::Search(bool Next)
+Editor::SearchReplaceDisposition Editor::ShowSearchReplaceDialog(const bool ReplaceMode)
 {
-	bool FindAll{};
-
-	if (!Next)
+	const auto Picker = [this](bool PickSelection)
 	{
-		const auto Picker = [this](bool PickSelection)
+		if (PickSelection)
 		{
-			if (PickSelection)
+			if (IsAnySelection())
 			{
-				if (IsAnySelection())
+				if (IsStreamSelection())
 				{
-					if (IsStreamSelection())
+					intptr_t StartSel, EndSel;
+					m_it_AnyBlockStart->GetSelection(StartSel, EndSel);
+					if (StartSel != -1)
 					{
-						intptr_t StartSel, EndSel;
-						m_it_AnyBlockStart->GetSelection(StartSel, EndSel);
-						if (StartSel != -1)
-						{
-							return m_it_AnyBlockStart->GetString().substr(StartSel, EndSel == -1 ? string::npos : EndSel - StartSel);
-						}
-					}
-					else
-					{
-						const size_t TBlockX = m_it_AnyBlockStart->VisualPosToReal(VBlockX);
-						const size_t TBlockSizeX = m_it_AnyBlockStart->VisualPosToReal(VBlockX + VBlockSizeX) - TBlockX;
-						const auto& Str = m_it_AnyBlockStart->GetString();
-						if (TBlockX <= Str.size())
-						{
-							const auto CopySize = std::min(Str.size() - TBlockX, TBlockSizeX);
-							return Str.substr(TBlockX, CopySize);
-						}
+						return m_it_AnyBlockStart->GetString().substr(StartSel, EndSel == -1 ? string::npos : EndSel - StartSel);
 					}
 				}
 				else
 				{
-					return m_it_CurLine->GetString();
+					const size_t TBlockX = m_it_AnyBlockStart->VisualPosToReal(VBlockX);
+					const size_t TBlockSizeX = m_it_AnyBlockStart->VisualPosToReal(VBlockX + VBlockSizeX) - TBlockX;
+					const auto& Str = m_it_AnyBlockStart->GetString();
+					if (TBlockX <= Str.size())
+					{
+						const auto CopySize = std::min(Str.size() - TBlockX, TBlockSizeX);
+						return Str.substr(TBlockX, CopySize);
+					}
 				}
 			}
 			else
 			{
-				size_t PickBegin, PickEnd;
-				const auto& Str = m_it_CurLine->GetString();
-				if (FindWordInString(Str, m_it_CurLine->GetCurPos(), PickBegin, PickEnd, EdOpt.strWordDiv))
-				{
-					return Str.substr(PickBegin, PickEnd - PickBegin);
-				}
+				return m_it_CurLine->GetString();
 			}
-			return string{};
-		};
-
-		switch (GetSearchReplaceString(
-			LastSearchDlgParams,
-			L"SearchText"sv,
-			L"ReplaceText"sv,
-			m_codepage,
-			L"EditorSearch"sv,
-			LastSearchDlgParams.ReplaceMode? &EditorReplaceId : &EditorSearchId,
-			Picker))
-		{
-		case 0:
-			return false;
-
-		case 2:
-			FindAll = true;
-			break;
-
-		default:
-			break;
 		}
+		else
+		{
+			size_t PickBegin, PickEnd;
+			const auto& Str = m_it_CurLine->GetString();
+			if (FindWordInString(Str, m_it_CurLine->GetCurPos(), PickBegin, PickEnd, EdOpt.strWordDiv))
+			{
+				return Str.substr(PickBegin, PickEnd - PickBegin);
+			}
+		}
+		return string{};
+	};
+
+	switch (GetSearchReplaceString(
+		{
+			.ReplaceMode = ReplaceMode,
+			.ShowButtonsUpDown = true,
+			.ShowButtonAll = !ReplaceMode,
+		},
+		LastSearchDlgParams,
+		L"SearchText"sv,
+		L"ReplaceText"sv,
+		m_codepage,
+		L"EditorSearch"sv,
+		ReplaceMode? &EditorReplaceId : &EditorSearchId,
+		Picker))
+	{
+		case SearchReplaceDlgResult::Cancel:
+			return SearchReplaceDisposition::Cancel;
+
+		case SearchReplaceDlgResult::Up:
+			IsReplaceMode = ReplaceMode;
+			return SearchReplaceDisposition::Up;
+
+		case SearchReplaceDlgResult::Down:
+			IsReplaceMode = ReplaceMode;
+			return SearchReplaceDisposition::Down;
+
+		case SearchReplaceDlgResult::All:
+			IsReplaceMode = ReplaceMode;
+			return SearchReplaceDisposition::All;
+
+		case SearchReplaceDlgResult::Ok:
+		default:
+			UNREACHABLE;
 	}
+}
 
-	if (LastSearchDlgParams.SearchStr.empty())
-		return true;
+void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
+{
+	if (Disposition == SearchReplaceDisposition::Cancel || LastSearchDlgParams.SearchStr.empty())
+		return;
 
-	const auto Reverse = !FindAll && LastSearchDlgParams.Reverse.value();
+	IsReplaceAll = false;
+
+	const auto Backward{ Disposition == SearchReplaceDisposition::Up || Disposition == SearchReplaceDisposition::ContinueUp };
+	const auto FindAll{ Disposition == SearchReplaceDisposition::All };
+	const auto Continue{ Disposition == SearchReplaceDisposition::ContinueUp || Disposition == SearchReplaceDisposition::ContinueDown };
 
 	bool MatchFound{}, UserBreak{};
 	std::optional<undo_block> UndoBlock;
@@ -3365,14 +3358,14 @@ bool Editor::Search(bool Next)
 
 		auto CurPos = FindAll? 0 : m_it_CurLine->GetCurPos();
 
-		if (Next && m_FoundLine == m_it_CurLine)
+		if (Continue && m_FoundLine == m_it_CurLine)
 		{
-			if (Reverse)
+			if (Backward)
 			{
 				if (EdOpt.SearchCursorAtEnd)
 				{
 					if (CurPos == m_FoundPos + m_FoundSize)
-						CurPos -= m_FoundSize;
+						CurPos -= m_FoundSize; // 2023-03-04 MZK: See gh-542
 				}
 			}
 			else
@@ -3405,7 +3398,7 @@ bool Editor::Search(bool Next)
 			catch (regex_exception const& e)
 			{
 				ReCompileErrorMessage(e, LastSearchDlgParams.SearchStr);
-				return false; //BUGBUG
+				return; // Broken regex cannot be found. Do as if the search string was not found. Do NOT restore IsReplaceAll.
 			}
 		}
 
@@ -3435,14 +3428,14 @@ bool Editor::Search(bool Next)
 					Progress.emplace(msg(lng::MSearchReplaceSearchTitle), format(msg(lng::MEditSearchingFor), QuotedStr), 0);
 
 				SetCursorType(false, -1);
-				const auto Total = FindAll? Lines.size() : Reverse? StartLine : Lines.size() - StartLine;
+				const auto Total = FindAll? Lines.size() : Backward ? StartLine : Lines.size() - StartLine;
 				const auto Current = std::abs(CurPtr.Number() - StartLine);
 				Progress->update(ToPercent(Current, Total));
 				taskbar::set_value(Current,Total);
 			}
 
 			// $ 2023-01-15 MZK: Why do we need it?
-			auto strReplaceStrCurrent = LastSearchDlgParams.ReplaceMode? LastSearchDlgParams.ReplaceStr : L""s;
+			auto strReplaceStrCurrent = IsReplaceMode ? LastSearchDlgParams.ReplaceStr : L""s;
 
 			int SearchLength;
 			if (SearchAndReplaceString(
@@ -3457,7 +3450,7 @@ bool Editor::Search(bool Next)
 				{
 					.CaseSensitive = LastSearchDlgParams.CaseSensitive.value(),
 					.WholeWords = LastSearchDlgParams.WholeWords.value(),
-					.Reverse = LastSearchDlgParams.Reverse.value(),
+					.Reverse = Backward,
 					.Regexp = LastSearchDlgParams.Regexp.value(),
 					.PreserveStyle = LastSearchDlgParams.PreserveStyle.value()
 				},
@@ -3496,7 +3489,7 @@ bool Editor::Search(bool Next)
 					if (!EdOpt.PersistentBlocks)
 						UnmarkBlock();
 
-					if (EdOpt.SearchSelFound && !LastSearchDlgParams.ReplaceMode)
+					if (EdOpt.SearchSelFound && !IsReplaceMode)
 					{
 						Pasting++;
 						UnmarkBlock();
@@ -3529,7 +3522,7 @@ bool Editor::Search(bool Next)
 					if (TabCurPos + SearchLength + 8 > CurPtr->GetLeftPos() + ObjWidth())
 						CurPtr->SetLeftPos(TabCurPos + SearchLength + 8 - ObjWidth());
 
-					if (!LastSearchDlgParams.ReplaceMode)
+					if (!IsReplaceMode)
 					{
 						CurPtr->SetCurPos(m_FoundPos + (EdOpt.SearchCursorAtEnd? SearchLength : 0));
 						break;
@@ -3538,7 +3531,7 @@ bool Editor::Search(bool Next)
 					{
 						auto MsgCode = message_result::first_button;
 
-						if (!ReplaceAll)
+						if (!IsReplaceAll)
 						{
 							ColorItem newcol{};
 							newcol.StartPos=m_FoundPos;
@@ -3566,7 +3559,7 @@ bool Editor::Search(bool Next)
 							CurPtr->DeleteColor([&](const ColorItem& Item) { return newcol.StartPos == Item.StartPos && newcol.GetOwner() == Item.GetOwner();});
 
 							if (MsgCode == message_result::second_button)
-								ReplaceAll = true;
+								IsReplaceAll = true;
 
 							if (MsgCode == message_result::third_button)
 								Skip = true;
@@ -3579,7 +3572,7 @@ bool Editor::Search(bool Next)
 							}
 						}
 
-						if (ReplaceAll)
+						if (IsReplaceAll)
 							UndoBlock.emplace(this);
 
 						if (MsgCode == message_result::first_button || MsgCode == message_result::second_button)
@@ -3674,7 +3667,7 @@ bool Editor::Search(bool Next)
 								CurPtr->SetString(NewStr, true);
 								CurPtr->SetCurPos(CurPos + static_cast<int>(strReplaceStrCurrent.size()));
 
-								if (EdOpt.SearchSelFound && !LastSearchDlgParams.ReplaceMode)
+								if (EdOpt.SearchSelFound && !IsReplaceMode)
 								{
 									UnmarkBlock();
 									BeginStreamMarking(CurPtr);
@@ -3691,11 +3684,11 @@ bool Editor::Search(bool Next)
 					}
 
 					CurPos = m_it_CurLine->GetCurPos();
-					if ((Skip || ZeroLength) && !Reverse)
+					if ((Skip || ZeroLength) && !Backward)
 					{
 						CurPos++;
 					}
-					if (!(Skip || ZeroLength) && Reverse)
+					if (!(Skip || ZeroLength) && Backward)
 					{
 						(m_it_CurLine = CurPtr = m_FoundLine)->SetCurPos(CurPos = m_FoundPos);
 					}
@@ -3703,7 +3696,7 @@ bool Editor::Search(bool Next)
 			}
 			else
 			{
-				if (Reverse)
+				if (Backward)
 				{
 					if (CurPtr == Lines.begin())
 					{
@@ -3857,8 +3850,6 @@ bool Editor::Search(bool Next)
 				QuotedStr
 			},
 			{ lng::MOk });
-
-	return true;
 }
 
 void Editor::PasteFromClipboard()
