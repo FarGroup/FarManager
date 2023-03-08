@@ -76,7 +76,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-int GetSearchReplaceString(
+SearchReplaceDlgResult GetSearchReplaceString(
+	SearchReplaceDlgProps Props,
 	SearchReplaceDlgParams& Params,
 	string_view TextHistoryName,
 	string_view ReplaceHistoryName,
@@ -92,7 +93,7 @@ int GetSearchReplaceString(
 	string SearchForLabel{ msg(lng::MSearchReplaceSearchFor) };
 	if (HasHex) inplace::remove_highlight(SearchForLabel);
 
-	const auto& DialogTitle{ msg(Params.ReplaceMode ? lng::MSearchReplaceReplaceTitle : lng::MSearchReplaceSearchTitle) };
+	const auto& DialogTitle{ msg(Props.ReplaceMode ? lng::MSearchReplaceReplaceTitle : lng::MSearchReplaceSearchTitle) };
 	const auto& TextLabel{ msg(lng::MSearchReplaceText) };
 	const auto& HexLabel{ msg(lng::MSearchReplaceHex) };
 	const auto& WordLabel{ msg(lng::MSearchReplacePickWord) };
@@ -123,7 +124,13 @@ int GetSearchReplaceString(
 	const auto TextRadioX1{ TextRadioX1_ - HexRadioOverage_ };              const auto TextRadioX2{ TextRadioX2_ - HexRadioOverage_ };
 	const auto HexRadioX1{ HexRadioX1_ - HexRadioOverage_ };                const auto HexRadioX2{ HexRadioX2_ - HexRadioOverage_ };
 
-	const auto YFix = Params.ReplaceMode ? 0 : 2;
+	const auto YFix = Props.ReplaceMode ? 0 : 2;
+
+	const auto& ActionButtonLabel{ msg(
+		Props.ReplaceMode
+		? (Props.ShowButtonsUpDown ? lng::MSearchReplaceReplaceDown : lng::MSearchReplaceReplace)
+		: (Props.ShowButtonsUpDown ? lng::MSearchReplaceSearchDown : lng::MSearchReplaceSearch)) };
+	const auto& SearchReplaceUpLabel{ msg(Props.ReplaceMode ? lng::MSearchReplaceReplaceUp : lng::MSearchReplaceSearchUp) };
 
 	enum item_id
 	{
@@ -140,12 +147,12 @@ int GetSearchReplaceString(
 		dlg_separator_1,
 		dlg_checkbox_case,
 		dlg_checkbox_words,
-		dlg_checkbox_reverse,
-		dlg_checkbox_regex,
 		dlg_checkbox_fuzzy,
+		dlg_checkbox_regex,
 		dlg_checkbox_style,
 		dlg_separator_2,
 		dlg_button_action,
+		dlg_button_up,
 		dlg_button_all,
 		dlg_button_cancel,
 
@@ -167,12 +174,12 @@ int GetSearchReplaceString(
 		{ DI_TEXT,        {{-1,                6-YFix }, {0,                 6-YFix }}, DIF_SEPARATOR, },
 		{ DI_CHECKBOX,    {{5,                 7-YFix }, {0,                 7-YFix }}, DIF_NONE, msg(lng::MSearchReplaceCase), },
 		{ DI_CHECKBOX,    {{5,                 8-YFix }, {0,                 8-YFix }}, DIF_NONE, msg(lng::MSearchReplaceWholeWords), },
-		{ DI_CHECKBOX,    {{5,                 9-YFix }, {0,                 9-YFix }}, DIF_NONE, msg(lng::MSearchReplaceReverse), },
+		{ DI_CHECKBOX,    {{5,                 9-YFix }, {0,                 9-YFix }}, DIF_NONE, msg(lng::MSearchReplaceFuzzy), },
 		{ DI_CHECKBOX,    {{40,                7-YFix }, {0,                 7-YFix }}, DIF_NONE, msg(lng::MSearchReplaceRegexp), },
-		{ DI_CHECKBOX,    {{40,                8-YFix }, {0,                 8-YFix }}, DIF_NONE, msg(lng::MSearchReplaceFuzzy), },
 		{ DI_CHECKBOX,    {{40,                9-YFix }, {0,                 9-YFix }}, DIF_NONE, msg(lng::MSearchReplacePreserveStyle), },
 		{ DI_TEXT,        {{-1,                10-YFix}, {0,                 10-YFix}}, DIF_SEPARATOR, },
-		{ DI_BUTTON,      {{0,                 11-YFix}, {0,                 11-YFix}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, msg(Params.ReplaceMode ? lng::MSearchReplaceReplace : lng::MSearchReplaceSearch), },
+		{ DI_BUTTON,      {{0,                 11-YFix}, {0,                 11-YFix}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, ActionButtonLabel, },
+		{ DI_BUTTON,      {{0,                 11-YFix}, {0,                 11-YFix}}, DIF_CENTERGROUP, SearchReplaceUpLabel, },
 		{ DI_BUTTON,      {{0,                 11-YFix}, {0,                 11-YFix}}, DIF_CENTERGROUP, msg(lng::MSearchReplaceAll), },
 		{ DI_BUTTON,      {{0,                 11-YFix}, {0,                 11-YFix}}, DIF_CENTERGROUP, msg(lng::MSearchReplaceCancel), },
 	});
@@ -218,11 +225,11 @@ int GetSearchReplaceString(
 	SetMaskIf(dlg_edit_search_hex, HasHex);
 
 	// dlg_label_replace
-	SetFlagIf(dlg_label_replace, DIF_HIDDEN, !Params.ReplaceMode);
+	SetFlagIf(dlg_label_replace, DIF_HIDDEN, !Props.ReplaceMode);
 
 	// dlg_edit_replace
-	SetFlagIf(dlg_edit_replace, DIF_HIDDEN, !Params.ReplaceMode);
-	SetStringIf(dlg_edit_replace, Params.ReplaceStr, Params.ReplaceMode);
+	SetFlagIf(dlg_edit_replace, DIF_HIDDEN, !Props.ReplaceMode);
+	SetStringIf(dlg_edit_replace, Params.ReplaceStr, Props.ReplaceMode);
 	SetHistory(dlg_edit_replace, ReplaceHistoryName);
 
 	// dlg_checkbox_case
@@ -233,10 +240,6 @@ int GetSearchReplaceString(
 	SetFlagIf(dlg_checkbox_words, DIF_DISABLE, !Params.WholeWords.has_value() || HexVal);
 	SetSelected(dlg_checkbox_words, Params.WholeWords.value_or(false));
 
-	// dlg_checkbox_reverse
-	SetFlagIf(dlg_checkbox_reverse, DIF_HIDDEN, !Params.Reverse.has_value());
-	SetSelected(dlg_checkbox_reverse, Params.Reverse.value_or(false));
-
 	// dlg_checkbox_regex
 	SetFlagIf(dlg_checkbox_regex, DIF_DISABLE, !Params.Regexp.has_value() || HexVal);
 	SetSelected(dlg_checkbox_regex, Params.Regexp.value_or(false));
@@ -246,11 +249,14 @@ int GetSearchReplaceString(
 	SetSelected(dlg_checkbox_fuzzy, Params.Fuzzy.value_or(false));
 
 	// dlg_checkbox_style
-	SetFlagIf(dlg_checkbox_style, DIF_HIDDEN, !Params.ReplaceMode || !Params.PreserveStyle.has_value());
+	SetFlagIf(dlg_checkbox_style, DIF_HIDDEN, !Props.ReplaceMode || !Params.PreserveStyle.has_value());
 	SetSelected(dlg_checkbox_style, Params.PreserveStyle.value_or(false));
 
+	// dlg_button_search_up == dlg_button_replace_up
+	SetFlagIf(dlg_button_up, DIF_HIDDEN, !Props.ShowButtonsUpDown);
+
 	// dlg_button_all
-	SetFlagIf(dlg_button_all, DIF_HIDDEN, Params.ReplaceMode || !Params.ShowButtonAll);
+	SetFlagIf(dlg_button_all, DIF_HIDDEN, !Props.ShowButtonAll);
 
 	bool TextOrHexHotkeyUsed{};
 
@@ -348,41 +354,48 @@ int GetSearchReplaceString(
 
 	Dlg->Process();
 
-	if (const auto ExitCode = Dlg->GetExitCode(); ExitCode == dlg_button_action || ExitCode == dlg_button_all)
+	const auto ExitCode = Dlg->GetExitCode();
+
+	if (ExitCode == dlg_button_cancel || ExitCode < 0)
 	{
-		if (DlgItems[dlg_edit_search_hex].Flags & DIF_HIDDEN)
-		{
-			Params.SearchStr = DlgItems[dlg_edit_search_text].strData;
-		}
-		else
-		{
-			Params.SearchStr = ExtractHexString(DlgItems[dlg_edit_search_hex].strData);
-			Params.SearchBytes = HexStringToBlob(Params.SearchStr, 0);
-		}
-
-		if (Params.ReplaceMode)
-		{
-			Params.ReplaceStr = DlgItems[dlg_edit_replace].strData;
-		}
-
-		const auto SaveParam{ [&](auto& Param, const item_id ItemId)
-		{
-			if (Param.has_value())
-				Param = DlgItems[ItemId].Selected == BSTATE_CHECKED;
-		} };
-
-		SaveParam(Params.Hex, dlg_radio_hex);
-		SaveParam(Params.CaseSensitive, dlg_checkbox_case);
-		SaveParam(Params.WholeWords, dlg_checkbox_words);
-		SaveParam(Params.Reverse, dlg_checkbox_reverse);
-		SaveParam(Params.Regexp, dlg_checkbox_regex);
-		SaveParam(Params.Fuzzy, dlg_checkbox_fuzzy);
-		SaveParam(Params.PreserveStyle, dlg_checkbox_style);
-
-		return ExitCode == dlg_button_action ? 1 : 2;
+		return SearchReplaceDlgResult::Cancel;
 	}
 
-	return 0;
+	if (DlgItems[dlg_edit_search_hex].Flags & DIF_HIDDEN)
+	{
+		Params.SearchStr = DlgItems[dlg_edit_search_text].strData;
+	}
+	else
+	{
+		Params.SearchStr = ExtractHexString(DlgItems[dlg_edit_search_hex].strData);
+		Params.SearchBytes = HexStringToBlob(Params.SearchStr, 0);
+	}
+
+	if (Props.ReplaceMode)
+	{
+		Params.ReplaceStr = DlgItems[dlg_edit_replace].strData;
+	}
+
+	const auto SaveParam{ [&](auto& Param, const item_id ItemId)
+	{
+		if (Param.has_value())
+			Param = DlgItems[ItemId].Selected == BSTATE_CHECKED;
+	} };
+
+	SaveParam(Params.Hex, dlg_radio_hex);
+	SaveParam(Params.CaseSensitive, dlg_checkbox_case);
+	SaveParam(Params.WholeWords, dlg_checkbox_words);
+	SaveParam(Params.Regexp, dlg_checkbox_regex);
+	SaveParam(Params.Fuzzy, dlg_checkbox_fuzzy);
+	SaveParam(Params.PreserveStyle, dlg_checkbox_style);
+
+	switch (ExitCode)
+	{
+	case dlg_button_action: return Props.ShowButtonsUpDown ? SearchReplaceDlgResult::Down : SearchReplaceDlgResult::Ok;
+	case dlg_button_up:     return SearchReplaceDlgResult::Up;
+	case dlg_button_all:    return SearchReplaceDlgResult::All;
+	default:                UNREACHABLE;
+	};
 }
 
 bool GetString(

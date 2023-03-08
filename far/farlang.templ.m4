@@ -6568,7 +6568,7 @@ MSearchReplaceSearchFor
 "&Rasti"
 
 MSearchReplaceReplaceWith
-"Заменить &на"
+"&Заменить на"
 "&Replace with"
 "Nahradit &s"
 "&Ersetzen mit"
@@ -6679,6 +6679,34 @@ MSearchReplaceSearch
 "Шукаць"
 "&Ieškoti"
 
+MSearchReplaceSearchDown
+"Искать вперёд"
+"Search down"
+upd:"Search down"
+upd:"Search down"
+upd:"Search down"
+upd:"Search down"
+upd:"Search down"
+upd:"Search down"
+upd:"Search down"
+upd:"Search down"
+upd:"Search down"
+upd:"Search down"
+
+MSearchReplaceSearchUp
+"Искать &назад"
+"Search &up"
+upd:"Search &up"
+upd:"Search &up"
+upd:"Search &up"
+upd:"Search &up"
+upd:"Search &up"
+upd:"Search &up"
+upd:"Search &up"
+upd:"Search &up"
+upd:"Search &up"
+upd:"Search &up"
+
 MSearchReplaceReplace
 "Замена"
 "Replace"
@@ -6692,6 +6720,34 @@ MSearchReplaceReplace
 "&Замінити"
 "&Змена"
 "Pakeisti &į"
+
+MSearchReplaceReplaceDown
+"Заменять вперёд"
+"Replace down"
+upd:"Replace down"
+upd:"Replace down"
+upd:"Replace down"
+upd:"Replace down"
+upd:"Replace down"
+upd:"Replace down"
+upd:"Replace down"
+upd:"Replace down"
+upd:"Replace down"
+upd:"Replace down"
+
+MSearchReplaceReplaceUp
+"Заменять &назад"
+"Replace &up"
+upd:"Replace &up"
+upd:"Replace &up"
+upd:"Replace &up"
+upd:"Replace &up"
+upd:"Replace &up"
+upd:"Replace &up"
+upd:"Replace &up"
+upd:"Replace &up"
+upd:"Replace &up"
+upd:"Replace &up"
 
 MSearchReplaceAll
 "Вс&ё"

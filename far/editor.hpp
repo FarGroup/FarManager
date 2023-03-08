@@ -208,7 +208,6 @@ private:
 	void Down();
 	void ScrollDown();
 	void ScrollUp();
-	bool Search(bool Next);
 	void GoToLine(size_t Line);
 	void GoToLineAndShow(size_t Line);
 	void GoToPosition();
@@ -286,6 +285,10 @@ private:
 	void TurnOffMarkingBlock();
 	void SwapState(Editor& swap_state);
 	bool ProcessKeyInternal(const Manager::Key& Key, bool& Refresh);
+
+	enum class SearchReplaceDisposition;
+	SearchReplaceDisposition ShowSearchReplaceDialog(bool ReplaceMode);
+	void DoSearchReplace(SearchReplaceDisposition Disposition);
 
 	template<class F>
 	void UpdateIteratorAndKeepPos(numbered_iterator& Iter, const F& Func);
@@ -382,7 +385,8 @@ private:
 	int XX2{}; //scrollbar
 
 	SearchReplaceDlgParams LastSearchDlgParams;
-	bool ReplaceAll{};
+	bool IsReplaceMode{};
+	bool IsReplaceAll{};
 
 	int EditorID{};
 	int EditorControlLock{};

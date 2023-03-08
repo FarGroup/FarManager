@@ -2815,8 +2815,8 @@ bajtów o 16.
  #Shift+F4#           Wybór ~trybu podglądu~@ViewerMode@: #tekstowy#, #hex# (szesnastkowy) lub #źródło#
  #F6#                 Przełącza na ~edytor~@Editor@
  #F7#                 ~Wyszukiwanie~@ViewerSearch@
- #Shift+F7, Spacja#   Kontynuacja szukania
- #Alt+F7#             Kontynuacja szukania w odwrotnym kierunku
+ #Shift+F7, Spacja#   Continue searching forward
+ #Alt+F7#             Continue searching backwards
  #F8#                 Przełączenie pomiędzy stronami kodowymi OEM i ANSI
  #Shift+F8#           Przełączenie strony kodowej za pomocą menu ~Strony kodowe~@CodePagesMenu@
  #Alt+F8#             ~Zmienia bieżącą pozycję~@ViewerGotoPos@
@@ -3065,13 +3065,6 @@ $ #Podgląd: Wyszukiwanie#
  Wprowadzony tekst zostanie odnaleziony tylko wtedy, gdy wystąpi w tekście
 jako cały wyraz.
 
- #Szukaj w odwrotnym kierunku#
- Odwraca kierunek szukania - szuka od końca pliku do początku.
-
- #Wyrażenie regularne#
- Włącza użycie ~Wyrażeń regularnych~@RegExp@ w szukanym tekście.
-Wyszukiwanie wielowierszowe nie jest obsługiwane.
-
  #Wyszukiwanie rozmyte#
  Wyszukiwanie nie będzie rozróżniać diakrytyki (np. #deja# zostanie znalezione w #déjà vu#),
 ligatury będą równoznaczne z odpowiadającym im sekwencjom wieloznakowym (#fluffy# pasuje do #ﬂuﬀy#),
@@ -3079,6 +3072,14 @@ fantazyjne liczby odpowiadającym im cyfrom (#42# pasuje do #④②#), itd.
 
  Należy zwrócić uwagę na rozróżnianie wielkości znaków. Np. #Uber# zostanie odnaleziony w wyrazie
 #Überwald#, ale nie w wyrazie #überwald#. Natomiast #Æther# będzie pasował do #AEther#, ale nie #Aether#.
+
+ #Wyrażenie regularne#
+ Włącza użycie ~Wyrażeń regularnych~@RegExp@ w szukanym tekście.
+Wyszukiwanie wielowierszowe nie jest obsługiwane.
+
+ The #Search down# button starts searching forward.
+
+ The #Search up# button starts searching backwards.
 
 
 @Editor
@@ -3162,8 +3163,8 @@ kodowa ANSI, ale można zmienić to ustawienie w oknie ~Ustawień edytora~@Edito
  #F6#                      Przełącz na ~podgląd~@Viewer@
  #F7#                      ~Szukaj~@EditorSearch@
  #Ctrl+F7#                 ~Zastąp~@EditorSearch@
- #Shift+F7#                Kontynuuje szukanie/zastępowanie
- #Alt+F7#                  Kontynuuje szukanie/zastępowanie "wstecz"
+ #Shift+F7#                Continue searching or replacing forward
+ #Alt+F7#                  Continue searching or replacing backwards
  #F8#                      Przełącza strony kodowe OEM/ANSI
  #Shift+F8#                Wybiera stronę kodową
  #Alt+F8#                  ~Przechodzi do~@EditorGotoPos@ podanej linii i kolumny
@@ -3211,15 +3212,6 @@ odnaleziony jeżeli wyszukiwany będzie wyraz #tekst#).
  #Tylko całe wyrazy#
  Poszukiwany tekst będzie odnaleziony, tylko gdy wprowadzony tekst będzie całym wyrazem.
 
- #Szukaj w odwrotnym kierunku#
- Zmiana kierunku wyszukiwania (od końca pliku w kierunku początku).
-
- #Wyrażenie regularne#
- Traktuje wprowadzone dane jako wyrażenie regularne języka Perl (~wyszukiwanie~@RegExp@
-i ~zastępowanie~@RegExpRepl@).
-Każda linia jest dekodowana osobno, więc wprowadzanie wyrażeń wieloliniowych i znaki łamania
-linii nie zostaną odnalezione.
-
  #Wyszukiwanie rozmyte#
  Wyszukiwanie nie będzie rozróżniać diakrytyki (np. #deja# zostanie znalezione w #déjà vu#),
 ligatury będą równoznaczne z odpowiadającym im sekwencjom wieloznakowym (#fluffy# pasuje do #ﬂuﬀy#),
@@ -3228,8 +3220,18 @@ fantazyjne liczby odpowiadającym im cyfrom (#42# pasuje do #④②#), itd.
  Należy zwrócić uwagę na rozróżnianie wielkości znaków. Np. #Uber# zostanie odnaleziony w wyrazie
 #Überwald#, ale nie w wyrazie #überwald#. Natomiast #Æther# będzie pasował do #AEther#, ale nie #Aether#.
 
+ #Wyrażenie regularne#
+ Traktuje wprowadzone dane jako wyrażenie regularne języka Perl (~wyszukiwanie~@RegExp@
+i ~zastępowanie~@RegExpRepl@).
+Każda linia jest dekodowana osobno, więc wprowadzanie wyrażeń wieloliniowych i znaki łamania
+linii nie zostaną odnalezione.
+
  ~Zachowaj styl~@PreserveStyle@
  Zachowuje styl (wielkość znaków i ograniczniki w kodzie źródłowym) w zastąpionym tekście.
+
+ The #Search down# button starts searching forward.
+
+ The #Search up# button start searching backwards.
 
  Przycisk #Wszystko# pokaże WSZYSTKIE wystąpienia tekstu w postaci ~menu~@FindAllMenu@.
 
@@ -3393,7 +3395,7 @@ $ #Edytor: Menu wszystkich znalezionych wystąpień#
  #Ctrl+Góra#, #Ctrl+Dół#
  Przewija tekst w edytorze.
 
- #Ctrl+Enter#, #Ctrl+Lewo#, #kliknięcie myszką#
+ #Ctrl+Enter#, #Ctrl+Kliknięcie lewym przyciskiem myszy#
  Przechodzi do pozycji znalezionego tekstu.
 
  #Szary +#
