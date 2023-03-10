@@ -755,13 +755,18 @@ void Text(point Where, const FarColor& Color, string_view const Str)
 	Text(Str);
 }
 
-static void string_to_buffer_simple(string_view const Str, std::vector<FAR_CHAR_INFO>& Buffer, size_t)
+static void string_to_buffer_simple(string_view const Str, std::vector<FAR_CHAR_INFO>& Buffer, size_t const MaxSize)
 {
-	std::transform(ALL_CONST_RANGE(Str), std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, CurColor }; });
+	const auto From = Str.substr(0, MaxSize);
+	Buffer.reserve(From.size());
+
+	std::transform(ALL_CONST_RANGE(From), std::back_inserter(Buffer), [](wchar_t c) { return FAR_CHAR_INFO{ c, CurColor }; });
 }
 
 static void string_to_buffer_full_width_aware(string_view Str, std::vector<FAR_CHAR_INFO>& Buffer, size_t const MaxSize)
 {
+	Buffer.reserve(Str.size());
+
 	while(!Str.empty() && Buffer.size() != MaxSize)
 	{
 		wchar_t Char[]{ Str[0], 0 };
@@ -835,7 +840,6 @@ size_t Text(string_view Str, size_t const MaxWidth)
 		return 0;
 
 	std::vector<FAR_CHAR_INFO> Buffer;
-	Buffer.reserve(Str.size());
 
 	(char_width::is_enabled()?string_to_buffer_full_width_aware : string_to_buffer_simple)(Str, Buffer, MaxWidth);
 
