@@ -1,3 +1,7 @@
+zg 2023-03-12 23:26:44+02:00 - build 773
+
+1. Shmuel: fix for vanilla lua 5.1.
+
 johnd0e 2023-03-07 15:59:00+01:00 - build 772
 
 1. LuaFAR: update luautf8 library to 0.1.5
