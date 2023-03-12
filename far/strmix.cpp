@@ -207,7 +207,7 @@ wchar_t* legacy::truncate_left(wchar_t *Str, int MaxLength)
 {
 	return legacy_operation(Str, MaxLength, [](span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
 	{
-		const auto Iterator = copy_string(CurrentDots, StrParam.begin());
+		const auto Iterator = copy_string(CurrentDots, StrParam.data());
 
 		const auto StrEnd = StrParam.end();
 		const auto StrBegin = StrEnd - MaxLengthParam + CurrentDots.size();
@@ -240,7 +240,7 @@ wchar_t* legacy::truncate_center(wchar_t *Str, int MaxLength)
 {
 	return legacy_operation(Str, MaxLength, [](span<wchar_t> const StrParam, size_t const MaxLengthParam, string_view const CurrentDots)
 	{
-		const auto Iterator = copy_string(CurrentDots, StrParam.data() + (MaxLengthParam - CurrentDots.size()) / 2);
+		const auto Iterator = copy_string(CurrentDots, StrParam.begin() + (MaxLengthParam - CurrentDots.size()) / 2);
 
 		const auto StrEnd = StrParam.end();
 		const auto StrBegin = Iterator + (StrParam.size() - MaxLengthParam);
@@ -282,7 +282,7 @@ wchar_t* legacy::truncate_path(wchar_t*Str, int MaxLength)
 	{
 		const auto Offset = std::min(StartOffset(StrParam.data()), MaxLengthParam - CurrentDots.size());
 
-		const auto Iterator = copy_string(CurrentDots, StrParam.begin() + Offset);
+		const auto Iterator = copy_string(CurrentDots, StrParam.data() + Offset);
 
 		const auto StrEnd = StrParam.end();
 		const auto StrBegin = StrEnd - MaxLengthParam + CurrentDots.size() + Offset;

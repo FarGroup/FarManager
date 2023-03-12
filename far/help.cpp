@@ -1430,7 +1430,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 			// не поганим SelTopic, если и так в FoundContents
 			if (StackData->strHelpTopic != FoundContents)
 			{
-				if (GetSearchReplaceString(LastSearchDlgParams, L"HelpSearch"sv, {}, CP_DEFAULT, {}, &HelpSearchId) <= 0)
+				if (GetSearchReplaceString({}, LastSearchDlgParams, L"HelpSearch"sv, {}, CP_DEFAULT, {}, &HelpSearchId) == SearchReplaceDlgResult::Cancel)
 					return true;
 
 				Stack.emplace(*StackData);

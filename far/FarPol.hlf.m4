@@ -113,7 +113,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
  ~Maski plików~@FileMasks@
  ~Makropolecenia (sterowanie klawiaturą)~@KeyMacro@
 
- ~Customizing UI elements~@CustomizingUI@
+ ~Dostosowywanie elementów interfejsu~@CustomizingUI@
 
 
 @Help
@@ -1524,7 +1524,7 @@ $ #Menu: Menu opcje#
 
  #Język programu#        Wybór języka programu i pomocy. Użyj opcji "Zapisz ustawienia",
                        aby zapamiętać wybrany język
-                       You can ~customize UI elements~@CustomizingUI@ to you needs and taste.
+                       Możesz ~dostosować elementy interfesju~@CustomizingUI@ do własnych potrzeb i wymagań.
 
  #Konfiguracja#          Pokazuje okno ~konfiguracji wtyczek~@PluginsConfig@.
  #wtyczek#
@@ -2815,8 +2815,8 @@ bajtów o 16.
  #Shift+F4#           Wybór ~trybu podglądu~@ViewerMode@: #tekstowy#, #hex# (szesnastkowy) lub #źródło#
  #F6#                 Przełącza na ~edytor~@Editor@
  #F7#                 ~Wyszukiwanie~@ViewerSearch@
- #Shift+F7, Spacja#   Kontynuacja szukania
- #Alt+F7#             Kontynuacja szukania w odwrotnym kierunku
+ #Shift+F7, Spacja#   Kontynuuj szukanie w kierunku końca pliku
+ #Alt+F7#             Kontynuuj szukanie w kierunku początku pliku
  #F8#                 Przełączenie pomiędzy stronami kodowymi OEM i ANSI
  #Shift+F8#           Przełączenie strony kodowej za pomocą menu ~Strony kodowe~@CodePagesMenu@
  #Alt+F8#             ~Zmienia bieżącą pozycję~@ViewerGotoPos@
@@ -3065,13 +3065,6 @@ $ #Podgląd: Wyszukiwanie#
  Wprowadzony tekst zostanie odnaleziony tylko wtedy, gdy wystąpi w tekście
 jako cały wyraz.
 
- #Szukaj w odwrotnym kierunku#
- Odwraca kierunek szukania - szuka od końca pliku do początku.
-
- #Wyrażenie regularne#
- Włącza użycie ~Wyrażeń regularnych~@RegExp@ w szukanym tekście.
-Wyszukiwanie wielowierszowe nie jest obsługiwane.
-
  #Wyszukiwanie rozmyte#
  Wyszukiwanie nie będzie rozróżniać diakrytyki (np. #deja# zostanie znalezione w #déjà vu#),
 ligatury będą równoznaczne z odpowiadającym im sekwencjom wieloznakowym (#fluffy# pasuje do #ﬂuﬀy#),
@@ -3079,6 +3072,14 @@ fantazyjne liczby odpowiadającym im cyfrom (#42# pasuje do #④②#), itd.
 
  Należy zwrócić uwagę na rozróżnianie wielkości znaków. Np. #Uber# zostanie odnaleziony w wyrazie
 #Überwald#, ale nie w wyrazie #überwald#. Natomiast #Æther# będzie pasował do #AEther#, ale nie #Aether#.
+
+ #Wyrażenie regularne#
+ Włącza użycie ~Wyrażeń regularnych~@RegExp@ w szukanym tekście.
+Wyszukiwanie wielowierszowe nie jest obsługiwane.
+
+ Przycisk #Szukaj w dół# szuka w kierunku końca pliku.
+
+ Przycisk #Szukaj w górę# szuka w kierunku początku pliku.
 
 
 @Editor
@@ -3162,8 +3163,8 @@ kodowa ANSI, ale można zmienić to ustawienie w oknie ~Ustawień edytora~@Edito
  #F6#                      Przełącz na ~podgląd~@Viewer@
  #F7#                      ~Szukaj~@EditorSearch@
  #Ctrl+F7#                 ~Zastąp~@EditorSearch@
- #Shift+F7#                Kontynuuje szukanie/zastępowanie
- #Alt+F7#                  Kontynuuje szukanie/zastępowanie "wstecz"
+ #Shift+F7#                Kontynuuje szukanie lub zastępowanie w kierunku końca pliku
+ #Alt+F7#                  Kontynnuje szukanie lub zastępowanie w kierunku początku pliku
  #F8#                      Przełącza strony kodowe OEM/ANSI
  #Shift+F8#                Wybiera stronę kodową
  #Alt+F8#                  ~Przechodzi do~@EditorGotoPos@ podanej linii i kolumny
@@ -3211,15 +3212,6 @@ odnaleziony jeżeli wyszukiwany będzie wyraz #tekst#).
  #Tylko całe wyrazy#
  Poszukiwany tekst będzie odnaleziony, tylko gdy wprowadzony tekst będzie całym wyrazem.
 
- #Szukaj w odwrotnym kierunku#
- Zmiana kierunku wyszukiwania (od końca pliku w kierunku początku).
-
- #Wyrażenie regularne#
- Traktuje wprowadzone dane jako wyrażenie regularne języka Perl (~wyszukiwanie~@RegExp@
-i ~zastępowanie~@RegExpRepl@).
-Każda linia jest dekodowana osobno, więc wprowadzanie wyrażeń wieloliniowych i znaki łamania
-linii nie zostaną odnalezione.
-
  #Wyszukiwanie rozmyte#
  Wyszukiwanie nie będzie rozróżniać diakrytyki (np. #deja# zostanie znalezione w #déjà vu#),
 ligatury będą równoznaczne z odpowiadającym im sekwencjom wieloznakowym (#fluffy# pasuje do #ﬂuﬀy#),
@@ -3228,8 +3220,18 @@ fantazyjne liczby odpowiadającym im cyfrom (#42# pasuje do #④②#), itd.
  Należy zwrócić uwagę na rozróżnianie wielkości znaków. Np. #Uber# zostanie odnaleziony w wyrazie
 #Überwald#, ale nie w wyrazie #überwald#. Natomiast #Æther# będzie pasował do #AEther#, ale nie #Aether#.
 
+ #Wyrażenie regularne#
+ Traktuje wprowadzone dane jako wyrażenie regularne języka Perl (~wyszukiwanie~@RegExp@
+i ~zastępowanie~@RegExpRepl@).
+Każda linia jest dekodowana osobno, więc wprowadzanie wyrażeń wieloliniowych i znaki łamania
+linii nie zostaną odnalezione.
+
  ~Zachowaj styl~@PreserveStyle@
  Zachowuje styl (wielkość znaków i ograniczniki w kodzie źródłowym) w zastąpionym tekście.
+
+ Przycisk #Szukaj w dół# szuka w kierunku końca pliku.
+
+ Przycisk #Szukaj w górę# szuka w kierunku początku pliku.
 
  Przycisk #Wszystko# pokaże WSZYSTKIE wystąpienia tekstu w postaci ~menu~@FindAllMenu@.
 
@@ -3393,7 +3395,7 @@ $ #Edytor: Menu wszystkich znalezionych wystąpień#
  #Ctrl+Góra#, #Ctrl+Dół#
  Przewija tekst w edytorze.
 
- #Ctrl+Enter#, #Ctrl+Lewo#, #kliknięcie myszką#
+ #Ctrl+Enter#, #Ctrl+Kliknięcie lewym przyciskiem myszy#
  Przechodzi do pozycji znalezionego tekstu.
 
  #Szary +#
@@ -5585,38 +5587,40 @@ $ #Informacja o wersji#
 
 
 @CustomizingUI
-$ #Customizing UI elements#
- All Far user interface elements are defined in #.lng# files (e.g., #FarEng.lng#).
-You can customize these elements to your needs. For example, you can
-change hotkeys or labels on a certain Far dialog. To override
-UI elements, create a file with the name #Far<Lng>.lng.custom#
-in #%FARHOME%# or #%FARPROFILE%# directory and provide new values for
-the UI IDs you want to customize.
+$ #Dostosowywanie elementów interfejsu#
+ Wszystkie elementy interfejsu użytkownika zdefiniowane są w plikach #.lng#
+(np. #FarPol.lng#). Możesz dostosować te elementy do własnych upodobań.
+Np. możesz zmienić skróty klawiszowe lub etykiety w określonych oknach
+dialogowych. Aby zastąpić elementy interfejsu należy utworzyć plik o nazwie
+#Far<Jęz>.lng.custom# (np. #FarPol.lng.custom#) w folderze #%FARHOME%#
+lub #%FARPROFILE%# i utworzyć nowe wartości dla tych identyfikatorów
+interfejsu użytkownika, które chcesz zmienić.
 
- For example, to make file system link types on Far panels look like
-in the listing of DIR DOS command, you can create file #FarEng.lng.custom#
-in the #%FARPROFILE%# directory with the following content:
+ Dla przykładu, aby typy odnośników do systemu plików w panelu Far
+wyglądały tak jak w poleceniu DIR, należy utworzyć plik #FarPol.lng.custom#
+w folderze #%FARPROFILE%# z następującą zawartością:
 
 @-
  \0A┌────────────────────────────┐\-
- \0A│\30│  │UTF-8│Ln 1/7│Col│8:34 PM\0A│\-
+ \0A│\30│ │UTF-8│Lin 1/7│Kol 1│20:35\0A│\-
  \0A│\1b//[MListUp]                 \0A│\-
  \0A│\1b"..↑"                       \0A│\-
  \0A│\1b                            \0A│\-
  \0A│\1bMListFolder   = "<DIR>"     \0A│\-
  \0A│\1bMListSymlink  = "<SYMLINK>" \0A│\-
  \0A│\1bMListJunction = "<JUNCTION>"\0A│\-
- \0A│\071\30Help  \07 2\30Save  \07 3\30      \07 \30    \0A│\-
+ \0A│\071\30Pomoc \07 2\30Zapisz\07 3\30      \07 \30    \0A│\-
  \0A└────────────────────────────┘\-
 @+
 
- You can specify replacement UI elements in two ways, on two separate
-lines or on a single line. The new value should always be enclosed
-in double quotation marks. You can find UI IDs you want to redefine
-in the original #Far<Lng>.lng# file.
+ Możesz podać zastępcze elementy interfejsu na dwa sposoby - w jednej
+lub w dwóch liniach. Nowa wartość zawsze musi być ujęta w podwójnych
+znakach cudzysłowowa. Identyfikatory elementów do zmiany można znaleźć
+w oryginalnym pliku #Far<Jęz>.lng#
 
- If custom UI language files exist in both directories, the file
-in #%FARPROFILE%# has precedence over the file in #%FARHOME%#.
+ Jeżeli dostosowany plik językowy znajduje się w obu folderach,
+to plik z folderu #%FARPROFILE%# ma pierwszeństwo przed plikiem
+z folderu #%FARHOME%#.
 
 
 @FarConfig

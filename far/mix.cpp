@@ -313,11 +313,6 @@ bool plugin_item_list::empty() const
 	return m_Data.empty();
 }
 
-const std::vector<PluginPanelItem>& plugin_item_list::items() const
-{
-	return m_Data;
-}
-
 void plugin_item_list::emplace_back(const PluginPanelItem& Item)
 {
 	m_Data.emplace_back(Item);

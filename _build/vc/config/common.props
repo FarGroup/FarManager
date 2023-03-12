@@ -55,8 +55,7 @@
   </ItemGroup>
 
   <PropertyGroup Label="Globals">
-    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)'=='15.0'">10.0.16299.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformVersion Condition="'$(VisualStudioVersion)'&gt;='16.0'">10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="UserMacros">
@@ -65,7 +64,10 @@
     <ConfigSpecificDirectoryName>$(Configuration).$(Platform)</ConfigSpecificDirectoryName>
     <ProjectSpecificOutDirName Condition="'$(ProjectSpecificOutDirName)'==''">$(ProjectName)</ProjectSpecificOutDirName>
     <ProjectSpecificIntDirName Condition="'$(ProjectSpecificIntDirName)'==''">$(ProjectName)</ProjectSpecificIntDirName>
-    <TargetOsVersion>5.0</TargetOsVersion>
+    <TargetOsVersion Condition="'$(Platform)'=='Win32'">5.0</TargetOsVersion>
+    <TargetOsVersion Condition="'$(Platform)'=='x64'">5.2</TargetOsVersion>
+    <TargetOsVersion Condition="'$(Platform)'=='ARM'">6.2</TargetOsVersion>
+    <TargetOsVersion Condition="'$(Platform)'=='ARM64'">6.2</TargetOsVersion>
     <NewOptions></NewOptions>
   </PropertyGroup>
 
@@ -74,7 +76,6 @@
     <RootNamespace>$(ProjectName)</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <CharacterSet Condition="'$(CharacterSet)' == ''">Unicode</CharacterSet>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
     <PlatformToolset Condition="'$(VisualStudioVersion)' &gt;= '17.0'">v143</PlatformToolset>
     <OutDir>$(OutputsRoot)product\$(ConfigSpecificDirectoryName)\$(ProjectSpecificOutDirName)\</OutDir>

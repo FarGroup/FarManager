@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 
-	<!-- Override the default visualiser - it doesn't have StringView node :( -->
+	<!-- Override the default visualizer - it doesn't have StringView node :( -->
 	<Type Name="std::basic_string_view&lt;*,*&gt;">
-		<Intrinsic Name="size" Expression="_Mysize" />
 		<Intrinsic Name="data" Expression="_Mydata" />
+		<Intrinsic Name="size" Expression="_Mysize" />
 		<DisplayString>{data(),[size()]na}</DisplayString>
 		<StringView>data(),[size()]na</StringView>
 		<Expand>
@@ -16,18 +16,21 @@
 		</Expand>
 	</Type>
 
-	<Type Name="range&lt;*&gt;">
-		<DisplayString>{m_Begin,[m_End - m_Begin]na}</DisplayString>
+	<!-- Override the default visualizer - its DisplayString is not good enough -->
+	<Type Name="std::span&lt;*&gt;">
+		<Intrinsic Name="data" Expression="_Mydata" />
+		<Intrinsic Name="size" Expression="_Mysize" />
+		<DisplayString>{data(),[size()]na}</DisplayString>
 		<Expand>
-			<Item Name="[size]" ExcludeView="simple">m_End - m_Begin</Item>
+			<Item Name="[size]" ExcludeView="simple">size()</Item>
 			<ArrayItems>
-				<Size>m_End - m_Begin</Size>
-				<ValuePointer>m_Begin</ValuePointer>
+				<Size>size()</Size>
+				<ValuePointer>data()</ValuePointer>
 			</ArrayItems>
 		</Expand>
 	</Type>
 
-	<Type Name="span&lt;*&gt;">
+	<Type Name="range&lt;*&gt;">
 		<DisplayString>{m_Begin,[m_End - m_Begin]na}</DisplayString>
 		<Expand>
 			<Item Name="[size]" ExcludeView="simple">m_End - m_Begin</Item>
@@ -94,36 +97,39 @@
 		<DisplayString>{get()}</DisplayString>
 	</Type>
 
-	<Type Name="array_ptr&lt;*,*,*&gt;">
-		<Intrinsic Name="dynamic" Expression="m_End - m_Begin &gt; StaticSize"/>
-		<Intrinsic Name="empty" Expression="m_Begin == m_End"/>
-		<Intrinsic Name="ptr" Expression="empty()? nullptr : m_Begin"/>
-		<Intrinsic Name="size" Expression="m_End - m_Begin"/>
+	<Type Name="array_ptr&lt;*,*&gt;">
+		<Intrinsic Name="data" Expression="_Mydata" />
+		<Intrinsic Name="size" Expression="_Mysize" />
+		<Intrinsic Name="empty" Expression="!size()"/>
+		<Intrinsic Name="dynamic" Expression="size() &gt; StaticSize"/>
 		<DisplayString Condition="empty()">empty</DisplayString>
 		<DisplayString Condition="!empty()">size={size()}, dynamic={dynamic()}</DisplayString>
 		<Expand>
 			<Item Name="[size]">size()</Item>
 			<Item Name="[dynamic]">dynamic()</Item>
 			<ArrayItems Condition="!empty()">
-				<Size>m_End - m_Begin</Size>
-				<ValuePointer>ptr()</ValuePointer>
+				<Size>size()</Size>
+				<ValuePointer>data()</ValuePointer>
 			</ArrayItems>
 		</Expand>
 	</Type>
 
-	<Type Name="block_ptr&lt;*,*,*&gt;">
+	<Type Name="block_ptr&lt;*,*&gt;">
+		<Intrinsic Name="data" Expression="_Mydata" />
+		<Intrinsic Name="size" Expression="_Mysize" />
+		<Intrinsic Name="empty" Expression="!size()"/>
 		<Expand>
 			<Synthetic Name="[Buffer]">
-				<DisplayString>{(array_ptr&lt;char,$T2,$T3&gt;&amp;)*this}</DisplayString>
+				<DisplayString>{(array_ptr&lt;char,$T2&gt;&amp;)*this}</DisplayString>
 				<Expand>
-					<ExpandedItem>(array_ptr&lt;char,$T2,$T3&gt;&amp;)*this</ExpandedItem>
+					<ExpandedItem>(array_ptr&lt;char,$T2&gt;&amp;)*this</ExpandedItem>
 				</Expand>
 			</Synthetic>
-			<ExpandedItem Condition="!empty()">($T1*)ptr()</ExpandedItem>
+			<ExpandedItem Condition="!empty()">($T1*)data()</ExpandedItem>
 		</Expand>
 	</Type>
 
-	<Type Name="error_state">
+	<Type Name="os::error_state">
 		<DisplayString>{{Win32Error={Win32Error,h} NtError={NtError,h}}}</DisplayString>
 		<Expand>
 			<Item Name="Win32Error">Win32Error,hr</Item>
@@ -132,9 +138,9 @@
 	</Type>
 
 	<Type Name="error_state_ex">
-		<DisplayString>{{{(*(error_state*)this)} What={What}}}</DisplayString>
+		<DisplayString>{{{(*(os::error_state*)this)} What={What}}}</DisplayString>
 		<Expand>
-			<ExpandedItem>(*(error_state*)this)</ExpandedItem>
+			<ExpandedItem>(*(os::error_state*)this)</ExpandedItem>
 			<Item Name="What">What</Item>
 		</Expand>
 	</Type>
@@ -144,8 +150,24 @@
 	</Type>
 
 	<Type Name="FarColor">
-		<Intrinsic Name="is_f_rgb" Expression="(Flags &amp; FCF_FG_INDEX) == 0"/>
-		<Intrinsic Name="is_b_rgb" Expression="(Flags &amp; FCF_BG_INDEX) == 0"/>
+		<!-- BUGBUG VS debugger can't inspect "constexpr inline" constants -->
+		<Intrinsic Name="FCF_FG_INDEX"      Expression="0x0000000000000001"/>
+		<Intrinsic Name="FCF_BG_INDEX"      Expression="0x0000000000000002"/>
+		<Intrinsic Name="FCF_INHERIT_STYLE" Expression="0x0000000000000004"/>
+		<Intrinsic Name="FCF_RAWATTR_MASK"  Expression="0x000000000000FF00"/>
+		<Intrinsic Name="FCF_FG_BOLD"       Expression="0x1000000000000000"/>
+		<Intrinsic Name="FCF_FG_ITALIC"     Expression="0x2000000000000000"/>
+		<Intrinsic Name="FCF_FG_UNDERLINE"  Expression="0x4000000000000000"/>
+		<Intrinsic Name="FCF_FG_UNDERLINE2" Expression="0x8000000000000000"/>
+		<Intrinsic Name="FCF_FG_OVERLINE"   Expression="0x0100000000000000"/>
+		<Intrinsic Name="FCF_FG_STRIKEOUT"  Expression="0x0200000000000000"/>
+		<Intrinsic Name="FCF_FG_FAINT"      Expression="0x0400000000000000"/>
+		<Intrinsic Name="FCF_FG_BLINK"      Expression="0x0800000000000000"/>
+		<Intrinsic Name="FCF_FG_INVERSE"    Expression="0x0010000000000000"/>
+		<Intrinsic Name="FCF_FG_INVISIBLE"  Expression="0x0020000000000000"/>
+
+		<Intrinsic Name="is_f_rgb" Expression="(Flags &amp; FCF_FG_INDEX()) == 0"/>
+		<Intrinsic Name="is_b_rgb" Expression="(Flags &amp; FCF_BG_INDEX()) == 0"/>
 		<Intrinsic Name="is_f_index" Expression="!is_f_rgb() &amp;&amp; (ForegroundColor &amp; 0xff) == Index">
 			<Parameter Type="int" Name="Index"/>
 		</Intrinsic>
@@ -215,18 +237,18 @@
 			<Synthetic Name="Flags">
 				<DisplayString>{Flags,h}</DisplayString>
 				<Expand>
-					<Item Name="inherit">bool(Flags &amp; FCF_INHERIT_STYLE)</Item>
-					<Item Name="bold">bool(Flags &amp; FCF_FG_BOLD)</Item>
-					<Item Name="italic">bool(Flags &amp; FCF_FG_ITALIC)</Item>
-					<Item Name="underline">bool(Flags &amp; FCF_FG_UNDERLINE)</Item>
-					<Item Name="underline2">bool(Flags &amp; FCF_FG_UNDERLINE2)</Item>
-					<Item Name="overline">bool(Flags &amp; FCF_FG_OVERLINE)</Item>
-					<Item Name="strikeout">bool(Flags &amp; FCF_FG_STRIKEOUT)</Item>
-					<Item Name="faint">bool(Flags &amp; FCF_FG_FAINT)</Item>
-					<Item Name="blink">bool(Flags &amp; FCF_FG_BLINK)</Item>
-					<Item Name="inverse">bool(Flags &amp; FCF_FG_INVERSE)</Item>
-					<Item Name="invisible">bool(Flags &amp; FCF_FG_INVISIBLE)</Item>
-					<Item Name="raw">short((Flags &amp; FCF_RAWATTR_MASK) &gt;&gt; 8),h</Item>
+					<Item Name="inherit">bool(Flags &amp; FCF_INHERIT_STYLE())</Item>
+					<Item Name="bold">bool(Flags &amp; FCF_FG_BOLD())</Item>
+					<Item Name="italic">bool(Flags &amp; FCF_FG_ITALIC())</Item>
+					<Item Name="underline">bool(Flags &amp; FCF_FG_UNDERLINE())</Item>
+					<Item Name="underline2">bool(Flags &amp; FCF_FG_UNDERLINE2())</Item>
+					<Item Name="overline">bool(Flags &amp; FCF_FG_OVERLINE())</Item>
+					<Item Name="strikeout">bool(Flags &amp; FCF_FG_STRIKEOUT())</Item>
+					<Item Name="faint">bool(Flags &amp; FCF_FG_FAINT())</Item>
+					<Item Name="blink">bool(Flags &amp; FCF_FG_BLINK())</Item>
+					<Item Name="inverse">bool(Flags &amp; FCF_FG_INVERSE())</Item>
+					<Item Name="invisible">bool(Flags &amp; FCF_FG_INVISIBLE())</Item>
+					<Item Name="raw">short((Flags &amp; FCF_RAWATTR_MASK()) &gt;&gt; 8),h</Item>
 				</Expand>
 			</Synthetic>
 		</Expand>
@@ -296,6 +318,7 @@
 			</Synthetic>
 		</Expand>
 	</Type>
+
 	<Type Name="_MOUSE_EVENT_RECORD">
 		<Expand>
 			<Item Name="Position">dwMousePosition</Item>

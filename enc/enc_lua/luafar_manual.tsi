@@ -11462,12 +11462,15 @@ lv=1
 dt=Text
 nm=luautf8
 ctime=3776336119
-mtime=3795716600
+mtime=3887368054
 <article>
 #_<markdown>
 #_
 #_UTF-8 module for Lua 5.x
 #_========================
+#_[![Build Status](https://travis-ci.org/starwing/luautf8.svg?branch=master)](https://travis-ci.org/starwing/luautf8)
+#_[![Coverage Status](https://coveralls.io/repos/github/starwing/luautf8/badge.svg?branch=master)](https://coveralls.io/github/starwing/luautf8?branch=master)
+#_
 #_This module adds UTF-8 support to Lua.
 #_
 #_It use data extracted from
@@ -11480,11 +11483,12 @@ mtime=3795716600
 #_It mainly used to compatible with Lua's own string module, it passed all
 #_string and pattern matching test in lua test suite[2].
 #_
-#_It also add some useful routines against UTF-8 features, some like:
+#_It also adds some useful routines against UTF-8 features, such as:
 #_- a convenient interface to escape Unicode sequence in string. 
 #_- string insert/remove, since UTF-8 substring extract may expensive.
 #_- calculate Unicode width, useful when implement e.g. console emulator.
 #_- a useful interface to translate Unicode offset and byte offset.
+#_- checking UTF-8 strings for validity and removing invalid byte sequences.
 #_
 #_Note that to avoid conflict with the Lua5.3's buitin library 'utf8',
 #_this library produce a file like lua-utf8.dll or lua-utf8.so. so use
@@ -11627,6 +11631,24 @@ mtime=3795716600
 #_compare a and b without case, -1 means a < b, 0 means a == b and 1 means a > b.
 #_
 #_
+#_### utf8.isvalid(s) -> boolean
+#_check whether s is a valid UTF-8 string or not.
+#_
+#_
+#_### utf8.clean(s[, replacement_string]) -> cleaned_string, was_valid
+#_replace any invalid UTF-8 byte sequences in s with the replacement string.
+#_if no replacement string is provided, the default is "?" (REPLACEMENT CHARACTER U+FFFD).
+#_note that *any* number of consecutive invalid bytes will be replaced by a single copy of the replacement string.
+#_the 2nd return value is true if the original string was already valid (meaning no replacements were made).
+#_
+#_
+#_### utf8.invalidoffset(s[, init]) -> offset
+#_return the byte offset within s of the first invalid UTF-8 byte sequence.
+#_(1 is the first byte of the string.)
+#_if s is a valid UTF-8 string, return nil.
+#_the optional numeric argument init specifies where to start the search; its default value is 1 and can be negative.
+#_
+#_
 #_Improvement needed
 #_------------------
 #_
@@ -11639,7 +11661,6 @@ mtime=3795716600
 #_License
 #_-------
 #_It use same license with Lua: http://www.lua.org/license.html
-#_
 </article>
 </node>
 <node>
@@ -11699,7 +11720,7 @@ lv=2
 dt=Text
 nm=utf8.utf8valid
 ctime=3579943896
-mtime=3776451338
+mtime=3887368189
 <article>
 #_result, len = utf8.utf8valid (str)
 #_    or
@@ -11720,6 +11741,8 @@ mtime=3776451338
 #_
 #_**Note:**
 #_  This is an added function, not present in the original **luautf8** library.
+#_  It was introduced in LuaFAR before utf8.isvalid/utf8.invalidoffset got available in lua-utf8, and now is rather obsolete.
+#_  Left for compatibility.
 </article>
 </node>
 <node>

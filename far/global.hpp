@@ -80,7 +80,6 @@ public:
 	bool GlobalSearchCaseSensitive{};
 	bool GlobalSearchFuzzy{};
 	bool GlobalSearchWholeWords{}; // значение "Whole words" для поиска
-	bool GlobalSearchReverse{};
 	std::atomic_size_t SuppressClock{};
 	std::atomic_size_t SuppressIndicators{};
 	bool CloseFAR{}, CloseFARMenu{}, AllowCancelExit{true};

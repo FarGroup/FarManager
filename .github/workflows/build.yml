@@ -12,29 +12,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
 
       - name: Run checks
         working-directory: far
         run: python tools/source_validator.py
 
 #------------------------------------------------------------------------------
-  hlf-checks:
-    runs-on: windows-2022
+  changelog-hlf-checks:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-dotnet@v1
+      - uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '5.0.x'
+          dotnet-version: '6.0'
+
+# For "--property UseSharedCompilation=false", see
+# https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/troubleshooting-the-codeql-workflow#no-code-found-during-the-build
+
+      - name: Build and run ChangelogChecker
+        working-directory: misc/build-checks/ChangelogChecker
+        run: dotnet run --project ./ChangelogChecker.csproj --configuration Release --property UseSharedCompilation=false
 
       - name: Build and run HlfChecker
-        working-directory: misc/hlf-checker
-        run: dotnet run --project .\HlfChecker.csproj --configuration Release -- Verbose
+        working-directory: misc/build-checks/HlfChecker
+        run: dotnet run --project ./HlfChecker.csproj --configuration Release --property UseSharedCompilation=false -- Verbose
 
 #------------------------------------------------------------------------------
   build-msbuild:
@@ -59,7 +66,7 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Initialize CodeQL
         if: matrix.build == 'msbuild_cl_x64_debug'
@@ -85,7 +92,7 @@ jobs:
         uses: github/codeql-action/analyze@v2
 
       - name: Publish
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Far.${{ matrix.build_config }}.${{ matrix.platform_name }}
           path: _build/vc/_output/product/${{ matrix.build_config }}.${{ matrix.platform_sln }}
@@ -117,7 +124,7 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Initialize CodeQL
         if: matrix.build == 'nmake_cl_x64_debug'
@@ -178,7 +185,7 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Initialize CodeQL
         if: matrix.build == 'mingw_gcc_x64_debug'

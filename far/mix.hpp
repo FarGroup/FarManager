@@ -129,11 +129,16 @@ public:
 	void emplace_back(const PluginPanelItem& Item);
 	void reserve(size_t Size);
 
+	auto begin() { return m_Data.begin(); }
+	auto begin() const { return m_Data.begin(); }
+
+	auto end() { return m_Data.end(); }
+	auto end() const { return m_Data.end(); }
+
 	const PluginPanelItem* data() const;
 	PluginPanelItem* data();
 	size_t size() const;
 	bool empty() const;
-	const std::vector<PluginPanelItem>& items() const;
 
 private:
 	std::vector<PluginPanelItem> m_Data;

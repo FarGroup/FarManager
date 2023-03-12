@@ -8,6 +8,7 @@ find $1/Documentation -type f -exec unix2dos {} \;
 find $1/Addons -type f -exec unix2dos {} \;
 unix2dos $1/RestoreOldPluginSettings.cmd
 unix2dos $1/SaveOldPluginSettings.cmd
+unix2dos $1/Far.VisualElementsManifest.xml
 
 }
 

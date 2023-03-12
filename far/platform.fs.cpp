@@ -1614,7 +1614,7 @@ namespace os::fs
 			security::descriptor Result(default_buffer_size);
 
 			if (!os::detail::ApiDynamicReceiver(Result,
-				[&](span<SECURITY_DESCRIPTOR> Buffer)
+				[&](security::descriptor const& Buffer)
 				{
 					DWORD LengthNeeded = 0;
 					if (!::GetFileSecurity(Object, RequestedInformation, Buffer.data(), static_cast<DWORD>(Buffer.size()), &LengthNeeded))

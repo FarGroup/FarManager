@@ -2818,8 +2818,8 @@ combinations adjust the number of displayed bytes by 16 at a time.
  #Shift+F4#           Select ~view mode~@ViewerMode@: #text#, #hex#, or #dump#
  #F6#                 Switch to ~editor~@Editor@
  #F7#                 ~Search~@ViewerSearch@
- #Shift+F7, Space#    Continue search
- #Alt+F7#             Continue search in reverse direction
+ #Shift+F7, Space#    Continue searching forward
+ #Alt+F7#             Continue searching backwards
  #F8#                 Switch between OEM and ANSI code pages
  #Shift+F8#           Select code page using the ~Code pages~@CodePagesMenu@ menu
  #Alt+F8#             ~Change current position~@ViewerGotoPos@
@@ -3070,13 +3070,6 @@ while searching (so, for example, #Text# will not be found when searching for #t
  #Whole words#
  The given text will be found only if it occurs in the text as a whole word.
 
- #Reverse search#
- Reverse the search direction - search from the end of file towards the beginning.
-
- #Regular expressions#
- Enable the use of ~regular expressions~@RegExp@ in the search string.
-The multiline search is not supported.
-
  #Fuzzy search#
  The search will be diacritical insensitive (for example, #deja# will be found in #déjà vu#),
 ligatures will be equivalent to corresponding multicharacter sequences (#fluffy# matches #ﬂuﬀy#),
@@ -3084,6 +3077,14 @@ fancy numbers to corresponding numbers (#42# matches #④②#), and so on.
 
  Note that case sensitive fuzzy search sometimes may be useful. For example, #Uber# will be found
 in #Überwald# but not in #überwald#. However, #Æther# will match #AEther#, but not #Aether#.
+
+ #Regular expressions#
+ Enable the use of ~regular expressions~@RegExp@ in the search string.
+The multiline search is not supported.
+
+ The #Search down# button starts searching forward.
+
+ The #Search up# button starts searching backwards.
 
 
 @Editor
@@ -3165,8 +3166,8 @@ behavior can be changed in the ~Editor settings~@EditorSettings@ dialog.
  #F6#                      Switch to ~viewer~@Viewer@
  #F7#                      ~Search~@EditorSearch@
  #Ctrl+F7#                 ~Replace~@EditorSearch@
- #Shift+F7#                Continue search/replace
- #Alt+F7#                  Continue search/replace in "reverse" mode
+ #Shift+F7#                Continue searching or replacing forward
+ #Alt+F7#                  Continue searching or replacing backwards
  #F8#                      Toggle OEM/ANSI code page
  #Shift+F8#                Select code page
  #Alt+F8#                  ~Go to~@EditorGotoPos@ specified line and column
@@ -3214,13 +3215,6 @@ $ #Editor: search/replace#
  #Whole words#
  The given text will be found only if it occurs in the text as a whole word.
 
- #Reverse search#
- Change the direction of search (from the end of file towards the beginning)
-
- #Regular expressions#
- Treat input as Perl regular expression (~search~@RegExp@ and ~replace~@RegExpRepl@).
-Each line is processed individually, so multi-line expressions and line break characters will not be found.
-
  #Fuzzy search#
  The search will be diacritical insensitive (for example, #deja# will be found in #déjà vu#),
 ligatures will be equivalent to corresponding multicharacter sequences (#fluffy# matches #ﬂuﬀy#),
@@ -3229,8 +3223,16 @@ fancy numbers to corresponding numbers (#42# matches #④②#), and so on.
  Note that case sensitive fuzzy search sometimes may be useful. For example, #Uber# will be found
 in #Überwald# but not in #überwald#. However, #Æther# will match #AEther#, but not #Aether#.
 
+ #Regular expressions#
+ Treat input as Perl regular expression (~search~@RegExp@ and ~replace~@RegExpRepl@).
+Each line is processed individually, so multi-line expressions and line break characters will not be found.
+
  ~Preserve style~@PreserveStyle@
  Preserve style (case and delimiters in program source code) of the replaced text.
+
+ The #Search down# button starts searching forward.
+
+ The #Search up# button start searching backwards.
 
  The #All# button will show All matching entries ~menu~@FindAllMenu@.
 
@@ -3397,7 +3399,7 @@ $ #Editor: All matching entries menu#
  #Ctrl+Up#, #Ctrl+Down#
  Scroll the text in the editor.
 
- #Ctrl+Enter#, #Ctrl+Left#, #mouse click#
+ #Ctrl+Enter#, #Ctrl+Left mouse click#
  Go to the position of the found text.
 
  #Gray +#

@@ -49,10 +49,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //----------------------------------------------------------------------------
 
-template<typename string_type>
-auto copy_string(string_type const& Str, typename string_type::value_type* const Destination)
+template<typename string_type, typename iterator_type>
+auto copy_string(string_type const& Str, iterator_type const Destination)
 {
-	return Destination + Str.copy(Destination, Str.npos);
+	return Destination + Str.copy(std::to_address(Destination), Str.npos);
 }
 
 /*

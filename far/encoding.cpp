@@ -355,7 +355,6 @@ bool MultibyteCodepageDecoder::SetCP(uintptr_t Codepage)
 	}
 	u{};
 
-	int CharsProcessed = 0;
 	size_t Size = 0;
 	for (const auto& i: irange(65536)) // only UCS2 range
 	{
@@ -366,7 +365,6 @@ bool MultibyteCodepageDecoder::SetCP(uintptr_t Codepage)
 			continue;
 
 		len_mask[u.b1] |= bit(CharSize - 1);
-		++CharsProcessed;
 		Size = std::max(Size, CharSize);
 
 		switch (CharSize)

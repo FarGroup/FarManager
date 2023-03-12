@@ -55,50 +55,61 @@ enum class lng : int;
 class regex_exception;
 struct error_state_ex;
 
-struct SearchReplaceDlgParams
+struct SearchReplaceDlgProps
 {
 	bool ReplaceMode{};
+	bool ShowButtonsUpDown{};
 	bool ShowButtonAll{};
+};
+
+struct SearchReplaceDlgParams
+{
 	string SearchStr;
 	bytes SearchBytes;
 	string ReplaceStr;
 	std::optional<bool> Hex;
 	std::optional<bool> CaseSensitive;
 	std::optional<bool> WholeWords;
-	std::optional<bool> Reverse;
 	std::optional<bool> Regexp;
 	std::optional<bool> Fuzzy;
 	std::optional<bool> PreserveStyle;
 };
 
-/*
-  Функция GetSearchReplaceString выводит диалог поиска или замены, принимает
-  от пользователя данные и в случае успешного выполнения диалога возвращает
-  TRUE.
-  Параметры:
-	Params
-	  InOut parameter. Specifies which options to show in the dialog and provides initial values.
-	  On exit, contains the values selected by the user.
+enum class SearchReplaceDlgResult
+{
+	Cancel,
+	Ok,
+	Up,
+	Down,
+	All,
+};
 
-	TextHistoryName
+/*
+  Shows Search / Replace dialog, collects user's input, and returns the action selected by the user.
+
+  Parameters:
+    Props
+      Define various aspects of dialog UX
+
+    Params
+      InOut parameter. Specifies which options to show in the dialog and provides initial values.
+      If the dialog was closed by one of the action buttons, contains the values selected by the user.
+      If the dialog was dismissed, the values stay unchanged.
+
+    TextHistoryName
       Имя истории строки поиска.
-      Если пустая строка, то принимается значение "SearchText"
 
     ReplaceHistoryName
       Имя истории строки замены.
-      Если пустая строка, то принимается значение "ReplaceText"
 
     HelpTopic
       Имя темы помощи.
       Если пустая строка - тема помощи не назначается.
 
-  Возвращаемое значение:
-  0 - пользователь отказался от диалога (Esc)
-    1 - пользователь подтвердил свои намерения
-    2 - выбран поиск всех вхождений
-
+  Returns the action selected by the user.
 */
-int GetSearchReplaceString(
+SearchReplaceDlgResult GetSearchReplaceString(
+	SearchReplaceDlgProps Props,
 	SearchReplaceDlgParams& Params,
 	string_view TextHistoryName,
 	string_view ReplaceHistoryName,
