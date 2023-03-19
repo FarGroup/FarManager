@@ -133,13 +133,15 @@ local function GetItems (fcomp, sortmark, onlyactive)
   end
   table.sort(columns, function(a,b) return (a.filemask or "*") < (b.filemask or "*") end)
 
-  for m,mode in mf.EnumScripts("CustomSortModes") do
-    m.mode = mode
-    local source = debug.getinfo(m.Compare,"S").source
-    m.FileName = source:match"^@(.+)"
-    sortmodes[#sortmodes+1] = m
+  if Shared.panelsort then
+    for m,mode in mf.EnumScripts("CustomSortModes") do
+      m.mode = mode
+      local source = debug.getinfo(m.Compare,"S").source
+      m.FileName = source:match"^@(.+)"
+      sortmodes[#sortmodes+1] = m
+    end
+    table.sort(panels, function(a,b) return (a.Description or "") < (b.Description or "") end)
   end
-  table.sort(panels, function(a,b) return (a.Description or "") < (b.Description or "") end)
 
   items[#items+1] = {
     separator=true,

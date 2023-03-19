@@ -1234,7 +1234,7 @@ end
 
 local function EnumScripts (ScriptType)
   local ScriptOrigin = {
-    CustomSortModes = Shared.panelsort.GetCustomSortModes(),
+    CustomSortModes = Shared.panelsort and Shared.panelsort.GetCustomSortModes(),
     Event = LoadedMacros,
     Macro = LoadedMacros,
     MenuItem = AddedMenuItems,
