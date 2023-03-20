@@ -547,7 +547,7 @@ local function serialize (o)
   return s and "return "..s or tableSerialize(o)
 end
 
-function deserialize (str)
+local function deserialize (str)
   checkarg(str, 1, "string")
   local chunk, err = loadstring(str)
   if chunk==nil then return nil,err end
