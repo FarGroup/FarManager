@@ -289,6 +289,8 @@ private:
 	enum class SearchReplaceDisposition;
 	SearchReplaceDisposition ShowSearchReplaceDialog(bool ReplaceMode);
 	void DoSearchReplace(SearchReplaceDisposition Disposition);
+	int CalculateSearchStartPosition(bool Continue, bool Backward, bool Regex) const;
+	int CalculateSearchNextPositionInTheLine(bool Backward, bool Regex) const;
 
 	template<class F>
 	void UpdateIteratorAndKeepPos(numbered_iterator& Iter, const F& Func);
@@ -362,8 +364,8 @@ private:
 	bool NewSessionPos{};
 	std::vector<char> decoded;
 	numbered_iterator m_FoundLine{ EndIterator() };
-	int m_FoundPos{};
-	int m_FoundSize{};
+	int m_FoundPos{ -1 };
+	int m_FoundSize{ -1 };
 	std::unordered_set<Edit*> m_AutoDeletedColors;
 	struct
 	{
