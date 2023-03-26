@@ -58,7 +58,7 @@ struct error_state_ex;
 struct SearchReplaceDlgProps
 {
 	bool ReplaceMode{};
-	bool ShowButtonsUpDown{};
+	bool ShowButtonsPrevNext{};
 	bool ShowButtonAll{};
 };
 
@@ -79,8 +79,8 @@ enum class SearchReplaceDlgResult
 {
 	Cancel,
 	Ok,
-	Up,
-	Down,
+	Prev,
+	Next,
 	All,
 };
 
