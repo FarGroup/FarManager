@@ -83,16 +83,16 @@ distribution.
 #if defined(TINYXML2_DEBUG)
 #   if defined(_MSC_VER)
 #       // "(void)0," is for suppressing C4127 warning in "assert(false)", "assert(true)" and the like
-#       define TIXMLASSERT( x )           if ( !((void)0,(x))) { __debugbreak(); }
+#       define TIXMLASSERT( x )           do { if ( !((void)0,(x))) { __debugbreak(); } } while(false)
 #   elif defined (ANDROID_NDK)
 #       include <android/log.h>
-#       define TIXMLASSERT( x )           if ( !(x)) { __android_log_assert( "assert", "grinliz", "ASSERT in '%s' at %d.", __FILE__, __LINE__ ); }
+#       define TIXMLASSERT( x )           do { if ( !(x)) { __android_log_assert( "assert", "grinliz", "ASSERT in '%s' at %d.", __FILE__, __LINE__ ); } } while(false)
 #   else
 #       include <assert.h>
 #       define TIXMLASSERT                assert
 #   endif
 #else
-#   define TIXMLASSERT( x )               {}
+#   define TIXMLASSERT( x )               do {} while(false)
 #endif
 #endif
 
@@ -112,7 +112,7 @@ static const int TIXML2_PATCH_VERSION = 0;
 // system, and the capacity of the stack. On the other hand, it's a trivial
 // attack that can result from ill, malicious, or even correctly formed XML,
 // so there needs to be a limit in place.
-static const int TINYXML2_MAX_ELEMENT_DEPTH = 100;
+static const int TINYXML2_MAX_ELEMENT_DEPTH = 500;
 
 namespace tinyxml2
 {
@@ -375,7 +375,7 @@ public:
     virtual void* Alloc() {
         if ( !_root ) {
             // Need a new block.
-            Block* block = new Block();
+            Block* block = new Block;
             _blockPtrs.Push( block );
 
             Item* blockItems = block->items;
