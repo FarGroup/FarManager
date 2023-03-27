@@ -178,7 +178,7 @@ static constexpr NTSTATUS make_far_ntstatus(uint16_t const Number)
 }
 
 static constexpr NTSTATUS
-	EH_EXCEPTION_NUMBER           = 0xE06D7363, // 'msc'
+	EH_EXCEPTION_NUMBER           = os::debug::EH_EXCEPTION_NUMBER,
 	EH_CLR_EXCEPTION              = 0xE0434352, // 'CCR'
 	EH_SANITIZER                  = 0xE073616E, // 'san'
 	EH_SANITIZER_ASAN             = EH_SANITIZER + 1,
