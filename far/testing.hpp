@@ -88,7 +88,7 @@ private:
 
 #endif
 
-std::optional<int> testing_main(int Argc, wchar_t const* const Argv[]);
+std::optional<int> testing_main(std::span<wchar_t const* const> Args);
 
 #endif
 

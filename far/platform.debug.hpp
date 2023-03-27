@@ -63,8 +63,15 @@ namespace os::debug
 		DWORD InlineContext;
 	};
 
+	EXCEPTION_POINTERS exception_information();
+	EXCEPTION_POINTERS fake_exception_information(unsigned Code);
+
+	// Symbols should be initialized before calling these.
+	// Use tracer.*, they do exactly that.
 	std::vector<stack_frame> current_stacktrace(size_t FramesToSkip = 0, size_t FramesToCapture = std::numeric_limits<size_t>::max());
 	std::vector<stack_frame> stacktrace(CONTEXT ContextRecord, HANDLE ThreadHandle);
+	std::vector<stack_frame> exception_stacktrace();
+
 	bool is_inline_frame(DWORD InlineContext);
 
 	namespace symbols

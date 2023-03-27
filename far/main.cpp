@@ -955,11 +955,11 @@ static int mainImpl(span<const wchar_t* const> const Args)
 	});
 }
 
-static void configure_exception_handling(int Argc, const wchar_t* const Argv[])
+static void configure_exception_handling(std::span<wchar_t const* const> const Args)
 {
 	os::debug::crt_report_to_ui();
 
-	for (const auto& i : span(Argv + 1, Argc - 1))
+	for (const auto& i: Args)
 	{
 		if (!is_arg(i))
 			continue;
@@ -993,8 +993,9 @@ static int wmain_seh()
 	// wmain is a non-standard extension and not available in gcc.
 	int Argc = 0;
 	const os::memory::local::ptr Argv(CommandLineToArgvW(GetCommandLine(), &Argc));
+	std::span<wchar_t const* const> const AllArgs(Argv.get(), Argc), Args(AllArgs.subspan(1));
 
-	configure_exception_handling(Argc, Argv.get());
+	configure_exception_handling(Args);
 
 	SCOPED_ACTION(unhandled_exception_filter);
 	SCOPED_ACTION(vectored_exception_handler);
@@ -1003,7 +1004,7 @@ static int wmain_seh()
 	SCOPED_ACTION(new_handler);
 
 #ifdef ENABLE_TESTS
-	if (const auto Result = testing_main(Argc, Argv.get()))
+	if (const auto Result = testing_main(AllArgs))
 	{
 		return *Result;
 	}
@@ -1020,7 +1021,7 @@ static int wmain_seh()
 	{
 		try
 		{
-			return mainImpl({ Argv.get() + 1, Argv.get() + Argc });
+			return mainImpl(Args);
 		}
 		catch (far_known_exception const& e)
 		{

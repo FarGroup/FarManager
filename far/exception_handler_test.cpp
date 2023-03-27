@@ -523,10 +523,18 @@ static bool trace()
 	Menu->SetMenuFlags(VMENU_WRAPMODE | VMENU_SHOWAMPERSAND);
 	Menu->SetPosition({ -1, -1, 0, 0 });
 
-	tracer.get_symbols({}, os::debug::current_stacktrace(), [&](string_view const Line)
+	const auto add_to_menu = [&](string_view const Line)
 	{
 		Menu->AddItem(string(Line));
-	});
+	};
+
+	tracer.current_stacktrace({}, add_to_menu);
+
+	if (std::current_exception())
+	{
+		Menu->AddItem(MenuItemEx(L"Exception stack"s, LIF_SEPARATOR));
+		tracer.exception_stacktrace({}, add_to_menu);
+	}
 
 	Menu->Run();
 

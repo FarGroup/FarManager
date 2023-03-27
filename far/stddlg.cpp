@@ -395,7 +395,7 @@ SearchReplaceDlgResult GetSearchReplaceString(
 	case dlg_button_up:     return SearchReplaceDlgResult::Up;
 	case dlg_button_all:    return SearchReplaceDlgResult::All;
 	default:                UNREACHABLE;
-	};
+	}
 }
 
 bool GetString(
