@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+drkns 2023-03-27 18:19:56+01:00 - build 6120
+
+1. New versions of fmt, tinyxml2, Catch2.
+
+2. Refactoring.
+
+3. Make unit tests runnable from IDE.
+
+--------------------------------------------------------------------------------
 MZK 2023-03-26 11:56:52-07:00 - build 6119
 
 1. gh-542: Editor Search (plain text): Shift+F7 / Alt+F7 now finds the nearest match,
