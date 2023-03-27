@@ -214,7 +214,11 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="string_utils.cpp" />
     <ClCompile Include="strmix.cpp" />
     <ClCompile Include="taskbar.cpp" />
-    <ClCompile Include="testing.cpp" />
+    <ClCompile Include="testing.cpp">
+      <!-- catchorg/Catch2#2174 -->
+      <PrecompiledHeader Condition="'$(VisualStudioVersion)' == '16.0'">NotUsing</PrecompiledHeader>
+      <AdditionalOptions Condition="'$(VisualStudioVersion)' == '16.0'">/Zc:hiddenFriend- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
     <ClCompile Include="tinyxml.cpp" />
     <ClCompile Include="tracer.cpp" />
     <ClCompile Include="treelist.cpp" />
