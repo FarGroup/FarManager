@@ -224,6 +224,7 @@ public:
 	static bool FileNameToPluginItem(string_view Name, class PluginPanelItemHolder& pi);
 	void FileListToPluginItem(const FileListItem& fi, PluginPanelItemHolder& Holder) const;
 	static bool IsModeFullScreen(int Mode);
+	void background_update();
 
 	struct PrevDataItem;
 
@@ -358,8 +359,75 @@ private:
 	private:
 		std::vector<FileListItem> Items;
 		plugin_panel* m_Plugin{};
+	};
+
+	// All these shenanigans are only to prevent the background re-read and invalidation of list_data while we're still using it.
+
+	// Consider the following scenario:
+	// - The user starts a lengthy operation, e.g. a directory scan
+	// - We iterate through list_data and do things with each item
+	// - Suddenly a wild Elevation Dialog appears, because one of those things needed it
+	// - While the user reads the dialog and considers what to do next, some other process changes something in the same directory
+	// - Suddenly a wild filesystem notification appears and tells the FileList to re-read the directory as soon as possible
+	// - The user closes the dialog, the window manager tells all the windows to redraw, the FileList re-reads the directory
+	// - The control finally returns to the list_data iteration
+	// - Suddenly a wild read access violation appears, because the referenced data is gone
+
+	// So now we 'lock' the data before referencing it, and FileList postpones updates if it's locked.
+	// TODO: Remove and re-expose m_ListData if we ever come up with a better background update logic or make elevation safer.
+	class list_data_lock
+	{
+	public:
+		auto& get() { return m_ListData; }
+		auto& get() const { return m_ListData; }
+
+		void lock() const { ++m_Lock; }
+		void unlock() const { --m_Lock; }
+
+		bool locked() const { return m_Lock != 0; }
+
+	//private:
+		list_data m_ListData;
+		mutable size_t m_Lock{};
 	}
-	m_ListData;
+	m_ListData_DoNotTouchDirectly;
+
+	template<typename T>
+	class data_lock_ptr
+	{
+	public:
+		NONCOPYABLE(data_lock_ptr);
+
+		explicit data_lock_ptr(T& DataLock):
+			m_DataLock(&DataLock)
+		{
+			m_DataLock->lock();
+		}
+
+		~data_lock_ptr()
+		{
+			m_DataLock->unlock();
+		}
+
+		auto& operator*() const &
+		{
+			return m_DataLock->get();
+		}
+
+		auto const& operator*() const && = delete;
+
+	private:
+		T* m_DataLock;
+	};
+
+	data_lock_ptr<list_data_lock> lock_data() { return data_lock_ptr(m_ListData_DoNotTouchDirectly); }
+	data_lock_ptr<list_data_lock const> lock_data() const { return data_lock_ptr(m_ListData_DoNotTouchDirectly); }
+	bool is_data_locked() const { return m_ListData_DoNotTouchDirectly.locked(); }
+
+	// These should be safe(ish) to call any time
+	bool is_data_empty() const { return m_ListData_DoNotTouchDirectly.get().empty(); }
+	size_t data_size() const { return m_ListData_DoNotTouchDirectly.get().size(); }
+
 	std::list<PrevDataItem> PrevDataList;
 	struct PluginsListItem;
 	std::list<std::shared_ptr<PluginsListItem>> PluginsList;
