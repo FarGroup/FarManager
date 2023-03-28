@@ -92,11 +92,11 @@ enum class Editor::undo_type: char
 enum class Editor::SearchReplaceDisposition
 {
 	Cancel,
-	Up,
-	Down,
+	Prev,
+	Next,
 	All,
-	ContinueUp,
-	ContinueDown,
+	ContinueBackward,
+	ContinueForward,
 };
 
 /* $ 04.11.2003 SKV
@@ -1891,7 +1891,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_SHIFTF7:
 		{
 			TurnOffMarkingBlock();
-			DoSearchReplace(SearchReplaceDisposition::ContinueDown);
+			DoSearchReplace(SearchReplaceDisposition::ContinueForward);
 			return true;
 		}
 
@@ -1899,7 +1899,7 @@ bool Editor::ProcessKeyInternal(const Manager::Key& Key, bool& Refresh)
 		case KEY_RALTF7:
 		{
 			TurnOffMarkingBlock();
-			DoSearchReplace(SearchReplaceDisposition::ContinueUp);
+			DoSearchReplace(SearchReplaceDisposition::ContinueBackward);
 			return true;
 		}
 
@@ -3304,7 +3304,7 @@ Editor::SearchReplaceDisposition Editor::ShowSearchReplaceDialog(const bool Repl
 	switch (GetSearchReplaceString(
 		{
 			.ReplaceMode = ReplaceMode,
-			.ShowButtonsUpDown = true,
+			.ShowButtonsPrevNext = true,
 			.ShowButtonAll = !ReplaceMode,
 		},
 		LastSearchDlgParams,
@@ -3318,13 +3318,13 @@ Editor::SearchReplaceDisposition Editor::ShowSearchReplaceDialog(const bool Repl
 		case SearchReplaceDlgResult::Cancel:
 			return SearchReplaceDisposition::Cancel;
 
-		case SearchReplaceDlgResult::Up:
+		case SearchReplaceDlgResult::Prev:
 			IsReplaceMode = ReplaceMode;
-			return SearchReplaceDisposition::Up;
+			return SearchReplaceDisposition::Prev;
 
-		case SearchReplaceDlgResult::Down:
+		case SearchReplaceDlgResult::Next:
 			IsReplaceMode = ReplaceMode;
-			return SearchReplaceDisposition::Down;
+			return SearchReplaceDisposition::Next;
 
 		case SearchReplaceDlgResult::All:
 			IsReplaceMode = ReplaceMode;
@@ -3392,9 +3392,9 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 
 	IsReplaceAll = false;
 
-	const auto Backward{ Disposition == SearchReplaceDisposition::Up || Disposition == SearchReplaceDisposition::ContinueUp };
+	const auto Backward{ Disposition == SearchReplaceDisposition::Prev || Disposition == SearchReplaceDisposition::ContinueBackward };
 	const auto FindAll{ Disposition == SearchReplaceDisposition::All };
-	const auto Continue{ Disposition == SearchReplaceDisposition::ContinueUp || Disposition == SearchReplaceDisposition::ContinueDown };
+	const auto Continue{ Disposition == SearchReplaceDisposition::ContinueBackward || Disposition == SearchReplaceDisposition::ContinueForward };
 
 	bool MatchFound{}, UserBreak{};
 	std::optional<undo_block> UndoBlock;

@@ -89,6 +89,7 @@ SearchReplaceDlgResult GetSearchReplaceString(
 	const auto HasHex{ Params.Hex.has_value() };
 	const auto HexVal{ Params.Hex.value_or(false) };
 	const auto RexVal{ Params.Regexp.value_or(false) };
+	const auto HasStyle{ Props.ReplaceMode && Params.PreserveStyle.has_value() };
 
 	string SearchForLabel{ msg(lng::MSearchReplaceSearchFor) };
 	if (HasHex) inplace::remove_highlight(SearchForLabel);
@@ -106,6 +107,7 @@ SearchReplaceDlgResult GetSearchReplaceString(
 	const auto SelectionLabelW{ static_cast<int>(HiStrlen(SelectionLabel) + 4) };
 
 	constexpr auto DlgWidth{ 76 };
+	constexpr auto VerticalMidline{ (DlgWidth - 1) / 2 };
 	constexpr auto HorizontalRadioGap{ 2 };
 
 	const auto SearchForX1{ 4 + 1 };                                        const auto SearchForX2{ SearchForX1 + SearchForLabelW };
@@ -128,9 +130,9 @@ SearchReplaceDlgResult GetSearchReplaceString(
 
 	const auto& ActionButtonLabel{ msg(
 		Props.ReplaceMode
-		? (Props.ShowButtonsUpDown ? lng::MSearchReplaceReplaceDown : lng::MSearchReplaceReplace)
-		: (Props.ShowButtonsUpDown ? lng::MSearchReplaceSearchDown : lng::MSearchReplaceSearch)) };
-	const auto& SearchReplaceUpLabel{ msg(Props.ReplaceMode ? lng::MSearchReplaceReplaceUp : lng::MSearchReplaceSearchUp) };
+		? (Props.ShowButtonsPrevNext ? lng::MSearchReplaceReplaceNext : lng::MSearchReplaceReplace)
+		: (Props.ShowButtonsPrevNext ? lng::MSearchReplaceFindNext : lng::MSearchReplaceFind)) };
+	const auto& FindReplacePrevLabel{ msg(Props.ReplaceMode ? lng::MSearchReplaceReplacePrev : lng::MSearchReplaceFindPrev) };
 
 	enum item_id
 	{
@@ -151,8 +153,10 @@ SearchReplaceDlgResult GetSearchReplaceString(
 		dlg_checkbox_regex,
 		dlg_checkbox_style,
 		dlg_separator_2,
+		dlg_separator_v,
+		dlg_separator_h,
 		dlg_button_action,
-		dlg_button_up,
+		dlg_button_prev,
 		dlg_button_all,
 		dlg_button_cancel,
 
@@ -175,11 +179,13 @@ SearchReplaceDlgResult GetSearchReplaceString(
 		{ DI_CHECKBOX,    {{5,                 7-YFix }, {0,                 7-YFix }}, DIF_NONE, msg(lng::MSearchReplaceCase), },
 		{ DI_CHECKBOX,    {{5,                 8-YFix }, {0,                 8-YFix }}, DIF_NONE, msg(lng::MSearchReplaceWholeWords), },
 		{ DI_CHECKBOX,    {{5,                 9-YFix }, {0,                 9-YFix }}, DIF_NONE, msg(lng::MSearchReplaceFuzzy), },
-		{ DI_CHECKBOX,    {{40,                7-YFix }, {0,                 7-YFix }}, DIF_NONE, msg(lng::MSearchReplaceRegexp), },
-		{ DI_CHECKBOX,    {{40,                9-YFix }, {0,                 9-YFix }}, DIF_NONE, msg(lng::MSearchReplacePreserveStyle), },
+		{ DI_CHECKBOX,    {{VerticalMidline+2, 7-YFix }, {0,                 7-YFix }}, DIF_NONE, msg(lng::MSearchReplaceRegexp), },
+		{ DI_CHECKBOX,    {{VerticalMidline+2, 9-YFix }, {0,                 9-YFix }}, DIF_NONE, msg(lng::MSearchReplacePreserveStyle), },
 		{ DI_TEXT,        {{-1,                10-YFix}, {0,                 10-YFix}}, DIF_SEPARATOR, },
+		{ DI_VTEXT,       {{VerticalMidline,   6-YFix }, {VerticalMidline,   10-YFix}}, DIF_SEPARATORUSER, },
+		{ DI_TEXT,        {{VerticalMidline,   8-YFix }, {DlgWidth-4,        8-YFix }}, DIF_SEPARATORUSER, },
 		{ DI_BUTTON,      {{0,                 11-YFix}, {0,                 11-YFix}}, DIF_CENTERGROUP | DIF_DEFAULTBUTTON, ActionButtonLabel, },
-		{ DI_BUTTON,      {{0,                 11-YFix}, {0,                 11-YFix}}, DIF_CENTERGROUP, SearchReplaceUpLabel, },
+		{ DI_BUTTON,      {{0,                 11-YFix}, {0,                 11-YFix}}, DIF_CENTERGROUP, FindReplacePrevLabel, },
 		{ DI_BUTTON,      {{0,                 11-YFix}, {0,                 11-YFix}}, DIF_CENTERGROUP, msg(lng::MSearchReplaceAll), },
 		{ DI_BUTTON,      {{0,                 11-YFix}, {0,                 11-YFix}}, DIF_CENTERGROUP, msg(lng::MSearchReplaceCancel), },
 	});
@@ -188,12 +194,14 @@ SearchReplaceDlgResult GetSearchReplaceString(
 	const auto SetSelected{ [&](const item_id Item, const bool Selected) { DlgItems[Item].Selected = Selected; } };
 	const auto SetStringIf{ [&](const item_id Item, const string_view String, const bool Condition) { if (Condition) DlgItems[Item].strData = String; } };
 	const auto SetHistory{ [&](const item_id Item, const string_view History) { DlgItems[Item].strHistory = History; } };
-	const auto SetMaskIf{ [&](const item_id Item, const bool Condition)
+	const auto SetMask{ [&](const item_id Item, string&& Mask) { DlgItems[Item].strMask = std::move(Mask); } };
+	const auto SetMaskIf{ [&](const item_id Item, const bool Condition, string&& Mask) { if (Condition) SetMask(Item, std::move(Mask)); } };
+
+	const auto HexMask{ []()
 	{
-		if (!Condition) return;
-		auto& HexMask{ DlgItems[Item].strMask };
-		HexMask.assign(64 * 3 - 1, 'H');
+		string HexMask(64 * 3 - 1, L'H');
 		for (size_t i{ 2 }; i < HexMask.size(); i += 3) HexMask[i] = L' '; // "HH HH ... HH"
+		return HexMask;
 	} };
 
 	// dlg_radio_text
@@ -222,7 +230,7 @@ SearchReplaceDlgResult GetSearchReplaceString(
 	SetFlagIf(dlg_edit_search_hex, DIF_HIDDEN, !HexVal);
 	SetFlagIf(dlg_edit_search_hex, DIF_FOCUS, HexVal);
 	SetStringIf(dlg_edit_search_hex, Params.SearchStr, HexVal);
-	SetMaskIf(dlg_edit_search_hex, HasHex);
+	SetMaskIf(dlg_edit_search_hex, HasHex, HexMask());
 
 	// dlg_label_replace
 	SetFlagIf(dlg_label_replace, DIF_HIDDEN, !Props.ReplaceMode);
@@ -249,11 +257,18 @@ SearchReplaceDlgResult GetSearchReplaceString(
 	SetSelected(dlg_checkbox_fuzzy, Params.Fuzzy.value_or(false));
 
 	// dlg_checkbox_style
-	SetFlagIf(dlg_checkbox_style, DIF_HIDDEN, !Props.ReplaceMode || !Params.PreserveStyle.has_value());
+	SetFlagIf(dlg_checkbox_style, DIF_HIDDEN, !HasStyle);
 	SetSelected(dlg_checkbox_style, Params.PreserveStyle.value_or(false));
 
-	// dlg_button_search_up == dlg_button_replace_up
-	SetFlagIf(dlg_button_up, DIF_HIDDEN, !Props.ShowButtonsUpDown);
+	// dlg_separator_v
+	SetMask(dlg_separator_v, { BoxSymbols[BS_T_H1V1], BoxSymbols[BS_V1], BoxSymbols[BS_B_H1V1] });
+
+	// dlg_separator_h
+	SetFlagIf(dlg_separator_h, DIF_HIDDEN, !HasStyle);
+	SetMaskIf(dlg_separator_h, HasStyle, { BoxSymbols[BS_L_H1V1], BoxSymbols[BS_H1], BoxSymbols[BS_R_H1V2] });
+
+	// dlg_button_find_prev == dlg_button_replace_prev
+	SetFlagIf(dlg_button_prev, DIF_HIDDEN, !Props.ShowButtonsPrevNext);
 
 	// dlg_button_all
 	SetFlagIf(dlg_button_all, DIF_HIDDEN, !Props.ShowButtonAll);
@@ -391,8 +406,8 @@ SearchReplaceDlgResult GetSearchReplaceString(
 
 	switch (ExitCode)
 	{
-	case dlg_button_action: return Props.ShowButtonsUpDown ? SearchReplaceDlgResult::Down : SearchReplaceDlgResult::Ok;
-	case dlg_button_up:     return SearchReplaceDlgResult::Up;
+	case dlg_button_action: return Props.ShowButtonsPrevNext ? SearchReplaceDlgResult::Next : SearchReplaceDlgResult::Ok;
+	case dlg_button_prev:   return SearchReplaceDlgResult::Prev;
 	case dlg_button_all:    return SearchReplaceDlgResult::All;
 	default:                UNREACHABLE;
 	}
