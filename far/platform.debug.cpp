@@ -103,6 +103,56 @@ namespace os::debug
 		return Name.get();
 	}
 
+	static void** dummy_current_exception(NTSTATUS const Code)
+	{
+		static EXCEPTION_RECORD DummyRecord{ static_cast<DWORD>(Code) };
+		static void* DummyRecordPtr = &DummyRecord;
+		return &DummyRecordPtr;
+	}
+
+	static void** dummy_current_exception_context()
+	{
+		static CONTEXT DummyContext{};
+		static void* DummyContextPtr = &DummyContext;
+		return &DummyContextPtr;
+	}
+
+#if IS_MICROSOFT_SDK()
+	extern "C" void** __current_exception();
+	extern "C" void** __current_exception_context();
+#else
+	static void** __current_exception()
+	{
+		return dummy_current_exception(EH_EXCEPTION_NUMBER);
+	}
+
+	static void** __current_exception_context()
+	{
+		return dummy_current_exception_context();
+	}
+#endif
+
+	EXCEPTION_POINTERS exception_information()
+	{
+		if (!std::current_exception())
+			return {};
+
+		return
+		{
+			static_cast<EXCEPTION_RECORD*>(*__current_exception()),
+			static_cast<CONTEXT*>(*__current_exception_context())
+		};
+	}
+
+	EXCEPTION_POINTERS fake_exception_information(unsigned const Code)
+	{
+		return
+		{
+			static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(Code)),
+			static_cast<CONTEXT*>(*dummy_current_exception_context())
+		};
+	}
+
 	std::vector<stack_frame> current_stacktrace(size_t const FramesToSkip, size_t const FramesToCapture)
 	{
 		if (!imports.RtlCaptureStackBackTrace)
@@ -279,6 +329,15 @@ namespace os::debug
 		}
 
 		return Result;
+	}
+
+	std::vector<stack_frame> exception_stacktrace()
+	{
+		if (!std::current_exception())
+			return {};
+
+		const auto ExceptionInformation = exception_information();
+		return stacktrace(*ExceptionInformation.ContextRecord, GetCurrentThread());
 	}
 
 	bool is_inline_frame(DWORD const InlineContext)

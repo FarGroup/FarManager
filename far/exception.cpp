@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "encoding.hpp"
 #include "log.hpp"
+#include "tracer.hpp"
 
 // Platform:
 #include "platform.debug.hpp"
@@ -90,6 +91,18 @@ string error_state_ex::system_error() const
 	return UseNtMessages? NtErrorStr() : Win32ErrorStr();
 }
 
+static auto with_exception_stacktrace(string_view const Str)
+{
+	string Result;
+
+	tracer.exception_stacktrace({}, [&](string_view const Line)
+	{
+		append(Result, Line, L'\n');
+	});
+
+	return Result.empty()? string(Str) : concat(Str, L"\n\n"sv, Result);
+}
+
 string error_state_ex::to_string() const
 {
 	if (any())
@@ -98,13 +111,18 @@ string error_state_ex::to_string() const
 		if (Errno)
 			Str = concat(ErrnoStr(), L", "sv, Str);
 
-		return format(FSTR(L"Message: {}, Error: {}"sv), What, Str);
+		return with_exception_stacktrace(format(FSTR(L"Message: {}, Error: {}"sv), What, Str));
 	}
 
-	return format(FSTR(L"Message: {}"sv), What);
+	return with_exception_stacktrace(format(FSTR(L"Message: {}"sv), What));
 }
 
 string formattable<std::exception>::to_string(std::exception const& e)
 {
-	return ::format(FSTR(L"std::exception: {}"sv), encoding::utf8::get_chars(e.what()));
+	return with_exception_stacktrace(::format(FSTR(L"std::exception: {}"sv), encoding::utf8::get_chars(e.what())));
+}
+
+string unknown_exception_t::to_string()
+{
+	return with_exception_stacktrace(L"Unknown exception"sv);
 }

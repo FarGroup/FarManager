@@ -178,7 +178,7 @@ static constexpr NTSTATUS make_far_ntstatus(uint16_t const Number)
 }
 
 static constexpr NTSTATUS
-	EH_EXCEPTION_NUMBER           = 0xE06D7363, // 'msc'
+	EH_EXCEPTION_NUMBER           = os::debug::EH_EXCEPTION_NUMBER,
 	EH_CLR_EXCEPTION              = 0xE0434352, // 'CCR'
 	EH_SANITIZER                  = 0xE073616E, // 'san'
 	EH_SANITIZER_ASAN             = EH_SANITIZER + 1,
@@ -210,7 +210,7 @@ static void get_backtrace(string_view const Module, span<os::debug::stack_frame 
 	tracer.get_symbols(Module, Stack, Consumer);
 
 	make_header(L"Exception handler stack"sv, Consumer);
-	tracer.get_symbols(Module, os::debug::current_stacktrace(), Consumer);
+	tracer.current_stacktrace(Module, Consumer);
 }
 
 static string get_report_location()
@@ -1215,6 +1215,8 @@ static string collect_information(
 		{ L"Uptime:   "sv, Uptime,        },
 	};
 
+	const auto Stack = tracer.stacktrace(ModuleName, Context.context_record(), Context.thread_handle());
+
 	const auto log_message = [&]
 	{
 		auto LogMessage = join(L"\n"sv, select(BasicInfo, [](auto const& Pair)
@@ -1224,7 +1226,7 @@ static string collect_information(
 
 		LogMessage += L"\n\n"sv;
 
-		get_backtrace(ModuleName, tracer.get(ModuleName, Context.context_record(), Context.thread_handle()), NestedStack, [&](string_view const Line)
+		get_backtrace(ModuleName, Stack, NestedStack, [&](string_view const Line)
 		{
 			append(LogMessage, Line, L'\n');
 		});
@@ -1245,7 +1247,6 @@ static string collect_information(
 		append_line(ExtraDetails);
 	}
 
-	const auto Stack = tracer.get(ModuleName, Context.context_record(), Context.thread_handle());
 	get_backtrace(ModuleName, Stack, NestedStack, append_line);
 
 	{
@@ -1280,7 +1281,7 @@ static string collect_information(
 				if (!GetThreadContext(Thread.native_handle(), &ThreadContext))
 					continue;
 
-				tracer.get_symbols(ModuleName, tracer.get(ModuleName, ThreadContext, Thread.native_handle()), append_line);
+				tracer.stacktrace(ModuleName, append_line, ThreadContext, Thread.native_handle());
 			}
 		}
 	}
@@ -1393,54 +1394,13 @@ void restore_system_exception_handler()
 	os::unset_error_mode(SEM_NOGPFAULTERRORBOX);
 }
 
-static void** dummy_current_exception(NTSTATUS const Code)
-{
-	static EXCEPTION_RECORD DummyRecord{ static_cast<DWORD>(Code) };
-	static void* DummyRecordPtr = &DummyRecord;
-	return &DummyRecordPtr;
-}
-
-static void** dummy_current_exception_context()
-{
-	static CONTEXT DummyContext{};
-	static void* DummyContextPtr = &DummyContext;
-	return &DummyContextPtr;
-}
-
-#if IS_MICROSOFT_SDK()
-extern "C" void** __current_exception();
-extern "C" void** __current_exception_context();
-#else
-static void** __current_exception()
-{
-	return dummy_current_exception(EH_EXCEPTION_NUMBER);
-}
-
-static void** __current_exception_context()
-{
-	return dummy_current_exception_context();
-}
-#endif
-
-static EXCEPTION_POINTERS exception_information()
-{
-	if (!std::current_exception())
-		return {};
-
-	return
-	{
-		static_cast<EXCEPTION_RECORD*>(*__current_exception()),
-		static_cast<CONTEXT*>(*__current_exception_context())
-	};
-}
-
 class far_wrapper_exception final: public far_exception, public std::nested_exception
 {
 public:
 	far_wrapper_exception(std::string_view const Function, std::string_view const File, int const Line):
 		far_exception(true, L"exception_ptr"sv, Function, File, Line),
 		m_ThreadHandle(std::make_shared<os::handle>(os::OpenCurrentThread())),
-		m_Stack(tracer.get({}, *exception_information().ContextRecord, m_ThreadHandle->native_handle()))
+		m_Stack(tracer.exception_stacktrace({}))
 	{
 	}
 
@@ -1499,13 +1459,13 @@ static std::pair<string, string> extract_nested_exceptions(EXCEPTION_RECORD cons
 	}
 	catch (std::exception const& e)
 	{
-		const auto& [NestedObjectType, NestedWhat] = extract_nested_exceptions(*exception_information().ExceptionRecord, e, false);
+		const auto& [NestedObjectType, NestedWhat] = extract_nested_exceptions(*os::debug::exception_information().ExceptionRecord, e, false);
 		ObjectType = concat(NestedObjectType, L" -> "sv, ObjectType);
 		What = concat(NestedWhat, L" -> "sv, What);
 	}
 	catch (...)
 	{
-		auto NestedObjectType = ExtractObjectType(*exception_information().ExceptionRecord);
+		auto NestedObjectType = ExtractObjectType(*os::debug::exception_information().ExceptionRecord);
 		if (NestedObjectType.empty())
 			NestedObjectType = L"Unknown"sv;
 
@@ -1542,7 +1502,7 @@ static bool handle_std_exception(
 
 bool handle_std_exception(const std::exception& e, std::string_view const Function, const Plugin* const Module)
 {
-	return handle_std_exception(exception_context(exception_information()), e, Function, Module);
+	return handle_std_exception(exception_context(os::debug::exception_information()), e, Function, Module);
 }
 
 class seh_exception::seh_exception_impl
@@ -1623,7 +1583,7 @@ static bool handle_seh_exception(
 
 bool handle_unknown_exception(std::string_view const Function, const Plugin* const Module)
 {
-	return handle_seh_exception(exception_context(exception_information()), Function, Module);
+	return handle_seh_exception(exception_context(os::debug::exception_information()), Function, Module);
 }
 
 bool use_terminate_handler()
@@ -1643,7 +1603,7 @@ static void seh_abort_handler_impl()
 	InsideHandler = true;
 
 	// If it's a SEH or a C++ exception implemented in terms of SEH (and not a fake for GCC) it's better to handle it as SEH
-	if (const auto Info = exception_information(); Info.ContextRecord && Info.ExceptionRecord && !is_fake_cpp_exception(*Info.ExceptionRecord))
+	if (const auto Info = os::debug::exception_information(); Info.ContextRecord && Info.ExceptionRecord && !is_fake_cpp_exception(*Info.ExceptionRecord))
 	{
 		if (handle_seh_exception(exception_context(Info), CURRENT_FUNCTION_NAME, {}))
 			os::process::terminate_by_user();
@@ -1669,12 +1629,7 @@ static void seh_abort_handler_impl()
 	}
 
 	// No exception in flight, must be a direct call
-	exception_context const Context
-	({
-		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(STATUS_FAR_ABORT)),
-		static_cast<CONTEXT*>(*dummy_current_exception_context())
-	});
-
+	exception_context const Context{ os::debug::fake_exception_information(STATUS_FAR_ABORT) };
 	error_state_ex const LastError{ os::last_error(), {}, errno };
 
 	if (handle_generic_exception(Context, CURRENT_FUNCTION_NAME, {}, {}, {}, L"Abnormal termination"sv, LastError))
@@ -1753,12 +1708,7 @@ static void invalid_parameter_handler_impl(const wchar_t* const Expression, cons
 
 	InsideHandler = true;
 
-	exception_context const Context
-	({
-		static_cast<EXCEPTION_RECORD*>(*dummy_current_exception(STATUS_FAR_ABORT)),
-		static_cast<CONTEXT*>(*dummy_current_exception_context())
-	});
-
+	exception_context const Context{ os::debug::fake_exception_information(STATUS_FAR_ABORT) };
 	error_state_ex const LastError{ os::last_error(), {}, errno };
 
 	if (handle_generic_exception(

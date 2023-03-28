@@ -281,9 +281,9 @@ SearchReplaceDlgResult GetSearchReplaceString(
 
 					if (NewHex != OldHex)
 					{
-						const auto OldStr{ view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, OldEdit, nullptr)) };
-						const auto NewStr{ ConvertHexString(OldStr, CodePage, !NewHex) };
-						Dlg->SendMessage(DM_SETTEXTPTR, NewEdit, UNSAFE_CSTR(NewStr));
+						const auto NewStr = ConvertHexString(get_dialog_item_text(Dlg, OldEdit), CodePage, !NewHex);
+						set_dialog_item_text(Dlg, NewEdit, NewStr);
+
 						if (!NewStr.empty())
 						{
 							const auto Unchanged{ static_cast<int>(Dlg->SendMessage(DM_EDITUNCHANGEDFLAG, OldEdit, ToPtr(-1))) };
@@ -395,7 +395,7 @@ SearchReplaceDlgResult GetSearchReplaceString(
 	case dlg_button_up:     return SearchReplaceDlgResult::Up;
 	case dlg_button_all:    return SearchReplaceDlgResult::All;
 	default:                UNREACHABLE;
-	};
+	}
 }
 
 bool GetString(

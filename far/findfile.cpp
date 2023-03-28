@@ -839,9 +839,10 @@ intptr_t FindFiles::MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					if (NewHex != m_IsHexActive)
 					{
 						m_IsHexActive = NewHex;
-						const auto Src = view_as<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, NewHex ? FAD_EDIT_TEXT : FAD_EDIT_HEX, nullptr));
-						const auto strDataStr = ConvertHexString(Src, CodePage, !NewHex);
-						Dlg->SendMessage(DM_SETTEXTPTR, NewHex ? FAD_EDIT_HEX : FAD_EDIT_TEXT, UNSAFE_CSTR(strDataStr));
+
+						const auto strDataStr = ConvertHexString(get_dialog_item_text(Dlg, NewHex? FAD_EDIT_TEXT : FAD_EDIT_HEX), CodePage, !NewHex);
+						set_dialog_item_text(Dlg, NewHex? FAD_EDIT_HEX : FAD_EDIT_TEXT, strDataStr);
+
 						Dlg->SendMessage(DM_SHOWITEM, FAD_EDIT_TEXT, ToPtr(!NewHex));
 						Dlg->SendMessage(DM_SHOWITEM, FAD_EDIT_HEX, ToPtr(NewHex));
 						Dlg->SendMessage(DM_ENABLE, FAD_TEXT_CP, ToPtr(!NewHex));

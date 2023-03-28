@@ -6103,3 +6103,27 @@ Dialog::suppress_redraw::~suppress_redraw()
 {
 	m_Dlg->SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 }
+
+string_view get_dialog_item_text(Dialog* const Dlg, int const Id)
+{
+	FarDialogItemData Item{ sizeof(Item) };
+	Dlg->SendMessage(DM_GETTEXT, Id, &Item);
+
+	return
+	{
+		reinterpret_cast<const wchar_t*>(Dlg->SendMessage(DM_GETCONSTTEXTPTR, Id, {})),
+		Item.PtrLength
+	};
+}
+
+void set_dialog_item_text(Dialog* const Dlg, int const Id, string_view const Text)
+{
+	FarDialogItemData Item
+	{
+		sizeof(Item),
+		Text.size(),
+		const_cast<wchar_t*>(Text.data())
+	};
+
+	Dlg->SendMessage(DM_SETTEXT, Id, &Item);
+}

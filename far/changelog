@@ -1,4 +1,32 @@
 --------------------------------------------------------------------------------
+drkns 2023-03-27 22:35:19+01:00 - build 6121
+
+1. gh-663: Fix text <-> hex conversions in Viewer and Find File.
+
+--------------------------------------------------------------------------------
+drkns 2023-03-27 18:19:56+01:00 - build 6120
+
+1. New versions of fmt, tinyxml2, Catch2.
+
+2. Refactoring.
+
+3. Make unit tests runnable from IDE.
+
+--------------------------------------------------------------------------------
+MZK 2023-03-26 11:56:52-07:00 - build 6119
+
+1. gh-542: Editor Search (plain text): Shift+F7 / Alt+F7 now finds the nearest match,
+   even if it overlaps with the last found match.
+
+2. gh-660: Editor Search (regex): Shift+F7 in cursor-at-the-end mode now continues
+   from the next character.
+
+--------------------------------------------------------------------------------
+skipik 2023-03-22 17:19:19+03:00 - build 6118
+
+1. SQLite v3.41.2.
+
+--------------------------------------------------------------------------------
 Yegor 2023-03-11 14:11:00-08:00 - build 6117
 
 1. Fixed the rendering of the mark char if its length or visual length exceeds 1 char

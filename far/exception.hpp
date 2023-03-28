@@ -153,4 +153,10 @@ struct formattable<std::exception>
 	static string to_string(std::exception const& e);
 };
 
+constexpr inline struct unknown_exception_t
+{
+	static string to_string();
+}
+unknown_exception;
+
 #endif // EXCEPTION_HPP_2CD5B7D1_D39C_4CAF_858A_62496C9221DF

@@ -95,13 +95,6 @@ tracer_detail::tracer::tracer():
 
 tracer_detail::tracer::~tracer() = default;
 
-std::vector<os::debug::stack_frame> tracer_detail::tracer::get(string_view const Module, CONTEXT const& ContextRecord, HANDLE ThreadHandle)
-{
-	SCOPED_ACTION(with_symbols)(Module);
-
-	return os::debug::stacktrace(ContextRecord, ThreadHandle);
-}
-
 void tracer_detail::tracer::get_symbols(string_view const Module, span<os::debug::stack_frame const> const Trace, function_ref<void(string&& Line)> const Consumer) const
 {
 	SCOPED_ACTION(with_symbols)(Module);
@@ -143,6 +136,48 @@ void tracer_detail::tracer::get_symbol(string_view const Module, const void* Ptr
 			Source.clear();
 		}
 	});
+}
+
+std::vector<os::debug::stack_frame> tracer_detail::tracer::current_stacktrace(string_view const Module, size_t const FramesToSkip, size_t const FramesToCapture) const
+{
+	SCOPED_ACTION(with_symbols)(Module);
+
+	return os::debug::current_stacktrace(FramesToSkip, FramesToCapture);
+}
+
+std::vector<os::debug::stack_frame> tracer_detail::tracer::stacktrace(string_view const Module, CONTEXT const ContextRecord, HANDLE const ThreadHandle) const
+{
+	SCOPED_ACTION(with_symbols)(Module);
+
+	return os::debug::stacktrace(ContextRecord, ThreadHandle);
+}
+
+std::vector<os::debug::stack_frame> tracer_detail::tracer::exception_stacktrace(string_view const Module) const
+{
+	SCOPED_ACTION(with_symbols)(Module);
+
+	return os::debug::exception_stacktrace();
+}
+
+void tracer_detail::tracer::current_stacktrace(string_view Module, function_ref<void(string&& Line)> const Consumer, size_t const FramesToSkip, size_t const FramesToCapture) const
+{
+	SCOPED_ACTION(with_symbols)(Module);
+
+	return get_symbols(Module, os::debug::current_stacktrace(FramesToSkip, FramesToCapture), Consumer);
+}
+
+void tracer_detail::tracer::stacktrace(string_view Module, function_ref<void(string&& Line)> const Consumer, CONTEXT const ContextRecord, HANDLE const ThreadHandle) const
+{
+	SCOPED_ACTION(with_symbols)(Module);
+
+	return get_symbols(Module, os::debug::stacktrace(ContextRecord, ThreadHandle), Consumer);
+}
+
+void tracer_detail::tracer::exception_stacktrace(string_view Module, function_ref<void(string&& Line)> const Consumer) const
+{
+	SCOPED_ACTION(with_symbols)(Module);
+
+	return get_symbols(Module, os::debug::exception_stacktrace(), Consumer);
 }
 
 void tracer_detail::tracer::sym_initialise(string_view Module)

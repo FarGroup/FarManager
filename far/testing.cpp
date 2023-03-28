@@ -69,10 +69,32 @@ std::string generic_exception_matcher::describe() const
 	return "Generic matcher"s;
 }
 
-
-std::optional<int> testing_main(int const Argc, wchar_t const* const Argv[])
+static bool is_ui_test_run(std::span<wchar_t const* const> const Args)
 {
-	const auto IsBuildStep = Argc > 1 && Argv[1] == L"/service:test"sv;
+	// Heuristics to make it work with various VS test adapters
+	for (auto It = Args.begin(); It != Args.end(); ++It)
+	{
+		if (
+			*It == L"--libidentify"sv ||
+			*It == L"--list-test-names"sv ||
+			*It == L"--list-test-names-only"sv ||
+			(
+				(*It == L"-r"sv || *It == L"--reporter"sv) &&
+				It + 1 != Args.end() && *(It + 1) == L"xml"sv
+			)
+		)
+			return true;
+	}
+
+	return false;
+}
+
+std::optional<int> testing_main(std::span<wchar_t const* const> const Args)
+{
+	if (is_ui_test_run(Args.subspan(1)))
+		return Catch::Session().run(static_cast<int>(Args.size()), Args.data());
+
+	const auto IsBuildStep = Args.size() > 1 && Args[1] == L"/service:test"sv;
 
 	if constexpr (DebugTests)
 	{
@@ -82,7 +104,7 @@ std::optional<int> testing_main(int const Argc, wchar_t const* const Argv[])
 			return EXIT_SUCCESS;
 		}
 
-		if (Argc == 3 && logging::is_log_argument(Argv[1]))
+		if (Args.size() == 3 && logging::is_log_argument(Args[1]))
 			return {};
 	}
 	else
@@ -91,25 +113,25 @@ std::optional<int> testing_main(int const Argc, wchar_t const* const Argv[])
 			return {};
 	}
 
-	std::vector<const wchar_t*> Args;
+	std::vector<const wchar_t*> NewArgs;
 
 	if (IsBuildStep)
 	{
-		Args.reserve(Argc - 1);
-		Args.emplace_back(Argv[0]);
-		Args.insert(Args.end(), Argv + 2, Argv + Argc);
+		NewArgs.reserve(Args.size() - 1);
+		NewArgs.emplace_back(Args[0]);
+		NewArgs.insert(NewArgs.end(), Args.begin() + 2, Args.end());
 	}
 	else
 	{
-		Args.reserve(Argc + 1);
-		Args.assign(Argv, Argv + Argc);
-		Args.emplace_back(L"--break");
+		NewArgs.reserve(Args.size() + 1);
+		NewArgs.assign(ALL_CONST_RANGE(Args));
+		NewArgs.emplace_back(L"--break");
 
 		if (DebugTests)
-			Args.emplace_back(L"--wait-for-keypress exit");
+			NewArgs.emplace_back(L"--wait-for-keypress exit");
 	}
 
-	return Catch::Session().run(static_cast<int>(Args.size()), Args.data());
+	return Catch::Session().run(static_cast<int>(NewArgs.size()), NewArgs.data());
 }
 
 namespace

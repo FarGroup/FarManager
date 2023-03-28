@@ -43,25 +43,35 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 WARNING_PUSH()
 
-WARNING_DISABLE_MSC(5204) // 'class': class has virtual functions, but its trivial destructor is not virtual; instances of objects derived from this class may not be destructed correctly
+WARNING_DISABLE_MSC(4459) // declaration of 'identifier' hides global declaration
+WARNING_DISABLE_MSC(4800) // Implicit conversion from 'type' to bool. Possible information loss
+WARNING_DISABLE_MSC(5220) // 'name': a non-static data member with a volatile qualified type no longer implies that compiler generated copy/move constructors and copy/move assignment operators are not trivial
+WARNING_DISABLE_GCC("-Wctor-dtor-privacy")
+WARNING_DISABLE_GCC("-Wdouble-promotion")
+WARNING_DISABLE_GCC("-Wredundant-decls")
+WARNING_DISABLE_GCC("-Wsubobject-linkage")
 WARNING_DISABLE_CLANG("-Weverything")
 
+#define CATCH_AMALGAMATED_CUSTOM_MAIN
 #define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS
 // It's rubbish
 #define CATCH_CONFIG_NO_WINDOWS_SEH
 
-#include "thirdparty/catch2/catch.hpp"
+#include "thirdparty/catch2/catch_amalgamated.hpp"
+#ifdef CATCH_CONFIG_RUNNER
+#include "thirdparty/catch2/catch_amalgamated.cpp"
+#endif
 
 WARNING_POP()
 
 #include "disable_warnings_in_std_end.hpp"
 
-class generic_exception_matcher: public Catch::MatcherBase<std::any>
+class generic_exception_matcher: public Catch::Matchers::MatcherGenericBase
 {
 public:
 	explicit generic_exception_matcher(std::function<bool(std::any const&)> Matcher);
 
-	bool match(std::any const& e) const override;
+	bool match(std::any const& e) const;
 	std::string describe() const override;
 
 private:
@@ -78,7 +88,7 @@ private:
 
 #endif
 
-std::optional<int> testing_main(int Argc, wchar_t const* const Argv[]);
+std::optional<int> testing_main(std::span<wchar_t const* const> Args);
 
 #endif
 
