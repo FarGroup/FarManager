@@ -504,15 +504,7 @@ public:
 private:
 	listener m_Listener{ listener::scope{L"FileList"sv}, [this]
 	{
-		if (Global->WindowManager->IsPanelsActive() && m_Owner->IsVisible())
-		{
-			m_Owner->UpdateIfChanged(true);
-			m_Owner->Redraw();
-		}
-		else
-		{
-			m_Owner->m_UpdatePending = true;
-		}
+		m_Owner->background_update();
 	}};
 
 	FileList* m_Owner;
@@ -550,6 +542,9 @@ FileList::~FileList()
 	FileList::StopFSWatcher();
 
 	FileList::ClearAllItem();
+
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
 
 	m_ListData.clear();
 }
@@ -600,13 +595,13 @@ void FileList::ToBegin()
 
 void FileList::ToEnd()
 {
-	m_CurFile = m_ListData.empty()? 0 : static_cast<int>(m_ListData.size() - 1);
+	m_CurFile = is_data_empty()? 0 : static_cast<int>(data_size() - 1);
 	ShowFileList();
 }
 
 void FileList::MoveCursor(int offset)
 {
-	m_CurFile = m_ListData.empty()? 0 : std::clamp(m_CurFile + offset, 0, static_cast<int>(m_ListData.size() - 1));
+	m_CurFile = is_data_empty()? 0 : std::clamp(m_CurFile + offset, 0, static_cast<int>(data_size() - 1));
 }
 
 void FileList::MoveCursorAndShow(int offset)
@@ -623,26 +618,19 @@ void FileList::Scroll(int offset)
 
 void FileList::CorrectPosition()
 {
-	if (m_ListData.empty())
+	if (is_data_empty())
 	{
 		m_CurFile=m_CurTopFile=0;
 		return;
 	}
 
-	if (m_CurTopFile+m_Stripes*m_Height > static_cast<int>(m_ListData.size()))
-		m_CurTopFile = static_cast<int>(m_ListData.size() - m_Stripes * m_Height);
+	const auto DataSize = static_cast<int>(data_size());
 
-	if (m_CurFile<0)
-		m_CurFile=0;
+	if (m_CurTopFile + m_Stripes * m_Height > DataSize)
+		m_CurTopFile = DataSize - m_Stripes * m_Height;
 
-	if (m_CurFile > static_cast<int>(m_ListData.size() - 1))
-		m_CurFile = static_cast<int>(m_ListData.size() - 1);
-
-	if (m_CurTopFile<0)
-		m_CurTopFile=0;
-
-	if (m_CurTopFile > static_cast<int>(m_ListData.size() - 1))
-		m_CurTopFile = static_cast<int>(m_ListData.size() - 1);
+	m_CurFile = std::clamp(m_CurFile, 0, DataSize - 1);
+	m_CurTopFile = std::clamp(m_CurTopFile, 0, DataSize - 1);
 
 	if (m_CurFile<m_CurTopFile)
 		m_CurTopFile=m_CurFile;
@@ -816,8 +804,11 @@ private:
 
 void FileList::SortFileList(bool KeepPosition)
 {
-	if (m_ListData.empty() || m_InsideGetFindData)
+	if (is_data_empty() || m_InsideGetFindData)
 		return;
+
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
 
 	string strCurName;
 
@@ -931,7 +922,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 		return IsRootPath(m_CurDir)? 1 : equal_icase(m_CurDir, GetPathRoot(m_CurDir));
 
 	case MCODE_C_EOF:
-		return m_CurFile == static_cast<int>(m_ListData.size() - 1);
+		return m_CurFile == static_cast<int>(data_size() - 1);
 
 	case MCODE_C_BOF:
 		return !m_CurFile;
@@ -940,7 +931,7 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 		return GetRealSelCount() != 0;
 
 	case MCODE_V_ITEMCOUNT:
-		return m_ListData.size();
+		return data_size();
 
 	case MCODE_V_CURPOS:
 		return m_CurFile + 1;
@@ -977,10 +968,10 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 			long long Result=-1;
 			const auto mps = static_cast<const MacroPanelSelect*>(vParam);
 
-			if (m_ListData.empty())
+			if (is_data_empty())
 				return Result;
 
-			if (mps->Mode == 1 && static_cast<size_t>(mps->Index) >= m_ListData.size())
+			if (mps->Mode == 1 && static_cast<size_t>(mps->Index) >= data_size())
 				return Result;
 
 			const auto ApplyToList = [&](const auto& Selector)
@@ -1014,6 +1005,9 @@ long long FileList::VMProcess(int OpCode,void *vParam,long long iParam)
 				list_names,
 				list_masks,
 			};
+
+			const auto DataLock = lock_data();
+			auto& m_ListData = *DataLock;
 
 			switch (static_cast<ps_action>(mps->Action))
 			{
@@ -1304,19 +1298,24 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			return true;
 
 		case KEY_SHIFTADD:
-			SaveSelection();
-
-			for (auto& i: m_ListData)
 			{
-				if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY) || Global->Opt->SelectFolders)
-					Select(i, true);
+				SaveSelection();
+
+				const auto DataLock = lock_data();
+				auto& m_ListData = *DataLock;
+
+				for (auto& i : m_ListData)
+				{
+					if (!(i.Attributes & FILE_ATTRIBUTE_DIRECTORY) || Global->Opt->SelectFolders)
+						Select(i, true);
+				}
+
+				if (SelectedFirst)
+					SortFileList(true);
+
+				Redraw();
+				return true;
 			}
-
-			if (SelectedFirst)
-				SortFileList(true);
-
-			Redraw();
-			return true;
 
 		case KEY_ADD:
 			SelectFiles(SELECT_ADD);
@@ -1464,8 +1463,11 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLRALTF:
 		case KEY_RCTRLALTF:
 		{
-			if (!m_ListData.empty() && SetCurPath())
+			if (!is_data_empty() && SetCurPath())
 			{
+				const auto DataLock = lock_data();
+				const auto& m_ListData = *DataLock;
+
 				string strFileName;
 
 				if (any_of(LocalKey, KEY_CTRLSHIFTENTER, KEY_RCTRLSHIFTENTER, KEY_CTRLSHIFTNUMENTER, KEY_RCTRLSHIFTNUMENTER))
@@ -1583,7 +1585,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLA:
 		case KEY_RCTRLA:
 		{
-			if (!m_ListData.empty() && SetCurPath())
+			if (!is_data_empty() && SetCurPath())
 			{
 				ShellSetFileAttributes(this);
 				Show();
@@ -1596,7 +1598,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_RCTRLG:
 		{
 			if (m_PanelMode != panel_mode::PLUGIN_PANEL || PluginManager::UseInternalCommand(GetPluginHandle(), PLUGIN_FAROTHER, m_CachedOpenPanelInfo))
-				if (!m_ListData.empty() && ApplyCommand())
+				if (!is_data_empty() && ApplyCommand())
 				{
 					// позиционируемся в панели
 					if (!Global->WindowManager->IsPanelsActive())
@@ -1614,7 +1616,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 		case KEY_CTRLZ:
 		case KEY_RCTRLZ:
-			if (!m_ListData.empty() && m_PanelMode == panel_mode::NORMAL_PANEL && SetCurPath())
+			if (!is_data_empty() && m_PanelMode == panel_mode::NORMAL_PANEL && SetCurPath())
 				DescribeFiles();
 			return true;
 
@@ -1671,7 +1673,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_CTRLRALTNUMENTER:
 		case KEY_RCTRLALTNUMENTER:
 		{
-			if (m_ListData.empty())
+			if (is_data_empty())
 				break;
 
 			if (!IsEmptyCmdline)
@@ -1716,7 +1718,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 		case KEY_SHIFTF1:
 		{
-			if (!m_ListData.empty())
+			if (!is_data_empty())
 			{
 				bool real_files = m_PanelMode != panel_mode::PLUGIN_PANEL;
 				if (!real_files && GetType() == panel_type::FILE_PANEL)
@@ -1733,7 +1735,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		}
 		case KEY_SHIFTF2:
 		{
-			if (!m_ListData.empty() && SetCurPath())
+			if (!is_data_empty() && SetCurPath())
 			{
 				if (m_PanelMode == panel_mode::PLUGIN_PANEL)
 				{
@@ -1778,7 +1780,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			if (any_of(LocalKey, KEY_NUMPAD5, KEY_SHIFTNUMPAD5))
 				LocalKey=KEY_F3;
 
-			if ((LocalKey==KEY_SHIFTF4 || !m_ListData.empty()) && SetCurPath())
+			if ((LocalKey==KEY_SHIFTF4 || !is_data_empty()) && SetCurPath())
 			{
 				string strPluginData;
 				bool PluginMode =
@@ -1795,6 +1797,9 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				const auto Edit = any_of(LocalKey, KEY_F4, KEY_ALTF4, KEY_RALTF4, KEY_SHIFTF4, KEY_CTRLSHIFTF4, KEY_RCTRLSHIFTF4);
 				string strFileName;
 				string strShortFileName;
+
+				const auto DataLock = lock_data();
+				const auto& m_ListData = *DataLock;
 
 				if (LocalKey==KEY_SHIFTF4)
 				{
@@ -2135,7 +2140,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_ALTF5:  // Печать текущего/выбранных файла/ов
 		case KEY_RALTF5:
 		{
-			if (!m_ListData.empty() && SetCurPath())
+			if (!is_data_empty() && SetCurPath())
 				PrintFiles(this);
 
 			return true;
@@ -2144,8 +2149,11 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTF5:
 		case KEY_SHIFTF6:
 		{
-			if (!m_ListData.empty() && SetCurPath())
+			if (!is_data_empty() && SetCurPath())
 			{
+				const auto DataLock = lock_data();
+				auto& m_ListData = *DataLock;
+
 				assert(m_CurFile < static_cast<int>(m_ListData.size()));
 				const auto name = m_ListData[m_CurFile].FileName; // must be a copy
 				const auto selected = m_ListData[m_CurFile].Selected;
@@ -2246,7 +2254,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 			if (IsRepeatedKey() /*&& !Global->Opt->Confirmation.Delete*/) // не удаляем, если зажата клавиша
 				return true;
 
-			if (!m_ListData.empty() && SetCurPath())
+			if (!is_data_empty() && SetCurPath())
 			{
 				if (LocalKey==KEY_SHIFTF8)
 					ReturnCurrentFile = true;
@@ -2347,7 +2355,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 			if ((m_Stripes == 1 && Global->Opt->ShellRightLeftArrowsRule == 1) || m_Stripes>1 || IsEmptyCmdline)
 			{
-				if (m_CurFile+m_Height < static_cast<int>(m_ListData.size()) && m_CurFile-m_CurTopFile>=(m_Stripes-1)*(m_Height))
+				if (m_CurFile+m_Height < static_cast<int>(data_size()) && m_CurFile-m_CurTopFile>=(m_Stripes-1)*(m_Height))
 					m_CurTopFile+=m_Height;
 
 				MoveCursorAndShow(m_Height);
@@ -2378,7 +2386,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTEND:     case KEY_SHIFTNUMPAD1:
 		{
 			InternalProcessKey++;
-			while (m_CurFile < static_cast<int>(m_ListData.size() - 1))
+			while (m_CurFile < static_cast<int>(data_size() - 1))
 				MoveSelection(down);
 
 			MoveSelection(down);
@@ -2412,7 +2420,7 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 		case KEY_SHIFTLEFT:    case KEY_SHIFTNUMPAD4:
 		case KEY_SHIFTRIGHT:   case KEY_SHIFTNUMPAD6:
 		{
-			if (m_ListData.empty())
+			if (is_data_empty())
 				return true;
 
 			if (m_Stripes>1)
@@ -2423,8 +2431,13 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 				while (N--)
 					MoveSelection(any_of(LocalKey, KEY_SHIFTLEFT, KEY_SHIFTNUMPAD4)? up : down);
 
-				assert(m_CurFile < static_cast<int>(m_ListData.size()));
-				Select(m_ListData[m_CurFile], ShiftSelection != 0);
+				{
+					const auto DataLock = lock_data();
+					auto& m_ListData = *DataLock;
+
+					assert(m_CurFile < static_cast<int>(m_ListData.size()));
+					Select(m_ListData[m_CurFile], ShiftSelection != 0);
+				}
 
 				if (SelectedFirst)
 					SortFileList(true);
@@ -2449,13 +2462,20 @@ bool FileList::ProcessKey(const Manager::Key& Key)
 
 		case KEY_INS:          case KEY_NUMPAD0:
 		{
-			if (m_ListData.empty())
+			if (is_data_empty())
 				return true;
 
-			assert(m_CurFile < static_cast<int>(m_ListData.size()));
-			auto& Current = m_ListData[m_CurFile];
-			Select(Current, !Current.Selected);
-			bool avoid_up_jump = SelectedFirst && (m_CurFile > 0) && (m_CurFile+1 == static_cast<int>(m_ListData.size())) && Current.Selected;
+			bool avoid_up_jump = false;
+			{
+				const auto DataLock = lock_data();
+				auto& m_ListData = *DataLock;
+
+				assert(m_CurFile < static_cast<int>(m_ListData.size()));
+				auto& Current = m_ListData[m_CurFile];
+				Select(Current, !Current.Selected);
+				avoid_up_jump = SelectedFirst && (m_CurFile > 0) && (m_CurFile + 1 == static_cast<int>(m_ListData.size())) && Current.Selected;
+			}
+
 			MoveCursorAndShow(1);
 
 			if (SelectedFirst)
@@ -2636,6 +2656,9 @@ static bool IsExecutable(string_view const Filename)
 
 void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type)
 {
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
+
 	if (m_CurFile >= static_cast<int>(m_ListData.size()))
 		return;
 
@@ -2799,6 +2822,9 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdated, bool const Silent)
 {
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
+
 	UserDataItem UsedData{};
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL)
@@ -2848,6 +2874,9 @@ bool FileList::SetCurDir(string_view const NewDir, bool ClosePanel, bool IsUpdat
 
 bool FileList::ChangeDir(string_view const NewDir, bool IsParent, bool ResolvePath,bool IsUpdated, const UserDataItem* DataItem, OPENFILEPLUGINTYPE OfpType, bool const Silent)
 {
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
+
 	bool IsPopPlugin = false;
 
 	SCOPE_EXIT
@@ -3158,7 +3187,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 			// Drag the thumb
 			while (IsMouseButtonPressed() == FROM_LEFT_1ST_BUTTON_PRESSED)
 			{
-				m_CurFile = static_cast<int>((m_ListData.size() - 1)*(IntKeyState.MousePos.y - ScrollY) / (m_Height - 2));
+				m_CurFile = static_cast<int>((data_size() - 1)*(IntKeyState.MousePos.y - ScrollY) / (m_Height - 2));
 				ShowFileList();
 				Parent()->SetActivePanel(shared_from_this());
 			}
@@ -3187,11 +3216,11 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		Parent()->SetActivePanel(shared_from_this());
 
-		if (m_ListData.empty())
+		if (is_data_empty())
 			return true;
 
 		MoveToMouse(MouseEvent);
-		assert(m_CurFile < static_cast<int>(m_ListData.size()));
+		assert(m_CurFile < static_cast<int>(data_size()));
 
 		if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
 		        MouseEvent->dwEventFlags==DOUBLE_CLICK)
@@ -3243,6 +3272,9 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 					}
 				}
 
+				const auto DataLock = lock_data();
+				auto& m_ListData = *DataLock;
+
 				if (!MouseEvent->dwEventFlags || MouseEvent->dwEventFlags==DOUBLE_CLICK)
 					MouseSelection = !m_ListData[m_CurFile].Selected;
 
@@ -3261,8 +3293,11 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		Parent()->SetActivePanel(shared_from_this());
 
-		if (m_ListData.empty())
+		if (is_data_empty())
 			return true;
+
+		const auto DataLock = lock_data();
+		auto& m_ListData = *DataLock;
 
 		while_mouse_button_pressed([&](DWORD)
 		{
@@ -3290,8 +3325,11 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		Parent()->SetActivePanel(shared_from_this());
 
-		if (m_ListData.empty())
+		if (is_data_empty())
 			return true;
+
+		const auto DataLock = lock_data();
+		auto& m_ListData = *DataLock;
 
 		while_mouse_button_pressed([&](DWORD)
 		{
@@ -3358,11 +3396,12 @@ void FileList::MoveToMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	/* $ 11.09.2000 SVS
 	   Bug #17: Проверим на ПОЛНОСТЬЮ пустую колонку.
 	*/
+
 	if (Global->Opt->PanelRightClickRule == 1)
-		empty=((CurColumn-1)*m_Height > static_cast<int>(m_ListData.size()));
+		empty=((CurColumn-1)*m_Height > static_cast<int>(data_size()));
 	else if (Global->Opt->PanelRightClickRule == 2 &&
 	         (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) &&
-	         ((CurColumn-1)*m_Height > static_cast<int>(m_ListData.size())))
+	         ((CurColumn-1)*m_Height > static_cast<int>(data_size())))
 	{
 		m_CurFile=OldCurFile;
 		empty = true;
@@ -3397,7 +3436,7 @@ void FileList::SetViewMode(int Mode)
 		if (!(FileSystemFlags&FILE_FILE_COMPRESSION))
 			NewPacked = false;
 
-	if (!m_ListData.empty() && m_PanelMode != panel_mode::PLUGIN_PANEL &&
+	if (!is_data_empty() && m_PanelMode != panel_mode::PLUGIN_PANEL &&
 	        ((!OldOwner && NewOwner) || (!OldPacked && NewPacked) ||
 	         (!OldNumLink && NewNumLink) ||
 	         (!OldNumStreams && NewNumStreams) ||
@@ -3449,7 +3488,7 @@ void FileList::ApplySortMode(panel_sort Mode)
 {
 	m_SortMode = Mode;
 
-	if (!m_ListData.empty())
+	if (!is_data_empty())
 		SortFileList(true);
 
 	ProcessPluginEvent(FE_CHANGESORTPARAMS, nullptr);
@@ -3527,7 +3566,7 @@ void FileList::InitCurDir(string_view CurDir)
 
 bool FileList::GoToFile(long idxItem)
 {
-	if (static_cast<size_t>(idxItem) >= m_ListData.size())
+	if (static_cast<size_t>(idxItem) >= data_size())
 		return false;
 
 	m_CurFile=idxItem;
@@ -3542,6 +3581,9 @@ bool FileList::GoToFile(const string_view Name, const bool OnlyPartName)
 
 long FileList::FindFile(const string_view Name, const bool OnlyPartName)
 {
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
+
 	long II = -1;
 	for (const auto& I: irange(m_ListData.size()))
 	{
@@ -3564,6 +3606,9 @@ long FileList::FindFirst(string_view const Name)
 
 long FileList::FindNext(int StartPos, string_view const Name)
 {
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
+
 	if (static_cast<size_t>(StartPos) >= m_ListData.size())
 		return -1;
 
@@ -3579,12 +3624,18 @@ long FileList::FindNext(int StartPos, string_view const Name)
 
 bool FileList::IsSelected(string_view const Name)
 {
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
+
 	const long Pos = FindFile(Name);
 	return Pos!=-1 && (m_ListData[Pos].Selected || (!m_SelFileCount && Pos==m_CurFile));
 }
 
 bool FileList::IsSelected(size_t idxItem)
 {
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
+
 	return idxItem < m_ListData.size() && m_ListData[idxItem].Selected; //  || (Sel!FileCount && idxItem==CurFile) ???
 }
 
@@ -3595,12 +3646,18 @@ bool FileList::FilterIsEnabled()
 
 bool FileList::FileInFilter(size_t idxItem)
 {
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
+
 	return idxItem < m_ListData.size() && (!m_Filter || !m_Filter->IsEnabledOnPanel() || m_Filter->FileInFilter(m_ListData[idxItem])); // BUGBUG, cast
 }
 
 // $ 02.08.2000 IG  Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
 bool FileList::FindPartName(string_view const Name,int Next,int Direct)
 {
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
+
 	if constexpr (!features::mantis_698) {
 
 	int DirFind = 0;
@@ -3710,8 +3767,11 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 
 	if constexpr (features::mantis_698)
 	{
-		if (static_cast<size_t>(ListPos) >= m_ListData.size())
+		if (static_cast<size_t>(ListPos) >= data_size())
 			return false;
+
+		const auto DataLock = lock_data();
+		const auto& m_ListData = *DataLock;
 
 		for (const auto& Column : m_ViewSettings.PanelColumns)
 		{
@@ -3848,6 +3908,9 @@ bool FileList::GetPlainString(string& Dest, int ListPos) const
 
 size_t FileList::GetSelCount() const
 {
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
+
 	assert(m_ListData.empty() || !(ReturnCurrentFile||!m_SelFileCount) || (m_CurFile < static_cast<int>(m_ListData.size())));
 
 	return !m_ListData.empty()? ((ReturnCurrentFile || !m_SelFileCount)? (IsParentDirectory(m_ListData[m_CurFile])? 0 : 1) : m_SelFileCount) : 0;
@@ -3855,7 +3918,7 @@ size_t FileList::GetSelCount() const
 
 size_t FileList::GetRealSelCount() const
 {
-	return !m_ListData.empty()? m_SelFileCount : 0;
+	return !is_data_empty()? m_SelFileCount : 0;
 }
 
 bool FileList::GetSelName(string* strName, string* strShortName, os::fs::find_data* fd)
@@ -3877,6 +3940,9 @@ bool FileList::GetSelName(string* strName, string* strShortName, os::fs::find_da
 		if (fd)
 			*fd = Src;
 	};
+
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
 
 	if (!m_SelFileCount || ReturnCurrentFile)
 	{
@@ -3905,26 +3971,35 @@ bool FileList::GetSelName(string* strName, string* strShortName, os::fs::find_da
 
 void FileList::ClearLastGetSelection()
 {
-	if (LastSelPosition < 0 || LastSelPosition >= static_cast<int>(m_ListData.size()))
+	if (LastSelPosition < 0 || LastSelPosition >= static_cast<int>(data_size()))
 		return;
+
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
 
 	Select(m_ListData[LastSelPosition], false);
 }
 
 const FileListItem* FileList::GetLastSelectedItem() const
 {
-	if (LastSelPosition < 0 || LastSelPosition >= static_cast<int>(m_ListData.size()))
+	if (LastSelPosition < 0 || LastSelPosition >= static_cast<int>(data_size()))
 		return nullptr;
+
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
 
 	return &m_ListData[LastSelPosition];
 }
 
 bool FileList::GetCurName(string &strName, string &strShortName) const
 {
-	if (m_ListData.empty())
+	if (is_data_empty())
 		return false;
 
-	assert(m_CurFile < static_cast<int>(m_ListData.size()));
+	assert(m_CurFile < static_cast<int>(data_size()));
+
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
 
 	strName = m_ListData[m_CurFile].FileName;
 	strShortName = m_ListData[m_CurFile].AlternateFileName();
@@ -3933,7 +4008,7 @@ bool FileList::GetCurName(string &strName, string &strShortName) const
 
 bool FileList::GetCurBaseName(string &strName, string &strShortName) const
 {
-	if (m_ListData.empty())
+	if (is_data_empty())
 		return false;
 
 	if (m_PanelMode == panel_mode::PLUGIN_PANEL && !PluginsList.empty()) // для плагинов
@@ -3943,6 +4018,9 @@ bool FileList::GetCurBaseName(string &strName, string &strShortName) const
 	}
 	else if (m_PanelMode == panel_mode::NORMAL_PANEL)
 	{
+		const auto DataLock = lock_data();
+		const auto& m_ListData = *DataLock;
+
 		assert(m_CurFile < static_cast<int>(m_ListData.size()));
 
 		strName = m_ListData[m_CurFile].FileName;
@@ -4006,7 +4084,7 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 	string strRawMask;
 	bool WrapBrackets=false; // говорит о том, что нужно взять кв.скобки в скобки
 
-	if (m_CurFile >= static_cast<int>(m_ListData.size()))
+	if (m_CurFile >= static_cast<int>(data_size()))
 		return 0;
 
 	filemasks FileMask; // Класс для работы с масками
@@ -4018,6 +4096,9 @@ long FileList::SelectFiles(int Mode, string_view const Mask)
 		Global->CtrlObject->Plugins->GetOpenPanelInfo(GetPluginHandle(), &m_CachedOpenPanelInfo);
 		RawSelection=(m_CachedOpenPanelInfo.Flags & OPIF_RAWSELECTION);
 	}
+
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
 
 	const auto& strCurName = m_ListData[m_CurFile].AlternateOrNormal(m_ShowShortNames);
 
@@ -4179,10 +4260,13 @@ void FileList::UpdateViewPanel()
 {
 	const auto ViewPanel = std::dynamic_pointer_cast<QuickView>(Parent()->GetAnotherPanel(this));
 
-	if (!ViewPanel || m_ListData.empty() || !ViewPanel->IsVisible() || !SetCurPath())
+	if (!ViewPanel || is_data_empty() || !ViewPanel->IsVisible() || !SetCurPath())
 		return;
 
-	assert(m_CurFile < static_cast<int>(m_ListData.size()));
+	assert(m_CurFile < static_cast<int>(data_size()));
+
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
 
 	const auto& Current = m_ListData[m_CurFile];
 
@@ -4251,16 +4335,22 @@ void FileList::CompareDir()
 
 	Global->ScrBuf->Flush();
 
-	const auto select_files = [&](FileList& Panel)
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
+
+	const auto AnotherDataLock = Another->lock_data();
+	auto& AnotherListData = *AnotherDataLock;
+
+	const auto select_files = [&](FileList& Panel, list_data& ListData)
 	{
-		for (auto& i: Panel.m_ListData)
+		for (auto& i: ListData)
 		{
 			Panel.Select(i, !(i.Attributes & FILE_ATTRIBUTE_DIRECTORY));
 		}
 	};
 
-	select_files(*this);
-	select_files(*Another);
+	select_files(*this, m_ListData);
+	select_files(*Another, AnotherListData);
 
 	const auto use_fat_time = [&](const FileList& Panel)
 	{
@@ -4287,7 +4377,7 @@ void FileList::CompareDir()
 			continue;
 
 		// ...сравниваем с элементом пассивной панели...
-		for (auto& That: Another->m_ListData)
+		for (auto& That: AnotherListData)
 		{
 			if (!That.Selected)
 				continue;
@@ -4468,11 +4558,14 @@ void FileList::RefreshTitle()
 
 size_t FileList::GetFileCount() const
 {
-	return m_ListData.size();
+	return data_size();
 }
 
 void FileList::ClearSelection()
 {
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
+
 	for (auto& i: m_ListData)
 	{
 		Select(i, false);
@@ -4485,6 +4578,9 @@ void FileList::ClearSelection()
 
 void FileList::SaveSelection()
 {
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
+
 	for (auto& i: m_ListData)
 	{
 		i.PrevSelected = i.Selected;
@@ -4494,6 +4590,9 @@ void FileList::SaveSelection()
 
 void FileList::RestoreSelection()
 {
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
+
 	for (auto& i: m_ListData)
 	{
 		Select(i, std::exchange(i.PrevSelected, i.Selected));
@@ -4509,8 +4608,11 @@ void FileList::RestoreSelection()
 
 bool FileList::GetFileName(string& strName, int Pos, os::fs::attributes& FileAttr) const
 {
-	if (Pos >= static_cast<int>(m_ListData.size()))
+	if (Pos >= static_cast<int>(data_size()))
 		return false;
+
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
 
 	strName = m_ListData[Pos].FileName;
 	FileAttr=m_ListData[Pos].Attributes;
@@ -5073,7 +5175,7 @@ bool FileList::ApplyCommand()
 	{
 		Parent()->GetKeybar().Show();
 	}
-	if (GetSelPosition >= static_cast<int>(m_ListData.size()))
+	if (GetSelPosition >= static_cast<int>(data_size()))
 		ClearSelection();
 
 	--UpdateDisabled;
@@ -5112,6 +5214,9 @@ void FileList::CountDirSize(bool IsRealNames)
 		DirinfoProgress->set_size(Total.Size + Size);
 	};
 
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
+
 	for (auto& i: m_ListData)
 	{
 		if (i.Selected && (i.Attributes & FILE_ATTRIBUTE_DIRECTORY))
@@ -5135,7 +5240,7 @@ void FileList::CountDirSize(bool IsRealNames)
 		}
 	}
 
-	const auto GetPluginDirInfoOrParent = [this, &Total](const plugin_panel* const ph, string_view const DirName, const UserDataItem* const UserData, BasicDirInfoData& BasicData, const dirinfo_callback& Callback)
+	const auto GetPluginDirInfoOrParent = [&, this](const plugin_panel* const ph, string_view const DirName, const UserDataItem* const UserData, BasicDirInfoData& BasicData, const dirinfo_callback& Callback)
 	{
 		if (!m_CurFile && IsParentDirectory(m_ListData[0]))
 		{
@@ -5230,6 +5335,9 @@ bool FileList::GetPrevDirectoriesFirst() const
 
 plugin_panel* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPENFILEPLUGINTYPE Type, bool* StopProcessing)
 {
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
+
 	if (!PushPrev && m_PanelMode == panel_mode::PLUGIN_PANEL)
 	{
 		for (;;)
@@ -5276,7 +5384,7 @@ plugin_panel* FileList::OpenFilePlugin(const string& FileName, int PushPrev, OPE
 
 void FileList::ProcessCopyKeys(unsigned const Key)
 {
-	if (m_ListData.empty() || !SetCurPath())
+	if (is_data_empty() || !SetCurPath())
 		return;
 
 	const auto Drag = any_of(Key, KEY_DRAGCOPY, KEY_DRAGMOVE);
@@ -5287,10 +5395,13 @@ void FileList::ProcessCopyKeys(unsigned const Key)
 
 	if (const auto AnotherFilePanel = std::dynamic_pointer_cast<FileList>(AnotherPanel))
 	{
-		assert(AnotherFilePanel->m_ListData.empty() || AnotherFilePanel->m_CurFile < static_cast<int>(AnotherFilePanel->m_ListData.size()));
-		if (!AnotherFilePanel->m_ListData.empty() &&
-		        (AnotherFilePanel->m_ListData[AnotherFilePanel->m_CurFile].Attributes & FILE_ATTRIBUTE_DIRECTORY) &&
-		        !IsParentDirectory(AnotherFilePanel->m_ListData[AnotherFilePanel->m_CurFile]))
+		const auto AnotherDataLock = AnotherFilePanel->lock_data();
+		const auto& AnotherListData = *AnotherDataLock;
+
+		assert(AnotherListData.empty() || AnotherFilePanel->m_CurFile < static_cast<int>(AnotherListData.size()));
+		if (!AnotherListData.empty() &&
+		        (AnotherListData[AnotherFilePanel->m_CurFile].Attributes & FILE_ATTRIBUTE_DIRECTORY) &&
+		        !IsParentDirectory(AnotherListData[AnotherFilePanel->m_CurFile]))
 		{
 			AnotherDir = true;
 		}
@@ -5448,8 +5559,11 @@ const FileListItem* FileList::GetItem(size_t Index) const
 	if (static_cast<int>(Index) == -1 || static_cast<int>(Index) == -2)
 		Index=GetCurrentPos();
 
-	if (Index >= m_ListData.size())
+	if (Index >= data_size())
 		return nullptr;
+
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
 
 	return &m_ListData[Index];
 }
@@ -5474,7 +5588,12 @@ void FileList::PushPlugin(std::unique_ptr<plugin_panel>&& hPlugin, string_view c
 
 bool FileList::PopPlugin(int EnableRestoreViewMode)
 {
-	m_ListData.clear();
+	{
+		const auto DataLock = lock_data();
+		auto& m_ListData = *DataLock;
+
+		m_ListData.clear();
+	}
 
 	if (PluginsList.empty())
 	{
@@ -5559,6 +5678,9 @@ bool FileList::PopPlugin(int EnableRestoreViewMode)
 */
 void FileList::PopPrevData(string_view const DefaultName, bool const Closed, bool const UsePrev, bool const Position, bool const SetDirectorySuccess)
 {
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
+
 	string strName(DefaultName);
 	if (Closed && !PrevDataList.empty())
 	{
@@ -5862,7 +5984,7 @@ plugin_item_list FileList::CreatePluginItemList()
 {
 	plugin_item_list ItemList;
 
-	if (m_ListData.empty())
+	if (is_data_empty())
 		return ItemList;
 
 	const auto SaveSelPosition = GetSelPosition;
@@ -5876,6 +5998,9 @@ plugin_item_list FileList::CreatePluginItemList()
 		FileListToPluginItem(What, NewItem);
 		ItemList.emplace_back(NewItem.Item);
 	};
+
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
 
 	for (const auto& i: enum_selected())
 	{
@@ -6189,6 +6314,9 @@ void FileList::PluginHostGetFiles()
 
 void FileList::PluginPutFilesToNew()
 {
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
+
 	auto hNewPlugin = Global->CtrlObject->Plugins->OpenFilePlugin(nullptr, OPM_NONE, OFP_CREATE);
 	if (!hNewPlugin)
 		return;
@@ -6302,7 +6430,7 @@ void FileList::GetOpenPanelInfo(OpenPanelInfo *Info) const
 */
 void FileList::ProcessHostFile()
 {
-	if (m_ListData.empty() || !SetCurPath())
+	if (is_data_empty() || !SetCurPath())
 		return;
 
 	int Done=FALSE;
@@ -6331,6 +6459,9 @@ void FileList::ProcessHostFile()
 	else
 	{
 		const auto SCount = GetRealSelCount();
+
+		const auto DataLock = lock_data();
+		auto& m_ListData = *DataLock;
 
 		if (SCount > 0)
 		{
@@ -6446,16 +6577,19 @@ void FileList::PluginGetPanelInfo(PanelInfo &Info)
 	Info.TopPanelItem=m_CurTopFile;
 	if(m_ShowShortNames)
 		Info.Flags|=PFLAGS_ALTERNATIVENAMES;
-	Info.ItemsNumber = m_ListData.size();
-	Info.SelectedItemsNumber=m_ListData.empty()? 0 : GetSelCount();
+	Info.ItemsNumber = data_size();
+	Info.SelectedItemsNumber = is_data_empty()? 0 : GetSelCount();
 }
 
 size_t FileList::PluginGetPanelItem(int ItemNumber,FarGetPluginPanelItem *Item)
 {
 	size_t result=0;
 
-	if (static_cast<size_t>(ItemNumber) < m_ListData.size())
+	if (static_cast<size_t>(ItemNumber) < data_size())
 	{
+		const auto DataLock = lock_data();
+		const auto& m_ListData = *DataLock;
+
 		result=FileListToPluginItem2(m_ListData[ItemNumber], Item);
 	}
 
@@ -6464,6 +6598,9 @@ size_t FileList::PluginGetPanelItem(int ItemNumber,FarGetPluginPanelItem *Item)
 
 size_t FileList::PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem *Item)
 {
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
+
 	if (static_cast<size_t>(ItemNumber) >= m_ListData.size())
 		return 0;
 
@@ -6513,12 +6650,15 @@ void FileList::PluginBeginSelection()
 
 void FileList::PluginSetSelection(int ItemNumber,bool Selection)
 {
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
+
 	Select(m_ListData[ItemNumber], Selection);
 }
 
 void FileList::PluginClearSelection(int SelectedItemNumber)
 {
-	if (static_cast<size_t>(SelectedItemNumber) >= m_ListData.size())
+	if (static_cast<size_t>(SelectedItemNumber) >= data_size())
 		return;
 
 	if (SelectedItemNumber<=CacheSelClearIndex)
@@ -6526,6 +6666,9 @@ void FileList::PluginClearSelection(int SelectedItemNumber)
 
 	int CurSel = CacheSelClearIndex;
 	const size_t StartValue = CacheSelClearIndex >= 0? CacheSelClearPos + 1 : 0;
+
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
 
 	for (const auto& i: irange(StartValue, m_ListData.size()))
 	{
@@ -6583,6 +6726,9 @@ void FileList::PluginClearSelection(span<PluginPanelItem> const ItemList)
 {
 	SaveSelection();
 	size_t FileNumber=0,PluginNumber=0;
+
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
 
 	while (PluginNumber < ItemList.size())
 	{
@@ -6647,6 +6793,9 @@ void FileList::UpdateIfRequired()
 
 void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPanelInvisible)
 {
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
+
 	SCOPED_ACTION(taskbar::indeterminate)(false);
 
 	strOriginalCurDir = m_CurDir;
@@ -6661,7 +6810,7 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 	UpdateRequired = false;
 	AccessTimeUpdateRequired = false;
 	DizRead = false;
-	decltype(m_ListData) OldData;
+	list_data OldData;
 	string strCurName, strNextCurName;
 
 	// really?
@@ -7006,14 +7155,26 @@ void FileList::ReadFileNames(bool const KeepSelection, bool const UpdateEvenIfPa
 
 void FileList::UpdateIfChanged(bool Changed)
 {
-	if (Global->Opt->AutoUpdateLimit && m_ListData.size() > static_cast<size_t>(Global->Opt->AutoUpdateLimit))
+	if (!Changed)
 		return;
 
 	if (m_PanelMode != panel_mode::NORMAL_PANEL)
 		return;
 
-	if (!Changed)
+	if (is_data_locked())
+	{
+		LOGDEBUG(L"List data is locked, update postponed"sv);
 		return;
+	}
+
+	if (Global->Opt->AutoUpdateLimit)
+	{
+		const auto DataLock = lock_data();
+		const auto& m_ListData = *DataLock;
+
+		if (m_ListData.size() > static_cast<size_t>(Global->Opt->AutoUpdateLimit))
+			return;
+	}
 
 	m_UpdatePending = false;
 
@@ -7174,6 +7335,9 @@ void FileList::MoveSelection(list_data& From, list_data& To)
 
 void FileList::UpdatePlugin(bool const KeepSelection, bool const UpdateEvenIfPanelInvisible)
 {
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
+
 	if (!IsVisible() && !UpdateEvenIfPanelInvisible)
 	{
 		UpdateRequired = true;
@@ -7182,7 +7346,7 @@ void FileList::UpdatePlugin(bool const KeepSelection, bool const UpdateEvenIfPan
 	}
 
 	DizRead = false;
-	decltype(m_ListData) OldData;
+	list_data OldData;
 	std::optional<string> strCurName, strNextCurName;
 	LastCurFile=-1;
 
@@ -7460,6 +7624,9 @@ void FileList::ReadDiz(span<PluginPanelItem> const Items)
 		}
 	}
 
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
+
 	for(auto& i: m_ListData)
 	{
 		if (!i.DizText)
@@ -7481,6 +7648,9 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 	{
 		Global->CtrlObject->HiFiles->UpdateCurrentTime();
 	}
+
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
 
 	for (auto& i: m_ListData)
 	{
@@ -7746,6 +7916,9 @@ void FileList::ShowFileList(bool Fast)
 	GotoXY(TitleX, m_Where.top);
 	Text(strTitle);
 
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
+
 	if (m_ListData.empty())
 	{
 		SetScreen({ m_Where.left + 1, m_Where.bottom - 1, m_Where.right - 1, m_Where.bottom - 1 }, L' ', colors::PaletteColorToFarColor(COL_PANELTEXT));
@@ -7831,8 +8004,11 @@ FarColor FileList::GetShowColor(int Position, bool FileColor) const
 {
 	auto ColorAttr = colors::PaletteColorToFarColor(COL_PANELTEXT);
 
-	if (static_cast<size_t>(Position) >= m_ListData.size())
+	if (static_cast<size_t>(Position) >= data_size())
 		return ColorAttr;
+
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
 
 	int Pos = highlight::color::normal;
 
@@ -8350,6 +8526,9 @@ void FileList::HighlightBorder(int Level, int ListPos) const
 
 void FileList::ShowList(int ShowStatus,int StartColumn)
 {
+	const auto DataLock = lock_data();
+	const auto& m_ListData = *DataLock;
+
 	int StatusShown=FALSE;
 	int MaxLeftPos=0,MinLeftPos=FALSE;
 	size_t ColumnCount=ShowStatus ? m_ViewSettings.StatusColumns.size() : m_ViewSettings.PanelColumns.size();
@@ -8849,6 +9028,20 @@ bool FileList::IsModeFullScreen(int Mode)
 	return (Global->Opt->ViewSettings[Mode].Flags & PVS_FULLSCREEN) != 0;
 }
 
+void FileList::background_update()
+{
+	if (Global->WindowManager->IsPanelsActive() && IsVisible() && !is_data_locked())
+	{
+		UpdateIfChanged(true);
+		Redraw();
+	}
+	else
+	{
+		m_UpdatePending = true;
+	}
+
+}
+
 
 bool FileList::IsDizDisplayed() const
 {
@@ -8896,6 +9089,9 @@ std::unique_ptr<content_data> FileList::GetContentData(const string_view Item) c
 
 void FileList::MoveSelection(direction Direction)
 {
+	const auto DataLock = lock_data();
+	auto& m_ListData = *DataLock;
+
 	if (m_ListData.empty())
 		return;
 

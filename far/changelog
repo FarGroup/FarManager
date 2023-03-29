@@ -1,4 +1,16 @@
 --------------------------------------------------------------------------------
+drkns 2023-03-28 19:17:03+01:00 - build 6123
+
+1. gh-665: Crash after an unexpected panel update.
+   This is a rather hairy & global problem, see comments in filelist.hpp.
+
+--------------------------------------------------------------------------------
+MZK 2023-03-27 22:03:51-07:00 - build 6122
+
+1. Forum: Search / Replace dialog facelift.
+   On popular demand at https://forum.farmanager.com/viewtopic.php?t=13158.
+
+--------------------------------------------------------------------------------
 drkns 2023-03-27 22:35:19+01:00 - build 6121
 
 1. gh-663: Fix text <-> hex conversions in Viewer and Find File.

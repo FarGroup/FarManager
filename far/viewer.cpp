@@ -117,10 +117,10 @@ enum saved_modes
 enum class Viewer::SearchDisposition
 {
 	Cancel,
-	Up,
-	Down,
-	ContinueUp,
-	ContinueDown,
+	Prev,
+	Next,
+	ContinueBackward,
+	ContinueForward,
 };
 
 static int ViewerID=0;
@@ -1638,13 +1638,13 @@ bool Viewer::process_key(const Manager::Key& Key)
 		case KEY_SHIFTF7:
 		case KEY_SPACE:
 		{
-			DoSearchReplace(SearchDisposition::ContinueDown);
+			DoSearchReplace(SearchDisposition::ContinueForward);
 			return true;
 		}
 		case KEY_ALTF7:
 		case KEY_RALTF7:
 		{
-			DoSearchReplace(SearchDisposition::ContinueUp);
+			DoSearchReplace(SearchDisposition::ContinueBackward);
 			return true;
 		}
 		case KEY_F8:
@@ -2992,7 +2992,7 @@ SEARCHER_RESULT Viewer::search_regex_backward(search_data* sd)
 Viewer::SearchDisposition Viewer::ShowSearchReplaceDialog()
 {
 	switch (GetSearchReplaceString(
-		{ .ShowButtonsUpDown = true },
+		{ .ShowButtonsPrevNext = true },
 		LastSearchDlgParams,
 		L"SearchText"sv,
 		{},
@@ -3003,11 +3003,11 @@ Viewer::SearchDisposition Viewer::ShowSearchReplaceDialog()
 		case SearchReplaceDlgResult::Cancel:
 			return SearchDisposition::Cancel;
 
-		case SearchReplaceDlgResult::Up:
-			return SearchDisposition::Up;
+		case SearchReplaceDlgResult::Prev:
+			return SearchDisposition::Prev;
 
-		case SearchReplaceDlgResult::Down:
-			return SearchDisposition::Down;
+		case SearchReplaceDlgResult::Next:
+			return SearchDisposition::Next;
 
 		case SearchReplaceDlgResult::Ok:
 		case SearchReplaceDlgResult::All:
@@ -3021,8 +3021,8 @@ void Viewer::DoSearchReplace(SearchDisposition Disposition)
 	if (!ViewFile || Disposition == SearchDisposition::Cancel || LastSearchDlgParams.SearchStr.empty())
 		return;
 
-	const auto Backward{ Disposition == SearchDisposition::Up || Disposition == SearchDisposition::ContinueUp };
-	const auto Continue{ Disposition == SearchDisposition::ContinueUp || Disposition == SearchDisposition::ContinueDown };
+	const auto Backward{ Disposition == SearchDisposition::Prev || Disposition == SearchDisposition::ContinueBackward };
+	const auto Continue{ Disposition == SearchDisposition::ContinueBackward || Disposition == SearchDisposition::ContinueForward };
 
 	auto strMsgStr = LastSearchDlgParams.SearchStr;
 

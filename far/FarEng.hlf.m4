@@ -3082,9 +3082,9 @@ in #Überwald# but not in #überwald#. However, #Æther# will match #AEther#, bu
  Enable the use of ~regular expressions~@RegExp@ in the search string.
 The multiline search is not supported.
 
- The #Search down# button starts searching forward.
+ The #Find next# button starts searching forward.
 
- The #Search up# button starts searching backwards.
+ The #Find previous# button starts searching backwards.
 
 
 @Editor
@@ -3230,9 +3230,9 @@ Each line is processed individually, so multi-line expressions and line break ch
  ~Preserve style~@PreserveStyle@
  Preserve style (case and delimiters in program source code) of the replaced text.
 
- The #Search down# button starts searching forward.
+ The #Find next# / #Replace next# buttons start searching / replacing forward.
 
- The #Search up# button start searching backwards.
+ The #Find previous# / #Replace previous# buttons start searching / replacing backwards.
 
  The #All# button will show All matching entries ~menu~@FindAllMenu@.
 
