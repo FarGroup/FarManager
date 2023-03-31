@@ -3136,7 +3136,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		MouseEvent->dwMousePosition.Y == m_Where.top + column_titles &&
 		MouseEvent->dwMousePosition.X > m_Where.left && MouseEvent->dwMousePosition.X < m_Where.left + 2+column_titles;
 
-	if (!column_titles && (!disk_or_sorts || !MouseEvent->dwButtonState))
+	if (!column_titles && MouseEvent->dwMousePosition.Y == m_Where.top && (!disk_or_sorts || !MouseEvent->dwButtonState))
 		return false;
 
 	elevation::instance().ResetApprove();
