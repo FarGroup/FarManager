@@ -814,7 +814,8 @@ namespace logging
 				configure_env();
 			}
 
-			m_Sink->configure(Parameters);
+			if (m_Sink)
+				m_Sink->configure(Parameters);
 		}
 
 		[[nodiscard]]
