@@ -1147,6 +1147,14 @@ bool FilePanels::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 {
 	if (!MouseEvent->dwMousePosition.Y)
 	{
+		if (!Global->Opt->ShowColumnTitles) // Sort Mark letter in the menu area
+		{
+			if (ActivePanel()->ProcessMouse(MouseEvent))
+				return true;
+			if (PassivePanel()->ProcessMouse(MouseEvent))
+				return true;
+		}
+
 		if ((MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
 		{
 			if (!MouseEvent->dwMousePosition.X)

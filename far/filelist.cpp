@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "message.hpp"
 #include "clipboard.hpp"
+#include "console.hpp"
 #include "delete.hpp"
 #include "stddlg.hpp"
 #include "print.hpp"
@@ -3130,11 +3131,17 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 	if (!IsMouseInClientArea(MouseEvent))
 		return false;
 
+	const auto column_titles = Global->Opt->ShowColumnTitles ? 1 : 0;
+	const bool disk_or_sorts = IsVisible() && !MouseEvent->dwEventFlags &&
+		MouseEvent->dwMousePosition.Y == m_Where.top + column_titles &&
+		MouseEvent->dwMousePosition.X > m_Where.left && MouseEvent->dwMousePosition.X < m_Where.left + 2+column_titles;
+
+	if (!column_titles && (!disk_or_sorts || !MouseEvent->dwButtonState))
+		return false;
+
 	elevation::instance().ResetApprove();
 
-	if (IsVisible() && Global->Opt->ShowColumnTitles && !MouseEvent->dwEventFlags &&
-		MouseEvent->dwMousePosition.Y == m_Where.top + 1 &&
-		MouseEvent->dwMousePosition.X > m_Where.left && MouseEvent->dwMousePosition.X < m_Where.left + 3)
+	if (disk_or_sorts)
 	{
 		if (MouseEvent->dwButtonState)
 		{
