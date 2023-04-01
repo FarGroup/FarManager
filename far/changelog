@@ -1,4 +1,10 @@
 --------------------------------------------------------------------------------
+MZK 2023-03-31 22:22:52-07:00 - build 6127
+
+1. Continuation of 6122. Follow-up on the discussion in gh-662.
+   Swapped buttons on the Search / Replace dialog and removed vertical separator.
+
+--------------------------------------------------------------------------------
 drkns 2023-03-31 21:11:07+01:00 - build 6126
 
 1. Correction of 6101.
