@@ -833,7 +833,12 @@ historii vždy ty nejpoužívanější řetězce.
  Vymaže aktuální položku v seznamu historie editačních    #Shift+Del#
  dialogů (pokud to není zakázáno)
 
- Nastavuje fokus dialogu na implicitní element                 #PgDn#
+ Set the dialog focus to the first element                     #Home#
+
+ Nastavuje fokus dialogu na implicitní element            #PgDn, End#
+
+ The #Home# and #End# keys move the focus if it is currently not
+on a control which handles these keys internally, like edit control.
 
  Tyto klávesové kombinace jsou platné pro všechny editační dialogy, včetně
 ~interního editoru~@Editor@, vyjma příkazové řádky.
