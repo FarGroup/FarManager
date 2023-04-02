@@ -351,12 +351,17 @@ static bool GetPluginDirListImpl(Plugin* PluginNumber, HANDLE hPlugin, string_vi
 	}
 	else
 	{
-		if (const auto aHandle = Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle(); aHandle->panel() == hPlugin)
+		const auto aHandle = Global->CtrlObject->Cp()->ActivePanel()->GetPluginHandle();
+		if (aHandle && aHandle->panel() == hPlugin)
 			hDirListPlugin = aHandle;
-		else if (const auto pHandle = Global->CtrlObject->Cp()->PassivePanel()->GetPluginHandle(); pHandle->panel() == hPlugin)
-			hDirListPlugin = pHandle;
 		else
-			return false;
+		{
+			const auto pHandle = Global->CtrlObject->Cp()->PassivePanel()->GetPluginHandle();
+			if (pHandle && pHandle->panel() == hPlugin)
+				hDirListPlugin = pHandle;
+			else
+				return false;
+		}
 	}
 
 	SetCursorType(false, 0);

@@ -1,4 +1,11 @@
 --------------------------------------------------------------------------------
+w17 2023-04-02 10:03:32+03:00 - build 6128
+
+1. Avoid far crash when lua script calls far.Host.GetFiles() for passive panel
+   and active panel is not plugin panel.
+   https://sourceforge.net/p/farplugs/tickets/205/
+
+--------------------------------------------------------------------------------
 MZK 2023-03-31 22:22:52-07:00 - build 6127
 
 1. Continuation of 6122. Follow-up on the discussion in gh-662.
