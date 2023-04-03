@@ -820,7 +820,12 @@ that you will always have them in the history.
  Delete the current item in a dialog edit line history    #Shift+Del#
  (if it is not locked)
 
- Set the dialog focus to the default element                   #PgDn#
+ Set the dialog focus to the first element                     #Home#
+
+ Set the dialog focus to the default element              #PgDn, End#
+
+ The #Home# and #End# keys move the focus if it is currently not
+on a control which handles these keys internally, like edit control.
 
  The following combinations are valid for all edit controls except the
 command line, including dialogs and the ~internal editor~@Editor@.
