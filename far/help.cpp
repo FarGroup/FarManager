@@ -99,7 +99,6 @@ static bool is_generated_topic(string_view const Topic)
 enum HELPDOCUMENTSHELPTYPE
 {
 	HIDX_PLUGINS,                 // Индекс плагинов
-	HIDX_DOCUMS,                  // Индекс документов
 };
 
 enum
