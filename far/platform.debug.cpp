@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "log.hpp"
 #include "map_file.hpp"
 #include "pathmix.hpp"
+#include "string_utils.hpp"
 
 // Platform:
 #include "platform.env.hpp"
@@ -105,7 +106,11 @@ namespace os::debug
 
 	static void** dummy_current_exception(NTSTATUS const Code)
 	{
-		static EXCEPTION_RECORD DummyRecord{ static_cast<DWORD>(Code) };
+		static EXCEPTION_RECORD DummyRecord{};
+
+		DummyRecord.ExceptionCode = static_cast<DWORD>(Code);
+		DummyRecord.ExceptionFlags = EXCEPTION_NONCONTINUABLE;
+
 		static void* DummyRecordPtr = &DummyRecord;
 		return &DummyRecordPtr;
 	}
@@ -427,6 +432,9 @@ namespace os::debug::symbols
 					Buffer = encoding::ansi::get_chars(Event.desc);
 					Message = Buffer;
 				}
+
+				while (IsEol(Message.back()))
+					Message.remove_suffix(1);
 
 				LOG(Level, L"{}"sv, Message);
 				return true;

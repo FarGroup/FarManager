@@ -1,4 +1,9 @@
 --------------------------------------------------------------------------------
+drkns 2023-04-08 16:10:54+01:00 - build 6129
+
+1. Exception handling improvements.
+
+--------------------------------------------------------------------------------
 w17 2023-04-02 10:03:32+03:00 - build 6128
 
 1. Avoid far crash when lua script calls far.Host.GetFiles() for passive panel

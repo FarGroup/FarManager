@@ -177,8 +177,15 @@ static constexpr NTSTATUS make_far_ntstatus(uint16_t const Number)
 		Number      << 0;
 }
 
+static constexpr NTSTATUS visual_cpp_exception(unsigned const Severity, unsigned const Error)
+{
+	return Severity | FACILITY_VISUALCPP << 16 | Error;
+}
+
 static constexpr NTSTATUS
 	EH_EXCEPTION_NUMBER           = os::debug::EH_EXCEPTION_NUMBER,
+	EH_DELAYLOAD_MODULE           = visual_cpp_exception(ERROR_SEVERITY_ERROR, ERROR_MOD_NOT_FOUND),
+	EH_DELAYLOAD_PROCEDURE        = visual_cpp_exception(ERROR_SEVERITY_ERROR, ERROR_PROC_NOT_FOUND),
 	EH_CLR_EXCEPTION              = 0xE0434352, // 'CCR'
 	EH_SANITIZER                  = 0xE073616E, // 'san'
 	EH_SANITIZER_ASAN             = EH_SANITIZER + 1,
@@ -691,7 +698,14 @@ static void read_disassembly(string& To, string_view const Module, span<os::debu
 	}
 }
 
-static bool ExcDialog(string const& ReportLocation, string const& PluginInformation)
+enum class handler_result
+{
+	execute_handler,
+	continue_execution,
+	continue_search,
+};
+
+static handler_result ExcDialog(bool const CanContinue, string const& ReportLocation, string const& PluginInformation)
 {
 	// TODO: Far Dialog is not the best choice for exception reporting
 	// replace with something trivial
@@ -707,30 +721,46 @@ static bool ExcDialog(string const& ReportLocation, string const& PluginInformat
 	Builder.AddConstEditField(ReportLocation, 70);
 	Builder.AddSeparator();
 
+	std::vector<lng> Buttons;
+	std::optional<intptr_t> ContinueId, UnloadId;
+
+	intptr_t const TerminateId = Buttons.size();
+	Buttons.emplace_back(lng::MExcTerminate);
+
 	if (!PluginInformation.empty())
 	{
-		Builder.AddButtons({ lng::MExcTerminate, lng::MExcUnload, lng::MIgnore });
+		UnloadId = Buttons.size();
+		Buttons.emplace_back(lng::MExcUnload);
 	}
-	else
+
+	if (CanContinue)
 	{
-		Builder.AddButtons({ lng::MExcTerminate, lng::MIgnore });
+		ContinueId = Buttons.size();
+		Buttons.emplace_back(lng::MExcContinue);
 	}
+
+	Buttons.emplace_back(lng::MIgnore);
+
+	Builder.AddButtons(Buttons);
 
 	Builder.SetDialogMode(DMODE_WARNINGSTYLE | DMODE_NOPLUGINS);
 	Builder.SetScrObjFlags(FSCROBJ_SPECIAL);
 
-	switch (Builder.ShowDialogEx())
+	const auto Result = Builder.ShowDialogEx();
+
+	if (Result == TerminateId)
 	{
-	case 0: // Terminate
 		UseTerminateHandler = true;
-		return true;
-
-	case 1: // Unload / Ignore
-		return !PluginInformation.empty();
-
-	default:
-		return false;
+		return handler_result::execute_handler;
 	}
+
+	if (Result == UnloadId)
+		return handler_result::execute_handler;
+
+	if (Result == ContinueId)
+		return handler_result::continue_execution;
+
+	return handler_result::continue_search;
 }
 
 static void print_exception_message(string const& ReportLocation, string const& PluginInformation)
@@ -775,13 +805,50 @@ static void print_exception_message(string const& ReportLocation, string const& 
 		Separator << Eol;
 }
 
-static bool ExcConsole(string const& ReportLocation, string const& PluginInformation)
+static handler_result ExcConsole(bool const CanContinue, string const& ReportLocation, string const& PluginInformation)
 {
-	if (!ConsoleYesNo(L"Terminate the process"sv, true, [&]{ print_exception_message(ReportLocation, PluginInformation); }))
-		return false;
+	string Message;
+	string Keys;
+	std::optional<intptr_t> ContinueId, UnloadId;
 
-	UseTerminateHandler = true;
-	return true;
+	intptr_t const TerminateId = Keys.size();
+	Keys += L'T';
+	Message += L"Terminate Far (T)\n"sv;
+
+	if (!PluginInformation.empty())
+	{
+		UnloadId = Keys.size();
+		Keys += L'U';
+		Message += L"Unload plugin (U)\n"sv;
+	}
+
+	if (CanContinue)
+	{
+		ContinueId = Keys.size();
+		Keys += L'C';
+		Message += L"Continue (C)\n"sv;
+	}
+
+	Keys += L'I';
+	Message += L"Ignore (I)\n"sv;
+
+	Message += L"\nChoose one"sv;
+
+	intptr_t const Result = ConsoleChoice(Message, Keys, TerminateId, [&]{ print_exception_message(ReportLocation, PluginInformation); });
+
+	if (Result == TerminateId)
+	{
+		UseTerminateHandler = true;
+		return handler_result::execute_handler;
+	}
+
+	if (Result == UnloadId)
+		return handler_result::execute_handler;
+
+	if (Result == ContinueId)
+		return handler_result::continue_execution;
+
+	return handler_result::continue_search;
 }
 
 static string get_console_host()
@@ -882,6 +949,30 @@ namespace detail
 		PMFN         pmfnUnwind;           // Destructor to call when exception has been handled or aborted
 		int          pForwardCompat;       // Image relative offset of Forward compatibility frame handler
 		int          pCatchableTypeArray;  // Image relative offset of CatchableTypeArray
+	};
+
+	using PCImgDelayDescr = void*;
+
+	struct DelayLoadProc
+	{
+		BOOL       fImportByName;
+		union
+		{
+			LPCSTR szProcName;
+			DWORD  dwOrdinal;
+		};
+	};
+
+	struct DelayLoadInfo
+	{
+		DWORD           cb;          // size of structure
+		PCImgDelayDescr pidd;        // raw form of data (everything is there)
+		FARPROC*        ppfn;        // points to address of function to load
+		LPCSTR          szDll;       // name of dll
+		DelayLoadProc   dlp;         // name or ordinal of procedure
+		HMODULE         hmodCur;     // the hInstance of the library we have loaded
+		FARPROC         pfnCur;      // the actual function that will be called
+		DWORD           dwLastError; // error received (if an error notification)
 	};
 
 	// https://github.com/microsoft/onefuzz/blob/main/src/agent/input-tester/src/test_result/asan.rs
@@ -1026,10 +1117,13 @@ static string_view exception_name(NTSTATUS const Code)
 	CASE_STR(STATUS_POSSIBLE_DEADLOCK)
 	CASE_STR(STATUS_CONTROL_C_EXIT)
 	CASE_STR(STATUS_HEAP_CORRUPTION)
+	CASE_STR(STATUS_NO_MEMORY)
 	CASE_STR(STATUS_ASSERTION_FAILURE)
 #undef CASE_STR
 
 	case EH_EXCEPTION_NUMBER:           return L"C++ exception"sv;
+	case EH_DELAYLOAD_MODULE:           return L"Delayload LoadLibrary error"sv;
+	case EH_DELAYLOAD_PROCEDURE:        return L"Delayload GetProcAddress error"sv;
 	case EH_CLR_EXCEPTION:              return L"CLR exception"sv;
 	case EH_SANITIZER:                  return L"Sanitizer"sv;
 	case STATUS_FAR_ABORT:              return L"std::abort"sv;
@@ -1065,50 +1159,89 @@ static string exception_name(EXCEPTION_RECORD const& ExceptionRecord, string_vie
 
 static string exception_details(string_view const Module, EXCEPTION_RECORD const& ExceptionRecord, string_view const Message, string& ExtraDetails)
 {
+	const auto default_details = [&]
+	{
+		return os::format_ntstatus(ExceptionRecord.ExceptionCode);
+	};
+
 	switch (const auto NtStatus = static_cast<NTSTATUS>(ExceptionRecord.ExceptionCode))
 	{
 	case STATUS_ACCESS_VIOLATION:
 	case STATUS_IN_PAGE_ERROR:
-	{
-		const auto Mode = [](ULONG_PTR Code)
 		{
-			switch (Code)
+			if (!ExceptionRecord.NumberParameters)
+				break;
+
+			const auto Mode = [](ULONG_PTR Code)
 			{
-			default:
-			case EXCEPTION_READ_FAULT:    return L"read"sv;
-			case EXCEPTION_WRITE_FAULT:   return L"written"sv;
-			case EXCEPTION_EXECUTE_FAULT: return L"executed"sv;
-			}
-		}(ExceptionRecord.ExceptionInformation[0]);
+				switch (Code)
+				{
+				default:
+				case EXCEPTION_READ_FAULT:    return L"read"sv;
+				case EXCEPTION_WRITE_FAULT:   return L"written"sv;
+				case EXCEPTION_EXECUTE_FAULT: return L"executed"sv;
+				}
+			}(ExceptionRecord.ExceptionInformation[0]);
 
-		string Symbol;
-		tracer.get_symbols(Module, { { ExceptionRecord.ExceptionInformation[1], 0 } }, [&](string&& Line)
+			string Symbol;
+			tracer.get_symbols(Module, { { ExceptionRecord.ExceptionInformation[1], 0 } }, [&](string&& Line)
+			{
+				Symbol = std::move(Line);
+			});
+
+			if (Symbol.empty())
+				Symbol = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
+
+			auto Result = format(FSTR(L"Memory at {} could not be {}"sv), Symbol, Mode);
+			if (NtStatus == EXCEPTION_IN_PAGE_ERROR && ExceptionRecord.NumberParameters > 2)
+				append(Result, L": "sv, os::format_ntstatus(static_cast<NTSTATUS>(ExceptionRecord.ExceptionInformation[2])));
+
+			return Result;
+		}
+
+	case STATUS_NO_MEMORY:
 		{
-			Symbol = std::move(Line);
-		});
+			if (!ExceptionRecord.NumberParameters)
+				break;
 
-		if (Symbol.empty())
-			Symbol = to_hex_wstring(ExceptionRecord.ExceptionInformation[1]);
+			return format(FSTR(L"Unable to allocate {} bytes: {}"sv), ExceptionRecord.ExceptionInformation[0], default_details());
+		}
 
-		auto Result = format(FSTR(L"Memory at {} could not be {}"sv), Symbol, Mode);
-		if (NtStatus == EXCEPTION_IN_PAGE_ERROR)
-			append(Result, L": "sv, os::format_ntstatus(static_cast<NTSTATUS>(ExceptionRecord.ExceptionInformation[2])));
+	case EH_DELAYLOAD_MODULE:
+	case EH_DELAYLOAD_PROCEDURE:
+		{
+			if (!ExceptionRecord.NumberParameters)
+				return {};
 
-		return Result;
-	}
+			const auto& Info = *reinterpret_cast<detail::DelayLoadInfo const*>(ExceptionRecord.ExceptionInformation[0]);
+			return concat(
+				encoding::ansi::get_chars(Info.szDll),
+				L"::"sv,
+				Info.dlp.fImportByName?
+					encoding::ansi::get_chars(Info.dlp.szProcName) :
+					str(Info.dlp.dwOrdinal),
+				L": "sv,
+				os::format_error(Info.dwLastError)
+			);
+		}
 
 	case EH_EXCEPTION_NUMBER:
 	case STATUS_FAR_ABORT:
 		return string(Message);
 
 	case EH_CLR_EXCEPTION:
-		if (ExceptionRecord.NumberParameters)
+		{
+			if (!ExceptionRecord.NumberParameters)
+				return {};
+
 			return os::format_error(ExceptionRecord.ExceptionInformation[0]);
-		return {};
+		}
 
 	case EH_SANITIZER:
-		if (ExceptionRecord.NumberParameters && ExceptionRecord.ExceptionInformation[0])
 		{
+			if (!ExceptionRecord.NumberParameters || !ExceptionRecord.ExceptionInformation[0])
+				return {};
+
 			const auto& Record = view_as<detail::EXCEPTION_SANITIZER_ERROR>(ExceptionRecord.ExceptionInformation[0]);
 			if (Record.cbSize < sizeof(Record))
 				return L"Unrecognized sanitizer record size"s;
@@ -1127,11 +1260,9 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 				return L"Unrecognized sanitizer kind"s;
 			}
 		}
-		return {};
-
-	default:
-		return os::format_ntstatus(ExceptionRecord.ExceptionCode);
 	}
+
+	return default_details();
 }
 
 static string collect_information(
@@ -1299,7 +1430,7 @@ static string collect_information(
 	return Strings;
 }
 
-static bool handle_generic_exception(
+static handler_result handle_generic_exception(
 	exception_context const& Context,
 	std::string_view const Function,
 	string_view const Location,
@@ -1312,10 +1443,10 @@ static bool handle_generic_exception(
 {
 	static bool ExceptionHandlingIgnored = false;
 	if (ExceptionHandlingIgnored)
-		return false;
+		return handler_result::continue_search;
 
 	if (s_ExceptionHandlingInprogress)
-		return true;
+		return handler_result::execute_handler;
 
 	s_ExceptionHandlingInprogress = true;
 	SCOPE_EXIT{ s_ExceptionHandlingInprogress = false; };
@@ -1365,27 +1496,35 @@ static bool handle_generic_exception(
 		OpenFolderInShell(ReportLocation);
 
 	const auto UseDialog = !ForceStderrExceptionUI && Global && Global->WindowManager && !Global->WindowManager->ManagerIsDown();
+	const auto CanContinue = !(Context.exception_record().ExceptionFlags & EXCEPTION_NONCONTINUABLE);
 
-	const auto InvokeHandler = AnythingOnDisk || ReportInClipboard?
+	const auto Result = AnythingOnDisk || ReportInClipboard?
 		(UseDialog? ExcDialog : ExcConsole)(
+			CanContinue,
 			AnythingOnDisk?
 				ReportLocation :
 				msg(lng::MExceptionDialogClipboard),
 			PluginInfo
 		) :
 		// Should never happen - neither the filesystem nor clipboard are writable, so just dump it to the screen:
-		ExcConsole(BugReport, PluginInfo);
+		ExcConsole(CanContinue, BugReport, PluginInfo);
 
-	if (!InvokeHandler)
+	switch (Result)
 	{
+	case handler_result::continue_execution:
+		break;
+
+	case handler_result::execute_handler:
+		if (!PluginModule && Global)
+			Global->CriticalInternalError = true;
+		break;
+
+	case handler_result::continue_search:
 		ExceptionHandlingIgnored = true;
-		return false;
+		break;
 	}
 
-	if (!PluginModule && Global)
-		Global->CriticalInternalError = true;
-
-	return true;
+	return Result;
 }
 
 void restore_system_exception_handler()
@@ -1494,10 +1633,10 @@ static bool handle_std_exception(
 			return Wrapper? Wrapper->get_stack() : span<os::debug::stack_frame const>{};
 		}();
 
-		return handle_generic_exception(Context, FarException->function(), FarException->location(), Module, Type, What, *FarException, NestedStack);
+		return handle_generic_exception(Context, FarException->function(), FarException->location(), Module, Type, What, *FarException, NestedStack) == handler_result::execute_handler;
 	}
 
-	return handle_generic_exception(Context, Function, {}, Module, Type, What, LastError);
+	return handle_generic_exception(Context, Function, {}, Module, Type, What, LastError) == handler_result::execute_handler;
 }
 
 bool handle_std_exception(const std::exception& e, std::string_view const Function, const Plugin* const Module)
@@ -1556,7 +1695,7 @@ seh_exception::seh_exception_impl const& seh_exception::get() const
 	return *m_Impl;
 }
 
-static bool handle_seh_exception(
+static handler_result handle_seh_exception(
 	exception_context const& Context,
 	std::string_view const Function,
 	Plugin const* const PluginModule
@@ -1575,7 +1714,9 @@ static bool handle_seh_exception(
 	for (const auto& i : enum_catchable_objects(Record))
 	{
 		if (std::strstr(i, "std::exception"))
-			return handle_std_exception(Context, view_as<std::exception>(Record.ExceptionInformation[1]), Function, PluginModule);
+			return handle_std_exception(Context, view_as<std::exception>(Record.ExceptionInformation[1]), Function, PluginModule)?
+				handler_result::execute_handler :
+				handler_result::continue_search;
 	}
 
 	return handle_generic_exception(Context, Function, {}, PluginModule, {}, {}, LastError);
@@ -1583,7 +1724,7 @@ static bool handle_seh_exception(
 
 bool handle_unknown_exception(std::string_view const Function, const Plugin* const Module)
 {
-	return handle_seh_exception(exception_context(os::debug::exception_information()), Function, Module);
+	return handle_seh_exception(exception_context(os::debug::exception_information()), Function, Module) == handler_result::execute_handler;
 }
 
 bool use_terminate_handler()
@@ -1605,7 +1746,7 @@ static void seh_abort_handler_impl()
 	// If it's a SEH or a C++ exception implemented in terms of SEH (and not a fake for GCC) it's better to handle it as SEH
 	if (const auto Info = os::debug::exception_information(); Info.ContextRecord && Info.ExceptionRecord && !is_fake_cpp_exception(*Info.ExceptionRecord))
 	{
-		if (handle_seh_exception(exception_context(Info), CURRENT_FUNCTION_NAME, {}))
+		if (handle_seh_exception(exception_context(Info), CURRENT_FUNCTION_NAME, {}) == handler_result::execute_handler)
 			os::process::terminate_by_user();
 	}
 
@@ -1632,7 +1773,7 @@ static void seh_abort_handler_impl()
 	exception_context const Context{ os::debug::fake_exception_information(STATUS_FAR_ABORT) };
 	error_state_ex const LastError{ os::last_error(), {}, errno };
 
-	if (handle_generic_exception(Context, CURRENT_FUNCTION_NAME, {}, {}, {}, L"Abnormal termination"sv, LastError))
+	if (handle_generic_exception(Context, CURRENT_FUNCTION_NAME, {}, {}, {}, L"Abnormal termination"sv, LastError) == handler_result::execute_handler)
 		os::process::terminate_by_user();
 
 	restore_system_exception_handler();
@@ -1719,7 +1860,7 @@ static void invalid_parameter_handler_impl(const wchar_t* const Expression, cons
 		{},
 		Expression? Expression : L"Invalid parameter"sv,
 		LastError
-	))
+	) == handler_result::execute_handler)
 		os::process::terminate_by_user();
 
 	restore_system_exception_handler();
@@ -1841,10 +1982,10 @@ namespace detail
 
 		set_fp_exceptions(false);
 		const exception_context Context(*Info);
+		auto Result = handler_result::continue_search;
 
 		if (static_cast<NTSTATUS>(Info->ExceptionRecord->ExceptionCode) == EXCEPTION_STACK_OVERFLOW)
 		{
-			bool Result = false;
 			{
 				os::thread(os::thread::mode::join, [&]
 				{
@@ -1854,20 +1995,27 @@ namespace detail
 			}
 
 			StackOverflowHappened = true;
-
-			if (Result)
-			{
-				return EXCEPTION_EXECUTE_HANDLER;
-			}
 		}
 		else
 		{
-			if (handle_seh_exception(Context, Function, Module))
-				return EXCEPTION_EXECUTE_HANDLER;
+			Result = handle_seh_exception(Context, Function, Module);
 		}
 
-		restore_system_exception_handler();
-		return EXCEPTION_CONTINUE_SEARCH;
+		switch (Result)
+		{
+		case handler_result::continue_execution:
+			return EXCEPTION_CONTINUE_EXECUTION;
+
+		case handler_result::execute_handler:
+			return EXCEPTION_EXECUTE_HANDLER;
+
+		case handler_result::continue_search:
+			restore_system_exception_handler();
+			return EXCEPTION_CONTINUE_SEARCH;
+
+		default:
+			UNREACHABLE;
+		}
 	}
 
 	int seh_thread_filter(seh_exception& Exception, EXCEPTION_POINTERS const* const Info)

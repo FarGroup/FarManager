@@ -329,6 +329,27 @@ namespace tests
 		InvalidAddress();
 	}
 
+	static void seh_access_violation_bad()
+	{
+		RaiseException(STATUS_ACCESS_VIOLATION, 0, 0, {});
+	}
+
+	static void seh_in_page_error()
+	{
+		// No idea how to generate a real one easily
+
+		static const int Symbol = 42;
+
+		ULONG_PTR const Args[]
+		{
+			static_cast<ULONG_PTR>(EXCEPTION_READ_FAULT),
+			reinterpret_cast<ULONG_PTR>(&Symbol),
+			static_cast<ULONG_PTR>(STATUS_IO_DEVICE_ERROR),
+		};
+
+		RaiseException(STATUS_IN_PAGE_ERROR, 0, static_cast<DWORD>(std::size(Args)), Args);
+	}
+
 	static void seh_divide_by_zero()
 	{
 		volatile const auto InvalidDenominator = 0;
@@ -388,6 +409,11 @@ namespace tests
 		{
 			HeapFree(GetProcessHeap(), 0, m);
 		}
+	}
+
+	static void seh_heap_no_memory()
+	{
+		[[maybe_unused]] const auto m = HeapAlloc(GetProcessHeap(), HEAP_GENERATE_EXCEPTIONS, std::numeric_limits<size_t>::max());
 	}
 
 	static void seh_fp_divide_by_zero()
@@ -582,11 +608,14 @@ static bool ExceptionTestHook(Manager::Key const& key)
 		{ tests::seh_access_violation_write,   L"SEH access violation (write)"sv },
 		{ tests::seh_access_violation_ex_nx,   L"SEH access violation (execute NX)"sv },
 		{ tests::seh_access_violation_ex_nul,  L"SEH access violation (execute nullptr)"sv },
+		{ tests::seh_access_violation_bad,     L"SEH access violation (malformed)"sv },
+		{ tests::seh_in_page_error,            L"SEH in page error"sv },
 		{ tests::seh_divide_by_zero,           L"SEH divide by zero"sv },
 		{ tests::seh_divide_by_zero_thread,    L"SEH divide by zero (thread)"sv },
 		{ tests::seh_int_overflow,             L"SEH int overflow"sv },
 		{ tests::seh_stack_overflow,           L"SEH stack overflow"sv },
 		{ tests::seh_heap_corruption,          L"SEH heap corruption"sv },
+		{ tests::seh_heap_no_memory,           L"SEH heap no memory"sv },
 		{ tests::seh_fp_divide_by_zero,        L"SEH floating-point divide by zero"sv },
 		{ tests::seh_fp_overflow,              L"SEH floating-point overflow"sv },
 		{ tests::seh_fp_underflow,             L"SEH floating-point underflow"sv },

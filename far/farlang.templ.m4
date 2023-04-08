@@ -22702,6 +22702,20 @@ upd:"Unload plugin"
 "Выгрузіць дадатак"
 "Iškrauti priedą"
 
+MExcContinue
+"Продолжить"
+"Continue"
+"Pokračovat"
+"Fortfahren"
+"Folytatni"
+"Kontynuować"
+"Continuar"
+"Pokračovať"
+"Continuare"
+"Продовжити"
+"Працягнуць"
+"Tęsti"
+
 MExcFullDump
 "Полный дамп"
 "Full dump"
