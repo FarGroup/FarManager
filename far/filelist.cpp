@@ -3132,7 +3132,7 @@ bool FileList::ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent)
 		return false;
 
 	const auto column_titles = Global->Opt->ShowColumnTitles ? 1 : 0;
-	const bool disk_or_sorts = IsVisible() && !MouseEvent->dwEventFlags &&
+	const bool disk_or_sorts = Global->Opt->ShowSortMode && IsVisible() && !MouseEvent->dwEventFlags &&
 		MouseEvent->dwMousePosition.Y == m_Where.top + column_titles &&
 		MouseEvent->dwMousePosition.X > m_Where.left && MouseEvent->dwMousePosition.X < m_Where.left + 2+column_titles;
 
