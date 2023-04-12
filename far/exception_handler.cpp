@@ -194,30 +194,25 @@ static constexpr NTSTATUS
 	STATUS_FAR_ABORT              = make_far_ntstatus(0),
 	STATUS_FAR_THREAD_RETHROW     = make_far_ntstatus(1);
 
-static const auto Separator = L"----------------------------------------------------------------------"sv;
+static const auto DoubleSeparator = L"======================================================================"sv;
+static const auto Separator       = L"----------------------------------------------------------------------"sv;
 
 static void make_header(string_view const Message, function_ref<void(string_view)> const Consumer)
+{
+	Consumer({});
+
+	Consumer(DoubleSeparator);
+	Consumer(Message);
+	Consumer(DoubleSeparator);
+}
+
+static void make_subheader(string_view const Message, function_ref<void(string_view)> const Consumer)
 {
 	Consumer({});
 
 	Consumer(Separator);
 	Consumer(Message);
 	Consumer(Separator);
-}
-
-static void get_backtrace(string_view const Module, span<os::debug::stack_frame const> const Stack, span<os::debug::stack_frame const> const NestedStack, function_ref<void(string_view)> const Consumer)
-{
-	make_header(L"Exception stack"sv, Consumer);
-	if (!NestedStack.empty())
-	{
-		tracer.get_symbols(Module, NestedStack, Consumer);
-		make_header(L"Rethrow stack"sv, Consumer);
-	}
-
-	tracer.get_symbols(Module, Stack, Consumer);
-
-	make_header(L"Exception handler stack"sv, Consumer);
-	tracer.current_stacktrace(Module, Consumer);
 }
 
 static string get_report_location()
@@ -284,6 +279,11 @@ static bool write_report(string_view const Data, string_view const FullPath)
 
 static bool write_minidump(const exception_context& Context, string_view const FullPath, MINIDUMP_TYPE const Type)
 {
+#ifdef _DEBUG
+	if (Type & MiniDumpWithFullMemory)
+		return false;
+#endif
+
 	if (!imports.MiniDumpWriteDump)
 		return false;
 
@@ -427,11 +427,17 @@ static string file_timestamp()
 
 	if (!os::fs::get_find_data(ModuleName, Data))
 	{
-		LOGWARNING(L"get_find_data({}): {}"sv, ModuleName, os::last_error());
-		return {};
+		const auto LastError = os::last_error();
+		LOGWARNING(L"get_find_data({}): {}"sv, ModuleName, LastError);
+		return LastError.Win32ErrorStr();
 	}
 
 	return timestamp(Data.LastWriteTime);
+}
+
+static string system_timestamp()
+{
+	return timestamp(os::chrono::nt_clock::now());
 }
 
 static string kernel_version()
@@ -620,83 +626,105 @@ private:
 };
 WARNING_POP()
 
-static void read_disassembly(string& To, string_view const Module, span<os::debug::stack_frame const> const Stack, string_view const Eol)
+class debug_client
 {
-	if (Stack.empty())
-		return;
-
-	if (!imports.DebugCreate)
-		return;
-
-	try
+public:
+	explicit debug_client(string& To):
+		m_To(&To),
+		m_Callbacks(m_To)
 	{
-		DebugOutputCallbacks Callbacks(&To);
+	}
 
-		os::com::ptr<IDebugClient> DebugClient;
-		COM_INVOKE(imports.DebugCreate, (IID_IDebugClient, IID_PPV_ARGS_Helper(&ptr_setter(DebugClient))));
+	void disassembly(string_view const Module, span<os::debug::stack_frame const> const Stack, string_view const Eol)
+	{
+		if (Stack.empty())
+			return;
 
-		COM_INVOKE(DebugClient->AttachProcess, ({}, GetCurrentProcessId(), DEBUG_ATTACH_NONINVASIVE | DEBUG_ATTACH_NONINVASIVE_NO_SUSPEND));
+		try
+		{
+			if (!m_DebugControl)
+				initialize();
 
-		os::com::ptr<IDebugControl> DebugControl;
-		COM_INVOKE(DebugClient->QueryInterface, (IID_IDebugControl, IID_PPV_ARGS_Helper(&ptr_setter(DebugControl))));
+			const auto DisassembleFlags =
+				DEBUG_DISASM_EFFECTIVE_ADDRESS |
+				DEBUG_DISASM_MATCHING_SYMBOLS |
+				DEBUG_DISASM_SOURCE_LINE_NUMBER |
+				DEBUG_DISASM_SOURCE_FILE_NAME;
 
-		if (const auto Result = DebugControl->WaitForEvent(DEBUG_WAIT_DEFAULT, INFINITE); FAILED(Result))
+			const auto MaxFrames = 10;
+			auto Frames = 0;
+
+			for (const auto i: Stack)
+			{
+				if (os::debug::is_inline_frame(i.InlineContext))
+					continue;
+
+				tracer.get_symbols(Module, { &i, 1 }, [&](string_view const Line)
+				{
+					append(*m_To, Line, L':', Eol);
+				});
+
+				const auto PrevLines = 10;
+				if (const auto Result = m_DebugControl->OutputDisassemblyLines(
+					DEBUG_OUTCTL_THIS_CLIENT,
+					PrevLines,
+					PrevLines + 1,
+					i.Address,
+					DisassembleFlags,
+					{},
+					{},
+					{},
+					{}
+				); FAILED(Result))
+				{
+					LOGWARNING(L"OutputDisassemblyLines(): {}"sv, os::format_error(Result));
+				}
+
+				if (++Frames == MaxFrames)
+					break;
+
+				*m_To += Eol;
+			}
+		}
+		catch (os::com::exception const& e)
+		{
+			LOGWARNING(L"{}"sv, e);
+		}
+
+	}
+
+private:
+	void initialize()
+	{
+		if (m_DebugControl)
+			return;
+
+		if (!imports.DebugCreate)
+			return;
+
+		COM_INVOKE(imports.DebugCreate, (IID_IDebugClient, IID_PPV_ARGS_Helper(&ptr_setter(m_DebugClient))));
+
+		COM_INVOKE(m_DebugClient->AttachProcess, ({}, GetCurrentProcessId(), DEBUG_ATTACH_NONINVASIVE | DEBUG_ATTACH_NONINVASIVE_NO_SUSPEND));
+
+		COM_INVOKE(m_DebugClient->QueryInterface, (IID_IDebugControl, IID_PPV_ARGS_Helper(&ptr_setter(m_DebugControl))));
+
+		if (const auto Result = m_DebugControl->WaitForEvent(DEBUG_WAIT_DEFAULT, INFINITE); FAILED(Result))
 			LOGWARNING(L"WaitForEvent(): {}"sv, os::format_error(Result));
 
-		if (const auto Result = DebugClient->SetOutputMask(DebugOutputCallbacks::CallbackTypes); FAILED(Result))
+		if (const auto Result = m_DebugClient->SetOutputMask(DebugOutputCallbacks::CallbackTypes); FAILED(Result))
 			LOGWARNING(L"SetOutputMask(): {}"sv, os::format_error(Result));
 
-		if (os::com::ptr<IDebugClient5> DebugClient5; SUCCEEDED(DebugClient->QueryInterface(IID_IDebugClient5, IID_PPV_ARGS_Helper(&ptr_setter(DebugClient5)))))
-			COM_INVOKE(DebugClient5->SetOutputCallbacksWide, (&Callbacks));
+		if (os::com::ptr<IDebugClient5> DebugClient5; SUCCEEDED(m_DebugClient->QueryInterface(IID_IDebugClient5, IID_PPV_ARGS_Helper(&ptr_setter(DebugClient5)))))
+			COM_INVOKE(DebugClient5->SetOutputCallbacksWide, (&m_Callbacks));
 		else
-			COM_INVOKE(DebugClient->SetOutputCallbacks, (&Callbacks));
-
-		const auto DisassembleFlags =
-			DEBUG_DISASM_EFFECTIVE_ADDRESS |
-			DEBUG_DISASM_MATCHING_SYMBOLS |
-			DEBUG_DISASM_SOURCE_LINE_NUMBER |
-			DEBUG_DISASM_SOURCE_FILE_NAME;
-
-		const auto MaxFrames = 10;
-		auto Frames = 0;
-
-		for (const auto i: Stack)
-		{
-			if (os::debug::is_inline_frame(i.InlineContext))
-				continue;
-
-			tracer.get_symbols(Module, {&i, 1}, [&](string_view const Line)
-			{
-				append(To, Line, L':', Eol);
-			});
-
-			const auto PrevLines = 10;
-			if (const auto Result = DebugControl->OutputDisassemblyLines(
-				DEBUG_OUTCTL_THIS_CLIENT,
-				PrevLines,
-				PrevLines + 1,
-				i.Address,
-				DisassembleFlags,
-				{},
-				{},
-				{},
-				{}
-			); FAILED(Result))
-			{
-				LOGWARNING(L"OutputDisassemblyLines(): {}"sv, os::format_error(Result));
-			}
-
-			if (++Frames == MaxFrames)
-				break;
-
-			To += Eol;
-		}
+			COM_INVOKE(m_DebugClient->SetOutputCallbacks, (&m_Callbacks));
 	}
-	catch (os::com::exception const& e)
-	{
-		LOGWARNING(L"{}"sv, e);
-	}
-}
+
+	string* m_To;
+	DebugOutputCallbacks m_Callbacks;
+	os::com::ptr<IDebugClient> m_DebugClient;
+	os::com::ptr<IDebugControl> m_DebugControl;
+};
 
 enum class handler_result
 {
@@ -787,6 +815,7 @@ static void print_exception_message(string const& ReportLocation, string const& 
 	std::wcerr <<
 		Eol <<
 		Eol <<
+		DoubleSeparator << Eol <<
 		LngMsgs[0] << Eol <<
 		Separator << Eol;
 
@@ -851,15 +880,36 @@ static handler_result ExcConsole(bool const CanContinue, string const& ReportLoc
 	return handler_result::continue_search;
 }
 
+static string get_locale()
+{
+	wchar_t NameBuffer[LOCALE_NAME_MAX_LENGTH];
+	string_view Name;
+
+	if (size_t const SizeWith0 = GetLocaleInfo(LOCALE_SYSTEM_DEFAULT, LOCALE_SNAME, NameBuffer, static_cast<int>(std::size(NameBuffer))))
+		Name = { NameBuffer, SizeWith0 - 1 };
+	else
+		Name = L"Unknown"sv;
+
+	const auto LocaleId = GetUserDefaultLCID();
+	const auto LanguageId = LANGIDFROMLCID(LocaleId);
+	return format(FSTR(L"{} | LCID={:08X} (Lang={:04X} (Primary={:03X} Sub={:02X}) Sort={:X} SortVersion={:X}) | ANSI={} OEM={}"sv),
+		Name,
+		LocaleId,
+		LanguageId,
+		PRIMARYLANGID(LanguageId),
+		SUBLANGID(LanguageId),
+		SORTIDFROMLCID(LocaleId),
+		SORTVERSIONFROMLCID(LocaleId),
+		encoding::codepage::ansi(),
+		encoding::codepage::oem()
+	);
+}
+
 static string get_console_host()
 {
-	if (!imports.NtQueryInformationProcess)
-		return {};
-
 	ULONG_PTR ConsoleHostProcess;
-	const auto Status = imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessConsoleHostProcess, &ConsoleHostProcess, sizeof(ConsoleHostProcess), {});
-	if (!NT_SUCCESS(Status))
-		return {};
+	if (const auto Status = imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessConsoleHostProcess, &ConsoleHostProcess, sizeof(ConsoleHostProcess), {}); !NT_SUCCESS(Status))
+		return os::format_ntstatus(Status);
 
 	const auto ConsoleHostProcessId = ConsoleHostProcess & ~0b11;
 
@@ -890,12 +940,9 @@ static auto parent_process_id(process_basic_information_t const& Info)
 
 static string get_parent_process()
 {
-	if (!imports.NtQueryInformationProcess)
-		return {};
-
 	PROCESS_BASIC_INFORMATION ProcessInfo;
-	if (!NT_SUCCESS(imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessBasicInformation, &ProcessInfo, sizeof(ProcessInfo), {})))
-		return {};
+	if (const auto Status = imports.NtQueryInformationProcess(GetCurrentProcess(), ProcessBasicInformation, &ProcessInfo, sizeof(ProcessInfo), {}); !NT_SUCCESS(Status))
+		return os::format_ntstatus(Status);
 
 	const auto ParentProcessId = parent_process_id(ProcessInfo);
 
@@ -912,7 +959,7 @@ static string get_uptime()
 {
 	os::chrono::time_point CreationTime;
 	if (!os::chrono::get_process_creation_time(GetCurrentProcess(), CreationTime))
-		return {};
+		return os::last_error().Win32ErrorStr();
 
 	return ConvertDurationToHMS(os::chrono::nt_clock::now() - CreationTime);
 }
@@ -1269,7 +1316,6 @@ static string collect_information(
 	exception_context const& Context,
 	std::string_view const Function,
 	string_view const Location,
-	Plugin const* const PluginModule,
 	string_view const PluginInfo,
 	string_view ModuleName,
 	string_view const Type,
@@ -1306,22 +1352,29 @@ static string collect_information(
 	if (Source.empty())
 		Source = Location;
 
-	const auto FunctionWide = encoding::utf8::get_chars(Function);
 	const auto Errno = ErrorState.ErrnoStr();
 	const auto LastError = ErrorState.Win32ErrorStr();
 	const auto LastNtStatus = ErrorState.NtErrorStr();
+	const auto FunctionWide = encoding::utf8::get_chars(Function);
+	const auto PluginInfoStr = PluginInfo.empty()? L"N/A"sv : PluginInfo;
+
 	const auto Version = self_version();
 	const auto Compiler = build::compiler();
 	const auto PeTime = pe_timestamp();
 	const auto FileTime = file_timestamp();
+	const auto SystemTime = system_timestamp();
+	const auto Uptime = get_uptime();
 	const auto OsVersion = os::version::os_version();
 	const auto KernelVersion = kernel_version();
+	const auto Locale = get_locale();
 	const auto ConsoleHost = get_console_host();
 	const auto Parent = get_parent_process();
 	const auto Command = GetCommandLine();
-	const auto Uptime = get_uptime();
+	const auto AccessLevel = os::security::is_admin()? L"Administrator"sv : L"User"sv;
 
-	std::pair<string_view, string_view> const BasicInfo[]
+	using info_block = std::pair<string_view, string_view>;
+
+	info_block const ExceptionInfo[]
 	{
 		{ L"Exception:"sv, Exception,     },
 		{ L"Details:  "sv, Details,       },
@@ -1332,53 +1385,87 @@ static string collect_information(
 		{ L"Function: "sv, FunctionWide,  },
 		{ L"Source:   "sv, Source,        },
 		{ L"File:     "sv, ModuleName,    },
-		{ L"Plugin:   "sv, PluginInfo,    },
-		{},
+		{ L"Plugin:   "sv, PluginInfoStr, },
+	},
+	SystemInfo[]
+	{
 		{ L"Far:      "sv, Version,       },
 		{ L"Compiler: "sv, Compiler,      },
 		{ L"PE time:  "sv, PeTime,        },
 		{ L"File time:"sv, FileTime,      },
+		{ L"Time:     "sv, SystemTime,    },
+		{ L"Uptime:   "sv, Uptime,        },
 		{ L"OS:       "sv, OsVersion,     },
 		{ L"Kernel:   "sv, KernelVersion, },
+		{ L"Locale:   "sv, Locale,        },
 		{ L"Host:     "sv, ConsoleHost,   },
 		{ L"Parent:   "sv, Parent,        },
 		{ L"Command:  "sv, Command,       },
-		{ L"Uptime:   "sv, Uptime,        },
+		{ L"Access:   "sv, AccessLevel,   },
 	};
 
-	const auto Stack = tracer.stacktrace(ModuleName, Context.context_record(), Context.thread_handle());
-
-	const auto log_message = [&]
+	const auto log_message = [](span<info_block const> const Info)
 	{
-		auto LogMessage = join(L"\n"sv, select(BasicInfo, [](auto const& Pair)
+		auto LogMessage = join(L"\n"sv, select(Info, [](auto const& Pair)
 		{
 			return format(FSTR(L"{} {}"sv), Pair.first, Pair.second);
 		}));
 
 		LogMessage += L"\n\n"sv;
 
-		get_backtrace(ModuleName, Stack, NestedStack, [&](string_view const Line)
-		{
-			append(LogMessage, Line, L'\n');
-		});
-
 		return LogMessage;
 	};
 
-	LOG(PluginModule? logging::level::error : logging::level::fatal, L"\n{}\n"sv, log_message());
+	LOGERROR(L"\n{}\n"sv, log_message(ExceptionInfo));
 
-	for (const auto& [Label, Value]: BasicInfo)
+	const auto print_info_block = [&](span<info_block const> const Info)
 	{
-		format_to(Strings, FSTR(L"{} {}{}"sv), Label, Value, Eol);
-	}
+		for (const auto& [Label, Value] : Info)
+		{
+			format_to(Strings, FSTR(L"{} {}{}"sv), Label, Value, Eol);
+		}
+	};
+
+	make_header(L"Summary"sv, append_line);
+	print_info_block(ExceptionInfo);
+
+	make_header(L"System information"sv, append_line);
+	print_info_block(SystemInfo);
+
+	const auto
+		StackTitle = L"Stack"sv,
+		DisassemblyTitle = L"Disassembly"sv,
+		RegistersTitle = L"Registers"sv;
+
+	make_header(L"Exception"sv, append_line);
 
 	if (!ExtraDetails.empty())
 	{
-		make_header(L"Details"sv, append_line);
+		make_subheader(L"Details"sv, append_line);
 		append_line(ExtraDetails);
 	}
 
-	get_backtrace(ModuleName, Stack, NestedStack, append_line);
+	make_subheader(StackTitle, append_line);
+	if (!NestedStack.empty())
+	{
+		tracer.get_symbols(ModuleName, NestedStack, append_line);
+		make_subheader(L"Rethrow stack"sv, append_line);
+	}
+	const auto Stack = tracer.stacktrace(ModuleName, Context.context_record(), Context.thread_handle());
+	tracer.get_symbols(ModuleName, Stack, append_line);
+
+	make_subheader(RegistersTitle, append_line);
+	read_registers(Strings, Context.context_record(), Eol);
+
+	// Read disassembly before modules - it will load dbgeng.dll and we might want to see it too just in case
+	make_subheader(DisassemblyTitle, append_line);
+	debug_client DebugClient(Strings);
+	DebugClient.disassembly(ModuleName, NestedStack.empty()? Stack : NestedStack, Eol);
+
+	make_header(L"Exception handler thread"sv, append_line);
+
+	make_subheader(StackTitle, append_line);
+	tracer.current_stacktrace(ModuleName, append_line);
 
 	{
 		os::process::enum_processes const Enum;
@@ -1403,7 +1490,6 @@ static string collect_information(
 				auto ThreadTitle = format(FSTR(L"Thread {0} / 0x{0:X}"sv), Tid);
 				if (const auto ThreadName = os::debug::get_thread_name(Thread.native_handle()); !ThreadName.empty())
 					append(ThreadTitle, L" ("sv, ThreadName, L')');
-				append(ThreadTitle, L" stack"sv);
 
 				make_header(ThreadTitle, append_line);
 
@@ -1412,20 +1498,21 @@ static string collect_information(
 				if (!GetThreadContext(Thread.native_handle(), &ThreadContext))
 					continue;
 
-				tracer.stacktrace(ModuleName, append_line, ThreadContext, Thread.native_handle());
+				make_subheader(StackTitle, append_line);
+				const auto ThreadStack = tracer.stacktrace(ModuleName, ThreadContext, Thread.native_handle());
+				tracer.get_symbols(ModuleName, ThreadStack, append_line);
+
+				make_subheader(DisassemblyTitle, append_line);
+				DebugClient.disassembly(ModuleName, ThreadStack, Eol);
+
+				make_subheader(RegistersTitle, append_line);
+				read_registers(Strings, ThreadContext, Eol);
 			}
 		}
 	}
 
-	// Read disassembly before modules - it will load dbgeng.dll and we might want to see it too just in case
-	make_header(L"Disassembly"sv, append_line);
-	read_disassembly(Strings, ModuleName, NestedStack.empty()? Stack : NestedStack, Eol);
-
 	make_header(L"Modules"sv, append_line);
 	read_modules(Strings, Eol);
-
-	make_header(L"Registers"sv, append_line);
-	read_registers(Strings, Context.context_record(), Eol);
 
 	return Strings;
 }
@@ -1459,6 +1546,10 @@ static handler_result handle_generic_exception(
 
 	SCOPED_ACTION(tracer_detail::tracer::with_symbols)(PluginModule? ModuleName : L""sv);
 
+	const auto ReportLocation = get_report_location();
+
+	LOGERROR(L"Unhandled exception, see {} for details"sv, ReportLocation);
+
 	const auto PluginInfo = PluginModule?
 	format(FSTR(L"{} {} ({}, {})"sv),
 		PluginModule->Title(),
@@ -1483,10 +1574,9 @@ static handler_result handle_generic_exception(
 		MiniDumpIgnoreInaccessibleMemory
 	);
 
-	const auto ReportLocation = get_report_location();
 	const auto MinidumpNormal = write_minidump(Context, path::join(ReportLocation, WIDE_SV(MINIDDUMP_NAME)), MinidumpFlags);
 	const auto MinidumpFull = write_minidump(Context, path::join(ReportLocation, WIDE_SV(FULLDUMP_NAME)), FulldumpFlags);
-	const auto BugReport = collect_information(Context, Function, Location, PluginModule, PluginInfo, ModuleName, Type, Message, ErrorState, NestedStack);
+	const auto BugReport = collect_information(Context, Function, Location, PluginInfo, ModuleName, Type, Message, ErrorState, NestedStack);
 	const auto ReportOnDisk = write_report(BugReport, path::join(ReportLocation, WIDE_SV(BUGREPORT_NAME)));
 	const auto ReportInClipboard = !ReportOnDisk && SetClipboardText(BugReport);
 	const auto ReadmeOnDisk = write_readme(path::join(ReportLocation, L"README.txt"sv));

@@ -542,6 +542,7 @@ static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void
 					}
 
 					Dlg->SendMessage(DM_SETTEXTPTR, Context.TextId, UNSAFE_CSTR(channel_value(Channel)));
+					Dlg->SendMessage(DM_SETCHECK, cd_radio_rgb, ToPtr(BSTATE_CHECKED));
 					return TRUE;
 				}
 
