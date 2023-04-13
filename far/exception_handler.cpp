@@ -1053,6 +1053,16 @@ namespace detail
 		}
 		u;
 	};
+
+	struct THREAD_BASIC_INFORMATION
+	{
+		NTSTATUS  ExitStatus;
+		PVOID     TebBaseAddress;
+		CLIENT_ID ClientId;
+		KAFFINITY AffinityMask;
+		KPRIORITY Priority;
+		KPRIORITY BasePriority;
+	};
 }
 
 static bool is_cpp_exception(const EXCEPTION_RECORD& Record)
@@ -1312,6 +1322,33 @@ static string exception_details(string_view const Module, EXCEPTION_RECORD const
 	return default_details();
 }
 
+struct thread_status
+{
+	NTSTATUS Result;
+
+	DWORD LastError;
+	NTSTATUS LastStatus;
+};
+
+static thread_status get_thread_status(HANDLE const Thread)
+{
+	if (!imports.NtQueryInformationThread)
+		return { STATUS_NOT_IMPLEMENTED };
+
+	constexpr auto ThreadBasicInformation = static_cast<THREADINFOCLASS>(0);
+	detail::THREAD_BASIC_INFORMATION BasicInformation;
+
+	if (const auto Status = imports.NtQueryInformationThread(Thread, ThreadBasicInformation, &BasicInformation, sizeof(BasicInformation), {}); !NT_SUCCESS(Status))
+		return { Status };
+
+	return
+	{
+		STATUS_SUCCESS,
+		os::get_last_error(BasicInformation.TebBaseAddress),
+		os::get_last_nt_status(BasicInformation.TebBaseAddress)
+	};
+}
+
 static string collect_information(
 	exception_context const& Context,
 	std::string_view const Function,
@@ -1372,6 +1409,10 @@ static string collect_information(
 	const auto Command = GetCommandLine();
 	const auto AccessLevel = os::security::is_admin()? L"Administrator"sv : L"User"sv;
 
+	const auto
+		LastErrorTitle = L"LastError:"sv,
+		NtStatusTitle = L"NTSTATUS: "sv;
+
 	using info_block = std::pair<string_view, string_view>;
 
 	info_block const ExceptionInfo[]
@@ -1379,8 +1420,8 @@ static string collect_information(
 		{ L"Exception:"sv, Exception,     },
 		{ L"Details:  "sv, Details,       },
 		{ L"errno:    "sv, Errno,         },
-		{ L"LastError:"sv, LastError,     },
-		{ L"NTSTATUS: "sv, LastNtStatus,  },
+		{ LastErrorTitle,  LastError,     },
+		{ NtStatusTitle,   LastNtStatus,  },
 		{ L"Address:  "sv, Address,       },
 		{ L"Function: "sv, FunctionWide,  },
 		{ L"Source:   "sv, Source,        },
@@ -1480,23 +1521,41 @@ static string collect_information(
 				if (Tid == CurrentThreadId)
 					continue;
 
+				auto ThreadTitle = format(FSTR(L"Thread {0} / 0x{0:X}"sv), Tid);
+
 				os::handle const Thread(OpenThread(THREAD_QUERY_INFORMATION | THREAD_SUSPEND_RESUME | THREAD_GET_CONTEXT, false, Tid));
 				if (!Thread)
+				{
+					make_header(ThreadTitle, append_line);
+					append_line(format(FSTR(L"Error opening thread {}: {}"sv), Tid, os::last_error()));
 					continue;
+				}
 
 				SuspendThread(Thread.native_handle());
 				SCOPE_EXIT{ ResumeThread(Thread.native_handle()); };
 
-				auto ThreadTitle = format(FSTR(L"Thread {0} / 0x{0:X}"sv), Tid);
 				if (const auto ThreadName = os::debug::get_thread_name(Thread.native_handle()); !ThreadName.empty())
 					append(ThreadTitle, L" ("sv, ThreadName, L')');
 
 				make_header(ThreadTitle, append_line);
 
+				if (const auto ThreadStatus = get_thread_status(Thread.native_handle()); NT_SUCCESS(ThreadStatus.Result))
+				{
+					append_line(concat(LastErrorTitle, ' ', os::format_error(ThreadStatus.LastError)));
+					append_line(concat(NtStatusTitle, ' ', os::format_ntstatus(ThreadStatus.LastStatus)));
+				}
+				else
+				{
+					append_line(format(FSTR(L"Error getting thread status: {}"sv), os::format_ntstatus(ThreadStatus.Result)));
+				}
+
 				CONTEXT ThreadContext{};
 				ThreadContext.ContextFlags = CONTEXT_ALL;
 				if (!GetThreadContext(Thread.native_handle(), &ThreadContext))
+				{
+					append_line(format(FSTR(L"Error getting thread context: {}"sv), os::last_error()));
 					continue;
+				}
 
 				make_subheader(StackTitle, append_line);
 				const auto ThreadStack = tracer.stacktrace(ModuleName, ThreadContext, Thread.native_handle());
