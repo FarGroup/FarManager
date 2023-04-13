@@ -196,9 +196,9 @@ SearchReplaceDlgResult GetSearchReplaceString(
 
 	const auto HexMask{ []()
 	{
-		string HexMask(64 * 3 - 1, L'H');
-		for (size_t i{ 2 }; i < HexMask.size(); i += 3) HexMask[i] = L' '; // "HH HH ... HH"
-		return HexMask;
+		string HexMaskValue(64 * 3 - 1, L'H');
+		for (size_t i{ 2 }; i < HexMaskValue.size(); i += 3) HexMaskValue[i] = L' '; // "HH HH ... HH"
+		return HexMaskValue;
 	} };
 
 	// dlg_radio_text
