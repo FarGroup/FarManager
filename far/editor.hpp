@@ -106,8 +106,6 @@ public:
 	bool GetAllowEmptySpaceAfterEof() const { return EdOpt.AllowEmptySpaceAfterEof; }
 	void SetSearchSelFound(bool NewMode) { EdOpt.SearchSelFound = NewMode; }
 	bool GetSearchSelFound() const { return EdOpt.SearchSelFound; }
-	void SetSearchRegexp(bool NewMode) { EdOpt.SearchRegexp = NewMode; }
-	bool GetSearchRegexp() const { return EdOpt.SearchRegexp; }
 	void SetShowWhiteSpace(int NewMode);
 	void GetSavePosMode(int &SavePos, int &SaveShortPos) const;
 	// передавайте в качестве значения параметра "-1" для параметра,
@@ -386,7 +384,7 @@ private:
 	int Pasting{};
 	int XX2{}; //scrollbar
 
-	SearchReplaceDlgParams LastSearchDlgParams;
+	SearchReplaceDlgParams m_SearchDlgParams;
 	bool IsReplaceMode{};
 	bool IsReplaceAll{};
 

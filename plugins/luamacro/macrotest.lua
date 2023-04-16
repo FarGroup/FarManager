@@ -794,7 +794,7 @@ local function test_Far_GetConfig()
     "Editor.ReadOnlyLock", "integer",
     "Editor.SaveEditorPos", "boolean",
     "Editor.SaveEditorShortPos", "boolean",
-    "Editor.SearchRegexp", "boolean",
+    -- "Editor.SearchRegexp", "boolean", // Removed in 6135
     "Editor.SearchSelFound", "boolean",
     "Editor.SearchCursorAtEnd", "boolean",
     "Editor.ShowKeyBar", "boolean",
@@ -806,7 +806,7 @@ local function test_Far_GetConfig()
     "Editor.UseExternalEditor", "boolean",
     "Editor.WordDiv", "string",
     "Help.ActivateURL", "integer",
-    "Help.HelpSearchRegexp", "boolean",
+    -- "Help.HelpSearchRegexp", "boolean", // Removed in 6135
     "History.CommandHistory.Count", "integer",
     "History.CommandHistory.Lifetime", "integer",
     "History.DialogHistory.Count", "integer",
@@ -1005,7 +1005,7 @@ local function test_Far_GetConfig()
     "Viewer.SaveViewerShortPos", "boolean",
     "Viewer.SaveViewerWrapMode", "boolean",
     -- "Viewer.SearchEditFocus", "boolean", // Removed in 6099
-    "Viewer.SearchRegexp", "boolean",
+    -- "Viewer.SearchRegexp", "boolean", // Removed in 6135
     "Viewer.SearchWrapStop", "3-state",
     "Viewer.ShowArrows", "boolean",
     "Viewer.ShowKeyBar", "boolean",

@@ -3912,7 +3912,6 @@ void FarMacroApi::editorsetFunc() const
 		ShowScrollBar           = 15,
 		EditOpenedForWrite      = 16,
 		SearchSelFound          = 17,
-		SearchRegexp            = 18,
 		ShowWhiteSpace          = 20,
 	};
 
@@ -3998,10 +3997,6 @@ void FarMacroApi::editorsetFunc() const
 		Ret = EdOpt.SearchSelFound;
 		break;
 
-	case editor_options::SearchRegexp:
-		Ret = EdOpt.SearchRegexp;
-		break;
-
 	case editor_options::ShowWhiteSpace:
 		Ret = EdOpt.ShowWhiteSpace;
 		break;
@@ -4079,10 +4074,6 @@ void FarMacroApi::editorsetFunc() const
 
 	case editor_options::SearchSelFound:
 		EdOpt.SearchSelFound = longState != 0;
-		break;
-
-	case editor_options::SearchRegexp:
-		EdOpt.SearchRegexp = longState != 0;
 		break;
 
 	case editor_options::ShowWhiteSpace:

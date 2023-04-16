@@ -139,6 +139,7 @@ class Help final: public window
 public:
 	static help_ptr create(string_view Topic, string_view Mask, unsigned long long Flags);
 	explicit Help(private_tag);
+	~Help() override;
 
 	bool  ProcessKey(const Manager::Key& Key) override;
 	bool  ProcessMouse(const MOUSE_EVENT_RECORD *MouseEvent) override;
@@ -184,7 +185,7 @@ private:
 	std::unique_ptr<StackHelpData> StackData;
 	std::stack<StackHelpData, std::vector<StackHelpData>> Stack; // стек возврата
 	std::vector<HelpRecord> HelpList; // "хелп" в памяти.
-	string  strFullHelpPathName;
+	string strFullHelpPathName;
 	string strCurPluginContents; // помним PluginContents (для отображения в заголовке)
 	string strCtrlStartPosChar;
 
@@ -207,7 +208,7 @@ private:
 	bool m_TopicFound{};
 	bool ErrorHelp{true};
 
-	SearchReplaceDlgParams LastSearchDlgParams;
+	SearchReplaceDlgParams m_SearchDlgParams;
 };
 
 struct Help::StackHelpData
@@ -231,14 +232,20 @@ Help::Help(private_tag):
 	StackData(std::make_unique<StackHelpData>()),
 	CurColor(colors::PaletteColorToFarColor(COL_HELPTEXT)),
 	CtrlTabSize(Global->Opt->HelpTabSize),
-	LastSearchDlgParams
+	m_SearchDlgParams
 	{
-		.CaseSensitive = Global->GlobalSearchCaseSensitive,
-		.WholeWords = Global->GlobalSearchWholeWords,
-		.Regexp = Global->Opt->EdOpt.SearchRegexp,
-		.Fuzzy = Global->GlobalSearchFuzzy
+		.SearchStr = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::help).SearchStr,
+		.CaseSensitive = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::help).CaseSensitive.value_or(false),
+		.WholeWords = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::help).WholeWords.value_or(false),
+		.Regex = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::help).Regex.value_or(false),
+		.Fuzzy = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::help).Fuzzy.value_or(false),
 	}
 {
+}
+
+Help::~Help()
+{
+	m_SearchDlgParams.SaveToShared(SearchReplaceDlgParams::SharedGroup::help);
 }
 
 help_ptr Help::create(string_view const Topic, string_view const Mask, unsigned long long const Flags)
@@ -1429,7 +1436,7 @@ bool Help::ProcessKey(const Manager::Key& Key)
 			// не поганим SelTopic, если и так в FoundContents
 			if (StackData->strHelpTopic != FoundContents)
 			{
-				if (GetSearchReplaceString({}, LastSearchDlgParams, L"HelpSearch"sv, {}, CP_DEFAULT, {}, &HelpSearchId) == SearchReplaceDlgResult::Cancel)
+				if (GetSearchReplaceString({}, m_SearchDlgParams, L"HelpSearch"sv, {}, CP_DEFAULT, {}, &HelpSearchId) == SearchReplaceDlgResult::Cancel)
 					return true;
 
 				Stack.emplace(*StackData);
@@ -1925,7 +1932,7 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	StackData->CurX=StackData->CurY=0;
 	m_CtrlColorChar = 0;
 
-	AddTitle(LastSearchDlgParams.SearchStr);
+	AddTitle(m_SearchDlgParams.SearchStr);
 
 	bool TopicFound=false;
 	string strCurTopic, strEntryName;
@@ -1934,24 +1941,24 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 	named_regex_match NamedMatch;
 	RegExp re;
 
-	if (LastSearchDlgParams.Regexp.value())
+	if (m_SearchDlgParams.Regex.value())
 	{
 		// Q: что важнее: опция диалога или опция RegExp`а?
 		try
 		{
 			re.Compile(
-				LastSearchDlgParams.SearchStr,
-				(LastSearchDlgParams.SearchStr.starts_with(L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (LastSearchDlgParams.CaseSensitive.value()? 0 : OP_IGNORECASE));
+				m_SearchDlgParams.SearchStr,
+				(m_SearchDlgParams.SearchStr.starts_with(L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (m_SearchDlgParams.CaseSensitive.value()? 0 : OP_IGNORECASE));
 		}
 		catch (regex_exception const& e)
 		{
-			ReCompileErrorMessage(e, LastSearchDlgParams.SearchStr);
+			ReCompileErrorMessage(e, m_SearchDlgParams.SearchStr);
 			return; //BUGBUG
 		}
 	}
 
 	searchers Searchers;
-	const auto& Searcher = init_searcher(Searchers, LastSearchDlgParams.CaseSensitive.value(), LastSearchDlgParams.Fuzzy.value(), LastSearchDlgParams.SearchStr);
+	const auto& Searcher = init_searcher(Searchers, m_SearchDlgParams.CaseSensitive.value(), m_SearchDlgParams.Fuzzy.value(), m_SearchDlgParams.SearchStr);
 
 	os::fs::filebuf StreamBuffer(HelpFile, std::ios::in);
 	std::istream Stream(&StreamBuffer);
@@ -1987,16 +1994,16 @@ void Help::Search(const os::fs::file& HelpFile,uintptr_t nCodePage)
 
 			if (SearchString(
 				Str,
-				LastSearchDlgParams.SearchStr,
+				m_SearchDlgParams.SearchStr,
 				Searcher,
 				re,
 				Match,
 				&NamedMatch,
 				CurPos,
 				{
-					.CaseSensitive = LastSearchDlgParams.CaseSensitive.value(),
-					.WholeWords = LastSearchDlgParams.WholeWords.value(),
-					.Regexp = LastSearchDlgParams.Regexp.value()
+					.CaseSensitive = m_SearchDlgParams.CaseSensitive.value(),
+					.WholeWords = m_SearchDlgParams.WholeWords.value(),
+					.Regex = m_SearchDlgParams.Regex.value()
 				},
 				SearchLength,
 				Global->Opt->EdOpt.strWordDiv

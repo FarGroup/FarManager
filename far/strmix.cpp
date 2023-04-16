@@ -928,7 +928,7 @@ bool SearchAndReplaceString(
 	if (WordDiv.empty())
 		WordDiv = Global->Opt->strWordDiv;
 
-	if (!options.Regexp && options.PreserveStyle && PreserveStyleReplaceString(Haystack, Needle, ReplaceStr, CurPos, options, WordDiv, SearchLength))
+	if (!options.Regex && options.PreserveStyle && PreserveStyleReplaceString(Haystack, Needle, ReplaceStr, CurPos, options, WordDiv, SearchLength))
 		return true;
 
 	if (Needle.empty())
@@ -946,7 +946,7 @@ bool SearchAndReplaceString(
 			return false;
 	}
 
-	if (options.Regexp)
+	if (options.Regex)
 	{
 		// Empty Haystack is ok for regex search, e.g. ^$
 		if ((Position || HaystackSize) && Position >= HaystackSize)
@@ -1105,6 +1105,21 @@ string ConvertHexString(string_view const From, uintptr_t Codepage, bool FromHex
 		const auto Blob = encoding::get_bytes(CompatibleCp, From);
 		return BlobToHexString(view_bytes(Blob), 0);
 	}
+}
+
+string BytesToString(bytes_view const Bytes, uintptr_t const Codepage)
+{
+	return encoding::get_chars(IsVirtualCodePage(Codepage)? encoding::codepage::ansi() : Codepage, Bytes);
+}
+
+string HexMask(size_t ByteCount)
+{
+	string Result(ByteCount * 3 - 1, L'H');
+	for (size_t i{ 2 }; i < Result.size(); i += 3)
+	{
+		Result[i] = L' '; // "HH HH ... HH"
+	}
+	return Result;
 }
 
 // dest и src НЕ ДОЛЖНЫ пересекаться

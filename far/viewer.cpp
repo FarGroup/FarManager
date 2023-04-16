@@ -137,14 +137,15 @@ Viewer::Viewer(window_ptr Owner, bool bQuickView, uintptr_t aCodePage):
 	SimpleScreenObject(std::move(Owner)),
 	ViOpt(Global->Opt->ViOpt),
 	Reader(ViewFile, (Global->Opt->ViOpt.MaxLineSize*2*64 > 64*1024 ? Global->Opt->ViOpt.MaxLineSize*2*64 : 64*1024)),
-	LastSearchDlgParams
+	m_SearchDlgParams
 	{
-		.SearchStr = Global->GetSearchString(),
-		.Hex = Global->GetSearchHex(),
-		.CaseSensitive = Global->GlobalSearchCaseSensitive,
-		.WholeWords = Global->GlobalSearchWholeWords,
-		.Regexp = Global->Opt->ViOpt.SearchRegexp,
-		.Fuzzy = Global->GlobalSearchFuzzy,
+		.SearchStr = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).SearchStr,
+		.SearchBytes = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).SearchBytes.value_or(bytes{}),
+		.Hex = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).Hex.value_or(false),
+		.CaseSensitive = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).CaseSensitive.value_or(false),
+		.WholeWords = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).WholeWords.value_or(false),
+		.Regex = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).Regex.value_or(false),
+		.Fuzzy = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).Fuzzy.value_or(false),
 	},
 	m_DefCodepage(aCodePage),
 	m_Codepage(m_DefCodepage),
@@ -271,11 +272,7 @@ void Viewer::SavePosition()
 
 void Viewer::KeepInitParameters() const
 {
-	Global->StoreSearchString(LastSearchDlgParams.SearchStr, LastSearchDlgParams.Hex.value());
-	Global->GlobalSearchCaseSensitive = LastSearchDlgParams.CaseSensitive.value();
-	Global->GlobalSearchWholeWords = LastSearchDlgParams.WholeWords.value();
-	Global->Opt->ViOpt.SearchRegexp = LastSearchDlgParams.Regexp.value();
-	Global->GlobalSearchFuzzy = LastSearchDlgParams.Fuzzy.value();
+	m_SearchDlgParams.SaveToShared(SearchReplaceDlgParams::SharedGroup::common);
 	Global->Opt->ViOpt.ViewerIsWrap = m_Wrap;
 	Global->Opt->ViOpt.ViewerWrap = m_WordWrap;
 }
@@ -2450,7 +2447,7 @@ struct Viewer::search_data
 	string_view search_text; // IN: Needle if Text / Regex
 	int search_len{}; // IN: Needle length; in wide characters if Text / Regex, in bytes if Hex. OUT: If found, length of found sequence in file, in bytes always
 	int  ch_size{}; // IN: getCharSize() if Text / Regex; 1 if Hex
-	const i_searcher* searcher{}; // IN: The searcher to use if Text; nullptr otherwise. TODO: use i_searcherfor all types of search
+	const i_searcher* searcher{}; // IN: The searcher to use if Text; nullptr otherwise. TODO: use i_searcherfor for all types of search
 	string word_div; // IN: Word delimiter characters if Text; empty otherwise
 	bool first_Rex{true};
 	RegExp Rex; // IN: Compiled regex if Regex
@@ -2610,7 +2607,7 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 {
 	assert(sd->searcher);
 
-	const auto bsize = 8192, slen = sd->search_len, ww = (LastSearchDlgParams.WholeWords.value() ? 1 : 0);
+	const auto bsize = 8192, slen = sd->search_len, ww = (m_SearchDlgParams.WholeWords.value() ? 1 : 0);
 	wchar_t prev_char{}, *buff = Search_buffer.data(), *t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
 	long long to;
 	const auto cpos = sd->CurPos;
@@ -2656,8 +2653,8 @@ SEARCHER_RESULT Viewer::search_text_forward(search_data* sd)
 		{},
 		CurPos,
 		{
-			.CaseSensitive = LastSearchDlgParams.CaseSensitive.value(),
-			.WholeWords = LastSearchDlgParams.WholeWords.value(),
+			.CaseSensitive = m_SearchDlgParams.CaseSensitive.value(),
+			.WholeWords = m_SearchDlgParams.WholeWords.value(),
 		},
 		SearchLength,
 		sd->word_div))
@@ -2703,7 +2700,7 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 {
 	assert(sd->searcher);
 
-	const auto bsize = 8192, slen = sd->search_len, ww = (LastSearchDlgParams.WholeWords.value() ? 1 : 0);
+	const auto bsize = 8192, slen = sd->search_len, ww = (m_SearchDlgParams.WholeWords.value() ? 1 : 0);
 	const auto buff = Search_buffer.data();
 	const auto t_buff = (sd->ch_size < 0 ? buff + bsize : nullptr);
 	auto cpos = sd->CurPos;
@@ -2751,8 +2748,8 @@ SEARCHER_RESULT Viewer::search_text_backward(search_data* sd)
 		{},
 		CurPos,
 		{
-			.CaseSensitive = LastSearchDlgParams.CaseSensitive.value(),
-			.WholeWords = LastSearchDlgParams.WholeWords.value(),
+			.CaseSensitive = m_SearchDlgParams.CaseSensitive.value(),
+			.WholeWords = m_SearchDlgParams.WholeWords.value(),
 			.Reverse = true
 		},
 		SearchLength,
@@ -2993,7 +2990,7 @@ Viewer::SearchDisposition Viewer::ShowSearchReplaceDialog()
 {
 	switch (GetSearchReplaceString(
 		{ .ShowButtonsPrevNext = true },
-		LastSearchDlgParams,
+		m_SearchDlgParams,
 		L"SearchText"sv,
 		{},
 		m_Codepage,
@@ -3018,55 +3015,55 @@ Viewer::SearchDisposition Viewer::ShowSearchReplaceDialog()
 
 void Viewer::DoSearchReplace(SearchDisposition Disposition)
 {
-	if (!ViewFile || Disposition == SearchDisposition::Cancel || LastSearchDlgParams.SearchStr.empty())
+	if (!ViewFile || Disposition == SearchDisposition::Cancel || m_SearchDlgParams.SearchStr.empty())
 		return;
 
 	const auto Backward{ Disposition == SearchDisposition::Prev || Disposition == SearchDisposition::ContinueBackward };
 	const auto Continue{ Disposition == SearchDisposition::ContinueBackward || Disposition == SearchDisposition::ContinueForward };
 
-	auto strMsgStr = LastSearchDlgParams.SearchStr;
-
 	searchers Searchers;
+
 	search_data sd;
-
 	decltype(&Viewer::search_hex_forward) searcher;
+	string strMsgStr;
 
-	if (LastSearchDlgParams.Hex.value())
+	if (m_SearchDlgParams.Hex.value())
 	{
 		sd.ch_size = 1;
-		sd.search_bytes = LastSearchDlgParams.SearchBytes;
-		sd.search_len = static_cast<int>(LastSearchDlgParams.SearchBytes.size());
+		sd.search_bytes = m_SearchDlgParams.SearchBytes.value();
+		sd.search_len = static_cast<int>(m_SearchDlgParams.SearchBytes.value().size());
 		searcher = (Backward ? &Viewer::search_hex_backward : &Viewer::search_hex_forward);
+		strMsgStr = BlobToHexString(m_SearchDlgParams.SearchBytes.value(), L' ');
 	}
 	else
 	{
 		sd.ch_size = getCharSize();
-		sd.search_text = LastSearchDlgParams.SearchStr;
-		sd.search_len = static_cast<int>(LastSearchDlgParams.SearchStr.size());
+		sd.search_text = m_SearchDlgParams.SearchStr;
+		sd.search_len = static_cast<int>(m_SearchDlgParams.SearchStr.size());
 
-		if (LastSearchDlgParams.Regexp.value())
+		if (m_SearchDlgParams.Regex.value())
 		{
 			searcher = (Backward ? &Viewer::search_regex_backward : &Viewer::search_regex_forward);
 
-			const auto strSlash = InsertRegexpQuote(LastSearchDlgParams.SearchStr);
-
-			strMsgStr = strSlash;
-
+			const auto strSlash = InsertRegexpQuote(m_SearchDlgParams.SearchStr);
 			try
 			{
-				sd.Rex.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (LastSearchDlgParams.CaseSensitive.value() ? 0 : OP_IGNORECASE));
+				sd.Rex.Compile(strSlash, OP_PERLSTYLE | OP_OPTIMIZE | (m_SearchDlgParams.CaseSensitive.value() ? 0 : OP_IGNORECASE));
 			}
 			catch (regex_exception const& e)
 			{
 				ReCompileErrorMessage(e, strSlash);
 				return;
 			}
+
+			strMsgStr = strSlash;
 		}
 		else
 		{
-			sd.searcher = &init_searcher(Searchers, LastSearchDlgParams.CaseSensitive.value(), LastSearchDlgParams.Fuzzy.value(), LastSearchDlgParams.SearchStr);
+			sd.searcher = &init_searcher(Searchers, m_SearchDlgParams.CaseSensitive.value(), m_SearchDlgParams.Fuzzy.value(), m_SearchDlgParams.SearchStr);
 			sd.word_div = get_word_div();
 			searcher = (Backward ? &Viewer::search_text_backward : &Viewer::search_text_forward);
+			strMsgStr = m_SearchDlgParams.SearchStr;
 			inplace::quote_unconditional(strMsgStr);
 		}
 	}
@@ -3118,7 +3115,7 @@ void Viewer::DoSearchReplace(SearchDisposition Disposition)
 	if (!sd.search_len || !FileSize)
 		return;
 	const auto can_be_found =
-		((LastSearchDlgParams.Regexp.value() || LastSearchDlgParams.Fuzzy.value()) && !LastSearchDlgParams.Hex.value())
+		((m_SearchDlgParams.Regex.value() || m_SearchDlgParams.Fuzzy.value()) && !m_SearchDlgParams.Hex.value())
 		|| static_cast<long long>(sd.search_len) <= FileSize;
 
 	sd.CurPos = LastSelectPos;
@@ -3143,7 +3140,7 @@ void Viewer::DoSearchReplace(SearchDisposition Disposition)
 				Message(MSG_WARNING,
 					msg(lng::MSearchReplaceSearchTitle),
 					{
-						msg(LastSearchDlgParams.Hex.value() ? lng::MViewSearchCannotFindHex : lng::MViewSearchCannotFind),
+						msg(m_SearchDlgParams.Hex.value() ? lng::MViewSearchCannotFindHex : lng::MViewSearchCannotFind),
 						strMsgStr
 					},
 					{ lng::MOk });
@@ -3205,7 +3202,7 @@ void Viewer::DoSearchReplace(SearchDisposition Disposition)
 				if (!Progress)
 				{
 					Progress.emplace(
-						msg(lng::MSearchReplaceSearchTitle), concat(msg(LastSearchDlgParams.Hex.value() ? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', strMsgStr), 0);
+						msg(lng::MSearchReplaceSearchTitle), concat(msg(m_SearchDlgParams.Hex.value() ? lng::MViewSearchingHex : lng::MViewSearchingFor), L' ', strMsgStr), 0);
 				}
 
 				Progress->update(percent);

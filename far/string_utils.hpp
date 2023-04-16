@@ -246,7 +246,7 @@ struct search_replace_string_options
 	bool CaseSensitive{};
 	bool WholeWords{};
 	bool Reverse{};
-	bool Regexp{};
+	bool Regex{};
 	bool PreserveStyle{};
 };
 

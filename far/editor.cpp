@@ -138,13 +138,15 @@ Editor::Editor(window_ptr Owner, uintptr_t Codepage, bool DialogUsed):
 	GlobalEOL(GetDefaultEOL()),
 	m_codepage(Codepage),
 	EdOpt(Global->Opt->EdOpt),
-	LastSearchDlgParams{
-		.SearchStr = Global->GetSearchString(Codepage),
-		.CaseSensitive = Global->GlobalSearchCaseSensitive,
-		.WholeWords = Global->GlobalSearchWholeWords,
-		.Regexp = Global->Opt->EdOpt.SearchRegexp,
-		.Fuzzy = Global->GlobalSearchFuzzy,
-		.PreserveStyle = false // Consider: Should we introduce Global->Opt->EdOpt.ReplacePreserveStyle?
+	m_SearchDlgParams
+	{
+		.SearchStr = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).SearchStr,
+		.ReplaceStr = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).ReplaceStr.value_or(string{}),
+		.CaseSensitive = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).CaseSensitive.value_or(false),
+		.WholeWords = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).WholeWords.value_or(false),
+		.Regex = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).Regex.value_or(false),
+		.Fuzzy = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).Fuzzy.value_or(false),
+		.PreserveStyle = SearchReplaceDlgParams::GetShared(SearchReplaceDlgParams::SharedGroup::common).PreserveStyle.value_or(false)
 	},
 	EditorID(::GlobalEditorCount++),
 	Color(colors::PaletteColorToFarColor(COL_EDITORTEXT)),
@@ -217,11 +219,7 @@ void Editor::SwapState(Editor& swap_state)
 // should it be called after the dialog was closed (not cancelled) instead of in Edior's destructor?
 void Editor::KeepInitParameters() const
 {
-	Global->StoreSearchString(LastSearchDlgParams.SearchStr, m_codepage, Global->GetSearchHex());
-	Global->GlobalSearchCaseSensitive = LastSearchDlgParams.CaseSensitive.value();
-	Global->GlobalSearchWholeWords = LastSearchDlgParams.WholeWords.value();
-	Global->Opt->EdOpt.SearchRegexp = LastSearchDlgParams.Regexp.value();
-	Global->GlobalSearchFuzzy = LastSearchDlgParams.Fuzzy.value();
+	m_SearchDlgParams.SaveToShared(SearchReplaceDlgParams::SharedGroup::common);
 }
 
 void Editor::DisplayObject()
@@ -3307,7 +3305,7 @@ Editor::SearchReplaceDisposition Editor::ShowSearchReplaceDialog(const bool Repl
 			.ShowButtonsPrevNext = true,
 			.ShowButtonAll = !ReplaceMode,
 		},
-		LastSearchDlgParams,
+		m_SearchDlgParams,
 		L"SearchText"sv,
 		L"ReplaceText"sv,
 		m_codepage,
@@ -3387,7 +3385,7 @@ int Editor::CalculateSearchNextPositionInTheLine(const bool Backward, const bool
 
 void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 {
-	if (Disposition == SearchReplaceDisposition::Cancel || LastSearchDlgParams.SearchStr.empty())
+	if (Disposition == SearchReplaceDisposition::Cancel || m_SearchDlgParams.SearchStr.empty())
 		return;
 
 	IsReplaceAll = false;
@@ -3405,7 +3403,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 	{
 		SetCursorType(false, -1);
 
-		auto CurPos = FindAll ? 0 : CalculateSearchStartPosition(Continue, Backward, LastSearchDlgParams.Regexp.value());
+		auto CurPos = FindAll ? 0 : CalculateSearchStartPosition(Continue, Backward, m_SearchDlgParams.Regex.value());
 
 		auto CurPtr = FindAll ? FirstLine() : m_it_CurLine, TmpPtr = CurPtr;
 
@@ -3413,26 +3411,26 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 		named_regex_match NamedMatch;
 		RegExp re;
 
-		if (LastSearchDlgParams.Regexp.value())
+		if (m_SearchDlgParams.Regex.value())
 		{
 			// Q: что важнее: опция диалога или опция RegExp`а?
 			try
 			{
 				re.Compile(
-					LastSearchDlgParams.SearchStr,
-					(LastSearchDlgParams.SearchStr.starts_with(L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (LastSearchDlgParams.CaseSensitive.value()? 0 : OP_IGNORECASE));
+					m_SearchDlgParams.SearchStr,
+					(m_SearchDlgParams.SearchStr.starts_with(L'/')? OP_PERLSTYLE : 0) | OP_OPTIMIZE | (m_SearchDlgParams.CaseSensitive.value()? 0 : OP_IGNORECASE));
 			}
 			catch (regex_exception const& e)
 			{
-				ReCompileErrorMessage(e, LastSearchDlgParams.SearchStr);
+				ReCompileErrorMessage(e, m_SearchDlgParams.SearchStr);
 				return; // Broken regex cannot be found. Do as if the search string was not found. Do NOT restore IsReplaceAll.
 			}
 		}
 
-		QuotedStr = quote_unconditional(LastSearchDlgParams.SearchStr);
+		QuotedStr = quote_unconditional(m_SearchDlgParams.SearchStr);
 
 		searchers Searchers;
-		const auto& Searcher = init_searcher(Searchers, LastSearchDlgParams.CaseSensitive.value(), LastSearchDlgParams.Fuzzy.value(), LastSearchDlgParams.SearchStr);
+		const auto& Searcher = init_searcher(Searchers, m_SearchDlgParams.CaseSensitive.value(), m_SearchDlgParams.Fuzzy.value(), m_SearchDlgParams.SearchStr);
 
 		const time_check TimeCheck;
 		std::optional<single_progress> Progress;
@@ -3461,13 +3459,14 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 				taskbar::set_value(Current,Total);
 			}
 
-			// $ 2023-01-15 MZK: Why do we need it?
-			auto strReplaceStrCurrent = IsReplaceMode ? LastSearchDlgParams.ReplaceStr : L""s;
+			// In case of regex or preserve style, SearchAndReplaceString returns the actual replacement string
+			// in its ReplaceStr parameter. To preserve the user input, we use the local copy for replacement.
+			auto strReplaceStrCurrent = IsReplaceMode ? m_SearchDlgParams.ReplaceStr.value() : string{};
 
 			int SearchLength;
 			if (SearchAndReplaceString(
 				CurPtr->GetString(),
-				LastSearchDlgParams.SearchStr,
+				m_SearchDlgParams.SearchStr,
 				Searcher,
 				re,
 				Match,
@@ -3475,11 +3474,11 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 				strReplaceStrCurrent,
 				CurPos,
 				{
-					.CaseSensitive = LastSearchDlgParams.CaseSensitive.value(),
-					.WholeWords = LastSearchDlgParams.WholeWords.value(),
+					.CaseSensitive = m_SearchDlgParams.CaseSensitive.value(),
+					.WholeWords = m_SearchDlgParams.WholeWords.value(),
 					.Reverse = Backward,
-					.Regexp = LastSearchDlgParams.Regexp.value(),
-					.PreserveStyle = LastSearchDlgParams.PreserveStyle.value()
+					.Regex = m_SearchDlgParams.Regex.value(),
+					.PreserveStyle = m_SearchDlgParams.PreserveStyle.value()
 				},
 				SearchLength,
 				GetWordDiv()
@@ -3505,7 +3504,7 @@ void Editor::DoSearchReplace(const SearchReplaceDisposition Disposition)
 						LastCheckedLine = m_FoundLine.Number();
 						++AllRefLines;
 					}
-					CurPos = CalculateSearchNextPositionInTheLine(/* Backward */ false, LastSearchDlgParams.Regexp.value());
+					CurPos = CalculateSearchNextPositionInTheLine(/* Backward */ false, m_SearchDlgParams.Regex.value());
 				}
 				else
 				{

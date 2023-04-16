@@ -196,7 +196,7 @@ private:
 
 	bool m_DeleteFolder{true};
 
-	SearchReplaceDlgParams LastSearchDlgParams;
+	SearchReplaceDlgParams m_SearchDlgParams;
 
 	bool LastSearchBackward{}; // Used to adjust StartSearchPos
 	long long StartSearchPos{};
