@@ -1831,7 +1831,7 @@ static int far_Menu(lua_State *L)
 			if(strlen(s) >= sizeof(buf)) { lua_pop(L,2); continue; }
 
 			strcpy(buf, s);
-			strupr(buf);
+			_strupr(buf);
 			vk = strchr(buf, '+');  // virtual key
 
 			if(vk)

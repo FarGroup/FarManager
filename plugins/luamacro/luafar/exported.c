@@ -855,7 +855,7 @@ static HANDLE FillFarMacroCall (lua_State* L, int narg)
 		else if (type == LUA_TSTRING)
 		{
 			fmc->Values[i].Type = FMVT_STRING;
-			fmc->Values[i].Value.String = wcsdup(check_utf8_string(L, i-narg, NULL));
+			fmc->Values[i].Value.String = _wcsdup(check_utf8_string(L, i-narg, NULL));
 		}
 		else if (type == LUA_TLIGHTUSERDATA)
 		{
